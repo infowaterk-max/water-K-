@@ -29,6 +29,13 @@ function waterk_child_enqueue_assets() {
         $theme_version
     );
 
+    wp_enqueue_style(
+        'waterk-ui',
+        get_stylesheet_directory_uri() . '/assets/css/waterk-ui.css',
+        array( 'waterk-design-system' ),
+        $theme_version
+    );
+
     wp_enqueue_script(
         'waterk-ui',
         get_stylesheet_directory_uri() . '/assets/js/waterk-ui.js',
