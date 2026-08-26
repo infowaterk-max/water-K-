@@ -1,0 +1,5 @@
+'use client';
+import Link from 'next/link';
+import { useCart } from './cart-provider';
+const money=(n:number)=>new Intl.NumberFormat('hu-HU',{style:'currency',currency:'HUF',maximumFractionDigits:0}).format(n);
+export function CartView(){const {items,total,setQuantity,remove}=useCart();if(!items.length)return <div className="card"><h2>A kosarad még üres</h2><Link className="button" href="/webaruhaz">Irány a webáruház</Link></div>;return <div className="cartGrid"><section className="card">{items.map(i=><div className="cartRow" key={i.productId}><div><strong>{i.name}</strong><p>{money(i.unitPrice)}</p></div><input aria-label="Mennyiség" type="number" min="1" value={i.quantity} onChange={e=>setQuantity(i.productId,Number(e.target.value))}/><button onClick={()=>remove(i.productId)}>Törlés</button></div>)}</section><aside className="card"><h2>Összesen</h2><div className="price">{money(total)}</div><p className="muted">A szállítási díjat a pénztárban számítjuk.</p><Link className="button" href="/penztar">Tovább a pénztárhoz</Link></aside></div>}
