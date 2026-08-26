@@ -1,4 +1,23 @@
 'use client';
 import { useCart } from '@/components/cart/cart-provider';
 
-export function AddToCart({id,name,price}:{id:string;name:string;price:number}){const {add}=useCart();return <button className="button" onClick={()=>add({productId:id,name,unitPrice:price,quantity:1})}>Kosárba teszem</button>}
+type AddToCartProps = {
+  id: string;
+  slug: string;
+  name: string;
+  price: number;
+};
+
+export function AddToCart({ id, slug, name, price }: AddToCartProps) {
+  const { add } = useCart();
+
+  return (
+    <button
+      className="button"
+      type="button"
+      onClick={() => add({ productId: id, slug, name, unitPrice: price, quantity: 1 })}
+    >
+      Kosárba teszem
+    </button>
+  );
+}
