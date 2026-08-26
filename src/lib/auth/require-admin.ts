@@ -2,7 +2,11 @@ import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 
 export async function requireAdmin() {
-  if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
+  const hasPublicKey = Boolean(
+    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+  );
+
+  if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !hasPublicKey) {
     redirect('/fiokom?reason=admin-config');
   }
 
