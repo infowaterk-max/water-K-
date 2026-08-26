@@ -1,10 +1,6 @@
-import { requireAdmin } from '@/lib/auth/require-admin';
-
-export default async function AdminSettingsPage() {
-  await requireAdmin();
-
+export default function AdminSettingsPage() {
   return (
-    <main className="adminMain">
+    <section className="adminMain">
       <span className="eyebrow">Admin · Beállítások</span>
       <h1 className="sectionTitle">Integrációk és beállítások</h1>
       <div className="cards">
@@ -12,6 +8,6 @@ export default async function AdminSettingsPage() {
         <section className="card"><h2>Szállítás</h2><p className="muted">Foxpost, GLS és MPL adapterek konfigurációs állapota kerül ide.</p></section>
         <section className="card"><h2>Supabase</h2><p className="muted">Adatbázis, hitelesítés és jogosultsági konfiguráció állapota.</p></section>
       </div>
-    </main>
+    </section>
   );
 }
