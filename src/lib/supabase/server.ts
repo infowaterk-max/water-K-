@@ -7,25 +7,30 @@ type CookieToSet = {
   options?: CookieOptions;
 };
 
-export async function createClient() {
-  const cookieStore = await cookies();
-
+function getSupabasePublicConfig() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  const key = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-  if (!url || !anonKey) {
-    throw new Error('Missing NEXT_PUBLIC_SUPABASE_URL or NEXT_PUBLIC_SUPABASE_ANON_KEY.');
+  if (!url || !key) {
+    throw new Error('Missing Supabase public URL or publishable/anon key.');
   }
 
-  return createServerClient(url, anonKey, {
+  return { url, key };
+}
+
+export async function createClient() {
+  const cookieStore = await cookies();
+  const { url, key } = getSupabasePublicConfig();
+
+  return createServerClient(url, key, {
     cookies: {
       getAll: () => cookieStore.getAll(),
       setAll: (items: CookieToSet[]) => {
         try {
           items.forEach(({ name, value, options }) => cookieStore.set(name, value, options));
         } catch {
-          // Server Components cannot always write cookies. Session refresh writes are
-          // handled from request-capable contexts; reading the session remains valid here.
+          // Server Components cannot always write cookies. Request-capable contexts
+          // are responsible for persisting refreshed sessions.
         }
       },
     },
