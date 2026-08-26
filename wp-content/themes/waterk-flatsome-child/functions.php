@@ -1,17 +1,10 @@
 <?php
 /**
  * Water-K Flatsome Child Theme
- *
- * A nagyobb üzleti funkciók nem ide, hanem a waterk-customizations
- * pluginba kerülnek. Ez a fájl elsősorban megjelenítési és theme
- * integrációs feladatokra szolgál.
  */
 
 defined( 'ABSPATH' ) || exit;
 
-/**
- * Child theme assets.
- */
 function waterk_child_enqueue_assets() {
     $theme_version = wp_get_theme()->get( 'Version' );
 
@@ -40,6 +33,13 @@ function waterk_child_enqueue_assets() {
         'waterk-woocommerce',
         get_stylesheet_directory_uri() . '/assets/css/waterk-woocommerce.css',
         array( 'waterk-ui' ),
+        $theme_version
+    );
+
+    wp_enqueue_style(
+        'waterk-commerce',
+        get_stylesheet_directory_uri() . '/assets/css/waterk-commerce.css',
+        array( 'waterk-woocommerce' ),
         $theme_version
     );
 
