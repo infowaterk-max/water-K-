@@ -1,49 +1,43 @@
-# WordPress core
-/wp-admin/
-/wp-includes/
-/wp-*.php
-/index.php
-/license.txt
-/readme.html
-/xmlrpc.php
+# Dependencies
+node_modules/
 
-# Sensitive configuration
-wp-config.php
-wp-config-*.php
+# Next.js
+.next/
+out/
+
+# Vercel
+.vercel/
+
+# Local environment and secrets
 .env
 .env.*
-*.env
-*.sql
-*.sql.gz
+!.env.example
 *.pem
 *.key
+*.sql
+*.sql.gz
 
-# User/generated content
-wp-content/uploads/
-wp-content/cache/
-wp-content/upgrade/
-wp-content/backups/
-wp-content/ai1wm-backups/
-wp-content/updraft/
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
 
-# Third-party themes/plugins
-wp-content/themes/*
-!wp-content/themes/waterk-flatsome-child/
-!wp-content/themes/waterk-flatsome-child/**
-wp-content/plugins/*
-!wp-content/plugins/waterk-customizations/
-!wp-content/plugins/waterk-customizations/**
+# Test / coverage output
+coverage/
 
-# Local/system
+# TypeScript
+*.tsbuildinfo
+next-env.d.ts
+
+# Editors / OS
 .DS_Store
 Thumbs.db
 .idea/
 .vscode/
-*.log
+
+# Archives and backups
 *.zip
 *.tar
 *.tar.gz
-
-# Dependencies/build
-node_modules/
-vendor/
