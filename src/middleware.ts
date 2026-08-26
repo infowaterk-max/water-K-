@@ -7,14 +7,16 @@ type CookieToSet = {
   options?: CookieOptions;
 };
 
+function nextResponse(request: NextRequest) {
+  return NextResponse.next({ request: { headers: request.headers } });
+}
+
 export async function middleware(request: NextRequest) {
-  let response = NextResponse.next({ request });
+  let response = nextResponse(request);
 
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-  // Staging can run before Supabase is connected. In that state the storefront
-  // remains available while authenticated routes show their configuration state.
   if (!url || !key) return response;
 
   const supabase = createServerClient(url, key, {
@@ -24,16 +26,13 @@ export async function middleware(request: NextRequest) {
       },
       setAll(cookiesToSet: CookieToSet[]) {
         cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value));
-        response = NextResponse.next({ request });
+        response = nextResponse(request);
         cookiesToSet.forEach(({ name, value, options }) => response.cookies.set(name, value, options));
       },
     },
   });
 
-  // Refresh expired auth tokens when necessary. Authorization decisions still
-  // use getUser() in the protected server route itself.
   await supabase.auth.getUser();
-
   return response;
 }
 
