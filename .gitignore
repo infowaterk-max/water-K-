@@ -1,0 +1,49 @@
+# WordPress core
+/wp-admin/
+/wp-includes/
+/wp-*.php
+/index.php
+/license.txt
+/readme.html
+/xmlrpc.php
+
+# Sensitive configuration
+wp-config.php
+wp-config-*.php
+.env
+.env.*
+*.env
+*.sql
+*.sql.gz
+*.pem
+*.key
+
+# User/generated content
+wp-content/uploads/
+wp-content/cache/
+wp-content/upgrade/
+wp-content/backups/
+wp-content/ai1wm-backups/
+wp-content/updraft/
+
+# Third-party themes/plugins
+wp-content/themes/*
+!wp-content/themes/waterk-flatsome-child/
+!wp-content/themes/waterk-flatsome-child/**
+wp-content/plugins/*
+!wp-content/plugins/waterk-customizations/
+!wp-content/plugins/waterk-customizations/**
+
+# Local/system
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.log
+*.zip
+*.tar
+*.tar.gz
+
+# Dependencies/build
+node_modules/
+vendor/
