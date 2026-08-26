@@ -1,4 +1,6 @@
 create extension if not exists pgcrypto;
+create schema if not exists private;
+revoke all on schema private from public;
 
 create type public.customer_type as enum ('retail', 'company', 'reseller');
 create type public.order_status as enum (
@@ -77,6 +79,50 @@ create table public.order_items (
 create index orders_user_id_idx on public.orders(user_id);
 create index orders_status_idx on public.orders(status);
 create index order_items_order_id_idx on public.order_items(order_id);
+
+create function private.handle_new_user()
+returns trigger
+language plpgsql
+security definer
+set search_path = ''
+as $$
+begin
+  insert into public.profiles (id) values (new.id)
+  on conflict (id) do nothing;
+  return new;
+end;
+$$;
+
+revoke all on function private.handle_new_user() from public, anon, authenticated;
+
+create trigger on_auth_user_created
+after insert on auth.users
+for each row execute function private.handle_new_user();
+
+create function private.touch_updated_at()
+returns trigger
+language plpgsql
+set search_path = ''
+as $$
+begin
+  new.updated_at = now();
+  return new;
+end;
+$$;
+
+revoke all on function private.touch_updated_at() from public, anon, authenticated;
+
+create trigger profiles_touch_updated_at
+before update on public.profiles
+for each row execute function private.touch_updated_at();
+
+create trigger products_touch_updated_at
+before update on public.products
+for each row execute function private.touch_updated_at();
+
+create trigger orders_touch_updated_at
+before update on public.orders
+for each row execute function private.touch_updated_at();
 
 alter table public.profiles enable row level security;
 alter table public.products enable row level security;
