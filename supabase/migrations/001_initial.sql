@@ -1,0 +1,13 @@
+create extension if not exists pgcrypto;
+create type customer_type as enum ('retail','business','reseller');
+create type order_status as enum ('draft','pending_payment','paid','processing','shipped','completed','cancelled','refunded');
+create table profiles(id uuid primary key references auth.users(id) on delete cascade, customer_type customer_type not null default 'retail', full_name text, company_name text, tax_number text, phone text, created_at timestamptz not null default now());
+create table products(id uuid primary key default gen_random_uuid(), slug text unique not null, name text not null, description text, size_label text, gross_price integer not null check(gross_price>=0), net_price integer not null check(net_price>=0), stock integer not null default 0 check(stock>=0), active boolean not null default true, audience customer_type[] not null default array['retail'::customer_type,'business'::customer_type], created_at timestamptz not null default now(), updated_at timestamptz not null default now());
+create table orders(id uuid primary key default gen_random_uuid(), order_number bigint generated always as identity unique, user_id uuid references profiles(id), status order_status not null default 'draft', customer_type customer_type not null default 'retail', email text not null, total_gross integer not null default 0, shipping_method text, payment_method text, payment_reference text, tracking_number text, created_at timestamptz not null default now(), updated_at timestamptz not null default now());
+create table order_items(id uuid primary key default gen_random_uuid(), order_id uuid not null references orders(id) on delete cascade, product_id uuid references products(id), product_name text not null, quantity integer not null check(quantity>0), unit_gross integer not null, line_gross integer not null);
+alter table profiles enable row level security; alter table products enable row level security; alter table orders enable row level security; alter table order_items enable row level security;
+create policy "public active products" on products for select using(active=true);
+create policy "users read own profile" on profiles for select using(auth.uid()=id);
+create policy "users update own profile" on profiles for update using(auth.uid()=id);
+create policy "users read own orders" on orders for select using(auth.uid()=user_id);
+create policy "users read own order items" on order_items for select using(exists(select 1 from orders o where o.id=order_id and o.user_id=auth.uid()));

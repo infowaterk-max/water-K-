@@ -1,0 +1,3 @@
+import Link from 'next/link';
+import { formatHuf, products } from '@/lib/catalog';
+export default function Shop(){return <main className="section"><div className="shell"><span className="eyebrow">Water-K webáruház</span><h1 className="sectionTitle">Kiszerelések</h1><p className="lead">Átlátható kínálat, felesleges kategóriák nélkül.</p><div className="cards">{products.map(p=><article className="card" key={p.slug}><span className="badge">{p.stock>0?'Raktáron':'Elfogyott'}</span><h2>{p.name}</h2><p className="muted">{p.short}</p><div className="price">{formatHuf(p.grossPrice)}</div><Link className="btn btnPrimary" href={`/termek/${p.slug}`}>Megnézem</Link></article>)}</div></div></main>}
