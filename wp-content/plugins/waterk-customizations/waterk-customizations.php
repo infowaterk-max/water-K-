@@ -17,6 +17,7 @@ $waterk_modules = array(
     'woocommerce.php',
     'shop-ui.php',
     'components.php',
+    'homepage.php',
     'customer-roles.php',
     'notifications.php',
 );
