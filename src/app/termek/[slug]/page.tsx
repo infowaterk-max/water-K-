@@ -18,7 +18,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
           <div className="price">{formatHuf(product.grossPrice)}</div>
           <p className="muted">Nettó {formatHuf(product.netPrice)} · {product.stock > 0 ? `raktáron: ${product.stock} db` : 'jelenleg nem elérhető'}</p>
           <div className="actions">
-            <AddToCart id={product.slug} name={product.name} price={product.grossPrice} />
+            <AddToCart id={product.id} slug={product.slug} name={product.name} price={product.grossPrice} />
             <Link className="btn btnGhost" href="/webaruhaz">Másik kiszerelés</Link>
           </div>
         </section>
