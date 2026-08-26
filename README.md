@@ -1,48 +1,38 @@
 # Water-K Webshop
 
-A Water-K webáruház saját fejlesztéseinek verziókezelt kódbázisa.
+A Water-K teljesen saját fejlesztésű webáruháza. A projekt nem használ WordPresst, WooCommerce-t vagy Flatsome sablont.
 
-## Cél
+## Technológia
 
-Ez a repository **nem a teljes WordPress telepítést** tartalmazza. Csak azokat a részeket tartjuk itt, amelyeket mi fejlesztünk és karbantartunk:
+- Next.js 15 App Router
+- React 19 + TypeScript
+- Supabase PostgreSQL + Auth + RLS
+- Vercel hosting és staging
+- közvetlen szolgáltatói integrációs réteg K&H, Foxpost, GLS és MPL számára
 
-- Flatsome child theme módosítások
-- egyedi WooCommerce funkciók
-- saját pluginok és snippetek
-- CSS / JavaScript módosítások
-- fejlesztési és telepítési dokumentáció
+## Fő modulok
 
-## Struktúra
+- publikus Water-K storefront
+- termékkatalógus és termékoldalak
+- saját kosár és pénztár
+- B2C / céges / viszonteladói rendelési modell
+- saját felhasználói fiók
+- saját adminfelület
+- fizetési és szállítási adapterek
+- Supabase adatmodell és jogosultságkezelés
 
-```text
-wp-content/
-  themes/
-    waterk-flatsome-child/
-  plugins/
-    waterk-customizations/
-snippets/
-docs/
-```
+## Fejlesztési folyamat
 
-## Fejlesztési elv
+A fejlesztés nagy, összefüggő csomagokban történik. A változtatásokat külön branch-en készítjük és ellenőrizzük; a `main` branch csak ellenőrzött csomagot kap, így a Vercel production deployment nem indul el minden apró módosításnál.
 
-A módosításokat nagyobb, összefüggő fejlesztési csomagokban készítjük el. Egy csomag lezárásakor ellenőrzés, majd élesítés következik. Nem deployolunk minden apró változtatást külön.
+## Környezeti változók
 
-## Biztonság
+A szükséges változók mintája a `.env.example` fájlban található. Valódi API-kulcs, banki secret vagy Supabase secret soha nem kerülhet GitHubba.
 
-A repositoryba nem kerülhet:
+## Biztonsági alapelvek
 
-- `wp-config.php`
-- adatbázismentés
-- `.env` vagy API-kulcs
-- jelszó vagy belépési adat
-- WooCommerce vásárlói adat
-- `uploads` könyvtár
-- cache és backup fájl
-
-## Projekt
-
-- Weboldal: Water-K / waterk.hu
-- CMS: WordPress
-- Webshop: WooCommerce
-- Theme: Flatsome + child theme
+- a kliensoldal soha nem kap Supabase secret/service-role kulcsot;
+- a rendelési összegeket és készletet szerveroldalon újraszámoljuk;
+- banki callback csak hitelesített szolgáltatói válasz alapján jelölhet rendelést fizetettnek;
+- admin jogosultság Supabase `app_metadata` alapján történik;
+- publikus adatbázistáblákon RLS van engedélyezve.
