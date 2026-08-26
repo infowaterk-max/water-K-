@@ -36,6 +36,13 @@ function waterk_child_enqueue_assets() {
         $theme_version
     );
 
+    wp_enqueue_style(
+        'waterk-woocommerce',
+        get_stylesheet_directory_uri() . '/assets/css/waterk-woocommerce.css',
+        array( 'waterk-ui' ),
+        $theme_version
+    );
+
     wp_enqueue_script(
         'waterk-ui',
         get_stylesheet_directory_uri() . '/assets/js/waterk-ui.js',
