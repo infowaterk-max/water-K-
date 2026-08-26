@@ -3,14 +3,16 @@
 A cél teljesen saját webáruház: WordPress, WooCommerce és Flatsome nélkül.
 
 ## Stack
+
 - Next.js 15 / React 19
-- TypeScript
-- Supabase: PostgreSQL, Auth, RLS, Storage
+- TypeScript strict mód
+- Supabase: PostgreSQL, Auth, RLS
 - Vercel: frontend + szerveroldali route-ok
 
 ## Saját modulok
+
 - storefront és termékoldalak
-- kosár / checkout
+- perzisztens kosár / checkout
 - B2C, normál céges és viszonteladói fiókok
 - rendelés- és készletkezelés
 - saját admin
@@ -19,7 +21,15 @@ A cél teljesen saját webáruház: WordPress, WooCommerce és Flatsome nélkül
 - e-mail és számlázási adapter később
 
 ## Integrációs elv
-Minden külső szolgáltatás saját adapter interfészen keresztül kapcsolódik. A webshop üzleti logikája nem függ konkrét szolgáltatótól, így később például Foxpost helyett vagy mellett más szállító is hozzáadható.
+
+Minden külső szolgáltatás saját adapter interfészen keresztül kapcsolódik. A webshop üzleti logikája nem függ konkrét szolgáltatótól, így új fizetési vagy szállítási szolgáltató később izolált adapterként adható hozzá.
 
 ## Biztonság
-A fizetési és admin műveletek szerveroldaliak. Service role kulcs soha nem kerül böngészőbe. Banki callback aláírását minden esetben ellenőrizni kell. Rendelés összege callbackből nem fogadható el vakon; azt az adatbázisban tárolt rendelésből kell validálni.
+
+- Fizetési és admin műveletek szerveroldaliak.
+- Böngészőbe csak Supabase publishable/legacy anon kulcs kerülhet.
+- Supabase secret/service-role kulcs kizárólag szerveroldali környezeti változó lehet.
+- A banki callback aláírását minden esetben ellenőrizni kell; hitelesítés nélkül a callback fail-closed választ ad.
+- A kliens által küldött termékár és rendelési végösszeg nem megbízható adat: szerveroldalon katalógusból/adatbázisból újraszámoljuk.
+- Admin jogosultságot `app_metadata` alapján ellenőrzünk, nem felhasználó által módosítható metadata alapján.
+- A publikus Supabase táblákon RLS kötelező.
