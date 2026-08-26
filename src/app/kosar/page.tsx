@@ -1,2 +1,2 @@
-import Link from 'next/link';
-export default function Cart(){return <main className="section"><div className="shell"><span className="eyebrow">Kosár</span><h1 className="sectionTitle">A rendelésed</h1><div className="card"><p className="muted">A natív kosármotor váza elkészült. A következő csomagban perzisztens kosár, mennyiségkezelés és szállítási díjszámítás kerül ide.</p><Link className="btn btnPrimary" href="/penztar">Tovább a pénztárhoz</Link></div></div></main>}
+import { CartView } from '@/components/cart/cart-view';
+export default function Cart(){return <main className="section"><div className="shell"><span className="eyebrow">Kosár</span><h1 className="sectionTitle">A rendelésed</h1><CartView/></div></main>}
