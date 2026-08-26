@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Water-K Customizations
  * Description: A Water-K webáruház saját WooCommerce és üzleti funkciói.
- * Version: 1.0.0
+ * Version: 1.1.0
  * Author: Water-K
  * Text Domain: waterk
  */
@@ -10,15 +10,13 @@
 defined( 'ABSPATH' ) || exit;
 
 if ( ! defined( 'WATERK_CUSTOMIZATIONS_VERSION' ) ) {
-    define( 'WATERK_CUSTOMIZATIONS_VERSION', '1.0.0' );
+    define( 'WATERK_CUSTOMIZATIONS_VERSION', '1.1.0' );
 }
 
-/**
- * A funkciókat külön modulokban tartjuk, hogy a webshop fejlesztése
- * átlátható és biztonságosan karbantartható maradjon.
- */
 $waterk_modules = array(
     'woocommerce.php',
+    'shop-ui.php',
+    'components.php',
     'customer-roles.php',
     'notifications.php',
 );
