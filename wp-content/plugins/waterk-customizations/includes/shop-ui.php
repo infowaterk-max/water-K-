@@ -6,10 +6,19 @@
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Add a concise label above catalog prices.
+ * Add a concise gross-price label only on catalog and single-product views.
+ * Cart, checkout, emails and admin keep WooCommerce's native output untouched.
  */
 function waterk_catalog_price_prefix( $price_html, $product ) {
-    if ( is_admin() || ! $product instanceof WC_Product ) {
+    if ( is_admin() || wp_doing_ajax() || ! $product instanceof WC_Product ) {
+        return $price_html;
+    }
+
+    if ( ! ( is_shop() || is_product_taxonomy() || is_product() ) ) {
+        return $price_html;
+    }
+
+    if ( false !== strpos( $price_html, 'wk-price-label' ) ) {
         return $price_html;
     }
 
