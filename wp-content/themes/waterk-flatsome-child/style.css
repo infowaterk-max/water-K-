@@ -1,0 +1,13 @@
+/*
+Theme Name: Water-K Flatsome Child
+Description: Water-K webáruház egyedi Flatsome child theme-je.
+Author: Water-K
+Template: flatsome
+Version: 1.0.0
+Text Domain: waterk
+*/
+
+/*
+ * A projekt-specifikus vizuális módosításokat modulárisan tartsuk.
+ * Nagyobb komponensek CSS-e az assets/css könyvtárba kerülhet.
+ */
