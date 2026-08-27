@@ -1,0 +1,33 @@
+import { formatHuf } from '@/lib/catalog';
+import { createAdminClient } from '@/lib/supabase/admin';
+
+const paidStatuses=['paid','processing','shipped','completed'];
+type Order={id:string;customer_id:string|null;customer_email:string;status:string;total_gross_huf:number;discount_gross_huf:number|null;coupon_code:string|null;created_at:string};
+type Item={order_id:string;sku:string;product_name:string;variant_label:string;quantity:number;line_total_gross_huf:number};
+
+export const dynamic='force-dynamic';
+
+export default async function CommerceAnalytics(){
+  const admin=createAdminClient();
+  const [{data:ordersData,error:ordersError},{data:itemsData,error:itemsError},{data:profilesData}]=await Promise.all([
+    admin.from('orders').select('id,customer_id,customer_email,status,total_gross_huf,discount_gross_huf,coupon_code,created_at').order('created_at',{ascending:false}).limit(5000),
+    admin.from('order_items').select('order_id,sku,product_name,variant_label,quantity,line_total_gross_huf').limit(10000),
+    admin.from('profiles').select('id,role,reseller_approved').limit(5000)
+  ]);
+  const loadError=Boolean(ordersError||itemsError); const orders=(ordersData??[]) as Order[]; const items=(itemsData??[]) as Item[];
+  const paid=orders.filter(o=>paidStatuses.includes(o.status)); const paidIds=new Set(paid.map(o=>o.id)); const paidItems=items.filter(i=>paidIds.has(i.order_id));
+  const roleById=new Map((profilesData??[]).map(p=>[p.id,p.role==='reseller'&&p.reseller_approved?'reseller':'customer']));
+  const retail=paid.filter(o=>!o.customer_id||roleById.get(o.customer_id)!=='reseller'); const reseller=paid.filter(o=>o.customer_id&&roleById.get(o.customer_id)==='reseller');
+  const revenue=(rows:Order[])=>rows.reduce((s,o)=>s+o.total_gross_huf,0); const totalRevenue=revenue(paid); const discount=paid.reduce((s,o)=>s+(o.discount_gross_huf??0),0);
+  const customers=new Map<string,{orders:number;revenue:number}>(); for(const o of paid){const key=o.customer_id??o.customer_email.toLowerCase();const current=customers.get(key)??{orders:0,revenue:0};current.orders++;current.revenue+=o.total_gross_huf;customers.set(key,current);} const repeat=[...customers.values()].filter(c=>c.orders>1); const repeatRevenue=repeat.reduce((s,c)=>s+c.revenue,0);
+  const productMap=new Map<string,{name:string;qty:number;revenue:number}>(); for(const i of paidItems){const key=i.sku;const cur=productMap.get(key)??{name:`${i.product_name} · ${i.variant_label}`,qty:0,revenue:0};cur.qty+=i.quantity;cur.revenue+=i.line_total_gross_huf;productMap.set(key,cur);} const products=[...productMap.entries()].map(([sku,v])=>({sku,...v})).sort((a,b)=>b.revenue-a.revenue);
+  const couponMap=new Map<string,{orders:number;discount:number;revenue:number}>(); for(const o of paid.filter(o=>o.coupon_code)){const code=o.coupon_code!;const cur=couponMap.get(code)??{orders:0,discount:0,revenue:0};cur.orders++;cur.discount+=o.discount_gross_huf??0;cur.revenue+=o.total_gross_huf;couponMap.set(code,cur);} const coupons=[...couponMap.entries()].map(([code,v])=>({code,...v})).sort((a,b)=>b.revenue-a.revenue);
+  const avg=paid.length?Math.round(totalRevenue/paid.length):0; const repeatRate=customers.size?Math.round(repeat.length/customers.size*100):0;
+  return <section className="adminMain"><span className="eyebrow">Admin · Elemzés</span><h1 className="sectionTitle">Értékesítési intelligencia</h1><p className="lead">Termék-, ügyfél-, partner- és kupon teljesítmény a ténylegesen fizetett rendelésekből.</p>
+    {loadError&&<div className="errorNotice" role="alert"><strong>Az elemzés egy része most nem tölthető be.</strong> A hiányzó adatokat ne tekintsd nullának.</div>}
+    <div className="cards adminMetricCards"><div className="card"><span className="badge">Fizetett forgalom</span><div className="price">{formatHuf(totalRevenue)}</div><p className="muted">{paid.length} rendelés · átlag {formatHuf(avg)}</p></div><div className="card"><span className="badge">Visszatérő vásárlók</span><div className="price">{repeatRate}%</div><p className="muted">{repeat.length} visszatérő · {formatHuf(repeatRevenue)} forgalom</p></div><div className="card"><span className="badge">Viszonteladói csatorna</span><div className="price">{formatHuf(revenue(reseller))}</div><p className="muted">{reseller.length} fizetett partner rendelés</p></div><div className="card"><span className="badge">Kedvezmények</span><div className="price">{formatHuf(discount)}</div><p className="muted">Fizetett rendeléseken adott kedvezmény</p></div></div>
+    <div className="splitFeature"><section className="featurePanel"><span className="eyebrow">Csatornák</span><h2>Lakossági vs. viszonteladói</h2><div className="integrationList"><div><span>Lakossági forgalom</span><strong>{formatHuf(revenue(retail))}</strong></div><div><span>Lakossági rendelések</span><strong>{retail.length}</strong></div><div><span>Viszonteladói forgalom</span><strong>{formatHuf(revenue(reseller))}</strong></div><div><span>Viszonteladói rendelések</span><strong>{reseller.length}</strong></div></div></section><section className="featurePanel darkPanel"><span className="eyebrow">Ügyfélérték</span><h2>Visszatérési mutató</h2><div className="price">{repeatRate}%</div><p>A fizető ügyfelek közül ennyien vásároltak legalább kétszer a jelenlegi rendelési adatbázisban.</p></section></div>
+    <section className="card"><span className="eyebrow">Termékteljesítmény</span><h2>Mi termeli a forgalmat?</h2><div className="adminTableScroll"><table className="adminTable"><thead><tr><th>Termék / SKU</th><th>Eladott mennyiség</th><th>Árbevétel</th><th>Részesedés</th></tr></thead><tbody>{products.map(p=><tr key={p.sku}><td><strong>{p.name}</strong><br/><span className="muted">{p.sku}</span></td><td>{p.qty} db</td><td><strong>{formatHuf(p.revenue)}</strong></td><td>{totalRevenue?Math.round(p.revenue/totalRevenue*100):0}%</td></tr>)}</tbody></table></div>{products.length===0&&<p className="muted">Még nincs fizetett termékértékesítés.</p>}</section>
+    <section className="card"><span className="eyebrow">Kuponhatás</span><h2>Melyik kedvezmény hoz fizetett forgalmat?</h2><div className="adminTableScroll"><table className="adminTable"><thead><tr><th>Kupon</th><th>Rendelés</th><th>Adott kedvezmény</th><th>Fizetett forgalom</th></tr></thead><tbody>{coupons.map(c=><tr key={c.code}><td><strong>{c.code}</strong></td><td>{c.orders}</td><td>{formatHuf(c.discount)}</td><td><strong>{formatHuf(c.revenue)}</strong></td></tr>)}</tbody></table></div>{coupons.length===0&&<p className="muted">Még nincs fizetett, kuponos rendelés.</p>}</section>
+  </section>;
+}
