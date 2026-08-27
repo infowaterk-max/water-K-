@@ -18,13 +18,13 @@ export async function POST(request:Request){
   const {checkout,items}=parsed.data;
   if(checkout.customerType!=='retail'&&(!checkout.companyName||!checkout.taxNumber))return NextResponse.json({error:'Céges vagy viszonteladói rendeléshez cégnév és adószám szükséges.'},{status:400});
   if(checkout.shippingMethod==='foxpost'&&!checkout.parcelPointId)return NextResponse.json({error:'Foxpost szállításhoz csomagautomatát kell választani.'},{status:400});
+  const khConfigured=Boolean(process.env.KH_MERCHANT_ID&&(process.env.KH_SECRET||process.env.KH_API_SECRET));
+  if(checkout.paymentMethod==='kh_card'&&!khConfigured)return NextResponse.json({error:'A bankkártyás fizetés még nincs aktiválva. Válaszd a banki átutalást.'},{status:409});
   const homeDelivery=checkout.shippingMethod==='gls'||checkout.shippingMethod==='mpl';
   if(homeDelivery&&checkout.sameAddress==='false'&&(!checkout.shippingPostcode||!checkout.shippingCity||!checkout.shippingAddress))return NextResponse.json({error:'A szállítási cím hiányos.'},{status:400});
-
   const shippingPostcode=homeDelivery&&checkout.sameAddress==='false'?checkout.shippingPostcode??'':checkout.billingPostcode;
   const shippingCity=homeDelivery&&checkout.sameAddress==='false'?checkout.shippingCity??'':checkout.billingCity;
   const shippingAddress=homeDelivery&&checkout.sameAddress==='false'?checkout.shippingAddress??'':checkout.billingAddress;
-
   try{
     const sessionClient=await createClient(); const {data:{user}}=await sessionClient.auth.getUser(); const admin=createAdminClient();
     const {data,error}=await admin.rpc('place_order',{
