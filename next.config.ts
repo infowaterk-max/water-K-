@@ -7,7 +7,7 @@ const securityHeaders=[
   {key:'Permissions-Policy',value:'camera=(), microphone=(), geolocation=(), payment=(self)'},
   {key:'Cross-Origin-Opener-Policy',value:'same-origin'},
   {key:'Strict-Transport-Security',value:'max-age=31536000; includeSubDomains'},
-  {key:'Content-Security-Policy',value:"default-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'self'; img-src 'self' data: blob:; connect-src 'self' https://*.supabase.co; upgrade-insecure-requests"},
+  {key:'Content-Security-Policy',value:"default-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'self' https:; img-src 'self' data: blob: https:; connect-src 'self' https:; upgrade-insecure-requests"},
 ];
 
 const nextConfig: NextConfig = {
