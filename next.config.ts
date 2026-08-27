@@ -12,7 +12,8 @@ const securityHeaders=[
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
-  images: { remotePatterns: [] },
+  compress:true,
+  images: { remotePatterns: [], formats:['image/avif','image/webp'] },
   poweredByHeader:false,
   async headers(){return[{source:'/:path*',headers:securityHeaders}]},
 };
