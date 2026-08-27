@@ -123,10 +123,46 @@
 .orderTimeline span { display: block; }
 .orderTimeline strong { color: var(--green); margin-bottom: 6px; }
 
+.accountHero { margin-bottom: 28px; }
+.accountQuickGrid { margin-top: 16px; }
+.accountActiveOrders { margin: 34px 0; }
+.accountProfileGrid { margin-top: 28px; margin-bottom: 28px; }
+.accountMetaRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 14px;
+  margin: 14px 0 18px;
+  color: var(--muted);
+  font-size: 14px;
+}
+.accountMetaRow span:not(:last-child)::after {
+  content: '·';
+  margin-left: 14px;
+  color: var(--line);
+}
+.accountEmptyState { padding: 28px; }
+.accountOrderPage .timeline {
+  display: grid;
+  gap: 10px;
+  margin-top: 18px;
+}
+.accountOrderPage .timelineItem {
+  display: flex;
+  justify-content: space-between;
+  gap: 18px;
+  align-items: center;
+  padding: 14px 16px;
+  border: 1px solid var(--line);
+  border-radius: 15px;
+  background: #fff;
+}
+.accountOrderPage .timelineItem strong { min-width: 0; }
+
 @media (max-width: 900px) {
   .checkoutLayout { grid-template-columns: 1fr; }
   .checkoutSummary { position: static; order: -1; }
   .orderTimeline { grid-template-columns: 1fr 1fr; }
+  .accountHero .sectionIntro { align-items: flex-start; }
 }
 
 @media (max-width: 560px) {
@@ -141,6 +177,15 @@
   .formSection textarea { font-size: 16px; }
   .orderTimeline { grid-template-columns: 1fr; }
   .confirmationTotal { font-size: 30px; font-weight: 950; }
+  .accountHero .sectionIntro,
+  .accountOrderPage .sectionIntro { gap: 14px; }
+  .accountOrderPage .timelineItem {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .accountMetaRow span:not(:last-child)::after { display: none; }
+  .accountMetaRow { gap: 8px 12px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
