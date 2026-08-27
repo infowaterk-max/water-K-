@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { getAdminRequestUser } from '@/lib/auth/admin-api';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { enqueueIntegrationJob, type IntegrationJobKind } from '@/lib/integrations/outbox';
+import { recordAdminAudit } from '@/lib/admin/audit';
 
 const statuses=['draft','pending','paid','processing','shipped','completed','cancelled','refunded'] as const;
 type Status=typeof statuses[number];
@@ -28,9 +29,9 @@ export async function PATCH(request:Request,{params}:{params:Promise<{id:string}
   if(currentStatus!==nextStatus&&!allowed[currentStatus]?.includes(nextStatus))return NextResponse.json({error:`Nem engedélyezett státuszváltás: ${currentStatus} → ${nextStatus}.`},{status:409});
   if(nextStatus==='shipped'&&current.shipping_method!=='pickup'&&!(parsed.data.trackingNumber??current.tracking_number))return NextResponse.json({error:'Feladott rendeléshez csomagkövetési azonosító szükséges.'},{status:400});
   const update:Record<string,unknown>={status:nextStatus,updated_at:new Date().toISOString()}; if(parsed.data.trackingNumber!==undefined)update.tracking_number=parsed.data.trackingNumber||null;
-  let mutation=admin.from('orders').update(update).eq('id',id).eq('status',currentStatus).select('id,status').maybeSingle();
-  const {data:updated,error}=await mutation; if(error)return NextResponse.json({error:'A rendelés frissítése nem sikerült.'},{status:500}); if(!updated)return NextResponse.json({error:'A rendelést időközben valaki más módosította. Frissítsd az oldalt, majd ellenőrizd az aktuális állapotot.'},{status:409});
+  const {data:updated,error}=await admin.from('orders').update(update).eq('id',id).eq('status',currentStatus).select('id,status,tracking_number').maybeSingle(); if(error)return NextResponse.json({error:'A rendelés frissítése nem sikerült.'},{status:500}); if(!updated)return NextResponse.json({error:'A rendelést időközben valaki más módosította. Frissítsd az oldalt, majd ellenőrizd az aktuális állapotot.'},{status:409});
   await admin.from('order_events').insert({order_id:id,event_type:currentStatus===nextStatus?'order_updated':'status_changed',from_status:currentStatus,to_status:nextStatus,actor_user_id:actor.id,metadata:{tracking_number:parsed.data.trackingNumber??current.tracking_number}});
+  await recordAdminAudit({actorUserId:actor.id,action:currentStatus===nextStatus?'order.updated':'order.status_changed',entityType:'order',entityId:id,summary:`${current.order_number}: ${currentStatus} → ${nextStatus}`,beforeState:{status:currentStatus,trackingNumber:current.tracking_number},afterState:{status:nextStatus,trackingNumber:updated.tracking_number},metadata:{orderNumber:current.order_number}});
   if(nextStatus==='paid'&&currentStatus!=='paid'){await enqueueOnce({orderId:id,kind:'invoice_create',provider:process.env.INVOICE_PROVIDER||'invoicing',orderNumber:current.order_number,actorId:actor.id,status:nextStatus});await enqueueEmail(id,'payment_confirmed',actor.id,nextStatus);}
   if(nextStatus==='processing'&&currentStatus!=='processing'&&current.shipping_method&&current.shipping_method!=='pickup')await enqueueOnce({orderId:id,kind:'shipment_create',provider:current.shipping_method,orderNumber:current.order_number,actorId:actor.id,status:nextStatus});
   if(nextStatus==='shipped'&&currentStatus!=='shipped')await enqueueEmail(id,'order_shipped',actor.id,nextStatus);
