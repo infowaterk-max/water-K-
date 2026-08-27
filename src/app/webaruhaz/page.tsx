@@ -4,25 +4,45 @@ import { formatHuf, products } from '@/lib/catalog';
 
 export default function Shop() {
   return (
-    <main className="section">
+    <main className="section shopPage">
       <div className="shell">
-        <span className="eyebrow">Water-K webáruház</span>
-        <h1 className="sectionTitle">Találd meg a megfelelő kiszerelést</h1>
-        <p className="lead">Átlátható kínálat, gyors vásárlás, közvetlenül a Water-K rendszeréből.</p>
-        <div className="cards">
+        <div className="sectionIntro shopIntro">
+          <div>
+            <span className="eyebrow">Water-K webáruház</span>
+            <h1 className="sectionTitle">A megfelelő kiszerelés, felesleges körök nélkül.</h1>
+          </div>
+          <p className="lead">Három jól elkülönített méret, bruttó és nettó árral, készletinformációval és felhasználási javaslatokkal.</p>
+        </div>
+
+        <div className="shopTrustBar">
+          <span>✓ Magyar készlet</span><span>✓ Biztonságos checkout</span><span>✓ Céges vásárlás támogatva</span><span>✓ Közvetlen Water-K rendszer</span>
+        </div>
+
+        <div className="cards productCards shopCards">
           {products.map((product) => (
-            <article className="card" key={product.slug}>
-              <span className="badge">{product.stock > 0 ? 'Raktáron' : 'Elfogyott'}</span>
+            <article className={`card productCard ${product.featured ? 'isFeatured' : ''}`} key={product.slug}>
+              <div className="productCardTop">
+                <span className="badge">{product.featured ? 'Ajánlott' : product.audience === 'professional' ? 'Professzionális' : 'Water-K'}</span>
+                <span className={`stockDot ${product.stock === 0 ? 'outOfStock' : ''}`}>{product.stock > 0 ? `${product.stock} db raktáron` : 'Elfogyott'}</span>
+              </div>
+              <div className="productVisual"><div className="productPack"><small>WATER-K</small><strong>{product.size}</strong></div></div>
               <h2>{product.name}</h2>
               <p className="muted">{product.short}</p>
+              <div className="tagRow">{product.useCases.slice(0, 3).map((useCase) => <span key={useCase}>{useCase}</span>)}</div>
               <div className="price">{formatHuf(product.grossPrice)}</div>
-              <div className="actions">
+              <p className="muted priceMeta">Bruttó · nettó {formatHuf(product.netPrice)}</p>
+              <div className="actions shopActions">
                 <AddToCart id={product.id} slug={product.slug} name={product.name} price={product.grossPrice} />
-                <Link className="btn" href={`/termek/${product.slug}`}>Részletek</Link>
+                <Link className="btn btnGhost" href={`/termek/${product.slug}`}>Részletek</Link>
               </div>
             </article>
           ))}
         </div>
+
+        <section className="selectionHelp">
+          <div><span className="eyebrow">Nem tudod, melyik kell?</span><h2>Gyors választási segítség</h2></div>
+          <div className="selectionGrid"><div><strong>40 g</strong><span>Kipróbálás, cserepes növény</span></div><div><strong>750 g</strong><span>Kert, gyep, ágyás</span></div><div><strong>25 kg</strong><span>Kertészet, nagyobb terület</span></div></div>
+        </section>
       </div>
     </main>
   );
