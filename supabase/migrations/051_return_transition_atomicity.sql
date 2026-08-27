@@ -25,7 +25,7 @@ begin
     raise exception 'Érvénytelen visszáru állapot.';
   end if;
 
-  v_allowed := p_target_status=c.status
+  v_allowed := p_target_status=c.status::text
     or (c.status='requested' and p_target_status in ('approved','rejected'))
     or (c.status='approved' and p_target_status in ('received','closed'))
     or (c.status='rejected' and p_target_status='closed')
