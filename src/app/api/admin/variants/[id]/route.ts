@@ -12,6 +12,10 @@ const bodySchema = z.object({
   resellerGrossPrice: nullablePrice,
   resellerNetPrice: nullablePrice,
   unitCostNet: nullablePrice,
+  supplierLeadTimeDays:z.number().int().min(0).max(365).optional(),
+  safetyStockDays:z.number().int().min(0).max(365).optional(),
+  minimumOrderQuantity:z.number().int().min(1).max(100000).optional(),
+  orderMultiple:z.number().int().min(1).max(100000).optional(),
   active: z.boolean().optional(),
 }).refine((value) => Object.keys(value).length > 0, 'Nincs módosítás.');
 
@@ -26,7 +30,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
   if (!parsed.success) return NextResponse.json({ error: 'Érvénytelen termékadat.' }, { status: 400 });
 
   const admin = createAdminClient();
-  const fields='stock_quantity,gross_price_huf,net_price_huf,reseller_gross_price_huf,reseller_net_price_huf,unit_cost_net_huf,active,sku,updated_at';
+  const fields='stock_quantity,gross_price_huf,net_price_huf,reseller_gross_price_huf,reseller_net_price_huf,unit_cost_net_huf,supplier_lead_time_days,safety_stock_days,minimum_order_quantity,order_multiple,active,sku,updated_at';
   const { data: current, error: currentError } = await admin.from('product_variants').select(fields).eq('id', id).maybeSingle();
   if (currentError || !current) return NextResponse.json({ error: 'A termékváltozat nem található.' }, { status: 404 });
 
@@ -37,6 +41,10 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
   if (parsed.data.resellerGrossPrice !== undefined) update.reseller_gross_price_huf = parsed.data.resellerGrossPrice;
   if (parsed.data.resellerNetPrice !== undefined) update.reseller_net_price_huf = parsed.data.resellerNetPrice;
   if (parsed.data.unitCostNet !== undefined) update.unit_cost_net_huf = parsed.data.unitCostNet;
+  if (parsed.data.supplierLeadTimeDays !== undefined) update.supplier_lead_time_days=parsed.data.supplierLeadTimeDays;
+  if (parsed.data.safetyStockDays !== undefined) update.safety_stock_days=parsed.data.safetyStockDays;
+  if (parsed.data.minimumOrderQuantity !== undefined) update.minimum_order_quantity=parsed.data.minimumOrderQuantity;
+  if (parsed.data.orderMultiple !== undefined) update.order_multiple=parsed.data.orderMultiple;
   if (parsed.data.active !== undefined) update.active = parsed.data.active;
 
   const { data: updated, error } = await admin.from('product_variants').update(update).eq('id', id).eq('updated_at',current.updated_at).select(fields).maybeSingle();
