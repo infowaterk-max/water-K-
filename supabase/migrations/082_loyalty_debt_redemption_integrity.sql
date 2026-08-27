@@ -24,23 +24,26 @@ end;$$;
 revoke all on function public.redeem_loyalty_points(uuid,integer,text,text,uuid) from public,anon,authenticated;
 grant execute on function public.redeem_loyalty_points(uuid,integer,text,text,uuid) to service_role;
 
--- Expose debt explicitly: future positive earnings first reduce the raw negative ledger balance.
+-- Preserve the existing view columns and append debt at the end.
 create or replace view public.loyalty_balances with(security_invoker=true) as
 select customer_id,
  greatest(coalesce(sum(points),0),0)::bigint as points_balance,
- abs(least(coalesce(sum(points),0),0))::bigint as points_debt,
  coalesce(sum(points) filter(where points>0),0)::bigint as lifetime_earned_points,
  abs(coalesce(sum(points) filter(where entry_type='redeem'),0))::bigint as lifetime_redeemed_points,
- max(occurred_at) as last_activity_at
+ max(occurred_at) as last_activity_at,
+ abs(least(coalesce(sum(points),0),0))::bigint as points_debt
 from public.loyalty_ledger group by customer_id;
 revoke all on public.loyalty_balances from public,anon,authenticated;
 grant select on public.loyalty_balances to service_role;
 
+-- Preserve the 076 summary column order and append points_debt.
 create or replace view public.customer_loyalty_summary with(security_invoker=true) as
 select p.customer_id,p.value_score,p.value_tier,p.lifecycle_segment,p.paid_orders,p.revenue_gross_huf,p.last_order_at,
- coalesce(b.points_balance,0) as points_balance,coalesce(b.points_debt,0) as points_debt,
- coalesce(b.lifetime_earned_points,0) as lifetime_earned_points,coalesce(b.lifetime_redeemed_points,0) as lifetime_redeemed_points,
- (select count(*) from public.active_customer_benefits a where a.customer_id=p.customer_id and a.usage_available=true) as available_benefits
+ coalesce(b.points_balance,0) as points_balance,
+ coalesce(b.lifetime_earned_points,0) as lifetime_earned_points,
+ coalesce(b.lifetime_redeemed_points,0) as lifetime_redeemed_points,
+ (select count(*) from public.active_customer_benefits a where a.customer_id=p.customer_id and a.usage_available=true) as available_benefits,
+ coalesce(b.points_debt,0) as points_debt
 from public.customer_value_profiles p left join public.loyalty_balances b on b.customer_id=p.customer_id;
 revoke all on public.customer_loyalty_summary from public,anon,authenticated;
 grant select on public.customer_loyalty_summary to service_role;
