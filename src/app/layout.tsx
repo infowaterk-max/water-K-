@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { CartProvider } from '@/components/cart/cart-provider';
 import './globals.css';
 import './store-v2.css';
+import './flow-v2.css';
 
 export const metadata: Metadata = {
   title: 'Water-K | Vízmegtartó technológia',
