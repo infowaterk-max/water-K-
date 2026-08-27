@@ -3,10 +3,11 @@ import { getCommunicationProvider } from './provider';
 import { getCommunicationTemplate } from './templates';
 
 type ClaimedJob={id:string;recipient_email:string;purpose:'transactional'|'marketing';template_key:string;payload:Record<string,unknown>;claim_token:string;attempts:number};
-export type WorkerSummary={claimed:number;sent:number;failed:number;blocked:number};
+export type WorkerSummary={recovered:number;claimed:number;sent:number;failed:number;blocked:number};
 
 export async function runCommunicationWorker(limit=10):Promise<WorkerSummary>{
- const admin=createAdminClient(); const summary:WorkerSummary={claimed:0,sent:0,failed:0,blocked:0};
+ const admin=createAdminClient(); const summary:WorkerSummary={recovered:0,claimed:0,sent:0,failed:0,blocked:0};
+ const {data:recovered,error:recoveryError}=await admin.rpc('recover_stale_communication_jobs',{p_stale_minutes:15});if(recoveryError)throw recoveryError;summary.recovered=Number(recovered??0);
  const {data,error}=await admin.rpc('claim_communication_jobs',{p_limit:Math.max(1,Math.min(limit,50))}); if(error)throw error;
  const jobs=(data??[]) as ClaimedJob[]; summary.claimed=jobs.length; const provider=getCommunicationProvider();
  for(const job of jobs){
