@@ -22,7 +22,8 @@ export async function processIntegrationJob(jobId:string){
   try{
     if(job.kind==='payment_create'){
       if(job.provider!=='kh'||!job.order_id) throw new Error('Unsupported payment provider or missing order');
-      const {data:order}=await admin.from('orders').select('id,order_number,total_gross_huf').eq('id',job.order_id).single();
+      const {data:order,error:orderError}=await admin.from('orders').select('id,order_number,total_gross_huf').eq('id',job.order_id).maybeSingle();
+      if(orderError||!order) throw new Error('Payment order not found');
       const gateway=new KhPaymentGateway();
       const siteUrl=process.env.NEXT_PUBLIC_SITE_URL;
       if(!siteUrl) throw new Error('NEXT_PUBLIC_SITE_URL required');
@@ -33,8 +34,10 @@ export async function processIntegrationJob(jobId:string){
     }
     if(job.kind==='shipment_create'){
       if(!job.order_id) throw new Error('Missing order');
-      const {data:order}=await admin.from('orders').select('id,order_number,customer_email,customer_phone,billing_name,shipping_postcode,shipping_city,shipping_address,shipping_method').eq('id',job.order_id).single();
-      const {data:items}=await admin.from('order_items').select('sku,quantity').eq('order_id',job.order_id);
+      const {data:order,error:orderError}=await admin.from('orders').select('id,order_number,customer_email,customer_phone,billing_name,shipping_postcode,shipping_city,shipping_address,shipping_method').eq('id',job.order_id).maybeSingle();
+      if(orderError||!order) throw new Error('Shipment order not found');
+      const {data:items,error:itemError}=await admin.from('order_items').select('sku,quantity').eq('order_id',job.order_id);
+      if(itemError) throw new Error('Shipment items unavailable');
       const weightGrams=(items??[]).reduce((sum,item)=>sum+(skuWeight[item.sku]??0)*item.quantity,0);
       if(weightGrams<=0) throw new Error('Shipment weight unavailable');
       const provider=shippingProvider(job.provider);
