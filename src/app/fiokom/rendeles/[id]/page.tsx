@@ -1,0 +1,20 @@
+import Link from 'next/link';
+import { notFound, redirect } from 'next/navigation';
+import { createClient } from '@/lib/supabase/server';
+import { formatHuf } from '@/lib/catalog';
+
+export default async function CustomerOrderPage({params}:{params:Promise<{id:string}>}){
+  const {id}=await params; const supabase=await createClient(); const {data:{user}}=await supabase.auth.getUser(); if(!user)redirect('/fiokom');
+  const [{data:order},{data:items},{data:events}]=await Promise.all([
+    supabase.from('orders').select('id,order_number,status,customer_email,customer_phone,billing_name,billing_company,billing_tax_number,billing_postcode,billing_city,billing_address,shipping_name,shipping_postcode,shipping_city,shipping_address,subtotal_gross_huf,shipping_gross_huf,total_gross_huf,shipping_method,parcel_point_id,payment_method,tracking_number,note,created_at').eq('id',id).maybeSingle(),
+    supabase.from('order_items').select('id,product_name,variant_label,sku,quantity,unit_gross_huf,line_total_gross_huf').eq('order_id',id),
+    supabase.from('order_events').select('id,event_type,from_status,to_status,metadata,created_at').eq('order_id',id).order('created_at',{ascending:true}),
+  ]);
+  if(!order)notFound();
+  return <main className="section"><div className="shell"><div className="sectionIntro"><div><span className="eyebrow">Rendelés részletei</span><h1 className="sectionTitle">{order.order_number}</h1></div><Link className="btn btnGhost" href="/fiokom">Vissza a fiókhoz</Link></div>
+    <div className="cards"><article className="card"><h3>Állapot</h3><div className="price">{order.status}</div><p className="muted">Létrehozva: {new Intl.DateTimeFormat('hu-HU',{dateStyle:'long',timeStyle:'short'}).format(new Date(order.created_at))}</p></article><article className="card"><h3>Fizetendő</h3><div className="price">{formatHuf(order.total_gross_huf)}</div><p className="muted">Termékek: {formatHuf(order.subtotal_gross_huf)} · szállítás: {formatHuf(order.shipping_gross_huf)}</p></article><article className="card"><h3>Szállítás</h3><div className="price">{order.shipping_method??'—'}</div><p className="muted">{order.tracking_number?`Nyomkövetés: ${order.tracking_number}`:order.parcel_point_id?`Csomagpont: ${order.parcel_point_id}`:'Nyomkövetés még nincs'}</p></article></div>
+    <section className="tableCard"><table className="adminTable"><thead><tr><th>Termék</th><th>Mennyiség</th><th>Egységár</th><th>Összesen</th></tr></thead><tbody>{(items??[]).map(item=><tr key={item.id}><td><strong>{item.product_name}</strong><br/><span className="muted">{item.variant_label} · {item.sku}</span></td><td>{item.quantity}</td><td>{formatHuf(item.unit_gross_huf)}</td><td>{formatHuf(item.line_total_gross_huf)}</td></tr>)}</tbody></table></section>
+    <div className="splitFeature" style={{marginTop:28}}><section className="featurePanel"><span className="eyebrow">Számlázás</span><h2>{order.billing_name}</h2><p className="muted">{order.billing_company&&<>{order.billing_company}<br/></>}{order.billing_tax_number&&<>Adószám: {order.billing_tax_number}<br/></>}{order.billing_postcode} {order.billing_city}, {order.billing_address}</p></section><section className="featurePanel"><span className="eyebrow">Szállítás</span><h2>{order.shipping_name||order.billing_name}</h2><p className="muted">{order.shipping_postcode} {order.shipping_city}, {order.shipping_address}<br/>Fizetés: {order.payment_method??'—'}</p></section></div>
+    <section className="card" style={{marginTop:28}}><span className="eyebrow">Eseménytörténet</span><h2>Rendelési idővonal</h2><div className="timeline">{(events??[]).map(event=><div key={event.id} className="timelineItem"><strong>{event.event_type==='order_created'?'Rendelés létrehozva':event.event_type==='status_changed'?`${event.from_status??'—'} → ${event.to_status??'—'}`:'Rendelés frissítve'}</strong><span className="muted">{new Intl.DateTimeFormat('hu-HU',{dateStyle:'short',timeStyle:'short'}).format(new Date(event.created_at))}</span></div>)}</div></section>
+  </div></main>;
+}
