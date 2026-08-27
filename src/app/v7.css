@@ -1,0 +1,153 @@
+.skipLink {
+  position: fixed;
+  left: 16px;
+  top: 12px;
+  z-index: 1000;
+  transform: translateY(-160%);
+  background: var(--ink);
+  color: #fff;
+  padding: 12px 16px;
+  border-radius: 12px;
+  font-weight: 850;
+  text-decoration: none;
+}
+.skipLink:focus { transform: translateY(0); }
+
+:where(a, button, input, select, textarea):focus-visible {
+  outline: 3px solid #5f8f2f;
+  outline-offset: 3px;
+}
+
+.checkoutLayout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.45fr) minmax(300px, .55fr);
+  gap: 28px;
+  align-items: start;
+}
+.checkoutLayout .checkout-form {
+  width: 100%;
+  margin: 0;
+}
+.checkoutSummary {
+  position: sticky;
+  top: 104px;
+}
+.formSection {
+  min-width: 0;
+  margin: 0 0 24px;
+  padding: 0;
+  border: 0;
+}
+.formSection legend {
+  width: 100%;
+  padding: 0 0 12px;
+  font-size: 18px;
+  font-weight: 900;
+}
+.formSection input,
+.formSection select,
+.formSection textarea {
+  width: 100%;
+  min-height: 52px;
+  padding: 13px 15px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: #fbfcfa;
+  color: var(--ink);
+}
+.formSection textarea {
+  min-height: 112px;
+  resize: vertical;
+}
+.inlineCheck {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  line-height: 1.5;
+  margin: 14px 0;
+}
+.inlineCheck input[type="checkbox"] {
+  flex: 0 0 auto;
+  width: 22px;
+  height: 22px;
+  min-height: 22px;
+  margin-top: 1px;
+}
+.checkoutSubmit {
+  width: 100%;
+  min-height: 58px;
+  font-size: 16px;
+}
+.summaryItems {
+  display: grid;
+  gap: 10px;
+  margin: 18px 0;
+}
+.summaryLine,
+.summaryTotal {
+  display: flex;
+  justify-content: space-between;
+  gap: 18px;
+  align-items: baseline;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--line);
+}
+.summaryTotal {
+  margin-top: 6px;
+  border-bottom: 0;
+  font-size: 21px;
+  font-weight: 950;
+}
+.trustList {
+  display: grid;
+  gap: 8px;
+  margin-top: 20px;
+  color: var(--muted);
+  font-size: 14px;
+}
+.orderTimeline {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin: 30px 0;
+  text-align: left;
+}
+.orderTimeline > div {
+  min-width: 0;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: #fff;
+}
+.orderTimeline strong,
+.orderTimeline span { display: block; }
+.orderTimeline strong { color: var(--green); margin-bottom: 6px; }
+
+@media (max-width: 900px) {
+  .checkoutLayout { grid-template-columns: 1fr; }
+  .checkoutSummary { position: static; order: -1; }
+  .orderTimeline { grid-template-columns: 1fr 1fr; }
+}
+
+@media (max-width: 560px) {
+  .checkoutLayout { gap: 16px; }
+  .checkout-form,
+  .checkoutSummary { border-radius: 20px; }
+  .checkout-form { padding: 20px 16px; }
+  .checkoutSummary { padding: 20px 16px; }
+  .formSection legend { font-size: 17px; }
+  .formSection input,
+  .formSection select,
+  .formSection textarea { font-size: 16px; }
+  .orderTimeline { grid-template-columns: 1fr; }
+  .confirmationTotal { font-size: 30px; font-weight: 950; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
