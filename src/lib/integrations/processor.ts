@@ -12,10 +12,14 @@ function isBlockedError(error:unknown){const text=error instanceof Error?error.m
 function retryAt(attempt:number){const minutes=Math.min(15*Math.pow(2,Math.max(0,attempt-1)),240);return new Date(Date.now()+minutes*60*1000).toISOString()}
 const emailTemplates:EmailTemplate[]=['order_confirmation','payment_confirmed','order_shipped','order_completed'];
 
-export async function processIntegrationJob(jobId:string){
- const admin=createAdminClient(); const {data:job,error:jobError}=await admin.from('integration_jobs').select('*').eq('id',jobId).maybeSingle();
- if(jobError||!job)throw new Error('Integration job not found'); if(job.status==='succeeded')return job;
- const attempt=(job.attempt_count??0)+1; await admin.from('integration_jobs').update({status:'processing',attempt_count:attempt,updated_at:new Date().toISOString(),last_error:null,next_attempt_at:null}).eq('id',jobId);
+export async function processIntegrationJob(jobId:string,claimToken:string){
+ const admin=createAdminClient();
+ const {data:job,error:jobError}=await admin.from('integration_jobs').select('*').eq('id',jobId).eq('status','processing').eq('processing_token',claimToken).maybeSingle();
+ if(jobError||!job)throw new Error('Integration job is not claimed by this worker');
+ const attempt=(job.attempt_count??0)+1;
+ const {data:started,error:startError}=await admin.from('integration_jobs').update({attempt_count:attempt,updated_at:new Date().toISOString(),last_error:null,next_attempt_at:null}).eq('id',jobId).eq('status','processing').eq('processing_token',claimToken).select('id').maybeSingle();
+ if(startError||!started)throw new Error('Integration job claim lost before processing');
+ const complete=async(result:unknown)=>{const {data}=await admin.from('integration_jobs').update({status:'succeeded',result,processing_token:null,next_attempt_at:null,updated_at:new Date().toISOString()}).eq('id',jobId).eq('processing_token',claimToken).select('id').maybeSingle();if(!data)throw new Error('Integration job claim lost before completion');return result;};
  try{
   if(job.kind==='payment_create'){
    if(job.provider!=='kh'||!job.order_id)throw new Error('Unsupported payment provider or missing order');
@@ -24,7 +28,7 @@ export async function processIntegrationJob(jobId:string){
    const siteUrl=process.env.NEXT_PUBLIC_SITE_URL; if(!siteUrl)throw new Error('NEXT_PUBLIC_SITE_URL required');
    const returnUrl=`${siteUrl.replace(/\/$/,'')}/rendeles-sikeres?token=${encodeURIComponent(order.confirmation_token)}`;
    const result=await new KhPaymentGateway().createPayment({orderId:order.order_number,total:{amount:order.total_gross_huf,currency:'HUF'},returnUrl});
-   await admin.from('orders').update({external_payment_id:result.providerReference,updated_at:new Date().toISOString()}).eq('id',job.order_id); await admin.from('integration_jobs').update({status:'succeeded',result,next_attempt_at:null,updated_at:new Date().toISOString()}).eq('id',jobId); return result;
+   await admin.from('orders').update({external_payment_id:result.providerReference,updated_at:new Date().toISOString()}).eq('id',job.order_id); return await complete(result);
   }
   if(job.kind==='shipment_create'){
    if(!job.order_id)throw new Error('Missing order');
@@ -32,22 +36,22 @@ export async function processIntegrationJob(jobId:string){
    const {data:items,error:itemError}=await admin.from('order_items').select('sku,quantity').eq('order_id',job.order_id); if(itemError)throw new Error('Shipment items unavailable');
    const weightGrams=(items??[]).reduce((sum,item)=>sum+(skuWeight[item.sku]??0)*item.quantity,0); if(weightGrams<=0)throw new Error('Shipment weight unavailable');
    const result=await shippingProvider(job.provider).createShipment({orderId:order.order_number,customer:{email:order.customer_email,phone:order.customer_phone??undefined,name:order.billing_name},address:{country:'HU',postalCode:order.shipping_postcode??'',city:order.shipping_city??'',line1:order.shipping_address??''},weightGrams});
-   await admin.from('orders').update({tracking_number:result.trackingNumber,updated_at:new Date().toISOString()}).eq('id',job.order_id); await admin.from('integration_jobs').update({status:'succeeded',result,next_attempt_at:null,updated_at:new Date().toISOString()}).eq('id',jobId); await admin.from('order_events').insert({order_id:job.order_id,event_type:'shipment_created',metadata:{provider:job.provider,tracking_number:result.trackingNumber}}); return result;
+   await admin.from('orders').update({tracking_number:result.trackingNumber,updated_at:new Date().toISOString()}).eq('id',job.order_id); await admin.from('order_events').insert({order_id:job.order_id,event_type:'shipment_created',metadata:{provider:job.provider,tracking_number:result.trackingNumber}}); return await complete(result);
   }
   if(job.kind==='invoice_create'){
    if(!job.order_id)throw new Error('Missing order');
    const {data:order,error}=await admin.from('orders').select('order_number,customer_email,customer_phone,billing_name,billing_company,billing_tax_number,billing_postcode,billing_city,billing_address,shipping_gross_huf,total_gross_huf').eq('id',job.order_id).maybeSingle(); if(error||!order)throw new Error('Invoice order not found');
    const {data:items,error:itemError}=await admin.from('order_items').select('product_name,sku,quantity,unit_gross_huf,line_total_gross_huf').eq('order_id',job.order_id); if(itemError)throw new Error('Invoice items unavailable');
    const result=await getInvoiceProvider().createInvoice({orderId:order.order_number,customer:{email:order.customer_email,phone:order.customer_phone??undefined,name:order.billing_name,companyName:order.billing_company??undefined,taxNumber:order.billing_tax_number??undefined},billingAddress:{country:'HU',postalCode:order.billing_postcode,city:order.billing_city,line1:order.billing_address},items:(items??[]).map(i=>({name:i.product_name,sku:i.sku,quantity:i.quantity,unitGrossHuf:i.unit_gross_huf,lineGrossHuf:i.line_total_gross_huf})),shippingGrossHuf:order.shipping_gross_huf,totalGrossHuf:order.total_gross_huf});
-   await admin.from('orders').update({invoice_number:result.invoiceNumber,invoice_url:result.documentUrl??null,invoiced_at:new Date().toISOString(),updated_at:new Date().toISOString()}).eq('id',job.order_id); await admin.from('integration_jobs').update({status:'succeeded',result,next_attempt_at:null,updated_at:new Date().toISOString()}).eq('id',jobId); await admin.from('order_events').insert({order_id:job.order_id,event_type:'invoice_created',metadata:{provider:job.provider,invoice_number:result.invoiceNumber}}); return result;
+   await admin.from('orders').update({invoice_number:result.invoiceNumber,invoice_url:result.documentUrl??null,invoiced_at:new Date().toISOString(),updated_at:new Date().toISOString()}).eq('id',job.order_id); await admin.from('order_events').insert({order_id:job.order_id,event_type:'invoice_created',metadata:{provider:job.provider,invoice_number:result.invoiceNumber}}); return await complete(result);
   }
   if(job.kind==='email_send'){
    if(!job.order_id)throw new Error('Missing order'); const template=String(job.payload?.template??'') as EmailTemplate; if(!emailTemplates.includes(template))throw new Error('Unsupported email template');
    const {data:order,error}=await admin.from('orders').select('order_number,customer_email,billing_name,total_gross_huf,tracking_number,invoice_url').eq('id',job.order_id).maybeSingle(); if(error||!order)throw new Error('Email order not found');
    const siteUrl=process.env.NEXT_PUBLIC_SITE_URL; if(!siteUrl)throw new Error('NEXT_PUBLIC_SITE_URL required');
    const result=await sendTransactionalEmail({to:order.customer_email,template,orderNumber:order.order_number,customerName:order.billing_name,totalGrossHuf:order.total_gross_huf,trackingNumber:order.tracking_number,invoiceUrl:order.invoice_url,siteUrl});
-   await admin.from('integration_jobs').update({status:'succeeded',result,next_attempt_at:null,updated_at:new Date().toISOString()}).eq('id',jobId); await admin.from('order_events').insert({order_id:job.order_id,event_type:'email_sent',metadata:{template,provider:job.provider,message_id:result.messageId}}); return result;
+   await admin.from('order_events').insert({order_id:job.order_id,event_type:'email_sent',metadata:{template,provider:job.provider,message_id:result.messageId}}); return await complete(result);
   }
   throw new Error(`Unsupported integration job kind: ${job.kind}`);
- }catch(error){const message=error instanceof Error?error.message:'Unknown integration error';const blocked=isBlockedError(error)||attempt>=MAX_ATTEMPTS;await admin.from('integration_jobs').update({status:blocked?'blocked':'failed',last_error:message,next_attempt_at:blocked?null:retryAt(attempt),updated_at:new Date().toISOString()}).eq('id',jobId);throw error}
+ }catch(error){const message=error instanceof Error?error.message:'Unknown integration error';const blocked=isBlockedError(error)||attempt>=MAX_ATTEMPTS;await admin.from('integration_jobs').update({status:blocked?'blocked':'failed',processing_token:null,last_error:message,next_attempt_at:blocked?null:retryAt(attempt),updated_at:new Date().toISOString()}).eq('id',jobId).eq('processing_token',claimToken);throw error}
 }
