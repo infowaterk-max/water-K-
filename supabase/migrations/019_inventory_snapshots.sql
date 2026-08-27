@@ -21,9 +21,6 @@ create index if not exists inventory_snapshots_date_idx
 
 alter table public.inventory_snapshots enable row level security;
 
--- Snapshot history is an internal commercial/financial dataset. Service-role/admin
--- server code reads it; no public/client policy is intentionally granted here.
-
 create or replace function public.capture_inventory_snapshot(p_snapshot_date date default current_date)
 returns integer
 language plpgsql
@@ -34,23 +31,17 @@ declare
   affected integer;
 begin
   insert into public.inventory_snapshots(
-    snapshot_date,
-    variant_id,
-    stock_quantity,
-    unit_cost_net_huf,
-    inventory_cost_net_huf,
-    retail_net_price_huf,
-    inventory_retail_net_huf,
-    captured_at
+    snapshot_date, variant_id, stock_quantity, unit_cost_net_huf,
+    inventory_cost_net_huf, retail_net_price_huf, inventory_retail_net_huf, captured_at
   )
   select
     p_snapshot_date,
     pv.id,
-    greatest(coalesce(pv.stock, 0), 0),
+    greatest(coalesce(pv.stock_quantity, 0), 0),
     pv.unit_cost_net_huf,
-    case when pv.unit_cost_net_huf is null then null else greatest(coalesce(pv.stock,0),0) * pv.unit_cost_net_huf end,
+    case when pv.unit_cost_net_huf is null then null else greatest(coalesce(pv.stock_quantity,0),0) * pv.unit_cost_net_huf end,
     pv.net_price_huf,
-    greatest(coalesce(pv.stock,0),0) * pv.net_price_huf,
+    greatest(coalesce(pv.stock_quantity,0),0) * pv.net_price_huf,
     now()
   from public.product_variants pv
   on conflict (snapshot_date, variant_id) do update set
