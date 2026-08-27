@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useCart } from '@/components/cart/cart-provider';
@@ -12,13 +13,14 @@ type OrderApiResponse={error?:string;orderNumber?:string;status?:OrderStatus;tot
 export function CheckoutForm({khEnabled}:{khEnabled:boolean}){
   const {cart,total:subtotal,clear}=useCart(); const router=useRouter();
   const [state,setState]=useState<'idle'|'sending'|'error'>('idle'); const [error,setError]=useState('');
-  const [customerType,setCustomerType]=useState<CustomerType>('retail'); const [shippingMethod,setShippingMethod]=useState<ShippingMethod>('foxpost'); const [sameAddress,setSameAddress]=useState(true);
+  const [customerType,setCustomerType]=useState<CustomerType>('retail'); const [shippingMethod,setShippingMethod]=useState<ShippingMethod>('foxpost'); const [sameAddress,setSameAddress]=useState(true); const [legalAccepted,setLegalAccepted]=useState(false);
   const companyRequired=customerType!=='retail'; const deliveryFee=shippingFee(shippingMethod,subtotal); const total=orderTotal(subtotal,shippingMethod);
 
   async function submit(event:React.FormEvent<HTMLFormElement>){
-    event.preventDefault(); setState('sending'); setError('');
+    event.preventDefault(); if(!legalAccepted){setState('error');setError('A rendelés leadásához el kell fogadnod az ÁSZF-et és tudomásul kell venned az adatkezelési tájékoztatót.');return;}
+    setState('sending'); setError('');
     try{
-      const formData=new FormData(event.currentTarget); const checkout=Object.fromEntries(formData.entries()); checkout.sameAddress=sameAddress?'true':'false';
+      const formData=new FormData(event.currentTarget); const checkout=Object.fromEntries(formData.entries()); checkout.sameAddress=sameAddress?'true':'false'; checkout.legalAccepted='true';
       const response=await fetch('/api/orders',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({checkout,items:cart.items})}); const payload=await response.json() as OrderApiResponse;
       if(!response.ok||!payload.orderNumber||!payload.status){setState('error');setError(payload.error??'Nem sikerült létrehozni a rendelést.');return;}
       clear(); const query=new URLSearchParams({order:payload.orderNumber,status:payload.status,total:String(payload.total??total)}); router.push(`/rendeles-sikeres?${query.toString()}`);
@@ -34,6 +36,7 @@ export function CheckoutForm({khEnabled}:{khEnabled:boolean}){
       {shippingMethod!=='pickup'&&shippingMethod!=='foxpost'&&<><label className="inlineCheck"><input type="checkbox" checked={sameAddress} onChange={e=>setSameAddress(e.target.checked)}/> A szállítási cím megegyezik a számlázási címmel</label>{!sameAddress&&<div className="form-grid"><input name="shippingPostcode" required placeholder="Szállítási irányítószám" autoComplete="shipping postal-code"/><input name="shippingCity" required placeholder="Szállítási település" autoComplete="shipping address-level2"/><input name="shippingAddress" required placeholder="Szállítási utca, házszám" autoComplete="shipping street-address"/></div>}</>}
       {shippingMethod==='foxpost'&&<p className="helperText">A következő integrációs lépésben ezt hivatalos automata-választó váltja fel.</p>}<textarea name="note" placeholder="Megjegyzés a rendeléshez" rows={4}/>
     </fieldset>
-    <button className="btn btnPrimary checkoutSubmit" disabled={state==='sending'||cart.items.length===0}>{state==='sending'?'Rendelés létrehozása…':`Rendelés leadása · ${formatHuf(total)}`}</button>{cart.items.length===0&&<p className="notice">A kosár üres, ezért rendelés nem küldhető el.</p>}{state==='error'&&<p className="errorNotice">{error}</p>}
-  </form><aside className="checkoutSummary card"><span className="eyebrow">Rendelésed</span><h2>Összesítő</h2><div className="summaryItems">{cart.items.map(item=><div className="summaryLine" key={item.productId}><span>{item.name} × {item.quantity}</span><strong>{formatHuf(item.unitPrice*item.quantity)}</strong></div>)}</div><div className="summaryLine"><span>Termékek</span><strong>{formatHuf(subtotal)}</strong></div><div className="summaryLine"><span>Szállítás</span><strong>{deliveryFee===0?'Díjmentes':formatHuf(deliveryFee)}</strong></div><div className="summaryTotal"><span>Fizetendő</span><strong>{formatHuf(total)}</strong></div>{subtotal<freeShippingThreshold&&shippingMethod!=='pickup'&&<p className="shippingProgress">Még {formatHuf(freeShippingThreshold-subtotal)} a díjmentes szállításhoz.</p>}<div className="trustList"><span>✓ Szerveroldali árvalidáció</span><span>✓ Atomi készletlevonás</span><span>✓ A kosár hiba esetén megmarad</span></div></aside></div>;
+    <fieldset className="formSection"><legend>Nyilatkozatok</legend><label className="inlineCheck"><input type="checkbox" checked={legalAccepted} onChange={e=>setLegalAccepted(e.target.checked)} required/> Elolvastam és elfogadom az <Link href="/aszf" target="_blank">ÁSZF-et</Link>, valamint tudomásul vettem az <Link href="/adatvedelem" target="_blank">adatkezelési tájékoztatót</Link>.</label><p className="helperText">A rendelés elküldése fizetési kötelezettséget vonhat maga után a választott fizetési mód és a végleges ÁSZF szerint.</p></fieldset>
+    <button className="btn btnPrimary checkoutSubmit" disabled={state==='sending'||cart.items.length===0||!legalAccepted}>{state==='sending'?'Rendelés létrehozása…':`Rendelés leadása · ${formatHuf(total)}`}</button>{cart.items.length===0&&<p className="notice">A kosár üres, ezért rendelés nem küldhető el.</p>}{state==='error'&&<p className="errorNotice">{error}</p>}
+  </form><aside className="checkoutSummary card"><span className="eyebrow">Rendelésed</span><h2>Összesítő</h2><div className="summaryItems">{cart.items.map(item=><div className="summaryLine" key={item.productId}><span>{item.name} × {item.quantity}</span><strong>{formatHuf(item.unitPrice*item.quantity)}</strong></div>)}</div><div className="summaryLine"><span>Termékek</span><strong>{formatHuf(subtotal)}</strong></div><div className="summaryLine"><span>Szállítás</span><strong>{deliveryFee===0?'Díjmentes':formatHuf(deliveryFee)}</strong></div><div className="summaryTotal"><span>Fizetendő</span><strong>{formatHuf(total)}</strong></div>{subtotal<freeShippingThreshold&&shippingMethod!=='pickup'&&<p className="shippingProgress">Még {formatHuf(freeShippingThreshold-subtotal)} a díjmentes szállításhoz.</p>}<div className="trustList"><span>✓ Szerveroldali árvalidáció</span><span>✓ Atomi készletlevonás</span><span>✓ Jogi nyilatkozat rögzítve</span><span>✓ A kosár hiba esetén megmarad</span></div></aside></div>;
 }
