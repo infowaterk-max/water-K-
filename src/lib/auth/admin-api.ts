@@ -1,13 +1,17 @@
 import { createClient } from '@/lib/supabase/server';
 
-export async function isAdminRequest() {
+export async function getAdminRequestUser() {
   try {
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return false;
+    if (!user) return null;
     const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).maybeSingle();
-    return profile?.role === 'admin';
+    return profile?.role === 'admin' ? user : null;
   } catch {
-    return false;
+    return null;
   }
+}
+
+export async function isAdminRequest() {
+  return Boolean(await getAdminRequestUser());
 }
