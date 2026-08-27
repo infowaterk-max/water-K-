@@ -8,10 +8,10 @@ const checkoutSchema=z.object({
   customerType:z.enum(['retail','company','reseller']),email:z.string().trim().email(),name:z.string().trim().min(2).max(160),phone:z.string().trim().min(5).max(40),companyName:z.string().trim().max(200).optional(),taxNumber:z.string().trim().max(40).optional(),
   billingPostcode:z.string().trim().min(2).max(20),billingCity:z.string().trim().min(2).max(120),billingAddress:z.string().trim().min(2).max(300),
   sameAddress:z.enum(['true','false']).default('true'),shippingPostcode:z.string().trim().max(20).optional(),shippingCity:z.string().trim().max(120).optional(),shippingAddress:z.string().trim().max(300).optional(),
-  shippingMethod:z.enum(['foxpost','gls','mpl','pickup']),paymentMethod:z.enum(['kh_card','bank_transfer']),parcelPointId:z.string().trim().max(160).optional(),note:z.string().trim().max(1000).optional(),
+  shippingMethod:z.enum(['foxpost','gls','mpl','pickup']),paymentMethod:z.enum(['kh_card','bank_transfer']),parcelPointId:z.string().trim().max(160).optional(),note:z.string().trim().max(1000).optional(),couponCode:z.string().trim().max(32).optional(),legalAccepted:z.literal('true'),
 });
 const schema=z.object({checkout:checkoutSchema,items:z.array(z.object({productId:z.string().uuid(),quantity:z.number().int().positive().max(99)})).min(1).max(30)});
-type PlaceOrderResult={order_id:string;order_number:string;subtotal_gross_huf:number;shipping_gross_huf:number;total_gross_huf:number};
+type PlaceOrderResult={order_id:string;order_number:string;subtotal_gross_huf:number;discount_gross_huf:number;shipping_gross_huf:number;total_gross_huf:number;coupon_code:string|null};
 
 export async function POST(request:Request){
   let body:unknown; try{body=await request.json();}catch{return NextResponse.json({error:'Érvénytelen JSON kérés.'},{status:400});}
@@ -32,14 +32,15 @@ export async function POST(request:Request){
       p_customer_email:checkout.email,p_billing_name:checkout.name,p_billing_company:checkout.companyName??'',p_billing_tax_number:checkout.taxNumber??'',
       p_billing_postcode:checkout.billingPostcode,p_billing_city:checkout.billingCity,p_billing_address:checkout.billingAddress,
       p_shipping_name:checkout.name,p_shipping_postcode:shippingPostcode,p_shipping_city:shippingCity,p_shipping_address:shippingAddress,
-      p_customer_phone:checkout.phone,p_shipping_method:checkout.shippingMethod,p_parcel_point_id:checkout.parcelPointId??'',p_payment_method:checkout.paymentMethod,p_note:checkout.note??'',p_customer_id:user?.id??null,
+      p_customer_phone:checkout.phone,p_shipping_method:checkout.shippingMethod,p_parcel_point_id:checkout.parcelPointId??'',p_payment_method:checkout.paymentMethod,p_note:checkout.note??'',p_customer_id:user?.id??null,p_coupon_code:(checkout.couponCode??'').toUpperCase(),
       p_items:items.map(item=>({variant_id:item.productId,quantity:item.quantity})),
     });
     if(error||!data)return NextResponse.json({error:error?.message??'A rendelés mentése nem sikerült.'},{status:409});
     const order=data as PlaceOrderResult;
+    await admin.from('order_events').insert({order_id:order.order_id,event_type:'legal_terms_accepted',actor_user_id:user?.id??null,metadata:{accepted_at:new Date().toISOString(),terms_path:'/aszf',privacy_path:'/adatvedelem'}});
     if(checkout.paymentMethod==='kh_card'){
       await enqueueIntegrationJob({orderId:order.order_id,kind:'payment_create',provider:'kh',payload:{orderNumber:order.order_number,totalGrossHuf:order.total_gross_huf,returnPath:'/rendeles-sikeres'}});
     }
-    return NextResponse.json({ok:true,orderId:order.order_id,orderNumber:order.order_number,subtotal:order.subtotal_gross_huf,shippingFee:order.shipping_gross_huf,total:order.total_gross_huf,status:checkout.paymentMethod==='kh_card'?'pending_payment':'pending_transfer',next:checkout.paymentMethod==='kh_card'?'payment':'confirmation'},{status:201});
+    return NextResponse.json({ok:true,orderId:order.order_id,orderNumber:order.order_number,subtotal:order.subtotal_gross_huf,discount:order.discount_gross_huf,shippingFee:order.shipping_gross_huf,total:order.total_gross_huf,couponCode:order.coupon_code,status:checkout.paymentMethod==='kh_card'?'pending_payment':'pending_transfer',next:checkout.paymentMethod==='kh_card'?'payment':'confirmation'},{status:201});
   }catch{return NextResponse.json({error:'A rendelési szolgáltatás átmenetileg nem elérhető.'},{status:503});}
 }

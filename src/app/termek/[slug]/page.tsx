@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { AddToCart } from '@/components/catalog/add-to-cart';
@@ -5,7 +6,15 @@ import { formatHuf } from '@/lib/catalog';
 import { getProducts } from '@/lib/catalog-server';
 import { getCommerceAccess } from '@/lib/commerce/access';
 
-export default async function ProductPage({ params }: { params: Promise<{ slug: string }> }) {
+type Params={params:Promise<{slug:string}>};
+
+export async function generateMetadata({params}:Params):Promise<Metadata>{
+  const {slug}=await params; const products=await getProducts(); const product=products.find(item=>item.slug===slug);
+  if(!product) return {title:'Termék nem található',robots:{index:false,follow:false}};
+  return {title:product.name,description:product.short,alternates:{canonical:`/termek/${product.slug}`},openGraph:{title:`${product.name} | Water-K`,description:product.short,url:`/termek/${product.slug}`,type:'website'}};
+}
+
+export default async function ProductPage({ params }: Params) {
   const { slug } = await params;
   const [products, access] = await Promise.all([getProducts(), getCommerceAccess()]);
   const product = products.find((item)=>item.slug===slug);
