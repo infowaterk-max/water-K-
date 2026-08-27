@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { processIntegrationJob } from '@/lib/integrations/processor';
+import { runCommunicationWorker } from '@/lib/communication/worker';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 60;
@@ -18,12 +19,34 @@ async function runWorker(request:Request){
   const {data:claimed,error}=await admin.rpc('claim_integration_jobs',{p_limit:10});
   if(error) return NextResponse.json({error:'Az integrációs feladatok zárolása nem sikerült.'},{status:500});
 
-  const results:Array<{id:string;ok:boolean;error?:string}>=[];
+  const integrationResults:Array<{id:string;ok:boolean;error?:string}>=[];
   for(const row of claimed??[]){
-    try{await processIntegrationJob(row.id,row.processing_token);results.push({id:row.id,ok:true});}
-    catch(error){results.push({id:row.id,ok:false,error:error instanceof Error?error.message:'Ismeretlen hiba'});}
+    try{await processIntegrationJob(row.id,row.processing_token);integrationResults.push({id:row.id,ok:true});}
+    catch(error){integrationResults.push({id:row.id,ok:false,error:error instanceof Error?error.message:'Ismeretlen hiba'});}
   }
-  return NextResponse.json({ok:true,processed:results.length,results,checkedAt});
+
+  const {data:communicationRun,error:runError}=await admin.from('communication_worker_runs').insert({source:'cron',status:'running'}).select('id').single();
+  let communication:{ok:boolean;recovered?:number;claimed?:number;sent?:number;failed?:number;blocked?:number;error?:string};
+  if(runError||!communicationRun){
+    communication={ok:false,error:'A kommunikációs worker naplója nem indítható.'};
+  }else{
+    try{
+      const summary=await runCommunicationWorker(20);
+      await admin.from('communication_worker_runs').update({status:'success',...summary,finished_at:new Date().toISOString()}).eq('id',communicationRun.id);
+      communication={ok:true,...summary};
+    }catch(error){
+      const message=error instanceof Error?error.message:'UNKNOWN_WORKER_ERROR';
+      await admin.from('communication_worker_runs').update({status:'failed',error_message:message.slice(0,2000),finished_at:new Date().toISOString()}).eq('id',communicationRun.id);
+      communication={ok:false,error:message};
+    }
+  }
+
+  return NextResponse.json({
+    ok:integrationResults.every(result=>result.ok)&&communication.ok,
+    integrations:{processed:integrationResults.length,results:integrationResults},
+    communication,
+    checkedAt,
+  });
 }
 
 export async function GET(request:Request){return runWorker(request)}
