@@ -44,7 +44,11 @@ declare r public.loyalty_benefit_rules;p public.customer_value_profiles;v_uses i
  perform pg_advisory_xact_lock(hashtextextended(p_customer_id::text||':'||p_rule_id::text,0));
  select * into v_row from public.loyalty_benefit_usage where usage_key=p_usage_key;
  if found then
-   if v_row.customer_id<>p_customer_id or v_row.rule_id<>p_rule_id or coalesce(v_row.order_id,'00000000-0000-0000-0000-000000000000'::uuid)<>coalesce(p_order_id,'00000000-0000-0000-0000-000000000000'::uuid) then raise exception 'A használati kulcs már más benefit-művelethez tartozik.'; end if;
+   if v_row.customer_id<>p_customer_id or v_row.rule_id<>p_rule_id or coalesce(v_row.order_id,'00000000-0000-0000-0000-000000000000'::uuid)<>coalesce(p_order_id,'00000000-0000-0000-0000-000000000000'::uuid)
+      or coalesce(v_row.benefit_snapshot->>'variant_id','')<>p_variant_id::text
+      or coalesce((v_row.benefit_snapshot->>'quantity')::integer,0)<>p_quantity then
+     raise exception 'A használati kulcs már más kedvezményes benefit-művelethez tartozik.';
+   end if;
    return v_row;
  end if;
  select * into r from public.loyalty_benefit_rules where id=p_rule_id;
