@@ -26,8 +26,19 @@ async function runWorker(request:Request){
     inventorySnapshot={ok:false,error:error instanceof Error?error.message:'A napi készletpillanatkép nem készült el.'};
   }
 
+  let journeys:{ok:boolean;planned?:unknown;dispatched?:unknown;error?:string};
+  try{
+    const {data:planned,error:planError}=await admin.rpc('plan_customer_retention_journeys');
+    if(planError) throw planError;
+    const {data:dispatched,error:dispatchError}=await admin.rpc('dispatch_due_customer_journey_steps',{p_limit:50});
+    if(dispatchError) throw dispatchError;
+    journeys={ok:true,planned,dispatched};
+  }catch(error){
+    journeys={ok:false,error:error instanceof Error?error.message:'A V9 ügyfélút-feldolgozás nem sikerült.'};
+  }
+
   const {data:claimed,error}=await admin.rpc('claim_integration_jobs',{p_limit:10});
-  if(error) return NextResponse.json({error:'Az integrációs feladatok zárolása nem sikerült.',inventorySnapshot},{status:500});
+  if(error) return NextResponse.json({error:'Az integrációs feladatok zárolása nem sikerült.',inventorySnapshot,journeys},{status:500});
 
   const integrationResults:Array<{id:string;ok:boolean;error?:string}>=[];
   for(const row of claimed??[]){
@@ -52,8 +63,9 @@ async function runWorker(request:Request){
   }
 
   return NextResponse.json({
-    ok:inventorySnapshot.ok&&integrationResults.every(result=>result.ok)&&communication.ok,
+    ok:inventorySnapshot.ok&&journeys.ok&&integrationResults.every(result=>result.ok)&&communication.ok,
     inventorySnapshot,
+    journeys,
     integrations:{processed:integrationResults.length,results:integrationResults},
     communication,
     checkedAt,
