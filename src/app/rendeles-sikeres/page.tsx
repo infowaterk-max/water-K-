@@ -1,27 +1,41 @@
 import Link from 'next/link';
+import { z } from 'zod';
 import { formatHuf } from '@/lib/catalog';
+import { createAdminClient } from '@/lib/supabase/admin';
 
-export default async function OrderSuccess({ searchParams }: { searchParams: Promise<{ order?: string; status?: string; total?: string }> }) {
-  const params = await searchParams;
-  const order = params.order ?? 'Water-K rendelés';
-  const total = Number(params.total ?? 0);
-  const cardPayment = params.status === 'pending_payment';
+export const dynamic='force-dynamic';
+export const metadata={robots:{index:false,follow:false}};
 
+export default async function OrderSuccess({ searchParams }: { searchParams: Promise<{ token?: string }> }) {
+  const params=await searchParams;
+  const parsed=z.string().uuid().safeParse(params.token);
+  if(!parsed.success){
+    return <main className="section"><div className="shell confirmationShell"><span className="eyebrow">Rendelés ellenőrzése</span><h1 className="sectionTitle">A visszaigazolási hivatkozás nem érvényes.</h1><p className="lead">Ezen az oldalon csak szerver által hitelesített rendelési adatokat jelenítünk meg.</p><div className="actions"><Link className="btn btnPrimary" href="/fiokom">Rendeléseim</Link><Link className="btn btnGhost" href="/kapcsolat">Kapcsolat</Link></div></div></main>;
+  }
+
+  const admin=createAdminClient();
+  const {data:order,error}=await admin.from('orders').select('order_number,total_gross_huf,payment_method,status').eq('confirmation_token',parsed.data).maybeSingle();
+  if(error||!order){
+    return <main className="section"><div className="shell confirmationShell"><span className="eyebrow">Rendelés ellenőrzése</span><h1 className="sectionTitle">A rendelés nem ellenőrizhető.</h1><p className="lead">Ellenőrizd a visszaigazoló e-mailt vagy a Fiókom oldalon a rendeléseidet. Ne add le automatikusan újra ugyanazt a rendelést.</p><div className="actions"><Link className="btn btnPrimary" href="/fiokom">Rendeléseim</Link><Link className="btn btnGhost" href="/kapcsolat">Kapcsolat</Link></div></div></main>;
+  }
+
+  const cardPayment=order.payment_method==='kh_card';
   return (
     <main className="section">
       <div className="shell confirmationShell">
-        <span className="successMark">✓</span>
-        <span className="eyebrow">Rendelés rögzítve</span>
+        <span className="successMark" aria-hidden="true">✓</span>
+        <span className="eyebrow">Hitelesített rendelés</span>
         <h1 className="sectionTitle">Köszönjük. A rendelésed megvan.</h1>
-        <p className="lead">Rendelési azonosító: <strong>{order}</strong></p>
-        {total > 0 && <div className="confirmationTotal">{formatHuf(total)}</div>}
+        <p className="lead">Rendelési azonosító: <strong>{order.order_number}</strong></p>
+        <div className="confirmationTotal" aria-label={`Fizetendő ${formatHuf(order.total_gross_huf)}`}>{formatHuf(order.total_gross_huf)}</div>
         <div className="card confirmationNextStep">
           <span className="badge">Következő lépés</span>
-          <h2>{cardPayment ? 'Bankkártyás fizetés – K&H' : 'Banki átutalás'}</h2>
-          <p className="muted">{cardPayment ? 'A staging verzió biztonsági okból még nem indít valódi banki tranzakciót. A hivatalos K&H sandbox szerződés bekötése után innen történik az átirányítás, a rendelés pedig csak hitelesített banki callback után lesz fizetett.' : 'Az éles rendszerben a rendelési visszaigazolással együtt küldjük az átutalási adatokat. A rendelés állapota a beérkezett fizetés után frissül.'}</p>
+          <h2>{cardPayment?'Bankkártyás fizetés – K&H':'Banki átutalás'}</h2>
+          <p className="muted">{cardPayment?'A rendelés rögzítve van. Fizetett állapotba kizárólag a hitelesített banki visszajelzés után kerül.':'A rendelési visszaigazolásban találod az átutaláshoz szükséges adatokat. A rendelés állapota a beérkezett fizetés után frissül.'}</p>
         </div>
-        <div className="orderTimeline"><div><strong>1</strong><span>Rendelés rögzítve</span></div><div><strong>2</strong><span>Fizetés ellenőrzése</span></div><div><strong>3</strong><span>Csomagolás</span></div><div><strong>4</strong><span>Szállítás</span></div></div>
-        <div className="actions"><Link className="btn btnPrimary" href="/webaruhaz">Vissza a webáruházba</Link><Link className="btn btnGhost" href="/fiokom">Fiókom</Link></div>
+        <div className="orderTimeline" aria-label="Rendelés folyamata"><div><strong>1</strong><span>Rendelés rögzítve</span></div><div><strong>2</strong><span>Fizetés ellenőrzése</span></div><div><strong>3</strong><span>Csomagolás</span></div><div><strong>4</strong><span>Szállítás</span></div></div>
+        <p className="helperText">Aktuális állapot: {String(order.status).replaceAll('_',' ')}</p>
+        <div className="actions"><Link className="btn btnPrimary" href="/fiokom">Rendeléseim</Link><Link className="btn btnGhost" href="/webaruhaz">Webáruház</Link></div>
       </div>
     </main>
   );

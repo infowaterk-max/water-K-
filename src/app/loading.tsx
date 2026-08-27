@@ -1,0 +1,13 @@
+export default function Loading() {
+  return (
+    <main className="section" aria-busy="true" aria-live="polite">
+      <div className="shell">
+        <section className="card">
+          <span className="eyebrow">Water-K</span>
+          <h1 className="sectionTitle">Betöltés…</h1>
+          <p className="muted">Az aktuális adatok lekérése folyamatban.</p>
+        </section>
+      </div>
+    </main>
+  );
+}

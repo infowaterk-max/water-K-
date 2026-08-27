@@ -1,7 +1,8 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
-import { isAdminRequest } from '@/lib/auth/admin-api';
+import { getAdminRequestUser } from '@/lib/auth/admin-api';
 import { createAdminClient } from '@/lib/supabase/admin';
+import { recordAdminAudit } from '@/lib/admin/audit';
 
 const bodySchema = z.object({
   role: z.enum(['customer','reseller']).optional(),
@@ -9,7 +10,8 @@ const bodySchema = z.object({
 }).refine((value) => Object.keys(value).length > 0, 'Nincs módosítás.');
 
 export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
-  if (!(await isAdminRequest())) return NextResponse.json({ error: 'Nincs jogosultság.' }, { status: 403 });
+  const actor=await getAdminRequestUser();
+  if (!actor) return NextResponse.json({ error: 'Nincs jogosultság.' }, { status: 403 });
   const { id } = await params;
   if (!z.string().uuid().safeParse(id).success) return NextResponse.json({ error: 'Érvénytelen ügyfélazonosító.' }, { status: 400 });
   let raw: unknown;
@@ -17,11 +19,16 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
   const parsed = bodySchema.safeParse(raw);
   if (!parsed.success) return NextResponse.json({ error: 'Érvénytelen ügyféladat.' }, { status: 400 });
 
+  const admin = createAdminClient();
+  const {data:current,error:currentError}=await admin.from('profiles').select('role,reseller_approved,email,full_name').eq('id',id).maybeSingle();
+  if(currentError||!current)return NextResponse.json({error:'Az ügyfél nem található.'},{status:404});
+  if(current.role==='admin')return NextResponse.json({error:'Admin profil ezen a felületen nem módosítható.'},{status:409});
+
   const update: Record<string, unknown> = { updated_at: new Date().toISOString() };
   if (parsed.data.role !== undefined) update.role = parsed.data.role;
   if (parsed.data.resellerApproved !== undefined) update.reseller_approved = parsed.data.resellerApproved;
-  const admin = createAdminClient();
-  const { error } = await admin.from('profiles').update(update).eq('id', id).neq('role', 'admin');
-  if (error) return NextResponse.json({ error: 'Az ügyfél módosítása nem sikerült.' }, { status: 500 });
+  const { data:updated,error } = await admin.from('profiles').update(update).eq('id', id).neq('role', 'admin').select('role,reseller_approved,email,full_name').maybeSingle();
+  if (error||!updated) return NextResponse.json({ error: 'Az ügyfél módosítása nem sikerült.' }, { status: 500 });
+  await recordAdminAudit({actorUserId:actor.id,action:'customer.access_updated',entityType:'customer_profile',entityId:id,summary:`${updated.email??updated.full_name??id} jogosultsága módosítva`,beforeState:current,afterState:updated,metadata:{fields:Object.keys(parsed.data)}});
   return NextResponse.json({ ok: true });
 }

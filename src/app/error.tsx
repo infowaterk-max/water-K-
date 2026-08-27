@@ -1,5 +1,16 @@
 'use client';
 
 export default function ErrorPage({ reset }: { error: Error & { digest?: string }; reset: () => void }) {
-  return <main className="section"><div className="shell confirmationShell"><span className="eyebrow">Hiba</span><h1 className="sectionTitle">Valami nem sikerült.</h1><p className="lead">A webshop nem veszítette el a rendelésedet automatikusan. Próbáld újra a műveletet.</p><button className="btn btnPrimary" onClick={() => reset()}>Újrapróbálom</button></div></main>;
+  return (
+    <main className="section">
+      <div className="shell">
+        <section className="card" role="alert">
+          <span className="eyebrow">Átmeneti hiba</span>
+          <h1 className="sectionTitle">Valami nem a tervek szerint alakult.</h1>
+          <p className="lead">A már leadott rendelést ne add le újra automatikusan. Megpróbálhatod újratölteni ezt a nézetet.</p>
+          <button className="btn btnPrimary" onClick={reset}>Újrapróbálás</button>
+        </section>
+      </div>
+    </main>
+  );
 }

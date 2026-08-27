@@ -20,7 +20,7 @@ async function runWorker(request:Request){
 
   const results:Array<{id:string;ok:boolean;error?:string}>=[];
   for(const row of claimed??[]){
-    try{await processIntegrationJob(row.id);results.push({id:row.id,ok:true});}
+    try{await processIntegrationJob(row.id,row.processing_token);results.push({id:row.id,ok:true});}
     catch(error){results.push({id:row.id,ok:false,error:error instanceof Error?error.message:'Ismeretlen hiba'});}
   }
   return NextResponse.json({ok:true,processed:results.length,results,checkedAt});
