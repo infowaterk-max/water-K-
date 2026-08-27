@@ -7,6 +7,7 @@ import './globals.css';
 import './store-v2.css';
 import './flow-v2.css';
 import './v6.css';
+import './v7.css';
 
 const siteUrl=process.env.NEXT_PUBLIC_SITE_URL??'https://water-k-native.vercel.app';
 
@@ -28,6 +29,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body>
         <AnalyticsProvider>
           <CartProvider>
+            <a className="skipLink" href="#main-content">Ugrás a tartalomhoz</a>
             <header className="siteHeader">
               <div className="shell nav">
                 <Link className="brand" href="/">Water-K</Link>
@@ -41,7 +43,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 </nav>
               </div>
             </header>
-            {children}
+            <div id="main-content" tabIndex={-1}>{children}</div>
             <footer className="footer">
               <div className="shell splitFeature">
                 <div><strong>Water-K</strong><p className="muted">Vízmegtartó technológia és saját fejlesztésű webáruház.</p></div>
