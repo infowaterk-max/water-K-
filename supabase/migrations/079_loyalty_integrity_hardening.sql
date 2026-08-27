@@ -69,15 +69,16 @@ end;$$;
 revoke all on function public.reverse_loyalty_points_for_ineligible_orders() from public,anon,authenticated;
 grant execute on function public.reverse_loyalty_points_for_ineligible_orders() to service_role;
 
+-- Keep the original view column order intact; CREATE OR REPLACE VIEW may only append new columns.
 create or replace view public.loyalty_balances
 with (security_invoker=true)
 as
 select customer_id,
        greatest(coalesce(sum(points),0),0)::bigint as points_balance,
-       least(coalesce(sum(points),0),0)::bigint as points_debt,
        coalesce(sum(points) filter(where points>0),0)::bigint as lifetime_earned_points,
        abs(coalesce(sum(points) filter(where entry_type='redeem'),0))::bigint as lifetime_redeemed_points,
-       max(occurred_at) as last_activity_at
+       max(occurred_at) as last_activity_at,
+       abs(least(coalesce(sum(points),0),0))::bigint as points_debt
 from public.loyalty_ledger
 group by customer_id;
 revoke all on public.loyalty_balances from public,anon,authenticated;
