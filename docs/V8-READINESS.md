@@ -17,7 +17,7 @@ The codebase must remain on `feature/native-store-v8` until the final deployment
 - Cash-flow / procurement capital decision support.
 - Item-level returns, cumulative returned-quantity guards, refund-total guards and controlled inventory restocking.
 - Atomic return request creation and return-case state transitions.
-- Customer-service tickets with threaded customer/admin conversation and state integrity.
+- Customer-service tickets with threaded customer/admin conversation and database-level closed-thread integrity.
 - Marketing consent ledger, campaign queue, suppression list and communication worker recovery.
 - Resend communication provider, signed one-click marketing unsubscribe and signed Resend webhook handling.
 - Transactional notifications for support replies and return-status updates.
@@ -46,6 +46,7 @@ Production deployment must apply all not-yet-applied migrations strictly by file
 - `051_return_transition_atomicity.sql`
 - `052_support_thread_integrity.sql`
 - `053_partial_procurement_receipts.sql`
+- `054_support_closed_thread_guard.sql`
 
 Do not cherry-pick individual V8 migrations into production. Apply the branch as one tested migration set.
 
@@ -71,7 +72,7 @@ Payment, courier and invoicing provider credentials stay provider-specific and c
 5. Exercise paid → processing → shipped → completed and confirm required tracking protection.
 6. Create purchase order → approve → order → partial receipt → final receipt; verify stock events and no over-receipt.
 7. Create partial return; verify cumulative quantity guard, refund ceiling and one-time restock.
-8. Open a support ticket; exchange customer/admin messages; verify closed-thread protection.
+8. Open a support ticket; exchange customer/admin messages; verify closed-thread protection including concurrent close/reply races.
 9. Grant and withdraw marketing consent; verify marketing jobs are blocked after withdrawal while transactional communication remains allowed unless the address is globally suppressed.
 10. Verify Resend delivery, bounce/complaint webhook suppression and one-click unsubscribe on staging.
 11. Compare dashboard revenue/COGS/margin/inventory metrics against hand-calculated test orders.
