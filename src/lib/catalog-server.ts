@@ -39,6 +39,7 @@ export async function getProducts(): Promise<Product[]> {
       const meta = metadata(row.sku);
       return {
         id: row.id,
+        sku: row.sku,
         slug: slugFromVariant(row.sku, row.label),
         name: `${row.products?.name ?? 'Water-K'} ${row.label}`,
         size: row.label,
