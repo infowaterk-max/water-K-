@@ -6,6 +6,7 @@ import { CookieConsent } from '@/components/analytics/cookie-consent';
 import './globals.css';
 import './store-v2.css';
 import './flow-v2.css';
+import './v6.css';
 
 const siteUrl=process.env.NEXT_PUBLIC_SITE_URL??'https://water-k-native.vercel.app';
 
