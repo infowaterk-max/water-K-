@@ -3,5 +3,5 @@ import { requireAdmin } from '@/lib/auth/require-admin';
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   await requireAdmin();
-  return <main className="adminGrid"><aside className="adminSide"><strong>Water-K Admin</strong><Link href="/admin">Áttekintés</Link><Link href="/admin/termekek">Termékek</Link><Link href="/admin/rendelesek">Rendelések</Link><Link href="/admin/integraciok">Integrációk</Link><Link href="/admin/kuponok">Kuponok</Link><Link href="/admin/ugyfelek">Ügyfelek</Link><Link href="/admin/beallitasok">Beállítások</Link><Link href="/">Webshop megnyitása</Link></aside>{children}</main>;
+  return <main className="adminGrid"><aside className="adminSide"><strong>Water-K Admin</strong><Link href="/admin">Áttekintés</Link><Link href="/admin/termekek">Termékek</Link><Link href="/admin/rendelesek">Rendelések</Link><Link href="/admin/integraciok">Integrációk</Link><Link href="/admin/naplo">Napló</Link><Link href="/admin/kuponok">Kuponok</Link><Link href="/admin/ugyfelek">Ügyfelek</Link><Link href="/admin/beallitasok">Beállítások</Link><Link href="/">Webshop megnyitása</Link></aside>{children}</main>;
 }
