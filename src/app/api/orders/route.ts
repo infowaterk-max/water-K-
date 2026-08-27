@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { products } from '@/lib/catalog';
+import { orderTotal, shippingFee } from '@/lib/commerce/pricing';
 import type { OrderStatus } from '@/lib/orders/types';
 
 const checkoutSchema = z.object({
@@ -46,25 +47,45 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Céges vagy viszonteladói rendeléshez cégnév és adószám szükséges.' }, { status: 400 });
   }
 
-  let total = 0;
+  if (checkout.shippingMethod === 'foxpost' && !checkout.parcelPointId) {
+    return NextResponse.json({ error: 'Foxpost szállításhoz válassz vagy adj meg csomagautomatát.' }, { status: 400 });
+  }
+
+  let subtotal = 0;
+  const validatedItems = [];
+
   for (const item of items) {
     const product = products.find((entry) => entry.id === item.productId);
     if (!product || item.quantity > product.stock) {
       return NextResponse.json({ error: 'A kosár egyik tétele nem rendelhető a megadott mennyiségben.' }, { status: 409 });
     }
-    total += product.grossPrice * item.quantity;
+
+    const lineTotal = product.grossPrice * item.quantity;
+    subtotal += lineTotal;
+    validatedItems.push({
+      productId: product.id,
+      name: product.name,
+      quantity: item.quantity,
+      unitGross: product.grossPrice,
+      lineGross: lineTotal,
+    });
   }
 
+  const delivery = shippingFee(checkout.shippingMethod, subtotal);
+  const total = orderTotal(subtotal, checkout.shippingMethod);
   const orderNumber = `WK-${Date.now().toString().slice(-9)}`;
   const status: OrderStatus = checkout.paymentMethod === 'kh_card' ? 'pending_payment' : 'pending_transfer';
 
-  // Staging: the validated order is returned to the client. Production persistence will use
-  // a server-side Supabase client and a transaction before payment initialization.
+  // Staging: the validated order summary is returned to the client. Production persistence
+  // will insert the same validated values into Supabase in one server-side transaction.
   return NextResponse.json({
     ok: true,
     orderNumber,
+    subtotal,
+    shippingFee: delivery,
     total,
     status,
+    items: validatedItems,
     next: checkout.paymentMethod === 'kh_card' ? 'payment' : 'confirmation',
   }, { status: 201 });
 }
