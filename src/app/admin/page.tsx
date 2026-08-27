@@ -1,14 +1,18 @@
-export default function AdminPage() {
-  return (
-    <section className="adminMain">
-      <span className="eyebrow">Saját admin</span>
-      <h1 className="sectionTitle">Irányítópult</h1>
-      <p className="lead">A teljes admin szekció központi, szerveroldali jogosultsági kapu mögött fut.</p>
-      <div className="cards">
-        <div className="card"><h3>Rendelések</h3><div className="price">—</div><p className="muted">A staging adatbázis bekötése után élő adat.</p></div>
-        <div className="card"><h3>Bevétel</h3><div className="price">—</div><p className="muted">Fizetett rendelések bruttó forgalma.</p></div>
-        <div className="card"><h3>Készletfigyelés</h3><div className="price">3</div><p className="muted">Jelenlegi induló termékkínálat.</p></div>
-      </div>
-    </section>
-  );
+import { formatHuf } from '@/lib/catalog';
+import { getProducts } from '@/lib/catalog-server';
+import { createClient } from '@/lib/supabase/server';
+
+export default async function AdminPage() {
+  const products = await getProducts();
+  const catalogValue = products.reduce((sum,p)=>sum+p.grossPrice*p.stock,0);
+  const lowStock = products.filter(p=>p.stock<=10).length;
+  let orders=0; let pending=0; let paidRevenue=0;
+  try { const supabase=await createClient(); const {data}=await supabase.from('orders').select('status,total_gross_huf').limit(500); if(data){orders=data.length; pending=data.filter(o=>o.status==='pending').length; paidRevenue=data.filter(o=>['paid','processing','shipped','completed'].includes(o.status)).reduce((s,o)=>s+o.total_gross_huf,0);} } catch {}
+  const supabaseReady=Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL&&(process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY||process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY));
+  const serverKeyReady=Boolean(process.env.SUPABASE_SECRET_KEY||process.env.SUPABASE_SERVICE_ROLE_KEY);
+  const khReady=Boolean(process.env.KH_MERCHANT_ID&&(process.env.KH_API_SECRET||process.env.KH_SECRET));
+  return <section className="adminMain"><span className="eyebrow">Water-K saját admin</span><h1 className="sectionTitle">Irányítópult</h1><p className="lead">Élő rendelés-, készlet-, partner- és integrációs állapot egy helyen.</p>
+    <div className="cards adminMetricCards"><div className="card"><span className="badge">Rendelések</span><h3>Összes / függőben</h3><div className="price">{orders} / {pending}</div><p className="muted">A jelenlegi adatbázisból.</p></div><div className="card"><span className="badge">Fizetett forgalom</span><h3>Bruttó bevétel</h3><div className="price">{formatHuf(paidRevenue)}</div><p className="muted">Fizetett és teljesítési állapotú rendelések.</p></div><div className="card"><span className="badge">Készletérték</span><h3>Listaérték</h3><div className="price">{formatHuf(catalogValue)}</div><p className="muted">Alacsony készletű kiszerelés: {lowStock}.</p></div></div>
+    <div className="splitFeature adminReadiness"><section className="featurePanel"><span className="eyebrow">Rendszerállapot</span><h2>Integrációs readiness</h2><div className="integrationList"><div><span>Supabase adatbázis és Auth</span><strong>{supabaseReady?'Konfigurálva':'Bekötésre vár'}</strong></div><div><span>Szerveroldali Supabase kulcs</span><strong>{serverKeyReady?'Aktív':'Hiányzik'}</strong></div><div><span>K&H bankkártyás fizetés</span><strong>{khReady?'Kulcsok érzékelve':'Sandbox adatokra vár'}</strong></div><div><span>Foxpost / GLS / MPL</span><strong>Adapterréteg kész</strong></div><div><span>Vercel production</span><strong>Aktív</strong></div></div></section><section className="featurePanel darkPanel"><span className="eyebrow">Már működik</span><h2>Saját webshopmotor.</h2><ul className="featureList"><li>Atomi rendelésmentés és készletlevonás</li><li>Rendelés státuszkezelés</li><li>Élő készlet- és árszerkesztés</li><li>Viszonteladói jóváhagyási workflow</li><li>RLS + szerveroldali admin jogosultság</li></ul></section></div>
+  </section>;
 }
