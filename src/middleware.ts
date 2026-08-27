@@ -1,43 +1,20 @@
 import { createServerClient, type CookieOptions } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
 
-type CookieToSet = {
-  name: string;
-  value: string;
-  options?: CookieOptions;
-};
+type CookieToSet = { name:string; value:string; options?:CookieOptions };
+const MUTATING=new Set(['POST','PUT','PATCH','DELETE']);
+function nextResponse(request:NextRequest){return NextResponse.next({request:{headers:request.headers}})}
+function blockedAdminMutation(request:NextRequest){if(!request.nextUrl.pathname.startsWith('/api/admin/')||!MUTATING.has(request.method))return false;const origin=request.headers.get('origin');if(!origin)return false;try{return new URL(origin).origin!==request.nextUrl.origin}catch{return true}}
 
-function nextResponse(request: NextRequest) {
-  return NextResponse.next({ request: { headers: request.headers } });
-}
-
-export async function middleware(request: NextRequest) {
-  let response = nextResponse(request);
-
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const key = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-
-  if (!url || !key) return response;
-
-  const supabase = createServerClient(url, key, {
-    cookies: {
-      getAll() {
-        return request.cookies.getAll();
-      },
-      setAll(cookiesToSet: CookieToSet[]) {
-        cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value));
-        response = nextResponse(request);
-        cookiesToSet.forEach(({ name, value, options }) => response.cookies.set(name, value, options));
-      },
-    },
-  });
-
+export async function middleware(request:NextRequest){
+  if(blockedAdminMutation(request))return NextResponse.json({error:'Cross-origin admin mutation blocked.'},{status:403});
+  let response=nextResponse(request);
+  const url=process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const key=process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY??process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  if(!url||!key)return response;
+  const supabase=createServerClient(url,key,{cookies:{getAll(){return request.cookies.getAll()},setAll(cookiesToSet:CookieToSet[]){cookiesToSet.forEach(({name,value})=>request.cookies.set(name,value));response=nextResponse(request);cookiesToSet.forEach(({name,value,options})=>response.cookies.set(name,value,options));}}});
   await supabase.auth.getUser();
   return response;
 }
 
-export const config = {
-  matcher: [
-    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
-  ],
-};
+export const config={matcher:['/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)']};
