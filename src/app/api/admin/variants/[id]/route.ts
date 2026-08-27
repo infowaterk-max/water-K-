@@ -40,6 +40,5 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
   if (parsed.data.stock !== undefined && parsed.data.stock !== current.stock_quantity) {
     await admin.from('inventory_events').insert({variant_id:id,change_quantity:parsed.data.stock-current.stock_quantity,previous_stock:current.stock_quantity,new_stock:parsed.data.stock,reason:'admin_adjustment',actor_user_id:actor.id,metadata:{sku:current.sku,previous_gross_price_huf:current.gross_price_huf,new_gross_price_huf:parsed.data.grossPrice??current.gross_price_huf}});
   }
-  await admin.from('order_events').insert({order_id:null}).then(()=>undefined).catch(()=>undefined);
   return NextResponse.json({ ok: true });
 }
