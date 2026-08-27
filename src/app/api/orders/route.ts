@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { createClient } from '@/lib/supabase/server';
+import { createAdminClient } from '@/lib/supabase/admin';
 
 const checkoutSchema = z.object({
   customerType: z.enum(['retail','company','reseller']), email: z.string().trim().email(), name: z.string().trim().min(2).max(160), phone: z.string().trim().min(5).max(40),
@@ -21,19 +22,17 @@ export async function POST(request: Request) {
   if (checkout.shippingMethod === 'foxpost' && !checkout.parcelPointId) return NextResponse.json({error:'Foxpost szállításhoz csomagautomatát kell választani.'},{status:400});
 
   try {
-    const supabase = await createClient();
-    const { data, error } = await supabase.rpc('place_order', {
+    const sessionClient = await createClient();
+    const { data: { user } } = await sessionClient.auth.getUser();
+    const admin = createAdminClient();
+    const { data, error } = await admin.rpc('place_order', {
       p_customer_email: checkout.email,
       p_billing_name: checkout.name,
-      p_billing_company: checkout.companyName ?? '',
-      p_billing_tax_number: checkout.taxNumber ?? '',
+      p_billing_company: checkout.companyName ?? '', p_billing_tax_number: checkout.taxNumber ?? '',
       p_billing_postcode: '', p_billing_city: '', p_billing_address: checkout.billingAddress,
       p_shipping_name: checkout.name, p_shipping_postcode: '', p_shipping_city: '', p_shipping_address: checkout.shippingAddress,
-      p_customer_phone: checkout.phone,
-      p_shipping_method: checkout.shippingMethod,
-      p_parcel_point_id: checkout.parcelPointId ?? '',
-      p_payment_method: checkout.paymentMethod,
-      p_note: checkout.note ?? '',
+      p_customer_phone: checkout.phone, p_shipping_method: checkout.shippingMethod, p_parcel_point_id: checkout.parcelPointId ?? '',
+      p_payment_method: checkout.paymentMethod, p_note: checkout.note ?? '', p_customer_id: user?.id ?? null,
       p_items: items.map((item)=>({variant_id:item.productId,quantity:item.quantity})),
     });
     if (error || !data) return NextResponse.json({error:error?.message ?? 'A rendelés mentése nem sikerült.'},{status:409});
