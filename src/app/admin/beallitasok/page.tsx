@@ -1,13 +1,36 @@
-export default function AdminSettingsPage() {
-  return (
-    <section className="adminMain">
-      <span className="eyebrow">Admin · Beállítások</span>
-      <h1 className="sectionTitle">Integrációk és beállítások</h1>
-      <div className="cards">
-        <section className="card"><h2>K&H</h2><p className="muted">A banki sandbox hitelesítő adatok bekötése után innen felügyelhető a fizetési kapcsolat állapota.</p></section>
-        <section className="card"><h2>Szállítás</h2><p className="muted">Foxpost, GLS és MPL adapterek konfigurációs állapota kerül ide.</p></section>
-        <section className="card"><h2>Supabase</h2><p className="muted">Adatbázis, hitelesítés és jogosultsági konfiguráció állapota.</p></section>
-      </div>
-    </section>
-  );
+import Link from 'next/link';
+import { createClient } from '@/lib/supabase/server';
+import { getIntegrationRegistry } from '@/lib/integrations/registry';
+import { IntegrationJobControl } from '@/components/admin/integration-job-control';
+
+export const dynamic='force-dynamic';
+const stateLabel:Record<string,string>={ready:'Aktív',configured:'Konfigurálva',blocked:'Külső adatra vár',not_configured:'Nincs konfigurálva'};
+
+export default async function AdminSettingsPage(){
+  const integrations=getIntegrationRegistry();
+  let jobs:Array<{id:string;kind:string;provider:string;status:string;attempt_count:number;last_error:string|null;created_at:string;order_id:string|null}>=[];
+  let webhooks:Array<{id:string;provider:string;status:string;signature_valid:boolean;created_at:string;error_message:string|null}>=[];
+  let dbHealthy=false;
+  try{
+    const supabase=await createClient();
+    const [jobResult,webhookResult,pingResult]=await Promise.all([
+      supabase.from('integration_jobs').select('id,kind,provider,status,attempt_count,last_error,created_at,order_id').order('created_at',{ascending:false}).limit(25),
+      supabase.from('webhook_events').select('id,provider,status,signature_valid,created_at,error_message').order('created_at',{ascending:false}).limit(25),
+      supabase.from('products').select('id',{head:true,count:'exact'}).limit(1),
+    ]);
+    if(!jobResult.error&&jobResult.data) jobs=jobResult.data;
+    if(!webhookResult.error&&webhookResult.data) webhooks=webhookResult.data;
+    dbHealthy=!pingResult.error;
+  }catch{}
+  const problems=jobs.filter(j=>j.status==='failed'||j.status==='blocked').length;
+  const queued=jobs.filter(j=>j.status==='pending'||j.status==='processing').length;
+  const cronConfigured=Boolean(process.env.CRON_SECRET);
+  return <section className="adminMain">
+    <span className="eyebrow">Admin · Beállítások</span><h1 className="sectionTitle">Integrációk és műveleti állapot</h1>
+    <div className="cards">{integrations.map(item=><section className="card" key={item.id}><div className="adminToolbar"><h2>{item.label}</h2><span className="badge">{stateLabel[item.state]}</span></div><p className="muted">{item.detail}</p></section>)}</div>
+    <div className="cards"><section className="card"><span className="badge">Adatbázis</span><h2>{dbHealthy?'Elérhető':'Hiba'}</h2><p className="muted">Supabase lekérdezési próba.</p></section><section className="card"><span className="badge">Worker</span><h2>{cronConfigured?'Védett':'Nincs kulcs'}</h2><p className="muted">CRON_SECRET állapot, az érték nem jelenik meg.</p></section><section className="card"><span className="badge">Sorban</span><h2>{queued}</h2><p className="muted">Függő vagy éppen futó integrációs művelet.</p></section></div>
+    <div className="cards"><section className="card"><span className="badge">Outbox</span><h2>{jobs.length} művelet</h2><p className="muted">Legutóbbi külső integrációs feladatok.</p></section><section className="card"><span className="badge">Figyelmeztetés</span><h2>{problems}</h2><p className="muted">Blokkolt vagy sikertelen integrációs feladat.</p></section><section className="card"><span className="badge">Webhook</span><h2>{webhooks.length}</h2><p className="muted">Legutóbbi bejövő események.</p></section></div>
+    <div className="tableCard"><h2>Integrációs outbox</h2><table className="adminTable"><thead><tr><th>Provider</th><th>Művelet</th><th>Állapot</th><th>Próba</th><th>Hiba</th><th>Időpont</th><th>Művelet</th></tr></thead><tbody>{jobs.map(job=><tr key={job.id}><td><Link href={`/admin/beallitasok/integraciok/${job.id}`}><strong>{job.provider}</strong></Link></td><td>{job.kind}</td><td><span className="badge">{job.status}</span></td><td>{job.attempt_count}</td><td>{job.last_error??'—'}</td><td>{new Intl.DateTimeFormat('hu-HU',{dateStyle:'short',timeStyle:'short'}).format(new Date(job.created_at))}</td><td><IntegrationJobControl id={job.id} disabled={job.status==='processing'||job.status==='succeeded'}/></td></tr>)}</tbody></table>{jobs.length===0&&<p className="muted" style={{padding:20}}>Még nincs integrációs feladat.</p>}</div>
+    <div className="tableCard"><h2>Webhook napló</h2><table className="adminTable"><thead><tr><th>Provider</th><th>Állapot</th><th>Aláírás</th><th>Hiba</th><th>Időpont</th></tr></thead><tbody>{webhooks.map(event=><tr key={event.id}><td>{event.provider}</td><td><span className="badge">{event.status}</span></td><td>{event.signature_valid?'Hiteles':'Nem hitelesített'}</td><td>{event.error_message??'—'}</td><td>{new Intl.DateTimeFormat('hu-HU',{dateStyle:'short',timeStyle:'short'}).format(new Date(event.created_at))}</td></tr>)}</tbody></table>{webhooks.length===0&&<p className="muted" style={{padding:20}}>Még nincs webhook esemény.</p>}</div>
+  </section>;
 }
