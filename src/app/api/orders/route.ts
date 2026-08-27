@@ -35,6 +35,7 @@ export async function POST(request:Request){
     const order=data as PlaceOrderResult; const replayed=order.idempotency_replayed===true;
     const {data:confirmation,error:confirmationError}=await admin.from('orders').select('confirmation_token').eq('id',order.order_id).maybeSingle();
     if(confirmationError||!confirmation?.confirmation_token)return NextResponse.json({error:'A rendelés rögzült, de a visszaigazítás előkészítése nem sikerült. Ellenőrizd a Fiókom oldalt vagy a visszaigazoló e-mailt.'},{status:503});
+    if(user?.id)await admin.rpc('convert_checkout_recovery_intent',{p_user_id:user.id,p_order_id:order.order_id}).catch(()=>null);
     if(!replayed){
       await admin.from('order_events').insert({order_id:order.order_id,event_type:'legal_terms_accepted',actor_user_id:user?.id??null,metadata:{accepted_at:new Date().toISOString(),terms_path:'/aszf',privacy_path:'/adatvedelem',idempotency_key:idempotencyKey}});
       await enqueueIntegrationJob({orderId:order.order_id,kind:'email_send',provider:process.env.EMAIL_PROVIDER||'resend',payload:{template:'order_confirmation'}}).catch(async e=>{await admin.from('order_events').insert({order_id:order.order_id,event_type:'integration_enqueue_failed',metadata:{kind:'email_send',template:'order_confirmation',error:e instanceof Error?e.message:'unknown'}});});
