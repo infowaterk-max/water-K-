@@ -5,6 +5,8 @@ import { createAdminClient } from '@/lib/supabase/admin';
 
 export const dynamic = 'force-dynamic';
 const sellingStatuses=['paid','processing','shipped','completed'];
+type ForecastLevel='critical'|'warning'|'ok';
+const levelRank:Record<ForecastLevel,number>={critical:0,warning:1,ok:2};
 
 export default async function AdminProducts() {
   const products=await getProducts(); const admin=createAdminClient(); const since=new Date(Date.now()-30*86400000).toISOString();
@@ -15,7 +17,7 @@ export default async function AdminProducts() {
   ]);
   const partnerPrice=new Map((partnerRows??[]).map(row=>[row.id,row])); const orderIds=new Set((recentOrders??[]).map(o=>o.id)); const sold30=new Map<string,number>();
   for(const item of recentItems??[]){if(item.variant_id&&orderIds.has(item.order_id)) sold30.set(item.variant_id,(sold30.get(item.variant_id)??0)+item.quantity);}
-  const forecasts=products.map(product=>{const sold=sold30.get(product.id)??0;const daily=sold/30;const days=daily>0?Math.floor(product.stock/daily):null;const reorder=daily>0?Math.ceil(daily*21):null;const level=product.stock<=0?'critical':days!==null&&days<=14?'critical':days!==null&&days<=30?'warning':'ok';return {id:product.id,name:product.name,stock:product.stock,sold,daily,days,reorder,level};}).sort((a,b)=>({critical:0,warning:1,ok:2}[a.level]-{critical:0,warning:1,ok:2}[b.level]));
+  const forecasts=products.map(product=>{const sold=sold30.get(product.id)??0;const daily=sold/30;const days=daily>0?Math.floor(product.stock/daily):null;const reorder=daily>0?Math.ceil(daily*21):null;const level:ForecastLevel=product.stock<=0?'critical':days!==null&&days<=14?'critical':days!==null&&days<=30?'warning':'ok';return {id:product.id,name:product.name,stock:product.stock,sold,daily,days,reorder,level};}).sort((a,b)=>levelRank[a.level]-levelRank[b.level]);
   const alerts=forecasts.filter(f=>f.level!=='ok');
   return <section className="adminMain"><span className="eyebrow">Admin · Termékek</span><h1 className="sectionTitle">Termékkatalógus és készlettervezés</h1>
     <div className="cards adminMetricCards"><div className="card"><span className="badge">Készletriasztás</span><div className="price">{alerts.length}</div><p className="muted">kiszerelés igényel figyelmet</p></div><div className="card"><span className="badge">30 napos fogyás</span><div className="price">{forecasts.reduce((s,f)=>s+f.sold,0)} db</div><p className="muted">fizetett/teljesítés alatt lévő rendelésekből</p></div></div>
