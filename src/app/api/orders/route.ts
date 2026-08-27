@@ -8,7 +8,7 @@ const checkoutSchema=z.object({
   customerType:z.enum(['retail','company','reseller']),email:z.string().trim().email(),name:z.string().trim().min(2).max(160),phone:z.string().trim().min(5).max(40),companyName:z.string().trim().max(200).optional(),taxNumber:z.string().trim().max(40).optional(),
   billingPostcode:z.string().trim().min(2).max(20),billingCity:z.string().trim().min(2).max(120),billingAddress:z.string().trim().min(2).max(300),
   sameAddress:z.enum(['true','false']).default('true'),shippingPostcode:z.string().trim().max(20).optional(),shippingCity:z.string().trim().max(120).optional(),shippingAddress:z.string().trim().max(300).optional(),
-  shippingMethod:z.enum(['foxpost','gls','mpl','pickup']),paymentMethod:z.enum(['kh_card','bank_transfer']),parcelPointId:z.string().trim().max(160).optional(),note:z.string().trim().max(1000).optional(),
+  shippingMethod:z.enum(['foxpost','gls','mpl','pickup']),paymentMethod:z.enum(['kh_card','bank_transfer']),parcelPointId:z.string().trim().max(160).optional(),note:z.string().trim().max(1000).optional(),legalAccepted:z.literal('true'),
 });
 const schema=z.object({checkout:checkoutSchema,items:z.array(z.object({productId:z.string().uuid(),quantity:z.number().int().positive().max(99)})).min(1).max(30)});
 type PlaceOrderResult={order_id:string;order_number:string;subtotal_gross_huf:number;shipping_gross_huf:number;total_gross_huf:number};
@@ -37,6 +37,7 @@ export async function POST(request:Request){
     });
     if(error||!data)return NextResponse.json({error:error?.message??'A rendelés mentése nem sikerült.'},{status:409});
     const order=data as PlaceOrderResult;
+    await admin.from('order_events').insert({order_id:order.order_id,event_type:'legal_terms_accepted',actor_user_id:user?.id??null,metadata:{accepted_at:new Date().toISOString(),terms_path:'/aszf',privacy_path:'/adatvedelem'}});
     if(checkout.paymentMethod==='kh_card'){
       await enqueueIntegrationJob({orderId:order.order_id,kind:'payment_create',provider:'kh',payload:{orderNumber:order.order_number,totalGrossHuf:order.total_gross_huf,returnPath:'/rendeles-sikeres'}});
     }
