@@ -1,0 +1,5 @@
+type LogLevel='debug'|'info'|'warning'|'error'|'critical';
+const REDACTED=new Set(['email','phone','password','token','authorization','cookie','address','name','full_name']);
+function sanitize(value:unknown):unknown{if(Array.isArray(value))return value.map(sanitize);if(value&&typeof value==='object'){return Object.fromEntries(Object.entries(value as Record<string,unknown>).filter(([k])=>!REDACTED.has(k.toLowerCase())).map(([k,v])=>[k,sanitize(v)]));}return typeof value==='string'&&value.length>2000?`${value.slice(0,2000)}…`:value}
+export function correlationId(value?:string|null){const v=value?.trim();return v&&v.length<=128?v:crypto.randomUUID()}
+export function logEvent(level:LogLevel,event:string,context:Record<string,unknown>={}){const payload={ts:new Date().toISOString(),level,event,...sanitize(context) as Record<string,unknown>};const line=JSON.stringify(payload);if(level==='error'||level==='critical')console.error(line);else if(level==='warning')console.warn(line);else console.log(line);return payload}
