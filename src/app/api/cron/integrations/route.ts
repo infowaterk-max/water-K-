@@ -16,8 +16,18 @@ async function runWorker(request:Request){
   if(!authorized(request)) return NextResponse.json({error:'Nincs jogosultság.'},{status:401});
   const admin=createAdminClient();
   const checkedAt=new Date().toISOString();
+
+  let inventorySnapshot:{ok:boolean;captured?:number;error?:string};
+  try{
+    const {data,error}=await admin.rpc('capture_inventory_snapshot');
+    if(error) throw error;
+    inventorySnapshot={ok:true,captured:Number(data??0)};
+  }catch(error){
+    inventorySnapshot={ok:false,error:error instanceof Error?error.message:'A napi készletpillanatkép nem készült el.'};
+  }
+
   const {data:claimed,error}=await admin.rpc('claim_integration_jobs',{p_limit:10});
-  if(error) return NextResponse.json({error:'Az integrációs feladatok zárolása nem sikerült.'},{status:500});
+  if(error) return NextResponse.json({error:'Az integrációs feladatok zárolása nem sikerült.',inventorySnapshot},{status:500});
 
   const integrationResults:Array<{id:string;ok:boolean;error?:string}>=[];
   for(const row of claimed??[]){
@@ -42,7 +52,8 @@ async function runWorker(request:Request){
   }
 
   return NextResponse.json({
-    ok:integrationResults.every(result=>result.ok)&&communication.ok,
+    ok:inventorySnapshot.ok&&integrationResults.every(result=>result.ok)&&communication.ok,
+    inventorySnapshot,
     integrations:{processed:integrationResults.length,results:integrationResults},
     communication,
     checkedAt,
