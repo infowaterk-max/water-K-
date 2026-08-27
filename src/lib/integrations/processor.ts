@@ -19,9 +19,11 @@ export async function processIntegrationJob(jobId:string){
  try{
   if(job.kind==='payment_create'){
    if(job.provider!=='kh'||!job.order_id)throw new Error('Unsupported payment provider or missing order');
-   const {data:order,error}=await admin.from('orders').select('order_number,total_gross_huf').eq('id',job.order_id).maybeSingle(); if(error||!order)throw new Error('Payment order not found');
+   const {data:order,error}=await admin.from('orders').select('order_number,total_gross_huf,confirmation_token').eq('id',job.order_id).maybeSingle(); if(error||!order)throw new Error('Payment order not found');
+   if(!order.confirmation_token)throw new Error('Payment confirmation token missing');
    const siteUrl=process.env.NEXT_PUBLIC_SITE_URL; if(!siteUrl)throw new Error('NEXT_PUBLIC_SITE_URL required');
-   const result=await new KhPaymentGateway().createPayment({orderId:order.order_number,total:{amount:order.total_gross_huf,currency:'HUF'},returnUrl:`${siteUrl.replace(/\/$/,'')}/rendeles-sikeres?order=${encodeURIComponent(order.order_number)}`});
+   const returnUrl=`${siteUrl.replace(/\/$/,'')}/rendeles-sikeres?token=${encodeURIComponent(order.confirmation_token)}`;
+   const result=await new KhPaymentGateway().createPayment({orderId:order.order_number,total:{amount:order.total_gross_huf,currency:'HUF'},returnUrl});
    await admin.from('orders').update({external_payment_id:result.providerReference,updated_at:new Date().toISOString()}).eq('id',job.order_id); await admin.from('integration_jobs').update({status:'succeeded',result,next_attempt_at:null,updated_at:new Date().toISOString()}).eq('id',jobId); return result;
   }
   if(job.kind==='shipment_create'){
