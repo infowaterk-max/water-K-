@@ -1,18 +1,4 @@
 import { NextResponse } from 'next/server';
-
-export async function GET() {
-  const supabasePublicKey=process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY??process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  const supabaseServerKey=process.env.SUPABASE_SECRET_KEY??process.env.SUPABASE_SERVICE_ROLE_KEY;
-  const khSecret=process.env.KH_SECRET??process.env.KH_API_SECRET;
-  return NextResponse.json({
-    ok:true,
-    service:'waterk-store',
-    environment:process.env.VERCEL_ENV??process.env.NODE_ENV??'unknown',
-    supabasePublicConfigured:Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL&&supabasePublicKey),
-    supabaseServerConfigured:Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL&&supabaseServerKey),
-    khConfigured:Boolean(process.env.KH_MERCHANT_ID&&khSecret),
-    foxpostConfigured:Boolean(process.env.FOXPOST_API_KEY),
-    glsConfigured:Boolean(process.env.GLS_USERNAME&&process.env.GLS_PASSWORD),
-    mplConfigured:Boolean(process.env.MPL_API_KEY),
-  });
-}
+import { createAdminClient } from '@/lib/supabase/admin';
+export const dynamic='force-dynamic';
+export async function GET(){const started=Date.now();try{const admin=createAdminClient();const {error}=await admin.from('products').select('id').limit(1);if(error)throw error;return NextResponse.json({status:'ok',database:'ok',latencyMs:Date.now()-started,timestamp:new Date().toISOString()});}catch{return NextResponse.json({status:'degraded',database:'error',latencyMs:Date.now()-started,timestamp:new Date().toISOString()},{status:503});}}
