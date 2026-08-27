@@ -2,6 +2,7 @@ import { createAdminClient } from '@/lib/supabase/admin';
 import { KhPaymentGateway } from '@/lib/integrations/kh';
 import { FoxpostShipping,GlsShipping,MplShipping } from '@/lib/integrations/shipping';
 import { getInvoiceProvider } from '@/lib/integrations/invoicing';
+import { sendTransactionalEmail,type EmailTemplate } from '@/lib/integrations/email';
 import type { ShippingProvider } from '@/lib/integrations/types';
 
 const skuWeight:Record<string,number>={'WK-040':40,'WK-750':750,'WK-25K':25000};
@@ -9,12 +10,12 @@ const MAX_ATTEMPTS=5;
 function shippingProvider(id:string):ShippingProvider{if(id==='foxpost')return new FoxpostShipping();if(id==='gls')return new GlsShipping();if(id==='mpl')return new MplShipping();throw new Error(`Unsupported shipping provider: ${id}`)}
 function isBlockedError(error:unknown){const text=error instanceof Error?error.message:String(error);return /credentials|required|contract|configured|unsupported|provider required/i.test(text)}
 function retryAt(attempt:number){const minutes=Math.min(15*Math.pow(2,Math.max(0,attempt-1)),240);return new Date(Date.now()+minutes*60*1000).toISOString()}
+const emailTemplates:EmailTemplate[]=['order_confirmation','payment_confirmed','order_shipped','order_completed'];
 
 export async function processIntegrationJob(jobId:string){
  const admin=createAdminClient(); const {data:job,error:jobError}=await admin.from('integration_jobs').select('*').eq('id',jobId).maybeSingle();
  if(jobError||!job)throw new Error('Integration job not found'); if(job.status==='succeeded')return job;
- const attempt=(job.attempt_count??0)+1;
- await admin.from('integration_jobs').update({status:'processing',attempt_count:attempt,updated_at:new Date().toISOString(),last_error:null,next_attempt_at:null}).eq('id',jobId);
+ const attempt=(job.attempt_count??0)+1; await admin.from('integration_jobs').update({status:'processing',attempt_count:attempt,updated_at:new Date().toISOString(),last_error:null,next_attempt_at:null}).eq('id',jobId);
  try{
   if(job.kind==='payment_create'){
    if(job.provider!=='kh'||!job.order_id)throw new Error('Unsupported payment provider or missing order');
@@ -38,11 +39,13 @@ export async function processIntegrationJob(jobId:string){
    const result=await getInvoiceProvider().createInvoice({orderId:order.order_number,customer:{email:order.customer_email,phone:order.customer_phone??undefined,name:order.billing_name,companyName:order.billing_company??undefined,taxNumber:order.billing_tax_number??undefined},billingAddress:{country:'HU',postalCode:order.billing_postcode,city:order.billing_city,line1:order.billing_address},items:(items??[]).map(i=>({name:i.product_name,sku:i.sku,quantity:i.quantity,unitGrossHuf:i.unit_gross_huf,lineGrossHuf:i.line_total_gross_huf})),shippingGrossHuf:order.shipping_gross_huf,totalGrossHuf:order.total_gross_huf});
    await admin.from('orders').update({invoice_number:result.invoiceNumber,invoice_url:result.documentUrl??null,invoiced_at:new Date().toISOString(),updated_at:new Date().toISOString()}).eq('id',job.order_id); await admin.from('integration_jobs').update({status:'succeeded',result,next_attempt_at:null,updated_at:new Date().toISOString()}).eq('id',jobId); await admin.from('order_events').insert({order_id:job.order_id,event_type:'invoice_created',metadata:{provider:job.provider,invoice_number:result.invoiceNumber}}); return result;
   }
+  if(job.kind==='email_send'){
+   if(!job.order_id)throw new Error('Missing order'); const template=String(job.payload?.template??'') as EmailTemplate; if(!emailTemplates.includes(template))throw new Error('Unsupported email template');
+   const {data:order,error}=await admin.from('orders').select('order_number,customer_email,billing_name,total_gross_huf,tracking_number,invoice_url').eq('id',job.order_id).maybeSingle(); if(error||!order)throw new Error('Email order not found');
+   const siteUrl=process.env.NEXT_PUBLIC_SITE_URL; if(!siteUrl)throw new Error('NEXT_PUBLIC_SITE_URL required');
+   const result=await sendTransactionalEmail({to:order.customer_email,template,orderNumber:order.order_number,customerName:order.billing_name,totalGrossHuf:order.total_gross_huf,trackingNumber:order.tracking_number,invoiceUrl:order.invoice_url,siteUrl});
+   await admin.from('integration_jobs').update({status:'succeeded',result,next_attempt_at:null,updated_at:new Date().toISOString()}).eq('id',jobId); await admin.from('order_events').insert({order_id:job.order_id,event_type:'email_sent',metadata:{template,provider:job.provider,message_id:result.messageId}}); return result;
+  }
   throw new Error(`Unsupported integration job kind: ${job.kind}`);
- }catch(error){
-  const message=error instanceof Error?error.message:'Unknown integration error';
-  const blocked=isBlockedError(error)||attempt>=MAX_ATTEMPTS;
-  await admin.from('integration_jobs').update({status:blocked?'blocked':'failed',last_error:message,next_attempt_at:blocked?null:retryAt(attempt),updated_at:new Date().toISOString()}).eq('id',jobId);
-  throw error;
- }
+ }catch(error){const message=error instanceof Error?error.message:'Unknown integration error';const blocked=isBlockedError(error)||attempt>=MAX_ATTEMPTS;await admin.from('integration_jobs').update({status:blocked?'blocked':'failed',last_error:message,next_attempt_at:blocked?null:retryAt(attempt),updated_at:new Date().toISOString()}).eq('id',jobId);throw error}
 }

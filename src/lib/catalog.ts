@@ -1,5 +1,6 @@
 export type Product = {
   id: string;
+  sku: string;
   slug: string;
   name: string;
   size: string;
@@ -17,6 +18,7 @@ export type Product = {
 export const products: Product[] = [
   {
     id: 'water-k-40-g',
+    sku: 'WK-040',
     slug: 'water-k-40-g',
     name: 'Water-K 40 g',
     size: '40 g',
@@ -31,6 +33,7 @@ export const products: Product[] = [
   },
   {
     id: 'water-k-750-g',
+    sku: 'WK-750',
     slug: 'water-k-750-g',
     name: 'Water-K 750 g',
     size: '750 g',
@@ -46,6 +49,7 @@ export const products: Product[] = [
   },
   {
     id: 'water-k-25-kg',
+    sku: 'WK-25K',
     slug: 'water-k-25-kg',
     name: 'Water-K 25 kg',
     size: '25 kg',
