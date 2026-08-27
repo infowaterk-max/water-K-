@@ -1,7 +1,8 @@
 alter table public.integration_jobs
   add column if not exists processing_token uuid;
 
-create or replace function public.claim_integration_jobs(p_limit integer default 10)
+drop function if exists public.claim_integration_jobs(integer);
+create function public.claim_integration_jobs(p_limit integer default 10)
 returns table(id uuid, processing_token uuid)
 language plpgsql
 security definer
