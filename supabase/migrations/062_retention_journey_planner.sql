@@ -49,10 +49,8 @@ begin
       jsonb_build_object('checkoutRecoveryId',r.id,'recoveryToken',r.recovery_token,'lastSeenAt',r.last_seen_at,'expiresAt',r.expires_at)
     ) into v_journey;
     v_created:=v_created+1;
-    -- Uses the existing repeat_30d marketing template until a dedicated recovery template is activated.
-    -- The journey metadata keeps this distinguishable and delivery remains consent-gated.
     insert into public.customer_journey_steps(journey_id,step_key,purpose,template_key,scheduled_at)
-    values(v_journey,'checkout-recovery','marketing','repeat_30d',now())
+    values(v_journey,'checkout-recovery','marketing','abandoned_checkout',now())
     on conflict(journey_id,step_key) do nothing;
     if found then v_steps:=v_steps+1; end if;
   end loop;
