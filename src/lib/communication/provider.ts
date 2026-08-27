@@ -6,7 +6,5 @@ class DisabledProvider implements CommunicationProvider{
  async send(_message:CommunicationMessage):Promise<CommunicationSendResult>{throw new Error('COMMUNICATION_PROVIDER_NOT_CONFIGURED');}
 }
 
-export function getCommunicationProvider():CommunicationProvider{
- // External provider adapters are intentionally activated only after credentials and production sender domain are configured.
- return new DisabledProvider();
-}
+export function isCommunicationProviderConfigured(){return false;}
+export function getCommunicationProvider():CommunicationProvider{return new DisabledProvider();}
