@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useCart } from '@/components/cart/cart-provider';
+import { useAnalytics } from '@/components/analytics/analytics-provider';
 import { formatHuf } from '@/lib/catalog';
 import { freeShippingThreshold, shippingFee, shippingOptions } from '@/lib/commerce/pricing';
 import type { CustomerType, OrderStatus, ShippingMethod } from '@/lib/orders/types';
@@ -12,7 +13,7 @@ type OrderApiResponse={error?:string;orderNumber?:string;status?:OrderStatus;tot
 type CouponResponse={valid?:boolean;code?:string;discount?:number;error?:string};
 
 export function CheckoutForm({khEnabled}:{khEnabled:boolean}){
-  const {cart,total:subtotal,clear}=useCart(); const router=useRouter();
+  const {cart,total:subtotal,clear}=useCart(); const router=useRouter(); const {track}=useAnalytics();
   const [state,setState]=useState<'idle'|'sending'|'error'>('idle'); const [error,setError]=useState('');
   const [customerType,setCustomerType]=useState<CustomerType>('retail'); const [shippingMethod,setShippingMethod]=useState<ShippingMethod>('foxpost'); const [sameAddress,setSameAddress]=useState(true); const [legalAccepted,setLegalAccepted]=useState(false);
   const [couponInput,setCouponInput]=useState(''); const [couponCode,setCouponCode]=useState(''); const [couponDiscount,setCouponDiscount]=useState(0); const [couponMessage,setCouponMessage]=useState(''); const [couponLoading,setCouponLoading]=useState(false);
@@ -21,17 +22,18 @@ export function CheckoutForm({khEnabled}:{khEnabled:boolean}){
   async function applyCoupon(){
     const code=couponInput.trim().toUpperCase(); if(!code){setCouponCode('');setCouponDiscount(0);setCouponMessage('');return;}
     setCouponLoading(true); setCouponMessage('');
-    try{const response=await fetch('/api/coupons/validate',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({code,subtotal})});const payload=await response.json() as CouponResponse;if(!response.ok||!payload.valid){setCouponCode('');setCouponDiscount(0);setCouponMessage(payload.error??'A kupon nem érvényes.');return;}setCouponCode(payload.code??code);setCouponDiscount(payload.discount??0);setCouponMessage(`Kupon érvényesítve: −${formatHuf(payload.discount??0)}`);}catch{setCouponMessage('A kupon ellenőrzése most nem sikerült.');}finally{setCouponLoading(false);}
+    try{const response=await fetch('/api/coupons/validate',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({code,subtotal})});const payload=await response.json() as CouponResponse;if(!response.ok||!payload.valid){setCouponCode('');setCouponDiscount(0);setCouponMessage(payload.error??'A kupon nem érvényes.');return;}setCouponCode(payload.code??code);setCouponDiscount(payload.discount??0);setCouponMessage(`Kupon érvényesítve: −${formatHuf(payload.discount??0)}`);track('select_promotion',{promotion_id:payload.code??code,value:payload.discount??0,currency:'HUF'});}catch{setCouponMessage('A kupon ellenőrzése most nem sikerült.');}finally{setCouponLoading(false);}
   }
 
   async function submit(event:React.FormEvent<HTMLFormElement>){
     event.preventDefault(); if(!legalAccepted){setState('error');setError('A rendelés leadásához el kell fogadnod az ÁSZF-et és tudomásul kell venned az adatkezelési tájékoztatót.');return;}
-    setState('sending'); setError('');
+    setState('sending'); setError(''); track('begin_checkout',{value:total,currency:'HUF',items:cart.items.length});
     try{
       const formData=new FormData(event.currentTarget); const checkout=Object.fromEntries(formData.entries()); checkout.sameAddress=sameAddress?'true':'false'; checkout.legalAccepted='true'; checkout.couponCode=couponCode;
       const response=await fetch('/api/orders',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({checkout,items:cart.items})}); const payload=await response.json() as OrderApiResponse;
       if(!response.ok||!payload.orderNumber||!payload.status){setState('error');setError(payload.error??'Nem sikerült létrehozni a rendelést.');return;}
-      clear(); const query=new URLSearchParams({order:payload.orderNumber,status:payload.status,total:String(payload.total??total)}); router.push(`/rendeles-sikeres?${query.toString()}`);
+      const finalTotal=payload.total??total; track('purchase',{transaction_id:payload.orderNumber,value:finalTotal,currency:'HUF',shipping:deliveryFee,coupon:couponCode||''});
+      clear(); const query=new URLSearchParams({order:payload.orderNumber,status:payload.status,total:String(finalTotal)}); router.push(`/rendeles-sikeres?${query.toString()}`);
     }catch{setState('error');setError('Hálózati hiba történt. A kosár tartalma megmaradt, próbáld újra.');}
   }
 

@@ -21,7 +21,13 @@ export default async function ProductPage({ params }: Params) {
   if(!product) notFound();
   const alternatives=products.filter((item)=>item.id!==product.id);
   const partnerLocked=product.audience==='professional'&&!access.resellerApproved;
+  const base=(process.env.NEXT_PUBLIC_SITE_URL??'https://water-k-native.vercel.app').replace(/\/$/,'');
+  const structuredData={
+    '@context':'https://schema.org','@type':'Product',name:product.name,sku:product.sku,description:product.short,brand:{'@type':'Brand',name:'Water-K'},
+    offers:{'@type':'Offer',url:`${base}/termek/${product.slug}`,priceCurrency:'HUF',price:String(product.grossPrice),availability:product.stock>0?'https://schema.org/InStock':'https://schema.org/OutOfStock',itemCondition:'https://schema.org/NewCondition'},
+  };
   return <main className="section productPage"><div className="shell">
+    <script type="application/ld+json" dangerouslySetInnerHTML={{__html:JSON.stringify(structuredData)}}/>
     <div className="productHero"><section className="productStage"><div className="productPack largePack"><small>WATER-K</small><strong>{product.size}</strong><span>vízmegtartó technológia</span></div><div className="floatingFacts"><span>9% K</span><span>Akár 3 év</span><span>≤50 ciklus</span></div></section>
       <section className="productInfo"><span className="eyebrow">Water-K · {product.audience==='professional'?'viszonteladói':'lakossági'} kiszerelés</span><h1 className="sectionTitle">{product.name}</h1><p className="lead">{product.short}</p><div className="tagRow productTags">{product.useCases.map(x=><span key={x}>{x}</span>)}</div><div className="productPriceBlock"><div className="price">{formatHuf(product.grossPrice)}</div><p className="muted">Nettó {formatHuf(product.netPrice)} · {product.stock>0?`raktáron: ${product.stock} db`:'jelenleg nem elérhető'}</p></div>
         <div className="actions productActions">{partnerLocked?<Link className="btn btnPrimary" href="/fiokom">{access.signedIn?'Viszonteladói jóváhagyás szükséges':'Viszonteladói fiók létrehozása'}</Link>:<AddToCart id={product.id} slug={product.slug} name={product.name} price={product.grossPrice}/>}<Link className="btn btnGhost" href="/kosar">Kosár megnyitása</Link></div>
