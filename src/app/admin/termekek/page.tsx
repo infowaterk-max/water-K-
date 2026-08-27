@@ -3,6 +3,8 @@ import { getProducts } from '@/lib/catalog-server';
 import { InventoryEditor } from '@/components/admin/inventory-editor';
 import { createAdminClient } from '@/lib/supabase/admin';
 
+export const dynamic = 'force-dynamic';
+
 export default async function AdminProducts() {
   const products=await getProducts();
   const admin=createAdminClient();
