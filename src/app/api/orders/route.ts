@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
+import { enqueueIntegrationJob } from '@/lib/integrations/outbox';
 
 const checkoutSchema=z.object({
   customerType:z.enum(['retail','company','reseller']),email:z.string().trim().email(),name:z.string().trim().min(2).max(160),phone:z.string().trim().min(5).max(40),companyName:z.string().trim().max(200).optional(),taxNumber:z.string().trim().max(40).optional(),
@@ -36,6 +37,9 @@ export async function POST(request:Request){
     });
     if(error||!data)return NextResponse.json({error:error?.message??'A rendelés mentése nem sikerült.'},{status:409});
     const order=data as PlaceOrderResult;
+    if(checkout.paymentMethod==='kh_card'){
+      await enqueueIntegrationJob({orderId:order.order_id,kind:'payment_create',provider:'kh',payload:{orderNumber:order.order_number,totalGrossHuf:order.total_gross_huf,returnPath:'/rendeles-sikeres'}});
+    }
     return NextResponse.json({ok:true,orderId:order.order_id,orderNumber:order.order_number,subtotal:order.subtotal_gross_huf,shippingFee:order.shipping_gross_huf,total:order.total_gross_huf,status:checkout.paymentMethod==='kh_card'?'pending_payment':'pending_transfer',next:checkout.paymentMethod==='kh_card'?'payment':'confirmation'},{status:201});
   }catch{return NextResponse.json({error:'A rendelési szolgáltatás átmenetileg nem elérhető.'},{status:503});}
 }
