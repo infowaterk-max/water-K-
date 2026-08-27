@@ -7,6 +7,9 @@ const actionLabels:Record<string,string>={
   'catalog.variant_updated':'Termékváltozat módosítva',
   'integration.retry_succeeded':'Integráció újrafuttatva',
   'integration.retry_failed':'Integráció újrafuttatása sikertelen',
+  'customer.access_updated':'Ügyfél / viszonteladó jogosultság módosítva',
+  'coupon.created':'Kupon létrehozva',
+  'coupon.updated':'Kupon módosítva',
 };
 
 type AuditRow={id:string;actor_user_id:string;action:string;entity_type:string;entity_id:string|null;summary:string;before_state:unknown;after_state:unknown;metadata:Record<string,unknown>|null;created_at:string};
