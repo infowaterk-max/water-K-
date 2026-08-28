@@ -1,5 +1,7 @@
 import { createAdminClient } from '@/lib/supabase/admin';
 
+export const dynamic = 'force-dynamic';
+
 type Readiness={environment_key:string;display_name:string;source_sha:string|null;trusted_passes:number;trusted_failures:number;smoke_pass:boolean;security_pass:boolean;migration_pass:boolean;evidence_bundle_hash:string};
 type Decision={id:string;environment_key:string;source_sha:string;decision:string;note:string;created_at:string;evidence_bundle_hash:string};
 
