@@ -16,7 +16,7 @@ with paid as (
 ), grouped as (
   select
     coalesce(customer_id::text,email_key) as customer_key,
-    max(customer_id) as customer_id,
+    max(customer_id::text)::uuid as customer_id,
     email_key,
     count(*)::integer as paid_orders,
     sum(total_gross_huf)::bigint as revenue_gross_huf,
