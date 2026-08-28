@@ -20,12 +20,12 @@ declare v_count integer:=0;v_inserted integer:=0;v_updated integer:=0;begin
   update public.commercial_opportunities o
      set kind=case when p.lifecycle_segment in ('winback','dormant') then 'winback' else 'retention' end,
          priority_score=greatest(o.priority_score,case when p.value_tier='platinum' then 95 when p.value_tier='gold' then 85 when p.lifecycle_segment in ('winback','dormant') then 80 else 70 end),
-         expected_value_net_huf=greatest(o.expected_value_net_huf,greatest(coalesce(p.aov_gross_huf,0),0)),
+         expected_value_net_huf=greatest(o.expected_value_net_huf,round(greatest(coalesce(p.aov_gross_huf,0),0)::numeric/1.27,2)),
          probability_percent=greatest(o.probability_percent,case when p.value_tier='platinum' then 55 when p.value_tier='gold' then 45 when p.lifecycle_segment='at_risk' then 35 else 25 end),
          due_at=least(coalesce(o.due_at,now()),now()),
          reason='V11 lifecycle: '||p.lifecycle_segment||' · tier: '||p.value_tier,
          recommended_action=case when p.lifecycle_segment='at_risk' then 'Megtartási lehetőség felülvizsgálata' else 'Win-back lehetőség felülvizsgálata' end,
-         source=o.source||jsonb_build_object('source','v11_loyalty','value_score',p.value_score,'value_tier',p.value_tier,'points_balance',coalesce(b.points_balance,0),'lifecycle_segment',p.lifecycle_segment),
+         source=o.source||jsonb_build_object('source','v11_loyalty','value_score',p.value_score,'value_tier',p.value_tier,'points_balance',coalesce(b.points_balance,0),'lifecycle_segment',p.lifecycle_segment,'aov_gross_huf',p.aov_gross_huf,'value_basis','gross_div_1_27_estimate'),
          updated_at=now()
     from public.customer_value_profiles p
     left join public.loyalty_balances b on b.customer_id=p.customer_id
@@ -42,12 +42,12 @@ declare v_count integer:=0;v_inserted integer:=0;v_updated integer:=0;begin
     case when p.lifecycle_segment in ('winback','dormant') then 'winback' else 'retention' end,
     'open',
     case when p.value_tier='platinum' then 95 when p.value_tier='gold' then 85 when p.lifecycle_segment in ('winback','dormant') then 80 else 70 end,
-    greatest(coalesce(p.aov_gross_huf,0),0),
+    round(greatest(coalesce(p.aov_gross_huf,0),0)::numeric/1.27,2),
     case when p.value_tier='platinum' then 55 when p.value_tier='gold' then 45 when p.lifecycle_segment='at_risk' then 35 else 25 end,
     now(),
     'V11 lifecycle: '||p.lifecycle_segment||' · tier: '||p.value_tier,
     case when p.lifecycle_segment='at_risk' then 'Megtartási lehetőség felülvizsgálata' else 'Win-back lehetőség felülvizsgálata' end,
-    jsonb_build_object('source','v11_loyalty','value_score',p.value_score,'value_tier',p.value_tier,'points_balance',coalesce(b.points_balance,0),'lifecycle_segment',p.lifecycle_segment)
+    jsonb_build_object('source','v11_loyalty','value_score',p.value_score,'value_tier',p.value_tier,'points_balance',coalesce(b.points_balance,0),'lifecycle_segment',p.lifecycle_segment,'aov_gross_huf',p.aov_gross_huf,'value_basis','gross_div_1_27_estimate')
   from public.customer_value_profiles p
   left join public.loyalty_balances b on b.customer_id=p.customer_id
   where p.lifecycle_segment in ('at_risk','winback','dormant')
