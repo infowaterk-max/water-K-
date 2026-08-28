@@ -23,6 +23,15 @@ describe('V24 rollout readiness contracts', () => {
     expect(validator).toContain('SUPABASE_SERVICE_ROLE_KEY');
   });
 
+  it('enforces strict staging and production environment requirements', () => {
+    const validator = read('scripts/validate-env.mjs');
+    expect(validator).toContain('NEXT_PUBLIC_SITE_URL');
+    expect(validator).toContain("deployEnvironment === 'staging' || deployEnvironment === 'production'");
+    expect(validator).toContain("['KH_MERCHANT_ID', 'KH_SECRET', 'KH_ENVIRONMENT']");
+    expect(validator).toContain("parsed.protocol !== 'https:'");
+    expect(validator).toContain("['localhost', '127.0.0.1']");
+  });
+
   it('ships a deterministic release manifest generator', () => {
     const manifest = read('scripts/release-manifest.mjs');
     expect(manifest).toContain('GITHUB_SHA');
@@ -35,6 +44,8 @@ describe('V24 rollout readiness contracts', () => {
     const smoke = read('scripts/smoke.mjs');
     for (const route of ['/api/health', '/webaruhaz', '/penztar', '/bejelentkezes']) expect(smoke).toContain(route);
     expect(smoke).toContain('process.exit(1)');
+    expect(smoke).toContain('VERCEL_AUTOMATION_BYPASS_SECRET');
+    expect(smoke).toContain('x-vercel-protection-bypass');
   });
 
   it('keeps rollout manual and gated', () => {
