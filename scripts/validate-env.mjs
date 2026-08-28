@@ -1,43 +1,35 @@
-const required = [
-  'NEXT_PUBLIC_SUPABASE_URL',
-  'NEXT_PUBLIC_SUPABASE_ANON_KEY',
-  'SUPABASE_SERVICE_ROLE_KEY',
+const requiredAny = [
+  ['NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY', 'NEXT_PUBLIC_SUPABASE_ANON_KEY'],
+  ['SUPABASE_SECRET_KEY', 'SUPABASE_SERVICE_ROLE_KEY'],
 ];
-
-const conditional = [
-  ['KH_API_URL', 'KH_MERCHANT_ID', 'KH_SECRET_KEY'],
+const required = ['NEXT_PUBLIC_SUPABASE_URL'];
+const integrationGroups = [
+  ['KH_MERCHANT_ID', 'KH_SECRET'],
   ['RESEND_API_KEY', 'EMAIL_FROM'],
-  ['FOXPOST_API_URL', 'FOXPOST_API_KEY'],
-  ['GLS_API_URL', 'GLS_API_KEY'],
-  ['SZAMLAZZ_API_URL', 'SZAMLAZZ_API_KEY'],
+  ['GLS_USERNAME', 'GLS_PASSWORD'],
 ];
 
 const missing = required.filter((key) => !process.env[key]?.trim());
-const warnings = [];
-
-for (const group of conditional) {
+for (const alternatives of requiredAny) {
+  if (!alternatives.some((key) => process.env[key]?.trim())) missing.push(alternatives.join(' vagy '));
+}
+for (const group of integrationGroups) {
   const configured = group.filter((key) => process.env[key]?.trim());
-  if (configured.length > 0 && configured.length !== group.length) {
-    missing.push(...group.filter((key) => !process.env[key]?.trim()));
-  }
+  if (configured.length > 0 && configured.length !== group.length) missing.push(...group.filter((key) => !process.env[key]?.trim()));
 }
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
 if (supabaseUrl && !/^https:\/\/[a-z0-9-]+\.supabase\.co\/?$/i.test(supabaseUrl)) {
-  warnings.push('NEXT_PUBLIC_SUPABASE_URL nem tipikus Supabase projekt URL.');
+  console.warn('FIGYELMEZTETÉS: NEXT_PUBLIC_SUPABASE_URL nem tipikus Supabase projekt URL.');
 }
 
-const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
-const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
-if (serviceKey && anonKey && serviceKey === anonKey) {
-  missing.push('SUPABASE_SERVICE_ROLE_KEY (nem lehet azonos a publikus anon kulccsal)');
-}
+const publicKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
+const secretKey = process.env.SUPABASE_SECRET_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY || '';
+if (publicKey && secretKey && publicKey === secretKey) missing.push('Supabase szerveroldali kulcs nem lehet azonos a publikus kulccsal');
 
 if (missing.length) {
   console.error('V24 environment gate: HIBA');
   for (const key of [...new Set(missing)]) console.error(`- ${key}`);
   process.exit(1);
 }
-
 console.log('V24 environment gate: OK');
-for (const warning of warnings) console.warn(`FIGYELMEZTETÉS: ${warning}`);
