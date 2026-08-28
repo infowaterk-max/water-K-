@@ -5,7 +5,7 @@ create table if not exists public.commercial_opportunities (
   channel text not null check (channel in ('b2c','b2b')),
   customer_id uuid references auth.users(id) on delete set null,
   customer_email text,
-  reseller_id uuid references public.reseller_profiles(id) on delete set null,
+  reseller_id uuid references auth.users(id) on delete set null,
   kind text not null check (kind in ('retention','winback','checkout_recovery','reorder','manual')),
   status text not null default 'open' check (status in ('open','in_progress','won','lost','dismissed')),
   priority_score integer not null default 0 check (priority_score between 0 and 100),
@@ -39,24 +39,37 @@ declare
   v_b2c integer := 0;
   v_b2b integer := 0;
 begin
-  insert into public.commercial_opportunities(opportunity_key,channel,customer_id,customer_email,kind,priority_score,expected_value_net_huf,probability_percent,due_at,reason,recommended_action,source)
+  insert into public.commercial_opportunities(
+    opportunity_key,channel,customer_id,customer_email,kind,priority_score,
+    expected_value_net_huf,probability_percent,due_at,reason,recommended_action,source
+  )
   select
-    'b2c:'||c.customer_id::text||':'||c.segment,
-    'b2c', c.customer_id, c.email,
-    case when c.segment in ('winback','inactive') then 'winback' else 'retention' end,
-    case when c.segment='at_risk' then 80 when c.segment='winback' then 90 when c.segment='inactive' then 70 else 50 end,
-    greatest(coalesce(c.aov_net_huf,0),0),
+    'b2c:'||c.customer_key||':'||c.segment,
+    'b2c',c.customer_id,c.email_key,
+    case when c.segment in ('winback','dormant') then 'winback' else 'retention' end,
+    case when c.segment='at_risk' then 80 when c.segment='winback' then 90 when c.segment='dormant' then 70 else 50 end,
+    round(greatest(coalesce(c.aov_gross_huf,0),0)::numeric/1.27,2),
     case when c.segment='at_risk' then 45 when c.segment='winback' then 30 else 20 end,
     now(),
     'V9 customer segment: '||c.segment,
     case when c.segment='at_risk' then 'Személyre szabott megtartási ajánlat' else 'Visszanyerési ajánlat előkészítése' end,
-    jsonb_build_object('segment',c.segment,'ltv_net_huf',c.ltv_net_huf,'days_since_last_order',c.days_since_last_order)
+    jsonb_build_object(
+      'segment',c.segment,
+      'revenue_gross_huf',c.revenue_gross_huf,
+      'aov_gross_huf',c.aov_gross_huf,
+      'days_since_last_order',c.days_since_last_order,
+      'value_basis','gross_div_1_27_estimate'
+    )
   from public.customer_commercial_metrics c
-  where c.segment in ('at_risk','winback','inactive')
+  where c.segment in ('at_risk','winback','dormant')
   on conflict (opportunity_key) do update set
+    customer_id=excluded.customer_id,
+    customer_email=excluded.customer_email,
+    kind=excluded.kind,
     priority_score=excluded.priority_score,
     expected_value_net_huf=excluded.expected_value_net_huf,
     probability_percent=excluded.probability_percent,
+    due_at=excluded.due_at,
     reason=excluded.reason,
     recommended_action=excluded.recommended_action,
     source=excluded.source,
@@ -64,19 +77,35 @@ begin
   where public.commercial_opportunities.status in ('open','in_progress');
   get diagnostics v_b2c = row_count;
 
-  insert into public.commercial_opportunities(opportunity_key,channel,reseller_id,kind,priority_score,expected_value_net_huf,probability_percent,due_at,reason,recommended_action,source)
+  insert into public.commercial_opportunities(
+    opportunity_key,channel,reseller_id,kind,priority_score,expected_value_net_huf,
+    probability_percent,due_at,reason,recommended_action,source
+  )
   select
-    'b2b:'||r.reseller_id::text||':reorder',
-    'b2b',r.reseller_id,'reorder',r.priority_score,
-    greatest(coalesce(r.estimated_next_order_net_huf,0),0),
+    'b2b:'||r.customer_id::text||':reorder',
+    'b2b',r.customer_id,'reorder',r.priority_score,
+    round(greatest(coalesce(r.estimated_reorder_value_gross_huf,0),0)::numeric/1.27,2),
     case when r.priority_band='critical' then 70 when r.priority_band='high' then 55 when r.priority_band='medium' then 35 else 20 end,
-    r.next_expected_order_at,
+    case
+      when r.avg_reorder_days is not null then r.last_order_at + make_interval(days => greatest(1,r.avg_reorder_days))
+      else r.last_order_at
+    end,
     'V9 reseller priority: '||r.priority_band,
     r.recommended_action,
-    jsonb_build_object('priority_band',r.priority_band,'days_overdue',r.days_overdue,'inactivity_risk',r.inactivity_risk)
-  from public.reseller_growth_priority r
-  where r.priority_band in ('critical','high','medium')
+    jsonb_build_object(
+      'priority_band',r.priority_band,
+      'reorder_signal',r.reorder_signal,
+      'days_since_last_order',r.days_since_last_order,
+      'avg_reorder_days',r.avg_reorder_days,
+      'days_overdue',case when r.avg_reorder_days is null then null else greatest(0,r.days_since_last_order-r.avg_reorder_days) end,
+      'inactivity_risk',r.inactivity_risk,
+      'estimated_reorder_value_gross_huf',r.estimated_reorder_value_gross_huf,
+      'value_basis','gross_div_1_27_estimate'
+    )
+  from public.reseller_growth_priorities r
+  where r.customer_id is not null and r.priority_band in ('critical','high','medium')
   on conflict (opportunity_key) do update set
+    reseller_id=excluded.reseller_id,
     priority_score=excluded.priority_score,
     expected_value_net_huf=excluded.expected_value_net_huf,
     probability_percent=excluded.probability_percent,
