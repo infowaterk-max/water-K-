@@ -4,6 +4,17 @@ if (!baseUrl) {
   process.exit(1);
 }
 
+const bypassSecret = process.env.VERCEL_AUTOMATION_BYPASS_SECRET || '';
+const smokeHeaders = {
+  'user-agent': 'water-k-v24-smoke/1.0',
+  ...(bypassSecret
+    ? {
+        'x-vercel-protection-bypass': bypassSecret,
+        'x-vercel-set-bypass-cookie': 'true',
+      }
+    : {}),
+};
+
 const checks = [
   { path: '/api/health', expectJson: true },
   { path: '/', expectText: true },
@@ -18,7 +29,7 @@ for (const check of checks) {
   try {
     const response = await fetch(`${baseUrl}${check.path}`, {
       redirect: 'follow',
-      headers: { 'user-agent': 'water-k-v24-smoke/1.0' },
+      headers: smokeHeaders,
     });
     const latency = Date.now() - started;
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
