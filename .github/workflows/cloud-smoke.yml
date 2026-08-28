@@ -1,0 +1,50 @@
+name: V24 Cloud Smoke
+
+on:
+  workflow_dispatch:
+    inputs:
+      base_url:
+        description: 'Exact Vercel deployment URL to smoke-test'
+        required: true
+        type: string
+      environment:
+        description: 'Evidence environment'
+        required: true
+        default: staging
+        type: choice
+        options:
+          - preview
+          - staging
+          - production
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.sha }}
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+
+      - name: Validate automation bypass secret
+        env:
+          VERCEL_AUTOMATION_BYPASS_SECRET: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
+        run: |
+          if [ -z "$VERCEL_AUTOMATION_BYPASS_SECRET" ]; then
+            echo "VERCEL_AUTOMATION_BYPASS_SECRET GitHub secret hiányzik." >&2
+            exit 1
+          fi
+
+      - name: Run V24 protected cloud smoke
+        env:
+          SMOKE_BASE_URL: ${{ inputs.base_url }}
+          VERCEL_AUTOMATION_BYPASS_SECRET: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
+          DEPLOY_ENVIRONMENT: ${{ inputs.environment }}
+        run: node scripts/smoke.mjs

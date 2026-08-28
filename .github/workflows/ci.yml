@@ -55,3 +55,16 @@ jobs:
 
       - name: Production build
         run: npm run build
+
+      - name: Generate release manifest
+        env:
+          DEPLOY_ENVIRONMENT: ci
+        run: npm run release:manifest
+
+      - name: Upload release manifest
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-manifest
+          path: release-manifest.json
+          if-no-files-found: error
+          retention-days: 30
