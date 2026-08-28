@@ -9,7 +9,7 @@ import './flow-v2.css';
 import './v6.css';
 import './v7.css';
 
-const siteUrl=process.env.NEXT_PUBLIC_SITE_URL??'https://water-k-native.vercel.app';
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL?.trim() || 'https://water-k-native.vercel.app';
 
 export const metadata: Metadata = {
   metadataBase:new URL(siteUrl),
