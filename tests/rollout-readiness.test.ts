@@ -7,11 +7,20 @@ describe('V24 rollout readiness contracts', () => {
   it('keeps environment secrets server-only', () => {
     const example = read('.env.example');
     expect(example).toContain('NEXT_PUBLIC_SUPABASE_URL');
-    expect(example).toContain('NEXT_PUBLIC_SUPABASE_ANON_KEY');
-    expect(example).toContain('SUPABASE_SERVICE_ROLE_KEY');
+    expect(example).toContain('NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY');
+    expect(example).toContain('SUPABASE_SECRET_KEY');
     expect(example).not.toContain('NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY');
-    expect(example).not.toContain('NEXT_PUBLIC_KH_SECRET_KEY');
+    expect(example).not.toContain('NEXT_PUBLIC_SUPABASE_SECRET_KEY');
+    expect(example).not.toContain('NEXT_PUBLIC_KH_SECRET');
     expect(example).not.toContain('NEXT_PUBLIC_CRON_SECRET');
+  });
+
+  it('accepts current and legacy Supabase key names in the environment gate', () => {
+    const validator = read('scripts/validate-env.mjs');
+    expect(validator).toContain('NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY');
+    expect(validator).toContain('NEXT_PUBLIC_SUPABASE_ANON_KEY');
+    expect(validator).toContain('SUPABASE_SECRET_KEY');
+    expect(validator).toContain('SUPABASE_SERVICE_ROLE_KEY');
   });
 
   it('ships a deterministic release manifest generator', () => {
@@ -24,9 +33,7 @@ describe('V24 rollout readiness contracts', () => {
 
   it('ships a cloud smoke gate for critical public routes', () => {
     const smoke = read('scripts/smoke.mjs');
-    for (const route of ['/api/health', '/webaruhaz', '/penztar', '/bejelentkezes']) {
-      expect(smoke).toContain(route);
-    }
+    for (const route of ['/api/health', '/webaruhaz', '/penztar', '/bejelentkezes']) expect(smoke).toContain(route);
     expect(smoke).toContain('process.exit(1)');
   });
 
