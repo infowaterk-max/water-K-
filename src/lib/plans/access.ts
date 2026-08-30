@@ -23,7 +23,9 @@ export async function getCurrentPlan(): Promise<PlanCode> {
 
 export async function requirePlanFeature(feature: FeatureCode) {
   const plan = await getCurrentPlan();
-  if (!hasPlanFeature(plan, feature)) redirect('/admin?reason=pro-required');
+  if (!hasPlanFeature(plan, feature)) {
+    redirect(`/admin/csomag?reason=pro-required&feature=${encodeURIComponent(feature)}`);
+  }
   return plan;
 }
 
@@ -39,6 +41,8 @@ export async function hasAddon(addon: AddonCode): Promise<boolean> {
 }
 
 export async function requireAddon(addon: AddonCode) {
-  if (!(await hasAddon(addon))) redirect('/admin/csomag?reason=addon-required');
+  if (!(await hasAddon(addon))) {
+    redirect(`/admin/csomag?reason=addon-required&addon=${encodeURIComponent(addon)}`);
+  }
   return addon;
 }
