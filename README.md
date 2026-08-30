@@ -2,8 +2,6 @@
 
 **Shoperation = Shop + Operation.** A projekt célja egy újraértékesíthető webshop- és kereskedelmi működtetési platform létrehozása.
 
-A Water-K nem a platform neve és nem technikai alapértelmezett márka. A Water-K a Shoperation egyik referencia-/ügyfél-webáruháza. Platformszintű felületen, dokumentációban és új ügyfél alapértelmezésekben nem használjuk Shoperation helyett.
-
 ## Csomagstratégia
 
 A kereskedelmi termék két fő csomagra épül:
@@ -19,8 +17,8 @@ A külön használatalapú vagy ügyfélspecifikus képességeket moduláris add
 
 - **Shoperation**: platform, operatori rendszer és értékesített termék.
 - **Ügyfél-webshop**: külön konfigurált instance saját névvel, arculattal és kapcsolati adatokkal.
-- **Water-K**: egy konkrét ügyfél-webshop; Water-K branding kizárólag a Water-K instance publikus és saját kereskedői felületein jelenhet meg.
-- Új instance nem örökölhet Water-K nevet, logót, e-mail-identitást vagy marketing szöveget.
+- Egy ügyfél márkája kizárólag a saját webshop-instance felületein jelenhet meg; nem kerülhet platformszintű felületre vagy alapértelmezésbe.
+- Új instance nem örökölhet más ügyféltől nevet, logót, e-mail-identitást vagy marketing szöveget.
 
 ## Fejlesztési elv
 
