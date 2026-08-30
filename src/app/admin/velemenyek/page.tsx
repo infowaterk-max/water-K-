@@ -2,6 +2,8 @@ import { createAdminClient } from '@/lib/supabase/admin';
 import { requirePlanFeature } from '@/lib/plans/access';
 import { moderateReviewAction } from './actions';
 
+export const dynamic = 'force-dynamic';
+
 export default async function ReviewsAdminPage() {
   await requirePlanFeature('reviews');
   const admin = createAdminClient();
