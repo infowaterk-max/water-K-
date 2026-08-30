@@ -15,8 +15,8 @@ export const ADDONS: Record<AddonCode, AddonDefinition> = {
   'ai-assistant': {
     code: 'ai-assistant',
     name: 'AI asszisztens',
-    description: 'Használatalapú mesterséges intelligencia funkciók és üzleti segítség.',
-    compatiblePlans: ['pro'],
+    description: 'Használatalapú mesterséges intelligencia funkciók és üzleti segítség külön aktiválható kerettel.',
+    compatiblePlans: ['alap', 'pro'],
   },
   'advanced-export': {
     code: 'advanced-export',
