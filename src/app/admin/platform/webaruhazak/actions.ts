@@ -1,6 +1,7 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
+import { redirect } from 'next/navigation';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { requirePlatformOperator } from '@/lib/auth/platform-operator';
 import { ADDONS, type AddonCode } from '@/lib/plans/addons';
@@ -46,6 +47,28 @@ export async function assignWebshopMemberAction(formData:FormData){
  if(!profile?.id)return;
  await admin.from('webshop_instance_members').upsert({instance_id:instanceId,user_id:profile.id,role},{onConflict:'instance_id,user_id'});
  revalidatePath('/admin/platform/webaruhazak');
+}
+
+export async function inviteWebshopOwnerAction(formData:FormData){
+ await requirePlatformOperator();
+ const instanceId=String(formData.get('instanceId')??''),email=String(formData.get('email')??'').trim().toLowerCase(),fullName=String(formData.get('fullName')??'').trim().slice(0,100),companyName=String(formData.get('companyName')??'').trim().slice(0,120),role=String(formData.get('role')??'owner');
+ if(!uuid.test(instanceId)||!/^\S+@\S+\.\S+$/.test(email)||!['owner','admin'].includes(role))redirect('/admin/platform/webaruhazak?invite=invalid');
+ const admin=createAdminClient();
+ const{data:existing}=await admin.from('profiles').select('id').ilike('email',email).maybeSingle();
+ if(existing?.id){
+   const{error}=await admin.from('webshop_instance_members').upsert({instance_id:instanceId,user_id:existing.id,role},{onConflict:'instance_id,user_id'});
+   if(error)redirect('/admin/platform/webaruhazak?invite=error');
+   revalidatePath('/admin/platform/webaruhazak');
+   redirect('/admin/platform/webaruhazak?invite=existing-assigned');
+ }
+ const site=(process.env.NEXT_PUBLIC_SITE_URL??'').replace(/\/$/,'');
+ const options={data:{full_name:fullName||undefined,company_name:companyName||undefined,webshop_instance_id:instanceId,webshop_role:role},...(site.startsWith('http://')||site.startsWith('https://')?{redirectTo:`${site}/fiokom?next=/admin`}:{})};
+ const{data:invited,error:inviteError}=await admin.auth.admin.inviteUserByEmail(email,options);
+ if(inviteError||!invited.user?.id)redirect('/admin/platform/webaruhazak?invite=error');
+ const{error:membershipError}=await admin.from('webshop_instance_members').upsert({instance_id:instanceId,user_id:invited.user.id,role},{onConflict:'instance_id,user_id'});
+ if(membershipError)redirect('/admin/platform/webaruhazak?invite=membership-error');
+ revalidatePath('/admin/platform/webaruhazak');
+ redirect('/admin/platform/webaruhazak?invite=sent');
 }
 
 export async function removeWebshopMemberAction(formData:FormData){
