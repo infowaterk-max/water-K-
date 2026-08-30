@@ -26,6 +26,11 @@ function render(message: CommunicationMessage) {
     const href = safeStoreHref(p.productUrl, home);
     body = `<p>Kedves ${name}!</p><p>Jó hírünk van: <strong>${productName}${variant}</strong> újra készleten van.</p><p><a href="${href}">Termék megnyitása</a></p><p>Ezt az üzenetet azért kapod, mert külön készletértesítést kértél erre a termékre.</p>`;
   }
+  else if (message.templateKey === 'abandoned_checkout') {
+    const href = safeStoreHref(p.recoveryUrl, home);
+    const itemCount = Number(p.itemCount || 0);
+    body = `<p>Kedves ${name}!</p><p>A rendelésed félbemaradt, de a kosarad még rendelkezésre áll.</p>${itemCount > 0 ? `<p><strong>${itemCount} tételt</strong> mentettünk el neked.</p>` : ''}<p><a href="${href}" style="display:inline-block;padding:12px 18px;border-radius:10px;background:#17231a;color:#fff;text-decoration:none;font-weight:700">Kosár folytatása</a></p><p>A helyreállító link korlátozott ideig használható. Az aktuális árakat és készletet a megnyitáskor ellenőrizzük.</p>`;
+  }
   else if (message.templateKey === 'repeat_30d') body = `<p>Kedves ${name}!</p><p>Korábbi vásárlásaid alapján ideje lehet a Water-K utánpótlásának.</p><p><a href="${home}/webaruhaz/">Webáruház megnyitása</a></p>`;
   else if (message.templateKey === 'winback_90d') body = `<p>Kedves ${name}!</p><p>Régen találkoztunk. Ha ismét szükséged van Water-K termékre, a webáruházban megtalálod az aktuális kínálatot.</p><p><a href="${home}/webaruhaz/">Webáruház megnyitása</a></p>`;
   else body = '<p>Water-K értesítés.</p>';
