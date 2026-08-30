@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { AddToCart } from '@/components/catalog/add-to-cart';
+import { EngagementPanel } from '@/components/catalog/engagement-panel';
 import { formatHuf } from '@/lib/catalog';
 import { getProducts } from '@/lib/catalog-server';
 import { getCommerceAccess } from '@/lib/commerce/access';
@@ -33,6 +34,7 @@ export default async function ProductPage({ params }: Params) {
         <div className="actions productActions">{partnerLocked?<Link className="btn btnPrimary" href="/fiokom">{access.signedIn?'Viszonteladói jóváhagyás szükséges':'Viszonteladói fiók létrehozása'}</Link>:<AddToCart id={product.id} slug={product.slug} name={product.name} price={product.grossPrice}/>}<Link className="btn btnGhost" href="/kosar">Kosár megnyitása</Link></div>
         {partnerLocked&&<p className="notice">A 25 kg-os partnerkiszerelést csak jóváhagyott viszonteladói fiókkal lehet megrendelni.</p>}<div className="purchaseTrust"><span>✓ Adatbázisból validált ár</span><span>✓ Készletfoglalás rendeléskor</span><span>✓ Magyar checkout</span></div></section></div>
     <section className="section productDetailsSection"><div className="detailGrid"><article className="card"><span className="stepIndex">01</span><h2>Hová való?</h2><p className="muted">{product.useCases.join(', ')}. A Water-K a gyökérzóna közelébe dolgozva fejti ki vízmegtartó funkcióját.</p></article><article className="card"><span className="stepIndex">02</span><h2>Mit tud?</h2><ul className="featureList">{product.highlights.map(x=><li key={x}>{x}</li>)}<li>9% káliumtartalom</li><li>Többszöri nedvesedési ciklus</li></ul></article><article className="card"><span className="stepIndex">03</span><h2>Hogyan használd?</h2><p className="muted">Talajba dolgozás után alapos beöntözés szükséges. A pontos dózis a felhasználási területhez igazítandó.</p></article></div></section>
+    <EngagementPanel variantId={product.id} slug={product.slug} stock={product.stock}/>
     <section className="selectionHelp productAlternatives"><div><span className="eyebrow">Másik méret?</span><h2>Hasonlítsd össze a kiszereléseket.</h2></div><div className="alternativeRow">{alternatives.map(item=><Link className="alternativeCard" key={item.id} href={`/termek/${item.slug}`}><span>{item.name}</span><strong>{formatHuf(item.grossPrice)}</strong><small>{item.short}</small></Link>)}</div></section>
   </div></main>;
 }
