@@ -1,0 +1,3 @@
+'use client';
+import{useEffect,useRef}from'react';import{useCart}from'@/components/cart/cart-provider';
+export function CheckoutRecoverySaver(){const{items}=useCart(),last=useRef('');useEffect(()=>{if(!items.length)return;const snapshot=JSON.stringify(items.map(i=>({productId:i.productId,quantity:i.quantity})));if(snapshot===last.current)return;const timer=setTimeout(async()=>{try{const r=await fetch('/api/account/checkout-recovery',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({items:JSON.parse(snapshot),checkout:{source:'checkout'}})});if(r.ok)last.current=snapshot;}catch{}},1200);return()=>clearTimeout(timer)},[items]);return null;}
