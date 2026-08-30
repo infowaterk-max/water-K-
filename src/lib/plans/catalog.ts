@@ -9,6 +9,14 @@ export type FeatureCode =
   | 'coupons'
   | 'basicAnalytics'
   | 'marketingBasics'
+  | 'contentMarketing'
+  | 'importExport'
+  | 'bulkOperations'
+  | 'wishlists'
+  | 'stockNotifications'
+  | 'productRecommendations'
+  | 'reviews'
+  | 'searchFiltering'
   | 'commerceIntegrations'
   | 'support'
   | 'advancedAnalytics'
@@ -38,6 +46,14 @@ const ALAP_FEATURES = [
   'coupons',
   'basicAnalytics',
   'marketingBasics',
+  'contentMarketing',
+  'importExport',
+  'bulkOperations',
+  'wishlists',
+  'stockNotifications',
+  'productRecommendations',
+  'reviews',
+  'searchFiltering',
   'commerceIntegrations',
   'support',
 ] as const satisfies readonly FeatureCode[];
@@ -60,7 +76,7 @@ export const PLANS: Record<PlanCode, PlanDefinition> = {
   alap: {
     code: 'alap',
     name: 'Alap',
-    description: 'Versenyképes, teljes értékű webshop a napi értékesítéshez, marketinghez és üzemeltetéshez.',
+    description: 'Versenyképes, teljes értékű webshop a napi értékesítéshez, tartalomhoz, marketinghez és üzemeltetéshez.',
     features: ALAP_FEATURES,
   },
   pro: {
