@@ -3,30 +3,44 @@ import { ADDONS } from '@/lib/plans/addons';
 import { PLANS, type FeatureCode } from '@/lib/plans/catalog';
 
 const FEATURE_LABELS: Record<FeatureCode, string> = {
-  catalog: 'Termék- és katalóguskezelés',
-  inventory: 'Készletkezelés',
-  orders: 'Rendeléskezelés',
-  customers: 'Ügyféladatbázis',
-  coupons: 'Kuponok és kedvezmények',
-  basicAnalytics: 'Alap statisztikák',
-  integrations: 'Alap integrációk',
+  catalog: 'Termék-, kategória- és katalóguskezelés',
+  inventory: 'Készletkezelés és napi készletműveletek',
+  orders: 'Teljes rendeléskezelés',
+  returns: 'Visszáru és elállás kezelése',
+  customers: 'Ügyféladatbázis és vásárlói adatok',
+  coupons: 'Kuponok, kedvezmények és akciók',
+  basicAnalytics: 'Használható értékesítési statisztikák és dashboard',
+  marketingBasics: 'Alap marketing- és kampányeszközök',
+  commerceIntegrations: 'Fizetés, szállítás és alap kereskedelmi integrációk',
   support: 'Ügyfélszolgálati eszközök',
-  advancedAnalytics: 'Részletes üzleti elemzések',
-  crm: 'Fejlett CRM és ügyfélérték-kezelés',
-  campaigns: 'Kampánykezelés',
-  communication: 'Kommunikációs központ',
+  advancedAnalytics: 'Részletes üzleti elemzések és döntéstámogatás',
+  crm: 'Fejlett CRM, ügyfélérték és utánkövetés',
+  advancedCampaigns: 'Haladó, szegmentált és mérhető kampánykezelés',
+  officeCommunication: 'Digitális iroda: beépített e-mail és belső üzenetkezelés',
   automation: 'Automatizálások és üzemi vezérlés',
-  procurement: 'Beszerzés',
-  cashflow: 'Cash-flow és pénzügyi elemzés',
+  procurement: 'Beszerzési döntéstámogatás és előrejelzés',
+  cashflow: 'Cash-flow és pénzügyi előrejelzés',
   executiveAnalytics: 'Vezetői analitika',
-  apiAccess: 'API és külső rendszerek',
+  advancedIntegrations: 'Haladó és egyedi rendszerintegrációk',
+  apiAccess: 'API-hozzáférés külső rendszerekhez',
 };
 
-export default async function PackagePage() {
-  const [current, enabledAddons] = await Promise.all([getCurrentPlan(), getCurrentAddons()]);
+type PackagePageProps = {
+  searchParams?: Promise<{ reason?: string; feature?: string; addon?: string }>;
+};
+
+export default async function PackagePage({ searchParams }: PackagePageProps) {
+  const [current, enabledAddons, params] = await Promise.all([
+    getCurrentPlan(),
+    getCurrentAddons(),
+    searchParams ?? Promise.resolve({}),
+  ]);
   const currentPlan = PLANS[current];
-  const proOnly = PLANS.pro.features.filter((feature) => !PLANS.alap.features.includes(feature as never));
+  const alapFeatures = new Set<FeatureCode>(PLANS.alap.features);
+  const proOnly = PLANS.pro.features.filter((feature) => !alapFeatures.has(feature));
   const addons = Object.values(ADDONS).filter((addon) => addon.compatiblePlans.includes(current));
+  const requestedFeature = params.feature as FeatureCode | undefined;
+  const requestedLabel = requestedFeature && FEATURE_LABELS[requestedFeature];
 
   return (
     <section className="adminContent">
@@ -34,7 +48,7 @@ export default async function PackagePage() {
         <div>
           <p className="eyebrow">Webshop motor</p>
           <h1>Csomagkezelés</h1>
-          <p className="muted">A webshop jelenlegi tudásszintje, bővítési lehetőségei és külön aktiválható extrái.</p>
+          <p className="muted">Az Alap teljes értékű webshop. A Pro a napi működés fölé épülő digitális iroda és üzleti intelligencia.</p>
         </div>
         <div className="card">
           <span className="muted">Aktív csomag</span>
@@ -43,21 +57,43 @@ export default async function PackagePage() {
         </div>
       </div>
 
+      {params.reason === 'pro-required' && (
+        <div className="card">
+          <span className="badge">Pro funkció</span>
+          <h2>Ez a funkció a Pro csomag része</h2>
+          <p>{requestedLabel ?? 'A megnyitott üzleti modul'} a teljes értékű Alap webshop fölé épülő Pro képesség.</p>
+        </div>
+      )}
+
+      {params.reason === 'addon-required' && (
+        <div className="card">
+          <span className="badge">Külön extra</span>
+          <h2>Ehhez külön aktiválható kiegészítő szükséges</h2>
+          <p className="muted">Az extra nem jelent új csomagszintet; Alap vagy Pro mellé külön kapcsolható be a kompatibilitás szerint.</p>
+        </div>
+      )}
+
       <div className="grid2">
         <article className="card">
           <p className="eyebrow">Alap</p>
-          <h2>Teljes webshop alapfunkciók</h2>
-          <p>Nem próbaverzió: minden szükséges napi kereskedelmi funkciót tartalmaz.</p>
+          <h2>Versenyképes, teljes értékű webshop</h2>
+          <p>Nem korlátozott belépőverzió: a normál értékesítéshez, marketinghez, fizetéshez, szállításhoz és napi üzemeltetéshez szükséges funkciókat tartalmazza.</p>
           <ul>{PLANS.alap.features.map((feature) => <li key={feature}>{FEATURE_LABELS[feature]}</li>)}</ul>
         </article>
 
         <article className="card">
           <p className="eyebrow">Pro</p>
-          <h2>Üzleti növekedési rendszer</h2>
-          <p>Az Alap minden funkciója, kiegészítve fejlett üzleti és automatizálási eszközökkel.</p>
+          <h2>Digitális iroda és üzleti növekedési rendszer</h2>
+          <p>Az Alap minden funkciója, plusz azok a képességek, amelyek munkát automatizálnak, üzleti döntést támogatnak vagy külön irodai rendszert váltanak ki.</p>
           <ul>{proOnly.map((feature) => <li key={feature}>{FEATURE_LABELS[feature]}</li>)}</ul>
         </article>
       </div>
+
+      <section className="card">
+        <p className="eyebrow">Pro kiemelt előny</p>
+        <h2>Digitális iroda a webshop adminon belül</h2>
+        <p>Beépített e-mail-kezelés, kommunikációs előzmények és belső munkatársi üzenetváltás egy közös munkatérben. Ez nem a rendelési visszaigazoló e-mailek fizetősítése: a normál webshop-értesítések az Alap részei maradnak.</p>
+      </section>
 
       <section className="card">
         <p className="eyebrow">Moduláris extrák</p>
@@ -80,13 +116,13 @@ export default async function PackagePage() {
       {current === 'alap' ? (
         <div className="card">
           <h2>Pro bővítés</h2>
-          <p>A Pro aktiválásakor a meglévő webshop, termékek, rendelések és ügyféladatok változatlanul megmaradnak; csak az új üzleti modulok nyílnak meg.</p>
+          <p>A Pro aktiválásakor a meglévő webshop, termékek, rendelések és ügyféladatok változatlanul megmaradnak; a digitális iroda és a fejlett üzleti modulok nyílnak meg.</p>
           <p className="muted">Az előfizetés és számlázás bekötése külön kereskedelmi modulban történik, ezért innen jelenleg nem indul automatikus terhelés.</p>
         </div>
       ) : (
         <div className="card">
           <h2>Minden Pro funkció aktív</h2>
-          <p>A webshop a teljes Pro üzleti eszköztárat használhatja; a külön extrák ettől függetlenül kapcsolhatók be.</p>
+          <p>A webshop a teljes Pro üzleti és digitális irodai eszköztárat használhatja; a külön extrák ettől függetlenül kapcsolhatók be.</p>
         </div>
       )}
     </section>
