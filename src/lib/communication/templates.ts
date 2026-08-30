@@ -5,6 +5,7 @@ export const communicationTemplates:CommunicationTemplate[]=[
  {key:'order_status',purpose:'transactional',subject:'Water-K rendelési állapot',description:'Rendelés teljesítéséhez kapcsolódó állapotüzenet.'},
  {key:'support_reply',purpose:'transactional',subject:'Válasz érkezett a Water-K ügyedhez',description:'Ügyfélszolgálati adminválasz értesítése.'},
  {key:'return_status',purpose:'transactional',subject:'Water-K visszaküldési ügy frissítés',description:'Visszáru- vagy visszatérítési ügy állapotváltozása.'},
+ {key:'stock_available',purpose:'transactional',subject:'A figyelt Water-K termék újra készleten van',description:'A vásárló által kért készletértesítés, amikor a kiválasztott termékváltozat újra elérhető.'},
  {key:'winback_90d',purpose:'marketing',subject:'Water-K – újra itt az ideje?',description:'90+ napja inaktív, marketing-hozzájárulással rendelkező ügyfél.'},
  {key:'repeat_30d',purpose:'marketing',subject:'Water-K – ideje lehet az utánpótlásnak',description:'30–89 napja inaktív visszatérő ügyfél, aktív marketing-hozzájárulással.'},
  {key:'abandoned_checkout',purpose:'marketing',subject:'Water-K – félbehagytad a rendelésed?',description:'Bejelentkezett, hozzájárulással rendelkező ügyfél érvényes elhagyott checkoutjának helyreállítása.'}
