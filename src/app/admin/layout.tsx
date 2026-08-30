@@ -1,2 +1,63 @@
-import Link from 'next/link';import { requireAdmin } from '@/lib/auth/require-admin';
-export default async function AdminLayout({children}:{children:React.ReactNode}){await requireAdmin();return <main className="adminGrid"><aside className="adminSide"><strong>Water-K Admin</strong><Link href="/admin">Áttekintés</Link><Link href="/admin/iranyitokozpont">Irányítóközpont</Link><Link href="/admin/intezkedesek">Intézkedési központ</Link><Link href="/admin/automatizalas">Automatizálási központ</Link><Link href="/admin/biztositekok">Biztosítékok</Link><Link href="/admin/kiadasok">Kiadási központ</Link><Link href="/admin/rollout">Rollout központ</Link><Link href="/admin/utoellenorzes">Utóellenőrzés</Link><Link href="/admin/helyreallitas">Helyreállítás</Link><Link href="/admin/megfigyeles">Megfigyelés</Link><Link href="/admin/muveletek">Műveletek</Link><Link href="/admin/ertekesites">Értékesítés</Link><Link href="/admin/ugyfelertek">Ügyfélérték</Link><Link href="/admin/novekedes">Növekedés</Link><Link href="/admin/vezetoi">Vezetői analitika</Link><Link href="/admin/elemzes">Elemzés</Link><Link href="/admin/keszlet-elemzes">Készletelemzés</Link><Link href="/admin/beszerzes">Beszerzés</Link><Link href="/admin/cashflow">Cash-flow</Link><Link href="/admin/utanakovetes">Utánkövetés</Link><Link href="/admin/kampanyok">Kampányok</Link><Link href="/admin/kommunikacio">Kommunikáció</Link><Link href="/admin/kommunikacio/tiltolista">Kommunikációs tiltólista</Link><Link href="/admin/ugyfelszolgalat">Ügyfélszolgálat</Link><Link href="/admin/termekek">Termékek</Link><Link href="/admin/rendelesek">Rendelések</Link><Link href="/admin/visszaru">Visszáru</Link><Link href="/admin/integraciok">Integrációk</Link><Link href="/admin/naplo">Napló</Link><Link href="/admin/kuponok">Kuponok</Link><Link href="/admin/ugyfelek">Ügyfelek</Link><Link href="/admin/beallitasok">Beállítások</Link><Link href="/">Webshop megnyitása</Link></aside>{children}</main>}
+import Link from 'next/link';
+import { requireAdmin } from '@/lib/auth/require-admin';
+import { getCurrentPlan } from '@/lib/plans/access';
+import { hasPlanFeature, PLANS, type FeatureCode } from '@/lib/plans/catalog';
+
+type NavItem = { href: string; label: string; feature?: FeatureCode };
+
+const NAV: NavItem[] = [
+  { href: '/admin', label: 'Áttekintés' },
+  { href: '/admin/iranyitokozpont', label: 'Irányítóközpont', feature: 'advancedAnalytics' },
+  { href: '/admin/intezkedesek', label: 'Intézkedési központ', feature: 'automation' },
+  { href: '/admin/automatizalas', label: 'Automatizálási központ', feature: 'automation' },
+  { href: '/admin/biztositekok', label: 'Biztosítékok', feature: 'automation' },
+  { href: '/admin/kiadasok', label: 'Kiadási központ', feature: 'automation' },
+  { href: '/admin/rollout', label: 'Rollout központ', feature: 'automation' },
+  { href: '/admin/utoellenorzes', label: 'Utóellenőrzés', feature: 'automation' },
+  { href: '/admin/helyreallitas', label: 'Helyreállítás', feature: 'automation' },
+  { href: '/admin/megfigyeles', label: 'Megfigyelés', feature: 'advancedAnalytics' },
+  { href: '/admin/muveletek', label: 'Műveletek', feature: 'advancedAnalytics' },
+  { href: '/admin/ertekesites', label: 'Értékesítés', feature: 'crm' },
+  { href: '/admin/ugyfelertek', label: 'Ügyfélérték', feature: 'crm' },
+  { href: '/admin/novekedes', label: 'Növekedés', feature: 'advancedAnalytics' },
+  { href: '/admin/vezetoi', label: 'Vezetői analitika', feature: 'executiveAnalytics' },
+  { href: '/admin/elemzes', label: 'Elemzés', feature: 'advancedAnalytics' },
+  { href: '/admin/keszlet-elemzes', label: 'Készletelemzés', feature: 'advancedAnalytics' },
+  { href: '/admin/beszerzes', label: 'Beszerzés', feature: 'procurement' },
+  { href: '/admin/cashflow', label: 'Cash-flow', feature: 'cashflow' },
+  { href: '/admin/utanakovetes', label: 'Utánkövetés', feature: 'crm' },
+  { href: '/admin/kampanyok', label: 'Kampányok', feature: 'campaigns' },
+  { href: '/admin/kommunikacio', label: 'Kommunikáció', feature: 'communication' },
+  { href: '/admin/kommunikacio/tiltolista', label: 'Kommunikációs tiltólista', feature: 'communication' },
+  { href: '/admin/ugyfelszolgalat', label: 'Ügyfélszolgálat', feature: 'support' },
+  { href: '/admin/termekek', label: 'Termékek', feature: 'catalog' },
+  { href: '/admin/rendelesek', label: 'Rendelések', feature: 'orders' },
+  { href: '/admin/visszaru', label: 'Visszáru', feature: 'orders' },
+  { href: '/admin/integraciok', label: 'Integrációk', feature: 'integrations' },
+  { href: '/admin/naplo', label: 'Napló' },
+  { href: '/admin/kuponok', label: 'Kuponok', feature: 'coupons' },
+  { href: '/admin/ugyfelek', label: 'Ügyfelek', feature: 'customers' },
+  { href: '/admin/beallitasok', label: 'Beállítások' },
+];
+
+export default async function AdminLayout({ children }: { children: React.ReactNode }) {
+  await requireAdmin();
+  const plan = await getCurrentPlan();
+  const definition = PLANS[plan];
+
+  return (
+    <main className="adminGrid">
+      <aside className="adminSide">
+        <strong>Water-K Admin</strong>
+        <span className="muted">{definition.name} csomag</span>
+        {NAV.filter((item) => !item.feature || hasPlanFeature(plan, item.feature)).map((item) => (
+          <Link key={item.href} href={item.href}>{item.label}</Link>
+        ))}
+        {plan === 'alap' && <Link href="/admin/csomag">Pro csomag funkciói</Link>}
+        <Link href="/admin/csomag">Csomagkezelés</Link>
+        <Link href="/">Webshop megnyitása</Link>
+      </aside>
+      {children}
+    </main>
+  );
+}
