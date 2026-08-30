@@ -16,5 +16,5 @@ begin
  insert into private.stock_notification_rate_limits(email,ip) values(normalized_email,normalized_ip);
  return true;
 end;$$;
-revoke execute on function public.allow_stock_notification_request(text,text) from public;
-grant execute on function public.allow_stock_notification_request(text,text) to anon,authenticated;
+revoke execute on function public.allow_stock_notification_request(text,text) from public,anon,authenticated;
+grant execute on function public.allow_stock_notification_request(text,text) to service_role;
