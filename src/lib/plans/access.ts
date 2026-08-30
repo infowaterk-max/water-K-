@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { hasPlanFeature, isPlanCode, type FeatureCode, type PlanCode } from './catalog';
+import { ADDONS, parseAddonList, type AddonCode } from './addons';
 
 export async function getCurrentPlan(): Promise<PlanCode> {
   const configuredDefault = process.env.WEBSHOP_DEFAULT_PLAN;
@@ -24,4 +25,20 @@ export async function requirePlanFeature(feature: FeatureCode) {
   const plan = await getCurrentPlan();
   if (!hasPlanFeature(plan, feature)) redirect('/admin?reason=pro-required');
   return plan;
+}
+
+export async function getCurrentAddons(): Promise<AddonCode[]> {
+  const plan = await getCurrentPlan();
+  const configured = parseAddonList(process.env.WEBSHOP_ENABLED_ADDONS);
+  return configured.filter((addon) => ADDONS[addon].compatiblePlans.includes(plan));
+}
+
+export async function hasAddon(addon: AddonCode): Promise<boolean> {
+  const enabled = await getCurrentAddons();
+  return enabled.includes(addon);
+}
+
+export async function requireAddon(addon: AddonCode) {
+  if (!(await hasAddon(addon))) redirect('/admin/csomag?reason=addon-required');
+  return addon;
 }
