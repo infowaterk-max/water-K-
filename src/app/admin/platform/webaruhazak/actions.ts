@@ -10,13 +10,15 @@ import { isPlanCode } from '@/lib/plans/catalog';
 const slugify=(value:string)=>value.trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9-]+/g,'-').replace(/^-+|-+$/g,'').slice(0,60);
 const uuid=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const roles=['owner','admin','staff'] as const;
+const optional=(value:FormDataEntryValue|null,max:number)=>{const text=String(value??'').trim().slice(0,max);return text||null};
+const safeUrl=(value:FormDataEntryValue|null)=>{const text=optional(value,500);if(!text)return null;try{const url=new URL(text);return ['http:','https:'].includes(url.protocol)?url.toString():null}catch{return null}};
 
 export async function createWebshopInstanceAction(formData:FormData){
  await requirePlatformOperator();
  const name=String(formData.get('name')??'').trim().slice(0,100),slug=slugify(String(formData.get('slug')??name)),plan=String(formData.get('plan')??'pro');
  if(name.length<2||slug.length<2||!isPlanCode(plan))return;
  const admin=createAdminClient();
- await admin.from('webshop_instances').insert({name,slug,subscription_plan:plan,status:'pilot'});
+ await admin.from('webshop_instances').insert({name,brand_name:name,slug,subscription_plan:plan,status:'pilot'});
  revalidatePath('/admin/platform/webaruhazak');
 }
 
@@ -26,6 +28,17 @@ export async function updateWebshopInstanceAction(formData:FormData){
  if(!uuid.test(id)||!isPlanCode(plan)||!['pilot','active','suspended','archived'].includes(status))return;
  const admin=createAdminClient();
  await admin.from('webshop_instances').update({subscription_plan:plan,status,updated_at:new Date().toISOString()}).eq('id',id);
+ revalidatePath('/admin/platform/webaruhazak');
+}
+
+export async function updateWebshopBrandingAction(formData:FormData){
+ await requirePlatformOperator();
+ const id=String(formData.get('id')??''),brandName=String(formData.get('brandName')??'').trim().slice(0,100),primaryColor=optional(formData.get('primaryColor'),7),supportEmail=optional(formData.get('supportEmail'),254);
+ if(!uuid.test(id)||brandName.length<2)return;
+ if(primaryColor&&!/^#[0-9A-Fa-f]{6}$/.test(primaryColor))return;
+ if(supportEmail&&!/^\S+@\S+\.\S+$/.test(supportEmail))return;
+ const admin=createAdminClient();
+ await admin.from('webshop_instances').update({brand_name:brandName,brand_tagline:optional(formData.get('brandTagline'),180),logo_url:safeUrl(formData.get('logoUrl')),primary_color:primaryColor,support_email:supportEmail,support_phone:optional(formData.get('supportPhone'),50),public_site_url:safeUrl(formData.get('publicSiteUrl')),email_from_name:optional(formData.get('emailFromName'),100),updated_at:new Date().toISOString()}).eq('id',id);
  revalidatePath('/admin/platform/webaruhazak');
 }
 
