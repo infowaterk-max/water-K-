@@ -15,10 +15,14 @@ async function access() {
 export async function createThreadAction(form: FormData) {
   const { db, userId } = await access();
   const subject = String(form.get('subject') ?? '').trim().slice(0, 180);
-  const email = String(form.get('email') ?? '').trim().toLowerCase().slice(0, 320);
+  let email = String(form.get('email') ?? '').trim().toLowerCase().slice(0, 320);
   const orderId = String(form.get('orderId') ?? '').trim();
   const body = String(form.get('body') ?? '').trim().slice(0, 10000);
   if (!subject || !body) return;
+  if (orderId && !email) {
+    const { data: order } = await db.from('orders').select('customer_email').eq('id', orderId).maybeSingle();
+    email = order?.customer_email?.trim().toLowerCase() ?? '';
+  }
   const { data } = await db.from('office_threads').insert({ subject, customer_email: email || null, order_id: orderId || null, created_by: userId }).select('id').single();
   if (data?.id) await db.from('office_messages').insert({ thread_id: data.id, author_id: userId, kind: 'internal', body });
   revalidatePath('/admin/kommunikacio/iroda');
