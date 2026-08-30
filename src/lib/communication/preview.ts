@@ -15,6 +15,13 @@ export function renderCommunicationPreview(templateKey: string, payload: Record<
     case 'support_reply':
       body = `Kedves ${name}!\n\n${orderNumber ? `Kapcsolódó rendelés: ${orderNumber}\n\n` : ''}${text(payload.replyPreview, template.description)}\n\nErre az e-mailre válaszolva folytathatod a beszélgetést.\n\nWater-K`;
       break;
+    case 'stock_available': {
+      const productName = text(payload.productName, 'A figyelt termék');
+      const variantLabel = text(payload.variantLabel);
+      const productUrl = text(payload.productUrl, '/webaruhaz');
+      body = `Kedves ${name}!\n\nJó hírünk van: ${productName}${variantLabel ? ` – ${variantLabel}` : ''} újra készleten van.\n\nMegnézem: ${productUrl}\n\nEzt az üzenetet azért kapod, mert külön készletértesítést kértél erre a termékre.\n\nWater-K`;
+      break;
+    }
     case 'repeat_30d':
       body = `Kedves ${name}!\n\nKorábbi Water-K vásárlásod alapján időszerű lehet az utánpótlás. Ha szeretnéd, nézd meg az aktuális kínálatot a webáruházban.\n\nEzt az üzenetet marketing-hozzájárulásod alapján kapod.\nWater-K`;
       break;
