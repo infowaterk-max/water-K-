@@ -1,2 +1,7 @@
-alter table public.profiles add column if not exists platform_operator boolean not null default false;
-create index if not exists profiles_platform_operator_idx on public.profiles(platform_operator) where platform_operator=true;
+create table if not exists public.platform_operators(
+  user_id uuid primary key references public.profiles(id) on delete cascade,
+  created_at timestamptz not null default now()
+);
+alter table public.platform_operators enable row level security;
+revoke all on public.platform_operators from public,anon,authenticated;
+grant select,insert,delete on public.platform_operators to service_role;
