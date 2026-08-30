@@ -21,8 +21,11 @@ export async function requireAdmin() {
       const { data: instance } = await admin.from('webshop_instances').select('id').eq('slug',instanceSlug).in('status',['pilot','active']).maybeSingle();
       instanceId = instance?.id ?? null;
     } else {
-      const { data: memberships } = await admin.from('webshop_instance_members').select('instance_id,role').eq('user_id',authData.user.id).in('role',['owner','admin']).limit(2);
-      if (memberships?.length === 1) instanceId = memberships[0].instance_id;
+      const { data: memberships } = await admin.from('webshop_instance_members').select('instance_id').eq('user_id',authData.user.id).in('role',['owner','admin']).limit(2);
+      if (memberships?.length === 1) {
+        const { data: instance } = await admin.from('webshop_instances').select('id').eq('id',memberships[0].instance_id).in('status',['pilot','active']).maybeSingle();
+        instanceId = instance?.id ?? null;
+      }
     }
     if (instanceId) {
       const { data: membership } = await admin.from('webshop_instance_members').select('role').eq('instance_id',instanceId).eq('user_id',authData.user.id).in('role',['owner','admin']).maybeSingle();
