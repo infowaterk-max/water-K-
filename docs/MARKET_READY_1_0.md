@@ -34,12 +34,15 @@ A Water-K kizárólag referencia-/ügyfél-webshop. Nem Shoperation platformmár
 - cross-sell / upsell / kapcsolódó termékek
 - rendelés utáni ajánlat támogatása
 
-### Tartalom és migráció
+### Tartalom, arculat és migráció
 - blog / tartalomkezelés
 - landing page képesség
 - SEO-alapok
 - import/export
 - tömeges termékműveletek
+- instance-alapú márkanév, logó, elsődleges szín, kapcsolati adatok és e-mail-identitás
+- kódmódosítás nélkül szerkeszthető kezdőlap fő tartalmai és CTA-i
+- ügyfélfüggő fejléc, lábléc, metadata és kapcsolatoldal
 
 ### Üzemeltetés
 - ügyfélszolgálati alapfolyamat
@@ -85,18 +88,16 @@ A nyilvános 1.0 csak akkor jelölhető Market Ready állapotúnak, ha:
 
 1. az Alap csomag a fenti kötelező kereskedelmi minimumot teljesíti;
 2. a Pro jogosultságok szerveroldalon is védettek, nem csak a navigációban;
-3. új ügyfélhez a csomag és extrák kézi kódmódosítás nélkül hozzárendelhetők;
+3. új ügyfélhez a csomag, extrák, arculat és kezdőlap kódmódosítás nélkül hozzárendelhetők;
 4. staging build, TypeScript, minőségi és biztonsági ellenőrzések zöldek;
 5. kritikus checkout, fizetés, rendelés, e-mail, készlet és visszáru folyamatok regressziós tesztje sikeres;
-6. legalább egy Water-K referencia és egy elkülönített, nem Water-K brandingű pilot konfiguráció igazolja, hogy a Shoperation platform ügyfélfüggetlen;
+6. legalább egy elkülönített, nem Water-K brandingű pilot konfiguráció igazolja, hogy a Shoperation platform ügyfélfüggetlen;
 7. onboarding, alap dokumentáció, adatkezelési és üzemeltetési minimum elkészült;
 8. production release és rollback folyamat dokumentált és kipróbált.
 
 ## Fejlesztési sorrend innen
 
-1. Alap dashboard leválasztása a Pro KPI-lekérdezésekről.
-2. Platform-operator modulok elkülönítése a merchant csomagoktól.
-3. Hiányzó Market Ready Alap funkciók megvalósítása prioritás szerint.
-4. Pro Digitális iroda és automatizálási határok véglegesítése.
-5. Instance/onboarding, ügyfelenkénti entitlement és teljes branding-konfiguráció.
-6. Teljes staging regresszió és fizetős pilot release candidate.
+1. Hiányzó ügyfélfüggő storefront/tartalmi hard-code-ok konfigurációba emelése.
+2. E-mail-identitás és tranzakciós kommunikáció instance-brandingre kötése.
+3. Pilot onboarding és első valós ügyfélkonfiguráció end-to-end próbája.
+4. Teljes staging regresszió és fizetős pilot release candidate.
