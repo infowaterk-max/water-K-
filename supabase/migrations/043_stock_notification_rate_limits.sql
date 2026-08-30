@@ -1,5 +1,6 @@
 create schema if not exists private;
 create table if not exists private.stock_notification_rate_limits(id bigint generated always as identity primary key,email text not null,ip text not null,requested_at timestamptz not null default now());
+alter table private.stock_notification_rate_limits enable row level security;
 create index if not exists stock_notification_rate_limits_email_requested_idx on private.stock_notification_rate_limits(email,requested_at desc);
 create index if not exists stock_notification_rate_limits_ip_requested_idx on private.stock_notification_rate_limits(ip,requested_at desc);
 revoke all on private.stock_notification_rate_limits from public,anon,authenticated;
