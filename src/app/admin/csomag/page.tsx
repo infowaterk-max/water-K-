@@ -1,4 +1,5 @@
-import { getCurrentPlan } from '@/lib/plans/access';
+import { getCurrentAddons, getCurrentPlan } from '@/lib/plans/access';
+import { ADDONS } from '@/lib/plans/addons';
 import { PLANS, type FeatureCode } from '@/lib/plans/catalog';
 
 const FEATURE_LABELS: Record<FeatureCode, string> = {
@@ -22,9 +23,10 @@ const FEATURE_LABELS: Record<FeatureCode, string> = {
 };
 
 export default async function PackagePage() {
-  const current = await getCurrentPlan();
+  const [current, enabledAddons] = await Promise.all([getCurrentPlan(), getCurrentAddons()]);
   const currentPlan = PLANS[current];
   const proOnly = PLANS.pro.features.filter((feature) => !PLANS.alap.features.includes(feature as never));
+  const addons = Object.values(ADDONS).filter((addon) => addon.compatiblePlans.includes(current));
 
   return (
     <section className="adminContent">
@@ -32,7 +34,7 @@ export default async function PackagePage() {
         <div>
           <p className="eyebrow">Webshop motor</p>
           <h1>Csomagkezelés</h1>
-          <p className="muted">A webshop jelenlegi tudásszintje és az elérhető bővítési lehetőségek.</p>
+          <p className="muted">A webshop jelenlegi tudásszintje, bővítési lehetőségei és külön aktiválható extrái.</p>
         </div>
         <div className="card">
           <span className="muted">Aktív csomag</span>
@@ -57,6 +59,24 @@ export default async function PackagePage() {
         </article>
       </div>
 
+      <section className="card">
+        <p className="eyebrow">Moduláris extrák</p>
+        <h2>Külön aktiválható kiegészítők</h2>
+        <p className="muted">Ezek nem új csomagszintek. Az adott webshophoz külön rendelhetők és külön jogosultsággal kapcsolhatók be.</p>
+        <div className="cards">
+          {addons.map((addon) => {
+            const active = enabledAddons.includes(addon.code);
+            return (
+              <article className="card" key={addon.code}>
+                <span className="badge">{active ? 'Aktív' : 'Elérhető extra'}</span>
+                <h3>{addon.name}</h3>
+                <p>{addon.description}</p>
+              </article>
+            );
+          })}
+        </div>
+      </section>
+
       {current === 'alap' ? (
         <div className="card">
           <h2>Pro bővítés</h2>
@@ -66,7 +86,7 @@ export default async function PackagePage() {
       ) : (
         <div className="card">
           <h2>Minden Pro funkció aktív</h2>
-          <p>A webshop a teljes üzleti eszköztárat használhatja.</p>
+          <p>A webshop a teljes Pro üzleti eszköztárat használhatja; a külön extrák ettől függetlenül kapcsolhatók be.</p>
         </div>
       )}
     </section>
