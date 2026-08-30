@@ -25,15 +25,15 @@ const FEATURE_LABELS: Record<FeatureCode, string> = {
   apiAccess: 'API-hozzáférés külső rendszerekhez',
 };
 
-type PackagePageProps = {
-  searchParams?: Promise<{ reason?: string; feature?: string; addon?: string }>;
-};
+type PackageSearchParams = { reason?: string; feature?: string; addon?: string };
+type PackagePageProps = { searchParams?: Promise<PackageSearchParams> };
 
 export default async function PackagePage({ searchParams }: PackagePageProps) {
+  const paramsPromise: Promise<PackageSearchParams> = searchParams ?? Promise.resolve({});
   const [current, enabledAddons, params] = await Promise.all([
     getCurrentPlan(),
     getCurrentAddons(),
-    searchParams ?? Promise.resolve({}),
+    paramsPromise,
   ]);
   const currentPlan = PLANS[current];
   const alapFeatures = new Set<FeatureCode>(PLANS.alap.features);
