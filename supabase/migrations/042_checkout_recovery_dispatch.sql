@@ -6,7 +6,6 @@ create or replace function public.queue_abandoned_checkout_recoveries(p_limit in
 returns integer language plpgsql security definer set search_path='' as $$
 declare r record;j uuid;n integer:=0;
 begin
- if current_user<>'service_role' then raise exception 'service role required'; end if;
  for r in select i.id,i.user_id,i.email,i.recovery_token,i.cart from public.checkout_recovery_intents i where i.status='open' and i.expires_at>now() and i.communication_job_id is null and i.last_seen_at<=now()-make_interval(mins=>greatest(p_min_age_minutes,15)) order by i.last_seen_at asc for update of i skip locked limit greatest(1,least(p_limit,200)) loop
   if public.has_marketing_consent(r.email,'email') is not true then continue;end if;
   insert into public.communication_jobs(recipient_email,user_id,purpose,template_key,payload,idempotency_key,requires_approval,approved_at) values(lower(trim(r.email)),r.user_id,'marketing','abandoned_checkout',jsonb_build_object('recoveryUrl','/kosar/visszaallitas?token='||r.recovery_token::text,'itemCount',jsonb_array_length(r.cart),'recoveryIntentId',r.id),'checkout-recovery:'||r.id::text,false,now()) on conflict(idempotency_key) do update set updated_at=now() returning id into j;
