@@ -18,9 +18,10 @@ export default async function AdminLayout({children}:{children:React.ReactNode})
  await requireAdmin();
  const [plan,operator,instance]=await Promise.all([getCurrentPlan(),isPlatformOperator(),getCurrentWebshopInstance()]);
  const definition=PLANS[plan];
- return <main className="adminGrid"><aside className="adminSide"><strong>{instance?.name??'Water-K'} Admin</strong><span className="muted">{definition.name} csomag{instance?` · ${instance.status==='pilot'?'pilot':instance.status}`:''}</span>
+ const merchantName=instance?.name??'Webáruház';
+ return <main className="adminGrid"><aside className="adminSide"><strong>{merchantName} Admin</strong><span className="muted">Shoperation · {definition.name} csomag{instance?` · ${instance.status==='pilot'?'pilot':instance.status}`:''}</span>
  {MERCHANT_NAV.filter(item=>!item.feature||hasPlanFeature(plan,item.feature)).map(item=><Link key={item.href} href={item.href}>{item.label}</Link>)}
  {plan==='alap'&&<Link href="/admin/csomag">Pro csomag funkciói</Link>}<Link href="/admin/csomag">Csomagkezelés</Link>
- {operator&&<><span className="muted">Webshop Motor · platform üzemeltetés</span>{OPERATOR_NAV.map(item=><Link key={item.href} href={item.href}>{item.label}</Link>)}</>}
+ {operator&&<><span className="muted">Shoperation · platform üzemeltetés</span>{OPERATOR_NAV.map(item=><Link key={item.href} href={item.href}>{item.label}</Link>)}</>}
  <Link href="/">Webshop megnyitása</Link></aside>{children}</main>;
 }
