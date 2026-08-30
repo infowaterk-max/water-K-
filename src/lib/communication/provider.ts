@@ -8,6 +8,7 @@ const esc = (value: unknown) => String(value ?? '').replace(/[&<>"']/g, c => ({ 
 const nl2br = (value: unknown) => esc(value).replace(/\r?\n/g, '<br>');
 function site() { return (process.env.NEXT_PUBLIC_SITE_URL || '').replace(/\/$/, ''); }
 function unsubscribeUrl(email: string) { const secret = process.env.COMMUNICATION_UNSUBSCRIBE_SECRET; if (!secret || !site()) return null; const normalized = email.trim().toLowerCase(), token = createHmac('sha256', secret).update(normalized).digest('hex'); return `${site()}/api/communication/unsubscribe?email=${encodeURIComponent(normalized)}&token=${token}`; }
+function safeStoreHref(value: unknown, home: string) { const raw = typeof value === 'string' ? value.trim() : ''; if (!raw.startsWith('/') || raw.startsWith('//')) return `${home}/webaruhaz`; return `${home}${raw}`; }
 
 function render(message: CommunicationMessage) {
   const p = message.payload ?? {}, name = esc(p.name || 'Vásárlónk'), home = site() || 'https://waterk.hu';
@@ -19,6 +20,12 @@ function render(message: CommunicationMessage) {
     body = `<p>Kedves ${name}!</p>${order}<p>${nl2br(p.replyPreview)}</p><p>Erre az e-mailre válaszolva folytathatod a beszélgetést.</p>`;
   }
   else if (message.templateKey === 'return_status') body = `<p>Kedves ${name}!</p><p>A visszaküldési ügyed állapota megváltozott.</p><p>Rendelés: <strong>${esc(p.orderNumber)}</strong><br>Új állapot: <strong>${esc(p.statusLabel || p.status)}</strong></p><p><a href="${home}/fiokom/ugyek">Ügyeim megnyitása</a></p>`;
+  else if (message.templateKey === 'stock_available') {
+    const productName = esc(p.productName || 'A figyelt termék');
+    const variant = p.variantLabel ? ` – ${esc(p.variantLabel)}` : '';
+    const href = safeStoreHref(p.productUrl, home);
+    body = `<p>Kedves ${name}!</p><p>Jó hírünk van: <strong>${productName}${variant}</strong> újra készleten van.</p><p><a href="${href}">Termék megnyitása</a></p><p>Ezt az üzenetet azért kapod, mert külön készletértesítést kértél erre a termékre.</p>`;
+  }
   else if (message.templateKey === 'repeat_30d') body = `<p>Kedves ${name}!</p><p>Korábbi vásárlásaid alapján ideje lehet a Water-K utánpótlásának.</p><p><a href="${home}/webaruhaz/">Webáruház megnyitása</a></p>`;
   else if (message.templateKey === 'winback_90d') body = `<p>Kedves ${name}!</p><p>Régen találkoztunk. Ha ismét szükséged van Water-K termékre, a webáruházban megtalálod az aktuális kínálatot.</p><p><a href="${home}/webaruhaz/">Webáruház megnyitása</a></p>`;
   else body = '<p>Water-K értesítés.</p>';
