@@ -1,13 +1,15 @@
-# Webshop Motor – Market Ready 1.0
+# Shoperation – Market Ready 1.0
 
-Ez a dokumentum a piacra lépés célvonalát rögzíti. A fejlesztés ettől a ponttól nem funkciódarabszámot maximalizál: minden új munka az 1.0 indulási minimumhoz, a Pro differenciáláshoz vagy későbbi roadmaphez tartozik.
+Ez a dokumentum a Shoperation piacra lépési célvonalát rögzíti. A fejlesztés ettől a ponttól nem funkciódarabszámot maximalizál: minden új munka az 1.0 indulási minimumhoz, a Pro differenciáláshoz vagy későbbi roadmaphez tartozik.
 
 ## Termékpozíció
 
-- **Alap:** teljes értékű, professzionális webshop. Nem demo és nem mesterségesen korlátozott belépőcsomag.
-- **Pro:** üzleti növekedési, automatizálási és döntéstámogató réteg.
+- **Shoperation Alap:** teljes értékű, professzionális webshop. Nem demo és nem mesterségesen korlátozott belépőcsomag.
+- **Shoperation Pro:** üzleti növekedési, automatizálási és döntéstámogató réteg.
 - **Digitális iroda:** Pro-exkluzív beépített e-mailes és belső kommunikációs munkatér. A normál tranzakciós webshop e-mailek az Alap részei.
 - **Extrák:** külön aktiválható, ügyfélenkénti kiegészítők; különösen változó költségű AI, kiemelt támogatás és egyedi integrációk.
+
+A Water-K kizárólag referencia-/ügyfél-webshop. Nem Shoperation platformmárka és nem lehet új instance alapértelmezett brandingje.
 
 ## Market Ready 1.0 – kötelező Alap képességek
 
@@ -86,7 +88,7 @@ A nyilvános 1.0 csak akkor jelölhető Market Ready állapotúnak, ha:
 3. új ügyfélhez a csomag és extrák kézi kódmódosítás nélkül hozzárendelhetők;
 4. staging build, TypeScript, minőségi és biztonsági ellenőrzések zöldek;
 5. kritikus checkout, fizetés, rendelés, e-mail, készlet és visszáru folyamatok regressziós tesztje sikeres;
-6. legalább egy Water-K referencia és egy elkülönített pilot konfiguráció igazolja, hogy a motor nem Water-K-specifikus;
+6. legalább egy Water-K referencia és egy elkülönített, nem Water-K brandingű pilot konfiguráció igazolja, hogy a Shoperation platform ügyfélfüggetlen;
 7. onboarding, alap dokumentáció, adatkezelési és üzemeltetési minimum elkészült;
 8. production release és rollback folyamat dokumentált és kipróbált.
 
@@ -94,7 +96,7 @@ A nyilvános 1.0 csak akkor jelölhető Market Ready állapotúnak, ha:
 
 1. Alap dashboard leválasztása a Pro KPI-lekérdezésekről.
 2. Platform-operator modulok elkülönítése a merchant csomagoktól.
-3. Hiányzó Market Ready Alap funkciók megvalósítása prioritás szerint: import/tömeges műveletek → vélemény/kívánságlista/készletértesítő → cross-sell/upsell → tartalom/landing → rendelés utáni ajánlat.
+3. Hiányzó Market Ready Alap funkciók megvalósítása prioritás szerint.
 4. Pro Digitális iroda és automatizálási határok véglegesítése.
-5. Tenant/onboarding és ügyfelenkénti entitlement-kezelés.
+5. Instance/onboarding, ügyfelenkénti entitlement és teljes branding-konfiguráció.
 6. Teljes staging regresszió és fizetős pilot release candidate.
