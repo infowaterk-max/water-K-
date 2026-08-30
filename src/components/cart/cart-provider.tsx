@@ -11,6 +11,7 @@ type CartContextValue = {
   add: (item: CartItem) => void;
   remove: (productId: string) => void;
   setQuantity: (productId: string, quantity: number) => void;
+  replace: (items: CartItem[]) => void;
   clear: () => void;
 };
 
@@ -72,17 +73,16 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       }));
     },
     remove(productId) {
-      setCart((current) => ({
-        items: current.items.filter((item) => item.productId !== productId),
-      }));
+      setCart((current) => ({ items: current.items.filter((item) => item.productId !== productId) }));
     },
     setQuantity(productId, quantity) {
       const safeQuantity = Math.max(1, Math.floor(quantity || 1));
       setCart((current) => ({
-        items: current.items.map((item) =>
-          item.productId === productId ? { ...item, quantity: safeQuantity } : item,
-        ),
+        items: current.items.map((item) => item.productId === productId ? { ...item, quantity: safeQuantity } : item),
       }));
+    },
+    replace(items) {
+      setCart({ items: items.filter(isCartItem) });
     },
     clear() {
       setCart({ items: [] });
