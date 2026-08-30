@@ -31,6 +31,8 @@ const NAV: NavItem[] = [
   { href: '/admin/kommunikacio/tiltolista', label: 'Kommunikációs tiltólista', feature: 'officeCommunication' },
   { href: '/admin/ugyfelszolgalat', label: 'Ügyfélszolgálat', feature: 'support' },
   { href: '/admin/termekek', label: 'Termékek', feature: 'catalog' },
+  { href: '/admin/termekek/import-export', label: 'Import / export', feature: 'importExport' },
+  { href: '/admin/termekek/tomeges', label: 'Tömeges műveletek', feature: 'bulkOperations' },
   { href: '/admin/rendelesek', label: 'Rendelések', feature: 'orders' },
   { href: '/admin/visszaru', label: 'Visszáru', feature: 'returns' },
   { href: '/admin/integraciok', label: 'Fizetés és szállítás', feature: 'commerceIntegrations' },
