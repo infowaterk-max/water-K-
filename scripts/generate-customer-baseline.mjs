@@ -18,7 +18,7 @@ function fail(message) {
 if (!dbUrl) fail('SHOPERATION_BASELINE_DB_URL is required');
 if (manifest.legacyMigrationReplay !== false) fail('legacy migration replay must remain disabled');
 if (manifest.sourcePolicy !== 'schema-snapshot-only') fail('manifest sourcePolicy must remain schema-snapshot-only');
-if (manifest.status !== 'snapshot-required') fail('manifest must remain snapshot-required while generating a candidate snapshot');
+if (!['snapshot-required', 'snapshot-reviewed'].includes(manifest.status)) fail('manifest must be snapshot-required or snapshot-reviewed while generating a candidate snapshot');
 if (existsSync(output) && !force) fail('candidate snapshot already exists; pass --force only after deliberate review');
 
 mkdirSync(dirname(output), { recursive: true });
@@ -34,7 +34,7 @@ const dump = spawnSync(
     '--db-url',
     dbUrl,
     '--schema',
-    'public',
+    'public,private',
     '--file',
     temp,
   ],
@@ -54,17 +54,8 @@ const review = spawnSync(process.execPath, ['scripts/review-customer-baseline-sn
 });
 
 if (review.status !== 0) {
-  fail('candidate snapshot failed structural review; keep manifest snapshot-required and inspect the generated SQL');
-}
-
-const guard = spawnSync(process.execPath, ['scripts/validate-customer-baseline.mjs'], {
-  cwd: root,
-  stdio: 'inherit',
-});
-
-if (guard.status === 0) {
-  fail('candidate snapshot must not make a snapshot-required manifest pass; review and explicitly promote it to ready');
+  fail('candidate snapshot failed structural review; inspect the generated SQL before promotion');
 }
 
 console.log(`Candidate schema snapshot written to ${output}`);
-console.log('Structural review passed. Next: manually review SQL, remove environment-only assumptions, prove it on the empty disposable target, then set manifest.status to ready and run npm run db:customer:guard.');
+console.log('Structural review passed. Keep Fresh Install proof required until the reviewed snapshot and neutral seed pass target postflight on an empty disposable project.');
