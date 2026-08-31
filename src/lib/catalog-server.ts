@@ -1,4 +1,4 @@
-import { products as fallbackProducts, type Product } from '@/lib/catalog';
+import type { Product } from '@/lib/catalog';
 import { createClient } from '@/lib/supabase/server';
 
 type VariantRow = {
@@ -8,19 +8,22 @@ type VariantRow = {
   net_price_huf: number;
   gross_price_huf: number;
   stock_quantity: number;
+  weight_grams: number | null;
   product_id: string;
   products: { slug: string; name: string; short_description: string | null; active: boolean } | null;
 };
 
-const slugFromVariant = (sku: string, label: string) => {
-  const suffix = sku === 'WK-040' ? '40-g' : sku === 'WK-750' ? '750-g' : sku === 'WK-25K' ? '25-kg' : label.toLowerCase().replace(/\s+/g, '-');
-  return `water-k-${suffix}`;
-};
+const slugify = (value: string) => value
+  .normalize('NFD')
+  .replace(/[\u0300-\u036f]/g, '')
+  .toLowerCase()
+  .trim()
+  .replace(/[^a-z0-9]+/g, '-')
+  .replace(/^-+|-+$/g, '');
 
-const metadata = (sku: string) => {
-  if (sku === 'WK-040') return { audience: 'retail' as const, weightGrams: 40, useCases: ['Cserepes növény','Balkonláda','Kisebb ültetés'], highlights: ['Kis kiszerelés','Egyszerű kipróbálás','Otthoni felhasználás'] };
-  if (sku === 'WK-750') return { audience: 'retail' as const, weightGrams: 750, useCases: ['Kert','Ágyás','Gyep','Dísznövény'], highlights: ['Legnépszerűbb','Sokoldalú','Kertméretű kiszerelés'] };
-  return { audience: 'professional' as const, weightGrams: 25000, useCases: ['Kertészet','Nagyobb gyep','Faiskola','Professzionális felhasználás'], highlights: ['Professzionális','25 kg','Nagyobb területhez'] };
+const variantSlug = (productSlug: string, label: string, sku: string) => {
+  const suffix = slugify(label) || slugify(sku);
+  return suffix ? `${productSlug}-${suffix}` : productSlug;
 };
 
 export async function getProducts(): Promise<Product[]> {
@@ -28,30 +31,34 @@ export async function getProducts(): Promise<Product[]> {
     const supabase = await createClient();
     const { data, error } = await supabase
       .from('product_variants')
-      .select('id,sku,label,net_price_huf,gross_price_huf,stock_quantity,product_id,products!inner(slug,name,short_description,active)')
+      .select('id,sku,label,net_price_huf,gross_price_huf,stock_quantity,weight_grams,product_id,products!inner(slug,name,short_description,active)')
       .eq('active', true)
       .eq('products.active', true)
       .order('gross_price_huf');
 
-    if (error || !data?.length) return fallbackProducts;
+    if (error || !data?.length) return [];
 
     return (data as unknown as VariantRow[]).map((row) => {
-      const meta = metadata(row.sku);
+      const product = row.products;
+      const baseSlug = product?.slug || slugify(product?.name || row.sku) || row.id;
       return {
         id: row.id,
         sku: row.sku,
-        slug: slugFromVariant(row.sku, row.label),
-        name: `${row.products?.name ?? 'Water-K'} ${row.label}`,
+        slug: variantSlug(baseSlug, row.label, row.sku),
+        name: [product?.name, row.label].filter(Boolean).join(' '),
         size: row.label,
         grossPrice: row.gross_price_huf,
         netPrice: row.net_price_huf,
         stock: row.stock_quantity,
-        short: row.products?.short_description ?? 'Water-K vízmegtartó technológia.',
-        featured: row.sku === 'WK-750',
-        ...meta,
+        short: product?.short_description ?? '',
+        featured: false,
+        weightGrams: row.weight_grams ?? 0,
+        audience: 'retail',
+        useCases: [],
+        highlights: [],
       };
     });
   } catch {
-    return fallbackProducts;
+    return [];
   }
 }
