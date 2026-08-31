@@ -7,6 +7,7 @@ const protectedPagesAndActions = [
   ['src/app/admin/beszerzes/page.tsx', 'procurement'],
   ['src/app/admin/cashflow/page.tsx', 'cashflow'],
   ['src/app/admin/kampanyok/page.tsx', 'advancedCampaigns'],
+  ['src/app/admin/ertekesites/page.tsx', 'crm'],
   ['src/app/admin/kommunikacio/iroda/page.tsx', 'officeCommunication'],
   ['src/app/admin/kommunikacio/iroda/actions.ts', 'officeCommunication'],
 ] as const;
@@ -19,6 +20,10 @@ const protectedApis = [
   ['src/app/api/admin/automation/instance/route.ts', 'automation'],
   ['src/app/api/admin/campaigns/route.ts', 'advancedCampaigns'],
   ['src/app/api/admin/campaigns/manage/route.ts', 'advancedCampaigns'],
+  ['src/app/api/admin/commercial/actions/route.ts', 'crm'],
+  ['src/app/api/admin/communication/enqueue/route.ts', 'officeCommunication'],
+  ['src/app/api/admin/communication/manage/route.ts', 'officeCommunication'],
+  ['src/app/api/admin/communication/suppression/route.ts', 'officeCommunication'],
 ] as const;
 
 function source(path: string) {
