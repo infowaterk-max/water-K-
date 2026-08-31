@@ -1,18 +1,22 @@
 import Link from 'next/link';
 import { getProducts } from '@/lib/catalog-server';
-import { getCommerceSettings } from '@/lib/commerce/settings';
+import { getCommerceSettings, type CommerceSettings } from '@/lib/commerce/settings';
 import { getCurrentWebshopInstance } from '@/lib/instances/access';
 import { getCurrentPlan } from '@/lib/plans/access';
 
+const emptyCommerce:CommerceSettings={shippingOptions:[],paymentOptions:[],freeShippingThreshold:0};
+
 export default async function LaunchReadinessPage(){
+  const safeProducts=getProducts().catch(()=>[]);
+  const safeCommerce=getCommerceSettings().catch(()=>emptyCommerce);
   const [instance,plan,products,commerce]=await Promise.all([
-    getCurrentWebshopInstance(),
+    getCurrentWebshopInstance().catch(()=>null),
     getCurrentPlan(),
-    getProducts(),
-    getCommerceSettings(),
+    safeProducts,
+    safeCommerce,
   ]);
 
-  const brandReady=Boolean(instance?.brand.name&&instance.brand.supportEmail);
+  const brandReady=Boolean(instance?.brand.name&&(instance.brand.supportEmail||instance.brand.supportPhone));
   const storefrontReady=Boolean(instance?.storefront.heroTitle||instance?.brand.tagline);
   const catalogReady=products.length>0;
   const shippingReady=commerce.shippingOptions.length>0;
@@ -20,7 +24,7 @@ export default async function LaunchReadinessPage(){
   const publicUrlReady=Boolean(instance?.brand.publicSiteUrl);
   const checks=[
     {label:'Webshop példány',done:Boolean(instance),detail:instance?`${instance.name} · ${plan==='pro'?'Pro':'Alap'} csomag`:'A webshop példány még nincs hozzárendelve.',href:'/admin/beallitasok'},
-    {label:'Arculat és kapcsolat',done:brandReady,detail:brandReady?'Név és ügyfélszolgálati e-mail beállítva.':'Állítsd be a márkanevet és a kapcsolati e-mailt.',href:'/admin/beallitasok'},
+    {label:'Arculat és kapcsolat',done:brandReady,detail:brandReady?'Márkanév és ügyfélszolgálati elérhetőség beállítva.':'Állítsd be a márkanevet és legalább egy ügyfélszolgálati elérhetőséget.',href:'/admin/beallitasok'},
     {label:'Kezdőoldal tartalma',done:storefrontReady,detail:storefrontReady?'A nyitóoldal rendelkezik saját tartalommal.':'Add meg a hero címet, leírást és fő üzeneteket.',href:'/admin/beallitasok'},
     {label:'Termékkatalógus',done:catalogReady,detail:catalogReady?`${products.length} termék elérhető a katalógusban.`:'Még nincs feltöltött termék.',href:'/admin/termekek'},
     {label:'Szállítás',done:shippingReady,detail:shippingReady?`${commerce.shippingOptions.length} aktív szállítási mód.`:'Aktiválj legalább egy szállítási módot.',href:'/admin/beallitasok/fizetes-szallitas'},
