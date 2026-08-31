@@ -2,7 +2,7 @@ import { getCommunicationTemplate } from './templates';
 import { brandedSubject } from './identity';
 
 const text=(value:unknown,fallback='')=>typeof value==='string'?value:fallback;
-export function renderCommunicationPreview(templateKey:string,payload:Record<string,unknown>={},brandName='Water-K'){
+export function renderCommunicationPreview(templateKey:string,payload:Record<string,unknown>={},brandName='Shoperation'){
  const template=getCommunicationTemplate(templateKey);if(!template)return null;const name=text(payload.name,text(payload.customerName,'Vásárlónk')),orderNumber=text(payload.orderNumber);let body='';
  switch(templateKey){
   case'payment_followup':body=`Kedves ${name}!\n\nA ${orderNumber?orderNumber+' számú ':''}rendelésed fizetése még függőben van. Ha a fizetést már elvégezted, nincs további teendőd.\n\nÜdvözlettel:\n${brandName}`;break;
