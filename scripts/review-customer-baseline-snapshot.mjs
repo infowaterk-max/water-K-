@@ -14,6 +14,9 @@ function fail(message){
 if(!existsSync(snapshotPath)) fail(`snapshot is missing: ${manifest.snapshotFile}`);
 const sql=readFileSync(snapshotPath,'utf8');
 const lower=sql.toLowerCase();
+// pg_dump quotes identifiers as "schema"."object". Normalize quotes only for
+// structural name checks while keeping all security/data regexes on raw SQL.
+const normalizedIdentifiers=lower.replace(/"/g,'');
 
 const requiredObjects=[
   'public.webshop_instances',
@@ -26,20 +29,20 @@ const requiredObjects=[
 ];
 
 for(const objectName of requiredObjects){
-  if(!lower.includes(objectName)) fail(`required schema object is missing: ${objectName}`);
+  if(!normalizedIdentifiers.includes(objectName)) fail(`required schema object is missing: ${objectName}`);
 }
 
-if(!lower.includes('place_order_provider_v2_idempotent')) fail('provider-neutral checkout RPC is missing');
-if(/\b(?:create|replace)\s+(?:or\s+replace\s+)?function\s+public\.place_order\s*\(/i.test(sql)) fail('obsolete public.place_order checkout overload is present');
+if(!normalizedIdentifiers.includes('place_order_provider_v2_idempotent')) fail('provider-neutral checkout RPC is missing');
+if(/\b(?:create|replace)\s+(?:or\s+replace\s+)?function\s+(?:"?public"?\.)?"?place_order"?\s*\(/i.test(sql)) fail('obsolete public.place_order checkout overload is present');
 
 const alapDefaults=(sql.match(/subscription_plan[^;]*default[^;]*alap/gi)??[]).length;
 if(alapDefaults<2) fail(`expected fail-closed Alap defaults for profile and webshop instance, found ${alapDefaults}`);
 
-if(/\b(copy|insert\s+into)\s+public\.(products|product_variants|webshop_instances|orders|profiles|webshop_instance_commerce_settings)\b/i.test(sql)){
+if(/\b(copy|insert\s+into)\s+(?:"?public"?\.)"?(products|product_variants|webshop_instances|orders|profiles|webshop_instance_commerce_settings)"?\b/i.test(sql)){
   fail('schema snapshot contains customer-facing data statements');
 }
 
-if(/\bsupabase_migrations\.schema_migrations\b/i.test(sql)) fail('historical Supabase migration state must not be part of the customer baseline');
+if(/\b"?supabase_migrations"?\."?schema_migrations"?\b/i.test(sql)) fail('historical Supabase migration state must not be part of the customer baseline');
 if(!/enable\s+row\s+level\s+security/i.test(sql)) fail('snapshot does not enable row level security');
 if(!/create\s+policy/i.test(sql)) fail('snapshot does not contain RLS policies');
 
