@@ -37,8 +37,13 @@ if(/\b(?:create|replace)\s+(?:or\s+replace\s+)?function\s+(?:"?public"?\.)?"?pla
 const alapDefaults=(sql.match(/subscription_plan[^;]*default[^;]*alap/gi)??[]).length;
 if(alapDefaults<2) fail(`expected fail-closed Alap defaults for profile and webshop instance, found ${alapDefaults}`);
 
-if(/\b(copy|insert\s+into)\s+(?:"?public"?\.)"?(products|product_variants|webshop_instances|orders|profiles|webshop_instance_commerce_settings)"?\b/i.test(sql)){
-  fail('schema snapshot contains customer-facing data statements');
+// pg_dump --schema-only legitimately preserves DML inside function bodies (for example
+// private.handle_new_user inserts the newly authenticated user into public.profiles).
+// Strip dollar-quoted routine bodies before looking for top-level COPY/INSERT statements,
+// so executable schema logic is retained while actual dumped customer rows remain blocked.
+const topLevelSql=sql.replace(/\$([A-Za-z_][A-Za-z0-9_]*)?\$[\s\S]*?\$\1\$/g,'$$ROUTINE_BODY$$');
+if(/\b(copy|insert\s+into)\s+(?:"?public"?\.)"?(products|product_variants|webshop_instances|orders|profiles|webshop_instance_commerce_settings)"?\b/i.test(topLevelSql)){
+  fail('schema snapshot contains top-level customer-facing data statements');
 }
 
 if(/\b"?supabase_migrations"?\."?schema_migrations"?\b/i.test(sql)) fail('historical Supabase migration state must not be part of the customer baseline');
