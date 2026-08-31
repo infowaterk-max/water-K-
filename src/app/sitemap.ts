@@ -1,9 +1,13 @@
 import type { MetadataRoute } from 'next';
 import { getProducts } from '@/lib/catalog-server';
 import { getPublicContent } from '@/lib/content/server';
+import { getCurrentWebshopInstance } from '@/lib/instances/access';
 
 export default async function sitemap():Promise<MetadataRoute.Sitemap>{
-  const base=(process.env.NEXT_PUBLIC_SITE_URL??'https://water-k-native.vercel.app').replace(/\/$/,'');
+  const instance=await getCurrentWebshopInstance();
+  const deploymentHost=process.env.VERCEL_PROJECT_PRODUCTION_URL?.trim()||process.env.VERCEL_URL?.trim();
+  const fallback=process.env.NEXT_PUBLIC_SITE_URL?.trim()||(deploymentHost?`https://${deploymentHost}`:'http://localhost:3000');
+  const base=(instance?.brand.publicSiteUrl?.trim()||fallback).replace(/\/$/,'');
   const now=new Date();
   const staticRoutes=['','/webaruhaz','/blog','/szallitas-es-fizetes','/gyik','/kapcsolat','/aszf','/adatvedelem'];
   const [products,blog,landing]=await Promise.all([getProducts(),getPublicContent('blog'),getPublicContent('landing')]);
