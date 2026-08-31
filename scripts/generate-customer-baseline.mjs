@@ -48,6 +48,15 @@ if (dump.status !== 0 || !existsSync(temp)) {
 
 renameSync(temp, output);
 
+const review = spawnSync(process.execPath, ['scripts/review-customer-baseline-snapshot.mjs'], {
+  cwd: root,
+  stdio: 'inherit',
+});
+
+if (review.status !== 0) {
+  fail('candidate snapshot failed structural review; keep manifest snapshot-required and inspect the generated SQL');
+}
+
 const guard = spawnSync(process.execPath, ['scripts/validate-customer-baseline.mjs'], {
   cwd: root,
   stdio: 'inherit',
@@ -58,4 +67,4 @@ if (guard.status === 0) {
 }
 
 console.log(`Candidate schema snapshot written to ${output}`);
-console.log('Next: review SQL, remove environment-only objects/data assumptions, verify neutrality, then set manifest.status to ready and run npm run db:customer:guard.');
+console.log('Structural review passed. Next: manually review SQL, remove environment-only assumptions, prove it on the empty disposable target, then set manifest.status to ready and run npm run db:customer:guard.');
