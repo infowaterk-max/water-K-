@@ -29,12 +29,12 @@ describe('final Shoperation V1 release gates',()=>{
   });
 
   test('admin API authentication fails closed and optionally enforces distributed rate limiting',()=>{
-    expect(adminAuth).toMatch(/if\(!user\) return null/);
-    expect(adminAuth).toMatch(/profile\?\.role!=='admin'/);
-    expect(adminAuth).toMatch(/SECURITY_RATE_LIMIT_ENABLED==='true'/);
+    expect(adminAuth).toMatch(/if\s*\(\s*!user\s*\)\s*return null/);
+    expect(adminAuth).toMatch(/profile\?\.role\s*!==\s*'admin'/);
+    expect(adminAuth).toMatch(/SECURITY_RATE_LIMIT_ENABLED\s*===\s*'true'/);
     expect(adminAuth).toMatch(/consume_security_rate_limit/);
-    expect(adminAuth).toMatch(/if\(error\|\|data!==true\)return null/);
-    expect(adminAuth).toMatch(/catch \{[\s\S]*return null/);
+    expect(adminAuth).toMatch(/if\s*\(\s*error\s*\|\|\s*data\s*!==\s*true\s*\)\s*return null/);
+    expect(adminAuth).toMatch(/catch\s*\{[\s\S]*return null/);
   });
 
   test('customer baseline is the reviewed neutral snapshot and never replays legacy migrations',()=>{
