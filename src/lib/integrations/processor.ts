@@ -6,7 +6,6 @@ import { sendTransactionalEmail,type EmailTemplate } from '@/lib/integrations/em
 import { getCommunicationIdentity } from '@/lib/communication/identity';
 import type { ShippingProvider } from '@/lib/integrations/types';
 
-const skuWeight:Record<string,number>={'WK-040':40,'WK-750':750,'WK-25K':25000};
 const MAX_ATTEMPTS=5;
 function shippingProvider(id:string):ShippingProvider{if(id==='foxpost')return new FoxpostShipping();if(id==='gls')return new GlsShipping();if(id==='mpl')return new MplShipping();throw new Error(`Unsupported shipping provider: ${id}`)}
 function isBlockedError(error:unknown){const text=error instanceof Error?error.message:String(error);return /credentials|required|contract|configured|unsupported|provider required/i.test(text)}
@@ -34,10 +33,16 @@ export async function processIntegrationJob(jobId:string,claimToken:string){
   if(job.kind==='shipment_create'){
    if(!job.order_id)throw new Error('Missing order');
    const {data:order,error}=await admin.from('orders').select('order_number,customer_email,customer_phone,billing_name,shipping_postcode,shipping_city,shipping_address').eq('id',job.order_id).maybeSingle(); if(error||!order)throw new Error('Shipment order not found');
-   const {data:items,error:itemError}=await admin.from('order_items').select('sku,quantity').eq('order_id',job.order_id); if(itemError)throw new Error('Shipment items unavailable');
-   const weightGrams=(items??[]).reduce((sum,item)=>sum+(skuWeight[item.sku]??0)*item.quantity,0); if(weightGrams<=0)throw new Error('Shipment weight unavailable');
+   const {data:items,error:itemError}=await admin.from('order_items').select('variant_id,sku,quantity').eq('order_id',job.order_id); if(itemError)throw new Error('Shipment items unavailable');
+   const variantIds=[...new Set((items??[]).map(item=>item.variant_id).filter((id):id is string=>Boolean(id)))];
+   const {data:variants,error:variantError}=variantIds.length?await admin.from('product_variants').select('id,weight_grams').in('id',variantIds):{data:[],error:null};
+   if(variantError)throw new Error('Shipment variant weights unavailable');
+   const weightByVariant=new Map((variants??[]).map(row=>[row.id,row.weight_grams==null?null:Number(row.weight_grams)]));
+   let weightGrams=0;
+   for(const item of items??[]){const unit=item.variant_id?weightByVariant.get(item.variant_id):null;if(!unit||unit<=0)throw new Error(`Shipment weight missing for SKU ${item.sku}`);weightGrams+=unit*item.quantity;}
+   if(weightGrams<=0)throw new Error('Shipment weight unavailable');
    const result=await shippingProvider(job.provider).createShipment({orderId:order.order_number,customer:{email:order.customer_email,phone:order.customer_phone??undefined,name:order.billing_name},address:{country:'HU',postalCode:order.shipping_postcode??'',city:order.shipping_city??'',line1:order.shipping_address??''},weightGrams});
-   await admin.from('orders').update({tracking_number:result.trackingNumber,updated_at:new Date().toISOString()}).eq('id',job.order_id); await admin.from('order_events').insert({order_id:job.order_id,event_type:'shipment_created',metadata:{provider:job.provider,tracking_number:result.trackingNumber}}); return await complete(result);
+   await admin.from('orders').update({tracking_number:result.trackingNumber,updated_at:new Date().toISOString()}).eq('id',job.order_id); await admin.from('order_events').insert({order_id:job.order_id,event_type:'shipment_created',metadata:{provider:job.provider,tracking_number:result.trackingNumber,weight_grams:weightGrams}}); return await complete(result);
   }
   if(job.kind==='invoice_create'){
    if(!job.order_id)throw new Error('Missing order');
