@@ -1,0 +1,49 @@
+name: Customer baseline snapshot candidate
+
+on:
+  push:
+    branches:
+      - feature/business-packages-v1
+    paths:
+      - .github/workflows/customer-baseline-snapshot.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  SHOPERATION_BASELINE_DB_URL: ${{ secrets.SHOPERATION_BASELINE_DB_URL }}
+
+jobs:
+  snapshot:
+    name: Generate and review schema snapshot
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Verify secret is configured
+        shell: bash
+        run: |
+          if [ -z "$SHOPERATION_BASELINE_DB_URL" ]; then
+            echo "SHOPERATION_BASELINE_DB_URL repository secret is missing."
+            exit 1
+          fi
+
+      - name: Generate candidate schema snapshot
+        run: npm run db:customer:snapshot
+
+      - name: Upload reviewed candidate snapshot
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: shoperation-customer-baseline-candidate
+          path: supabase/customer-baseline/migrations/0001_shoperation_v1_schema.sql
+          if-no-files-found: warn
+          retention-days: 7
