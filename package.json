@@ -12,6 +12,7 @@
     "validate:env": "node scripts/validate-env.mjs",
     "db:customer:guard": "node scripts/validate-customer-baseline.mjs",
     "db:customer:snapshot": "node scripts/generate-customer-baseline.mjs",
+    "db:customer:review": "node scripts/review-customer-baseline-snapshot.mjs",
     "smoke": "node scripts/smoke.mjs",
     "release:manifest": "node scripts/release-manifest.mjs"
   },
