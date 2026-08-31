@@ -4,6 +4,7 @@ import './workspace.css';
 import './business-modules.css';
 import './concept-ui.css';
 import './admin-final-polish.css';
+import './admin-responsive-final.css';
 import Link from 'next/link';
 import { requireAdmin } from '@/lib/auth/require-admin';
 import { isPlatformOperator } from '@/lib/auth/platform-operator';
