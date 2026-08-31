@@ -66,4 +66,21 @@ describe('Shoperation database bootstrap neutrality', () => {
     expect(migration).toMatch(/alter\s+column\s+subscription_plan\s+set\s+default\s+'alap'/i);
     expect(migration).toMatch(/alter\s+table\s+public\.webshop_instances/i);
   });
+
+  it('removes obsolete checkout RPC overloads while keeping the provider-neutral runtime entrypoint', () => {
+    const migration = readFileSync(
+      resolve(process.cwd(), 'supabase/migrations/20260831124500_drop_legacy_place_order_overloads.sql'),
+      'utf8',
+    ).replace(/\s+/g, ' ');
+    const checkoutRoute = readFileSync(resolve(process.cwd(), 'src/app/api/orders/route.ts'), 'utf8');
+
+    expect(migration).toContain(
+      'drop function if exists public.place_order( text, text, text, text, text, text, text, text, text, text, text, text, text, text, text, text, uuid, jsonb );',
+    );
+    expect(migration).toContain(
+      'drop function if exists public.place_order( text, text, text, text, text, text, text, text, text, text, text, text, text, text, text, text, uuid, text, jsonb );',
+    );
+    expect(checkoutRoute).toMatch(/\.rpc\(['"]place_order_provider_v2_idempotent['"]/);
+    expect(checkoutRoute).not.toMatch(/\.rpc\(['"]place_order['"]/);
+  });
 });
