@@ -1,42 +1,54 @@
 # Shoperation adatbázis-bootstrap szerződés
 
-Ez a dokumentum a Shoperation 1.0 pilot új ügyfél-adatbázisainak támogatott indulási útját rögzíti. Nem egy összevont (squashed) sémaalap, hanem a tiszta telepítés kötelező szerződése.
+Ez a dokumentum a Shoperation 1.0 pilot új ügyfél-adatbázisainak biztonsági és neutralitási szerződését rögzíti.
 
-## Alapelv
+## Jelenlegi státusz
 
-Minden fizető pilot ügyfél külön, friss Supabase projektet/adatbázist kap. Új ügyfél nem indulhat meglévő ügyfél-adatbázis másolatából, staging mentésből vagy ügyfélspecifikus seedből.
+A repository történeti migrációs lánca a Shoperation előtti fejlesztési korszakból is tartalmaz migrációkat. Hat régi migrációban még megtalálható ügyfélspecifikus rendelési prefix/SKU-logika. Ezeket történeti migrációs provenienciaként tartjuk nyilván, nem Shoperation mintaként, seedként vagy támogatott új ügyfél-bootstrapként.
 
-A repository `supabase/migrations` láncát a legfrissebb migrációig kell alkalmazni. A végső migrációs állapotban az új `profiles.subscription_plan` és `webshop_instances.subscription_plan` rekordok alapértelmezése `alap`; Pro csak kifejezett csomag-hozzárendeléssel aktiválható.
+Emiatt a teljes régi `supabase/migrations` lánc új fizető ügyfél adatbázisának létrehozására **még nem tekinthető végleges 1.0 baseline-nak**. A pilot release előtt külön, tiszta Shoperation baseline/squashed schema artifactot kell előállítani és valóban friss Supabase környezeten bizonyítani.
 
-## Seed szabály
+## Ami már kötelező és elkészült
 
 A `supabase/seed.sql` szándékosan ügyfélüres és márkasemleges. Nem hoz létre terméket, SKU-t, domaint, e-mail címet, címet, árazást, szolgáltatói hitelesítő adatot vagy webshop-brandinget.
 
-Demo- és pilotadat csak külön, kifejezett tesztlépésben tölthető be. A semleges Mintabolt fixture nem része az alap seednek, ezért egy új fizető ügyfél adatbázisába véletlenül sem kerül be.
+Az új adatbázis-defaultok fail-closed működésűek: új `profiles.subscription_plan` és `webshop_instances.subscription_plan` rekord alapértelmezése `alap`. Pro csak kifejezett csomag-hozzárendeléssel aktiválható.
 
-## Friss ügyfél indítási sorrend
-
-1. Külön, üres Supabase projekt létrehozása az ügyfél számára.
-2. A repository migrációinak alkalmazása a legfrissebb verzióig.
-3. A semleges alap seed futtatása; ennek üzleti adatot nem szabad létrehoznia.
-4. Egyetlen webshop instance kifejezett létrehozása, alapértelmezetten Alap csomaggal.
-5. Saját branding, storefront tartalom, domain, kommunikációs identitás és commerce-beállítások megadása.
-6. Fizetési, szállítási és számlázási szolgáltatók csak az adott ügyfél szerződései és titkai alapján aktiválhatók.
-7. Merchant owner/admin hozzáférés létrehozása és jogosultsági próba.
-8. Storefront, kosár, checkout, rendelés, tranzakciós kommunikáció és admin smoke/E2E ellenőrzés.
+A regressziós teszt pontosan rögzíti a hat történeti SQL-kivételt. Bármely új migráció, seed vagy más Supabase SQL, amely ügyfélspecifikus identitást/SKU-t vinne vissza, CI hibát okoz. A kivétellista nem bővíthető ügyfélfunkció fejlesztésének részeként.
 
 ## Tiltott bootstrap források
 
-Nem használható új ügyfélhez meglévő ügyfél adatbázis-klón, production vagy staging dump, ügyfélspecifikus termékseed, hardcoded domain/e-mail/SKU, illetve olyan konfiguráció, amely explicit hozzárendelés nélkül Pro jogosultságot ad.
+Új ügyfélhez nem használható:
 
-A jelenlegi legacy staging kizárólag fejlesztési és tesztbizonyíték. Nem tekinthető terjeszthető Shoperation sémaalapnak vagy új ügyfél sablonadatbázisnak.
+- meglévő ügyfél adatbázis-klón vagy mentés;
+- production vagy legacy staging dump;
+- ügyfélspecifikus termékseed;
+- hardcoded ügyféldomain, e-mail, SKU, ár vagy termékszabály;
+- olyan csomag-default, amely explicit hozzárendelés nélkül Pro jogosultságot ad;
+- a jelenlegi történeti migrációs lánc mint végleges, értékesíthető Shoperation baseline.
 
-## 1.0 release előfeltétel
+A legacy staging kizárólag fejlesztési és tesztbizonyíték. Nem terjeszthető sémaalap és nem új ügyfél sablonadatbázisa.
 
-A pilot release előtt ezt a bootstrap szerződést egy valóban friss, semleges Supabase környezeten végig kell futtatni, és bizonyítani kell legalább a következőket:
+## Jóváhagyott 1.0 célfolyamat
 
-- a teljes migrációs lánc hibamentesen lefut;
-- az alap seed nem hoz létre ügyfélspecifikus üzleti adatot;
+A végleges új ügyfél-indítási folyamat:
+
+1. Külön, üres Supabase projekt/adatbázis az ügyfél számára.
+2. Verziózott, tiszta Shoperation 1.0 baseline alkalmazása.
+3. Csak a baseline utáni Shoperation migrációk alkalmazása.
+4. Ügyfélüres, semleges alap seed futtatása.
+5. Egyetlen webshop instance kifejezett létrehozása, alapértelmezetten Alap csomaggal.
+6. Saját branding, storefront tartalom, domain, kommunikációs identitás és commerce-beállítások megadása.
+7. Fizetési, szállítási és számlázási szolgáltatók csak az adott ügyfél szerződései és titkai alapján aktiválhatók.
+8. Merchant owner/admin hozzáférés létrehozása és jogosultsági próba.
+9. Storefront, kosár, checkout, rendelés, tranzakciós kommunikáció és admin E2E ellenőrzés.
+
+## Baseline release gate
+
+A tiszta baseline addig nem jelölhető késznek, amíg egy valóban friss, semleges Supabase környezeten nem bizonyítottuk legalább a következőket:
+
+- a baseline és az utána következő migrációk hibamentesen lefutnak;
+- a seed nem hoz létre ügyfélspecifikus üzleti adatot;
 - az új csomag-default Alap;
 - a semleges webshop instance létrehozható és konfigurálható;
 - az Alap felhasználó nem éri el a Pro-only oldalakat és közvetlen API-kat;
@@ -44,8 +56,4 @@ A pilot release előtt ezt a bootstrap szerződést egy valóban friss, semleges
 - a build, typecheck és tesztek zöldek;
 - a customer-specific contamination audit zöld.
 
-A valóban friss Supabase környezet létrehozása külön erőforrás/költség lehet, ezért ezt csak jóváhagyott pilot-validációs lépésként végezzük el.
-
-## Következő evolúció
-
-A migrációs lánc bizonyított friss telepítése után készíthető egy külön, verziózott Shoperation 1.0 baseline/squashed schema artifact. Addig a repository migrációs lánca + a jelen bootstrap szerződés az egyetlen támogatott friss telepítési út.
+A valóban friss Supabase környezet létrehozása külön erőforrás/költség lehet, ezért ezt csak költségjóváhagyással végezzük el. Addig sem production, sem fizető ügyfél adatbázisa nem kap új bootstrapot.
