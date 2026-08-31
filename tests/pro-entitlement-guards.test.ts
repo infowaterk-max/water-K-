@@ -10,6 +10,7 @@ const protectedPagesAndActions = [
   ['src/app/admin/ertekesites/page.tsx', 'crm'],
   ['src/app/admin/elemzes/page.tsx', 'advancedAnalytics'],
   ['src/app/admin/iranyitokozpont/page.tsx', 'executiveAnalytics'],
+  ['src/app/admin/biztositekok/page.tsx', 'executiveAnalytics'],
   ['src/app/admin/integraciok/page.tsx', 'advancedIntegrations'],
   ['src/app/admin/beallitasok/integraciok/[id]/page.tsx', 'advancedIntegrations'],
   ['src/app/admin/kommunikacio/iroda/page.tsx', 'officeCommunication'],
@@ -31,6 +32,8 @@ const protectedApis = [
   ['src/app/api/admin/control-tower/run/route.ts', 'executiveAnalytics'],
   ['src/app/api/admin/control-tower/alert/route.ts', 'executiveAnalytics'],
   ['src/app/api/admin/control-tower/task/route.ts', 'executiveAnalytics'],
+  ['src/app/api/admin/assurance/run/route.ts', 'executiveAnalytics'],
+  ['src/app/api/admin/assurance/finding/route.ts', 'executiveAnalytics'],
   ['src/app/api/admin/integrations/[id]/run/route.ts', 'advancedIntegrations'],
 ] as const;
 
