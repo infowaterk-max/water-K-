@@ -10,6 +10,8 @@ const protectedPagesAndActions = [
   ['src/app/admin/ertekesites/page.tsx', 'crm'],
   ['src/app/admin/elemzes/page.tsx', 'advancedAnalytics'],
   ['src/app/admin/iranyitokozpont/page.tsx', 'executiveAnalytics'],
+  ['src/app/admin/integraciok/page.tsx', 'advancedIntegrations'],
+  ['src/app/admin/beallitasok/integraciok/[id]/page.tsx', 'advancedIntegrations'],
   ['src/app/admin/kommunikacio/iroda/page.tsx', 'officeCommunication'],
   ['src/app/admin/kommunikacio/iroda/actions.ts', 'officeCommunication'],
 ] as const;
@@ -29,6 +31,7 @@ const protectedApis = [
   ['src/app/api/admin/control-tower/run/route.ts', 'executiveAnalytics'],
   ['src/app/api/admin/control-tower/alert/route.ts', 'executiveAnalytics'],
   ['src/app/api/admin/control-tower/task/route.ts', 'executiveAnalytics'],
+  ['src/app/api/admin/integrations/[id]/run/route.ts', 'advancedIntegrations'],
 ] as const;
 
 function source(path: string) {
@@ -47,6 +50,15 @@ describe('Pro entitlement entrypoint guards', () => {
     expect(file).toMatch(/hasCurrentPlanFeature/);
     expect(file).toContain(`hasCurrentPlanFeature('${feature}')`);
     expect(file).toMatch(/status:403/);
+  });
+
+  it('keeps standard commerce integrations in Alap while advanced operations remain Pro', () => {
+    const catalog = source('src/lib/plans/catalog.ts');
+    expect(catalog).toContain("'commerceIntegrations'");
+    expect(catalog).toContain("'advancedIntegrations'");
+    const alapSection = catalog.slice(catalog.indexOf('const ALAP_FEATURES'), catalog.indexOf('const PRO_FEATURES'));
+    expect(alapSection).toContain("'commerceIntegrations'");
+    expect(alapSection).not.toContain("'advancedIntegrations'");
   });
 
   it('provides an API-safe feature helper without redirect semantics', () => {
