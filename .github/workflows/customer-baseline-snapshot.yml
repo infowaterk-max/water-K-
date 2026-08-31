@@ -9,12 +9,11 @@ on:
       - scripts/generate-customer-baseline.mjs
       - scripts/review-customer-baseline-snapshot.mjs
       - scripts/validate-customer-baseline.mjs
-      - supabase/customer-baseline/**
       - package.json
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 env:
   SHOPERATION_BASELINE_DB_URL: ${{ secrets.SHOPERATION_BASELINE_DB_URL }}
@@ -43,6 +42,19 @@ jobs:
 
       - name: Generate candidate schema snapshot
         run: npm run db:customer:snapshot
+
+      - name: Commit reviewed candidate snapshot
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add supabase/customer-baseline/migrations/0001_shoperation_v1_schema.sql
+          if git diff --cached --quiet; then
+            echo "No snapshot changes to commit."
+          else
+            git commit -m "db: add reviewed Shoperation baseline snapshot candidate"
+            git push
+          fi
 
       - name: Upload reviewed candidate snapshot
         if: always()
