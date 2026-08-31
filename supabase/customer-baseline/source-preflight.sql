@@ -69,7 +69,7 @@ begin
     raise exception 'Current provider-neutral checkout RPC is missing';
   end if;
 
-  -- These control-plane/configuration tables are intentionally server-only.
+  -- These control-plane/configuration and operational tables are intentionally server-only.
   -- Browser roles must not receive direct grants or policies; Shoperation server code
   -- reaches them through the service-role admin client after application-level auth.
   foreach protected_table in array array[
@@ -78,7 +78,12 @@ begin
     'webshop_instance_commerce_settings',
     'webshop_instance_provider_connections',
     'commerce_provider_catalog',
-    'platform_operators'
+    'platform_operators',
+    'communication_job_events',
+    'inventory_snapshots',
+    'purchase_order_items',
+    'purchase_orders',
+    'suppliers'
   ] loop
     select c.oid, c.relrowsecurity
       into protected_oid, protected_rls
