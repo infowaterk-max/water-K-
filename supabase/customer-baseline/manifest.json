@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "status": "snapshot-required",
+  "status": "snapshot-reviewed",
   "legacyMigrationReplay": false,
   "sourcePolicy": "schema-snapshot-only",
   "seedFile": "supabase/customer-baseline/seed.sql",
@@ -9,5 +9,5 @@
   "snapshotFile": "supabase/customer-baseline/migrations/0001_shoperation_v1_schema.sql",
   "snapshotCommand": "npm run db:customer:snapshot",
   "freshInstallProofRequired": true,
-  "notes": "Fresh paying-customer databases must be created from a reviewed neutral schema snapshot. The historical supabase/migrations chain is retained for provenance and existing staging continuity only."
+  "notes": "The neutral Shoperation schema snapshot has passed structural review. Fresh Install proof is still mandatory before this baseline may be marked ready for paying-customer provisioning. Historical supabase/migrations remain provenance only."
 }
