@@ -12,6 +12,13 @@ const forbiddenCustomerSpecificPatterns = [
 
 const runtimeExtensions = new Set(['.ts', '.tsx', '.js', '.jsx', '.mjs', '.cjs', '.json']);
 
+// Security/quality detector scripts intentionally contain the forbidden literals
+// they are responsible for finding. They are not customer-facing runtime code and
+// are validated through their own CI guard instead of this source-literal scan.
+const detectorScriptExceptions = new Set([
+  'scripts/validate-customer-baseline.mjs',
+]);
+
 function collectRuntimeFiles(root: string): string[] {
   const absolute = resolve(process.cwd(), root);
   if (statSync(absolute).isFile()) return [root];
@@ -29,7 +36,7 @@ const tenantRuntimeFiles = [
   'README.md',
   'next.config.ts',
   'vercel.json',
-];
+].filter((file) => !detectorScriptExceptions.has(file));
 
 describe('Shoperation customer-neutral runtime', () => {
   it.each(tenantRuntimeFiles)('%s does not leak customer-specific identity or SKU assumptions', (file) => {
