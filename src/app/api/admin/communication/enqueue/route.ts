@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
+import { hasCurrentPlanFeature } from '@/lib/plans/access';
 
 const validKinds=['payment_followup','repeat_30d','winback_90d'] as const;
 type Kind=typeof validKinds[number];
@@ -9,6 +10,7 @@ async function isAdmin(){const supabase=await createClient();const {data:{user}}
 
 export async function POST(request:Request){
  if(!await isAdmin())return NextResponse.json({error:'Nincs jogosultság.'},{status:403});
+ if(!(await hasCurrentPlanFeature('officeCommunication')))return NextResponse.json({error:'A Digitális iroda kommunikáció a Pro csomag része.'},{status:403});
  let body:{kind?:Kind;reference?:string};try{body=await request.json();}catch{return NextResponse.json({error:'Érvénytelen kérés.'},{status:400});}
  if(!body.kind||!validKinds.includes(body.kind)||!body.reference)return NextResponse.json({error:'Hiányzó vagy érvénytelen adat.'},{status:400});
  const admin=createAdminClient();const now=new Date();const bucket=`${now.getUTCFullYear()}-${String(now.getUTCMonth()+1).padStart(2,'0')}`;
