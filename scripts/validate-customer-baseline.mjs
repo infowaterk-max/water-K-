@@ -15,7 +15,7 @@ const manifest = JSON.parse(readFileSync(manifestPath, 'utf8'));
 if (manifest.legacyMigrationReplay !== false) fail('legacyMigrationReplay must remain false');
 if (manifest.sourcePolicy !== 'schema-snapshot-only') fail('sourcePolicy must remain schema-snapshot-only');
 if (manifest.defaultPlan !== 'alap') fail('fresh customer databases must fail closed to Alap');
-if (!['snapshot-required', 'ready'].includes(manifest.status)) fail('invalid baseline status');
+if (!['snapshot-required', 'snapshot-reviewed', 'ready'].includes(manifest.status)) fail('invalid baseline status');
 
 const seedPath = resolve(root, manifest.seedFile);
 if (!existsSync(seedPath)) fail('customer seed is missing');
@@ -31,8 +31,17 @@ const migrations = existsSync(migrationDir)
 if (manifest.status === 'snapshot-required' && migrations.length > 0) {
   fail('baseline is marked snapshot-required but migration SQL already exists; review it and switch status explicitly');
 }
+if (manifest.status === 'snapshot-reviewed' && migrations.length !== 1) {
+  fail(`snapshot-reviewed baseline must contain exactly one reviewed schema snapshot, found ${migrations.length}`);
+}
+if (manifest.status === 'snapshot-reviewed' && manifest.freshInstallProofRequired !== true) {
+  fail('snapshot-reviewed baseline must still require Fresh Install proof');
+}
 if (manifest.status === 'ready' && migrations.length !== 1) {
   fail(`ready baseline must contain exactly one reviewed schema snapshot, found ${migrations.length}`);
+}
+if (manifest.status === 'ready' && manifest.freshInstallProofRequired !== false) {
+  fail('ready baseline must record completed Fresh Install proof');
 }
 
 for (const name of migrations) {
