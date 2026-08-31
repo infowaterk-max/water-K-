@@ -13,6 +13,12 @@ SET client_min_messages = warning;
 SET row_security = off;
 
 
+CREATE SCHEMA IF NOT EXISTS "private";
+
+
+ALTER SCHEMA "private" OWNER TO "postgres";
+
+
 CREATE SCHEMA IF NOT EXISTS "public";
 
 
@@ -110,6 +116,62 @@ CREATE TYPE "public"."support_ticket_status" AS ENUM (
 
 
 ALTER TYPE "public"."support_ticket_status" OWNER TO "postgres";
+
+
+CREATE OR REPLACE FUNCTION "private"."handle_new_user"() RETURNS "trigger"
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    SET "search_path" TO ''
+    AS $$
+declare v_account_type text := coalesce(new.raw_user_meta_data->>'account_type','customer');
+begin
+  insert into public.profiles(id,email,full_name,company_name,tax_number,role,reseller_approved)
+  values(new.id,new.email,nullif(trim(coalesce(new.raw_user_meta_data->>'full_name','')),''),nullif(trim(coalesce(new.raw_user_meta_data->>'company_name','')),''),nullif(trim(coalesce(new.raw_user_meta_data->>'tax_number','')),''),case when v_account_type='reseller' then 'reseller'::public.customer_role else 'customer'::public.customer_role end,false)
+  on conflict(id) do update set email=excluded.email;
+  return new;
+end; $$;
+
+
+ALTER FUNCTION "private"."handle_new_user"() OWNER TO "postgres";
+
+
+CREATE OR REPLACE FUNCTION "private"."is_admin"() RETURNS boolean
+    LANGUAGE "sql" STABLE SECURITY DEFINER
+    SET "search_path" TO ''
+    AS $$ select exists(select 1 from public.profiles where id=auth.uid() and role='admin'); $$;
+
+
+ALTER FUNCTION "private"."is_admin"() OWNER TO "postgres";
+
+
+CREATE OR REPLACE FUNCTION "private"."snapshot_order_item_tax"() RETURNS "trigger"
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    SET "search_path" TO ''
+    AS $$
+declare v record; v_net integer;
+begin
+  if new.variant_id is null then return new; end if;
+  select gross_price_huf,net_price_huf,reseller_gross_price_huf,reseller_net_price_huf into v from public.product_variants where id=new.variant_id;
+  if not found then return new; end if;
+  v_net:=case when v.reseller_gross_price_huf is not null and v.reseller_net_price_huf is not null and new.unit_gross_huf=v.reseller_gross_price_huf then v.reseller_net_price_huf when new.unit_gross_huf=v.gross_price_huf then v.net_price_huf else null end;
+  if v_net is not null and v_net>0 then
+    new.unit_net_huf_snapshot:=v_net;
+    new.line_total_net_huf_snapshot:=v_net*new.quantity;
+    new.vat_rate_percent_snapshot:=round(((new.unit_gross_huf::numeric/v_net::numeric)-1)*100,3);
+  end if;
+  return new;
+end;$$;
+
+
+ALTER FUNCTION "private"."snapshot_order_item_tax"() OWNER TO "postgres";
+
+
+CREATE OR REPLACE FUNCTION "private"."touch_product_variant_updated_at"() RETURNS "trigger"
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    SET "search_path" TO ''
+    AS $$begin new.updated_at:=now(); return new; end;$$;
+
+
+ALTER FUNCTION "private"."touch_product_variant_updated_at"() OWNER TO "postgres";
 
 
 CREATE OR REPLACE FUNCTION "public"."accrue_loyalty_points_from_paid_orders"() RETURNS integer
@@ -4123,6 +4185,28 @@ $$;
 ALTER FUNCTION "public"."validate_return_case_item_quantity"() OWNER TO "postgres";
 
 
+CREATE TABLE IF NOT EXISTS "private"."stock_notification_rate_limits" (
+    "id" bigint NOT NULL,
+    "email" "text" NOT NULL,
+    "ip" "text" NOT NULL,
+    "requested_at" timestamp with time zone DEFAULT "now"() NOT NULL
+);
+
+
+ALTER TABLE "private"."stock_notification_rate_limits" OWNER TO "postgres";
+
+
+ALTER TABLE "private"."stock_notification_rate_limits" ALTER COLUMN "id" ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME "private"."stock_notification_rate_limits_id_seq"
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+
 CREATE TABLE IF NOT EXISTS "public"."action_approvals" (
     "id" "uuid" DEFAULT "gen_random_uuid"() NOT NULL,
     "proposal_id" "uuid" NOT NULL,
@@ -7116,6 +7200,11 @@ CREATE TABLE IF NOT EXISTS "public"."wishlists" (
 ALTER TABLE "public"."wishlists" OWNER TO "postgres";
 
 
+ALTER TABLE ONLY "private"."stock_notification_rate_limits"
+    ADD CONSTRAINT "stock_notification_rate_limits_pkey" PRIMARY KEY ("id");
+
+
+
 ALTER TABLE ONLY "public"."action_approvals"
     ADD CONSTRAINT "action_approvals_pkey" PRIMARY KEY ("id");
 
@@ -7998,6 +8087,14 @@ ALTER TABLE ONLY "public"."wishlists"
 
 ALTER TABLE ONLY "public"."wishlists"
     ADD CONSTRAINT "wishlists_user_id_variant_id_key" UNIQUE ("user_id", "variant_id");
+
+
+
+CREATE INDEX "stock_notification_rate_limits_email_requested_idx" ON "private"."stock_notification_rate_limits" USING "btree" ("email", "requested_at" DESC);
+
+
+
+CREATE INDEX "stock_notification_rate_limits_ip_requested_idx" ON "private"."stock_notification_rate_limits" USING "btree" ("ip", "requested_at" DESC);
 
 
 
@@ -9539,6 +9636,9 @@ ALTER TABLE ONLY "public"."wishlists"
 
 
 
+ALTER TABLE "private"."stock_notification_rate_limits" ENABLE ROW LEVEL SECURITY;
+
+
 ALTER TABLE "public"."action_approvals" ENABLE ROW LEVEL SECURITY;
 
 
@@ -10046,6 +10146,22 @@ GRANT USAGE ON SCHEMA "public" TO "postgres";
 GRANT USAGE ON SCHEMA "public" TO "anon";
 GRANT USAGE ON SCHEMA "public" TO "authenticated";
 GRANT USAGE ON SCHEMA "public" TO "service_role";
+
+
+
+REVOKE ALL ON FUNCTION "private"."handle_new_user"() FROM PUBLIC;
+
+
+
+REVOKE ALL ON FUNCTION "private"."is_admin"() FROM PUBLIC;
+
+
+
+REVOKE ALL ON FUNCTION "private"."snapshot_order_item_tax"() FROM PUBLIC;
+
+
+
+REVOKE ALL ON FUNCTION "private"."touch_product_variant_updated_at"() FROM PUBLIC;
 
 
 
