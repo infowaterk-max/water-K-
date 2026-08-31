@@ -19,7 +19,8 @@ export class StripePaymentGateway implements PaymentGateway{
  }
  async verifyCallback(payload:unknown):Promise<PaymentCallbackResult>{
   const input=payload as StripeWebhookPayload;const raw=input?.rawPayload;const signature=input?.headers?.['stripe-signature'];if(!raw||!signature)throw new Error('Stripe raw payload or signature missing');verifyStripeSignature(raw,signature,requireEnv('STRIPE_WEBHOOK_SECRET'));const event=JSON.parse(raw) as StripeEvent;const object=event.data?.object??{};const providerReference=String(object.id??'');if(!event.id||!providerReference)throw new Error('Stripe event identity missing');
-  if(event.type==='checkout.session.completed'||event.type==='checkout.session.async_payment_succeeded')return{paid:true,providerReference,eventId:event.id,status:'paid',eventType:event.type};
+  if(event.type==='checkout.session.completed'){const paid=String(object.payment_status??'')==='paid';return{paid,providerReference,eventId:event.id,status:paid?'paid':'pending',eventType:event.type}}
+  if(event.type==='checkout.session.async_payment_succeeded')return{paid:true,providerReference,eventId:event.id,status:'paid',eventType:event.type};
   if(event.type==='checkout.session.async_payment_failed')return{paid:false,providerReference,eventId:event.id,status:'failed',eventType:event.type};
   if(event.type==='checkout.session.expired')return{paid:false,providerReference,eventId:event.id,status:'cancelled',eventType:event.type};
   return{paid:false,providerReference,eventId:event.id,status:'unknown',eventType:event.type};
