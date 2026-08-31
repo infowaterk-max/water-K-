@@ -1,4 +1,5 @@
 import './admin-shell.css';
+import './launch-readiness.css';
 import Link from 'next/link';
 import { requireAdmin } from '@/lib/auth/require-admin';
 import { isPlatformOperator } from '@/lib/auth/platform-operator';
@@ -9,7 +10,7 @@ import { hasPlanFeature, PLANS, type FeatureCode } from '@/lib/plans/catalog';
 type NavItem={href:string;label:string;feature?:FeatureCode};
 type NavSection={label:string;items:NavItem[]};
 const MERCHANT_NAV:NavSection[]=[
- {label:'Kezdőlap',items:[{href:'/admin',label:'Áttekintés'}]},
+ {label:'Kezdőlap',items:[{href:'/admin',label:'Áttekintés'},{href:'/admin/indulas',label:'Indítási központ'}]},
  {label:'Értékesítés',items:[{href:'/admin/rendelesek',label:'Rendelések',feature:'orders'},{href:'/admin/visszaru',label:'Visszáru',feature:'returns'},{href:'/admin/ugyfelek',label:'Ügyfelek',feature:'customers'},{href:'/admin/ertekesites',label:'CRM és értékesítés',feature:'crm'},{href:'/admin/ugyfelertek',label:'Ügyfélérték',feature:'crm'},{href:'/admin/utanakovetes',label:'Utánkövetés',feature:'crm'}]},
  {label:'Katalógus',items:[{href:'/admin/termekek',label:'Termékek',feature:'catalog'},{href:'/admin/termekajanlasok',label:'Termékajánlások',feature:'productRecommendations'},{href:'/admin/keszlet-elemzes',label:'Készletelemzés',feature:'advancedAnalytics'},{href:'/admin/beszerzes',label:'Beszerzés',feature:'procurement'},{href:'/admin/termekek/import-export',label:'Import / export',feature:'importExport'},{href:'/admin/termekek/tomeges',label:'Tömeges műveletek',feature:'bulkOperations'}]},
  {label:'Marketing és tartalom',items:[{href:'/admin/marketing',label:'Marketing alapok',feature:'marketingBasics'},{href:'/admin/kampanyok',label:'Haladó kampányok',feature:'advancedCampaigns'},{href:'/admin/tartalom',label:'Tartalom és SEO',feature:'contentMarketing'},{href:'/admin/kuponok',label:'Kuponok és akciók',feature:'coupons'},{href:'/admin/velemenyek',label:'Vásárlói vélemények',feature:'reviews'}]},
