@@ -15,6 +15,7 @@ declare
   protected_policy_count integer;
   browser_grant_count integer;
   service_select_count integer;
+  exposed_no_policy_count integer;
 begin
   if to_regclass('public.webshop_instances') is null then missing := array_append(missing, 'public.webshop_instances'); end if;
   if to_regclass('public.profiles') is null then missing := array_append(missing, 'public.profiles'); end if;
@@ -69,7 +70,7 @@ begin
     raise exception 'Current provider-neutral checkout RPC is missing';
   end if;
 
-  -- These control-plane/configuration and operational tables are intentionally server-only.
+  -- These control-plane/configuration tables are intentionally server-only.
   -- Browser roles must not receive direct grants or policies; Shoperation server code
   -- reaches them through the service-role admin client after application-level auth.
   foreach protected_table in array array[
@@ -121,6 +122,27 @@ begin
       raise exception 'service_role SELECT is missing on server-only table public.%', protected_table;
     end if;
   end loop;
+
+  -- Generic safety net for every public RLS table with zero policies. Such tables are
+  -- intentionally deny-by-default and must never retain direct browser-role grants.
+  select count(*) into exposed_no_policy_count
+  from pg_class c
+  join pg_namespace n on n.oid = c.relnamespace
+  where n.nspname = 'public'
+    and c.relkind in ('r','p')
+    and c.relrowsecurity
+    and not exists (select 1 from pg_policy p where p.polrelid = c.oid)
+    and exists (
+      select 1
+      from information_schema.table_privileges tp
+      where tp.table_schema = 'public'
+        and tp.table_name = c.relname
+        and tp.grantee in ('anon','authenticated','PUBLIC')
+    );
+
+  if exposed_no_policy_count <> 0 then
+    raise exception 'Public RLS tables without policies still expose browser-role grants: %', exposed_no_policy_count;
+  end if;
 end $$;
 
 select

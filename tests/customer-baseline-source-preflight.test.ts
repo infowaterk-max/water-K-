@@ -32,6 +32,11 @@ describe('customer baseline source preflight', () => {
       'webshop_instance_provider_connections',
       'commerce_provider_catalog',
       'platform_operators',
+      'communication_job_events',
+      'inventory_snapshots',
+      'purchase_order_items',
+      'purchase_orders',
+      'suppliers',
     ]) {
       expect(preflight).toContain(`'${table}'`);
     }
@@ -40,5 +45,14 @@ describe('customer baseline source preflight', () => {
     expect(preflight).toContain("privilege_type = 'SELECT'");
     expect(preflight).toContain('protected_policy_count <> 0');
     expect(preflight).toContain('not protected_rls');
+  });
+
+  it('rejects every public no-policy RLS table that retains browser grants', () => {
+    expect(preflight).toContain('exposed_no_policy_count');
+    expect(preflight).toContain("n.nspname = 'public'");
+    expect(preflight).toContain('and c.relrowsecurity');
+    expect(preflight).toContain('not exists (select 1 from pg_policy p where p.polrelid = c.oid)');
+    expect(preflight).toContain("tp.grantee in ('anon','authenticated','PUBLIC')");
+    expect(preflight).toContain('Public RLS tables without policies still expose browser-role grants');
   });
 });
