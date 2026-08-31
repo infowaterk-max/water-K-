@@ -14,8 +14,6 @@ function fail(message){
 if(!existsSync(snapshotPath)) fail(`snapshot is missing: ${manifest.snapshotFile}`);
 const sql=readFileSync(snapshotPath,'utf8');
 const lower=sql.toLowerCase();
-// pg_dump quotes identifiers as "schema"."object". Normalize quotes only for
-// structural name checks while keeping all security/data regexes on raw SQL.
 const normalizedIdentifiers=lower.replace(/"/g,'');
 
 const requiredObjects=[
@@ -32,6 +30,7 @@ for(const objectName of requiredObjects){
   if(!normalizedIdentifiers.includes(objectName)) fail(`required schema object is missing: ${objectName}`);
 }
 
+if(!/create\s+schema(?:\s+if\s+not\s+exists)?\s+(?:"?private"?)/i.test(sql)) fail('required private schema is missing from the customer baseline');
 if(!normalizedIdentifiers.includes('place_order_provider_v2_idempotent')) fail('provider-neutral checkout RPC is missing');
 if(/\b(?:create|replace)\s+(?:or\s+replace\s+)?function\s+(?:"?public"?\.)?"?place_order"?\s*\(/i.test(sql)) fail('obsolete public.place_order checkout overload is present');
 
