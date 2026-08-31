@@ -53,7 +53,9 @@ describe('business plan entitlement matrix', () => {
   it('prevents accidental package drift', () => {
     expect(new Set(PLANS.alap.features).size).toBe(ALAP_REQUIRED.length);
     expect(new Set(PLANS.pro.features).size).toBe(ALAP_REQUIRED.length + PRO_ONLY.length);
-    expect(PLANS.pro.features).toEqual(expect.arrayContaining(PLANS.alap.features));
+    for (const feature of PLANS.alap.features) {
+      expect(PLANS.pro.features).toContain(feature);
+    }
   });
 
   it('accepts only supported persisted package codes', () => {
