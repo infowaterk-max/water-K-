@@ -50,7 +50,8 @@ describe('executive decision workflows', () => {
     expect(actionCenter).toMatch(/approval_count/);
     expect(actionCenter).toMatch(/simulation_stale/);
     expect(actionCenter).toMatch(/order\('risk_score',\{ascending:false\}\)/);
-    expect(actionCenter).toMatch(/approvalMode==='dual'/);
+    expect(actionCenter).toMatch(/approvalMode=\{r\.approval_mode\}/);
+    expect(actionControls).toMatch(/approvalMode==='dual'/);
     expect(actionCenter).toMatch(/STALE/);
   });
 
