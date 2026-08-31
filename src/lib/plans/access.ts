@@ -19,6 +19,10 @@ export async function getCurrentPlan(): Promise<PlanCode> {
   return isPlanCode(data?.subscription_plan) ? data.subscription_plan : fallback;
 }
 
+export async function hasCurrentPlanFeature(feature: FeatureCode): Promise<boolean> {
+  return hasPlanFeature(await getCurrentPlan(), feature);
+}
+
 export async function requirePlanFeature(feature: FeatureCode) {
   const plan = await getCurrentPlan();
   if (!hasPlanFeature(plan, feature)) redirect(`/admin/csomag?reason=pro-required&feature=${encodeURIComponent(feature)}`);

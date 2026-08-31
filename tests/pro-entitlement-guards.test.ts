@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 
-const protectedEntrypoints = [
+const protectedPagesAndActions = [
   ['src/app/admin/automatizalas/page.tsx', 'automation'],
   ['src/app/admin/beszerzes/page.tsx', 'procurement'],
   ['src/app/admin/cashflow/page.tsx', 'cashflow'],
@@ -11,15 +11,38 @@ const protectedEntrypoints = [
   ['src/app/admin/kommunikacio/iroda/actions.ts', 'officeCommunication'],
 ] as const;
 
+const protectedApis = [
+  ['src/app/api/admin/procurement/route.ts', 'procurement'],
+  ['src/app/api/admin/procurement/[id]/route.ts', 'procurement'],
+  ['src/app/api/admin/automation/control/route.ts', 'automation'],
+  ['src/app/api/admin/automation/run/route.ts', 'automation'],
+  ['src/app/api/admin/automation/instance/route.ts', 'automation'],
+  ['src/app/api/admin/campaigns/route.ts', 'advancedCampaigns'],
+  ['src/app/api/admin/campaigns/manage/route.ts', 'advancedCampaigns'],
+] as const;
+
 function source(path: string) {
   return readFileSync(resolve(process.cwd(), path), 'utf8');
 }
 
 describe('Pro entitlement entrypoint guards', () => {
-  it.each(protectedEntrypoints)('%s requires the expected Pro feature', (path, feature) => {
+  it.each(protectedPagesAndActions)('%s requires the expected Pro feature', (path, feature) => {
     const file = source(path);
     expect(file).toMatch(/requirePlanFeature/);
     expect(file).toContain(`requirePlanFeature('${feature}')`);
+  });
+
+  it.each(protectedApis)('%s rejects Alap through an API-safe feature check', (path, feature) => {
+    const file = source(path);
+    expect(file).toMatch(/hasCurrentPlanFeature/);
+    expect(file).toContain(`hasCurrentPlanFeature('${feature}')`);
+    expect(file).toMatch(/status:403/);
+  });
+
+  it('provides an API-safe feature helper without redirect semantics', () => {
+    const file = source('src/lib/plans/access.ts');
+    expect(file).toContain('export async function hasCurrentPlanFeature');
+    expect(file).toContain('return hasPlanFeature(await getCurrentPlan(), feature)');
   });
 
   it('fails closed to Alap when no valid default plan is configured', () => {
