@@ -14,9 +14,10 @@ const runtimeExtensions = new Set(['.ts', '.tsx', '.js', '.jsx', '.mjs', '.cjs',
 
 // Security/quality detector scripts intentionally contain the forbidden literals
 // they are responsible for finding. They are not customer-facing runtime code and
-// are validated through their own CI guard instead of this source-literal scan.
+// are validated through their own CI guards instead of this source-literal scan.
 const detectorScriptExceptions = new Set([
   'scripts/validate-customer-baseline.mjs',
+  'scripts/review-customer-baseline-snapshot.mjs',
 ]);
 
 function collectRuntimeFiles(root: string): string[] {
