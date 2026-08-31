@@ -1,7 +1,7 @@
-# Mintabolt Otthon – nem Water-K pilot E2E bizonyíték
+# Mintabolt Otthon – semleges Shoperation pilot E2E bizonyíték
 
 Dátum: 2026-08-31
-Környezet: staging / külön pilot-próba, production érintése nélkül
+Környezet: staging / pilot-próba, production érintése nélkül
 Csomag: Shoperation Alap
 
 ## Instance
@@ -16,13 +16,13 @@ Csomag: Shoperation Alap
 
 ## Saját termékkatalógus
 
-Az aktív staging katalógusban a referencia Water-K termék inaktiválásra került, és három, teljesen más kategóriájú pilot termék lett aktiválva:
+A staging környezetben talált korábbi ügyfélspecifikus legacy termékadatot kontaminációnak tekintjük, ezért inaktiválásra került és nem része a Shoperation fejlesztési/pilot adatmodelljének. A semleges pilothoz három külön termék aktív:
 
 - `MO-KON-01` – Pamut konyharuha, 2 db-os csomag, 2 499 Ft
 - `MO-SZA-01` – Újratölthető szappanadagoló, 500 ml, 2 999 Ft
 - `MO-KOS-01` – Rendszerező kosár, M, 3 999 Ft
 
-A publikus katalógus lekérdezés csak aktív terméket és aktív variánst ad vissza, ezért a pilot storefronton a Water-K referencia SKU-k nem jelenhetnek meg aktív termékként.
+A publikus katalógus kizárólag aktív terméket és aktív variánst olvas, a merchandising mezők pedig adatbázis-vezéreltek.
 
 ## Rendelési E2E mag
 
@@ -42,14 +42,14 @@ A készlet 24-ről 22-re csökkent, tehát a rendelés készletkezelése végreh
 
 Ugyanazzal az idempotency kulccsal a rendelési kérés másodszor is lefutott. A rendszer nem hozott létre új rendelést, hanem ugyanazt a rendelést adta vissza `idempotency_replayed: true` jelzéssel. A készlet nem csökkent újra.
 
-## White-label következtetés
+## Shoperation-neutralitási következtetés
 
-A tesztelt rendelési útvonalon nem kellett Water-K SKU-t, terméknevet, kiszerelést, szállítási díjat vagy fizetési szolgáltatót kódmódosítással átírni. A működés adatbázis- és instance-konfigurációból származott.
+A tesztelt rendelési útvonal semleges SKU-val, termékadattal, instance-szintű szállítási/fizetési konfigurációval és saját brandinggel működött. Ügyfélspecifikus referenciaadat nem szükséges a Shoperation működéséhez.
 
 ## Még szükséges a pilot release előtt
 
 - böngészőszintű storefront → kosár → checkout → sikeres rendelés próba az aktuális preview builden
 - Alap csomag Pro-only direkt URL/API negatív teszt
 - aktuális head teljes test/typecheck/build ellenőrzés
-- végső white-label audit
+- végső customer-specific contamination audit
 - production változtatás csak külön release GO után
