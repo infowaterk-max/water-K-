@@ -4,11 +4,12 @@ import { StripePaymentGateway } from '@/lib/integrations/stripe';
 import { SimplePayPaymentGateway } from '@/lib/integrations/simplepay';
 import { BarionPaymentGateway } from '@/lib/integrations/barion';
 import { FoxpostShipping,GlsShipping,MplShipping } from '@/lib/integrations/shipping';
+import { PacketaShipping } from '@/lib/integrations/packeta';
 import type { PaymentGateway,ShippingProvider } from '@/lib/integrations/types';
 
 type Factory<T>=()=>T;
 const paymentAdapters:Record<string,Factory<PaymentGateway>>={kh:()=>new KhPaymentGateway(),stripe:()=>new StripePaymentGateway(),simplepay:()=>new SimplePayPaymentGateway(),barion:()=>new BarionPaymentGateway()};
-const shippingAdapters:Record<string,Factory<ShippingProvider>>={foxpost:()=>new FoxpostShipping(),gls:()=>new GlsShipping(),mpl:()=>new MplShipping()};
+const shippingAdapters:Record<string,Factory<ShippingProvider>>={foxpost:()=>new FoxpostShipping(),gls:()=>new GlsShipping(),mpl:()=>new MplShipping(),packeta:()=>new PacketaShipping()};
 
 export function getPaymentGatewayAdapter(adapterKey:string):PaymentGateway{const factory=paymentAdapters[adapterKey];if(!factory)throw new Error(`Payment adapter not installed: ${adapterKey}`);return factory()}
 export function getShippingProviderAdapter(adapterKey:string):ShippingProvider{const factory=shippingAdapters[adapterKey];if(!factory)throw new Error(`Shipping adapter not installed: ${adapterKey}`);return factory()}
