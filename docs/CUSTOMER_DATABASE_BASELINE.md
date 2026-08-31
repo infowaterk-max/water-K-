@@ -6,7 +6,7 @@ A fresh paying-customer database must not replay the historical `supabase/migrat
 
 1. `snapshot-required` — no production-ready schema snapshot exists yet. Fresh customer deployment is blocked.
 2. Restore the reviewed non-production schema source and wait until its control-plane status is `ACTIVE_HEALTHY`. Never snapshot a project while it is `COMING_UP`, paused, restoring or otherwise transitional.
-3. Run `supabase/customer-baseline/source-preflight.sql` against that source. It must confirm the core Shoperation tables, fail-closed Alap package defaults, the provider-neutral checkout RPC, and the absence of obsolete `public.place_order` overloads.
+3. Run `supabase/customer-baseline/source-preflight.sql` against that source. It must confirm the core Shoperation tables, fail-closed Alap package defaults, the provider-neutral checkout RPC, the absence of obsolete `public.place_order` overloads, and the server-only boundary of control-plane/configuration tables.
 4. Generate a candidate from that reviewed neutral source database with `SHOPERATION_BASELINE_DB_URL` and `npm run db:customer:snapshot`.
 5. Review the generated `0001_shoperation_v1_schema.sql` as code. Remove environment-only grants, stale compatibility objects, test-only data assumptions and anything that is not required by the sellable Shoperation 1.0 product.
 6. The candidate must contain schema only. Customer/catalog/content/domain/e-mail/provider credential data belongs to onboarding, never to the baseline.
@@ -18,6 +18,14 @@ A fresh paying-customer database must not replay the historical `supabase/migrat
 A baseline can be considered release-ready only when an empty database can be created from the single snapshot plus the neutral seed and all of these checks pass: application CI, schema creation without the historical chain, `alap` default package state, empty customer catalog/content, instance creation, owner/admin assignment, provider-neutral commerce configuration, an Alap negative Pro entitlement test, and a neutral storefront order smoke test.
 
 The disposable target must itself be verified empty before applying the baseline: no customer tables, no customer functions and no historical migration chain. A project that is still restoring is not valid proof, even if a temporary connection is already possible.
+
+## Server-only database boundary
+
+The current Shoperation architecture deliberately keeps these control-plane/configuration tables inaccessible to browser roles: `webshop_instances`, `webshop_instance_members`, `webshop_instance_commerce_settings`, `webshop_instance_provider_connections`, `commerce_provider_catalog`, and `platform_operators`.
+
+For these tables the approved baseline state is: RLS enabled, zero RLS policies, no direct grants to `anon`, `authenticated` or `PUBLIC`, and server access through `service_role`. The application resolves authentication first, then server-only modules use the Supabase admin client. An `rls_enabled_no_policy` advisor entry for one of these exact tables is therefore not fixed by adding a permissive policy; doing so would weaken the intended boundary. The source preflight now rejects any drift from this model.
+
+Other `rls_enabled_no_policy` findings are not automatically classified by this rule. They must be reviewed table by table before the baseline is frozen. Internal automation, release, assurance and worker tables may also be intentionally service-only, while a customer-facing table may instead need explicit tenant/user policies.
 
 ## Source database rules
 
