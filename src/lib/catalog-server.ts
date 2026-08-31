@@ -1,6 +1,8 @@
 import type { Product } from '@/lib/catalog';
 import { createClient } from '@/lib/supabase/server';
 
+type ProductAudience = Product['audience'];
+
 type VariantRow = {
   id: string;
   sku: string;
@@ -10,7 +12,16 @@ type VariantRow = {
   stock_quantity: number;
   weight_grams: number | null;
   product_id: string;
-  products: { slug: string; name: string; short_description: string | null; active: boolean } | null;
+  products: {
+    slug: string;
+    name: string;
+    short_description: string | null;
+    active: boolean;
+    audience: string | null;
+    featured: boolean | null;
+    use_cases: string[] | null;
+    highlights: string[] | null;
+  } | null;
 };
 
 const slugify = (value: string) => value
@@ -26,12 +37,15 @@ const variantSlug = (productSlug: string, label: string, sku: string) => {
   return suffix ? `${productSlug}-${suffix}` : productSlug;
 };
 
+const normalizeAudience = (value: string | null | undefined): ProductAudience =>
+  value === 'professional' ? 'professional' : 'retail';
+
 export async function getProducts(): Promise<Product[]> {
   try {
     const supabase = await createClient();
     const { data, error } = await supabase
       .from('product_variants')
-      .select('id,sku,label,net_price_huf,gross_price_huf,stock_quantity,weight_grams,product_id,products!inner(slug,name,short_description,active)')
+      .select('id,sku,label,net_price_huf,gross_price_huf,stock_quantity,weight_grams,product_id,products!inner(slug,name,short_description,active,audience,featured,use_cases,highlights)')
       .eq('active', true)
       .eq('products.active', true)
       .order('gross_price_huf');
@@ -51,11 +65,11 @@ export async function getProducts(): Promise<Product[]> {
         netPrice: row.net_price_huf,
         stock: row.stock_quantity,
         short: product?.short_description ?? '',
-        featured: false,
+        featured: product?.featured ?? false,
         weightGrams: row.weight_grams ?? 0,
-        audience: 'retail',
-        useCases: [],
-        highlights: [],
+        audience: normalizeAudience(product?.audience),
+        useCases: product?.use_cases ?? [],
+        highlights: product?.highlights ?? [],
       };
     });
   } catch {
