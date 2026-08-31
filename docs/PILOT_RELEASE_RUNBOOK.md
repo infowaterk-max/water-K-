@@ -1,14 +1,14 @@
 # Pilot release runbook — Alap / Pro
 
-Ez a runbook a Shoperation több-bérlős (multi-tenant) webshopmotor első ügyfél/pilot kiadásának kötelező ellenőrzési sorrendje. A cél, hogy a Water-K ne alkalmazásszintű hardcode-ként, hanem tenantként fusson, miközben az Alap és Pro jogosultságok reprodukálhatóan működnek.
+Ez a runbook a Shoperation webshopmotor első ügyfél/pilot kiadásának kötelező ellenőrzési sorrendje. A fejlesztési, teszt- és pilotkörnyezet kizárólag Shoperation- és semleges pilotadatokra épülhet. Water-K-adat, -márka, -termék, -SKU, -domain, -e-mail, -ár vagy üzleti szabály nem használható fejlesztési fixture-ként, alapértelmezésként vagy referenciaüzletként. Water-K csak a teljes motor lezárása után, külön jövőbeli ügyfél-webshopként hozható létre.
 
 ## 1. Release előfeltételek
 
-- A release branch minden CI ellenőrzése zöld: teszt, typecheck, build és hardcode audit.
+- A release branch minden CI ellenőrzése zöld: teszt, typecheck, build és customer-specific contamination audit.
 - A Vercel preview deployment `READY` állapotú.
 - A cél Supabase projekt egészséges és a mentés/rollback pont dokumentált.
 - A szükséges environment változók a cél környezetben rendelkezésre állnak; secret érték nem kerülhet Git-be vagy kliensoldali változóba.
-- Az aktív tenant egyértelműen azonosítható, és nem támaszkodik Water-K-specifikus alkalmazáskódra.
+- Az aktív webshop instance egyértelműen azonosítható és kizárólag saját konfigurációjából épül fel.
 
 ## 2. Adatbázis és tenant bootstrap
 
@@ -20,38 +20,13 @@ Ez a runbook a Shoperation több-bérlős (multi-tenant) webshopmotor első ügy
 
 ## 3. Alap csomag regresszió
 
-Az Alap tenantnál kötelezően működjön:
-
-- katalógus és termékoldal;
-- készletkezelés;
-- kosár és pénztár;
-- rendelés létrehozás és admin rendeléskezelés;
-- visszáru alapfolyamat;
-- ügyfélkezelés és fiók;
-- kuponok;
-- alap analitika és marketing;
-- tartalomkezelés;
-- import/export és tömeges termékműveletek;
-- kívánságlista, készletértesítő, ajánlások, értékelések;
-- keresés/szűrés;
-- standard kereskedelmi integrációk és támogatási funkciók.
+Az Alap tenantnál kötelezően működjön: katalógus és termékoldal; készletkezelés; kosár és pénztár; rendelés létrehozás és admin rendeléskezelés; visszáru alapfolyamat; ügyfélkezelés és fiók; kuponok; alap analitika és marketing; tartalomkezelés; import/export és tömeges termékműveletek; kívánságlista, készletértesítő, ajánlások, értékelések; keresés/szűrés; standard kereskedelmi integrációk és támogatási funkciók.
 
 Az Alap tenantnál a Pro-only funkciók nem lehetnek használhatók közvetlen URL/API hívással sem. A UI elrejtése önmagában nem elfogadási kritérium.
 
 ## 4. Pro csomag regresszió
 
-A Pro tenantnak az Alap minden funkcióján felül hozzáférést kell kapnia az alábbiakhoz:
-
-- fejlett analitika;
-- CRM;
-- fejlett kampányok;
-- digitális iroda / kommunikáció;
-- automatizálás;
-- beszerzés;
-- cashflow;
-- vezetői döntéstámogatás;
-- fejlett integrációk;
-- API hozzáférés.
+A Pro tenantnak az Alap minden funkcióján felül hozzáférést kell kapnia: fejlett analitika; CRM; fejlett kampányok; digitális iroda / kommunikáció; automatizálás; beszerzés; cashflow; vezetői döntéstámogatás; fejlett integrációk; API hozzáférés.
 
 Minden Pro funkciónál legalább egy pozitív smoke tesztet kell futtatni, és ellenőrizni kell, hogy ugyanaz a végpont Alap tenanttal megfelelően tiltott.
 
@@ -86,11 +61,11 @@ Minden Pro funkciónál legalább egy pozitív smoke tesztet kell futtatni, és 
 - retry-payment csak a hozzá tartozó rendelést érinti;
 - kliensoldalra provider secret nem kerül ki.
 
-## 8. Hardcode és white-label ellenőrzés
+## 8. Shoperation-neutralitás ellenőrzés
 
-Release blocker minden olyan üzleti hardcode, amely tenant-specifikus nevet, e-mailt, domaint, logót, terméket, árat, szállítási feltételt vagy fizetési üzleti szabályt alkalmaz globálisan.
+Release blocker minden olyan ügyfélspecifikus hardcode, amely nevet, e-mailt, domaint, logót, terméket, SKU-t, árat, szállítási feltételt, fizetési üzleti szabályt vagy ügyfélspecifikus marketingállítást alkalmaz globálisan.
 
-A Water-K név csak tenant seed/demo/test/dokumentációs kontextusban maradhat, ha az nem határozza meg más tenant runtime működését. A storefront, e-mail és admin megjelenés tenant konfigurációból épüljön fel.
+A fejlesztési és pilot fixture-k kizárólag semleges Shoperation tesztadatokat használhatnak. Korábbi ügyféladat csak történeti migrációban vagy archív technikai nyomban maradhat, ha futás közben nem olvasható be alapértelmezésként, fallbackként, seedként vagy demóként. A storefront, e-mail és admin megjelenés instance-konfigurációból épüljön fel.
 
 ## 9. Elfogadási kritérium
 
@@ -98,7 +73,7 @@ Pilot release csak akkor promotálható, ha egyszerre teljesül:
 
 - CI zöld;
 - preview build zöld;
-- hardcode auditban nincs kritikus találat;
+- customer-specific contamination auditban nincs kritikus találat;
 - Alap entitlement regresszió zöld;
 - Pro entitlement regresszió zöld;
 - tenant isolation negatív teszt zöld;
