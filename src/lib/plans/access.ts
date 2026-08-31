@@ -7,7 +7,8 @@ import { ADDONS, parseAddonList, type AddonCode } from './addons';
 
 export async function getCurrentPlan(): Promise<PlanCode> {
   const configuredDefault = process.env.WEBSHOP_DEFAULT_PLAN;
-  const fallback: PlanCode = isPlanCode(configuredDefault) ? configuredDefault : 'pro';
+  // Fail closed: an unconfigured webshop must never silently inherit Pro capabilities.
+  const fallback: PlanCode = isPlanCode(configuredDefault) ? configuredDefault : 'alap';
   const instance = await getCurrentWebshopInstance();
   if (instance) return instance.subscriptionPlan;
   if (!process.env.NEXT_PUBLIC_SUPABASE_URL) return fallback;
