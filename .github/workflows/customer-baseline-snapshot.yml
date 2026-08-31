@@ -40,8 +40,8 @@ jobs:
             exit 1
           fi
 
-      - name: Generate candidate schema snapshot
-        run: npm run db:customer:snapshot
+      - name: Generate reviewed schema snapshot
+        run: node scripts/generate-customer-baseline.mjs --force
 
       - name: Commit reviewed candidate snapshot
         shell: bash
@@ -52,7 +52,7 @@ jobs:
           if git diff --cached --quiet; then
             echo "No snapshot changes to commit."
           else
-            git commit -m "db: add reviewed Shoperation baseline snapshot candidate"
+            git commit -m "db: refresh reviewed Shoperation baseline snapshot"
             git push
           fi
 
