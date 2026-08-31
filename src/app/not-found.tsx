@@ -2,9 +2,9 @@ import Link from 'next/link';
 
 export default function NotFound() {
   return (
-    <main className="section">
+    <main className="section systemStatePage">
       <div className="shell">
-        <section className="card">
+        <section className="card systemStateCard">
           <span className="eyebrow">404</span>
           <h1 className="sectionTitle">Ezt az oldalt nem találjuk.</h1>
           <p className="lead">A hivatkozás megváltozhatott vagy az oldal már nem érhető el.</p>
