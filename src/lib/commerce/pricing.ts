@@ -9,6 +9,13 @@ export type ShippingPricingConfig = {
   freeShippingThreshold: number;
 };
 
+export function freeShippingApplies(
+  subtotal: number,
+  freeShippingThreshold: number,
+) {
+  return freeShippingThreshold > 0 && subtotal >= freeShippingThreshold;
+}
+
 export function shippingFee(
   method: string,
   subtotal: number,
@@ -17,7 +24,7 @@ export function shippingFee(
   const option = config.options.find((item) => item.code === method);
   if (!option) return 0;
   if (option.kind === 'pickup') return 0;
-  if (config.freeShippingThreshold > 0 && subtotal >= config.freeShippingThreshold) return 0;
+  if (freeShippingApplies(subtotal, config.freeShippingThreshold)) return 0;
   return option.fee;
 }
 
