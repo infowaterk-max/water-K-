@@ -2,7 +2,7 @@ import 'server-only';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { getCurrentWebshopInstance } from '@/lib/instances/access';
 
-export type CommerceProviderType='payment'|'shipping';
+export type CommerceProviderType='payment'|'shipping'|'invoice';
 export type ProviderConnectionMode='builtin'|'api'|'manual'|'custom';
 export type ProviderConnectionStatus='not_configured'|'configured'|'active'|'error';
 export type FulfillmentKind='parcel_point'|'home_delivery'|'pickup'|null;
