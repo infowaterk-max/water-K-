@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { getCurrentWebshopInstance } from '@/lib/webshop-instance';
+import { getCurrentWebshopInstance } from '@/lib/instances/access';
 import { getCommerceSettings } from '@/lib/commerce/settings';
 
 export const metadata: Metadata = {
@@ -13,7 +13,7 @@ export default async function FaqPage() {
     getCurrentWebshopInstance(),
     getCommerceSettings(),
   ]);
-  const brandName = instance?.brandName || instance?.name || 'Webshop';
+  const brandName = instance?.brand.name || instance?.name || 'Webshop';
   const shippingLabels = commerce.shippingOptions.map((option) => option.label).join(', ');
   const paymentLabels = commerce.paymentOptions.map((option) => option.label).join(', ');
   const threshold = commerce.freeShippingThreshold;
