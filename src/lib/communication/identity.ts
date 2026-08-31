@@ -16,4 +16,7 @@ export async function getCommunicationIdentity():Promise<CommunicationIdentity>{
   };
 }
 
-export function brandedSubject(subject:string,brandName:string){return subject.replaceAll('Water-K',brandName);}
+export function brandedSubject(subject:string,brandName:string){
+  const clean=subject.trim();
+  return clean.startsWith(`${brandName} –`)||clean.startsWith(`${brandName}:`)?clean:`${brandName} – ${clean}`;
+}
