@@ -4,6 +4,7 @@ import { createAdminClient } from '@/lib/supabase/admin';
 import { requireAdmin } from '@/lib/auth/require-admin';
 import { getCurrentWebshopInstance } from '@/lib/instances/access';
 import { configuredEnvironmentFields,getProviderGuide } from '@/lib/commerce/onboarding';
+import { getPaymentGatewayAdapter,hasPaymentGatewayAdapter } from '@/lib/integrations/adapters';
 
 const codeRx=/^[a-z0-9_-]{2,80}$/;
 export async function updateCommerceProviderAction(formData:FormData){
@@ -11,7 +12,7 @@ export async function updateCommerceProviderAction(formData:FormData){
  const providerCode=String(formData.get('providerCode')??'').trim(); if(!codeRx.test(providerCode))return;
  const enabled=String(formData.get('enabled')??'false')==='true'; const displayLabel=String(formData.get('displayLabel')??'').trim().slice(0,100)||null;
  const feeRaw=String(formData.get('feeHuf')??'').trim(); const feeHuf=feeRaw===''?null:Number(feeRaw); if(feeHuf!==null&&(!Number.isInteger(feeHuf)||feeHuf<0||feeHuf>1000000))return;
- const admin=createAdminClient(); const {data:provider}=await admin.from('commerce_provider_catalog').select('code,connection_mode').eq('code',providerCode).eq('is_available',true).maybeSingle(); if(!provider)return;
+ const admin=createAdminClient(); const {data:provider}=await admin.from('commerce_provider_catalog').select('code,provider_type,connection_mode').eq('code',providerCode).eq('is_available',true).maybeSingle(); if(!provider)return;
  const guide=getProviderGuide(providerCode,provider.connection_mode);const present=configuredEnvironmentFields(guide.requirements);const complete=guide.requirements.length===0||present.length===guide.requirements.length;
  const connectionStatus=provider.connection_mode==='manual'&&enabled?'active':enabled&&complete?'configured':enabled?'not_configured':'not_configured';
  const onboardingStep=!enabled?'selection':provider.connection_mode==='manual'?'ready':complete?'verification':'credentials';
@@ -22,11 +23,14 @@ export async function updateCommerceProviderAction(formData:FormData){
 export async function verifyCommerceProviderAction(formData:FormData){
  await requireAdmin();const instance=await getCurrentWebshopInstance();if(!instance)return;
  const providerCode=String(formData.get('providerCode')??'').trim();if(!codeRx.test(providerCode))return;
- const admin=createAdminClient();const {data:provider}=await admin.from('commerce_provider_catalog').select('code,connection_mode,adapter_key').eq('code',providerCode).eq('is_available',true).maybeSingle();if(!provider)return;
+ const admin=createAdminClient();const {data:provider}=await admin.from('commerce_provider_catalog').select('code,provider_type,connection_mode,adapter_key').eq('code',providerCode).eq('is_available',true).maybeSingle();if(!provider)return;
  const guide=getProviderGuide(providerCode,provider.connection_mode);const present=configuredEnvironmentFields(guide.requirements);const complete=guide.requirements.length===0||present.length===guide.requirements.length;
  let status='not_configured',step='credentials',message='Hiányzik egy vagy több szükséges szerveroldali hitelesítő adat.';
  if(provider.connection_mode==='manual'){status='active';step='ready';message='A kézi fizetési/szállítási mód használatra kész.'}
+ else if(complete&&provider.provider_type==='payment'&&hasPaymentGatewayAdapter(provider.adapter_key)){
+  try{const adapter=getPaymentGatewayAdapter(provider.adapter_key);if(adapter.healthCheck){const check=await adapter.healthCheck();status=check.ok?'active':'error';step=check.ok?'ready':'verification';message=check.message}else{status='configured';step='verification';message='Az adapter telepítve van, de automatikus kapcsolatpróba még nem érhető el.'}}catch(error){status='error';step='verification';message=error instanceof Error?error.message:'A szolgáltatói kapcsolat ellenőrzése sikertelen.'}
+ }
  else if(complete){status='configured';step='verification';message=`A szükséges hitelesítő mezők rendelkezésre állnak. A(z) ${provider.adapter_key} adapter éles kapcsolatpróbája még szükséges az aktiváláshoz.`}
  await admin.from('webshop_instance_provider_connections').update({connection_status:status,onboarding_step:step,credential_fields_present:present,last_tested_at:new Date().toISOString(),last_test_message:message,updated_at:new Date().toISOString()}).eq('instance_id',instance.id).eq('provider_code',providerCode);
- revalidatePath('/admin/beallitasok/fizetes-szallitas');
+ revalidatePath('/admin/beallitasok/fizetes-szallitas');revalidatePath('/penztar');
 }
