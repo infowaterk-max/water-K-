@@ -1,15 +1,16 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
-type Props={id:string;stock:number;grossPrice:number;netPrice:number;resellerGrossPrice:number|null;resellerNetPrice:number|null;unitCostNet:number|null;weightGrams:number|null;supplierLeadTimeDays:number;safetyStockDays:number;minimumOrderQuantity:number;orderMultiple:number};
+type Props={id:string;stock:number;grossPrice:number;netPrice:number;resellerGrossPrice:number|null;resellerNetPrice:number|null;unitCostNet:number|null;weightGrams?:number|null;supplierLeadTimeDays:number;safetyStockDays:number;minimumOrderQuantity:number;orderMultiple:number};
 export function InventoryEditor({id,stock,grossPrice,netPrice,resellerGrossPrice,resellerNetPrice,unitCostNet,weightGrams,supplierLeadTimeDays,safetyStockDays,minimumOrderQuantity,orderMultiple}:Props){
   const router=useRouter();
   const [s,setS]=useState(stock),[g,setG]=useState(grossPrice),[n,setN]=useState(netPrice);
-  const [rg,setRg]=useState(resellerGrossPrice===null?'':String(resellerGrossPrice)),[rn,setRn]=useState(resellerNetPrice===null?'':String(resellerNetPrice)),[cost,setCost]=useState(unitCostNet===null?'':String(unitCostNet)),[weight,setWeight]=useState(weightGrams===null?'':String(weightGrams));
+  const [rg,setRg]=useState(resellerGrossPrice===null?'':String(resellerGrossPrice)),[rn,setRn]=useState(resellerNetPrice===null?'':String(resellerNetPrice)),[cost,setCost]=useState(unitCostNet===null?'':String(unitCostNet)),[weight,setWeight]=useState(weightGrams==null?'':String(weightGrams));
   const [lead,setLead]=useState(supplierLeadTimeDays),[safety,setSafety]=useState(safetyStockDays),[moq,setMoq]=useState(minimumOrderQuantity),[multiple,setMultiple]=useState(orderMultiple);
   const [busy,setBusy]=useState(false),[message,setMessage]=useState('');
+  useEffect(()=>{if(weightGrams!==undefined)return;let active=true;fetch(`/api/admin/variants/${id}`).then(async response=>response.ok?response.json():null).then((payload:{weightGrams?:number|null}|null)=>{if(active&&payload)setWeight(payload.weightGrams==null?'':String(payload.weightGrams));}).catch(()=>{});return()=>{active=false}},[id,weightGrams]);
   async function save(){setBusy(true);setMessage('');try{const response=await fetch(`/api/admin/variants/${id}`,{method:'PATCH',headers:{'content-type':'application/json'},body:JSON.stringify({stock:s,grossPrice:g,netPrice:n,resellerGrossPrice:rg===''?null:Number(rg),resellerNetPrice:rn===''?null:Number(rn),unitCostNet:cost===''?null:Number(cost),weightGrams:weight===''?null:Number(weight),supplierLeadTimeDays:lead,safetyStockDays:safety,minimumOrderQuantity:moq,orderMultiple:multiple})});const payload=await response.json() as {error?:string};if(!response.ok){setMessage(payload.error??'Mentési hiba.');return;}router.refresh();setMessage('Mentve.');}catch{setMessage('Hálózati hiba.');}finally{setBusy(false)}}
   return <div style={{display:'grid',gap:8,minWidth:620}}>
     <div style={{display:'grid',gridTemplateColumns:'90px 120px 120px 140px 120px',gap:8}}><input aria-label="Készlet" title="Készlet" type="number" min="0" value={s} onChange={e=>setS(Number(e.target.value))}/><input aria-label="Bruttó ár" title="Bruttó ár" type="number" min="0" value={g} onChange={e=>setG(Number(e.target.value))}/><input aria-label="Nettó ár" title="Nettó ár" type="number" min="0" value={n} onChange={e=>setN(Number(e.target.value))}/><input aria-label="Nettó egységköltség" title="Nettó egységköltség" type="number" min="0" placeholder="Önköltség nettó" value={cost} onChange={e=>setCost(e.target.value)}/><input aria-label="Szállítási súly grammban" title="Szállítási súly grammban" type="number" min="1" placeholder="Súly (g)" value={weight} onChange={e=>setWeight(e.target.value)}/></div>
