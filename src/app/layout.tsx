@@ -12,6 +12,7 @@ import './v7.css';
 import './showcase.css';
 import './commerce-showcase.css';
 import './storefront-concept.css';
+import './interaction-polish.css';
 
 const deploymentHost=process.env.VERCEL_PROJECT_PRODUCTION_URL?.trim();
 const fallbackSiteUrl=process.env.NEXT_PUBLIC_SITE_URL?.trim()||(deploymentHost?`https://${deploymentHost}`:'http://localhost:3000');
