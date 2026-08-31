@@ -69,8 +69,14 @@ const PRO_FEATURES = [
   'cashflow',
   'executiveAnalytics',
   'advancedIntegrations',
-  'apiAccess',
 ] as const satisfies readonly FeatureCode[];
+
+/**
+ * Reserved feature codes stay typed so future migrations and UI work can land
+ * without renaming persisted capabilities, but they are not active entitlements
+ * until their security model and runtime implementation are complete.
+ */
+export const PLANNED_PRO_FEATURES = ['apiAccess'] as const satisfies readonly FeatureCode[];
 
 export const PLANS: Record<PlanCode, PlanDefinition> = {
   alap: {

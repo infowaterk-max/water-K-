@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { hasPlanFeature, isPlanCode, PLANS, type FeatureCode } from '../src/lib/plans/catalog';
+import { hasPlanFeature, isPlanCode, PLANNED_PRO_FEATURES, PLANS, type FeatureCode } from '../src/lib/plans/catalog';
 
 const ALAP_REQUIRED: FeatureCode[] = [
   'catalog',
@@ -32,7 +32,6 @@ const PRO_ONLY: FeatureCode[] = [
   'cashflow',
   'executiveAnalytics',
   'advancedIntegrations',
-  'apiAccess',
 ];
 
 describe('business plan entitlement matrix', () => {
@@ -43,10 +42,18 @@ describe('business plan entitlement matrix', () => {
     }
   });
 
-  it('keeps Pro-only capabilities unavailable in Alap', () => {
+  it('keeps implemented Pro-only capabilities unavailable in Alap', () => {
     for (const feature of PRO_ONLY) {
       expect(hasPlanFeature('alap', feature), `Alap must not include ${feature}`).toBe(false);
       expect(hasPlanFeature('pro', feature), `Pro should include ${feature}`).toBe(true);
+    }
+  });
+
+  it('keeps planned Pro capabilities disabled until implementation is complete', () => {
+    expect(PLANNED_PRO_FEATURES).toContain('apiAccess');
+    for (const feature of PLANNED_PRO_FEATURES) {
+      expect(hasPlanFeature('alap', feature)).toBe(false);
+      expect(hasPlanFeature('pro', feature)).toBe(false);
     }
   });
 
