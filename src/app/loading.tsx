@@ -3,7 +3,7 @@ export default function Loading() {
     <main className="section" aria-busy="true" aria-live="polite">
       <div className="shell">
         <section className="card">
-          <span className="eyebrow">Water-K</span>
+          <span className="eyebrow">Webáruház</span>
           <h1 className="sectionTitle">Betöltés…</h1>
           <p className="muted">Az aktuális adatok lekérése folyamatban.</p>
         </section>

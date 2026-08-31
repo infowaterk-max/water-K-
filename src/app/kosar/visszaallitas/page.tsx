@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { RecoveryRestorer } from '@/components/cart/recovery-restorer';
 import { createAdminClient } from '@/lib/supabase/admin';
+import { getCurrentWebshopInstance } from '@/lib/instances/access';
 import type { CartItem } from '@/lib/cart/types';
 
 export const dynamic='force-dynamic';
@@ -22,5 +23,7 @@ export default async function RecoveryPage({searchParams}:{searchParams:Promise<
   const byId=new Map(rows.map(row=>[row.id,row]));
   const items:CartItem[]=saved.flatMap(savedItem=>{const row=byId.get(savedItem.productId);if(!row?.products)return[];return[{productId:row.id,slug:row.products.slug,name:`${row.products.name} – ${row.label}`,unitPrice:Number(row.gross_price_huf),quantity:Math.max(1,Math.min(99,Math.floor(Number(savedItem.quantity)||1)))}];});
   if(!items.length)return <main className="section"><div className="shell"><div className="card"><h1>A mentett termékek jelenleg nem elérhetők.</h1><Link className="btn btnPrimary" href="/webaruhaz">Aktuális kínálat</Link></div></div></main>;
-  return <main className="section"><div className="shell confirmationShell"><span className="eyebrow">Water-K kosármentés</span><h1 className="sectionTitle">Folytathatod a rendelésed.</h1><RecoveryRestorer items={items}/></div></main>;
+  const instance=await getCurrentWebshopInstance();
+  const brandName=instance?.brand.name??'Webáruház';
+  return <main className="section"><div className="shell confirmationShell"><span className="eyebrow">{brandName} kosármentés</span><h1 className="sectionTitle">Folytathatod a rendelésed.</h1><RecoveryRestorer items={items}/></div></main>;
 }

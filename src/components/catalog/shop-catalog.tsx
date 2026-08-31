@@ -67,8 +67,8 @@ export function ShopCatalog({ products, signedIn, resellerApproved }: Props) {
     {filtered.length ? <div className="cards productCards shopCards">{filtered.map(product => {
       const partnerLocked = product.audience === 'professional' && !resellerApproved;
       return <article className={`card productCard ${product.featured ? 'isFeatured' : ''}`} key={product.id}>
-        <div className="productCardTop"><span className="badge">{product.featured ? 'Ajánlott' : product.audience === 'professional' ? 'Viszonteladói' : 'Water-K'}</span><span className={`stockDot ${product.stock === 0 ? 'outOfStock' : ''}`}>{product.stock > 0 ? `${product.stock} db raktáron` : 'Elfogyott'}</span></div>
-        <div className="productVisual"><div className="productPack"><small>WATER-K</small><strong>{product.size}</strong></div></div>
+        <div className="productCardTop"><span className="badge">{product.featured ? 'Ajánlott' : product.audience === 'professional' ? 'Viszonteladói' : 'Lakossági'}</span><span className={`stockDot ${product.stock === 0 ? 'outOfStock' : ''}`}>{product.stock > 0 ? `${product.stock} db raktáron` : 'Elfogyott'}</span></div>
+        <div className="productVisual"><div className="productPack"><small>{product.audience==='professional'?'PRO':'SHOP'}</small><strong>{product.size}</strong></div></div>
         <h2>{product.name}</h2><p className="muted">{product.short}</p><div className="tagRow">{product.useCases.slice(0, 3).map(useCase => <span key={useCase}>{useCase}</span>)}</div>
         <div className="price">{formatHuf(product.grossPrice)}</div><p className="muted priceMeta">Bruttó · nettó {formatHuf(product.netPrice)}</p>
         <div className="actions shopActions">{partnerLocked ? <Link className="btn btnPrimary" href="/fiokom">{signedIn ? 'Partnerjóváhagyás szükséges' : 'Viszonteladói belépés'}</Link> : <AddToCart id={product.id} slug={product.slug} name={product.name} price={product.grossPrice}/>}<Link className="btn btnGhost" href={`/termek/${product.slug}`}>Részletek</Link></div>
