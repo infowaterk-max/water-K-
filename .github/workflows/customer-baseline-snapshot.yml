@@ -6,6 +6,11 @@ on:
       - feature/business-packages-v1
     paths:
       - .github/workflows/customer-baseline-snapshot.yml
+      - scripts/generate-customer-baseline.mjs
+      - scripts/review-customer-baseline-snapshot.mjs
+      - scripts/validate-customer-baseline.mjs
+      - supabase/customer-baseline/**
+      - package.json
   workflow_dispatch:
 
 permissions:
