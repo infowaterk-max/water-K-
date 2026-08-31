@@ -1,10 +1,11 @@
 import 'server-only';
 import { KhPaymentGateway } from '@/lib/integrations/kh';
+import { StripePaymentGateway } from '@/lib/integrations/stripe';
 import { FoxpostShipping,GlsShipping,MplShipping } from '@/lib/integrations/shipping';
 import type { PaymentGateway,ShippingProvider } from '@/lib/integrations/types';
 
 type Factory<T>=()=>T;
-const paymentAdapters:Record<string,Factory<PaymentGateway>>={kh:()=>new KhPaymentGateway()};
+const paymentAdapters:Record<string,Factory<PaymentGateway>>={kh:()=>new KhPaymentGateway(),stripe:()=>new StripePaymentGateway()};
 const shippingAdapters:Record<string,Factory<ShippingProvider>>={foxpost:()=>new FoxpostShipping(),gls:()=>new GlsShipping(),mpl:()=>new MplShipping()};
 
 export function getPaymentGatewayAdapter(adapterKey:string):PaymentGateway{const factory=paymentAdapters[adapterKey];if(!factory)throw new Error(`Payment adapter not installed: ${adapterKey}`);return factory()}
