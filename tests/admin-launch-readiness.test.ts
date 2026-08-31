@@ -17,6 +17,12 @@ describe('Shoperation admin launch readiness',()=>{
     expect(page).not.toContain("href:'/admin/integraciok'");
   });
 
+  it('keeps the Alap dashboard commerce shortcut out of Pro integration operations',()=>{
+    const dashboard=read('src/app/admin/page.tsx');
+    const commerceCard=dashboard.match(/<Link className="card textLink" href="([^"]+)"><strong>Fizetés és szállítás<\/strong>/);
+    expect(commerceCard?.[1]).toBe('/admin/beallitasok/fizetes-szallitas');
+  });
+
   it('degrades safely while a fresh database is not fully bootstrapped',()=>{
     const page=read('src/app/admin/indulas/page.tsx');
     expect(page).toContain('safeProducts');
