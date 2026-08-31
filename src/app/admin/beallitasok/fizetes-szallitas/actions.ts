@@ -5,7 +5,7 @@ import { requireAdmin } from '@/lib/auth/require-admin';
 import { getCurrentWebshopInstance } from '@/lib/instances/access';
 import { configuredEnvironmentFields,getProviderGuide } from '@/lib/commerce/onboarding';
 import { getPaymentGatewayAdapter,getShippingProviderAdapter,hasPaymentGatewayAdapter,hasShippingProviderAdapter } from '@/lib/integrations/adapters';
-import { getInvoiceProvider } from '@/lib/integrations/invoicing';
+import { verifyInvoiceProviderConnection } from '@/lib/integrations/invoice-health';
 
 const codeRx=/^[a-z0-9_-]{2,80}$/;
 export async function updateCommerceProviderAction(formData:FormData){
@@ -35,7 +35,7 @@ export async function verifyCommerceProviderAction(formData:FormData){
   try{const adapter=getShippingProviderAdapter(provider.adapter_key);if(adapter.healthCheck){const check=await adapter.healthCheck();status=check.ok?'active':'error';step=check.ok?'ready':'verification';message=check.message}else{status='configured';step='verification';message='Az adapter telepítve van, de automatikus kapcsolatpróba még nem érhető el.'}}catch(error){status='error';step='verification';message=error instanceof Error?error.message:'A szállítási kapcsolat ellenőrzése sikertelen.'}
  }
  else if(complete&&provider.provider_type==='invoice'){
-  try{const adapter=getInvoiceProvider(provider.adapter_key);if(adapter.healthCheck){const check=await adapter.healthCheck();status=check.ok?'active':'error';step=check.ok?'ready':'verification';message=check.message}else{status='configured';step='verification';message='A számlázó adapter telepítve van, de automatikus kapcsolatpróba még nem érhető el.'}}catch(error){status='error';step='verification';message=error instanceof Error?error.message:'A számlázó kapcsolat ellenőrzése sikertelen.'}
+  const check=await verifyInvoiceProviderConnection(String(provider.adapter_key));status=check.ok?'active':'error';step=check.ok?'ready':'verification';message=check.message;
  }
  else if(complete){status='configured';step='verification';message=`A szükséges hitelesítő mezők rendelkezésre állnak. A(z) ${provider.adapter_key} adapter éles kapcsolatpróbája még szükséges az aktiváláshoz.`}
  await admin.from('webshop_instance_provider_connections').update({connection_status:status,onboarding_step:step,credential_fields_present:present,last_tested_at:new Date().toISOString(),last_test_message:message,updated_at:new Date().toISOString()}).eq('instance_id',instance.id).eq('provider_code',providerCode);
