@@ -20,6 +20,17 @@ const bodySchema = z.object({
   active: z.boolean().optional(),
 }).refine((value) => Object.keys(value).length > 0, 'Nincs módosítás.');
 
+export async function GET(_request:Request,{params}:{params:Promise<{id:string}>}){
+  const actor=await getAdminRequestUser();
+  if(!actor)return NextResponse.json({error:'Nincs jogosultság.'},{status:403});
+  const{id}=await params;
+  if(!z.string().uuid().safeParse(id).success)return NextResponse.json({error:'Érvénytelen változatazonosító.'},{status:400});
+  const admin=createAdminClient();
+  const{data,error}=await admin.from('product_variants').select('weight_grams').eq('id',id).maybeSingle();
+  if(error||!data)return NextResponse.json({error:'A termékváltozat nem található.'},{status:404});
+  return NextResponse.json({weightGrams:data.weight_grams==null?null:Number(data.weight_grams)});
+}
+
 export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const actor = await getAdminRequestUser();
   if (!actor) return NextResponse.json({ error: 'Nincs jogosultság.' }, { status: 403 });
