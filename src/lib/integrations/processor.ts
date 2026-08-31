@@ -3,6 +3,7 @@ import { KhPaymentGateway } from '@/lib/integrations/kh';
 import { FoxpostShipping,GlsShipping,MplShipping } from '@/lib/integrations/shipping';
 import { getInvoiceProvider } from '@/lib/integrations/invoicing';
 import { sendTransactionalEmail,type EmailTemplate } from '@/lib/integrations/email';
+import { getCommunicationIdentity } from '@/lib/communication/identity';
 import type { ShippingProvider } from '@/lib/integrations/types';
 
 const skuWeight:Record<string,number>={'WK-040':40,'WK-750':750,'WK-25K':25000};
@@ -25,8 +26,8 @@ export async function processIntegrationJob(jobId:string,claimToken:string){
    if(job.provider!=='kh'||!job.order_id)throw new Error('Unsupported payment provider or missing order');
    const {data:order,error}=await admin.from('orders').select('order_number,total_gross_huf,confirmation_token').eq('id',job.order_id).maybeSingle(); if(error||!order)throw new Error('Payment order not found');
    if(!order.confirmation_token)throw new Error('Payment confirmation token missing');
-   const siteUrl=process.env.NEXT_PUBLIC_SITE_URL; if(!siteUrl)throw new Error('NEXT_PUBLIC_SITE_URL required');
-   const returnUrl=`${siteUrl.replace(/\/$/,'')}/rendeles-sikeres?token=${encodeURIComponent(order.confirmation_token)}`;
+   const identity=await getCommunicationIdentity();
+   const returnUrl=`${identity.siteUrl}/rendeles-sikeres?token=${encodeURIComponent(order.confirmation_token)}`;
    const result=await new KhPaymentGateway().createPayment({orderId:order.order_number,total:{amount:order.total_gross_huf,currency:'HUF'},returnUrl});
    await admin.from('orders').update({external_payment_id:result.providerReference,updated_at:new Date().toISOString()}).eq('id',job.order_id); return await complete(result);
   }
@@ -48,8 +49,7 @@ export async function processIntegrationJob(jobId:string,claimToken:string){
   if(job.kind==='email_send'){
    if(!job.order_id)throw new Error('Missing order'); const template=String(job.payload?.template??'') as EmailTemplate; if(!emailTemplates.includes(template))throw new Error('Unsupported email template');
    const {data:order,error}=await admin.from('orders').select('order_number,customer_email,billing_name,total_gross_huf,tracking_number,invoice_url').eq('id',job.order_id).maybeSingle(); if(error||!order)throw new Error('Email order not found');
-   const siteUrl=process.env.NEXT_PUBLIC_SITE_URL; if(!siteUrl)throw new Error('NEXT_PUBLIC_SITE_URL required');
-   const result=await sendTransactionalEmail({to:order.customer_email,template,orderNumber:order.order_number,customerName:order.billing_name,totalGrossHuf:order.total_gross_huf,trackingNumber:order.tracking_number,invoiceUrl:order.invoice_url,siteUrl});
+   const result=await sendTransactionalEmail({to:order.customer_email,template,orderNumber:order.order_number,customerName:order.billing_name,totalGrossHuf:order.total_gross_huf,trackingNumber:order.tracking_number,invoiceUrl:order.invoice_url});
    await admin.from('order_events').insert({order_id:job.order_id,event_type:'email_sent',metadata:{template,provider:job.provider,message_id:result.messageId}}); return await complete(result);
   }
   throw new Error(`Unsupported integration job kind: ${job.kind}`);
