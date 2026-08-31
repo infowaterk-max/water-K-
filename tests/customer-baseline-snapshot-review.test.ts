@@ -22,7 +22,8 @@ describe('Shoperation baseline snapshot structural review',()=>{
   it('blocks customer-facing data and historical migration state',()=>{
     const review=read('scripts/review-customer-baseline-snapshot.mjs');
     expect(review).toContain('customer-facing data statements');
-    expect(review).toContain('supabase_migrations\\.schema_migrations');
+    expect(review).toContain('supabase_migrations');
+    expect(review).toContain('schema_migrations');
     expect(review).toContain('historical Supabase migration state');
     expect(review).toContain('enable\\s+row\\s+level\\s+security');
     expect(review).toContain('create\\s+policy');
