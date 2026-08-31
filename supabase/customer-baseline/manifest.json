@@ -6,5 +6,8 @@
   "seedFile": "supabase/customer-baseline/seed.sql",
   "baselineMigrationDirectory": "supabase/customer-baseline/migrations",
   "defaultPlan": "alap",
+  "snapshotFile": "supabase/customer-baseline/migrations/0001_shoperation_v1_schema.sql",
+  "snapshotCommand": "npm run db:customer:snapshot",
+  "freshInstallProofRequired": true,
   "notes": "Fresh paying-customer databases must be created from a reviewed neutral schema snapshot. The historical supabase/migrations chain is retained for provenance and existing staging continuity only."
 }

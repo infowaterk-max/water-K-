@@ -11,6 +11,7 @@
     "check": "npm run db:customer:guard && npm run test && npm run typecheck && npm run build",
     "validate:env": "node scripts/validate-env.mjs",
     "db:customer:guard": "node scripts/validate-customer-baseline.mjs",
+    "db:customer:snapshot": "node scripts/generate-customer-baseline.mjs",
     "smoke": "node scripts/smoke.mjs",
     "release:manifest": "node scripts/release-manifest.mjs"
   },
