@@ -23,4 +23,22 @@ describe('customer baseline source preflight', () => {
     expect(preflight).toContain("p.proname = 'place_order_provider_v2_idempotent'");
     expect(preflight).toContain('source-preflight-ok');
   });
+
+  it('keeps control-plane and commerce configuration tables service-role only', () => {
+    for (const table of [
+      'webshop_instances',
+      'webshop_instance_members',
+      'webshop_instance_commerce_settings',
+      'webshop_instance_provider_connections',
+      'commerce_provider_catalog',
+      'platform_operators',
+    ]) {
+      expect(preflight).toContain(`'${table}'`);
+    }
+    expect(preflight).toContain("grantee in ('anon','authenticated','PUBLIC')");
+    expect(preflight).toContain("grantee = 'service_role'");
+    expect(preflight).toContain("privilege_type = 'SELECT'");
+    expect(preflight).toContain('protected_policy_count <> 0');
+    expect(preflight).toContain('not protected_rls');
+  });
 });
