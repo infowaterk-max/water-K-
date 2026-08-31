@@ -10,8 +10,9 @@ import './flow-v2.css';
 import './v6.css';
 import './v7.css';
 
-const fallbackSiteUrl = process.env.NEXT_PUBLIC_SITE_URL?.trim() || 'https://water-k-native.vercel.app';
-const fallbackBrand={name:'Water-K',tagline:'Vízmegtartó technológia kertészethez, gyephez, dísznövényekhez és fákhoz.',logoUrl:null as string|null,primaryColor:null as string|null,supportEmail:null as string|null,supportPhone:null as string|null,publicSiteUrl:fallbackSiteUrl,emailFromName:'Water-K'};
+const deploymentHost=process.env.VERCEL_PROJECT_PRODUCTION_URL?.trim();
+const fallbackSiteUrl=process.env.NEXT_PUBLIC_SITE_URL?.trim()||(deploymentHost?`https://${deploymentHost}`:'http://localhost:3000');
+const fallbackBrand={name:'Shoperation Webshop',tagline:'Modern webáruház és közvetlen ügyfélkiszolgálás.',logoUrl:null as string|null,primaryColor:null as string|null,supportEmail:null as string|null,supportPhone:null as string|null,publicSiteUrl:fallbackSiteUrl,emailFromName:'Shoperation Webshop'};
 
 export async function generateMetadata():Promise<Metadata>{
   const instance=await getCurrentWebshopInstance();
