@@ -13,6 +13,8 @@ const tenantFacingRuntimeFiles = [
   'src/app/szallitas-es-fizetes/page.tsx',
   'src/app/webaruhaz/page.tsx',
   'src/app/termek/[slug]/page.tsx',
+  'src/app/kosar/page.tsx',
+  'src/components/cart/cart-view.tsx',
   'src/lib/catalog-server.ts',
 ];
 
