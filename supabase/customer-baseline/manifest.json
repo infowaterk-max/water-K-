@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "status": "snapshot-required",
+  "legacyMigrationReplay": false,
+  "sourcePolicy": "schema-snapshot-only",
+  "seedFile": "supabase/customer-baseline/seed.sql",
+  "baselineMigrationDirectory": "supabase/customer-baseline/migrations",
+  "defaultPlan": "alap",
+  "notes": "Fresh paying-customer databases must be created from a reviewed neutral schema snapshot. The historical supabase/migrations chain is retained for provenance and existing staging continuity only."
+}

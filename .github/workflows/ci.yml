@@ -35,6 +35,9 @@ jobs:
       - name: Production dependency security audit
         run: npm audit --omit=dev --audit-level=high
 
+      - name: Customer database baseline guard
+        run: npm run db:customer:guard
+
       - name: Prepare quality artifacts
         run: mkdir -p artifacts
 

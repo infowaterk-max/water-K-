@@ -4,7 +4,7 @@ Ez a runbook a Shoperation webshopmotor első ügyfél/pilot kiadásának kötel
 
 ## 1. Release előfeltételek
 
-- A release branch minden CI ellenőrzése zöld: teszt, typecheck, build és customer-specific contamination audit.
+- A release branch minden CI ellenőrzése zöld: customer database baseline guard, teszt, typecheck, build és customer-specific contamination audit.
 - A Vercel preview deployment `READY` állapotú.
 - A cél Supabase projekt egészséges és a mentés/rollback pont dokumentált.
 - A szükséges environment változók a cél környezetben rendelkezésre állnak; secret érték nem kerülhet Git-be vagy kliensoldali változóba.
@@ -12,11 +12,16 @@ Ez a runbook a Shoperation webshopmotor első ügyfél/pilot kiadásának kötel
 
 ## 2. Adatbázis és tenant bootstrap
 
-1. Ellenőrizd a migrációk sorrendjét és a cél projekt migrációs állapotát.
-2. Alkalmazd csak a még hiányzó migrációkat; már lefutott migrációt ne futtass újra kézzel.
-3. Ellenőrizd a webshop instance rekordját, domain/tenant kötését és subscription plan értékét.
-4. Elfogadott csomagkód kizárólag `alap` vagy `pro` lehet.
-5. Ellenőrizd, hogy tenant A admin/felhasználó nem tud tenant B rendeléséhez, termékéhez, beállításához vagy integrációs objektumához hozzáférni.
+Új fizető ügyfélhez tilos a történeti `supabase/migrations` láncot fresh-install forrásként visszajátszani. Az új ügyfél adatbázisa kizárólag a `supabase/customer-baseline/` alatt található, külön felülvizsgált Shoperation 1.0 séma-snapshotból készülhet. Amíg a baseline manifest státusza `snapshot-required`, új fizető ügyfél adatbázisa nem provisionálható ebből a repóból.
+
+1. Futtasd az `npm run db:customer:guard` ellenőrzést.
+2. Ellenőrizd, hogy a customer baseline manifest `legacyMigrationReplay` értéke `false`, a default csomag `alap`, és a baseline státusza `ready`.
+3. A baseline-t brand-, termék-, SKU-, domain-, e-mail-, ár- és credential-adat nélkül alkalmazd egy új, üres Supabase környezetre.
+4. A semleges seed nem hozhat létre ügyfélkatalógust; a webshop instance és minden ügyféltartalom külön provisioning lépés.
+5. Ellenőrizd a webshop instance rekordját, domain/tenant kötését és subscription plan értékét. Elfogadott csomagkód kizárólag `alap` vagy `pro` lehet.
+6. Ellenőrizd, hogy tenant A admin/felhasználó nem tud tenant B rendeléséhez, termékéhez, beállításához vagy integrációs objektumához hozzáférni.
+
+Meglévő staging/legacy környezetnél a már alkalmazott migrációs történetet nem írjuk át. Ott csak új forward migration alkalmazható.
 
 ## 3. Alap csomag regresszió
 
@@ -26,9 +31,11 @@ Az Alap tenantnál a Pro-only funkciók nem lehetnek használhatók közvetlen U
 
 ## 4. Pro csomag regresszió
 
-A Pro tenantnak az Alap minden funkcióján felül hozzáférést kell kapnia: fejlett analitika; CRM; fejlett kampányok; digitális iroda / kommunikáció; automatizálás; beszerzés; cashflow; vezetői döntéstámogatás; fejlett integrációk; API hozzáférés.
+A Pro tenantnak az Alap minden funkcióján felül hozzáférést kell kapnia a már elkészült Pro képességekhez: fejlett analitika; CRM; fejlett kampányok; digitális iroda / kommunikáció; automatizálás; beszerzés; cashflow; vezetői döntéstámogatás; fejlett integrációk.
 
-Minden Pro funkciónál legalább egy pozitív smoke tesztet kell futtatni, és ellenőrizni kell, hogy ugyanaz a végpont Alap tenanttal megfelelően tiltott.
+Az `apiAccess` jelenleg fejlesztési ütemtervben lévő, rezervált képesség, nem aktív Pro entitlement. Addig nem lehet értékesített funkcióként vagy release-kritériumként kezelni, amíg a biztonságos token-, scope-, rotáció-, rate-limit- és auditmodell el nem készül.
+
+Minden aktív Pro funkciónál legalább egy pozitív smoke tesztet kell futtatni, és ellenőrizni kell, hogy ugyanaz a végpont Alap tenanttal megfelelően tiltott.
 
 ## 5. Storefront smoke teszt
 
@@ -49,7 +56,7 @@ Minden Pro funkciónál legalább egy pozitív smoke tesztet kell futtatni, és 
 - csomagoldal és aktuális entitlementek;
 - fizetés/szállítás beállítások;
 - tenant branding és storefront tartalom;
-- Pro tenant esetén legalább egy Pro-only admin folyamat;
+- Pro tenant esetén legalább egy aktív Pro-only admin folyamat;
 - Alap tenant esetén közvetlen Pro URL megnyitása tiltásba/upgrade oldalra fusson.
 
 ## 7. Fizetési ellenőrzés
@@ -72,10 +79,11 @@ A fejlesztési és pilot fixture-k kizárólag semleges Shoperation tesztadatoka
 Pilot release csak akkor promotálható, ha egyszerre teljesül:
 
 - CI zöld;
+- customer baseline manifest `ready` és a fresh-install baseline guard zöld;
 - preview build zöld;
 - customer-specific contamination auditban nincs kritikus találat;
 - Alap entitlement regresszió zöld;
-- Pro entitlement regresszió zöld;
+- aktív Pro entitlement regresszió zöld;
 - tenant isolation negatív teszt zöld;
 - storefront és admin smoke zöld;
 - fizetési sandbox smoke zöld;
