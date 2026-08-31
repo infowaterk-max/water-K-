@@ -5,10 +5,11 @@ export type CommunicationIdentity={brandName:string;fromName:string;siteUrl:stri
 
 export async function getCommunicationIdentity():Promise<CommunicationIdentity>{
   const instance=await getCurrentWebshopInstance();
-  const siteFallback=(process.env.NEXT_PUBLIC_SITE_URL||'https://waterk.hu').replace(/\/$/,'');
+  const siteFallback=(process.env.NEXT_PUBLIC_SITE_URL||'http://localhost:3000').replace(/\/$/,'');
+  const brandFallback=process.env.WEBSHOP_BRAND_NAME?.trim()||'Shoperation';
   return {
-    brandName:instance?.brand.name||'Water-K',
-    fromName:instance?.brand.emailFromName||instance?.brand.name||'Water-K',
+    brandName:instance?.brand.name||brandFallback,
+    fromName:instance?.brand.emailFromName||instance?.brand.name||brandFallback,
     siteUrl:(instance?.brand.publicSiteUrl||siteFallback).replace(/\/$/,''),
     supportEmail:instance?.brand.supportEmail||null,
     primaryColor:instance?.brand.primaryColor||'#17231a',
