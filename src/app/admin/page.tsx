@@ -154,7 +154,7 @@ export default async function AdminPage() {
           <Link className="card textLink" href="/admin/visszaru"><strong>Visszáru</strong><p className="muted">Elállások és visszaküldések kezelése.</p></Link>
           <Link className="card textLink" href="/admin/kuponok"><strong>Kuponok és akciók</strong><p className="muted">Alap értékesítési promóciók kezelése.</p></Link>
           <Link className="card textLink" href="/admin/ugyfelek"><strong>Ügyfelek</strong><p className="muted">Vásárlói adatok és alap ügyfélkezelés.</p></Link>
-          <Link className="card textLink" href="/admin/integraciok"><strong>Fizetés és szállítás</strong><p className="muted">A webshop normál kereskedelmi integrációi.</p></Link>
+          <Link className="card textLink" href="/admin/beallitasok/fizetes-szallitas"><strong>Fizetés és szállítás</strong><p className="muted">A webshop normál kereskedelmi beállításai.</p></Link>
         </div>
       </section>
 
