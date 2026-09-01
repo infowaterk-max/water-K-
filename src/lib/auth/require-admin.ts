@@ -11,21 +11,21 @@ export async function requireAdmin() {
   const{data:authData,error}=await supabase.auth.getUser();
   if(error||!authData.user)redirect('/fiokom?reason=login');
 
-  const{data:profile}=await supabase.from('profiles').select('role').eq('id',authData.user.id).maybeSingle();
-  if(profile?.role==='admin')return authData.user;
-
   try{
     const admin=createAdminClient();
     const{data:platformAccess}=await admin.from('platform_operators').select('role').eq('user_id',authData.user.id).in('role',['owner','admin','operator']).maybeSingle();
     if(platformAccess)return authData.user;
 
     const instance=await getCurrentWebshopInstance();
-    if(instance&&await hasStorePermission(instance.id,'store.manage'))return authData.user;
+    if(instance&&await hasStorePermission(instance.id,'store.read'))return authData.user;
 
-    // Transitional compatibility until every installation has role_bindings populated.
+    // Transitional compatibility is tenant-bound: a legacy global profile role alone is never enough.
     if(instance){
-      const{data:legacy}=await admin.from('webshop_instance_members').select('role').eq('instance_id',instance.id).eq('user_id',authData.user.id).in('role',['owner','admin']).maybeSingle();
-      if(legacy)return authData.user;
+      const{data:profile}=await supabase.from('profiles').select('role').eq('id',authData.user.id).maybeSingle();
+      if(profile?.role==='admin'){
+        const{data:legacy}=await admin.from('webshop_instance_members').select('role').eq('instance_id',instance.id).eq('user_id',authData.user.id).in('role',['owner','admin']).maybeSingle();
+        if(legacy)return authData.user;
+      }
     }
   }catch{}
 

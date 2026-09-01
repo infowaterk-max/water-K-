@@ -1,9 +1,10 @@
+import 'server-only';
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { getCurrentWebshopInstance } from '@/lib/instances/access';
 import { hasStorePermission, type StorePermission } from '@/lib/auth/store-rbac';
 
-export async function getAdminRequestUser(permission:StorePermission='store.manage'){
+export async function getAdminRequestUser(permission?:StorePermission){
   try{
     const supabase=await createClient();
     const{data:{user}}=await supabase.auth.getUser();
@@ -13,13 +14,17 @@ export async function getAdminRequestUser(permission:StorePermission='store.mana
       supabase.from('profiles').select('role').eq('id',user.id).maybeSingle(),
       admin.from('platform_operators').select('role').eq('user_id',user.id).maybeSingle(),
     ]);
-    let authorized=profile?.role==='admin'||['owner','admin','operator'].includes(String(platform?.role??''));
+    const isPlatform=['owner','admin','operator'].includes(String(platform?.role??''));
+    let authorized=isPlatform;
     if(!authorized){
       const instance=await getCurrentWebshopInstance();
-      if(instance)authorized=await hasStorePermission(instance.id,permission);
-      if(!authorized&&instance){
-        const{data:legacy}=await admin.from('webshop_instance_members').select('role').eq('instance_id',instance.id).eq('user_id',user.id).in('role',['owner','admin']).maybeSingle();
-        authorized=Boolean(legacy);
+      if(instance){
+        if(permission)authorized=await hasStorePermission(instance.id,permission);
+        else authorized=await hasStorePermission(instance.id,'store.read');
+        if(!authorized&&profile?.role==='admin'){
+          const{data:legacy}=await admin.from('webshop_instance_members').select('role').eq('instance_id',instance.id).eq('user_id',user.id).in('role',['owner','admin']).maybeSingle();
+          authorized=Boolean(legacy);
+        }
       }
     }
     if(!authorized)return null;
@@ -30,4 +35,5 @@ export async function getAdminRequestUser(permission:StorePermission='store.mana
     return user;
   }catch{return null}
 }
+
 export async function isAdminRequest(permission?:StorePermission){return Boolean(await getAdminRequestUser(permission))}
