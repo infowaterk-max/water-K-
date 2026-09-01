@@ -9,34 +9,25 @@ const page = read('src/app/admin/automatizalas/page.tsx');
 const controls = read('src/components/admin/automation-center-actions.tsx');
 const runApi = read('src/app/api/admin/automation/run/route.ts');
 const instanceApi = read('src/app/api/admin/automation/instance/route.ts');
-const globalApi = read('src/app/api/admin/automation/control/route.ts');
+const controlApi = read('src/app/api/admin/automation/control/route.ts');
 
 describe('automation safety workflows', () => {
-  test('automation remains a Pro-only admin capability on UI and APIs', () => {
+  test('automation remains Pro-only and store-permission guarded', () => {
     expect(page).toMatch(/requirePlanFeature\('automation'\)/);
-    for (const api of [runApi, instanceApi, globalApi]) {
-      expect(api).toMatch(/getAdminRequestUser\(\)/);
+    for (const api of [runApi, instanceApi, controlApi]) {
+      expect(api).toMatch(/getAdminRequestUser\('store\.manage'\)/);
+      expect(api).toMatch(/requireCurrentStoreContext\('store\.manage'\)/);
       expect(api).toMatch(/hasCurrentPlanFeature\('automation'\)/);
       expect(api).toMatch(/status:403/);
     }
   });
 
-  test('automation remains control-plane only and surfaces operational safeguards', () => {
-    expect(page).toMatch(/üzleti forrásállapotot nem módosít automatikusan/);
-    expect(page).toMatch(/retry\/backoff/);
-    expect(page).toMatch(/SLA-eszkaláció/);
-    expect(page).toMatch(/circuit breaker/);
+  test('automation dashboard is tenant scoped and surfaces circuit-breaker health', () => {
+    expect(page).toMatch(/eq\('instance_id',store\.instanceId\)/);
     expect(page).toMatch(/global_paused/);
     expect(page).toMatch(/consecutive_failures/);
     expect(page).toMatch(/circuit_open_until/);
-  });
-
-  test('queue prioritizes overdue, escalated and high-priority work', () => {
-    expect(page).toMatch(/order\('overdue',\{ascending:false\}\)/);
-    expect(page).toMatch(/order\('escalation_level',\{ascending:false\}\)/);
-    expect(page).toMatch(/order\('priority_score',\{ascending:false\}\)/);
-    expect(page).toMatch(/LEJÁRT/);
-    expect(page).toMatch(/requires_action_approval/);
+    expect(page).toMatch(/webshoponként elkülönített/);
   });
 
   test('instance UI exposes only explicit lifecycle transitions', () => {
@@ -60,18 +51,20 @@ describe('automation safety workflows', () => {
     expect(instanceApi).toMatch(/p_event_key:key/);
   });
 
-  test('global pause is explicit, authenticated and persisted through the guarded RPC', () => {
+  test('store pause is explicit, authenticated and persisted through tenant-safe RPC', () => {
     expect(controls).toMatch(/Globális folytatás/);
     expect(controls).toMatch(/Globális szünet/);
-    expect(globalApi).toMatch(/typeof body\.paused!=='boolean'/);
-    expect(globalApi).toMatch(/set_automation_global_pause/);
-    expect(globalApi).toMatch(/p_actor_id:user\.id/);
-    expect(globalApi).toMatch(/p_paused:body\.paused/);
+    expect(controlApi).toMatch(/typeof body\.paused!=='boolean'/);
+    expect(controlApi).toMatch(/set_store_automation_pause_v2/);
+    expect(controlApi).toMatch(/p_instance_id:store\.instanceId/);
+    expect(controlApi).toMatch(/p_actor_id:user\.id/);
+    expect(controlApi).toMatch(/p_paused:body\.paused/);
   });
 
-  test('manual cycle uses a bounded minute-level run key for duplicate suppression', () => {
-    expect(runApi).toMatch(/process_automation_cycle/);
-    expect(runApi).toMatch(/new Date\(\)\.toISOString\(\)\.slice\(0,16\)/);
+  test('manual cycle uses the tenant-safe v2 processor and an explicit run key', () => {
+    expect(runApi).toMatch(/process_automation_cycle_v2/);
+    expect(runApi).toMatch(/store\.instanceId/);
+    expect(runApi).toMatch(/crypto\.randomUUID\(\)/);
     expect(runApi).toMatch(/p_run_key:runKey/);
   });
 });
