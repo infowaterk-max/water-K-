@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { mergeCartItem, validateCartAgainstQuotes } from '@/lib/commerce/cart-engine';
+import { mergeCartItem, validateCartAgainstQuotes } from '../src/lib/commerce/cart-engine';
 
 describe('Core Commerce Engine cart contracts', () => {
   it('keeps variants as separate cart lines', () => {
