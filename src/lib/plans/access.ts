@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { getCurrentWebshopInstance } from '@/lib/instances/access';
 import { getPlatformRole } from '@/lib/auth/platform-operator';
+import { getFeatureEntitlementDecision } from '@/lib/entitlements/access';
 import { hasPlanFeature, isPlanCode, type FeatureCode, type PlanCode } from './catalog';
 import { ADDONS, parseAddonList, type AddonCode } from './addons';
 
@@ -25,13 +26,19 @@ async function platformHasFullAccess() {
 
 export async function hasCurrentPlanFeature(feature: FeatureCode): Promise<boolean> {
   if (await platformHasFullAccess()) return true;
-  return hasPlanFeature(await getCurrentPlan(), feature);
+  const instance=await getCurrentWebshopInstance();
+  if(instance){
+    const explicit=await getFeatureEntitlementDecision(instance.id,feature);
+    if(explicit!==null)return explicit.enabled;
+    return hasPlanFeature(instance.subscriptionPlan,feature);
+  }
+  return hasPlanFeature(await getCurrentPlan(),feature);
 }
 
 export async function requirePlanFeature(feature: FeatureCode) {
   if (await platformHasFullAccess()) return 'pro' satisfies PlanCode;
-  const plan = await getCurrentPlan();
-  if (!hasPlanFeature(plan, feature)) redirect(`/admin/csomag?reason=pro-required&feature=${encodeURIComponent(feature)}`);
+  const plan=await getCurrentPlan();
+  if (!(await hasCurrentPlanFeature(feature))) redirect(`/admin/csomag?reason=pro-required&feature=${encodeURIComponent(feature)}`);
   return plan;
 }
 
