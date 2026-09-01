@@ -3,10 +3,12 @@ import { ADDONS } from '@/lib/plans/addons';
 import { PLANS, type FeatureCode } from '@/lib/plans/catalog';
 
 const FEATURE_LABELS: Record<FeatureCode,string>={catalog:'Termék-, kategória- és katalóguskezelés',inventory:'Készletkezelés és napi készletműveletek',orders:'Teljes rendeléskezelés',returns:'Visszáru és elállás kezelése',customers:'Ügyféladatbázis és vásárlói adatok',coupons:'Kuponok, kedvezmények és akciók',basicAnalytics:'Értékesítési statisztikák és dashboard',marketingBasics:'Alap marketingeszközök',contentMarketing:'Tartalomkezelés, blog és SEO',importExport:'Termék import és export',bulkOperations:'Tömeges termék- és készletműveletek',wishlists:'Kívánságlista',stockNotifications:'Készlet-visszaérkezési értesítések',productRecommendations:'Cross-sell, upsell és termékajánlások',reviews:'Vásárlói vélemények és moderáció',searchFiltering:'Termékkeresés és szűrés',commerceIntegrations:'Fizetés, szállítás és számlázási integrációk',support:'Ügyfélszolgálati eszközök',advancedAnalytics:'Részletes üzleti elemzések',crm:'Fejlett CRM, ügyfélérték és utánkövetés',advancedCampaigns:'Kampányközpont, attribúció és megtérülés',officeCommunication:'Digitális iroda és kommunikáció',automation:'Automatizálások és üzemi vezérlés',procurement:'Készlet- és beszerzéstervezés',cashflow:'Cash-flow és pénzügyi előrejelzés',executiveAnalytics:'Vezetői analitika és döntéstámogatás',advancedIntegrations:'Haladó rendszerintegrációk',apiAccess:'Külső API-hozzáférés'};
-type Props={searchParams?:Promise<{reason?:string;feature?:string;addon?:string}>};
+type SearchParams={reason?:string;feature?:string;addon?:string};
+type Props={searchParams?:Promise<SearchParams>};
 
 export default async function PackagePage({searchParams}:Props){
-  const[current,enabledAddons,params]=await Promise.all([getCurrentPlan(),getCurrentAddons(),searchParams??Promise.resolve({})]);
+  const [current,enabledAddons]=await Promise.all([getCurrentPlan(),getCurrentAddons()]);
+  const params:SearchParams=searchParams?await searchParams:{};
   const alap=new Set<FeatureCode>(PLANS.alap.features),pro=new Set<FeatureCode>(PLANS.pro.features);
   const rows=[...new Set<FeatureCode>([...PLANS.alap.features,...PLANS.pro.features])];
   const requested=params.feature as FeatureCode|undefined;
