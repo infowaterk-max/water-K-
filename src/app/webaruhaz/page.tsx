@@ -4,10 +4,11 @@ import { ShopCatalog } from '@/components/catalog/shop-catalog';
 import { NewsletterSignup } from '@/components/marketing/newsletter-signup';
 import { getProducts } from '@/lib/catalog-server';
 import { getCommerceAccess } from '@/lib/commerce/access';
-import { getCurrentWebshopInstance } from '@/lib/instances/access';
+import { requireStorefrontAccess } from '@/lib/storefront/access';
 
 export default async function Shop() {
-  const [products, access, instance] = await Promise.all([getProducts(), getCommerceAccess(), getCurrentWebshopInstance()]);
+  const instance=await requireStorefrontAccess();
+  const [products, access] = await Promise.all([getProducts(), getCommerceAccess()]);
   const brand=instance?.brand.name??'Webáruház';
   const selection=products.slice(0,3);
   return <main className="section shopPage"><div className="shell">

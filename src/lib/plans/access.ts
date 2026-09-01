@@ -2,12 +2,12 @@ import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { getCurrentWebshopInstance } from '@/lib/instances/access';
+import { getPlatformRole } from '@/lib/auth/platform-operator';
 import { hasPlanFeature, isPlanCode, type FeatureCode, type PlanCode } from './catalog';
 import { ADDONS, parseAddonList, type AddonCode } from './addons';
 
 export async function getCurrentPlan(): Promise<PlanCode> {
   const configuredDefault = process.env.WEBSHOP_DEFAULT_PLAN;
-  // Fail closed: an unconfigured webshop must never silently inherit Pro capabilities.
   const fallback: PlanCode = isPlanCode(configuredDefault) ? configuredDefault : 'alap';
   const instance = await getCurrentWebshopInstance();
   if (instance) return instance.subscriptionPlan;
@@ -19,11 +19,17 @@ export async function getCurrentPlan(): Promise<PlanCode> {
   return isPlanCode(data?.subscription_plan) ? data.subscription_plan : fallback;
 }
 
+async function platformHasFullAccess() {
+  try { return (await getPlatformRole()) !== null; } catch { return false; }
+}
+
 export async function hasCurrentPlanFeature(feature: FeatureCode): Promise<boolean> {
+  if (await platformHasFullAccess()) return true;
   return hasPlanFeature(await getCurrentPlan(), feature);
 }
 
 export async function requirePlanFeature(feature: FeatureCode) {
+  if (await platformHasFullAccess()) return 'pro' satisfies PlanCode;
   const plan = await getCurrentPlan();
   if (!hasPlanFeature(plan, feature)) redirect(`/admin/csomag?reason=pro-required&feature=${encodeURIComponent(feature)}`);
   return plan;

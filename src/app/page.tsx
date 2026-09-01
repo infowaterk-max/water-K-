@@ -1,10 +1,11 @@
 import Link from 'next/link';
 import { formatHuf } from '@/lib/catalog';
 import { getProducts } from '@/lib/catalog-server';
-import { getCurrentWebshopInstance } from '@/lib/instances/access';
+import { requireStorefrontAccess } from '@/lib/storefront/access';
 
 export default async function HomePage(){
- const [products,instance]=await Promise.all([getProducts(),getCurrentWebshopInstance()]);
+ const instance=await requireStorefrontAccess();
+ const products=await getProducts();
  const brand=instance?.brand.name??'Shoperation Webshop',c=instance?.storefront??{};
  const featured=products.filter(product=>product.featured).slice(0,3);
  const showcase=featured.length?featured:products.slice(0,3);
