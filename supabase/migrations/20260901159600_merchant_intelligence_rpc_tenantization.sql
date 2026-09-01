@@ -2,7 +2,7 @@
 -- Legacy engines remain locked; these wrappers make object-level mutations fail closed by instance.
 
 create or replace function public.transition_control_alert_v2(p_instance_id uuid,p_alert_id uuid,p_target_status text,p_event_key text,p_actor_id uuid default null,p_snoozed_until timestamptz default null,p_note text default null)
-returns public.control_alerts language plpgsql security definer set search_path=public as $$
+returns public.control_alerts language plpgsql security definer set search_path to '' as $$
 declare r public.control_alerts;
 begin
  if p_instance_id is null then raise exception 'instance_id_required'; end if;
@@ -13,7 +13,7 @@ begin
 end$$;
 
 create or replace function public.transition_control_task_v2(p_instance_id uuid,p_task_id uuid,p_target_status text,p_event_key text,p_actor_id uuid default null,p_outcome text default null)
-returns public.control_tasks language plpgsql security definer set search_path=public as $$
+returns public.control_tasks language plpgsql security definer set search_path to '' as $$
 declare r public.control_tasks;
 begin
  if p_instance_id is null then raise exception 'instance_id_required'; end if;
@@ -24,7 +24,7 @@ begin
 end$$;
 
 create or replace function public.simulate_action_proposal_v2(p_instance_id uuid,p_proposal_id uuid,p_actor_id uuid,p_event_key text)
-returns public.action_proposals language plpgsql security definer set search_path=public as $$
+returns public.action_proposals language plpgsql security definer set search_path to '' as $$
 declare r public.action_proposals;
 begin
  perform 1 from public.action_proposals where id=p_proposal_id and instance_id=p_instance_id for update;
@@ -34,7 +34,7 @@ begin
 end$$;
 
 create or replace function public.decide_action_proposal_v2(p_instance_id uuid,p_proposal_id uuid,p_actor_id uuid,p_decision text,p_note text,p_event_key text)
-returns public.action_proposals language plpgsql security definer set search_path=public as $$
+returns public.action_proposals language plpgsql security definer set search_path to '' as $$
 declare r public.action_proposals;
 begin
  perform 1 from public.action_proposals where id=p_proposal_id and instance_id=p_instance_id for update;
@@ -44,7 +44,7 @@ begin
 end$$;
 
 create or replace function public.execute_action_proposal_v2(p_instance_id uuid,p_proposal_id uuid,p_actor_id uuid,p_execution_key text)
-returns public.action_executions language plpgsql security definer set search_path=public as $$
+returns public.action_executions language plpgsql security definer set search_path to '' as $$
 declare r public.action_executions;
 begin
  perform 1 from public.action_proposals where id=p_proposal_id and instance_id=p_instance_id for update;
@@ -55,7 +55,7 @@ begin
 end$$;
 
 create or replace function public.activate_automation_runbook_v2(p_store_instance_id uuid,p_runbook_instance_id uuid,p_actor_id uuid,p_event_key text)
-returns public.automation_runbook_instances language plpgsql security definer set search_path=public as $$
+returns public.automation_runbook_instances language plpgsql security definer set search_path to '' as $$
 declare r public.automation_runbook_instances;
 begin
  perform 1 from public.automation_runbook_instances where id=p_runbook_instance_id and instance_id=p_store_instance_id for update;
@@ -65,7 +65,7 @@ begin
 end$$;
 
 create or replace function public.transition_automation_instance_v2(p_store_instance_id uuid,p_runbook_instance_id uuid,p_actor_id uuid,p_target text,p_event_key text,p_reason text default null)
-returns public.automation_runbook_instances language plpgsql security definer set search_path=public as $$
+returns public.automation_runbook_instances language plpgsql security definer set search_path to '' as $$
 declare r public.automation_runbook_instances;
 begin
  perform 1 from public.automation_runbook_instances where id=p_runbook_instance_id and instance_id=p_store_instance_id for update;
@@ -75,7 +75,7 @@ begin
 end$$;
 
 create or replace function public.execute_automation_step_v2(p_store_instance_id uuid,p_runbook_instance_id uuid,p_actor_id uuid,p_execution_key text)
-returns public.automation_step_runs language plpgsql security definer set search_path=public as $$
+returns public.automation_step_runs language plpgsql security definer set search_path to '' as $$
 declare r public.automation_step_runs;
 begin
  perform 1 from public.automation_runbook_instances where id=p_runbook_instance_id and instance_id=p_store_instance_id for update;
