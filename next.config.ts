@@ -7,7 +7,9 @@ const securityHeaders=[
   {key:'Permissions-Policy',value:'camera=(), microphone=(), geolocation=(), payment=(self)'},
   {key:'Cross-Origin-Opener-Policy',value:'same-origin'},
   {key:'Strict-Transport-Security',value:'max-age=31536000; includeSubDomains'},
-  {key:'Content-Security-Policy',value:"default-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'self' https:; img-src 'self' data: blob: https:; connect-src 'self' https:; upgrade-insecure-requests"},
+  // Next.js App Router streaming uses framework-generated inline bootstrap scripts/styles.
+  // Without these explicit directives the browser blocks hydration and can render a blank page.
+  {key:'Content-Security-Policy',value:"default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'self' https:; img-src 'self' data: blob: https:; connect-src 'self' https:; upgrade-insecure-requests"},
 ];
 
 const nextConfig: NextConfig = {

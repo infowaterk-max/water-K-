@@ -20,6 +20,11 @@ describe('final Shoperation V1 release gates',()=>{
     expect(nextConfig).toMatch(/source:'\/:path\*'/);
   });
 
+  test('CSP remains compatible with Next.js App Router hydration',()=>{
+    expect(nextConfig).toContain("script-src 'self' 'unsafe-inline'");
+    expect(nextConfig).toContain("style-src 'self' 'unsafe-inline'");
+  });
+
   test('cross-origin admin mutations are blocked while Supabase session refresh remains active',()=>{
     expect(middleware).toMatch(/startsWith\('\/api\/admin\/'\)/);
     expect(middleware).toMatch(/MUTATING\.has\(request\.method\)/);
