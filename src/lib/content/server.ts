@@ -1,7 +1,7 @@
 import { createAdminClient } from '@/lib/supabase/admin';
 import { createClient } from '@/lib/supabase/server';
 
-export type ContentKind='blog'|'landing';
+export type ContentKind='blog'|'landing'|'page';
 export type ContentStatus='draft'|'published';
 export type ContentPage={id:string;kind:ContentKind;slug:string;title:string;excerpt:string|null;body:string;heroTitle:string|null;heroSubtitle:string|null;ctaLabel:string|null;ctaHref:string|null;seoTitle:string|null;seoDescription:string|null;status:ContentStatus;publishedAt:string|null;createdAt:string;updatedAt:string};
 type Row={id:string;kind:ContentKind;slug:string;title:string;excerpt:string|null;body:string;hero_title:string|null;hero_subtitle:string|null;cta_label:string|null;cta_href:string|null;seo_title:string|null;seo_description:string|null;status:ContentStatus;published_at:string|null;created_at:string;updated_at:string};
@@ -10,3 +10,4 @@ const fields='id,kind,slug,title,excerpt,body,hero_title,hero_subtitle,cta_label
 export async function getAdminContent(){const admin=createAdminClient();const{data,error}=await admin.from('content_pages').select(fields).order('updated_at',{ascending:false});if(error)return[];return((data??[])as Row[]).map(map)}
 export async function getPublicContent(kind:ContentKind){const supabase=await createClient();const{data,error}=await supabase.from('content_pages').select(fields).eq('kind',kind).eq('status','published').or(`published_at.is.null,published_at.lte.${new Date().toISOString()}`).order('published_at',{ascending:false});if(error)return[];return((data??[])as Row[]).map(map)}
 export async function getPublicContentBySlug(kind:ContentKind,slug:string){const supabase=await createClient();const{data,error}=await supabase.from('content_pages').select(fields).eq('kind',kind).eq('slug',slug).eq('status','published').maybeSingle();if(error||!data)return null;const page=map(data as Row);if(page.publishedAt&&new Date(page.publishedAt).getTime()>Date.now())return null;return page}
+export async function getPublicPageBySlug(slug:string){return await getPublicContentBySlug('page',slug)??await getPublicContentBySlug('landing',slug)}

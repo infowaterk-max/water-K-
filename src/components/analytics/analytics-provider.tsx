@@ -1,27 +1,7 @@
 'use client';
-
-import Script from 'next/script';
-import { createContext, useContext, useEffect, useMemo, useState } from 'react';
-
-type Consent='unknown'|'accepted'|'rejected';
-type AnalyticsContextValue={consent:Consent;accept:()=>void;reject:()=>void;track:(event:string,params?:Record<string,string|number|boolean>)=>void};
-const AnalyticsContext=createContext<AnalyticsContextValue|null>(null);
-const STORAGE_KEY='shoperation-analytics-consent';
-
-export function AnalyticsProvider({children}:{children:React.ReactNode}){
-  const [consent,setConsent]=useState<Consent>('unknown');
-  const measurementId=process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
-  useEffect(()=>{const stored=localStorage.getItem(STORAGE_KEY);if(stored==='accepted'||stored==='rejected')setConsent(stored)},[]);
-  const api=useMemo<AnalyticsContextValue>(()=>({
-    consent,
-    accept(){localStorage.setItem(STORAGE_KEY,'accepted');setConsent('accepted')},
-    reject(){localStorage.setItem(STORAGE_KEY,'rejected');setConsent('rejected')},
-    track(event,params={}){if(consent!=='accepted')return;const w=window as typeof window & {gtag?:(...args:unknown[])=>void};w.gtag?.('event',event,params)},
-  }),[consent]);
-  return <AnalyticsContext.Provider value={api}>
-    {measurementId&&consent==='accepted'&&<><Script src={`https://www.googletagmanager.com/gtag/js?id=${measurementId}`} strategy="afterInteractive"/><Script id="shoperation-ga" strategy="afterInteractive">{`window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}window.gtag=gtag;gtag('js',new Date());gtag('config','${measurementId}',{anonymize_ip:true});`}</Script></>}
-    {children}
-  </AnalyticsContext.Provider>;
-}
-
+import Script from 'next/script';import{createContext,useContext,useEffect,useMemo,useState}from'react';
+type Consent='unknown'|'accepted'|'rejected';type AnalyticsContextValue={consent:Consent;accept:()=>void;reject:()=>void;track:(event:string,params?:Record<string,string|number|boolean>)=>void};const AnalyticsContext=createContext<AnalyticsContextValue|null>(null);const STORAGE_KEY='shoperation-analytics-consent',ATTRIBUTION_KEY='shoperation-campaign-attribution';
+function captureAttribution(){const q=new URLSearchParams(window.location.search),campaign=q.get('utm_campaign');if(!campaign)return;const clean=(v:string|null,max:number)=>v?.trim().slice(0,max)||'';localStorage.setItem(ATTRIBUTION_KEY,JSON.stringify({source:clean(q.get('utm_source'),100),medium:clean(q.get('utm_medium'),100),campaign:clean(campaign,160),content:clean(q.get('utm_content'),160),term:clean(q.get('utm_term'),160),capturedAt:new Date().toISOString()}))}
+async function reportOrderAttribution(){if(!window.location.pathname.startsWith('/rendeles-sikeres'))return;const token=new URLSearchParams(window.location.search).get('token'),raw=localStorage.getItem(ATTRIBUTION_KEY);if(!token||!raw)return;let attribution:unknown;try{attribution=JSON.parse(raw)}catch{return}try{const r=await fetch('/api/orders/attribution',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({token,attribution}),keepalive:true});if(r.ok)localStorage.removeItem(ATTRIBUTION_KEY)}catch{}}
+export function AnalyticsProvider({children}:{children:React.ReactNode}){const[consent,setConsent]=useState<Consent>('unknown');const measurementId=process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;useEffect(()=>{const stored=localStorage.getItem(STORAGE_KEY);if(stored==='accepted'||stored==='rejected'){setConsent(stored);if(stored==='accepted'){captureAttribution();void reportOrderAttribution()}}},[]);const api=useMemo<AnalyticsContextValue>(()=>({consent,accept(){localStorage.setItem(STORAGE_KEY,'accepted');setConsent('accepted');captureAttribution();void reportOrderAttribution()},reject(){localStorage.setItem(STORAGE_KEY,'rejected');localStorage.removeItem(ATTRIBUTION_KEY);setConsent('rejected')},track(event,params={}){if(consent!=='accepted')return;const w=window as typeof window&{gtag?:(...args:unknown[])=>void};w.gtag?.('event',event,params)}}),[consent]);return <AnalyticsContext.Provider value={api}>{measurementId&&consent==='accepted'&&<><Script src={`https://www.googletagmanager.com/gtag/js?id=${measurementId}`} strategy="afterInteractive"/><Script id="shoperation-ga" strategy="afterInteractive">{`window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}window.gtag=gtag;gtag('js',new Date());gtag('config','${measurementId}',{anonymize_ip:true});`}</Script></>}{children}</AnalyticsContext.Provider>}
 export function useAnalytics(){const value=useContext(AnalyticsContext);if(!value)throw new Error('useAnalytics must be used within AnalyticsProvider');return value}
