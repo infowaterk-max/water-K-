@@ -1,38 +1,25 @@
-# Water-K Webshop
+# Shoperation
 
-A Water-K teljesen saját fejlesztésű webáruháza. A projekt nem használ WordPresst, WooCommerce-t vagy Flatsome sablont.
+**Shoperation = Shop + Operation.** A projekt célja egy újraértékesíthető webshop- és kereskedelmi működtetési platform létrehozása.
 
-## Technológia
+## Csomagstratégia
 
-- Next.js 15 App Router
-- React 19 + TypeScript
-- Supabase PostgreSQL + Auth + RLS
-- Vercel hosting és staging
-- közvetlen szolgáltatói integrációs réteg K&H, Foxpost, GLS és MPL számára
+A kereskedelmi termék két fő csomagra épül:
 
-## Fő modulok
+- **Shoperation Alap**: teljes értékű, versenyképes webshop. A normál értékesítéshez szükséges termék-, készlet-, rendelés-, visszáru-, ügyfél-, kupon-, marketing-, statisztikai, fizetési, szállítási és ügyfélszolgálati képességeket nem zárjuk mesterségesen Pro mögé.
+- **Shoperation Pro**: az Alap fölé épülő üzleti rendszer. Ide tartozik a fejlett CRM, üzleti analitika, automatizálás, beszerzési és cash-flow döntéstámogatás, vezetői analitika, API/haladó integrációk és a beépített **Digitális iroda**.
 
-- publikus Water-K storefront
-- termékkatalógus és termékoldalak
-- saját kosár és pénztár
-- B2C / céges / viszonteladói rendelési modell
-- saját felhasználói fiók
-- saját adminfelület
-- fizetési és szállítási adapterek
-- Supabase adatmodell és jogosultságkezelés
+A Digitális iroda a webshop adminba épített e-mailes és belső kommunikációs munkatér. A normál tranzakciós webshop e-mailek ettől függetlenül az Alap részei maradnak.
 
-## Fejlesztési folyamat
+A külön használatalapú vagy ügyfélspecifikus képességeket moduláris add-onként kezeljük, nem új csomagszintként.
 
-A fejlesztés nagy, összefüggő csomagokban történik. A változtatásokat külön branch-en készítjük és ellenőrizzük; a `main` branch csak ellenőrzött csomagot kap, így a Vercel production deployment nem indul el minden apró módosításnál.
+## Márka- és instance-szabály
 
-## Környezeti változók
+- **Shoperation**: platform, operatori rendszer és értékesített termék.
+- **Ügyfél-webshop**: külön konfigurált instance saját névvel, arculattal és kapcsolati adatokkal.
+- Egy ügyfél márkája kizárólag a saját webshop-instance felületein jelenhet meg; nem kerülhet platformszintű felületre vagy alapértelmezésbe.
+- Új instance nem örökölhet más ügyféltől nevet, logót, e-mail-identitást vagy marketing szöveget.
 
-A szükséges változók mintája a `.env.example` fájlban található. Valódi API-kulcs, banki secret vagy Supabase secret soha nem kerülhet GitHubba.
+## Fejlesztési elv
 
-## Biztonsági alapelvek
-
-- a kliensoldal soha nem kap Supabase secret/service-role kulcsot;
-- a rendelési összegeket és készletet szerveroldalon újraszámoljuk;
-- banki callback csak hitelesített szolgáltatói válasz alapján jelölhet rendelést fizetettnek;
-- admin jogosultság Supabase `app_metadata` alapján történik;
-- publikus adatbázistáblákon RLS van engedélyezve.
+A production kiadás előtt minden nagy fejlesztési blokk feature ágon és staging környezetben készül, majd build/CI/regressziós ellenőrzés után kerülhet release állapotba.

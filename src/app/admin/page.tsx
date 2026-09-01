@@ -3,35 +3,14 @@ import { formatHuf } from '@/lib/catalog';
 import { getProducts } from '@/lib/catalog-server';
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
-
-type Alert = {
-  severity: 'critical' | 'urgent' | 'watch';
-  title: string;
-  detail: string;
-  count: number;
-  href: string;
-};
-
-type StockDecision = {
-  id: string;
-  name: string;
-  days: number | null;
-  orderQty: number;
-  purchaseCost: number | null;
-  marginRisk: number | null;
-  slowCapital: number | null;
-};
-
-const severityLabel = {
-  critical: 'Kritikus',
-  urgent: 'Sürgős',
-  watch: 'Figyelendő',
-};
+import { getCurrentPlan } from '@/lib/plans/access';
 
 const paidStatuses = ['paid', 'processing', 'shipped', 'completed'];
 const VAT = 1.27;
 
 export default async function AdminPage() {
+  const plan = await getCurrentPlan();
+  const isPro = plan === 'pro';
   const products = await getProducts();
   const now = Date.now();
   const day = 86_400_000;
@@ -60,349 +39,90 @@ export default async function AdminPage() {
       .order('created_at', { ascending: false })
       .limit(1000);
 
-    if (error) {
-      orderLoadError = true;
-    } else if (data) {
+    if (error) orderLoadError = true;
+    else if (data) {
       orders = data.length;
       pending = data.filter((o) => o.status === 'pending').length;
       const paid = data.filter((o) => paidStatuses.includes(o.status));
       paidOrders = paid.length;
       paidRevenue = paid.reduce((n, o) => n + Number(o.total_gross_huf || 0), 0);
       todayOrders = data.filter((o) => +new Date(o.created_at) >= +today).length;
-      todayRevenue = paid
-        .filter((o) => +new Date(o.created_at) >= +today)
-        .reduce((n, o) => n + Number(o.total_gross_huf || 0), 0);
+      todayRevenue = paid.filter((o) => +new Date(o.created_at) >= +today).reduce((n, o) => n + Number(o.total_gross_huf || 0), 0);
       weekOrders = data.filter((o) => +new Date(o.created_at) >= now - 7 * day).length;
-      weekRevenue = paid
-        .filter((o) => +new Date(o.created_at) >= now - 7 * day)
-        .reduce((n, o) => n + Number(o.total_gross_huf || 0), 0);
-      openOrderValue = data
-        .filter((o) => ['pending', 'paid', 'processing', 'shipped'].includes(o.status))
-        .reduce((n, o) => n + Number(o.total_gross_huf || 0), 0);
-      stalePending = data.filter(
-        (o) => o.status === 'pending' && +new Date(o.created_at) < now - day,
-      ).length;
-      staleProcessing = data.filter(
-        (o) => o.status === 'processing' && +new Date(o.created_at) < now - 2 * day,
-      ).length;
-      staleShipped = data.filter(
-        (o) => o.status === 'shipped' && +new Date(o.created_at) < now - 3 * day,
-      ).length;
+      weekRevenue = paid.filter((o) => +new Date(o.created_at) >= now - 7 * day).reduce((n, o) => n + Number(o.total_gross_huf || 0), 0);
+      openOrderValue = data.filter((o) => ['pending', 'paid', 'processing', 'shipped'].includes(o.status)).reduce((n, o) => n + Number(o.total_gross_huf || 0), 0);
+      stalePending = data.filter((o) => o.status === 'pending' && +new Date(o.created_at) < now - day).length;
+      staleProcessing = data.filter((o) => o.status === 'processing' && +new Date(o.created_at) < now - 2 * day).length;
+      staleShipped = data.filter((o) => o.status === 'shipped' && +new Date(o.created_at) < now - 3 * day).length;
     }
   } catch {
     orderLoadError = true;
   }
 
-  let integrationFailed = 0;
-  let integrationBlocked = 0;
-  let integrationStuck = 0;
-  let integrationPending = 0;
-  let commApproval = 0;
-  let commFailed = 0;
-  let commBlocked = 0;
-  let campaignReview = 0;
-  let campaignApproved = 0;
-  let campaignRevenue = 0;
-  let campaignBuyers = 0;
-  let campaignSent = 0;
-  let marketingLoadError = false;
+  const out = products.filter((p) => p.stock <= 0).length;
+  const low = products.filter((p) => p.stock > 0 && p.stock <= 5).length;
+  const average = paidOrders ? Math.round(paidRevenue / paidOrders) : 0;
+
   let net30 = 0;
   let cogs30 = 0;
   let grossProfit30 = 0;
   let grossMargin30: number | null = null;
-  let exactCostQty = 0;
-  let backfillCostQty = 0;
-  let missingCostQty = 0;
-  let inventoryCost = 0;
-  let gmroi30: number | null = null;
-  let snapshotDays = 0;
-  let marginAtRisk = 0;
-  let purchaseCapital = 0;
-  let slowCapital = 0;
-  let stockAlerts: { id: string; name: string; stock: number; days: number }[] = [];
-  let stockDecisions: StockDecision[] = [];
+  let campaignRevenue = 0;
+  let campaignBuyers = 0;
+  let campaignSent = 0;
+  let commApproval = 0;
+  let commProblems = 0;
+  let advancedLoadError = false;
 
-  try {
-    const a = createAdminClient();
-    const since = new Date(now - 30 * day).toISOString();
-    const sinceDate = since.slice(0, 10);
+  // Pro-only business intelligence. Alap never queries the advanced campaign,
+  // communication or cost-intelligence tables just to render its dashboard.
+  if (isPro) {
+    try {
+      const a = createAdminClient();
+      const since = new Date(now - 30 * day).toISOString();
+      const [{ data: ro }, { data: oi }, { data: cj }, { data: cv }, { data: cr }] = await Promise.all([
+        a.from('orders').select('id,subtotal_gross_huf,discount_gross_huf').gte('created_at', since).in('status', paidStatuses),
+        a.from('order_items').select('order_id,line_total_gross_huf,unit_cost_net_huf,quantity'),
+        a.from('communication_jobs').select('id,status,requires_approval,approved_at').limit(5000),
+        a.from('marketing_campaign_conversions').select('recipient_id,total_gross_huf').limit(50000),
+        a.from('marketing_campaign_recipients').select('communication_job_id').not('communication_job_id', 'is', null).limit(50000),
+      ]);
 
-    const [
-      { data: ij },
-      { data: ro },
-      { data: oi },
-      { data: cj },
-      { data: mc },
-      { data: cv },
-      { data: cr },
-      { data: sn },
-      { data: vr },
-    ] = await Promise.all([
-      a.from('integration_jobs').select('status,updated_at').limit(1000),
-      a
-        .from('orders')
-        .select('id,subtotal_gross_huf,discount_gross_huf,created_at')
-        .gte('created_at', since)
-        .in('status', paidStatuses),
-      a
-        .from('order_items')
-        .select('order_id,variant_id,quantity,line_total_gross_huf,unit_cost_net_huf,cost_source'),
-      a.from('communication_jobs').select('id,status,requires_approval,approved_at').limit(5000),
-      a.from('marketing_campaigns').select('status').limit(1000),
-      a.from('marketing_campaign_conversions').select('recipient_id,total_gross_huf').limit(50000),
-      a
-        .from('marketing_campaign_recipients')
-        .select('communication_job_id')
-        .not('communication_job_id', 'is', null)
-        .limit(50000),
-      a
-        .from('inventory_snapshots')
-        .select('snapshot_date,inventory_cost_net_huf')
-        .gte('snapshot_date', sinceDate)
-        .limit(50000),
-      a.from('product_variants').select('id,unit_cost_net_huf').limit(5000),
-    ]);
-
-    integrationFailed = (ij ?? []).filter((j) => j.status === 'failed').length;
-    integrationBlocked = (ij ?? []).filter((j) => j.status === 'blocked').length;
-    integrationPending = (ij ?? []).filter((j) => j.status === 'pending').length;
-    integrationStuck = (ij ?? []).filter(
-      (j) => j.status === 'processing' && +new Date(j.updated_at) < now - 30 * 60_000,
-    ).length;
-
-    commApproval = (cj ?? []).filter(
-      (j) => j.status === 'pending' && j.requires_approval && !j.approved_at,
-    ).length;
-    commFailed = (cj ?? []).filter((j) => j.status === 'failed').length;
-    commBlocked = (cj ?? []).filter((j) => j.status === 'blocked').length;
-
-    campaignReview = (mc ?? []).filter((c) => c.status === 'review').length;
-    campaignApproved = (mc ?? []).filter((c) => c.status === 'approved').length;
-    campaignRevenue = (cv ?? []).reduce((n, c) => n + Number(c.total_gross_huf || 0), 0);
-    campaignBuyers = new Set((cv ?? []).map((c) => c.recipient_id)).size;
-
-    const campaignIds = new Set(
-      (cr ?? [])
-        .map((r) => r.communication_job_id)
-        .filter((x): x is string => Boolean(x)),
-    );
-    campaignSent = (cj ?? []).filter(
-      (j) => j.status === 'sent' && campaignIds.has(j.id),
-    ).length;
-
-    const orderMap = new Map((ro ?? []).map((o) => [o.id, o]));
-    const ids = new Set(orderMap.keys());
-    const sold = new Map<string, number>();
-    const costMap = new Map(
-      (vr ?? []).map((v) => [
-        v.id,
-        v.unit_cost_net_huf == null ? null : Number(v.unit_cost_net_huf),
-      ]),
-    );
-
-    for (const i of oi ?? []) {
-      if (!ids.has(i.order_id)) continue;
-      if (i.variant_id) sold.set(i.variant_id, (sold.get(i.variant_id) ?? 0) + i.quantity);
-
-      const o = orderMap.get(i.order_id)!;
-      const subtotal = Number(o.subtotal_gross_huf || 0);
-      const share = subtotal > 0 ? Number(i.line_total_gross_huf || 0) / subtotal : 0;
-      net30 += Math.max(
-        0,
-        (Number(i.line_total_gross_huf || 0) - Number(o.discount_gross_huf || 0) * share) / VAT,
-      );
-
-      if (i.unit_cost_net_huf == null) {
-        missingCostQty += i.quantity;
-      } else {
-        cogs30 += Number(i.unit_cost_net_huf) * i.quantity;
-        if (i.cost_source === 'order_created') exactCostQty += i.quantity;
-        else backfillCostQty += i.quantity;
+      const orderMap = new Map((ro ?? []).map((o) => [o.id, o]));
+      for (const i of oi ?? []) {
+        const order = orderMap.get(i.order_id);
+        if (!order) continue;
+        const subtotal = Number(order.subtotal_gross_huf || 0);
+        const share = subtotal > 0 ? Number(i.line_total_gross_huf || 0) / subtotal : 0;
+        net30 += Math.max(0, (Number(i.line_total_gross_huf || 0) - Number(order.discount_gross_huf || 0) * share) / VAT);
+        if (i.unit_cost_net_huf != null) cogs30 += Number(i.unit_cost_net_huf) * Number(i.quantity || 0);
       }
+      grossProfit30 = net30 - cogs30;
+      grossMargin30 = net30 > 0 ? (grossProfit30 / net30) * 100 : null;
+
+      campaignRevenue = (cv ?? []).reduce((n, c) => n + Number(c.total_gross_huf || 0), 0);
+      campaignBuyers = new Set((cv ?? []).map((c) => c.recipient_id)).size;
+      const campaignJobIds = new Set((cr ?? []).map((r) => r.communication_job_id).filter((id): id is string => Boolean(id)));
+      campaignSent = (cj ?? []).filter((j) => j.status === 'sent' && campaignJobIds.has(j.id)).length;
+      commApproval = (cj ?? []).filter((j) => j.status === 'pending' && j.requires_approval && !j.approved_at).length;
+      commProblems = (cj ?? []).filter((j) => j.status === 'failed' || j.status === 'blocked').length;
+    } catch {
+      advancedLoadError = true;
     }
-
-    grossProfit30 = net30 - cogs30;
-    grossMargin30 = net30 > 0 && missingCostQty === 0 ? (grossProfit30 / net30) * 100 : null;
-
-    stockDecisions = products.map((p) => {
-      const q = sold.get(p.id) ?? 0;
-      const daily = q / 30;
-      const days = daily > 0 ? Math.floor(p.stock / daily) : null;
-      const target = Math.ceil(daily * 30);
-      const orderQty = Math.max(0, target - p.stock);
-      const cost = costMap.get(p.id) ?? null;
-      const margin = cost === null ? null : Math.max(0, p.netPrice - cost);
-      const shortageDays = days === null ? 0 : Math.max(0, 30 - days);
-      const lostUnits = days === null ? 0 : Math.ceil(daily * shortageDays);
-      const marginRisk = margin === null ? null : lostUnits * margin;
-      const purchaseCost = cost === null ? null : orderQty * cost;
-      const slow = cost === null ? null : q === 0 || (days !== null && days > 60) ? p.stock * cost : 0;
-
-      return {
-        id: p.id,
-        name: p.name,
-        days,
-        orderQty,
-        purchaseCost,
-        marginRisk,
-        slowCapital: slow,
-      };
-    });
-
-    stockAlerts = stockDecisions
-      .filter((x) => x.days !== null && x.days <= 30)
-      .map((x) => ({
-        id: x.id,
-        name: x.name,
-        stock: products.find((p) => p.id === x.id)?.stock ?? 0,
-        days: x.days!,
-      }))
-      .sort((a, b) => a.days - b.days);
-
-    marginAtRisk = stockDecisions.reduce((s, x) => s + (x.marginRisk ?? 0), 0);
-    purchaseCapital = stockDecisions.reduce((s, x) => s + (x.purchaseCost ?? 0), 0);
-    slowCapital = stockDecisions.reduce((s, x) => s + (x.slowCapital ?? 0), 0);
-
-    const dailySnapshots = new Map<string, number>();
-    for (const s of sn ?? []) {
-      if (s.inventory_cost_net_huf == null) continue;
-      dailySnapshots.set(
-        s.snapshot_date,
-        (dailySnapshots.get(s.snapshot_date) ?? 0) + Number(s.inventory_cost_net_huf),
-      );
-    }
-
-    snapshotDays = dailySnapshots.size;
-    inventoryCost = snapshotDays
-      ? [...dailySnapshots.values()].reduce((n, v) => n + v, 0) / snapshotDays
-      : 0;
-    gmroi30 = inventoryCost > 0 && missingCostQty === 0 ? grossProfit30 / inventoryCost : null;
-  } catch {
-    marketingLoadError = true;
   }
-
-  const out = products.filter((p) => p.stock <= 0).length;
-  const alerts: Alert[] = [];
-  const add = (
-    count: number,
-    severity: Alert['severity'],
-    title: string,
-    detail: string,
-    href: string,
-  ) => {
-    if (count > 0) alerts.push({ count, severity, title, detail, href });
-  };
-
-  add(out, 'critical', 'Kifogyott termék', 'Azonnali készletbeavatkozás szükséges.', '/admin/termekek');
-  add(
-    integrationBlocked + integrationStuck,
-    'critical',
-    'Blokkolt integráció',
-    'Blokkolt vagy 30+ perce beragadt háttérfeladat.',
-    '/admin/integraciok',
-  );
-  add(
-    commBlocked,
-    'critical',
-    'Blokkolt kommunikáció',
-    'Küldési biztonsági blokkolás vizsgálata szükséges.',
-    '/admin/kommunikacio',
-  );
-  add(
-    missingCostQty,
-    'urgent',
-    'Hiányzó önköltség',
-    'A 30 napos fedezeti KPI nem teljes, mert eladott tételeknél hiányzik az önköltség.',
-    '/admin/elemzes',
-  );
-  add(
-    staleProcessing + staleShipped,
-    'urgent',
-    'Elakadt rendelés',
-    '48+ órás feldolgozás vagy 72+ órás szállítási állapot.',
-    '/admin/rendelesek',
-  );
-  add(
-    integrationFailed,
-    'urgent',
-    'Hibás integráció',
-    'Sikertelen integrációs feladat vár beavatkozásra.',
-    '/admin/integraciok',
-  );
-  add(
-    commFailed,
-    'urgent',
-    'Hibás kommunikáció',
-    'Újrapróbálás vagy kivizsgálás szükséges.',
-    '/admin/kommunikacio',
-  );
-  add(
-    stockAlerts.filter((p) => p.days <= 14).length,
-    'urgent',
-    'Kritikus készletfutás',
-    'Becsült készlet 14 napon belül elfogyhat.',
-    '/admin/termekek',
-  );
-  add(
-    stalePending,
-    'watch',
-    'Régi függő fizetés',
-    '24+ órája fizetésre váró rendelés.',
-    '/admin/rendelesek?status=pending',
-  );
-  add(
-    commApproval,
-    'watch',
-    'Kommunikáció jóváhagyás',
-    'Üzenetek várnak kézi ellenőrzésre.',
-    '/admin/kommunikacio',
-  );
-  add(
-    campaignReview + campaignApproved,
-    'watch',
-    'Kampányművelet',
-    'Ellenőrzésre vagy sorba állításra váró kampány.',
-    '/admin/kampanyok',
-  );
-  add(
-    stockAlerts.filter((p) => p.days > 14).length,
-    'watch',
-    'Készlet-előrejelzés',
-    '15–30 napon belüli készletkockázat.',
-    '/admin/termekek',
-  );
-
-  const rank: Record<Alert['severity'], number> = { critical: 0, urgent: 1, watch: 2 };
-  alerts.sort((a, b) => rank[a.severity] - rank[b.severity] || b.count - a.count);
-
-  const critical = alerts
-    .filter((a) => a.severity === 'critical')
-    .reduce((n, a) => n + a.count, 0);
-  const urgent = alerts
-    .filter((a) => a.severity === 'urgent')
-    .reduce((n, a) => n + a.count, 0);
-  const watch = alerts
-    .filter((a) => a.severity === 'watch')
-    .reduce((n, a) => n + a.count, 0);
-  const average = paidOrders ? Math.round(paidRevenue / paidOrders) : 0;
-  const topStock = [...stockDecisions]
-    .filter((x) => x.orderQty > 0)
-    .sort((a, b) => (b.marginRisk ?? -1) - (a.marginRisk ?? -1))
-    .slice(0, 4);
 
   return (
     <section className="adminMain">
-      <span className="eyebrow">Water-K saját admin</span>
+      <span className="eyebrow">{isPro ? 'Pro üzleti központ' : 'Alap webshop központ'}</span>
       <h1 className="sectionTitle">Kereskedelmi irányítópult</h1>
       <p className="lead">
-        Forgalom, fedezet, készlettőke és működési kockázatok egy vezetői döntési nézetben.
+        {isPro
+          ? 'Napi webshopműködés és fejlett üzleti döntéstámogatás egy nézetben.'
+          : 'A napi értékesítéshez szükséges rendelések, forgalom, készlet és működési feladatok egy helyen.'}
       </p>
 
-      {(orderLoadError || marketingLoadError) && (
-        <div className="errorNotice">
-          <strong>Egyes élő adatok most nem érhetők el.</strong> A hiányzó mutatókat ne tekintsd nullának.
-        </div>
-      )}
+      {orderLoadError && <div className="errorNotice"><strong>A rendelési adatok egy része most nem érhető el.</strong></div>}
+      {isPro && advancedLoadError && <div className="errorNotice"><strong>A Pro üzleti mutatók egy része most nem érhető el.</strong></div>}
 
       <div className="cards adminMetricCards">
         <div className="card"><span className="badge">Ma</span><h3>{todayOrders} rendelés</h3><div className="price">{formatHuf(todayRevenue)}</div></div>
@@ -413,112 +133,72 @@ export default async function AdminPage() {
 
       <section className="card">
         <div className="adminToolbar">
-          <div><span className="eyebrow">30 napos pénzügyi kép</span><h2>Fedezet és készlettőke</h2></div>
-          <div><Link className="btn" href="/admin/elemzes">Fedezetelemzés</Link> <Link className="btn" href="/admin/keszlet-elemzes">Készletelemzés</Link></div>
+          <div><span className="eyebrow">Napi működés</span><h2>Teendők és készlet</h2></div>
+          <div><Link className="btn" href="/admin/rendelesek">Rendelések</Link> <Link className="btn btnPrimary" href="/admin/termekek">Készletkezelés</Link></div>
         </div>
         <div className="cards adminMetricCards">
-          <div className="card"><span className="badge">Nettó árbevétel</span><div className="price">{formatHuf(Math.round(net30))}</div></div>
-          <div className="card"><span className="badge">Bruttó fedezet</span><div className="price">{missingCostQty ? '—' : formatHuf(Math.round(grossProfit30))}</div><p className="muted">{grossMargin30 === null ? 'hiányos költségadat' : `${grossMargin30.toFixed(1)}% fedezeti ráta`}</p></div>
-          <div className="card"><span className="badge">Átlagos készlettőke</span><div className="price">{snapshotDays ? formatHuf(Math.round(inventoryCost)) : '—'}</div><p className="muted">{snapshotDays} snapshot nap</p></div>
-          <div className="card"><span className="badge">30 napos GMROI</span><div className="price">{gmroi30 === null ? '—' : `${gmroi30.toFixed(2)}×`}</div><p className="muted">fedezet / átlagos nettó készlet</p></div>
+          <div className="card"><span className="badge">Kifogyott</span><div className="price">{out}</div><p className="muted">termék azonnali beavatkozással</p></div>
+          <div className="card"><span className="badge">Alacsony készlet</span><div className="price">{low}</div><p className="muted">1–5 darabos készlet</p></div>
+          <div className="card"><span className="badge">Régi függő</span><div className="price">{stalePending}</div><p className="muted">24+ órája fizetésre vár</p></div>
+          <div className="card"><span className="badge">Elakadt rendelés</span><div className="price">{staleProcessing + staleShipped}</div><p className="muted">feldolgozás vagy szállítás ellenőrzendő</p></div>
         </div>
-        <p className="muted">Költségadat-minőség: {exactCostQty} pontos, rendeléskor befagyasztott darab · {backfillCostQty} történetileg visszatöltött darab · {missingCostQty} hiányos darab.</p>
       </section>
 
       <section className="card">
         <div className="adminToolbar">
-          <div><span className="eyebrow">Készlet pénzügyi prioritás</span><h2>Hol van most a legnagyobb üzleti hatás?</h2></div>
-          <Link className="btn btnPrimary" href="/admin/termekek">Részletes készletdöntések</Link>
-        </div>
-        <div className="cards adminMetricCards">
-          <div className="card"><span className="badge">Veszélyeztetett fedezet</span><div className="price">{formatHuf(Math.round(marginAtRisk))}</div><p className="muted">30 napos készlethiány-becslés</p></div>
-          <div className="card"><span className="badge">Utánrendelési tőke</span><div className="price">{formatHuf(Math.round(purchaseCapital))}</div><p className="muted">nettó önköltségen</p></div>
-          <div className="card"><span className="badge">Lassan forgó tőke</span><div className="price">{formatHuf(Math.round(slowCapital))}</div><p className="muted">0 fogyás vagy 60+ napos fedezet</p></div>
-        </div>
-        {topStock.length > 0 && (
-          <div className="integrationList">
-            {topStock.map((x) => (
-              <Link href="/admin/termekek" className="textLink" key={x.id}>
-                <span><strong>{x.name}</strong><br/><span className="muted">~{x.days ?? '—'} nap készlet · +{x.orderQty} db javasolt utánrendelés</span></span>
-                <strong>{x.marginRisk === null ? 'önköltség hiányzik' : `${formatHuf(Math.round(x.marginRisk))} fedezet kockázat`}</strong>
-              </Link>
-            ))}
-          </div>
-        )}
-        <p className="muted">A veszélyeztetett fedezet döntéstámogató becslés, nem garantált jövőbeni veszteség.</p>
-      </section>
-
-      <section className="card">
-        <span className="eyebrow">Prioritási radar</span>
-        <h2>{critical ? `${critical} kritikus tétel` : urgent ? `${urgent} sürgős tétel` : watch ? `${watch} figyelendő tétel` : 'Minden rendben'}</h2>
-        <div className="cards adminMetricCards">
-          <div><strong>{critical}</strong><br/><span className="badge">Kritikus</span></div>
-          <div><strong>{urgent}</strong><br/><span className="badge">Sürgős</span></div>
-          <div><strong>{watch}</strong><br/><span className="badge">Figyelendő</span></div>
-        </div>
-        <div className="integrationList">
-          {alerts.slice(0, 10).map((a, i) => (
-            <Link href={a.href} className="textLink" key={`${a.title}-${i}`}>
-              <span><span className="badge">{severityLabel[a.severity]}</span> <strong>{a.title}</strong><br/><span className="muted">{a.detail}</span></span>
-              <strong>{a.count}</strong>
-            </Link>
-          ))}
-        </div>
-        {alerts.length === 0 && <p className="muted">Nincs olyan működési jelzés, amely jelenleg admin beavatkozást igényel.</p>}
-      </section>
-
-      <section className="card">
-        <div className="adminToolbar">
-          <div><span className="eyebrow">Vezetői marketingkép</span><h2>{formatHuf(campaignRevenue)} attribútált bevétel</h2><p className="muted">{campaignBuyers} konvertáló vásárló · {campaignSent} ténylegesen elküldött kampányüzenet.</p></div>
-          <Link className="btn btnPrimary" href="/admin/kampanyok">Kampányközpont</Link>
+          <div><span className="eyebrow">Gyorsműveletek</span><h2>Webshop üzemeltetés</h2></div>
         </div>
         <div className="cards">
-          <Link className="card textLink" href="/admin/kampanyok"><strong>{campaignReview}</strong><p className="muted">ellenőrzésre váró kampány</p></Link>
-          <Link className="card textLink" href="/admin/kampanyok"><strong>{campaignApproved}</strong><p className="muted">sorba állításra vár</p></Link>
-          <Link className="card textLink" href="/admin/kommunikacio"><strong>{commApproval}</strong><p className="muted">jóváhagyásra váró üzenet</p></Link>
-          <Link className="card textLink" href="/admin/kommunikacio"><strong>{commFailed + commBlocked}</strong><p className="muted">kommunikációs probléma</p></Link>
+          <Link className="card textLink" href="/admin/termekek"><strong>Termékek és készlet</strong><p className="muted">Katalógus, árak és készletszintek kezelése.</p></Link>
+          <Link className="card textLink" href="/admin/rendelesek"><strong>Rendelések</strong><p className="muted">Fizetés, feldolgozás és teljesítés követése.</p></Link>
+          <Link className="card textLink" href="/admin/visszaru"><strong>Visszáru</strong><p className="muted">Elállások és visszaküldések kezelése.</p></Link>
+          <Link className="card textLink" href="/admin/kuponok"><strong>Kuponok és akciók</strong><p className="muted">Alap értékesítési promóciók kezelése.</p></Link>
+          <Link className="card textLink" href="/admin/ugyfelek"><strong>Ügyfelek</strong><p className="muted">Vásárlói adatok és alap ügyfélkezelés.</p></Link>
+          <Link className="card textLink" href="/admin/beallitasok/fizetes-szallitas"><strong>Fizetés és szállítás</strong><p className="muted">A webshop normál kereskedelmi beállításai.</p></Link>
         </div>
       </section>
 
-      {stockAlerts.length > 0 && (
+      {isPro ? (
+        <>
+          <section className="card">
+            <div className="adminToolbar">
+              <div><span className="eyebrow">Pro · 30 napos üzleti kép</span><h2>Fedezet és jövedelmezőség</h2></div>
+              <Link className="btn btnPrimary" href="/admin/elemzes">Részletes elemzés</Link>
+            </div>
+            <div className="cards adminMetricCards">
+              <div className="card"><span className="badge">Nettó árbevétel</span><div className="price">{formatHuf(Math.round(net30))}</div></div>
+              <div className="card"><span className="badge">Bruttó fedezet</span><div className="price">{formatHuf(Math.round(grossProfit30))}</div></div>
+              <div className="card"><span className="badge">Fedezeti ráta</span><div className="price">{grossMargin30 === null ? '—' : `${grossMargin30.toFixed(1)}%`}</div></div>
+            </div>
+          </section>
+
+          <section className="card">
+            <div className="adminToolbar">
+              <div><span className="eyebrow">Pro · marketing és digitális iroda</span><h2>{formatHuf(campaignRevenue)} attribútált kampánybevétel</h2></div>
+              <div><Link className="btn" href="/admin/kampanyok">Haladó kampányok</Link> <Link className="btn btnPrimary" href="/admin/kommunikacio">Digitális iroda</Link></div>
+            </div>
+            <div className="cards adminMetricCards">
+              <div className="card"><span className="badge">Konvertáló vásárló</span><div className="price">{campaignBuyers}</div></div>
+              <div className="card"><span className="badge">Kampányüzenet</span><div className="price">{campaignSent}</div></div>
+              <div className="card"><span className="badge">Jóváhagyásra vár</span><div className="price">{commApproval}</div></div>
+              <div className="card"><span className="badge">Kommunikációs probléma</span><div className="price">{commProblems}</div></div>
+            </div>
+          </section>
+        </>
+      ) : (
         <section className="card">
-          <div className="adminToolbar">
-            <div><span className="eyebrow">Készlet-előrejelzés</span><h2>{stockAlerts.length} kiszerelés 30 napon belül kifuthat</h2></div>
-            <Link className="btn" href="/admin/termekek">Készletkezelés</Link>
-          </div>
-          <div className="cards">
-            {stockAlerts.map((p) => (
-              <article className="card" key={p.id}>
-                <span className="badge">{p.days <= 14 ? 'Sürgős' : 'Figyelendő'}</span>
-                <h3>{p.name}</h3>
-                <div className="price">~{p.days} nap</div>
-                <p className="muted">Készlet: {p.stock} db</p>
-              </article>
-            ))}
-          </div>
+          <span className="eyebrow">Pro lehetőségek</span>
+          <h2>A webshop működik nélkülük is — a Pro a növekedést és az automatizálást gyorsítja.</h2>
+          <p className="muted">Digitális iroda, fejlett CRM, kampány-attribúció, üzleti analitika, automatizálás, beszerzési és cash-flow döntéstámogatás.</p>
+          <Link className="btn btnPrimary" href="/admin/csomag">Pro funkciók megtekintése</Link>
         </section>
       )}
 
-      <div className="splitFeature">
-        <section className="featurePanel">
-          <span className="eyebrow">Működési állapot</span>
-          <h2>{orders} rendelés</h2>
-          <div className="integrationList">
-            <div><span>Összes fizetett forgalom</span><strong>{formatHuf(paidRevenue)}</strong></div>
-            <div><span>Integrációs sor</span><strong>{integrationPending} várakozik</strong></div>
-            <div><span>Kommunikációs problémák</span><strong>{commFailed + commBlocked}</strong></div>
-          </div>
-        </section>
-        <section className="featurePanel darkPanel">
-          <span className="eyebrow">Döntési logika</span>
-          <h2>A fontos kerüljön előre.</h2>
-          <ul className="featureList">
-            <li>Kritikus: azonnali működési vagy kézbesítési kockázat</li>
-            <li>Sürgős: rövid időn belül kezelendő elakadás</li>
-            <li>Figyelendő: jóváhagyás, utánkövetés vagy közelgő kockázat</li>
-          </ul>
-        </section>
-      </div>
+      <section className="card">
+        <span className="eyebrow">Összesített működés</span>
+        <h2>{orders} kezelt rendelés · {formatHuf(paidRevenue)} fizetett forgalom</h2>
+        <p className="muted">Az Alap irányítópult kizárólag a napi webshopüzemeltetéshez szükséges adatokat tölti. A Pro üzleti intelligencia külön jogosultsági rétegben fut.</p>
+      </section>
     </section>
   );
 }

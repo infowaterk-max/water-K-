@@ -6,7 +6,7 @@ export default function GlobalError({ reset }: { error: Error & { digest?: strin
       <body>
         <main style={{ maxWidth: 760, margin: '80px auto', padding: 24, fontFamily: 'system-ui' }}>
           <h1>Átmeneti rendszerhiba</h1>
-          <p>A Water-K oldal most nem tölthető be megfelelően. A már leadott rendelést ne add le újra automatikusan.</p>
+          <p>A webáruház most nem tölthető be megfelelően. A már leadott rendelést ne add le újra automatikusan.</p>
           <button onClick={reset} style={{ padding: '12px 18px' }}>Újrapróbálás</button>
         </main>
       </body>

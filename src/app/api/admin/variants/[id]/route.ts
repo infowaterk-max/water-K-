@@ -12,12 +12,24 @@ const bodySchema = z.object({
   resellerGrossPrice: nullablePrice,
   resellerNetPrice: nullablePrice,
   unitCostNet: nullablePrice,
+  weightGrams:z.union([z.number().int().min(1).max(100000000),z.null()]).optional(),
   supplierLeadTimeDays:z.number().int().min(0).max(365).optional(),
   safetyStockDays:z.number().int().min(0).max(365).optional(),
   minimumOrderQuantity:z.number().int().min(1).max(100000).optional(),
   orderMultiple:z.number().int().min(1).max(100000).optional(),
   active: z.boolean().optional(),
 }).refine((value) => Object.keys(value).length > 0, 'Nincs módosítás.');
+
+export async function GET(_request:Request,{params}:{params:Promise<{id:string}>}){
+  const actor=await getAdminRequestUser();
+  if(!actor)return NextResponse.json({error:'Nincs jogosultság.'},{status:403});
+  const{id}=await params;
+  if(!z.string().uuid().safeParse(id).success)return NextResponse.json({error:'Érvénytelen változatazonosító.'},{status:400});
+  const admin=createAdminClient();
+  const{data,error}=await admin.from('product_variants').select('weight_grams').eq('id',id).maybeSingle();
+  if(error||!data)return NextResponse.json({error:'A termékváltozat nem található.'},{status:404});
+  return NextResponse.json({weightGrams:data.weight_grams==null?null:Number(data.weight_grams)});
+}
 
 export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const actor = await getAdminRequestUser();
@@ -30,7 +42,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
   if (!parsed.success) return NextResponse.json({ error: 'Érvénytelen termékadat.' }, { status: 400 });
 
   const admin = createAdminClient();
-  const fields='stock_quantity,gross_price_huf,net_price_huf,reseller_gross_price_huf,reseller_net_price_huf,unit_cost_net_huf,supplier_lead_time_days,safety_stock_days,minimum_order_quantity,order_multiple,active,sku,updated_at';
+  const fields='stock_quantity,gross_price_huf,net_price_huf,reseller_gross_price_huf,reseller_net_price_huf,unit_cost_net_huf,weight_grams,supplier_lead_time_days,safety_stock_days,minimum_order_quantity,order_multiple,active,sku,updated_at';
   const { data: current, error: currentError } = await admin.from('product_variants').select(fields).eq('id', id).maybeSingle();
   if (currentError || !current) return NextResponse.json({ error: 'A termékváltozat nem található.' }, { status: 404 });
 
@@ -41,6 +53,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
   if (parsed.data.resellerGrossPrice !== undefined) update.reseller_gross_price_huf = parsed.data.resellerGrossPrice;
   if (parsed.data.resellerNetPrice !== undefined) update.reseller_net_price_huf = parsed.data.resellerNetPrice;
   if (parsed.data.unitCostNet !== undefined) update.unit_cost_net_huf = parsed.data.unitCostNet;
+  if (parsed.data.weightGrams !== undefined) update.weight_grams=parsed.data.weightGrams;
   if (parsed.data.supplierLeadTimeDays !== undefined) update.supplier_lead_time_days=parsed.data.supplierLeadTimeDays;
   if (parsed.data.safetyStockDays !== undefined) update.safety_stock_days=parsed.data.safetyStockDays;
   if (parsed.data.minimumOrderQuantity !== undefined) update.minimum_order_quantity=parsed.data.minimumOrderQuantity;

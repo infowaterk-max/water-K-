@@ -3,23 +3,29 @@
 import Link from 'next/link';
 import { useCart } from './cart-provider';
 import { formatHuf } from '@/lib/catalog';
-import { freeShippingThreshold } from '@/lib/commerce/pricing';
+import { freeShippingApplies } from '@/lib/commerce/pricing';
 
-export function CartView() {
+type CartViewProps = {
+  freeShippingThreshold: number;
+};
+
+export function CartView({ freeShippingThreshold }: CartViewProps) {
   const { items, total, setQuantity, remove } = useCart();
 
   if (!items.length) {
     return (
       <div className="emptyCart card">
         <span className="eyebrow">A kosár üres</span>
-        <h2>Még nincs benne Water-K.</h2>
-        <p className="muted">Válassz kiszerelést, a kosár pedig ezen az eszközön megmarad, amíg be nem fejezed a vásárlást.</p>
+        <h2>Még nincs termék a kosaradban.</h2>
+        <p className="muted">Válassz terméket, a kosár pedig ezen az eszközön megmarad, amíg be nem fejezed a vásárlást.</p>
         <Link className="btn btnPrimary" href="/webaruhaz">Irány a webáruház</Link>
       </div>
     );
   }
 
-  const remaining = Math.max(0, freeShippingThreshold - total);
+  const hasFreeShippingThreshold = freeShippingThreshold > 0;
+  const freeShippingReached = freeShippingApplies(total, freeShippingThreshold);
+  const remaining = hasFreeShippingThreshold ? Math.max(0, freeShippingThreshold - total) : 0;
 
   return (
     <div className="cartGrid">
@@ -28,7 +34,7 @@ export function CartView() {
         {items.map((item) => (
           <div className="cartRow" key={item.productId}>
             <div className="cartProductIdentity">
-              <div className="cartThumb">WK</div>
+              <div className="cartThumb">{item.name.trim().slice(0, 2).toUpperCase() || '•'}</div>
               <div><strong>{item.name}</strong><p>{formatHuf(item.unitPrice)} / db</p></div>
             </div>
             <label className="quantityControl"><span className="srOnly">Mennyiség</span><input aria-label="Mennyiség" type="number" min="1" value={item.quantity} onChange={(event) => setQuantity(item.productId, Number(event.target.value))} /></label>
@@ -43,9 +49,11 @@ export function CartView() {
         <h2>Részösszeg</h2>
         <div className="summaryTotal"><span>Termékek</span><strong>{formatHuf(total)}</strong></div>
         <p className="muted">A végleges szállítási díjat a pénztárban, a választott módtól függően számítjuk.</p>
-        {remaining > 0 ? <p className="shippingProgress">Még {formatHuf(remaining)} a díjmentes szállítási küszöbig.</p> : <p className="shippingProgress">Elérted a díjmentes szállítási küszöböt.</p>}
+        {hasFreeShippingThreshold ? (
+          remaining > 0 ? <p className="shippingProgress">Még {formatHuf(remaining)} a díjmentes szállítási küszöbig.</p> : freeShippingReached ? <p className="shippingProgress">Elérted a díjmentes szállítási küszöböt.</p> : null
+        ) : null}
         <Link className="btn btnPrimary cartCheckoutButton" href="/penztar">Tovább a pénztárhoz</Link>
-        <div className="trustList"><span>✓ Az árakat a szerver újraellenőrzi</span><span>✓ K&H fizetési adapterre előkészítve</span><span>✓ Futár API-k közvetlen bekötésére kész</span></div>
+        <div className="trustList"><span>✓ Az árakat a szerver újraellenőrzi</span><span>✓ Csak az adott webshop aktív fizetési módjai használhatók</span><span>✓ Csak az adott webshop aktív szállítási módjai használhatók</span></div>
       </aside>
     </div>
   );

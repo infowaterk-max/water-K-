@@ -6,7 +6,7 @@ if (!baseUrl) {
 
 const bypassSecret = process.env.VERCEL_AUTOMATION_BYPASS_SECRET || '';
 const smokeHeaders = {
-  'user-agent': 'water-k-v24-smoke/1.0',
+  'user-agent': 'shoperation-smoke/1.0',
   ...(bypassSecret
     ? {
         'x-vercel-protection-bypass': bypassSecret,
@@ -43,8 +43,8 @@ for (const check of checks) {
 }
 
 if (failures.length) {
-  console.error('V24 smoke gate: HIBA');
+  console.error('Shoperation smoke gate: HIBA');
   failures.forEach((failure) => console.error(`- ${failure}`));
   process.exit(1);
 }
-console.log('V24 smoke gate: OK');
+console.log('Shoperation smoke gate: OK');

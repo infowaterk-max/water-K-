@@ -4,10 +4,12 @@ import { getAdminRequestUser } from '@/lib/auth/admin-api';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { processIntegrationJob } from '@/lib/integrations/processor';
 import { recordAdminAudit } from '@/lib/admin/audit';
+import { hasCurrentPlanFeature } from '@/lib/plans/access';
 
 export async function POST(_request:Request,{params}:{params:Promise<{id:string}>}){
   const actor=await getAdminRequestUser();
   if(!actor)return NextResponse.json({error:'Nincs jogosultság.'},{status:403});
+  if(!(await hasCurrentPlanFeature('advancedIntegrations')))return NextResponse.json({error:'A fejlett integrációs műveletek a Pro csomag részei.'},{status:403});
   const {id}=await params;
   if(!z.string().uuid().safeParse(id).success)return NextResponse.json({error:'Érvénytelen feladatazonosító.'},{status:400});
   const admin=createAdminClient();

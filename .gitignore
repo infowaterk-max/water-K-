@@ -16,6 +16,7 @@ out/
 *.key
 *.sql
 *.sql.gz
+!supabase/customer-baseline/migrations/0001_shoperation_v1_schema.sql
 
 # Logs
 *.log

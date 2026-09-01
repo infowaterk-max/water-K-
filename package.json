@@ -1,5 +1,5 @@
 {
-  "name": "waterk-store",
+  "name": "shoperation-store",
   "version": "0.2.2",
   "private": true,
   "scripts": {
@@ -8,8 +8,11 @@
     "start": "next start",
     "typecheck": "tsc --noEmit",
     "test": "vitest run --coverage=false",
-    "check": "npm run test && npm run typecheck && npm run build",
+    "check": "npm run db:customer:guard && npm run test && npm run typecheck && npm run build",
     "validate:env": "node scripts/validate-env.mjs",
+    "db:customer:guard": "node scripts/validate-customer-baseline.mjs",
+    "db:customer:snapshot": "node scripts/generate-customer-baseline.mjs",
+    "db:customer:review": "node scripts/review-customer-baseline-snapshot.mjs",
     "smoke": "node scripts/smoke.mjs",
     "release:manifest": "node scripts/release-manifest.mjs"
   },

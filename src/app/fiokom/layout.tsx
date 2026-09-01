@@ -1,2 +1,2 @@
-import Link from'next/link';
-export default function AccountLayout({children}:{children:React.ReactNode}){return <><nav className="accountSubnav" aria-label="Fiók navigáció"><div className="shell"><div className="actions"><Link className="btn btnGhost" href="/fiokom">Áttekintés</Link><Link className="btn btnGhost" href="/fiokom/huseg">Hűségprogram</Link><Link className="btn btnGhost" href="/fiokom/ugyek">Ügyeim</Link><Link className="btn btnGhost" href="/fiokom/visszakuldes">Visszaküldés</Link><Link className="btn btnGhost" href="/kapcsolat#ugyfelszolgalat">Új ügyfélszolgálati kérdés</Link></div></div></nav>{children}</>}
+import { AccountSubnav } from '@/components/account/account-subnav';
+export default function AccountLayout({children}:{children:React.ReactNode}){return <><AccountSubnav/>{children}</>}

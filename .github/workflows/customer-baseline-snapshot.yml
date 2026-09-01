@@ -1,0 +1,66 @@
+name: Customer baseline snapshot candidate
+
+on:
+  push:
+    branches:
+      - feature/business-packages-v1
+    paths:
+      - .github/workflows/customer-baseline-snapshot.yml
+      - scripts/generate-customer-baseline.mjs
+      - scripts/review-customer-baseline-snapshot.mjs
+      - scripts/validate-customer-baseline.mjs
+      - package.json
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+env:
+  SHOPERATION_BASELINE_DB_URL: ${{ secrets.SHOPERATION_BASELINE_DB_URL }}
+
+jobs:
+  snapshot:
+    name: Generate and review schema snapshot
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Verify secret is configured
+        shell: bash
+        run: |
+          if [ -z "$SHOPERATION_BASELINE_DB_URL" ]; then
+            echo "SHOPERATION_BASELINE_DB_URL repository secret is missing."
+            exit 1
+          fi
+
+      - name: Generate reviewed schema snapshot
+        run: node scripts/generate-customer-baseline.mjs --force
+
+      - name: Commit reviewed candidate snapshot
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -f supabase/customer-baseline/migrations/0001_shoperation_v1_schema.sql
+          if git diff --cached --quiet; then
+            echo "No snapshot changes to commit."
+          else
+            git commit -m "db: refresh reviewed Shoperation baseline snapshot"
+            git push
+          fi
+
+      - name: Upload reviewed candidate snapshot
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: shoperation-customer-baseline-candidate
+          path: supabase/customer-baseline/migrations/0001_shoperation_v1_schema.sql
+          if-no-files-found: warn
+          retention-days: 7

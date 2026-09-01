@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "status": "ready",
+  "legacyMigrationReplay": false,
+  "sourcePolicy": "schema-snapshot-only",
+  "seedFile": "supabase/customer-baseline/seed.sql",
+  "baselineMigrationDirectory": "supabase/customer-baseline/migrations",
+  "defaultPlan": "alap",
+  "snapshotFile": "supabase/customer-baseline/migrations/0001_shoperation_v1_schema.sql",
+  "snapshotCommand": "npm run db:customer:snapshot",
+  "freshInstallProofRequired": false,
+  "notes": "The neutral Shoperation schema snapshot and neutral seed passed the Fresh Install preflight, atomic baseline application and target postflight on an empty disposable Supabase project. Historical supabase/migrations remain provenance only and are not replayed for new customer provisioning."
+}

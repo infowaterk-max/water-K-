@@ -33,7 +33,7 @@ export default async function AdminSettingsPage(){
   const serverKeyConfigured=Boolean(process.env.SUPABASE_SECRET_KEY||process.env.SUPABASE_SERVICE_ROLE_KEY);
   const emailConfigured=Boolean(process.env.RESEND_API_KEY||process.env.EMAIL_API_KEY);
   const operationalRisk=problems+staleProcessing+invalidWebhooks+(cronConfigured?0:1)+(serverKeyConfigured?0:1);
-  return <section className="adminMain">
+  return <section className="adminMain settingsPage">
     <span className="eyebrow">Admin · Beállítások</span><h1 className="sectionTitle">Integrációk és rendszerállapot</h1><p className="lead">Csak konfigurációs állapotot mutatunk; titkos kulcsérték ezen a felületen soha nem jelenik meg.</p>
     {dataLoadError&&<div className="errorNotice" role="alert"><strong>Az operációs adatok egy része nem tölthető be.</strong> A nulla értékeket ilyenkor ne tekintsd biztosan hibamentes állapotnak.</div>}
     {operationalRisk>0&&<section className="card"><div className="adminToolbar"><div><span className="eyebrow">Rendszerfigyelmeztetés</span><h2>{operationalRisk} ellenőrizendő tétel</h2><p className="muted">Sikertelen/blokkolt feladat: {problems} · beragadt feldolgozás: {staleProcessing} · nem hiteles webhook: {invalidWebhooks}.</p></div><Link className="btn btnPrimary" href="/admin/integraciok">Integrációs központ</Link></div></section>}

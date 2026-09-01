@@ -35,6 +35,9 @@ jobs:
       - name: Production dependency security audit
         run: npm audit --omit=dev --audit-level=high
 
+      - name: Customer database baseline guard
+        run: npm run db:customer:guard
+
       - name: Prepare quality artifacts
         run: mkdir -p artifacts
 
@@ -68,3 +71,59 @@ jobs:
           path: release-manifest.json
           if-no-files-found: error
           retention-days: 30
+
+  fresh-install-proof:
+    if: github.ref == 'refs/heads/feature/business-packages-v1' && github.event_name == 'push' && contains(github.event.head_commit.message, '[fresh-install-proof]')
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      SHOPERATION_FRESH_INSTALL_DB_URL: ${{ secrets.SHOPERATION_FRESH_INSTALL_DB_URL }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Verify Fresh Install secret
+        shell: bash
+        run: |
+          if [ -z "$SHOPERATION_FRESH_INSTALL_DB_URL" ]; then
+            echo "SHOPERATION_FRESH_INSTALL_DB_URL repository secret is missing."
+            exit 1
+          fi
+
+      - name: Verify reviewed baseline lifecycle
+        shell: bash
+        run: |
+          node -e "const m=require('./supabase/customer-baseline/manifest.json'); if(m.status!=='snapshot-reviewed'||m.freshInstallProofRequired!==true){throw new Error('baseline must be snapshot-reviewed and still require Fresh Install proof')}"
+          test -s supabase/customer-baseline/migrations/0001_shoperation_v1_schema.sql
+
+      - name: Fresh target preflight
+        shell: bash
+        run: psql "$SHOPERATION_FRESH_INSTALL_DB_URL" -X -v ON_ERROR_STOP=1 -f supabase/customer-baseline/target-preflight.sql
+
+      - name: Apply reviewed baseline atomically
+        shell: bash
+        run: |
+          {
+            echo 'BEGIN;'
+            cat supabase/customer-baseline/migrations/0001_shoperation_v1_schema.sql
+            cat supabase/customer-baseline/seed.sql
+            echo 'COMMIT;'
+          } | psql "$SHOPERATION_FRESH_INSTALL_DB_URL" -X -v ON_ERROR_STOP=1
+
+      - name: Fresh target postflight
+        shell: bash
+        run: psql "$SHOPERATION_FRESH_INSTALL_DB_URL" -X -v ON_ERROR_STOP=1 -f supabase/customer-baseline/target-postflight.sql
+
+      - name: Record proof summary
+        shell: bash
+        run: |
+          {
+            echo '## Shoperation Fresh Install proof'
+            echo ''
+            echo '- Target preflight: passed'
+            echo '- Reviewed baseline: applied atomically'
+            echo '- Neutral seed: applied'
+            echo '- Target postflight: passed'
+            echo '- Production: untouched by this job'
+            echo "- Source commit: $GITHUB_SHA"
+          } >> "$GITHUB_STEP_SUMMARY"
