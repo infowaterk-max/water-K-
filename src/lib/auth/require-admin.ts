@@ -15,6 +15,16 @@ export async function requireAdmin() {
 
   try {
     const admin = createAdminClient();
+
+    const { data: platformAccess } = await admin
+      .from('platform_operators')
+      .select('role')
+      .eq('user_id',authData.user.id)
+      .in('role',['owner','admin','operator'])
+      .maybeSingle();
+
+    if (platformAccess) return authData.user;
+
     const instanceSlug = process.env.WEBSHOP_INSTANCE_SLUG?.trim().toLowerCase();
     let instanceId: string | null = null;
     if (instanceSlug) {
