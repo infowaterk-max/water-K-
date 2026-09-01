@@ -55,10 +55,14 @@ describe('checkout workflow contracts', () => {
     expect(checkoutForm).toMatch(/submitting\.current=false/);
   });
 
-  test('coupon and free-shipping calculations stay part of checkout', () => {
-    expect(checkoutForm).toMatch(/\/api\/coupons\/validate/);
-    expect(checkoutForm).toMatch(/freeShippingApplies/);
-    expect(checkoutForm).toMatch(/couponDiscount/);
-    expect(checkoutForm).toMatch(/deliveryFee/);
+  test('coupon, shipping, price and stock are quoted by the authoritative checkout engine', () => {
+    expect(checkoutForm).toMatch(/\/api\/checkout\/quote/);
+    expect(checkoutForm).toMatch(/quote\.couponDiscount/);
+    expect(checkoutForm).toMatch(/quote\.shippingFee/);
+    expect(checkoutForm).toMatch(/quote\.subtotal/);
+    expect(checkoutForm).toMatch(/quote\.total/);
+    expect(checkoutForm).toMatch(/variantId/);
+    expect(checkoutForm).not.toMatch(/\/api\/coupons\/validate/);
+    expect(checkoutForm).not.toMatch(/freeShippingApplies/);
   });
 });
