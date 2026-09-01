@@ -7,7 +7,8 @@ import { getCommerceAccess } from '@/lib/commerce/access';
 import { requireStorefrontAccess } from '@/lib/storefront/access';
 
 export default async function Shop() {
-  const [products, access, instance] = await Promise.all([getProducts(), getCommerceAccess(), requireStorefrontAccess()]);
+  const instance=await requireStorefrontAccess();
+  const [products, access] = await Promise.all([getProducts(), getCommerceAccess()]);
   const brand=instance?.brand.name??'Webáruház';
   const selection=products.slice(0,3);
   return <main className="section shopPage"><div className="shell">
