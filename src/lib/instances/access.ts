@@ -9,14 +9,14 @@ export type StorefrontConfig={
   benefit1Title?:string;benefit1Text?:string;benefit2Title?:string;benefit2Text?:string;benefit3Title?:string;benefit3Text?:string;
 };
 export type WebshopInstance={
-  id:string;slug:string;name:string;subscriptionPlan:PlanCode;status:'pilot'|'active'|'suspended'|'archived';
+  id:string;organizationId:string|null;slug:string;name:string;subscriptionPlan:PlanCode;status:'pilot'|'active'|'suspended'|'archived';
   brand:{name:string;tagline:string|null;logoUrl:string|null;primaryColor:string|null;supportEmail:string|null;supportPhone:string|null;publicSiteUrl:string|null;emailFromName:string|null;};
   storefront:StorefrontConfig;
 };
-type InstanceRow={id:string;slug:string;name:string;subscription_plan:string;status:WebshopInstance['status'];brand_name:string|null;brand_tagline:string|null;logo_url:string|null;primary_color:string|null;support_email:string|null;support_phone:string|null;public_site_url:string|null;email_from_name:string|null;storefront_config:unknown};
-const SELECT='id,slug,name,subscription_plan,status,brand_name,brand_tagline,logo_url,primary_color,support_email,support_phone,public_site_url,email_from_name,storefront_config';
+type InstanceRow={id:string;organization_id:string|null;slug:string;name:string;subscription_plan:string;status:WebshopInstance['status'];brand_name:string|null;brand_tagline:string|null;logo_url:string|null;primary_color:string|null;support_email:string|null;support_phone:string|null;public_site_url:string|null;email_from_name:string|null;storefront_config:unknown};
+const SELECT='id,organization_id,slug,name,subscription_plan,status,brand_name,brand_tagline,logo_url,primary_color,support_email,support_phone,public_site_url,email_from_name,storefront_config';
 const normalizeConfig=(value:unknown):StorefrontConfig=>value&&typeof value==='object'&&!Array.isArray(value)?value as StorefrontConfig:{};
-const normalize=(row:InstanceRow|null):WebshopInstance|null=>row&&isPlanCode(row.subscription_plan)?{id:row.id,slug:row.slug,name:row.name,subscriptionPlan:row.subscription_plan,status:row.status,brand:{name:row.brand_name?.trim()||row.name,tagline:row.brand_tagline,logoUrl:row.logo_url,primaryColor:row.primary_color,supportEmail:row.support_email,supportPhone:row.support_phone,publicSiteUrl:row.public_site_url,emailFromName:row.email_from_name},storefront:normalizeConfig(row.storefront_config)}:null;
+const normalize=(row:InstanceRow|null):WebshopInstance|null=>row&&isPlanCode(row.subscription_plan)?{id:row.id,organizationId:row.organization_id,slug:row.slug,name:row.name,subscriptionPlan:row.subscription_plan,status:row.status,brand:{name:row.brand_name?.trim()||row.name,tagline:row.brand_tagline,logoUrl:row.logo_url,primaryColor:row.primary_color,supportEmail:row.support_email,supportPhone:row.support_phone,publicSiteUrl:row.public_site_url,emailFromName:row.email_from_name},storefront:normalizeConfig(row.storefront_config)}:null;
 
 export async function getCurrentWebshopInstance():Promise<WebshopInstance|null>{
   if(!process.env.NEXT_PUBLIC_SUPABASE_URL)return null;
