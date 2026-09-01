@@ -7,6 +7,8 @@ type AuditInput={
   entityType:string;
   entityId?:string|null;
   summary:string;
+  organizationId?:string|null;
+  instanceId?:string|null;
   beforeState?:unknown;
   afterState?:unknown;
   metadata?:Record<string,unknown>;
@@ -19,6 +21,8 @@ export async function recordAdminAudit(input:AuditInput){
     action:input.action,
     entity_type:input.entityType,
     entity_id:input.entityId??null,
+    organization_id:input.organizationId??null,
+    instance_id:input.instanceId??null,
     summary:input.summary,
     before_state:input.beforeState??null,
     after_state:input.afterState??null,

@@ -1,5 +1,6 @@
 import type { Product } from '@/lib/catalog';
 import { createClient } from '@/lib/supabase/server';
+import { getCurrentWebshopInstance } from '@/lib/instances/access';
 
 type ProductAudience = Product['audience'];
 
@@ -12,6 +13,7 @@ type VariantRow = {
   stock_quantity: number;
   weight_grams: number | null;
   product_id: string;
+  instance_id:string|null;
   products: {
     slug: string;
     name: string;
@@ -21,6 +23,7 @@ type VariantRow = {
     featured: boolean | null;
     use_cases: string[] | null;
     highlights: string[] | null;
+    instance_id:string|null;
   } | null;
 };
 
@@ -42,17 +45,20 @@ const normalizeAudience = (value: string | null | undefined): ProductAudience =>
 
 export async function getProducts(): Promise<Product[]> {
   try {
-    const supabase = await createClient();
+    const [supabase,instance]=await Promise.all([createClient(),getCurrentWebshopInstance()]);
+    if(!instance)return [];
     const { data, error } = await supabase
       .from('product_variants')
-      .select('id,sku,label,net_price_huf,gross_price_huf,stock_quantity,weight_grams,product_id,products!inner(slug,name,short_description,active,audience,featured,use_cases,highlights)')
+      .select('id,sku,label,net_price_huf,gross_price_huf,stock_quantity,weight_grams,product_id,instance_id,products!inner(slug,name,short_description,active,audience,featured,use_cases,highlights,instance_id)')
+      .eq('instance_id',instance.id)
       .eq('active', true)
+      .eq('products.instance_id',instance.id)
       .eq('products.active', true)
       .order('gross_price_huf');
 
     if (error || !data?.length) return [];
 
-    return (data as unknown as VariantRow[]).map((row) => {
+    return (data as unknown as VariantRow[]).filter(row=>row.instance_id===instance.id&&row.products?.instance_id===instance.id).map((row) => {
       const product = row.products;
       const baseSlug = product?.slug || slugify(product?.name || row.sku) || row.id;
       return {
