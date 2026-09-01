@@ -30,7 +30,7 @@ export type TenantCheckoutInput={
 
 export async function placeTenantOrder(input:TenantCheckoutInput){
   const admin=createAdminClient();
-  const {data,error}=await admin.rpc('place_order_provider_v3_idempotent',{
+  const {data,error}=await admin.rpc('place_order_provider_v4_idempotent',{
     p_instance_id:input.instanceId,
     p_idempotency_key:input.idempotencyKey,
     p_customer_email:input.customerEmail,
