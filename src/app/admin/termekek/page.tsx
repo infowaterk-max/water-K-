@@ -3,13 +3,15 @@ import { formatHuf } from '@/lib/catalog';
 import { getProducts } from '@/lib/catalog-server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { InventoryEditor } from '@/components/admin/inventory-editor';
+import { requireCurrentStoreContext } from '@/lib/instances/scope';
 export const dynamic='force-dynamic';
 
 type VariantRow={id:string;reseller_gross_price_huf:number|null;reseller_net_price_huf:number|null;unit_cost_net_huf:number|null;supplier_lead_time_days:number|null;safety_stock_days:number|null;minimum_order_quantity:number|null;order_multiple:number|null};
 
 export default async function AdminProducts(){
+  const scope=await requireCurrentStoreContext('catalog.manage');
   const products=await getProducts();const admin=createAdminClient();
-  const{data}=await admin.from('product_variants').select('id,reseller_gross_price_huf,reseller_net_price_huf,unit_cost_net_huf,supplier_lead_time_days,safety_stock_days,minimum_order_quantity,order_multiple');
+  const{data}=await admin.from('product_variants').select('id,reseller_gross_price_huf,reseller_net_price_huf,unit_cost_net_huf,supplier_lead_time_days,safety_stock_days,minimum_order_quantity,order_multiple').eq('instance_id',scope.instanceId);
   const byId=new Map(((data??[])as VariantRow[]).map(row=>[row.id,row]));
   const soldOut=products.filter(p=>p.stock<=0).length,low=products.filter(p=>p.stock>0&&p.stock<=5).length,stockValue=products.reduce((sum,p)=>sum+p.stock*p.netPrice,0);
   return <section className="adminMain"><span className="eyebrow">Katalógus · Termékek</span><h1 className="sectionTitle">Termékkezelés</h1><p className="lead">A katalógus, árak és készlet napi kezelése itt történik. A beszerzéstervezés külön Készlet és beszerzés modulban kapott helyet.</p>
