@@ -8,7 +8,7 @@ begin
     select p.oid::regprocedure as signature
     from pg_proc p join pg_namespace n on n.oid=p.pronamespace
     where n.nspname='public' and p.proname=any(array[
-      'place_order_provider','place_order_provider_v2','place_order_provider_v3_idempotent',
+      'place_order_provider','place_order_provider_idempotent','place_order_provider_v2','place_order_provider_v2_idempotent','place_order_provider_v3_idempotent',
       'create_purchase_order','transition_purchase_order','receive_purchase_order','receive_purchase_order_items',
       'plan_commercial_opportunities','plan_high_value_sales_tasks','create_commercial_offer','approve_commercial_offer','transition_commercial_offer'
     ])
