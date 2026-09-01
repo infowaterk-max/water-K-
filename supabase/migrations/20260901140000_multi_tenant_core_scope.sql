@@ -4,7 +4,7 @@
 
 create or replace function public.single_runtime_instance_id() returns uuid
 language sql stable security definer set search_path=public as $$
-  select case when count(*)=1 then min(id) else null end
+  select case when count(*)=1 then min(id::text)::uuid else null end
   from public.webshop_instances
   where status in ('pilot','active');
 $$;
@@ -26,14 +26,12 @@ alter table public.product_reviews add column if not exists instance_id uuid ref
 alter table public.wishlists add column if not exists instance_id uuid references public.webshop_instances(id) on delete cascade;
 alter table public.stock_notifications add column if not exists instance_id uuid references public.webshop_instances(id) on delete cascade;
 
--- Backfill legacy single-store installations. Multi-store legacy databases remain nullable for explicit repair.
 update public.products set instance_id=public.single_runtime_instance_id() where instance_id is null and public.single_runtime_instance_id() is not null;
 update public.orders set instance_id=public.single_runtime_instance_id() where instance_id is null and public.single_runtime_instance_id() is not null;
 update public.marketing_campaigns set instance_id=public.single_runtime_instance_id() where instance_id is null and public.single_runtime_instance_id() is not null;
 update public.content_pages set instance_id=public.single_runtime_instance_id() where instance_id is null and public.single_runtime_instance_id() is not null;
 update public.coupons set instance_id=public.single_runtime_instance_id() where instance_id is null and public.single_runtime_instance_id() is not null;
 
--- Derive child scopes from authoritative parent records.
 update public.product_variants v set instance_id=p.instance_id from public.products p where v.product_id=p.id and v.instance_id is null and p.instance_id is not null;
 update public.order_items i set instance_id=o.instance_id from public.orders o where i.order_id=o.id and i.instance_id is null and o.instance_id is not null;
 update public.inventory_events e set instance_id=coalesce((select o.instance_id from public.orders o where o.id=e.order_id),(select v.instance_id from public.product_variants v where v.id=e.variant_id)) where e.instance_id is null;
@@ -60,7 +58,6 @@ create index if not exists product_reviews_instance_idx on public.product_review
 create index if not exists wishlists_instance_user_idx on public.wishlists(instance_id,user_id);
 create index if not exists stock_notifications_instance_idx on public.stock_notifications(instance_id,status);
 
--- Tenant-consistency triggers automatically copy scope from parent rows and reject cross-store linkage.
 create or replace function public.sync_product_variant_instance() returns trigger
 language plpgsql security definer set search_path=public as $$
 declare parent_instance uuid;
@@ -71,7 +68,6 @@ begin
   new.instance_id:=parent_instance;
   return new;
 end $$;
-
 drop trigger if exists product_variants_sync_instance on public.product_variants;
 create trigger product_variants_sync_instance before insert or update of product_id,instance_id on public.product_variants for each row execute function public.sync_product_variant_instance();
 
@@ -86,7 +82,6 @@ begin
   new.instance_id:=coalesce(parent_instance,new.instance_id);
   return new;
 end $$;
-
 drop trigger if exists order_items_sync_instance on public.order_items;
 create trigger order_items_sync_instance before insert or update of order_id,variant_id,instance_id on public.order_items for each row execute function public.sync_order_item_instance();
 
@@ -100,7 +95,6 @@ begin
   new.instance_id:=parent_instance;
   return new;
 end $$;
-
 drop trigger if exists inventory_snapshots_sync_instance on public.inventory_snapshots;
 create trigger inventory_snapshots_sync_instance before insert or update of variant_id,instance_id on public.inventory_snapshots for each row execute function public.sync_variant_child_instance();
 drop trigger if exists wishlists_sync_instance on public.wishlists;
@@ -118,7 +112,6 @@ begin
   new.instance_id:=parent_instance;
   return new;
 end $$;
-
 drop trigger if exists marketing_campaign_events_sync_instance on public.marketing_campaign_events;
 create trigger marketing_campaign_events_sync_instance before insert or update of campaign_id,instance_id on public.marketing_campaign_events for each row execute function public.sync_campaign_child_instance();
 drop trigger if exists marketing_campaign_recipients_sync_instance on public.marketing_campaign_recipients;
@@ -135,7 +128,6 @@ begin
   new.instance_id:=coalesce(order_instance,variant_instance,new.instance_id);
   return new;
 end $$;
-
 drop trigger if exists inventory_events_sync_instance on public.inventory_events;
 create trigger inventory_events_sync_instance before insert or update of variant_id,order_id,instance_id on public.inventory_events for each row execute function public.sync_inventory_event_instance();
 
@@ -150,11 +142,9 @@ begin
   new.instance_id:=coalesce(order_instance,variant_instance,new.instance_id);
   return new;
 end $$;
-
 drop trigger if exists inventory_reservations_sync_instance on public.inventory_reservations;
 create trigger inventory_reservations_sync_instance before insert or update of variant_id,order_id,instance_id on public.inventory_reservations for each row execute function public.sync_inventory_reservation_instance();
 
--- Diagnostics for the strict phase. A clean result has zero rows.
 create or replace view public.tenant_scope_gaps as
 select 'products'::text as table_name,count(*)::bigint as rows_without_instance from public.products where instance_id is null
 union all select 'product_variants',count(*) from public.product_variants where instance_id is null
@@ -166,5 +156,4 @@ union all select 'inventory_snapshots',count(*) from public.inventory_snapshots 
 union all select 'marketing_campaigns',count(*) from public.marketing_campaigns where instance_id is null
 union all select 'content_pages',count(*) from public.content_pages where instance_id is null
 union all select 'coupons',count(*) from public.coupons where instance_id is null;
-
 comment on view public.tenant_scope_gaps is 'Architecture hardening diagnostic. Strict tenant RLS must not be enabled until every count is zero.';

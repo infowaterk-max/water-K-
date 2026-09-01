@@ -1,5 +1,5 @@
 -- Security-advisor and attribution hardening for campaign conversion reporting.
--- The old view executed with owner privileges and joined orders by email without tenant equality.
+-- Preserve existing view column order and append instance_id for tenant filtering.
 
 create or replace view public.marketing_campaign_conversions
 with (security_invoker=true) as
@@ -18,8 +18,8 @@ with sends as (
     and o.created_at>=s.sent_at
     and o.created_at<s.sent_at+interval '30 days'
 )
-select instance_id,campaign_id,recipient_id,order_id,order_number,total_gross_huf,order_created_at,sent_at,
-       extract(epoch from order_created_at-sent_at)/86400.0 as days_to_conversion
+select campaign_id,recipient_id,order_id,order_number,total_gross_huf,order_created_at,sent_at,
+       extract(epoch from order_created_at-sent_at)/86400.0 as days_to_conversion,instance_id
 from candidates where rn=1;
 
 comment on view public.marketing_campaign_conversions is 'Tenant-safe campaign conversion attribution; security_invoker preserves underlying RLS.';

@@ -14,6 +14,7 @@ drop index if exists public.commercial_opportunities_opportunity_key_key;
 drop index if exists public.commercial_opportunities_one_active_b2b_reorder_idx;
 drop index if exists public.commercial_opportunities_one_active_b2c_auto_idx;
 drop index if exists public.commercial_opportunities_one_active_b2c_guest_auto_idx;
+alter table public.sales_tasks drop constraint if exists sales_tasks_task_key_key;
 drop index if exists public.sales_tasks_task_key_key;
 create unique index if not exists commercial_opportunities_instance_key_uidx on public.commercial_opportunities(instance_id,opportunity_key);
 create unique index if not exists commercial_opportunities_active_b2b_uidx on public.commercial_opportunities(instance_id,reseller_id) where channel='b2b' and kind='reorder' and status in('open','in_progress') and reseller_id is not null;
