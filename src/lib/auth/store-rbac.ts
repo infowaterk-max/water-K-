@@ -4,17 +4,17 @@ import { createClient } from '@/lib/supabase/server';
 import { getPlatformRole } from '@/lib/auth/platform-operator';
 
 export type StoreRole='owner'|'admin'|'catalog_manager'|'order_manager'|'marketing_manager'|'support'|'analyst'|'viewer';
-export type StorePermission='store.manage'|'catalog.manage'|'orders.manage'|'marketing.manage'|'support.manage'|'analytics.read'|'store.read';
+export type StorePermission='store.manage'|'catalog.manage'|'procurement.manage'|'orders.manage'|'marketing.manage'|'support.manage'|'integrations.manage'|'analytics.read'|'store.read';
 
 const ROLE_PERMISSIONS:Record<StoreRole,StorePermission[]>={
- owner:['store.manage','catalog.manage','orders.manage','marketing.manage','support.manage','analytics.read','store.read'],
- admin:['store.manage','catalog.manage','orders.manage','marketing.manage','support.manage','analytics.read','store.read'],
- catalog_manager:['catalog.manage','analytics.read','store.read'],
- order_manager:['orders.manage','support.manage','analytics.read','store.read'],
- marketing_manager:['marketing.manage','analytics.read','store.read'],
- support:['support.manage','orders.manage','store.read'],
- analyst:['analytics.read','store.read'],
- viewer:['store.read'],
+  owner:['store.manage','catalog.manage','procurement.manage','orders.manage','marketing.manage','support.manage','integrations.manage','analytics.read','store.read'],
+  admin:['store.manage','catalog.manage','procurement.manage','orders.manage','marketing.manage','support.manage','integrations.manage','analytics.read','store.read'],
+  catalog_manager:['catalog.manage','procurement.manage','analytics.read','store.read'],
+  order_manager:['orders.manage','support.manage','analytics.read','store.read'],
+  marketing_manager:['marketing.manage','analytics.read','store.read'],
+  support:['support.manage','store.read'],
+  analyst:['analytics.read','store.read'],
+  viewer:['store.read'],
 };
 
 export const roleHasPermission=(role:StoreRole,permission:StorePermission)=>ROLE_PERMISSIONS[role].includes(permission);
