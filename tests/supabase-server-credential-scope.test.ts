@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { spawnSync } from 'node:child_process';
 import { join } from 'node:path';
-import { resolveSupabaseServerKey } from '@/lib/supabase/server-credentials';
+import { resolveSupabaseServerKey } from '../src/lib/supabase/server-credentials';
 
 describe('Supabase server credential scoping', () => {
   it('never lets a staging-only secret shadow production credentials', () => {
