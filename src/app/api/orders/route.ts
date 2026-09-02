@@ -38,13 +38,9 @@ const checkoutSchema = z.object({
   couponCode: z.string().trim().max(32).optional(),
   legalAccepted: z.literal('true'),
 });
-const orderItemSchema = z.union([
-  z.object({ variantId: z.string().uuid(), quantity: z.number().int().positive().max(99) }),
-  z.object({ productId: z.string().uuid(), quantity: z.number().int().positive().max(99) }),
-]).transform(item => ({ variantId: 'variantId' in item ? item.variantId : item.productId, quantity: item.quantity }));
 const schema = z.object({
   checkout: checkoutSchema,
-  items: z.array(orderItemSchema).min(1).max(30),
+  items: z.array(z.object({ productId: z.string().uuid(), quantity: z.number().int().positive().max(99) })).min(1).max(30),
 });
 
 type PlaceOrderResult = {
@@ -140,7 +136,7 @@ export async function POST(request: Request) {
         note: checkout.note ?? '',
         customerId: user?.id ?? null,
         couponCode: (checkout.couponCode ?? '').toUpperCase(),
-        items: items.map(item => ({ variant_id: item.variantId, quantity: item.quantity })),
+        items: items.map(item => ({ variant_id: item.productId, quantity: item.quantity })),
       }) as PlaceOrderResult;
     } catch (tenantOrderError) {
       console.error('tenant checkout rejected', { instanceId: instance.id, error: tenantOrderError });
@@ -212,41 +208,54 @@ export async function POST(request: Request) {
       });
 
       try {
-        const adapter = getPaymentGatewayAdapter(payment.adapterKey);
-        const paymentSession = await adapter.createPayment({
-          orderId: order.order_id,
-          orderNumber: order.order_number,
-          amountHuf: order.total_gross_huf,
+        const identity = await getCommunicationIdentity();
+        const callbackUrl = `${identity.siteUrl}/api/payments/${encodeURIComponent(payment.code)}/webhook`;
+        const result = await getPaymentGatewayAdapter(payment.adapterKey).createPayment({
+          orderId: order.order_number,
+          total: { amount: order.total_gross_huf, currency: 'HUF' },
+          returnUrl: `${identity.siteUrl}/rendeles-sikeres?token=${encodeURIComponent(confirmation.confirmation_token)}`,
+          cancelUrl: `${identity.siteUrl}/rendeles-sikeres?token=${encodeURIComponent(confirmation.confirmation_token)}&payment=cancelled`,
+          callbackUrl,
+          idempotencyKey: `shoperation-${instance.id}-${payment.code}-${order.order_id}`,
           customerEmail: checkout.email,
-          idempotencyKey: `${idempotencyKey}:${payment.code}`,
         });
-        await attachPaymentAttemptReference(attemptId, paymentSession.providerReference, paymentSession.checkoutUrl);
-        await markPaymentAttemptRequiresAction(attemptId, paymentSession.checkoutUrl);
-        paymentRedirectUrl = paymentSession.checkoutUrl;
+        await attachPaymentAttemptReference(attemptId, result.providerReference, { checkout_url: result.redirectUrl, instance_id: instance.id });
+        paymentRedirectUrl = result.redirectUrl;
+        const { error: paymentOrderError } = await admin
+          .from('orders')
+          .update({ external_payment_id: result.providerReference, status: 'pending_payment', updated_at: new Date().toISOString() })
+          .eq('id', order.order_id)
+          .eq('instance_id', instance.id);
+        if (paymentOrderError) {
+          await markPaymentAttemptRequiresAction(attemptId, {
+            code: 'ORDER_REFERENCE_PERSISTENCE_FAILED',
+            message: 'Payment session created but order reference persistence failed',
+            metadata: { provider_reference: result.providerReference, checkout_url: result.redirectUrl, instance_id: instance.id },
+          });
+          throw paymentOrderError;
+        }
+        await admin.from('order_events').insert({
+          order_id: order.order_id,
+          event_type: replayed ? 'payment_recovered' : 'payment_started',
+          metadata: { provider: payment.code, provider_reference: result.providerReference, callback_url: callbackUrl, payment_attempt_id: attemptId, instance_id: instance.id },
+        });
       } catch (paymentError) {
-        console.error('payment initialization failed', { orderId: order.order_id, provider: payment.code, paymentError });
-        return NextResponse.json({ error: 'A rendelés rögzült, de az online fizetés indítása nem sikerült. A rendelésed megmaradt; a fizetést a rendelésből újra lehet indítani.', orderId: order.order_id, orderNumber: order.order_number, confirmationToken: confirmation.confirmation_token, status: 'pending_payment' }, { status: 503 });
+        console.error('checkout payment provider call failed', { orderId: order.order_id, paymentProvider: payment.code, attemptId, error: paymentError });
+        await markPaymentAttemptRequiresAction(attemptId, { message: paymentError instanceof Error ? paymentError.message : 'Payment provider outcome unknown', metadata: { instance_id: instance.id } }).catch(() => undefined);
+        return NextResponse.json({ error: 'A rendelés rögzült, de a fizetés indítása nem fejeződött be biztonságosan. A rendelésed megmaradt; a fiókodban újrapróbálhatod a fizetést.', orderId: order.order_id, orderNumber: order.order_number, confirmationToken: confirmation.confirmation_token, status: 'pending_payment' }, { status: 503 });
       }
+    } else {
+      const { error: statusError } = await admin
+        .from('orders')
+        .update({ status, updated_at: new Date().toISOString() })
+        .eq('id', order.order_id)
+        .eq('instance_id', instance.id);
+      if (statusError) throw statusError;
     }
 
-    const identity = await getCommunicationIdentity(instance.id).catch(() => null);
-    return NextResponse.json({
-      ok: true,
-      replayed,
-      orderId: order.order_id,
-      orderNumber: order.order_number,
-      confirmationToken: confirmation.confirmation_token,
-      subtotal: order.subtotal_gross_huf,
-      discount: order.discount_gross_huf,
-      shippingFee: order.shipping_gross_huf,
-      total: order.total_gross_huf,
-      couponCode: order.coupon_code,
-      status,
-      paymentRedirectUrl,
-      merchant: identity ? { senderName: identity.senderName, replyTo: identity.replyTo } : undefined,
-    }, { status: replayed ? 200 : 201 });
+    return NextResponse.json({ ok: true, replayed, orderId: order.order_id, orderNumber: order.order_number, confirmationToken: confirmation.confirmation_token, subtotal: order.subtotal_gross_huf, discount: order.discount_gross_huf, shippingFee: order.shipping_gross_huf, total: order.total_gross_huf, couponCode: order.coupon_code, status, paymentRedirectUrl }, { status: replayed ? 200 : 201 });
   } catch (error) {
-    console.error('order api failed', error);
-    return NextResponse.json({ error: 'A rendelés feldolgozása átmenetileg nem érhető el.' }, { status: 500 });
+    console.error('checkout preparation failed', error);
+    return NextResponse.json({ error: 'A rendelés feldolgozása átmenetileg nem sikerült. Kérlek ellenőrizd a rendeléseidet, mielőtt újra megpróbálod.' }, { status: 503 });
   }
 }
