@@ -88,6 +88,7 @@ select
   count(*) filter(where category='system' and severity='critical' and status in ('open','acknowledged','snoozed'))::integer as critical_system_alerts,
   (select count(*) from public.integration_jobs where status in ('failed','blocked'))::integer as failed_or_blocked_integration_jobs,
   (select count(*) from public.webhook_events where status='failed' and created_at>=now()-interval '7 days')::integer as failed_webhooks_7d,
-  (select max(completed_at) from public.control_processing_runs) as last_control_cycle_at;
+  (select max(completed_at) from public.control_processing_runs) as last_control_cycle_at
+from public.control_alerts;
 revoke all on public.control_system_health from public,anon,authenticated;
 grant select on public.control_system_health to service_role;
