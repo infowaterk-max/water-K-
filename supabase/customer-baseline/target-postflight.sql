@@ -13,6 +13,7 @@ declare
   public_policy_count integer;
   customer_rows bigint;
   helper_count integer;
+  recovery_routine_count integer;
   bad_helper_count integer;
   missing_policy_count integer;
   protected_table text;
@@ -32,6 +33,13 @@ begin
   if to_regclass('public.webshop_instance_commerce_settings') is null then missing := array_append(missing, 'public.webshop_instance_commerce_settings'); end if;
   if to_regclass('public.customer_instance_roles') is null then missing := array_append(missing, 'public.customer_instance_roles'); end if;
   if to_regclass('public.coupon_redemptions') is null then missing := array_append(missing, 'public.coupon_redemptions'); end if;
+  if to_regclass('public.recovery_objectives') is null then missing := array_append(missing, 'public.recovery_objectives'); end if;
+  if to_regclass('public.recovery_evidence') is null then missing := array_append(missing, 'public.recovery_evidence'); end if;
+  if to_regclass('public.recovery_drills') is null then missing := array_append(missing, 'public.recovery_drills'); end if;
+  if to_regclass('public.recovery_findings') is null then missing := array_append(missing, 'public.recovery_findings'); end if;
+  if to_regclass('public.recovery_events') is null then missing := array_append(missing, 'public.recovery_events'); end if;
+  if to_regclass('public.recovery_decisions') is null then missing := array_append(missing, 'public.recovery_decisions'); end if;
+  if to_regclass('public.recovery_runs') is null then missing := array_append(missing, 'public.recovery_runs'); end if;
 
   if cardinality(missing) > 0 then
     raise exception 'Fresh-install baseline is incomplete. Missing release objects: %', array_to_string(missing, ', ');
@@ -85,6 +93,20 @@ begin
   end if;
   if current_quote_count <> 1 then
     raise exception 'Current V2 tenant quote RPC is missing or ambiguous: %', current_quote_count;
+  end if;
+
+  select count(*) into recovery_routine_count
+  from pg_proc p
+  join pg_namespace n on n.oid = p.pronamespace
+  where n.nspname = 'public'
+    and p.proname in (
+      'detect_control_tower_alerts','process_recovery_governance_cycle','record_recovery_evidence',
+      'plan_recovery_drill','start_recovery_drill','complete_recovery_drill',
+      'acknowledge_recovery_finding','record_recovery_decision'
+    );
+
+  if recovery_routine_count <> 8 then
+    raise exception 'Current recovery/control routine set is incomplete: %/8', recovery_routine_count;
   end if;
 
   select count(*) into missing_policy_count
@@ -177,7 +199,14 @@ begin
     'inventory_snapshots',
     'purchase_order_items',
     'purchase_orders',
-    'suppliers'
+    'suppliers',
+    'recovery_objectives',
+    'recovery_evidence',
+    'recovery_drills',
+    'recovery_findings',
+    'recovery_events',
+    'recovery_decisions',
+    'recovery_runs'
   ] loop
     select c.oid, c.relrowsecurity
       into protected_oid, protected_rls
