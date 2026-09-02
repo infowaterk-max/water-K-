@@ -1,4 +1,6 @@
-export function resolveSupabaseServerKey(env: NodeJS.ProcessEnv = process.env) {
+type EnvironmentMap = Readonly<Record<string, string | undefined>>;
+
+export function resolveSupabaseServerKey(env: EnvironmentMap = process.env) {
   const environment = (env.DEPLOY_ENVIRONMENT ?? env.VERCEL_ENV ?? '')
     .trim()
     .toLowerCase();

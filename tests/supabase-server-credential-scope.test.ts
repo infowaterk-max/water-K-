@@ -41,6 +41,7 @@ describe('Supabase server credential scoping', () => {
       {
         encoding: 'utf8',
         env: {
+          ...process.env,
           VERCEL: '1',
           VERCEL_ENV: 'production',
           NEXT_PUBLIC_SUPABASE_URL: 'https://example.supabase.co',
@@ -56,12 +57,14 @@ describe('Supabase server credential scoping', () => {
   });
 
   it('accepts a production-only server credential configuration', () => {
+    const { SUPABASE_STAGING_SECRET_KEY: _stagingSecret, ...cleanEnv } = process.env;
     const result = spawnSync(
       process.execPath,
       [join(process.cwd(), 'scripts/validate-vercel-deploy-env.mjs')],
       {
         encoding: 'utf8',
         env: {
+          ...cleanEnv,
           VERCEL: '1',
           VERCEL_ENV: 'production',
           NEXT_PUBLIC_SUPABASE_URL: 'https://example.supabase.co',
