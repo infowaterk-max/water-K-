@@ -23,6 +23,11 @@ const normalizedIdentifiers=lower.replace(/"/g,'');
 
 const requiredObjects=[
   'public.webshop_instances',
+  'public.organizations',
+  'public.organization_members',
+  'public.role_bindings',
+  'public.feature_entitlements',
+  'public.webshop_sales_channels',
   'public.profiles',
   'public.products',
   'public.product_variants',
@@ -105,6 +110,19 @@ if(!/create\s+schema(?:\s+if\s+not\s+exists)?\s+(?:"?private"?)/i.test(sql)) fai
 if(!normalizedIdentifiers.includes('place_order_provider_v5_idempotent')) fail('current provider-neutral atomic checkout RPC is missing');
 if(!normalizedIdentifiers.includes('quote_tenant_checkout_v2')) fail('current tenant-aware checkout quote RPC is missing');
 if(/\b(?:create|replace)\s+(?:or\s+replace\s+)?function\s+(?:"?public"?\.)?"?place_order"?\s*\(/i.test(sql)) fail('obsolete public.place_order checkout overload is present');
+
+for(const marker of [
+  'public.provision_webshop_tenant_v1',
+  'private.sync_webshop_plan_entitlements',
+  'private.sync_webshop_plan_entitlements_trigger',
+  'webshop_instance_plan_entitlements_sync',
+]){
+  if(!normalizedIdentifiers.includes(marker)) fail(`atomic tenant provisioning marker is missing: ${marker}`);
+}
+if(!/organization_id\s+uuid\s+not\s+null/i.test(normalizedIdentifiers)){
+  fail('webshop_instances.organization_id must be NOT NULL in the reviewed baseline');
+}
+
 
 for(const helper of requiredRoutines.slice(2)){
   const escaped=helper.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');

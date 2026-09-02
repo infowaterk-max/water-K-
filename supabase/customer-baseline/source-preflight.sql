@@ -19,6 +19,10 @@ declare
   browser_grant_count integer;
   service_select_count integer;
   exposed_no_policy_count integer;
+  provisioning_routine_count integer;
+  provisioning_private_routine_count integer;
+  provisioning_trigger_count integer;
+  organization_nullable text;
 begin
   if to_regclass('public.webshop_instances') is null then missing := array_append(missing, 'public.webshop_instances'); end if;
   if to_regclass('public.profiles') is null then missing := array_append(missing, 'public.profiles'); end if;
@@ -137,6 +141,60 @@ begin
       )
   ) then
     raise exception 'Checkout RPC privilege model does not match the hardened release contract';
+  end if;
+
+  select is_nullable into organization_nullable
+  from information_schema.columns
+  where table_schema='public' and table_name='webshop_instances' and column_name='organization_id';
+
+  if organization_nullable is distinct from 'NO' then
+    raise exception 'webshop_instances.organization_id must be NOT NULL before baseline generation';
+  end if;
+
+  select count(*) into provisioning_routine_count
+  from pg_proc p join pg_namespace n on n.oid=p.pronamespace
+  where n.nspname='public' and p.proname='provision_webshop_tenant_v1';
+
+  if provisioning_routine_count <> 1 then
+    raise exception 'Atomic tenant provisioning RPC is missing or ambiguous: %', provisioning_routine_count;
+  end if;
+
+  if exists (
+    select 1 from pg_proc p join pg_namespace n on n.oid=p.pronamespace
+    where n.nspname='public' and p.proname='provision_webshop_tenant_v1'
+      and (
+        not p.prosecdef
+        or has_function_privilege('public',p.oid,'execute')
+        or has_function_privilege('anon',p.oid,'execute')
+        or has_function_privilege('authenticated',p.oid,'execute')
+        or not has_function_privilege('service_role',p.oid,'execute')
+      )
+  ) then
+    raise exception 'Atomic tenant provisioning RPC privilege model is invalid';
+  end if;
+
+  select count(*) into provisioning_private_routine_count
+  from pg_proc p join pg_namespace n on n.oid=p.pronamespace
+  where n.nspname='private'
+    and p.proname in ('sync_webshop_plan_entitlements','sync_webshop_plan_entitlements_trigger');
+
+  if provisioning_private_routine_count <> 2 then
+    raise exception 'Tenant plan entitlement sync routines are incomplete: %/2', provisioning_private_routine_count;
+  end if;
+
+  select count(*) into provisioning_trigger_count
+  from pg_trigger t
+  join pg_class c on c.oid=t.tgrelid
+  join pg_namespace n on n.oid=c.relnamespace
+  join pg_proc p on p.oid=t.tgfoid
+  join pg_namespace pn on pn.oid=p.pronamespace
+  where not t.tgisinternal
+    and n.nspname='public' and c.relname='webshop_instances'
+    and t.tgname='webshop_instance_plan_entitlements_sync'
+    and pn.nspname='private' and p.proname='sync_webshop_plan_entitlements_trigger';
+
+  if provisioning_trigger_count <> 1 then
+    raise exception 'Tenant plan entitlement sync trigger is missing or ambiguous: %', provisioning_trigger_count;
   end if;
 
   -- These control-plane/configuration tables are intentionally server-only.

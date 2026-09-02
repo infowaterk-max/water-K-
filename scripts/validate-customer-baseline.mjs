@@ -7,6 +7,11 @@ const manifestPath = resolve(root, 'supabase/customer-baseline/manifest.json');
 const forbidden = [/Water-K/i, /water-k-native/i, /info\.waterk/i, /WK-(?:040|750|25K)/i];
 const releaseMarkers = [
   'public.customer_instance_roles',
+  'public.organizations',
+  'public.organization_members',
+  'public.role_bindings',
+  'public.feature_entitlements',
+  'public.webshop_sales_channels',
   'public.coupon_redemptions',
   'public.recovery_objectives',
   'public.recovery_evidence',
@@ -25,6 +30,10 @@ const releaseMarkers = [
   'record_recovery_decision',
   'quote_tenant_checkout_v2',
   'place_order_provider_v5_idempotent',
+  'provision_webshop_tenant_v1',
+  'sync_webshop_plan_entitlements',
+  'sync_webshop_plan_entitlements_trigger',
+  'webshop_instance_plan_entitlements_sync',
   'return_cases_store_all',
   'return_case_items_store_all',
   'support_tickets_store_all',

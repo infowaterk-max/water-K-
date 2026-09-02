@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "status": "ready",
+  "status": "snapshot-required",
   "legacyMigrationReplay": false,
   "sourcePolicy": "schema-snapshot-only",
   "seedFile": "supabase/customer-baseline/seed.sql",
@@ -8,8 +8,8 @@
   "defaultPlan": "alap",
   "snapshotFile": "supabase/customer-baseline/migrations/0001_shoperation_v1_schema.sql",
   "snapshotCommand": "npm run db:customer:snapshot",
-  "freshInstallProofRequired": false,
-  "notes": "The current neutral Shoperation public/private schema snapshot, Supabase Auth bootstrap, neutral seed and target preflight/postflight contract passed on an empty disposable Fresh Install Supabase project. The exact proven contract is pinned by proofContractSha256; any contract drift makes the baseline guard fail closed until a new proof is completed.",
+  "freshInstallProofRequired": true,
+  "notes": "Atomic tenant provisioning changed the customer schema contract. Regenerate from the reviewed non-production source, review the single neutral schema snapshot, then rerun Fresh Install proof before this baseline can return to ready.",
   "authBootstrapFile": "supabase/customer-baseline/auth-bootstrap.sql",
-  "proofContractSha256": "8c81baf43d06af78fe6e023acb32a4c16c695fa61d216bfba90e3ceb6e23b27e"
+  "proofContractSha256": null
 }
