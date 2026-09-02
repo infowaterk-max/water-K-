@@ -3,9 +3,10 @@ name: Customer baseline snapshot candidate
 on:
   push:
     branches:
-      - feature/business-packages-v1
+      - core-engine-2-batch
     paths:
       - .github/workflows/customer-baseline-snapshot.yml
+      - supabase/customer-baseline/manifest.json
       - scripts/generate-customer-baseline.mjs
       - scripts/review-customer-baseline-snapshot.mjs
       - scripts/validate-customer-baseline.mjs
@@ -52,7 +53,7 @@ jobs:
           if git diff --cached --quiet; then
             echo "No snapshot changes to commit."
           else
-            git commit -m "db: refresh reviewed Shoperation baseline snapshot"
+            git commit -m "db: refresh reviewed Shoperation tenant baseline snapshot"
             git push
           fi
 

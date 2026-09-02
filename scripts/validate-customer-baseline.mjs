@@ -4,6 +4,30 @@ import { resolve } from 'node:path';
 const root = process.cwd();
 const manifestPath = resolve(root, 'supabase/customer-baseline/manifest.json');
 const forbidden = [/Water-K/i, /water-k-native/i, /info\.waterk/i, /WK-(?:040|750|25K)/i];
+const releaseMarkers = [
+  'public.customer_instance_roles',
+  'public.coupon_redemptions',
+  'quote_tenant_checkout_v2',
+  'place_order_provider_v5_idempotent',
+  'return_cases_store_all',
+  'return_case_items_store_all',
+  'support_tickets_store_all',
+  'support_ticket_messages_store_all',
+  'office_threads_store_all',
+  'office_messages_store_all',
+  'office_tasks_store_all',
+  'content_store_read',
+  'products_store_read',
+  'variants_store_read',
+  'orders_customer_or_store_read',
+  'order_items_customer_or_store_read',
+  'customer_instance_roles_self_select',
+  'is_platform_operator',
+  'can_read_store',
+  'can_manage_catalog',
+  'can_manage_orders',
+  'can_manage_support',
+];
 
 function fail(message) {
   console.error(`Customer baseline guard failed: ${message}`);
@@ -48,6 +72,13 @@ for (const name of migrations) {
   const sql = readFileSync(resolve(migrationDir, name), 'utf8');
   for (const pattern of forbidden) if (pattern.test(sql)) fail(`${name} contains forbidden customer-specific pattern ${pattern}`);
   if (/\bWK-/i.test(sql)) fail(`${name} contains a legacy SKU/order prefix assumption`);
+
+  if (manifest.status === 'snapshot-reviewed' || manifest.status === 'ready') {
+    const normalized = sql.toLowerCase().replace(/"/g, '');
+    for (const marker of releaseMarkers) {
+      if (!normalized.includes(marker)) fail(`${name} is stale or incomplete; missing release marker: ${marker}`);
+    }
+  }
 }
 
 console.log(`Customer baseline guard OK: status=${manifest.status}, migrations=${migrations.length}, legacy replay disabled.`);
