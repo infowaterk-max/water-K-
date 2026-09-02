@@ -13914,7 +13914,6 @@ CREATE POLICY "inventory_reservations_store_update" ON "public"."inventory_reser
 ALTER TABLE "public"."inventory_snapshots" ENABLE ROW LEVEL SECURITY;
 
 
-CREATE POLICY "inventory_snapshots_store_read" ON "public"."inventory_snapshots" FOR SELECT TO "authenticated" USING ("public"."can_read_store"("instance_id"));
 
 
 
@@ -14198,14 +14197,12 @@ CREATE POLICY "public reads approved reviews" ON "public"."product_reviews" FOR 
 ALTER TABLE "public"."purchase_order_items" ENABLE ROW LEVEL SECURITY;
 
 
-CREATE POLICY "purchase_order_items_store_all" ON "public"."purchase_order_items" TO "authenticated" USING ("public"."can_manage_procurement"("instance_id")) WITH CHECK ("public"."can_manage_procurement"("instance_id"));
 
 
 
 ALTER TABLE "public"."purchase_orders" ENABLE ROW LEVEL SECURITY;
 
 
-CREATE POLICY "purchase_orders_store_all" ON "public"."purchase_orders" TO "authenticated" USING ("public"."can_manage_procurement"("instance_id")) WITH CHECK ("public"."can_manage_procurement"("instance_id"));
 
 
 
@@ -14289,7 +14286,6 @@ ALTER TABLE "public"."stock_notifications" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "public"."suppliers" ENABLE ROW LEVEL SECURITY;
 
 
-CREATE POLICY "suppliers_store_all" ON "public"."suppliers" TO "authenticated" USING ("public"."can_manage_procurement"("instance_id")) WITH CHECK ("public"."can_manage_procurement"("instance_id"));
 
 
 

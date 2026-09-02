@@ -15,6 +15,13 @@ declare
   helper_count integer;
   bad_helper_count integer;
   missing_policy_count integer;
+  protected_table text;
+  protected_oid oid;
+  protected_rls boolean;
+  protected_policy_count integer;
+  browser_grant_count integer;
+  service_select_count integer;
+  exposed_no_policy_count integer;
 begin
   if to_regclass('public.webshop_instances') is null then missing := array_append(missing, 'public.webshop_instances'); end if;
   if to_regclass('public.profiles') is null then missing := array_append(missing, 'public.profiles'); end if;
@@ -157,6 +164,75 @@ begin
       )
   ) then
     raise exception 'Checkout RPC privilege model does not match the hardened release contract';
+  end if;
+
+  foreach protected_table in array array[
+    'webshop_instances',
+    'webshop_instance_members',
+    'webshop_instance_commerce_settings',
+    'webshop_instance_provider_connections',
+    'commerce_provider_catalog',
+    'platform_operators',
+    'communication_job_events',
+    'inventory_snapshots',
+    'purchase_order_items',
+    'purchase_orders',
+    'suppliers'
+  ] loop
+    select c.oid, c.relrowsecurity
+      into protected_oid, protected_rls
+    from pg_class c
+    join pg_namespace n on n.oid = c.relnamespace
+    where n.nspname = 'public' and c.relname = protected_table and c.relkind in ('r','p');
+
+    if protected_oid is null then
+      raise exception 'Protected server-only table is missing: public.%', protected_table;
+    end if;
+
+    select count(*) into protected_policy_count from pg_policy where polrelid = protected_oid;
+    if not protected_rls or protected_policy_count <> 0 then
+      raise exception 'Server-only boundary drift on public.%: rls=%, policies=%', protected_table, protected_rls, protected_policy_count;
+    end if;
+
+    select count(*) into browser_grant_count
+    from information_schema.table_privileges
+    where table_schema = 'public'
+      and table_name = protected_table
+      and grantee in ('anon','authenticated','PUBLIC');
+
+    if browser_grant_count <> 0 then
+      raise exception 'Browser-role grants found on server-only table public.%: %', protected_table, browser_grant_count;
+    end if;
+
+    select count(*) into service_select_count
+    from information_schema.table_privileges
+    where table_schema = 'public'
+      and table_name = protected_table
+      and grantee = 'service_role'
+      and privilege_type = 'SELECT';
+
+    if service_select_count = 0 then
+      raise exception 'service_role SELECT is missing on server-only table public.%', protected_table;
+    end if;
+  end loop;
+
+  select count(*) into exposed_no_policy_count
+  from pg_class c
+  join pg_namespace n on n.oid = c.relnamespace
+  where n.nspname = 'public'
+    and c.relkind in ('r','p')
+    and c.relrowsecurity
+    and not exists (select 1 from pg_policy p where p.polrelid = c.oid)
+    and exists (
+      select 1
+      from information_schema.table_privileges tp
+      where tp.table_schema = 'public'
+        and tp.table_name = c.relname
+        and tp.grantee in ('anon','authenticated','PUBLIC')
+    );
+
+  if exposed_no_policy_count <> 0 then
+    raise exception 'Public RLS tables without policies still expose browser-role grants: %', exposed_no_policy_count;
   end if;
 
   select count(*) into public_policy_count

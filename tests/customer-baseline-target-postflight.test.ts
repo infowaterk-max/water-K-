@@ -36,6 +36,27 @@ describe('Shoperation fresh-install target postflight',()=>{
     expect(sql).toContain('not p.prosecdef');
   });
 
+  it('enforces the server-only table boundary',()=>{
+    const sql=read('supabase/customer-baseline/target-postflight.sql');
+    for(const table of [
+      'webshop_instances',
+      'webshop_instance_members',
+      'webshop_instance_commerce_settings',
+      'webshop_instance_provider_connections',
+      'commerce_provider_catalog',
+      'platform_operators',
+      'communication_job_events',
+      'inventory_snapshots',
+      'purchase_order_items',
+      'purchase_orders',
+      'suppliers',
+    ]) expect(sql).toContain(`'${table}'`);
+    expect(sql).toContain('protected_policy_count <> 0');
+    expect(sql).toContain("grantee in ('anon','authenticated','PUBLIC')");
+    expect(sql).toContain("grantee = 'service_role'");
+    expect(sql).toContain('exposed_no_policy_count <> 0');
+  });
+
   it('requires customer-facing seed data to remain empty before provisioning',()=>{
     const sql=read('supabase/customer-baseline/target-postflight.sql');
     expect(sql).toContain('select count(*) from public.products');

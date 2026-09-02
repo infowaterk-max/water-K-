@@ -45,6 +45,13 @@ const requiredRoutines=[
   'can_manage_loyalty',
 ];
 
+const forbiddenServerOnlyPolicies=[
+  'inventory_snapshots_store_read',
+  'purchase_order_items_store_all',
+  'purchase_orders_store_all',
+  'suppliers_store_all',
+];
+
 const requiredPolicies=[
   'return_cases_store_all',
   'return_case_items_store_all',
@@ -69,6 +76,9 @@ for(const routineName of requiredRoutines){
 }
 for(const policyName of requiredPolicies){
   if(!normalizedIdentifiers.includes(`create policy ${policyName}`)) fail(`required tenant RLS policy is missing: ${policyName}`);
+}
+for(const policyName of forbiddenServerOnlyPolicies){
+  if(normalizedIdentifiers.includes(`create policy ${policyName}`)) fail(`server-only table must not expose browser policy: ${policyName}`);
 }
 
 if(!/create\s+schema(?:\s+if\s+not\s+exists)?\s+(?:"?private"?)/i.test(sql)) fail('required private schema is missing from the customer baseline');

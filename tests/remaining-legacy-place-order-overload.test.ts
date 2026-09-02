@@ -22,6 +22,18 @@ describe('legacy upgrade closure', () => {
     expect(sql).toContain('raise exception');
   });
 
+  it('drops obsolete authenticated procurement and inventory policies', () => {
+    const sql = source();
+    for (const policy of [
+      'inventory_snapshots_store_read',
+      'purchase_order_items_store_all',
+      'purchase_orders_store_all',
+      'suppliers_store_all',
+    ]) {
+      expect(sql).toContain(`drop policy if exists ${policy} on public.`);
+    }
+  });
+
   it('restores the current service-role-only grants missing from legacy upgrades', () => {
     const sql = source();
     for (const table of [
