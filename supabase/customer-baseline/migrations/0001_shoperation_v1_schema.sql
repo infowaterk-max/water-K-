@@ -22,11 +22,7 @@ ALTER SCHEMA "private" OWNER TO "postgres";
 CREATE SCHEMA IF NOT EXISTS "public";
 
 
-ALTER SCHEMA "public" OWNER TO "pg_database_owner";
-
-
-COMMENT ON SCHEMA "public" IS 'standard public schema';
-
+ALTER SCHEMA "public" OWNER TO "postgres";
 
 
 CREATE TYPE "public"."customer_journey_kind" AS ENUM (
@@ -248,12 +244,18 @@ CREATE OR REPLACE FUNCTION "private"."snapshot_order_item_tax"() RETURNS "trigge
     LANGUAGE "plpgsql" SECURITY DEFINER
     SET "search_path" TO ''
     AS $$
-declare v record; v_net integer;
+declare
+  v record;
+  v_net integer;
 begin
   if new.variant_id is null then return new; end if;
-  select gross_price_huf,net_price_huf,reseller_gross_price_huf,reseller_net_price_huf into v from public.product_variants where id=new.variant_id;
+  select gross_price_huf,net_price_huf,reseller_gross_price_huf,reseller_net_price_huf
+  into v from public.product_variants where id=new.variant_id;
   if not found then return new; end if;
-  v_net:=case when v.reseller_gross_price_huf is not null and v.reseller_net_price_huf is not null and new.unit_gross_huf=v.reseller_gross_price_huf then v.reseller_net_price_huf when new.unit_gross_huf=v.gross_price_huf then v.net_price_huf else null end;
+  v_net:=case
+    when v.reseller_gross_price_huf is not null and v.reseller_net_price_huf is not null and new.unit_gross_huf=v.reseller_gross_price_huf then v.reseller_net_price_huf
+    when new.unit_gross_huf=v.gross_price_huf then v.net_price_huf
+    else null end;
   if v_net is not null and v_net>0 then
     new.unit_net_huf_snapshot:=v_net;
     new.line_total_net_huf_snapshot:=v_net*new.quantity;
@@ -266,10 +268,88 @@ end;$$;
 ALTER FUNCTION "private"."snapshot_order_item_tax"() OWNER TO "postgres";
 
 
+CREATE OR REPLACE FUNCTION "private"."sync_webshop_plan_entitlements"("p_instance_id" "uuid") RETURNS "void"
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    SET "search_path" TO ''
+    AS $$
+declare
+  v_organization_id uuid;
+  v_plan text;
+  v_features text[];
+begin
+  select w.organization_id,w.subscription_plan
+    into v_organization_id,v_plan
+  from public.webshop_instances w
+  where w.id=p_instance_id;
+
+  if not found or v_organization_id is null then
+    raise exception 'TENANT_PLAN_SYNC_INSTANCE_NOT_FOUND';
+  end if;
+
+  if v_plan='alap' then
+    v_features:=array[
+      'catalog','inventory','orders','returns','customers','coupons','basicAnalytics',
+      'marketingBasics','contentMarketing','importExport','bulkOperations','wishlists',
+      'stockNotifications','productRecommendations','reviews','searchFiltering',
+      'commerceIntegrations','support'
+    ]::text[];
+  elsif v_plan='pro' then
+    v_features:=array[
+      'catalog','inventory','orders','returns','customers','coupons','basicAnalytics',
+      'marketingBasics','contentMarketing','importExport','bulkOperations','wishlists',
+      'stockNotifications','productRecommendations','reviews','searchFiltering',
+      'commerceIntegrations','support','advancedAnalytics','crm','advancedCampaigns',
+      'officeCommunication','automation','procurement','cashflow','executiveAnalytics',
+      'advancedIntegrations'
+    ]::text[];
+  else
+    raise exception 'TENANT_PLAN_SYNC_UNKNOWN_PLAN: %',v_plan;
+  end if;
+
+  delete from public.feature_entitlements
+  where instance_id=p_instance_id and source='plan';
+
+  insert into public.feature_entitlements(
+    organization_id,instance_id,feature_code,source,enabled,metadata
+  )
+  select
+    v_organization_id,
+    p_instance_id,
+    feature_code,
+    'plan',
+    true,
+    jsonb_build_object('plan',v_plan,'managed_by','tenant_plan_sync_v1')
+  from unnest(v_features) feature_code;
+end;
+$$;
+
+
+ALTER FUNCTION "private"."sync_webshop_plan_entitlements"("p_instance_id" "uuid") OWNER TO "postgres";
+
+
+CREATE OR REPLACE FUNCTION "private"."sync_webshop_plan_entitlements_trigger"() RETURNS "trigger"
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    SET "search_path" TO ''
+    AS $$
+begin
+  perform private.sync_webshop_plan_entitlements(new.id);
+  return new;
+end;
+$$;
+
+
+ALTER FUNCTION "private"."sync_webshop_plan_entitlements_trigger"() OWNER TO "postgres";
+
+
 CREATE OR REPLACE FUNCTION "private"."touch_product_variant_updated_at"() RETURNS "trigger"
     LANGUAGE "plpgsql" SECURITY DEFINER
     SET "search_path" TO ''
-    AS $$begin new.updated_at:=now(); return new; end;$$;
+    AS $$
+begin
+  new.updated_at := now();
+  return new;
+end;
+$$;
 
 
 ALTER FUNCTION "private"."touch_product_variant_updated_at"() OWNER TO "postgres";
@@ -304,6 +384,20 @@ CREATE OR REPLACE FUNCTION "public"."accrue_loyalty_points_from_paid_orders_v2"(
 
 
 ALTER FUNCTION "public"."accrue_loyalty_points_from_paid_orders_v2"("p_instance_id" "uuid") OWNER TO "postgres";
+
+
+CREATE OR REPLACE FUNCTION "public"."acknowledge_recovery_finding"("p_finding_id" "uuid", "p_actor_id" "uuid", "p_event_key" "text") RETURNS "void"
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    SET "search_path" TO ''
+    AS $$
+declare v public.recovery_findings;begin
+ select * into v from public.recovery_findings where id=p_finding_id for update;if not found then raise exception 'Finding nem található.';end if;if v.status='resolved' then raise exception 'Lezárt finding nem vehető át.';end if;
+ update public.recovery_findings set status='acknowledged',acknowledged_by=p_actor_id,updated_at=now() where id=p_finding_id;
+ insert into public.recovery_events(event_key,objective_id,finding_id,event_type,actor_id,metadata) values(p_event_key,v.objective_id,p_finding_id,'decision_recorded',p_actor_id,jsonb_build_object('decision','acknowledged')) on conflict(event_key) do nothing;
+end;$$;
+
+
+ALTER FUNCTION "public"."acknowledge_recovery_finding"("p_finding_id" "uuid", "p_actor_id" "uuid", "p_event_key" "text") OWNER TO "postgres";
 
 
 CREATE OR REPLACE FUNCTION "public"."action_proposal_is_stale"("p_proposal_id" "uuid") RETURNS boolean
@@ -449,7 +543,16 @@ ALTER FUNCTION "public"."add_release_change"("p_candidate_id" "uuid", "p_actor_i
 CREATE OR REPLACE FUNCTION "public"."admin_approve_communication_job"("p_job_id" "uuid", "p_actor" "uuid", "p_note" "text" DEFAULT NULL::"text") RETURNS boolean
     LANGUAGE "plpgsql" SECURITY DEFINER
     SET "search_path" TO ''
-    AS $$declare j public.communication_jobs%rowtype; begin if not exists(select 1 from public.profiles where id=p_actor and role='admin') then raise exception 'admin required';end if; select * into j from public.communication_jobs where id=p_job_id for update;if not found then return false;end if; if j.status<>'pending' then raise exception 'job cannot be approved';end if; if j.purpose='marketing' and not public.has_marketing_consent(j.recipient_email,'email') then raise exception 'marketing consent required';end if; update public.communication_jobs set approved_at=now(),approved_by=p_actor,updated_at=now() where id=j.id; insert into public.communication_job_events(job_id,actor_user_id,action,previous_status,new_status,previous_scheduled_at,new_scheduled_at,note) values(j.id,p_actor,'approve',j.status,j.status,j.scheduled_at,j.scheduled_at,left(p_note,1000));return true; end$$;
+    AS $$
+declare j public.communication_jobs%rowtype;
+begin
+ if not exists(select 1 from public.profiles where id=p_actor and role='admin') then raise exception 'admin required';end if;
+ select * into j from public.communication_jobs where id=p_job_id for update;if not found then return false;end if;
+ if j.status<>'pending' then raise exception 'job cannot be approved';end if;
+ if j.purpose='marketing' and not public.has_marketing_consent(j.recipient_email,'email') then raise exception 'marketing consent required';end if;
+ update public.communication_jobs set approved_at=now(),approved_by=p_actor,updated_at=now() where id=j.id;
+ insert into public.communication_job_events(job_id,actor_user_id,action,previous_status,new_status,previous_scheduled_at,new_scheduled_at,note) values(j.id,p_actor,'approve',j.status,j.status,j.scheduled_at,j.scheduled_at,left(p_note,1000));return true;
+end $$;
 
 
 ALTER FUNCTION "public"."admin_approve_communication_job"("p_job_id" "uuid", "p_actor" "uuid", "p_note" "text") OWNER TO "postgres";
@@ -480,7 +583,18 @@ ALTER FUNCTION "public"."admin_approve_communication_job_v2"("p_instance_id" "uu
 CREATE OR REPLACE FUNCTION "public"."admin_block_communication_email"("p_email" "text", "p_actor" "uuid", "p_note" "text" DEFAULT NULL::"text") RETURNS "uuid"
     LANGUAGE "plpgsql" SECURITY DEFINER
     SET "search_path" TO ''
-    AS $$declare v_id uuid;v_email text:=lower(trim(p_email)); begin if not exists(select 1 from public.profiles where id=p_actor and role='admin') then raise exception 'admin required';end if; if v_email='' then raise exception 'email required';end if; select id into v_id from public.communication_suppressions where lower(email)=v_email and active=true order by created_at desc limit 1 for update; if v_id is null then insert into public.communication_suppressions(email,reason,source,note,active) values(v_email,'manual','admin',left(p_note,1000),true) returning id into v_id; end if; insert into public.communication_suppression_events(suppression_id,email,actor_user_id,action,reason,note) values(v_id,v_email,p_actor,'block','manual',left(p_note,1000)); return v_id; end$$;
+    AS $$
+declare v_id uuid;v_email text:=lower(trim(p_email));
+begin
+ if not exists(select 1 from public.profiles where id=p_actor and role='admin') then raise exception 'admin required';end if;
+ if v_email='' then raise exception 'email required';end if;
+ select id into v_id from public.communication_suppressions where lower(email)=v_email and active=true order by created_at desc limit 1 for update;
+ if v_id is null then
+  insert into public.communication_suppressions(email,reason,source,note,active) values(v_email,'manual','admin',left(p_note,1000),true) returning id into v_id;
+ end if;
+ insert into public.communication_suppression_events(suppression_id,email,actor_user_id,action,reason,note) values(v_id,v_email,p_actor,'block','manual',left(p_note,1000));
+ return v_id;
+end $$;
 
 
 ALTER FUNCTION "public"."admin_block_communication_email"("p_email" "text", "p_actor" "uuid", "p_note" "text") OWNER TO "postgres";
@@ -513,7 +627,19 @@ ALTER FUNCTION "public"."admin_block_communication_email_v2"("p_instance_id" "uu
 CREATE OR REPLACE FUNCTION "public"."admin_manage_communication_job"("p_job_id" "uuid", "p_actor" "uuid", "p_action" "text", "p_scheduled_at" timestamp with time zone DEFAULT NULL::timestamp with time zone, "p_note" "text" DEFAULT NULL::"text") RETURNS boolean
     LANGUAGE "plpgsql" SECURITY DEFINER
     SET "search_path" TO ''
-    AS $$declare j public.communication_jobs%rowtype; v_status text; v_schedule timestamptz; begin if not exists(select 1 from public.profiles where id=p_actor and role='admin') then raise exception 'admin required'; end if; select * into j from public.communication_jobs where id=p_job_id for update; if not found then return false; end if; if p_action='cancel' then if j.status not in('pending','failed','blocked') then raise exception 'job cannot be cancelled'; end if; v_status='cancelled';v_schedule=j.scheduled_at; elsif p_action='reschedule' then if j.status not in('pending','failed','blocked') or p_scheduled_at is null then raise exception 'job cannot be rescheduled'; end if;v_status='pending';v_schedule=p_scheduled_at; elsif p_action='retry' then if j.status not in('failed','blocked') then raise exception 'job cannot be retried'; end if;v_status='pending';v_schedule=coalesce(p_scheduled_at,now()); elsif p_action='approve' then if j.status<>'pending' then raise exception 'job cannot be approved'; end if;v_status='pending';v_schedule=coalesce(p_scheduled_at,j.scheduled_at); else raise exception 'invalid action'; end if; update public.communication_jobs set status=v_status,scheduled_at=v_schedule,last_error=case when p_action in('retry','reschedule') then null else last_error end,claim_token=null,claimed_at=null,updated_at=now() where id=j.id; insert into public.communication_job_events(job_id,actor_user_id,action,previous_status,new_status,previous_scheduled_at,new_scheduled_at,note) values(j.id,p_actor,p_action,j.status,v_status,j.scheduled_at,v_schedule,left(p_note,1000)); return true; end$$;
+    AS $$
+declare j public.communication_jobs%rowtype; v_status text; v_schedule timestamptz;
+begin
+ if not exists(select 1 from public.profiles where id=p_actor and role='admin') then raise exception 'admin required'; end if;
+ select * into j from public.communication_jobs where id=p_job_id for update;if not found then return false;end if;
+ if p_action='cancel' then if j.status not in('pending','failed','blocked') then raise exception 'job cannot be cancelled';end if;v_status='cancelled';v_schedule=j.scheduled_at;
+ elsif p_action='reschedule' then if j.status not in('pending','failed','blocked') or p_scheduled_at is null then raise exception 'job cannot be rescheduled';end if;v_status='pending';v_schedule=p_scheduled_at;
+ elsif p_action='retry' then if j.status not in('failed','blocked') then raise exception 'job cannot be retried';end if;v_status='pending';v_schedule=coalesce(p_scheduled_at,now());
+ elsif p_action='approve' then if j.status<>'pending' then raise exception 'job cannot be approved';end if;v_status='pending';v_schedule=coalesce(p_scheduled_at,j.scheduled_at);
+ else raise exception 'invalid action';end if;
+ update public.communication_jobs set status=v_status,scheduled_at=v_schedule,last_error=case when p_action in('retry','reschedule') then null else last_error end,claim_token=null,claimed_at=null,updated_at=now() where id=j.id;
+ insert into public.communication_job_events(job_id,actor_user_id,action,previous_status,new_status,previous_scheduled_at,new_scheduled_at,note) values(j.id,p_actor,p_action,j.status,v_status,j.scheduled_at,v_schedule,left(p_note,1000));return true;
+end $$;
 
 
 ALTER FUNCTION "public"."admin_manage_communication_job"("p_job_id" "uuid", "p_actor" "uuid", "p_action" "text", "p_scheduled_at" timestamp with time zone, "p_note" "text") OWNER TO "postgres";
@@ -548,7 +674,20 @@ ALTER FUNCTION "public"."admin_manage_communication_job_v2"("p_instance_id" "uui
 CREATE OR REPLACE FUNCTION "public"."admin_manage_marketing_campaign"("p_campaign_id" "uuid", "p_actor" "uuid", "p_action" "text", "p_note" "text" DEFAULT NULL::"text") RETURNS "jsonb"
     LANGUAGE "plpgsql" SECURITY DEFINER
     SET "search_path" TO ''
-    AS $$declare c public.marketing_campaigns%rowtype;r record;v_job uuid;v_queued integer:=0;begin if not exists(select 1 from public.profiles where id=p_actor and role='admin') then raise exception 'admin required';end if;select * into c from public.marketing_campaigns where id=p_campaign_id for update;if not found then raise exception 'campaign not found';end if; if p_action='submit_review' then if c.status<>'draft' then raise exception 'invalid state';end if;update public.marketing_campaigns set status='review',updated_at=now() where id=c.id; elsif p_action='approve' then if c.status<>'review' then raise exception 'invalid state';end if;update public.marketing_campaigns set status='approved',approved_by=p_actor,approved_at=now(),updated_at=now() where id=c.id; elsif p_action='queue' then if c.status<>'approved' then raise exception 'invalid state';end if; for r in select * from public.marketing_campaign_recipients where campaign_id=c.id and eligible=true and communication_job_id is null loop if public.has_marketing_consent(r.email,'email') and not public.is_communication_suppressed(r.email) then begin v_job:=public.enqueue_communication(r.email,r.user_id,'marketing',c.template_key,jsonb_build_object('customerName',coalesce(r.customer_name,''),'campaignId',c.id),concat('campaign:',c.id,':',lower(r.email)),coalesce(c.scheduled_at,now()));update public.marketing_campaign_recipients set communication_job_id=v_job where id=r.id;v_queued:=v_queued+1;exception when others then null;end; else update public.marketing_campaign_recipients set eligible=false,exclusion_reason='ELIGIBILITY_CHANGED_BEFORE_QUEUE' where id=r.id;end if; end loop;update public.marketing_campaigns set status='queued',updated_at=now() where id=c.id; elsif p_action='cancel' then if c.status in('queued','completed','cancelled') then raise exception 'invalid state';end if;update public.marketing_campaigns set status='cancelled',updated_at=now() where id=c.id; else raise exception 'invalid action';end if; insert into public.marketing_campaign_events(campaign_id,actor_user_id,action,note) values(c.id,p_actor,p_action,left(p_note,1000));return jsonb_build_object('ok',true,'queued',v_queued);end$$;
+    AS $$
+declare c public.marketing_campaigns%rowtype;r record;v_job uuid;v_queued integer:=0;begin
+ if not exists(select 1 from public.profiles where id=p_actor and role='admin') then raise exception 'admin required';end if;select * into c from public.marketing_campaigns where id=p_campaign_id for update;if not found then raise exception 'campaign not found';end if;
+ if p_action='submit_review' then if c.status<>'draft' then raise exception 'invalid state';end if;update public.marketing_campaigns set status='review',updated_at=now() where id=c.id;
+ elsif p_action='approve' then if c.status<>'review' then raise exception 'invalid state';end if;update public.marketing_campaigns set status='approved',approved_by=p_actor,approved_at=now(),updated_at=now() where id=c.id;
+ elsif p_action='queue' then if c.status<>'approved' then raise exception 'invalid state';end if;
+  for r in select * from public.marketing_campaign_recipients where campaign_id=c.id and eligible=true and communication_job_id is null loop
+   if public.has_marketing_consent(r.email,'email') and not public.is_communication_suppressed(r.email) then
+    begin v_job:=public.enqueue_communication(r.email,r.user_id,'marketing',c.template_key,jsonb_build_object('customerName',coalesce(r.customer_name,''),'campaignId',c.id),concat('campaign:',c.id,':',lower(r.email)),coalesce(c.scheduled_at,now()));update public.marketing_campaign_recipients set communication_job_id=v_job where id=r.id;v_queued:=v_queued+1;exception when others then null;end;
+   else update public.marketing_campaign_recipients set eligible=false,exclusion_reason='ELIGIBILITY_CHANGED_BEFORE_QUEUE' where id=r.id;end if;
+  end loop;update public.marketing_campaigns set status='queued',updated_at=now() where id=c.id;
+ elsif p_action='cancel' then if c.status in('queued','completed','cancelled') then raise exception 'invalid state';end if;update public.marketing_campaigns set status='cancelled',updated_at=now() where id=c.id;
+ else raise exception 'invalid action';end if;
+ insert into public.marketing_campaign_events(campaign_id,actor_user_id,action,note) values(c.id,p_actor,p_action,left(p_note,1000));return jsonb_build_object('ok',true,'queued',v_queued);end $$;
 
 
 ALTER FUNCTION "public"."admin_manage_marketing_campaign"("p_campaign_id" "uuid", "p_actor" "uuid", "p_action" "text", "p_note" "text") OWNER TO "postgres";
@@ -656,7 +795,16 @@ ALTER FUNCTION "public"."admin_manage_marketing_campaign_v2"("p_instance_id" "uu
 CREATE OR REPLACE FUNCTION "public"."admin_release_communication_suppression"("p_suppression_id" "uuid", "p_actor" "uuid", "p_note" "text" DEFAULT NULL::"text") RETURNS boolean
     LANGUAGE "plpgsql" SECURITY DEFINER
     SET "search_path" TO ''
-    AS $$declare s public.communication_suppressions%rowtype; begin if not exists(select 1 from public.profiles where id=p_actor and role='admin') then raise exception 'admin required';end if; select * into s from public.communication_suppressions where id=p_suppression_id for update;if not found then return false;end if; if not s.active then return true;end if; update public.communication_suppressions set active=false,released_at=now(),released_by=p_actor where id=s.id; insert into public.communication_suppression_events(suppression_id,email,actor_user_id,action,reason,note) values(s.id,s.email,p_actor,'release',s.reason,left(p_note,1000)); return true; end$$;
+    AS $$
+declare s public.communication_suppressions%rowtype;
+begin
+ if not exists(select 1 from public.profiles where id=p_actor and role='admin') then raise exception 'admin required';end if;
+ select * into s from public.communication_suppressions where id=p_suppression_id for update;if not found then return false;end if;
+ if not s.active then return true;end if;
+ update public.communication_suppressions set active=false,released_at=now(),released_by=p_actor where id=s.id;
+ insert into public.communication_suppression_events(suppression_id,email,actor_user_id,action,reason,note) values(s.id,s.email,p_actor,'release',s.reason,left(p_note,1000));
+ return true;
+end $$;
 
 
 ALTER FUNCTION "public"."admin_release_communication_suppression"("p_suppression_id" "uuid", "p_actor" "uuid", "p_note" "text") OWNER TO "postgres";
@@ -731,17 +879,33 @@ CREATE OR REPLACE FUNCTION "public"."apply_loyalty_tier_bonus_points"() RETURNS 
 declare v_count integer:=0;v_cutover timestamptz;begin
  select tier_bonus_cutover_at into v_cutover from public.loyalty_program_settings where singleton=true;
  insert into public.loyalty_ledger(customer_id,event_key,entry_type,points,order_id,reason,metadata,occurred_at)
- select e.customer_id,'tier-bonus:'||e.order_id::text,'earn',greatest(1,round(e.points*(case p.value_tier when 'silver' then 0.10 when 'gold' then 0.25 when 'platinum' then 0.50 else 0 end))::integer),e.order_id,
-        'Hűségszint alapján jóváírt extra pont',jsonb_build_object('base_event_key',e.event_key,'tier_at_bonus',p.value_tier,'base_points',e.points,'multiplier',case p.value_tier when 'silver' then 1.10 when 'gold' then 1.25 when 'platinum' then 1.50 else 1 end),now()
+ select e.customer_id,
+        'tier-bonus:'||e.order_id::text,
+        'earn',
+        greatest(1,round(e.points*(case p.value_tier when 'silver' then 0.10 when 'gold' then 0.25 when 'platinum' then 0.50 else 0 end))::integer),
+        e.order_id,
+        'Hűségszint alapján jóváírt extra pont',
+        jsonb_build_object('base_event_key',e.event_key,'tier_at_bonus',p.value_tier,'base_points',e.points,'multiplier',case p.value_tier when 'silver' then 1.10 when 'gold' then 1.25 when 'platinum' then 1.50 else 1 end),
+        now()
  from public.loyalty_ledger e
  join public.customer_value_profiles p on p.customer_id=e.customer_id
  join public.orders o on o.id=e.order_id
- where e.entry_type='earn' and e.event_key like 'order-earn:%' and e.order_id is not null and e.occurred_at>=v_cutover
-   and p.value_tier in ('silver','gold','platinum') and o.status in ('paid','processing','shipped','completed')
+ where e.entry_type='earn'
+   and e.event_key like 'order-earn:%'
+   and e.order_id is not null
+   and e.occurred_at>=v_cutover
+   and p.value_tier in ('silver','gold','platinum')
+   and o.status in ('paid','processing','shipped','completed')
    and not exists(select 1 from public.loyalty_ledger r where r.reverses_entry_id=e.id and r.entry_type='reversal')
-   and not exists(select 1 from public.return_cases rc where rc.order_id=o.id group by rc.order_id having coalesce(sum(rc.refund_amount_gross_huf) filter(where rc.status='refunded'),0)>=o.total_gross_huf)
+   and not exists(
+     select 1 from public.return_cases rc
+     where rc.order_id=o.id
+     group by rc.order_id
+     having coalesce(sum(rc.refund_amount_gross_huf) filter(where rc.status='refunded'),0)>=o.total_gross_huf
+   )
  on conflict(event_key) do nothing;
- get diagnostics v_count=row_count; return v_count;
+ get diagnostics v_count=row_count;
+ return v_count;
 end;$$;
 
 
@@ -853,6 +1017,42 @@ $$;
 ALTER FUNCTION "public"."block_post_release_immutable_mutation"() OWNER TO "postgres";
 
 
+CREATE OR REPLACE FUNCTION "public"."block_recovery_append_only_mutation"() RETURNS "trigger"
+    LANGUAGE "plpgsql"
+    SET "search_path" TO ''
+    AS $$begin raise exception 'Append-only recovery record cannot be modified.';end;$$;
+
+
+ALTER FUNCTION "public"."block_recovery_append_only_mutation"() OWNER TO "postgres";
+
+
+CREATE OR REPLACE FUNCTION "public"."block_recovery_decision_mutation"() RETURNS "trigger"
+    LANGUAGE "plpgsql"
+    SET "search_path" TO ''
+    AS $$begin raise exception 'Recovery decision append-only.';end;$$;
+
+
+ALTER FUNCTION "public"."block_recovery_decision_mutation"() OWNER TO "postgres";
+
+
+CREATE OR REPLACE FUNCTION "public"."block_recovery_objective_mutation"() RETURNS "trigger"
+    LANGUAGE "plpgsql"
+    SET "search_path" TO ''
+    AS $$begin raise exception 'Recovery objective verzión belül immutable; új definícióhoz új verzió szükséges.';end;$$;
+
+
+ALTER FUNCTION "public"."block_recovery_objective_mutation"() OWNER TO "postgres";
+
+
+CREATE OR REPLACE FUNCTION "public"."block_recovery_run_mutation"() RETURNS "trigger"
+    LANGUAGE "plpgsql"
+    SET "search_path" TO ''
+    AS $$begin if old.status in('completed','failed') then raise exception 'Terminal recovery run immutable.';end if;return new;end;$$;
+
+
+ALTER FUNCTION "public"."block_recovery_run_mutation"() OWNER TO "postgres";
+
+
 CREATE OR REPLACE FUNCTION "public"."block_rollout_ledger_mutation"() RETURNS "trigger"
     LANGUAGE "plpgsql"
     SET "search_path" TO ''
@@ -860,6 +1060,15 @@ CREATE OR REPLACE FUNCTION "public"."block_rollout_ledger_mutation"() RETURNS "t
 
 
 ALTER FUNCTION "public"."block_rollout_ledger_mutation"() OWNER TO "postgres";
+
+
+CREATE OR REPLACE FUNCTION "public"."block_terminal_recovery_drill_mutation"() RETURNS "trigger"
+    LANGUAGE "plpgsql"
+    SET "search_path" TO ''
+    AS $$begin if old.status in('passed','failed','cancelled') then raise exception 'Lezárt recovery drill immutable.';end if;return new;end;$$;
+
+
+ALTER FUNCTION "public"."block_terminal_recovery_drill_mutation"() OWNER TO "postgres";
 
 
 CREATE OR REPLACE FUNCTION "public"."bulk_update_product_variants"("p_changes" "jsonb", "p_actor" "uuid") RETURNS "jsonb"
@@ -876,49 +1085,27 @@ declare
   new_active boolean;
   results jsonb := '[]'::jsonb;
 begin
-  if jsonb_typeof(p_changes) <> 'array' then
-    raise exception 'p_changes must be an array';
-  end if;
-  if jsonb_array_length(p_changes) > 500 then
-    raise exception 'too many changes';
-  end if;
-
+  if jsonb_typeof(p_changes) <> 'array' then raise exception 'p_changes must be an array'; end if;
+  if jsonb_array_length(p_changes) > 500 then raise exception 'too many changes'; end if;
   for item in select value from jsonb_array_elements(p_changes)
   loop
     variant_id := (item->>'id')::uuid;
     select * into current_row from public.product_variants where id = variant_id for update;
     if not found then raise exception 'variant not found: %', variant_id; end if;
-
     new_stock := case when item ? 'stock' then (item->>'stock')::integer else current_row.stock_quantity end;
     new_gross := case when item ? 'grossPrice' then (item->>'grossPrice')::integer else current_row.gross_price_huf end;
     new_net := case when item ? 'netPrice' then (item->>'netPrice')::integer else current_row.net_price_huf end;
     new_active := case when item ? 'active' then (item->>'active')::boolean else current_row.active end;
-
     if new_stock < 0 or new_stock > 100000 then raise exception 'invalid stock for %', variant_id; end if;
     if new_gross < 0 or new_gross > 10000000 then raise exception 'invalid gross price for %', variant_id; end if;
     if new_net < 0 or new_net > 10000000 then raise exception 'invalid net price for %', variant_id; end if;
-
-    update public.product_variants
-      set stock_quantity = new_stock,
-          gross_price_huf = new_gross,
-          net_price_huf = new_net,
-          active = new_active,
-          updated_at = now()
-      where id = variant_id;
-
+    update public.product_variants set stock_quantity=new_stock,gross_price_huf=new_gross,net_price_huf=new_net,active=new_active,updated_at=now() where id=variant_id;
     if new_stock <> current_row.stock_quantity then
       insert into public.inventory_events(variant_id,change_quantity,previous_stock,new_stock,reason,actor_user_id,metadata)
       values(variant_id,new_stock-current_row.stock_quantity,current_row.stock_quantity,new_stock,'bulk_admin_adjustment',p_actor,jsonb_build_object('sku',current_row.sku));
     end if;
-
-    results := results || jsonb_build_array(jsonb_build_object(
-      'id', variant_id,
-      'sku', current_row.sku,
-      'before', jsonb_build_object('stock',current_row.stock_quantity,'grossPrice',current_row.gross_price_huf,'netPrice',current_row.net_price_huf,'active',current_row.active),
-      'after', jsonb_build_object('stock',new_stock,'grossPrice',new_gross,'netPrice',new_net,'active',new_active)
-    ));
+    results := results || jsonb_build_array(jsonb_build_object('id',variant_id,'sku',current_row.sku,'before',jsonb_build_object('stock',current_row.stock_quantity,'grossPrice',current_row.gross_price_huf,'netPrice',current_row.net_price_huf,'active',current_row.active),'after',jsonb_build_object('stock',new_stock,'grossPrice',new_gross,'netPrice',new_net,'active',new_active)));
   end loop;
-
   return results;
 end;
 $$;
@@ -1040,16 +1227,42 @@ CREATE OR REPLACE FUNCTION "public"."capture_inventory_snapshot"("p_snapshot_dat
     LANGUAGE "plpgsql" SECURITY DEFINER
     SET "search_path" TO ''
     AS $$
-declare affected integer;
+declare
+  affected integer;
 begin
- insert into public.inventory_snapshots(snapshot_date,variant_id,stock_quantity,unit_cost_net_huf,inventory_cost_net_huf,retail_net_price_huf,inventory_retail_net_huf,captured_at)
- select p_snapshot_date,pv.id,greatest(coalesce(pv.stock_quantity,0),0),pv.unit_cost_net_huf,case when pv.unit_cost_net_huf is null then null else greatest(coalesce(pv.stock_quantity,0),0)*pv.unit_cost_net_huf end,pv.net_price_huf,greatest(coalesce(pv.stock_quantity,0),0)*pv.net_price_huf,now() from public.product_variants pv
- on conflict(snapshot_date,variant_id) do update set stock_quantity=excluded.stock_quantity,unit_cost_net_huf=excluded.unit_cost_net_huf,inventory_cost_net_huf=excluded.inventory_cost_net_huf,retail_net_price_huf=excluded.retail_net_price_huf,inventory_retail_net_huf=excluded.inventory_retail_net_huf,captured_at=now();
- get diagnostics affected=row_count; return affected;
-end;$$;
+  insert into public.inventory_snapshots(
+    snapshot_date, variant_id, stock_quantity, unit_cost_net_huf,
+    inventory_cost_net_huf, retail_net_price_huf, inventory_retail_net_huf, captured_at
+  )
+  select
+    p_snapshot_date,
+    pv.id,
+    greatest(coalesce(pv.stock_quantity, 0), 0),
+    pv.unit_cost_net_huf,
+    case when pv.unit_cost_net_huf is null then null else greatest(coalesce(pv.stock_quantity,0),0) * pv.unit_cost_net_huf end,
+    pv.net_price_huf,
+    greatest(coalesce(pv.stock_quantity,0),0) * pv.net_price_huf,
+    now()
+  from public.product_variants pv
+  on conflict (snapshot_date, variant_id) do update set
+    stock_quantity = excluded.stock_quantity,
+    unit_cost_net_huf = excluded.unit_cost_net_huf,
+    inventory_cost_net_huf = excluded.inventory_cost_net_huf,
+    retail_net_price_huf = excluded.retail_net_price_huf,
+    inventory_retail_net_huf = excluded.inventory_retail_net_huf,
+    captured_at = now();
+
+  get diagnostics affected = row_count;
+  return affected;
+end;
+$$;
 
 
 ALTER FUNCTION "public"."capture_inventory_snapshot"("p_snapshot_date" "date") OWNER TO "postgres";
+
+
+COMMENT ON FUNCTION "public"."capture_inventory_snapshot"("p_snapshot_date" "date") IS 'Idempotently captures all current product variant stock and valuation fields for one business date.';
+
 
 
 CREATE OR REPLACE FUNCTION "public"."capture_order_coupon_redemption"() RETURNS "trigger"
@@ -1105,7 +1318,16 @@ ALTER TABLE "public"."communication_jobs" OWNER TO "postgres";
 CREATE OR REPLACE FUNCTION "public"."claim_communication_jobs"("p_limit" integer DEFAULT 10) RETURNS SETOF "public"."communication_jobs"
     LANGUAGE "plpgsql" SECURITY DEFINER
     SET "search_path" TO ''
-    AS $$begin return query with candidates as(select id from public.communication_jobs where status='pending' and scheduled_at<=now() and (requires_approval=false or approved_at is not null) order by scheduled_at,created_at for update skip locked limit greatest(1,least(p_limit,50))),claimed as(update public.communication_jobs j set status='processing',claim_token=gen_random_uuid(),claimed_at=now(),attempts=j.attempts+1,updated_at=now() from candidates c where j.id=c.id returning j.*) select * from claimed; end$$;
+    AS $$
+begin
+ return query with candidates as (
+  select id from public.communication_jobs
+  where status='pending' and scheduled_at<=now() and (requires_approval=false or approved_at is not null)
+  order by scheduled_at,created_at for update skip locked limit greatest(1,least(p_limit,50))
+ ),claimed as (
+  update public.communication_jobs j set status='processing',claim_token=gen_random_uuid(),claimed_at=now(),attempts=j.attempts+1,updated_at=now() from candidates c where j.id=c.id returning j.*
+ ) select * from claimed;
+end $$;
 
 
 ALTER FUNCTION "public"."claim_communication_jobs"("p_limit" integer) OWNER TO "postgres";
@@ -1135,7 +1357,19 @@ ALTER FUNCTION "public"."claim_communication_jobs_v2"("p_instance_id" "uuid", "p
 CREATE OR REPLACE FUNCTION "public"."claim_integration_job"("p_id" "uuid") RETURNS TABLE("id" "uuid", "processing_token" "uuid")
     LANGUAGE "plpgsql" SECURITY DEFINER
     SET "search_path" TO ''
-    AS $$begin return query update public.integration_jobs j set status='processing',processing_token=gen_random_uuid(),updated_at=now(),next_attempt_at=null where j.id=p_id and (j.status in ('pending','failed','blocked') or (j.status='processing' and j.updated_at<=now()-interval '15 minutes')) returning j.id,j.processing_token; end;$$;
+    AS $$
+begin
+  return query
+  update public.integration_jobs j
+  set status='processing', processing_token=gen_random_uuid(), updated_at=now(), next_attempt_at=null
+  where j.id=p_id
+    and (
+      j.status in ('pending','failed','blocked')
+      or (j.status='processing' and j.updated_at <= now() - interval '15 minutes')
+    )
+  returning j.id, j.processing_token;
+end;
+$$;
 
 
 ALTER FUNCTION "public"."claim_integration_job"("p_id" "uuid") OWNER TO "postgres";
@@ -1170,7 +1404,30 @@ ALTER FUNCTION "public"."claim_integration_job_v2"("p_instance_id" "uuid", "p_id
 CREATE OR REPLACE FUNCTION "public"."claim_integration_jobs"("p_limit" integer DEFAULT 10) RETURNS TABLE("id" "uuid", "processing_token" "uuid")
     LANGUAGE "plpgsql" SECURITY DEFINER
     SET "search_path" TO ''
-    AS $$begin return query with picked as (select j.id from public.integration_jobs j where (j.status='pending' or (j.status='failed' and j.next_attempt_at is not null and j.next_attempt_at<=now()) or (j.status='processing' and j.updated_at<=now()-interval '15 minutes')) order by j.created_at for update skip locked limit greatest(1,least(coalesce(p_limit,10),50))), claimed as (update public.integration_jobs j set status='processing',processing_token=gen_random_uuid(),updated_at=now() from picked where j.id=picked.id returning j.id,j.processing_token) select claimed.id,claimed.processing_token from claimed; end;$$;
+    AS $$
+begin
+  return query
+  with picked as (
+    select j.id
+    from public.integration_jobs j
+    where (
+      j.status = 'pending'
+      or (j.status = 'failed' and j.next_attempt_at is not null and j.next_attempt_at <= now())
+      or (j.status = 'processing' and j.updated_at <= now() - interval '15 minutes')
+    )
+    order by j.created_at
+    for update skip locked
+    limit greatest(1, least(coalesce(p_limit,10), 50))
+  ), claimed as (
+    update public.integration_jobs j
+    set status='processing', processing_token=gen_random_uuid(), updated_at=now()
+    from picked
+    where j.id=picked.id
+    returning j.id, j.processing_token
+  )
+  select claimed.id, claimed.processing_token from claimed;
+end;
+$$;
 
 
 ALTER FUNCTION "public"."claim_integration_jobs"("p_limit" integer) OWNER TO "postgres";
@@ -1179,7 +1436,12 @@ ALTER FUNCTION "public"."claim_integration_jobs"("p_limit" integer) OWNER TO "po
 CREATE OR REPLACE FUNCTION "public"."complete_communication_job"("p_id" "uuid", "p_claim_token" "uuid", "p_provider_message_id" "text") RETURNS boolean
     LANGUAGE "plpgsql" SECURITY DEFINER
     SET "search_path" TO ''
-    AS $$begin update public.communication_jobs set status='sent',provider_message_id=p_provider_message_id,sent_at=now(),claim_token=null,claimed_at=null,last_error=null,updated_at=now() where id=p_id and status='processing' and claim_token=p_claim_token; return found; end$$;
+    AS $$
+begin
+ update public.communication_jobs set status='sent',provider_message_id=p_provider_message_id,sent_at=now(),claim_token=null,claimed_at=null,last_error=null,updated_at=now()
+ where id=p_id and status='processing' and claim_token=p_claim_token;
+ return found;
+end $$;
 
 
 ALTER FUNCTION "public"."complete_communication_job"("p_id" "uuid", "p_claim_token" "uuid", "p_provider_message_id" "text") OWNER TO "postgres";
@@ -1198,6 +1460,22 @@ $$;
 
 
 ALTER FUNCTION "public"."complete_communication_job_v2"("p_instance_id" "uuid", "p_id" "uuid", "p_claim_token" "uuid", "p_provider_message_id" "text") OWNER TO "postgres";
+
+
+CREATE OR REPLACE FUNCTION "public"."complete_recovery_drill"("p_drill_id" "uuid", "p_actor_id" "uuid", "p_measured_rto" integer, "p_measured_rpo" integer, "p_restore_validated" boolean, "p_result" "jsonb", "p_event_key" "text") RETURNS "text"
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    SET "search_path" TO ''
+    AS $$
+declare v public.recovery_drills;o public.recovery_objectives;e public.recovery_events;v_status text;begin
+ select * into e from public.recovery_events where event_key=p_event_key;if found then if e.drill_id is distinct from p_drill_id or e.event_type not in('drill_passed','drill_failed') or coalesce((e.metadata->>'measured_rto')::integer,-1)<>p_measured_rto or coalesce((e.metadata->>'measured_rpo')::integer,-1)<>p_measured_rpo or coalesce((e.metadata->>'restore_validated')::boolean,false)<>p_restore_validated then raise exception 'Az event_key már más recovery eredményhez tartozik.';end if;select status into v_status from public.recovery_drills where id=p_drill_id;return v_status;end if;
+ select * into v from public.recovery_drills where id=p_drill_id for update;if not found then raise exception 'Drill nem található.';end if;if v.status in('passed','failed') then raise exception 'A drill már lezárt, más idempotency kulccsal.';end if;if v.status<>'running' then raise exception 'Csak futó drill zárható.';end if;
+ select * into o from public.recovery_objectives where id=v.objective_id;v_status:=case when p_restore_validated and p_measured_rto<=o.rto_minutes and p_measured_rpo<=o.rpo_minutes then 'passed' else 'failed' end;
+ update public.recovery_drills set status=v_status,completed_at=now(),measured_rto_minutes=p_measured_rto,measured_rpo_minutes=p_measured_rpo,restore_validated=p_restore_validated,result=coalesce(p_result,'{}'::jsonb),updated_at=now() where id=p_drill_id;
+ insert into public.recovery_events(event_key,objective_id,drill_id,event_type,actor_id,metadata) values(p_event_key,v.objective_id,p_drill_id,case when v_status='passed' then 'drill_passed' else 'drill_failed' end,p_actor_id,jsonb_build_object('measured_rto',p_measured_rto,'measured_rpo',p_measured_rpo,'restore_validated',p_restore_validated));return v_status;
+end;$$;
+
+
+ALTER FUNCTION "public"."complete_recovery_drill"("p_drill_id" "uuid", "p_actor_id" "uuid", "p_measured_rto" integer, "p_measured_rpo" integer, "p_restore_validated" boolean, "p_result" "jsonb", "p_event_key" "text") OWNER TO "postgres";
 
 
 CREATE OR REPLACE FUNCTION "public"."compute_admin_audit_hash"("p_chain_seq" bigint, "p_audit_scope" "text", "p_prev_hash" "text", "p_actor_user_id" "uuid", "p_actor_roles" "text"[], "p_action" "text", "p_entity_type" "text", "p_entity_id" "text", "p_summary" "text", "p_before_state" "jsonb", "p_after_state" "jsonb", "p_metadata" "jsonb", "p_created_at" timestamp with time zone) RETURNS "text"
@@ -1219,7 +1497,19 @@ ALTER FUNCTION "public"."compute_admin_audit_hash"("p_chain_seq" bigint, "p_audi
 CREATE OR REPLACE FUNCTION "public"."consume_security_rate_limit"("p_rate_key" "text", "p_window_seconds" integer, "p_max_count" integer) RETURNS boolean
     LANGUAGE "plpgsql" SECURITY DEFINER
     SET "search_path" TO ''
-    AS $$declare r public.security_rate_limits;now_ts timestamptz:=now();begin if nullif(trim(p_rate_key),'') is null or p_window_seconds<1 or p_window_seconds>3600 or p_max_count<1 or p_max_count>10000 then raise exception 'invalid_rate_limit';end if;perform pg_advisory_xact_lock(hashtextextended('rate:'||p_rate_key,0));select * into r from public.security_rate_limits where rate_key=p_rate_key for update;if not found or r.window_started_at<=now_ts-make_interval(secs=>p_window_seconds) then insert into public.security_rate_limits(rate_key,window_started_at,count,updated_at) values(p_rate_key,now_ts,1,now_ts) on conflict(rate_key) do update set window_started_at=excluded.window_started_at,count=1,updated_at=excluded.updated_at;return true;end if;if r.count>=p_max_count then return false;end if;update public.security_rate_limits set count=count+1,updated_at=now_ts where rate_key=p_rate_key;return true;end;$$;
+    AS $$declare r public.security_rate_limits;now_ts timestamptz:=now();begin
+ if nullif(trim(p_rate_key),'') is null or p_window_seconds<1 or p_window_seconds>3600 or p_max_count<1 or p_max_count>10000 then raise exception 'invalid_rate_limit';end if;
+ perform pg_advisory_xact_lock(hashtextextended('rate:'||p_rate_key,0));
+ select * into r from public.security_rate_limits where rate_key=p_rate_key for update;
+ if not found or r.window_started_at<=now_ts-make_interval(secs=>p_window_seconds) then
+  insert into public.security_rate_limits(rate_key,window_started_at,count,updated_at) values(p_rate_key,now_ts,1,now_ts)
+  on conflict(rate_key) do update set window_started_at=excluded.window_started_at,count=1,updated_at=excluded.updated_at;
+  return true;
+ end if;
+ if r.count>=p_max_count then return false;end if;
+ update public.security_rate_limits set count=count+1,updated_at=now_ts where rate_key=p_rate_key;
+ return true;
+end;$$;
 
 
 ALTER FUNCTION "public"."consume_security_rate_limit"("p_rate_key" "text", "p_window_seconds" integer, "p_max_count" integer) OWNER TO "postgres";
@@ -1228,7 +1518,11 @@ ALTER FUNCTION "public"."consume_security_rate_limit"("p_rate_key" "text", "p_wi
 CREATE OR REPLACE FUNCTION "public"."convert_checkout_recovery_intent"("p_user_id" "uuid", "p_order_id" "uuid") RETURNS boolean
     LANGUAGE "plpgsql" SECURITY DEFINER
     SET "search_path" TO ''
-    AS $$begin update public.checkout_recovery_intents set status='converted',converted_order_id=p_order_id,updated_at=now() where user_id=p_user_id and status='open'; return found;end;$$;
+    AS $$
+begin
+  update public.checkout_recovery_intents set status='converted',converted_order_id=p_order_id,updated_at=now() where user_id=p_user_id and status='open';
+  return found;
+end;$$;
 
 
 ALTER FUNCTION "public"."convert_checkout_recovery_intent"("p_user_id" "uuid", "p_order_id" "uuid") OWNER TO "postgres";
@@ -1742,10 +2036,109 @@ ALTER TABLE "public"."rollout_decisions" OWNER TO "postgres";
 CREATE OR REPLACE FUNCTION "public"."decide_rollout"("p_decision_key" "text", "p_environment_key" "text", "p_source_sha" "text", "p_actor_id" "uuid", "p_decision" "text", "p_note" "text") RETURNS "public"."rollout_decisions"
     LANGUAGE "plpgsql" SECURITY DEFINER
     SET "search_path" TO ''
-    AS $$declare d public.rollout_decisions;r record;v_hash text;v_required int;begin if p_decision not in('go','no_go') then raise exception 'Érvénytelen rollout döntés.';end if;if length(trim(coalesce(p_note,'')))<10 then raise exception 'A rollout döntés indoklása kötelező.';end if;select * into d from public.rollout_decisions where decision_key=p_decision_key;if found then if d.environment_key<>p_environment_key or d.source_sha<>p_source_sha or d.actor_id<>p_actor_id or d.decision<>p_decision then raise exception 'A rollout döntési kulcs már más művelethez tartozik.';end if;return d;end if;select md5(coalesce(string_agg(evidence_hash,'|' order by check_kind,evidence_hash),'')),count(*) filter(where trusted and status in('fail','error')) into v_hash,v_required from public.rollout_checks where environment_key=p_environment_key and source_sha=p_source_sha;if p_decision='go' then if v_required>0 then raise exception 'GO nem adható blokkoló rollout evidence mellett.';end if;if not exists(select 1 from public.rollout_checks where environment_key=p_environment_key and source_sha=p_source_sha and trusted and status='pass' and check_kind='ci') then raise exception 'Trusted CI evidence hiányzik.';end if;if not exists(select 1 from public.rollout_checks where environment_key=p_environment_key and source_sha=p_source_sha and trusted and status='pass' and check_kind='smoke') then raise exception 'Trusted smoke evidence hiányzik.';end if;if p_environment_key in('staging','production') and not exists(select 1 from public.rollout_checks where environment_key=p_environment_key and source_sha=p_source_sha and trusted and status='pass' and check_kind='migration') then raise exception 'Trusted migration evidence hiányzik.';end if;if p_environment_key='production' and not exists(select 1 from public.rollout_checks where environment_key=p_environment_key and source_sha=p_source_sha and trusted and status='pass' and check_kind='security') then raise exception 'Trusted security evidence hiányzik.';end if;end if;insert into public.rollout_decisions(decision_key,environment_key,source_sha,decision,actor_id,evidence_bundle_hash,note) values(trim(p_decision_key),p_environment_key,trim(p_source_sha),p_decision,p_actor_id,coalesce(v_hash,md5('')),trim(p_note)) returning * into d;return d;end;$$;
+    AS $$
+declare d public.rollout_decisions;r record;v_hash text;v_required int;begin
+ if p_decision not in('go','no_go') then raise exception 'Érvénytelen rollout döntés.';end if;
+ if length(trim(coalesce(p_note,'')))<10 then raise exception 'A rollout döntés indoklása kötelező.';end if;
+ select * into d from public.rollout_decisions where decision_key=p_decision_key;if found then
+  if d.environment_key<>p_environment_key or d.source_sha<>p_source_sha or d.actor_id<>p_actor_id or d.decision<>p_decision then raise exception 'A rollout döntési kulcs már más művelethez tartozik.';end if;return d;end if;
+ select md5(coalesce(string_agg(evidence_hash,'|' order by check_kind,evidence_hash),'')),count(*) filter(where trusted and status in('fail','error')) into v_hash,v_required from public.rollout_checks where environment_key=p_environment_key and source_sha=p_source_sha;
+ if p_decision='go' then
+  if v_required>0 then raise exception 'GO nem adható blokkoló rollout evidence mellett.';end if;
+  if not exists(select 1 from public.rollout_checks where environment_key=p_environment_key and source_sha=p_source_sha and trusted and status='pass' and check_kind='ci') then raise exception 'Trusted CI evidence hiányzik.';end if;
+  if not exists(select 1 from public.rollout_checks where environment_key=p_environment_key and source_sha=p_source_sha and trusted and status='pass' and check_kind='smoke') then raise exception 'Trusted smoke evidence hiányzik.';end if;
+  if p_environment_key in('staging','production') and not exists(select 1 from public.rollout_checks where environment_key=p_environment_key and source_sha=p_source_sha and trusted and status='pass' and check_kind='migration') then raise exception 'Trusted migration evidence hiányzik.';end if;
+  if p_environment_key='production' and not exists(select 1 from public.rollout_checks where environment_key=p_environment_key and source_sha=p_source_sha and trusted and status='pass' and check_kind='security') then raise exception 'Trusted security evidence hiányzik.';end if;
+ end if;
+ insert into public.rollout_decisions(decision_key,environment_key,source_sha,decision,actor_id,evidence_bundle_hash,note)
+ values(trim(p_decision_key),p_environment_key,trim(p_source_sha),p_decision,p_actor_id,coalesce(v_hash,md5('')),trim(p_note)) returning * into d;return d;end;$$;
 
 
 ALTER FUNCTION "public"."decide_rollout"("p_decision_key" "text", "p_environment_key" "text", "p_source_sha" "text", "p_actor_id" "uuid", "p_decision" "text", "p_note" "text") OWNER TO "postgres";
+
+
+CREATE OR REPLACE FUNCTION "public"."detect_control_tower_alerts"("p_run_key" "text") RETURNS "jsonb"
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    SET "search_path" TO ''
+    AS $$
+declare
+  r record;
+  a public.control_alerts;
+  v_operations integer:=0;v_inventory integer:=0;v_commercial integer:=0;v_service integer:=0;
+begin
+  if nullif(trim(p_run_key),'') is null then raise exception 'run_key_required'; end if;
+
+  for r in select * from public.operations_exception_queue loop
+    select public.upsert_control_alert(
+      'ops:'||r.order_id::text||':'||coalesce(r.derived_exception_code,'attention'),
+      'operations',coalesce(r.derived_exception_code,'operations_attention'),
+      case when r.derived_exception_code in ('payment_fulfillment_mismatch','shipment_status_mismatch','delivery_status_mismatch') then 'critical'
+           when r.age_hours>=48 or r.urgent_support_count>0 then 'high' else 'warning' end,
+      least(100,greatest(coalesce(r.priority_score,0),case when r.age_hours>=48 then 90 when r.age_hours>=24 then 75 else 60 end)),
+      'Rendelési operációs kivétel · '||r.order_number,
+      'A rendelés operációs ellenőrzést igényel: '||coalesce(r.derived_exception_code,'figyelmet igénylő állapot')||'.',
+      case when r.derived_exception_code like '%mismatch%' then 'Ellenőrizd a kereskedelmi és fulfillment állapotot, majd csak igazolt állapot alapján korrigálj.' else 'Nyisd meg a rendelést és kezeld a kivétel okát.' end,
+      p_run_key,r.order_id,null,null,null,null,
+      jsonb_build_object('order_number',r.order_number,'commerce_status',r.commerce_status,'operational_status',r.operational_status,'age_hours',r.age_hours,'total_gross_huf',r.total_gross_huf,'exception_code',r.derived_exception_code,'urgent_support_count',r.urgent_support_count,'open_return_count',r.open_return_count)
+    ) into a;
+    v_operations:=v_operations+1;
+  end loop;
+
+  for r in select * from public.inventory_pressure where pressure_level in ('critical','low') loop
+    select public.upsert_control_alert(
+      'inventory:'||r.variant_id::text||':'||r.pressure_level,
+      'inventory','inventory_pressure',case when r.pressure_level='critical' then 'critical' else 'warning' end,
+      case when r.pressure_level='critical' then 95 else least(85,60+coalesce(round(r.reservation_pressure_percent)::integer,0)/4) end,
+      'Készletnyomás · '||r.sku,
+      'A '||r.label||' variáns szabad ATP készlete: '||r.available_to_promise_quantity::text||' db.',
+      case when r.pressure_level='critical' then 'Vizsgáld meg a beszerzést és a nyitott igényeket; ne ígérj kézzel nem létező készletet.' else 'Ellenőrizd a fogyási ütemet és a következő beszerzési pontot.' end,
+      p_run_key,null,null,null,r.variant_id,null,
+      jsonb_build_object('sku',r.sku,'label',r.label,'on_hand_quantity',r.on_hand_quantity,'reserved_quantity',r.reserved_quantity,'available_to_promise_quantity',r.available_to_promise_quantity,'reservation_pressure_percent',r.reservation_pressure_percent,'pressure_level',r.pressure_level)
+    ) into a;
+    v_inventory:=v_inventory+1;
+  end loop;
+
+  for r in
+    select * from public.commercial_opportunities
+    where status in ('open','in_progress') and (priority_score>=70 or due_at<now() or expected_value_net_huf>=100000)
+  loop
+    select public.upsert_control_alert(
+      'commercial:'||r.id::text,
+      'commercial','commercial_opportunity_risk',
+      case when r.due_at<now() and r.priority_score>=80 then 'high' when r.priority_score>=80 then 'high' else 'warning' end,
+      greatest(r.priority_score,case when r.due_at<now() then 80 else 0 end),
+      'Kereskedelmi lehetőség · '||r.channel||' / '||r.kind,
+      'Nyitott lehetőség várható nettó értéke '||round(r.expected_value_net_huf)::text||' Ft, prioritása '||r.priority_score::text||'.',
+      coalesce(r.recommended_action,'Vizsgáld meg a következő emberi kereskedelmi lépést.'),
+      p_run_key,null,r.customer_id,r.reseller_id,null,r.id,
+      jsonb_build_object('channel',r.channel,'kind',r.kind,'status',r.status,'expected_value_net_huf',r.expected_value_net_huf,'probability_percent',r.probability_percent,'due_at',r.due_at,'reason',r.reason)
+    ) into a;
+    v_commercial:=v_commercial+1;
+  end loop;
+
+  for r in
+    select st.id,st.ticket_number,st.order_id,st.user_id,st.priority,st.status,st.category,st.subject,st.created_at
+    from public.support_tickets st
+    where st.status in ('open','in_progress','waiting_customer') and (st.priority in ('high','urgent') or st.created_at<now()-interval '48 hours')
+  loop
+    select public.upsert_control_alert(
+      'service-ticket:'||r.id::text,
+      'service','support_attention',case when r.priority='urgent' then 'critical' when r.priority='high' then 'high' else 'warning' end,
+      case when r.priority='urgent' then 95 when r.priority='high' then 85 else 70 end,
+      'Ügyfélszolgálati figyelem · '||r.ticket_number,
+      'Nyitott '||r.priority||' prioritású ügy: '||r.subject,
+      'Vizsgáld meg az ügyet és rögzíts következő lépést az ügyfélszolgálati folyamatban.',
+      p_run_key,r.order_id,r.user_id,null,null,null,
+      jsonb_build_object('ticket_id',r.id,'ticket_number',r.ticket_number,'priority',r.priority,'status',r.status,'category',r.category,'created_at',r.created_at)
+    ) into a;
+    v_service:=v_service+1;
+  end loop;
+
+  return jsonb_build_object('operations',v_operations,'inventory',v_inventory,'commercial',v_commercial,'service',v_service,'total',v_operations+v_inventory+v_commercial+v_service);
+end;$$;
+
+
+ALTER FUNCTION "public"."detect_control_tower_alerts"("p_run_key" "text") OWNER TO "postgres";
 
 
 CREATE OR REPLACE FUNCTION "public"."detect_customer_value_control_alerts"("p_run_key" "text") RETURNS "jsonb"
@@ -1782,14 +2175,42 @@ CREATE OR REPLACE FUNCTION "public"."detect_system_control_alerts"("p_run_key" "
     AS $$
 declare r record;a public.control_alerts;v_jobs integer:=0;v_webhooks integer:=0;begin
   if nullif(trim(p_run_key),'') is null then raise exception 'run_key_required'; end if;
-  for r in select * from public.integration_jobs where status in ('failed','blocked') or (status='processing' and updated_at<now()-interval '20 minutes') order by created_at loop
-    select public.upsert_control_alert('integration-job:'||r.id::text,'system','integration_job_failure',case when r.status='blocked' or r.attempt_count>=3 then 'critical' else 'high' end,least(100,75+(least(r.attempt_count,5)*5)),'Integrációs feldolgozási hiba · '||r.kind,r.provider||' integrációs feladat állapota: '||r.status||'.','Ellenőrizd az integrációs naplót és a szolgáltatói választ; csak az ok feltárása után indíts újrapróbálást.',p_run_key,r.order_id,null,null,null,null,jsonb_build_object('integration_job_id',r.id,'kind',r.kind,'provider',r.provider,'status',r.status,'attempt_count',r.attempt_count,'last_error',r.last_error,'next_attempt_at',r.next_attempt_at,'updated_at',r.updated_at)) into a;
+
+  for r in
+    select * from public.integration_jobs
+    where status in ('failed','blocked') or (status='processing' and updated_at<now()-interval '20 minutes')
+    order by created_at
+  loop
+    select public.upsert_control_alert(
+      'integration-job:'||r.id::text,
+      'system','integration_job_failure',case when r.status='blocked' or r.attempt_count>=3 then 'critical' else 'high' end,
+      least(100,75+(least(r.attempt_count,5)*5)),
+      'Integrációs feldolgozási hiba · '||r.kind,
+      r.provider||' integrációs feladat állapota: '||r.status||'.',
+      'Ellenőrizd az integrációs naplót és a szolgáltatói választ; csak az ok feltárása után indíts újrapróbálást.',
+      p_run_key,r.order_id,null,null,null,null,
+      jsonb_build_object('integration_job_id',r.id,'kind',r.kind,'provider',r.provider,'status',r.status,'attempt_count',r.attempt_count,'last_error',r.last_error,'next_attempt_at',r.next_attempt_at,'updated_at',r.updated_at)
+    ) into a;
     v_jobs:=v_jobs+1;
   end loop;
-  for r in select * from public.webhook_events where status='failed' and created_at>=now()-interval '7 days' order by created_at desc loop
-    select public.upsert_control_alert('webhook:'||r.id::text,'system','webhook_processing_failure','high',80,'Webhook feldolgozási hiba · '||r.provider,'A webhook esemény feldolgozása sikertelen volt.','Ellenőrizd az esemény naplóját, az idempotencia állapotot és a szolgáltatói payloadot.',p_run_key,null,null,null,null,null,jsonb_build_object('webhook_event_id',r.id,'provider',r.provider,'external_event_id',r.external_event_id,'signature_valid',r.signature_valid,'status',r.status,'error_message',r.error_message,'created_at',r.created_at)) into a;
+
+  for r in
+    select * from public.webhook_events
+    where status='failed' and created_at>=now()-interval '7 days'
+    order by created_at desc
+  loop
+    select public.upsert_control_alert(
+      'webhook:'||r.id::text,
+      'system','webhook_processing_failure','high',80,
+      'Webhook feldolgozási hiba · '||r.provider,
+      'A webhook esemény feldolgozása sikertelen volt.',
+      'Ellenőrizd az esemény naplóját, az idempotencia állapotot és a szolgáltatói payloadot.',
+      p_run_key,null,null,null,null,null,
+      jsonb_build_object('webhook_event_id',r.id,'provider',r.provider,'external_event_id',r.external_event_id,'signature_valid',r.signature_valid,'status',r.status,'error_message',r.error_message,'created_at',r.created_at)
+    ) into a;
     v_webhooks:=v_webhooks+1;
   end loop;
+
   return jsonb_build_object('integration_jobs',v_jobs,'failed_webhooks',v_webhooks,'total',v_jobs+v_webhooks);
 end;$$;
 
@@ -2342,7 +2763,12 @@ ALTER FUNCTION "public"."expire_stale_release_candidates"("p_run_key" "text") OW
 CREATE OR REPLACE FUNCTION "public"."fail_communication_job"("p_id" "uuid", "p_claim_token" "uuid", "p_error" "text", "p_retry" boolean DEFAULT true) RETURNS boolean
     LANGUAGE "plpgsql" SECURITY DEFINER
     SET "search_path" TO ''
-    AS $$begin update public.communication_jobs set status=case when p_retry and attempts<5 then 'pending' else 'failed' end,last_error=left(p_error,2000),scheduled_at=case when p_retry and attempts<5 then now()+make_interval(mins=>least(60,attempts*5)) else scheduled_at end,claim_token=null,claimed_at=null,updated_at=now() where id=p_id and status='processing' and claim_token=p_claim_token; return found; end$$;
+    AS $$
+begin
+ update public.communication_jobs set status=case when p_retry and attempts<5 then 'pending' else 'failed' end,last_error=left(p_error,2000),scheduled_at=case when p_retry and attempts<5 then now()+make_interval(mins=>least(60,attempts*5)) else scheduled_at end,claim_token=null,claimed_at=null,updated_at=now()
+ where id=p_id and status='processing' and claim_token=p_claim_token;
+ return found;
+end $$;
 
 
 ALTER FUNCTION "public"."fail_communication_job"("p_id" "uuid", "p_claim_token" "uuid", "p_error" "text", "p_retry" boolean) OWNER TO "postgres";
@@ -2669,7 +3095,15 @@ ALTER FUNCTION "public"."has_feature_entitlement"("p_instance_id" "uuid", "p_fea
 CREATE OR REPLACE FUNCTION "public"."has_marketing_consent"("p_email" "text", "p_channel" "text" DEFAULT 'email'::"text") RETURNS boolean
     LANGUAGE "sql" STABLE SECURITY DEFINER
     SET "search_path" TO ''
-    AS $$select coalesce((select mc.status='granted' from public.marketing_consents mc where lower(mc.email)=lower(trim(p_email)) and mc.channel=p_channel order by mc.occurred_at desc,mc.id desc limit 1),false);$$;
+    AS $$
+  select coalesce((
+    select mc.status = 'granted'
+    from public.marketing_consents mc
+    where lower(mc.email) = lower(trim(p_email)) and mc.channel = p_channel
+    order by mc.occurred_at desc, mc.id desc
+    limit 1
+  ), false);
+$$;
 
 
 ALTER FUNCTION "public"."has_marketing_consent"("p_email" "text", "p_channel" "text") OWNER TO "postgres";
@@ -2718,7 +3152,9 @@ ALTER FUNCTION "public"."initialize_support_ticket_thread"() OWNER TO "postgres"
 CREATE OR REPLACE FUNCTION "public"."is_communication_suppressed"("p_email" "text") RETURNS boolean
     LANGUAGE "sql" STABLE SECURITY DEFINER
     SET "search_path" TO ''
-    AS $$select exists(select 1 from public.communication_suppressions where lower(email)=lower(trim(p_email)) and active=true);$$;
+    AS $$
+ select exists(select 1 from public.communication_suppressions where lower(email)=lower(trim(p_email)) and active=true);
+$$;
 
 
 ALTER FUNCTION "public"."is_communication_suppressed"("p_email" "text") OWNER TO "postgres";
@@ -2784,13 +3220,84 @@ CREATE OR REPLACE FUNCTION "public"."place_order_idempotent"("p_idempotency_key"
     LANGUAGE "plpgsql" SECURITY DEFINER
     SET "search_path" TO ''
     AS $$
-declare v_response jsonb;v_request_fingerprint text;v_existing_fingerprint text;begin
- if p_idempotency_key is null or length(trim(p_idempotency_key))<16 or length(p_idempotency_key)>120 then raise exception 'Érvénytelen rendelési kérésazonosító.'; end if;
- v_request_fingerprint:=md5(jsonb_build_object('customer_email',lower(trim(coalesce(p_customer_email,''))),'billing_name',trim(coalesce(p_billing_name,'')),'billing_company',trim(coalesce(p_billing_company,'')),'billing_tax_number',trim(coalesce(p_billing_tax_number,'')),'billing_postcode',trim(coalesce(p_billing_postcode,'')),'billing_city',trim(coalesce(p_billing_city,'')),'billing_address',trim(coalesce(p_billing_address,'')),'shipping_name',trim(coalesce(p_shipping_name,'')),'shipping_postcode',trim(coalesce(p_shipping_postcode,'')),'shipping_city',trim(coalesce(p_shipping_city,'')),'shipping_address',trim(coalesce(p_shipping_address,'')),'customer_phone',trim(coalesce(p_customer_phone,'')),'shipping_method',coalesce(p_shipping_method,''),'parcel_point_id',trim(coalesce(p_parcel_point_id,'')),'payment_method',coalesce(p_payment_method,''),'note',coalesce(p_note,''),'customer_id',p_customer_id,'coupon_code',upper(trim(coalesce(p_coupon_code,''))),'items',coalesce(p_items,'[]'::jsonb))::text);
- begin insert into public.order_request_keys(idempotency_key,request_fingerprint) values(trim(p_idempotency_key),v_request_fingerprint); exception when unique_violation then select response,request_fingerprint into v_response,v_existing_fingerprint from public.order_request_keys where idempotency_key=trim(p_idempotency_key); if v_existing_fingerprint is not null and v_existing_fingerprint<>v_request_fingerprint then raise exception 'A rendelési kérésazonosító már más rendelési adatokhoz lett felhasználva.'; end if; if v_response is null then raise exception 'A rendelés feldolgozása folyamatban van. Kérjük, próbáld újra rövidesen.'; end if; return v_response||jsonb_build_object('idempotency_replayed',true); end;
- v_response:=public.place_order(p_customer_email=>p_customer_email,p_billing_name=>p_billing_name,p_billing_company=>p_billing_company,p_billing_tax_number=>p_billing_tax_number,p_billing_postcode=>p_billing_postcode,p_billing_city=>p_billing_city,p_billing_address=>p_billing_address,p_shipping_name=>p_shipping_name,p_shipping_postcode=>p_shipping_postcode,p_shipping_city=>p_shipping_city,p_shipping_address=>p_shipping_address,p_customer_phone=>p_customer_phone,p_shipping_method=>p_shipping_method,p_parcel_point_id=>p_parcel_point_id,p_payment_method=>p_payment_method,p_note=>p_note,p_customer_id=>p_customer_id,p_coupon_code=>p_coupon_code,p_items=>p_items);
- update public.order_request_keys set response=v_response,request_fingerprint=v_request_fingerprint where idempotency_key=trim(p_idempotency_key); return v_response||jsonb_build_object('idempotency_replayed',false);
-end;$$;
+declare
+  v_response jsonb;
+  v_request_fingerprint text;
+  v_existing_fingerprint text;
+begin
+  if p_idempotency_key is null or length(trim(p_idempotency_key)) < 16 or length(p_idempotency_key) > 120 then
+    raise exception 'Érvénytelen rendelési kérésazonosító.';
+  end if;
+
+  v_request_fingerprint := md5(jsonb_build_object(
+    'customer_email', lower(trim(coalesce(p_customer_email, ''))),
+    'billing_name', trim(coalesce(p_billing_name, '')),
+    'billing_company', trim(coalesce(p_billing_company, '')),
+    'billing_tax_number', trim(coalesce(p_billing_tax_number, '')),
+    'billing_postcode', trim(coalesce(p_billing_postcode, '')),
+    'billing_city', trim(coalesce(p_billing_city, '')),
+    'billing_address', trim(coalesce(p_billing_address, '')),
+    'shipping_name', trim(coalesce(p_shipping_name, '')),
+    'shipping_postcode', trim(coalesce(p_shipping_postcode, '')),
+    'shipping_city', trim(coalesce(p_shipping_city, '')),
+    'shipping_address', trim(coalesce(p_shipping_address, '')),
+    'customer_phone', trim(coalesce(p_customer_phone, '')),
+    'shipping_method', coalesce(p_shipping_method, ''),
+    'parcel_point_id', trim(coalesce(p_parcel_point_id, '')),
+    'payment_method', coalesce(p_payment_method, ''),
+    'note', coalesce(p_note, ''),
+    'customer_id', p_customer_id,
+    'coupon_code', upper(trim(coalesce(p_coupon_code, ''))),
+    'items', coalesce(p_items, '[]'::jsonb)
+  )::text);
+
+  begin
+    insert into public.order_request_keys(idempotency_key, request_fingerprint)
+    values(trim(p_idempotency_key), v_request_fingerprint);
+  exception when unique_violation then
+    select response, request_fingerprint
+      into v_response, v_existing_fingerprint
+      from public.order_request_keys
+      where idempotency_key=trim(p_idempotency_key);
+
+    if v_existing_fingerprint is not null and v_existing_fingerprint <> v_request_fingerprint then
+      raise exception 'A rendelési kérésazonosító már más rendelési adatokhoz lett felhasználva.';
+    end if;
+    if v_response is null then
+      raise exception 'A rendelés feldolgozása folyamatban van. Kérjük, próbáld újra rövidesen.';
+    end if;
+    return v_response || jsonb_build_object('idempotency_replayed', true);
+  end;
+
+  v_response := public.place_order(
+    p_customer_email => p_customer_email,
+    p_billing_name => p_billing_name,
+    p_billing_company => p_billing_company,
+    p_billing_tax_number => p_billing_tax_number,
+    p_billing_postcode => p_billing_postcode,
+    p_billing_city => p_billing_city,
+    p_billing_address => p_billing_address,
+    p_shipping_name => p_shipping_name,
+    p_shipping_postcode => p_shipping_postcode,
+    p_shipping_city => p_shipping_city,
+    p_shipping_address => p_shipping_address,
+    p_customer_phone => p_customer_phone,
+    p_shipping_method => p_shipping_method,
+    p_parcel_point_id => p_parcel_point_id,
+    p_payment_method => p_payment_method,
+    p_note => p_note,
+    p_customer_id => p_customer_id,
+    p_coupon_code => p_coupon_code,
+    p_items => p_items
+  );
+
+  update public.order_request_keys
+    set response=v_response, request_fingerprint=v_request_fingerprint
+    where idempotency_key=trim(p_idempotency_key);
+
+  return v_response || jsonb_build_object('idempotency_replayed', false);
+end;
+$$;
 
 
 ALTER FUNCTION "public"."place_order_idempotent"("p_idempotency_key" "text", "p_customer_email" "text", "p_billing_name" "text", "p_billing_company" "text", "p_billing_tax_number" "text", "p_billing_postcode" "text", "p_billing_city" "text", "p_billing_address" "text", "p_shipping_name" "text", "p_shipping_postcode" "text", "p_shipping_city" "text", "p_shipping_address" "text", "p_customer_phone" "text", "p_shipping_method" "text", "p_parcel_point_id" "text", "p_payment_method" "text", "p_note" "text", "p_customer_id" "uuid", "p_coupon_code" "text", "p_items" "jsonb") OWNER TO "postgres";
@@ -3083,6 +3590,7 @@ declare
   v_b2c integer := 0;
   v_b2b integer := 0;
 begin
+  -- Close B2C auto-opportunities that are no longer represented by an actionable V9 segment.
   update public.commercial_opportunities o
      set status='dismissed',closed_at=now(),updated_at=now(),
          source=o.source||jsonb_build_object('auto_closed_reason','segment_no_longer_actionable')
@@ -3100,6 +3608,7 @@ begin
          )
      );
 
+  -- Reconcile existing active B2C opportunities in place as customer segments change.
   update public.commercial_opportunities o
      set opportunity_key='b2c:'||c.customer_key||':active',
          customer_id=c.customer_id,
@@ -3167,6 +3676,7 @@ begin
   on conflict (opportunity_key) do nothing;
   get diagnostics v_b2c = row_count;
 
+  -- Close B2B reorder opportunities that are no longer actionable.
   update public.commercial_opportunities o
      set status='dismissed',closed_at=now(),updated_at=now(),
          source=o.source||jsonb_build_object('auto_closed_reason','reorder_no_longer_actionable')
@@ -3287,20 +3797,34 @@ CREATE OR REPLACE FUNCTION "public"."plan_customer_lifecycle_milestones"() RETUR
     AS $$
 declare v_total integer:=0;v_rows integer:=0;begin
  insert into public.customer_lifecycle_milestones(customer_id,milestone_key,milestone_type,source)
- select p.customer_id,'first-order','first_order',jsonb_build_object('paid_orders',p.paid_orders,'value_tier',p.value_tier) from public.customer_value_profiles p where p.paid_orders>=1
- on conflict(customer_id,milestone_key) do nothing; get diagnostics v_rows=row_count;v_total:=v_total+v_rows;
+ select p.customer_id,'first-order','first_order',jsonb_build_object('paid_orders',p.paid_orders,'value_tier',p.value_tier)
+ from public.customer_value_profiles p where p.paid_orders>=1
+ on conflict(customer_id,milestone_key) do nothing;
+ get diagnostics v_rows=row_count;v_total:=v_total+v_rows;
+
  insert into public.customer_lifecycle_milestones(customer_id,milestone_key,milestone_type,source)
- select p.customer_id,'repeat-order','repeat_order',jsonb_build_object('paid_orders',p.paid_orders,'value_tier',p.value_tier) from public.customer_value_profiles p where p.paid_orders>=2
- on conflict(customer_id,milestone_key) do nothing; get diagnostics v_rows=row_count;v_total:=v_total+v_rows;
+ select p.customer_id,'repeat-order','repeat_order',jsonb_build_object('paid_orders',p.paid_orders,'value_tier',p.value_tier)
+ from public.customer_value_profiles p where p.paid_orders>=2
+ on conflict(customer_id,milestone_key) do nothing;
+ get diagnostics v_rows=row_count;v_total:=v_total+v_rows;
+
  insert into public.customer_lifecycle_milestones(customer_id,milestone_key,milestone_type,source)
- select p.customer_id,'high-value:'||p.value_tier,'high_value',jsonb_build_object('value_score',p.value_score,'value_tier',p.value_tier,'revenue_gross_huf',p.revenue_gross_huf) from public.customer_value_profiles p where p.value_tier in ('gold','platinum')
- on conflict(customer_id,milestone_key) do nothing; get diagnostics v_rows=row_count;v_total:=v_total+v_rows;
+ select p.customer_id,'high-value:'||p.value_tier,'high_value',jsonb_build_object('value_score',p.value_score,'value_tier',p.value_tier,'revenue_gross_huf',p.revenue_gross_huf)
+ from public.customer_value_profiles p where p.value_tier in ('gold','platinum')
+ on conflict(customer_id,milestone_key) do nothing;
+ get diagnostics v_rows=row_count;v_total:=v_total+v_rows;
+
  insert into public.customer_lifecycle_milestones(customer_id,milestone_key,milestone_type,source)
- select p.customer_id,'at-risk:'||to_char(current_date,'YYYY-MM'),'at_risk',jsonb_build_object('days_since_last_order',p.days_since_last_order,'value_score',p.value_score) from public.customer_value_profiles p where p.lifecycle_segment='at_risk'
- on conflict(customer_id,milestone_key) do nothing; get diagnostics v_rows=row_count;v_total:=v_total+v_rows;
+ select p.customer_id,'at-risk:'||to_char(current_date,'YYYY-MM'),'at_risk',jsonb_build_object('days_since_last_order',p.days_since_last_order,'value_score',p.value_score)
+ from public.customer_value_profiles p where p.lifecycle_segment='at_risk'
+ on conflict(customer_id,milestone_key) do nothing;
+ get diagnostics v_rows=row_count;v_total:=v_total+v_rows;
+
  insert into public.customer_lifecycle_milestones(customer_id,milestone_key,milestone_type,source)
- select p.customer_id,'winback:'||to_char(current_date,'YYYY-MM'),'winback',jsonb_build_object('days_since_last_order',p.days_since_last_order,'value_score',p.value_score) from public.customer_value_profiles p where p.lifecycle_segment in ('winback','dormant')
- on conflict(customer_id,milestone_key) do nothing; get diagnostics v_rows=row_count;v_total:=v_total+v_rows;
+ select p.customer_id,'winback:'||to_char(current_date,'YYYY-MM'),'winback',jsonb_build_object('days_since_last_order',p.days_since_last_order,'value_score',p.value_score)
+ from public.customer_value_profiles p where p.lifecycle_segment in ('winback','dormant')
+ on conflict(customer_id,milestone_key) do nothing;
+ get diagnostics v_rows=row_count;v_total:=v_total+v_rows;
  return v_total;
 end;$$;
 
@@ -3519,12 +4043,19 @@ CREATE OR REPLACE FUNCTION "public"."plan_loyalty_retention_opportunities"() RET
     SET "search_path" TO ''
     AS $$
 declare v_count integer:=0;v_inserted integer:=0;v_updated integer:=0;begin
+  -- Close V11-sourced opportunities when the customer is no longer in an actionable lifecycle state.
   update public.commercial_opportunities o
-     set status='dismissed',closed_at=now(),updated_at=now(),source=o.source||jsonb_build_object('auto_closed_reason','v11_lifecycle_no_longer_actionable')
+     set status='dismissed',closed_at=now(),updated_at=now(),
+         source=o.source||jsonb_build_object('auto_closed_reason','v11_lifecycle_no_longer_actionable')
    where o.channel='b2c' and o.kind in ('retention','winback') and o.status in ('open','in_progress')
-     and coalesce(o.source->>'source','')='v11_loyalty' and o.customer_id is not null
-     and not exists(select 1 from public.customer_value_profiles p where p.customer_id=o.customer_id and p.lifecycle_segment in ('at_risk','winback','dormant'));
+     and coalesce(o.source->>'source','')='v11_loyalty'
+     and o.customer_id is not null
+     and not exists(
+       select 1 from public.customer_value_profiles p
+       where p.customer_id=o.customer_id and p.lifecycle_segment in ('at_risk','winback','dormant')
+     );
 
+  -- Reconcile the V11 signal into any already-active V9/V10 opportunity instead of creating a parallel record.
   update public.commercial_opportunities o
      set kind=case when p.lifecycle_segment in ('winback','dormant') then 'winback' else 'retention' end,
          priority_score=greatest(o.priority_score,case when p.value_tier='platinum' then 95 when p.value_tier='gold' then 85 when p.lifecycle_segment in ('winback','dormant') then 80 else 70 end),
@@ -3535,30 +4066,58 @@ declare v_count integer:=0;v_inserted integer:=0;v_updated integer:=0;begin
          recommended_action=case when p.lifecycle_segment='at_risk' then 'Megtartási lehetőség felülvizsgálata' else 'Win-back lehetőség felülvizsgálata' end,
          source=o.source||jsonb_build_object('source','v11_loyalty','value_score',p.value_score,'value_tier',p.value_tier,'points_balance',coalesce(b.points_balance,0),'lifecycle_segment',p.lifecycle_segment,'aov_gross_huf',p.aov_gross_huf,'value_basis','gross_div_1_27_estimate'),
          updated_at=now()
-    from public.customer_value_profiles p left join public.loyalty_balances b on b.customer_id=p.customer_id
-   where o.customer_id=p.customer_id and o.channel='b2c' and o.kind in ('retention','winback') and o.status in ('open','in_progress')
+    from public.customer_value_profiles p
+    left join public.loyalty_balances b on b.customer_id=p.customer_id
+   where o.customer_id=p.customer_id
+     and o.channel='b2c' and o.kind in ('retention','winback') and o.status in ('open','in_progress')
      and p.lifecycle_segment in ('at_risk','winback','dormant');
   get diagnostics v_updated=row_count;
 
+  -- Create a V11 opportunity only when no active V9/V10 B2C retention/win-back opportunity exists.
   insert into public.commercial_opportunities(opportunity_key,channel,customer_id,customer_email,kind,status,priority_score,expected_value_net_huf,probability_percent,due_at,reason,recommended_action,source)
-  select 'b2c:'||p.customer_id::text||':active','b2c',p.customer_id,p.email_key,
-    case when p.lifecycle_segment in ('winback','dormant') then 'winback' else 'retention' end,'open',
+  select
+    'b2c:'||p.customer_id::text||':active',
+    'b2c',p.customer_id,p.email_key,
+    case when p.lifecycle_segment in ('winback','dormant') then 'winback' else 'retention' end,
+    'open',
     case when p.value_tier='platinum' then 95 when p.value_tier='gold' then 85 when p.lifecycle_segment in ('winback','dormant') then 80 else 70 end,
     round(greatest(coalesce(p.aov_gross_huf,0),0)::numeric/1.27,2),
     case when p.value_tier='platinum' then 55 when p.value_tier='gold' then 45 when p.lifecycle_segment='at_risk' then 35 else 25 end,
-    now(),'V11 lifecycle: '||p.lifecycle_segment||' · tier: '||p.value_tier,
+    now(),
+    'V11 lifecycle: '||p.lifecycle_segment||' · tier: '||p.value_tier,
     case when p.lifecycle_segment='at_risk' then 'Megtartási lehetőség felülvizsgálata' else 'Win-back lehetőség felülvizsgálata' end,
     jsonb_build_object('source','v11_loyalty','value_score',p.value_score,'value_tier',p.value_tier,'points_balance',coalesce(b.points_balance,0),'lifecycle_segment',p.lifecycle_segment,'aov_gross_huf',p.aov_gross_huf,'value_basis','gross_div_1_27_estimate')
-  from public.customer_value_profiles p left join public.loyalty_balances b on b.customer_id=p.customer_id
+  from public.customer_value_profiles p
+  left join public.loyalty_balances b on b.customer_id=p.customer_id
   where p.lifecycle_segment in ('at_risk','winback','dormant')
-    and not exists(select 1 from public.commercial_opportunities o where o.customer_id=p.customer_id and o.channel='b2c' and o.kind in ('retention','winback') and o.status in ('open','in_progress'))
+    and not exists(
+      select 1 from public.commercial_opportunities o
+      where o.customer_id=p.customer_id and o.channel='b2c' and o.kind in ('retention','winback') and o.status in ('open','in_progress')
+    )
   on conflict(opportunity_key) do nothing;
   get diagnostics v_inserted=row_count;
-  v_count:=v_updated+v_inserted; return v_count;
+
+  v_count:=v_updated+v_inserted;
+  return v_count;
 end;$$;
 
 
 ALTER FUNCTION "public"."plan_loyalty_retention_opportunities"() OWNER TO "postgres";
+
+
+CREATE OR REPLACE FUNCTION "public"."plan_recovery_drill"("p_service_key" "text", "p_scenario" "text", "p_planned_at" timestamp with time zone, "p_actor_id" "uuid", "p_drill_key" "text") RETURNS "uuid"
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    SET "search_path" TO ''
+    AS $$
+declare v_objective public.recovery_objectives;v public.recovery_drills;v_id uuid;begin
+ select * into v_objective from public.recovery_objectives where service_key=p_service_key and enabled order by version desc limit 1;if not found then raise exception 'Nincs aktív recovery objective.';end if;
+ select * into v from public.recovery_drills where drill_key=p_drill_key;if found then if v.objective_id<>v_objective.id or v.scenario<>p_scenario or v.planned_at<>p_planned_at then raise exception 'A drill_key már más recovery drillhez tartozik.';end if;return v.id;end if;
+ insert into public.recovery_drills(drill_key,objective_id,scenario,planned_at,created_by) values(p_drill_key,v_objective.id,p_scenario,p_planned_at,p_actor_id) returning id into v_id;
+ insert into public.recovery_events(event_key,objective_id,drill_id,event_type,actor_id,metadata) values('planned:'||p_drill_key,v_objective.id,v_id,'drill_planned',p_actor_id,jsonb_build_object('scenario',p_scenario,'planned_at',p_planned_at)) on conflict(event_key) do nothing;return v_id;
+end;$$;
+
+
+ALTER FUNCTION "public"."plan_recovery_drill"("p_service_key" "text", "p_scenario" "text", "p_planned_at" timestamp with time zone, "p_actor_id" "uuid", "p_drill_key" "text") OWNER TO "postgres";
 
 
 CREATE OR REPLACE FUNCTION "public"."platform_owner_claim_available"("p_email" "text") RETURNS boolean
@@ -4014,6 +4573,28 @@ declare s record;v_count int:=0;v_result jsonb;begin
 ALTER FUNCTION "public"."process_post_release_cycle"("p_run_key" "text") OWNER TO "postgres";
 
 
+CREATE OR REPLACE FUNCTION "public"."process_recovery_governance_cycle"("p_run_key" "text") RETURNS "jsonb"
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    SET "search_path" TO ''
+    AS $$
+declare v public.recovery_runs;r jsonb;begin
+ select * into v from public.recovery_runs where run_key=p_run_key for update;
+ if found and v.status='completed' then return v.result;end if;
+ if not found then insert into public.recovery_runs(run_key) values(p_run_key) returning * into v;end if;
+ begin
+   r:=public.reconcile_recovery_governance(p_run_key);
+   update public.recovery_runs set status='completed',completed_at=now(),result=r where id=v.id;
+   return r;
+ exception when others then
+   update public.recovery_runs set status='failed',completed_at=now(),result=jsonb_build_object('error',sqlerrm) where id=v.id;
+   raise;
+ end;
+end;$$;
+
+
+ALTER FUNCTION "public"."process_recovery_governance_cycle"("p_run_key" "text") OWNER TO "postgres";
+
+
 CREATE TABLE IF NOT EXISTS "public"."release_governance_runs" (
     "id" "uuid" DEFAULT "gen_random_uuid"() NOT NULL,
     "run_key" "text" NOT NULL,
@@ -4039,10 +4620,122 @@ CREATE OR REPLACE FUNCTION "public"."process_release_governance_cycle"("p_run_ke
 ALTER FUNCTION "public"."process_release_governance_cycle"("p_run_key" "text") OWNER TO "postgres";
 
 
+CREATE OR REPLACE FUNCTION "public"."provision_webshop_tenant_v1"("p_name" "text", "p_slug" "text", "p_owner_user_id" "uuid", "p_actor_user_id" "uuid", "p_storefront_config" "jsonb" DEFAULT '{}'::"jsonb") RETURNS TABLE("provisioned_organization_id" "uuid", "provisioned_instance_id" "uuid", "subscription_plan" "text", "instance_status" "text")
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    SET "search_path" TO ''
+    AS $_$
+declare
+  v_name text:=trim(coalesce(p_name,''));
+  v_slug text:=lower(trim(coalesce(p_slug,'')));
+  v_organization_id uuid;
+  v_instance_id uuid;
+begin
+  if not exists(
+    select 1 from public.platform_operators po
+    where po.user_id=p_actor_user_id
+      and po.role in ('owner','admin','operator')
+  ) then
+    raise exception 'TENANT_PROVISIONING_ACTOR_NOT_PLATFORM_OPERATOR';
+  end if;
+
+  if not exists(select 1 from auth.users u where u.id=p_owner_user_id)
+     or not exists(select 1 from public.profiles p where p.id=p_owner_user_id) then
+    raise exception 'TENANT_PROVISIONING_OWNER_NOT_FOUND';
+  end if;
+
+  if length(v_name)<2 or length(v_name)>100 then
+    raise exception 'TENANT_PROVISIONING_INVALID_NAME';
+  end if;
+  if length(v_slug)<2 or length(v_slug)>60
+     or v_slug !~ '^[a-z0-9]+(?:-[a-z0-9]+)*$' then
+    raise exception 'TENANT_PROVISIONING_INVALID_SLUG';
+  end if;
+  if p_storefront_config is null or jsonb_typeof(p_storefront_config)<>'object' then
+    raise exception 'TENANT_PROVISIONING_INVALID_STOREFRONT_CONFIG';
+  end if;
+
+  if exists(select 1 from public.webshop_instances w where w.slug=v_slug)
+     or exists(select 1 from public.organizations o where o.slug='org-'||v_slug) then
+    raise exception 'TENANT_PROVISIONING_SLUG_ALREADY_EXISTS';
+  end if;
+
+  insert into public.organizations(slug,name,status)
+  values('org-'||v_slug,v_name,'active')
+  returning id into v_organization_id;
+
+  insert into public.webshop_instances(
+    organization_id,slug,name,brand_name,subscription_plan,status,storefront_config
+  )
+  values(
+    v_organization_id,v_slug,v_name,v_name,'alap','pilot',p_storefront_config
+  )
+  returning id into v_instance_id;
+
+  insert into public.webshop_sales_channels(instance_id,channel_code,enabled)
+  values
+    (v_instance_id,'b2c',true),
+    (v_instance_id,'b2b',false);
+
+  insert into public.organization_members(organization_id,user_id,role)
+  values(v_organization_id,p_owner_user_id,'owner');
+
+  insert into public.webshop_instance_members(instance_id,user_id,role)
+  values(v_instance_id,p_owner_user_id,'owner');
+
+  insert into public.role_bindings(
+    organization_id,instance_id,user_id,role_code,delegated_by
+  )
+  values(
+    v_organization_id,v_instance_id,p_owner_user_id,'owner',p_actor_user_id
+  );
+
+  insert into public.admin_audit_log(
+    actor_user_id,action,entity_type,entity_id,organization_id,instance_id,
+    summary,after_state,metadata
+  )
+  values(
+    p_actor_user_id,
+    'platform.tenant_provisioned',
+    'webshop_instance',
+    v_instance_id::text,
+    v_organization_id,
+    v_instance_id,
+    'Atomic tenant provisioning completed',
+    jsonb_build_object(
+      'organizationId',v_organization_id,
+      'instanceId',v_instance_id,
+      'ownerUserId',p_owner_user_id,
+      'plan','alap',
+      'status','pilot',
+      'channels',jsonb_build_object('b2c',true,'b2b',false)
+    ),
+    jsonb_build_object(
+      'audit_source','tenant_provisioning_v1',
+      'provisioning_contract','atomic'
+    )
+  );
+
+  return query
+  select v_organization_id,v_instance_id,'alap'::text,'pilot'::text;
+end;
+$_$;
+
+
+ALTER FUNCTION "public"."provision_webshop_tenant_v1"("p_name" "text", "p_slug" "text", "p_owner_user_id" "uuid", "p_actor_user_id" "uuid", "p_storefront_config" "jsonb") OWNER TO "postgres";
+
+
+COMMENT ON FUNCTION "public"."provision_webshop_tenant_v1"("p_name" "text", "p_slug" "text", "p_owner_user_id" "uuid", "p_actor_user_id" "uuid", "p_storefront_config" "jsonb") IS 'Atomically provisions an Alap/Pilot tenant with organization, owner access, B2C/B2B defaults, plan entitlements and append-only audit evidence.';
+
+
+
 CREATE OR REPLACE FUNCTION "public"."purge_observability_events"("p_retention_days" integer DEFAULT 30) RETURNS integer
     LANGUAGE "plpgsql" SECURITY DEFINER
     SET "search_path" TO ''
-    AS $$declare n integer;begin if p_retention_days<7 or p_retention_days>365 then raise exception 'invalid_retention';end if;delete from public.observability_events where occurred_at<now()-make_interval(days=>p_retention_days);get diagnostics n=row_count;return n;end;$$;
+    AS $$declare n integer;begin
+ if p_retention_days<7 or p_retention_days>365 then raise exception 'invalid_retention';end if;
+ delete from public.observability_events where occurred_at<now()-make_interval(days=>p_retention_days);
+ get diagnostics n=row_count;return n;
+end;$$;
 
 
 ALTER FUNCTION "public"."purge_observability_events"("p_retention_days" integer) OWNER TO "postgres";
@@ -4531,37 +5224,37 @@ CREATE OR REPLACE FUNCTION "public"."reconcile_automation_runbooks"("p_run_key" 
     LANGUAGE "plpgsql" SECURITY DEFINER
     SET "search_path" TO ''
     AS $$
-declare rec record;r public.automation_runbooks;v_cancelled integer:=0;v_failed integer:=0;v_escalated integer:=0;v_ready integer:=0;v_task uuid;begin
- for rec in select ai.*,ca.status alert_status,ca.priority_score,ca.title alert_title,ap.status proposal_status
+declare i record;r public.automation_runbooks;v_cancelled integer:=0;v_failed integer:=0;v_escalated integer:=0;v_ready integer:=0;v_task uuid;begin
+ for i in select ai.*,ca.status alert_status,ca.priority_score,ca.title alert_title,ap.status proposal_status
           from public.automation_runbook_instances ai join public.control_alerts ca on ca.id=ai.alert_id left join public.action_proposals ap on ap.id=ai.proposal_id
           where ai.status in ('planned','active','paused') loop
-   select * into r from public.automation_runbooks where id=rec.runbook_id;
-   if rec.alert_status not in ('open','acknowledged') or (r.requires_action_approval and coalesce(rec.proposal_status,'') in ('rejected','expired','cancelled')) then
-     update public.automation_runbook_instances set status='cancelled',cancelled_at=now(),updated_at=now() where id=rec.id;
-     update public.automation_step_runs set status='cancelled',finished_at=coalesce(finished_at,now()),updated_at=now() where instance_id=rec.id and status in ('pending','ready','failed');
-     insert into public.automation_events(event_key,instance_id,event_type,metadata) values('reconcile-cancel:'||p_run_key||':'||rec.id::text,rec.id,'cancelled',jsonb_build_object('reason','source_condition_closed_or_proposal_invalid')) on conflict(event_key) do nothing;
+   select * into r from public.automation_runbooks where id=i.runbook_id;
+   if i.alert_status not in ('open','acknowledged') or (r.requires_action_approval and coalesce(i.proposal_status,'') in ('rejected','expired','cancelled')) then
+     update public.automation_runbook_instances set status='cancelled',cancelled_at=now(),updated_at=now() where id=i.id;
+     update public.automation_step_runs set status='cancelled',finished_at=coalesce(finished_at,now()),updated_at=now() where instance_id=i.id and status in ('pending','ready','failed');
+     insert into public.automation_events(event_key,instance_id,event_type,metadata) values('reconcile-cancel:'||p_run_key||':'||i.id::text,i.id,'cancelled',jsonb_build_object('reason','source_condition_closed_or_proposal_invalid')) on conflict(event_key) do nothing;
      v_cancelled:=v_cancelled+1;continue;
    end if;
-   if rec.failure_count>=r.max_failures then
-     update public.automation_runbook_instances set status='failed',updated_at=now() where id=rec.id;
+   if i.failure_count>=r.max_failures then
+     update public.automation_runbook_instances set status='failed',updated_at=now() where id=i.id;
      insert into public.control_tasks(task_key,alert_id,status,priority_score,title,recommended_action,due_at,metadata)
-     values('automation-failed:'||rec.id::text,rec.alert_id,'open',greatest(90,rec.priority_score),'Automatizálási hiba · '||rec.alert_title,'Vizsgáld meg a runbook ismétlődő hibáit és csak igazolt ok után indíts újra.',now()+interval '2 hours',jsonb_build_object('source','v15_runbook_failure','instance_id',rec.id))
+     values('automation-failed:'||i.id::text,i.alert_id,'open',greatest(90,i.priority_score),'Automatizálási hiba · '||i.alert_title,'Vizsgáld meg a runbook ismétlődő hibáit és csak igazolt ok után indíts újra.',now()+interval '2 hours',jsonb_build_object('source','v15_runbook_failure','instance_id',i.id))
      on conflict(task_key) do update set priority_score=greatest(public.control_tasks.priority_score,excluded.priority_score),updated_at=now() returning id into v_task;
-     insert into public.automation_events(event_key,instance_id,event_type,metadata) values('reconcile-failed:'||p_run_key||':'||rec.id::text,rec.id,'failed',jsonb_build_object('failure_count',rec.failure_count,'max_failures',r.max_failures,'control_task_id',v_task)) on conflict(event_key) do nothing;
+     insert into public.automation_events(event_key,instance_id,event_type,metadata) values('reconcile-failed:'||p_run_key||':'||i.id::text,i.id,'failed',jsonb_build_object('failure_count',i.failure_count,'max_failures',r.max_failures,'control_task_id',v_task)) on conflict(event_key) do nothing;
      v_failed:=v_failed+1;continue;
    end if;
-   if rec.deadline_at<=now() and rec.escalation_level<5 then
-     update public.automation_runbook_instances set escalation_level=least(5,escalation_level+1),updated_at=now() where id=rec.id;
+   if i.deadline_at<=now() and i.escalation_level<5 then
+     update public.automation_runbook_instances set escalation_level=least(5,escalation_level+1),updated_at=now() where id=i.id;
      insert into public.control_tasks(task_key,alert_id,status,priority_score,title,recommended_action,due_at,metadata)
-     values('automation-overdue:'||rec.id::text,rec.alert_id,'open',least(100,greatest(80,rec.priority_score)+rec.escalation_level*3),'Lejárt automatizálási SLA · '||rec.alert_title,'Ellenőrizd a lejárt runbookot és jelölj ki következő emberi lépést.',now()+interval '2 hours',jsonb_build_object('source','v15_runbook_escalation','instance_id',rec.id,'escalation_level',rec.escalation_level+1))
+     values('automation-overdue:'||i.id::text,i.alert_id,'open',least(100,greatest(80,i.priority_score)+i.escalation_level*3),'Lejárt automatizálási SLA · '||i.alert_title,'Ellenőrizd a lejárt runbookot és jelölj ki következő emberi lépést.',now()+interval '2 hours',jsonb_build_object('source','v15_runbook_escalation','instance_id',i.id,'escalation_level',i.escalation_level+1))
      on conflict(task_key) do update set priority_score=greatest(public.control_tasks.priority_score,excluded.priority_score),due_at=least(public.control_tasks.due_at,excluded.due_at),updated_at=now() returning id into v_task;
-     insert into public.automation_events(event_key,instance_id,event_type,metadata) values('escalate:'||p_run_key||':'||rec.id::text||':'||(rec.escalation_level+1)::text,rec.id,'escalated',jsonb_build_object('level',rec.escalation_level+1,'control_task_id',v_task)) on conflict(event_key) do nothing;
+     insert into public.automation_events(event_key,instance_id,event_type,metadata) values('escalate:'||p_run_key||':'||i.id::text||':'||(i.escalation_level+1)::text,i.id,'escalated',jsonb_build_object('level',i.escalation_level+1,'control_task_id',v_task)) on conflict(event_key) do nothing;
      v_escalated:=v_escalated+1;
    end if;
  end loop;
  update public.automation_step_runs sr set status='ready',ready_at=coalesce(ready_at,now()),updated_at=now()
  where sr.status='failed' and sr.next_attempt_at<=now() and sr.attempt_count<(select s.max_attempts from public.automation_runbook_steps s where s.id=sr.step_id)
-   and exists(select 1 from public.automation_runbook_instances inst where inst.id=sr.instance_id and inst.status='active');
+   and exists(select 1 from public.automation_runbook_instances i where i.id=sr.instance_id and i.status='active');
  get diagnostics v_ready=row_count;
  return jsonb_build_object('cancelled',v_cancelled,'failed',v_failed,'escalated',v_escalated,'retries_ready',v_ready);
 end;$$;
@@ -4646,7 +5339,7 @@ CREATE OR REPLACE FUNCTION "public"."reconcile_post_release_session"("p_session_
     LANGUAGE "plpgsql" SECURITY DEFINER
     SET "search_path" TO ''
     AS $$
-declare s public.post_release_sessions;p public.post_release_policies;e record;v_open_high int;v_open_critical int;v_trusted_pass int;v_trusted_fail int;v_target text;v_event text;begin
+declare s public.post_release_sessions;p public.post_release_policies;e record;v_open_high int;v_open_critical int;v_trusted_pass int;v_latest_trusted_fail int;v_target text;v_event text;begin
  select * into s from public.post_release_sessions where id=p_session_id for update;if not found then raise exception 'Ismeretlen utóellenőrzés.';end if;
  if s.status in('closed','cancelled') then return jsonb_build_object('status',s.status,'noop',true);end if;
  select * into p from public.post_release_policies where id=s.policy_id;
@@ -4657,17 +5350,58 @@ declare s public.post_release_sessions;p public.post_release_policies;e record;v
  end loop;
  update public.post_release_findings f set status='resolved',resolved_by=null,updated_at=now() where f.session_id=s.id and f.status in('open','acknowledged') and exists(select 1 from public.post_release_evidence pass join public.post_release_evidence fail on fail.id=f.last_evidence_id where pass.session_id=s.id and pass.check_kind=fail.check_kind and pass.trusted and pass.status='pass' and pass.observed_at>fail.observed_at);
  select count(*) filter(where status in('open','acknowledged') and severity='critical'),count(*) filter(where status in('open','acknowledged') and severity='high') into v_open_critical,v_open_high from public.post_release_findings where session_id=s.id;
- select count(*) filter(where trusted and status='pass'),count(*) filter(where trusted and status in('fail','error')) into v_trusted_pass,v_trusted_fail from public.post_release_evidence where session_id=s.id;
- if v_open_critical>0 then v_target:='rollback_recommended';elsif v_open_high>0 or v_trusted_fail>0 then v_target:='degraded';elsif now()>=s.observation_ends_at and v_trusted_pass>=p.min_trusted_checks then v_target:='stable';else v_target:='observing';end if;
- if s.status<>v_target then
-   update public.post_release_sessions set status=v_target,stable_at=case when v_target='stable' then now() else stable_at end,updated_at=now() where id=s.id;
-   v_event:=case v_target when 'rollback_recommended' then 'rollback_recommended' when 'degraded' then 'degraded' when 'stable' then 'stable' else null end;
-   if v_event is not null then insert into public.post_release_events(event_key,session_id,event_type,metadata) values('reconcile:'||p_run_key||':'||s.id::text||':'||v_target,s.id,v_event,jsonb_build_object('critical',v_open_critical,'high',v_open_high,'trusted_pass',v_trusted_pass,'trusted_fail',v_trusted_fail)) on conflict(event_key) do nothing;end if;
- end if;
- return jsonb_build_object('status',v_target,'critical',v_open_critical,'high',v_open_high,'trusted_pass',v_trusted_pass,'trusted_fail',v_trusted_fail);end;$$;
+ with latest as(select distinct on(check_kind) check_kind,status,trusted from public.post_release_evidence where session_id=s.id order by check_kind,observed_at desc,captured_at desc)
+ select count(*) filter(where trusted and status='pass'),count(*) filter(where trusted and status in('fail','error')) into v_trusted_pass,v_latest_trusted_fail from latest;
+ if v_open_critical>0 then v_target:='rollback_recommended';elsif v_open_high>0 or v_latest_trusted_fail>0 then v_target:='degraded';elsif now()>=s.observation_ends_at and v_trusted_pass>=p.min_trusted_checks then v_target:='stable';else v_target:='observing';end if;
+ if s.status<>v_target then update public.post_release_sessions set status=v_target,stable_at=case when v_target='stable' then now() else stable_at end,updated_at=now() where id=s.id;v_event:=case v_target when 'rollback_recommended' then 'rollback_recommended' when 'degraded' then 'degraded' when 'stable' then 'stable' else null end;if v_event is not null then insert into public.post_release_events(event_key,session_id,event_type,metadata) values('reconcile:'||p_run_key||':'||s.id::text||':'||v_target,s.id,v_event,jsonb_build_object('critical',v_open_critical,'high',v_open_high,'trusted_pass',v_trusted_pass,'latest_trusted_fail',v_latest_trusted_fail)) on conflict(event_key) do nothing;end if;end if;
+ return jsonb_build_object('status',v_target,'critical',v_open_critical,'high',v_open_high,'trusted_pass',v_trusted_pass,'latest_trusted_fail',v_latest_trusted_fail);end;$$;
 
 
 ALTER FUNCTION "public"."reconcile_post_release_session"("p_session_id" "uuid", "p_run_key" "text") OWNER TO "postgres";
+
+
+CREATE OR REPLACE FUNCTION "public"."reconcile_recovery_governance"("p_run_key" "text") RETURNS "jsonb"
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    SET "search_path" TO ''
+    AS $$
+declare o public.recovery_objectives;v_backup public.recovery_evidence;v_restore public.recovery_evidence;v_drill public.recovery_drills;v_open integer:=0;v_resolved integer:=0;v_id uuid;begin
+ perform pg_advisory_xact_lock(hashtextextended('recovery:'||p_run_key,0));
+ for o in select distinct on(service_key) * from public.recovery_objectives where enabled order by service_key,version desc loop
+   select * into v_backup from public.recovery_evidence where objective_id=o.id and evidence_kind='backup' and trusted order by observed_at desc,captured_at desc limit 1;
+   select * into v_restore from public.recovery_evidence where objective_id=o.id and evidence_kind='restore' and trusted order by observed_at desc,captured_at desc limit 1;
+   select * into v_drill from public.recovery_drills where objective_id=o.id and status in('passed','failed') order by completed_at desc nulls last limit 1;
+
+   if v_backup.id is null or v_backup.observed_at<now()-make_interval(mins=>o.backup_freshness_minutes) then
+     v_id:=public.upsert_recovery_finding(o.id,'backup_stale',case when o.criticality='critical' then 'critical' else 'high' end,'Elavult recovery backup evidence','Nincs a recovery objective frissességi követelményének megfelelő trusted backup evidence.',p_run_key);v_open:=v_open+1;
+     if public.resolve_recovery_finding(o.id,'backup_failed',p_run_key) then v_resolved:=v_resolved+1;end if;
+   elsif v_backup.status<>'pass' then
+     v_id:=public.upsert_recovery_finding(o.id,'backup_failed',case when o.criticality='critical' then 'critical' else 'high' end,'Hibás backup evidence','A legfrissebb trusted backup evidence nem sikeres.',p_run_key);v_open:=v_open+1;
+     if public.resolve_recovery_finding(o.id,'backup_stale',p_run_key) then v_resolved:=v_resolved+1;end if;
+   else
+     if public.resolve_recovery_finding(o.id,'backup_stale',p_run_key) then v_resolved:=v_resolved+1;end if;
+     if public.resolve_recovery_finding(o.id,'backup_failed',p_run_key) then v_resolved:=v_resolved+1;end if;
+   end if;
+
+   if v_restore.id is null or v_restore.status<>'pass' then v_id:=public.upsert_recovery_finding(o.id,'restore_failed',case when o.criticality='critical' then 'critical' else 'high' end,'Restore nincs igazolva','Nincs sikeres trusted restore evidence.',p_run_key);v_open:=v_open+1;
+   else if public.resolve_recovery_finding(o.id,'restore_failed',p_run_key) then v_resolved:=v_resolved+1;end if;end if;
+
+   if v_drill.id is null or v_drill.completed_at<now()-make_interval(days=>o.drill_interval_days) then
+     v_id:=public.upsert_recovery_finding(o.id,'drill_overdue','high','Recovery drill esedékes','Nincs az objective intervallumán belüli lezárt recovery drill.',p_run_key);v_open:=v_open+1;
+     if public.resolve_recovery_finding(o.id,'drill_failed',p_run_key) then v_resolved:=v_resolved+1;end if;
+     if public.resolve_recovery_finding(o.id,'rto_breach',p_run_key) then v_resolved:=v_resolved+1;end if;
+     if public.resolve_recovery_finding(o.id,'rpo_breach',p_run_key) then v_resolved:=v_resolved+1;end if;
+   else
+     if public.resolve_recovery_finding(o.id,'drill_overdue',p_run_key) then v_resolved:=v_resolved+1;end if;
+     if v_drill.status='failed' then v_id:=public.upsert_recovery_finding(o.id,'drill_failed',case when o.criticality='critical' then 'critical' else 'high' end,'Recovery drill sikertelen','A legutóbbi recovery drill nem teljesítette a követelményeket.',p_run_key);v_open:=v_open+1;else if public.resolve_recovery_finding(o.id,'drill_failed',p_run_key) then v_resolved:=v_resolved+1;end if;end if;
+     if coalesce(v_drill.measured_rto_minutes,2147483647)>o.rto_minutes then v_id:=public.upsert_recovery_finding(o.id,'rto_breach','high','RTO cél túllépve','A legutóbbi drill mért RTO-ja meghaladja a recovery objective-et.',p_run_key);v_open:=v_open+1;else if public.resolve_recovery_finding(o.id,'rto_breach',p_run_key) then v_resolved:=v_resolved+1;end if;end if;
+     if coalesce(v_drill.measured_rpo_minutes,2147483647)>o.rpo_minutes then v_id:=public.upsert_recovery_finding(o.id,'rpo_breach','high','RPO cél túllépve','A legutóbbi drill mért RPO-ja meghaladja a recovery objective-et.',p_run_key);v_open:=v_open+1;else if public.resolve_recovery_finding(o.id,'rpo_breach',p_run_key) then v_resolved:=v_resolved+1;end if;end if;
+   end if;
+ end loop;
+ return jsonb_build_object('run_key',p_run_key,'open_signals',v_open,'resolved_updates',v_resolved);
+end;$$;
+
+
+ALTER FUNCTION "public"."reconcile_recovery_governance"("p_run_key" "text") OWNER TO "postgres";
 
 
 CREATE OR REPLACE FUNCTION "public"."reconcile_release_candidates"("p_run_key" "text") RETURNS "jsonb"
@@ -4710,7 +5444,21 @@ ALTER FUNCTION "public"."record_coupon_redemption_v1"("p_instance_id" "uuid", "p
 CREATE OR REPLACE FUNCTION "public"."record_observability_event"("p_event_key" "text", "p_correlation_id" "text", "p_category" "text", "p_severity" "text", "p_event_name" "text", "p_duration_ms" integer, "p_status_code" integer, "p_source" "text", "p_metadata" "jsonb" DEFAULT '{}'::"jsonb") RETURNS bigint
     LANGUAGE "plpgsql" SECURITY DEFINER
     SET "search_path" TO ''
-    AS $$declare v_id bigint;v_existing public.observability_events;v_meta jsonb;begin if nullif(trim(p_event_key),'') is null or nullif(trim(p_correlation_id),'') is null then raise exception 'observability_key_required';end if;if p_category not in('http','commerce','integration','payment','database','security','system') then raise exception 'invalid_category';end if;if p_severity not in('debug','info','warning','error','critical') then raise exception 'invalid_severity';end if;select * into v_existing from public.observability_events where event_key=p_event_key;if found then if v_existing.correlation_id<>p_correlation_id or v_existing.event_name<>p_event_name or v_existing.category<>p_category then raise exception 'event_key_conflict';end if;return v_existing.id;end if;v_meta:=coalesce(p_metadata,'{}'::jsonb)-array['email','phone','password','token','authorization','cookie','address','name','full_name'];insert into public.observability_events(event_key,correlation_id,category,severity,event_name,duration_ms,status_code,source,metadata) values(p_event_key,p_correlation_id,p_category,p_severity,p_event_name,p_duration_ms,p_status_code,p_source,v_meta) returning id into v_id;return v_id;end;$$;
+    AS $$declare v_id bigint;v_existing public.observability_events;v_meta jsonb;begin
+ if nullif(trim(p_event_key),'') is null or nullif(trim(p_correlation_id),'') is null then raise exception 'observability_key_required';end if;
+ if p_category not in('http','commerce','integration','payment','database','security','system') then raise exception 'invalid_category';end if;
+ if p_severity not in('debug','info','warning','error','critical') then raise exception 'invalid_severity';end if;
+ select * into v_existing from public.observability_events where event_key=p_event_key;
+ if found then
+  if v_existing.correlation_id<>p_correlation_id or v_existing.event_name<>p_event_name or v_existing.category<>p_category then raise exception 'event_key_conflict';end if;
+  return v_existing.id;
+ end if;
+ -- defensive redaction: known PII/secret keys are stripped before persistence.
+ v_meta:=coalesce(p_metadata,'{}'::jsonb)-array['email','phone','password','token','authorization','cookie','address','name','full_name'];
+ insert into public.observability_events(event_key,correlation_id,category,severity,event_name,duration_ms,status_code,source,metadata)
+ values(p_event_key,p_correlation_id,p_category,p_severity,p_event_name,p_duration_ms,p_status_code,p_source,v_meta) returning id into v_id;
+ return v_id;
+end;$$;
 
 
 ALTER FUNCTION "public"."record_observability_event"("p_event_key" "text", "p_correlation_id" "text", "p_category" "text", "p_severity" "text", "p_event_name" "text", "p_duration_ms" integer, "p_status_code" integer, "p_source" "text", "p_metadata" "jsonb") OWNER TO "postgres";
@@ -4755,6 +5503,38 @@ declare s public.post_release_sessions;e public.post_release_evidence;v_trusted 
 ALTER FUNCTION "public"."record_post_release_evidence"("p_session_id" "uuid", "p_check_kind" "text", "p_status" "text", "p_source" "text", "p_observed_at" timestamp with time zone, "p_evidence" "jsonb", "p_event_key" "text") OWNER TO "postgres";
 
 
+CREATE OR REPLACE FUNCTION "public"."record_recovery_decision"("p_finding_id" "uuid", "p_actor_id" "uuid", "p_decision" "text", "p_note" "text", "p_decision_key" "text") RETURNS "uuid"
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    SET "search_path" TO ''
+    AS $$
+declare v public.recovery_findings;d public.recovery_decisions;v_id uuid;begin
+ if length(trim(p_note))<10 then raise exception 'Legalább 10 karakteres indoklás szükséges.';end if;select * into v from public.recovery_findings where id=p_finding_id;if not found then raise exception 'Finding nem található.';end if;
+ select * into d from public.recovery_decisions where decision_key=p_decision_key;if found then if d.finding_id is distinct from p_finding_id or d.actor_id<>p_actor_id or d.decision<>p_decision or d.note<>p_note then raise exception 'A decision_key már más recovery döntéshez tartozik.';end if;return d.id;end if;
+ insert into public.recovery_decisions(decision_key,objective_id,finding_id,decision,note,actor_id) values(p_decision_key,v.objective_id,p_finding_id,p_decision,p_note,p_actor_id) returning id into v_id;insert into public.recovery_events(event_key,objective_id,finding_id,event_type,actor_id,metadata) values('event:'||p_decision_key,v.objective_id,p_finding_id,'decision_recorded',p_actor_id,jsonb_build_object('decision',p_decision,'note',p_note));return v_id;
+end;$$;
+
+
+ALTER FUNCTION "public"."record_recovery_decision"("p_finding_id" "uuid", "p_actor_id" "uuid", "p_decision" "text", "p_note" "text", "p_decision_key" "text") OWNER TO "postgres";
+
+
+CREATE OR REPLACE FUNCTION "public"."record_recovery_evidence"("p_service_key" "text", "p_evidence_kind" "text", "p_status" "text", "p_trusted" boolean, "p_source" "text", "p_observed_at" timestamp with time zone, "p_evidence" "jsonb", "p_event_key" "text") RETURNS "uuid"
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    SET "search_path" TO ''
+    AS $$
+declare v_objective public.recovery_objectives;v public.recovery_evidence;v_id uuid;v_hash text;begin
+ select * into v_objective from public.recovery_objectives where service_key=p_service_key and enabled order by version desc limit 1;if not found then raise exception 'Nincs aktív recovery objective.';end if;
+ if p_trusted and not coalesce((v_objective.definition->'trusted_sources') ? p_source,false) then raise exception 'A megadott forrás nem trusted.';end if;
+ v_hash:=md5(v_objective.id::text||'|'||p_evidence_kind||'|'||p_status||'|'||p_source||'|'||p_observed_at::text||'|'||coalesce(p_evidence,'{}'::jsonb)::text);
+ select * into v from public.recovery_evidence where evidence_key=p_event_key;
+ if found then if v.objective_id<>v_objective.id or v.evidence_kind<>p_evidence_kind or v.status<>p_status or v.trusted<>p_trusted or v.source<>p_source or v.observed_at<>p_observed_at or v.evidence_hash<>v_hash then raise exception 'Az evidence_key már más recovery evidence-hez tartozik.';end if;return v.id;end if;
+ insert into public.recovery_evidence(evidence_key,objective_id,evidence_kind,status,trusted,source,observed_at,evidence,evidence_hash) values(p_event_key,v_objective.id,p_evidence_kind,p_status,p_trusted,p_source,p_observed_at,coalesce(p_evidence,'{}'::jsonb),v_hash) returning id into v_id;
+ insert into public.recovery_events(event_key,objective_id,event_type,metadata) values('event:'||p_event_key,v_objective.id,'evidence_recorded',jsonb_build_object('evidence_id',v_id,'kind',p_evidence_kind,'status',p_status,'trusted',p_trusted)) on conflict(event_key) do nothing;return v_id;
+end;$$;
+
+
+ALTER FUNCTION "public"."record_recovery_evidence"("p_service_key" "text", "p_evidence_kind" "text", "p_status" "text", "p_trusted" boolean, "p_source" "text", "p_observed_at" timestamp with time zone, "p_evidence" "jsonb", "p_event_key" "text") OWNER TO "postgres";
+
+
 CREATE TABLE IF NOT EXISTS "public"."rollout_checks" (
     "id" "uuid" DEFAULT "gen_random_uuid"() NOT NULL,
     "check_key" "text" NOT NULL,
@@ -4779,7 +5559,13 @@ ALTER TABLE "public"."rollout_checks" OWNER TO "postgres";
 CREATE OR REPLACE FUNCTION "public"."record_rollout_check"("p_check_key" "text", "p_environment_key" "text", "p_source_sha" "text", "p_check_kind" "text", "p_status" "text", "p_trusted" boolean, "p_evidence_hash" "text", "p_source" "text", "p_observed_at" timestamp with time zone, "p_metadata" "jsonb" DEFAULT '{}'::"jsonb") RETURNS "public"."rollout_checks"
     LANGUAGE "plpgsql" SECURITY DEFINER
     SET "search_path" TO ''
-    AS $$declare r public.rollout_checks;begin if nullif(trim(p_check_key),'') is null or nullif(trim(p_source_sha),'') is null or nullif(trim(p_evidence_hash),'') is null or nullif(trim(p_source),'') is null then raise exception 'rollout_evidence_required'; end if;if p_environment_key='production' and not p_trusted then raise exception 'Production rollout check csak trusted evidence lehet.';end if;select * into r from public.rollout_checks where check_key=p_check_key;if found then if r.environment_key<>p_environment_key or r.source_sha<>p_source_sha or r.check_kind<>p_check_kind or r.evidence_hash<>p_evidence_hash then raise exception 'A rollout check kulcs már más evidence-hez tartozik.';end if;return r;end if;insert into public.rollout_checks(check_key,environment_key,source_sha,check_kind,status,trusted,evidence_hash,source,observed_at,metadata) values(trim(p_check_key),p_environment_key,trim(p_source_sha),p_check_kind,p_status,p_trusted,trim(p_evidence_hash),trim(p_source),p_observed_at,coalesce(p_metadata,'{}'::jsonb)) returning * into r;return r;end;$$;
+    AS $$
+declare r public.rollout_checks;begin
+ if p_environment_key='production' and not p_trusted then raise exception 'Production rollout check csak trusted evidence lehet.';end if;
+ select * into r from public.rollout_checks where check_key=p_check_key;if found then
+  if r.environment_key<>p_environment_key or r.source_sha<>p_source_sha or r.check_kind<>p_check_kind or r.evidence_hash<>p_evidence_hash then raise exception 'A rollout check kulcs már más evidence-hez tartozik.';end if;return r;end if;
+ insert into public.rollout_checks(check_key,environment_key,source_sha,check_kind,status,trusted,evidence_hash,source,observed_at,metadata)
+ values(trim(p_check_key),p_environment_key,trim(p_source_sha),p_check_kind,p_status,p_trusted,trim(p_evidence_hash),trim(p_source),p_observed_at,coalesce(p_metadata,'{}'::jsonb)) returning * into r;return r;end;$$;
 
 
 ALTER FUNCTION "public"."record_rollout_check"("p_check_key" "text", "p_environment_key" "text", "p_source_sha" "text", "p_check_kind" "text", "p_status" "text", "p_trusted" boolean, "p_evidence_hash" "text", "p_source" "text", "p_observed_at" timestamp with time zone, "p_metadata" "jsonb") OWNER TO "postgres";
@@ -4788,7 +5574,22 @@ ALTER FUNCTION "public"."record_rollout_check"("p_check_key" "text", "p_environm
 CREATE OR REPLACE FUNCTION "public"."recover_stale_communication_jobs"("p_stale_minutes" integer DEFAULT 15) RETURNS integer
     LANGUAGE "plpgsql" SECURITY DEFINER
     SET "search_path" TO ''
-    AS $$declare v_count integer; begin update public.communication_jobs set status=case when attempts<5 then 'pending' else 'failed' end,scheduled_at=case when attempts<5 then now()+interval '5 minutes' else scheduled_at end,last_error=case when attempts<5 then 'STALE_WORKER_CLAIM_RECOVERED' else 'STALE_WORKER_CLAIM_MAX_ATTEMPTS' end,claim_token=null,claimed_at=null,updated_at=now() where status='processing' and claimed_at is not null and claimed_at<now()-make_interval(mins=>greatest(5,p_stale_minutes)); get diagnostics v_count=row_count; return v_count; end$$;
+    AS $$
+declare v_count integer;
+begin
+  update public.communication_jobs
+  set status=case when attempts<5 then 'pending' else 'failed' end,
+      scheduled_at=case when attempts<5 then now()+interval '5 minutes' else scheduled_at end,
+      last_error=case when attempts<5 then 'STALE_WORKER_CLAIM_RECOVERED' else 'STALE_WORKER_CLAIM_MAX_ATTEMPTS' end,
+      claim_token=null,
+      claimed_at=null,
+      updated_at=now()
+  where status='processing'
+    and claimed_at is not null
+    and claimed_at < now()-make_interval(mins=>greatest(5,p_stale_minutes));
+  get diagnostics v_count=row_count;
+  return v_count;
+end $$;
 
 
 ALTER FUNCTION "public"."recover_stale_communication_jobs"("p_stale_minutes" integer) OWNER TO "postgres";
@@ -5078,7 +5879,9 @@ begin
   if v_order_status in ('cancelled','refunded') then raise exception 'order_not_reservable'; end if;
   if not exists(select 1 from public.order_items where order_id=p_order_id) then raise exception 'order_has_no_items'; end if;
   if exists(select 1 from public.order_items where order_id=p_order_id and variant_id is null) then raise exception 'order_item_variant_missing'; end if;
+
   insert into public.order_operations(order_id) values(p_order_id) on conflict(order_id) do nothing;
+
   for v_item in
     select oi.id as order_item_id,oi.variant_id,oi.quantity
     from public.order_items oi where oi.order_id=p_order_id order by oi.variant_id,oi.id
@@ -5097,6 +5900,7 @@ begin
     get diagnostics v_rowcount=row_count;
     v_created:=v_created+v_rowcount;
   end loop;
+
   update public.order_operations set
     operational_status=case when v_order_status='completed' then 'delivered' when v_order_status='shipped' then 'handed_over' else 'reserved' end,
     reservation_completed_at=coalesce(reservation_completed_at,now()),
@@ -5105,11 +5909,13 @@ begin
     exception_code=null,blocked_at=null,updated_at=now(),
     metadata=metadata||jsonb_build_object('stock_semantics','checkout_decremented')
   where order_id=p_order_id;
+
   insert into public.fulfillment_events(event_key,order_id,event_type,from_status,to_status,metadata)
   values('reservation-complete:'||p_order_id::text,p_order_id,'reserved',null,
     case when v_order_status='completed' then 'delivered' when v_order_status='shipped' then 'handed_over' else 'reserved' end,
     jsonb_build_object('created_reservations',v_created,'existing_reservations',v_existing,'stock_semantics','checkout_decremented'))
   on conflict(event_key) do nothing;
+
   return jsonb_build_object('order_id',p_order_id,'created_reservations',v_created,'existing_reservations',v_existing,'status',case when v_order_status='completed' then 'delivered' when v_order_status='shipped' then 'handed_over' else 'reserved' end);
 end;$$;
 
@@ -5117,10 +5923,42 @@ end;$$;
 ALTER FUNCTION "public"."reserve_inventory_for_order"("p_order_id" "uuid") OWNER TO "postgres";
 
 
+CREATE OR REPLACE FUNCTION "public"."resolve_recovery_finding"("p_objective_id" "uuid", "p_finding_type" "text", "p_run_key" "text") RETURNS boolean
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    SET "search_path" TO ''
+    AS $$
+declare v public.recovery_findings;begin
+ select * into v from public.recovery_findings where objective_id=p_objective_id and finding_type=p_finding_type for update;
+ if not found or v.status='resolved' then return false;end if;
+ update public.recovery_findings set status='resolved',resolved_by=null,updated_at=now() where id=v.id;
+ insert into public.recovery_events(event_key,objective_id,finding_id,event_type,metadata) values(p_run_key||':resolve:'||v.finding_key,p_objective_id,v.id,'finding_resolved',jsonb_build_object('run_key',p_run_key)) on conflict(event_key) do nothing;
+ return true;
+end;$$;
+
+
+ALTER FUNCTION "public"."resolve_recovery_finding"("p_objective_id" "uuid", "p_finding_type" "text", "p_run_key" "text") OWNER TO "postgres";
+
+
 CREATE OR REPLACE FUNCTION "public"."resolve_stale_control_alerts"("p_cycle_started_at" timestamp with time zone, "p_run_key" "text") RETURNS integer
     LANGUAGE "plpgsql" SECURITY DEFINER
     SET "search_path" TO ''
-    AS $$ declare r record;v_count integer:=0;begin for r in select * from public.control_alerts where status in ('open','acknowledged','snoozed') and evidence->>'source'='v13_detector' and last_detected_at<p_cycle_started_at loop update public.control_alerts set status='resolved',resolved_at=now(),resolved_by=null,updated_at=now(),evidence=evidence||jsonb_build_object('auto_resolved',true,'auto_resolved_run_key',p_run_key) where id=r.id; update public.control_tasks set status='cancelled',updated_at=now(),outcome=coalesce(outcome,'A detektor szerint a kiváltó feltétel megszűnt') where alert_id=r.id and status in ('open','in_progress'); insert into public.control_alert_events(event_key,alert_id,event_type,from_status,to_status,metadata) values('auto-resolve:'||p_run_key||':'||r.id::text,r.id,'resolved',r.status,'resolved',jsonb_build_object('reason','condition_not_redetected')) on conflict(event_key) do nothing; v_count:=v_count+1; end loop; return v_count; end;$$;
+    AS $$
+declare r record;v_count integer:=0;begin
+  for r in
+    select * from public.control_alerts
+    where status in ('open','acknowledged','snoozed')
+      and evidence->>'source'='v13_detector'
+      and last_detected_at<p_cycle_started_at
+  loop
+    update public.control_alerts set status='resolved',resolved_at=now(),resolved_by=null,updated_at=now(),evidence=evidence||jsonb_build_object('auto_resolved',true,'auto_resolved_run_key',p_run_key) where id=r.id;
+    update public.control_tasks set status='cancelled',updated_at=now(),outcome=coalesce(outcome,'A detektor szerint a kiváltó feltétel megszűnt') where alert_id=r.id and status in ('open','in_progress');
+    insert into public.control_alert_events(event_key,alert_id,event_type,from_status,to_status,metadata)
+    values('auto-resolve:'||p_run_key||':'||r.id::text,r.id,'resolved',r.status,'resolved',jsonb_build_object('reason','condition_not_redetected'))
+    on conflict(event_key) do nothing;
+    v_count:=v_count+1;
+  end loop;
+  return v_count;
+end;$$;
 
 
 ALTER FUNCTION "public"."resolve_stale_control_alerts"("p_cycle_started_at" timestamp with time zone, "p_run_key" "text") OWNER TO "postgres";
@@ -5227,13 +6065,26 @@ CREATE OR REPLACE FUNCTION "public"."reverse_loyalty_points_for_ineligible_order
 declare v_count integer:=0;begin
  insert into public.loyalty_ledger(customer_id,event_key,entry_type,points,order_id,reverses_entry_id,reason,metadata,occurred_at)
  select e.customer_id,'order-reversal:'||e.id::text,'reversal',-abs(e.points),e.order_id,e.id,
-        'Törölt vagy teljesen visszatérített rendelés pontjóváírásának visszavonása',jsonb_build_object('source_event_key',e.event_key,'reason','order_ineligible_after_accrual'),now()
- from public.loyalty_ledger e join public.orders o on o.id=e.order_id
- where e.entry_type='earn' and e.order_id is not null and (e.event_key like 'order-earn:%' or e.event_key like 'tier-bonus:%')
-   and (o.status='cancelled' or exists(select 1 from public.return_cases rc where rc.order_id=o.id group by rc.order_id having coalesce(sum(rc.refund_amount_gross_huf) filter(where rc.status='refunded'),0)>=o.total_gross_huf))
+        'Törölt vagy teljesen visszatérített rendelés pontjóváírásának visszavonása',
+        jsonb_build_object('source_event_key',e.event_key,'reason','order_ineligible_after_accrual'),now()
+ from public.loyalty_ledger e
+ join public.orders o on o.id=e.order_id
+ where e.entry_type='earn'
+   and e.order_id is not null
+   and (e.event_key like 'order-earn:%' or e.event_key like 'tier-bonus:%')
+   and (
+     o.status='cancelled'
+     or exists(
+       select 1 from public.return_cases rc
+       where rc.order_id=o.id
+       group by rc.order_id
+       having coalesce(sum(rc.refund_amount_gross_huf) filter(where rc.status='refunded'),0)>=o.total_gross_huf
+     )
+   )
    and not exists(select 1 from public.loyalty_ledger r where r.reverses_entry_id=e.id and r.entry_type='reversal')
  on conflict(event_key) do nothing;
- get diagnostics v_count=row_count; return v_count;
+ get diagnostics v_count=row_count;
+ return v_count;
 end;$$;
 
 
@@ -5382,6 +6233,20 @@ declare c public.release_candidates;p public.post_release_policies;s public.post
 
 
 ALTER FUNCTION "public"."start_post_release_session"("p_release_candidate_id" "uuid", "p_actor_id" "uuid", "p_event_key" "text") OWNER TO "postgres";
+
+
+CREATE OR REPLACE FUNCTION "public"."start_recovery_drill"("p_drill_id" "uuid", "p_actor_id" "uuid", "p_event_key" "text") RETURNS "void"
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    SET "search_path" TO ''
+    AS $$
+declare v public.recovery_drills;e public.recovery_events;begin
+ select * into e from public.recovery_events where event_key=p_event_key;if found then if e.drill_id is distinct from p_drill_id or e.event_type<>'drill_started' then raise exception 'Az event_key már más recovery művelethez tartozik.';end if;return;end if;
+ select * into v from public.recovery_drills where id=p_drill_id for update;if not found then raise exception 'Drill nem található.';end if;if v.status='running' then raise exception 'A drill már fut, de más idempotency kulccsal indult.';end if;if v.status<>'planned' then raise exception 'Csak tervezett drill indítható.';end if;
+ update public.recovery_drills set status='running',started_at=now(),updated_at=now() where id=p_drill_id;insert into public.recovery_events(event_key,objective_id,drill_id,event_type,actor_id) values(p_event_key,v.objective_id,p_drill_id,'drill_started',p_actor_id);
+end;$$;
+
+
+ALTER FUNCTION "public"."start_recovery_drill"("p_drill_id" "uuid", "p_actor_id" "uuid", "p_event_key" "text") OWNER TO "postgres";
 
 
 CREATE OR REPLACE FUNCTION "public"."sync_campaign_child_instance"() RETURNS "trigger"
@@ -5751,7 +6616,61 @@ COMMENT ON TABLE "public"."control_alerts" IS 'V13 persistent cross-domain manag
 CREATE OR REPLACE FUNCTION "public"."transition_control_alert"("p_alert_id" "uuid", "p_target_status" "text", "p_event_key" "text", "p_actor_id" "uuid" DEFAULT NULL::"uuid", "p_snoozed_until" timestamp with time zone DEFAULT NULL::timestamp with time zone, "p_note" "text" DEFAULT NULL::"text") RETURNS "public"."control_alerts"
     LANGUAGE "plpgsql" SECURITY DEFINER
     SET "search_path" TO ''
-    AS $$ declare a public.control_alerts;e public.control_alert_events;v_from text;v_event_type text; begin if nullif(trim(p_event_key),'') is null then raise exception 'event_key_required'; end if; if p_target_status not in ('open','acknowledged','snoozed','resolved','dismissed') then raise exception 'unsupported_control_status'; end if; perform pg_advisory_xact_lock(hashtextextended('control-alert:'||p_alert_id::text,0)); select * into a from public.control_alerts where id=p_alert_id for update; if not found then raise exception 'control_alert_not_found'; end if; select * into e from public.control_alert_events where event_key=p_event_key; if found then if e.alert_id<>p_alert_id or coalesce(e.to_status,'')<>p_target_status then raise exception 'event_key_conflict'; end if; return a; end if; v_from:=a.status; if p_target_status='open' and v_from<>'snoozed' then raise exception 'invalid_control_transition'; end if; if p_target_status='acknowledged' and v_from not in ('open','snoozed') then raise exception 'invalid_control_transition'; end if; if p_target_status='snoozed' and v_from not in ('open','acknowledged') then raise exception 'invalid_control_transition'; end if; if p_target_status in ('resolved','dismissed') and v_from not in ('open','acknowledged','snoozed') then raise exception 'invalid_control_transition'; end if; if p_target_status='snoozed' and (p_snoozed_until is null or p_snoozed_until<=now()) then raise exception 'future_snooze_required'; end if; v_event_type:=case p_target_status when 'open' then 'reopened' when 'acknowledged' then 'acknowledged' when 'snoozed' then 'snoozed' when 'resolved' then 'resolved' when 'dismissed' then 'dismissed' end; update public.control_alerts set status=p_target_status,acknowledged_at=case when p_target_status='acknowledged' then coalesce(acknowledged_at,now()) else acknowledged_at end,acknowledged_by=case when p_target_status='acknowledged' then p_actor_id else acknowledged_by end,snoozed_until=case when p_target_status='snoozed' then p_snoozed_until when p_target_status='open' then null else snoozed_until end,resolved_at=case when p_target_status='resolved' then coalesce(resolved_at,now()) when p_target_status='open' then null else resolved_at end,resolved_by=case when p_target_status='resolved' then p_actor_id when p_target_status='open' then null else resolved_by end,dismissed_at=case when p_target_status='dismissed' then coalesce(dismissed_at,now()) when p_target_status='open' then null else dismissed_at end,dismissed_by=case when p_target_status='dismissed' then p_actor_id when p_target_status='open' then null else dismissed_by end,updated_at=now() where id=p_alert_id returning * into a; insert into public.control_alert_events(event_key,alert_id,event_type,from_status,to_status,actor_id,metadata) values(p_event_key,p_alert_id,v_event_type,v_from,p_target_status,p_actor_id,jsonb_build_object('note',nullif(trim(p_note),''),'snoozed_until',p_snoozed_until)); if p_target_status in ('resolved','dismissed') then update public.control_tasks set status='cancelled',updated_at=now(),outcome=coalesce(outcome,'Alert lezárása miatt automatikusan lezárt kontrollfeladat') where alert_id=p_alert_id and status in ('open','in_progress'); end if; return a; end;$$;
+    AS $$
+declare
+  a public.control_alerts;
+  e public.control_alert_events;
+  v_from text;
+  v_event_type text;
+begin
+  if nullif(trim(p_event_key),'') is null then raise exception 'event_key_required'; end if;
+  if p_target_status not in ('open','acknowledged','snoozed','resolved','dismissed') then raise exception 'unsupported_control_status'; end if;
+  perform pg_advisory_xact_lock(hashtextextended('control-alert:'||p_alert_id::text,0));
+  select * into a from public.control_alerts where id=p_alert_id for update;
+  if not found then raise exception 'control_alert_not_found'; end if;
+
+  select * into e from public.control_alert_events where event_key=p_event_key;
+  if found then
+    if e.alert_id<>p_alert_id or coalesce(e.to_status,'')<>p_target_status then raise exception 'event_key_conflict'; end if;
+    return a;
+  end if;
+
+  v_from:=a.status;
+  if p_target_status='open' and v_from<>'snoozed' then raise exception 'invalid_control_transition'; end if;
+  if p_target_status='acknowledged' and v_from not in ('open','snoozed') then raise exception 'invalid_control_transition'; end if;
+  if p_target_status='snoozed' and v_from not in ('open','acknowledged') then raise exception 'invalid_control_transition'; end if;
+  if p_target_status in ('resolved','dismissed') and v_from not in ('open','acknowledged','snoozed') then raise exception 'invalid_control_transition'; end if;
+  if p_target_status='snoozed' and (p_snoozed_until is null or p_snoozed_until<=now()) then raise exception 'future_snooze_required'; end if;
+
+  v_event_type:=case p_target_status
+    when 'open' then 'reopened'
+    when 'acknowledged' then 'acknowledged'
+    when 'snoozed' then 'snoozed'
+    when 'resolved' then 'resolved'
+    when 'dismissed' then 'dismissed'
+  end;
+
+  update public.control_alerts set
+    status=p_target_status,
+    acknowledged_at=case when p_target_status='acknowledged' then coalesce(acknowledged_at,now()) else acknowledged_at end,
+    acknowledged_by=case when p_target_status='acknowledged' then p_actor_id else acknowledged_by end,
+    snoozed_until=case when p_target_status='snoozed' then p_snoozed_until when p_target_status='open' then null else snoozed_until end,
+    resolved_at=case when p_target_status='resolved' then coalesce(resolved_at,now()) when p_target_status='open' then null else resolved_at end,
+    resolved_by=case when p_target_status='resolved' then p_actor_id when p_target_status='open' then null else resolved_by end,
+    dismissed_at=case when p_target_status='dismissed' then coalesce(dismissed_at,now()) when p_target_status='open' then null else dismissed_at end,
+    dismissed_by=case when p_target_status='dismissed' then p_actor_id when p_target_status='open' then null else dismissed_by end,
+    updated_at=now()
+  where id=p_alert_id returning * into a;
+
+  insert into public.control_alert_events(event_key,alert_id,event_type,from_status,to_status,actor_id,metadata)
+  values(p_event_key,p_alert_id,v_event_type,v_from,p_target_status,p_actor_id,jsonb_build_object('note',nullif(trim(p_note),''),'snoozed_until',p_snoozed_until));
+
+  if p_target_status in ('resolved','dismissed') then
+    update public.control_tasks set status='cancelled',updated_at=now(),outcome=coalesce(outcome,'Alert lezárása miatt automatikusan lezárt kontrollfeladat')
+    where alert_id=p_alert_id and status in ('open','in_progress');
+  end if;
+  return a;
+end;$$;
 
 
 ALTER FUNCTION "public"."transition_control_alert"("p_alert_id" "uuid", "p_target_status" "text", "p_event_key" "text", "p_actor_id" "uuid", "p_snoozed_until" timestamp with time zone, "p_note" "text") OWNER TO "postgres";
@@ -5894,6 +6813,7 @@ begin
   if not found then raise exception 'order_operations_not_initialized'; end if;
   select status into v_commerce from public.orders where id=p_order_id for update;
   if not found then raise exception 'order_not_found'; end if;
+
   v_event_type:=case p_target_status when 'ready_to_pack' then 'ready_to_pack' when 'packed' then 'packed' when 'handed_over' then 'handed_over' when 'delivered' then 'delivered' else null end;
   if v_event_type is null then raise exception 'unsupported_transition'; end if;
   select * into v_existing from public.fulfillment_events where event_key=p_event_key;
@@ -5901,11 +6821,13 @@ begin
     if v_existing.order_id<>p_order_id or v_existing.event_type<>v_event_type or coalesce(v_existing.to_status,'')<>p_target_status then raise exception 'event_key_conflict'; end if;
     return op;
   end if;
+
   v_from:=op.operational_status;
   if p_target_status='ready_to_pack' and (v_from<>'reserved' or v_commerce not in ('paid','processing')) then raise exception 'invalid_transition'; end if;
   if p_target_status='packed' and v_from<>'ready_to_pack' then raise exception 'invalid_transition'; end if;
   if p_target_status='handed_over' and v_from<>'packed' then raise exception 'invalid_transition'; end if;
   if p_target_status='delivered' and v_from<>'handed_over' then raise exception 'invalid_transition'; end if;
+
   if p_target_status='packed' then
     if not exists(select 1 from public.inventory_reservations where order_id=p_order_id and status='active') then raise exception 'no_active_reservations'; end if;
     update public.inventory_reservations set status='consumed',consumed_at=coalesce(consumed_at,now()),updated_at=now(),metadata=metadata||jsonb_build_object('consumed_at_operation','packed') where order_id=p_order_id and status='active';
@@ -5914,6 +6836,7 @@ begin
   elsif p_target_status='delivered' then
     update public.orders set status='completed',updated_at=now() where id=p_order_id and status='shipped';
   end if;
+
   update public.order_operations set operational_status=p_target_status,
     ready_to_pack_at=case when p_target_status='ready_to_pack' then coalesce(ready_to_pack_at,now()) else ready_to_pack_at end,
     packed_at=case when p_target_status='packed' then coalesce(packed_at,now()) else packed_at end,
@@ -6115,7 +7038,18 @@ ALTER FUNCTION "public"."update_release_ci_evidence"("p_candidate_id" "uuid", "p
 CREATE OR REPLACE FUNCTION "public"."upsert_checkout_recovery_intent"("p_user_id" "uuid", "p_email" "text", "p_cart" "jsonb", "p_checkout" "jsonb") RETURNS "jsonb"
     LANGUAGE "plpgsql" SECURITY DEFINER
     SET "search_path" TO ''
-    AS $$declare r public.checkout_recovery_intents%rowtype;begin if p_user_id is null or length(trim(p_email))<5 then raise exception 'invalid recovery identity'; end if; if p_cart is null or jsonb_typeof(p_cart)<>'array' or jsonb_array_length(p_cart)=0 then raise exception 'empty cart'; end if; select * into r from public.checkout_recovery_intents where user_id=p_user_id and status='open' for update; if found then update public.checkout_recovery_intents set email=lower(trim(p_email)),cart=p_cart,checkout=coalesce(p_checkout,'{}'::jsonb),expires_at=now()+interval '7 days',last_seen_at=now(),updated_at=now() where id=r.id returning * into r; else insert into public.checkout_recovery_intents(user_id,email,cart,checkout) values(p_user_id,lower(trim(p_email)),p_cart,coalesce(p_checkout,'{}'::jsonb)) returning * into r; end if; return jsonb_build_object('id',r.id,'token',r.recovery_token,'expiresAt',r.expires_at);end;$$;
+    AS $$
+declare r public.checkout_recovery_intents%rowtype;begin
+  if p_user_id is null or length(trim(p_email))<5 then raise exception 'invalid recovery identity'; end if;
+  if p_cart is null or jsonb_typeof(p_cart)<>'array' or jsonb_array_length(p_cart)=0 then raise exception 'empty cart'; end if;
+  select * into r from public.checkout_recovery_intents where user_id=p_user_id and status='open' for update;
+  if found then
+    update public.checkout_recovery_intents set email=lower(trim(p_email)),cart=p_cart,checkout=coalesce(p_checkout,'{}'::jsonb),expires_at=now()+interval '7 days',last_seen_at=now(),updated_at=now() where id=r.id returning * into r;
+  else
+    insert into public.checkout_recovery_intents(user_id,email,cart,checkout) values(p_user_id,lower(trim(p_email)),p_cart,coalesce(p_checkout,'{}'::jsonb)) returning * into r;
+  end if;
+  return jsonb_build_object('id',r.id,'token',r.recovery_token,'expiresAt',r.expires_at);
+end;$$;
 
 
 ALTER FUNCTION "public"."upsert_checkout_recovery_intent"("p_user_id" "uuid", "p_email" "text", "p_cart" "jsonb", "p_checkout" "jsonb") OWNER TO "postgres";
@@ -6151,10 +7085,78 @@ ALTER FUNCTION "public"."upsert_checkout_recovery_intent_v2"("p_instance_id" "uu
 CREATE OR REPLACE FUNCTION "public"."upsert_control_alert"("p_alert_key" "text", "p_category" "text", "p_alert_type" "text", "p_severity" "text", "p_priority_score" integer, "p_title" "text", "p_description" "text", "p_recommended_action" "text", "p_run_key" "text", "p_order_id" "uuid" DEFAULT NULL::"uuid", "p_customer_id" "uuid" DEFAULT NULL::"uuid", "p_reseller_id" "uuid" DEFAULT NULL::"uuid", "p_variant_id" "uuid" DEFAULT NULL::"uuid", "p_opportunity_id" "uuid" DEFAULT NULL::"uuid", "p_evidence" "jsonb" DEFAULT '{}'::"jsonb") RETURNS "public"."control_alerts"
     LANGUAGE "plpgsql" SECURITY DEFINER
     SET "search_path" TO ''
-    AS $$ declare a public.control_alerts;v_old_status text;v_old_severity text;v_new_status text;v_event_type text;v_old_rank integer;v_new_rank integer; begin if nullif(trim(p_alert_key),'') is null or nullif(trim(p_run_key),'') is null then raise exception 'alert_key_and_run_key_required'; end if; if p_category not in ('operations','inventory','service','commercial','customer','system') then raise exception 'invalid_alert_category'; end if; if p_severity not in ('info','warning','high','critical') then raise exception 'invalid_alert_severity'; end if; perform pg_advisory_xact_lock(hashtextextended('control-alert-key:'||p_alert_key,0)); select * into a from public.control_alerts where alert_key=p_alert_key for update; if not found then insert into public.control_alerts(alert_key,category,alert_type,severity,priority_score,title,description,recommended_action,order_id,customer_id,reseller_id,variant_id,opportunity_id,evidence) values(p_alert_key,p_category,p_alert_type,p_severity,greatest(0,least(100,p_priority_score)),p_title,p_description,p_recommended_action,p_order_id,p_customer_id,p_reseller_id,p_variant_id,p_opportunity_id,coalesce(p_evidence,'{}'::jsonb)||jsonb_build_object('source','v13_detector','detector_run_key',p_run_key)) returning * into a; insert into public.control_alert_events(event_key,alert_id,event_type,to_status,metadata) values('detect:'||p_run_key||':'||p_alert_key,a.id,'detected','open',jsonb_build_object('severity',p_severity,'priority_score',p_priority_score)); return a; end if; v_old_status:=a.status;v_old_severity:=a.severity; v_old_rank:=case a.severity when 'critical' then 4 when 'high' then 3 when 'warning' then 2 else 1 end; v_new_rank:=case p_severity when 'critical' then 4 when 'high' then 3 when 'warning' then 2 else 1 end; v_new_status:=a.status; if a.status='resolved' then v_new_status:='open'; elsif a.status='snoozed' and a.snoozed_until is not null and a.snoozed_until<=now() then v_new_status:='open'; elsif a.status='dismissed' and v_new_rank>v_old_rank then v_new_status:='open'; end if; update public.control_alerts set category=p_category,alert_type=p_alert_type,severity=p_severity,priority_score=greatest(0,least(100,p_priority_score)),title=p_title,description=p_description,recommended_action=p_recommended_action,order_id=coalesce(p_order_id,order_id),customer_id=coalesce(p_customer_id,customer_id),reseller_id=coalesce(p_reseller_id,reseller_id),variant_id=coalesce(p_variant_id,variant_id),opportunity_id=coalesce(p_opportunity_id,opportunity_id),evidence=coalesce(p_evidence,'{}'::jsonb)||jsonb_build_object('source','v13_detector','detector_run_key',p_run_key),occurrence_count=occurrence_count+1,last_detected_at=now(),status=v_new_status,snoozed_until=case when v_new_status='open' then null else snoozed_until end,resolved_at=case when v_new_status='open' then null else resolved_at end,resolved_by=case when v_new_status='open' then null else resolved_by end,dismissed_at=case when v_new_status='open' then null else dismissed_at end,dismissed_by=case when v_new_status='open' then null else dismissed_by end,updated_at=now() where id=a.id returning * into a; v_event_type:=case when v_old_status<>v_new_status and v_new_status='open' then 'reopened' else 'redetected' end; insert into public.control_alert_events(event_key,alert_id,event_type,from_status,to_status,metadata) values('detect:'||p_run_key||':'||p_alert_key,a.id,v_event_type,v_old_status,v_new_status,jsonb_build_object('old_severity',v_old_severity,'severity',p_severity,'priority_score',p_priority_score)) on conflict(event_key) do nothing; return a; end;$$;
+    AS $$
+declare
+  a public.control_alerts;
+  v_old_status text;
+  v_old_severity text;
+  v_new_status text;
+  v_event_type text;
+  v_old_rank integer;
+  v_new_rank integer;
+begin
+  if nullif(trim(p_alert_key),'') is null or nullif(trim(p_run_key),'') is null then raise exception 'alert_key_and_run_key_required'; end if;
+  if p_category not in ('operations','inventory','service','commercial','customer','system') then raise exception 'invalid_alert_category'; end if;
+  if p_severity not in ('info','warning','high','critical') then raise exception 'invalid_alert_severity'; end if;
+  perform pg_advisory_xact_lock(hashtextextended('control-alert-key:'||p_alert_key,0));
+  select * into a from public.control_alerts where alert_key=p_alert_key for update;
+
+  if not found then
+    insert into public.control_alerts(alert_key,category,alert_type,severity,priority_score,title,description,recommended_action,order_id,customer_id,reseller_id,variant_id,opportunity_id,evidence)
+    values(p_alert_key,p_category,p_alert_type,p_severity,greatest(0,least(100,p_priority_score)),p_title,p_description,p_recommended_action,p_order_id,p_customer_id,p_reseller_id,p_variant_id,p_opportunity_id,coalesce(p_evidence,'{}'::jsonb)||jsonb_build_object('source','v13_detector','detector_run_key',p_run_key))
+    returning * into a;
+    insert into public.control_alert_events(event_key,alert_id,event_type,to_status,metadata)
+    values('detect:'||p_run_key||':'||p_alert_key,a.id,'detected','open',jsonb_build_object('severity',p_severity,'priority_score',p_priority_score));
+    return a;
+  end if;
+
+  v_old_status:=a.status;v_old_severity:=a.severity;
+  v_old_rank:=case a.severity when 'critical' then 4 when 'high' then 3 when 'warning' then 2 else 1 end;
+  v_new_rank:=case p_severity when 'critical' then 4 when 'high' then 3 when 'warning' then 2 else 1 end;
+  v_new_status:=a.status;
+  if a.status='resolved' then v_new_status:='open';
+  elsif a.status='snoozed' and a.snoozed_until is not null and a.snoozed_until<=now() then v_new_status:='open';
+  elsif a.status='dismissed' and v_new_rank>v_old_rank then v_new_status:='open';
+  end if;
+
+  update public.control_alerts set
+    category=p_category,alert_type=p_alert_type,severity=p_severity,priority_score=greatest(0,least(100,p_priority_score)),
+    title=p_title,description=p_description,recommended_action=p_recommended_action,
+    order_id=coalesce(p_order_id,order_id),customer_id=coalesce(p_customer_id,customer_id),reseller_id=coalesce(p_reseller_id,reseller_id),variant_id=coalesce(p_variant_id,variant_id),opportunity_id=coalesce(p_opportunity_id,opportunity_id),
+    evidence=coalesce(p_evidence,'{}'::jsonb)||jsonb_build_object('source','v13_detector','detector_run_key',p_run_key),
+    occurrence_count=occurrence_count+1,last_detected_at=now(),status=v_new_status,
+    snoozed_until=case when v_new_status='open' then null else snoozed_until end,
+    resolved_at=case when v_new_status='open' then null else resolved_at end,resolved_by=case when v_new_status='open' then null else resolved_by end,
+    dismissed_at=case when v_new_status='open' then null else dismissed_at end,dismissed_by=case when v_new_status='open' then null else dismissed_by end,
+    updated_at=now()
+  where id=a.id returning * into a;
+
+  v_event_type:=case when v_old_status<>v_new_status and v_new_status='open' then 'reopened' else 'redetected' end;
+  insert into public.control_alert_events(event_key,alert_id,event_type,from_status,to_status,metadata)
+  values('detect:'||p_run_key||':'||p_alert_key,a.id,v_event_type,v_old_status,v_new_status,jsonb_build_object('old_severity',v_old_severity,'severity',p_severity,'priority_score',p_priority_score))
+  on conflict(event_key) do nothing;
+  return a;
+end;$$;
 
 
 ALTER FUNCTION "public"."upsert_control_alert"("p_alert_key" "text", "p_category" "text", "p_alert_type" "text", "p_severity" "text", "p_priority_score" integer, "p_title" "text", "p_description" "text", "p_recommended_action" "text", "p_run_key" "text", "p_order_id" "uuid", "p_customer_id" "uuid", "p_reseller_id" "uuid", "p_variant_id" "uuid", "p_opportunity_id" "uuid", "p_evidence" "jsonb") OWNER TO "postgres";
+
+
+CREATE OR REPLACE FUNCTION "public"."upsert_recovery_finding"("p_objective_id" "uuid", "p_finding_type" "text", "p_severity" "text", "p_title" "text", "p_description" "text", "p_run_key" "text") RETURNS "uuid"
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    SET "search_path" TO ''
+    AS $$
+declare o public.recovery_objectives;v_key text;v public.recovery_findings;v_id uuid;v_event text;begin
+ select * into o from public.recovery_objectives where id=p_objective_id;if not found then raise exception 'Recovery objective nem található.';end if;v_key:='recovery:'||o.service_key||':'||p_finding_type;
+ select * into v from public.recovery_findings where finding_key=v_key for update;
+ if not found then insert into public.recovery_findings(finding_key,objective_id,finding_type,severity,title,description) values(v_key,p_objective_id,p_finding_type,p_severity,p_title,p_description) returning id into v_id;v_event:='finding_opened';
+ elsif v.status='resolved' then update public.recovery_findings set status='open',severity=p_severity,title=p_title,description=p_description,occurrence_count=occurrence_count+1,last_detected_at=now(),acknowledged_by=null,resolved_by=null,updated_at=now() where id=v.id;v_id:=v.id;v_event:='finding_reopened';
+ else update public.recovery_findings set severity=p_severity,title=p_title,description=p_description,last_detected_at=now(),updated_at=now() where id=v.id;v_id:=v.id;v_event:=null;end if;
+ if v_event is not null then insert into public.recovery_events(event_key,objective_id,finding_id,event_type,metadata) values(p_run_key||':'||v_key||':'||v_event,p_objective_id,v_id,v_event,jsonb_build_object('run_key',p_run_key)) on conflict(event_key) do nothing;end if;return v_id;
+end;$$;
+
+
+ALTER FUNCTION "public"."upsert_recovery_finding"("p_objective_id" "uuid", "p_finding_type" "text", "p_severity" "text", "p_title" "text", "p_description" "text", "p_run_key" "text") OWNER TO "postgres";
 
 
 CREATE TABLE IF NOT EXISTS "public"."loyalty_benefit_usage" (
@@ -7425,7 +8427,7 @@ CREATE TABLE IF NOT EXISTS "public"."webshop_instances" (
     "public_site_url" "text",
     "email_from_name" "text",
     "storefront_config" "jsonb" DEFAULT '{}'::"jsonb" NOT NULL,
-    "organization_id" "uuid",
+    "organization_id" "uuid" NOT NULL,
     CONSTRAINT "webshop_instances_primary_color_check" CHECK ((("primary_color" IS NULL) OR ("primary_color" ~ '^#[0-9A-Fa-f]{6}$'::"text"))),
     CONSTRAINT "webshop_instances_status_check" CHECK (("status" = ANY (ARRAY['pilot'::"text", 'active'::"text", 'suspended'::"text", 'archived'::"text"]))),
     CONSTRAINT "webshop_instances_storefront_config_object_check" CHECK (("jsonb_typeof"("storefront_config") = 'object'::"text")),
@@ -7436,7 +8438,7 @@ CREATE TABLE IF NOT EXISTS "public"."webshop_instances" (
 ALTER TABLE "public"."webshop_instances" OWNER TO "postgres";
 
 
-COMMENT ON COLUMN "public"."webshop_instances"."subscription_plan" IS 'Shoperation webshop package. Defaults fail closed to Alap; Pro requires explicit assignment.';
+COMMENT ON COLUMN "public"."webshop_instances"."subscription_plan" IS 'Commercial webshop package entitlement. Fresh instances default to alap; Pro requires explicit assignment.';
 
 
 
@@ -8080,8 +9082,8 @@ CREATE TABLE IF NOT EXISTS "public"."product_variants" (
     "created_at" timestamp with time zone DEFAULT "now"() NOT NULL,
     "reseller_net_price_huf" integer,
     "reseller_gross_price_huf" integer,
-    "unit_cost_net_huf" integer,
     "updated_at" timestamp with time zone DEFAULT "now"() NOT NULL,
+    "unit_cost_net_huf" integer,
     "supplier_lead_time_days" integer DEFAULT 7 NOT NULL,
     "safety_stock_days" integer DEFAULT 7 NOT NULL,
     "minimum_order_quantity" integer DEFAULT 1 NOT NULL,
@@ -8107,6 +9109,22 @@ ALTER TABLE "public"."product_variants" OWNER TO "postgres";
 
 
 COMMENT ON COLUMN "public"."product_variants"."unit_cost_net_huf" IS 'Nettó beszerzési/előállítási egységköltség HUF-ban. Admin fedezet- és készletbefektetés számítás alapja.';
+
+
+
+COMMENT ON COLUMN "public"."product_variants"."supplier_lead_time_days" IS 'Expected supplier lead time in calendar days used by procurement planning.';
+
+
+
+COMMENT ON COLUMN "public"."product_variants"."safety_stock_days" IS 'Additional demand coverage kept as safety stock.';
+
+
+
+COMMENT ON COLUMN "public"."product_variants"."minimum_order_quantity" IS 'Minimum procurement quantity for one replenishment order.';
+
+
+
+COMMENT ON COLUMN "public"."product_variants"."order_multiple" IS 'Procurement quantity is rounded up to this supplier pack/order multiple.';
 
 
 
@@ -8184,6 +9202,10 @@ CREATE TABLE IF NOT EXISTS "public"."inventory_snapshots" (
 
 
 ALTER TABLE "public"."inventory_snapshots" OWNER TO "postgres";
+
+
+COMMENT ON TABLE "public"."inventory_snapshots" IS 'Daily product-variant inventory snapshots used for average inventory, stock turn and GMROI history.';
+
 
 
 ALTER TABLE "public"."inventory_snapshots" ALTER COLUMN "id" ADD GENERATED BY DEFAULT AS IDENTITY (
@@ -8590,6 +9612,10 @@ CREATE TABLE IF NOT EXISTS "public"."return_cases" (
 ALTER TABLE "public"."return_cases" OWNER TO "postgres";
 
 
+COMMENT ON TABLE "public"."return_cases" IS 'Operational return/refund cases. Payment-provider refund execution is tracked by refund_reference and completion state.';
+
+
+
 CREATE TABLE IF NOT EXISTS "public"."support_tickets" (
     "id" "uuid" DEFAULT "gen_random_uuid"() NOT NULL,
     "ticket_number" "text" NOT NULL,
@@ -8613,6 +9639,10 @@ CREATE TABLE IF NOT EXISTS "public"."support_tickets" (
 
 
 ALTER TABLE "public"."support_tickets" OWNER TO "postgres";
+
+
+COMMENT ON TABLE "public"."support_tickets" IS 'First-party customer service ticket inbox. Public creation goes through the server API; authenticated users can read their own tickets.';
+
 
 
 CREATE OR REPLACE VIEW "public"."order_service_operations" WITH ("security_invoker"='true') AS
@@ -8807,7 +9837,6 @@ CREATE TABLE IF NOT EXISTS "public"."payment_attempts" (
     "updated_at" timestamp with time zone DEFAULT "now"() NOT NULL,
     "completed_at" timestamp with time zone,
     "instance_id" "uuid" NOT NULL,
-    CONSTRAINT "payment_attempts_amount_check" CHECK (("amount_huf" >= 0)),
     CONSTRAINT "payment_attempts_amount_huf_check" CHECK (("amount_huf" >= 0)),
     CONSTRAINT "payment_attempts_currency_check" CHECK (("currency" = 'HUF'::"text")),
     CONSTRAINT "payment_attempts_status_check" CHECK (("status" = ANY (ARRAY['created'::"text", 'pending'::"text", 'requires_action'::"text", 'succeeded'::"text", 'failed'::"text", 'cancelled'::"text", 'expired'::"text", 'refunded'::"text"])))
@@ -8936,26 +9965,37 @@ CREATE TABLE IF NOT EXISTS "public"."post_release_policies" (
 ALTER TABLE "public"."post_release_policies" OWNER TO "postgres";
 
 
-CREATE OR REPLACE VIEW "public"."post_release_session_queue" AS
-SELECT
-    NULL::"uuid" AS "session_id",
-    NULL::"text" AS "session_key",
-    NULL::"uuid" AS "release_candidate_id",
-    NULL::"text" AS "source_sha",
-    NULL::"text" AS "status",
-    NULL::timestamp with time zone AS "started_at",
-    NULL::timestamp with time zone AS "observation_ends_at",
-    NULL::timestamp with time zone AS "stable_at",
-    NULL::timestamp with time zone AS "closed_at",
-    NULL::"text" AS "version_label",
-    NULL::"text" AS "source_ref",
-    NULL::"text" AS "risk_class",
-    NULL::integer AS "evidence_count",
-    NULL::integer AS "trusted_evidence_count",
-    NULL::integer AS "trusted_passes",
-    NULL::integer AS "critical_open",
-    NULL::integer AS "high_open",
-    NULL::"text" AS "evidence_bundle_hash";
+CREATE OR REPLACE VIEW "public"."post_release_session_queue" WITH ("security_invoker"='true') AS
+ SELECT "s"."id" AS "session_id",
+    "s"."session_key",
+    "s"."release_candidate_id",
+    "s"."source_sha",
+    "s"."status",
+    "s"."started_at",
+    "s"."observation_ends_at",
+    "s"."stable_at",
+    "s"."closed_at",
+    "r"."version_label",
+    "r"."source_ref",
+    "r"."risk_class",
+    (COALESCE("ev"."evidence_count", (0)::bigint))::integer AS "evidence_count",
+    (COALESCE("ev"."trusted_evidence_count", (0)::bigint))::integer AS "trusted_evidence_count",
+    (COALESCE("ev"."trusted_passes", (0)::bigint))::integer AS "trusted_passes",
+    (COALESCE("fi"."critical_open", (0)::bigint))::integer AS "critical_open",
+    (COALESCE("fi"."high_open", (0)::bigint))::integer AS "high_open",
+    COALESCE("ev"."evidence_bundle_hash", "md5"(''::"text")) AS "evidence_bundle_hash"
+   FROM ((("public"."post_release_sessions" "s"
+     JOIN "public"."release_candidates" "r" ON (("r"."id" = "s"."release_candidate_id")))
+     LEFT JOIN LATERAL ( SELECT "count"(*) AS "evidence_count",
+            "count"(*) FILTER (WHERE "e"."trusted") AS "trusted_evidence_count",
+            "count"(*) FILTER (WHERE ("e"."trusted" AND ("e"."status" = 'pass'::"text"))) AS "trusted_passes",
+            "md5"(COALESCE("string_agg"("e"."evidence_hash", '|'::"text" ORDER BY "e"."evidence_hash"), ''::"text")) AS "evidence_bundle_hash"
+           FROM "public"."post_release_evidence" "e"
+          WHERE ("e"."session_id" = "s"."id")) "ev" ON (true))
+     LEFT JOIN LATERAL ( SELECT "count"(*) FILTER (WHERE (("f"."status" = ANY (ARRAY['open'::"text", 'acknowledged'::"text"])) AND ("f"."severity" = 'critical'::"text"))) AS "critical_open",
+            "count"(*) FILTER (WHERE (("f"."status" = ANY (ARRAY['open'::"text", 'acknowledged'::"text"])) AND ("f"."severity" = 'high'::"text"))) AS "high_open"
+           FROM "public"."post_release_findings" "f"
+          WHERE ("f"."session_id" = "s"."id")) "fi" ON (true));
 
 
 ALTER VIEW "public"."post_release_session_queue" OWNER TO "postgres";
@@ -9102,7 +10142,7 @@ COMMENT ON COLUMN "public"."products"."highlights" IS 'Tenant-managed merchandis
 
 CREATE TABLE IF NOT EXISTS "public"."profiles" (
     "id" "uuid" NOT NULL,
-    "email" "text",
+    "email" "text" NOT NULL,
     "full_name" "text",
     "company_name" "text",
     "tax_number" "text",
@@ -9118,7 +10158,7 @@ CREATE TABLE IF NOT EXISTS "public"."profiles" (
 ALTER TABLE "public"."profiles" OWNER TO "postgres";
 
 
-COMMENT ON COLUMN "public"."profiles"."subscription_plan" IS 'Shoperation package assignment. Defaults fail closed to Alap; Pro requires explicit assignment.';
+COMMENT ON COLUMN "public"."profiles"."subscription_plan" IS 'Commercial webshop package entitlement. Fresh records default to alap; Pro requires explicit assignment.';
 
 
 
@@ -9141,6 +10181,10 @@ CREATE TABLE IF NOT EXISTS "public"."purchase_order_items" (
 ALTER TABLE "public"."purchase_order_items" OWNER TO "postgres";
 
 
+COMMENT ON TABLE "public"."purchase_order_items" IS 'Immutable planned procurement quantities and unit cost snapshots for each purchase order.';
+
+
+
 CREATE TABLE IF NOT EXISTS "public"."purchase_orders" (
     "id" "uuid" DEFAULT "gen_random_uuid"() NOT NULL,
     "order_number" "text" NOT NULL,
@@ -9161,6 +10205,308 @@ CREATE TABLE IF NOT EXISTS "public"."purchase_orders" (
 
 
 ALTER TABLE "public"."purchase_orders" OWNER TO "postgres";
+
+
+COMMENT ON TABLE "public"."purchase_orders" IS 'Admin-controlled procurement commitments used for replenishment workflow and cash planning.';
+
+
+
+CREATE TABLE IF NOT EXISTS "public"."recovery_decisions" (
+    "id" "uuid" DEFAULT "gen_random_uuid"() NOT NULL,
+    "decision_key" "text" NOT NULL,
+    "objective_id" "uuid" NOT NULL,
+    "finding_id" "uuid",
+    "decision" "text" NOT NULL,
+    "note" "text" NOT NULL,
+    "actor_id" "uuid" NOT NULL,
+    "created_at" timestamp with time zone DEFAULT "now"() NOT NULL,
+    CONSTRAINT "recovery_decisions_decision_check" CHECK (("decision" = ANY (ARRAY['prepare_recovery'::"text", 'continue_monitoring'::"text", 'risk_accepted'::"text"]))),
+    CONSTRAINT "recovery_decisions_note_check" CHECK (("length"("note") >= 10))
+);
+
+
+ALTER TABLE "public"."recovery_decisions" OWNER TO "postgres";
+
+
+CREATE TABLE IF NOT EXISTS "public"."recovery_drills" (
+    "id" "uuid" DEFAULT "gen_random_uuid"() NOT NULL,
+    "drill_key" "text" NOT NULL,
+    "objective_id" "uuid" NOT NULL,
+    "status" "text" DEFAULT 'planned'::"text" NOT NULL,
+    "scenario" "text" NOT NULL,
+    "planned_at" timestamp with time zone NOT NULL,
+    "started_at" timestamp with time zone,
+    "completed_at" timestamp with time zone,
+    "measured_rto_minutes" integer,
+    "measured_rpo_minutes" integer,
+    "restore_validated" boolean,
+    "result" "jsonb" DEFAULT '{}'::"jsonb" NOT NULL,
+    "created_by" "uuid",
+    "created_at" timestamp with time zone DEFAULT "now"() NOT NULL,
+    "updated_at" timestamp with time zone DEFAULT "now"() NOT NULL,
+    CONSTRAINT "recovery_drills_measured_rpo_minutes_check" CHECK (("measured_rpo_minutes" >= 0)),
+    CONSTRAINT "recovery_drills_measured_rto_minutes_check" CHECK (("measured_rto_minutes" >= 0)),
+    CONSTRAINT "recovery_drills_status_check" CHECK (("status" = ANY (ARRAY['planned'::"text", 'running'::"text", 'passed'::"text", 'failed'::"text", 'cancelled'::"text"])))
+);
+
+
+ALTER TABLE "public"."recovery_drills" OWNER TO "postgres";
+
+
+CREATE TABLE IF NOT EXISTS "public"."recovery_events" (
+    "id" bigint NOT NULL,
+    "event_key" "text" NOT NULL,
+    "objective_id" "uuid",
+    "drill_id" "uuid",
+    "finding_id" "uuid",
+    "event_type" "text" NOT NULL,
+    "actor_id" "uuid",
+    "metadata" "jsonb" DEFAULT '{}'::"jsonb" NOT NULL,
+    "occurred_at" timestamp with time zone DEFAULT "now"() NOT NULL,
+    CONSTRAINT "recovery_events_event_type_check" CHECK (("event_type" = ANY (ARRAY['evidence_recorded'::"text", 'drill_planned'::"text", 'drill_started'::"text", 'drill_passed'::"text", 'drill_failed'::"text", 'finding_opened'::"text", 'finding_reopened'::"text", 'finding_resolved'::"text", 'decision_recorded'::"text"])))
+);
+
+
+ALTER TABLE "public"."recovery_events" OWNER TO "postgres";
+
+
+ALTER TABLE "public"."recovery_events" ALTER COLUMN "id" ADD GENERATED BY DEFAULT AS IDENTITY (
+    SEQUENCE NAME "public"."recovery_events_id_seq"
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+
+CREATE TABLE IF NOT EXISTS "public"."recovery_evidence" (
+    "id" "uuid" DEFAULT "gen_random_uuid"() NOT NULL,
+    "evidence_key" "text" NOT NULL,
+    "objective_id" "uuid" NOT NULL,
+    "evidence_kind" "text" NOT NULL,
+    "status" "text" NOT NULL,
+    "trusted" boolean DEFAULT false NOT NULL,
+    "source" "text" NOT NULL,
+    "observed_at" timestamp with time zone NOT NULL,
+    "evidence" "jsonb" DEFAULT '{}'::"jsonb" NOT NULL,
+    "evidence_hash" "text" NOT NULL,
+    "captured_at" timestamp with time zone DEFAULT "now"() NOT NULL,
+    CONSTRAINT "recovery_evidence_evidence_kind_check" CHECK (("evidence_kind" = ANY (ARRAY['backup'::"text", 'restore'::"text", 'integrity'::"text", 'replication'::"text", 'manual'::"text"]))),
+    CONSTRAINT "recovery_evidence_status_check" CHECK (("status" = ANY (ARRAY['pass'::"text", 'fail'::"text", 'error'::"text"])))
+);
+
+
+ALTER TABLE "public"."recovery_evidence" OWNER TO "postgres";
+
+
+CREATE TABLE IF NOT EXISTS "public"."recovery_findings" (
+    "id" "uuid" DEFAULT "gen_random_uuid"() NOT NULL,
+    "finding_key" "text" NOT NULL,
+    "objective_id" "uuid" NOT NULL,
+    "finding_type" "text" NOT NULL,
+    "severity" "text" NOT NULL,
+    "status" "text" DEFAULT 'open'::"text" NOT NULL,
+    "title" "text" NOT NULL,
+    "description" "text" NOT NULL,
+    "occurrence_count" integer DEFAULT 1 NOT NULL,
+    "first_detected_at" timestamp with time zone DEFAULT "now"() NOT NULL,
+    "last_detected_at" timestamp with time zone DEFAULT "now"() NOT NULL,
+    "acknowledged_by" "uuid",
+    "resolved_by" "uuid",
+    "updated_at" timestamp with time zone DEFAULT "now"() NOT NULL,
+    CONSTRAINT "recovery_findings_finding_type_check" CHECK (("finding_type" = ANY (ARRAY['backup_stale'::"text", 'backup_failed'::"text", 'restore_failed'::"text", 'rto_breach'::"text", 'rpo_breach'::"text", 'drill_overdue'::"text", 'drill_failed'::"text"]))),
+    CONSTRAINT "recovery_findings_occurrence_count_check" CHECK (("occurrence_count" > 0)),
+    CONSTRAINT "recovery_findings_severity_check" CHECK (("severity" = ANY (ARRAY['warning'::"text", 'high'::"text", 'critical'::"text"]))),
+    CONSTRAINT "recovery_findings_status_check" CHECK (("status" = ANY (ARRAY['open'::"text", 'acknowledged'::"text", 'resolved'::"text"])))
+);
+
+
+ALTER TABLE "public"."recovery_findings" OWNER TO "postgres";
+
+
+CREATE TABLE IF NOT EXISTS "public"."recovery_objectives" (
+    "id" "uuid" DEFAULT "gen_random_uuid"() NOT NULL,
+    "service_key" "text" NOT NULL,
+    "version" integer NOT NULL,
+    "name" "text" NOT NULL,
+    "criticality" "text" NOT NULL,
+    "rto_minutes" integer NOT NULL,
+    "rpo_minutes" integer NOT NULL,
+    "backup_freshness_minutes" integer NOT NULL,
+    "drill_interval_days" integer DEFAULT 30 NOT NULL,
+    "enabled" boolean DEFAULT true NOT NULL,
+    "definition" "jsonb" DEFAULT '{}'::"jsonb" NOT NULL,
+    "created_at" timestamp with time zone DEFAULT "now"() NOT NULL,
+    CONSTRAINT "recovery_objectives_backup_freshness_minutes_check" CHECK ((("backup_freshness_minutes" >= 1) AND ("backup_freshness_minutes" <= 10080))),
+    CONSTRAINT "recovery_objectives_criticality_check" CHECK (("criticality" = ANY (ARRAY['standard'::"text", 'high'::"text", 'critical'::"text"]))),
+    CONSTRAINT "recovery_objectives_drill_interval_days_check" CHECK ((("drill_interval_days" >= 1) AND ("drill_interval_days" <= 365))),
+    CONSTRAINT "recovery_objectives_rpo_minutes_check" CHECK ((("rpo_minutes" >= 1) AND ("rpo_minutes" <= 10080))),
+    CONSTRAINT "recovery_objectives_rto_minutes_check" CHECK ((("rto_minutes" >= 1) AND ("rto_minutes" <= 10080))),
+    CONSTRAINT "recovery_objectives_version_check" CHECK (("version" > 0))
+);
+
+
+ALTER TABLE "public"."recovery_objectives" OWNER TO "postgres";
+
+
+CREATE OR REPLACE VIEW "public"."recovery_finding_queue" WITH ("security_invoker"='true') AS
+ SELECT "f"."id" AS "finding_id",
+    "f"."finding_key",
+    "f"."finding_type",
+    "f"."severity",
+    "f"."status",
+    "f"."title",
+    "f"."description",
+    "f"."occurrence_count",
+    "f"."first_detected_at",
+    "f"."last_detected_at",
+    "o"."service_key",
+    "o"."name" AS "service_name",
+    "o"."criticality",
+    "o"."rto_minutes",
+    "o"."rpo_minutes"
+   FROM ("public"."recovery_findings" "f"
+     JOIN "public"."recovery_objectives" "o" ON (("o"."id" = "f"."objective_id")))
+  WHERE ("f"."status" = ANY (ARRAY['open'::"text", 'acknowledged'::"text"]))
+  ORDER BY
+        CASE "f"."severity"
+            WHEN 'critical'::"text" THEN 1
+            WHEN 'high'::"text" THEN 2
+            ELSE 3
+        END, "f"."last_detected_at" DESC;
+
+
+ALTER VIEW "public"."recovery_finding_queue" OWNER TO "postgres";
+
+
+CREATE OR REPLACE VIEW "public"."recovery_service_readiness" WITH ("security_invoker"='true') AS
+ WITH "latest_objectives" AS (
+         SELECT DISTINCT ON ("recovery_objectives"."service_key") "recovery_objectives"."id",
+            "recovery_objectives"."service_key",
+            "recovery_objectives"."version",
+            "recovery_objectives"."name",
+            "recovery_objectives"."criticality",
+            "recovery_objectives"."rto_minutes",
+            "recovery_objectives"."rpo_minutes",
+            "recovery_objectives"."backup_freshness_minutes",
+            "recovery_objectives"."drill_interval_days",
+            "recovery_objectives"."enabled",
+            "recovery_objectives"."definition",
+            "recovery_objectives"."created_at"
+           FROM "public"."recovery_objectives"
+          WHERE "recovery_objectives"."enabled"
+          ORDER BY "recovery_objectives"."service_key", "recovery_objectives"."version" DESC
+        ), "latest_backup" AS (
+         SELECT DISTINCT ON ("recovery_evidence"."objective_id") "recovery_evidence"."objective_id",
+            "recovery_evidence"."status",
+            "recovery_evidence"."observed_at",
+            "recovery_evidence"."source",
+            "recovery_evidence"."trusted",
+            "recovery_evidence"."evidence_hash"
+           FROM "public"."recovery_evidence"
+          WHERE (("recovery_evidence"."evidence_kind" = 'backup'::"text") AND "recovery_evidence"."trusted")
+          ORDER BY "recovery_evidence"."objective_id", "recovery_evidence"."observed_at" DESC, "recovery_evidence"."captured_at" DESC
+        ), "latest_restore" AS (
+         SELECT DISTINCT ON ("recovery_evidence"."objective_id") "recovery_evidence"."objective_id",
+            "recovery_evidence"."status",
+            "recovery_evidence"."observed_at",
+            "recovery_evidence"."source",
+            "recovery_evidence"."trusted",
+            "recovery_evidence"."evidence_hash"
+           FROM "public"."recovery_evidence"
+          WHERE (("recovery_evidence"."evidence_kind" = 'restore'::"text") AND "recovery_evidence"."trusted")
+          ORDER BY "recovery_evidence"."objective_id", "recovery_evidence"."observed_at" DESC, "recovery_evidence"."captured_at" DESC
+        ), "latest_drill" AS (
+         SELECT DISTINCT ON ("recovery_drills"."objective_id") "recovery_drills"."objective_id",
+            "recovery_drills"."status",
+            "recovery_drills"."completed_at",
+            "recovery_drills"."measured_rto_minutes",
+            "recovery_drills"."measured_rpo_minutes",
+            "recovery_drills"."restore_validated"
+           FROM "public"."recovery_drills"
+          WHERE ("recovery_drills"."status" = ANY (ARRAY['passed'::"text", 'failed'::"text"]))
+          ORDER BY "recovery_drills"."objective_id", "recovery_drills"."completed_at" DESC NULLS LAST
+        ), "findings" AS (
+         SELECT "recovery_findings"."objective_id",
+            ("count"(*) FILTER (WHERE (("recovery_findings"."status" = ANY (ARRAY['open'::"text", 'acknowledged'::"text"])) AND ("recovery_findings"."severity" = 'critical'::"text"))))::integer AS "critical_open",
+            ("count"(*) FILTER (WHERE (("recovery_findings"."status" = ANY (ARRAY['open'::"text", 'acknowledged'::"text"])) AND ("recovery_findings"."severity" = 'high'::"text"))))::integer AS "high_open"
+           FROM "public"."recovery_findings"
+          GROUP BY "recovery_findings"."objective_id"
+        )
+ SELECT "o"."id" AS "objective_id",
+    "o"."service_key",
+    "o"."version",
+    "o"."name",
+    "o"."criticality",
+    "o"."rto_minutes",
+    "o"."rpo_minutes",
+    "o"."backup_freshness_minutes",
+    "o"."drill_interval_days",
+    "b"."status" AS "backup_status",
+    "b"."observed_at" AS "backup_observed_at",
+    "b"."source" AS "backup_source",
+    "b"."evidence_hash" AS "backup_hash",
+    "r"."status" AS "restore_status",
+    "r"."observed_at" AS "restore_observed_at",
+    "r"."source" AS "restore_source",
+    "r"."evidence_hash" AS "restore_hash",
+    "d"."status" AS "drill_status",
+    "d"."completed_at" AS "drill_completed_at",
+    "d"."measured_rto_minutes",
+    "d"."measured_rpo_minutes",
+    "d"."restore_validated",
+    COALESCE("f"."critical_open", 0) AS "critical_open",
+    COALESCE("f"."high_open", 0) AS "high_open",
+        CASE
+            WHEN (("b"."observed_at" IS NULL) OR ("b"."observed_at" < ("now"() - "make_interval"("mins" => "o"."backup_freshness_minutes")))) THEN true
+            ELSE false
+        END AS "backup_stale",
+        CASE
+            WHEN (("d"."completed_at" IS NULL) OR ("d"."completed_at" < ("now"() - "make_interval"("days" => "o"."drill_interval_days")))) THEN true
+            ELSE false
+        END AS "drill_overdue",
+        CASE
+            WHEN (COALESCE("f"."critical_open", 0) > 0) THEN 'blocked'::"text"
+            WHEN (("b"."status" = 'pass'::"text") AND ("r"."status" = 'pass'::"text") AND ("d"."status" = 'passed'::"text") AND (COALESCE("f"."high_open", 0) = 0) AND ("b"."observed_at" >= ("now"() - "make_interval"("mins" => "o"."backup_freshness_minutes"))) AND ("d"."completed_at" >= ("now"() - "make_interval"("days" => "o"."drill_interval_days")))) THEN 'ready'::"text"
+            ELSE 'degraded'::"text"
+        END AS "readiness_status"
+   FROM (((("latest_objectives" "o"
+     LEFT JOIN "latest_backup" "b" ON (("b"."objective_id" = "o"."id")))
+     LEFT JOIN "latest_restore" "r" ON (("r"."objective_id" = "o"."id")))
+     LEFT JOIN "latest_drill" "d" ON (("d"."objective_id" = "o"."id")))
+     LEFT JOIN "findings" "f" ON (("f"."objective_id" = "o"."id")));
+
+
+ALTER VIEW "public"."recovery_service_readiness" OWNER TO "postgres";
+
+
+CREATE OR REPLACE VIEW "public"."recovery_kpis" WITH ("security_invoker"='true') AS
+ SELECT ("count"(*))::integer AS "services",
+    ("count"(*) FILTER (WHERE ("readiness_status" = 'ready'::"text")))::integer AS "ready",
+    ("count"(*) FILTER (WHERE ("readiness_status" = 'degraded'::"text")))::integer AS "degraded",
+    ("count"(*) FILTER (WHERE ("readiness_status" = 'blocked'::"text")))::integer AS "blocked",
+    ("count"(*) FILTER (WHERE "backup_stale"))::integer AS "stale_backups",
+    ("count"(*) FILTER (WHERE "drill_overdue"))::integer AS "overdue_drills"
+   FROM "public"."recovery_service_readiness";
+
+
+ALTER VIEW "public"."recovery_kpis" OWNER TO "postgres";
+
+
+CREATE TABLE IF NOT EXISTS "public"."recovery_runs" (
+    "id" "uuid" DEFAULT "gen_random_uuid"() NOT NULL,
+    "run_key" "text" NOT NULL,
+    "status" "text" DEFAULT 'running'::"text" NOT NULL,
+    "started_at" timestamp with time zone DEFAULT "now"() NOT NULL,
+    "completed_at" timestamp with time zone,
+    "result" "jsonb" DEFAULT '{}'::"jsonb" NOT NULL,
+    CONSTRAINT "recovery_runs_status_check" CHECK (("status" = ANY (ARRAY['running'::"text", 'completed'::"text", 'failed'::"text"])))
+);
+
+
+ALTER TABLE "public"."recovery_runs" OWNER TO "postgres";
 
 
 CREATE TABLE IF NOT EXISTS "public"."release_approvals" (
@@ -9616,6 +10962,10 @@ CREATE TABLE IF NOT EXISTS "public"."return_case_items" (
 ALTER TABLE "public"."return_case_items" OWNER TO "postgres";
 
 
+COMMENT ON TABLE "public"."return_case_items" IS 'Exact order-item quantities included in a return/refund case.';
+
+
+
 CREATE TABLE IF NOT EXISTS "public"."role_bindings" (
     "id" "uuid" DEFAULT "gen_random_uuid"() NOT NULL,
     "organization_id" "uuid" NOT NULL,
@@ -9752,6 +11102,10 @@ CREATE TABLE IF NOT EXISTS "public"."support_ticket_messages" (
 
 
 ALTER TABLE "public"."support_ticket_messages" OWNER TO "postgres";
+
+
+COMMENT ON TABLE "public"."support_ticket_messages" IS 'Chronological customer/admin support conversation messages.';
+
 
 
 CREATE OR REPLACE VIEW "public"."tenant_operational_scope_gaps" WITH ("security_invoker"='true') AS
@@ -10912,6 +12266,76 @@ ALTER TABLE ONLY "public"."purchase_orders"
 
 
 
+ALTER TABLE ONLY "public"."recovery_decisions"
+    ADD CONSTRAINT "recovery_decisions_decision_key_key" UNIQUE ("decision_key");
+
+
+
+ALTER TABLE ONLY "public"."recovery_decisions"
+    ADD CONSTRAINT "recovery_decisions_pkey" PRIMARY KEY ("id");
+
+
+
+ALTER TABLE ONLY "public"."recovery_drills"
+    ADD CONSTRAINT "recovery_drills_drill_key_key" UNIQUE ("drill_key");
+
+
+
+ALTER TABLE ONLY "public"."recovery_drills"
+    ADD CONSTRAINT "recovery_drills_pkey" PRIMARY KEY ("id");
+
+
+
+ALTER TABLE ONLY "public"."recovery_events"
+    ADD CONSTRAINT "recovery_events_event_key_key" UNIQUE ("event_key");
+
+
+
+ALTER TABLE ONLY "public"."recovery_events"
+    ADD CONSTRAINT "recovery_events_pkey" PRIMARY KEY ("id");
+
+
+
+ALTER TABLE ONLY "public"."recovery_evidence"
+    ADD CONSTRAINT "recovery_evidence_evidence_key_key" UNIQUE ("evidence_key");
+
+
+
+ALTER TABLE ONLY "public"."recovery_evidence"
+    ADD CONSTRAINT "recovery_evidence_pkey" PRIMARY KEY ("id");
+
+
+
+ALTER TABLE ONLY "public"."recovery_findings"
+    ADD CONSTRAINT "recovery_findings_finding_key_key" UNIQUE ("finding_key");
+
+
+
+ALTER TABLE ONLY "public"."recovery_findings"
+    ADD CONSTRAINT "recovery_findings_pkey" PRIMARY KEY ("id");
+
+
+
+ALTER TABLE ONLY "public"."recovery_objectives"
+    ADD CONSTRAINT "recovery_objectives_pkey" PRIMARY KEY ("id");
+
+
+
+ALTER TABLE ONLY "public"."recovery_objectives"
+    ADD CONSTRAINT "recovery_objectives_service_key_version_key" UNIQUE ("service_key", "version");
+
+
+
+ALTER TABLE ONLY "public"."recovery_runs"
+    ADD CONSTRAINT "recovery_runs_pkey" PRIMARY KEY ("id");
+
+
+
+ALTER TABLE ONLY "public"."recovery_runs"
+    ADD CONSTRAINT "recovery_runs_run_key_key" UNIQUE ("run_key");
+
+
+
 ALTER TABLE ONLY "public"."release_approvals"
     ADD CONSTRAINT "release_approvals_pkey" PRIMARY KEY ("id");
 
@@ -11231,10 +12655,6 @@ CREATE INDEX "automation_step_runs_store_instance_idx" ON "public"."automation_s
 
 
 
-CREATE INDEX "checkout_recovery_converted_order_idx" ON "public"."checkout_recovery_intents" USING "btree" ("converted_order_id");
-
-
-
 CREATE INDEX "checkout_recovery_instance_user_idx" ON "public"."checkout_recovery_intents" USING "btree" ("instance_id", "user_id", "status");
 
 
@@ -11519,6 +12939,10 @@ CREATE INDEX "inventory_reservations_order_idx" ON "public"."inventory_reservati
 
 
 
+CREATE INDEX "inventory_reservations_status_variant_idx" ON "public"."inventory_reservations" USING "btree" ("status", "variant_id");
+
+
+
 CREATE INDEX "inventory_reservations_variant_idx" ON "public"."inventory_reservations" USING "btree" ("variant_id", "status");
 
 
@@ -11691,6 +13115,10 @@ CREATE INDEX "order_operations_instance_order_idx" ON "public"."order_operations
 
 
 
+CREATE INDEX "order_operations_status_updated_idx" ON "public"."order_operations" USING "btree" ("operational_status", "updated_at" DESC);
+
+
+
 CREATE INDEX "order_request_keys_created_at_idx" ON "public"."order_request_keys" USING "btree" ("created_at");
 
 
@@ -11699,7 +13127,15 @@ CREATE UNIQUE INDEX "orders_confirmation_token_key" ON "public"."orders" USING "
 
 
 
+CREATE INDEX "orders_created_at_idx" ON "public"."orders" USING "btree" ("created_at" DESC);
+
+
+
 CREATE INDEX "orders_customer_created_at_idx" ON "public"."orders" USING "btree" ("customer_id", "created_at" DESC);
+
+
+
+CREATE INDEX "orders_customer_id_idx" ON "public"."orders" USING "btree" ("customer_id");
 
 
 
@@ -11756,6 +13192,10 @@ CREATE INDEX "payment_events_instance_provider_idx" ON "public"."payment_events"
 
 
 CREATE INDEX "payment_events_order_idx" ON "public"."payment_events" USING "btree" ("order_id", "created_at" DESC);
+
+
+
+CREATE INDEX "post_release_sessions_status_started_idx" ON "public"."post_release_sessions" USING "btree" ("status", "started_at" DESC);
 
 
 
@@ -11823,6 +13263,22 @@ CREATE INDEX "purchase_orders_status_due_idx" ON "public"."purchase_orders" USIN
 
 
 
+CREATE INDEX "recovery_drills_objective_idx" ON "public"."recovery_drills" USING "btree" ("objective_id", "planned_at" DESC);
+
+
+
+CREATE INDEX "recovery_drills_status_planned_idx" ON "public"."recovery_drills" USING "btree" ("status", "planned_at" DESC);
+
+
+
+CREATE INDEX "recovery_evidence_objective_idx" ON "public"."recovery_evidence" USING "btree" ("objective_id", "observed_at" DESC);
+
+
+
+CREATE INDEX "recovery_findings_queue_idx" ON "public"."recovery_findings" USING "btree" ("status", "severity", "last_detected_at" DESC);
+
+
+
 CREATE UNIQUE INDEX "release_approvals_gate_approver_uq" ON "public"."release_approvals" USING "btree" ("candidate_id", "gate_hash", "approver_id");
 
 
@@ -11864,18 +13320,6 @@ CREATE UNIQUE INDEX "role_bindings_active_unique" ON "public"."role_bindings" US
 
 
 CREATE INDEX "role_bindings_lookup_idx" ON "public"."role_bindings" USING "btree" ("user_id", "instance_id", "valid_from", "valid_until") WHERE ("revoked_at" IS NULL);
-
-
-
-CREATE INDEX "rollout_checks_environment_key_idx" ON "public"."rollout_checks" USING "btree" ("environment_key");
-
-
-
-CREATE INDEX "rollout_decisions_actor_id_idx" ON "public"."rollout_decisions" USING "btree" ("actor_id");
-
-
-
-CREATE INDEX "rollout_decisions_environment_key_idx" ON "public"."rollout_decisions" USING "btree" ("environment_key");
 
 
 
@@ -12005,33 +13449,6 @@ CREATE OR REPLACE VIEW "public"."automation_runbook_queue" WITH ("security_invok
      LEFT JOIN "public"."action_proposals" "p" ON (("p"."id" = "i"."proposal_id")))
      LEFT JOIN "public"."automation_step_runs" "sr" ON (("sr"."instance_id" = "i"."id")))
   GROUP BY "i"."id", "r"."id", "a"."id", "p"."id";
-
-
-
-CREATE OR REPLACE VIEW "public"."post_release_session_queue" WITH ("security_invoker"='true') AS
- SELECT "s"."id" AS "session_id",
-    "s"."session_key",
-    "s"."release_candidate_id",
-    "s"."source_sha",
-    "s"."status",
-    "s"."started_at",
-    "s"."observation_ends_at",
-    "s"."stable_at",
-    "s"."closed_at",
-    "r"."version_label",
-    "r"."source_ref",
-    "r"."risk_class",
-    ("count"("e"."id"))::integer AS "evidence_count",
-    ("count"("e"."id") FILTER (WHERE "e"."trusted"))::integer AS "trusted_evidence_count",
-    ("count"("e"."id") FILTER (WHERE ("e"."trusted" AND ("e"."status" = 'pass'::"text"))))::integer AS "trusted_passes",
-    ("count"("f"."id") FILTER (WHERE (("f"."status" = ANY (ARRAY['open'::"text", 'acknowledged'::"text"])) AND ("f"."severity" = 'critical'::"text"))))::integer AS "critical_open",
-    ("count"("f"."id") FILTER (WHERE (("f"."status" = ANY (ARRAY['open'::"text", 'acknowledged'::"text"])) AND ("f"."severity" = 'high'::"text"))))::integer AS "high_open",
-    "md5"(COALESCE("string_agg"(DISTINCT "e"."evidence_hash", '|'::"text" ORDER BY "e"."evidence_hash"), ''::"text")) AS "evidence_bundle_hash"
-   FROM ((("public"."post_release_sessions" "s"
-     JOIN "public"."release_candidates" "r" ON (("r"."id" = "s"."release_candidate_id")))
-     LEFT JOIN "public"."post_release_evidence" "e" ON (("e"."session_id" = "s"."id")))
-     LEFT JOIN "public"."post_release_findings" "f" ON (("f"."session_id" = "s"."id")))
-  GROUP BY "s"."id", "r"."version_label", "r"."source_ref", "r"."risk_class";
 
 
 
@@ -12335,6 +13752,30 @@ CREATE OR REPLACE TRIGGER "tenant_support_match_messages" BEFORE INSERT OR UPDAT
 
 
 
+CREATE OR REPLACE TRIGGER "trg_recovery_decisions_append_only" BEFORE DELETE OR UPDATE ON "public"."recovery_decisions" FOR EACH ROW EXECUTE FUNCTION "public"."block_recovery_decision_mutation"();
+
+
+
+CREATE OR REPLACE TRIGGER "trg_recovery_drills_terminal" BEFORE UPDATE ON "public"."recovery_drills" FOR EACH ROW EXECUTE FUNCTION "public"."block_terminal_recovery_drill_mutation"();
+
+
+
+CREATE OR REPLACE TRIGGER "trg_recovery_events_append_only" BEFORE DELETE OR UPDATE ON "public"."recovery_events" FOR EACH ROW EXECUTE FUNCTION "public"."block_recovery_append_only_mutation"();
+
+
+
+CREATE OR REPLACE TRIGGER "trg_recovery_evidence_append_only" BEFORE DELETE OR UPDATE ON "public"."recovery_evidence" FOR EACH ROW EXECUTE FUNCTION "public"."block_recovery_append_only_mutation"();
+
+
+
+CREATE OR REPLACE TRIGGER "trg_recovery_objectives_immutable" BEFORE DELETE OR UPDATE ON "public"."recovery_objectives" FOR EACH ROW EXECUTE FUNCTION "public"."block_recovery_objective_mutation"();
+
+
+
+CREATE OR REPLACE TRIGGER "trg_recovery_runs_terminal" BEFORE UPDATE ON "public"."recovery_runs" FOR EACH ROW EXECUTE FUNCTION "public"."block_recovery_run_mutation"();
+
+
+
 CREATE OR REPLACE TRIGGER "trg_snapshot_order_item_tax" BEFORE INSERT ON "public"."order_items" FOR EACH ROW EXECUTE FUNCTION "private"."snapshot_order_item_tax"();
 
 
@@ -12344,6 +13785,10 @@ CREATE OR REPLACE TRIGGER "validate_refund_total_trigger" BEFORE INSERT OR UPDAT
 
 
 CREATE OR REPLACE TRIGGER "validate_return_case_item_quantity_trigger" BEFORE INSERT OR UPDATE OF "quantity", "order_item_id", "return_case_id" ON "public"."return_case_items" FOR EACH ROW EXECUTE FUNCTION "public"."validate_return_case_item_quantity"();
+
+
+
+CREATE OR REPLACE TRIGGER "webshop_instance_plan_entitlements_sync" AFTER INSERT OR UPDATE OF "subscription_plan", "organization_id" ON "public"."webshop_instances" FOR EACH ROW EXECUTE FUNCTION "private"."sync_webshop_plan_entitlements_trigger"();
 
 
 
@@ -13182,7 +14627,7 @@ ALTER TABLE ONLY "public"."order_operations"
 
 
 ALTER TABLE ONLY "public"."orders"
-    ADD CONSTRAINT "orders_customer_id_fkey" FOREIGN KEY ("customer_id") REFERENCES "auth"."users"("id") ON DELETE SET NULL;
+    ADD CONSTRAINT "orders_customer_id_fkey" FOREIGN KEY ("customer_id") REFERENCES "public"."profiles"("id") ON DELETE SET NULL;
 
 
 
@@ -13373,6 +14818,71 @@ ALTER TABLE ONLY "public"."purchase_orders"
 
 ALTER TABLE ONLY "public"."purchase_orders"
     ADD CONSTRAINT "purchase_orders_supplier_id_fkey" FOREIGN KEY ("supplier_id") REFERENCES "public"."suppliers"("id") ON DELETE SET NULL;
+
+
+
+ALTER TABLE ONLY "public"."recovery_decisions"
+    ADD CONSTRAINT "recovery_decisions_actor_id_fkey" FOREIGN KEY ("actor_id") REFERENCES "auth"."users"("id") ON DELETE RESTRICT;
+
+
+
+ALTER TABLE ONLY "public"."recovery_decisions"
+    ADD CONSTRAINT "recovery_decisions_finding_id_fkey" FOREIGN KEY ("finding_id") REFERENCES "public"."recovery_findings"("id") ON DELETE RESTRICT;
+
+
+
+ALTER TABLE ONLY "public"."recovery_decisions"
+    ADD CONSTRAINT "recovery_decisions_objective_id_fkey" FOREIGN KEY ("objective_id") REFERENCES "public"."recovery_objectives"("id") ON DELETE RESTRICT;
+
+
+
+ALTER TABLE ONLY "public"."recovery_drills"
+    ADD CONSTRAINT "recovery_drills_created_by_fkey" FOREIGN KEY ("created_by") REFERENCES "auth"."users"("id") ON DELETE SET NULL;
+
+
+
+ALTER TABLE ONLY "public"."recovery_drills"
+    ADD CONSTRAINT "recovery_drills_objective_id_fkey" FOREIGN KEY ("objective_id") REFERENCES "public"."recovery_objectives"("id") ON DELETE RESTRICT;
+
+
+
+ALTER TABLE ONLY "public"."recovery_events"
+    ADD CONSTRAINT "recovery_events_actor_id_fkey" FOREIGN KEY ("actor_id") REFERENCES "auth"."users"("id") ON DELETE SET NULL;
+
+
+
+ALTER TABLE ONLY "public"."recovery_events"
+    ADD CONSTRAINT "recovery_events_drill_id_fkey" FOREIGN KEY ("drill_id") REFERENCES "public"."recovery_drills"("id") ON DELETE RESTRICT;
+
+
+
+ALTER TABLE ONLY "public"."recovery_events"
+    ADD CONSTRAINT "recovery_events_finding_id_fkey" FOREIGN KEY ("finding_id") REFERENCES "public"."recovery_findings"("id") ON DELETE RESTRICT;
+
+
+
+ALTER TABLE ONLY "public"."recovery_events"
+    ADD CONSTRAINT "recovery_events_objective_id_fkey" FOREIGN KEY ("objective_id") REFERENCES "public"."recovery_objectives"("id") ON DELETE RESTRICT;
+
+
+
+ALTER TABLE ONLY "public"."recovery_evidence"
+    ADD CONSTRAINT "recovery_evidence_objective_id_fkey" FOREIGN KEY ("objective_id") REFERENCES "public"."recovery_objectives"("id") ON DELETE RESTRICT;
+
+
+
+ALTER TABLE ONLY "public"."recovery_findings"
+    ADD CONSTRAINT "recovery_findings_acknowledged_by_fkey" FOREIGN KEY ("acknowledged_by") REFERENCES "auth"."users"("id") ON DELETE SET NULL;
+
+
+
+ALTER TABLE ONLY "public"."recovery_findings"
+    ADD CONSTRAINT "recovery_findings_objective_id_fkey" FOREIGN KEY ("objective_id") REFERENCES "public"."recovery_objectives"("id") ON DELETE RESTRICT;
+
+
+
+ALTER TABLE ONLY "public"."recovery_findings"
+    ADD CONSTRAINT "recovery_findings_resolved_by_fkey" FOREIGN KEY ("resolved_by") REFERENCES "auth"."users"("id") ON DELETE SET NULL;
 
 
 
@@ -13691,7 +15201,7 @@ ALTER TABLE "public"."assurance_findings" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "public"."assurance_runs" ENABLE ROW LEVEL SECURITY;
 
 
-CREATE POLICY "authenticated can read permitted profiles" ON "public"."profiles" FOR SELECT TO "authenticated" USING (((( SELECT "auth"."uid"() AS "uid") = "id") OR ( SELECT "private"."is_admin"() AS "is_admin")));
+CREATE POLICY "authenticated can read permitted profiles" ON "public"."profiles" FOR SELECT TO "authenticated" USING (((( SELECT "auth"."uid"() AS "uid") = "id") OR "private"."is_admin"()));
 
 
 
@@ -13912,9 +15422,6 @@ CREATE POLICY "inventory_reservations_store_update" ON "public"."inventory_reser
 
 
 ALTER TABLE "public"."inventory_snapshots" ENABLE ROW LEVEL SECURITY;
-
-
-
 
 
 ALTER TABLE "public"."loyalty_benefit_rules" ENABLE ROW LEVEL SECURITY;
@@ -14197,17 +15704,32 @@ CREATE POLICY "public reads approved reviews" ON "public"."product_reviews" FOR 
 ALTER TABLE "public"."purchase_order_items" ENABLE ROW LEVEL SECURITY;
 
 
-
-
-
 ALTER TABLE "public"."purchase_orders" ENABLE ROW LEVEL SECURITY;
 
 
+ALTER TABLE "public"."recovery_decisions" ENABLE ROW LEVEL SECURITY;
 
+
+ALTER TABLE "public"."recovery_drills" ENABLE ROW LEVEL SECURITY;
+
+
+ALTER TABLE "public"."recovery_events" ENABLE ROW LEVEL SECURITY;
+
+
+ALTER TABLE "public"."recovery_evidence" ENABLE ROW LEVEL SECURITY;
+
+
+ALTER TABLE "public"."recovery_findings" ENABLE ROW LEVEL SECURITY;
 
 
 CREATE POLICY "recovery_intents_owner_read" ON "public"."checkout_recovery_intents" FOR SELECT TO "authenticated" USING ((("user_id" = ( SELECT "auth"."uid"() AS "uid")) OR "public"."can_manage_marketing"("instance_id", ( SELECT "auth"."uid"() AS "uid"))));
 
+
+
+ALTER TABLE "public"."recovery_objectives" ENABLE ROW LEVEL SECURITY;
+
+
+ALTER TABLE "public"."recovery_runs" ENABLE ROW LEVEL SECURITY;
 
 
 ALTER TABLE "public"."release_approvals" ENABLE ROW LEVEL SECURITY;
@@ -14284,9 +15806,6 @@ ALTER TABLE "public"."stock_notifications" ENABLE ROW LEVEL SECURITY;
 
 
 ALTER TABLE "public"."suppliers" ENABLE ROW LEVEL SECURITY;
-
-
-
 
 
 ALTER TABLE "public"."support_ticket_messages" ENABLE ROW LEVEL SECURITY;
@@ -14445,10 +15964,10 @@ GRANT USAGE ON SCHEMA "private" TO "service_role";
 
 
 REVOKE USAGE ON SCHEMA "public" FROM PUBLIC;
-GRANT USAGE ON SCHEMA "public" TO "postgres";
 GRANT USAGE ON SCHEMA "public" TO "anon";
 GRANT USAGE ON SCHEMA "public" TO "authenticated";
-GRANT USAGE ON SCHEMA "public" TO "service_role";
+GRANT ALL ON SCHEMA "public" TO "service_role";
+GRANT ALL ON SCHEMA "public" TO "supabase_admin";
 
 
 
@@ -14482,6 +16001,14 @@ REVOKE ALL ON FUNCTION "private"."snapshot_order_item_tax"() FROM PUBLIC;
 
 
 
+REVOKE ALL ON FUNCTION "private"."sync_webshop_plan_entitlements"("p_instance_id" "uuid") FROM PUBLIC;
+
+
+
+REVOKE ALL ON FUNCTION "private"."sync_webshop_plan_entitlements_trigger"() FROM PUBLIC;
+
+
+
 REVOKE ALL ON FUNCTION "private"."touch_product_variant_updated_at"() FROM PUBLIC;
 
 
@@ -14496,11 +16023,16 @@ GRANT ALL ON FUNCTION "public"."accrue_loyalty_points_from_paid_orders_v2"("p_in
 
 
 
+REVOKE ALL ON FUNCTION "public"."acknowledge_recovery_finding"("p_finding_id" "uuid", "p_actor_id" "uuid", "p_event_key" "text") FROM PUBLIC;
+GRANT ALL ON FUNCTION "public"."acknowledge_recovery_finding"("p_finding_id" "uuid", "p_actor_id" "uuid", "p_event_key" "text") TO "service_role";
+
+
+
 REVOKE ALL ON FUNCTION "public"."action_proposal_is_stale"("p_proposal_id" "uuid") FROM PUBLIC;
 
 
 
-GRANT ALL ON TABLE "public"."automation_runbook_instances" TO "service_role";
+GRANT SELECT,INSERT,UPDATE ON TABLE "public"."automation_runbook_instances" TO "service_role";
 
 
 
@@ -14517,7 +16049,7 @@ REVOKE ALL ON FUNCTION "public"."add_customer_journey_step"("p_journey_id" "uuid
 
 
 
-GRANT SELECT,REFERENCES,TRIGGER,TRUNCATE,MAINTAIN ON TABLE "public"."release_candidates" TO "service_role";
+GRANT SELECT ON TABLE "public"."release_candidates" TO "service_role";
 
 
 
@@ -14689,7 +16221,7 @@ REVOKE ALL ON FUNCTION "public"."capture_order_coupon_redemption"() FROM PUBLIC;
 
 
 
-GRANT ALL ON TABLE "public"."communication_jobs" TO "service_role";
+GRANT SELECT,INSERT,UPDATE ON TABLE "public"."communication_jobs" TO "service_role";
 
 
 
@@ -14724,9 +16256,8 @@ GRANT ALL ON FUNCTION "public"."complete_communication_job_v2"("p_instance_id" "
 
 
 
-GRANT ALL ON FUNCTION "public"."compute_admin_audit_hash"("p_chain_seq" bigint, "p_audit_scope" "text", "p_prev_hash" "text", "p_actor_user_id" "uuid", "p_actor_roles" "text"[], "p_action" "text", "p_entity_type" "text", "p_entity_id" "text", "p_summary" "text", "p_before_state" "jsonb", "p_after_state" "jsonb", "p_metadata" "jsonb", "p_created_at" timestamp with time zone) TO "anon";
-GRANT ALL ON FUNCTION "public"."compute_admin_audit_hash"("p_chain_seq" bigint, "p_audit_scope" "text", "p_prev_hash" "text", "p_actor_user_id" "uuid", "p_actor_roles" "text"[], "p_action" "text", "p_entity_type" "text", "p_entity_id" "text", "p_summary" "text", "p_before_state" "jsonb", "p_after_state" "jsonb", "p_metadata" "jsonb", "p_created_at" timestamp with time zone) TO "authenticated";
-GRANT ALL ON FUNCTION "public"."compute_admin_audit_hash"("p_chain_seq" bigint, "p_audit_scope" "text", "p_prev_hash" "text", "p_actor_user_id" "uuid", "p_actor_roles" "text"[], "p_action" "text", "p_entity_type" "text", "p_entity_id" "text", "p_summary" "text", "p_before_state" "jsonb", "p_after_state" "jsonb", "p_metadata" "jsonb", "p_created_at" timestamp with time zone) TO "service_role";
+REVOKE ALL ON FUNCTION "public"."complete_recovery_drill"("p_drill_id" "uuid", "p_actor_id" "uuid", "p_measured_rto" integer, "p_measured_rpo" integer, "p_restore_validated" boolean, "p_result" "jsonb", "p_event_key" "text") FROM PUBLIC;
+GRANT ALL ON FUNCTION "public"."complete_recovery_drill"("p_drill_id" "uuid", "p_actor_id" "uuid", "p_measured_rto" integer, "p_measured_rpo" integer, "p_restore_validated" boolean, "p_result" "jsonb", "p_event_key" "text") TO "service_role";
 
 
 
@@ -14785,7 +16316,7 @@ GRANT ALL ON FUNCTION "public"."create_return_case_v2"("p_instance_id" "uuid", "
 
 
 
-GRANT ALL ON TABLE "public"."action_proposals" TO "service_role";
+GRANT SELECT,INSERT,UPDATE ON TABLE "public"."action_proposals" TO "service_role";
 
 
 
@@ -14798,7 +16329,7 @@ GRANT ALL ON FUNCTION "public"."decide_action_proposal_v2"("p_instance_id" "uuid
 
 
 
-GRANT ALL ON TABLE "public"."post_release_rollback_decisions" TO "service_role";
+GRANT SELECT,INSERT ON TABLE "public"."post_release_rollback_decisions" TO "service_role";
 
 
 
@@ -14807,7 +16338,7 @@ GRANT ALL ON FUNCTION "public"."decide_post_release_rollback"("p_session_id" "uu
 
 
 
-GRANT SELECT,INSERT,REFERENCES,TRIGGER,TRUNCATE,MAINTAIN ON TABLE "public"."post_release_sessions" TO "service_role";
+GRANT SELECT ON TABLE "public"."post_release_sessions" TO "service_role";
 
 
 
@@ -14821,12 +16352,17 @@ GRANT ALL ON FUNCTION "public"."decide_release_candidate"("p_candidate_id" "uuid
 
 
 
-GRANT ALL ON TABLE "public"."rollout_decisions" TO "service_role";
+GRANT SELECT ON TABLE "public"."rollout_decisions" TO "service_role";
 
 
 
 REVOKE ALL ON FUNCTION "public"."decide_rollout"("p_decision_key" "text", "p_environment_key" "text", "p_source_sha" "text", "p_actor_id" "uuid", "p_decision" "text", "p_note" "text") FROM PUBLIC;
 GRANT ALL ON FUNCTION "public"."decide_rollout"("p_decision_key" "text", "p_environment_key" "text", "p_source_sha" "text", "p_actor_id" "uuid", "p_decision" "text", "p_note" "text") TO "service_role";
+
+
+
+REVOKE ALL ON FUNCTION "public"."detect_control_tower_alerts"("p_run_key" "text") FROM PUBLIC;
+GRANT ALL ON FUNCTION "public"."detect_control_tower_alerts"("p_run_key" "text") TO "service_role";
 
 
 
@@ -14859,30 +16395,6 @@ REVOKE ALL ON FUNCTION "public"."enforce_office_thread_tenant"() FROM PUBLIC;
 
 
 
-GRANT ALL ON FUNCTION "public"."enforce_order_tenant_match"() TO "anon";
-GRANT ALL ON FUNCTION "public"."enforce_order_tenant_match"() TO "authenticated";
-GRANT ALL ON FUNCTION "public"."enforce_order_tenant_match"() TO "service_role";
-
-
-
-GRANT ALL ON FUNCTION "public"."enforce_purchase_order_tenant_match"() TO "anon";
-GRANT ALL ON FUNCTION "public"."enforce_purchase_order_tenant_match"() TO "authenticated";
-GRANT ALL ON FUNCTION "public"."enforce_purchase_order_tenant_match"() TO "service_role";
-
-
-
-GRANT ALL ON FUNCTION "public"."enforce_return_case_tenant_match"() TO "anon";
-GRANT ALL ON FUNCTION "public"."enforce_return_case_tenant_match"() TO "authenticated";
-GRANT ALL ON FUNCTION "public"."enforce_return_case_tenant_match"() TO "service_role";
-
-
-
-GRANT ALL ON FUNCTION "public"."enforce_support_ticket_tenant_match"() TO "anon";
-GRANT ALL ON FUNCTION "public"."enforce_support_ticket_tenant_match"() TO "authenticated";
-GRANT ALL ON FUNCTION "public"."enforce_support_ticket_tenant_match"() TO "service_role";
-
-
-
 REVOKE ALL ON FUNCTION "public"."enqueue_communication"("p_email" "text", "p_user_id" "uuid", "p_purpose" "text", "p_template_key" "text", "p_payload" "jsonb", "p_idempotency_key" "text", "p_scheduled_at" timestamp with time zone) FROM PUBLIC;
 
 
@@ -14902,7 +16414,7 @@ GRANT ALL ON FUNCTION "public"."evaluate_release_candidate"("p_candidate_id" "uu
 
 
 
-GRANT ALL ON TABLE "public"."action_executions" TO "service_role";
+GRANT SELECT,INSERT ON TABLE "public"."action_executions" TO "service_role";
 
 
 
@@ -14915,7 +16427,7 @@ GRANT ALL ON FUNCTION "public"."execute_action_proposal_v2"("p_instance_id" "uui
 
 
 
-GRANT ALL ON TABLE "public"."automation_step_runs" TO "service_role";
+GRANT SELECT,INSERT,UPDATE ON TABLE "public"."automation_step_runs" TO "service_role";
 
 
 
@@ -14966,30 +16478,6 @@ GRANT ALL ON FUNCTION "public"."get_order_operation_snapshot"("p_order_id" "uuid
 
 
 
-GRANT ALL ON FUNCTION "public"."guard_action_policy_identity"() TO "anon";
-GRANT ALL ON FUNCTION "public"."guard_action_policy_identity"() TO "authenticated";
-GRANT ALL ON FUNCTION "public"."guard_action_policy_identity"() TO "service_role";
-
-
-
-GRANT ALL ON FUNCTION "public"."guard_action_policy_version_definition"() TO "anon";
-GRANT ALL ON FUNCTION "public"."guard_action_policy_version_definition"() TO "authenticated";
-GRANT ALL ON FUNCTION "public"."guard_action_policy_version_definition"() TO "service_role";
-
-
-
-GRANT ALL ON FUNCTION "public"."guard_action_proposal_identity"() TO "anon";
-GRANT ALL ON FUNCTION "public"."guard_action_proposal_identity"() TO "authenticated";
-GRANT ALL ON FUNCTION "public"."guard_action_proposal_identity"() TO "service_role";
-
-
-
-GRANT ALL ON FUNCTION "public"."guard_action_proposal_status"() TO "anon";
-GRANT ALL ON FUNCTION "public"."guard_action_proposal_status"() TO "authenticated";
-GRANT ALL ON FUNCTION "public"."guard_action_proposal_status"() TO "service_role";
-
-
-
 REVOKE ALL ON FUNCTION "public"."guard_assurance_append_only"() FROM PUBLIC;
 GRANT ALL ON FUNCTION "public"."guard_assurance_append_only"() TO "service_role";
 
@@ -15005,42 +16493,6 @@ GRANT ALL ON FUNCTION "public"."guard_assurance_finding_identity"() TO "service_
 
 
 
-GRANT ALL ON FUNCTION "public"."guard_automation_event_immutable"() TO "anon";
-GRANT ALL ON FUNCTION "public"."guard_automation_event_immutable"() TO "authenticated";
-GRANT ALL ON FUNCTION "public"."guard_automation_event_immutable"() TO "service_role";
-
-
-
-GRANT ALL ON FUNCTION "public"."guard_automation_instance_identity"() TO "anon";
-GRANT ALL ON FUNCTION "public"."guard_automation_instance_identity"() TO "authenticated";
-GRANT ALL ON FUNCTION "public"."guard_automation_instance_identity"() TO "service_role";
-
-
-
-GRANT ALL ON FUNCTION "public"."guard_automation_instance_terminal"() TO "anon";
-GRANT ALL ON FUNCTION "public"."guard_automation_instance_terminal"() TO "authenticated";
-GRANT ALL ON FUNCTION "public"."guard_automation_instance_terminal"() TO "service_role";
-
-
-
-GRANT ALL ON FUNCTION "public"."guard_automation_runbook_identity"() TO "anon";
-GRANT ALL ON FUNCTION "public"."guard_automation_runbook_identity"() TO "authenticated";
-GRANT ALL ON FUNCTION "public"."guard_automation_runbook_identity"() TO "service_role";
-
-
-
-GRANT ALL ON FUNCTION "public"."guard_automation_runbook_step_immutable"() TO "anon";
-GRANT ALL ON FUNCTION "public"."guard_automation_runbook_step_immutable"() TO "authenticated";
-GRANT ALL ON FUNCTION "public"."guard_automation_runbook_step_immutable"() TO "service_role";
-
-
-
-GRANT ALL ON FUNCTION "public"."guard_automation_step_integrity"() TO "anon";
-GRANT ALL ON FUNCTION "public"."guard_automation_step_integrity"() TO "authenticated";
-GRANT ALL ON FUNCTION "public"."guard_automation_step_integrity"() TO "service_role";
-
-
-
 REVOKE ALL ON FUNCTION "public"."guard_automation_step_source_current"() FROM PUBLIC;
 
 
@@ -15050,12 +16502,10 @@ REVOKE ALL ON FUNCTION "public"."guard_closed_support_thread"() FROM PUBLIC;
 
 
 REVOKE ALL ON FUNCTION "public"."guard_control_alert_identity"() FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."guard_control_alert_identity"() TO "service_role";
 
 
 
 REVOKE ALL ON FUNCTION "public"."guard_control_task_identity"() FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."guard_control_task_identity"() TO "service_role";
 
 
 
@@ -15119,7 +16569,6 @@ GRANT ALL ON FUNCTION "public"."is_platform_operator"("p_user_id" "uuid") TO "se
 
 
 REVOKE ALL ON FUNCTION "public"."maintain_control_incident_started_at"() FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."maintain_control_incident_started_at"() TO "service_role";
 
 
 
@@ -15209,6 +16658,11 @@ GRANT ALL ON FUNCTION "public"."plan_loyalty_retention_opportunities"() TO "serv
 
 
 
+REVOKE ALL ON FUNCTION "public"."plan_recovery_drill"("p_service_key" "text", "p_scenario" "text", "p_planned_at" timestamp with time zone, "p_actor_id" "uuid", "p_drill_key" "text") FROM PUBLIC;
+GRANT ALL ON FUNCTION "public"."plan_recovery_drill"("p_service_key" "text", "p_scenario" "text", "p_planned_at" timestamp with time zone, "p_actor_id" "uuid", "p_drill_key" "text") TO "service_role";
+
+
+
 REVOKE ALL ON FUNCTION "public"."platform_owner_claim_available"("p_email" "text") FROM PUBLIC;
 GRANT ALL ON FUNCTION "public"."platform_owner_claim_available"("p_email" "text") TO "service_role";
 
@@ -15223,7 +16677,6 @@ REVOKE ALL ON FUNCTION "public"."prevent_admin_audit_mutation"() FROM PUBLIC;
 
 
 REVOKE ALL ON FUNCTION "public"."prevent_control_event_mutation"() FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."prevent_control_event_mutation"() TO "service_role";
 
 
 
@@ -15236,7 +16689,7 @@ GRANT ALL ON FUNCTION "public"."preview_promotion_margin_v2"("p_instance_id" "uu
 
 
 
-GRANT ALL ON TABLE "public"."action_processing_runs" TO "service_role";
+GRANT SELECT,INSERT,UPDATE ON TABLE "public"."action_processing_runs" TO "service_role";
 
 
 
@@ -15249,7 +16702,7 @@ GRANT ALL ON FUNCTION "public"."process_action_cycle_v2"("p_instance_id" "uuid",
 
 
 
-GRANT ALL ON TABLE "public"."assurance_runs" TO "service_role";
+GRANT SELECT,INSERT,UPDATE ON TABLE "public"."assurance_runs" TO "service_role";
 
 
 
@@ -15263,7 +16716,7 @@ GRANT ALL ON FUNCTION "public"."process_assurance_readiness_cycle"("p_run_key" "
 
 
 
-GRANT ALL ON TABLE "public"."automation_processing_runs" TO "service_role";
+GRANT SELECT,INSERT,UPDATE ON TABLE "public"."automation_processing_runs" TO "service_role";
 
 
 
@@ -15276,7 +16729,7 @@ GRANT ALL ON FUNCTION "public"."process_automation_cycle_v2"("p_instance_id" "uu
 
 
 
-GRANT ALL ON TABLE "public"."control_processing_runs" TO "service_role";
+GRANT SELECT,INSERT,UPDATE ON TABLE "public"."control_processing_runs" TO "service_role";
 
 
 
@@ -15312,12 +16765,22 @@ GRANT ALL ON FUNCTION "public"."process_post_release_cycle"("p_run_key" "text") 
 
 
 
-GRANT SELECT,REFERENCES,TRIGGER,TRUNCATE,MAINTAIN ON TABLE "public"."release_governance_runs" TO "service_role";
+REVOKE ALL ON FUNCTION "public"."process_recovery_governance_cycle"("p_run_key" "text") FROM PUBLIC;
+GRANT ALL ON FUNCTION "public"."process_recovery_governance_cycle"("p_run_key" "text") TO "service_role";
+
+
+
+GRANT SELECT ON TABLE "public"."release_governance_runs" TO "service_role";
 
 
 
 REVOKE ALL ON FUNCTION "public"."process_release_governance_cycle"("p_run_key" "text") FROM PUBLIC;
 GRANT ALL ON FUNCTION "public"."process_release_governance_cycle"("p_run_key" "text") TO "service_role";
+
+
+
+REVOKE ALL ON FUNCTION "public"."provision_webshop_tenant_v1"("p_name" "text", "p_slug" "text", "p_owner_user_id" "uuid", "p_actor_user_id" "uuid", "p_storefront_config" "jsonb") FROM PUBLIC;
+GRANT ALL ON FUNCTION "public"."provision_webshop_tenant_v1"("p_name" "text", "p_slug" "text", "p_owner_user_id" "uuid", "p_actor_user_id" "uuid", "p_storefront_config" "jsonb") TO "service_role";
 
 
 
@@ -15395,6 +16858,11 @@ GRANT ALL ON FUNCTION "public"."reconcile_post_release_session"("p_session_id" "
 
 
 
+REVOKE ALL ON FUNCTION "public"."reconcile_recovery_governance"("p_run_key" "text") FROM PUBLIC;
+GRANT ALL ON FUNCTION "public"."reconcile_recovery_governance"("p_run_key" "text") TO "service_role";
+
+
+
 REVOKE ALL ON FUNCTION "public"."reconcile_release_candidates"("p_run_key" "text") FROM PUBLIC;
 GRANT ALL ON FUNCTION "public"."reconcile_release_candidates"("p_run_key" "text") TO "service_role";
 
@@ -15410,7 +16878,7 @@ GRANT ALL ON FUNCTION "public"."record_observability_event"("p_event_key" "text"
 
 
 
-GRANT SELECT,INSERT,REFERENCES,TRIGGER,TRUNCATE,MAINTAIN ON TABLE "public"."post_release_evidence" TO "service_role";
+GRANT SELECT ON TABLE "public"."post_release_evidence" TO "service_role";
 
 
 
@@ -15419,7 +16887,17 @@ GRANT ALL ON FUNCTION "public"."record_post_release_evidence"("p_session_id" "uu
 
 
 
-GRANT ALL ON TABLE "public"."rollout_checks" TO "service_role";
+REVOKE ALL ON FUNCTION "public"."record_recovery_decision"("p_finding_id" "uuid", "p_actor_id" "uuid", "p_decision" "text", "p_note" "text", "p_decision_key" "text") FROM PUBLIC;
+GRANT ALL ON FUNCTION "public"."record_recovery_decision"("p_finding_id" "uuid", "p_actor_id" "uuid", "p_decision" "text", "p_note" "text", "p_decision_key" "text") TO "service_role";
+
+
+
+REVOKE ALL ON FUNCTION "public"."record_recovery_evidence"("p_service_key" "text", "p_evidence_kind" "text", "p_status" "text", "p_trusted" boolean, "p_source" "text", "p_observed_at" timestamp with time zone, "p_evidence" "jsonb", "p_event_key" "text") FROM PUBLIC;
+GRANT ALL ON FUNCTION "public"."record_recovery_evidence"("p_service_key" "text", "p_evidence_kind" "text", "p_status" "text", "p_trusted" boolean, "p_source" "text", "p_observed_at" timestamp with time zone, "p_evidence" "jsonb", "p_event_key" "text") TO "service_role";
+
+
+
+GRANT SELECT ON TABLE "public"."rollout_checks" TO "service_role";
 
 
 
@@ -15465,12 +16943,6 @@ GRANT ALL ON FUNCTION "public"."refresh_order_operation_priorities"() TO "servic
 
 
 
-GRANT ALL ON FUNCTION "public"."reject_append_only_action_mutation"() TO "anon";
-GRANT ALL ON FUNCTION "public"."reject_append_only_action_mutation"() TO "authenticated";
-GRANT ALL ON FUNCTION "public"."reject_append_only_action_mutation"() TO "service_role";
-
-
-
 REVOKE ALL ON FUNCTION "public"."release_cancelled_order_coupon_redemption"() FROM PUBLIC;
 
 
@@ -15510,6 +16982,11 @@ GRANT ALL ON FUNCTION "public"."reserve_inventory_for_order"("p_order_id" "uuid"
 
 
 
+REVOKE ALL ON FUNCTION "public"."resolve_recovery_finding"("p_objective_id" "uuid", "p_finding_type" "text", "p_run_key" "text") FROM PUBLIC;
+GRANT ALL ON FUNCTION "public"."resolve_recovery_finding"("p_objective_id" "uuid", "p_finding_type" "text", "p_run_key" "text") TO "service_role";
+
+
+
 REVOKE ALL ON FUNCTION "public"."resolve_stale_control_alerts"("p_cycle_started_at" timestamp with time zone, "p_run_key" "text") FROM PUBLIC;
 
 
@@ -15538,7 +17015,7 @@ GRANT ALL ON FUNCTION "public"."reverse_loyalty_points_for_ineligible_orders"() 
 
 
 
-GRANT ALL ON TABLE "public"."automation_control" TO "service_role";
+GRANT SELECT,INSERT,UPDATE ON TABLE "public"."automation_control" TO "service_role";
 
 
 
@@ -15546,7 +17023,7 @@ REVOKE ALL ON FUNCTION "public"."set_automation_global_pause"("p_actor_id" "uuid
 
 
 
-GRANT SELECT,INSERT,REFERENCES,TRIGGER,TRUNCATE,MAINTAIN ON TABLE "public"."post_release_findings" TO "service_role";
+GRANT SELECT ON TABLE "public"."post_release_findings" TO "service_role";
 
 
 
@@ -15575,6 +17052,11 @@ REVOKE ALL ON FUNCTION "public"."single_runtime_instance_id"() FROM PUBLIC;
 
 REVOKE ALL ON FUNCTION "public"."start_post_release_session"("p_release_candidate_id" "uuid", "p_actor_id" "uuid", "p_event_key" "text") FROM PUBLIC;
 GRANT ALL ON FUNCTION "public"."start_post_release_session"("p_release_candidate_id" "uuid", "p_actor_id" "uuid", "p_event_key" "text") TO "service_role";
+
+
+
+REVOKE ALL ON FUNCTION "public"."start_recovery_drill"("p_drill_id" "uuid", "p_actor_id" "uuid", "p_event_key" "text") FROM PUBLIC;
+GRANT ALL ON FUNCTION "public"."start_recovery_drill"("p_drill_id" "uuid", "p_actor_id" "uuid", "p_event_key" "text") TO "service_role";
 
 
 
@@ -15610,7 +17092,7 @@ REVOKE ALL ON FUNCTION "public"."sync_variant_child_instance"() FROM PUBLIC;
 
 
 
-GRANT SELECT,REFERENCES,TRIGGER,TRUNCATE,MAINTAIN ON TABLE "public"."assurance_findings" TO "service_role";
+GRANT SELECT ON TABLE "public"."assurance_findings" TO "service_role";
 
 
 
@@ -15637,7 +17119,7 @@ GRANT ALL ON FUNCTION "public"."transition_commercial_offer_v2"("p_instance_id" 
 
 
 
-GRANT ALL ON TABLE "public"."control_alerts" TO "service_role";
+GRANT SELECT,INSERT,UPDATE ON TABLE "public"."control_alerts" TO "service_role";
 
 
 
@@ -15650,7 +17132,7 @@ GRANT ALL ON FUNCTION "public"."transition_control_alert_v2"("p_instance_id" "uu
 
 
 
-GRANT ALL ON TABLE "public"."control_tasks" TO "service_role";
+GRANT SELECT,INSERT,UPDATE ON TABLE "public"."control_tasks" TO "service_role";
 
 
 
@@ -15709,6 +17191,11 @@ REVOKE ALL ON FUNCTION "public"."upsert_control_alert"("p_alert_key" "text", "p_
 
 
 
+REVOKE ALL ON FUNCTION "public"."upsert_recovery_finding"("p_objective_id" "uuid", "p_finding_type" "text", "p_severity" "text", "p_title" "text", "p_description" "text", "p_run_key" "text") FROM PUBLIC;
+GRANT ALL ON FUNCTION "public"."upsert_recovery_finding"("p_objective_id" "uuid", "p_finding_type" "text", "p_severity" "text", "p_title" "text", "p_description" "text", "p_run_key" "text") TO "service_role";
+
+
+
 GRANT ALL ON TABLE "public"."loyalty_benefit_usage" TO "service_role";
 
 
@@ -15732,7 +17219,6 @@ REVOKE ALL ON FUNCTION "public"."validate_return_case_item_quantity"() FROM PUBL
 
 
 REVOKE ALL ON FUNCTION "public"."verify_admin_audit_chain"("p_instance_id" "uuid") FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."verify_admin_audit_chain"("p_instance_id" "uuid") TO "anon";
 GRANT ALL ON FUNCTION "public"."verify_admin_audit_chain"("p_instance_id" "uuid") TO "authenticated";
 GRANT ALL ON FUNCTION "public"."verify_admin_audit_chain"("p_instance_id" "uuid") TO "service_role";
 
@@ -15742,29 +17228,23 @@ GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE "private"."platform_owner_claims" TO 
 
 
 
-GRANT ALL ON TABLE "public"."action_approvals" TO "service_role";
+GRANT SELECT,INSERT ON TABLE "public"."action_approvals" TO "service_role";
 
 
 
-GRANT ALL ON TABLE "public"."action_center_kpis" TO "service_role";
+GRANT SELECT ON TABLE "public"."action_center_kpis" TO "service_role";
 
 
 
-GRANT ALL ON TABLE "public"."action_policies" TO "service_role";
+GRANT SELECT,INSERT,UPDATE ON TABLE "public"."action_policies" TO "service_role";
 
 
 
-GRANT ALL ON TABLE "public"."action_center_queue" TO "service_role";
+GRANT SELECT ON TABLE "public"."action_center_queue" TO "service_role";
 
 
 
-GRANT ALL ON TABLE "public"."action_proposal_events" TO "service_role";
-
-
-
-GRANT ALL ON SEQUENCE "public"."action_proposal_events_id_seq" TO "anon";
-GRANT ALL ON SEQUENCE "public"."action_proposal_events_id_seq" TO "authenticated";
-GRANT ALL ON SEQUENCE "public"."action_proposal_events_id_seq" TO "service_role";
+GRANT SELECT,INSERT ON TABLE "public"."action_proposal_events" TO "service_role";
 
 
 
@@ -15776,99 +17256,75 @@ GRANT ALL ON TABLE "public"."loyalty_benefit_rules" TO "service_role";
 
 
 
-GRANT ALL ON TABLE "public"."active_customer_benefits" TO "service_role";
+GRANT SELECT ON TABLE "public"."active_customer_benefits" TO "service_role";
 
 
 
-GRANT SELECT,INSERT,REFERENCES,TRIGGER,TRUNCATE,MAINTAIN ON TABLE "public"."admin_audit_log" TO "service_role";
+GRANT SELECT,INSERT ON TABLE "public"."admin_audit_log" TO "service_role";
 
 
 
-GRANT ALL ON SEQUENCE "public"."admin_audit_chain_seq" TO "anon";
-GRANT ALL ON SEQUENCE "public"."admin_audit_chain_seq" TO "authenticated";
-GRANT ALL ON SEQUENCE "public"."admin_audit_chain_seq" TO "service_role";
+GRANT SELECT ON TABLE "public"."assurance_controls" TO "service_role";
 
 
 
-GRANT SELECT,REFERENCES,TRIGGER,TRUNCATE,MAINTAIN ON TABLE "public"."assurance_controls" TO "service_role";
+GRANT SELECT,INSERT ON TABLE "public"."assurance_events" TO "service_role";
 
 
 
-GRANT SELECT,INSERT,REFERENCES,TRIGGER,TRUNCATE,MAINTAIN ON TABLE "public"."assurance_events" TO "service_role";
+GRANT SELECT,INSERT ON TABLE "public"."assurance_evidence" TO "service_role";
 
 
 
-GRANT ALL ON SEQUENCE "public"."assurance_events_id_seq" TO "anon";
-GRANT ALL ON SEQUENCE "public"."assurance_events_id_seq" TO "authenticated";
-GRANT ALL ON SEQUENCE "public"."assurance_events_id_seq" TO "service_role";
+GRANT SELECT ON TABLE "public"."assurance_finding_queue" TO "service_role";
 
 
 
-GRANT SELECT,INSERT,REFERENCES,TRIGGER,TRUNCATE,MAINTAIN ON TABLE "public"."assurance_evidence" TO "service_role";
+GRANT SELECT ON TABLE "public"."assurance_latest_control_results" TO "service_role";
 
 
 
-GRANT ALL ON TABLE "public"."assurance_finding_queue" TO "service_role";
+GRANT SELECT ON TABLE "public"."assurance_readiness" TO "service_role";
 
 
 
-GRANT ALL ON TABLE "public"."assurance_latest_control_results" TO "service_role";
+GRANT SELECT ON TABLE "public"."assurance_recent_runs" TO "service_role";
 
 
 
-GRANT ALL ON TABLE "public"."assurance_readiness" TO "service_role";
+GRANT SELECT,INSERT ON TABLE "public"."automation_control_events" TO "service_role";
 
 
 
-GRANT ALL ON TABLE "public"."assurance_recent_runs" TO "service_role";
+GRANT SELECT,INSERT ON TABLE "public"."automation_events" TO "service_role";
 
 
 
-GRANT ALL ON TABLE "public"."automation_control_events" TO "service_role";
+GRANT SELECT ON TABLE "public"."automation_health" TO "service_role";
 
 
 
-GRANT ALL ON SEQUENCE "public"."automation_control_events_id_seq" TO "anon";
-GRANT ALL ON SEQUENCE "public"."automation_control_events_id_seq" TO "authenticated";
-GRANT ALL ON SEQUENCE "public"."automation_control_events_id_seq" TO "service_role";
+GRANT SELECT ON TABLE "public"."automation_runbook_queue" TO "service_role";
 
 
 
-GRANT SELECT,INSERT,REFERENCES,TRIGGER,TRUNCATE,MAINTAIN ON TABLE "public"."automation_events" TO "service_role";
+GRANT SELECT ON TABLE "public"."automation_kpis" TO "service_role";
 
 
 
-GRANT ALL ON SEQUENCE "public"."automation_events_id_seq" TO "anon";
-GRANT ALL ON SEQUENCE "public"."automation_events_id_seq" TO "authenticated";
-GRANT ALL ON SEQUENCE "public"."automation_events_id_seq" TO "service_role";
+GRANT SELECT ON TABLE "public"."automation_runbook_steps" TO "service_role";
 
 
 
-GRANT ALL ON TABLE "public"."automation_health" TO "service_role";
+GRANT SELECT ON TABLE "public"."automation_runbooks" TO "service_role";
 
 
 
-GRANT ALL ON TABLE "public"."automation_runbook_queue" TO "service_role";
+GRANT SELECT,INSERT,UPDATE ON TABLE "public"."checkout_recovery_intents" TO "service_role";
 
 
 
-GRANT ALL ON TABLE "public"."automation_kpis" TO "service_role";
-
-
-
-GRANT SELECT,REFERENCES,TRIGGER,TRUNCATE,MAINTAIN ON TABLE "public"."automation_runbook_steps" TO "service_role";
-
-
-
-GRANT SELECT,REFERENCES,TRIGGER,TRUNCATE,MAINTAIN ON TABLE "public"."automation_runbooks" TO "service_role";
-
-
-
-GRANT ALL ON TABLE "public"."checkout_recovery_intents" TO "service_role";
-
-
-
-GRANT ALL ON TABLE "public"."commerce_provider_catalog" TO "service_role";
+GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE "public"."commerce_provider_catalog" TO "service_role";
 
 
 
@@ -15876,23 +17332,23 @@ GRANT ALL ON TABLE "public"."commercial_opportunities" TO "service_role";
 
 
 
-GRANT ALL ON TABLE "public"."commercial_conversion_metrics" TO "service_role";
+GRANT SELECT ON TABLE "public"."commercial_conversion_metrics" TO "service_role";
 
 
 
-GRANT ALL ON TABLE "public"."commercial_offer_forecast" TO "service_role";
+GRANT SELECT ON TABLE "public"."commercial_offer_forecast" TO "service_role";
 
 
 
-GRANT ALL ON TABLE "public"."commercial_pipeline_summary" TO "service_role";
+GRANT SELECT ON TABLE "public"."commercial_pipeline_summary" TO "service_role";
 
 
 
-GRANT ALL ON TABLE "public"."commercial_executive_forecast" TO "service_role";
+GRANT SELECT ON TABLE "public"."commercial_executive_forecast" TO "service_role";
 
 
 
-GRANT ALL ON TABLE "public"."commercial_pipeline_decision_support" TO "service_role";
+GRANT SELECT ON TABLE "public"."commercial_pipeline_decision_support" TO "service_role";
 
 
 
@@ -15900,114 +17356,89 @@ GRANT ALL ON TABLE "public"."communication_job_events" TO "service_role";
 
 
 
-GRANT ALL ON TABLE "public"."communication_suppression_events" TO "service_role";
+GRANT SELECT,INSERT ON TABLE "public"."communication_suppression_events" TO "service_role";
 
 
 
-GRANT ALL ON TABLE "public"."communication_suppressions" TO "service_role";
+GRANT SELECT,INSERT,UPDATE ON TABLE "public"."communication_suppressions" TO "service_role";
 
 
 
-GRANT ALL ON TABLE "public"."communication_worker_runs" TO "service_role";
+GRANT SELECT,INSERT,UPDATE ON TABLE "public"."communication_worker_runs" TO "service_role";
 
 
 
-GRANT ALL ON TABLE "public"."content_pages" TO "anon";
-GRANT ALL ON TABLE "public"."content_pages" TO "authenticated";
-GRANT ALL ON TABLE "public"."content_pages" TO "service_role";
+GRANT SELECT ON TABLE "public"."content_pages" TO "anon";
+GRANT SELECT ON TABLE "public"."content_pages" TO "authenticated";
 
 
 
-GRANT ALL ON TABLE "public"."control_alert_events" TO "service_role";
+GRANT SELECT,INSERT ON TABLE "public"."control_alert_events" TO "service_role";
 
 
 
-GRANT ALL ON SEQUENCE "public"."control_alert_events_id_seq" TO "anon";
-GRANT ALL ON SEQUENCE "public"."control_alert_events_id_seq" TO "authenticated";
-GRANT ALL ON SEQUENCE "public"."control_alert_events_id_seq" TO "service_role";
+GRANT SELECT ON TABLE "public"."integration_jobs" TO "service_role";
 
 
 
-GRANT SELECT,REFERENCES,TRIGGER,TRUNCATE,MAINTAIN ON TABLE "public"."integration_jobs" TO "anon";
-GRANT SELECT,REFERENCES,TRIGGER,TRUNCATE,MAINTAIN ON TABLE "public"."integration_jobs" TO "authenticated";
-GRANT ALL ON TABLE "public"."integration_jobs" TO "service_role";
+GRANT SELECT,INSERT,UPDATE ON TABLE "public"."webhook_events" TO "service_role";
 
 
 
-GRANT ALL ON TABLE "public"."webhook_events" TO "service_role";
+GRANT SELECT ON TABLE "public"."control_system_health" TO "service_role";
 
 
 
-GRANT ALL ON TABLE "public"."control_system_health" TO "service_role";
+GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE "public"."webshop_instances" TO "service_role";
 
 
 
-GRANT ALL ON TABLE "public"."webshop_instances" TO "service_role";
+GRANT SELECT ON TABLE "public"."control_system_health_v2" TO "service_role";
 
 
 
-GRANT ALL ON TABLE "public"."control_system_health_v2" TO "service_role";
+GRANT SELECT ON TABLE "public"."control_tower_category_summary" TO "service_role";
 
 
 
-GRANT ALL ON TABLE "public"."control_tower_category_summary" TO "service_role";
+GRANT SELECT ON TABLE "public"."control_tower_category_summary_v2" TO "service_role";
 
 
 
-GRANT ALL ON TABLE "public"."control_tower_category_summary_v2" TO "service_role";
+GRANT SELECT ON TABLE "public"."control_tower_queue" TO "service_role";
 
 
 
-GRANT ALL ON TABLE "public"."control_tower_queue" TO "service_role";
+GRANT SELECT ON TABLE "public"."control_tower_kpis" TO "service_role";
 
 
 
-GRANT ALL ON TABLE "public"."control_tower_kpis" TO "service_role";
+GRANT SELECT ON TABLE "public"."control_tower_queue_v2" TO "service_role";
 
 
 
-GRANT ALL ON TABLE "public"."control_tower_queue_v2" TO "service_role";
+GRANT SELECT ON TABLE "public"."control_tower_kpis_v2" TO "service_role";
 
 
 
-GRANT ALL ON TABLE "public"."control_tower_kpis_v2" TO "service_role";
+GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE "public"."coupon_redemptions" TO "service_role";
 
 
 
-GRANT ALL ON TABLE "public"."coupon_redemptions" TO "service_role";
+GRANT SELECT ON TABLE "public"."customer_commercial_metrics" TO "service_role";
 
 
 
-GRANT ALL ON TABLE "public"."coupons" TO "service_role";
-
-
-
-GRANT ALL ON TABLE "public"."order_items" TO "anon";
-GRANT ALL ON TABLE "public"."order_items" TO "authenticated";
-GRANT ALL ON TABLE "public"."order_items" TO "service_role";
-
-
-
-GRANT ALL ON TABLE "public"."orders" TO "anon";
-GRANT ALL ON TABLE "public"."orders" TO "authenticated";
-GRANT ALL ON TABLE "public"."orders" TO "service_role";
-
-
-
-GRANT ALL ON TABLE "public"."customer_commercial_metrics" TO "service_role";
-
-
-
-GRANT ALL ON TABLE "public"."customer_instance_roles" TO "service_role";
 GRANT SELECT ON TABLE "public"."customer_instance_roles" TO "authenticated";
+GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE "public"."customer_instance_roles" TO "service_role";
 
 
 
-GRANT ALL ON TABLE "public"."customer_journey_steps" TO "service_role";
+GRANT SELECT,INSERT,UPDATE ON TABLE "public"."customer_journey_steps" TO "service_role";
 
 
 
-GRANT ALL ON TABLE "public"."customer_journeys" TO "service_role";
+GRANT SELECT,INSERT,UPDATE ON TABLE "public"."customer_journeys" TO "service_role";
 
 
 
@@ -16015,17 +17446,11 @@ GRANT ALL ON TABLE "public"."customer_lifecycle_milestones" TO "service_role";
 
 
 
-GRANT ALL ON TABLE "public"."loyalty_balances" TO "service_role";
+GRANT SELECT ON TABLE "public"."loyalty_balances" TO "service_role";
 
 
 
-GRANT ALL ON TABLE "public"."customer_loyalty_summary" TO "service_role";
-
-
-
-GRANT ALL ON TABLE "public"."feature_entitlements" TO "anon";
-GRANT ALL ON TABLE "public"."feature_entitlements" TO "authenticated";
-GRANT ALL ON TABLE "public"."feature_entitlements" TO "service_role";
+GRANT SELECT ON TABLE "public"."customer_loyalty_summary" TO "service_role";
 
 
 
@@ -16033,11 +17458,11 @@ GRANT ALL ON TABLE "public"."fulfillment_events" TO "service_role";
 
 
 
-GRANT ALL ON TABLE "public"."order_operations_queue" TO "service_role";
+GRANT SELECT ON TABLE "public"."order_operations_queue" TO "service_role";
 
 
 
-GRANT ALL ON TABLE "public"."fulfillment_sla_summary" TO "service_role";
+GRANT SELECT ON TABLE "public"."fulfillment_sla_summary" TO "service_role";
 
 
 
@@ -16045,23 +17470,11 @@ GRANT ALL ON TABLE "public"."inventory_reservations" TO "service_role";
 
 
 
-GRANT ALL ON TABLE "public"."product_variants" TO "anon";
-GRANT ALL ON TABLE "public"."product_variants" TO "authenticated";
-GRANT ALL ON TABLE "public"."product_variants" TO "service_role";
+GRANT SELECT ON TABLE "public"."inventory_available_to_promise" TO "service_role";
 
 
 
-GRANT ALL ON TABLE "public"."inventory_available_to_promise" TO "service_role";
-
-
-
-GRANT ALL ON TABLE "public"."inventory_events" TO "anon";
-GRANT ALL ON TABLE "public"."inventory_events" TO "authenticated";
-GRANT ALL ON TABLE "public"."inventory_events" TO "service_role";
-
-
-
-GRANT ALL ON TABLE "public"."inventory_pressure" TO "service_role";
+GRANT SELECT ON TABLE "public"."inventory_pressure" TO "service_role";
 
 
 
@@ -16069,203 +17482,95 @@ GRANT ALL ON TABLE "public"."inventory_snapshots" TO "service_role";
 
 
 
-GRANT ALL ON SEQUENCE "public"."inventory_snapshots_id_seq" TO "anon";
-GRANT ALL ON SEQUENCE "public"."inventory_snapshots_id_seq" TO "authenticated";
-GRANT ALL ON SEQUENCE "public"."inventory_snapshots_id_seq" TO "service_role";
-
-
-
 GRANT ALL ON TABLE "public"."loyalty_program_settings" TO "service_role";
 
 
 
-GRANT ALL ON TABLE "public"."marketing_campaign_recipients" TO "service_role";
+GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE "public"."marketing_campaign_recipients" TO "service_role";
 
 
 
-GRANT ALL ON TABLE "public"."marketing_campaign_conversions" TO "service_role";
+GRANT SELECT ON TABLE "public"."marketing_campaign_conversions" TO "service_role";
 
 
 
-GRANT ALL ON TABLE "public"."marketing_campaign_events" TO "service_role";
+GRANT SELECT,INSERT ON TABLE "public"."marketing_campaign_events" TO "service_role";
 
 
 
-GRANT ALL ON TABLE "public"."marketing_campaigns" TO "service_role";
+GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE "public"."marketing_campaigns" TO "service_role";
 
 
 
-GRANT ALL ON TABLE "public"."marketing_consents" TO "service_role";
+GRANT SELECT,INSERT ON TABLE "public"."marketing_consents" TO "service_role";
 
 
 
-GRANT ALL ON TABLE "public"."merchant_intelligence_tenant_gaps" TO "anon";
-GRANT ALL ON TABLE "public"."merchant_intelligence_tenant_gaps" TO "authenticated";
-GRANT ALL ON TABLE "public"."merchant_intelligence_tenant_gaps" TO "service_role";
+GRANT SELECT ON TABLE "public"."observability_events" TO "service_role";
 
 
 
-GRANT ALL ON TABLE "public"."observability_events" TO "service_role";
+GRANT SELECT ON TABLE "public"."observability_issue_queue" TO "service_role";
 
 
 
-GRANT ALL ON SEQUENCE "public"."observability_events_id_seq" TO "anon";
-GRANT ALL ON SEQUENCE "public"."observability_events_id_seq" TO "authenticated";
-GRANT ALL ON SEQUENCE "public"."observability_events_id_seq" TO "service_role";
+GRANT SELECT ON TABLE "public"."observability_kpis" TO "service_role";
 
 
 
-GRANT ALL ON TABLE "public"."observability_issue_queue" TO "service_role";
+GRANT SELECT ON TABLE "public"."support_tickets" TO "service_role";
 
 
 
-GRANT ALL ON TABLE "public"."observability_kpis" TO "service_role";
+GRANT SELECT ON TABLE "public"."order_service_operations" TO "service_role";
 
 
 
-GRANT ALL ON TABLE "public"."office_messages" TO "anon";
-GRANT ALL ON TABLE "public"."office_messages" TO "authenticated";
-GRANT ALL ON TABLE "public"."office_messages" TO "service_role";
+GRANT SELECT ON TABLE "public"."operations_exception_queue" TO "service_role";
 
 
 
-GRANT ALL ON TABLE "public"."office_tasks" TO "anon";
-GRANT ALL ON TABLE "public"."office_tasks" TO "authenticated";
-GRANT ALL ON TABLE "public"."office_tasks" TO "service_role";
+GRANT SELECT ON TABLE "public"."operations_inventory_summary" TO "service_role";
 
 
 
-GRANT ALL ON TABLE "public"."office_threads" TO "anon";
-GRANT ALL ON TABLE "public"."office_threads" TO "authenticated";
-GRANT ALL ON TABLE "public"."office_threads" TO "service_role";
+GRANT SELECT ON TABLE "public"."operations_kpi_summary" TO "service_role";
 
 
 
-GRANT ALL ON TABLE "public"."return_cases" TO "anon";
-GRANT ALL ON TABLE "public"."return_cases" TO "authenticated";
-GRANT ALL ON TABLE "public"."return_cases" TO "service_role";
+GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE "public"."payment_attempts" TO "service_role";
 
 
 
-GRANT ALL ON TABLE "public"."support_tickets" TO "anon";
-GRANT ALL ON TABLE "public"."support_tickets" TO "authenticated";
-GRANT ALL ON TABLE "public"."support_tickets" TO "service_role";
+GRANT SELECT,INSERT,UPDATE ON TABLE "public"."payment_events" TO "service_role";
 
 
 
-GRANT ALL ON TABLE "public"."order_service_operations" TO "service_role";
+GRANT SELECT,INSERT,DELETE ON TABLE "public"."platform_operators" TO "service_role";
 
 
 
-GRANT ALL ON TABLE "public"."operations_exception_queue" TO "service_role";
+GRANT SELECT,INSERT ON TABLE "public"."post_release_events" TO "service_role";
 
 
 
-GRANT ALL ON TABLE "public"."operations_inventory_summary" TO "service_role";
+GRANT SELECT ON TABLE "public"."post_release_findings_queue" TO "service_role";
 
 
 
-GRANT ALL ON TABLE "public"."operations_kpi_summary" TO "service_role";
+GRANT SELECT ON TABLE "public"."post_release_kpis" TO "service_role";
 
 
 
-GRANT ALL ON TABLE "public"."order_events" TO "anon";
-GRANT ALL ON TABLE "public"."order_events" TO "authenticated";
-GRANT ALL ON TABLE "public"."order_events" TO "service_role";
+GRANT SELECT,INSERT ON TABLE "public"."post_release_policies" TO "service_role";
 
 
 
-GRANT ALL ON TABLE "public"."order_inventory_restorations" TO "anon";
-GRANT ALL ON TABLE "public"."order_inventory_restorations" TO "authenticated";
-GRANT ALL ON TABLE "public"."order_inventory_restorations" TO "service_role";
+GRANT SELECT ON TABLE "public"."post_release_session_queue" TO "service_role";
 
 
 
-GRANT ALL ON TABLE "public"."order_request_keys" TO "service_role";
-
-
-
-GRANT ALL ON TABLE "public"."organization_members" TO "anon";
-GRANT ALL ON TABLE "public"."organization_members" TO "authenticated";
-GRANT ALL ON TABLE "public"."organization_members" TO "service_role";
-
-
-
-GRANT ALL ON TABLE "public"."organizations" TO "anon";
-GRANT ALL ON TABLE "public"."organizations" TO "authenticated";
-GRANT ALL ON TABLE "public"."organizations" TO "service_role";
-
-
-
-GRANT ALL ON TABLE "public"."payment_attempts" TO "service_role";
-
-
-
-GRANT ALL ON TABLE "public"."payment_events" TO "service_role";
-
-
-
-GRANT ALL ON TABLE "public"."platform_operators" TO "service_role";
-
-
-
-GRANT SELECT,INSERT,REFERENCES,TRIGGER,TRUNCATE,MAINTAIN ON TABLE "public"."post_release_events" TO "service_role";
-
-
-
-GRANT ALL ON SEQUENCE "public"."post_release_events_id_seq" TO "anon";
-GRANT ALL ON SEQUENCE "public"."post_release_events_id_seq" TO "authenticated";
-GRANT ALL ON SEQUENCE "public"."post_release_events_id_seq" TO "service_role";
-
-
-
-GRANT ALL ON TABLE "public"."post_release_findings_queue" TO "service_role";
-
-
-
-GRANT ALL ON TABLE "public"."post_release_kpis" TO "service_role";
-
-
-
-GRANT SELECT,INSERT,REFERENCES,TRIGGER,TRUNCATE,MAINTAIN ON TABLE "public"."post_release_policies" TO "service_role";
-
-
-
-GRANT ALL ON TABLE "public"."post_release_session_queue" TO "service_role";
-
-
-
-GRANT ALL ON TABLE "public"."post_release_rollback_queue" TO "service_role";
-
-
-
-GRANT ALL ON TABLE "public"."product_channel_settings" TO "anon";
-GRANT ALL ON TABLE "public"."product_channel_settings" TO "authenticated";
-GRANT ALL ON TABLE "public"."product_channel_settings" TO "service_role";
-
-
-
-GRANT ALL ON TABLE "public"."product_recommendation_rules" TO "anon";
-GRANT ALL ON TABLE "public"."product_recommendation_rules" TO "authenticated";
-GRANT ALL ON TABLE "public"."product_recommendation_rules" TO "service_role";
-
-
-
-GRANT ALL ON TABLE "public"."product_reviews" TO "anon";
-GRANT ALL ON TABLE "public"."product_reviews" TO "authenticated";
-GRANT ALL ON TABLE "public"."product_reviews" TO "service_role";
-
-
-
-GRANT ALL ON TABLE "public"."products" TO "anon";
-GRANT ALL ON TABLE "public"."products" TO "authenticated";
-GRANT ALL ON TABLE "public"."products" TO "service_role";
-
-
-
-GRANT ALL ON TABLE "public"."profiles" TO "anon";
-GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,MAINTAIN ON TABLE "public"."profiles" TO "authenticated";
-GRANT ALL ON TABLE "public"."profiles" TO "service_role";
+GRANT SELECT ON TABLE "public"."post_release_rollback_queue" TO "service_role";
 
 
 
@@ -16289,81 +17594,103 @@ GRANT ALL ON TABLE "public"."purchase_orders" TO "service_role";
 
 
 
-GRANT SELECT,REFERENCES,TRIGGER,TRUNCATE,MAINTAIN ON TABLE "public"."release_approvals" TO "service_role";
+GRANT SELECT ON TABLE "public"."recovery_decisions" TO "service_role";
 
 
 
-GRANT SELECT,REFERENCES,TRIGGER,TRUNCATE,MAINTAIN ON TABLE "public"."release_changes" TO "service_role";
+GRANT SELECT ON TABLE "public"."recovery_drills" TO "service_role";
 
 
 
-GRANT SELECT,INSERT,REFERENCES,TRIGGER,TRUNCATE,MAINTAIN,UPDATE ON TABLE "public"."release_policies" TO "service_role";
+GRANT SELECT ON TABLE "public"."recovery_events" TO "service_role";
 
 
 
-GRANT ALL ON TABLE "public"."release_candidate_queue" TO "service_role";
+GRANT SELECT ON TABLE "public"."recovery_evidence" TO "service_role";
 
 
 
-GRANT SELECT,REFERENCES,TRIGGER,TRUNCATE,MAINTAIN ON TABLE "public"."release_events" TO "service_role";
+GRANT SELECT ON TABLE "public"."recovery_findings" TO "service_role";
 
 
 
-GRANT ALL ON SEQUENCE "public"."release_events_id_seq" TO "anon";
-GRANT ALL ON SEQUENCE "public"."release_events_id_seq" TO "authenticated";
-GRANT ALL ON SEQUENCE "public"."release_events_id_seq" TO "service_role";
+GRANT SELECT ON TABLE "public"."recovery_objectives" TO "service_role";
 
 
 
-GRANT SELECT,REFERENCES,TRIGGER,TRUNCATE,MAINTAIN ON TABLE "public"."release_gate_results" TO "service_role";
+GRANT SELECT ON TABLE "public"."recovery_finding_queue" TO "service_role";
 
 
 
-GRANT ALL ON TABLE "public"."release_governance_kpis" TO "service_role";
+GRANT SELECT ON TABLE "public"."recovery_service_readiness" TO "service_role";
 
 
 
-GRANT ALL ON TABLE "public"."release_recent_governance_runs" TO "service_role";
+GRANT SELECT ON TABLE "public"."recovery_kpis" TO "service_role";
 
 
 
-GRANT SELECT,INSERT,REFERENCES,TRIGGER,TRUNCATE,MAINTAIN,UPDATE ON TABLE "public"."release_windows" TO "service_role";
+GRANT SELECT ON TABLE "public"."recovery_runs" TO "service_role";
 
 
 
-GRANT ALL ON TABLE "public"."reseller_reorder_signals" TO "service_role";
+GRANT SELECT ON TABLE "public"."release_approvals" TO "service_role";
 
 
 
-GRANT ALL ON TABLE "public"."reseller_growth_priorities" TO "service_role";
+GRANT SELECT ON TABLE "public"."release_changes" TO "service_role";
 
 
 
-GRANT ALL ON TABLE "public"."reseller_reorder_signals_v2" TO "service_role";
+GRANT SELECT,INSERT,UPDATE ON TABLE "public"."release_policies" TO "service_role";
 
 
 
-GRANT ALL ON TABLE "public"."reseller_growth_priorities_v2" TO "service_role";
+GRANT SELECT ON TABLE "public"."release_candidate_queue" TO "service_role";
 
 
 
-GRANT ALL ON TABLE "public"."return_case_items" TO "anon";
-GRANT ALL ON TABLE "public"."return_case_items" TO "authenticated";
-GRANT ALL ON TABLE "public"."return_case_items" TO "service_role";
+GRANT SELECT ON TABLE "public"."release_events" TO "service_role";
 
 
 
-GRANT ALL ON TABLE "public"."role_bindings" TO "anon";
-GRANT ALL ON TABLE "public"."role_bindings" TO "authenticated";
-GRANT ALL ON TABLE "public"."role_bindings" TO "service_role";
+GRANT SELECT ON TABLE "public"."release_gate_results" TO "service_role";
 
 
 
-GRANT ALL ON TABLE "public"."rollout_environments" TO "service_role";
+GRANT SELECT ON TABLE "public"."release_governance_kpis" TO "service_role";
 
 
 
-GRANT ALL ON TABLE "public"."rollout_readiness" TO "service_role";
+GRANT SELECT ON TABLE "public"."release_recent_governance_runs" TO "service_role";
+
+
+
+GRANT SELECT,INSERT,UPDATE ON TABLE "public"."release_windows" TO "service_role";
+
+
+
+GRANT SELECT ON TABLE "public"."reseller_reorder_signals" TO "service_role";
+
+
+
+GRANT SELECT ON TABLE "public"."reseller_growth_priorities" TO "service_role";
+
+
+
+GRANT SELECT ON TABLE "public"."reseller_reorder_signals_v2" TO "service_role";
+
+
+
+GRANT SELECT ON TABLE "public"."reseller_growth_priorities_v2" TO "service_role";
+
+
+
+GRANT SELECT ON TABLE "public"."rollout_environments" TO "service_role";
+
+
+
+GRANT SELECT ON TABLE "public"."rollout_readiness" TO "service_role";
 
 
 
@@ -16371,688 +17698,48 @@ GRANT ALL ON TABLE "public"."sales_tasks" TO "service_role";
 
 
 
-GRANT ALL ON TABLE "public"."stock_notifications" TO "anon";
-GRANT ALL ON TABLE "public"."stock_notifications" TO "authenticated";
-GRANT ALL ON TABLE "public"."stock_notifications" TO "service_role";
-
-
-
 GRANT ALL ON TABLE "public"."suppliers" TO "service_role";
 
 
 
-GRANT ALL ON TABLE "public"."support_ticket_messages" TO "anon";
-GRANT ALL ON TABLE "public"."support_ticket_messages" TO "authenticated";
-GRANT ALL ON TABLE "public"."support_ticket_messages" TO "service_role";
+GRANT SELECT ON TABLE "public"."v9_channel_retention_summary" TO "service_role";
 
 
 
-GRANT ALL ON TABLE "public"."tenant_operational_scope_gaps" TO "anon";
-GRANT ALL ON TABLE "public"."tenant_operational_scope_gaps" TO "authenticated";
-GRANT ALL ON TABLE "public"."tenant_operational_scope_gaps" TO "service_role";
+GRANT SELECT ON TABLE "public"."v9_channel_retention_summary_v2" TO "service_role";
 
 
 
-GRANT ALL ON TABLE "public"."tenant_scope_gaps" TO "anon";
-GRANT ALL ON TABLE "public"."tenant_scope_gaps" TO "authenticated";
-GRANT ALL ON TABLE "public"."tenant_scope_gaps" TO "service_role";
+GRANT SELECT ON TABLE "public"."v9_growth_dashboard" TO "service_role";
 
 
 
-GRANT ALL ON TABLE "public"."v9_channel_retention_summary" TO "service_role";
+GRANT SELECT ON TABLE "public"."v9_growth_dashboard_v2" TO "service_role";
 
 
 
-GRANT ALL ON TABLE "public"."v9_channel_retention_summary_v2" TO "service_role";
+GRANT SELECT ON TABLE "public"."v9_monthly_customer_cohorts" TO "service_role";
 
 
 
-GRANT ALL ON TABLE "public"."v9_growth_dashboard" TO "service_role";
+GRANT SELECT ON TABLE "public"."v9_monthly_customer_cohorts_v2" TO "service_role";
 
 
 
-GRANT ALL ON TABLE "public"."v9_growth_dashboard_v2" TO "service_role";
+GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE "public"."webshop_instance_addons" TO "service_role";
 
 
 
-GRANT ALL ON TABLE "public"."v9_monthly_customer_cohorts" TO "service_role";
+GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE "public"."webshop_instance_commerce_settings" TO "service_role";
 
 
 
-GRANT ALL ON TABLE "public"."v9_monthly_customer_cohorts_v2" TO "service_role";
+GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE "public"."webshop_instance_members" TO "service_role";
 
 
 
-GRANT ALL ON TABLE "public"."webshop_instance_addons" TO "service_role";
+GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE "public"."webshop_instance_provider_connections" TO "service_role";
 
 
 
-GRANT ALL ON TABLE "public"."webshop_instance_commerce_settings" TO "service_role";
-
-
-
-GRANT ALL ON TABLE "public"."webshop_instance_members" TO "service_role";
-
-
-
-GRANT ALL ON TABLE "public"."webshop_instance_provider_connections" TO "service_role";
-
-
-
-GRANT ALL ON TABLE "public"."webshop_sales_channels" TO "anon";
-GRANT ALL ON TABLE "public"."webshop_sales_channels" TO "authenticated";
-GRANT ALL ON TABLE "public"."webshop_sales_channels" TO "service_role";
-
-
-
-GRANT ALL ON TABLE "public"."wishlists" TO "anon";
-GRANT ALL ON TABLE "public"."wishlists" TO "authenticated";
-GRANT ALL ON TABLE "public"."wishlists" TO "service_role";
-
-
-
-ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT ALL ON SEQUENCES TO "postgres";
-ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT ALL ON SEQUENCES TO "anon";
-ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT ALL ON SEQUENCES TO "authenticated";
-ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT ALL ON SEQUENCES TO "service_role";
-
-
-
-ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT ALL ON FUNCTIONS TO "postgres";
-ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT ALL ON FUNCTIONS TO "anon";
-ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT ALL ON FUNCTIONS TO "authenticated";
-ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT ALL ON FUNCTIONS TO "service_role";
-
-
-
-ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT ALL ON TABLES TO "postgres";
-ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT ALL ON TABLES TO "anon";
-ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT ALL ON TABLES TO "authenticated";
-ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT ALL ON TABLES TO "service_role";
-
--- SHOPERATION_CURRENT_RECOVERY_BASELINE
-CREATE OR REPLACE FUNCTION public.detect_control_tower_alerts(p_run_key text)
- RETURNS jsonb
- LANGUAGE plpgsql
- SECURITY DEFINER
- SET search_path TO ''
-AS $function$
-declare
-  r record;
-  a public.control_alerts;
-  v_operations integer:=0;v_inventory integer:=0;v_commercial integer:=0;v_service integer:=0;
-begin
-  if nullif(trim(p_run_key),'') is null then raise exception 'run_key_required'; end if;
-
-  for r in select * from public.operations_exception_queue loop
-    select public.upsert_control_alert(
-      'ops:'||r.order_id::text||':'||coalesce(r.derived_exception_code,'attention'),
-      'operations',coalesce(r.derived_exception_code,'operations_attention'),
-      case when r.derived_exception_code in ('payment_fulfillment_mismatch','shipment_status_mismatch','delivery_status_mismatch') then 'critical'
-           when r.age_hours>=48 or r.urgent_support_count>0 then 'high' else 'warning' end,
-      least(100,greatest(coalesce(r.priority_score,0),case when r.age_hours>=48 then 90 when r.age_hours>=24 then 75 else 60 end)),
-      'Rendelési operációs kivétel · '||r.order_number,
-      'A rendelés operációs ellenőrzést igényel: '||coalesce(r.derived_exception_code,'figyelmet igénylő állapot')||'.',
-      case when r.derived_exception_code like '%mismatch%' then 'Ellenőrizd a kereskedelmi és fulfillment állapotot, majd csak igazolt állapot alapján korrigálj.' else 'Nyisd meg a rendelést és kezeld a kivétel okát.' end,
-      p_run_key,r.order_id,null,null,null,null,
-      jsonb_build_object('order_number',r.order_number,'commerce_status',r.commerce_status,'operational_status',r.operational_status,'age_hours',r.age_hours,'total_gross_huf',r.total_gross_huf,'exception_code',r.derived_exception_code,'urgent_support_count',r.urgent_support_count,'open_return_count',r.open_return_count)
-    ) into a;
-    v_operations:=v_operations+1;
-  end loop;
-
-  for r in select * from public.inventory_pressure where pressure_level in ('critical','low') loop
-    select public.upsert_control_alert(
-      'inventory:'||r.variant_id::text||':'||r.pressure_level,
-      'inventory','inventory_pressure',case when r.pressure_level='critical' then 'critical' else 'warning' end,
-      case when r.pressure_level='critical' then 95 else least(85,60+coalesce(round(r.reservation_pressure_percent)::integer,0)/4) end,
-      'Készletnyomás · '||r.sku,
-      'A '||r.label||' variáns szabad ATP készlete: '||r.available_to_promise_quantity::text||' db.',
-      case when r.pressure_level='critical' then 'Vizsgáld meg a beszerzést és a nyitott igényeket; ne ígérj kézzel nem létező készletet.' else 'Ellenőrizd a fogyási ütemet és a következő beszerzési pontot.' end,
-      p_run_key,null,null,null,r.variant_id,null,
-      jsonb_build_object('sku',r.sku,'label',r.label,'on_hand_quantity',r.on_hand_quantity,'reserved_quantity',r.reserved_quantity,'available_to_promise_quantity',r.available_to_promise_quantity,'reservation_pressure_percent',r.reservation_pressure_percent,'pressure_level',r.pressure_level)
-    ) into a;
-    v_inventory:=v_inventory+1;
-  end loop;
-
-  for r in
-    select * from public.commercial_opportunities
-    where status in ('open','in_progress') and (priority_score>=70 or due_at<now() or expected_value_net_huf>=100000)
-  loop
-    select public.upsert_control_alert(
-      'commercial:'||r.id::text,
-      'commercial','commercial_opportunity_risk',
-      case when r.due_at<now() and r.priority_score>=80 then 'high' when r.priority_score>=80 then 'high' else 'warning' end,
-      greatest(r.priority_score,case when r.due_at<now() then 80 else 0 end),
-      'Kereskedelmi lehetőség · '||r.channel||' / '||r.kind,
-      'Nyitott lehetőség várható nettó értéke '||round(r.expected_value_net_huf)::text||' Ft, prioritása '||r.priority_score::text||'.',
-      coalesce(r.recommended_action,'Vizsgáld meg a következő emberi kereskedelmi lépést.'),
-      p_run_key,null,r.customer_id,r.reseller_id,null,r.id,
-      jsonb_build_object('channel',r.channel,'kind',r.kind,'status',r.status,'expected_value_net_huf',r.expected_value_net_huf,'probability_percent',r.probability_percent,'due_at',r.due_at,'reason',r.reason)
-    ) into a;
-    v_commercial:=v_commercial+1;
-  end loop;
-
-  for r in
-    select st.id,st.ticket_number,st.order_id,st.user_id,st.priority,st.status,st.category,st.subject,st.created_at
-    from public.support_tickets st
-    where st.status in ('open','in_progress','waiting_customer') and (st.priority in ('high','urgent') or st.created_at<now()-interval '48 hours')
-  loop
-    select public.upsert_control_alert(
-      'service-ticket:'||r.id::text,
-      'service','support_attention',case when r.priority='urgent' then 'critical' when r.priority='high' then 'high' else 'warning' end,
-      case when r.priority='urgent' then 95 when r.priority='high' then 85 else 70 end,
-      'Ügyfélszolgálati figyelem · '||r.ticket_number,
-      'Nyitott '||r.priority||' prioritású ügy: '||r.subject,
-      'Vizsgáld meg az ügyet és rögzíts következő lépést az ügyfélszolgálati folyamatban.',
-      p_run_key,r.order_id,r.user_id,null,null,null,
-      jsonb_build_object('ticket_id',r.id,'ticket_number',r.ticket_number,'priority',r.priority,'status',r.status,'category',r.category,'created_at',r.created_at)
-    ) into a;
-    v_service:=v_service+1;
-  end loop;
-
-  return jsonb_build_object('operations',v_operations,'inventory',v_inventory,'commercial',v_commercial,'service',v_service,'total',v_operations+v_inventory+v_commercial+v_service);
-end;$function$
-;
-REVOKE ALL ON FUNCTION public.detect_control_tower_alerts(text) FROM PUBLIC, anon, authenticated;
-GRANT EXECUTE ON FUNCTION public.detect_control_tower_alerts(text) TO service_role;
-
-
--- Customer baseline current recovery module: 150_recovery_governance_foundation.sql
--- V19: resilience and recovery governance foundation.
-create table if not exists public.recovery_objectives(
- id uuid primary key default gen_random_uuid(),
- service_key text not null,
- version integer not null check(version>0),
- name text not null,
- criticality text not null check(criticality in('standard','high','critical')),
- rto_minutes integer not null check(rto_minutes between 1 and 10080),
- rpo_minutes integer not null check(rpo_minutes between 1 and 10080),
- backup_freshness_minutes integer not null check(backup_freshness_minutes between 1 and 10080),
- drill_interval_days integer not null default 30 check(drill_interval_days between 1 and 365),
- enabled boolean not null default true,
- definition jsonb not null default '{}'::jsonb,
- created_at timestamptz not null default now(),
- unique(service_key,version)
-);
-alter table public.recovery_objectives enable row level security;
-revoke all on public.recovery_objectives from public,anon,authenticated;
-grant select,insert on public.recovery_objectives to service_role;
-
-create table if not exists public.recovery_evidence(
- id uuid primary key default gen_random_uuid(),
- evidence_key text not null unique,
- objective_id uuid not null references public.recovery_objectives(id) on delete restrict,
- evidence_kind text not null check(evidence_kind in('backup','restore','integrity','replication','manual')),
- status text not null check(status in('pass','fail','error')),
- trusted boolean not null default false,
- source text not null,
- observed_at timestamptz not null,
- evidence jsonb not null default '{}'::jsonb,
- evidence_hash text not null,
- captured_at timestamptz not null default now()
-);
-create index if not exists recovery_evidence_objective_idx on public.recovery_evidence(objective_id,observed_at desc);
-alter table public.recovery_evidence enable row level security;
-revoke all on public.recovery_evidence from public,anon,authenticated;
-grant select,insert on public.recovery_evidence to service_role;
-
-create table if not exists public.recovery_drills(
- id uuid primary key default gen_random_uuid(),
- drill_key text not null unique,
- objective_id uuid not null references public.recovery_objectives(id) on delete restrict,
- status text not null default 'planned' check(status in('planned','running','passed','failed','cancelled')),
- scenario text not null,
- planned_at timestamptz not null,
- started_at timestamptz,
- completed_at timestamptz,
- measured_rto_minutes integer check(measured_rto_minutes>=0),
- measured_rpo_minutes integer check(measured_rpo_minutes>=0),
- restore_validated boolean,
- result jsonb not null default '{}'::jsonb,
- created_by uuid references auth.users(id) on delete set null,
- created_at timestamptz not null default now(),
- updated_at timestamptz not null default now()
-);
-create index if not exists recovery_drills_objective_idx on public.recovery_drills(objective_id,planned_at desc);
-alter table public.recovery_drills enable row level security;
-revoke all on public.recovery_drills from public,anon,authenticated;
-grant select,insert on public.recovery_drills to service_role;
-
-create table if not exists public.recovery_findings(
- id uuid primary key default gen_random_uuid(),
- finding_key text not null unique,
- objective_id uuid not null references public.recovery_objectives(id) on delete restrict,
- finding_type text not null check(finding_type in('backup_stale','backup_failed','restore_failed','rto_breach','rpo_breach','drill_overdue','drill_failed')),
- severity text not null check(severity in('warning','high','critical')),
- status text not null default 'open' check(status in('open','acknowledged','resolved')),
- title text not null,
- description text not null,
- occurrence_count integer not null default 1 check(occurrence_count>0),
- first_detected_at timestamptz not null default now(),
- last_detected_at timestamptz not null default now(),
- acknowledged_by uuid references auth.users(id) on delete set null,
- resolved_by uuid references auth.users(id) on delete set null,
- updated_at timestamptz not null default now()
-);
-create index if not exists recovery_findings_queue_idx on public.recovery_findings(status,severity,last_detected_at desc);
-alter table public.recovery_findings enable row level security;
-revoke all on public.recovery_findings from public,anon,authenticated;
-grant select,insert on public.recovery_findings to service_role;
-
-create table if not exists public.recovery_events(
- id bigint generated by default as identity primary key,
- event_key text not null unique,
- objective_id uuid references public.recovery_objectives(id) on delete restrict,
- drill_id uuid references public.recovery_drills(id) on delete restrict,
- finding_id uuid references public.recovery_findings(id) on delete restrict,
- event_type text not null check(event_type in('evidence_recorded','drill_planned','drill_started','drill_passed','drill_failed','finding_opened','finding_reopened','finding_resolved','decision_recorded')),
- actor_id uuid references auth.users(id) on delete set null,
- metadata jsonb not null default '{}'::jsonb,
- occurred_at timestamptz not null default now()
-);
-alter table public.recovery_events enable row level security;
-revoke all on public.recovery_events from public,anon,authenticated;
-grant select,insert on public.recovery_events to service_role;
-
-insert into public.recovery_objectives(service_key,version,name,criticality,rto_minutes,rpo_minutes,backup_freshness_minutes,drill_interval_days,definition)
-values
- ('commerce-db',1,'Kereskedelmi adatbázis','critical',60,15,60,30,jsonb_build_object('trusted_sources',jsonb_build_array('supabase','system_backup'))),
- ('storefront',1,'Webshop alkalmazás','high',30,30,1440,30,jsonb_build_object('trusted_sources',jsonb_build_array('vercel','github_actions'))),
- ('control-plane',1,'Admin és governance vezérlősík','high',60,60,1440,30,jsonb_build_object('trusted_sources',jsonb_build_array('vercel','supabase','system_backup')))
-on conflict(service_key,version) do nothing;
-
-
--- Customer baseline current recovery module: 151_recovery_evidence_drill_control.sql
--- V19: guarded evidence and recovery drill lifecycle.
-create or replace function public.record_recovery_evidence(
- p_service_key text,p_evidence_kind text,p_status text,p_trusted boolean,p_source text,p_observed_at timestamptz,p_evidence jsonb,p_event_key text
-) returns uuid language plpgsql security definer set search_path='' as $$
-declare v_objective public.recovery_objectives;v_id uuid;v_hash text;begin
- select * into v_objective from public.recovery_objectives where service_key=p_service_key and enabled order by version desc limit 1;
- if not found then raise exception 'Nincs aktív recovery objective ehhez a szolgáltatáshoz.';end if;
- if p_trusted and not coalesce((v_objective.definition->'trusted_sources') ? p_source,false) then raise exception 'A megadott forrás ehhez az objective-hez nem trusted.';end if;
- v_hash:=md5(v_objective.id::text||'|'||p_evidence_kind||'|'||p_status||'|'||p_source||'|'||p_observed_at::text||'|'||coalesce(p_evidence,'{}'::jsonb)::text);
- select id into v_id from public.recovery_evidence where evidence_key=p_event_key;
- if found then return v_id;end if;
- insert into public.recovery_evidence(evidence_key,objective_id,evidence_kind,status,trusted,source,observed_at,evidence,evidence_hash)
- values(p_event_key,v_objective.id,p_evidence_kind,p_status,p_trusted,p_source,p_observed_at,coalesce(p_evidence,'{}'::jsonb),v_hash) returning id into v_id;
- insert into public.recovery_events(event_key,objective_id,event_type,metadata) values('event:'||p_event_key,v_objective.id,'evidence_recorded',jsonb_build_object('evidence_id',v_id,'kind',p_evidence_kind,'status',p_status,'trusted',p_trusted)) on conflict(event_key) do nothing;
- return v_id;
-end;$$;
-revoke all on function public.record_recovery_evidence(text,text,text,boolean,text,timestamptz,jsonb,text) from public,anon,authenticated;
-grant execute on function public.record_recovery_evidence(text,text,text,boolean,text,timestamptz,jsonb,text) to service_role;
-
-create or replace function public.plan_recovery_drill(p_service_key text,p_scenario text,p_planned_at timestamptz,p_actor_id uuid,p_drill_key text)
-returns uuid language plpgsql security definer set search_path='' as $$
-declare v_objective public.recovery_objectives;v_id uuid;begin
- select * into v_objective from public.recovery_objectives where service_key=p_service_key and enabled order by version desc limit 1;
- if not found then raise exception 'Nincs aktív recovery objective.';end if;
- select id into v_id from public.recovery_drills where drill_key=p_drill_key;if found then return v_id;end if;
- insert into public.recovery_drills(drill_key,objective_id,scenario,planned_at,created_by) values(p_drill_key,v_objective.id,p_scenario,p_planned_at,p_actor_id) returning id into v_id;
- insert into public.recovery_events(event_key,objective_id,drill_id,event_type,actor_id,metadata) values('planned:'||p_drill_key,v_objective.id,v_id,'drill_planned',p_actor_id,jsonb_build_object('scenario',p_scenario)) on conflict(event_key) do nothing;
- return v_id;
-end;$$;
-revoke all on function public.plan_recovery_drill(text,text,timestamptz,uuid,text) from public,anon,authenticated;
-grant execute on function public.plan_recovery_drill(text,text,timestamptz,uuid,text) to service_role;
-
-create or replace function public.start_recovery_drill(p_drill_id uuid,p_actor_id uuid,p_event_key text)
-returns void language plpgsql security definer set search_path='' as $$
-declare v public.recovery_drills;begin
- select * into v from public.recovery_drills where id=p_drill_id for update;if not found then raise exception 'Drill nem található.';end if;
- if v.status='running' then return;end if;if v.status<>'planned' then raise exception 'Csak tervezett drill indítható.';end if;
- update public.recovery_drills set status='running',started_at=now(),updated_at=now() where id=p_drill_id;
- insert into public.recovery_events(event_key,objective_id,drill_id,event_type,actor_id) values(p_event_key,v.objective_id,p_drill_id,'drill_started',p_actor_id) on conflict(event_key) do nothing;
-end;$$;
-revoke all on function public.start_recovery_drill(uuid,uuid,text) from public,anon,authenticated;grant execute on function public.start_recovery_drill(uuid,uuid,text) to service_role;
-
-create or replace function public.complete_recovery_drill(p_drill_id uuid,p_actor_id uuid,p_measured_rto integer,p_measured_rpo integer,p_restore_validated boolean,p_result jsonb,p_event_key text)
-returns text language plpgsql security definer set search_path='' as $$
-declare v public.recovery_drills;o public.recovery_objectives;v_status text;begin
- select * into v from public.recovery_drills where id=p_drill_id for update;if not found then raise exception 'Drill nem található.';end if;
- if v.status in('passed','failed') then return v.status;end if;if v.status<>'running' then raise exception 'Csak futó drill zárható.';end if;
- select * into o from public.recovery_objectives where id=v.objective_id;
- v_status:=case when p_restore_validated and p_measured_rto<=o.rto_minutes and p_measured_rpo<=o.rpo_minutes then 'passed' else 'failed' end;
- update public.recovery_drills set status=v_status,completed_at=now(),measured_rto_minutes=p_measured_rto,measured_rpo_minutes=p_measured_rpo,restore_validated=p_restore_validated,result=coalesce(p_result,'{}'::jsonb),updated_at=now() where id=p_drill_id;
- insert into public.recovery_events(event_key,objective_id,drill_id,event_type,actor_id,metadata) values(p_event_key,v.objective_id,p_drill_id,case when v_status='passed' then 'drill_passed' else 'drill_failed' end,p_actor_id,jsonb_build_object('measured_rto',p_measured_rto,'measured_rpo',p_measured_rpo,'restore_validated',p_restore_validated)) on conflict(event_key) do nothing;
- return v_status;
-end;$$;
-revoke all on function public.complete_recovery_drill(uuid,uuid,integer,integer,boolean,jsonb,text) from public,anon,authenticated;grant execute on function public.complete_recovery_drill(uuid,uuid,integer,integer,boolean,jsonb,text) to service_role;
-
-
--- Customer baseline current recovery module: 152_recovery_reconciliation.sql
--- V19: reconcile latest trusted recovery state into deduplicated findings.
-create or replace function public.reconcile_recovery_governance(p_run_key text)
-returns jsonb language plpgsql security definer set search_path='' as $$
-declare o public.recovery_objectives;v_backup public.recovery_evidence;v_restore public.recovery_evidence;v_drill public.recovery_drills;v_type text;v_sev text;v_title text;v_desc text;v_key text;v_id uuid;v_open integer:=0;v_resolved integer:=0;begin
- perform pg_advisory_xact_lock(hashtextextended('recovery:'||p_run_key,0));
- for o in select distinct on(service_key) * from public.recovery_objectives where enabled order by service_key,version desc loop
-   select * into v_backup from public.recovery_evidence where objective_id=o.id and evidence_kind='backup' and trusted order by observed_at desc,captured_at desc limit 1;
-   select * into v_restore from public.recovery_evidence where objective_id=o.id and evidence_kind='restore' and trusted order by observed_at desc,captured_at desc limit 1;
-   select * into v_drill from public.recovery_drills where objective_id=o.id and status in('passed','failed') order by completed_at desc nulls last limit 1;
-
-   -- backup stale/failed
-   if v_backup.id is null or v_backup.observed_at < now()-make_interval(mins=>o.backup_freshness_minutes) then v_type:='backup_stale';v_sev:=case when o.criticality='critical' then 'critical' else 'high' end;v_title:='Elavult recovery backup evidence';v_desc:='Nincs a recovery objective frissességi követelményének megfelelő trusted backup evidence.';
-   elsif v_backup.status<>'pass' then v_type:='backup_failed';v_sev:=case when o.criticality='critical' then 'critical' else 'high' end;v_title:='Hibás backup evidence';v_desc:='A legfrissebb trusted backup evidence nem sikeres.';
-   else v_type:=null;end if;
-   if v_type is not null then
-     v_key:='recovery:'||o.service_key||':'||v_type;select id into v_id from public.recovery_findings where finding_key=v_key;
-     if found then update public.recovery_findings set status='open',severity=v_sev,title=v_title,description=v_desc,occurrence_count=occurrence_count+1,last_detected_at=now(),updated_at=now() where id=v_id;
-     else insert into public.recovery_findings(finding_key,objective_id,finding_type,severity,title,description) values(v_key,o.id,v_type,v_sev,v_title,v_desc) returning id into v_id;end if;
-     insert into public.recovery_events(event_key,objective_id,finding_id,event_type,metadata) values(p_run_key||':'||v_key,o.id,v_id,case when exists(select 1 from public.recovery_events where finding_id=v_id and event_type='finding_opened') then 'finding_reopened' else 'finding_opened' end,jsonb_build_object('run_key',p_run_key)) on conflict(event_key) do nothing;v_open:=v_open+1;
-   else
-     update public.recovery_findings set status='resolved',resolved_by=null,updated_at=now() where objective_id=o.id and finding_type in('backup_stale','backup_failed') and status<>'resolved';get diagnostics v_resolved=row_count;
-   end if;
-
-   -- restore state
-   if v_restore.id is null or v_restore.status<>'pass' then
-     v_key:='recovery:'||o.service_key||':restore_failed';select id into v_id from public.recovery_findings where finding_key=v_key;
-     if found then update public.recovery_findings set status='open',occurrence_count=occurrence_count+1,last_detected_at=now(),updated_at=now() where id=v_id;
-     else insert into public.recovery_findings(finding_key,objective_id,finding_type,severity,title,description) values(v_key,o.id,'restore_failed',case when o.criticality='critical' then 'critical' else 'high' end,'Restore nincs igazolva','Nincs sikeres trusted restore evidence.') returning id into v_id;end if;v_open:=v_open+1;
-   else update public.recovery_findings set status='resolved',updated_at=now() where objective_id=o.id and finding_type='restore_failed' and status<>'resolved';end if;
-
-   -- drill recency/outcome/objectives
-   if v_drill.id is null or v_drill.completed_at < now()-make_interval(days=>o.drill_interval_days) then
-     v_key:='recovery:'||o.service_key||':drill_overdue';insert into public.recovery_findings(finding_key,objective_id,finding_type,severity,title,description) values(v_key,o.id,'drill_overdue','high','Recovery drill esedékes','Nincs az objective intervallumán belüli lezárt recovery drill.') on conflict(finding_key) do update set status='open',occurrence_count=public.recovery_findings.occurrence_count+1,last_detected_at=now(),updated_at=now();v_open:=v_open+1;
-   else
-     update public.recovery_findings set status='resolved',updated_at=now() where objective_id=o.id and finding_type='drill_overdue' and status<>'resolved';
-     if v_drill.status='failed' then
-       v_key:='recovery:'||o.service_key||':drill_failed';insert into public.recovery_findings(finding_key,objective_id,finding_type,severity,title,description) values(v_key,o.id,'drill_failed',case when o.criticality='critical' then 'critical' else 'high' end,'Recovery drill sikertelen','A legutóbbi recovery drill nem teljesítette a követelményeket.') on conflict(finding_key) do update set status='open',occurrence_count=public.recovery_findings.occurrence_count+1,last_detected_at=now(),updated_at=now();v_open:=v_open+1;
-     else update public.recovery_findings set status='resolved',updated_at=now() where objective_id=o.id and finding_type='drill_failed' and status<>'resolved';end if;
-     if coalesce(v_drill.measured_rto_minutes,2147483647)>o.rto_minutes then v_key:='recovery:'||o.service_key||':rto_breach';insert into public.recovery_findings(finding_key,objective_id,finding_type,severity,title,description) values(v_key,o.id,'rto_breach','high','RTO cél túllépve','A legutóbbi drill mért RTO-ja meghaladja a recovery objective-et.') on conflict(finding_key) do update set status='open',occurrence_count=public.recovery_findings.occurrence_count+1,last_detected_at=now(),updated_at=now();v_open:=v_open+1;else update public.recovery_findings set status='resolved',updated_at=now() where objective_id=o.id and finding_type='rto_breach' and status<>'resolved';end if;
-     if coalesce(v_drill.measured_rpo_minutes,2147483647)>o.rpo_minutes then v_key:='recovery:'||o.service_key||':rpo_breach';insert into public.recovery_findings(finding_key,objective_id,finding_type,severity,title,description) values(v_key,o.id,'rpo_breach','high','RPO cél túllépve','A legutóbbi drill mért RPO-ja meghaladja a recovery objective-et.') on conflict(finding_key) do update set status='open',occurrence_count=public.recovery_findings.occurrence_count+1,last_detected_at=now(),updated_at=now();v_open:=v_open+1;else update public.recovery_findings set status='resolved',updated_at=now() where objective_id=o.id and finding_type='rpo_breach' and status<>'resolved';end if;
-   end if;
- end loop;
- return jsonb_build_object('run_key',p_run_key,'open_signals',v_open,'resolved_updates',v_resolved);
-end;$$;
-revoke all on function public.reconcile_recovery_governance(text) from public,anon,authenticated;grant execute on function public.reconcile_recovery_governance(text) to service_role;
-
-
--- Customer baseline current recovery module: 153_recovery_read_models.sql
--- V19: recovery readiness and admin read models.
-create or replace view public.recovery_service_readiness with(security_invoker=true) as
-with latest_objectives as(
- select distinct on(service_key) * from public.recovery_objectives where enabled order by service_key,version desc
-),latest_backup as(
- select distinct on(objective_id) objective_id,status,observed_at,source,trusted,evidence_hash from public.recovery_evidence where evidence_kind='backup' and trusted order by objective_id,observed_at desc,captured_at desc
-),latest_restore as(
- select distinct on(objective_id) objective_id,status,observed_at,source,trusted,evidence_hash from public.recovery_evidence where evidence_kind='restore' and trusted order by objective_id,observed_at desc,captured_at desc
-),latest_drill as(
- select distinct on(objective_id) objective_id,status,completed_at,measured_rto_minutes,measured_rpo_minutes,restore_validated from public.recovery_drills where status in('passed','failed') order by objective_id,completed_at desc nulls last
-),findings as(
- select objective_id,count(*) filter(where status in('open','acknowledged') and severity='critical')::integer critical_open,count(*) filter(where status in('open','acknowledged') and severity='high')::integer high_open from public.recovery_findings group by objective_id
-)
-select o.id as objective_id,o.service_key,o.version,o.name,o.criticality,o.rto_minutes,o.rpo_minutes,o.backup_freshness_minutes,o.drill_interval_days,
- b.status as backup_status,b.observed_at as backup_observed_at,b.source as backup_source,b.evidence_hash as backup_hash,
- r.status as restore_status,r.observed_at as restore_observed_at,r.source as restore_source,r.evidence_hash as restore_hash,
- d.status as drill_status,d.completed_at as drill_completed_at,d.measured_rto_minutes,d.measured_rpo_minutes,d.restore_validated,
- coalesce(f.critical_open,0) critical_open,coalesce(f.high_open,0) high_open,
- case when b.observed_at is null or b.observed_at<now()-make_interval(mins=>o.backup_freshness_minutes) then true else false end backup_stale,
- case when d.completed_at is null or d.completed_at<now()-make_interval(days=>o.drill_interval_days) then true else false end drill_overdue,
- case when coalesce(f.critical_open,0)>0 then 'blocked'
-      when b.status='pass' and r.status='pass' and d.status='passed' and coalesce(f.high_open,0)=0
-       and b.observed_at>=now()-make_interval(mins=>o.backup_freshness_minutes)
-       and d.completed_at>=now()-make_interval(days=>o.drill_interval_days) then 'ready'
-      else 'degraded' end as readiness_status
-from latest_objectives o left join latest_backup b on b.objective_id=o.id left join latest_restore r on r.objective_id=o.id left join latest_drill d on d.objective_id=o.id left join findings f on f.objective_id=o.id;
-revoke all on public.recovery_service_readiness from public,anon,authenticated;grant select on public.recovery_service_readiness to service_role;
-
-create or replace view public.recovery_finding_queue with(security_invoker=true) as
-select f.id as finding_id,f.finding_key,f.finding_type,f.severity,f.status,f.title,f.description,f.occurrence_count,f.first_detected_at,f.last_detected_at,
- o.service_key,o.name as service_name,o.criticality,o.rto_minutes,o.rpo_minutes
-from public.recovery_findings f join public.recovery_objectives o on o.id=f.objective_id
-where f.status in('open','acknowledged') order by case f.severity when 'critical' then 1 when 'high' then 2 else 3 end,f.last_detected_at desc;
-revoke all on public.recovery_finding_queue from public,anon,authenticated;grant select on public.recovery_finding_queue to service_role;
-
-create or replace view public.recovery_kpis with(security_invoker=true) as
-select count(*)::integer services,
- count(*) filter(where readiness_status='ready')::integer ready,
- count(*) filter(where readiness_status='degraded')::integer degraded,
- count(*) filter(where readiness_status='blocked')::integer blocked,
- count(*) filter(where backup_stale)::integer stale_backups,
- count(*) filter(where drill_overdue)::integer overdue_drills
-from public.recovery_service_readiness;
-revoke all on public.recovery_kpis from public,anon,authenticated;grant select on public.recovery_kpis to service_role;
-
-
--- Customer baseline current recovery module: 154_recovery_integrity_hardening.sql
--- V19 audit hardening: append-only evidence/events and replay-safe finding lifecycle.
-create or replace function public.block_recovery_append_only_mutation() returns trigger language plpgsql set search_path='' as $$begin raise exception 'Append-only recovery record cannot be modified.';end;$$;
-drop trigger if exists trg_recovery_evidence_append_only on public.recovery_evidence;create trigger trg_recovery_evidence_append_only before update or delete on public.recovery_evidence for each row execute function public.block_recovery_append_only_mutation();
-drop trigger if exists trg_recovery_events_append_only on public.recovery_events;create trigger trg_recovery_events_append_only before update or delete on public.recovery_events for each row execute function public.block_recovery_append_only_mutation();
-revoke update,delete on public.recovery_evidence from service_role;revoke update,delete on public.recovery_events from service_role;
-revoke update,delete on public.recovery_findings from service_role;revoke update,delete on public.recovery_drills from service_role;
-
-create or replace function public.upsert_recovery_finding(p_objective_id uuid,p_finding_type text,p_severity text,p_title text,p_description text,p_run_key text)
-returns uuid language plpgsql security definer set search_path='' as $$
-declare o public.recovery_objectives;v_key text;v public.recovery_findings;v_id uuid;v_event text;begin
- select * into o from public.recovery_objectives where id=p_objective_id;if not found then raise exception 'Recovery objective nem található.';end if;
- v_key:='recovery:'||o.service_key||':'||p_finding_type;
- select * into v from public.recovery_findings where finding_key=v_key for update;
- if not found then
-   insert into public.recovery_findings(finding_key,objective_id,finding_type,severity,title,description) values(v_key,p_objective_id,p_finding_type,p_severity,p_title,p_description) returning id into v_id;v_event:='finding_opened';
- elsif v.status='resolved' then
-   update public.recovery_findings set status='open',severity=p_severity,title=p_title,description=p_description,occurrence_count=occurrence_count+1,last_detected_at=now(),resolved_by=null,updated_at=now() where id=v.id;v_id:=v.id;v_event:='finding_reopened';
- else
-   update public.recovery_findings set severity=p_severity,title=p_title,description=p_description,last_detected_at=now(),updated_at=now() where id=v.id;v_id:=v.id;v_event:=null;
- end if;
- if v_event is not null then insert into public.recovery_events(event_key,objective_id,finding_id,event_type,metadata) values(p_run_key||':'||v_key||':'||v_event,p_objective_id,v_id,v_event,jsonb_build_object('run_key',p_run_key)) on conflict(event_key) do nothing;end if;
- return v_id;
-end;$$;
-revoke all on function public.upsert_recovery_finding(uuid,text,text,text,text,text) from public,anon,authenticated;grant execute on function public.upsert_recovery_finding(uuid,text,text,text,text,text) to service_role;
-
-create or replace function public.resolve_recovery_finding(p_objective_id uuid,p_finding_type text,p_run_key text)
-returns boolean language plpgsql security definer set search_path='' as $$
-declare v public.recovery_findings;begin
- select * into v from public.recovery_findings where objective_id=p_objective_id and finding_type=p_finding_type for update;
- if not found or v.status='resolved' then return false;end if;
- update public.recovery_findings set status='resolved',resolved_by=null,updated_at=now() where id=v.id;
- insert into public.recovery_events(event_key,objective_id,finding_id,event_type,metadata) values(p_run_key||':resolve:'||v.finding_key,p_objective_id,v.id,'finding_resolved',jsonb_build_object('run_key',p_run_key)) on conflict(event_key) do nothing;
- return true;
-end;$$;
-revoke all on function public.resolve_recovery_finding(uuid,text,text) from public,anon,authenticated;grant execute on function public.resolve_recovery_finding(uuid,text,text) to service_role;
-
-
--- Customer baseline current recovery module: 155_recovery_reconciliation_v2.sql
--- V19: replay-safe recovery reconciliation using guarded finding helpers.
-create or replace function public.reconcile_recovery_governance(p_run_key text)
-returns jsonb language plpgsql security definer set search_path='' as $$
-declare o public.recovery_objectives;v_backup public.recovery_evidence;v_restore public.recovery_evidence;v_drill public.recovery_drills;v_open integer:=0;v_resolved integer:=0;v_id uuid;begin
- perform pg_advisory_xact_lock(hashtextextended('recovery:'||p_run_key,0));
- for o in select distinct on(service_key) * from public.recovery_objectives where enabled order by service_key,version desc loop
-   select * into v_backup from public.recovery_evidence where objective_id=o.id and evidence_kind='backup' and trusted order by observed_at desc,captured_at desc limit 1;
-   select * into v_restore from public.recovery_evidence where objective_id=o.id and evidence_kind='restore' and trusted order by observed_at desc,captured_at desc limit 1;
-   select * into v_drill from public.recovery_drills where objective_id=o.id and status in('passed','failed') order by completed_at desc nulls last limit 1;
-
-   if v_backup.id is null or v_backup.observed_at<now()-make_interval(mins=>o.backup_freshness_minutes) then
-     v_id:=public.upsert_recovery_finding(o.id,'backup_stale',case when o.criticality='critical' then 'critical' else 'high' end,'Elavult recovery backup evidence','Nincs a recovery objective frissességi követelményének megfelelő trusted backup evidence.',p_run_key);v_open:=v_open+1;
-     if public.resolve_recovery_finding(o.id,'backup_failed',p_run_key) then v_resolved:=v_resolved+1;end if;
-   elsif v_backup.status<>'pass' then
-     v_id:=public.upsert_recovery_finding(o.id,'backup_failed',case when o.criticality='critical' then 'critical' else 'high' end,'Hibás backup evidence','A legfrissebb trusted backup evidence nem sikeres.',p_run_key);v_open:=v_open+1;
-     if public.resolve_recovery_finding(o.id,'backup_stale',p_run_key) then v_resolved:=v_resolved+1;end if;
-   else
-     if public.resolve_recovery_finding(o.id,'backup_stale',p_run_key) then v_resolved:=v_resolved+1;end if;
-     if public.resolve_recovery_finding(o.id,'backup_failed',p_run_key) then v_resolved:=v_resolved+1;end if;
-   end if;
-
-   if v_restore.id is null or v_restore.status<>'pass' then v_id:=public.upsert_recovery_finding(o.id,'restore_failed',case when o.criticality='critical' then 'critical' else 'high' end,'Restore nincs igazolva','Nincs sikeres trusted restore evidence.',p_run_key);v_open:=v_open+1;
-   else if public.resolve_recovery_finding(o.id,'restore_failed',p_run_key) then v_resolved:=v_resolved+1;end if;end if;
-
-   if v_drill.id is null or v_drill.completed_at<now()-make_interval(days=>o.drill_interval_days) then
-     v_id:=public.upsert_recovery_finding(o.id,'drill_overdue','high','Recovery drill esedékes','Nincs az objective intervallumán belüli lezárt recovery drill.',p_run_key);v_open:=v_open+1;
-     if public.resolve_recovery_finding(o.id,'drill_failed',p_run_key) then v_resolved:=v_resolved+1;end if;
-     if public.resolve_recovery_finding(o.id,'rto_breach',p_run_key) then v_resolved:=v_resolved+1;end if;
-     if public.resolve_recovery_finding(o.id,'rpo_breach',p_run_key) then v_resolved:=v_resolved+1;end if;
-   else
-     if public.resolve_recovery_finding(o.id,'drill_overdue',p_run_key) then v_resolved:=v_resolved+1;end if;
-     if v_drill.status='failed' then v_id:=public.upsert_recovery_finding(o.id,'drill_failed',case when o.criticality='critical' then 'critical' else 'high' end,'Recovery drill sikertelen','A legutóbbi recovery drill nem teljesítette a követelményeket.',p_run_key);v_open:=v_open+1;else if public.resolve_recovery_finding(o.id,'drill_failed',p_run_key) then v_resolved:=v_resolved+1;end if;end if;
-     if coalesce(v_drill.measured_rto_minutes,2147483647)>o.rto_minutes then v_id:=public.upsert_recovery_finding(o.id,'rto_breach','high','RTO cél túllépve','A legutóbbi drill mért RTO-ja meghaladja a recovery objective-et.',p_run_key);v_open:=v_open+1;else if public.resolve_recovery_finding(o.id,'rto_breach',p_run_key) then v_resolved:=v_resolved+1;end if;end if;
-     if coalesce(v_drill.measured_rpo_minutes,2147483647)>o.rpo_minutes then v_id:=public.upsert_recovery_finding(o.id,'rpo_breach','high','RPO cél túllépve','A legutóbbi drill mért RPO-ja meghaladja a recovery objective-et.',p_run_key);v_open:=v_open+1;else if public.resolve_recovery_finding(o.id,'rpo_breach',p_run_key) then v_resolved:=v_resolved+1;end if;end if;
-   end if;
- end loop;
- return jsonb_build_object('run_key',p_run_key,'open_signals',v_open,'resolved_updates',v_resolved);
-end;$$;
-revoke all on function public.reconcile_recovery_governance(text) from public,anon,authenticated;grant execute on function public.reconcile_recovery_governance(text) to service_role;
-
-
--- Customer baseline current recovery module: 156_recovery_decisions_and_actions.sql
--- V19: human governance actions; no restore execution.
-create table if not exists public.recovery_decisions(
- id uuid primary key default gen_random_uuid(),
- decision_key text not null unique,
- objective_id uuid not null references public.recovery_objectives(id) on delete restrict,
- finding_id uuid references public.recovery_findings(id) on delete restrict,
- decision text not null check(decision in('prepare_recovery','continue_monitoring','risk_accepted')),
- note text not null check(length(note)>=10),
- actor_id uuid not null references auth.users(id) on delete restrict,
- created_at timestamptz not null default now()
-);
-alter table public.recovery_decisions enable row level security;revoke all on public.recovery_decisions from public,anon,authenticated;grant select,insert on public.recovery_decisions to service_role;
-
-create or replace function public.acknowledge_recovery_finding(p_finding_id uuid,p_actor_id uuid,p_event_key text)
-returns void language plpgsql security definer set search_path='' as $$
-declare v public.recovery_findings;begin
- select * into v from public.recovery_findings where id=p_finding_id for update;if not found then raise exception 'Finding nem található.';end if;if v.status='resolved' then raise exception 'Lezárt finding nem vehető át.';end if;
- update public.recovery_findings set status='acknowledged',acknowledged_by=p_actor_id,updated_at=now() where id=p_finding_id;
- insert into public.recovery_events(event_key,objective_id,finding_id,event_type,actor_id,metadata) values(p_event_key,v.objective_id,p_finding_id,'decision_recorded',p_actor_id,jsonb_build_object('decision','acknowledged')) on conflict(event_key) do nothing;
-end;$$;
-revoke all on function public.acknowledge_recovery_finding(uuid,uuid,text) from public,anon,authenticated;grant execute on function public.acknowledge_recovery_finding(uuid,uuid,text) to service_role;
-
-create or replace function public.record_recovery_decision(p_finding_id uuid,p_actor_id uuid,p_decision text,p_note text,p_decision_key text)
-returns uuid language plpgsql security definer set search_path='' as $$
-declare v public.recovery_findings;v_id uuid;begin
- if length(trim(p_note))<10 then raise exception 'Legalább 10 karakteres indoklás szükséges.';end if;
- select * into v from public.recovery_findings where id=p_finding_id;if not found then raise exception 'Finding nem található.';end if;
- select id into v_id from public.recovery_decisions where decision_key=p_decision_key;if found then return v_id;end if;
- insert into public.recovery_decisions(decision_key,objective_id,finding_id,decision,note,actor_id) values(p_decision_key,v.objective_id,p_finding_id,p_decision,p_note,p_actor_id) returning id into v_id;
- insert into public.recovery_events(event_key,objective_id,finding_id,event_type,actor_id,metadata) values('event:'||p_decision_key,v.objective_id,p_finding_id,'decision_recorded',p_actor_id,jsonb_build_object('decision',p_decision,'note',p_note)) on conflict(event_key) do nothing;
- return v_id;
-end;$$;
-revoke all on function public.record_recovery_decision(uuid,uuid,text,text,text) from public,anon,authenticated;grant execute on function public.record_recovery_decision(uuid,uuid,text,text,text) to service_role;
-
-create or replace function public.block_recovery_decision_mutation() returns trigger language plpgsql set search_path='' as $$begin raise exception 'Recovery decision append-only.';end;$$;
-drop trigger if exists trg_recovery_decisions_append_only on public.recovery_decisions;create trigger trg_recovery_decisions_append_only before update or delete on public.recovery_decisions for each row execute function public.block_recovery_decision_mutation();
-revoke update,delete on public.recovery_decisions from service_role;
-
-
--- Customer baseline current recovery module: 157_recovery_orchestration.sql
--- V19: idempotent recovery governance orchestration.
-create table if not exists public.recovery_runs(
- id uuid primary key default gen_random_uuid(),run_key text not null unique,status text not null default 'running' check(status in('running','completed','failed')),
- started_at timestamptz not null default now(),completed_at timestamptz,result jsonb not null default '{}'::jsonb
-);
-alter table public.recovery_runs enable row level security;revoke all on public.recovery_runs from public,anon,authenticated;grant select,insert on public.recovery_runs to service_role;
-
-create or replace function public.process_recovery_governance_cycle(p_run_key text)
-returns jsonb language plpgsql security definer set search_path='' as $$
-declare v public.recovery_runs;r jsonb;begin
- select * into v from public.recovery_runs where run_key=p_run_key for update;
- if found and v.status='completed' then return v.result;end if;
- if not found then insert into public.recovery_runs(run_key) values(p_run_key) returning * into v;end if;
- begin
-   r:=public.reconcile_recovery_governance(p_run_key);
-   update public.recovery_runs set status='completed',completed_at=now(),result=r where id=v.id;
-   return r;
- exception when others then
-   update public.recovery_runs set status='failed',completed_at=now(),result=jsonb_build_object('error',sqlerrm) where id=v.id;
-   raise;
- end;
-end;$$;
-revoke all on function public.process_recovery_governance_cycle(text) from public,anon,authenticated;grant execute on function public.process_recovery_governance_cycle(text) to service_role;
-
-create or replace function public.block_recovery_run_mutation() returns trigger language plpgsql set search_path='' as $$begin if old.status in('completed','failed') then raise exception 'Terminal recovery run immutable.';end if;return new;end;$$;
-drop trigger if exists trg_recovery_runs_terminal on public.recovery_runs;create trigger trg_recovery_runs_terminal before update on public.recovery_runs for each row execute function public.block_recovery_run_mutation();
-revoke update,delete on public.recovery_runs from service_role;
-
-
--- Customer baseline current recovery module: 158_recovery_idempotency_ownership.sql
--- V19 audit hardening: idempotency keys must belong to the exact same operation.
-create or replace function public.record_recovery_evidence(
- p_service_key text,p_evidence_kind text,p_status text,p_trusted boolean,p_source text,p_observed_at timestamptz,p_evidence jsonb,p_event_key text
-) returns uuid language plpgsql security definer set search_path='' as $$
-declare v_objective public.recovery_objectives;v public.recovery_evidence;v_id uuid;v_hash text;begin
- select * into v_objective from public.recovery_objectives where service_key=p_service_key and enabled order by version desc limit 1;if not found then raise exception 'Nincs aktív recovery objective.';end if;
- if p_trusted and not coalesce((v_objective.definition->'trusted_sources') ? p_source,false) then raise exception 'A megadott forrás nem trusted.';end if;
- v_hash:=md5(v_objective.id::text||'|'||p_evidence_kind||'|'||p_status||'|'||p_source||'|'||p_observed_at::text||'|'||coalesce(p_evidence,'{}'::jsonb)::text);
- select * into v from public.recovery_evidence where evidence_key=p_event_key;
- if found then if v.objective_id<>v_objective.id or v.evidence_kind<>p_evidence_kind or v.status<>p_status or v.trusted<>p_trusted or v.source<>p_source or v.observed_at<>p_observed_at or v.evidence_hash<>v_hash then raise exception 'Az evidence_key már más recovery evidence-hez tartozik.';end if;return v.id;end if;
- insert into public.recovery_evidence(evidence_key,objective_id,evidence_kind,status,trusted,source,observed_at,evidence,evidence_hash) values(p_event_key,v_objective.id,p_evidence_kind,p_status,p_trusted,p_source,p_observed_at,coalesce(p_evidence,'{}'::jsonb),v_hash) returning id into v_id;
- insert into public.recovery_events(event_key,objective_id,event_type,metadata) values('event:'||p_event_key,v_objective.id,'evidence_recorded',jsonb_build_object('evidence_id',v_id,'kind',p_evidence_kind,'status',p_status,'trusted',p_trusted)) on conflict(event_key) do nothing;return v_id;
-end;$$;
-
-create or replace function public.start_recovery_drill(p_drill_id uuid,p_actor_id uuid,p_event_key text)
-returns void language plpgsql security definer set search_path='' as $$
-declare v public.recovery_drills;e public.recovery_events;begin
- select * into e from public.recovery_events where event_key=p_event_key;if found then if e.drill_id is distinct from p_drill_id or e.event_type<>'drill_started' then raise exception 'Az event_key már más recovery művelethez tartozik.';end if;return;end if;
- select * into v from public.recovery_drills where id=p_drill_id for update;if not found then raise exception 'Drill nem található.';end if;if v.status='running' then raise exception 'A drill már fut, de más idempotency kulccsal indult.';end if;if v.status<>'planned' then raise exception 'Csak tervezett drill indítható.';end if;
- update public.recovery_drills set status='running',started_at=now(),updated_at=now() where id=p_drill_id;insert into public.recovery_events(event_key,objective_id,drill_id,event_type,actor_id) values(p_event_key,v.objective_id,p_drill_id,'drill_started',p_actor_id);
-end;$$;
-
-create or replace function public.complete_recovery_drill(p_drill_id uuid,p_actor_id uuid,p_measured_rto integer,p_measured_rpo integer,p_restore_validated boolean,p_result jsonb,p_event_key text)
-returns text language plpgsql security definer set search_path='' as $$
-declare v public.recovery_drills;o public.recovery_objectives;e public.recovery_events;v_status text;begin
- select * into e from public.recovery_events where event_key=p_event_key;if found then if e.drill_id is distinct from p_drill_id or e.event_type not in('drill_passed','drill_failed') then raise exception 'Az event_key már más recovery művelethez tartozik.';end if;select status into v_status from public.recovery_drills where id=p_drill_id;return v_status;end if;
- select * into v from public.recovery_drills where id=p_drill_id for update;if not found then raise exception 'Drill nem található.';end if;if v.status in('passed','failed') then raise exception 'A drill már lezárt, más idempotency kulccsal.';end if;if v.status<>'running' then raise exception 'Csak futó drill zárható.';end if;
- select * into o from public.recovery_objectives where id=v.objective_id;v_status:=case when p_restore_validated and p_measured_rto<=o.rto_minutes and p_measured_rpo<=o.rpo_minutes then 'passed' else 'failed' end;
- update public.recovery_drills set status=v_status,completed_at=now(),measured_rto_minutes=p_measured_rto,measured_rpo_minutes=p_measured_rpo,restore_validated=p_restore_validated,result=coalesce(p_result,'{}'::jsonb),updated_at=now() where id=p_drill_id;
- insert into public.recovery_events(event_key,objective_id,drill_id,event_type,actor_id,metadata) values(p_event_key,v.objective_id,p_drill_id,case when v_status='passed' then 'drill_passed' else 'drill_failed' end,p_actor_id,jsonb_build_object('measured_rto',p_measured_rto,'measured_rpo',p_measured_rpo,'restore_validated',p_restore_validated));return v_status;
-end;$$;
-
-create or replace function public.record_recovery_decision(p_finding_id uuid,p_actor_id uuid,p_decision text,p_note text,p_decision_key text)
-returns uuid language plpgsql security definer set search_path='' as $$
-declare v public.recovery_findings;d public.recovery_decisions;v_id uuid;begin
- if length(trim(p_note))<10 then raise exception 'Legalább 10 karakteres indoklás szükséges.';end if;select * into v from public.recovery_findings where id=p_finding_id;if not found then raise exception 'Finding nem található.';end if;
- select * into d from public.recovery_decisions where decision_key=p_decision_key;if found then if d.finding_id is distinct from p_finding_id or d.actor_id<>p_actor_id or d.decision<>p_decision or d.note<>p_note then raise exception 'A decision_key már más recovery döntéshez tartozik.';end if;return d.id;end if;
- insert into public.recovery_decisions(decision_key,objective_id,finding_id,decision,note,actor_id) values(p_decision_key,v.objective_id,p_finding_id,p_decision,p_note,p_actor_id) returning id into v_id;insert into public.recovery_events(event_key,objective_id,finding_id,event_type,actor_id,metadata) values('event:'||p_decision_key,v.objective_id,p_finding_id,'decision_recorded',p_actor_id,jsonb_build_object('decision',p_decision,'note',p_note));return v_id;
-end;$$;
-
-
--- Customer baseline current recovery module: 159_recovery_strict_mutation_boundary.sql
--- V19 audit hardening: runtime service_role uses guarded RPCs, not direct mutation.
-revoke insert,update,delete on public.recovery_objectives from service_role;
-revoke insert,update,delete on public.recovery_evidence from service_role;
-revoke insert,update,delete on public.recovery_drills from service_role;
-revoke insert,update,delete on public.recovery_findings from service_role;
-revoke insert,update,delete on public.recovery_events from service_role;
-revoke insert,update,delete on public.recovery_decisions from service_role;
-revoke insert,update,delete on public.recovery_runs from service_role;
-grant select on public.recovery_objectives,public.recovery_evidence,public.recovery_drills,public.recovery_findings,public.recovery_events,public.recovery_decisions,public.recovery_runs to service_role;
-
-create or replace function public.block_recovery_objective_mutation() returns trigger language plpgsql set search_path='' as $$begin raise exception 'Recovery objective verzión belül immutable; új definícióhoz új verzió szükséges.';end;$$;
-drop trigger if exists trg_recovery_objectives_immutable on public.recovery_objectives;create trigger trg_recovery_objectives_immutable before update or delete on public.recovery_objectives for each row execute function public.block_recovery_objective_mutation();
-
-create or replace function public.block_terminal_recovery_drill_mutation() returns trigger language plpgsql set search_path='' as $$begin if old.status in('passed','failed','cancelled') then raise exception 'Lezárt recovery drill immutable.';end if;return new;end;$$;
-drop trigger if exists trg_recovery_drills_terminal on public.recovery_drills;create trigger trg_recovery_drills_terminal before update on public.recovery_drills for each row execute function public.block_terminal_recovery_drill_mutation();
-
-
--- Customer baseline current recovery module: 160_recovery_lifecycle_hardening.sql
--- V19 final lifecycle hardening.
-create or replace function public.upsert_recovery_finding(p_objective_id uuid,p_finding_type text,p_severity text,p_title text,p_description text,p_run_key text)
-returns uuid language plpgsql security definer set search_path='' as $$
-declare o public.recovery_objectives;v_key text;v public.recovery_findings;v_id uuid;v_event text;begin
- select * into o from public.recovery_objectives where id=p_objective_id;if not found then raise exception 'Recovery objective nem található.';end if;v_key:='recovery:'||o.service_key||':'||p_finding_type;
- select * into v from public.recovery_findings where finding_key=v_key for update;
- if not found then insert into public.recovery_findings(finding_key,objective_id,finding_type,severity,title,description) values(v_key,p_objective_id,p_finding_type,p_severity,p_title,p_description) returning id into v_id;v_event:='finding_opened';
- elsif v.status='resolved' then update public.recovery_findings set status='open',severity=p_severity,title=p_title,description=p_description,occurrence_count=occurrence_count+1,last_detected_at=now(),acknowledged_by=null,resolved_by=null,updated_at=now() where id=v.id;v_id:=v.id;v_event:='finding_reopened';
- else update public.recovery_findings set severity=p_severity,title=p_title,description=p_description,last_detected_at=now(),updated_at=now() where id=v.id;v_id:=v.id;v_event:=null;end if;
- if v_event is not null then insert into public.recovery_events(event_key,objective_id,finding_id,event_type,metadata) values(p_run_key||':'||v_key||':'||v_event,p_objective_id,v_id,v_event,jsonb_build_object('run_key',p_run_key)) on conflict(event_key) do nothing;end if;return v_id;
-end;$$;
-
-create or replace function public.plan_recovery_drill(p_service_key text,p_scenario text,p_planned_at timestamptz,p_actor_id uuid,p_drill_key text)
-returns uuid language plpgsql security definer set search_path='' as $$
-declare v_objective public.recovery_objectives;v public.recovery_drills;v_id uuid;begin
- select * into v_objective from public.recovery_objectives where service_key=p_service_key and enabled order by version desc limit 1;if not found then raise exception 'Nincs aktív recovery objective.';end if;
- select * into v from public.recovery_drills where drill_key=p_drill_key;if found then if v.objective_id<>v_objective.id or v.scenario<>p_scenario or v.planned_at<>p_planned_at then raise exception 'A drill_key már más recovery drillhez tartozik.';end if;return v.id;end if;
- insert into public.recovery_drills(drill_key,objective_id,scenario,planned_at,created_by) values(p_drill_key,v_objective.id,p_scenario,p_planned_at,p_actor_id) returning id into v_id;
- insert into public.recovery_events(event_key,objective_id,drill_id,event_type,actor_id,metadata) values('planned:'||p_drill_key,v_objective.id,v_id,'drill_planned',p_actor_id,jsonb_build_object('scenario',p_scenario,'planned_at',p_planned_at)) on conflict(event_key) do nothing;return v_id;
-end;$$;
-
-create or replace function public.complete_recovery_drill(p_drill_id uuid,p_actor_id uuid,p_measured_rto integer,p_measured_rpo integer,p_restore_validated boolean,p_result jsonb,p_event_key text)
-returns text language plpgsql security definer set search_path='' as $$
-declare v public.recovery_drills;o public.recovery_objectives;e public.recovery_events;v_status text;begin
- select * into e from public.recovery_events where event_key=p_event_key;if found then if e.drill_id is distinct from p_drill_id or e.event_type not in('drill_passed','drill_failed') or coalesce((e.metadata->>'measured_rto')::integer,-1)<>p_measured_rto or coalesce((e.metadata->>'measured_rpo')::integer,-1)<>p_measured_rpo or coalesce((e.metadata->>'restore_validated')::boolean,false)<>p_restore_validated then raise exception 'Az event_key már más recovery eredményhez tartozik.';end if;select status into v_status from public.recovery_drills where id=p_drill_id;return v_status;end if;
- select * into v from public.recovery_drills where id=p_drill_id for update;if not found then raise exception 'Drill nem található.';end if;if v.status in('passed','failed') then raise exception 'A drill már lezárt, más idempotency kulccsal.';end if;if v.status<>'running' then raise exception 'Csak futó drill zárható.';end if;
- select * into o from public.recovery_objectives where id=v.objective_id;v_status:=case when p_restore_validated and p_measured_rto<=o.rto_minutes and p_measured_rpo<=o.rpo_minutes then 'passed' else 'failed' end;
- update public.recovery_drills set status=v_status,completed_at=now(),measured_rto_minutes=p_measured_rto,measured_rpo_minutes=p_measured_rpo,restore_validated=p_restore_validated,result=coalesce(p_result,'{}'::jsonb),updated_at=now() where id=p_drill_id;
- insert into public.recovery_events(event_key,objective_id,drill_id,event_type,actor_id,metadata) values(p_event_key,v.objective_id,p_drill_id,case when v_status='passed' then 'drill_passed' else 'drill_failed' end,p_actor_id,jsonb_build_object('measured_rto',p_measured_rto,'measured_rpo',p_measured_rpo,'restore_validated',p_restore_validated));return v_status;
-end;$$;
 
