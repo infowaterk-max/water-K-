@@ -45,6 +45,10 @@ describe('atomic tenant provisioning gate',()=>{
 
   it('keeps plan entitlements synchronized and boots every Alap feature',()=>{
     expect(sql).toContain('webshop_instance_plan_entitlements_sync');
+    expect(sql).toContain('create or replace function private.sync_webshop_plan_entitlements_trigger()');
+    expect(sql).toContain('perform private.sync_webshop_plan_entitlements(new.id)');
+    expect(sql).toContain('execute function private.sync_webshop_plan_entitlements_trigger()');
+    expect(sql).not.toContain('execute function private.sync_webshop_plan_entitlements(new.id)');
     expect(sql).toContain("where instance_id=p_instance_id and source='plan'");
     for(const feature of PLANS.alap.features){
       expect(migration).toContain(`'${feature}'`);
