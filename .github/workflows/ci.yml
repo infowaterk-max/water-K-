@@ -107,6 +107,7 @@ jobs:
           {
             echo 'BEGIN;'
             cat supabase/customer-baseline/migrations/0001_shoperation_v1_schema.sql
+            cat supabase/customer-baseline/auth-bootstrap.sql
             cat supabase/customer-baseline/seed.sql
             echo 'COMMIT;'
           } | psql "$SHOPERATION_FRESH_INSTALL_DB_URL" -X -v ON_ERROR_STOP=1
@@ -114,6 +115,12 @@ jobs:
       - name: Fresh target postflight
         shell: bash
         run: psql "$SHOPERATION_FRESH_INSTALL_DB_URL" -X -v ON_ERROR_STOP=1 -f supabase/customer-baseline/target-postflight.sql
+
+      - name: Compute proof contract hash
+        shell: bash
+        run: |
+          echo "Proof contract SHA256:"
+          node scripts/customer-baseline-contract-hash.mjs
 
       - name: Record proof summary
         shell: bash
@@ -123,6 +130,7 @@ jobs:
             echo ''
             echo '- Target preflight: passed'
             echo '- Reviewed baseline: applied atomically'
+            echo '- Supabase Auth bootstrap: applied'
             echo '- Neutral seed: applied'
             echo '- Target postflight: passed'
             echo '- Production: untouched by this job'

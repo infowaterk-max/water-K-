@@ -25,6 +25,15 @@ describe('Shoperation baseline snapshot structural review',()=>{
     ]) expect(review).toContain(required);
   });
 
+  it('requires the Supabase Auth signup bootstrap outside the public/private dump',()=>{
+    const review=read('scripts/review-customer-baseline-snapshot.mjs');
+    const bootstrap=read('supabase/customer-baseline/auth-bootstrap.sql');
+    expect(review).toContain('Auth bootstrap must connect auth.users to private.handle_new_user');
+    expect(bootstrap).toContain('drop trigger if exists on_auth_user_created on auth.users');
+    expect(bootstrap).toContain('after insert on auth.users');
+    expect(bootstrap).toContain('execute function private.handle_new_user()');
+  });
+
   it('blocks customer-facing data and historical migration state',()=>{
     const review=read('scripts/review-customer-baseline-snapshot.mjs');
     expect(review).toContain('customer-facing data statements');
