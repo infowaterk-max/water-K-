@@ -13,7 +13,7 @@ create table if not exists public.control_alerts(
   recommended_action text,
   order_id uuid references public.orders(id) on delete set null,
   customer_id uuid references auth.users(id) on delete set null,
-  reseller_id uuid references public.reseller_profiles(id) on delete set null,
+  reseller_id uuid references auth.users(id) on delete set null,
   variant_id uuid references public.product_variants(id) on delete set null,
   opportunity_id uuid references public.commercial_opportunities(id) on delete set null,
   evidence jsonb not null default '{}'::jsonb,
