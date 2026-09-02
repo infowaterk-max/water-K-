@@ -1,6 +1,9 @@
 name: V24 Cloud Smoke
 
 on:
+  push:
+    branches:
+      - core-engine-2-batch
   workflow_dispatch:
     inputs:
       base_url:
@@ -10,7 +13,7 @@ on:
       environment:
         description: 'Evidence environment'
         required: true
-        default: staging
+        default: preview
         type: choice
         options:
           - preview
@@ -19,6 +22,10 @@ on:
 
 permissions:
   contents: read
+
+concurrency:
+  group: v24-cloud-smoke-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   smoke:
@@ -42,9 +49,30 @@ jobs:
             exit 1
           fi
 
+      - name: Resolve protected preview target
+        env:
+          DISPATCH_BASE_URL: ${{ inputs.base_url }}
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "SMOKE_BASE_URL=$DISPATCH_BASE_URL" >> "$GITHUB_ENV"
+            echo "DEPLOY_ENVIRONMENT=${{ inputs.environment }}" >> "$GITHUB_ENV"
+          else
+            echo "SMOKE_BASE_URL=https://water-k-native-git-core-engine-2-batch-infowaterk-5067.vercel.app" >> "$GITHUB_ENV"
+            echo "DEPLOY_ENVIRONMENT=preview" >> "$GITHUB_ENV"
+          fi
+          echo "SMOKE_EXPECTED_SHA=${{ github.sha }}" >> "$GITHUB_ENV"
+
       - name: Run V24 protected cloud smoke
         env:
-          SMOKE_BASE_URL: ${{ inputs.base_url }}
           VERCEL_AUTOMATION_BYPASS_SECRET: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
-          DEPLOY_ENVIRONMENT: ${{ inputs.environment }}
-        run: node scripts/smoke.mjs
+        run: |
+          for attempt in $(seq 1 20); do
+            if node scripts/smoke.mjs; then
+              exit 0
+            fi
+            if [ "$attempt" -eq 20 ]; then
+              echo "Protected cloud smoke failed after retries." >&2
+              exit 1
+            fi
+            sleep 15
+          done

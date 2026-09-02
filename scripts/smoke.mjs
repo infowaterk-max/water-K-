@@ -4,6 +4,8 @@ if (!baseUrl) {
   process.exit(1);
 }
 
+const expectedSha = (process.env.SMOKE_EXPECTED_SHA || '').trim().toLowerCase();
+const expectedVersion = expectedSha ? expectedSha.slice(0, 12) : '';
 const bypassSecret = process.env.VERCEL_AUTOMATION_BYPASS_SECRET || '';
 const smokeHeaders = {
   'user-agent': 'shoperation-smoke/1.0',
@@ -16,11 +18,11 @@ const smokeHeaders = {
 };
 
 const checks = [
-  { path: '/api/health', expectJson: true },
+  { path: '/api/health', expectJson: true, verifyVersion: true },
   { path: '/', expectText: true },
   { path: '/webaruhaz', expectText: true },
   { path: '/penztar', expectText: true },
-  { path: '/bejelentkezes', expectText: true },
+  { path: '/fiokom', expectText: true },
 ];
 
 const failures = [];
@@ -32,10 +34,38 @@ for (const check of checks) {
       headers: smokeHeaders,
     });
     const latency = Date.now() - started;
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
     const contentType = response.headers.get('content-type') || '';
-    if (check.expectJson && !contentType.includes('application/json')) throw new Error(`nem JSON: ${contentType}`);
-    if (check.expectText && !contentType.includes('text/html')) throw new Error(`nem HTML: ${contentType}`);
+    let body = null;
+
+    if (check.expectJson && contentType.includes('application/json')) {
+      body = await response.json();
+    }
+
+    if (!response.ok) {
+      const diagnostic =
+        body && typeof body === 'object'
+          ? ` errorCode=${body.errorCode || 'unknown'} version=${body.version || 'unknown'}`
+          : '';
+      throw new Error(`HTTP ${response.status}${diagnostic}`);
+    }
+
+    if (check.expectJson && !contentType.includes('application/json')) {
+      throw new Error(`nem JSON: ${contentType}`);
+    }
+    if (check.expectText && !contentType.includes('text/html')) {
+      throw new Error(`nem HTML: ${contentType}`);
+    }
+
+    if (check.verifyVersion && expectedVersion) {
+      const actualVersion =
+        body && typeof body === 'object' && typeof body.version === 'string'
+          ? body.version.toLowerCase()
+          : '';
+      if (actualVersion !== expectedVersion) {
+        throw new Error(`artifact SHA eltérés: expected=${expectedVersion} actual=${actualVersion || 'unknown'}`);
+      }
+    }
+
     console.log(`OK ${check.path} ${response.status} ${latency}ms`);
   } catch (error) {
     failures.push(`${check.path}: ${error instanceof Error ? error.message : String(error)}`);
