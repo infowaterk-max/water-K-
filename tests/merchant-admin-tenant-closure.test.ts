@@ -104,7 +104,8 @@ describe('merchant admin tenant closure',()=>{
     expect(followup).toMatch(/profiles[\s\S]*in\('id',partnerIds\)/);
 
     const api=read('src/app/api/admin/customers/[id]/route.ts');
-    expect(api).toMatch(/customer_commercial_metrics[\s\S]*eq\('instance_id',scope\.instanceId\)/);
+    expect(api).toMatch(/customer_instance_roles[\s\S]*eq\('instance_id',scope\.instanceId\)[\s\S]*eq\('user_id',id\)/);
+    expect(api).toMatch(/profiles[\s\S]*eq\('id',id\)\.maybeSingle\(\)/);
   });
 
   test('database migration adds tenant analytics and v2 operational RPCs',()=>{
