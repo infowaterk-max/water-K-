@@ -16470,6 +16470,589 @@ ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT ALL ON TAB
 ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT ALL ON TABLES TO "authenticated";
 ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT ALL ON TABLES TO "service_role";
 
+-- SHOPERATION_CURRENT_RECOVERY_BASELINE
+CREATE OR REPLACE FUNCTION public.detect_control_tower_alerts(p_run_key text)
+ RETURNS jsonb
+ LANGUAGE plpgsql
+ SECURITY DEFINER
+ SET search_path TO ''
+AS $function$
+declare
+  r record;
+  a public.control_alerts;
+  v_operations integer:=0;v_inventory integer:=0;v_commercial integer:=0;v_service integer:=0;
+begin
+  if nullif(trim(p_run_key),'') is null then raise exception 'run_key_required'; end if;
+
+  for r in select * from public.operations_exception_queue loop
+    select public.upsert_control_alert(
+      'ops:'||r.order_id::text||':'||coalesce(r.derived_exception_code,'attention'),
+      'operations',coalesce(r.derived_exception_code,'operations_attention'),
+      case when r.derived_exception_code in ('payment_fulfillment_mismatch','shipment_status_mismatch','delivery_status_mismatch') then 'critical'
+           when r.age_hours>=48 or r.urgent_support_count>0 then 'high' else 'warning' end,
+      least(100,greatest(coalesce(r.priority_score,0),case when r.age_hours>=48 then 90 when r.age_hours>=24 then 75 else 60 end)),
+      'Rendelési operációs kivétel · '||r.order_number,
+      'A rendelés operációs ellenőrzést igényel: '||coalesce(r.derived_exception_code,'figyelmet igénylő állapot')||'.',
+      case when r.derived_exception_code like '%mismatch%' then 'Ellenőrizd a kereskedelmi és fulfillment állapotot, majd csak igazolt állapot alapján korrigálj.' else 'Nyisd meg a rendelést és kezeld a kivétel okát.' end,
+      p_run_key,r.order_id,null,null,null,null,
+      jsonb_build_object('order_number',r.order_number,'commerce_status',r.commerce_status,'operational_status',r.operational_status,'age_hours',r.age_hours,'total_gross_huf',r.total_gross_huf,'exception_code',r.derived_exception_code,'urgent_support_count',r.urgent_support_count,'open_return_count',r.open_return_count)
+    ) into a;
+    v_operations:=v_operations+1;
+  end loop;
+
+  for r in select * from public.inventory_pressure where pressure_level in ('critical','low') loop
+    select public.upsert_control_alert(
+      'inventory:'||r.variant_id::text||':'||r.pressure_level,
+      'inventory','inventory_pressure',case when r.pressure_level='critical' then 'critical' else 'warning' end,
+      case when r.pressure_level='critical' then 95 else least(85,60+coalesce(round(r.reservation_pressure_percent)::integer,0)/4) end,
+      'Készletnyomás · '||r.sku,
+      'A '||r.label||' variáns szabad ATP készlete: '||r.available_to_promise_quantity::text||' db.',
+      case when r.pressure_level='critical' then 'Vizsgáld meg a beszerzést és a nyitott igényeket; ne ígérj kézzel nem létező készletet.' else 'Ellenőrizd a fogyási ütemet és a következő beszerzési pontot.' end,
+      p_run_key,null,null,null,r.variant_id,null,
+      jsonb_build_object('sku',r.sku,'label',r.label,'on_hand_quantity',r.on_hand_quantity,'reserved_quantity',r.reserved_quantity,'available_to_promise_quantity',r.available_to_promise_quantity,'reservation_pressure_percent',r.reservation_pressure_percent,'pressure_level',r.pressure_level)
+    ) into a;
+    v_inventory:=v_inventory+1;
+  end loop;
+
+  for r in
+    select * from public.commercial_opportunities
+    where status in ('open','in_progress') and (priority_score>=70 or due_at<now() or expected_value_net_huf>=100000)
+  loop
+    select public.upsert_control_alert(
+      'commercial:'||r.id::text,
+      'commercial','commercial_opportunity_risk',
+      case when r.due_at<now() and r.priority_score>=80 then 'high' when r.priority_score>=80 then 'high' else 'warning' end,
+      greatest(r.priority_score,case when r.due_at<now() then 80 else 0 end),
+      'Kereskedelmi lehetőség · '||r.channel||' / '||r.kind,
+      'Nyitott lehetőség várható nettó értéke '||round(r.expected_value_net_huf)::text||' Ft, prioritása '||r.priority_score::text||'.',
+      coalesce(r.recommended_action,'Vizsgáld meg a következő emberi kereskedelmi lépést.'),
+      p_run_key,null,r.customer_id,r.reseller_id,null,r.id,
+      jsonb_build_object('channel',r.channel,'kind',r.kind,'status',r.status,'expected_value_net_huf',r.expected_value_net_huf,'probability_percent',r.probability_percent,'due_at',r.due_at,'reason',r.reason)
+    ) into a;
+    v_commercial:=v_commercial+1;
+  end loop;
+
+  for r in
+    select st.id,st.ticket_number,st.order_id,st.user_id,st.priority,st.status,st.category,st.subject,st.created_at
+    from public.support_tickets st
+    where st.status in ('open','in_progress','waiting_customer') and (st.priority in ('high','urgent') or st.created_at<now()-interval '48 hours')
+  loop
+    select public.upsert_control_alert(
+      'service-ticket:'||r.id::text,
+      'service','support_attention',case when r.priority='urgent' then 'critical' when r.priority='high' then 'high' else 'warning' end,
+      case when r.priority='urgent' then 95 when r.priority='high' then 85 else 70 end,
+      'Ügyfélszolgálati figyelem · '||r.ticket_number,
+      'Nyitott '||r.priority||' prioritású ügy: '||r.subject,
+      'Vizsgáld meg az ügyet és rögzíts következő lépést az ügyfélszolgálati folyamatban.',
+      p_run_key,r.order_id,r.user_id,null,null,null,
+      jsonb_build_object('ticket_id',r.id,'ticket_number',r.ticket_number,'priority',r.priority,'status',r.status,'category',r.category,'created_at',r.created_at)
+    ) into a;
+    v_service:=v_service+1;
+  end loop;
+
+  return jsonb_build_object('operations',v_operations,'inventory',v_inventory,'commercial',v_commercial,'service',v_service,'total',v_operations+v_inventory+v_commercial+v_service);
+end;$function$
+;
+REVOKE ALL ON FUNCTION public.detect_control_tower_alerts(text) FROM PUBLIC, anon, authenticated;
+GRANT EXECUTE ON FUNCTION public.detect_control_tower_alerts(text) TO service_role;
 
 
+-- Customer baseline current recovery module: 150_recovery_governance_foundation.sql
+-- V19: resilience and recovery governance foundation.
+create table if not exists public.recovery_objectives(
+ id uuid primary key default gen_random_uuid(),
+ service_key text not null,
+ version integer not null check(version>0),
+ name text not null,
+ criticality text not null check(criticality in('standard','high','critical')),
+ rto_minutes integer not null check(rto_minutes between 1 and 10080),
+ rpo_minutes integer not null check(rpo_minutes between 1 and 10080),
+ backup_freshness_minutes integer not null check(backup_freshness_minutes between 1 and 10080),
+ drill_interval_days integer not null default 30 check(drill_interval_days between 1 and 365),
+ enabled boolean not null default true,
+ definition jsonb not null default '{}'::jsonb,
+ created_at timestamptz not null default now(),
+ unique(service_key,version)
+);
+alter table public.recovery_objectives enable row level security;
+revoke all on public.recovery_objectives from public,anon,authenticated;
+grant select,insert on public.recovery_objectives to service_role;
+
+create table if not exists public.recovery_evidence(
+ id uuid primary key default gen_random_uuid(),
+ evidence_key text not null unique,
+ objective_id uuid not null references public.recovery_objectives(id) on delete restrict,
+ evidence_kind text not null check(evidence_kind in('backup','restore','integrity','replication','manual')),
+ status text not null check(status in('pass','fail','error')),
+ trusted boolean not null default false,
+ source text not null,
+ observed_at timestamptz not null,
+ evidence jsonb not null default '{}'::jsonb,
+ evidence_hash text not null,
+ captured_at timestamptz not null default now()
+);
+create index if not exists recovery_evidence_objective_idx on public.recovery_evidence(objective_id,observed_at desc);
+alter table public.recovery_evidence enable row level security;
+revoke all on public.recovery_evidence from public,anon,authenticated;
+grant select,insert on public.recovery_evidence to service_role;
+
+create table if not exists public.recovery_drills(
+ id uuid primary key default gen_random_uuid(),
+ drill_key text not null unique,
+ objective_id uuid not null references public.recovery_objectives(id) on delete restrict,
+ status text not null default 'planned' check(status in('planned','running','passed','failed','cancelled')),
+ scenario text not null,
+ planned_at timestamptz not null,
+ started_at timestamptz,
+ completed_at timestamptz,
+ measured_rto_minutes integer check(measured_rto_minutes>=0),
+ measured_rpo_minutes integer check(measured_rpo_minutes>=0),
+ restore_validated boolean,
+ result jsonb not null default '{}'::jsonb,
+ created_by uuid references auth.users(id) on delete set null,
+ created_at timestamptz not null default now(),
+ updated_at timestamptz not null default now()
+);
+create index if not exists recovery_drills_objective_idx on public.recovery_drills(objective_id,planned_at desc);
+alter table public.recovery_drills enable row level security;
+revoke all on public.recovery_drills from public,anon,authenticated;
+grant select,insert on public.recovery_drills to service_role;
+
+create table if not exists public.recovery_findings(
+ id uuid primary key default gen_random_uuid(),
+ finding_key text not null unique,
+ objective_id uuid not null references public.recovery_objectives(id) on delete restrict,
+ finding_type text not null check(finding_type in('backup_stale','backup_failed','restore_failed','rto_breach','rpo_breach','drill_overdue','drill_failed')),
+ severity text not null check(severity in('warning','high','critical')),
+ status text not null default 'open' check(status in('open','acknowledged','resolved')),
+ title text not null,
+ description text not null,
+ occurrence_count integer not null default 1 check(occurrence_count>0),
+ first_detected_at timestamptz not null default now(),
+ last_detected_at timestamptz not null default now(),
+ acknowledged_by uuid references auth.users(id) on delete set null,
+ resolved_by uuid references auth.users(id) on delete set null,
+ updated_at timestamptz not null default now()
+);
+create index if not exists recovery_findings_queue_idx on public.recovery_findings(status,severity,last_detected_at desc);
+alter table public.recovery_findings enable row level security;
+revoke all on public.recovery_findings from public,anon,authenticated;
+grant select,insert on public.recovery_findings to service_role;
+
+create table if not exists public.recovery_events(
+ id bigint generated by default as identity primary key,
+ event_key text not null unique,
+ objective_id uuid references public.recovery_objectives(id) on delete restrict,
+ drill_id uuid references public.recovery_drills(id) on delete restrict,
+ finding_id uuid references public.recovery_findings(id) on delete restrict,
+ event_type text not null check(event_type in('evidence_recorded','drill_planned','drill_started','drill_passed','drill_failed','finding_opened','finding_reopened','finding_resolved','decision_recorded')),
+ actor_id uuid references auth.users(id) on delete set null,
+ metadata jsonb not null default '{}'::jsonb,
+ occurred_at timestamptz not null default now()
+);
+alter table public.recovery_events enable row level security;
+revoke all on public.recovery_events from public,anon,authenticated;
+grant select,insert on public.recovery_events to service_role;
+
+insert into public.recovery_objectives(service_key,version,name,criticality,rto_minutes,rpo_minutes,backup_freshness_minutes,drill_interval_days,definition)
+values
+ ('commerce-db',1,'Kereskedelmi adatbázis','critical',60,15,60,30,jsonb_build_object('trusted_sources',jsonb_build_array('supabase','system_backup'))),
+ ('storefront',1,'Webshop alkalmazás','high',30,30,1440,30,jsonb_build_object('trusted_sources',jsonb_build_array('vercel','github_actions'))),
+ ('control-plane',1,'Admin és governance vezérlősík','high',60,60,1440,30,jsonb_build_object('trusted_sources',jsonb_build_array('vercel','supabase','system_backup')))
+on conflict(service_key,version) do nothing;
+
+
+-- Customer baseline current recovery module: 151_recovery_evidence_drill_control.sql
+-- V19: guarded evidence and recovery drill lifecycle.
+create or replace function public.record_recovery_evidence(
+ p_service_key text,p_evidence_kind text,p_status text,p_trusted boolean,p_source text,p_observed_at timestamptz,p_evidence jsonb,p_event_key text
+) returns uuid language plpgsql security definer set search_path='' as $$
+declare v_objective public.recovery_objectives;v_id uuid;v_hash text;begin
+ select * into v_objective from public.recovery_objectives where service_key=p_service_key and enabled order by version desc limit 1;
+ if not found then raise exception 'Nincs aktív recovery objective ehhez a szolgáltatáshoz.';end if;
+ if p_trusted and not coalesce((v_objective.definition->'trusted_sources') ? p_source,false) then raise exception 'A megadott forrás ehhez az objective-hez nem trusted.';end if;
+ v_hash:=md5(v_objective.id::text||'|'||p_evidence_kind||'|'||p_status||'|'||p_source||'|'||p_observed_at::text||'|'||coalesce(p_evidence,'{}'::jsonb)::text);
+ select id into v_id from public.recovery_evidence where evidence_key=p_event_key;
+ if found then return v_id;end if;
+ insert into public.recovery_evidence(evidence_key,objective_id,evidence_kind,status,trusted,source,observed_at,evidence,evidence_hash)
+ values(p_event_key,v_objective.id,p_evidence_kind,p_status,p_trusted,p_source,p_observed_at,coalesce(p_evidence,'{}'::jsonb),v_hash) returning id into v_id;
+ insert into public.recovery_events(event_key,objective_id,event_type,metadata) values('event:'||p_event_key,v_objective.id,'evidence_recorded',jsonb_build_object('evidence_id',v_id,'kind',p_evidence_kind,'status',p_status,'trusted',p_trusted)) on conflict(event_key) do nothing;
+ return v_id;
+end;$$;
+revoke all on function public.record_recovery_evidence(text,text,text,boolean,text,timestamptz,jsonb,text) from public,anon,authenticated;
+grant execute on function public.record_recovery_evidence(text,text,text,boolean,text,timestamptz,jsonb,text) to service_role;
+
+create or replace function public.plan_recovery_drill(p_service_key text,p_scenario text,p_planned_at timestamptz,p_actor_id uuid,p_drill_key text)
+returns uuid language plpgsql security definer set search_path='' as $$
+declare v_objective public.recovery_objectives;v_id uuid;begin
+ select * into v_objective from public.recovery_objectives where service_key=p_service_key and enabled order by version desc limit 1;
+ if not found then raise exception 'Nincs aktív recovery objective.';end if;
+ select id into v_id from public.recovery_drills where drill_key=p_drill_key;if found then return v_id;end if;
+ insert into public.recovery_drills(drill_key,objective_id,scenario,planned_at,created_by) values(p_drill_key,v_objective.id,p_scenario,p_planned_at,p_actor_id) returning id into v_id;
+ insert into public.recovery_events(event_key,objective_id,drill_id,event_type,actor_id,metadata) values('planned:'||p_drill_key,v_objective.id,v_id,'drill_planned',p_actor_id,jsonb_build_object('scenario',p_scenario)) on conflict(event_key) do nothing;
+ return v_id;
+end;$$;
+revoke all on function public.plan_recovery_drill(text,text,timestamptz,uuid,text) from public,anon,authenticated;
+grant execute on function public.plan_recovery_drill(text,text,timestamptz,uuid,text) to service_role;
+
+create or replace function public.start_recovery_drill(p_drill_id uuid,p_actor_id uuid,p_event_key text)
+returns void language plpgsql security definer set search_path='' as $$
+declare v public.recovery_drills;begin
+ select * into v from public.recovery_drills where id=p_drill_id for update;if not found then raise exception 'Drill nem található.';end if;
+ if v.status='running' then return;end if;if v.status<>'planned' then raise exception 'Csak tervezett drill indítható.';end if;
+ update public.recovery_drills set status='running',started_at=now(),updated_at=now() where id=p_drill_id;
+ insert into public.recovery_events(event_key,objective_id,drill_id,event_type,actor_id) values(p_event_key,v.objective_id,p_drill_id,'drill_started',p_actor_id) on conflict(event_key) do nothing;
+end;$$;
+revoke all on function public.start_recovery_drill(uuid,uuid,text) from public,anon,authenticated;grant execute on function public.start_recovery_drill(uuid,uuid,text) to service_role;
+
+create or replace function public.complete_recovery_drill(p_drill_id uuid,p_actor_id uuid,p_measured_rto integer,p_measured_rpo integer,p_restore_validated boolean,p_result jsonb,p_event_key text)
+returns text language plpgsql security definer set search_path='' as $$
+declare v public.recovery_drills;o public.recovery_objectives;v_status text;begin
+ select * into v from public.recovery_drills where id=p_drill_id for update;if not found then raise exception 'Drill nem található.';end if;
+ if v.status in('passed','failed') then return v.status;end if;if v.status<>'running' then raise exception 'Csak futó drill zárható.';end if;
+ select * into o from public.recovery_objectives where id=v.objective_id;
+ v_status:=case when p_restore_validated and p_measured_rto<=o.rto_minutes and p_measured_rpo<=o.rpo_minutes then 'passed' else 'failed' end;
+ update public.recovery_drills set status=v_status,completed_at=now(),measured_rto_minutes=p_measured_rto,measured_rpo_minutes=p_measured_rpo,restore_validated=p_restore_validated,result=coalesce(p_result,'{}'::jsonb),updated_at=now() where id=p_drill_id;
+ insert into public.recovery_events(event_key,objective_id,drill_id,event_type,actor_id,metadata) values(p_event_key,v.objective_id,p_drill_id,case when v_status='passed' then 'drill_passed' else 'drill_failed' end,p_actor_id,jsonb_build_object('measured_rto',p_measured_rto,'measured_rpo',p_measured_rpo,'restore_validated',p_restore_validated)) on conflict(event_key) do nothing;
+ return v_status;
+end;$$;
+revoke all on function public.complete_recovery_drill(uuid,uuid,integer,integer,boolean,jsonb,text) from public,anon,authenticated;grant execute on function public.complete_recovery_drill(uuid,uuid,integer,integer,boolean,jsonb,text) to service_role;
+
+
+-- Customer baseline current recovery module: 152_recovery_reconciliation.sql
+-- V19: reconcile latest trusted recovery state into deduplicated findings.
+create or replace function public.reconcile_recovery_governance(p_run_key text)
+returns jsonb language plpgsql security definer set search_path='' as $$
+declare o public.recovery_objectives;v_backup public.recovery_evidence;v_restore public.recovery_evidence;v_drill public.recovery_drills;v_type text;v_sev text;v_title text;v_desc text;v_key text;v_id uuid;v_open integer:=0;v_resolved integer:=0;begin
+ perform pg_advisory_xact_lock(hashtextextended('recovery:'||p_run_key,0));
+ for o in select distinct on(service_key) * from public.recovery_objectives where enabled order by service_key,version desc loop
+   select * into v_backup from public.recovery_evidence where objective_id=o.id and evidence_kind='backup' and trusted order by observed_at desc,captured_at desc limit 1;
+   select * into v_restore from public.recovery_evidence where objective_id=o.id and evidence_kind='restore' and trusted order by observed_at desc,captured_at desc limit 1;
+   select * into v_drill from public.recovery_drills where objective_id=o.id and status in('passed','failed') order by completed_at desc nulls last limit 1;
+
+   -- backup stale/failed
+   if v_backup.id is null or v_backup.observed_at < now()-make_interval(mins=>o.backup_freshness_minutes) then v_type:='backup_stale';v_sev:=case when o.criticality='critical' then 'critical' else 'high' end;v_title:='Elavult recovery backup evidence';v_desc:='Nincs a recovery objective frissességi követelményének megfelelő trusted backup evidence.';
+   elsif v_backup.status<>'pass' then v_type:='backup_failed';v_sev:=case when o.criticality='critical' then 'critical' else 'high' end;v_title:='Hibás backup evidence';v_desc:='A legfrissebb trusted backup evidence nem sikeres.';
+   else v_type:=null;end if;
+   if v_type is not null then
+     v_key:='recovery:'||o.service_key||':'||v_type;select id into v_id from public.recovery_findings where finding_key=v_key;
+     if found then update public.recovery_findings set status='open',severity=v_sev,title=v_title,description=v_desc,occurrence_count=occurrence_count+1,last_detected_at=now(),updated_at=now() where id=v_id;
+     else insert into public.recovery_findings(finding_key,objective_id,finding_type,severity,title,description) values(v_key,o.id,v_type,v_sev,v_title,v_desc) returning id into v_id;end if;
+     insert into public.recovery_events(event_key,objective_id,finding_id,event_type,metadata) values(p_run_key||':'||v_key,o.id,v_id,case when exists(select 1 from public.recovery_events where finding_id=v_id and event_type='finding_opened') then 'finding_reopened' else 'finding_opened' end,jsonb_build_object('run_key',p_run_key)) on conflict(event_key) do nothing;v_open:=v_open+1;
+   else
+     update public.recovery_findings set status='resolved',resolved_by=null,updated_at=now() where objective_id=o.id and finding_type in('backup_stale','backup_failed') and status<>'resolved';get diagnostics v_resolved=row_count;
+   end if;
+
+   -- restore state
+   if v_restore.id is null or v_restore.status<>'pass' then
+     v_key:='recovery:'||o.service_key||':restore_failed';select id into v_id from public.recovery_findings where finding_key=v_key;
+     if found then update public.recovery_findings set status='open',occurrence_count=occurrence_count+1,last_detected_at=now(),updated_at=now() where id=v_id;
+     else insert into public.recovery_findings(finding_key,objective_id,finding_type,severity,title,description) values(v_key,o.id,'restore_failed',case when o.criticality='critical' then 'critical' else 'high' end,'Restore nincs igazolva','Nincs sikeres trusted restore evidence.') returning id into v_id;end if;v_open:=v_open+1;
+   else update public.recovery_findings set status='resolved',updated_at=now() where objective_id=o.id and finding_type='restore_failed' and status<>'resolved';end if;
+
+   -- drill recency/outcome/objectives
+   if v_drill.id is null or v_drill.completed_at < now()-make_interval(days=>o.drill_interval_days) then
+     v_key:='recovery:'||o.service_key||':drill_overdue';insert into public.recovery_findings(finding_key,objective_id,finding_type,severity,title,description) values(v_key,o.id,'drill_overdue','high','Recovery drill esedékes','Nincs az objective intervallumán belüli lezárt recovery drill.') on conflict(finding_key) do update set status='open',occurrence_count=public.recovery_findings.occurrence_count+1,last_detected_at=now(),updated_at=now();v_open:=v_open+1;
+   else
+     update public.recovery_findings set status='resolved',updated_at=now() where objective_id=o.id and finding_type='drill_overdue' and status<>'resolved';
+     if v_drill.status='failed' then
+       v_key:='recovery:'||o.service_key||':drill_failed';insert into public.recovery_findings(finding_key,objective_id,finding_type,severity,title,description) values(v_key,o.id,'drill_failed',case when o.criticality='critical' then 'critical' else 'high' end,'Recovery drill sikertelen','A legutóbbi recovery drill nem teljesítette a követelményeket.') on conflict(finding_key) do update set status='open',occurrence_count=public.recovery_findings.occurrence_count+1,last_detected_at=now(),updated_at=now();v_open:=v_open+1;
+     else update public.recovery_findings set status='resolved',updated_at=now() where objective_id=o.id and finding_type='drill_failed' and status<>'resolved';end if;
+     if coalesce(v_drill.measured_rto_minutes,2147483647)>o.rto_minutes then v_key:='recovery:'||o.service_key||':rto_breach';insert into public.recovery_findings(finding_key,objective_id,finding_type,severity,title,description) values(v_key,o.id,'rto_breach','high','RTO cél túllépve','A legutóbbi drill mért RTO-ja meghaladja a recovery objective-et.') on conflict(finding_key) do update set status='open',occurrence_count=public.recovery_findings.occurrence_count+1,last_detected_at=now(),updated_at=now();v_open:=v_open+1;else update public.recovery_findings set status='resolved',updated_at=now() where objective_id=o.id and finding_type='rto_breach' and status<>'resolved';end if;
+     if coalesce(v_drill.measured_rpo_minutes,2147483647)>o.rpo_minutes then v_key:='recovery:'||o.service_key||':rpo_breach';insert into public.recovery_findings(finding_key,objective_id,finding_type,severity,title,description) values(v_key,o.id,'rpo_breach','high','RPO cél túllépve','A legutóbbi drill mért RPO-ja meghaladja a recovery objective-et.') on conflict(finding_key) do update set status='open',occurrence_count=public.recovery_findings.occurrence_count+1,last_detected_at=now(),updated_at=now();v_open:=v_open+1;else update public.recovery_findings set status='resolved',updated_at=now() where objective_id=o.id and finding_type='rpo_breach' and status<>'resolved';end if;
+   end if;
+ end loop;
+ return jsonb_build_object('run_key',p_run_key,'open_signals',v_open,'resolved_updates',v_resolved);
+end;$$;
+revoke all on function public.reconcile_recovery_governance(text) from public,anon,authenticated;grant execute on function public.reconcile_recovery_governance(text) to service_role;
+
+
+-- Customer baseline current recovery module: 153_recovery_read_models.sql
+-- V19: recovery readiness and admin read models.
+create or replace view public.recovery_service_readiness with(security_invoker=true) as
+with latest_objectives as(
+ select distinct on(service_key) * from public.recovery_objectives where enabled order by service_key,version desc
+),latest_backup as(
+ select distinct on(objective_id) objective_id,status,observed_at,source,trusted,evidence_hash from public.recovery_evidence where evidence_kind='backup' and trusted order by objective_id,observed_at desc,captured_at desc
+),latest_restore as(
+ select distinct on(objective_id) objective_id,status,observed_at,source,trusted,evidence_hash from public.recovery_evidence where evidence_kind='restore' and trusted order by objective_id,observed_at desc,captured_at desc
+),latest_drill as(
+ select distinct on(objective_id) objective_id,status,completed_at,measured_rto_minutes,measured_rpo_minutes,restore_validated from public.recovery_drills where status in('passed','failed') order by objective_id,completed_at desc nulls last
+),findings as(
+ select objective_id,count(*) filter(where status in('open','acknowledged') and severity='critical')::integer critical_open,count(*) filter(where status in('open','acknowledged') and severity='high')::integer high_open from public.recovery_findings group by objective_id
+)
+select o.id as objective_id,o.service_key,o.version,o.name,o.criticality,o.rto_minutes,o.rpo_minutes,o.backup_freshness_minutes,o.drill_interval_days,
+ b.status as backup_status,b.observed_at as backup_observed_at,b.source as backup_source,b.evidence_hash as backup_hash,
+ r.status as restore_status,r.observed_at as restore_observed_at,r.source as restore_source,r.evidence_hash as restore_hash,
+ d.status as drill_status,d.completed_at as drill_completed_at,d.measured_rto_minutes,d.measured_rpo_minutes,d.restore_validated,
+ coalesce(f.critical_open,0) critical_open,coalesce(f.high_open,0) high_open,
+ case when b.observed_at is null or b.observed_at<now()-make_interval(mins=>o.backup_freshness_minutes) then true else false end backup_stale,
+ case when d.completed_at is null or d.completed_at<now()-make_interval(days=>o.drill_interval_days) then true else false end drill_overdue,
+ case when coalesce(f.critical_open,0)>0 then 'blocked'
+      when b.status='pass' and r.status='pass' and d.status='passed' and coalesce(f.high_open,0)=0
+       and b.observed_at>=now()-make_interval(mins=>o.backup_freshness_minutes)
+       and d.completed_at>=now()-make_interval(days=>o.drill_interval_days) then 'ready'
+      else 'degraded' end as readiness_status
+from latest_objectives o left join latest_backup b on b.objective_id=o.id left join latest_restore r on r.objective_id=o.id left join latest_drill d on d.objective_id=o.id left join findings f on f.objective_id=o.id;
+revoke all on public.recovery_service_readiness from public,anon,authenticated;grant select on public.recovery_service_readiness to service_role;
+
+create or replace view public.recovery_finding_queue with(security_invoker=true) as
+select f.id as finding_id,f.finding_key,f.finding_type,f.severity,f.status,f.title,f.description,f.occurrence_count,f.first_detected_at,f.last_detected_at,
+ o.service_key,o.name as service_name,o.criticality,o.rto_minutes,o.rpo_minutes
+from public.recovery_findings f join public.recovery_objectives o on o.id=f.objective_id
+where f.status in('open','acknowledged') order by case f.severity when 'critical' then 1 when 'high' then 2 else 3 end,f.last_detected_at desc;
+revoke all on public.recovery_finding_queue from public,anon,authenticated;grant select on public.recovery_finding_queue to service_role;
+
+create or replace view public.recovery_kpis with(security_invoker=true) as
+select count(*)::integer services,
+ count(*) filter(where readiness_status='ready')::integer ready,
+ count(*) filter(where readiness_status='degraded')::integer degraded,
+ count(*) filter(where readiness_status='blocked')::integer blocked,
+ count(*) filter(where backup_stale)::integer stale_backups,
+ count(*) filter(where drill_overdue)::integer overdue_drills
+from public.recovery_service_readiness;
+revoke all on public.recovery_kpis from public,anon,authenticated;grant select on public.recovery_kpis to service_role;
+
+
+-- Customer baseline current recovery module: 154_recovery_integrity_hardening.sql
+-- V19 audit hardening: append-only evidence/events and replay-safe finding lifecycle.
+create or replace function public.block_recovery_append_only_mutation() returns trigger language plpgsql set search_path='' as $$begin raise exception 'Append-only recovery record cannot be modified.';end;$$;
+drop trigger if exists trg_recovery_evidence_append_only on public.recovery_evidence;create trigger trg_recovery_evidence_append_only before update or delete on public.recovery_evidence for each row execute function public.block_recovery_append_only_mutation();
+drop trigger if exists trg_recovery_events_append_only on public.recovery_events;create trigger trg_recovery_events_append_only before update or delete on public.recovery_events for each row execute function public.block_recovery_append_only_mutation();
+revoke update,delete on public.recovery_evidence from service_role;revoke update,delete on public.recovery_events from service_role;
+revoke update,delete on public.recovery_findings from service_role;revoke update,delete on public.recovery_drills from service_role;
+
+create or replace function public.upsert_recovery_finding(p_objective_id uuid,p_finding_type text,p_severity text,p_title text,p_description text,p_run_key text)
+returns uuid language plpgsql security definer set search_path='' as $$
+declare o public.recovery_objectives;v_key text;v public.recovery_findings;v_id uuid;v_event text;begin
+ select * into o from public.recovery_objectives where id=p_objective_id;if not found then raise exception 'Recovery objective nem található.';end if;
+ v_key:='recovery:'||o.service_key||':'||p_finding_type;
+ select * into v from public.recovery_findings where finding_key=v_key for update;
+ if not found then
+   insert into public.recovery_findings(finding_key,objective_id,finding_type,severity,title,description) values(v_key,p_objective_id,p_finding_type,p_severity,p_title,p_description) returning id into v_id;v_event:='finding_opened';
+ elsif v.status='resolved' then
+   update public.recovery_findings set status='open',severity=p_severity,title=p_title,description=p_description,occurrence_count=occurrence_count+1,last_detected_at=now(),resolved_by=null,updated_at=now() where id=v.id;v_id:=v.id;v_event:='finding_reopened';
+ else
+   update public.recovery_findings set severity=p_severity,title=p_title,description=p_description,last_detected_at=now(),updated_at=now() where id=v.id;v_id:=v.id;v_event:=null;
+ end if;
+ if v_event is not null then insert into public.recovery_events(event_key,objective_id,finding_id,event_type,metadata) values(p_run_key||':'||v_key||':'||v_event,p_objective_id,v_id,v_event,jsonb_build_object('run_key',p_run_key)) on conflict(event_key) do nothing;end if;
+ return v_id;
+end;$$;
+revoke all on function public.upsert_recovery_finding(uuid,text,text,text,text,text) from public,anon,authenticated;grant execute on function public.upsert_recovery_finding(uuid,text,text,text,text,text) to service_role;
+
+create or replace function public.resolve_recovery_finding(p_objective_id uuid,p_finding_type text,p_run_key text)
+returns boolean language plpgsql security definer set search_path='' as $$
+declare v public.recovery_findings;begin
+ select * into v from public.recovery_findings where objective_id=p_objective_id and finding_type=p_finding_type for update;
+ if not found or v.status='resolved' then return false;end if;
+ update public.recovery_findings set status='resolved',resolved_by=null,updated_at=now() where id=v.id;
+ insert into public.recovery_events(event_key,objective_id,finding_id,event_type,metadata) values(p_run_key||':resolve:'||v.finding_key,p_objective_id,v.id,'finding_resolved',jsonb_build_object('run_key',p_run_key)) on conflict(event_key) do nothing;
+ return true;
+end;$$;
+revoke all on function public.resolve_recovery_finding(uuid,text,text) from public,anon,authenticated;grant execute on function public.resolve_recovery_finding(uuid,text,text) to service_role;
+
+
+-- Customer baseline current recovery module: 155_recovery_reconciliation_v2.sql
+-- V19: replay-safe recovery reconciliation using guarded finding helpers.
+create or replace function public.reconcile_recovery_governance(p_run_key text)
+returns jsonb language plpgsql security definer set search_path='' as $$
+declare o public.recovery_objectives;v_backup public.recovery_evidence;v_restore public.recovery_evidence;v_drill public.recovery_drills;v_open integer:=0;v_resolved integer:=0;v_id uuid;begin
+ perform pg_advisory_xact_lock(hashtextextended('recovery:'||p_run_key,0));
+ for o in select distinct on(service_key) * from public.recovery_objectives where enabled order by service_key,version desc loop
+   select * into v_backup from public.recovery_evidence where objective_id=o.id and evidence_kind='backup' and trusted order by observed_at desc,captured_at desc limit 1;
+   select * into v_restore from public.recovery_evidence where objective_id=o.id and evidence_kind='restore' and trusted order by observed_at desc,captured_at desc limit 1;
+   select * into v_drill from public.recovery_drills where objective_id=o.id and status in('passed','failed') order by completed_at desc nulls last limit 1;
+
+   if v_backup.id is null or v_backup.observed_at<now()-make_interval(mins=>o.backup_freshness_minutes) then
+     v_id:=public.upsert_recovery_finding(o.id,'backup_stale',case when o.criticality='critical' then 'critical' else 'high' end,'Elavult recovery backup evidence','Nincs a recovery objective frissességi követelményének megfelelő trusted backup evidence.',p_run_key);v_open:=v_open+1;
+     if public.resolve_recovery_finding(o.id,'backup_failed',p_run_key) then v_resolved:=v_resolved+1;end if;
+   elsif v_backup.status<>'pass' then
+     v_id:=public.upsert_recovery_finding(o.id,'backup_failed',case when o.criticality='critical' then 'critical' else 'high' end,'Hibás backup evidence','A legfrissebb trusted backup evidence nem sikeres.',p_run_key);v_open:=v_open+1;
+     if public.resolve_recovery_finding(o.id,'backup_stale',p_run_key) then v_resolved:=v_resolved+1;end if;
+   else
+     if public.resolve_recovery_finding(o.id,'backup_stale',p_run_key) then v_resolved:=v_resolved+1;end if;
+     if public.resolve_recovery_finding(o.id,'backup_failed',p_run_key) then v_resolved:=v_resolved+1;end if;
+   end if;
+
+   if v_restore.id is null or v_restore.status<>'pass' then v_id:=public.upsert_recovery_finding(o.id,'restore_failed',case when o.criticality='critical' then 'critical' else 'high' end,'Restore nincs igazolva','Nincs sikeres trusted restore evidence.',p_run_key);v_open:=v_open+1;
+   else if public.resolve_recovery_finding(o.id,'restore_failed',p_run_key) then v_resolved:=v_resolved+1;end if;end if;
+
+   if v_drill.id is null or v_drill.completed_at<now()-make_interval(days=>o.drill_interval_days) then
+     v_id:=public.upsert_recovery_finding(o.id,'drill_overdue','high','Recovery drill esedékes','Nincs az objective intervallumán belüli lezárt recovery drill.',p_run_key);v_open:=v_open+1;
+     if public.resolve_recovery_finding(o.id,'drill_failed',p_run_key) then v_resolved:=v_resolved+1;end if;
+     if public.resolve_recovery_finding(o.id,'rto_breach',p_run_key) then v_resolved:=v_resolved+1;end if;
+     if public.resolve_recovery_finding(o.id,'rpo_breach',p_run_key) then v_resolved:=v_resolved+1;end if;
+   else
+     if public.resolve_recovery_finding(o.id,'drill_overdue',p_run_key) then v_resolved:=v_resolved+1;end if;
+     if v_drill.status='failed' then v_id:=public.upsert_recovery_finding(o.id,'drill_failed',case when o.criticality='critical' then 'critical' else 'high' end,'Recovery drill sikertelen','A legutóbbi recovery drill nem teljesítette a követelményeket.',p_run_key);v_open:=v_open+1;else if public.resolve_recovery_finding(o.id,'drill_failed',p_run_key) then v_resolved:=v_resolved+1;end if;end if;
+     if coalesce(v_drill.measured_rto_minutes,2147483647)>o.rto_minutes then v_id:=public.upsert_recovery_finding(o.id,'rto_breach','high','RTO cél túllépve','A legutóbbi drill mért RTO-ja meghaladja a recovery objective-et.',p_run_key);v_open:=v_open+1;else if public.resolve_recovery_finding(o.id,'rto_breach',p_run_key) then v_resolved:=v_resolved+1;end if;end if;
+     if coalesce(v_drill.measured_rpo_minutes,2147483647)>o.rpo_minutes then v_id:=public.upsert_recovery_finding(o.id,'rpo_breach','high','RPO cél túllépve','A legutóbbi drill mért RPO-ja meghaladja a recovery objective-et.',p_run_key);v_open:=v_open+1;else if public.resolve_recovery_finding(o.id,'rpo_breach',p_run_key) then v_resolved:=v_resolved+1;end if;end if;
+   end if;
+ end loop;
+ return jsonb_build_object('run_key',p_run_key,'open_signals',v_open,'resolved_updates',v_resolved);
+end;$$;
+revoke all on function public.reconcile_recovery_governance(text) from public,anon,authenticated;grant execute on function public.reconcile_recovery_governance(text) to service_role;
+
+
+-- Customer baseline current recovery module: 156_recovery_decisions_and_actions.sql
+-- V19: human governance actions; no restore execution.
+create table if not exists public.recovery_decisions(
+ id uuid primary key default gen_random_uuid(),
+ decision_key text not null unique,
+ objective_id uuid not null references public.recovery_objectives(id) on delete restrict,
+ finding_id uuid references public.recovery_findings(id) on delete restrict,
+ decision text not null check(decision in('prepare_recovery','continue_monitoring','risk_accepted')),
+ note text not null check(length(note)>=10),
+ actor_id uuid not null references auth.users(id) on delete restrict,
+ created_at timestamptz not null default now()
+);
+alter table public.recovery_decisions enable row level security;revoke all on public.recovery_decisions from public,anon,authenticated;grant select,insert on public.recovery_decisions to service_role;
+
+create or replace function public.acknowledge_recovery_finding(p_finding_id uuid,p_actor_id uuid,p_event_key text)
+returns void language plpgsql security definer set search_path='' as $$
+declare v public.recovery_findings;begin
+ select * into v from public.recovery_findings where id=p_finding_id for update;if not found then raise exception 'Finding nem található.';end if;if v.status='resolved' then raise exception 'Lezárt finding nem vehető át.';end if;
+ update public.recovery_findings set status='acknowledged',acknowledged_by=p_actor_id,updated_at=now() where id=p_finding_id;
+ insert into public.recovery_events(event_key,objective_id,finding_id,event_type,actor_id,metadata) values(p_event_key,v.objective_id,p_finding_id,'decision_recorded',p_actor_id,jsonb_build_object('decision','acknowledged')) on conflict(event_key) do nothing;
+end;$$;
+revoke all on function public.acknowledge_recovery_finding(uuid,uuid,text) from public,anon,authenticated;grant execute on function public.acknowledge_recovery_finding(uuid,uuid,text) to service_role;
+
+create or replace function public.record_recovery_decision(p_finding_id uuid,p_actor_id uuid,p_decision text,p_note text,p_decision_key text)
+returns uuid language plpgsql security definer set search_path='' as $$
+declare v public.recovery_findings;v_id uuid;begin
+ if length(trim(p_note))<10 then raise exception 'Legalább 10 karakteres indoklás szükséges.';end if;
+ select * into v from public.recovery_findings where id=p_finding_id;if not found then raise exception 'Finding nem található.';end if;
+ select id into v_id from public.recovery_decisions where decision_key=p_decision_key;if found then return v_id;end if;
+ insert into public.recovery_decisions(decision_key,objective_id,finding_id,decision,note,actor_id) values(p_decision_key,v.objective_id,p_finding_id,p_decision,p_note,p_actor_id) returning id into v_id;
+ insert into public.recovery_events(event_key,objective_id,finding_id,event_type,actor_id,metadata) values('event:'||p_decision_key,v.objective_id,p_finding_id,'decision_recorded',p_actor_id,jsonb_build_object('decision',p_decision,'note',p_note)) on conflict(event_key) do nothing;
+ return v_id;
+end;$$;
+revoke all on function public.record_recovery_decision(uuid,uuid,text,text,text) from public,anon,authenticated;grant execute on function public.record_recovery_decision(uuid,uuid,text,text,text) to service_role;
+
+create or replace function public.block_recovery_decision_mutation() returns trigger language plpgsql set search_path='' as $$begin raise exception 'Recovery decision append-only.';end;$$;
+drop trigger if exists trg_recovery_decisions_append_only on public.recovery_decisions;create trigger trg_recovery_decisions_append_only before update or delete on public.recovery_decisions for each row execute function public.block_recovery_decision_mutation();
+revoke update,delete on public.recovery_decisions from service_role;
+
+
+-- Customer baseline current recovery module: 157_recovery_orchestration.sql
+-- V19: idempotent recovery governance orchestration.
+create table if not exists public.recovery_runs(
+ id uuid primary key default gen_random_uuid(),run_key text not null unique,status text not null default 'running' check(status in('running','completed','failed')),
+ started_at timestamptz not null default now(),completed_at timestamptz,result jsonb not null default '{}'::jsonb
+);
+alter table public.recovery_runs enable row level security;revoke all on public.recovery_runs from public,anon,authenticated;grant select,insert on public.recovery_runs to service_role;
+
+create or replace function public.process_recovery_governance_cycle(p_run_key text)
+returns jsonb language plpgsql security definer set search_path='' as $$
+declare v public.recovery_runs;r jsonb;begin
+ select * into v from public.recovery_runs where run_key=p_run_key for update;
+ if found and v.status='completed' then return v.result;end if;
+ if not found then insert into public.recovery_runs(run_key) values(p_run_key) returning * into v;end if;
+ begin
+   r:=public.reconcile_recovery_governance(p_run_key);
+   update public.recovery_runs set status='completed',completed_at=now(),result=r where id=v.id;
+   return r;
+ exception when others then
+   update public.recovery_runs set status='failed',completed_at=now(),result=jsonb_build_object('error',sqlerrm) where id=v.id;
+   raise;
+ end;
+end;$$;
+revoke all on function public.process_recovery_governance_cycle(text) from public,anon,authenticated;grant execute on function public.process_recovery_governance_cycle(text) to service_role;
+
+create or replace function public.block_recovery_run_mutation() returns trigger language plpgsql set search_path='' as $$begin if old.status in('completed','failed') then raise exception 'Terminal recovery run immutable.';end if;return new;end;$$;
+drop trigger if exists trg_recovery_runs_terminal on public.recovery_runs;create trigger trg_recovery_runs_terminal before update on public.recovery_runs for each row execute function public.block_recovery_run_mutation();
+revoke update,delete on public.recovery_runs from service_role;
+
+
+-- Customer baseline current recovery module: 158_recovery_idempotency_ownership.sql
+-- V19 audit hardening: idempotency keys must belong to the exact same operation.
+create or replace function public.record_recovery_evidence(
+ p_service_key text,p_evidence_kind text,p_status text,p_trusted boolean,p_source text,p_observed_at timestamptz,p_evidence jsonb,p_event_key text
+) returns uuid language plpgsql security definer set search_path='' as $$
+declare v_objective public.recovery_objectives;v public.recovery_evidence;v_id uuid;v_hash text;begin
+ select * into v_objective from public.recovery_objectives where service_key=p_service_key and enabled order by version desc limit 1;if not found then raise exception 'Nincs aktív recovery objective.';end if;
+ if p_trusted and not coalesce((v_objective.definition->'trusted_sources') ? p_source,false) then raise exception 'A megadott forrás nem trusted.';end if;
+ v_hash:=md5(v_objective.id::text||'|'||p_evidence_kind||'|'||p_status||'|'||p_source||'|'||p_observed_at::text||'|'||coalesce(p_evidence,'{}'::jsonb)::text);
+ select * into v from public.recovery_evidence where evidence_key=p_event_key;
+ if found then if v.objective_id<>v_objective.id or v.evidence_kind<>p_evidence_kind or v.status<>p_status or v.trusted<>p_trusted or v.source<>p_source or v.observed_at<>p_observed_at or v.evidence_hash<>v_hash then raise exception 'Az evidence_key már más recovery evidence-hez tartozik.';end if;return v.id;end if;
+ insert into public.recovery_evidence(evidence_key,objective_id,evidence_kind,status,trusted,source,observed_at,evidence,evidence_hash) values(p_event_key,v_objective.id,p_evidence_kind,p_status,p_trusted,p_source,p_observed_at,coalesce(p_evidence,'{}'::jsonb),v_hash) returning id into v_id;
+ insert into public.recovery_events(event_key,objective_id,event_type,metadata) values('event:'||p_event_key,v_objective.id,'evidence_recorded',jsonb_build_object('evidence_id',v_id,'kind',p_evidence_kind,'status',p_status,'trusted',p_trusted)) on conflict(event_key) do nothing;return v_id;
+end;$$;
+
+create or replace function public.start_recovery_drill(p_drill_id uuid,p_actor_id uuid,p_event_key text)
+returns void language plpgsql security definer set search_path='' as $$
+declare v public.recovery_drills;e public.recovery_events;begin
+ select * into e from public.recovery_events where event_key=p_event_key;if found then if e.drill_id is distinct from p_drill_id or e.event_type<>'drill_started' then raise exception 'Az event_key már más recovery művelethez tartozik.';end if;return;end if;
+ select * into v from public.recovery_drills where id=p_drill_id for update;if not found then raise exception 'Drill nem található.';end if;if v.status='running' then raise exception 'A drill már fut, de más idempotency kulccsal indult.';end if;if v.status<>'planned' then raise exception 'Csak tervezett drill indítható.';end if;
+ update public.recovery_drills set status='running',started_at=now(),updated_at=now() where id=p_drill_id;insert into public.recovery_events(event_key,objective_id,drill_id,event_type,actor_id) values(p_event_key,v.objective_id,p_drill_id,'drill_started',p_actor_id);
+end;$$;
+
+create or replace function public.complete_recovery_drill(p_drill_id uuid,p_actor_id uuid,p_measured_rto integer,p_measured_rpo integer,p_restore_validated boolean,p_result jsonb,p_event_key text)
+returns text language plpgsql security definer set search_path='' as $$
+declare v public.recovery_drills;o public.recovery_objectives;e public.recovery_events;v_status text;begin
+ select * into e from public.recovery_events where event_key=p_event_key;if found then if e.drill_id is distinct from p_drill_id or e.event_type not in('drill_passed','drill_failed') then raise exception 'Az event_key már más recovery művelethez tartozik.';end if;select status into v_status from public.recovery_drills where id=p_drill_id;return v_status;end if;
+ select * into v from public.recovery_drills where id=p_drill_id for update;if not found then raise exception 'Drill nem található.';end if;if v.status in('passed','failed') then raise exception 'A drill már lezárt, más idempotency kulccsal.';end if;if v.status<>'running' then raise exception 'Csak futó drill zárható.';end if;
+ select * into o from public.recovery_objectives where id=v.objective_id;v_status:=case when p_restore_validated and p_measured_rto<=o.rto_minutes and p_measured_rpo<=o.rpo_minutes then 'passed' else 'failed' end;
+ update public.recovery_drills set status=v_status,completed_at=now(),measured_rto_minutes=p_measured_rto,measured_rpo_minutes=p_measured_rpo,restore_validated=p_restore_validated,result=coalesce(p_result,'{}'::jsonb),updated_at=now() where id=p_drill_id;
+ insert into public.recovery_events(event_key,objective_id,drill_id,event_type,actor_id,metadata) values(p_event_key,v.objective_id,p_drill_id,case when v_status='passed' then 'drill_passed' else 'drill_failed' end,p_actor_id,jsonb_build_object('measured_rto',p_measured_rto,'measured_rpo',p_measured_rpo,'restore_validated',p_restore_validated));return v_status;
+end;$$;
+
+create or replace function public.record_recovery_decision(p_finding_id uuid,p_actor_id uuid,p_decision text,p_note text,p_decision_key text)
+returns uuid language plpgsql security definer set search_path='' as $$
+declare v public.recovery_findings;d public.recovery_decisions;v_id uuid;begin
+ if length(trim(p_note))<10 then raise exception 'Legalább 10 karakteres indoklás szükséges.';end if;select * into v from public.recovery_findings where id=p_finding_id;if not found then raise exception 'Finding nem található.';end if;
+ select * into d from public.recovery_decisions where decision_key=p_decision_key;if found then if d.finding_id is distinct from p_finding_id or d.actor_id<>p_actor_id or d.decision<>p_decision or d.note<>p_note then raise exception 'A decision_key már más recovery döntéshez tartozik.';end if;return d.id;end if;
+ insert into public.recovery_decisions(decision_key,objective_id,finding_id,decision,note,actor_id) values(p_decision_key,v.objective_id,p_finding_id,p_decision,p_note,p_actor_id) returning id into v_id;insert into public.recovery_events(event_key,objective_id,finding_id,event_type,actor_id,metadata) values('event:'||p_decision_key,v.objective_id,p_finding_id,'decision_recorded',p_actor_id,jsonb_build_object('decision',p_decision,'note',p_note));return v_id;
+end;$$;
+
+
+-- Customer baseline current recovery module: 159_recovery_strict_mutation_boundary.sql
+-- V19 audit hardening: runtime service_role uses guarded RPCs, not direct mutation.
+revoke insert,update,delete on public.recovery_objectives from service_role;
+revoke insert,update,delete on public.recovery_evidence from service_role;
+revoke insert,update,delete on public.recovery_drills from service_role;
+revoke insert,update,delete on public.recovery_findings from service_role;
+revoke insert,update,delete on public.recovery_events from service_role;
+revoke insert,update,delete on public.recovery_decisions from service_role;
+revoke insert,update,delete on public.recovery_runs from service_role;
+grant select on public.recovery_objectives,public.recovery_evidence,public.recovery_drills,public.recovery_findings,public.recovery_events,public.recovery_decisions,public.recovery_runs to service_role;
+
+create or replace function public.block_recovery_objective_mutation() returns trigger language plpgsql set search_path='' as $$begin raise exception 'Recovery objective verzión belül immutable; új definícióhoz új verzió szükséges.';end;$$;
+drop trigger if exists trg_recovery_objectives_immutable on public.recovery_objectives;create trigger trg_recovery_objectives_immutable before update or delete on public.recovery_objectives for each row execute function public.block_recovery_objective_mutation();
+
+create or replace function public.block_terminal_recovery_drill_mutation() returns trigger language plpgsql set search_path='' as $$begin if old.status in('passed','failed','cancelled') then raise exception 'Lezárt recovery drill immutable.';end if;return new;end;$$;
+drop trigger if exists trg_recovery_drills_terminal on public.recovery_drills;create trigger trg_recovery_drills_terminal before update on public.recovery_drills for each row execute function public.block_terminal_recovery_drill_mutation();
+
+
+-- Customer baseline current recovery module: 160_recovery_lifecycle_hardening.sql
+-- V19 final lifecycle hardening.
+create or replace function public.upsert_recovery_finding(p_objective_id uuid,p_finding_type text,p_severity text,p_title text,p_description text,p_run_key text)
+returns uuid language plpgsql security definer set search_path='' as $$
+declare o public.recovery_objectives;v_key text;v public.recovery_findings;v_id uuid;v_event text;begin
+ select * into o from public.recovery_objectives where id=p_objective_id;if not found then raise exception 'Recovery objective nem található.';end if;v_key:='recovery:'||o.service_key||':'||p_finding_type;
+ select * into v from public.recovery_findings where finding_key=v_key for update;
+ if not found then insert into public.recovery_findings(finding_key,objective_id,finding_type,severity,title,description) values(v_key,p_objective_id,p_finding_type,p_severity,p_title,p_description) returning id into v_id;v_event:='finding_opened';
+ elsif v.status='resolved' then update public.recovery_findings set status='open',severity=p_severity,title=p_title,description=p_description,occurrence_count=occurrence_count+1,last_detected_at=now(),acknowledged_by=null,resolved_by=null,updated_at=now() where id=v.id;v_id:=v.id;v_event:='finding_reopened';
+ else update public.recovery_findings set severity=p_severity,title=p_title,description=p_description,last_detected_at=now(),updated_at=now() where id=v.id;v_id:=v.id;v_event:=null;end if;
+ if v_event is not null then insert into public.recovery_events(event_key,objective_id,finding_id,event_type,metadata) values(p_run_key||':'||v_key||':'||v_event,p_objective_id,v_id,v_event,jsonb_build_object('run_key',p_run_key)) on conflict(event_key) do nothing;end if;return v_id;
+end;$$;
+
+create or replace function public.plan_recovery_drill(p_service_key text,p_scenario text,p_planned_at timestamptz,p_actor_id uuid,p_drill_key text)
+returns uuid language plpgsql security definer set search_path='' as $$
+declare v_objective public.recovery_objectives;v public.recovery_drills;v_id uuid;begin
+ select * into v_objective from public.recovery_objectives where service_key=p_service_key and enabled order by version desc limit 1;if not found then raise exception 'Nincs aktív recovery objective.';end if;
+ select * into v from public.recovery_drills where drill_key=p_drill_key;if found then if v.objective_id<>v_objective.id or v.scenario<>p_scenario or v.planned_at<>p_planned_at then raise exception 'A drill_key már más recovery drillhez tartozik.';end if;return v.id;end if;
+ insert into public.recovery_drills(drill_key,objective_id,scenario,planned_at,created_by) values(p_drill_key,v_objective.id,p_scenario,p_planned_at,p_actor_id) returning id into v_id;
+ insert into public.recovery_events(event_key,objective_id,drill_id,event_type,actor_id,metadata) values('planned:'||p_drill_key,v_objective.id,v_id,'drill_planned',p_actor_id,jsonb_build_object('scenario',p_scenario,'planned_at',p_planned_at)) on conflict(event_key) do nothing;return v_id;
+end;$$;
+
+create or replace function public.complete_recovery_drill(p_drill_id uuid,p_actor_id uuid,p_measured_rto integer,p_measured_rpo integer,p_restore_validated boolean,p_result jsonb,p_event_key text)
+returns text language plpgsql security definer set search_path='' as $$
+declare v public.recovery_drills;o public.recovery_objectives;e public.recovery_events;v_status text;begin
+ select * into e from public.recovery_events where event_key=p_event_key;if found then if e.drill_id is distinct from p_drill_id or e.event_type not in('drill_passed','drill_failed') or coalesce((e.metadata->>'measured_rto')::integer,-1)<>p_measured_rto or coalesce((e.metadata->>'measured_rpo')::integer,-1)<>p_measured_rpo or coalesce((e.metadata->>'restore_validated')::boolean,false)<>p_restore_validated then raise exception 'Az event_key már más recovery eredményhez tartozik.';end if;select status into v_status from public.recovery_drills where id=p_drill_id;return v_status;end if;
+ select * into v from public.recovery_drills where id=p_drill_id for update;if not found then raise exception 'Drill nem található.';end if;if v.status in('passed','failed') then raise exception 'A drill már lezárt, más idempotency kulccsal.';end if;if v.status<>'running' then raise exception 'Csak futó drill zárható.';end if;
+ select * into o from public.recovery_objectives where id=v.objective_id;v_status:=case when p_restore_validated and p_measured_rto<=o.rto_minutes and p_measured_rpo<=o.rpo_minutes then 'passed' else 'failed' end;
+ update public.recovery_drills set status=v_status,completed_at=now(),measured_rto_minutes=p_measured_rto,measured_rpo_minutes=p_measured_rpo,restore_validated=p_restore_validated,result=coalesce(p_result,'{}'::jsonb),updated_at=now() where id=p_drill_id;
+ insert into public.recovery_events(event_key,objective_id,drill_id,event_type,actor_id,metadata) values(p_event_key,v.objective_id,p_drill_id,case when v_status='passed' then 'drill_passed' else 'drill_failed' end,p_actor_id,jsonb_build_object('measured_rto',p_measured_rto,'measured_rpo',p_measured_rpo,'restore_validated',p_restore_validated));return v_status;
+end;$$;
 
