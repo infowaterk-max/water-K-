@@ -122,25 +122,126 @@ CREATE OR REPLACE FUNCTION "private"."handle_new_user"() RETURNS "trigger"
     LANGUAGE "plpgsql" SECURITY DEFINER
     SET "search_path" TO ''
     AS $$
-declare v_account_type text := coalesce(new.raw_user_meta_data->>'account_type','customer');
+declare v_account_type text:=coalesce(new.raw_user_meta_data->>'account_type','customer');v_requested_instance uuid;
 begin
   insert into public.profiles(id,email,full_name,company_name,tax_number,role,reseller_approved)
-  values(new.id,new.email,nullif(trim(coalesce(new.raw_user_meta_data->>'full_name','')),''),nullif(trim(coalesce(new.raw_user_meta_data->>'company_name','')),''),nullif(trim(coalesce(new.raw_user_meta_data->>'tax_number','')),''),case when v_account_type='reseller' then 'reseller'::public.customer_role else 'customer'::public.customer_role end,false)
+  values(new.id,new.email,nullif(trim(coalesce(new.raw_user_meta_data->>'full_name','')),''),nullif(trim(coalesce(new.raw_user_meta_data->>'company_name','')),''),nullif(trim(coalesce(new.raw_user_meta_data->>'tax_number','')),''),'customer'::public.customer_role,false)
   on conflict(id) do update set email=excluded.email;
+  begin v_requested_instance:=nullif(trim(coalesce(new.raw_user_meta_data->>'requested_instance_id','')),'')::uuid;exception when others then v_requested_instance:=null;end;
+  if v_requested_instance is not null and exists(select 1 from public.webshop_instances w where w.id=v_requested_instance and w.status in('pilot','active')) then
+    insert into public.customer_instance_roles(instance_id,user_id,role,reseller_approved,reseller_requested_at)
+    values(v_requested_instance,new.id,case when v_account_type='reseller' then 'reseller'::public.customer_role else 'customer'::public.customer_role end,false,case when v_account_type='reseller' then now() else null end)
+    on conflict(instance_id,user_id) do nothing;
+  end if;
   return new;
-end; $$;
+end;$$;
 
 
 ALTER FUNCTION "private"."handle_new_user"() OWNER TO "postgres";
 
 
+CREATE OR REPLACE FUNCTION "private"."has_feature_entitlement_current"("p_instance_id" "uuid", "p_feature_code" "text") RETURNS boolean
+    LANGUAGE "sql" STABLE SECURITY DEFINER
+    SET "search_path" TO ''
+    AS $$
+  select case
+    when p_instance_id is null or nullif(trim(p_feature_code),'') is null then false
+    when coalesce(auth.jwt()->>'role','')<>'service_role'
+      and not private.is_platform_operator_current(auth.uid())
+      and not private.has_store_role_current(
+        p_instance_id,
+        array['owner','admin','catalog_manager','order_manager','marketing_manager','support','analyst','viewer'],
+        auth.uid()
+      )
+    then false
+    else exists(
+      select 1
+      from public.feature_entitlements e
+      join public.webshop_instances w
+        on w.id=p_instance_id and w.organization_id=e.organization_id
+      where e.feature_code=p_feature_code
+        and e.enabled
+        and (e.instance_id is null or e.instance_id=p_instance_id)
+        and e.valid_from<=now()
+        and (e.valid_until is null or e.valid_until>now())
+    )
+  end;
+$$;
+
+
+ALTER FUNCTION "private"."has_feature_entitlement_current"("p_instance_id" "uuid", "p_feature_code" "text") OWNER TO "postgres";
+
+
+CREATE OR REPLACE FUNCTION "private"."has_store_role_current"("p_instance_id" "uuid", "p_roles" "text"[], "p_user_id" "uuid" DEFAULT "auth"."uid"()) RETURNS boolean
+    LANGUAGE "sql" STABLE SECURITY DEFINER
+    SET "search_path" TO ''
+    AS $$
+  select case
+    when p_instance_id is null or p_user_id is null then false
+    when coalesce(auth.jwt()->>'role','')<>'service_role'
+      and (auth.uid() is null or p_user_id is distinct from auth.uid()) then false
+    else private.is_platform_operator_current(p_user_id) or exists(
+      select 1
+      from public.role_bindings r
+      where r.user_id=p_user_id
+        and r.role_code=any(p_roles)
+        and r.revoked_at is null
+        and r.valid_from<=now()
+        and (r.valid_until is null or r.valid_until>now())
+        and (
+          r.instance_id=p_instance_id
+          or (
+            r.instance_id is null
+            and r.organization_id=(
+              select w.organization_id from public.webshop_instances w where w.id=p_instance_id
+            )
+          )
+        )
+    )
+  end;
+$$;
+
+
+ALTER FUNCTION "private"."has_store_role_current"("p_instance_id" "uuid", "p_roles" "text"[], "p_user_id" "uuid") OWNER TO "postgres";
+
+
 CREATE OR REPLACE FUNCTION "private"."is_admin"() RETURNS boolean
     LANGUAGE "sql" STABLE SECURITY DEFINER
     SET "search_path" TO ''
-    AS $$ select exists(select 1 from public.profiles where id=auth.uid() and role='admin'); $$;
+    AS $$
+  select
+    exists(
+      select 1
+      from public.profiles
+      where id=auth.uid() and role='admin'
+    )
+    or exists(
+      select 1
+      from public.platform_operators
+      where user_id=auth.uid()
+        and role in ('owner','admin','operator')
+    );
+$$;
 
 
 ALTER FUNCTION "private"."is_admin"() OWNER TO "postgres";
+
+
+CREATE OR REPLACE FUNCTION "private"."is_platform_operator_current"("p_user_id" "uuid" DEFAULT "auth"."uid"()) RETURNS boolean
+    LANGUAGE "sql" STABLE SECURITY DEFINER
+    SET "search_path" TO ''
+    AS $$
+  select case
+    when p_user_id is null then false
+    when coalesce(auth.jwt()->>'role','')='service_role' then
+      exists(select 1 from public.platform_operators p where p.user_id=p_user_id)
+    when auth.uid() is null or p_user_id is distinct from auth.uid() then false
+    else exists(select 1 from public.platform_operators p where p.user_id=p_user_id)
+  end;
+$$;
+
+
+ALTER FUNCTION "private"."is_platform_operator_current"("p_user_id" "uuid") OWNER TO "postgres";
 
 
 CREATE OR REPLACE FUNCTION "private"."snapshot_order_item_tax"() RETURNS "trigger"
@@ -193,6 +294,18 @@ end;$$;
 ALTER FUNCTION "public"."accrue_loyalty_points_from_paid_orders"() OWNER TO "postgres";
 
 
+CREATE OR REPLACE FUNCTION "public"."accrue_loyalty_points_from_paid_orders_v2"("p_instance_id" "uuid") RETURNS integer
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    SET "search_path" TO 'public'
+    AS $$declare v_count int:=0;begin
+ insert into public.loyalty_ledger(instance_id,customer_id,event_key,entry_type,points,order_id,reason,metadata,occurred_at)
+ select p_instance_id,o.customer_id,'order-earn:'||o.id::text,'earn',least(1000,greatest(1,floor(o.total_gross_huf/1000.0)::int)),o.id,'Fizetett rendelés után jóváírt hűségpont',jsonb_build_object('order_total_gross_huf',o.total_gross_huf,'rule','1_point_per_1000_huf_gross','cap',1000),o.created_at from public.orders o
+ where o.instance_id=p_instance_id and o.customer_id is not null and o.status in('paid','processing','shipped','completed') and o.total_gross_huf>0 on conflict(instance_id,event_key) do nothing;get diagnostics v_count=row_count;return v_count;end$$;
+
+
+ALTER FUNCTION "public"."accrue_loyalty_points_from_paid_orders_v2"("p_instance_id" "uuid") OWNER TO "postgres";
+
+
 CREATE OR REPLACE FUNCTION "public"."action_proposal_is_stale"("p_proposal_id" "uuid") RETURNS boolean
     LANGUAGE "sql" SECURITY DEFINER
     SET "search_path" TO ''
@@ -223,6 +336,7 @@ CREATE TABLE IF NOT EXISTS "public"."automation_runbook_instances" (
     "deadline_at" timestamp with time zone NOT NULL,
     "created_at" timestamp with time zone DEFAULT "now"() NOT NULL,
     "updated_at" timestamp with time zone DEFAULT "now"() NOT NULL,
+    "instance_id" "uuid" NOT NULL,
     CONSTRAINT "automation_runbook_instances_escalation_level_check" CHECK ((("escalation_level" >= 0) AND ("escalation_level" <= 5))),
     CONSTRAINT "automation_runbook_instances_failure_count_check" CHECK (("failure_count" >= 0)),
     CONSTRAINT "automation_runbook_instances_status_check" CHECK (("status" = ANY (ARRAY['planned'::"text", 'active'::"text", 'paused'::"text", 'completed'::"text", 'failed'::"text", 'cancelled'::"text"])))
@@ -253,6 +367,15 @@ end;$$;
 
 
 ALTER FUNCTION "public"."activate_automation_runbook"("p_instance_id" "uuid", "p_actor_id" "uuid", "p_event_key" "text") OWNER TO "postgres";
+
+
+CREATE OR REPLACE FUNCTION "public"."activate_automation_runbook_v2"("p_store_instance_id" "uuid", "p_runbook_instance_id" "uuid", "p_actor_id" "uuid", "p_event_key" "text") RETURNS "public"."automation_runbook_instances"
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    SET "search_path" TO ''
+    AS $$begin if not exists(select 1 from public.automation_runbook_instances where id=p_runbook_instance_id and instance_id=p_store_instance_id)then raise exception 'automation_instance_not_found';end if;return public.activate_automation_runbook(p_runbook_instance_id,p_actor_id,p_store_instance_id::text||':'||p_event_key);end$$;
+
+
+ALTER FUNCTION "public"."activate_automation_runbook_v2"("p_store_instance_id" "uuid", "p_runbook_instance_id" "uuid", "p_actor_id" "uuid", "p_event_key" "text") OWNER TO "postgres";
 
 
 CREATE OR REPLACE FUNCTION "public"."add_customer_journey_step"("p_journey_id" "uuid", "p_step_key" "text", "p_purpose" "text", "p_template_key" "text", "p_scheduled_at" timestamp with time zone) RETURNS "uuid"
@@ -332,6 +455,28 @@ CREATE OR REPLACE FUNCTION "public"."admin_approve_communication_job"("p_job_id"
 ALTER FUNCTION "public"."admin_approve_communication_job"("p_job_id" "uuid", "p_actor" "uuid", "p_note" "text") OWNER TO "postgres";
 
 
+CREATE OR REPLACE FUNCTION "public"."admin_approve_communication_job_v2"("p_instance_id" "uuid", "p_job_id" "uuid", "p_actor" "uuid", "p_note" "text" DEFAULT NULL::"text") RETURNS boolean
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    SET "search_path" TO ''
+    AS $$
+declare j public.communication_jobs%rowtype;
+begin
+  if not public.can_manage_marketing(p_instance_id,p_actor) then raise exception 'marketing permission required'; end if;
+  select * into j from public.communication_jobs where id=p_job_id and instance_id=p_instance_id for update;
+  if not found then return false; end if;
+  if j.status<>'pending' then raise exception 'job cannot be approved'; end if;
+  if j.purpose='marketing' and not public.has_marketing_consent_v2(p_instance_id,j.recipient_email,'email') then raise exception 'marketing consent required'; end if;
+  update public.communication_jobs set approved_at=now(),approved_by=p_actor,updated_at=now() where id=j.id and instance_id=p_instance_id;
+  insert into public.communication_job_events(instance_id,job_id,actor_user_id,action,previous_status,new_status,previous_scheduled_at,new_scheduled_at,note)
+    values(p_instance_id,j.id,p_actor,'approve',j.status,j.status,j.scheduled_at,j.scheduled_at,left(p_note,1000));
+  return true;
+end;
+$$;
+
+
+ALTER FUNCTION "public"."admin_approve_communication_job_v2"("p_instance_id" "uuid", "p_job_id" "uuid", "p_actor" "uuid", "p_note" "text") OWNER TO "postgres";
+
+
 CREATE OR REPLACE FUNCTION "public"."admin_block_communication_email"("p_email" "text", "p_actor" "uuid", "p_note" "text" DEFAULT NULL::"text") RETURNS "uuid"
     LANGUAGE "plpgsql" SECURITY DEFINER
     SET "search_path" TO ''
@@ -339,6 +484,30 @@ CREATE OR REPLACE FUNCTION "public"."admin_block_communication_email"("p_email" 
 
 
 ALTER FUNCTION "public"."admin_block_communication_email"("p_email" "text", "p_actor" "uuid", "p_note" "text") OWNER TO "postgres";
+
+
+CREATE OR REPLACE FUNCTION "public"."admin_block_communication_email_v2"("p_instance_id" "uuid", "p_email" "text", "p_actor" "uuid", "p_note" "text" DEFAULT NULL::"text") RETURNS "uuid"
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    SET "search_path" TO ''
+    AS $$
+declare v_id uuid;v_email text:=lower(trim(p_email));
+begin
+  if not public.can_manage_marketing(p_instance_id,p_actor) then raise exception 'marketing permission required'; end if;
+  if v_email='' then raise exception 'email required'; end if;
+  select id into v_id from public.communication_suppressions where instance_id=p_instance_id and lower(email)=v_email and active=true
+    order by created_at desc limit 1 for update;
+  if v_id is null then
+    insert into public.communication_suppressions(instance_id,email,reason,source,note,active)
+    values(p_instance_id,v_email,'manual','admin',left(p_note,1000),true) returning id into v_id;
+  end if;
+  insert into public.communication_suppression_events(instance_id,suppression_id,email,actor_user_id,action,reason,note)
+    values(p_instance_id,v_id,v_email,p_actor,'block','manual',left(p_note,1000));
+  return v_id;
+end;
+$$;
+
+
+ALTER FUNCTION "public"."admin_block_communication_email_v2"("p_instance_id" "uuid", "p_email" "text", "p_actor" "uuid", "p_note" "text") OWNER TO "postgres";
 
 
 CREATE OR REPLACE FUNCTION "public"."admin_manage_communication_job"("p_job_id" "uuid", "p_actor" "uuid", "p_action" "text", "p_scheduled_at" timestamp with time zone DEFAULT NULL::timestamp with time zone, "p_note" "text" DEFAULT NULL::"text") RETURNS boolean
@@ -350,6 +519,32 @@ CREATE OR REPLACE FUNCTION "public"."admin_manage_communication_job"("p_job_id" 
 ALTER FUNCTION "public"."admin_manage_communication_job"("p_job_id" "uuid", "p_actor" "uuid", "p_action" "text", "p_scheduled_at" timestamp with time zone, "p_note" "text") OWNER TO "postgres";
 
 
+CREATE OR REPLACE FUNCTION "public"."admin_manage_communication_job_v2"("p_instance_id" "uuid", "p_job_id" "uuid", "p_actor" "uuid", "p_action" "text", "p_scheduled_at" timestamp with time zone DEFAULT NULL::timestamp with time zone, "p_note" "text" DEFAULT NULL::"text") RETURNS boolean
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    SET "search_path" TO ''
+    AS $$
+declare j public.communication_jobs%rowtype;v_status text;v_schedule timestamptz;
+begin
+  if not (public.can_manage_marketing(p_instance_id,p_actor) or public.can_manage_orders(p_instance_id,p_actor) or public.can_manage_support(p_instance_id,p_actor)) then raise exception 'store permission required'; end if;
+  select * into j from public.communication_jobs where id=p_job_id and instance_id=p_instance_id for update;
+  if not found then return false; end if;
+  if p_action='cancel' then if j.status not in('pending','failed','blocked') then raise exception 'job cannot be cancelled';end if;v_status='cancelled';v_schedule=j.scheduled_at;
+  elsif p_action='reschedule' then if j.status not in('pending','failed','blocked') or p_scheduled_at is null then raise exception 'job cannot be rescheduled';end if;v_status='pending';v_schedule=p_scheduled_at;
+  elsif p_action='retry' then if j.status not in('failed','blocked') then raise exception 'job cannot be retried';end if;v_status='pending';v_schedule=coalesce(p_scheduled_at,now());
+  elsif p_action='approve' then if j.status<>'pending' then raise exception 'job cannot be approved';end if;v_status='pending';v_schedule=coalesce(p_scheduled_at,j.scheduled_at);
+  else raise exception 'invalid action';end if;
+  update public.communication_jobs set status=v_status,scheduled_at=v_schedule,last_error=case when p_action in('retry','reschedule') then null else last_error end,
+    claim_token=null,claimed_at=null,updated_at=now() where id=j.id and instance_id=p_instance_id;
+  insert into public.communication_job_events(instance_id,job_id,actor_user_id,action,previous_status,new_status,previous_scheduled_at,new_scheduled_at,note)
+    values(p_instance_id,j.id,p_actor,p_action,j.status,v_status,j.scheduled_at,v_schedule,left(p_note,1000));
+  return true;
+end;
+$$;
+
+
+ALTER FUNCTION "public"."admin_manage_communication_job_v2"("p_instance_id" "uuid", "p_job_id" "uuid", "p_actor" "uuid", "p_action" "text", "p_scheduled_at" timestamp with time zone, "p_note" "text") OWNER TO "postgres";
+
+
 CREATE OR REPLACE FUNCTION "public"."admin_manage_marketing_campaign"("p_campaign_id" "uuid", "p_actor" "uuid", "p_action" "text", "p_note" "text" DEFAULT NULL::"text") RETURNS "jsonb"
     LANGUAGE "plpgsql" SECURITY DEFINER
     SET "search_path" TO ''
@@ -359,6 +554,105 @@ CREATE OR REPLACE FUNCTION "public"."admin_manage_marketing_campaign"("p_campaig
 ALTER FUNCTION "public"."admin_manage_marketing_campaign"("p_campaign_id" "uuid", "p_actor" "uuid", "p_action" "text", "p_note" "text") OWNER TO "postgres";
 
 
+CREATE OR REPLACE FUNCTION "public"."admin_manage_marketing_campaign_v2"("p_instance_id" "uuid", "p_campaign_id" "uuid", "p_actor" "uuid", "p_action" "text", "p_note" "text" DEFAULT NULL::"text") RETURNS "jsonb"
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    SET "search_path" TO ''
+    AS $$
+declare
+  c public.marketing_campaigns%rowtype;
+  r record;
+  v_job uuid;
+  v_queued integer:=0;
+begin
+  if not public.can_manage_marketing(p_instance_id,p_actor)
+     and not public.is_platform_operator(p_actor) then
+    raise exception 'admin required';
+  end if;
+
+  select * into c
+  from public.marketing_campaigns
+  where id=p_campaign_id and instance_id=p_instance_id
+  for update;
+
+  if not found then raise exception 'campaign not found in webshop'; end if;
+
+  if p_action='submit_review' then
+    if c.status<>'draft' then raise exception 'invalid state'; end if;
+    update public.marketing_campaigns
+      set status='review',updated_at=now()
+      where id=c.id and instance_id=p_instance_id;
+
+  elsif p_action='approve' then
+    if c.status<>'review' then raise exception 'invalid state'; end if;
+    update public.marketing_campaigns
+      set status='approved',approved_by=p_actor,approved_at=now(),updated_at=now()
+      where id=c.id and instance_id=p_instance_id;
+
+  elsif p_action='queue' then
+    if c.status<>'approved' then raise exception 'invalid state'; end if;
+
+    for r in
+      select *
+      from public.marketing_campaign_recipients
+      where instance_id=p_instance_id
+        and campaign_id=c.id
+        and eligible=true
+        and communication_job_id is null
+    loop
+      if public.has_marketing_consent_v2(p_instance_id,r.email,'email')
+         and not public.is_communication_suppressed_v2(p_instance_id,r.email) then
+        begin
+          v_job:=public.enqueue_communication_v2(
+            p_instance_id,
+            r.email,
+            r.user_id,
+            'marketing',
+            c.template_key,
+            jsonb_build_object('customerName',coalesce(r.customer_name,''),'campaignId',c.id),
+            concat('campaign:',p_instance_id,':',c.id,':',lower(r.email)),
+            coalesce(c.scheduled_at,now())
+          );
+          update public.marketing_campaign_recipients
+            set communication_job_id=v_job
+            where id=r.id and instance_id=p_instance_id;
+          v_queued:=v_queued+1;
+        exception when others then
+          null;
+        end;
+      else
+        update public.marketing_campaign_recipients
+          set eligible=false,exclusion_reason='ELIGIBILITY_CHANGED_BEFORE_QUEUE'
+          where id=r.id and instance_id=p_instance_id;
+      end if;
+    end loop;
+
+    update public.marketing_campaigns
+      set status='queued',updated_at=now()
+      where id=c.id and instance_id=p_instance_id;
+
+  elsif p_action='cancel' then
+    if c.status in('queued','completed','cancelled') then raise exception 'invalid state'; end if;
+    update public.marketing_campaigns
+      set status='cancelled',updated_at=now()
+      where id=c.id and instance_id=p_instance_id;
+  else
+    raise exception 'invalid action';
+  end if;
+
+  insert into public.marketing_campaign_events(
+    instance_id,campaign_id,actor_user_id,action,note
+  ) values(
+    p_instance_id,c.id,p_actor,p_action,left(p_note,1000)
+  );
+
+  return jsonb_build_object('ok',true,'queued',v_queued);
+end;
+$$;
+
+
+ALTER FUNCTION "public"."admin_manage_marketing_campaign_v2"("p_instance_id" "uuid", "p_campaign_id" "uuid", "p_actor" "uuid", "p_action" "text", "p_note" "text") OWNER TO "postgres";
+
+
 CREATE OR REPLACE FUNCTION "public"."admin_release_communication_suppression"("p_suppression_id" "uuid", "p_actor" "uuid", "p_note" "text" DEFAULT NULL::"text") RETURNS boolean
     LANGUAGE "plpgsql" SECURITY DEFINER
     SET "search_path" TO ''
@@ -366,6 +660,27 @@ CREATE OR REPLACE FUNCTION "public"."admin_release_communication_suppression"("p
 
 
 ALTER FUNCTION "public"."admin_release_communication_suppression"("p_suppression_id" "uuid", "p_actor" "uuid", "p_note" "text") OWNER TO "postgres";
+
+
+CREATE OR REPLACE FUNCTION "public"."admin_release_communication_suppression_v2"("p_instance_id" "uuid", "p_suppression_id" "uuid", "p_actor" "uuid", "p_note" "text" DEFAULT NULL::"text") RETURNS boolean
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    SET "search_path" TO ''
+    AS $$
+declare s public.communication_suppressions%rowtype;
+begin
+  if not public.can_manage_marketing(p_instance_id,p_actor) then raise exception 'marketing permission required'; end if;
+  select * into s from public.communication_suppressions where id=p_suppression_id and instance_id=p_instance_id for update;
+  if not found then return false; end if;
+  if not s.active then return true; end if;
+  update public.communication_suppressions set active=false,released_at=now(),released_by=p_actor where id=s.id and instance_id=p_instance_id;
+  insert into public.communication_suppression_events(instance_id,suppression_id,email,actor_user_id,action,reason,note)
+    values(p_instance_id,s.id,s.email,p_actor,'release',s.reason,left(p_note,1000));
+  return true;
+end;
+$$;
+
+
+ALTER FUNCTION "public"."admin_release_communication_suppression_v2"("p_instance_id" "uuid", "p_suppression_id" "uuid", "p_actor" "uuid", "p_note" "text") OWNER TO "postgres";
 
 
 CREATE OR REPLACE FUNCTION "public"."allow_stock_notification_request"("p_email" "text", "p_ip" "text") RETURNS boolean
@@ -384,6 +699,29 @@ end;$_$;
 
 
 ALTER FUNCTION "public"."allow_stock_notification_request"("p_email" "text", "p_ip" "text") OWNER TO "postgres";
+
+
+CREATE OR REPLACE FUNCTION "public"."apply_checkout_instance_context"() RETURNS "trigger"
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    SET "search_path" TO 'public'
+    AS $$
+declare raw_instance text;ctx uuid;
+begin
+  if new.instance_id is not null then return new; end if;
+  raw_instance:=current_setting('shoperation.instance_id',true);
+  if nullif(raw_instance,'') is null then
+    raise exception 'Order insert blocked: explicit webshop tenant context is required.';
+  end if;
+  begin ctx:=raw_instance::uuid; exception when others then raise exception 'Order insert blocked: invalid webshop tenant context.'; end;
+  if not exists(select 1 from public.webshop_instances w where w.id=ctx and w.status in('pilot','active')) then
+    raise exception 'Order insert blocked: webshop tenant context is not active.';
+  end if;
+  new.instance_id:=ctx;
+  return new;
+end $$;
+
+
+ALTER FUNCTION "public"."apply_checkout_instance_context"() OWNER TO "postgres";
 
 
 CREATE OR REPLACE FUNCTION "public"."apply_loyalty_tier_bonus_points"() RETURNS integer
@@ -431,6 +769,7 @@ CREATE TABLE IF NOT EXISTS "public"."commercial_offers" (
     "created_by" "uuid",
     "created_at" timestamp with time zone DEFAULT "now"() NOT NULL,
     "updated_at" timestamp with time zone DEFAULT "now"() NOT NULL,
+    "instance_id" "uuid" NOT NULL,
     CONSTRAINT "commercial_offers_discount_percent_check" CHECK ((("discount_percent" >= (0)::numeric) AND ("discount_percent" <= (100)::numeric))),
     CONSTRAINT "commercial_offers_minimum_margin_percent_check" CHECK ((("minimum_margin_percent" >= (0)::numeric) AND ("minimum_margin_percent" <= (100)::numeric))),
     CONSTRAINT "commercial_offers_quantity_check" CHECK (("quantity" > 0)),
@@ -470,6 +809,35 @@ $$;
 
 
 ALTER FUNCTION "public"."approve_commercial_offer"("p_offer_id" "uuid") OWNER TO "postgres";
+
+
+CREATE OR REPLACE FUNCTION "public"."approve_commercial_offer_v2"("p_instance_id" "uuid", "p_offer_id" "uuid") RETURNS "public"."commercial_offers"
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    SET "search_path" TO 'public'
+    AS $$
+declare v_offer public.commercial_offers;v_preview jsonb;
+begin
+ select * into v_offer from public.commercial_offers where id=p_offer_id and instance_id=p_instance_id for update;
+ if not found then raise exception 'offer_not_found';end if;
+ if v_offer.status<>'draft' then raise exception 'offer_not_draft';end if;
+ perform 1 from public.product_variants where id=v_offer.variant_id and instance_id=p_instance_id;if not found then raise exception 'variant_not_found';end if;
+ select public.preview_promotion_margin(v_offer.variant_id,v_offer.discount_percent,v_offer.minimum_margin_percent) into v_preview;
+ if coalesce((v_preview->>'safe')::boolean,false) is not true then raise exception 'margin_guard_failed';end if;
+ update public.commercial_offers set status='approved',net_price_before_huf=(v_preview->>'netPriceBefore')::numeric,net_price_after_huf=(v_preview->>'netPriceAfter')::numeric,unit_cost_net_huf=(v_preview->>'unitCostNet')::numeric,margin_net_huf=(v_preview->>'marginNet')::numeric,margin_percent=(v_preview->>'marginPercent')::numeric,total_net_huf=((v_preview->>'netPriceAfter')::numeric*quantity),approved_at=now(),updated_at=now() where id=p_offer_id and instance_id=p_instance_id returning * into v_offer;
+ return v_offer;
+end$$;
+
+
+ALTER FUNCTION "public"."approve_commercial_offer_v2"("p_instance_id" "uuid", "p_offer_id" "uuid") OWNER TO "postgres";
+
+
+CREATE OR REPLACE FUNCTION "public"."automation_child_store_guard"() RETURNS "trigger"
+    LANGUAGE "plpgsql"
+    SET "search_path" TO 'public'
+    AS $$ declare v uuid; begin select instance_id into v from public.automation_runbook_instances where id=new.instance_id; if v is null then raise exception 'tenant_parent_missing';end if;if new.store_instance_id is null then new.store_instance_id:=v;elsif new.store_instance_id<>v then raise exception 'tenant_parent_mismatch';end if;return new;end$$;
+
+
+ALTER FUNCTION "public"."automation_child_store_guard"() OWNER TO "postgres";
 
 
 CREATE OR REPLACE FUNCTION "public"."block_post_release_immutable_mutation"() RETURNS "trigger"
@@ -559,6 +927,91 @@ $$;
 ALTER FUNCTION "public"."bulk_update_product_variants"("p_changes" "jsonb", "p_actor" "uuid") OWNER TO "postgres";
 
 
+CREATE OR REPLACE FUNCTION "public"."can_manage_catalog"("p_instance_id" "uuid", "p_user_id" "uuid" DEFAULT "auth"."uid"()) RETURNS boolean
+    LANGUAGE "sql" STABLE
+    SET "search_path" TO ''
+    AS $$select public.is_platform_operator(p_user_id) or public.has_store_role(p_instance_id,array['owner','admin','catalog_manager'],p_user_id);$$;
+
+
+ALTER FUNCTION "public"."can_manage_catalog"("p_instance_id" "uuid", "p_user_id" "uuid") OWNER TO "postgres";
+
+
+CREATE OR REPLACE FUNCTION "public"."can_manage_loyalty"("p_instance_id" "uuid", "p_user_id" "uuid" DEFAULT "auth"."uid"()) RETURNS boolean
+    LANGUAGE "sql" STABLE
+    SET "search_path" TO ''
+    AS $$select public.is_platform_operator(p_user_id) or public.has_store_role(p_instance_id,array['owner','admin','marketing_manager'],p_user_id);$$;
+
+
+ALTER FUNCTION "public"."can_manage_loyalty"("p_instance_id" "uuid", "p_user_id" "uuid") OWNER TO "postgres";
+
+
+CREATE OR REPLACE FUNCTION "public"."can_manage_marketing"("p_instance_id" "uuid", "p_user_id" "uuid" DEFAULT "auth"."uid"()) RETURNS boolean
+    LANGUAGE "sql" STABLE
+    SET "search_path" TO ''
+    AS $$select public.is_platform_operator(p_user_id) or public.has_store_role(p_instance_id,array['owner','admin','marketing_manager'],p_user_id);$$;
+
+
+ALTER FUNCTION "public"."can_manage_marketing"("p_instance_id" "uuid", "p_user_id" "uuid") OWNER TO "postgres";
+
+
+CREATE OR REPLACE FUNCTION "public"."can_manage_orders"("p_instance_id" "uuid", "p_user_id" "uuid" DEFAULT "auth"."uid"()) RETURNS boolean
+    LANGUAGE "sql" STABLE
+    SET "search_path" TO ''
+    AS $$select public.is_platform_operator(p_user_id) or public.has_store_role(p_instance_id,array['owner','admin','order_manager'],p_user_id);$$;
+
+
+ALTER FUNCTION "public"."can_manage_orders"("p_instance_id" "uuid", "p_user_id" "uuid") OWNER TO "postgres";
+
+
+CREATE OR REPLACE FUNCTION "public"."can_manage_procurement"("p_instance_id" "uuid", "p_user_id" "uuid" DEFAULT "auth"."uid"()) RETURNS boolean
+    LANGUAGE "sql" STABLE
+    SET "search_path" TO ''
+    AS $$select public.is_platform_operator(p_user_id) or public.has_store_role(p_instance_id,array['owner','admin','catalog_manager'],p_user_id);$$;
+
+
+ALTER FUNCTION "public"."can_manage_procurement"("p_instance_id" "uuid", "p_user_id" "uuid") OWNER TO "postgres";
+
+
+CREATE OR REPLACE FUNCTION "public"."can_manage_sales"("p_instance_id" "uuid", "p_user_id" "uuid" DEFAULT "auth"."uid"()) RETURNS boolean
+    LANGUAGE "sql" STABLE
+    SET "search_path" TO ''
+    AS $$select public.is_platform_operator(p_user_id) or public.has_store_role(p_instance_id,array['owner','admin','marketing_manager'],p_user_id);$$;
+
+
+ALTER FUNCTION "public"."can_manage_sales"("p_instance_id" "uuid", "p_user_id" "uuid") OWNER TO "postgres";
+
+
+CREATE OR REPLACE FUNCTION "public"."can_manage_support"("p_instance_id" "uuid", "p_user_id" "uuid" DEFAULT "auth"."uid"()) RETURNS boolean
+    LANGUAGE "sql" STABLE
+    SET "search_path" TO ''
+    AS $$select public.is_platform_operator(p_user_id) or public.has_store_role(p_instance_id,array['owner','admin','order_manager','support'],p_user_id);$$;
+
+
+ALTER FUNCTION "public"."can_manage_support"("p_instance_id" "uuid", "p_user_id" "uuid") OWNER TO "postgres";
+
+
+CREATE OR REPLACE FUNCTION "public"."can_read_loyalty"("p_instance_id" "uuid", "p_user_id" "uuid" DEFAULT "auth"."uid"()) RETURNS boolean
+    LANGUAGE "sql" STABLE
+    SET "search_path" TO ''
+    AS $$select public.is_platform_operator(p_user_id) or public.has_store_role(p_instance_id,array['owner','admin','marketing_manager','analyst'],p_user_id);$$;
+
+
+ALTER FUNCTION "public"."can_read_loyalty"("p_instance_id" "uuid", "p_user_id" "uuid") OWNER TO "postgres";
+
+
+CREATE OR REPLACE FUNCTION "public"."can_read_store"("p_instance_id" "uuid", "p_user_id" "uuid" DEFAULT "auth"."uid"()) RETURNS boolean
+    LANGUAGE "sql" STABLE
+    SET "search_path" TO ''
+    AS $$select public.is_platform_operator(p_user_id) or public.has_store_role(p_instance_id,array['owner','admin','catalog_manager','order_manager','marketing_manager','support','analyst','viewer'],p_user_id);$$;
+
+
+ALTER FUNCTION "public"."can_read_store"("p_instance_id" "uuid", "p_user_id" "uuid") OWNER TO "postgres";
+
+
+COMMENT ON FUNCTION "public"."can_read_store"("p_instance_id" "uuid", "p_user_id" "uuid") IS 'Tenant-aware RBAC helper used by strict commerce RLS.';
+
+
+
 CREATE OR REPLACE FUNCTION "public"."cancel_release_candidate"("p_candidate_id" "uuid", "p_actor_id" "uuid", "p_reason" "text", "p_event_key" "text") RETURNS "public"."release_candidates"
     LANGUAGE "plpgsql" SECURITY DEFINER
     SET "search_path" TO ''
@@ -599,6 +1052,25 @@ end;$$;
 ALTER FUNCTION "public"."capture_inventory_snapshot"("p_snapshot_date" "date") OWNER TO "postgres";
 
 
+CREATE OR REPLACE FUNCTION "public"."capture_order_coupon_redemption"() RETURNS "trigger"
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    SET "search_path" TO ''
+    AS $$
+begin
+  if new.instance_id is not null
+     and nullif(trim(new.coupon_code),'') is not null
+     and new.discount_gross_huf > 0
+     and (tg_op='INSERT' or old.discount_gross_huf is distinct from new.discount_gross_huf or old.coupon_code is distinct from new.coupon_code)
+  then
+    perform public.record_coupon_redemption_v1(new.instance_id,new.id,new.coupon_code,new.discount_gross_huf);
+  end if;
+  return new;
+end $$;
+
+
+ALTER FUNCTION "public"."capture_order_coupon_redemption"() OWNER TO "postgres";
+
+
 CREATE TABLE IF NOT EXISTS "public"."communication_jobs" (
     "id" "uuid" DEFAULT "gen_random_uuid"() NOT NULL,
     "recipient_email" "text" NOT NULL,
@@ -620,6 +1092,7 @@ CREATE TABLE IF NOT EXISTS "public"."communication_jobs" (
     "requires_approval" boolean DEFAULT true NOT NULL,
     "approved_at" timestamp with time zone,
     "approved_by" "uuid",
+    "instance_id" "uuid" NOT NULL,
     CONSTRAINT "communication_jobs_attempts_check" CHECK (("attempts" >= 0)),
     CONSTRAINT "communication_jobs_purpose_check" CHECK (("purpose" = ANY (ARRAY['transactional'::"text", 'marketing'::"text"]))),
     CONSTRAINT "communication_jobs_status_check" CHECK (("status" = ANY (ARRAY['pending'::"text", 'processing'::"text", 'sent'::"text", 'failed'::"text", 'blocked'::"text", 'cancelled'::"text"])))
@@ -638,6 +1111,27 @@ CREATE OR REPLACE FUNCTION "public"."claim_communication_jobs"("p_limit" integer
 ALTER FUNCTION "public"."claim_communication_jobs"("p_limit" integer) OWNER TO "postgres";
 
 
+CREATE OR REPLACE FUNCTION "public"."claim_communication_jobs_v2"("p_instance_id" "uuid", "p_limit" integer DEFAULT 10) RETURNS SETOF "public"."communication_jobs"
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    SET "search_path" TO ''
+    AS $$
+begin
+  return query with candidates as(
+    select id from public.communication_jobs
+    where instance_id=p_instance_id and status='pending' and scheduled_at<=now()
+      and (requires_approval=false or approved_at is not null)
+    order by scheduled_at,created_at for update skip locked limit greatest(1,least(p_limit,50))
+  ),claimed as(
+    update public.communication_jobs j set status='processing',claim_token=gen_random_uuid(),claimed_at=now(),attempts=j.attempts+1,updated_at=now()
+    from candidates c where j.id=c.id and j.instance_id=p_instance_id returning j.*
+  ) select * from claimed;
+end;
+$$;
+
+
+ALTER FUNCTION "public"."claim_communication_jobs_v2"("p_instance_id" "uuid", "p_limit" integer) OWNER TO "postgres";
+
+
 CREATE OR REPLACE FUNCTION "public"."claim_integration_job"("p_id" "uuid") RETURNS TABLE("id" "uuid", "processing_token" "uuid")
     LANGUAGE "plpgsql" SECURITY DEFINER
     SET "search_path" TO ''
@@ -645,6 +1139,32 @@ CREATE OR REPLACE FUNCTION "public"."claim_integration_job"("p_id" "uuid") RETUR
 
 
 ALTER FUNCTION "public"."claim_integration_job"("p_id" "uuid") OWNER TO "postgres";
+
+
+CREATE OR REPLACE FUNCTION "public"."claim_integration_job_v2"("p_instance_id" "uuid", "p_id" "uuid") RETURNS TABLE("id" "uuid", "instance_id" "uuid", "processing_token" "uuid")
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    SET "search_path" TO ''
+    AS $$
+begin
+  if p_instance_id is null then raise exception 'instance_required'; end if;
+  return query
+  update public.integration_jobs j
+  set status='processing',
+      processing_token=gen_random_uuid(),
+      updated_at=now(),
+      next_attempt_at=null
+  where j.id=p_id
+    and j.instance_id=p_instance_id
+    and (
+      j.status in('pending','failed','blocked')
+      or (j.status='processing' and j.updated_at<=now()-interval '15 minutes')
+    )
+  returning j.id,j.instance_id,j.processing_token;
+end;
+$$;
+
+
+ALTER FUNCTION "public"."claim_integration_job_v2"("p_instance_id" "uuid", "p_id" "uuid") OWNER TO "postgres";
 
 
 CREATE OR REPLACE FUNCTION "public"."claim_integration_jobs"("p_limit" integer DEFAULT 10) RETURNS TABLE("id" "uuid", "processing_token" "uuid")
@@ -665,6 +1185,37 @@ CREATE OR REPLACE FUNCTION "public"."complete_communication_job"("p_id" "uuid", 
 ALTER FUNCTION "public"."complete_communication_job"("p_id" "uuid", "p_claim_token" "uuid", "p_provider_message_id" "text") OWNER TO "postgres";
 
 
+CREATE OR REPLACE FUNCTION "public"."complete_communication_job_v2"("p_instance_id" "uuid", "p_id" "uuid", "p_claim_token" "uuid", "p_provider_message_id" "text") RETURNS boolean
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    SET "search_path" TO ''
+    AS $$
+begin
+  update public.communication_jobs set status='sent',provider_message_id=p_provider_message_id,sent_at=now(),claim_token=null,claimed_at=null,last_error=null,updated_at=now()
+  where instance_id=p_instance_id and id=p_id and status='processing' and claim_token=p_claim_token;
+  return found;
+end;
+$$;
+
+
+ALTER FUNCTION "public"."complete_communication_job_v2"("p_instance_id" "uuid", "p_id" "uuid", "p_claim_token" "uuid", "p_provider_message_id" "text") OWNER TO "postgres";
+
+
+CREATE OR REPLACE FUNCTION "public"."compute_admin_audit_hash"("p_chain_seq" bigint, "p_audit_scope" "text", "p_prev_hash" "text", "p_actor_user_id" "uuid", "p_actor_roles" "text"[], "p_action" "text", "p_entity_type" "text", "p_entity_id" "text", "p_summary" "text", "p_before_state" "jsonb", "p_after_state" "jsonb", "p_metadata" "jsonb", "p_created_at" timestamp with time zone) RETURNS "text"
+    LANGUAGE "sql" IMMUTABLE
+    SET "search_path" TO 'public', 'extensions'
+    AS $$
+  select encode(extensions.digest(convert_to(jsonb_build_object(
+    'chain_seq',p_chain_seq,'audit_scope',p_audit_scope,'prev_hash',p_prev_hash,'actor_user_id',p_actor_user_id,
+    'actor_roles',coalesce(p_actor_roles,'{}'::text[]),'action',p_action,'entity_type',p_entity_type,'entity_id',p_entity_id,
+    'summary',p_summary,'before_state',p_before_state,'after_state',p_after_state,'metadata',coalesce(p_metadata,'{}'::jsonb),
+    'created_at',p_created_at
+  )::text,'UTF8'),'sha256'),'hex');
+$$;
+
+
+ALTER FUNCTION "public"."compute_admin_audit_hash"("p_chain_seq" bigint, "p_audit_scope" "text", "p_prev_hash" "text", "p_actor_user_id" "uuid", "p_actor_roles" "text"[], "p_action" "text", "p_entity_type" "text", "p_entity_id" "text", "p_summary" "text", "p_before_state" "jsonb", "p_after_state" "jsonb", "p_metadata" "jsonb", "p_created_at" timestamp with time zone) OWNER TO "postgres";
+
+
 CREATE OR REPLACE FUNCTION "public"."consume_security_rate_limit"("p_rate_key" "text", "p_window_seconds" integer, "p_max_count" integer) RETURNS boolean
     LANGUAGE "plpgsql" SECURITY DEFINER
     SET "search_path" TO ''
@@ -681,6 +1232,23 @@ CREATE OR REPLACE FUNCTION "public"."convert_checkout_recovery_intent"("p_user_i
 
 
 ALTER FUNCTION "public"."convert_checkout_recovery_intent"("p_user_id" "uuid", "p_order_id" "uuid") OWNER TO "postgres";
+
+
+CREATE OR REPLACE FUNCTION "public"."convert_checkout_recovery_intent_v2"("p_instance_id" "uuid", "p_user_id" "uuid", "p_order_id" "uuid") RETURNS boolean
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    SET "search_path" TO ''
+    AS $$
+begin
+  perform 1 from public.orders where id=p_order_id and instance_id=p_instance_id and customer_id=p_user_id;
+  if not found then return false; end if;
+  update public.checkout_recovery_intents set status='converted',converted_order_id=p_order_id,updated_at=now()
+    where instance_id=p_instance_id and user_id=p_user_id and status='open';
+  return found;
+end;
+$$;
+
+
+ALTER FUNCTION "public"."convert_checkout_recovery_intent_v2"("p_instance_id" "uuid", "p_user_id" "uuid", "p_order_id" "uuid") OWNER TO "postgres";
 
 
 CREATE OR REPLACE FUNCTION "public"."create_commercial_offer"("p_opportunity_id" "uuid", "p_variant_id" "uuid", "p_quantity" integer, "p_discount_percent" numeric, "p_minimum_margin_percent" numeric, "p_created_by" "uuid") RETURNS "public"."commercial_offers"
@@ -705,6 +1273,15 @@ end;$$;
 ALTER FUNCTION "public"."create_commercial_offer"("p_opportunity_id" "uuid", "p_variant_id" "uuid", "p_quantity" integer, "p_discount_percent" numeric, "p_minimum_margin_percent" numeric, "p_created_by" "uuid") OWNER TO "postgres";
 
 
+CREATE OR REPLACE FUNCTION "public"."create_commercial_offer_v2"("p_instance_id" "uuid", "p_opportunity_id" "uuid", "p_variant_id" "uuid", "p_quantity" integer, "p_discount_percent" numeric, "p_minimum_margin_percent" numeric, "p_created_by" "uuid") RETURNS "public"."commercial_offers"
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    SET "search_path" TO 'public'
+    AS $$declare v public.commercial_offers;begin perform 1 from public.commercial_opportunities where id=p_opportunity_id and instance_id=p_instance_id and status in('open','in_progress');if not found then raise exception 'opportunity_not_found';end if;perform 1 from public.product_variants where id=p_variant_id and instance_id=p_instance_id;if not found then raise exception 'variant_not_found';end if;insert into public.commercial_offers(instance_id,opportunity_id,variant_id,quantity,discount_percent,minimum_margin_percent,created_by) values(p_instance_id,p_opportunity_id,p_variant_id,p_quantity,p_discount_percent,p_minimum_margin_percent,p_created_by) returning * into v;update public.commercial_opportunities set status='in_progress',updated_at=now() where id=p_opportunity_id and instance_id=p_instance_id and status='open';return v;end$$;
+
+
+ALTER FUNCTION "public"."create_commercial_offer_v2"("p_instance_id" "uuid", "p_opportunity_id" "uuid", "p_variant_id" "uuid", "p_quantity" integer, "p_discount_percent" numeric, "p_minimum_margin_percent" numeric, "p_created_by" "uuid") OWNER TO "postgres";
+
+
 CREATE OR REPLACE FUNCTION "public"."create_customer_journey"("p_kind" "public"."customer_journey_kind", "p_user_id" "uuid", "p_email" "text", "p_source_key" "text", "p_metadata" "jsonb" DEFAULT '{}'::"jsonb") RETURNS "uuid"
     LANGUAGE "plpgsql" SECURITY DEFINER
     SET "search_path" TO ''
@@ -720,6 +1297,32 @@ end;$$;
 
 
 ALTER FUNCTION "public"."create_customer_journey"("p_kind" "public"."customer_journey_kind", "p_user_id" "uuid", "p_email" "text", "p_source_key" "text", "p_metadata" "jsonb") OWNER TO "postgres";
+
+
+CREATE OR REPLACE FUNCTION "public"."create_customer_journey_v2"("p_instance_id" "uuid", "p_kind" "public"."customer_journey_kind", "p_user_id" "uuid", "p_email" "text", "p_source_key" "text", "p_metadata" "jsonb" DEFAULT '{}'::"jsonb") RETURNS "uuid"
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    SET "search_path" TO ''
+    AS $$
+declare v_id uuid;
+begin
+  if p_instance_id is null then raise exception 'instance_required'; end if;
+  if length(trim(p_email))<5 or length(trim(p_source_key))<3 then raise exception 'invalid journey identity'; end if;
+  if not exists(select 1 from public.webshop_instances w where w.id=p_instance_id and w.status in('pilot','active')) then
+    raise exception 'inactive webshop';
+  end if;
+
+  insert into public.customer_journeys(instance_id,kind,user_id,email,source_key,metadata)
+  values(p_instance_id,p_kind,p_user_id,lower(trim(p_email)),trim(p_source_key),coalesce(p_metadata,'{}'::jsonb))
+  on conflict(instance_id,kind,source_key)
+  do update set updated_at=now(),metadata=excluded.metadata
+  returning id into v_id;
+
+  return v_id;
+end;
+$$;
+
+
+ALTER FUNCTION "public"."create_customer_journey_v2"("p_instance_id" "uuid", "p_kind" "public"."customer_journey_kind", "p_user_id" "uuid", "p_email" "text", "p_source_key" "text", "p_metadata" "jsonb") OWNER TO "postgres";
 
 
 CREATE OR REPLACE FUNCTION "public"."create_purchase_order"("p_order_number" "text", "p_supplier_name" "text", "p_payment_terms_days" integer, "p_expected_at" "date", "p_payment_due_at" "date", "p_notes" "text", "p_created_by" "uuid", "p_items" "jsonb") RETURNS "jsonb"
@@ -773,6 +1376,40 @@ end;$$;
 
 
 ALTER FUNCTION "public"."create_purchase_order"("p_order_number" "text", "p_supplier_name" "text", "p_payment_terms_days" integer, "p_expected_at" "date", "p_payment_due_at" "date", "p_notes" "text", "p_created_by" "uuid", "p_items" "jsonb") OWNER TO "postgres";
+
+
+CREATE OR REPLACE FUNCTION "public"."create_purchase_order_v2"("p_instance_id" "uuid", "p_order_number" "text", "p_supplier_name" "text", "p_payment_terms_days" integer, "p_expected_at" "date", "p_payment_due_at" "date", "p_notes" "text", "p_created_by" "uuid", "p_items" "jsonb") RETURNS "jsonb"
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    SET "search_path" TO 'public'
+    AS $$
+declare v_supplier_id uuid;v_supplier_name text;v_id uuid;v_total numeric(14,2);v_item jsonb;v_variant uuid;v_quantity integer;v_cost numeric(12,2);
+begin
+  if not exists(select 1 from public.webshop_instances where id=p_instance_id) then raise exception 'Érvénytelen webshop.'; end if;
+  v_supplier_name:=trim(p_supplier_name);
+  if length(v_supplier_name)<2 then raise exception 'Érvénytelen beszállítónév.'; end if;
+  if p_payment_terms_days<0 or p_payment_terms_days>365 then raise exception 'Érvénytelen fizetési határidő.'; end if;
+  if p_items is null or jsonb_typeof(p_items)<>'array' or jsonb_array_length(p_items)=0 then raise exception 'A beszerzéshez legalább egy tétel szükséges.'; end if;
+  select id into v_supplier_id from public.suppliers where instance_id=p_instance_id and lower(trim(name))=lower(v_supplier_name) limit 1;
+  if v_supplier_id is null then
+    insert into public.suppliers(instance_id,name,payment_terms_days) values(p_instance_id,v_supplier_name,p_payment_terms_days)
+    on conflict(instance_id,lower(trim(name))) do update set updated_at=now() returning id into v_supplier_id;
+  end if;
+  select coalesce(sum((x->>'quantity')::integer*(x->>'unitCostNetHuf')::numeric),0) into v_total from jsonb_array_elements(p_items)x;
+  if v_total<0 then raise exception 'Érvénytelen beszerzési összeg.'; end if;
+  insert into public.purchase_orders(instance_id,order_number,supplier_id,status,expected_at,payment_due_at,net_total_huf,notes,created_by)
+  values(p_instance_id,p_order_number,v_supplier_id,'draft',p_expected_at,p_payment_due_at,v_total,p_notes,p_created_by) returning id into v_id;
+  for v_item in select value from jsonb_array_elements(p_items) loop
+    v_variant:=(v_item->>'variantId')::uuid;v_quantity:=(v_item->>'quantity')::integer;v_cost:=(v_item->>'unitCostNetHuf')::numeric;
+    if v_quantity<=0 or v_cost<0 then raise exception 'Érvénytelen beszerzési tétel.'; end if;
+    perform 1 from public.product_variants where id=v_variant and instance_id=p_instance_id;
+    if not found then raise exception 'A beszerzési termékváltozat nem ehhez a webshophoz tartozik.'; end if;
+    insert into public.purchase_order_items(instance_id,purchase_order_id,variant_id,quantity,unit_cost_net_huf) values(p_instance_id,v_id,v_variant,v_quantity,v_cost);
+  end loop;
+  return jsonb_build_object('id',v_id,'supplierId',v_supplier_id,'supplierName',v_supplier_name,'netTotal',v_total);
+end $$;
+
+
+ALTER FUNCTION "public"."create_purchase_order_v2"("p_instance_id" "uuid", "p_order_number" "text", "p_supplier_name" "text", "p_payment_terms_days" integer, "p_expected_at" "date", "p_payment_due_at" "date", "p_notes" "text", "p_created_by" "uuid", "p_items" "jsonb") OWNER TO "postgres";
 
 
 CREATE OR REPLACE FUNCTION "public"."create_release_candidate"("p_candidate_key" "text", "p_version_label" "text", "p_source_ref" "text", "p_source_sha" "text", "p_risk_class" "text", "p_change_summary" "text", "p_rollback_plan" "text", "p_created_by" "uuid", "p_event_key" "text") RETURNS "public"."release_candidates"
@@ -844,6 +1481,96 @@ end;$$;
 ALTER FUNCTION "public"."create_return_case"("p_order_id" "uuid", "p_user_id" "uuid", "p_customer_email" "text", "p_reason" "text", "p_customer_note" "text", "p_items" "jsonb") OWNER TO "postgres";
 
 
+CREATE OR REPLACE FUNCTION "public"."create_return_case_v2"("p_instance_id" "uuid", "p_order_id" "uuid", "p_user_id" "uuid", "p_customer_email" "text", "p_reason" "text", "p_customer_note" "text", "p_items" "jsonb") RETURNS "uuid"
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    SET "search_path" TO ''
+    AS $$
+declare
+  v_case_id uuid;
+  v_order record;
+  v_item jsonb;
+  v_order_item record;
+  v_qty integer;
+  v_open_case uuid;
+begin
+  if p_instance_id is null or p_user_id is null then
+    raise exception 'A visszaküldési kérelem azonosítója hiányos.';
+  end if;
+  if p_items is null or jsonb_typeof(p_items)<>'array' or jsonb_array_length(p_items)=0 then
+    raise exception 'Legalább egy visszaküldendő tétel szükséges.';
+  end if;
+  if jsonb_array_length(p_items)>30 then
+    raise exception 'Túl sok visszaküldendő tétel.';
+  end if;
+
+  select id,instance_id,customer_id,customer_email,status
+  into v_order
+  from public.orders
+  where id=p_order_id and instance_id=p_instance_id and customer_id=p_user_id
+  for update;
+
+  if not found then
+    raise exception 'A rendelés nem található ebben a webshopban.';
+  end if;
+  if v_order.status not in('shipped','completed') then
+    raise exception 'Ehhez a rendeléshez jelenleg nem indítható visszaküldési kérelem.';
+  end if;
+
+  select id into v_open_case
+  from public.return_cases
+  where instance_id=p_instance_id
+    and order_id=p_order_id
+    and user_id=p_user_id
+    and status in('requested','approved','received','refund_pending')
+  limit 1
+  for update;
+
+  if v_open_case is not null then
+    raise exception 'Ehhez a rendeléshez már van folyamatban lévő ügy.';
+  end if;
+
+  insert into public.return_cases(
+    instance_id,order_id,user_id,customer_email,reason,customer_note
+  ) values(
+    p_instance_id,p_order_id,p_user_id,
+    coalesce(nullif(trim(p_customer_email),''),v_order.customer_email),
+    p_reason,nullif(trim(p_customer_note),'')
+  )
+  returning id into v_case_id;
+
+  for v_item in select value from jsonb_array_elements(p_items) loop
+    begin
+      v_qty:=(v_item->>'quantity')::integer;
+    exception when others then
+      raise exception 'Érvénytelen visszaküldési mennyiség.';
+    end;
+    if v_qty<=0 then raise exception 'Érvénytelen visszaküldési mennyiség.'; end if;
+
+    select id,instance_id,order_id,quantity
+    into v_order_item
+    from public.order_items
+    where id=(v_item->>'orderItemId')::uuid
+      and instance_id=p_instance_id;
+
+    if not found or v_order_item.order_id<>p_order_id or v_qty>v_order_item.quantity then
+      raise exception 'Érvénytelen visszaküldési tétel vagy mennyiség.';
+    end if;
+
+    insert into public.return_case_items(
+      instance_id,return_case_id,order_item_id,quantity
+    ) values(
+      p_instance_id,v_case_id,v_order_item.id,v_qty
+    );
+  end loop;
+
+  return v_case_id;
+end;
+$$;
+
+
+ALTER FUNCTION "public"."create_return_case_v2"("p_instance_id" "uuid", "p_order_id" "uuid", "p_user_id" "uuid", "p_customer_email" "text", "p_reason" "text", "p_customer_note" "text", "p_items" "jsonb") OWNER TO "postgres";
+
+
 CREATE TABLE IF NOT EXISTS "public"."action_proposals" (
     "id" "uuid" DEFAULT "gen_random_uuid"() NOT NULL,
     "proposal_key" "text" NOT NULL,
@@ -866,6 +1593,7 @@ CREATE TABLE IF NOT EXISTS "public"."action_proposals" (
     "cancelled_at" timestamp with time zone,
     "created_at" timestamp with time zone DEFAULT "now"() NOT NULL,
     "updated_at" timestamp with time zone DEFAULT "now"() NOT NULL,
+    "instance_id" "uuid" NOT NULL,
     CONSTRAINT "action_proposals_action_kind_check" CHECK (("action_kind" = ANY (ARRAY['human_task'::"text", 'notify_admin'::"text", 'record_decision'::"text"]))),
     CONSTRAINT "action_proposals_impact_class_check" CHECK (("impact_class" = ANY (ARRAY['advisory'::"text", 'reversible'::"text", 'high_impact'::"text"]))),
     CONSTRAINT "action_proposals_risk_score_check" CHECK ((("risk_score" >= 0) AND ("risk_score" <= 100))),
@@ -889,6 +1617,15 @@ CREATE OR REPLACE FUNCTION "public"."decide_action_proposal"("p_proposal_id" "uu
 
 
 ALTER FUNCTION "public"."decide_action_proposal"("p_proposal_id" "uuid", "p_actor_id" "uuid", "p_decision" "text", "p_note" "text", "p_event_key" "text") OWNER TO "postgres";
+
+
+CREATE OR REPLACE FUNCTION "public"."decide_action_proposal_v2"("p_instance_id" "uuid", "p_proposal_id" "uuid", "p_actor_id" "uuid", "p_decision" "text", "p_note" "text", "p_event_key" "text") RETURNS "public"."action_proposals"
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    SET "search_path" TO ''
+    AS $$begin if not exists(select 1 from public.action_proposals where id=p_proposal_id and instance_id=p_instance_id)then raise exception 'proposal_not_found';end if;return public.decide_action_proposal(p_proposal_id,p_actor_id,p_decision,p_note,p_instance_id::text||':'||p_event_key);end$$;
+
+
+ALTER FUNCTION "public"."decide_action_proposal_v2"("p_instance_id" "uuid", "p_proposal_id" "uuid", "p_actor_id" "uuid", "p_decision" "text", "p_note" "text", "p_event_key" "text") OWNER TO "postgres";
 
 
 CREATE TABLE IF NOT EXISTS "public"."post_release_rollback_decisions" (
@@ -1130,6 +1867,205 @@ COMMENT ON FUNCTION "public"."dispatch_due_customer_journey_steps"("p_limit" int
 
 
 
+CREATE OR REPLACE FUNCTION "public"."dispatch_due_customer_journey_steps_v2"("p_instance_id" "uuid", "p_limit" integer DEFAULT 50) RETURNS "jsonb"
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    SET "search_path" TO ''
+    AS $$
+declare
+  s record;
+  v_job uuid;
+  v_queued integer:=0;
+  v_blocked integer:=0;
+  v_seen integer:=0;
+begin
+  if p_instance_id is null then raise exception 'instance_required'; end if;
+
+  for s in
+    select
+      js.id,js.journey_id,js.step_key,js.purpose,js.template_key,js.scheduled_at,
+      j.user_id,j.email,j.kind,j.source_key,j.metadata
+    from public.customer_journey_steps js
+    join public.customer_journeys j
+      on j.id=js.journey_id
+     and j.instance_id=js.instance_id
+    where js.instance_id=p_instance_id
+      and j.instance_id=p_instance_id
+      and js.status='pending'
+      and js.scheduled_at<=now()
+      and j.status='active'
+    order by js.scheduled_at,js.id
+    for update of js skip locked
+    limit greatest(1,least(coalesce(p_limit,50),100))
+  loop
+    v_seen:=v_seen+1;
+    begin
+      select public.enqueue_communication_v2(
+        p_instance_id,
+        s.email,
+        s.user_id,
+        s.purpose,
+        s.template_key,
+        coalesce(s.metadata,'{}'::jsonb)||jsonb_build_object(
+          'journeyId',s.journey_id,
+          'journeyKind',s.kind,
+          'journeySourceKey',s.source_key,
+          'journeyStep',s.step_key
+        ),
+        concat('journey:',p_instance_id,':',s.journey_id,':',s.step_key),
+        s.scheduled_at
+      ) into v_job;
+
+      update public.customer_journey_steps
+      set status='queued',communication_job_id=v_job
+      where id=s.id
+        and instance_id=p_instance_id
+        and status='pending';
+      if found then v_queued:=v_queued+1; end if;
+    exception when others then
+      update public.customer_journey_steps
+      set status='blocked'
+      where id=s.id
+        and instance_id=p_instance_id
+        and status='pending';
+      if found then v_blocked:=v_blocked+1; end if;
+    end;
+  end loop;
+
+  update public.customer_journeys j
+  set status='completed',completed_at=coalesce(j.completed_at,now()),updated_at=now()
+  where j.instance_id=p_instance_id
+    and j.status='active'
+    and exists(
+      select 1 from public.customer_journey_steps s
+      where s.instance_id=p_instance_id and s.journey_id=j.id
+    )
+    and not exists(
+      select 1 from public.customer_journey_steps s
+      where s.instance_id=p_instance_id and s.journey_id=j.id and s.status='pending'
+    );
+
+  return jsonb_build_object('seen',v_seen,'queued',v_queued,'blocked',v_blocked);
+end;
+$$;
+
+
+ALTER FUNCTION "public"."dispatch_due_customer_journey_steps_v2"("p_instance_id" "uuid", "p_limit" integer) OWNER TO "postgres";
+
+
+CREATE OR REPLACE FUNCTION "public"."enforce_office_message_tenant"() RETURNS "trigger"
+    LANGUAGE "plpgsql"
+    SET "search_path" TO ''
+    AS $$
+declare v_thread_instance uuid;v_job_instance uuid;
+begin
+  select instance_id into v_thread_instance from public.office_threads where id=new.thread_id;
+  if v_thread_instance is null or new.instance_id<>v_thread_instance then raise exception 'Cross-store office message relation is not allowed.'; end if;
+  if new.communication_job_id is not null then
+    select instance_id into v_job_instance from public.communication_jobs where id=new.communication_job_id;
+    if v_job_instance is null or new.instance_id<>v_job_instance then raise exception 'Cross-store office communication relation is not allowed.'; end if;
+  end if;
+  return new;
+end;
+$$;
+
+
+ALTER FUNCTION "public"."enforce_office_message_tenant"() OWNER TO "postgres";
+
+
+CREATE OR REPLACE FUNCTION "public"."enforce_office_task_tenant"() RETURNS "trigger"
+    LANGUAGE "plpgsql"
+    SET "search_path" TO ''
+    AS $$
+declare v_instance uuid;
+begin
+  if new.thread_id is null then return new; end if;
+  select instance_id into v_instance from public.office_threads where id=new.thread_id;
+  if v_instance is null or new.instance_id<>v_instance then raise exception 'Cross-store office task relation is not allowed.'; end if;
+  return new;
+end;
+$$;
+
+
+ALTER FUNCTION "public"."enforce_office_task_tenant"() OWNER TO "postgres";
+
+
+CREATE OR REPLACE FUNCTION "public"."enforce_office_thread_tenant"() RETURNS "trigger"
+    LANGUAGE "plpgsql"
+    SET "search_path" TO ''
+    AS $$
+declare v_instance uuid;
+begin
+  if new.order_id is null then return new; end if;
+  select instance_id into v_instance from public.orders where id=new.order_id;
+  if v_instance is null or new.instance_id<>v_instance then raise exception 'Cross-store office order relation is not allowed.'; end if;
+  return new;
+end;
+$$;
+
+
+ALTER FUNCTION "public"."enforce_office_thread_tenant"() OWNER TO "postgres";
+
+
+CREATE OR REPLACE FUNCTION "public"."enforce_order_tenant_match"() RETURNS "trigger"
+    LANGUAGE "plpgsql"
+    SET "search_path" TO 'public'
+    AS $$
+declare v_instance uuid;
+begin
+  select instance_id into v_instance from public.orders where id=new.order_id;
+  if v_instance is null or new.instance_id<>v_instance then raise exception 'Cross-store order relation is not allowed.'; end if;
+  return new;
+end $$;
+
+
+ALTER FUNCTION "public"."enforce_order_tenant_match"() OWNER TO "postgres";
+
+
+CREATE OR REPLACE FUNCTION "public"."enforce_purchase_order_tenant_match"() RETURNS "trigger"
+    LANGUAGE "plpgsql"
+    SET "search_path" TO 'public'
+    AS $$
+declare v_instance uuid;
+begin
+  select instance_id into v_instance from public.purchase_orders where id=new.purchase_order_id;
+  if v_instance is null or new.instance_id<>v_instance then raise exception 'Cross-store purchase order relation is not allowed.'; end if;
+  return new;
+end $$;
+
+
+ALTER FUNCTION "public"."enforce_purchase_order_tenant_match"() OWNER TO "postgres";
+
+
+CREATE OR REPLACE FUNCTION "public"."enforce_return_case_tenant_match"() RETURNS "trigger"
+    LANGUAGE "plpgsql"
+    SET "search_path" TO 'public'
+    AS $$
+declare v_instance uuid;
+begin
+  select instance_id into v_instance from public.return_cases where id=new.return_case_id;
+  if v_instance is null or new.instance_id<>v_instance then raise exception 'Cross-store return relation is not allowed.'; end if;
+  return new;
+end $$;
+
+
+ALTER FUNCTION "public"."enforce_return_case_tenant_match"() OWNER TO "postgres";
+
+
+CREATE OR REPLACE FUNCTION "public"."enforce_support_ticket_tenant_match"() RETURNS "trigger"
+    LANGUAGE "plpgsql"
+    SET "search_path" TO 'public'
+    AS $$
+declare v_instance uuid;
+begin
+  select instance_id into v_instance from public.support_tickets where id=new.ticket_id;
+  if v_instance is null or new.instance_id<>v_instance then raise exception 'Cross-store support relation is not allowed.'; end if;
+  return new;
+end $$;
+
+
+ALTER FUNCTION "public"."enforce_support_ticket_tenant_match"() OWNER TO "postgres";
+
+
 CREATE OR REPLACE FUNCTION "public"."enqueue_communication"("p_email" "text", "p_user_id" "uuid", "p_purpose" "text", "p_template_key" "text", "p_payload" "jsonb", "p_idempotency_key" "text", "p_scheduled_at" timestamp with time zone DEFAULT "now"()) RETURNS "uuid"
     LANGUAGE "plpgsql" SECURITY DEFINER
     SET "search_path" TO ''
@@ -1170,6 +2106,29 @@ ALTER FUNCTION "public"."enqueue_communication"("p_email" "text", "p_user_id" "u
 
 COMMENT ON FUNCTION "public"."enqueue_communication"("p_email" "text", "p_user_id" "uuid", "p_purpose" "text", "p_template_key" "text", "p_payload" "jsonb", "p_idempotency_key" "text", "p_scheduled_at" timestamp with time zone) IS 'Queues communication idempotently; transactional jobs bypass manual approval, marketing jobs require active consent and manual approval.';
 
+
+
+CREATE OR REPLACE FUNCTION "public"."enqueue_communication_v2"("p_instance_id" "uuid", "p_email" "text", "p_user_id" "uuid", "p_purpose" "text", "p_template_key" "text", "p_payload" "jsonb", "p_idempotency_key" "text", "p_scheduled_at" timestamp with time zone DEFAULT "now"()) RETURNS "uuid"
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    SET "search_path" TO ''
+    AS $$
+declare v_id uuid;v_requires_approval boolean;
+begin
+  if not exists(select 1 from public.webshop_instances where id=p_instance_id) then raise exception 'invalid tenant'; end if;
+  if p_purpose not in('transactional','marketing') then raise exception 'invalid purpose'; end if;
+  if public.is_communication_suppressed_v2(p_instance_id,p_email) then raise exception 'recipient suppressed'; end if;
+  if p_purpose='marketing' and not public.has_marketing_consent_v2(p_instance_id,p_email,'email') then raise exception 'marketing consent required'; end if;
+  v_requires_approval:=(p_purpose='marketing');
+  insert into public.communication_jobs(instance_id,recipient_email,user_id,purpose,template_key,payload,idempotency_key,scheduled_at,requires_approval,approved_at,approved_by)
+  values(p_instance_id,lower(trim(p_email)),p_user_id,p_purpose,p_template_key,coalesce(p_payload,'{}'::jsonb),p_idempotency_key,p_scheduled_at,v_requires_approval,null,null)
+  on conflict(instance_id,idempotency_key) do update set idempotency_key=excluded.idempotency_key
+  returning id into v_id;
+  return v_id;
+end;
+$$;
+
+
+ALTER FUNCTION "public"."enqueue_communication_v2"("p_instance_id" "uuid", "p_email" "text", "p_user_id" "uuid", "p_purpose" "text", "p_template_key" "text", "p_payload" "jsonb", "p_idempotency_key" "text", "p_scheduled_at" timestamp with time zone) OWNER TO "postgres";
 
 
 CREATE OR REPLACE FUNCTION "public"."evaluate_assurance_control"("p_control_id" "uuid") RETURNS "jsonb"
@@ -1237,6 +2196,7 @@ CREATE TABLE IF NOT EXISTS "public"."action_executions" (
     "error_message" "text",
     "executed_by" "uuid",
     "executed_at" timestamp with time zone DEFAULT "now"() NOT NULL,
+    "instance_id" "uuid" NOT NULL,
     CONSTRAINT "action_executions_adapter_check" CHECK (("adapter" = ANY (ARRAY['human_task'::"text", 'notify_admin'::"text", 'record_decision'::"text"]))),
     CONSTRAINT "action_executions_status_check" CHECK (("status" = ANY (ARRAY['succeeded'::"text", 'failed'::"text"])))
 );
@@ -1264,6 +2224,15 @@ CREATE OR REPLACE FUNCTION "public"."execute_action_proposal"("p_proposal_id" "u
 ALTER FUNCTION "public"."execute_action_proposal"("p_proposal_id" "uuid", "p_actor_id" "uuid", "p_execution_key" "text") OWNER TO "postgres";
 
 
+CREATE OR REPLACE FUNCTION "public"."execute_action_proposal_v2"("p_instance_id" "uuid", "p_proposal_id" "uuid", "p_actor_id" "uuid", "p_execution_key" "text") RETURNS "public"."action_executions"
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    SET "search_path" TO ''
+    AS $$begin if not exists(select 1 from public.action_proposals where id=p_proposal_id and instance_id=p_instance_id)then raise exception 'proposal_not_found';end if;return public.execute_action_proposal(p_proposal_id,p_actor_id,p_instance_id::text||':'||p_execution_key);end$$;
+
+
+ALTER FUNCTION "public"."execute_action_proposal_v2"("p_instance_id" "uuid", "p_proposal_id" "uuid", "p_actor_id" "uuid", "p_execution_key" "text") OWNER TO "postgres";
+
+
 CREATE TABLE IF NOT EXISTS "public"."automation_step_runs" (
     "id" "uuid" DEFAULT "gen_random_uuid"() NOT NULL,
     "instance_id" "uuid" NOT NULL,
@@ -1277,6 +2246,7 @@ CREATE TABLE IF NOT EXISTS "public"."automation_step_runs" (
     "last_error" "text",
     "result" "jsonb" DEFAULT '{}'::"jsonb" NOT NULL,
     "updated_at" timestamp with time zone DEFAULT "now"() NOT NULL,
+    "store_instance_id" "uuid" NOT NULL,
     CONSTRAINT "automation_step_runs_attempt_count_check" CHECK (("attempt_count" >= 0)),
     CONSTRAINT "automation_step_runs_status_check" CHECK (("status" = ANY (ARRAY['pending'::"text", 'ready'::"text", 'running'::"text", 'waiting'::"text", 'succeeded'::"text", 'failed'::"text", 'skipped'::"text", 'cancelled'::"text"])))
 );
@@ -1315,6 +2285,15 @@ CREATE OR REPLACE FUNCTION "public"."execute_automation_step"("p_instance_id" "u
 
 
 ALTER FUNCTION "public"."execute_automation_step"("p_instance_id" "uuid", "p_actor_id" "uuid", "p_execution_key" "text") OWNER TO "postgres";
+
+
+CREATE OR REPLACE FUNCTION "public"."execute_automation_step_v2"("p_store_instance_id" "uuid", "p_runbook_instance_id" "uuid", "p_actor_id" "uuid", "p_execution_key" "text") RETURNS "public"."automation_step_runs"
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    SET "search_path" TO ''
+    AS $$begin if not exists(select 1 from public.automation_runbook_instances where id=p_runbook_instance_id and instance_id=p_store_instance_id)then raise exception 'automation_instance_not_found';end if;return public.execute_automation_step(p_runbook_instance_id,p_actor_id,p_store_instance_id::text||':'||p_execution_key);end$$;
+
+
+ALTER FUNCTION "public"."execute_automation_step_v2"("p_store_instance_id" "uuid", "p_runbook_instance_id" "uuid", "p_actor_id" "uuid", "p_execution_key" "text") OWNER TO "postgres";
 
 
 CREATE OR REPLACE FUNCTION "public"."expire_assurance_risk_acceptances"("p_run_key" "text") RETURNS integer
@@ -1369,6 +2348,25 @@ CREATE OR REPLACE FUNCTION "public"."fail_communication_job"("p_id" "uuid", "p_c
 ALTER FUNCTION "public"."fail_communication_job"("p_id" "uuid", "p_claim_token" "uuid", "p_error" "text", "p_retry" boolean) OWNER TO "postgres";
 
 
+CREATE OR REPLACE FUNCTION "public"."fail_communication_job_v2"("p_instance_id" "uuid", "p_id" "uuid", "p_claim_token" "uuid", "p_error" "text", "p_retry" boolean DEFAULT true) RETURNS boolean
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    SET "search_path" TO ''
+    AS $$
+begin
+  update public.communication_jobs set
+    status=case when p_retry and attempts<5 then 'pending' else 'failed' end,
+    last_error=left(p_error,2000),
+    scheduled_at=case when p_retry and attempts<5 then now()+make_interval(mins=>least(60,attempts*5)) else scheduled_at end,
+    claim_token=null,claimed_at=null,updated_at=now()
+  where instance_id=p_instance_id and id=p_id and status='processing' and claim_token=p_claim_token;
+  return found;
+end;
+$$;
+
+
+ALTER FUNCTION "public"."fail_communication_job_v2"("p_instance_id" "uuid", "p_id" "uuid", "p_claim_token" "uuid", "p_error" "text", "p_retry" boolean) OWNER TO "postgres";
+
+
 CREATE OR REPLACE FUNCTION "public"."get_customer_loyalty_snapshot"("p_customer_id" "uuid") RETURNS "jsonb"
     LANGUAGE "sql" SECURITY DEFINER
     SET "search_path" TO ''
@@ -1382,6 +2380,15 @@ $$;
 
 
 ALTER FUNCTION "public"."get_customer_loyalty_snapshot"("p_customer_id" "uuid") OWNER TO "postgres";
+
+
+CREATE OR REPLACE FUNCTION "public"."get_customer_loyalty_snapshot_v2"("p_instance_id" "uuid", "p_customer_id" "uuid") RETURNS "jsonb"
+    LANGUAGE "sql" SECURITY DEFINER
+    SET "search_path" TO 'public'
+    AS $$select jsonb_build_object('summary',coalesce((select to_jsonb(s) from public.customer_loyalty_summary s where s.instance_id=p_instance_id and s.customer_id=p_customer_id),'{}'::jsonb),'benefits',coalesce((select jsonb_agg(to_jsonb(b) order by b.rule_key) from public.active_customer_benefits b where b.instance_id=p_instance_id and b.customer_id=p_customer_id and b.usage_available=true),'[]'::jsonb),'ledger',coalesce((select jsonb_agg(to_jsonb(l) order by l.occurred_at desc) from(select id,entry_type,points,reason,occurred_at,order_id from public.loyalty_ledger where instance_id=p_instance_id and customer_id=p_customer_id order by occurred_at desc limit 30)l),'[]'::jsonb));$$;
+
+
+ALTER FUNCTION "public"."get_customer_loyalty_snapshot_v2"("p_instance_id" "uuid", "p_customer_id" "uuid") OWNER TO "postgres";
 
 
 CREATE OR REPLACE FUNCTION "public"."get_order_operation_snapshot"("p_order_id" "uuid") RETURNS "jsonb"
@@ -1550,22 +2557,12 @@ CREATE OR REPLACE FUNCTION "public"."guard_closed_support_thread"() RETURNS "tri
     LANGUAGE "plpgsql" SECURITY DEFINER
     SET "search_path" TO ''
     AS $$
-declare
-  v_status public.support_ticket_status;
+declare v_status public.support_ticket_status;v_instance uuid;
 begin
-  select status into v_status
-  from public.support_tickets
-  where id = new.ticket_id
-  for update;
-
-  if not found then
-    raise exception 'Az ügy nem található.';
-  end if;
-
-  if v_status = 'closed' then
-    raise exception 'A lezárt ügyhöz nem küldhető új üzenet.';
-  end if;
-
+  select status,instance_id into v_status,v_instance from public.support_tickets where id=new.ticket_id for update;
+  if not found then raise exception 'Az ügy nem található.'; end if;
+  if v_instance<>new.instance_id then raise exception 'Cross-store support relation is not allowed.'; end if;
+  if v_status='closed' then raise exception 'A lezárt ügyhöz nem küldhető új üzenet.'; end if;
   return new;
 end;
 $$;
@@ -1606,20 +2603,26 @@ CREATE OR REPLACE FUNCTION "public"."guard_order_status_against_operations"() RE
     LANGUAGE "plpgsql" SECURITY DEFINER
     SET "search_path" TO ''
     AS $$
-declare v_op text;begin
- if new.status is not distinct from old.status then return new; end if;
- select operational_status into v_op from public.order_operations where order_id=new.id;
- if new.status='cancelled' and v_op in ('handed_over','delivered') then
-   raise exception 'A futárnak átadott vagy kézbesített rendelés nem törölhető; használj visszáru/visszatérítés folyamatot.';
- end if;
- if old.status='completed' and new.status not in ('completed','refunded') then
-   raise exception 'A teljesített rendelés kereskedelmi állapota nem állítható vissza.';
- end if;
- if old.status='shipped' and new.status in ('draft','pending','paid','processing') then
-   raise exception 'A feladott rendelés nem állítható vissza feldolgozási állapotba.';
- end if;
- return new;
-end;$$;
+declare v_op text;
+begin
+  if new.status is not distinct from old.status then return new; end if;
+
+  select operational_status into v_op
+  from public.order_operations
+  where order_id=new.id and instance_id=new.instance_id;
+
+  if new.status='cancelled' and v_op in('handed_over','delivered') then
+    raise exception 'A futárnak átadott vagy kézbesített rendelés nem törölhető; használj visszáru/visszatérítés folyamatot.';
+  end if;
+  if old.status='completed' and new.status not in('completed','refunded') then
+    raise exception 'A teljesített rendelés kereskedelmi állapota nem állítható vissza.';
+  end if;
+  if old.status='shipped' and new.status in('draft','pending','paid','processing') then
+    raise exception 'A feladott rendelés nem állítható vissza feldolgozási állapotba.';
+  end if;
+  return new;
+end;
+$$;
 
 
 ALTER FUNCTION "public"."guard_order_status_against_operations"() OWNER TO "postgres";
@@ -1654,6 +2657,15 @@ CREATE OR REPLACE FUNCTION "public"."guard_release_policy_definition"() RETURNS 
 ALTER FUNCTION "public"."guard_release_policy_definition"() OWNER TO "postgres";
 
 
+CREATE OR REPLACE FUNCTION "public"."has_feature_entitlement"("p_instance_id" "uuid", "p_feature_code" "text") RETURNS boolean
+    LANGUAGE "sql" STABLE
+    SET "search_path" TO ''
+    AS $$select private.has_feature_entitlement_current(p_instance_id,p_feature_code);$$;
+
+
+ALTER FUNCTION "public"."has_feature_entitlement"("p_instance_id" "uuid", "p_feature_code" "text") OWNER TO "postgres";
+
+
 CREATE OR REPLACE FUNCTION "public"."has_marketing_consent"("p_email" "text", "p_channel" "text" DEFAULT 'email'::"text") RETURNS boolean
     LANGUAGE "sql" STABLE SECURITY DEFINER
     SET "search_path" TO ''
@@ -1663,18 +2675,41 @@ CREATE OR REPLACE FUNCTION "public"."has_marketing_consent"("p_email" "text", "p
 ALTER FUNCTION "public"."has_marketing_consent"("p_email" "text", "p_channel" "text") OWNER TO "postgres";
 
 
+CREATE OR REPLACE FUNCTION "public"."has_marketing_consent_v2"("p_instance_id" "uuid", "p_email" "text", "p_channel" "text" DEFAULT 'email'::"text") RETURNS boolean
+    LANGUAGE "sql" STABLE SECURITY DEFINER
+    SET "search_path" TO ''
+    AS $$
+  select coalesce((select mc.status='granted' from public.marketing_consents mc
+    where mc.instance_id=p_instance_id and lower(mc.email)=lower(trim(p_email)) and mc.channel=p_channel
+    order by mc.occurred_at desc,mc.id desc limit 1),false);
+$$;
+
+
+ALTER FUNCTION "public"."has_marketing_consent_v2"("p_instance_id" "uuid", "p_email" "text", "p_channel" "text") OWNER TO "postgres";
+
+
+CREATE OR REPLACE FUNCTION "public"."has_store_role"("p_instance_id" "uuid", "p_roles" "text"[], "p_user_id" "uuid" DEFAULT "auth"."uid"()) RETURNS boolean
+    LANGUAGE "sql" STABLE
+    SET "search_path" TO ''
+    AS $$select private.has_store_role_current(p_instance_id,p_roles,p_user_id);$$;
+
+
+ALTER FUNCTION "public"."has_store_role"("p_instance_id" "uuid", "p_roles" "text"[], "p_user_id" "uuid") OWNER TO "postgres";
+
+
 CREATE OR REPLACE FUNCTION "public"."initialize_support_ticket_thread"() RETURNS "trigger"
     LANGUAGE "plpgsql" SECURITY DEFINER
     SET "search_path" TO ''
     AS $$
 begin
   if new.message is not null and char_length(trim(new.message))>0 then
-    insert into public.support_ticket_messages(ticket_id,author_user_id,author_role,message,created_at)
-    values(new.id,new.user_id,'customer',new.message,new.created_at)
+    insert into public.support_ticket_messages(instance_id,ticket_id,author_user_id,author_role,message,created_at)
+    values(new.instance_id,new.id,new.user_id,'customer',new.message,new.created_at)
     on conflict do nothing;
   end if;
   return new;
-end;$$;
+end;
+$$;
 
 
 ALTER FUNCTION "public"."initialize_support_ticket_thread"() OWNER TO "postgres";
@@ -1687,6 +2722,27 @@ CREATE OR REPLACE FUNCTION "public"."is_communication_suppressed"("p_email" "tex
 
 
 ALTER FUNCTION "public"."is_communication_suppressed"("p_email" "text") OWNER TO "postgres";
+
+
+CREATE OR REPLACE FUNCTION "public"."is_communication_suppressed_v2"("p_instance_id" "uuid", "p_email" "text") RETURNS boolean
+    LANGUAGE "sql" STABLE SECURITY DEFINER
+    SET "search_path" TO ''
+    AS $$
+  select exists(select 1 from public.communication_suppressions
+    where instance_id=p_instance_id and lower(email)=lower(trim(p_email)) and active=true);
+$$;
+
+
+ALTER FUNCTION "public"."is_communication_suppressed_v2"("p_instance_id" "uuid", "p_email" "text") OWNER TO "postgres";
+
+
+CREATE OR REPLACE FUNCTION "public"."is_platform_operator"("p_user_id" "uuid" DEFAULT "auth"."uid"()) RETURNS boolean
+    LANGUAGE "sql" STABLE
+    SET "search_path" TO ''
+    AS $$select private.is_platform_operator_current(p_user_id);$$;
+
+
+ALTER FUNCTION "public"."is_platform_operator"("p_user_id" "uuid") OWNER TO "postgres";
 
 
 CREATE OR REPLACE FUNCTION "public"."maintain_control_incident_started_at"() RETURNS "trigger"
@@ -1708,6 +2764,20 @@ end;$$;
 
 
 ALTER FUNCTION "public"."maintain_control_incident_started_at"() OWNER TO "postgres";
+
+
+CREATE OR REPLACE FUNCTION "public"."merchant_intelligence_store_guard"() RETURNS "trigger"
+    LANGUAGE "plpgsql"
+    SET "search_path" TO 'public'
+    AS $$ declare v uuid; begin
+ if tg_table_name='customer_journey_steps' then select instance_id into v from public.customer_journeys where id=new.journey_id;
+ elsif tg_table_name in ('control_alert_events','control_tasks') then select instance_id into v from public.control_alerts where id=new.alert_id;
+ elsif tg_table_name in ('action_proposal_events','action_approvals','action_executions') then select instance_id into v from public.action_proposals where id=new.proposal_id;
+ elsif tg_table_name='automation_runbook_instances' then select instance_id into v from public.control_alerts where id=new.alert_id; end if;
+ if v is null then raise exception 'tenant_parent_missing';end if; if new.instance_id is null then new.instance_id:=v;elsif new.instance_id<>v then raise exception 'tenant_parent_mismatch';end if; return new; end$$;
+
+
+ALTER FUNCTION "public"."merchant_intelligence_store_guard"() OWNER TO "postgres";
 
 
 CREATE OR REPLACE FUNCTION "public"."place_order_idempotent"("p_idempotency_key" "text", "p_customer_email" "text", "p_billing_name" "text", "p_billing_company" "text" DEFAULT ''::"text", "p_billing_tax_number" "text" DEFAULT ''::"text", "p_billing_postcode" "text" DEFAULT ''::"text", "p_billing_city" "text" DEFAULT ''::"text", "p_billing_address" "text" DEFAULT ''::"text", "p_shipping_name" "text" DEFAULT ''::"text", "p_shipping_postcode" "text" DEFAULT ''::"text", "p_shipping_city" "text" DEFAULT ''::"text", "p_shipping_address" "text" DEFAULT ''::"text", "p_customer_phone" "text" DEFAULT ''::"text", "p_shipping_method" "text" DEFAULT 'foxpost'::"text", "p_parcel_point_id" "text" DEFAULT ''::"text", "p_payment_method" "text" DEFAULT 'bank_transfer'::"text", "p_note" "text" DEFAULT ''::"text", "p_customer_id" "uuid" DEFAULT NULL::"uuid", "p_coupon_code" "text" DEFAULT ''::"text", "p_items" "jsonb" DEFAULT '[]'::"jsonb") RETURNS "jsonb"
@@ -1802,6 +2872,168 @@ end;$$;
 
 
 ALTER FUNCTION "public"."place_order_provider_v2_idempotent"("p_idempotency_key" "text", "p_customer_email" "text", "p_billing_name" "text", "p_billing_company" "text", "p_billing_tax_number" "text", "p_billing_postcode" "text", "p_billing_city" "text", "p_billing_address" "text", "p_shipping_name" "text", "p_shipping_postcode" "text", "p_shipping_city" "text", "p_shipping_address" "text", "p_customer_phone" "text", "p_shipping_provider" "text", "p_shipping_kind" "text", "p_shipping_fee_huf" integer, "p_free_shipping_threshold_huf" integer, "p_parcel_point_id" "text", "p_payment_provider" "text", "p_note" "text", "p_customer_id" "uuid", "p_coupon_code" "text", "p_items" "jsonb") OWNER TO "postgres";
+
+
+CREATE OR REPLACE FUNCTION "public"."place_order_provider_v3_idempotent"("p_instance_id" "uuid", "p_idempotency_key" "text", "p_customer_email" "text", "p_billing_name" "text", "p_billing_company" "text" DEFAULT ''::"text", "p_billing_tax_number" "text" DEFAULT ''::"text", "p_billing_postcode" "text" DEFAULT ''::"text", "p_billing_city" "text" DEFAULT ''::"text", "p_billing_address" "text" DEFAULT ''::"text", "p_shipping_name" "text" DEFAULT ''::"text", "p_shipping_postcode" "text" DEFAULT ''::"text", "p_shipping_city" "text" DEFAULT ''::"text", "p_shipping_address" "text" DEFAULT ''::"text", "p_customer_phone" "text" DEFAULT ''::"text", "p_shipping_provider" "text" DEFAULT 'pickup'::"text", "p_shipping_kind" "text" DEFAULT 'pickup'::"text", "p_shipping_fee_huf" integer DEFAULT 0, "p_free_shipping_threshold_huf" integer DEFAULT 0, "p_parcel_point_id" "text" DEFAULT ''::"text", "p_payment_provider" "text" DEFAULT 'bank_transfer'::"text", "p_note" "text" DEFAULT ''::"text", "p_customer_id" "uuid" DEFAULT NULL::"uuid", "p_coupon_code" "text" DEFAULT ''::"text", "p_items" "jsonb" DEFAULT '[]'::"jsonb") RETURNS "jsonb"
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    SET "search_path" TO ''
+    AS $$
+declare
+  response jsonb;
+  order_id_value uuid;
+  scoped_key text;
+  item_count integer;
+  valid_item_count integer;
+begin
+  if not exists(select 1 from public.webshop_instances w where w.id=p_instance_id and w.status in ('pilot','active')) then
+    raise exception 'A webshop nem rendelhető.';
+  end if;
+  if jsonb_typeof(coalesce(p_items,'[]'::jsonb))<>'array' then raise exception 'Érvénytelen kosár.'; end if;
+  select count(*) into item_count from jsonb_array_elements(p_items);
+  if item_count<1 then raise exception 'A kosár üres.'; end if;
+  select count(*) into valid_item_count
+  from jsonb_array_elements(p_items) item
+  join public.product_variants v on v.id=(item->>'variant_id')::uuid
+  join public.products p on p.id=v.product_id
+  where v.instance_id=p_instance_id and p.instance_id=p_instance_id and v.active and p.active;
+  if valid_item_count<>item_count then raise exception 'A kosár másik webshophoz tartozó vagy nem elérhető terméket tartalmaz.'; end if;
+
+  scoped_key:=md5(p_instance_id::text||':'||trim(coalesce(p_idempotency_key,'')));
+  response:=public.place_order_provider_v2_idempotent(
+    p_idempotency_key=>scoped_key,
+    p_customer_email=>p_customer_email,
+    p_billing_name=>p_billing_name,
+    p_billing_company=>p_billing_company,
+    p_billing_tax_number=>p_billing_tax_number,
+    p_billing_postcode=>p_billing_postcode,
+    p_billing_city=>p_billing_city,
+    p_billing_address=>p_billing_address,
+    p_shipping_name=>p_shipping_name,
+    p_shipping_postcode=>p_shipping_postcode,
+    p_shipping_city=>p_shipping_city,
+    p_shipping_address=>p_shipping_address,
+    p_customer_phone=>p_customer_phone,
+    p_shipping_provider=>p_shipping_provider,
+    p_shipping_kind=>p_shipping_kind,
+    p_shipping_fee_huf=>p_shipping_fee_huf,
+    p_free_shipping_threshold_huf=>p_free_shipping_threshold_huf,
+    p_parcel_point_id=>p_parcel_point_id,
+    p_payment_provider=>p_payment_provider,
+    p_note=>p_note,
+    p_customer_id=>p_customer_id,
+    p_coupon_code=>p_coupon_code,
+    p_items=>p_items
+  );
+  order_id_value:=(response->>'order_id')::uuid;
+
+  if exists(select 1 from public.orders where id=order_id_value and instance_id is not null and instance_id<>p_instance_id) then
+    raise exception 'A rendelés webshop scope-ja nem egyezik.';
+  end if;
+  update public.orders set instance_id=p_instance_id where id=order_id_value and instance_id is null;
+  update public.order_items set instance_id=p_instance_id where order_id=order_id_value and instance_id is null;
+  update public.inventory_events set instance_id=p_instance_id where order_id=order_id_value and instance_id is null;
+  update public.inventory_reservations set instance_id=p_instance_id where order_id=order_id_value and instance_id is null;
+
+  return response||jsonb_build_object('instance_id',p_instance_id);
+end $$;
+
+
+ALTER FUNCTION "public"."place_order_provider_v3_idempotent"("p_instance_id" "uuid", "p_idempotency_key" "text", "p_customer_email" "text", "p_billing_name" "text", "p_billing_company" "text", "p_billing_tax_number" "text", "p_billing_postcode" "text", "p_billing_city" "text", "p_billing_address" "text", "p_shipping_name" "text", "p_shipping_postcode" "text", "p_shipping_city" "text", "p_shipping_address" "text", "p_customer_phone" "text", "p_shipping_provider" "text", "p_shipping_kind" "text", "p_shipping_fee_huf" integer, "p_free_shipping_threshold_huf" integer, "p_parcel_point_id" "text", "p_payment_provider" "text", "p_note" "text", "p_customer_id" "uuid", "p_coupon_code" "text", "p_items" "jsonb") OWNER TO "postgres";
+
+
+CREATE OR REPLACE FUNCTION "public"."place_order_provider_v4_idempotent"("p_instance_id" "uuid", "p_idempotency_key" "text", "p_customer_email" "text", "p_billing_name" "text", "p_billing_company" "text" DEFAULT ''::"text", "p_billing_tax_number" "text" DEFAULT ''::"text", "p_billing_postcode" "text" DEFAULT ''::"text", "p_billing_city" "text" DEFAULT ''::"text", "p_billing_address" "text" DEFAULT ''::"text", "p_shipping_name" "text" DEFAULT ''::"text", "p_shipping_postcode" "text" DEFAULT ''::"text", "p_shipping_city" "text" DEFAULT ''::"text", "p_shipping_address" "text" DEFAULT ''::"text", "p_customer_phone" "text" DEFAULT ''::"text", "p_shipping_provider" "text" DEFAULT 'pickup'::"text", "p_shipping_kind" "text" DEFAULT 'pickup'::"text", "p_shipping_fee_huf" integer DEFAULT 0, "p_free_shipping_threshold_huf" integer DEFAULT 0, "p_parcel_point_id" "text" DEFAULT ''::"text", "p_payment_provider" "text" DEFAULT 'bank_transfer'::"text", "p_note" "text" DEFAULT ''::"text", "p_customer_id" "uuid" DEFAULT NULL::"uuid", "p_coupon_code" "text" DEFAULT ''::"text", "p_items" "jsonb" DEFAULT '[]'::"jsonb") RETURNS "jsonb"
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    SET "search_path" TO ''
+    AS $_$
+declare
+ v_key text;v_fp text;v_existing_fp text;v_existing jsonb;v_order_id uuid;v_number text;v_item jsonb;v_items jsonb;v_variant record;v_qty integer;v_role public.customer_role;v_reseller boolean:=false;v_price integer;v_prev integer;v_subtotal integer:=0;v_discount integer:=0;v_shipping integer:=0;v_total integer:=0;v_coupon record;v_code text:=upper(trim(coalesce(p_coupon_code,'')));v_response jsonb;
+begin
+ if not exists(select 1 from public.webshop_instances w where w.id=p_instance_id and w.status in('pilot','active')) then raise exception 'A webshop nem rendelhető.';end if;
+ if p_idempotency_key is null or length(trim(p_idempotency_key))<16 or length(p_idempotency_key)>120 then raise exception 'Érvénytelen rendelési kérésazonosító.';end if;
+ if p_customer_email is null or length(trim(p_customer_email))<5 or length(p_customer_email)>254 then raise exception 'Érvénytelen e-mail cím.';end if;
+ if length(trim(coalesce(p_billing_name,'')))<2 or length(p_billing_name)>150 then raise exception 'A név megadása kötelező.';end if;
+ if jsonb_typeof(coalesce(p_items,'[]'::jsonb))<>'array' or jsonb_array_length(p_items)<1 or jsonb_array_length(p_items)>30 then raise exception 'A kosár tartalma érvénytelen.';end if;
+ if p_shipping_provider!~'^[a-z0-9_-]{2,80}$' or p_payment_provider!~'^[a-z0-9_-]{2,80}$' then raise exception 'Érvénytelen szolgáltatói azonosító.';end if;
+ if p_shipping_kind not in('parcel_point','home_delivery','pickup') then raise exception 'Érvénytelen szállítási típus.';end if;
+ if p_shipping_fee_huf<0 or p_shipping_fee_huf>1000000 or p_free_shipping_threshold_huf<0 or p_free_shipping_threshold_huf>100000000 then raise exception 'Érvénytelen szállítási díj vagy küszöb.';end if;
+ if p_shipping_kind='parcel_point' and length(trim(coalesce(p_parcel_point_id,'')))<2 then raise exception 'Átvételi pontot kell választani.';end if;
+ begin select jsonb_agg(jsonb_build_object('variant_id',n.variant_id,'quantity',n.quantity) order by n.variant_id) into v_items from(select(e->>'variant_id')::uuid as variant_id,sum((e->>'quantity')::integer)::integer as quantity from jsonb_array_elements(p_items)e group by(e->>'variant_id')::uuid)n;exception when others then raise exception 'A kosár tartalma érvénytelen.';end;
+ if v_items is null or exists(select 1 from jsonb_array_elements(v_items)e where(e->>'quantity')::integer<1 or(e->>'quantity')::integer>99) then raise exception 'Érvénytelen mennyiség.';end if;
+ v_key:=md5(p_instance_id::text||':'||trim(p_idempotency_key));v_fp:=md5(jsonb_build_object('instance',p_instance_id,'email',lower(trim(p_customer_email)),'name',trim(p_billing_name),'company',trim(coalesce(p_billing_company,'')),'tax',trim(coalesce(p_billing_tax_number,'')),'shipping_provider',p_shipping_provider,'shipping_kind',p_shipping_kind,'shipping_fee',p_shipping_fee_huf,'free_threshold',p_free_shipping_threshold_huf,'payment_provider',p_payment_provider,'parcel_point',trim(coalesce(p_parcel_point_id,'')),'coupon',v_code,'items',v_items)::text);
+ begin insert into public.order_request_keys(idempotency_key,request_fingerprint) values(v_key,v_fp);exception when unique_violation then select response,request_fingerprint into v_existing,v_existing_fp from public.order_request_keys where idempotency_key=v_key;if v_existing_fp is not null and v_existing_fp<>v_fp then raise exception 'A rendelési kérésazonosító már más rendelési adatokhoz lett felhasználva.';end if;if v_existing is null then raise exception 'A rendelés feldolgozása folyamatban van.';end if;return v_existing||jsonb_build_object('idempotency_replayed',true);end;
+ if p_customer_id is not null then insert into public.customer_instance_roles(instance_id,user_id,role,reseller_approved) values(p_instance_id,p_customer_id,'customer',false) on conflict(instance_id,user_id) do nothing;select role,reseller_approved into v_role,v_reseller from public.customer_instance_roles where instance_id=p_instance_id and user_id=p_customer_id;end if;
+ if v_code<>'' then select * into v_coupon from public.coupons where instance_id=p_instance_id and code=v_code for update;if not found or not v_coupon.active then raise exception 'Érvénytelen vagy inaktív kuponkód.';end if;if v_coupon.starts_at is not null and now()<v_coupon.starts_at then raise exception 'A kupon még nem használható.';end if;if v_coupon.ends_at is not null and now()>=v_coupon.ends_at then raise exception 'A kupon lejárt.';end if;if v_coupon.usage_limit is not null and v_coupon.usage_count>=v_coupon.usage_limit then raise exception 'A kupon felhasználási kerete elfogyott.';end if;end if;
+ v_order_id:=gen_random_uuid();v_number:='ORD-'||to_char(now(),'YYYYMMDD')||'-'||upper(substr(replace(v_order_id::text,'-',''),1,8));
+ insert into public.orders(id,instance_id,customer_id,order_number,status,customer_email,customer_phone,billing_name,billing_company,billing_tax_number,billing_postcode,billing_city,billing_address,shipping_name,shipping_postcode,shipping_city,shipping_address,subtotal_gross_huf,shipping_gross_huf,discount_gross_huf,total_gross_huf,shipping_method,parcel_point_id,payment_method,note,coupon_code) values(v_order_id,p_instance_id,p_customer_id,v_number,'pending',trim(p_customer_email),nullif(trim(p_customer_phone),''),trim(p_billing_name),nullif(trim(p_billing_company),''),nullif(trim(p_billing_tax_number),''),trim(p_billing_postcode),trim(p_billing_city),trim(p_billing_address),coalesce(nullif(trim(p_shipping_name),''),trim(p_billing_name)),coalesce(nullif(trim(p_shipping_postcode),''),trim(p_billing_postcode)),coalesce(nullif(trim(p_shipping_city),''),trim(p_billing_city)),coalesce(nullif(trim(p_shipping_address),''),trim(p_billing_address)),0,0,0,0,p_shipping_provider,nullif(trim(p_parcel_point_id),''),p_payment_provider,nullif(trim(p_note),''),nullif(v_code,''));
+ for v_item in select value from jsonb_array_elements(v_items) order by(value->>'variant_id')::uuid loop
+  v_qty:=(v_item->>'quantity')::integer;
+  select pv.id,pv.product_id,pv.sku,pv.label,pv.gross_price_huf,pv.reseller_gross_price_huf,pv.stock_quantity,pv.active,pv.unit_cost_net_huf,p.name product_name,p.active product_active,p.audience product_audience into v_variant from public.product_variants pv join public.products p on p.id=pv.product_id where pv.id=(v_item->>'variant_id')::uuid and pv.instance_id=p_instance_id and p.instance_id=p_instance_id for update of pv;
+  if not found or not v_variant.active or not v_variant.product_active then raise exception 'Nem elérhető termék.';end if;if coalesce(v_variant.product_audience,'retail')='professional' and not(v_role='reseller' and v_reseller) then raise exception 'Ez a termék csak jóváhagyott viszonteladói partnernek rendelhető.';end if;if v_variant.stock_quantity<v_qty then raise exception 'Nincs elegendő készlet: %',v_variant.label;end if;
+  v_price:=case when v_role='reseller' and v_reseller and v_variant.reseller_gross_price_huf is not null then v_variant.reseller_gross_price_huf else v_variant.gross_price_huf end;
+  insert into public.order_items(instance_id,order_id,variant_id,product_name,variant_label,sku,quantity,unit_gross_huf,line_total_gross_huf,unit_cost_net_huf_snapshot,cost_snapshot_source) values(p_instance_id,v_order_id,v_variant.id,v_variant.product_name,v_variant.label,v_variant.sku,v_qty,v_price,v_price*v_qty,v_variant.unit_cost_net_huf,case when v_variant.unit_cost_net_huf is null then null else 'variant' end);
+  v_prev:=v_variant.stock_quantity;update public.product_variants set stock_quantity=stock_quantity-v_qty,updated_at=now() where id=v_variant.id and instance_id=p_instance_id;
+  insert into public.inventory_events(instance_id,variant_id,order_id,change_quantity,previous_stock,new_stock,reason,actor_user_id,metadata) values(p_instance_id,v_variant.id,v_order_id,-v_qty,v_prev,v_prev-v_qty,'order_created',p_customer_id,jsonb_build_object('sku',v_variant.sku,'order_number',v_number,'unit_gross_huf',v_price));v_subtotal:=v_subtotal+v_price*v_qty;
+ end loop;
+ if v_code<>'' then if v_subtotal<v_coupon.min_subtotal_huf then raise exception 'A kuponhoz szükséges minimum kosárérték nincs elérve.';end if;if v_coupon.discount_type='percent' then v_discount:=floor(v_subtotal*(least(v_coupon.discount_value,100)::numeric/100))::integer;else v_discount:=least(v_coupon.discount_value,v_subtotal);end if;if v_coupon.max_discount_huf is not null then v_discount:=least(v_discount,v_coupon.max_discount_huf);end if;v_discount:=greatest(0,least(v_discount,v_subtotal));update public.coupons set usage_count=usage_count+1,updated_at=now() where id=v_coupon.id and instance_id=p_instance_id;end if;
+ v_shipping:=case when p_shipping_kind='pickup' then 0 when p_free_shipping_threshold_huf>0 and(v_subtotal-v_discount)>=p_free_shipping_threshold_huf then 0 else p_shipping_fee_huf end;v_total:=greatest(0,v_subtotal-v_discount)+v_shipping;
+ update public.orders set subtotal_gross_huf=v_subtotal,shipping_gross_huf=v_shipping,discount_gross_huf=v_discount,total_gross_huf=v_total,updated_at=now() where id=v_order_id and instance_id=p_instance_id;
+ insert into public.order_events(instance_id,order_id,event_type,to_status,actor_user_id,metadata) values(p_instance_id,v_order_id,'order_created','pending',p_customer_id,jsonb_build_object('payment_method',p_payment_provider,'shipping_method',p_shipping_provider,'shipping_kind',p_shipping_kind));if v_code<>'' then insert into public.order_events(instance_id,order_id,event_type,to_status,actor_user_id,metadata) values(p_instance_id,v_order_id,'coupon_applied','pending',p_customer_id,jsonb_build_object('code',v_code,'discount_gross_huf',v_discount));end if;
+ v_response:=jsonb_build_object('order_id',v_order_id,'order_number',v_number,'instance_id',p_instance_id,'subtotal_gross_huf',v_subtotal,'discount_gross_huf',v_discount,'shipping_gross_huf',v_shipping,'total_gross_huf',v_total,'coupon_code',nullif(v_code,''),'payment_provider',p_payment_provider,'shipping_provider',p_shipping_provider,'idempotency_replayed',false);update public.order_request_keys set response=v_response,request_fingerprint=v_fp where idempotency_key=v_key;return v_response;
+end$_$;
+
+
+ALTER FUNCTION "public"."place_order_provider_v4_idempotent"("p_instance_id" "uuid", "p_idempotency_key" "text", "p_customer_email" "text", "p_billing_name" "text", "p_billing_company" "text", "p_billing_tax_number" "text", "p_billing_postcode" "text", "p_billing_city" "text", "p_billing_address" "text", "p_shipping_name" "text", "p_shipping_postcode" "text", "p_shipping_city" "text", "p_shipping_address" "text", "p_customer_phone" "text", "p_shipping_provider" "text", "p_shipping_kind" "text", "p_shipping_fee_huf" integer, "p_free_shipping_threshold_huf" integer, "p_parcel_point_id" "text", "p_payment_provider" "text", "p_note" "text", "p_customer_id" "uuid", "p_coupon_code" "text", "p_items" "jsonb") OWNER TO "postgres";
+
+
+CREATE OR REPLACE FUNCTION "public"."place_order_provider_v5_idempotent"("p_instance_id" "uuid", "p_idempotency_key" "text", "p_customer_email" "text", "p_billing_name" "text", "p_billing_company" "text" DEFAULT ''::"text", "p_billing_tax_number" "text" DEFAULT ''::"text", "p_billing_postcode" "text" DEFAULT ''::"text", "p_billing_city" "text" DEFAULT ''::"text", "p_billing_address" "text" DEFAULT ''::"text", "p_shipping_name" "text" DEFAULT ''::"text", "p_shipping_postcode" "text" DEFAULT ''::"text", "p_shipping_city" "text" DEFAULT ''::"text", "p_shipping_address" "text" DEFAULT ''::"text", "p_customer_phone" "text" DEFAULT ''::"text", "p_shipping_provider" "text" DEFAULT 'pickup'::"text", "p_shipping_kind" "text" DEFAULT 'pickup'::"text", "p_shipping_fee_huf" integer DEFAULT 0, "p_free_shipping_threshold_huf" integer DEFAULT 0, "p_parcel_point_id" "text" DEFAULT ''::"text", "p_payment_provider" "text" DEFAULT 'bank_transfer'::"text", "p_note" "text" DEFAULT ''::"text", "p_customer_id" "uuid" DEFAULT NULL::"uuid", "p_coupon_code" "text" DEFAULT ''::"text", "p_items" "jsonb" DEFAULT '[]'::"jsonb") RETURNS "jsonb"
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    SET "search_path" TO ''
+    AS $_$
+declare
+ v_key text;v_fp text;v_existing_fp text;v_existing jsonb;v_order_id uuid;v_number text;v_item jsonb;v_items jsonb;v_variant record;v_qty integer;v_role public.customer_role;v_reseller boolean:=false;v_channel text:='b2c';v_price integer;v_prev integer;v_has_channel boolean:=false;v_channel_visible boolean;v_channel_gross integer;v_channel_min integer;v_channel_discount numeric;v_min_qty integer;v_multiple integer;v_active_variant_count integer;v_explicit_channel_price boolean:=false;v_subtotal integer:=0;v_discount integer:=0;v_shipping integer:=0;v_total integer:=0;v_coupon record;v_code text:=upper(trim(coalesce(p_coupon_code,'')));v_response jsonb;
+begin
+ if not exists(select 1 from public.webshop_instances w where w.id=p_instance_id and w.status in('pilot','active')) then raise exception 'A webshop nem rendelhető.';end if;
+ if p_idempotency_key is null or length(trim(p_idempotency_key))<16 or length(p_idempotency_key)>120 then raise exception 'Érvénytelen rendelési kérésazonosító.';end if;
+ if p_customer_email is null or length(trim(p_customer_email))<5 or length(p_customer_email)>254 then raise exception 'Érvénytelen e-mail cím.';end if;
+ if length(trim(coalesce(p_billing_name,'')))<2 or length(p_billing_name)>150 then raise exception 'A név megadása kötelező.';end if;
+ if jsonb_typeof(coalesce(p_items,'[]'::jsonb))<>'array' or jsonb_array_length(p_items)<1 or jsonb_array_length(p_items)>30 then raise exception 'A kosár tartalma érvénytelen.';end if;
+ if p_shipping_provider!~'^[a-z0-9_-]{2,80}$' or p_payment_provider!~'^[a-z0-9_-]{2,80}$' then raise exception 'Érvénytelen szolgáltatói azonosító.';end if;
+ if p_shipping_kind not in('parcel_point','home_delivery','pickup') then raise exception 'Érvénytelen szállítási típus.';end if;
+ if p_shipping_fee_huf<0 or p_shipping_fee_huf>1000000 or p_free_shipping_threshold_huf<0 or p_free_shipping_threshold_huf>100000000 then raise exception 'Érvénytelen szállítási díj vagy küszöb.';end if;
+ if p_shipping_kind='parcel_point' and length(trim(coalesce(p_parcel_point_id,'')))<2 then raise exception 'Átvételi pontot kell választani.';end if;
+ begin select jsonb_agg(jsonb_build_object('variant_id',n.variant_id,'quantity',n.quantity) order by n.variant_id) into v_items from(select(e->>'variant_id')::uuid as variant_id,sum((e->>'quantity')::integer)::integer as quantity from jsonb_array_elements(p_items)e group by(e->>'variant_id')::uuid)n;exception when others then raise exception 'A kosár tartalma érvénytelen.';end;
+ if v_items is null or exists(select 1 from jsonb_array_elements(v_items)e where(e->>'quantity')::integer<1 or(e->>'quantity')::integer>99) then raise exception 'Érvénytelen mennyiség.';end if;
+ v_key:=md5(p_instance_id::text||':'||trim(p_idempotency_key));v_fp:=md5(jsonb_build_object('instance',p_instance_id,'email',lower(trim(p_customer_email)),'name',trim(p_billing_name),'company',trim(coalesce(p_billing_company,'')),'tax',trim(coalesce(p_billing_tax_number,'')),'shipping_provider',p_shipping_provider,'shipping_kind',p_shipping_kind,'shipping_fee',p_shipping_fee_huf,'free_threshold',p_free_shipping_threshold_huf,'payment_provider',p_payment_provider,'parcel_point',trim(coalesce(p_parcel_point_id,'')),'coupon',v_code,'items',v_items)::text);
+ begin insert into public.order_request_keys(idempotency_key,request_fingerprint) values(v_key,v_fp);exception when unique_violation then select response,request_fingerprint into v_existing,v_existing_fp from public.order_request_keys where idempotency_key=v_key;if v_existing_fp is not null and v_existing_fp<>v_fp then raise exception 'A rendelési kérésazonosító már más rendelési adatokhoz lett felhasználva.';end if;if v_existing is null then raise exception 'A rendelés feldolgozása folyamatban van.';end if;return v_existing||jsonb_build_object('idempotency_replayed',true);end;
+ if p_customer_id is not null then insert into public.customer_instance_roles(instance_id,user_id,role,reseller_approved) values(p_instance_id,p_customer_id,'customer',false) on conflict(instance_id,user_id) do nothing;select role,reseller_approved into v_role,v_reseller from public.customer_instance_roles where instance_id=p_instance_id and user_id=p_customer_id;end if;if v_role='reseller' and v_reseller then v_channel:='b2b';end if;
+ if v_code<>'' then select * into v_coupon from public.coupons where instance_id=p_instance_id and code=v_code for update;if not found or not v_coupon.active then raise exception 'Érvénytelen vagy inaktív kuponkód.';end if;if v_coupon.starts_at is not null and now()<v_coupon.starts_at then raise exception 'A kupon még nem használható.';end if;if v_coupon.ends_at is not null and now()>=v_coupon.ends_at then raise exception 'A kupon lejárt.';end if;if v_coupon.usage_limit is not null and v_coupon.usage_count>=v_coupon.usage_limit then raise exception 'A kupon felhasználási kerete elfogyott.';end if;end if;
+ v_order_id:=gen_random_uuid();v_number:='ORD-'||to_char(now(),'YYYYMMDD')||'-'||upper(substr(replace(v_order_id::text,'-',''),1,8));
+ insert into public.orders(id,instance_id,customer_id,order_number,status,customer_email,customer_phone,billing_name,billing_company,billing_tax_number,billing_postcode,billing_city,billing_address,shipping_name,shipping_postcode,shipping_city,shipping_address,subtotal_gross_huf,shipping_gross_huf,discount_gross_huf,total_gross_huf,shipping_method,parcel_point_id,payment_method,note,coupon_code) values(v_order_id,p_instance_id,p_customer_id,v_number,'pending',trim(p_customer_email),nullif(trim(p_customer_phone),''),trim(p_billing_name),nullif(trim(p_billing_company),''),nullif(trim(p_billing_tax_number),''),trim(p_billing_postcode),trim(p_billing_city),trim(p_billing_address),coalesce(nullif(trim(p_shipping_name),''),trim(p_billing_name)),coalesce(nullif(trim(p_shipping_postcode),''),trim(p_billing_postcode)),coalesce(nullif(trim(p_shipping_city),''),trim(p_billing_city)),coalesce(nullif(trim(p_shipping_address),''),trim(p_billing_address)),0,0,0,0,p_shipping_provider,nullif(trim(p_parcel_point_id),''),p_payment_provider,nullif(trim(p_note),''),nullif(v_code,''));
+ for v_item in select value from jsonb_array_elements(v_items) order by(value->>'variant_id')::uuid loop
+  v_qty:=(v_item->>'quantity')::integer;
+  select pv.id,pv.product_id,pv.sku,pv.label,pv.gross_price_huf,pv.reseller_gross_price_huf,pv.stock_quantity,pv.active,pv.unit_cost_net_huf,pv.minimum_order_quantity,pv.order_multiple,p.name product_name,p.active product_active,p.audience product_audience into v_variant from public.product_variants pv join public.products p on p.id=pv.product_id where pv.id=(v_item->>'variant_id')::uuid and pv.instance_id=p_instance_id and p.instance_id=p_instance_id for update of pv;
+  if not found or not v_variant.active or not v_variant.product_active then raise exception 'Nem elérhető termék.';end if;
+  select pcs.visible,pcs.gross_price,pcs.minimum_quantity,pcs.discount_percent into v_channel_visible,v_channel_gross,v_channel_min,v_channel_discount from public.product_channel_settings pcs where pcs.instance_id=p_instance_id and pcs.product_id=v_variant.product_id and pcs.channel_code=v_channel;v_has_channel:=found;
+  if v_has_channel then if not coalesce(v_channel_visible,true) then raise exception 'A termék ezen az értékesítési csatornán nem elérhető.';end if;elsif coalesce(v_variant.product_audience,'retail')='professional' and v_channel<>'b2b' then raise exception 'Ez a termék csak jóváhagyott viszonteladói partnernek rendelhető.';end if;
+  v_min_qty:=greatest(coalesce(v_variant.minimum_order_quantity,1),case when v_has_channel then coalesce(v_channel_min,1) else 1 end);v_multiple:=greatest(coalesce(v_variant.order_multiple,1),1);v_min_qty:=(ceil(v_min_qty::numeric/v_multiple)::integer)*v_multiple;
+  if v_qty<v_min_qty then raise exception 'Minimum rendelési mennyiség: % db',v_min_qty;end if;if mod(v_qty,v_multiple)<>0 then raise exception 'A rendelési mennyiség csak % db-os lépésekben adható meg.',v_multiple;end if;if v_variant.stock_quantity<v_qty then raise exception 'Nincs elegendő készlet: %',v_variant.label;end if;
+  v_price:=case when v_channel='b2b' and v_variant.reseller_gross_price_huf is not null then v_variant.reseller_gross_price_huf else v_variant.gross_price_huf end;
+  select count(*)::integer into v_active_variant_count from public.product_variants x where x.instance_id=p_instance_id and x.product_id=v_variant.product_id and x.active=true;
+  v_explicit_channel_price:=v_has_channel and v_channel_gross is not null and v_active_variant_count=1 and not(v_channel='b2b' and v_variant.reseller_gross_price_huf is not null);
+  if v_explicit_channel_price then v_price:=greatest(0,v_channel_gross);elsif v_has_channel and v_channel_discount is not null then v_price:=greatest(0,round(v_price*(1-(least(greatest(v_channel_discount,0),100)/100.0)))::integer);end if;
+  insert into public.order_items(instance_id,order_id,variant_id,product_name,variant_label,sku,quantity,unit_gross_huf,line_total_gross_huf,unit_cost_net_huf_snapshot,cost_snapshot_source) values(p_instance_id,v_order_id,v_variant.id,v_variant.product_name,v_variant.label,v_variant.sku,v_qty,v_price,v_price*v_qty,v_variant.unit_cost_net_huf,case when v_variant.unit_cost_net_huf is null then null else 'variant' end);
+  v_prev:=v_variant.stock_quantity;update public.product_variants set stock_quantity=stock_quantity-v_qty,updated_at=now() where id=v_variant.id and instance_id=p_instance_id;
+  insert into public.inventory_events(instance_id,variant_id,order_id,change_quantity,previous_stock,new_stock,reason,actor_user_id,metadata) values(p_instance_id,v_variant.id,v_order_id,-v_qty,v_prev,v_prev-v_qty,'order_created',p_customer_id,jsonb_build_object('sku',v_variant.sku,'order_number',v_number,'unit_gross_huf',v_price,'channel',v_channel,'minimum_quantity',v_min_qty,'order_multiple',v_multiple));v_subtotal:=v_subtotal+v_price*v_qty;
+ end loop;
+ if v_code<>'' then if v_subtotal<v_coupon.min_subtotal_huf then raise exception 'A kuponhoz szükséges minimum kosárérték nincs elérve.';end if;if v_coupon.discount_type='percent' then v_discount:=floor(v_subtotal*(least(v_coupon.discount_value,100)::numeric/100))::integer;else v_discount:=least(v_coupon.discount_value,v_subtotal);end if;if v_coupon.max_discount_huf is not null then v_discount:=least(v_discount,v_coupon.max_discount_huf);end if;v_discount:=greatest(0,least(v_discount,v_subtotal));update public.coupons set usage_count=usage_count+1,updated_at=now() where id=v_coupon.id and instance_id=p_instance_id;end if;
+ v_shipping:=case when p_shipping_kind='pickup' then 0 when p_free_shipping_threshold_huf>0 and(v_subtotal-v_discount)>=p_free_shipping_threshold_huf then 0 else p_shipping_fee_huf end;v_total:=greatest(0,v_subtotal-v_discount)+v_shipping;
+ update public.orders set subtotal_gross_huf=v_subtotal,shipping_gross_huf=v_shipping,discount_gross_huf=v_discount,total_gross_huf=v_total,updated_at=now() where id=v_order_id and instance_id=p_instance_id;
+ insert into public.order_events(instance_id,order_id,event_type,to_status,actor_user_id,metadata) values(p_instance_id,v_order_id,'order_created','pending',p_customer_id,jsonb_build_object('payment_method',p_payment_provider,'shipping_method',p_shipping_provider,'shipping_kind',p_shipping_kind));if v_code<>'' then insert into public.order_events(instance_id,order_id,event_type,to_status,actor_user_id,metadata) values(p_instance_id,v_order_id,'coupon_applied','pending',p_customer_id,jsonb_build_object('code',v_code,'discount_gross_huf',v_discount));end if;
+ v_response:=jsonb_build_object('order_id',v_order_id,'order_number',v_number,'instance_id',p_instance_id,'subtotal_gross_huf',v_subtotal,'discount_gross_huf',v_discount,'shipping_gross_huf',v_shipping,'total_gross_huf',v_total,'coupon_code',nullif(v_code,''),'payment_provider',p_payment_provider,'shipping_provider',p_shipping_provider,'idempotency_replayed',false);update public.order_request_keys set response=v_response,request_fingerprint=v_fp where idempotency_key=v_key;return v_response;
+end$_$;
+
+
+ALTER FUNCTION "public"."place_order_provider_v5_idempotent"("p_instance_id" "uuid", "p_idempotency_key" "text", "p_customer_email" "text", "p_billing_name" "text", "p_billing_company" "text", "p_billing_tax_number" "text", "p_billing_postcode" "text", "p_billing_city" "text", "p_billing_address" "text", "p_shipping_name" "text", "p_shipping_postcode" "text", "p_shipping_city" "text", "p_shipping_address" "text", "p_customer_phone" "text", "p_shipping_provider" "text", "p_shipping_kind" "text", "p_shipping_fee_huf" integer, "p_free_shipping_threshold_huf" integer, "p_parcel_point_id" "text", "p_payment_provider" "text", "p_note" "text", "p_customer_id" "uuid", "p_coupon_code" "text", "p_items" "jsonb") OWNER TO "postgres";
 
 
 CREATE OR REPLACE FUNCTION "public"."plan_action_proposals"("p_run_key" "text") RETURNS "jsonb"
@@ -1997,6 +3229,19 @@ $$;
 ALTER FUNCTION "public"."plan_commercial_opportunities"() OWNER TO "postgres";
 
 
+CREATE OR REPLACE FUNCTION "public"."plan_commercial_opportunities_v2"("p_instance_id" "uuid") RETURNS "jsonb"
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    SET "search_path" TO 'public'
+    AS $$declare v_b2c int:=0;v_b2b int:=0;begin
+ insert into public.commercial_opportunities(instance_id,opportunity_key,channel,customer_id,customer_email,kind,priority_score,expected_value_net_huf,probability_percent,due_at,reason,recommended_action,source)
+ select p_instance_id,'b2c:'||c.customer_key||':active','b2c',c.customer_id,c.email_key,case when c.segment in('winback','dormant') then 'winback' else 'retention' end,case when c.segment='at_risk' then 80 when c.segment='winback' then 90 else 70 end,round(greatest(coalesce(c.aov_gross_huf,0),0)::numeric/1.27,2),case when c.segment='at_risk' then 45 when c.segment='winback' then 30 else 20 end,now(),'Customer segment: '||c.segment,case when c.segment='at_risk' then 'Személyre szabott megtartási ajánlat' else 'Visszanyerési ajánlat előkészítése' end,jsonb_build_object('segment',c.segment) from public.customer_commercial_metrics c where c.instance_id=p_instance_id and c.segment in('at_risk','winback','dormant') on conflict(instance_id,opportunity_key) do nothing;get diagnostics v_b2c=row_count;
+ insert into public.commercial_opportunities(instance_id,opportunity_key,channel,reseller_id,kind,priority_score,expected_value_net_huf,probability_percent,due_at,reason,recommended_action,source)
+ select p_instance_id,'b2b:'||r.customer_id::text||':reorder','b2b',r.customer_id,'reorder',r.priority_score,round(greatest(coalesce(r.estimated_reorder_value_gross_huf,0),0)::numeric/1.27,2),case when r.priority_band='critical' then 70 when r.priority_band='high' then 55 else 35 end,coalesce(r.last_order_at,now()),'Reseller priority: '||r.priority_band,r.recommended_action,jsonb_build_object('priority_band',r.priority_band) from public.reseller_growth_priorities r where r.instance_id=p_instance_id and r.customer_id is not null and r.priority_band in('critical','high','medium') on conflict(instance_id,opportunity_key) do update set priority_score=excluded.priority_score,expected_value_net_huf=excluded.expected_value_net_huf,probability_percent=excluded.probability_percent,due_at=excluded.due_at,reason=excluded.reason,recommended_action=excluded.recommended_action,source=excluded.source,updated_at=now() where public.commercial_opportunities.status in('open','in_progress');get diagnostics v_b2b=row_count;return jsonb_build_object('b2c_inserts',v_b2c,'b2b_upserts',v_b2b);end$$;
+
+
+ALTER FUNCTION "public"."plan_commercial_opportunities_v2"("p_instance_id" "uuid") OWNER TO "postgres";
+
+
 CREATE OR REPLACE FUNCTION "public"."plan_control_tasks"("p_run_key" "text") RETURNS "jsonb"
     LANGUAGE "plpgsql" SECURITY DEFINER
     SET "search_path" TO ''
@@ -2133,6 +3378,102 @@ COMMENT ON FUNCTION "public"."plan_customer_retention_journeys"() IS 'V9 idempot
 
 
 
+CREATE OR REPLACE FUNCTION "public"."plan_customer_retention_journeys_v2"("p_instance_id" "uuid") RETURNS "jsonb"
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    SET "search_path" TO ''
+    AS $$
+declare
+  m record;
+  r record;
+  v_journey uuid;
+  v_created integer:=0;
+  v_steps integer:=0;
+begin
+  if p_instance_id is null then raise exception 'instance_required'; end if;
+
+  for m in
+    select *
+    from public.customer_commercial_metrics
+    where instance_id=p_instance_id
+      and segment in('at_risk','winback','dormant')
+  loop
+    select public.create_customer_journey_v2(
+      p_instance_id,
+      case when m.segment='at_risk'
+        then 'replenishment'::public.customer_journey_kind
+        else 'winback'::public.customer_journey_kind end,
+      m.customer_id,
+      m.email_key,
+      concat(m.customer_key,':',m.segment),
+      jsonb_build_object(
+        'segment',m.segment,
+        'paidOrders',m.paid_orders,
+        'revenueGrossHuf',m.revenue_gross_huf,
+        'lastOrderAt',m.last_order_at
+      )
+    ) into v_journey;
+
+    v_created:=v_created+1;
+    insert into public.customer_journey_steps(
+      instance_id,journey_id,step_key,purpose,template_key,scheduled_at
+    ) values(
+      p_instance_id,
+      v_journey,
+      case when m.segment='at_risk' then 'replenishment-reminder' else 'winback-reminder' end,
+      'marketing',
+      case when m.segment='at_risk' then 'repeat_30d' else 'winback_90d' end,
+      now()
+    )
+    on conflict(journey_id,step_key) do nothing;
+    if found then v_steps:=v_steps+1; end if;
+  end loop;
+
+  for r in
+    select id,user_id,email,recovery_token,last_seen_at,expires_at
+    from public.checkout_recovery_intents
+    where instance_id=p_instance_id
+      and status='open'
+      and expires_at>now()
+      and last_seen_at<=now()-interval '2 hours'
+  loop
+    select public.create_customer_journey_v2(
+      p_instance_id,
+      'abandoned_checkout'::public.customer_journey_kind,
+      r.user_id,
+      r.email,
+      r.id::text,
+      jsonb_build_object(
+        'checkoutRecoveryId',r.id,
+        'recoveryToken',r.recovery_token,
+        'lastSeenAt',r.last_seen_at,
+        'expiresAt',r.expires_at
+      )
+    ) into v_journey;
+
+    v_created:=v_created+1;
+    insert into public.customer_journey_steps(
+      instance_id,journey_id,step_key,purpose,template_key,scheduled_at
+    ) values(
+      p_instance_id,v_journey,'checkout-recovery','marketing','abandoned_checkout',now()
+    )
+    on conflict(journey_id,step_key) do nothing;
+    if found then v_steps:=v_steps+1; end if;
+  end loop;
+
+  update public.checkout_recovery_intents
+  set status='expired',updated_at=now()
+  where instance_id=p_instance_id
+    and status='open'
+    and expires_at<=now();
+
+  return jsonb_build_object('journeysSeen',v_created,'stepsCreated',v_steps);
+end;
+$$;
+
+
+ALTER FUNCTION "public"."plan_customer_retention_journeys_v2"("p_instance_id" "uuid") OWNER TO "postgres";
+
+
 CREATE OR REPLACE FUNCTION "public"."plan_high_value_sales_tasks"() RETURNS integer
     LANGUAGE "plpgsql" SECURITY DEFINER
     SET "search_path" TO ''
@@ -2162,6 +3503,15 @@ end;$$;
 
 
 ALTER FUNCTION "public"."plan_high_value_sales_tasks"() OWNER TO "postgres";
+
+
+CREATE OR REPLACE FUNCTION "public"."plan_high_value_sales_tasks_v2"("p_instance_id" "uuid") RETURNS integer
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    SET "search_path" TO 'public'
+    AS $$declare v_count int:=0;begin insert into public.sales_tasks(instance_id,opportunity_id,task_key,title,description,priority,due_at) select p_instance_id,o.id,'opportunity:'||o.id::text,case when o.channel='b2b' then 'Viszonteladói lehetőség kezelése' else 'Nagy értékű ügyféllehetőség kezelése' end,o.reason||coalesce(' · '||o.recommended_action,''),o.priority_score,coalesce(o.due_at,now()) from public.commercial_opportunities o where o.instance_id=p_instance_id and o.status in('open','in_progress') and(o.priority_score>=80 or o.expected_value_net_huf>=100000) on conflict(instance_id,task_key) do update set priority=excluded.priority,due_at=excluded.due_at,description=excluded.description,updated_at=now() where public.sales_tasks.status in('open','in_progress');get diagnostics v_count=row_count;return v_count;end$$;
+
+
+ALTER FUNCTION "public"."plan_high_value_sales_tasks_v2"("p_instance_id" "uuid") OWNER TO "postgres";
 
 
 CREATE OR REPLACE FUNCTION "public"."plan_loyalty_retention_opportunities"() RETURNS integer
@@ -2209,6 +3559,77 @@ end;$$;
 
 
 ALTER FUNCTION "public"."plan_loyalty_retention_opportunities"() OWNER TO "postgres";
+
+
+CREATE OR REPLACE FUNCTION "public"."platform_owner_claim_available"("p_email" "text") RETURNS boolean
+    LANGUAGE "sql" STABLE SECURITY DEFINER
+    SET "search_path" TO ''
+    AS $$
+  select exists(
+    select 1
+    from private.platform_owner_claims
+    where email=lower(trim(p_email))
+      and claimed_at is null
+  );
+$$;
+
+
+ALTER FUNCTION "public"."platform_owner_claim_available"("p_email" "text") OWNER TO "postgres";
+
+
+CREATE OR REPLACE FUNCTION "public"."prepare_admin_audit_entry"() RETURNS "trigger"
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    SET "search_path" TO 'public', 'extensions'
+    AS $$
+declare v_store_org uuid;v_roles text[];v_prev text;
+begin
+  if new.created_at is null then new.created_at:=now();end if;
+  if new.instance_id is not null then
+    select organization_id into v_store_org from public.webshop_instances where id=new.instance_id;
+    if not found then raise exception 'Audit entry references unknown webshop instance.';end if;
+    if new.organization_id is not null and new.organization_id is distinct from v_store_org then raise exception 'Audit organization/store mismatch.';end if;
+    new.organization_id:=v_store_org;
+    new.audit_scope:='store:'||new.instance_id::text;
+  elsif new.organization_id is not null then
+    perform 1 from public.organizations where id=new.organization_id;if not found then raise exception 'Audit entry references unknown organization.';end if;
+    new.audit_scope:='org:'||new.organization_id::text;
+  else new.audit_scope:='platform';end if;
+
+  select array_agg(distinct role_label order by role_label) into v_roles from (
+    select 'platform:'||po.role::text role_label from public.platform_operators po where po.user_id=new.actor_user_id
+    union all
+    select 'store:'||rb.role_code from public.role_bindings rb
+      where rb.user_id=new.actor_user_id and new.instance_id is not null
+        and rb.organization_id=new.organization_id and (rb.instance_id=new.instance_id or rb.instance_id is null)
+        and rb.revoked_at is null and rb.valid_from<=new.created_at and (rb.valid_until is null or rb.valid_until>new.created_at)
+    union all
+    select 'organization:'||om.role from public.organization_members om
+      where om.user_id=new.actor_user_id and new.organization_id is not null and om.organization_id=new.organization_id
+  ) roles;
+  new.actor_roles:=coalesce(v_roles,array['unknown']::text[]);
+
+  perform pg_advisory_xact_lock(hashtextextended(new.audit_scope,0));
+  new.chain_seq:=nextval('public.admin_audit_chain_seq');
+  select entry_hash into v_prev from public.admin_audit_log where audit_scope=new.audit_scope order by chain_seq desc limit 1;
+  new.prev_hash:=v_prev;
+  new.entry_hash:=public.compute_admin_audit_hash(new.chain_seq,new.audit_scope,new.prev_hash,new.actor_user_id,new.actor_roles,new.action,new.entity_type,new.entity_id,new.summary,new.before_state,new.after_state,new.metadata,new.created_at);
+  return new;
+end $$;
+
+
+ALTER FUNCTION "public"."prepare_admin_audit_entry"() OWNER TO "postgres";
+
+
+CREATE OR REPLACE FUNCTION "public"."prevent_admin_audit_mutation"() RETURNS "trigger"
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    SET "search_path" TO 'public'
+    AS $$
+begin
+  raise exception 'Admin audit log is append-only.';
+end $$;
+
+
+ALTER FUNCTION "public"."prevent_admin_audit_mutation"() OWNER TO "postgres";
 
 
 CREATE OR REPLACE FUNCTION "public"."prevent_control_event_mutation"() RETURNS "trigger"
@@ -2261,6 +3682,52 @@ COMMENT ON FUNCTION "public"."preview_promotion_margin"("p_variant_id" "uuid", "
 
 
 
+CREATE OR REPLACE FUNCTION "public"."preview_promotion_margin_v2"("p_instance_id" "uuid", "p_variant_id" "uuid", "p_discount_percent" numeric, "p_min_margin_percent" numeric DEFAULT 20) RETURNS "jsonb"
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    SET "search_path" TO ''
+    AS $$
+declare
+  v record;
+  v_discount numeric;
+  v_net_after numeric;
+  v_margin numeric;
+  v_margin_pct numeric;
+  v_safe boolean;
+begin
+  if p_instance_id is null then raise exception 'instance_required'; end if;
+  if p_discount_percent<0 or p_discount_percent>100 then raise exception 'invalid discount percent'; end if;
+  if p_min_margin_percent<0 or p_min_margin_percent>100 then raise exception 'invalid minimum margin percent'; end if;
+
+  select id,sku,label,net_price_huf,unit_cost_net_huf
+  into v
+  from public.product_variants
+  where id=p_variant_id and instance_id=p_instance_id;
+
+  if not found then raise exception 'variant not found in webshop'; end if;
+  if v.unit_cost_net_huf is null then
+    return jsonb_build_object('safe',false,'reason','missing_unit_cost','variantId',v.id,'sku',v.sku);
+  end if;
+
+  v_discount:=v.net_price_huf*(p_discount_percent/100);
+  v_net_after:=greatest(0,v.net_price_huf-v_discount);
+  v_margin:=v_net_after-v.unit_cost_net_huf;
+  v_margin_pct:=case when v_net_after>0 then (v_margin/v_net_after)*100 else -100 end;
+  v_safe:=v_margin>=0 and v_margin_pct>=p_min_margin_percent;
+
+  return jsonb_build_object(
+    'safe',v_safe,'variantId',v.id,'sku',v.sku,'label',v.label,
+    'discountPercent',round(p_discount_percent,2),'netPriceBefore',v.net_price_huf,
+    'netPriceAfter',round(v_net_after,2),'unitCostNet',v.unit_cost_net_huf,
+    'marginNet',round(v_margin,2),'marginPercent',round(v_margin_pct,2),
+    'minimumMarginPercent',round(p_min_margin_percent,2)
+  );
+end;
+$$;
+
+
+ALTER FUNCTION "public"."preview_promotion_margin_v2"("p_instance_id" "uuid", "p_variant_id" "uuid", "p_discount_percent" numeric, "p_min_margin_percent" numeric) OWNER TO "postgres";
+
+
 CREATE TABLE IF NOT EXISTS "public"."action_processing_runs" (
     "id" "uuid" DEFAULT "gen_random_uuid"() NOT NULL,
     "run_key" "text" NOT NULL,
@@ -2268,7 +3735,8 @@ CREATE TABLE IF NOT EXISTS "public"."action_processing_runs" (
     "completed_at" timestamp with time zone,
     "plan_result" "jsonb" DEFAULT '{}'::"jsonb" NOT NULL,
     "cleanup_result" "jsonb" DEFAULT '{}'::"jsonb" NOT NULL,
-    "metadata" "jsonb" DEFAULT '{}'::"jsonb" NOT NULL
+    "metadata" "jsonb" DEFAULT '{}'::"jsonb" NOT NULL,
+    "instance_id" "uuid" NOT NULL
 );
 
 
@@ -2287,6 +3755,15 @@ CREATE OR REPLACE FUNCTION "public"."process_action_cycle"("p_run_key" "text") R
 
 
 ALTER FUNCTION "public"."process_action_cycle"("p_run_key" "text") OWNER TO "postgres";
+
+
+CREATE OR REPLACE FUNCTION "public"."process_action_cycle_v2"("p_instance_id" "uuid", "p_run_key" "text") RETURNS "public"."action_processing_runs"
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    SET "search_path" TO ''
+    AS $$declare r public.action_processing_runs;v_active int;begin update public.action_proposals set status='cancelled',cancelled_at=now(),updated_at=now()where instance_id=p_instance_id and status in('proposed','simulated')and expires_at<=now();select count(*)into v_active from public.action_proposals where instance_id=p_instance_id and status in('proposed','simulated','approved');insert into public.action_processing_runs(instance_id,run_key,plan_result,cleanup_result,completed_at,metadata)values(p_instance_id,p_run_key,jsonb_build_object('active_proposals',v_active),jsonb_build_object('expired_cleaned',true),now(),jsonb_build_object('tenant_safe',true,'global_planner_disabled',true))on conflict(instance_id,run_key)do update set completed_at=excluded.completed_at,plan_result=excluded.plan_result,cleanup_result=excluded.cleanup_result,metadata=excluded.metadata returning * into r;return r;end$$;
+
+
+ALTER FUNCTION "public"."process_action_cycle_v2"("p_instance_id" "uuid", "p_run_key" "text") OWNER TO "postgres";
 
 
 CREATE TABLE IF NOT EXISTS "public"."assurance_runs" (
@@ -2356,7 +3833,8 @@ CREATE TABLE IF NOT EXISTS "public"."automation_processing_runs" (
     "completed_at" timestamp with time zone,
     "planned" "jsonb" DEFAULT '{}'::"jsonb" NOT NULL,
     "reconciled" "jsonb" DEFAULT '{}'::"jsonb" NOT NULL,
-    "metadata" "jsonb" DEFAULT '{}'::"jsonb" NOT NULL
+    "metadata" "jsonb" DEFAULT '{}'::"jsonb" NOT NULL,
+    "instance_id" "uuid" NOT NULL
 );
 
 
@@ -2375,6 +3853,15 @@ CREATE OR REPLACE FUNCTION "public"."process_automation_cycle"("p_run_key" "text
 ALTER FUNCTION "public"."process_automation_cycle"("p_run_key" "text") OWNER TO "postgres";
 
 
+CREATE OR REPLACE FUNCTION "public"."process_automation_cycle_v2"("p_instance_id" "uuid", "p_run_key" "text") RETURNS "public"."automation_processing_runs"
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    SET "search_path" TO ''
+    AS $$declare r public.automation_processing_runs;v_active int;begin select count(*)into v_active from public.automation_runbook_instances where instance_id=p_instance_id and status in('planned','active','paused');insert into public.automation_processing_runs(instance_id,run_key,planned,reconciled,completed_at,metadata)values(p_instance_id,p_run_key,jsonb_build_object('active_instances',v_active),jsonb_build_object('safe_reconcile',true),now(),jsonb_build_object('tenant_safe',true,'global_planner_disabled',true))on conflict(instance_id,run_key)do update set completed_at=excluded.completed_at,planned=excluded.planned,reconciled=excluded.reconciled,metadata=excluded.metadata returning * into r;return r;end$$;
+
+
+ALTER FUNCTION "public"."process_automation_cycle_v2"("p_instance_id" "uuid", "p_run_key" "text") OWNER TO "postgres";
+
+
 CREATE TABLE IF NOT EXISTS "public"."control_processing_runs" (
     "id" "uuid" DEFAULT "gen_random_uuid"() NOT NULL,
     "run_key" "text" NOT NULL,
@@ -2382,7 +3869,8 @@ CREATE TABLE IF NOT EXISTS "public"."control_processing_runs" (
     "completed_at" timestamp with time zone,
     "detector_result" "jsonb" DEFAULT '{}'::"jsonb" NOT NULL,
     "task_result" "jsonb" DEFAULT '{}'::"jsonb" NOT NULL,
-    "metadata" "jsonb" DEFAULT '{}'::"jsonb" NOT NULL
+    "metadata" "jsonb" DEFAULT '{}'::"jsonb" NOT NULL,
+    "instance_id" "uuid" NOT NULL
 );
 
 
@@ -2415,6 +3903,15 @@ end;$$;
 ALTER FUNCTION "public"."process_control_tower_cycle"("p_run_key" "text") OWNER TO "postgres";
 
 
+CREATE OR REPLACE FUNCTION "public"."process_control_tower_cycle_v2"("p_instance_id" "uuid", "p_run_key" "text") RETURNS "public"."control_processing_runs"
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    SET "search_path" TO ''
+    AS $$declare r public.control_processing_runs;v_open int;v_tasks int;begin if nullif(trim(p_run_key),'')is null then raise exception 'run_key_required';end if;select count(*)into v_open from public.control_alerts where instance_id=p_instance_id and status in('open','acknowledged','snoozed');select count(*)into v_tasks from public.control_tasks where instance_id=p_instance_id and status in('open','in_progress');insert into public.control_processing_runs(instance_id,run_key,detector_result,task_result,completed_at,metadata)values(p_instance_id,p_run_key,jsonb_build_object('active_alerts',v_open),jsonb_build_object('active_tasks',v_tasks),now(),jsonb_build_object('tenant_safe',true,'global_detectors_disabled',true))on conflict(instance_id,run_key)do update set completed_at=excluded.completed_at,detector_result=excluded.detector_result,task_result=excluded.task_result,metadata=excluded.metadata returning * into r;return r;end$$;
+
+
+ALTER FUNCTION "public"."process_control_tower_cycle_v2"("p_instance_id" "uuid", "p_run_key" "text") OWNER TO "postgres";
+
+
 CREATE TABLE IF NOT EXISTS "public"."loyalty_processing_runs" (
     "id" "uuid" DEFAULT "gen_random_uuid"() NOT NULL,
     "run_key" "text" NOT NULL,
@@ -2423,7 +3920,8 @@ CREATE TABLE IF NOT EXISTS "public"."loyalty_processing_runs" (
     "refreshed_profiles" integer DEFAULT 0 NOT NULL,
     "started_at" timestamp with time zone DEFAULT "now"() NOT NULL,
     "completed_at" timestamp with time zone,
-    "metadata" "jsonb" DEFAULT '{}'::"jsonb" NOT NULL
+    "metadata" "jsonb" DEFAULT '{}'::"jsonb" NOT NULL,
+    "instance_id" "uuid" NOT NULL
 );
 
 
@@ -2472,18 +3970,30 @@ CREATE OR REPLACE FUNCTION "public"."process_operations_cycle"("p_run_key" "text
     LANGUAGE "plpgsql" SECURITY DEFINER
     SET "search_path" TO ''
     AS $$
-declare v public.operations_processing_runs;v_reconciled jsonb;v_priorities integer;v_refund_units integer;begin
- if nullif(trim(p_run_key),'') is null then raise exception 'run_key_required'; end if;
- perform pg_advisory_xact_lock(hashtextextended('operations-cycle:'||p_run_key,0));
- select * into v from public.operations_processing_runs where run_key=p_run_key;
- if found and v.completed_at is not null then return v; end if;
- if not found then insert into public.operations_processing_runs(run_key) values(p_run_key) returning * into v; end if;
- select public.restore_refunded_pre_fulfillment_inventory() into v_refund_units;
- select public.reconcile_inventory_reservations() into v_reconciled;
- select public.refresh_order_operation_priorities() into v_priorities;
- update public.operations_processing_runs set reconciled=v_reconciled||jsonb_build_object('reservation_independent_refund_restored_units',v_refund_units),priorities_refreshed=v_priorities,completed_at=now(),metadata=jsonb_build_object('sequence',jsonb_build_array('restore_refunded_pre_fulfillment','reconcile_inventory','refresh_priorities')) where id=v.id returning * into v;
- return v;
-end;$$;
+declare
+  v public.operations_processing_runs;
+  v_reconciled jsonb;
+  v_priorities integer;
+begin
+  if nullif(trim(p_run_key),'') is null then raise exception 'run_key_required'; end if;
+  perform pg_advisory_xact_lock(hashtextextended('operations-cycle:'||p_run_key,0));
+  select * into v from public.operations_processing_runs where run_key=p_run_key;
+  if found and v.completed_at is not null then return v; end if;
+  if not found then insert into public.operations_processing_runs(run_key) values(p_run_key) returning * into v; end if;
+  select public.reconcile_inventory_reservations() into v_reconciled;
+  select public.refresh_order_operation_priorities() into v_priorities;
+  update public.operations_processing_runs
+     set reconciled=v_reconciled,
+         priorities_refreshed=v_priorities,
+         completed_at=now(),
+         metadata=jsonb_build_object(
+           'sequence',jsonb_build_array('reconcile_inventory','refresh_priorities'),
+           'refund_inventory_policy','return_case_only'
+         )
+   where id=v.id
+   returning * into v;
+  return v;
+end $$;
 
 
 ALTER FUNCTION "public"."process_operations_cycle"("p_run_key" "text") OWNER TO "postgres";
@@ -2555,6 +4065,35 @@ end;$$;
 ALTER FUNCTION "public"."queue_abandoned_checkout_recoveries"("p_limit" integer, "p_min_age_minutes" integer) OWNER TO "postgres";
 
 
+CREATE OR REPLACE FUNCTION "public"."queue_abandoned_checkout_recoveries_v2"("p_instance_id" "uuid", "p_limit" integer DEFAULT 50, "p_min_age_minutes" integer DEFAULT 60) RETURNS integer
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    SET "search_path" TO ''
+    AS $$
+declare r record;j uuid;n integer:=0;
+begin
+  for r in select i.id,i.user_id,i.email,i.recovery_token,i.cart from public.checkout_recovery_intents i
+    where i.instance_id=p_instance_id and i.status='open' and i.expires_at>now() and i.communication_job_id is null
+      and i.last_seen_at<=now()-make_interval(mins=>greatest(p_min_age_minutes,15))
+    order by i.last_seen_at asc for update of i skip locked limit greatest(1,least(p_limit,200))
+  loop
+    if public.has_marketing_consent_v2(p_instance_id,r.email,'email') is not true then continue; end if;
+    insert into public.communication_jobs(instance_id,recipient_email,user_id,purpose,template_key,payload,idempotency_key,requires_approval,approved_at)
+    values(p_instance_id,lower(trim(r.email)),r.user_id,'marketing','abandoned_checkout',
+      jsonb_build_object('recoveryUrl','/kosar/visszaallitas?token='||r.recovery_token::text,'itemCount',jsonb_array_length(r.cart),'recoveryIntentId',r.id),
+      'checkout-recovery:'||r.id::text,true,null)
+    on conflict(instance_id,idempotency_key) do update set updated_at=now()
+    returning id into j;
+    update public.checkout_recovery_intents set communication_job_id=j,updated_at=now() where id=r.id and instance_id=p_instance_id;
+    n:=n+1;
+  end loop;
+  return n;
+end;
+$$;
+
+
+ALTER FUNCTION "public"."queue_abandoned_checkout_recoveries_v2"("p_instance_id" "uuid", "p_limit" integer, "p_min_age_minutes" integer) OWNER TO "postgres";
+
+
 CREATE OR REPLACE FUNCTION "public"."queue_available_stock_notifications"("p_limit" integer DEFAULT 50) RETURNS integer
     LANGUAGE "plpgsql" SECURITY DEFINER
     SET "search_path" TO 'public'
@@ -2583,6 +4122,37 @@ end;$$;
 
 
 ALTER FUNCTION "public"."queue_available_stock_notifications"("p_limit" integer) OWNER TO "postgres";
+
+
+CREATE OR REPLACE FUNCTION "public"."queue_available_stock_notifications_v2"("p_instance_id" "uuid", "p_limit" integer DEFAULT 50) RETURNS integer
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    SET "search_path" TO ''
+    AS $$
+declare r record;v_job_id uuid;v_count integer:=0;
+begin
+  for r in
+    select sn.id,sn.variant_id,sn.user_id,sn.email,p.name product_name,p.slug,pv.label
+    from public.stock_notifications sn
+    join public.product_variants pv on pv.id=sn.variant_id and pv.instance_id=p_instance_id
+    join public.products p on p.id=pv.product_id and p.instance_id=p_instance_id
+    where sn.instance_id=p_instance_id and sn.status='waiting' and pv.active=true and pv.stock_quantity>0 and p.active=true
+    order by sn.created_at for update of sn skip locked limit greatest(1,least(coalesce(p_limit,50),200))
+  loop
+    insert into public.communication_jobs(instance_id,recipient_email,user_id,purpose,template_key,payload,idempotency_key,requires_approval,approved_at)
+    values(p_instance_id,lower(r.email),r.user_id,'transactional','stock_available',
+      jsonb_build_object('productName',r.product_name,'variantLabel',r.label,'productUrl','/termek/'||r.slug,'stockNotificationId',r.id),
+      'stock-notification:'||r.id::text,false,now())
+    on conflict(instance_id,idempotency_key) do update set updated_at=now()
+    returning id into v_job_id;
+    update public.stock_notifications set status='queued',communication_job_id=v_job_id where id=r.id and instance_id=p_instance_id;
+    v_count:=v_count+1;
+  end loop;
+  return v_count;
+end;
+$$;
+
+
+ALTER FUNCTION "public"."queue_available_stock_notifications_v2"("p_instance_id" "uuid", "p_limit" integer) OWNER TO "postgres";
 
 
 CREATE OR REPLACE FUNCTION "public"."queue_due_customer_journey_steps"("p_limit" integer DEFAULT 50) RETURNS "jsonb"
@@ -2621,6 +4191,104 @@ end;$$;
 
 
 ALTER FUNCTION "public"."queue_due_customer_journey_steps"("p_limit" integer) OWNER TO "postgres";
+
+
+CREATE OR REPLACE FUNCTION "public"."quote_tenant_checkout_v1"("p_instance_id" "uuid", "p_customer_id" "uuid" DEFAULT NULL::"uuid", "p_coupon_code" "text" DEFAULT ''::"text", "p_shipping_kind" "text" DEFAULT 'pickup'::"text", "p_shipping_fee_huf" integer DEFAULT 0, "p_free_shipping_threshold_huf" integer DEFAULT 0, "p_items" "jsonb" DEFAULT '[]'::"jsonb") RETURNS "jsonb"
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    SET "search_path" TO ''
+    AS $$
+declare
+  v_item jsonb;v_items jsonb;v_variant record;v_qty integer;v_subtotal integer:=0;v_discount integer:=0;v_shipping integer:=0;
+  v_coupon record;v_code text:=upper(trim(coalesce(p_coupon_code,'')));v_role public.customer_role;v_reseller boolean:=false;v_price integer;v_lines jsonb:='[]'::jsonb;
+begin
+  if not exists(select 1 from public.webshop_instances w where w.id=p_instance_id and w.status in('pilot','active')) then raise exception 'A webshop nem rendelhető.';end if;
+  if jsonb_typeof(coalesce(p_items,'[]'::jsonb))<>'array' or jsonb_array_length(p_items)<1 or jsonb_array_length(p_items)>30 then raise exception 'A kosár tartalma érvénytelen.';end if;
+  begin
+    select jsonb_agg(jsonb_build_object('variant_id',n.variant_id,'quantity',n.quantity) order by n.variant_id) into v_items
+    from(select (e->>'variant_id')::uuid as variant_id,sum((e->>'quantity')::integer)::integer as quantity from jsonb_array_elements(p_items)e group by(e->>'variant_id')::uuid)n;
+  exception when others then raise exception 'A kosár tartalma érvénytelen.';end;
+  if v_items is null or exists(select 1 from jsonb_array_elements(v_items)e where(e->>'quantity')::integer<1 or(e->>'quantity')::integer>99) then raise exception 'Érvénytelen mennyiség.';end if;
+  if p_customer_id is not null then select role,reseller_approved into v_role,v_reseller from public.customer_instance_roles where instance_id=p_instance_id and user_id=p_customer_id;end if;
+  for v_item in select value from jsonb_array_elements(v_items) order by(value->>'variant_id')::uuid loop
+    v_qty:=(v_item->>'quantity')::integer;
+    select pv.id,pv.product_id,pv.sku,pv.label,pv.gross_price_huf,pv.reseller_gross_price_huf,pv.stock_quantity,pv.active,p.name product_name,p.active product_active,p.audience product_audience
+    into v_variant from public.product_variants pv join public.products p on p.id=pv.product_id
+    where pv.id=(v_item->>'variant_id')::uuid and pv.instance_id=p_instance_id and p.instance_id=p_instance_id;
+    if not found or not v_variant.active or not v_variant.product_active then raise exception 'Nem elérhető termék.';end if;
+    if coalesce(v_variant.product_audience,'retail')='professional' and not(v_role='reseller' and v_reseller) then raise exception 'Ez a termék csak jóváhagyott viszonteladói partnernek rendelhető.';end if;
+    if v_variant.stock_quantity<v_qty then raise exception 'Nincs elegendő készlet: %',v_variant.label;end if;
+    v_price:=case when v_role='reseller' and v_reseller and v_variant.reseller_gross_price_huf is not null then v_variant.reseller_gross_price_huf else v_variant.gross_price_huf end;
+    v_subtotal:=v_subtotal+v_price*v_qty;
+    v_lines:=v_lines||jsonb_build_array(jsonb_build_object('variantId',v_variant.id,'productId',v_variant.product_id,'sku',v_variant.sku,'name',v_variant.product_name,'variantLabel',v_variant.label,'quantity',v_qty,'unitGrossHuf',v_price,'lineGrossHuf',v_price*v_qty,'availableQuantity',v_variant.stock_quantity));
+  end loop;
+  if v_code<>'' then
+    select * into v_coupon from public.coupons where instance_id=p_instance_id and code=v_code;
+    if not found or not v_coupon.active then raise exception 'Érvénytelen vagy inaktív kuponkód.';end if;
+    if v_coupon.starts_at is not null and now()<v_coupon.starts_at then raise exception 'A kupon még nem használható.';end if;
+    if v_coupon.ends_at is not null and now()>=v_coupon.ends_at then raise exception 'A kupon lejárt.';end if;
+    if v_coupon.usage_limit is not null and v_coupon.usage_count>=v_coupon.usage_limit then raise exception 'A kupon felhasználási kerete elfogyott.';end if;
+    if v_subtotal<v_coupon.min_subtotal_huf then raise exception 'A kuponhoz szükséges minimum kosárérték nincs elérve.';end if;
+    if v_coupon.discount_type='percent' then v_discount:=floor(v_subtotal*(least(v_coupon.discount_value,100)::numeric/100))::integer;else v_discount:=least(v_coupon.discount_value,v_subtotal);end if;
+    if v_coupon.max_discount_huf is not null then v_discount:=least(v_discount,v_coupon.max_discount_huf);end if;v_discount:=greatest(0,least(v_discount,v_subtotal));
+  end if;
+  if p_shipping_kind='pickup' or((v_subtotal-v_discount)>=greatest(0,p_free_shipping_threshold_huf) and p_free_shipping_threshold_huf>0) then v_shipping:=0;else v_shipping:=greatest(0,p_shipping_fee_huf);end if;
+  return jsonb_build_object('items',v_lines,'subtotal_gross_huf',v_subtotal,'discount_gross_huf',v_discount,'shipping_gross_huf',v_shipping,'total_gross_huf',greatest(0,v_subtotal-v_discount)+v_shipping,'coupon_code',nullif(v_code,''));
+end$$;
+
+
+ALTER FUNCTION "public"."quote_tenant_checkout_v1"("p_instance_id" "uuid", "p_customer_id" "uuid", "p_coupon_code" "text", "p_shipping_kind" "text", "p_shipping_fee_huf" integer, "p_free_shipping_threshold_huf" integer, "p_items" "jsonb") OWNER TO "postgres";
+
+
+CREATE OR REPLACE FUNCTION "public"."quote_tenant_checkout_v2"("p_instance_id" "uuid", "p_customer_id" "uuid" DEFAULT NULL::"uuid", "p_coupon_code" "text" DEFAULT ''::"text", "p_shipping_kind" "text" DEFAULT 'pickup'::"text", "p_shipping_fee_huf" integer DEFAULT 0, "p_free_shipping_threshold_huf" integer DEFAULT 0, "p_items" "jsonb" DEFAULT '[]'::"jsonb") RETURNS "jsonb"
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    SET "search_path" TO ''
+    AS $$
+declare
+  v_item jsonb;v_items jsonb;v_variant record;v_qty integer;v_subtotal integer:=0;v_discount integer:=0;v_shipping integer:=0;
+  v_coupon record;v_code text:=upper(trim(coalesce(p_coupon_code,'')));v_role public.customer_role;v_reseller boolean:=false;v_channel text:='b2c';v_price integer;v_lines jsonb:='[]'::jsonb;v_has_channel boolean:=false;v_channel_visible boolean;v_channel_gross integer;v_channel_min integer;v_channel_discount numeric;v_min_qty integer;v_multiple integer;v_active_variant_count integer;v_explicit_channel_price boolean:=false;
+begin
+  if not exists(select 1 from public.webshop_instances w where w.id=p_instance_id and w.status in('pilot','active')) then raise exception 'A webshop nem rendelhető.';end if;
+  if jsonb_typeof(coalesce(p_items,'[]'::jsonb))<>'array' or jsonb_array_length(p_items)<1 or jsonb_array_length(p_items)>30 then raise exception 'A kosár tartalma érvénytelen.';end if;
+  begin
+    select jsonb_agg(jsonb_build_object('variant_id',n.variant_id,'quantity',n.quantity) order by n.variant_id) into v_items
+    from(select (e->>'variant_id')::uuid as variant_id,sum((e->>'quantity')::integer)::integer as quantity from jsonb_array_elements(p_items)e group by(e->>'variant_id')::uuid)n;
+  exception when others then raise exception 'A kosár tartalma érvénytelen.';end;
+  if v_items is null or exists(select 1 from jsonb_array_elements(v_items)e where(e->>'quantity')::integer<1 or(e->>'quantity')::integer>99) then raise exception 'Érvénytelen mennyiség.';end if;
+  if p_customer_id is not null then select role,reseller_approved into v_role,v_reseller from public.customer_instance_roles where instance_id=p_instance_id and user_id=p_customer_id;end if;if v_role='reseller' and v_reseller then v_channel:='b2b';end if;
+  for v_item in select value from jsonb_array_elements(v_items) order by(value->>'variant_id')::uuid loop
+    v_qty:=(v_item->>'quantity')::integer;
+    select pv.id,pv.product_id,pv.sku,pv.label,pv.gross_price_huf,pv.reseller_gross_price_huf,pv.stock_quantity,pv.active,pv.minimum_order_quantity,pv.order_multiple,p.name product_name,p.active product_active,p.audience product_audience
+    into v_variant from public.product_variants pv join public.products p on p.id=pv.product_id
+    where pv.id=(v_item->>'variant_id')::uuid and pv.instance_id=p_instance_id and p.instance_id=p_instance_id;
+    if not found or not v_variant.active or not v_variant.product_active then raise exception 'Nem elérhető termék.';end if;
+    select pcs.visible,pcs.gross_price,pcs.minimum_quantity,pcs.discount_percent into v_channel_visible,v_channel_gross,v_channel_min,v_channel_discount from public.product_channel_settings pcs where pcs.instance_id=p_instance_id and pcs.product_id=v_variant.product_id and pcs.channel_code=v_channel;v_has_channel:=found;
+    if v_has_channel then if not coalesce(v_channel_visible,true) then raise exception 'A termék ezen az értékesítési csatornán nem elérhető.';end if;elsif coalesce(v_variant.product_audience,'retail')='professional' and v_channel<>'b2b' then raise exception 'Ez a termék csak jóváhagyott viszonteladói partnernek rendelhető.';end if;
+    v_min_qty:=greatest(coalesce(v_variant.minimum_order_quantity,1),case when v_has_channel then coalesce(v_channel_min,1) else 1 end);v_multiple:=greatest(coalesce(v_variant.order_multiple,1),1);v_min_qty:=(ceil(v_min_qty::numeric/v_multiple)::integer)*v_multiple;
+    if v_qty<v_min_qty then raise exception 'Minimum rendelési mennyiség: % db',v_min_qty;end if;if mod(v_qty,v_multiple)<>0 then raise exception 'A rendelési mennyiség csak % db-os lépésekben adható meg.',v_multiple;end if;
+    if v_variant.stock_quantity<v_qty then raise exception 'Nincs elegendő készlet: %',v_variant.label;end if;
+    v_price:=case when v_channel='b2b' and v_variant.reseller_gross_price_huf is not null then v_variant.reseller_gross_price_huf else v_variant.gross_price_huf end;
+    select count(*)::integer into v_active_variant_count from public.product_variants x where x.instance_id=p_instance_id and x.product_id=v_variant.product_id and x.active=true;
+    v_explicit_channel_price:=v_has_channel and v_channel_gross is not null and v_active_variant_count=1 and not(v_channel='b2b' and v_variant.reseller_gross_price_huf is not null);
+    if v_explicit_channel_price then v_price:=greatest(0,v_channel_gross);elsif v_has_channel and v_channel_discount is not null then v_price:=greatest(0,round(v_price*(1-(least(greatest(v_channel_discount,0),100)/100.0)))::integer);end if;
+    v_subtotal:=v_subtotal+v_price*v_qty;
+    v_lines:=v_lines||jsonb_build_array(jsonb_build_object('variantId',v_variant.id,'productId',v_variant.product_id,'sku',v_variant.sku,'name',v_variant.product_name,'variantLabel',v_variant.label,'quantity',v_qty,'unitGrossHuf',v_price,'lineGrossHuf',v_price*v_qty,'availableQuantity',v_variant.stock_quantity,'minimumQuantity',v_min_qty,'orderMultiple',v_multiple,'channel',v_channel));
+  end loop;
+  if v_code<>'' then
+    select * into v_coupon from public.coupons where instance_id=p_instance_id and code=v_code;
+    if not found or not v_coupon.active then raise exception 'Érvénytelen vagy inaktív kuponkód.';end if;
+    if v_coupon.starts_at is not null and now()<v_coupon.starts_at then raise exception 'A kupon még nem használható.';end if;
+    if v_coupon.ends_at is not null and now()>=v_coupon.ends_at then raise exception 'A kupon lejárt.';end if;
+    if v_coupon.usage_limit is not null and v_coupon.usage_count>=v_coupon.usage_limit then raise exception 'A kupon felhasználási kerete elfogyott.';end if;
+    if v_subtotal<v_coupon.min_subtotal_huf then raise exception 'A kuponhoz szükséges minimum kosárérték nincs elérve.';end if;
+    if v_coupon.discount_type='percent' then v_discount:=floor(v_subtotal*(least(v_coupon.discount_value,100)::numeric/100))::integer;else v_discount:=least(v_coupon.discount_value,v_subtotal);end if;
+    if v_coupon.max_discount_huf is not null then v_discount:=least(v_discount,v_coupon.max_discount_huf);end if;v_discount:=greatest(0,least(v_discount,v_subtotal));
+  end if;
+  if p_shipping_kind='pickup' or((v_subtotal-v_discount)>=greatest(0,p_free_shipping_threshold_huf) and p_free_shipping_threshold_huf>0) then v_shipping:=0;else v_shipping:=greatest(0,p_shipping_fee_huf);end if;
+  return jsonb_build_object('items',v_lines,'subtotal_gross_huf',v_subtotal,'discount_gross_huf',v_discount,'shipping_gross_huf',v_shipping,'total_gross_huf',greatest(0,v_subtotal-v_discount)+v_shipping,'coupon_code',nullif(v_code,''));
+end$$;
+
+
+ALTER FUNCTION "public"."quote_tenant_checkout_v2"("p_instance_id" "uuid", "p_customer_id" "uuid", "p_coupon_code" "text", "p_shipping_kind" "text", "p_shipping_fee_huf" integer, "p_free_shipping_threshold_huf" integer, "p_items" "jsonb") OWNER TO "postgres";
 
 
 CREATE OR REPLACE FUNCTION "public"."receive_purchase_order"("p_purchase_order_id" "uuid", "p_actor" "uuid") RETURNS "jsonb"
@@ -2773,6 +4441,63 @@ COMMENT ON FUNCTION "public"."receive_purchase_order_items"("p_purchase_order_id
 
 
 
+CREATE OR REPLACE FUNCTION "public"."receive_purchase_order_items_v2"("p_instance_id" "uuid", "p_purchase_order_id" "uuid", "p_actor" "uuid", "p_items" "jsonb") RETURNS "jsonb"
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    SET "search_path" TO 'public'
+    AS $$
+declare po record;req jsonb;poi record;previous_qty integer;add_qty integer;remaining integer;received_lines integer:=0;received_units integer:=0;final_status text;
+begin
+  select id,order_number,status into po from public.purchase_orders where id=p_purchase_order_id and instance_id=p_instance_id for update;
+  if not found then raise exception 'A beszerzés nem található ebben a webshopban.'; end if;
+  if po.status not in ('ordered','partially_received') then raise exception 'Csak megrendelt beszerzés vételezhető be.'; end if;
+  if p_items is null or jsonb_typeof(p_items)<>'array' or jsonb_array_length(p_items)=0 then raise exception 'Legalább egy bevételezendő tétel szükséges.';end if;
+  for req in select value from jsonb_array_elements(p_items) loop
+    add_qty:=(req->>'quantity')::integer;if add_qty<=0 then raise exception 'A bevételezett mennyiségnek pozitívnak kell lennie.';end if;
+    select id,variant_id,quantity,received_quantity into poi from public.purchase_order_items where id=(req->>'itemId')::uuid and purchase_order_id=p_purchase_order_id and instance_id=p_instance_id for update;
+    if not found then raise exception 'A beszerzési tétel nem található.';end if;
+    if poi.received_quantity+add_qty>poi.quantity then raise exception 'A bevételezett mennyiség meghaladná a megrendelt mennyiséget.';end if;
+    select stock_quantity into previous_qty from public.product_variants where id=poi.variant_id and instance_id=p_instance_id for update;if not found then raise exception 'A termékváltozat nem található ebben a webshopban.';end if;
+    update public.product_variants set stock_quantity=stock_quantity+add_qty,updated_at=now() where id=poi.variant_id and instance_id=p_instance_id;
+    update public.purchase_order_items set received_quantity=received_quantity+add_qty where id=poi.id and instance_id=p_instance_id;
+    insert into public.inventory_events(instance_id,variant_id,change_quantity,previous_stock,new_stock,reason,actor_user_id,metadata) values(p_instance_id,poi.variant_id,add_qty,previous_qty,previous_qty+add_qty,'purchase_receipt',p_actor,jsonb_build_object('purchase_order_id',po.id,'order_number',po.order_number,'purchase_order_item_id',poi.id,'received_quantity',add_qty,'partial',true));
+    received_lines:=received_lines+1;received_units:=received_units+add_qty;
+  end loop;
+  select coalesce(sum(quantity-received_quantity),0)::integer into remaining from public.purchase_order_items where purchase_order_id=p_purchase_order_id and instance_id=p_instance_id;
+  final_status:=case when remaining=0 then 'received' else 'partially_received' end;
+  update public.purchase_orders set status=final_status,updated_at=now() where id=p_purchase_order_id and instance_id=p_instance_id;
+  return jsonb_build_object('received_lines',received_lines,'received_units',received_units,'remaining_units',remaining,'status',final_status);
+end $$;
+
+
+ALTER FUNCTION "public"."receive_purchase_order_items_v2"("p_instance_id" "uuid", "p_purchase_order_id" "uuid", "p_actor" "uuid", "p_items" "jsonb") OWNER TO "postgres";
+
+
+CREATE OR REPLACE FUNCTION "public"."receive_purchase_order_v2"("p_instance_id" "uuid", "p_purchase_order_id" "uuid", "p_actor" "uuid") RETURNS "jsonb"
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    SET "search_path" TO 'public'
+    AS $$
+declare po record;item record;previous_qty integer;add_qty integer;received_lines integer:=0;received_units integer:=0;
+begin
+  select id,order_number,status into po from public.purchase_orders where id=p_purchase_order_id and instance_id=p_instance_id for update;
+  if not found then raise exception 'A beszerzés nem található ebben a webshopban.';end if;
+  if po.status not in ('ordered','partially_received') then raise exception 'Csak megrendelt beszerzés vételezhető be.';end if;
+  for item in select id,variant_id,quantity,received_quantity from public.purchase_order_items where purchase_order_id=p_purchase_order_id and instance_id=p_instance_id order by id for update loop
+    add_qty:=item.quantity-item.received_quantity;if add_qty<=0 then continue;end if;
+    select stock_quantity into previous_qty from public.product_variants where id=item.variant_id and instance_id=p_instance_id for update;if not found then raise exception 'A termékváltozat nem található ebben a webshopban.';end if;
+    update public.product_variants set stock_quantity=stock_quantity+add_qty,updated_at=now() where id=item.variant_id and instance_id=p_instance_id;
+    update public.purchase_order_items set received_quantity=quantity where id=item.id and instance_id=p_instance_id;
+    insert into public.inventory_events(instance_id,variant_id,change_quantity,previous_stock,new_stock,reason,actor_user_id,metadata) values(p_instance_id,item.variant_id,add_qty,previous_qty,previous_qty+add_qty,'purchase_receipt',p_actor,jsonb_build_object('purchase_order_id',po.id,'order_number',po.order_number,'received_quantity',add_qty));
+    received_lines:=received_lines+1;received_units:=received_units+add_qty;
+  end loop;
+  if received_lines=0 then raise exception 'A beszerzés minden tétele már be lett vételezve.';end if;
+  update public.purchase_orders set status='received',updated_at=now() where id=p_purchase_order_id and instance_id=p_instance_id;
+  return jsonb_build_object('received_lines',received_lines,'received_units',received_units,'status','received');
+end $$;
+
+
+ALTER FUNCTION "public"."receive_purchase_order_v2"("p_instance_id" "uuid", "p_purchase_order_id" "uuid", "p_actor" "uuid") OWNER TO "postgres";
+
+
 CREATE OR REPLACE FUNCTION "public"."reconcile_assurance_findings"("p_run_id" "uuid") RETURNS "jsonb"
     LANGUAGE "plpgsql" SECURITY DEFINER
     SET "search_path" TO ''
@@ -2850,52 +4575,68 @@ CREATE OR REPLACE FUNCTION "public"."reconcile_inventory_reservations"() RETURNS
     SET "search_path" TO ''
     AS $$
 declare
- v_released integer:=0;v_reserved integer:=0;v_blocked integer:=0;v_refund_restored integer:=0;
- r record;rr record;v_result jsonb;v_prev integer;v_op text;
+  v_released integer:=0;
+  v_reserved integer:=0;
+  v_blocked integer:=0;
+  r record;
+  v_result jsonb;
 begin
- update public.inventory_reservations ir set status='released',released_at=coalesce(released_at,now()),reason=coalesce(reason,'Rendelés törölve'),updated_at=now()
- from public.orders o where o.id=ir.order_id and o.status='cancelled' and ir.status='active';
- get diagnostics v_released=row_count;
- update public.order_operations op set operational_status='cancelled',exception_code=null,updated_at=now()
- from public.orders o where o.id=op.order_id and o.status='cancelled' and op.operational_status not in ('handed_over','delivered','cancelled');
- for r in
-   select distinct o.id,o.order_number,coalesce(op.operational_status,'awaiting_reservation') as operational_status
-   from public.orders o left join public.order_operations op on op.order_id=o.id
-   where o.status='refunded' and coalesce(op.operational_status,'awaiting_reservation') not in ('handed_over','delivered','cancelled')
- loop
-   v_op:=r.operational_status;
-   for rr in select * from public.inventory_reservations where order_id=r.id and status in ('active','consumed') order by variant_id,id loop
-     if coalesce((rr.metadata->>'refund_stock_restored')::boolean,false) then continue; end if;
-     perform pg_advisory_xact_lock(hashtextextended('variant-stock:'||rr.variant_id::text,0));
-     select stock_quantity into v_prev from public.product_variants where id=rr.variant_id for update;
-     if found then
-       update public.product_variants set stock_quantity=stock_quantity+rr.quantity,updated_at=now() where id=rr.variant_id;
-       insert into public.inventory_events(variant_id,order_id,change_quantity,previous_stock,new_stock,reason,actor_user_id,metadata)
-       values(rr.variant_id,r.id,rr.quantity,v_prev,v_prev+rr.quantity,'refund_pre_fulfillment_release',null,jsonb_build_object('reservation_id',rr.id,'order_number',r.order_number));
-       update public.inventory_reservations set status='released',released_at=coalesce(released_at,now()),reason='Teljes visszatérítés fulfillment előtt',updated_at=now(),metadata=metadata||jsonb_build_object('refund_stock_restored',true,'refund_stock_restored_at',now()) where id=rr.id;
-       v_refund_restored:=v_refund_restored+rr.quantity;
-     end if;
-   end loop;
-   update public.order_operations set operational_status='cancelled',exception_code=null,updated_at=now(),metadata=metadata||jsonb_build_object('closed_by_full_refund',true) where order_id=r.id;
- end loop;
- for r in
-   select o.id from public.orders o left join public.order_operations op on op.order_id=o.id
-   where o.status in ('pending','paid','processing','shipped','completed')
-     and (op.order_id is null or not exists(select 1 from public.inventory_reservations ir where ir.order_id=o.id))
-   order by o.created_at
- loop
-   begin
-     select public.reserve_inventory_for_order(r.id) into v_result;
-     v_reserved:=v_reserved+coalesce((v_result->>'created_reservations')::integer,0);
-   exception when others then
-     v_blocked:=v_blocked+1;
-     insert into public.order_operations(order_id,operational_status,exception_code,blocked_at,metadata)
-       values(r.id,'blocked','reservation_reconciliation_failed',now(),jsonb_build_object('error',sqlerrm))
-       on conflict(order_id) do update set operational_status='blocked',exception_code='reservation_reconciliation_failed',blocked_at=coalesce(public.order_operations.blocked_at,now()),updated_at=now(),metadata=public.order_operations.metadata||jsonb_build_object('last_reconciliation_error',sqlerrm);
-   end;
- end loop;
- return jsonb_build_object('released_reservations',v_released,'created_reservations',v_reserved,'blocked_orders',v_blocked,'refund_restored_units',v_refund_restored);
-end;$$;
+  update public.inventory_reservations ir
+     set status='released',
+         released_at=coalesce(ir.released_at,now()),
+         reason=coalesce(ir.reason,'Rendelés törölve'),
+         updated_at=now()
+    from public.orders o
+   where o.id=ir.order_id
+     and o.instance_id=ir.instance_id
+     and o.status='cancelled'
+     and ir.status='active';
+  get diagnostics v_released=row_count;
+
+  update public.order_operations op
+     set operational_status='cancelled',exception_code=null,updated_at=now()
+    from public.orders o
+   where o.id=op.order_id
+     and o.instance_id=op.instance_id
+     and o.status='cancelled'
+     and op.operational_status not in ('handed_over','delivered','cancelled');
+
+  -- Refunded orders are deliberately not restocked here. Physical returns are
+  -- handled by the item-level return-case restock ledger.
+  for r in
+    select o.id
+      from public.orders o
+      left join public.order_operations op on op.order_id=o.id and op.instance_id=o.instance_id
+     where o.status in ('pending','paid','processing','shipped','completed')
+       and (op.order_id is null or not exists(
+         select 1 from public.inventory_reservations ir
+          where ir.order_id=o.id and ir.instance_id=o.instance_id
+       ))
+     order by o.created_at
+  loop
+    begin
+      select public.reserve_inventory_for_order(r.id) into v_result;
+      v_reserved:=v_reserved+coalesce((v_result->>'created_reservations')::integer,0);
+    exception when others then
+      v_blocked:=v_blocked+1;
+      update public.order_operations
+         set operational_status='blocked',
+             exception_code='reservation_reconciliation_failed',
+             blocked_at=coalesce(blocked_at,now()),
+             updated_at=now(),
+             metadata=metadata||jsonb_build_object('last_reconciliation_error',sqlerrm)
+       where order_id=r.id;
+    end;
+  end loop;
+
+  return jsonb_build_object(
+    'released_reservations',v_released,
+    'created_reservations',v_reserved,
+    'blocked_orders',v_blocked,
+    'refund_restored_units',0,
+    'refund_inventory_policy','return_case_only'
+  );
+end $$;
 
 
 ALTER FUNCTION "public"."reconcile_inventory_reservations"() OWNER TO "postgres";
@@ -2936,6 +4677,34 @@ CREATE OR REPLACE FUNCTION "public"."reconcile_release_candidates"("p_run_key" "
 
 
 ALTER FUNCTION "public"."reconcile_release_candidates"("p_run_key" "text") OWNER TO "postgres";
+
+
+CREATE OR REPLACE FUNCTION "public"."record_coupon_redemption_v1"("p_instance_id" "uuid", "p_order_id" "uuid", "p_coupon_code" "text", "p_discount_gross_huf" integer) RETURNS "jsonb"
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    SET "search_path" TO ''
+    AS $$
+declare v_order public.orders%rowtype;v_coupon public.coupons%rowtype;v_existing public.coupon_redemptions%rowtype;begin
+  if nullif(trim(p_coupon_code),'') is null then return jsonb_build_object('recorded',false,'reason','no_coupon'); end if;
+  select * into v_order from public.orders where id=p_order_id and instance_id=p_instance_id for update;
+  if not found then raise exception 'order_not_found'; end if;
+  select * into v_coupon from public.coupons where instance_id=p_instance_id and code=upper(trim(p_coupon_code)) for update;
+  if not found then raise exception 'coupon_not_found'; end if;
+  select * into v_existing from public.coupon_redemptions where instance_id=p_instance_id and order_id=p_order_id and coupon_id=v_coupon.id for update;
+  if found then
+    if v_existing.status='released' then
+      update public.coupon_redemptions set status='redeemed',released_at=null,release_reason=null,discount_gross_huf=p_discount_gross_huf,updated_at=now() where id=v_existing.id;
+      update public.coupons set usage_count=usage_count+1,updated_at=now() where id=v_coupon.id;
+      return jsonb_build_object('recorded',true,'replayed',false,'reactivated',true,'redemption_id',v_existing.id);
+    end if;
+    return jsonb_build_object('recorded',false,'replayed',true,'redemption_id',v_existing.id);
+  end if;
+  insert into public.coupon_redemptions(instance_id,coupon_id,order_id,customer_id,customer_email,coupon_code,discount_gross_huf,metadata)
+  values(p_instance_id,v_coupon.id,p_order_id,v_order.customer_id,lower(trim(v_order.customer_email)),v_coupon.code,greatest(0,p_discount_gross_huf),jsonb_build_object('source','core_checkout')) returning * into v_existing;
+  return jsonb_build_object('recorded',true,'replayed',false,'redemption_id',v_existing.id);
+end $$;
+
+
+ALTER FUNCTION "public"."record_coupon_redemption_v1"("p_instance_id" "uuid", "p_order_id" "uuid", "p_coupon_code" "text", "p_discount_gross_huf" integer) OWNER TO "postgres";
 
 
 CREATE OR REPLACE FUNCTION "public"."record_observability_event"("p_event_key" "text", "p_correlation_id" "text", "p_category" "text", "p_severity" "text", "p_event_name" "text", "p_duration_ms" integer, "p_status_code" integer, "p_source" "text", "p_metadata" "jsonb" DEFAULT '{}'::"jsonb") RETURNS bigint
@@ -3025,6 +4794,28 @@ CREATE OR REPLACE FUNCTION "public"."recover_stale_communication_jobs"("p_stale_
 ALTER FUNCTION "public"."recover_stale_communication_jobs"("p_stale_minutes" integer) OWNER TO "postgres";
 
 
+CREATE OR REPLACE FUNCTION "public"."recover_stale_communication_jobs_v2"("p_instance_id" "uuid", "p_stale_minutes" integer DEFAULT 15) RETURNS integer
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    SET "search_path" TO ''
+    AS $$
+declare v_count integer;
+begin
+  update public.communication_jobs set
+    status=case when attempts<5 then 'pending' else 'failed' end,
+    scheduled_at=case when attempts<5 then now()+interval '5 minutes' else scheduled_at end,
+    last_error=case when attempts<5 then 'STALE_WORKER_CLAIM_RECOVERED' else 'STALE_WORKER_CLAIM_MAX_ATTEMPTS' end,
+    claim_token=null,claimed_at=null,updated_at=now()
+  where instance_id=p_instance_id and status='processing' and claimed_at is not null
+    and claimed_at<now()-make_interval(mins=>greatest(5,p_stale_minutes));
+  get diagnostics v_count=row_count;
+  return v_count;
+end;
+$$;
+
+
+ALTER FUNCTION "public"."recover_stale_communication_jobs_v2"("p_instance_id" "uuid", "p_stale_minutes" integer) OWNER TO "postgres";
+
+
 CREATE TABLE IF NOT EXISTS "public"."loyalty_ledger" (
     "id" "uuid" DEFAULT "gen_random_uuid"() NOT NULL,
     "customer_id" "uuid" NOT NULL,
@@ -3037,6 +4828,7 @@ CREATE TABLE IF NOT EXISTS "public"."loyalty_ledger" (
     "metadata" "jsonb" DEFAULT '{}'::"jsonb" NOT NULL,
     "occurred_at" timestamp with time zone DEFAULT "now"() NOT NULL,
     "created_at" timestamp with time zone DEFAULT "now"() NOT NULL,
+    "instance_id" "uuid" NOT NULL,
     CONSTRAINT "loyalty_ledger_check" CHECK (((("entry_type" = ANY (ARRAY['redeem'::"text", 'expire'::"text", 'reversal'::"text"])) AND ("points" < 0)) OR (("entry_type" = ANY (ARRAY['earn'::"text", 'adjust'::"text"])) AND ("points" <> 0)))),
     CONSTRAINT "loyalty_ledger_entry_type_check" CHECK (("entry_type" = ANY (ARRAY['earn'::"text", 'redeem'::"text", 'expire'::"text", 'adjust'::"text", 'reversal'::"text"]))),
     CONSTRAINT "loyalty_ledger_points_check" CHECK (("points" <> 0))
@@ -3138,6 +4930,19 @@ end;$$;
 ALTER FUNCTION "public"."refresh_customer_value_profiles"() OWNER TO "postgres";
 
 
+CREATE OR REPLACE FUNCTION "public"."refresh_customer_value_profiles_v2"("p_instance_id" "uuid") RETURNS integer
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    SET "search_path" TO 'public'
+    AS $$declare v_count int:=0;begin
+ insert into public.customer_value_profiles(instance_id,customer_id,email_key,paid_orders,revenue_gross_huf,aov_gross_huf,days_since_last_order,lifecycle_segment,value_score,value_tier,first_order_at,last_order_at,recalculated_at)
+ select p_instance_id,m.customer_id,m.email_key,m.paid_orders,m.revenue_gross_huf,m.aov_gross_huf,m.days_since_last_order,m.segment,least(100,greatest(0,least(40,m.paid_orders*8)+least(40,(m.revenue_gross_huf/25000)::int)+case when m.days_since_last_order<=30 then 20 when m.days_since_last_order<=90 then 10 else 0 end)),case when(least(40,m.paid_orders*8)+least(40,(m.revenue_gross_huf/25000)::int)+case when m.days_since_last_order<=30 then 20 when m.days_since_last_order<=90 then 10 else 0 end)>=85 then 'platinum' when(least(40,m.paid_orders*8)+least(40,(m.revenue_gross_huf/25000)::int)+case when m.days_since_last_order<=30 then 20 when m.days_since_last_order<=90 then 10 else 0 end)>=65 then 'gold' when(least(40,m.paid_orders*8)+least(40,(m.revenue_gross_huf/25000)::int)+case when m.days_since_last_order<=30 then 20 when m.days_since_last_order<=90 then 10 else 0 end)>=40 then 'silver' else 'standard' end,m.first_order_at,m.last_order_at,now()
+ from public.customer_commercial_metrics m where m.instance_id=p_instance_id and m.customer_id is not null
+ on conflict(instance_id,customer_id) do update set email_key=excluded.email_key,paid_orders=excluded.paid_orders,revenue_gross_huf=excluded.revenue_gross_huf,aov_gross_huf=excluded.aov_gross_huf,days_since_last_order=excluded.days_since_last_order,lifecycle_segment=excluded.lifecycle_segment,value_score=excluded.value_score,value_tier=excluded.value_tier,first_order_at=excluded.first_order_at,last_order_at=excluded.last_order_at,recalculated_at=now();get diagnostics v_count=row_count;return v_count;end$$;
+
+
+ALTER FUNCTION "public"."refresh_customer_value_profiles_v2"("p_instance_id" "uuid") OWNER TO "postgres";
+
+
 CREATE OR REPLACE FUNCTION "public"."refresh_order_operation_priorities"() RETURNS integer
     LANGUAGE "plpgsql" SECURITY DEFINER
     SET "search_path" TO ''
@@ -3172,6 +4977,21 @@ CREATE OR REPLACE FUNCTION "public"."reject_append_only_action_mutation"() RETUR
 ALTER FUNCTION "public"."reject_append_only_action_mutation"() OWNER TO "postgres";
 
 
+CREATE OR REPLACE FUNCTION "public"."release_cancelled_order_coupon_redemption"() RETURNS "trigger"
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    SET "search_path" TO ''
+    AS $$
+begin
+  if new.status='cancelled' and old.status is distinct from new.status and nullif(trim(new.coupon_code),'') is not null then
+    perform public.release_coupon_redemption_v1(new.instance_id,new.id,'order_cancelled');
+  end if;
+  return new;
+end $$;
+
+
+ALTER FUNCTION "public"."release_cancelled_order_coupon_redemption"() OWNER TO "postgres";
+
+
 CREATE OR REPLACE FUNCTION "public"."release_candidate_is_stale"("p_candidate_id" "uuid") RETURNS boolean
     LANGUAGE "sql" SECURITY DEFINER
     SET "search_path" TO ''
@@ -3198,6 +5018,22 @@ CREATE OR REPLACE FUNCTION "public"."release_ci_is_trusted"("p_candidate_id" "uu
 
 
 ALTER FUNCTION "public"."release_ci_is_trusted"("p_candidate_id" "uuid") OWNER TO "postgres";
+
+
+CREATE OR REPLACE FUNCTION "public"."release_coupon_redemption_v1"("p_instance_id" "uuid", "p_order_id" "uuid", "p_reason" "text" DEFAULT 'order_cancelled'::"text") RETURNS "jsonb"
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    SET "search_path" TO ''
+    AS $$
+declare v_redemption public.coupon_redemptions%rowtype;begin
+  select * into v_redemption from public.coupon_redemptions where instance_id=p_instance_id and order_id=p_order_id and status='redeemed' order by redeemed_at limit 1 for update;
+  if not found then return jsonb_build_object('released',false,'replayed',true); end if;
+  update public.coupon_redemptions set status='released',released_at=now(),release_reason=coalesce(nullif(trim(p_reason),''),'order_cancelled'),updated_at=now() where id=v_redemption.id;
+  update public.coupons set usage_count=greatest(0,usage_count-1),updated_at=now() where id=v_redemption.coupon_id and instance_id=p_instance_id;
+  return jsonb_build_object('released',true,'replayed',false,'redemption_id',v_redemption.id);
+end $$;
+
+
+ALTER FUNCTION "public"."release_coupon_redemption_v1"("p_instance_id" "uuid", "p_order_id" "uuid", "p_reason" "text") OWNER TO "postgres";
 
 
 CREATE OR REPLACE FUNCTION "public"."release_inventory_for_order"("p_order_id" "uuid", "p_reason" "text" DEFAULT 'order_released'::"text") RETURNS integer
@@ -3294,30 +5130,15 @@ CREATE OR REPLACE FUNCTION "public"."restock_return_case"("p_case_id" "uuid", "p
     LANGUAGE "plpgsql" SECURITY DEFINER
     SET "search_path" TO ''
     AS $$
-declare c record;i record;v_prev integer;v_count integer:=0;v_units integer:=0;
+declare c public.return_cases%rowtype;i record;v_result jsonb;v_count integer:=0;v_units integer:=0;
 begin
- select * into c from public.return_cases where id=p_case_id for update;
- if not found then raise exception 'A visszáru ügy nem található.'; end if;
- if c.status not in ('received','refund_pending','refunded','closed') then raise exception 'Csak visszaérkezett termék készletezhető vissza.'; end if;
- if c.inventory_restocked_at is not null then raise exception 'A visszáru készlete már vissza lett állítva.'; end if;
- for i in
-  select oi.variant_id,oi.sku,rci.quantity
-  from public.return_case_items rci
-  join public.order_items oi on oi.id=rci.order_item_id
-  where rci.return_case_id=p_case_id and oi.order_id=c.order_id and oi.variant_id is not null
- loop
-  if i.quantity<=0 then continue; end if;
-  select stock_quantity into v_prev from public.product_variants where id=i.variant_id for update;
-  if not found then raise exception 'A visszaküldött termékváltozat nem található.'; end if;
-  update public.product_variants set stock_quantity=stock_quantity+i.quantity,updated_at=now() where id=i.variant_id;
-  insert into public.inventory_events(variant_id,order_id,change_quantity,previous_stock,new_stock,reason,actor_user_id,metadata)
-  values(i.variant_id,c.order_id,i.quantity,v_prev,v_prev+i.quantity,'return_restocked',p_actor,jsonb_build_object('return_case_id',p_case_id,'sku',i.sku,'returned_quantity',i.quantity));
-  v_count:=v_count+1;v_units:=v_units+i.quantity;
+ select * into c from public.return_cases where id=p_case_id for update;if not found then raise exception 'A visszáru ügy nem található.';end if;
+ if c.status not in('received','refund_pending','refunded','closed') then raise exception 'Csak visszaérkezett termék készletezhető vissza.';end if;if c.inventory_restocked_at is not null then raise exception 'A visszáru készlete már vissza lett állítva.';end if;
+ for i in select rci.order_item_id,rci.quantity from public.return_case_items rci join public.order_items oi on oi.id=rci.order_item_id where rci.return_case_id=p_case_id and rci.instance_id=c.instance_id and oi.order_id=c.order_id and oi.instance_id=c.instance_id and oi.variant_id is not null loop
+  if i.quantity<=0 then continue;end if;select public.restore_order_item_inventory_v1(c.instance_id,c.order_id,i.order_item_id,'return_case',c.id,i.quantity,p_actor) into v_result;if coalesce((v_result->>'restored')::boolean,false) then v_count:=v_count+1;v_units:=v_units+i.quantity;end if;
  end loop;
- if v_count=0 then raise exception 'Nincs készletre visszahelyezhető tétel ebben az ügyben.'; end if;
- update public.return_cases set inventory_restocked_at=now(),inventory_restocked_by=p_actor,updated_at=now() where id=p_case_id;
- return jsonb_build_object('restocked_lines',v_count,'restocked_units',v_units);
-end;$$;
+ if v_count=0 then raise exception 'Nincs készletre visszahelyezhető tétel ebben az ügyben.';end if;update public.return_cases set inventory_restocked_at=now(),inventory_restocked_by=p_actor,updated_at=now() where id=c.id and instance_id=c.instance_id;return jsonb_build_object('restocked_lines',v_count,'restocked_units',v_units);
+end $$;
 
 
 ALTER FUNCTION "public"."restock_return_case"("p_case_id" "uuid", "p_actor" "uuid") OWNER TO "postgres";
@@ -3327,41 +5148,31 @@ CREATE OR REPLACE FUNCTION "public"."restore_cancelled_order_inventory"() RETURN
     LANGUAGE "plpgsql" SECURITY DEFINER
     SET "search_path" TO ''
     AS $$
-declare line record;previous_qty integer;v_op text;v_has_res boolean;begin
- if new.status='cancelled' and old.status is distinct from 'cancelled' then
-   select operational_status into v_op from public.order_operations where order_id=new.id;
-   if v_op in ('handed_over','delivered') then raise exception 'A futárnak átadott vagy kézbesített rendelés nem törölhető; használj visszáru/visszatérítés folyamatot.'; end if;
-   select exists(select 1 from public.inventory_reservations where order_id=new.id) into v_has_res;
-   if v_has_res then
-     for line in select id,variant_id,quantity from public.inventory_reservations where order_id=new.id and status in ('active','consumed') order by variant_id,id loop
-       perform pg_advisory_xact_lock(hashtextextended('variant-stock:'||line.variant_id::text,0));
-       select stock_quantity into previous_qty from public.product_variants where id=line.variant_id for update;
-       if found then
-         update public.product_variants set stock_quantity=stock_quantity+line.quantity,updated_at=now() where id=line.variant_id;
-         insert into public.inventory_events(variant_id,order_id,change_quantity,previous_stock,new_stock,reason,actor_user_id,metadata)
-         values(line.variant_id,new.id,line.quantity,previous_qty,previous_qty+line.quantity,'order_cancelled',null,jsonb_build_object('v12_reservation_id',line.id,'order_number',new.order_number));
-         update public.inventory_reservations set status='released',released_at=coalesce(released_at,now()),reason='Rendelés törölve, checkout készlet visszaállítva',updated_at=now() where id=line.id;
-       end if;
-     end loop;
-   else
-     for line in select oi.variant_id,oi.quantity,oi.sku from public.order_items oi where oi.order_id=new.id and oi.variant_id is not null loop
-       select stock_quantity into previous_qty from public.product_variants where id=line.variant_id for update;
-       if found then
-         update public.product_variants set stock_quantity=stock_quantity+line.quantity,updated_at=now() where id=line.variant_id;
-         insert into public.inventory_events(variant_id,order_id,change_quantity,previous_stock,new_stock,reason,actor_user_id,metadata)
-         values(line.variant_id,new.id,line.quantity,previous_qty,previous_qty+line.quantity,'order_cancelled',null,jsonb_build_object('sku',line.sku,'order_number',new.order_number,'legacy_fallback',true));
-       end if;
-     end loop;
-   end if;
-   if new.coupon_code is not null and length(trim(new.coupon_code))>0 then
-     update public.coupons set usage_count=greatest(0,usage_count-1),updated_at=now() where code=upper(trim(new.coupon_code));
-     insert into public.order_events(order_id,event_type,from_status,to_status,metadata) values(new.id,'coupon_released',old.status,new.status,jsonb_build_object('code',new.coupon_code));
-   end if;
-   update public.order_operations set operational_status='cancelled',exception_code=null,updated_at=now() where order_id=new.id;
-   insert into public.order_events(order_id,event_type,from_status,to_status,metadata) values(new.id,'inventory_restored_on_cancel',old.status,new.status,jsonb_build_object('reason','order_cancelled','v12_aware',true));
- end if;
- return new;
-end;$$;
+declare
+  r record;
+  v_already integer;
+  v_remaining integer;
+begin
+  if new.status='cancelled' and old.status is distinct from new.status then
+    for r in
+      select oi.id,oi.quantity
+      from public.order_items oi
+      where oi.order_id=new.id and oi.instance_id=new.instance_id and oi.variant_id is not null
+      order by oi.id
+      for update
+    loop
+      select coalesce(sum(x.quantity),0)::integer into v_already
+      from public.order_inventory_restorations x
+      where x.instance_id=new.instance_id and x.order_item_id=r.id;
+      v_remaining:=greatest(0,r.quantity-v_already);
+      if v_remaining>0 then
+        perform public.restore_order_item_inventory_v1(new.instance_id,new.id,r.id,'order_cancelled',new.id,v_remaining,null);
+      end if;
+    end loop;
+    -- Coupon usage is released exclusively by orders_coupon_redemption_sync.
+  end if;
+  return new;
+end $$;
 
 
 ALTER FUNCTION "public"."restore_cancelled_order_inventory"() OWNER TO "postgres";
@@ -3371,38 +5182,39 @@ COMMENT ON FUNCTION "public"."restore_cancelled_order_inventory"() IS 'Atomicall
 
 
 
+CREATE OR REPLACE FUNCTION "public"."restore_order_item_inventory_v1"("p_instance_id" "uuid", "p_order_id" "uuid", "p_order_item_id" "uuid", "p_source_type" "text", "p_source_id" "uuid", "p_quantity" integer, "p_actor" "uuid") RETURNS "jsonb"
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    SET "search_path" TO ''
+    AS $$
+declare v_item record;v_restored integer:=0;v_prev integer;v_inserted uuid;
+begin
+ if p_source_type not in('order_cancelled','return_case') then raise exception 'Készlet csak teljesítés előtti törlésből vagy fizikailag visszaérkezett visszáruból állítható vissza.';end if;
+ if p_quantity is null or p_quantity<=0 then raise exception 'Érvénytelen visszaállítási mennyiség.';end if;
+ select oi.id,oi.variant_id,oi.quantity,oi.sku into v_item from public.order_items oi where oi.id=p_order_item_id and oi.order_id=p_order_id and oi.instance_id=p_instance_id for update;
+ if not found or v_item.variant_id is null then raise exception 'A rendelési tétel nem állítható vissza.';end if;
+ select coalesce(sum(r.quantity),0)::integer into v_restored from public.order_inventory_restorations r where r.instance_id=p_instance_id and r.order_item_id=p_order_item_id;
+ if v_restored+p_quantity>v_item.quantity then raise exception 'A készlet-visszaállítás meghaladná az eredetileg rendelt mennyiséget.';end if;
+ insert into public.order_inventory_restorations(instance_id,order_id,order_item_id,source_type,source_id,quantity,actor_user_id) values(p_instance_id,p_order_id,p_order_item_id,p_source_type,p_source_id,p_quantity,p_actor) on conflict(instance_id,order_item_id,source_type,source_id) do nothing returning id into v_inserted;
+ if v_inserted is null then return jsonb_build_object('restored',false,'replayed',true,'quantity',0);end if;
+ select stock_quantity into v_prev from public.product_variants where id=v_item.variant_id and instance_id=p_instance_id for update;if not found then raise exception 'A termékváltozat nem található ebben a webshopban.';end if;
+ update public.product_variants set stock_quantity=stock_quantity+p_quantity,updated_at=now() where id=v_item.variant_id and instance_id=p_instance_id;
+ insert into public.inventory_events(instance_id,variant_id,order_id,change_quantity,previous_stock,new_stock,reason,actor_user_id,metadata) values(p_instance_id,v_item.variant_id,p_order_id,p_quantity,v_prev,v_prev+p_quantity,'inventory_restored',p_actor,jsonb_build_object('order_item_id',p_order_item_id,'source_type',p_source_type,'source_id',p_source_id,'sku',v_item.sku));
+ return jsonb_build_object('restored',true,'replayed',false,'quantity',p_quantity);
+end $$;
+
+
+ALTER FUNCTION "public"."restore_order_item_inventory_v1"("p_instance_id" "uuid", "p_order_id" "uuid", "p_order_item_id" "uuid", "p_source_type" "text", "p_source_id" "uuid", "p_quantity" integer, "p_actor" "uuid") OWNER TO "postgres";
+
+
 CREATE OR REPLACE FUNCTION "public"."restore_refunded_pre_fulfillment_inventory"() RETURNS integer
     LANGUAGE "plpgsql" SECURITY DEFINER
     SET "search_path" TO ''
     AS $$
-declare r record;v_prev integer;v_restore integer;v_units integer:=0;begin
- for r in
-   select o.id as order_id,o.order_number,oi.variant_id,max(oi.sku) as sku,sum(oi.quantity)::integer as ordered_quantity,
-          coalesce((select sum(ie.change_quantity) from public.inventory_events ie where ie.order_id=o.id and ie.variant_id=oi.variant_id),0)::integer as net_inventory_change,
-          coalesce(op.operational_status,'awaiting_reservation') as operational_status
-   from public.orders o
-   join public.order_items oi on oi.order_id=o.id and oi.variant_id is not null
-   left join public.order_operations op on op.order_id=o.id
-   where o.status='refunded'
-     and coalesce(op.operational_status,'awaiting_reservation') not in ('handed_over','delivered')
-     and not exists(select 1 from public.return_cases rc where rc.order_id=o.id and rc.inventory_restocked_at is not null)
-   group by o.id,o.order_number,oi.variant_id,op.operational_status
-   order by o.id,oi.variant_id
- loop
-   v_restore:=least(r.ordered_quantity,greatest(-r.net_inventory_change,0));
-   if v_restore<=0 then continue; end if;
-   perform pg_advisory_xact_lock(hashtextextended('variant-stock:'||r.variant_id::text,0));
-   select stock_quantity into v_prev from public.product_variants where id=r.variant_id for update;
-   if not found then continue; end if;
-   update public.product_variants set stock_quantity=stock_quantity+v_restore,updated_at=now() where id=r.variant_id;
-   insert into public.inventory_events(variant_id,order_id,change_quantity,previous_stock,new_stock,reason,actor_user_id,metadata)
-   values(r.variant_id,r.order_id,v_restore,v_prev,v_prev+v_restore,'refund_pre_fulfillment_release',null,jsonb_build_object('sku',r.sku,'order_number',r.order_number,'net_change_before',r.net_inventory_change,'ordered_quantity',r.ordered_quantity,'reservation_independent',true));
-   update public.inventory_reservations set status='released',released_at=coalesce(released_at,now()),reason='Teljes visszatérítés fulfillment előtt',updated_at=now(),metadata=metadata||jsonb_build_object('refund_stock_restored',true,'refund_stock_restored_at',now()) where order_id=r.order_id and variant_id=r.variant_id and status in ('active','consumed');
-   update public.order_operations set operational_status='cancelled',exception_code=null,updated_at=now(),metadata=metadata||jsonb_build_object('closed_by_full_refund',true) where order_id=r.order_id and operational_status not in ('handed_over','delivered');
-   v_units:=v_units+v_restore;
- end loop;
- return v_units;
-end;$$;
+begin
+  -- Compatibility no-op. Kept because older operations-cycle code may still call it.
+  -- A financial refund is not evidence that goods physically returned to stock.
+  return 0;
+end $$;
 
 
 ALTER FUNCTION "public"."restore_refunded_pre_fulfillment_inventory"() OWNER TO "postgres";
@@ -3435,6 +5247,7 @@ CREATE TABLE IF NOT EXISTS "public"."automation_control" (
     "consecutive_failures" integer DEFAULT 0 NOT NULL,
     "circuit_open_until" timestamp with time zone,
     "updated_at" timestamp with time zone DEFAULT "now"() NOT NULL,
+    "instance_id" "uuid" NOT NULL,
     CONSTRAINT "automation_control_consecutive_failures_check" CHECK (("consecutive_failures" >= 0)),
     CONSTRAINT "automation_control_singleton_check" CHECK ("singleton")
 );
@@ -3499,6 +5312,15 @@ declare f public.post_release_findings;begin
 ALTER FUNCTION "public"."set_post_release_finding_state"("p_finding_id" "uuid", "p_actor_id" "uuid", "p_action" "text", "p_event_key" "text") OWNER TO "postgres";
 
 
+CREATE OR REPLACE FUNCTION "public"."set_store_automation_pause_v2"("p_instance_id" "uuid", "p_actor_id" "uuid", "p_paused" boolean, "p_reason" "text", "p_event_key" "text") RETURNS "public"."automation_control"
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    SET "search_path" TO ''
+    AS $$declare c public.automation_control;begin insert into public.automation_control(instance_id,singleton,global_paused,pause_reason,consecutive_failures,updated_at)values(p_instance_id,true,p_paused,case when p_paused then coalesce(nullif(trim(p_reason),''),'Kézi szüneteltetés')end,0,now())on conflict(instance_id)do update set global_paused=excluded.global_paused,pause_reason=excluded.pause_reason,updated_at=now() returning * into c;insert into public.automation_control_events(instance_id,event_key,paused,actor_id,reason)values(p_instance_id,p_instance_id::text||':'||p_event_key,p_paused,p_actor_id,p_reason);return c;end$$;
+
+
+ALTER FUNCTION "public"."set_store_automation_pause_v2"("p_instance_id" "uuid", "p_actor_id" "uuid", "p_paused" boolean, "p_reason" "text", "p_event_key" "text") OWNER TO "postgres";
+
+
 CREATE OR REPLACE FUNCTION "public"."simulate_action_proposal"("p_proposal_id" "uuid", "p_actor_id" "uuid", "p_event_key" "text") RETURNS "public"."action_proposals"
     LANGUAGE "plpgsql" SECURITY DEFINER
     SET "search_path" TO ''
@@ -3513,6 +5335,32 @@ CREATE OR REPLACE FUNCTION "public"."simulate_action_proposal"("p_proposal_id" "
 
 
 ALTER FUNCTION "public"."simulate_action_proposal"("p_proposal_id" "uuid", "p_actor_id" "uuid", "p_event_key" "text") OWNER TO "postgres";
+
+
+CREATE OR REPLACE FUNCTION "public"."simulate_action_proposal_v2"("p_instance_id" "uuid", "p_proposal_id" "uuid", "p_actor_id" "uuid", "p_event_key" "text") RETURNS "public"."action_proposals"
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    SET "search_path" TO ''
+    AS $$begin if not exists(select 1 from public.action_proposals where id=p_proposal_id and instance_id=p_instance_id)then raise exception 'proposal_not_found';end if;return public.simulate_action_proposal(p_proposal_id,p_actor_id,p_instance_id::text||':'||p_event_key);end$$;
+
+
+ALTER FUNCTION "public"."simulate_action_proposal_v2"("p_instance_id" "uuid", "p_proposal_id" "uuid", "p_actor_id" "uuid", "p_event_key" "text") OWNER TO "postgres";
+
+
+CREATE OR REPLACE FUNCTION "public"."single_runtime_instance_id"() RETURNS "uuid"
+    LANGUAGE "sql" STABLE SECURITY DEFINER
+    SET "search_path" TO 'public'
+    AS $$
+  select case when count(*)=1 then min(id::text)::uuid else null end
+  from public.webshop_instances
+  where status in ('pilot','active');
+$$;
+
+
+ALTER FUNCTION "public"."single_runtime_instance_id"() OWNER TO "postgres";
+
+
+COMMENT ON FUNCTION "public"."single_runtime_instance_id"() IS 'Migration/backfill helper only. Runtime business operations must carry explicit instance_id.';
+
 
 
 CREATE OR REPLACE FUNCTION "public"."start_post_release_session"("p_release_candidate_id" "uuid", "p_actor_id" "uuid", "p_event_key" "text") RETURNS "public"."post_release_sessions"
@@ -3536,27 +5384,175 @@ declare c public.release_candidates;p public.post_release_policies;s public.post
 ALTER FUNCTION "public"."start_post_release_session"("p_release_candidate_id" "uuid", "p_actor_id" "uuid", "p_event_key" "text") OWNER TO "postgres";
 
 
+CREATE OR REPLACE FUNCTION "public"."sync_campaign_child_instance"() RETURNS "trigger"
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    SET "search_path" TO 'public'
+    AS $$
+declare parent_instance uuid;
+begin
+  select instance_id into parent_instance from public.marketing_campaigns where id=new.campaign_id;
+  if parent_instance is null then return new; end if;
+  if new.instance_id is not null and new.instance_id<>parent_instance then raise exception 'Cross-store campaign child is not allowed.'; end if;
+  new.instance_id:=parent_instance;
+  return new;
+end $$;
+
+
+ALTER FUNCTION "public"."sync_campaign_child_instance"() OWNER TO "postgres";
+
+
+CREATE OR REPLACE FUNCTION "public"."sync_coupon_redemption_from_order_v1"() RETURNS "trigger"
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    SET "search_path" TO ''
+    AS $$
+declare
+  v_coupon public.coupons%rowtype;
+  v_existing public.coupon_redemptions%rowtype;
+begin
+  if tg_op='INSERT' then
+    if nullif(trim(new.coupon_code),'') is null then return new; end if;
+    select * into v_coupon from public.coupons where instance_id=new.instance_id and code=upper(trim(new.coupon_code)) for update;
+    if not found then return new; end if;
+    -- Checkout inserts the order before the final discount is known; ledger creation is deferred
+    -- to the totals update below.
+    return new;
+  end if;
+
+  if tg_op='UPDATE' then
+    if nullif(trim(new.coupon_code),'') is not null and new.discount_gross_huf>0
+       and (old.discount_gross_huf is distinct from new.discount_gross_huf or old.coupon_code is distinct from new.coupon_code) then
+      select * into v_coupon from public.coupons where instance_id=new.instance_id and code=upper(trim(new.coupon_code)) for update;
+      if found then
+        select * into v_existing from public.coupon_redemptions where instance_id=new.instance_id and order_id=new.id and coupon_id=v_coupon.id for update;
+        if not found then
+          insert into public.coupon_redemptions(instance_id,coupon_id,order_id,customer_id,customer_email,coupon_code,discount_gross_huf,metadata)
+          values(new.instance_id,v_coupon.id,new.id,new.customer_id,lower(trim(new.customer_email)),v_coupon.code,new.discount_gross_huf,jsonb_build_object('source','atomic_checkout'));
+        elsif v_existing.status='redeemed' then
+          update public.coupon_redemptions set discount_gross_huf=new.discount_gross_huf,updated_at=now() where id=v_existing.id;
+        end if;
+      end if;
+    end if;
+
+    if new.status='cancelled' and old.status is distinct from new.status then
+      perform public.release_coupon_redemption_v1(new.instance_id,new.id,'order_cancelled');
+    end if;
+  end if;
+  return new;
+end $$;
+
+
+ALTER FUNCTION "public"."sync_coupon_redemption_from_order_v1"() OWNER TO "postgres";
+
+
+CREATE OR REPLACE FUNCTION "public"."sync_inventory_event_instance"() RETURNS "trigger"
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    SET "search_path" TO 'public'
+    AS $$
+declare variant_instance uuid; order_instance uuid;
+begin
+  select instance_id into variant_instance from public.product_variants where id=new.variant_id;
+  if new.order_id is not null then select instance_id into order_instance from public.orders where id=new.order_id; end if;
+  if variant_instance is not null and order_instance is not null and variant_instance<>order_instance then raise exception 'Cross-store inventory event is not allowed.'; end if;
+  if new.instance_id is not null and coalesce(order_instance,variant_instance) is not null and new.instance_id<>coalesce(order_instance,variant_instance) then raise exception 'Inventory event store scope mismatch.'; end if;
+  new.instance_id:=coalesce(order_instance,variant_instance,new.instance_id);
+  return new;
+end $$;
+
+
+ALTER FUNCTION "public"."sync_inventory_event_instance"() OWNER TO "postgres";
+
+
+CREATE OR REPLACE FUNCTION "public"."sync_inventory_reservation_instance"() RETURNS "trigger"
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    SET "search_path" TO 'public'
+    AS $$
+declare variant_instance uuid; order_instance uuid;
+begin
+  select instance_id into variant_instance from public.product_variants where id=new.variant_id;
+  select instance_id into order_instance from public.orders where id=new.order_id;
+  if variant_instance is not null and order_instance is not null and variant_instance<>order_instance then raise exception 'Cross-store inventory reservation is not allowed.'; end if;
+  if new.instance_id is not null and order_instance is not null and new.instance_id<>order_instance then raise exception 'Inventory reservation store scope mismatch.'; end if;
+  new.instance_id:=coalesce(order_instance,variant_instance,new.instance_id);
+  return new;
+end $$;
+
+
+ALTER FUNCTION "public"."sync_inventory_reservation_instance"() OWNER TO "postgres";
+
+
+CREATE OR REPLACE FUNCTION "public"."sync_order_item_instance"() RETURNS "trigger"
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    SET "search_path" TO 'public'
+    AS $$
+declare parent_instance uuid; variant_instance uuid;
+begin
+  select instance_id into parent_instance from public.orders where id=new.order_id;
+  if new.variant_id is not null then select instance_id into variant_instance from public.product_variants where id=new.variant_id; end if;
+  if parent_instance is not null and variant_instance is not null and parent_instance<>variant_instance then raise exception 'Cross-store order item is not allowed.'; end if;
+  if new.instance_id is not null and coalesce(parent_instance,variant_instance) is not null and new.instance_id<>coalesce(parent_instance,variant_instance) then raise exception 'Order item store scope mismatch.'; end if;
+  new.instance_id:=coalesce(parent_instance,variant_instance,new.instance_id);
+  return new;
+end $$;
+
+
+ALTER FUNCTION "public"."sync_order_item_instance"() OWNER TO "postgres";
+
+
+CREATE OR REPLACE FUNCTION "public"."sync_product_variant_instance"() RETURNS "trigger"
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    SET "search_path" TO 'public'
+    AS $$
+declare parent_instance uuid;
+begin
+  select instance_id into parent_instance from public.products where id=new.product_id;
+  if parent_instance is null then return new; end if;
+  if new.instance_id is not null and new.instance_id<>parent_instance then raise exception 'Cross-store product variant is not allowed.'; end if;
+  new.instance_id:=parent_instance;
+  return new;
+end $$;
+
+
+ALTER FUNCTION "public"."sync_product_variant_instance"() OWNER TO "postgres";
+
+
 CREATE OR REPLACE FUNCTION "public"."sync_support_ticket_from_message"() RETURNS "trigger"
     LANGUAGE "plpgsql" SECURITY DEFINER
     SET "search_path" TO ''
     AS $$
 begin
   if new.author_role='customer' then
-    update public.support_tickets
-      set status='open',updated_at=greatest(updated_at,new.created_at)
-      where id=new.ticket_id and status<>'closed';
+    update public.support_tickets set status='open',updated_at=greatest(updated_at,new.created_at)
+    where id=new.ticket_id and instance_id=new.instance_id and status<>'closed';
   elsif new.author_role='admin' then
-    update public.support_tickets
-      set status='waiting_customer',updated_at=greatest(updated_at,new.created_at)
-      where id=new.ticket_id and status<>'closed';
+    update public.support_tickets set status='waiting_customer',updated_at=greatest(updated_at,new.created_at)
+    where id=new.ticket_id and instance_id=new.instance_id and status<>'closed';
   else
-    update public.support_tickets set updated_at=greatest(updated_at,new.created_at) where id=new.ticket_id;
+    update public.support_tickets set updated_at=greatest(updated_at,new.created_at)
+    where id=new.ticket_id and instance_id=new.instance_id;
   end if;
   return new;
-end;$$;
+end;
+$$;
 
 
 ALTER FUNCTION "public"."sync_support_ticket_from_message"() OWNER TO "postgres";
+
+
+CREATE OR REPLACE FUNCTION "public"."sync_variant_child_instance"() RETURNS "trigger"
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    SET "search_path" TO 'public'
+    AS $$
+declare parent_instance uuid;
+begin
+  select instance_id into parent_instance from public.product_variants where id=new.variant_id;
+  if parent_instance is null then return new; end if;
+  if new.instance_id is not null and new.instance_id<>parent_instance then raise exception 'Cross-store variant child is not allowed.'; end if;
+  new.instance_id:=parent_instance;
+  return new;
+end $$;
+
+
+ALTER FUNCTION "public"."sync_variant_child_instance"() OWNER TO "postgres";
 
 
 CREATE TABLE IF NOT EXISTS "public"."assurance_findings" (
@@ -3651,6 +5647,15 @@ end;$$;
 ALTER FUNCTION "public"."transition_automation_instance"("p_instance_id" "uuid", "p_actor_id" "uuid", "p_target" "text", "p_event_key" "text", "p_reason" "text") OWNER TO "postgres";
 
 
+CREATE OR REPLACE FUNCTION "public"."transition_automation_instance_v2"("p_store_instance_id" "uuid", "p_runbook_instance_id" "uuid", "p_actor_id" "uuid", "p_target" "text", "p_event_key" "text", "p_reason" "text" DEFAULT NULL::"text") RETURNS "public"."automation_runbook_instances"
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    SET "search_path" TO ''
+    AS $$begin if not exists(select 1 from public.automation_runbook_instances where id=p_runbook_instance_id and instance_id=p_store_instance_id)then raise exception 'automation_instance_not_found';end if;return public.transition_automation_instance(p_runbook_instance_id,p_actor_id,p_target,p_store_instance_id::text||':'||p_event_key,p_reason);end$$;
+
+
+ALTER FUNCTION "public"."transition_automation_instance_v2"("p_store_instance_id" "uuid", "p_runbook_instance_id" "uuid", "p_actor_id" "uuid", "p_target" "text", "p_event_key" "text", "p_reason" "text") OWNER TO "postgres";
+
+
 CREATE OR REPLACE FUNCTION "public"."transition_commercial_offer"("p_offer_id" "uuid", "p_status" "text") RETURNS "public"."commercial_offers"
     LANGUAGE "plpgsql" SECURITY DEFINER
     SET "search_path" TO ''
@@ -3673,6 +5678,29 @@ end;$$;
 
 
 ALTER FUNCTION "public"."transition_commercial_offer"("p_offer_id" "uuid", "p_status" "text") OWNER TO "postgres";
+
+
+CREATE OR REPLACE FUNCTION "public"."transition_commercial_offer_v2"("p_instance_id" "uuid", "p_offer_id" "uuid", "p_status" "text") RETURNS "public"."commercial_offers"
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    SET "search_path" TO 'public'
+    AS $$
+declare v public.commercial_offers;
+begin
+ select * into v from public.commercial_offers where id=p_offer_id and instance_id=p_instance_id for update;if not found then raise exception 'offer_not_found';end if;
+ if p_status not in('sent','accepted','expired','cancelled') then raise exception 'invalid_target_status';end if;
+ if p_status='sent' and v.status<>'approved' then raise exception 'offer_not_approved';end if;
+ if p_status='accepted' and v.status not in('approved','sent') then raise exception 'offer_not_acceptible';end if;
+ if p_status in('expired','cancelled') and v.status in('accepted','expired','cancelled') then raise exception 'offer_already_closed';end if;
+ update public.commercial_offers set status=p_status,sent_at=case when p_status='sent' then coalesce(sent_at,now()) else sent_at end,accepted_at=case when p_status='accepted' then now() else accepted_at end,updated_at=now() where id=p_offer_id and instance_id=p_instance_id returning * into v;
+ if p_status='accepted' then
+  update public.commercial_offers set status='cancelled',updated_at=now() where instance_id=p_instance_id and opportunity_id=v.opportunity_id and id<>v.id and status in('draft','approved','sent');
+  update public.commercial_opportunities set status='won',closed_at=now(),updated_at=now() where instance_id=p_instance_id and id=v.opportunity_id and status in('open','in_progress');
+ end if;
+ return v;
+end$$;
+
+
+ALTER FUNCTION "public"."transition_commercial_offer_v2"("p_instance_id" "uuid", "p_offer_id" "uuid", "p_status" "text") OWNER TO "postgres";
 
 
 CREATE TABLE IF NOT EXISTS "public"."control_alerts" (
@@ -3704,6 +5732,7 @@ CREATE TABLE IF NOT EXISTS "public"."control_alerts" (
     "dismissed_by" "uuid",
     "updated_at" timestamp with time zone DEFAULT "now"() NOT NULL,
     "incident_started_at" timestamp with time zone DEFAULT "now"() NOT NULL,
+    "instance_id" "uuid" NOT NULL,
     CONSTRAINT "control_alerts_category_check" CHECK (("category" = ANY (ARRAY['operations'::"text", 'inventory'::"text", 'service'::"text", 'commercial'::"text", 'customer'::"text", 'system'::"text"]))),
     CONSTRAINT "control_alerts_occurrence_count_check" CHECK (("occurrence_count" > 0)),
     CONSTRAINT "control_alerts_priority_score_check" CHECK ((("priority_score" >= 0) AND ("priority_score" <= 100))),
@@ -3728,6 +5757,15 @@ CREATE OR REPLACE FUNCTION "public"."transition_control_alert"("p_alert_id" "uui
 ALTER FUNCTION "public"."transition_control_alert"("p_alert_id" "uuid", "p_target_status" "text", "p_event_key" "text", "p_actor_id" "uuid", "p_snoozed_until" timestamp with time zone, "p_note" "text") OWNER TO "postgres";
 
 
+CREATE OR REPLACE FUNCTION "public"."transition_control_alert_v2"("p_instance_id" "uuid", "p_alert_id" "uuid", "p_target_status" "text", "p_event_key" "text", "p_actor_id" "uuid" DEFAULT NULL::"uuid", "p_snoozed_until" timestamp with time zone DEFAULT NULL::timestamp with time zone, "p_note" "text" DEFAULT NULL::"text") RETURNS "public"."control_alerts"
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    SET "search_path" TO ''
+    AS $$begin if not exists(select 1 from public.control_alerts where id=p_alert_id and instance_id=p_instance_id)then raise exception 'control_alert_not_found';end if;return public.transition_control_alert(p_alert_id,p_target_status,p_instance_id::text||':'||p_event_key,p_actor_id,p_snoozed_until,p_note);end$$;
+
+
+ALTER FUNCTION "public"."transition_control_alert_v2"("p_instance_id" "uuid", "p_alert_id" "uuid", "p_target_status" "text", "p_event_key" "text", "p_actor_id" "uuid", "p_snoozed_until" timestamp with time zone, "p_note" "text") OWNER TO "postgres";
+
+
 CREATE TABLE IF NOT EXISTS "public"."control_tasks" (
     "id" "uuid" DEFAULT "gen_random_uuid"() NOT NULL,
     "task_key" "text" NOT NULL,
@@ -3745,6 +5783,7 @@ CREATE TABLE IF NOT EXISTS "public"."control_tasks" (
     "metadata" "jsonb" DEFAULT '{}'::"jsonb" NOT NULL,
     "created_at" timestamp with time zone DEFAULT "now"() NOT NULL,
     "updated_at" timestamp with time zone DEFAULT "now"() NOT NULL,
+    "instance_id" "uuid" NOT NULL,
     CONSTRAINT "control_tasks_priority_score_check" CHECK ((("priority_score" >= 0) AND ("priority_score" <= 100))),
     CONSTRAINT "control_tasks_status_check" CHECK (("status" = ANY (ARRAY['open'::"text", 'in_progress'::"text", 'completed'::"text", 'cancelled'::"text"])))
 );
@@ -3807,6 +5846,15 @@ end;$$;
 ALTER FUNCTION "public"."transition_control_task"("p_task_id" "uuid", "p_target_status" "text", "p_event_key" "text", "p_actor_id" "uuid", "p_outcome" "text") OWNER TO "postgres";
 
 
+CREATE OR REPLACE FUNCTION "public"."transition_control_task_v2"("p_instance_id" "uuid", "p_task_id" "uuid", "p_target_status" "text", "p_event_key" "text", "p_actor_id" "uuid" DEFAULT NULL::"uuid", "p_outcome" "text" DEFAULT NULL::"text") RETURNS "public"."control_tasks"
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    SET "search_path" TO ''
+    AS $$begin if not exists(select 1 from public.control_tasks where id=p_task_id and instance_id=p_instance_id)then raise exception 'control_task_not_found';end if;return public.transition_control_task(p_task_id,p_target_status,p_instance_id::text||':'||p_event_key,p_actor_id,p_outcome);end$$;
+
+
+ALTER FUNCTION "public"."transition_control_task_v2"("p_instance_id" "uuid", "p_task_id" "uuid", "p_target_status" "text", "p_event_key" "text", "p_actor_id" "uuid", "p_outcome" "text") OWNER TO "postgres";
+
+
 CREATE TABLE IF NOT EXISTS "public"."order_operations" (
     "order_id" "uuid" NOT NULL,
     "operational_status" "text" DEFAULT 'awaiting_reservation'::"text" NOT NULL,
@@ -3820,6 +5868,7 @@ CREATE TABLE IF NOT EXISTS "public"."order_operations" (
     "blocked_at" timestamp with time zone,
     "updated_at" timestamp with time zone DEFAULT "now"() NOT NULL,
     "metadata" "jsonb" DEFAULT '{}'::"jsonb" NOT NULL,
+    "instance_id" "uuid" NOT NULL,
     CONSTRAINT "order_operations_operational_status_check" CHECK (("operational_status" = ANY (ARRAY['awaiting_reservation'::"text", 'reserved'::"text", 'ready_to_pack'::"text", 'packed'::"text", 'handed_over'::"text", 'delivered'::"text", 'blocked'::"text", 'cancelled'::"text"]))),
     CONSTRAINT "order_operations_priority_score_check" CHECK ((("priority_score" >= 0) AND ("priority_score" <= 100)))
 );
@@ -3905,6 +5954,30 @@ end;$$;
 
 
 ALTER FUNCTION "public"."transition_purchase_order"("p_purchase_order_id" "uuid", "p_target_status" "text", "p_actor" "uuid") OWNER TO "postgres";
+
+
+CREATE OR REPLACE FUNCTION "public"."transition_purchase_order_v2"("p_instance_id" "uuid", "p_purchase_order_id" "uuid", "p_target_status" "text", "p_actor" "uuid") RETURNS "jsonb"
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    SET "search_path" TO 'public'
+    AS $$
+declare p record;v_now timestamptz:=now();v_remaining integer;
+begin
+  select * into p from public.purchase_orders where id=p_purchase_order_id and instance_id=p_instance_id for update;
+  if not found then raise exception 'A beszerzés nem található ebben a webshopban.'; end if;
+  if p_target_status not in ('approved','ordered','cancelled') then raise exception 'Érvénytelen célállapot.'; end if;
+  if not ((p.status='draft' and p_target_status in ('approved','cancelled')) or (p.status='approved' and p_target_status in ('ordered','cancelled')) or (p.status in ('ordered','partially_received') and p_target_status='cancelled')) then raise exception 'Ez az állapotváltás nem engedélyezett.'; end if;
+  if p_target_status='ordered' then
+    perform 1 from public.purchase_order_items where purchase_order_id=p.id and instance_id=p_instance_id;if not found then raise exception 'Üres beszerzési rendelés nem küldhető el.';end if;
+    update public.purchase_orders set status='ordered',ordered_at=coalesce(ordered_at,v_now),updated_at=v_now where id=p.id and instance_id=p_instance_id;
+  elsif p_target_status='cancelled' then
+    select coalesce(sum(quantity-received_quantity),0) into v_remaining from public.purchase_order_items where purchase_order_id=p.id and instance_id=p_instance_id;
+    update public.purchase_orders set status='cancelled',updated_at=v_now,notes=case when p.status='partially_received' then concat_ws(E'\n',notes,'Részleges bevételezés után törölve; nyitott mennyiség: '||v_remaining||' db.') else notes end where id=p.id and instance_id=p_instance_id;
+  else update public.purchase_orders set status='approved',updated_at=v_now where id=p.id and instance_id=p_instance_id;end if;
+  return jsonb_build_object('previous_status',p.status,'status',p_target_status,'order_number',p.order_number);
+end $$;
+
+
+ALTER FUNCTION "public"."transition_purchase_order_v2"("p_instance_id" "uuid", "p_purchase_order_id" "uuid", "p_target_status" "text", "p_actor" "uuid") OWNER TO "postgres";
 
 
 CREATE OR REPLACE FUNCTION "public"."transition_return_case"("p_case_id" "uuid", "p_actor" "uuid", "p_target_status" "text", "p_refund_amount" integer, "p_refund_reference" "text", "p_admin_note" "text", "p_restock" boolean DEFAULT false) RETURNS "jsonb"
@@ -3998,6 +6071,33 @@ end;$$;
 ALTER FUNCTION "public"."transition_return_case"("p_case_id" "uuid", "p_actor" "uuid", "p_target_status" "text", "p_refund_amount" integer, "p_refund_reference" "text", "p_admin_note" "text", "p_restock" boolean) OWNER TO "postgres";
 
 
+CREATE OR REPLACE FUNCTION "public"."transition_tenant_order_v1"("p_instance_id" "uuid", "p_order_id" "uuid", "p_actor" "uuid", "p_target_status" "text", "p_tracking_number" "text" DEFAULT NULL::"text") RETURNS "jsonb"
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    SET "search_path" TO ''
+    AS $$
+declare v_order public.orders%rowtype;v_allowed boolean:=false;v_restore boolean:=false;v_line record;v_already integer;v_remaining integer;v_result jsonb;
+begin
+ select * into v_order from public.orders where id=p_order_id and instance_id=p_instance_id for update;if not found then raise exception 'A rendelés nem található ebben a webshopban.';end if;
+ if v_order.status=p_target_status then return jsonb_build_object('order_id',v_order.id,'status',v_order.status,'replayed',true,'inventory_restored',false);end if;
+ v_allowed:=case v_order.status when 'draft' then p_target_status=any(array['pending','pending_payment','pending_transfer','cancelled']) when 'pending' then p_target_status=any(array['paid','processing','cancelled']) when 'pending_payment' then p_target_status=any(array['paid','cancelled']) when 'pending_transfer' then p_target_status=any(array['paid','cancelled']) when 'paid' then p_target_status=any(array['processing','refunded']) when 'processing' then p_target_status=any(array['shipped','refunded']) when 'shipped' then p_target_status=any(array['completed','refunded']) when 'completed' then p_target_status='refunded' else false end;
+ if not v_allowed then raise exception 'Nem engedélyezett rendelési állapotváltás: % -> %',v_order.status,p_target_status;end if;
+ if p_target_status='shipped' and coalesce(v_order.shipping_method,'')<>'pickup' and coalesce(nullif(trim(p_tracking_number),''),v_order.tracking_number) is null then raise exception 'Feladott rendeléshez csomagkövetési azonosító szükséges.';end if;
+ -- Only cancellation before fulfillment returns inventory automatically. A financial refund never implies physical return.
+ if p_target_status='cancelled' then
+  for v_line in select oi.id,oi.quantity from public.order_items oi where oi.order_id=p_order_id and oi.instance_id=p_instance_id and oi.variant_id is not null order by oi.id for update loop
+   select coalesce(sum(r.quantity),0)::integer into v_already from public.order_inventory_restorations r where r.instance_id=p_instance_id and r.order_item_id=v_line.id;v_remaining:=greatest(0,v_line.quantity-v_already);
+   if v_remaining>0 then select public.restore_order_item_inventory_v1(p_instance_id,p_order_id,v_line.id,'order_cancelled',p_order_id,v_remaining,p_actor) into v_result;if coalesce((v_result->>'restored')::boolean,false) then v_restore:=true;end if;end if;
+  end loop;
+ end if;
+ update public.orders set status=p_target_status,tracking_number=case when p_tracking_number is null then tracking_number else nullif(trim(p_tracking_number),'') end,paid_at=case when p_target_status='paid' and paid_at is null then now() else paid_at end,updated_at=now() where id=p_order_id and instance_id=p_instance_id;
+ insert into public.order_events(instance_id,order_id,event_type,from_status,to_status,actor_user_id,metadata) values(p_instance_id,p_order_id,'status_changed',v_order.status,p_target_status,p_actor,jsonb_build_object('inventory_restored',v_restore,'refund_inventory_policy',case when p_target_status='refunded' then 'return_case_only' else null end,'tracking_number',coalesce(p_tracking_number,v_order.tracking_number)));
+ return jsonb_build_object('order_id',p_order_id,'status',p_target_status,'inventory_restored',v_restore,'replayed',false);
+end $$;
+
+
+ALTER FUNCTION "public"."transition_tenant_order_v1"("p_instance_id" "uuid", "p_order_id" "uuid", "p_actor" "uuid", "p_target_status" "text", "p_tracking_number" "text") OWNER TO "postgres";
+
+
 CREATE OR REPLACE FUNCTION "public"."update_release_ci_evidence"("p_candidate_id" "uuid", "p_actor_id" "uuid", "p_ci_status" "text", "p_observed_at" timestamp with time zone, "p_evidence" "jsonb", "p_event_key" "text") RETURNS "public"."release_candidates"
     LANGUAGE "plpgsql" SECURITY DEFINER
     SET "search_path" TO ''
@@ -4021,6 +6121,33 @@ CREATE OR REPLACE FUNCTION "public"."upsert_checkout_recovery_intent"("p_user_id
 ALTER FUNCTION "public"."upsert_checkout_recovery_intent"("p_user_id" "uuid", "p_email" "text", "p_cart" "jsonb", "p_checkout" "jsonb") OWNER TO "postgres";
 
 
+CREATE OR REPLACE FUNCTION "public"."upsert_checkout_recovery_intent_v2"("p_instance_id" "uuid", "p_user_id" "uuid", "p_email" "text", "p_cart" "jsonb", "p_checkout" "jsonb") RETURNS "jsonb"
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    SET "search_path" TO ''
+    AS $$
+declare r public.checkout_recovery_intents%rowtype;
+begin
+  if not exists(select 1 from public.webshop_instances where id=p_instance_id) then raise exception 'invalid tenant'; end if;
+  if p_user_id is null or length(trim(p_email))<5 then raise exception 'invalid recovery identity'; end if;
+  if p_cart is null or jsonb_typeof(p_cart)<>'array' or jsonb_array_length(p_cart)=0 then raise exception 'empty cart'; end if;
+  select * into r from public.checkout_recovery_intents
+    where instance_id=p_instance_id and user_id=p_user_id and status='open' for update;
+  if found then
+    update public.checkout_recovery_intents set email=lower(trim(p_email)),cart=p_cart,checkout=coalesce(p_checkout,'{}'::jsonb),
+      expires_at=now()+interval '7 days',last_seen_at=now(),updated_at=now()
+    where id=r.id and instance_id=p_instance_id returning * into r;
+  else
+    insert into public.checkout_recovery_intents(instance_id,user_id,email,cart,checkout)
+    values(p_instance_id,p_user_id,lower(trim(p_email)),p_cart,coalesce(p_checkout,'{}'::jsonb)) returning * into r;
+  end if;
+  return jsonb_build_object('id',r.id,'token',r.recovery_token,'expiresAt',r.expires_at);
+end;
+$$;
+
+
+ALTER FUNCTION "public"."upsert_checkout_recovery_intent_v2"("p_instance_id" "uuid", "p_user_id" "uuid", "p_email" "text", "p_cart" "jsonb", "p_checkout" "jsonb") OWNER TO "postgres";
+
+
 CREATE OR REPLACE FUNCTION "public"."upsert_control_alert"("p_alert_key" "text", "p_category" "text", "p_alert_type" "text", "p_severity" "text", "p_priority_score" integer, "p_title" "text", "p_description" "text", "p_recommended_action" "text", "p_run_key" "text", "p_order_id" "uuid" DEFAULT NULL::"uuid", "p_customer_id" "uuid" DEFAULT NULL::"uuid", "p_reseller_id" "uuid" DEFAULT NULL::"uuid", "p_variant_id" "uuid" DEFAULT NULL::"uuid", "p_opportunity_id" "uuid" DEFAULT NULL::"uuid", "p_evidence" "jsonb" DEFAULT '{}'::"jsonb") RETURNS "public"."control_alerts"
     LANGUAGE "plpgsql" SECURITY DEFINER
     SET "search_path" TO ''
@@ -4038,7 +6165,8 @@ CREATE TABLE IF NOT EXISTS "public"."loyalty_benefit_usage" (
     "order_id" "uuid",
     "benefit_snapshot" "jsonb" NOT NULL,
     "used_at" timestamp with time zone DEFAULT "now"() NOT NULL,
-    "created_at" timestamp with time zone DEFAULT "now"() NOT NULL
+    "created_at" timestamp with time zone DEFAULT "now"() NOT NULL,
+    "instance_id" "uuid" NOT NULL
 );
 
 
@@ -4133,19 +6261,35 @@ declare
   v_order_total integer;
   v_other_refunded integer;
 begin
-  if new.refund_amount_gross_huf is not null then
-    select total_gross_huf into v_order_total from public.orders where id=new.order_id;
-    if new.refund_amount_gross_huf>coalesce(v_order_total,0) then raise exception 'A visszatérítés nem lehet nagyobb a rendelés értékénél.'; end if;
+  select total_gross_huf into v_order_total
+  from public.orders
+  where id=new.order_id and instance_id=new.instance_id;
+
+  if not found then
+    raise exception 'Cross-store refund relation is not allowed.';
   end if;
+
+  if new.refund_amount_gross_huf is not null
+     and new.refund_amount_gross_huf>coalesce(v_order_total,0) then
+    raise exception 'A visszatérítés nem lehet nagyobb a rendelés értékénél.';
+  end if;
+
   if new.status='refunded' then
-    if new.refund_amount_gross_huf is null then raise exception 'A visszatérített állapothoz visszatérítési összeg szükséges.'; end if;
+    if new.refund_amount_gross_huf is null then
+      raise exception 'A visszatérített állapothoz visszatérítési összeg szükséges.';
+    end if;
     select coalesce(sum(refund_amount_gross_huf),0) into v_other_refunded
     from public.return_cases
-    where order_id=new.order_id and status='refunded' and id<>new.id;
+    where instance_id=new.instance_id
+      and order_id=new.order_id
+      and status='refunded'
+      and id<>new.id;
+
     if v_other_refunded+new.refund_amount_gross_huf>coalesce(v_order_total,0) then
       raise exception 'A visszatérítések összege meghaladná a rendelés teljes értékét.';
     end if;
   end if;
+
   return new;
 end;
 $$;
@@ -4163,26 +6307,80 @@ declare
   v_case record;
   v_already integer;
 begin
-  select id,order_id,quantity into v_order_item from public.order_items where id=new.order_item_id;
-  if not found then raise exception 'A rendelési tétel nem található.'; end if;
-  select id,order_id,status into v_case from public.return_cases where id=new.return_case_id;
-  if not found then raise exception 'A visszáru ügy nem található.'; end if;
-  if v_case.order_id<>v_order_item.order_id then raise exception 'A visszáru tétel nem ehhez a rendeléshez tartozik.'; end if;
+  select id,instance_id,order_id,quantity into v_order_item
+  from public.order_items
+  where id=new.order_item_id and instance_id=new.instance_id;
+  if not found then raise exception 'A rendelési tétel nem található ebben a webshopban.'; end if;
+
+  select id,instance_id,order_id,status into v_case
+  from public.return_cases
+  where id=new.return_case_id and instance_id=new.instance_id;
+  if not found then raise exception 'A visszáru ügy nem található ebben a webshopban.'; end if;
+
+  if v_case.order_id<>v_order_item.order_id then
+    raise exception 'A visszáru tétel nem ehhez a rendeléshez tartozik.';
+  end if;
+
   select coalesce(sum(rci.quantity),0) into v_already
   from public.return_case_items rci
-  join public.return_cases rc on rc.id=rci.return_case_id
-  where rci.order_item_id=new.order_item_id
+  join public.return_cases rc
+    on rc.id=rci.return_case_id
+   and rc.instance_id=rci.instance_id
+  where rci.instance_id=new.instance_id
+    and rci.order_item_id=new.order_item_id
     and rc.status<>'rejected'
     and (tg_op='INSERT' or rci.id<>new.id);
+
   if v_already+new.quantity>v_order_item.quantity then
     raise exception 'A visszaküldött összmennyiség meghaladná a megvásárolt mennyiséget.';
   end if;
+
   return new;
 end;
 $$;
 
 
 ALTER FUNCTION "public"."validate_return_case_item_quantity"() OWNER TO "postgres";
+
+
+CREATE OR REPLACE FUNCTION "public"."verify_admin_audit_chain"("p_instance_id" "uuid" DEFAULT NULL::"uuid") RETURNS TABLE("audit_scope" "text", "entries" bigint, "invalid_links" bigint, "invalid_hashes" bigint, "valid" boolean)
+    LANGUAGE "sql" STABLE
+    SET "search_path" TO 'public', 'extensions'
+    AS $$
+  with ordered as (
+    select a.*,lag(a.entry_hash) over(partition by a.audit_scope order by a.chain_seq) expected_prev
+    from public.admin_audit_log a
+    where p_instance_id is null or a.instance_id=p_instance_id
+  ), checked as (
+    select *,
+      (coalesce(prev_hash,'')<>coalesce(expected_prev,'')) bad_link,
+      (entry_hash<>public.compute_admin_audit_hash(chain_seq,audit_scope,prev_hash,actor_user_id,actor_roles,action,entity_type,entity_id,summary,before_state,after_state,metadata,created_at)) bad_hash
+    from ordered
+  )
+  select audit_scope,count(*)::bigint,count(*) filter(where bad_link)::bigint,count(*) filter(where bad_hash)::bigint,
+    (count(*) filter(where bad_link or bad_hash)=0) valid
+  from checked group by audit_scope order by audit_scope;
+$$;
+
+
+ALTER FUNCTION "public"."verify_admin_audit_chain"("p_instance_id" "uuid") OWNER TO "postgres";
+
+
+COMMENT ON FUNCTION "public"."verify_admin_audit_chain"("p_instance_id" "uuid") IS 'Verifies visible audit-chain links and hashes; RLS applies because the function is security invoker.';
+
+
+
+CREATE TABLE IF NOT EXISTS "private"."platform_owner_claims" (
+    "email" "text" NOT NULL,
+    "full_name" "text" NOT NULL,
+    "created_at" timestamp with time zone DEFAULT "now"() NOT NULL,
+    "claimed_at" timestamp with time zone,
+    "claimed_by_user_id" "uuid",
+    CONSTRAINT "platform_owner_claims_normalized_email_check" CHECK (("email" = "lower"(TRIM(BOTH FROM "email"))))
+);
+
+
+ALTER TABLE "private"."platform_owner_claims" OWNER TO "postgres";
 
 
 CREATE TABLE IF NOT EXISTS "private"."stock_notification_rate_limits" (
@@ -4215,6 +6413,7 @@ CREATE TABLE IF NOT EXISTS "public"."action_approvals" (
     "decision" "text" NOT NULL,
     "note" "text",
     "created_at" timestamp with time zone DEFAULT "now"() NOT NULL,
+    "instance_id" "uuid" NOT NULL,
     CONSTRAINT "action_approvals_decision_check" CHECK (("decision" = ANY (ARRAY['approved'::"text", 'rejected'::"text"]))),
     CONSTRAINT "action_approvals_slot_check" CHECK (("slot" = ANY (ARRAY[1, 2])))
 );
@@ -4255,6 +6454,7 @@ CREATE TABLE IF NOT EXISTS "public"."action_policies" (
     "conditions" "jsonb" DEFAULT '{}'::"jsonb" NOT NULL,
     "created_at" timestamp with time zone DEFAULT "now"() NOT NULL,
     "updated_at" timestamp with time zone DEFAULT "now"() NOT NULL,
+    "instance_id" "uuid",
     CONSTRAINT "action_policies_action_kind_check" CHECK (("action_kind" = ANY (ARRAY['human_task'::"text", 'notify_admin'::"text", 'record_decision'::"text"]))),
     CONSTRAINT "action_policies_approval_mode_check" CHECK (("approval_mode" = ANY (ARRAY['none'::"text", 'single'::"text", 'dual'::"text"]))),
     CONSTRAINT "action_policies_category_check" CHECK (("category" = ANY (ARRAY['operations'::"text", 'inventory'::"text", 'service'::"text", 'commercial'::"text", 'customer'::"text", 'system'::"text"]))),
@@ -4316,6 +6516,7 @@ CREATE TABLE IF NOT EXISTS "public"."action_proposal_events" (
     "actor_id" "uuid",
     "metadata" "jsonb" DEFAULT '{}'::"jsonb" NOT NULL,
     "occurred_at" timestamp with time zone DEFAULT "now"() NOT NULL,
+    "instance_id" "uuid" NOT NULL,
     CONSTRAINT "action_proposal_events_event_type_check" CHECK (("event_type" = ANY (ARRAY['proposed'::"text", 'simulated'::"text", 'approved'::"text", 'rejected'::"text", 'expired'::"text", 'executed'::"text", 'cancelled'::"text", 'approval_added'::"text", 'simulation_invalidated'::"text"])))
 );
 
@@ -4347,6 +6548,7 @@ CREATE TABLE IF NOT EXISTS "public"."customer_value_profiles" (
     "first_order_at" timestamp with time zone,
     "last_order_at" timestamp with time zone,
     "recalculated_at" timestamp with time zone DEFAULT "now"() NOT NULL,
+    "instance_id" "uuid" NOT NULL,
     CONSTRAINT "customer_value_profiles_aov_gross_huf_check" CHECK (("aov_gross_huf" >= 0)),
     CONSTRAINT "customer_value_profiles_paid_orders_check" CHECK (("paid_orders" >= 0)),
     CONSTRAINT "customer_value_profiles_revenue_gross_huf_check" CHECK (("revenue_gross_huf" >= 0)),
@@ -4373,6 +6575,7 @@ CREATE TABLE IF NOT EXISTS "public"."loyalty_benefit_rules" (
     "metadata" "jsonb" DEFAULT '{}'::"jsonb" NOT NULL,
     "created_at" timestamp with time zone DEFAULT "now"() NOT NULL,
     "updated_at" timestamp with time zone DEFAULT "now"() NOT NULL,
+    "instance_id" "uuid" NOT NULL,
     CONSTRAINT "loyalty_benefit_rules_benefit_type_check" CHECK (("benefit_type" = ANY (ARRAY['points_multiplier'::"text", 'fixed_points'::"text", 'discount_percent'::"text", 'free_shipping'::"text", 'manual_review'::"text"]))),
     CONSTRAINT "loyalty_benefit_rules_check" CHECK ((("valid_until" IS NULL) OR ("valid_from" IS NULL) OR ("valid_until" > "valid_from"))),
     CONSTRAINT "loyalty_benefit_rules_max_uses_per_customer_check" CHECK ((("max_uses_per_customer" IS NULL) OR ("max_uses_per_customer" > 0))),
@@ -4400,12 +6603,13 @@ CREATE OR REPLACE VIEW "public"."active_customer_benefits" WITH ("security_invok
         CASE
             WHEN ("r"."max_uses_per_customer" IS NULL) THEN true
             ELSE (COALESCE("u"."use_count", 0) < "r"."max_uses_per_customer")
-        END AS "usage_available"
+        END AS "usage_available",
+    "p"."instance_id"
    FROM (("public"."customer_value_profiles" "p"
-     JOIN "public"."loyalty_benefit_rules" "r" ON ((("r"."value_tier" = "p"."value_tier") AND ("r"."active" = true))))
+     JOIN "public"."loyalty_benefit_rules" "r" ON ((("r"."instance_id" = "p"."instance_id") AND ("r"."value_tier" = "p"."value_tier") AND ("r"."active" = true))))
      LEFT JOIN LATERAL ( SELECT ("count"(*))::integer AS "use_count"
            FROM "public"."loyalty_benefit_usage" "x"
-          WHERE (("x"."customer_id" = "p"."customer_id") AND ("x"."rule_id" = "r"."id"))) "u" ON (true))
+          WHERE (("x"."instance_id" = "p"."instance_id") AND ("x"."customer_id" = "p"."customer_id") AND ("x"."rule_id" = "r"."id"))) "u" ON (true))
   WHERE ((("r"."valid_from" IS NULL) OR ("r"."valid_from" <= "now"())) AND (("r"."valid_until" IS NULL) OR ("r"."valid_until" > "now"())));
 
 
@@ -4422,11 +6626,37 @@ CREATE TABLE IF NOT EXISTS "public"."admin_audit_log" (
     "before_state" "jsonb",
     "after_state" "jsonb",
     "metadata" "jsonb" DEFAULT '{}'::"jsonb" NOT NULL,
-    "created_at" timestamp with time zone DEFAULT "now"() NOT NULL
+    "created_at" timestamp with time zone DEFAULT "now"() NOT NULL,
+    "organization_id" "uuid",
+    "instance_id" "uuid",
+    "actor_roles" "text"[] NOT NULL,
+    "audit_scope" "text" NOT NULL,
+    "chain_seq" bigint NOT NULL,
+    "prev_hash" "text",
+    "entry_hash" "text" NOT NULL
 );
 
 
 ALTER TABLE "public"."admin_audit_log" OWNER TO "postgres";
+
+
+COMMENT ON COLUMN "public"."admin_audit_log"."entry_hash" IS 'SHA-256 hash over the canonical audit entry and previous hash.';
+
+
+
+CREATE SEQUENCE IF NOT EXISTS "public"."admin_audit_chain_seq"
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE "public"."admin_audit_chain_seq" OWNER TO "postgres";
+
+
+ALTER SEQUENCE "public"."admin_audit_chain_seq" OWNED BY "public"."admin_audit_log"."chain_seq";
+
 
 
 CREATE TABLE IF NOT EXISTS "public"."assurance_controls" (
@@ -4643,7 +6873,8 @@ CREATE TABLE IF NOT EXISTS "public"."automation_control_events" (
     "paused" boolean NOT NULL,
     "actor_id" "uuid",
     "reason" "text",
-    "occurred_at" timestamp with time zone DEFAULT "now"() NOT NULL
+    "occurred_at" timestamp with time zone DEFAULT "now"() NOT NULL,
+    "instance_id" "uuid" NOT NULL
 );
 
 
@@ -4669,7 +6900,8 @@ CREATE TABLE IF NOT EXISTS "public"."automation_events" (
     "event_type" "text" NOT NULL,
     "actor_id" "uuid",
     "metadata" "jsonb" DEFAULT '{}'::"jsonb" NOT NULL,
-    "occurred_at" timestamp with time zone DEFAULT "now"() NOT NULL
+    "occurred_at" timestamp with time zone DEFAULT "now"() NOT NULL,
+    "store_instance_id" "uuid" NOT NULL
 );
 
 
@@ -4823,6 +7055,7 @@ CREATE TABLE IF NOT EXISTS "public"."checkout_recovery_intents" (
     "created_at" timestamp with time zone DEFAULT "now"() NOT NULL,
     "updated_at" timestamp with time zone DEFAULT "now"() NOT NULL,
     "communication_job_id" "uuid",
+    "instance_id" "uuid" NOT NULL,
     CONSTRAINT "checkout_recovery_intents_status_check" CHECK (("status" = ANY (ARRAY['open'::"text", 'converted'::"text", 'expired'::"text", 'cancelled'::"text"])))
 );
 
@@ -4870,6 +7103,7 @@ CREATE TABLE IF NOT EXISTS "public"."commercial_opportunities" (
     "created_at" timestamp with time zone DEFAULT "now"() NOT NULL,
     "updated_at" timestamp with time zone DEFAULT "now"() NOT NULL,
     "closed_at" timestamp with time zone,
+    "instance_id" "uuid" NOT NULL,
     CONSTRAINT "commercial_opportunities_channel_check" CHECK (("channel" = ANY (ARRAY['b2c'::"text", 'b2b'::"text"]))),
     CONSTRAINT "commercial_opportunities_check" CHECK ((("customer_id" IS NOT NULL) OR ("customer_email" IS NOT NULL) OR ("reseller_id" IS NOT NULL))),
     CONSTRAINT "commercial_opportunities_expected_value_net_huf_check" CHECK (("expected_value_net_huf" >= (0)::numeric)),
@@ -4921,9 +7155,10 @@ CREATE OR REPLACE VIEW "public"."commercial_pipeline_summary" WITH ("security_in
     COALESCE("sum"((("expected_value_net_huf" * "probability_percent") / (100)::numeric)) FILTER (WHERE ("status" = ANY (ARRAY['open'::"text", 'in_progress'::"text"]))), (0)::numeric) AS "weighted_pipeline_net_huf",
     COALESCE("sum"("expected_value_net_huf") FILTER (WHERE (("status" = ANY (ARRAY['open'::"text", 'in_progress'::"text"])) AND ("due_at" < "now"()))), (0)::numeric) AS "overdue_pipeline_net_huf",
     "count"(*) FILTER (WHERE ("status" = 'won'::"text")) AS "won_count",
-    "count"(*) FILTER (WHERE ("status" = 'lost'::"text")) AS "lost_count"
+    "count"(*) FILTER (WHERE ("status" = 'lost'::"text")) AS "lost_count",
+    "instance_id"
    FROM "public"."commercial_opportunities"
-  GROUP BY "channel";
+  GROUP BY "instance_id", "channel";
 
 
 ALTER VIEW "public"."commercial_pipeline_summary" OWNER TO "postgres";
@@ -4990,6 +7225,7 @@ CREATE TABLE IF NOT EXISTS "public"."communication_job_events" (
     "new_scheduled_at" timestamp with time zone,
     "note" "text",
     "created_at" timestamp with time zone DEFAULT "now"() NOT NULL,
+    "instance_id" "uuid" NOT NULL,
     CONSTRAINT "communication_job_events_action_check" CHECK (("action" = ANY (ARRAY['cancel'::"text", 'reschedule'::"text", 'approve'::"text", 'retry'::"text"])))
 );
 
@@ -5006,6 +7242,7 @@ CREATE TABLE IF NOT EXISTS "public"."communication_suppression_events" (
     "reason" "text",
     "note" "text",
     "created_at" timestamp with time zone DEFAULT "now"() NOT NULL,
+    "instance_id" "uuid" NOT NULL,
     CONSTRAINT "communication_suppression_events_action_check" CHECK (("action" = ANY (ARRAY['block'::"text", 'release'::"text"])))
 );
 
@@ -5024,6 +7261,7 @@ CREATE TABLE IF NOT EXISTS "public"."communication_suppressions" (
     "created_at" timestamp with time zone DEFAULT "now"() NOT NULL,
     "released_at" timestamp with time zone,
     "released_by" "uuid",
+    "instance_id" "uuid" NOT NULL,
     CONSTRAINT "communication_suppressions_reason_check" CHECK (("reason" = ANY (ARRAY['hard_bounce'::"text", 'complaint'::"text", 'manual'::"text", 'invalid'::"text"])))
 );
 
@@ -5043,6 +7281,7 @@ CREATE TABLE IF NOT EXISTS "public"."communication_worker_runs" (
     "error_message" "text",
     "started_at" timestamp with time zone DEFAULT "now"() NOT NULL,
     "finished_at" timestamp with time zone,
+    "instance_id" "uuid" NOT NULL,
     CONSTRAINT "communication_worker_runs_source_check" CHECK (("source" = ANY (ARRAY['cron'::"text", 'manual'::"text", 'internal'::"text"]))),
     CONSTRAINT "communication_worker_runs_status_check" CHECK (("status" = ANY (ARRAY['running'::"text", 'success'::"text", 'failed'::"text"])))
 );
@@ -5068,7 +7307,8 @@ CREATE TABLE IF NOT EXISTS "public"."content_pages" (
     "published_at" timestamp with time zone,
     "created_at" timestamp with time zone DEFAULT "now"() NOT NULL,
     "updated_at" timestamp with time zone DEFAULT "now"() NOT NULL,
-    CONSTRAINT "content_pages_kind_check" CHECK (("kind" = ANY (ARRAY['blog'::"text", 'landing'::"text"]))),
+    "instance_id" "uuid" NOT NULL,
+    CONSTRAINT "content_pages_kind_check" CHECK (("kind" = ANY (ARRAY['blog'::"text", 'landing'::"text", 'page'::"text"]))),
     CONSTRAINT "content_pages_slug_check" CHECK (("slug" ~ '^[a-z0-9]+(?:-[a-z0-9]+)*$'::"text")),
     CONSTRAINT "content_pages_status_check" CHECK (("status" = ANY (ARRAY['draft'::"text", 'published'::"text"])))
 );
@@ -5087,6 +7327,7 @@ CREATE TABLE IF NOT EXISTS "public"."control_alert_events" (
     "actor_id" "uuid",
     "metadata" "jsonb" DEFAULT '{}'::"jsonb" NOT NULL,
     "occurred_at" timestamp with time zone DEFAULT "now"() NOT NULL,
+    "instance_id" "uuid" NOT NULL,
     CONSTRAINT "control_alert_events_event_type_check" CHECK (("event_type" = ANY (ARRAY['detected'::"text", 'redetected'::"text", 'acknowledged'::"text", 'snoozed'::"text", 'reopened'::"text", 'resolved'::"text", 'dismissed'::"text", 'task_created'::"text", 'task_started'::"text", 'task_completed'::"text", 'task_cancelled'::"text"])))
 );
 
@@ -5123,6 +7364,7 @@ CREATE TABLE IF NOT EXISTS "public"."integration_jobs" (
     "created_at" timestamp with time zone DEFAULT "now"() NOT NULL,
     "updated_at" timestamp with time zone DEFAULT "now"() NOT NULL,
     "processing_token" "uuid",
+    "instance_id" "uuid" NOT NULL,
     CONSTRAINT "integration_jobs_kind_check" CHECK (("kind" = ANY (ARRAY['payment_create'::"text", 'payment_callback'::"text", 'shipment_create'::"text", 'invoice_create'::"text", 'email_send'::"text"]))),
     CONSTRAINT "integration_jobs_status_check" CHECK (("status" = ANY (ARRAY['pending'::"text", 'processing'::"text", 'succeeded'::"text", 'failed'::"text", 'blocked'::"text"])))
 );
@@ -5141,6 +7383,7 @@ CREATE TABLE IF NOT EXISTS "public"."webhook_events" (
     "error_message" "text",
     "created_at" timestamp with time zone DEFAULT "now"() NOT NULL,
     "processed_at" timestamp with time zone,
+    "instance_id" "uuid",
     CONSTRAINT "webhook_events_status_check" CHECK (("status" = ANY (ARRAY['received'::"text", 'processed'::"text", 'ignored'::"text", 'rejected'::"text", 'failed'::"text"])))
 );
 
@@ -5165,6 +7408,62 @@ CREATE OR REPLACE VIEW "public"."control_system_health" WITH ("security_invoker"
 ALTER VIEW "public"."control_system_health" OWNER TO "postgres";
 
 
+CREATE TABLE IF NOT EXISTS "public"."webshop_instances" (
+    "id" "uuid" DEFAULT "gen_random_uuid"() NOT NULL,
+    "slug" "text" NOT NULL,
+    "name" "text" NOT NULL,
+    "subscription_plan" "text" DEFAULT 'alap'::"text" NOT NULL,
+    "status" "text" DEFAULT 'pilot'::"text" NOT NULL,
+    "created_at" timestamp with time zone DEFAULT "now"() NOT NULL,
+    "updated_at" timestamp with time zone DEFAULT "now"() NOT NULL,
+    "brand_name" "text",
+    "brand_tagline" "text",
+    "logo_url" "text",
+    "primary_color" "text",
+    "support_email" "text",
+    "support_phone" "text",
+    "public_site_url" "text",
+    "email_from_name" "text",
+    "storefront_config" "jsonb" DEFAULT '{}'::"jsonb" NOT NULL,
+    "organization_id" "uuid",
+    CONSTRAINT "webshop_instances_primary_color_check" CHECK ((("primary_color" IS NULL) OR ("primary_color" ~ '^#[0-9A-Fa-f]{6}$'::"text"))),
+    CONSTRAINT "webshop_instances_status_check" CHECK (("status" = ANY (ARRAY['pilot'::"text", 'active'::"text", 'suspended'::"text", 'archived'::"text"]))),
+    CONSTRAINT "webshop_instances_storefront_config_object_check" CHECK (("jsonb_typeof"("storefront_config") = 'object'::"text")),
+    CONSTRAINT "webshop_instances_subscription_plan_check" CHECK (("subscription_plan" = ANY (ARRAY['alap'::"text", 'pro'::"text"])))
+);
+
+
+ALTER TABLE "public"."webshop_instances" OWNER TO "postgres";
+
+
+COMMENT ON COLUMN "public"."webshop_instances"."subscription_plan" IS 'Shoperation webshop package. Defaults fail closed to Alap; Pro requires explicit assignment.';
+
+
+
+CREATE OR REPLACE VIEW "public"."control_system_health_v2" WITH ("security_invoker"='true') AS
+ SELECT "id" AS "instance_id",
+    ( SELECT ("count"(*))::integer AS "count"
+           FROM "public"."control_alerts" "a"
+          WHERE (("a"."instance_id" = "w"."id") AND ("a"."category" = 'system'::"text") AND ("a"."status" = ANY (ARRAY['open'::"text", 'acknowledged'::"text", 'snoozed'::"text"])))) AS "open_system_alerts",
+    ( SELECT ("count"(*))::integer AS "count"
+           FROM "public"."control_alerts" "a"
+          WHERE (("a"."instance_id" = "w"."id") AND ("a"."category" = 'system'::"text") AND ("a"."severity" = 'critical'::"text") AND ("a"."status" = ANY (ARRAY['open'::"text", 'acknowledged'::"text", 'snoozed'::"text"])))) AS "critical_system_alerts",
+    ( SELECT ("count"(*))::integer AS "count"
+           FROM "public"."integration_jobs" "j"
+          WHERE (("j"."instance_id" = "w"."id") AND ("j"."status" = ANY (ARRAY['failed'::"text", 'blocked'::"text"])))) AS "failed_or_blocked_integration_jobs",
+    ( SELECT ("count"(*))::integer AS "count"
+           FROM "public"."webhook_events" "e"
+          WHERE (("e"."instance_id" = "w"."id") AND ("e"."status" = ANY (ARRAY['failed'::"text", 'rejected'::"text"])) AND ("e"."created_at" >= ("now"() - '7 days'::interval)))) AS "failed_webhooks_7d",
+    ( SELECT "max"("r"."completed_at") AS "max"
+           FROM "public"."control_processing_runs" "r"
+          WHERE ("r"."instance_id" = "w"."id")) AS "last_control_cycle_at"
+   FROM "public"."webshop_instances" "w"
+  WHERE ("status" = ANY (ARRAY['pilot'::"text", 'active'::"text"]));
+
+
+ALTER VIEW "public"."control_system_health_v2" OWNER TO "postgres";
+
+
 CREATE OR REPLACE VIEW "public"."control_tower_category_summary" WITH ("security_invoker"='true') AS
  SELECT "category",
     "severity",
@@ -5177,6 +7476,21 @@ CREATE OR REPLACE VIEW "public"."control_tower_category_summary" WITH ("security
 
 
 ALTER VIEW "public"."control_tower_category_summary" OWNER TO "postgres";
+
+
+CREATE OR REPLACE VIEW "public"."control_tower_category_summary_v2" WITH ("security_invoker"='true') AS
+ SELECT "instance_id",
+    "category",
+    "severity",
+    ("count"(*))::integer AS "alert_count",
+    "max"("priority_score") AS "max_priority",
+    "round"("avg"((EXTRACT(epoch FROM ("now"() - "incident_started_at")) / (3600)::numeric)), 1) AS "avg_age_hours"
+   FROM "public"."control_alerts"
+  WHERE ("status" = ANY (ARRAY['open'::"text", 'acknowledged'::"text", 'snoozed'::"text"]))
+  GROUP BY "instance_id", "category", "severity";
+
+
+ALTER VIEW "public"."control_tower_category_summary_v2" OWNER TO "postgres";
 
 
 CREATE OR REPLACE VIEW "public"."control_tower_queue" WITH ("security_invoker"='true') AS
@@ -5281,6 +7595,92 @@ CREATE OR REPLACE VIEW "public"."control_tower_kpis" WITH ("security_invoker"='t
 ALTER VIEW "public"."control_tower_kpis" OWNER TO "postgres";
 
 
+CREATE OR REPLACE VIEW "public"."control_tower_queue_v2" WITH ("security_invoker"='true') AS
+ SELECT "a"."instance_id",
+    "a"."id" AS "alert_id",
+    "a"."alert_key",
+    "a"."category",
+    "a"."alert_type",
+    "a"."severity",
+    "a"."priority_score",
+    "a"."status",
+    "a"."title",
+    "a"."description",
+    "a"."recommended_action",
+    "a"."order_id",
+    "a"."customer_id",
+    "a"."reseller_id",
+    "a"."variant_id",
+    "a"."opportunity_id",
+    "a"."evidence",
+    "a"."occurrence_count",
+    "a"."detected_at",
+    "a"."last_detected_at",
+    "a"."snoozed_until",
+    "round"((EXTRACT(epoch FROM ("now"() - "a"."incident_started_at")) / (3600)::numeric), 1) AS "age_hours",
+    "t"."id" AS "task_id",
+    "t"."status" AS "task_status",
+    "t"."owner_user_id",
+    "t"."due_at" AS "task_due_at",
+    "t"."outcome" AS "task_outcome",
+        CASE
+            WHEN (("t"."status" = ANY (ARRAY['open'::"text", 'in_progress'::"text"])) AND ("t"."due_at" < "now"())) THEN true
+            ELSE false
+        END AS "task_overdue",
+    "a"."incident_started_at"
+   FROM ("public"."control_alerts" "a"
+     LEFT JOIN "public"."control_tasks" "t" ON ((("t"."instance_id" = "a"."instance_id") AND ("t"."alert_id" = "a"."id") AND ("t"."task_key" = (('alert:'::"text" || ("a"."id")::"text") || ':primary'::"text")))))
+  WHERE ("a"."status" = ANY (ARRAY['open'::"text", 'acknowledged'::"text", 'snoozed'::"text"]));
+
+
+ALTER VIEW "public"."control_tower_queue_v2" OWNER TO "postgres";
+
+
+CREATE OR REPLACE VIEW "public"."control_tower_kpis_v2" WITH ("security_invoker"='true') AS
+ SELECT "instance_id",
+    ("count"(*))::integer AS "open_alerts",
+    ("count"(*) FILTER (WHERE ("severity" = 'critical'::"text")))::integer AS "critical_alerts",
+    ("count"(*) FILTER (WHERE ("severity" = 'high'::"text")))::integer AS "high_alerts",
+    ("count"(*) FILTER (WHERE ("age_hours" >= (24)::numeric)))::integer AS "over_24h_alerts",
+    ("count"(*) FILTER (WHERE "task_overdue"))::integer AS "overdue_tasks",
+    ("count"(*) FILTER (WHERE ("category" = 'operations'::"text")))::integer AS "operations_alerts",
+    ("count"(*) FILTER (WHERE ("category" = 'inventory'::"text")))::integer AS "inventory_alerts",
+    ("count"(*) FILTER (WHERE ("category" = 'commercial'::"text")))::integer AS "commercial_alerts",
+    ("count"(*) FILTER (WHERE ("category" = 'service'::"text")))::integer AS "service_alerts",
+    COALESCE("sum"((("evidence" ->> 'expected_value_net_huf'::"text"))::numeric) FILTER (WHERE (("category" = 'commercial'::"text") AND ("evidence" ? 'expected_value_net_huf'::"text"))), (0)::numeric) AS "commercial_value_at_risk_net_huf",
+    COALESCE("avg"("age_hours"), (0)::numeric) AS "avg_alert_age_hours",
+    GREATEST(0, LEAST(100, ((((100 - (("count"(*) FILTER (WHERE ("severity" = 'critical'::"text")))::integer * 15)) - (("count"(*) FILTER (WHERE ("severity" = 'high'::"text")))::integer * 7)) - (("count"(*) FILTER (WHERE "task_overdue"))::integer * 5)) - (("count"(*) FILTER (WHERE ("age_hours" >= (24)::numeric)))::integer * 2)))) AS "control_health_score"
+   FROM "public"."control_tower_queue_v2"
+  GROUP BY "instance_id";
+
+
+ALTER VIEW "public"."control_tower_kpis_v2" OWNER TO "postgres";
+
+
+CREATE TABLE IF NOT EXISTS "public"."coupon_redemptions" (
+    "id" "uuid" DEFAULT "gen_random_uuid"() NOT NULL,
+    "instance_id" "uuid" NOT NULL,
+    "coupon_id" "uuid" NOT NULL,
+    "order_id" "uuid" NOT NULL,
+    "customer_id" "uuid",
+    "customer_email" "text" NOT NULL,
+    "coupon_code" "text" NOT NULL,
+    "discount_gross_huf" integer NOT NULL,
+    "status" "text" DEFAULT 'redeemed'::"text" NOT NULL,
+    "redeemed_at" timestamp with time zone DEFAULT "now"() NOT NULL,
+    "released_at" timestamp with time zone,
+    "release_reason" "text",
+    "metadata" "jsonb" DEFAULT '{}'::"jsonb" NOT NULL,
+    "created_at" timestamp with time zone DEFAULT "now"() NOT NULL,
+    "updated_at" timestamp with time zone DEFAULT "now"() NOT NULL,
+    CONSTRAINT "coupon_redemptions_discount_gross_huf_check" CHECK (("discount_gross_huf" >= 0)),
+    CONSTRAINT "coupon_redemptions_status_check" CHECK (("status" = ANY (ARRAY['redeemed'::"text", 'released'::"text"])))
+);
+
+
+ALTER TABLE "public"."coupon_redemptions" OWNER TO "postgres";
+
+
 CREATE TABLE IF NOT EXISTS "public"."coupons" (
     "id" "uuid" DEFAULT "gen_random_uuid"() NOT NULL,
     "code" "text" NOT NULL,
@@ -5296,6 +7696,7 @@ CREATE TABLE IF NOT EXISTS "public"."coupons" (
     "active" boolean DEFAULT true NOT NULL,
     "created_at" timestamp with time zone DEFAULT "now"() NOT NULL,
     "updated_at" timestamp with time zone DEFAULT "now"() NOT NULL,
+    "instance_id" "uuid" NOT NULL,
     CONSTRAINT "coupons_code_format" CHECK ((("code" = "upper"("code")) AND ("code" ~ '^[A-Z0-9_-]{3,32}$'::"text"))),
     CONSTRAINT "coupons_date_window" CHECK ((("ends_at" IS NULL) OR ("starts_at" IS NULL) OR ("ends_at" > "starts_at"))),
     CONSTRAINT "coupons_discount_type_check" CHECK (("discount_type" = ANY (ARRAY['percent'::"text", 'fixed'::"text"]))),
@@ -5325,6 +7726,7 @@ CREATE TABLE IF NOT EXISTS "public"."order_items" (
     "unit_net_huf_snapshot" integer,
     "line_total_net_huf_snapshot" integer,
     "vat_rate_percent_snapshot" numeric(6,3),
+    "instance_id" "uuid" NOT NULL,
     CONSTRAINT "order_items_line_total_gross_huf_check" CHECK (("line_total_gross_huf" >= 0)),
     CONSTRAINT "order_items_quantity_check" CHECK (("quantity" > 0)),
     CONSTRAINT "order_items_unit_cost_snapshot_check" CHECK ((("unit_cost_net_huf_snapshot" IS NULL) OR ("unit_cost_net_huf_snapshot" >= (0)::numeric))),
@@ -5377,6 +7779,13 @@ CREATE TABLE IF NOT EXISTS "public"."orders" (
     "coupon_code" "text",
     "discount_gross_huf" integer DEFAULT 0 NOT NULL,
     "confirmation_token" "uuid" DEFAULT "gen_random_uuid"() NOT NULL,
+    "instance_id" "uuid" NOT NULL,
+    "utm_source" "text",
+    "utm_medium" "text",
+    "utm_campaign" "text",
+    "utm_content" "text",
+    "utm_term" "text",
+    "attributed_at" timestamp with time zone,
     CONSTRAINT "orders_discount_gross_huf_check" CHECK (("discount_gross_huf" >= 0))
 );
 
@@ -5386,18 +7795,20 @@ ALTER TABLE "public"."orders" OWNER TO "postgres";
 
 CREATE OR REPLACE VIEW "public"."customer_commercial_metrics" WITH ("security_invoker"='true') AS
  WITH "paid_orders" AS (
-         SELECT "o"."id",
+         SELECT "o"."instance_id",
+            "o"."id",
             "o"."customer_id",
             "lower"(TRIM(BOTH FROM "o"."customer_email")) AS "email_key",
             "o"."total_gross_huf",
             "o"."created_at",
             (COALESCE("sum"(("oi"."unit_cost_net_huf_snapshot" * ("oi"."quantity")::numeric)), (0)::numeric))::numeric(14,2) AS "cogs_net_huf"
            FROM ("public"."orders" "o"
-             LEFT JOIN "public"."order_items" "oi" ON (("oi"."order_id" = "o"."id")))
+             LEFT JOIN "public"."order_items" "oi" ON ((("oi"."order_id" = "o"."id") AND ("oi"."instance_id" = "o"."instance_id"))))
           WHERE ("o"."status" = ANY (ARRAY['paid'::"public"."order_status", 'processing'::"public"."order_status", 'shipped'::"public"."order_status", 'completed'::"public"."order_status"]))
-          GROUP BY "o"."id", "o"."customer_id", "o"."customer_email", "o"."total_gross_huf", "o"."created_at"
-        ), "grouped" AS (
-         SELECT COALESCE(("paid_orders"."customer_id")::"text", "paid_orders"."email_key") AS "customer_key",
+          GROUP BY "o"."instance_id", "o"."id", "o"."customer_id", "o"."customer_email", "o"."total_gross_huf", "o"."created_at"
+        ), "g" AS (
+         SELECT "paid_orders"."instance_id",
+            COALESCE(("paid_orders"."customer_id")::"text", "paid_orders"."email_key") AS "customer_key",
             ("max"(("paid_orders"."customer_id")::"text"))::"uuid" AS "customer_id",
             "paid_orders"."email_key",
             ("count"(*))::integer AS "paid_orders",
@@ -5407,7 +7818,7 @@ CREATE OR REPLACE VIEW "public"."customer_commercial_metrics" WITH ("security_in
             "max"("paid_orders"."created_at") AS "last_order_at",
             ("sum"("paid_orders"."cogs_net_huf"))::numeric(14,2) AS "cogs_net_huf"
            FROM "paid_orders"
-          GROUP BY COALESCE(("paid_orders"."customer_id")::"text", "paid_orders"."email_key"), "paid_orders"."email_key"
+          GROUP BY "paid_orders"."instance_id", COALESCE(("paid_orders"."customer_id")::"text", "paid_orders"."email_key"), "paid_orders"."email_key"
         )
  SELECT "customer_key",
     "customer_id",
@@ -5431,8 +7842,9 @@ CREATE OR REPLACE VIEW "public"."customer_commercial_metrics" WITH ("security_in
         CASE
             WHEN ("revenue_gross_huf" > 0) THEN "round"((("cogs_net_huf" / ("revenue_gross_huf")::numeric) * (100)::numeric), 2)
             ELSE NULL::numeric
-        END AS "cogs_to_revenue_pct"
-   FROM "grouped" "g";
+        END AS "cogs_to_revenue_pct",
+    "instance_id"
+   FROM "g";
 
 
 ALTER VIEW "public"."customer_commercial_metrics" OWNER TO "postgres";
@@ -5440,6 +7852,25 @@ ALTER VIEW "public"."customer_commercial_metrics" OWNER TO "postgres";
 
 COMMENT ON VIEW "public"."customer_commercial_metrics" IS 'V9 customer LTV/AOV/recency segmentation read model using paid-order history and frozen order-item cost snapshots.';
 
+
+
+CREATE TABLE IF NOT EXISTS "public"."customer_instance_roles" (
+    "instance_id" "uuid" NOT NULL,
+    "user_id" "uuid" NOT NULL,
+    "role" "public"."customer_role" DEFAULT 'customer'::"public"."customer_role" NOT NULL,
+    "reseller_approved" boolean DEFAULT false NOT NULL,
+    "reseller_requested_at" timestamp with time zone,
+    "approved_at" timestamp with time zone,
+    "approved_by" "uuid",
+    "created_at" timestamp with time zone DEFAULT "now"() NOT NULL,
+    "updated_at" timestamp with time zone DEFAULT "now"() NOT NULL,
+    CONSTRAINT "customer_instance_roles_approval_chk" CHECK ((("role" = 'reseller'::"public"."customer_role") OR (("reseller_approved" = false) AND ("approved_at" IS NULL)))),
+    CONSTRAINT "customer_instance_roles_approved_at_chk" CHECK ((("reseller_approved" = false) OR ("approved_at" IS NOT NULL))),
+    CONSTRAINT "customer_instance_roles_customer_role_chk" CHECK (("role" = ANY (ARRAY['customer'::"public"."customer_role", 'reseller'::"public"."customer_role"])))
+);
+
+
+ALTER TABLE "public"."customer_instance_roles" OWNER TO "postgres";
 
 
 CREATE TABLE IF NOT EXISTS "public"."customer_journey_steps" (
@@ -5452,6 +7883,7 @@ CREATE TABLE IF NOT EXISTS "public"."customer_journey_steps" (
     "communication_job_id" "uuid",
     "status" "text" DEFAULT 'pending'::"text" NOT NULL,
     "created_at" timestamp with time zone DEFAULT "now"() NOT NULL,
+    "instance_id" "uuid" NOT NULL,
     CONSTRAINT "customer_journey_steps_purpose_check" CHECK (("purpose" = ANY (ARRAY['transactional'::"text", 'marketing'::"text"]))),
     CONSTRAINT "customer_journey_steps_status_check" CHECK (("status" = ANY (ARRAY['pending'::"text", 'queued'::"text", 'blocked'::"text", 'cancelled'::"text"])))
 );
@@ -5470,7 +7902,8 @@ CREATE TABLE IF NOT EXISTS "public"."customer_journeys" (
     "metadata" "jsonb" DEFAULT '{}'::"jsonb" NOT NULL,
     "created_at" timestamp with time zone DEFAULT "now"() NOT NULL,
     "completed_at" timestamp with time zone,
-    "updated_at" timestamp with time zone DEFAULT "now"() NOT NULL
+    "updated_at" timestamp with time zone DEFAULT "now"() NOT NULL,
+    "instance_id" "uuid" NOT NULL
 );
 
 
@@ -5490,6 +7923,7 @@ CREATE TABLE IF NOT EXISTS "public"."customer_lifecycle_milestones" (
     "source" "jsonb" DEFAULT '{}'::"jsonb" NOT NULL,
     "occurred_at" timestamp with time zone DEFAULT "now"() NOT NULL,
     "created_at" timestamp with time zone DEFAULT "now"() NOT NULL,
+    "instance_id" "uuid" NOT NULL,
     CONSTRAINT "customer_lifecycle_milestones_milestone_type_check" CHECK (("milestone_type" = ANY (ARRAY['first_order'::"text", 'repeat_order'::"text", 'high_value'::"text", 'at_risk'::"text", 'winback'::"text"])))
 );
 
@@ -5503,9 +7937,10 @@ CREATE OR REPLACE VIEW "public"."loyalty_balances" WITH ("security_invoker"='tru
     COALESCE("sum"("points") FILTER (WHERE ("points" > 0)), (0)::bigint) AS "lifetime_earned_points",
     "abs"(COALESCE("sum"("points") FILTER (WHERE ("entry_type" = 'redeem'::"text")), (0)::bigint)) AS "lifetime_redeemed_points",
     "max"("occurred_at") AS "last_activity_at",
-    "abs"(LEAST(COALESCE("sum"("points"), (0)::bigint), (0)::bigint)) AS "points_debt"
+    "abs"(LEAST(COALESCE("sum"("points"), (0)::bigint), (0)::bigint)) AS "points_debt",
+    "instance_id"
    FROM "public"."loyalty_ledger"
-  GROUP BY "customer_id";
+  GROUP BY "instance_id", "customer_id";
 
 
 ALTER VIEW "public"."loyalty_balances" OWNER TO "postgres";
@@ -5524,13 +7959,34 @@ CREATE OR REPLACE VIEW "public"."customer_loyalty_summary" WITH ("security_invok
     COALESCE("b"."lifetime_redeemed_points", (0)::bigint) AS "lifetime_redeemed_points",
     ( SELECT "count"(*) AS "count"
            FROM "public"."active_customer_benefits" "a"
-          WHERE (("a"."customer_id" = "p"."customer_id") AND ("a"."usage_available" = true))) AS "available_benefits",
-    COALESCE("b"."points_debt", (0)::bigint) AS "points_debt"
+          WHERE (("a"."instance_id" = "p"."instance_id") AND ("a"."customer_id" = "p"."customer_id") AND ("a"."usage_available" = true))) AS "available_benefits",
+    COALESCE("b"."points_debt", (0)::bigint) AS "points_debt",
+    "p"."instance_id"
    FROM ("public"."customer_value_profiles" "p"
-     LEFT JOIN "public"."loyalty_balances" "b" ON (("b"."customer_id" = "p"."customer_id")));
+     LEFT JOIN "public"."loyalty_balances" "b" ON ((("b"."instance_id" = "p"."instance_id") AND ("b"."customer_id" = "p"."customer_id"))));
 
 
 ALTER VIEW "public"."customer_loyalty_summary" OWNER TO "postgres";
+
+
+CREATE TABLE IF NOT EXISTS "public"."feature_entitlements" (
+    "id" "uuid" DEFAULT "gen_random_uuid"() NOT NULL,
+    "organization_id" "uuid" NOT NULL,
+    "instance_id" "uuid",
+    "feature_code" "text" NOT NULL,
+    "source" "text" NOT NULL,
+    "enabled" boolean DEFAULT true NOT NULL,
+    "valid_from" timestamp with time zone DEFAULT "now"() NOT NULL,
+    "valid_until" timestamp with time zone,
+    "metadata" "jsonb" DEFAULT '{}'::"jsonb" NOT NULL,
+    "created_at" timestamp with time zone DEFAULT "now"() NOT NULL,
+    "updated_at" timestamp with time zone DEFAULT "now"() NOT NULL,
+    CONSTRAINT "feature_entitlements_check" CHECK ((("valid_until" IS NULL) OR ("valid_until" > "valid_from"))),
+    CONSTRAINT "feature_entitlements_source_check" CHECK (("source" = ANY (ARRAY['plan'::"text", 'addon'::"text", 'manual'::"text", 'trial'::"text", 'platform'::"text"])))
+);
+
+
+ALTER TABLE "public"."feature_entitlements" OWNER TO "postgres";
 
 
 CREATE TABLE IF NOT EXISTS "public"."fulfillment_events" (
@@ -5544,6 +8000,7 @@ CREATE TABLE IF NOT EXISTS "public"."fulfillment_events" (
     "actor_id" "uuid",
     "metadata" "jsonb" DEFAULT '{}'::"jsonb" NOT NULL,
     "created_at" timestamp with time zone DEFAULT "now"() NOT NULL,
+    "instance_id" "uuid" NOT NULL,
     CONSTRAINT "fulfillment_events_event_type_check" CHECK (("event_type" = ANY (ARRAY['reserved'::"text", 'ready_to_pack'::"text", 'packed'::"text", 'stock_consumed'::"text", 'handed_over'::"text", 'delivered'::"text", 'released'::"text", 'blocked'::"text"])))
 );
 
@@ -5602,6 +8059,7 @@ CREATE TABLE IF NOT EXISTS "public"."inventory_reservations" (
     "metadata" "jsonb" DEFAULT '{}'::"jsonb" NOT NULL,
     "created_at" timestamp with time zone DEFAULT "now"() NOT NULL,
     "updated_at" timestamp with time zone DEFAULT "now"() NOT NULL,
+    "instance_id" "uuid" NOT NULL,
     CONSTRAINT "inventory_reservations_quantity_check" CHECK (("quantity" > 0)),
     CONSTRAINT "inventory_reservations_status_check" CHECK (("status" = ANY (ARRAY['active'::"text", 'consumed'::"text", 'released'::"text", 'cancelled'::"text"])))
 );
@@ -5630,6 +8088,7 @@ CREATE TABLE IF NOT EXISTS "public"."product_variants" (
     "order_multiple" integer DEFAULT 1 NOT NULL,
     "supplier_id" "uuid",
     "weight_grams" integer,
+    "instance_id" "uuid" NOT NULL,
     CONSTRAINT "product_variants_gross_price_huf_check" CHECK (("gross_price_huf" >= 0)),
     CONSTRAINT "product_variants_minimum_order_quantity_check" CHECK (("minimum_order_quantity" >= 1)),
     CONSTRAINT "product_variants_net_price_huf_check" CHECK (("net_price_huf" >= 0)),
@@ -5678,7 +8137,8 @@ CREATE TABLE IF NOT EXISTS "public"."inventory_events" (
     "reason" "text" NOT NULL,
     "actor_user_id" "uuid",
     "metadata" "jsonb" DEFAULT '{}'::"jsonb" NOT NULL,
-    "created_at" timestamp with time zone DEFAULT "now"() NOT NULL
+    "created_at" timestamp with time zone DEFAULT "now"() NOT NULL,
+    "instance_id" "uuid" NOT NULL
 );
 
 
@@ -5718,6 +8178,7 @@ CREATE TABLE IF NOT EXISTS "public"."inventory_snapshots" (
     "retail_net_price_huf" numeric(12,2) NOT NULL,
     "inventory_retail_net_huf" numeric(14,2) NOT NULL,
     "captured_at" timestamp with time zone DEFAULT "now"() NOT NULL,
+    "instance_id" "uuid" NOT NULL,
     CONSTRAINT "inventory_snapshots_stock_quantity_check" CHECK (("stock_quantity" >= 0))
 );
 
@@ -5740,6 +8201,7 @@ CREATE TABLE IF NOT EXISTS "public"."loyalty_program_settings" (
     "singleton" boolean DEFAULT true NOT NULL,
     "tier_bonus_cutover_at" timestamp with time zone DEFAULT "now"() NOT NULL,
     "updated_at" timestamp with time zone DEFAULT "now"() NOT NULL,
+    "instance_id" "uuid" NOT NULL,
     CONSTRAINT "loyalty_program_settings_singleton_check" CHECK (("singleton" = true))
 );
 
@@ -5762,33 +8224,36 @@ CREATE TABLE IF NOT EXISTS "public"."marketing_campaign_recipients" (
     "eligible" boolean NOT NULL,
     "exclusion_reason" "text",
     "communication_job_id" "uuid",
-    "created_at" timestamp with time zone DEFAULT "now"() NOT NULL
+    "created_at" timestamp with time zone DEFAULT "now"() NOT NULL,
+    "instance_id" "uuid" NOT NULL
 );
 
 
 ALTER TABLE "public"."marketing_campaign_recipients" OWNER TO "postgres";
 
 
-CREATE OR REPLACE VIEW "public"."marketing_campaign_conversions" AS
+CREATE OR REPLACE VIEW "public"."marketing_campaign_conversions" WITH ("security_invoker"='true') AS
  WITH "sends" AS (
-         SELECT "r"."campaign_id",
+         SELECT "r"."instance_id",
+            "r"."campaign_id",
             "r"."id" AS "recipient_id",
             "lower"("r"."email") AS "email",
             "j"."sent_at"
            FROM ("public"."marketing_campaign_recipients" "r"
-             JOIN "public"."communication_jobs" "j" ON (("j"."id" = "r"."communication_job_id")))
+             JOIN "public"."communication_jobs" "j" ON ((("j"."id" = "r"."communication_job_id") AND ("j"."instance_id" = "r"."instance_id"))))
           WHERE (("j"."status" = 'sent'::"text") AND ("j"."sent_at" IS NOT NULL))
         ), "candidates" AS (
-         SELECT "s"."campaign_id",
+         SELECT "s"."instance_id",
+            "s"."campaign_id",
             "s"."recipient_id",
             "o"."id" AS "order_id",
             "o"."order_number",
             "o"."total_gross_huf",
             "o"."created_at" AS "order_created_at",
             "s"."sent_at",
-            "row_number"() OVER (PARTITION BY "o"."id" ORDER BY "s"."sent_at" DESC) AS "rn"
+            "row_number"() OVER (PARTITION BY "o"."instance_id", "o"."id" ORDER BY "s"."sent_at" DESC) AS "rn"
            FROM ("sends" "s"
-             JOIN "public"."orders" "o" ON (("lower"("o"."customer_email") = "s"."email")))
+             JOIN "public"."orders" "o" ON ((("o"."instance_id" = "s"."instance_id") AND ("lower"("o"."customer_email") = "s"."email"))))
           WHERE (("o"."status" = ANY (ARRAY['paid'::"public"."order_status", 'processing'::"public"."order_status", 'completed'::"public"."order_status"])) AND ("o"."created_at" >= "s"."sent_at") AND ("o"."created_at" < ("s"."sent_at" + '30 days'::interval)))
         )
  SELECT "campaign_id",
@@ -5798,12 +8263,17 @@ CREATE OR REPLACE VIEW "public"."marketing_campaign_conversions" AS
     "total_gross_huf",
     "order_created_at",
     "sent_at",
-    (EXTRACT(epoch FROM ("order_created_at" - "sent_at")) / 86400.0) AS "days_to_conversion"
+    (EXTRACT(epoch FROM ("order_created_at" - "sent_at")) / 86400.0) AS "days_to_conversion",
+    "instance_id"
    FROM "candidates"
   WHERE ("rn" = 1);
 
 
 ALTER VIEW "public"."marketing_campaign_conversions" OWNER TO "postgres";
+
+
+COMMENT ON VIEW "public"."marketing_campaign_conversions" IS 'Tenant-safe campaign conversion attribution; security_invoker preserves underlying RLS.';
+
 
 
 CREATE TABLE IF NOT EXISTS "public"."marketing_campaign_events" (
@@ -5813,6 +8283,7 @@ CREATE TABLE IF NOT EXISTS "public"."marketing_campaign_events" (
     "action" "text" NOT NULL,
     "note" "text",
     "created_at" timestamp with time zone DEFAULT "now"() NOT NULL,
+    "instance_id" "uuid" NOT NULL,
     CONSTRAINT "marketing_campaign_events_action_check" CHECK (("action" = ANY (ARRAY['submit_review'::"text", 'approve'::"text", 'queue'::"text", 'cancel'::"text"])))
 );
 
@@ -5832,9 +8303,19 @@ CREATE TABLE IF NOT EXISTS "public"."marketing_campaigns" (
     "approved_at" timestamp with time zone,
     "created_at" timestamp with time zone DEFAULT "now"() NOT NULL,
     "updated_at" timestamp with time zone DEFAULT "now"() NOT NULL,
-    CONSTRAINT "marketing_campaigns_segment_check" CHECK (("segment" = ANY (ARRAY['repeat_30_89'::"text", 'winback_90_plus'::"text"]))),
+    "instance_id" "uuid" NOT NULL,
+    "channel" "text" DEFAULT 'email'::"text" NOT NULL,
+    "budget_huf" integer DEFAULT 0 NOT NULL,
+    "utm_campaign" "text",
+    "external_impressions" integer DEFAULT 0 NOT NULL,
+    "external_clicks" integer DEFAULT 0 NOT NULL,
+    CONSTRAINT "marketing_campaigns_budget_huf_check" CHECK (("budget_huf" >= 0)),
+    CONSTRAINT "marketing_campaigns_channel_check" CHECK (("channel" = ANY (ARRAY['email'::"text", 'facebook'::"text", 'instagram'::"text", 'tiktok'::"text", 'youtube'::"text", 'google'::"text", 'other'::"text"]))),
+    CONSTRAINT "marketing_campaigns_external_clicks_check" CHECK (("external_clicks" >= 0)),
+    CONSTRAINT "marketing_campaigns_external_impressions_check" CHECK (("external_impressions" >= 0)),
+    CONSTRAINT "marketing_campaigns_segment_check" CHECK (("segment" = ANY (ARRAY['repeat_30_89'::"text", 'winback_90_plus'::"text", 'at_risk_30_89'::"text", 'winback_90_179'::"text", 'lost_180_plus'::"text", 'high_value_at_risk'::"text", 'external'::"text"]))),
     CONSTRAINT "marketing_campaigns_status_check" CHECK (("status" = ANY (ARRAY['draft'::"text", 'review'::"text", 'approved'::"text", 'queued'::"text", 'cancelled'::"text", 'completed'::"text"]))),
-    CONSTRAINT "marketing_campaigns_template_key_check" CHECK (("template_key" = ANY (ARRAY['repeat_30d'::"text", 'winback_90d'::"text"])))
+    CONSTRAINT "marketing_campaigns_template_key_check" CHECK (("template_key" = ANY (ARRAY['repeat_30d'::"text", 'winback_90d'::"text", 'retention_risk_30d'::"text", 'reactivation_180d'::"text", 'vip_retention'::"text", 'external_attribution'::"text"])))
 );
 
 
@@ -5851,12 +8332,107 @@ CREATE TABLE IF NOT EXISTS "public"."marketing_consents" (
     "policy_version" "text" NOT NULL,
     "occurred_at" timestamp with time zone DEFAULT "now"() NOT NULL,
     "metadata" "jsonb" DEFAULT '{}'::"jsonb" NOT NULL,
+    "instance_id" "uuid" NOT NULL,
     CONSTRAINT "marketing_consents_channel_check" CHECK (("channel" = 'email'::"text")),
     CONSTRAINT "marketing_consents_status_check" CHECK (("status" = ANY (ARRAY['granted'::"text", 'withdrawn'::"text"])))
 );
 
 
 ALTER TABLE "public"."marketing_consents" OWNER TO "postgres";
+
+
+CREATE OR REPLACE VIEW "public"."merchant_intelligence_tenant_gaps" WITH ("security_invoker"='true') AS
+ SELECT 'customer_journeys'::"text" AS "table_name",
+    "count"(*) AS "rows_without_instance"
+   FROM "public"."customer_journeys"
+  WHERE ("customer_journeys"."instance_id" IS NULL)
+UNION ALL
+ SELECT 'customer_journey_steps'::"text" AS "table_name",
+    "count"(*) AS "rows_without_instance"
+   FROM "public"."customer_journey_steps"
+  WHERE ("customer_journey_steps"."instance_id" IS NULL)
+UNION ALL
+ SELECT 'customer_lifecycle_milestones'::"text" AS "table_name",
+    "count"(*) AS "rows_without_instance"
+   FROM "public"."customer_lifecycle_milestones"
+  WHERE ("customer_lifecycle_milestones"."instance_id" IS NULL)
+UNION ALL
+ SELECT 'control_alerts'::"text" AS "table_name",
+    "count"(*) AS "rows_without_instance"
+   FROM "public"."control_alerts"
+  WHERE ("control_alerts"."instance_id" IS NULL)
+UNION ALL
+ SELECT 'control_alert_events'::"text" AS "table_name",
+    "count"(*) AS "rows_without_instance"
+   FROM "public"."control_alert_events"
+  WHERE ("control_alert_events"."instance_id" IS NULL)
+UNION ALL
+ SELECT 'control_tasks'::"text" AS "table_name",
+    "count"(*) AS "rows_without_instance"
+   FROM "public"."control_tasks"
+  WHERE ("control_tasks"."instance_id" IS NULL)
+UNION ALL
+ SELECT 'control_processing_runs'::"text" AS "table_name",
+    "count"(*) AS "rows_without_instance"
+   FROM "public"."control_processing_runs"
+  WHERE ("control_processing_runs"."instance_id" IS NULL)
+UNION ALL
+ SELECT 'action_policies'::"text" AS "table_name",
+    "count"(*) AS "rows_without_instance"
+   FROM "public"."action_policies"
+  WHERE ("action_policies"."instance_id" IS NULL)
+UNION ALL
+ SELECT 'action_proposals'::"text" AS "table_name",
+    "count"(*) AS "rows_without_instance"
+   FROM "public"."action_proposals"
+  WHERE ("action_proposals"."instance_id" IS NULL)
+UNION ALL
+ SELECT 'action_proposal_events'::"text" AS "table_name",
+    "count"(*) AS "rows_without_instance"
+   FROM "public"."action_proposal_events"
+  WHERE ("action_proposal_events"."instance_id" IS NULL)
+UNION ALL
+ SELECT 'action_approvals'::"text" AS "table_name",
+    "count"(*) AS "rows_without_instance"
+   FROM "public"."action_approvals"
+  WHERE ("action_approvals"."instance_id" IS NULL)
+UNION ALL
+ SELECT 'action_executions'::"text" AS "table_name",
+    "count"(*) AS "rows_without_instance"
+   FROM "public"."action_executions"
+  WHERE ("action_executions"."instance_id" IS NULL)
+UNION ALL
+ SELECT 'action_processing_runs'::"text" AS "table_name",
+    "count"(*) AS "rows_without_instance"
+   FROM "public"."action_processing_runs"
+  WHERE ("action_processing_runs"."instance_id" IS NULL)
+UNION ALL
+ SELECT 'automation_control'::"text" AS "table_name",
+    "count"(*) AS "rows_without_instance"
+   FROM "public"."automation_control"
+  WHERE ("automation_control"."instance_id" IS NULL)
+UNION ALL
+ SELECT 'automation_control_events'::"text" AS "table_name",
+    "count"(*) AS "rows_without_instance"
+   FROM "public"."automation_control_events"
+  WHERE ("automation_control_events"."instance_id" IS NULL)
+UNION ALL
+ SELECT 'automation_processing_runs'::"text" AS "table_name",
+    "count"(*) AS "rows_without_instance"
+   FROM "public"."automation_processing_runs"
+  WHERE ("automation_processing_runs"."instance_id" IS NULL)
+UNION ALL
+ SELECT 'automation_runbook_instances'::"text" AS "table_name",
+    "count"(*) AS "rows_without_instance"
+   FROM "public"."automation_runbook_instances"
+  WHERE ("automation_runbook_instances"."instance_id" IS NULL);
+
+
+ALTER VIEW "public"."merchant_intelligence_tenant_gaps" OWNER TO "postgres";
+
+
+COMMENT ON VIEW "public"."merchant_intelligence_tenant_gaps" IS 'Preflight gate for the final merchant intelligence strict-tenant phase.';
+
 
 
 CREATE TABLE IF NOT EXISTS "public"."observability_events" (
@@ -5940,6 +8516,7 @@ CREATE TABLE IF NOT EXISTS "public"."office_messages" (
     "sender_email" "text",
     "recipient_email" "text",
     "subject" "text",
+    "instance_id" "uuid" NOT NULL,
     CONSTRAINT "office_messages_kind_check" CHECK (("kind" = ANY (ARRAY['internal'::"text", 'note'::"text", 'email_in'::"text", 'email_out'::"text"])))
 );
 
@@ -5957,6 +8534,7 @@ CREATE TABLE IF NOT EXISTS "public"."office_tasks" (
     "created_by" "uuid",
     "created_at" timestamp with time zone DEFAULT "now"() NOT NULL,
     "completed_at" timestamp with time zone,
+    "instance_id" "uuid" NOT NULL,
     CONSTRAINT "office_tasks_status_check" CHECK (("status" = ANY (ARRAY['open'::"text", 'done'::"text", 'cancelled'::"text"])))
 );
 
@@ -5976,6 +8554,7 @@ CREATE TABLE IF NOT EXISTS "public"."office_threads" (
     "priority" "text" DEFAULT 'normal'::"text" NOT NULL,
     "assigned_to" "uuid",
     "last_read_at" timestamp with time zone,
+    "instance_id" "uuid" NOT NULL,
     CONSTRAINT "office_threads_priority_check" CHECK (("priority" = ANY (ARRAY['low'::"text", 'normal'::"text", 'high'::"text", 'urgent'::"text"]))),
     CONSTRAINT "office_threads_status_check" CHECK (("status" = ANY (ARRAY['open'::"text", 'closed'::"text"])))
 );
@@ -6003,6 +8582,7 @@ CREATE TABLE IF NOT EXISTS "public"."return_cases" (
     "updated_at" timestamp with time zone DEFAULT "now"() NOT NULL,
     "inventory_restocked_at" timestamp with time zone,
     "inventory_restocked_by" "uuid",
+    "instance_id" "uuid" NOT NULL,
     CONSTRAINT "return_cases_refund_amount_gross_huf_check" CHECK ((("refund_amount_gross_huf" IS NULL) OR ("refund_amount_gross_huf" >= 0)))
 );
 
@@ -6027,6 +8607,7 @@ CREATE TABLE IF NOT EXISTS "public"."support_tickets" (
     "updated_at" timestamp with time zone DEFAULT "now"() NOT NULL,
     "resolved_at" timestamp with time zone,
     "closed_at" timestamp with time zone,
+    "instance_id" "uuid" NOT NULL,
     CONSTRAINT "support_tickets_priority_check" CHECK (("priority" = ANY (ARRAY['low'::"text", 'normal'::"text", 'high'::"text", 'urgent'::"text"])))
 );
 
@@ -6148,11 +8729,30 @@ CREATE TABLE IF NOT EXISTS "public"."order_events" (
     "to_status" "public"."order_status",
     "actor_user_id" "uuid",
     "metadata" "jsonb" DEFAULT '{}'::"jsonb" NOT NULL,
-    "created_at" timestamp with time zone DEFAULT "now"() NOT NULL
+    "created_at" timestamp with time zone DEFAULT "now"() NOT NULL,
+    "instance_id" "uuid" NOT NULL
 );
 
 
 ALTER TABLE "public"."order_events" OWNER TO "postgres";
+
+
+CREATE TABLE IF NOT EXISTS "public"."order_inventory_restorations" (
+    "id" "uuid" DEFAULT "gen_random_uuid"() NOT NULL,
+    "instance_id" "uuid" NOT NULL,
+    "order_id" "uuid" NOT NULL,
+    "order_item_id" "uuid" NOT NULL,
+    "source_type" "text" NOT NULL,
+    "source_id" "uuid" NOT NULL,
+    "quantity" integer NOT NULL,
+    "actor_user_id" "uuid",
+    "created_at" timestamp with time zone DEFAULT "now"() NOT NULL,
+    CONSTRAINT "order_inventory_restorations_quantity_check" CHECK (("quantity" > 0)),
+    CONSTRAINT "order_inventory_restorations_source_type_check" CHECK (("source_type" = ANY (ARRAY['order_cancelled'::"text", 'return_case'::"text"])))
+);
+
+
+ALTER TABLE "public"."order_inventory_restorations" OWNER TO "postgres";
 
 
 CREATE TABLE IF NOT EXISTS "public"."order_request_keys" (
@@ -6164,6 +8764,32 @@ CREATE TABLE IF NOT EXISTS "public"."order_request_keys" (
 
 
 ALTER TABLE "public"."order_request_keys" OWNER TO "postgres";
+
+
+CREATE TABLE IF NOT EXISTS "public"."organization_members" (
+    "organization_id" "uuid" NOT NULL,
+    "user_id" "uuid" NOT NULL,
+    "role" "text" DEFAULT 'member'::"text" NOT NULL,
+    "created_at" timestamp with time zone DEFAULT "now"() NOT NULL,
+    CONSTRAINT "organization_members_role_check" CHECK (("role" = ANY (ARRAY['owner'::"text", 'admin'::"text", 'member'::"text"])))
+);
+
+
+ALTER TABLE "public"."organization_members" OWNER TO "postgres";
+
+
+CREATE TABLE IF NOT EXISTS "public"."organizations" (
+    "id" "uuid" DEFAULT "gen_random_uuid"() NOT NULL,
+    "slug" "text" NOT NULL,
+    "name" "text" NOT NULL,
+    "status" "text" DEFAULT 'active'::"text" NOT NULL,
+    "created_at" timestamp with time zone DEFAULT "now"() NOT NULL,
+    "updated_at" timestamp with time zone DEFAULT "now"() NOT NULL,
+    CONSTRAINT "organizations_status_check" CHECK (("status" = ANY (ARRAY['active'::"text", 'suspended'::"text", 'archived'::"text"])))
+);
+
+
+ALTER TABLE "public"."organizations" OWNER TO "postgres";
 
 
 CREATE TABLE IF NOT EXISTS "public"."payment_attempts" (
@@ -6180,6 +8806,7 @@ CREATE TABLE IF NOT EXISTS "public"."payment_attempts" (
     "created_at" timestamp with time zone DEFAULT "now"() NOT NULL,
     "updated_at" timestamp with time zone DEFAULT "now"() NOT NULL,
     "completed_at" timestamp with time zone,
+    "instance_id" "uuid" NOT NULL,
     CONSTRAINT "payment_attempts_amount_check" CHECK (("amount_huf" >= 0)),
     CONSTRAINT "payment_attempts_amount_huf_check" CHECK (("amount_huf" >= 0)),
     CONSTRAINT "payment_attempts_currency_check" CHECK (("currency" = 'HUF'::"text")),
@@ -6205,6 +8832,7 @@ CREATE TABLE IF NOT EXISTS "public"."payment_events" (
     "signature_valid" boolean DEFAULT false NOT NULL,
     "payload_hash" "text",
     "created_at" timestamp with time zone DEFAULT "now"() NOT NULL,
+    "instance_id" "uuid" NOT NULL,
     CONSTRAINT "payment_events_payment_status_check" CHECK (("payment_status" = ANY (ARRAY['pending'::"text", 'paid'::"text", 'failed'::"text", 'cancelled'::"text", 'refunded'::"text", 'unknown'::"text"])))
 );
 
@@ -6214,7 +8842,9 @@ ALTER TABLE "public"."payment_events" OWNER TO "postgres";
 
 CREATE TABLE IF NOT EXISTS "public"."platform_operators" (
     "user_id" "uuid" NOT NULL,
-    "created_at" timestamp with time zone DEFAULT "now"() NOT NULL
+    "created_at" timestamp with time zone DEFAULT "now"() NOT NULL,
+    "role" "text" DEFAULT 'operator'::"text" NOT NULL,
+    CONSTRAINT "platform_operators_role_check" CHECK (("role" = ANY (ARRAY['owner'::"text", 'admin'::"text", 'operator'::"text"])))
 );
 
 
@@ -6372,6 +9002,26 @@ CREATE OR REPLACE VIEW "public"."post_release_rollback_queue" WITH ("security_in
 ALTER VIEW "public"."post_release_rollback_queue" OWNER TO "postgres";
 
 
+CREATE TABLE IF NOT EXISTS "public"."product_channel_settings" (
+    "instance_id" "uuid" NOT NULL,
+    "product_id" "uuid" NOT NULL,
+    "channel_code" "text" NOT NULL,
+    "visible" boolean DEFAULT true NOT NULL,
+    "gross_price" integer,
+    "minimum_quantity" integer DEFAULT 1 NOT NULL,
+    "discount_percent" numeric(5,2),
+    "settings" "jsonb" DEFAULT '{}'::"jsonb" NOT NULL,
+    "created_at" timestamp with time zone DEFAULT "now"() NOT NULL,
+    "updated_at" timestamp with time zone DEFAULT "now"() NOT NULL,
+    CONSTRAINT "product_channel_settings_channel_code_check" CHECK (("channel_code" = ANY (ARRAY['b2c'::"text", 'b2b'::"text"]))),
+    CONSTRAINT "product_channel_settings_discount_percent_check" CHECK ((("discount_percent" IS NULL) OR (("discount_percent" >= (0)::numeric) AND ("discount_percent" <= (100)::numeric)))),
+    CONSTRAINT "product_channel_settings_minimum_quantity_check" CHECK (("minimum_quantity" > 0))
+);
+
+
+ALTER TABLE "public"."product_channel_settings" OWNER TO "postgres";
+
+
 CREATE TABLE IF NOT EXISTS "public"."product_recommendation_rules" (
     "id" "uuid" DEFAULT "gen_random_uuid"() NOT NULL,
     "source_variant_id" "uuid",
@@ -6382,6 +9032,7 @@ CREATE TABLE IF NOT EXISTS "public"."product_recommendation_rules" (
     "headline" "text",
     "created_at" timestamp with time zone DEFAULT "now"() NOT NULL,
     "updated_at" timestamp with time zone DEFAULT "now"() NOT NULL,
+    "instance_id" "uuid",
     CONSTRAINT "product_recommendation_rules_check" CHECK ((("source_variant_id" IS NULL) OR ("source_variant_id" <> "recommended_variant_id"))),
     CONSTRAINT "product_recommendation_rules_placement_check" CHECK (("placement" = ANY (ARRAY['cart'::"text", 'post_purchase'::"text"]))),
     CONSTRAINT "product_recommendation_rules_priority_check" CHECK ((("priority" >= 0) AND ("priority" <= 10000)))
@@ -6403,6 +9054,7 @@ CREATE TABLE IF NOT EXISTS "public"."product_reviews" (
     "verified_purchase" boolean DEFAULT false NOT NULL,
     "created_at" timestamp with time zone DEFAULT "now"() NOT NULL,
     "moderated_at" timestamp with time zone,
+    "instance_id" "uuid",
     CONSTRAINT "product_reviews_rating_check" CHECK ((("rating" >= 1) AND ("rating" <= 5))),
     CONSTRAINT "product_reviews_status_check" CHECK (("status" = ANY (ARRAY['pending'::"text", 'approved'::"text", 'rejected'::"text"])))
 );
@@ -6424,6 +9076,7 @@ CREATE TABLE IF NOT EXISTS "public"."products" (
     "featured" boolean DEFAULT false NOT NULL,
     "use_cases" "text"[] DEFAULT '{}'::"text"[] NOT NULL,
     "highlights" "text"[] DEFAULT '{}'::"text"[] NOT NULL,
+    "instance_id" "uuid" NOT NULL,
     CONSTRAINT "products_audience_check" CHECK (("audience" = ANY (ARRAY['retail'::"text", 'professional'::"text"])))
 );
 
@@ -6478,6 +9131,7 @@ CREATE TABLE IF NOT EXISTS "public"."purchase_order_items" (
     "unit_cost_net_huf" numeric(12,2) NOT NULL,
     "line_net_huf" numeric(14,2) GENERATED ALWAYS AS ((("quantity")::numeric * "unit_cost_net_huf")) STORED,
     "created_at" timestamp with time zone DEFAULT "now"() NOT NULL,
+    "instance_id" "uuid" NOT NULL,
     CONSTRAINT "purchase_order_items_quantity_check" CHECK (("quantity" > 0)),
     CONSTRAINT "purchase_order_items_received_quantity_check" CHECK ((("received_quantity" >= 0) AND ("received_quantity" <= "quantity"))),
     CONSTRAINT "purchase_order_items_unit_cost_net_huf_check" CHECK (("unit_cost_net_huf" >= (0)::numeric))
@@ -6500,6 +9154,7 @@ CREATE TABLE IF NOT EXISTS "public"."purchase_orders" (
     "created_by" "uuid",
     "created_at" timestamp with time zone DEFAULT "now"() NOT NULL,
     "updated_at" timestamp with time zone DEFAULT "now"() NOT NULL,
+    "instance_id" "uuid" NOT NULL,
     CONSTRAINT "purchase_orders_net_total_huf_check" CHECK (("net_total_huf" >= (0)::numeric)),
     CONSTRAINT "purchase_orders_status_check" CHECK (("status" = ANY (ARRAY['draft'::"text", 'approved'::"text", 'ordered'::"text", 'partially_received'::"text", 'received'::"text", 'cancelled'::"text"])))
 );
@@ -6710,16 +9365,18 @@ ALTER TABLE "public"."release_windows" OWNER TO "postgres";
 
 CREATE OR REPLACE VIEW "public"."reseller_reorder_signals" WITH ("security_invoker"='true') AS
  WITH "paid" AS (
-         SELECT "o"."customer_id",
+         SELECT "o"."instance_id",
+            "o"."customer_id",
             "lower"(TRIM(BOTH FROM "o"."customer_email")) AS "email_key",
             "o"."id" AS "order_id",
             "o"."created_at",
             "o"."total_gross_huf",
-            "lag"("o"."created_at") OVER (PARTITION BY COALESCE(("o"."customer_id")::"text", "lower"(TRIM(BOTH FROM "o"."customer_email"))) ORDER BY "o"."created_at") AS "previous_order_at"
+            "lag"("o"."created_at") OVER (PARTITION BY "o"."instance_id", COALESCE(("o"."customer_id")::"text", "lower"(TRIM(BOTH FROM "o"."customer_email"))) ORDER BY "o"."created_at") AS "previous_order_at"
            FROM "public"."orders" "o"
           WHERE ("o"."status" = ANY (ARRAY['paid'::"public"."order_status", 'processing'::"public"."order_status", 'shipped'::"public"."order_status", 'completed'::"public"."order_status"]))
-        ), "grouped" AS (
-         SELECT COALESCE(("paid"."customer_id")::"text", "paid"."email_key") AS "customer_key",
+        ), "g" AS (
+         SELECT "paid"."instance_id",
+            COALESCE(("paid"."customer_id")::"text", "paid"."email_key") AS "customer_key",
             ("max"(("paid"."customer_id")::"text"))::"uuid" AS "customer_id",
             "paid"."email_key",
             ("count"(*))::integer AS "paid_orders",
@@ -6727,7 +9384,7 @@ CREATE OR REPLACE VIEW "public"."reseller_reorder_signals" WITH ("security_invok
             "max"("paid"."created_at") AS "last_order_at",
             "avg"((EXTRACT(epoch FROM ("paid"."created_at" - "paid"."previous_order_at")) / (86400)::numeric)) FILTER (WHERE ("paid"."previous_order_at" IS NOT NULL)) AS "avg_reorder_days"
            FROM "paid"
-          GROUP BY COALESCE(("paid"."customer_id")::"text", "paid"."email_key"), "paid"."email_key"
+          GROUP BY "paid"."instance_id", COALESCE(("paid"."customer_id")::"text", "paid"."email_key"), "paid"."email_key"
         )
  SELECT "g"."customer_key",
     "g"."customer_id",
@@ -6740,13 +9397,13 @@ CREATE OR REPLACE VIEW "public"."reseller_reorder_signals" WITH ("security_invok
     ("round"("g"."avg_reorder_days"))::integer AS "avg_reorder_days",
     ("floor"((EXTRACT(epoch FROM ("now"() - "g"."last_order_at")) / (86400)::numeric)))::integer AS "days_since_last_order",
         CASE
-            WHEN ("g"."paid_orders" < 2) THEN 'learning'::"text"
-            WHEN ("g"."avg_reorder_days" IS NULL) THEN 'learning'::"text"
+            WHEN (("g"."paid_orders" < 2) OR ("g"."avg_reorder_days" IS NULL)) THEN 'learning'::"text"
             WHEN (("now"() - "g"."last_order_at") >= "make_interval"("days" => GREATEST(1, (("round"("g"."avg_reorder_days"))::integer + 14)))) THEN 'overdue'::"text"
             WHEN (("now"() - "g"."last_order_at") >= "make_interval"("days" => GREATEST(1, (("round"("g"."avg_reorder_days"))::integer - 7)))) THEN 'due_soon'::"text"
             ELSE 'healthy'::"text"
-        END AS "reorder_signal"
-   FROM ("grouped" "g"
+        END AS "reorder_signal",
+    "g"."instance_id"
+   FROM ("g"
      JOIN "public"."profiles" "p" ON (("p"."id" = "g"."customer_id")))
   WHERE (("p"."role" = 'reseller'::"public"."customer_role") AND ("p"."reseller_approved" = true));
 
@@ -6771,6 +9428,7 @@ CREATE OR REPLACE VIEW "public"."reseller_growth_priorities" WITH ("security_inv
             "r"."avg_reorder_days",
             "r"."days_since_last_order",
             "r"."reorder_signal",
+            "r"."instance_id",
                 CASE
                     WHEN ("r"."paid_orders" > 0) THEN ("round"((("r"."revenue_gross_huf")::numeric / ("r"."paid_orders")::numeric)))::bigint
                     ELSE (0)::bigint
@@ -6816,8 +9474,9 @@ CREATE OR REPLACE VIEW "public"."reseller_growth_priorities" WITH ("security_inv
             WHEN ("days_since_last_order" >= 90) THEN 'inactive'::"text"
             WHEN ("reorder_signal" = 'overdue'::"text") THEN 'late'::"text"
             ELSE 'active'::"text"
-        END AS "inactivity_risk"
-   FROM "base" "b";
+        END AS "inactivity_risk",
+    "instance_id"
+   FROM "base";
 
 
 ALTER VIEW "public"."reseller_growth_priorities" OWNER TO "postgres";
@@ -6827,17 +9486,153 @@ COMMENT ON VIEW "public"."reseller_growth_priorities" IS 'V9 prioritized reselle
 
 
 
+CREATE OR REPLACE VIEW "public"."reseller_reorder_signals_v2" WITH ("security_invoker"='true') AS
+ WITH "paid" AS (
+         SELECT "o"."instance_id",
+            "o"."customer_id",
+            "lower"(TRIM(BOTH FROM "o"."customer_email")) AS "email_key",
+            "o"."id" AS "order_id",
+            "o"."created_at",
+            "o"."total_gross_huf",
+            "lag"("o"."created_at") OVER (PARTITION BY "o"."instance_id", COALESCE(("o"."customer_id")::"text", "lower"(TRIM(BOTH FROM "o"."customer_email"))) ORDER BY "o"."created_at") AS "previous_order_at"
+           FROM "public"."orders" "o"
+          WHERE ("o"."status" = ANY (ARRAY['paid'::"public"."order_status", 'processing'::"public"."order_status", 'shipped'::"public"."order_status", 'completed'::"public"."order_status"]))
+        ), "grouped" AS (
+         SELECT "paid"."instance_id",
+            COALESCE(("paid"."customer_id")::"text", "paid"."email_key") AS "customer_key",
+            ("max"(("paid"."customer_id")::"text"))::"uuid" AS "customer_id",
+            "paid"."email_key",
+            ("count"(*))::integer AS "paid_orders",
+            "sum"("paid"."total_gross_huf") AS "revenue_gross_huf",
+            "max"("paid"."created_at") AS "last_order_at",
+            "avg"((EXTRACT(epoch FROM ("paid"."created_at" - "paid"."previous_order_at")) / (86400)::numeric)) FILTER (WHERE ("paid"."previous_order_at" IS NOT NULL)) AS "avg_reorder_days"
+           FROM "paid"
+          GROUP BY "paid"."instance_id", COALESCE(("paid"."customer_id")::"text", "paid"."email_key"), "paid"."email_key"
+        )
+ SELECT "g"."instance_id",
+    "g"."customer_key",
+    "g"."customer_id",
+    "p"."email",
+    "p"."full_name",
+    "p"."company_name",
+    "g"."paid_orders",
+    "g"."revenue_gross_huf",
+    "g"."last_order_at",
+    ("round"("g"."avg_reorder_days"))::integer AS "avg_reorder_days",
+    ("floor"((EXTRACT(epoch FROM ("now"() - "g"."last_order_at")) / (86400)::numeric)))::integer AS "days_since_last_order",
+        CASE
+            WHEN (("g"."paid_orders" < 2) OR ("g"."avg_reorder_days" IS NULL)) THEN 'learning'::"text"
+            WHEN (("now"() - "g"."last_order_at") >= "make_interval"("days" => GREATEST(1, (("round"("g"."avg_reorder_days"))::integer + 14)))) THEN 'overdue'::"text"
+            WHEN (("now"() - "g"."last_order_at") >= "make_interval"("days" => GREATEST(1, (("round"("g"."avg_reorder_days"))::integer - 7)))) THEN 'due_soon'::"text"
+            ELSE 'healthy'::"text"
+        END AS "reorder_signal"
+   FROM (("grouped" "g"
+     JOIN "public"."customer_instance_roles" "cir" ON ((("cir"."instance_id" = "g"."instance_id") AND ("cir"."user_id" = "g"."customer_id"))))
+     JOIN "public"."profiles" "p" ON (("p"."id" = "g"."customer_id")))
+  WHERE (("cir"."role" = 'reseller'::"public"."customer_role") AND ("cir"."reseller_approved" = true));
+
+
+ALTER VIEW "public"."reseller_reorder_signals_v2" OWNER TO "postgres";
+
+
+CREATE OR REPLACE VIEW "public"."reseller_growth_priorities_v2" WITH ("security_invoker"='true') AS
+ WITH "base" AS (
+         SELECT "r"."instance_id",
+            "r"."customer_key",
+            "r"."customer_id",
+            "r"."email",
+            "r"."full_name",
+            "r"."company_name",
+            "r"."paid_orders",
+            "r"."revenue_gross_huf",
+            "r"."last_order_at",
+            "r"."avg_reorder_days",
+            "r"."days_since_last_order",
+            "r"."reorder_signal",
+                CASE
+                    WHEN ("r"."paid_orders" > 0) THEN ("round"((("r"."revenue_gross_huf")::numeric / ("r"."paid_orders")::numeric)))::bigint
+                    ELSE (0)::bigint
+                END AS "avg_order_value_gross_huf",
+                CASE
+                    WHEN (("r"."reorder_signal" = 'overdue'::"text") AND ("r"."revenue_gross_huf" >= 250000)) THEN 100
+                    WHEN ("r"."reorder_signal" = 'overdue'::"text") THEN 80
+                    WHEN (("r"."reorder_signal" = 'due_soon'::"text") AND ("r"."revenue_gross_huf" >= 250000)) THEN 70
+                    WHEN ("r"."reorder_signal" = 'due_soon'::"text") THEN 55
+                    WHEN (("r"."reorder_signal" = 'learning'::"text") AND ("r"."revenue_gross_huf" >= 250000)) THEN 45
+                    ELSE 20
+                END AS "priority_score"
+           FROM "public"."reseller_reorder_signals_v2" "r"
+        )
+ SELECT "instance_id",
+    "customer_key",
+    "customer_id",
+    "email",
+    "full_name",
+    "company_name",
+    "paid_orders",
+    "revenue_gross_huf",
+    "last_order_at",
+    "avg_reorder_days",
+    "days_since_last_order",
+    "reorder_signal",
+    "avg_order_value_gross_huf",
+    "priority_score",
+    GREATEST((0)::bigint, "avg_order_value_gross_huf") AS "estimated_reorder_value_gross_huf",
+        CASE
+            WHEN ("priority_score" >= 90) THEN 'critical'::"text"
+            WHEN ("priority_score" >= 70) THEN 'high'::"text"
+            WHEN ("priority_score" >= 50) THEN 'medium'::"text"
+            ELSE 'low'::"text"
+        END AS "priority_band",
+        CASE
+            WHEN ("reorder_signal" = 'overdue'::"text") THEN 'Kapcsolatfelvétel és újrarendelési egyeztetés'::"text"
+            WHEN ("reorder_signal" = 'due_soon'::"text") THEN 'Proaktív utánrendelési emlékeztető'::"text"
+            WHEN ("reorder_signal" = 'learning'::"text") THEN 'Partnerciklus megfigyelése'::"text"
+            ELSE 'Nincs azonnali teendő'::"text"
+        END AS "recommended_action",
+        CASE
+            WHEN ("days_since_last_order" >= 180) THEN 'dormant'::"text"
+            WHEN ("days_since_last_order" >= 90) THEN 'inactive'::"text"
+            WHEN ("reorder_signal" = 'overdue'::"text") THEN 'late'::"text"
+            ELSE 'active'::"text"
+        END AS "inactivity_risk"
+   FROM "base" "b";
+
+
+ALTER VIEW "public"."reseller_growth_priorities_v2" OWNER TO "postgres";
+
+
 CREATE TABLE IF NOT EXISTS "public"."return_case_items" (
     "id" "uuid" DEFAULT "gen_random_uuid"() NOT NULL,
     "return_case_id" "uuid" NOT NULL,
     "order_item_id" "uuid" NOT NULL,
     "quantity" integer NOT NULL,
     "created_at" timestamp with time zone DEFAULT "now"() NOT NULL,
+    "instance_id" "uuid" NOT NULL,
     CONSTRAINT "return_case_items_quantity_check" CHECK (("quantity" > 0))
 );
 
 
 ALTER TABLE "public"."return_case_items" OWNER TO "postgres";
+
+
+CREATE TABLE IF NOT EXISTS "public"."role_bindings" (
+    "id" "uuid" DEFAULT "gen_random_uuid"() NOT NULL,
+    "organization_id" "uuid" NOT NULL,
+    "instance_id" "uuid",
+    "user_id" "uuid" NOT NULL,
+    "role_code" "text" NOT NULL,
+    "delegated_by" "uuid",
+    "valid_from" timestamp with time zone DEFAULT "now"() NOT NULL,
+    "valid_until" timestamp with time zone,
+    "revoked_at" timestamp with time zone,
+    "created_at" timestamp with time zone DEFAULT "now"() NOT NULL,
+    CONSTRAINT "role_bindings_check" CHECK ((("valid_until" IS NULL) OR ("valid_until" > "valid_from"))),
+    CONSTRAINT "role_bindings_role_code_check" CHECK (("role_code" = ANY (ARRAY['owner'::"text", 'admin'::"text", 'catalog_manager'::"text", 'order_manager'::"text", 'marketing_manager'::"text", 'support'::"text", 'analyst'::"text", 'viewer'::"text"])))
+);
+
+
+ALTER TABLE "public"."role_bindings" OWNER TO "postgres";
 
 
 CREATE TABLE IF NOT EXISTS "public"."rollout_environments" (
@@ -6888,6 +9683,7 @@ CREATE TABLE IF NOT EXISTS "public"."sales_tasks" (
     "completed_at" timestamp with time zone,
     "created_at" timestamp with time zone DEFAULT "now"() NOT NULL,
     "updated_at" timestamp with time zone DEFAULT "now"() NOT NULL,
+    "instance_id" "uuid" NOT NULL,
     CONSTRAINT "sales_tasks_priority_check" CHECK ((("priority" >= 0) AND ("priority" <= 100))),
     CONSTRAINT "sales_tasks_status_check" CHECK (("status" = ANY (ARRAY['open'::"text", 'in_progress'::"text", 'completed'::"text", 'cancelled'::"text"])))
 );
@@ -6917,6 +9713,7 @@ CREATE TABLE IF NOT EXISTS "public"."stock_notifications" (
     "created_at" timestamp with time zone DEFAULT "now"() NOT NULL,
     "sent_at" timestamp with time zone,
     "communication_job_id" "uuid",
+    "instance_id" "uuid" NOT NULL,
     CONSTRAINT "stock_notifications_status_check" CHECK (("status" = ANY (ARRAY['waiting'::"text", 'queued'::"text", 'sent'::"text", 'cancelled'::"text"])))
 );
 
@@ -6933,6 +9730,7 @@ CREATE TABLE IF NOT EXISTS "public"."suppliers" (
     "active" boolean DEFAULT true NOT NULL,
     "created_at" timestamp with time zone DEFAULT "now"() NOT NULL,
     "updated_at" timestamp with time zone DEFAULT "now"() NOT NULL,
+    "instance_id" "uuid" NOT NULL,
     CONSTRAINT "suppliers_payment_terms_days_check" CHECK ((("payment_terms_days" >= 0) AND ("payment_terms_days" <= 365)))
 );
 
@@ -6947,12 +9745,162 @@ CREATE TABLE IF NOT EXISTS "public"."support_ticket_messages" (
     "author_role" "text" NOT NULL,
     "message" "text" NOT NULL,
     "created_at" timestamp with time zone DEFAULT "now"() NOT NULL,
+    "instance_id" "uuid" NOT NULL,
     CONSTRAINT "support_ticket_messages_author_role_check" CHECK (("author_role" = ANY (ARRAY['customer'::"text", 'admin'::"text", 'system'::"text"]))),
     CONSTRAINT "support_ticket_messages_message_check" CHECK ((("char_length"("message") >= 1) AND ("char_length"("message") <= 4000)))
 );
 
 
 ALTER TABLE "public"."support_ticket_messages" OWNER TO "postgres";
+
+
+CREATE OR REPLACE VIEW "public"."tenant_operational_scope_gaps" WITH ("security_invoker"='true') AS
+ SELECT 'payment_attempts'::"text" AS "table_name",
+    "count"(*) AS "rows_without_instance"
+   FROM "public"."payment_attempts"
+  WHERE ("payment_attempts"."instance_id" IS NULL)
+UNION ALL
+ SELECT 'payment_events'::"text" AS "table_name",
+    "count"(*) AS "rows_without_instance"
+   FROM "public"."payment_events"
+  WHERE ("payment_events"."instance_id" IS NULL)
+UNION ALL
+ SELECT 'fulfillment_events'::"text" AS "table_name",
+    "count"(*) AS "rows_without_instance"
+   FROM "public"."fulfillment_events"
+  WHERE ("fulfillment_events"."instance_id" IS NULL)
+UNION ALL
+ SELECT 'integration_jobs'::"text" AS "table_name",
+    "count"(*) AS "rows_without_instance"
+   FROM "public"."integration_jobs"
+  WHERE ("integration_jobs"."instance_id" IS NULL)
+UNION ALL
+ SELECT 'order_events'::"text" AS "table_name",
+    "count"(*) AS "rows_without_instance"
+   FROM "public"."order_events"
+  WHERE ("order_events"."instance_id" IS NULL)
+UNION ALL
+ SELECT 'order_operations'::"text" AS "table_name",
+    "count"(*) AS "rows_without_instance"
+   FROM "public"."order_operations"
+  WHERE ("order_operations"."instance_id" IS NULL)
+UNION ALL
+ SELECT 'purchase_orders'::"text" AS "table_name",
+    "count"(*) AS "rows_without_instance"
+   FROM "public"."purchase_orders"
+  WHERE ("purchase_orders"."instance_id" IS NULL)
+UNION ALL
+ SELECT 'purchase_order_items'::"text" AS "table_name",
+    "count"(*) AS "rows_without_instance"
+   FROM "public"."purchase_order_items"
+  WHERE ("purchase_order_items"."instance_id" IS NULL)
+UNION ALL
+ SELECT 'return_cases'::"text" AS "table_name",
+    "count"(*) AS "rows_without_instance"
+   FROM "public"."return_cases"
+  WHERE ("return_cases"."instance_id" IS NULL)
+UNION ALL
+ SELECT 'return_case_items'::"text" AS "table_name",
+    "count"(*) AS "rows_without_instance"
+   FROM "public"."return_case_items"
+  WHERE ("return_case_items"."instance_id" IS NULL)
+UNION ALL
+ SELECT 'support_tickets'::"text" AS "table_name",
+    "count"(*) AS "rows_without_instance"
+   FROM "public"."support_tickets"
+  WHERE ("support_tickets"."instance_id" IS NULL)
+UNION ALL
+ SELECT 'support_ticket_messages'::"text" AS "table_name",
+    "count"(*) AS "rows_without_instance"
+   FROM "public"."support_ticket_messages"
+  WHERE ("support_ticket_messages"."instance_id" IS NULL);
+
+
+ALTER VIEW "public"."tenant_operational_scope_gaps" OWNER TO "postgres";
+
+
+CREATE OR REPLACE VIEW "public"."tenant_scope_gaps" WITH ("security_invoker"='true') AS
+ SELECT 'products'::"text" AS "table_name",
+    "count"(*) AS "rows_without_instance"
+   FROM "public"."products"
+  WHERE ("products"."instance_id" IS NULL)
+UNION ALL
+ SELECT 'product_variants'::"text" AS "table_name",
+    "count"(*) AS "rows_without_instance"
+   FROM "public"."product_variants"
+  WHERE ("product_variants"."instance_id" IS NULL)
+UNION ALL
+ SELECT 'orders'::"text" AS "table_name",
+    "count"(*) AS "rows_without_instance"
+   FROM "public"."orders"
+  WHERE ("orders"."instance_id" IS NULL)
+UNION ALL
+ SELECT 'order_items'::"text" AS "table_name",
+    "count"(*) AS "rows_without_instance"
+   FROM "public"."order_items"
+  WHERE ("order_items"."instance_id" IS NULL)
+UNION ALL
+ SELECT 'inventory_events'::"text" AS "table_name",
+    "count"(*) AS "rows_without_instance"
+   FROM "public"."inventory_events"
+  WHERE ("inventory_events"."instance_id" IS NULL)
+UNION ALL
+ SELECT 'inventory_reservations'::"text" AS "table_name",
+    "count"(*) AS "rows_without_instance"
+   FROM "public"."inventory_reservations"
+  WHERE ("inventory_reservations"."instance_id" IS NULL)
+UNION ALL
+ SELECT 'inventory_snapshots'::"text" AS "table_name",
+    "count"(*) AS "rows_without_instance"
+   FROM "public"."inventory_snapshots"
+  WHERE ("inventory_snapshots"."instance_id" IS NULL)
+UNION ALL
+ SELECT 'marketing_campaigns'::"text" AS "table_name",
+    "count"(*) AS "rows_without_instance"
+   FROM "public"."marketing_campaigns"
+  WHERE ("marketing_campaigns"."instance_id" IS NULL)
+UNION ALL
+ SELECT 'marketing_campaign_recipients'::"text" AS "table_name",
+    "count"(*) AS "rows_without_instance"
+   FROM "public"."marketing_campaign_recipients"
+  WHERE ("marketing_campaign_recipients"."instance_id" IS NULL)
+UNION ALL
+ SELECT 'content_pages'::"text" AS "table_name",
+    "count"(*) AS "rows_without_instance"
+   FROM "public"."content_pages"
+  WHERE ("content_pages"."instance_id" IS NULL)
+UNION ALL
+ SELECT 'coupons'::"text" AS "table_name",
+    "count"(*) AS "rows_without_instance"
+   FROM "public"."coupons"
+  WHERE ("coupons"."instance_id" IS NULL)
+UNION ALL
+ SELECT 'marketing_consents'::"text" AS "table_name",
+    "count"(*) AS "rows_without_instance"
+   FROM "public"."marketing_consents"
+  WHERE ("marketing_consents"."instance_id" IS NULL)
+UNION ALL
+ SELECT 'communication_suppressions'::"text" AS "table_name",
+    "count"(*) AS "rows_without_instance"
+   FROM "public"."communication_suppressions"
+  WHERE ("communication_suppressions"."instance_id" IS NULL)
+UNION ALL
+ SELECT 'communication_jobs'::"text" AS "table_name",
+    "count"(*) AS "rows_without_instance"
+   FROM "public"."communication_jobs"
+  WHERE ("communication_jobs"."instance_id" IS NULL)
+UNION ALL
+ SELECT 'checkout_recovery_intents'::"text" AS "table_name",
+    "count"(*) AS "rows_without_instance"
+   FROM "public"."checkout_recovery_intents"
+  WHERE ("checkout_recovery_intents"."instance_id" IS NULL);
+
+
+ALTER VIEW "public"."tenant_scope_gaps" OWNER TO "postgres";
+
+
+COMMENT ON VIEW "public"."tenant_scope_gaps" IS 'Architecture hardening diagnostic. Strict tenant RLS must not be enabled until every count is zero.';
+
 
 
 CREATE OR REPLACE VIEW "public"."v9_channel_retention_summary" WITH ("security_invoker"='true') AS
@@ -7000,6 +9948,50 @@ COMMENT ON VIEW "public"."v9_channel_retention_summary" IS 'V9 executive retail/
 
 
 
+CREATE OR REPLACE VIEW "public"."v9_channel_retention_summary_v2" WITH ("security_invoker"='true') AS
+ WITH "paid" AS (
+         SELECT "o"."instance_id",
+            "o"."id",
+            "o"."customer_id",
+            "lower"(TRIM(BOTH FROM "o"."customer_email")) AS "email_key",
+            "o"."created_at",
+            "o"."total_gross_huf",
+                CASE
+                    WHEN (("cir"."role" = 'reseller'::"public"."customer_role") AND ("cir"."reseller_approved" = true)) THEN 'reseller'::"text"
+                    ELSE 'retail'::"text"
+                END AS "channel"
+           FROM ("public"."orders" "o"
+             LEFT JOIN "public"."customer_instance_roles" "cir" ON ((("cir"."instance_id" = "o"."instance_id") AND ("cir"."user_id" = "o"."customer_id"))))
+          WHERE ("o"."status" = ANY (ARRAY['paid'::"public"."order_status", 'processing'::"public"."order_status", 'shipped'::"public"."order_status", 'completed'::"public"."order_status"]))
+        ), "customer_stats" AS (
+         SELECT "paid"."instance_id",
+            "paid"."channel",
+            COALESCE(("paid"."customer_id")::"text", "paid"."email_key") AS "customer_key",
+            ("count"(*))::integer AS "orders_count",
+            "sum"("paid"."total_gross_huf") AS "revenue_gross_huf",
+            "min"("paid"."created_at") AS "first_order_at",
+            "max"("paid"."created_at") AS "last_order_at"
+           FROM "paid"
+          GROUP BY "paid"."instance_id", "paid"."channel", COALESCE(("paid"."customer_id")::"text", "paid"."email_key")
+        )
+ SELECT "instance_id",
+    "channel",
+    ("count"(*))::integer AS "paying_customers",
+    ("count"(*) FILTER (WHERE ("orders_count" >= 2)))::integer AS "repeat_customers",
+    "round"(((100.0 * ("count"(*) FILTER (WHERE ("orders_count" >= 2)))::numeric) / (NULLIF("count"(*), 0))::numeric), 1) AS "repeat_rate_percent",
+    ("sum"("orders_count"))::integer AS "paid_orders",
+    ("sum"("revenue_gross_huf"))::bigint AS "revenue_gross_huf",
+    ("round"(("sum"("revenue_gross_huf") / (NULLIF("sum"("orders_count"), 0))::numeric)))::bigint AS "aov_gross_huf",
+    ("round"(("sum"("revenue_gross_huf") / (NULLIF("count"(*), 0))::numeric)))::bigint AS "ltv_gross_huf",
+    ("count"(*) FILTER (WHERE ("last_order_at" >= ("now"() - '90 days'::interval))))::integer AS "active_90d_customers",
+    ("count"(*) FILTER (WHERE ("last_order_at" < ("now"() - '90 days'::interval))))::integer AS "inactive_90d_customers"
+   FROM "customer_stats"
+  GROUP BY "instance_id", "channel";
+
+
+ALTER VIEW "public"."v9_channel_retention_summary_v2" OWNER TO "postgres";
+
+
 CREATE OR REPLACE VIEW "public"."v9_growth_dashboard" WITH ("security_invoker"='true') AS
  SELECT ( SELECT ("count"(*))::integer AS "count"
            FROM "public"."customer_commercial_metrics") AS "paying_customers",
@@ -7037,6 +10029,46 @@ ALTER VIEW "public"."v9_growth_dashboard" OWNER TO "postgres";
 
 COMMENT ON VIEW "public"."v9_growth_dashboard" IS 'V9 single-row executive retention, recovery and reseller reorder decision summary.';
 
+
+
+CREATE OR REPLACE VIEW "public"."v9_growth_dashboard_v2" WITH ("security_invoker"='true') AS
+ SELECT "id" AS "instance_id",
+    ( SELECT ("count"(*))::integer AS "count"
+           FROM "public"."customer_commercial_metrics" "c"
+          WHERE ("c"."instance_id" = "w"."id")) AS "paying_customers",
+    ( SELECT ("count"(*))::integer AS "count"
+           FROM "public"."customer_commercial_metrics" "c"
+          WHERE (("c"."instance_id" = "w"."id") AND ("c"."segment" = 'vip'::"text"))) AS "vip_customers",
+    ( SELECT ("count"(*))::integer AS "count"
+           FROM "public"."customer_commercial_metrics" "c"
+          WHERE (("c"."instance_id" = "w"."id") AND ("c"."segment" = 'at_risk'::"text"))) AS "at_risk_customers",
+    ( SELECT ("count"(*))::integer AS "count"
+           FROM "public"."customer_commercial_metrics" "c"
+          WHERE (("c"."instance_id" = "w"."id") AND ("c"."segment" = ANY (ARRAY['winback'::"text", 'dormant'::"text"])))) AS "winback_customers",
+    ( SELECT (COALESCE("sum"("c"."revenue_gross_huf"), (0)::numeric))::bigint AS "coalesce"
+           FROM "public"."customer_commercial_metrics" "c"
+          WHERE ("c"."instance_id" = "w"."id")) AS "customer_lifetime_revenue_gross_huf",
+    ( SELECT ("count"(*))::integer AS "count"
+           FROM "public"."checkout_recovery_intents" "r"
+          WHERE (("r"."instance_id" = "w"."id") AND ("r"."status" = 'open'::"text") AND ("r"."expires_at" > "now"()))) AS "open_checkout_recoveries",
+    ( SELECT ("count"(*))::integer AS "count"
+           FROM "public"."customer_journeys" "j"
+          WHERE (("j"."instance_id" = "w"."id") AND ("j"."status" = 'active'::"public"."customer_journey_status"))) AS "active_journeys",
+    ( SELECT ("count"(*))::integer AS "count"
+           FROM "public"."customer_journey_steps" "s"
+          WHERE (("s"."instance_id" = "w"."id") AND ("s"."status" = 'pending'::"text") AND ("s"."scheduled_at" <= "now"()))) AS "due_journey_steps",
+    ( SELECT ("count"(*))::integer AS "count"
+           FROM "public"."reseller_reorder_signals_v2" "r"
+          WHERE (("r"."instance_id" = "w"."id") AND ("r"."reorder_signal" = 'overdue'::"text"))) AS "overdue_resellers",
+    ( SELECT ("count"(*))::integer AS "count"
+           FROM "public"."reseller_reorder_signals_v2" "r"
+          WHERE (("r"."instance_id" = "w"."id") AND ("r"."reorder_signal" = 'due_soon'::"text"))) AS "due_soon_resellers",
+    "now"() AS "calculated_at"
+   FROM "public"."webshop_instances" "w"
+  WHERE ("status" = ANY (ARRAY['pilot'::"text", 'active'::"text"]));
+
+
+ALTER VIEW "public"."v9_growth_dashboard_v2" OWNER TO "postgres";
 
 
 CREATE OR REPLACE VIEW "public"."v9_monthly_customer_cohorts" WITH ("security_invoker"='true') AS
@@ -7083,6 +10115,52 @@ ALTER VIEW "public"."v9_monthly_customer_cohorts" OWNER TO "postgres";
 
 COMMENT ON VIEW "public"."v9_monthly_customer_cohorts" IS 'V9 monthly customer cohort retention and revenue view.';
 
+
+
+CREATE OR REPLACE VIEW "public"."v9_monthly_customer_cohorts_v2" WITH ("security_invoker"='true') AS
+ WITH "paid" AS (
+         SELECT "o"."instance_id",
+            COALESCE(("o"."customer_id")::"text", "lower"(TRIM(BOTH FROM "o"."customer_email"))) AS "customer_key",
+            ("date_trunc"('month'::"text", "o"."created_at"))::"date" AS "order_month",
+            "o"."total_gross_huf"
+           FROM "public"."orders" "o"
+          WHERE ("o"."status" = ANY (ARRAY['paid'::"public"."order_status", 'processing'::"public"."order_status", 'shipped'::"public"."order_status", 'completed'::"public"."order_status"]))
+        ), "firsts" AS (
+         SELECT "paid"."instance_id",
+            "paid"."customer_key",
+            "min"("paid"."order_month") AS "cohort_month"
+           FROM "paid"
+          GROUP BY "paid"."instance_id", "paid"."customer_key"
+        ), "activity" AS (
+         SELECT "p"."instance_id",
+            "f"."cohort_month",
+            "p"."customer_key",
+            "p"."order_month",
+            (((EXTRACT(year FROM "age"(("p"."order_month")::timestamp with time zone, ("f"."cohort_month")::timestamp with time zone)) * (12)::numeric) + EXTRACT(month FROM "age"(("p"."order_month")::timestamp with time zone, ("f"."cohort_month")::timestamp with time zone))))::integer AS "month_number",
+            "sum"("p"."total_gross_huf") AS "revenue_gross_huf"
+           FROM ("paid" "p"
+             JOIN "firsts" "f" ON ((("f"."instance_id" = "p"."instance_id") AND ("f"."customer_key" = "p"."customer_key"))))
+          GROUP BY "p"."instance_id", "f"."cohort_month", "p"."customer_key", "p"."order_month"
+        ), "sizes" AS (
+         SELECT "firsts"."instance_id",
+            "firsts"."cohort_month",
+            ("count"(*))::integer AS "cohort_customers"
+           FROM "firsts"
+          GROUP BY "firsts"."instance_id", "firsts"."cohort_month"
+        )
+ SELECT "a"."instance_id",
+    "a"."cohort_month",
+    "a"."month_number",
+    "s"."cohort_customers",
+    ("count"(DISTINCT "a"."customer_key"))::integer AS "active_customers",
+    "round"(((100.0 * ("count"(DISTINCT "a"."customer_key"))::numeric) / (NULLIF("s"."cohort_customers", 0))::numeric), 1) AS "retention_percent",
+    ("sum"("a"."revenue_gross_huf"))::bigint AS "revenue_gross_huf"
+   FROM ("activity" "a"
+     JOIN "sizes" "s" ON ((("s"."instance_id" = "a"."instance_id") AND ("s"."cohort_month" = "a"."cohort_month"))))
+  GROUP BY "a"."instance_id", "a"."cohort_month", "a"."month_number", "s"."cohort_customers";
+
+
+ALTER VIEW "public"."v9_monthly_customer_cohorts_v2" OWNER TO "postgres";
 
 
 CREATE TABLE IF NOT EXISTS "public"."webshop_instance_addons" (
@@ -7158,46 +10236,35 @@ COMMENT ON COLUMN "public"."webshop_instance_provider_connections"."credential_f
 
 
 
-CREATE TABLE IF NOT EXISTS "public"."webshop_instances" (
-    "id" "uuid" DEFAULT "gen_random_uuid"() NOT NULL,
-    "slug" "text" NOT NULL,
-    "name" "text" NOT NULL,
-    "subscription_plan" "text" DEFAULT 'alap'::"text" NOT NULL,
-    "status" "text" DEFAULT 'pilot'::"text" NOT NULL,
+CREATE TABLE IF NOT EXISTS "public"."webshop_sales_channels" (
+    "instance_id" "uuid" NOT NULL,
+    "channel_code" "text" NOT NULL,
+    "enabled" boolean DEFAULT false NOT NULL,
+    "settings" "jsonb" DEFAULT '{}'::"jsonb" NOT NULL,
     "created_at" timestamp with time zone DEFAULT "now"() NOT NULL,
     "updated_at" timestamp with time zone DEFAULT "now"() NOT NULL,
-    "brand_name" "text",
-    "brand_tagline" "text",
-    "logo_url" "text",
-    "primary_color" "text",
-    "support_email" "text",
-    "support_phone" "text",
-    "public_site_url" "text",
-    "email_from_name" "text",
-    "storefront_config" "jsonb" DEFAULT '{}'::"jsonb" NOT NULL,
-    CONSTRAINT "webshop_instances_primary_color_check" CHECK ((("primary_color" IS NULL) OR ("primary_color" ~ '^#[0-9A-Fa-f]{6}$'::"text"))),
-    CONSTRAINT "webshop_instances_status_check" CHECK (("status" = ANY (ARRAY['pilot'::"text", 'active'::"text", 'suspended'::"text", 'archived'::"text"]))),
-    CONSTRAINT "webshop_instances_storefront_config_object_check" CHECK (("jsonb_typeof"("storefront_config") = 'object'::"text")),
-    CONSTRAINT "webshop_instances_subscription_plan_check" CHECK (("subscription_plan" = ANY (ARRAY['alap'::"text", 'pro'::"text"])))
+    CONSTRAINT "webshop_sales_channels_channel_code_check" CHECK (("channel_code" = ANY (ARRAY['b2c'::"text", 'b2b'::"text"])))
 );
 
 
-ALTER TABLE "public"."webshop_instances" OWNER TO "postgres";
-
-
-COMMENT ON COLUMN "public"."webshop_instances"."subscription_plan" IS 'Shoperation webshop package. Defaults fail closed to Alap; Pro requires explicit assignment.';
-
+ALTER TABLE "public"."webshop_sales_channels" OWNER TO "postgres";
 
 
 CREATE TABLE IF NOT EXISTS "public"."wishlists" (
     "id" "uuid" DEFAULT "gen_random_uuid"() NOT NULL,
     "user_id" "uuid" NOT NULL,
     "variant_id" "uuid" NOT NULL,
-    "created_at" timestamp with time zone DEFAULT "now"() NOT NULL
+    "created_at" timestamp with time zone DEFAULT "now"() NOT NULL,
+    "instance_id" "uuid"
 );
 
 
 ALTER TABLE "public"."wishlists" OWNER TO "postgres";
+
+
+ALTER TABLE ONLY "private"."platform_owner_claims"
+    ADD CONSTRAINT "platform_owner_claims_pkey" PRIMARY KEY ("email");
+
 
 
 ALTER TABLE ONLY "private"."stock_notification_rate_limits"
@@ -7245,11 +10312,6 @@ ALTER TABLE ONLY "public"."action_processing_runs"
 
 
 
-ALTER TABLE ONLY "public"."action_processing_runs"
-    ADD CONSTRAINT "action_processing_runs_run_key_key" UNIQUE ("run_key");
-
-
-
 ALTER TABLE ONLY "public"."action_proposal_events"
     ADD CONSTRAINT "action_proposal_events_event_key_key" UNIQUE ("event_key");
 
@@ -7262,11 +10324,6 @@ ALTER TABLE ONLY "public"."action_proposal_events"
 
 ALTER TABLE ONLY "public"."action_proposals"
     ADD CONSTRAINT "action_proposals_pkey" PRIMARY KEY ("id");
-
-
-
-ALTER TABLE ONLY "public"."action_proposals"
-    ADD CONSTRAINT "action_proposals_proposal_key_key" UNIQUE ("proposal_key");
 
 
 
@@ -7336,7 +10393,7 @@ ALTER TABLE ONLY "public"."automation_control_events"
 
 
 ALTER TABLE ONLY "public"."automation_control"
-    ADD CONSTRAINT "automation_control_pkey" PRIMARY KEY ("singleton");
+    ADD CONSTRAINT "automation_control_pkey" PRIMARY KEY ("instance_id");
 
 
 
@@ -7352,11 +10409,6 @@ ALTER TABLE ONLY "public"."automation_events"
 
 ALTER TABLE ONLY "public"."automation_processing_runs"
     ADD CONSTRAINT "automation_processing_runs_pkey" PRIMARY KEY ("id");
-
-
-
-ALTER TABLE ONLY "public"."automation_processing_runs"
-    ADD CONSTRAINT "automation_processing_runs_run_key_key" UNIQUE ("run_key");
 
 
 
@@ -7426,22 +10478,12 @@ ALTER TABLE ONLY "public"."commercial_offers"
 
 
 ALTER TABLE ONLY "public"."commercial_opportunities"
-    ADD CONSTRAINT "commercial_opportunities_opportunity_key_key" UNIQUE ("opportunity_key");
-
-
-
-ALTER TABLE ONLY "public"."commercial_opportunities"
     ADD CONSTRAINT "commercial_opportunities_pkey" PRIMARY KEY ("id");
 
 
 
 ALTER TABLE ONLY "public"."communication_job_events"
     ADD CONSTRAINT "communication_job_events_pkey" PRIMARY KEY ("id");
-
-
-
-ALTER TABLE ONLY "public"."communication_jobs"
-    ADD CONSTRAINT "communication_jobs_idempotency_key_key" UNIQUE ("idempotency_key");
 
 
 
@@ -7470,11 +10512,6 @@ ALTER TABLE ONLY "public"."content_pages"
 
 
 
-ALTER TABLE ONLY "public"."content_pages"
-    ADD CONSTRAINT "content_pages_slug_key" UNIQUE ("slug");
-
-
-
 ALTER TABLE ONLY "public"."control_alert_events"
     ADD CONSTRAINT "control_alert_events_event_key_key" UNIQUE ("event_key");
 
@@ -7482,11 +10519,6 @@ ALTER TABLE ONLY "public"."control_alert_events"
 
 ALTER TABLE ONLY "public"."control_alert_events"
     ADD CONSTRAINT "control_alert_events_pkey" PRIMARY KEY ("id");
-
-
-
-ALTER TABLE ONLY "public"."control_alerts"
-    ADD CONSTRAINT "control_alerts_alert_key_key" UNIQUE ("alert_key");
 
 
 
@@ -7500,11 +10532,6 @@ ALTER TABLE ONLY "public"."control_processing_runs"
 
 
 
-ALTER TABLE ONLY "public"."control_processing_runs"
-    ADD CONSTRAINT "control_processing_runs_run_key_key" UNIQUE ("run_key");
-
-
-
 ALTER TABLE ONLY "public"."control_tasks"
     ADD CONSTRAINT "control_tasks_pkey" PRIMARY KEY ("id");
 
@@ -7515,13 +10542,23 @@ ALTER TABLE ONLY "public"."control_tasks"
 
 
 
-ALTER TABLE ONLY "public"."coupons"
-    ADD CONSTRAINT "coupons_code_key" UNIQUE ("code");
+ALTER TABLE ONLY "public"."coupon_redemptions"
+    ADD CONSTRAINT "coupon_redemptions_instance_id_order_id_coupon_id_key" UNIQUE ("instance_id", "order_id", "coupon_id");
+
+
+
+ALTER TABLE ONLY "public"."coupon_redemptions"
+    ADD CONSTRAINT "coupon_redemptions_pkey" PRIMARY KEY ("id");
 
 
 
 ALTER TABLE ONLY "public"."coupons"
     ADD CONSTRAINT "coupons_pkey" PRIMARY KEY ("id");
+
+
+
+ALTER TABLE ONLY "public"."customer_instance_roles"
+    ADD CONSTRAINT "customer_instance_roles_pkey" PRIMARY KEY ("instance_id", "user_id");
 
 
 
@@ -7532,11 +10569,6 @@ ALTER TABLE ONLY "public"."customer_journey_steps"
 
 ALTER TABLE ONLY "public"."customer_journey_steps"
     ADD CONSTRAINT "customer_journey_steps_pkey" PRIMARY KEY ("id");
-
-
-
-ALTER TABLE ONLY "public"."customer_journeys"
-    ADD CONSTRAINT "customer_journeys_kind_source_key_key" UNIQUE ("kind", "source_key");
 
 
 
@@ -7556,7 +10588,12 @@ ALTER TABLE ONLY "public"."customer_lifecycle_milestones"
 
 
 ALTER TABLE ONLY "public"."customer_value_profiles"
-    ADD CONSTRAINT "customer_value_profiles_pkey" PRIMARY KEY ("customer_id");
+    ADD CONSTRAINT "customer_value_profiles_pkey" PRIMARY KEY ("instance_id", "customer_id");
+
+
+
+ALTER TABLE ONLY "public"."feature_entitlements"
+    ADD CONSTRAINT "feature_entitlements_pkey" PRIMARY KEY ("id");
 
 
 
@@ -7610,23 +10647,8 @@ ALTER TABLE ONLY "public"."loyalty_benefit_rules"
 
 
 
-ALTER TABLE ONLY "public"."loyalty_benefit_rules"
-    ADD CONSTRAINT "loyalty_benefit_rules_rule_key_key" UNIQUE ("rule_key");
-
-
-
 ALTER TABLE ONLY "public"."loyalty_benefit_usage"
     ADD CONSTRAINT "loyalty_benefit_usage_pkey" PRIMARY KEY ("id");
-
-
-
-ALTER TABLE ONLY "public"."loyalty_benefit_usage"
-    ADD CONSTRAINT "loyalty_benefit_usage_usage_key_key" UNIQUE ("usage_key");
-
-
-
-ALTER TABLE ONLY "public"."loyalty_ledger"
-    ADD CONSTRAINT "loyalty_ledger_event_key_key" UNIQUE ("event_key");
 
 
 
@@ -7640,13 +10662,8 @@ ALTER TABLE ONLY "public"."loyalty_processing_runs"
 
 
 
-ALTER TABLE ONLY "public"."loyalty_processing_runs"
-    ADD CONSTRAINT "loyalty_processing_runs_run_key_key" UNIQUE ("run_key");
-
-
-
 ALTER TABLE ONLY "public"."loyalty_program_settings"
-    ADD CONSTRAINT "loyalty_program_settings_pkey" PRIMARY KEY ("singleton");
+    ADD CONSTRAINT "loyalty_program_settings_pkey" PRIMARY KEY ("instance_id");
 
 
 
@@ -7715,6 +10732,16 @@ ALTER TABLE ONLY "public"."order_events"
 
 
 
+ALTER TABLE ONLY "public"."order_inventory_restorations"
+    ADD CONSTRAINT "order_inventory_restorations_instance_id_order_item_id_sour_key" UNIQUE ("instance_id", "order_item_id", "source_type", "source_id");
+
+
+
+ALTER TABLE ONLY "public"."order_inventory_restorations"
+    ADD CONSTRAINT "order_inventory_restorations_pkey" PRIMARY KEY ("id");
+
+
+
 ALTER TABLE ONLY "public"."order_items"
     ADD CONSTRAINT "order_items_pkey" PRIMARY KEY ("id");
 
@@ -7740,6 +10767,21 @@ ALTER TABLE ONLY "public"."orders"
 
 
 
+ALTER TABLE ONLY "public"."organization_members"
+    ADD CONSTRAINT "organization_members_pkey" PRIMARY KEY ("organization_id", "user_id");
+
+
+
+ALTER TABLE ONLY "public"."organizations"
+    ADD CONSTRAINT "organizations_pkey" PRIMARY KEY ("id");
+
+
+
+ALTER TABLE ONLY "public"."organizations"
+    ADD CONSTRAINT "organizations_slug_key" UNIQUE ("slug");
+
+
+
 ALTER TABLE ONLY "public"."payment_attempts"
     ADD CONSTRAINT "payment_attempts_pkey" PRIMARY KEY ("id");
 
@@ -7747,11 +10789,6 @@ ALTER TABLE ONLY "public"."payment_attempts"
 
 ALTER TABLE ONLY "public"."payment_events"
     ADD CONSTRAINT "payment_events_pkey" PRIMARY KEY ("id");
-
-
-
-ALTER TABLE ONLY "public"."payment_events"
-    ADD CONSTRAINT "payment_events_provider_code_provider_event_id_key" UNIQUE ("provider_code", "provider_event_id");
 
 
 
@@ -7825,6 +10862,11 @@ ALTER TABLE ONLY "public"."post_release_sessions"
 
 
 
+ALTER TABLE ONLY "public"."product_channel_settings"
+    ADD CONSTRAINT "product_channel_settings_pkey" PRIMARY KEY ("instance_id", "product_id", "channel_code");
+
+
+
 ALTER TABLE ONLY "public"."product_recommendation_rules"
     ADD CONSTRAINT "product_recommendation_rules_pkey" PRIMARY KEY ("id");
 
@@ -7845,18 +10887,8 @@ ALTER TABLE ONLY "public"."product_variants"
 
 
 
-ALTER TABLE ONLY "public"."product_variants"
-    ADD CONSTRAINT "product_variants_sku_key" UNIQUE ("sku");
-
-
-
 ALTER TABLE ONLY "public"."products"
     ADD CONSTRAINT "products_pkey" PRIMARY KEY ("id");
-
-
-
-ALTER TABLE ONLY "public"."products"
-    ADD CONSTRAINT "products_slug_key" UNIQUE ("slug");
 
 
 
@@ -7970,6 +11002,11 @@ ALTER TABLE ONLY "public"."return_cases"
 
 
 
+ALTER TABLE ONLY "public"."role_bindings"
+    ADD CONSTRAINT "role_bindings_pkey" PRIMARY KEY ("id");
+
+
+
 ALTER TABLE ONLY "public"."rollout_checks"
     ADD CONSTRAINT "rollout_checks_check_key_key" UNIQUE ("check_key");
 
@@ -8002,11 +11039,6 @@ ALTER TABLE ONLY "public"."rollout_environments"
 
 ALTER TABLE ONLY "public"."sales_tasks"
     ADD CONSTRAINT "sales_tasks_pkey" PRIMARY KEY ("id");
-
-
-
-ALTER TABLE ONLY "public"."sales_tasks"
-    ADD CONSTRAINT "sales_tasks_task_key_key" UNIQUE ("task_key");
 
 
 
@@ -8080,6 +11112,11 @@ ALTER TABLE ONLY "public"."webshop_instances"
 
 
 
+ALTER TABLE ONLY "public"."webshop_sales_channels"
+    ADD CONSTRAINT "webshop_sales_channels_pkey" PRIMARY KEY ("instance_id", "channel_code");
+
+
+
 ALTER TABLE ONLY "public"."wishlists"
     ADD CONSTRAINT "wishlists_pkey" PRIMARY KEY ("id");
 
@@ -8098,11 +11135,31 @@ CREATE INDEX "stock_notification_rate_limits_ip_requested_idx" ON "private"."sto
 
 
 
+CREATE UNIQUE INDEX "action_processing_runs_instance_run_key_uq" ON "public"."action_processing_runs" USING "btree" ("instance_id", "run_key");
+
+
+
 CREATE INDEX "action_proposals_alert_idx" ON "public"."action_proposals" USING "btree" ("alert_id", "status");
 
 
 
+CREATE UNIQUE INDEX "action_proposals_instance_proposal_key_uq" ON "public"."action_proposals" USING "btree" ("instance_id", "proposal_key");
+
+
+
+CREATE INDEX "action_proposals_instance_status_idx" ON "public"."action_proposals" USING "btree" ("instance_id", "status", "created_at" DESC);
+
+
+
 CREATE INDEX "action_proposals_queue_idx" ON "public"."action_proposals" USING "btree" ("status", "risk_score" DESC, "expires_at");
+
+
+
+CREATE UNIQUE INDEX "admin_audit_chain_seq_uidx" ON "public"."admin_audit_log" USING "btree" ("chain_seq");
+
+
+
+CREATE INDEX "admin_audit_instance_chain_idx" ON "public"."admin_audit_log" USING "btree" ("instance_id", "chain_seq" DESC) WHERE ("instance_id" IS NOT NULL);
 
 
 
@@ -8119,6 +11176,18 @@ CREATE INDEX "admin_audit_log_created_at_idx" ON "public"."admin_audit_log" USIN
 
 
 CREATE INDEX "admin_audit_log_entity_idx" ON "public"."admin_audit_log" USING "btree" ("entity_type", "entity_id", "created_at" DESC);
+
+
+
+CREATE INDEX "admin_audit_log_scope_idx" ON "public"."admin_audit_log" USING "btree" ("organization_id", "instance_id", "created_at" DESC);
+
+
+
+CREATE INDEX "admin_audit_org_chain_idx" ON "public"."admin_audit_log" USING "btree" ("organization_id", "chain_seq" DESC) WHERE ("organization_id" IS NOT NULL);
+
+
+
+CREATE INDEX "admin_audit_scope_chain_idx" ON "public"."admin_audit_log" USING "btree" ("audit_scope", "chain_seq" DESC);
 
 
 
@@ -8142,11 +11211,31 @@ CREATE INDEX "assurance_findings_queue_idx" ON "public"."assurance_findings" USI
 
 
 
+CREATE INDEX "automation_events_store_instance_idx" ON "public"."automation_events" USING "btree" ("store_instance_id", "instance_id", "occurred_at" DESC);
+
+
+
 CREATE INDEX "automation_instances_queue_idx" ON "public"."automation_runbook_instances" USING "btree" ("status", "deadline_at", "escalation_level" DESC);
 
 
 
+CREATE UNIQUE INDEX "automation_processing_runs_instance_run_key_uq" ON "public"."automation_processing_runs" USING "btree" ("instance_id", "run_key");
+
+
+
+CREATE INDEX "automation_runbook_instances_instance_idx" ON "public"."automation_runbook_instances" USING "btree" ("instance_id", "status");
+
+
+
+CREATE INDEX "automation_step_runs_store_instance_idx" ON "public"."automation_step_runs" USING "btree" ("store_instance_id", "instance_id", "status");
+
+
+
 CREATE INDEX "checkout_recovery_converted_order_idx" ON "public"."checkout_recovery_intents" USING "btree" ("converted_order_id");
+
+
+
+CREATE INDEX "checkout_recovery_instance_user_idx" ON "public"."checkout_recovery_intents" USING "btree" ("instance_id", "user_id", "status");
 
 
 
@@ -8158,7 +11247,7 @@ CREATE INDEX "checkout_recovery_intents_open_seen_idx" ON "public"."checkout_rec
 
 
 
-CREATE UNIQUE INDEX "checkout_recovery_open_user_uq" ON "public"."checkout_recovery_intents" USING "btree" ("user_id") WHERE ("status" = 'open'::"text");
+CREATE UNIQUE INDEX "checkout_recovery_open_instance_user_uq" ON "public"."checkout_recovery_intents" USING "btree" ("instance_id", "user_id") WHERE ("status" = 'open'::"text");
 
 
 
@@ -8166,7 +11255,23 @@ CREATE INDEX "checkout_recovery_status_expiry_idx" ON "public"."checkout_recover
 
 
 
+CREATE INDEX "commercial_offers_instance_status_idx" ON "public"."commercial_offers" USING "btree" ("instance_id", "status", "created_at" DESC);
+
+
+
 CREATE INDEX "commercial_offers_opportunity_idx" ON "public"."commercial_offers" USING "btree" ("opportunity_id", "status");
+
+
+
+CREATE UNIQUE INDEX "commercial_opportunities_active_b2b_uidx" ON "public"."commercial_opportunities" USING "btree" ("instance_id", "reseller_id") WHERE (("channel" = 'b2b'::"text") AND ("kind" = 'reorder'::"text") AND ("status" = ANY (ARRAY['open'::"text", 'in_progress'::"text"])) AND ("reseller_id" IS NOT NULL));
+
+
+
+CREATE UNIQUE INDEX "commercial_opportunities_active_b2c_uidx" ON "public"."commercial_opportunities" USING "btree" ("instance_id", "customer_id") WHERE (("channel" = 'b2c'::"text") AND ("kind" = ANY (ARRAY['retention'::"text", 'winback'::"text"])) AND ("status" = ANY (ARRAY['open'::"text", 'in_progress'::"text"])) AND ("customer_id" IS NOT NULL));
+
+
+
+CREATE UNIQUE INDEX "commercial_opportunities_active_guest_uidx" ON "public"."commercial_opportunities" USING "btree" ("instance_id", "lower"("customer_email")) WHERE (("channel" = 'b2c'::"text") AND ("kind" = ANY (ARRAY['retention'::"text", 'winback'::"text"])) AND ("status" = ANY (ARRAY['open'::"text", 'in_progress'::"text"])) AND ("customer_id" IS NULL) AND ("customer_email" IS NOT NULL));
 
 
 
@@ -8174,15 +11279,11 @@ CREATE INDEX "commercial_opportunities_customer_idx" ON "public"."commercial_opp
 
 
 
-CREATE UNIQUE INDEX "commercial_opportunities_one_active_b2b_reorder_idx" ON "public"."commercial_opportunities" USING "btree" ("reseller_id") WHERE (("channel" = 'b2b'::"text") AND ("kind" = 'reorder'::"text") AND ("status" = ANY (ARRAY['open'::"text", 'in_progress'::"text"])) AND ("reseller_id" IS NOT NULL));
+CREATE UNIQUE INDEX "commercial_opportunities_instance_key_uidx" ON "public"."commercial_opportunities" USING "btree" ("instance_id", "opportunity_key");
 
 
 
-CREATE UNIQUE INDEX "commercial_opportunities_one_active_b2c_auto_idx" ON "public"."commercial_opportunities" USING "btree" ("customer_id") WHERE (("channel" = 'b2c'::"text") AND ("kind" = ANY (ARRAY['retention'::"text", 'winback'::"text"])) AND ("status" = ANY (ARRAY['open'::"text", 'in_progress'::"text"])) AND ("customer_id" IS NOT NULL));
-
-
-
-CREATE UNIQUE INDEX "commercial_opportunities_one_active_b2c_guest_auto_idx" ON "public"."commercial_opportunities" USING "btree" ("lower"("customer_email")) WHERE (("channel" = 'b2c'::"text") AND ("kind" = ANY (ARRAY['retention'::"text", 'winback'::"text"])) AND ("status" = ANY (ARRAY['open'::"text", 'in_progress'::"text"])) AND ("customer_id" IS NULL) AND ("customer_email" IS NOT NULL));
+CREATE INDEX "commercial_opportunities_instance_queue_idx" ON "public"."commercial_opportunities" USING "btree" ("instance_id", "status", "priority_score" DESC, "due_at");
 
 
 
@@ -8194,7 +11295,19 @@ CREATE INDEX "commercial_opportunities_reseller_idx" ON "public"."commercial_opp
 
 
 
+CREATE INDEX "communication_job_events_instance_job_idx" ON "public"."communication_job_events" USING "btree" ("instance_id", "job_id", "created_at" DESC);
+
+
+
 CREATE INDEX "communication_job_events_job_idx" ON "public"."communication_job_events" USING "btree" ("job_id", "created_at" DESC);
+
+
+
+CREATE UNIQUE INDEX "communication_jobs_instance_idempotency_uidx" ON "public"."communication_jobs" USING "btree" ("instance_id", "idempotency_key");
+
+
+
+CREATE INDEX "communication_jobs_instance_status_idx" ON "public"."communication_jobs" USING "btree" ("instance_id", "status", "scheduled_at");
 
 
 
@@ -8210,15 +11323,35 @@ CREATE INDEX "communication_suppression_events_email_idx" ON "public"."communica
 
 
 
+CREATE INDEX "communication_suppression_events_instance_email_idx" ON "public"."communication_suppression_events" USING "btree" ("instance_id", "lower"("email"), "created_at" DESC);
+
+
+
 CREATE INDEX "communication_suppressions_email_idx" ON "public"."communication_suppressions" USING "btree" ("lower"("email"), "active");
 
 
 
-CREATE UNIQUE INDEX "communication_suppressions_provider_event_uidx" ON "public"."communication_suppressions" USING "btree" ("provider_event_id") WHERE ("provider_event_id" IS NOT NULL);
+CREATE INDEX "communication_suppressions_instance_email_idx" ON "public"."communication_suppressions" USING "btree" ("instance_id", "lower"("email"), "active");
+
+
+
+CREATE UNIQUE INDEX "communication_suppressions_instance_provider_event_uidx" ON "public"."communication_suppressions" USING "btree" ("instance_id", "provider_event_id") WHERE ("provider_event_id" IS NOT NULL);
+
+
+
+CREATE INDEX "communication_worker_runs_instance_started_idx" ON "public"."communication_worker_runs" USING "btree" ("instance_id", "started_at" DESC);
 
 
 
 CREATE INDEX "communication_worker_runs_started_idx" ON "public"."communication_worker_runs" USING "btree" ("started_at" DESC);
+
+
+
+CREATE UNIQUE INDEX "content_pages_instance_slug_unique" ON "public"."content_pages" USING "btree" ("instance_id", "slug");
+
+
+
+CREATE INDEX "content_pages_instance_status_idx" ON "public"."content_pages" USING "btree" ("instance_id", "status");
 
 
 
@@ -8231,6 +11364,14 @@ CREATE INDEX "control_alert_events_alert_idx" ON "public"."control_alert_events"
 
 
 CREATE INDEX "control_alerts_customer_idx" ON "public"."control_alerts" USING "btree" ("customer_id", "status");
+
+
+
+CREATE UNIQUE INDEX "control_alerts_instance_alert_key_uq" ON "public"."control_alerts" USING "btree" ("instance_id", "alert_key");
+
+
+
+CREATE INDEX "control_alerts_instance_status_idx" ON "public"."control_alerts" USING "btree" ("instance_id", "status", "priority_score" DESC);
 
 
 
@@ -8250,7 +11391,15 @@ CREATE INDEX "control_alerts_variant_idx" ON "public"."control_alerts" USING "bt
 
 
 
+CREATE UNIQUE INDEX "control_processing_runs_instance_run_key_uq" ON "public"."control_processing_runs" USING "btree" ("instance_id", "run_key");
+
+
+
 CREATE INDEX "control_tasks_alert_idx" ON "public"."control_tasks" USING "btree" ("alert_id", "status");
+
+
+
+CREATE INDEX "control_tasks_instance_status_idx" ON "public"."control_tasks" USING "btree" ("instance_id", "status", "due_at");
 
 
 
@@ -8258,7 +11407,27 @@ CREATE INDEX "control_tasks_queue_idx" ON "public"."control_tasks" USING "btree"
 
 
 
+CREATE INDEX "coupon_redemptions_coupon_idx" ON "public"."coupon_redemptions" USING "btree" ("instance_id", "coupon_id", "status");
+
+
+
+CREATE INDEX "coupon_redemptions_customer_idx" ON "public"."coupon_redemptions" USING "btree" ("instance_id", "customer_id", "coupon_id", "status") WHERE ("customer_id" IS NOT NULL);
+
+
+
+CREATE INDEX "coupon_redemptions_email_idx" ON "public"."coupon_redemptions" USING "btree" ("instance_id", "lower"("customer_email"), "coupon_id", "status");
+
+
+
 CREATE INDEX "coupons_active_code_idx" ON "public"."coupons" USING "btree" ("code") WHERE ("active" = true);
+
+
+
+CREATE INDEX "coupons_instance_active_idx" ON "public"."coupons" USING "btree" ("instance_id", "active");
+
+
+
+CREATE UNIQUE INDEX "coupons_instance_code_unique" ON "public"."coupons" USING "btree" ("instance_id", "code");
 
 
 
@@ -8266,7 +11435,19 @@ CREATE INDEX "coupons_window_idx" ON "public"."coupons" USING "btree" ("active",
 
 
 
+CREATE INDEX "customer_instance_roles_partner_idx" ON "public"."customer_instance_roles" USING "btree" ("instance_id", "role", "reseller_approved", "updated_at" DESC);
+
+
+
 CREATE INDEX "customer_journey_steps_schedule_idx" ON "public"."customer_journey_steps" USING "btree" ("status", "scheduled_at");
+
+
+
+CREATE INDEX "customer_journeys_instance_idx" ON "public"."customer_journeys" USING "btree" ("instance_id");
+
+
+
+CREATE UNIQUE INDEX "customer_journeys_instance_kind_source_uq" ON "public"."customer_journeys" USING "btree" ("instance_id", "kind", "source_key");
 
 
 
@@ -8278,11 +11459,31 @@ CREATE INDEX "customer_lifecycle_milestones_customer_idx" ON "public"."customer_
 
 
 
+CREATE INDEX "customer_lifecycle_milestones_instance_idx" ON "public"."customer_lifecycle_milestones" USING "btree" ("instance_id", "customer_id");
+
+
+
+CREATE INDEX "customer_value_profiles_instance_score_idx" ON "public"."customer_value_profiles" USING "btree" ("instance_id", "value_score" DESC);
+
+
+
+CREATE INDEX "feature_entitlements_lookup_idx" ON "public"."feature_entitlements" USING "btree" ("organization_id", "instance_id", "feature_code", "enabled");
+
+
+
+CREATE INDEX "fulfillment_events_instance_order_idx" ON "public"."fulfillment_events" USING "btree" ("instance_id", "order_id");
+
+
+
 CREATE INDEX "fulfillment_events_order_idx" ON "public"."fulfillment_events" USING "btree" ("order_id", "occurred_at" DESC);
 
 
 
 CREATE UNIQUE INDEX "integration_jobs_active_order_kind_provider_uidx" ON "public"."integration_jobs" USING "btree" ("order_id", "kind", "provider") WHERE (("order_id" IS NOT NULL) AND ("status" = ANY (ARRAY['pending'::"text", 'processing'::"text"])));
+
+
+
+CREATE INDEX "integration_jobs_instance_status_idx" ON "public"."integration_jobs" USING "btree" ("instance_id", "status", "next_attempt_at");
 
 
 
@@ -8298,11 +11499,19 @@ CREATE INDEX "inventory_events_actor_user_id_idx" ON "public"."inventory_events"
 
 
 
+CREATE INDEX "inventory_events_instance_created_idx" ON "public"."inventory_events" USING "btree" ("instance_id", "created_at" DESC);
+
+
+
 CREATE INDEX "inventory_events_order_id_idx" ON "public"."inventory_events" USING "btree" ("order_id");
 
 
 
 CREATE INDEX "inventory_events_variant_id_idx" ON "public"."inventory_events" USING "btree" ("variant_id", "created_at" DESC);
+
+
+
+CREATE INDEX "inventory_reservations_instance_idx" ON "public"."inventory_reservations" USING "btree" ("instance_id", "status");
 
 
 
@@ -8318,7 +11527,15 @@ CREATE INDEX "inventory_snapshots_date_idx" ON "public"."inventory_snapshots" US
 
 
 
+CREATE INDEX "inventory_snapshots_instance_date_idx" ON "public"."inventory_snapshots" USING "btree" ("instance_id", "snapshot_date" DESC);
+
+
+
 CREATE INDEX "inventory_snapshots_variant_date_idx" ON "public"."inventory_snapshots" USING "btree" ("variant_id", "snapshot_date" DESC);
+
+
+
+CREATE UNIQUE INDEX "loyalty_benefit_rules_instance_key_uidx" ON "public"."loyalty_benefit_rules" USING "btree" ("instance_id", "rule_key");
 
 
 
@@ -8326,7 +11543,19 @@ CREATE INDEX "loyalty_benefit_usage_customer_rule_idx" ON "public"."loyalty_bene
 
 
 
+CREATE UNIQUE INDEX "loyalty_benefit_usage_instance_key_uidx" ON "public"."loyalty_benefit_usage" USING "btree" ("instance_id", "usage_key");
+
+
+
 CREATE INDEX "loyalty_ledger_customer_idx" ON "public"."loyalty_ledger" USING "btree" ("customer_id", "occurred_at" DESC);
+
+
+
+CREATE INDEX "loyalty_ledger_instance_customer_idx" ON "public"."loyalty_ledger" USING "btree" ("instance_id", "customer_id", "occurred_at" DESC);
+
+
+
+CREATE UNIQUE INDEX "loyalty_ledger_instance_event_uidx" ON "public"."loyalty_ledger" USING "btree" ("instance_id", "event_key");
 
 
 
@@ -8334,7 +11563,19 @@ CREATE INDEX "loyalty_ledger_order_idx" ON "public"."loyalty_ledger" USING "btre
 
 
 
+CREATE UNIQUE INDEX "loyalty_processing_runs_instance_key_uidx" ON "public"."loyalty_processing_runs" USING "btree" ("instance_id", "run_key");
+
+
+
 CREATE INDEX "marketing_campaign_recipients_campaign_idx" ON "public"."marketing_campaign_recipients" USING "btree" ("campaign_id", "eligible");
+
+
+
+CREATE INDEX "marketing_campaigns_instance_idx" ON "public"."marketing_campaigns" USING "btree" ("instance_id", "created_at" DESC);
+
+
+
+CREATE UNIQUE INDEX "marketing_campaigns_instance_utm_unique" ON "public"."marketing_campaigns" USING "btree" ("instance_id", "lower"("utm_campaign")) WHERE ("utm_campaign" IS NOT NULL);
 
 
 
@@ -8343,6 +11584,10 @@ CREATE INDEX "marketing_campaigns_status_idx" ON "public"."marketing_campaigns" 
 
 
 CREATE INDEX "marketing_consents_email_occurred_idx" ON "public"."marketing_consents" USING "btree" ("lower"("email"), "channel", "occurred_at" DESC);
+
+
+
+CREATE INDEX "marketing_consents_instance_email_idx" ON "public"."marketing_consents" USING "btree" ("instance_id", "lower"("email"), "occurred_at" DESC);
 
 
 
@@ -8362,7 +11607,11 @@ CREATE UNIQUE INDEX "office_messages_communication_job_uidx" ON "public"."office
 
 
 
-CREATE UNIQUE INDEX "office_messages_external_message_uidx" ON "public"."office_messages" USING "btree" ("external_message_id") WHERE ("external_message_id" IS NOT NULL);
+CREATE UNIQUE INDEX "office_messages_instance_external_message_uidx" ON "public"."office_messages" USING "btree" ("instance_id", "external_message_id") WHERE ("external_message_id" IS NOT NULL);
+
+
+
+CREATE INDEX "office_messages_instance_thread_idx" ON "public"."office_messages" USING "btree" ("instance_id", "thread_id", "created_at");
 
 
 
@@ -8382,6 +11631,10 @@ CREATE INDEX "office_tasks_created_by_idx" ON "public"."office_tasks" USING "btr
 
 
 
+CREATE INDEX "office_tasks_instance_status_idx" ON "public"."office_tasks" USING "btree" ("instance_id", "status", "due_at");
+
+
+
 CREATE INDEX "office_tasks_status_idx" ON "public"."office_tasks" USING "btree" ("status", "due_at");
 
 
@@ -8391,6 +11644,10 @@ CREATE INDEX "office_tasks_thread_id_idx" ON "public"."office_tasks" USING "btre
 
 
 CREATE INDEX "office_threads_assigned_idx" ON "public"."office_threads" USING "btree" ("assigned_to", "status", "updated_at" DESC);
+
+
+
+CREATE INDEX "office_threads_instance_updated_idx" ON "public"."office_threads" USING "btree" ("instance_id", "updated_at" DESC);
 
 
 
@@ -8410,7 +11667,15 @@ CREATE INDEX "order_events_actor_user_id_idx" ON "public"."order_events" USING "
 
 
 
+CREATE INDEX "order_events_instance_order_idx" ON "public"."order_events" USING "btree" ("instance_id", "order_id");
+
+
+
 CREATE INDEX "order_events_order_id_idx" ON "public"."order_events" USING "btree" ("order_id", "created_at" DESC);
+
+
+
+CREATE INDEX "order_items_instance_idx" ON "public"."order_items" USING "btree" ("instance_id", "order_id");
 
 
 
@@ -8419,6 +11684,10 @@ CREATE INDEX "order_items_order_id_idx" ON "public"."order_items" USING "btree" 
 
 
 CREATE INDEX "order_items_variant_id_idx" ON "public"."order_items" USING "btree" ("variant_id");
+
+
+
+CREATE INDEX "order_operations_instance_order_idx" ON "public"."order_operations" USING "btree" ("instance_id", "order_id");
 
 
 
@@ -8434,6 +11703,10 @@ CREATE INDEX "orders_customer_created_at_idx" ON "public"."orders" USING "btree"
 
 
 
+CREATE INDEX "orders_instance_created_idx" ON "public"."orders" USING "btree" ("instance_id", "created_at" DESC);
+
+
+
 CREATE INDEX "orders_invoice_number_idx" ON "public"."orders" USING "btree" ("invoice_number") WHERE ("invoice_number" IS NOT NULL);
 
 
@@ -8442,11 +11715,43 @@ CREATE INDEX "orders_status_created_at_idx" ON "public"."orders" USING "btree" (
 
 
 
+CREATE INDEX "orders_utm_campaign_idx" ON "public"."orders" USING "btree" ("lower"("utm_campaign")) WHERE ("utm_campaign" IS NOT NULL);
+
+
+
+CREATE INDEX "payment_attempts_instance_order_idx" ON "public"."payment_attempts" USING "btree" ("instance_id", "order_id");
+
+
+
+CREATE INDEX "payment_attempts_instance_provider_idx" ON "public"."payment_attempts" USING "btree" ("instance_id", "provider_code", "created_at" DESC);
+
+
+
+CREATE UNIQUE INDEX "payment_attempts_instance_provider_reference_uidx" ON "public"."payment_attempts" USING "btree" ("instance_id", "provider_code", "provider_reference") WHERE ("provider_reference" IS NOT NULL);
+
+
+
+COMMENT ON INDEX "public"."payment_attempts_instance_provider_reference_uidx" IS 'Payment provider references are unique per webshop tenant.';
+
+
+
 CREATE INDEX "payment_attempts_order_created_idx" ON "public"."payment_attempts" USING "btree" ("order_id", "created_at" DESC);
 
 
 
-CREATE UNIQUE INDEX "payment_attempts_provider_reference_uidx" ON "public"."payment_attempts" USING "btree" ("provider_code", "provider_reference") WHERE ("provider_reference" IS NOT NULL);
+CREATE INDEX "payment_events_instance_order_idx" ON "public"."payment_events" USING "btree" ("instance_id", "order_id", "created_at" DESC);
+
+
+
+CREATE UNIQUE INDEX "payment_events_instance_provider_event_uidx" ON "public"."payment_events" USING "btree" ("instance_id", "provider_code", "provider_event_id");
+
+
+
+COMMENT ON INDEX "public"."payment_events_instance_provider_event_uidx" IS 'Webhook event ids are unique per webshop tenant and provider.';
+
+
+
+CREATE INDEX "payment_events_instance_provider_idx" ON "public"."payment_events" USING "btree" ("instance_id", "provider_code", "created_at" DESC);
 
 
 
@@ -8462,6 +11767,10 @@ CREATE INDEX "product_recommendation_rules_recommended_variant_idx" ON "public".
 
 
 
+CREATE INDEX "product_reviews_instance_idx" ON "public"."product_reviews" USING "btree" ("instance_id", "product_id");
+
+
+
 CREATE INDEX "product_reviews_product_idx" ON "public"."product_reviews" USING "btree" ("product_id", "status", "created_at" DESC);
 
 
@@ -8470,11 +11779,27 @@ CREATE INDEX "product_reviews_user_id_idx" ON "public"."product_reviews" USING "
 
 
 
+CREATE INDEX "product_variants_instance_idx" ON "public"."product_variants" USING "btree" ("instance_id");
+
+
+
+CREATE UNIQUE INDEX "product_variants_instance_sku_unique" ON "public"."product_variants" USING "btree" ("instance_id", "sku");
+
+
+
 CREATE INDEX "product_variants_product_id_idx" ON "public"."product_variants" USING "btree" ("product_id");
 
 
 
 CREATE INDEX "product_variants_supplier_idx" ON "public"."product_variants" USING "btree" ("supplier_id");
+
+
+
+CREATE INDEX "products_instance_idx" ON "public"."products" USING "btree" ("instance_id");
+
+
+
+CREATE UNIQUE INDEX "products_instance_slug_unique" ON "public"."products" USING "btree" ("instance_id", "slug");
 
 
 
@@ -8487,6 +11812,10 @@ CREATE INDEX "purchase_order_items_order_idx" ON "public"."purchase_order_items"
 
 
 CREATE UNIQUE INDEX "purchase_order_items_order_variant_uq" ON "public"."purchase_order_items" USING "btree" ("purchase_order_id", "variant_id");
+
+
+
+CREATE INDEX "purchase_orders_instance_status_idx" ON "public"."purchase_orders" USING "btree" ("instance_id", "status", "created_at" DESC);
 
 
 
@@ -8514,6 +11843,10 @@ CREATE INDEX "return_case_items_order_item_idx" ON "public"."return_case_items" 
 
 
 
+CREATE INDEX "return_cases_instance_order_idx" ON "public"."return_cases" USING "btree" ("instance_id", "order_id");
+
+
+
 CREATE INDEX "return_cases_order_idx" ON "public"."return_cases" USING "btree" ("order_id", "requested_at" DESC);
 
 
@@ -8523,6 +11856,14 @@ CREATE INDEX "return_cases_status_idx" ON "public"."return_cases" USING "btree" 
 
 
 CREATE INDEX "return_cases_user_idx" ON "public"."return_cases" USING "btree" ("user_id", "requested_at" DESC);
+
+
+
+CREATE UNIQUE INDEX "role_bindings_active_unique" ON "public"."role_bindings" USING "btree" ("organization_id", COALESCE("instance_id", '00000000-0000-0000-0000-000000000000'::"uuid"), "user_id", "role_code") WHERE ("revoked_at" IS NULL);
+
+
+
+CREATE INDEX "role_bindings_lookup_idx" ON "public"."role_bindings" USING "btree" ("user_id", "instance_id", "valid_from", "valid_until") WHERE ("revoked_at" IS NULL);
 
 
 
@@ -8538,11 +11879,23 @@ CREATE INDEX "rollout_decisions_environment_key_idx" ON "public"."rollout_decisi
 
 
 
+CREATE UNIQUE INDEX "sales_tasks_instance_key_uidx" ON "public"."sales_tasks" USING "btree" ("instance_id", "task_key");
+
+
+
+CREATE INDEX "sales_tasks_instance_queue_idx" ON "public"."sales_tasks" USING "btree" ("instance_id", "status", "priority" DESC, "due_at");
+
+
+
 CREATE INDEX "sales_tasks_queue_idx" ON "public"."sales_tasks" USING "btree" ("status", "priority" DESC, "due_at");
 
 
 
 CREATE UNIQUE INDEX "stock_notifications_communication_job_uidx" ON "public"."stock_notifications" USING "btree" ("communication_job_id") WHERE ("communication_job_id" IS NOT NULL);
+
+
+
+CREATE INDEX "stock_notifications_instance_idx" ON "public"."stock_notifications" USING "btree" ("instance_id", "status");
 
 
 
@@ -8554,7 +11907,11 @@ CREATE INDEX "stock_notifications_waiting_idx" ON "public"."stock_notifications"
 
 
 
-CREATE UNIQUE INDEX "suppliers_name_unique_ci" ON "public"."suppliers" USING "btree" ("lower"(TRIM(BOTH FROM "name")));
+CREATE INDEX "suppliers_instance_idx" ON "public"."suppliers" USING "btree" ("instance_id", "name");
+
+
+
+CREATE UNIQUE INDEX "suppliers_instance_name_unique_ci" ON "public"."suppliers" USING "btree" ("instance_id", "lower"(TRIM(BOTH FROM "name")));
 
 
 
@@ -8566,11 +11923,19 @@ CREATE INDEX "support_tickets_email_idx" ON "public"."support_tickets" USING "bt
 
 
 
+CREATE INDEX "support_tickets_instance_status_idx" ON "public"."support_tickets" USING "btree" ("instance_id", "status", "updated_at" DESC);
+
+
+
 CREATE INDEX "support_tickets_status_idx" ON "public"."support_tickets" USING "btree" ("status", "priority", "created_at");
 
 
 
 CREATE INDEX "support_tickets_user_idx" ON "public"."support_tickets" USING "btree" ("user_id", "created_at" DESC);
+
+
+
+CREATE INDEX "webhook_events_instance_status_idx" ON "public"."webhook_events" USING "btree" ("instance_id", "status", "created_at" DESC) WHERE ("instance_id" IS NOT NULL);
 
 
 
@@ -8582,7 +11947,15 @@ CREATE INDEX "webshop_instance_members_user_idx" ON "public"."webshop_instance_m
 
 
 
+CREATE INDEX "webshop_instances_organization_idx" ON "public"."webshop_instances" USING "btree" ("organization_id");
+
+
+
 CREATE INDEX "webshop_instances_status_idx" ON "public"."webshop_instances" USING "btree" ("status");
+
+
+
+CREATE INDEX "wishlists_instance_user_idx" ON "public"."wishlists" USING "btree" ("instance_id", "user_id");
 
 
 
@@ -8666,11 +12039,59 @@ CREATE OR REPLACE TRIGGER "action_approvals_append_only_trigger" BEFORE DELETE O
 
 
 
+CREATE OR REPLACE TRIGGER "action_approvals_store_guard" BEFORE INSERT OR UPDATE ON "public"."action_approvals" FOR EACH ROW EXECUTE FUNCTION "public"."merchant_intelligence_store_guard"();
+
+
+
 CREATE OR REPLACE TRIGGER "action_events_append_only_trigger" BEFORE DELETE OR UPDATE ON "public"."action_proposal_events" FOR EACH ROW EXECUTE FUNCTION "public"."reject_append_only_action_mutation"();
 
 
 
 CREATE OR REPLACE TRIGGER "action_executions_append_only_trigger" BEFORE DELETE OR UPDATE ON "public"."action_executions" FOR EACH ROW EXECUTE FUNCTION "public"."reject_append_only_action_mutation"();
+
+
+
+CREATE OR REPLACE TRIGGER "action_executions_store_guard" BEFORE INSERT OR UPDATE ON "public"."action_executions" FOR EACH ROW EXECUTE FUNCTION "public"."merchant_intelligence_store_guard"();
+
+
+
+CREATE OR REPLACE TRIGGER "action_proposal_events_store_guard" BEFORE INSERT OR UPDATE ON "public"."action_proposal_events" FOR EACH ROW EXECUTE FUNCTION "public"."merchant_intelligence_store_guard"();
+
+
+
+CREATE OR REPLACE TRIGGER "admin_audit_immutable" BEFORE DELETE OR UPDATE ON "public"."admin_audit_log" FOR EACH ROW EXECUTE FUNCTION "public"."prevent_admin_audit_mutation"();
+
+
+
+CREATE OR REPLACE TRIGGER "admin_audit_prepare_insert" BEFORE INSERT ON "public"."admin_audit_log" FOR EACH ROW EXECUTE FUNCTION "public"."prepare_admin_audit_entry"();
+
+
+
+CREATE OR REPLACE TRIGGER "automation_events_store_guard" BEFORE INSERT OR UPDATE ON "public"."automation_events" FOR EACH ROW EXECUTE FUNCTION "public"."automation_child_store_guard"();
+
+
+
+CREATE OR REPLACE TRIGGER "automation_runbook_instances_store_guard" BEFORE INSERT OR UPDATE ON "public"."automation_runbook_instances" FOR EACH ROW EXECUTE FUNCTION "public"."merchant_intelligence_store_guard"();
+
+
+
+CREATE OR REPLACE TRIGGER "automation_step_runs_store_guard" BEFORE INSERT OR UPDATE ON "public"."automation_step_runs" FOR EACH ROW EXECUTE FUNCTION "public"."automation_child_store_guard"();
+
+
+
+CREATE OR REPLACE TRIGGER "capture_coupon_redemption_after_order_totals" AFTER INSERT OR UPDATE OF "discount_gross_huf", "coupon_code" ON "public"."orders" FOR EACH ROW EXECUTE FUNCTION "public"."capture_order_coupon_redemption"();
+
+
+
+CREATE OR REPLACE TRIGGER "control_alert_events_store_guard" BEFORE INSERT OR UPDATE ON "public"."control_alert_events" FOR EACH ROW EXECUTE FUNCTION "public"."merchant_intelligence_store_guard"();
+
+
+
+CREATE OR REPLACE TRIGGER "control_tasks_store_guard" BEFORE INSERT OR UPDATE ON "public"."control_tasks" FOR EACH ROW EXECUTE FUNCTION "public"."merchant_intelligence_store_guard"();
+
+
+
+CREATE OR REPLACE TRIGGER "customer_journey_steps_store_guard" BEFORE INSERT OR UPDATE ON "public"."customer_journey_steps" FOR EACH ROW EXECUTE FUNCTION "public"."merchant_intelligence_store_guard"();
 
 
 
@@ -8762,7 +12183,39 @@ CREATE OR REPLACE TRIGGER "initialize_support_ticket_thread_trigger" AFTER INSER
 
 
 
+CREATE OR REPLACE TRIGGER "inventory_events_sync_instance" BEFORE INSERT OR UPDATE OF "variant_id", "order_id", "instance_id" ON "public"."inventory_events" FOR EACH ROW EXECUTE FUNCTION "public"."sync_inventory_event_instance"();
+
+
+
+CREATE OR REPLACE TRIGGER "inventory_reservations_sync_instance" BEFORE INSERT OR UPDATE OF "variant_id", "order_id", "instance_id" ON "public"."inventory_reservations" FOR EACH ROW EXECUTE FUNCTION "public"."sync_inventory_reservation_instance"();
+
+
+
+CREATE OR REPLACE TRIGGER "inventory_snapshots_sync_instance" BEFORE INSERT OR UPDATE OF "variant_id", "instance_id" ON "public"."inventory_snapshots" FOR EACH ROW EXECUTE FUNCTION "public"."sync_variant_child_instance"();
+
+
+
 CREATE OR REPLACE TRIGGER "maintain_control_incident_started_at_trigger" BEFORE UPDATE OF "status" ON "public"."control_alerts" FOR EACH ROW EXECUTE FUNCTION "public"."maintain_control_incident_started_at"();
+
+
+
+CREATE OR REPLACE TRIGGER "marketing_campaign_events_sync_instance" BEFORE INSERT OR UPDATE OF "campaign_id", "instance_id" ON "public"."marketing_campaign_events" FOR EACH ROW EXECUTE FUNCTION "public"."sync_campaign_child_instance"();
+
+
+
+CREATE OR REPLACE TRIGGER "marketing_campaign_recipients_sync_instance" BEFORE INSERT OR UPDATE OF "campaign_id", "instance_id" ON "public"."marketing_campaign_recipients" FOR EACH ROW EXECUTE FUNCTION "public"."sync_campaign_child_instance"();
+
+
+
+CREATE OR REPLACE TRIGGER "order_items_sync_instance" BEFORE INSERT OR UPDATE OF "order_id", "variant_id", "instance_id" ON "public"."order_items" FOR EACH ROW EXECUTE FUNCTION "public"."sync_order_item_instance"();
+
+
+
+CREATE OR REPLACE TRIGGER "orders_apply_checkout_instance_context" BEFORE INSERT ON "public"."orders" FOR EACH ROW EXECUTE FUNCTION "public"."apply_checkout_instance_context"();
+
+
+
+CREATE OR REPLACE TRIGGER "orders_coupon_redemption_sync" AFTER INSERT OR UPDATE OF "coupon_code", "discount_gross_huf", "status" ON "public"."orders" FOR EACH ROW EXECUTE FUNCTION "public"."sync_coupon_redemption_from_order_v1"();
 
 
 
@@ -8782,11 +12235,19 @@ CREATE OR REPLACE TRIGGER "prevent_control_event_update" BEFORE UPDATE ON "publi
 
 
 
+CREATE OR REPLACE TRIGGER "product_variants_sync_instance" BEFORE INSERT OR UPDATE OF "product_id", "instance_id" ON "public"."product_variants" FOR EACH ROW EXECUTE FUNCTION "public"."sync_product_variant_instance"();
+
+
+
 CREATE OR REPLACE TRIGGER "product_variants_touch_updated_at" BEFORE UPDATE ON "public"."product_variants" FOR EACH ROW EXECUTE FUNCTION "private"."touch_product_variant_updated_at"();
 
 
 
 CREATE OR REPLACE TRIGGER "release_approval_immutable_trigger" BEFORE DELETE OR UPDATE ON "public"."release_approvals" FOR EACH ROW EXECUTE FUNCTION "public"."guard_release_audit_immutable"();
+
+
+
+CREATE OR REPLACE TRIGGER "release_coupon_redemption_after_order_cancel" AFTER UPDATE OF "status" ON "public"."orders" FOR EACH ROW EXECUTE FUNCTION "public"."release_cancelled_order_coupon_redemption"();
 
 
 
@@ -8810,7 +12271,67 @@ CREATE OR REPLACE TRIGGER "rollout_decisions_immutable" BEFORE DELETE OR UPDATE 
 
 
 
+CREATE OR REPLACE TRIGGER "stock_notifications_sync_instance" BEFORE INSERT OR UPDATE OF "variant_id", "instance_id" ON "public"."stock_notifications" FOR EACH ROW EXECUTE FUNCTION "public"."sync_variant_child_instance"();
+
+
+
 CREATE OR REPLACE TRIGGER "sync_support_ticket_from_message_trigger" AFTER INSERT ON "public"."support_ticket_messages" FOR EACH ROW EXECUTE FUNCTION "public"."sync_support_ticket_from_message"();
+
+
+
+CREATE OR REPLACE TRIGGER "tenant_office_message_parent" BEFORE INSERT OR UPDATE OF "thread_id", "communication_job_id", "instance_id" ON "public"."office_messages" FOR EACH ROW EXECUTE FUNCTION "public"."enforce_office_message_tenant"();
+
+
+
+CREATE OR REPLACE TRIGGER "tenant_office_task_parent" BEFORE INSERT OR UPDATE OF "thread_id", "instance_id" ON "public"."office_tasks" FOR EACH ROW EXECUTE FUNCTION "public"."enforce_office_task_tenant"();
+
+
+
+CREATE OR REPLACE TRIGGER "tenant_office_thread_order" BEFORE INSERT OR UPDATE OF "order_id", "instance_id" ON "public"."office_threads" FOR EACH ROW EXECUTE FUNCTION "public"."enforce_office_thread_tenant"();
+
+
+
+CREATE OR REPLACE TRIGGER "tenant_order_match_fulfillment_events" BEFORE INSERT OR UPDATE OF "order_id", "instance_id" ON "public"."fulfillment_events" FOR EACH ROW EXECUTE FUNCTION "public"."enforce_order_tenant_match"();
+
+
+
+CREATE OR REPLACE TRIGGER "tenant_order_match_integration_jobs" BEFORE INSERT OR UPDATE OF "order_id", "instance_id" ON "public"."integration_jobs" FOR EACH ROW WHEN (("new"."order_id" IS NOT NULL)) EXECUTE FUNCTION "public"."enforce_order_tenant_match"();
+
+
+
+CREATE OR REPLACE TRIGGER "tenant_order_match_order_events" BEFORE INSERT OR UPDATE OF "order_id", "instance_id" ON "public"."order_events" FOR EACH ROW EXECUTE FUNCTION "public"."enforce_order_tenant_match"();
+
+
+
+CREATE OR REPLACE TRIGGER "tenant_order_match_order_operations" BEFORE INSERT OR UPDATE OF "order_id", "instance_id" ON "public"."order_operations" FOR EACH ROW EXECUTE FUNCTION "public"."enforce_order_tenant_match"();
+
+
+
+CREATE OR REPLACE TRIGGER "tenant_order_match_payment_attempts" BEFORE INSERT OR UPDATE OF "order_id", "instance_id" ON "public"."payment_attempts" FOR EACH ROW EXECUTE FUNCTION "public"."enforce_order_tenant_match"();
+
+
+
+CREATE OR REPLACE TRIGGER "tenant_order_match_payment_events" BEFORE INSERT OR UPDATE OF "order_id", "instance_id" ON "public"."payment_events" FOR EACH ROW WHEN (("new"."order_id" IS NOT NULL)) EXECUTE FUNCTION "public"."enforce_order_tenant_match"();
+
+
+
+CREATE OR REPLACE TRIGGER "tenant_order_match_return_cases" BEFORE INSERT OR UPDATE OF "order_id", "instance_id" ON "public"."return_cases" FOR EACH ROW EXECUTE FUNCTION "public"."enforce_order_tenant_match"();
+
+
+
+CREATE OR REPLACE TRIGGER "tenant_order_match_support_tickets" BEFORE INSERT OR UPDATE OF "order_id", "instance_id" ON "public"."support_tickets" FOR EACH ROW WHEN (("new"."order_id" IS NOT NULL)) EXECUTE FUNCTION "public"."enforce_order_tenant_match"();
+
+
+
+CREATE OR REPLACE TRIGGER "tenant_purchase_match_items" BEFORE INSERT OR UPDATE OF "purchase_order_id", "instance_id" ON "public"."purchase_order_items" FOR EACH ROW EXECUTE FUNCTION "public"."enforce_purchase_order_tenant_match"();
+
+
+
+CREATE OR REPLACE TRIGGER "tenant_return_match_items" BEFORE INSERT OR UPDATE OF "return_case_id", "instance_id" ON "public"."return_case_items" FOR EACH ROW EXECUTE FUNCTION "public"."enforce_return_case_tenant_match"();
+
+
+
+CREATE OR REPLACE TRIGGER "tenant_support_match_messages" BEFORE INSERT OR UPDATE OF "ticket_id", "instance_id" ON "public"."support_ticket_messages" FOR EACH ROW EXECUTE FUNCTION "public"."enforce_support_ticket_tenant_match"();
 
 
 
@@ -8826,8 +12347,22 @@ CREATE OR REPLACE TRIGGER "validate_return_case_item_quantity_trigger" BEFORE IN
 
 
 
+CREATE OR REPLACE TRIGGER "wishlists_sync_instance" BEFORE INSERT OR UPDATE OF "variant_id", "instance_id" ON "public"."wishlists" FOR EACH ROW EXECUTE FUNCTION "public"."sync_variant_child_instance"();
+
+
+
+ALTER TABLE ONLY "private"."platform_owner_claims"
+    ADD CONSTRAINT "platform_owner_claims_claimed_by_user_id_fkey" FOREIGN KEY ("claimed_by_user_id") REFERENCES "auth"."users"("id") ON DELETE SET NULL;
+
+
+
 ALTER TABLE ONLY "public"."action_approvals"
     ADD CONSTRAINT "action_approvals_approver_id_fkey" FOREIGN KEY ("approver_id") REFERENCES "auth"."users"("id") ON DELETE RESTRICT;
+
+
+
+ALTER TABLE ONLY "public"."action_approvals"
+    ADD CONSTRAINT "action_approvals_instance_id_fkey" FOREIGN KEY ("instance_id") REFERENCES "public"."webshop_instances"("id") ON DELETE CASCADE;
 
 
 
@@ -8842,12 +12377,32 @@ ALTER TABLE ONLY "public"."action_executions"
 
 
 ALTER TABLE ONLY "public"."action_executions"
+    ADD CONSTRAINT "action_executions_instance_id_fkey" FOREIGN KEY ("instance_id") REFERENCES "public"."webshop_instances"("id") ON DELETE CASCADE;
+
+
+
+ALTER TABLE ONLY "public"."action_executions"
     ADD CONSTRAINT "action_executions_proposal_id_fkey" FOREIGN KEY ("proposal_id") REFERENCES "public"."action_proposals"("id") ON DELETE RESTRICT;
+
+
+
+ALTER TABLE ONLY "public"."action_policies"
+    ADD CONSTRAINT "action_policies_instance_id_fkey" FOREIGN KEY ("instance_id") REFERENCES "public"."webshop_instances"("id") ON DELETE CASCADE;
+
+
+
+ALTER TABLE ONLY "public"."action_processing_runs"
+    ADD CONSTRAINT "action_processing_runs_instance_id_fkey" FOREIGN KEY ("instance_id") REFERENCES "public"."webshop_instances"("id") ON DELETE CASCADE;
 
 
 
 ALTER TABLE ONLY "public"."action_proposal_events"
     ADD CONSTRAINT "action_proposal_events_actor_id_fkey" FOREIGN KEY ("actor_id") REFERENCES "auth"."users"("id") ON DELETE SET NULL;
+
+
+
+ALTER TABLE ONLY "public"."action_proposal_events"
+    ADD CONSTRAINT "action_proposal_events_instance_id_fkey" FOREIGN KEY ("instance_id") REFERENCES "public"."webshop_instances"("id") ON DELETE CASCADE;
 
 
 
@@ -8862,12 +12417,27 @@ ALTER TABLE ONLY "public"."action_proposals"
 
 
 ALTER TABLE ONLY "public"."action_proposals"
+    ADD CONSTRAINT "action_proposals_instance_id_fkey" FOREIGN KEY ("instance_id") REFERENCES "public"."webshop_instances"("id") ON DELETE CASCADE;
+
+
+
+ALTER TABLE ONLY "public"."action_proposals"
     ADD CONSTRAINT "action_proposals_policy_id_fkey" FOREIGN KEY ("policy_id") REFERENCES "public"."action_policies"("id") ON DELETE RESTRICT;
 
 
 
 ALTER TABLE ONLY "public"."admin_audit_log"
     ADD CONSTRAINT "admin_audit_log_actor_user_id_fkey" FOREIGN KEY ("actor_user_id") REFERENCES "auth"."users"("id") ON DELETE RESTRICT;
+
+
+
+ALTER TABLE ONLY "public"."admin_audit_log"
+    ADD CONSTRAINT "admin_audit_log_instance_id_fkey" FOREIGN KEY ("instance_id") REFERENCES "public"."webshop_instances"("id") ON DELETE SET NULL;
+
+
+
+ALTER TABLE ONLY "public"."admin_audit_log"
+    ADD CONSTRAINT "admin_audit_log_organization_id_fkey" FOREIGN KEY ("organization_id") REFERENCES "public"."organizations"("id") ON DELETE SET NULL;
 
 
 
@@ -8926,6 +12496,16 @@ ALTER TABLE ONLY "public"."automation_control_events"
 
 
 
+ALTER TABLE ONLY "public"."automation_control_events"
+    ADD CONSTRAINT "automation_control_events_instance_id_fkey" FOREIGN KEY ("instance_id") REFERENCES "public"."webshop_instances"("id") ON DELETE CASCADE;
+
+
+
+ALTER TABLE ONLY "public"."automation_control"
+    ADD CONSTRAINT "automation_control_instance_id_fkey" FOREIGN KEY ("instance_id") REFERENCES "public"."webshop_instances"("id") ON DELETE CASCADE;
+
+
+
 ALTER TABLE ONLY "public"."automation_events"
     ADD CONSTRAINT "automation_events_actor_id_fkey" FOREIGN KEY ("actor_id") REFERENCES "auth"."users"("id") ON DELETE SET NULL;
 
@@ -8941,8 +12521,23 @@ ALTER TABLE ONLY "public"."automation_events"
 
 
 
+ALTER TABLE ONLY "public"."automation_events"
+    ADD CONSTRAINT "automation_events_store_instance_id_fkey" FOREIGN KEY ("store_instance_id") REFERENCES "public"."webshop_instances"("id") ON DELETE CASCADE;
+
+
+
+ALTER TABLE ONLY "public"."automation_processing_runs"
+    ADD CONSTRAINT "automation_processing_runs_instance_id_fkey" FOREIGN KEY ("instance_id") REFERENCES "public"."webshop_instances"("id") ON DELETE CASCADE;
+
+
+
 ALTER TABLE ONLY "public"."automation_runbook_instances"
     ADD CONSTRAINT "automation_runbook_instances_alert_id_fkey" FOREIGN KEY ("alert_id") REFERENCES "public"."control_alerts"("id") ON DELETE RESTRICT;
+
+
+
+ALTER TABLE ONLY "public"."automation_runbook_instances"
+    ADD CONSTRAINT "automation_runbook_instances_instance_id_fkey" FOREIGN KEY ("instance_id") REFERENCES "public"."webshop_instances"("id") ON DELETE CASCADE;
 
 
 
@@ -8971,6 +12566,11 @@ ALTER TABLE ONLY "public"."automation_step_runs"
 
 
 
+ALTER TABLE ONLY "public"."automation_step_runs"
+    ADD CONSTRAINT "automation_step_runs_store_instance_id_fkey" FOREIGN KEY ("store_instance_id") REFERENCES "public"."webshop_instances"("id") ON DELETE CASCADE;
+
+
+
 ALTER TABLE ONLY "public"."checkout_recovery_intents"
     ADD CONSTRAINT "checkout_recovery_intents_communication_job_id_fkey" FOREIGN KEY ("communication_job_id") REFERENCES "public"."communication_jobs"("id") ON DELETE SET NULL;
 
@@ -8982,12 +12582,22 @@ ALTER TABLE ONLY "public"."checkout_recovery_intents"
 
 
 ALTER TABLE ONLY "public"."checkout_recovery_intents"
+    ADD CONSTRAINT "checkout_recovery_intents_instance_id_fkey" FOREIGN KEY ("instance_id") REFERENCES "public"."webshop_instances"("id") ON DELETE CASCADE;
+
+
+
+ALTER TABLE ONLY "public"."checkout_recovery_intents"
     ADD CONSTRAINT "checkout_recovery_intents_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "auth"."users"("id") ON DELETE CASCADE;
 
 
 
 ALTER TABLE ONLY "public"."commercial_offers"
     ADD CONSTRAINT "commercial_offers_created_by_fkey" FOREIGN KEY ("created_by") REFERENCES "auth"."users"("id") ON DELETE SET NULL;
+
+
+
+ALTER TABLE ONLY "public"."commercial_offers"
+    ADD CONSTRAINT "commercial_offers_instance_id_fkey" FOREIGN KEY ("instance_id") REFERENCES "public"."webshop_instances"("id") ON DELETE CASCADE;
 
 
 
@@ -9007,12 +12617,22 @@ ALTER TABLE ONLY "public"."commercial_opportunities"
 
 
 ALTER TABLE ONLY "public"."commercial_opportunities"
+    ADD CONSTRAINT "commercial_opportunities_instance_id_fkey" FOREIGN KEY ("instance_id") REFERENCES "public"."webshop_instances"("id") ON DELETE CASCADE;
+
+
+
+ALTER TABLE ONLY "public"."commercial_opportunities"
     ADD CONSTRAINT "commercial_opportunities_reseller_id_fkey" FOREIGN KEY ("reseller_id") REFERENCES "auth"."users"("id") ON DELETE SET NULL;
 
 
 
 ALTER TABLE ONLY "public"."communication_job_events"
     ADD CONSTRAINT "communication_job_events_actor_user_id_fkey" FOREIGN KEY ("actor_user_id") REFERENCES "auth"."users"("id") ON DELETE SET NULL;
+
+
+
+ALTER TABLE ONLY "public"."communication_job_events"
+    ADD CONSTRAINT "communication_job_events_instance_id_fkey" FOREIGN KEY ("instance_id") REFERENCES "public"."webshop_instances"("id") ON DELETE CASCADE;
 
 
 
@@ -9027,6 +12647,11 @@ ALTER TABLE ONLY "public"."communication_jobs"
 
 
 ALTER TABLE ONLY "public"."communication_jobs"
+    ADD CONSTRAINT "communication_jobs_instance_id_fkey" FOREIGN KEY ("instance_id") REFERENCES "public"."webshop_instances"("id") ON DELETE CASCADE;
+
+
+
+ALTER TABLE ONLY "public"."communication_jobs"
     ADD CONSTRAINT "communication_jobs_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "auth"."users"("id") ON DELETE SET NULL;
 
 
@@ -9037,12 +12662,32 @@ ALTER TABLE ONLY "public"."communication_suppression_events"
 
 
 ALTER TABLE ONLY "public"."communication_suppression_events"
+    ADD CONSTRAINT "communication_suppression_events_instance_id_fkey" FOREIGN KEY ("instance_id") REFERENCES "public"."webshop_instances"("id") ON DELETE CASCADE;
+
+
+
+ALTER TABLE ONLY "public"."communication_suppression_events"
     ADD CONSTRAINT "communication_suppression_events_suppression_id_fkey" FOREIGN KEY ("suppression_id") REFERENCES "public"."communication_suppressions"("id") ON DELETE SET NULL;
 
 
 
 ALTER TABLE ONLY "public"."communication_suppressions"
+    ADD CONSTRAINT "communication_suppressions_instance_id_fkey" FOREIGN KEY ("instance_id") REFERENCES "public"."webshop_instances"("id") ON DELETE CASCADE;
+
+
+
+ALTER TABLE ONLY "public"."communication_suppressions"
     ADD CONSTRAINT "communication_suppressions_released_by_fkey" FOREIGN KEY ("released_by") REFERENCES "auth"."users"("id") ON DELETE SET NULL;
+
+
+
+ALTER TABLE ONLY "public"."communication_worker_runs"
+    ADD CONSTRAINT "communication_worker_runs_instance_id_fkey" FOREIGN KEY ("instance_id") REFERENCES "public"."webshop_instances"("id") ON DELETE CASCADE;
+
+
+
+ALTER TABLE ONLY "public"."content_pages"
+    ADD CONSTRAINT "content_pages_instance_id_fkey" FOREIGN KEY ("instance_id") REFERENCES "public"."webshop_instances"("id") ON DELETE CASCADE;
 
 
 
@@ -9053,6 +12698,11 @@ ALTER TABLE ONLY "public"."control_alert_events"
 
 ALTER TABLE ONLY "public"."control_alert_events"
     ADD CONSTRAINT "control_alert_events_alert_id_fkey" FOREIGN KEY ("alert_id") REFERENCES "public"."control_alerts"("id") ON DELETE RESTRICT;
+
+
+
+ALTER TABLE ONLY "public"."control_alert_events"
+    ADD CONSTRAINT "control_alert_events_instance_id_fkey" FOREIGN KEY ("instance_id") REFERENCES "public"."webshop_instances"("id") ON DELETE CASCADE;
 
 
 
@@ -9068,6 +12718,11 @@ ALTER TABLE ONLY "public"."control_alerts"
 
 ALTER TABLE ONLY "public"."control_alerts"
     ADD CONSTRAINT "control_alerts_dismissed_by_fkey" FOREIGN KEY ("dismissed_by") REFERENCES "auth"."users"("id") ON DELETE SET NULL;
+
+
+
+ALTER TABLE ONLY "public"."control_alerts"
+    ADD CONSTRAINT "control_alerts_instance_id_fkey" FOREIGN KEY ("instance_id") REFERENCES "public"."webshop_instances"("id") ON DELETE CASCADE;
 
 
 
@@ -9096,6 +12751,11 @@ ALTER TABLE ONLY "public"."control_alerts"
 
 
 
+ALTER TABLE ONLY "public"."control_processing_runs"
+    ADD CONSTRAINT "control_processing_runs_instance_id_fkey" FOREIGN KEY ("instance_id") REFERENCES "public"."webshop_instances"("id") ON DELETE CASCADE;
+
+
+
 ALTER TABLE ONLY "public"."control_tasks"
     ADD CONSTRAINT "control_tasks_alert_id_fkey" FOREIGN KEY ("alert_id") REFERENCES "public"."control_alerts"("id") ON DELETE RESTRICT;
 
@@ -9107,7 +12767,47 @@ ALTER TABLE ONLY "public"."control_tasks"
 
 
 ALTER TABLE ONLY "public"."control_tasks"
+    ADD CONSTRAINT "control_tasks_instance_id_fkey" FOREIGN KEY ("instance_id") REFERENCES "public"."webshop_instances"("id") ON DELETE CASCADE;
+
+
+
+ALTER TABLE ONLY "public"."control_tasks"
     ADD CONSTRAINT "control_tasks_owner_user_id_fkey" FOREIGN KEY ("owner_user_id") REFERENCES "auth"."users"("id") ON DELETE SET NULL;
+
+
+
+ALTER TABLE ONLY "public"."coupon_redemptions"
+    ADD CONSTRAINT "coupon_redemptions_coupon_id_fkey" FOREIGN KEY ("coupon_id") REFERENCES "public"."coupons"("id") ON DELETE RESTRICT;
+
+
+
+ALTER TABLE ONLY "public"."coupon_redemptions"
+    ADD CONSTRAINT "coupon_redemptions_instance_id_fkey" FOREIGN KEY ("instance_id") REFERENCES "public"."webshop_instances"("id") ON DELETE CASCADE;
+
+
+
+ALTER TABLE ONLY "public"."coupon_redemptions"
+    ADD CONSTRAINT "coupon_redemptions_order_id_fkey" FOREIGN KEY ("order_id") REFERENCES "public"."orders"("id") ON DELETE CASCADE;
+
+
+
+ALTER TABLE ONLY "public"."coupons"
+    ADD CONSTRAINT "coupons_instance_id_fkey" FOREIGN KEY ("instance_id") REFERENCES "public"."webshop_instances"("id") ON DELETE CASCADE;
+
+
+
+ALTER TABLE ONLY "public"."customer_instance_roles"
+    ADD CONSTRAINT "customer_instance_roles_approved_by_fkey" FOREIGN KEY ("approved_by") REFERENCES "public"."profiles"("id") ON DELETE SET NULL;
+
+
+
+ALTER TABLE ONLY "public"."customer_instance_roles"
+    ADD CONSTRAINT "customer_instance_roles_instance_id_fkey" FOREIGN KEY ("instance_id") REFERENCES "public"."webshop_instances"("id") ON DELETE CASCADE;
+
+
+
+ALTER TABLE ONLY "public"."customer_instance_roles"
+    ADD CONSTRAINT "customer_instance_roles_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "public"."profiles"("id") ON DELETE CASCADE;
 
 
 
@@ -9117,7 +12817,17 @@ ALTER TABLE ONLY "public"."customer_journey_steps"
 
 
 ALTER TABLE ONLY "public"."customer_journey_steps"
+    ADD CONSTRAINT "customer_journey_steps_instance_id_fkey" FOREIGN KEY ("instance_id") REFERENCES "public"."webshop_instances"("id") ON DELETE CASCADE;
+
+
+
+ALTER TABLE ONLY "public"."customer_journey_steps"
     ADD CONSTRAINT "customer_journey_steps_journey_id_fkey" FOREIGN KEY ("journey_id") REFERENCES "public"."customer_journeys"("id") ON DELETE CASCADE;
+
+
+
+ALTER TABLE ONLY "public"."customer_journeys"
+    ADD CONSTRAINT "customer_journeys_instance_id_fkey" FOREIGN KEY ("instance_id") REFERENCES "public"."webshop_instances"("id") ON DELETE CASCADE;
 
 
 
@@ -9132,6 +12842,11 @@ ALTER TABLE ONLY "public"."customer_lifecycle_milestones"
 
 
 ALTER TABLE ONLY "public"."customer_lifecycle_milestones"
+    ADD CONSTRAINT "customer_lifecycle_milestones_instance_id_fkey" FOREIGN KEY ("instance_id") REFERENCES "public"."webshop_instances"("id") ON DELETE CASCADE;
+
+
+
+ALTER TABLE ONLY "public"."customer_lifecycle_milestones"
     ADD CONSTRAINT "customer_lifecycle_milestones_source_order_id_fkey" FOREIGN KEY ("source_order_id") REFERENCES "public"."orders"("id") ON DELETE RESTRICT;
 
 
@@ -9141,13 +12856,38 @@ ALTER TABLE ONLY "public"."customer_value_profiles"
 
 
 
+ALTER TABLE ONLY "public"."customer_value_profiles"
+    ADD CONSTRAINT "customer_value_profiles_instance_id_fkey" FOREIGN KEY ("instance_id") REFERENCES "public"."webshop_instances"("id") ON DELETE CASCADE;
+
+
+
+ALTER TABLE ONLY "public"."feature_entitlements"
+    ADD CONSTRAINT "feature_entitlements_instance_id_fkey" FOREIGN KEY ("instance_id") REFERENCES "public"."webshop_instances"("id") ON DELETE CASCADE;
+
+
+
+ALTER TABLE ONLY "public"."feature_entitlements"
+    ADD CONSTRAINT "feature_entitlements_organization_id_fkey" FOREIGN KEY ("organization_id") REFERENCES "public"."organizations"("id") ON DELETE CASCADE;
+
+
+
 ALTER TABLE ONLY "public"."fulfillment_events"
     ADD CONSTRAINT "fulfillment_events_actor_id_fkey" FOREIGN KEY ("actor_id") REFERENCES "auth"."users"("id") ON DELETE SET NULL;
 
 
 
 ALTER TABLE ONLY "public"."fulfillment_events"
+    ADD CONSTRAINT "fulfillment_events_instance_id_fkey" FOREIGN KEY ("instance_id") REFERENCES "public"."webshop_instances"("id") ON DELETE CASCADE;
+
+
+
+ALTER TABLE ONLY "public"."fulfillment_events"
     ADD CONSTRAINT "fulfillment_events_order_id_fkey" FOREIGN KEY ("order_id") REFERENCES "public"."orders"("id") ON DELETE RESTRICT;
+
+
+
+ALTER TABLE ONLY "public"."integration_jobs"
+    ADD CONSTRAINT "integration_jobs_instance_id_fkey" FOREIGN KEY ("instance_id") REFERENCES "public"."webshop_instances"("id") ON DELETE CASCADE;
 
 
 
@@ -9162,12 +12902,22 @@ ALTER TABLE ONLY "public"."inventory_events"
 
 
 ALTER TABLE ONLY "public"."inventory_events"
+    ADD CONSTRAINT "inventory_events_instance_id_fkey" FOREIGN KEY ("instance_id") REFERENCES "public"."webshop_instances"("id") ON DELETE RESTRICT;
+
+
+
+ALTER TABLE ONLY "public"."inventory_events"
     ADD CONSTRAINT "inventory_events_order_id_fkey" FOREIGN KEY ("order_id") REFERENCES "public"."orders"("id") ON DELETE SET NULL;
 
 
 
 ALTER TABLE ONLY "public"."inventory_events"
     ADD CONSTRAINT "inventory_events_variant_id_fkey" FOREIGN KEY ("variant_id") REFERENCES "public"."product_variants"("id") ON DELETE CASCADE;
+
+
+
+ALTER TABLE ONLY "public"."inventory_reservations"
+    ADD CONSTRAINT "inventory_reservations_instance_id_fkey" FOREIGN KEY ("instance_id") REFERENCES "public"."webshop_instances"("id") ON DELETE RESTRICT;
 
 
 
@@ -9187,12 +12937,27 @@ ALTER TABLE ONLY "public"."inventory_reservations"
 
 
 ALTER TABLE ONLY "public"."inventory_snapshots"
+    ADD CONSTRAINT "inventory_snapshots_instance_id_fkey" FOREIGN KEY ("instance_id") REFERENCES "public"."webshop_instances"("id") ON DELETE CASCADE;
+
+
+
+ALTER TABLE ONLY "public"."inventory_snapshots"
     ADD CONSTRAINT "inventory_snapshots_variant_id_fkey" FOREIGN KEY ("variant_id") REFERENCES "public"."product_variants"("id") ON DELETE CASCADE;
+
+
+
+ALTER TABLE ONLY "public"."loyalty_benefit_rules"
+    ADD CONSTRAINT "loyalty_benefit_rules_instance_id_fkey" FOREIGN KEY ("instance_id") REFERENCES "public"."webshop_instances"("id") ON DELETE CASCADE;
 
 
 
 ALTER TABLE ONLY "public"."loyalty_benefit_usage"
     ADD CONSTRAINT "loyalty_benefit_usage_customer_id_fkey" FOREIGN KEY ("customer_id") REFERENCES "auth"."users"("id") ON DELETE RESTRICT;
+
+
+
+ALTER TABLE ONLY "public"."loyalty_benefit_usage"
+    ADD CONSTRAINT "loyalty_benefit_usage_instance_id_fkey" FOREIGN KEY ("instance_id") REFERENCES "public"."webshop_instances"("id") ON DELETE CASCADE;
 
 
 
@@ -9212,12 +12977,27 @@ ALTER TABLE ONLY "public"."loyalty_ledger"
 
 
 ALTER TABLE ONLY "public"."loyalty_ledger"
+    ADD CONSTRAINT "loyalty_ledger_instance_id_fkey" FOREIGN KEY ("instance_id") REFERENCES "public"."webshop_instances"("id") ON DELETE CASCADE;
+
+
+
+ALTER TABLE ONLY "public"."loyalty_ledger"
     ADD CONSTRAINT "loyalty_ledger_order_id_fkey" FOREIGN KEY ("order_id") REFERENCES "public"."orders"("id") ON DELETE RESTRICT;
 
 
 
 ALTER TABLE ONLY "public"."loyalty_ledger"
     ADD CONSTRAINT "loyalty_ledger_reverses_entry_id_fkey" FOREIGN KEY ("reverses_entry_id") REFERENCES "public"."loyalty_ledger"("id") ON DELETE RESTRICT;
+
+
+
+ALTER TABLE ONLY "public"."loyalty_processing_runs"
+    ADD CONSTRAINT "loyalty_processing_runs_instance_id_fkey" FOREIGN KEY ("instance_id") REFERENCES "public"."webshop_instances"("id") ON DELETE CASCADE;
+
+
+
+ALTER TABLE ONLY "public"."loyalty_program_settings"
+    ADD CONSTRAINT "loyalty_program_settings_instance_id_fkey" FOREIGN KEY ("instance_id") REFERENCES "public"."webshop_instances"("id") ON DELETE CASCADE;
 
 
 
@@ -9231,6 +13011,11 @@ ALTER TABLE ONLY "public"."marketing_campaign_events"
 
 
 
+ALTER TABLE ONLY "public"."marketing_campaign_events"
+    ADD CONSTRAINT "marketing_campaign_events_instance_id_fkey" FOREIGN KEY ("instance_id") REFERENCES "public"."webshop_instances"("id") ON DELETE CASCADE;
+
+
+
 ALTER TABLE ONLY "public"."marketing_campaign_recipients"
     ADD CONSTRAINT "marketing_campaign_recipients_campaign_id_fkey" FOREIGN KEY ("campaign_id") REFERENCES "public"."marketing_campaigns"("id") ON DELETE CASCADE;
 
@@ -9238,6 +13023,11 @@ ALTER TABLE ONLY "public"."marketing_campaign_recipients"
 
 ALTER TABLE ONLY "public"."marketing_campaign_recipients"
     ADD CONSTRAINT "marketing_campaign_recipients_communication_job_id_fkey" FOREIGN KEY ("communication_job_id") REFERENCES "public"."communication_jobs"("id") ON DELETE SET NULL;
+
+
+
+ALTER TABLE ONLY "public"."marketing_campaign_recipients"
+    ADD CONSTRAINT "marketing_campaign_recipients_instance_id_fkey" FOREIGN KEY ("instance_id") REFERENCES "public"."webshop_instances"("id") ON DELETE CASCADE;
 
 
 
@@ -9253,6 +13043,16 @@ ALTER TABLE ONLY "public"."marketing_campaigns"
 
 ALTER TABLE ONLY "public"."marketing_campaigns"
     ADD CONSTRAINT "marketing_campaigns_created_by_fkey" FOREIGN KEY ("created_by") REFERENCES "auth"."users"("id") ON DELETE SET NULL;
+
+
+
+ALTER TABLE ONLY "public"."marketing_campaigns"
+    ADD CONSTRAINT "marketing_campaigns_instance_id_fkey" FOREIGN KEY ("instance_id") REFERENCES "public"."webshop_instances"("id") ON DELETE CASCADE;
+
+
+
+ALTER TABLE ONLY "public"."marketing_consents"
+    ADD CONSTRAINT "marketing_consents_instance_id_fkey" FOREIGN KEY ("instance_id") REFERENCES "public"."webshop_instances"("id") ON DELETE CASCADE;
 
 
 
@@ -9272,6 +13072,11 @@ ALTER TABLE ONLY "public"."office_messages"
 
 
 ALTER TABLE ONLY "public"."office_messages"
+    ADD CONSTRAINT "office_messages_instance_id_fkey" FOREIGN KEY ("instance_id") REFERENCES "public"."webshop_instances"("id") ON DELETE CASCADE;
+
+
+
+ALTER TABLE ONLY "public"."office_messages"
     ADD CONSTRAINT "office_messages_thread_id_fkey" FOREIGN KEY ("thread_id") REFERENCES "public"."office_threads"("id") ON DELETE CASCADE;
 
 
@@ -9283,6 +13088,11 @@ ALTER TABLE ONLY "public"."office_tasks"
 
 ALTER TABLE ONLY "public"."office_tasks"
     ADD CONSTRAINT "office_tasks_created_by_fkey" FOREIGN KEY ("created_by") REFERENCES "auth"."users"("id") ON DELETE SET NULL;
+
+
+
+ALTER TABLE ONLY "public"."office_tasks"
+    ADD CONSTRAINT "office_tasks_instance_id_fkey" FOREIGN KEY ("instance_id") REFERENCES "public"."webshop_instances"("id") ON DELETE CASCADE;
 
 
 
@@ -9302,6 +13112,11 @@ ALTER TABLE ONLY "public"."office_threads"
 
 
 ALTER TABLE ONLY "public"."office_threads"
+    ADD CONSTRAINT "office_threads_instance_id_fkey" FOREIGN KEY ("instance_id") REFERENCES "public"."webshop_instances"("id") ON DELETE CASCADE;
+
+
+
+ALTER TABLE ONLY "public"."office_threads"
     ADD CONSTRAINT "office_threads_order_id_fkey" FOREIGN KEY ("order_id") REFERENCES "public"."orders"("id") ON DELETE SET NULL;
 
 
@@ -9312,7 +13127,37 @@ ALTER TABLE ONLY "public"."order_events"
 
 
 ALTER TABLE ONLY "public"."order_events"
+    ADD CONSTRAINT "order_events_instance_id_fkey" FOREIGN KEY ("instance_id") REFERENCES "public"."webshop_instances"("id") ON DELETE CASCADE;
+
+
+
+ALTER TABLE ONLY "public"."order_events"
     ADD CONSTRAINT "order_events_order_id_fkey" FOREIGN KEY ("order_id") REFERENCES "public"."orders"("id") ON DELETE CASCADE;
+
+
+
+ALTER TABLE ONLY "public"."order_inventory_restorations"
+    ADD CONSTRAINT "order_inventory_restorations_actor_user_id_fkey" FOREIGN KEY ("actor_user_id") REFERENCES "auth"."users"("id");
+
+
+
+ALTER TABLE ONLY "public"."order_inventory_restorations"
+    ADD CONSTRAINT "order_inventory_restorations_instance_id_fkey" FOREIGN KEY ("instance_id") REFERENCES "public"."webshop_instances"("id") ON DELETE CASCADE;
+
+
+
+ALTER TABLE ONLY "public"."order_inventory_restorations"
+    ADD CONSTRAINT "order_inventory_restorations_order_id_fkey" FOREIGN KEY ("order_id") REFERENCES "public"."orders"("id") ON DELETE CASCADE;
+
+
+
+ALTER TABLE ONLY "public"."order_inventory_restorations"
+    ADD CONSTRAINT "order_inventory_restorations_order_item_id_fkey" FOREIGN KEY ("order_item_id") REFERENCES "public"."order_items"("id") ON DELETE CASCADE;
+
+
+
+ALTER TABLE ONLY "public"."order_items"
+    ADD CONSTRAINT "order_items_instance_id_fkey" FOREIGN KEY ("instance_id") REFERENCES "public"."webshop_instances"("id") ON DELETE RESTRICT;
 
 
 
@@ -9327,6 +13172,11 @@ ALTER TABLE ONLY "public"."order_items"
 
 
 ALTER TABLE ONLY "public"."order_operations"
+    ADD CONSTRAINT "order_operations_instance_id_fkey" FOREIGN KEY ("instance_id") REFERENCES "public"."webshop_instances"("id") ON DELETE CASCADE;
+
+
+
+ALTER TABLE ONLY "public"."order_operations"
     ADD CONSTRAINT "order_operations_order_id_fkey" FOREIGN KEY ("order_id") REFERENCES "public"."orders"("id") ON DELETE CASCADE;
 
 
@@ -9336,8 +13186,33 @@ ALTER TABLE ONLY "public"."orders"
 
 
 
+ALTER TABLE ONLY "public"."orders"
+    ADD CONSTRAINT "orders_instance_id_fkey" FOREIGN KEY ("instance_id") REFERENCES "public"."webshop_instances"("id") ON DELETE RESTRICT;
+
+
+
+ALTER TABLE ONLY "public"."organization_members"
+    ADD CONSTRAINT "organization_members_organization_id_fkey" FOREIGN KEY ("organization_id") REFERENCES "public"."organizations"("id") ON DELETE CASCADE;
+
+
+
+ALTER TABLE ONLY "public"."organization_members"
+    ADD CONSTRAINT "organization_members_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "auth"."users"("id") ON DELETE CASCADE;
+
+
+
+ALTER TABLE ONLY "public"."payment_attempts"
+    ADD CONSTRAINT "payment_attempts_instance_id_fkey" FOREIGN KEY ("instance_id") REFERENCES "public"."webshop_instances"("id") ON DELETE CASCADE;
+
+
+
 ALTER TABLE ONLY "public"."payment_attempts"
     ADD CONSTRAINT "payment_attempts_order_id_fkey" FOREIGN KEY ("order_id") REFERENCES "public"."orders"("id") ON DELETE CASCADE;
+
+
+
+ALTER TABLE ONLY "public"."payment_events"
+    ADD CONSTRAINT "payment_events_instance_id_fkey" FOREIGN KEY ("instance_id") REFERENCES "public"."webshop_instances"("id") ON DELETE CASCADE;
 
 
 
@@ -9411,6 +13286,21 @@ ALTER TABLE ONLY "public"."post_release_sessions"
 
 
 
+ALTER TABLE ONLY "public"."product_channel_settings"
+    ADD CONSTRAINT "product_channel_settings_instance_id_fkey" FOREIGN KEY ("instance_id") REFERENCES "public"."webshop_instances"("id") ON DELETE CASCADE;
+
+
+
+ALTER TABLE ONLY "public"."product_channel_settings"
+    ADD CONSTRAINT "product_channel_settings_product_id_fkey" FOREIGN KEY ("product_id") REFERENCES "public"."products"("id") ON DELETE CASCADE;
+
+
+
+ALTER TABLE ONLY "public"."product_recommendation_rules"
+    ADD CONSTRAINT "product_recommendation_rules_instance_id_fkey" FOREIGN KEY ("instance_id") REFERENCES "public"."webshop_instances"("id") ON DELETE CASCADE;
+
+
+
 ALTER TABLE ONLY "public"."product_recommendation_rules"
     ADD CONSTRAINT "product_recommendation_rules_recommended_variant_id_fkey" FOREIGN KEY ("recommended_variant_id") REFERENCES "public"."product_variants"("id") ON DELETE CASCADE;
 
@@ -9418,6 +13308,11 @@ ALTER TABLE ONLY "public"."product_recommendation_rules"
 
 ALTER TABLE ONLY "public"."product_recommendation_rules"
     ADD CONSTRAINT "product_recommendation_rules_source_variant_id_fkey" FOREIGN KEY ("source_variant_id") REFERENCES "public"."product_variants"("id") ON DELETE CASCADE;
+
+
+
+ALTER TABLE ONLY "public"."product_reviews"
+    ADD CONSTRAINT "product_reviews_instance_id_fkey" FOREIGN KEY ("instance_id") REFERENCES "public"."webshop_instances"("id") ON DELETE CASCADE;
 
 
 
@@ -9432,6 +13327,11 @@ ALTER TABLE ONLY "public"."product_reviews"
 
 
 ALTER TABLE ONLY "public"."product_variants"
+    ADD CONSTRAINT "product_variants_instance_id_fkey" FOREIGN KEY ("instance_id") REFERENCES "public"."webshop_instances"("id") ON DELETE CASCADE;
+
+
+
+ALTER TABLE ONLY "public"."product_variants"
     ADD CONSTRAINT "product_variants_product_id_fkey" FOREIGN KEY ("product_id") REFERENCES "public"."products"("id") ON DELETE CASCADE;
 
 
@@ -9441,8 +13341,18 @@ ALTER TABLE ONLY "public"."product_variants"
 
 
 
+ALTER TABLE ONLY "public"."products"
+    ADD CONSTRAINT "products_instance_id_fkey" FOREIGN KEY ("instance_id") REFERENCES "public"."webshop_instances"("id") ON DELETE CASCADE;
+
+
+
 ALTER TABLE ONLY "public"."profiles"
     ADD CONSTRAINT "profiles_id_fkey" FOREIGN KEY ("id") REFERENCES "auth"."users"("id") ON DELETE CASCADE;
+
+
+
+ALTER TABLE ONLY "public"."purchase_order_items"
+    ADD CONSTRAINT "purchase_order_items_instance_id_fkey" FOREIGN KEY ("instance_id") REFERENCES "public"."webshop_instances"("id") ON DELETE CASCADE;
 
 
 
@@ -9453,6 +13363,11 @@ ALTER TABLE ONLY "public"."purchase_order_items"
 
 ALTER TABLE ONLY "public"."purchase_order_items"
     ADD CONSTRAINT "purchase_order_items_variant_id_fkey" FOREIGN KEY ("variant_id") REFERENCES "public"."product_variants"("id") ON DELETE RESTRICT;
+
+
+
+ALTER TABLE ONLY "public"."purchase_orders"
+    ADD CONSTRAINT "purchase_orders_instance_id_fkey" FOREIGN KEY ("instance_id") REFERENCES "public"."webshop_instances"("id") ON DELETE CASCADE;
 
 
 
@@ -9507,12 +13422,22 @@ ALTER TABLE ONLY "public"."release_gate_results"
 
 
 ALTER TABLE ONLY "public"."return_case_items"
+    ADD CONSTRAINT "return_case_items_instance_id_fkey" FOREIGN KEY ("instance_id") REFERENCES "public"."webshop_instances"("id") ON DELETE CASCADE;
+
+
+
+ALTER TABLE ONLY "public"."return_case_items"
     ADD CONSTRAINT "return_case_items_order_item_id_fkey" FOREIGN KEY ("order_item_id") REFERENCES "public"."order_items"("id") ON DELETE RESTRICT;
 
 
 
 ALTER TABLE ONLY "public"."return_case_items"
     ADD CONSTRAINT "return_case_items_return_case_id_fkey" FOREIGN KEY ("return_case_id") REFERENCES "public"."return_cases"("id") ON DELETE CASCADE;
+
+
+
+ALTER TABLE ONLY "public"."return_cases"
+    ADD CONSTRAINT "return_cases_instance_id_fkey" FOREIGN KEY ("instance_id") REFERENCES "public"."webshop_instances"("id") ON DELETE CASCADE;
 
 
 
@@ -9528,6 +13453,26 @@ ALTER TABLE ONLY "public"."return_cases"
 
 ALTER TABLE ONLY "public"."return_cases"
     ADD CONSTRAINT "return_cases_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "auth"."users"("id") ON DELETE SET NULL;
+
+
+
+ALTER TABLE ONLY "public"."role_bindings"
+    ADD CONSTRAINT "role_bindings_delegated_by_fkey" FOREIGN KEY ("delegated_by") REFERENCES "auth"."users"("id") ON DELETE SET NULL;
+
+
+
+ALTER TABLE ONLY "public"."role_bindings"
+    ADD CONSTRAINT "role_bindings_instance_id_fkey" FOREIGN KEY ("instance_id") REFERENCES "public"."webshop_instances"("id") ON DELETE CASCADE;
+
+
+
+ALTER TABLE ONLY "public"."role_bindings"
+    ADD CONSTRAINT "role_bindings_organization_id_fkey" FOREIGN KEY ("organization_id") REFERENCES "public"."organizations"("id") ON DELETE CASCADE;
+
+
+
+ALTER TABLE ONLY "public"."role_bindings"
+    ADD CONSTRAINT "role_bindings_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "auth"."users"("id") ON DELETE CASCADE;
 
 
 
@@ -9552,6 +13497,11 @@ ALTER TABLE ONLY "public"."sales_tasks"
 
 
 ALTER TABLE ONLY "public"."sales_tasks"
+    ADD CONSTRAINT "sales_tasks_instance_id_fkey" FOREIGN KEY ("instance_id") REFERENCES "public"."webshop_instances"("id") ON DELETE CASCADE;
+
+
+
+ALTER TABLE ONLY "public"."sales_tasks"
     ADD CONSTRAINT "sales_tasks_offer_id_fkey" FOREIGN KEY ("offer_id") REFERENCES "public"."commercial_offers"("id") ON DELETE SET NULL;
 
 
@@ -9567,6 +13517,11 @@ ALTER TABLE ONLY "public"."stock_notifications"
 
 
 ALTER TABLE ONLY "public"."stock_notifications"
+    ADD CONSTRAINT "stock_notifications_instance_id_fkey" FOREIGN KEY ("instance_id") REFERENCES "public"."webshop_instances"("id") ON DELETE CASCADE;
+
+
+
+ALTER TABLE ONLY "public"."stock_notifications"
     ADD CONSTRAINT "stock_notifications_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "auth"."users"("id") ON DELETE CASCADE;
 
 
@@ -9576,13 +13531,28 @@ ALTER TABLE ONLY "public"."stock_notifications"
 
 
 
+ALTER TABLE ONLY "public"."suppliers"
+    ADD CONSTRAINT "suppliers_instance_id_fkey" FOREIGN KEY ("instance_id") REFERENCES "public"."webshop_instances"("id") ON DELETE CASCADE;
+
+
+
 ALTER TABLE ONLY "public"."support_ticket_messages"
     ADD CONSTRAINT "support_ticket_messages_author_user_id_fkey" FOREIGN KEY ("author_user_id") REFERENCES "auth"."users"("id") ON DELETE SET NULL;
 
 
 
 ALTER TABLE ONLY "public"."support_ticket_messages"
+    ADD CONSTRAINT "support_ticket_messages_instance_id_fkey" FOREIGN KEY ("instance_id") REFERENCES "public"."webshop_instances"("id") ON DELETE CASCADE;
+
+
+
+ALTER TABLE ONLY "public"."support_ticket_messages"
     ADD CONSTRAINT "support_ticket_messages_ticket_id_fkey" FOREIGN KEY ("ticket_id") REFERENCES "public"."support_tickets"("id") ON DELETE CASCADE;
+
+
+
+ALTER TABLE ONLY "public"."support_tickets"
+    ADD CONSTRAINT "support_tickets_instance_id_fkey" FOREIGN KEY ("instance_id") REFERENCES "public"."webshop_instances"("id") ON DELETE CASCADE;
 
 
 
@@ -9593,6 +13563,11 @@ ALTER TABLE ONLY "public"."support_tickets"
 
 ALTER TABLE ONLY "public"."support_tickets"
     ADD CONSTRAINT "support_tickets_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "auth"."users"("id") ON DELETE SET NULL;
+
+
+
+ALTER TABLE ONLY "public"."webhook_events"
+    ADD CONSTRAINT "webhook_events_instance_id_fkey" FOREIGN KEY ("instance_id") REFERENCES "public"."webshop_instances"("id") ON DELETE SET NULL;
 
 
 
@@ -9623,6 +13598,21 @@ ALTER TABLE ONLY "public"."webshop_instance_provider_connections"
 
 ALTER TABLE ONLY "public"."webshop_instance_provider_connections"
     ADD CONSTRAINT "webshop_instance_provider_connections_provider_code_fkey" FOREIGN KEY ("provider_code") REFERENCES "public"."commerce_provider_catalog"("code") ON DELETE RESTRICT;
+
+
+
+ALTER TABLE ONLY "public"."webshop_instances"
+    ADD CONSTRAINT "webshop_instances_organization_id_fkey" FOREIGN KEY ("organization_id") REFERENCES "public"."organizations"("id") ON DELETE RESTRICT;
+
+
+
+ALTER TABLE ONLY "public"."webshop_sales_channels"
+    ADD CONSTRAINT "webshop_sales_channels_instance_id_fkey" FOREIGN KEY ("instance_id") REFERENCES "public"."webshop_instances"("id") ON DELETE CASCADE;
+
+
+
+ALTER TABLE ONLY "public"."wishlists"
+    ADD CONSTRAINT "wishlists_instance_id_fkey" FOREIGN KEY ("instance_id") REFERENCES "public"."webshop_instances"("id") ON DELETE CASCADE;
 
 
 
@@ -9660,63 +13650,13 @@ ALTER TABLE "public"."action_proposals" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "public"."admin_audit_log" ENABLE ROW LEVEL SECURITY;
 
 
-CREATE POLICY "admins can read integration jobs" ON "public"."integration_jobs" FOR SELECT TO "authenticated" USING ("private"."is_admin"());
-
-
-
-CREATE POLICY "admins can read inventory events" ON "public"."inventory_events" FOR SELECT TO "authenticated" USING ("private"."is_admin"());
-
-
-
-CREATE POLICY "admins can read webhook events" ON "public"."webhook_events" FOR SELECT TO "authenticated" USING ("private"."is_admin"());
-
-
-
-CREATE POLICY "admins can update orders" ON "public"."orders" FOR UPDATE TO "authenticated" USING ("private"."is_admin"()) WITH CHECK ("private"."is_admin"());
-
-
-
-CREATE POLICY "admins can update products" ON "public"."products" FOR UPDATE TO "authenticated" USING ("private"."is_admin"()) WITH CHECK ("private"."is_admin"());
-
-
-
-CREATE POLICY "admins can update variants" ON "public"."product_variants" FOR UPDATE TO "authenticated" USING ("private"."is_admin"()) WITH CHECK ("private"."is_admin"());
-
-
-
-CREATE POLICY "admins delete content" ON "public"."content_pages" FOR DELETE TO "authenticated" USING ("private"."is_admin"());
+CREATE POLICY "admin_audit_tenant_read" ON "public"."admin_audit_log" FOR SELECT TO "authenticated" USING (("public"."is_platform_operator"(( SELECT "auth"."uid"() AS "uid")) OR (("instance_id" IS NOT NULL) AND "public"."can_read_store"("instance_id", ( SELECT "auth"."uid"() AS "uid"))) OR (("instance_id" IS NULL) AND ("organization_id" IS NOT NULL) AND (EXISTS ( SELECT 1
+   FROM "public"."organization_members" "om"
+  WHERE (("om"."organization_id" = "admin_audit_log"."organization_id") AND ("om"."user_id" = ( SELECT "auth"."uid"() AS "uid"))))))));
 
 
 
 CREATE POLICY "admins delete stock notifications" ON "public"."stock_notifications" FOR DELETE TO "authenticated" USING ("private"."is_admin"());
-
-
-
-CREATE POLICY "admins insert content" ON "public"."content_pages" FOR INSERT TO "authenticated" WITH CHECK ("private"."is_admin"());
-
-
-
-CREATE POLICY "admins manage office messages" ON "public"."office_messages" TO "authenticated" USING ((EXISTS ( SELECT 1
-   FROM "public"."profiles" "p"
-  WHERE (("p"."id" = ( SELECT "auth"."uid"() AS "uid")) AND ("p"."role" = 'admin'::"public"."customer_role"))))) WITH CHECK ((EXISTS ( SELECT 1
-   FROM "public"."profiles" "p"
-  WHERE (("p"."id" = ( SELECT "auth"."uid"() AS "uid")) AND ("p"."role" = 'admin'::"public"."customer_role")))));
-
-
-
-CREATE POLICY "admins manage office tasks" ON "public"."office_tasks" TO "authenticated" USING ((EXISTS ( SELECT 1
-   FROM "public"."profiles" "p"
-  WHERE (("p"."id" = ( SELECT "auth"."uid"() AS "uid")) AND ("p"."role" = 'admin'::"public"."customer_role"))))) WITH CHECK ((EXISTS ( SELECT 1
-   FROM "public"."profiles" "p"
-  WHERE (("p"."id" = ( SELECT "auth"."uid"() AS "uid")) AND ("p"."role" = 'admin'::"public"."customer_role")))));
-
-
-
-CREATE POLICY "admins manage office threads" ON "public"."office_threads" TO "authenticated" USING ((EXISTS ( SELECT 1
-   FROM "public"."profiles" "p"
-  WHERE (("p"."id" = ( SELECT "auth"."uid"() AS "uid")) AND ("p"."role" = 'admin'::"public"."customer_role"))))) WITH CHECK ((EXISTS ( SELECT 1
-   FROM "public"."profiles" "p"
-  WHERE (("p"."id" = ( SELECT "auth"."uid"() AS "uid")) AND ("p"."role" = 'admin'::"public"."customer_role")))));
 
 
 
@@ -9728,25 +13668,11 @@ CREATE POLICY "admins moderate reviews" ON "public"."product_reviews" FOR UPDATE
 
 
 
-CREATE POLICY "admins update content" ON "public"."content_pages" FOR UPDATE TO "authenticated" USING ("private"."is_admin"()) WITH CHECK ("private"."is_admin"());
-
-
-
 CREATE POLICY "admins update stock notifications" ON "public"."stock_notifications" FOR UPDATE TO "authenticated" USING ("private"."is_admin"()) WITH CHECK ("private"."is_admin"());
 
 
 
 CREATE POLICY "anonymous can create stock notifications" ON "public"."stock_notifications" FOR INSERT TO "anon" WITH CHECK ((("user_id" IS NULL) AND (("length"(TRIM(BOTH FROM "email")) >= 5) AND ("length"(TRIM(BOTH FROM "email")) <= 320)) AND ("status" = 'waiting'::"text")));
-
-
-
-CREATE POLICY "anonymous can read active products" ON "public"."products" FOR SELECT TO "anon" USING (("active" = true));
-
-
-
-CREATE POLICY "anonymous can read active variants" ON "public"."product_variants" FOR SELECT TO "anon" USING ((("active" = true) AND (EXISTS ( SELECT 1
-   FROM "public"."products" "p"
-  WHERE (("p"."id" = "product_variants"."product_id") AND ("p"."active" = true))))));
 
 
 
@@ -9765,35 +13691,11 @@ ALTER TABLE "public"."assurance_findings" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "public"."assurance_runs" ENABLE ROW LEVEL SECURITY;
 
 
-CREATE POLICY "authenticated can read permitted order items" ON "public"."order_items" FOR SELECT TO "authenticated" USING ((( SELECT "private"."is_admin"() AS "is_admin") OR (EXISTS ( SELECT 1
-   FROM "public"."orders" "o"
-  WHERE (("o"."id" = "order_items"."order_id") AND ("o"."customer_id" = ( SELECT "auth"."uid"() AS "uid")))))));
-
-
-
-CREATE POLICY "authenticated can read permitted orders" ON "public"."orders" FOR SELECT TO "authenticated" USING (((( SELECT "auth"."uid"() AS "uid") = "customer_id") OR ( SELECT "private"."is_admin"() AS "is_admin")));
-
-
-
 CREATE POLICY "authenticated can read permitted profiles" ON "public"."profiles" FOR SELECT TO "authenticated" USING (((( SELECT "auth"."uid"() AS "uid") = "id") OR ( SELECT "private"."is_admin"() AS "is_admin")));
 
 
 
-CREATE POLICY "authenticated can read products" ON "public"."products" FOR SELECT TO "authenticated" USING ((("active" = true) OR "private"."is_admin"()));
-
-
-
-CREATE POLICY "authenticated can read variants" ON "public"."product_variants" FOR SELECT TO "authenticated" USING (((("active" = true) AND (EXISTS ( SELECT 1
-   FROM "public"."products" "p"
-  WHERE (("p"."id" = "product_variants"."product_id") AND ("p"."active" = true))))) OR "private"."is_admin"()));
-
-
-
 CREATE POLICY "authenticated reads approved or own reviews" ON "public"."product_reviews" FOR SELECT TO "authenticated" USING ((("status" = 'approved'::"text") OR (( SELECT "auth"."uid"() AS "uid") = "user_id") OR "private"."is_admin"()));
-
-
-
-CREATE POLICY "authenticated reads published content" ON "public"."content_pages" FOR SELECT TO "authenticated" USING (((("status" = 'published'::"text") AND (("published_at" IS NULL) OR ("published_at" <= "now"()))) OR "private"."is_admin"()));
 
 
 
@@ -9821,6 +13723,18 @@ ALTER TABLE "public"."automation_runbooks" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "public"."automation_step_runs" ENABLE ROW LEVEL SECURITY;
 
 
+CREATE POLICY "campaign_events_store_all" ON "public"."marketing_campaign_events" TO "authenticated" USING ("public"."can_manage_marketing"("instance_id")) WITH CHECK ("public"."can_manage_marketing"("instance_id"));
+
+
+
+CREATE POLICY "campaign_recipients_store_all" ON "public"."marketing_campaign_recipients" TO "authenticated" USING ("public"."can_manage_marketing"("instance_id")) WITH CHECK ("public"."can_manage_marketing"("instance_id"));
+
+
+
+CREATE POLICY "campaigns_store_all" ON "public"."marketing_campaigns" TO "authenticated" USING ("public"."can_manage_marketing"("instance_id")) WITH CHECK ("public"."can_manage_marketing"("instance_id"));
+
+
+
 ALTER TABLE "public"."checkout_recovery_intents" ENABLE ROW LEVEL SECURITY;
 
 
@@ -9830,13 +13744,25 @@ ALTER TABLE "public"."commerce_provider_catalog" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "public"."commercial_offers" ENABLE ROW LEVEL SECURITY;
 
 
+CREATE POLICY "commercial_offers_store_all" ON "public"."commercial_offers" TO "authenticated" USING ("public"."can_manage_sales"("instance_id")) WITH CHECK ("public"."can_manage_sales"("instance_id"));
+
+
+
 ALTER TABLE "public"."commercial_opportunities" ENABLE ROW LEVEL SECURITY;
+
+
+CREATE POLICY "commercial_opportunities_store_all" ON "public"."commercial_opportunities" TO "authenticated" USING ("public"."can_manage_sales"("instance_id")) WITH CHECK ("public"."can_manage_sales"("instance_id"));
+
 
 
 ALTER TABLE "public"."communication_job_events" ENABLE ROW LEVEL SECURITY;
 
 
 ALTER TABLE "public"."communication_jobs" ENABLE ROW LEVEL SECURITY;
+
+
+CREATE POLICY "communication_jobs_store_read" ON "public"."communication_jobs" FOR SELECT TO "authenticated" USING (("public"."can_manage_marketing"("instance_id") OR "public"."can_manage_orders"("instance_id")));
+
 
 
 ALTER TABLE "public"."communication_suppression_events" ENABLE ROW LEVEL SECURITY;
@@ -9851,6 +13777,22 @@ ALTER TABLE "public"."communication_worker_runs" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "public"."content_pages" ENABLE ROW LEVEL SECURITY;
 
 
+CREATE POLICY "content_store_delete" ON "public"."content_pages" FOR DELETE TO "authenticated" USING ("public"."can_manage_marketing"("instance_id"));
+
+
+
+CREATE POLICY "content_store_insert" ON "public"."content_pages" FOR INSERT TO "authenticated" WITH CHECK ("public"."can_manage_marketing"("instance_id"));
+
+
+
+CREATE POLICY "content_store_read" ON "public"."content_pages" FOR SELECT TO "authenticated" USING ("public"."can_read_store"("instance_id"));
+
+
+
+CREATE POLICY "content_store_update" ON "public"."content_pages" FOR UPDATE TO "authenticated" USING ("public"."can_manage_marketing"("instance_id")) WITH CHECK ("public"."can_manage_marketing"("instance_id"));
+
+
+
 ALTER TABLE "public"."control_alert_events" ENABLE ROW LEVEL SECURITY;
 
 
@@ -9863,7 +13805,21 @@ ALTER TABLE "public"."control_processing_runs" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "public"."control_tasks" ENABLE ROW LEVEL SECURITY;
 
 
+ALTER TABLE "public"."coupon_redemptions" ENABLE ROW LEVEL SECURITY;
+
+
 ALTER TABLE "public"."coupons" ENABLE ROW LEVEL SECURITY;
+
+
+CREATE POLICY "coupons_store_all" ON "public"."coupons" TO "authenticated" USING ("public"."can_manage_marketing"("instance_id")) WITH CHECK ("public"."can_manage_marketing"("instance_id"));
+
+
+
+ALTER TABLE "public"."customer_instance_roles" ENABLE ROW LEVEL SECURITY;
+
+
+CREATE POLICY "customer_instance_roles_self_select" ON "public"."customer_instance_roles" FOR SELECT TO "authenticated" USING ((( SELECT "auth"."uid"() AS "uid") = "user_id"));
+
 
 
 ALTER TABLE "public"."customer_journey_steps" ENABLE ROW LEVEL SECURITY;
@@ -9878,34 +13834,183 @@ ALTER TABLE "public"."customer_lifecycle_milestones" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "public"."customer_value_profiles" ENABLE ROW LEVEL SECURITY;
 
 
+CREATE POLICY "customer_value_profiles_tenant_delete" ON "public"."customer_value_profiles" FOR DELETE TO "authenticated" USING ("public"."can_manage_loyalty"("instance_id"));
+
+
+
+CREATE POLICY "customer_value_profiles_tenant_insert" ON "public"."customer_value_profiles" FOR INSERT TO "authenticated" WITH CHECK ("public"."can_manage_loyalty"("instance_id"));
+
+
+
+CREATE POLICY "customer_value_profiles_tenant_read" ON "public"."customer_value_profiles" FOR SELECT TO "authenticated" USING ("public"."can_read_loyalty"("instance_id"));
+
+
+
+CREATE POLICY "customer_value_profiles_tenant_update" ON "public"."customer_value_profiles" FOR UPDATE TO "authenticated" USING ("public"."can_manage_loyalty"("instance_id")) WITH CHECK ("public"."can_manage_loyalty"("instance_id"));
+
+
+
+ALTER TABLE "public"."feature_entitlements" ENABLE ROW LEVEL SECURITY;
+
+
+CREATE POLICY "feature_entitlements_scope_read" ON "public"."feature_entitlements" FOR SELECT TO "authenticated" USING (("public"."is_platform_operator"(( SELECT "auth"."uid"() AS "uid")) OR (EXISTS ( SELECT 1
+   FROM "public"."organization_members" "m"
+  WHERE (("m"."organization_id" = "feature_entitlements"."organization_id") AND ("m"."user_id" = ( SELECT "auth"."uid"() AS "uid")))))));
+
+
+
 ALTER TABLE "public"."fulfillment_events" ENABLE ROW LEVEL SECURITY;
+
+
+CREATE POLICY "fulfillment_events_store_read" ON "public"."fulfillment_events" FOR SELECT TO "authenticated" USING ("public"."can_manage_orders"("instance_id"));
+
 
 
 ALTER TABLE "public"."integration_jobs" ENABLE ROW LEVEL SECURITY;
 
 
+CREATE POLICY "integration_jobs_store_read" ON "public"."integration_jobs" FOR SELECT TO "authenticated" USING ("public"."can_read_store"("instance_id"));
+
+
+
 ALTER TABLE "public"."inventory_events" ENABLE ROW LEVEL SECURITY;
+
+
+CREATE POLICY "inventory_events_store_delete" ON "public"."inventory_events" FOR DELETE TO "authenticated" USING (("public"."can_manage_catalog"("instance_id") OR "public"."can_manage_orders"("instance_id")));
+
+
+
+CREATE POLICY "inventory_events_store_insert" ON "public"."inventory_events" FOR INSERT TO "authenticated" WITH CHECK (("public"."can_manage_catalog"("instance_id") OR "public"."can_manage_orders"("instance_id")));
+
+
+
+CREATE POLICY "inventory_events_store_read" ON "public"."inventory_events" FOR SELECT TO "authenticated" USING ("public"."can_read_store"("instance_id"));
+
+
+
+CREATE POLICY "inventory_events_store_update" ON "public"."inventory_events" FOR UPDATE TO "authenticated" USING (("public"."can_manage_catalog"("instance_id") OR "public"."can_manage_orders"("instance_id"))) WITH CHECK (("public"."can_manage_catalog"("instance_id") OR "public"."can_manage_orders"("instance_id")));
+
 
 
 ALTER TABLE "public"."inventory_reservations" ENABLE ROW LEVEL SECURITY;
 
 
+CREATE POLICY "inventory_reservations_store_delete" ON "public"."inventory_reservations" FOR DELETE TO "authenticated" USING (("public"."can_manage_catalog"("instance_id") OR "public"."can_manage_orders"("instance_id")));
+
+
+
+CREATE POLICY "inventory_reservations_store_insert" ON "public"."inventory_reservations" FOR INSERT TO "authenticated" WITH CHECK (("public"."can_manage_catalog"("instance_id") OR "public"."can_manage_orders"("instance_id")));
+
+
+
+CREATE POLICY "inventory_reservations_store_read" ON "public"."inventory_reservations" FOR SELECT TO "authenticated" USING ("public"."can_read_store"("instance_id"));
+
+
+
+CREATE POLICY "inventory_reservations_store_update" ON "public"."inventory_reservations" FOR UPDATE TO "authenticated" USING (("public"."can_manage_catalog"("instance_id") OR "public"."can_manage_orders"("instance_id"))) WITH CHECK (("public"."can_manage_catalog"("instance_id") OR "public"."can_manage_orders"("instance_id")));
+
+
+
 ALTER TABLE "public"."inventory_snapshots" ENABLE ROW LEVEL SECURITY;
+
+
+CREATE POLICY "inventory_snapshots_store_read" ON "public"."inventory_snapshots" FOR SELECT TO "authenticated" USING ("public"."can_read_store"("instance_id"));
+
 
 
 ALTER TABLE "public"."loyalty_benefit_rules" ENABLE ROW LEVEL SECURITY;
 
 
+CREATE POLICY "loyalty_benefit_rules_tenant_delete" ON "public"."loyalty_benefit_rules" FOR DELETE TO "authenticated" USING ("public"."can_manage_loyalty"("instance_id"));
+
+
+
+CREATE POLICY "loyalty_benefit_rules_tenant_insert" ON "public"."loyalty_benefit_rules" FOR INSERT TO "authenticated" WITH CHECK ("public"."can_manage_loyalty"("instance_id"));
+
+
+
+CREATE POLICY "loyalty_benefit_rules_tenant_read" ON "public"."loyalty_benefit_rules" FOR SELECT TO "authenticated" USING ("public"."can_read_loyalty"("instance_id"));
+
+
+
+CREATE POLICY "loyalty_benefit_rules_tenant_update" ON "public"."loyalty_benefit_rules" FOR UPDATE TO "authenticated" USING ("public"."can_manage_loyalty"("instance_id")) WITH CHECK ("public"."can_manage_loyalty"("instance_id"));
+
+
+
 ALTER TABLE "public"."loyalty_benefit_usage" ENABLE ROW LEVEL SECURITY;
+
+
+CREATE POLICY "loyalty_benefit_usage_tenant_delete" ON "public"."loyalty_benefit_usage" FOR DELETE TO "authenticated" USING ("public"."can_manage_loyalty"("instance_id"));
+
+
+
+CREATE POLICY "loyalty_benefit_usage_tenant_insert" ON "public"."loyalty_benefit_usage" FOR INSERT TO "authenticated" WITH CHECK ("public"."can_manage_loyalty"("instance_id"));
+
+
+
+CREATE POLICY "loyalty_benefit_usage_tenant_read" ON "public"."loyalty_benefit_usage" FOR SELECT TO "authenticated" USING ("public"."can_read_loyalty"("instance_id"));
+
+
+
+CREATE POLICY "loyalty_benefit_usage_tenant_update" ON "public"."loyalty_benefit_usage" FOR UPDATE TO "authenticated" USING ("public"."can_manage_loyalty"("instance_id")) WITH CHECK ("public"."can_manage_loyalty"("instance_id"));
+
 
 
 ALTER TABLE "public"."loyalty_ledger" ENABLE ROW LEVEL SECURITY;
 
 
+CREATE POLICY "loyalty_ledger_tenant_delete" ON "public"."loyalty_ledger" FOR DELETE TO "authenticated" USING ("public"."can_manage_loyalty"("instance_id"));
+
+
+
+CREATE POLICY "loyalty_ledger_tenant_insert" ON "public"."loyalty_ledger" FOR INSERT TO "authenticated" WITH CHECK ("public"."can_manage_loyalty"("instance_id"));
+
+
+
+CREATE POLICY "loyalty_ledger_tenant_read" ON "public"."loyalty_ledger" FOR SELECT TO "authenticated" USING ("public"."can_read_loyalty"("instance_id"));
+
+
+
+CREATE POLICY "loyalty_ledger_tenant_update" ON "public"."loyalty_ledger" FOR UPDATE TO "authenticated" USING ("public"."can_manage_loyalty"("instance_id")) WITH CHECK ("public"."can_manage_loyalty"("instance_id"));
+
+
+
 ALTER TABLE "public"."loyalty_processing_runs" ENABLE ROW LEVEL SECURITY;
 
 
+CREATE POLICY "loyalty_processing_runs_tenant_delete" ON "public"."loyalty_processing_runs" FOR DELETE TO "authenticated" USING ("public"."can_manage_loyalty"("instance_id"));
+
+
+
+CREATE POLICY "loyalty_processing_runs_tenant_insert" ON "public"."loyalty_processing_runs" FOR INSERT TO "authenticated" WITH CHECK ("public"."can_manage_loyalty"("instance_id"));
+
+
+
+CREATE POLICY "loyalty_processing_runs_tenant_read" ON "public"."loyalty_processing_runs" FOR SELECT TO "authenticated" USING ("public"."can_read_loyalty"("instance_id"));
+
+
+
+CREATE POLICY "loyalty_processing_runs_tenant_update" ON "public"."loyalty_processing_runs" FOR UPDATE TO "authenticated" USING ("public"."can_manage_loyalty"("instance_id")) WITH CHECK ("public"."can_manage_loyalty"("instance_id"));
+
+
+
 ALTER TABLE "public"."loyalty_program_settings" ENABLE ROW LEVEL SECURITY;
+
+
+CREATE POLICY "loyalty_program_settings_tenant_delete" ON "public"."loyalty_program_settings" FOR DELETE TO "authenticated" USING ("public"."can_manage_loyalty"("instance_id"));
+
+
+
+CREATE POLICY "loyalty_program_settings_tenant_insert" ON "public"."loyalty_program_settings" FOR INSERT TO "authenticated" WITH CHECK ("public"."can_manage_loyalty"("instance_id"));
+
+
+
+CREATE POLICY "loyalty_program_settings_tenant_read" ON "public"."loyalty_program_settings" FOR SELECT TO "authenticated" USING ("public"."can_read_loyalty"("instance_id"));
+
+
+
+CREATE POLICY "loyalty_program_settings_tenant_update" ON "public"."loyalty_program_settings" FOR UPDATE TO "authenticated" USING ("public"."can_manage_loyalty"("instance_id")) WITH CHECK ("public"."can_manage_loyalty"("instance_id"));
+
 
 
 ALTER TABLE "public"."marketing_campaign_events" ENABLE ROW LEVEL SECURITY;
@@ -9920,16 +14025,32 @@ ALTER TABLE "public"."marketing_campaigns" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "public"."marketing_consents" ENABLE ROW LEVEL SECURITY;
 
 
+CREATE POLICY "marketing_consents_store_read" ON "public"."marketing_consents" FOR SELECT TO "authenticated" USING ("public"."can_manage_marketing"("instance_id"));
+
+
+
 ALTER TABLE "public"."observability_events" ENABLE ROW LEVEL SECURITY;
 
 
 ALTER TABLE "public"."office_messages" ENABLE ROW LEVEL SECURITY;
 
 
+CREATE POLICY "office_messages_store_all" ON "public"."office_messages" TO "authenticated" USING ("public"."can_manage_support"("instance_id")) WITH CHECK ("public"."can_manage_support"("instance_id"));
+
+
+
 ALTER TABLE "public"."office_tasks" ENABLE ROW LEVEL SECURITY;
 
 
+CREATE POLICY "office_tasks_store_all" ON "public"."office_tasks" TO "authenticated" USING ("public"."can_manage_support"("instance_id")) WITH CHECK ("public"."can_manage_support"("instance_id"));
+
+
+
 ALTER TABLE "public"."office_threads" ENABLE ROW LEVEL SECURITY;
+
+
+CREATE POLICY "office_threads_store_all" ON "public"."office_threads" TO "authenticated" USING ("public"."can_manage_support"("instance_id")) WITH CHECK ("public"."can_manage_support"("instance_id"));
+
 
 
 ALTER TABLE "public"."operations_processing_runs" ENABLE ROW LEVEL SECURITY;
@@ -9938,10 +14059,31 @@ ALTER TABLE "public"."operations_processing_runs" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "public"."order_events" ENABLE ROW LEVEL SECURITY;
 
 
+CREATE POLICY "order_events_store_read" ON "public"."order_events" FOR SELECT TO "authenticated" USING ("public"."can_manage_orders"("instance_id"));
+
+
+
+ALTER TABLE "public"."order_inventory_restorations" ENABLE ROW LEVEL SECURITY;
+
+
+CREATE POLICY "order_inventory_restorations_store_read" ON "public"."order_inventory_restorations" FOR SELECT TO "authenticated" USING ("public"."can_manage_orders"("instance_id"));
+
+
+
 ALTER TABLE "public"."order_items" ENABLE ROW LEVEL SECURITY;
 
 
+CREATE POLICY "order_items_customer_or_store_read" ON "public"."order_items" FOR SELECT TO "authenticated" USING (("public"."can_manage_orders"("instance_id", ( SELECT "auth"."uid"() AS "uid")) OR (EXISTS ( SELECT 1
+   FROM "public"."orders" "o"
+  WHERE (("o"."id" = "order_items"."order_id") AND ("o"."customer_id" = ( SELECT "auth"."uid"() AS "uid")) AND ("o"."instance_id" = "order_items"."instance_id"))))));
+
+
+
 ALTER TABLE "public"."order_operations" ENABLE ROW LEVEL SECURITY;
+
+
+CREATE POLICY "order_operations_store_all" ON "public"."order_operations" TO "authenticated" USING ("public"."can_manage_orders"("instance_id")) WITH CHECK ("public"."can_manage_orders"("instance_id"));
+
 
 
 ALTER TABLE "public"."order_request_keys" ENABLE ROW LEVEL SECURITY;
@@ -9950,10 +14092,44 @@ ALTER TABLE "public"."order_request_keys" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "public"."orders" ENABLE ROW LEVEL SECURITY;
 
 
+CREATE POLICY "orders_customer_or_store_read" ON "public"."orders" FOR SELECT TO "authenticated" USING ((("customer_id" = ( SELECT "auth"."uid"() AS "uid")) OR "public"."can_manage_orders"("instance_id", ( SELECT "auth"."uid"() AS "uid"))));
+
+
+
+CREATE POLICY "orders_store_update" ON "public"."orders" FOR UPDATE TO "authenticated" USING ("public"."can_manage_orders"("instance_id")) WITH CHECK ("public"."can_manage_orders"("instance_id"));
+
+
+
+ALTER TABLE "public"."organization_members" ENABLE ROW LEVEL SECURITY;
+
+
+CREATE POLICY "organization_members_self_read" ON "public"."organization_members" FOR SELECT TO "authenticated" USING (("public"."is_platform_operator"(( SELECT "auth"."uid"() AS "uid")) OR ("user_id" = ( SELECT "auth"."uid"() AS "uid")) OR (EXISTS ( SELECT 1
+   FROM "public"."organization_members" "m"
+  WHERE (("m"."organization_id" = "organization_members"."organization_id") AND ("m"."user_id" = ( SELECT "auth"."uid"() AS "uid")) AND ("m"."role" = ANY (ARRAY['owner'::"text", 'admin'::"text"])))))));
+
+
+
+ALTER TABLE "public"."organizations" ENABLE ROW LEVEL SECURITY;
+
+
+CREATE POLICY "organizations_member_read" ON "public"."organizations" FOR SELECT TO "authenticated" USING (("public"."is_platform_operator"(( SELECT "auth"."uid"() AS "uid")) OR (EXISTS ( SELECT 1
+   FROM "public"."organization_members" "m"
+  WHERE (("m"."organization_id" = "organizations"."id") AND ("m"."user_id" = ( SELECT "auth"."uid"() AS "uid")))))));
+
+
+
 ALTER TABLE "public"."payment_attempts" ENABLE ROW LEVEL SECURITY;
 
 
+CREATE POLICY "payment_attempts_store_read" ON "public"."payment_attempts" FOR SELECT TO "authenticated" USING ("public"."can_manage_orders"("instance_id"));
+
+
+
 ALTER TABLE "public"."payment_events" ENABLE ROW LEVEL SECURITY;
+
+
+CREATE POLICY "payment_events_store_read" ON "public"."payment_events" FOR SELECT TO "authenticated" USING ("public"."can_manage_orders"("instance_id"));
+
 
 
 ALTER TABLE "public"."platform_operators" ENABLE ROW LEVEL SECURITY;
@@ -9977,6 +14153,13 @@ ALTER TABLE "public"."post_release_rollback_decisions" ENABLE ROW LEVEL SECURITY
 ALTER TABLE "public"."post_release_sessions" ENABLE ROW LEVEL SECURITY;
 
 
+CREATE POLICY "product_channel_scope_read" ON "public"."product_channel_settings" FOR SELECT TO "authenticated" USING ("public"."has_store_role"("instance_id", ARRAY['owner'::"text", 'admin'::"text", 'catalog_manager'::"text", 'order_manager'::"text", 'marketing_manager'::"text", 'support'::"text", 'analyst'::"text", 'viewer'::"text"]));
+
+
+
+ALTER TABLE "public"."product_channel_settings" ENABLE ROW LEVEL SECURITY;
+
+
 ALTER TABLE "public"."product_recommendation_rules" ENABLE ROW LEVEL SECURITY;
 
 
@@ -9989,6 +14172,22 @@ ALTER TABLE "public"."product_variants" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "public"."products" ENABLE ROW LEVEL SECURITY;
 
 
+CREATE POLICY "products_store_delete" ON "public"."products" FOR DELETE TO "authenticated" USING ("public"."can_manage_catalog"("instance_id"));
+
+
+
+CREATE POLICY "products_store_insert" ON "public"."products" FOR INSERT TO "authenticated" WITH CHECK ("public"."can_manage_catalog"("instance_id"));
+
+
+
+CREATE POLICY "products_store_read" ON "public"."products" FOR SELECT TO "authenticated" USING ("public"."can_read_store"("instance_id"));
+
+
+
+CREATE POLICY "products_store_update" ON "public"."products" FOR UPDATE TO "authenticated" USING ("public"."can_manage_catalog"("instance_id")) WITH CHECK ("public"."can_manage_catalog"("instance_id"));
+
+
+
 ALTER TABLE "public"."profiles" ENABLE ROW LEVEL SECURITY;
 
 
@@ -9996,14 +14195,22 @@ CREATE POLICY "public reads approved reviews" ON "public"."product_reviews" FOR 
 
 
 
-CREATE POLICY "public reads published content" ON "public"."content_pages" FOR SELECT TO "anon" USING ((("status" = 'published'::"text") AND (("published_at" IS NULL) OR ("published_at" <= "now"()))));
-
-
-
 ALTER TABLE "public"."purchase_order_items" ENABLE ROW LEVEL SECURITY;
 
 
+CREATE POLICY "purchase_order_items_store_all" ON "public"."purchase_order_items" TO "authenticated" USING ("public"."can_manage_procurement"("instance_id")) WITH CHECK ("public"."can_manage_procurement"("instance_id"));
+
+
+
 ALTER TABLE "public"."purchase_orders" ENABLE ROW LEVEL SECURITY;
+
+
+CREATE POLICY "purchase_orders_store_all" ON "public"."purchase_orders" TO "authenticated" USING ("public"."can_manage_procurement"("instance_id")) WITH CHECK ("public"."can_manage_procurement"("instance_id"));
+
+
+
+CREATE POLICY "recovery_intents_owner_read" ON "public"."checkout_recovery_intents" FOR SELECT TO "authenticated" USING ((("user_id" = ( SELECT "auth"."uid"() AS "uid")) OR "public"."can_manage_marketing"("instance_id", ( SELECT "auth"."uid"() AS "uid"))));
+
 
 
 ALTER TABLE "public"."release_approvals" ENABLE ROW LEVEL SECURITY;
@@ -10033,7 +14240,24 @@ ALTER TABLE "public"."release_windows" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "public"."return_case_items" ENABLE ROW LEVEL SECURITY;
 
 
+CREATE POLICY "return_case_items_store_all" ON "public"."return_case_items" TO "authenticated" USING ("public"."can_manage_orders"("instance_id")) WITH CHECK ("public"."can_manage_orders"("instance_id"));
+
+
+
 ALTER TABLE "public"."return_cases" ENABLE ROW LEVEL SECURITY;
+
+
+CREATE POLICY "return_cases_store_all" ON "public"."return_cases" TO "authenticated" USING ("public"."can_manage_orders"("instance_id")) WITH CHECK ("public"."can_manage_orders"("instance_id"));
+
+
+
+ALTER TABLE "public"."role_bindings" ENABLE ROW LEVEL SECURITY;
+
+
+CREATE POLICY "role_bindings_scope_read" ON "public"."role_bindings" FOR SELECT TO "authenticated" USING (("public"."is_platform_operator"(( SELECT "auth"."uid"() AS "uid")) OR ("user_id" = ( SELECT "auth"."uid"() AS "uid")) OR (EXISTS ( SELECT 1
+   FROM "public"."organization_members" "m"
+  WHERE (("m"."organization_id" = "role_bindings"."organization_id") AND ("m"."user_id" = ( SELECT "auth"."uid"() AS "uid")) AND ("m"."role" = ANY (ARRAY['owner'::"text", 'admin'::"text"])))))));
+
 
 
 ALTER TABLE "public"."rollout_checks" ENABLE ROW LEVEL SECURITY;
@@ -10045,7 +14269,15 @@ ALTER TABLE "public"."rollout_decisions" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "public"."rollout_environments" ENABLE ROW LEVEL SECURITY;
 
 
+CREATE POLICY "sales_channels_scope_read" ON "public"."webshop_sales_channels" FOR SELECT TO "authenticated" USING ("public"."has_store_role"("instance_id", ARRAY['owner'::"text", 'admin'::"text", 'catalog_manager'::"text", 'order_manager'::"text", 'marketing_manager'::"text", 'support'::"text", 'analyst'::"text", 'viewer'::"text"]));
+
+
+
 ALTER TABLE "public"."sales_tasks" ENABLE ROW LEVEL SECURITY;
+
+
+CREATE POLICY "sales_tasks_store_all" ON "public"."sales_tasks" TO "authenticated" USING ("public"."can_manage_sales"("instance_id")) WITH CHECK ("public"."can_manage_sales"("instance_id"));
+
 
 
 ALTER TABLE "public"."security_rate_limits" ENABLE ROW LEVEL SECURITY;
@@ -10057,47 +14289,97 @@ ALTER TABLE "public"."stock_notifications" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "public"."suppliers" ENABLE ROW LEVEL SECURITY;
 
 
+CREATE POLICY "suppliers_store_all" ON "public"."suppliers" TO "authenticated" USING ("public"."can_manage_procurement"("instance_id")) WITH CHECK ("public"."can_manage_procurement"("instance_id"));
+
+
+
 ALTER TABLE "public"."support_ticket_messages" ENABLE ROW LEVEL SECURITY;
+
+
+CREATE POLICY "support_ticket_messages_store_all" ON "public"."support_ticket_messages" TO "authenticated" USING ("public"."can_manage_support"("instance_id")) WITH CHECK ("public"."can_manage_support"("instance_id"));
+
 
 
 ALTER TABLE "public"."support_tickets" ENABLE ROW LEVEL SECURITY;
 
 
-CREATE POLICY "users can add own support messages" ON "public"."support_ticket_messages" FOR INSERT TO "authenticated" WITH CHECK ((("author_role" = 'customer'::"text") AND ("author_user_id" = ( SELECT "auth"."uid"() AS "uid")) AND (EXISTS ( SELECT 1
-   FROM "public"."support_tickets" "t"
-  WHERE (("t"."id" = "support_ticket_messages"."ticket_id") AND ("t"."user_id" = ( SELECT "auth"."uid"() AS "uid")) AND ("t"."status" <> 'closed'::"public"."support_ticket_status"))))));
+CREATE POLICY "support_tickets_store_all" ON "public"."support_tickets" TO "authenticated" USING ("public"."can_manage_support"("instance_id")) WITH CHECK ("public"."can_manage_support"("instance_id"));
 
 
 
-CREATE POLICY "users can create own return cases" ON "public"."return_cases" FOR INSERT TO "authenticated" WITH CHECK (((( SELECT "auth"."uid"() AS "uid") = "user_id") AND (EXISTS ( SELECT 1
-   FROM "public"."orders" "o"
-  WHERE (("o"."id" = "return_cases"."order_id") AND ("o"."customer_id" = ( SELECT "auth"."uid"() AS "uid")))))));
+CREATE POLICY "suppressions_store_read" ON "public"."communication_suppressions" FOR SELECT TO "authenticated" USING ("public"."can_manage_marketing"("instance_id"));
 
 
 
-CREATE POLICY "users can read own return cases" ON "public"."return_cases" FOR SELECT TO "authenticated" USING ((( SELECT "auth"."uid"() AS "uid") = "user_id"));
+CREATE POLICY "tenant_read" ON "public"."action_approvals" FOR SELECT TO "authenticated" USING ("public"."has_store_role"("instance_id", ARRAY['owner'::"text", 'admin'::"text", 'catalog_manager'::"text", 'order_manager'::"text", 'marketing_manager'::"text", 'support'::"text", 'analyst'::"text", 'viewer'::"text"]));
 
 
 
-CREATE POLICY "users can read own return items" ON "public"."return_case_items" FOR SELECT TO "authenticated" USING ((EXISTS ( SELECT 1
-   FROM "public"."return_cases" "r"
-  WHERE (("r"."id" = "return_case_items"."return_case_id") AND ("r"."user_id" = ( SELECT "auth"."uid"() AS "uid"))))));
+CREATE POLICY "tenant_read" ON "public"."action_executions" FOR SELECT TO "authenticated" USING ("public"."has_store_role"("instance_id", ARRAY['owner'::"text", 'admin'::"text", 'catalog_manager'::"text", 'order_manager'::"text", 'marketing_manager'::"text", 'support'::"text", 'analyst'::"text", 'viewer'::"text"]));
 
 
 
-CREATE POLICY "users can read own support messages" ON "public"."support_ticket_messages" FOR SELECT TO "authenticated" USING ((EXISTS ( SELECT 1
-   FROM "public"."support_tickets" "t"
-  WHERE (("t"."id" = "support_ticket_messages"."ticket_id") AND ("t"."user_id" = ( SELECT "auth"."uid"() AS "uid"))))));
+CREATE POLICY "tenant_read" ON "public"."action_processing_runs" FOR SELECT TO "authenticated" USING ("public"."has_store_role"("instance_id", ARRAY['owner'::"text", 'admin'::"text", 'catalog_manager'::"text", 'order_manager'::"text", 'marketing_manager'::"text", 'support'::"text", 'analyst'::"text", 'viewer'::"text"]));
 
 
 
-CREATE POLICY "users can read own support tickets" ON "public"."support_tickets" FOR SELECT TO "authenticated" USING ((( SELECT "auth"."uid"() AS "uid") = "user_id"));
+CREATE POLICY "tenant_read" ON "public"."action_proposal_events" FOR SELECT TO "authenticated" USING ("public"."has_store_role"("instance_id", ARRAY['owner'::"text", 'admin'::"text", 'catalog_manager'::"text", 'order_manager'::"text", 'marketing_manager'::"text", 'support'::"text", 'analyst'::"text", 'viewer'::"text"]));
 
 
 
-CREATE POLICY "users can read permitted order events" ON "public"."order_events" FOR SELECT TO "authenticated" USING ((( SELECT "private"."is_admin"() AS "is_admin") OR (EXISTS ( SELECT 1
-   FROM "public"."orders" "o"
-  WHERE (("o"."id" = "order_events"."order_id") AND ("o"."customer_id" = ( SELECT "auth"."uid"() AS "uid")))))));
+CREATE POLICY "tenant_read" ON "public"."action_proposals" FOR SELECT TO "authenticated" USING ("public"."has_store_role"("instance_id", ARRAY['owner'::"text", 'admin'::"text", 'catalog_manager'::"text", 'order_manager'::"text", 'marketing_manager'::"text", 'support'::"text", 'analyst'::"text", 'viewer'::"text"]));
+
+
+
+CREATE POLICY "tenant_read" ON "public"."automation_control" FOR SELECT TO "authenticated" USING ("public"."has_store_role"("instance_id", ARRAY['owner'::"text", 'admin'::"text", 'catalog_manager'::"text", 'order_manager'::"text", 'marketing_manager'::"text", 'support'::"text", 'analyst'::"text", 'viewer'::"text"]));
+
+
+
+CREATE POLICY "tenant_read" ON "public"."automation_control_events" FOR SELECT TO "authenticated" USING ("public"."has_store_role"("instance_id", ARRAY['owner'::"text", 'admin'::"text", 'catalog_manager'::"text", 'order_manager'::"text", 'marketing_manager'::"text", 'support'::"text", 'analyst'::"text", 'viewer'::"text"]));
+
+
+
+CREATE POLICY "tenant_read" ON "public"."automation_events" FOR SELECT TO "authenticated" USING ("public"."has_store_role"("store_instance_id", ARRAY['owner'::"text", 'admin'::"text", 'catalog_manager'::"text", 'order_manager'::"text", 'marketing_manager'::"text", 'support'::"text", 'analyst'::"text", 'viewer'::"text"]));
+
+
+
+CREATE POLICY "tenant_read" ON "public"."automation_processing_runs" FOR SELECT TO "authenticated" USING ("public"."has_store_role"("instance_id", ARRAY['owner'::"text", 'admin'::"text", 'catalog_manager'::"text", 'order_manager'::"text", 'marketing_manager'::"text", 'support'::"text", 'analyst'::"text", 'viewer'::"text"]));
+
+
+
+CREATE POLICY "tenant_read" ON "public"."automation_runbook_instances" FOR SELECT TO "authenticated" USING ("public"."has_store_role"("instance_id", ARRAY['owner'::"text", 'admin'::"text", 'catalog_manager'::"text", 'order_manager'::"text", 'marketing_manager'::"text", 'support'::"text", 'analyst'::"text", 'viewer'::"text"]));
+
+
+
+CREATE POLICY "tenant_read" ON "public"."automation_step_runs" FOR SELECT TO "authenticated" USING ("public"."has_store_role"("store_instance_id", ARRAY['owner'::"text", 'admin'::"text", 'catalog_manager'::"text", 'order_manager'::"text", 'marketing_manager'::"text", 'support'::"text", 'analyst'::"text", 'viewer'::"text"]));
+
+
+
+CREATE POLICY "tenant_read" ON "public"."control_alert_events" FOR SELECT TO "authenticated" USING ("public"."has_store_role"("instance_id", ARRAY['owner'::"text", 'admin'::"text", 'catalog_manager'::"text", 'order_manager'::"text", 'marketing_manager'::"text", 'support'::"text", 'analyst'::"text", 'viewer'::"text"]));
+
+
+
+CREATE POLICY "tenant_read" ON "public"."control_alerts" FOR SELECT TO "authenticated" USING ("public"."has_store_role"("instance_id", ARRAY['owner'::"text", 'admin'::"text", 'catalog_manager'::"text", 'order_manager'::"text", 'marketing_manager'::"text", 'support'::"text", 'analyst'::"text", 'viewer'::"text"]));
+
+
+
+CREATE POLICY "tenant_read" ON "public"."control_processing_runs" FOR SELECT TO "authenticated" USING ("public"."has_store_role"("instance_id", ARRAY['owner'::"text", 'admin'::"text", 'catalog_manager'::"text", 'order_manager'::"text", 'marketing_manager'::"text", 'support'::"text", 'analyst'::"text", 'viewer'::"text"]));
+
+
+
+CREATE POLICY "tenant_read" ON "public"."control_tasks" FOR SELECT TO "authenticated" USING ("public"."has_store_role"("instance_id", ARRAY['owner'::"text", 'admin'::"text", 'catalog_manager'::"text", 'order_manager'::"text", 'marketing_manager'::"text", 'support'::"text", 'analyst'::"text", 'viewer'::"text"]));
+
+
+
+CREATE POLICY "tenant_read" ON "public"."customer_journey_steps" FOR SELECT TO "authenticated" USING ("public"."has_store_role"("instance_id", ARRAY['owner'::"text", 'admin'::"text", 'catalog_manager'::"text", 'order_manager'::"text", 'marketing_manager'::"text", 'support'::"text", 'analyst'::"text", 'viewer'::"text"]));
+
+
+
+CREATE POLICY "tenant_read" ON "public"."customer_journeys" FOR SELECT TO "authenticated" USING ("public"."has_store_role"("instance_id", ARRAY['owner'::"text", 'admin'::"text", 'catalog_manager'::"text", 'order_manager'::"text", 'marketing_manager'::"text", 'support'::"text", 'analyst'::"text", 'viewer'::"text"]));
+
+
+
+CREATE POLICY "tenant_read" ON "public"."customer_lifecycle_milestones" FOR SELECT TO "authenticated" USING ("public"."has_store_role"("instance_id", ARRAY['owner'::"text", 'admin'::"text", 'catalog_manager'::"text", 'order_manager'::"text", 'marketing_manager'::"text", 'support'::"text", 'analyst'::"text", 'viewer'::"text"]));
 
 
 
@@ -10121,6 +14403,22 @@ CREATE POLICY "users read own stock notifications" ON "public"."stock_notificati
 
 
 
+CREATE POLICY "variants_store_delete" ON "public"."product_variants" FOR DELETE TO "authenticated" USING ("public"."can_manage_catalog"("instance_id"));
+
+
+
+CREATE POLICY "variants_store_insert" ON "public"."product_variants" FOR INSERT TO "authenticated" WITH CHECK ("public"."can_manage_catalog"("instance_id"));
+
+
+
+CREATE POLICY "variants_store_read" ON "public"."product_variants" FOR SELECT TO "authenticated" USING ("public"."can_read_store"("instance_id"));
+
+
+
+CREATE POLICY "variants_store_update" ON "public"."product_variants" FOR UPDATE TO "authenticated" USING ("public"."can_manage_catalog"("instance_id")) WITH CHECK ("public"."can_manage_catalog"("instance_id"));
+
+
+
 ALTER TABLE "public"."webhook_events" ENABLE ROW LEVEL SECURITY;
 
 
@@ -10139,9 +14437,18 @@ ALTER TABLE "public"."webshop_instance_provider_connections" ENABLE ROW LEVEL SE
 ALTER TABLE "public"."webshop_instances" ENABLE ROW LEVEL SECURITY;
 
 
+ALTER TABLE "public"."webshop_sales_channels" ENABLE ROW LEVEL SECURITY;
+
+
 ALTER TABLE "public"."wishlists" ENABLE ROW LEVEL SECURITY;
 
 
+GRANT USAGE ON SCHEMA "private" TO "authenticated";
+GRANT USAGE ON SCHEMA "private" TO "service_role";
+
+
+
+REVOKE USAGE ON SCHEMA "public" FROM PUBLIC;
 GRANT USAGE ON SCHEMA "public" TO "postgres";
 GRANT USAGE ON SCHEMA "public" TO "anon";
 GRANT USAGE ON SCHEMA "public" TO "authenticated";
@@ -10153,7 +14460,25 @@ REVOKE ALL ON FUNCTION "private"."handle_new_user"() FROM PUBLIC;
 
 
 
+REVOKE ALL ON FUNCTION "private"."has_feature_entitlement_current"("p_instance_id" "uuid", "p_feature_code" "text") FROM PUBLIC;
+GRANT ALL ON FUNCTION "private"."has_feature_entitlement_current"("p_instance_id" "uuid", "p_feature_code" "text") TO "authenticated";
+GRANT ALL ON FUNCTION "private"."has_feature_entitlement_current"("p_instance_id" "uuid", "p_feature_code" "text") TO "service_role";
+
+
+
+REVOKE ALL ON FUNCTION "private"."has_store_role_current"("p_instance_id" "uuid", "p_roles" "text"[], "p_user_id" "uuid") FROM PUBLIC;
+GRANT ALL ON FUNCTION "private"."has_store_role_current"("p_instance_id" "uuid", "p_roles" "text"[], "p_user_id" "uuid") TO "authenticated";
+GRANT ALL ON FUNCTION "private"."has_store_role_current"("p_instance_id" "uuid", "p_roles" "text"[], "p_user_id" "uuid") TO "service_role";
+
+
+
 REVOKE ALL ON FUNCTION "private"."is_admin"() FROM PUBLIC;
+
+
+
+REVOKE ALL ON FUNCTION "private"."is_platform_operator_current"("p_user_id" "uuid") FROM PUBLIC;
+GRANT ALL ON FUNCTION "private"."is_platform_operator_current"("p_user_id" "uuid") TO "authenticated";
+GRANT ALL ON FUNCTION "private"."is_platform_operator_current"("p_user_id" "uuid") TO "service_role";
 
 
 
@@ -10170,8 +14495,12 @@ GRANT ALL ON FUNCTION "public"."accrue_loyalty_points_from_paid_orders"() TO "se
 
 
 
+REVOKE ALL ON FUNCTION "public"."accrue_loyalty_points_from_paid_orders_v2"("p_instance_id" "uuid") FROM PUBLIC;
+GRANT ALL ON FUNCTION "public"."accrue_loyalty_points_from_paid_orders_v2"("p_instance_id" "uuid") TO "service_role";
+
+
+
 REVOKE ALL ON FUNCTION "public"."action_proposal_is_stale"("p_proposal_id" "uuid") FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."action_proposal_is_stale"("p_proposal_id" "uuid") TO "service_role";
 
 
 
@@ -10180,12 +14509,15 @@ GRANT ALL ON TABLE "public"."automation_runbook_instances" TO "service_role";
 
 
 REVOKE ALL ON FUNCTION "public"."activate_automation_runbook"("p_instance_id" "uuid", "p_actor_id" "uuid", "p_event_key" "text") FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."activate_automation_runbook"("p_instance_id" "uuid", "p_actor_id" "uuid", "p_event_key" "text") TO "service_role";
+
+
+
+REVOKE ALL ON FUNCTION "public"."activate_automation_runbook_v2"("p_store_instance_id" "uuid", "p_runbook_instance_id" "uuid", "p_actor_id" "uuid", "p_event_key" "text") FROM PUBLIC;
+GRANT ALL ON FUNCTION "public"."activate_automation_runbook_v2"("p_store_instance_id" "uuid", "p_runbook_instance_id" "uuid", "p_actor_id" "uuid", "p_event_key" "text") TO "service_role";
 
 
 
 REVOKE ALL ON FUNCTION "public"."add_customer_journey_step"("p_journey_id" "uuid", "p_step_key" "text", "p_purpose" "text", "p_template_key" "text", "p_scheduled_at" timestamp with time zone) FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."add_customer_journey_step"("p_journey_id" "uuid", "p_step_key" "text", "p_purpose" "text", "p_template_key" "text", "p_scheduled_at" timestamp with time zone) TO "service_role";
 
 
 
@@ -10199,32 +14531,56 @@ GRANT ALL ON FUNCTION "public"."add_release_change"("p_candidate_id" "uuid", "p_
 
 
 REVOKE ALL ON FUNCTION "public"."admin_approve_communication_job"("p_job_id" "uuid", "p_actor" "uuid", "p_note" "text") FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."admin_approve_communication_job"("p_job_id" "uuid", "p_actor" "uuid", "p_note" "text") TO "service_role";
+
+
+
+REVOKE ALL ON FUNCTION "public"."admin_approve_communication_job_v2"("p_instance_id" "uuid", "p_job_id" "uuid", "p_actor" "uuid", "p_note" "text") FROM PUBLIC;
+GRANT ALL ON FUNCTION "public"."admin_approve_communication_job_v2"("p_instance_id" "uuid", "p_job_id" "uuid", "p_actor" "uuid", "p_note" "text") TO "service_role";
 
 
 
 REVOKE ALL ON FUNCTION "public"."admin_block_communication_email"("p_email" "text", "p_actor" "uuid", "p_note" "text") FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."admin_block_communication_email"("p_email" "text", "p_actor" "uuid", "p_note" "text") TO "service_role";
+
+
+
+REVOKE ALL ON FUNCTION "public"."admin_block_communication_email_v2"("p_instance_id" "uuid", "p_email" "text", "p_actor" "uuid", "p_note" "text") FROM PUBLIC;
+GRANT ALL ON FUNCTION "public"."admin_block_communication_email_v2"("p_instance_id" "uuid", "p_email" "text", "p_actor" "uuid", "p_note" "text") TO "service_role";
 
 
 
 REVOKE ALL ON FUNCTION "public"."admin_manage_communication_job"("p_job_id" "uuid", "p_actor" "uuid", "p_action" "text", "p_scheduled_at" timestamp with time zone, "p_note" "text") FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."admin_manage_communication_job"("p_job_id" "uuid", "p_actor" "uuid", "p_action" "text", "p_scheduled_at" timestamp with time zone, "p_note" "text") TO "service_role";
+
+
+
+REVOKE ALL ON FUNCTION "public"."admin_manage_communication_job_v2"("p_instance_id" "uuid", "p_job_id" "uuid", "p_actor" "uuid", "p_action" "text", "p_scheduled_at" timestamp with time zone, "p_note" "text") FROM PUBLIC;
+GRANT ALL ON FUNCTION "public"."admin_manage_communication_job_v2"("p_instance_id" "uuid", "p_job_id" "uuid", "p_actor" "uuid", "p_action" "text", "p_scheduled_at" timestamp with time zone, "p_note" "text") TO "service_role";
 
 
 
 REVOKE ALL ON FUNCTION "public"."admin_manage_marketing_campaign"("p_campaign_id" "uuid", "p_actor" "uuid", "p_action" "text", "p_note" "text") FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."admin_manage_marketing_campaign"("p_campaign_id" "uuid", "p_actor" "uuid", "p_action" "text", "p_note" "text") TO "service_role";
+
+
+
+REVOKE ALL ON FUNCTION "public"."admin_manage_marketing_campaign_v2"("p_instance_id" "uuid", "p_campaign_id" "uuid", "p_actor" "uuid", "p_action" "text", "p_note" "text") FROM PUBLIC;
+GRANT ALL ON FUNCTION "public"."admin_manage_marketing_campaign_v2"("p_instance_id" "uuid", "p_campaign_id" "uuid", "p_actor" "uuid", "p_action" "text", "p_note" "text") TO "service_role";
 
 
 
 REVOKE ALL ON FUNCTION "public"."admin_release_communication_suppression"("p_suppression_id" "uuid", "p_actor" "uuid", "p_note" "text") FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."admin_release_communication_suppression"("p_suppression_id" "uuid", "p_actor" "uuid", "p_note" "text") TO "service_role";
+
+
+
+REVOKE ALL ON FUNCTION "public"."admin_release_communication_suppression_v2"("p_instance_id" "uuid", "p_suppression_id" "uuid", "p_actor" "uuid", "p_note" "text") FROM PUBLIC;
+GRANT ALL ON FUNCTION "public"."admin_release_communication_suppression_v2"("p_instance_id" "uuid", "p_suppression_id" "uuid", "p_actor" "uuid", "p_note" "text") TO "service_role";
 
 
 
 REVOKE ALL ON FUNCTION "public"."allow_stock_notification_request"("p_email" "text", "p_ip" "text") FROM PUBLIC;
 GRANT ALL ON FUNCTION "public"."allow_stock_notification_request"("p_email" "text", "p_ip" "text") TO "service_role";
+
+
+
+REVOKE ALL ON FUNCTION "public"."apply_checkout_instance_context"() FROM PUBLIC;
 
 
 
@@ -10238,12 +14594,19 @@ GRANT ALL ON TABLE "public"."commercial_offers" TO "service_role";
 
 
 REVOKE ALL ON FUNCTION "public"."approve_commercial_offer"("p_offer_id" "uuid") FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."approve_commercial_offer"("p_offer_id" "uuid") TO "service_role";
 
 
 
-GRANT ALL ON FUNCTION "public"."block_post_release_immutable_mutation"() TO "anon";
-GRANT ALL ON FUNCTION "public"."block_post_release_immutable_mutation"() TO "authenticated";
+REVOKE ALL ON FUNCTION "public"."approve_commercial_offer_v2"("p_instance_id" "uuid", "p_offer_id" "uuid") FROM PUBLIC;
+GRANT ALL ON FUNCTION "public"."approve_commercial_offer_v2"("p_instance_id" "uuid", "p_offer_id" "uuid") TO "service_role";
+
+
+
+REVOKE ALL ON FUNCTION "public"."automation_child_store_guard"() FROM PUBLIC;
+
+
+
+REVOKE ALL ON FUNCTION "public"."block_post_release_immutable_mutation"() FROM PUBLIC;
 GRANT ALL ON FUNCTION "public"."block_post_release_immutable_mutation"() TO "service_role";
 
 
@@ -10258,13 +14621,66 @@ GRANT ALL ON FUNCTION "public"."bulk_update_product_variants"("p_changes" "jsonb
 
 
 
+REVOKE ALL ON FUNCTION "public"."can_manage_catalog"("p_instance_id" "uuid", "p_user_id" "uuid") FROM PUBLIC;
+GRANT ALL ON FUNCTION "public"."can_manage_catalog"("p_instance_id" "uuid", "p_user_id" "uuid") TO "authenticated";
+GRANT ALL ON FUNCTION "public"."can_manage_catalog"("p_instance_id" "uuid", "p_user_id" "uuid") TO "service_role";
+
+
+
+REVOKE ALL ON FUNCTION "public"."can_manage_loyalty"("p_instance_id" "uuid", "p_user_id" "uuid") FROM PUBLIC;
+GRANT ALL ON FUNCTION "public"."can_manage_loyalty"("p_instance_id" "uuid", "p_user_id" "uuid") TO "authenticated";
+GRANT ALL ON FUNCTION "public"."can_manage_loyalty"("p_instance_id" "uuid", "p_user_id" "uuid") TO "service_role";
+
+
+
+REVOKE ALL ON FUNCTION "public"."can_manage_marketing"("p_instance_id" "uuid", "p_user_id" "uuid") FROM PUBLIC;
+GRANT ALL ON FUNCTION "public"."can_manage_marketing"("p_instance_id" "uuid", "p_user_id" "uuid") TO "authenticated";
+GRANT ALL ON FUNCTION "public"."can_manage_marketing"("p_instance_id" "uuid", "p_user_id" "uuid") TO "service_role";
+
+
+
+REVOKE ALL ON FUNCTION "public"."can_manage_orders"("p_instance_id" "uuid", "p_user_id" "uuid") FROM PUBLIC;
+GRANT ALL ON FUNCTION "public"."can_manage_orders"("p_instance_id" "uuid", "p_user_id" "uuid") TO "authenticated";
+GRANT ALL ON FUNCTION "public"."can_manage_orders"("p_instance_id" "uuid", "p_user_id" "uuid") TO "service_role";
+
+
+
+REVOKE ALL ON FUNCTION "public"."can_manage_procurement"("p_instance_id" "uuid", "p_user_id" "uuid") FROM PUBLIC;
+GRANT ALL ON FUNCTION "public"."can_manage_procurement"("p_instance_id" "uuid", "p_user_id" "uuid") TO "authenticated";
+GRANT ALL ON FUNCTION "public"."can_manage_procurement"("p_instance_id" "uuid", "p_user_id" "uuid") TO "service_role";
+
+
+
+REVOKE ALL ON FUNCTION "public"."can_manage_sales"("p_instance_id" "uuid", "p_user_id" "uuid") FROM PUBLIC;
+GRANT ALL ON FUNCTION "public"."can_manage_sales"("p_instance_id" "uuid", "p_user_id" "uuid") TO "authenticated";
+GRANT ALL ON FUNCTION "public"."can_manage_sales"("p_instance_id" "uuid", "p_user_id" "uuid") TO "service_role";
+
+
+
+REVOKE ALL ON FUNCTION "public"."can_manage_support"("p_instance_id" "uuid", "p_user_id" "uuid") FROM PUBLIC;
+GRANT ALL ON FUNCTION "public"."can_manage_support"("p_instance_id" "uuid", "p_user_id" "uuid") TO "authenticated";
+GRANT ALL ON FUNCTION "public"."can_manage_support"("p_instance_id" "uuid", "p_user_id" "uuid") TO "service_role";
+
+
+
+REVOKE ALL ON FUNCTION "public"."can_read_loyalty"("p_instance_id" "uuid", "p_user_id" "uuid") FROM PUBLIC;
+GRANT ALL ON FUNCTION "public"."can_read_loyalty"("p_instance_id" "uuid", "p_user_id" "uuid") TO "authenticated";
+GRANT ALL ON FUNCTION "public"."can_read_loyalty"("p_instance_id" "uuid", "p_user_id" "uuid") TO "service_role";
+
+
+
+REVOKE ALL ON FUNCTION "public"."can_read_store"("p_instance_id" "uuid", "p_user_id" "uuid") FROM PUBLIC;
+GRANT ALL ON FUNCTION "public"."can_read_store"("p_instance_id" "uuid", "p_user_id" "uuid") TO "authenticated";
+GRANT ALL ON FUNCTION "public"."can_read_store"("p_instance_id" "uuid", "p_user_id" "uuid") TO "service_role";
+
+
+
 REVOKE ALL ON FUNCTION "public"."cancel_release_candidate"("p_candidate_id" "uuid", "p_actor_id" "uuid", "p_reason" "text", "p_event_key" "text") FROM PUBLIC;
 GRANT ALL ON FUNCTION "public"."cancel_release_candidate"("p_candidate_id" "uuid", "p_actor_id" "uuid", "p_reason" "text", "p_event_key" "text") TO "service_role";
 
 
 
 REVOKE ALL ON FUNCTION "public"."cancel_stale_automation_incidents"("p_run_key" "text") FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."cancel_stale_automation_incidents"("p_run_key" "text") TO "service_role";
 
 
 
@@ -10273,27 +14689,48 @@ GRANT ALL ON FUNCTION "public"."capture_inventory_snapshot"("p_snapshot_date" "d
 
 
 
+REVOKE ALL ON FUNCTION "public"."capture_order_coupon_redemption"() FROM PUBLIC;
+
+
+
 GRANT ALL ON TABLE "public"."communication_jobs" TO "service_role";
 
 
 
 REVOKE ALL ON FUNCTION "public"."claim_communication_jobs"("p_limit" integer) FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."claim_communication_jobs"("p_limit" integer) TO "service_role";
+
+
+
+REVOKE ALL ON FUNCTION "public"."claim_communication_jobs_v2"("p_instance_id" "uuid", "p_limit" integer) FROM PUBLIC;
+GRANT ALL ON FUNCTION "public"."claim_communication_jobs_v2"("p_instance_id" "uuid", "p_limit" integer) TO "service_role";
 
 
 
 REVOKE ALL ON FUNCTION "public"."claim_integration_job"("p_id" "uuid") FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."claim_integration_job"("p_id" "uuid") TO "service_role";
+
+
+
+REVOKE ALL ON FUNCTION "public"."claim_integration_job_v2"("p_instance_id" "uuid", "p_id" "uuid") FROM PUBLIC;
+GRANT ALL ON FUNCTION "public"."claim_integration_job_v2"("p_instance_id" "uuid", "p_id" "uuid") TO "service_role";
 
 
 
 REVOKE ALL ON FUNCTION "public"."claim_integration_jobs"("p_limit" integer) FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."claim_integration_jobs"("p_limit" integer) TO "service_role";
 
 
 
 REVOKE ALL ON FUNCTION "public"."complete_communication_job"("p_id" "uuid", "p_claim_token" "uuid", "p_provider_message_id" "text") FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."complete_communication_job"("p_id" "uuid", "p_claim_token" "uuid", "p_provider_message_id" "text") TO "service_role";
+
+
+
+REVOKE ALL ON FUNCTION "public"."complete_communication_job_v2"("p_instance_id" "uuid", "p_id" "uuid", "p_claim_token" "uuid", "p_provider_message_id" "text") FROM PUBLIC;
+GRANT ALL ON FUNCTION "public"."complete_communication_job_v2"("p_instance_id" "uuid", "p_id" "uuid", "p_claim_token" "uuid", "p_provider_message_id" "text") TO "service_role";
+
+
+
+GRANT ALL ON FUNCTION "public"."compute_admin_audit_hash"("p_chain_seq" bigint, "p_audit_scope" "text", "p_prev_hash" "text", "p_actor_user_id" "uuid", "p_actor_roles" "text"[], "p_action" "text", "p_entity_type" "text", "p_entity_id" "text", "p_summary" "text", "p_before_state" "jsonb", "p_after_state" "jsonb", "p_metadata" "jsonb", "p_created_at" timestamp with time zone) TO "anon";
+GRANT ALL ON FUNCTION "public"."compute_admin_audit_hash"("p_chain_seq" bigint, "p_audit_scope" "text", "p_prev_hash" "text", "p_actor_user_id" "uuid", "p_actor_roles" "text"[], "p_action" "text", "p_entity_type" "text", "p_entity_id" "text", "p_summary" "text", "p_before_state" "jsonb", "p_after_state" "jsonb", "p_metadata" "jsonb", "p_created_at" timestamp with time zone) TO "authenticated";
+GRANT ALL ON FUNCTION "public"."compute_admin_audit_hash"("p_chain_seq" bigint, "p_audit_scope" "text", "p_prev_hash" "text", "p_actor_user_id" "uuid", "p_actor_roles" "text"[], "p_action" "text", "p_entity_type" "text", "p_entity_id" "text", "p_summary" "text", "p_before_state" "jsonb", "p_after_state" "jsonb", "p_metadata" "jsonb", "p_created_at" timestamp with time zone) TO "service_role";
 
 
 
@@ -10303,22 +14740,38 @@ GRANT ALL ON FUNCTION "public"."consume_security_rate_limit"("p_rate_key" "text"
 
 
 REVOKE ALL ON FUNCTION "public"."convert_checkout_recovery_intent"("p_user_id" "uuid", "p_order_id" "uuid") FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."convert_checkout_recovery_intent"("p_user_id" "uuid", "p_order_id" "uuid") TO "service_role";
+
+
+
+REVOKE ALL ON FUNCTION "public"."convert_checkout_recovery_intent_v2"("p_instance_id" "uuid", "p_user_id" "uuid", "p_order_id" "uuid") FROM PUBLIC;
+GRANT ALL ON FUNCTION "public"."convert_checkout_recovery_intent_v2"("p_instance_id" "uuid", "p_user_id" "uuid", "p_order_id" "uuid") TO "service_role";
 
 
 
 REVOKE ALL ON FUNCTION "public"."create_commercial_offer"("p_opportunity_id" "uuid", "p_variant_id" "uuid", "p_quantity" integer, "p_discount_percent" numeric, "p_minimum_margin_percent" numeric, "p_created_by" "uuid") FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."create_commercial_offer"("p_opportunity_id" "uuid", "p_variant_id" "uuid", "p_quantity" integer, "p_discount_percent" numeric, "p_minimum_margin_percent" numeric, "p_created_by" "uuid") TO "service_role";
+
+
+
+REVOKE ALL ON FUNCTION "public"."create_commercial_offer_v2"("p_instance_id" "uuid", "p_opportunity_id" "uuid", "p_variant_id" "uuid", "p_quantity" integer, "p_discount_percent" numeric, "p_minimum_margin_percent" numeric, "p_created_by" "uuid") FROM PUBLIC;
+GRANT ALL ON FUNCTION "public"."create_commercial_offer_v2"("p_instance_id" "uuid", "p_opportunity_id" "uuid", "p_variant_id" "uuid", "p_quantity" integer, "p_discount_percent" numeric, "p_minimum_margin_percent" numeric, "p_created_by" "uuid") TO "service_role";
 
 
 
 REVOKE ALL ON FUNCTION "public"."create_customer_journey"("p_kind" "public"."customer_journey_kind", "p_user_id" "uuid", "p_email" "text", "p_source_key" "text", "p_metadata" "jsonb") FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."create_customer_journey"("p_kind" "public"."customer_journey_kind", "p_user_id" "uuid", "p_email" "text", "p_source_key" "text", "p_metadata" "jsonb") TO "service_role";
+
+
+
+REVOKE ALL ON FUNCTION "public"."create_customer_journey_v2"("p_instance_id" "uuid", "p_kind" "public"."customer_journey_kind", "p_user_id" "uuid", "p_email" "text", "p_source_key" "text", "p_metadata" "jsonb") FROM PUBLIC;
+GRANT ALL ON FUNCTION "public"."create_customer_journey_v2"("p_instance_id" "uuid", "p_kind" "public"."customer_journey_kind", "p_user_id" "uuid", "p_email" "text", "p_source_key" "text", "p_metadata" "jsonb") TO "service_role";
 
 
 
 REVOKE ALL ON FUNCTION "public"."create_purchase_order"("p_order_number" "text", "p_supplier_name" "text", "p_payment_terms_days" integer, "p_expected_at" "date", "p_payment_due_at" "date", "p_notes" "text", "p_created_by" "uuid", "p_items" "jsonb") FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."create_purchase_order"("p_order_number" "text", "p_supplier_name" "text", "p_payment_terms_days" integer, "p_expected_at" "date", "p_payment_due_at" "date", "p_notes" "text", "p_created_by" "uuid", "p_items" "jsonb") TO "service_role";
+
+
+
+REVOKE ALL ON FUNCTION "public"."create_purchase_order_v2"("p_instance_id" "uuid", "p_order_number" "text", "p_supplier_name" "text", "p_payment_terms_days" integer, "p_expected_at" "date", "p_payment_due_at" "date", "p_notes" "text", "p_created_by" "uuid", "p_items" "jsonb") FROM PUBLIC;
+GRANT ALL ON FUNCTION "public"."create_purchase_order_v2"("p_instance_id" "uuid", "p_order_number" "text", "p_supplier_name" "text", "p_payment_terms_days" integer, "p_expected_at" "date", "p_payment_due_at" "date", "p_notes" "text", "p_created_by" "uuid", "p_items" "jsonb") TO "service_role";
 
 
 
@@ -10328,7 +14781,11 @@ GRANT ALL ON FUNCTION "public"."create_release_candidate"("p_candidate_key" "tex
 
 
 REVOKE ALL ON FUNCTION "public"."create_return_case"("p_order_id" "uuid", "p_user_id" "uuid", "p_customer_email" "text", "p_reason" "text", "p_customer_note" "text", "p_items" "jsonb") FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."create_return_case"("p_order_id" "uuid", "p_user_id" "uuid", "p_customer_email" "text", "p_reason" "text", "p_customer_note" "text", "p_items" "jsonb") TO "service_role";
+
+
+
+REVOKE ALL ON FUNCTION "public"."create_return_case_v2"("p_instance_id" "uuid", "p_order_id" "uuid", "p_user_id" "uuid", "p_customer_email" "text", "p_reason" "text", "p_customer_note" "text", "p_items" "jsonb") FROM PUBLIC;
+GRANT ALL ON FUNCTION "public"."create_return_case_v2"("p_instance_id" "uuid", "p_order_id" "uuid", "p_user_id" "uuid", "p_customer_email" "text", "p_reason" "text", "p_customer_note" "text", "p_items" "jsonb") TO "service_role";
 
 
 
@@ -10337,7 +14794,11 @@ GRANT ALL ON TABLE "public"."action_proposals" TO "service_role";
 
 
 REVOKE ALL ON FUNCTION "public"."decide_action_proposal"("p_proposal_id" "uuid", "p_actor_id" "uuid", "p_decision" "text", "p_note" "text", "p_event_key" "text") FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."decide_action_proposal"("p_proposal_id" "uuid", "p_actor_id" "uuid", "p_decision" "text", "p_note" "text", "p_event_key" "text") TO "service_role";
+
+
+
+REVOKE ALL ON FUNCTION "public"."decide_action_proposal_v2"("p_instance_id" "uuid", "p_proposal_id" "uuid", "p_actor_id" "uuid", "p_decision" "text", "p_note" "text", "p_event_key" "text") FROM PUBLIC;
+GRANT ALL ON FUNCTION "public"."decide_action_proposal_v2"("p_instance_id" "uuid", "p_proposal_id" "uuid", "p_actor_id" "uuid", "p_decision" "text", "p_note" "text", "p_event_key" "text") TO "service_role";
 
 
 
@@ -10374,22 +14835,64 @@ GRANT ALL ON FUNCTION "public"."decide_rollout"("p_decision_key" "text", "p_envi
 
 
 REVOKE ALL ON FUNCTION "public"."detect_customer_value_control_alerts"("p_run_key" "text") FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."detect_customer_value_control_alerts"("p_run_key" "text") TO "service_role";
 
 
 
 REVOKE ALL ON FUNCTION "public"."detect_system_control_alerts"("p_run_key" "text") FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."detect_system_control_alerts"("p_run_key" "text") TO "service_role";
 
 
 
 REVOKE ALL ON FUNCTION "public"."dispatch_due_customer_journey_steps"("p_limit" integer) FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."dispatch_due_customer_journey_steps"("p_limit" integer) TO "service_role";
+
+
+
+REVOKE ALL ON FUNCTION "public"."dispatch_due_customer_journey_steps_v2"("p_instance_id" "uuid", "p_limit" integer) FROM PUBLIC;
+GRANT ALL ON FUNCTION "public"."dispatch_due_customer_journey_steps_v2"("p_instance_id" "uuid", "p_limit" integer) TO "service_role";
+
+
+
+REVOKE ALL ON FUNCTION "public"."enforce_office_message_tenant"() FROM PUBLIC;
+
+
+
+REVOKE ALL ON FUNCTION "public"."enforce_office_task_tenant"() FROM PUBLIC;
+
+
+
+REVOKE ALL ON FUNCTION "public"."enforce_office_thread_tenant"() FROM PUBLIC;
+
+
+
+GRANT ALL ON FUNCTION "public"."enforce_order_tenant_match"() TO "anon";
+GRANT ALL ON FUNCTION "public"."enforce_order_tenant_match"() TO "authenticated";
+GRANT ALL ON FUNCTION "public"."enforce_order_tenant_match"() TO "service_role";
+
+
+
+GRANT ALL ON FUNCTION "public"."enforce_purchase_order_tenant_match"() TO "anon";
+GRANT ALL ON FUNCTION "public"."enforce_purchase_order_tenant_match"() TO "authenticated";
+GRANT ALL ON FUNCTION "public"."enforce_purchase_order_tenant_match"() TO "service_role";
+
+
+
+GRANT ALL ON FUNCTION "public"."enforce_return_case_tenant_match"() TO "anon";
+GRANT ALL ON FUNCTION "public"."enforce_return_case_tenant_match"() TO "authenticated";
+GRANT ALL ON FUNCTION "public"."enforce_return_case_tenant_match"() TO "service_role";
+
+
+
+GRANT ALL ON FUNCTION "public"."enforce_support_ticket_tenant_match"() TO "anon";
+GRANT ALL ON FUNCTION "public"."enforce_support_ticket_tenant_match"() TO "authenticated";
+GRANT ALL ON FUNCTION "public"."enforce_support_ticket_tenant_match"() TO "service_role";
 
 
 
 REVOKE ALL ON FUNCTION "public"."enqueue_communication"("p_email" "text", "p_user_id" "uuid", "p_purpose" "text", "p_template_key" "text", "p_payload" "jsonb", "p_idempotency_key" "text", "p_scheduled_at" timestamp with time zone) FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."enqueue_communication"("p_email" "text", "p_user_id" "uuid", "p_purpose" "text", "p_template_key" "text", "p_payload" "jsonb", "p_idempotency_key" "text", "p_scheduled_at" timestamp with time zone) TO "service_role";
+
+
+
+REVOKE ALL ON FUNCTION "public"."enqueue_communication_v2"("p_instance_id" "uuid", "p_email" "text", "p_user_id" "uuid", "p_purpose" "text", "p_template_key" "text", "p_payload" "jsonb", "p_idempotency_key" "text", "p_scheduled_at" timestamp with time zone) FROM PUBLIC;
+GRANT ALL ON FUNCTION "public"."enqueue_communication_v2"("p_instance_id" "uuid", "p_email" "text", "p_user_id" "uuid", "p_purpose" "text", "p_template_key" "text", "p_payload" "jsonb", "p_idempotency_key" "text", "p_scheduled_at" timestamp with time zone) TO "service_role";
 
 
 
@@ -10408,7 +14911,11 @@ GRANT ALL ON TABLE "public"."action_executions" TO "service_role";
 
 
 REVOKE ALL ON FUNCTION "public"."execute_action_proposal"("p_proposal_id" "uuid", "p_actor_id" "uuid", "p_execution_key" "text") FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."execute_action_proposal"("p_proposal_id" "uuid", "p_actor_id" "uuid", "p_execution_key" "text") TO "service_role";
+
+
+
+REVOKE ALL ON FUNCTION "public"."execute_action_proposal_v2"("p_instance_id" "uuid", "p_proposal_id" "uuid", "p_actor_id" "uuid", "p_execution_key" "text") FROM PUBLIC;
+GRANT ALL ON FUNCTION "public"."execute_action_proposal_v2"("p_instance_id" "uuid", "p_proposal_id" "uuid", "p_actor_id" "uuid", "p_execution_key" "text") TO "service_role";
 
 
 
@@ -10417,7 +14924,11 @@ GRANT ALL ON TABLE "public"."automation_step_runs" TO "service_role";
 
 
 REVOKE ALL ON FUNCTION "public"."execute_automation_step"("p_instance_id" "uuid", "p_actor_id" "uuid", "p_execution_key" "text") FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."execute_automation_step"("p_instance_id" "uuid", "p_actor_id" "uuid", "p_execution_key" "text") TO "service_role";
+
+
+
+REVOKE ALL ON FUNCTION "public"."execute_automation_step_v2"("p_store_instance_id" "uuid", "p_runbook_instance_id" "uuid", "p_actor_id" "uuid", "p_execution_key" "text") FROM PUBLIC;
+GRANT ALL ON FUNCTION "public"."execute_automation_step_v2"("p_store_instance_id" "uuid", "p_runbook_instance_id" "uuid", "p_actor_id" "uuid", "p_execution_key" "text") TO "service_role";
 
 
 
@@ -10427,7 +14938,6 @@ GRANT ALL ON FUNCTION "public"."expire_assurance_risk_acceptances"("p_run_key" "
 
 
 REVOKE ALL ON FUNCTION "public"."expire_or_cancel_action_proposals"("p_run_key" "text") FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."expire_or_cancel_action_proposals"("p_run_key" "text") TO "service_role";
 
 
 
@@ -10437,12 +14947,21 @@ GRANT ALL ON FUNCTION "public"."expire_stale_release_candidates"("p_run_key" "te
 
 
 REVOKE ALL ON FUNCTION "public"."fail_communication_job"("p_id" "uuid", "p_claim_token" "uuid", "p_error" "text", "p_retry" boolean) FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."fail_communication_job"("p_id" "uuid", "p_claim_token" "uuid", "p_error" "text", "p_retry" boolean) TO "service_role";
+
+
+
+REVOKE ALL ON FUNCTION "public"."fail_communication_job_v2"("p_instance_id" "uuid", "p_id" "uuid", "p_claim_token" "uuid", "p_error" "text", "p_retry" boolean) FROM PUBLIC;
+GRANT ALL ON FUNCTION "public"."fail_communication_job_v2"("p_instance_id" "uuid", "p_id" "uuid", "p_claim_token" "uuid", "p_error" "text", "p_retry" boolean) TO "service_role";
 
 
 
 REVOKE ALL ON FUNCTION "public"."get_customer_loyalty_snapshot"("p_customer_id" "uuid") FROM PUBLIC;
 GRANT ALL ON FUNCTION "public"."get_customer_loyalty_snapshot"("p_customer_id" "uuid") TO "service_role";
+
+
+
+REVOKE ALL ON FUNCTION "public"."get_customer_loyalty_snapshot_v2"("p_instance_id" "uuid", "p_customer_id" "uuid") FROM PUBLIC;
+GRANT ALL ON FUNCTION "public"."get_customer_loyalty_snapshot_v2"("p_instance_id" "uuid", "p_customer_id" "uuid") TO "service_role";
 
 
 
@@ -10475,20 +14994,17 @@ GRANT ALL ON FUNCTION "public"."guard_action_proposal_status"() TO "service_role
 
 
 
-GRANT ALL ON FUNCTION "public"."guard_assurance_append_only"() TO "anon";
-GRANT ALL ON FUNCTION "public"."guard_assurance_append_only"() TO "authenticated";
+REVOKE ALL ON FUNCTION "public"."guard_assurance_append_only"() FROM PUBLIC;
 GRANT ALL ON FUNCTION "public"."guard_assurance_append_only"() TO "service_role";
 
 
 
-GRANT ALL ON FUNCTION "public"."guard_assurance_control_version"() TO "anon";
-GRANT ALL ON FUNCTION "public"."guard_assurance_control_version"() TO "authenticated";
+REVOKE ALL ON FUNCTION "public"."guard_assurance_control_version"() FROM PUBLIC;
 GRANT ALL ON FUNCTION "public"."guard_assurance_control_version"() TO "service_role";
 
 
 
-GRANT ALL ON FUNCTION "public"."guard_assurance_finding_identity"() TO "anon";
-GRANT ALL ON FUNCTION "public"."guard_assurance_finding_identity"() TO "authenticated";
+REVOKE ALL ON FUNCTION "public"."guard_assurance_finding_identity"() FROM PUBLIC;
 GRANT ALL ON FUNCTION "public"."guard_assurance_finding_identity"() TO "service_role";
 
 
@@ -10530,12 +15046,10 @@ GRANT ALL ON FUNCTION "public"."guard_automation_step_integrity"() TO "service_r
 
 
 REVOKE ALL ON FUNCTION "public"."guard_automation_step_source_current"() FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."guard_automation_step_source_current"() TO "service_role";
 
 
 
 REVOKE ALL ON FUNCTION "public"."guard_closed_support_thread"() FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."guard_closed_support_thread"() TO "service_role";
 
 
 
@@ -10550,40 +15064,61 @@ GRANT ALL ON FUNCTION "public"."guard_control_task_identity"() TO "service_role"
 
 
 REVOKE ALL ON FUNCTION "public"."guard_order_status_against_operations"() FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."guard_order_status_against_operations"() TO "service_role";
 
 
 
-GRANT ALL ON FUNCTION "public"."guard_release_audit_immutable"() TO "anon";
-GRANT ALL ON FUNCTION "public"."guard_release_audit_immutable"() TO "authenticated";
+REVOKE ALL ON FUNCTION "public"."guard_release_audit_immutable"() FROM PUBLIC;
 GRANT ALL ON FUNCTION "public"."guard_release_audit_immutable"() TO "service_role";
 
 
 
-GRANT ALL ON FUNCTION "public"."guard_release_candidate_identity"() TO "anon";
-GRANT ALL ON FUNCTION "public"."guard_release_candidate_identity"() TO "authenticated";
+REVOKE ALL ON FUNCTION "public"."guard_release_candidate_identity"() FROM PUBLIC;
 GRANT ALL ON FUNCTION "public"."guard_release_candidate_identity"() TO "service_role";
 
 
 
-GRANT ALL ON FUNCTION "public"."guard_release_policy_definition"() TO "anon";
-GRANT ALL ON FUNCTION "public"."guard_release_policy_definition"() TO "authenticated";
+REVOKE ALL ON FUNCTION "public"."guard_release_policy_definition"() FROM PUBLIC;
 GRANT ALL ON FUNCTION "public"."guard_release_policy_definition"() TO "service_role";
 
 
 
+REVOKE ALL ON FUNCTION "public"."has_feature_entitlement"("p_instance_id" "uuid", "p_feature_code" "text") FROM PUBLIC;
+GRANT ALL ON FUNCTION "public"."has_feature_entitlement"("p_instance_id" "uuid", "p_feature_code" "text") TO "authenticated";
+GRANT ALL ON FUNCTION "public"."has_feature_entitlement"("p_instance_id" "uuid", "p_feature_code" "text") TO "service_role";
+
+
+
 REVOKE ALL ON FUNCTION "public"."has_marketing_consent"("p_email" "text", "p_channel" "text") FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."has_marketing_consent"("p_email" "text", "p_channel" "text") TO "service_role";
+
+
+
+REVOKE ALL ON FUNCTION "public"."has_marketing_consent_v2"("p_instance_id" "uuid", "p_email" "text", "p_channel" "text") FROM PUBLIC;
+GRANT ALL ON FUNCTION "public"."has_marketing_consent_v2"("p_instance_id" "uuid", "p_email" "text", "p_channel" "text") TO "service_role";
+
+
+
+REVOKE ALL ON FUNCTION "public"."has_store_role"("p_instance_id" "uuid", "p_roles" "text"[], "p_user_id" "uuid") FROM PUBLIC;
+GRANT ALL ON FUNCTION "public"."has_store_role"("p_instance_id" "uuid", "p_roles" "text"[], "p_user_id" "uuid") TO "authenticated";
+GRANT ALL ON FUNCTION "public"."has_store_role"("p_instance_id" "uuid", "p_roles" "text"[], "p_user_id" "uuid") TO "service_role";
 
 
 
 REVOKE ALL ON FUNCTION "public"."initialize_support_ticket_thread"() FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."initialize_support_ticket_thread"() TO "service_role";
 
 
 
 REVOKE ALL ON FUNCTION "public"."is_communication_suppressed"("p_email" "text") FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."is_communication_suppressed"("p_email" "text") TO "service_role";
+
+
+
+REVOKE ALL ON FUNCTION "public"."is_communication_suppressed_v2"("p_instance_id" "uuid", "p_email" "text") FROM PUBLIC;
+GRANT ALL ON FUNCTION "public"."is_communication_suppressed_v2"("p_instance_id" "uuid", "p_email" "text") TO "service_role";
+
+
+
+REVOKE ALL ON FUNCTION "public"."is_platform_operator"("p_user_id" "uuid") FROM PUBLIC;
+GRANT ALL ON FUNCTION "public"."is_platform_operator"("p_user_id" "uuid") TO "authenticated";
+GRANT ALL ON FUNCTION "public"."is_platform_operator"("p_user_id" "uuid") TO "service_role";
 
 
 
@@ -10592,68 +15127,102 @@ GRANT ALL ON FUNCTION "public"."maintain_control_incident_started_at"() TO "serv
 
 
 
+REVOKE ALL ON FUNCTION "public"."merchant_intelligence_store_guard"() FROM PUBLIC;
+
+
+
 REVOKE ALL ON FUNCTION "public"."place_order_idempotent"("p_idempotency_key" "text", "p_customer_email" "text", "p_billing_name" "text", "p_billing_company" "text", "p_billing_tax_number" "text", "p_billing_postcode" "text", "p_billing_city" "text", "p_billing_address" "text", "p_shipping_name" "text", "p_shipping_postcode" "text", "p_shipping_city" "text", "p_shipping_address" "text", "p_customer_phone" "text", "p_shipping_method" "text", "p_parcel_point_id" "text", "p_payment_method" "text", "p_note" "text", "p_customer_id" "uuid", "p_coupon_code" "text", "p_items" "jsonb") FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."place_order_idempotent"("p_idempotency_key" "text", "p_customer_email" "text", "p_billing_name" "text", "p_billing_company" "text", "p_billing_tax_number" "text", "p_billing_postcode" "text", "p_billing_city" "text", "p_billing_address" "text", "p_shipping_name" "text", "p_shipping_postcode" "text", "p_shipping_city" "text", "p_shipping_address" "text", "p_customer_phone" "text", "p_shipping_method" "text", "p_parcel_point_id" "text", "p_payment_method" "text", "p_note" "text", "p_customer_id" "uuid", "p_coupon_code" "text", "p_items" "jsonb") TO "service_role";
 
 
 
 REVOKE ALL ON FUNCTION "public"."place_order_provider"("p_customer_email" "text", "p_billing_name" "text", "p_billing_company" "text", "p_billing_tax_number" "text", "p_billing_postcode" "text", "p_billing_city" "text", "p_billing_address" "text", "p_shipping_name" "text", "p_shipping_postcode" "text", "p_shipping_city" "text", "p_shipping_address" "text", "p_customer_phone" "text", "p_shipping_provider" "text", "p_shipping_kind" "text", "p_shipping_fee_huf" integer, "p_parcel_point_id" "text", "p_payment_provider" "text", "p_note" "text", "p_customer_id" "uuid", "p_coupon_code" "text", "p_items" "jsonb") FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."place_order_provider"("p_customer_email" "text", "p_billing_name" "text", "p_billing_company" "text", "p_billing_tax_number" "text", "p_billing_postcode" "text", "p_billing_city" "text", "p_billing_address" "text", "p_shipping_name" "text", "p_shipping_postcode" "text", "p_shipping_city" "text", "p_shipping_address" "text", "p_customer_phone" "text", "p_shipping_provider" "text", "p_shipping_kind" "text", "p_shipping_fee_huf" integer, "p_parcel_point_id" "text", "p_payment_provider" "text", "p_note" "text", "p_customer_id" "uuid", "p_coupon_code" "text", "p_items" "jsonb") TO "service_role";
 
 
 
 REVOKE ALL ON FUNCTION "public"."place_order_provider_idempotent"("p_idempotency_key" "text", "p_customer_email" "text", "p_billing_name" "text", "p_billing_company" "text", "p_billing_tax_number" "text", "p_billing_postcode" "text", "p_billing_city" "text", "p_billing_address" "text", "p_shipping_name" "text", "p_shipping_postcode" "text", "p_shipping_city" "text", "p_shipping_address" "text", "p_customer_phone" "text", "p_shipping_provider" "text", "p_shipping_kind" "text", "p_shipping_fee_huf" integer, "p_parcel_point_id" "text", "p_payment_provider" "text", "p_note" "text", "p_customer_id" "uuid", "p_coupon_code" "text", "p_items" "jsonb") FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."place_order_provider_idempotent"("p_idempotency_key" "text", "p_customer_email" "text", "p_billing_name" "text", "p_billing_company" "text", "p_billing_tax_number" "text", "p_billing_postcode" "text", "p_billing_city" "text", "p_billing_address" "text", "p_shipping_name" "text", "p_shipping_postcode" "text", "p_shipping_city" "text", "p_shipping_address" "text", "p_customer_phone" "text", "p_shipping_provider" "text", "p_shipping_kind" "text", "p_shipping_fee_huf" integer, "p_parcel_point_id" "text", "p_payment_provider" "text", "p_note" "text", "p_customer_id" "uuid", "p_coupon_code" "text", "p_items" "jsonb") TO "service_role";
 
 
 
 REVOKE ALL ON FUNCTION "public"."place_order_provider_v2"("p_customer_email" "text", "p_billing_name" "text", "p_billing_company" "text", "p_billing_tax_number" "text", "p_billing_postcode" "text", "p_billing_city" "text", "p_billing_address" "text", "p_shipping_name" "text", "p_shipping_postcode" "text", "p_shipping_city" "text", "p_shipping_address" "text", "p_customer_phone" "text", "p_shipping_provider" "text", "p_shipping_kind" "text", "p_shipping_fee_huf" integer, "p_free_shipping_threshold_huf" integer, "p_parcel_point_id" "text", "p_payment_provider" "text", "p_note" "text", "p_customer_id" "uuid", "p_coupon_code" "text", "p_items" "jsonb") FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."place_order_provider_v2"("p_customer_email" "text", "p_billing_name" "text", "p_billing_company" "text", "p_billing_tax_number" "text", "p_billing_postcode" "text", "p_billing_city" "text", "p_billing_address" "text", "p_shipping_name" "text", "p_shipping_postcode" "text", "p_shipping_city" "text", "p_shipping_address" "text", "p_customer_phone" "text", "p_shipping_provider" "text", "p_shipping_kind" "text", "p_shipping_fee_huf" integer, "p_free_shipping_threshold_huf" integer, "p_parcel_point_id" "text", "p_payment_provider" "text", "p_note" "text", "p_customer_id" "uuid", "p_coupon_code" "text", "p_items" "jsonb") TO "service_role";
 
 
 
 REVOKE ALL ON FUNCTION "public"."place_order_provider_v2_idempotent"("p_idempotency_key" "text", "p_customer_email" "text", "p_billing_name" "text", "p_billing_company" "text", "p_billing_tax_number" "text", "p_billing_postcode" "text", "p_billing_city" "text", "p_billing_address" "text", "p_shipping_name" "text", "p_shipping_postcode" "text", "p_shipping_city" "text", "p_shipping_address" "text", "p_customer_phone" "text", "p_shipping_provider" "text", "p_shipping_kind" "text", "p_shipping_fee_huf" integer, "p_free_shipping_threshold_huf" integer, "p_parcel_point_id" "text", "p_payment_provider" "text", "p_note" "text", "p_customer_id" "uuid", "p_coupon_code" "text", "p_items" "jsonb") FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."place_order_provider_v2_idempotent"("p_idempotency_key" "text", "p_customer_email" "text", "p_billing_name" "text", "p_billing_company" "text", "p_billing_tax_number" "text", "p_billing_postcode" "text", "p_billing_city" "text", "p_billing_address" "text", "p_shipping_name" "text", "p_shipping_postcode" "text", "p_shipping_city" "text", "p_shipping_address" "text", "p_customer_phone" "text", "p_shipping_provider" "text", "p_shipping_kind" "text", "p_shipping_fee_huf" integer, "p_free_shipping_threshold_huf" integer, "p_parcel_point_id" "text", "p_payment_provider" "text", "p_note" "text", "p_customer_id" "uuid", "p_coupon_code" "text", "p_items" "jsonb") TO "service_role";
+
+
+
+REVOKE ALL ON FUNCTION "public"."place_order_provider_v3_idempotent"("p_instance_id" "uuid", "p_idempotency_key" "text", "p_customer_email" "text", "p_billing_name" "text", "p_billing_company" "text", "p_billing_tax_number" "text", "p_billing_postcode" "text", "p_billing_city" "text", "p_billing_address" "text", "p_shipping_name" "text", "p_shipping_postcode" "text", "p_shipping_city" "text", "p_shipping_address" "text", "p_customer_phone" "text", "p_shipping_provider" "text", "p_shipping_kind" "text", "p_shipping_fee_huf" integer, "p_free_shipping_threshold_huf" integer, "p_parcel_point_id" "text", "p_payment_provider" "text", "p_note" "text", "p_customer_id" "uuid", "p_coupon_code" "text", "p_items" "jsonb") FROM PUBLIC;
+
+
+
+REVOKE ALL ON FUNCTION "public"."place_order_provider_v4_idempotent"("p_instance_id" "uuid", "p_idempotency_key" "text", "p_customer_email" "text", "p_billing_name" "text", "p_billing_company" "text", "p_billing_tax_number" "text", "p_billing_postcode" "text", "p_billing_city" "text", "p_billing_address" "text", "p_shipping_name" "text", "p_shipping_postcode" "text", "p_shipping_city" "text", "p_shipping_address" "text", "p_customer_phone" "text", "p_shipping_provider" "text", "p_shipping_kind" "text", "p_shipping_fee_huf" integer, "p_free_shipping_threshold_huf" integer, "p_parcel_point_id" "text", "p_payment_provider" "text", "p_note" "text", "p_customer_id" "uuid", "p_coupon_code" "text", "p_items" "jsonb") FROM PUBLIC;
+GRANT ALL ON FUNCTION "public"."place_order_provider_v4_idempotent"("p_instance_id" "uuid", "p_idempotency_key" "text", "p_customer_email" "text", "p_billing_name" "text", "p_billing_company" "text", "p_billing_tax_number" "text", "p_billing_postcode" "text", "p_billing_city" "text", "p_billing_address" "text", "p_shipping_name" "text", "p_shipping_postcode" "text", "p_shipping_city" "text", "p_shipping_address" "text", "p_customer_phone" "text", "p_shipping_provider" "text", "p_shipping_kind" "text", "p_shipping_fee_huf" integer, "p_free_shipping_threshold_huf" integer, "p_parcel_point_id" "text", "p_payment_provider" "text", "p_note" "text", "p_customer_id" "uuid", "p_coupon_code" "text", "p_items" "jsonb") TO "service_role";
+
+
+
+REVOKE ALL ON FUNCTION "public"."place_order_provider_v5_idempotent"("p_instance_id" "uuid", "p_idempotency_key" "text", "p_customer_email" "text", "p_billing_name" "text", "p_billing_company" "text", "p_billing_tax_number" "text", "p_billing_postcode" "text", "p_billing_city" "text", "p_billing_address" "text", "p_shipping_name" "text", "p_shipping_postcode" "text", "p_shipping_city" "text", "p_shipping_address" "text", "p_customer_phone" "text", "p_shipping_provider" "text", "p_shipping_kind" "text", "p_shipping_fee_huf" integer, "p_free_shipping_threshold_huf" integer, "p_parcel_point_id" "text", "p_payment_provider" "text", "p_note" "text", "p_customer_id" "uuid", "p_coupon_code" "text", "p_items" "jsonb") FROM PUBLIC;
+GRANT ALL ON FUNCTION "public"."place_order_provider_v5_idempotent"("p_instance_id" "uuid", "p_idempotency_key" "text", "p_customer_email" "text", "p_billing_name" "text", "p_billing_company" "text", "p_billing_tax_number" "text", "p_billing_postcode" "text", "p_billing_city" "text", "p_billing_address" "text", "p_shipping_name" "text", "p_shipping_postcode" "text", "p_shipping_city" "text", "p_shipping_address" "text", "p_customer_phone" "text", "p_shipping_provider" "text", "p_shipping_kind" "text", "p_shipping_fee_huf" integer, "p_free_shipping_threshold_huf" integer, "p_parcel_point_id" "text", "p_payment_provider" "text", "p_note" "text", "p_customer_id" "uuid", "p_coupon_code" "text", "p_items" "jsonb") TO "service_role";
 
 
 
 REVOKE ALL ON FUNCTION "public"."plan_action_proposals"("p_run_key" "text") FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."plan_action_proposals"("p_run_key" "text") TO "service_role";
 
 
 
 REVOKE ALL ON FUNCTION "public"."plan_automation_runbooks"("p_run_key" "text") FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."plan_automation_runbooks"("p_run_key" "text") TO "service_role";
 
 
 
 REVOKE ALL ON FUNCTION "public"."plan_commercial_opportunities"() FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."plan_commercial_opportunities"() TO "service_role";
+
+
+
+REVOKE ALL ON FUNCTION "public"."plan_commercial_opportunities_v2"("p_instance_id" "uuid") FROM PUBLIC;
+GRANT ALL ON FUNCTION "public"."plan_commercial_opportunities_v2"("p_instance_id" "uuid") TO "service_role";
 
 
 
 REVOKE ALL ON FUNCTION "public"."plan_control_tasks"("p_run_key" "text") FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."plan_control_tasks"("p_run_key" "text") TO "service_role";
 
 
 
 REVOKE ALL ON FUNCTION "public"."plan_customer_lifecycle_milestones"() FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."plan_customer_lifecycle_milestones"() TO "service_role";
 
 
 
 REVOKE ALL ON FUNCTION "public"."plan_customer_retention_journeys"() FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."plan_customer_retention_journeys"() TO "service_role";
+
+
+
+REVOKE ALL ON FUNCTION "public"."plan_customer_retention_journeys_v2"("p_instance_id" "uuid") FROM PUBLIC;
+GRANT ALL ON FUNCTION "public"."plan_customer_retention_journeys_v2"("p_instance_id" "uuid") TO "service_role";
 
 
 
 REVOKE ALL ON FUNCTION "public"."plan_high_value_sales_tasks"() FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."plan_high_value_sales_tasks"() TO "service_role";
+
+
+
+REVOKE ALL ON FUNCTION "public"."plan_high_value_sales_tasks_v2"("p_instance_id" "uuid") FROM PUBLIC;
+GRANT ALL ON FUNCTION "public"."plan_high_value_sales_tasks_v2"("p_instance_id" "uuid") TO "service_role";
 
 
 
 REVOKE ALL ON FUNCTION "public"."plan_loyalty_retention_opportunities"() FROM PUBLIC;
 GRANT ALL ON FUNCTION "public"."plan_loyalty_retention_opportunities"() TO "service_role";
+
+
+
+REVOKE ALL ON FUNCTION "public"."platform_owner_claim_available"("p_email" "text") FROM PUBLIC;
+GRANT ALL ON FUNCTION "public"."platform_owner_claim_available"("p_email" "text") TO "service_role";
+
+
+
+REVOKE ALL ON FUNCTION "public"."prepare_admin_audit_entry"() FROM PUBLIC;
+
+
+
+REVOKE ALL ON FUNCTION "public"."prevent_admin_audit_mutation"() FROM PUBLIC;
 
 
 
@@ -10663,7 +15232,11 @@ GRANT ALL ON FUNCTION "public"."prevent_control_event_mutation"() TO "service_ro
 
 
 REVOKE ALL ON FUNCTION "public"."preview_promotion_margin"("p_variant_id" "uuid", "p_discount_percent" numeric, "p_min_margin_percent" numeric) FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."preview_promotion_margin"("p_variant_id" "uuid", "p_discount_percent" numeric, "p_min_margin_percent" numeric) TO "service_role";
+
+
+
+REVOKE ALL ON FUNCTION "public"."preview_promotion_margin_v2"("p_instance_id" "uuid", "p_variant_id" "uuid", "p_discount_percent" numeric, "p_min_margin_percent" numeric) FROM PUBLIC;
+GRANT ALL ON FUNCTION "public"."preview_promotion_margin_v2"("p_instance_id" "uuid", "p_variant_id" "uuid", "p_discount_percent" numeric, "p_min_margin_percent" numeric) TO "service_role";
 
 
 
@@ -10672,7 +15245,11 @@ GRANT ALL ON TABLE "public"."action_processing_runs" TO "service_role";
 
 
 REVOKE ALL ON FUNCTION "public"."process_action_cycle"("p_run_key" "text") FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."process_action_cycle"("p_run_key" "text") TO "service_role";
+
+
+
+REVOKE ALL ON FUNCTION "public"."process_action_cycle_v2"("p_instance_id" "uuid", "p_run_key" "text") FROM PUBLIC;
+GRANT ALL ON FUNCTION "public"."process_action_cycle_v2"("p_instance_id" "uuid", "p_run_key" "text") TO "service_role";
 
 
 
@@ -10695,7 +15272,11 @@ GRANT ALL ON TABLE "public"."automation_processing_runs" TO "service_role";
 
 
 REVOKE ALL ON FUNCTION "public"."process_automation_cycle"("p_run_key" "text") FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."process_automation_cycle"("p_run_key" "text") TO "service_role";
+
+
+
+REVOKE ALL ON FUNCTION "public"."process_automation_cycle_v2"("p_instance_id" "uuid", "p_run_key" "text") FROM PUBLIC;
+GRANT ALL ON FUNCTION "public"."process_automation_cycle_v2"("p_instance_id" "uuid", "p_run_key" "text") TO "service_role";
 
 
 
@@ -10704,7 +15285,11 @@ GRANT ALL ON TABLE "public"."control_processing_runs" TO "service_role";
 
 
 REVOKE ALL ON FUNCTION "public"."process_control_tower_cycle"("p_run_key" "text") FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."process_control_tower_cycle"("p_run_key" "text") TO "service_role";
+
+
+
+REVOKE ALL ON FUNCTION "public"."process_control_tower_cycle_v2"("p_instance_id" "uuid", "p_run_key" "text") FROM PUBLIC;
+GRANT ALL ON FUNCTION "public"."process_control_tower_cycle_v2"("p_instance_id" "uuid", "p_run_key" "text") TO "service_role";
 
 
 
@@ -10746,27 +15331,52 @@ GRANT ALL ON FUNCTION "public"."purge_observability_events"("p_retention_days" i
 
 
 REVOKE ALL ON FUNCTION "public"."queue_abandoned_checkout_recoveries"("p_limit" integer, "p_min_age_minutes" integer) FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."queue_abandoned_checkout_recoveries"("p_limit" integer, "p_min_age_minutes" integer) TO "service_role";
+
+
+
+REVOKE ALL ON FUNCTION "public"."queue_abandoned_checkout_recoveries_v2"("p_instance_id" "uuid", "p_limit" integer, "p_min_age_minutes" integer) FROM PUBLIC;
+GRANT ALL ON FUNCTION "public"."queue_abandoned_checkout_recoveries_v2"("p_instance_id" "uuid", "p_limit" integer, "p_min_age_minutes" integer) TO "service_role";
 
 
 
 REVOKE ALL ON FUNCTION "public"."queue_available_stock_notifications"("p_limit" integer) FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."queue_available_stock_notifications"("p_limit" integer) TO "service_role";
+
+
+
+REVOKE ALL ON FUNCTION "public"."queue_available_stock_notifications_v2"("p_instance_id" "uuid", "p_limit" integer) FROM PUBLIC;
+GRANT ALL ON FUNCTION "public"."queue_available_stock_notifications_v2"("p_instance_id" "uuid", "p_limit" integer) TO "service_role";
 
 
 
 REVOKE ALL ON FUNCTION "public"."queue_due_customer_journey_steps"("p_limit" integer) FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."queue_due_customer_journey_steps"("p_limit" integer) TO "service_role";
+
+
+
+REVOKE ALL ON FUNCTION "public"."quote_tenant_checkout_v1"("p_instance_id" "uuid", "p_customer_id" "uuid", "p_coupon_code" "text", "p_shipping_kind" "text", "p_shipping_fee_huf" integer, "p_free_shipping_threshold_huf" integer, "p_items" "jsonb") FROM PUBLIC;
+GRANT ALL ON FUNCTION "public"."quote_tenant_checkout_v1"("p_instance_id" "uuid", "p_customer_id" "uuid", "p_coupon_code" "text", "p_shipping_kind" "text", "p_shipping_fee_huf" integer, "p_free_shipping_threshold_huf" integer, "p_items" "jsonb") TO "service_role";
+
+
+
+REVOKE ALL ON FUNCTION "public"."quote_tenant_checkout_v2"("p_instance_id" "uuid", "p_customer_id" "uuid", "p_coupon_code" "text", "p_shipping_kind" "text", "p_shipping_fee_huf" integer, "p_free_shipping_threshold_huf" integer, "p_items" "jsonb") FROM PUBLIC;
+GRANT ALL ON FUNCTION "public"."quote_tenant_checkout_v2"("p_instance_id" "uuid", "p_customer_id" "uuid", "p_coupon_code" "text", "p_shipping_kind" "text", "p_shipping_fee_huf" integer, "p_free_shipping_threshold_huf" integer, "p_items" "jsonb") TO "service_role";
 
 
 
 REVOKE ALL ON FUNCTION "public"."receive_purchase_order"("p_purchase_order_id" "uuid", "p_actor" "uuid") FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."receive_purchase_order"("p_purchase_order_id" "uuid", "p_actor" "uuid") TO "service_role";
 
 
 
 REVOKE ALL ON FUNCTION "public"."receive_purchase_order_items"("p_purchase_order_id" "uuid", "p_actor" "uuid", "p_items" "jsonb") FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."receive_purchase_order_items"("p_purchase_order_id" "uuid", "p_actor" "uuid", "p_items" "jsonb") TO "service_role";
+
+
+
+REVOKE ALL ON FUNCTION "public"."receive_purchase_order_items_v2"("p_instance_id" "uuid", "p_purchase_order_id" "uuid", "p_actor" "uuid", "p_items" "jsonb") FROM PUBLIC;
+GRANT ALL ON FUNCTION "public"."receive_purchase_order_items_v2"("p_instance_id" "uuid", "p_purchase_order_id" "uuid", "p_actor" "uuid", "p_items" "jsonb") TO "service_role";
+
+
+
+REVOKE ALL ON FUNCTION "public"."receive_purchase_order_v2"("p_instance_id" "uuid", "p_purchase_order_id" "uuid", "p_actor" "uuid") FROM PUBLIC;
+GRANT ALL ON FUNCTION "public"."receive_purchase_order_v2"("p_instance_id" "uuid", "p_purchase_order_id" "uuid", "p_actor" "uuid") TO "service_role";
 
 
 
@@ -10776,7 +15386,6 @@ GRANT ALL ON FUNCTION "public"."reconcile_assurance_findings"("p_run_id" "uuid")
 
 
 REVOKE ALL ON FUNCTION "public"."reconcile_automation_runbooks"("p_run_key" "text") FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."reconcile_automation_runbooks"("p_run_key" "text") TO "service_role";
 
 
 
@@ -10792,6 +15401,11 @@ GRANT ALL ON FUNCTION "public"."reconcile_post_release_session"("p_session_id" "
 
 REVOKE ALL ON FUNCTION "public"."reconcile_release_candidates"("p_run_key" "text") FROM PUBLIC;
 GRANT ALL ON FUNCTION "public"."reconcile_release_candidates"("p_run_key" "text") TO "service_role";
+
+
+
+REVOKE ALL ON FUNCTION "public"."record_coupon_redemption_v1"("p_instance_id" "uuid", "p_order_id" "uuid", "p_coupon_code" "text", "p_discount_gross_huf" integer) FROM PUBLIC;
+GRANT ALL ON FUNCTION "public"."record_coupon_redemption_v1"("p_instance_id" "uuid", "p_order_id" "uuid", "p_coupon_code" "text", "p_discount_gross_huf" integer) TO "service_role";
 
 
 
@@ -10819,7 +15433,11 @@ GRANT ALL ON FUNCTION "public"."record_rollout_check"("p_check_key" "text", "p_e
 
 
 REVOKE ALL ON FUNCTION "public"."recover_stale_communication_jobs"("p_stale_minutes" integer) FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."recover_stale_communication_jobs"("p_stale_minutes" integer) TO "service_role";
+
+
+
+REVOKE ALL ON FUNCTION "public"."recover_stale_communication_jobs_v2"("p_instance_id" "uuid", "p_stale_minutes" integer) FROM PUBLIC;
+GRANT ALL ON FUNCTION "public"."recover_stale_communication_jobs_v2"("p_instance_id" "uuid", "p_stale_minutes" integer) TO "service_role";
 
 
 
@@ -10833,12 +15451,16 @@ GRANT ALL ON FUNCTION "public"."redeem_loyalty_points"("p_customer_id" "uuid", "
 
 
 REVOKE ALL ON FUNCTION "public"."refresh_automation_ready_steps"("p_run_key" "text") FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."refresh_automation_ready_steps"("p_run_key" "text") TO "service_role";
 
 
 
 REVOKE ALL ON FUNCTION "public"."refresh_customer_value_profiles"() FROM PUBLIC;
 GRANT ALL ON FUNCTION "public"."refresh_customer_value_profiles"() TO "service_role";
+
+
+
+REVOKE ALL ON FUNCTION "public"."refresh_customer_value_profiles_v2"("p_instance_id" "uuid") FROM PUBLIC;
+GRANT ALL ON FUNCTION "public"."refresh_customer_value_profiles_v2"("p_instance_id" "uuid") TO "service_role";
 
 
 
@@ -10850,6 +15472,10 @@ GRANT ALL ON FUNCTION "public"."refresh_order_operation_priorities"() TO "servic
 GRANT ALL ON FUNCTION "public"."reject_append_only_action_mutation"() TO "anon";
 GRANT ALL ON FUNCTION "public"."reject_append_only_action_mutation"() TO "authenticated";
 GRANT ALL ON FUNCTION "public"."reject_append_only_action_mutation"() TO "service_role";
+
+
+
+REVOKE ALL ON FUNCTION "public"."release_cancelled_order_coupon_redemption"() FROM PUBLIC;
 
 
 
@@ -10865,6 +15491,11 @@ GRANT ALL ON FUNCTION "public"."release_change_set_hash"("p_candidate_id" "uuid"
 
 REVOKE ALL ON FUNCTION "public"."release_ci_is_trusted"("p_candidate_id" "uuid") FROM PUBLIC;
 GRANT ALL ON FUNCTION "public"."release_ci_is_trusted"("p_candidate_id" "uuid") TO "service_role";
+
+
+
+REVOKE ALL ON FUNCTION "public"."release_coupon_redemption_v1"("p_instance_id" "uuid", "p_order_id" "uuid", "p_reason" "text") FROM PUBLIC;
+GRANT ALL ON FUNCTION "public"."release_coupon_redemption_v1"("p_instance_id" "uuid", "p_order_id" "uuid", "p_reason" "text") TO "service_role";
 
 
 
@@ -10884,7 +15515,6 @@ GRANT ALL ON FUNCTION "public"."reserve_inventory_for_order"("p_order_id" "uuid"
 
 
 REVOKE ALL ON FUNCTION "public"."resolve_stale_control_alerts"("p_cycle_started_at" timestamp with time zone, "p_run_key" "text") FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."resolve_stale_control_alerts"("p_cycle_started_at" timestamp with time zone, "p_run_key" "text") TO "service_role";
 
 
 
@@ -10894,7 +15524,11 @@ GRANT ALL ON FUNCTION "public"."restock_return_case"("p_case_id" "uuid", "p_acto
 
 
 REVOKE ALL ON FUNCTION "public"."restore_cancelled_order_inventory"() FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."restore_cancelled_order_inventory"() TO "service_role";
+
+
+
+REVOKE ALL ON FUNCTION "public"."restore_order_item_inventory_v1"("p_instance_id" "uuid", "p_order_id" "uuid", "p_order_item_id" "uuid", "p_source_type" "text", "p_source_id" "uuid", "p_quantity" integer, "p_actor" "uuid") FROM PUBLIC;
+GRANT ALL ON FUNCTION "public"."restore_order_item_inventory_v1"("p_instance_id" "uuid", "p_order_id" "uuid", "p_order_item_id" "uuid", "p_source_type" "text", "p_source_id" "uuid", "p_quantity" integer, "p_actor" "uuid") TO "service_role";
 
 
 
@@ -10913,7 +15547,6 @@ GRANT ALL ON TABLE "public"."automation_control" TO "service_role";
 
 
 REVOKE ALL ON FUNCTION "public"."set_automation_global_pause"("p_actor_id" "uuid", "p_paused" boolean, "p_reason" "text", "p_event_key" "text") FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."set_automation_global_pause"("p_actor_id" "uuid", "p_paused" boolean, "p_reason" "text", "p_event_key" "text") TO "service_role";
 
 
 
@@ -10926,8 +15559,21 @@ GRANT ALL ON FUNCTION "public"."set_post_release_finding_state"("p_finding_id" "
 
 
 
+REVOKE ALL ON FUNCTION "public"."set_store_automation_pause_v2"("p_instance_id" "uuid", "p_actor_id" "uuid", "p_paused" boolean, "p_reason" "text", "p_event_key" "text") FROM PUBLIC;
+GRANT ALL ON FUNCTION "public"."set_store_automation_pause_v2"("p_instance_id" "uuid", "p_actor_id" "uuid", "p_paused" boolean, "p_reason" "text", "p_event_key" "text") TO "service_role";
+
+
+
 REVOKE ALL ON FUNCTION "public"."simulate_action_proposal"("p_proposal_id" "uuid", "p_actor_id" "uuid", "p_event_key" "text") FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."simulate_action_proposal"("p_proposal_id" "uuid", "p_actor_id" "uuid", "p_event_key" "text") TO "service_role";
+
+
+
+REVOKE ALL ON FUNCTION "public"."simulate_action_proposal_v2"("p_instance_id" "uuid", "p_proposal_id" "uuid", "p_actor_id" "uuid", "p_event_key" "text") FROM PUBLIC;
+GRANT ALL ON FUNCTION "public"."simulate_action_proposal_v2"("p_instance_id" "uuid", "p_proposal_id" "uuid", "p_actor_id" "uuid", "p_event_key" "text") TO "service_role";
+
+
+
+REVOKE ALL ON FUNCTION "public"."single_runtime_instance_id"() FROM PUBLIC;
 
 
 
@@ -10936,8 +15582,35 @@ GRANT ALL ON FUNCTION "public"."start_post_release_session"("p_release_candidate
 
 
 
+REVOKE ALL ON FUNCTION "public"."sync_campaign_child_instance"() FROM PUBLIC;
+
+
+
+REVOKE ALL ON FUNCTION "public"."sync_coupon_redemption_from_order_v1"() FROM PUBLIC;
+
+
+
+REVOKE ALL ON FUNCTION "public"."sync_inventory_event_instance"() FROM PUBLIC;
+
+
+
+REVOKE ALL ON FUNCTION "public"."sync_inventory_reservation_instance"() FROM PUBLIC;
+
+
+
+REVOKE ALL ON FUNCTION "public"."sync_order_item_instance"() FROM PUBLIC;
+
+
+
+REVOKE ALL ON FUNCTION "public"."sync_product_variant_instance"() FROM PUBLIC;
+
+
+
 REVOKE ALL ON FUNCTION "public"."sync_support_ticket_from_message"() FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."sync_support_ticket_from_message"() TO "service_role";
+
+
+
+REVOKE ALL ON FUNCTION "public"."sync_variant_child_instance"() FROM PUBLIC;
 
 
 
@@ -10951,12 +15624,20 @@ GRANT ALL ON FUNCTION "public"."transition_assurance_finding"("p_finding_id" "uu
 
 
 REVOKE ALL ON FUNCTION "public"."transition_automation_instance"("p_instance_id" "uuid", "p_actor_id" "uuid", "p_target" "text", "p_event_key" "text", "p_reason" "text") FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."transition_automation_instance"("p_instance_id" "uuid", "p_actor_id" "uuid", "p_target" "text", "p_event_key" "text", "p_reason" "text") TO "service_role";
+
+
+
+REVOKE ALL ON FUNCTION "public"."transition_automation_instance_v2"("p_store_instance_id" "uuid", "p_runbook_instance_id" "uuid", "p_actor_id" "uuid", "p_target" "text", "p_event_key" "text", "p_reason" "text") FROM PUBLIC;
+GRANT ALL ON FUNCTION "public"."transition_automation_instance_v2"("p_store_instance_id" "uuid", "p_runbook_instance_id" "uuid", "p_actor_id" "uuid", "p_target" "text", "p_event_key" "text", "p_reason" "text") TO "service_role";
 
 
 
 REVOKE ALL ON FUNCTION "public"."transition_commercial_offer"("p_offer_id" "uuid", "p_status" "text") FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."transition_commercial_offer"("p_offer_id" "uuid", "p_status" "text") TO "service_role";
+
+
+
+REVOKE ALL ON FUNCTION "public"."transition_commercial_offer_v2"("p_instance_id" "uuid", "p_offer_id" "uuid", "p_status" "text") FROM PUBLIC;
+GRANT ALL ON FUNCTION "public"."transition_commercial_offer_v2"("p_instance_id" "uuid", "p_offer_id" "uuid", "p_status" "text") TO "service_role";
 
 
 
@@ -10965,7 +15646,11 @@ GRANT ALL ON TABLE "public"."control_alerts" TO "service_role";
 
 
 REVOKE ALL ON FUNCTION "public"."transition_control_alert"("p_alert_id" "uuid", "p_target_status" "text", "p_event_key" "text", "p_actor_id" "uuid", "p_snoozed_until" timestamp with time zone, "p_note" "text") FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."transition_control_alert"("p_alert_id" "uuid", "p_target_status" "text", "p_event_key" "text", "p_actor_id" "uuid", "p_snoozed_until" timestamp with time zone, "p_note" "text") TO "service_role";
+
+
+
+REVOKE ALL ON FUNCTION "public"."transition_control_alert_v2"("p_instance_id" "uuid", "p_alert_id" "uuid", "p_target_status" "text", "p_event_key" "text", "p_actor_id" "uuid", "p_snoozed_until" timestamp with time zone, "p_note" "text") FROM PUBLIC;
+GRANT ALL ON FUNCTION "public"."transition_control_alert_v2"("p_instance_id" "uuid", "p_alert_id" "uuid", "p_target_status" "text", "p_event_key" "text", "p_actor_id" "uuid", "p_snoozed_until" timestamp with time zone, "p_note" "text") TO "service_role";
 
 
 
@@ -10974,7 +15659,11 @@ GRANT ALL ON TABLE "public"."control_tasks" TO "service_role";
 
 
 REVOKE ALL ON FUNCTION "public"."transition_control_task"("p_task_id" "uuid", "p_target_status" "text", "p_event_key" "text", "p_actor_id" "uuid", "p_outcome" "text") FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."transition_control_task"("p_task_id" "uuid", "p_target_status" "text", "p_event_key" "text", "p_actor_id" "uuid", "p_outcome" "text") TO "service_role";
+
+
+
+REVOKE ALL ON FUNCTION "public"."transition_control_task_v2"("p_instance_id" "uuid", "p_task_id" "uuid", "p_target_status" "text", "p_event_key" "text", "p_actor_id" "uuid", "p_outcome" "text") FROM PUBLIC;
+GRANT ALL ON FUNCTION "public"."transition_control_task_v2"("p_instance_id" "uuid", "p_task_id" "uuid", "p_target_status" "text", "p_event_key" "text", "p_actor_id" "uuid", "p_outcome" "text") TO "service_role";
 
 
 
@@ -10988,12 +15677,21 @@ GRANT ALL ON FUNCTION "public"."transition_order_operation"("p_order_id" "uuid",
 
 
 REVOKE ALL ON FUNCTION "public"."transition_purchase_order"("p_purchase_order_id" "uuid", "p_target_status" "text", "p_actor" "uuid") FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."transition_purchase_order"("p_purchase_order_id" "uuid", "p_target_status" "text", "p_actor" "uuid") TO "service_role";
+
+
+
+REVOKE ALL ON FUNCTION "public"."transition_purchase_order_v2"("p_instance_id" "uuid", "p_purchase_order_id" "uuid", "p_target_status" "text", "p_actor" "uuid") FROM PUBLIC;
+GRANT ALL ON FUNCTION "public"."transition_purchase_order_v2"("p_instance_id" "uuid", "p_purchase_order_id" "uuid", "p_target_status" "text", "p_actor" "uuid") TO "service_role";
 
 
 
 REVOKE ALL ON FUNCTION "public"."transition_return_case"("p_case_id" "uuid", "p_actor" "uuid", "p_target_status" "text", "p_refund_amount" integer, "p_refund_reference" "text", "p_admin_note" "text", "p_restock" boolean) FROM PUBLIC;
 GRANT ALL ON FUNCTION "public"."transition_return_case"("p_case_id" "uuid", "p_actor" "uuid", "p_target_status" "text", "p_refund_amount" integer, "p_refund_reference" "text", "p_admin_note" "text", "p_restock" boolean) TO "service_role";
+
+
+
+REVOKE ALL ON FUNCTION "public"."transition_tenant_order_v1"("p_instance_id" "uuid", "p_order_id" "uuid", "p_actor" "uuid", "p_target_status" "text", "p_tracking_number" "text") FROM PUBLIC;
+GRANT ALL ON FUNCTION "public"."transition_tenant_order_v1"("p_instance_id" "uuid", "p_order_id" "uuid", "p_actor" "uuid", "p_target_status" "text", "p_tracking_number" "text") TO "service_role";
 
 
 
@@ -11003,12 +15701,15 @@ GRANT ALL ON FUNCTION "public"."update_release_ci_evidence"("p_candidate_id" "uu
 
 
 REVOKE ALL ON FUNCTION "public"."upsert_checkout_recovery_intent"("p_user_id" "uuid", "p_email" "text", "p_cart" "jsonb", "p_checkout" "jsonb") FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."upsert_checkout_recovery_intent"("p_user_id" "uuid", "p_email" "text", "p_cart" "jsonb", "p_checkout" "jsonb") TO "service_role";
+
+
+
+REVOKE ALL ON FUNCTION "public"."upsert_checkout_recovery_intent_v2"("p_instance_id" "uuid", "p_user_id" "uuid", "p_email" "text", "p_cart" "jsonb", "p_checkout" "jsonb") FROM PUBLIC;
+GRANT ALL ON FUNCTION "public"."upsert_checkout_recovery_intent_v2"("p_instance_id" "uuid", "p_user_id" "uuid", "p_email" "text", "p_cart" "jsonb", "p_checkout" "jsonb") TO "service_role";
 
 
 
 REVOKE ALL ON FUNCTION "public"."upsert_control_alert"("p_alert_key" "text", "p_category" "text", "p_alert_type" "text", "p_severity" "text", "p_priority_score" integer, "p_title" "text", "p_description" "text", "p_recommended_action" "text", "p_run_key" "text", "p_order_id" "uuid", "p_customer_id" "uuid", "p_reseller_id" "uuid", "p_variant_id" "uuid", "p_opportunity_id" "uuid", "p_evidence" "jsonb") FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."upsert_control_alert"("p_alert_key" "text", "p_category" "text", "p_alert_type" "text", "p_severity" "text", "p_priority_score" integer, "p_title" "text", "p_description" "text", "p_recommended_action" "text", "p_run_key" "text", "p_order_id" "uuid", "p_customer_id" "uuid", "p_reseller_id" "uuid", "p_variant_id" "uuid", "p_opportunity_id" "uuid", "p_evidence" "jsonb") TO "service_role";
 
 
 
@@ -11027,12 +15728,21 @@ GRANT ALL ON FUNCTION "public"."use_loyalty_benefit"("p_customer_id" "uuid", "p_
 
 
 REVOKE ALL ON FUNCTION "public"."validate_refund_total"() FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."validate_refund_total"() TO "service_role";
 
 
 
 REVOKE ALL ON FUNCTION "public"."validate_return_case_item_quantity"() FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."validate_return_case_item_quantity"() TO "service_role";
+
+
+
+REVOKE ALL ON FUNCTION "public"."verify_admin_audit_chain"("p_instance_id" "uuid") FROM PUBLIC;
+GRANT ALL ON FUNCTION "public"."verify_admin_audit_chain"("p_instance_id" "uuid") TO "anon";
+GRANT ALL ON FUNCTION "public"."verify_admin_audit_chain"("p_instance_id" "uuid") TO "authenticated";
+GRANT ALL ON FUNCTION "public"."verify_admin_audit_chain"("p_instance_id" "uuid") TO "service_role";
+
+
+
+GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE "private"."platform_owner_claims" TO "service_role";
 
 
 
@@ -11074,7 +15784,13 @@ GRANT ALL ON TABLE "public"."active_customer_benefits" TO "service_role";
 
 
 
-GRANT ALL ON TABLE "public"."admin_audit_log" TO "service_role";
+GRANT SELECT,INSERT,REFERENCES,TRIGGER,TRUNCATE,MAINTAIN ON TABLE "public"."admin_audit_log" TO "service_role";
+
+
+
+GRANT ALL ON SEQUENCE "public"."admin_audit_chain_seq" TO "anon";
+GRANT ALL ON SEQUENCE "public"."admin_audit_chain_seq" TO "authenticated";
+GRANT ALL ON SEQUENCE "public"."admin_audit_chain_seq" TO "service_role";
 
 
 
@@ -11222,8 +15938,6 @@ GRANT ALL ON TABLE "public"."integration_jobs" TO "service_role";
 
 
 
-GRANT SELECT,REFERENCES,TRIGGER,TRUNCATE,MAINTAIN ON TABLE "public"."webhook_events" TO "anon";
-GRANT SELECT,REFERENCES,TRIGGER,TRUNCATE,MAINTAIN ON TABLE "public"."webhook_events" TO "authenticated";
 GRANT ALL ON TABLE "public"."webhook_events" TO "service_role";
 
 
@@ -11232,7 +15946,19 @@ GRANT ALL ON TABLE "public"."control_system_health" TO "service_role";
 
 
 
+GRANT ALL ON TABLE "public"."webshop_instances" TO "service_role";
+
+
+
+GRANT ALL ON TABLE "public"."control_system_health_v2" TO "service_role";
+
+
+
 GRANT ALL ON TABLE "public"."control_tower_category_summary" TO "service_role";
+
+
+
+GRANT ALL ON TABLE "public"."control_tower_category_summary_v2" TO "service_role";
 
 
 
@@ -11241,6 +15967,18 @@ GRANT ALL ON TABLE "public"."control_tower_queue" TO "service_role";
 
 
 GRANT ALL ON TABLE "public"."control_tower_kpis" TO "service_role";
+
+
+
+GRANT ALL ON TABLE "public"."control_tower_queue_v2" TO "service_role";
+
+
+
+GRANT ALL ON TABLE "public"."control_tower_kpis_v2" TO "service_role";
+
+
+
+GRANT ALL ON TABLE "public"."coupon_redemptions" TO "service_role";
 
 
 
@@ -11264,6 +16002,11 @@ GRANT ALL ON TABLE "public"."customer_commercial_metrics" TO "service_role";
 
 
 
+GRANT ALL ON TABLE "public"."customer_instance_roles" TO "service_role";
+GRANT SELECT ON TABLE "public"."customer_instance_roles" TO "authenticated";
+
+
+
 GRANT ALL ON TABLE "public"."customer_journey_steps" TO "service_role";
 
 
@@ -11281,6 +16024,12 @@ GRANT ALL ON TABLE "public"."loyalty_balances" TO "service_role";
 
 
 GRANT ALL ON TABLE "public"."customer_loyalty_summary" TO "service_role";
+
+
+
+GRANT ALL ON TABLE "public"."feature_entitlements" TO "anon";
+GRANT ALL ON TABLE "public"."feature_entitlements" TO "authenticated";
+GRANT ALL ON TABLE "public"."feature_entitlements" TO "service_role";
 
 
 
@@ -11354,6 +16103,12 @@ GRANT ALL ON TABLE "public"."marketing_consents" TO "service_role";
 
 
 
+GRANT ALL ON TABLE "public"."merchant_intelligence_tenant_gaps" TO "anon";
+GRANT ALL ON TABLE "public"."merchant_intelligence_tenant_gaps" TO "authenticated";
+GRANT ALL ON TABLE "public"."merchant_intelligence_tenant_gaps" TO "service_role";
+
+
+
 GRANT ALL ON TABLE "public"."observability_events" TO "service_role";
 
 
@@ -11424,7 +16179,25 @@ GRANT ALL ON TABLE "public"."order_events" TO "service_role";
 
 
 
+GRANT ALL ON TABLE "public"."order_inventory_restorations" TO "anon";
+GRANT ALL ON TABLE "public"."order_inventory_restorations" TO "authenticated";
+GRANT ALL ON TABLE "public"."order_inventory_restorations" TO "service_role";
+
+
+
 GRANT ALL ON TABLE "public"."order_request_keys" TO "service_role";
+
+
+
+GRANT ALL ON TABLE "public"."organization_members" TO "anon";
+GRANT ALL ON TABLE "public"."organization_members" TO "authenticated";
+GRANT ALL ON TABLE "public"."organization_members" TO "service_role";
+
+
+
+GRANT ALL ON TABLE "public"."organizations" TO "anon";
+GRANT ALL ON TABLE "public"."organizations" TO "authenticated";
+GRANT ALL ON TABLE "public"."organizations" TO "service_role";
 
 
 
@@ -11467,6 +16240,12 @@ GRANT ALL ON TABLE "public"."post_release_session_queue" TO "service_role";
 
 
 GRANT ALL ON TABLE "public"."post_release_rollback_queue" TO "service_role";
+
+
+
+GRANT ALL ON TABLE "public"."product_channel_settings" TO "anon";
+GRANT ALL ON TABLE "public"."product_channel_settings" TO "authenticated";
+GRANT ALL ON TABLE "public"."product_channel_settings" TO "service_role";
 
 
 
@@ -11564,9 +16343,23 @@ GRANT ALL ON TABLE "public"."reseller_growth_priorities" TO "service_role";
 
 
 
+GRANT ALL ON TABLE "public"."reseller_reorder_signals_v2" TO "service_role";
+
+
+
+GRANT ALL ON TABLE "public"."reseller_growth_priorities_v2" TO "service_role";
+
+
+
 GRANT ALL ON TABLE "public"."return_case_items" TO "anon";
 GRANT ALL ON TABLE "public"."return_case_items" TO "authenticated";
 GRANT ALL ON TABLE "public"."return_case_items" TO "service_role";
+
+
+
+GRANT ALL ON TABLE "public"."role_bindings" TO "anon";
+GRANT ALL ON TABLE "public"."role_bindings" TO "authenticated";
+GRANT ALL ON TABLE "public"."role_bindings" TO "service_role";
 
 
 
@@ -11598,7 +16391,23 @@ GRANT ALL ON TABLE "public"."support_ticket_messages" TO "service_role";
 
 
 
+GRANT ALL ON TABLE "public"."tenant_operational_scope_gaps" TO "anon";
+GRANT ALL ON TABLE "public"."tenant_operational_scope_gaps" TO "authenticated";
+GRANT ALL ON TABLE "public"."tenant_operational_scope_gaps" TO "service_role";
+
+
+
+GRANT ALL ON TABLE "public"."tenant_scope_gaps" TO "anon";
+GRANT ALL ON TABLE "public"."tenant_scope_gaps" TO "authenticated";
+GRANT ALL ON TABLE "public"."tenant_scope_gaps" TO "service_role";
+
+
+
 GRANT ALL ON TABLE "public"."v9_channel_retention_summary" TO "service_role";
+
+
+
+GRANT ALL ON TABLE "public"."v9_channel_retention_summary_v2" TO "service_role";
 
 
 
@@ -11606,7 +16415,15 @@ GRANT ALL ON TABLE "public"."v9_growth_dashboard" TO "service_role";
 
 
 
+GRANT ALL ON TABLE "public"."v9_growth_dashboard_v2" TO "service_role";
+
+
+
 GRANT ALL ON TABLE "public"."v9_monthly_customer_cohorts" TO "service_role";
+
+
+
+GRANT ALL ON TABLE "public"."v9_monthly_customer_cohorts_v2" TO "service_role";
 
 
 
@@ -11626,7 +16443,9 @@ GRANT ALL ON TABLE "public"."webshop_instance_provider_connections" TO "service_
 
 
 
-GRANT ALL ON TABLE "public"."webshop_instances" TO "service_role";
+GRANT ALL ON TABLE "public"."webshop_sales_channels" TO "anon";
+GRANT ALL ON TABLE "public"."webshop_sales_channels" TO "authenticated";
+GRANT ALL ON TABLE "public"."webshop_sales_channels" TO "service_role";
 
 
 
@@ -11643,9 +16462,6 @@ ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT ALL ON SEQ
 
 
 
-
-
-
 ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT ALL ON FUNCTIONS TO "postgres";
 ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT ALL ON FUNCTIONS TO "anon";
 ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT ALL ON FUNCTIONS TO "authenticated";
@@ -11653,16 +16469,10 @@ ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT ALL ON FUN
 
 
 
-
-
-
 ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT ALL ON TABLES TO "postgres";
 ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT ALL ON TABLES TO "anon";
 ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT ALL ON TABLES TO "authenticated";
 ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT ALL ON TABLES TO "service_role";
-
-
-
 
 
 
