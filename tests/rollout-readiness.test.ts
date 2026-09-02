@@ -42,10 +42,12 @@ describe('V24 rollout readiness contracts', () => {
 
   it('ships a cloud smoke gate for critical public routes', () => {
     const smoke = read('scripts/smoke.mjs');
-    for (const route of ['/api/health', '/webaruhaz', '/penztar', '/bejelentkezes']) expect(smoke).toContain(route);
+    for (const route of ['/api/health', '/webaruhaz', '/penztar', '/fiokom']) expect(smoke).toContain(route);
     expect(smoke).toContain('process.exit(1)');
     expect(smoke).toContain('VERCEL_AUTOMATION_BYPASS_SECRET');
     expect(smoke).toContain('x-vercel-protection-bypass');
+    expect(smoke).toContain('SMOKE_EXPECTED_SHA');
+    expect(smoke).toContain('errorCode');
   });
 
   it('keeps rollout manual and gated', () => {
