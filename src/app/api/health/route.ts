@@ -31,7 +31,7 @@ export async function GET(req: Request) {
 
   try {
     const admin = createAdminClient();
-    const { error } = await admin.from('products').select('id').limit(1);
+    const { error } = await admin.from('webshop_instances').select('id').limit(1);
     if (error) throw error;
 
     const latencyMs = Date.now() - started;
