@@ -10,6 +10,8 @@ describe('Shoperation fresh-install target preflight',()=>{
     expect(sql).toContain("n.nspname = 'public'");
     expect(sql).toContain("to_regclass('supabase_migrations.schema_migrations')");
     expect(sql).toContain('migration_rows <> 0');
+    expect(sql).toContain('select count(*) into auth_users from auth.users');
+    expect(sql).toContain('auth_users <> 0');
     expect(sql).toContain("'target-preflight-ok'::text as status");
   });
 
