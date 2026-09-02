@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "status": "snapshot-reviewed",
+  "status": "ready",
   "legacyMigrationReplay": false,
   "sourcePolicy": "schema-snapshot-only",
   "seedFile": "supabase/customer-baseline/seed.sql",
@@ -8,6 +8,6 @@
   "defaultPlan": "alap",
   "snapshotFile": "supabase/customer-baseline/migrations/0001_shoperation_v1_schema.sql",
   "snapshotCommand": "npm run db:customer:snapshot",
-  "freshInstallProofRequired": true,
-  "notes": "The previous reviewed snapshot predates the tenant/B2B/Core Engine release closure. Regenerate it from the current neutral Fresh Install schema and keep the release gate closed until the refreshed snapshot passes empty-database Fresh Install proof."
+  "freshInstallProofRequired": false,
+  "notes": "The current neutral Shoperation tenant/B2B/Core Engine schema snapshot and neutral seed passed target preflight, atomic baseline application and the current-release target postflight on an empty disposable Fresh Install Supabase project. Historical supabase/migrations remain provenance only and are not replayed for new customer provisioning."
 }
