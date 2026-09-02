@@ -37,3 +37,20 @@ export async function getAdminRequestUser(permission?:StorePermission){
 }
 
 export async function isAdminRequest(permission?:StorePermission){return Boolean(await getAdminRequestUser(permission))}
+
+
+export async function getPlatformRequestUser(){
+  try{
+    const supabase=await createClient();
+    const{data:{user}}=await supabase.auth.getUser();
+    if(!user)return null;
+    const admin=createAdminClient();
+    const{data:platform}=await admin.from('platform_operators').select('role').eq('user_id',user.id).maybeSingle();
+    if(!['owner','admin','operator'].includes(String(platform?.role??'')))return null;
+    if(process.env.SECURITY_RATE_LIMIT_ENABLED==='true'){
+      const{data,error}=await admin.rpc('consume_security_rate_limit',{p_rate_key:`admin:${user.id}`,p_window_seconds:60,p_max_count:240});
+      if(error||data!==true)return null;
+    }
+    return user;
+  }catch{return null}
+}

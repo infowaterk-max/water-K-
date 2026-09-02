@@ -42,6 +42,7 @@ export async function applyVerifiedPaymentEvent(event:VerifiedPaymentEvent){
     await recordWebhookEvent({provider:event.providerCode,externalEventId:event.eventId,signatureValid:event.signatureValid,payloadHash,status:event.signatureValid?'ignored':'rejected',errorMessage:'Verified callback could not be mapped to a webshop order.'}).catch(()=>undefined);
     return{ok:event.signatureValid,duplicate:false,orderId:null};
   }
+  await recordWebhookEvent({instanceId:order.instance_id,provider:event.providerCode,externalEventId:event.eventId,signatureValid:event.signatureValid,payloadHash,status:event.signatureValid?'processed':'rejected',errorMessage:null}).catch(()=>undefined);
   const{error:insertError}=await admin.from('payment_events').insert({instance_id:order.instance_id,provider_code:event.providerCode,provider_event_id:event.eventId,provider_reference:event.providerReference,order_id:order.id,event_type:event.eventType,payment_status:event.status,signature_valid:event.signatureValid,payload_hash:payloadHash});
   const duplicate=insertError?.code==='23505';if(insertError&&!duplicate)throw insertError;
   if(!event.signatureValid)return{ok:false,duplicate,orderId:order.id};

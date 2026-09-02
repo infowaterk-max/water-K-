@@ -24,9 +24,21 @@ export async function enqueueIntegrationJob(input:{instanceId?:string|null;order
   throw error;
 }
 
-export async function recordWebhookEvent(input:{provider:string;externalEventId?:string|null;signatureValid:boolean;payloadHash?:string|null;status:'received'|'processed'|'ignored'|'rejected'|'failed';errorMessage?:string|null}){
+export async function recordWebhookEvent(input:{instanceId?:string|null;provider:string;externalEventId?:string|null;signatureValid:boolean;payloadHash?:string|null;status:'received'|'processed'|'ignored'|'rejected'|'failed';errorMessage?:string|null}){
   const admin=createAdminClient();
-  const{data,error}=await admin.from('webhook_events').insert({provider:input.provider,external_event_id:input.externalEventId??null,signature_valid:input.signatureValid,payload_hash:input.payloadHash??null,status:input.status,error_message:input.errorMessage??null,processed_at:['processed','ignored','rejected','failed'].includes(input.status)?new Date().toISOString():null}).select('id').single();
-  if(error)throw error;
-  return data;
+  const row={instance_id:input.instanceId??null,provider:input.provider,external_event_id:input.externalEventId??null,signature_valid:input.signatureValid,payload_hash:input.payloadHash??null,status:input.status,error_message:input.errorMessage??null,processed_at:['processed','ignored','rejected','failed'].includes(input.status)?new Date().toISOString():null};
+  const{data,error}=await admin.from('webhook_events').insert(row).select('id,instance_id').single();
+  if(!error)return data;
+  if(error.code==='23505'&&input.externalEventId){
+    const{data:existing,error:existingError}=await admin.from('webhook_events').select('id,instance_id').eq('provider',input.provider).eq('external_event_id',input.externalEventId).maybeSingle();
+    if(existingError||!existing)throw existingError??error;
+    if(input.instanceId&&existing.instance_id&&existing.instance_id!==input.instanceId)throw new Error('Cross-store webhook event collision.');
+    if(input.instanceId&&!existing.instance_id){
+      const{data:updated,error:updateError}=await admin.from('webhook_events').update({instance_id:input.instanceId,status:input.status,signature_valid:input.signatureValid,payload_hash:input.payloadHash??null,error_message:input.errorMessage??null,processed_at:row.processed_at}).eq('id',existing.id).is('instance_id',null).select('id,instance_id').maybeSingle();
+      if(updateError)throw updateError;
+      return updated??existing;
+    }
+    return existing;
+  }
+  throw error;
 }

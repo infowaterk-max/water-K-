@@ -1,15 +1,18 @@
 import { createAdminClient } from '@/lib/supabase/admin';
 import { requirePlanFeature } from '@/lib/plans/access';
 import { moderateReviewAction } from './actions';
+import { requireCurrentStoreContext } from '@/lib/instances/scope';
 
 export const dynamic = 'force-dynamic';
 
 export default async function ReviewsAdminPage() {
   await requirePlanFeature('reviews');
+  const scope=await requireCurrentStoreContext('marketing.manage');
   const admin = createAdminClient();
   const { data } = await admin
     .from('product_reviews')
     .select('id,rating,title,body,reviewer_name,status,verified_purchase,created_at,products(name)')
+    .eq('instance_id',scope.instanceId)
     .order('created_at', { ascending: false })
     .limit(200);
   const reviews = data ?? [];

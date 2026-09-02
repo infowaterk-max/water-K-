@@ -4,13 +4,14 @@ import { getProducts } from '@/lib/catalog-server';
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { getCurrentPlan } from '@/lib/plans/access';
+import { getCurrentWebshopInstance } from '@/lib/instances/access';
 
 const paidStatuses = ['paid', 'processing', 'shipped', 'completed'];
 const VAT = 1.27;
 
 export default async function AdminPage() {
-  const plan = await getCurrentPlan();
-  const isPro = plan === 'pro';
+  const [plan, instance] = await Promise.all([getCurrentPlan(), getCurrentWebshopInstance()]);
+  const isPro = plan === 'pro' && Boolean(instance);
   const products = await getProducts();
   const now = Date.now();
   const day = 86_400_000;
@@ -36,6 +37,7 @@ export default async function AdminPage() {
     const { data, error } = await s
       .from('orders')
       .select('status,total_gross_huf,created_at')
+      .eq('instance_id', instance?.id ?? '00000000-0000-0000-0000-000000000000')
       .order('created_at', { ascending: false })
       .limit(1000);
 
@@ -76,16 +78,16 @@ export default async function AdminPage() {
 
   // Pro-only business intelligence. Alap never queries the advanced campaign,
   // communication or cost-intelligence tables just to render its dashboard.
-  if (isPro) {
+  if (isPro && instance) {
     try {
       const a = createAdminClient();
       const since = new Date(now - 30 * day).toISOString();
       const [{ data: ro }, { data: oi }, { data: cj }, { data: cv }, { data: cr }] = await Promise.all([
-        a.from('orders').select('id,subtotal_gross_huf,discount_gross_huf').gte('created_at', since).in('status', paidStatuses),
-        a.from('order_items').select('order_id,line_total_gross_huf,unit_cost_net_huf,quantity'),
-        a.from('communication_jobs').select('id,status,requires_approval,approved_at').limit(5000),
-        a.from('marketing_campaign_conversions').select('recipient_id,total_gross_huf').limit(50000),
-        a.from('marketing_campaign_recipients').select('communication_job_id').not('communication_job_id', 'is', null).limit(50000),
+        a.from('orders').select('id,subtotal_gross_huf,discount_gross_huf').eq('instance_id',instance.id).gte('created_at', since).in('status', paidStatuses),
+        a.from('order_items').select('order_id,line_total_gross_huf,unit_cost_net_huf,quantity').eq('instance_id',instance.id),
+        a.from('communication_jobs').select('id,status,requires_approval,approved_at').eq('instance_id',instance.id).limit(5000),
+        a.from('marketing_campaign_conversions').select('recipient_id,total_gross_huf').eq('instance_id',instance.id).limit(50000),
+        a.from('marketing_campaign_recipients').select('communication_job_id').eq('instance_id',instance.id).not('communication_job_id', 'is', null).limit(50000),
       ]);
 
       const orderMap = new Map((ro ?? []).map((o) => [o.id, o]));

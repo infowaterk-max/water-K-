@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { createAdminClient } from '@/lib/supabase/admin';
+import { requirePlatformOperator } from '@/lib/auth/platform-operator';
 
 const actionLabels:Record<string,string>={
   'order.status_changed':'Rendelés státusz módosítva',
@@ -16,6 +17,7 @@ type AuditRow={id:string;actor_user_id:string;action:string;entity_type:string;e
 type Props={searchParams:Promise<{action?:string;entity?:string}>};
 
 export default async function AuditPage({searchParams}:Props){
+  await requirePlatformOperator();
   const params=await searchParams; const action=(params.action??'').trim(); const entity=(params.entity??'').trim();
   let rows:AuditRow[]=[]; let loadError=false;
   try{

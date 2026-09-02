@@ -144,7 +144,7 @@ export async function POST(request: Request) {
     }
 
     const replayed = order.idempotency_replayed === true;
-    if (user?.id) await admin.rpc('convert_checkout_recovery_intent', { p_user_id: user.id, p_order_id: order.order_id });
+    if (user?.id) await admin.rpc('convert_checkout_recovery_intent_v2', { p_instance_id: instance.id, p_user_id: user.id, p_order_id: order.order_id });
 
     const { data: confirmation } = await admin
       .from('orders')

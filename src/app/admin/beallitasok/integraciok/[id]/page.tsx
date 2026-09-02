@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { IntegrationJobControl } from '@/components/admin/integration-job-control';
 import { requirePlanFeature } from '@/lib/plans/access';
+import { requireCurrentStoreContext } from '@/lib/instances/scope';
 
 export const dynamic='force-dynamic';
 const statusLabel:Record<string,string>={pending:'Várakozik',processing:'Folyamatban',succeeded:'Sikeres',failed:'Sikertelen',blocked:'Blokkolt'};
@@ -10,12 +11,13 @@ const kindLabel:Record<string,string>={payment_create:'Fizetés indítása',paym
 
 export default async function IntegrationJobDetail({params}:{params:Promise<{id:string}>}){
   await requirePlanFeature('advancedIntegrations');
+  const scope=await requireCurrentStoreContext('integrations.manage');
   const {id}=await params;
   const admin=createAdminClient();
-  const {data:job,error}=await admin.from('integration_jobs').select('id,order_id,kind,provider,status,attempt_count,payload,result,last_error,next_attempt_at,created_at,updated_at').eq('id',id).maybeSingle();
+  const {data:job,error}=await admin.from('integration_jobs').select('id,order_id,kind,provider,status,attempt_count,payload,result,last_error,next_attempt_at,created_at,updated_at').eq('id',id).eq('instance_id',scope.instanceId).maybeSingle();
   if(error||!job)notFound();
   let order:null|{order_number:string;status:string;customer_email:string;total_gross_huf:number}=null;
-  if(job.order_id){const {data}=await admin.from('orders').select('order_number,status,customer_email,total_gross_huf').eq('id',job.order_id).maybeSingle();order=data;}
+  if(job.order_id){const {data}=await admin.from('orders').select('order_number,status,customer_email,total_gross_huf').eq('id',job.order_id).eq('instance_id',scope.instanceId).maybeSingle();order=data;}
   const processingAgeMinutes=job.status==='processing'?Math.floor((Date.now()-new Date(job.updated_at).getTime())/60000):0;
   return <section className="adminMain">
     <div className="adminToolbar"><div><span className="eyebrow">Pro · Integráció</span><h1 className="sectionTitle">{job.provider} · {kindLabel[job.kind]??job.kind}</h1></div><Link className="btn" href="/admin/integraciok">Vissza</Link></div>

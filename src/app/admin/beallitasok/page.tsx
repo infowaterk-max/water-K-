@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { getIntegrationRegistry } from '@/lib/integrations/registry';
 import { IntegrationJobControl } from '@/components/admin/integration-job-control';
+import { requireCurrentStoreContext } from '@/lib/instances/scope';
 
 export const dynamic='force-dynamic';
 const stateLabel:Record<string,string>={ready:'Aktív',configured:'Konfigurálva',blocked:'Külső adatra vár',not_configured:'Nincs konfigurálva'};
@@ -9,6 +10,7 @@ const statusLabel:Record<string,string>={pending:'Várakozik',processing:'Folyam
 const kindLabel:Record<string,string>={payment_create:'Fizetés indítása',payment_callback:'Fizetési callback',shipment_create:'Szállítás létrehozása',invoice_create:'Számlakészítés',email_send:'E-mail küldés'};
 
 export default async function AdminSettingsPage(){
+  const scope=await requireCurrentStoreContext('store.manage');
   const integrations=getIntegrationRegistry();
   let jobs:Array<{id:string;kind:string;provider:string;status:string;attempt_count:number;last_error:string|null;created_at:string;updated_at:string;order_id:string|null}>=[];
   let webhooks:Array<{id:string;provider:string;status:string;signature_valid:boolean;created_at:string;error_message:string|null}>=[];
@@ -16,9 +18,9 @@ export default async function AdminSettingsPage(){
   try{
     const admin=createAdminClient();
     const [jobResult,webhookResult,pingResult]=await Promise.all([
-      admin.from('integration_jobs').select('id,kind,provider,status,attempt_count,last_error,created_at,updated_at,order_id').order('created_at',{ascending:false}).limit(25),
-      admin.from('webhook_events').select('id,provider,status,signature_valid,created_at,error_message').order('created_at',{ascending:false}).limit(25),
-      admin.from('products').select('id').limit(1),
+      admin.from('integration_jobs').select('id,kind,provider,status,attempt_count,last_error,created_at,updated_at,order_id').eq('instance_id',scope.instanceId).order('created_at',{ascending:false}).limit(25),
+      admin.from('webhook_events').select('id,provider,status,signature_valid,created_at,error_message').eq('instance_id',scope.instanceId).order('created_at',{ascending:false}).limit(25),
+      admin.from('products').select('id').eq('instance_id',scope.instanceId).limit(1),
     ]);
     if(jobResult.error||webhookResult.error||pingResult.error)dataLoadError=true;
     if(!jobResult.error&&jobResult.data)jobs=jobResult.data;
