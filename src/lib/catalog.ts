@@ -13,11 +13,10 @@ export type Product = {
   audience: 'retail' | 'professional';
   useCases: string[];
   highlights: string[];
+  minimumQuantity: number;
+  orderMultiple: number;
 };
 
-// Kept as a compatibility export for client modules that previously consumed
-// a compile-time fallback catalog. A Shoperation webshop must source products
-// from its own database instead of inheriting reference-shop merchandise.
 export const products: Product[] = [];
 
 export const formatHuf = (value: number) =>

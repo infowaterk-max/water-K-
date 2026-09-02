@@ -64,12 +64,16 @@ describe('tenant B2B customer and storefront contract',()=>{
     expect(followup).toMatch(/eq\('instance_id',scope\.instanceId\)/);
   });
 
-  test('storefront hides professional catalog from retail and applies approved reseller price',()=>{
+  test('storefront resolves tenant channel settings while admin keeps the complete catalogue',()=>{
     const code=read('src/lib/catalog-server.ts');
     expect(code).toMatch(/customer_instance_roles/);
     expect(code).toMatch(/approvedReseller=relation\?\.role==='reseller'&&relation\.reseller_approved===true/);
+    expect(code).toMatch(/product_channel_settings/);
+    expect(code).toMatch(/approvedReseller\?'b2b':'b2c'/);
+    expect(code).toMatch(/setting\?setting\.visible/);
     expect(code).toMatch(/reseller_gross_price_huf/);
-    expect(code).toMatch(/filter\(row=>approvedReseller\|\|normalizeAudience\(row\.products\?\.audience\)!=='professional'\)/);
-    expect(code).toMatch(/grossPrice=approvedReseller&&row\.reseller_gross_price_huf!=null/);
+    expect(code).toMatch(/minimumQuantity/);
+    const admin=read('src/app/admin/termekek/page.tsx');
+    expect(admin).toMatch(/getProducts\(\{includeAllChannels:true\}\)/);
   });
 });

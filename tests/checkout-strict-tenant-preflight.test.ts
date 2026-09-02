@@ -11,10 +11,10 @@ describe('checkout strict-tenant preflight',()=>{
     expect(sql).toContain("raise exception 'Order insert blocked: explicit webshop tenant context is required.'");
   });
 
-  it('uses v4 from application code',()=>{
+  it('uses channel-aware v5 from application code',()=>{
     const source=read('src/lib/orders/tenant-checkout.ts');
-    expect(source).toContain("admin.rpc('place_order_provider_v4_idempotent'");
-    expect(source).not.toContain("admin.rpc('place_order_provider_v3_idempotent'");
+    expect(source).toContain("admin.rpc('place_order_provider_v5_idempotent'");
+    expect(source).not.toContain("admin.rpc('place_order_provider_v4_idempotent'");
   });
 
   it('locks v3 and exposes v4 only to the trusted service role',()=>{

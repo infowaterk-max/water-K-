@@ -10,7 +10,7 @@ type VariantRow={id:string;reseller_gross_price_huf:number|null;reseller_net_pri
 
 export default async function AdminProducts(){
   const scope=await requireCurrentStoreContext('catalog.manage');
-  const products=await getProducts();const admin=createAdminClient();
+  const products=await getProducts({includeAllChannels:true});const admin=createAdminClient();
   const{data}=await admin.from('product_variants').select('id,reseller_gross_price_huf,reseller_net_price_huf,unit_cost_net_huf,supplier_lead_time_days,safety_stock_days,minimum_order_quantity,order_multiple').eq('instance_id',scope.instanceId);
   const byId=new Map(((data??[])as VariantRow[]).map(row=>[row.id,row]));
   const soldOut=products.filter(p=>p.stock<=0).length,low=products.filter(p=>p.stock>0&&p.stock<=5).length,stockValue=products.reduce((sum,p)=>sum+p.stock*p.netPrice,0);

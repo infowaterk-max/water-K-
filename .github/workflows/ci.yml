@@ -5,6 +5,7 @@ on:
     branches:
       - main
       - 'feature/**'
+      - core-engine-2-batch
   pull_request:
     branches:
       - main

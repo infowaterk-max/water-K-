@@ -3,41 +3,64 @@ import { createAdminClient } from '@/lib/supabase/admin';
 import { createClient } from '@/lib/supabase/server';
 import { getCurrentWebshopInstance } from '@/lib/instances/access';
 
-type ProductAudience = Product['audience'];
-type VariantRow={id:string;sku:string;label:string;net_price_huf:number;gross_price_huf:number;reseller_gross_price_huf:number|null;stock_quantity:number;weight_grams:number|null;product_id:string;instance_id:string|null;products:{slug:string;name:string;short_description:string|null;active:boolean;audience:string|null;featured:boolean|null;use_cases:string[]|null;highlights:string[]|null;instance_id:string|null}|null};
+type ProductAudience=Product['audience'];
+type SalesChannelCode='b2c'|'b2b';
+type VariantRow={id:string;sku:string;label:string;net_price_huf:number;gross_price_huf:number;reseller_net_price_huf:number|null;reseller_gross_price_huf:number|null;stock_quantity:number;weight_grams:number|null;minimum_order_quantity:number|null;order_multiple:number|null;product_id:string;instance_id:string|null;products:{slug:string;name:string;short_description:string|null;active:boolean;audience:string|null;featured:boolean|null;use_cases:string[]|null;highlights:string[]|null;instance_id:string|null}|null};
+type ChannelRow={product_id:string;channel_code:SalesChannelCode;visible:boolean;gross_price:number|null;minimum_quantity:number;discount_percent:number|null};
+
 const slugify=(value:string)=>value.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'');
 const variantSlug=(productSlug:string,label:string,sku:string)=>{const suffix=slugify(label)||slugify(sku);return suffix?`${productSlug}-${suffix}`:productSlug};
 const normalizeAudience=(value:string|null|undefined):ProductAudience=>value==='professional'?'professional':'retail';
-const resellerNetPrice=(row:VariantRow)=>{const gross=row.reseller_gross_price_huf;if(gross==null)return row.net_price_huf;if(row.gross_price_huf<=0)return gross;return Math.round(gross*(row.net_price_huf/row.gross_price_huf))};
+const positiveInt=(value:number|null|undefined,fallback=1)=>{const numeric=Number(value);return Number.isFinite(numeric)&&numeric>0?Math.max(1,Math.floor(numeric)):fallback};
+const normalizeMinimum=(minimum:number,multiple:number)=>Math.ceil(Math.max(1,minimum)/Math.max(1,multiple))*Math.max(1,multiple);
+const deriveNet=(gross:number,baseGross:number,baseNet:number)=>baseGross>0?Math.max(0,Math.round(gross*(baseNet/baseGross))):Math.max(0,gross);
+const applyDiscount=(value:number,discount:number|null|undefined)=>discount==null?value:Math.max(0,Math.round(value*(1-Math.min(100,Math.max(0,Number(discount)))/100)));
 
-export async function getProducts():Promise<Product[]>{
+export async function getProducts(options:{includeAllChannels?:boolean}={}):Promise<Product[]>{
   try{
     const instance=await getCurrentWebshopInstance();
     if(!instance)return[];
-    const admin=createAdminClient();
+    const admin=createAdminClient(),includeAllChannels=options.includeAllChannels===true;
     let approvedReseller=false;
-    try{
-      const supabase=await createClient();
-      const{data:{user}}=await supabase.auth.getUser();
-      if(user){
-        const{data:relation}=await admin.from('customer_instance_roles').select('role,reseller_approved').eq('instance_id',instance.id).eq('user_id',user.id).maybeSingle();
-        approvedReseller=relation?.role==='reseller'&&relation.reseller_approved===true;
-      }
-    }catch{}
-    // Storefront catalogue is resolved server-side with the service client. Direct anonymous table
-    // enumeration remains blocked; channel visibility and price are reduced to the safe Product DTO.
+    if(!includeAllChannels){
+      try{
+        const supabase=await createClient();
+        const{data:{user}}=await supabase.auth.getUser();
+        if(user){
+          const{data:relation}=await admin.from('customer_instance_roles').select('role,reseller_approved').eq('instance_id',instance.id).eq('user_id',user.id).maybeSingle();
+          approvedReseller=relation?.role==='reseller'&&relation.reseller_approved===true;
+        }
+      }catch{}
+    }
+    const channel:SalesChannelCode=approvedReseller?'b2b':'b2c';
     const{data,error}=await admin.from('product_variants')
-      .select('id,sku,label,net_price_huf,gross_price_huf,reseller_gross_price_huf,stock_quantity,weight_grams,product_id,instance_id,products!inner(slug,name,short_description,active,audience,featured,use_cases,highlights,instance_id)')
+      .select('id,sku,label,net_price_huf,gross_price_huf,reseller_net_price_huf,reseller_gross_price_huf,stock_quantity,weight_grams,minimum_order_quantity,order_multiple,product_id,instance_id,products!inner(slug,name,short_description,active,audience,featured,use_cases,highlights,instance_id)')
       .eq('instance_id',instance.id).eq('active',true).eq('products.instance_id',instance.id).eq('products.active',true).order('gross_price_huf');
     if(error||!data?.length)return[];
-    return(data as unknown as VariantRow[])
-      .filter(row=>row.instance_id===instance.id&&row.products?.instance_id===instance.id)
-      .filter(row=>approvedReseller||normalizeAudience(row.products?.audience)!=='professional')
-      .map(row=>{
-        const product=row.products,baseSlug=product?.slug||slugify(product?.name||row.sku)||row.id;
-        const grossPrice=approvedReseller&&row.reseller_gross_price_huf!=null?row.reseller_gross_price_huf:row.gross_price_huf;
-        const netPrice=approvedReseller?resellerNetPrice(row):row.net_price_huf;
-        return{id:row.id,sku:row.sku,slug:variantSlug(baseSlug,row.label,row.sku),name:[product?.name,row.label].filter(Boolean).join(' '),size:row.label,grossPrice,netPrice,stock:row.stock_quantity,short:product?.short_description??'',featured:product?.featured??false,weightGrams:row.weight_grams??0,audience:normalizeAudience(product?.audience),useCases:product?.use_cases??[],highlights:product?.highlights??[]};
-      });
+    const rows=data as unknown as VariantRow[],productIds=[...new Set(rows.map(row=>row.product_id))];
+    let channelRows:ChannelRow[]=[];
+    if(!includeAllChannels&&productIds.length){
+      const{data:settings,error:settingsError}=await admin.from('product_channel_settings').select('product_id,channel_code,visible,gross_price,minimum_quantity,discount_percent').eq('instance_id',instance.id).eq('channel_code',channel).in('product_id',productIds);
+      if(settingsError)return[];
+      channelRows=(settings??[]) as ChannelRow[];
+    }
+    const settingByProduct=new Map(channelRows.map(row=>[row.product_id,row]));
+    const activeCount=new Map<string,number>();for(const row of rows)activeCount.set(row.product_id,(activeCount.get(row.product_id)??0)+1);
+    return rows.filter(row=>row.instance_id===instance.id&&row.products?.instance_id===instance.id).filter(row=>{
+      if(includeAllChannels)return true;
+      const setting=settingByProduct.get(row.product_id);
+      return setting?setting.visible:(approvedReseller||normalizeAudience(row.products?.audience)!=='professional');
+    }).map(row=>{
+      const product=row.products,setting=includeAllChannels?undefined:settingByProduct.get(row.product_id),baseSlug=product?.slug||slugify(product?.name||row.sku)||row.id;
+      const resellerBase=channel==='b2b'&&row.reseller_gross_price_huf!=null;
+      const baseGross=resellerBase?Number(row.reseller_gross_price_huf):Number(row.gross_price_huf);
+      const baseNet=resellerBase?(row.reseller_net_price_huf!=null?Number(row.reseller_net_price_huf):deriveNet(baseGross,Number(row.gross_price_huf),Number(row.net_price_huf))):Number(row.net_price_huf);
+      const explicitChannelPrice=!includeAllChannels&&setting?.gross_price!=null&&(activeCount.get(row.product_id)??0)===1&&!resellerBase;
+      let grossPrice=explicitChannelPrice?Math.max(0,Number(setting?.gross_price??baseGross)):baseGross;
+      let netPrice=explicitChannelPrice?deriveNet(grossPrice,baseGross,baseNet):baseNet;
+      if(!explicitChannelPrice&&!includeAllChannels&&setting?.discount_percent!=null){grossPrice=applyDiscount(grossPrice,setting.discount_percent);netPrice=applyDiscount(netPrice,setting.discount_percent);}
+      const orderMultiple=positiveInt(row.order_multiple),minimumQuantity=normalizeMinimum(Math.max(positiveInt(row.minimum_order_quantity),positiveInt(setting?.minimum_quantity)),orderMultiple);
+      return{id:row.id,sku:row.sku,slug:variantSlug(baseSlug,row.label,row.sku),name:[product?.name,row.label].filter(Boolean).join(' '),size:row.label,grossPrice,netPrice,stock:row.stock_quantity,short:product?.short_description??'',featured:product?.featured??false,weightGrams:row.weight_grams??0,audience:normalizeAudience(product?.audience),useCases:product?.use_cases??[],highlights:product?.highlights??[],minimumQuantity,orderMultiple};
+    });
   }catch{return[]}
 }
