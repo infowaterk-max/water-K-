@@ -45,7 +45,8 @@ describe('tenant B2B customer and storefront contract',()=>{
     const api=read('src/app/api/admin/customers/[id]/route.ts');
     expect(api).toMatch(/customer_instance_roles/);
     expect(api).toMatch(/eq\('instance_id',scope\.instanceId\)/);
-    expect(api).not.toMatch(/from\('profiles'\)[\s\S]*update/);
+    expect(api).toMatch(/from\('profiles'\)\.select/);
+    expect(api).toMatch(/from\('customer_instance_roles'\)\.update/);
   });
 
   test('existing customer can request tenant reseller status without self approval',()=>{

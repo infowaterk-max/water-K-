@@ -55,7 +55,7 @@ describe('post-purchase service contracts', () => {
   test('customer support conversations require authentication and ownership', () => {
     expect(ticketPage).toMatch(/s\.auth\.getUser\(\)/);
     expect(ticketPage).toMatch(/if\(!user\)redirect\('\/fiokom'\)/);
-    expect(ticketPage).toMatch(/\.eq\('id',id\)\.eq\('user_id',user\.id\)\.maybeSingle\(\)/);
+    expect(ticketPage).toMatch(/\.eq\('id',id\)\.eq\('instance_id',instance\.id\)\.eq\('user_id',user\.id\)\.maybeSingle\(\)/);
     expect(ticketPage).toMatch(/support_ticket_messages/);
     expect(ticketPage).toMatch(/disabled=\{t\.status==='closed'\}/);
     expect(customerReply).toMatch(/\/api\/account\/support\/\$\{ticketId\}\/messages/);

@@ -101,7 +101,7 @@ describe('merchant admin tenant closure',()=>{
 
     const followup=read('src/app/admin/utanakovetes/page.tsx');
     expect(followup).toMatch(/orders[\s\S]*eq\('instance_id',scope\.instanceId\)/);
-    expect(followup).toMatch(/profiles[\s\S]*in\('id',profileIds\)/);
+    expect(followup).toMatch(/profiles[\s\S]*in\('id',partnerIds\)/);
 
     const api=read('src/app/api/admin/customers/[id]/route.ts');
     expect(api).toMatch(/customer_commercial_metrics[\s\S]*eq\('instance_id',scope\.instanceId\)/);

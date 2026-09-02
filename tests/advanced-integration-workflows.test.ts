@@ -12,7 +12,7 @@ const processor = read('src/lib/integrations/processor.ts');
 describe('advanced integration operations', () => {
   test('advanced integration operations remain Pro-only on page and retry API', () => {
     expect(page).toMatch(/requirePlanFeature\('advancedIntegrations'\)/);
-    expect(retryApi).toMatch(/getAdminRequestUser\(\)/);
+    expect(retryApi).toMatch(/getAdminRequestUser\('integrations\.manage'\)/);
     expect(retryApi).toMatch(/hasCurrentPlanFeature\('advancedIntegrations'\)/);
     expect(retryApi).toMatch(/status:403/);
   });
@@ -37,7 +37,7 @@ describe('advanced integration operations', () => {
     expect(retryApi).toMatch(/processing_token/);
     expect(retryApi).toMatch(/már feldolgozás alatt van, vagy nem futtatható újra/);
     expect(retryApi).toMatch(/status:409/);
-    expect(retryApi).toMatch(/processIntegrationJob\(id,claim\.processing_token\)/);
+    expect(retryApi).toMatch(/processIntegrationJob\(scope\.instanceId,id,claim\.processing_token\)/);
   });
 
   test('processor requires the exact processing claim token throughout lifecycle writes', () => {
