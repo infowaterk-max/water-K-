@@ -74,7 +74,7 @@ jobs:
           retention-days: 30
 
   fresh-install-proof:
-    if: github.ref == 'refs/heads/feature/business-packages-v1' && github.event_name == 'push' && contains(github.event.head_commit.message, '[fresh-install-proof]')
+    if: github.ref == 'refs/heads/core-engine-2-batch' && github.event_name == 'push' && contains(github.event.head_commit.message, '[fresh-install-proof]')
     runs-on: ubuntu-latest
     timeout-minutes: 20
     env:
