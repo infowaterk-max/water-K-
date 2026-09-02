@@ -5,29 +5,39 @@ if (!isVercelDeploy || !['preview', 'production'].includes(environment ?? '')) {
   process.exit(0);
 }
 
-const missing = [];
+const problems = [];
 
 if (!process.env.NEXT_PUBLIC_SUPABASE_URL) {
-  missing.push('NEXT_PUBLIC_SUPABASE_URL');
+  problems.push('NEXT_PUBLIC_SUPABASE_URL');
 }
 
 if (
   !process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY &&
   !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 ) {
-  missing.push('NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY|NEXT_PUBLIC_SUPABASE_ANON_KEY');
+  problems.push('NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY|NEXT_PUBLIC_SUPABASE_ANON_KEY');
 }
 
-if (
+if (environment === 'production') {
+  if (!process.env.SUPABASE_SECRET_KEY && !process.env.SUPABASE_SERVICE_ROLE_KEY) {
+    problems.push('SUPABASE_SECRET_KEY|SUPABASE_SERVICE_ROLE_KEY');
+  }
+
+  if (process.env.SUPABASE_STAGING_SECRET_KEY) {
+    problems.push('SUPABASE_STAGING_SECRET_KEY must not be scoped to production');
+  }
+} else if (
   !process.env.SUPABASE_STAGING_SECRET_KEY &&
   !process.env.SUPABASE_SECRET_KEY &&
   !process.env.SUPABASE_SERVICE_ROLE_KEY
 ) {
-  missing.push('SUPABASE_STAGING_SECRET_KEY|SUPABASE_SECRET_KEY|SUPABASE_SERVICE_ROLE_KEY');
+  problems.push('SUPABASE_STAGING_SECRET_KEY|SUPABASE_SECRET_KEY|SUPABASE_SERVICE_ROLE_KEY');
 }
 
-if (missing.length > 0) {
-  console.error(`Vercel ${environment} deploy blocked: missing required database environment configuration: ${missing.join(', ')}`);
+if (problems.length > 0) {
+  console.error(
+    `Vercel ${environment} deploy blocked: invalid database environment configuration: ${problems.join(', ')}`,
+  );
   process.exit(1);
 }
 
