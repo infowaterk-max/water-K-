@@ -45,9 +45,7 @@ const requiredObjects=[
   'public.recovery_runs',
 ];
 
-const requiredRoutines=[
-  'place_order_provider_v5_idempotent',
-  'quote_tenant_checkout_v2',
+const permissionHelpers=[
   'is_platform_operator',
   'has_store_role',
   'has_feature_entitlement',
@@ -60,6 +58,12 @@ const requiredRoutines=[
   'can_manage_sales',
   'can_read_loyalty',
   'can_manage_loyalty',
+];
+
+const requiredRoutines=[
+  'place_order_provider_v5_idempotent',
+  'quote_tenant_checkout_v2',
+  ...permissionHelpers,
   'detect_control_tower_alerts',
   'process_recovery_governance_cycle',
   'record_recovery_evidence',
@@ -124,7 +128,7 @@ if(!/organization_id\s+uuid\s+not\s+null/i.test(normalizedIdentifiers)){
 }
 
 
-for(const helper of requiredRoutines.slice(2)){
+for(const helper of permissionHelpers){
   const escaped=helper.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
   const block=new RegExp(`create\\s+(?:or\\s+replace\\s+)?function\\s+public\\.${escaped}\\b[\\s\\S]*?alter\\s+function\\s+public\\.${escaped}\\b`,'i').exec(normalizedIdentifiers)?.[0] ?? '';
   if(!block) fail(`permission helper definition is missing: ${helper}`);
