@@ -33,7 +33,20 @@ jobs:
         with:
           node-version: 22
 
+      - name: Resolve baseline lifecycle
+        id: lifecycle
+        shell: bash
+        run: |
+          STATUS="$(node -p "require('./supabase/customer-baseline/manifest.json').status")"
+          if [ "$STATUS" = "snapshot-required" ]; then
+            echo "generate=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "generate=false" >> "$GITHUB_OUTPUT"
+            echo "Snapshot generation skipped for lifecycle status: $STATUS"
+          fi
+
       - name: Verify secret is configured
+        if: steps.lifecycle.outputs.generate == 'true'
         shell: bash
         run: |
           if [ -z "$SHOPERATION_BASELINE_DB_URL" ]; then
@@ -42,9 +55,11 @@ jobs:
           fi
 
       - name: Generate reviewed schema snapshot
+        if: steps.lifecycle.outputs.generate == 'true'
         run: node scripts/generate-customer-baseline.mjs --force
 
       - name: Commit reviewed candidate snapshot
+        if: steps.lifecycle.outputs.generate == 'true'
         shell: bash
         run: |
           git config user.name "github-actions[bot]"
@@ -58,7 +73,7 @@ jobs:
           fi
 
       - name: Upload reviewed candidate snapshot
-        if: always()
+        if: steps.lifecycle.outputs.generate == 'true' && always()
         uses: actions/upload-artifact@v4
         with:
           name: shoperation-customer-baseline-candidate

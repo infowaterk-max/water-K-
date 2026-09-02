@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto';
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { resolve } from 'node:path';
 
@@ -51,6 +52,31 @@ function fail(message) {
 
 if (!existsSync(manifestPath)) fail('manifest.json is missing');
 const manifest = JSON.parse(readFileSync(manifestPath, 'utf8'));
+if (!manifest.authBootstrapFile) fail('authBootstrapFile is required');
+const authBootstrapPath = resolve(root, manifest.authBootstrapFile);
+if (!existsSync(authBootstrapPath)) fail('Supabase Auth bootstrap is missing');
+const authBootstrap = readFileSync(authBootstrapPath, 'utf8');
+if (!/drop\s+trigger\s+if\s+exists\s+on_auth_user_created\s+on\s+auth\.users/i.test(authBootstrap)) fail('Auth bootstrap must safely replace on_auth_user_created');
+if (!/create\s+trigger\s+on_auth_user_created[\s\S]*after\s+insert\s+on\s+auth\.users[\s\S]*execute\s+function\s+private\.handle_new_user\s*\(\s*\)/i.test(authBootstrap)) fail('Auth bootstrap must connect auth.users to private.handle_new_user');
+
+function proofContractHash() {
+  const files = [
+    manifest.snapshotFile,
+    manifest.authBootstrapFile,
+    manifest.seedFile,
+    'supabase/customer-baseline/target-preflight.sql',
+    'supabase/customer-baseline/target-postflight.sql',
+  ];
+  const hash = createHash('sha256');
+  for (const path of files) {
+    const content = readFileSync(resolve(root, path));
+    hash.update(path);
+    hash.update('\0');
+    hash.update(content);
+    hash.update('\0');
+  }
+  return hash.digest('hex');
+}
 if (manifest.legacyMigrationReplay !== false) fail('legacyMigrationReplay must remain false');
 if (manifest.sourcePolicy !== 'schema-snapshot-only') fail('sourcePolicy must remain schema-snapshot-only');
 if (manifest.defaultPlan !== 'alap') fail('fresh customer databases must fail closed to Alap');
@@ -76,11 +102,23 @@ if (manifest.status === 'snapshot-reviewed' && migrations.length !== 1) {
 if (manifest.status === 'snapshot-reviewed' && manifest.freshInstallProofRequired !== true) {
   fail('snapshot-reviewed baseline must still require Fresh Install proof');
 }
+if (manifest.status === 'snapshot-reviewed' && manifest.proofContractSha256 !== null) {
+  fail('snapshot-reviewed baseline must clear the previous proof contract hash');
+}
 if (manifest.status === 'ready' && migrations.length !== 1) {
   fail(`ready baseline must contain exactly one reviewed schema snapshot, found ${migrations.length}`);
 }
 if (manifest.status === 'ready' && manifest.freshInstallProofRequired !== false) {
   fail('ready baseline must record completed Fresh Install proof');
+}
+if (manifest.status === 'ready') {
+  if (!/^[a-f0-9]{64}$/.test(manifest.proofContractSha256 ?? '')) {
+    fail('ready baseline must record a valid proofContractSha256');
+  }
+  const currentProofContractSha256 = proofContractHash();
+  if (currentProofContractSha256 !== manifest.proofContractSha256) {
+    fail('ready baseline proof is stale; reset to snapshot-reviewed and rerun Fresh Install proof');
+  }
 }
 
 for (const name of migrations) {

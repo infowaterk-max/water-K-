@@ -5,6 +5,7 @@ const root=process.cwd();
 const manifestPath=resolve(root,'supabase/customer-baseline/manifest.json');
 const manifest=JSON.parse(readFileSync(manifestPath,'utf8'));
 const snapshotPath=resolve(root,manifest.snapshotFile);
+const authBootstrapPath=resolve(root,manifest.authBootstrapFile ?? '');
 
 function fail(message){
   console.error(`Customer baseline snapshot review failed: ${message}`);
@@ -12,6 +13,10 @@ function fail(message){
 }
 
 if(!existsSync(snapshotPath)) fail(`snapshot is missing: ${manifest.snapshotFile}`);
+if(!manifest.authBootstrapFile || !existsSync(authBootstrapPath)) fail('Supabase Auth bootstrap is missing');
+const authBootstrap=readFileSync(authBootstrapPath,'utf8');
+if(!/drop\s+trigger\s+if\s+exists\s+on_auth_user_created\s+on\s+auth\.users/i.test(authBootstrap)) fail('Auth bootstrap must safely replace on_auth_user_created');
+if(!/create\s+trigger\s+on_auth_user_created[\s\S]*after\s+insert\s+on\s+auth\.users[\s\S]*execute\s+function\s+private\.handle_new_user\s*\(\s*\)/i.test(authBootstrap)) fail('Auth bootstrap must connect auth.users to private.handle_new_user');
 const sql=readFileSync(snapshotPath,'utf8');
 const lower=sql.toLowerCase();
 const normalizedIdentifiers=lower.replace(/"/g,'');

@@ -23,6 +23,7 @@ declare
   browser_grant_count integer;
   service_select_count integer;
   exposed_no_policy_count integer;
+  auth_profile_trigger_count integer;
 begin
   if to_regclass('public.webshop_instances') is null then missing := array_append(missing, 'public.webshop_instances'); end if;
   if to_regclass('public.profiles') is null then missing := array_append(missing, 'public.profiles'); end if;
@@ -40,6 +41,23 @@ begin
   if to_regclass('public.recovery_events') is null then missing := array_append(missing, 'public.recovery_events'); end if;
   if to_regclass('public.recovery_decisions') is null then missing := array_append(missing, 'public.recovery_decisions'); end if;
   if to_regclass('public.recovery_runs') is null then missing := array_append(missing, 'public.recovery_runs'); end if;
+
+  select count(*) into auth_profile_trigger_count
+  from pg_trigger t
+  join pg_class c on c.oid=t.tgrelid
+  join pg_namespace n on n.oid=c.relnamespace
+  join pg_proc p on p.oid=t.tgfoid
+  join pg_namespace pn on pn.oid=p.pronamespace
+  where not t.tgisinternal
+    and n.nspname='auth'
+    and c.relname='users'
+    and t.tgname='on_auth_user_created'
+    and pn.nspname='private'
+    and p.proname='handle_new_user';
+
+  if auth_profile_trigger_count <> 1 then
+    raise exception 'Supabase Auth profile bootstrap trigger is missing or ambiguous: %', auth_profile_trigger_count;
+  end if;
 
   if cardinality(missing) > 0 then
     raise exception 'Fresh-install baseline is incomplete. Missing release objects: %', array_to_string(missing, ', ');
