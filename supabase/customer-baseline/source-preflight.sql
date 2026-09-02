@@ -9,6 +9,9 @@ declare
   instance_default text;
   legacy_checkout_count integer;
   current_checkout_count integer;
+  current_quote_count integer;
+  helper_count integer;
+  bad_helper_count integer;
   protected_table text;
   protected_oid oid;
   protected_rls boolean;
@@ -20,9 +23,12 @@ begin
   if to_regclass('public.webshop_instances') is null then missing := array_append(missing, 'public.webshop_instances'); end if;
   if to_regclass('public.profiles') is null then missing := array_append(missing, 'public.profiles'); end if;
   if to_regclass('public.products') is null then missing := array_append(missing, 'public.products'); end if;
+  if to_regclass('public.product_variants') is null then missing := array_append(missing, 'public.product_variants'); end if;
   if to_regclass('public.orders') is null then missing := array_append(missing, 'public.orders'); end if;
   if to_regclass('public.commerce_provider_catalog') is null then missing := array_append(missing, 'public.commerce_provider_catalog'); end if;
   if to_regclass('public.webshop_instance_commerce_settings') is null then missing := array_append(missing, 'public.webshop_instance_commerce_settings'); end if;
+  if to_regclass('public.customer_instance_roles') is null then missing := array_append(missing, 'public.customer_instance_roles'); end if;
+  if to_regclass('public.coupon_redemptions') is null then missing := array_append(missing, 'public.coupon_redemptions'); end if;
 
   if cardinality(missing) > 0 then
     raise exception 'Baseline source is incomplete. Missing core objects: %', array_to_string(missing, ', ');
@@ -64,10 +70,73 @@ begin
   select count(*) into current_checkout_count
   from pg_proc p
   join pg_namespace n on n.oid = p.pronamespace
-  where n.nspname = 'public' and p.proname = 'place_order_provider_v2_idempotent';
+  where n.nspname = 'public' and p.proname = 'place_order_provider_v5_idempotent';
 
-  if current_checkout_count = 0 then
-    raise exception 'Current provider-neutral checkout RPC is missing';
+  select count(*) into current_quote_count
+  from pg_proc p
+  join pg_namespace n on n.oid = p.pronamespace
+  where n.nspname = 'public' and p.proname = 'quote_tenant_checkout_v2';
+
+  if current_checkout_count <> 1 then
+    raise exception 'Current V5 provider-neutral atomic checkout RPC is missing or ambiguous: %', current_checkout_count;
+  end if;
+
+  if current_quote_count <> 1 then
+    raise exception 'Current V2 tenant-aware checkout quote RPC is missing or ambiguous: %', current_quote_count;
+  end if;
+
+  select count(*) into helper_count
+  from pg_proc p
+  join pg_namespace n on n.oid = p.pronamespace
+  where n.nspname = 'public'
+    and p.proname in (
+      'is_platform_operator','has_store_role','has_feature_entitlement',
+      'can_read_store','can_manage_catalog','can_manage_orders','can_manage_marketing',
+      'can_manage_support','can_manage_procurement','can_manage_sales',
+      'can_read_loyalty','can_manage_loyalty'
+    );
+
+  if helper_count <> 12 then
+    raise exception 'Permission helper set is incomplete: %/12', helper_count;
+  end if;
+
+  select count(*) into bad_helper_count
+  from pg_proc p
+  join pg_namespace n on n.oid = p.pronamespace
+  where n.nspname = 'public'
+    and p.proname in (
+      'is_platform_operator','has_store_role','has_feature_entitlement',
+      'can_read_store','can_manage_catalog','can_manage_orders','can_manage_marketing',
+      'can_manage_support','can_manage_procurement','can_manage_sales',
+      'can_read_loyalty','can_manage_loyalty'
+    )
+    and (
+      p.prosecdef
+      or has_function_privilege('public', p.oid, 'execute')
+      or has_function_privilege('anon', p.oid, 'execute')
+      or not has_function_privilege('authenticated', p.oid, 'execute')
+      or not has_function_privilege('service_role', p.oid, 'execute')
+    );
+
+  if bad_helper_count <> 0 then
+    raise exception 'Permission helper privilege mismatch: %', bad_helper_count;
+  end if;
+
+  if exists (
+    select 1
+    from pg_proc p
+    join pg_namespace n on n.oid = p.pronamespace
+    where n.nspname = 'public'
+      and p.proname in ('quote_tenant_checkout_v2','place_order_provider_v5_idempotent')
+      and (
+        not p.prosecdef
+        or has_function_privilege('public', p.oid, 'execute')
+        or has_function_privilege('anon', p.oid, 'execute')
+        or has_function_privilege('authenticated', p.oid, 'execute')
+        or not has_function_privilege('service_role', p.oid, 'execute')
+      )
+  ) then
+    raise exception 'Checkout RPC privilege model does not match the hardened release contract';
   end if;
 
   -- These control-plane/configuration tables are intentionally server-only.

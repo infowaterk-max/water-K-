@@ -9,9 +9,12 @@ describe('customer baseline source preflight', () => {
       'public.webshop_instances',
       'public.profiles',
       'public.products',
+      'public.product_variants',
       'public.orders',
       'public.commerce_provider_catalog',
       'public.webshop_instance_commerce_settings',
+      'public.customer_instance_roles',
+      'public.coupon_redemptions',
     ]) {
       expect(preflight).toContain(object);
     }
@@ -20,8 +23,19 @@ describe('customer baseline source preflight', () => {
   it('fails closed to Alap and rejects obsolete checkout overloads', () => {
     expect(preflight).toContain("not ilike '%alap%'");
     expect(preflight).toContain("p.proname = 'place_order'");
-    expect(preflight).toContain("p.proname = 'place_order_provider_v2_idempotent'");
+    expect(preflight).toContain("p.proname = 'place_order_provider_v5_idempotent'");
+    expect(preflight).toContain("p.proname = 'quote_tenant_checkout_v2'");
+    expect(preflight).not.toContain("p.proname = 'place_order_provider_v2_idempotent'");
     expect(preflight).toContain('source-preflight-ok');
+  });
+
+  it('requires the hardened current helper and Core Engine RPC privilege model', () => {
+    expect(preflight).toContain('helper_count <> 12');
+    expect(preflight).toContain("has_function_privilege('public', p.oid, 'execute')");
+    expect(preflight).toContain("has_function_privilege('anon', p.oid, 'execute')");
+    expect(preflight).toContain("has_function_privilege('authenticated', p.oid, 'execute')");
+    expect(preflight).toContain("has_function_privilege('service_role', p.oid, 'execute')");
+    expect(preflight).toContain("p.proname in ('quote_tenant_checkout_v2','place_order_provider_v5_idempotent')");
   });
 
   it('keeps control-plane and commerce configuration tables service-role only', () => {
