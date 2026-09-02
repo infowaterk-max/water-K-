@@ -27,6 +27,7 @@ export async function GET(req: Request) {
     process.env.NEXT_PUBLIC_APP_VERSION ??
     'local';
   const environment = process.env.VERCEL_ENV ?? process.env.NODE_ENV ?? 'unknown';
+  const headers = {'x-correlation-id':cid,'cache-control':'no-store'};
 
   try {
     const admin = createAdminClient();
@@ -51,7 +52,7 @@ export async function GET(req: Request) {
         timestamp: new Date().toISOString(),
         correlationId: cid,
       },
-      { headers: { 'x-correlation-id': cid, 'cache-control': 'no-store' } },
+      {headers},
     );
   } catch (error) {
     const latencyMs = Date.now() - started;
@@ -77,10 +78,7 @@ export async function GET(req: Request) {
         timestamp: new Date().toISOString(),
         correlationId: cid,
       },
-      {
-        status: 503,
-        headers: { 'x-correlation-id': cid, 'cache-control': 'no-store' },
-      },
+      {status:503,headers},
     );
   }
 }
