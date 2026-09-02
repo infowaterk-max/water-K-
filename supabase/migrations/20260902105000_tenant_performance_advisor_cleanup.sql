@@ -92,47 +92,62 @@ alter policy role_bindings_scope_read on public.role_bindings
 
 -- Split ALL policies so authenticated SELECT uses only the dedicated read policy.
 drop policy if exists content_store_write on public.content_pages;
+drop policy if exists content_store_insert on public.content_pages;
 create policy content_store_insert on public.content_pages for insert to authenticated
   with check (public.can_manage_marketing(instance_id));
+drop policy if exists content_store_update on public.content_pages;
 create policy content_store_update on public.content_pages for update to authenticated
   using (public.can_manage_marketing(instance_id))
   with check (public.can_manage_marketing(instance_id));
+drop policy if exists content_store_delete on public.content_pages;
 create policy content_store_delete on public.content_pages for delete to authenticated
   using (public.can_manage_marketing(instance_id));
 
 drop policy if exists inventory_events_store_write on public.inventory_events;
+drop policy if exists inventory_events_store_insert on public.inventory_events;
 create policy inventory_events_store_insert on public.inventory_events for insert to authenticated
   with check (public.can_manage_catalog(instance_id) or public.can_manage_orders(instance_id));
+drop policy if exists inventory_events_store_update on public.inventory_events;
 create policy inventory_events_store_update on public.inventory_events for update to authenticated
   using (public.can_manage_catalog(instance_id) or public.can_manage_orders(instance_id))
   with check (public.can_manage_catalog(instance_id) or public.can_manage_orders(instance_id));
+drop policy if exists inventory_events_store_delete on public.inventory_events;
 create policy inventory_events_store_delete on public.inventory_events for delete to authenticated
   using (public.can_manage_catalog(instance_id) or public.can_manage_orders(instance_id));
 
 drop policy if exists inventory_reservations_store_write on public.inventory_reservations;
+drop policy if exists inventory_reservations_store_insert on public.inventory_reservations;
 create policy inventory_reservations_store_insert on public.inventory_reservations for insert to authenticated
   with check (public.can_manage_catalog(instance_id) or public.can_manage_orders(instance_id));
+drop policy if exists inventory_reservations_store_update on public.inventory_reservations;
 create policy inventory_reservations_store_update on public.inventory_reservations for update to authenticated
   using (public.can_manage_catalog(instance_id) or public.can_manage_orders(instance_id))
   with check (public.can_manage_catalog(instance_id) or public.can_manage_orders(instance_id));
+drop policy if exists inventory_reservations_store_delete on public.inventory_reservations;
 create policy inventory_reservations_store_delete on public.inventory_reservations for delete to authenticated
   using (public.can_manage_catalog(instance_id) or public.can_manage_orders(instance_id));
 
 drop policy if exists variants_store_write on public.product_variants;
+drop policy if exists variants_store_insert on public.product_variants;
 create policy variants_store_insert on public.product_variants for insert to authenticated
   with check (public.can_manage_catalog(instance_id));
+drop policy if exists variants_store_update on public.product_variants;
 create policy variants_store_update on public.product_variants for update to authenticated
   using (public.can_manage_catalog(instance_id))
   with check (public.can_manage_catalog(instance_id));
+drop policy if exists variants_store_delete on public.product_variants;
 create policy variants_store_delete on public.product_variants for delete to authenticated
   using (public.can_manage_catalog(instance_id));
 
 drop policy if exists products_store_write on public.products;
+drop policy if exists products_store_insert on public.products;
 create policy products_store_insert on public.products for insert to authenticated
   with check (public.can_manage_catalog(instance_id));
+drop policy if exists products_store_update on public.products;
 create policy products_store_update on public.products for update to authenticated
   using (public.can_manage_catalog(instance_id))
   with check (public.can_manage_catalog(instance_id));
+drop policy if exists products_store_delete on public.products;
 create policy products_store_delete on public.products for delete to authenticated
   using (public.can_manage_catalog(instance_id));
 
