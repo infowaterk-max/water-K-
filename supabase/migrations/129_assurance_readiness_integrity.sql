@@ -1,4 +1,5 @@
 -- V16 audit hardening: error findings, accepted-risk resolution and strict readiness gates.
+drop view if exists public.assurance_readiness;
 create or replace view public.assurance_readiness with(security_invoker=true) as
 with latest as(select * from public.assurance_latest_control_results),score as(
  select coalesce(sum(weight),0) total_weight,coalesce(sum(weight) filter(where status='pass' and not stale),0) passed_weight,
