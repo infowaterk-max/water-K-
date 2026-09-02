@@ -12,10 +12,31 @@ const smokeHeaders = {
   ...(bypassSecret
     ? {
         'x-vercel-protection-bypass': bypassSecret,
-        'x-vercel-set-bypass-cookie': 'true',
       }
     : {}),
 };
+
+function formatError(error) {
+  if (!(error instanceof Error)) {
+    return String(error);
+  }
+
+  const cause = error.cause;
+  if (!cause || typeof cause !== 'object') {
+    return error.message;
+  }
+
+  const causeCode = 'code' in cause && typeof cause.code === 'string' ? cause.code : '';
+  const causeMessage = 'message' in cause && typeof cause.message === 'string' ? cause.message : '';
+
+  return [
+    error.message,
+    causeCode ? `code=${causeCode}` : '',
+    causeMessage ? `cause=${causeMessage}` : '',
+  ]
+    .filter(Boolean)
+    .join(' ');
+}
 
 const checks = [
   { path: '/api/health', expectJson: true, verifyVersion: true },
@@ -68,7 +89,7 @@ for (const check of checks) {
 
     console.log(`OK ${check.path} ${response.status} ${latency}ms`);
   } catch (error) {
-    failures.push(`${check.path}: ${error instanceof Error ? error.message : String(error)}`);
+    failures.push(`${check.path}: ${formatError(error)}`);
   }
 }
 
