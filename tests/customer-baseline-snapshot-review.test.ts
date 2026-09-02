@@ -5,7 +5,7 @@ import { describe, expect, it } from 'vitest';
 const read=(path:string)=>readFileSync(resolve(process.cwd(),path),'utf8');
 
 describe('Shoperation baseline snapshot structural review',()=>{
-  it('requires the core customer schema and provider-neutral checkout',()=>{
+  it('requires the current tenant/B2B schema and Core Engine checkout',()=>{
     const review=read('scripts/review-customer-baseline-snapshot.mjs');
     for(const required of [
       'public.webshop_instances',
@@ -15,7 +15,13 @@ describe('Shoperation baseline snapshot structural review',()=>{
       'public.orders',
       'public.commerce_provider_catalog',
       'public.webshop_instance_commerce_settings',
-      'place_order_provider_v2_idempotent',
+      'public.customer_instance_roles',
+      'public.coupon_redemptions',
+      'place_order_provider_v5_idempotent',
+      'quote_tenant_checkout_v2',
+      'customer_instance_roles_self_select',
+      'orders_customer_or_store_read',
+      'office_threads_store_all',
     ]) expect(review).toContain(required);
   });
 
@@ -27,6 +33,13 @@ describe('Shoperation baseline snapshot structural review',()=>{
     expect(review).toContain('historical Supabase migration state');
     expect(review).toContain('enable\\s+row\\s+level\\s+security');
     expect(review).toContain('create\\s+policy');
+  });
+
+  it('requires hardened permission helpers',()=>{
+    const review=read('scripts/review-customer-baseline-snapshot.mjs');
+    expect(review).toContain('permission helper must remain SECURITY INVOKER');
+    expect(review).toContain('can_manage_orders');
+    expect(review).toContain('can_manage_support');
   });
 
   it('runs structural review automatically after generating a candidate snapshot',()=>{

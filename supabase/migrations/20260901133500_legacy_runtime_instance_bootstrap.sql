@@ -2,6 +2,14 @@
 -- Historical upgrades need one deterministic runtime instance before tenant scoping.
 -- Fresh customer installs use the customer-baseline snapshot and do not replay this migration.
 
+create or replace function public.single_runtime_instance_id() returns uuid
+language sql stable security definer set search_path=public as $$
+  select case when count(*)=1 then min(id::text)::uuid else null end
+  from public.webshop_instances
+  where status in ('pilot','active');
+$$;
+revoke all on function public.single_runtime_instance_id() from public,anon,authenticated,service_role;
+
 do $$
 declare
   v_instance_id uuid;
