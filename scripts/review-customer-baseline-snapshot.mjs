@@ -26,6 +26,13 @@ const requiredObjects=[
   'public.webshop_instance_commerce_settings',
   'public.customer_instance_roles',
   'public.coupon_redemptions',
+  'public.recovery_objectives',
+  'public.recovery_evidence',
+  'public.recovery_drills',
+  'public.recovery_findings',
+  'public.recovery_events',
+  'public.recovery_decisions',
+  'public.recovery_runs',
 ];
 
 const requiredRoutines=[
@@ -43,6 +50,14 @@ const requiredRoutines=[
   'can_manage_sales',
   'can_read_loyalty',
   'can_manage_loyalty',
+  'detect_control_tower_alerts',
+  'process_recovery_governance_cycle',
+  'record_recovery_evidence',
+  'plan_recovery_drill',
+  'start_recovery_drill',
+  'complete_recovery_drill',
+  'acknowledge_recovery_finding',
+  'record_recovery_decision',
 ];
 
 const forbiddenServerOnlyPolicies=[
