@@ -20,7 +20,14 @@ export function AddToCart({ id, variantId = null, slug, name, price }: AddToCart
       type="button"
       onClick={() => {
         add({ productId: id, variantId, slug, name, unitPrice: price, quantity: 1 });
-        track('add_to_cart',{item_id:variantId ?? id,item_name:name,value:price,currency:'HUF',product_id:id,variant_id:variantId ?? undefined});
+        track('add_to_cart', {
+          item_id: variantId ?? id,
+          item_name: name,
+          value: price,
+          currency: 'HUF',
+          product_id: id,
+          variant_id: variantId ?? '',
+        });
       }}
     >
       Kosárba teszem
