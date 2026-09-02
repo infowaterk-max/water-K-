@@ -28,8 +28,8 @@ const splitPolicies = [
 describe('tenant performance advisor cleanup replay safety', () => {
   it('drops every split write policy before recreating it', () => {
     for (const policy of splitPolicies) {
-      const drop = sql.indexOf(`drop policy if exists \${policy} on public.`);
-      const create = sql.indexOf(`create policy \${policy} `);
+      const drop = sql.indexOf(`drop policy if exists ${policy} on public.`);
+      const create = sql.indexOf(`create policy ${policy} `);
       expect(drop, policy).toBeGreaterThanOrEqual(0);
       expect(create, policy).toBeGreaterThan(drop);
     }
