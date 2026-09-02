@@ -6,6 +6,7 @@ on:
       - main
       - 'feature/**'
       - core-engine-2-batch
+      - production-provisioning-acceptance
   pull_request:
     branches:
       - main
