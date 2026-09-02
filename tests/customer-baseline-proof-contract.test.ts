@@ -9,9 +9,9 @@ describe('Shoperation Fresh Install proof contract lifecycle',()=>{
     const manifest=JSON.parse(read('supabase/customer-baseline/manifest.json'));
     expect(validator).toContain('proofContractSha256');
     expect(validator).toContain('ready baseline proof is stale');
-    expect(manifest.status).toBe('snapshot-reviewed');
-    expect(manifest.freshInstallProofRequired).toBe(true);
-    expect(manifest.proofContractSha256).toBeNull();
+    expect(manifest.status).toBe('ready');
+    expect(manifest.freshInstallProofRequired).toBe(false);
+    expect(manifest.proofContractSha256).toMatch(/^[a-f0-9]{64}$/);
   });
 
   it('hashes every file used by the clean-install proof',()=>{
