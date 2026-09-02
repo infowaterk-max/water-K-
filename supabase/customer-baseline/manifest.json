@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "status": "snapshot-reviewed",
+  "status": "ready",
   "legacyMigrationReplay": false,
   "sourcePolicy": "schema-snapshot-only",
   "seedFile": "supabase/customer-baseline/seed.sql",
@@ -8,8 +8,8 @@
   "defaultPlan": "alap",
   "snapshotFile": "supabase/customer-baseline/migrations/0001_shoperation_v1_schema.sql",
   "snapshotCommand": "npm run db:customer:snapshot",
-  "freshInstallProofRequired": true,
-  "notes": "The atomic tenant provisioning schema was regenerated from the reviewed non-production source and passed structural review. Fresh Install proof is required before this contract can return to ready.",
+  "freshInstallProofRequired": false,
+  "notes": "The atomic tenant provisioning customer schema snapshot, Supabase Auth bootstrap, neutral seed and strengthened empty-target pre/postflight contract passed on the disposable Fresh Install project. The exact proof contract is pinned by proofContractSha256; any drift fails closed until re-proven.",
   "authBootstrapFile": "supabase/customer-baseline/auth-bootstrap.sql",
-  "proofContractSha256": null
+  "proofContractSha256": "29bb4b303fd6c1da21e7a3d687d55b2d4c9a499fcc4a7964c2c9c428be3e43a8"
 }
