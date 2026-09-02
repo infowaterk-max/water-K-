@@ -81,10 +81,25 @@ $$;
 revoke all on function private.sync_webshop_plan_entitlements(uuid)
 from public,anon,authenticated,service_role;
 
+create or replace function private.sync_webshop_plan_entitlements_trigger()
+returns trigger
+language plpgsql
+security definer
+set search_path=''
+as $$
+begin
+  perform private.sync_webshop_plan_entitlements(new.id);
+  return new;
+end;
+$$;
+
+revoke all on function private.sync_webshop_plan_entitlements_trigger()
+from public,anon,authenticated,service_role;
+
 drop trigger if exists webshop_instance_plan_entitlements_sync on public.webshop_instances;
 create trigger webshop_instance_plan_entitlements_sync
 after insert or update of subscription_plan,organization_id on public.webshop_instances
-for each row execute function private.sync_webshop_plan_entitlements(new.id);
+for each row execute function private.sync_webshop_plan_entitlements_trigger();
 
 do $$
 declare r record;
