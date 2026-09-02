@@ -43,23 +43,25 @@ begin
     raise exception 'TENANT_PLAN_SYNC_INSTANCE_NOT_FOUND';
   end if;
 
-  v_features:=case v_plan
-    when 'alap' then array[
+  if v_plan='alap' then
+    v_features:=array[
       'catalog','inventory','orders','returns','customers','coupons','basicAnalytics',
       'marketingBasics','contentMarketing','importExport','bulkOperations','wishlists',
       'stockNotifications','productRecommendations','reviews','searchFiltering',
       'commerceIntegrations','support'
-    ]::text[]
-    when 'pro' then array[
+    ]::text[];
+  elsif v_plan='pro' then
+    v_features:=array[
       'catalog','inventory','orders','returns','customers','coupons','basicAnalytics',
       'marketingBasics','contentMarketing','importExport','bulkOperations','wishlists',
       'stockNotifications','productRecommendations','reviews','searchFiltering',
       'commerceIntegrations','support','advancedAnalytics','crm','advancedCampaigns',
       'officeCommunication','automation','procurement','cashflow','executiveAnalytics',
       'advancedIntegrations'
-    ]::text[]
-    else raise exception 'TENANT_PLAN_SYNC_UNKNOWN_PLAN: %',v_plan
-  end;
+    ]::text[];
+  else
+    raise exception 'TENANT_PLAN_SYNC_UNKNOWN_PLAN: %',v_plan;
+  end if;
 
   delete from public.feature_entitlements
   where instance_id=p_instance_id and source='plan';
