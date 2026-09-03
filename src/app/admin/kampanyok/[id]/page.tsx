@@ -97,7 +97,7 @@ export default async function Page({params}:{params:Promise<{id:string}>}){
       <div className="card"><span className="badge">Kampányhoz köthető rendelések</span><div className="price">{conversionError?'—':cv.length}</div></div>
       <div className="card"><span className="badge">Kampányhoz köthető bevétel</span><div className="price">{conversionError?'—':money(revenue)}</div></div>
     </div>
-    <section className="card"><h2>Kampányműveletek</h2><CampaignActions campaignId={campaign.id} status={campaign.status}/></section>
+    <section className="card"><h2>Kampányműveletek</h2>{!loadError?<CampaignActions campaignId={campaign.id} status={campaign.status}/>:<div className="adminAuditNotice"><strong>Kampányművelet átmenetileg letiltva.</strong><p>Előbb a célcsoport-, eredmény- és eseményadatok teljes betöltése szükséges.</p></div>}</section>
     <section className="card"><h2>Kampánytörténet</h2><div className="integrationList">{events?.map(e=><div key={e.id}><span><strong>{e.action}</strong>{e.note&&<div className="muted">{e.note}</div>}</span><span>{new Date(e.created_at).toLocaleString('hu-HU')}</span></div>)}</div>{!eventError&&!events?.length&&<p className="muted">Még nincs naplózott kampányművelet.</p>}</section>
   </section>;
 }
