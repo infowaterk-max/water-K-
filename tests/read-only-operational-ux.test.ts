@@ -11,6 +11,7 @@ describe('read-only operational UX',()=>{
   expect(automation).toContain('automatikus védelmi leállás');
   expect(actions).toContain("hasStorePermission(store.instanceId,'store.manage')");
   expect(actions).toContain('A javaslatok áttekinthetők, de szimulációt');
-  expect(actions).toContain("canManage?<ProposalActions");
+  expect(actions).toContain("const canAct=canManage&&!error");
+  expect(actions).toContain("canAct?<ProposalActions");
  });
 });
