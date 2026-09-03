@@ -128,6 +128,15 @@ export async function POST(request: Request) {
     const { data: { user } } = await sessionClient.auth.getUser();
     const admin = createAdminClient();
 
+    const {data:partnerRelation,error:partnerRelationError}=user?.id
+      ?await admin.from('customer_instance_roles').select('role,reseller_approved').eq('instance_id',instance.id).eq('user_id',user.id).maybeSingle()
+      :{data:null,error:null};
+    if(partnerRelationError)return NextResponse.json({error:'A vásárlói jogosultság ellenőrzése átmenetileg nem sikerült. Kérlek próbáld újra.'},{status:503});
+    const approvedReseller=partnerRelation?.role==='reseller'&&partnerRelation.reseller_approved===true;
+    if(checkout.customerType==='reseller'&&!approvedReseller)return NextResponse.json({error:'Viszonteladói rendeléshez ehhez a webshophoz jóváhagyott partnerfiók szükséges.'},{status:403});
+    if(approvedReseller&&checkout.customerType!=='reseller')return NextResponse.json({error:'A fiókod ehhez a webshophoz viszonteladói csatornán vásárol. Frissítsd a pénztárt és próbáld újra.'},{status:409});
+    if(approvedReseller&&(!checkout.companyName||!checkout.taxNumber))return NextResponse.json({error:'Viszonteladói rendeléshez cégnév és adószám szükséges.'},{status:400});
+
     let order: PlaceOrderResult;
     try {
       order = await placeTenantOrder({
