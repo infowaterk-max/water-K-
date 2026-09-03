@@ -14,6 +14,7 @@ import {
   markPaymentAttemptRequiresAction,
 } from '@/lib/integrations/payment-attempts';
 import { getCommunicationIdentity } from '@/lib/communication/identity';
+import { enqueueExternalLogisticsOrderEmail } from '@/lib/integrations/external-logistics';
 
 const providerCode = z.string().trim().regex(/^[a-z0-9_-]{2,80}$/);
 const checkoutSchema = z.object({
@@ -251,6 +252,7 @@ export async function POST(request: Request) {
         .eq('id', order.order_id)
         .eq('instance_id', instance.id);
       if (statusError) throw statusError;
+      if(payment.flow==='cash_on_delivery')await enqueueExternalLogisticsOrderEmail(instance.id,order.order_id,shipping.code).catch(async error=>{await admin.from('order_events').insert({instance_id:instance.id,order_id:order.order_id,event_type:'integration_enqueue_failed',from_status:status,to_status:status,metadata:{kind:'logistics_email',error:error instanceof Error?error.message:'unknown'}})});
     }
 
     return NextResponse.json({ ok: true, replayed, orderId: order.order_id, orderNumber: order.order_number, confirmationToken: confirmation.confirmation_token, subtotal: order.subtotal_gross_huf, discount: order.discount_gross_huf, shippingFee: order.shipping_gross_huf, total: order.total_gross_huf, couponCode: order.coupon_code, status, paymentRedirectUrl }, { status: replayed ? 200 : 201 });
