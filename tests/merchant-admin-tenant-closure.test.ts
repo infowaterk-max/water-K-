@@ -61,7 +61,7 @@ describe('merchant admin tenant closure',()=>{
 
   test('campaign, promotion and integration actions use tenant-aware RPCs',()=>{
     const campaign=read('src/app/api/admin/campaigns/manage/route.ts');
-    expect(campaign).toMatch(/admin_manage_marketing_campaign_v2/);
+    expect(campaign).toMatch(/admin_manage_marketing_campaign_v3/);
     expect(campaign).toMatch(/p_instance_id:store\.instanceId/);
 
     const promo=read('src/app/api/admin/promotions/preview/route.ts');
