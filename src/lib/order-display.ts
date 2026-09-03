@@ -7,7 +7,7 @@ export const paymentMethodLabels: Record<string,string> = {
 };
 
 export const shippingMethodLabels: Record<string,string> = {
-  foxpost:'FOXPOST', gls:'GLS', mpl:'MPL', pickup:'Személyes átvétel',external_logistics:'Külső logisztikai partner'
+  foxpost:'FOXPOST', gls:'GLS', mpl:'MPL', pickup:'Személyes átvétel',external_logistics:'Külső logisztikai partner', external_gls_home:'GLS Házhozszállítás', external_mpl_home:'MPL Házhozszállítás', external_mpl_automata:'Posta / Csomagautomata', external_mpl_postapont:'Postapontok (COOP/MOL)', external_foxpost:'FOXPOST', external_gls_parcel:'GLS CsomagPont / Automata'
 };
 
 export function orderStatusLabel(value?: string|null){ return value ? (orderStatusLabels[value] ?? value) : '—'; }
@@ -48,9 +48,9 @@ export function orderNextAction(status?:string|null,paymentMethod?:string|null,s
 }
 
 export function trackingProviderUrl(shippingMethod?:string|null){
-  if(shippingMethod==='foxpost')return 'https://foxpost.hu/csomagkovetes/';
-  if(shippingMethod==='gls')return 'https://gls-group.com/HU/hu/csomagkovetes/';
-  if(shippingMethod==='mpl')return 'https://www.posta.hu/nyomkovetes/nyitooldal';
+  if(shippingMethod==='foxpost'||shippingMethod==='external_foxpost')return 'https://foxpost.hu/csomagkovetes/';
+  if(shippingMethod==='gls'||shippingMethod==='external_gls_home'||shippingMethod==='external_gls_parcel')return 'https://gls-group.com/HU/hu/csomagkovetes/';
+  if(shippingMethod==='mpl'||shippingMethod==='external_mpl_home'||shippingMethod==='external_mpl_automata'||shippingMethod==='external_mpl_postapont')return 'https://www.posta.hu/nyomkovetes/nyitooldal';
   return null;
 }
 
