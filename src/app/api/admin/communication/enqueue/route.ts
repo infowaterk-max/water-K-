@@ -19,7 +19,7 @@ export async function POST(request:Request){
   if(body.kind==='payment_followup'){
    const{data:o,error}=await admin.from('orders').select('id,order_number,customer_id,customer_email,billing_name,status,total_gross_huf,created_at').eq('id',body.reference).eq('instance_id',scope.instanceId).maybeSingle();
    if(error||!o)return NextResponse.json({error:'A rendelés nem található.'},{status:404});
-   const age=Date.now()-new Date(o.created_at).getTime();if(o.status!=='pending'||age<24*3600000||age>=7*86400000)return NextResponse.json({error:'A rendelés jelenleg nem jogosult erre az utánkövetésre.'},{status:409});
+   const age=Date.now()-new Date(o.created_at).getTime();if(o.status!=='pending_payment'||age<24*3600000||age>=7*86400000)return NextResponse.json({error:'A rendelés jelenleg nem jogosult erre az utánkövetésre.'},{status:409});
    const key=`payment_followup:${scope.instanceId}:${o.id}:${now.toISOString().slice(0,10)}`;
    const{data,error:rpcError}=await admin.rpc('enqueue_communication_v2',{p_instance_id:scope.instanceId,p_email:o.customer_email,p_user_id:o.customer_id,p_purpose:'transactional',p_template_key:'payment_followup',p_payload:{orderId:o.id,orderNumber:o.order_number,name:o.billing_name,totalGrossHuf:o.total_gross_huf},p_idempotency_key:key,p_scheduled_at:now.toISOString()});
    if(rpcError)throw rpcError;return NextResponse.json({ok:true,id:data});
