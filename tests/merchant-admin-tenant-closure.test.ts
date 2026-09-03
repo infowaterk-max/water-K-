@@ -70,12 +70,14 @@ describe('merchant admin tenant closure',()=>{
 
     const integration=read('src/app/api/admin/integrations/[id]/run/route.ts');
     expect(integration).toMatch(/claim_integration_job_v2/);
-    expect(integration).toMatch(/processIntegrationJob\(scope\.instanceId,id,claim\.processing_token\)/);
+    expect(integration).toMatch(/processIntegrationJob\(scope\.instanceId,id,claim\.processing_token,\{manualActorId:actor\.id\}\)/);
+    expect(integration).not.toContain('recordAdminAudit');
   });
 
   test('integration processor carries tenant through all persistence',()=>{
     const processor=read('src/lib/integrations/processor.ts');
-    expect(processor).toMatch(/processIntegrationJob\(instanceId:string,jobId:string,claimToken:string\)/);
+    expect(processor).toMatch(/processIntegrationJob\(instanceId:string,jobId:string,claimToken:string,options\?:\{manualActorId\?:string\}\)/);
+    expect(processor).toContain('admin_finalize_manual_integration_job_v2');
     expect(processor).toMatch(/getCommunicationIdentityForInstance\(instanceId\)/);
     expect(processor).toMatch(/integration_jobs[\s\S]*eq\('instance_id',instanceId\)/);
     expect(processor).toMatch(/orders[\s\S]*eq\('instance_id',instanceId\)/);
