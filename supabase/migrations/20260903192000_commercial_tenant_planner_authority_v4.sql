@@ -61,7 +61,13 @@ begin
   where c.instance_id=p_instance_id
     and c.segment in('at_risk','winback','dormant')
   on conflict(instance_id,opportunity_key) do update
-     set customer_id=excluded.customer_id,
+     set status=case
+           when public.commercial_opportunities.status='dismissed'
+            and public.commercial_opportunities.source->>'auto_closed_reason'='segment_no_longer_actionable'
+           then 'open'
+           else public.commercial_opportunities.status
+         end,
+         customer_id=excluded.customer_id,
          customer_email=excluded.customer_email,
          kind=excluded.kind,
          priority_score=excluded.priority_score,
@@ -71,9 +77,18 @@ begin
          reason=excluded.reason,
          recommended_action=excluded.recommended_action,
          source=excluded.source,
-         closed_at=null,
+         closed_at=case
+           when public.commercial_opportunities.status='dismissed'
+            and public.commercial_opportunities.source->>'auto_closed_reason'='segment_no_longer_actionable'
+           then null
+           else public.commercial_opportunities.closed_at
+         end,
          updated_at=now()
-   where public.commercial_opportunities.status in('open','in_progress');
+   where public.commercial_opportunities.status in('open','in_progress')
+      or (
+        public.commercial_opportunities.status='dismissed'
+        and public.commercial_opportunities.source->>'auto_closed_reason'='segment_no_longer_actionable'
+      );
   get diagnostics v_b2c=row_count;
 
   -- Approval revocation or tenant-role changes immediately retire stale B2B reorder opportunities.
@@ -126,7 +141,13 @@ begin
     and r.customer_id is not null
     and r.priority_band in('critical','high','medium')
   on conflict(instance_id,opportunity_key) do update
-     set reseller_id=excluded.reseller_id,
+     set status=case
+           when public.commercial_opportunities.status='dismissed'
+            and public.commercial_opportunities.source->>'auto_closed_reason'='tenant_reseller_no_longer_actionable'
+           then 'open'
+           else public.commercial_opportunities.status
+         end,
+         reseller_id=excluded.reseller_id,
          priority_score=excluded.priority_score,
          expected_value_net_huf=excluded.expected_value_net_huf,
          probability_percent=excluded.probability_percent,
@@ -134,9 +155,18 @@ begin
          reason=excluded.reason,
          recommended_action=excluded.recommended_action,
          source=excluded.source,
-         closed_at=null,
+         closed_at=case
+           when public.commercial_opportunities.status='dismissed'
+            and public.commercial_opportunities.source->>'auto_closed_reason'='tenant_reseller_no_longer_actionable'
+           then null
+           else public.commercial_opportunities.closed_at
+         end,
          updated_at=now()
-   where public.commercial_opportunities.status in('open','in_progress');
+   where public.commercial_opportunities.status in('open','in_progress')
+      or (
+        public.commercial_opportunities.status='dismissed'
+        and public.commercial_opportunities.source->>'auto_closed_reason'='tenant_reseller_no_longer_actionable'
+      );
   get diagnostics v_b2b=row_count;
 
   return jsonb_build_object('b2c_inserts',v_b2c,'b2b_upserts',v_b2b);
@@ -160,8 +190,8 @@ begin
   -- Keep generated tasks in the same tenant and retire tasks whose opportunity is closed or no longer high value.
   update public.sales_tasks t
      set status='cancelled',
-         outcome=coalesce(nullif(trim(t.outcome),''),
-           'Automatikusan lezárva: a kereskedelmi lehetőség már nem aktív vagy nem igényel kiemelt kezelést.'),
+         outcome='Automatikusan lezárva [commercial_planner]: a kereskedelmi lehetőség már nem aktív vagy nem igényel kiemelt kezelést.',
+         completed_at=null,
          updated_at=now()
    where t.instance_id=p_instance_id
      and t.task_key like 'opportunity:%'
@@ -191,13 +221,35 @@ begin
     and o.status in('open','in_progress')
     and (o.priority_score>=80 or o.expected_value_net_huf>=100000)
   on conflict(instance_id,task_key) do update
-     set opportunity_id=excluded.opportunity_id,
+     set status=case
+           when public.sales_tasks.status='cancelled'
+            and public.sales_tasks.outcome='Automatikusan lezárva [commercial_planner]: a kereskedelmi lehetőség már nem aktív vagy nem igényel kiemelt kezelést.'
+           then 'open'
+           else public.sales_tasks.status
+         end,
+         opportunity_id=excluded.opportunity_id,
          title=excluded.title,
          priority=excluded.priority,
          due_at=excluded.due_at,
          description=excluded.description,
+         outcome=case
+           when public.sales_tasks.status='cancelled'
+            and public.sales_tasks.outcome='Automatikusan lezárva [commercial_planner]: a kereskedelmi lehetőség már nem aktív vagy nem igényel kiemelt kezelést.'
+           then null
+           else public.sales_tasks.outcome
+         end,
+         completed_at=case
+           when public.sales_tasks.status='cancelled'
+            and public.sales_tasks.outcome='Automatikusan lezárva [commercial_planner]: a kereskedelmi lehetőség már nem aktív vagy nem igényel kiemelt kezelést.'
+           then null
+           else public.sales_tasks.completed_at
+         end,
          updated_at=now()
-   where public.sales_tasks.status in('open','in_progress');
+   where public.sales_tasks.status in('open','in_progress')
+      or (
+        public.sales_tasks.status='cancelled'
+        and public.sales_tasks.outcome='Automatikusan lezárva [commercial_planner]: a kereskedelmi lehetőség már nem aktív vagy nem igényel kiemelt kezelést.'
+      );
   get diagnostics v_count=row_count;
 
   return v_count;

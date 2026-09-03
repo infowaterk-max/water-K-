@@ -17,17 +17,21 @@ describe('commercial tenant planner authority',()=>{
 
   test('stale tenant opportunities are dismissed when customer or reseller state is no longer actionable',()=>{
     const sql=read(migration);
-    expect(sql).toMatch(/commercial_opportunities o[\s\S]*o\.instance_id=p_instance_id[\s\S]*segment_no_longer_actionable/);
-    expect(sql).toMatch(/commercial_opportunities o[\s\S]*o\.instance_id=p_instance_id[\s\S]*tenant_reseller_no_longer_actionable/);
-    expect(sql).toMatch(/not exists\([\s\S]*reseller_growth_priorities_v2 r[\s\S]*r\.customer_id=o\.reseller_id/);
+    expect(sql).toContain("'auto_closed_reason','segment_no_longer_actionable'");
+    expect(sql).toContain("'auto_closed_reason','tenant_reseller_no_longer_actionable'");
+    expect(sql).toMatch(/where o\.instance_id=p_instance_id[\s\S]*o\.channel='b2c'[\s\S]*not exists\(/);
+    expect(sql).toMatch(/where o\.instance_id=p_instance_id[\s\S]*o\.channel='b2b'[\s\S]*reseller_growth_priorities_v2 r/);
+    expect(sql).toMatch(/reseller_growth_priorities_v2 r[\s\S]*r\.customer_id=o\.reseller_id/);
   });
 
-  test('B2C refresh is an in-place tenant upsert instead of leaving stale segment data',()=>{
+  test('B2C refresh is an in-place tenant upsert and only planner-dismissed work may reopen',()=>{
     const sql=read(migration);
     expect(sql).toContain("'b2c:'||c.customer_key||':active'");
     expect(sql).toContain('on conflict(instance_id,opportunity_key) do update');
     expect(sql).toContain('customer_id=excluded.customer_id');
-    expect(sql).toContain('closed_at=null');
+    expect(sql).toContain("source->>'auto_closed_reason'='segment_no_longer_actionable'");
+    expect(sql).toContain("source->>'auto_closed_reason'='tenant_reseller_no_longer_actionable'");
+    expect(sql).not.toMatch(/status='dismissed'[\s\S]{0,180}then 'open'[\s\S]{0,180}else/);
   });
 
   test('generated sales tasks are cancelled only inside the requested tenant when their opportunity is no longer actionable',()=>{
@@ -35,6 +39,9 @@ describe('commercial tenant planner authority',()=>{
     expect(sql).toMatch(/update public\.sales_tasks t[\s\S]*t\.instance_id=p_instance_id/);
     expect(sql).toMatch(/commercial_opportunities o[\s\S]*o\.id=t\.opportunity_id[\s\S]*o\.instance_id=p_instance_id/);
     expect(sql).toContain("status='cancelled'");
+    expect(sql).toContain('Automatikusan lezárva [commercial_planner]');
+    expect(sql).toContain("then 'open'");
+    expect(sql).toContain('then null');
     expect(sql).toContain('o.priority_score>=80 or o.expected_value_net_huf>=100000');
   });
 
