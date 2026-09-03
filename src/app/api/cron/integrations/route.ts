@@ -95,14 +95,15 @@ async function runWorker(request:Request){
   }
 
   const journeyOk=journeys.every(result=>result.ok);
+  const ok=inventorySnapshot.ok&&journeyOk&&integrationResults.every(result=>result.ok)&&communication.ok;
   return NextResponse.json({
-    ok:inventorySnapshot.ok&&journeyOk&&integrationResults.every(result=>result.ok)&&communication.ok,
+    ok,
     inventorySnapshot,
     journeys:{tenants:journeys.length,results:journeys},
     integrations:{processed:integrationResults.length,results:integrationResults},
     communication,
     checkedAt,
-  });
+  },{status:ok?200:503});
 }
 
 export async function GET(request:Request){return runWorker(request)}
