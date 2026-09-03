@@ -85,16 +85,18 @@ export async function POST(request: Request) {
 
   if (shipping.kind === 'parcel_point') {
     if (!checkout.parcelPointId) return NextResponse.json({ error: 'Ehhez a szállítási módhoz átvételi pontot kell választani.' }, { status: 400 });
-    try {
-      const shippingAdapter = getShippingProviderAdapter(shipping.adapterKey);
-      if (!shippingAdapter.validatePickupPoint) {
-        return NextResponse.json({ error: 'A kiválasztott csomagpont szerveroldali ellenőrzése ehhez a szolgáltatóhoz még nincs aktiválva.' }, { status: 409 });
+    if (!shipping.externalLogistics) {
+      try {
+        const shippingAdapter = getShippingProviderAdapter(shipping.adapterKey);
+        if (!shippingAdapter.validatePickupPoint) {
+          return NextResponse.json({ error: 'A kiválasztott csomagpont szerveroldali ellenőrzése ehhez a szolgáltatóhoz még nincs aktiválva.' }, { status: 409 });
+        }
+        const valid = await shippingAdapter.validatePickupPoint(checkout.parcelPointId);
+        if (!valid) return NextResponse.json({ error: 'A kiválasztott átvételi pont már nem érvényes. Kérlek válassz másikat.' }, { status: 409 });
+      } catch (error) {
+        console.error('pickup point validation failed', { provider: shipping.code, error });
+        return NextResponse.json({ error: 'A csomagpont ellenőrzése átmenetileg nem érhető el. Kérlek próbáld újra.' }, { status: 503 });
       }
-      const valid = await shippingAdapter.validatePickupPoint(checkout.parcelPointId);
-      if (!valid) return NextResponse.json({ error: 'A kiválasztott átvételi pont már nem érvényes. Kérlek válassz másikat.' }, { status: 409 });
-    } catch (error) {
-      console.error('pickup point validation failed', { provider: shipping.code, error });
-      return NextResponse.json({ error: 'A csomagpont ellenőrzése átmenetileg nem érhető el. Kérlek próbáld újra.' }, { status: 503 });
     }
   }
 
