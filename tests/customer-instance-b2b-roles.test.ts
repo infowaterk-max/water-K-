@@ -55,12 +55,15 @@ describe('tenant B2B customer and storefront contract',()=>{
     expect(atomic).toMatch(/'customer\.store_role_updated'/);
   });
 
-  test('existing customer can request tenant reseller status without self approval',()=>{
+  test('existing customer requests tenant reseller status through non-downgrading RPC',()=>{
     const api=read('src/app/api/account/reseller-request/route.ts');
+    const sql=read('supabase/migrations/20260903183500_reseller_request_concurrency_v2.sql');
     expect(api).toMatch(/getCurrentWebshopInstance/);
-    expect(api).toMatch(/instance_id:instance\.id/);
-    expect(api).toMatch(/reseller_approved:false/);
-    expect(api).not.toMatch(/reseller_approved:true/);
+    expect(api).toMatch(/request_reseller_status_v2/);
+    expect(api).toMatch(/p_instance_id:instance\.id/);
+    expect(api).not.toMatch(/customer_instance_roles'\)\.upsert/);
+    expect(sql).toMatch(/reseller_approved=true/);
+    expect(sql).toMatch(/for update/);
   });
 
   test('growth and CRM partner views use tenant relation',()=>{

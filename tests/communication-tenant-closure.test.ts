@@ -18,7 +18,9 @@ describe('communication tenant closure',()=>{
   });
 
   test('public and customer writes carry the active tenant',()=>{
-    expect(read('src/app/api/support/route.ts')).toMatch(/instance_id:instance\.id/);
+    const support=read('src/app/api/support/route.ts');
+    expect(support).toMatch(/create_support_ticket_v2/);
+    expect(support).toMatch(/p_instance_id:instance\.id/);
     expect(read('src/app/api/account/marketing-consent/route.ts')).toMatch(/instance_id:instance\.id/);
     expect(read('src/app/api/marketing/newsletter/route.ts')).toMatch(/instance_id:instance\.id/);
     expect(read('src/app/api/account/support/[id]/messages/route.ts')).toMatch(/\.eq\('instance_id',instance\.id\)/);
