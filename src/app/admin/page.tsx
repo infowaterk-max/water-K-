@@ -47,7 +47,7 @@ export default async function AdminPage() {
     if (error) orderLoadError = true;
     else if (data) {
       orders = data.length;
-      pending = data.filter((o) => o.status === 'pending').length;
+      pending = data.filter((o) => ['pending','pending_payment','pending_transfer'].includes(o.status)).length;
       const paid = data.filter((o) => paidStatuses.includes(o.status));
       paidOrders = paid.length;
       paidRevenue = paid.reduce((n, o) => n + Number(o.total_gross_huf || 0), 0);
@@ -55,8 +55,8 @@ export default async function AdminPage() {
       todayRevenue = paid.filter((o) => +new Date(o.created_at) >= +today).reduce((n, o) => n + Number(o.total_gross_huf || 0), 0);
       weekOrders = data.filter((o) => +new Date(o.created_at) >= now - 7 * day).length;
       weekRevenue = paid.filter((o) => +new Date(o.created_at) >= now - 7 * day).reduce((n, o) => n + Number(o.total_gross_huf || 0), 0);
-      openOrderValue = data.filter((o) => ['pending', 'paid', 'processing', 'shipped'].includes(o.status)).reduce((n, o) => n + Number(o.total_gross_huf || 0), 0);
-      stalePending = data.filter((o) => o.status === 'pending' && +new Date(o.created_at) < now - day).length;
+      openOrderValue = data.filter((o) => ['pending','pending_payment','pending_transfer','paid','processing','shipped'].includes(o.status)).reduce((n, o) => n + Number(o.total_gross_huf || 0), 0);
+      stalePending = data.filter((o) => ['pending','pending_payment','pending_transfer'].includes(o.status) && +new Date(o.created_at) < now - day).length;
       staleProcessing = data.filter((o) => o.status === 'processing' && +new Date(o.created_at) < now - 2 * day).length;
       staleShipped = data.filter((o) => o.status === 'shipped' && +new Date(o.created_at) < now - 3 * day).length;
     }
@@ -85,7 +85,7 @@ export default async function AdminPage() {
     try {
       const a = createAdminClient();
       const since = new Date(now - 30 * day).toISOString();
-      const [{ data: ro }, { data: oi }, { data: cj }, { data: cv }, { data: cr }] = await Promise.all([
+      const [{ data: ro,error:roError }, { data: oi,error:oiError }, { data: cj,error:cjError }, { data: cv,error:cvError }, { data: cr,error:crError }] = await Promise.all([
         a.from('orders').select('id,subtotal_gross_huf,discount_gross_huf').eq('instance_id',instance.id).gte('created_at', since).in('status', paidStatuses),
         a.from('order_items').select('order_id,line_total_gross_huf,unit_cost_net_huf,quantity').eq('instance_id',instance.id),
         a.from('communication_jobs').select('id,status,requires_approval,approved_at').eq('instance_id',instance.id).limit(5000),
@@ -93,6 +93,7 @@ export default async function AdminPage() {
         a.from('marketing_campaign_recipients').select('communication_job_id').eq('instance_id',instance.id).not('communication_job_id', 'is', null).limit(50000),
       ]);
 
+      if(roError||oiError||cjError||cvError||crError)advancedLoadError=true;
       const orderMap = new Map((ro ?? []).map((o) => [o.id, o]));
       for (const i of oi ?? []) {
         const order = orderMap.get(i.order_id);
@@ -179,7 +180,7 @@ export default async function AdminPage() {
 
           <section className="card">
             <div className="adminToolbar">
-              <div><span className="eyebrow">Pro · marketing és digitális iroda</span><h2>{formatHuf(campaignRevenue)} attribútált kampánybevétel</h2></div>
+              <div><span className="eyebrow">Pro · marketing és digitális iroda</span><h2>{formatHuf(campaignRevenue)} kampányhoz köthető bevétel</h2></div>
               <div><Link className="btn" href="/admin/kampanyok">Haladó kampányok</Link> <Link className="btn btnPrimary" href="/admin/kommunikacio">Digitális iroda</Link></div>
             </div>
             <div className="cards adminMetricCards">
@@ -194,7 +195,7 @@ export default async function AdminPage() {
         <section className="card">
           <span className="eyebrow">Pro lehetőségek</span>
           <h2>A webshop működik nélkülük is — a Pro a növekedést és az automatizálást gyorsítja.</h2>
-          <p className="muted">Digitális iroda, fejlett CRM, kampány-attribúció, üzleti analitika, automatizálás, beszerzési és cash-flow döntéstámogatás.</p>
+          <p className="muted">Digitális iroda, fejlett CRM, kampányeredmény-mérés, üzleti analitika, automatizálás, beszerzési és cash-flow döntéstámogatás.</p>
           <Link className="btn btnPrimary" href="/admin/csomag">Pro funkciók megtekintése</Link>
         </section>
       )}
