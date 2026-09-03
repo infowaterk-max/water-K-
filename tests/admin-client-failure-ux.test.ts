@@ -67,4 +67,17 @@ describe('admin client failure UX',()=>{
     expect(manual).toContain('finally');
   });
 
+  test('operations, integration control and inventory editor fail closed on client/network errors',()=>{
+    const operations=read('src/components/admin/operations-actions.tsx');
+    const integration=read('src/components/admin/integration-job-control.tsx');
+    const inventory=read('src/components/admin/inventory-editor.tsx');
+    expect(operations).toContain('A műveleti ciklust nem tekintjük lefutottnak.');
+    expect(operations).toContain('A rendelési művelet állapotát nem tekintjük módosítottnak.');
+    expect(operations).toContain("window.confirm('Biztosan kézbesítettnek jelölöd ezt a rendelést?')");
+    expect(integration).toContain('Az újrapróbálást nem tekintjük elindítottnak.');
+    expect(integration).toContain('finally');
+    expect(inventory).toContain('A készlet- és ármódosítást nem tekintjük elmentettnek.');
+    expect(inventory).toContain('finally');
+  });
+
 });

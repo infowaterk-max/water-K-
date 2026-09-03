@@ -51,4 +51,20 @@ describe('admin API tenant mutation closure',()=>{
     expect(read('src/app/admin/termekek/tomeges/page.tsx')).toContain("requireCurrentStoreContext('catalog.manage')");
     expect(read('src/app/admin/tartalom/page.tsx')).toContain("requireCurrentStoreContext('marketing.manage')");
   });
+  test('single variant update is tenant-scoped and atomic with inventory evidence and audit',()=>{
+    const route=read('src/app/api/admin/variants/[id]/route.ts');
+    const sql=read('supabase/migrations/20260903133000_catalog_variant_atomic_v2.sql');
+    expect(route).toContain("getAdminRequestUser('catalog.manage')");
+    expect(route).toContain("requireCurrentStoreContext('catalog.manage')");
+    expect(route).toContain("admin_update_product_variant_v2");
+    expect(route).toContain("p_expected_updated_at:current.updated_at");
+    expect(route).not.toContain(".from('product_variants').update(");
+    expect(sql).toContain('for update');
+    expect(sql).toContain('instance_id=p_instance_id');
+    expect(sql).toContain('insert into public.inventory_events');
+    expect(sql).toContain('insert into public.admin_audit_log');
+    expect(sql).toContain('CATALOG_PERMISSION_REQUIRED');
+    expect(sql).toContain('revoke all on function public.admin_update_product_variant_v2');
+  });
+
 });
