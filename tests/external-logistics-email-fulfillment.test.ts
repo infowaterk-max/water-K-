@@ -36,11 +36,13 @@ describe('external logistics e-mail fulfillment',()=>{
     expect(logistics).toContain('logistics_order_email_sent');
   });
 
-  it('notifies logistics only after confirmed/manual paid flow or COD, and skips carrier API fulfillment',()=>{
+  it('plans logistics notification inside the admin order transition for paid and COD processing',()=>{
     expect(paymentEvents).toContain('enqueueExternalLogisticsOrderEmail');
-    expect(adminOrder).toContain('enqueueExternalLogisticsOrderEmail');
     expect(adminOrder).toContain('getExternalLogisticsConfig');
-    expect(adminOrder).toContain("&&!externalLogistics");
+    expect(adminOrder).toContain("admin_transition_order_with_outbox_v3");
+    expect(adminOrder).toContain("kind:'logistics_email',provider:'external_logistics_email'");
+    expect(adminOrder).toContain("current.payment_method==='cash_on_delivery'");
+    expect(adminOrder).toContain("current.shipping_method==='external_logistics'&&!external");
   });
 
   it('partner e-mail contains operational order data needed for fulfillment',()=>{

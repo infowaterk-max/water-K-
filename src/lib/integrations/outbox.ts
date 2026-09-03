@@ -17,9 +17,13 @@ export async function enqueueIntegrationJob(input:{instanceId?:string|null;order
   const{data,error}=await admin.from('integration_jobs').insert(row).select('id,status').single();
   if(!error)return data;
   if(error.code==='23505'&&row.order_id&&['pending','processing'].includes(row.status)){
-    const{data:existing,error:existingError}=await admin.from('integration_jobs').select('id,status').eq('instance_id',instanceId).eq('order_id',row.order_id).eq('kind',row.kind).eq('provider',row.provider).in('status',['pending','processing']).order('created_at',{ascending:false}).limit(1).maybeSingle();
+    const{data:existing,error:existingError}=await admin.from('integration_jobs').select('id,status,payload').eq('instance_id',instanceId).eq('order_id',row.order_id).eq('kind',row.kind).eq('provider',row.provider).in('status',['pending','processing']).order('created_at',{ascending:false}).limit(20);
     if(existingError)throw existingError;
-    if(existing)return existing;
+    if(row.kind==='email_send'){
+      const template=String((row.payload as {template?:unknown}).template??'');
+      const match=(existing??[]).find(job=>String((job.payload as {template?:unknown}|null)?.template??'')===template);
+      if(match)return{id:match.id,status:match.status};
+    }else if(existing?.[0])return{id:existing[0].id,status:existing[0].status};
   }
   throw error;
 }

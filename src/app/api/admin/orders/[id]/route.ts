@@ -2,16 +2,168 @@ import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { getAdminRequestUser } from '@/lib/auth/admin-api';
 import { createAdminClient } from '@/lib/supabase/admin';
-import { enqueueIntegrationJob, type IntegrationJobKind } from '@/lib/integrations/outbox';
 import { getConfiguredInvoiceProviderCodeForInstance } from '@/lib/integrations/invoicing';
 import { requireCurrentStoreContext } from '@/lib/instances/scope';
-import { enqueueExternalLogisticsOrderEmail,getExternalLogisticsConfig } from '@/lib/integrations/external-logistics';
+import { getExternalLogisticsConfig } from '@/lib/integrations/external-logistics';
 
 const statuses=['draft','pending','pending_payment','pending_transfer','paid','processing','shipped','completed','cancelled'] as const;
 type Status=typeof statuses[number];
+type PlannedJob={
+  kind:'email_send'|'invoice_create'|'shipment_create'|'logistics_email';
+  provider:string;
+  payload:Record<string,unknown>;
+};
+type PlannedEvent={eventType:'invoice_manual_required';metadata:Record<string,unknown>};
+
 const bodySchema=z.object({status:z.enum(statuses),trackingNumber:z.string().trim().max(120).optional()});
-const allowed:Record<Status,Status[]>={draft:['pending','pending_payment','pending_transfer','cancelled'],pending:['paid','processing','cancelled'],pending_payment:['paid','cancelled'],pending_transfer:['paid','cancelled'],paid:['processing'],processing:['shipped'],shipped:['completed'],completed:[],cancelled:[]};
-async function enqueueOnce(input:{instanceId:string;orderId:string;kind:IntegrationJobKind;provider:string;orderNumber:string;actorId:string;status:string;payload?:Record<string,unknown>}){const admin=createAdminClient();const{data:existing}=await admin.from('integration_jobs').select('id').eq('instance_id',input.instanceId).eq('order_id',input.orderId).eq('kind',input.kind).eq('provider',input.provider).in('status',['pending','processing','succeeded']).limit(1);if(existing?.length)return;await enqueueIntegrationJob({instanceId:input.instanceId,orderId:input.orderId,kind:input.kind,provider:input.provider,payload:{orderNumber:input.orderNumber,...input.payload}}).catch(async e=>{await admin.from('order_events').insert({instance_id:input.instanceId,order_id:input.orderId,event_type:'integration_enqueue_failed',from_status:input.status,to_status:input.status,actor_user_id:input.actorId,metadata:{kind:input.kind,provider:input.provider,error:e instanceof Error?e.message:'unknown'}})})}
-async function enqueueEmail(instanceId:string,orderId:string,template:'payment_confirmed'|'order_shipped'|'order_completed',actorId:string,status:string){const admin=createAdminClient(),provider=process.env.EMAIL_PROVIDER||'resend';const{data:existing}=await admin.from('integration_jobs').select('id,payload').eq('instance_id',instanceId).eq('order_id',orderId).eq('kind','email_send').eq('provider',provider).in('status',['pending','processing','succeeded']).limit(20);if((existing??[]).some(j=>(j.payload as {template?:string}|null)?.template===template))return;await enqueueIntegrationJob({instanceId,orderId,kind:'email_send',provider,payload:{template}}).catch(async e=>{await admin.from('order_events').insert({instance_id:instanceId,order_id:orderId,event_type:'integration_enqueue_failed',from_status:status,to_status:status,actor_user_id:actorId,metadata:{kind:'email_send',template,error:e instanceof Error?e.message:'unknown'}})})}
-async function recordManualInvoiceRequired(instanceId:string,orderId:string,actorId:string,status:string,source:string){const admin=createAdminClient();await admin.from('order_events').insert({instance_id:instanceId,order_id:orderId,event_type:'invoice_manual_required',from_status:status,to_status:status,actor_user_id:actorId,metadata:{source}})}
-export async function PATCH(request:Request,{params}:{params:Promise<{id:string}>}){const actor=await getAdminRequestUser('orders.manage');if(!actor)return NextResponse.json({error:'Nincs jogosultság.'},{status:403});let scope;try{scope=await requireCurrentStoreContext('orders.manage')}catch{return NextResponse.json({error:'Nincs jogosultság ehhez a webshophoz.'},{status:403})}const{id}=await params;if(!z.string().uuid().safeParse(id).success)return NextResponse.json({error:'Érvénytelen rendelésazonosító.'},{status:400});let raw:unknown;try{raw=await request.json()}catch{return NextResponse.json({error:'Érvénytelen kérés.'},{status:400})}const parsed=bodySchema.safeParse(raw);if(!parsed.success)return NextResponse.json({error:'Érvénytelen rendelési állapot. Visszatérítést csak a fizetési/visszáru folyamaton keresztül lehet rögzíteni.'},{status:400});const admin=createAdminClient();const{data:current,error:ce}=await admin.from('orders').select('status,tracking_number,shipping_method,order_number,payment_method,instance_id').eq('id',id).eq('instance_id',scope.instanceId).maybeSingle();if(ce||!current)return NextResponse.json({error:'A rendelés nem található ebben a webshopban.'},{status:404});if(current.status==='refunded')return NextResponse.json({error:'A visszatérített rendelés állapota ezen a végponton nem módosítható.'},{status:409});const currentStatus=current.status as Status,nextStatus=parsed.data.status;if(currentStatus!==nextStatus&&!allowed[currentStatus]?.includes(nextStatus))return NextResponse.json({error:`Nem engedélyezett státuszváltás: ${currentStatus} → ${nextStatus}.`},{status:409});const{data:transitionData,error:transitionError}=await admin.rpc('admin_transition_order_v2',{p_instance_id:scope.instanceId,p_order_id:id,p_actor:actor.id,p_target_status:nextStatus,p_tracking_number:parsed.data.trackingNumber??null});if(transitionError){const forbidden=transitionError.message.includes('ORDER_PERMISSION_REQUIRED');return NextResponse.json({error:forbidden?'Nincs jogosultság ehhez a webshophoz.':transitionError.message||'A rendelés frissítése nem sikerült.'},{status:forbidden?403:409})}const transition=transitionData as{orderId?:string;status?:Status;inventoryRestored?:boolean;replayed?:boolean};if(transition.orderId!==id||transition.status!==nextStatus)return NextResponse.json({error:'A rendelés állapotváltásának eredménye nem igazolható.'},{status:500});if(!transition.replayed&&nextStatus==='paid'){await enqueueEmail(scope.instanceId,id,'payment_confirmed',actor.id,nextStatus);const p=await getConfiguredInvoiceProviderCodeForInstance(scope.instanceId);if(p)await enqueueOnce({instanceId:scope.instanceId,orderId:id,kind:'invoice_create',provider:p,orderNumber:current.order_number,actorId:actor.id,status:nextStatus,payload:{source:'admin_paid'}});else await recordManualInvoiceRequired(scope.instanceId,id,actor.id,nextStatus,'admin_paid');if(current.shipping_method)await enqueueExternalLogisticsOrderEmail(scope.instanceId,id,current.shipping_method).catch(async e=>{await admin.from('order_events').insert({instance_id:scope.instanceId,order_id:id,event_type:'integration_enqueue_failed',from_status:nextStatus,to_status:nextStatus,actor_user_id:actor.id,metadata:{kind:'logistics_email',error:e instanceof Error?e.message:'unknown'}})})}if(!transition.replayed&&nextStatus==='processing'){const externalLogistics=current.shipping_method?await getExternalLogisticsConfig(scope.instanceId,current.shipping_method):null;if(current.shipping_method&&current.shipping_method!=='pickup'&&!externalLogistics)await enqueueOnce({instanceId:scope.instanceId,orderId:id,kind:'shipment_create',provider:current.shipping_method,orderNumber:current.order_number,actorId:actor.id,status:nextStatus,payload:{shippingKind:'auto'}});if(current.payment_method==='cash_on_delivery'){const p=await getConfiguredInvoiceProviderCodeForInstance(scope.instanceId);if(p)await enqueueOnce({instanceId:scope.instanceId,orderId:id,kind:'invoice_create',provider:p,orderNumber:current.order_number,actorId:actor.id,status:nextStatus,payload:{source:'cod_processing',paid:false}});else await recordManualInvoiceRequired(scope.instanceId,id,actor.id,nextStatus,'cod_processing')}}if(!transition.replayed&&nextStatus==='shipped')await enqueueEmail(scope.instanceId,id,'order_shipped',actor.id,nextStatus);if(!transition.replayed&&nextStatus==='completed')await enqueueEmail(scope.instanceId,id,'order_completed',actor.id,nextStatus);return NextResponse.json({ok:true,status:nextStatus,allowedNext:allowed[nextStatus],inventoryRestored:transition.inventoryRestored===true})}
+const allowed:Record<Status,Status[]>={
+  draft:['pending','pending_payment','pending_transfer','cancelled'],
+  pending:['paid','processing','cancelled'],
+  pending_payment:['paid','cancelled'],
+  pending_transfer:['paid','cancelled'],
+  paid:['processing'],
+  processing:['shipped'],
+  shipped:['completed'],
+  completed:[],
+  cancelled:[]
+};
+
+export async function PATCH(request:Request,{params}:{params:Promise<{id:string}>}){
+  const actor=await getAdminRequestUser('orders.manage');
+  if(!actor)return NextResponse.json({error:'Nincs jogosultság.'},{status:403});
+
+  let scope;
+  try{scope=await requireCurrentStoreContext('orders.manage')}
+  catch{return NextResponse.json({error:'Nincs jogosultság ehhez a webshophoz.'},{status:403})}
+
+  const{id}=await params;
+  if(!z.string().uuid().safeParse(id).success)return NextResponse.json({error:'Érvénytelen rendelésazonosító.'},{status:400});
+
+  let raw:unknown;
+  try{raw=await request.json()}
+  catch{return NextResponse.json({error:'Érvénytelen kérés.'},{status:400})}
+  const parsed=bodySchema.safeParse(raw);
+  if(!parsed.success)return NextResponse.json({error:'Érvénytelen rendelési állapot. Visszatérítést csak a fizetési/visszáru folyamaton keresztül lehet rögzíteni.'},{status:400});
+
+  const admin=createAdminClient();
+  const{data:current,error:currentError}=await admin.from('orders')
+    .select('status,tracking_number,shipping_method,order_number,payment_method,instance_id')
+    .eq('id',id).eq('instance_id',scope.instanceId).maybeSingle();
+  if(currentError||!current)return NextResponse.json({error:'A rendelés nem található ebben a webshopban.'},{status:404});
+  if(current.status==='refunded')return NextResponse.json({error:'A visszatérített rendelés állapota ezen a végponton nem módosítható.'},{status:409});
+
+  const currentStatus=current.status as Status,nextStatus=parsed.data.status;
+  if(currentStatus!==nextStatus&&!allowed[currentStatus]?.includes(nextStatus)){
+    return NextResponse.json({error:`Nem engedélyezett státuszváltás: ${currentStatus} → ${nextStatus}.`},{status:409});
+  }
+
+  const jobs:PlannedJob[]=[];
+  const manualEvents:PlannedEvent[]=[];
+  const emailProvider=process.env.EMAIL_PROVIDER||'resend';
+
+  try{
+    if(nextStatus==='paid'){
+      jobs.push({kind:'email_send',provider:emailProvider,payload:{template:'payment_confirmed'}});
+      const invoiceProvider=await getConfiguredInvoiceProviderCodeForInstance(scope.instanceId,{strict:true});
+      if(invoiceProvider){
+        jobs.push({kind:'invoice_create',provider:invoiceProvider,payload:{orderNumber:current.order_number,source:'admin_paid'}});
+      }else{
+        manualEvents.push({eventType:'invoice_manual_required',metadata:{source:'admin_paid',reason:'Automatikus számlázó adapter nincs aktiválva vagy ellenőrizve.'}});
+      }
+      if(current.shipping_method){
+        const external=await getExternalLogisticsConfig(scope.instanceId,current.shipping_method,{strict:true});
+        if(current.shipping_method==='external_logistics'&&!external){
+          return NextResponse.json({error:'A külső logisztikai partner beállítása nem aktív vagy hiányos. A rendelés állapota nem változott.'},{status:409});
+        }
+        if(external)jobs.push({kind:'logistics_email',provider:'external_logistics_email',payload:{recipient:external.recipient,shippingCode:external.shippingCode,label:external.label}});
+      }
+    }
+
+    if(nextStatus==='processing'){
+      const external=current.shipping_method
+        ?await getExternalLogisticsConfig(scope.instanceId,current.shipping_method,{strict:true})
+        :null;
+      if(current.shipping_method==='external_logistics'&&!external){
+        return NextResponse.json({error:'A külső logisztikai partner beállítása nem aktív vagy hiányos. A rendelés állapota nem változott.'},{status:409});
+      }
+      if(current.shipping_method&&current.shipping_method!=='pickup'){
+        if(external){
+          if(current.payment_method==='cash_on_delivery'){
+            jobs.push({kind:'logistics_email',provider:'external_logistics_email',payload:{recipient:external.recipient,shippingCode:external.shippingCode,label:external.label}});
+          }
+        }else{
+          jobs.push({kind:'shipment_create',provider:current.shipping_method,payload:{orderNumber:current.order_number,shippingKind:'auto'}});
+        }
+      }
+      if(current.payment_method==='cash_on_delivery'){
+        const invoiceProvider=await getConfiguredInvoiceProviderCodeForInstance(scope.instanceId,{strict:true});
+        if(invoiceProvider){
+          jobs.push({kind:'invoice_create',provider:invoiceProvider,payload:{orderNumber:current.order_number,source:'cod_processing',paid:false}});
+        }else{
+          manualEvents.push({eventType:'invoice_manual_required',metadata:{source:'cod_processing',reason:'Automatikus számlázó adapter nincs aktiválva vagy ellenőrizve.'}});
+        }
+      }
+    }
+
+    if(nextStatus==='shipped'){
+      jobs.push({kind:'email_send',provider:emailProvider,payload:{template:'order_shipped'}});
+    }
+    if(nextStatus==='completed'){
+      jobs.push({kind:'email_send',provider:emailProvider,payload:{template:'order_completed'}});
+    }
+  }catch(error){
+    console.error('order integration plan failed',{orderId:id,instanceId:scope.instanceId,targetStatus:nextStatus,error});
+    return NextResponse.json({error:'A kapcsolódó szolgáltatói beállítások most nem ellenőrizhetők. A rendelés állapota nem változott.'},{status:503});
+  }
+
+  const{data:transitionData,error:transitionError}=await admin.rpc('admin_transition_order_with_outbox_v3',{
+    p_instance_id:scope.instanceId,
+    p_order_id:id,
+    p_actor:actor.id,
+    p_target_status:nextStatus,
+    p_tracking_number:parsed.data.trackingNumber??null,
+    p_jobs:jobs,
+    p_manual_events:manualEvents
+  });
+  if(transitionError){
+    const forbidden=transitionError.message.includes('ORDER_PERMISSION_REQUIRED');
+    return NextResponse.json({
+      error:forbidden?'Nincs jogosultság ehhez a webshophoz.':transitionError.message||'A rendelés frissítése nem sikerült. Egyetlen állapot- vagy integrációs változás sem került alkalmazásra.'
+    },{status:forbidden?403:409});
+  }
+
+  const transition=(transitionData??{})as{
+    orderId?:string;
+    status?:Status;
+    inventoryRestored?:boolean;
+    replayed?:boolean;
+    integrationJobs?:Array<{id?:string;kind?:string;provider?:string;status?:string}>;
+    manualEvents?:Array<{id?:string;eventType?:string}>;
+  };
+  if(transition.orderId!==id||transition.status!==nextStatus){
+    return NextResponse.json({error:'A rendelés állapotváltásának eredménye nem igazolható.'},{status:500});
+  }
+
+  const evidenceJobs=transition.integrationJobs??[];
+  const jobEvidenceOk=evidenceJobs.length===jobs.length&&jobs.every((job,index)=>{
+    const evidence=evidenceJobs[index];
+    return Boolean(evidence?.id)&&evidence.kind===job.kind&&evidence.provider===job.provider&&['pending','processing','succeeded'].includes(String(evidence.status??''));
+  });
+  const evidenceEvents=transition.manualEvents??[];
+  const eventEvidenceOk=evidenceEvents.length===manualEvents.length&&manualEvents.every((event,index)=>{
+    const evidence=evidenceEvents[index];
+    return Boolean(evidence?.id)&&evidence.eventType===event.eventType;
+  });
+  if(!jobEvidenceOk||!eventEvidenceOk){
+    return NextResponse.json({error:'A rendeléshez tartozó integrációs terv eredménye nem igazolható.'},{status:500});
+  }
+
+  return NextResponse.json({
+    ok:true,
+    status:nextStatus,
+    allowedNext:allowed[nextStatus],
+    inventoryRestored:transition.inventoryRestored===true,
+    integrationJobs:evidenceJobs.length,
+    manualEvents:evidenceEvents.length
+  });
+}

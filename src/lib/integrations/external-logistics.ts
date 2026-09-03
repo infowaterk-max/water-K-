@@ -10,14 +10,15 @@ function namedFrom(raw:string,name:string){const match=raw.match(/<([^>]+)>/),ad
 
 type LogisticsConfig={recipient:string;label:string;shippingCode:string};
 
-export async function getExternalLogisticsConfig(instanceId:string,shippingCode:string):Promise<LogisticsConfig|null>{
+export async function getExternalLogisticsConfig(instanceId:string,shippingCode:string,options?:{strict?:boolean}):Promise<LogisticsConfig|null>{
   const admin=createAdminClient();
   const{data,error}=await admin.from('webshop_instance_provider_connections')
     .select('provider_code,enabled,display_label,connection_status,configuration,commerce_provider_catalog!inner(adapter_key)')
     .eq('instance_id',instanceId)
     .eq('provider_code',shippingCode)
     .maybeSingle();
-  if(error||!data||data.enabled!==true||data.connection_status!=='active')return null;
+  if(error){if(options?.strict)throw error;return null}
+  if(!data||data.enabled!==true||data.connection_status!=='active')return null;
   const catalog=Array.isArray(data.commerce_provider_catalog)?data.commerce_provider_catalog[0]:data.commerce_provider_catalog;
   if(catalog?.adapter_key!=='external_logistics_email')return null;
   const configuration=(data.configuration&&typeof data.configuration==='object'&&!Array.isArray(data.configuration)?data.configuration:{}) as Record<string,unknown>;
