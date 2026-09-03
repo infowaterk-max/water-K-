@@ -29,7 +29,23 @@ describe('storefront engagement tenant closure',()=>{
     expect(actions).toContain('resolveCurrentVariant');
     expect(actions).toMatch(/product_variants'[\s\S]*eq\('instance_id',instance\.id\)/);
     expect(actions).toContain('instance_id:resolved.instance.id');
-    expect(actions).toMatch(/order_items'[\s\S]*eq\('instance_id',resolved\.instance\.id\)/);
-    expect(actions).toMatch(/product_reviews'\)\.insert\(\{instance_id:resolved\.instance\.id/);
+    expect(actions).toContain("resolved.admin.from('wishlists')");
+    expect(actions).toContain("resolved.admin.from('stock_notifications')");
+    expect(actions).toMatch(/resolved\.admin\.from\('order_items'\)[\s\S]*eq\('instance_id',resolved\.instance\.id\)/);
+    expect(actions).toMatch(/resolved\.admin\.from\('product_reviews'\)\.insert\(\{instance_id:resolved\.instance\.id/);
+  });
+
+  test('database policies make direct engagement writes fail closed',()=>{
+    const migration=read('supabase/migrations/20260903103000_engagement_tenant_write_closure.sql');
+    expect(migration).toContain('alter table public.wishlists alter column instance_id set not null');
+    expect(migration).toContain('alter table public.product_reviews alter column instance_id set not null');
+    expect(migration).toContain('product_reviews_sync_instance');
+    expect(migration).toContain('Cross-store product review is not allowed.');
+    expect(migration).toContain('drop policy if exists "users manage own wishlist"');
+    expect(migration).toContain('drop policy if exists "anonymous can create stock notifications"');
+    expect(migration).toContain('drop policy if exists "users create own reviews"');
+    expect(migration).toContain('create policy wishlists_owner_read');
+    expect(migration).toContain('create policy stock_notifications_owner_read');
+    expect(migration).toContain('create policy product_reviews_authenticated_read');
   });
 });
