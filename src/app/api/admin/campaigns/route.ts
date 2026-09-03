@@ -8,6 +8,7 @@ import{recordAdminAudit}from'@/lib/admin/audit';
 
 const segments=['repeat_30_89','winback_90_plus','at_risk_30_89','winback_90_179','lost_180_plus','high_value_at_risk']as const;
 type Segment=typeof segments[number];
+type RecipientSeed={customer_key:string;user_id:string|null;email:string;customer_name:string;orders_count:number;revenue_gross_huf:number;last_order_at:string;consent_ok:boolean;suppressed:boolean;eligible:boolean;exclusion_reason:string|null};
 const paid=['paid','processing','shipped','completed'];
 const template:Record<Segment,string>={repeat_30_89:'repeat_30d',winback_90_plus:'winback_90d',at_risk_30_89:'retention_risk_30d',winback_90_179:'winback_90d',lost_180_plus:'reactivation_180d',high_value_at_risk:'vip_retention'};
 const external=z.object({mode:z.literal('external'),name:z.string().trim().min(2).max(160),channel:z.enum(['facebook','instagram','tiktok','youtube','google','other']),budgetHuf:z.number().int().min(0).max(1000000000),utmCampaign:z.string().trim().regex(/^[A-Za-z0-9._-]{2,160}$/),externalImpressions:z.number().int().min(0).max(2000000000).default(0),externalClicks:z.number().int().min(0).max(2000000000).default(0)});
@@ -62,7 +63,7 @@ export async function POST(request:Request){
     stats.set(key,current);
   }
 
-  const now=Date.now(),recipientSeeds:Record<string,unknown>[]=[];
+  const now=Date.now(),recipientSeeds:RecipientSeed[]=[];
   for(const[key,x]of stats){
     const days=Math.floor((now-+new Date(x.last))/86400000);
     let match=false;
