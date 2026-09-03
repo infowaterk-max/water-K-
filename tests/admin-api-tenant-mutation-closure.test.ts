@@ -43,19 +43,27 @@ describe('admin API tenant mutation closure',()=>{
 
   test('content update delete cannot address another webshop by id',()=>{
     const route=read('src/app/api/admin/content/[id]/route.ts');
+    const sql=read('supabase/migrations/20260903143000_admin_content_fulfillment_atomic_v2.sql');
     expect(route.match(/requireCurrentStoreContext\('marketing\.manage'\)/g)?.length).toBe(2);
-    expect(route.match(/eq\('instance_id',scope\.instanceId\)/g)?.length).toBeGreaterThanOrEqual(4);
-    expect(route).toContain('organizationId:scope.organizationId');
-    expect(route).toContain('instanceId:scope.instanceId');
+    expect(route.match(/p_instance_id:scope\.instanceId/g)?.length).toBe(2);
+    expect(route).toContain("admin_mutate_content_page_v2");
+    expect(route).not.toContain('recordAdminAudit');
+    expect(sql).toContain('where id=p_content_id and instance_id=p_instance_id');
+    expect(sql).toContain('public.can_manage_marketing(p_instance_id,p_actor)');
   });
 
   test('manual fulfillment is order-manager and tenant scoped',()=>{
     const route=read('src/app/api/admin/orders/[id]/manual/route.ts');
+    const sql=read('supabase/migrations/20260903143000_admin_content_fulfillment_atomic_v2.sql');
     expect(route).toContain("getAdminRequestUser('orders.manage')");
     expect(route).toContain("requireCurrentStoreContext('orders.manage')");
-    expect(route.match(/eq\('instance_id',scope\.instanceId\)/g)?.length).toBeGreaterThanOrEqual(2);
-    expect(route).toContain('instance_id:scope.instanceId');
-    expect(route).toContain('organizationId:scope.organizationId');
+    expect(route).toContain(".eq('instance_id',scope.instanceId)");
+    expect(route).toContain('p_instance_id:scope.instanceId');
+    expect(route).toContain("admin_update_manual_fulfillment_v2");
+    expect(route).not.toContain('recordAdminAudit');
+    expect(sql).toContain('where id=p_order_id and instance_id=p_instance_id');
+    expect(sql).toContain('insert into public.order_events');
+    expect(sql).toContain('insert into public.admin_audit_log');
   });
 
   test('catalog and content mutation pages require their matching permissions',()=>{
