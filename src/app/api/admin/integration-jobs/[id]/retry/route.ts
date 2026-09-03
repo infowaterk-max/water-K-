@@ -5,7 +5,7 @@ import { enqueueIntegrationJob, type IntegrationJobKind } from '@/lib/integratio
 import { recordAdminAudit } from '@/lib/admin/audit';
 import { getConfiguredInvoiceProviderCode,getInvoiceProvider } from '@/lib/integrations/invoicing';
 import { requireCurrentStoreContext } from '@/lib/instances/scope';
-const retryableKinds=new Set<IntegrationJobKind>(['shipment_create','email_send','invoice_create']);
+const retryableKinds=new Set<IntegrationJobKind>(['shipment_create','email_send','invoice_create','logistics_email']);
 function needsReconciliation(message:unknown){return /reconciliation required/i.test(String(message??''))}
 
 export async function POST(_:Request,{params}:{params:Promise<{id:string}>}){

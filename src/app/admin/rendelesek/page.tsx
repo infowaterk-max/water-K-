@@ -4,7 +4,7 @@ import { formatHuf } from '@/lib/catalog';
 import { OrderStatusControl } from '@/components/admin/order-status-control';
 
 const labels: Record<string,string> = { draft:'Piszkozat', pending:'Függőben', pending_payment:'Fizetésre vár', pending_transfer:'Átutalásra vár', paid:'Fizetve', processing:'Feldolgozás', shipped:'Átadva', completed:'Teljesítve', cancelled:'Törölve', refunded:'Visszatérítve' };
-const shippingLabels:Record<string,string>={foxpost:'Foxpost',gls:'GLS',mpl:'MPL',packeta:'Packeta',dpd:'DPD',expressone:'Express One',pickup:'Személyes átvétel'};
+const shippingLabels:Record<string,string>={foxpost:'Foxpost',gls:'GLS',mpl:'MPL',packeta:'Packeta',dpd:'DPD',expressone:'Express One',pickup:'Személyes átvétel',external_logistics:'Külső logisztikai partner'};
 const paymentLabels:Record<string,string>={kh_card:'K&H bankkártya',stripe:'Stripe',simplepay:'SimplePay',barion:'Barion',bank_transfer:'Banki átutalás',cash_on_delivery:'Utánvét'};
 type OrderRow = { id:string; order_number:string; billing_name:string; customer_email:string; status:string; total_gross_huf:number; discount_gross_huf:number; coupon_code:string|null; shipping_method:string|null; payment_method:string|null; tracking_number:string|null; created_at:string };
 type Props={searchParams:Promise<{q?:string;status?:string;priority?:string}>};

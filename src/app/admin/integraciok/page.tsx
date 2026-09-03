@@ -4,7 +4,7 @@ import { IntegrationJobControl } from '@/components/admin/integration-job-contro
 import { requirePlanFeature } from '@/lib/plans/access';
 import { requireCurrentStoreContext } from '@/lib/instances/scope';
 
-const kindLabels:Record<string,string>={payment_create:'Fizetés indítása',payment_callback:'Fizetési callback',shipment_create:'Szállítás létrehozása',invoice_create:'Számlakészítés',email_send:'E-mail küldés'};
+const kindLabels:Record<string,string>={payment_create:'Fizetés indítása',payment_callback:'Fizetési callback',shipment_create:'Szállítás létrehozása',invoice_create:'Számlakészítés',email_send:'E-mail küldés',logistics_email:'Logisztikai partner értesítése'};
 const statusLabels:Record<string,string>={pending:'Várakozik',processing:'Folyamatban',succeeded:'Sikeres',failed:'Sikertelen',blocked:'Blokkolt'};
 type Job={id:string;order_id:string|null;kind:string;provider:string;status:string;attempt_count:number|null;last_error:string|null;next_attempt_at:string|null;created_at:string;updated_at:string};
 type Props={searchParams:Promise<{status?:string}>};

@@ -4,6 +4,7 @@ import { createAdminClient } from '@/lib/supabase/admin';
 import { enqueueIntegrationJob,recordWebhookEvent } from '@/lib/integrations/outbox';
 import { updatePaymentAttemptFromEvent } from '@/lib/integrations/payment-attempts';
 import { getConfiguredInvoiceProviderCode } from '@/lib/integrations/invoicing';
+import { enqueueExternalLogisticsOrderEmail } from '@/lib/integrations/external-logistics';
 export type PaymentState='pending'|'paid'|'failed'|'cancelled'|'refunded'|'unknown';
 export type VerifiedPaymentEvent={providerCode:string;eventId:string;providerReference:string;eventType:string;status:PaymentState;signatureValid:boolean;rawPayload:string};
 type ResolvedOrder={id:string;instance_id:string;status:string;external_payment_id:string|null};
@@ -54,6 +55,8 @@ export async function applyVerifiedPaymentEvent(event:VerifiedPaymentEvent){
       await admin.from('order_events').insert({instance_id:order.instance_id,order_id:order.id,event_type:'payment_confirmed',metadata});
       await enqueueEmailOnce(order.instance_id,order.id,'payment_confirmed').catch(async error=>{await admin.from('order_events').insert({instance_id:order.instance_id,order_id:order.id,event_type:'integration_enqueue_failed',from_status:'paid',to_status:'paid',metadata:{kind:'email_send',template:'payment_confirmed',error:error instanceof Error?error.message:'unknown'}})});
       await enqueueInvoiceOrFallback(order.instance_id,order.id).catch(async error=>{await admin.from('order_events').insert({instance_id:order.instance_id,order_id:order.id,event_type:'integration_enqueue_failed',from_status:'paid',to_status:'paid',metadata:{kind:'invoice_create',error:error instanceof Error?error.message:'unknown'}})});
+      const{data:shippingOrder}=await admin.from('orders').select('shipping_method').eq('id',order.id).eq('instance_id',order.instance_id).maybeSingle();
+      if(shippingOrder?.shipping_method)await enqueueExternalLogisticsOrderEmail(order.instance_id,order.id,shippingOrder.shipping_method).catch(async error=>{await admin.from('order_events').insert({instance_id:order.instance_id,order_id:order.id,event_type:'integration_enqueue_failed',from_status:'paid',to_status:'paid',metadata:{kind:'logistics_email',error:error instanceof Error?error.message:'unknown'}})});
     }
   }
   if((event.status==='failed'||event.status==='cancelled')&&!duplicate&&order.status==='pending_payment')await admin.from('order_events').insert({instance_id:order.instance_id,order_id:order.id,event_type:event.status==='failed'?'payment_failed':'payment_cancelled',metadata:{...metadata,order_remains_retryable:true}});

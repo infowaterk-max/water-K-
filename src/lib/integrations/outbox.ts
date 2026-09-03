@@ -1,6 +1,6 @@
 import 'server-only';
 import { createAdminClient } from '@/lib/supabase/admin';
-export type IntegrationJobKind='payment_create'|'payment_callback'|'shipment_create'|'invoice_create'|'email_send';
+export type IntegrationJobKind='payment_create'|'payment_callback'|'shipment_create'|'invoice_create'|'email_send'|'logistics_email';
 export type IntegrationJobStatus='pending'|'processing'|'succeeded'|'failed'|'blocked';
 
 export async function enqueueIntegrationJob(input:{instanceId?:string|null;orderId?:string|null;kind:IntegrationJobKind;provider:string;payload?:Record<string,unknown>;status?:IntegrationJobStatus;lastError?:string}){

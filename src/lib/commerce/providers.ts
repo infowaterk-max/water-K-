@@ -21,4 +21,11 @@ export async function getCommerceProviders(type?:CommerceProviderType):Promise<C
  return (catalog??[]).map(row=>{const c=byCode.get(row.code);return{code:row.code,type:row.provider_type as CommerceProviderType,name:row.name,connectionMode:row.connection_mode as ProviderConnectionMode,adapterKey:row.adapter_key,fulfillmentKind:(row.fulfillment_kind??null) as FulfillmentKind,paymentFlow:(row.payment_flow??null) as PaymentFlow,available:Boolean(row.is_available),sortOrder:Number(row.sort_order??100),enabled:Boolean(c?.enabled),displayLabel:c?.display_label?String(c.display_label):null,feeHuf:c?.fee_huf==null?null:Number(c.fee_huf),connectionStatus:(c?.connection_status??'not_configured') as ProviderConnectionStatus,onboardingStep:(c?.onboarding_step??'selection') as ProviderOnboardingStep,lastTestedAt:c?.last_tested_at?String(c.last_tested_at):null,lastTestMessage:c?.last_test_message?String(c.last_test_message):null,credentialFieldsPresent:Array.isArray(c?.credential_fields_present)?c.credential_fields_present.map(String):[],configuration:(c?.configuration&&typeof c.configuration==='object'?c.configuration:{}) as Record<string,unknown>}});
 }
 
-export function isProviderCheckoutReady(provider:CommerceProvider){return provider.enabled&&(provider.connectionMode==='manual'||provider.connectionStatus==='active');}
+export function isProviderCheckoutReady(provider:CommerceProvider){
+ if(!provider.enabled)return false;
+ if(provider.adapterKey==='external_logistics_email'){
+   const recipient=String(provider.configuration.logistics_email??'').trim();
+   return provider.connectionStatus==='active'&&/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(recipient);
+ }
+ return provider.connectionMode==='manual'||provider.connectionStatus==='active';
+}

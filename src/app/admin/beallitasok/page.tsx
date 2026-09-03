@@ -7,7 +7,7 @@ import { requireCurrentStoreContext } from '@/lib/instances/scope';
 export const dynamic='force-dynamic';
 const stateLabel:Record<string,string>={ready:'Aktív',configured:'Konfigurálva',blocked:'Külső adatra vár',not_configured:'Nincs konfigurálva'};
 const statusLabel:Record<string,string>={pending:'Várakozik',processing:'Folyamatban',succeeded:'Sikeres',failed:'Sikertelen',blocked:'Blokkolt'};
-const kindLabel:Record<string,string>={payment_create:'Fizetés indítása',payment_callback:'Fizetési callback',shipment_create:'Szállítás létrehozása',invoice_create:'Számlakészítés',email_send:'E-mail küldés'};
+const kindLabel:Record<string,string>={payment_create:'Fizetés indítása',payment_callback:'Fizetési callback',shipment_create:'Szállítás létrehozása',invoice_create:'Számlakészítés',email_send:'E-mail küldés',logistics_email:'Logisztikai partner értesítése'};
 
 export default async function AdminSettingsPage(){
   const scope=await requireCurrentStoreContext('store.manage');
