@@ -9,7 +9,7 @@ export const dynamic='force-dynamic';
 export default async function ProductImportExportPage(){
   await requirePlanFeature('importExport');
   await requireCurrentStoreContext('catalog.manage');
-  const products=await getProducts(),preview=products.slice(0,8);
+  const products=await getProducts({includeAllChannels:true}),preview=products.slice(0,8);
 
   return <section className="adminMain">
     <span className="eyebrow">Alap · Katalógusműveletek</span>

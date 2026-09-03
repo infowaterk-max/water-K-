@@ -9,7 +9,7 @@ export const dynamic='force-dynamic';
 export default async function RecommendationsPage(){
   await requirePlanFeature('productRecommendations');
   await requireCurrentStoreContext('catalog.manage');
-  const[products,rules]=await Promise.all([getProducts(),getRecommendationRules()]);
+  const[products,rules]=await Promise.all([getProducts({includeAllChannels:true}),getRecommendationRules()]);
   return <section className="adminMain">
     <span className="eyebrow">Admin · Értékesítésösztönzés</span>
     <h1 className="sectionTitle">Termékajánlások</h1>

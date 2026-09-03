@@ -56,7 +56,7 @@ describe('Pro finance and analytics contracts', () => {
   });
 
   test('analytics protects profitability and retention decision views', () => {
-    expect(analytics).toMatch(/Termékprofitabilitás/);
+    expect(analytics).toMatch(/Termékenkénti fedezet/);
     expect(analytics).toMatch(/Ügyfélérték/);
     expect(analytics).toMatch(/repeatRate/);
     expect(analytics).toMatch(/grossMargin/);

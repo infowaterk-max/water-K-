@@ -9,7 +9,7 @@ export const dynamic='force-dynamic';
 export default async function BulkProductPage(){
   await requirePlanFeature('bulkOperations');
   await requireCurrentStoreContext('catalog.manage');
-  const products=await getProducts(),out=products.filter(p=>p.stock<=0).length,low=products.filter(p=>p.stock>0&&p.stock<=5).length;
+  const products=await getProducts({includeAllChannels:true}),out=products.filter(p=>p.stock<=0).length,low=products.filter(p=>p.stock>0&&p.stock<=5).length;
   return <section className="adminMain">
     <span className="eyebrow">Alap · Katalógusműveletek</span>
     <h1 className="sectionTitle">Tömeges termékműveletek</h1>

@@ -56,10 +56,10 @@ export default async function Page(){
       <LifecycleGuide/>
 
       <div className="cards adminMetricCards">
-        <div className="card"><span className="badge">Aktív javaslat</span><div className="price">{active.length}</div><p className="muted">Még nincs lezárva vagy végrehajtva.</p></div>
-        <div className="card"><span className="badge">Érintett webshop</span><div className="price">{affected}</div><p className="muted">Ennyi tenantnál van aktív tétel.</p></div>
-        <div className="card"><span className="badge">80+ kockázat</span><div className="price">{critical}</div><p className="muted">Elsőként átnézendő tételek.</p></div>
-        <div className="card"><span className="badge">Aktív webshop</span><div className="price">{instances.length}</div><p className="muted">Pilot vagy aktív platformpéldány.</p></div>
+        <div className="card"><span className="badge">Aktív javaslat</span><div className="price">{proposalError?'—':active.length}</div><p className="muted">Még nincs lezárva vagy végrehajtva.</p></div>
+        <div className="card"><span className="badge">Érintett webshop</span><div className="price">{proposalError?'—':affected}</div><p className="muted">Ennyi tenantnál van aktív tétel.</p></div>
+        <div className="card"><span className="badge">80+ kockázat</span><div className="price">{proposalError?'—':critical}</div><p className="muted">Elsőként átnézendő tételek.</p></div>
+        <div className="card"><span className="badge">Aktív webshop</span><div className="price">{instanceError?'—':instances.length}</div><p className="muted">Pilot vagy aktív platformpéldány.</p></div>
       </div>
 
       <section className="card">
@@ -75,7 +75,7 @@ export default async function Page(){
             <td>{new Date(r.expires_at).toLocaleString('hu-HU')}</td>
           </tr>})}</tbody>
         </table></div>
-        {!rows.length&&<p className="muted">Nincs platformszinten megjeleníthető intézkedési javaslat.</p>}
+        {!proposalError&&!rows.length&&<p className="muted">Nincs platformszinten megjeleníthető intézkedési javaslat.</p>}
       </section>
 
       <section className="card">
@@ -92,6 +92,7 @@ export default async function Page(){
   const{data,error}=await a.from('action_proposals').select('id,proposal_key,status,action_kind,impact_class,risk_score,rationale,expires_at,simulated_at,approved_at,executed_at,alert_id').eq('instance_id',store.instanceId).order('risk_score',{ascending:false}).order('expires_at',{ascending:true}).limit(250);
   const rows=(data??[]) as Omit<Proposal,'instance_id'>[];
   const active=rows.filter(r=>['proposed','simulated','approved'].includes(r.status)).length;
+  const canAct=canManage&&!error;
 
   return <section className="adminMain">
     <span className="eyebrow">Pro · Intézkedési központ</span>
@@ -99,10 +100,10 @@ export default async function Page(){
     <p className="lead">A javaslatok, jóváhagyások és végrehajtások webshoponként elkülönítve működnek. Más ügyfél adata nem kerülhet ebbe a munkafolyamatba.</p>
     {error&&<div className="errorNotice" role="alert">Az intézkedési lista most nem tölthető be.</div>}
     <LifecycleGuide/>
-    {canManage?<div className="actions"><ActionCycleButton/></div>:<div className="adminAuditNotice"><strong>Csak olvasási jogosultság.</strong><p>A javaslatok áttekinthetők, de szimulációt, jóváhagyást vagy végrehajtást csak webshop-admin indíthat.</p></div>}
+    {canAct?<div className="actions"><ActionCycleButton/></div>:<div className="adminAuditNotice"><strong>Csak olvasási jogosultság.</strong><p>A javaslatok áttekinthetők, de szimulációt, jóváhagyást vagy végrehajtást csak webshop-admin indíthat.</p></div>}
     <div className="cards adminMetricCards">
-      <div className="card"><span className="badge">Aktív</span><div className="price">{active}</div><p className="muted">Folyamatban lévő intézkedés.</p></div>
-      <div className="card"><span className="badge">Összes</span><div className="price">{rows.length}</div><p className="muted">A tenant legutóbbi javaslatai.</p></div>
+      <div className="card"><span className="badge">Aktív</span><div className="price">{error?'—':active}</div><p className="muted">Folyamatban lévő intézkedés.</p></div>
+      <div className="card"><span className="badge">Összes</span><div className="price">{error?'—':rows.length}</div><p className="muted">A tenant legutóbbi javaslatai.</p></div>
     </div>
     <section className="card">
       <h2>Intézkedési sor</h2>
@@ -114,10 +115,10 @@ export default async function Page(){
           <td><span className={`adminStatePill ${riskTone(Number(r.risk_score))}`}>{r.risk_score}/100</span></td>
           <td>{readable(r.status,statusLabel)}</td>
           <td>{new Date(r.expires_at).toLocaleString('hu-HU')}</td>
-          <td>{canManage?<ProposalActions proposalId={r.id} status={r.status} approvalMode="single" approvalCount={r.approved_at?1:0}/>:<span className="muted">Csak olvasás</span>}</td>
+          <td>{canAct?<ProposalActions proposalId={r.id} status={r.status} approvalMode="single" approvalCount={r.approved_at?1:0}/>:<span className="muted">Csak olvasás</span>}</td>
         </tr>)}</tbody>
       </table></div>
-      {!rows.length&&<p className="muted">Nincs ehhez a webshophoz tartozó intézkedési javaslat.</p>}
+      {!error&&!rows.length&&<p className="muted">Nincs ehhez a webshophoz tartozó intézkedési javaslat.</p>}
     </section>
   </section>;
 }
