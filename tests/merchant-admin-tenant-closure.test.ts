@@ -42,17 +42,21 @@ describe('merchant admin tenant closure',()=>{
     }
   });
 
-  test('coupon and review writes are tenant scoped',()=>{
+  test('coupon and review writes are tenant scoped and atomically audited',()=>{
     const coupons=read('src/app/api/admin/coupons/route.ts');
+    const reviews=read('src/app/admin/velemenyek/actions.ts');
+    const sql=read('supabase/migrations/20260903145000_admin_engagement_evidence_atomic_v2.sql');
     expect(coupons).toMatch(/requireCurrentStoreContext\('marketing\.manage'\)/);
-    expect(coupons).toMatch(/instance_id:ctx\.scope\.instanceId/);
-    expect(coupons).toMatch(/eq\('instance_id',ctx\.scope\.instanceId\)/);
+    expect(coupons).toContain('admin_mutate_coupon_v2');
+    expect(coupons).toContain('p_instance_id:ctx.scope.instanceId');
     expect(coupons).toMatch(/usage_count/);
     expect(coupons).not.toMatch(/used_count/);
-
-    const reviews=read('src/app/admin/velemenyek/actions.ts');
+    expect(coupons).not.toContain('recordAdminAudit');
     expect(reviews).toMatch(/requireCurrentStoreContext\('marketing\.manage'\)/);
-    expect(reviews).toMatch(/eq\('instance_id',scope\.instanceId\)/);
+    expect(reviews).toContain('admin_moderate_product_review_v2');
+    expect(reviews).toContain('p_instance_id:scope.instanceId');
+    expect(sql).toContain("where id=p_coupon_id and instance_id=p_instance_id");
+    expect(sql).toContain("where id=p_review_id and instance_id=p_instance_id");
   });
 
   test('campaign, promotion and integration actions use tenant-aware RPCs',()=>{
@@ -104,8 +108,13 @@ describe('merchant admin tenant closure',()=>{
     expect(followup).toMatch(/profiles[\s\S]*in\('id',partnerIds\)/);
 
     const api=read('src/app/api/admin/customers/[id]/route.ts');
+    const sql=read('supabase/migrations/20260903145000_admin_engagement_evidence_atomic_v2.sql');
     expect(api).toMatch(/customer_instance_roles[\s\S]*eq\('instance_id',scope\.instanceId\)[\s\S]*eq\('user_id',id\)/);
-    expect(api).toMatch(/profiles[\s\S]*eq\('id',id\)\.maybeSingle\(\)/);
+    expect(api).toContain('admin_update_customer_store_role_v2');
+    expect(api).toContain('p_instance_id:scope.instanceId');
+    expect(api).not.toContain('recordAdminAudit');
+    expect(sql).toContain('where instance_id=p_instance_id and user_id=p_user_id');
+    expect(sql).toContain('public.can_manage_sales(p_instance_id,p_actor)');
   });
 
   test('database migration adds tenant analytics and v2 operational RPCs',()=>{

@@ -1,9 +1,8 @@
-import { NextResponse } from 'next/server';
-import { z } from 'zod';
-import { getAdminRequestUser } from '@/lib/auth/admin-api';
-import { createAdminClient } from '@/lib/supabase/admin';
-import { recordAdminAudit } from '@/lib/admin/audit';
-import { requireCurrentStoreContext } from '@/lib/instances/scope';
+import{NextResponse}from'next/server';
+import{z}from'zod';
+import{getAdminRequestUser}from'@/lib/auth/admin-api';
+import{createAdminClient}from'@/lib/supabase/admin';
+import{requireCurrentStoreContext}from'@/lib/instances/scope';
 
 const schema=z.object({
   sourceVariantId:z.string().uuid().nullable(),
@@ -22,25 +21,19 @@ export async function POST(request:Request){
   if(!parsed.success)return NextResponse.json({error:'Érvénytelen ajánlási szabály.'},{status:400});
 
   const admin=createAdminClient();
-  const ids=[parsed.data.recommendedVariantId,...(parsed.data.sourceVariantId?[parsed.data.sourceVariantId]:[])];
-  const{data:variants,error:variantError}=await admin.from('product_variants').select('id').eq('instance_id',scope.instanceId).in('id',ids);
-  if(variantError||(variants?.length??0)!==ids.length)return NextResponse.json({error:'Az ajánlás csak az aktuális webshop termékei között hozható létre.'},{status:409});
-
-  const payload={
-    instance_id:scope.instanceId,
-    source_variant_id:parsed.data.sourceVariantId,
-    recommended_variant_id:parsed.data.recommendedVariantId,
-    placement:parsed.data.placement,
-    priority:parsed.data.priority,
-    headline:parsed.data.headline||null,
-    active:true,
-  };
-  const{data,error}=await admin.from('product_recommendation_rules').insert(payload).select('id').single();
-  if(error)return NextResponse.json({error:'A szabály mentése nem sikerült. Lehet, hogy ez a kapcsolat már létezik.'},{status:409});
-  await recordAdminAudit({
-    actorUserId:actor.id,organizationId:scope.organizationId,instanceId:scope.instanceId,
-    action:'catalog.recommendation_created',entityType:'product_recommendation_rule',entityId:data.id,
-    summary:'Termékajánlási szabály létrehozva',afterState:payload,
+  const{data,error}=await admin.rpc('admin_mutate_product_recommendation_v2',{
+    p_instance_id:scope.instanceId,
+    p_rule_id:null,
+    p_actor:actor.id,
+    p_action:'create',
+    p_payload:parsed.data
   });
-  return NextResponse.json({ok:true,id:data.id});
+  if(error){
+    if(error.message.includes('CATALOG_PERMISSION_REQUIRED'))return NextResponse.json({error:'Nincs jogosultság ehhez a webshophoz.'},{status:403});
+    if(/TENANT_MISMATCH|SELF_REFERENCE/.test(error.message))return NextResponse.json({error:'Az ajánlás csak az aktuális webshop különböző termékei között hozható létre.'},{status:409});
+    return NextResponse.json({error:'A szabály mentése nem sikerült. Lehet, hogy ez a kapcsolat már létezik.'},{status:409});
+  }
+  const id=(data as{id?:string}|null)?.id;
+  if(!id)return NextResponse.json({error:'A szabály mentése nem igazolható.'},{status:500});
+  return NextResponse.json({ok:true,id});
 }
