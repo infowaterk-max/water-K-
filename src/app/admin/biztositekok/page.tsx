@@ -33,7 +33,7 @@ export default async function AssurancePage(){
   const findings=(findingResult.data??[]) as Finding[];
   const controls=(controlResult.data??[]) as Control[];
   const history=(runResult.data??[]) as Run[];
-  const loadError=Boolean(readinessResult.error||findingResult.error||controlResult.error||runResult.error),canManageFindings=!findingResult.error;
+  const loadError=Boolean(readinessResult.error||findingResult.error||controlResult.error||runResult.error),canRunAssurance=!loadError,canManageFindings=!findingResult.error;
   const lastRun=history[0]??null;
 
   return <section className="adminMain">
@@ -52,7 +52,7 @@ export default async function AssurancePage(){
       </div>
     </section>
 
-    <div className="actions"><AssuranceRunButton/></div>
+    <div className="actions">{canRunAssurance?<AssuranceRunButton/>:<div className="adminAuditNotice"><strong>Ellenőrzés futtatása átmenetileg letiltva.</strong><p>Új biztosítéki ciklus csak a készültségi, eltérés-, kontroll- és futási előzményadatok teljes betöltése után indítható.</p></div>}</div>
 
     <div className="cards adminMetricCards">
       <div className="card"><span className="badge">Biztosítéki pontszám</span><div className="price">{readinessResult.error?'—':`${ready.assurance_score}%`}</div>{!readinessResult.error&&<p><span className={`adminStatePill ${ready.readiness_status==='ready'||ready.readiness_status==='healthy'?'ok':ready.readiness_status==='blocked'?'danger':'warning'}`}>{readable(ready.readiness_status,readinessLabel)}</span></p>}</div>

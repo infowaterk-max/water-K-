@@ -23,6 +23,9 @@ describe('critical operational read-to-write closure',()=>{
   test('assurance read failures do not become zero/green evidence and finding actions fail closed',()=>{
     const page=read('src/app/admin/biztositekok/page.tsx');
     expect(page).toContain("readinessResult.error?'—'");
+    expect(page).toContain('canRunAssurance=!loadError');
+    expect(page).toContain('canRunAssurance?<AssuranceRunButton');
+    expect(page).toContain('Ellenőrzés futtatása átmenetileg letiltva.');
     expect(page).toContain('canManageFindings=!findingResult.error');
     expect(page).toContain("findingResult.error?'—'");
     expect(page).toContain('canManageFindings?<AssuranceFindingActions');

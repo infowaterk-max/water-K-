@@ -6,8 +6,12 @@ const root=process.cwd(),read=(file:string)=>fs.readFileSync(path.join(root,file
 describe('campaign and office workspace mutation safety',()=>{
  test('campaign lifecycle actions require complete campaign evidence',()=>{
    const page=read('src/app/admin/kampanyok/[id]/page.tsx');
+   const list=read('src/app/admin/kampanyok/page.tsx');
    expect(page).toContain('!loadError?<CampaignActions');
    expect(page).toContain('Kampányművelet átmenetileg letiltva.');
+   expect(list).not.toContain('<CampaignActions');
+   expect(list).toContain('Részletek és műveletek');
+   expect(list).toContain('teljes kampánybizonyíték betöltése után');
  });
 
  test('digital office blocks all write forms while any workspace source is partial',()=>{
