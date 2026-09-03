@@ -75,6 +75,6 @@ describe('tenant B2B customer and storefront contract',()=>{
     expect(code).toMatch(/reseller_gross_price_huf/);
     expect(code).toMatch(/minimumQuantity/);
     const admin=read('src/app/admin/termekek/page.tsx');
-    expect(admin).toMatch(/getProducts\(\{includeAllChannels:true\}\)/);
+    expect(admin).toMatch(/getProducts\(\{includeAllChannels:true,throwOnError:true\}\)/);
   });
 });

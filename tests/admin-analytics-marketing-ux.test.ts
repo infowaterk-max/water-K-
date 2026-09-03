@@ -29,6 +29,6 @@ describe('admin analytics and marketing UX',()=>{
   expect(procurement).toContain('supplierError');
   expect(procurement).toContain("partially_received:'Részben beérkezett'");
   expect(products).toContain('variantError');
-  expect(products).toContain('Az érintett mezőket frissítésig ne tekintsd nullának.');
+  expect(products).toContain('Hiányos állapotból termékadatot nem módosítunk.');
  });
 });
