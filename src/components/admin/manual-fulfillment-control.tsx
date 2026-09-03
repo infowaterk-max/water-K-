@@ -1,2 +1,22 @@
-'use client';import{useState}from'react';import{useRouter}from'next/navigation';
-export function ManualFulfillmentControl({id,trackingNumber,invoiceNumber,invoiceUrl,paymentReference}:{id:string;trackingNumber:string|null;invoiceNumber:string|null;invoiceUrl:string|null;paymentReference:string|null}){const router=useRouter(),[tracking,setTracking]=useState(trackingNumber??''),[invoice,setInvoice]=useState(invoiceNumber??''),[url,setUrl]=useState(invoiceUrl??''),[payment,setPayment]=useState(paymentReference??''),[busy,setBusy]=useState(false),[message,setMessage]=useState('');async function save(){setBusy(true);setMessage('');const r=await fetch(`/api/admin/orders/${id}/manual`,{method:'PATCH',headers:{'content-type':'application/json'},body:JSON.stringify({trackingNumber:tracking||null,invoiceNumber:invoice||null,invoiceUrl:url||null,paymentReference:payment||null})}),b=await r.json().catch(()=>({}));setBusy(false);if(!r.ok){setMessage(b.error??'A kézi adatok nem menthetők.');return}setMessage('Kézi teljesítési adatok mentve.');router.refresh()}return <div className="featurePanel"><span className="eyebrow">Kézi tartalékfolyamat</span><h2>Integráció nélkül is teljesíthető</h2><p className="muted">Ha egy külső szolgáltató API-ja még nincs bekötve vagy átmenetileg hibás, itt kézzel rögzíthetők a már külső rendszerben létrehozott azonosítók. Ez nem indít automatikus banki, futár- vagy számlázási műveletet.</p><div style={{display:'grid',gap:8}}><label>Fizetési hivatkozás<input value={payment} onChange={e=>setPayment(e.target.value)} maxLength={200} placeholder="Banki / tranzakciós azonosító"/></label><label>Nyomkövetési szám<input value={tracking} onChange={e=>setTracking(e.target.value)} maxLength={120}/></label><label>Számlaszám<input value={invoice} onChange={e=>setInvoice(e.target.value)} maxLength={120}/></label><label>Számla dokumentum URL<input value={url} onChange={e=>setUrl(e.target.value)} maxLength={1000} placeholder="https://…"/></label><button type="button" className="btn btnGhost" disabled={busy} onClick={save}>{busy?'Mentés…':'Kézi adatok mentése'}</button>{message&&<small className="muted" role="status">{message}</small>}</div></div>}
+'use client';
+
+import{useState}from'react';
+import{useRouter}from'next/navigation';
+
+export function ManualFulfillmentControl({id,trackingNumber,invoiceNumber,invoiceUrl,paymentReference}:{id:string;trackingNumber:string|null;invoiceNumber:string|null;invoiceUrl:string|null;paymentReference:string|null}){
+  const router=useRouter(),[tracking,setTracking]=useState(trackingNumber??''),[invoice,setInvoice]=useState(invoiceNumber??''),[url,setUrl]=useState(invoiceUrl??''),[payment,setPayment]=useState(paymentReference??''),[busy,setBusy]=useState(false),[message,setMessage]=useState('');
+  async function save(){
+    setBusy(true);setMessage('');
+    try{
+      const r=await fetch(`/api/admin/orders/${id}/manual`,{method:'PATCH',headers:{'content-type':'application/json'},body:JSON.stringify({trackingNumber:tracking||null,invoiceNumber:invoice||null,invoiceUrl:url||null,paymentReference:payment||null})});
+      const b=await r.json().catch(()=>({}));
+      if(!r.ok){setMessage(`${b.error??'A kézi adatok nem menthetők.'} A kézi teljesítési adatokat nem tekintjük elmentettnek.`);return}
+      setMessage('Kézi teljesítési adatok mentve.');router.refresh();
+    }catch{
+      setMessage('Hálózati hiba. A kézi teljesítési adatokat nem tekintjük elmentettnek.');
+    }finally{
+      setBusy(false);
+    }
+  }
+  return <div className="featurePanel"><span className="eyebrow">Kézi tartalékfolyamat</span><h2>Integráció nélkül is teljesíthető</h2><p className="muted">Ha egy külső szolgáltató API-ja még nincs bekötve vagy átmenetileg hibás, itt kézzel rögzíthetők a már külső rendszerben létrehozott azonosítók. Ez nem indít automatikus banki, futár- vagy számlázási műveletet.</p><div style={{display:'grid',gap:8}}><label>Fizetési hivatkozás<input value={payment} onChange={e=>setPayment(e.target.value)} maxLength={200} placeholder="Banki / tranzakciós azonosító"/></label><label>Nyomkövetési szám<input value={tracking} onChange={e=>setTracking(e.target.value)} maxLength={120}/></label><label>Számlaszám<input value={invoice} onChange={e=>setInvoice(e.target.value)} maxLength={120}/></label><label>Számla dokumentum URL<input value={url} onChange={e=>setUrl(e.target.value)} maxLength={1000} placeholder="https://…"/></label><button type="button" className="btn btnGhost" disabled={busy} onClick={save}>{busy?'Mentés…':'Kézi adatok mentése'}</button>{message&&<small className="muted" role="status">{message}</small>}</div></div>;
+}

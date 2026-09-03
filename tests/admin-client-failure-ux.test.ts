@@ -35,4 +35,36 @@ describe('admin client failure UX',()=>{
     expect(create).toContain('finally{setBusy(false)}');
     expect(create).toContain('A kampányt nem tekintjük létrehozottnak.');
   });
+  test('support reply and suppression actions recover from network failures',()=>{
+    const support=read('src/components/admin/support-reply-form.tsx');
+    const suppression=read('src/components/admin/suppression-actions.tsx');
+    expect(support).toContain('A választ nem tekintjük rögzítettnek.');
+    expect(support).toContain('finally');
+    expect(suppression).toContain('A tiltást nem tekintjük rögzítettnek.');
+    expect(suppression).toContain('A feloldást nem tekintjük végrehajtottnak.');
+    expect(suppression).toContain("window.confirm('Biztosan feloldod ezt a címet a tiltólistáról?')");
+  });
+
+  test('procurement mutations fail closed and confirm full receipt',()=>{
+    const source=read('src/components/admin/procurement-controls.tsx');
+    expect(source.match(/finally/g)?.length).toBeGreaterThanOrEqual(3);
+    expect(source).toContain('A beszerzést nem tekintjük létrehozottnak.');
+    expect(source).toContain('A beszerzési állapotot nem tekintjük módosítottnak.');
+    expect(source).toContain('A bevételezést nem tekintjük rögzítettnek.');
+    expect(source).toContain("window.confirm('Biztosan bevételezed az összes fennmaradó mennyiséget?')");
+  });
+
+  test('integration retry, recommendations and manual fulfillment recover from network failures',()=>{
+    const retry=read('src/components/admin/integration-job-retry.tsx');
+    const recommendations=read('src/components/admin/recommendation-manager.tsx');
+    const manual=read('src/components/admin/manual-fulfillment-control.tsx');
+    expect(retry).toContain('Az újrapróbálást nem tekintjük elindítottnak.');
+    expect(retry).toContain('finally');
+    expect(recommendations).toContain('Az ajánlási szabályt nem tekintjük elmentettnek.');
+    expect(recommendations).toContain('A szabály módosítását nem tekintjük végrehajtottnak.');
+    expect(recommendations).toContain("window.confirm('Biztosan törlöd ezt az ajánlási szabályt?')");
+    expect(manual).toContain('A kézi teljesítési adatokat nem tekintjük elmentettnek.');
+    expect(manual).toContain('finally');
+  });
+
 });
