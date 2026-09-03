@@ -34,8 +34,11 @@ describe('communication tenant closure',()=>{
     expect(inbound).not.toMatch(/\.from\('office_(threads|messages)'\)/);
     expect(inboundSql).toMatch(/support_email/);
     expect(inboundSql).toMatch(/INBOUND_TENANT_AMBIGUOUS/);
+    const providerSql=read('supabase/migrations/20260903191000_provider_suppression_evidence_atomic_v2.sql');
+    expect(webhook).toMatch(/record_provider_communication_suppression_v2/);
     expect(webhook).toMatch(/provider_message_id/);
-    expect(webhook).toMatch(/instance_id:instanceId/);
+    expect(providerSql).toMatch(/communication_jobs/);
+    expect(providerSql).toMatch(/communication_suppression_events/);
   });
 
   test('worker and admin queue operations use tenant-aware RPCs',()=>{
