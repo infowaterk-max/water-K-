@@ -113,7 +113,7 @@ describe('merchant admin tenant closure',()=>{
     const api=read('src/app/api/admin/customers/[id]/route.ts');
     const sql=read('supabase/migrations/20260903194500_customer_role_commercial_atomic_v3.sql');
     expect(api).toMatch(/customer_instance_roles[\s\S]*eq\('instance_id',scope\.instanceId\)[\s\S]*eq\('user_id',id\)/);
-    expect(api).toContain('admin_update_customer_store_role_v3');
+    expect(api).toContain('admin_update_customer_store_role_v4');
     expect(api).toContain('p_instance_id:scope.instanceId');
     expect(api).not.toContain('recordAdminAudit');
     expect(sql).toContain('admin_update_customer_store_role_v2');

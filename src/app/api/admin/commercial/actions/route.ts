@@ -14,11 +14,14 @@ const schema=z.discriminatedUnion('action',[
   z.object({action:z.literal('offer_status'),id:z.string().uuid(),status:z.enum(['sent','accepted','expired','cancelled'])})
 ]);
 
-type Evidence={ok?:boolean;id?:string;status?:string;auditId?:string;offer?:unknown;opportunities?:unknown;tasks?:number};
+type Evidence={ok?:boolean;id?:string;status?:string;auditId?:string;offer?:unknown;opportunities?:unknown;tasks?:number;cancelledOffers?:number;cancelledTasks?:number};
 
 function fail(error:{message?:string}|null,fallback:string){
   const message=String(error?.message??'');
   if(message.includes('SALES_PERMISSION_REQUIRED'))return NextResponse.json({error:'Nincs jogosultság ehhez a webshophoz.'},{status:403});
+  if(message.includes('B2B_RESELLER_AUTHORITY_REQUIRED'))return NextResponse.json({error:'A viszonteladói jogosultság már nem aktív ehhez a webshophoz.'},{status:409});
+  if(message.includes('COMMERCIAL_OPPORTUNITY_NOT_ACTIVE'))return NextResponse.json({error:'A kapcsolt értékesítési lehetőség már lezárt; az ajánlat nem vihető tovább.'},{status:409});
+  if(message.includes('COMMERCIAL_VARIANT_TENANT_MISMATCH')||message.includes('COMMERCIAL_OPPORTUNITY_TENANT_MISMATCH'))return NextResponse.json({error:'Az ajánlat és a kapcsolt adatok nem ugyanahhoz a webshophoz tartoznak.'},{status:409});
   if(message.includes('NOT_FOUND')||message.includes('not_found'))return NextResponse.json({error:'A kért értékesítési elem nem található ebben a webshopban.'},{status:404});
   return NextResponse.json({error:fallback},{status:409});
 }
@@ -55,12 +58,13 @@ export async function POST(req:Request){
   }
 
   if(p.action==='opportunity'){
-    const{data,error}=await a.rpc('admin_transition_commercial_opportunity_v3',{
+    const{data,error}=await a.rpc('admin_transition_commercial_opportunity_v4',{
       p_instance_id:store.instanceId,p_opportunity_id:p.id,p_actor:user.id,p_status:p.status
     });
     if(error)return fail(error,'A lehetőség állapota nem módosítható.');
     const e=(data??{})as Evidence;
-    if(!hasAudit(data)||e.id!==p.id||e.status!==p.status)return NextResponse.json({error:'A lehetőség módosításának eredménye nem igazolható.'},{status:500});
+    const countsValid=Number.isInteger(e.cancelledOffers)&&Number(e.cancelledOffers)>=0&&Number.isInteger(e.cancelledTasks)&&Number(e.cancelledTasks)>=0;
+    if(!hasAudit(data)||e.id!==p.id||e.status!==p.status||!countsValid)return NextResponse.json({error:'A lehetőség módosításának eredménye nem igazolható.'},{status:500});
     return NextResponse.json(e);
   }
 

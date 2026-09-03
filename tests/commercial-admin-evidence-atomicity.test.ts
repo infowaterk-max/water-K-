@@ -5,6 +5,7 @@ import{describe,expect,test}from'vitest';
 const root=process.cwd(),read=(file:string)=>fs.readFileSync(path.join(root,file),'utf8');
 const routeFile='src/app/api/admin/commercial/actions/route.ts';
 const sqlFile='supabase/migrations/20260903184500_admin_commercial_evidence_atomic_v3.sql';
+const authorityFile='supabase/migrations/20260903200000_reseller_offer_authority_v4.sql';
 
 describe('commercial admin evidence atomicity',()=>{
   test('commercial route has no direct table writes and uses audited v3 RPCs',()=>{
@@ -13,7 +14,7 @@ describe('commercial admin evidence atomicity',()=>{
     expect(route).not.toContain("from('sales_tasks').update");
     for(const name of[
       'admin_refresh_commercial_workspace_v3',
-      'admin_transition_commercial_opportunity_v3',
+      'admin_transition_commercial_opportunity_v4',
       'admin_transition_sales_task_v3',
       'admin_create_commercial_offer_v3',
       'admin_approve_commercial_offer_v3',
@@ -53,11 +54,10 @@ describe('commercial admin evidence atomicity',()=>{
     expect(sql).toContain('COMMERCIAL_OFFER_EVIDENCE_MISSING');
   });
 
-  test('v3 RPCs are service-runtime only and direct unaudited v2 service access is retired',()=>{
+  test('final audited RPCs are service-runtime only and direct lower-level access is retired',()=>{
     const sql=read(sqlFile);
     for(const name of[
       'admin_refresh_commercial_workspace_v3',
-      'admin_transition_commercial_opportunity_v3',
       'admin_transition_sales_task_v3',
       'admin_create_commercial_offer_v3',
       'admin_approve_commercial_offer_v3',
@@ -66,6 +66,9 @@ describe('commercial admin evidence atomicity',()=>{
       expect(sql).toContain(`revoke all on function public.${name}`);
       expect(sql).toMatch(new RegExp(`grant execute on function public\\.${name}[\\s\\S]{0,260}to service_role`));
     }
+    const authority=read(authorityFile);
+    expect(authority).toMatch(/revoke all on function public\.admin_transition_commercial_opportunity_v3[\s\S]{0,220}service_role/);
+    expect(authority).toMatch(/grant execute on function public\.admin_transition_commercial_opportunity_v4[\s\S]{0,220}to service_role/);
     for(const oldName of[
       'plan_commercial_opportunities_v2',
       'plan_high_value_sales_tasks_v2',

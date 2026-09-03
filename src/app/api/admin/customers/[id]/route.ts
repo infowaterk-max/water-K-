@@ -27,7 +27,7 @@ export async function PATCH(request:Request,{params}:{params:Promise<{id:string}
     ?(parsed.data.resellerApproved??current.reseller_approved===true)
     :false;
 
-  const{data,error}=await admin.rpc('admin_update_customer_store_role_v3',{
+  const{data,error}=await admin.rpc('admin_update_customer_store_role_v4',{
     p_instance_id:scope.instanceId,
     p_user_id:id,
     p_actor:actor.id,
@@ -40,15 +40,17 @@ export async function PATCH(request:Request,{params}:{params:Promise<{id:string}
     if(error.message.includes('SALES_PERMISSION_REQUIRED'))return NextResponse.json({error:'Nincs jogosultság ehhez a webshophoz.'},{status:403});
     return NextResponse.json({error:'A partnerstátusz módosítása nem sikerült. Egyetlen változás sem került alkalmazásra.'},{status:500});
   }
-  const result=(data??{})as{id?:unknown;role?:unknown;resellerApproved?:unknown;retiredOpportunities?:unknown;cancelledTasks?:unknown};
+  const result=(data??{})as{id?:unknown;role?:unknown;resellerApproved?:unknown;retiredOpportunities?:unknown;cancelledTasks?:unknown;cancelledOffers?:unknown};
   const retiredValid=typeof result.retiredOpportunities==='number'&&Number.isInteger(result.retiredOpportunities)&&result.retiredOpportunities>=0;
   const cancelledValid=typeof result.cancelledTasks==='number'&&Number.isInteger(result.cancelledTasks)&&result.cancelledTasks>=0;
+  const offersValid=typeof result.cancelledOffers==='number'&&Number.isInteger(result.cancelledOffers)&&result.cancelledOffers>=0;
   if(
     result.id!==id||
     result.role!==expectedRole||
     result.resellerApproved!==expectedApproved||
     !retiredValid||
-    !cancelledValid
+    !cancelledValid||
+    !offersValid
   )return NextResponse.json({error:'A partnerstátusz módosításának eredménye nem igazolható.'},{status:500});
   return NextResponse.json({
     ok:true,
@@ -56,5 +58,6 @@ export async function PATCH(request:Request,{params}:{params:Promise<{id:string}
     resellerApproved:result.resellerApproved,
     retiredOpportunities:result.retiredOpportunities,
     cancelledTasks:result.cancelledTasks,
+    cancelledOffers:result.cancelledOffers,
   });
 }

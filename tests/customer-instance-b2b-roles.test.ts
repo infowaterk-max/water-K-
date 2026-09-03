@@ -46,7 +46,7 @@ describe('tenant B2B customer and storefront contract',()=>{
     const atomic=read('supabase/migrations/20260903194500_customer_role_commercial_atomic_v3.sql');
     expect(api).toMatch(/customer_instance_roles/);
     expect(api).toMatch(/eq\('instance_id',scope\.instanceId\)/);
-    expect(api).toMatch(/admin_update_customer_store_role_v3/);
+    expect(api).toMatch(/admin_update_customer_store_role_v4/);
     expect(api).toMatch(/p_instance_id:scope\.instanceId/);
     expect(api).not.toMatch(/from\('customer_instance_roles'\)\.update/);
     expect(api).not.toMatch(/recordAdminAudit/);

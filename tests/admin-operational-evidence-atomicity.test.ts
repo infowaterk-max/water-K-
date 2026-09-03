@@ -6,6 +6,7 @@ const root=process.cwd(),read=(file:string)=>fs.readFileSync(path.join(root,file
 const engagement='supabase/migrations/20260903145000_admin_engagement_evidence_atomic_v2.sql';
 const operations='supabase/migrations/20260903146000_admin_procurement_return_evidence_atomic_v2.sql';
 const roleClosure='supabase/migrations/20260903194500_customer_role_commercial_atomic_v3.sql';
+const offerAuthority='supabase/migrations/20260903200000_reseller_offer_authority_v4.sql';
 
 describe('admin operational evidence atomicity',()=>{
   test('support ticket state and replies commit together with audit evidence',()=>{
@@ -94,5 +95,8 @@ describe('admin operational evidence atomicity',()=>{
     const roleSql=read(roleClosure);
     expect(roleSql).toMatch(/revoke all on function public\.admin_update_customer_store_role_v2[\s\S]{0,180}service_role/);
     expect(roleSql).toMatch(/grant execute on function public\.admin_update_customer_store_role_v3[\s\S]{0,180}to service_role/);
+    const authoritySql=read(offerAuthority);
+    expect(authoritySql).toMatch(/revoke all on function public\.admin_update_customer_store_role_v3[\s\S]{0,180}service_role/);
+    expect(authoritySql).toMatch(/grant execute on function public\.admin_update_customer_store_role_v4[\s\S]{0,180}to service_role/);
   });
 });
