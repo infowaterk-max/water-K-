@@ -43,7 +43,7 @@ export default async function Page({params}:{params:Promise<{id:string}>}){
 
     const loadError=Boolean(orderError||itemError);
     const revenue=orders.reduce((s,o)=>s+Number(o.total_gross_huf||0),0);
-    const completeProfitData=!itemError&&orders.length===0||(!itemError&&items.length>0&&items.every(i=>i.line_total_net_huf_snapshot!=null&&i.unit_cost_net_huf_snapshot!=null));
+    const completeProfitData=!orderError&&!itemError&&(orders.length===0||(items.length>0&&items.length<50000&&items.every(i=>i.line_total_net_huf_snapshot!=null&&i.unit_cost_net_huf_snapshot!=null)));
     const net=completeProfitData?items.reduce((s,i)=>s+Number(i.line_total_net_huf_snapshot||0),0):0;
     const cost=completeProfitData?items.reduce((s,i)=>s+Number(i.unit_cost_net_huf_snapshot)*Number(i.quantity||0),0):0;
     const margin=completeProfitData?net-cost:null,budget=Number(campaign.budget_huf||0),result=margin===null?null:margin-budget;
