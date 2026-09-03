@@ -96,8 +96,9 @@ describe('merchant admin tenant closure',()=>{
     expect(exec).toMatch(/v9_growth_dashboard_v2/);
 
     const route=read('src/app/api/admin/growth/run/route.ts');
-    expect(route).toMatch(/plan_customer_retention_journeys_v2/);
-    expect(route).toMatch(/dispatch_due_customer_journey_steps_v2/);
+    expect(route).toMatch(/admin_refresh_growth_workflows_v3/);
+    expect(route).not.toMatch(/a\.rpc\('plan_customer_retention_journeys_v2'/);
+    expect(route).not.toMatch(/a\.rpc\('dispatch_due_customer_journey_steps_v2'/);
   });
 
   test('customer profile access is derived from tenant-linked customers',()=>{
