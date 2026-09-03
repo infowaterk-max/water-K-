@@ -17,6 +17,7 @@ export async function POST(_request:Request,{params}:{params:Promise<{id:string}
  const{data:claimed,error:claimError}=await admin.rpc('claim_integration_job_v2',{p_instance_id:scope.instanceId,p_id:id});
  const claim=claimed?.[0];if(claimError)return NextResponse.json({error:'Az integrációs feladat zárolása nem sikerült.'},{status:500});
  if(!claim?.processing_token)return NextResponse.json({error:'A feladat jelenleg már feldolgozás alatt van, vagy nem futtatható újra.'},{status:409});
+ if(claim.id!==id||claim.instance_id!==scope.instanceId)return NextResponse.json({error:'Az integrációs feladat zárolási eredménye nem igazolható.'},{status:500});
  try{
   const result=await processIntegrationJob(scope.instanceId,id,claim.processing_token,{manualActorId:actor.id});
   return NextResponse.json({ok:true,result});
