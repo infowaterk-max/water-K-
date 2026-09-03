@@ -18,8 +18,8 @@ export async function openWebshopAction(){
   const ready=Boolean(instance.brand.name&&(instance.brand.supportEmail||instance.brand.supportPhone))&&products.length>0&&commerce.shippingOptions.length>0&&commerce.paymentOptions.length>0&&published.has('aszf')&&published.has('adatvedelem')&&published.has('impresszum');
   if(!ready) redirect('/admin/indulas?launch=blocked');
   const admin=createAdminClient();
-  const {error}=await admin.from('webshop_instances').update({status:'active',updated_at:new Date().toISOString()}).eq('id',scope.instanceId).eq('status','pilot');
-  if(error) redirect('/admin/indulas?launch=error');
+  const {data:activated,error}=await admin.from('webshop_instances').update({status:'active',updated_at:new Date().toISOString()}).eq('id',scope.instanceId).eq('status','pilot').select('id').maybeSingle();
+  if(error||!activated) redirect('/admin/indulas?launch=error');
   revalidatePath('/');revalidatePath('/webaruhaz');revalidatePath('/admin/indulas');
   redirect('/admin/indulas?launch=opened');
 }
