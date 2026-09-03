@@ -19,6 +19,13 @@ describe('payment event evidence atomicity',()=>{
     expect(source).not.toContain('updatePaymentAttemptFromEvent');
   });
 
+  test('unmapped verified callbacks cannot acknowledge without durable webhook evidence',()=>{
+    const source=read('src/lib/integrations/payment-events.ts');
+    expect(source).toContain('const webhookEvidence=await recordWebhookEvent');
+    expect(source).toContain("if(!webhookEvidence?.id)throw new Error('UNMAPPED_PAYMENT_WEBHOOK_EVIDENCE_MISSING')");
+    expect(source).not.toContain('errorMessage:\'Verified callback could not be mapped to a webshop order.\',\n    }).catch(()=>undefined)');
+  });
+
   test('webhook, payment event, attempt, order event and outbox intents commit together',()=>{
     const sql=read(migration);
     expect(sql).toContain('insert into public.webhook_events');

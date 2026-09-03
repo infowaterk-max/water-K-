@@ -57,14 +57,15 @@ export async function applyVerifiedPaymentEvent(event:VerifiedPaymentEvent){
   const order=await resolveOrder(event.providerCode,event.providerReference);
 
   if(!order){
-    await recordWebhookEvent({
+    const webhookEvidence=await recordWebhookEvent({
       provider:event.providerCode,
       externalEventId:event.eventId,
       signatureValid:event.signatureValid,
       payloadHash,
       status:event.signatureValid?'ignored':'rejected',
       errorMessage:'Verified callback could not be mapped to a webshop order.',
-    }).catch(()=>undefined);
+    });
+    if(!webhookEvidence?.id)throw new Error('UNMAPPED_PAYMENT_WEBHOOK_EVIDENCE_MISSING');
     return{ok:event.signatureValid,duplicate:false,orderId:null};
   }
 
