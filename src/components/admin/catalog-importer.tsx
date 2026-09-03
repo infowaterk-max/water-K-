@@ -11,6 +11,15 @@ export function CatalogImporter(){
   const router=useRouter();
   const[csv,setCsv]=useState(''),[rows,setRows]=useState<Preview[]>([]),[changes,setChanges]=useState<CatalogChange[]>([]),[busy,setBusy]=useState(false),[message,setMessage]=useState(''),[isError,setIsError]=useState(false);
 
+  async function loadFile(file:File|undefined){
+    if(!file||busy)return;
+    try{
+      setCsv(await file.text());setRows([]);setChanges([]);setMessage('');setIsError(false);
+    }catch{
+      setIsError(true);setMessage('A kiválasztott fájl nem olvasható.');
+    }
+  }
+
   async function preview(){
     if(busy||!csv.trim())return;
     setBusy(true);setMessage('');setIsError(false);
@@ -43,7 +52,7 @@ export function CatalogImporter(){
     <span className="eyebrow">Biztonságos CSV import</span><h2>Előnézet nélkül nincs adatírás</h2>
     <p className="muted">Kötelező oszlop: <code>id</code>. Támogatott módosító oszlopok: <code>stock</code>, <code>net_price</code>, <code>gross_price</code>, <code>active</code>.</p>
     <div className="catalogImportLayout">
-      <div className="catalogFilePicker"><strong>CSV fájl kiválasztása</strong><span className="muted">UTF-8 CSV, először csak ellenőrzésre kerül.</span><input type="file" accept=".csv,text/csv" disabled={busy} onChange={async e=>{const file=e.target.files?.[0];if(!file)return;try{setCsv(await file.text());setRows([]);setChanges([]);setMessage('');setIsError(false)}catch{setIsError(true);setMessage('A kiválasztott fájl nem olvasható.')}}/></div>
+      <div className="catalogFilePicker"><strong>CSV fájl kiválasztása</strong><span className="muted">UTF-8 CSV, először csak ellenőrzésre kerül.</span><input type="file" accept=".csv,text/csv" disabled={busy} onChange={e=>void loadFile(e.target.files?.[0])}/></div>
       <div><label><strong>CSV tartalom</strong><textarea className="catalogCsvEditor" rows={10} value={csv} disabled={busy} onChange={e=>{setCsv(e.target.value);setRows([]);setChanges([]);setMessage('');setIsError(false)}} placeholder={'id,stock,net_price,gross_price,active\n...'}/></label></div>
     </div>
     <div className="actions"><button className="btn btnGhost" type="button" disabled={busy||!csv.trim()} onClick={preview}>{busy?'Ellenőrzés…':'Import előnézet'}</button><button className="btn btnPrimary" type="button" disabled={busy||!changes.length||rows.some(row=>row.status==='error')} onClick={apply}>Jóváhagyás és alkalmazás ({changes.length})</button></div>
