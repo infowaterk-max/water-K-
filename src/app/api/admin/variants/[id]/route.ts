@@ -66,6 +66,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     if(error.message.includes('VARIANT_NOT_FOUND'))return NextResponse.json({error:'A termékváltozat nem található ebben a webshopban.'},{status:404});
     return NextResponse.json({error:'A termék módosítása nem sikerült. Egyetlen változás sem került alkalmazásra.'},{status:500});
   }
+  if((data as {id?:string}|null)?.id!==id)return NextResponse.json({error:'A termékváltozat módosításának eredménye nem igazolható.'},{status:500});
 
   return NextResponse.json({ok:true,result:data});
 }

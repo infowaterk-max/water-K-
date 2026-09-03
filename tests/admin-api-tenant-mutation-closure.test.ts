@@ -78,6 +78,8 @@ describe('admin API tenant mutation closure',()=>{
     expect(route).toContain("requireCurrentStoreContext('catalog.manage')");
     expect(route).toContain("admin_update_product_variant_v2");
     expect(route).toContain("p_expected_updated_at:current.updated_at");
+    expect(route).toContain("(data as {id?:string}|null)?.id!==id");
+    expect(route).toContain('A termékváltozat módosításának eredménye nem igazolható.');
     expect(route).not.toContain(".from('product_variants').update(");
     expect(sql).toContain('for update');
     expect(sql).toContain('instance_id=p_instance_id');
