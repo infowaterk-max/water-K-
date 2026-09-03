@@ -12,6 +12,9 @@ describe('campaign and office workspace mutation safety',()=>{
    expect(list).not.toContain('<CampaignActions');
    expect(list).toContain('Részletek és műveletek');
    expect(list).toContain('teljes kampánybizonyíték betöltése után');
+   expect(list).toContain('canCreateCampaign=!ce');
+   expect(list).toContain('canCreateCampaign?<CampaignCreateForm');
+   expect(list).toContain('Kampány létrehozása átmenetileg letiltva');
  });
 
  test('digital office blocks all write forms while any workspace source is partial',()=>{

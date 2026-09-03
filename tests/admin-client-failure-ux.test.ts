@@ -25,4 +25,14 @@ describe('admin client failure UX',()=>{
     expect(source).toContain('A módosítást nem tekintjük elmentettnek.');
     expect(source).toContain("window.confirm('Biztosan törlöd ezt a tartalmat?");
   });
+
+  test('campaign clients recover from network failures and confirm destructive cancellation',()=>{
+    const actions=read('src/components/admin/campaign-actions.tsx');
+    const create=read('src/components/admin/campaign-create-form.tsx');
+    expect(actions).toContain('finally{');
+    expect(actions).toContain('A kampány állapotát nem tekintjük módosítottnak.');
+    expect(actions).toContain("window.confirm('Biztosan törlöd ezt a kampányt?')");
+    expect(create).toContain('finally{setBusy(false)}');
+    expect(create).toContain('A kampányt nem tekintjük létrehozottnak.');
+  });
 });
