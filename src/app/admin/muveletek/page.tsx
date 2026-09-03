@@ -2,6 +2,7 @@ import{requirePlatformOperator}from'@/lib/auth/platform-operator';
 import{createAdminClient}from'@/lib/supabase/admin';
 import{formatHuf}from'@/lib/catalog';
 import{OperationsCycleButton,OrderOperationAction}from'@/components/admin/operations-actions';
+import{commerceStatusLabel,customerTierLabel,humanizeCode,operationalStatusLabel,stateTone}from'@/lib/admin/operational-display';
 
 export const dynamic='force-dynamic';
 
@@ -11,11 +12,8 @@ type Summary={open_orders:number;blocked_orders:number;fulfillment_backlog:numbe
 type Atp={variant_id:string;sku:string;label:string;on_hand_quantity:number;reserved_quantity:number;available_to_promise_quantity:number;oversold_quantity:number};
 type Instance={id:string;name:string;slug:string};
 
-const commerceLabel:Record<string,string>={draft:'Piszkozat',pending:'Függőben',pending_payment:'Fizetésre vár',pending_transfer:'Átutalásra vár',paid:'Fizetve',processing:'Feldolgozás',shipped:'Átadva',completed:'Teljesítve',cancelled:'Törölve',refunded:'Visszatérítve'};
-const operationLabel:Record<string,string>={awaiting_reservation:'Készletfoglalásra vár',reserved:'Készlet lefoglalva',blocked:'Blokkolt',ready_to_pack:'Csomagolásra kész',packed:'Csomagolva',handed_over:'Futárnak átadva',delivered:'Kézbesítve',cancelled:'Megszakítva'};
-const tierLabel:Record<string,string>={standard:'Normál',silver:'Ezüst',gold:'Arany',platinum:'Prémium'};
 const exceptionLabel:Record<string,string>={insufficient_stock:'Nincs elegendő készlet',payment_fulfillment_mismatch:'Fizetés és teljesítés eltér',shipment_status_mismatch:'Szállítási állapot eltér',delivery_status_mismatch:'Kézbesítési állapot eltér',sla_over_48h:'48 órán túli feldolgozás',urgent_support:'Sürgős ügyfélszolgálati ügy',open_return:'Nyitott visszáru'};
-const human=(value:string|null,map:Record<string,string>)=>value?(map[value]??value.replaceAll('_',' ')):'—';
+const exceptionText=(value:string|null)=>value?(exceptionLabel[value]??humanizeCode(value)):'—';
 
 export default async function OperationsPage(){
   await requirePlatformOperator();
@@ -73,14 +71,14 @@ export default async function OperationsPage(){
         <tbody>{rows.map(r=><tr key={r.order_id}>
           <td><strong>{storeName(tenantByOrder.get(r.order_id))}</strong></td>
           <td><strong>{r.order_number}</strong></td>
-          <td>{human(r.commerce_status,commerceLabel)}</td>
-          <td>{human(r.operational_status,operationLabel)}</td>
+          <td>{commerceStatusLabel(r.commerce_status)}</td>
+          <td><span className={`adminStatePill ${stateTone(r.operational_status)}`}>{operationalStatusLabel(r.operational_status)}</span></td>
           <td>{r.priority_score}</td>
-          <td>{human(r.customer_value_tier,tierLabel)} · {r.customer_value_score}</td>
+          <td>{customerTierLabel(r.customer_value_tier)} · {r.customer_value_score}</td>
           <td>{Number(r.age_hours).toFixed(1)} óra</td>
           <td>{formatHuf(Number(r.total_gross_huf))}</td>
           <td>{r.open_support_count} ügy · {r.open_return_count} visszáru</td>
-          <td>{human(r.exception_code,exceptionLabel)}</td>
+          <td>{exceptionText(r.exception_code)}</td>
           <td>{canAct?<OrderOperationAction orderId={r.order_id} status={r.operational_status}/>:<span className="muted">Adatbetöltés szükséges</span>}</td>
         </tr>)}</tbody>
       </table></div>
@@ -92,7 +90,7 @@ export default async function OperationsPage(){
       <p className="muted">A szabad készlet a már lefoglalt mennyiség levonása után még értékesíthető darabszám. A platformnézet itt az eltérések és foglalási problémák felügyeletére szolgál.</p>
       <div className="adminTableScroll"><table className="adminTable">
         <thead><tr><th>Webshop</th><th>SKU</th><th>Változat</th><th>Fizikai készlet</th><th>Foglalt</th><th>Szabad</th><th>Túladott</th></tr></thead>
-        <tbody>{stock.map(v=><tr key={v.variant_id}><td><strong>{storeName(tenantByVariant.get(v.variant_id))}</strong></td><td><strong>{v.sku}</strong></td><td>{v.label}</td><td>{v.on_hand_quantity}</td><td>{v.reserved_quantity}</td><td>{v.available_to_promise_quantity}</td><td>{v.oversold_quantity}</td></tr>)}</tbody>
+        <tbody>{stock.map(v=><tr key={v.variant_id}><td><strong>{storeName(tenantByVariant.get(v.variant_id))}</strong></td><td><strong>{v.sku}</strong></td><td>{v.label}</td><td>{v.on_hand_quantity}</td><td>{v.reserved_quantity}</td><td>{v.available_to_promise_quantity}</td><td><span className={v.oversold_quantity>0?'adminStatePill danger':'adminStatePill neutral'}>{v.oversold_quantity}</span></td></tr>)}</tbody>
       </table></div>
       {!stockError&&stock.length===0&&<p className="muted">Nincs készleteltérés a megjelenített sorban.</p>}
       <p className="muted">{summaryError?'Az összesített készletállapot most nem elérhető.':`Nyitott: ${summary.open_orders} · teljesítési sor: ${summary.fulfillment_backlog} · foglalt egység: ${summary.reserved_units} · 0 szabad készletű változat: ${summary.zero_atp_variants}`}</p>

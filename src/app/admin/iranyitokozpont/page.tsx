@@ -5,6 +5,7 @@ import{AlertActions,ControlCycleButton,TaskActions}from'@/components/admin/contr
 import{requirePlanFeature}from'@/lib/plans/access';
 import{requireCurrentStoreContext}from'@/lib/instances/scope';
 import{hasStorePermission}from'@/lib/auth/store-rbac';
+import{alertStatusLabel,displayRecommendation,severityLabel,stateTone,taskStatusLabel}from'@/lib/admin/operational-display';
 
 export const dynamic='force-dynamic';
 
@@ -13,9 +14,7 @@ type Kpi={open_alerts:number;critical_alerts:number;high_alerts:number;over_24h_
 type Health={open_system_alerts:number;critical_system_alerts:number;failed_or_blocked_integration_jobs:number;failed_webhooks_7d:number;last_control_cycle_at:string|null};
 type Cat={category:string;severity:string;alert_count:number;max_priority:number;avg_age_hours:number|string};
 
-const labels:Record<string,string>={operations:'Műveletek',inventory:'Készlet',service:'Ügyfélszolgálat',commercial:'Értékesítés',customer:'Ügyfélérték',system:'Rendszer',critical:'Kritikus',high:'Magas',warning:'Figyelmeztetés',info:'Információ'};
-const alertStatus:Record<string,string>={open:'Nyitott',acknowledged:'Átvett',snoozed:'Elhalasztva',resolved:'Megoldva',dismissed:'Elvetve'};
-const taskStatus:Record<string,string>={open:'Nyitott',in_progress:'Folyamatban',completed:'Lezárt',cancelled:'Törölt'};
+const labels:Record<string,string>={operations:'Műveletek',inventory:'Készlet',service:'Ügyfélszolgálat',commercial:'Értékesítés',customer:'Ügyfélérték',system:'Rendszer'};
 const moduleRoutes:Record<string,string>={operations:'/admin/muveletek',inventory:'/admin/keszlet-elemzes',service:'/admin/ugyfelszolgalat',commercial:'/admin/ertekesites',customer:'/admin/ugyfelertek',system:'/admin/integraciok'};
 
 export default async function ControlTowerPage(){
@@ -63,7 +62,7 @@ export default async function ControlTowerPage(){
       <h2>Terhelés kategóriánként</h2>
       <div className="adminTableScroll"><table className="adminTable">
         <thead><tr><th>Terület</th><th>Súlyosság</th><th>Darab</th><th>Legmagasabb prioritás</th><th>Átlagos kor</th></tr></thead>
-        <tbody>{cats.map(x=><tr key={`${x.category}:${x.severity}`}><td>{labels[x.category]??x.category}</td><td>{labels[x.severity]??x.severity}</td><td>{x.alert_count}</td><td>{x.max_priority}</td><td>{Number(x.avg_age_hours).toFixed(1)} óra</td></tr>)}</tbody>
+        <tbody>{cats.map(x=><tr key={`${x.category}:${x.severity}`}><td>{labels[x.category]??x.category}</td><td><span className={`adminStatePill ${stateTone(x.severity)}`}>{severityLabel(x.severity)}</span></td><td>{x.alert_count}</td><td>{x.max_priority}</td><td>{Number(x.avg_age_hours).toFixed(1)} óra</td></tr>)}</tbody>
       </table></div>
       {!ce&&cats.length===0&&<p className="muted">Nincs kategóriánkénti nyitott terhelés.</p>}
     </section>
@@ -75,12 +74,12 @@ export default async function ControlTowerPage(){
         <tbody>{rows.map(r=><tr key={r.alert_id}>
           <td><strong>{r.title}</strong><div className="muted">{r.description}</div></td>
           <td>{labels[r.category]??r.category}</td>
-          <td>{labels[r.severity]??r.severity}</td>
+          <td><span className={`adminStatePill ${stateTone(r.severity)}`}>{severityLabel(r.severity)}</span></td>
           <td>{r.priority_score}</td>
           <td>{Number(r.age_hours).toFixed(1)} óra</td>
-          <td>{alertStatus[r.status]??r.status}{r.snoozed_until?` · ${new Date(r.snoozed_until).toLocaleString('hu-HU')}`:''}</td>
-          <td>{r.recommended_action??'—'}</td>
-          <td>{r.task_status?<><strong>{taskStatus[r.task_status]??r.task_status}</strong>{r.task_due_at&&<div className="muted">Határidő: {new Date(r.task_due_at).toLocaleString('hu-HU')}{r.task_overdue?' · LEJÁRT':''}</div>}{canAct?<TaskActions taskId={r.task_id} status={r.task_status}/>:<div className="muted">Csak olvasás</div>}</>:'—'}</td>
+          <td><span className={`adminStatePill ${stateTone(r.status)}`}>{alertStatusLabel(r.status)}</span>{r.snoozed_until&&<div className="muted">halasztva: {new Date(r.snoozed_until).toLocaleString('hu-HU')}</div>}</td>
+          <td>{displayRecommendation(r.recommended_action)}</td>
+          <td>{r.task_status?<><strong>{taskStatusLabel(r.task_status)}</strong>{r.task_due_at&&<div className="muted">Határidő: {new Date(r.task_due_at).toLocaleString('hu-HU')}{r.task_overdue?' · LEJÁRT':''}</div>}{canAct?<TaskActions taskId={r.task_id} status={r.task_status}/>:<div className="muted">Csak olvasás</div>}</>:'—'}</td>
           <td><Link className="btn btnGhost" href={moduleRoutes[r.category]??'/admin'}>Forrásmodul</Link></td>
           <td>{canAct?<AlertActions alertId={r.alert_id} status={r.status}/>:<span className="muted">Csak olvasás</span>}</td>
         </tr>)}</tbody>
