@@ -23,7 +23,7 @@ export function PlatformAuthForm(){
       const result=await supabase.auth.signInWithPassword({email:normalizedEmail,password});
       setBusy(false);
       if(result.error){setMessage('A belépés nem sikerült. Ellenőrizd az e-mail címet és a jelszót.');return;}
-      router.push('/admin/iranyitokozpont');
+      router.push('/admin/platform');
       router.refresh();
       return;
     }
@@ -52,7 +52,7 @@ export function PlatformAuthForm(){
     setBusy(false);
     if(result.error){setMessage(result.error.message);return;}
     if(result.data.session){
-      router.push('/admin/iranyitokozpont');
+      router.push('/admin/platform');
       router.refresh();
       return;
     }
