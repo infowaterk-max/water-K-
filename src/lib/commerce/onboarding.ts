@@ -1,6 +1,7 @@
 import 'server-only';
 export type ProviderRequirement={key:string;label:string;secret:boolean};export type ProviderGuide={contract:string;requirements:ProviderRequirement[];verification:string;notes?:string};
 const guides:Record<string,ProviderGuide>={
+ external_logistics:{contract:'Nincs szükség közvetlen futárcéges API-szerződésre. A webshop a külső logisztikai partnerrel áll szerződésben vagy operatív kapcsolatban.',requirements:[],verification:'Érvényes partner e-mail cím szükséges. A Shoperation naplózott rendelési értesítést küld a partnernek, a futárfoglalást a partner végzi.'},
  kh_card:{contract:'K&H e-commerce elfogadói szerződés és aktív kereskedői fiók.',requirements:[{key:'KH_MERCHANT_ID',label:'Kereskedőazonosító',secret:false},{key:'KH_SECRET',label:'API titkos kulcs',secret:true}],verification:'Kereskedőazonosító és titkos kulcs meglétének, majd a gateway-kapcsolatnak az ellenőrzése.'},
  stripe:{contract:'Aktív Stripe kereskedői fiók. Külön Shoperation-szerződés nem szükséges.',requirements:[{key:'STRIPE_SECRET_KEY',label:'Secret key',secret:true},{key:'STRIPE_WEBHOOK_SECRET',label:'Webhook signing secret',secret:true}],verification:'Szerveroldali Stripe API-kapcsolat és webhook aláírás ellenőrzése.'},
  simplepay:{contract:'OTP SimplePay kereskedői szerződés és éles merchant hozzáférés.',requirements:[{key:'SIMPLEPAY_MERCHANT',label:'Merchant azonosító',secret:false},{key:'SIMPLEPAY_SECRET_KEY',label:'Titkos kulcs',secret:true}],verification:'Merchant konfiguráció és SimplePay API-kapcsolat ellenőrzése.'},
