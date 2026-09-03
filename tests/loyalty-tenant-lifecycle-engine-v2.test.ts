@@ -120,9 +120,25 @@ describe('tenant loyalty lifecycle engine v2',()=>{
     expect(sql).toMatch(/revoke all on function public\.plan_customer_lifecycle_milestones\(\)[\s\S]{0,120}service_role/);
   });
 
-  test('storefront snapshot remains on the tenant-aware signature',()=>{
+  test('snapshot is tenant-aware and remains a side-effect-free read',()=>{
+    const sql=read(migration);
+    const start=sql.indexOf('create or replace function public.get_customer_loyalty_snapshot_v2');
+    const end=sql.indexOf('create or replace function public.redeem_loyalty_points_v2');
+    const fn=sql.slice(start,end);
+    expect(fn).toContain('LOYALTY_INSTANCE_REQUIRED');
+    expect(fn).not.toContain('ensure_loyalty_program_defaults_v2');
+
     const page=read('src/app/fiokom/huseg/page.tsx');
     expect(page).toContain("rpc('get_customer_loyalty_snapshot_v2'");
     expect(page).toContain('p_instance_id:instance.id');
+  });
+
+  test('automatic opportunity reopen removes the auto-close marker so later manual dismissal stays final',()=>{
+    const sql=read(migration);
+    const start=sql.indexOf('create or replace function public.plan_loyalty_retention_opportunities_v2');
+    const end=sql.indexOf('create or replace function public.process_loyalty_lifecycle_v2');
+    const fn=sql.slice(start,end);
+    expect(fn).toContain("(coalesce(public.commercial_opportunities.source,'{}'::jsonb)-'auto_closed_reason')||excluded.source");
+    expect(fn).toContain("(coalesce(o.source,'{}'::jsonb)-'auto_closed_reason')||jsonb_build_object");
   });
 });

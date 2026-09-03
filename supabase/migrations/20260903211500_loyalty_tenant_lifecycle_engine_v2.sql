@@ -146,9 +146,17 @@ set search_path=''
 as $$
 declare v_result jsonb;
 begin
-  perform private.ensure_loyalty_program_defaults_v2(p_instance_id);
+  if p_instance_id is null
+     or not exists(
+       select 1 from public.webshop_instances w
+       where w.id=p_instance_id and w.status in('pilot','active')
+     ) then
+    raise exception 'LOYALTY_INSTANCE_REQUIRED';
+  end if;
   if p_customer_id is null then raise exception 'LOYALTY_CUSTOMER_REQUIRED'; end if;
 
+  -- Snapshot reads are intentionally side-effect free. Program defaults are provisioned by
+  -- lifecycle/mutation entrypoints, never by a customer-facing read.
   select jsonb_build_object(
     'summary',coalesce(
       (select to_jsonb(s)
@@ -707,7 +715,7 @@ begin
       when p.lifecycle_segment='at_risk' then 'Megtartási lehetőség felülvizsgálata'
       else 'Win-back lehetőség felülvizsgálata'
     end,
-    source=coalesce(o.source,'{}'::jsonb)||jsonb_build_object(
+    source=(coalesce(o.source,'{}'::jsonb)-'auto_closed_reason')||jsonb_build_object(
       'loyalty_source','v11_loyalty',
       'value_score',p.value_score,
       'value_tier',p.value_tier,
@@ -784,7 +792,7 @@ begin
     due_at=least(coalesce(public.commercial_opportunities.due_at,excluded.due_at),excluded.due_at),
     reason=excluded.reason,
     recommended_action=excluded.recommended_action,
-    source=coalesce(public.commercial_opportunities.source,'{}'::jsonb)||excluded.source,
+    source=(coalesce(public.commercial_opportunities.source,'{}'::jsonb)-'auto_closed_reason')||excluded.source,
     closed_at=case
       when public.commercial_opportunities.status='dismissed'
        and public.commercial_opportunities.source->>'auto_closed_reason'='v11_lifecycle_no_longer_actionable'
