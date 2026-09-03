@@ -1,0 +1,6 @@
+import fs from'node:fs';import path from'node:path';import{describe,expect,test}from'vitest';const root=process.cwd();const read=(file:string)=>fs.readFileSync(path.join(root,file),'utf8');
+describe('storefront catalog UX',()=>{
+ test('empty catalog has a real empty state instead of suggesting filters are responsible',()=>{const catalog=read('src/components/catalog/shop-catalog.tsx');expect(catalog).toContain("if(!products.length)return");expect(catalog).toContain('A kínálat feltöltés alatt áll.');});
+ test('B2B terminology is consistent in catalog and product detail',()=>{const catalog=read('src/components/catalog/shop-catalog.tsx'),product=read('src/app/termek/[slug]/page.tsx');expect(catalog).toContain('B2B / partner');expect(catalog).toContain('B2B partner');expect(product).toContain("?'B2B partner':'lakossági'");expect(product).toContain('Ezt a B2B terméket');expect(product).not.toContain('Adatbázisból validált ár');});
+ test('shop trust copy focuses on customer value rather than engine internals',()=>{const shop=read('src/app/webaruhaz/page.tsx');expect(shop).toContain('Átlátható árak');expect(shop).toContain('Céges és B2B vásárlás');expect(shop).not.toContain('Korszerű webshopmotor');});
+});

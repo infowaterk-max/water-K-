@@ -37,16 +37,18 @@ export function ShopCatalog({ products, signedIn, resellerApproved }: Props) {
 
   const reset = () => { setQuery(''); setAudience('all'); setStock('all'); setSort('recommended'); };
 
+  if(!products.length)return <section className="catalogEmpty"><strong>A kínálat feltöltés alatt áll.</strong><p>Jelenleg nincs megjeleníthető termék ebben a webáruházban. Kérjük, nézz vissza később.</p></section>;
+
   return <>
     <section className="catalogToolbar" aria-label="Termékkereső és szűrők">
       <div className="catalogSearch">
         <label htmlFor="shop-search">Keresés</label>
-        <input id="shop-search" type="search" value={query} onChange={event => setQuery(event.target.value)} placeholder="Termék, felhasználás, SKU…" autoComplete="off" />
+        <input id="shop-search" type="search" value={query} onChange={event => setQuery(event.target.value)} placeholder="Termék, felhasználás, cikkszám…" autoComplete="off" />
       </div>
       <div className="catalogFilter">
         <label htmlFor="shop-audience">Vásárlói kör</label>
         <select id="shop-audience" value={audience} onChange={event => setAudience(event.target.value as AudienceFilter)}>
-          <option value="all">Minden termék</option><option value="retail">Lakossági</option><option value="professional">Professzionális</option>
+          <option value="all">Minden termék</option><option value="retail">Lakossági</option><option value="professional">B2B / partner</option>
         </select>
       </div>
       <div className="catalogFilter">
@@ -67,12 +69,12 @@ export function ShopCatalog({ products, signedIn, resellerApproved }: Props) {
     {filtered.length ? <div className="cards productCards shopCards">{filtered.map(product => {
       const partnerLocked = product.audience === 'professional' && !resellerApproved;
       return <article className={`card productCard ${product.featured ? 'isFeatured' : ''}`} key={product.id}>
-        <div className="productCardTop"><span className="badge">{product.featured ? 'Ajánlott' : product.audience === 'professional' ? 'Viszonteladói' : 'Lakossági'}</span><span className={`stockDot ${product.stock === 0 ? 'outOfStock' : ''}`}>{product.stock > 0 ? `${product.stock} db raktáron` : 'Elfogyott'}</span></div>
-        <div className="productVisual"><div className="productPack"><small>{product.audience==='professional'?'PRO':'SHOP'}</small><strong>{product.size}</strong></div></div>
+        <div className="productCardTop"><span className="badge">{product.featured ? 'Ajánlott' : product.audience === 'professional' ? 'B2B partner' : 'Lakossági'}</span><span className={`stockDot ${product.stock === 0 ? 'outOfStock' : ''}`}>{product.stock > 0 ? `${product.stock} db raktáron` : 'Elfogyott'}</span></div>
+        <div className="productVisual"><div className="productPack"><small>{product.audience==='professional'?'B2B':'SHOP'}</small><strong>{product.size}</strong></div></div>
         <h2>{product.name}</h2><p className="muted">{product.short}</p><div className="tagRow">{product.useCases.slice(0, 3).map(useCase => <span key={useCase}>{useCase}</span>)}</div>
         <div className="price">{formatHuf(product.grossPrice)}</div><p className="muted priceMeta">Bruttó · nettó {formatHuf(product.netPrice)}{product.minimumQuantity>1?` · minimum ${product.minimumQuantity} db`:''}</p>
-        <div className="actions shopActions">{partnerLocked ? <Link className="btn btnPrimary" href="/fiokom">{signedIn ? 'Partnerjóváhagyás szükséges' : 'Viszonteladói belépés'}</Link> : <AddToCart id={product.id} variantId={product.id} slug={product.slug} name={product.name} price={product.grossPrice} availableQuantity={product.stock} minimumQuantity={product.minimumQuantity} orderMultiple={product.orderMultiple}/>}<Link className="btn btnGhost" href={`/termek/${product.slug}`}>Részletek</Link></div>
+        <div className="actions shopActions">{partnerLocked ? <Link className="btn btnPrimary" href="/fiokom">{signedIn ? 'Partnerjóváhagyás szükséges' : 'Partnerfiók / belépés'}</Link> : <AddToCart id={product.id} variantId={product.id} slug={product.slug} name={product.name} price={product.grossPrice} availableQuantity={product.stock} minimumQuantity={product.minimumQuantity} orderMultiple={product.orderMultiple}/>}<Link className="btn btnGhost" href={`/termek/${product.slug}`}>Részletek</Link></div>
       </article>;
-    })}</div> : <section className="catalogEmpty"><strong>Nincs ilyen termék a jelenlegi szűrésben.</strong><p>Próbálj más keresést vagy töröld a szűrőket.</p><button type="button" className="btn btnGhost" onClick={reset}>Összes termék mutatása</button></section>}
+    })}</div> : <section className="catalogEmpty"><strong>Nincs találat a jelenlegi szűrésben.</strong><p>Próbálj más keresést vagy töröld a szűrőket.</p><button type="button" className="btn btnGhost" onClick={reset}>Összes termék mutatása</button></section>}
   </>;
 }
