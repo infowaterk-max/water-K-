@@ -18,10 +18,17 @@ describe('reseller offer authority and downstream closure',()=>{
     expect(sql).toContain("cir.role='reseller'");
     expect(sql).toContain('cir.reseller_approved=true');
     expect(sql).toContain('B2B_RESELLER_AUTHORITY_REQUIRED');
+    expect(sql).toContain("where f.status in ('draft','approved','sent')");
+    expect(sql).toContain("o.status not in ('open','in_progress')");
+    expect(sql).toMatch(/o\.channel='b2b'[\s\S]*not exists\([\s\S]*customer_instance_roles cir/);
   });
 
-  test('role revocation closes only active offers linked to that tenant reseller',()=>{
+  test('role revocation closes only active offers linked to that tenant reseller with null-safe nested evidence',()=>{
     const sql=read(migration);
+    expect(sql).toContain("v_result->>'role' is null");
+    expect(sql).toContain("jsonb_typeof(v_result->'resellerApproved') is distinct from 'boolean'");
+    expect(sql).toContain("jsonb_typeof(v_result->'retiredOpportunities') is distinct from 'number'");
+    expect(sql).toContain("jsonb_typeof(v_result->'cancelledTasks') is distinct from 'number'");
     expect(sql).toContain('public.admin_update_customer_store_role_v3(');
     expect(sql).toContain('f.instance_id=p_instance_id');
     expect(sql).toContain("f.status in ('draft','approved','sent')");

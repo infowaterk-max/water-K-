@@ -57,6 +57,35 @@ before insert or update of status,opportunity_id,variant_id,instance_id
 on public.commercial_offers
 for each row execute function private.enforce_commercial_offer_authority_v1();
 
+-- One-time reconciliation for rows created before the guard existed.
+-- Closing transitions intentionally bypass the active-authority guard.
+update public.commercial_offers f
+set status='cancelled',updated_at=now()
+where f.status in ('draft','approved','sent')
+  and exists(
+    select 1
+    from public.commercial_opportunities o
+    where o.id=f.opportunity_id
+      and o.instance_id=f.instance_id
+      and (
+        o.status not in ('open','in_progress')
+        or (
+          o.channel='b2b'
+          and (
+            o.reseller_id is null
+            or not exists(
+              select 1
+              from public.customer_instance_roles cir
+              where cir.instance_id=f.instance_id
+                and cir.user_id=o.reseller_id
+                and cir.role='reseller'
+                and cir.reseller_approved=true
+            )
+          )
+        )
+      )
+  );
+
 
 create or replace function public.admin_update_customer_store_role_v4(
   p_instance_id uuid,
@@ -82,10 +111,11 @@ begin
 
   if v_result is null
      or v_result->>'id' is distinct from p_user_id::text
+     or v_result->>'role' is null
      or v_result->>'role' not in ('customer','reseller')
-     or jsonb_typeof(v_result->'resellerApproved')<>'boolean'
-     or jsonb_typeof(v_result->'retiredOpportunities')<>'number'
-     or jsonb_typeof(v_result->'cancelledTasks')<>'number' then
+     or jsonb_typeof(v_result->'resellerApproved') is distinct from 'boolean'
+     or jsonb_typeof(v_result->'retiredOpportunities') is distinct from 'number'
+     or jsonb_typeof(v_result->'cancelledTasks') is distinct from 'number' then
     raise exception 'CUSTOMER_ROLE_RESULT_INVALID';
   end if;
 
