@@ -12,5 +12,7 @@ export async function POST(request:Request){
  const parsed=schema.safeParse(raw);if(!parsed.success)return NextResponse.json({error:'Érvénytelen kosáradat.'},{status:400});
  const a=createAdminClient();const{data,error}=await a.rpc('upsert_checkout_recovery_intent_v2',{p_instance_id:instance.id,p_user_id:user.id,p_email:user.email,p_cart:parsed.data.items,p_checkout:parsed.data.checkout});
  if(error)return NextResponse.json({error:'A kosármentés most nem sikerült.'},{status:500});
- return NextResponse.json({ok:true,stored:true,recovery:data});
+ const recovery=(data??{})as{id?:string;token?:string;expiresAt?:string};
+ if(!recovery.id)return NextResponse.json({error:'A kosármentés eredménye nem igazolható.'},{status:500});
+ return NextResponse.json({ok:true,stored:true,recovery});
 }
