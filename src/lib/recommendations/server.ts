@@ -7,10 +7,10 @@ export type RecommendationRule={id:string;sourceVariantId:string|null;recommende
 
 type RuleRow={id:string;source_variant_id:string|null;recommended_variant_id:string;placement:RecommendationPlacement;priority:number;active:boolean;headline:string|null};
 
-export async function getRecommendationRules(placement?:RecommendationPlacement):Promise<RecommendationRule[]>{
+export async function getRecommendationRules(placement?:RecommendationPlacement,options:{throwOnError?:boolean}={}):Promise<RecommendationRule[]>{
   try{
     const instance=await getCurrentWebshopInstance();
-    if(!instance)return[];
+    if(!instance){if(options.throwOnError)throw new Error('webshop_instance_missing');return[];}
     const admin=createAdminClient();
     let query=admin.from('product_recommendation_rules')
       .select('id,source_variant_id,recommended_variant_id,placement,priority,active,headline')
@@ -18,12 +18,12 @@ export async function getRecommendationRules(placement?:RecommendationPlacement)
       .order('priority',{ascending:true});
     if(placement)query=query.eq('placement',placement);
     const{data,error}=await query;
-    if(error)return[];
+    if(error){if(options.throwOnError)throw error;return[];}
     return((data??[])as RuleRow[]).map(row=>({
       id:row.id,sourceVariantId:row.source_variant_id,recommendedVariantId:row.recommended_variant_id,
       placement:row.placement,priority:row.priority,active:row.active,headline:row.headline,
     }));
-  }catch{return[];}
+  }catch(error){if(options.throwOnError)throw error;return[];}
 }
 
 export async function getConfiguredRecommendations(products:Product[],placement:RecommendationPlacement):Promise<{rules:RecommendationRule[];fallback:Product[]}>{

@@ -15,7 +15,8 @@ export default async function AdminPage() {
   const [plan, instance, platformRole] = await Promise.all([getCurrentPlan(), getCurrentWebshopInstance(), getPlatformRole()]);
   if (platformRole) redirect('/admin/platform');
   const isPro = plan === 'pro' && Boolean(instance);
-  const products = await getProducts({includeAllChannels:true});
+  const productResult=await getProducts({includeAllChannels:true,throwOnError:true}).then(data=>({data,error:false})).catch(()=>({data:[],error:true}));
+  const products=productResult.data,productLoadError=productResult.error;
   const now = Date.now();
   const day = 86_400_000;
   const today = new Date();
@@ -132,7 +133,7 @@ export default async function AdminPage() {
           : 'A napi értékesítéshez szükséges rendelések, forgalom, készlet és működési feladatok egy helyen.'}
       </p>
 
-      {orderLoadError && <div className="errorNotice"><strong>A rendelési adatok egy része most nem érhető el.</strong></div>}
+      {orderLoadError && <div className="errorNotice"><strong>A rendelési adatok egy része most nem érhető el.</strong></div>}{productLoadError&&<div className="errorNotice" role="alert"><strong>A katalógus és készlet most nem tölthető be.</strong> A készletmutatókat addig nem tekintjük nullának.</div>}
       {isPro && advancedLoadError && <div className="errorNotice"><strong>A Pro üzleti mutatók egy része most nem érhető el.</strong></div>}
 
       <div className="cards adminMetricCards">
@@ -148,8 +149,8 @@ export default async function AdminPage() {
           <div><Link className="btn" href="/admin/rendelesek">Rendelések</Link> <Link className="btn btnPrimary" href="/admin/termekek">Készletkezelés</Link></div>
         </div>
         <div className="cards adminMetricCards">
-          <div className="card"><span className="badge">Kifogyott</span><div className="price">{out}</div><p className="muted">termék azonnali beavatkozással</p></div>
-          <div className="card"><span className="badge">Alacsony készlet</span><div className="price">{low}</div><p className="muted">1–5 darabos készlet</p></div>
+          <div className="card"><span className="badge">Kifogyott</span><div className="price">{productLoadError?'—':out}</div><p className="muted">termék azonnali beavatkozással</p></div>
+          <div className="card"><span className="badge">Alacsony készlet</span><div className="price">{productLoadError?'—':low}</div><p className="muted">1–5 darabos készlet</p></div>
           <div className="card"><span className="badge">Régi függő</span><div className="price">{orderLoadError?'—':stalePending}</div><p className="muted">24+ órája fizetésre vár</p></div>
           <div className="card"><span className="badge">Elakadt rendelés</span><div className="price">{orderLoadError?'—':staleProcessing + staleShipped}</div><p className="muted">feldolgozás vagy szállítás ellenőrzendő</p></div>
         </div>

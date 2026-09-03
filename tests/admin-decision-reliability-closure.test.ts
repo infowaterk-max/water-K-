@@ -15,7 +15,7 @@ describe('admin decision reliability closure',()=>{
       'src/app/admin/termekek/import-export/page.tsx',
       'src/app/admin/indulas/actions.ts',
     ]){
-      expect(read(file)).toContain('getProducts({includeAllChannels:true})');
+      expect(read(file)).toContain('getProducts({includeAllChannels:true');
     }
   });
 
