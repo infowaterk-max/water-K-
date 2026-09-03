@@ -16,7 +16,7 @@ describe('platform owner zero-tenant hotfix',()=>{
     expect(page).toContain('requirePlatformOperator');
     expect(page).not.toContain('requireCurrentStoreContext');
     expect(page).not.toContain('requirePlanFeature');
-    expect(page).toContain('tenant nélkül is használható');
+    expect(page).toContain('webshop kiválasztása nélkül is használható');
     expect(layout).toContain('const sections=isPlatform&&!instance?[]:merchantSections');
     const adminRoot=read('src/app/admin/page.tsx');
     expect(adminRoot).toContain('getPlatformRole()');

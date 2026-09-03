@@ -28,7 +28,7 @@ describe('advanced integration operations', () => {
   });
 
   test('manual retry is disabled for processing and succeeded jobs', () => {
-    expect(page).toMatch(/disabled=\{job\.status==='processing'\|\|job\.status==='succeeded'\}/);
+    expect(page).toMatch(/disabled=\{loadError\|\|job\.status==='processing'\|\|job\.status==='succeeded'\}/);
     expect(control).toMatch(/disabled=\{busy\|\|disabled\}/);
   });
 
