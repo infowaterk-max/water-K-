@@ -17,6 +17,16 @@ describe('platform owner zero-tenant hotfix',()=>{
     expect(page).not.toContain('requireCurrentStoreContext');
     expect(page).not.toContain('requirePlanFeature');
     expect(page).toContain('tenant nélkül is használható');
+    expect(layout).toContain('const sections=isPlatform&&!instance?[]:merchantSections');
+  });
+
+  it('keeps the action center usable for a platform operator without a selected tenant',()=>{
+    const page=read('src/app/admin/intezkedesek/page.tsx');
+    expect(page).toContain('if(platformRole&&!currentInstance)');
+    expect(page).toContain('requirePlatformOperator');
+    expect(page).toContain('Platformszintű, tenantfüggetlen felügyeleti nézet');
+    expect(page).toContain('szándékosan csak olvasható');
+    expect(page).toContain("eq('instance_id',store.instanceId)");
   });
 
   it('keeps owner activation and tenant B2B signup in the same final Auth trigger',()=>{

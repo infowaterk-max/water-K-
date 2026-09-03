@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server';
+import { getCurrentWebshopInstance } from '@/lib/instances/access';
 
 export type ApprovedReview = {
   id: string;
@@ -22,8 +23,10 @@ export async function getProductEngagement(variantId: string): Promise<ProductEn
   const empty: ProductEngagement = { productId: null, wishlisted: false, signedIn: false, reviews: [], averageRating: null };
   try {
     const supabase = await createClient();
+    const instance = await getCurrentWebshopInstance();
+    if (!instance) return empty;
     const [{ data: variant }, { data: auth }] = await Promise.all([
-      supabase.from('product_variants').select('product_id').eq('id', variantId).maybeSingle(),
+      supabase.from('product_variants').select('product_id').eq('id', variantId).eq('instance_id',instance.id).maybeSingle(),
       supabase.auth.getUser(),
     ]);
     if (!variant?.product_id) return { ...empty, signedIn: Boolean(auth.user) };
@@ -31,6 +34,7 @@ export async function getProductEngagement(variantId: string): Promise<ProductEn
     const { data: reviewRows } = await supabase
       .from('product_reviews')
       .select('id,rating,title,body,reviewer_name,verified_purchase,created_at')
+      .eq('instance_id',instance.id)
       .eq('product_id', variant.product_id)
       .eq('status', 'approved')
       .order('created_at', { ascending: false })
@@ -41,6 +45,7 @@ export async function getProductEngagement(variantId: string): Promise<ProductEn
       const { data } = await supabase
         .from('wishlists')
         .select('id')
+        .eq('instance_id',instance.id)
         .eq('user_id', auth.user.id)
         .eq('variant_id', variantId)
         .maybeSingle();
