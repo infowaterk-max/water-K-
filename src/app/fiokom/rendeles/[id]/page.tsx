@@ -1,20 +1,23 @@
 import Link from 'next/link';
 import { notFound, redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
-import { createAdminClient } from '@/lib/supabase/admin';
+import { getCurrentWebshopInstance } from '@/lib/instances/access';
+import { getCommerceSettings } from '@/lib/commerce/settings';
 import { formatHuf } from '@/lib/catalog';
 import { orderEventLabel, orderNextAction, orderProgress, orderStatusDescription, orderStatusLabel, paymentMethodLabel, shippingMethodLabel, trackingProviderUrl } from '@/lib/order-display';
 import { PaymentRetryButton } from '@/components/account/payment-retry-button';
 
+function commercialPaymentRetryReady(options:{code:string;flow:string}[],method:string){return options.some(option=>option.code===method&&option.flow==='online_redirect')}
+
 export default async function CustomerOrderPage({params}:{params:Promise<{id:string}>}){
-  const {id}=await params; const supabase=await createClient(); const {data:{user}}=await supabase.auth.getUser(); if(!user)redirect('/fiokom');
+  const {id}=await params; const supabase=await createClient(); const {data:{user}}=await supabase.auth.getUser(); if(!user)redirect('/fiokom'); const instance=await getCurrentWebshopInstance();if(!instance)notFound();
   const [{data:order},{data:items},{data:events}]=await Promise.all([
-    supabase.from('orders').select('id,order_number,status,customer_email,customer_phone,billing_name,billing_company,billing_tax_number,billing_postcode,billing_city,billing_address,shipping_name,shipping_postcode,shipping_city,shipping_address,subtotal_gross_huf,discount_gross_huf,shipping_gross_huf,total_gross_huf,shipping_method,parcel_point_id,payment_method,tracking_number,invoice_number,invoice_url,note,created_at').eq('id',id).maybeSingle(),
-    supabase.from('order_items').select('id,product_name,variant_label,sku,quantity,unit_gross_huf,line_total_gross_huf').eq('order_id',id),
-    supabase.from('order_events').select('id,event_type,from_status,to_status,metadata,created_at').eq('order_id',id).order('created_at',{ascending:true}),
+    supabase.from('orders').select('id,order_number,status,customer_email,customer_phone,billing_name,billing_company,billing_tax_number,billing_postcode,billing_city,billing_address,shipping_name,shipping_postcode,shipping_city,shipping_address,subtotal_gross_huf,discount_gross_huf,shipping_gross_huf,total_gross_huf,shipping_method,parcel_point_id,payment_method,tracking_number,invoice_number,invoice_url,note,created_at').eq('id',id).eq('instance_id',instance.id).maybeSingle(),
+    supabase.from('order_items').select('id,product_name,variant_label,sku,quantity,unit_gross_huf,line_total_gross_huf').eq('order_id',id).eq('instance_id',instance.id),
+    supabase.from('order_events').select('id,event_type,from_status,to_status,metadata,created_at').eq('order_id',id).eq('instance_id',instance.id).order('created_at',{ascending:true}),
   ]);
   if(!order)notFound();
-  let retryablePayment=false;if(order.status==='pending_payment'){try{const admin=createAdminClient(),{data:provider}=await admin.from('commerce_provider_catalog').select('payment_flow,is_available').eq('code',order.payment_method).eq('provider_type','payment').maybeSingle();retryablePayment=provider?.payment_flow==='online_redirect'&&provider?.is_available===true}catch{}}
+  let retryablePayment=false;if(order.status==='pending_payment'){try{const commerce=await getCommerceSettings();retryablePayment=commercialPaymentRetryReady(commerce.paymentOptions,order.payment_method)}catch{}}
   const reorderQuery=new URLSearchParams(); (items??[]).forEach(item=>reorderQuery.append('sku',`${item.sku}:${item.quantity}`));
   const progress=orderProgress(order.status); const nextAction=orderNextAction(order.status,order.payment_method,order.shipping_method); const trackingUrl=trackingProviderUrl(order.shipping_method);
   const createdAt=new Intl.DateTimeFormat('hu-HU',{dateStyle:'long',timeStyle:'short'}).format(new Date(order.created_at));

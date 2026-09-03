@@ -161,6 +161,7 @@ export async function POST(request: Request) {
 
     if (!replayed) {
       await admin.from('order_events').insert({
+        instance_id: instance.id,
         order_id: order.order_id,
         event_type: 'legal_terms_accepted',
         actor_user_id: user?.id ?? null,
@@ -238,6 +239,7 @@ export async function POST(request: Request) {
           throw paymentOrderError;
         }
         await admin.from('order_events').insert({
+          instance_id: instance.id,
           order_id: order.order_id,
           event_type: replayed ? 'payment_recovered' : 'payment_started',
           metadata: { provider: payment.code, provider_reference: result.providerReference, callback_url: callbackUrl, payment_attempt_id: attemptId, instance_id: instance.id },

@@ -3,7 +3,7 @@ import { createHash } from 'node:crypto';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { enqueueIntegrationJob,recordWebhookEvent } from '@/lib/integrations/outbox';
 import { updatePaymentAttemptFromEvent } from '@/lib/integrations/payment-attempts';
-import { getConfiguredInvoiceProviderCode } from '@/lib/integrations/invoicing';
+import { getConfiguredInvoiceProviderCodeForInstance } from '@/lib/integrations/invoicing';
 import { enqueueExternalLogisticsOrderEmail } from '@/lib/integrations/external-logistics';
 export type PaymentState='pending'|'paid'|'failed'|'cancelled'|'refunded'|'unknown';
 export type VerifiedPaymentEvent={providerCode:string;eventId:string;providerReference:string;eventType:string;status:PaymentState;signatureValid:boolean;rawPayload:string};
@@ -16,7 +16,7 @@ async function enqueueEmailOnce(instanceId:string,orderId:string,template:'payme
   await enqueueIntegrationJob({instanceId,orderId,kind:'email_send',provider,payload:{template}});
 }
 async function enqueueInvoiceOrFallback(instanceId:string,orderId:string){
-  const admin=createAdminClient(),provider=getConfiguredInvoiceProviderCode();
+  const admin=createAdminClient(),provider=await getConfiguredInvoiceProviderCodeForInstance(instanceId);
   if(provider){await enqueueIntegrationJob({instanceId,orderId,kind:'invoice_create',provider,payload:{source:'payment_confirmed'}});return}
   await admin.from('order_events').insert({instance_id:instanceId,order_id:orderId,event_type:'invoice_manual_required',from_status:'paid',to_status:'paid',metadata:{reason:'Automatikus számlázó adapter nincs aktiválva vagy ellenőrizve.'}});
 }
