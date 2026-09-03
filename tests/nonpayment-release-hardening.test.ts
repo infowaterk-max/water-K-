@@ -29,7 +29,7 @@ describe('non-payment release hardening',()=>{
     expect(invoicing).not.toContain('SZAMLAZZ_CONNECTION_VERIFIED');
     expect(processor).toContain('Invoice provider is not active for this webshop');
     expect(events).toContain('getConfiguredInvoiceProviderCodeForInstance(instanceId)');
-    expect(adminOrder).toContain('getConfiguredInvoiceProviderCodeForInstance(scope.instanceId)');
+    expect(adminOrder).toContain('getConfiguredInvoiceProviderCodeForInstance(scope.instanceId,{strict:true})');
     expect(retry).toContain('getConfiguredInvoiceProviderCodeForInstance(scope.instanceId)');
   });
 
