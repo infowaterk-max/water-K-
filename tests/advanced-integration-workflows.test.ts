@@ -8,6 +8,7 @@ const page = read('src/app/admin/integraciok/page.tsx');
 const control = read('src/components/admin/integration-job-control.tsx');
 const retryApi = read('src/app/api/admin/integrations/[id]/run/route.ts');
 const processor = read('src/lib/integrations/processor.ts');
+const evidenceSql = read('supabase/migrations/20260903163000_order_integration_evidence_atomic_v2.sql');
 
 describe('advanced integration operations', () => {
   test('advanced integration operations remain Pro-only on page and retry API', () => {
@@ -37,7 +38,7 @@ describe('advanced integration operations', () => {
     expect(retryApi).toMatch(/processing_token/);
     expect(retryApi).toMatch(/már feldolgozás alatt van, vagy nem futtatható újra/);
     expect(retryApi).toMatch(/status:409/);
-    expect(retryApi).toMatch(/processIntegrationJob\(scope\.instanceId,id,claim\.processing_token\)/);
+    expect(retryApi).toMatch(/processIntegrationJob\(scope\.instanceId,id,claim\.processing_token,\{manualActorId:actor\.id\}\)/);
   });
 
   test('processor requires the exact processing claim token throughout lifecycle writes', () => {
@@ -71,9 +72,12 @@ describe('advanced integration operations', () => {
     expect(processor).toMatch(/weight_grams/);
   });
 
-  test('manual retry outcome is audit logged for both success and failure', () => {
-    expect(retryApi).toMatch(/integration\.retry_succeeded/);
-    expect(retryApi).toMatch(/integration\.retry_failed/);
-    expect(retryApi).toMatch(/recordAdminAudit/);
+  test('manual retry final state and audit evidence commit together', () => {
+    expect(retryApi).toContain('manualActorId:actor.id');
+    expect(retryApi).not.toContain('recordAdminAudit');
+    expect(processor).toContain('admin_finalize_manual_integration_job_v2');
+    expect(evidenceSql).toContain("'integration.retry_succeeded'");
+    expect(evidenceSql).toContain("'integration.retry_failed'");
+    expect(evidenceSql).toContain('insert into public.admin_audit_log');
   });
 });

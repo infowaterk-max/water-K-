@@ -1,8 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getAdminRequestUser } from '@/lib/auth/admin-api';
 import { createAdminClient } from '@/lib/supabase/admin';
-import { enqueueIntegrationJob, type IntegrationJobKind } from '@/lib/integrations/outbox';
-import { recordAdminAudit } from '@/lib/admin/audit';
+import { type IntegrationJobKind } from '@/lib/integrations/outbox';
 import { getConfiguredInvoiceProviderCodeForInstance,getInvoiceProvider } from '@/lib/integrations/invoicing';
 import { requireCurrentStoreContext } from '@/lib/instances/scope';
 const retryableKinds=new Set<IntegrationJobKind>(['shipment_create','email_send','invoice_create','logistics_email']);
@@ -38,13 +37,10 @@ export async function POST(_:Request,{params}:{params:Promise<{id:string}>}){
         if(!provider.findInvoiceByExternalId)return NextResponse.json({error:'A számlázó nem támogat biztonságos külső azonosítós egyeztetést.'},{status:409});
         const existing=await provider.findInvoiceByExternalId(order.order_number);
         if(existing){
-          const now=new Date().toISOString();
-          const{data:saved,error:saveError}=await admin.from('orders').update({invoice_number:existing.invoiceNumber,invoice_url:existing.documentUrl??null,invoiced_at:now,updated_at:now}).eq('id',job.order_id).eq('instance_id',scope.instanceId).is('invoice_number',null).select('id').maybeSingle();
-          if(saveError)return NextResponse.json({error:'A megtalált számla visszaírása nem sikerült; új számlát nem készítünk.'},{status:500});
-          if(saved){
-            await admin.from('order_events').insert({instance_id:scope.instanceId,order_id:job.order_id,event_type:'invoice_reconciled',actor_user_id:actor.id,metadata:{provider:job.provider,adapter_key:catalog.adapter_key,invoice_number:existing.invoiceNumber,provider_reference:existing.providerReference??null,source_job_id:job.id}});
-            await recordAdminAudit({actorUserId:actor.id,organizationId:scope.organizationId,instanceId:scope.instanceId,action:'invoice.reconciled',entityType:'order',entityId:job.order_id,summary:`${order.order_number}: meglévő számla visszaírva`,beforeState:{invoiceNumber:null},afterState:{invoiceNumber:existing.invoiceNumber},metadata:{provider:job.provider,sourceJobId:job.id}});
-          }
+          const{data:reconciled,error:reconcileError}=await admin.rpc('admin_reconcile_invoice_retry_v2',{p_instance_id:scope.instanceId,p_job_id:job.id,p_order_id:job.order_id,p_actor:actor.id,p_invoice_number:existing.invoiceNumber,p_invoice_url:existing.documentUrl??null,p_provider:job.provider,p_adapter_key:String(catalog.adapter_key),p_provider_reference:existing.providerReference??null});
+          if(reconcileError){const conflict=reconcileError.message.includes('INVOICE_ALREADY_DIFFERENT');return NextResponse.json({error:conflict?'A rendeléshez időközben másik számla került rögzítésre.':'A megtalált számla visszaírása és auditálása nem sikerült; új számlát nem készítünk.'},{status:conflict?409:500})}
+          const evidence=(reconciled??{})as{orderId?:string;invoiceNumber?:string};
+          if(evidence.orderId!==job.order_id||evidence.invoiceNumber!==existing.invoiceNumber)return NextResponse.json({error:'A számlaegyeztetés eredménye nem igazolható.'},{status:500});
           return NextResponse.json({ok:true,reconciled:true,invoiceNumber:existing.invoiceNumber});
         }
       }catch(error){console.error('invoice reconciliation failed',{jobId:job.id,orderId:job.order_id,provider:job.provider,error});return NextResponse.json({error:'A számlaegyeztetés nem adott biztonságos eredményt, ezért új számlát nem indítunk.'},{status:409})}
@@ -52,10 +48,9 @@ export async function POST(_:Request,{params}:{params:Promise<{id:string}>}){
   }
   const{data:active}=await admin.from('integration_jobs').select('id,status').eq('instance_id',scope.instanceId).eq('order_id',job.order_id).eq('kind',job.kind).eq('provider',job.provider).in('status',['pending','processing']).limit(1).maybeSingle();
   if(active)return NextResponse.json({ok:true,jobId:active.id,status:active.status,alreadyActive:true});
-  try{
-    const next=await enqueueIntegrationJob({instanceId:scope.instanceId,orderId:job.order_id,kind:job.kind as IntegrationJobKind,provider:job.provider,payload:{...((job.payload as Record<string,unknown>|null)??{}),retryOfJobId:job.id,retriedBy:actor.id}});
-    await admin.from('order_events').insert({instance_id:scope.instanceId,order_id:job.order_id,event_type:'integration_retried',actor_user_id:actor.id,metadata:{previous_job_id:job.id,new_job_id:next.id,kind:job.kind,provider:job.provider,previous_error:job.last_error}});
-    await recordAdminAudit({actorUserId:actor.id,organizationId:scope.organizationId,instanceId:scope.instanceId,action:'integration_job.retried',entityType:'integration_job',entityId:job.id,summary:`${job.kind} újraindítva`,beforeState:{status:job.status,attemptCount:job.attempt_count,lastError:job.last_error},afterState:{newJobId:next.id,status:next.status},metadata:{orderId:job.order_id,provider:job.provider}});
-    return NextResponse.json({ok:true,jobId:next.id,status:next.status});
-  }catch(error){console.error('integration retry enqueue failed',{jobId:job.id,orderId:job.order_id,kind:job.kind,provider:job.provider,error});return NextResponse.json({error:'Az újraindítás nem sikerült.'},{status:500})}
+  const{data:retryData,error:retryError}=await admin.rpc('admin_retry_integration_job_v2',{p_instance_id:scope.instanceId,p_job_id:job.id,p_actor:actor.id});
+  if(retryError){console.error('integration retry enqueue failed',{jobId:job.id,orderId:job.order_id,kind:job.kind,provider:job.provider,error:retryError});return NextResponse.json({error:'Az újraindítás nem sikerült. Egyetlen új feladat vagy auditbejegyzés sem maradt félkészen.'},{status:500})}
+  const next=(retryData??{})as{jobId?:string;status?:string;alreadyActive?:boolean};
+  if(!next.jobId||!['pending','processing'].includes(String(next.status??'')))return NextResponse.json({error:'Az újraindítás eredménye nem igazolható.'},{status:500});
+  return NextResponse.json({ok:true,jobId:next.jobId,status:next.status,alreadyActive:next.alreadyActive===true});
 }

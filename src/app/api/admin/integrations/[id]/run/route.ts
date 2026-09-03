@@ -3,7 +3,6 @@ import{z}from'zod';
 import{getAdminRequestUser}from'@/lib/auth/admin-api';
 import{createAdminClient}from'@/lib/supabase/admin';
 import{processIntegrationJob}from'@/lib/integrations/processor';
-import{recordAdminAudit}from'@/lib/admin/audit';
 import{hasCurrentPlanFeature}from'@/lib/plans/access';
 import{requireCurrentStoreContext}from'@/lib/instances/scope';
 
@@ -19,12 +18,10 @@ export async function POST(_request:Request,{params}:{params:Promise<{id:string}
  const claim=claimed?.[0];if(claimError)return NextResponse.json({error:'Az integrációs feladat zárolása nem sikerült.'},{status:500});
  if(!claim?.processing_token)return NextResponse.json({error:'A feladat jelenleg már feldolgozás alatt van, vagy nem futtatható újra.'},{status:409});
  try{
-  const result=await processIntegrationJob(scope.instanceId,id,claim.processing_token);
-  await recordAdminAudit({actorUserId:actor.id,organizationId:scope.organizationId,instanceId:scope.instanceId,action:'integration.retry_succeeded',entityType:'integration_job',entityId:id,summary:'Integrációs feladat kézi újrafuttatása sikeres',afterState:result});
+  const result=await processIntegrationJob(scope.instanceId,id,claim.processing_token,{manualActorId:actor.id});
   return NextResponse.json({ok:true,result});
  }catch(error){
   const message=error instanceof Error?error.message:'Az integrációs feladat nem futtatható.';
-  await recordAdminAudit({actorUserId:actor.id,organizationId:scope.organizationId,instanceId:scope.instanceId,action:'integration.retry_failed',entityType:'integration_job',entityId:id,summary:'Integrációs feladat kézi újrafuttatása sikertelen',metadata:{error:message}});
   return NextResponse.json({error:message},{status:409});
  }
 }
