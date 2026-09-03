@@ -2,19 +2,16 @@ import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
-import { enqueueIntegrationJob } from '@/lib/integrations/outbox';
 import { getCommerceSettings } from '@/lib/commerce/settings';
 import { getCurrentWebshopInstance } from '@/lib/instances/access';
 import { placeTenantOrder } from '@/lib/orders/tenant-checkout';
 import { getPaymentGatewayAdapter, getShippingProviderAdapter } from '@/lib/integrations/adapters';
 import {
-  attachPaymentAttemptReference,
   createPaymentAttempt,
   getLatestPaymentAttempt,
   markPaymentAttemptRequiresAction,
 } from '@/lib/integrations/payment-attempts';
-import { getCommunicationIdentity } from '@/lib/communication/identity';
-import { enqueueExternalLogisticsOrderEmail } from '@/lib/integrations/external-logistics';
+import { getCommunicationIdentityForInstance } from '@/lib/communication/identity';
 
 const providerCode = z.string().trim().regex(/^[a-z0-9_-]{2,80}$/);
 const checkoutSchema = z.object({
@@ -53,6 +50,25 @@ type PlaceOrderResult = {
   total_gross_huf: number;
   coupon_code: string | null;
   idempotency_replayed?: boolean;
+};
+
+type LocalCheckoutEvidence = {
+  orderId?:string;
+  status?:string;
+  confirmationToken?:string;
+  legalEventId?:string;
+  confirmationJobId?:string;
+  logisticsJobId?:string|null;
+  recoveryConverted?:boolean;
+};
+
+type PaymentSessionEvidence = {
+  orderId?:string;
+  orderStatus?:string;
+  attemptId?:string;
+  attemptStatus?:string;
+  providerReference?:string;
+  eventId?:string;
 };
 
 export async function POST(request: Request) {
@@ -147,63 +163,67 @@ export async function POST(request: Request) {
     }
 
     const replayed = order.idempotency_replayed === true;
-    if (user?.id) await admin.rpc('convert_checkout_recovery_intent_v2', { p_instance_id: instance.id, p_user_id: user.id, p_order_id: order.order_id });
+    const requestedStatus = payment.flow === 'online_redirect'
+      ? 'pending_payment'
+      : payment.flow === 'bank_transfer'
+        ? 'pending_transfer'
+        : 'pending';
 
-    const { data: confirmation } = await admin
-      .from('orders')
-      .select('confirmation_token,status')
-      .eq('id', order.order_id)
-      .eq('instance_id', instance.id)
-      .maybeSingle();
-    if (!confirmation?.confirmation_token) {
-      return NextResponse.json({ error: 'A rendelés rögzült, de a visszaigazolás előkészítése nem sikerült.' }, { status: 503 });
+    const {data:localData,error:localError}=await admin.rpc('finalize_checkout_local_v2',{
+      p_instance_id:instance.id,
+      p_order_id:order.order_id,
+      p_user_id:user?.id??null,
+      p_idempotency_key:idempotencyKey,
+      p_target_status:requestedStatus,
+      p_email_provider:process.env.EMAIL_PROVIDER?.trim()||'resend',
+    });
+    if(localError){
+      console.error('checkout local finalization failed',{instanceId:instance.id,orderId:order.order_id,error:localError});
+      return NextResponse.json({
+        error:'A rendelés rögzült, de a helyi checkout-folyamat lezárása nem sikerült. Ellenőrizd a rendeléseidet, mielőtt újra próbálod.',
+        orderId:order.order_id,
+        orderNumber:order.order_number,
+      },{status:503});
     }
 
-    if (!replayed) {
-      await admin.from('order_events').insert({
-        instance_id: instance.id,
-        order_id: order.order_id,
-        event_type: 'legal_terms_accepted',
-        actor_user_id: user?.id ?? null,
-        metadata: {
-          accepted_at: new Date().toISOString(),
-          terms_path: '/aszf',
-          privacy_path: '/adatvedelem',
-          idempotency_key: idempotencyKey,
-          payment_provider: payment.code,
-          shipping_provider: shipping.code,
-          instance_id: instance.id,
-        },
-      });
-      await enqueueIntegrationJob({
-        orderId: order.order_id,
-        kind: 'email_send',
-        provider: process.env.EMAIL_PROVIDER || 'resend',
-        payload: { template: 'order_confirmation', instance_id: instance.id },
-      }).catch(() => undefined);
+    const local=(localData??{}) as LocalCheckoutEvidence;
+    if(
+      local.orderId!==order.order_id||
+      !local.status||
+      !local.confirmationToken||
+      !local.legalEventId||
+      !local.confirmationJobId
+    ){
+      return NextResponse.json({
+        error:'A rendelés lokális lezárásának eredménye nem igazolható.',
+        orderId:order.order_id,
+        orderNumber:order.order_number,
+      },{status:500});
     }
 
-    const status = payment.flow === 'online_redirect' ? 'pending_payment' : payment.flow === 'bank_transfer' ? 'pending_transfer' : 'pending';
+    const confirmationToken=local.confirmationToken;
+    let finalStatus=local.status;
     let paymentRedirectUrl: string | undefined;
 
     if (payment.flow === 'online_redirect') {
       if (replayed) {
         const latest = await getLatestPaymentAttempt(order.order_id, payment.code);
         if (latest?.status === 'pending' && latest.checkoutUrl) {
-          return NextResponse.json({ ok: true, replayed: true, orderId: order.order_id, orderNumber: order.order_number, confirmationToken: confirmation.confirmation_token, subtotal: order.subtotal_gross_huf, discount: order.discount_gross_huf, shippingFee: order.shipping_gross_huf, total: order.total_gross_huf, couponCode: order.coupon_code, status: 'pending_payment', paymentRedirectUrl: latest.checkoutUrl }, { status: 200 });
+          return NextResponse.json({ ok: true, replayed: true, orderId: order.order_id, orderNumber: order.order_number, confirmationToken, subtotal: order.subtotal_gross_huf, discount: order.discount_gross_huf, shippingFee: order.shipping_gross_huf, total: order.total_gross_huf, couponCode: order.coupon_code, status: finalStatus, paymentRedirectUrl: latest.checkoutUrl }, { status: 200 });
         }
         if (latest?.status === 'succeeded') {
-          return NextResponse.json({ ok: true, replayed: true, orderId: order.order_id, orderNumber: order.order_number, confirmationToken: confirmation.confirmation_token, subtotal: order.subtotal_gross_huf, discount: order.discount_gross_huf, shippingFee: order.shipping_gross_huf, total: order.total_gross_huf, couponCode: order.coupon_code, status: confirmation.status }, { status: 200 });
+          return NextResponse.json({ ok: true, replayed: true, orderId: order.order_id, orderNumber: order.order_number, confirmationToken, subtotal: order.subtotal_gross_huf, discount: order.discount_gross_huf, shippingFee: order.shipping_gross_huf, total: order.total_gross_huf, couponCode: order.coupon_code, status: finalStatus }, { status: 200 });
         }
         if (latest && ['created', 'requires_action', 'pending'].includes(latest.status)) {
-          return NextResponse.json({ error: 'A rendeléshez tartozó korábbi fizetés kimenetele még nem egyértelmű. Biztonsági okból nem indítunk automatikusan új fizetést.', orderId: order.order_id, orderNumber: order.order_number, confirmationToken: confirmation.confirmation_token, status: 'pending_payment' }, { status: 503 });
+          return NextResponse.json({ error: 'A rendeléshez tartozó korábbi fizetés kimenetele még nem egyértelmű. Biztonsági okból nem indítunk automatikusan új fizetést.', orderId: order.order_id, orderNumber: order.order_number, confirmationToken, status: finalStatus }, { status: 503 });
         }
         if (latest && ['failed', 'cancelled', 'expired', 'refunded'].includes(latest.status)) {
-          return NextResponse.json({ error: 'A korábbi fizetési próbálkozás lezárult. Ugyanennek a hálózati kérésnek az ismétlése nem indít új fizetést; a rendelésnél külön újrapróbálás szükséges.', orderId: order.order_id, orderNumber: order.order_number, confirmationToken: confirmation.confirmation_token, status: 'pending_payment' }, { status: 409 });
+          return NextResponse.json({ error: 'A korábbi fizetési próbálkozás lezárult. Ugyanennek a hálózati kérésnek az ismétlése nem indít új fizetést; a rendelésnél külön újrapróbálás szükséges.', orderId: order.order_id, orderNumber: order.order_number, confirmationToken, status: finalStatus }, { status: 409 });
         }
       }
 
       const attemptId = await createPaymentAttempt({
+        instanceId:instance.id,
         orderId: order.order_id,
         providerCode: payment.code,
         amountHuf: order.total_gross_huf,
@@ -211,55 +231,64 @@ export async function POST(request: Request) {
         metadata: { order_number: order.order_number, idempotency_key: idempotencyKey, replayed, instance_id: instance.id },
       });
 
+      let recoveryReference:string|undefined;
+      let recoveryCheckoutUrl:string|undefined;
       try {
-        const identity = await getCommunicationIdentity();
+        const identity = await getCommunicationIdentityForInstance(instance.id);
         const callbackUrl = `${identity.siteUrl}/api/payments/${encodeURIComponent(payment.code)}/webhook`;
         const result = await getPaymentGatewayAdapter(payment.adapterKey).createPayment({
           orderId: order.order_number,
           total: { amount: order.total_gross_huf, currency: 'HUF' },
-          returnUrl: `${identity.siteUrl}/rendeles-sikeres?token=${encodeURIComponent(confirmation.confirmation_token)}`,
-          cancelUrl: `${identity.siteUrl}/rendeles-sikeres?token=${encodeURIComponent(confirmation.confirmation_token)}&payment=cancelled`,
+          returnUrl: `${identity.siteUrl}/rendeles-sikeres?token=${encodeURIComponent(confirmationToken)}`,
+          cancelUrl: `${identity.siteUrl}/rendeles-sikeres?token=${encodeURIComponent(confirmationToken)}&payment=cancelled`,
           callbackUrl,
           idempotencyKey: `shoperation-${instance.id}-${payment.code}-${order.order_id}`,
           customerEmail: checkout.email,
         });
-        await attachPaymentAttemptReference(attemptId, result.providerReference, { checkout_url: result.redirectUrl, instance_id: instance.id });
-        paymentRedirectUrl = result.redirectUrl;
-        const { error: paymentOrderError } = await admin
-          .from('orders')
-          .update({ external_payment_id: result.providerReference, status: 'pending_payment', updated_at: new Date().toISOString() })
-          .eq('id', order.order_id)
-          .eq('instance_id', instance.id);
-        if (paymentOrderError) {
-          await markPaymentAttemptRequiresAction(attemptId, {
-            code: 'ORDER_REFERENCE_PERSISTENCE_FAILED',
-            message: 'Payment session created but order reference persistence failed',
-            metadata: { provider_reference: result.providerReference, checkout_url: result.redirectUrl, instance_id: instance.id },
-          });
-          throw paymentOrderError;
-        }
-        await admin.from('order_events').insert({
-          instance_id: instance.id,
-          order_id: order.order_id,
-          event_type: replayed ? 'payment_recovered' : 'payment_started',
-          metadata: { provider: payment.code, provider_reference: result.providerReference, callback_url: callbackUrl, payment_attempt_id: attemptId, instance_id: instance.id },
+        recoveryReference=result.providerReference;
+        recoveryCheckoutUrl=result.redirectUrl;
+
+        const{data:sessionData,error:sessionError}=await admin.rpc('reconcile_checkout_payment_session_v2',{
+          p_instance_id:instance.id,
+          p_order_id:order.order_id,
+          p_attempt_id:attemptId,
+          p_provider_code:payment.code,
+          p_provider_reference:result.providerReference,
+          p_checkout_url:result.redirectUrl,
+          p_callback_url:callbackUrl,
+          p_replayed:replayed,
         });
+        if(sessionError)throw sessionError;
+
+        const evidence=(sessionData??{}) as PaymentSessionEvidence;
+        if(
+          evidence.orderId!==order.order_id||
+          evidence.attemptId!==attemptId||
+          evidence.providerReference!==result.providerReference||
+          !evidence.eventId||
+          !['pending','succeeded'].includes(String(evidence.attemptStatus??''))||
+          !evidence.orderStatus
+        ){
+          throw new Error('PAYMENT_SESSION_EVIDENCE_MISMATCH');
+        }
+        finalStatus=evidence.orderStatus;
+        paymentRedirectUrl=result.redirectUrl;
       } catch (paymentError) {
         console.error('checkout payment provider call failed', { orderId: order.order_id, paymentProvider: payment.code, attemptId, error: paymentError });
-        await markPaymentAttemptRequiresAction(attemptId, { message: paymentError instanceof Error ? paymentError.message : 'Payment provider outcome unknown', metadata: { instance_id: instance.id } }).catch(() => undefined);
-        return NextResponse.json({ error: 'A rendelés rögzült, de a fizetés indítása nem fejeződött be biztonságosan. A rendelésed megmaradt; a fiókodban újrapróbálhatod a fizetést.', orderId: order.order_id, orderNumber: order.order_number, confirmationToken: confirmation.confirmation_token, status: 'pending_payment' }, { status: 503 });
+        await markPaymentAttemptRequiresAction(attemptId, {
+          code:recoveryReference?'PAYMENT_SESSION_RECONCILIATION_REQUIRED':'PAYMENT_OUTCOME_UNKNOWN',
+          message: paymentError instanceof Error ? paymentError.message : 'Payment provider outcome unknown',
+          metadata: {
+            instance_id: instance.id,
+            provider_reference:recoveryReference??null,
+            checkout_url:recoveryCheckoutUrl??null,
+          },
+        }).catch(() => undefined);
+        return NextResponse.json({ error: 'A rendelés rögzült, de a fizetés indítása nem fejeződött be biztonságosan. A rendelésed megmaradt; a fiókodban újrapróbálhatod a fizetést.', orderId: order.order_id, orderNumber: order.order_number, confirmationToken, status: finalStatus }, { status: 503 });
       }
-    } else {
-      const { error: statusError } = await admin
-        .from('orders')
-        .update({ status, updated_at: new Date().toISOString() })
-        .eq('id', order.order_id)
-        .eq('instance_id', instance.id);
-      if (statusError) throw statusError;
-      if(payment.flow==='cash_on_delivery')await enqueueExternalLogisticsOrderEmail(instance.id,order.order_id,shipping.code).catch(async error=>{await admin.from('order_events').insert({instance_id:instance.id,order_id:order.order_id,event_type:'integration_enqueue_failed',from_status:status,to_status:status,metadata:{kind:'logistics_email',error:error instanceof Error?error.message:'unknown'}})});
     }
 
-    return NextResponse.json({ ok: true, replayed, orderId: order.order_id, orderNumber: order.order_number, confirmationToken: confirmation.confirmation_token, subtotal: order.subtotal_gross_huf, discount: order.discount_gross_huf, shippingFee: order.shipping_gross_huf, total: order.total_gross_huf, couponCode: order.coupon_code, status, paymentRedirectUrl }, { status: replayed ? 200 : 201 });
+    return NextResponse.json({ ok: true, replayed, orderId: order.order_id, orderNumber: order.order_number, confirmationToken, subtotal: order.subtotal_gross_huf, discount: order.discount_gross_huf, shippingFee: order.shipping_gross_huf, total: order.total_gross_huf, couponCode: order.coupon_code, status: finalStatus, paymentRedirectUrl }, { status: replayed ? 200 : 201 });
   } catch (error) {
     console.error('checkout preparation failed', error);
     return NextResponse.json({ error: 'A rendelés feldolgozása átmenetileg nem sikerült. Kérlek ellenőrizd a rendeléseidet, mielőtt újra megpróbálod.' }, { status: 503 });

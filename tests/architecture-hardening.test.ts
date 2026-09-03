@@ -10,7 +10,8 @@ describe('Shoperation architecture hardening contracts',()=>{
     const route=read('src/app/api/orders/route.ts');
     expect(route).toContain("import { placeTenantOrder } from '@/lib/orders/tenant-checkout'");
     expect(route).toContain('instanceId: instance.id');
-    expect(route).toContain(".eq('instance_id', instance.id)");
+    expect(route).toContain('p_instance_id:instance.id');
+    expect(route).toContain('finalize_checkout_local_v2');
     expect(route).not.toContain("admin.rpc('place_order_provider_v2_idempotent'");
   });
 

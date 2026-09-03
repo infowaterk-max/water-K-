@@ -64,9 +64,14 @@ describe('non-payment release hardening',()=>{
 
   test('checkout and retry audit events satisfy strict tenant ownership',()=>{
     const order=read('src/app/api/orders/route.ts');
+    const checkoutSql=read('supabase/migrations/20260903190000_checkout_local_evidence_atomic_v2.sql');
     const retry=read('src/app/api/orders/[id]/retry-payment/route.ts');
-    expect(order).toMatch(/order_events'\)\.insert\(\{[\s\S]{0,100}instance_id: instance\.id[\s\S]{0,100}legal_terms_accepted/);
-    expect(order).toMatch(/order_events'\)\.insert\(\{[\s\S]{0,100}instance_id: instance\.id[\s\S]{0,120}payment_(recovered|started)/);
+    expect(order).toContain('finalize_checkout_local_v2');
+    expect(order).toContain('reconcile_checkout_payment_session_v2');
+    expect(order).not.toContain("from('order_events').insert");
+    expect(checkoutSql).toContain("'legal_terms_accepted'");
+    expect(checkoutSql).toContain("'payment_recovered'");
+    expect(checkoutSql).toContain("'payment_started'");
     expect(retry).toMatch(/order_events'\)\.insert\(\{instance_id:instance\.id/);
   });
 });
