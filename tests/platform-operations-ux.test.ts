@@ -14,11 +14,14 @@ describe('platform operations UX',()=>{
     expect(page).toContain('storeName(tenantByVariant.get(v.variant_id))');
   });
 
-  test('operations page surfaces query failures and translates machine statuses',()=>{
+  test('operations page surfaces query failures and uses shared translated statuses',()=>{
     const page=read('src/app/admin/muveletek/page.tsx');
+    const operational=read('src/lib/admin/operational-display.ts');
+    const orders=read('src/lib/order-display.ts');
     expect(page).toContain('queueError||summaryError||kpiError||stockError');
-    expect(page).toContain("ready_to_pack:'Csomagolásra kész'");
+    expect(page).toContain('operationalStatusLabel(r.operational_status)');
     expect(page).toContain("insufficient_stock:'Nincs elegendő készlet'");
-    expect(page).toContain("pending_payment:'Fizetésre vár'");
+    expect(operational).toContain("ready_to_pack:'Csomagolható'");
+    expect(orders).toContain("pending_payment:'Fizetésre vár'");
   });
 });

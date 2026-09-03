@@ -33,5 +33,8 @@ describe('post-release PR42 UX reconciliation',()=>{
     expect(source).toContain('<option value="professional">Viszonteladói</option>');
     expect(source).toContain('Nettó ár:');
     expect(source).toContain('minimum rendelés');
+    const product=read('src/app/termek/[slug]/page.tsx');
+    expect(product).toContain("?'viszonteladói':'lakossági'");
+    expect(product).toContain('Ezt a viszonteladói terméket');
   });
 });
