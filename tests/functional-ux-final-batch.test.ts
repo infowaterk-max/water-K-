@@ -60,6 +60,17 @@ describe('final functional and UX audit batch',()=>{
     expect(monitoring).toContain("order('occurred_at',{ascending:false})");
   });
 
+  test('critical platform action copy avoids unexplained English workflow jargon',()=>{
+    const postRelease=read('src/app/admin/utoellenorzes/page.tsx');
+    const recovery=read('src/components/admin/recovery-center-actions.tsx');
+    const releases=read('src/components/admin/release-center-actions.tsx');
+    expect(postRelease).toContain('Mi történik a kiadás után?');
+    expect(postRelease).not.toContain('rollback-javaslat');
+    expect(recovery).toContain('Admin / platformirányítás');
+    expect(recovery).toContain('A visszaállítás ellenőrzése sikeres volt?');
+    expect(releases).toContain('Kézi CI státusz rögzítése');
+  });
+
   test('shared operational display vocabulary keeps technical codes out of primary UI',()=>{
     const display=read('src/lib/admin/operational-display.ts');
     expect(display).toContain("go:'GO · Mehet'");

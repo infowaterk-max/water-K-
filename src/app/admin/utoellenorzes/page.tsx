@@ -31,7 +31,7 @@ export default async function Page(){
     {loadError&&<div className="errorNotice" role="alert"><strong>Az utóellenőrzési adatok egy része most nem tölthető be.</strong></div>}
 
     <section className="auditGuide">
-      <div><span className="eyebrow">Mi történik release után?</span><h2>Megfigyelés → stabilitási döntés → lezárás vagy rollback-javaslat</h2></div>
+      <div><span className="eyebrow">Mi történik a kiadás után?</span><h2>Megfigyelés → stabilitási döntés → lezárás vagy visszaállítási javaslat</h2></div>
       <p>A kiadás csak akkor tekinthető lezártnak, ha a megfigyelési időszak alatt a bizonyítékok frissek, és nincs nyitott kritikus vagy magas eltérés.</p>
     </section>
 
