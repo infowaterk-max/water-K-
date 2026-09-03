@@ -13,7 +13,8 @@ const roles=['owner','admin','staff'] as const;
 const optional=(value:FormDataEntryValue|null,max:number)=>{const text=String(value??'').trim().slice(0,max);return text||null};
 const safeUrl=(value:FormDataEntryValue|null)=>{const text=optional(value,500);if(!text)return null;try{const url=new URL(text);return ['http:','https:'].includes(url.protocol)?url.toString():null}catch{return null}};
 const textField=(formData:FormData,key:string,max=240)=>String(formData.get(key)??'').trim().slice(0,max);
-const platformWriteFailed=(operation:string,error:{message?:string}|null)=>{console.error(`platform webshop ${operation} failed`,error?.message??'unknown error');throw new Error('A platformmódosítás nem menthető. Az állapotot nem tekintjük módosítottnak.')};
+const platformWriteFailed=(operation:string,error?:{message?:string}|null)=>{console.error(`platform webshop ${operation} failed`,error?.message??'missing database evidence');throw new Error('A platformmódosítás nem menthető. Az állapotot nem tekintjük módosítottnak.')};
+const platformMutationEvidence=(data:unknown,instanceId:string,operation:string)=>{const result=(data??{})as{id?:string};if(result.id!==instanceId)platformWriteFailed(operation);return result};
 
 export async function createWebshopInstanceAction(formData:FormData){
   const actor=await requirePlatformOperator();
@@ -31,47 +32,45 @@ export async function createWebshopInstanceAction(formData:FormData){
 }
 
 export async function updateWebshopInstanceAction(formData:FormData){
-  await requirePlatformOperator();
+  const actor=await requirePlatformOperator();
   const id=String(formData.get('id')??''),plan=String(formData.get('plan')??''),status=String(formData.get('status')??'');
   if(!uuid.test(id)||!isPlanCode(plan)||!['pilot','active','suspended','archived'].includes(status))return;
   const admin=createAdminClient();
-  const{error}=await admin.from('webshop_instances').update({subscription_plan:plan,status,updated_at:new Date().toISOString()}).eq('id',id);
-  if(error)platformWriteFailed('plan/status update',error);
+  const{data,error}=await admin.rpc('platform_mutate_webshop_config_v3',{p_instance_id:id,p_actor:actor.id,p_action:'plan_status',p_payload:{plan,status}});
+  if(error)platformWriteFailed('plan/status update',error);platformMutationEvidence(data,id,'plan/status update');
   revalidatePath('/admin/platform/webaruhazak');
 }
 
 export async function updateWebshopBrandingAction(formData:FormData){
-  await requirePlatformOperator();
+  const actor=await requirePlatformOperator();
   const id=String(formData.get('id')??''),brandName=String(formData.get('brandName')??'').trim().slice(0,100),primaryColor=optional(formData.get('primaryColor'),7),supportEmail=optional(formData.get('supportEmail'),254);
   if(!uuid.test(id)||brandName.length<2)return;
   if(primaryColor&&!/^#[0-9A-Fa-f]{6}$/.test(primaryColor))return;
   if(supportEmail&&!/^\S+@\S+\.\S+$/.test(supportEmail))return;
   const admin=createAdminClient();
-  const{error}=await admin.from('webshop_instances').update({brand_name:brandName,brand_tagline:optional(formData.get('brandTagline'),180),logo_url:safeUrl(formData.get('logoUrl')),primary_color:primaryColor,support_email:supportEmail,support_phone:optional(formData.get('supportPhone'),50),public_site_url:safeUrl(formData.get('publicSiteUrl')),email_from_name:optional(formData.get('emailFromName'),100),updated_at:new Date().toISOString()}).eq('id',id);
-  if(error)platformWriteFailed('branding update',error);
+  const payload={brandName,brandTagline:optional(formData.get('brandTagline'),180),logoUrl:safeUrl(formData.get('logoUrl')),primaryColor,supportEmail,supportPhone:optional(formData.get('supportPhone'),50),publicSiteUrl:safeUrl(formData.get('publicSiteUrl')),emailFromName:optional(formData.get('emailFromName'),100)};
+  const{data,error}=await admin.rpc('platform_mutate_webshop_config_v3',{p_instance_id:id,p_actor:actor.id,p_action:'branding',p_payload:payload});
+  if(error)platformWriteFailed('branding update',error);platformMutationEvidence(data,id,'branding update');
   revalidatePath('/admin/platform/webaruhazak');
 }
 
 export async function updateWebshopStorefrontAction(formData:FormData){
-  await requirePlatformOperator();
+  const actor=await requirePlatformOperator();
   const id=String(formData.get('id')??'');if(!uuid.test(id))return;
   const config={heroEyebrow:textField(formData,'heroEyebrow',120),heroTitle:textField(formData,'heroTitle',160),heroLead:textField(formData,'heroLead',320),primaryCtaLabel:textField(formData,'primaryCtaLabel',80),secondaryCtaLabel:textField(formData,'secondaryCtaLabel',80),introEyebrow:textField(formData,'introEyebrow',120),introTitle:textField(formData,'introTitle',160),introLead:textField(formData,'introLead',320),benefit1Title:textField(formData,'benefit1Title',100),benefit1Text:textField(formData,'benefit1Text',240),benefit2Title:textField(formData,'benefit2Title',100),benefit2Text:textField(formData,'benefit2Text',240),benefit3Title:textField(formData,'benefit3Title',100),benefit3Text:textField(formData,'benefit3Text',240),finalEyebrow:textField(formData,'finalEyebrow',120),finalTitle:textField(formData,'finalTitle',180)};
   const admin=createAdminClient();
-  const{error}=await admin.from('webshop_instances').update({storefront_config:config,updated_at:new Date().toISOString()}).eq('id',id);
-  if(error)platformWriteFailed('storefront update',error);
+  const{data,error}=await admin.rpc('platform_mutate_webshop_config_v3',{p_instance_id:id,p_actor:actor.id,p_action:'storefront',p_payload:{storefrontConfig:config}});
+  if(error)platformWriteFailed('storefront update',error);platformMutationEvidence(data,id,'storefront update');
   revalidatePath('/admin/platform/webaruhazak');revalidatePath('/');
 }
 
 export async function toggleWebshopAddonAction(formData:FormData){
-  await requirePlatformOperator();
+  const actor=await requirePlatformOperator();
   const instanceId=String(formData.get('instanceId')??''),addon=String(formData.get('addon')??'') as AddonCode,enabled=String(formData.get('enabled')??'')==='true';
   if(!uuid.test(instanceId)||!(addon in ADDONS))return;
   const admin=createAdminClient();
-  const{data:instance,error:instanceError}=await admin.from('webshop_instances').select('subscription_plan').eq('id',instanceId).maybeSingle();
-  if(instanceError)platformWriteFailed('addon prerequisite read',instanceError);
-  if(!instance||!ADDONS[addon].compatiblePlans.includes(instance.subscription_plan))return;
-  const{error}=await admin.from('webshop_instance_addons').upsert({instance_id:instanceId,addon_code:addon,enabled,updated_at:new Date().toISOString()},{onConflict:'instance_id,addon_code'});
-  if(error)platformWriteFailed('addon update',error);
+  const{data,error}=await admin.rpc('platform_mutate_webshop_config_v3',{p_instance_id:instanceId,p_actor:actor.id,p_action:'addon',p_payload:{addon,enabled}});
+  if(error)platformWriteFailed('addon update',error);platformMutationEvidence(data,instanceId,'addon update');
   revalidatePath('/admin/platform/webaruhazak');
 }
 

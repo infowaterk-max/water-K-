@@ -10,16 +10,19 @@ describe('commerce settings write reliability',()=>{
     expect(source).toContain("commerceSettingsFailed('provider catalogue read',providerError)");
   });
 
-  test('provider settings upsert must persist a concrete row',()=>{
+  test('provider settings persist through an evidence-returning audited RPC',()=>{
     const source=read('src/app/admin/beallitasok/fizetes-szallitas/actions.ts');
-    expect(source).toContain("upsert(row,{onConflict:'instance_id,provider_code'}).select('provider_code').maybeSingle()");
-    expect(source).toContain("commerceSettingsFailed('provider upsert',saveError)");
+    expect(source).toContain("admin_mutate_commerce_provider_connection_v2");
+    expect(source).toContain("p_action:'save'");
+    expect(source).toContain("providerEvidence(saved,providerCode,'provider upsert')");
+    expect(source).not.toContain(".from('webshop_instance_provider_connections').upsert(");
     expect(source).toContain('A fizetési, szállítási vagy számlázási beállítást nem tekintjük elmentettnek.');
   });
 
-  test('provider verification requires a persisted connection row',()=>{
+  test('provider verification requires atomic persisted evidence',()=>{
     const source=read('src/app/admin/beallitasok/fizetes-szallitas/actions.ts');
-    expect(source).toContain(".eq('provider_code',providerCode).select('provider_code').maybeSingle()");
-    expect(source).toContain("commerceSettingsFailed('provider verification persistence',saveError)");
+    expect(source).toContain("p_action:'verify'");
+    expect(source).toContain("providerEvidence(saved,providerCode,'provider verification persistence')");
+    expect(source).not.toContain(".from('webshop_instance_provider_connections').update(");
   });
 });
