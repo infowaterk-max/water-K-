@@ -18,7 +18,9 @@ describe('communication tenant closure',()=>{
   });
 
   test('public and customer writes carry the active tenant',()=>{
-    expect(read('src/app/api/support/route.ts')).toMatch(/instance_id:instance\.id/);
+    const support=read('src/app/api/support/route.ts');
+    expect(support).toMatch(/create_support_ticket_v2/);
+    expect(support).toMatch(/p_instance_id:instance\.id/);
     expect(read('src/app/api/account/marketing-consent/route.ts')).toMatch(/instance_id:instance\.id/);
     expect(read('src/app/api/marketing/newsletter/route.ts')).toMatch(/instance_id:instance\.id/);
     expect(read('src/app/api/account/support/[id]/messages/route.ts')).toMatch(/\.eq\('instance_id',instance\.id\)/);
@@ -27,17 +29,26 @@ describe('communication tenant closure',()=>{
   test('inbound and provider events resolve a concrete tenant before persistence',()=>{
     const inbound=read('src/app/api/communication/inbound/route.ts');
     const webhook=read('src/app/api/webhooks/communication/route.ts');
-    expect(inbound).toMatch(/support_email/);
-    expect(inbound).toMatch(/instance_id:instanceId/);
+    const inboundSql=read('supabase/migrations/20260903180000_inbound_office_email_atomic_v2.sql');
+    expect(inbound).toMatch(/record_inbound_office_email_v2/);
+    expect(inbound).not.toMatch(/\.from\('office_(threads|messages)'\)/);
+    expect(inboundSql).toMatch(/support_email/);
+    expect(inboundSql).toMatch(/INBOUND_TENANT_AMBIGUOUS/);
+    const providerSql=read('supabase/migrations/20260903191000_provider_suppression_evidence_atomic_v2.sql');
+    expect(webhook).toMatch(/record_provider_communication_suppression_v2/);
     expect(webhook).toMatch(/provider_message_id/);
-    expect(webhook).toMatch(/instance_id:instanceId/);
+    expect(providerSql).toMatch(/communication_jobs/);
+    expect(providerSql).toMatch(/communication_suppression_events/);
   });
 
   test('worker and admin queue operations use tenant-aware RPCs',()=>{
     expect(read('src/lib/communication/worker.ts')).toMatch(/claim_communication_jobs_v2/);
     expect(read('src/lib/communication/worker.ts')).toMatch(/getCommunicationIdentityForInstance/);
     expect(read('src/app/api/admin/communication/enqueue/route.ts')).toMatch(/enqueue_communication_v2/);
-    expect(read('src/app/admin/kommunikacio/iroda/actions.ts')).toMatch(/enqueue_communication_v2/);
+    const office=read('src/app/admin/kommunikacio/iroda/actions.ts');
+    const evidence=read('supabase/migrations/20260903170000_admin_workspace_settings_evidence_atomic_v2.sql');
+    expect(office).toMatch(/admin_mutate_office_workspace_v2/);
+    expect(evidence).toMatch(/admin_mutate_office_workspace_v2[\s\S]*enqueue_communication_v2/);
   });
 
   test('unsubscribe signatures bind the tenant and recipient together',()=>{

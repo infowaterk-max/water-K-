@@ -16,10 +16,10 @@ const normalizeMinimum=(minimum:number,multiple:number)=>Math.ceil(Math.max(1,mi
 const deriveNet=(gross:number,baseGross:number,baseNet:number)=>baseGross>0?Math.max(0,Math.round(gross*(baseNet/baseGross))):Math.max(0,gross);
 const applyDiscount=(value:number,discount:number|null|undefined)=>discount==null?value:Math.max(0,Math.round(value*(1-Math.min(100,Math.max(0,Number(discount)))/100)));
 
-export async function getProducts(options:{includeAllChannels?:boolean}={}):Promise<Product[]>{
+export async function getProducts(options:{includeAllChannels?:boolean;throwOnError?:boolean}={}):Promise<Product[]>{
   try{
     const instance=await getCurrentWebshopInstance();
-    if(!instance)return[];
+    if(!instance){if(options.throwOnError)throw new Error('webshop_instance_missing');return[];}
     const admin=createAdminClient(),includeAllChannels=options.includeAllChannels===true;
     let approvedReseller=false;
     if(!includeAllChannels){
@@ -36,12 +36,12 @@ export async function getProducts(options:{includeAllChannels?:boolean}={}):Prom
     const{data,error}=await admin.from('product_variants')
       .select('id,sku,label,net_price_huf,gross_price_huf,reseller_net_price_huf,reseller_gross_price_huf,stock_quantity,weight_grams,minimum_order_quantity,order_multiple,product_id,instance_id,products!inner(slug,name,short_description,active,audience,featured,use_cases,highlights,instance_id)')
       .eq('instance_id',instance.id).eq('active',true).eq('products.instance_id',instance.id).eq('products.active',true).order('gross_price_huf');
-    if(error||!data?.length)return[];
+    if(error){if(options.throwOnError)throw error;return[];}if(!data?.length)return[];
     const rows=data as unknown as VariantRow[],productIds=[...new Set(rows.map(row=>row.product_id))];
     let channelRows:ChannelRow[]=[];
     if(!includeAllChannels&&productIds.length){
       const{data:settings,error:settingsError}=await admin.from('product_channel_settings').select('product_id,channel_code,visible,gross_price,minimum_quantity,discount_percent').eq('instance_id',instance.id).eq('channel_code',channel).in('product_id',productIds);
-      if(settingsError)return[];
+      if(settingsError){if(options.throwOnError)throw settingsError;return[];}
       channelRows=(settings??[]) as ChannelRow[];
     }
     const settingByProduct=new Map(channelRows.map(row=>[row.product_id,row]));
@@ -62,5 +62,5 @@ export async function getProducts(options:{includeAllChannels?:boolean}={}):Prom
       const orderMultiple=positiveInt(row.order_multiple),minimumQuantity=normalizeMinimum(Math.max(positiveInt(row.minimum_order_quantity),positiveInt(setting?.minimum_quantity)),orderMultiple);
       return{id:row.id,sku:row.sku,slug:variantSlug(baseSlug,row.label,row.sku),name:[product?.name,row.label].filter(Boolean).join(' '),size:row.label,grossPrice,netPrice,stock:row.stock_quantity,short:product?.short_description??'',featured:product?.featured??false,weightGrams:row.weight_grams??0,audience:normalizeAudience(product?.audience),useCases:product?.use_cases??[],highlights:product?.highlights??[],minimumQuantity,orderMultiple};
     });
-  }catch{return[]}
+  }catch(error){if(options.throwOnError)throw error;return[]}
 }

@@ -2,49 +2,68 @@ import{NextResponse}from'next/server';
 import{z}from'zod';
 import{getAdminRequestUser}from'@/lib/auth/admin-api';
 import{createAdminClient}from'@/lib/supabase/admin';
-import{recordAdminAudit}from'@/lib/admin/audit';
 import{requireCurrentStoreContext}from'@/lib/instances/scope';
 
 const createSchema=z.object({
- code:z.string().trim().min(3).max(32).regex(/^[A-Za-z0-9_-]+$/),description:z.string().trim().max(250).optional(),
- discountType:z.enum(['percent','fixed']),discountValue:z.number().int().positive(),minSubtotalHuf:z.number().int().nonnegative().default(0),
- maxDiscountHuf:z.number().int().positive().nullable().optional(),usageLimit:z.number().int().positive().nullable().optional(),
- startsAt:z.string().datetime().nullable().optional(),endsAt:z.string().datetime().nullable().optional(),
+  code:z.string().trim().min(3).max(32).regex(/^[A-Za-z0-9_-]+$/),description:z.string().trim().max(250).optional(),
+  discountType:z.enum(['percent','fixed']),discountValue:z.number().int().positive(),minSubtotalHuf:z.number().int().nonnegative().default(0),
+  maxDiscountHuf:z.number().int().positive().nullable().optional(),usageLimit:z.number().int().positive().nullable().optional(),
+  startsAt:z.string().datetime().nullable().optional(),endsAt:z.string().datetime().nullable().optional(),
 });
 const patchSchema=z.object({id:z.string().uuid(),active:z.boolean().optional(),description:z.string().trim().max(250).optional(),usageLimit:z.number().int().positive().nullable().optional(),endsAt:z.string().datetime().nullable().optional()}).refine(value=>Object.keys(value).some(key=>key!=='id'),'Nincs módosítás.');
 
 async function access(){
- const actor=await getAdminRequestUser('marketing.manage');if(!actor)return null;
- try{return{actor,scope:await requireCurrentStoreContext('marketing.manage')}}catch{return null}
+  const actor=await getAdminRequestUser('marketing.manage');if(!actor)return null;
+  try{return{actor,scope:await requireCurrentStoreContext('marketing.manage')}}catch{return null}
 }
 
 export async function POST(request:Request){
- const ctx=await access();if(!ctx)return NextResponse.json({error:'Nincs jogosultság.'},{status:403});
- let raw:unknown;try{raw=await request.json()}catch{return NextResponse.json({error:'Érvénytelen kérés.'},{status:400})}
- const parsed=createSchema.safeParse(raw);if(!parsed.success)return NextResponse.json({error:'A kupon adatai érvénytelenek.'},{status:400});
- const d=parsed.data;if(d.discountType==='percent'&&d.discountValue>100)return NextResponse.json({error:'A százalékos kedvezmény legfeljebb 100% lehet.'},{status:400});
- if(d.startsAt&&d.endsAt&&new Date(d.endsAt)<=new Date(d.startsAt))return NextResponse.json({error:'A lejáratnak a kezdés után kell lennie.'},{status:400});
- const admin=createAdminClient();
- const{data,error}=await admin.from('coupons').insert({instance_id:ctx.scope.instanceId,code:d.code.toUpperCase(),description:d.description||null,discount_type:d.discountType,discount_value:d.discountValue,min_subtotal_huf:d.minSubtotalHuf,max_discount_huf:d.maxDiscountHuf??null,usage_limit:d.usageLimit??null,starts_at:d.startsAt??null,ends_at:d.endsAt??null,active:true}).select('id,code,description,discount_type,discount_value,min_subtotal_huf,max_discount_huf,usage_limit,usage_count,starts_at,ends_at,active').single();
- if(error)return NextResponse.json({error:error.code==='23505'?'Ez a kuponkód ebben a webshopban már létezik.':'A kupon létrehozása nem sikerült.'},{status:error.code==='23505'?409:500});
- await recordAdminAudit({actorUserId:ctx.actor.id,organizationId:ctx.scope.organizationId,instanceId:ctx.scope.instanceId,action:'coupon.created',entityType:'coupon',entityId:data.id,summary:`${data.code} kupon létrehozva`,afterState:data});
- return NextResponse.json({ok:true,coupon:{id:data.id,code:data.code}},{status:201});
+  const ctx=await access();if(!ctx)return NextResponse.json({error:'Nincs jogosultság.'},{status:403});
+  let raw:unknown;try{raw=await request.json()}catch{return NextResponse.json({error:'Érvénytelen kérés.'},{status:400})}
+  const parsed=createSchema.safeParse(raw);if(!parsed.success)return NextResponse.json({error:'A kupon adatai érvénytelenek.'},{status:400});
+  const d=parsed.data;
+  if(d.discountType==='percent'&&d.discountValue>100)return NextResponse.json({error:'A százalékos kedvezmény legfeljebb 100% lehet.'},{status:400});
+  if(d.startsAt&&d.endsAt&&new Date(d.endsAt)<=new Date(d.startsAt))return NextResponse.json({error:'A lejáratnak a kezdés után kell lennie.'},{status:400});
+
+  const admin=createAdminClient();
+  const{data,error}=await admin.rpc('admin_mutate_coupon_v2',{
+    p_instance_id:ctx.scope.instanceId,p_coupon_id:null,p_actor:ctx.actor.id,p_action:'create',p_expected_updated_at:null,p_payload:d
+  });
+  if(error){
+    if(error.message.includes('MARKETING_PERMISSION_REQUIRED'))return NextResponse.json({error:'Nincs jogosultság ehhez a webshophoz.'},{status:403});
+    if(/duplicate|unique|23505/i.test(error.message))return NextResponse.json({error:'Ez a kuponkód ebben a webshopban már létezik.'},{status:409});
+    return NextResponse.json({error:'A kupon létrehozása nem sikerült. Egyetlen változás sem került alkalmazásra.'},{status:500});
+  }
+  const result=(data??{})as{id?:string;code?:string};
+  if(!result.id||!result.code)return NextResponse.json({error:'A kupon létrehozása nem igazolható.'},{status:500});
+  return NextResponse.json({ok:true,coupon:{id:result.id,code:result.code}},{status:201});
 }
 
 export async function PATCH(request:Request){
- const ctx=await access();if(!ctx)return NextResponse.json({error:'Nincs jogosultság.'},{status:403});
- let raw:unknown;try{raw=await request.json()}catch{return NextResponse.json({error:'Érvénytelen kérés.'},{status:400})}
- const parsed=patchSchema.safeParse(raw);if(!parsed.success)return NextResponse.json({error:'Érvénytelen módosítás.'},{status:400});
- const d=parsed.data,admin=createAdminClient();
- const{data:current,error:currentError}=await admin.from('coupons').select('id,code,description,discount_type,discount_value,min_subtotal_huf,max_discount_huf,usage_limit,usage_count,starts_at,ends_at,active,updated_at').eq('id',d.id).eq('instance_id',ctx.scope.instanceId).maybeSingle();
- if(currentError||!current)return NextResponse.json({error:'A kupon nem található ebben a webshopban.'},{status:404});
- const update:Record<string,unknown>={updated_at:new Date().toISOString()};
- if(d.active!==undefined)update.active=d.active;if(d.description!==undefined)update.description=d.description||null;if(d.usageLimit!==undefined)update.usage_limit=d.usageLimit;if(d.endsAt!==undefined)update.ends_at=d.endsAt;
- if(d.usageLimit!==undefined&&d.usageLimit!==null&&d.usageLimit<Number(current.usage_count??0))return NextResponse.json({error:'A felhasználási limit nem lehet kisebb a már felhasznált kuponok számánál.'},{status:409});
- if(d.endsAt&&current.starts_at&&new Date(d.endsAt)<=new Date(current.starts_at))return NextResponse.json({error:'A lejáratnak a kezdés után kell lennie.'},{status:400});
- const{data:updated,error}=await admin.from('coupons').update(update).eq('id',d.id).eq('instance_id',ctx.scope.instanceId).eq('updated_at',current.updated_at).select('id,code,description,discount_type,discount_value,min_subtotal_huf,max_discount_huf,usage_limit,usage_count,starts_at,ends_at,active,updated_at').maybeSingle();
- if(error)return NextResponse.json({error:'A kupon frissítése nem sikerült.'},{status:500});
- if(!updated)return NextResponse.json({error:'A kupont időközben valaki más módosította. Frissítsd az oldalt és próbáld újra.'},{status:409});
- await recordAdminAudit({actorUserId:ctx.actor.id,organizationId:ctx.scope.organizationId,instanceId:ctx.scope.instanceId,action:'coupon.updated',entityType:'coupon',entityId:d.id,summary:`${updated.code} kupon módosítva`,beforeState:current,afterState:updated,metadata:{fields:Object.keys(d).filter(key=>key!=='id')}});
- return NextResponse.json({ok:true});
+  const ctx=await access();if(!ctx)return NextResponse.json({error:'Nincs jogosultság.'},{status:403});
+  let raw:unknown;try{raw=await request.json()}catch{return NextResponse.json({error:'Érvénytelen kérés.'},{status:400})}
+  const parsed=patchSchema.safeParse(raw);if(!parsed.success)return NextResponse.json({error:'Érvénytelen módosítás.'},{status:400});
+  const d=parsed.data,admin=createAdminClient();
+  const{data:current,error:currentError}=await admin.from('coupons')
+    .select('usage_count,starts_at,updated_at').eq('id',d.id).eq('instance_id',ctx.scope.instanceId).maybeSingle();
+  if(currentError||!current)return NextResponse.json({error:'A kupon nem található ebben a webshopban.'},{status:404});
+  if(d.usageLimit!==undefined&&d.usageLimit!==null&&d.usageLimit<Number(current.usage_count??0))return NextResponse.json({error:'A felhasználási limit nem lehet kisebb a már felhasznált kuponok számánál.'},{status:409});
+  if(d.endsAt&&current.starts_at&&new Date(d.endsAt)<=new Date(current.starts_at))return NextResponse.json({error:'A lejáratnak a kezdés után kell lennie.'},{status:400});
+  const patch:Record<string,unknown>={};
+  if(d.active!==undefined)patch.active=d.active;
+  if(d.description!==undefined)patch.description=d.description;
+  if(d.usageLimit!==undefined)patch.usageLimit=d.usageLimit;
+  if(d.endsAt!==undefined)patch.endsAt=d.endsAt;
+
+  const{data,error}=await admin.rpc('admin_mutate_coupon_v2',{
+    p_instance_id:ctx.scope.instanceId,p_coupon_id:d.id,p_actor:ctx.actor.id,p_action:'update',p_expected_updated_at:current.updated_at,p_payload:patch
+  });
+  if(error){
+    if(error.message.includes('STALE_COUPON'))return NextResponse.json({error:'A kupont időközben valaki más módosította. Frissítsd az oldalt és próbáld újra.'},{status:409});
+    if(error.message.includes('COUPON_NOT_FOUND'))return NextResponse.json({error:'A kupon nem található ebben a webshopban.'},{status:404});
+    if(error.message.includes('MARKETING_PERMISSION_REQUIRED'))return NextResponse.json({error:'Nincs jogosultság ehhez a webshophoz.'},{status:403});
+    return NextResponse.json({error:'A kupon frissítése nem sikerült. Egyetlen változás sem került alkalmazásra.'},{status:500});
+  }
+  if(!(data as{id?:string}|null)?.id)return NextResponse.json({error:'A kupon frissítése nem igazolható.'},{status:500});
+  return NextResponse.json({ok:true});
 }

@@ -1,3 +1,92 @@
-import{NextResponse}from'next/server';import{z}from'zod';import{createAdminClient}from'@/lib/supabase/admin';import{getAdminRequestUser}from'@/lib/auth/admin-api';import{hasCurrentPlanFeature}from'@/lib/plans/access';import{requireCurrentStoreContext}from'@/lib/instances/scope';
-const segments=['repeat_30_89','winback_90_plus','at_risk_30_89','winback_90_179','lost_180_plus','high_value_at_risk']as const;type Segment=typeof segments[number];const paid=['paid','processing','shipped','completed'];const template:Record<Segment,string>={repeat_30_89:'repeat_30d',winback_90_plus:'winback_90d',at_risk_30_89:'retention_risk_30d',winback_90_179:'winback_90d',lost_180_plus:'reactivation_180d',high_value_at_risk:'vip_retention'};const external=z.object({mode:z.literal('external'),name:z.string().trim().min(2).max(160),channel:z.enum(['facebook','instagram','tiktok','youtube','google','other']),budgetHuf:z.number().int().min(0).max(1000000000),utmCampaign:z.string().trim().regex(/^[A-Za-z0-9._-]{2,160}$/),externalImpressions:z.number().int().min(0).max(2000000000).default(0),externalClicks:z.number().int().min(0).max(2000000000).default(0)});const lifecycle=z.object({mode:z.literal('lifecycle'),name:z.string().trim().min(2).max(160),segment:z.enum(segments),scheduledAt:z.string().optional()});
-export async function POST(request:Request){const user=await getAdminRequestUser();if(!user)return NextResponse.json({error:'Nincs jogosultság.'},{status:403});let store;try{store=await requireCurrentStoreContext('marketing.manage')}catch{return NextResponse.json({error:'Nincs jogosultság ehhez a webshophoz.'},{status:403})}if(!(await hasCurrentPlanFeature('advancedCampaigns')))return NextResponse.json({error:'A kampányközpont a Pro csomag része.'},{status:403});let raw:unknown;try{raw=await request.json()}catch{return NextResponse.json({error:'Érvénytelen kérés.'},{status:400})}const normalized=raw&&typeof raw==='object'&&!('mode' in raw)?{...(raw as Record<string,unknown>),mode:'lifecycle'}:raw;const parsed=z.discriminatedUnion('mode',[external,lifecycle]).safeParse(normalized);if(!parsed.success)return NextResponse.json({error:'Hiányzó vagy érvénytelen kampányadat.'},{status:400});const a=createAdminClient();if(parsed.data.mode==='external'){const p=parsed.data,{data,error}=await a.from('marketing_campaigns').insert({instance_id:store.instanceId,name:p.name,segment:'external',template_key:'external_attribution',status:'approved',channel:p.channel,budget_huf:p.budgetHuf,utm_campaign:p.utmCampaign.toLowerCase(),external_impressions:p.externalImpressions,external_clicks:p.externalClicks,created_by:user.id,approved_by:user.id,approved_at:new Date().toISOString()}).select('id').single();if(error||!data)return NextResponse.json({error:error?.code==='23505'?'Ez az UTM kampánykód ebben a webshopban már használatban van.':'A kampány nem hozható létre.'},{status:error?.code==='23505'?409:500});return NextResponse.json({ok:true,id:data.id,total:0,eligible:0})}const p=parsed.data,scheduled=p.scheduledAt?new Date(p.scheduledAt):null;if(scheduled&&Number.isNaN(+scheduled))return NextResponse.json({error:'Érvénytelen időpont.'},{status:400});const segment=p.segment,{data:campaign,error}=await a.from('marketing_campaigns').insert({instance_id:store.instanceId,name:p.name,segment,template_key:template[segment],status:'review',scheduled_at:scheduled?.toISOString()??null,channel:'email',created_by:user.id}).select('id').single();if(error||!campaign)return NextResponse.json({error:'A kampány nem hozható létre.'},{status:500});const[{data:orders},{data:consents},{data:suppressions}]=await Promise.all([a.from('orders').select('customer_id,customer_email,billing_name,status,total_gross_huf,created_at').eq('instance_id',store.instanceId).in('status',paid).order('created_at',{ascending:false}).limit(20000),a.from('marketing_consents').select('email,status,occurred_at').eq('instance_id',store.instanceId).eq('channel','email').order('occurred_at',{ascending:false}).limit(30000),a.from('communication_suppressions').select('email,active').eq('instance_id',store.instanceId).eq('active',true).limit(30000)]);const consent=new Map<string,string>();for(const c of consents??[]){const k=c.email.trim().toLowerCase();if(!consent.has(k))consent.set(k,c.status)}const suppressed=new Set((suppressions??[]).map(x=>x.email.trim().toLowerCase()));const stats=new Map<string,{userId:string|null;email:string;name:string;orders:number;revenue:number;last:string}>();for(const o of orders??[]){const email=o.customer_email.trim().toLowerCase(),key=o.customer_id??email,c=stats.get(key)??{userId:o.customer_id,email,name:o.billing_name,orders:0,revenue:0,last:o.created_at};c.orders++;c.revenue+=Number(o.total_gross_huf||0);if(+new Date(o.created_at)>+new Date(c.last))c.last=o.created_at;stats.set(key,c)}const now=Date.now(),recipients:Record<string,unknown>[]=[];for(const[key,x]of stats){const days=Math.floor((now-+new Date(x.last))/86400000);let match=false;switch(segment){case'repeat_30_89':match=x.orders>=2&&days>=30&&days<90;break;case'winback_90_plus':match=days>=90;break;case'at_risk_30_89':match=days>=30&&days<90;break;case'winback_90_179':match=days>=90&&days<180;break;case'lost_180_plus':match=days>=180;break;case'high_value_at_risk':match=x.revenue>=100000&&days>=30;break}if(!match)continue;const consentOk=consent.get(x.email)==='granted',isSuppressed=suppressed.has(x.email),eligible=consentOk&&!isSuppressed;recipients.push({instance_id:store.instanceId,campaign_id:campaign.id,customer_key:key,user_id:x.userId,email:x.email,customer_name:x.name,orders_count:x.orders,revenue_gross_huf:x.revenue,last_order_at:x.last,consent_ok:consentOk,suppressed:isSuppressed,eligible,exclusion_reason:eligible?null:!consentOk?'NO_MARKETING_CONSENT':'SUPPRESSED'})}if(recipients.length){const{error:e}=await a.from('marketing_campaign_recipients').insert(recipients);if(e)return NextResponse.json({error:'A célcsoport-pillanatkép nem menthető.'},{status:500})}return NextResponse.json({ok:true,id:campaign.id,total:recipients.length,eligible:recipients.filter(r=>r.eligible===true).length})}
+import{NextResponse}from'next/server';
+import{z}from'zod';
+import{createAdminClient}from'@/lib/supabase/admin';
+import{getAdminRequestUser}from'@/lib/auth/admin-api';
+import{hasCurrentPlanFeature}from'@/lib/plans/access';
+import{requireCurrentStoreContext}from'@/lib/instances/scope';
+
+const segments=['repeat_30_89','winback_90_plus','at_risk_30_89','winback_90_179','lost_180_plus','high_value_at_risk']as const;
+type Segment=typeof segments[number];
+type RecipientSeed={customer_key:string;user_id:string|null;email:string;customer_name:string;orders_count:number;revenue_gross_huf:number;last_order_at:string;consent_ok:boolean;suppressed:boolean;eligible:boolean;exclusion_reason:string|null};
+type CampaignEvidence={id?:string;total?:number;eligible?:number};
+const paid=['paid','processing','shipped','completed'];
+const template:Record<Segment,string>={repeat_30_89:'repeat_30d',winback_90_plus:'winback_90d',at_risk_30_89:'retention_risk_30d',winback_90_179:'winback_90d',lost_180_plus:'reactivation_180d',high_value_at_risk:'vip_retention'};
+const external=z.object({mode:z.literal('external'),name:z.string().trim().min(2).max(160),channel:z.enum(['facebook','instagram','tiktok','youtube','google','other']),budgetHuf:z.number().int().min(0).max(1000000000),utmCampaign:z.string().trim().regex(/^[A-Za-z0-9._-]{2,160}$/),externalImpressions:z.number().int().min(0).max(2000000000).default(0),externalClicks:z.number().int().min(0).max(2000000000).default(0)});
+const lifecycle=z.object({mode:z.literal('lifecycle'),name:z.string().trim().min(2).max(160),segment:z.enum(segments),scheduledAt:z.string().optional()});
+
+export async function POST(request:Request){
+  const user=await getAdminRequestUser('marketing.manage');
+  if(!user)return NextResponse.json({error:'Nincs jogosultság.'},{status:403});
+  let store;
+  try{store=await requireCurrentStoreContext('marketing.manage')}catch{return NextResponse.json({error:'Nincs jogosultság ehhez a webshophoz.'},{status:403})}
+  if(!(await hasCurrentPlanFeature('advancedCampaigns')))return NextResponse.json({error:'A kampányközpont a Pro csomag része.'},{status:403});
+
+  let raw:unknown;
+  try{raw=await request.json()}catch{return NextResponse.json({error:'Érvénytelen kérés.'},{status:400})}
+  const normalized=raw&&typeof raw==='object'&&!('mode'in raw)?{...(raw as Record<string,unknown>),mode:'lifecycle'}:raw;
+  const parsed=z.discriminatedUnion('mode',[external,lifecycle]).safeParse(normalized);
+  if(!parsed.success)return NextResponse.json({error:'Hiányzó vagy érvénytelen kampányadat.'},{status:400});
+  const a=createAdminClient();
+
+  if(parsed.data.mode==='external'){
+    const p=parsed.data;
+    const campaign={name:p.name,segment:'external',template_key:'external_attribution',status:'approved',channel:p.channel,budget_huf:p.budgetHuf,utm_campaign:p.utmCampaign.toLowerCase(),external_impressions:p.externalImpressions,external_clicks:p.externalClicks};
+    const{data,error}=await a.rpc('admin_create_marketing_campaign_v2',{p_instance_id:store.instanceId,p_actor:user.id,p_campaign:campaign,p_recipients:[]});
+    if(error)return NextResponse.json({error:error.code==='23505'?'Ez az UTM kampánykód ebben a webshopban már használatban van.':'A kampány nem hozható létre. A kampány és az audit együtt vissza lett vonva.'},{status:error.code==='23505'?409:500});
+    const evidence=data as CampaignEvidence|null;
+    if(!evidence?.id||evidence.total!==0||evidence.eligible!==0)return NextResponse.json({error:'A kampány létrehozásának eredménye nem igazolható.'},{status:500});
+    return NextResponse.json({ok:true,id:evidence.id,total:0,eligible:0});
+  }
+
+  const p=parsed.data,scheduled=p.scheduledAt?new Date(p.scheduledAt):null;
+  if(scheduled&&Number.isNaN(+scheduled))return NextResponse.json({error:'Érvénytelen időpont.'},{status:400});
+  const segment=p.segment;
+
+  const[
+    {data:orders,error:ordersError},
+    {data:consents,error:consentsError},
+    {data:suppressions,error:suppressionsError},
+  ]=await Promise.all([
+    a.from('orders').select('customer_id,customer_email,billing_name,status,total_gross_huf,created_at').eq('instance_id',store.instanceId).in('status',paid).order('created_at',{ascending:false}).limit(20000),
+    a.from('marketing_consents').select('email,status,occurred_at').eq('instance_id',store.instanceId).eq('channel','email').order('occurred_at',{ascending:false}).limit(30000),
+    a.from('communication_suppressions').select('email,active').eq('instance_id',store.instanceId).eq('active',true).limit(30000),
+  ]);
+  if(ordersError||consentsError||suppressionsError)return NextResponse.json({error:'A célcsoport forrásadatai most nem tölthetők be. Kampány nem jött létre.'},{status:503});
+
+  const consent=new Map<string,string>();
+  for(const c of consents??[]){const key=c.email.trim().toLowerCase();if(!consent.has(key))consent.set(key,c.status)}
+  const suppressed=new Set((suppressions??[]).map(x=>x.email.trim().toLowerCase()));
+  const stats=new Map<string,{userId:string|null;email:string;name:string;orders:number;revenue:number;last:string}>();
+  for(const o of orders??[]){
+    const email=o.customer_email.trim().toLowerCase(),key=o.customer_id??email,current=stats.get(key)??{userId:o.customer_id,email,name:o.billing_name,orders:0,revenue:0,last:o.created_at};
+    current.orders++;current.revenue+=Number(o.total_gross_huf||0);
+    if(+new Date(o.created_at)>+new Date(current.last))current.last=o.created_at;
+    stats.set(key,current);
+  }
+
+  const now=Date.now(),recipientSeeds:RecipientSeed[]=[];
+  for(const[key,x]of stats){
+    const days=Math.floor((now-+new Date(x.last))/86400000);
+    let match=false;
+    switch(segment){
+      case'repeat_30_89':match=x.orders>=2&&days>=30&&days<90;break;
+      case'winback_90_plus':match=days>=90;break;
+      case'at_risk_30_89':match=days>=30&&days<90;break;
+      case'winback_90_179':match=days>=90&&days<180;break;
+      case'lost_180_plus':match=days>=180;break;
+      case'high_value_at_risk':match=x.revenue>=100000&&days>=30;break;
+    }
+    if(!match)continue;
+    const consentOk=consent.get(x.email)==='granted',isSuppressed=suppressed.has(x.email),eligible=consentOk&&!isSuppressed;
+    recipientSeeds.push({customer_key:key,user_id:x.userId,email:x.email,customer_name:x.name,orders_count:x.orders,revenue_gross_huf:x.revenue,last_order_at:x.last,consent_ok:consentOk,suppressed:isSuppressed,eligible,exclusion_reason:eligible?null:!consentOk?'NO_MARKETING_CONSENT':'SUPPRESSED'});
+  }
+
+  const campaign={name:p.name,segment,template_key:template[segment],status:'review',scheduled_at:scheduled?.toISOString()??null,channel:'email'};
+  const expectedEligible=recipientSeeds.filter(r=>r.eligible).length;
+  const{data,error}=await a.rpc('admin_create_marketing_campaign_v2',{p_instance_id:store.instanceId,p_actor:user.id,p_campaign:campaign,p_recipients:recipientSeeds});
+  if(error)return NextResponse.json({error:'A kampány, a célcsoport-pillanatkép vagy az audit nem menthető. Egyetlen rész sem került alkalmazásra.'},{status:500});
+  const evidence=data as CampaignEvidence|null;
+  if(!evidence?.id||evidence.total!==recipientSeeds.length||evidence.eligible!==expectedEligible)return NextResponse.json({error:'A kampány létrehozásának eredménye nem igazolható.'},{status:500});
+
+  return NextResponse.json({ok:true,id:evidence.id,total:evidence.total,eligible:evidence.eligible});
+}

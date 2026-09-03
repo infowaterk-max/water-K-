@@ -43,18 +43,27 @@ describe('tenant B2B customer and storefront contract',()=>{
     expect(admin).toMatch(/eq\('instance_id',scope\.instanceId\)/);
 
     const api=read('src/app/api/admin/customers/[id]/route.ts');
+    const atomic=read('supabase/migrations/20260903145000_admin_engagement_evidence_atomic_v2.sql');
     expect(api).toMatch(/customer_instance_roles/);
     expect(api).toMatch(/eq\('instance_id',scope\.instanceId\)/);
-    expect(api).toMatch(/from\('profiles'\)\.select/);
-    expect(api).toMatch(/from\('customer_instance_roles'\)\.update/);
+    expect(api).toMatch(/admin_update_customer_store_role_v2/);
+    expect(api).toMatch(/p_instance_id:scope\.instanceId/);
+    expect(api).not.toMatch(/from\('customer_instance_roles'\)\.update/);
+    expect(api).not.toMatch(/recordAdminAudit/);
+    expect(atomic).toMatch(/where instance_id=p_instance_id and user_id=p_user_id/);
+    expect(atomic).toMatch(/select email,full_name into profile_row from public\.profiles/);
+    expect(atomic).toMatch(/'customer\.store_role_updated'/);
   });
 
-  test('existing customer can request tenant reseller status without self approval',()=>{
+  test('existing customer requests tenant reseller status through non-downgrading RPC',()=>{
     const api=read('src/app/api/account/reseller-request/route.ts');
+    const sql=read('supabase/migrations/20260903183500_reseller_request_concurrency_v2.sql');
     expect(api).toMatch(/getCurrentWebshopInstance/);
-    expect(api).toMatch(/instance_id:instance\.id/);
-    expect(api).toMatch(/reseller_approved:false/);
-    expect(api).not.toMatch(/reseller_approved:true/);
+    expect(api).toMatch(/request_reseller_status_v2/);
+    expect(api).toMatch(/p_instance_id:instance\.id/);
+    expect(api).not.toMatch(/customer_instance_roles'\)\.upsert/);
+    expect(sql).toMatch(/reseller_approved=true/);
+    expect(sql).toMatch(/for update/);
   });
 
   test('growth and CRM partner views use tenant relation',()=>{
@@ -75,6 +84,6 @@ describe('tenant B2B customer and storefront contract',()=>{
     expect(code).toMatch(/reseller_gross_price_huf/);
     expect(code).toMatch(/minimumQuantity/);
     const admin=read('src/app/admin/termekek/page.tsx');
-    expect(admin).toMatch(/getProducts\(\{includeAllChannels:true\}\)/);
+    expect(admin).toMatch(/getProducts\(\{includeAllChannels:true,throwOnError:true\}\)/);
   });
 });

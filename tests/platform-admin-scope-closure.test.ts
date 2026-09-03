@@ -61,9 +61,12 @@ describe('platform admin scope closure',()=>{
   test('webhook attribution is tenant-aware only after trusted order resolution',()=>{
     const outbox=read('src/lib/integrations/outbox.ts');
     const payments=read('src/lib/integrations/payment-events.ts');
+    const sql=read('supabase/migrations/20260903192000_payment_event_evidence_atomic_v3.sql');
     expect(outbox).toMatch(/instanceId\?:string\|null/);
-    expect(outbox).toMatch(/Cross-store webhook event collision/);
-    expect(payments).toMatch(/instanceId:order\.instance_id/);
+    expect(outbox).toContain("query=input.instanceId?query.eq('instance_id',input.instanceId):query.is('instance_id',null)");
+    expect(payments).toContain('p_instance_id:order.instance_id');
+    expect(sql).toContain('webhook_events_instance_provider_external_uidx');
+    expect(sql).toContain('webhook_events_unresolved_provider_external_uidx');
   });
 
   test('database contract provides tenant control-tower views',()=>{

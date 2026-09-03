@@ -1,9 +1,8 @@
-import { NextResponse } from 'next/server';
-import { z } from 'zod';
-import { getAdminRequestUser } from '@/lib/auth/admin-api';
-import { createAdminClient } from '@/lib/supabase/admin';
-import { recordAdminAudit } from '@/lib/admin/audit';
-import { requireCurrentStoreContext } from '@/lib/instances/scope';
+import{NextResponse}from'next/server';
+import{z}from'zod';
+import{getAdminRequestUser}from'@/lib/auth/admin-api';
+import{createAdminClient}from'@/lib/supabase/admin';
+import{requireCurrentStoreContext}from'@/lib/instances/scope';
 
 const schema=z.object({
   priority:z.number().int().min(0).max(10000).optional(),
@@ -22,19 +21,15 @@ export async function PATCH(request:Request,{params}:{params:Promise<{id:string}
   if(!parsed.success)return NextResponse.json({error:'Érvénytelen módosítás.'},{status:400});
 
   const admin=createAdminClient();
-  const{data:before}=await admin.from('product_recommendation_rules').select('*').eq('id',id).eq('instance_id',scope.instanceId).maybeSingle();
-  if(!before)return NextResponse.json({error:'A szabály nem található ebben a webshopban.'},{status:404});
-  const update:Record<string,unknown>={updated_at:new Date().toISOString()};
-  if(parsed.data.priority!==undefined)update.priority=parsed.data.priority;
-  if(parsed.data.active!==undefined)update.active=parsed.data.active;
-  if(parsed.data.headline!==undefined)update.headline=parsed.data.headline;
-  const{data:after,error}=await admin.from('product_recommendation_rules').update(update).eq('id',id).eq('instance_id',scope.instanceId).select('*').single();
-  if(error)return NextResponse.json({error:'A módosítás nem sikerült.'},{status:500});
-  await recordAdminAudit({
-    actorUserId:actor.id,organizationId:scope.organizationId,instanceId:scope.instanceId,
-    action:'catalog.recommendation_updated',entityType:'product_recommendation_rule',entityId:id,
-    summary:'Termékajánlási szabály módosítva',beforeState:before,afterState:after,
+  const{data,error}=await admin.rpc('admin_mutate_product_recommendation_v2',{
+    p_instance_id:scope.instanceId,p_rule_id:id,p_actor:actor.id,p_action:'update',p_payload:parsed.data
   });
+  if(error){
+    if(error.message.includes('RECOMMENDATION_NOT_FOUND'))return NextResponse.json({error:'A szabály nem található ebben a webshopban.'},{status:404});
+    if(error.message.includes('CATALOG_PERMISSION_REQUIRED'))return NextResponse.json({error:'Nincs jogosultság ehhez a webshophoz.'},{status:403});
+    return NextResponse.json({error:'A módosítás nem sikerült. Egyetlen változás sem került alkalmazásra.'},{status:500});
+  }
+  if(!(data as{id?:string}|null)?.id)return NextResponse.json({error:'A módosítás eredménye nem igazolható.'},{status:500});
   return NextResponse.json({ok:true});
 }
 
@@ -46,14 +41,14 @@ export async function DELETE(_:Request,{params}:{params:Promise<{id:string}>}){
   if(!z.string().uuid().safeParse(id).success)return NextResponse.json({error:'Érvénytelen azonosító.'},{status:400});
 
   const admin=createAdminClient();
-  const{data:before}=await admin.from('product_recommendation_rules').select('*').eq('id',id).eq('instance_id',scope.instanceId).maybeSingle();
-  if(!before)return NextResponse.json({error:'A szabály nem található ebben a webshopban.'},{status:404});
-  const{error}=await admin.from('product_recommendation_rules').delete().eq('id',id).eq('instance_id',scope.instanceId);
-  if(error)return NextResponse.json({error:'A törlés nem sikerült.'},{status:500});
-  await recordAdminAudit({
-    actorUserId:actor.id,organizationId:scope.organizationId,instanceId:scope.instanceId,
-    action:'catalog.recommendation_deleted',entityType:'product_recommendation_rule',entityId:id,
-    summary:'Termékajánlási szabály törölve',beforeState:before,
+  const{data,error}=await admin.rpc('admin_mutate_product_recommendation_v2',{
+    p_instance_id:scope.instanceId,p_rule_id:id,p_actor:actor.id,p_action:'delete',p_payload:{}
   });
+  if(error){
+    if(error.message.includes('RECOMMENDATION_NOT_FOUND'))return NextResponse.json({error:'A szabály nem található ebben a webshopban.'},{status:404});
+    if(error.message.includes('CATALOG_PERMISSION_REQUIRED'))return NextResponse.json({error:'Nincs jogosultság ehhez a webshophoz.'},{status:403});
+    return NextResponse.json({error:'A törlés nem sikerült. A szabályt nem tekintjük töröltnek.'},{status:500});
+  }
+  if(!(data as{id?:string}|null)?.id)return NextResponse.json({error:'A törlés eredménye nem igazolható.'},{status:500});
   return NextResponse.json({ok:true});
 }

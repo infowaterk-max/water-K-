@@ -28,8 +28,8 @@ describe('non-payment release hardening',()=>{
     expect(invoicing).toContain("connection.connection_status!=='active'");
     expect(invoicing).not.toContain('SZAMLAZZ_CONNECTION_VERIFIED');
     expect(processor).toContain('Invoice provider is not active for this webshop');
-    expect(events).toContain('getConfiguredInvoiceProviderCodeForInstance(instanceId)');
-    expect(adminOrder).toContain('getConfiguredInvoiceProviderCodeForInstance(scope.instanceId)');
+    expect(events).toContain('getConfiguredInvoiceProviderCodeForInstance(order.instance_id,{strict:true})');
+    expect(adminOrder).toContain('getConfiguredInvoiceProviderCodeForInstance(scope.instanceId,{strict:true})');
     expect(retry).toContain('getConfiguredInvoiceProviderCodeForInstance(scope.instanceId)');
   });
 
@@ -64,9 +64,17 @@ describe('non-payment release hardening',()=>{
 
   test('checkout and retry audit events satisfy strict tenant ownership',()=>{
     const order=read('src/app/api/orders/route.ts');
+    const checkoutSql=read('supabase/migrations/20260903190000_checkout_local_evidence_atomic_v2.sql');
     const retry=read('src/app/api/orders/[id]/retry-payment/route.ts');
-    expect(order).toMatch(/order_events'\)\.insert\(\{[\s\S]{0,100}instance_id: instance\.id[\s\S]{0,100}legal_terms_accepted/);
-    expect(order).toMatch(/order_events'\)\.insert\(\{[\s\S]{0,100}instance_id: instance\.id[\s\S]{0,120}payment_(recovered|started)/);
-    expect(retry).toMatch(/order_events'\)\.insert\(\{instance_id:instance\.id/);
+    expect(order).toContain('finalize_checkout_local_v2');
+    expect(order).toContain('reconcile_checkout_payment_session_v2');
+    expect(order).not.toContain("from('order_events').insert");
+    expect(checkoutSql).toContain("'legal_terms_accepted'");
+    expect(checkoutSql).toContain("'payment_recovered'");
+    expect(checkoutSql).toContain("'payment_started'");
+    const retrySql=read('supabase/migrations/20260903193000_payment_retry_reconciliation_atomic_v2.sql');
+    expect(retry).toContain('reconcile_retry_payment_session_v2');
+    expect(retry).not.toContain("from('order_events').insert");
+    expect(retrySql).toContain("'payment_retried'");
   });
 });

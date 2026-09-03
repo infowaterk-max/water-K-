@@ -1,1 +1,26 @@
-import{NextRequest,NextResponse}from'next/server';import{getAdminRequestUser}from'@/lib/auth/admin-api';import{requireCurrentStoreContext}from'@/lib/instances/scope';import{createAdminClient}from'@/lib/supabase/admin';import{hasCurrentPlanFeature}from'@/lib/plans/access';export async function POST(req:NextRequest){const user=await getAdminRequestUser('store.manage');if(!user)return NextResponse.json({error:'Nincs jogosultság.'},{status:403});const store=await requireCurrentStoreContext('store.manage');if(!(await hasCurrentPlanFeature('executiveAnalytics')))return NextResponse.json({error:'Az Irányítóközpont a Pro csomag része.'},{status:403});let body:{alertId?:string;targetStatus?:string;snoozeHours?:number;note?:string};try{body=await req.json()}catch{return NextResponse.json({error:'Érvénytelen kérés.'},{status:400})}const alertId=String(body.alertId??''),targetStatus=String(body.targetStatus??'');if(!alertId||!['acknowledged','snoozed','resolved','dismissed'].includes(targetStatus))return NextResponse.json({error:'Érvénytelen művelet.'},{status:400});let snoozedUntil:string|null=null;if(targetStatus==='snoozed'){const hours=Number(body.snoozeHours??4);if(!Number.isFinite(hours)||hours<1||hours>168)return NextResponse.json({error:'A szundi 1 és 168 óra közötti lehet.'},{status:400});snoozedUntil=new Date(Date.now()+hours*3600000).toISOString()}const a=createAdminClient();const{data,error}=await a.rpc('transition_control_alert_v2',{p_instance_id:store.instanceId,p_alert_id:alertId,p_target_status:targetStatus,p_event_key:crypto.randomUUID(),p_actor_id:user.id,p_snoozed_until:snoozedUntil,p_note:String(body.note??'')});if(error)return NextResponse.json({error:error.message||'A riasztás módosítása nem sikerült.'},{status:409});return NextResponse.json({ok:true,alert:data})}
+import{NextRequest,NextResponse}from'next/server';
+import{getAdminRequestUser}from'@/lib/auth/admin-api';
+import{requireCurrentStoreContext}from'@/lib/instances/scope';
+import{createAdminClient}from'@/lib/supabase/admin';
+import{hasCurrentPlanFeature}from'@/lib/plans/access';
+
+export async function POST(req:NextRequest){
+ const user=await getAdminRequestUser('store.manage');if(!user)return NextResponse.json({error:'Nincs jogosultság.'},{status:403});
+ const store=await requireCurrentStoreContext('store.manage');
+ if(!(await hasCurrentPlanFeature('executiveAnalytics')))return NextResponse.json({error:'Az Irányítóközpont a Pro csomag része.'},{status:403});
+ let body:{alertId?:string;targetStatus?:string;snoozeHours?:number;note?:string};try{body=await req.json()}catch{return NextResponse.json({error:'Érvénytelen kérés.'},{status:400})}
+ const alertId=String(body.alertId??''),targetStatus=String(body.targetStatus??'');
+ if(!alertId||!['acknowledged','snoozed','resolved','dismissed'].includes(targetStatus))return NextResponse.json({error:'Érvénytelen művelet.'},{status:400});
+ let snoozedUntil:string|null=null;
+ if(targetStatus==='snoozed'){
+  const hours=Number(body.snoozeHours??4);
+  if(!Number.isFinite(hours)||hours<1||hours>168)return NextResponse.json({error:'A szundi 1 és 168 óra közötti lehet.'},{status:400});
+  snoozedUntil=new Date(Date.now()+hours*3600000).toISOString();
+ }
+ const a=createAdminClient();
+ const{data,error}=await a.rpc('transition_control_alert_v2',{p_instance_id:store.instanceId,p_alert_id:alertId,p_target_status:targetStatus,p_event_key:crypto.randomUUID(),p_actor_id:user.id,p_snoozed_until:snoozedUntil,p_note:String(body.note??'')});
+ if(error)return NextResponse.json({error:error.message||'A riasztás módosítása nem sikerült.'},{status:409});
+ const alert=(data??{})as{id?:string;instance_id?:string;status?:string};
+ if(alert.id!==alertId||alert.instance_id!==store.instanceId||alert.status!==targetStatus)return NextResponse.json({error:'A riasztás módosításának eredménye nem igazolható.'},{status:500});
+ return NextResponse.json({ok:true,alert});
+}

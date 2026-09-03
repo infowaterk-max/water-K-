@@ -15,7 +15,8 @@ export default async function AdminPage() {
   const [plan, instance, platformRole] = await Promise.all([getCurrentPlan(), getCurrentWebshopInstance(), getPlatformRole()]);
   if (platformRole) redirect('/admin/platform');
   const isPro = plan === 'pro' && Boolean(instance);
-  const products = await getProducts();
+  const productResult=await getProducts({includeAllChannels:true,throwOnError:true}).then(data=>({data,error:false})).catch(()=>({data:[],error:true}));
+  const products=productResult.data,productLoadError=productResult.error;
   const now = Date.now();
   const day = 86_400_000;
   const today = new Date();
@@ -47,7 +48,7 @@ export default async function AdminPage() {
     if (error) orderLoadError = true;
     else if (data) {
       orders = data.length;
-      pending = data.filter((o) => o.status === 'pending').length;
+      pending = data.filter((o) => ['pending','pending_payment','pending_transfer'].includes(o.status)).length;
       const paid = data.filter((o) => paidStatuses.includes(o.status));
       paidOrders = paid.length;
       paidRevenue = paid.reduce((n, o) => n + Number(o.total_gross_huf || 0), 0);
@@ -55,8 +56,8 @@ export default async function AdminPage() {
       todayRevenue = paid.filter((o) => +new Date(o.created_at) >= +today).reduce((n, o) => n + Number(o.total_gross_huf || 0), 0);
       weekOrders = data.filter((o) => +new Date(o.created_at) >= now - 7 * day).length;
       weekRevenue = paid.filter((o) => +new Date(o.created_at) >= now - 7 * day).reduce((n, o) => n + Number(o.total_gross_huf || 0), 0);
-      openOrderValue = data.filter((o) => ['pending', 'paid', 'processing', 'shipped'].includes(o.status)).reduce((n, o) => n + Number(o.total_gross_huf || 0), 0);
-      stalePending = data.filter((o) => o.status === 'pending' && +new Date(o.created_at) < now - day).length;
+      openOrderValue = data.filter((o) => ['pending','pending_payment','pending_transfer','paid','processing','shipped'].includes(o.status)).reduce((n, o) => n + Number(o.total_gross_huf || 0), 0);
+      stalePending = data.filter((o) => ['pending','pending_payment','pending_transfer'].includes(o.status) && +new Date(o.created_at) < now - day).length;
       staleProcessing = data.filter((o) => o.status === 'processing' && +new Date(o.created_at) < now - 2 * day).length;
       staleShipped = data.filter((o) => o.status === 'shipped' && +new Date(o.created_at) < now - 3 * day).length;
     }
@@ -78,6 +79,8 @@ export default async function AdminPage() {
   let commApproval = 0;
   let commProblems = 0;
   let advancedLoadError = false;
+  let advancedProfitComplete = true;
+  let matchedProfitItems = 0;
 
   // Pro-only business intelligence. Alap never queries the advanced campaign,
   // communication or cost-intelligence tables just to render its dashboard.
@@ -85,7 +88,7 @@ export default async function AdminPage() {
     try {
       const a = createAdminClient();
       const since = new Date(now - 30 * day).toISOString();
-      const [{ data: ro }, { data: oi }, { data: cj }, { data: cv }, { data: cr }] = await Promise.all([
+      const [{ data: ro,error:roError }, { data: oi,error:oiError }, { data: cj,error:cjError }, { data: cv,error:cvError }, { data: cr,error:crError }] = await Promise.all([
         a.from('orders').select('id,subtotal_gross_huf,discount_gross_huf').eq('instance_id',instance.id).gte('created_at', since).in('status', paidStatuses),
         a.from('order_items').select('order_id,line_total_gross_huf,unit_cost_net_huf,quantity').eq('instance_id',instance.id),
         a.from('communication_jobs').select('id,status,requires_approval,approved_at').eq('instance_id',instance.id).limit(5000),
@@ -93,17 +96,21 @@ export default async function AdminPage() {
         a.from('marketing_campaign_recipients').select('communication_job_id').eq('instance_id',instance.id).not('communication_job_id', 'is', null).limit(50000),
       ]);
 
+      if(roError||oiError||cjError||cvError||crError)advancedLoadError=true;
       const orderMap = new Map((ro ?? []).map((o) => [o.id, o]));
       for (const i of oi ?? []) {
         const order = orderMap.get(i.order_id);
         if (!order) continue;
+        matchedProfitItems += 1;
         const subtotal = Number(order.subtotal_gross_huf || 0);
         const share = subtotal > 0 ? Number(i.line_total_gross_huf || 0) / subtotal : 0;
         net30 += Math.max(0, (Number(i.line_total_gross_huf || 0) - Number(order.discount_gross_huf || 0) * share) / VAT);
-        if (i.unit_cost_net_huf != null) cogs30 += Number(i.unit_cost_net_huf) * Number(i.quantity || 0);
+        if (i.unit_cost_net_huf == null) advancedProfitComplete = false;
+        else cogs30 += Number(i.unit_cost_net_huf) * Number(i.quantity || 0);
       }
-      grossProfit30 = net30 - cogs30;
-      grossMargin30 = net30 > 0 ? (grossProfit30 / net30) * 100 : null;
+      if ((ro ?? []).length > 0 && matchedProfitItems === 0) advancedProfitComplete = false;
+      grossProfit30 = advancedProfitComplete ? net30 - cogs30 : 0;
+      grossMargin30 = advancedProfitComplete && net30 > 0 ? (grossProfit30 / net30) * 100 : null;
 
       campaignRevenue = (cv ?? []).reduce((n, c) => n + Number(c.total_gross_huf || 0), 0);
       campaignBuyers = new Set((cv ?? []).map((c) => c.recipient_id)).size;
@@ -126,14 +133,14 @@ export default async function AdminPage() {
           : 'A napi értékesítéshez szükséges rendelések, forgalom, készlet és működési feladatok egy helyen.'}
       </p>
 
-      {orderLoadError && <div className="errorNotice"><strong>A rendelési adatok egy része most nem érhető el.</strong></div>}
+      {orderLoadError && <div className="errorNotice"><strong>A rendelési adatok egy része most nem érhető el.</strong></div>}{productLoadError&&<div className="errorNotice" role="alert"><strong>A katalógus és készlet most nem tölthető be.</strong> A készletmutatókat addig nem tekintjük nullának.</div>}
       {isPro && advancedLoadError && <div className="errorNotice"><strong>A Pro üzleti mutatók egy része most nem érhető el.</strong></div>}
 
       <div className="cards adminMetricCards">
-        <div className="card"><span className="badge">Ma</span><h3>{todayOrders} rendelés</h3><div className="price">{formatHuf(todayRevenue)}</div></div>
-        <div className="card"><span className="badge">7 nap</span><h3>{weekOrders} rendelés</h3><div className="price">{formatHuf(weekRevenue)}</div></div>
-        <div className="card"><span className="badge">Nyitott állomány</span><h3>{pending} függő fizetés</h3><div className="price">{formatHuf(openOrderValue)}</div></div>
-        <div className="card"><span className="badge">Átlagos kosár</span><div className="price">{formatHuf(average)}</div></div>
+        <div className="card"><span className="badge">Ma</span><h3>{orderLoadError?'—':`${todayOrders} rendelés`}</h3><div className="price">{orderLoadError?'—':formatHuf(todayRevenue)}</div></div>
+        <div className="card"><span className="badge">7 nap</span><h3>{orderLoadError?'—':`${weekOrders} rendelés`}</h3><div className="price">{orderLoadError?'—':formatHuf(weekRevenue)}</div></div>
+        <div className="card"><span className="badge">Nyitott állomány</span><h3>{orderLoadError?'—':`${pending} függő fizetés`}</h3><div className="price">{orderLoadError?'—':formatHuf(openOrderValue)}</div></div>
+        <div className="card"><span className="badge">Átlagos kosár</span><div className="price">{orderLoadError?'—':formatHuf(average)}</div></div>
       </div>
 
       <section className="card">
@@ -142,10 +149,10 @@ export default async function AdminPage() {
           <div><Link className="btn" href="/admin/rendelesek">Rendelések</Link> <Link className="btn btnPrimary" href="/admin/termekek">Készletkezelés</Link></div>
         </div>
         <div className="cards adminMetricCards">
-          <div className="card"><span className="badge">Kifogyott</span><div className="price">{out}</div><p className="muted">termék azonnali beavatkozással</p></div>
-          <div className="card"><span className="badge">Alacsony készlet</span><div className="price">{low}</div><p className="muted">1–5 darabos készlet</p></div>
-          <div className="card"><span className="badge">Régi függő</span><div className="price">{stalePending}</div><p className="muted">24+ órája fizetésre vár</p></div>
-          <div className="card"><span className="badge">Elakadt rendelés</span><div className="price">{staleProcessing + staleShipped}</div><p className="muted">feldolgozás vagy szállítás ellenőrzendő</p></div>
+          <div className="card"><span className="badge">Kifogyott</span><div className="price">{productLoadError?'—':out}</div><p className="muted">termék azonnali beavatkozással</p></div>
+          <div className="card"><span className="badge">Alacsony készlet</span><div className="price">{productLoadError?'—':low}</div><p className="muted">1–5 darabos készlet</p></div>
+          <div className="card"><span className="badge">Régi függő</span><div className="price">{orderLoadError?'—':stalePending}</div><p className="muted">24+ órája fizetésre vár</p></div>
+          <div className="card"><span className="badge">Elakadt rendelés</span><div className="price">{orderLoadError?'—':staleProcessing + staleShipped}</div><p className="muted">feldolgozás vagy szállítás ellenőrzendő</p></div>
         </div>
       </section>
 
@@ -171,22 +178,22 @@ export default async function AdminPage() {
               <Link className="btn btnPrimary" href="/admin/elemzes">Részletes elemzés</Link>
             </div>
             <div className="cards adminMetricCards">
-              <div className="card"><span className="badge">Nettó árbevétel</span><div className="price">{formatHuf(Math.round(net30))}</div></div>
-              <div className="card"><span className="badge">Bruttó fedezet</span><div className="price">{formatHuf(Math.round(grossProfit30))}</div></div>
-              <div className="card"><span className="badge">Fedezeti ráta</span><div className="price">{grossMargin30 === null ? '—' : `${grossMargin30.toFixed(1)}%`}</div></div>
+              <div className="card"><span className="badge">Nettó árbevétel</span><div className="price">{advancedLoadError?'—':formatHuf(Math.round(net30))}</div></div>
+              <div className="card"><span className="badge">Bruttó fedezet</span><div className="price">{advancedLoadError||!advancedProfitComplete?'—':formatHuf(Math.round(grossProfit30))}</div><p className="muted">{!advancedLoadError&&!advancedProfitComplete?'Hiányos önköltségadat miatt nem számolható biztosan.':'30 napos termékfedezet.'}</p></div>
+              <div className="card"><span className="badge">Fedezeti ráta</span><div className="price">{advancedLoadError||grossMargin30===null?'—':`${grossMargin30.toFixed(1)}%`}</div></div>
             </div>
           </section>
 
           <section className="card">
             <div className="adminToolbar">
-              <div><span className="eyebrow">Pro · marketing és digitális iroda</span><h2>{formatHuf(campaignRevenue)} attribútált kampánybevétel</h2></div>
+              <div><span className="eyebrow">Pro · marketing és digitális iroda</span><h2>{advancedLoadError?'—':formatHuf(campaignRevenue)} kampányhoz köthető bevétel</h2></div>
               <div><Link className="btn" href="/admin/kampanyok">Haladó kampányok</Link> <Link className="btn btnPrimary" href="/admin/kommunikacio">Digitális iroda</Link></div>
             </div>
             <div className="cards adminMetricCards">
-              <div className="card"><span className="badge">Konvertáló vásárló</span><div className="price">{campaignBuyers}</div></div>
-              <div className="card"><span className="badge">Kampányüzenet</span><div className="price">{campaignSent}</div></div>
-              <div className="card"><span className="badge">Jóváhagyásra vár</span><div className="price">{commApproval}</div></div>
-              <div className="card"><span className="badge">Kommunikációs probléma</span><div className="price">{commProblems}</div></div>
+              <div className="card"><span className="badge">Vásárlóvá vált címzett</span><div className="price">{advancedLoadError?'—':campaignBuyers}</div></div>
+              <div className="card"><span className="badge">Kiküldött kampányüzenet</span><div className="price">{advancedLoadError?'—':campaignSent}</div></div>
+              <div className="card"><span className="badge">Jóváhagyásra vár</span><div className="price">{advancedLoadError?'—':commApproval}</div></div>
+              <div className="card"><span className="badge">Kommunikációs probléma</span><div className="price">{advancedLoadError?'—':commProblems}</div></div>
             </div>
           </section>
         </>
@@ -194,14 +201,14 @@ export default async function AdminPage() {
         <section className="card">
           <span className="eyebrow">Pro lehetőségek</span>
           <h2>A webshop működik nélkülük is — a Pro a növekedést és az automatizálást gyorsítja.</h2>
-          <p className="muted">Digitális iroda, fejlett CRM, kampány-attribúció, üzleti analitika, automatizálás, beszerzési és cash-flow döntéstámogatás.</p>
+          <p className="muted">Digitális iroda, fejlett CRM, kampányeredmény-mérés, üzleti analitika, automatizálás, beszerzési és cash-flow döntéstámogatás.</p>
           <Link className="btn btnPrimary" href="/admin/csomag">Pro funkciók megtekintése</Link>
         </section>
       )}
 
       <section className="card">
         <span className="eyebrow">Összesített működés</span>
-        <h2>{orders} kezelt rendelés · {formatHuf(paidRevenue)} fizetett forgalom</h2>
+        <h2>{orderLoadError?'A rendelési összesítés most nem elérhető.':`${orders} kezelt rendelés · ${formatHuf(paidRevenue)} fizetett forgalom`}</h2>
         <p className="muted">Az Alap irányítópult kizárólag a napi webshopüzemeltetéshez szükséges adatokat tölti. A Pro üzleti intelligencia külön jogosultsági rétegben fut.</p>
       </section>
     </section>

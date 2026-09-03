@@ -1,1 +1,19 @@
-import{NextRequest,NextResponse}from'next/server';import{getAdminRequestUser}from'@/lib/auth/admin-api';import{requireCurrentStoreContext}from'@/lib/instances/scope';import{createAdminClient}from'@/lib/supabase/admin';import{hasCurrentPlanFeature}from'@/lib/plans/access';export async function POST(req:NextRequest){const user=await getAdminRequestUser('store.manage');if(!user)return NextResponse.json({error:'Nincs jogosultság.'},{status:403});const store=await requireCurrentStoreContext('store.manage');if(!(await hasCurrentPlanFeature('automation')))return NextResponse.json({error:'Az automatizálás a Pro csomag része.'},{status:403});let body:{paused?:boolean;reason?:string};try{body=await req.json()}catch{return NextResponse.json({error:'Érvénytelen kérés.'},{status:400})}if(typeof body.paused!=='boolean')return NextResponse.json({error:'Érvénytelen állapot.'},{status:400});const a=createAdminClient();const{data,error}=await a.rpc('set_store_automation_pause_v2',{p_instance_id:store.instanceId,p_actor_id:user.id,p_paused:body.paused,p_reason:String(body.reason??''),p_event_key:`${user.id}:${body.paused}:${Date.now()}`});if(error)return NextResponse.json({error:error.message},{status:400});return NextResponse.json({ok:true,data})}
+import{NextRequest,NextResponse}from'next/server';
+import{getAdminRequestUser}from'@/lib/auth/admin-api';
+import{requireCurrentStoreContext}from'@/lib/instances/scope';
+import{createAdminClient}from'@/lib/supabase/admin';
+import{hasCurrentPlanFeature}from'@/lib/plans/access';
+
+export async function POST(req:NextRequest){
+ const user=await getAdminRequestUser('store.manage');if(!user)return NextResponse.json({error:'Nincs jogosultság.'},{status:403});
+ const store=await requireCurrentStoreContext('store.manage');
+ if(!(await hasCurrentPlanFeature('automation')))return NextResponse.json({error:'Az automatizálás a Pro csomag része.'},{status:403});
+ let body:{paused?:boolean;reason?:string};try{body=await req.json()}catch{return NextResponse.json({error:'Érvénytelen kérés.'},{status:400})}
+ if(typeof body.paused!=='boolean')return NextResponse.json({error:'Érvénytelen állapot.'},{status:400});
+ const a=createAdminClient();
+ const{data,error}=await a.rpc('set_store_automation_pause_v2',{p_instance_id:store.instanceId,p_actor_id:user.id,p_paused:body.paused,p_reason:String(body.reason??''),p_event_key:`${user.id}:${body.paused}:${Date.now()}`});
+ if(error)return NextResponse.json({error:error.message},{status:400});
+ const control=(data??{})as{instance_id?:string;global_paused?:boolean};
+ if(control.instance_id!==store.instanceId||control.global_paused!==body.paused)return NextResponse.json({error:'Az automatizálási vezérlés eredménye nem igazolható.'},{status:500});
+ return NextResponse.json({ok:true,data:control});
+}

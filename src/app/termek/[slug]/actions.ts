@@ -27,7 +27,8 @@ export async function addWishlistAction(formData:FormData){
 export async function removeWishlistAction(formData:FormData){
   const slug=safeSlug(formData.get('slug')),variantId=String(formData.get('variantId')??''),supabase=await createClient(),{data:auth}=await supabase.auth.getUser();if(!auth.user)return;
   const resolved=await resolveCurrentVariant(variantId);if(!resolved)return;
-  await resolved.admin.from('wishlists').delete().eq('instance_id',resolved.instance.id).eq('user_id',auth.user.id).eq('variant_id',variantId);
+  const{error}=await resolved.admin.from('wishlists').delete().eq('instance_id',resolved.instance.id).eq('user_id',auth.user.id).eq('variant_id',variantId);
+  if(error)redirect(`${productPath(slug)}?wishlist=error`);
   revalidatePath(productPath(slug));
 }
 export async function stockNotificationAction(formData:FormData){
@@ -41,6 +42,8 @@ export async function submitReviewAction(formData:FormData){
   const slug=safeSlug(formData.get('slug')),variantId=String(formData.get('variantId')??''),rating=Number(formData.get('rating')),reviewerName=String(formData.get('reviewerName')??'').trim().slice(0,80),title=String(formData.get('title')??'').trim().slice(0,120),body=String(formData.get('body')??'').trim().slice(0,2000);if(!Number.isInteger(rating)||rating<1||rating>5||body.length<5)redirect(`${productPath(slug)}?review=invalid`);
   const supabase=await createClient(),{data:auth}=await supabase.auth.getUser();if(!auth.user)redirect(`/fiokom?next=${encodeURIComponent(productPath(slug))}`);
   const resolved=await resolveCurrentVariant(variantId);if(!resolved)redirect(`${productPath(slug)}?review=error`);
-  const{data:purchases}=await resolved.admin.from('order_items').select('id,orders!inner(customer_id,status,instance_id)').eq('instance_id',resolved.instance.id).eq('variant_id',variantId).eq('orders.instance_id',resolved.instance.id).eq('orders.customer_id',auth.user.id).in('orders.status',['paid','processing','shipped','completed']).limit(1);
-  const{error}=await resolved.admin.from('product_reviews').insert({instance_id:resolved.instance.id,product_id:resolved.variant.product_id,user_id:auth.user.id,rating,reviewer_name:reviewerName||'Vásárló',title:title||null,body,status:'pending',verified_purchase:Boolean(purchases?.length)});if(error)redirect(`${productPath(slug)}?review=error`);redirect(`${productPath(slug)}?review=ok`);
+  const{data:purchases,error:purchaseError}=await resolved.admin.from('order_items').select('id,orders!inner(customer_id,status,instance_id)').eq('instance_id',resolved.instance.id).eq('variant_id',variantId).eq('orders.instance_id',resolved.instance.id).eq('orders.customer_id',auth.user.id).in('orders.status',['paid','processing','shipped','completed']).limit(1);
+  if(purchaseError)redirect(`${productPath(slug)}?review=error`);
+  const{data:review,error}=await resolved.admin.from('product_reviews').insert({instance_id:resolved.instance.id,product_id:resolved.variant.product_id,user_id:auth.user.id,rating,reviewer_name:reviewerName||'Vásárló',title:title||null,body,status:'pending',verified_purchase:Boolean(purchases?.length)}).select('id').single();
+  if(error||!review?.id)redirect(`${productPath(slug)}?review=error`);redirect(`${productPath(slug)}?review=ok`);
 }

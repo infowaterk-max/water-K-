@@ -16,14 +16,15 @@ export class SzamlazzHuInvoiceProvider implements InvoiceProvider{
 }
 export class UnconfiguredInvoiceProvider implements InvoiceProvider{async healthCheck(){return{ok:false,message:'Számlázó szolgáltató nincs konfigurálva.'}}async createInvoice(_input:Parameters<InvoiceProvider['createInvoice']>[0]):ReturnType<InvoiceProvider['createInvoice']>{throw new Error('Invoice provider credentials and API contract required')}}
 export function getConfiguredInvoiceProviderCode(){return process.env.INVOICE_PROVIDER==='szamlazz'&&process.env.SZAMLAZZ_AGENT_KEY?'szamlazz':null}
-export async function getConfiguredInvoiceProviderCodeForInstance(instanceId:string){
+export async function getConfiguredInvoiceProviderCodeForInstance(instanceId:string,options?:{strict?:boolean}){
   const code=getConfiguredInvoiceProviderCode();if(!code)return null;
   const admin=createAdminClient();
   const[{data:connection,error:connectionError},{data:catalog,error:catalogError}]=await Promise.all([
     admin.from('webshop_instance_provider_connections').select('provider_code,enabled,connection_status').eq('instance_id',instanceId).eq('provider_code',code).maybeSingle(),
     admin.from('commerce_provider_catalog').select('code,provider_type,adapter_key,is_available').eq('code',code).eq('provider_type','invoice').maybeSingle(),
   ]);
-  if(connectionError||catalogError||!connection||!catalog)return null;
+  if(connectionError||catalogError){if(options?.strict)throw connectionError??catalogError;return null}
+  if(!connection||!catalog)return null;
   if(connection.enabled!==true||connection.connection_status!=='active'||catalog.is_available!==true||catalog.adapter_key!==code)return null;
   return code;
 }

@@ -4,29 +4,49 @@ import{createClient}from'@/lib/supabase/server';
 import{createAdminClient}from'@/lib/supabase/admin';
 import{getCurrentWebshopInstance}from'@/lib/instances/access';
 
-const schema=z.object({name:z.string().trim().max(120).optional().default(''),email:z.string().trim().email().max(200),orderNumber:z.string().trim().max(80).optional().default(''),category:z.enum(['product','order','shipping','invoice','reseller','return','other']),subject:z.string().trim().min(3).max(180),message:z.string().trim().min(10).max(4000),website:z.string().max(200).optional().default('')});
-function ticketNumber(){const d=new Date(),date=`${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}`,rand=Math.random().toString(36).slice(2,8).toUpperCase();return `SUP-${date}-${rand}`}
+const schema=z.object({
+  name:z.string().trim().max(120).optional().default(''),
+  email:z.string().trim().email().max(200),
+  orderNumber:z.string().trim().max(80).optional().default(''),
+  category:z.enum(['product','order','shipping','invoice','reseller','return','other']),
+  subject:z.string().trim().min(3).max(180),
+  message:z.string().trim().min(10).max(4000),
+  website:z.string().max(200).optional().default('')
+});
 
 export async function POST(request:Request){
-  let raw:unknown;try{raw=await request.json()}catch{return NextResponse.json({error:'Érvénytelen kérés.'},{status:400})}
-  const parsed=schema.safeParse(raw);if(!parsed.success)return NextResponse.json({error:'Ellenőrizd a megadott adatokat.'},{status:400});
+  let raw:unknown;
+  try{raw=await request.json()}
+  catch{return NextResponse.json({error:'Érvénytelen kérés.'},{status:400})}
+  const parsed=schema.safeParse(raw);
+  if(!parsed.success)return NextResponse.json({error:'Ellenőrizd a megadott adatokat.'},{status:400});
   if(parsed.data.website)return NextResponse.json({ok:true,ticketNumber:'SUP-OK'});
+
   const instance=await getCurrentWebshopInstance();
-  if(!instance||!['pilot','active'].includes(instance.status))return NextResponse.json({error:'Az ügyfélszolgálat ehhez a webshophoz most nem érhető el.'},{status:409});
-  const s=await createClient(),{data:{user}}=await s.auth.getUser(),a=createAdminClient(),email=parsed.data.email.toLowerCase();
-  let orderId:string|null=null;
-  if(parsed.data.orderNumber){
-    const{data:o}=await a.from('orders').select('id,customer_id,customer_email').eq('instance_id',instance.id).eq('order_number',parsed.data.orderNumber).maybeSingle();
-    if(o&&(String(o.customer_email).toLowerCase()===email||user&&o.customer_id===user.id))orderId=o.id;
+  if(!instance||!['pilot','active'].includes(instance.status)){
+    return NextResponse.json({error:'Az ügyfélszolgálat ehhez a webshophoz most nem érhető el.'},{status:409});
   }
-  const cutoff=new Date(Date.now()-5*60000).toISOString();
-  const{data:recent}=await a.from('support_tickets').select('id').eq('instance_id',instance.id).eq('email',email).eq('subject',parsed.data.subject).gte('created_at',cutoff).limit(1).maybeSingle();
-  if(recent)return NextResponse.json({error:'Hasonló üzenetet néhány perce már rögzítettünk. Kérjük, várj egy kicsit.'},{status:429});
-  let number=ticketNumber();
-  for(let i=0;i<3;i++){
-    const{error}=await a.from('support_tickets').insert({instance_id:instance.id,ticket_number:number,user_id:user?.id??null,order_id:orderId,email,name:parsed.data.name||null,category:parsed.data.category,subject:parsed.data.subject,message:parsed.data.message});
-    if(!error)return NextResponse.json({ok:true,ticketNumber:number});
-    number=ticketNumber();
+
+  const s=await createClient(),{data:{user}}=await s.auth.getUser();
+  const a=createAdminClient();
+  const{data,error}=await a.rpc('create_support_ticket_v2',{
+    p_instance_id:instance.id,
+    p_user_id:user?.id??null,
+    p_email:parsed.data.email.toLowerCase(),
+    p_name:parsed.data.name||null,
+    p_order_number:parsed.data.orderNumber||null,
+    p_category:parsed.data.category,
+    p_subject:parsed.data.subject,
+    p_message:parsed.data.message,
+  });
+  if(error)return NextResponse.json({error:'Az üzenet rögzítése nem sikerült.'},{status:500});
+
+  const result=(data??{})as{id?:string;ticketNumber?:string;duplicate?:boolean;instanceId?:string};
+  if(!result.id||!result.ticketNumber||result.instanceId!==instance.id){
+    return NextResponse.json({error:'Az ügyfélszolgálati ügy rögzítésének eredménye nem igazolható.'},{status:500});
   }
-  return NextResponse.json({error:'Az üzenet rögzítése nem sikerült.'},{status:500});
+  if(result.duplicate===true){
+    return NextResponse.json({error:'Hasonló üzenetet néhány perce már rögzítettünk. Kérjük, várj egy kicsit.'},{status:429});
+  }
+  return NextResponse.json({ok:true,ticketNumber:result.ticketNumber},{status:201});
 }

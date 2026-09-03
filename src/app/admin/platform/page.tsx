@@ -34,9 +34,9 @@ export default async function PlatformControlCenterPage(){
   const[
     {data:instances,error:listError},
     {count:instanceCount,error:countError},
-    {count:pilotCount},
-    {count:activeCount},
-    {count:suspendedCount},
+    {count:pilotCount,error:pilotError},
+    {count:activeCount,error:activeError},
+    {count:suspendedCount,error:suspendedError},
     {count:operatorCount,error:operatorError},
   ]=await Promise.all([
     admin.from('webshop_instances')
@@ -51,12 +51,12 @@ export default async function PlatformControlCenterPage(){
   ]);
 
   const rows=(instances??[]) as InstanceRow[];
-  const loadError=Boolean(listError||countError||operatorError);
+  const loadError=Boolean(listError||countError||pilotError||activeError||suspendedError||operatorError);
 
   return <section className="adminMain">
     <span className="eyebrow">Shoperation · Platform</span>
     <h1 className="sectionTitle">Platform irányítóközpont</h1>
-    <p className="lead">Rendszerszintű áttekintés az ügyfél-webshopokról és a platform működési állapotáról. Ez a nézet tenant nélkül is használható.</p>
+    <p className="lead">Rendszerszintű áttekintés az ügyfél-webshopokról és a platform működési állapotáról. Ez a nézet webshop kiválasztása nélkül is használható.</p>
 
     {loadError&&<div className="errorNotice" role="alert"><strong>Az összes platformmutató nem tölthető be.</strong><p>Az elérhető adatok ettől még megjelennek; a hiányzó értékeket ne tekintsd nullának.</p></div>}
 
@@ -76,14 +76,14 @@ export default async function PlatformControlCenterPage(){
       <div className="card"><span className="badge">Platform kezelő</span><div className="price">{operatorCount??'—'}</div><p className="muted">Rendszerszintű hozzáféréssel</p></div>
     </div>
 
-    {(instanceCount??0)===0&&<section className="card">
-      <span className="badge">Első production tenant</span>
+    {!countError&&instanceCount===0&&<section className="card">
+      <span className="badge">Első ügyfél-webshop</span>
       <h2>Még nincs létrehozott ügyfél-webshop.</h2>
-      <p className="muted">A platformtulajdonosi hozzáférés működik. A következő biztonságos lépés az első Pilot / Alap / B2C tenant atomi provisionálása.</p>
+      <p className="muted">A platformtulajdonosi hozzáférés működik. A következő biztonságos lépés az első Pilot / Alap / B2C ügyfél-webshop létrehozása.</p>
       <div className="actions"><Link className="btn btnPrimary" href="/admin/platform/webaruhazak">Ügyfél-webshop létrehozása</Link></div>
     </section>}
 
-    {rows.length>0&&<section className="card">
+    {!listError&&rows.length>0&&<section className="card">
       <div className="adminToolbar">
         <div><span className="eyebrow">Legfrissebb példányok</span><h2>Webshopok állapota</h2></div>
         <Link className="btn btnPrimary" href="/admin/platform/webaruhazak">Összes webshop kezelése</Link>

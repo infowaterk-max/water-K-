@@ -37,7 +37,7 @@ describe('B2C/B2B channel checkout authority',()=>{
     expect(catalog).toContain("approvedReseller?'b2b':'b2c'");
     expect(catalog).toContain('setting?setting.visible');
     expect(catalog).toContain('includeAllChannels');
-    expect(admin).toContain('getProducts({includeAllChannels:true})');
+    expect(admin).toContain('getProducts({includeAllChannels:true,throwOnError:true})');
   });
 
   test('cart quantities align minimum order quantity to the order multiple',()=>{

@@ -42,22 +42,26 @@ describe('merchant admin tenant closure',()=>{
     }
   });
 
-  test('coupon and review writes are tenant scoped',()=>{
+  test('coupon and review writes are tenant scoped and atomically audited',()=>{
     const coupons=read('src/app/api/admin/coupons/route.ts');
+    const reviews=read('src/app/admin/velemenyek/actions.ts');
+    const sql=read('supabase/migrations/20260903145000_admin_engagement_evidence_atomic_v2.sql');
     expect(coupons).toMatch(/requireCurrentStoreContext\('marketing\.manage'\)/);
-    expect(coupons).toMatch(/instance_id:ctx\.scope\.instanceId/);
-    expect(coupons).toMatch(/eq\('instance_id',ctx\.scope\.instanceId\)/);
+    expect(coupons).toContain('admin_mutate_coupon_v2');
+    expect(coupons).toContain('p_instance_id:ctx.scope.instanceId');
     expect(coupons).toMatch(/usage_count/);
     expect(coupons).not.toMatch(/used_count/);
-
-    const reviews=read('src/app/admin/velemenyek/actions.ts');
+    expect(coupons).not.toContain('recordAdminAudit');
     expect(reviews).toMatch(/requireCurrentStoreContext\('marketing\.manage'\)/);
-    expect(reviews).toMatch(/eq\('instance_id',scope\.instanceId\)/);
+    expect(reviews).toContain('admin_moderate_product_review_v2');
+    expect(reviews).toContain('p_instance_id:scope.instanceId');
+    expect(sql).toContain("where id=p_coupon_id and instance_id=p_instance_id");
+    expect(sql).toContain("where id=p_review_id and instance_id=p_instance_id");
   });
 
   test('campaign, promotion and integration actions use tenant-aware RPCs',()=>{
     const campaign=read('src/app/api/admin/campaigns/manage/route.ts');
-    expect(campaign).toMatch(/admin_manage_marketing_campaign_v2/);
+    expect(campaign).toMatch(/admin_manage_marketing_campaign_v3/);
     expect(campaign).toMatch(/p_instance_id:store\.instanceId/);
 
     const promo=read('src/app/api/admin/promotions/preview/route.ts');
@@ -66,12 +70,14 @@ describe('merchant admin tenant closure',()=>{
 
     const integration=read('src/app/api/admin/integrations/[id]/run/route.ts');
     expect(integration).toMatch(/claim_integration_job_v2/);
-    expect(integration).toMatch(/processIntegrationJob\(scope\.instanceId,id,claim\.processing_token\)/);
+    expect(integration).toMatch(/processIntegrationJob\(scope\.instanceId,id,claim\.processing_token,\{manualActorId:actor\.id\}\)/);
+    expect(integration).not.toContain('recordAdminAudit');
   });
 
   test('integration processor carries tenant through all persistence',()=>{
     const processor=read('src/lib/integrations/processor.ts');
-    expect(processor).toMatch(/processIntegrationJob\(instanceId:string,jobId:string,claimToken:string\)/);
+    expect(processor).toMatch(/processIntegrationJob\(instanceId:string,jobId:string,claimToken:string,options\?:\{manualActorId\?:string\}\)/);
+    expect(processor).toContain('admin_finalize_manual_integration_job_v2');
     expect(processor).toMatch(/getCommunicationIdentityForInstance\(instanceId\)/);
     expect(processor).toMatch(/integration_jobs[\s\S]*eq\('instance_id',instanceId\)/);
     expect(processor).toMatch(/orders[\s\S]*eq\('instance_id',instanceId\)/);
@@ -90,8 +96,9 @@ describe('merchant admin tenant closure',()=>{
     expect(exec).toMatch(/v9_growth_dashboard_v2/);
 
     const route=read('src/app/api/admin/growth/run/route.ts');
-    expect(route).toMatch(/plan_customer_retention_journeys_v2/);
-    expect(route).toMatch(/dispatch_due_customer_journey_steps_v2/);
+    expect(route).toMatch(/admin_refresh_growth_workflows_v3/);
+    expect(route).not.toMatch(/a\.rpc\('plan_customer_retention_journeys_v2'/);
+    expect(route).not.toMatch(/a\.rpc\('dispatch_due_customer_journey_steps_v2'/);
   });
 
   test('customer profile access is derived from tenant-linked customers',()=>{
@@ -104,8 +111,13 @@ describe('merchant admin tenant closure',()=>{
     expect(followup).toMatch(/profiles[\s\S]*in\('id',partnerIds\)/);
 
     const api=read('src/app/api/admin/customers/[id]/route.ts');
+    const sql=read('supabase/migrations/20260903145000_admin_engagement_evidence_atomic_v2.sql');
     expect(api).toMatch(/customer_instance_roles[\s\S]*eq\('instance_id',scope\.instanceId\)[\s\S]*eq\('user_id',id\)/);
-    expect(api).toMatch(/profiles[\s\S]*eq\('id',id\)\.maybeSingle\(\)/);
+    expect(api).toContain('admin_update_customer_store_role_v2');
+    expect(api).toContain('p_instance_id:scope.instanceId');
+    expect(api).not.toContain('recordAdminAudit');
+    expect(sql).toContain('where instance_id=p_instance_id and user_id=p_user_id');
+    expect(sql).toContain('public.can_manage_sales(p_instance_id,p_actor)');
   });
 
   test('database migration adds tenant analytics and v2 operational RPCs',()=>{

@@ -12,9 +12,9 @@ describe('Pro finance and analytics contracts', () => {
   test('cash-flow remains Pro-only, tenant-scoped decision support', () => {
     expect(cashflow).toMatch(/requirePlanFeature\('cashflow'\)/);
     expect(cashflow).toMatch(/requireCurrentStoreContext\('analytics\.read'\)/);
-    expect(cashflow).toMatch(/90 napos működési cash-flow előrejelzés/);
-    expect(cashflow).toMatch(/aktuális webshop fizetett rendeléseiből/);
-    expect(cashflow).toMatch(/Működési előrejelzés, nem könyvelési pénzforgalmi kimutatás/);
+    expect(cashflow).toMatch(/90 napos működési pénzáram-előrejelzés/);
+    expect(cashflow).toMatch(/utolsó 90 nap fizetett rendeléseinek/);
+    expect(cashflow).toMatch(/Működési előrejelzés, nem bankszámla-egyenleg/);
   });
 
   test('cash-flow uses paid commerce revenue and open procurement obligations', () => {
@@ -29,9 +29,11 @@ describe('Pro finance and analytics contracts', () => {
   });
 
   test('cash-flow keeps 30, 60 and 90 day obligations cumulative and visible', () => {
-    expect(cashflow).toMatch(/net30=forecastRevenue30-due30/);
-    expect(cashflow).toMatch(/net60=forecastRevenue60-due30-due60/);
-    expect(cashflow).toMatch(/net90=forecastRevenue90-due30-due60-due90/);
+    expect(cashflow).toMatch(/const overdue=/);
+    expect(cashflow).toMatch(/net30=forecastRevenue30-overdue-due30/);
+    expect(cashflow).toMatch(/net60=forecastRevenue60-overdue-due30-due60/);
+    expect(cashflow).toMatch(/net90=forecastRevenue90-overdue-due30-due60-due90/);
+    expect(cashflow).toMatch(/Lejárt/);
     expect(cashflow).toMatch(/0–30 nap/);
     expect(cashflow).toMatch(/31–60 nap/);
     expect(cashflow).toMatch(/61–90 nap/);
@@ -54,7 +56,7 @@ describe('Pro finance and analytics contracts', () => {
   });
 
   test('analytics protects profitability and retention decision views', () => {
-    expect(analytics).toMatch(/Termékprofitabilitás/);
+    expect(analytics).toMatch(/Termékenkénti fedezet/);
     expect(analytics).toMatch(/Ügyfélérték/);
     expect(analytics).toMatch(/repeatRate/);
     expect(analytics).toMatch(/grossMargin/);

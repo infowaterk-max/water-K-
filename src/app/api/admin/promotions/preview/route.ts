@@ -13,5 +13,7 @@ export async function POST(request:Request){
  const admin=createAdminClient();
  const{data,error}=await admin.rpc('preview_promotion_margin_v2',{p_instance_id:scope.instanceId,p_variant_id:parsed.data.variantId,p_discount_percent:parsed.data.discountPercent,p_min_margin_percent:parsed.data.minimumMarginPercent});
  if(error)return NextResponse.json({error:'A promóciós árrés nem számítható ki ehhez a webshophoz.'},{status:500});
- return NextResponse.json({ok:true,preview:data});
+ const preview=(data??{})as{variantId?:string;safe?:boolean};
+ if(preview.variantId!==parsed.data.variantId||typeof preview.safe!=='boolean')return NextResponse.json({error:'A promóciós árrés számításának eredménye nem igazolható.'},{status:500});
+ return NextResponse.json({ok:true,preview});
 }
