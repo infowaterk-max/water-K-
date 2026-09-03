@@ -9,7 +9,8 @@ describe('admin workspace and settings evidence atomicity',()=>{
   test('Digital Office business writes no longer use direct table mutations',()=>{
     const actions=read('src/app/admin/kommunikacio/iroda/actions.ts');
     const sql=read(migration);
-    expect(actions.match(/admin_mutate_office_workspace_v2/g)?.length).toBeGreaterThanOrEqual(7);
+    expect(actions).toContain("admin_mutate_office_workspace_v2");
+    expect(actions.match(/await mutateOffice\(/g)?.length).toBeGreaterThanOrEqual(7);
     for(const fragment of [
       ".from('office_threads').insert(",
       ".from('office_threads').update(",

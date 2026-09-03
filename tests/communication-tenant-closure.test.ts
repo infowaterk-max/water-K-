@@ -37,7 +37,10 @@ describe('communication tenant closure',()=>{
     expect(read('src/lib/communication/worker.ts')).toMatch(/claim_communication_jobs_v2/);
     expect(read('src/lib/communication/worker.ts')).toMatch(/getCommunicationIdentityForInstance/);
     expect(read('src/app/api/admin/communication/enqueue/route.ts')).toMatch(/enqueue_communication_v2/);
-    expect(read('src/app/admin/kommunikacio/iroda/actions.ts')).toMatch(/enqueue_communication_v2/);
+    const office=read('src/app/admin/kommunikacio/iroda/actions.ts');
+    const evidence=read('supabase/migrations/20260903170000_admin_workspace_settings_evidence_atomic_v2.sql');
+    expect(office).toMatch(/admin_mutate_office_workspace_v2/);
+    expect(evidence).toMatch(/admin_mutate_office_workspace_v2[\s\S]*enqueue_communication_v2/);
   });
 
   test('unsubscribe signatures bind the tenant and recipient together',()=>{

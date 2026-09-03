@@ -9,7 +9,9 @@ describe('store settings and dashboard closure',()=>{
   const actions=read('src/app/admin/beallitasok/fizetes-szallitas/actions.ts');
   expect(page).toContain("requireCurrentStoreContext('store.manage')");
   expect(page).not.toContain('requireAdmin()');
-  expect(actions.match(/requireCurrentStoreContext\('store\.manage'\)/g)?.length).toBe(2);
+  expect(actions).toContain("getAdminRequestUser('store.manage')");
+  expect(actions).toContain("requireCurrentStoreContext('store.manage')");
+  expect(actions.match(/await commerceAccess\(\)/g)?.length).toBe(2);
   expect(actions).toContain('scope.instanceId');
   expect(actions).not.toContain('getCurrentWebshopInstance');
  });

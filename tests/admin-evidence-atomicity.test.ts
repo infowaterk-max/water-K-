@@ -5,10 +5,14 @@ import {describe,expect,test} from 'vitest';
 const root=process.cwd(),read=(file:string)=>fs.readFileSync(path.join(root,file),'utf8');
 
 describe('admin evidence atomicity closure',()=>{
-  test('launch opening verifies that the pilot row was actually activated',()=>{
+  test('launch opening requires atomic activation evidence',()=>{
     const source=read('src/app/admin/indulas/actions.ts');
-    expect(source).toContain(".eq('status','pilot').select('id').maybeSingle()");
-    expect(source).toContain('if(error||!activated)');
+    const sql=read('supabase/migrations/20260903170000_admin_workspace_settings_evidence_atomic_v2.sql');
+    expect(source).toContain("admin_activate_webshop_v2");
+    expect(source).toContain("evidence.id!==scope.instanceId||evidence.status!=='active'");
+    expect(source).not.toContain(".from('webshop_instances').update(");
+    expect(sql).toContain("where id=p_instance_id and status='pilot'");
+    expect(sql).toContain("'store.activated'");
   });
 
   test('all CMS mutations delegate business state and audit to one database transaction',()=>{

@@ -33,7 +33,9 @@ describe('platform membership RBAC synchronization',()=>{
     expect(assign).not.toContain("from('webshop_instance_members').upsert");
     expect(source).toContain("rpc('platform_remove_webshop_member_v2'");
     expect(remove).not.toContain("from('webshop_instance_members').delete");
-    expect(source).toContain('ADDONS[addon].compatiblePlans.includes(instance.subscription_plan)');
+    const configSql=read('supabase/migrations/20260903170000_admin_workspace_settings_evidence_atomic_v2.sql');
+    expect(source).toContain("p_action:'addon'");
+    expect(configSql).toContain('PLATFORM_ADDON_PLAN_INCOMPATIBLE');
   });
 
   test('platform webshop page fails closed when membership state is only partially readable',()=>{
