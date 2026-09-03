@@ -4,9 +4,12 @@ on:
   push:
     branches:
       - core-engine-2-batch
+      - production-provisioning-acceptance
     paths:
       - .github/workflows/customer-baseline-snapshot.yml
       - supabase/customer-baseline/manifest.json
+      - supabase/customer-baseline/source-preflight.sql
+      - supabase/customer-baseline/target-postflight.sql
       - scripts/generate-customer-baseline.mjs
       - scripts/review-customer-baseline-snapshot.mjs
       - scripts/validate-customer-baseline.mjs
@@ -31,7 +34,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 24
 
       - name: Resolve baseline lifecycle
         id: lifecycle
@@ -53,6 +56,11 @@ jobs:
             echo "SHOPERATION_BASELINE_DB_URL repository secret is missing."
             exit 1
           fi
+
+      - name: Baseline source preflight
+        if: steps.lifecycle.outputs.generate == 'true'
+        shell: bash
+        run: psql "$SHOPERATION_BASELINE_DB_URL" -X -v ON_ERROR_STOP=1 -f supabase/customer-baseline/source-preflight.sql
 
       - name: Generate reviewed schema snapshot
         if: steps.lifecycle.outputs.generate == 'true'

@@ -10,6 +10,7 @@ declare
   public_sequences integer;
   public_user_types integer;
   migration_rows integer := 0;
+  auth_users integer := 0;
 begin
   select count(*) into public_relations
   from pg_class c
@@ -40,14 +41,17 @@ begin
     execute 'select count(*) from supabase_migrations.schema_migrations' into migration_rows;
   end if;
 
+  select count(*) into auth_users from auth.users;
+
   if public_relations <> 0
      or public_functions <> 0
      or public_sequences <> 0
      or public_user_types <> 0
-     or migration_rows <> 0 then
+     or migration_rows <> 0
+     or auth_users <> 0 then
     raise exception
-      'Fresh-install target is not empty: relations=%, functions=%, sequences=%, user_types=%, migration_rows=%',
-      public_relations, public_functions, public_sequences, public_user_types, migration_rows;
+      'Fresh-install target is not empty: relations=%, functions=%, sequences=%, user_types=%, migration_rows=%, auth_users=%',
+      public_relations, public_functions, public_sequences, public_user_types, migration_rows, auth_users;
   end if;
 end $$;
 
@@ -57,4 +61,5 @@ select
   0::integer as public_sequences,
   0::integer as public_user_types,
   0::integer as historical_migration_rows,
+  0::integer as auth_users,
   'target-preflight-ok'::text as status;

@@ -9,7 +9,7 @@
   "snapshotFile": "supabase/customer-baseline/migrations/0001_shoperation_v1_schema.sql",
   "snapshotCommand": "npm run db:customer:snapshot",
   "freshInstallProofRequired": false,
-  "notes": "The current neutral Shoperation public/private schema snapshot, Supabase Auth bootstrap, neutral seed and target preflight/postflight contract passed on an empty disposable Fresh Install Supabase project. The exact proven contract is pinned by proofContractSha256; any contract drift makes the baseline guard fail closed until a new proof is completed.",
+  "notes": "The atomic tenant provisioning customer schema snapshot, Supabase Auth bootstrap, neutral seed and strengthened empty-target pre/postflight contract passed on an empty disposable Fresh Install Supabase project. The exact proof contract is pinned by proofContractSha256; any drift fails closed until re-proven.",
   "authBootstrapFile": "supabase/customer-baseline/auth-bootstrap.sql",
-  "proofContractSha256": "8c81baf43d06af78fe6e023acb32a4c16c695fa61d216bfba90e3ceb6e23b27e"
+  "proofContractSha256": "29bb4b303fd6c1da21e7a3d687d55b2d4c9a499fcc4a7964c2c9c428be3e43a8"
 }

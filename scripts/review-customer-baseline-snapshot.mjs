@@ -23,6 +23,11 @@ const normalizedIdentifiers=lower.replace(/"/g,'');
 
 const requiredObjects=[
   'public.webshop_instances',
+  'public.organizations',
+  'public.organization_members',
+  'public.role_bindings',
+  'public.feature_entitlements',
+  'public.webshop_sales_channels',
   'public.profiles',
   'public.products',
   'public.product_variants',
@@ -40,9 +45,7 @@ const requiredObjects=[
   'public.recovery_runs',
 ];
 
-const requiredRoutines=[
-  'place_order_provider_v5_idempotent',
-  'quote_tenant_checkout_v2',
+const permissionHelpers=[
   'is_platform_operator',
   'has_store_role',
   'has_feature_entitlement',
@@ -55,6 +58,12 @@ const requiredRoutines=[
   'can_manage_sales',
   'can_read_loyalty',
   'can_manage_loyalty',
+];
+
+const requiredRoutines=[
+  'place_order_provider_v5_idempotent',
+  'quote_tenant_checkout_v2',
+  ...permissionHelpers,
   'detect_control_tower_alerts',
   'process_recovery_governance_cycle',
   'record_recovery_evidence',
@@ -106,7 +115,20 @@ if(!normalizedIdentifiers.includes('place_order_provider_v5_idempotent')) fail('
 if(!normalizedIdentifiers.includes('quote_tenant_checkout_v2')) fail('current tenant-aware checkout quote RPC is missing');
 if(/\b(?:create|replace)\s+(?:or\s+replace\s+)?function\s+(?:"?public"?\.)?"?place_order"?\s*\(/i.test(sql)) fail('obsolete public.place_order checkout overload is present');
 
-for(const helper of requiredRoutines.slice(2)){
+for(const marker of [
+  'public.provision_webshop_tenant_v1',
+  'private.sync_webshop_plan_entitlements',
+  'private.sync_webshop_plan_entitlements_trigger',
+  'webshop_instance_plan_entitlements_sync',
+]){
+  if(!normalizedIdentifiers.includes(marker)) fail(`atomic tenant provisioning marker is missing: ${marker}`);
+}
+if(!/organization_id\s+uuid\s+not\s+null/i.test(normalizedIdentifiers)){
+  fail('webshop_instances.organization_id must be NOT NULL in the reviewed baseline');
+}
+
+
+for(const helper of permissionHelpers){
   const escaped=helper.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
   const block=new RegExp(`create\\s+(?:or\\s+replace\\s+)?function\\s+public\\.${escaped}\\b[\\s\\S]*?alter\\s+function\\s+public\\.${escaped}\\b`,'i').exec(normalizedIdentifiers)?.[0] ?? '';
   if(!block) fail(`permission helper definition is missing: ${helper}`);
