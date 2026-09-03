@@ -16,9 +16,10 @@ describe('customer support reply atomicity',()=>{
   });
 
   test('closed-ticket guard rolls back the message insert if state changes concurrently',()=>{
-    const sql=read('supabase/migrations/20260901165100_communication_tenant_closure.sql');
-    expect(sql).toMatch(/guard_closed_support_thread[\s\S]*for update/);
-    expect(sql).toContain("if v_status='closed' then raise exception");
-    expect(sql).toMatch(/guard_closed_support_thread_trigger[\s\S]*before insert on public\.support_ticket_messages/);
+    const closure=read('supabase/migrations/20260901165100_communication_tenant_closure.sql');
+    const trigger=read('supabase/migrations/054_support_closed_thread_guard.sql');
+    expect(closure).toMatch(/guard_closed_support_thread[\s\S]*for update/);
+    expect(closure).toContain("if v_status='closed' then raise exception");
+    expect(trigger).toMatch(/guard_closed_support_thread_trigger[\s\S]*before insert on public\.support_ticket_messages/);
   });
 });
