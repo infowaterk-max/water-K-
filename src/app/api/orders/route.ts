@@ -9,7 +9,6 @@ import { getPaymentGatewayAdapter, getShippingProviderAdapter } from '@/lib/inte
 import {
   createPaymentAttempt,
   getLatestPaymentAttempt,
-  markPaymentAttemptRequiresAction,
 } from '@/lib/integrations/payment-attempts';
 import { getCommunicationIdentityForInstance } from '@/lib/communication/identity';
 
@@ -275,15 +274,21 @@ export async function POST(request: Request) {
         paymentRedirectUrl=result.redirectUrl;
       } catch (paymentError) {
         console.error('checkout payment provider call failed', { orderId: order.order_id, paymentProvider: payment.code, attemptId, error: paymentError });
-        await markPaymentAttemptRequiresAction(attemptId, {
-          code:recoveryReference?'PAYMENT_SESSION_RECONCILIATION_REQUIRED':'PAYMENT_OUTCOME_UNKNOWN',
-          message: paymentError instanceof Error ? paymentError.message : 'Payment provider outcome unknown',
-          metadata: {
-            instance_id: instance.id,
-            provider_reference:recoveryReference??null,
-            checkout_url:recoveryCheckoutUrl??null,
-          },
-        }).catch(() => undefined);
+        const{data:recoveryData,error:recoveryError}=await admin.rpc('mark_payment_attempt_reconciliation_required_v2',{
+          p_instance_id:instance.id,
+          p_order_id:order.order_id,
+          p_attempt_id:attemptId,
+          p_provider_code:payment.code,
+          p_provider_reference:recoveryReference??null,
+          p_checkout_url:recoveryCheckoutUrl??null,
+          p_failure_code:recoveryReference?'PAYMENT_SESSION_RECONCILIATION_REQUIRED':'PAYMENT_OUTCOME_UNKNOWN',
+          p_failure_message:paymentError instanceof Error?paymentError.message:'Payment provider outcome unknown',
+          p_metadata:{source:'initial_checkout'},
+        });
+        const recoveryEvidence=(recoveryData??{}) as {attemptId?:string;evidenceSaved?:boolean};
+        if(recoveryError||recoveryEvidence.attemptId!==attemptId||recoveryEvidence.evidenceSaved!==true){
+          console.error('checkout payment reconciliation evidence failed',{instanceId:instance.id,orderId:order.order_id,attemptId,error:recoveryError});
+        }
         return NextResponse.json({ error: 'A rendelés rögzült, de a fizetés indítása nem fejeződött be biztonságosan. A rendelésed megmaradt; a fiókodban újrapróbálhatod a fizetést.', orderId: order.order_id, orderNumber: order.order_number, confirmationToken, status: finalStatus }, { status: 503 });
       }
     }

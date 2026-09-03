@@ -15,6 +15,8 @@ describe('checkout local evidence atomicity',()=>{
     expect(route).not.toContain('enqueueIntegrationJob');
     expect(route).not.toContain('enqueueExternalLogisticsOrderEmail');
     expect(route).not.toContain('attachPaymentAttemptReference');
+    expect(route).not.toContain('markPaymentAttemptRequiresAction');
+    expect(route).toContain('mark_payment_attempt_reconciliation_required_v2');
   });
 
   test('local finalizer binds the idempotent order and commits legal/outbox/recovery evidence',()=>{

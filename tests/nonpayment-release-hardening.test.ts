@@ -72,6 +72,9 @@ describe('non-payment release hardening',()=>{
     expect(checkoutSql).toContain("'legal_terms_accepted'");
     expect(checkoutSql).toContain("'payment_recovered'");
     expect(checkoutSql).toContain("'payment_started'");
-    expect(retry).toMatch(/order_events'\)\.insert\(\{instance_id:instance\.id/);
+    const retrySql=read('supabase/migrations/20260903193000_payment_retry_reconciliation_atomic_v2.sql');
+    expect(retry).toContain('reconcile_retry_payment_session_v2');
+    expect(retry).not.toContain("from('order_events').insert");
+    expect(retrySql).toContain("'payment_retried'");
   });
 });
