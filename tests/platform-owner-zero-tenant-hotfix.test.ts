@@ -18,6 +18,9 @@ describe('platform owner zero-tenant hotfix',()=>{
     expect(page).not.toContain('requirePlanFeature');
     expect(page).toContain('tenant nélkül is használható');
     expect(layout).toContain('const sections=isPlatform&&!instance?[]:merchantSections');
+    const adminRoot=read('src/app/admin/page.tsx');
+    expect(adminRoot).toContain('getPlatformRole()');
+    expect(adminRoot).toContain("if (platformRole) redirect('/admin/platform')");
   });
 
   it('keeps the action center usable for a platform operator without a selected tenant',()=>{
@@ -27,6 +30,15 @@ describe('platform owner zero-tenant hotfix',()=>{
     expect(page).toContain('Platformszintű, tenantfüggetlen felügyeleti nézet');
     expect(page).toContain('szándékosan csak olvasható');
     expect(page).toContain("eq('instance_id',store.instanceId)");
+  });
+
+  it('keeps platform navigation inside platform-safe routes',()=>{
+    const layout=read('src/app/admin/layout.tsx');
+    const monitoring=read('src/app/admin/megfigyeles/page.tsx');
+    const operatorRoutes=['/admin/platform/webaruhazak','/admin/platform','/admin/intezkedesek','/admin/biztositekok','/admin/kiadasok','/admin/rollout','/admin/utoellenorzes','/admin/helyreallitas','/admin/megfigyeles','/admin/muveletek','/admin/naplo'];
+    for(const route of operatorRoutes)expect(layout).toContain(`href:'${route}'`);
+    expect(monitoring).toContain('href="/admin/muveletek"');
+    expect(monitoring).not.toContain('href="/admin/integraciok"');
   });
 
   it('keeps owner activation and tenant B2B signup in the same final Auth trigger',()=>{
