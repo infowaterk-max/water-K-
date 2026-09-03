@@ -34,14 +34,12 @@ export async function recordWebhookEvent(input:{instanceId?:string|null;provider
   const{data,error}=await admin.from('webhook_events').insert(row).select('id,instance_id').single();
   if(!error)return data;
   if(error.code==='23505'&&input.externalEventId){
-    const{data:existing,error:existingError}=await admin.from('webhook_events').select('id,instance_id').eq('provider',input.provider).eq('external_event_id',input.externalEventId).maybeSingle();
+    let query=admin.from('webhook_events').select('id,instance_id')
+      .eq('provider',input.provider)
+      .eq('external_event_id',input.externalEventId);
+    query=input.instanceId?query.eq('instance_id',input.instanceId):query.is('instance_id',null);
+    const{data:existing,error:existingError}=await query.maybeSingle();
     if(existingError||!existing)throw existingError??error;
-    if(input.instanceId&&existing.instance_id&&existing.instance_id!==input.instanceId)throw new Error('Cross-store webhook event collision.');
-    if(input.instanceId&&!existing.instance_id){
-      const{data:updated,error:updateError}=await admin.from('webhook_events').update({instance_id:input.instanceId,status:input.status,signature_valid:input.signatureValid,payload_hash:input.payloadHash??null,error_message:input.errorMessage??null,processed_at:row.processed_at}).eq('id',existing.id).is('instance_id',null).select('id,instance_id').maybeSingle();
-      if(updateError)throw updateError;
-      return updated??existing;
-    }
     return existing;
   }
   throw error;

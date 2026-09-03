@@ -36,8 +36,11 @@ describe('external logistics e-mail fulfillment',()=>{
     expect(logistics).toContain('logistics_order_email_sent');
   });
 
-  it('plans logistics notification inside the admin order transition for paid and COD processing',()=>{
-    expect(paymentEvents).toContain('enqueueExternalLogisticsOrderEmail');
+  it('plans logistics notification inside atomic paid/admin order evidence flows',()=>{
+    const paymentSql=read('supabase/migrations/20260903192000_payment_event_evidence_atomic_v3.sql');
+    expect(paymentEvents).toContain('apply_verified_payment_event_v3');
+    expect(paymentSql).toContain("'logistics_email','external_logistics_email'");
+    expect(paymentSql).toContain("p.adapter_key='external_logistics_email'");
     expect(adminOrder).toContain('getExternalLogisticsConfig');
     expect(adminOrder).toContain("admin_transition_order_with_outbox_v3");
     expect(adminOrder).toContain("kind:'logistics_email',provider:'external_logistics_email'");
