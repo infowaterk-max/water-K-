@@ -27,7 +27,8 @@ export async function addWishlistAction(formData:FormData){
 export async function removeWishlistAction(formData:FormData){
   const slug=safeSlug(formData.get('slug')),variantId=String(formData.get('variantId')??''),supabase=await createClient(),{data:auth}=await supabase.auth.getUser();if(!auth.user)return;
   const resolved=await resolveCurrentVariant(variantId);if(!resolved)return;
-  await resolved.admin.from('wishlists').delete().eq('instance_id',resolved.instance.id).eq('user_id',auth.user.id).eq('variant_id',variantId);
+  const{error}=await resolved.admin.from('wishlists').delete().eq('instance_id',resolved.instance.id).eq('user_id',auth.user.id).eq('variant_id',variantId);
+  if(error)redirect(`${productPath(slug)}?wishlist=error`);
   revalidatePath(productPath(slug));
 }
 export async function stockNotificationAction(formData:FormData){
