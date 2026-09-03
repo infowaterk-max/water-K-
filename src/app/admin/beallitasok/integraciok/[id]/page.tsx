@@ -7,7 +7,7 @@ import { requireCurrentStoreContext } from '@/lib/instances/scope';
 
 export const dynamic='force-dynamic';
 const statusLabel:Record<string,string>={pending:'Várakozik',processing:'Folyamatban',succeeded:'Sikeres',failed:'Sikertelen',blocked:'Blokkolt'};
-const kindLabel:Record<string,string>={payment_create:'Fizetés indítása',payment_callback:'Fizetési callback',shipment_create:'Szállítás létrehozása',invoice_create:'Számlakészítés',email_send:'E-mail küldés',logistics_email:'Logisztikai partner értesítése'};
+const kindLabel:Record<string,string>={payment_create:'Fizetés indítása',payment_callback:'Fizetési visszajelzés',shipment_create:'Szállítás létrehozása',invoice_create:'Számlakészítés',email_send:'E-mail küldés',logistics_email:'Logisztikai partner értesítése'};
 
 export default async function IntegrationJobDetail({params}:{params:Promise<{id:string}>}){
   await requirePlanFeature('advancedIntegrations');
@@ -24,7 +24,7 @@ export default async function IntegrationJobDetail({params}:{params:Promise<{id:
     {job.status==='processing'&&processingAgeMinutes>=30&&<div className="errorNotice" role="alert"><strong>A feladat több mint {processingAgeMinutes} perce feldolgozás alatt van.</strong> Ellenőrizd a szolgáltatói oldalt és a naplót, mielőtt kézi ismétlést indítasz.</div>}
     <div className="cards"><section className="card"><span className="badge">Állapot</span><h2>{statusLabel[job.status]??job.status}</h2><p className="muted">Próbálkozások: {job.attempt_count}</p></section><section className="card"><span className="badge">Következő próba</span><h2>{job.next_attempt_at?new Intl.DateTimeFormat('hu-HU',{dateStyle:'short',timeStyle:'short'}).format(new Date(job.next_attempt_at)):'—'}</h2></section><section className="card"><span className="badge">Rendelés</span><h2>{order?.order_number??'—'}</h2><p className="muted">{order?`${order.customer_email} · ${order.total_gross_huf.toLocaleString('hu-HU')} Ft`:''}</p>{job.order_id&&<Link className="textLink" href={`/admin/rendelesek/${job.order_id}`}>Rendelés megnyitása</Link>}</section></div>
     {job.last_error&&<section className="card"><h2>Utolsó hiba</h2><p>{job.last_error}</p></section>}
-    <div className="cards"><section className="card"><h2>Payload</h2><pre style={{whiteSpace:'pre-wrap',overflowWrap:'anywhere'}}>{JSON.stringify(job.payload,null,2)}</pre></section><section className="card"><h2>Eredmény</h2><pre style={{whiteSpace:'pre-wrap',overflowWrap:'anywhere'}}>{JSON.stringify(job.result,null,2)}</pre></section></div>
+    <section className="card"><details><summary className="textLink"><strong>Technikai adatok megnyitása</strong></summary><div className="cards" style={{marginTop:16}}><section className="card"><h3>Küldött adatok</h3><pre className="auditJson">{JSON.stringify(job.payload,null,2)}</pre></section><section className="card"><h3>Szolgáltatói eredmény</h3><pre className="auditJson">{JSON.stringify(job.result,null,2)}</pre></section></div></details></section>
     <section className="card"><div className="adminToolbar"><div><h2>Művelet</h2><p className="muted">Sikeres vagy éppen futó feladat nem indítható újra. A kézi újrafuttatás bekerül az admin auditnaplóba.</p></div><IntegrationJobControl id={job.id} disabled={job.status==='processing'||job.status==='succeeded'}/></div></section>
   </section>;
 }
