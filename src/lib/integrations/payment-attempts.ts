@@ -2,7 +2,7 @@ import 'server-only';
 import { createAdminClient } from '@/lib/supabase/admin';
 export type PaymentAttemptStatus='created'|'pending'|'requires_action'|'succeeded'|'failed'|'cancelled'|'expired'|'refunded';
 type CreatePaymentAttemptInput={instanceId?:string|null;orderId:string;providerCode:string;providerReference?:string|null;amountHuf:number;status?:PaymentAttemptStatus;metadata?:Record<string,unknown>};
-export type LatestPaymentAttempt={id:string;status:PaymentAttemptStatus;providerReference:string|null;checkoutUrl:string|null;createdAt:string};
+export type LatestPaymentAttempt={id:string;status:PaymentAttemptStatus;providerReference:string|null;providerOrderNo:string|null;checkoutUrl:string|null;createdAt:string};
 function objectMeta(value:unknown){return value&&typeof value==='object'&&!Array.isArray(value)?value as Record<string,unknown>:{};}
 function sanitizeFailure(message?:string|null){if(!message)return null;return message.replace(/[\r\n\t]+/g,' ').replace(/(?:sk|pk|secret|token|password|key)[=:]\s*[^\s,;]+/gi,'[redacted]').slice(0,500)}
 
@@ -29,10 +29,10 @@ export async function createPaymentAttempt(input:CreatePaymentAttemptInput){
 
 export async function getLatestPaymentAttempt(orderId:string,providerCode:string):Promise<LatestPaymentAttempt|null>{
   const admin=createAdminClient(),instanceId=await resolveOrderTenant(orderId);
-  const{data,error}=await admin.from('payment_attempts').select('id,status,provider_reference,metadata,created_at').eq('instance_id',instanceId).eq('order_id',orderId).eq('provider_code',providerCode).order('created_at',{ascending:false}).limit(1).maybeSingle();
+  const{data,error}=await admin.from('payment_attempts').select('id,status,provider_reference,provider_order_no,metadata,created_at').eq('instance_id',instanceId).eq('order_id',orderId).eq('provider_code',providerCode).order('created_at',{ascending:false}).limit(1).maybeSingle();
   if(error)throw error;if(!data)return null;
   const metadata=objectMeta(data.metadata),checkoutUrl=typeof metadata.checkout_url==='string'&&/^https?:\/\//i.test(metadata.checkout_url)?metadata.checkout_url:null;
-  return{id:data.id,status:data.status as PaymentAttemptStatus,providerReference:data.provider_reference,checkoutUrl,createdAt:data.created_at};
+  return{id:data.id,status:data.status as PaymentAttemptStatus,providerReference:data.provider_reference,providerOrderNo:data.provider_order_no??null,checkoutUrl,createdAt:data.created_at};
 }
 
 export async function attachPaymentAttemptReference(attemptId:string,providerReference:string,extraMetadata?:Record<string,unknown>){
@@ -53,4 +53,14 @@ export async function updatePaymentAttemptFromEvent(input:{instanceId:string;pro
   const{data:attempt,error:readError}=await admin.from('payment_attempts').select('id,metadata').eq('instance_id',input.instanceId).eq('provider_code',input.providerCode).eq('provider_reference',input.providerReference).maybeSingle();
   if(readError)throw readError;if(!attempt)return;
   const metadata=objectMeta(attempt.metadata),{error}=await admin.from('payment_attempts').update({status:mapped,updated_at:now,completed_at:terminal?now:null,failure_code:null,failure_message:null,metadata:{...metadata,last_event_id:input.eventId,last_event_type:input.eventType}}).eq('id',attempt.id).eq('instance_id',input.instanceId);if(error)throw error;
+}
+
+
+export async function allocatePaymentProviderOrderNo(attemptId:string,providerCode:string){
+  const admin=createAdminClient();
+  const{data,error}=await admin.rpc('allocate_payment_provider_order_no_v1',{p_attempt_id:attemptId,p_provider_code:providerCode});
+  if(error||data==null)throw error??new Error('A fizetési szolgáltatói rendelésazonosító nem foglalható.');
+  const value=String(data);
+  if(providerCode==='kh_card'&&!/^[1-9][0-9]{0,9}$/.test(value))throw new Error('Érvénytelen K&H VPOS orderNo.');
+  return value;
 }

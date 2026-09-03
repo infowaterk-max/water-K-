@@ -12,6 +12,7 @@ import {
   createPaymentAttempt,
   getLatestPaymentAttempt,
   markPaymentAttemptRequiresAction,
+  allocatePaymentProviderOrderNo,
 } from '@/lib/integrations/payment-attempts';
 import { getCommunicationIdentity } from '@/lib/communication/identity';
 import { enqueueExternalLogisticsOrderEmail } from '@/lib/integrations/external-logistics';
@@ -212,9 +213,11 @@ export async function POST(request: Request) {
 
       try {
         const identity = await getCommunicationIdentity();
-        const callbackUrl = `${identity.siteUrl}/api/payments/${encodeURIComponent(payment.code)}/webhook`;
+        const callbackUrl = payment.code==='kh_card'?`${identity.siteUrl}/api/payments/kh/return`:`${identity.siteUrl}/api/payments/${encodeURIComponent(payment.code)}/webhook`;
+        const providerOrderNo = payment.code==='kh_card'?await allocatePaymentProviderOrderNo(attemptId,payment.code):undefined;
         const result = await getPaymentGatewayAdapter(payment.adapterKey).createPayment({
           orderId: order.order_number,
+          providerOrderNo,
           total: { amount: order.total_gross_huf, currency: 'HUF' },
           returnUrl: `${identity.siteUrl}/rendeles-sikeres?token=${encodeURIComponent(confirmation.confirmation_token)}`,
           cancelUrl: `${identity.siteUrl}/rendeles-sikeres?token=${encodeURIComponent(confirmation.confirmation_token)}&payment=cancelled`,
@@ -222,7 +225,7 @@ export async function POST(request: Request) {
           idempotencyKey: `shoperation-${instance.id}-${payment.code}-${order.order_id}`,
           customerEmail: checkout.email,
         });
-        await attachPaymentAttemptReference(attemptId, result.providerReference, { checkout_url: result.redirectUrl, instance_id: instance.id });
+        await attachPaymentAttemptReference(attemptId, result.providerReference, { checkout_url: result.redirectUrl, provider_order_no: providerOrderNo??null, instance_id: instance.id });
         paymentRedirectUrl = result.redirectUrl;
         const { error: paymentOrderError } = await admin
           .from('orders')

@@ -4,7 +4,7 @@ export type CheckoutCustomer={email:string;phone?:string;name:string;companyName
 export type InvoiceLine={name:string;sku:string;quantity:number;unitGrossHuf:number;lineGrossHuf:number;unitNetHuf:number;lineNetHuf:number;vatRatePercent:number};
 export type InvoiceResult={invoiceNumber:string;documentUrl?:string;providerReference?:string};
 export type PaymentCallbackResult={paid:boolean;providerReference:string;eventId?:string;status?:'pending'|'paid'|'failed'|'cancelled'|'refunded'|'unknown';eventType?:string;acknowledgement?:{body:string;headers?:Record<string,string>;status?:number}};
-export interface PaymentGateway{createPayment(input:{orderId:string;total:Money;returnUrl:string;cancelUrl?:string;callbackUrl?:string;idempotencyKey?:string;customerEmail?:string}):Promise<{redirectUrl:string;providerReference:string}>;verifyCallback(payload:unknown):Promise<PaymentCallbackResult>;healthCheck?():Promise<{ok:boolean;message:string}>}
+export interface PaymentGateway{createPayment(input:{orderId:string;providerOrderNo?:string;total:Money;returnUrl:string;cancelUrl?:string;callbackUrl?:string;idempotencyKey?:string;customerEmail?:string}):Promise<{redirectUrl:string;providerReference:string}>;verifyCallback(payload:unknown):Promise<PaymentCallbackResult>;healthCheck?():Promise<{ok:boolean;message:string}>}
 export type ShipmentKind='parcel_point'|'home_delivery'|'pickup';
 export type PickupPoint={id:string;name:string;address:string;postalCode?:string;city?:string;lat?:number;lng?:number;type?:string};
 export type ShipmentInput={orderId:string;customer:CheckoutCustomer;address:Address;weightGrams:number;kind?:ShipmentKind;parcelPointId?:string;declaredValueHuf?:number;codAmountHuf?:number};
