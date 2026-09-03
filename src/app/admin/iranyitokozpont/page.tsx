@@ -36,13 +36,13 @@ export default async function ControlTowerPage(){
   ]);
 
   const rows=(q??[])as AlertRow[],kpi=(k??{open_alerts:0,critical_alerts:0,high_alerts:0,over_24h_alerts:0,overdue_tasks:0,operations_alerts:0,inventory_alerts:0,commercial_alerts:0,service_alerts:0,commercial_value_at_risk_net_huf:0,avg_alert_age_hours:0,control_health_score:100})as Kpi;
-  const health=(h??{open_system_alerts:0,critical_system_alerts:0,failed_or_blocked_integration_jobs:0,failed_webhooks_7d:0,last_control_cycle_at:null})as Health,cats=(c??[])as Cat[],loadError=Boolean(qe||ke||he||ce);
+  const health=(h??{open_system_alerts:0,critical_system_alerts:0,failed_or_blocked_integration_jobs:0,failed_webhooks_7d:0,last_control_cycle_at:null})as Health,cats=(c??[])as Cat[],loadError=Boolean(qe||ke||he||ce),canAct=canManage&&!loadError;
 
   return <section className="adminMain">
     <span className="eyebrow">Pro · Üzleti irányítóközpont</span>
     <h1 className="sectionTitle">Irányítóközpont</h1>
     <p className="lead">Egyesített kockázati és döntési sor a műveletek, készlet, ügyfélszolgálat, értékesítés és integrációk fölött. A rendszer javasol és priorizál; magas hatású üzleti állapotot nem módosít automatikusan.</p>
-    {canManage?<div className="actions"><ControlCycleButton/></div>:<div className="adminAuditNotice"><strong>Csak olvasási jogosultság.</strong><p>A jelzéseket és feladatokat megtekintheted, de kontrollciklust futtatni, jelzést lezárni vagy feladatot módosítani csak webshop-admin jogosultsággal lehet.</p></div>}
+    {canAct?<div className="actions"><ControlCycleButton/></div>:!canManage?<div className="adminAuditNotice"><strong>Csak olvasási jogosultság.</strong><p>A jelzéseket és feladatokat megtekintheted, de kontrollciklust futtatni, jelzést lezárni vagy feladatot módosítani csak webshop-admin jogosultsággal lehet.</p></div>:<div className="adminAuditNotice"><strong>Módosítás átmenetileg letiltva.</strong><p>Hiányos kontrolladat mellett nem futtatunk ciklust és nem módosítunk jelzést vagy feladatot.</p></div>}
     {loadError&&<div className="errorNotice" role="alert"><strong>Az irányítóközpont adatainak egy része most nem tölthető be.</strong> A hiányzó mutatók helyén nem feltételezünk hibamentes állapotot.</div>}
 
     <div className="cards adminMetricCards">
@@ -80,12 +80,12 @@ export default async function ControlTowerPage(){
           <td>{Number(r.age_hours).toFixed(1)} óra</td>
           <td>{alertStatus[r.status]??r.status}{r.snoozed_until?` · ${new Date(r.snoozed_until).toLocaleString('hu-HU')}`:''}</td>
           <td>{r.recommended_action??'—'}</td>
-          <td>{r.task_status?<><strong>{taskStatus[r.task_status]??r.task_status}</strong>{r.task_due_at&&<div className="muted">Határidő: {new Date(r.task_due_at).toLocaleString('hu-HU')}{r.task_overdue?' · LEJÁRT':''}</div>}{canManage?<TaskActions taskId={r.task_id} status={r.task_status}/>:<div className="muted">Csak olvasás</div>}</>:'—'}</td>
+          <td>{r.task_status?<><strong>{taskStatus[r.task_status]??r.task_status}</strong>{r.task_due_at&&<div className="muted">Határidő: {new Date(r.task_due_at).toLocaleString('hu-HU')}{r.task_overdue?' · LEJÁRT':''}</div>}{canAct?<TaskActions taskId={r.task_id} status={r.task_status}/>:<div className="muted">Csak olvasás</div>}</>:'—'}</td>
           <td><Link className="btn btnGhost" href={moduleRoutes[r.category]??'/admin'}>Forrásmodul</Link></td>
-          <td>{canManage?<AlertActions alertId={r.alert_id} status={r.status}/>:<span className="muted">Csak olvasás</span>}</td>
+          <td>{canAct?<AlertActions alertId={r.alert_id} status={r.status}/>:<span className="muted">Csak olvasás</span>}</td>
         </tr>)}</tbody>
       </table></div>
-      {!qe&&rows.length===0&&<p className="muted">{canManage?'Nincs nyitott kontrolljelzés. Szükség esetén futtasd a kontrollciklust az aktuális állapot kiértékeléséhez.':'Nincs nyitott kontrolljelzés.'}</p>}
+      {!qe&&rows.length===0&&<p className="muted">{canAct?'Nincs nyitott kontrolljelzés. Szükség esetén futtasd a kontrollciklust az aktuális állapot kiértékeléséhez.':'Nincs nyitott kontrolljelzés.'}</p>}
     </section>
   </section>;
 }

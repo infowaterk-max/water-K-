@@ -40,7 +40,7 @@ export default async function Cashflow(){
     </section>
 
     <div className="cards adminMetricCards">
-      <div className="card"><span className="badge">30 nap</span><div className="price">{loadError?'—':formatHuf(Math.round(net30))}</div><p className="muted">becsült forgalom {formatHuf(Math.round(forecastRevenue30))} · lejárt + 30 napon belüli beszerzés {formatHuf(Math.round(overdue+due30))}</p></div>
+      <div className="card"><span className="badge">30 nap</span><div className="price">{loadError?'—':formatHuf(Math.round(net30))}</div><p className="muted">{loadError?'A részletes 30 napos bontás most nem használható.':<>becsült forgalom {formatHuf(Math.round(forecastRevenue30))} · lejárt + 30 napon belüli beszerzés {formatHuf(Math.round(overdue+due30))}</>}</p></div>
       <div className="card"><span className="badge">60 nap</span><div className="price">{loadError?'—':formatHuf(Math.round(net60))}</div></div>
       <div className="card"><span className="badge">90 nap</span><div className="price">{loadError?'—':formatHuf(Math.round(net90))}</div></div>
       <div className="card"><span className="badge">90 napig ismert beszerzési kifizetés</span><div className="price">{pe?'—':formatHuf(Math.round(overdue+due30+due60+due90))}</div></div>

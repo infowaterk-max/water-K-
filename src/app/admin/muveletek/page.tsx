@@ -48,14 +48,14 @@ export default async function OperationsPage(){
   const instanceById=new Map(((instanceResult.data??[])as Instance[]).map(x=>[x.id,x]));
   const storeName=(instanceId:string|null|undefined)=>instanceId?(instanceById.get(instanceId)?.name??instanceById.get(instanceId)?.slug??'Ismeretlen webshop'):'Nincs tenant';
 
-  const loadError=Boolean(queueError||summaryError||kpiError||stockError||orderTenantResult.error||variantTenantResult.error||instanceResult.error);
+  const loadError=Boolean(queueError||summaryError||kpiError||stockError||orderTenantResult.error||variantTenantResult.error||instanceResult.error),canAct=!loadError;
 
   return <section className="adminMain">
     <span className="eyebrow">Platform · Működési kivételek</span>
     <h1 className="sectionTitle">Operációs irányítóközpont</h1>
     <p className="lead">A platformon figyelmet igénylő rendelési, teljesítési, ügyfélszolgálati és készletkivételek webshoponként azonosíthatóan. Ez a nézet nem helyettesíti az egyes webshopok napi rendeléskezelését.</p>
     {loadError&&<div className="errorNotice" role="alert"><strong>Az operációs adatok egy része most nem tölthető be.</strong> A hiányzó értékeket ne tekintsd nulla hibának vagy üres sornak.</div>}
-    <div className="actions"><OperationsCycleButton/></div>
+    <div className="actions">{canAct?<OperationsCycleButton/>:<span className="muted">Operációs ciklus csak teljes adatbetöltés után indítható.</span>}</div>
 
     <div className="cards adminMetricCards">
       <div className="card"><span className="badge">Nyitott</span><div className="price">{kpiError?'—':kpi.open_orders}</div></div>
@@ -81,7 +81,7 @@ export default async function OperationsPage(){
           <td>{formatHuf(Number(r.total_gross_huf))}</td>
           <td>{r.open_support_count} ügy · {r.open_return_count} visszáru</td>
           <td>{human(r.exception_code,exceptionLabel)}</td>
-          <td><OrderOperationAction orderId={r.order_id} status={r.operational_status}/></td>
+          <td>{canAct?<OrderOperationAction orderId={r.order_id} status={r.operational_status}/>:<span className="muted">Adatbetöltés szükséges</span>}</td>
         </tr>)}</tbody>
       </table></div>
       {!queueError&&rows.length===0&&<p className="muted">Nincs figyelmet igénylő operációs kivétel.</p>}
