@@ -59,6 +59,7 @@ export function orderEventLabel(eventType?:string|null,fromStatus?:string|null,t
   if(eventType==='status_changed')return `${orderStatusLabel(fromStatus)} → ${orderStatusLabel(toStatus)}`;
   if(eventType==='invoice_created')return 'Számla elkészült';
   if(eventType==='shipment_created')return 'Csomagfeladás létrehozva';
+  if(eventType==='logistics_order_email_sent')return 'Logisztikai partner értesítve';
   if(eventType==='email_sent'){
     const template=String(metadata?.template??'');
     if(template==='order_confirmation')return 'Rendelési visszaigazolás elküldve';
