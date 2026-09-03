@@ -7,6 +7,7 @@ on:
       - 'feature/**'
       - core-engine-2-batch
       - production-provisioning-acceptance
+      - release-nonpayment-final-batch
   pull_request:
     branches:
       - main

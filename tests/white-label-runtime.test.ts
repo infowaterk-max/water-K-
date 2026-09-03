@@ -8,6 +8,7 @@ const forbiddenCustomerSpecificPatterns = [
   /water-k-native/i,
   /info\.waterk/i,
   /WK-(?:040|750|25K)/i,
+  /\bWK-\d{8}-/i,
 ];
 
 const runtimeExtensions = new Set(['.ts', '.tsx', '.js', '.jsx', '.mjs', '.cjs', '.json']);

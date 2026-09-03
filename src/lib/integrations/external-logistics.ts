@@ -6,7 +6,7 @@ import { getCommunicationIdentityForInstance } from '@/lib/communication/identit
 const emailRx=/^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const esc=(value:unknown)=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]??c));
 const money=(value:number)=>new Intl.NumberFormat('hu-HU',{style:'currency',currency:'HUF',maximumFractionDigits:0}).format(value);
-function namedFrom(raw:string,name:string){return /<[^>]+>/.test(raw)?raw:`${name} <${raw}>`;}
+function namedFrom(raw:string,name:string){const match=raw.match(/<([^>]+)>/),address=(match?.[1]||raw).trim(),safeName=name.replace(/[\r\n<>]+/g,' ').trim().slice(0,120)||'Shoperation';return `${safeName} <${address}>`;}
 
 type LogisticsConfig={recipient:string;label:string;shippingCode:string};
 

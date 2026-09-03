@@ -3,7 +3,7 @@ import { getAdminRequestUser } from '@/lib/auth/admin-api';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { enqueueIntegrationJob, type IntegrationJobKind } from '@/lib/integrations/outbox';
 import { recordAdminAudit } from '@/lib/admin/audit';
-import { getConfiguredInvoiceProviderCode,getInvoiceProvider } from '@/lib/integrations/invoicing';
+import { getConfiguredInvoiceProviderCodeForInstance,getInvoiceProvider } from '@/lib/integrations/invoicing';
 import { requireCurrentStoreContext } from '@/lib/instances/scope';
 const retryableKinds=new Set<IntegrationJobKind>(['shipment_create','email_send','invoice_create','logistics_email']);
 function needsReconciliation(message:unknown){return /reconciliation required/i.test(String(message??''))}
@@ -25,7 +25,7 @@ export async function POST(_:Request,{params}:{params:Promise<{id:string}>}){
     if(needsReconciliation(job.last_error))return NextResponse.json({error:'A futárszolgáltatónál a csomag létrejötte bizonytalan. Újrapróbálás előtt ellenőrizd a szolgáltatói felületen, hogy létezik-e már csomag ehhez a rendeléshez.'},{status:409});
   }
   if(job.kind==='invoice_create'){
-    const configured=getConfiguredInvoiceProviderCode();
+    const configured=await getConfiguredInvoiceProviderCodeForInstance(scope.instanceId);
     if(!configured||configured!==job.provider)return NextResponse.json({error:'A számlázó szolgáltató jelenleg nincs aktiválva vagy nem egyezik az eredeti feladattal.'},{status:409});
     const{data:order,error:orderError}=await admin.from('orders').select('order_number,invoice_number').eq('id',job.order_id).eq('instance_id',scope.instanceId).maybeSingle();
     if(orderError||!order)return NextResponse.json({error:'A rendelés nem található ebben a webshopban.'},{status:404});

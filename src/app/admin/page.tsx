@@ -1,16 +1,19 @@
 import Link from 'next/link';
+import { redirect } from 'next/navigation';
 import { formatHuf } from '@/lib/catalog';
 import { getProducts } from '@/lib/catalog-server';
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { getCurrentPlan } from '@/lib/plans/access';
 import { getCurrentWebshopInstance } from '@/lib/instances/access';
+import { getPlatformRole } from '@/lib/auth/platform-operator';
 
 const paidStatuses = ['paid', 'processing', 'shipped', 'completed'];
 const VAT = 1.27;
 
 export default async function AdminPage() {
-  const [plan, instance] = await Promise.all([getCurrentPlan(), getCurrentWebshopInstance()]);
+  const [plan, instance, platformRole] = await Promise.all([getCurrentPlan(), getCurrentWebshopInstance(), getPlatformRole()]);
+  if (platformRole) redirect('/admin/platform');
   const isPro = plan === 'pro' && Boolean(instance);
   const products = await getProducts();
   const now = Date.now();
