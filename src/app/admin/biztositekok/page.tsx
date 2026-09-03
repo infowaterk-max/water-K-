@@ -33,7 +33,7 @@ export default async function AssurancePage(){
   const findings=(findingResult.data??[]) as Finding[];
   const controls=(controlResult.data??[]) as Control[];
   const history=(runResult.data??[]) as Run[];
-  const loadError=Boolean(readinessResult.error||findingResult.error||controlResult.error||runResult.error);
+  const loadError=Boolean(readinessResult.error||findingResult.error||controlResult.error||runResult.error),canManageFindings=!findingResult.error;
   const lastRun=history[0]??null;
 
   return <section className="adminMain">
@@ -55,16 +55,16 @@ export default async function AssurancePage(){
     <div className="actions"><AssuranceRunButton/></div>
 
     <div className="cards adminMetricCards">
-      <div className="card"><span className="badge">Biztosítéki pontszám</span><div className="price">{ready.assurance_score}%</div><p><span className={`adminStatePill ${ready.readiness_status==='ready'||ready.readiness_status==='healthy'?'ok':ready.readiness_status==='blocked'?'danger':'warning'}`}>{readable(ready.readiness_status,readinessLabel)}</span></p></div>
-      <div className="card"><span className="badge">Friss, megfelelt kontroll</span><div className="price">{ready.fresh_passes}/{ready.controls}</div><p className="muted">A friss ellenőrzésekből ennyi felelt meg.</p></div>
-      <div className="card"><span className="badge">Kritikus eltérés</span><div className="price">{ready.critical_open}</div><p className="muted">Release előtt mindig kivizsgálandó.</p></div>
-      <div className="card"><span className="badge">Magas eltérés</span><div className="price">{ready.high_open}</div><p className="muted">Rövid határidővel kezelendő.</p></div>
-      <div className="card"><span className="badge">Elavult mérés</span><div className="price">{ready.stale_controls}</div><p className="muted">Újrafuttatást igénylő kontroll.</p></div>
-      <div className="card"><span className="badge">Elfogadott kockázat</span><div className="price">{ready.accepted_risks}</div><p className="muted">Dokumentált, időben korlátozott kivétel.</p></div>
+      <div className="card"><span className="badge">Biztosítéki pontszám</span><div className="price">{readinessResult.error?'—':`${ready.assurance_score}%`}</div>{!readinessResult.error&&<p><span className={`adminStatePill ${ready.readiness_status==='ready'||ready.readiness_status==='healthy'?'ok':ready.readiness_status==='blocked'?'danger':'warning'}`}>{readable(ready.readiness_status,readinessLabel)}</span></p>}</div>
+      <div className="card"><span className="badge">Friss, megfelelt kontroll</span><div className="price">{readinessResult.error?'—':`${ready.fresh_passes}/${ready.controls}`}</div><p className="muted">A friss ellenőrzésekből ennyi felelt meg.</p></div>
+      <div className="card"><span className="badge">Kritikus eltérés</span><div className="price">{readinessResult.error?'—':ready.critical_open}</div><p className="muted">Release előtt mindig kivizsgálandó.</p></div>
+      <div className="card"><span className="badge">Magas eltérés</span><div className="price">{readinessResult.error?'—':ready.high_open}</div><p className="muted">Rövid határidővel kezelendő.</p></div>
+      <div className="card"><span className="badge">Elavult mérés</span><div className="price">{readinessResult.error?'—':ready.stale_controls}</div><p className="muted">Újrafuttatást igénylő kontroll.</p></div>
+      <div className="card"><span className="badge">Elfogadott kockázat</span><div className="price">{readinessResult.error?'—':ready.accepted_risks}</div><p className="muted">Dokumentált, időben korlátozott kivétel.</p></div>
     </div>
 
     <section className="card">
-      <div className="adminToolbar"><div><span className="eyebrow">Kezelendő tételek</span><h2>Nyitott eltérések</h2></div><span className="muted">{findings.length} tétel</span></div>
+      <div className="adminToolbar"><div><span className="eyebrow">Kezelendő tételek</span><h2>Nyitott eltérések</h2></div><span className="muted">{findingResult.error?'—':`${findings.length} tétel`}</span></div>
       <div className="adminTableScroll"><table className="adminTable">
         <thead><tr><th>Kontroll</th><th>Súlyosság</th><th>Állapot</th><th>Kor</th><th>Bizonyíték</th><th>Művelet</th></tr></thead>
         <tbody>{findings.map(x=><tr key={x.finding_id}>
@@ -73,14 +73,14 @@ export default async function AssurancePage(){
           <td>{readable(x.status,findingStatusLabel)}{x.accepted_risk_expires_at&&<div className="muted">lejár: {new Date(x.accepted_risk_expires_at).toLocaleDateString('hu-HU')}</div>}</td>
           <td>{Number(x.age_hours).toFixed(1)} óra<div className="muted">{x.occurrence_count} előfordulás</div></td>
           <td><code>{x.evidence_hash?.slice(0,10)??'Nincs'}</code><div className="muted">{x.evidence_captured_at?new Date(x.evidence_captured_at).toLocaleString('hu-HU'):'Nincs friss bizonyíték'}</div></td>
-          <td><AssuranceFindingActions findingId={x.finding_id} status={x.status} severity={x.severity}/></td>
+          <td>{canManageFindings?<AssuranceFindingActions findingId={x.finding_id} status={x.status} severity={x.severity}/>:<span className="muted">Adatbetöltés szükséges</span>}</td>
         </tr>)}</tbody>
       </table></div>
-      {findings.length===0&&<p className="muted">Nincs nyitott biztosítéki eltérés.</p>}
+      {!findingResult.error&&findings.length===0&&<p className="muted">Nincs nyitott biztosítéki eltérés.</p>}
     </section>
 
     <section className="card">
-      <div className="adminToolbar"><div><span className="eyebrow">Teljes kontrollkészlet</span><h2>Kontrollfedettség</h2></div><span className="muted">{controls.length} kontroll</span></div>
+      <div className="adminToolbar"><div><span className="eyebrow">Teljes kontrollkészlet</span><h2>Kontrollfedettség</h2></div><span className="muted">{controlResult.error?'—':`${controls.length} kontroll`}</span></div>
       <div className="adminTableScroll"><table className="adminTable">
         <thead><tr><th>Kontroll</th><th>Kategória</th><th>Súly</th><th>Eredmény</th><th>Frissesség</th></tr></thead>
         <tbody>{controls.map(x=><tr key={x.control_key}>
@@ -91,13 +91,13 @@ export default async function AssurancePage(){
           <td>{x.stale?'Elavult':'Friss'}{x.captured_at&&<div className="muted">{new Date(x.captured_at).toLocaleString('hu-HU')}</div>}</td>
         </tr>)}</tbody>
       </table></div>
-      {controls.length===0&&<p className="muted">Még nincs rögzített kontrolleredmény. Futtasd le az első ellenőrzést.</p>}
+      {!controlResult.error&&controls.length===0&&<p className="muted">Még nincs rögzített kontrolleredmény. Futtasd le az első ellenőrzést.</p>}
     </section>
 
     <section className="card">
       <div className="adminToolbar"><div><span className="eyebrow">Futtatási előzmények</span><h2>Legutóbbi bizonyítéki csomagok</h2></div>{lastRun&&<span className="muted">Utolsó futás: {new Date(lastRun.started_at).toLocaleString('hu-HU')}</span>}</div>
       {history.map(x=><div className="auditRunRow" key={x.id}><span><strong>{x.controls_passed}/{x.controls_checked} kontroll megfelelt</strong><br/><span className="muted">{new Date(x.started_at).toLocaleString('hu-HU')} · {readable(x.status,{completed:'Befejezett',failed:'Sikertelen',running:'Folyamatban'})}</span></span><code>{x.evidence_bundle_hash.slice(0,12)}</code></div>)}
-      {!history.length&&<p className="muted">Még nincs bizonyítéki csomag.</p>}
+      {!runResult.error&&!history.length&&<p className="muted">Még nincs bizonyítéki csomag.</p>}
     </section>
   </section>;
 }
