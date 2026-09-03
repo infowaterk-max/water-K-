@@ -41,6 +41,7 @@ describe('order and integration evidence atomicity',()=>{
     expect(sql).toContain("'invoice.reconciled'");
     expect(sql).toContain("set status='succeeded'");
     expect(sql).toContain('INVOICE_ALREADY_DIFFERENT');
+    expect(sql).toContain('v_replayed:=coalesce(v_order.invoice_number=p_invoice_number,false)');
   });
 
   test('integration retry job, order event and admin audit are one transaction with race-safe deduplication',()=>{

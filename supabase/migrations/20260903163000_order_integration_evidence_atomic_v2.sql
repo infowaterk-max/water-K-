@@ -90,7 +90,7 @@ begin
   select * into v_order from public.orders where id=p_order_id and instance_id=p_instance_id for update;
   if not found then raise exception 'ORDER_NOT_FOUND'; end if;
   if v_order.invoice_number is not null and v_order.invoice_number<>p_invoice_number then raise exception 'INVOICE_ALREADY_DIFFERENT'; end if;
-  v_replayed:=v_order.invoice_number=p_invoice_number;
+  v_replayed:=coalesce(v_order.invoice_number=p_invoice_number,false);
 
   if not v_replayed then
     update public.orders set invoice_number=p_invoice_number,invoice_url=nullif(trim(coalesce(p_invoice_url,'')),''),
