@@ -7,7 +7,7 @@ export const paymentMethodLabels: Record<string,string> = {
 };
 
 export const shippingMethodLabels: Record<string,string> = {
-  foxpost:'FOXPOST', gls:'GLS', mpl:'MPL', pickup:'Személyes átvétel'
+  foxpost:'FOXPOST', gls:'GLS', mpl:'MPL', pickup:'Személyes átvétel',external_logistics:'Külső logisztikai partner'
 };
 
 export function orderStatusLabel(value?: string|null){ return value ? (orderStatusLabels[value] ?? value) : '—'; }
