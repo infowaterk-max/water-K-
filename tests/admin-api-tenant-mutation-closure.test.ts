@@ -18,6 +18,10 @@ describe('admin API tenant mutation closure',()=>{
     expect(exp).toContain(".eq('instance_id',scope.instanceId)");
     expect(imp).toContain("bulk_update_product_variants_v3");
     expect(bulk).toContain("bulk_update_product_variants_v3");
+    expect(imp).toContain("evidence.length!==parsed.data.changes.length");
+    expect(imp).toContain('Az import eredménye nem igazolható.');
+    expect(bulk).toContain("evidence.length!==changes.length");
+    expect(bulk).toContain('A tömeges módosítás eredménye nem igazolható.');
     expect(imp).not.toContain('recordAdminAudit');
     expect(bulk).not.toContain('recordAdminAudit');
   });

@@ -56,6 +56,8 @@ export async function POST(request:Request){
     p_audit_metadata:{count:parsed.data.changes.length}
   });
   if(error)return NextResponse.json({error:'Az import tranzakció megszakadt. A módosítás és az audit együtt vissza lett vonva.'},{status:409});
+  const evidence=Array.isArray(data)?data as {id?:string}[]:[],expectedIds=new Set(parsed.data.changes.map(c=>c.id)),evidenceIds=new Set(evidence.map(r=>r.id).filter((id):id is string=>Boolean(id)));
+  if(evidence.length!==parsed.data.changes.length||evidenceIds.size!==expectedIds.size||[...expectedIds].some(id=>!evidenceIds.has(id)))return NextResponse.json({error:'Az import eredménye nem igazolható.'},{status:500});
 
   return NextResponse.json({ok:true,count:parsed.data.changes.length,result:data});
 }

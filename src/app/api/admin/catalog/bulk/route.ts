@@ -53,6 +53,8 @@ export async function POST(request:Request){
     p_audit_metadata:{operation:parsed.data.operation,count:changes.length,value:parsed.data.value}
   });
   if(error)return NextResponse.json({error:'A tömeges tranzakció megszakadt. A módosítás és az audit együtt vissza lett vonva.'},{status:409});
+  const evidence=Array.isArray(data)?data as {id?:string}[]:[],expectedIds=new Set(changes.map(c=>String(c.id))),evidenceIds=new Set(evidence.map(r=>r.id).filter((id):id is string=>Boolean(id)));
+  if(evidence.length!==changes.length||evidenceIds.size!==expectedIds.size||[...expectedIds].some(id=>!evidenceIds.has(id)))return NextResponse.json({error:'A tömeges módosítás eredménye nem igazolható.'},{status:500});
 
   return NextResponse.json({ok:true,count:changes.length,result:data});
 }
