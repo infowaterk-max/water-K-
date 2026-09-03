@@ -24,14 +24,27 @@ describe('commercial tenant planner authority',()=>{
     expect(sql).toMatch(/reseller_growth_priorities_v2 r[\s\S]*r\.customer_id=o\.reseller_id/);
   });
 
-  test('B2C refresh is an in-place tenant upsert and only planner-dismissed work may reopen',()=>{
+  test('tenant opportunity upserts reopen only planner-dismissed work, never won or lost work',()=>{
     const sql=read(migration);
     expect(sql).toContain("'b2c:'||c.customer_key||':active'");
-    expect(sql).toContain('on conflict(instance_id,opportunity_key) do update');
-    expect(sql).toContain('customer_id=excluded.customer_id');
-    expect(sql).toContain("source->>'auto_closed_reason'='segment_no_longer_actionable'");
-    expect(sql).toContain("source->>'auto_closed_reason'='tenant_reseller_no_longer_actionable'");
-    expect(sql).not.toMatch(/status='dismissed'[\s\S]{0,180}then 'open'[\s\S]{0,180}else/);
+    const conflicts=sql.split('on conflict(instance_id,opportunity_key) do update');
+    expect(conflicts).toHaveLength(3);
+    const b2cConflict=conflicts[1].split('get diagnostics v_b2c')[0];
+    const b2bConflict=conflicts[2].split('get diagnostics v_b2b')[0];
+
+    expect(b2cConflict).toContain('customer_id=excluded.customer_id');
+    expect(b2cConflict).toContain("status='dismissed'");
+    expect(b2cConflict).toContain("source->>'auto_closed_reason'='segment_no_longer_actionable'");
+    expect(b2cConflict).toContain("then 'open'");
+    expect(b2cConflict).not.toContain("status='won'");
+    expect(b2cConflict).not.toContain("status='lost'");
+
+    expect(b2bConflict).toContain('reseller_id=excluded.reseller_id');
+    expect(b2bConflict).toContain("status='dismissed'");
+    expect(b2bConflict).toContain("source->>'auto_closed_reason'='tenant_reseller_no_longer_actionable'");
+    expect(b2bConflict).toContain("then 'open'");
+    expect(b2bConflict).not.toContain("status='won'");
+    expect(b2bConflict).not.toContain("status='lost'");
   });
 
   test('generated sales tasks are cancelled only inside the requested tenant when their opportunity is no longer actionable',()=>{
