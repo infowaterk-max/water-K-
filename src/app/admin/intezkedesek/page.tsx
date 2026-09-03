@@ -5,6 +5,7 @@ import { requireCurrentStoreContext } from '@/lib/instances/scope';
 import { getCurrentWebshopInstance } from '@/lib/instances/access';
 import { getPlatformRole,requirePlatformOperator } from '@/lib/auth/platform-operator';
 import { ActionCycleButton,ProposalActions } from '@/components/admin/action-center-actions';
+import { hasStorePermission } from '@/lib/auth/store-rbac';
 
 export const dynamic='force-dynamic';
 
@@ -86,6 +87,7 @@ export default async function Page(){
 
   await requirePlanFeature('executiveAnalytics');
   const store=await requireCurrentStoreContext('analytics.read');
+  const canManage=store.isPlatform||await hasStorePermission(store.instanceId,'store.manage');
   const a=createAdminClient();
   const{data,error}=await a.from('action_proposals').select('id,proposal_key,status,action_kind,impact_class,risk_score,rationale,expires_at,simulated_at,approved_at,executed_at,alert_id').eq('instance_id',store.instanceId).order('risk_score',{ascending:false}).order('expires_at',{ascending:true}).limit(250);
   const rows=(data??[]) as Omit<Proposal,'instance_id'>[];
@@ -97,7 +99,7 @@ export default async function Page(){
     <p className="lead">A javaslatok, jóváhagyások és végrehajtások webshoponként elkülönítve működnek. Más ügyfél adata nem kerülhet ebbe a munkafolyamatba.</p>
     {error&&<div className="errorNotice" role="alert">Az intézkedési lista most nem tölthető be.</div>}
     <LifecycleGuide/>
-    <div className="actions"><ActionCycleButton/></div>
+    {canManage?<div className="actions"><ActionCycleButton/></div>:<div className="adminAuditNotice"><strong>Csak olvasási jogosultság.</strong><p>A javaslatok áttekinthetők, de szimulációt, jóváhagyást vagy végrehajtást csak webshop-admin indíthat.</p></div>}
     <div className="cards adminMetricCards">
       <div className="card"><span className="badge">Aktív</span><div className="price">{active}</div><p className="muted">Folyamatban lévő intézkedés.</p></div>
       <div className="card"><span className="badge">Összes</span><div className="price">{rows.length}</div><p className="muted">A tenant legutóbbi javaslatai.</p></div>
@@ -112,7 +114,7 @@ export default async function Page(){
           <td><span className={`adminStatePill ${riskTone(Number(r.risk_score))}`}>{r.risk_score}/100</span></td>
           <td>{readable(r.status,statusLabel)}</td>
           <td>{new Date(r.expires_at).toLocaleString('hu-HU')}</td>
-          <td><ProposalActions proposalId={r.id} status={r.status} approvalMode="single" approvalCount={r.approved_at?1:0}/></td>
+          <td>{canManage?<ProposalActions proposalId={r.id} status={r.status} approvalMode="single" approvalCount={r.approved_at?1:0}/>:<span className="muted">Csak olvasás</span>}</td>
         </tr>)}</tbody>
       </table></div>
       {!rows.length&&<p className="muted">Nincs ehhez a webshophoz tartozó intézkedési javaslat.</p>}
