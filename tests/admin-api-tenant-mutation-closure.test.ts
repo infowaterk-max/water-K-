@@ -16,8 +16,10 @@ describe('admin API tenant mutation closure',()=>{
       expect(source).toContain("scope.instanceId");
     }
     expect(exp).toContain(".eq('instance_id',scope.instanceId)");
-    expect(imp).toContain("bulk_update_product_variants_v2");
-    expect(bulk).toContain("bulk_update_product_variants_v2");
+    expect(imp).toContain("bulk_update_product_variants_v3");
+    expect(bulk).toContain("bulk_update_product_variants_v3");
+    expect(imp).not.toContain('recordAdminAudit');
+    expect(bulk).not.toContain('recordAdminAudit');
   });
 
   test('tenant-safe bulk RPC locks every selected and updated variant to p_instance_id',()=>{
@@ -27,6 +29,16 @@ describe('admin API tenant mutation closure',()=>{
     expect(sql).toContain('insert into public.inventory_events');
     expect(sql).toContain('p_instance_id,');
     expect(sql).toContain('revoke all on function public.bulk_update_product_variants_v2');
+  });
+
+  test('bulk and CSV catalog mutations commit audit in the same database transaction',()=>{
+    const sql=read('supabase/migrations/20260903133000_catalog_variant_atomic_v2.sql');
+    expect(sql).toContain('bulk_update_product_variants_v3');
+    expect(sql).toContain('v_result:=public.bulk_update_product_variants_v2');
+    expect(sql).toContain('insert into public.admin_audit_log');
+    expect(sql).toContain("p_audit_action not in ('catalog.bulk_update_applied','catalog.csv_import_applied')");
+    expect(sql).toContain('CATALOG_PERMISSION_REQUIRED');
+    expect(sql).toContain('revoke all on function public.bulk_update_product_variants_v3');
   });
 
   test('content update delete cannot address another webshop by id',()=>{

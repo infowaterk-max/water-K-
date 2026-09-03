@@ -164,3 +164,73 @@ to service_role;
 
 comment on function public.admin_update_product_variant_v2(uuid,uuid,uuid,timestamptz,jsonb)
 is 'Atomic tenant-scoped single variant admin update with inventory evidence and audit logging.';
+
+
+-- Keep bulk/CSV catalog mutation and its audit entry in the same transaction.
+create or replace function public.bulk_update_product_variants_v3(
+  p_instance_id uuid,
+  p_changes jsonb,
+  p_actor uuid,
+  p_audit_action text,
+  p_audit_summary text,
+  p_audit_metadata jsonb default '{}'::jsonb
+)
+returns jsonb
+language plpgsql
+security definer
+set search_path=''
+as $$
+declare
+  v_org uuid;
+  v_result jsonb;
+begin
+  if p_instance_id is null or p_actor is null then
+    raise exception 'CATALOG_BULK_IDENTITY_REQUIRED';
+  end if;
+  if p_audit_action not in ('catalog.bulk_update_applied','catalog.csv_import_applied') then
+    raise exception 'CATALOG_AUDIT_ACTION_INVALID';
+  end if;
+  if nullif(trim(p_audit_summary),'') is null or length(p_audit_summary)>500 then
+    raise exception 'CATALOG_AUDIT_SUMMARY_INVALID';
+  end if;
+  if not public.can_manage_catalog(p_instance_id,p_actor) then
+    raise exception 'CATALOG_PERMISSION_REQUIRED';
+  end if;
+
+  select w.organization_id
+    into v_org
+    from public.webshop_instances w
+   where w.id=p_instance_id;
+  if v_org is null then
+    raise exception 'WEBSHOP_INSTANCE_NOT_FOUND';
+  end if;
+
+  v_result:=public.bulk_update_product_variants_v2(
+    p_instance_id,
+    p_changes,
+    p_actor
+  );
+
+  insert into public.admin_audit_log(
+    actor_user_id,action,entity_type,organization_id,instance_id,
+    summary,after_state,metadata
+  ) values(
+    p_actor,p_audit_action,'product_variant',v_org,p_instance_id,
+    p_audit_summary,v_result,
+    jsonb_build_object(
+      'audit_source','database_rpc',
+      'count',jsonb_array_length(p_changes)
+    ) || coalesce(p_audit_metadata,'{}'::jsonb)
+  );
+
+  return v_result;
+end;
+$$;
+
+revoke all on function public.bulk_update_product_variants_v3(uuid,jsonb,uuid,text,text,jsonb)
+from public,anon,authenticated;
+grant execute on function public.bulk_update_product_variants_v3(uuid,jsonb,uuid,text,text,jsonb)
+to service_role;
+
+comment on function public.bulk_update_product_variants_v3(uuid,jsonb,uuid,text,text,jsonb)
+is 'Atomic tenant-scoped bulk catalog mutation plus admin audit.';

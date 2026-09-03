@@ -2,7 +2,6 @@ import{NextResponse}from'next/server';
 import{z}from'zod';
 import{getAdminRequestUser}from'@/lib/auth/admin-api';
 import{createAdminClient}from'@/lib/supabase/admin';
-import{recordAdminAudit}from'@/lib/admin/audit';
 import{parseCatalogCsv,type CatalogChange}from'@/lib/catalog-import';
 import{requireCurrentStoreContext}from'@/lib/instances/scope';
 
@@ -48,23 +47,15 @@ export async function POST(request:Request){
     return NextResponse.json({preview,validChanges,errors:preview.filter((r:any)=>r.status==='error').length});
   }
 
-  const{data,error}=await admin.rpc('bulk_update_product_variants_v2',{
+  const{data,error}=await admin.rpc('bulk_update_product_variants_v3',{
     p_instance_id:scope.instanceId,
     p_changes:parsed.data.changes,
-    p_actor:actor.id
+    p_actor:actor.id,
+    p_audit_action:'catalog.csv_import_applied',
+    p_audit_summary:`CSV import alkalmazva: ${parsed.data.changes.length} tétel`,
+    p_audit_metadata:{count:parsed.data.changes.length}
   });
-  if(error)return NextResponse.json({error:'Az import tranzakció megszakadt. Egyetlen módosítás sem került alkalmazásra.'},{status:409});
-
-  await recordAdminAudit({
-    actorUserId:actor.id,
-    organizationId:scope.organizationId,
-    instanceId:scope.instanceId,
-    action:'catalog.csv_import_applied',
-    entityType:'product_variant',
-    summary:`CSV import alkalmazva: ${parsed.data.changes.length} tétel`,
-    afterState:data,
-    metadata:{count:parsed.data.changes.length}
-  });
+  if(error)return NextResponse.json({error:'Az import tranzakció megszakadt. A módosítás és az audit együtt vissza lett vonva.'},{status:409});
 
   return NextResponse.json({ok:true,count:parsed.data.changes.length,result:data});
 }

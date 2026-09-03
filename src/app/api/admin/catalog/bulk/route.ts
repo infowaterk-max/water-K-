@@ -2,7 +2,6 @@ import{NextResponse}from'next/server';
 import{z}from'zod';
 import{getAdminRequestUser}from'@/lib/auth/admin-api';
 import{createAdminClient}from'@/lib/supabase/admin';
-import{recordAdminAudit}from'@/lib/admin/audit';
 import{requireCurrentStoreContext}from'@/lib/instances/scope';
 
 const schema=z.object({ids:z.array(z.string().uuid()).min(1).max(500),operation:z.enum(['set_stock','adjust_stock','set_gross','set_net','activate','deactivate']),value:z.number().int().min(-10000000).max(10000000).optional()});
@@ -45,22 +44,15 @@ export async function POST(request:Request){
 
   if(changes.some((c:any)=>c.stock!==undefined&&(c.stock<0||c.stock>100000)))return NextResponse.json({error:'A készletmódosítás legalább egy terméknél érvénytelen eredményt adna.'},{status:400});
 
-  const{data,error}=await admin.rpc('bulk_update_product_variants_v2',{
+  const{data,error}=await admin.rpc('bulk_update_product_variants_v3',{
     p_instance_id:scope.instanceId,
     p_changes:changes,
-    p_actor:actor.id
+    p_actor:actor.id,
+    p_audit_action:'catalog.bulk_update_applied',
+    p_audit_summary:`Tömeges termékművelet: ${parsed.data.operation} · ${changes.length} tétel`,
+    p_audit_metadata:{operation:parsed.data.operation,count:changes.length,value:parsed.data.value}
   });
-  if(error)return NextResponse.json({error:'A tömeges tranzakció megszakadt. Egyetlen módosítás sem került alkalmazásra.'},{status:409});
+  if(error)return NextResponse.json({error:'A tömeges tranzakció megszakadt. A módosítás és az audit együtt vissza lett vonva.'},{status:409});
 
-  await recordAdminAudit({
-    actorUserId:actor.id,
-    organizationId:scope.organizationId,
-    instanceId:scope.instanceId,
-    action:'catalog.bulk_update_applied',
-    entityType:'product_variant',
-    summary:`Tömeges termékművelet: ${parsed.data.operation} · ${changes.length} tétel`,
-    afterState:data,
-    metadata:{operation:parsed.data.operation,count:changes.length,value:parsed.data.value}
-  });
   return NextResponse.json({ok:true,count:changes.length,result:data});
 }
