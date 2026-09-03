@@ -7,7 +7,7 @@ import { requireCurrentStoreContext } from '@/lib/instances/scope';
 
 export const dynamic='force-dynamic';
 const statusLabel:Record<string,string>={pending:'Várakozik',processing:'Folyamatban',succeeded:'Sikeres',failed:'Sikertelen',blocked:'Blokkolt'};
-const kindLabel:Record<string,string>={payment_create:'Fizetés indítása',payment_callback:'Fizetési callback',shipment_create:'Szállítás létrehozása',invoice_create:'Számlakészítés',email_send:'E-mail küldés'};
+const kindLabel:Record<string,string>={payment_create:'Fizetés indítása',payment_callback:'Fizetési callback',shipment_create:'Szállítás létrehozása',invoice_create:'Számlakészítés',email_send:'E-mail küldés',logistics_email:'Logisztikai partner értesítése'};
 
 export default async function IntegrationJobDetail({params}:{params:Promise<{id:string}>}){
   await requirePlanFeature('advancedIntegrations');
