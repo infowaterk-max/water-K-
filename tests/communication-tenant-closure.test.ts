@@ -27,8 +27,11 @@ describe('communication tenant closure',()=>{
   test('inbound and provider events resolve a concrete tenant before persistence',()=>{
     const inbound=read('src/app/api/communication/inbound/route.ts');
     const webhook=read('src/app/api/webhooks/communication/route.ts');
-    expect(inbound).toMatch(/support_email/);
-    expect(inbound).toMatch(/instance_id:instanceId/);
+    const inboundSql=read('supabase/migrations/20260903180000_inbound_office_email_atomic_v2.sql');
+    expect(inbound).toMatch(/record_inbound_office_email_v2/);
+    expect(inbound).not.toMatch(/\.from\('office_(threads|messages)'\)/);
+    expect(inboundSql).toMatch(/support_email/);
+    expect(inboundSql).toMatch(/INBOUND_TENANT_AMBIGUOUS/);
     expect(webhook).toMatch(/provider_message_id/);
     expect(webhook).toMatch(/instance_id:instanceId/);
   });
