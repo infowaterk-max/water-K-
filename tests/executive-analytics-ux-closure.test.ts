@@ -9,8 +9,9 @@ describe('executive analytics UX closure',()=>{
     expect(page).toContain("hasStorePermission(store.instanceId,'store.manage')");
     expect(page).toContain('Csak olvasási jogosultság.');
     expect(page).toContain('error:qe');
-    expect(page).toContain("canManage?<AlertActions");
-    expect(page).toContain("canManage?<TaskActions");
+    expect(page).toContain('canAct=canManage&&!loadError');
+    expect(page).toContain("canAct?<AlertActions");
+    expect(page).toContain("canAct?<TaskActions");
   });
 
   test('growth refresh is hidden without marketing.manage',()=>{
