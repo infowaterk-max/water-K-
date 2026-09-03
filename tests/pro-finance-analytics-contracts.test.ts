@@ -29,10 +29,12 @@ describe('Pro finance and analytics contracts', () => {
   });
 
   test('cash-flow keeps 30, 60 and 90 day obligations cumulative and visible', () => {
-    expect(cashflow).toMatch(/const overdue=/);\n    expect(cashflow).toMatch(/net30=forecastRevenue30-overdue-due30/);
+    expect(cashflow).toMatch(/const overdue=/);
+    expect(cashflow).toMatch(/net30=forecastRevenue30-overdue-due30/);
     expect(cashflow).toMatch(/net60=forecastRevenue60-overdue-due30-due60/);
     expect(cashflow).toMatch(/net90=forecastRevenue90-overdue-due30-due60-due90/);
-    expect(cashflow).toMatch(/Lejárt/);\n    expect(cashflow).toMatch(/0–30 nap/);
+    expect(cashflow).toMatch(/Lejárt/);
+    expect(cashflow).toMatch(/0–30 nap/);
     expect(cashflow).toMatch(/31–60 nap/);
     expect(cashflow).toMatch(/61–90 nap/);
   });
