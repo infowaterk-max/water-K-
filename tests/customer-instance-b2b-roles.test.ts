@@ -65,6 +65,22 @@ describe('tenant B2B customer and storefront contract',()=>{
     expect(followup).toMatch(/eq\('instance_id',scope\.instanceId\)/);
   });
 
+  test('storefront access and checkout use the tenant partner relation instead of the legacy global profile role',()=>{
+    const access=read('src/lib/commerce/access.ts');
+    const checkoutPage=read('src/app/penztar/page.tsx');
+    const checkoutForm=read('src/components/checkout/checkout-form.tsx');
+    const orderApi=read('src/app/api/orders/route.ts');
+    expect(access).toMatch(/customer_instance_roles/);
+    expect(access).toMatch(/eq\('instance_id',instance\.id\)/);
+    expect(access).not.toMatch(/from\('profiles'\)/);
+    expect(checkoutPage).toMatch(/resellerApproved=\{access\.resellerApproved\}/);
+    expect(checkoutForm).toMatch(/resellerApproved\?'reseller':'retail'/);
+    expect(checkoutForm).not.toMatch(/<option value="reseller">Viszonteladó<\/option>/);
+    expect(orderApi).toMatch(/customer_instance_roles/);
+    expect(orderApi).toMatch(/checkout\.customerType==='reseller'&&!approvedReseller/);
+    expect(orderApi).toMatch(/approvedReseller&&checkout\.customerType!=='reseller'/);
+  });
+
   test('storefront resolves tenant channel settings while admin keeps the complete catalogue',()=>{
     const code=read('src/lib/catalog-server.ts');
     expect(code).toMatch(/customer_instance_roles/);
