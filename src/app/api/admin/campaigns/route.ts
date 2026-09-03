@@ -4,11 +4,11 @@ import{createAdminClient}from'@/lib/supabase/admin';
 import{getAdminRequestUser}from'@/lib/auth/admin-api';
 import{hasCurrentPlanFeature}from'@/lib/plans/access';
 import{requireCurrentStoreContext}from'@/lib/instances/scope';
-import{recordAdminAudit}from'@/lib/admin/audit';
 
 const segments=['repeat_30_89','winback_90_plus','at_risk_30_89','winback_90_179','lost_180_plus','high_value_at_risk']as const;
 type Segment=typeof segments[number];
 type RecipientSeed={customer_key:string;user_id:string|null;email:string;customer_name:string;orders_count:number;revenue_gross_huf:number;last_order_at:string;consent_ok:boolean;suppressed:boolean;eligible:boolean;exclusion_reason:string|null};
+type CampaignEvidence={id?:string;total?:number;eligible?:number};
 const paid=['paid','processing','shipped','completed'];
 const template:Record<Segment,string>={repeat_30_89:'repeat_30d',winback_90_plus:'winback_90d',at_risk_30_89:'retention_risk_30d',winback_90_179:'winback_90d',lost_180_plus:'reactivation_180d',high_value_at_risk:'vip_retention'};
 const external=z.object({mode:z.literal('external'),name:z.string().trim().min(2).max(160),channel:z.enum(['facebook','instagram','tiktok','youtube','google','other']),budgetHuf:z.number().int().min(0).max(1000000000),utmCampaign:z.string().trim().regex(/^[A-Za-z0-9._-]{2,160}$/),externalImpressions:z.number().int().min(0).max(2000000000).default(0),externalClicks:z.number().int().min(0).max(2000000000).default(0)});
@@ -30,11 +30,12 @@ export async function POST(request:Request){
 
   if(parsed.data.mode==='external'){
     const p=parsed.data;
-    const payload={instance_id:store.instanceId,name:p.name,segment:'external',template_key:'external_attribution',status:'approved',channel:p.channel,budget_huf:p.budgetHuf,utm_campaign:p.utmCampaign.toLowerCase(),external_impressions:p.externalImpressions,external_clicks:p.externalClicks,created_by:user.id,approved_by:user.id,approved_at:new Date().toISOString()};
-    const{data,error}=await a.from('marketing_campaigns').insert(payload).select('id').single();
-    if(error||!data)return NextResponse.json({error:error?.code==='23505'?'Ez az UTM kampánykód ebben a webshopban már használatban van.':'A kampány nem hozható létre.'},{status:error?.code==='23505'?409:500});
-    await recordAdminAudit({actorUserId:user.id,organizationId:store.organizationId,instanceId:store.instanceId,action:'campaign.created',entityType:'marketing_campaign',entityId:data.id,summary:`${p.name} külső kampány létrehozva`,afterState:payload});
-    return NextResponse.json({ok:true,id:data.id,total:0,eligible:0});
+    const campaign={name:p.name,segment:'external',template_key:'external_attribution',status:'approved',channel:p.channel,budget_huf:p.budgetHuf,utm_campaign:p.utmCampaign.toLowerCase(),external_impressions:p.externalImpressions,external_clicks:p.externalClicks};
+    const{data,error}=await a.rpc('admin_create_marketing_campaign_v2',{p_instance_id:store.instanceId,p_actor:user.id,p_campaign:campaign,p_recipients:[]});
+    if(error)return NextResponse.json({error:error.code==='23505'?'Ez az UTM kampánykód ebben a webshopban már használatban van.':'A kampány nem hozható létre. A kampány és az audit együtt vissza lett vonva.'},{status:error.code==='23505'?409:500});
+    const evidence=data as CampaignEvidence|null;
+    if(!evidence?.id||evidence.total!==0||evidence.eligible!==0)return NextResponse.json({error:'A kampány létrehozásának eredménye nem igazolható.'},{status:500});
+    return NextResponse.json({ok:true,id:evidence.id,total:0,eligible:0});
   }
 
   const p=parsed.data,scheduled=p.scheduledAt?new Date(p.scheduledAt):null;
@@ -80,19 +81,12 @@ export async function POST(request:Request){
     recipientSeeds.push({customer_key:key,user_id:x.userId,email:x.email,customer_name:x.name,orders_count:x.orders,revenue_gross_huf:x.revenue,last_order_at:x.last,consent_ok:consentOk,suppressed:isSuppressed,eligible,exclusion_reason:eligible?null:!consentOk?'NO_MARKETING_CONSENT':'SUPPRESSED'});
   }
 
-  const campaignPayload={instance_id:store.instanceId,name:p.name,segment,template_key:template[segment],status:'review',scheduled_at:scheduled?.toISOString()??null,channel:'email',created_by:user.id};
-  const{data:campaign,error}=await a.from('marketing_campaigns').insert(campaignPayload).select('id').single();
-  if(error||!campaign)return NextResponse.json({error:'A kampány nem hozható létre.'},{status:500});
+  const campaign={name:p.name,segment,template_key:template[segment],status:'review',scheduled_at:scheduled?.toISOString()??null,channel:'email'};
+  const expectedEligible=recipientSeeds.filter(r=>r.eligible).length;
+  const{data,error}=await a.rpc('admin_create_marketing_campaign_v2',{p_instance_id:store.instanceId,p_actor:user.id,p_campaign:campaign,p_recipients:recipientSeeds});
+  if(error)return NextResponse.json({error:'A kampány, a célcsoport-pillanatkép vagy az audit nem menthető. Egyetlen rész sem került alkalmazásra.'},{status:500});
+  const evidence=data as CampaignEvidence|null;
+  if(!evidence?.id||evidence.total!==recipientSeeds.length||evidence.eligible!==expectedEligible)return NextResponse.json({error:'A kampány létrehozásának eredménye nem igazolható.'},{status:500});
 
-  const recipients=recipientSeeds.map(seed=>({instance_id:store.instanceId,campaign_id:campaign.id,...seed}));
-  if(recipients.length){
-    const{error:recipientError}=await a.from('marketing_campaign_recipients').insert(recipients);
-    if(recipientError){
-      await a.from('marketing_campaigns').delete().eq('id',campaign.id).eq('instance_id',store.instanceId);
-      return NextResponse.json({error:'A célcsoport-pillanatkép nem menthető, ezért a kampány létrehozását visszavontuk.'},{status:500});
-    }
-  }
-
-  await recordAdminAudit({actorUserId:user.id,organizationId:store.organizationId,instanceId:store.instanceId,action:'campaign.created',entityType:'marketing_campaign',entityId:campaign.id,summary:`${p.name} kampány létrehozva`,afterState:{...campaignPayload,recipient_count:recipients.length,eligible_count:recipients.filter(r=>r.eligible===true).length}});
-  return NextResponse.json({ok:true,id:campaign.id,total:recipients.length,eligible:recipients.filter(r=>r.eligible===true).length});
+  return NextResponse.json({ok:true,id:evidence.id,total:evidence.total,eligible:evidence.eligible});
 }

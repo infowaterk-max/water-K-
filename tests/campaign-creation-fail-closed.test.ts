@@ -7,23 +7,35 @@ describe('campaign creation fail-closed contract',()=>{
   test('lifecycle campaign is not created when source audience data cannot be read',()=>{
     const route=read('src/app/api/admin/campaigns/route.ts');
     const sourceGuard=route.indexOf('ordersError||consentsError||suppressionsError');
-    const lifecycleInsert=route.indexOf("const{data:campaign,error}=await a.from('marketing_campaigns').insert(campaignPayload)");
+    const lifecycleCreate=route.lastIndexOf("rpc('admin_create_marketing_campaign_v2'");
     expect(sourceGuard).toBeGreaterThan(0);
-    expect(lifecycleInsert).toBeGreaterThan(sourceGuard);
+    expect(lifecycleCreate).toBeGreaterThan(sourceGuard);
     expect(route).toContain('Kampány nem jött létre.');
   });
 
-  test('partial recipient snapshot rolls back the just-created campaign',()=>{
+  test('campaign, recipient snapshot and audit commit in one database transaction',()=>{
     const route=read('src/app/api/admin/campaigns/route.ts');
-    expect(route).toContain("from('marketing_campaigns').delete().eq('id',campaign.id).eq('instance_id',store.instanceId)");
-    expect(route).toContain('a célcsoport-pillanatkép nem menthető, ezért a kampány létrehozását visszavontuk'.replace('a ','A '));
+    const sql=read('supabase/migrations/20260903160000_campaign_creation_atomic_v2.sql');
+    expect(route.match(/admin_create_marketing_campaign_v2/g)?.length).toBeGreaterThanOrEqual(2);
+    expect(route).not.toContain('recordAdminAudit');
+    expect(route).not.toContain("from('marketing_campaigns').insert");
+    expect(route).not.toContain("from('marketing_campaign_recipients').insert");
+    expect(sql).toContain('insert into public.marketing_campaigns');
+    expect(sql).toContain('insert into public.marketing_campaign_recipients');
+    expect(sql).toContain('insert into public.admin_audit_log');
+    expect(sql).toContain("'campaign.created'");
+    expect(sql).toContain('CAMPAIGN_RECIPIENT_EVIDENCE_MISMATCH');
+    expect(sql).toContain('MARKETING_PERMISSION_REQUIRED');
+    expect(sql).toContain('revoke all on function public.admin_create_marketing_campaign_v2');
   });
 
-  test('campaign creation requires marketing management and is audited',()=>{
+  test('campaign creation requires marketing management and verifies mutation evidence',()=>{
     const route=read('src/app/api/admin/campaigns/route.ts');
     expect(route).toContain("getAdminRequestUser('marketing.manage')");
     expect(route).toContain("requireCurrentStoreContext('marketing.manage')");
-    expect(route.match(/recordAdminAudit/g)?.length).toBeGreaterThanOrEqual(3);
-    expect(route).toContain("action:'campaign.created'");
+    expect(route).toContain('evidence.total!==recipientSeeds.length');
+    expect(route).toContain('evidence.eligible!==expectedEligible');
+    expect(route).toContain('A kampány létrehozásának eredménye nem igazolható.');
+    expect(route).toContain('Egyetlen rész sem került alkalmazásra.');
   });
 });
