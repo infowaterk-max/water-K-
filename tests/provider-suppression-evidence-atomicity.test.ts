@@ -14,6 +14,12 @@ describe('provider suppression evidence atomicity',()=>{
     expect(route).not.toContain(".from('communication_suppressions').insert");
   });
 
+  test('provider bounce or complaint cannot acknowledge an empty recipient set',()=>{
+    const route=read('src/app/api/webhooks/communication/route.ts');
+    expect(route).toContain("if(to.length===0)return NextResponse.json({error:'Invalid provider event recipients'},{status:400})");
+    expect(route).toContain('for(const email of to)');
+  });
+
   test('tenant resolution, suppression and lifecycle event share one transaction',()=>{
     const sql=read(migration);
     expect(sql).toContain("from public.communication_jobs j");

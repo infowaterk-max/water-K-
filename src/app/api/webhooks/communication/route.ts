@@ -19,6 +19,7 @@ export async function POST(request:Request){
   const event=body as ResendEvent,eventId=request.headers.get('svix-id')??event.data?.email_id??crypto.randomUUID(),providerMessageId=event.data?.email_id??'',to=event.data?.to??[];
   let reason:'hard_bounce'|'complaint'|'invalid'|null=null;if(event.type==='email.bounced')reason='hard_bounce';else if(event.type==='email.complained')reason='complaint';else return NextResponse.json({ok:true,ignored:true});
   if(!providerMessageId)return NextResponse.json({ok:true,ignored:true,reason:'unmapped_provider_message'});
+  if(to.length===0)return NextResponse.json({error:'Invalid provider event recipients'},{status:400});
   let processed=0,ignored=0;
   try{for(const email of to){const evidence=await persist(providerMessageId,eventId,email,reason,event.data?.bounce?.message??event.data?.bounce?.type??null);if(evidence.processed===true)processed++;else ignored++;}}
   catch{return NextResponse.json({error:'Event persistence failed'},{status:500})}
