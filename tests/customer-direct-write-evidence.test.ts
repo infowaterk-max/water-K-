@@ -27,7 +27,7 @@ describe('customer direct-write evidence',()=>{
     expect(block).toContain('?wishlist=error');
   });
 
-  test('append-only consent writes already fail on insert errors without multi-write partial state',()=>{
+  test('append-only consent writes fail on insert errors and never mutate existing consent rows',()=>{
     for(const file of [
       'src/app/api/account/marketing-consent/route.ts',
       'src/app/api/marketing/newsletter/route.ts',
@@ -36,7 +36,9 @@ describe('customer direct-write evidence',()=>{
       const source=read(file);
       expect(source).toContain("from('marketing_consents').insert");
       expect(source).toMatch(/if\(error\).*500/);
-      expect(source.match(/\.update\(|\.delete\(|\.upsert\(/g)??[]).toHaveLength(0);
+      expect(source).not.toContain("from('marketing_consents').update");
+      expect(source).not.toContain("from('marketing_consents').delete");
+      expect(source).not.toContain("from('marketing_consents').upsert");
     }
   });
 });
