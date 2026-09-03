@@ -46,7 +46,7 @@ export async function sendExternalLogisticsOrderEmail(instanceId:string,orderId:
   const admin=createAdminClient();
   const[{data:order,error:orderError},{data:items,error:itemError},identity]=await Promise.all([
     admin.from('orders').select('order_number,status,customer_email,customer_phone,billing_name,billing_company,billing_tax_number,shipping_name,shipping_postcode,shipping_city,shipping_address,shipping_method,parcel_point_id,payment_method,subtotal_gross_huf,shipping_gross_huf,discount_gross_huf,total_gross_huf,note,created_at').eq('id',orderId).eq('instance_id',instanceId).maybeSingle(),
-    admin.from('order_items').select('product_name,variant_label,sku,quantity,unit_gross_huf,line_total_gross_huf').eq('order_id',orderId).eq('instance_id',instanceId).order('created_at',{ascending:true}),
+    admin.from('order_items').select('product_name,variant_label,sku,quantity,unit_gross_huf,line_total_gross_huf').eq('order_id',orderId).eq('instance_id',instanceId).order('id',{ascending:true}),
     getCommunicationIdentityForInstance(instanceId),
   ]);
   if(orderError||!order)throw new Error('External logistics order not found');
