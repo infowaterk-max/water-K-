@@ -14,7 +14,7 @@ const schema=z.discriminatedUnion('action',[
   z.object({action:z.literal('offer_status'),id:z.string().uuid(),status:z.enum(['sent','accepted','expired','cancelled'])})
 ]);
 
-type Evidence={ok?:boolean;id?:string;status?:string;auditId?:string;offer?:unknown;opportunities?:unknown;tasks?:number;cancelledOffers?:number;cancelledTasks?:number};
+type Evidence={ok?:boolean;id?:string;status?:string;auditId?:string;offer?:unknown;opportunities?:unknown;tasks?:number;cancelledOffers?:number;cancelledTasks?:number;opportunityStatus?:string;siblingActiveOffers?:number;reconciliationAuditId?:string|null};
 
 function fail(error:{message?:string}|null,fallback:string){
   const message=String(error?.message??'');
@@ -99,11 +99,20 @@ export async function POST(req:Request){
     return NextResponse.json(e);
   }
 
-  const{data,error}=await a.rpc('admin_transition_commercial_offer_v3',{
+  const{data,error}=await a.rpc('admin_transition_commercial_offer_v4',{
     p_instance_id:store.instanceId,p_offer_id:p.id,p_actor:user.id,p_status:p.status
   });
   if(error)return fail(error,'Az ajánlat állapota nem módosítható.');
   const e=(data??{})as Evidence;
-  if(!hasAudit(data)||e.id!==p.id||e.status!==p.status||!e.offer)return NextResponse.json({error:'Az ajánlat módosításának eredménye nem igazolható.'},{status:500});
+  const taskCountValid=Number.isInteger(e.cancelledTasks)&&Number(e.cancelledTasks)>=0;
+  const siblingCountValid=Number.isInteger(e.siblingActiveOffers)&&Number(e.siblingActiveOffers)>=0;
+  const baseEvidence=hasAudit(data)&&e.id===p.id&&e.status===p.status&&Boolean(e.offer)&&typeof e.opportunityStatus==='string'&&taskCountValid&&siblingCountValid;
+  const acceptanceEvidence=p.status!=='accepted'||(
+    e.opportunityStatus==='won'&&
+    e.siblingActiveOffers===0&&
+    typeof e.reconciliationAuditId==='string'&&
+    e.reconciliationAuditId.length>0
+  );
+  if(!baseEvidence||!acceptanceEvidence)return NextResponse.json({error:'Az ajánlat módosításának eredménye nem igazolható.'},{status:500});
   return NextResponse.json(e);
 }

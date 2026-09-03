@@ -65,6 +65,7 @@ describe('reseller offer authority and downstream closure',()=>{
     expect(commercial).toContain('Number.isInteger(e.cancelledTasks)');
     expect(commercial).toContain('B2B_RESELLER_AUTHORITY_REQUIRED');
     expect(commercial).toContain('COMMERCIAL_OPPORTUNITY_NOT_ACTIVE');
+    expect(commercial).toContain("a.rpc('admin_transition_commercial_offer_v4'");
   });
 
   test('v3 role/opportunity mutators are internal while v4 wrappers are service-runtime entrypoints',()=>{
