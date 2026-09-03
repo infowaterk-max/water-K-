@@ -5,6 +5,7 @@ import {describe,expect,test} from 'vitest';
 const root=process.cwd(),read=(file:string)=>fs.readFileSync(path.join(root,file),'utf8');
 const engagement='supabase/migrations/20260903145000_admin_engagement_evidence_atomic_v2.sql';
 const operations='supabase/migrations/20260903146000_admin_procurement_return_evidence_atomic_v2.sql';
+const roleClosure='supabase/migrations/20260903194500_customer_role_commercial_atomic_v3.sql';
 
 describe('admin operational evidence atomicity',()=>{
   test('support ticket state and replies commit together with audit evidence',()=>{
@@ -82,7 +83,6 @@ describe('admin operational evidence atomicity',()=>{
       'admin_update_support_ticket_v2',
       'admin_add_support_reply_v2',
       'admin_mutate_product_recommendation_v2',
-      'admin_update_customer_store_role_v2',
       'admin_mutate_coupon_v2',
       'admin_moderate_product_review_v2',
       'admin_manage_purchase_order_v3',
@@ -91,5 +91,8 @@ describe('admin operational evidence atomicity',()=>{
       expect(sql).toContain(`revoke all on function public.${name}`);
       expect(sql).toMatch(new RegExp(`grant execute on function public\\.${name}[\\s\\S]{0,180}to service_role`));
     }
+    const roleSql=read(roleClosure);
+    expect(roleSql).toMatch(/revoke all on function public\.admin_update_customer_store_role_v2[\s\S]{0,180}service_role/);
+    expect(roleSql).toMatch(/grant execute on function public\.admin_update_customer_store_role_v3[\s\S]{0,180}to service_role/);
   });
 });

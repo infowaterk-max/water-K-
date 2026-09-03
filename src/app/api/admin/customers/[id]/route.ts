@@ -18,10 +18,16 @@ export async function PATCH(request:Request,{params}:{params:Promise<{id:string}
 
   const admin=createAdminClient();
   const{data:current,error:currentError}=await admin.from('customer_instance_roles')
-    .select('updated_at').eq('instance_id',scope.instanceId).eq('user_id',id).maybeSingle();
+    .select('role,reseller_approved,updated_at').eq('instance_id',scope.instanceId).eq('user_id',id).maybeSingle();
   if(currentError||!current)return NextResponse.json({error:'Az ügyfél nem tartozik ehhez a webshophoz.'},{status:404});
 
-  const{data,error}=await admin.rpc('admin_update_customer_store_role_v2',{
+  const currentRole=current.role==='reseller'?'reseller':'customer';
+  const expectedRole=parsed.data.role??currentRole;
+  const expectedApproved=expectedRole==='reseller'
+    ?(parsed.data.resellerApproved??current.reseller_approved===true)
+    :false;
+
+  const{data,error}=await admin.rpc('admin_update_customer_store_role_v3',{
     p_instance_id:scope.instanceId,
     p_user_id:id,
     p_actor:actor.id,
@@ -34,7 +40,21 @@ export async function PATCH(request:Request,{params}:{params:Promise<{id:string}
     if(error.message.includes('SALES_PERMISSION_REQUIRED'))return NextResponse.json({error:'Nincs jogosultság ehhez a webshophoz.'},{status:403});
     return NextResponse.json({error:'A partnerstátusz módosítása nem sikerült. Egyetlen változás sem került alkalmazásra.'},{status:500});
   }
-  const result=(data??{})as{role?:string;resellerApproved?:boolean};
-  if(!result.role)return NextResponse.json({error:'A partnerstátusz módosítása nem igazolható.'},{status:500});
-  return NextResponse.json({ok:true,role:result.role,resellerApproved:result.resellerApproved===true});
+  const result=(data??{})as{id?:unknown;role?:unknown;resellerApproved?:unknown;retiredOpportunities?:unknown;cancelledTasks?:unknown};
+  const retiredValid=typeof result.retiredOpportunities==='number'&&Number.isInteger(result.retiredOpportunities)&&result.retiredOpportunities>=0;
+  const cancelledValid=typeof result.cancelledTasks==='number'&&Number.isInteger(result.cancelledTasks)&&result.cancelledTasks>=0;
+  if(
+    result.id!==id||
+    result.role!==expectedRole||
+    result.resellerApproved!==expectedApproved||
+    !retiredValid||
+    !cancelledValid
+  )return NextResponse.json({error:'A partnerstátusz módosításának eredménye nem igazolható.'},{status:500});
+  return NextResponse.json({
+    ok:true,
+    role:result.role,
+    resellerApproved:result.resellerApproved,
+    retiredOpportunities:result.retiredOpportunities,
+    cancelledTasks:result.cancelledTasks,
+  });
 }

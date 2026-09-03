@@ -43,16 +43,17 @@ describe('tenant B2B customer and storefront contract',()=>{
     expect(admin).toMatch(/eq\('instance_id',scope\.instanceId\)/);
 
     const api=read('src/app/api/admin/customers/[id]/route.ts');
-    const atomic=read('supabase/migrations/20260903145000_admin_engagement_evidence_atomic_v2.sql');
+    const atomic=read('supabase/migrations/20260903194500_customer_role_commercial_atomic_v3.sql');
     expect(api).toMatch(/customer_instance_roles/);
     expect(api).toMatch(/eq\('instance_id',scope\.instanceId\)/);
-    expect(api).toMatch(/admin_update_customer_store_role_v2/);
+    expect(api).toMatch(/admin_update_customer_store_role_v3/);
     expect(api).toMatch(/p_instance_id:scope\.instanceId/);
     expect(api).not.toMatch(/from\('customer_instance_roles'\)\.update/);
     expect(api).not.toMatch(/recordAdminAudit/);
-    expect(atomic).toMatch(/where instance_id=p_instance_id and user_id=p_user_id/);
-    expect(atomic).toMatch(/select email,full_name into profile_row from public\.profiles/);
-    expect(atomic).toMatch(/'customer\.store_role_updated'/);
+    expect(atomic).toMatch(/admin_update_customer_store_role_v2/);
+    expect(atomic).toMatch(/o\.instance_id=p_instance_id/);
+    expect(atomic).toMatch(/o\.reseller_id=p_user_id/);
+    expect(atomic).toMatch(/customer\.store_role_commercial_reconciled/);
   });
 
   test('existing customer requests tenant reseller status through non-downgrading RPC',()=>{

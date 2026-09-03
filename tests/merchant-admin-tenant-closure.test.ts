@@ -111,13 +111,14 @@ describe('merchant admin tenant closure',()=>{
     expect(followup).toMatch(/profiles[\s\S]*in\('id',partnerIds\)/);
 
     const api=read('src/app/api/admin/customers/[id]/route.ts');
-    const sql=read('supabase/migrations/20260903145000_admin_engagement_evidence_atomic_v2.sql');
+    const sql=read('supabase/migrations/20260903194500_customer_role_commercial_atomic_v3.sql');
     expect(api).toMatch(/customer_instance_roles[\s\S]*eq\('instance_id',scope\.instanceId\)[\s\S]*eq\('user_id',id\)/);
-    expect(api).toContain('admin_update_customer_store_role_v2');
+    expect(api).toContain('admin_update_customer_store_role_v3');
     expect(api).toContain('p_instance_id:scope.instanceId');
     expect(api).not.toContain('recordAdminAudit');
-    expect(sql).toContain('where instance_id=p_instance_id and user_id=p_user_id');
-    expect(sql).toContain('public.can_manage_sales(p_instance_id,p_actor)');
+    expect(sql).toContain('admin_update_customer_store_role_v2');
+    expect(sql).toContain('o.instance_id=p_instance_id');
+    expect(sql).toContain('t.instance_id=p_instance_id');
   });
 
   test('database migration adds tenant analytics and v2 operational RPCs',()=>{
