@@ -1,6 +1,7 @@
 import 'server-only';
 import { createHmac, timingSafeEqual } from 'node:crypto';
 import { cookies } from 'next/headers';
+import { resolveSupabaseServerKey } from '@/lib/supabase/server-credentials';
 
 export const PILOT_ACCEPTANCE_COOKIE='shoperation_pilot_acceptance';
 export const PILOT_ACCEPTANCE_MAX_AGE_SECONDS=2*60*60;
@@ -8,7 +9,7 @@ const VERSION='v1';
 const UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 function signingKey(){
-  const base=(process.env.PILOT_STOREFRONT_SECRET||process.env.SUPABASE_SECRET_KEY||process.env.SUPABASE_SERVICE_ROLE_KEY||'').trim();
+  const base=(process.env.PILOT_STOREFRONT_SECRET||resolveSupabaseServerKey()||'').trim();
   if(!base)return null;
   return createHmac('sha256',base).update('shoperation:pilot-acceptance:v1').digest();
 }
