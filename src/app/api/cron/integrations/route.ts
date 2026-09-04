@@ -9,6 +9,7 @@ export const maxDuration=60;
 type InstanceRow={id:string};
 type JobRow={id:string;status:string;next_attempt_at:string|null;updated_at:string};
 type JourneyResult={instanceId:string;ok:boolean;planned?:unknown;dispatched?:unknown;error?:string};
+type JourneyPlan={instanceId?:unknown;journeysSeen?:unknown;stepsCreated?:unknown;journeysCancelled?:unknown;stepsCancelled?:unknown;jobsCancelled?:unknown};
 type LoyaltyRun={
   instance_id?:unknown;
   run_key?:unknown;
@@ -41,6 +42,19 @@ function due(job:JobRow,now:number){
 }
 function nonNegativeInteger(value:unknown):value is number{
   return typeof value==='number'&&Number.isInteger(value)&&value>=0;
+}
+function journeyPlanEvidence(data:unknown,instanceId:string){
+  if(!data||typeof data!=='object'||Array.isArray(data))return null;
+  const row=data as JourneyPlan;
+  if(
+    row.instanceId!==instanceId||
+    !nonNegativeInteger(row.journeysSeen)||
+    !nonNegativeInteger(row.stepsCreated)||
+    !nonNegativeInteger(row.journeysCancelled)||
+    !nonNegativeInteger(row.stepsCancelled)||
+    !nonNegativeInteger(row.jobsCancelled)
+  )return null;
+  return row;
 }
 function loyaltyEvidence(data:unknown,instanceId:string,runKey:string){
   const raw=Array.isArray(data)?data[0]:data;
@@ -111,9 +125,11 @@ async function runWorker(request:Request){
     try{
       const{data:planned,error:planError}=await admin.rpc('plan_customer_retention_journeys_v2',{p_instance_id:instance.id});
       if(planError)throw planError;
+      const planEvidence=journeyPlanEvidence(planned,instance.id);
+      if(!planEvidence)throw new Error('RETENTION_JOURNEY_PLAN_EVIDENCE_MISSING');
       const{data:dispatched,error:dispatchError}=await admin.rpc('dispatch_due_customer_journey_steps_v2',{p_instance_id:instance.id,p_limit:50});
       if(dispatchError)throw dispatchError;
-      journeys.push({instanceId:instance.id,ok:true,planned,dispatched});
+      journeys.push({instanceId:instance.id,ok:true,planned:planEvidence,dispatched});
     }catch(error){
       journeys.push({instanceId:instance.id,ok:false,error:error instanceof Error?error.message:'A tenant ügyfélút-feldolgozás nem sikerült.'});
     }
