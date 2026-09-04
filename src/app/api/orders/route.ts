@@ -11,6 +11,7 @@ import {
   getLatestPaymentAttempt,
 } from '@/lib/integrations/payment-attempts';
 import { getCommunicationIdentityForInstance } from '@/lib/communication/identity';
+import { processIntegrationJob } from '@/lib/integrations/processor';
 
 const providerCode = z.string().trim().regex(/^[a-z0-9_-]{2,80}$/);
 const checkoutSchema = z.object({
@@ -209,6 +210,28 @@ export async function POST(request: Request) {
       },{status:500});
     }
 
+    try{
+      const{data:claimed,error:claimError}=await admin.rpc('claim_integration_job_v2',{
+        p_instance_id:instance.id,
+        p_id:local.confirmationJobId,
+      });
+      if(claimError)throw claimError;
+      const claim=(claimed?.[0]??null) as {id?:string;instance_id?:string;processing_token?:string}|null;
+      if(claim?.processing_token){
+        if(claim.id!==local.confirmationJobId||claim.instance_id!==instance.id){
+          throw new Error('CHECKOUT_CONFIRMATION_JOB_CLAIM_MISMATCH');
+        }
+        await processIntegrationJob(instance.id,local.confirmationJobId,claim.processing_token);
+      }
+    }catch(confirmationError){
+      console.error('checkout confirmation dispatch deferred',{
+        instanceId:instance.id,
+        orderId:order.order_id,
+        jobId:local.confirmationJobId,
+        error:confirmationError,
+      });
+    }
+
     const confirmationToken=local.confirmationToken;
     let finalStatus=local.status;
     let paymentRedirectUrl: string | undefined;
@@ -305,6 +328,6 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: true, replayed, orderId: order.order_id, orderNumber: order.order_number, confirmationToken, subtotal: order.subtotal_gross_huf, discount: order.discount_gross_huf, shippingFee: order.shipping_gross_huf, total: order.total_gross_huf, couponCode: order.coupon_code, status: finalStatus, paymentRedirectUrl }, { status: replayed ? 200 : 201 });
   } catch (error) {
     console.error('checkout preparation failed', error);
-    return NextResponse.json({ error: 'A rendelés feldolgozása átmenetileg nem sikerült. Kérlek ellenőrizd a rendeléseidet, mielőtt újra megpróbálod.' }, { status: 503 });
+    return NextResponse.json({ error: 'A rendelés feldolgozása átmenetileg nem sikerült. Kérlek ellenőrizd a rendeléseidet, mielőtt újra megpróbálnád.' }, { status: 503 });
   }
 }
