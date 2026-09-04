@@ -1,4 +1,9 @@
-type RuntimeEnv=Pick<NodeJS.ProcessEnv,'VERCEL_ENV'|'VERCEL_PROJECT_PRODUCTION_URL'|'VERCEL_URL'|'NEXT_PUBLIC_SITE_URL'>;
+type RuntimeEnv={
+  VERCEL_ENV?:string;
+  VERCEL_PROJECT_PRODUCTION_URL?:string;
+  VERCEL_URL?:string;
+  NEXT_PUBLIC_SITE_URL?:string;
+};
 
 function normalizeAbsoluteUrl(value:string|undefined):string|null{
   const raw=value?.trim();
