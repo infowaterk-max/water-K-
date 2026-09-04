@@ -20,46 +20,6 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  dependency-lock-bootstrap:
-    if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    steps:
-      - name: Checkout PR head
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.pull_request.head.sha }}
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 24
-
-      - name: Generate dependency lock without install scripts
-        shell: bash
-        run: |
-          if [ -f package-lock.json ]; then
-            echo 'package-lock.json already exists; bootstrap is a no-op.'
-            exit 0
-          fi
-          npm install --package-lock-only --ignore-scripts --no-audit --no-fund
-
-      - name: Commit generated dependency lock
-        env:
-          HEAD_REF: ${{ github.head_ref }}
-        shell: bash
-        run: |
-          if [ -z "$(git status --porcelain -- package-lock.json)" ]; then
-            echo 'No dependency lock change to commit.'
-            exit 0
-          fi
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add package-lock.json
-          git commit -m 'Lock resolved dependency tree'
-          git push origin "HEAD:${HEAD_REF}"
-
   security-audit:
     runs-on: ubuntu-latest
     timeout-minutes: 8
@@ -72,16 +32,8 @@ jobs:
         with:
           node-version: 24
 
-      - name: Install dependencies
-        run: npm install --no-audit --no-fund
-
-      - name: Capture generated dependency lock
-        uses: actions/upload-artifact@v4
-        with:
-          name: dependency-lock-candidate
-          path: package-lock.json
-          if-no-files-found: error
-          retention-days: 1
+      - name: Install locked dependencies
+        run: npm ci --no-audit --no-fund
 
       - name: Production dependency security audit
         shell: bash
@@ -130,8 +82,8 @@ jobs:
         with:
           node-version: 24
 
-      - name: Install dependencies
-        run: npm install --no-audit --no-fund
+      - name: Install locked dependencies
+        run: npm ci --no-audit --no-fund
 
       - name: Customer database baseline guard
         run: npm run db:customer:guard
