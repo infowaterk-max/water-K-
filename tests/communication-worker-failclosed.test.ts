@@ -10,7 +10,7 @@ describe('communication worker fail-closed status',()=>{
     const cron=read('src/app/api/cron/integrations/route.ts');
     expect(internal).toContain('summary.tenantFailures===0');
     expect(internal).toContain('{status:ok?200:503}');
-    expect(cron).toContain('const ok=inventorySnapshot.ok&&journeyOk&&integrationResults.every(result=>result.ok)&&communication.ok');
+    expect(cron).toContain('const ok=inventorySnapshot.ok&&loyaltyOk&&journeyOk&&integrationResults.every(result=>result.ok)&&communication.ok');
     expect(cron).toContain('{status:ok?200:503}');
   });
 

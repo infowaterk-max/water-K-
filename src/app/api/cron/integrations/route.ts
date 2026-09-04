@@ -9,6 +9,26 @@ export const maxDuration=60;
 type InstanceRow={id:string};
 type JobRow={id:string;status:string;next_attempt_at:string|null;updated_at:string};
 type JourneyResult={instanceId:string;ok:boolean;planned?:unknown;dispatched?:unknown;error?:string};
+type JourneyPlan={instanceId?:unknown;journeysSeen?:unknown;stepsCreated?:unknown;journeysCancelled?:unknown;stepsCancelled?:unknown;jobsCancelled?:unknown};
+type LoyaltyRun={
+  instance_id?:unknown;
+  run_key?:unknown;
+  accrued_points_entries?:unknown;
+  reversed_points_entries?:unknown;
+  refreshed_profiles?:unknown;
+  completed_at?:unknown;
+  metadata?:unknown;
+};
+type LoyaltyResult={
+  instanceId:string;
+  runKey:string;
+  ok:boolean;
+  accrued?:number;
+  reversed?:number;
+  refreshedProfiles?:number;
+  completedAt?:string;
+  error?:string;
+};
 
 function authorized(request:Request){
   const secret=process.env.CRON_SECRET;
@@ -19,6 +39,47 @@ function due(job:JobRow,now:number){
   if(job.status==='failed')return Boolean(job.next_attempt_at)&&new Date(job.next_attempt_at as string).getTime()<=now;
   if(job.status==='processing')return new Date(job.updated_at).getTime()<=now-15*60*1000;
   return false;
+}
+function nonNegativeInteger(value:unknown):value is number{
+  return typeof value==='number'&&Number.isInteger(value)&&value>=0;
+}
+function journeyPlanEvidence(data:unknown,instanceId:string){
+  if(!data||typeof data!=='object'||Array.isArray(data))return null;
+  const row=data as JourneyPlan;
+  if(
+    row.instanceId!==instanceId||
+    !nonNegativeInteger(row.journeysSeen)||
+    !nonNegativeInteger(row.stepsCreated)||
+    !nonNegativeInteger(row.journeysCancelled)||
+    !nonNegativeInteger(row.stepsCancelled)||
+    !nonNegativeInteger(row.jobsCancelled)
+  )return null;
+  return row;
+}
+function loyaltyEvidence(data:unknown,instanceId:string,runKey:string){
+  const raw=Array.isArray(data)?data[0]:data;
+  if(!raw||typeof raw!=='object')return null;
+  const row=raw as LoyaltyRun;
+  const metadata=row.metadata;
+  if(
+    row.instance_id!==instanceId||
+    row.run_key!==runKey||
+    typeof row.completed_at!=='string'||
+    row.completed_at.length===0||
+    !nonNegativeInteger(row.accrued_points_entries)||
+    !nonNegativeInteger(row.reversed_points_entries)||
+    !nonNegativeInteger(row.refreshed_profiles)||
+    !metadata||
+    typeof metadata!=='object'||
+    Array.isArray(metadata)||
+    (metadata as Record<string,unknown>).authority!=='instance_id'
+  )return null;
+  return{
+    accrued:row.accrued_points_entries,
+    reversed:row.reversed_points_entries,
+    refreshedProfiles:row.refreshed_profiles,
+    completedAt:row.completed_at,
+  };
 }
 
 async function runWorker(request:Request){
@@ -37,14 +98,38 @@ async function runWorker(request:Request){
     inventorySnapshot={ok:false,error:error instanceof Error?error.message:'A napi készletpillanatkép nem készült el.'};
   }
 
+  const loyaltyRunKey=`daily:${checkedAt.slice(0,10)}`;
+  const loyalty:LoyaltyResult[]=[];
+  for(const instance of instances){
+    try{
+      const{data,error}=await admin.rpc('process_loyalty_lifecycle_v2',{
+        p_instance_id:instance.id,
+        p_run_key:loyaltyRunKey,
+      });
+      if(error)throw error;
+      const evidence=loyaltyEvidence(data,instance.id,loyaltyRunKey);
+      if(!evidence)throw new Error('LOYALTY_LIFECYCLE_EVIDENCE_MISSING');
+      loyalty.push({instanceId:instance.id,runKey:loyaltyRunKey,ok:true,...evidence});
+    }catch(error){
+      loyalty.push({
+        instanceId:instance.id,
+        runKey:loyaltyRunKey,
+        ok:false,
+        error:error instanceof Error?error.message:'A tenant hűségprogram-feldolgozás nem sikerült.',
+      });
+    }
+  }
+
   const journeys:JourneyResult[]=[];
   for(const instance of instances){
     try{
       const{data:planned,error:planError}=await admin.rpc('plan_customer_retention_journeys_v2',{p_instance_id:instance.id});
       if(planError)throw planError;
+      const planEvidence=journeyPlanEvidence(planned,instance.id);
+      if(!planEvidence)throw new Error('RETENTION_JOURNEY_PLAN_EVIDENCE_MISSING');
       const{data:dispatched,error:dispatchError}=await admin.rpc('dispatch_due_customer_journey_steps_v2',{p_instance_id:instance.id,p_limit:50});
       if(dispatchError)throw dispatchError;
-      journeys.push({instanceId:instance.id,ok:true,planned,dispatched});
+      journeys.push({instanceId:instance.id,ok:true,planned:planEvidence,dispatched});
     }catch(error){
       journeys.push({instanceId:instance.id,ok:false,error:error instanceof Error?error.message:'A tenant ügyfélút-feldolgozás nem sikerült.'});
     }
@@ -94,11 +179,13 @@ async function runWorker(request:Request){
     communication={ok:false,error:error instanceof Error?error.message:'UNKNOWN_WORKER_ERROR'};
   }
 
+  const loyaltyOk=loyalty.every(result=>result.ok);
   const journeyOk=journeys.every(result=>result.ok);
-  const ok=inventorySnapshot.ok&&journeyOk&&integrationResults.every(result=>result.ok)&&communication.ok;
+  const ok=inventorySnapshot.ok&&loyaltyOk&&journeyOk&&integrationResults.every(result=>result.ok)&&communication.ok;
   return NextResponse.json({
     ok,
     inventorySnapshot,
+    loyalty:{tenants:loyalty.length,runKey:loyaltyRunKey,results:loyalty},
     journeys:{tenants:journeys.length,results:journeys},
     integrations:{processed:integrationResults.length,results:integrationResults},
     communication,

@@ -43,16 +43,17 @@ describe('tenant B2B customer and storefront contract',()=>{
     expect(admin).toMatch(/eq\('instance_id',scope\.instanceId\)/);
 
     const api=read('src/app/api/admin/customers/[id]/route.ts');
-    const atomic=read('supabase/migrations/20260903145000_admin_engagement_evidence_atomic_v2.sql');
+    const atomic=read('supabase/migrations/20260903194500_customer_role_commercial_atomic_v3.sql');
     expect(api).toMatch(/customer_instance_roles/);
     expect(api).toMatch(/eq\('instance_id',scope\.instanceId\)/);
-    expect(api).toMatch(/admin_update_customer_store_role_v2/);
+    expect(api).toMatch(/admin_update_customer_store_role_v4/);
     expect(api).toMatch(/p_instance_id:scope\.instanceId/);
     expect(api).not.toMatch(/from\('customer_instance_roles'\)\.update/);
     expect(api).not.toMatch(/recordAdminAudit/);
-    expect(atomic).toMatch(/where instance_id=p_instance_id and user_id=p_user_id/);
-    expect(atomic).toMatch(/select email,full_name into profile_row from public\.profiles/);
-    expect(atomic).toMatch(/'customer\.store_role_updated'/);
+    expect(atomic).toMatch(/admin_update_customer_store_role_v2/);
+    expect(atomic).toMatch(/o\.instance_id=p_instance_id/);
+    expect(atomic).toMatch(/o\.reseller_id=p_user_id/);
+    expect(atomic).toMatch(/customer\.store_role_commercial_reconciled/);
   });
 
   test('existing customer requests tenant reseller status through non-downgrading RPC',()=>{
@@ -72,6 +73,22 @@ describe('tenant B2B customer and storefront contract',()=>{
     const followup=read('src/app/admin/utanakovetes/page.tsx');
     expect(followup).toMatch(/customer_instance_roles/);
     expect(followup).toMatch(/eq\('instance_id',scope\.instanceId\)/);
+  });
+
+  test('storefront access and checkout use the tenant partner relation instead of the legacy global profile role',()=>{
+    const access=read('src/lib/commerce/access.ts');
+    const checkoutPage=read('src/app/penztar/page.tsx');
+    const checkoutForm=read('src/components/checkout/checkout-form.tsx');
+    const orderApi=read('src/app/api/orders/route.ts');
+    expect(access).toMatch(/customer_instance_roles/);
+    expect(access).toMatch(/eq\('instance_id',instance\.id\)/);
+    expect(access).not.toMatch(/from\('profiles'\)/);
+    expect(checkoutPage).toMatch(/resellerApproved=\{access\.resellerApproved\}/);
+    expect(checkoutForm).toMatch(/resellerApproved\?'reseller':'retail'/);
+    expect(checkoutForm).not.toMatch(/<option value="reseller">Viszonteladó<\/option>/);
+    expect(orderApi).toMatch(/customer_instance_roles/);
+    expect(orderApi).toMatch(/checkout\.customerType==='reseller'&&!approvedReseller/);
+    expect(orderApi).toMatch(/approvedReseller&&checkout\.customerType!=='reseller'/);
   });
 
   test('storefront resolves tenant channel settings while admin keeps the complete catalogue',()=>{
