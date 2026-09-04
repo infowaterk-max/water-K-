@@ -64,6 +64,31 @@ begin
       )
     order by cj.id
   loop
+    -- Match the dispatcher's lock order: pending journey step first, then its communication job.
+    -- This prevents a pending step from being claimed in the gap between stale-state validation
+    -- and cancellation. If the dispatcher already owns the step, this statement waits and then
+    -- re-evaluates the row state before reconciliation continues.
+    perform js.id
+    from public.customer_journey_steps js
+    where js.instance_id=p_instance_id
+      and js.journey_id=j.id
+      and js.status='pending'
+    order by js.id
+    for update;
+
+    perform q.id
+    from public.communication_jobs q
+    where q.instance_id=p_instance_id
+      and q.status in('pending','failed','processing')
+      and exists(
+        select 1 from public.customer_journey_steps js
+        where js.instance_id=p_instance_id
+          and js.journey_id=j.id
+          and js.communication_job_id=q.id
+      )
+    order by q.id
+    for update;
+
     -- A processing message is already owned by a worker. Do not claim that it was cancelled;
     -- abort the planner transaction and let the next run reconcile after the worker finalizes it.
     if exists(
@@ -219,4 +244,4 @@ grant execute on function public.plan_customer_retention_journeys_v2(uuid)
 to service_role;
 
 comment on function public.plan_customer_retention_journeys_v2(uuid)
-is 'Tenant retention planner with stale-segment reconciliation. Cancels unsent retention journey work before planning current customer segments; fails closed on in-flight communication.';
+is 'Tenant retention planner with stale-segment reconciliation. Locks pending steps/jobs before cancellation, cancels unsent retention work and fails closed on in-flight communication.';
