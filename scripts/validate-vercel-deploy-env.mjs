@@ -26,6 +26,22 @@ if (environment === 'production') {
   if (process.env.SUPABASE_STAGING_SECRET_KEY) {
     problems.push('SUPABASE_STAGING_SECRET_KEY must not be scoped to production');
   }
+
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL?.trim();
+  if (!siteUrl) {
+    problems.push('NEXT_PUBLIC_SITE_URL');
+  } else {
+    try {
+      const parsed = new URL(siteUrl);
+      const host = parsed.hostname.toLowerCase();
+      if (parsed.protocol !== 'https:') problems.push('NEXT_PUBLIC_SITE_URL must use HTTPS in production');
+      if (host === 'localhost' || host === '127.0.0.1' || host === '::1' || host.endsWith('.localhost')) {
+        problems.push('NEXT_PUBLIC_SITE_URL must not use a loopback host in production');
+      }
+    } catch {
+      problems.push('NEXT_PUBLIC_SITE_URL must be a valid absolute URL in production');
+    }
+  }
 } else if (
   !process.env.SUPABASE_STAGING_SECRET_KEY &&
   !process.env.SUPABASE_SECRET_KEY &&
@@ -36,9 +52,9 @@ if (environment === 'production') {
 
 if (problems.length > 0) {
   console.error(
-    `Vercel ${environment} deploy blocked: invalid database environment configuration: ${problems.join(', ')}`,
+    `Vercel ${environment} deploy blocked: invalid environment configuration: ${problems.join(', ')}`,
   );
   process.exit(1);
 }
 
-console.log(`Vercel ${environment} database environment preflight OK.`);
+console.log(`Vercel ${environment} environment preflight OK.`);

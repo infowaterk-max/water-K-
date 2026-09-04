@@ -44,6 +44,7 @@ describe('Supabase server credential scoping', () => {
           ...process.env,
           VERCEL: '1',
           VERCEL_ENV: 'production',
+          NEXT_PUBLIC_SITE_URL: 'https://shop.example.hu',
           NEXT_PUBLIC_SUPABASE_URL: 'https://example.supabase.co',
           NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: 'public-key',
           SUPABASE_SECRET_KEY: 'production-secret',
@@ -56,7 +57,7 @@ describe('Supabase server credential scoping', () => {
     expect(result.stderr).toContain('SUPABASE_STAGING_SECRET_KEY must not be scoped to production');
   });
 
-  it('accepts a production-only server credential configuration', () => {
+  it('accepts a complete production-only server credential configuration', () => {
     const { SUPABASE_STAGING_SECRET_KEY: _stagingSecret, ...cleanEnv } = process.env;
     const result = spawnSync(
       process.execPath,
@@ -67,6 +68,7 @@ describe('Supabase server credential scoping', () => {
           ...cleanEnv,
           VERCEL: '1',
           VERCEL_ENV: 'production',
+          NEXT_PUBLIC_SITE_URL: 'https://water-k-native.vercel.app',
           NEXT_PUBLIC_SUPABASE_URL: 'https://example.supabase.co',
           NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: 'public-key',
           SUPABASE_SECRET_KEY: 'production-secret',
@@ -75,6 +77,29 @@ describe('Supabase server credential scoping', () => {
     );
 
     expect(result.status).toBe(0);
-    expect(result.stdout).toContain('Vercel production database environment preflight OK.');
+    expect(result.stdout).toContain('Vercel production environment preflight OK.');
+  });
+
+  it('fails the Vercel production preflight for a loopback public site URL', () => {
+    const { SUPABASE_STAGING_SECRET_KEY: _stagingSecret, ...cleanEnv } = process.env;
+    const result = spawnSync(
+      process.execPath,
+      [join(process.cwd(), 'scripts/validate-vercel-deploy-env.mjs')],
+      {
+        encoding: 'utf8',
+        env: {
+          ...cleanEnv,
+          VERCEL: '1',
+          VERCEL_ENV: 'production',
+          NEXT_PUBLIC_SITE_URL: 'http://localhost:3000',
+          NEXT_PUBLIC_SUPABASE_URL: 'https://example.supabase.co',
+          NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: 'public-key',
+          SUPABASE_SECRET_KEY: 'production-secret',
+        },
+      },
+    );
+
+    expect(result.status).toBe(1);
+    expect(result.stderr).toContain('NEXT_PUBLIC_SITE_URL must not use a loopback host in production');
   });
 });
