@@ -18,6 +18,15 @@ describe('checkout workflow contracts', () => {
   test('checkout validates parcel point and legal acceptance before order creation', () => {
     expect(checkoutForm).toMatch(/shipping\.kind==='parcel_point'&&!parcelPointId/);expect(checkoutForm).toMatch(/!legalAccepted/);expect(checkoutForm).toMatch(/legalAccepted='true'/);expect(checkoutForm).toMatch(/href="\/aszf"/);expect(checkoutForm).toMatch(/href="\/adatvedelem"/);
   });
+  test('checkout snapshots the submitted form before awaiting quote refresh', () => {
+    const snapshot=checkoutForm.indexOf('const form=e.currentTarget');
+    const quoteRefresh=checkoutForm.indexOf('const verified=await refreshQuote()');
+    const formData=checkoutForm.indexOf('new FormData(form)');
+    expect(snapshot).toBeGreaterThanOrEqual(0);
+    expect(quoteRefresh).toBeGreaterThan(snapshot);
+    expect(formData).toBeGreaterThan(quoteRefresh);
+    expect(checkoutForm).not.toMatch(/new FormData\(e\.currentTarget\)/);
+  });
   test('order creation remains idempotent and server-backed', () => {
     expect(checkoutForm).toMatch(/x-idempotency-key/);expect(checkoutForm).toMatch(/fetch\('\/api\/orders'/);expect(checkoutForm).toMatch(/confirmationToken/);expect(checkoutForm).toMatch(/router\.replace\(`\/rendeles-sikeres\?token=/);
   });
