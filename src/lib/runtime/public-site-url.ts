@@ -27,12 +27,18 @@ function isLoopback(url:string):boolean{
   }catch{return false}
 }
 
-export function getServerPublicSiteUrl(env:RuntimeEnv=process.env):string|null{
-  const configured=normalizeAbsoluteUrl(env.NEXT_PUBLIC_SITE_URL);
-  const production=vercelHostUrl(env.VERCEL_PROJECT_PRODUCTION_URL);
-  const deployment=vercelHostUrl(env.VERCEL_URL);
+export function getServerPublicSiteUrl(env?:RuntimeEnv):string|null{
+  const runtime:RuntimeEnv=env??{
+    VERCEL_ENV:process.env.VERCEL_ENV,
+    VERCEL_PROJECT_PRODUCTION_URL:process.env.VERCEL_PROJECT_PRODUCTION_URL,
+    VERCEL_URL:process.env.VERCEL_URL,
+    NEXT_PUBLIC_SITE_URL:process.env.NEXT_PUBLIC_SITE_URL,
+  };
+  const configured=normalizeAbsoluteUrl(runtime.NEXT_PUBLIC_SITE_URL);
+  const production=vercelHostUrl(runtime.VERCEL_PROJECT_PRODUCTION_URL);
+  const deployment=vercelHostUrl(runtime.VERCEL_URL);
 
-  if(env.VERCEL_ENV==='production'){
+  if(runtime.VERCEL_ENV==='production'){
     if(configured&&!isLoopback(configured))return configured;
     return production??deployment??null;
   }
