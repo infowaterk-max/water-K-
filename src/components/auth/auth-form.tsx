@@ -1,11 +1,13 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect,useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/browser';
 
 type Mode='login'|'register';
 type AccountType='customer'|'company'|'reseller';
+type AuthFlow='invite'|'recovery';
+type FlowStatus='idle'|'checking'|'ready'|'invalid';
 
 export function AuthForm({instanceId}:{instanceId:string|null}){
   const router=useRouter();
@@ -14,6 +16,33 @@ export function AuthForm({instanceId}:{instanceId:string|null}){
   const [email,setEmail]=useState('');
   const [message,setMessage]=useState('');
   const [busy,setBusy]=useState(false);
+  const [authFlow,setAuthFlow]=useState<AuthFlow|null>(null);
+  const [flowStatus,setFlowStatus]=useState<FlowStatus>('idle');
+
+  useEffect(()=>{
+    const hash=new URLSearchParams(window.location.hash.replace(/^#/,''));
+    const type=hash.get('type');
+    const errorCode=hash.get('error_code');
+    if(errorCode){
+      setMessage(errorCode==='otp_expired'?'A belépési vagy jelszóbeállító link lejárt. Kérj új linket az „Elfelejtett jelszó” gombbal.':'A belépési link nem használható. Kérj új jelszóbeállító linket.');
+      return;
+    }
+    if(type!=='invite'&&type!=='recovery')return;
+    setAuthFlow(type);
+    setFlowStatus('checking');
+    const supabase=createClient();
+    let active=true;
+    const{data:{subscription}}=supabase.auth.onAuthStateChange((event,session)=>{
+      if(!active)return;
+      if(event==='PASSWORD_RECOVERY')setAuthFlow('recovery');
+      if(session)setFlowStatus('ready');
+    });
+    void supabase.auth.getSession().then(({data,error})=>{
+      if(!active)return;
+      setFlowStatus(!error&&data.session?'ready':'invalid');
+    });
+    return()=>{active=false;subscription.unsubscribe()};
+  },[]);
 
   async function submit(formData:FormData){
     const supabase=createClient();
@@ -54,6 +83,39 @@ export function AuthForm({instanceId}:{instanceId:string|null}){
     const redirectTo=`${window.location.origin}/fiokom`;
     const {error}=await supabase.auth.resetPasswordForEmail(normalizedEmail,{redirectTo});
     setBusy(false);setMessage(error?error.message:'Jelszó-visszaállító e-mail elküldve.');
+  }
+
+  async function setFlowPassword(formData:FormData){
+    const password=String(formData.get('newPassword')??'');
+    const confirmation=String(formData.get('confirmPassword')??'');
+    if(password.length<8){setMessage('A jelszó legalább 8 karakter legyen.');return;}
+    if(password!==confirmation){setMessage('A két jelszó nem egyezik.');return;}
+    setBusy(true);setMessage('');
+    const supabase=createClient();
+    const{error}=await supabase.auth.updateUser({password});
+    setBusy(false);
+    if(error){setMessage(error.message);return;}
+    window.history.replaceState(null,'','/fiokom');
+    const requestedNext=new URLSearchParams(window.location.search).get('next');
+    const target=requestedNext?.startsWith('/admin')&&!requestedNext.startsWith('//')?requestedNext:'/fiokom';
+    setMessage('A jelszó beállítva.');
+    router.replace(target);
+    router.refresh();
+  }
+
+  if(authFlow){
+    return <div className="card authCard">
+      <h2>{authFlow==='invite'?'Meghívás befejezése':'Új jelszó beállítása'}</h2>
+      {flowStatus==='checking'&&<p className="notice">A biztonságos belépési link ellenőrzése…</p>}
+      {flowStatus==='invalid'&&<><p className="errorNotice" role="alert">A link nem érvényes vagy lejárt. Kérj új jelszóbeállító e-mailt a bejelentkezési oldalon.</p><button className="btn btnGhost" type="button" onClick={()=>{window.history.replaceState(null,'','/fiokom');setAuthFlow(null);setFlowStatus('idle')}}>Vissza a bejelentkezéshez</button></>}
+      {flowStatus==='ready'&&<form action={setFlowPassword} className="checkoutForm">
+        <p className="muted">Állíts be legalább 8 karakteres jelszót. Ezzel később normál módon is be tudsz jelentkezni.</p>
+        <label>Új jelszó<input name="newPassword" type="password" minLength={8} required autoComplete="new-password"/></label>
+        <label>Új jelszó még egyszer<input name="confirmPassword" type="password" minLength={8} required autoComplete="new-password"/></label>
+        <button className="button" type="submit" disabled={busy}>{busy?'Mentés…':'Jelszó beállítása'}</button>
+      </form>}
+      {message&&<p className="notice">{message}</p>}
+    </div>;
   }
 
   const companyFields=mode==='register'&&accountType!=='customer';
