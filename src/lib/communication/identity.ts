@@ -1,17 +1,20 @@
 import 'server-only';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { getCurrentWebshopInstance, type WebshopInstance } from '@/lib/instances/access';
+import { getServerPublicSiteUrl } from '@/lib/runtime/public-site-url';
 
 export type CommunicationIdentity={instanceId:string;brandName:string;fromName:string;siteUrl:string;supportEmail:string|null;primaryColor:string};
 
 function fromInstance(instance:WebshopInstance):CommunicationIdentity{
-  const siteFallback=(process.env.NEXT_PUBLIC_SITE_URL||'http://localhost:3000').replace(/\/$/,'');
+  const runtimeSiteUrl=getServerPublicSiteUrl();
+  const siteUrl=(instance.brand.publicSiteUrl?.trim()||runtimeSiteUrl)?.replace(/\/$/,'');
+  if(!siteUrl)throw new Error('COMMUNICATION_PUBLIC_SITE_URL_REQUIRED');
   const brandFallback=process.env.WEBSHOP_BRAND_NAME?.trim()||'Shoperation';
   return {
     instanceId:instance.id,
     brandName:instance.brand.name||brandFallback,
     fromName:instance.brand.emailFromName||instance.brand.name||brandFallback,
-    siteUrl:(instance.brand.publicSiteUrl||siteFallback).replace(/\/$/,''),
+    siteUrl,
     supportEmail:instance.brand.supportEmail||null,
     primaryColor:instance.brand.primaryColor||'#17231a',
   };
