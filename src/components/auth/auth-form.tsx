@@ -20,15 +20,22 @@ export function AuthForm({instanceId}:{instanceId:string|null}){
   const [flowStatus,setFlowStatus]=useState<FlowStatus>('idle');
 
   useEffect(()=>{
+    const search=new URLSearchParams(window.location.search);
     const hash=new URLSearchParams(window.location.hash.replace(/^#/,''));
-    const type=hash.get('type');
-    const errorCode=hash.get('error_code');
+    const queryFlow=search.get('auth_flow');
+    const hashFlow=hash.get('type');
+    const requestedFlow:AuthFlow|null=queryFlow==='invite'||queryFlow==='recovery'
+      ?queryFlow
+      :hashFlow==='invite'||hashFlow==='recovery'
+        ?hashFlow
+        :null;
+    const errorCode=hash.get('error_code')??search.get('error_code');
     if(errorCode){
       setMessage(errorCode==='otp_expired'?'A belépési vagy jelszóbeállító link lejárt. Kérj új linket az „Elfelejtett jelszó” gombbal.':'A belépési link nem használható. Kérj új jelszóbeállító linket.');
       return;
     }
-    if(type!=='invite'&&type!=='recovery')return;
-    setAuthFlow(type);
+    if(!requestedFlow)return;
+    setAuthFlow(requestedFlow);
     setFlowStatus('checking');
     const supabase=createClient();
     let active=true;
@@ -80,7 +87,7 @@ export function AuthForm({instanceId}:{instanceId:string|null}){
     if(!normalizedEmail){setMessage('Add meg az e-mail címedet.');return;}
     setBusy(true);
     const supabase=createClient();
-    const redirectTo=`${window.location.origin}/fiokom`;
+    const redirectTo=`${window.location.origin}/fiokom?auth_flow=recovery`;
     const {error}=await supabase.auth.resetPasswordForEmail(normalizedEmail,{redirectTo});
     setBusy(false);setMessage(error?error.message:'Jelszó-visszaállító e-mail elküldve.');
   }
@@ -95,9 +102,9 @@ export function AuthForm({instanceId}:{instanceId:string|null}){
     const{error}=await supabase.auth.updateUser({password});
     setBusy(false);
     if(error){setMessage(error.message);return;}
-    window.history.replaceState(null,'','/fiokom');
     const requestedNext=new URLSearchParams(window.location.search).get('next');
     const target=requestedNext?.startsWith('/admin')&&!requestedNext.startsWith('//')?requestedNext:'/fiokom';
+    window.history.replaceState(null,'','/fiokom');
     setMessage('A jelszó beállítva.');
     router.replace(target);
     router.refresh();

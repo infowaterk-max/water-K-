@@ -101,7 +101,7 @@ export async function inviteWebshopOwnerAction(formData:FormData){
   }
   const site=getServerPublicSiteUrl();
   if(!site){console.error('platform webshop invite failed: public site URL unavailable');redirect('/admin/platform/webaruhazak?invite=error')}
-  const options={data:{full_name:fullName||undefined,company_name:companyName||undefined,webshop_instance_id:instanceId,webshop_role:role},redirectTo:`${site}/fiokom?next=/admin`};
+  const options={data:{full_name:fullName||undefined,company_name:companyName||undefined,webshop_instance_id:instanceId,webshop_role:role},redirectTo:`${site}/fiokom?auth_flow=invite&next=/admin`};
   const{data:invited,error:inviteError}=await admin.auth.admin.inviteUserByEmail(email,options);
   if(inviteError||!invited.user?.id)redirect('/admin/platform/webaruhazak?invite=error');
   const{error:membershipError}=await admin.rpc('platform_set_webshop_member_v2',{p_instance_id:instanceId,p_user_id:invited.user.id,p_role:role,p_actor_id:actor.id});
