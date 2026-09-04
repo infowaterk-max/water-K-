@@ -6,6 +6,7 @@ import { createAdminClient } from '@/lib/supabase/admin';
 import { requirePlatformOperator } from '@/lib/auth/platform-operator';
 import { ADDONS, type AddonCode } from '@/lib/plans/addons';
 import { isPlanCode } from '@/lib/plans/catalog';
+import { getServerPublicSiteUrl } from '@/lib/runtime/public-site-url';
 
 const slugify=(value:string)=>value.trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9-]+/g,'-').replace(/^-+|-+$/g,'').slice(0,60);
 const uuid=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -98,8 +99,9 @@ export async function inviteWebshopOwnerAction(formData:FormData){
     if(error)redirect('/admin/platform/webaruhazak?invite=error');
     revalidatePath('/admin/platform/webaruhazak');redirect('/admin/platform/webaruhazak?invite=existing-assigned');
   }
-  const site=(process.env.NEXT_PUBLIC_SITE_URL??'').replace(/\/$/,'');
-  const options={data:{full_name:fullName||undefined,company_name:companyName||undefined,webshop_instance_id:instanceId,webshop_role:role},...(site.startsWith('http://')||site.startsWith('https://')?{redirectTo:`${site}/fiokom?next=/admin`}:{})};
+  const site=getServerPublicSiteUrl();
+  if(!site){console.error('platform webshop invite failed: public site URL unavailable');redirect('/admin/platform/webaruhazak?invite=error')}
+  const options={data:{full_name:fullName||undefined,company_name:companyName||undefined,webshop_instance_id:instanceId,webshop_role:role},redirectTo:`${site}/fiokom?next=/admin`};
   const{data:invited,error:inviteError}=await admin.auth.admin.inviteUserByEmail(email,options);
   if(inviteError||!invited.user?.id)redirect('/admin/platform/webaruhazak?invite=error');
   const{error:membershipError}=await admin.rpc('platform_set_webshop_member_v2',{p_instance_id:instanceId,p_user_id:invited.user.id,p_role:role,p_actor_id:actor.id});
