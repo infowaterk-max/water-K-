@@ -36,7 +36,39 @@ jobs:
         run: npm install --no-audit --no-fund
 
       - name: Production dependency security audit
-        run: npm audit --omit=dev --audit-level=high
+        shell: bash
+        run: |
+          set -u
+          max_attempts=3
+          for attempt in $(seq 1 "$max_attempts"); do
+            audit_log="$(mktemp)"
+            set +e
+            npm_config_fetch_timeout=60000 npm_config_fetch_retries=1 npm_config_fetch_retry_maxtimeout=10000 \
+              npm audit --omit=dev --audit-level=high 2>&1 | tee "$audit_log"
+            audit_rc=${PIPESTATUS[0]}
+            set -e
+
+            if [ "$audit_rc" -eq 0 ]; then
+              rm -f "$audit_log"
+              exit 0
+            fi
+
+            if ! grep -Eqi 'network timeout|ETIMEDOUT|ECONNRESET|EAI_AGAIN|ECONNREFUSED|ENETUNREACH|EHOSTUNREACH|502 Bad Gateway|503 Service Unavailable|504 Gateway' "$audit_log"; then
+              echo 'npm audit failed with a non-network error or vulnerability finding; failing without retry.'
+              rm -f "$audit_log"
+              exit "$audit_rc"
+            fi
+
+            if [ "$attempt" -ge "$max_attempts" ]; then
+              echo "npm audit network failure persisted for $max_attempts attempts."
+              rm -f "$audit_log"
+              exit "$audit_rc"
+            fi
+
+            echo "Transient npm audit network failure on attempt $attempt/$max_attempts; retrying."
+            rm -f "$audit_log"
+            sleep $((attempt * 5))
+          done
 
       - name: Customer database baseline guard
         run: npm run db:customer:guard
