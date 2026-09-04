@@ -12,7 +12,8 @@ describe('pilot acceptance guest access',()=>{
     expect(source).toContain("createHmac('sha256'");
     expect(source).toContain('timingSafeEqual');
     expect(source).toContain('PILOT_ACCEPTANCE_MAX_AGE_SECONDS=2*60*60');
-    expect(source).toContain('SUPABASE_SECRET_KEY');
+    expect(source).toContain('resolveSupabaseServerKey');
+    expect(source).toContain('PILOT_STOREFRONT_SECRET');
     expect(source).not.toContain('NEXT_PUBLIC_');
   });
 
