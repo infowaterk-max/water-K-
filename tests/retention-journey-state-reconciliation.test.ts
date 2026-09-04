@@ -7,6 +7,16 @@ const migration='supabase/migrations/20260903214500_retention_journey_state_reco
 const read=(file:string)=>fs.readFileSync(path.join(root,file),'utf8');
 
 describe('retention journey state reconciliation',()=>{
+  test('migration establishes journey step mutation timestamp before using it',()=>{
+    const sql=read(migration);
+    const addColumn=sql.indexOf('alter table public.customer_journey_steps');
+    const updatedAt=sql.indexOf('add column if not exists updated_at timestamptz not null default now()');
+    const firstWrite=sql.indexOf("set status='cancelled',updated_at=now()");
+    expect(addColumn).toBeGreaterThan(-1);
+    expect(updatedAt).toBeGreaterThan(addColumn);
+    expect(firstWrite).toBeGreaterThan(updatedAt);
+  });
+
   test('stale retention journeys are determined only from current tenant customer metrics',()=>{
     const sql=read(migration);
     expect(sql).toContain("cj.instance_id=p_instance_id");
