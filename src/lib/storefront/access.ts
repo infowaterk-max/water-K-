@@ -3,10 +3,12 @@ import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { getCurrentWebshopInstance, type WebshopInstance } from '@/lib/instances/access';
+import { getPilotAcceptanceInstanceId } from '@/lib/storefront/pilot-access';
 
 export async function requireStorefrontAccess():Promise<WebshopInstance|null>{
   const instance=await getCurrentWebshopInstance();
   if(instance?.status==='active') return instance;
+  if(instance?.status==='pilot'&&await getPilotAcceptanceInstanceId()===instance.id)return instance;
 
   const supabase=await createClient();
   const {data:{user}}=await supabase.auth.getUser();
