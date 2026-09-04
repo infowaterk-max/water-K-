@@ -7,6 +7,7 @@ import { requireCurrentStoreContext } from '@/lib/instances/scope';
 import { createAdminClient } from '@/lib/supabase/admin';
 
 const uuid=z.string().uuid();
+const discountPercent=z.number().min(0).max(100);
 
 async function channelAccess(){
   const actor=await getAdminRequestUser('catalog.manage');
@@ -50,5 +51,27 @@ export async function setB2BProductVisibilityAction(formData:FormData){
   if(error)throw new Error('A B2B termékláthatóság módosítása nem sikerült.');
   const result=(data??{}) as {channel?:string;productId?:string;visible?:boolean};
   if(result.channel!=='b2b'||result.productId!==parsed.data||result.visible!==visible)throw new Error('A B2B termékláthatóság mentése nem igazolható.');
+  refreshSalesChannelViews();
+}
+
+export async function setB2CProductPromotionAction(formData:FormData){
+  const product=uuid.safeParse(String(formData.get('productId')??''));
+  if(!product.success)throw new Error('Érvénytelen termékazonosító.');
+  const clear=String(formData.get('clear')??'false')==='true';
+  const raw=String(formData.get('discountPercent')??'').trim().replace(',','.');
+  const parsed=clear?null:discountPercent.safeParse(Number(raw));
+  if(!clear&&(!parsed||!parsed.success))throw new Error('Az akció százaléka 0 és 100 közötti szám legyen.');
+  const value=clear?null:parsed!.data;
+  const{actor,scope,admin}=await channelAccess();
+  const{data,error}=await admin.rpc('admin_set_product_promotion_v1',{
+    p_instance_id:scope.instanceId,
+    p_actor:actor.id,
+    p_product_id:product.data,
+    p_discount_percent:value,
+  });
+  if(error)throw new Error('Az akció módosítása nem sikerült.');
+  const result=(data??{}) as {productId?:string;channel?:string;discountPercent?:number|null};
+  const saved=result.discountPercent==null?null:Number(result.discountPercent);
+  if(result.productId!==product.data||result.channel!=='b2c'||saved!==value)throw new Error('Az akció mentése nem igazolható.');
   refreshSalesChannelViews();
 }
