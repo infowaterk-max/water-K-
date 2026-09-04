@@ -59,9 +59,12 @@ export async function setB2CProductPromotionAction(formData:FormData){
   if(!product.success)throw new Error('Érvénytelen termékazonosító.');
   const clear=String(formData.get('clear')??'false')==='true';
   const raw=String(formData.get('discountPercent')??'').trim().replace(',','.');
-  const parsed=clear?null:discountPercent.safeParse(Number(raw));
-  if(!clear&&(!parsed||!parsed.success))throw new Error('Az akció százaléka 0 és 100 közötti szám legyen.');
-  const value=clear?null:parsed!.data;
+  let value:number|null=null;
+  if(!clear){
+    const parsed=discountPercent.safeParse(Number(raw));
+    if(!parsed.success)throw new Error('Az akció százaléka 0 és 100 közötti szám legyen.');
+    value=parsed.data===0?null:parsed.data;
+  }
   const{actor,scope,admin}=await channelAccess();
   const{data,error}=await admin.rpc('admin_set_product_promotion_v1',{
     p_instance_id:scope.instanceId,

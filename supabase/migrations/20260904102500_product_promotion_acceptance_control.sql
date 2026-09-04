@@ -14,6 +14,7 @@ as $$
 declare
   v_org uuid;
   v_product_name text;
+  v_discount numeric;
   v_before jsonb;
   v_after public.product_channel_settings%rowtype;
 begin
@@ -26,6 +27,7 @@ begin
   if p_discount_percent is not null and (p_discount_percent<0 or p_discount_percent>100) then
     raise exception 'PRODUCT_PROMOTION_DISCOUNT_INVALID';
   end if;
+  v_discount:=case when p_discount_percent is null or p_discount_percent=0 then null else p_discount_percent end;
 
   select w.organization_id,p.name
     into v_org,v_product_name
@@ -44,7 +46,7 @@ begin
   insert into public.product_channel_settings(
     instance_id,product_id,channel_code,visible,discount_percent,updated_at
   ) values(
-    p_instance_id,p_product_id,'b2c',true,p_discount_percent,now()
+    p_instance_id,p_product_id,'b2c',true,v_discount,now()
   )
   on conflict(instance_id,product_id,channel_code) do update
     set discount_percent=excluded.discount_percent,
@@ -59,7 +61,7 @@ begin
   ) values(
     p_actor,'catalog.product_promotion_updated','product_channel',p_product_id::text||':b2c',
     v_org,p_instance_id,
-    left(v_product_name||case when p_discount_percent is null or p_discount_percent=0 then ' B2C akció törölve' else ' B2C akció beállítva: -'||p_discount_percent::text||'%' end,500),
+    left(v_product_name||case when v_discount is null then ' B2C akció törölve' else ' B2C akció beállítva: -'||v_discount::text||'%' end,500),
     v_before,to_jsonb(v_after),
     jsonb_build_object('audit_source','database_rpc','rpc','admin_set_product_promotion_v1','channel','b2c')
   );

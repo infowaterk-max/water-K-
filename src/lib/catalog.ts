@@ -6,6 +6,8 @@ export type Product = {
   size: string;
   grossPrice: number;
   netPrice: number;
+  originalGrossPrice?: number;
+  discountPercent?: number;
   short: string;
   featured?: boolean;
   stock: number;
