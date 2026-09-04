@@ -1,6 +1,11 @@
 -- Reconcile stale tenant retention journeys before planning the next customer lifecycle pass.
 -- Existing v2 callers keep the same RPC name; the return payload gains exact cancellation evidence.
 
+-- Journey-step reconciliation records state transitions, so establish an explicit mutation timestamp
+-- before any code below writes it. The original V9 journey table only carried created_at.
+alter table public.customer_journey_steps
+  add column if not exists updated_at timestamptz not null default now();
+
 create or replace function public.plan_customer_retention_journeys_v2(
   p_instance_id uuid
 ) returns jsonb
