@@ -4,8 +4,8 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
 const labels:Record<string,string>={draft:'Piszkozat',pending:'Függőben',pending_payment:'Fizetésre vár',pending_transfer:'Átutalásra vár',paid:'Fizetve',processing:'Feldolgozás',shipped:'Átadva',completed:'Teljesítve',cancelled:'Törölve',refunded:'Visszatérítve'};
-const allowed:Record<string,string[]>={draft:['pending','pending_payment','pending_transfer','cancelled'],pending:['paid','processing','cancelled'],pending_payment:['paid','cancelled'],pending_transfer:['paid','cancelled'],paid:['processing','refunded','cancelled'],processing:['shipped','refunded','cancelled'],shipped:['completed','refunded'],completed:['refunded'],cancelled:[],refunded:[]};
-const risky=new Set(['cancelled','refunded']);
+const allowed:Record<string,string[]>={draft:['pending','pending_payment','pending_transfer','cancelled'],pending:['paid','processing','cancelled'],pending_payment:['paid','cancelled'],pending_transfer:['paid','cancelled'],paid:['processing'],processing:['shipped'],shipped:['completed'],completed:[],cancelled:[],refunded:[]};
+const risky=new Set(['cancelled']);
 
 export function OrderStatusControl({id,status,trackingNumber='',shippingMethod}:{id:string;status:string;trackingNumber?:string|null;shippingMethod?:string|null}){
   const router=useRouter(); const options=[status,...(allowed[status]??[])]; const [value,setValue]=useState(status); const [tracking,setTracking]=useState(trackingNumber??''); const [busy,setBusy]=useState(false); const [error,setError]=useState(''); const [success,setSuccess]=useState('');
