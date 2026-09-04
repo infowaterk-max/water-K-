@@ -29,8 +29,12 @@ export async function getProducts(options:{includeAllChannels?:boolean;throwOnEr
         if(user){
           const{data:relation}=await admin.from('customer_instance_roles').select('role,reseller_approved').eq('instance_id',instance.id).eq('user_id',user.id).maybeSingle();
           approvedReseller=relation?.role==='reseller'&&relation.reseller_approved===true;
+          if(approvedReseller){
+            const{data:channelState,error:channelError}=await admin.from('webshop_sales_channels').select('enabled').eq('instance_id',instance.id).eq('channel_code','b2b').maybeSingle();
+            approvedReseller=!channelError&&channelState?.enabled===true;
+          }
         }
-      }catch{}
+      }catch{approvedReseller=false}
     }
     const channel:SalesChannelCode=approvedReseller?'b2b':'b2c';
     const{data,error}=await admin.from('product_variants')
@@ -49,7 +53,8 @@ export async function getProducts(options:{includeAllChannels?:boolean;throwOnEr
     return rows.filter(row=>row.instance_id===instance.id&&row.products?.instance_id===instance.id).filter(row=>{
       if(includeAllChannels)return true;
       const setting=settingByProduct.get(row.product_id);
-      return setting?setting.visible:(approvedReseller||normalizeAudience(row.products?.audience)!=='professional');
+      if(channel==='b2b')return setting?.visible===true;
+      return setting?setting.visible:normalizeAudience(row.products?.audience)!=='professional';
     }).map(row=>{
       const product=row.products,setting=includeAllChannels?undefined:settingByProduct.get(row.product_id),baseSlug=product?.slug||slugify(product?.name||row.sku)||row.id;
       const resellerBase=channel==='b2b'&&row.reseller_gross_price_huf!=null;
