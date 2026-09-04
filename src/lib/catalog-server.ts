@@ -14,6 +14,7 @@ const normalizeAudience=(value:string|null|undefined):ProductAudience=>value==='
 const positiveInt=(value:number|null|undefined,fallback=1)=>{const numeric=Number(value);return Number.isFinite(numeric)&&numeric>0?Math.max(1,Math.floor(numeric)):fallback};
 const normalizeMinimum=(minimum:number,multiple:number)=>Math.ceil(Math.max(1,minimum)/Math.max(1,multiple))*Math.max(1,multiple);
 const deriveNet=(gross:number,baseGross:number,baseNet:number)=>baseGross>0?Math.max(0,Math.round(gross*(baseNet/baseGross))):Math.max(0,gross);
+const normalizeDiscount=(discount:number|null|undefined)=>discount==null?null:Math.min(100,Math.max(0,Number(discount)));
 const applyDiscount=(value:number,discount:number|null|undefined)=>discount==null?value:Math.max(0,Math.round(value*(1-Math.min(100,Math.max(0,Number(discount)))/100)));
 
 export async function getProducts(options:{includeAllChannels?:boolean;throwOnError?:boolean}={}):Promise<Product[]>{
@@ -63,9 +64,11 @@ export async function getProducts(options:{includeAllChannels?:boolean;throwOnEr
       const explicitChannelPrice=!includeAllChannels&&setting?.gross_price!=null&&(activeCount.get(row.product_id)??0)===1&&!resellerBase;
       let grossPrice=explicitChannelPrice?Math.max(0,Number(setting?.gross_price??baseGross)):baseGross;
       let netPrice=explicitChannelPrice?deriveNet(grossPrice,baseGross,baseNet):baseNet;
-      if(!explicitChannelPrice&&!includeAllChannels&&setting?.discount_percent!=null){grossPrice=applyDiscount(grossPrice,setting.discount_percent);netPrice=applyDiscount(netPrice,setting.discount_percent);}
+      const discountPercent=!explicitChannelPrice&&!includeAllChannels?normalizeDiscount(setting?.discount_percent):null;
+      const originalGrossPrice=discountPercent!=null&&discountPercent>0?grossPrice:undefined;
+      if(discountPercent!=null&&discountPercent>0){grossPrice=applyDiscount(grossPrice,discountPercent);netPrice=applyDiscount(netPrice,discountPercent);}
       const orderMultiple=positiveInt(row.order_multiple),minimumQuantity=normalizeMinimum(Math.max(positiveInt(row.minimum_order_quantity),positiveInt(setting?.minimum_quantity)),orderMultiple);
-      return{id:row.id,sku:row.sku,slug:variantSlug(baseSlug,row.label,row.sku),name:[product?.name,row.label].filter(Boolean).join(' '),size:row.label,grossPrice,netPrice,stock:row.stock_quantity,short:product?.short_description??'',featured:product?.featured??false,weightGrams:row.weight_grams??0,audience:normalizeAudience(product?.audience),useCases:product?.use_cases??[],highlights:product?.highlights??[],minimumQuantity,orderMultiple};
+      return{id:row.id,sku:row.sku,slug:variantSlug(baseSlug,row.label,row.sku),name:[product?.name,row.label].filter(Boolean).join(' '),size:row.label,grossPrice,netPrice,originalGrossPrice,discountPercent:discountPercent??undefined,stock:row.stock_quantity,short:product?.short_description??'',featured:product?.featured??false,weightGrams:row.weight_grams??0,audience:normalizeAudience(product?.audience),useCases:product?.use_cases??[],highlights:product?.highlights??[],minimumQuantity,orderMultiple};
     });
   }catch(error){if(options.throwOnError)throw error;return[]}
 }
