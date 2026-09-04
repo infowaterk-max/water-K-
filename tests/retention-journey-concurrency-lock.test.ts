@@ -10,9 +10,9 @@ describe('retention journey concurrency lock',()=>{
   test('planner locks pending journey steps before linked communication jobs',()=>{
     const sql=read(migration);
     const stepLock=sql.indexOf("js.status='pending'\n    order by js.id\n    for update");
-    const jobLock=sql.indexOf("q.status in('pending','failed','processing')");
-    const processingGuard=sql.indexOf("q.status='processing'");
-    const cancel=sql.indexOf("set status='cancelled',updated_at=now(),last_error='RETENTION_SEGMENT_NO_LONGER_ACTIONABLE'");
+    const jobLock=sql.indexOf("q.status in('pending','failed','processing')",stepLock);
+    const processingGuard=sql.indexOf("q.status='processing'",jobLock);
+    const cancel=sql.indexOf("set status='cancelled',updated_at=now(),last_error='RETENTION_SEGMENT_NO_LONGER_ACTIONABLE'",processingGuard);
     expect(stepLock).toBeGreaterThan(-1);
     expect(jobLock).toBeGreaterThan(stepLock);
     expect(processingGuard).toBeGreaterThan(jobLock);
