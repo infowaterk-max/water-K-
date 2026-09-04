@@ -2,6 +2,7 @@ import 'server-only';
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { isPlanCode, type PlanCode } from '@/lib/plans/catalog';
+import { getPilotAcceptanceInstanceId } from '@/lib/storefront/pilot-access';
 
 export type StorefrontConfig={heroEyebrow?:string;heroTitle?:string;heroLead?:string;primaryCtaLabel?:string;secondaryCtaLabel?:string;introEyebrow?:string;introTitle?:string;introLead?:string;finalEyebrow?:string;finalTitle?:string;benefit1Title?:string;benefit1Text?:string;benefit2Title?:string;benefit2Text?:string;benefit3Title?:string;benefit3Text?:string};
 export type WebshopInstance={id:string;organizationId:string|null;slug:string;name:string;subscriptionPlan:PlanCode;status:'pilot'|'active'|'suspended'|'archived';brand:{name:string;tagline:string|null;logoUrl:string|null;primaryColor:string|null;supportEmail:string|null;supportPhone:string|null;publicSiteUrl:string|null;emailFromName:string|null};storefront:StorefrontConfig};
@@ -15,6 +16,13 @@ export async function getCurrentWebshopInstance():Promise<WebshopInstance|null>{
   let admin:ReturnType<typeof createAdminClient>;try{admin=createAdminClient()}catch{return null}
   const configuredSlug=process.env.WEBSHOP_INSTANCE_SLUG?.trim().toLowerCase();
   if(configuredSlug){const{data}=await admin.from('webshop_instances').select(SELECT).eq('slug',configuredSlug).in('status',['pilot','active']).maybeSingle();return normalize(data as unknown as InstanceRow|null)}
+
+  const pilotAcceptanceInstanceId=await getPilotAcceptanceInstanceId();
+  if(pilotAcceptanceInstanceId){
+    const{data}=await admin.from('webshop_instances').select(SELECT).eq('id',pilotAcceptanceInstanceId).eq('status','pilot').maybeSingle();
+    const accepted=normalize(data as unknown as InstanceRow|null);
+    if(accepted)return accepted;
+  }
 
   const supabase=await createClient();
   const{data:auth}=await supabase.auth.getUser();
