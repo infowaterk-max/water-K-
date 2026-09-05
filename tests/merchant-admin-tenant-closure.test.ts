@@ -23,7 +23,7 @@ describe('merchant admin tenant closure',()=>{
       'src/app/admin/ugyfelek/page.tsx',
       'src/app/admin/utanakovetes/page.tsx',
     ];
-    for(const page of pages)expect(read(page)).toMatch(/requireCurrentStoreContext/);
+    for(const page of pages)expect(read(page)).toMatch(/requireCurrentStore(?:Page)?Context/);
   });
 
   test('high-risk detail and list reads include instance filters',()=>{
@@ -123,7 +123,7 @@ describe('merchant admin tenant closure',()=>{
 
   test('database migration adds tenant analytics and v2 operational RPCs',()=>{
     const sql=read('supabase/migrations/20260901168000_merchant_admin_tenant_closure.sql');
-    for(const name of [
+    for(const name of[
       'v9_growth_dashboard_v2',
       'v9_channel_retention_summary_v2',
       'v9_monthly_customer_cohorts_v2',
