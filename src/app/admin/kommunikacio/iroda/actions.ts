@@ -6,6 +6,17 @@ import { requirePlanFeature } from '@/lib/plans/access';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { requireCurrentStoreContext } from '@/lib/instances/scope';
 
+type OfficeEmailActionState={status:'idle'|'success'|'blocked'|'error';message:string};
+
+class OfficeMutationError extends Error{
+  readonly reason:string;
+  constructor(reason:string){
+    super('A Digitális iroda művelete nem menthető. Az állapotot nem tekintjük módosítottnak.');
+    this.name='OfficeMutationError';
+    this.reason=reason.toLowerCase();
+  }
+}
+
 async function access(){
   const actor=await getAdminRequestUser('support.manage');if(!actor)throw new Error('Nincs jogosultság.');
   await requirePlanFeature('officeCommunication');
@@ -20,7 +31,10 @@ async function mutateOffice(db:ReturnType<typeof createAdminClient>,input:{insta
     p_action:input.action,
     p_payload:input.payload,
   });
-  if(error)throw new Error('A Digitális iroda művelete nem menthető. Az állapotot nem tekintjük módosítottnak.');
+  if(error){
+    const reason=[error.code,error.message,error.details,error.hint].filter(Boolean).join(' ');
+    throw new OfficeMutationError(reason);
+  }
   const result=(data??{})as{id?:string;threadId?:string;taskId?:string;jobId?:string};
   if(!result.id&&!result.threadId&&!result.taskId&&!result.jobId)throw new Error('A Digitális iroda műveletének eredménye nem igazolható.');
   return result;
@@ -54,10 +68,19 @@ export async function markThreadReadAction(form:FormData){
  revalidatePath('/admin/kommunikacio/iroda');
 }
 
-export async function sendCustomerEmailAction(form:FormData){
- const{db,userId,instanceId}=await access(),threadId=String(form.get('threadId')??''),body=String(form.get('body')??'').trim().slice(0,4000);if(!threadId||!body)return;
- await mutateOffice(db,{instanceId,userId,action:'send_email',payload:{threadId,body,idempotencyKey:`office:${instanceId}:${threadId}:${randomUUID()}`}});
+export async function sendCustomerEmailAction(_previous:OfficeEmailActionState,form:FormData):Promise<OfficeEmailActionState>{
+ const{db,userId,instanceId}=await access(),threadId=String(form.get('threadId')??''),body=String(form.get('body')??'').trim().slice(0,4000);
+ if(!threadId||!body)return{status:'error',message:'Az e-mail válaszhoz üzenetszöveg szükséges.'};
+ try{
+   await mutateOffice(db,{instanceId,userId,action:'send_email',payload:{threadId,body,idempotencyKey:`office:${instanceId}:${threadId}:${randomUUID()}`}});
+ }catch(error){
+   if(error instanceof OfficeMutationError&&error.reason.includes('recipient suppressed')){
+     return{status:'blocked',message:'Ez az e-mail-cím kommunikációs tiltólistán van, ezért az üzenet nem küldhető.'};
+   }
+   return{status:'error',message:'Az e-mail válasz most nem küldhető el. A szöveg megmaradt, ezért javítás vagy újrapróbálás után nem kell újra begépelni.'};
+ }
  revalidatePath('/admin/kommunikacio/iroda');revalidatePath('/admin/kommunikacio');
+ return{status:'success',message:'Az e-mail válasz küldési sorba került.'};
 }
 
 export async function createTaskAction(form:FormData){
