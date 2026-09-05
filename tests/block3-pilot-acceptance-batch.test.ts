@@ -31,12 +31,14 @@ describe('roadmap block 3 pilot acceptance batch',()=>{
     expect(checkout).toContain('12345676-1-12');
   });
 
-  it('adds tenant-scoped merchant RBAC management with audit evidence',()=>{
+  it('adds tenant-scoped merchant RBAC management with audit evidence and permission-filtered navigation',()=>{
     const sql=read('supabase/migrations/20260905204538_block3_pilot_acceptance_batch_validation.sql');
     const orgScope=read('supabase/migrations/20260905213000_block3_rbac_org_scope_actor_fix.sql');
     const actions=read('src/app/admin/csapat/actions.ts');
     const page=read('src/app/admin/csapat/page.tsx');
     const layout=read('src/app/admin/layout.tsx');
+    const scope=read('src/lib/instances/scope.ts');
+    const controls=read('src/components/admin/team-member-controls.tsx');
     expect(sql).toContain('merchant_set_store_role_v1');
     expect(sql).toContain('merchant_remove_store_role_v1');
     expect(sql).toContain('LAST_WEBSHOP_OWNER');
@@ -44,10 +46,14 @@ describe('roadmap block 3 pilot acceptance batch',()=>{
     expect(orgScope).toContain('(rb.instance_id=p_instance_id or rb.instance_id is null)');
     expect(actions).toContain("getAdminRequestUser('store.manage')");
     expect(actions).toContain("admin.rpc('merchant_set_store_role_v1'");
-    expect(page).toContain("requireCurrentStoreContext('store.manage')");
+    expect(page).toContain("requireCurrentStorePageContext('store.manage')");
     expect(page).toContain('Csapat és jogosultságok');
-    expect(layout).toContain("{href:'/admin/csapat',label:'Csapat és jogosultságok'}");
-    expect(layout).toContain("['/admin/audit','/admin/csapat']");
+    expect(layout).toContain("permission:'orders.manage'");
+    expect(layout).toContain("permission:'catalog.manage'");
+    expect(layout).toContain("permission:'store.manage'");
+    expect(layout).toContain('roles.some(role=>roleHasPermission(role,permission))');
+    expect(scope).toContain("redirect('/admin/hozzaferes-megtagadva')");
+    expect(controls).toContain('<select key={role} name="role" defaultValue={role}>');
   });
 
   it('uses explicit pending states, accessible quantity controls and custom cancellation confirmation',()=>{
@@ -59,6 +65,7 @@ describe('roadmap block 3 pilot acceptance batch',()=>{
     expect(inventory).toContain('B2B minimum rendelés (db)');
     expect(inventory).not.toContain('minWidth:620');
     expect(products).toContain('AdminSubmitButton');
+    expect(products).toContain("requireCurrentStorePageContext('catalog.manage')");
     expect(submit).toContain('useFormStatus');
     expect(cart).toContain('cartQuantityStepper');
     expect(cart).toContain('Mennyiség csökkentése');
@@ -68,10 +75,11 @@ describe('roadmap block 3 pilot acceptance batch',()=>{
     expect(status).toContain("cancelled:'Lemondva'");
   });
 
-  it('makes operational identities and audit records readable in Budapest time',()=>{
+  it('makes operational identities and audit records readable in Budapest time and fully localized',()=>{
     const order=read('src/app/admin/rendelesek/[id]/page.tsx');
     const display=read('src/lib/order-display.ts');
     const audit=read('src/app/admin/audit/page.tsx');
+    const css=read('src/app/admin/block3-pilot-batch.css');
     expect(order).toContain("timeZone:'Europe/Budapest'");
     expect(order).toContain('Vendég vásárló');
     expect(order).toContain('Jóváhagyott viszonteladói partner');
@@ -79,5 +87,22 @@ describe('roadmap block 3 pilot acceptance batch',()=>{
     expect(audit).toContain("timeZone:'Europe/Budapest'");
     expect(audit).toContain('AuditState title="Előtte"');
     expect(audit).toContain('AuditState title="Utána"');
+    expect(audit).toContain("'campaign.approve':'Kampány jóváhagyva'");
+    expect(audit).toContain("'customer.store_role_updated':'Ügyfél webshop-szerepköre módosítva'");
+    expect(audit).toContain("'office.thread_updated':'Irodai beszélgetés módosítva'");
+    expect(audit).toContain("'orders.manual_refund_recorded':'Kézi visszatérítés rögzítve'");
+    expect(audit).toContain('Egyéb rendszer-művelet');
+    expect(audit).toContain('details name="audit-change"');
+    expect(css).toContain('max-width:1560px!important');
+    expect(css).not.toContain('max-width:none!important');
+  });
+
+  it('uses an admin-specific access-denied experience instead of the checkout error copy',()=>{
+    const denied=read('src/app/admin/hozzaferes-megtagadva/page.tsx');
+    const fallback=read('src/app/admin/error.tsx');
+    expect(denied).toContain('Nincs jogosultságod ehhez a modulhoz.');
+    expect(denied).toContain('Vissza az adminhoz');
+    expect(fallback).toContain('Ez az admin nézet most nem nyitható meg.');
+    expect(fallback).not.toContain('A már leadott rendelést ne add le újra automatikusan');
   });
 });
