@@ -1,5 +1,5 @@
 import { createAdminClient } from '@/lib/supabase/admin';
-import { requireCurrentStoreContext } from '@/lib/instances/scope';
+import { requireCurrentStorePageContext } from '@/lib/instances/scope';
 import { AddTeamMemberForm,TeamMemberControl,type TeamRole } from '@/components/admin/team-member-controls';
 
 const roleLabels:Record<TeamRole,string>={owner:'Tulajdonos',admin:'Adminisztrátor',catalog_manager:'Katalóguskezelő',order_manager:'Rendeléskezelő',marketing_manager:'Marketingkezelő',support:'Ügyfélszolgálat',analyst:'Elemző',viewer:'Megtekintő'};
@@ -8,7 +8,7 @@ type Binding={user_id:string;role_code:string;instance_id:string|null;valid_unti
 type Profile={id:string;email:string|null;full_name:string|null};
 
 export default async function TeamPage(){
-  const scope=await requireCurrentStoreContext('store.manage');
+  const scope=await requireCurrentStorePageContext('store.manage');
   const admin=createAdminClient();
   if(!scope.organizationId)return <section className="adminMain"><span className="eyebrow">Rendszer · Csapat</span><h1 className="sectionTitle">Csapat és jogosultságok</h1><div className="errorNotice" role="alert">Ehhez a webshophoz nincs kezelhető szervezeti kapcsolat.</div></section>;
 

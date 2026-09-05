@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { getIntegrationRegistry } from '@/lib/integrations/registry';
 import { IntegrationJobControl } from '@/components/admin/integration-job-control';
-import { requireCurrentStoreContext } from '@/lib/instances/scope';
+import { requireCurrentStorePageContext } from '@/lib/instances/scope';
 
 export const dynamic='force-dynamic';
 const stateLabel:Record<string,string>={ready:'Aktív',configured:'Konfigurálva',blocked:'Külső adatra vár',not_configured:'Nincs konfigurálva'};
@@ -10,7 +10,7 @@ const statusLabel:Record<string,string>={pending:'Várakozik',processing:'Folyam
 const kindLabel:Record<string,string>={payment_create:'Fizetés indítása',payment_callback:'Fizetési visszajelzés',shipment_create:'Szállítás létrehozása',invoice_create:'Számlakészítés',email_send:'E-mail küldés',logistics_email:'Logisztikai partner értesítése'};
 
 export default async function AdminSettingsPage(){
-  const scope=await requireCurrentStoreContext('store.manage');
+  const scope=await requireCurrentStorePageContext('store.manage');
   const integrations=getIntegrationRegistry();
   let jobs:Array<{id:string;kind:string;provider:string;status:string;attempt_count:number;last_error:string|null;created_at:string;updated_at:string;order_id:string|null}>=[];
   let webhooks:Array<{id:string;provider:string;status:string;signature_valid:boolean;created_at:string;error_message:string|null}>=[];

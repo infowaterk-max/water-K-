@@ -49,7 +49,7 @@ export function TeamMemberControl({userId,name,email,role,scopeLabel,editable}:M
     <div className="teamMemberIdentity"><div><strong>{name}</strong><span>{email}</span></div><span className="adminStatePill neutral">{scopeLabel}</span></div>
     <p className="muted">{roleMeta?.description}</p>
     {editable?<>
-      <form action={updateAction} className="teamRoleForm"><input type="hidden" name="userId" value={userId}/><label><span>Szerepkör</span><select name="role" defaultValue={role}>{TEAM_ROLE_OPTIONS.map(item=><option key={item.value} value={item.value}>{item.label}</option>)}</select></label><SubmitButton pendingLabel="Mentés…">Szerepkör mentése</SubmitButton></form>
+      <form action={updateAction} className="teamRoleForm"><input type="hidden" name="userId" value={userId}/><label><span>Szerepkör</span><select key={role} name="role" defaultValue={role}>{TEAM_ROLE_OPTIONS.map(item=><option key={item.value} value={item.value}>{item.label}</option>)}</select></label><SubmitButton pendingLabel="Mentés…">Szerepkör mentése</SubmitButton></form>
       <ActionMessage state={updateState}/>
       <button className="btn btnGhost teamRemoveTrigger" type="button" onClick={()=>setConfirmOpen(true)}>Hozzáférés eltávolítása</button>
       <ActionMessage state={removeState}/>
