@@ -4,7 +4,7 @@ import { getProducts } from '@/lib/catalog-server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { InventoryEditor } from '@/components/admin/inventory-editor';
 import { AdminSubmitButton } from '@/components/admin/admin-submit-button';
-import { requireCurrentStoreContext } from '@/lib/instances/scope';
+import { requireCurrentStorePageContext } from '@/lib/instances/scope';
 import { setB2BChannelEnabledAction,setB2BProductVisibilityAction,setB2CProductPromotionAction } from './actions';
 export const dynamic='force-dynamic';
 
@@ -14,7 +14,7 @@ type B2BSettingRow={product_id:string;visible:boolean};
 type B2CSettingRow={product_id:string;discount_percent:number|null};
 
 export default async function AdminProducts(){
-  const scope=await requireCurrentStoreContext('catalog.manage');
+  const scope=await requireCurrentStorePageContext('catalog.manage');
   const productResult=await getProducts({includeAllChannels:true,throwOnError:true}).then(data=>({data,error:false})).catch(()=>({data:[],error:true})),products=productResult.data;const admin=createAdminClient();
   const[{data:variantData,error:variantError},channelResult,catalogProductResult,b2bSettingResult,b2cSettingResult]=await Promise.all([
     admin.from('product_variants').select('id,reseller_gross_price_huf,reseller_net_price_huf,unit_cost_net_huf,supplier_lead_time_days,safety_stock_days,minimum_order_quantity,order_multiple').eq('instance_id',scope.instanceId),
