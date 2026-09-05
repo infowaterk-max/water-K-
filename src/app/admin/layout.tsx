@@ -6,6 +6,7 @@ import './concept-ui.css';
 import './admin-final-polish.css';
 import './admin-responsive-final.css';
 import './admin-audit-remediation.css';
+import './communication-pilot-fixes.css';
 import Link from 'next/link';
 import { AdminNavigation } from '@/components/navigation/admin-navigation';
 import { AdminFontScale } from '@/components/admin/admin-font-scale';
