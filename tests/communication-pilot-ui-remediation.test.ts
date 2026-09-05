@@ -47,4 +47,14 @@ describe('production pilot communication UI remediation',()=>{
     expect(css).toContain('.adminGrid{display:block!important');
     expect(layout).toContain("import './communication-pilot-fixes.css';");
   });
+
+  test('scheduled communication times are not rendered in the server UTC timezone',()=>{
+    const page=read('src/app/admin/kommunikacio/page.tsx');
+    const actions=read('src/components/admin/communication-job-actions.tsx');
+    expect(page).toContain("timeZone:'Europe/Budapest'");
+    expect(actions).toContain('function localDateTimeInputValue(value:string)');
+    expect(actions).toContain('date.getHours()');
+    expect(actions).toContain('setRescheduleValue(localDateTimeInputValue(scheduledAt))');
+    expect(actions).not.toContain('setRescheduleValue(scheduledAt.slice(0,16))');
+  });
 });
