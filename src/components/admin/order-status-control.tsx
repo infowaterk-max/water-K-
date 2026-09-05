@@ -3,13 +3,40 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
-const labels:Record<string,string>={draft:'Piszkozat',pending:'Függőben',pending_payment:'Fizetésre vár',pending_transfer:'Átutalásra vár',paid:'Fizetve',processing:'Feldolgozás',shipped:'Átadva',completed:'Teljesítve',cancelled:'Törölve',refunded:'Visszatérítve'};
+const labels:Record<string,string>={draft:'Piszkozat',pending:'Függőben',pending_payment:'Fizetésre vár',pending_transfer:'Átutalásra vár',paid:'Fizetve',processing:'Feldolgozás',shipped:'Átadva',completed:'Teljesítve',cancelled:'Lemondva',refunded:'Visszatérítve'};
 const allowed:Record<string,string[]>={draft:['pending','pending_payment','pending_transfer','cancelled'],pending:['paid','processing','cancelled'],pending_payment:['paid','cancelled'],pending_transfer:['paid','cancelled'],paid:['processing'],processing:['shipped'],shipped:['completed'],completed:[],cancelled:[],refunded:[]};
 const risky=new Set(['cancelled']);
 
 export function OrderStatusControl({id,status,trackingNumber='',shippingMethod}:{id:string;status:string;trackingNumber?:string|null;shippingMethod?:string|null}){
-  const router=useRouter(); const options=[status,...(allowed[status]??[])]; const [value,setValue]=useState(status); const [tracking,setTracking]=useState(trackingNumber??''); const [busy,setBusy]=useState(false); const [error,setError]=useState(''); const [success,setSuccess]=useState('');
-  useEffect(()=>{setValue(status);setTracking(trackingNumber??'');},[status,trackingNumber]);
-  async function save(){if(busy||value===status)return;if(value==='shipped'&&shippingMethod!=='pickup'&&!tracking.trim()){setError('Feladáshoz add meg a csomagkövetési azonosítót.');return;}if(risky.has(value)&&!window.confirm(`Biztosan ${labels[value]?.toLowerCase()??value} állapotra állítod a rendelést? Ez pénzügyi vagy készletkezelési következménnyel járhat.`))return;setBusy(true);setError('');setSuccess('');try{const response=await fetch(`/api/admin/orders/${id}`,{method:'PATCH',headers:{'content-type':'application/json'},body:JSON.stringify({status:value,trackingNumber:value==='shipped'?tracking.trim()||undefined:undefined})});const payload=await response.json();if(!response.ok){setError(payload.error??'Nem sikerült módosítani az állapotot.');return;}setSuccess(`Mentve: ${labels[payload.status]??payload.status}.`);router.refresh();}catch{setError('Hálózati hiba. Az állapotot nem tekintjük módosítottnak.');}finally{setBusy(false)}}
-  return <div className="orderStatusControl" aria-busy={busy}><div className="orderStatusFields"><label><span className="srOnly">Rendelési állapot</span><select value={value} onChange={e=>{setValue(e.target.value);setError('');setSuccess('');}} disabled={busy}>{options.map(s=><option key={s} value={s}>{labels[s]??s}</option>)}</select></label>{value==='shipped'&&shippingMethod!=='pickup'&&<label><span className="srOnly">Csomagkövetési azonosító</span><input value={tracking} onChange={e=>setTracking(e.target.value)} placeholder="Csomagkövetési azonosító" maxLength={120} disabled={busy}/></label>}<button className="btn btnGhost" type="button" disabled={busy||value===status} onClick={save}>{busy?'Mentés…':'Mentés'}</button></div>{risky.has(value)&&value!==status&&<small className="warningNotice">Figyelem: ez kiemelt állapotváltás, mentés előtt megerősítést kérünk.</small>}{error&&<small className="errorNotice" role="alert">{error}</small>}{success&&<small className="helperText" role="status">{success}</small>}{(allowed[status]??[]).length===0&&<small className="muted">Végállapot; innen csak rendszerfolyam vagy külön üzleti művelet léphet tovább.</small>}</div>;
+  const router=useRouter();
+  const options=[status,...(allowed[status]??[])];
+  const[value,setValue]=useState(status),[tracking,setTracking]=useState(trackingNumber??''),[busy,setBusy]=useState(false),[error,setError]=useState(''),[success,setSuccess]=useState(''),[confirmOpen,setConfirmOpen]=useState(false);
+  useEffect(()=>{setValue(status);setTracking(trackingNumber??'');setConfirmOpen(false)},[status,trackingNumber]);
+
+  async function persist(){
+    if(busy||value===status)return;
+    if(value==='shipped'&&shippingMethod!=='pickup'&&!tracking.trim()){setError('Feladáshoz add meg a csomagkövetési azonosítót.');return}
+    setBusy(true);setError('');setSuccess('');
+    try{
+      const response=await fetch(`/api/admin/orders/${id}`,{method:'PATCH',headers:{'content-type':'application/json'},body:JSON.stringify({status:value,trackingNumber:value==='shipped'?tracking.trim()||undefined:undefined})});
+      const payload=await response.json();
+      if(!response.ok){setError(payload.error??'Nem sikerült módosítani az állapotot.');return}
+      setSuccess(`Mentve: ${labels[payload.status]??payload.status}.`);setConfirmOpen(false);router.refresh();
+    }catch{setError('Hálózati hiba. Az állapotot nem tekintjük módosítottnak.');}
+    finally{setBusy(false)}
+  }
+
+  function save(){
+    if(busy||value===status)return;
+    if(value==='shipped'&&shippingMethod!=='pickup'&&!tracking.trim()){setError('Feladáshoz add meg a csomagkövetési azonosítót.');return}
+    if(risky.has(value)){setConfirmOpen(true);return}
+    void persist();
+  }
+
+  return <div className="orderStatusControl" aria-busy={busy}>
+    <div className="orderStatusFields"><label><span className="srOnly">Rendelési állapot</span><select value={value} onChange={e=>{setValue(e.target.value);setError('');setSuccess('');}} disabled={busy}>{options.map(s=><option key={s} value={s}>{labels[s]??s}</option>)}</select></label>{value==='shipped'&&shippingMethod!=='pickup'&&<label><span className="srOnly">Csomagkövetési azonosító</span><input value={tracking} onChange={e=>setTracking(e.target.value)} placeholder="Csomagkövetési azonosító" maxLength={120} disabled={busy}/></label>}<button className="btn btnGhost" type="button" disabled={busy||value===status} onClick={save}>{busy?'Mentés…':'Mentés'}</button></div>
+    {risky.has(value)&&value!==status&&<small className="warningNotice">Figyelem: ez kiemelt állapotváltás, mentés előtt megerősítést kérünk.</small>}
+    {error&&<small className="errorNotice" role="alert">{error}</small>}{success&&<small className="helperText" role="status">{success}</small>}{(allowed[status]??[]).length===0&&<small className="muted">Végállapot; innen csak rendszerfolyam vagy külön üzleti művelet léphet tovább.</small>}
+    {confirmOpen&&<div className="adminModalBackdrop" role="presentation" onMouseDown={e=>{if(e.target===e.currentTarget&&!busy)setConfirmOpen(false)}}><div className="adminModal" role="dialog" aria-modal="true" aria-labelledby="order-status-confirm-title"><span className="eyebrow">Megerősítés</span><h3 id="order-status-confirm-title">Rendelés lemondása</h3><p>A rendelést <strong>{labels[value]?.toLowerCase()??value}</strong> állapotra állítod. Ennek pénzügyi vagy készletkezelési következménye lehet.</p><div className="actions"><button className="btn btnGhost" type="button" disabled={busy} onClick={()=>setConfirmOpen(false)}>Mégsem</button><button className="btn btnPrimary" type="button" disabled={busy} onClick={()=>void persist()}>{busy?'Mentés…':'Lemondás megerősítése'}</button></div></div></div>}
+  </div>;
 }

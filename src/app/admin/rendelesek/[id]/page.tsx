@@ -11,7 +11,7 @@ import {AdminOrderRefundControl} from '@/components/admin/admin-order-refund-con
 
 const labels:Record<string,string>={
   draft:'Piszkozat',pending:'Függőben',pending_payment:'Fizetésre vár',pending_transfer:'Átutalásra vár',
-  paid:'Fizetve',processing:'Feldolgozás',shipped:'Átadva',completed:'Teljesítve',cancelled:'Törölve',refunded:'Visszatérítve'
+  paid:'Fizetve',processing:'Feldolgozás',shipped:'Átadva',completed:'Teljesítve',cancelled:'Lemondva',refunded:'Visszatérítve'
 };
 const shippingLabels:Record<string,string>={
   foxpost:'Foxpost',gls:'GLS',mpl:'MPL',packeta:'Packeta',dpd:'DPD',expressone:'Express One',pickup:'Személyes átvétel',
@@ -22,14 +22,12 @@ const shippingLabels:Record<string,string>={
 const paymentLabels:Record<string,string>={
   kh_card:'K&H bankkártya',stripe:'Stripe',simplepay:'SimplePay',barion:'Barion',bank_transfer:'Banki átutalás',cash_on_delivery:'Utánvét'
 };
-const attemptLabels:Record<string,string>={
-  created:'Létrehozva',pending:'Folyamatban',requires_action:'Beavatkozást kér',succeeded:'Sikeres',failed:'Sikertelen',cancelled:'Megszakítva',expired:'Lejárt',refunded:'Visszatérítve'
-};
+const attemptLabels:Record<string,string>={created:'Létrehozva',pending:'Folyamatban',requires_action:'Beavatkozást kér',succeeded:'Sikeres',failed:'Sikertelen',cancelled:'Megszakítva',expired:'Lejárt',refunded:'Visszatérítve'};
 const jobLabels:Record<string,string>={invoice_create:'Számlakészítés',shipment_create:'Szállítás létrehozása',email_send:'E-mail küldés',logistics_email:'Logisztikai partner értesítése',payment_create:'Fizetés indítása'};
 const jobStatusLabels:Record<string,string>={pending:'Várakozik',processing:'Folyamatban',succeeded:'Sikeres',failed:'Sikertelen',blocked:'Blokkolt'};
-const eventLabels:Record<string,string>={
-  order_created:'Rendelés létrehozva',status_changed:'Állapot módosítva',shipment_created:'Szállítás létrehozva',invoice_created:'Számla létrehozva',invoice_reconciled:'Meglévő számla egyeztetve',invoice_manual_required:'Kézi számlázás szükséges',legal_terms_accepted:'ÁSZF és adatkezelés elfogadva',payment_started:'Fizetés elindítva',payment_retried:'Fizetés újraindítva',payment_confirmed:'Fizetés hitelesítve',payment_failed:'Fizetés sikertelen',payment_cancelled:'Fizetés megszakítva',payment_refunded:'Fizetés visszatérítve',email_sent:'E-mail elküldve',integration_enqueue_failed:'Integrációs feladat sikertelen',integration_retried:'Integrációs feladat újraindítva',order_updated:'Rendelés frissítve',manual_fulfillment_updated:'Kézi teljesítési adatok frissítve',logistics_order_email_sent:'Logisztikai partner értesítve'
-};
+const eventLabels:Record<string,string>={order_created:'Rendelés létrehozva',status_changed:'Állapot módosítva',shipment_created:'Szállítás létrehozva',invoice_created:'Számla létrehozva',invoice_reconciled:'Meglévő számla egyeztetve',invoice_manual_required:'Kézi számlázás szükséges',legal_terms_accepted:'ÁSZF és adatkezelés elfogadva',payment_started:'Fizetés elindítva',payment_retried:'Fizetés újraindítva',payment_confirmed:'Fizetés hitelesítve',payment_failed:'Fizetés sikertelen',payment_cancelled:'Fizetés megszakítva',payment_refunded:'Fizetés visszatérítve',email_sent:'E-mail elküldve',integration_enqueue_failed:'Integrációs feladat sikertelen',integration_retried:'Integrációs feladat újraindítva',order_updated:'Rendelés frissítve',manual_fulfillment_updated:'Kézi teljesítési adatok frissítve',logistics_order_email_sent:'Logisztikai partner értesítve'};
+const fmtDate=(value:string)=>new Intl.DateTimeFormat('hu-HU',{dateStyle:'short',timeStyle:'short',timeZone:'Europe/Budapest'}).format(new Date(value));
+const fmtLongDate=(value:string)=>new Intl.DateTimeFormat('hu-HU',{dateStyle:'long',timeStyle:'short',timeZone:'Europe/Budapest'}).format(new Date(value));
 
 export default async function AdminOrderPage({params}:{params:Promise<{id:string}>}){
   const scope=await requireCurrentStoreContext('orders.manage');
@@ -51,90 +49,39 @@ export default async function AdminOrderPage({params}:{params:Promise<{id:string
   ]);
   if(orderError||!order)notFound();
 
+  const relationResult=order.customer_id?await admin.from('customer_instance_roles').select('role,reseller_approved').eq('instance_id',scope.instanceId).eq('user_id',order.customer_id).maybeSingle():{data:null,error:null};
+  const reseller=relationResult.data?.role==='reseller'&&relationResult.data?.reseller_approved===true;
+  const customerBadge=order.customer_id?(reseller?'Jóváhagyott viszonteladói partner':'Regisztrált vásárló'):'Vendég vásárló';
   const detailLoadError=Boolean(itemError||eventError||jobError||attemptError);
   const canAct=!detailLoadError;
   const failedJobs=jobError?0:(jobs??[]).filter(j=>['failed','blocked'].includes(j.status)).length;
 
   return <section className="adminMain">
-    <div className="sectionIntro">
-      <div>
-        <span className="eyebrow">Admin · Rendelés</span>
-        <h1 className="sectionTitle">{order.order_number}</h1>
-        <p className="muted">Létrehozva: {new Intl.DateTimeFormat('hu-HU',{dateStyle:'long',timeStyle:'short'}).format(new Date(order.created_at))}</p>
-      </div>
-      <Link className="btn btnGhost" href="/admin/rendelesek">Vissza a rendelésekhez</Link>
-    </div>
-
+    <div className="sectionIntro"><div><span className="eyebrow">Admin · Rendelés</span><h1 className="sectionTitle">{order.order_number}</h1><p className="muted">Létrehozva: {fmtLongDate(order.created_at)}</p></div><Link className="btn btnGhost" href="/admin/rendelesek">Vissza a rendelésekhez</Link></div>
     {detailLoadError&&<div className="errorNotice" role="alert"><strong>A rendelés operatív adatainak egy része most nem tölthető be.</strong> Állapotot, kézi teljesítést, visszatérítést vagy integrációs újrapróbálást addig nem engedünk.</div>}
     {failedJobs>0&&<div className="errorNotice" role="alert"><strong>{failedJobs} hibás vagy blokkolt integrációs feladat.</strong> Az újrapróbálható műveleteket biztonságosan újraindíthatod; a rendszer nem enged párhuzamos másolatot.</div>}
 
     <div className="cards">
-      <article className="card">
-        <h3>Állapot</h3>
-        <div className="price">{labels[order.status]??order.status}</div>
-        {canAct?<OrderStatusControl id={order.id} status={order.status} trackingNumber={order.tracking_number} shippingMethod={order.shipping_method}/>:<p className="muted">Adatbetöltés szükséges a módosításhoz.</p>}
-      </article>
-      <article className="card">
-        <h3>Végösszeg</h3>
-        <div className="price">{formatHuf(order.total_gross_huf)}</div>
-        <p className="muted">Kedvezmény: {formatHuf(order.discount_gross_huf??0)}{order.coupon_code?` · ${order.coupon_code}`:''}</p>
-      </article>
-      <article className="card">
-        <h3>Logisztika</h3>
-        <div className="price">{shippingLabels[order.shipping_method]??order.shipping_method??'—'}</div>
-        <p className="muted">{order.tracking_number?`Nyomkövetés: ${order.tracking_number}`:'Nincs nyomkövetési azonosító'}</p>
-      </article>
+      <article className="card"><h3>Állapot</h3><div className="price">{labels[order.status]??order.status}</div>{canAct?<OrderStatusControl id={order.id} status={order.status} trackingNumber={order.tracking_number} shippingMethod={order.shipping_method}/>:<p className="muted">Adatbetöltés szükséges a módosításhoz.</p>}</article>
+      <article className="card"><h3>Végösszeg</h3><div className="price">{formatHuf(order.total_gross_huf)}</div><p className="muted">Kedvezmény: {formatHuf(order.discount_gross_huf??0)}{order.coupon_code?` · ${order.coupon_code}`:''}</p></article>
+      <article className="card"><h3>Logisztika</h3><div className="price">{shippingLabels[order.shipping_method]??order.shipping_method??'—'}</div><p className="muted">{order.tracking_number?`Nyomkövetés: ${order.tracking_number}`:'Nincs nyomkövetési azonosító'}</p></article>
     </div>
 
     <div className="splitFeature" style={{marginTop:28}}>
-      <section className="featurePanel">
-        <span className="eyebrow">Vásárló és számlázás</span>
-        <h2>{order.billing_name}</h2>
-        <p className="muted">{order.customer_email}<br/>{order.customer_phone??''}<br/>{order.billing_company&&<>{order.billing_company}<br/></>}{order.billing_tax_number&&<>Adószám: {order.billing_tax_number}<br/></>}{order.billing_postcode} {order.billing_city}, {order.billing_address}</p>
-      </section>
-      <section className="featurePanel">
-        <span className="eyebrow">Szállítás és fizetés</span>
-        <h2>{order.shipping_name||order.billing_name}</h2>
-        <p className="muted">{order.shipping_method==='pickup'?'Személyes átvétel':<>{order.shipping_postcode} {order.shipping_city}, {order.shipping_address}</>}<br/>Fizetés: {paymentLabels[order.payment_method]??order.payment_method??'—'}<br/>{order.external_payment_id?<>Aktuális fizetési hivatkozás: {order.external_payment_id}<br/></>:null}{order.parcel_point_id?`Csomagpont: ${order.parcel_point_id}`:''}</p>
-        {order.invoice_url&&<a className="btn btnGhost" href={order.invoice_url} target="_blank" rel="noreferrer">Számla megnyitása</a>}
-        {order.invoice_number&&!order.invoice_url&&<p className="muted">Számla: {order.invoice_number}</p>}
-        {!order.invoice_number&&['paid','processing','shipped','completed'].includes(order.status)&&<p className="warningNotice">A számla még nincs rögzítve. Ha az automatikus számlázás hibázott, az integrációs feladat lent biztonságosan újraindítható; egyébként használd a kézi tartalékfolyamatot.</p>}
-      </section>
+      <section className="featurePanel"><span className="eyebrow">Vásárló és számlázás</span><div className="orderIdentityBadges"><span className={`adminStatePill ${reseller?'ok':'neutral'}`}>{customerBadge}</span>{order.billing_company&&<span className="adminStatePill neutral">Céges számlázás</span>}</div><h2>{order.billing_name}</h2><p className="muted">{order.customer_email}<br/>{order.customer_phone??''}<br/>{order.billing_company&&<>{order.billing_company}<br/></>}{order.billing_tax_number&&<>Adószám: {order.billing_tax_number}<br/></>}{order.billing_postcode} {order.billing_city}, {order.billing_address}</p></section>
+      <section className="featurePanel"><span className="eyebrow">Szállítás és fizetés</span><h2>{order.shipping_name||order.billing_name}</h2><p className="muted">{order.shipping_method==='pickup'?'Személyes átvétel':<>{order.shipping_postcode} {order.shipping_city}, {order.shipping_address}</>}<br/>Fizetés: {paymentLabels[order.payment_method]??order.payment_method??'—'}<br/>{order.external_payment_id?<>Aktuális fizetési hivatkozás: {order.external_payment_id}<br/></>:null}{order.parcel_point_id?`Csomagpont: ${order.parcel_point_id}`:''}</p>{order.invoice_url&&<a className="btn btnGhost" href={order.invoice_url} target="_blank" rel="noreferrer">Számla megnyitása</a>}{order.invoice_number&&!order.invoice_url&&<p className="muted">Számla: {order.invoice_number}</p>}{!order.invoice_number&&['paid','processing','shipped','completed'].includes(order.status)&&<p className="warningNotice">A számla még nincs rögzítve. Ha az automatikus számlázás hibázott, az integrációs feladat lent biztonságosan újraindítható; egyébként használd a kézi tartalékfolyamatot.</p>}</section>
     </div>
 
-    <section className="tableCard" style={{marginTop:28}}>
-      <div className="adminTableScroll"><table className="adminTable"><caption className="srOnly">A rendelés termékei</caption><thead><tr><th>Termék</th><th>SKU</th><th>Mennyiség</th><th>Egységár</th><th>Összesen</th></tr></thead><tbody>{!itemError&&(items??[]).map(i=><tr key={i.id}><td><strong>{i.product_name}</strong><br/><span className="muted">{i.variant_label}</span></td><td>{i.sku}</td><td>{i.quantity}</td><td>{formatHuf(i.unit_gross_huf)}</td><td><strong>{formatHuf(i.line_total_gross_huf)}</strong></td></tr>)}</tbody></table></div>
-      {!itemError&&!(items??[]).length&&<p className="muted">Ehhez a rendeléshez nincs rögzített tétel.</p>}
-      {itemError&&<p className="errorNotice">A rendelési tételek most nem tölthetők be.</p>}
-    </section>
+    <section className="tableCard" style={{marginTop:28}}><div className="adminTableScroll"><table className="adminTable"><caption className="srOnly">A rendelés termékei</caption><thead><tr><th>Termék</th><th>SKU</th><th>Mennyiség</th><th>Egységár</th><th>Összesen</th></tr></thead><tbody>{!itemError&&(items??[]).map(i=><tr key={i.id}><td><strong>{i.product_name}</strong><br/><span className="muted">{i.variant_label}</span></td><td>{i.sku}</td><td>{i.quantity}</td><td>{formatHuf(i.unit_gross_huf)}</td><td><strong>{formatHuf(i.line_total_gross_huf)}</strong></td></tr>)}</tbody></table></div>{!itemError&&!(items??[]).length&&<p className="muted">Ehhez a rendeléshez nincs rögzített tétel.</p>}{itemError&&<p className="errorNotice">A rendelési tételek most nem tölthetők be.</p>}</section>
 
-    <section className="card" style={{marginTop:28}}>
-      <span className="eyebrow">Fizetési próbálkozások</span>
-      <h2>Fizetési előzmények</h2>
-      <div className="timeline">{!attemptError&&(attempts??[]).map(a=><div key={a.id} className="timelineItem"><strong>{paymentLabels[a.provider_code]??a.provider_code} · {attemptLabels[a.status]??a.status} · {formatHuf(a.amount_huf)}</strong><span className="muted">{new Intl.DateTimeFormat('hu-HU',{dateStyle:'short',timeStyle:'short'}).format(new Date(a.created_at))}{a.provider_reference?` · ${a.provider_reference}`:''}{a.failure_code?` · ${a.failure_code}`:''}{a.failure_message?` · ${a.failure_message}`:''}</span></div>)}</div>
-      {!attemptError&&!attempts?.length&&<p className="muted">Ehhez a rendeléshez még nincs online fizetési próbálkozás.</p>}
-      {attemptError&&<p className="errorNotice">A fizetési előzmények most nem tölthetők be.</p>}
-    </section>
+    <section className="card" style={{marginTop:28}}><span className="eyebrow">Fizetési próbálkozások</span><h2>Fizetési előzmények</h2><div className="timeline">{!attemptError&&(attempts??[]).map(a=><div key={a.id} className="timelineItem"><strong>{paymentLabels[a.provider_code]??a.provider_code} · {attemptLabels[a.status]??a.status} · {formatHuf(a.amount_huf)}</strong><span className="muted">{fmtDate(a.created_at)}{a.provider_reference?` · ${a.provider_reference}`:''}{a.failure_code?` · ${a.failure_code}`:''}{a.failure_message?` · ${a.failure_message}`:''}</span></div>)}</div>{!attemptError&&!attempts?.length&&<p className="muted">Ehhez a rendeléshez még nincs online fizetési próbálkozás.</p>}{attemptError&&<p className="errorNotice">A fizetési előzmények most nem tölthetők be.</p>}</section>
 
     {canAct?<AdminOrderRefundControl id={order.id} orderNumber={order.order_number} status={order.status} paymentMethod={order.payment_method} totalGrossHuf={order.total_gross_huf}/>:null}
-
     <div style={{marginTop:28}}>{canAct?<ManualFulfillmentControl id={order.id} trackingNumber={order.tracking_number} invoiceNumber={order.invoice_number} invoiceUrl={order.invoice_url} paymentReference={order.external_payment_id}/>:<div className="adminAuditNotice"><strong>Kézi teljesítés átmenetileg letiltva.</strong><p>Előbb a rendelés összes operatív adatát be kell tölteni.</p></div>}</div>
 
     <div className="splitFeature" style={{marginTop:28}}>
-      <section className="card">
-        <span className="eyebrow">Rendelési audit</span>
-        <h2>Eseménytörténet</h2>
-        <div className="timeline">{!eventError&&(events??[]).map(e=><div key={e.id} className="timelineItem"><strong>{eventLabels[e.event_type]??e.event_type}{e.event_type==='status_changed'?` · ${labels[e.from_status]??e.from_status} → ${labels[e.to_status]??e.to_status}`:''}</strong><span className="muted">{new Intl.DateTimeFormat('hu-HU',{dateStyle:'short',timeStyle:'short'}).format(new Date(e.created_at))}</span></div>)}</div>
-        {!eventError&&!events?.length&&<p className="muted">Még nincs naplózott esemény.</p>}
-        {eventError&&<p className="errorNotice">Az eseménytörténet most nem tölthető be.</p>}
-      </section>
-      <section className="card">
-        <span className="eyebrow">Automatizmusok</span>
-        <h2>Integrációs feladatok</h2>
-        <div className="timeline">{!jobError&&(jobs??[]).map(j=><div key={j.id} className="timelineItem"><strong>{jobLabels[j.kind]??j.kind} · {j.provider}</strong><span className={['failed','blocked'].includes(j.status)?'errorNotice':'muted'}>{jobStatusLabels[j.status]??j.status} · próbálkozás: {j.attempt_count??0}{j.last_error?` · ${j.last_error}`:''}</span>{['failed','blocked'].includes(j.status)&&['shipment_create','email_send','payment_create','invoice_create','logistics_email'].includes(j.kind)&&canAct&&<IntegrationJobRetry jobId={j.id} kind={j.kind}/>}</div>)}</div>
-        {!jobError&&!jobs?.length&&<p className="muted">Ehhez a rendeléshez még nincs integrációs feladat.</p>}
-        {jobError&&<p className="errorNotice">Az integrációs feladatok most nem tölthetők be.</p>}
-      </section>
+      <section className="card"><span className="eyebrow">Rendelési audit</span><h2>Eseménytörténet</h2><div className="timeline">{!eventError&&(events??[]).map(e=><div key={e.id} className="timelineItem"><strong>{eventLabels[e.event_type]??e.event_type}{e.event_type==='status_changed'?` · ${labels[e.from_status]??e.from_status} → ${labels[e.to_status]??e.to_status}`:''}</strong><span className="muted">{fmtDate(e.created_at)}</span></div>)}</div>{!eventError&&!events?.length&&<p className="muted">Még nincs naplózott esemény.</p>}{eventError&&<p className="errorNotice">Az eseménytörténet most nem tölthető be.</p>}</section>
+      <section className="card"><span className="eyebrow">Automatizmusok</span><h2>Integrációs feladatok</h2><div className="timeline">{!jobError&&(jobs??[]).map(j=><div key={j.id} className="timelineItem"><strong>{jobLabels[j.kind]??j.kind} · {j.provider}</strong><span className={['failed','blocked'].includes(j.status)?'errorNotice':'muted'}>{jobStatusLabels[j.status]??j.status} · próbálkozás: {j.attempt_count??0}{j.last_error?` · ${j.last_error}`:''}</span>{['failed','blocked'].includes(j.status)&&['shipment_create','email_send','payment_create','invoice_create','logistics_email'].includes(j.kind)&&canAct&&<IntegrationJobRetry jobId={j.id} kind={j.kind}/>}</div>)}</div>{!jobError&&!jobs?.length&&<p className="muted">Ehhez a rendeléshez még nincs integrációs feladat.</p>}{jobError&&<p className="errorNotice">Az integrációs feladatok most nem tölthetők be.</p>}</section>
     </div>
 
     {order.note&&<section className="card" style={{marginTop:28}}><span className="eyebrow">Vásárlói megjegyzés</span><p>{order.note}</p></section>}

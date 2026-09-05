@@ -7,7 +7,7 @@ export const orderStatusLabels: Record<string,string> = {
   processing:'Feldolgozás alatt',
   shipped:'Átadva a szállítónak',
   completed:'Teljesítve',
-  cancelled:'Törölve',
+  cancelled:'Lemondva',
   refunded:'Visszatérítve',
 };
 
@@ -65,7 +65,7 @@ export function orderStatusDescription(status?:string|null,paymentMethod?:string
   if(status==='shipped'&&shippingMethod==='pickup')return 'A rendelésed átvehető vagy az átvétel egyeztetése folyamatban van.';
   if(status==='shipped')return 'A csomagot átadtuk a szállítónak. Ha van nyomkövetési azonosító, lent közvetlenül követheted.';
   if(status==='completed')return 'A rendelést teljesítettük. Köszönjük a vásárlást!';
-  if(status==='cancelled')return 'Ez a rendelés törölve lett, további feldolgozás nem történik.';
+  if(status==='cancelled')return 'Ez a rendelés lemondva lett, további feldolgozás nem történik.';
   if(status==='refunded')return 'A rendelés visszatérített állapotban van.';
   return 'A rendelés állapotát itt mindig az aktuális feldolgozási adatok alapján látod.';
 }
