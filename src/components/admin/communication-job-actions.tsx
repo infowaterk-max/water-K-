@@ -22,12 +22,19 @@ function ActionSpinner(){
   </svg>;
 }
 
+function localDateTimeInputValue(value:string){
+  const date=new Date(value);
+  if(Number.isNaN(date.getTime()))return value.slice(0,16);
+  const pad=(part:number)=>String(part).padStart(2,'0');
+  return `${date.getFullYear()}-${pad(date.getMonth()+1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
+}
+
 export function CommunicationJobActions({jobId,status,scheduledAt,approved,requiresApproval,allowApproval=true}:Props){
   const router=useRouter();
   const[busyAction,setBusyAction]=useState<Action|null>(null);
   const[message,setMessage]=useState('');
   const[dialog,setDialog]=useState<'cancel'|'reschedule'|null>(null);
-  const[rescheduleValue,setRescheduleValue]=useState(scheduledAt.slice(0,16));
+  const[rescheduleValue,setRescheduleValue]=useState('');
 
   async function act(action:Action,next?:string){
     if(busyAction)return;
@@ -55,7 +62,7 @@ export function CommunicationJobActions({jobId,status,scheduledAt,approved,requi
   return <div className="communicationJobActions">
     {mutable&&<div className="adminToolbar communicationActionBar">
       {status==='pending'&&requiresApproval&&!approved&&allowApproval&&<button type="button" className="btn btnPrimary" disabled={busy} onClick={()=>void act('approve')}>{busyAction==='approve'?<><ActionSpinner/> Jóváhagyás…</>:'Jóváhagyás'}</button>}
-      <button type="button" className="btn" disabled={busy} onClick={()=>{setMessage('');setRescheduleValue(scheduledAt.slice(0,16));setDialog('reschedule')}}>{busyAction==='reschedule'?<><ActionSpinner/> Mentés…</>:'Átütemezés'}</button>
+      <button type="button" className="btn" disabled={busy} onClick={()=>{setMessage('');setRescheduleValue(localDateTimeInputValue(scheduledAt));setDialog('reschedule')}}>{busyAction==='reschedule'?<><ActionSpinner/> Mentés…</>:'Átütemezés'}</button>
       {['failed','blocked'].includes(status)&&<button type="button" className="btn" disabled={busy} onClick={()=>void act('retry')}>{busyAction==='retry'?<><ActionSpinner/> Újrapróbálás…</>:'Újrapróbálás'}</button>}
       <button type="button" className="textLink" disabled={busy} onClick={()=>{setMessage('');setDialog('cancel')}}>{busyAction==='cancel'?<><ActionSpinner/> Törlés…</>:'Törlés'}</button>
     </div>}

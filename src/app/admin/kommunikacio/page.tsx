@@ -38,7 +38,7 @@ export default async function CommunicationAdmin(){
   const staleRunning=runs.filter(r=>r.status==='running'&&Date.now()-new Date(r.started_at).getTime()>30*60*1000).length;
   const awaitingApproval=jobs.filter(j=>j.status==='pending'&&j.requires_approval&&!j.approved_at);
   const loadError=Boolean(jobError||runError||eventError||consentError);
-  const scheduledLabel=(value:string)=>new Intl.DateTimeFormat('hu-HU',{dateStyle:'short',timeStyle:'short'}).format(new Date(value));
+  const scheduledLabel=(value:string)=>new Intl.DateTimeFormat('hu-HU',{dateStyle:'short',timeStyle:'short',timeZone:'Europe/Budapest'}).format(new Date(value));
 
   return <section className="adminMain">
     <div className="sectionIntro"><div><span className="eyebrow">Pro · Digitális iroda</span><h1 className="sectionTitle">Kommunikációs műveleti központ</h1><p className="lead">A webshop adminba épített e-mailes munkatér: küldési sor, előnézet, kézi jóváhagyás, auditnapló és háttérfolyamat-felügyelet. A normál rendelési értesítések továbbra is az Alap webshop részei.</p></div><Link className="btn btnPrimary" href="/admin/kommunikacio/iroda">Belső munkatér</Link></div>
