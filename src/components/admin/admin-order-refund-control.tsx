@@ -32,7 +32,7 @@ export function AdminOrderRefundControl({
   if(!eligibleStatuses.has(status))return null;
 
   if(!manualPayments.has(payment)){
-    return <section className="card" style={{marginTop:28}}><span className="eyebrow">Pénzügy · visszatérítés</span><h2>Szolgáltatói refund szükséges</h2><p className="muted">{paymentLabel[payment]??payment||'Online fizetés'} esetén az admin nem írhatja át kézzel a rendelést visszatérítettre. A pénzvisszatérítés csak az ellenőrzött fizetési szolgáltatói folyamat után rögzíthető; ez a felület nem indít K&H vagy más kártyás tranzakciót.</p></section>;
+    return <section className="card" style={{marginTop:28}}><span className="eyebrow">Pénzügy · visszatérítés</span><h2>Szolgáltatói refund szükséges</h2><p className="muted">{paymentLabel[payment]??(payment||'Online fizetés')} esetén az admin nem írhatja át kézzel a rendelést visszatérítettre. A pénzvisszatérítés csak az ellenőrzött fizetési szolgáltatói folyamat után rögzíthető; ez a felület nem indít K&H vagy más kártyás tranzakciót.</p></section>;
   }
 
   async function refund(){
