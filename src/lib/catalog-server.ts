@@ -67,7 +67,9 @@ export async function getProducts(options:{includeAllChannels?:boolean;throwOnEr
       const discountPercent=!explicitChannelPrice&&!includeAllChannels?normalizeDiscount(setting?.discount_percent):null;
       const originalGrossPrice=discountPercent!=null&&discountPercent>0?grossPrice:undefined;
       if(discountPercent!=null&&discountPercent>0){grossPrice=applyDiscount(grossPrice,discountPercent);netPrice=applyDiscount(netPrice,discountPercent);}
-      const orderMultiple=positiveInt(row.order_multiple),minimumQuantity=normalizeMinimum(Math.max(positiveInt(row.minimum_order_quantity),positiveInt(setting?.minimum_quantity)),orderMultiple);
+      const b2bRules=!includeAllChannels&&channel==='b2b';
+      const orderMultiple=b2bRules?positiveInt(row.order_multiple):1;
+      const minimumQuantity=b2bRules?normalizeMinimum(Math.max(positiveInt(row.minimum_order_quantity),positiveInt(setting?.minimum_quantity)),orderMultiple):1;
       return{id:row.id,sku:row.sku,slug:variantSlug(baseSlug,row.label,row.sku),name:[product?.name,row.label].filter(Boolean).join(' '),size:row.label,grossPrice,netPrice,originalGrossPrice,discountPercent:discountPercent??undefined,stock:row.stock_quantity,short:product?.short_description??'',featured:product?.featured??false,weightGrams:row.weight_grams??0,audience:normalizeAudience(product?.audience),useCases:product?.use_cases??[],highlights:product?.highlights??[],minimumQuantity,orderMultiple};
     });
   }catch(error){if(options.throwOnError)throw error;return[]}
