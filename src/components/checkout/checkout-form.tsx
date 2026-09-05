@@ -56,6 +56,9 @@ export function CheckoutForm({shippingOptions,paymentOptions,freeShippingThresho
     if(shipping.kind==='parcel_point'&&!parcelPointId){setPickupInvalid(true);setState('error');setError('Válassz átvételi pontot a rendelés leadása előtt.');return}
     if(!legalAccepted){setState('error');setError('A rendelés leadásához el kell fogadnod az ÁSZF-et és tudomásul kell venned az adatkezelési tájékoztatót.');return}
 
+    const verified=await refreshQuote();
+    if(!verified){setState('error');setError('A rendelés leadása előtt a kosár ellenőrzése szükséges.');return}
+
     const f=new FormData(form),checkout=Object.fromEntries(f.entries());
     checkout.customerType=effectiveCustomerType;
     if(effectiveCustomerType!=='retail'){
@@ -64,8 +67,6 @@ export function CheckoutForm({shippingOptions,paymentOptions,freeShippingThresho
       checkout.taxNumber=normalizedTax;
     }
 
-    const verified=await refreshQuote();
-    if(!verified){setState('error');setError('A rendelés leadása előtt a kosár ellenőrzése szükséges.');return}
     submitting.current=true;setState('sending');setError('');track('begin_checkout',{value:verified.total_gross_huf,currency:'HUF',items:verified.items.length});
     try{
       checkout.sameAddress=sameAddress?'true':'false';checkout.legalAccepted='true';checkout.couponCode=couponCode;checkout.shippingProvider=shipping.code;checkout.shippingKind=shipping.kind;checkout.paymentProvider=paymentCode;checkout.parcelPointId=shipping.kind==='parcel_point'?parcelPointId:'';
