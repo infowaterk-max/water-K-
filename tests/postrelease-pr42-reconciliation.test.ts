@@ -28,11 +28,12 @@ describe('post-release PR42 UX reconciliation',()=>{
     expect(read('src/app/admin/iranyitokozpont/page.tsx')).toContain('displayRecommendation');
     expect(read('src/app/admin/muveletek/page.tsx')).toContain('operationalStatusLabel');
   });
-  test('storefront copy uses reseller terminology and explicit net/minimum labels',()=>{
+  test('storefront copy uses reseller terminology and explicit net/order-rule labels',()=>{
     const source=read('src/components/catalog/shop-catalog.tsx');
     expect(source).toContain('<option value="professional">Viszonteladói</option>');
     expect(source).toContain('Nettó ár:');
-    expect(source).toContain('minimum rendelés');
+    expect(source).toContain('Minimum ${product.minimumQuantity} db');
+    expect(source).toContain('rendelési egység ${product.orderMultiple} db');
     const product=read('src/app/termek/[slug]/page.tsx');
     expect(product).toContain("?'viszonteladói':'lakossági'");
     expect(product).toContain('Ezt a viszonteladói terméket');
