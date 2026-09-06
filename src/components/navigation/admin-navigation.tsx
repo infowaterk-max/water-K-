@@ -1,7 +1,9 @@
 'use client';
 
 import Link from 'next/link';
+import { useEffect,useRef } from 'react';
 import { usePathname } from 'next/navigation';
+import { AdminMobileTableEnhancer } from '@/components/admin/admin-mobile-table-enhancer';
 
 type NavItem = { href: string; label: string };
 type NavSection = { label: string; items: NavItem[] };
@@ -22,11 +24,23 @@ export function AdminNavigation({
   showUpgrade: boolean;
 }) {
   const pathname = usePathname() || '/admin';
+  const stackRef=useRef<HTMLDivElement>(null);
   const allItems = [...sections.flatMap((section) => section.items), ...operatorItems];
   const activeHref = getActiveHref(pathname, allItems);
 
+  useEffect(()=>{
+    if(!window.matchMedia('(max-width:850px)').matches)return;
+    const active=stackRef.current?.querySelector<HTMLElement>('[aria-current="page"]');
+    const nav=active?.closest<HTMLElement>('.adminNav');
+    if(!active||!nav)return;
+    const navRect=nav.getBoundingClientRect(),activeRect=active.getBoundingClientRect();
+    const target=nav.scrollLeft+(activeRect.left-navRect.left)-((navRect.width-activeRect.width)/2);
+    nav.scrollTo({left:Math.max(0,target),behavior:'auto'});
+  },[pathname]);
+
   return (
-    <div className="adminNavigationStack">
+    <div className="adminNavigationStack" ref={stackRef}>
+      <AdminMobileTableEnhancer/>
       {(sections.length > 0 || showUpgrade) && (
         <nav className="adminNav adminMerchantNav" aria-label="Aktuális webshop adminisztrációja">
           <span className="adminNavContextLabel">Aktuális webshop</span>

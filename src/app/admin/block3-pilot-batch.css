@@ -19,3 +19,42 @@
 @media(min-width:851px){
   body:has(.adminGrid) #main-content{min-height:100vh!important;overflow:visible!important}.adminGrid{display:grid!important;grid-template-columns:286px minmax(0,1fr)!important;min-height:100vh!important;height:auto!important;overflow:visible!important}.adminSide{display:flex!important;flex-direction:column!important;position:sticky!important;top:0!important;z-index:20!important;width:auto!important;height:100vh!important;max-height:100vh!important;overflow-x:hidden!important;overflow-y:auto!important;padding:20px 15px!important;scrollbar-width:none!important;-ms-overflow-style:none!important;overscroll-behavior:contain}.adminSide::-webkit-scrollbar{display:none!important;width:0!important;height:0!important}.adminBrand{display:grid!important;flex:0 0 auto!important}.adminBrandWordmark span{display:block!important}.adminRoleBadge{display:inline-flex!important}.adminNavigationStack{display:grid!important;gap:14px!important;flex:0 0 auto!important}.adminNav{display:grid!important;grid-auto-flow:row!important;align-content:start!important;justify-content:stretch!important;flex:0 0 auto!important;gap:16px!important;overflow:visible!important;padding:0!important}.adminNavSection{display:grid!important;grid-auto-flow:row!important;align-content:start!important;gap:3px!important;margin:0!important}.adminNavLabel{display:block!important}.adminSide .adminNav a{flex:none!important;white-space:normal!important}.adminOperator{display:grid!important}.adminFontScale{display:grid!important}.adminStoreLink{display:block!important}.adminGrid>.adminMain,.adminGrid>.adminContent{height:auto!important;max-height:none!important;overflow-x:hidden!important;overflow-y:visible!important}.adminMain .adminTableScroll{overflow-x:auto!important;overflow-y:hidden!important}
 }
+
+/* Roadmap Block 3 mobile acceptance batch: shared responsive admin data contract. */
+.adminMobileCardTable{width:100%}
+@media(max-width:850px){
+  .adminNav{scroll-snap-type:x proximity;scroll-padding-inline:10px}
+  .adminSide .adminNav a{scroll-snap-align:center}
+  .adminMobileCompactFilter{min-height:0!important;align-content:start!important;gap:10px!important;padding:16px!important;margin-top:18px!important}
+  .adminMobileCompactFilter label,.adminMobileCompactFilter input,.adminMobileCompactFilter select,.adminMobileCompactFilter .btn{width:100%!important;min-width:0!important}
+  .adminMobileCardTableWrap{overflow:visible!important;max-width:100%!important;padding:0!important}
+  .adminMobileCardTable{display:block!important;width:100%!important;min-width:0!important;border-collapse:separate!important;border-spacing:0!important}
+  .adminMobileCardTable thead{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}
+  .adminMobileCardTable tbody{display:grid!important;gap:12px!important;width:100%!important}
+  .adminMobileCardTable tr{display:grid!important;width:100%!important;min-width:0!important;padding:4px 16px!important;border:1px solid var(--line)!important;border-radius:16px!important;background:#fff!important;box-shadow:0 8px 24px rgba(23,62,32,.05)!important;overflow:hidden!important}
+  .adminMobileCardTable td{display:grid!important;grid-template-columns:minmax(108px,.42fr) minmax(0,1fr)!important;gap:12px!important;align-items:start!important;width:100%!important;min-width:0!important;padding:12px 0!important;border:0!important;border-bottom:1px solid var(--line)!important;overflow-wrap:anywhere!important;word-break:normal!important;white-space:normal!important}
+  .adminMobileCardTable td:last-child{border-bottom:0!important}
+  .adminMobileCardTable td::before{content:attr(data-mobile-label);display:block;color:var(--muted);font-size:10px;font-weight:950;letter-spacing:.08em;line-height:1.35;text-transform:uppercase}
+  .adminMobileCardTable td>*{min-width:0!important;max-width:100%!important}
+  .adminMobileCardTable td>div{min-width:0!important;max-width:100%!important}
+  .adminMobileCardTable td strong,.adminMobileCardTable td span,.adminMobileCardTable td a{overflow-wrap:anywhere!important;word-break:normal!important}
+  .adminMobileCardTable input,.adminMobileCardTable select,.adminMobileCardTable textarea{width:100%!important;min-width:0!important;max-width:100%!important}
+  .adminMobileCardTable .actions{display:grid!important;grid-template-columns:1fr!important;width:100%!important;gap:8px!important}
+  .adminMobileCardTable .actions .btn,.adminMobileCardTable .actions button{width:100%!important;justify-content:center!important}
+  .adminMobileCardTable td:last-child>div{min-width:0!important;width:100%!important}
+  .adminMobileTierGrid .cards{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important;margin-top:14px!important}
+  .adminMobileTierGrid .cards>div{display:grid;gap:6px;min-height:0!important;padding:14px!important;border:1px solid var(--line);border-radius:14px;background:#fbfcfa}
+  .adminMobileTierGrid .cards .price{margin:0!important;font-size:24px!important}
+  .adminMobileOrderDetail>.cards{gap:12px!important}
+  .adminMobileOrderDetail>.cards>.card{min-height:0!important;padding:18px!important}
+  .adminMobileOrderDetail>.cards>.card h3{font-size:18px!important}
+  .adminMobileOrderDetail>.cards>.card .price{font-size:28px!important;margin:8px 0!important}
+}
+@media(max-width:520px){
+  .adminMobileCompactFilter{padding:14px!important}
+  .adminMobileCardTable tr{padding:4px 14px!important;border-radius:14px!important}
+  .adminMobileCardTable td{grid-template-columns:1fr!important;gap:4px!important;padding:11px 0!important}
+  .adminMobileCardTable td::before{font-size:9px!important}
+  .adminMobileTierGrid .cards{grid-template-columns:1fr 1fr!important}
+  .adminMobileTierGrid .cards>div{padding:12px!important}
+}
