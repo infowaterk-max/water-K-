@@ -26,34 +26,41 @@ export function AdminNavigation({
   const activeHref = getActiveHref(pathname, allItems);
 
   return (
-    <nav className="adminNav" aria-label="Webshop adminisztráció">
-      {sections.map((section) => (
-        <section className="adminNavSection" key={section.label}>
-          <span className="adminNavLabel">{section.label}</span>
-          {section.items.map((item) => {
-            const active = item.href === activeHref;
-            return (
-              <Link key={item.href} href={item.href} className={active ? 'adminNavActive' : undefined} aria-current={active ? 'page' : undefined}>
-                {item.label}
-              </Link>
-            );
-          })}
-        </section>
-      ))}
-      {showUpgrade && <Link className="adminUpgrade" href="/admin/csomag">Pro funkciók megtekintése</Link>}
-      {operatorItems.length > 0 && (
-        <section className="adminNavSection adminOperator">
-          <span className="adminNavLabel">Shoperation platform</span>
-          {operatorItems.map((item) => {
-            const active = item.href === activeHref;
-            return (
-              <Link key={item.href} href={item.href} className={active ? 'adminNavActive' : undefined} aria-current={active ? 'page' : undefined}>
-                {item.label}
-              </Link>
-            );
-          })}
-        </section>
+    <div className="adminNavigationStack">
+      {(sections.length > 0 || showUpgrade) && (
+        <nav className="adminNav adminMerchantNav" aria-label="Aktuális webshop adminisztrációja">
+          <span className="adminNavContextLabel">Aktuális webshop</span>
+          {sections.map((section) => (
+            <section className="adminNavSection" key={section.label}>
+              <span className="adminNavLabel">{section.label}</span>
+              {section.items.map((item) => {
+                const active = item.href === activeHref;
+                return (
+                  <Link key={item.href} href={item.href} className={active ? 'adminNavActive' : undefined} aria-current={active ? 'page' : undefined}>
+                    {item.label}
+                  </Link>
+                );
+              })}
+            </section>
+          ))}
+          {showUpgrade && <Link className="adminUpgrade" href="/admin/csomag">Pro funkciók megtekintése</Link>}
+        </nav>
       )}
-    </nav>
+      {operatorItems.length > 0 && (
+        <nav className="adminNav adminPlatformNav" aria-label="Shoperation platform adminisztráció">
+          <span className="adminNavContextLabel adminPlatformContextLabel">Shoperation platform</span>
+          <section className="adminNavSection adminOperator">
+            {operatorItems.map((item) => {
+              const active = item.href === activeHref;
+              return (
+                <Link key={item.href} href={item.href} className={active ? 'adminNavActive' : undefined} aria-current={active ? 'page' : undefined}>
+                  {item.label}
+                </Link>
+              );
+            })}
+          </section>
+        </nav>
+      )}
+    </div>
   );
 }

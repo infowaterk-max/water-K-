@@ -69,7 +69,7 @@ describe('roadmap block 3 pilot acceptance batch',()=>{
     expect(submit).toContain('useFormStatus');
     expect(cart).toContain('cartQuantityStepper');
     expect(cart).toContain('Mennyiség csökkentése');
-    expect(cart).toContain('rendelési egység:');
+    expect(cart).toContain('rendelési egység {multiple} db');
     expect(status).not.toContain('window.confirm');
     expect(status).toContain('adminModalBackdrop');
     expect(status).toContain("cancelled:'Lemondva'");

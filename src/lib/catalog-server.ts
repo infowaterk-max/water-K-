@@ -70,7 +70,8 @@ export async function getProducts(options:{includeAllChannels?:boolean;throwOnEr
       const b2bRules=!includeAllChannels&&channel==='b2b';
       const orderMultiple=b2bRules?positiveInt(row.order_multiple):1;
       const minimumQuantity=b2bRules?normalizeMinimum(Math.max(positiveInt(row.minimum_order_quantity),positiveInt(setting?.minimum_quantity)),orderMultiple):1;
-      return{id:row.id,sku:row.sku,slug:variantSlug(baseSlug,row.label,row.sku),name:[product?.name,row.label].filter(Boolean).join(' '),size:row.label,grossPrice,netPrice,originalGrossPrice,discountPercent:discountPercent??undefined,stock:row.stock_quantity,short:product?.short_description??'',featured:product?.featured??false,weightGrams:row.weight_grams??0,audience:normalizeAudience(product?.audience),useCases:product?.use_cases??[],highlights:product?.highlights??[],minimumQuantity,orderMultiple};
+      const audience:ProductAudience=!includeAllChannels&&channel==='b2b'?'professional':normalizeAudience(product?.audience);
+      return{id:row.id,sku:row.sku,slug:variantSlug(baseSlug,row.label,row.sku),name:[product?.name,row.label].filter(Boolean).join(' '),size:row.label,grossPrice,netPrice,originalGrossPrice,discountPercent:discountPercent??undefined,stock:row.stock_quantity,short:product?.short_description??'',featured:product?.featured??false,weightGrams:row.weight_grams??0,audience,useCases:product?.use_cases??[],highlights:product?.highlights??[],minimumQuantity,orderMultiple};
     });
   }catch(error){if(options.throwOnError)throw error;return[]}
 }
