@@ -22,7 +22,7 @@ describe('roadmap block 3 pilot UI acceptance batch 2',()=>{
     expect(communication).toContain('@media(max-width:850px){\n  body:has(.adminGrid)');
   });
 
-  it('uses B2B channel context and exposes ordering rules before checkout',()=>{
+  it('uses B2B channel context, exposes ordering rules and keeps the quantity stepper self-contained',()=>{
     const catalog=read('src/lib/catalog-server.ts');
     const shop=read('src/components/catalog/shop-catalog.tsx');
     const productPage=read('src/app/termek/[slug]/page.tsx');
@@ -34,8 +34,12 @@ describe('roadmap block 3 pilot UI acceptance batch 2',()=>{
     expect(productPage).toContain('Minimum ${product.minimumQuantity} db');
     expect(productPage).toContain('rendelési egység ${product.orderMultiple} db');
     expect(cart).toContain('Minimum {minimum} db · rendelési egység {multiple} db');
-    expect(css).toContain('grid-template-columns:46px minmax(62px,82px) 46px');
-    expect(css).toContain('padding:7px');
+    expect(css).toContain('grid-template-columns:minmax(0,1fr) max-content max-content');
+    expect(css).toContain('grid-template-columns:44px 58px 44px');
+    expect(css).toContain('grid-column:auto!important');
+    expect(css).toContain('overflow:hidden');
+    expect(css).toContain('@media(max-width:700px){.cartRow{grid-template-columns:minmax(0,1fr) auto');
+    expect(css).toContain('@media(max-width:520px){.cartRow{grid-template-columns:1fr}');
     expect(css).toContain('.cartLineTotal{display:grid;gap:8px');
   });
 
