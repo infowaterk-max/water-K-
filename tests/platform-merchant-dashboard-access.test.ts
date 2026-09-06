@@ -13,7 +13,9 @@ describe('platform operator merchant dashboard access',()=>{
 
   it('keeps the merchant overview entry available when a webshop context exists',()=>{
     const layout=read('src/app/admin/layout.tsx');
-    expect(layout).toContain("{href:'/admin',label:'Áttekintés',permission:'store.read'}");
-    expect(layout).toContain('const sections=isPlatform&&!instance?[]:merchantSections');
+    const ia=read('src/lib/navigation/admin-ia.ts');
+    expect(ia).toContain("href:'/admin',label:'Áttekintés'");
+    expect(ia).toContain("permission:'store.read',reportFamily:'overview'");
+    expect(layout).toContain('const sections=isPlatform&&!instance?[]:resolveMerchantNavigation(effectivePlan,can)');
   });
 });

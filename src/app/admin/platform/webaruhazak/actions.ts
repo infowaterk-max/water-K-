@@ -15,7 +15,7 @@ const optional=(value:FormDataEntryValue|null,max:number)=>{const text=String(va
 const safeUrl=(value:FormDataEntryValue|null)=>{const text=optional(value,500);if(!text)return null;try{const url=new URL(text);return ['http:','https:'].includes(url.protocol)?url.toString():null}catch{return null}};
 const textField=(formData:FormData,key:string,max=240)=>String(formData.get(key)??'').trim().slice(0,max);
 const jsonObject=(value:unknown):Record<string,unknown>=>value&&typeof value==='object'&&!Array.isArray(value)?value as Record<string,unknown>:{};
-const platformWriteFailed=(operation:string,error?:{message?:string}|null)=>{console.error(`platform webshop ${operation} failed`,error?.message??'missing database evidence');throw new Error('A platformmódosítás nem menthető. Az állapotot nem tekintjük módosítottnak.')};
+const platformWriteFailed=(operation:string,error?:{message?:string}|null):never=>{console.error(`platform webshop ${operation} failed`,error?.message??'missing database evidence');throw new Error('A platformmódosítás nem menthető. Az állapotot nem tekintjük módosítottnak.')};
 const platformMutationEvidence=(data:unknown,instanceId:string,operation:string)=>{const result=(data??{})as{id?:string};if(result.id!==instanceId)platformWriteFailed(operation);return result};
 
 export async function createWebshopInstanceAction(formData:FormData){
