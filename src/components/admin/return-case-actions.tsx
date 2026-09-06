@@ -21,8 +21,8 @@ export function ReturnCaseActions({id,status,refundAmount,refundReference,invent
   finally{setBusy(false)}
  }
  const received=['received','refund_pending','refunded','closed'].includes(status);
- return <div style={{display:'grid',gap:8,minWidth:280}}>
-  <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8}}>
+ return <div className="returnCaseActions">
+  <div className="returnCaseRefundFields">
    <input aria-label="Visszatérítés összege" type="number" min="0" placeholder="Összeg Ft" value={amount} onChange={e=>setAmount(e.target.value)} disabled={busy}/>
    <input aria-label="Visszatérítés hivatkozása" placeholder="Banki hivatkozás" value={reference} onChange={e=>setReference(e.target.value)} disabled={busy}/>
   </div>

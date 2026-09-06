@@ -9,6 +9,12 @@ const CARD_TABLE_PATHS = [
   '/admin/ugyfelek',
   '/admin/ugyfelertek',
 ];
+const METRIC_PAGE_PATHS = new Set([
+  '/admin/rendelesek',
+  '/admin/visszaru',
+  '/admin/ugyfelek',
+  '/admin/ugyfelertek',
+]);
 
 function pathUsesCardTables(pathname:string){
   return CARD_TABLE_PATHS.some(path=>pathname===path||pathname.startsWith(`${path}/`));
@@ -32,6 +38,8 @@ function enhanceTables(){
 function enhanceRoute(pathname:string){
   if(!pathUsesCardTables(pathname))return;
   enhanceTables();
+  const main=document.querySelector<HTMLElement>('.adminMain');
+  if(main&&METRIC_PAGE_PATHS.has(pathname))main.classList.add('adminMobileMetricPage');
   if(pathname==='/admin/rendelesek')document.querySelector<HTMLElement>('form[role="search"]')?.classList.add('adminMobileCompactFilter');
   if(pathname==='/admin/ugyfelertek'){
     document.querySelectorAll<HTMLElement>('.adminMain section.card').forEach(section=>{
@@ -39,7 +47,7 @@ function enhanceRoute(pathname:string){
       if(heading==='Értékszintek')section.classList.add('adminMobileTierGrid');
     });
   }
-  if(pathname.startsWith('/admin/rendelesek/'))document.querySelector<HTMLElement>('.adminMain')?.classList.add('adminMobileOrderDetail');
+  if(pathname.startsWith('/admin/rendelesek/'))main?.classList.add('adminMobileOrderDetail');
 }
 
 export function AdminMobileTableEnhancer(){
