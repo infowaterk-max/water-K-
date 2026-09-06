@@ -10,7 +10,7 @@ const ROLE_PERMISSIONS:Record<StoreRole,StorePermission[]>={
   owner:['store.manage','catalog.manage','procurement.manage','orders.manage','sales.manage','marketing.manage','support.manage','integrations.manage','analytics.read','store.read'],
   admin:['store.manage','catalog.manage','procurement.manage','orders.manage','sales.manage','marketing.manage','support.manage','integrations.manage','analytics.read','store.read'],
   catalog_manager:['catalog.manage','procurement.manage','analytics.read','store.read'],
-  order_manager:['orders.manage','support.manage','analytics.read','store.read'],
+  order_manager:['orders.manage','support.manage','store.read'],
   marketing_manager:['sales.manage','marketing.manage','analytics.read','store.read'],
   support:['support.manage','store.read'],
   analyst:['analytics.read','store.read'],
