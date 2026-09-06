@@ -53,7 +53,7 @@ describe('roadmap block 3 pilot acceptance batch',()=>{
     expect(ia).toContain("permission:'catalog.manage'");
     expect(ia).toContain("permission:'store.manage'");
     expect(layout).toContain('roles.some(role=>roleHasPermission(role,permission))');
-    expect(layout).toContain('resolveMerchantNavigation(effectivePlan,can)');
+    expect(layout).toContain('resolveMerchantNavigation(effectivePlan,can,instance?.status)');
     expect(scope).toContain("redirect('/admin/hozzaferes-megtagadva')");
     expect(controls).toContain('<select key={role} name="role" defaultValue={role}>');
   });

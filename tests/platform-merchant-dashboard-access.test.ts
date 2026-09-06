@@ -16,6 +16,6 @@ describe('platform operator merchant dashboard access',()=>{
     const ia=read('src/lib/navigation/admin-ia.ts');
     expect(ia).toContain("href:'/admin',label:'Áttekintés'");
     expect(ia).toContain("permission:'store.read',reportFamily:'overview'");
-    expect(layout).toContain('const sections=isPlatform&&!instance?[]:resolveMerchantNavigation(effectivePlan,can)');
+    expect(layout).toContain('const sections=isPlatform&&!instance?[]:resolveMerchantNavigation(effectivePlan,can,instance?.status)');
   });
 });
