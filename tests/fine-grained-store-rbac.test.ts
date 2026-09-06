@@ -13,6 +13,12 @@ describe('fine grained store RBAC contracts',()=>{
     expect(source).toContain("'integrations.manage'");
   });
 
+  it('keeps order managers operational and excludes executive analytics',()=>{
+    const source=read('src/lib/auth/store-rbac.ts');
+    expect(source).toContain("order_manager:['orders.manage','support.manage','store.read']");
+    expect(source).not.toContain("order_manager:['orders.manage','support.manage','analytics.read'");
+  });
+
   it('requires support permission and tenant-scoped atomic RPCs for support mutations',()=>{
     for(const path of ['src/app/api/admin/support/[id]/route.ts','src/app/api/admin/support/[id]/messages/route.ts']){
       const source=read(path);
