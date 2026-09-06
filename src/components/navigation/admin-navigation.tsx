@@ -69,13 +69,13 @@ export function AdminNavigation({
   const openPreview=(sectionId:string,target:HTMLElement)=>{
     if(!window.matchMedia('(min-width:851px)').matches||openSection===sectionId)return;
     const rect=target.getBoundingClientRect();
-    setPreview({sectionId,top:Math.max(12,Math.min(rect.top,window.innerHeight-360)),left:rect.right+14});
+    setPreview({sectionId,top:Math.max(12,Math.min(rect.top,window.innerHeight-360)),left:rect.right+2});
   };
   const schedulePreview=(sectionId:string,target:HTMLElement)=>{
     clearClose();clearHover();
     hoverTimer.current=setTimeout(()=>openPreview(sectionId,target),300);
   };
-  const scheduleClose=()=>{clearHover();clearClose();closeTimer.current=setTimeout(()=>setPreview(null),140);};
+  const scheduleClose=()=>{clearHover();clearClose();closeTimer.current=setTimeout(()=>setPreview(null),260);};
   const toggleSection=(sectionId:string)=>{clearHover();setPreview(null);setOpenSection(current=>current===sectionId?null:sectionId);};
   const activeSection=sections.find(section=>section.id===openSection)??sections.find(section=>section.id===activeSectionId);
 
@@ -129,7 +129,7 @@ export function AdminNavigation({
           <ItemLinks items={operatorItems} activeHref={activeHref}/>
         </section>
       </nav>}
-      {preview&&(()=>{const section=sections.find(candidate=>candidate.id===preview.sectionId);return section?<aside className="adminNavFlyout" style={{top:preview.top,left:preview.left}} aria-label={`${section.label} előnézet`} onMouseEnter={()=>{clearClose();clearHover();}} onMouseLeave={scheduleClose}>
+      {preview&&(()=>{const section=sections.find(candidate=>candidate.id===preview.sectionId);return section?<aside className="adminNavFlyout" style={{top:preview.top,left:preview.left}} aria-label={`${section.label} előnézet`} onMouseEnter={()=>{clearClose();clearHover();}} onMouseLeave={scheduleClose} onMouseDownCapture={()=>{clearClose();clearHover();}}>
         <strong>{section.label}</strong><ItemLinks items={section.items} activeHref={activeHref} describe/>
       </aside>:null})()}
     </div>
