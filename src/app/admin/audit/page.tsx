@@ -23,6 +23,7 @@ const actionLabels:Record<string,string>={
   'customer.store_role_updated':'Ügyfél webshop-szerepköre módosítva',
   'integration.retry_failed':'Integráció újrafuttatása sikertelen',
   'integration.retry_succeeded':'Integráció újrafuttatva',
+  'loyalty.program_settings_updated':'Hűségprogram beállításai módosítva',
   'office.customer_email_queued':'Ügyfél e-mail sorba állítva',
   'office.message_added':'Irodai üzenet hozzáadva',
   'office.task_created':'Irodai feladat létrehozva',
@@ -45,9 +46,10 @@ const entityLabels:Record<string,string>={
   integration_job:'Integrációs feladat',customer:'Ügyfél',customer_instance_role:'Ügyfél webshop-szerepkör',coupon:'Kupon',return_case:'Visszáru ügy',support_ticket:'Ügyfélszolgálati ügy',
   role_binding:'Csapattag jogosultság',sales_channel:'Értékesítési csatorna',product_channel:'Termékcsatorna',marketing_campaign:'Marketingkampány',
   commerce_provider_connection:'Kereskedelmi szolgáltatói kapcsolat',office_thread:'Irodai beszélgetés',office_task:'Irodai feladat',webshop_instance_member:'Webshop-hozzáférés',webshop_instance:'Webshop',
+  loyalty_program_settings:'Hűségprogram beállításai',
 };
 const keyLabels:Record<string,string>={
-  roleCode:'Szerepkör',legacyRole:'Kompatibilitási szerepkör',enabled:'Bekapcsolva',visible:'Látható',channel:'Csatorna',productId:'Termékazonosító',discountPercent:'Kedvezmény',stock:'Készlet',grossPrice:'Bruttó ár',netPrice:'Nettó ár',resellerGrossPrice:'Partner bruttó ár',resellerNetPrice:'Partner nettó ár',minimumOrderQuantity:'B2B minimum rendelés',orderMultiple:'B2B rendelési egység',status:'Állapot',trackingNumber:'Csomagkövetési azonosító',reseller_approved:'Viszonteladó jóváhagyva',approved_at:'Jóváhagyás időpontja',approved_by:'Jóváhagyó',queue_status:'Sorállapot',campaign_id:'Kampányazonosító',provider:'Szolgáltató',kind:'Típus',
+  roleCode:'Szerepkör',legacyRole:'Kompatibilitási szerepkör',enabled:'Bekapcsolva',accrualEnabled:'Automatikus pontgyűjtés',pointsExpireDays:'Pontok lejárata',visible:'Látható',channel:'Csatorna',productId:'Termékazonosító',discountPercent:'Kedvezmény',stock:'Készlet',grossPrice:'Bruttó ár',netPrice:'Nettó ár',resellerGrossPrice:'Partner bruttó ár',resellerNetPrice:'Partner nettó ár',minimumOrderQuantity:'B2B minimum rendelés',orderMultiple:'B2B rendelési egység',status:'Állapot',trackingNumber:'Csomagkövetési azonosító',reseller_approved:'Viszonteladó jóváhagyva',approved_at:'Jóváhagyás időpontja',approved_by:'Jóváhagyó',queue_status:'Sorállapot',campaign_id:'Kampányazonosító',provider:'Szolgáltató',kind:'Típus',
 };
 const roleLabels:Record<string,string>={owner:'Tulajdonos',admin:'Adminisztrátor',catalog_manager:'Katalóguskezelő',order_manager:'Rendeléskezelő',marketing_manager:'Marketingkezelő',support:'Ügyfélszolgálat',analyst:'Elemző',viewer:'Megtekintő',staff:'Munkatárs',customer:'Vásárló',reseller:'Viszonteladó'};
 const statusLabels:Record<string,string>={pending:'Függőben',pending_payment:'Fizetésre vár',pending_transfer:'Átutalásra vár',paid:'Fizetve',processing:'Feldolgozás alatt',shipped:'Szállítás alatt',completed:'Teljesítve',cancelled:'Lemondva',refunded:'Visszatérítve',approved:'Jóváhagyva',rejected:'Elutasítva',open:'Nyitott',closed:'Lezárt',resolved:'Megoldva',waiting_customer:'Ügyfélre vár',draft:'Piszkozat',queued:'Sorba állítva',sent:'Elküldve',failed:'Sikertelen',blocked:'Blokkolt'};
@@ -55,9 +57,10 @@ const actionLabel=(value:string)=>actionLabels[value]??'Egyéb rendszer-művelet
 const entityLabel=(value:string)=>entityLabels[value]??'Egyéb rendszerobjektum';
 const readable=(value:string)=>value.replace(/[._-]+/g,' ').replace(/^./,c=>c.toUpperCase());
 const fmtDate=(value:string)=>new Intl.DateTimeFormat('hu-HU',{dateStyle:'short',timeStyle:'medium',timeZone:'Europe/Budapest'}).format(new Date(value));
-const localizeSummary=(summary:string)=>Object.entries(statusLabels).reduce((text,[raw,label])=>text.replace(new RegExp(`\\b${raw}\\b`,'g'),label),summary);
+const localizeSummary=(summary:string)=>Object.entries(statusLabels).reduce((text,[raw,label])=>text.replace(new RegExp(`\b${raw}\b`,'g'),label),summary);
 
 function formatValue(key:string,value:unknown){
+  if(key==='pointsExpireDays'&&(value===null||value===undefined||value===''))return 'Soha';
   if(value===null||value===undefined||value==='')return '—';
   if(typeof value==='boolean')return value?'Igen':'Nem';
   if((key==='roleCode'||key==='legacyRole'||key==='role'||key==='role_code')&&typeof value==='string')return roleLabels[value]??value;
@@ -65,6 +68,7 @@ function formatValue(key:string,value:unknown){
   if(key==='channel'&&value==='b2b')return 'B2B';
   if(key==='channel'&&value==='b2c')return 'B2C';
   if(key==='discountPercent'&&typeof value==='number')return `${value}%`;
+  if(key==='pointsExpireDays'&&typeof value==='number')return `${value} nap`;
   if(Array.isArray(value))return value.map(item=>String(item)).join(', ');
   if(typeof value==='object')return JSON.stringify(value);
   return String(value);
