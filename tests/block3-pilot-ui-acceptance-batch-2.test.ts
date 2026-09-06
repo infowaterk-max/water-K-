@@ -22,11 +22,17 @@ describe('roadmap block 3 pilot UI acceptance batch 2',()=>{
     expect(communication).toContain('@media(max-width:850px){\n  body:has(.adminGrid)');
   });
 
-  it('uses B2B channel context for the storefront badge and explains cart ordering rules',()=>{
+  it('uses B2B channel context and exposes ordering rules before checkout',()=>{
     const catalog=read('src/lib/catalog-server.ts');
+    const shop=read('src/components/catalog/shop-catalog.tsx');
+    const productPage=read('src/app/termek/[slug]/page.tsx');
     const cart=read('src/components/cart/cart-view.tsx');
     const css=read('src/app/block3-pilot-batch.css');
     expect(catalog).toContain("const audience:ProductAudience=!includeAllChannels&&channel==='b2b'?'professional'");
+    expect(shop).toContain('Minimum ${product.minimumQuantity} db');
+    expect(shop).toContain('rendelési egység ${product.orderMultiple} db');
+    expect(productPage).toContain('Minimum ${product.minimumQuantity} db');
+    expect(productPage).toContain('rendelési egység ${product.orderMultiple} db');
     expect(cart).toContain('Minimum {minimum} db · rendelési egység {multiple} db');
     expect(css).toContain('grid-template-columns:46px minmax(62px,82px) 46px');
     expect(css).toContain('padding:7px');
