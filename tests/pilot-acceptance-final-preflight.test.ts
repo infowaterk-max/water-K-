@@ -28,12 +28,13 @@ describe('pilot acceptance final preflight closures',()=>{
   it('gives owners and admins a strictly tenant-scoped audit view while preserving the platform audit',()=>{
     const merchant=read('src/app/admin/audit/page.tsx');
     const layout=read('src/app/admin/layout.tsx');
+    const navigation=read('src/lib/admin/workspace-navigation.ts');
     const platform=read('src/app/admin/naplo/page.tsx');
     expect(merchant).toContain("requireCurrentStorePageContext('store.manage')");
     expect(merchant.match(/\.eq\('instance_id',scope\.instanceId\)/g)?.length).toBeGreaterThanOrEqual(2);
     expect(merchant).toContain('Más webshop eseményei nem jelenhetnek meg ebben a nézetben.');
-    expect(layout).toContain("{href:'/admin/audit',label:'Audit és műveleti napló',permission:'store.manage'}");
-    expect(layout).toContain('roles.some(role=>roleHasPermission(role,permission))');
+    expect(navigation).toContain("{ href: '/admin/audit', label: 'Audit és műveleti napló', permission: 'store.manage' }");
+    expect(layout).toContain('roles.some((role) => roleHasPermission(role, permission))');
     expect(platform).toContain('requirePlatformOperator()');
   });
 });

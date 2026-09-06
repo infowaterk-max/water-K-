@@ -13,7 +13,8 @@ describe('platform operator merchant dashboard access',()=>{
 
   it('keeps the merchant overview entry available when a webshop context exists',()=>{
     const layout=read('src/app/admin/layout.tsx');
-    expect(layout).toContain("{href:'/admin',label:'Áttekintés',permission:'store.read'}");
-    expect(layout).toContain('const sections=isPlatform&&!instance?[]:merchantSections');
+    const navigation=read('src/lib/admin/workspace-navigation.ts');
+    expect(navigation).toContain("{ href: '/admin', label: 'Áttekintés', permission: 'store.read' }");
+    expect(layout).toContain('const sections = isPlatform && !instance ? [] : merchantSections;');
   });
 });
