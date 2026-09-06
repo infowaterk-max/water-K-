@@ -3,8 +3,9 @@ import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { isPlanCode, type PlanCode } from '@/lib/plans/catalog';
 import { getPilotAcceptanceInstanceId } from '@/lib/storefront/pilot-access';
+import type { StorefrontNavigationConfig } from '@/lib/navigation/storefront-ia';
 
-export type StorefrontConfig={heroEyebrow?:string;heroTitle?:string;heroLead?:string;primaryCtaLabel?:string;secondaryCtaLabel?:string;introEyebrow?:string;introTitle?:string;introLead?:string;finalEyebrow?:string;finalTitle?:string;benefit1Title?:string;benefit1Text?:string;benefit2Title?:string;benefit2Text?:string;benefit3Title?:string;benefit3Text?:string};
+export type StorefrontConfig={heroEyebrow?:string;heroTitle?:string;heroLead?:string;primaryCtaLabel?:string;secondaryCtaLabel?:string;introEyebrow?:string;introTitle?:string;introLead?:string;finalEyebrow?:string;finalTitle?:string;benefit1Title?:string;benefit1Text?:string;benefit2Title?:string;benefit2Text?:string;benefit3Title?:string;benefit3Text?:string;navigation?:StorefrontNavigationConfig};
 export type WebshopInstance={id:string;organizationId:string|null;slug:string;name:string;subscriptionPlan:PlanCode;status:'pilot'|'active'|'suspended'|'archived';brand:{name:string;tagline:string|null;logoUrl:string|null;primaryColor:string|null;supportEmail:string|null;supportPhone:string|null;publicSiteUrl:string|null;emailFromName:string|null};storefront:StorefrontConfig};
 type InstanceRow={id:string;organization_id:string|null;slug:string;name:string;subscription_plan:string;status:WebshopInstance['status'];brand_name:string|null;brand_tagline:string|null;logo_url:string|null;primary_color:string|null;support_email:string|null;support_phone:string|null;public_site_url:string|null;email_from_name:string|null;storefront_config:unknown};
 const SELECT='id,organization_id,slug,name,subscription_plan,status,brand_name,brand_tagline,logo_url,primary_color,support_email,support_phone,public_site_url,email_from_name,storefront_config';
