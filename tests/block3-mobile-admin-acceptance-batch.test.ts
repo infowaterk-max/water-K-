@@ -29,25 +29,41 @@ describe('roadmap block 3 mobile admin acceptance batch',()=>{
     expect(css).toContain('.adminMobileCardTable td{grid-template-columns:1fr!important');
   });
 
-  it('compacts the order filter and loyalty tier grid without page-specific table forks',()=>{
+  it('compacts filters, KPI density and loyalty tiers on audited mobile admin pages',()=>{
     const enhancer=read('src/components/admin/admin-mobile-table-enhancer.tsx');
     const css=read('src/app/admin/block3-pilot-batch.css');
+    expect(enhancer).toContain('METRIC_PAGE_PATHS');
+    expect(enhancer).toContain("classList.add('adminMobileMetricPage')");
     expect(enhancer).toContain("pathname==='/admin/rendelesek'");
     expect(enhancer).toContain("classList.add('adminMobileCompactFilter')");
     expect(enhancer).toContain("heading==='Értékszintek'");
     expect(enhancer).toContain("classList.add('adminMobileTierGrid')");
     expect(enhancer).toContain("classList.add('adminMobileOrderDetail')");
-    expect(css).toContain('.adminMobileCompactFilter{min-height:0!important');
+    expect(css).toContain('.adminMobileCompactFilter{display:grid!important;grid-template-columns:1fr!important');
+    expect(css).toContain('.adminMobileMetricPage>.cards{grid-template-columns:repeat(2,minmax(0,1fr))!important');
     expect(css).toContain('.adminMobileTierGrid .cards{grid-template-columns:repeat(2,minmax(0,1fr))!important');
     expect(css).toContain('.adminMobileOrderDetail>.cards>.card{min-height:0!important');
   });
 
-  it('keeps the active mobile admin destination centered in the horizontal navigation',()=>{
+  it('keeps return money fields readable on narrow screens without changing return business logic',()=>{
+    const actions=read('src/components/admin/return-case-actions.tsx');
+    const css=read('src/app/admin/block3-pilot-batch.css');
+    expect(actions).toContain('className="returnCaseActions"');
+    expect(actions).toContain('className="returnCaseRefundFields"');
+    expect(actions).toContain("update('refunded')");
+    expect(actions).toContain('update(status,true)');
+    expect(css).toContain('.returnCaseRefundFields{display:grid;grid-template-columns:1fr 1fr');
+    expect(css).toContain('@media(max-width:560px){\n  .returnCaseRefundFields{grid-template-columns:1fr!important}');
+  });
+
+  it('keeps the active mobile admin destination centered and visually signals horizontal scrolling',()=>{
     const navigation=read('src/components/navigation/admin-navigation.tsx');
+    const css=read('src/app/admin/block3-pilot-batch.css');
     expect(navigation).toContain('useEffect,useRef');
     expect(navigation).toContain("window.matchMedia('(max-width:850px)')");
     expect(navigation).toContain("querySelector<HTMLElement>('[aria-current=\"page\"]')");
     expect(navigation).toContain("nav.scrollTo({left:Math.max(0,target),behavior:'auto'})");
     expect(navigation).toContain('<AdminMobileTableEnhancer/>');
+    expect(css).toContain('mask-image:linear-gradient(to right,transparent,#000 18px');
   });
 });
