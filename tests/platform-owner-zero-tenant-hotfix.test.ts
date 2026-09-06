@@ -20,7 +20,7 @@ describe('platform owner zero-tenant hotfix',()=>{
     expect(layout).toContain('const sections=isPlatform&&!instance?[]:merchantSections');
     const adminRoot=read('src/app/admin/page.tsx');
     expect(adminRoot).toContain('getPlatformRole()');
-    expect(adminRoot).toContain("if (platformRole) redirect('/admin/platform')");
+    expect(adminRoot).toContain("if (platformRole && !instance) redirect('/admin/platform')");
   });
 
   it('keeps the action center usable for a platform operator without a selected tenant',()=>{
