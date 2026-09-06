@@ -14,7 +14,7 @@ const VAT = 1.27;
 
 export default async function AdminPage() {
   const [plan, instance, platformRole] = await Promise.all([getCurrentPlan(), getCurrentWebshopInstance(), getPlatformRole()]);
-  if (platformRole) redirect('/admin/platform');
+  if (platformRole && !instance) redirect('/admin/platform');
   const roles=instance?await getActiveStoreRoles(instance.id):[];
   const can=(permission:StorePermission)=>roles.some(role=>roleHasPermission(role,permission));
   const canOrders=can('orders.manage');
