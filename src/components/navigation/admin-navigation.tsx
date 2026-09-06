@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useEffect,useMemo,useRef,useState } from 'react';
+import { useEffect,useRef,useMemo,useState } from 'react';
 import { usePathname } from 'next/navigation';
 import { AdminMobileTableEnhancer } from '@/components/admin/admin-mobile-table-enhancer';
 
@@ -55,8 +55,9 @@ export function AdminNavigation({
   useEffect(()=>()=>{if(hoverTimer.current)clearTimeout(hoverTimer.current);if(closeTimer.current)clearTimeout(closeTimer.current);},[]);
   useEffect(()=>{
     if(!window.matchMedia('(max-width:850px)').matches)return;
-    const active=stackRef.current?.querySelector<HTMLElement>('.adminNavSectionTrigger[data-active="true"]');
-    const nav=active?.closest<HTMLElement>('.adminMerchantNav');
+    const current=stackRef.current?.querySelector<HTMLElement>('[aria-current="page"]');
+    const active=stackRef.current?.querySelector<HTMLElement>('.adminNavSectionTrigger[data-active="true"]')??current;
+    const nav=active?.closest<HTMLElement>('.adminNav');
     if(!active||!nav)return;
     const navRect=nav.getBoundingClientRect(),activeRect=active.getBoundingClientRect();
     const target=nav.scrollLeft+(activeRect.left-navRect.left)-((navRect.width-activeRect.width)/2);
