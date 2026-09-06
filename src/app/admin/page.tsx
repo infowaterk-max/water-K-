@@ -7,6 +7,7 @@ import { createAdminClient } from '@/lib/supabase/admin';
 import { getCurrentPlan } from '@/lib/plans/access';
 import { getCurrentWebshopInstance } from '@/lib/instances/access';
 import { getPlatformRole } from '@/lib/auth/platform-operator';
+import { getActiveStoreRoles,roleHasPermission,type StorePermission } from '@/lib/auth/store-rbac';
 
 const paidStatuses = ['paid', 'processing', 'shipped', 'completed'];
 const VAT = 1.27;
@@ -14,6 +15,15 @@ const VAT = 1.27;
 export default async function AdminPage() {
   const [plan, instance, platformRole] = await Promise.all([getCurrentPlan(), getCurrentWebshopInstance(), getPlatformRole()]);
   if (platformRole) redirect('/admin/platform');
+  const roles=instance?await getActiveStoreRoles(instance.id):[];
+  const can=(permission:StorePermission)=>roles.some(role=>roleHasPermission(role,permission));
+  const canOrders=can('orders.manage');
+  const canCatalog=can('catalog.manage');
+  const canSales=can('sales.manage');
+  const canStoreManage=can('store.manage');
+  const canMarketing=can('marketing.manage');
+  const canSupport=can('support.manage');
+  const canAnalytics=can('analytics.read');
   const isPro = plan === 'pro' && Boolean(instance);
   const productResult=await getProducts({includeAllChannels:true,throwOnError:true}).then(data=>({data,error:false})).catch(()=>({data:[],error:true}));
   const products=productResult.data,productLoadError=productResult.error;
@@ -82,15 +92,15 @@ export default async function AdminPage() {
   let advancedProfitComplete = true;
   let matchedProfitItems = 0;
 
-  // Pro-only business intelligence. Alap never queries the advanced campaign,
-  // communication or cost-intelligence tables just to render its dashboard.
-  if (isPro && instance) {
+  // Pro-only business intelligence. Alap and roles without analytics.read do not
+  // query advanced campaign, communication or cost-intelligence tables.
+  if (isPro && instance && canAnalytics) {
     try {
       const a = createAdminClient();
       const since = new Date(now - 30 * day).toISOString();
       const [{ data: ro,error:roError }, { data: oi,error:oiError }, { data: cj,error:cjError }, { data: cv,error:cvError }, { data: cr,error:crError }] = await Promise.all([
         a.from('orders').select('id,subtotal_gross_huf,discount_gross_huf').eq('instance_id',instance.id).gte('created_at', since).in('status', paidStatuses),
-        a.from('order_items').select('order_id,line_total_gross_huf,unit_cost_net_huf,quantity').eq('instance_id',instance.id),
+        a.from('order_items').select('order_id,line_total_gross_huf,unit_cost_net_huf_snapshot,quantity').eq('instance_id',instance.id),
         a.from('communication_jobs').select('id,status,requires_approval,approved_at').eq('instance_id',instance.id).limit(5000),
         a.from('marketing_campaign_conversions').select('recipient_id,total_gross_huf').eq('instance_id',instance.id).limit(50000),
         a.from('marketing_campaign_recipients').select('communication_job_id').eq('instance_id',instance.id).not('communication_job_id', 'is', null).limit(50000),
@@ -105,8 +115,8 @@ export default async function AdminPage() {
         const subtotal = Number(order.subtotal_gross_huf || 0);
         const share = subtotal > 0 ? Number(i.line_total_gross_huf || 0) / subtotal : 0;
         net30 += Math.max(0, (Number(i.line_total_gross_huf || 0) - Number(order.discount_gross_huf || 0) * share) / VAT);
-        if (i.unit_cost_net_huf == null) advancedProfitComplete = false;
-        else cogs30 += Number(i.unit_cost_net_huf) * Number(i.quantity || 0);
+        if (i.unit_cost_net_huf_snapshot == null) advancedProfitComplete = false;
+        else cogs30 += Number(i.unit_cost_net_huf_snapshot) * Number(i.quantity || 0);
       }
       if ((ro ?? []).length > 0 && matchedProfitItems === 0) advancedProfitComplete = false;
       grossProfit30 = advancedProfitComplete ? net30 - cogs30 : 0;
@@ -134,7 +144,7 @@ export default async function AdminPage() {
       </p>
 
       {orderLoadError && <div className="errorNotice"><strong>A rendelési adatok egy része most nem érhető el.</strong></div>}{productLoadError&&<div className="errorNotice" role="alert"><strong>A katalógus és készlet most nem tölthető be.</strong> A készletmutatókat addig nem tekintjük nullának.</div>}
-      {isPro && advancedLoadError && <div className="errorNotice"><strong>A Pro üzleti mutatók egy része most nem érhető el.</strong></div>}
+      {isPro && canAnalytics && advancedLoadError && <div className="errorNotice"><strong>A Pro üzleti mutatók egy része most nem érhető el.</strong></div>}
 
       <div className="cards adminMetricCards">
         <div className="card"><span className="badge">Ma</span><h3>{orderLoadError?'—':`${todayOrders} rendelés`}</h3><div className="price">{orderLoadError?'—':formatHuf(todayRevenue)}</div></div>
@@ -146,7 +156,7 @@ export default async function AdminPage() {
       <section className="card">
         <div className="adminToolbar">
           <div><span className="eyebrow">Napi működés</span><h2>Teendők és készlet</h2></div>
-          <div><Link className="btn" href="/admin/rendelesek">Rendelések</Link> <Link className="btn btnPrimary" href="/admin/termekek">Készletkezelés</Link></div>
+          <div>{canOrders&&<Link className="btn" href="/admin/rendelesek">Rendelések</Link>} {canCatalog&&<Link className="btn btnPrimary" href="/admin/termekek">Készletkezelés</Link>}</div>
         </div>
         <div className="cards adminMetricCards">
           <div className="card"><span className="badge">Kifogyott</span><div className="price">{productLoadError?'—':out}</div><p className="muted">termék azonnali beavatkozással</p></div>
@@ -157,20 +167,18 @@ export default async function AdminPage() {
       </section>
 
       <section className="card">
-        <div className="adminToolbar">
-          <div><span className="eyebrow">Gyorsműveletek</span><h2>Webshop üzemeltetés</h2></div>
-        </div>
+        <div className="adminToolbar"><div><span className="eyebrow">Gyorsműveletek</span><h2>Webshop üzemeltetés</h2></div></div>
         <div className="cards">
-          <Link className="card textLink" href="/admin/termekek"><strong>Termékek és készlet</strong><p className="muted">Katalógus, árak és készletszintek kezelése.</p></Link>
-          <Link className="card textLink" href="/admin/rendelesek"><strong>Rendelések</strong><p className="muted">Fizetés, feldolgozás és teljesítés követése.</p></Link>
-          <Link className="card textLink" href="/admin/visszaru"><strong>Visszáru</strong><p className="muted">Elállások és visszaküldések kezelése.</p></Link>
-          <Link className="card textLink" href="/admin/kuponok"><strong>Kuponok és akciók</strong><p className="muted">Alap értékesítési promóciók kezelése.</p></Link>
-          <Link className="card textLink" href="/admin/ugyfelek"><strong>Ügyfelek</strong><p className="muted">Vásárlói adatok és alap ügyfélkezelés.</p></Link>
-          <Link className="card textLink" href="/admin/beallitasok/fizetes-szallitas"><strong>Fizetés és szállítás</strong><p className="muted">A webshop normál kereskedelmi beállításai.</p></Link>
+          {canCatalog&&<Link className="card textLink" href="/admin/termekek"><strong>Termékek és készlet</strong><p className="muted">Katalógus, árak és készletszintek kezelése.</p></Link>}
+          {canOrders&&<Link className="card textLink" href="/admin/rendelesek"><strong>Rendelések</strong><p className="muted">Fizetés, feldolgozás és teljesítés követése.</p></Link>}
+          {canOrders&&<Link className="card textLink" href="/admin/visszaru"><strong>Visszáru</strong><p className="muted">Elállások és visszaküldések kezelése.</p></Link>}
+          {canSales&&<Link className="card textLink" href="/admin/kuponok"><strong>Kuponok és akciók</strong><p className="muted">Alap értékesítési promóciók kezelése.</p></Link>}
+          {canSales&&<Link className="card textLink" href="/admin/ugyfelek"><strong>Ügyfelek</strong><p className="muted">Vásárlói adatok és alap ügyfélkezelés.</p></Link>}
+          {canStoreManage&&<Link className="card textLink" href="/admin/beallitasok/fizetes-szallitas"><strong>Fizetés és szállítás</strong><p className="muted">A webshop normál kereskedelmi beállításai.</p></Link>}
         </div>
       </section>
 
-      {isPro ? (
+      {isPro && canAnalytics ? (
         <>
           <section className="card">
             <div className="adminToolbar">
@@ -187,7 +195,7 @@ export default async function AdminPage() {
           <section className="card">
             <div className="adminToolbar">
               <div><span className="eyebrow">Pro · marketing és digitális iroda</span><h2>{advancedLoadError?'—':formatHuf(campaignRevenue)} kampányhoz köthető bevétel</h2></div>
-              <div><Link className="btn" href="/admin/kampanyok">Haladó kampányok</Link> <Link className="btn btnPrimary" href="/admin/kommunikacio">Digitális iroda</Link></div>
+              <div>{canMarketing&&<Link className="btn" href="/admin/kampanyok">Haladó kampányok</Link>} {canSupport&&<Link className="btn btnPrimary" href="/admin/kommunikacio">Digitális iroda</Link>}</div>
             </div>
             <div className="cards adminMetricCards">
               <div className="card"><span className="badge">Vásárlóvá vált címzett</span><div className="price">{advancedLoadError?'—':campaignBuyers}</div></div>
@@ -197,19 +205,19 @@ export default async function AdminPage() {
             </div>
           </section>
         </>
-      ) : (
+      ) : !isPro ? (
         <section className="card">
           <span className="eyebrow">Pro lehetőségek</span>
           <h2>A webshop működik nélkülük is — a Pro a növekedést és az automatizálást gyorsítja.</h2>
           <p className="muted">Digitális iroda, fejlett CRM, kampányeredmény-mérés, üzleti analitika, automatizálás, beszerzési és cash-flow döntéstámogatás.</p>
-          <Link className="btn btnPrimary" href="/admin/csomag">Pro funkciók megtekintése</Link>
+          {canStoreManage&&<Link className="btn btnPrimary" href="/admin/csomag">Pro funkciók megtekintése</Link>}
         </section>
-      )}
+      ) : null}
 
       <section className="card">
         <span className="eyebrow">Összesített működés</span>
         <h2>{orderLoadError?'A rendelési összesítés most nem elérhető.':`${orders} kezelt rendelés · ${formatHuf(paidRevenue)} fizetett forgalom`}</h2>
-        <p className="muted">Az Alap irányítópult kizárólag a napi webshopüzemeltetéshez szükséges adatokat tölti. A Pro üzleti intelligencia külön jogosultsági rétegben fut.</p>
+        <p className="muted">Az irányítópult csak az aktuális webshophoz és a szerepköröd által engedélyezett műveletekhez ad közvetlen hozzáférést. A Pro üzleti intelligencia külön jogosultsági rétegben fut.</p>
       </section>
     </section>
   );
