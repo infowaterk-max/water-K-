@@ -1,0 +1,11 @@
+/* Roadmap Block 3: mobile order-detail readability hotfix. */
+@media(max-width:850px){
+  .adminMobileOrderDetail>.cards{grid-template-columns:1fr!important}
+  .adminMobileOrderDetail>.cards>.card{width:100%!important;min-width:0!important}
+  .adminMobileOrderDetail .sectionIntro .sectionTitle{font-size:clamp(28px,8vw,36px)!important;line-height:1.06!important;overflow-wrap:normal!important;word-break:normal!important;hyphens:none!important}
+  .adminMobileOrderDetail>.cards>.card h3,.adminMobileOrderDetail>.cards>.card .price{overflow-wrap:normal!important;word-break:normal!important;hyphens:none!important}
+  .adminMobileOrderDetail>.cards>.card .price{font-size:clamp(28px,8vw,34px)!important;line-height:1.15!important}
+}
+@media(max-width:520px){
+  .adminMobileOrderDetail .sectionIntro .sectionTitle{font-size:30px!important}
+}

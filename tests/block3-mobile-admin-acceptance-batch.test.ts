@@ -33,16 +33,28 @@ describe('roadmap block 3 mobile admin acceptance batch',()=>{
     const enhancer=read('src/components/admin/admin-mobile-table-enhancer.tsx');
     const css=read('src/app/admin/block3-pilot-batch.css');
     expect(enhancer).toContain('METRIC_PAGE_PATHS');
-    expect(enhancer).toContain("classList.add('adminMobileMetricPage')");
+    expect(enhancer).toContain("classList.toggle('adminMobileMetricPage',METRIC_PAGE_PATHS.has(pathname))");
     expect(enhancer).toContain("pathname==='/admin/rendelesek'");
     expect(enhancer).toContain("classList.add('adminMobileCompactFilter')");
     expect(enhancer).toContain("heading==='Értékszintek'");
     expect(enhancer).toContain("classList.add('adminMobileTierGrid')");
-    expect(enhancer).toContain("classList.add('adminMobileOrderDetail')");
+    expect(enhancer).toContain("classList.toggle('adminMobileOrderDetail',pathname.startsWith('/admin/rendelesek/'))");
     expect(css).toContain('.adminMobileCompactFilter{display:grid!important;grid-template-columns:1fr!important');
     expect(css).toContain('.adminMobileMetricPage>.cards{grid-template-columns:repeat(2,minmax(0,1fr))!important');
     expect(css).toContain('.adminMobileTierGrid .cards{grid-template-columns:repeat(2,minmax(0,1fr))!important');
     expect(css).toContain('.adminMobileOrderDetail>.cards>.card{min-height:0!important');
+  });
+
+  it('keeps order-detail cards one column and prevents mid-word mobile heading wrapping',()=>{
+    const enhancer=read('src/components/admin/admin-mobile-table-enhancer.tsx');
+    const hotfix=read('src/app/admin/block3-order-detail-hotfix.css');
+    const layout=read('src/app/admin/layout.tsx');
+    expect(enhancer).toContain("classList.toggle('adminMobileMetricPage',METRIC_PAGE_PATHS.has(pathname))");
+    expect(enhancer).toContain("classList.toggle('adminMobileOrderDetail',pathname.startsWith('/admin/rendelesek/'))");
+    expect(layout).toContain("import './block3-order-detail-hotfix.css';");
+    expect(hotfix).toContain('.adminMobileOrderDetail>.cards{grid-template-columns:1fr!important}');
+    expect(hotfix).toContain('overflow-wrap:normal!important;word-break:normal!important');
+    expect(hotfix).toContain('.adminMobileOrderDetail .sectionIntro .sectionTitle{font-size:clamp(28px,8vw,36px)!important');
   });
 
   it('keeps return money fields readable on narrow screens without changing return business logic',()=>{

@@ -36,10 +36,11 @@ function enhanceTables(){
 }
 
 function enhanceRoute(pathname:string){
+  const main=document.querySelector<HTMLElement>('.adminMain');
+  main?.classList.toggle('adminMobileMetricPage',METRIC_PAGE_PATHS.has(pathname));
+  main?.classList.toggle('adminMobileOrderDetail',pathname.startsWith('/admin/rendelesek/'));
   if(!pathUsesCardTables(pathname))return;
   enhanceTables();
-  const main=document.querySelector<HTMLElement>('.adminMain');
-  if(main&&METRIC_PAGE_PATHS.has(pathname))main.classList.add('adminMobileMetricPage');
   if(pathname==='/admin/rendelesek')document.querySelector<HTMLElement>('form[role="search"]')?.classList.add('adminMobileCompactFilter');
   if(pathname==='/admin/ugyfelertek'){
     document.querySelectorAll<HTMLElement>('.adminMain section.card').forEach(section=>{
@@ -47,13 +48,11 @@ function enhanceRoute(pathname:string){
       if(heading==='Értékszintek')section.classList.add('adminMobileTierGrid');
     });
   }
-  if(pathname.startsWith('/admin/rendelesek/'))main?.classList.add('adminMobileOrderDetail');
 }
 
 export function AdminMobileTableEnhancer(){
   const pathname=usePathname()||'/admin';
   useEffect(()=>{
-    if(!pathUsesCardTables(pathname))return;
     let frame=0;
     const run=()=>{cancelAnimationFrame(frame);frame=requestAnimationFrame(()=>enhanceRoute(pathname));};
     run();

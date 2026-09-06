@@ -8,6 +8,7 @@ import './admin-responsive-final.css';
 import './admin-audit-remediation.css';
 import './communication-pilot-fixes.css';
 import './block3-pilot-batch.css';
+import './block3-order-detail-hotfix.css';
 import Link from 'next/link';
 import { AdminNavigation } from '@/components/navigation/admin-navigation';
 import { AdminFontScale } from '@/components/admin/admin-font-scale';
