@@ -37,6 +37,7 @@ describe('roadmap block 3 pilot acceptance batch',()=>{
     const actions=read('src/app/admin/csapat/actions.ts');
     const page=read('src/app/admin/csapat/page.tsx');
     const layout=read('src/app/admin/layout.tsx');
+    const ia=read('src/lib/navigation/admin-ia.ts');
     const scope=read('src/lib/instances/scope.ts');
     const controls=read('src/components/admin/team-member-controls.tsx');
     expect(sql).toContain('merchant_set_store_role_v1');
@@ -48,10 +49,11 @@ describe('roadmap block 3 pilot acceptance batch',()=>{
     expect(actions).toContain("admin.rpc('merchant_set_store_role_v1'");
     expect(page).toContain("requireCurrentStorePageContext('store.manage')");
     expect(page).toContain('Csapat és jogosultságok');
-    expect(layout).toContain("permission:'orders.manage'");
-    expect(layout).toContain("permission:'catalog.manage'");
-    expect(layout).toContain("permission:'store.manage'");
+    expect(ia).toContain("permission:'orders.manage'");
+    expect(ia).toContain("permission:'catalog.manage'");
+    expect(ia).toContain("permission:'store.manage'");
     expect(layout).toContain('roles.some(role=>roleHasPermission(role,permission))');
+    expect(layout).toContain('resolveMerchantNavigation(effectivePlan,can,instance?.status)');
     expect(scope).toContain("redirect('/admin/hozzaferes-megtagadva')");
     expect(controls).toContain('<select key={role} name="role" defaultValue={role}>');
   });

@@ -1,6 +1,6 @@
 import{readFileSync}from'node:fs';import{resolve}from'node:path';import{describe,expect,it}from'vitest';const read=(p:string)=>readFileSync(resolve(process.cwd(),p),'utf8');
 describe('Shoperation admin launch readiness',()=>{
- it('keeps the launch center visible in merchant navigation',()=>{const l=read('src/app/admin/layout.tsx');expect(l).toContain("href:'/admin/indulas'");expect(l).toContain("label:'Indítási központ'")});
+ it('keeps the launch center visible in merchant navigation',()=>{const ia=read('src/lib/navigation/admin-ia.ts');expect(ia).toContain("href:'/admin/indulas'");expect(ia).toContain("label:'Indítási központ'")});
  it('uses standard Alap commerce settings for payment and shipping setup',()=>{const p=read('src/app/admin/indulas/page.tsx');expect(p).toContain("href:'/admin/beallitasok/fizetes-szallitas?tab=szallitas'");expect(p).toContain("href:'/admin/beallitasok/fizetes-szallitas?tab=fizetes'");expect(p).not.toContain("href:'/admin/integraciok'")});
  it('keeps the Alap dashboard commerce shortcut out of Pro integration operations',()=>{const d=read('src/app/admin/page.tsx'),c=d.match(/<Link className="card textLink" href="([^"]+)"><strong>Fizetés és szállítás<\/strong>/);expect(c?.[1]).toBe('/admin/beallitasok/fizetes-szallitas')});
  it('degrades safely while a fresh database is not fully bootstrapped',()=>{const p=read('src/app/admin/indulas/page.tsx');expect(p).toContain('safeProducts');expect(p).toContain('safeCommerce');expect(p).toContain('Promise.all')});

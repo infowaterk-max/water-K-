@@ -14,7 +14,8 @@ const roles=['owner','admin','staff'] as const;
 const optional=(value:FormDataEntryValue|null,max:number)=>{const text=String(value??'').trim().slice(0,max);return text||null};
 const safeUrl=(value:FormDataEntryValue|null)=>{const text=optional(value,500);if(!text)return null;try{const url=new URL(text);return ['http:','https:'].includes(url.protocol)?url.toString():null}catch{return null}};
 const textField=(formData:FormData,key:string,max=240)=>String(formData.get(key)??'').trim().slice(0,max);
-const platformWriteFailed=(operation:string,error?:{message?:string}|null)=>{console.error(`platform webshop ${operation} failed`,error?.message??'missing database evidence');throw new Error('A platformmódosítás nem menthető. Az állapotot nem tekintjük módosítottnak.')};
+const jsonObject=(value:unknown):Record<string,unknown>=>value&&typeof value==='object'&&!Array.isArray(value)?value as Record<string,unknown>:{};
+const platformWriteFailed=(operation:string,error?:{message?:string}|null):never=>{console.error(`platform webshop ${operation} failed`,error?.message??'missing database evidence');throw new Error('A platformmódosítás nem menthető. Az állapotot nem tekintjük módosítottnak.')};
 const platformMutationEvidence=(data:unknown,instanceId:string,operation:string)=>{const result=(data??{})as{id?:string};if(result.id!==instanceId)platformWriteFailed(operation);return result};
 
 export async function createWebshopInstanceAction(formData:FormData){
@@ -58,8 +59,12 @@ export async function updateWebshopBrandingAction(formData:FormData){
 export async function updateWebshopStorefrontAction(formData:FormData){
   const actor=await requirePlatformOperator();
   const id=String(formData.get('id')??'');if(!uuid.test(id))return;
-  const config={heroEyebrow:textField(formData,'heroEyebrow',120),heroTitle:textField(formData,'heroTitle',160),heroLead:textField(formData,'heroLead',320),primaryCtaLabel:textField(formData,'primaryCtaLabel',80),secondaryCtaLabel:textField(formData,'secondaryCtaLabel',80),introEyebrow:textField(formData,'introEyebrow',120),introTitle:textField(formData,'introTitle',160),introLead:textField(formData,'introLead',320),benefit1Title:textField(formData,'benefit1Title',100),benefit1Text:textField(formData,'benefit1Text',240),benefit2Title:textField(formData,'benefit2Title',100),benefit2Text:textField(formData,'benefit2Text',240),benefit3Title:textField(formData,'benefit3Title',100),benefit3Text:textField(formData,'benefit3Text',240),finalEyebrow:textField(formData,'finalEyebrow',120),finalTitle:textField(formData,'finalTitle',180)};
   const admin=createAdminClient();
+  const{data:existing,error:loadError}=await admin.from('webshop_instances').select('storefront_config').eq('id',id).maybeSingle();
+  if(loadError)platformWriteFailed('storefront config load',loadError);
+  if(!existing)platformWriteFailed('storefront config load');
+  // Builder Foundation: existing navigation/template/page-schema keys survive the legacy content editor.
+  const config={...jsonObject(existing!.storefront_config),heroEyebrow:textField(formData,'heroEyebrow',120),heroTitle:textField(formData,'heroTitle',160),heroLead:textField(formData,'heroLead',320),primaryCtaLabel:textField(formData,'primaryCtaLabel',80),secondaryCtaLabel:textField(formData,'secondaryCtaLabel',80),introEyebrow:textField(formData,'introEyebrow',120),introTitle:textField(formData,'introTitle',160),introLead:textField(formData,'introLead',320),benefit1Title:textField(formData,'benefit1Title',100),benefit1Text:textField(formData,'benefit1Text',240),benefit2Title:textField(formData,'benefit2Title',100),benefit2Text:textField(formData,'benefit2Text',240),benefit3Title:textField(formData,'benefit3Title',100),benefit3Text:textField(formData,'benefit3Text',240),finalEyebrow:textField(formData,'finalEyebrow',120),finalTitle:textField(formData,'finalTitle',180)};
   const{data,error}=await admin.rpc('platform_mutate_webshop_config_v3',{p_instance_id:id,p_actor:actor.id,p_action:'storefront',p_payload:{storefrontConfig:config}});
   if(error)platformWriteFailed('storefront update',error);platformMutationEvidence(data,id,'storefront update');
   revalidatePath('/admin/platform/webaruhazak');revalidatePath('/');

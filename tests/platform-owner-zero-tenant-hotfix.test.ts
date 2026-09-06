@@ -8,16 +8,17 @@ describe('platform owner zero-tenant hotfix',()=>{
   it('lands platform login and activation on a tenant-independent control center',()=>{
     const form=read('src/components/auth/platform-auth-form.tsx');
     const layout=read('src/app/admin/layout.tsx');
+    const ia=read('src/lib/navigation/admin-ia.ts');
     const page=read('src/app/admin/platform/page.tsx');
 
     expect(form).toContain("router.push('/admin/platform')");
     expect(form).not.toContain("router.push('/admin/iranyitokozpont')");
-    expect(layout).toContain("{href:'/admin/platform',label:'Platform irányítóközpont'}");
+    expect(ia).toContain("href:'/admin/platform',label:'Platform irányítóközpont'");
     expect(page).toContain('requirePlatformOperator');
     expect(page).not.toContain('requireCurrentStoreContext');
     expect(page).not.toContain('requirePlanFeature');
     expect(page).toContain('webshop kiválasztása nélkül is használható');
-    expect(layout).toContain('const sections=isPlatform&&!instance?[]:merchantSections');
+    expect(layout).toContain('const sections=isPlatform&&!instance?[]:resolveMerchantNavigation(effectivePlan,can,instance?.status)');
     const adminRoot=read('src/app/admin/page.tsx');
     expect(adminRoot).toContain('getPlatformRole()');
     expect(adminRoot).toContain("if (platformRole && !instance) redirect('/admin/platform')");
@@ -33,10 +34,10 @@ describe('platform owner zero-tenant hotfix',()=>{
   });
 
   it('keeps platform navigation inside platform-safe routes',()=>{
-    const layout=read('src/app/admin/layout.tsx');
+    const ia=read('src/lib/navigation/admin-ia.ts');
     const monitoring=read('src/app/admin/megfigyeles/page.tsx');
     const operatorRoutes=['/admin/platform/webaruhazak','/admin/platform','/admin/intezkedesek','/admin/biztositekok','/admin/kiadasok','/admin/rollout','/admin/utoellenorzes','/admin/helyreallitas','/admin/megfigyeles','/admin/muveletek','/admin/naplo'];
-    for(const route of operatorRoutes)expect(layout).toContain(`href:'${route}'`);
+    for(const route of operatorRoutes)expect(ia).toContain(`href:'${route}'`);
     expect(monitoring).toContain('href="/admin/muveletek"');
     expect(monitoring).not.toContain('href="/admin/integraciok"');
   });
