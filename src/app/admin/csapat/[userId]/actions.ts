@@ -11,6 +11,7 @@ import { createAdminClient } from '@/lib/supabase/admin';
 const uuidSchema=z.string().uuid();
 const effectSchema=z.enum(['allow','deny']);
 const scopeSchema=z.enum(['all','own','assigned','own_or_assigned','topic','mailbox']);
+const delegationScopeSchema=z.enum(['all','topic','mailbox']);
 const validitySchema=z.enum(['indefinite','24h','7d','14d','30d','90d']);
 type Validity=z.infer<typeof validitySchema>;
 const durationMs:Record<Exclude<Validity,'indefinite'>,number>={
@@ -51,7 +52,10 @@ function messageFromError(error:unknown){
   if(message.includes('STORE_PERMISSION_TARGET_BINDING_REQUIRED'))return 'Ehhez a csapattaghoz nincs módosítható webshop-szintű szerepkör.';
   if(message.includes('STORE_DELEGATION_SELF_FORBIDDEN'))return 'Egy munkatárs nem helyettesítheti saját magát.';
   if(message.includes('STORE_DELEGATION_PERMISSION_NOT_DELEGABLE'))return 'A kiválasztott jogosultságok között nem delegálható, biztonságkritikus művelet van.';
-  if(message.includes('STORE_DELEGATION_OVERLAP'))return 'Erre a két munkatársra már van átfedő, aktív helyettesítés.';
+  if(message.includes('STORE_DELEGATION_SOURCE_PERMISSION_REQUIRED'))return 'Csak olyan jogosultság adható át, amely az eredeti munkatársnak közvetlenül is megvan az adott adatkörben.';
+  if(message.includes('STORE_DELEGATION_SCOPE_VALUE_REQUIRED'))return 'Témakör- vagy postafiók-szűréshez meg kell adni a konkrét scope kulcsát.';
+  if(message.includes('STORE_DELEGATION_SCOPE_INVALID'))return 'Érvénytelen helyettesítési adatkör.';
+  if(message.includes('STORE_DELEGATION_OVERLAP'))return 'Erre a két munkatársra és adatkörre már van átfedő, aktív helyettesítés.';
   if(message.includes('STORE_DELEGATION_ACTIVE_BINDINGS_REQUIRED'))return 'A helyettesítés mindkét résztvevőjének aktív webshop-szintű szerepkörrel kell rendelkeznie.';
   if(message.includes('STORE_DELEGATION_EXPIRY_REQUIRED'))return 'A helyettesítéshez kötelező jövőbeni lejáratot megadni.';
   if(message.includes('STORE_DELEGATION_NOT_FOUND'))return 'A helyettesítés már nem aktív vagy nem található.';
@@ -149,22 +153,28 @@ export async function createDelegationAction(_:AdvancedPermissionActionState,for
     const delegate=uuidSchema.safeParse(String(formData.get('userId')??''));
     const source=uuidSchema.safeParse(String(formData.get('sourceUserId')??''));
     const validity=validitySchema.safeParse(String(formData.get('validity')??'7d'));
+    const delegationScope=delegationScopeSchema.safeParse(String(formData.get('delegationScopeType')??'all'));
+    const delegationScopeValue=String(formData.get('delegationScopeValue')??'').trim()||null;
     const permissions=formData.getAll('permissionCode').map(value=>parseCapability(value)).filter((value):value is StoreCapability=>value!==null);
     const reason=String(formData.get('reason')??'').trim().slice(0,500)||null;
-    if(!delegate.success||!source.success||!validity.success||validity.data==='indefinite'||permissions.length===0)return{status:'error',message:'Válassz forrásszemélyt, legalább egy delegálható jogot és lejáratot.'};
+    if(!delegate.success||!source.success||!validity.success||validity.data==='indefinite'||!delegationScope.success||permissions.length===0)return{status:'error',message:'Válassz forrásszemélyt, legalább egy delegálható jogot, adatkört és lejáratot.'};
+    if((delegationScope.data==='topic'||delegationScope.data==='mailbox')&&!delegationScopeValue)return{status:'error',message:'A kiválasztott helyettesítési adatkörhöz meg kell adni a témakört vagy postafiókot.'};
+    const normalizedScopeValue=delegationScope.data==='all'?null:delegationScopeValue;
+
     const{actor,scope,admin}=await context();
     const validFrom=new Date().toISOString(),validUntil=validUntilFor(validity.data);
     if(!validUntil)throw new Error('STORE_DELEGATION_EXPIRY_REQUIRED');
     const uniquePermissions=[...new Set(permissions)];
-    const{data,error}=await admin.rpc('merchant_create_store_delegation_v1',{
+    const{data,error}=await admin.rpc('merchant_create_store_delegation_v2',{
       p_instance_id:scope.instanceId,p_actor_user_id:actor.id,p_source_user_id:source.data,p_delegate_user_id:delegate.data,
-      p_permission_codes:uniquePermissions,p_valid_from:validFrom,p_valid_until:validUntil,p_reason:reason,
+      p_permission_codes:uniquePermissions,p_scope_type:delegationScope.data,p_scope_value:normalizedScopeValue,
+      p_valid_from:validFrom,p_valid_until:validUntil,p_reason:reason,
     });
     if(error)throw error;
-    const evidence=(data??{}) as {instanceId?:string;delegateUserId?:string;sourceUserId?:string;permissionCount?:number};
-    if(evidence.instanceId!==scope.instanceId||evidence.delegateUserId!==delegate.data||evidence.sourceUserId!==source.data||evidence.permissionCount!==uniquePermissions.length)throw new Error('STORE_DELEGATION_EVIDENCE_MISSING');
+    const evidence=(data??{}) as {instanceId?:string;delegateUserId?:string;sourceUserId?:string;scopeType?:string;scopeValue?:string|null;permissionCount?:number};
+    if(evidence.instanceId!==scope.instanceId||evidence.delegateUserId!==delegate.data||evidence.sourceUserId!==source.data||evidence.scopeType!==delegationScope.data||(evidence.scopeValue??null)!==normalizedScopeValue||evidence.permissionCount!==uniquePermissions.length)throw new Error('STORE_DELEGATION_EVIDENCE_MISSING');
     refresh(delegate.data);
-    return{status:'success',message:'Időszakos helyettesítés létrehozva.'};
+    return{status:'success',message:'Időszakos, szűrt helyettesítés létrehozva.'};
   }catch(error){return{status:'error',message:messageFromError(error)}}
 }
 
