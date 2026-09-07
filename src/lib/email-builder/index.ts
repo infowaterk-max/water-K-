@@ -4,5 +4,6 @@ export * from './bindings';
 export * from './conditions';
 export * from './registry';
 export * from './validation';
+export * from './context-schema';
 export * from './render/render-email';
 export * from './templates/essential/order-confirmation';
