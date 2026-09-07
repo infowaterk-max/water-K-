@@ -62,6 +62,6 @@ describe('Team + Permissions 2.0 foundation',()=>{
     expect(page).toContain("binding.role_code!=='owner'");
     expect(actions).toContain("if(!scope.isPlatform&&!roles.includes('owner'))");
     expect(actions).toContain('merchant_replace_permission_overrides_v1');
-    expect(actions).toContain('merchant_create_store_delegation_v1');
+    expect(actions).toContain('merchant_create_store_delegation_v2');
   });
 });
