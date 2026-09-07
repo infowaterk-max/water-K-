@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect,useMemo,useState } from 'react';
+import { useEffect,useMemo,useState, type MouseEvent } from 'react';
 import { usePathname } from 'next/navigation';
 import { AdminFontScale } from '@/components/admin/admin-font-scale';
 import type { ResolvedAdminNavItem,ResolvedAdminNavSection } from '@/lib/navigation/admin-ia';
@@ -17,10 +17,16 @@ function groupItems(items:ResolvedAdminNavItem[]){
   return[...groups.entries()];
 }
 
+function forceNavigate(event:MouseEvent<HTMLAnchorElement>,href:string){
+  event.preventDefault();
+  event.stopPropagation();
+  window.location.assign(href);
+}
+
 function ItemLinks({items,activeHref}:{items:ResolvedAdminNavItem[];activeHref?:string}){
   return <>{groupItems(items).map(([group,grouped])=><div className="adminMobileDrawerGroup" key={group||'default'}>
     {group&&<span className="adminMobileDrawerGroupLabel">{group}</span>}
-    {grouped.map(item=>{const active=item.href===activeHref;return <a key={item.id} href={item.href} data-admin-target={item.href} className={active?'adminMobileDrawerActive':undefined} aria-current={active?'page':undefined}>
+    {grouped.map(item=>{const active=item.href===activeHref;return <a key={item.id} href={item.href} data-admin-target={item.href} onClick={event=>forceNavigate(event,item.href)} className={active?'adminMobileDrawerActive':undefined} aria-current={active?'page':undefined}>
       <span>{item.label}</span>
     </a>})}
   </div>)}</>;
@@ -59,16 +65,16 @@ export function AdminMobileNavigation({mobileTitle,sections,operatorItems,quickI
       <button type="button" className="adminMobileDrawerBackdrop" aria-label="Admin menü bezárása" onClick={close}/>
       <aside id="admin-mobile-drawer" className="adminMobileDrawer" role="dialog" aria-modal="true" aria-label="Admin navigáció">
         <header className="adminMobileDrawerHeader"><div><strong>{mobileTitle}</strong><span>{currentPath}</span></div><button type="button" aria-label="Admin menü bezárása" onClick={close}>×</button></header>
-        {quickItems.length>0&&<section className="adminMobileDrawerQuick" aria-label="Gyakori feladatok"><span>Gyakori feladatok</span><div>{quickItems.map(item=><a key={item.id} href={item.href} data-admin-target={item.href}>{item.label}</a>)}</div></section>}
+        {quickItems.length>0&&<section className="adminMobileDrawerQuick" aria-label="Gyakori feladatok"><span>Gyakori feladatok</span><div>{quickItems.map(item=><a key={item.id} href={item.href} data-admin-target={item.href} onClick={event=>forceNavigate(event,item.href)}>{item.label}</a>)}</div></section>}
         {sections.length>0&&<nav className="adminMobileDrawerMerchant" aria-label="Aktuális webshop adminisztrációja">
           {sections.map(section=>{const expanded=currentOpenSection===section.id,active=activeSectionId===section.id;return <section key={section.id} className="adminMobileDrawerSection" data-active={active?'true':'false'}>
             <button type="button" aria-expanded={expanded} aria-controls={`admin-mobile-section-${section.id}`} onClick={()=>setCurrentOpenSection(current=>current===section.id?null:section.id)}><span>{section.label}</span><span aria-hidden="true">{expanded?'−':'+'}</span></button>
             <div id={`admin-mobile-section-${section.id}`} className="adminMobileDrawerPanel" hidden={!expanded}><ItemLinks items={section.items} activeHref={activeHref}/></div>
           </section>})}
-          {showUpgrade&&<a className="adminMobileDrawerUpgrade" href="/admin/csomag" data-admin-target="/admin/csomag">Pro funkciók megtekintése</a>}
+          {showUpgrade&&<a className="adminMobileDrawerUpgrade" href="/admin/csomag" data-admin-target="/admin/csomag" onClick={event=>forceNavigate(event,'/admin/csomag')}>Pro funkciók megtekintése</a>}
         </nav>}
         {operatorItems.length>0&&<nav className="adminMobileDrawerPlatform" aria-label="Shoperation platform adminisztráció"><span>Shoperation Platform</span><ItemLinks items={operatorItems} activeHref={activeHref}/></nav>}
-        <div className="adminMobileDrawerUtilities"><AdminFontScale/><a href="/">← Webshop előnézet</a></div>
+        <div className="adminMobileDrawerUtilities"><AdminFontScale/><a href="/" onClick={event=>forceNavigate(event,'/')}>← Webshop előnézet</a></div>
       </aside>
     </div>}
   </div>;
