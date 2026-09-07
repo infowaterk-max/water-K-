@@ -41,7 +41,7 @@ describe('Email Builder D1 admin shell',()=>{
   it('keeps D1 UI limited to draft creation and preview',()=>{
     const page=read('src/app/admin/email-sablonok/page.tsx');
     const manager=read('src/components/admin/email-template-manager.tsx');
-    expect(page).toContain('Essential piszkozat');
+    expect(manager).toContain('Essential piszkozat létrehozása');
     expect(page).toContain('Commerce');
     expect(page).toContain('Campaign');
     expect(page).toContain('Editorial');
