@@ -15,7 +15,7 @@ type Profile={id:string;email:string|null;full_name:string|null};
 type CatalogRow={permission_code:string;area_code:string;label:string;sensitivity:string;delegable:boolean};
 type PresetRow={permission_code:string;default_scope:string};
 type OverrideRow={id:string;permission_code:string;effect:'allow'|'deny';scope_type:string;scope_value:string|null;valid_until:string|null};
-type DelegationRow={id:string;source_user_id:string;delegate_user_id:string;valid_from:string;valid_until:string;reason:string|null};
+type DelegationRow={id:string;source_user_id:string;delegate_user_id:string;scope_type:'all'|'topic'|'mailbox';scope_value:string|null;valid_from:string;valid_until:string;reason:string|null};
 type DelegationPermissionRow={delegation_id:string;permission_code:string};
 
 const active=(validUntil:string|null)=>!validUntil||Date.parse(validUntil)>Date.now();
@@ -50,7 +50,7 @@ export default async function TeamMemberAccessPage({params}:{params:Promise<{use
     admin.from('store_permission_catalog').select('permission_code,area_code,label,sensitivity,delegable').order('area_code').order('label'),
     admin.from('store_role_permission_presets').select('permission_code,default_scope').eq('role_code',binding.role_code),
     instanceSpecific?admin.from('store_permission_overrides').select('id,permission_code,effect,scope_type,scope_value,valid_until').eq('instance_id',scope.instanceId).eq('user_id',userId).is('revoked_at',null).lte('valid_from',now):Promise.resolve({data:[],error:null}),
-    admin.from('store_delegations').select('id,source_user_id,delegate_user_id,valid_from,valid_until,reason').eq('instance_id',scope.instanceId).is('revoked_at',null).lte('valid_from',now).gt('valid_until',now).or(`source_user_id.eq.${userId},delegate_user_id.eq.${userId}`),
+    admin.from('store_delegations').select('id,source_user_id,delegate_user_id,scope_type,scope_value,valid_from,valid_until,reason').eq('instance_id',scope.instanceId).is('revoked_at',null).lte('valid_from',now).gt('valid_until',now).or(`source_user_id.eq.${userId},delegate_user_id.eq.${userId}`),
     admin.from('role_bindings').select('id,user_id,role_code,instance_id,valid_until').eq('organization_id',scope.organizationId).eq('instance_id',scope.instanceId).is('revoked_at',null).lte('valid_from',now),
   ]);
 
@@ -82,6 +82,7 @@ export default async function TeamMemberAccessPage({params}:{params:Promise<{use
   const delegationItems:DelegationItem[]=delegations.map(row=>({
     id:row.id,sourceUserId:row.source_user_id,sourceLabel:profileById.get(row.source_user_id)?.full_name||profileById.get(row.source_user_id)?.email||`${row.source_user_id.slice(0,8)}…`,
     delegateUserId:row.delegate_user_id,delegateLabel:profileById.get(row.delegate_user_id)?.full_name||profileById.get(row.delegate_user_id)?.email||`${row.delegate_user_id.slice(0,8)}…`,
+    scopeType:row.scope_type,scopeValue:row.scope_value,
     validFrom:row.valid_from,validUntil:row.valid_until,reason:row.reason,permissionLabels:permissionsByDelegation.get(row.id)??[],
   }));
 
@@ -93,7 +94,7 @@ export default async function TeamMemberAccessPage({params}:{params:Promise<{use
 
     <div className="cards adminMetricCards teamMetrics"><article className="card"><span className="badge">Alapszerepkör</span><div className="price">{roleLabels[binding.role_code]??binding.role_code}</div></article><article className="card"><span className="badge">Alap capability</span><div className="price">{foundationUnavailable?'—':presets.length}</div></article><article className="card"><span className="badge">Egyedi eltérés</span><div className="price">{foundationUnavailable?'—':overrides.length}</div></article><article className="card"><span className="badge">Aktív helyettesítés</span><div className="price">{foundationUnavailable?'—':delegations.length}</div></article></div>
 
-    <section className="card"><span className="eyebrow">Privacy-first authority</span><h2>Szerepkör = kiindulási sablon, nem korlátlan betekintés</h2><p className="muted">A személyes engedélyek és tiltások az adott aktív webshop-szerepkörhöz kötődnek. A helyettesítés csak kijelölt capability-kre, az eredeti munkatárs erőforrásaira és kötelező lejárattal érvényes. A Digitális Iroda privát belső chatjének tartalmát később külön résztvevői szabály védi; tulajdonosi rang önmagában nem jelent automatikus olvasási jogot.</p></section>
+    <section className="card"><span className="eyebrow">Privacy-first authority</span><h2>Szerepkör = kiindulási sablon, nem korlátlan betekintés</h2><p className="muted">A személyes engedélyek és tiltások az adott aktív webshop-szerepkörhöz kötődnek. A helyettesítés csak kijelölt capability-kre, az eredeti munkatárs saját vagy hozzá rendelt erőforrásaira, opcionálisan témakörre vagy postafiókra, és kötelező lejárattal érvényes. A Digitális Iroda privát belső chatjének tartalmát később külön résztvevői szabály védi; tulajdonosi rang önmagában nem jelent automatikus olvasási jogot.</p></section>
 
     {!instanceSpecific&&<div className="adminAuditNotice"><strong>Szervezeti szintű jogosultság.</strong><p>Ezt a szerepkört ezen a webshop-oldalon nem írjuk felül személyes capability-kkel. A hozzáférés itt csak megtekinthető.</p></div>}
     {binding.role_code==='owner'&&<div className="adminAuditNotice"><strong>Tulajdonosi fiók.</strong><p>A tulajdonosi authority-hoz nem hozunk létre személyes override-ot. A privát kommunikáció tartalma ettől függetlenül résztvevő-alapú lesz.</p></div>}
