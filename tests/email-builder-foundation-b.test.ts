@@ -6,6 +6,7 @@ import{emailRenderContextSchema}from'../src/lib/email-builder/context-schema';
 
 const read=(path:string)=>readFileSync(join(process.cwd(),path),'utf8');
 const sql=()=>read('supabase/migrations/20260907214000_email_builder_foundation_b.sql').toLowerCase().replace(/\s+/g,' ');
+const indexSql=()=>read('supabase/migrations/20260907215500_email_builder_foundation_b_indexes.sql').toLowerCase().replace(/\s+/g,' ');
 
 describe('Email Builder Foundation B database contract',()=>{
   it('creates tenant-scoped brand, template and immutable version storage with RLS and least-privilege grants',()=>{
@@ -21,6 +22,20 @@ describe('Email Builder Foundation B database contract',()=>{
     expect(source).toContain('create unique index if not exists email_brand_kits_default_uidx');
     expect(source).toContain('create trigger email_template_versions_immutable before update or delete');
     expect(source).toContain("raise exception 'email_template_version_immutable'");
+  });
+
+  it('covers Email Builder foreign keys with supporting indexes',()=>{
+    const source=indexSql();
+    for(const name of[
+      'email_brand_kits_created_by_idx',
+      'email_brand_kits_updated_by_idx',
+      'email_templates_created_by_idx',
+      'email_templates_updated_by_idx',
+      'email_templates_brand_kit_tenant_fk_idx',
+      'email_templates_active_version_fk_idx',
+      'email_template_versions_created_by_idx',
+      'email_template_versions_template_fk_idx',
+    ])expect(source).toContain(`create index if not exists ${name}`);
   });
 
   it('keeps all write RPCs tenant-bound, permission-checked and service-role only',()=>{
