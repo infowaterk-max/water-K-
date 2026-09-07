@@ -9,8 +9,10 @@ describe('read-only operational UX',()=>{
   expect(automation).toContain("hasStorePermission(store.instanceId,'store.manage')");
   expect(automation).toContain('Csak olvasási jogosultság.');
   expect(automation).toContain('automatikus védelmi leállás');
-  expect(actions).toContain("hasStorePermission(currentInstance.id,'analytics.read')");
-  expect(actions).toContain("hasStorePermission(currentInstance.id,'store.manage')");
+  expect(actions).toContain("const roles=platformRole?[]:await getActiveStoreRoles(currentInstance.id);");
+  expect(actions).toContain("roles.some(role=>roleHasPermission(role,'analytics.read'))");
+  expect(actions).toContain("roles.some(role=>roleHasPermission(role,'store.manage'))");
+  expect(actions).toContain('<AdminAccessDenied description=');
   expect(actions).toContain('A javaslatok áttekinthetők, de szimulációt');
   expect(actions).toContain("const canAct=access.mode==='enabled'&&!error");
   expect(actions).toContain("canAct?<ProposalActions");
