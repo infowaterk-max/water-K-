@@ -29,3 +29,10 @@ export function validateEmailDocument(input:unknown):EmailValidationResult{
   if(document.purpose==='marketing'&&!document.blocks.some(block=>block.type==='footer'))warnings.push('Marketing email should include a footer with unsubscribe handling in the delivery layer');
   return{ok:errors.length===0,errors:[...new Set(errors)],warnings:[...new Set(warnings)],document};
 }
+
+export function validateEmailDocumentForActivation(input:unknown):EmailValidationResult{
+  const base=validateEmailDocument(input);if(!base.document)return base;
+  const errors=[...base.errors],warnings=[...base.warnings];
+  if(base.document.purpose==='marketing'&&!base.document.blocks.some(block=>block.type==='footer'))errors.push('Marketing email requires a footer before activation');
+  return{...base,ok:errors.length===0,errors:[...new Set(errors)],warnings:[...new Set(warnings)]};
+}
