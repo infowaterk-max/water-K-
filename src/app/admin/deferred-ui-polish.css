@@ -44,6 +44,9 @@
   .adminRouteContext{position:relative;z-index:1}
   .adminReportingTrustItem{min-height:0;padding:9px 11px}
   .adminReturnLink{justify-self:start;white-space:normal}
+  .adminMobileProductPage .adminMetricCards{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important}
+  .adminMobileProductPage .adminMetricCards>.card{min-height:0!important;padding:14px!important}
+  .adminMobileProductPage .adminMetricCards .price{font-size:clamp(22px,6.8vw,34px)!important;line-height:1!important;margin-top:12px!important;overflow-wrap:anywhere}
   .adminMain .adminTableScroll:not(.adminMobileCardTableWrap){max-width:100%;overflow-x:auto;overscroll-behavior-inline:contain;-webkit-overflow-scrolling:touch;scrollbar-width:thin;padding-bottom:4px}
   .adminMain .adminTableScroll:not(.adminMobileCardTableWrap) .adminTable{min-width:620px}
 }
@@ -52,4 +55,8 @@
   body:has(.adminGrid){scroll-padding-top:70px}
   .adminContentShell,.adminRouteContext,.adminMain,.adminMain [id]{scroll-margin-top:70px}
   .adminMain .adminTableScroll:not(.adminMobileCardTableWrap) .adminTable{min-width:560px}
+}
+
+@media(max-width:380px){
+  .adminMobileProductPage .adminMetricCards{grid-template-columns:1fr!important}
 }
