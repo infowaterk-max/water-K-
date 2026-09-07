@@ -4,6 +4,8 @@ import { hasStorePermission } from '@/lib/auth/store-rbac';
 import{createAdminClient}from'@/lib/supabase/admin';
 import{formatHuf}from'@/lib/catalog';
 import { AdminSubmitButton } from '@/components/admin/admin-submit-button';
+import { AdminAccessStateNotice } from '@/components/admin/admin-access-state';
+import { resolveAdminUiAccess } from '@/lib/admin/ui-access-contract';
 import { updateLoyaltyProgramSettingsAction } from './actions';
 export const dynamic='force-dynamic';
 
@@ -29,6 +31,7 @@ export default async function CustomerValueAdmin({searchParams}:Props){
    a.from('loyalty_program_settings').select('enabled,accrual_enabled,points_expire_days').eq('instance_id',scope.instanceId).maybeSingle(),
    hasStorePermission(scope.instanceId,'store.manage'),
  ]);
+ const access=resolveAdminUiAccess({id:'loyalty-settings',feature:'crm',readPermission:'analytics.read',managePermission:'store.manage'},{featureEnabled:true,canRead:true,canManage:scope.isPlatform||canManage});
  const rows=(data??[])as Row[],ids=[...new Set(rows.map(r=>r.customer_id).filter(Boolean))];
  const profileResult=ids.length?await a.from('profiles').select('id,email,full_name,company_name').in('id',ids):{data:[]as Profile[],error:null};
  const profiles=(profileResult.data??[])as Profile[],profileById=new Map(profiles.map(p=>[p.id,p]));
@@ -47,12 +50,12 @@ export default async function CustomerValueAdmin({searchParams}:Props){
   <section className="card">
     <div className="sectionHeading"><div><span className="eyebrow">Hűségprogram</span><h2>Hűségprogram beállításai</h2></div><span className={`adminStatePill ${settings.enabled?'success':'neutral'}`}>{settings.enabled?'Bekapcsolva':'Kikapcsolva'}</span></div>
     <p className="muted">{settingsText(settings)}</p>
-    {canManage?<form action={updateLoyaltyProgramSettingsAction} className="formGrid">
+    {access.mode==='enabled'?<form action={updateLoyaltyProgramSettingsAction} className="formGrid">
       <label><span>Hűségprogram</span><select name="enabled" defaultValue={settings.enabled?'on':'off'}><option value="off">Kikapcsolva</option><option value="on">Bekapcsolva</option></select><small className="helperText">Kikapcsolva nem keletkezik új pont és a vásárlói hűségoldal sem jelenik meg.</small></label>
       <label><span>Automatikus pontgyűjtés</span><select name="accrualEnabled" defaultValue={settings.accrual_enabled?'on':'off'}><option value="off">Kikapcsolva</option><option value="on">Bekapcsolva</option></select><small className="helperText">A meglévő pontok megmaradnak; csak az új automatikus jóváírás áll le.</small></label>
       <label><span>Pontok lejárata</span><input name="pointsExpireDays" type="number" min="0" max="3650" step="1" defaultValue={settings.points_expire_days??0}/><small className="helperText">Napok száma. 0 = soha nem jár le.</small></label>
       <div className="actions"><AdminSubmitButton pendingLabel="Mentés…">Hűségbeállítások mentése</AdminSubmitButton></div>
-    </form>:<div className="adminAuditNotice"><strong>Csak tulajdonos vagy adminisztrátor módosíthatja.</strong><p>Az elemzési jogosultság a beállítások megtekintésére elegendő.</p></div>}
+    </form>:<AdminAccessStateNotice decision={access} title="Csak tulajdonos vagy adminisztrátor módosíthatja." description="Az elemzési jogosultság a beállítások megtekintésére elegendő."/>}
   </section>
 
   <section className="auditGuide"><div><span className="eyebrow">Hogyan olvasd?</span><h2>Az értékpontszám nem rangsor, hanem döntéstámogatás</h2></div><p>A pontszám a vásárlási előzményekből és aktivitásból képzett jelzőszám. A szint és az életciklus akkor is működik, ha a hűségprogramot nem használod.</p></section>

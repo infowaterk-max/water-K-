@@ -4,6 +4,8 @@ import{hasStorePermission}from'@/lib/auth/store-rbac';
 import{createAdminClient}from'@/lib/supabase/admin';
 import{formatHuf}from'@/lib/catalog';
 import{GrowthRefreshButton}from'@/components/admin/growth-refresh-button';
+import{AdminAccessStateNotice}from'@/components/admin/admin-access-state';
+import{resolveAdminUiAccess}from'@/lib/admin/ui-access-contract';
 
 export const dynamic='force-dynamic';
 type Dashboard={paying_customers:number;vip_customers:number;at_risk_customers:number;winback_customers:number;customer_lifetime_revenue_gross_huf:number;open_checkout_recoveries:number;active_journeys:number;due_journey_steps:number;overdue_resellers:number;due_soon_resellers:number;calculated_at:string};
@@ -17,6 +19,7 @@ export default async function Page(){
   await requirePlanFeature('advancedAnalytics');
   const scope=await requireCurrentStoreContext('analytics.read');
   const canRefresh=scope.isPlatform||await hasStorePermission(scope.instanceId,'marketing.manage');
+  const access=resolveAdminUiAccess({id:'growth-refresh',feature:'advancedAnalytics',readPermission:'analytics.read',managePermission:'marketing.manage'},{featureEnabled:true,canRead:true,canManage:canRefresh});
   const a=createAdminClient();
   const[{data:summary,error:se},{data:resellers,error:re},{data:customers,error:ce}]=await Promise.all([
     a.from('v9_growth_dashboard_v2').select('*').eq('instance_id',scope.instanceId).maybeSingle(),
@@ -30,7 +33,7 @@ export default async function Page(){
     <span className="eyebrow">Pro · Növekedési intelligencia</span>
     <h1 className="sectionTitle">Növekedési döntési központ</h1>
     <p className="lead">Az aktuális webshop B2C/B2B ügyfélértékét, lemorzsolódási kockázatát és jóváhagyott partneri újrarendelési lehetőségeit mutatja.</p>
-    {canAct?<GrowthRefreshButton/>:!canRefresh?<div className="adminAuditNotice"><strong>Csak olvasási jogosultság.</strong><p>A növekedési elemzéseket megtekintheted, de ügyfélutakat újratervezni és kiküldési lépéseket sorba állítani csak marketing-kezelési jogosultsággal lehet.</p></div>:<div className="adminAuditNotice"><strong>Frissítés átmenetileg letiltva.</strong><p>Hiányos döntési adatok mellett nem indítunk új ügyfélút- vagy kiküldési feldolgozást.</p></div>}
+    {canAct?<GrowthRefreshButton/>:access.mode==='read-only'?<AdminAccessStateNotice decision={access} title="Csak olvasási jogosultság." description="A növekedési elemzéseket megtekintheted, de ügyfélutakat újratervezni és kiküldési lépéseket sorba állítani csak marketing-kezelési jogosultsággal lehet."/>:<div className="adminAuditNotice"><strong>Frissítés átmenetileg letiltva.</strong><p>Hiányos döntési adatok mellett nem indítunk új ügyfélút- vagy kiküldési feldolgozást.</p></div>}
     {loadError&&<div className="errorNotice" role="alert"><strong>A növekedési adatok egy része most nem tölthető be.</strong> A hiányzó mutatók helyén nem feltételezünk nulla értéket.</div>}
 
     <div className="cards adminMetricCards">

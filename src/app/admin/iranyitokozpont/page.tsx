@@ -2,9 +2,11 @@ import Link from'next/link';
 import{createAdminClient}from'@/lib/supabase/admin';
 import{formatHuf}from'@/lib/catalog';
 import{AlertActions,ControlCycleButton,TaskActions}from'@/components/admin/control-tower-actions';
+import{AdminAccessStateNotice}from'@/components/admin/admin-access-state';
 import{requirePlanFeature}from'@/lib/plans/access';
 import{requireCurrentStoreContext}from'@/lib/instances/scope';
 import{hasStorePermission}from'@/lib/auth/store-rbac';
+import{resolveAdminUiAccess}from'@/lib/admin/ui-access-contract';
 import{alertStatusLabel,displayRecommendation,severityLabel,stateTone,taskStatusLabel}from'@/lib/admin/operational-display';
 
 export const dynamic='force-dynamic';
@@ -21,6 +23,7 @@ export default async function ControlTowerPage(){
   await requirePlanFeature('executiveAnalytics');
   const store=await requireCurrentStoreContext('analytics.read');
   const canManage=store.isPlatform||await hasStorePermission(store.instanceId,'store.manage');
+  const access=resolveAdminUiAccess({id:'control-tower-actions',feature:'executiveAnalytics',readPermission:'analytics.read',managePermission:'store.manage'},{featureEnabled:true,canRead:true,canManage});
   const a=createAdminClient();
   const[
     {data:q,error:qe},
@@ -41,7 +44,7 @@ export default async function ControlTowerPage(){
     <span className="eyebrow">Pro · Üzleti irányítóközpont</span>
     <h1 className="sectionTitle">Irányítóközpont</h1>
     <p className="lead">Egyesített kockázati és döntési sor a műveletek, készlet, ügyfélszolgálat, értékesítés és integrációk fölött. A rendszer javasol és priorizál; magas hatású üzleti állapotot nem módosít automatikusan.</p>
-    {canAct?<div className="actions"><ControlCycleButton/></div>:!canManage?<div className="adminAuditNotice"><strong>Csak olvasási jogosultság.</strong><p>A jelzéseket és feladatokat megtekintheted, de kontrollciklust futtatni, jelzést lezárni vagy feladatot módosítani csak webshop-admin jogosultsággal lehet.</p></div>:<div className="adminAuditNotice"><strong>Módosítás átmenetileg letiltva.</strong><p>Hiányos kontrolladat mellett nem futtatunk ciklust és nem módosítunk jelzést vagy feladatot.</p></div>}
+    {canAct?<div className="actions"><ControlCycleButton/></div>:access.mode==='read-only'?<AdminAccessStateNotice decision={access} title="Csak olvasási jogosultság." description="A jelzéseket és feladatokat megtekintheted, de kontrollciklust futtatni, jelzést lezárni vagy feladatot módosítani csak webshop-admin jogosultsággal lehet."/>:<div className="adminAuditNotice"><strong>Módosítás átmenetileg letiltva.</strong><p>Hiányos kontrolladat mellett nem futtatunk ciklust és nem módosítunk jelzést vagy feladatot.</p></div>}
     {loadError&&<div className="errorNotice" role="alert"><strong>Az irányítóközpont adatainak egy része most nem tölthető be.</strong> A hiányzó mutatók helyén nem feltételezünk hibamentes állapotot.</div>}
 
     <div className="cards adminMetricCards">

@@ -5,7 +5,9 @@ import { requireCurrentStoreContext } from '@/lib/instances/scope';
 import { getCurrentWebshopInstance } from '@/lib/instances/access';
 import { getPlatformRole,requirePlatformOperator } from '@/lib/auth/platform-operator';
 import { ActionCycleButton,ProposalActions } from '@/components/admin/action-center-actions';
+import { AdminAccessStateNotice } from '@/components/admin/admin-access-state';
 import { hasStorePermission } from '@/lib/auth/store-rbac';
+import { resolveAdminUiAccess } from '@/lib/admin/ui-access-contract';
 
 export const dynamic='force-dynamic';
 
@@ -88,6 +90,7 @@ export default async function Page(){
   await requirePlanFeature('executiveAnalytics');
   const store=await requireCurrentStoreContext('analytics.read');
   const canManage=store.isPlatform||await hasStorePermission(store.instanceId,'store.manage');
+  const access=resolveAdminUiAccess({id:'action-center-control',feature:'executiveAnalytics',readPermission:'analytics.read',managePermission:'store.manage'},{featureEnabled:true,canRead:true,canManage});
   const a=createAdminClient();
   const{data,error}=await a.from('action_proposals').select('id,proposal_key,status,action_kind,impact_class,risk_score,rationale,expires_at,simulated_at,approved_at,executed_at,alert_id').eq('instance_id',store.instanceId).order('risk_score',{ascending:false}).order('expires_at',{ascending:true}).limit(250);
   const rows=(data??[]) as Omit<Proposal,'instance_id'>[];
@@ -100,7 +103,7 @@ export default async function Page(){
     <p className="lead">A javaslatok, jóváhagyások és végrehajtások webshoponként elkülönítve működnek. Más ügyfél adata nem kerülhet ebbe a munkafolyamatba.</p>
     {error&&<div className="errorNotice" role="alert">Az intézkedési lista most nem tölthető be.</div>}
     <LifecycleGuide/>
-    {canAct?<div className="actions"><ActionCycleButton/></div>:<div className="adminAuditNotice"><strong>Csak olvasási jogosultság.</strong><p>A javaslatok áttekinthetők, de szimulációt, jóváhagyást vagy végrehajtást csak webshop-admin indíthat.</p></div>}
+    {canAct?<div className="actions"><ActionCycleButton/></div>:access.mode==='read-only'?<AdminAccessStateNotice decision={access} title="Csak olvasási jogosultság." description="A javaslatok áttekinthetők, de szimulációt, jóváhagyást vagy végrehajtást csak webshop-admin indíthat."/>:<div className="adminAuditNotice"><strong>Módosítás átmenetileg letiltva.</strong><p>Hiányos intézkedési adatok mellett nem indítunk szimulációt, jóváhagyást vagy végrehajtást.</p></div>}
     <div className="cards adminMetricCards">
       <div className="card"><span className="badge">Aktív</span><div className="price">{error?'—':active}</div><p className="muted">Folyamatban lévő intézkedés.</p></div>
       <div className="card"><span className="badge">Összes</span><div className="price">{error?'—':rows.length}</div><p className="muted">A tenant legutóbbi javaslatai.</p></div>
