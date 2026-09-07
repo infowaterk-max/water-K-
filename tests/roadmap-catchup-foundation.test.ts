@@ -65,7 +65,7 @@ describe('Roadmap catch-up foundation gate',()=>{
     expect(page).toContain("provider?:string");
     expect(page).toContain('const selectedProvider=providers.find');
     expect(page).toContain('Válassz szolgáltatót');
-    expect(page).toContain('{selectedProvider&&guide&&<article');
+    expect(page).toContain('{p&&guide&&<article');
     expect((page.match(/getProviderGuide\(/g)??[]).length).toBe(1);
     expect(page).toContain('Szolgáltatóváltás');
   });

@@ -25,21 +25,22 @@ export default async function Page({searchParams}:Props){
   ]);
   const providers=providerResult.data,loadError=providerResult.error;
   const selectedProvider=providers.find(provider=>provider.code===q.provider)??null;
-  const guide=selectedProvider?getProviderGuide(selectedProvider.code,selectedProvider.connectionMode):null;
+  const p=selectedProvider;
+  const guide=p?getProviderGuide(p.code,p.connectionMode):null;
   const present=guide?configuredEnvironmentFields(guide.requirements):[];
-  const externalLogistics=selectedProvider?.adapterKey==='external_logistics_email';
-  const logisticsEmail=String(selectedProvider?.configuration.logistics_email??'');
-  const bankTransfer=selectedProvider?.code==='bank_transfer';
-  const bankAccountHolder=String(selectedProvider?.configuration.account_holder??'');
-  const bankName=String(selectedProvider?.configuration.bank_name??'');
-  const bankAccount=String(selectedProvider?.configuration.bank_account??'');
-  const transferNote=String(selectedProvider?.configuration.transfer_note??'');
+  const externalLogistics=p?.adapterKey==='external_logistics_email';
+  const logisticsEmail=String(p?.configuration.logistics_email??'');
+  const bankTransfer=p?.code==='bank_transfer';
+  const bankAccountHolder=String(p?.configuration.account_holder??'');
+  const bankName=String(p?.configuration.bank_name??'');
+  const bankAccount=String(p?.configuration.bank_account??'');
+  const transferNote=String(p?.configuration.transfer_note??'');
   const bankTransferComplete=bankAccountHolder.trim().length>=2&&/^[A-Z0-9]{8,34}$/.test(bankAccount.replace(/[\s-]+/g,'').toUpperCase());
-  const complete=selectedProvider&&guide?(externalLogistics?/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(logisticsEmail):bankTransfer?bankTransferComplete:(guide.requirements.length===0||present.length===guide.requirements.length)):false;
-  const ready=selectedProvider?isProviderCheckoutReady(selectedProvider):false;
-  const environment=selectedProvider?environmentLabel(selectedProvider.code):null;
-  const callbackUrl=selectedProvider?.type==='payment'&&selectedProvider.paymentFlow==='online_redirect'?`${identity.siteUrl}/api/payments/${selectedProvider.code}/webhook`:null;
-  const readyLabel=selectedProvider?.type==='invoice'?'Automatikus számlázásra kész':externalLogistics?'E-mailes teljesítés kész':'Pénztárban használható';
+  const complete=p&&guide?(externalLogistics?/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(logisticsEmail):bankTransfer?bankTransferComplete:(guide.requirements.length===0||present.length===guide.requirements.length)):false;
+  const ready=p?isProviderCheckoutReady(p):false;
+  const environment=p?environmentLabel(p.code):null;
+  const callbackUrl=p?.type==='payment'&&p.paymentFlow==='online_redirect'?`${identity.siteUrl}/api/payments/${p.code}/webhook`:null;
+  const readyLabel=p?.type==='invoice'?'Automatikus számlázásra kész':externalLogistics?'E-mailes teljesítés kész':'Pénztárban használható';
 
   return <section className="adminMain">
     <span className="eyebrow">Shoperation · Beállítások</span>
@@ -61,13 +62,13 @@ export default async function Page({searchParams}:Props){
       {!providers.length&&<p className="muted">Ehhez a kategóriához jelenleg nincs választható szolgáltató.</p>}
     </section>}
 
-    {selectedProvider&&guide&&<article className="card">
-      <div className="adminToolbar"><div><span className="eyebrow">2. lépés · kiválasztott szolgáltató</span><span className="badge">{modeLabel[selectedProvider.connectionMode]}</span><h2>{selectedProvider.name}</h2></div><span className="badge">{ready?readyLabel:selectedProvider.connectionStatus==='error'?'Kapcsolati hiba':selectedProvider.enabled&&complete?'Hitelesítésre vár':selectedProvider.enabled?'Beállítás szükséges':'Nincs bekapcsolva'}</span></div>
+    {p&&guide&&<article className="card">
+      <div className="adminToolbar"><div><span className="eyebrow">2. lépés · kiválasztott szolgáltató</span><span className="badge">{modeLabel[p.connectionMode]}</span><h2>{p.name}</h2></div><span className="badge">{ready?readyLabel:p.connectionStatus==='error'?'Kapcsolati hiba':p.enabled&&complete?'Hitelesítésre vár':p.enabled?'Beállítás szükséges':'Nincs bekapcsolva'}</span></div>
       {environment&&<p><span className="badge">{environment} környezet</span></p>}
       <p className="muted">{guide.contract}</p>
-      <div className="card"><strong>Bekötési folyamat · {stepLabel[selectedProvider.onboardingStep]}</strong>{externalLogistics?<p className="muted">Nincs szükség futárcéges API-szerződésre. A partner a rendelési adatokat tranzakciós e-mailben kapja meg.</p>:guide.requirements.length===0?<p className="muted">Nincs szükség API-kulcsra.</p>:<ul>{guide.requirements.map(requirement=><li key={requirement.key}>{present.includes(requirement.key)?'✓':'○'} {requirement.label}{requirement.secret?' · titkos adat':''}</li>)}</ul>}<p className="muted">{externalLogistics?'A mód akkor használható, ha érvényes logisztikai partner e-mail cím van beállítva.':guide.verification}</p>{guide.notes&&<p className="muted">{guide.notes}</p>}{callbackUrl&&<><strong>Callback / webhook URL</strong><p><code>{callbackUrl}</code></p></>}{selectedProvider.lastTestMessage&&<><strong>Legutóbbi kapcsolatellenőrzés</strong><p className="muted">{selectedProvider.lastTestMessage}{selectedProvider.lastTestedAt?` · ${new Intl.DateTimeFormat('hu-HU',{dateStyle:'short',timeStyle:'short'}).format(new Date(selectedProvider.lastTestedAt))}`:''}</p></>}</div>
-      <form action={updateCommerceProviderAction} className="adminForm"><input type="hidden" name="providerCode" value={selectedProvider.code}/><label>Adminban megjelenő név<input name="displayLabel" defaultValue={selectedProvider.displayLabel??selectedProvider.name}/></label>{type==='shipping'&&<label>Szállítási díj (Ft)<input name="feeHuf" type="number" min="0" defaultValue={selectedProvider.feeHuf??0}/></label>}{externalLogistics&&<label>Logisztikai partner e-mail<input name="logisticsEmail" type="email" required defaultValue={logisticsEmail} placeholder="raktar@partner.hu"/></label>}{bankTransfer&&<div className="card"><strong>Átutalási adatok</strong><p className="muted">Ezek nem titkos API-adatok: a vásárló a rendelési visszaigazolásban és a sikeres rendelési oldalon látja őket.</p><label>Kedvezményezett neve<input name="bankAccountHolder" required defaultValue={bankAccountHolder} placeholder="Cégnév / számlatulajdonos"/></label><label>Bank neve<input name="bankName" defaultValue={bankName} placeholder="Bank neve (opcionális)"/></label><label>Bankszámlaszám / IBAN<input name="bankAccount" required defaultValue={bankAccount} placeholder="HU00 0000 0000 0000 0000 0000 0000"/></label><label>További átutalási tájékoztató<textarea name="transferNote" rows={3} defaultValue={transferNote} placeholder="Pl. feldolgozás 1–2 munkanap"/></label></div>}<div className="actions"><button className="btn btnPrimary" name="enabled" value={selectedProvider.enabled?'true':'false'}>Beállítások mentése</button><button className="btn btnGhost" name="enabled" value={selectedProvider.enabled?'false':'true'}>{selectedProvider.enabled?'Kikapcsolás':'Bekapcsolás'}</button></div></form>
-      {selectedProvider.enabled&&selectedProvider.connectionMode!=='manual'&&<form action={verifyCommerceProviderAction}><input type="hidden" name="providerCode" value={selectedProvider.code}/><button className="btn btnGhost">Kapcsolat ellenőrzése</button></form>}
+      <div className="card"><strong>Bekötési folyamat · {stepLabel[p.onboardingStep]}</strong>{externalLogistics?<p className="muted">Nincs szükség futárcéges API-szerződésre. A partner a rendelési adatokat tranzakciós e-mailben kapja meg.</p>:guide.requirements.length===0?<p className="muted">Nincs szükség API-kulcsra.</p>:<ul>{guide.requirements.map(requirement=><li key={requirement.key}>{present.includes(requirement.key)?'✓':'○'} {requirement.label}{requirement.secret?' · titkos adat':''}</li>)}</ul>}<p className="muted">{externalLogistics?'A mód akkor használható, ha érvényes logisztikai partner e-mail cím van beállítva.':guide.verification}</p>{guide.notes&&<p className="muted">{guide.notes}</p>}{callbackUrl&&<><strong>Callback / webhook URL</strong><p><code>{callbackUrl}</code></p></>}{p.lastTestMessage&&<><strong>Legutóbbi kapcsolatellenőrzés</strong><p className="muted">{p.lastTestMessage}{p.lastTestedAt?` · ${new Intl.DateTimeFormat('hu-HU',{dateStyle:'short',timeStyle:'short'}).format(new Date(p.lastTestedAt))}`:''}</p></>}</div>
+      <form action={updateCommerceProviderAction} className="adminForm"><input type="hidden" name="providerCode" value={p.code}/><label>Adminban megjelenő név<input name="displayLabel" defaultValue={p.displayLabel??p.name}/></label>{type==='shipping'&&<label>Szállítási díj (Ft)<input name="feeHuf" type="number" min="0" defaultValue={p.feeHuf??0}/></label>}{externalLogistics&&<label>Logisztikai partner e-mail<input name="logisticsEmail" type="email" required defaultValue={logisticsEmail} placeholder="raktar@partner.hu"/></label>}{bankTransfer&&<div className="card"><strong>Átutalási adatok</strong><p className="muted">Ezek nem titkos API-adatok: a vásárló a rendelési visszaigazolásban és a sikeres rendelési oldalon látja őket.</p><label>Kedvezményezett neve<input name="bankAccountHolder" required defaultValue={bankAccountHolder} placeholder="Cégnév / számlatulajdonos"/></label><label>Bank neve<input name="bankName" defaultValue={bankName} placeholder="Bank neve (opcionális)"/></label><label>Bankszámlaszám / IBAN<input name="bankAccount" required defaultValue={bankAccount} placeholder="HU00 0000 0000 0000 0000 0000 0000"/></label><label>További átutalási tájékoztató<textarea name="transferNote" rows={3} defaultValue={transferNote} placeholder="Pl. feldolgozás 1–2 munkanap"/></label></div>}<div className="actions"><button className="btn btnPrimary" name="enabled" value={p.enabled?'true':'false'}>Beállítások mentése</button><button className="btn btnGhost" name="enabled" value={p.enabled?'false':'true'}>{p.enabled?'Kikapcsolás':'Bekapcsolás'}</button></div></form>
+      {p.enabled&&p.connectionMode!=='manual'&&<form action={verifyCommerceProviderAction}><input type="hidden" name="providerCode" value={p.code}/><button className="btn btnGhost">Kapcsolat ellenőrzése</button></form>}
       <p className="muted">A titkos API-kulcsok nem jelennek meg és nem kerülnek böngészőbe vagy adatbázis-konfigurációba; kizárólag szerveroldali titokként kezeljük őket.</p>
     </article>}
   </section>;
