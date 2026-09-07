@@ -106,13 +106,15 @@ describe('admin link integrity',()=>{
   it('keeps the analyst action-center on one stable tenant snapshot and applies read/manage state separately',()=>{
     const page=fs.readFileSync(path.join(root,'src/app/admin/intezkedesek/page.tsx'),'utf8');
     expect(page).toContain('const currentInstance=await getCurrentWebshopInstance();');
-    expect(page).toContain("hasStorePermission(currentInstance.id,'analytics.read')");
-    expect(page).toContain("hasStorePermission(currentInstance.id,'store.manage')");
+    expect(page).toContain("const roles=platformRole?[]:await getActiveStoreRoles(currentInstance.id);");
+    expect(page).toContain("roles.some(role=>roleHasPermission(role,'analytics.read'))");
+    expect(page).toContain("roles.some(role=>roleHasPermission(role,'store.manage'))");
     expect(page).toContain("getFeatureEntitlementDecision(currentInstance.id,'executiveAnalytics')");
     expect(page).toContain("hasPlanFeature(currentInstance.subscriptionPlan,'executiveAnalytics')");
     expect(page).toContain("featureEnabled,canRead,canManage");
     expect(page).not.toContain("requirePlanFeature('executiveAnalytics')");
     expect(page).not.toContain("requireCurrentStoreContext('analytics.read')");
+    expect(page).toContain('<AdminAccessDenied description=');
     expect(page).toContain('<h1 className="sectionTitle">Intézkedési központ</h1>');
     expect(page).not.toContain("redirect('/admin')");
   });
