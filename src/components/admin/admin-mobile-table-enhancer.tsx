@@ -8,6 +8,16 @@ const CARD_TABLE_PATHS = [
   '/admin/visszaru',
   '/admin/ugyfelek',
   '/admin/ugyfelertek',
+  '/admin/termekek',
+  '/admin/automatizalas',
+  '/admin/integraciok',
+  '/admin/naplo',
+  '/admin/cashflow',
+  '/admin/vezetoi',
+  '/admin/iranyitokozpont',
+  '/admin/biztositekok',
+  '/admin/muveletek',
+  '/admin/beallitasok',
 ];
 const METRIC_PAGE_PATHS = new Set([
   '/admin/rendelesek',

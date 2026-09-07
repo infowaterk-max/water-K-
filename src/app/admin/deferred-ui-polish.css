@@ -1,0 +1,55 @@
+/* Deferred admin UI polish — contrast, reporting trust, mobile table breadth and sticky-header safety. */
+
+@media(min-width:851px){
+  .adminSide{background:linear-gradient(180deg,#e1aa21 0%,#c6810c 100%)!important;color:#171207!important}
+  .adminBrand{border-bottom-color:rgba(57,39,6,.22)!important}
+  .adminBrandWordmark strong{color:#132017!important}
+  .adminBrandWordmark span,.adminRoleBadge{color:#4b350a!important}
+  .adminSide .adminDiscoveryLabel,.adminSide .adminNavContextLabel,.adminSide .adminNavLabel,.adminSide .adminNavItemGroupLabel,.adminSide .adminFontScale>span{color:#553a08!important}
+  .adminSide .adminNavSectionTrigger{color:#211706!important}
+  .adminSide .adminNavSectionTrigger>span:last-child{color:#245331!important}
+  .adminSide .adminNavSectionTrigger:hover,.adminSide .adminNavSectionTrigger:focus-visible{background:rgba(255,252,237,.45)!important;color:#111!important}
+  .adminSide .adminNavSectionTrigger[data-active="true"]{background:rgba(255,252,237,.62)!important;color:#111!important;box-shadow:inset 3px 0 0 #245331!important}
+  .adminSide .adminNavItemGroup a,.adminSide .adminNav a{color:#211706!important}
+  .adminSide .adminNavItemGroup a small{color:#58451f!important}
+  .adminSide .adminNavItemGroup a:hover small,.adminSide .adminNavItemGroup a:focus-visible small,.adminSide .adminNavItemGroup a.adminNavActive small{color:#2f3d2f!important}
+  .adminSide .adminQuickTasks a{border-color:rgba(72,49,9,.22)!important;background:rgba(255,252,237,.32)!important;color:#211706!important}
+  .adminSide .adminQuickTasks a:hover,.adminSide .adminQuickTasks a:focus-visible{border-color:rgba(36,83,49,.38)!important;background:rgba(255,252,237,.58)!important;color:#111!important}
+  .adminSide .adminHelpDiscovery{border-top-color:rgba(72,49,9,.18)!important;color:#4c3914!important}
+  .adminSide .adminHelpDiscovery summary{color:#245331!important}
+  .adminSide .adminHelpDiscovery p{color:#58451f!important}
+  .adminSide .adminStoreLink{color:#1f351f!important;font-weight:850!important}
+  .adminSide .adminFontScale button{border-color:rgba(60,43,10,.27)!important;background:rgba(255,249,225,.4)!important;color:#241907!important}
+  .adminSide .adminFontScale button.active{background:#fff9e8!important;border-color:#245331!important;color:#111!important}
+}
+
+.adminReportingTrustItem{min-height:34px;padding:7px 11px;border-width:1px;box-shadow:inset 3px 0 0 transparent;background:#fff}
+.adminReportingTrustItem strong{font-size:10px;font-weight:950;line-height:1.2}
+.adminReportingTrustItem span{color:#455149;font-size:10.5px;line-height:1.4}
+.adminReportingTrustItem-fact{border-color:#bad7be;background:#eef7ef;box-shadow:inset 3px 0 0 #568d5e}
+.adminReportingTrustItem-calculation{border-color:#e5c779;background:#fff6df;box-shadow:inset 3px 0 0 #b48625}
+.adminReportingTrustItem-recommendation{border-color:#d7b6cf;background:#fbf0f8;box-shadow:inset 3px 0 0 #8f5985}
+.adminReportingTrustItem-fact strong{color:#285c32}
+.adminReportingTrustItem-calculation strong{color:#6b4b0a}
+.adminReportingTrustItem-recommendation strong{color:#67345e}
+
+.adminReturnLink{display:inline-flex;align-items:center;min-height:34px;padding:6px 10px;border:1px solid #d2dfd2;border-radius:999px;background:#f5f8f3;color:#285c32!important;text-decoration:none!important;box-shadow:0 3px 10px rgba(31,52,35,.05)}
+.adminReturnLink:hover,.adminReturnLink:focus-visible{border-color:#a9c8ac;background:#edf5ea;text-decoration:none!important;outline:none}
+.adminReturnLink:focus-visible{box-shadow:0 0 0 3px rgba(86,141,94,.18)}
+
+@media(max-width:850px){
+  .adminSide{box-shadow:0 8px 20px rgba(10,24,15,.18)}
+  body:has(.adminGrid){scroll-padding-top:74px}
+  .adminContentShell,.adminRouteContext,.adminMain,.adminMain [id]{scroll-margin-top:74px}
+  .adminRouteContext{position:relative;z-index:1}
+  .adminReportingTrustItem{min-height:0;padding:9px 11px}
+  .adminReturnLink{justify-self:start;white-space:normal}
+  .adminMain .adminTableScroll:not(.adminMobileCardTableWrap){max-width:100%;overflow-x:auto;overscroll-behavior-inline:contain;-webkit-overflow-scrolling:touch;scrollbar-width:thin;padding-bottom:4px}
+  .adminMain .adminTableScroll:not(.adminMobileCardTableWrap) .adminTable{min-width:620px}
+}
+
+@media(max-width:520px){
+  body:has(.adminGrid){scroll-padding-top:70px}
+  .adminContentShell,.adminRouteContext,.adminMain,.adminMain [id]{scroll-margin-top:70px}
+  .adminMain .adminTableScroll:not(.adminMobileCardTableWrap) .adminTable{min-width:560px}
+}
