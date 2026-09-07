@@ -4,6 +4,7 @@ import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { getCurrentWebshopInstance, type WebshopInstance } from '@/lib/instances/access';
 import { getPilotAcceptanceInstanceId } from '@/lib/storefront/pilot-access';
+import { hasStorePermission,hasStoreRoleBindingHistory } from '@/lib/auth/store-rbac';
 
 export async function requireStorefrontAccess():Promise<WebshopInstance|null>{
   const instance=await getCurrentWebshopInstance();
@@ -16,14 +17,12 @@ export async function requireStorefrontAccess():Promise<WebshopInstance|null>{
 
   try{
     const admin=createAdminClient();
-    const [{data:profile},{data:platform}]=await Promise.all([
-      admin.from('profiles').select('role').eq('id',user.id).maybeSingle(),
-      admin.from('platform_operators').select('role').eq('user_id',user.id).maybeSingle(),
-    ]);
-    if(profile?.role==='admin'||platform?.role) return instance;
-    if(instance){
+    const {data:platform}=await admin.from('platform_operators').select('role').eq('user_id',user.id).maybeSingle();
+    if(platform?.role)return instance;
+    if(instance&&await hasStorePermission(instance.id,'store.read'))return instance;
+    if(instance&&!(await hasStoreRoleBindingHistory(instance.id,user.id))){
       const {data:membership}=await admin.from('webshop_instance_members').select('role').eq('instance_id',instance.id).eq('user_id',user.id).maybeSingle();
-      if(membership?.role) return instance;
+      if(membership?.role)return instance;
     }
   }catch{}
   redirect('/hamarosan');

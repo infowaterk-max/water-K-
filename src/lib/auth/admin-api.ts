@@ -2,7 +2,7 @@ import 'server-only';
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { getCurrentWebshopInstance } from '@/lib/instances/access';
-import { hasStorePermission, type StorePermission } from '@/lib/auth/store-rbac';
+import { hasStorePermission,hasStoreRoleBindingHistory,type StorePermission } from '@/lib/auth/store-rbac';
 
 export async function getAdminRequestUser(permission?:StorePermission){
   try{
@@ -21,7 +21,7 @@ export async function getAdminRequestUser(permission?:StorePermission){
       if(instance){
         if(permission)authorized=await hasStorePermission(instance.id,permission);
         else authorized=await hasStorePermission(instance.id,'store.read');
-        if(!authorized&&profile?.role==='admin'){
+        if(!authorized&&profile?.role==='admin'&&!(await hasStoreRoleBindingHistory(instance.id,user.id))){
           const{data:legacy}=await admin.from('webshop_instance_members').select('role').eq('instance_id',instance.id).eq('user_id',user.id).in('role',['owner','admin']).maybeSingle();
           authorized=Boolean(legacy);
         }
@@ -37,7 +37,6 @@ export async function getAdminRequestUser(permission?:StorePermission){
 }
 
 export async function isAdminRequest(permission?:StorePermission){return Boolean(await getAdminRequestUser(permission))}
-
 
 export async function getPlatformRequestUser(){
   try{

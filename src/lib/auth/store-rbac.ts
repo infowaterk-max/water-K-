@@ -19,6 +19,15 @@ const ROLE_PERMISSIONS:Record<StoreRole,StorePermission[]>={
 
 export const roleHasPermission=(role:StoreRole,permission:StorePermission)=>ROLE_PERMISSIONS[role].includes(permission);
 
+export async function hasStoreRoleBindingHistory(instanceId:string,userId:string):Promise<boolean>{
+  const admin=createAdminClient();
+  const{data:instance,error:instanceError}=await admin.from('webshop_instances').select('organization_id').eq('id',instanceId).maybeSingle();
+  if(instanceError||!instance?.organization_id)return true;
+  const{data,error}=await admin.from('role_bindings').select('id').eq('user_id',userId).eq('organization_id',instance.organization_id).or(`instance_id.eq.${instanceId},instance_id.is.null`).limit(1);
+  if(error)return true;
+  return Boolean(data?.length);
+}
+
 export async function getActiveStoreRoles(instanceId:string):Promise<StoreRole[]>{
   if(await getPlatformRole())return['owner'];
   const supabase=await createClient();const{data:{user}}=await supabase.auth.getUser();if(!user)return[];

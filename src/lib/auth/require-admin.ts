@@ -2,7 +2,7 @@ import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { getCurrentWebshopInstance } from '@/lib/instances/access';
-import { hasStorePermission } from '@/lib/auth/store-rbac';
+import { hasStorePermission,hasStoreRoleBindingHistory } from '@/lib/auth/store-rbac';
 
 export async function requireAdmin() {
   const hasPublicKey=Boolean(process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY??process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
@@ -19,8 +19,9 @@ export async function requireAdmin() {
     const instance=await getCurrentWebshopInstance();
     if(instance&&await hasStorePermission(instance.id,'store.read'))return authData.user;
 
-    // Transitional compatibility is tenant-bound: a legacy global profile role alone is never enough.
-    if(instance){
+    // Transitional compatibility is allowed only before this user/store has RBAC history.
+    // Once role_bindings exists, revocation/expiry is authoritative and cannot fall back.
+    if(instance&&!(await hasStoreRoleBindingHistory(instance.id,authData.user.id))){
       const{data:profile}=await supabase.from('profiles').select('role').eq('id',authData.user.id).maybeSingle();
       if(profile?.role==='admin'){
         const{data:legacy}=await admin.from('webshop_instance_members').select('role').eq('instance_id',instance.id).eq('user_id',authData.user.id).in('role',['owner','admin']).maybeSingle();

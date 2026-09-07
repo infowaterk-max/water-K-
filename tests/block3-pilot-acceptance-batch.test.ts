@@ -46,7 +46,7 @@ describe('roadmap block 3 pilot acceptance batch',()=>{
     expect(sql).toContain("'store.role_binding_updated'");
     expect(orgScope).toContain('(rb.instance_id=p_instance_id or rb.instance_id is null)');
     expect(actions).toContain("getAdminRequestUser('store.manage')");
-    expect(actions).toContain("admin.rpc('merchant_set_store_role_v1'");
+    expect(actions).toContain("admin.rpc('merchant_set_store_role_v2'");
     expect(page).toContain("requireCurrentStorePageContext('store.manage')");
     expect(page).toContain('Csapat és jogosultságok');
     expect(ia).toContain("permission:'orders.manage'");
