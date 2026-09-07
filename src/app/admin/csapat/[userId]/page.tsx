@@ -26,6 +26,7 @@ export default async function TeamMemberAccessPage({params}:{params:Promise<{use
   if(!parsed.success)notFound();
   const userId=parsed.data;
   const scope=await requireCurrentStorePageContext('store.manage');
+  if(!scope.organizationId)return <section className="adminMain"><span className="eyebrow">Rendszer · Csapat</span><h1 className="sectionTitle">Részletes hozzáférés</h1><div className="errorNotice" role="alert">Ehhez a webshophoz nincs kezelhető szervezeti kapcsolat.</div><Link className="btn btnGhost" href="/admin/csapat">← Vissza a csapathoz</Link></section>;
   const admin=createAdminClient();
   const actorRoles=await getActiveStoreRoles(scope.instanceId);
   const ownerAuthority=scope.isPlatform||actorRoles.includes('owner');
@@ -84,7 +85,7 @@ export default async function TeamMemberAccessPage({params}:{params:Promise<{use
     validFrom:row.valid_from,validUntil:row.valid_until,reason:row.reason,permissionLabels:permissionsByDelegation.get(row.id)??[],
   }));
 
-  const presetByArea=new Map<string<Array<PresetRow>>();
+  const presetByArea=new Map<string,Array<PresetRow>>();
   for(const preset of presets){const area=catalogByCode.get(preset.permission_code)?.area_code??'other';const list=presetByArea.get(area)??[];list.push(preset);presetByArea.set(area,list)}
 
   return <section className="adminMain">
