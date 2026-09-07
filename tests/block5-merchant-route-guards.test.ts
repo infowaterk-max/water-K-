@@ -22,7 +22,7 @@ describe('Block 5 merchant route guards',()=>{
     const controlTower=read('src/app/admin/iranyitokozpont/page.tsx');
     expect(actionCenter).toContain("roles.some(role=>roleHasPermission(role,'analytics.read'))");
     expect(actionCenter).toContain("roles.some(role=>roleHasPermission(role,'store.manage'))");
-    expect(actionCenter).toContain("mode:'read-only'");
+    expect(actionCenter).toContain("access.mode==='read-only'");
     expect(controlTower).toContain("requireCurrentStoreContext('analytics.read')");
     expect(controlTower).toContain("hasStorePermission(store.instanceId,'store.manage')");
     expect(controlTower).toContain("access.mode==='read-only'");
