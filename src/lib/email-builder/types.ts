@@ -18,6 +18,7 @@ export const emailDesignOverrideSchema=z.object({
   radius:z.object({button:z.number().int().min(0).max(32).optional(),card:z.number().int().min(0).max(32).optional()}).strict().optional(),
   container:z.object({maxWidth:z.number().int().min(480).max(760).optional()}).strict().optional(),
 }).strict().default({});
+export type EmailDesignOverride=z.infer<typeof emailDesignOverrideSchema>;
 
 export const emailConditionRuleSchema=z.object({
   field:z.string().min(1).max(120),
