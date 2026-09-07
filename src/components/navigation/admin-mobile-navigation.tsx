@@ -41,7 +41,9 @@ export function AdminMobileNavigation({mobileTitle,sections,operatorItems,quickI
   const activeSection=sections.find(section=>section.id===activeSectionId);
   const[currentOpenSection,setCurrentOpenSection]=useState<string|null>(activeSectionId??null);
   const[open,setOpen]=useState(false);
-  const currentPath=activeSection&&activeItem?`${activeSection.label} / ${activeItem.label}`:activeItem?`Platform / ${activeItem.label}`:'Admin';
+  const currentPath=activeSection&&activeItem
+    ?activeSection.label===activeItem.label?activeItem.label:`${activeSection.label} / ${activeItem.label}`
+    :activeItem?`Platform / ${activeItem.label}`:'Admin';
 
   useEffect(()=>{setOpen(false);setCurrentOpenSection(activeSectionId??null);},[pathname,activeSectionId]);
   useEffect(()=>{

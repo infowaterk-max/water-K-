@@ -48,6 +48,7 @@ function enhanceTables(){
 function enhanceRoute(pathname:string){
   const main=document.querySelector<HTMLElement>('.adminMain');
   main?.classList.toggle('adminMobileMetricPage',METRIC_PAGE_PATHS.has(pathname));
+  main?.classList.toggle('adminMobileProductPage',pathname==='/admin/termekek');
   main?.classList.toggle('adminMobileOrderDetail',pathname.startsWith('/admin/rendelesek/'));
   if(!pathUsesCardTables(pathname))return;
   enhanceTables();
