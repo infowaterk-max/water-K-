@@ -23,6 +23,11 @@ if (environment === 'production') {
     problems.push('SUPABASE_SECRET_KEY|SUPABASE_SERVICE_ROLE_KEY');
   }
 
+  const cronSecret = process.env.CRON_SECRET?.trim();
+  if (!cronSecret || cronSecret.length < 16) {
+    problems.push('CRON_SECRET must be at least 16 characters in production');
+  }
+
   if (process.env.SUPABASE_STAGING_SECRET_KEY) {
     problems.push('SUPABASE_STAGING_SECRET_KEY must not be scoped to production');
   }

@@ -1,3 +1,5 @@
+import {defineStorefrontBuilderComponent,STOREFRONT_BUILDER_FOUNDATION_VERSION} from '@/lib/builder/storefront-foundation';
+
 export type StorefrontPageType='catalog'|'faq'|'contact'|'account'|'cart';
 
 export type StorefrontNavItem={
@@ -50,14 +52,16 @@ export function resolveStorefrontNavigation(value?:unknown):StorefrontNavItem[]{
 
 /**
  * Builder Foundation / Compatibility Contract.
- * This is declarative metadata only: Block 4 does not implement the visual editor.
- * Block 22 can consume the same component key, schema slot and responsive mode.
+ * Declarative metadata only: Page Schema/Templates and the visual editor remain later roadmap work.
  */
-export const STOREFRONT_NAVIGATION_BUILDER_MANIFEST={
+export const STOREFRONT_NAVIGATION_BUILDER_MANIFEST=defineStorefrontBuilderComponent({
+  foundationVersion:STOREFRONT_BUILDER_FOUNDATION_VERSION,
   contractVersion:1,
   componentKey:'storefront.navigation.link',
+  componentVersion:1,
   schemaSlot:'header.primaryNavigation',
   pageTypes:DEFAULT_STOREFRONT_NAVIGATION.map(item=>item.id),
   configurable:['hidden','order','labels'] as const,
   responsiveMode:'primary-navigation',
-} as const;
+  capability:{minPlan:'alap',features:[]},
+} as const);
