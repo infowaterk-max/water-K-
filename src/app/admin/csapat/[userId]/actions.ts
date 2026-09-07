@@ -4,12 +4,11 @@ import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
 import { getAdminRequestUser } from '@/lib/auth/admin-api';
 import { getActiveStoreRoles } from '@/lib/auth/store-rbac';
-import { STORE_CAPABILITY_CODES } from '@/lib/auth/store-capabilities';
+import { STORE_CAPABILITY_CODES,type StoreCapability } from '@/lib/auth/store-capabilities';
 import { requireCurrentStoreContext } from '@/lib/instances/scope';
 import { createAdminClient } from '@/lib/supabase/admin';
 
 const uuidSchema=z.string().uuid();
-const capabilitySchema=z.enum(STORE_CAPABILITY_CODES);
 const effectSchema=z.enum(['allow','deny']);
 const scopeSchema=z.enum(['all','own','assigned','own_or_assigned','topic','mailbox']);
 const validitySchema=z.enum(['indefinite','24h','7d','14d','30d','90d']);
@@ -23,8 +22,7 @@ const durationMs:Record<Exclude<Validity,'indefinite'>,number>={
 };
 
 export type AdvancedPermissionActionState={status:'idle'|'success'|'error';message:string};
-const idle:AdvancedPermissionActionState={status:'idle',message:''};
-export const advancedPermissionInitialState=idle;
+export const advancedPermissionInitialState:AdvancedPermissionActionState={status:'idle',message:''};
 
 type OverrideRow={
   id:string;
@@ -34,6 +32,11 @@ type OverrideRow={
   scope_value:string|null;
   valid_until:string|null;
 };
+
+function parseCapability(value:FormDataEntryValue|null):StoreCapability|null{
+  const candidate=String(value??'');
+  return (STORE_CAPABILITY_CODES as readonly string[]).includes(candidate)?candidate as StoreCapability:null;
+}
 
 function validUntilFor(value:Validity){
   if(value==='indefinite')return null;
@@ -104,20 +107,20 @@ async function replaceOverrides(
 export async function addPermissionOverrideAction(_:AdvancedPermissionActionState,formData:FormData):Promise<AdvancedPermissionActionState>{
   try{
     const target=uuidSchema.safeParse(String(formData.get('userId')??''));
-    const capability=capabilitySchema.safeParse(String(formData.get('permissionCode')??''));
+    const capability=parseCapability(formData.get('permissionCode'));
     const effect=effectSchema.safeParse(String(formData.get('effect')??''));
-    const scope=scopeSchema.safeParse(String(formData.get('scopeType')??'all'));
+    const scopeChoice=scopeSchema.safeParse(String(formData.get('scopeType')??'all'));
     const validity=validitySchema.safeParse(String(formData.get('validity')??'indefinite'));
     const scopeValue=String(formData.get('scopeValue')??'').trim()||null;
-    if(!target.success||!capability.success||!effect.success||!scope.success||!validity.success)return{status:'error',message:'Érvénytelen jogosultsági beállítás.'};
-    if((scope.data==='topic'||scope.data==='mailbox')&&!scopeValue)return{status:'error',message:'Ehhez a scope-hoz meg kell adni a témakört vagy postafiókot.'};
+    if(!target.success||!capability||!effect.success||!scopeChoice.success||!validity.success)return{status:'error',message:'Érvénytelen jogosultsági beállítás.'};
+    if((scopeChoice.data==='topic'||scopeChoice.data==='mailbox')&&!scopeValue)return{status:'error',message:'Ehhez a scope-hoz meg kell adni a témakört vagy postafiókot.'};
 
     const{actor,scope:storeScope,admin}=await context();
     const rows=await activeOverrides(admin,storeScope.instanceId,target.data);
-    const filtered=rows.filter(row=>!(row.permission_code===capability.data&&row.effect===effect.data&&row.scope_type===scope.data&&(row.scope_value??null)===scopeValue));
+    const filtered=rows.filter(row=>!(row.permission_code===capability&&row.effect===effect.data&&row.scope_type===scopeChoice.data&&(row.scope_value??null)===scopeValue));
     const entries=[...filtered.map(entryFromRow),{
-      permissionCode:capability.data,effect:effect.data,scopeType:scope.data,
-      scopeValue:(scope.data==='topic'||scope.data==='mailbox')?scopeValue:null,
+      permissionCode:capability,effect:effect.data,scopeType:scopeChoice.data,
+      scopeValue:(scopeChoice.data==='topic'||scopeChoice.data==='mailbox')?scopeValue:null,
       validUntil:validUntilFor(validity.data),
     }];
     await replaceOverrides(admin,storeScope.instanceId,actor.id,target.data,entries);
@@ -146,19 +149,20 @@ export async function createDelegationAction(_:AdvancedPermissionActionState,for
     const delegate=uuidSchema.safeParse(String(formData.get('userId')??''));
     const source=uuidSchema.safeParse(String(formData.get('sourceUserId')??''));
     const validity=validitySchema.safeParse(String(formData.get('validity')??'7d'));
-    const permissions=formData.getAll('permissionCode').map(value=>capabilitySchema.safeParse(String(value))).filter(result=>result.success).map(result=>result.data);
+    const permissions=formData.getAll('permissionCode').map(value=>parseCapability(value)).filter((value):value is StoreCapability=>value!==null);
     const reason=String(formData.get('reason')??'').trim().slice(0,500)||null;
     if(!delegate.success||!source.success||!validity.success||validity.data==='indefinite'||permissions.length===0)return{status:'error',message:'Válassz forrásszemélyt, legalább egy delegálható jogot és lejáratot.'};
     const{actor,scope,admin}=await context();
     const validFrom=new Date().toISOString(),validUntil=validUntilFor(validity.data);
     if(!validUntil)throw new Error('STORE_DELEGATION_EXPIRY_REQUIRED');
+    const uniquePermissions=[...new Set(permissions)];
     const{data,error}=await admin.rpc('merchant_create_store_delegation_v1',{
       p_instance_id:scope.instanceId,p_actor_user_id:actor.id,p_source_user_id:source.data,p_delegate_user_id:delegate.data,
-      p_permission_codes:[...new Set(permissions)],p_valid_from:validFrom,p_valid_until:validUntil,p_reason:reason,
+      p_permission_codes:uniquePermissions,p_valid_from:validFrom,p_valid_until:validUntil,p_reason:reason,
     });
     if(error)throw error;
     const evidence=(data??{}) as {instanceId?:string;delegateUserId?:string;sourceUserId?:string;permissionCount?:number};
-    if(evidence.instanceId!==scope.instanceId||evidence.delegateUserId!==delegate.data||evidence.sourceUserId!==source.data||evidence.permissionCount!==new Set(permissions).size)throw new Error('STORE_DELEGATION_EVIDENCE_MISSING');
+    if(evidence.instanceId!==scope.instanceId||evidence.delegateUserId!==delegate.data||evidence.sourceUserId!==source.data||evidence.permissionCount!==uniquePermissions.length)throw new Error('STORE_DELEGATION_EVIDENCE_MISSING');
     refresh(delegate.data);
     return{status:'success',message:'Időszakos helyettesítés létrehozva.'};
   }catch(error){return{status:'error',message:messageFromError(error)}}
