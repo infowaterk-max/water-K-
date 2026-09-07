@@ -32,7 +32,8 @@ export default async function AdminLayout({children}:{children:React.ReactNode})
   const roles=!isPlatform&&instance?await getActiveStoreRoles(instance.id):[];
   const can=(permission?:StorePermission)=>!permission||isPlatform||roles.some(role=>roleHasPermission(role,permission));
   const sections=isPlatform&&!instance?[]:resolveMerchantNavigation(effectivePlan,can,instance?.status);
-  const operatorItems=isPlatform?PLATFORM_NAVIGATION.map(item=>({...item})):[];
+  const merchantHrefs=new Set(sections.flatMap(section=>section.items.map(item=>item.href)));
+  const operatorItems=isPlatform?PLATFORM_NAVIGATION.filter(item=>!merchantHrefs.has(item.href)).map(item=>({...item})):[];
   const quickItems=(!isPlatform||Boolean(instance))?resolveFrequentTasks(effectivePlan,can):[];
   const mobileTitle=isPlatform&&!instance?'Shoperation':merchantName;
   return <main className="adminGrid"><aside className="adminSide"><div className="adminBrand">{isPlatform?<><div className="adminBrandWordmark"><strong>SHOPERATION</strong><span>WEBSHOP, AMI VELED GONDOLKODIK.</span></div><span className="adminRoleBadge">{platformLabel}</span></>:<><div className="adminBrandWordmark"><strong>{merchantName}</strong><span>Shoperation {definition.name}</span></div></>}</div><AdminMobileNavigation mobileTitle={mobileTitle} sections={sections} operatorItems={operatorItems} quickItems={quickItems} showUpgrade={!isPlatform&&plan==='alap'}/><AdminNavigation sections={sections} operatorItems={operatorItems} quickItems={quickItems} showUpgrade={!isPlatform&&plan==='alap'}/><AdminFontScale/><Link className="adminStoreLink" href="/">← Webshop előnézet</Link></aside><div className="adminContentShell"><AdminRouteContext sections={sections} operatorItems={operatorItems}/>{children}</div></main>;
