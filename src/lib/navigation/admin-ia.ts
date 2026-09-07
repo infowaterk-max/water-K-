@@ -55,6 +55,7 @@ export const MERCHANT_NAVIGATION:readonly AdminNavSection[]=[
   {id:'marketing',label:'Marketing',items:[
     {id:'marketing-basics',href:'/admin/marketing',label:'Marketing alapok',description:'Alap marketingeszközök és hozzájárulási állapotok.',feature:'marketingBasics',permission:'marketing.manage',group:'Marketing'},
     {id:'campaigns',href:'/admin/kampanyok',label:'Kampányközpont',description:'Kampányok, célközönség, jóváhagyás és kiküldési életciklus.',feature:'advancedCampaigns',permission:'marketing.manage',group:'Marketing'},
+    {id:'email-templates',href:'/admin/email-sablonok',label:'E-mail sablonok',description:'Tranzakciós és marketing e-mail sablonok, Brand Kit és verziók kezelése.',permission:'marketing.manage',group:'Kommunikáció'},
     {id:'coupons',href:'/admin/kuponok',label:'Kuponok és akciók',description:'Kuponok, kedvezmények és promóciós szabályok.',feature:'coupons',permission:'sales.manage',group:'Marketing'},
     {id:'reviews',href:'/admin/velemenyek',label:'Vásárlói vélemények',description:'Vélemények és moderációs műveletek.',feature:'reviews',permission:'marketing.manage',group:'Marketing'},
     {id:'automation',href:'/admin/automatizalas',label:'Automatizálási központ',description:'Automatizált üzleti és kommunikációs munkafolyamatok.',feature:'automation',permission:'analytics.read',group:'Automatizálás'},
