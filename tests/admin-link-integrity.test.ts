@@ -90,12 +90,23 @@ describe('admin link integrity',()=>{
     expect(missing).toEqual([]);
   });
 
-  it('uses deterministic browser navigation for every mobile admin destination',()=>{
+  it('forces a full browser navigation for every mobile admin destination',()=>{
     const mobile=fs.readFileSync(path.join(root,'src/components/navigation/admin-mobile-navigation.tsx'),'utf8');
-    expect(mobile).toContain('<a key={item.id} href={item.href} data-admin-target={item.href}');
-    expect(mobile).toContain('quickItems.map(item=><a key={item.id} href={item.href} data-admin-target={item.href}');
-    expect(mobile).toContain('href="/admin/csomag" data-admin-target="/admin/csomag"');
+    expect(mobile).toContain('function forceNavigate(event:MouseEvent<HTMLAnchorElement>,href:string)');
+    expect(mobile).toContain('event.preventDefault();');
+    expect(mobile).toContain('event.stopPropagation();');
+    expect(mobile).toContain('window.location.assign(href);');
+    expect(mobile).toContain('<a key={item.id} href={item.href} data-admin-target={item.href} onClick={event=>forceNavigate(event,item.href)}');
+    expect(mobile).toContain('quickItems.map(item=><a key={item.id} href={item.href} data-admin-target={item.href} onClick={event=>forceNavigate(event,item.href)}');
+    expect(mobile).toContain('href="/admin/csomag" data-admin-target="/admin/csomag" onClick={event=>forceNavigate(event,\'/admin/csomag\')}');
     expect(mobile).not.toContain('onClick={onNavigate}');
     expect(mobile).not.toContain('quickItems.map(item=><Link');
+  });
+
+  it('keeps the analyst action-center route on the real action-center page',()=>{
+    const page=fs.readFileSync(path.join(root,'src/app/admin/intezkedesek/page.tsx'),'utf8');
+    expect(page).toContain("requireCurrentStoreContext('analytics.read')");
+    expect(page).toContain('<h1 className="sectionTitle">Intézkedési központ</h1>');
+    expect(page).not.toContain("redirect('/admin')");
   });
 });
