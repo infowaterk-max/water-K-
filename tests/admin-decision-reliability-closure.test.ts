@@ -59,7 +59,8 @@ describe('admin decision reliability closure',()=>{
     const actions=read('src/app/admin/intezkedesek/page.tsx');
     const returns=read('src/app/admin/visszaru/page.tsx');
     const procurement=read('src/app/admin/beszerzes/page.tsx');
-    expect(actions).toContain('const canAct=canManage&&!error');
+    expect(actions).toContain("const canAct=access.mode==='enabled'&&!error");
+    expect(actions).toContain("access.mode==='read-only'");
     expect(actions).toContain("proposalError?'—'");
     expect(returns).toContain('loadError=Boolean(error||itemError)');
     expect(returns).toContain('Adatbetöltés szükséges');
