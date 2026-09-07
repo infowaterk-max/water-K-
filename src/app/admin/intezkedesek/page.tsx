@@ -1,13 +1,14 @@
 import Link from 'next/link';
+import { redirect } from 'next/navigation';
 import { createAdminClient } from '@/lib/supabase/admin';
-import { requirePlanFeature } from '@/lib/plans/access';
-import { requireCurrentStoreContext } from '@/lib/instances/scope';
 import { getCurrentWebshopInstance } from '@/lib/instances/access';
 import { getPlatformRole,requirePlatformOperator } from '@/lib/auth/platform-operator';
 import { ActionCycleButton,ProposalActions } from '@/components/admin/action-center-actions';
 import { AdminAccessStateNotice } from '@/components/admin/admin-access-state';
 import { hasStorePermission } from '@/lib/auth/store-rbac';
 import { resolveAdminUiAccess } from '@/lib/admin/ui-access-contract';
+import { getFeatureEntitlementDecision } from '@/lib/entitlements/access';
+import { hasPlanFeature } from '@/lib/plans/catalog';
 
 export const dynamic='force-dynamic';
 
@@ -32,7 +33,10 @@ function LifecycleGuide(){
 }
 
 export default async function Page(){
-  const[platformRole,currentInstance]=await Promise.all([getPlatformRole(),getCurrentWebshopInstance()]);
+  // Resolve the tenant once for the whole request. This avoids falling back to a
+  // user profile plan between capability and RBAC checks for delegated readers.
+  const currentInstance=await getCurrentWebshopInstance();
+  const platformRole=await getPlatformRole();
 
   if(platformRole&&!currentInstance){
     await requirePlatformOperator();
@@ -87,15 +91,31 @@ export default async function Page(){
     </section>;
   }
 
-  await requirePlanFeature('executiveAnalytics');
-  const store=await requireCurrentStoreContext('analytics.read');
-  const canManage=store.isPlatform||await hasStorePermission(store.instanceId,'store.manage');
-  const access=resolveAdminUiAccess({id:'action-center-control',feature:'executiveAnalytics',readPermission:'analytics.read',managePermission:'store.manage'},{featureEnabled:true,canRead:true,canManage});
+  if(!currentInstance)redirect('/admin/hozzaferes-megtagadva?reason=context');
+
+  const[canRead,canManage,entitlement]=await Promise.all([
+    platformRole?Promise.resolve(true):hasStorePermission(currentInstance.id,'analytics.read'),
+    platformRole?Promise.resolve(true):hasStorePermission(currentInstance.id,'store.manage'),
+    getFeatureEntitlementDecision(currentInstance.id,'executiveAnalytics'),
+  ]);
+  const featureEnabled=entitlement?.enabled??hasPlanFeature(currentInstance.subscriptionPlan,'executiveAnalytics');
+  const access=resolveAdminUiAccess({id:'action-center-control',feature:'executiveAnalytics',readPermission:'analytics.read',managePermission:'store.manage'},{featureEnabled,canRead,canManage});
+
+  if(access.mode==='hidden')redirect('/admin/hozzaferes-megtagadva');
+  if(access.mode==='upgrade-required'){
+    return <section className="adminMain">
+      <span className="eyebrow">Pro · Intézkedési központ</span>
+      <h1 className="sectionTitle">Intézkedési központ</h1>
+      <p className="lead">A javaslatok, jóváhagyások és végrehajtások webshoponként elkülönítve működnek. Más ügyfél adata nem kerülhet ebbe a munkafolyamatba.</p>
+      <AdminAccessStateNotice decision={access}/>
+    </section>;
+  }
+
   const a=createAdminClient();
-  const{data,error}=await a.from('action_proposals').select('id,proposal_key,status,action_kind,impact_class,risk_score,rationale,expires_at,simulated_at,approved_at,executed_at,alert_id').eq('instance_id',store.instanceId).order('risk_score',{ascending:false}).order('expires_at',{ascending:true}).limit(250);
+  const{data,error}=await a.from('action_proposals').select('id,proposal_key,status,action_kind,impact_class,risk_score,rationale,expires_at,simulated_at,approved_at,executed_at,alert_id').eq('instance_id',currentInstance.id).order('risk_score',{ascending:false}).order('expires_at',{ascending:true}).limit(250);
   const rows=(data??[]) as Omit<Proposal,'instance_id'>[];
   const active=rows.filter(r=>['proposed','simulated','approved'].includes(r.status)).length;
-  const canAct=canManage&&!error;
+  const canAct=access.mode==='enabled'&&!error;
 
   return <section className="adminMain">
     <span className="eyebrow">Pro · Intézkedési központ</span>
