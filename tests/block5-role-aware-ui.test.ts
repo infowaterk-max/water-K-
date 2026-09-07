@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import {describe,expect,it} from 'vitest';
 import {ADMIN_UI_ACCESS_CONTRACT_VERSION,resolveAdminUiAccess} from '../src/lib/admin/ui-access-contract';
+import {resolveMerchantNavigation} from '../src/lib/navigation/admin-ia';
 
 const root=process.cwd();
 const read=(file:string)=>fs.readFileSync(path.join(root,file),'utf8');
@@ -77,6 +78,29 @@ describe('Roadmap Block 5 - Role-aware UI contract',()=>{
     expect(page).toContain('AdminAccessStateNotice');
     expect(page).toContain('Módosítás átmenetileg letiltva.');
     expect(page).toContain('Hiányos automatizálási állapot mellett');
+  });
+
+  it('keeps governed read-only surfaces discoverable through the same read permission they enforce',()=>{
+    const analyst=(permission?:string)=>permission==='store.read'||permission==='analytics.read';
+    const items=resolveMerchantNavigation('pro',analyst,'pilot').flatMap(section=>section.items);
+    const hrefs=items.map(item=>item.href);
+    expect(hrefs).toEqual(expect.arrayContaining([
+      '/admin/automatizalas',
+      '/admin/intezkedesek',
+      '/admin/iranyitokozpont',
+      '/admin/novekedes',
+      '/admin/ugyfelertek',
+    ]));
+    expect(hrefs).not.toContain('/admin/rendelesek');
+
+    const ia=read('src/lib/navigation/admin-ia.ts');
+    expect(ia).toContain("href:'/admin/automatizalas',label:'Automatizálási központ'");
+    expect(ia).toContain("href:'/admin/automatizalas',label:'Automatizálási központ',description:'Automatizált üzleti és kommunikációs munkafolyamatok.',feature:'automation',permission:'analytics.read'");
+    expect(ia).toContain("href:'/admin/intezkedesek',label:'Intézkedési központ'");
+    expect(ia).toContain("href:'/admin/iranyitokozpont',label:'Irányítóközpont'");
+    const layout=read('src/app/admin/layout.tsx');
+    expect(layout).toContain('const merchantHrefs=new Set(sections.flatMap(section=>section.items.map(item=>item.href)))');
+    expect(layout).toContain('PLATFORM_NAVIGATION.filter(item=>!merchantHrefs.has(item.href))');
   });
 
   it('uses the shared role-aware state for all existing mixed read/write merchant decision surfaces',()=>{

@@ -28,6 +28,8 @@ export const MERCHANT_NAVIGATION:readonly AdminNavSection[]=[
     {id:'analytics',href:'/admin/elemzes',label:'Értékesítési és fedezeti elemzés',description:'Forgalom, fedezet, rendelési érték és termékszintű jövedelmezőség.',feature:'advancedAnalytics',permission:'analytics.read',group:'Teljesítmény',reportFamily:'sales',evidenceKinds:['calculation']},
     {id:'growth',href:'/admin/novekedes',label:'Növekedési döntési központ',description:'Növekedési és megtartási mutatók, valamint üzleti beavatkozási javaslatok.',feature:'advancedAnalytics',permission:'analytics.read',group:'Teljesítmény',reportFamily:'growth',evidenceKinds:['calculation','recommendation']},
     {id:'executive',href:'/admin/vezetoi',label:'Vezetői analitika',description:'Vezetői szintű összesített üzleti mutatók és kockázati jelzések.',feature:'executiveAnalytics',permission:'analytics.read',group:'Vezetői nézetek',reportFamily:'executive',evidenceKinds:['calculation','recommendation']},
+    {id:'action-center',href:'/admin/intezkedesek',label:'Intézkedési központ',description:'Webshop-szintű intézkedési javaslatok, jóváhagyások és végrehajtási állapotok.',feature:'executiveAnalytics',permission:'analytics.read',group:'Vezetői nézetek',reportFamily:'executive',evidenceKinds:['recommendation']},
+    {id:'control-tower',href:'/admin/iranyitokozpont',label:'Irányítóközpont',description:'Egyesített kontrolljelzések, kockázatok és döntési feladatok az aktuális webshophoz.',feature:'executiveAnalytics',permission:'analytics.read',group:'Vezetői nézetek',reportFamily:'executive',evidenceKinds:['fact','calculation','recommendation']},
     {id:'cashflow',href:'/admin/cashflow',label:'Cash-flow előrejelzés',description:'Pénzáramlási és likviditási döntéstámogató nézet.',feature:'cashflow',permission:'analytics.read',group:'Vezetői nézetek',reportFamily:'finance',evidenceKinds:['fact','calculation']},
   ]},
   {id:'sales',label:'Értékesítés',items:[
@@ -55,7 +57,7 @@ export const MERCHANT_NAVIGATION:readonly AdminNavSection[]=[
     {id:'campaigns',href:'/admin/kampanyok',label:'Kampányközpont',description:'Kampányok, célközönség, jóváhagyás és kiküldési életciklus.',feature:'advancedCampaigns',permission:'marketing.manage',group:'Marketing'},
     {id:'coupons',href:'/admin/kuponok',label:'Kuponok és akciók',description:'Kuponok, kedvezmények és promóciós szabályok.',feature:'coupons',permission:'sales.manage',group:'Marketing'},
     {id:'reviews',href:'/admin/velemenyek',label:'Vásárlói vélemények',description:'Vélemények és moderációs műveletek.',feature:'reviews',permission:'marketing.manage',group:'Marketing'},
-    {id:'automation',href:'/admin/automatizalas',label:'Automatizálási központ',description:'Automatizált üzleti és kommunikációs munkafolyamatok.',feature:'automation',permission:'store.manage',group:'Automatizálás'},
+    {id:'automation',href:'/admin/automatizalas',label:'Automatizálási központ',description:'Automatizált üzleti és kommunikációs munkafolyamatok.',feature:'automation',permission:'analytics.read',group:'Automatizálás'},
   ]},
   {id:'digital-office',label:'Digitális Iroda',items:[
     {id:'office',href:'/admin/kommunikacio',label:'Digitális iroda',description:'Tenant-szintű kommunikációs munkafolyamatok és üzenetek.',feature:'officeCommunication',permission:'support.manage',group:'Kommunikáció'},
