@@ -27,19 +27,22 @@ describe('admin pre-render authorization closure',()=>{
     expect(source).not.toContain('SUPABASE_SERVICE_ROLE');
   });
 
-  test('database gate is tenant-bound, fail-closed, and only callable by authenticated users',()=>{
-    const sql=read('supabase/migrations/20260904090000_admin_prerender_authz_gate.sql').toLowerCase().replace(/\s+/g,' ');
-    expect(sql).toContain('private.can_access_admin_context_current');
-    expect(sql).toContain('security definer');
-    expect(sql).toContain("set search_path=''");
-    expect(sql).toContain("r.revoked_at is null");
-    expect(sql).toContain("r.valid_from<=now()");
-    expect(sql).toContain("w.status in ('pilot','active')");
-    expect(sql).toContain("lower(w.slug)=lower(trim(p_instance_slug))");
-    expect(sql).toContain("p.role='admin'");
-    expect(sql).toContain("m.role in ('owner','admin')");
-    expect(sql).toContain('revoke all on function public.can_access_admin_context(text) from public, anon, service_role;');
-    expect(sql).toContain('grant execute on function public.can_access_admin_context(text) to authenticated;');
+  test('database gate is tenant-bound, fail-closed, time-aware and only callable by authenticated users',()=>{
+    const sql=read('supabase/migrations/20260907130000_block6_person_delegation_authority.sql').toLowerCase().replace(/\s+/g,' ');
+    const gate=sql.slice(sql.indexOf('create or replace function private.can_access_admin_context_current'),sql.indexOf('-- organization-level reads'));
+    expect(gate).toContain('private.can_access_admin_context_current');
+    expect(gate).toContain('security definer');
+    expect(gate).toContain("set search_path=''");
+    expect(gate).toContain('r.revoked_at is null');
+    expect(gate).toContain('r.valid_from<=now()');
+    expect(gate).toContain('r.valid_until is null or r.valid_until>now()');
+    expect(gate).toContain("w.status in ('pilot','active')");
+    expect(gate).toContain('lower(w.slug)=lower(trim(p_instance_slug))');
+    expect(gate).not.toContain('legacy_candidates');
+    expect(gate).not.toContain('webshop_instance_members');
+    const original=read('supabase/migrations/20260904090000_admin_prerender_authz_gate.sql').toLowerCase();
+    expect(original).toContain('revoke all on function public.can_access_admin_context(text) from public, anon, service_role;');
+    expect(original).toContain('grant execute on function public.can_access_admin_context(text) to authenticated;');
   });
 
   test('public RPC wrapper remains SECURITY INVOKER',()=>{
