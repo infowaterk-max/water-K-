@@ -5,7 +5,8 @@ import { getCurrentWebshopInstance } from '@/lib/instances/access';
 import { getPlatformRole,requirePlatformOperator } from '@/lib/auth/platform-operator';
 import { ActionCycleButton,ProposalActions } from '@/components/admin/action-center-actions';
 import { AdminAccessStateNotice } from '@/components/admin/admin-access-state';
-import { hasStorePermission } from '@/lib/auth/store-rbac';
+import { AdminAccessDenied } from '@/components/admin/admin-access-denied';
+import { getActiveStoreRoles,roleHasPermission } from '@/lib/auth/store-rbac';
 import { resolveAdminUiAccess } from '@/lib/admin/ui-access-contract';
 import { getFeatureEntitlementDecision } from '@/lib/entitlements/access';
 import { hasPlanFeature } from '@/lib/plans/catalog';
@@ -33,8 +34,6 @@ function LifecycleGuide(){
 }
 
 export default async function Page(){
-  // Resolve the tenant once for the whole request. This avoids falling back to a
-  // user profile plan between capability and RBAC checks for delegated readers.
   const currentInstance=await getCurrentWebshopInstance();
   const platformRole=await getPlatformRole();
 
@@ -93,15 +92,21 @@ export default async function Page(){
 
   if(!currentInstance)redirect('/admin/hozzaferes-megtagadva?reason=context');
 
-  const[canRead,canManage,entitlement]=await Promise.all([
-    platformRole?Promise.resolve(true):hasStorePermission(currentInstance.id,'analytics.read'),
-    platformRole?Promise.resolve(true):hasStorePermission(currentInstance.id,'store.manage'),
-    getFeatureEntitlementDecision(currentInstance.id,'executiveAnalytics'),
-  ]);
+  // Resolve delegated-store roles once, then derive every permission from that
+  // same immutable role snapshot. This prevents concurrent auth/RBAC lookups
+  // from disagreeing during a single App Router request.
+  const roles=platformRole?[]:await getActiveStoreRoles(currentInstance.id);
+  const canRead=Boolean(platformRole)||roles.some(role=>roleHasPermission(role,'analytics.read'));
+  const canManage=Boolean(platformRole)||roles.some(role=>roleHasPermission(role,'store.manage'));
+  const entitlement=await getFeatureEntitlementDecision(currentInstance.id,'executiveAnalytics');
   const featureEnabled=entitlement?.enabled??hasPlanFeature(currentInstance.subscriptionPlan,'executiveAnalytics');
   const access=resolveAdminUiAccess({id:'action-center-control',feature:'executiveAnalytics',readPermission:'analytics.read',managePermission:'store.manage'},{featureEnabled,canRead,canManage});
 
-  if(access.mode==='hidden')redirect('/admin/hozzaferes-megtagadva');
+  console.info('admin.action-center.access',{instance:currentInstance.slug,roles,canRead,canManage,featureEnabled,mode:access.mode});
+
+  if(access.mode==='hidden'){
+    return <AdminAccessDenied description="A fiókod aktív, de a jelenlegi webshop-szerepköröd nem rendelkezik az Intézkedési központ megtekintéséhez szükséges olvasási jogosultsággal."/>;
+  }
   if(access.mode==='upgrade-required'){
     return <section className="adminMain">
       <span className="eyebrow">Pro · Intézkedési központ</span>
