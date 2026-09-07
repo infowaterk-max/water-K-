@@ -71,7 +71,8 @@ describe('Roadmap Block 5 - Role-aware UI contract',()=>{
     const page=read('src/app/admin/automatizalas/page.tsx');
     expect(page).toContain("id:'automation-control'");
     expect(page).toContain("managePermission:'store.manage'");
-    expect(page).toContain("access.mode==='enabled'&&!loadError");
+    expect(page).toContain('permissionCanAct=canManage&&!loadError');
+    expect(page).toContain("access.mode==='enabled'&&permissionCanAct");
     expect(page).toContain("access.mode==='read-only'");
     expect(page).toContain('AdminAccessStateNotice');
     expect(page).toContain('Módosítás átmenetileg letiltva.');

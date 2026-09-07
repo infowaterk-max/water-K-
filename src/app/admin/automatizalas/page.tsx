@@ -32,7 +32,8 @@ export default async function Page(){
   const rows=instances??[];
   const health=control??{global_paused:false,pause_reason:null,consecutive_failures:0,circuit_open_until:null,updated_at:null};
   const loadError=Boolean(instanceError||controlError);
-  const canAct=access.mode==='enabled'&&!loadError;
+  const permissionCanAct=canManage&&!loadError;
+  const canAct=access.mode==='enabled'&&permissionCanAct;
 
   return <section className="adminMain">
     <span className="eyebrow">Pro · Automatizálás</span>
