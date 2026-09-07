@@ -22,12 +22,13 @@ describe('Block 5 action-center role snapshot',()=>{
     expect(page).not.toContain("if(access.mode==='hidden')redirect('/admin')");
   });
 
-  it('keeps the shared denied route and direct denied state visually consistent',()=>{
+  it('keeps the shared and canonical denied states visually consistent',()=>{
     const shared=read('src/components/admin/admin-access-denied.tsx');
     const deniedPage=read('src/app/admin/hozzaferes-megtagadva/page.tsx');
     expect(shared).toContain('Jogosultság · 403');
     expect(shared).toContain('Nincs jogosultságod ehhez a modulhoz.');
     expect(shared).toContain('data-access-state="denied"');
-    expect(deniedPage).toContain('<AdminAccessDenied/>');
+    expect(deniedPage).toContain('Nincs jogosultságod ehhez a modulhoz.');
+    expect(deniedPage).toContain('data-access-state="denied"');
   });
 });
