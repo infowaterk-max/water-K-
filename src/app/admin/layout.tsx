@@ -11,8 +11,10 @@ import './block3-pilot-batch.css';
 import './block3-order-detail-hotfix.css';
 import './block4-ia-navigation.css';
 import './block4-reporting-context.css';
+import './block4-mobile-navigation.css';
 import Link from 'next/link';
 import { AdminNavigation } from '@/components/navigation/admin-navigation';
+import { AdminMobileNavigation } from '@/components/navigation/admin-mobile-navigation';
 import { AdminRouteContext } from '@/components/navigation/admin-route-context';
 import { AdminFontScale } from '@/components/admin/admin-font-scale';
 import { requireAdmin } from '@/lib/auth/require-admin';
@@ -32,5 +34,6 @@ export default async function AdminLayout({children}:{children:React.ReactNode})
   const sections=isPlatform&&!instance?[]:resolveMerchantNavigation(effectivePlan,can,instance?.status);
   const operatorItems=isPlatform?PLATFORM_NAVIGATION.map(item=>({...item})):[];
   const quickItems=(!isPlatform||Boolean(instance))?resolveFrequentTasks(effectivePlan,can):[];
-  return <main className="adminGrid"><aside className="adminSide"><div className="adminBrand">{isPlatform?<><div className="adminBrandWordmark"><strong>SHOPERATION</strong><span>WEBSHOP, AMI VELED GONDOLKODIK.</span></div><span className="adminRoleBadge">{platformLabel}</span></>:<><div className="adminBrandWordmark"><strong>{merchantName}</strong><span>Shoperation {definition.name}</span></div></>}</div><AdminNavigation sections={sections} operatorItems={operatorItems} quickItems={quickItems} showUpgrade={!isPlatform&&plan==='alap'}/><AdminFontScale/><Link className="adminStoreLink" href="/">← Webshop előnézet</Link></aside><div className="adminContentShell"><AdminRouteContext sections={sections} operatorItems={operatorItems}/>{children}</div></main>;
+  const mobileTitle=isPlatform&&!instance?'Shoperation':merchantName;
+  return <main className="adminGrid"><aside className="adminSide"><div className="adminBrand">{isPlatform?<><div className="adminBrandWordmark"><strong>SHOPERATION</strong><span>WEBSHOP, AMI VELED GONDOLKODIK.</span></div><span className="adminRoleBadge">{platformLabel}</span></>:<><div className="adminBrandWordmark"><strong>{merchantName}</strong><span>Shoperation {definition.name}</span></div></>}</div><AdminMobileNavigation mobileTitle={mobileTitle} sections={sections} operatorItems={operatorItems} quickItems={quickItems} showUpgrade={!isPlatform&&plan==='alap'}/><AdminNavigation sections={sections} operatorItems={operatorItems} quickItems={quickItems} showUpgrade={!isPlatform&&plan==='alap'}/><AdminFontScale/><Link className="adminStoreLink" href="/">← Webshop előnézet</Link></aside><div className="adminContentShell"><AdminRouteContext sections={sections} operatorItems={operatorItems}/>{children}</div></main>;
 }
