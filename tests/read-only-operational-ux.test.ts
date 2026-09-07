@@ -9,9 +9,10 @@ describe('read-only operational UX',()=>{
   expect(automation).toContain("hasStorePermission(store.instanceId,'store.manage')");
   expect(automation).toContain('Csak olvasási jogosultság.');
   expect(automation).toContain('automatikus védelmi leállás');
-  expect(actions).toContain("hasStorePermission(store.instanceId,'store.manage')");
+  expect(actions).toContain("hasStorePermission(currentInstance.id,'analytics.read')");
+  expect(actions).toContain("hasStorePermission(currentInstance.id,'store.manage')");
   expect(actions).toContain('A javaslatok áttekinthetők, de szimulációt');
-  expect(actions).toContain("const canAct=canManage&&!error");
+  expect(actions).toContain("const canAct=access.mode==='enabled'&&!error");
   expect(actions).toContain("canAct?<ProposalActions");
  });
 });

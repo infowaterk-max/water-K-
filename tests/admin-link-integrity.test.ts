@@ -103,9 +103,16 @@ describe('admin link integrity',()=>{
     expect(mobile).not.toContain('quickItems.map(item=><Link');
   });
 
-  it('keeps the analyst action-center route on the real action-center page',()=>{
+  it('keeps the analyst action-center on one stable tenant snapshot and applies read/manage state separately',()=>{
     const page=fs.readFileSync(path.join(root,'src/app/admin/intezkedesek/page.tsx'),'utf8');
-    expect(page).toContain("requireCurrentStoreContext('analytics.read')");
+    expect(page).toContain('const currentInstance=await getCurrentWebshopInstance();');
+    expect(page).toContain("hasStorePermission(currentInstance.id,'analytics.read')");
+    expect(page).toContain("hasStorePermission(currentInstance.id,'store.manage')");
+    expect(page).toContain("getFeatureEntitlementDecision(currentInstance.id,'executiveAnalytics')");
+    expect(page).toContain("hasPlanFeature(currentInstance.subscriptionPlan,'executiveAnalytics')");
+    expect(page).toContain("featureEnabled,canRead,canManage");
+    expect(page).not.toContain("requirePlanFeature('executiveAnalytics')");
+    expect(page).not.toContain("requireCurrentStoreContext('analytics.read')");
     expect(page).toContain('<h1 className="sectionTitle">Intézkedési központ</h1>');
     expect(page).not.toContain("redirect('/admin')");
   });

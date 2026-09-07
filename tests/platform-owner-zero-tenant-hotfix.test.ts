@@ -30,7 +30,7 @@ describe('platform owner zero-tenant hotfix',()=>{
     expect(page).toContain('requirePlatformOperator');
     expect(page).toContain('Platformszintű, tenantfüggetlen felügyeleti nézet');
     expect(page).toContain('szándékosan csak olvasható');
-    expect(page).toContain("eq('instance_id',store.instanceId)");
+    expect(page).toContain("eq('instance_id',currentInstance.id)");
   });
 
   it('keeps platform navigation inside platform-safe routes',()=>{
