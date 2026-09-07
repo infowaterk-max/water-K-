@@ -37,4 +37,10 @@ describe('Team Permissions scoped delegation v2',()=>{
     expect(controls).toContain('delegationScopeType');
     expect(controls).toContain('delegationScopeValue');
   });
+
+  it('disables the legacy unscoped delegation creator at runtime',()=>{
+    const migration=read('supabase/migrations/20260907205600_team_permissions_disable_legacy_delegation_creator.sql');
+    expect(migration).toContain('revoke execute on function public.merchant_create_store_delegation_v1');
+    expect(migration).toContain('from service_role');
+  });
 });
