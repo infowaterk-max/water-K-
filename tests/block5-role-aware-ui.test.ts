@@ -77,4 +77,31 @@ describe('Roadmap Block 5 - Role-aware UI contract',()=>{
     expect(page).toContain('Módosítás átmenetileg letiltva.');
     expect(page).toContain('Hiányos automatizálási állapot mellett');
   });
+
+  it('uses the shared role-aware state for all existing mixed read/write merchant decision surfaces',()=>{
+    const expectations:[string,string,string][]=[
+      ['src/app/admin/intezkedesek/page.tsx',"id:'action-center-control'","managePermission:'store.manage'"],
+      ['src/app/admin/iranyitokozpont/page.tsx',"id:'control-tower-actions'","managePermission:'store.manage'"],
+      ['src/app/admin/novekedes/page.tsx',"id:'growth-refresh'","managePermission:'marketing.manage'"],
+      ['src/app/admin/ugyfelertek/page.tsx',"id:'loyalty-settings'","managePermission:'store.manage'"],
+    ];
+    for(const[file,id,permission]of expectations){
+      const source=read(file);
+      expect(source).toContain('resolveAdminUiAccess');
+      expect(source).toContain('AdminAccessStateNotice');
+      expect(source).toContain(id);
+      expect(source).toContain(permission);
+    }
+  });
+
+  it('keeps technical-data failure separate from authorization state on governed action surfaces',()=>{
+    const automation=read('src/app/admin/automatizalas/page.tsx');
+    const actions=read('src/app/admin/intezkedesek/page.tsx');
+    const control=read('src/app/admin/iranyitokozpont/page.tsx');
+    const growth=read('src/app/admin/novekedes/page.tsx');
+    expect(automation).toContain('Hiányos automatizálási állapot mellett');
+    expect(actions).toContain('Hiányos intézkedési adatok mellett');
+    expect(control).toContain('Hiányos kontrolladat mellett nem futtatunk ciklust');
+    expect(growth).toContain('Hiányos döntési adatok mellett nem indítunk');
+  });
 });
