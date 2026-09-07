@@ -68,5 +68,7 @@ describe('Roadmap catch-up foundation gate',()=>{
     expect(page).toContain('{p&&guide&&<article');
     expect((page.match(/getProviderGuide\(/g)??[]).length).toBe(1);
     expect(page).toContain('Szolgáltatóváltás');
+    expect(page).toContain('className="checkoutForm formSection"');
+    expect(page).not.toContain('className="adminForm"');
   });
 });
