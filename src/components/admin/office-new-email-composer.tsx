@@ -51,9 +51,11 @@ export function OfficeNewEmailComposer({mailboxes,initialDraft,compact=false}:{m
     if(!draftId)return;
     startTransition(async()=>{
       const data=new FormData();data.set('draftId',draftId);
-      await deleteOfficeDraftAction(data);
-      setDraftId('');setToEmail('');setSubject('');setBody('');
-      setState({status:'success',message:'Piszkozat törölve.'});
+      const result=await deleteOfficeDraftAction(data);
+      setState(result);
+      if(result.status==='success'){
+        setDraftId('');setToEmail('');setSubject('');setBody('');
+      }
     });
   }
 
