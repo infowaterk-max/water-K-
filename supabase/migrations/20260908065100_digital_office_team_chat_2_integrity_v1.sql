@@ -60,6 +60,9 @@ begin
   if not public.can_read_office_thread_v1(new.instance_id,new.thread_id,new.created_by) then
     raise exception 'OFFICE_OBJECT_AUTHOR_ACCESS_REQUIRED';
   end if;
+  if not public.can_manage_support(new.instance_id,new.created_by) then
+    raise exception 'OFFICE_OBJECT_LINK_PERMISSION_REQUIRED';
+  end if;
   if not private.office_chat_object_exists_v1(new.instance_id,new.object_type,new.object_id) then
     raise exception 'OFFICE_OBJECT_LINK_NOT_FOUND';
   end if;
@@ -85,4 +88,4 @@ revoke all on function private.enforce_office_message_object_integrity_v1() from
 comment on function private.enforce_office_message_mention_integrity_v1()
 is 'Fails closed unless an internal-message mention targets an active participant who can read the same private thread.';
 comment on function private.enforce_office_message_object_integrity_v1()
-is 'Fails closed unless an internal-message object card is authored by the message author and references an authoritative object in the same webshop instance.';
+is 'Fails closed unless an internal-message object card is authored by the message author, the author still has support business-object authority, and the card references an authoritative object in the same webshop instance.';
