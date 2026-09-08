@@ -78,10 +78,17 @@ describe('Digital Office Team Chat 2 foundation',()=>{
     expect(actions).toContain("action:'manage_participant'");
     expect(actions).toContain("action:'mark_read'");
     expect(actions).toContain("const mentionUserIds=selectedUserIds(form,'mentionUserId').slice(0,10)");
-    expect(actions).toContain("const object=chatObjectFrom(form)");
+    expect(actions).toContain('const object=chatObjectFrom(form)');
     expect(page).toContain('managePrivateParticipantAction');
     expect(page).toContain('name="mentionUserId" multiple');
     expect(page).toContain('name="objectRef"');
+  });
+
+  it('fails closed if Team Chat read models are unavailable',()=>{
+    expect(page).toContain('mentionError||objectLinkError');
+    expect(page).toContain('const canAct=!loadError&&!privacyFallback');
+    expect(page).toContain('Team Chat foundation adatainak egy része most nem tölthető be.');
+    expect(page).toContain('privát chat módosításait biztonsági okból letiltjuk');
   });
 
   it('does not activate unrelated email, mailbox, storage or AI behavior',()=>{
