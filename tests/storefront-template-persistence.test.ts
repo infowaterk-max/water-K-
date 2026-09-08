@@ -22,7 +22,7 @@ describe('Storefront Runtime Wave 0D template persistence',()=>{
     expect(migration).toContain("metadata->>'operationkey'=p_operation_key");
     expect(migration).toContain("raise exception 'storefront_template_operation_key_conflict'");
     expect(migration).toContain("'storefront.template_drafts_materialized'");
-    expect(migration).toContain("'mutationScope','storefront_page_drafts_only'");
+    expect(migration).toContain("'mutationscope','storefront_page_drafts_only'");
   });
 
   it('keeps the RPC service-role only and rechecks storefront management authority',()=>{
