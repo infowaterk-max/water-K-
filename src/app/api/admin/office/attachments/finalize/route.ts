@@ -49,6 +49,7 @@ export async function POST(request:Request){
     if(reason.includes('OFFICE_OBJECT_LINK_PERMISSION_REQUIRED'))return NextResponse.json({error:'Ehhez az üzleti objektumhoz nincs jogosultságod.'},{status:403});
     if(reason.includes('OFFICE_MENTION_PARTICIPANT_REQUIRED'))return NextResponse.json({error:'Csak aktív résztvevő említhető meg.'},{status:400});
     if(reason.includes('OFFICE_OBJECT_LINK_NOT_FOUND'))return NextResponse.json({error:'A kapcsolt üzleti objektum nem található ebben a webshopban.'},{status:400});
+    if(reason.includes('OFFICE_ATTACHMENT_SCAN_REQUIRED')||reason.includes('OFFICE_ATTACHMENT_CLEAN_EVIDENCE_REQUIRED'))return NextResponse.json({error:'A csatolmány csak sikeres fájlszignatúra- és vírusellenőrzés után küldhető el.'},{status:409});
     if(reason.includes('OFFICE_ATTACHMENT_RESERVATION_INVALID')||reason.includes('OFFICE_ATTACHMENT_STORAGE_OBJECT_MISSING'))return NextResponse.json({error:'A csatolmány feltöltése lejárt vagy nem igazolható. Töltsd fel újra.'},{status:409});
     return NextResponse.json({error:'A privát üzenet nem menthető. Egyetlen változást sem tekintünk alkalmazottnak.'},{status:500});
   }
