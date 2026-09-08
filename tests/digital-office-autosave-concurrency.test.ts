@@ -45,9 +45,10 @@ describe('Digital Office autosave and concurrency contract',()=>{
 
   it('passes expected revision through service actions and exposes a distinct conflict state',()=>{
     expect(actions).toContain("db.rpc('admin_mutate_office_draft_v2'");
-    expect(actions).toContain('expectedRevision:input.revision');
-    expect(actions).toContain("saveMode:'autosave'");
-    expect(actions).toContain("saveMode:'manual'");
+    expect(actions).toContain('draftId,expectedRevision:revision,saveMode');
+    expect(actions).toContain('payload:{draftId,expectedRevision:revision}');
+    expect(actions).toContain("persistNewEmailDraft(formData,'autosave')");
+    expect(actions).toContain("persistReplyDraft(formData,'autosave')");
     expect(actions).toContain("status:'conflict'");
     expect(actions).toContain("reason.includes('office_draft_conflict')");
     expect(actions).toContain('revision:result.revision');
