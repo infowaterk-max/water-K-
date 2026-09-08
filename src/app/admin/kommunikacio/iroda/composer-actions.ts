@@ -55,10 +55,36 @@ async function mutateDraft(db:ReturnType<typeof createAdminClient>,input:{instan
   return result;
 }
 
+type QueueDraftRow={id:string;draft_type:'new_email'|'reply';thread_id:string|null;to_email:string|null;subject:string;body:string};
+
+async function validatedQueueDraftId(db:ReturnType<typeof createAdminClient>,input:{
+  instanceId:string;userId:string;draftId:string|null;mode:'reply'|'new_email';threadId:string|null;
+  toEmail:string|null;subject:string|null;body:string;
+}){
+  if(!input.draftId)return null;
+  const{data,error}=await db.from('office_drafts')
+    .select('id,draft_type,thread_id,to_email,subject,body')
+    .eq('id',input.draftId).eq('instance_id',input.instanceId).eq('author_user_id',input.userId).maybeSingle();
+  if(error)throw new OfficeComposerError([error.code,error.message,error.details,error.hint].filter(Boolean).join(' '));
+  const draft=(data??null)as QueueDraftRow|null;
+  if(!draft)return null;
+  if(input.mode==='reply'){
+    return draft.draft_type==='reply'&&draft.thread_id===input.threadId&&draft.body===input.body?draft.id:null;
+  }
+  const normalizedRecipient=input.toEmail?.trim().toLowerCase()??null;
+  return draft.draft_type==='new_email'
+    &&draft.thread_id===null
+    &&draft.to_email===normalizedRecipient
+    &&draft.subject===(input.subject??'')
+    &&draft.body===input.body
+    ?draft.id:null;
+}
+
 async function queueEmail(db:ReturnType<typeof createAdminClient>,input:{
   instanceId:string;userId:string;mode:'reply'|'new_email';threadId:string|null;mailboxKey:string|null;
   toEmail:string|null;subject:string|null;body:string;draftId:string|null;
 }){
+  const safeDraftId=await validatedQueueDraftId(db,input);
   const{data,error}=await db.rpc('admin_queue_office_email_v3',{
     p_instance_id:input.instanceId,
     p_actor:input.userId,
@@ -69,7 +95,7 @@ async function queueEmail(db:ReturnType<typeof createAdminClient>,input:{
     p_subject:input.subject,
     p_body:input.body,
     p_idempotency_key:`office:v3:${input.instanceId}:${randomUUID()}`,
-    p_draft_id:input.draftId,
+    p_draft_id:safeDraftId,
   });
   if(error)throw new OfficeComposerError([error.code,error.message,error.details,error.hint].filter(Boolean).join(' '));
   const result=(data??{})as{id?:string;threadId?:string;messageId?:string;jobId?:string};
@@ -86,6 +112,7 @@ export async function saveNewEmailDraftAction(_previous:OfficeComposerActionStat
     const body=String(formData.get('body')??'').slice(0,10000);
     const result=await mutateDraft(db,{instanceId,userId,action:'save',payload:{draftId,draftType:'new_email',threadId:null,toEmail,subject,body}});
     revalidatePath('/admin/kommunikacio/iroda');
+    revalidatePath('/admin/kommunikacio/iroda/uj');
     return{status:'success',message:'Piszkozat mentve.',draftId:result.draftId};
   }catch(error){return stateForError(error)}
 }
@@ -103,14 +130,17 @@ export async function saveReplyDraftAction(_previous:OfficeComposerActionState,f
   }catch(error){return stateForError(error)}
 }
 
-export async function deleteOfficeDraftAction(formData:FormData){
+export async function deleteOfficeDraftAction(formData:FormData):Promise<OfficeComposerActionState>{
   try{
     const{db,userId,instanceId}=await access();
     const draftId=String(formData.get('draftId')??'').trim();
-    if(!draftId)return;
-    await mutateDraft(db,{instanceId,userId,action:'delete',payload:{draftId}});
+    if(!draftId)return{status:'error',message:'A piszkozat törléséhez azonosító szükséges.'};
+    const result=await mutateDraft(db,{instanceId,userId,action:'delete',payload:{draftId}});
+    if(result.deleted!==true)throw new OfficeComposerError('OFFICE_DRAFT_DELETE_EVIDENCE_MISSING');
     revalidatePath('/admin/kommunikacio/iroda');
-  }catch{return}
+    revalidatePath('/admin/kommunikacio/iroda/uj');
+    return{status:'success',message:'Piszkozat törölve.'};
+  }catch(error){return stateForError(error)}
 }
 
 export async function sendCustomerEmailV3Action(_previous:OfficeComposerActionState,formData:FormData):Promise<OfficeComposerActionState>{
@@ -138,6 +168,7 @@ export async function sendNewEmailAction(_previous:OfficeComposerActionState,for
     if(!toEmail||!subject||!body)return{status:'error',message:'Küldéshez címzett, tárgy és üzenetszöveg szükséges.'};
     await queueEmail(db,{instanceId,userId,mode:'new_email',threadId:null,mailboxKey,toEmail,subject,body,draftId});
     revalidatePath('/admin/kommunikacio/iroda');
+    revalidatePath('/admin/kommunikacio/iroda/uj');
     revalidatePath('/admin/kommunikacio');
     return{status:'success',message:'Az új e-mail küldési sorba került.'};
   }catch(error){return stateForError(error)}
