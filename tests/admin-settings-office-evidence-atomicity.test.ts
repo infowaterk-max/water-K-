@@ -5,23 +5,30 @@ import {describe,expect,test} from 'vitest';
 const root=process.cwd(),read=(file:string)=>fs.readFileSync(path.join(root,file),'utf8');
 const migration='supabase/migrations/20260903170000_admin_workspace_settings_evidence_atomic_v2.sql';
 const privacyMigration='supabase/migrations/20260908022500_digital_office_privacy_foundation_v1.sql';
+const teamChatMigration='supabase/migrations/20260908065000_digital_office_team_chat_2_foundation_v1.sql';
 
 describe('admin workspace and settings evidence atomicity',()=>{
   test('Digital Office business writes no longer use direct table mutations',()=>{
     const actions=read('src/app/admin/kommunikacio/iroda/actions.ts');
     const sql=read(migration);
     const privacySql=read(privacyMigration);
+    const teamChatSql=read(teamChatMigration);
     expect(actions).toContain("admin_mutate_office_workspace_v2");
     expect(actions).toContain("admin_mutate_office_privacy_v1");
+    expect(actions).toContain("admin_mutate_office_team_chat_v2");
     const legacyRpcWrites=actions.match(/await mutateOffice\(/g)?.length??0;
     const privacyRpcWrites=actions.match(/await mutateOfficePrivacy\(/g)?.length??0;
-    expect(legacyRpcWrites+privacyRpcWrites).toBeGreaterThanOrEqual(9);
+    const teamChatRpcWrites=actions.match(/await mutateOfficeTeamChat\(/g)?.length??0;
+    expect(legacyRpcWrites+privacyRpcWrites+teamChatRpcWrites).toBeGreaterThanOrEqual(9);
     for(const fragment of [
       ".from('office_threads').insert(",
       ".from('office_threads').update(",
       ".from('office_messages').insert(",
       ".from('office_tasks').insert(",
       ".from('office_tasks').update(",
+      ".from('office_thread_participants').insert(",
+      ".from('office_message_mentions').insert(",
+      ".from('office_message_object_links').insert(",
     ])expect(actions).not.toContain(fragment);
     expect(sql).toContain("'office.thread_created'");
     expect(sql).toContain("'office.message_added'");
@@ -31,6 +38,10 @@ describe('admin workspace and settings evidence atomicity',()=>{
     expect(privacySql).toContain("'office.thread_updated'");
     expect(privacySql).toContain("'office.private_thread_created'");
     expect(privacySql).toContain("'office.private_message_added'");
+    expect(teamChatSql).toContain("'office.private_thread_created_v2'");
+    expect(teamChatSql).toContain("'office.private_message_added_v2'");
+    expect(teamChatSql).toContain("'office.private_participant_added'");
+    expect(teamChatSql).toContain("'office.private_participant_removed'");
   });
 
   test('office customer email job, message, thread state and audit share one transaction',()=>{
@@ -75,6 +86,7 @@ describe('admin workspace and settings evidence atomicity',()=>{
   test('all privileged RPCs are executable only by service runtime',()=>{
     const sql=read(migration);
     const privacySql=read(privacyMigration);
+    const teamChatSql=read(teamChatMigration);
     for(const name of [
       'admin_mutate_office_workspace_v2',
       'platform_mutate_webshop_config_v3',
@@ -86,5 +98,7 @@ describe('admin workspace and settings evidence atomicity',()=>{
     }
     expect(privacySql).toContain('revoke all on function public.admin_mutate_office_privacy_v1');
     expect(privacySql).toContain('grant execute on function public.admin_mutate_office_privacy_v1(uuid,uuid,text,jsonb) to service_role');
+    expect(teamChatSql).toContain('revoke all on function public.admin_mutate_office_team_chat_v2');
+    expect(teamChatSql).toContain('grant execute on function public.admin_mutate_office_team_chat_v2(uuid,uuid,text,jsonb) to service_role');
   });
 });
