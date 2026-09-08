@@ -1,8 +1,8 @@
-# Storefront Runtime Backbone — Wave 0A + 0B + 0C
+# Storefront Runtime Backbone — Wave 0A + 0B + 0C + 0D
 
 ## Purpose
 
-This branch starts the real Storefront Runtime implementation on top of the already-merged Builder Compatibility Foundation. It remains isolated from production/staging state while other roadmap branches are active.
+This branch implements the Storefront Runtime foundation on top of the already-merged Builder Compatibility Foundation. It remains isolated from production/shared-staging state while the customer-baseline release line is still owned by open PR #115.
 
 ## Implemented in Wave 0A
 
@@ -145,39 +145,103 @@ This branch starts the real Storefront Runtime implementation on top of the alre
    - protected header child rejection;
    - unsafe CTA protocol sanitization.
 
-## Wave 0B database rollout status
+## Implemented in Wave 0D
 
-`supabase/migrations/20260908070700_storefront_runtime_persistence.sql` remains code-only and is **not applied to shared staging or production**.
+1. **Versioned template install/switch planning**
+   - install, switch, upgrade and refresh modes are explicit;
+   - incoming package versions remain part of the Page Schema identity;
+   - only page types materialized by the incoming package influence switch-mode detection;
+   - unrelated existing page heads remain untouched.
 
-Open PR #115 (Block 7) owns the next Fresh Install customer-baseline migration sequence. Wave 0B therefore deliberately does not edit `supabase/customer-baseline/` yet. Before this runtime PR becomes merge-ready, the runtime migration must be reconciled into the then-current ordered baseline and receive genuine Fresh Install proof.
+2. **Page preset materialization**
+   - template preset pages are cloned into stable tenant page identities;
+   - existing page keys are reused by page type;
+   - optimistic expected draft revisions are carried into persistence;
+   - source template packages are never mutated by materialization.
+
+3. **Template Capability Gate**
+   - package registry validation fails closed;
+   - Page Schema version must be supported;
+   - minimum plan and required feature checks are enforced;
+   - every declared page type requires a preset;
+   - every materialized page is validated against the component registry and runtime capability context;
+   - demo namespace/fixture identities are validated.
+
+4. **Demo-content namespace lifecycle**
+   - fixtures receive deterministic namespaced identities;
+   - explicit adoption changes fixture state to merchant-owned/adopted;
+   - adopted target records are excluded from refresh/install replacement;
+   - stale fixture namespaces are planned as retired;
+   - adopted records are preserved across retirement;
+   - duplicate current demo identities fail closed.
+
+5. **Atomic multi-page draft materialization**
+   - `save_storefront_template_drafts_v1` delegates every page to the authoritative single-page draft RPC inside one PostgreSQL transaction;
+   - any later page failure rolls the whole template operation back;
+   - duplicate page keys/types are rejected;
+   - the server helper hashes every materialized Page Schema before the RPC call.
+
+6. **Install/switch idempotency**
+   - a parent operation key represents the complete multi-page operation;
+   - same-instance replays are serialized by a transaction advisory lock;
+   - template key/version/page count and ordered Page Schema document hashes are checked before replay;
+   - changed/reordered payload under the same operation key fails with `STOREFRONT_TEMPLATE_OPERATION_KEY_CONFLICT`;
+   - per-page operation keys are deterministic children of the parent operation;
+   - one explicit template-level audit record represents the logical operation.
+
+7. **Commerce/customer/catalog mutation boundary**
+   - the installation plan declares `storefrontPageDrafts=true` and business/customer/order/catalog/B2B mutation capabilities as false;
+   - the server template persistence helper performs only the template draft RPC and no table access;
+   - regression tests reject direct template-migration DML against product, variant, collection, order, customer/profile and B2B ownership tables;
+   - template install/switch therefore changes presentation Page Schema drafts plus required lifecycle/audit evidence, not merchant commerce records.
+
+8. **Regression coverage**
+   - deterministic install planning and stable page identity;
+   - switch/upgrade/refresh boundary behavior;
+   - untouched unrelated pages;
+   - plan/feature/component capability gate failures;
+   - demo namespace, adoption and retirement behavior;
+   - atomic RPC delegation, service-role boundary and DB-level authority check;
+   - concurrent parent-operation serialization and replay fingerprint checks;
+   - explicit no-business-table-DML evidence.
+
+## Database rollout status
+
+The runtime migrations remain **code-only** on this branch:
+
+- `supabase/migrations/20260908070700_storefront_runtime_persistence.sql`
+- `supabase/migrations/20260908090900_storefront_template_installation.sql`
+
+Neither migration is applied to shared staging or production.
+
+PR #115 (Block 7 / customer B2B account ownership) is still open and Draft and owns the next ordered Fresh Install customer-baseline sequence. Therefore this runtime PR deliberately does not edit `supabase/customer-baseline/` yet and does not claim Fresh Install readiness. After PR #115 is merged, both Wave 0B and Wave 0D migrations must be reconciled into the then-current ordered customer baseline and receive genuine Fresh Install proof before runtime merge/readiness can advance.
 
 ## CI evidence
 
-Wave 0C implementation head `9f191c1b69cde05644b5d85a807c57ae0a436997` passed GitHub CI #1777. The first Wave 0C documentation head `bb8f03e97627ceb82e7cfa28e43ebc087839ed8b` passed GitHub CI #1778. Both runs completed security audit, customer baseline guard, quality tests, TypeScript, production build and release manifest successfully. Fresh Install proof remains intentionally skipped until baseline reconciliation.
+The last fully green pre-Wave-0D runtime baseline was GitHub CI #1784. Wave 0D adds focused install/switch, capability, demo-lifecycle, idempotency and business-data-boundary regression contracts. Wave 0 is considered implementation-complete only when the current Wave 0D branch head passes the complete CI workflow; the final current-head CI run is recorded on PR #117.
 
-## Explicit non-scope through Wave 0C
+Fresh Install proof remains intentionally skipped while PR #115 owns the next customer-baseline migration order.
+
+## Explicit non-scope through Wave 0D
 
 - no production or shared staging migration;
-- no customer-baseline readiness claim yet for the new schema;
+- no customer-baseline readiness claim yet for the new runtime schema;
 - no Visual Builder UI / drag-and-drop;
 - no merchant-facing publish UI;
 - no live storefront route switched to the runtime;
-- no Monarche/template pack yet;
+- no Monarche/template pack implementation yet;
 - no Product Discovery/Finder/Composer/Configurator/Compatibility engine;
 - no checkout/payment/K&H/inventory changes;
 - no production deployment or tenant-status change.
 
-## Next Wave 0 increment
+## Next implementation wave
 
-### Wave 0D — template install/switch foundation
+After Wave 0 current-head CI is fully green and the runtime implementation block is declared closed, the next implementation block is:
 
-- versioned template package installation;
-- page-preset materialization;
-- template switch without business-data mutation;
-- demo-content namespace lifecycle;
-- Template Capability Gate;
-- regression evidence that template switching changes presentation documents only and preserves commerce/customer/order boundaries.
+**Implementation Wave 1 — Golden #1 Monarche / Core Commerce**
+
+Wave 1 must consume the common runtime/template contracts rather than introducing template-specific runtime branches.
 
 ## Safety
 
-The branch was created from production `main` and does not mutate `main`, production Vercel, production Supabase or shared staging. Wave 0B contains a migration file as code only; Wave 0C is code/test-only and does not switch any live route to the new runtime.
+The branch does not mutate `main`, production Vercel, production Supabase, shared staging or the Water-K tenant status. The Wave 0B and Wave 0D migration files are source code only until customer-baseline reconciliation and genuine Fresh Install proof are available.
