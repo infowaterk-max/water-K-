@@ -96,16 +96,17 @@ export function useOfficeDraftAutosave<T>({
     const promise=action(input);
     inFlightRef.current=promise;
     let result:OfficeComposerActionState;
+    let accepted=false;
     try{
       result=await promise;
-      adoptResult(result,key);
+      accepted=adoptResult(result,key);
     }finally{
       inFlightRef.current=null;
     }
 
     const followUp=queuedRef.current||latestKeyRef.current!==savedKeyRef.current;
     queuedRef.current=false;
-    if(followUp&&!haltedRef.current&&latestKeyRef.current!==savedKeyRef.current){
+    if(accepted&&followUp&&!haltedRef.current&&latestKeyRef.current!==savedKeyRef.current){
       await runSave('autosave');
     }
     return result;
