@@ -80,9 +80,13 @@ begin
        or coalesce(v_existing->>'templateVersion','') !~ '^[0-9]+$'
        or (v_existing->>'templateVersion')::integer<>p_template_version
        or coalesce(v_existing->>'pageCount','') !~ '^[0-9]+$'
-       or (v_existing->>'pageCount')::integer<>jsonb_array_length(p_pages)
-       or jsonb_typeof(v_existing->'pages')<>'array'
-       or jsonb_array_length(v_existing->'pages')<>jsonb_array_length(p_pages) then
+       or (v_existing->>'pageCount')::integer<>jsonb_array_length(p_pages) then
+      raise exception 'STOREFRONT_TEMPLATE_OPERATION_KEY_CONFLICT';
+    end if;
+    if coalesce(jsonb_typeof(v_existing->'pages'),'')<>'array' then
+      raise exception 'STOREFRONT_TEMPLATE_OPERATION_KEY_CONFLICT';
+    end if;
+    if jsonb_array_length(v_existing->'pages')<>jsonb_array_length(p_pages) then
       raise exception 'STOREFRONT_TEMPLATE_OPERATION_KEY_CONFLICT';
     end if;
 
