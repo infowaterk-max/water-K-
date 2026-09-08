@@ -1,5 +1,6 @@
 -- Digital Office draft autosave concurrency foundation.
 -- Adds optimistic revision control without changing mailbox/send activation.
+-- Autosave revisions are intentionally not written to the admin audit log on every debounce cycle.
 
 alter table public.office_drafts
   add column if not exists revision bigint not null default 1;
@@ -31,6 +32,8 @@ declare
   v_body text;
   v_capability jsonb;
   v_expected_revision bigint;
+  v_save_mode text;
+  v_was_new boolean:=false;
 begin
   if p_instance_id is null or p_actor is null then raise exception 'OFFICE_DRAFT_IDENTITY_REQUIRED'; end if;
   if p_payload is null or jsonb_typeof(p_payload)<>'object' then raise exception 'OFFICE_DRAFT_PAYLOAD_REQUIRED'; end if;
@@ -42,12 +45,14 @@ begin
   if p_action='save' then
     v_draft_id:=case when nullif(trim(coalesce(p_payload->>'draftId','')),'') is null then null else (p_payload->>'draftId')::uuid end;
     v_expected_revision:=case when nullif(trim(coalesce(p_payload->>'expectedRevision','')),'') is null then null else (p_payload->>'expectedRevision')::bigint end;
+    v_save_mode:=coalesce(nullif(trim(p_payload->>'saveMode'),''),'manual');
     v_draft_type:=trim(coalesce(p_payload->>'draftType',''));
     v_thread_id:=case when nullif(trim(coalesce(p_payload->>'threadId','')),'') is null then null else (p_payload->>'threadId')::uuid end;
     v_to_email:=nullif(lower(trim(coalesce(p_payload->>'toEmail',''))),'');
     v_subject:=trim(coalesce(p_payload->>'subject',''));
     v_body:=coalesce(p_payload->>'body','');
 
+    if v_save_mode not in ('manual','autosave') then raise exception 'OFFICE_DRAFT_SAVE_MODE_INVALID'; end if;
     if v_draft_type not in ('new_email','reply') or length(v_subject)>300 or length(v_body)>10000 then raise exception 'OFFICE_DRAFT_INVALID'; end if;
     if v_to_email is not null and (length(v_to_email)<5 or length(v_to_email)>320 or position('@' in v_to_email)=0) then raise exception 'OFFICE_DRAFT_EMAIL_INVALID'; end if;
     if v_draft_id is not null and (v_expected_revision is null or v_expected_revision<1) then raise exception 'OFFICE_DRAFT_REVISION_REQUIRED'; end if;
@@ -70,6 +75,7 @@ begin
     end if;
 
     if v_draft_id is null then
+      v_was_new:=true;
       insert into public.office_drafts(instance_id,author_user_id,thread_id,draft_type,to_email,subject,body,revision)
       values(p_instance_id,p_actor,v_thread_id,v_draft_type,v_to_email,v_subject,v_body,1)
       returning * into v_draft;
@@ -95,22 +101,30 @@ begin
       end if;
     end if;
 
-    insert into public.admin_audit_log(
-      actor_user_id,action,entity_type,entity_id,organization_id,instance_id,summary,after_state,metadata
-    ) values(
-      p_actor,'office.draft_saved','office_draft',v_draft.id::text,v_org,p_instance_id,
-      case when v_draft.draft_type='reply' then 'Digitális Iroda válaszpiszkozat mentve' else 'Digitális Iroda új e-mail piszkozat mentve' end,
-      jsonb_build_object(
-        'draftId',v_draft.id,'draftType',v_draft.draft_type,'threadId',v_draft.thread_id,
-        'hasRecipient',v_draft.to_email is not null,'subjectLength',length(v_draft.subject),
-        'bodyLength',length(v_draft.body),'revision',v_draft.revision
-      ),
-      jsonb_build_object('audit_source','database_rpc','rpc','admin_mutate_office_draft_v2')
-    );
+    if v_was_new or v_save_mode='manual' then
+      insert into public.admin_audit_log(
+        actor_user_id,action,entity_type,entity_id,organization_id,instance_id,summary,after_state,metadata
+      ) values(
+        p_actor,case when v_was_new then 'office.draft_created' else 'office.draft_saved' end,
+        'office_draft',v_draft.id::text,v_org,p_instance_id,
+        case
+          when v_was_new and v_draft.draft_type='reply' then 'Digitális Iroda válaszpiszkozat létrehozva'
+          when v_was_new then 'Digitális Iroda új e-mail piszkozat létrehozva'
+          when v_draft.draft_type='reply' then 'Digitális Iroda válaszpiszkozat kézzel mentve'
+          else 'Digitális Iroda új e-mail piszkozat kézzel mentve'
+        end,
+        jsonb_build_object(
+          'draftId',v_draft.id,'draftType',v_draft.draft_type,'threadId',v_draft.thread_id,
+          'hasRecipient',v_draft.to_email is not null,'subjectLength',length(v_draft.subject),
+          'bodyLength',length(v_draft.body),'revision',v_draft.revision
+        ),
+        jsonb_build_object('audit_source','database_rpc','rpc','admin_mutate_office_draft_v2','saveMode',v_save_mode)
+      );
+    end if;
 
     return jsonb_build_object(
       'id',v_draft.id,'draftId',v_draft.id,'draftType',v_draft.draft_type,'threadId',v_draft.thread_id,
-      'revision',v_draft.revision,'updatedAt',v_draft.updated_at
+      'revision',v_draft.revision,'updatedAt',v_draft.updated_at,'saveMode',v_save_mode
     );
   end if;
 
@@ -155,4 +169,4 @@ revoke all on function public.admin_mutate_office_draft_v2(uuid,uuid,text,jsonb)
 grant execute on function public.admin_mutate_office_draft_v2(uuid,uuid,text,jsonb) to service_role;
 
 comment on function public.admin_mutate_office_draft_v2(uuid,uuid,text,jsonb)
-is 'Author-private Digital Office draft mutation with optimistic revision control for autosave and multi-device conflict prevention.';
+is 'Author-private Digital Office draft mutation with optimistic revision control for autosave and multi-device conflict prevention. Autosave updates are audit-coalesced.';
