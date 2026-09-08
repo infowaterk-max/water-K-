@@ -81,7 +81,7 @@ describe('Digital Office composer and drafts foundation',()=>{
 
   it('only reports draft deletion after database evidence confirms it',()=>{
     expect(actions).toContain('if(result.deleted!==true)');
-    expect(actions).toContain("return{status:'success',message:'Piszkozat törölve.'}");
+    expect(actions).toContain("message:'Piszkozat törölve.',draftId:result.draftId,revision:result.revision");
     expect(newComposer).toContain('const result=await deleteOfficeDraftAction(data)');
     expect(newComposer).toContain("if(result.status==='success')");
     expect(newComposer).toContain("data.set('revision',String(deletingRevision))");
