@@ -15,16 +15,16 @@ const chatObjectTypes=new Set<ChatObjectType>(['order','commercial_offer','retur
 class OfficeMutationError extends Error{
   readonly reason:string;
   constructor(reason:string){
-    super('A Digitális iroda művelete nem menthető. Az állapotot nem tekintjük módosítottnak.');
+    super('A kommunikációs művelet nem menthető. Az állapotot nem tekintjük módosítottnak.');
     this.name='OfficeMutationError';
     this.reason=reason.toLowerCase();
   }
 }
 
-async function baseAccess(){
+async function chatBaseAccess(){
   const actor=await getAdminRequestUser();
   if(!actor)throw new Error('Nincs jogosultság.');
-  await requirePlanFeature('officeCommunication');
+  await requirePlanFeature('teamChat');
   const scope=await requireCurrentStoreContext();
   return{db:createAdminClient(),userId:actor.id,instanceId:scope.instanceId};
 }
@@ -38,7 +38,7 @@ async function supportAccess(){
 }
 
 async function privateChatAccess(){
-  const access=await baseAccess();
+  const access=await chatBaseAccess();
   const allowed=await hasStoreCapability(access.instanceId,access.userId,'office.internal_chat',{
     resourceOwnerUserId:access.userId,
     resourceAssignedUserId:access.userId,
@@ -88,7 +88,7 @@ async function mutateOfficeTeamChat(db:ReturnType<typeof createAdminClient>,inpu
   const result=(data??{})as{
     id?:string;threadId?:string;messageId?:string;targetUserId?:string;participantCount?:number;mentionCount?:number;objectLinked?:boolean;
   };
-  if(!result.id&&!result.threadId&&!result.messageId)throw new Error('A Digitális iroda Team Chat műveletének eredménye nem igazolható.');
+  if(!result.id&&!result.threadId&&!result.messageId)throw new Error('A Team Chat műveletének eredménye nem igazolható.');
   return result;
 }
 
@@ -127,7 +127,7 @@ export async function createPrivateThreadAction(form:FormData){
   const object=chatObjectFrom(form);
   if(!subject||!body||participantUserIds.length===0||!object)return;
   await mutateOfficeTeamChat(db,{instanceId,userId,action:'create_internal_thread',payload:{subject,body,participantUserIds,mentionUserIds,...object}});
-  revalidatePath('/admin/kommunikacio/iroda');
+  revalidatePath('/admin/kommunikacio/chat');
 }
 
 export async function addMessageAction(form:FormData){
@@ -148,7 +148,7 @@ export async function addPrivateMessageAction(form:FormData){
   const object=chatObjectFrom(form);
   if(!threadId||!body||!object)return;
   await mutateOfficeTeamChat(db,{instanceId,userId,action:'add_internal_message',payload:{threadId,body,mentionUserIds,...object}});
-  revalidatePath('/admin/kommunikacio/iroda');
+  revalidatePath('/admin/kommunikacio/chat');
 }
 
 export async function managePrivateParticipantAction(form:FormData){
@@ -158,7 +158,7 @@ export async function managePrivateParticipantAction(form:FormData){
   const operation=String(form.get('operation')??'').trim();
   if(!threadId||!targetUserId||!['add','remove'].includes(operation))return;
   await mutateOfficeTeamChat(db,{instanceId,userId,action:'manage_participant',payload:{threadId,targetUserId,operation}});
-  revalidatePath('/admin/kommunikacio/iroda');
+  revalidatePath('/admin/kommunikacio/chat');
 }
 
 export async function transferPrivateThreadOwnerAction(form:FormData){
@@ -175,9 +175,9 @@ export async function transferPrivateThreadOwnerAction(form:FormData){
   if(error)throw new OfficeMutationError(errorReason(error));
   const result=(data??{})as{id?:string;threadId?:string;ownerUserId?:string;transferred?:boolean};
   if(result.id!==threadId||result.threadId!==threadId||result.ownerUserId!==targetUserId||result.transferred!==true){
-    throw new Error('A Digitális iroda tulajdonjog-átadásának eredménye nem igazolható.');
+    throw new Error('A Team Chat tulajdonjog-átadásának eredménye nem igazolható.');
   }
-  revalidatePath('/admin/kommunikacio/iroda');
+  revalidatePath('/admin/kommunikacio/chat');
 }
 
 export async function updateThreadAction(form:FormData){
@@ -192,11 +192,11 @@ export async function updateThreadAction(form:FormData){
 }
 
 export async function markThreadReadAction(form:FormData){
-  const{db,userId,instanceId}=await baseAccess();
+  const{db,userId,instanceId}=await chatBaseAccess();
   const threadId=String(form.get('threadId')??'');
   if(!threadId)return;
   await mutateOfficeTeamChat(db,{instanceId,userId,action:'mark_read',payload:{threadId}});
-  revalidatePath('/admin/kommunikacio/iroda');
+  revalidatePath('/admin/kommunikacio/chat');
 }
 
 export async function sendCustomerEmailAction(_previous:OfficeEmailActionState,form:FormData):Promise<OfficeEmailActionState>{
