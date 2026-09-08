@@ -3,6 +3,7 @@
 import { randomUUID } from 'node:crypto';
 import { revalidatePath } from 'next/cache';
 import { getAdminRequestUser } from '@/lib/auth/admin-api';
+import { hasStoreCapability } from '@/lib/auth/store-capabilities';
 import { requirePlanFeature } from '@/lib/plans/access';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { requireCurrentStoreContext } from '@/lib/instances/scope';
@@ -20,12 +21,30 @@ class OfficeMutationError extends Error{
   }
 }
 
-async function access(){
+async function baseAccess(){
+  const actor=await getAdminRequestUser();
+  if(!actor)throw new Error('Nincs jogosultság.');
+  await requirePlanFeature('officeCommunication');
+  const scope=await requireCurrentStoreContext();
+  return{db:createAdminClient(),userId:actor.id,instanceId:scope.instanceId};
+}
+
+async function supportAccess(){
   const actor=await getAdminRequestUser('support.manage');
   if(!actor)throw new Error('Nincs jogosultság.');
   await requirePlanFeature('officeCommunication');
   const scope=await requireCurrentStoreContext('support.manage');
   return{db:createAdminClient(),userId:actor.id,instanceId:scope.instanceId};
+}
+
+async function privateChatAccess(){
+  const access=await baseAccess();
+  const allowed=await hasStoreCapability(access.instanceId,access.userId,'office.internal_chat',{
+    resourceOwnerUserId:access.userId,
+    resourceAssignedUserId:access.userId,
+  });
+  if(!allowed)throw new Error('Nincs jogosultság a belső chat használatához.');
+  return access;
 }
 
 function errorReason(error:{code?:string|null;message?:string|null;details?:string|null;hint?:string|null}){
@@ -89,7 +108,7 @@ function chatObjectFrom(form:FormData){
 }
 
 export async function createThreadAction(form:FormData){
-  const{db,userId,instanceId}=await access();
+  const{db,userId,instanceId}=await supportAccess();
   const subject=String(form.get('subject')??'').trim().slice(0,180);
   const email=String(form.get('email')??'').trim().toLowerCase().slice(0,320);
   const orderId=String(form.get('orderId')??'').trim();
@@ -100,7 +119,7 @@ export async function createThreadAction(form:FormData){
 }
 
 export async function createPrivateThreadAction(form:FormData){
-  const{db,userId,instanceId}=await access();
+  const{db,userId,instanceId}=await privateChatAccess();
   const subject=String(form.get('subject')??'').trim().slice(0,180);
   const body=String(form.get('body')??'').trim().slice(0,10000);
   const participantUserIds=selectedUserIds(form,'participantUserId');
@@ -112,7 +131,7 @@ export async function createPrivateThreadAction(form:FormData){
 }
 
 export async function addMessageAction(form:FormData){
-  const{db,userId,instanceId}=await access();
+  const{db,userId,instanceId}=await supportAccess();
   const threadId=String(form.get('threadId')??'');
   const body=String(form.get('body')??'').trim().slice(0,10000);
   const kind=String(form.get('kind')??'internal');
@@ -122,7 +141,7 @@ export async function addMessageAction(form:FormData){
 }
 
 export async function addPrivateMessageAction(form:FormData){
-  const{db,userId,instanceId}=await access();
+  const{db,userId,instanceId}=await privateChatAccess();
   const threadId=String(form.get('threadId')??'');
   const body=String(form.get('body')??'').trim().slice(0,10000);
   const mentionUserIds=selectedUserIds(form,'mentionUserId').slice(0,10);
@@ -133,7 +152,7 @@ export async function addPrivateMessageAction(form:FormData){
 }
 
 export async function managePrivateParticipantAction(form:FormData){
-  const{db,userId,instanceId}=await access();
+  const{db,userId,instanceId}=await privateChatAccess();
   const threadId=String(form.get('threadId')??'').trim();
   const targetUserId=String(form.get('targetUserId')??'').trim();
   const operation=String(form.get('operation')??'').trim();
@@ -143,7 +162,7 @@ export async function managePrivateParticipantAction(form:FormData){
 }
 
 export async function transferPrivateThreadOwnerAction(form:FormData){
-  const{db,userId,instanceId}=await access();
+  const{db,userId,instanceId}=await privateChatAccess();
   const threadId=String(form.get('threadId')??'').trim();
   const targetUserId=String(form.get('targetUserId')??'').trim();
   if(!threadId||!targetUserId)return;
@@ -162,7 +181,7 @@ export async function transferPrivateThreadOwnerAction(form:FormData){
 }
 
 export async function updateThreadAction(form:FormData){
-  const{db,userId,instanceId}=await access();
+  const{db,userId,instanceId}=await supportAccess();
   const threadId=String(form.get('threadId')??'');
   const status=String(form.get('status')??'open');
   const priority=String(form.get('priority')??'normal');
@@ -173,7 +192,7 @@ export async function updateThreadAction(form:FormData){
 }
 
 export async function markThreadReadAction(form:FormData){
-  const{db,userId,instanceId}=await access();
+  const{db,userId,instanceId}=await baseAccess();
   const threadId=String(form.get('threadId')??'');
   if(!threadId)return;
   await mutateOfficeTeamChat(db,{instanceId,userId,action:'mark_read',payload:{threadId}});
@@ -181,7 +200,7 @@ export async function markThreadReadAction(form:FormData){
 }
 
 export async function sendCustomerEmailAction(_previous:OfficeEmailActionState,form:FormData):Promise<OfficeEmailActionState>{
-  const{db,userId,instanceId}=await access();
+  const{db,userId,instanceId}=await supportAccess();
   const threadId=String(form.get('threadId')??'');
   const body=String(form.get('body')??'').trim().slice(0,4000);
   if(!threadId||!body)return{status:'error',message:'Az e-mail válaszhoz üzenetszöveg szükséges.'};
@@ -199,7 +218,7 @@ export async function sendCustomerEmailAction(_previous:OfficeEmailActionState,f
 }
 
 export async function createTaskAction(form:FormData){
-  const{db,userId,instanceId}=await access();
+  const{db,userId,instanceId}=await supportAccess();
   const threadId=String(form.get('threadId')??'');
   const title=String(form.get('title')??'').trim().slice(0,240);
   const due=String(form.get('due')??'');
@@ -215,7 +234,7 @@ export async function createTaskAction(form:FormData){
 }
 
 export async function completeTaskAction(form:FormData){
-  const{db,userId,instanceId}=await access();
+  const{db,userId,instanceId}=await supportAccess();
   const id=String(form.get('id')??'');
   if(!id)return;
   await mutateOffice(db,{instanceId,userId,action:'complete_task',payload:{id}});
