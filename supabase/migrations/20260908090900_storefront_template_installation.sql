@@ -58,8 +58,15 @@ begin
   where id=p_instance_id;
   if v_org is null then raise exception 'WEBSHOP_INSTANCE_NOT_FOUND'; end if;
 
+  -- Serialize replays of one logical template operation. Without this lock, two
+  -- concurrent calls could both miss the parent audit record and emit duplicates.
+  perform pg_advisory_xact_lock(
+    hashtextextended('storefront-template:'||p_instance_id::text||':'||p_operation_key,0)
+  );
+
   -- Parent-operation idempotency. A successful template materialization is replayed
-  -- as one logical operation; callers cannot append/reorder pages under the same key.
+  -- as one logical operation; callers cannot append/reorder/change pages under the
+  -- same operation key.
   select after_state into v_existing
   from public.admin_audit_log
   where instance_id=p_instance_id
@@ -73,9 +80,20 @@ begin
        or coalesce(v_existing->>'templateVersion','') !~ '^[0-9]+$'
        or (v_existing->>'templateVersion')::integer<>p_template_version
        or coalesce(v_existing->>'pageCount','') !~ '^[0-9]+$'
-       or (v_existing->>'pageCount')::integer<>jsonb_array_length(p_pages) then
+       or (v_existing->>'pageCount')::integer<>jsonb_array_length(p_pages)
+       or jsonb_typeof(v_existing->'pages')<>'array'
+       or jsonb_array_length(v_existing->'pages')<>jsonb_array_length(p_pages) then
       raise exception 'STOREFRONT_TEMPLATE_OPERATION_KEY_CONFLICT';
     end if;
+
+    for v_index in 0..(jsonb_array_length(p_pages)-1)
+    loop
+      if coalesce(v_existing->'pages'->v_index->>'documentSha256','')
+         <>coalesce(p_pages->v_index->>'documentSha256','') then
+        raise exception 'STOREFRONT_TEMPLATE_OPERATION_KEY_CONFLICT';
+      end if;
+    end loop;
+
     return v_existing || jsonb_build_object('replayed',true);
   end if;
 
