@@ -4,13 +4,18 @@ import {describe,expect,test} from 'vitest';
 
 const root=process.cwd(),read=(file:string)=>fs.readFileSync(path.join(root,file),'utf8');
 const migration='supabase/migrations/20260903170000_admin_workspace_settings_evidence_atomic_v2.sql';
+const privacyMigration='supabase/migrations/20260908022500_digital_office_privacy_foundation_v1.sql';
 
 describe('admin workspace and settings evidence atomicity',()=>{
   test('Digital Office business writes no longer use direct table mutations',()=>{
     const actions=read('src/app/admin/kommunikacio/iroda/actions.ts');
     const sql=read(migration);
+    const privacySql=read(privacyMigration);
     expect(actions).toContain("admin_mutate_office_workspace_v2");
-    expect(actions.match(/await mutateOffice\(/g)?.length).toBeGreaterThanOrEqual(7);
+    expect(actions).toContain("admin_mutate_office_privacy_v1");
+    const legacyRpcWrites=actions.match(/await mutateOffice\(/g)?.length??0;
+    const privacyRpcWrites=actions.match(/await mutateOfficePrivacy\(/g)?.length??0;
+    expect(legacyRpcWrites+privacyRpcWrites).toBeGreaterThanOrEqual(9);
     for(const fragment of [
       ".from('office_threads').insert(",
       ".from('office_threads').update(",
@@ -20,10 +25,12 @@ describe('admin workspace and settings evidence atomicity',()=>{
     ])expect(actions).not.toContain(fragment);
     expect(sql).toContain("'office.thread_created'");
     expect(sql).toContain("'office.message_added'");
-    expect(sql).toContain("'office.thread_updated'");
     expect(sql).toContain("'office.customer_email_queued'");
     expect(sql).toContain("'office.task_created'");
     expect(sql).toContain("'office.task_completed'");
+    expect(privacySql).toContain("'office.thread_updated'");
+    expect(privacySql).toContain("'office.private_thread_created'");
+    expect(privacySql).toContain("'office.private_message_added'");
   });
 
   test('office customer email job, message, thread state and audit share one transaction',()=>{
@@ -67,6 +74,7 @@ describe('admin workspace and settings evidence atomicity',()=>{
 
   test('all privileged RPCs are executable only by service runtime',()=>{
     const sql=read(migration);
+    const privacySql=read(privacyMigration);
     for(const name of [
       'admin_mutate_office_workspace_v2',
       'platform_mutate_webshop_config_v3',
@@ -76,5 +84,7 @@ describe('admin workspace and settings evidence atomicity',()=>{
       expect(sql).toContain(`revoke all on function public.${name}`);
       expect(sql).toMatch(new RegExp(`grant execute on function public\\.${name}[\\s\\S]{0,220}to service_role`));
     }
+    expect(privacySql).toContain('revoke all on function public.admin_mutate_office_privacy_v1');
+    expect(privacySql).toContain('grant execute on function public.admin_mutate_office_privacy_v1(uuid,uuid,text,jsonb) to service_role');
   });
 });
