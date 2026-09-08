@@ -15,7 +15,7 @@ function PendingSpinner(){
   </svg>;
 }
 
-export function OfficeCustomerEmailForm({threadId,sendingConfigured,initialDraft}:{threadId:string;sendingConfigured:boolean;initialDraft?:{id:string;body:string}}){
+export function OfficeCustomerEmailForm({threadId,sendingConfigured=false,initialDraft}:{threadId:string;sendingConfigured?:boolean;initialDraft?:{id:string;body:string}}){
   const[body,setBody]=useState(initialDraft?.body??'');
   const[draftId,setDraftId]=useState(initialDraft?.id??'');
   const[state,setState]=useState<OfficeComposerActionState>(officeComposerInitialState);
