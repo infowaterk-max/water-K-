@@ -23,6 +23,13 @@ function plusReplyAddress(baseAddress:string,replyToken:string){
   if(at<=0||at===normalized.length-1||!uuidPattern.test(replyToken))throw new Error('OFFICE_REPLY_MAILBOX_INVALID');
   return `${normalized.slice(0,at)}+${replyToken}@${normalized.slice(at+1)}`;
 }
+function subjectForJob(job:ClaimedJob,templateSubject:string,brandName:string){
+  if(job.template_key==='support_reply'){
+    const manual=typeof job.payload?.emailSubject==='string'?job.payload.emailSubject.trim():'';
+    if(manual)return manual.slice(0,300);
+  }
+  return brandedSubject(templateSubject,brandName);
+}
 async function resolveOfficeReplyTo(admin:ReturnType<typeof createAdminClient>,instanceId:string,job:ClaimedJob){
   if(job.template_key!=='support_reply')return null;
   const threadId=typeof job.payload?.officeThreadId==='string'?job.payload.officeThreadId.trim():'';
@@ -85,7 +92,7 @@ async function runForInstance(instanceId:string,limit:number):Promise<WorkerSumm
             }
           }
           const replyTo=await resolveOfficeReplyTo(admin,instanceId,job);
-          const result=await provider.send({to:job.recipient_email,subject:brandedSubject(template.subject,identity.brandName),templateKey:job.template_key,purpose:job.purpose,payload:job.payload??{},identity,replyTo});
+          const result=await provider.send({to:job.recipient_email,subject:subjectForJob(job,template.subject,identity.brandName),templateKey:job.template_key,purpose:job.purpose,payload:job.payload??{},identity,replyTo});
           const{data:completed,error:completeError}=await admin.rpc('complete_communication_job_v2',{p_instance_id:instanceId,p_id:job.id,p_claim_token:job.claim_token,p_provider_message_id:result.providerMessageId});
           if(completeError||completed!==true)throw completeError??new Error('COMMUNICATION_CLAIM_LOST');
           if(job.template_key==='stock_available')await admin.from('stock_notifications').update({status:'sent',sent_at:new Date().toISOString()}).eq('communication_job_id',job.id).eq('instance_id',instanceId);

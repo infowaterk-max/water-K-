@@ -8,7 +8,7 @@ export const STORE_CAPABILITY_CODES=[
   'returns.view','returns.manage',
   'refunds.view','refunds.initiate','refunds.approve',
   'quotes.view','quotes.create','quotes.edit','quotes.send','quotes.approve',
-  'office.thread.read','office.thread.reply','office.internal_chat','office.shared_inbox','office.takeover','office.mailbox.manage',
+  'office.thread.read','office.thread.reply','office.email.compose','office.internal_chat','office.shared_inbox','office.takeover','office.mailbox.manage',
   'catalog.view','catalog.manage','marketing.view','marketing.manage','analytics.view','settings.manage',
 ] as const;
 
