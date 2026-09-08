@@ -25,7 +25,7 @@ describe('campaign and office workspace mutation safety',()=>{
    expect(page).toContain('!isPrivate&&canAct&&<form action={updateThreadAction}');
    expect(page).toContain('canAct&&(isUnread||hasUnseenMention)&&<form action={markThreadReadAction}');
    expect(page).toContain('canAct&&isThreadOwner&&<>');
-   expect(page).toContain('? canAct&&<form action={addPrivateMessageAction}');
+   expect(page).toContain('? canAct&&<OfficePrivateMessageForm');
    expect(page).toContain(': canAct?<>');
    expect(page).toContain('<form action={createTaskAction}');
    expect(page).toContain('Üzenetküldés átmenetileg letiltva.');
