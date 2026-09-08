@@ -64,7 +64,7 @@ describe('Digital Office privacy foundation',()=>{
     expect(page).toContain(".in('thread_id',threadIds)");
     expect(page).toContain("name=\"assigneeUserId\"");
     expect(page).toContain('createPrivateThreadAction');
-    expect(page).toContain('addPrivateMessageAction');
+    expect(page).toContain('OfficePrivateMessageForm');
     expect(actions).toContain("action:'update_customer_thread'");
     expect(actions).toContain("action:'mark_read'");
     expect(actions).toContain("action:'create_internal_thread'");
