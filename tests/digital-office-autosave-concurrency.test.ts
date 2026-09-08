@@ -43,8 +43,8 @@ describe('Digital Office autosave and concurrency contract',()=>{
     expect(revisionMigration).toContain("'saveMode',v_save_mode");
   });
 
-  it('passes expected revision through service actions and exposes a distinct conflict state',()=>{
-    expect(actions).toContain("db.rpc('admin_mutate_office_draft_v2'");
+  it('passes expected revision through the current envelope-aware service action and exposes a distinct conflict state',()=>{
+    expect(actions).toContain("db.rpc('admin_mutate_office_draft_v3'");
     expect(actions).toContain('draftId,expectedRevision:revision,saveMode');
     expect(actions).toContain('payload:{draftId,expectedRevision:revision}');
     expect(actions).toContain("persistNewEmailDraft(formData,'autosave')");
@@ -67,12 +67,12 @@ describe('Digital Office autosave and concurrency contract',()=>{
     expect(hook).not.toContain('if(followUp&&!haltedRef.current');
   });
 
-  it('restores revisions for new-email and author-private reply drafts',()=>{
-    expect(newPage).toContain("select('id,revision,to_email,subject,body,updated_at')");
+  it('restores revisions and recipient envelopes for new-email and author-private reply drafts',()=>{
+    expect(newPage).toContain("select('id,revision,to_email,cc_emails,bcc_emails,subject,body,updated_at')");
     expect(newPage).toContain('revision:draft.revision');
     expect(workspace).toContain(".eq('instance_id',scope.instanceId).eq('author_user_id',actor.id).eq('draft_type','reply')");
-    expect(workspace).toContain("select('id,thread_id,body,revision,updated_at')");
-    expect(workspace).toContain('initialDraft={replyDraft?{id:replyDraft.id,revision:replyDraft.revision,body:replyDraft.body}:undefined}');
+    expect(workspace).toContain("select('id,thread_id,body,cc_emails,bcc_emails,revision,updated_at')");
+    expect(workspace).toContain('initialDraft={replyDraft?{id:replyDraft.id,revision:replyDraft.revision,ccEmails:replyDraft.cc_emails??[],bccEmails:replyDraft.bcc_emails??[],body:replyDraft.body}:undefined}');
   });
 
   it('keeps typing responsive during background autosave and blocks sending on conflict or missing mailbox readiness',()=>{
