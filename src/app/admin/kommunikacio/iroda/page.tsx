@@ -247,7 +247,7 @@ export default async function OfficeWorkspace({searchParams}:{searchParams:Promi
     </div>}
     {loadError&&<div className="errorNotice" role="alert">
       <strong>A Team Chat foundation adatainak egy része most nem tölthető be.</strong>
-      <p>Hiányos mention-, participant- vagy objektumlink-adatok mellett a privát chat módosításait biztonsági okból letiltjuk.</p>
+      <p>Hiányos adatok mellett a nulla és üres állapotokat ne tekintsd véglegesnek. Hiányos mention-, participant- vagy objektumlink-adatok mellett a privát chat módosításait biztonsági okból letiltjuk.</p>
     </div>}
 
     <div className="cards adminMetricCards">
@@ -362,12 +362,12 @@ export default async function OfficeWorkspace({searchParams}:{searchParams:Promi
                 const messageMentions=mentions.filter(mention=>mention.message_id===message.id);
                 const messageObjectLinks=objectLinks.filter(link=>link.message_id===message.id);
                 return <div key={message.id}>
-                  <span>
+                  <div>
                     <strong>{kindLabel[message.kind]??message.kind}</strong>{message.author_id&&<span className="muted"> · {profileMap.get(message.author_id)?.full_name||profileMap.get(message.author_id)?.email||shortId(message.author_id)}</span>}
                     {message.subject&&<><br/>{message.subject}</>}<br/><span className="muted" style={{whiteSpace:'pre-wrap'}}>{message.body}</span>
                     {messageMentions.length>0&&<div className="adminToolbar">{messageMentions.map(mention=><span className="badge" key={mention.mentioned_user_id}>@{profileMap.get(mention.mentioned_user_id)?.full_name||profileMap.get(mention.mentioned_user_id)?.email||shortId(mention.mentioned_user_id)}{mention.mentioned_user_id===actor.id&&!mention.seen_at?' · új':''}</span>)}</div>}
                     {messageObjectLinks.map(renderObjectCard)}
-                  </span>
+                  </div>
                   <span className="muted">{job?jobLabel[job.status]??job.status:new Intl.DateTimeFormat('hu-HU',{dateStyle:'short',timeStyle:'short',timeZone:'Europe/Budapest'}).format(new Date(message.created_at))}</span>
                 </div>;
               })}
