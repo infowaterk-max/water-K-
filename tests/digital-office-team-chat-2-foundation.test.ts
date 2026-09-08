@@ -7,6 +7,7 @@ const read=(file:string)=>readFileSync(join(root,file),'utf8');
 
 describe('Digital Office Team Chat 2 foundation',()=>{
   const migration=read('supabase/migrations/20260908065000_digital_office_team_chat_2_foundation_v1.sql');
+  const integrity=read('supabase/migrations/20260908065100_digital_office_team_chat_2_integrity_v1.sql');
   const actions=read('src/app/admin/kommunikacio/iroda/actions.ts');
   const page=read('src/app/admin/kommunikacio/iroda/page.tsx');
 
@@ -71,6 +72,17 @@ describe('Digital Office Team Chat 2 foundation',()=>{
     expect(migration).toContain("'hasObjectLink',v_object_linked");
   });
 
+  it('enforces mention and object integrity even below the RPC boundary',()=>{
+    expect(integrity).toContain('office_message_mentions_integrity');
+    expect(integrity).toContain('office_message_object_links_integrity');
+    expect(integrity).toContain("v_message.kind<>'internal'");
+    expect(integrity).toContain('v_message.author_id is distinct from new.mentioned_by');
+    expect(integrity).toContain('not public.can_read_office_thread_v1(new.instance_id,new.thread_id,new.mentioned_user_id)');
+    expect(integrity).toContain('v_message.author_id is distinct from new.created_by');
+    expect(integrity).toContain('not private.office_chat_object_exists_v1(new.instance_id,new.object_type,new.object_id)');
+    expect(integrity).toContain("v_thread.conversation_type not in ('internal_private','internal_group')");
+  });
+
   it('uses the Team Chat v2 RPC for private messages, membership and read/mention acknowledgement',()=>{
     expect(actions).toContain("db.rpc('admin_mutate_office_team_chat_v2'");
     expect(actions).toContain("action:'create_internal_thread'");
@@ -88,11 +100,17 @@ describe('Digital Office Team Chat 2 foundation',()=>{
     expect(page).toContain('mentionError||objectLinkError');
     expect(page).toContain('const canAct=!loadError&&!privacyFallback');
     expect(page).toContain('Team Chat foundation adatainak egy része most nem tölthető be.');
+    expect(page).toContain('Hiányos adatok mellett a nulla és üres állapotokat ne tekintsd véglegesnek.');
     expect(page).toContain('privát chat módosításait biztonsági okból letiltjuk');
   });
 
+  it('keeps block-level mention and object cards out of inline spans',()=>{
+    expect(page).toContain('return <div key={message.id}>\n                  <div>');
+    expect(page).not.toContain('return <div key={message.id}>\n                  <span>\n                    <strong>{kindLabel');
+  });
+
   it('does not activate unrelated email, mailbox, storage or AI behavior',()=>{
-    const lower=migration.toLowerCase();
+    const lower=(migration+'\n'+integrity).toLowerCase();
     expect(lower).not.toContain('office_mailboxes');
     expect(lower).not.toContain('email_from');
     expect(lower).not.toContain('storage.buckets');
