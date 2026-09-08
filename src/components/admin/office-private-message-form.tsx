@@ -13,28 +13,27 @@ import{
 
 type Option={value:string;label:string};
 type MentionOption={userId:string;label:string};
-
-type Props={
-  threadId:string;
-  mentionOptions:MentionOption[];
-  objectOptions:Option[];
-};
-
+type Props={threadId:string;mentionOptions:MentionOption[];objectOptions:Option[]};
 type ApiError={error?:string};
 type PrepareResponse={ok?:boolean;uploads?:OfficePrivateAttachmentUploadReservation[];error?:string};
-type ScannerStatusResponse={attachmentsEnabled?:boolean};
-
+type AttachmentAvailabilityReason='ready'|'pro_required'|'scanner_unavailable'|'forbidden'|'unknown';
+type ScannerStatusResponse={attachmentsEnabled?:boolean;reason?:AttachmentAvailabilityReason};
 type Phase='idle'|'uploading'|'scanning'|'finalizing';
-let scannerAvailabilityPromise:Promise<boolean>|null=null;
+
+type AttachmentAvailability={enabled:boolean;reason:AttachmentAvailabilityReason};
+let scannerAvailabilityPromise:Promise<AttachmentAvailability>|null=null;
 
 function scannerAvailability(){
   if(!scannerAvailabilityPromise){
     scannerAvailabilityPromise=fetch('/api/admin/office/attachments/status',{cache:'no-store'})
       .then(async response=>{
         const payload=(await response.json().catch(()=>({})))as ScannerStatusResponse;
-        return response.ok&&payload.attachmentsEnabled===true;
+        return{
+          enabled:response.ok&&payload.attachmentsEnabled===true,
+          reason:payload.reason??'unknown',
+        };
       })
-      .catch(()=>false);
+      .catch(()=>({enabled:false,reason:'unknown' as const}));
   }
   return scannerAvailabilityPromise;
 }
@@ -65,19 +64,27 @@ function phaseLabel(phase:Phase){
   return'Belső üzenet küldése';
 }
 
+function attachmentHelp(checked:boolean,availability:AttachmentAvailability){
+  if(!checked)return'A csatolmány biztonsági rendszerének állapotát ellenőrizzük…';
+  if(availability.enabled)return'Legfeljebb 5 fájl, fájlonként 10 MB. Kép, PDF, TXT, CSV, DOCX vagy XLSX. A fájl először privát karanténba kerül, és csak fájlszignatúra- + vírusellenőrzés után csatolható az üzenethez.';
+  if(availability.reason==='pro_required')return'A biztonságos fájlcsatolmányok a Pro csomag Team Chat 2.1 funkciói. A Team Chat szöveges használata az Alap csomagban is elérhető.';
+  if(availability.reason==='scanner_unavailable')return'A Pro csatolmányküldés a biztonsági scanner jóváhagyásáig és konfigurálásáig le van tiltva. Szöveges belső üzenetet továbbra is küldhetsz.';
+  return'A csatolmányküldés jelenleg nem érhető el. Szöveges belső üzenetet továbbra is küldhetsz.';
+}
+
 export function OfficePrivateMessageForm({threadId,mentionOptions,objectOptions}:Props){
   const router=useRouter();
   const[busy,setBusy]=useState(false);
   const[phase,setPhase]=useState<Phase>('idle');
   const[message,setMessage]=useState<string|null>(null);
-  const[attachmentsEnabled,setAttachmentsEnabled]=useState(false);
+  const[availability,setAvailability]=useState<AttachmentAvailability>({enabled:false,reason:'unknown'});
   const[scannerChecked,setScannerChecked]=useState(false);
 
   useEffect(()=>{
     let active=true;
-    scannerAvailability().then(enabled=>{
+    scannerAvailability().then(result=>{
       if(!active)return;
-      setAttachmentsEnabled(enabled);
+      setAvailability(result);
       setScannerChecked(true);
     });
     return()=>{active=false};
@@ -91,7 +98,7 @@ export function OfficePrivateMessageForm({threadId,mentionOptions,objectOptions}
     const body=String(data.get('body')??'').trim();
     const mentionUserIds=[...new Set(data.getAll('mentionUserId').map(value=>String(value)).filter(Boolean))].slice(0,10);
     const object=objectFromRef(String(data.get('objectRef')??''));
-    const files=attachmentsEnabled?data.getAll('attachment').filter((value):value is File=>value instanceof File&&value.size>0):[];
+    const files=availability.enabled?data.getAll('attachment').filter((value):value is File=>value instanceof File&&value.size>0):[];
     if(!body){setMessage('Írj üzenetet a küldéshez.');return}
     if(!object){setMessage('A kapcsolt üzleti objektum adata érvénytelen.');return}
     const problem=fileProblem(files);
@@ -104,57 +111,44 @@ export function OfficePrivateMessageForm({threadId,mentionOptions,objectOptions}
       if(files.length){
         setPhase('uploading');
         const prepareResponse=await fetch('/api/admin/office/attachments/prepare',{
-          method:'POST',
-          headers:{'Content-Type':'application/json'},
-          body:JSON.stringify({
-            threadId,
-            files:files.map(file=>({name:file.name,contentType:file.type,size:file.size})),
-          }),
+          method:'POST',headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({threadId,files:files.map(file=>({name:file.name,contentType:file.type,size:file.size}))}),
         });
         const prepared=(await prepareResponse.json().catch(()=>({})))as PrepareResponse;
-        if(!prepareResponse.ok||!prepared.uploads||prepared.uploads.length!==files.length){
-          throw new Error(prepared.error||'A csatolmányok biztonságos feltöltése nem készíthető elő.');
-        }
+        if(!prepareResponse.ok||!prepared.uploads||prepared.uploads.length!==files.length)throw new Error(prepared.error||'A csatolmányok biztonságos feltöltése nem készíthető elő.');
 
         const supabase=createClient();
         for(let index=0;index<files.length;index+=1){
-          const file=files[index];
-          const upload=prepared.uploads[index];
-          const{error}=await supabase.storage.from(OFFICE_PRIVATE_ATTACHMENT_BUCKET).uploadToSignedUrl(
-            upload.path,
-            upload.token,
-            file,
-            {contentType:file.type},
-          );
+          const file=files[index],upload=prepared.uploads[index];
+          const{error}=await supabase.storage.from(OFFICE_PRIVATE_ATTACHMENT_BUCKET).uploadToSignedUrl(upload.path,upload.token,file,{contentType:file.type});
           if(error)throw new Error(`${file.name}: a feltöltés nem sikerült.`);
         }
         attachmentIds=prepared.uploads.map(upload=>upload.attachmentId);
 
         setPhase('scanning');
         const scanResponse=await fetch('/api/admin/office/attachments/scan',{
-          method:'POST',
-          headers:{'Content-Type':'application/json'},
-          body:JSON.stringify({threadId,attachmentIds}),
+          method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({threadId,attachmentIds}),
         });
         const scanned=(await scanResponse.json().catch(()=>({})))as ApiError;
         if(!scanResponse.ok)throw new Error(scanned.error||'A csatolmány biztonsági ellenőrzése nem sikerült. A fájl nem küldhető el.');
       }
 
       setPhase('finalizing');
-      const finalizeResponse=await fetch('/api/admin/office/attachments/finalize',{
-        method:'POST',
-        headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({
-          threadId,
-          body,
-          mentionUserIds,
-          objectType:object.objectType,
-          objectId:object.objectId,
-          attachmentIds,
-        }),
-      });
-      const finalized=(await finalizeResponse.json().catch(()=>({})))as ApiError;
-      if(!finalizeResponse.ok)throw new Error(finalized.error||'A privát üzenet nem véglegesíthető.');
+      if(attachmentIds.length){
+        const finalizeResponse=await fetch('/api/admin/office/attachments/finalize',{
+          method:'POST',headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({threadId,body,mentionUserIds,objectType:object.objectType,objectId:object.objectId,attachmentIds}),
+        });
+        const finalized=(await finalizeResponse.json().catch(()=>({})))as ApiError;
+        if(!finalizeResponse.ok)throw new Error(finalized.error||'A privát üzenet nem véglegesíthető.');
+      }else{
+        const textResponse=await fetch('/api/admin/office/chat/message',{
+          method:'POST',headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({threadId,body,mentionUserIds,objectType:object.objectType,objectId:object.objectId}),
+        });
+        const sent=(await textResponse.json().catch(()=>({})))as ApiError;
+        if(!textResponse.ok)throw new Error(sent.error||'A belső üzenet nem küldhető el.');
+      }
 
       form.reset();
       setMessage(files.length?'Az üzenet és a tisztának minősített csatolmányok elküldve.':'Az üzenet elküldve.');
@@ -162,8 +156,7 @@ export function OfficePrivateMessageForm({threadId,mentionOptions,objectOptions}
     }catch(error){
       setMessage(error instanceof Error?error.message:'A privát üzenet küldése nem sikerült.');
     }finally{
-      setBusy(false);
-      setPhase('idle');
+      setBusy(false);setPhase('idle');
     }
   }
 
@@ -171,7 +164,7 @@ export function OfficePrivateMessageForm({threadId,mentionOptions,objectOptions}
     <input type="hidden" name="threadId" value={threadId}/>
     {mentionOptions.length>0&&<label><span>@ Említés</span><select name="mentionUserId" multiple size={Math.min(5,Math.max(2,mentionOptions.length))}>{mentionOptions.map(option=><option key={option.userId} value={option.userId}>{option.label}</option>)}</select></label>}
     <label className="stackForm"><span>Kapcsolt üzleti objektum</span><select name="objectRef" defaultValue=""><option value="">Nincs kapcsolt objektum</option>{objectOptions.map(option=><option key={option.value} value={option.value}>{option.label}</option>)}</select></label>
-    <label className="stackForm"><span>Csatolmányok</span><input name="attachment" type="file" multiple accept={OFFICE_PRIVATE_ATTACHMENT_MIME_TYPES.join(',')} disabled={!attachmentsEnabled||busy}/><span className="muted">{attachmentsEnabled?'Legfeljebb 5 fájl, fájlonként 10 MB. Kép, PDF, TXT, CSV, DOCX vagy XLSX. A fájl először privát karanténba kerül, és csak fájlszignatúra- + vírusellenőrzés után csatolható az üzenethez.':scannerChecked?'A csatolmányküldés biztonsági scanner jóváhagyásáig és konfigurálásáig le van tiltva. Szöveges belső üzenetet továbbra is küldhetsz.':'A csatolmány biztonsági rendszerének állapotát ellenőrizzük…'}</span></label>
+    <label className="stackForm"><span>Csatolmányok {availability.reason==='pro_required'?'· Pro':''}</span><input name="attachment" type="file" multiple accept={OFFICE_PRIVATE_ATTACHMENT_MIME_TYPES.join(',')} disabled={!availability.enabled||busy}/><span className="muted">{attachmentHelp(scannerChecked,availability)}</span></label>
     <textarea name="body" required rows={3} maxLength={10000} placeholder="Privát belső üzenet"/>
     {message&&<p className="muted" role="status">{message}</p>}
     <button className="btn btnGhost" disabled={busy}>{busy?phaseLabel(phase):'Belső üzenet küldése'}</button>
