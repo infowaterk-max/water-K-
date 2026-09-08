@@ -9,6 +9,7 @@ describe('Digital Office attachment quarantine and malware scan gate',()=>{
   const migration=read('supabase/migrations/20260908065600_digital_office_attachment_quarantine_scan_v1.sql');
   const cleanup=read('supabase/migrations/20260908065700_digital_office_attachment_scan_cleanup_hardening_v1.sql');
   const prepare=read('src/app/api/admin/office/attachments/prepare/route.ts');
+  const statusRoute=read('src/app/api/admin/office/attachments/status/route.ts');
   const scanRoute=read('src/app/api/admin/office/attachments/scan/route.ts');
   const scanner=read('src/lib/office/attachment-malware-scanner.ts');
   const inspector=read('src/lib/office/attachment-content-security.ts');
@@ -67,6 +68,19 @@ describe('Digital Office attachment quarantine and malware scan gate',()=>{
     expect(scanRoute).toContain("verdict.status==='unavailable'||verdict.status==='error'");
     expect(scanRoute).toContain("result:'scan_error'");
     expect(scanRoute).toContain('A vírusellenőrző jelenleg nincs biztonságosan konfigurálva vagy nem érhető el.');
+  });
+
+  it('disables attachment UI until an authenticated valid HTTPS scanner configuration exists',()=>{
+    expect(statusRoute).toContain('getAdminRequestUser()');
+    expect(statusRoute).toContain("hasCurrentPlanFeature('officeCommunication')");
+    expect(statusRoute).toContain('requireCurrentStoreContext()');
+    expect(statusRoute).toContain('officeMalwareScannerConfigured()');
+    expect(statusRoute).toContain("'Cache-Control':'no-store'");
+    expect(scanner).toContain("scannerEndpoint()!==null");
+    expect(composer).toContain("fetch('/api/admin/office/attachments/status',{cache:'no-store'})");
+    expect(composer).toContain('disabled={!attachmentsEnabled||busy}');
+    expect(composer).toContain('A csatolmányküldés biztonsági scanner jóváhagyásáig és konfigurálásáig le van tiltva.');
+    expect(composer).toContain('Szöveges belső üzenetet továbbra is küldhetsz.');
   });
 
   it('deletes rejected/infected objects from private storage when possible and otherwise leaves them quarantined',()=>{
