@@ -1,0 +1,115 @@
+import{describe,expect,it}from'vitest';
+import{readFileSync}from'node:fs';
+import{join}from'node:path';
+
+const root=process.cwd();
+const read=(file:string)=>readFileSync(join(root,file),'utf8');
+
+describe('Digital Office private attachments',()=>{
+  const migration=read('supabase/migrations/20260908065300_digital_office_private_attachments_v1.sql');
+  const hardening=read('supabase/migrations/20260908065400_digital_office_private_attachment_failclosed_v1.sql');
+  const prepare=read('src/app/api/admin/office/attachments/prepare/route.ts');
+  const finalize=read('src/app/api/admin/office/attachments/finalize/route.ts');
+  const download=read('src/app/api/admin/office/attachments/[id]/route.ts');
+  const composer=read('src/components/admin/office-private-message-form.tsx');
+  const page=read('src/app/admin/kommunikacio/iroda/page.tsx');
+
+  it('uses one private bucket with bounded file size and MIME types',()=>{
+    expect(migration).toContain("'office-private'");
+    expect(migration).toContain('false,\n  10485760');
+    expect(migration).toContain('public=false');
+    expect(migration).toContain("'application/pdf'");
+    expect(migration).toContain("'image/jpeg'");
+    expect(migration).toContain("'application/vnd.openxmlformats-officedocument.wordprocessingml.document'");
+    expect(migration).not.toContain('public=true');
+  });
+
+  it('keeps attachment metadata service-only behind RLS',()=>{
+    expect(migration).toContain('create table if not exists public.office_message_attachments');
+    expect(migration).toContain('alter table public.office_message_attachments enable row level security');
+    expect(migration).toContain('revoke all on table public.office_message_attachments from public,anon,authenticated');
+    expect(migration).toContain('grant select,insert,update,delete on table public.office_message_attachments to service_role');
+    expect(migration).toContain("status text not null default 'pending'");
+    expect(migration).toContain("status in('pending','ready','revoked')");
+  });
+
+  it('enforces private-thread, tenant path and message scope below RPCs',()=>{
+    expect(migration).toContain('office_attachment_integrity_v1');
+    expect(migration).toContain("v_thread_type not in('internal_private','internal_group')");
+    expect(migration).toContain("v_expected_prefix:=new.instance_id::text||'/'||new.thread_id::text||'/'||new.id::text");
+    expect(migration).toContain("v_message_kind is distinct from 'internal'");
+    expect(migration).toContain("raise exception 'OFFICE_ATTACHMENT_MESSAGE_SCOPE_INVALID'");
+  });
+
+  it('prepares only current participants and fails closed on malformed file metadata',()=>{
+    expect(migration).toContain('admin_prepare_office_private_attachments_v1');
+    expect(hardening).toContain('if not public.can_read_office_thread_v1(p_instance_id,p_thread_id,p_actor)');
+    expect(hardening).toContain("if p_files is null or jsonb_typeof(p_files)<>'array'");
+    expect(hardening).toContain('if v_count is null or v_count<1 or v_count>5');
+    expect(hardening).toContain('if v_size is null or v_size<1 or v_size>10485760');
+    expect(hardening).toContain("v_expires timestamptz:=now()+interval '2 hours'");
+    expect(hardening).toContain("'office.private_attachment_upload_prepared'");
+  });
+
+  it('finalizes message and attachments atomically only after storage evidence and reauthorization',()=>{
+    const finalizeFunction=migration.indexOf('create or replace function public.admin_finalize_office_private_message_v1');
+    const accessCheck=migration.indexOf('if not public.can_read_office_thread_v1(p_instance_id,p_thread_id,p_actor)',finalizeFunction);
+    const storageEvidence=migration.indexOf("from storage.objects\n      where bucket_id='office-private'",accessCheck);
+    const messageMutation=migration.indexOf("public.admin_mutate_office_team_chat_v2(\n    p_instance_id,p_actor,'add_internal_message'",storageEvidence);
+    const readyUpdate=migration.indexOf("set message_id=v_message_id,status='ready'",messageMutation);
+    expect(finalizeFunction).toBeGreaterThan(0);
+    expect(accessCheck).toBeGreaterThan(finalizeFunction);
+    expect(storageEvidence).toBeGreaterThan(accessCheck);
+    expect(messageMutation).toBeGreaterThan(storageEvidence);
+    expect(readyUpdate).toBeGreaterThan(messageMutation);
+    expect(migration).toContain('OFFICE_ATTACHMENT_FINALIZE_EVIDENCE_MISSING');
+    expect(migration).toContain("'office.private_attachments_finalized'");
+  });
+
+  it('authorizes every download against current thread participation and audits it',()=>{
+    expect(migration).toContain('admin_get_office_private_attachment_v1');
+    expect(migration).toContain('public.can_read_office_thread_v1(p_instance_id,v_attachment.thread_id,p_actor)');
+    expect(migration).toContain("'office.private_attachment_download_authorized'");
+    expect(download).toContain("db.rpc('admin_get_office_private_attachment_v1'");
+    expect(download).toContain('createSignedUrl(');
+    expect(download).toContain('OFFICE_PRIVATE_ATTACHMENT_SIGNED_DOWNLOAD_SECONDS');
+    expect(download).toContain("'Cache-Control','no-store, private'");
+    expect(download).not.toContain('getPublicUrl');
+  });
+
+  it('uses signed direct uploads instead of proxying file bodies through server actions',()=>{
+    expect(prepare).toContain("db.rpc('admin_prepare_office_private_attachments_v1'");
+    expect(prepare).toContain('createSignedUploadUrl(item.path)');
+    expect(composer).toContain("fetch('/api/admin/office/attachments/prepare'");
+    expect(composer).toContain('uploadToSignedUrl(');
+    expect(composer).toContain("fetch('/api/admin/office/attachments/finalize'");
+    expect(composer).not.toContain('getPublicUrl');
+    expect(finalize).toContain("db.rpc('admin_finalize_office_private_message_v1'");
+  });
+
+  it('keeps plan, tenant and support authority on every attachment API route',()=>{
+    for(const route of[prepare,finalize,download]){
+      expect(route).toContain("getAdminRequestUser('support.manage')");
+      expect(route).toContain("hasCurrentPlanFeature('officeCommunication')");
+      expect(route).toContain("requireCurrentStoreContext('support.manage')");
+    }
+  });
+
+  it('loads only ready attachments for already-accessible threads and fails closed on read errors',()=>{
+    expect(page).toContain(".in('thread_id',threadIds).eq('status','ready')");
+    expect(page).toContain('mentionError||objectLinkError||attachmentError');
+    expect(page).toContain('/api/admin/office/attachments/${attachment.id}');
+    expect(page).toContain('OfficePrivateMessageForm');
+    expect(page).not.toContain('storage/v1/object/public');
+  });
+
+  it('does not enable customer-email attachment, mailbox or AI behavior',()=>{
+    const all=(migration+'\n'+hardening+'\n'+prepare+'\n'+finalize+'\n'+download+'\n'+composer).toLowerCase();
+    expect(all).not.toContain('office_mailboxes');
+    expect(all).not.toContain('gmail');
+    expect(all).not.toContain('microsoft graph');
+    expect(all).not.toContain('openai');
+    expect(all).not.toContain('anthropic');
+    expect(migration).toContain('No customer-email attachment behavior is activated here.');
+  });
+});
