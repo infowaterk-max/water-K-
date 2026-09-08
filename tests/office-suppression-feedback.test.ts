@@ -6,16 +6,17 @@ const root=process.cwd(),read=(file:string)=>fs.readFileSync(path.join(root,file
 
 describe('Digital Office suppression feedback',()=>{
   test('suppressed customer e-mail is rendered as an inline blocked state instead of the global error boundary',()=>{
-    const actions=read('src/app/admin/kommunikacio/iroda/actions.ts');
+    const actions=read('src/app/admin/kommunikacio/iroda/composer-actions.ts');
     const form=read('src/components/admin/office-customer-email-form.tsx');
     const page=read('src/app/admin/kommunikacio/iroda/page.tsx');
-    expect(actions).toContain("error.reason.includes('recipient suppressed')");
+    expect(actions).toContain("reason.includes('recipient suppressed')");
     expect(actions).toContain('Ez az e-mail-cím kommunikációs tiltólistán van, ezért az üzenet nem küldhető.');
-    expect(form).toContain('useActionState');
+    expect(form).toContain('useState<OfficeComposerActionState>');
     expect(form).toContain('value={body}');
     expect(form).toContain('disabled={pending');
-    expect(form).toContain('Küldés…');
+    expect(form).toContain('Feldolgozás…');
     expect(form).toContain('animateTransform');
+    expect(form).toContain("state.status==='blocked'||state.status==='error'");
     expect(page).toContain('<OfficeCustomerEmailForm threadId={thread.id}/>');
     expect(page).not.toContain('action={sendCustomerEmailAction}');
   });
