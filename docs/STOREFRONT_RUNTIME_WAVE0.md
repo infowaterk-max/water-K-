@@ -159,7 +159,7 @@ The current production baseline still has one reviewed customer-baseline migrati
 
 ## CI evidence
 
-Wave 0C code head `9f191c1b69cde05644b5d85a807c57ae0a436997` passed GitHub CI #1777. The documentation head `bb8f03e97627ceb82e7cfa28e43ebc087839ed8b` passed GitHub CI #1778. Both runs completed security audit, customer baseline guard, quality tests, TypeScript, production build and release manifest successfully. Fresh Install proof remains intentionally skipped until the ordered customer-baseline sequence is reconciled.
+Wave 0C implementation head `9f191c1b69cde05644b5d85a807c57ae0a436997` passed GitHub CI #1777. The first Wave 0C documentation head `bb8f03e97627ceb82e7cfa28e43ebc087839ed8b` passed GitHub CI #1778. Both runs completed security audit, customer baseline guard, quality tests, TypeScript, production build and release manifest successfully. Fresh Install proof remains intentionally skipped until the ordered customer-baseline sequence is reconciled.
 
 ## Explicit non-scope through Wave 0C
 
