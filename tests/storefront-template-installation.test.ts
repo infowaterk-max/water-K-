@@ -11,6 +11,7 @@ import {
   materializeStorefrontDemoContent,
   planStorefrontTemplateInstallation,
   retireStorefrontDemoContent,
+  type StorefrontDemoContentRecord,
   type StorefrontInstallableTemplatePackage,
 } from '@/lib/builder/storefront-template-installation';
 
@@ -78,18 +79,21 @@ describe('storefront template installation foundation',()=>{
 
   it('materializes deterministic stable storefront page keys without mutating the source package',()=>{
     const sourcePageKey=STOREFRONT_NEUTRAL_REFERENCE_PACKAGE.pages[0]?.pageKey;
-    const plan=planStorefrontTemplateInstallation({
+    const input={
       template:STOREFRONT_NEUTRAL_REFERENCE_PACKAGE,
       componentRegistry:createStorefrontPrimitiveComponentRegistry(),
-      capability:{plan:'alap',features:[]},
-    });
-    expect(plan.mode).toBe('install');
-    expect(plan.pages).toHaveLength(1);
-    expect(plan.pages[0]?.pageKey).toBe('home');
-    expect(plan.pages[0]?.sourcePageKey).toBe('reference.home');
-    expect(plan.pages[0]?.document.pageKey).toBe('home');
-    expect(plan.pages[0]?.document.templateKey).toBe('reference.neutral');
-    expect(plan.pages[0]?.document.metadata).toMatchObject({
+      capability:{plan:'alap' as const,features:[] as const},
+    };
+    const first=planStorefrontTemplateInstallation(input);
+    const second=planStorefrontTemplateInstallation(input);
+    expect(first).toEqual(second);
+    expect(first.mode).toBe('install');
+    expect(first.pages).toHaveLength(1);
+    expect(first.pages[0]?.pageKey).toBe('home');
+    expect(first.pages[0]?.sourcePageKey).toBe('reference.home');
+    expect(first.pages[0]?.document.pageKey).toBe('home');
+    expect(first.pages[0]?.document.templateKey).toBe('reference.neutral');
+    expect(first.pages[0]?.document.metadata).toMatchObject({
       templatePresetPageKey:'reference.home',
       demoNamespace:'reference-neutral',
     });
@@ -121,6 +125,23 @@ describe('storefront template installation foundation',()=>{
     expect(plan.mutationBoundary.orders).toBe(false);
   });
 
+  it('ignores unrelated page types when deciding whether the incoming template is an install or switch',()=>{
+    const plan=planStorefrontTemplateInstallation({
+      template:STOREFRONT_NEUTRAL_REFERENCE_PACKAGE,
+      componentRegistry:createStorefrontPrimitiveComponentRegistry(),
+      capability:{plan:'alap',features:[]},
+      existingPages:[{
+        pageKey:'legal',
+        pageType:'legal',
+        draftRevision:2,
+        draftTemplateKey:'legacy.template',
+        draftTemplateVersion:9,
+      }],
+    });
+    expect(plan.mode).toBe('install');
+    expect(plan.untouchedExistingPageKeys).toEqual(['legal']);
+  });
+
   it('does not delete existing page heads that the incoming package does not materialize',()=>{
     const plan=planStorefrontTemplateInstallation({
       template:STOREFRONT_NEUTRAL_REFERENCE_PACKAGE,
@@ -146,6 +167,25 @@ describe('storefront template installation foundation',()=>{
     const retired=retireStorefrontDemoContent(adopted,'reference-neutral');
     expect(retired.find(record=>record.entityKey==='hero-product')?.state).toBe('adopted');
     expect(retired.find(record=>record.entityKey==='intro-story')?.state).toBe('retired');
+  });
+
+  it('preserves adopted target demo content and retires only stale fixture namespaces during planning',()=>{
+    const currentDemo:StorefrontDemoContentRecord[]=[
+      {namespace:'reference-neutral',namespacedKey:'reference-neutral:product:hero-product',entityType:'product',entityKey:'hero-product',state:'adopted',payload:{name:'Merchant-owned name'}},
+      {namespace:'legacy-demo',namespacedKey:'legacy-demo:content:old-story',entityType:'content',entityKey:'old-story',state:'fixture',payload:{title:'Old fixture'}},
+      {namespace:'legacy-demo',namespacedKey:'legacy-demo:product:kept',entityType:'product',entityKey:'kept',state:'adopted',payload:{name:'Kept'}},
+    ];
+    const plan=planStorefrontTemplateInstallation({
+      template:demoPackage(),
+      componentRegistry:createStorefrontPrimitiveComponentRegistry(),
+      capability:{plan:'alap',features:[]},
+      currentDemoContent:currentDemo,
+    });
+    expect(plan.demoLifecycle.install.map(record=>record.namespacedKey)).toEqual(['reference-neutral:content:intro-story']);
+    expect(plan.demoLifecycle.retire).toEqual([
+      expect.objectContaining({namespacedKey:'legacy-demo:content:old-story',state:'retired'}),
+    ]);
+    expect(plan.demoLifecycle.retire.some(record=>record.namespacedKey==='legacy-demo:product:kept')).toBe(false);
   });
 
   it('rejects duplicate demo fixture identities and unknown explicit adoption keys',()=>{
