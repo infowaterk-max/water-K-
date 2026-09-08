@@ -26,17 +26,15 @@ async function access(){
   return{db:createAdminClient(),userId:actor.id,instanceId:scope.instanceId};
 }
 
+function rpcError(error:{code?:string|null;message?:string|null;details?:string|null;hint?:string|null}){
+  return new OfficeMutationError([error.code,error.message,error.details,error.hint].filter(Boolean).join(' '));
+}
+
 async function mutateOffice(db:ReturnType<typeof createAdminClient>,input:{instanceId:string;userId:string;action:string;payload:Record<string,unknown>}){
   const{data,error}=await db.rpc('admin_mutate_office_workspace_v2',{
-    p_instance_id:input.instanceId,
-    p_actor:input.userId,
-    p_action:input.action,
-    p_payload:input.payload,
+    p_instance_id:input.instanceId,p_actor:input.userId,p_action:input.action,p_payload:input.payload,
   });
-  if(error){
-    const reason=[error.code,error.message,error.details,error.hint].filter(Boolean).join(' ');
-    throw new OfficeMutationError(reason);
-  }
+  if(error)throw rpcError(error);
   const result=(data??{})as{id?:string;threadId?:string;taskId?:string;jobId?:string};
   if(!result.id&&!result.threadId&&!result.taskId&&!result.jobId)throw new Error('A Digitális iroda műveletének eredménye nem igazolható.');
   return result;
@@ -44,19 +42,25 @@ async function mutateOffice(db:ReturnType<typeof createAdminClient>,input:{insta
 
 async function mutateOfficePrivacy(db:ReturnType<typeof createAdminClient>,input:{instanceId:string;userId:string;action:string;payload:Record<string,unknown>}){
   const{data,error}=await db.rpc('admin_mutate_office_privacy_v1',{
-    p_instance_id:input.instanceId,
-    p_actor:input.userId,
-    p_action:input.action,
-    p_payload:input.payload,
+    p_instance_id:input.instanceId,p_actor:input.userId,p_action:input.action,p_payload:input.payload,
   });
-  if(error){
-    const reason=[error.code,error.message,error.details,error.hint].filter(Boolean).join(' ');
-    throw new OfficeMutationError(reason);
-  }
+  if(error)throw rpcError(error);
   const result=(data??{})as{id?:string;threadId?:string;messageId?:string;userId?:string;participantCount?:number};
   if(!result.id&&!result.threadId&&!result.messageId)throw new Error('A Digitális iroda privacy műveletének eredménye nem igazolható.');
   return result;
 }
+
+async function mutateOfficeCollaboration(db:ReturnType<typeof createAdminClient>,input:{instanceId:string;userId:string;action:string;payload:Record<string,unknown>}){
+  const{data,error}=await db.rpc('admin_mutate_office_collaboration_v1',{
+    p_instance_id:input.instanceId,p_actor:input.userId,p_action:input.action,p_payload:input.payload,
+  });
+  if(error)throw rpcError(error);
+  const result=(data??{})as{id?:string;threadId?:string;messageId?:string;notificationId?:string;mentionCount?:number};
+  if(!result.id&&!result.threadId&&!result.messageId&&!result.notificationId)throw new Error('A Digitális iroda együttműködési műveletének eredménye nem igazolható.');
+  return result;
+}
+
+const mentionIds=(form:FormData)=>[...new Set(form.getAll('mentionUserId').map(value=>String(value).trim()).filter(Boolean))].slice(0,25);
 
 export async function createThreadAction(form:FormData){
   const{db,userId,instanceId}=await access();
@@ -81,39 +85,47 @@ export async function createPrivateThreadAction(form:FormData){
 
 export async function addMessageAction(form:FormData){
   const{db,userId,instanceId}=await access();
-  const threadId=String(form.get('threadId')??'');
+  const threadId=String(form.get('threadId')??'').trim();
   const body=String(form.get('body')??'').trim().slice(0,10000);
   const kind=String(form.get('kind')??'internal');
   if(!threadId||!body||!['internal','note'].includes(kind))return;
-  await mutateOffice(db,{instanceId,userId,action:'add_message',payload:{threadId,body,kind}});
+  await mutateOfficeCollaboration(db,{instanceId,userId,action:'add_message',payload:{threadId,body,kind,mentionUserIds:mentionIds(form)}});
   revalidatePath('/admin/kommunikacio/iroda');
 }
 
 export async function addPrivateMessageAction(form:FormData){
   const{db,userId,instanceId}=await access();
-  const threadId=String(form.get('threadId')??'');
+  const threadId=String(form.get('threadId')??'').trim();
   const body=String(form.get('body')??'').trim().slice(0,10000);
   if(!threadId||!body)return;
-  await mutateOfficePrivacy(db,{instanceId,userId,action:'add_internal_message',payload:{threadId,body}});
+  await mutateOfficeCollaboration(db,{instanceId,userId,action:'add_message',payload:{threadId,body,kind:'internal',mentionUserIds:mentionIds(form)}});
   revalidatePath('/admin/kommunikacio/iroda');
 }
 
 export async function updateThreadAction(form:FormData){
   const{db,userId,instanceId}=await access();
-  const threadId=String(form.get('threadId')??'');
+  const threadId=String(form.get('threadId')??'').trim();
   const status=String(form.get('status')??'open');
   const priority=String(form.get('priority')??'normal');
   const assigneeUserId=String(form.get('assigneeUserId')??'').trim()||null;
   if(!threadId||!['open','closed'].includes(status)||!['low','normal','high','urgent'].includes(priority))return;
-  await mutateOfficePrivacy(db,{instanceId,userId,action:'update_customer_thread',payload:{threadId,status,priority,assigneeUserId}});
+  await mutateOfficeCollaboration(db,{instanceId,userId,action:'update_customer_thread',payload:{threadId,status,priority,assigneeUserId}});
   revalidatePath('/admin/kommunikacio/iroda');
 }
 
 export async function markThreadReadAction(form:FormData){
   const{db,userId,instanceId}=await access();
-  const threadId=String(form.get('threadId')??'');
+  const threadId=String(form.get('threadId')??'').trim();
   if(!threadId)return;
   await mutateOfficePrivacy(db,{instanceId,userId,action:'mark_read',payload:{threadId}});
+  revalidatePath('/admin/kommunikacio/iroda');
+}
+
+export async function markOfficeNotificationReadAction(form:FormData){
+  const{db,userId,instanceId}=await access();
+  const notificationId=String(form.get('notificationId')??'').trim();
+  if(!notificationId)return;
+  await mutateOfficeCollaboration(db,{instanceId,userId,action:'mark_notification_read',payload:{notificationId}});
   revalidatePath('/admin/kommunikacio/iroda');
 }
 
