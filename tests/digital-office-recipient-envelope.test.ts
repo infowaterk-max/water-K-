@@ -7,6 +7,7 @@ const read=(file:string)=>readFileSync(join(root,file),'utf8');
 
 describe('Digital Office recipient envelope and attachment metadata contract',()=>{
   const migration=read('supabase/migrations/20260908054500_digital_office_recipient_envelope_v1.sql');
+  const attachmentIntegrity=read('supabase/migrations/20260908054600_digital_office_attachment_metadata_integrity_v1.sql');
   const actions=read('src/app/admin/kommunikacio/iroda/composer-actions.ts');
   const newComposer=read('src/components/admin/office-new-email-composer.tsx');
   const replyComposer=read('src/components/admin/office-customer-email-form.tsx');
@@ -77,6 +78,18 @@ describe('Digital Office recipient envelope and attachment metadata contract',()
     expect(migration).not.toContain('storage.buckets');
     expect(migration).not.toContain('storage.objects');
     expect(migration).not.toContain('insert into storage');
+    expect(attachmentIntegrity).not.toContain('storage.buckets');
+    expect(attachmentIntegrity).not.toContain('storage.objects');
+  });
+
+  it('cannot mark attachment metadata ready without a real locator and clears locators when deleted',()=>{
+    expect(attachmentIntegrity).toContain('office_attachments_storage_pair_check');
+    expect(attachmentIntegrity).toContain('(storage_bucket is null) = (storage_path is null)');
+    expect(attachmentIntegrity).toContain('office_attachments_ready_locator_check');
+    expect(attachmentIntegrity).toContain("status<>'ready'");
+    expect(attachmentIntegrity).toContain("nullif(trim(provider_attachment_id),'') is not null");
+    expect(attachmentIntegrity).toContain('office_attachments_deleted_locator_check');
+    expect(attachmentIntegrity).toContain("status<>'deleted'");
   });
 
   it('does not expose actual recipient addresses in audit metadata beyond the primary operational recipient already recorded',()=>{
