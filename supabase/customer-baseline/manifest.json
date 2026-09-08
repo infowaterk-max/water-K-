@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "status": "snapshot-reviewed",
+  "status": "ready",
   "legacyMigrationReplay": false,
   "sourcePolicy": "schema-snapshot-only",
   "seedFile": "supabase/customer-baseline/seed.sql",
@@ -8,8 +8,8 @@
   "defaultPlan": "alap",
   "snapshotFile": "supabase/customer-baseline/migrations/0001_shoperation_v1_schema.sql",
   "snapshotCommand": "npm run db:customer:snapshot",
-  "freshInstallProofRequired": true,
-  "notes": "The immutable Shoperation 1.0 snapshot remains the reviewed fresh-customer base. Block 7 adds the first forward customer-baseline migration for B2B account ownership; the expanded proof contract must pass again on an empty disposable Fresh Install project before this lifecycle returns to ready.",
+  "freshInstallProofRequired": false,
+  "notes": "The immutable Shoperation 1.0 snapshot plus ordered Block 7 forward migrations were proven on a genuinely empty disposable Fresh Install project, including public/private schema contamination guards, Auth bootstrap, neutral seed and postflight validation.",
   "authBootstrapFile": "supabase/customer-baseline/auth-bootstrap.sql",
-  "proofContractSha256": null
+  "proofContractSha256": "5fd7f5770af6c78d16504944e938f6a32e238d5ad43ad84b03ee08ba11d586ed"
 }
