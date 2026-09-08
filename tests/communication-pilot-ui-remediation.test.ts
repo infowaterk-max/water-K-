@@ -48,6 +48,11 @@ describe('production pilot communication UI remediation',()=>{
     expect(layout).toContain("import './communication-pilot-fixes.css';");
   });
 
+  test('customer email workspace links to the dedicated send supervision route',()=>{
+    const workspace=read('src/app/admin/kommunikacio/iroda/page.tsx');
+    expect(workspace).toContain('href="/admin/kommunikacio/felugyelet">Küldési felügyelet</Link>');
+  });
+
   test('scheduled communication times are not rendered in the server UTC timezone',()=>{
     const page=read('src/app/admin/kommunikacio/felugyelet/page.tsx');
     const actions=read('src/components/admin/communication-job-actions.tsx');

@@ -125,7 +125,7 @@ export default async function CustomerEmailWorkspace({searchParams}:{searchParam
       </div>
       <div className="adminToolbar">
         {canChat&&<Link className="btn btnGhost" href="/admin/kommunikacio/chat">Team Chat</Link>}
-        <Link className="btn btnGhost" href="/admin/kommunikacio">Küldési felügyelet</Link>
+        <Link className="btn btnGhost" href="/admin/kommunikacio/felugyelet">Küldési felügyelet</Link>
         <Link className="btn btnPrimary" href="/admin/kommunikacio/iroda/uj">Új e-mail</Link>
       </div>
     </div>
