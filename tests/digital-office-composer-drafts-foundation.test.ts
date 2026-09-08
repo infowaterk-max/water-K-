@@ -9,6 +9,7 @@ describe('Digital Office composer and drafts foundation',()=>{
   const migration=read('supabase/migrations/20260908034000_digital_office_composer_drafts_foundation_v1.sql');
   const queueGuard=read('supabase/migrations/20260908034500_digital_office_reply_queue_guard_v1.sql');
   const tenantIntegrity=read('supabase/migrations/20260908034600_digital_office_drafts_tenant_integrity_v1.sql');
+  const envelope=read('supabase/migrations/20260908054500_digital_office_recipient_envelope_v1.sql');
   const capabilities=read('src/lib/auth/store-capabilities.ts');
   const actions=read('src/app/admin/kommunikacio/iroda/composer-actions.ts');
   const newComposer=read('src/components/admin/office-new-email-composer.tsx');
@@ -21,6 +22,7 @@ describe('Digital Office composer and drafts foundation',()=>{
     expect(migration).toContain("'office.email.compose','office','Új ügyfél-e-mail írása'");
     expect(migration).toContain('Intentionally NO write to store_role_permission_presets here');
     expect(migration).not.toContain('insert into public.store_role_permission_presets');
+    expect(envelope).not.toContain('store_role_permission_presets');
     expect(migration).toContain("rb.role_code='owner'");
   });
 
@@ -42,6 +44,7 @@ describe('Digital Office composer and drafts foundation',()=>{
     expect(enqueue).toBeGreaterThan(mailboxCheck);
     expect(migration).toContain('m.is_active=true');
     expect(migration).toContain("if not v_route_exists then raise exception 'OFFICE_EMAIL_ROUTE_MISSING'");
+    expect(envelope).toContain("raise exception 'OFFICE_MAILBOX_NOT_CONFIGURED'");
     expect(queueGuard).toContain('before insert on public.communication_jobs');
     expect(queueGuard).toContain("new.template_key<>'support_reply'");
     expect(queueGuard).toContain("raise exception 'OFFICE_MAILBOX_NOT_CONFIGURED'");
@@ -49,7 +52,7 @@ describe('Digital Office composer and drafts foundation',()=>{
   });
 
   it('does not seed or fall back to an existing webshop email address',()=>{
-    const combined=(migration+'\n'+queueGuard+'\n'+actions+'\n'+newComposer+'\n'+newPage).toLowerCase();
+    const combined=(migration+'\n'+queueGuard+'\n'+envelope+'\n'+actions+'\n'+newComposer+'\n'+newPage).toLowerCase();
     expect(combined).not.toContain('insert into public.office_mailboxes');
     expect(combined).not.toContain('support_email');
     expect(combined).not.toContain('okospolymer');
@@ -65,18 +68,20 @@ describe('Digital Office composer and drafts foundation',()=>{
     expect(newComposer).toContain("disabled={actionPending||draft.status==='conflict'||!sendReady}");
     expect(replyComposer).toContain('sendingConfigured=false');
     expect(replyComposer).toContain('Piszkozat mentése');
-    expect(replyComposer).toContain("disabled={actionPending||draft.status==='conflict'||!meaningful||!sendingConfigured}");
+    expect(replyComposer).toContain("disabled={actionPending||draft.status==='conflict'||!sendReady||!sendingConfigured}");
     expect(newComposer).toContain('initialRevision:initialDraft?.revision??null');
     expect(replyComposer).toContain('initialRevision:initialDraft?.revision??null');
   });
 
-  it('only lets a queue operation consume the exact persisted draft snapshot',()=>{
-    expect(actions).toContain('async function validatedQueueDraftId');
-    expect(actions).toContain("draft.draft_type==='reply'&&draft.thread_id===input.threadId&&draft.body===input.body");
-    expect(actions).toContain("draft.draft_type==='new_email'");
-    expect(actions).toContain('draft.to_email===normalizedRecipient');
-    expect(actions).toContain("draft.subject===(input.subject??'')");
-    expect(actions).toContain('p_draft_id:safeDraftId');
+  it('lets the database queue consume only the exact persisted revision snapshot',()=>{
+    expect(actions).not.toContain('async function validatedQueueDraftId');
+    expect(actions).toContain("db.rpc('admin_queue_office_email_v4'");
+    expect(actions).toContain('draftRevision:input.draftRevision');
+    expect(envelope).toContain('where id=v_draft_id and instance_id=p_instance_id and author_user_id=p_actor and revision=v_draft_revision');
+    expect(envelope).toContain('v_draft.to_email is distinct from v_email');
+    expect(envelope).toContain('v_draft.subject is distinct from v_subject');
+    expect(envelope).toContain('v_draft.body is distinct from v_body');
+    expect(envelope).toContain("then raise exception 'OFFICE_DRAFT_CONFLICT'");
   });
 
   it('only reports draft deletion after database evidence confirms it',()=>{
@@ -88,7 +93,7 @@ describe('Digital Office composer and drafts foundation',()=>{
   });
 
   it('preserves the explicit Office email subject in the worker',()=>{
-    expect(migration).toContain("'emailSubject',v_subject");
+    expect(envelope).toContain("'emailSubject',v_subject");
     expect(worker).toContain('function subjectForJob');
     expect(worker).toContain("job.payload?.emailSubject");
     expect(worker).toContain('subject:subjectForJob(job,template.subject,identity.brandName)');
