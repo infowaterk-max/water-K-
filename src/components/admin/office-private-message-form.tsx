@@ -87,7 +87,7 @@ export function OfficePrivateMessageForm({threadId,mentionOptions,objectOptions}
             upload.path,
             upload.token,
             file,
-            {contentType:file.type,upsert:false},
+            {contentType:file.type},
           );
           if(error)throw new Error(`${file.name}: a feltöltés nem sikerült.`);
         }
