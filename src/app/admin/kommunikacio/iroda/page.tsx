@@ -1,12 +1,12 @@
 import Link from 'next/link';
 import { OfficeCustomerEmailForm } from '@/components/admin/office-customer-email-form';
+import { OfficePrivateMessageForm } from '@/components/admin/office-private-message-form';
 import { getAdminRequestUser } from '@/lib/auth/admin-api';
 import { requirePlanFeature } from '@/lib/plans/access';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { requireCurrentStoreContext } from '@/lib/instances/scope';
 import {
   addMessageAction,
-  addPrivateMessageAction,
   completeTaskAction,
   createPrivateThreadAction,
   createTaskAction,
@@ -41,6 +41,7 @@ type Job={id:string;status:string;last_error:string|null};
 type ThreadParticipant={thread_id:string;user_id:string;participant_role:'owner'|'member';last_read_at:string|null;left_at:string|null};
 type Mention={message_id:string;thread_id:string;mentioned_user_id:string;mentioned_by:string;seen_at:string|null;created_at:string};
 type ObjectLink={id:string;message_id:string;thread_id:string;object_type:'order'|'commercial_offer'|'return_case'|'support_ticket'|'task';object_id:string};
+type Attachment={id:string;message_id:string;thread_id:string;original_name:string;content_type:string;byte_size:number|string;status:'ready'};
 type Binding={user_id:string;role_code:string;instance_id:string|null;valid_until:string|null};
 type Profile={id:string;email:string|null;full_name:string|null};
 type Assignee={userId:string;label:string};
@@ -58,6 +59,13 @@ const supportRoles=new Set(['owner','admin','order_manager','support']);
 const active=(validUntil:string|null)=>!validUntil||Date.parse(validUntil)>Date.now();
 const shortId=(id:string)=>`${id.slice(0,8)}…`;
 const huf=(value:number|string|null)=>new Intl.NumberFormat('hu-HU',{maximumFractionDigits:0}).format(Number(value??0));
+const fileSize=(value:number|string)=>{
+  const bytes=Number(value);
+  if(!Number.isFinite(bytes)||bytes<=0)return'—';
+  if(bytes>=1024*1024)return`${(bytes/(1024*1024)).toFixed(1)} MB`;
+  if(bytes>=1024)return`${Math.round(bytes/1024)} KB`;
+  return`${bytes} B`;
+};
 
 function ObjectSelect({options}:{options:ObjectOption[]}){
   return <label className="stackForm"><span>Kapcsolt üzleti objektum</span><select name="objectRef" defaultValue=""><option value="">Nincs kapcsolt objektum</option>{options.map(option=><option key={option.value} value={option.value}>{option.label}</option>)}</select></label>;
@@ -107,6 +115,10 @@ export default async function OfficeWorkspace({searchParams}:{searchParams:Promi
     ? db.from('office_message_object_links').select('id,message_id,thread_id,object_type,object_id')
       .eq('instance_id',scope.instanceId).in('thread_id',threadIds).order('created_at',{ascending:false}).limit(1500)
     : Promise.resolve({data:[] as ObjectLink[],error:null});
+  const attachmentPromise=threadIds.length
+    ? db.from('office_message_attachments').select('id,message_id,thread_id,original_name,content_type,byte_size,status')
+      .eq('instance_id',scope.instanceId).in('thread_id',threadIds).eq('status','ready').order('created_at',{ascending:false}).limit(1500)
+    : Promise.resolve({data:[] as Attachment[],error:null});
   const taskPromise=db.from('office_tasks').select('id,thread_id,title,status,assigned_to,due_at,created_at')
     .eq('instance_id',scope.instanceId).order('created_at',{ascending:false}).limit(300);
   const orderPromise=db.from('orders').select('id,order_number,customer_email,status')
@@ -130,6 +142,7 @@ export default async function OfficeWorkspace({searchParams}:{searchParams:Promi
     {data:participantData,error:participantError},
     {data:mentionData,error:mentionError},
     {data:objectLinkData,error:objectLinkError},
+    {data:attachmentData,error:attachmentError},
     {data:k,error:taskError},
     {data:o,error:orderError},
     {data:offerData,error:offerError},
@@ -138,7 +151,7 @@ export default async function OfficeWorkspace({searchParams}:{searchParams:Promi
     {data:j,error:jobError},
     {data:bindingData,error:bindingError},
   ]=await Promise.all([
-    messagePromise,participantPromise,mentionPromise,objectLinkPromise,taskPromise,orderPromise,offerPromise,returnPromise,ticketPromise,jobPromise,bindingPromise,
+    messagePromise,participantPromise,mentionPromise,objectLinkPromise,attachmentPromise,taskPromise,orderPromise,offerPromise,returnPromise,ticketPromise,jobPromise,bindingPromise,
   ]);
 
   const messages=(m??[])as Message[];
@@ -147,6 +160,7 @@ export default async function OfficeWorkspace({searchParams}:{searchParams:Promi
   const readMap=new Map(actorReads.map(row=>[row.thread_id,row.last_read_at]));
   const mentions=(mentionData??[])as Mention[];
   const objectLinks=(objectLinkData??[])as ObjectLink[];
+  const attachments=(attachmentData??[])as Attachment[];
   const allTasks=(k??[])as Task[];
   const visibleThreadIds=new Set(threadIds);
   const tasks=allTasks.filter(task=>task.thread_id===null||visibleThreadIds.has(task.thread_id));
@@ -177,7 +191,7 @@ export default async function OfficeWorkspace({searchParams}:{searchParams:Promi
   ];
 
   const loadError=Boolean(
-    threadError||messageError||taskError||orderError||jobError||participantError||mentionError||objectLinkError||offerError||returnError||ticketError||bindingError||profileError
+    threadError||messageError||taskError||orderError||jobError||participantError||mentionError||objectLinkError||attachmentError||offerError||returnError||ticketError||bindingError||profileError
   );
   const privacyFallback=Boolean(accessibleError);
   const canAct=!loadError&&!privacyFallback;
@@ -248,7 +262,7 @@ export default async function OfficeWorkspace({searchParams}:{searchParams:Promi
     </div>}
     {loadError&&<div className="errorNotice" role="alert">
       <strong>A Team Chat foundation adatainak egy része most nem tölthető be.</strong>
-      <p>Hiányos adatok mellett a nulla és üres állapotokat ne tekintsd véglegesnek. Hiányos mention-, participant- vagy objektumlink-adatok mellett a privát chat módosításait biztonsági okból letiltjuk.</p>
+      <p>Hiányos adatok mellett a nulla és üres állapotokat ne tekintsd véglegesnek. Hiányos mention-, participant-, objektumlink- vagy csatolmányadat mellett a privát chat módosításait biztonsági okból letiltjuk.</p>
     </div>}
 
     <div className="cards adminMetricCards">
@@ -317,6 +331,10 @@ export default async function OfficeWorkspace({searchParams}:{searchParams:Promi
           const memberParticipants=threadParticipants.filter(participant=>participant.participant_role==='member');
           const availableParticipants=assignees.filter(member=>member.userId!==actor.id&&!threadParticipants.some(participant=>participant.user_id===member.userId));
           const mentionableParticipants=threadParticipants.filter(participant=>participant.user_id!==actor.id);
+          const mentionOptions=mentionableParticipants.map(participant=>({
+            userId:participant.user_id,
+            label:profileMap.get(participant.user_id)?.full_name||profileMap.get(participant.user_id)?.email||shortId(participant.user_id),
+          }));
           const hasUnseenMention=mentionThreadIds.has(thread.id);
           return <article className="card" key={thread.id}>
             <div className="adminToolbar">
@@ -368,12 +386,14 @@ export default async function OfficeWorkspace({searchParams}:{searchParams:Promi
                 const job=message.communication_job_id?jobMap.get(message.communication_job_id):null;
                 const messageMentions=mentions.filter(mention=>mention.message_id===message.id);
                 const messageObjectLinks=objectLinks.filter(link=>link.message_id===message.id);
+                const messageAttachments=attachments.filter(attachment=>attachment.message_id===message.id);
                 return <div key={message.id}>
                   <div>
                     <strong>{kindLabel[message.kind]??message.kind}</strong>{message.author_id&&<span className="muted"> · {profileMap.get(message.author_id)?.full_name||profileMap.get(message.author_id)?.email||shortId(message.author_id)}</span>}
                     {message.subject&&<><br/>{message.subject}</>}<br/><span className="muted" style={{whiteSpace:'pre-wrap'}}>{message.body}</span>
                     {messageMentions.length>0&&<div className="adminToolbar">{messageMentions.map(mention=><span className="badge" key={mention.mentioned_user_id}>@{profileMap.get(mention.mentioned_user_id)?.full_name||profileMap.get(mention.mentioned_user_id)?.email||shortId(mention.mentioned_user_id)}{mention.mentioned_user_id===actor.id&&!mention.seen_at?' · új':''}</span>)}</div>}
                     {messageObjectLinks.map(renderObjectCard)}
+                    {messageAttachments.length>0&&<div className="adminToolbar">{messageAttachments.map(attachment=><a className="textLink" href={`/api/admin/office/attachments/${attachment.id}`} key={attachment.id}>📎 {attachment.original_name} · {fileSize(attachment.byte_size)}</a>)}</div>}
                   </div>
                   <span className="muted">{job?jobLabel[job.status]??job.status:new Intl.DateTimeFormat('hu-HU',{dateStyle:'short',timeStyle:'short',timeZone:'Europe/Budapest'}).format(new Date(message.created_at))}</span>
                 </div>;
@@ -381,13 +401,7 @@ export default async function OfficeWorkspace({searchParams}:{searchParams:Promi
             </div>
 
             {isPrivate
-              ? canAct&&<form action={addPrivateMessageAction} className="stackForm">
-                  <input type="hidden" name="threadId" value={thread.id}/>
-                  {mentionableParticipants.length>0&&<label><span>@ Említés</span><select name="mentionUserId" multiple size={Math.min(5,Math.max(2,mentionableParticipants.length))}>{mentionableParticipants.map(participant=><option key={participant.user_id} value={participant.user_id}>{profileMap.get(participant.user_id)?.full_name||profileMap.get(participant.user_id)?.email||shortId(participant.user_id)}</option>)}</select></label>}
-                  <ObjectSelect options={objectOptions}/>
-                  <textarea name="body" required rows={2} placeholder="Privát belső üzenet"/>
-                  <button className="btn btnGhost">Belső üzenet küldése</button>
-                </form>
+              ? canAct&&<OfficePrivateMessageForm threadId={thread.id} mentionOptions={mentionOptions} objectOptions={objectOptions}/>
               : canAct?<>
                 <div className="splitFeature">
                   <form action={addMessageAction} className="stackForm"><input type="hidden" name="threadId" value={thread.id}/><select name="kind"><option value="internal">Ügyhöz tartozó belső üzenet</option><option value="note">Jegyzet</option></select><textarea name="body" required rows={2} placeholder="Az ügyön dolgozó csapatnak"/><button className="btn btnGhost">Belső bejegyzés</button></form>
