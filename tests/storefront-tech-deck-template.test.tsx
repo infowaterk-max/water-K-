@@ -83,7 +83,7 @@ describe('Golden #2 Tech Deck + E7 Structured Product',()=>{
 
   it('renders an E7 compare table from the same structured spec model',()=>{
     const comparePage=TECH_DECK_TEMPLATE_PACKAGE.pages.find(page=>page.metadata?.contentRole==='product-compare')!;
-    const html=renderToStaticMarkup(<StorefrontRuntimeRenderer page={comparePage} viewport="desktop" bindingContext={{brand:{name:'Nova Store',homeHref:'/'},navigation:{primary:[],footer:[]},content:{compare:{title:'Nova összehasonlítás'}},commerce:{compare:{products:[{id:'nova',label:'Nova Phone',href:'/termek/nova'},{id:'nova-pro',label:'Nova Phone Pro',href:'/termek/nova-pro'}],groups:compareGroups}}} componentRegistry={createStorefrontStructuredProductComponentRegistry()} rendererRegistry={createStorefrontStructuredProductRendererRegistry()} capability={capability}/>);
+    const html=renderToStaticMarkup(<StorefrontRuntimeRenderer page={comparePage} viewport="desktop" bindingContext={{brand:{name:'Nova Store',homeHref:'/'},navigation:{primary:[],footer:[]},content:{compare:{title:'Nova összehasonlítás'}},commerce:{compare:{products:[{id:'nova',label:'Nova Phone',href:'/termek/nova'},{id:'nova-pro',label:'Nova Phone Pro',href:'/termek/nova-pro'}],groups:compareGroups}}}} componentRegistry={createStorefrontStructuredProductComponentRegistry()} rendererRegistry={createStorefrontStructuredProductRendererRegistry()} capability={capability}/>);
     expect(html).toContain('data-storefront-structured="compare-table"');
     expect(html).toContain('Nova Phone Pro');
     expect(html).toContain('144 Hz');
