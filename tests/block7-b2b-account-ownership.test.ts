@@ -5,6 +5,8 @@ const root=process.cwd();
 const read=(file:string)=>fs.readFileSync(path.join(root,file),'utf8');
 const migrationPath='supabase/migrations/20260908043000_block7_b2b_account_ownership.sql';
 const baselinePath='supabase/customer-baseline/migrations/0002_block7_b2b_account_ownership.sql';
+const performanceMigrationPath='supabase/migrations/20260908051500_block7_b2b_account_indexes.sql';
+const baselinePerformancePath='supabase/customer-baseline/migrations/0003_block7_b2b_account_indexes.sql';
 
 describe('Roadmap Block 7 B2B Account Ownership',()=>{
  test('customer B2B organization is separate from merchant organizations and tenant scoped',()=>{
@@ -79,8 +81,9 @@ describe('Roadmap Block 7 B2B Account Ownership',()=>{
   expect(manifest).not.toContain('inlineEditingRuntime:true');
  });
 
- test('fresh-customer path receives the exact same forward migration and remains fail-closed until clean-install proof',()=>{
+ test('fresh-customer path receives the exact same forward migrations and remains fail-closed until clean-install proof',()=>{
   expect(read(baselinePath)).toBe(read(migrationPath));
+  expect(read(baselinePerformancePath)).toBe(read(performanceMigrationPath));
   const manifest=JSON.parse(read('supabase/customer-baseline/manifest.json'));
   expect(manifest.status).toBe('snapshot-reviewed');
   expect(manifest.freshInstallProofRequired).toBe(true);
@@ -89,8 +92,21 @@ describe('Roadmap Block 7 B2B Account Ownership',()=>{
   expect(workflow).toContain("find supabase/customer-baseline/migrations");
  });
 
+ test('Block 7 foreign keys have explicit covering indexes after the staging advisor pass',()=>{
+  const sql=read(performanceMigrationPath);
+  for(const marker of [
+   'b2b_account_members_account_instance_idx','b2b_account_invitations_account_instance_idx',
+   'customer_instance_roles_b2b_account_instance_idx','orders_b2b_account_instance_idx',
+   'b2b_accounts_created_by_idx','b2b_accounts_approved_by_idx','b2b_accounts_status_changed_by_idx',
+   'b2b_account_members_user_id_idx','b2b_account_members_added_by_idx','b2b_account_members_updated_by_idx',
+   'b2b_account_invitations_invited_by_idx','b2b_account_invitations_accepted_by_idx','b2b_account_invitations_revoked_by_idx'
+  ])expect(sql).toContain(marker);
+  expect(sql.toLowerCase()).not.toContain('payment_attempts');
+  expect(sql.toLowerCase()).not.toContain('kh_vpos');
+ });
+
  test('Block 7 does not modify K&H or payment-attempt authority',()=>{
-  const sql=read(migrationPath).toLowerCase();
+  const sql=(read(migrationPath)+'\n'+read(performanceMigrationPath)).toLowerCase();
   expect(sql).not.toContain('kh_vpos');
   expect(sql).not.toContain('payment_attempts');
   expect(sql).not.toContain('payment_provider_events');
