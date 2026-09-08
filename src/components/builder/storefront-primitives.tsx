@@ -3,10 +3,9 @@ import {
   StorefrontRendererRegistry,
   type StorefrontComponentRenderProps,
 } from '@/components/builder/storefront-runtime-renderer';
+import type {StorefrontResolvedComponentNode} from '@/lib/builder/storefront-runtime';
 
 export const STOREFRONT_PRIMITIVE_RENDERERS_VERSION='shoporation.storefront-primitive-renderers.v1' as const;
-
-type Config=Record<string,unknown>;
 
 const text=(value:unknown,fallback='')=>typeof value==='string'?value:fallback;
 const bool=(value:unknown,fallback=false)=>typeof value==='boolean'?value:fallback;
@@ -33,7 +32,7 @@ const toneStyle=(value:unknown):CSSProperties=>{
   return styles[tone];
 };
 
-const gridSpanStyle=(props:StorefrontComponentRenderProps):CSSProperties=>({gridColumn:`span ${props.node.resolved.gridSpan} / span ${props.node.resolved.gridSpan}`});
+const gridSpanStyle=(node:StorefrontResolvedComponentNode):CSSProperties=>({gridColumn:`span ${node.resolved.gridSpan} / span ${node.resolved.gridSpan}`});
 
 const widthStyle=(value:unknown):CSSProperties=>{
   const width=oneOf(value,['full','content','narrow'] as const,'content');
@@ -57,26 +56,19 @@ const safeImageSrc=(value:unknown)=>{
 };
 
 function SectionRenderer({config,children,node}:StorefrontComponentRenderProps){
-  const style:CSSProperties={
-    ...toneStyle(config.tone),
-    ...gridSpanStyle({config,children,node,page:{} as StorefrontComponentRenderProps['page']}),
-    paddingBlock:spacingValue(config.spacing,'l'),
-  };
+  const style:CSSProperties={...toneStyle(config.tone),...gridSpanStyle(node),paddingBlock:spacingValue(config.spacing,'l')};
   return <section data-storefront-component="layout.section" style={style}><div style={widthStyle(config.width)}>{children}</div></section>;
 }
 
 function ContainerRenderer({config,children,node}:StorefrontComponentRenderProps){
-  const style:CSSProperties={...widthStyle(config.width),...gridSpanStyle({config,children,node,page:{} as StorefrontComponentRenderProps['page']}),paddingInline:spacingValue(config.spacing,'m')};
+  const style:CSSProperties={...widthStyle(config.width),...gridSpanStyle(node),paddingInline:spacingValue(config.spacing,'m')};
   return <div data-storefront-component="layout.container" style={style}>{children}</div>;
 }
 
 function GridRenderer({config,children,node}:StorefrontComponentRenderProps){
   const columns=Math.max(1,Math.min(12,Math.round(number(config.columns,12))));
   const align=oneOf(config.align,['start','center','end','stretch'] as const,'stretch');
-  const style:CSSProperties={
-    ...gridSpanStyle({config,children,node,page:{} as StorefrontComponentRenderProps['page']}),
-    display:'grid',gridTemplateColumns:`repeat(${columns}, minmax(0, 1fr))`,gap:spacingValue(config.gap,'m'),alignItems:align,
-  };
+  const style:CSSProperties={...gridSpanStyle(node),display:'grid',gridTemplateColumns:`repeat(${columns}, minmax(0, 1fr))`,gap:spacingValue(config.gap,'m'),alignItems:align};
   return <div data-storefront-component="layout.grid" style={style}>{children}</div>;
 }
 
@@ -86,14 +78,14 @@ function StackRenderer({config,children,node}:StorefrontComponentRenderProps){
   const justify=oneOf(config.justify,['start','center','end','between'] as const,'start');
   const alignItems:CSSProperties['alignItems']=align==='start'?'flex-start':align==='end'?'flex-end':align;
   const justifyContent:CSSProperties['justifyContent']=justify==='start'?'flex-start':justify==='end'?'flex-end':justify==='between'?'space-between':'center';
-  const style:CSSProperties={...gridSpanStyle({config,children,node,page:{} as StorefrontComponentRenderProps['page']}),display:'flex',flexDirection:direction==='horizontal'?'row':'column',gap:spacingValue(config.gap,'m'),alignItems,justifyContent};
+  const style:CSSProperties={...gridSpanStyle(node),display:'flex',flexDirection:direction==='horizontal'?'row':'column',gap:spacingValue(config.gap,'m'),alignItems,justifyContent};
   return <div data-storefront-component="layout.stack" style={style}>{children}</div>;
 }
 
 function HeadingRenderer({config,node}:StorefrontComponentRenderProps){
   const level=Math.max(1,Math.min(6,Math.round(number(config.level,2))));
   const align=oneOf(config.align,['left','center','right'] as const,'left');
-  const style:CSSProperties={...toneStyle(config.tone),...gridSpanStyle({config,children:null,node,page:{} as StorefrontComponentRenderProps['page']}),textAlign:align,margin:0};
+  const style:CSSProperties={...toneStyle(config.tone),...gridSpanStyle(node),textAlign:align,margin:0};
   const content=text(config.text);
   if(level===1)return <h1 data-storefront-component="content.heading" style={style}>{content}</h1>;
   if(level===2)return <h2 data-storefront-component="content.heading" style={style}>{content}</h2>;
@@ -106,7 +98,7 @@ function HeadingRenderer({config,node}:StorefrontComponentRenderProps){
 function TextRenderer({config,node}:StorefrontComponentRenderProps){
   const as=oneOf(config.as,['p','span','small','strong'] as const,'p');
   const align=oneOf(config.align,['left','center','right'] as const,'left');
-  const style:CSSProperties={...toneStyle(config.tone),...gridSpanStyle({config,children:null,node,page:{} as StorefrontComponentRenderProps['page']}),textAlign:align,margin:as==='p'?0:undefined};
+  const style:CSSProperties={...toneStyle(config.tone),...gridSpanStyle(node),textAlign:align,margin:as==='p'?0:undefined};
   const content=text(config.text);
   if(as==='span')return <span data-storefront-component="content.text" style={style}>{content}</span>;
   if(as==='small')return <small data-storefront-component="content.text" style={style}>{content}</small>;
@@ -123,7 +115,7 @@ function ImageRenderer({config,node}:StorefrontComponentRenderProps){
   const radiusValue={none:'0',s:'0.375rem',m:'0.75rem',l:'1.25rem',pill:'9999px'}[radius];
   const width=Math.max(1,Math.round(number(config.width,1200)));
   const height=Math.max(1,Math.round(number(config.height,800)));
-  return <img data-storefront-component="content.image" src={src} alt={text(config.alt)} width={width} height={height} loading={loading} style={{...gridSpanStyle({config,children:null,node,page:{} as StorefrontComponentRenderProps['page']}),display:'block',width:'100%',height:'auto',objectFit:fit,borderRadius:radiusValue}}/>;
+  return <img data-storefront-component="content.image" src={src} alt={text(config.alt)} width={width} height={height} loading={loading} style={{...gridSpanStyle(node),display:'block',width:'100%',height:'auto',objectFit:fit,borderRadius:radiusValue}}/>;
 }
 
 function ButtonRenderer({config,node}:StorefrontComponentRenderProps){
@@ -136,7 +128,7 @@ function ButtonRenderer({config,node}:StorefrontComponentRenderProps){
     secondary:{background:'transparent',color:'var(--shoporation-color-text, #111827)',border:'1px solid var(--shoporation-color-border, #cbd5e1)'},
     ghost:{background:'transparent',color:'var(--shoporation-color-text, #111827)',border:'1px solid transparent'},
   };
-  return <a data-storefront-component="content.button" href={href} aria-label={text(config.ariaLabel)||undefined} style={{...gridSpanStyle({config,children:null,node,page:{} as StorefrontComponentRenderProps['page']}),...variantStyle[variant],display:'inline-flex',width:'fit-content',alignItems:'center',justifyContent:'center',padding,borderRadius:'var(--shoporation-radius-m, 0.75rem)',textDecoration:'none',fontWeight:600}}>{text(config.label,'Tovább')}</a>;
+  return <a data-storefront-component="content.button" href={href} aria-label={text(config.ariaLabel)||undefined} style={{...gridSpanStyle(node),...variantStyle[variant],display:'inline-flex',width:'fit-content',alignItems:'center',justifyContent:'center',padding,borderRadius:'var(--shoporation-radius-m, 0.75rem)',textDecoration:'none',fontWeight:600}}>{text(config.label,'Tovább')}</a>;
 }
 
 type NavigationItem={label:string;href:string};
@@ -151,13 +143,13 @@ const navigationItems=(value:unknown):NavigationItem[]=>Array.isArray(value)?val
 function NavigationRenderer({config,node}:StorefrontComponentRenderProps){
   const items=navigationItems(config.items);
   const layout=oneOf(config.layout,['horizontal','vertical'] as const,'horizontal');
-  return <nav data-storefront-component="system.navigation" data-storefront-protected-system="navigation" aria-label={text(config.ariaLabel,'Fő navigáció')} style={{...gridSpanStyle({config,children:null,node,page:{} as StorefrontComponentRenderProps['page']}),display:'flex',flexDirection:layout==='vertical'?'column':'row',gap:'var(--shoporation-space-m, 1.5rem)',alignItems:layout==='vertical'?'stretch':'center'}}>{items.map(item=><a key={`${item.href}:${item.label}`} href={item.href} style={{color:'inherit',textDecoration:'none'}}>{item.label}</a>)}</nav>;
+  return <nav data-storefront-component="system.navigation" data-storefront-protected-system="navigation" aria-label={text(config.ariaLabel,'Fő navigáció')} style={{...gridSpanStyle(node),display:'flex',flexDirection:layout==='vertical'?'column':'row',gap:'var(--shoporation-space-m, 1.5rem)',alignItems:layout==='vertical'?'stretch':'center'}}>{items.map(item=><a key={`${item.href}:${item.label}`} href={item.href} style={{color:'inherit',textDecoration:'none'}}>{item.label}</a>)}</nav>;
 }
 
 function HeaderRenderer({config,children,node}:StorefrontComponentRenderProps){
   const sticky=bool(config.sticky,false);
   const tone=oneOf(config.tone,['background','surface','primary'] as const,'background');
-  return <header data-storefront-component="system.header" data-storefront-protected-system="header" style={{...toneStyle(tone),...gridSpanStyle({config,children,node,page:{} as StorefrontComponentRenderProps['page']}),position:sticky?'sticky':'relative',top:sticky?0:undefined,zIndex:sticky?20:undefined,borderBottom:'1px solid var(--shoporation-color-border, #e2e8f0)'}}><div style={{maxWidth:'1440px',marginInline:'auto',padding:'1rem clamp(1rem, 3vw, 2rem)',display:'flex',alignItems:'center',justifyContent:'space-between',gap:'1.5rem'}}><a href={safeHref(config.brandHref,'/')} style={{fontWeight:700,color:'inherit',textDecoration:'none'}}>{text(config.brandLabel,'Shoporation')}</a>{children}</div></header>;
+  return <header data-storefront-component="system.header" data-storefront-protected-system="header" style={{...toneStyle(tone),...gridSpanStyle(node),position:sticky?'sticky':'relative',top:sticky?0:undefined,zIndex:sticky?20:undefined,borderBottom:'1px solid var(--shoporation-color-border, #e2e8f0)'}}><div style={{maxWidth:'1440px',marginInline:'auto',padding:'1rem clamp(1rem, 3vw, 2rem)',display:'flex',alignItems:'center',justifyContent:'space-between',gap:'1.5rem'}}><a href={safeHref(config.brandHref,'/')} style={{fontWeight:700,color:'inherit',textDecoration:'none'}}>{text(config.brandLabel,'Shoporation')}</a>{children}</div></header>;
 }
 
 const RENDERERS:readonly [string,number,(props:StorefrontComponentRenderProps)=>ReactNode][]=[
