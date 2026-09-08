@@ -21,10 +21,10 @@ const schema=z.object({
 });
 
 export async function POST(request:Request){
-  const actor=await getAdminRequestUser('support.manage');
+  const actor=await getAdminRequestUser();
   if(!actor)return NextResponse.json({error:'Nincs jogosultság.'},{status:403});
   if(!(await hasCurrentPlanFeature('officeCommunication')))return NextResponse.json({error:'A Digitális iroda Pro csomaghoz kötött.'},{status:403});
-  let scope;try{scope=await requireCurrentStoreContext('support.manage')}catch{return NextResponse.json({error:'Nincs jogosultság ehhez a webshophoz.'},{status:403})}
+  let scope;try{scope=await requireCurrentStoreContext()}catch{return NextResponse.json({error:'Nincs jogosultság ehhez a webshophoz.'},{status:403})}
   let raw:unknown;try{raw=await request.json()}catch{return NextResponse.json({error:'Érvénytelen kérés.'},{status:400})}
   const parsed=schema.safeParse(raw);
   if(!parsed.success)return NextResponse.json({error:'Érvénytelen belső üzenet vagy csatolmányadat.'},{status:400});
@@ -46,6 +46,7 @@ export async function POST(request:Request){
   if(error){
     const reason=String(error.message??'');
     if(reason.includes('OFFICE_PRIVATE_THREAD_ACCESS_DENIED'))return NextResponse.json({error:'Nincs hozzáférésed ehhez a privát beszélgetéshez.'},{status:403});
+    if(reason.includes('OFFICE_OBJECT_LINK_PERMISSION_REQUIRED'))return NextResponse.json({error:'Ehhez az üzleti objektumhoz nincs jogosultságod.'},{status:403});
     if(reason.includes('OFFICE_MENTION_PARTICIPANT_REQUIRED'))return NextResponse.json({error:'Csak aktív résztvevő említhető meg.'},{status:400});
     if(reason.includes('OFFICE_OBJECT_LINK_NOT_FOUND'))return NextResponse.json({error:'A kapcsolt üzleti objektum nem található ebben a webshopban.'},{status:400});
     if(reason.includes('OFFICE_ATTACHMENT_RESERVATION_INVALID')||reason.includes('OFFICE_ATTACHMENT_STORAGE_OBJECT_MISSING'))return NextResponse.json({error:'A csatolmány feltöltése lejárt vagy nem igazolható. Töltsd fel újra.'},{status:409});
