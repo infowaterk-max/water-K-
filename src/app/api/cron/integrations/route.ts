@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { processIntegrationJob } from '@/lib/integrations/processor';
 import { runCommunicationWorker } from '@/lib/communication/worker';
+import { cleanupExpiredOfficePrivateAttachments } from '@/lib/office/private-attachment-cleanup';
 
 export const dynamic='force-dynamic';
 export const maxDuration=60;
@@ -77,7 +78,7 @@ function loyaltyEvidence(data:unknown,instanceId:string,runKey:string){
   return{
     accrued:row.accrued_points_entries,
     reversed:row.reversed_points_entries,
-    refreshedProfiles:row.refreshed_profiles,
+    refreshedProfiles:row.refreshed_points_entries,
     completedAt:row.completed_at,
   };
 }
@@ -179,9 +180,17 @@ async function runWorker(request:Request){
     communication={ok:false,error:error instanceof Error?error.message:'UNKNOWN_WORKER_ERROR'};
   }
 
+  let officeAttachmentCleanup:{ok:boolean;checked?:number;revoked?:number;failed?:number;failures?:unknown;error?:string};
+  try{
+    const summary=await cleanupExpiredOfficePrivateAttachments(25);
+    officeAttachmentCleanup={ok:summary.failed===0,...summary};
+  }catch(error){
+    officeAttachmentCleanup={ok:false,error:error instanceof Error?error.message:'OFFICE_ATTACHMENT_CLEANUP_FAILED'};
+  }
+
   const loyaltyOk=loyalty.every(result=>result.ok);
   const journeyOk=journeys.every(result=>result.ok);
-  const ok=inventorySnapshot.ok&&loyaltyOk&&journeyOk&&integrationResults.every(result=>result.ok)&&communication.ok;
+  const ok=inventorySnapshot.ok&&loyaltyOk&&journeyOk&&integrationResults.every(result=>result.ok)&&communication.ok&&officeAttachmentCleanup.ok;
   return NextResponse.json({
     ok,
     inventorySnapshot,
@@ -189,6 +198,7 @@ async function runWorker(request:Request){
     journeys:{tenants:journeys.length,results:journeys},
     integrations:{processed:integrationResults.length,results:integrationResults},
     communication,
+    officeAttachmentCleanup,
     checkedAt,
   },{status:ok?200:503});
 }
