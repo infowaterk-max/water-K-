@@ -142,6 +142,25 @@ export async function managePrivateParticipantAction(form:FormData){
   revalidatePath('/admin/kommunikacio/iroda');
 }
 
+export async function transferPrivateThreadOwnerAction(form:FormData){
+  const{db,userId,instanceId}=await access();
+  const threadId=String(form.get('threadId')??'').trim();
+  const targetUserId=String(form.get('targetUserId')??'').trim();
+  if(!threadId||!targetUserId)return;
+  const{data,error}=await db.rpc('admin_transfer_office_thread_owner_v1',{
+    p_instance_id:instanceId,
+    p_actor:userId,
+    p_thread_id:threadId,
+    p_target_user_id:targetUserId,
+  });
+  if(error)throw new OfficeMutationError(errorReason(error));
+  const result=(data??{})as{id?:string;threadId?:string;ownerUserId?:string;transferred?:boolean};
+  if(result.id!==threadId||result.threadId!==threadId||result.ownerUserId!==targetUserId||result.transferred!==true){
+    throw new Error('A Digitális iroda tulajdonjog-átadásának eredménye nem igazolható.');
+  }
+  revalidatePath('/admin/kommunikacio/iroda');
+}
+
 export async function updateThreadAction(form:FormData){
   const{db,userId,instanceId}=await access();
   const threadId=String(form.get('threadId')??'');
