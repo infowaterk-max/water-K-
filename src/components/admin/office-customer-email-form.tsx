@@ -2,7 +2,7 @@
 
 import{useState,useTransition}from'react';
 import{
-  autosaveReplyDraftAction,officeComposerInitialState,saveReplyDraftAction,sendCustomerEmailV3Action,
+  autosaveReplyDraftAction,officeComposerInitialState,saveReplyDraftAction,sendCustomerEmailV4Action,
   type OfficeComposerActionState,
 }from'@/app/admin/kommunikacio/iroda/composer-actions';
 import{useOfficeDraftAutosave}from'@/components/admin/use-office-draft-autosave';
@@ -16,12 +16,14 @@ function PendingSpinner(){
   </svg>;
 }
 
-type ReplySnapshot={body:string};
-type ReplyDraft={id:string;revision:number;body:string};
+type ReplySnapshot={ccEmails:string;bccEmails:string;body:string};
+type ReplyDraft={id:string;revision:number;ccEmails:string[];bccEmails:string[];body:string};
 
 function replyFormData(threadId:string,snapshot:ReplySnapshot,draftId:string,revision:number|null){
   const form=new FormData();
   form.set('threadId',threadId);
+  form.set('ccEmails',snapshot.ccEmails);
+  form.set('bccEmails',snapshot.bccEmails);
   form.set('body',snapshot.body);
   if(draftId)form.set('draftId',draftId);
   if(revision)form.set('revision',String(revision));
@@ -31,12 +33,15 @@ function replyFormData(threadId:string,snapshot:ReplySnapshot,draftId:string,rev
 export function OfficeCustomerEmailForm({
   threadId,sendingConfigured=false,initialDraft,
 }:{threadId:string;sendingConfigured?:boolean;initialDraft?:ReplyDraft}){
+  const[ccEmails,setCcEmails]=useState(initialDraft?.ccEmails.join(', ')??'');
+  const[bccEmails,setBccEmails]=useState(initialDraft?.bccEmails.join(', ')??'');
   const[body,setBody]=useState(initialDraft?.body??'');
   const[operationState,setOperationState]=useState<OfficeComposerActionState>(officeComposerInitialState);
   const[actionPending,startTransition]=useTransition();
-  const snapshot:ReplySnapshot={body};
-  const snapshotKey=body;
-  const meaningful=body.trim().length>0;
+  const snapshot:ReplySnapshot={ccEmails,bccEmails,body};
+  const snapshotKey=JSON.stringify(snapshot);
+  const meaningful=[ccEmails,bccEmails,body].some(value=>value.trim().length>0);
+  const sendReady=body.trim().length>0;
 
   const draft=useOfficeDraftAutosave({
     snapshot,
@@ -58,7 +63,7 @@ export function OfficeCustomerEmailForm({
   }
 
   function send(){
-    if(!meaningful||!sendingConfigured||draft.status==='conflict')return;
+    if(!sendReady||!sendingConfigured||draft.status==='conflict')return;
     startTransition(async()=>{
       setOperationState(officeComposerInitialState);
       const saveResult=await draft.saveNow();
@@ -68,24 +73,28 @@ export function OfficeCustomerEmailForm({
       }
       const safeDraftId=saveResult?.draftId??draft.draftId;
       const safeRevision=saveResult?.revision??draft.revision;
-      const result=await sendCustomerEmailV3Action(
+      const result=await sendCustomerEmailV4Action(
         officeComposerInitialState,
         replyFormData(threadId,snapshot,safeDraftId,safeRevision),
       );
       setOperationState(result);
       if(result.status==='success'){
-        setBody('');
+        setCcEmails('');setBccEmails('');setBody('');
         draft.reset();
       }
     });
   }
 
   return <div className="stackForm" aria-busy={actionPending||draft.status==='saving'}>
+    <div className="splitFeature">
+      <label className="stackForm"><span>Másolat (CC)</span><input value={ccEmails} onChange={event=>setCcEmails(event.target.value)} maxLength={3300} placeholder="pelda@ceg.hu" disabled={actionPending}/></label>
+      <label className="stackForm"><span>Titkos másolat (BCC)</span><input value={bccEmails} onChange={event=>setBccEmails(event.target.value)} maxLength={3300} placeholder="belso@ceg.hu" disabled={actionPending}/></label>
+    </div>
     <textarea name="body" required rows={3} maxLength={10000} placeholder="Ügyfélnek" value={body} onChange={event=>setBody(event.target.value)} disabled={actionPending}/>
     {!sendingConfigured&&<div className="adminAuditNotice"><strong>Küldés még nincs aktiválva.</strong><p>A válasz automatikusan piszkozatként menthető. Küldéshez később külön Digitális Iroda postafiókot kell jóváhagyni; a működő webshop jelenlegi e-mail címeit nem használjuk.</p></div>}
     <div className="adminToolbar">
       <button type="button" className="btn btnGhost" onClick={save} disabled={actionPending||draft.status==='saving'||draft.status==='conflict'||!meaningful}>Piszkozat mentése</button>
-      <button type="button" className="btn btnPrimary" onClick={send} disabled={actionPending||draft.status==='conflict'||!meaningful||!sendingConfigured}>
+      <button type="button" className="btn btnPrimary" onClick={send} disabled={actionPending||draft.status==='conflict'||!sendReady||!sendingConfigured}>
         {actionPending?<><PendingSpinner/> Feldolgozás…</>:'E-mail válasz'}
       </button>
       {draft.status!=='conflict'&&draft.status!=='error'&&<span className="muted" role="status" aria-live="polite">{draft.message||'Még nincs mentett válaszpiszkozat.'}</span>}
