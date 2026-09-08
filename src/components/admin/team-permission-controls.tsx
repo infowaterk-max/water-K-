@@ -31,6 +31,7 @@ export function PermissionOverrideControls({userId,canManage,capabilities,preset
   const[advancedState,advancedAction]=useActionState(addPermissionOverrideAction,advancedPermissionInitialState);
   const presetSet=new Set(presetCodes);
   const simpleExtraSet=new Set(overrides.filter(item=>isSimpleExtra(item)&&!presetSet.has(item.permissionCode)).map(item=>item.permissionCode));
+  const explicitDenySet=new Set(overrides.filter(item=>item.effect==='deny').map(item=>item.permissionCode));
   const advancedOverrides=overrides.filter(item=>!isSimpleExtra(item)||presetSet.has(item.permissionCode));
   const areas=new Map<string,{label:string;items:CapabilityOption[]}>();
   for(const capability of capabilities){
@@ -51,6 +52,7 @@ export function PermissionOverrideControls({userId,canManage,capabilities,preset
           <legend><strong>{area.label}</strong></legend>
           {area.items.map(capability=>{
             const inherited=presetSet.has(capability.code);
+            const denied=explicitDenySet.has(capability.code);
             return <label key={capability.code} style={{display:'flex',gap:10,alignItems:'flex-start',marginTop:8}}>
               <input
                 type="checkbox"
@@ -59,7 +61,7 @@ export function PermissionOverrideControls({userId,canManage,capabilities,preset
                 defaultChecked={inherited||simpleExtraSet.has(capability.code)}
                 disabled={inherited||!canManage}
               />
-              <span><strong>{capability.label}</strong>{inherited?' · szerepkörből':''}{capability.sensitivity==='critical'?' · kritikus':''}</span>
+              <span><strong>{capability.label}</strong>{inherited?' · szerepkörből':''}{denied?' · haladó tiltás érvényben':''}{capability.sensitivity==='critical'?' · kritikus':''}</span>
             </label>;
           })}
         </fieldset>)}
@@ -70,7 +72,7 @@ export function PermissionOverrideControls({userId,canManage,capabilities,preset
 
     <details style={{marginTop:18}}>
       <summary><strong>Haladó eltérések</strong> · tiltás, adatkör, lejárat</summary>
-      <p className="muted">Ezt csak kivételes esetekhez használd. Itt lehet egy szerepkörből örökölt jogot explicit letiltani, vagy saját/hozzárendelt/témakör/postafiók scope-ra és időtartamra szűkíteni.</p>
+      <p className="muted">Ezt csak kivételes esetekhez használd. Itt lehet egy szerepkörből örökölt jogot explicit letiltani, vagy saját/hozzárendelt/témakör/postafiók scope-ra és időtartamra szűkíteni. Biztonsági konfliktusnál az explicit tiltás az erősebb.</p>
       {advancedOverrides.length===0?<div className="adminAuditNotice"><strong>Nincs haladó eltérés.</strong><p>A csapattag a szerepkörét és a fenti egyszerű extra pipákat használja.</p></div>:<div className="teamRoleGuideGrid">{advancedOverrides.map(item=><PermissionOverrideRow key={item.id} userId={userId} item={item} canManage={canManage}/>)}</div>}
       {canManage&&<form action={advancedAction} className="teamAddForm">
         <input type="hidden" name="userId" value={userId}/>
