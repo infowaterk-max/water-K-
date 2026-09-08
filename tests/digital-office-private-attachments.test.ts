@@ -110,7 +110,7 @@ describe('Digital Office private attachments',()=>{
     expect(cleanupWorker).toContain(".eq('status','pending')");
     expect(cleanupWorker).toContain(".lte('expires_at',now)");
     const storageRemove=cleanupWorker.indexOf(".remove([row.storage_path])");
-    const revoke=cleanupWorker.indexOf("db.rpc('admin_revoke_expired_office_private_attachment_v1'",storageRemove);
+    const revoke=cleanupWorker.indexOf("admin.rpc('admin_revoke_expired_office_private_attachment_v1'",storageRemove);
     expect(storageRemove).toBeGreaterThan(0);
     expect(revoke).toBeGreaterThan(storageRemove);
     expect(cleanupMigration).toContain('create table if not exists public.office_attachment_cleanup_events');
