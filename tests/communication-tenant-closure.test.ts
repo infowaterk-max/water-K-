@@ -29,11 +29,14 @@ describe('communication tenant closure',()=>{
   test('inbound and provider events resolve a concrete tenant before persistence',()=>{
     const inbound=read('src/app/api/communication/inbound/route.ts');
     const webhook=read('src/app/api/webhooks/communication/route.ts');
-    const inboundSql=read('supabase/migrations/20260903180000_inbound_office_email_atomic_v2.sql');
-    expect(inbound).toMatch(/record_inbound_office_email_v2/);
+    const inboundSql=read('supabase/migrations/20260908030000_digital_office_real_inbound_foundation_v1.sql');
+    expect(inbound).toMatch(/record_inbound_office_email_v3/);
     expect(inbound).not.toMatch(/\.from\('office_(threads|messages)'\)/);
-    expect(inboundSql).toMatch(/support_email/);
-    expect(inboundSql).toMatch(/INBOUND_TENANT_AMBIGUOUS/);
+    expect(inboundSql).toMatch(/public\.office_mailboxes/);
+    expect(inboundSql).toMatch(/m\.instance_id/);
+    expect(inboundSql).toMatch(/w\.status in \('pilot','active'\)/);
+    expect(inboundSql).toMatch(/INBOUND_MAILBOX_NOT_FOUND/);
+    expect(inboundSql).toMatch(/record_inbound_office_email_v2[\s\S]*public,anon,authenticated,service_role/);
     const providerSql=read('supabase/migrations/20260903191000_provider_suppression_evidence_atomic_v2.sql');
     expect(webhook).toMatch(/record_provider_communication_suppression_v2/);
     expect(webhook).toMatch(/provider_message_id/);
