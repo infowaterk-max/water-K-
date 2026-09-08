@@ -1,6 +1,6 @@
 -- Digital Office real inbound foundation v1.
 -- Adds explicit tenant mailboxes and RFC-aware threading without touching any existing MX/domain configuration.
--- Inbound email content is stored as untrusted communication only; it never executes business actions.
+-- Mailbox addresses and reply tokens stay service-only; inbound content never executes business actions.
 
 create table if not exists public.office_mailboxes (
   id uuid primary key default gen_random_uuid(),
@@ -26,28 +26,34 @@ create index if not exists office_mailboxes_instance_active_idx
   on public.office_mailboxes(instance_id,is_active,mailbox_key);
 
 alter table public.office_mailboxes enable row level security;
-revoke all on table public.office_mailboxes from anon;
-revoke insert,update,delete,truncate,references,trigger on table public.office_mailboxes from authenticated;
-grant select on table public.office_mailboxes to authenticated;
+revoke all on table public.office_mailboxes from public,anon,authenticated;
 grant select,insert,update,delete on table public.office_mailboxes to service_role;
 
-drop policy if exists office_mailboxes_support_read on public.office_mailboxes;
-create policy office_mailboxes_support_read on public.office_mailboxes
-  for select to authenticated
-  using (public.can_manage_support(instance_id,(select auth.uid())));
+-- Reply tokens are routing secrets and must never be exposed through browser-readable office_threads rows.
+create table if not exists public.office_thread_email_routes (
+  instance_id uuid not null,
+  thread_id uuid not null,
+  reply_token uuid not null default gen_random_uuid(),
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  primary key(instance_id,thread_id),
+  foreign key(thread_id,instance_id) references public.office_threads(id,instance_id) on delete cascade
+);
 
-alter table public.office_threads
-  add column if not exists reply_token uuid;
+create unique index if not exists office_thread_email_routes_reply_token_unique
+  on public.office_thread_email_routes(instance_id,reply_token);
 
-update public.office_threads
-set reply_token=gen_random_uuid()
-where conversation_type='customer' and reply_token is null;
+alter table public.office_thread_email_routes enable row level security;
+revoke all on table public.office_thread_email_routes from public,anon,authenticated;
+grant select,insert,update,delete on table public.office_thread_email_routes to service_role;
 
-create unique index if not exists office_threads_instance_reply_token_unique
-  on public.office_threads(instance_id,reply_token)
-  where conversation_type='customer' and reply_token is not null;
+insert into public.office_thread_email_routes(instance_id,thread_id)
+select t.instance_id,t.id
+from public.office_threads t
+where t.conversation_type='customer'
+on conflict(instance_id,thread_id) do nothing;
 
-create or replace function private.ensure_customer_office_reply_token_v1()
+create or replace function private.sync_customer_office_email_route_v1()
 returns trigger
 language plpgsql
 security definer
@@ -55,20 +61,23 @@ set search_path=''
 as $$
 begin
   if new.conversation_type='customer' then
-    if new.reply_token is null then new.reply_token:=gen_random_uuid(); end if;
+    insert into public.office_thread_email_routes(instance_id,thread_id)
+    values(new.instance_id,new.id)
+    on conflict(instance_id,thread_id) do update set updated_at=now();
   else
-    new.reply_token:=null;
+    delete from public.office_thread_email_routes
+    where instance_id=new.instance_id and thread_id=new.id;
   end if;
   return new;
 end;
 $$;
 
-drop trigger if exists office_threads_reply_token_guard on public.office_threads;
-create trigger office_threads_reply_token_guard
-before insert or update of conversation_type,reply_token on public.office_threads
-for each row execute function private.ensure_customer_office_reply_token_v1();
+revoke all on function private.sync_customer_office_email_route_v1() from public,anon,authenticated;
 
-revoke all on function private.ensure_customer_office_reply_token_v1() from public,anon,authenticated;
+drop trigger if exists office_threads_email_route_sync on public.office_threads;
+create trigger office_threads_email_route_sync
+after insert or update of conversation_type on public.office_threads
+for each row execute function private.sync_customer_office_email_route_v1();
 
 alter table public.office_messages
   add column if not exists rfc_message_id text,
@@ -119,8 +128,6 @@ declare
   v_mailbox_key text;
   v_existing record;
   v_thread_id uuid;
-  v_thread_reply_token uuid;
-  v_order_id uuid;
   v_message_id uuid;
   v_match_method text:='new_thread';
   v_recent_count integer:=0;
@@ -178,25 +185,26 @@ begin
     return jsonb_build_object('processed',false,'instanceId',v_instance_id,'mailboxKey',v_mailbox_key,'duplicate',false,'reason','rate_limited');
   end if;
 
-  -- 1) Strongest routing signal: an opaque per-thread reply token embedded in a plus-address.
+  -- 1) Strongest routing signal: an opaque, service-only per-thread reply token embedded in a plus-address.
   if p_reply_token is not null then
-    select t.id,t.reply_token
-    into v_thread_id,v_thread_reply_token
-    from public.office_threads t
-    where t.instance_id=v_instance_id
+    select t.id
+    into v_thread_id
+    from public.office_thread_email_routes r
+    join public.office_threads t on t.id=r.thread_id and t.instance_id=r.instance_id
+    where r.instance_id=v_instance_id
+      and r.reply_token=p_reply_token
       and t.conversation_type='customer'
-      and t.reply_token=p_reply_token
       and lower(trim(coalesce(t.customer_email,'')))=v_sender
       and (t.mailbox_key is null or t.mailbox_key=v_mailbox_key)
     limit 1
-    for update;
+    for update of t;
     if found then v_match_method:='reply_token'; end if;
   end if;
 
   -- 2) Exact RFC In-Reply-To match. Sender and tenant/mailbox boundaries still apply.
   if v_thread_id is null and v_in_reply_to is not null then
-    select t.id,t.reply_token
-    into v_thread_id,v_thread_reply_token
+    select t.id
+    into v_thread_id
     from public.office_messages m
     join public.office_threads t on t.id=m.thread_id and t.instance_id=m.instance_id
     where m.instance_id=v_instance_id
@@ -212,8 +220,8 @@ begin
 
   -- 3) RFC References chain, newest known referenced message first.
   if v_thread_id is null and coalesce(cardinality(v_refs),0)>0 then
-    select t.id,t.reply_token
-    into v_thread_id,v_thread_reply_token
+    select t.id
+    into v_thread_id
     from public.office_messages m
     join public.office_threads t on t.id=m.thread_id and t.instance_id=m.instance_id
     where m.instance_id=v_instance_id
@@ -227,26 +235,17 @@ begin
     if found then v_match_method:='references'; end if;
   end if;
 
-  -- No sender-only fallback. An unrelated email from the same customer becomes a separate case.
+  -- No sender-only or latest-order fallback. An unrelated email becomes a separate unlinked case.
   if v_thread_id is null then
-    select o.id
-    into v_order_id
-    from public.orders o
-    where o.instance_id=v_instance_id
-      and lower(trim(o.customer_email))=v_sender
-    order by o.created_at desc,o.id
-    limit 1;
-
     insert into public.office_threads(
       instance_id,subject,customer_email,order_id,status,priority,conversation_type,mailbox_key,created_at,updated_at
     ) values(
-      v_instance_id,case when v_subject='' then '(Nincs tárgy)' else v_subject end,v_sender,v_order_id,'open','normal','customer',v_mailbox_key,now(),now()
-    ) returning id,reply_token into v_thread_id,v_thread_reply_token;
+      v_instance_id,case when v_subject='' then '(Nincs tárgy)' else v_subject end,v_sender,null,'open','normal','customer',v_mailbox_key,now(),now()
+    ) returning id into v_thread_id;
   else
     update public.office_threads
     set mailbox_key=coalesce(mailbox_key,v_mailbox_key),updated_at=now()
-    where id=v_thread_id and instance_id=v_instance_id
-    returning reply_token into v_thread_reply_token;
+    where id=v_thread_id and instance_id=v_instance_id;
     if not found then raise exception 'INBOUND_THREAD_EVIDENCE_MISSING'; end if;
   end if;
 
@@ -276,7 +275,7 @@ begin
 
   return jsonb_build_object(
     'processed',true,'id',v_message_id,'threadId',v_thread_id,'instanceId',v_instance_id,'mailboxKey',v_mailbox_key,
-    'replyToken',v_thread_reply_token,'duplicate',false,'matchMethod',v_match_method
+    'duplicate',false,'matchMethod',v_match_method
   );
 end;
 $$;
@@ -291,4 +290,4 @@ revoke all on function public.record_inbound_office_email_v2(text,text,text,text
 from public,anon,authenticated,service_role;
 
 comment on function public.record_inbound_office_email_v3(text,text,text,text,text,uuid,text,text,text,text[],integer)
-is 'Atomically persists an untrusted inbound email using tenant mailbox + reply token/RFC threading. Never matches by sender alone and never performs business actions.';
+is 'Atomically persists an untrusted inbound email using tenant mailbox + private reply token/RFC threading. Never matches by sender alone, never guesses the latest order and never performs business actions.';
