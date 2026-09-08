@@ -9,230 +9,186 @@ Wave 16 implements **Table & Gift** directly on top of Gallery Edit / PR #138.
 - Category metadata: `food-gifting`
 - Base branch: `feature/storefront-gallery-edit-wave15`
 - Base final head: `96f74bac17443f0c733f089da8decad3d13ecd11`
-- Implementation head: `095f3b3beb3607d5aab32c3101329d906f6fa1ac`
+- Accepted implementation head: `d0cbdfc64fb94b53f8b1bba8c8246933f9f9d475`
 
-This is a code-only storefront scale-out wave. It introduces no SQL migration, no live storefront route switch, no staging/production mutation, no payment change and no Water-K tenant-status change.
+This is a code-only storefront scale-out wave. It introduces no SQL migration, live storefront route switch, staging/production mutation, payment change or Water-K tenant-status change.
 
-Per the current release discipline, **there is intentionally no Vercel/Supabase deployment after this individual wave**. Deployment is deferred until the current template-wave sequence is fully complete and can be handled as one controlled release candidate.
+Per the current release discipline, **there is intentionally no Vercel or Supabase deployment after this wave**. Deployment is deferred until the current template-wave sequence is fully complete and can be handled as one controlled release candidate.
 
-## Production-order rationale
+## Accepted template direction
 
-The recovered storefront scale-out sequence places Table & Gift after the Interior Gallery slot. Gallery Edit currently occupies that slot in the working stack, therefore this wave is stacked directly above Gallery Edit.
+Table & Gift is the third Food-family template and is deliberately distinct from Market Pantry.
 
-The previously approved Table & Gift concept already defined the product/experience direction:
+Its accepted role is:
 
-- premium gifting / occasion commerce;
-- gastro curation;
-- elegant bundle-building;
-- Gift Finder;
-- curated gift sets;
+**premium gifting / occasion commerce × curated food/gift selection × configurable gifting**
+
+Primary experience elements:
+
+- Gift Builder;
+- Shop by Occasion;
+- Curated Gift Sets;
 - Build Your Gift;
 - Gift Message;
-- Corporate Gift CTA;
-- Gift Set Detail.
+- Corporate Gift CTA.
 
-The earlier contract did **not** define a literal technical template identifier. Wave 16 therefore assigns `food.table-gift` following the existing storefront naming convention, including the existing `food.market-pantry` family.
+Market Pantry remains pantry/market/composer-first commerce. Table & Gift is occasion-, recipient- and gifting-first.
 
 ## Visual DNA
 
-Table & Gift is implemented as:
-
-**premium gifting / occasion commerce × gastro curation × elegant bundle-building**
-
-Palette direction:
+Palette:
 
 - ivory background;
 - deep burgundy primary;
 - forest green secondary;
-- champagne highlight;
-- black text;
-- muted gold accent.
+- champagne accent;
+- black text.
 
 Typography:
 
-- elegant editorial serif for display use;
+- elegant editorial serif for display headings;
 - clean sans-serif for interface copy.
 
 Imagery:
 
-- large gift still life;
-- tabletop compositions;
-- gastro/product curation;
-- premium editorial presentation.
+- gift boxes;
+- ribbon;
+- premium table settings;
+- curated food/drink packaging;
+- editorial still life.
 
 Spacing:
 
 - generous;
-- premium;
-- editorial rather than dense marketplace presentation.
+- celebratory;
+- refined.
 
 Explicit exclusions:
 
-- cheap seasonal marketplace styling;
-- fabricated fixed bundle price;
-- virtual bundle SKU authority;
+- Market Pantry duplication;
+- rustic/farmhouse treatment;
+- promotion chaos;
+- fabricated fixed-price gift boxes;
+- virtual bundle SKUs;
 - fake scarcity;
-- fabricated origin claims;
-- fabricated dietary claims;
-- guaranteed delivery wording without delivery authority;
-- hardcoded corporate pricing.
+- baked marketing copy inside demo imagery.
 
 ## Shopping journey
 
-The structural journey is:
+The accepted structural journey is:
 
-`Gift Finder → Curated Gift Sets → Build Your Gift → message / pairing → cart → checkout`
+`guided gift choice → occasion → curated set → composed gift → gift message → corporate contact / checkout`
 
-The template assists discovery and composition but does not become a second product, price, inventory, delivery, B2B or order authority.
+The template assists discovery and composition but does not become a second product, price, stock, B2B, delivery or order authority.
 
 ## Engine contract
 
 Table & Gift reuses only existing Shoporation engines:
 
 - **E1 Runtime** — common Page Schema/runtime authority;
-- **E2 Product Discovery** — eligible catalog/discovery authority;
-- **E3 Guided Finder** — recipient / occasion / budget / preference-driven gift discovery;
-- **E4 Multi-Product Composer** — Build Your Gift using real catalog items;
-- **E10 Editorial / Story Engine** — gift, occasion, producer and product story read models;
+- **E2 Product Discovery** — eligible catalog/channel discovery authority;
+- **E3 Guided Finder** — Gift Builder for occasion, recipient and preference-driven discovery;
+- **E4 Multi-Product Composer** — Build Your Gift from real catalog items;
 - **E13 Checkout** — provider-neutral cart/checkout and final commerce revalidation authority.
 
-No new gifting engine, recommendation authority, bundle product model, pricing authority or checkout authority is introduced.
+Required full experience:
+
+`E1 + E2 + E3 + E4 + E13`
+
+**E10 is not part of the accepted Wave 16 engine contract.** No extra story engine is required to implement the accepted Table & Gift flow.
 
 Authority rule:
 
-`template-never-invents-price-stock-availability-origin-dietary-truth-delivery-date-or-corporate-pricing`
+`gift-guidance-and-composition-never-invent-price-stock-eligibility-message-delivery-or-order-authority`
 
-## E3 → E4 registry composition
+## E3 and E4 separation
 
-The existing Builder/runtime architecture already composes these surfaces safely:
+The two user-facing builder concepts are intentionally separate:
 
-- `createStorefrontMultiProductComposerComponentRegistry()` extends the Guided Finder component registry;
-- `createStorefrontMultiProductComposerRendererRegistry()` extends the Guided Finder renderer registry.
-
-Therefore Table & Gift can present both:
-
-- `guided.finder`
-- `composer.builder`
-
-inside one Page Schema without adding a template-specific runtime branch or a second engine.
-
-E10 is consumed through shared editorial/story binding surfaces rather than creating another combined registry solely for this template.
-
-## Home composition
-
-Current coherent Home Page Schema order:
-
-1. Gift Hero
-2. Shop by Occasion
-3. Gift Finder
-4. Curated Gift Sets
-5. Build Your Gift
-6. Gift Message
-7. Corporate Gift CTA
-8. Gift Story
-9. Reviews
-10. Footer
-
-This order implements the previously accepted Table & Gift concepts in one coherent shopping journey. It is a structural implementation order for Wave 16; this document does not claim that a separate earlier literal section-by-section Home ordering had been recorded.
-
-## Gift Finder
-
-Component:
-
-- `guided.finder`
+### Gift Builder — E3 Guided Finder
 
 Purpose:
 
-- recipient;
-- occasion;
-- budget;
-- preference-based product discovery.
-
-The Finder ranks only products already eligible through the surrounding commerce/discovery authority.
+- ask structured questions;
+- guide by occasion;
+- guide by recipient/preference;
+- rank only already-eligible products;
+- expose explainable matching evidence.
 
 It does not:
 
 - create products;
-- override visibility/channel authority;
-- override price;
-- override inventory;
-- promise delivery;
-- infer unsupported dietary/origin facts.
+- create bundles;
+- override channel eligibility;
+- override pricing;
+- override stock;
+- create an order.
 
-## Build Your Gift
+### Build Your Gift — E4 Multi-Product Composer
 
-Component:
+Purpose:
 
-- `composer.builder`
+- compose a gift from **real catalog products**;
+- show composition progress;
+- show available eligible items;
+- display a non-authoritative current subtotal;
+- produce a composition intent that requires normal commerce revalidation.
 
-The composition is built from **real catalog products**.
+It does not:
 
-The template may present:
+- create a virtual bundle SKU;
+- create a fixed bundle price authority;
+- create discount authority;
+- create inventory authority;
+- silently replace unavailable products.
 
-- composition mode;
-- progress;
-- slots;
-- available eligible products;
-- current displayed subtotal;
-- revalidation notice;
-- compose/check action.
+The existing combined E4 registry is reused. `createStorefrontMultiProductComposerComponentRegistry()` already extends the Guided Finder registry, and the corresponding renderer registry already includes Guided Finder renderers. No Table & Gift-specific renderer branch is added.
 
-It does not create a virtual bundle SKU or a second product authority.
+## Exact Home composition
 
-The final product variants, prices, stock and other commerce values remain authoritative only after server/cart revalidation.
+The accepted Home sequence is locked in metadata and regression tests:
 
-## Gift Message
+1. Gift Builder
+2. Shop by Occasion
+3. Curated Gift Sets
+4. Build Your Gift
+5. Gift Message
+6. Corporate Gift CTA
+7. Footer
 
-The Home `Gift Message` section is currently a presentation / binding surface only.
+No additional Gift Hero, Gift Story or Reviews section is inserted into the accepted Wave 16 Home contract.
 
-It may display a message preview or copy supplied by the surrounding context when the actual checkout/order flow supports such data.
+### Gift Builder
 
-The template itself:
+Uses `guided.finder` from E3.
 
-- does not write an order;
-- does not persist gift-message data;
-- does not introduce an order mutation API;
-- does not bypass existing order authority.
+### Shop by Occasion
 
-A future merchant-facing editor may configure the section presentation through Builder contracts, but persistence remains owned by the relevant commerce/order workflow.
+Uses shared `commerce.collection-navigation`.
 
-## Corporate Gifts
+### Curated Gift Sets
 
-The `Corporate Gift CTA` is deliberately presentation/contact-oriented.
+Uses shared `commerce.product-grid` with normal product/catalog authority.
 
-It provides a route for corporate gifting enquiries without introducing:
+### Build Your Gift
 
-- automatic B2B pricing;
-- reseller status;
-- role/approval authority;
-- MOQ/order-multiple authority;
-- quote/offer authority;
-- corporate tax/pricing decisions.
+Uses `composer.builder` from E4 over real catalog items.
 
-Those remain owned by existing server-side B2B/commercial systems.
+### Gift Message
 
-## Editorial / Gift Story
+Uses a shared editorial presentation surface. This is a presentation/binding contract only; the template does not introduce gift-message persistence or order mutation authority.
 
-Table & Gift can present curated gift, occasion, producer or product stories through the existing editorial/story layer.
+### Corporate Gift CTA
 
-Origin, producer, dietary, certification or similar factual claims must come from genuine authoritative source data. The template may not fabricate such claims for visual storytelling.
+Uses a shared presentation/contact CTA. It does not create corporate pricing, partner approval, MOQ, quote or B2B authority.
 
 ## Catalog and search
 
-Catalog remains an E2 discovery surface with occasion-oriented collection navigation.
+Catalog and search remain E2 authority surfaces.
 
-Search combines:
+Occasion navigation can organize existing eligible products. Guided Finder assistance may rank or explain products, but does not replace catalog/channel eligibility.
 
-- E2 result authority;
-- optional E3 Guided Finder assistance.
-
-The Finder does not replace search eligibility/channel authority.
-
-## Product / Gift Set Detail
-
-Product role metadata:
-
-- `gift-set-detail`
+## Product page
 
 Desktop/tablet:
 
@@ -241,65 +197,46 @@ Desktop/tablet:
 
 Mobile:
 
-- gallery and buybox: 12/12.
+- gallery and buybox reflow to 12/12.
 
-PDP reuses:
+PDP includes:
 
 - common product gallery;
-- common product info;
-- generic option selector;
+- common product information;
 - purchase CTA;
-- `composer.pairing-row` for related real products;
-- common product recommendations.
+- E3 explanation surface: `Miért illik az alkalomhoz?`;
+- common recommendation row.
 
-Pairing items remain independent real products and enter cart/order authority through normal commerce flows.
+Finder evidence remains explanatory and cannot override commerce authority.
 
 ## Cart
 
-Cart combines:
+Cart may show E4 `composer.summary` for a composed gift together with the common cart summary.
 
-- `composer.summary` for composed gift-group presentation;
-- common `commerce.cart-summary`.
+Composition grouping is presentation/read-model information. Final product lines, price, stock, channel and order state remain governed by existing commerce authority.
 
-The composition summary does not replace cart lines or pricing authority.
+## Checkout and Gift Message
 
-Final commerce values remain revalidated.
+Checkout is bound to **E13** and remains provider-neutral.
 
-## Checkout
+The checkout Page Schema may display an `Ajándéküzenet` presentation/help surface. The template itself does not persist the message and does not create a new checkout/order mutation API.
 
-Checkout combines:
+No K&H, vPOS, merchant credential or payment secret is embedded in the template.
 
-- `composer.summary`;
-- common `commerce.checkout-summary`.
+## Corporate gifting boundary
 
-Engine binding:
+Corporate Gift CTA is contact-oriented only.
 
-- `E4+E13`
+It does not introduce:
 
-Checkout remains provider-neutral.
+- automatic corporate pricing;
+- reseller/partner status;
+- approval authority;
+- MOQ/order-multiple authority;
+- quote/offer authority;
+- corporate tax authority.
 
-No K&H, vPOS, merchant identifier, payment secret or provider credential is embedded in the Table & Gift Page Schema.
-
-## Account
-
-Account may display prior composed gift grouping through:
-
-- `composer.order-group`
-
-This is a read/presentation surface over existing order data and does not become an order ledger or refund authority.
-
-## Content / Gift Guide
-
-Content preset combines:
-
-- Gift Finder;
-- Build Your Gift;
-- editorial Gift Guide.
-
-Metadata:
-
-- `contentRole = gift-guide`
-- `engineBinding = E3+E4+E10`
+Existing server-side B2B/commercial systems remain authoritative where those features are later used.
 
 ## Page package
 
@@ -312,7 +249,7 @@ Table & Gift ships 14 Alap-compatible Page Schema presets:
 5. Cart
 6. Checkout
 7. Account
-8. Content / Gift Guide
+8. Content / Gift Builder Hub
 9. Blog Index
 10. Blog Article
 11. FAQ
@@ -320,53 +257,60 @@ Table & Gift ships 14 Alap-compatible Page Schema presets:
 13. Legal
 14. Not Found
 
+Content role:
+
+`gift-builder-hub`
+
+Content engine binding:
+
+`E3+E4`
+
 Minimum plan:
 
-- `alap`
+`alap`
 
 Demo namespace:
 
-- `food-table-gift`
+`food-table-gift`
 
-## Demo fixtures
+## Demo content
 
-Namespaced demo fixtures:
+Namespaced fixtures:
 
 - collection `birthday-gifts`;
 - collection `thank-you-gifts`;
-- product `pantry-selection`;
+- product `celebration-box`;
 - product `table-selection`;
-- content `gift-guide`.
+- content `corporate-gifting`.
 
-Deterministic local demo media:
+Deterministic local media:
 
-- `public/storefront-demo/table-gift/hero.svg`
-- `public/storefront-demo/table-gift/story.svg`
-- `public/storefront-demo/table-gift/build.svg`
+- `public/storefront-demo/table-gift/message.svg`
+- `public/storefront-demo/table-gift/corporate.svg`
+- `public/storefront-demo/table-gift/gift.svg`
 
-Demo/test coverage rejects invented fixed bundle pricing, virtual bundle SKU claims, guaranteed delivery, unsupported dietary certification and fake scarcity.
+Demo fixtures are regression-checked against fabricated fixed-price, guaranteed-stock, limited-time, bundle-SKU and exclusive-price authority claims.
 
 ## Builder compatibility
 
-Table & Gift is native to the existing Builder foundation:
+Table & Gift is native to the existing Builder/runtime foundation:
 
-- versioned template manifest;
+- Template Manifest;
 - Page Schema presets;
 - shared component registry;
-- shared E3/E4 renderer registry chain;
-- controlled binding paths;
+- E3/E4 component-key/version rendering;
 - responsive configuration;
-- capability gate;
+- binding paths;
 - namespaced demo lifecycle;
 - draft-only template installation.
 
-It is not implemented as a hardcoded route or template-name conditional renderer.
+No `food.table-gift` conditional runtime renderer branch is introduced.
 
-The actual drag/drop Visual Builder editor and merchant-facing Section Preset Library remain intentionally deferred to their later roadmap blocks.
+The actual drag/drop Visual Builder UI remains deferred to its later roadmap block.
 
-## Template-install mutation boundary
+## Template-install safety
 
-The existing installation boundary remains:
+The established mutation boundary remains:
 
 - storefront Page Schema drafts: allowed;
 - products: no mutation;
@@ -375,57 +319,32 @@ The existing installation boundary remains:
 - orders: no mutation;
 - B2B authority: no mutation.
 
-Gift Finder configuration, actual order/gift-message persistence and business authority remain outside template-switch ownership.
+Finder configuration, Composer configuration and commerce authorities remain outside template-switch mutation ownership.
 
-## Regression coverage
+## Implementation correction evidence
 
-Wave 16 tests verify:
+During Wave 16 the branch received a parallel preliminary Table & Gift composition that included extra Home sections and E10. That state did not match the recovered accepted blueprint.
 
-- exact `food.table-gift` key/version;
-- accepted premium gifting/occasion/gastro direction;
-- structural gifting journey;
-- E1/E2/E3/E4/E10/E13 engine contract;
-- 14 Alap-compatible Page Schema presets;
-- current coherent Home composition;
-- E3 Guided Finder rendering;
-- E4 Gift Builder rendering;
-- occasion navigation;
-- curated real-product gift sets;
-- editorial gift story surface;
-- responsive 7/12 + 5/12 PDP and 12/12 mobile reflow;
-- pairings as separate real products;
-- draft-only template installation;
-- no fake bundle SKU/fixed price/scarcity/delivery/dietary claim;
-- Corporate Gift CTA without B2B authority;
-- Gift Message without order mutation authority;
-- provider-neutral E13 checkout.
+The branch was corrected with a normal fast-forward commit — no force push — to the accepted contract:
 
-## Implementation diff evidence
+`Gift Builder → Shop by Occasion → Curated Gift Sets → Build Your Gift → Gift Message → Corporate Gift CTA → Footer`
 
-Compared with Gallery Edit final head `96f74bac17443f0c733f089da8decad3d13ecd11`, Table & Gift implementation head `095f3b3beb3607d5aab32c3101329d906f6fa1ac` is exactly:
+with engine contract:
 
-- **1 commit ahead**;
-- **0 commits behind**;
-- **5 added files**;
-- **0 deletions**.
+`E1 + E2 + E3 + E4 + E13`
 
-Implementation files:
+A subsequent CI run correctly found two invalid test import paths for the existing E4 registry. The validator and engine contracts were not weakened. The imports were corrected to the real shared modules:
 
-1. `src/lib/builder/templates/table-gift.ts`
-2. `tests/storefront-table-gift-template.test.tsx`
-3. `public/storefront-demo/table-gift/hero.svg`
-4. `public/storefront-demo/table-gift/story.svg`
-5. `public/storefront-demo/table-gift/build.svg`
+- `@/components/builder/storefront-multi-product-composer`
+- `@/lib/builder/storefront-multi-product-composer`
 
-No SQL/customer-baseline or pre-existing commerce/B2B authority file is modified.
+## Accepted implementation CI evidence
 
-## Implementation CI evidence
+Accepted implementation head:
 
-Implementation head:
+`d0cbdfc64fb94b53f8b1bba8c8246933f9f9d475`
 
-`095f3b3beb3607d5aab32c3101329d906f6fa1ac`
-
-GitHub CI #2033 / Actions run `34260650765`: **SUCCESS**.
+GitHub **CI #2040 / Actions run `34261111988`: SUCCESS**.
 
 Verified:
 
@@ -433,49 +352,53 @@ Verified:
 - customer database baseline guard: PASS;
 - quality: **200 test files / 1344 tests PASS**;
 - TypeScript: PASS;
-- production build: PASS;
+- GitHub production build: PASS;
 - release manifest generation/upload: PASS;
 - Fresh Install: intentionally SKIPPED because Wave 16 introduces no baseline migration.
 
 Implementation release manifest:
 
 - version: `v24`
-- SHA: `095f3b3beb3607d5aab32c3101329d906f6fa1ac`
+- SHA: `d0cbdfc64fb94b53f8b1bba8c8246933f9f9d475`
 - ref: `feature/storefront-table-gift-wave16`
 - environment: `ci`
-- release hash: `79b616ffdafa84a55a1b1381ca63393a1ee17bbcb32f0719e732c7f4e5887e17`
+- release hash: `1f171304d9450dca3fba6eb5e47b712aea86408248cb693335a8a3744b66316e`
 
-The production build emitted only already-known non-blocking Supabase Edge-runtime/autoprefixer warnings.
+The GitHub production-build step is CI compilation only and is **not a Vercel/Supabase deployment**.
 
-## Deployment discipline
+## Explicit no-deploy rule
 
-Wave 16 intentionally stops at implementation/CI/documentation/stacked-Draft-PR closure.
+Wave 16 does not trigger:
 
-There is **no per-wave Vercel or Supabase deployment**.
+- Vercel Preview deployment;
+- Vercel production deployment;
+- Supabase staging mutation;
+- Supabase production mutation;
+- production migration.
 
-The current template-wave sequence will be accumulated first. Once all target waves are complete, a single controlled release-candidate process can validate and deploy the combined stack, minimizing build/deploy churn and protecting the existing production environment.
+Deployment remains deferred until the current storefront template-wave sequence is complete.
 
 ## Explicit non-scope
 
 Wave 16 does not implement:
 
 - a new gifting engine;
+- E10 Story Engine as a required Table & Gift dependency;
+- Gift Hero/Gift Story/Reviews additions to the accepted Home contract;
 - virtual bundle SKU authority;
-- fixed bundle price authority;
-- product/pricing/inventory authority;
-- delivery-date promise authority;
-- dietary/origin certification authority;
-- Gift Message persistence or direct order mutation;
-- corporate/B2B pricing or membership authority;
+- fixed gift-box price authority;
+- automatic substitution;
+- gift-message persistence authority;
+- corporate pricing or B2B authority;
+- delivery-date guarantee authority;
 - Visual Builder drag/drop UI;
 - SQL/customer-baseline migration;
 - live storefront route switch;
-- Vercel Preview deployment;
+- staging/production mutation;
 - production deployment;
-- Supabase production mutation;
 - payment/K&H/vPOS change;
-- Water-K tenant-status change.
+- Water-K tenant status change.
 
 ## Closure rule
 
-Wave 16 is fully implementation-closed only after this documentation HEAD passes full branch CI and a stacked Draft PR is created directly on Gallery Edit / PR #138 and verified mergeable.
+Wave 16 is fully closed only after this corrected documentation HEAD passes full branch CI and a stacked Draft PR is created directly on Gallery Edit / PR #138 and verified mergeable.
