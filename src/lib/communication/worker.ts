@@ -4,8 +4,12 @@ import { getCommunicationTemplate } from './templates';
 import { brandedSubject, getCommunicationIdentityForInstance } from './identity';
 
 type ClaimedJob={id:string;instance_id:string;recipient_email:string;purpose:'transactional'|'marketing';template_key:string;payload:Record<string,unknown>;claim_token:string;attempts:number};
+type OfficeThreadReplyRow={id:string;conversation_type:string;mailbox_key:string|null};
+type OfficeRouteReplyRow={reply_token:string};
+type OfficeMailboxReplyRow={inbound_address:string;is_active:boolean};
 export type WorkerSummary={recovered:number;queuedStock:number;queuedRecovery:number;claimed:number;sent:number;failed:number;blocked:number;tenantFailures:number};
 const empty=():WorkerSummary=>({recovered:0,queuedStock:0,queuedRecovery:0,claimed:0,sent:0,failed:0,blocked:0,tenantFailures:0});
+const uuidPattern=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 async function persistFailedClaim(admin:ReturnType<typeof createAdminClient>,instanceId:string,job:ClaimedJob,message:string,retry:boolean){
   const{data,error}=await admin.rpc('fail_communication_job_v2',{p_instance_id:instanceId,p_id:job.id,p_claim_token:job.claim_token,p_error:message,p_retry:retry});
   if(error||data!==true)throw error??new Error('COMMUNICATION_FAIL_EVIDENCE_MISSING');
@@ -13,6 +17,30 @@ async function persistFailedClaim(admin:ReturnType<typeof createAdminClient>,ins
 function add(target:WorkerSummary,value:WorkerSummary){
   target.recovered+=value.recovered;target.queuedStock+=value.queuedStock;target.queuedRecovery+=value.queuedRecovery;
   target.claimed+=value.claimed;target.sent+=value.sent;target.failed+=value.failed;target.blocked+=value.blocked;target.tenantFailures+=value.tenantFailures;
+}
+function plusReplyAddress(baseAddress:string,replyToken:string){
+  const normalized=baseAddress.trim().toLowerCase(),at=normalized.lastIndexOf('@');
+  if(at<=0||at===normalized.length-1||!uuidPattern.test(replyToken))throw new Error('OFFICE_REPLY_MAILBOX_INVALID');
+  return `${normalized.slice(0,at)}+${replyToken}@${normalized.slice(at+1)}`;
+}
+async function resolveOfficeReplyTo(admin:ReturnType<typeof createAdminClient>,instanceId:string,job:ClaimedJob){
+  if(job.template_key!=='support_reply')return null;
+  const threadId=typeof job.payload?.officeThreadId==='string'?job.payload.officeThreadId.trim():'';
+  if(!uuidPattern.test(threadId))throw new Error('OFFICE_REPLY_THREAD_REQUIRED');
+  const[{data:thread,error:threadError},{data:route,error:routeError}]=await Promise.all([
+    admin.from('office_threads').select('id,conversation_type,mailbox_key').eq('instance_id',instanceId).eq('id',threadId).maybeSingle(),
+    admin.from('office_thread_email_routes').select('reply_token').eq('instance_id',instanceId).eq('thread_id',threadId).maybeSingle(),
+  ]);
+  if(threadError)throw threadError;if(routeError)throw routeError;
+  const typedThread=(thread??null) as OfficeThreadReplyRow|null,typedRoute=(route??null) as OfficeRouteReplyRow|null;
+  if(!typedThread||typedThread.conversation_type!=='customer'||!typedThread.mailbox_key||!typedRoute?.reply_token)throw new Error('OFFICE_REPLY_MAILBOX_NOT_CONFIGURED');
+  const{data:mailbox,error:mailboxError}=await admin.from('office_mailboxes')
+    .select('inbound_address,is_active')
+    .eq('instance_id',instanceId).eq('mailbox_key',typedThread.mailbox_key).eq('is_active',true).maybeSingle();
+  if(mailboxError)throw mailboxError;
+  const typedMailbox=(mailbox??null) as OfficeMailboxReplyRow|null;
+  if(!typedMailbox?.is_active||!typedMailbox.inbound_address)throw new Error('OFFICE_REPLY_MAILBOX_NOT_CONFIGURED');
+  return plusReplyAddress(typedMailbox.inbound_address,typedRoute.reply_token);
 }
 
 async function runForInstance(instanceId:string,limit:number):Promise<WorkerSummary>{
@@ -56,13 +84,14 @@ async function runForInstance(instanceId:string,limit:number):Promise<WorkerSumm
               summary.blocked++;continue;
             }
           }
-          const result=await provider.send({to:job.recipient_email,subject:brandedSubject(template.subject,identity.brandName),templateKey:job.template_key,purpose:job.purpose,payload:job.payload??{},identity});
+          const replyTo=await resolveOfficeReplyTo(admin,instanceId,job);
+          const result=await provider.send({to:job.recipient_email,subject:brandedSubject(template.subject,identity.brandName),templateKey:job.template_key,purpose:job.purpose,payload:job.payload??{},identity,replyTo});
           const{data:completed,error:completeError}=await admin.rpc('complete_communication_job_v2',{p_instance_id:instanceId,p_id:job.id,p_claim_token:job.claim_token,p_provider_message_id:result.providerMessageId});
           if(completeError||completed!==true)throw completeError??new Error('COMMUNICATION_CLAIM_LOST');
           if(job.template_key==='stock_available')await admin.from('stock_notifications').update({status:'sent',sent_at:new Date().toISOString()}).eq('communication_job_id',job.id).eq('instance_id',instanceId);
           summary.sent++;
         }catch(error){
-          const message=error instanceof Error?error.message:'UNKNOWN_COMMUNICATION_ERROR',retry=job.attempts<5;
+          const message=error instanceof Error?error.message:'UNKNOWN_COMMUNICATION_ERROR',retry=job.attempts<5&&!message.startsWith('OFFICE_REPLY_');
           try{await persistFailedClaim(admin,instanceId,job,message,retry);summary.failed++;}
           catch(persistError){console.error('communication failure evidence missing',{instanceId,jobId:job.id,error:persistError});throw persistError;}
         }
