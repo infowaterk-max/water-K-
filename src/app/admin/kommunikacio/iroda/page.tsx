@@ -134,7 +134,7 @@ export default async function OfficeWorkspace({searchParams}:{searchParams:Promi
   const canAct=!loadError&&!privacyFallback;
   const now=Date.now();
 
-  const lastReadFor=(thread:Thread)=>readMap.has(thread.id)?readMap.get(thread.id)??null:thread.last_read_at;
+  const lastReadFor=(thread:Thread)=>readMap.get(thread.id)??null;
   const unread=(thread:Thread)=>{
     const lastRead=lastReadFor(thread);
     return messages.some(message=>
