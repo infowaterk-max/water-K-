@@ -48,7 +48,7 @@ export type StorefrontPageDocument={
   metadata?:Record<string,unknown>;
 };
 
-export type StorefrontResolvedComponentNode=StorefrontComponentNode&{
+export type StorefrontResolvedComponentNode=Omit<StorefrontComponentNode,'children'>&{
   resolved:{hidden:boolean;gridSpan:StorefrontGridSpan};
   children:StorefrontResolvedComponentNode[];
 };
@@ -176,7 +176,7 @@ export function validateStorefrontPageDocument(document:StorefrontPageDocument,r
 
     const definition=registry.get(node.componentKey,node.componentVersion);
     if(!definition){
-      issue(violations,'COMPONENT_NOT_REGISTERED',path,'Component key/version is not registered.', 'error',{componentKey:node.componentKey,componentVersion:node.componentVersion});
+      issue(violations,'COMPONENT_NOT_REGISTERED',path,'Component key/version is not registered.','error',{componentKey:node.componentKey,componentVersion:node.componentVersion});
     }else{
       if(!definition.manifest.pageTypes.includes(document.pageType))issue(violations,'COMPONENT_PAGE_TYPE_NOT_ALLOWED',path,'Component is not allowed on this page type.');
       if(capability&&!hasStorefrontRuntimeCapability(definition.manifest.capability,capability))issue(violations,'COMPONENT_CAPABILITY_REQUIRED',path,'Runtime capability requirement is not satisfied.');
