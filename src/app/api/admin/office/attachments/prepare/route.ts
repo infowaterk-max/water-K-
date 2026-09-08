@@ -25,10 +25,10 @@ const schema=z.object({
 type PreparedRow={attachmentId:string;path:string;name:string;contentType:(typeof OFFICE_PRIVATE_ATTACHMENT_MIME_TYPES)[number];size:number;expiresAt:string};
 
 export async function POST(request:Request){
-  const actor=await getAdminRequestUser('support.manage');
+  const actor=await getAdminRequestUser();
   if(!actor)return NextResponse.json({error:'Nincs jogosultság.'},{status:403});
   if(!(await hasCurrentPlanFeature('officeCommunication')))return NextResponse.json({error:'A Digitális iroda Pro csomaghoz kötött.'},{status:403});
-  let scope;try{scope=await requireCurrentStoreContext('support.manage')}catch{return NextResponse.json({error:'Nincs jogosultság ehhez a webshophoz.'},{status:403})}
+  let scope;try{scope=await requireCurrentStoreContext()}catch{return NextResponse.json({error:'Nincs jogosultság ehhez a webshophoz.'},{status:403})}
   let raw:unknown;try{raw=await request.json()}catch{return NextResponse.json({error:'Érvénytelen kérés.'},{status:400})}
   const parsed=schema.safeParse(raw);
   if(!parsed.success)return NextResponse.json({error:'Érvénytelen csatolmányadat.'},{status:400});
