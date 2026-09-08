@@ -23,7 +23,8 @@ describe('campaign and office workspace mutation safety',()=>{
    expect(page).toContain('canAct?<form action={createThreadAction}');
    expect(page).toContain('canAct?<form action={createPrivateThreadAction}');
    expect(page).toContain('!isPrivate&&canAct&&<form action={updateThreadAction}');
-   expect(page).toContain('canAct&&isUnread&&<form action={markThreadReadAction}');
+   expect(page).toContain('canAct&&(isUnread||hasUnseenMention)&&<form action={markThreadReadAction}');
+   expect(page).toContain('canAct&&isThreadOwner&&<>');
    expect(page).toContain('? canAct&&<form action={addPrivateMessageAction}');
    expect(page).toContain(': canAct?<>');
    expect(page).toContain('<form action={createTaskAction}');
