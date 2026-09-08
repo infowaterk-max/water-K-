@@ -145,6 +145,7 @@ jobs:
         run: |
           node -e "const m=require('./supabase/customer-baseline/manifest.json'); if(m.status!=='snapshot-reviewed'||m.freshInstallProofRequired!==true){throw new Error('baseline must be snapshot-reviewed and still require Fresh Install proof')}"
           test -s supabase/customer-baseline/migrations/0001_shoperation_v1_schema.sql
+          test -s supabase/customer-baseline/migrations/0002_block7_b2b_account_ownership.sql
 
       - name: Fresh target preflight
         shell: bash
@@ -155,7 +156,7 @@ jobs:
         run: |
           {
             echo 'BEGIN;'
-            cat supabase/customer-baseline/migrations/0001_shoperation_v1_schema.sql
+            while IFS= read -r migration; do cat "$migration"; done < <(find supabase/customer-baseline/migrations -maxdepth 1 -type f -name '*.sql' | sort)
             cat supabase/customer-baseline/auth-bootstrap.sql
             cat supabase/customer-baseline/seed.sql
             echo 'COMMIT;'
@@ -178,7 +179,7 @@ jobs:
             echo '## Shoperation Fresh Install proof'
             echo ''
             echo '- Target preflight: passed'
-            echo '- Reviewed baseline: applied atomically'
+            echo '- Reviewed snapshot + forward migrations: applied atomically'
             echo '- Supabase Auth bootstrap: applied'
             echo '- Neutral seed: applied'
             echo '- Target postflight: passed'
