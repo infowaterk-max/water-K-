@@ -90,12 +90,15 @@ describe('Digital Office private attachments',()=>{
     expect(finalize).toContain("db.rpc('admin_finalize_office_private_message_v1'");
   });
 
-  it('keeps plan, tenant and support authority on every attachment API route',()=>{
+  it('keeps plan and tenant gates while letting current participant capability decide private attachment access',()=>{
     for(const route of[prepare,finalize,download]){
-      expect(route).toContain("getAdminRequestUser('support.manage')");
+      expect(route).toContain('getAdminRequestUser()');
       expect(route).toContain("hasCurrentPlanFeature('officeCommunication')");
-      expect(route).toContain("requireCurrentStoreContext('support.manage')");
+      expect(route).toContain('requireCurrentStoreContext()');
+      expect(route).not.toContain("getAdminRequestUser('support.manage')");
+      expect(route).not.toContain("requireCurrentStoreContext('support.manage')");
     }
+    expect(finalize).toContain('OFFICE_OBJECT_LINK_PERMISSION_REQUIRED');
   });
 
   it('loads only ready attachments for already-accessible threads and fails closed on read errors',()=>{
