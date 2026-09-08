@@ -88,6 +88,10 @@ function entryFromRow(row:OverrideRow){
   };
 }
 
+function isSimpleRoleExtra(row:OverrideRow){
+  return row.effect==='allow'&&row.scope_type==='all'&&row.scope_value===null&&row.valid_until===null;
+}
+
 async function activeOverrides(admin:ReturnType<typeof createAdminClient>,instanceId:string,targetUserId:string){
   const{data,error}=await admin.from('store_permission_overrides')
     .select('id,permission_code,effect,scope_type,scope_value,valid_until')
@@ -106,6 +110,38 @@ async function replaceOverrides(
   if(error)throw error;
   const evidence=(data??{}) as {instanceId?:string;userId?:string;overrideCount?:number};
   if(evidence.instanceId!==instanceId||evidence.userId!==targetUserId||evidence.overrideCount!==entries.length)throw new Error('STORE_PERMISSION_EVIDENCE_MISSING');
+}
+
+export async function replacePermissionExtrasAction(_:AdvancedPermissionActionState,formData:FormData):Promise<AdvancedPermissionActionState>{
+  try{
+    const target=uuidSchema.safeParse(String(formData.get('userId')??''));
+    const requested=formData.getAll('extraPermissionCode')
+      .map(value=>parseCapability(value))
+      .filter((value):value is StoreCapability=>value!==null);
+    if(!target.success)return{status:'error',message:'Érvénytelen csapattag.'};
+
+    const{actor,scope,admin}=await context();
+    const now=new Date().toISOString();
+    const{data:binding,error:bindingError}=await admin.from('role_bindings')
+      .select('id,role_code').eq('organization_id',scope.organizationId).eq('instance_id',scope.instanceId)
+      .eq('user_id',target.data).is('revoked_at',null).lte('valid_from',now)
+      .or(`valid_until.is.null,valid_until.gt.${now}`).order('created_at',{ascending:false}).limit(1).maybeSingle();
+    if(bindingError)throw bindingError;
+    if(!binding)throw new Error('STORE_PERMISSION_TARGET_BINDING_REQUIRED');
+    if(binding.role_code==='owner')throw new Error('STORE_PERMISSION_TARGET_OWNER_FORBIDDEN');
+
+    const{data:presetData,error:presetError}=await admin.from('store_role_permission_presets')
+      .select('permission_code').eq('role_code',binding.role_code);
+    if(presetError)throw presetError;
+    const inherited=new Set((presetData??[]).map(row=>String(row.permission_code)));
+    const extras=[...new Set(requested)].filter(code=>!inherited.has(code));
+    const rows=await activeOverrides(admin,scope.instanceId,target.data);
+    const preserved=rows.filter(row=>!isSimpleRoleExtra(row)).map(entryFromRow);
+    const entries=[...preserved,...extras.map(permissionCode=>({permissionCode,effect:'allow' as const,scopeType:'all' as const,scopeValue:null,validUntil:null}))];
+    await replaceOverrides(admin,scope.instanceId,actor.id,target.data,entries);
+    refresh(target.data);
+    return{status:'success',message:'A szerepkörhöz adott extra jogosultságok mentve.'};
+  }catch(error){return{status:'error',message:messageFromError(error)}}
 }
 
 export async function addPermissionOverrideAction(_:AdvancedPermissionActionState,formData:FormData):Promise<AdvancedPermissionActionState>{
