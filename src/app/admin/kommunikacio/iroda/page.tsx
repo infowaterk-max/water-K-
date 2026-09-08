@@ -30,8 +30,9 @@ type Order={id:string;order_number:string;customer_email:string;status:string};
 type Job={id:string;status:string;last_error:string|null};
 type Binding={user_id:string;role_code:string;instance_id:string|null;valid_until:string|null};
 type Profile={id:string;email:string|null;full_name:string|null};
-type Draft={id:string;thread_id:string|null;body:string;updated_at:string};
+type ReplyDraft={id:string;thread_id:string|null;body:string;revision:number;updated_at:string};
 type Mailbox={mailbox_key:string;is_active:boolean};
+type EmailRoute={thread_id:string};
 type Assignee={userId:string;label:string};
 
 const priorityLabel:Record<string,string>={low:'Alacsony',normal:'Normál',high:'Magas',urgent:'Sürgős'};
@@ -65,7 +66,7 @@ export default async function CustomerEmailWorkspace({searchParams}:{searchParam
         .eq('organization_id',scope.organizationId).is('revoked_at',null).lte('valid_from',new Date().toISOString())
         .or(`instance_id.eq.${scope.instanceId},instance_id.is.null`)
       :Promise.resolve({data:[] as Binding[],error:null}),
-    db.from('office_drafts').select('id,thread_id,body,updated_at')
+    db.from('office_drafts').select('id,thread_id,body,revision,updated_at')
       .eq('instance_id',scope.instanceId).eq('author_user_id',actor.id).eq('draft_type','reply')
       .order('updated_at',{ascending:false}).limit(200),
     db.from('office_mailboxes').select('mailbox_key,is_active')
@@ -79,6 +80,10 @@ export default async function CustomerEmailWorkspace({searchParams}:{searchParam
       .eq('instance_id',scope.instanceId).in('thread_id',threadIds).in('kind',['email_in','email_out'])
       .order('created_at',{ascending:false}).limit(1500)
     :{data:[] as Message[],error:null};
+  const routeResult=threadIds.length
+    ?await db.from('office_thread_email_routes').select('thread_id')
+      .eq('instance_id',scope.instanceId).in('thread_id',threadIds)
+    :{data:[] as EmailRoute[],error:null};
 
   const bindings=((bindingResult.data??[])as Binding[]).filter(row=>active(row.valid_until));
   const supportUserIds=[...new Set(bindings.filter(row=>supportRoles.has(row.role_code)).map(row=>row.user_id))];
@@ -93,13 +98,14 @@ export default async function CustomerEmailWorkspace({searchParams}:{searchParam
   const tasks=((taskResult.data??[])as Task[]).filter(task=>task.thread_id===null||threadIds.includes(task.thread_id));
   const orders=(orderResult.data??[])as Order[];
   const jobMap=new Map(((jobResult.data??[])as Job[]).map(job=>[job.id,job]));
-  const drafts=(draftResult.data??[])as Draft[];
-  const draftByThread=new Map<string,Draft>();
+  const drafts=(draftResult.data??[])as ReplyDraft[];
+  const draftByThread=new Map<string,ReplyDraft>();
   for(const draft of drafts){if(draft.thread_id&&!draftByThread.has(draft.thread_id))draftByThread.set(draft.thread_id,draft);}
+  const routedThreadIds=new Set(((routeResult.data??[])as EmailRoute[]).map(route=>route.thread_id));
   const activeMailboxKeys=new Set(((mailboxResult.data??[])as Mailbox[]).filter(mailbox=>mailbox.is_active).map(mailbox=>mailbox.mailbox_key));
   const canChat=await hasStoreCapability(scope.instanceId,actor.id,'office.internal_chat',{resourceOwnerUserId:actor.id,resourceAssignedUserId:actor.id});
 
-  const loadError=Boolean(threadResult.error||taskResult.error||orderResult.error||jobResult.error||bindingResult.error||draftResult.error||mailboxResult.error||messageResult.error||profileResult.error);
+  const loadError=Boolean(threadResult.error||taskResult.error||orderResult.error||jobResult.error||bindingResult.error||draftResult.error||mailboxResult.error||messageResult.error||routeResult.error||profileResult.error);
   const now=Date.now();
   const unread=(thread:Thread)=>messages.some(message=>message.thread_id===thread.id&&message.kind==='email_in'&&(!thread.last_read_at||new Date(message.created_at)>new Date(thread.last_read_at)));
   const overdue=tasks.filter(task=>task.status==='open'&&task.due_at&&new Date(task.due_at).getTime()<now);
@@ -161,12 +167,13 @@ export default async function CustomerEmailWorkspace({searchParams}:{searchParam
           const threadMessages=messages.filter(message=>message.thread_id===thread.id).slice(0,20).reverse();
           const order=orders.find(item=>item.id===thread.order_id);
           const isUnread=unread(thread);
-          const sendingConfigured=Boolean(thread.mailbox_key&&activeMailboxKeys.has(thread.mailbox_key));
-          const draft=draftByThread.get(thread.id);
+          const sendingConfigured=Boolean(thread.mailbox_key&&activeMailboxKeys.has(thread.mailbox_key)&&routedThreadIds.has(thread.id));
+          const replyDraft=draftByThread.get(thread.id);
           return <article className="card" key={thread.id}>
             <div className="adminToolbar">
               <span className="badge">{priorityLabel[thread.priority]??thread.priority}</span>
               {isUnread&&<span className="badge">Olvasatlan</span>}
+              {replyDraft&&<span className="badge">Saját piszkozat</span>}
               {order&&<Link className="textLink" href={`/admin/rendelesek/${order.id}`}>{order.order_number}</Link>}
             </div>
             <h3>{thread.subject}</h3>
@@ -189,7 +196,7 @@ export default async function CustomerEmailWorkspace({searchParams}:{searchParam
               })}
             </div>
 
-            {thread.customer_email&&!loadError&&<section className="featurePanel"><h4>Válasz az ügyfélnek</h4><OfficeCustomerEmailForm threadId={thread.id} sendingConfigured={sendingConfigured} initialDraft={draft?{id:draft.id,body:draft.body}:undefined}/></section>}
+            {thread.customer_email&&!loadError&&<section className="featurePanel"><h4>Válasz az ügyfélnek</h4><OfficeCustomerEmailForm threadId={thread.id} sendingConfigured={sendingConfigured} initialDraft={replyDraft?{id:replyDraft.id,revision:replyDraft.revision,body:replyDraft.body}:undefined}/></section>}
             {!loadError&&<form action={createTaskAction} className="stackForm"><input type="hidden" name="threadId" value={thread.id}/><input name="title" required placeholder="Kapcsolódó feladat"/><input name="due" type="datetime-local"/><button className="btn btnGhost">Feladat létrehozása</button></form>}
           </article>;
         })}

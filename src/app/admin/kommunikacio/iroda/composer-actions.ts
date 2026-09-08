@@ -7,8 +7,15 @@ import {requirePlanFeature} from '@/lib/plans/access';
 import {createAdminClient} from '@/lib/supabase/admin';
 import {requireCurrentStoreContext} from '@/lib/instances/scope';
 
-export type OfficeComposerActionState={status:'idle'|'success'|'blocked'|'error';message:string;draftId?:string};
+export type OfficeComposerActionState={
+  status:'idle'|'success'|'blocked'|'conflict'|'error';
+  message:string;
+  draftId?:string;
+  revision?:number;
+};
 export const officeComposerInitialState:OfficeComposerActionState={status:'idle',message:''};
+
+type DraftSaveMode='manual'|'autosave';
 
 class OfficeComposerError extends Error{
   readonly reason:string;
@@ -33,6 +40,9 @@ function reasonFrom(error:unknown){
 
 function stateForError(error:unknown):OfficeComposerActionState{
   const reason=reasonFrom(error);
+  if(reason.includes('office_draft_conflict')){
+    return{status:'conflict',message:'A piszkozat közben egy másik munkamenetben megváltozott. A biztonság kedvéért nem írtuk felül; frissítsd az oldalt, majd ellenőrizd a frissebb változatot.'};
+  }
   if(reason.includes('office_mailbox_not_configured')||reason.includes('office_email_route_missing')){
     return{status:'blocked',message:'A Digitális Iroda e-mail-küldése még nincs aktiválva. Küldeni csak a később külön jóváhagyott Office postafiók beállítása után lehet; a jelenlegi webshopos e-mail címeket nem használjuk.'};
   }
@@ -45,14 +55,22 @@ function stateForError(error:unknown):OfficeComposerActionState{
   return{status:'error',message:'A művelet most nem menthető. A beírt tartalmat nem tekintjük elküldöttnek.'};
 }
 
+function expectedRevision(formData:FormData,draftId:string|null){
+  if(!draftId)return null;
+  const parsed=Number(String(formData.get('revision')??''));
+  return Number.isSafeInteger(parsed)&&parsed>0?parsed:null;
+}
+
 async function mutateDraft(db:ReturnType<typeof createAdminClient>,input:{instanceId:string;userId:string;action:'save'|'delete';payload:Record<string,unknown>}){
-  const{data,error}=await db.rpc('admin_mutate_office_draft_v1',{
+  const{data,error}=await db.rpc('admin_mutate_office_draft_v2',{
     p_instance_id:input.instanceId,p_actor:input.userId,p_action:input.action,p_payload:input.payload,
   });
   if(error)throw new OfficeComposerError([error.code,error.message,error.details,error.hint].filter(Boolean).join(' '));
-  const result=(data??{})as{id?:string;draftId?:string;deleted?:boolean};
-  if(!result.id||!result.draftId)throw new OfficeComposerError('OFFICE_DRAFT_EVIDENCE_MISSING');
-  return result;
+  const result=(data??{})as{id?:string;draftId?:string;deleted?:boolean;revision?:number};
+  if(!result.id||!result.draftId||!Number.isSafeInteger(Number(result.revision))||Number(result.revision)<1){
+    throw new OfficeComposerError('OFFICE_DRAFT_EVIDENCE_MISSING');
+  }
+  return{...result,revision:Number(result.revision)};
 }
 
 type QueueDraftRow={id:string;draft_type:'new_email'|'reply';thread_id:string|null;to_email:string|null;subject:string;body:string};
@@ -103,31 +121,54 @@ async function queueEmail(db:ReturnType<typeof createAdminClient>,input:{
   return result;
 }
 
-export async function saveNewEmailDraftAction(_previous:OfficeComposerActionState,formData:FormData):Promise<OfficeComposerActionState>{
+async function persistNewEmailDraft(formData:FormData,saveMode:DraftSaveMode):Promise<OfficeComposerActionState>{
   try{
     const{db,userId,instanceId}=await access();
     const draftId=String(formData.get('draftId')??'').trim()||null;
+    const revision=expectedRevision(formData,draftId);
+    if(draftId&&!revision)return{status:'error',message:'A meglévő piszkozat mentési verziója hiányzik. Frissítsd az oldalt a biztonságos folytatáshoz.'};
     const toEmail=String(formData.get('toEmail')??'').trim().toLowerCase().slice(0,320)||null;
     const subject=String(formData.get('subject')??'').trim().slice(0,300);
     const body=String(formData.get('body')??'').slice(0,10000);
-    const result=await mutateDraft(db,{instanceId,userId,action:'save',payload:{draftId,draftType:'new_email',threadId:null,toEmail,subject,body}});
-    revalidatePath('/admin/kommunikacio/iroda');
-    revalidatePath('/admin/kommunikacio/iroda/uj');
-    return{status:'success',message:'Piszkozat mentve.',draftId:result.draftId};
+    const result=await mutateDraft(db,{instanceId,userId,action:'save',payload:{
+      draftId,expectedRevision:revision,saveMode,draftType:'new_email',threadId:null,toEmail,subject,body,
+    }});
+    if(saveMode==='manual'){
+      revalidatePath('/admin/kommunikacio/iroda');
+      revalidatePath('/admin/kommunikacio/iroda/uj');
+    }
+    return{status:'success',message:saveMode==='autosave'?'Automatikusan mentve.':'Piszkozat mentve.',draftId:result.draftId,revision:result.revision};
   }catch(error){return stateForError(error)}
 }
 
-export async function saveReplyDraftAction(_previous:OfficeComposerActionState,formData:FormData):Promise<OfficeComposerActionState>{
+async function persistReplyDraft(formData:FormData,saveMode:DraftSaveMode):Promise<OfficeComposerActionState>{
   try{
     const{db,userId,instanceId}=await access();
     const draftId=String(formData.get('draftId')??'').trim()||null;
+    const revision=expectedRevision(formData,draftId);
+    if(draftId&&!revision)return{status:'error',message:'A meglévő válaszpiszkozat mentési verziója hiányzik. Frissítsd az oldalt a biztonságos folytatáshoz.'};
     const threadId=String(formData.get('threadId')??'').trim();
     const body=String(formData.get('body')??'').slice(0,10000);
     if(!threadId)return{status:'error',message:'A válaszpiszkozathoz beszélgetés szükséges.'};
-    const result=await mutateDraft(db,{instanceId,userId,action:'save',payload:{draftId,draftType:'reply',threadId,toEmail:null,subject:'',body}});
-    revalidatePath('/admin/kommunikacio/iroda');
-    return{status:'success',message:'Válaszpiszkozat mentve.',draftId:result.draftId};
+    const result=await mutateDraft(db,{instanceId,userId,action:'save',payload:{
+      draftId,expectedRevision:revision,saveMode,draftType:'reply',threadId,toEmail:null,subject:'',body,
+    }});
+    if(saveMode==='manual')revalidatePath('/admin/kommunikacio/iroda');
+    return{status:'success',message:saveMode==='autosave'?'Automatikusan mentve.':'Válaszpiszkozat mentve.',draftId:result.draftId,revision:result.revision};
   }catch(error){return stateForError(error)}
+}
+
+export async function saveNewEmailDraftAction(_previous:OfficeComposerActionState,formData:FormData){
+  return persistNewEmailDraft(formData,'manual');
+}
+export async function autosaveNewEmailDraftAction(_previous:OfficeComposerActionState,formData:FormData){
+  return persistNewEmailDraft(formData,'autosave');
+}
+export async function saveReplyDraftAction(_previous:OfficeComposerActionState,formData:FormData){
+  return persistReplyDraft(formData,'manual');
+}
+export async function autosaveReplyDraftAction(_previous:OfficeComposerActionState,formData:FormData){
+  return persistReplyDraft(formData,'autosave');
 }
 
 export async function deleteOfficeDraftAction(formData:FormData):Promise<OfficeComposerActionState>{
@@ -135,11 +176,13 @@ export async function deleteOfficeDraftAction(formData:FormData):Promise<OfficeC
     const{db,userId,instanceId}=await access();
     const draftId=String(formData.get('draftId')??'').trim();
     if(!draftId)return{status:'error',message:'A piszkozat törléséhez azonosító szükséges.'};
-    const result=await mutateDraft(db,{instanceId,userId,action:'delete',payload:{draftId}});
+    const revision=expectedRevision(formData,draftId);
+    if(!revision)return{status:'error',message:'A piszkozat törléséhez a mentési verzió is szükséges. Frissítsd az oldalt.'};
+    const result=await mutateDraft(db,{instanceId,userId,action:'delete',payload:{draftId,expectedRevision:revision}});
     if(result.deleted!==true)throw new OfficeComposerError('OFFICE_DRAFT_DELETE_EVIDENCE_MISSING');
     revalidatePath('/admin/kommunikacio/iroda');
     revalidatePath('/admin/kommunikacio/iroda/uj');
-    return{status:'success',message:'Piszkozat törölve.'};
+    return{status:'success',message:'Piszkozat törölve.',draftId:result.draftId,revision:result.revision};
   }catch(error){return stateForError(error)}
 }
 

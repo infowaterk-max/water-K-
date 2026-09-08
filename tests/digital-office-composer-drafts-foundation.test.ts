@@ -32,7 +32,7 @@ describe('Digital Office composer and drafts foundation',()=>{
     expect(migration).toContain('where id=v_draft_id and instance_id=p_instance_id and author_user_id=p_actor');
     expect(tenantIntegrity).toContain('foreign key(instance_id) references public.webshop_instances(id) on delete cascade');
     expect(tenantIntegrity).toContain('office_drafts_author_instance_idx');
-    expect(newPage).toContain(".eq('author_user_id',actor.id).eq('draft_type','new_email')");
+    expect(newPage).toContain(".eq('instance_id',scope.instanceId).eq('author_user_id',actor.id).eq('draft_type','new_email')");
   });
 
   it('requires a dedicated active Office mailbox before any Office queue insert',()=>{
@@ -58,14 +58,16 @@ describe('Digital Office composer and drafts foundation',()=>{
     expect(newPage).toContain('Jelenlegi webshopos e-mail cím nem használható.');
   });
 
-  it('allows drafts while keeping send disabled by default without a mailbox',()=>{
+  it('allows revision-safe drafts while keeping send disabled by default without a mailbox',()=>{
     expect(newComposer).toContain('const sendingConfigured=mailboxes.length>0');
     expect(newComposer).toContain('Piszkozat mentése');
     expect(newComposer).toContain('const sendReady=sendingConfigured');
-    expect(newComposer).toContain('disabled={pending||!sendReady}');
+    expect(newComposer).toContain("disabled={actionPending||draft.status==='conflict'||!sendReady}");
     expect(replyComposer).toContain('sendingConfigured=false');
     expect(replyComposer).toContain('Piszkozat mentése');
-    expect(replyComposer).toContain('disabled={pending||body.trim().length===0||!sendingConfigured}');
+    expect(replyComposer).toContain("disabled={actionPending||draft.status==='conflict'||!meaningful||!sendingConfigured}");
+    expect(newComposer).toContain('initialRevision:initialDraft?.revision??null');
+    expect(replyComposer).toContain('initialRevision:initialDraft?.revision??null');
   });
 
   it('only lets a queue operation consume the exact persisted draft snapshot',()=>{
@@ -79,9 +81,10 @@ describe('Digital Office composer and drafts foundation',()=>{
 
   it('only reports draft deletion after database evidence confirms it',()=>{
     expect(actions).toContain('if(result.deleted!==true)');
-    expect(actions).toContain("return{status:'success',message:'Piszkozat törölve.'}");
+    expect(actions).toContain("message:'Piszkozat törölve.',draftId:result.draftId,revision:result.revision");
     expect(newComposer).toContain('const result=await deleteOfficeDraftAction(data)');
     expect(newComposer).toContain("if(result.status==='success')");
+    expect(newComposer).toContain("data.set('revision',String(deletingRevision))");
   });
 
   it('preserves the explicit Office email subject in the worker',()=>{
