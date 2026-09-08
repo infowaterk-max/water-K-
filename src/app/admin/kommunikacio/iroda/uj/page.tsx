@@ -8,7 +8,7 @@ import {createAdminClient} from '@/lib/supabase/admin';
 
 export const dynamic='force-dynamic';
 
-type DraftRow={id:string;revision:number;to_email:string|null;subject:string;body:string;updated_at:string};
+type DraftRow={id:string;revision:number;to_email:string|null;cc_emails:string[];bcc_emails:string[];subject:string;body:string;updated_at:string};
 type MailboxRow={mailbox_key:string;label:string;is_active:boolean};
 type BindingRow={role_code:string;valid_until:string|null};
 
@@ -27,7 +27,7 @@ export default async function OfficeComposerPage(){
     {data:mailboxData,error:mailboxError},
     {data:bindingData,error:bindingError},
   ]=await Promise.all([
-    db.from('office_drafts').select('id,revision,to_email,subject,body,updated_at')
+    db.from('office_drafts').select('id,revision,to_email,cc_emails,bcc_emails,subject,body,updated_at')
       .eq('instance_id',scope.instanceId).eq('author_user_id',actor.id).eq('draft_type','new_email')
       .order('updated_at',{ascending:false}).limit(50),
     db.from('office_mailboxes').select('mailbox_key,label,is_active')
@@ -74,7 +74,7 @@ export default async function OfficeComposerPage(){
       <div className="cards">
         {canCompose&&!foundationError&&drafts.map(draft=><article className="card" key={draft.id}>
           <div className="adminToolbar"><strong>{draft.subject||'(Nincs tárgy)'}</strong><span className="muted">{new Intl.DateTimeFormat('hu-HU',{dateStyle:'short',timeStyle:'short',timeZone:'Europe/Budapest'}).format(new Date(draft.updated_at))}</span></div>
-          <OfficeNewEmailComposer compact mailboxes={mailboxOptions} initialDraft={{id:draft.id,revision:draft.revision,toEmail:draft.to_email,subject:draft.subject,body:draft.body}}/>
+          <OfficeNewEmailComposer compact mailboxes={mailboxOptions} initialDraft={{id:draft.id,revision:draft.revision,toEmail:draft.to_email,ccEmails:draft.cc_emails??[],bccEmails:draft.bcc_emails??[],subject:draft.subject,body:draft.body}}/>
         </article>)}
       </div>
     </section>
