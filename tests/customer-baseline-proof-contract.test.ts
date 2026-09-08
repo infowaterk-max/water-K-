@@ -21,7 +21,7 @@ describe('Shoperation Fresh Install proof contract lifecycle',()=>{
 
   it('hashes every ordered customer-baseline migration plus every other clean-install proof input',()=>{
     const script=read('scripts/customer-baseline-contract-hash.mjs');
-    for(const required of [
+    for(const required of[
       'baselineMigrationDirectory',
       'readdirSync',
       'manifest.authBootstrapFile',
@@ -31,8 +31,20 @@ describe('Shoperation Fresh Install proof contract lifecycle',()=>{
     ]) expect(script).toContain(required);
   });
 
+  it('rejects contamination in both public and private application schemas before a Fresh Install proof',()=>{
+    const preflight=read('supabase/customer-baseline/target-preflight.sql');
+    for(const required of[
+      "n.nspname = 'public'",
+      "n.nspname = 'private'",
+      'private_relations',
+      'private_functions',
+      'private_sequences',
+      'private_user_types',
+    ]) expect(preflight).toContain(required);
+  });
+
   it('applies all reviewed forward migrations and Auth bootstrap in both Fresh Install workflows',()=>{
-    for(const workflow of [
+    for(const workflow of[
       '.github/workflows/ci.yml',
       '.github/workflows/fresh-install-proof.yml',
     ]){
