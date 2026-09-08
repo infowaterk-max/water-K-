@@ -78,7 +78,7 @@ function loyaltyEvidence(data:unknown,instanceId:string,runKey:string){
   return{
     accrued:row.accrued_points_entries,
     reversed:row.reversed_points_entries,
-    refreshedProfiles:row.refreshed_points_entries,
+    refreshedProfiles:row.refreshed_profiles,
     completedAt:row.completed_at,
   };
 }
