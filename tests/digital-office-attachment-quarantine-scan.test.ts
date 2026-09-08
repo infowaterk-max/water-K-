@@ -7,6 +7,8 @@ const read=(file:string)=>readFileSync(join(root,file),'utf8');
 
 describe('Digital Office attachment quarantine and malware scan gate',()=>{
   const migration=read('supabase/migrations/20260908065600_digital_office_attachment_quarantine_scan_v1.sql');
+  const cleanup=read('supabase/migrations/20260908065700_digital_office_attachment_scan_cleanup_hardening_v1.sql');
+  const prepare=read('src/app/api/admin/office/attachments/prepare/route.ts');
   const scanRoute=read('src/app/api/admin/office/attachments/scan/route.ts');
   const scanner=read('src/lib/office/attachment-malware-scanner.ts');
   const inspector=read('src/lib/office/attachment-content-security.ts');
@@ -61,6 +63,7 @@ describe('Digital Office attachment quarantine and malware scan gate',()=>{
     expect(scanner).toContain("status:'unavailable'");
     expect(scanner).toContain("reason:'scanner_not_configured'");
     expect(scanner).toContain("url.protocol!=='https:'");
+    expect(scanner).toContain('raw.length>4096');
     expect(scanRoute).toContain("verdict.status==='unavailable'||verdict.status==='error'");
     expect(scanRoute).toContain("result:'scan_error'");
     expect(scanRoute).toContain('A vírusellenőrző jelenleg nincs biztonságosan konfigurálva vagy nem érhető el.');
@@ -74,6 +77,20 @@ describe('Digital Office attachment quarantine and malware scan gate',()=>{
     expect(scanRoute).toContain("reason:'infected_quarantine_delete_failed'");
     expect(migration).toContain("set status='revoked',expires_at=null,scan_status='infected'");
     expect(migration).toContain("set status='revoked',expires_at=null,scan_status='rejected'");
+  });
+
+  it('invalidates stale scan nonces when quarantine reservations expire',()=>{
+    expect(cleanup).toContain("set status='revoked',expires_at=null,scan_status='rejected',scan_nonce=null");
+    expect(cleanup).toContain("quarantine_reason='reservation_expired'");
+    expect(cleanup).toContain("'scanNonceInvalidated',v_attachment.scan_nonce is not null");
+    expect(cleanup).toContain('scanStatusBefore');
+  });
+
+  it('uses non-upsert signed upload URLs so content cannot be silently replaced after scanning',()=>{
+    expect(prepare).toContain('createSignedUploadUrl(item.path)');
+    expect(prepare).not.toContain('createSignedUploadUrl(item.path,{upsert:true})');
+    expect(prepare).not.toContain('createSignedUploadUrl(item.path, { upsert: true })');
+    expect(composer).not.toContain('upsert:true');
   });
 
   it('rejects risky active formats and structures before any external malware verdict',()=>{
