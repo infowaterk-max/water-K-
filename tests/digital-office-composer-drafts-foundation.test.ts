@@ -8,6 +8,7 @@ const read=(path:string)=>readFileSync(join(root,path),'utf8');
 describe('Digital Office composer and drafts foundation',()=>{
   const migration=read('supabase/migrations/20260908034000_digital_office_composer_drafts_foundation_v1.sql');
   const queueGuard=read('supabase/migrations/20260908034500_digital_office_reply_queue_guard_v1.sql');
+  const tenantIntegrity=read('supabase/migrations/20260908034600_digital_office_drafts_tenant_integrity_v1.sql');
   const capabilities=read('src/lib/auth/store-capabilities.ts');
   const actions=read('src/app/admin/kommunikacio/iroda/composer-actions.ts');
   const newComposer=read('src/components/admin/office-new-email-composer.tsx');
@@ -23,12 +24,14 @@ describe('Digital Office composer and drafts foundation',()=>{
     expect(migration).toContain("rb.role_code='owner'");
   });
 
-  it('keeps drafts author-private and unavailable to browser roles',()=>{
+  it('keeps drafts author-private, tenant-bound and unavailable to browser roles',()=>{
     expect(migration).toContain('create table if not exists public.office_drafts');
     expect(migration).toContain('alter table public.office_drafts enable row level security');
     expect(migration).toContain('revoke all on table public.office_drafts from public,anon,authenticated');
     expect(migration).toContain('grant select,insert,update,delete on table public.office_drafts to service_role');
     expect(migration).toContain('where id=v_draft_id and instance_id=p_instance_id and author_user_id=p_actor');
+    expect(tenantIntegrity).toContain('foreign key(instance_id) references public.webshop_instances(id) on delete cascade');
+    expect(tenantIntegrity).toContain('office_drafts_author_instance_idx');
     expect(newPage).toContain(".eq('author_user_id',actor.id).eq('draft_type','new_email')");
   });
 
