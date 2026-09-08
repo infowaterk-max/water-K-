@@ -211,7 +211,8 @@ function currentTemplateIdentity(existingPages:readonly StorefrontExistingTempla
 }
 
 function installationMode(template:StorefrontInstallableTemplatePackage,existingPages:readonly StorefrontExistingTemplatePage[]):StorefrontTemplateInstallationMode{
-  const current=currentTemplateIdentity(existingPages);
+  const relevantPages=existingPages.filter(page=>template.manifest.pageTypes.includes(page.pageType));
+  const current=currentTemplateIdentity(relevantPages);
   if(!current)return'install';
   if(current.key!==template.manifest.templateKey)return'switch';
   if(current.version!==template.manifest.templateVersion)return'upgrade';
@@ -271,7 +272,15 @@ export function planStorefrontTemplateInstallation(input:{
   const untouchedExistingPageKeys=existingPages.filter(page=>!materializedPageKeys.has(page.pageKey)).map(page=>page.pageKey);
   const currentDemo=input.currentDemoContent??[];
   const targetNamespace=input.template.manifest.demoContent.namespace;
-  const retire=currentDemo.filter(record=>record.namespace!==targetNamespace&&record.state==='fixture').map(record=>({...record,payload:structuredClone(record.payload)}));
+  const currentDemoByKey=new Map<string,StorefrontDemoContentRecord>();
+  for(const record of currentDemo){
+    if(currentDemoByKey.has(record.namespacedKey))throw new Error('STOREFRONT_CURRENT_DEMO_ENTITY_DUPLICATE');
+    currentDemoByKey.set(record.namespacedKey,record);
+  }
+  const install=materializeStorefrontDemoContent(input.template).filter(record=>currentDemoByKey.get(record.namespacedKey)?.state!=='adopted');
+  const retire=currentDemo
+    .filter(record=>record.namespace!==targetNamespace&&record.state==='fixture')
+    .map(record=>({...record,state:'retired' as const,payload:structuredClone(record.payload)}));
 
   return{
     contractVersion:STOREFRONT_TEMPLATE_INSTALLATION_VERSION,
@@ -281,7 +290,7 @@ export function planStorefrontTemplateInstallation(input:{
     gate,
     pages,
     untouchedExistingPageKeys,
-    demoLifecycle:{install:materializeStorefrontDemoContent(input.template),retire},
+    demoLifecycle:{install,retire},
     mutationBoundary:STOREFRONT_TEMPLATE_SWITCH_DATA_BOUNDARY,
   };
 }
