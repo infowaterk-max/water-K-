@@ -114,65 +114,58 @@ This branch starts the real Storefront Runtime implementation on top of the alre
 ## Implemented in Wave 0C
 
 1. **Shared primitive component contracts**
-   - `layout.section`;
-   - `layout.container`;
-   - `layout.grid`;
-   - `layout.stack`;
-   - `content.heading`;
-   - `content.text`;
-   - `content.image`;
-   - `content.button`.
+   - `layout.section`, `layout.container`, `layout.grid`, `layout.stack`;
+   - `content.heading`, `content.text`, `content.image`, `content.button`.
 
 2. **Common registry-driven renderers**
-   - every primitive is resolved only by component key + version;
-   - no template-name branches are introduced;
-   - layout uses the existing 12-column responsive contract;
-   - spacing, tones, width and radius are guardrailed values rather than arbitrary executable styling;
-   - unsafe button/image protocols fail to a safe presentation.
+   - every primitive resolves by component key + version;
+   - no template-name renderer branches;
+   - the existing 12-column responsive contract is used;
+   - presentation settings are guardrailed enums/tokens rather than arbitrary executable styling;
+   - unsafe button/image protocols degrade safely.
 
 3. **Protected Header / Navigation foundation**
-   - `system.header` and `system.navigation` are registered as protected systems;
+   - `system.header` and `system.navigation` are protected systems;
    - header children are constrained to the approved navigation slot;
-   - brand/navigation data can arrive only through declared binding slots;
-   - protected-system markers survive into rendered output for later Builder governance.
+   - brand/navigation values arrive through declared binding slots;
+   - rendered protected-system markers are retained for later Builder governance.
 
 4. **Neutral reference package**
-   - `reference.neutral` is a deliberately non-commercial template package;
-   - the same Page Schema renders desktop/tablet/mobile;
-   - brand name and primary navigation are bound through the runtime binding layer;
-   - mobile grid spans reflow without a second mobile page definition;
-   - the package is test/reference-only and is not attached to a live storefront route.
+   - `reference.neutral` is a non-commercial test/reference template package;
+   - one Page Schema renders desktop/tablet/mobile;
+   - brand name and navigation are resolved by the binding layer;
+   - responsive grid spans reflow without a separate mobile page;
+   - it is deliberately not attached to a live storefront route.
 
-5. **Primitive regression coverage**
-   - registry contracts and protected-system metadata;
+5. **Regression coverage**
+   - primitive registry and protected-system contracts;
    - neutral template registration and Page Schema validation;
-   - server rendering through the runtime;
-   - desktop/mobile responsive grid evidence;
+   - server rendering through the registry-driven runtime;
+   - desktop/mobile responsive evidence;
    - protected header child rejection;
    - unsafe CTA protocol sanitization.
 
 ## Wave 0B database rollout status
 
-The migration is committed as `20260908070700_storefront_runtime_persistence.sql`, but is **not applied to shared staging or production** on this branch.
+`supabase/migrations/20260908070700_storefront_runtime_persistence.sql` remains code-only and is **not applied to shared staging or production**.
 
-The current production baseline still has one reviewed customer-baseline migration. Open PR #115 (Block 7) owns the next Fresh Install forward-migration sequence on its branch. To avoid competing `0002/0003` baseline numbering and a false Fresh Install claim, Wave 0B deliberately does not edit `supabase/customer-baseline/` yet. Before this runtime PR can become merge-ready, it must be rebased after the active baseline owner lands (or otherwise reconciled), then the Storefront Runtime migration must be added to the ordered customer-baseline forward-migration manifest and receive genuine Fresh Install proof.
+Open PR #115 (Block 7) owns the next Fresh Install customer-baseline migration sequence. Wave 0B therefore deliberately does not edit `supabase/customer-baseline/` yet. Before this runtime PR becomes merge-ready, the runtime migration must be reconciled into the then-current ordered baseline and receive genuine Fresh Install proof.
 
 ## CI evidence
 
-Wave 0C implementation head `9f191c1b69cde05644b5d85a807c57ae0a436997` passed GitHub CI #1777. The first Wave 0C documentation head `bb8f03e97627ceb82e7cfa28e43ebc087839ed8b` passed GitHub CI #1778. Both runs completed security audit, customer baseline guard, quality tests, TypeScript, production build and release manifest successfully. Fresh Install proof remains intentionally skipped until the ordered customer-baseline sequence is reconciled.
+Wave 0C implementation head `9f191c1b69cde05644b5d85a807c57ae0a436997` passed GitHub CI #1777. The first Wave 0C documentation head `bb8f03e97627ceb82e7cfa28e43ebc087839ed8b` passed GitHub CI #1778. Both runs completed security audit, customer baseline guard, quality tests, TypeScript, production build and release manifest successfully. Fresh Install proof remains intentionally skipped until baseline reconciliation.
 
 ## Explicit non-scope through Wave 0C
 
 - no production or shared staging migration;
 - no customer-baseline readiness claim yet for the new schema;
-- no Visual Builder UI;
-- no drag-and-drop editor;
+- no Visual Builder UI / drag-and-drop;
 - no merchant-facing publish UI;
-- no live storefront route switched to the new renderer;
-- no Monarche template package yet;
-- no Product Discovery/Finder/Composer/Configurator/Compatibility implementation;
-- no change to checkout, payment, K&H, inventory or production tenant status;
-- no automatic production activation.
+- no live storefront route switched to the runtime;
+- no Monarche/template pack yet;
+- no Product Discovery/Finder/Composer/Configurator/Compatibility engine;
+- no checkout/payment/K&H/inventory changes;
+- no production deployment or tenant-status change.
 
 ## Next Wave 0 increment
 
@@ -183,8 +176,8 @@ Wave 0C implementation head `9f191c1b69cde05644b5d85a807c57ae0a436997` passed Gi
 - template switch without business-data mutation;
 - demo-content namespace lifecycle;
 - Template Capability Gate;
-- regression evidence that template switching changes presentation documents only and preserves commerce/customer/order data boundaries.
+- regression evidence that template switching changes presentation documents only and preserves commerce/customer/order boundaries.
 
 ## Safety
 
-The branch was created from production `main` and does not mutate `main`, production Vercel, production Supabase or shared staging. Wave 0B contains a migration file as code only; no database target has been changed by this work. Wave 0C is code/test-only and does not switch any live route to the new runtime.
+The branch was created from production `main` and does not mutate `main`, production Vercel, production Supabase or shared staging. Wave 0B contains a migration file as code only; Wave 0C is code/test-only and does not switch any live route to the new runtime.
