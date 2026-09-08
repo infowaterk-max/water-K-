@@ -4,7 +4,8 @@ import { getCommunicationTemplate } from './templates';
 import { brandedSubject, getCommunicationIdentityForInstance } from './identity';
 
 type ClaimedJob={id:string;instance_id:string;recipient_email:string;purpose:'transactional'|'marketing';template_key:string;payload:Record<string,unknown>;claim_token:string;attempts:number};
-type OfficeThreadReplyRow={id:string;conversation_type:string;mailbox_key:string|null;reply_token:string|null};
+type OfficeThreadReplyRow={id:string;conversation_type:string;mailbox_key:string|null};
+type OfficeRouteReplyRow={reply_token:string};
 type OfficeMailboxReplyRow={inbound_address:string;is_active:boolean};
 export type WorkerSummary={recovered:number;queuedStock:number;queuedRecovery:number;claimed:number;sent:number;failed:number;blocked:number;tenantFailures:number};
 const empty=():WorkerSummary=>({recovered:0,queuedStock:0,queuedRecovery:0,claimed:0,sent:0,failed:0,blocked:0,tenantFailures:0});
@@ -26,19 +27,20 @@ async function resolveOfficeReplyTo(admin:ReturnType<typeof createAdminClient>,i
   if(job.template_key!=='support_reply')return null;
   const threadId=typeof job.payload?.officeThreadId==='string'?job.payload.officeThreadId.trim():'';
   if(!uuidPattern.test(threadId))throw new Error('OFFICE_REPLY_THREAD_REQUIRED');
-  const{data:thread,error:threadError}=await admin.from('office_threads')
-    .select('id,conversation_type,mailbox_key,reply_token')
-    .eq('instance_id',instanceId).eq('id',threadId).maybeSingle();
-  if(threadError)throw threadError;
-  const typedThread=(thread??null) as OfficeThreadReplyRow|null;
-  if(!typedThread||typedThread.conversation_type!=='customer'||!typedThread.mailbox_key||!typedThread.reply_token)throw new Error('OFFICE_REPLY_MAILBOX_NOT_CONFIGURED');
+  const[{data:thread,error:threadError},{data:route,error:routeError}]=await Promise.all([
+    admin.from('office_threads').select('id,conversation_type,mailbox_key').eq('instance_id',instanceId).eq('id',threadId).maybeSingle(),
+    admin.from('office_thread_email_routes').select('reply_token').eq('instance_id',instanceId).eq('thread_id',threadId).maybeSingle(),
+  ]);
+  if(threadError)throw threadError;if(routeError)throw routeError;
+  const typedThread=(thread??null) as OfficeThreadReplyRow|null,typedRoute=(route??null) as OfficeRouteReplyRow|null;
+  if(!typedThread||typedThread.conversation_type!=='customer'||!typedThread.mailbox_key||!typedRoute?.reply_token)throw new Error('OFFICE_REPLY_MAILBOX_NOT_CONFIGURED');
   const{data:mailbox,error:mailboxError}=await admin.from('office_mailboxes')
     .select('inbound_address,is_active')
     .eq('instance_id',instanceId).eq('mailbox_key',typedThread.mailbox_key).eq('is_active',true).maybeSingle();
   if(mailboxError)throw mailboxError;
   const typedMailbox=(mailbox??null) as OfficeMailboxReplyRow|null;
   if(!typedMailbox?.is_active||!typedMailbox.inbound_address)throw new Error('OFFICE_REPLY_MAILBOX_NOT_CONFIGURED');
-  return plusReplyAddress(typedMailbox.inbound_address,typedThread.reply_token);
+  return plusReplyAddress(typedMailbox.inbound_address,typedRoute.reply_token);
 }
 
 async function runForInstance(instanceId:string,limit:number):Promise<WorkerSummary>{
