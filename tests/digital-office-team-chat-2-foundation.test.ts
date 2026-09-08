@@ -29,9 +29,11 @@ describe('Digital Office Team Chat 2 foundation',()=>{
     expect(migration).toContain('office_thread_participants_active_owner_uidx');
     expect(migration).toContain("participant_role='owner'");
     const ownerGate=migration.indexOf('private.office_active_thread_owner_v1(p_instance_id,v_thread_id,p_actor)');
-    const selfGate=migration.indexOf("raise exception 'OFFICE_THREAD_OWNER_SELF_CHANGE_FORBIDDEN'",ownerGate);
+    const currentAccess=migration.indexOf('public.can_read_office_thread_v1(p_instance_id,v_thread_id,p_actor)',ownerGate);
+    const selfGate=migration.indexOf("raise exception 'OFFICE_THREAD_OWNER_SELF_CHANGE_FORBIDDEN'",currentAccess);
     expect(ownerGate).toBeGreaterThan(0);
-    expect(selfGate).toBeGreaterThan(ownerGate);
+    expect(currentAccess).toBeGreaterThan(ownerGate);
+    expect(selfGate).toBeGreaterThan(currentAccess);
     expect(migration).toContain("v_operation not in ('add','remove')");
     expect(migration).toContain("participant_role='member'");
     expect(migration).toContain('if v_participant_count<2 or v_participant_count>25');
@@ -48,17 +50,17 @@ describe('Digital Office Team Chat 2 foundation',()=>{
     expect(page).toContain('@ Megemlítettek');
   });
 
-  it('validates business cards against authoritative tenant-owned objects',()=>{
+  it('validates business cards against tenant-owned objects and keeps linking behind support authority',()=>{
     expect(migration).toContain("object_type in ('order','commercial_offer','return_case','support_ticket','task')");
     expect(migration).toContain("o.instance_id=p_instance_id and o.id=p_object_id");
     expect(migration).toContain("r.instance_id=p_instance_id and r.id=p_object_id");
     expect(migration).toContain("s.instance_id=p_instance_id and s.id=p_object_id");
     expect(migration).toContain("t.instance_id=p_instance_id and t.id=p_object_id");
     expect(migration).toContain("raise exception 'OFFICE_OBJECT_LINK_NOT_FOUND'");
-    expect(page).toContain('Aktuális DB-állapot:');
-    expect(page).toContain("value:`commercial_offer:${offer.id}`");
-    expect(page).toContain("value:`return_case:${item.id}`");
-    expect(page).toContain("value:`support_ticket:${ticket.id}`");
+    expect(migration).toContain("raise exception 'OFFICE_OBJECT_LINK_PERMISSION_REQUIRED'");
+    expect(migration).toContain('v_object_type is not null and not public.can_manage_support(p_instance_id,p_actor)');
+    expect(page).toContain('if(!canSupportWorkspace)return null');
+    expect(page).toContain('const objectOptions:ObjectOption[]=canSupportWorkspace?[');
   });
 
   it('creates chat message, mentions and object link in one audited database transaction',()=>{
@@ -85,9 +87,10 @@ describe('Digital Office Team Chat 2 foundation',()=>{
     expect(integrity).toContain("v_thread.conversation_type not in ('internal_private','internal_group')");
   });
 
-  it('transfers ownership only from the current owner to an active member with atomic evidence',()=>{
+  it('transfers ownership only from the current authorized owner to an active authorized member',()=>{
     expect(ownerTransfer).toContain('create or replace function public.admin_transfer_office_thread_owner_v1');
     expect(ownerTransfer).toContain('private.office_active_thread_owner_v1(p_instance_id,p_thread_id,p_actor)');
+    expect(ownerTransfer).toContain('public.can_read_office_thread_v1(p_instance_id,p_thread_id,p_actor)');
     expect(ownerTransfer).toContain("participant_role='member'");
     expect(ownerTransfer).toContain('public.can_read_office_thread_v1(p_instance_id,p_thread_id,p_target_user_id)');
     const demote=ownerTransfer.indexOf("set participant_role='member'");
@@ -106,25 +109,33 @@ describe('Digital Office Team Chat 2 foundation',()=>{
     expect(page).toContain('threadParticipants.length>2&&memberParticipants.length>0');
   });
 
-  it('uses the Team Chat v2 RPC for private messages, membership and read/mention acknowledgement',()=>{
-    expect(actions).toContain("db.rpc('admin_mutate_office_team_chat_v2'");
+  it('uses effective office.internal_chat capability instead of coarse support permission for private chat actions',()=>{
+    expect(actions).toContain('async function privateChatAccess()');
+    expect(actions).toContain("hasStoreCapability(access.instanceId,access.userId,'office.internal_chat'");
+    expect(actions).toContain('const{db,userId,instanceId}=await privateChatAccess()');
     expect(actions).toContain("action:'create_internal_thread'");
     expect(actions).toContain("action:'add_internal_message'");
     expect(actions).toContain("action:'manage_participant'");
-    expect(actions).toContain("action:'mark_read'");
-    expect(actions).toContain("const mentionUserIds=selectedUserIds(form,'mentionUserId').slice(0,10)");
-    expect(actions).toContain('const object=chatObjectFrom(form)');
-    expect(page).toContain('managePrivateParticipantAction');
-    expect(page).toContain('OfficePrivateMessageForm');
+    expect(actions).toContain("const{db,userId,instanceId}=await baseAccess();\n  const threadId=String(form.get('threadId')??'');");
+    expect(migration).not.toContain("if not public.can_manage_support(p_instance_id,p_actor) then raise exception 'SUPPORT_PERMISSION_REQUIRED'; end if;\n    v_capability:=public.evaluate_store_capability_v1");
+    expect(migration).toContain("v_capability:=public.evaluate_store_capability_v1(p_instance_id,p_actor,'office.internal_chat'");
+  });
+
+  it('builds chat participant choices from effective capability, not fixed support roles',()=>{
+    expect(page).toContain("hasStoreCapability(scope.instanceId,userId,'office.internal_chat'");
+    expect(page).toContain('const chatUserIds=new Set');
+    expect(page).toContain('const chatAssignees:Assignee[]=teamUserIds.filter(userId=>chatUserIds.has(userId))');
+    expect(page).toContain('availableParticipants=chatAssignees.filter');
+    expect(page).toContain('chatUserIds.has(participant.user_id)');
     expect(privateComposer).toContain('name="mentionUserId" multiple');
-    expect(privateComposer).toContain('name="objectRef"');
   });
 
   it('fails closed if Team Chat read models are unavailable',()=>{
     expect(page).toContain('mentionError||objectLinkError||attachmentError');
-    expect(page).toContain('const canAct=!loadError&&!privacyFallback');
+    expect(page).toContain('const canReadAct=!loadError&&!privacyFallback');
+    expect(page).toContain('const canCustomerAct=canReadAct&&canSupportWorkspace');
+    expect(page).toContain('const canPrivateAct=canReadAct&&canInternalChat');
     expect(page).toContain('Team Chat foundation adatainak egy része most nem tölthető be.');
-    expect(page).toContain('Hiányos adatok mellett a nulla és üres állapotokat ne tekintsd véglegesnek.');
     expect(page).toContain('privát chat módosításait biztonsági okból letiltjuk');
   });
 
