@@ -119,7 +119,7 @@ The current production baseline still has one reviewed customer-baseline migrati
 
 ## CI evidence
 
-Latest Wave 0B head CI (`#1770`) passed:
+Latest Wave 0B head CI (`#1772`) passed:
 - dependency security audit;
 - customer database baseline guard;
 - quality tests including the Wave 0A/0B runtime contracts;
