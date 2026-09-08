@@ -3,7 +3,7 @@
 import { useActionState,type ReactNode } from 'react';
 import { useFormStatus } from 'react-dom';
 import {
-  addPermissionOverrideAction,createDelegationAction,removePermissionOverrideAction,revokeDelegationAction,
+  addPermissionOverrideAction,createDelegationAction,removePermissionOverrideAction,replacePermissionExtrasAction,revokeDelegationAction,
   advancedPermissionInitialState,type AdvancedPermissionActionState,
 } from '@/app/admin/csapat/[userId]/actions';
 
@@ -22,21 +22,66 @@ function Result({state}:{state:AdvancedPermissionActionState}){
   return <p className={state.status==='success'?'helperText':'errorNotice'} role={state.status==='error'?'alert':'status'}>{state.message}</p>;
 }
 
-export function PermissionOverrideControls({userId,canManage,capabilities,overrides}:{userId:string;canManage:boolean;capabilities:CapabilityOption[];overrides:PermissionOverrideItem[]}){
-  const[state,action]=useActionState(addPermissionOverrideAction,advancedPermissionInitialState);
+function isSimpleExtra(item:PermissionOverrideItem){
+  return item.effect==='allow'&&item.scopeType==='all'&&item.scopeValue===null&&item.validUntil===null;
+}
+
+export function PermissionOverrideControls({userId,canManage,capabilities,presetCodes,overrides}:{userId:string;canManage:boolean;capabilities:CapabilityOption[];presetCodes:string[];overrides:PermissionOverrideItem[]}){
+  const[extrasState,extrasAction]=useActionState(replacePermissionExtrasAction,advancedPermissionInitialState);
+  const[advancedState,advancedAction]=useActionState(addPermissionOverrideAction,advancedPermissionInitialState);
+  const presetSet=new Set(presetCodes);
+  const simpleExtraSet=new Set(overrides.filter(item=>isSimpleExtra(item)&&!presetSet.has(item.permissionCode)).map(item=>item.permissionCode));
+  const advancedOverrides=overrides.filter(item=>!isSimpleExtra(item)||presetSet.has(item.permissionCode));
+  const areas=new Map<string,{label:string;items:CapabilityOption[]}>();
+  for(const capability of capabilities){
+    const current=areas.get(capability.areaCode)??{label:capability.areaLabel,items:[]};
+    current.items.push(capability);
+    areas.set(capability.areaCode,current);
+  }
+
   return <section className="card">
-    <span className="eyebrow">Személyes eltérések</span><h2>Egyedi engedélyek és tiltások</h2>
-    <p className="muted">Az alapszerepkör marad a kiindulópont. Itt csak az attól eltérő jogokat adjuk hozzá vagy tiltjuk le. Biztonsági konfliktusnál az explicit tiltás az erősebb.</p>
-    {overrides.length===0?<div className="adminAuditNotice"><strong>Nincs egyedi eltérés.</strong><p>A csapattag jelenleg az alapszerepkörének szabályait használja.</p></div>:<div className="teamRoleGuideGrid">{overrides.map(item=><PermissionOverrideRow key={item.id} userId={userId} item={item} canManage={canManage}/>)}</div>}
-    {canManage&&<form action={action} className="teamAddForm">
+    <span className="eyebrow">Szerepkör + extra</span><h2>Egyszerű jogosultságok</h2>
+    <p className="muted">A szerepkör definíciója változatlan marad. A szürke, bekapcsolt jogokat a szerepkör adja; a tulajdonos az ezen felüli feladatokat pipával adhatja hozzá az adott munkatárshoz.</p>
+    <div className="adminAuditNotice"><strong>Teljes egyéni mód</strong><p>A „csak a bepipált jogok érvényesek” módot csak akkor kapcsoljuk be, amikor minden érintett admin-route a finom capability evaluatort használja. Addig nem mutatunk olyan korlátozást, amelyet egy régi szerepkör-ellenőrzés megkerülhetne.</p></div>
+
+    <form action={extrasAction} className="stackForm">
       <input type="hidden" name="userId" value={userId}/>
-      <label><span>Jogosultság</span><select name="permissionCode" required defaultValue=""><option value="" disabled>Válassz jogosultságot…</option>{capabilities.map(cap=><option key={cap.code} value={cap.code}>{cap.areaLabel} · {cap.label}{cap.sensitivity==='critical'?' · kritikus':''}</option>)}</select></label>
-      <label><span>Beállítás</span><select name="effect" defaultValue="allow"><option value="allow">Egyedi engedély</option><option value="deny">Egyedi tiltás</option></select></label>
-      <label><span>Adatkör</span><select name="scopeType" defaultValue="all"><option value="all">Minden engedélyezett adat</option><option value="own">Csak saját</option><option value="assigned">Csak hozzárendelt</option><option value="own_or_assigned">Saját vagy hozzárendelt</option><option value="topic">Kijelölt témakör</option><option value="mailbox">Kijelölt postafiók</option></select></label>
-      <label><span>Témakör / postafiók kulcsa</span><input name="scopeValue" type="text" maxLength={120} placeholder="Csak témakör vagy postafiók scope esetén"/></label>
-      <label><span>Érvényesség</span><select name="validity" defaultValue="indefinite"><option value="indefinite">Határozatlan</option><option value="24h">24 óra</option><option value="7d">7 nap</option><option value="14d">14 nap</option><option value="30d">30 nap</option><option value="90d">90 nap</option></select></label>
-      <SubmitButton>Eltérés hozzáadása</SubmitButton><Result state={state}/>
-    </form>}
+      <div className="teamRoleGuideGrid">
+        {[...areas.entries()].map(([areaCode,area])=><fieldset className="adminAuditNotice" key={areaCode} disabled={!canManage}>
+          <legend><strong>{area.label}</strong></legend>
+          {area.items.map(capability=>{
+            const inherited=presetSet.has(capability.code);
+            return <label key={capability.code} style={{display:'flex',gap:10,alignItems:'flex-start',marginTop:8}}>
+              <input
+                type="checkbox"
+                name={inherited?undefined:'extraPermissionCode'}
+                value={capability.code}
+                defaultChecked={inherited||simpleExtraSet.has(capability.code)}
+                disabled={inherited||!canManage}
+              />
+              <span><strong>{capability.label}</strong>{inherited?' · szerepkörből':''}{capability.sensitivity==='critical'?' · kritikus':''}</span>
+            </label>;
+          })}
+        </fieldset>)}
+      </div>
+      {canManage&&<SubmitButton>Extra jogosultságok mentése</SubmitButton>}
+      <Result state={extrasState}/>
+    </form>
+
+    <details style={{marginTop:18}}>
+      <summary><strong>Haladó eltérések</strong> · tiltás, adatkör, lejárat</summary>
+      <p className="muted">Ezt csak kivételes esetekhez használd. Itt lehet egy szerepkörből örökölt jogot explicit letiltani, vagy saját/hozzárendelt/témakör/postafiók scope-ra és időtartamra szűkíteni.</p>
+      {advancedOverrides.length===0?<div className="adminAuditNotice"><strong>Nincs haladó eltérés.</strong><p>A csapattag a szerepkörét és a fenti egyszerű extra pipákat használja.</p></div>:<div className="teamRoleGuideGrid">{advancedOverrides.map(item=><PermissionOverrideRow key={item.id} userId={userId} item={item} canManage={canManage}/>)}</div>}
+      {canManage&&<form action={advancedAction} className="teamAddForm">
+        <input type="hidden" name="userId" value={userId}/>
+        <label><span>Jogosultság</span><select name="permissionCode" required defaultValue=""><option value="" disabled>Válassz jogosultságot…</option>{capabilities.map(cap=><option key={cap.code} value={cap.code}>{cap.areaLabel} · {cap.label}{cap.sensitivity==='critical'?' · kritikus':''}</option>)}</select></label>
+        <label><span>Beállítás</span><select name="effect" defaultValue="deny"><option value="allow">Egyedi engedély</option><option value="deny">Egyedi tiltás</option></select></label>
+        <label><span>Adatkör</span><select name="scopeType" defaultValue="all"><option value="all">Minden engedélyezett adat</option><option value="own">Csak saját</option><option value="assigned">Csak hozzárendelt</option><option value="own_or_assigned">Saját vagy hozzárendelt</option><option value="topic">Kijelölt témakör</option><option value="mailbox">Kijelölt postafiók</option></select></label>
+        <label><span>Témakör / postafiók kulcsa</span><input name="scopeValue" type="text" maxLength={120} placeholder="Csak témakör vagy postafiók scope esetén"/></label>
+        <label><span>Érvényesség</span><select name="validity" defaultValue="indefinite"><option value="indefinite">Határozatlan</option><option value="24h">24 óra</option><option value="7d">7 nap</option><option value="14d">14 nap</option><option value="30d">30 nap</option><option value="90d">90 nap</option></select></label>
+        <SubmitButton>Haladó eltérés hozzáadása</SubmitButton><Result state={advancedState}/>
+      </form>}
+    </details>
   </section>;
 }
 
@@ -59,7 +104,7 @@ export function DelegationControls({userId,canManage,capabilities,members,delega
       <p className="muted">Több jogosultság kijelöléséhez desktopon Ctrl/Cmd, mobilon a rendszer natív többválasztós kezelője használható.</p>
       <label><span>Helyettesítés adatkör</span><select name="delegationScopeType" defaultValue="all"><option value="all">A kijelölt capability-k teljes forrás-személyes köre</option><option value="topic">Csak egy témakör</option><option value="mailbox">Csak egy postafiók</option></select></label>
       <label><span>Témakör / postafiók kulcsa</span><input name="delegationScopeValue" type="text" maxLength={120} placeholder="Pl. quotes vagy ajanlat@cegem.hu"/></label>
-      <p className="muted">Példa: Árajánlat helyettesítéshez a témakör lehet <code>quotes</code>. A későbbi Digitális Iroda ugyanilyen topic-kóddal fogja védeni az árajánlathoz kapcsolt e-mail threadeket.</p>
+      <p className="muted">Példa: Árajánlat helyettesítéshez a témakör lehet <code>quotes</code>. A Digitális Iroda ugyanilyen topic-kóddal védi az árajánlathoz kapcsolt e-mail threadeket.</p>
       <label><span>Időtartam</span><select name="validity" defaultValue="7d"><option value="24h">24 óra</option><option value="7d">7 nap</option><option value="14d">14 nap</option><option value="30d">30 nap</option><option value="90d">90 nap</option></select></label>
       <label><span>Indok / megjegyzés</span><input name="reason" type="text" maxLength={500} placeholder="Pl. szabadság alatti árajánlat-helyettesítés"/></label>
       <SubmitButton>Helyettesítés létrehozása</SubmitButton><Result state={state}/>
