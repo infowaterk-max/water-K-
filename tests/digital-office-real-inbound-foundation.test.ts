@@ -23,13 +23,24 @@ describe('Digital Office real inbound foundation',()=>{
     expect(normalization).toContain('inbound_address=lower(trim(inbound_address))');
   });
 
+  it('keeps mailbox addresses and reply tokens service-only',()=>{
+    const sql=migration.toLowerCase();
+    expect(sql).toContain('create table if not exists public.office_thread_email_routes');
+    expect(sql).toContain('revoke all on table public.office_mailboxes from public,anon,authenticated');
+    expect(sql).toContain('revoke all on table public.office_thread_email_routes from public,anon,authenticated');
+    expect(sql).toContain('office_thread_email_routes_reply_token_unique');
+    expect(worker).toContain("admin.from('office_thread_email_routes')");
+    expect(worker).not.toContain("select('id,conversation_type,mailbox_key,reply_token')");
+  });
+
   it('threads only by strong reply token or RFC reply evidence and retires sender-only v2',()=>{
     expect(migration).toContain("v_match_method:='reply_token'");
     expect(migration).toContain("v_match_method:='in_reply_to'");
     expect(migration).toContain("v_match_method:='references'");
-    expect(migration).toContain('No sender-only fallback');
+    expect(migration).toContain('No sender-only or latest-order fallback');
     expect(migration).toContain('revoke all on function public.record_inbound_office_email_v2');
     expect(migration).toContain('from public,anon,authenticated,service_role');
+    expect(migration).not.toContain('order by o.created_at desc');
   });
 
   it('verifies raw Resend webhook signatures before retrieving untrusted email content',()=>{
@@ -62,7 +73,7 @@ describe('Digital Office real inbound foundation',()=>{
   it('keeps reply-token aliases deterministic and mailbox scoped',()=>{
     expect(helper).toContain('const plus=local.lastIndexOf');
     expect(helper).toContain('replyToken:candidate');
-    expect(migration).toContain('office_threads_instance_reply_token_unique');
+    expect(migration).toContain('office_thread_email_routes_reply_token_unique');
     expect(migration).toContain("and (t.mailbox_key is null or t.mailbox_key=v_mailbox_key)");
   });
 });
