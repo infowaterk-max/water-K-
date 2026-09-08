@@ -23,6 +23,8 @@ type Props={
 type ApiError={error?:string};
 type PrepareResponse={ok?:boolean;uploads?:OfficePrivateAttachmentUploadReservation[];error?:string};
 
+type Phase='idle'|'uploading'|'scanning'|'finalizing';
+
 function objectFromRef(raw:string){
   if(!raw)return{objectType:null,objectId:null};
   const separator=raw.indexOf(':');
@@ -42,9 +44,17 @@ function fileProblem(files:File[]){
   return null;
 }
 
+function phaseLabel(phase:Phase){
+  if(phase==='uploading')return'Feltöltés karanténba…';
+  if(phase==='scanning')return'Biztonsági és vírusellenőrzés…';
+  if(phase==='finalizing')return'Üzenet véglegesítése…';
+  return'Belső üzenet küldése';
+}
+
 export function OfficePrivateMessageForm({threadId,mentionOptions,objectOptions}:Props){
   const router=useRouter();
   const[busy,setBusy]=useState(false);
+  const[phase,setPhase]=useState<Phase>('idle');
   const[message,setMessage]=useState<string|null>(null);
 
   async function submit(event:FormEvent<HTMLFormElement>){
@@ -66,6 +76,7 @@ export function OfficePrivateMessageForm({threadId,mentionOptions,objectOptions}
     try{
       let attachmentIds:string[]=[];
       if(files.length){
+        setPhase('uploading');
         const prepareResponse=await fetch('/api/admin/office/attachments/prepare',{
           method:'POST',
           headers:{'Content-Type':'application/json'},
@@ -92,8 +103,18 @@ export function OfficePrivateMessageForm({threadId,mentionOptions,objectOptions}
           if(error)throw new Error(`${file.name}: a feltöltés nem sikerült.`);
         }
         attachmentIds=prepared.uploads.map(upload=>upload.attachmentId);
+
+        setPhase('scanning');
+        const scanResponse=await fetch('/api/admin/office/attachments/scan',{
+          method:'POST',
+          headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({threadId,attachmentIds}),
+        });
+        const scanned=(await scanResponse.json().catch(()=>({})))as ApiError;
+        if(!scanResponse.ok)throw new Error(scanned.error||'A csatolmány biztonsági ellenőrzése nem sikerült. A fájl nem küldhető el.');
       }
 
+      setPhase('finalizing');
       const finalizeResponse=await fetch('/api/admin/office/attachments/finalize',{
         method:'POST',
         headers:{'Content-Type':'application/json'},
@@ -110,12 +131,13 @@ export function OfficePrivateMessageForm({threadId,mentionOptions,objectOptions}
       if(!finalizeResponse.ok)throw new Error(finalized.error||'A privát üzenet nem véglegesíthető.');
 
       form.reset();
-      setMessage(files.length?'Az üzenet és a csatolmányok elküldve.':'Az üzenet elküldve.');
+      setMessage(files.length?'Az üzenet és a tisztának minősített csatolmányok elküldve.':'Az üzenet elküldve.');
       router.refresh();
     }catch(error){
       setMessage(error instanceof Error?error.message:'A privát üzenet küldése nem sikerült.');
     }finally{
       setBusy(false);
+      setPhase('idle');
     }
   }
 
@@ -123,9 +145,9 @@ export function OfficePrivateMessageForm({threadId,mentionOptions,objectOptions}
     <input type="hidden" name="threadId" value={threadId}/>
     {mentionOptions.length>0&&<label><span>@ Említés</span><select name="mentionUserId" multiple size={Math.min(5,Math.max(2,mentionOptions.length))}>{mentionOptions.map(option=><option key={option.userId} value={option.userId}>{option.label}</option>)}</select></label>}
     <label className="stackForm"><span>Kapcsolt üzleti objektum</span><select name="objectRef" defaultValue=""><option value="">Nincs kapcsolt objektum</option>{objectOptions.map(option=><option key={option.value} value={option.value}>{option.label}</option>)}</select></label>
-    <label className="stackForm"><span>Csatolmányok</span><input name="attachment" type="file" multiple accept={OFFICE_PRIVATE_ATTACHMENT_MIME_TYPES.join(',')}/><span className="muted">Legfeljebb 5 fájl, fájlonként 10 MB. Kép, PDF, TXT, CSV, DOCX vagy XLSX.</span></label>
+    <label className="stackForm"><span>Csatolmányok</span><input name="attachment" type="file" multiple accept={OFFICE_PRIVATE_ATTACHMENT_MIME_TYPES.join(',')}/><span className="muted">Legfeljebb 5 fájl, fájlonként 10 MB. Kép, PDF, TXT, CSV, DOCX vagy XLSX. A fájl először privát karanténba kerül, és csak fájlszignatúra- + vírusellenőrzés után csatolható az üzenethez.</span></label>
     <textarea name="body" required rows={3} maxLength={10000} placeholder="Privát belső üzenet"/>
     {message&&<p className="muted" role="status">{message}</p>}
-    <button className="btn btnGhost" disabled={busy}>{busy?'Küldés folyamatban…':'Belső üzenet küldése'}</button>
+    <button className="btn btnGhost" disabled={busy}>{busy?phaseLabel(phase):'Belső üzenet küldése'}</button>
   </form>;
 }
