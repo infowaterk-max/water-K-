@@ -168,7 +168,6 @@ begin
   end if;
 
   if p_action='create_internal_thread' then
-    if not public.can_manage_support(p_instance_id,p_actor) then raise exception 'SUPPORT_PERMISSION_REQUIRED'; end if;
     v_capability:=public.evaluate_store_capability_v1(p_instance_id,p_actor,'office.internal_chat',p_actor,p_actor,null,null);
     if not coalesce((v_capability->>'allowed')::boolean,false) then raise exception 'OFFICE_INTERNAL_CHAT_PERMISSION_REQUIRED'; end if;
     v_subject:=trim(coalesce(p_payload->>'subject',''));
@@ -201,6 +200,7 @@ begin
     v_object_type:=nullif(trim(coalesce(p_payload->>'objectType','')),'');
     v_object_id:=case when nullif(trim(coalesce(p_payload->>'objectId','')),'') is null then null else (p_payload->>'objectId')::uuid end;
     if (v_object_type is null)<>(v_object_id is null) then raise exception 'OFFICE_OBJECT_LINK_INVALID'; end if;
+    if v_object_type is not null and not public.can_manage_support(p_instance_id,p_actor) then raise exception 'OFFICE_OBJECT_LINK_PERMISSION_REQUIRED'; end if;
     if v_object_type is not null and not private.office_chat_object_exists_v1(p_instance_id,v_object_type,v_object_id) then raise exception 'OFFICE_OBJECT_LINK_NOT_FOUND'; end if;
 
     v_conversation_type:=case when v_participant_count=2 then 'internal_private' else 'internal_group' end;
@@ -264,6 +264,7 @@ begin
     v_object_type:=nullif(trim(coalesce(p_payload->>'objectType','')),'');
     v_object_id:=case when nullif(trim(coalesce(p_payload->>'objectId','')),'') is null then null else (p_payload->>'objectId')::uuid end;
     if (v_object_type is null)<>(v_object_id is null) then raise exception 'OFFICE_OBJECT_LINK_INVALID'; end if;
+    if v_object_type is not null and not public.can_manage_support(p_instance_id,p_actor) then raise exception 'OFFICE_OBJECT_LINK_PERMISSION_REQUIRED'; end if;
     if v_object_type is not null and not private.office_chat_object_exists_v1(p_instance_id,v_object_type,v_object_id) then raise exception 'OFFICE_OBJECT_LINK_NOT_FOUND'; end if;
 
     insert into public.office_messages(instance_id,thread_id,author_id,kind,body)
@@ -307,6 +308,7 @@ begin
       where id=v_thread_id and instance_id=p_instance_id and conversation_type in ('internal_private','internal_group') for update;
     if not found then raise exception 'OFFICE_INTERNAL_THREAD_NOT_FOUND'; end if;
     if not private.office_active_thread_owner_v1(p_instance_id,v_thread_id,p_actor) then raise exception 'OFFICE_THREAD_OWNER_REQUIRED'; end if;
+    if not public.can_read_office_thread_v1(p_instance_id,v_thread_id,p_actor) then raise exception 'OFFICE_PRIVATE_THREAD_ACCESS_DENIED'; end if;
     if v_target=p_actor then raise exception 'OFFICE_THREAD_OWNER_SELF_CHANGE_FORBIDDEN'; end if;
 
     if v_operation='add' then
