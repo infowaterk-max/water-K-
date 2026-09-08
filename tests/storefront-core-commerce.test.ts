@@ -48,6 +48,7 @@ describe('Storefront Wave 1 core commerce/editorial component contracts',()=>{
       componentRegistry:createStorefrontEditorialComponentRegistry(),
       capability:{plan:'alap',features:PLANS.alap.features},
     });
+    expect(gate.violations.filter(item=>item.severity==='error')).toEqual([]);
     expect(gate.ok).toBe(true);
   });
 });
