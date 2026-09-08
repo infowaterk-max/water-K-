@@ -28,6 +28,7 @@ type Thread={
   last_read_at:string|null;
   updated_at:string;
   conversation_type:'customer'|'internal_private'|'internal_group';
+  mailbox_key:string|null;
 };
 type Message={id:string;thread_id:string;kind:string;body:string;created_at:string;communication_job_id:string|null;subject:string|null};
 type Task={id:string;thread_id:string|null;title:string;status:string;due_at:string|null};
@@ -37,7 +38,9 @@ type ParticipantRead={thread_id:string;last_read_at:string|null};
 type Binding={user_id:string;role_code:string;instance_id:string|null;valid_until:string|null};
 type Profile={id:string;email:string|null;full_name:string|null};
 type Assignee={userId:string;label:string};
-
+type ReplyDraft={id:string;thread_id:string;body:string;revision:number;updated_at:string};
+type Mailbox={mailbox_key:string};
+type EmailRoute={thread_id:string};
 type AccessibleThreadRow={thread_id:string};
 
 const kindLabel:Record<string,string>={
@@ -65,7 +68,7 @@ export default async function OfficeWorkspace({searchParams}:{searchParams:Promi
   const accessibleIds=accessibleError?null:((accessibleData??[])as AccessibleThreadRow[]).map(row=>row.thread_id);
 
   const threadQuery=db.from('office_threads')
-    .select('id,subject,customer_email,order_id,status,priority,assigned_to,last_read_at,updated_at,conversation_type')
+    .select('id,subject,customer_email,order_id,status,priority,assigned_to,last_read_at,updated_at,conversation_type,mailbox_key')
     .eq('instance_id',scope.instanceId)
     .order('updated_at',{ascending:false})
     .limit(200);
@@ -86,6 +89,17 @@ export default async function OfficeWorkspace({searchParams}:{searchParams:Promi
     ? db.from('office_thread_participants').select('thread_id,last_read_at')
       .eq('instance_id',scope.instanceId).eq('user_id',actor.id).in('thread_id',threadIds).is('left_at',null)
     : Promise.resolve({data:[] as ParticipantRead[],error:null});
+  const replyDraftPromise=threadIds.length
+    ? db.from('office_drafts').select('id,thread_id,body,revision,updated_at')
+      .eq('instance_id',scope.instanceId).eq('author_user_id',actor.id).eq('draft_type','reply')
+      .in('thread_id',threadIds).order('updated_at',{ascending:false}).limit(200)
+    : Promise.resolve({data:[] as ReplyDraft[],error:null});
+  const routePromise=threadIds.length
+    ? db.from('office_thread_email_routes').select('thread_id')
+      .eq('instance_id',scope.instanceId).in('thread_id',threadIds)
+    : Promise.resolve({data:[] as EmailRoute[],error:null});
+  const mailboxPromise=db.from('office_mailboxes').select('mailbox_key')
+    .eq('instance_id',scope.instanceId).eq('is_active',true);
   const taskPromise=db.from('office_tasks').select('id,thread_id,title,status,due_at')
     .eq('instance_id',scope.instanceId).eq('status','open').order('due_at',{ascending:true,nullsFirst:false}).limit(200);
   const orderPromise=db.from('orders').select('id,order_number,customer_email,status')
@@ -101,15 +115,26 @@ export default async function OfficeWorkspace({searchParams}:{searchParams:Promi
   const[
     {data:m,error:messageError},
     {data:participantData,error:participantError},
+    {data:replyDraftData,error:replyDraftError},
+    {data:routeData,error:routeError},
+    {data:mailboxData,error:mailboxError},
     {data:k,error:taskError},
     {data:o,error:orderError},
     {data:j,error:jobError},
     {data:bindingData,error:bindingError},
-  ]=await Promise.all([messagePromise,participantPromise,taskPromise,orderPromise,jobPromise,bindingPromise]);
+  ]=await Promise.all([
+    messagePromise,participantPromise,replyDraftPromise,routePromise,mailboxPromise,taskPromise,orderPromise,jobPromise,bindingPromise,
+  ]);
 
   const messages=(m??[])as Message[];
   const reads=(participantData??[])as ParticipantRead[];
   const readMap=new Map(reads.map(row=>[row.thread_id,row.last_read_at]));
+  const replyDraftMap=new Map<string,ReplyDraft>();
+  for(const draft of (replyDraftData??[])as ReplyDraft[]){
+    if(!replyDraftMap.has(draft.thread_id))replyDraftMap.set(draft.thread_id,draft);
+  }
+  const routedThreadIds=new Set(((routeData??[])as EmailRoute[]).map(route=>route.thread_id));
+  const activeMailboxKeys=new Set(((mailboxData??[])as Mailbox[]).map(mailbox=>mailbox.mailbox_key));
   const allTasks=(k??[])as Task[];
   const visibleThreadIds=new Set(threadIds);
   const tasks=allTasks.filter(task=>task.thread_id===null||visibleThreadIds.has(task.thread_id));
@@ -128,7 +153,7 @@ export default async function OfficeWorkspace({searchParams}:{searchParams:Promi
   }).sort((a,b)=>a.label.localeCompare(b.label,'hu'));
 
   const loadError=Boolean(
-    threadError||messageError||taskError||orderError||jobError||participantError||bindingError||profileError
+    threadError||messageError||taskError||orderError||jobError||participantError||replyDraftError||routeError||mailboxError||bindingError||profileError
   );
   const privacyFallback=Boolean(accessibleError);
   const canAct=!loadError&&!privacyFallback;
@@ -164,7 +189,10 @@ export default async function OfficeWorkspace({searchParams}:{searchParams:Promi
         <h1 className="sectionTitle">Ügyfélkommunikációs és belső munkatér</h1>
         <p className="lead">Ügyféllevelek, felelősség, feladatok és résztvevő-védett belső beszélgetések egy helyen.</p>
       </div>
-      <Link className="btn btnGhost" href="/admin/kommunikacio">Küldési központ</Link>
+      <div className="adminToolbar">
+        <Link className="btn btnPrimary" href="/admin/kommunikacio/iroda/uj">Új e-mail</Link>
+        <Link className="btn btnGhost" href="/admin/kommunikacio">Küldési központ</Link>
+      </div>
     </div>
 
     {privacyFallback&&<div className="errorNotice" role="alert">
@@ -180,7 +208,7 @@ export default async function OfficeWorkspace({searchParams}:{searchParams:Promi
       <article className="card"><span className="badge">Nyitott ügyek</span><div className="price">{threadError?'—':threads.filter(x=>x.status==='open').length}</div></article>
       <article className="card"><span className="badge">Saját olvasatlan</span><div className="price">{threadError||messageError||participantError?'—':threads.filter(unread).length}</div></article>
       <article className="card"><span className="badge">Lejárt feladat</span><div className="price">{taskError?'—':overdue.length}</div></article>
-      <article className="card"><span className="badge">Privát belső</span><div className="price">{threadError?'—':threads.filter(x=>x.conversation_type!=='customer').length}</div></article>
+      <article className="card"><span className="badge">Saját reply draft</span><div className="price">{replyDraftError?'—':replyDraftMap.size}</div></article>
     </div>
 
     <form className="adminToolbar">
@@ -234,10 +262,15 @@ export default async function OfficeWorkspace({searchParams}:{searchParams:Promi
           const order=orders.find(item=>item.id===thread.order_id);
           const isUnread=unread(thread);
           const isPrivate=thread.conversation_type!=='customer';
+          const replyDraft=replyDraftMap.get(thread.id);
+          const sendingConfigured=Boolean(
+            thread.mailbox_key&&activeMailboxKeys.has(thread.mailbox_key)&&routedThreadIds.has(thread.id)
+          );
           return <article className="card" key={thread.id}>
             <div className="adminToolbar">
               <span className="badge">{isPrivate?(thread.conversation_type==='internal_private'?'Privát belső':'Belső csoport'):priorityLabel[thread.priority]}</span>
               {isUnread&&<span className="badge">Olvasatlan</span>}
+              {replyDraft&&<span className="badge">Saját piszkozat</span>}
               {order&&<Link className="textLink" href={`/admin/rendelesek/${order.id}`}>{order.order_number}</Link>}
             </div>
             <h3>{thread.subject}</h3>
@@ -268,7 +301,11 @@ export default async function OfficeWorkspace({searchParams}:{searchParams:Promi
               : canAct?<>
                 <div className="splitFeature">
                   <form action={addMessageAction} className="stackForm"><input type="hidden" name="threadId" value={thread.id}/><select name="kind"><option value="internal">Ügyhöz tartozó belső üzenet</option><option value="note">Jegyzet</option></select><textarea name="body" required rows={2} placeholder="Az ügyön dolgozó csapatnak"/><button className="btn btnGhost">Belső bejegyzés</button></form>
-                  {thread.customer_email&&<OfficeCustomerEmailForm threadId={thread.id}/>} 
+                  {thread.customer_email&&<OfficeCustomerEmailForm
+                    threadId={thread.id}
+                    sendingConfigured={sendingConfigured}
+                    initialDraft={replyDraft?{id:replyDraft.id,revision:replyDraft.revision,body:replyDraft.body}:undefined}
+                  />}
                 </div>
                 <form action={createTaskAction} className="stackForm"><input type="hidden" name="threadId" value={thread.id}/><input name="title" required placeholder="Kapcsolódó feladat"/><input name="due" type="datetime-local"/><button className="btn btnGhost">Feladat létrehozása</button></form>
               </>:<div className="adminAuditNotice"><strong>Üzenetküldés átmenetileg letiltva.</strong><p>A munkatér teljes adatainak betöltése szükséges.</p></div>}
