@@ -15,6 +15,8 @@ export type OfficeComposerActionState={
 };
 export const officeComposerInitialState:OfficeComposerActionState={status:'idle',message:''};
 
+type DraftSaveMode='manual'|'autosave';
+
 class OfficeComposerError extends Error{
   readonly reason:string;
   constructor(reason:string){
@@ -119,7 +121,7 @@ async function queueEmail(db:ReturnType<typeof createAdminClient>,input:{
   return result;
 }
 
-export async function saveNewEmailDraftAction(_previous:OfficeComposerActionState,formData:FormData):Promise<OfficeComposerActionState>{
+async function persistNewEmailDraft(formData:FormData,saveMode:DraftSaveMode):Promise<OfficeComposerActionState>{
   try{
     const{db,userId,instanceId}=await access();
     const draftId=String(formData.get('draftId')??'').trim()||null;
@@ -128,14 +130,18 @@ export async function saveNewEmailDraftAction(_previous:OfficeComposerActionStat
     const toEmail=String(formData.get('toEmail')??'').trim().toLowerCase().slice(0,320)||null;
     const subject=String(formData.get('subject')??'').trim().slice(0,300);
     const body=String(formData.get('body')??'').slice(0,10000);
-    const result=await mutateDraft(db,{instanceId,userId,action:'save',payload:{draftId,expectedRevision:revision,draftType:'new_email',threadId:null,toEmail,subject,body}});
-    revalidatePath('/admin/kommunikacio/iroda');
-    revalidatePath('/admin/kommunikacio/iroda/uj');
-    return{status:'success',message:'Piszkozat mentve.',draftId:result.draftId,revision:result.revision};
+    const result=await mutateDraft(db,{instanceId,userId,action:'save',payload:{
+      draftId,expectedRevision:revision,saveMode,draftType:'new_email',threadId:null,toEmail,subject,body,
+    }});
+    if(saveMode==='manual'){
+      revalidatePath('/admin/kommunikacio/iroda');
+      revalidatePath('/admin/kommunikacio/iroda/uj');
+    }
+    return{status:'success',message:saveMode==='autosave'?'Automatikusan mentve.':'Piszkozat mentve.',draftId:result.draftId,revision:result.revision};
   }catch(error){return stateForError(error)}
 }
 
-export async function saveReplyDraftAction(_previous:OfficeComposerActionState,formData:FormData):Promise<OfficeComposerActionState>{
+async function persistReplyDraft(formData:FormData,saveMode:DraftSaveMode):Promise<OfficeComposerActionState>{
   try{
     const{db,userId,instanceId}=await access();
     const draftId=String(formData.get('draftId')??'').trim()||null;
@@ -144,10 +150,25 @@ export async function saveReplyDraftAction(_previous:OfficeComposerActionState,f
     const threadId=String(formData.get('threadId')??'').trim();
     const body=String(formData.get('body')??'').slice(0,10000);
     if(!threadId)return{status:'error',message:'A válaszpiszkozathoz beszélgetés szükséges.'};
-    const result=await mutateDraft(db,{instanceId,userId,action:'save',payload:{draftId,expectedRevision:revision,draftType:'reply',threadId,toEmail:null,subject:'',body}});
-    revalidatePath('/admin/kommunikacio/iroda');
-    return{status:'success',message:'Válaszpiszkozat mentve.',draftId:result.draftId,revision:result.revision};
+    const result=await mutateDraft(db,{instanceId,userId,action:'save',payload:{
+      draftId,expectedRevision:revision,saveMode,draftType:'reply',threadId,toEmail:null,subject:'',body,
+    }});
+    if(saveMode==='manual')revalidatePath('/admin/kommunikacio/iroda');
+    return{status:'success',message:saveMode==='autosave'?'Automatikusan mentve.':'Válaszpiszkozat mentve.',draftId:result.draftId,revision:result.revision};
   }catch(error){return stateForError(error)}
+}
+
+export async function saveNewEmailDraftAction(_previous:OfficeComposerActionState,formData:FormData){
+  return persistNewEmailDraft(formData,'manual');
+}
+export async function autosaveNewEmailDraftAction(_previous:OfficeComposerActionState,formData:FormData){
+  return persistNewEmailDraft(formData,'autosave');
+}
+export async function saveReplyDraftAction(_previous:OfficeComposerActionState,formData:FormData){
+  return persistReplyDraft(formData,'manual');
+}
+export async function autosaveReplyDraftAction(_previous:OfficeComposerActionState,formData:FormData){
+  return persistReplyDraft(formData,'autosave');
 }
 
 export async function deleteOfficeDraftAction(formData:FormData):Promise<OfficeComposerActionState>{
