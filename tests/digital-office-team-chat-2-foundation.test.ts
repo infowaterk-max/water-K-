@@ -10,7 +10,7 @@ describe('Digital Office Team Chat 2 foundation',()=>{
   const integrity=read('supabase/migrations/20260908065100_digital_office_team_chat_2_integrity_v1.sql');
   const ownerTransfer=read('supabase/migrations/20260908065200_digital_office_team_chat_owner_transfer_v1.sql');
   const actions=read('src/app/admin/kommunikacio/iroda/actions.ts');
-  const page=read('src/app/admin/kommunikacio/iroda/page.tsx');
+  const page=read('src/app/admin/kommunikacio/chat/page.tsx');
   const privateComposer=read('src/components/admin/office-private-message-form.tsx');
 
   it('keeps mention and object-link data service-only behind RLS',()=>{
@@ -46,7 +46,7 @@ describe('Digital Office Team Chat 2 foundation',()=>{
     expect(migration).toContain('not public.can_read_office_thread_v1(p_instance_id,v_thread_id,v_mention)');
     expect(migration).toContain('update public.office_message_mentions');
     expect(migration).toContain('mentioned_user_id=p_actor and seen_at is null');
-    expect(page).toContain("filter==='mentions'&&mentionThreadIds.has(thread.id)");
+    expect(page).toContain("filter==='mentions'&&mentionThreads.has(thread.id)");
     expect(page).toContain('@ Megemlítettek');
   });
 
@@ -59,8 +59,8 @@ describe('Digital Office Team Chat 2 foundation',()=>{
     expect(migration).toContain("raise exception 'OFFICE_OBJECT_LINK_NOT_FOUND'");
     expect(migration).toContain("raise exception 'OFFICE_OBJECT_LINK_PERMISSION_REQUIRED'");
     expect(migration).toContain('v_object_type is not null and not public.can_manage_support(p_instance_id,p_actor)');
-    expect(page).toContain('if(!canSupportWorkspace)return null');
-    expect(page).toContain('const objectOptions:ObjectOption[]=canSupportWorkspace?[');
+    expect(page).toContain('if(!canBusinessObjects)return null');
+    expect(page).toContain('const objectOptions:ObjectOption[]=canBusinessObjects?[');
   });
 
   it('creates chat message, mentions and object link in one audited database transaction',()=>{
@@ -106,17 +106,18 @@ describe('Digital Office Team Chat 2 foundation',()=>{
     expect(actions).toContain('result.transferred!==true');
     expect(page).toContain('transferPrivateThreadOwnerAction');
     expect(page).toContain('Tulajdonjog átadása');
-    expect(page).toContain('threadParticipants.length>2&&memberParticipants.length>0');
+    expect(page).toContain('threadParticipants.length>2&&members.length>0');
   });
 
   it('uses effective office.internal_chat capability instead of coarse support permission for private chat actions',()=>{
+    expect(actions).toContain('async function chatBaseAccess()');
+    expect(actions).toContain("await requirePlanFeature('teamChat')");
     expect(actions).toContain('async function privateChatAccess()');
     expect(actions).toContain("hasStoreCapability(access.instanceId,access.userId,'office.internal_chat'");
     expect(actions).toContain('const{db,userId,instanceId}=await privateChatAccess()');
     expect(actions).toContain("action:'create_internal_thread'");
     expect(actions).toContain("action:'add_internal_message'");
     expect(actions).toContain("action:'manage_participant'");
-    expect(actions).toContain("const{db,userId,instanceId}=await baseAccess();\n  const threadId=String(form.get('threadId')??'');");
     expect(migration).not.toContain("if not public.can_manage_support(p_instance_id,p_actor) then raise exception 'SUPPORT_PERMISSION_REQUIRED'; end if;\n    v_capability:=public.evaluate_store_capability_v1");
     expect(migration).toContain("v_capability:=public.evaluate_store_capability_v1(p_instance_id,p_actor,'office.internal_chat'");
   });
@@ -124,24 +125,24 @@ describe('Digital Office Team Chat 2 foundation',()=>{
   it('builds chat participant choices from effective capability, not fixed support roles',()=>{
     expect(page).toContain("hasStoreCapability(scope.instanceId,userId,'office.internal_chat'");
     expect(page).toContain('const chatUserIds=new Set');
-    expect(page).toContain('const chatAssignees:Assignee[]=teamUserIds.filter(userId=>chatUserIds.has(userId))');
-    expect(page).toContain('availableParticipants=chatAssignees.filter');
-    expect(page).toContain('chatUserIds.has(participant.user_id)');
+    expect(page).toContain('const chatUsers=userIds.filter(id=>chatUserIds.has(id))');
+    expect(page).toContain('const available=chatUsers.filter');
+    expect(page).toContain('chatUserIds.has(p.user_id)');
     expect(privateComposer).toContain('name="mentionUserId" multiple');
   });
 
   it('fails closed if Team Chat read models are unavailable',()=>{
-    expect(page).toContain('mentionError||objectLinkError||attachmentError');
-    expect(page).toContain('const canReadAct=!loadError&&!privacyFallback');
-    expect(page).toContain('const canCustomerAct=canReadAct&&canSupportWorkspace');
-    expect(page).toContain('const canPrivateAct=canReadAct&&canInternalChat');
-    expect(page).toContain('Team Chat foundation adatainak egy része most nem tölthető be.');
-    expect(page).toContain('privát chat módosításait biztonsági okból letiltjuk');
+    expect(page).toContain('if(accessibleIds===null)return');
+    expect(page).toContain('const loadError=Boolean(');
+    expect(page).toContain('Hiányos adatok mellett a chatműveleteket biztonsági okból letiltjuk.');
+    expect(page).toContain('{!loadError?<form action={createPrivateThreadAction}');
+    expect(page).toContain('{!loadError&&<OfficePrivateMessageForm');
   });
 
-  it('keeps block-level mention and object cards out of inline spans',()=>{
-    expect(page).toContain('return <div key={message.id}>\n                  <div>');
-    expect(page).not.toContain('return <div key={message.id}>\n                  <span>\n                    <strong>{kindLabel');
+  it('keeps block-level mention and object cards inside the dedicated Team Chat rendering tree',()=>{
+    expect(page).toContain('links.filter(l=>l.message_id===message.id).map(renderObject)');
+    expect(page).toContain('mentions.filter(m=>m.message_id===message.id)');
+    expect(page).toContain('Munkatárs ↔ munkatárs kommunikáció. Az ügyfelek nem résztvevői ennek a felületnek.');
   });
 
   it('keeps the original Team Chat foundation independent from mailbox and AI behavior',()=>{
