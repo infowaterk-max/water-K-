@@ -8,7 +8,7 @@ const read=(file:string)=>fs.readFileSync(path.join(root,file),'utf8');
 describe('production pilot communication UI remediation',()=>{
   test('approval action is shown only for jobs that actually require approval',()=>{
     const actions=read('src/components/admin/communication-job-actions.tsx');
-    const page=read('src/app/admin/kommunikacio/page.tsx');
+    const page=read('src/app/admin/kommunikacio/felugyelet/page.tsx');
     expect(actions).toContain('requiresApproval:boolean');
     expect(actions).toContain("status==='pending'&&requiresApproval&&!approved&&allowApproval");
     expect(page.match(/requiresApproval=\{j\.requires_approval\}/g)?.length).toBeGreaterThanOrEqual(3);
@@ -35,7 +35,7 @@ describe('production pilot communication UI remediation',()=>{
   });
 
   test('communication queue has mobile cards and admin navigation collapses before narrow-table layout',()=>{
-    const page=read('src/app/admin/kommunikacio/page.tsx');
+    const page=read('src/app/admin/kommunikacio/felugyelet/page.tsx');
     const css=read('src/app/admin/communication-pilot-fixes.css');
     const layout=read('src/app/admin/layout.tsx');
     expect(page).toContain('communicationQueueDesktop');
@@ -49,7 +49,7 @@ describe('production pilot communication UI remediation',()=>{
   });
 
   test('scheduled communication times are not rendered in the server UTC timezone',()=>{
-    const page=read('src/app/admin/kommunikacio/page.tsx');
+    const page=read('src/app/admin/kommunikacio/felugyelet/page.tsx');
     const actions=read('src/components/admin/communication-job-actions.tsx');
     expect(page).toContain("timeZone:'Europe/Budapest'");
     expect(actions).toContain('function localDateTimeInputValue(value:string)');

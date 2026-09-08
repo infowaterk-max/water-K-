@@ -79,8 +79,8 @@ describe('Digital Office attachment quarantine and malware scan gate',()=>{
     expect(statusRoute).toContain("'Cache-Control':'no-store'");
     expect(scanner).toContain("scannerEndpoint()!==null");
     expect(composer).toContain("fetch('/api/admin/office/attachments/status',{cache:'no-store'})");
-    expect(composer).toContain('disabled={!attachmentsEnabled||busy}');
-    expect(composer).toContain('A csatolmányküldés biztonsági scanner jóváhagyásáig és konfigurálásáig le van tiltva.');
+    expect(composer).toContain('disabled={!availability.enabled||busy}');
+    expect(composer).toContain('A Pro csatolmányküldés a biztonsági scanner jóváhagyásáig és konfigurálásáig le van tiltva.');
     expect(composer).toContain('Szöveges belső üzenetet továbbra is küldhetsz.');
   });
 

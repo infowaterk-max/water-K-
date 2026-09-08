@@ -22,7 +22,7 @@ describe('Roadmap Block 4 IA, navigation and reporting contract',()=>{
 
   it('filters navigation and frequent tasks through least privilege, capability and pilot audience rules',()=>{
     const readable=(permission?:string)=>permission==='store.read'||permission==='analytics.read';
-    const noCapabilities=()=>false;
+    const noCapabilities=(capability?:string)=>!capability;
     const items=resolveMerchantNavigation('pro',readable,'active',noCapabilities).flatMap(section=>section.items);
     const quick=resolveFrequentTasks('pro',readable);
     expect(items.some(item=>item.href==='/admin')).toBe(true);

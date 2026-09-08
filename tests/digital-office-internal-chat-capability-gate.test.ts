@@ -6,8 +6,10 @@ const root=process.cwd();
 const read=(file:string)=>readFileSync(join(root,file),'utf8');
 
 describe('Digital Office individual internal-chat capability gate',()=>{
-  const page=read('src/app/admin/kommunikacio/iroda/page.tsx');
-  const actions=read('src/app/admin/kommunikacio/iroda/actions.ts');
+  const chatPage=read('src/app/admin/kommunikacio/chat/page.tsx');
+  const chatActions=read('src/app/admin/kommunikacio/chat/actions.ts');
+  const emailPage=read('src/app/admin/kommunikacio/iroda/page.tsx');
+  const emailActions=read('src/app/admin/kommunikacio/iroda/actions.ts');
   const migration=read('supabase/migrations/20260908065000_digital_office_team_chat_2_foundation_v1.sql');
   const integrity=read('supabase/migrations/20260908065100_digital_office_team_chat_2_integrity_v1.sql');
   const ownerTransfer=read('supabase/migrations/20260908065200_digital_office_team_chat_owner_transfer_v1.sql');
@@ -17,8 +19,8 @@ describe('Digital Office individual internal-chat capability gate',()=>{
   const download=read('src/app/api/admin/office/attachments/[id]/route.ts');
 
   it('opens private chat through effective capability without redefining role presets',()=>{
-    expect(page).toContain("hasStoreCapability(scope.instanceId,actor.id,'office.internal_chat'");
-    expect(actions).toContain("hasStoreCapability(access.instanceId,access.userId,'office.internal_chat'");
+    expect(chatPage).toContain("hasStoreCapability(scope.instanceId,actor.id,'office.internal_chat'");
+    expect(chatActions).toContain("hasStoreCapability(scope.instanceId,actor.id,'office.internal_chat'");
     expect(migration).toContain("evaluate_store_capability_v1(p_instance_id,p_actor,'office.internal_chat'");
     expect(roleFoundation).toContain("('support','office.internal_chat','all')");
     expect(roleFoundation).toContain("('order_manager','office.internal_chat','all')");
@@ -29,33 +31,32 @@ describe('Digital Office individual internal-chat capability gate',()=>{
     }
   });
 
-  it('keeps customer support actions on coarse support authority',()=>{
-    expect(actions).toContain('async function supportAccess()');
-    expect(actions).toContain("getAdminRequestUser('support.manage')");
-    expect(actions).toContain("requireCurrentStoreContext('support.manage')");
-    expect(actions).toContain('const{db,userId,instanceId}=await supportAccess();');
-    expect(page).toContain("hasStorePermission(scope.instanceId,'support.manage')");
-    expect(page).toContain('const canCustomerAct=canReadAct&&canSupportWorkspace');
+  it('keeps customer support actions and customer email reads on coarse support authority',()=>{
+    expect(emailActions).toContain('async function supportAccess()');
+    expect(emailActions).toContain("getAdminRequestUser('support.manage')");
+    expect(emailActions).toContain("requireCurrentStoreContext('support.manage')");
+    expect(emailActions).toContain('const{db,userId,instanceId}=await supportAccess();');
+    expect(emailPage).toContain("getAdminRequestUser('support.manage')");
+    expect(emailPage).toContain("requireCurrentStoreContext('support.manage')");
+    expect(emailPage).toContain(".eq('conversation_type','customer')");
   });
 
-  it('does not load broad business datasets for chat-only access',()=>{
-    expect(page).toContain('const taskPromise=canSupportWorkspace');
-    expect(page).toContain('const orderPromise=canSupportWorkspace');
-    expect(page).toContain('const offerPromise=canSupportWorkspace');
-    expect(page).toContain('const returnPromise=canSupportWorkspace');
-    expect(page).toContain('const ticketPromise=canSupportWorkspace');
-    expect(page).toContain('const jobPromise=canSupportWorkspace');
-    expect(page).toContain('const objectOptions:ObjectOption[]=canSupportWorkspace?[');
-    expect(page).toContain('if(!canSupportWorkspace)return null');
-    expect(page).toContain('Ez a jogosultság önmagában nem ad hozzáférést rendelésekhez, ajánlatokhoz, visszárukhoz vagy ügyféladatokhoz.');
+  it('does not load broad business datasets for chat-only access without support authority',()=>{
+    expect(chatPage).toContain("canBusinessObjects?db.from('orders')");
+    expect(chatPage).toContain("canBusinessObjects?db.from('commercial_offers')");
+    expect(chatPage).toContain("canBusinessObjects?db.from('return_cases')");
+    expect(chatPage).toContain("canBusinessObjects?db.from('support_tickets')");
+    expect(chatPage).toContain("canBusinessObjects?db.from('office_tasks')");
+    expect(chatPage).toContain('const objectOptions:ObjectOption[]=canBusinessObjects?[');
+    expect(chatPage).toContain('if(!canBusinessObjects)return null');
   });
 
   it('builds participant choices from effective chat grants so a narrow base role can receive the checkbox',()=>{
-    expect(page).toContain('const bindings=((bindingData??[])as Binding[]).filter(row=>active(row.valid_until));');
-    expect(page).toContain("hasStoreCapability(scope.instanceId,userId,'office.internal_chat'");
-    expect(page).toContain('const chatUserIds=new Set');
-    expect(page).toContain('const chatAssignees:Assignee[]=teamUserIds.filter(userId=>chatUserIds.has(userId))');
-    expect(page).toContain('chatAssignees.filter(member=>member.userId!==actor.id');
+    expect(chatPage).toContain('const bindings=((bindingResult.data??[])as Binding[]).filter(row=>active(row.valid_until));');
+    expect(chatPage).toContain("hasStoreCapability(scope.instanceId,userId,'office.internal_chat'");
+    expect(chatPage).toContain('const chatUserIds=new Set');
+    expect(chatPage).toContain('const chatUsers=userIds.filter(id=>chatUserIds.has(id))');
+    expect(chatPage).toContain('const available=chatUsers.filter');
   });
 
   it('blocks business-object linking for chat-only actors at RPC and trigger boundaries',()=>{
@@ -84,8 +85,8 @@ describe('Digital Office individual internal-chat capability gate',()=>{
     }
   });
 
-  it('does not activate mailbox, customer email identity, MX or AI behavior',()=>{
-    const all=(page+'\n'+actions+'\n'+migration+'\n'+integrity+'\n'+ownerTransfer).toLowerCase();
+  it('does not activate mailbox, customer email identity, MX or AI behavior in Team Chat',()=>{
+    const all=(chatPage+'\n'+chatActions+'\n'+migration+'\n'+integrity+'\n'+ownerTransfer).toLowerCase();
     expect(all).not.toContain('gmail');
     expect(all).not.toContain('microsoft graph');
     expect(all).not.toContain('imap');

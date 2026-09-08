@@ -104,7 +104,7 @@ describe('Digital Office private attachments',()=>{
   it('loads only ready attachments in the dedicated Team Chat workspace and fails closed on read errors',()=>{
     expect(page).toContain("secureAttachments&&threadIds.length?db.from('office_message_attachments')");
     expect(page).toContain(".eq('status','ready')");
-    expect(page).toContain('/api/admin/office/attachments/${attachment.id}');
+    expect(page).toContain('/api/admin/office/attachments/${a.id}');
     expect(page).toContain('OfficePrivateMessageForm');
     expect(page).not.toContain('storage/v1/object/public');
   });

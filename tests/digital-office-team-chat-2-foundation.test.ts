@@ -117,7 +117,7 @@ describe('Digital Office Team Chat 2 foundation',()=>{
     expect(actions).toContain('const{db,userId,instanceId}=await privateChatAccess()');
     expect(actions).toContain("action:'create_internal_thread'");
     expect(actions).toContain("action:'manage_participant'");
-    expect(messageRoute).toContain("await requirePlanFeature('teamChat')");
+    expect(messageRoute).toContain("hasCurrentPlanFeature('teamChat')");
     expect(messageRoute).toContain("action:'add_internal_message'");
     expect(page).toContain("}from'./actions';");
     expect(migration).not.toContain("if not public.can_manage_support(p_instance_id,p_actor) then raise exception 'SUPPORT_PERMISSION_REQUIRED'; end if;\n    v_capability:=public.evaluate_store_capability_v1");
