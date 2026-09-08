@@ -1,7 +1,7 @@
 'use client';
 
 import{useRouter}from'next/navigation';
-import{useState,type FormEvent}from'react';
+import{useEffect,useState,type FormEvent}from'react';
 import{createClient}from'@/lib/supabase/browser';
 import{
   OFFICE_PRIVATE_ATTACHMENT_BUCKET,
@@ -22,8 +22,22 @@ type Props={
 
 type ApiError={error?:string};
 type PrepareResponse={ok?:boolean;uploads?:OfficePrivateAttachmentUploadReservation[];error?:string};
+type ScannerStatusResponse={attachmentsEnabled?:boolean};
 
 type Phase='idle'|'uploading'|'scanning'|'finalizing';
+let scannerAvailabilityPromise:Promise<boolean>|null=null;
+
+function scannerAvailability(){
+  if(!scannerAvailabilityPromise){
+    scannerAvailabilityPromise=fetch('/api/admin/office/attachments/status',{cache:'no-store'})
+      .then(async response=>{
+        const payload=(await response.json().catch(()=>({})))as ScannerStatusResponse;
+        return response.ok&&payload.attachmentsEnabled===true;
+      })
+      .catch(()=>false);
+  }
+  return scannerAvailabilityPromise;
+}
 
 function objectFromRef(raw:string){
   if(!raw)return{objectType:null,objectId:null};
@@ -56,6 +70,18 @@ export function OfficePrivateMessageForm({threadId,mentionOptions,objectOptions}
   const[busy,setBusy]=useState(false);
   const[phase,setPhase]=useState<Phase>('idle');
   const[message,setMessage]=useState<string|null>(null);
+  const[attachmentsEnabled,setAttachmentsEnabled]=useState(false);
+  const[scannerChecked,setScannerChecked]=useState(false);
+
+  useEffect(()=>{
+    let active=true;
+    scannerAvailability().then(enabled=>{
+      if(!active)return;
+      setAttachmentsEnabled(enabled);
+      setScannerChecked(true);
+    });
+    return()=>{active=false};
+  },[]);
 
   async function submit(event:FormEvent<HTMLFormElement>){
     event.preventDefault();
@@ -65,7 +91,7 @@ export function OfficePrivateMessageForm({threadId,mentionOptions,objectOptions}
     const body=String(data.get('body')??'').trim();
     const mentionUserIds=[...new Set(data.getAll('mentionUserId').map(value=>String(value)).filter(Boolean))].slice(0,10);
     const object=objectFromRef(String(data.get('objectRef')??''));
-    const files=data.getAll('attachment').filter((value):value is File=>value instanceof File&&value.size>0);
+    const files=attachmentsEnabled?data.getAll('attachment').filter((value):value is File=>value instanceof File&&value.size>0):[];
     if(!body){setMessage('Írj üzenetet a küldéshez.');return}
     if(!object){setMessage('A kapcsolt üzleti objektum adata érvénytelen.');return}
     const problem=fileProblem(files);
@@ -145,7 +171,7 @@ export function OfficePrivateMessageForm({threadId,mentionOptions,objectOptions}
     <input type="hidden" name="threadId" value={threadId}/>
     {mentionOptions.length>0&&<label><span>@ Említés</span><select name="mentionUserId" multiple size={Math.min(5,Math.max(2,mentionOptions.length))}>{mentionOptions.map(option=><option key={option.userId} value={option.userId}>{option.label}</option>)}</select></label>}
     <label className="stackForm"><span>Kapcsolt üzleti objektum</span><select name="objectRef" defaultValue=""><option value="">Nincs kapcsolt objektum</option>{objectOptions.map(option=><option key={option.value} value={option.value}>{option.label}</option>)}</select></label>
-    <label className="stackForm"><span>Csatolmányok</span><input name="attachment" type="file" multiple accept={OFFICE_PRIVATE_ATTACHMENT_MIME_TYPES.join(',')}/><span className="muted">Legfeljebb 5 fájl, fájlonként 10 MB. Kép, PDF, TXT, CSV, DOCX vagy XLSX. A fájl először privát karanténba kerül, és csak fájlszignatúra- + vírusellenőrzés után csatolható az üzenethez.</span></label>
+    <label className="stackForm"><span>Csatolmányok</span><input name="attachment" type="file" multiple accept={OFFICE_PRIVATE_ATTACHMENT_MIME_TYPES.join(',')} disabled={!attachmentsEnabled||busy}/><span className="muted">{attachmentsEnabled?'Legfeljebb 5 fájl, fájlonként 10 MB. Kép, PDF, TXT, CSV, DOCX vagy XLSX. A fájl először privát karanténba kerül, és csak fájlszignatúra- + vírusellenőrzés után csatolható az üzenethez.':scannerChecked?'A csatolmányküldés biztonsági scanner jóváhagyásáig és konfigurálásáig le van tiltva. Szöveges belső üzenetet továbbra is küldhetsz.':'A csatolmány biztonsági rendszerének állapotát ellenőrizzük…'}</span></label>
     <textarea name="body" required rows={3} maxLength={10000} placeholder="Privát belső üzenet"/>
     {message&&<p className="muted" role="status">{message}</p>}
     <button className="btn btnGhost" disabled={busy}>{busy?phaseLabel(phase):'Belső üzenet küldése'}</button>
