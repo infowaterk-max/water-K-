@@ -117,6 +117,18 @@ The migration is committed as `20260908070700_storefront_runtime_persistence.sql
 
 The current production baseline still has one reviewed customer-baseline migration. Open PR #115 (Block 7) owns the next Fresh Install forward-migration sequence on its branch. To avoid competing `0002/0003` baseline numbering and a false Fresh Install claim, Wave 0B deliberately does not edit `supabase/customer-baseline/` yet. Before this runtime PR can become merge-ready, it must be rebased after the active baseline owner lands (or otherwise reconciled), then the Storefront Runtime migration must be added to the ordered customer-baseline forward-migration manifest and receive genuine Fresh Install proof.
 
+## CI evidence
+
+Latest Wave 0B head CI (`#1770`) passed:
+- dependency security audit;
+- customer database baseline guard;
+- quality tests including the Wave 0A/0B runtime contracts;
+- TypeScript;
+- production build;
+- release manifest.
+
+Fresh Install proof is intentionally skipped because this branch has not yet been reconciled into the ordered customer-baseline migration sequence described above.
+
 ## Explicit non-scope through Wave 0B
 
 - no production or shared staging migration;
