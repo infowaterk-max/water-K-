@@ -7,10 +7,10 @@ import{createAdminClient}from'@/lib/supabase/admin';
 import{OFFICE_PRIVATE_ATTACHMENT_SIGNED_DOWNLOAD_SECONDS}from'@/lib/office/private-attachments';
 
 export async function GET(_request:Request,{params}:{params:Promise<{id:string}>}){
-  const actor=await getAdminRequestUser('support.manage');
+  const actor=await getAdminRequestUser();
   if(!actor)return NextResponse.json({error:'Nincs jogosultság.'},{status:403});
   if(!(await hasCurrentPlanFeature('officeCommunication')))return NextResponse.json({error:'A Digitális iroda Pro csomaghoz kötött.'},{status:403});
-  let scope;try{scope=await requireCurrentStoreContext('support.manage')}catch{return NextResponse.json({error:'Nincs jogosultság ehhez a webshophoz.'},{status:403})}
+  let scope;try{scope=await requireCurrentStoreContext()}catch{return NextResponse.json({error:'Nincs jogosultság ehhez a webshophoz.'},{status:403})}
   const{id}=await params;
   if(!z.string().uuid().safeParse(id).success)return NextResponse.json({error:'Érvénytelen csatolmányazonosító.'},{status:400});
 
