@@ -24,6 +24,18 @@ describe('Digital Office Team Chat retention',()=>{
     expect(migration).toContain('not exists(select 1 from public.office_message_attachments');
   });
 
+  test('archive state is visible, separately filterable, and read-only in Team Chat UX',()=>{
+    const page=read('src/app/admin/kommunikacio/chat/page.tsx');
+    expect(page).toContain("archived_at:string|null");
+    expect(page).toContain("updated_at,archived_at,conversation_type");
+    expect(page).toContain("filter==='archived'?archived");
+    expect(page).toContain('<option value="archived">Archivált</option>');
+    expect(page).toContain('Az archivált beszélgetés csak olvasható.');
+    expect(page).toContain('!archived&&!loadError&&isOwner');
+    expect(page).toContain('!archived&&!loadError&&<OfficePrivateMessageForm');
+    expect(page).toContain('const activeThreads=threads.filter(thread=>!isArchived(thread));');
+  });
+
   test('only Team Chat audit actions expire and message body is never copied into audit evidence',()=>{
     const migration=read('supabase/migrations/20260908065900_digital_office_team_chat_retention_v1.sql');
     const foundation=read('supabase/migrations/20260908065000_digital_office_team_chat_2_foundation_v1.sql');
