@@ -13,6 +13,7 @@ import {
   createThreadAction,
   managePrivateParticipantAction,
   markThreadReadAction,
+  transferPrivateThreadOwnerAction,
   updateThreadAction,
 } from './actions';
 
@@ -313,6 +314,7 @@ export default async function OfficeWorkspace({searchParams}:{searchParams:Promi
           const threadParticipants=participants.filter(participant=>participant.thread_id===thread.id);
           const actorParticipant=threadParticipants.find(participant=>participant.user_id===actor.id);
           const isThreadOwner=isPrivate&&actorParticipant?.participant_role==='owner';
+          const memberParticipants=threadParticipants.filter(participant=>participant.participant_role==='member');
           const availableParticipants=assignees.filter(member=>member.userId!==actor.id&&!threadParticipants.some(participant=>participant.user_id===member.userId));
           const mentionableParticipants=threadParticipants.filter(participant=>participant.user_id!==actor.id);
           const hasUnseenMention=mentionThreadIds.has(thread.id);
@@ -337,12 +339,17 @@ export default async function OfficeWorkspace({searchParams}:{searchParams:Promi
                   <select name="targetUserId" required defaultValue=""><option value="" disabled>Új résztvevő…</option>{availableParticipants.map(member=><option key={member.userId} value={member.userId}>{member.label}</option>)}</select>
                   <button className="btn btnGhost">Hozzáadás</button>
                 </form>}
-                {threadParticipants.filter(participant=>participant.participant_role==='member').length>0&&<div className="adminToolbar">
-                  {threadParticipants.filter(participant=>participant.participant_role==='member').map(participant=><form action={managePrivateParticipantAction} key={participant.user_id}>
+                {threadParticipants.length>2&&memberParticipants.length>0&&<div className="adminToolbar">
+                  {memberParticipants.map(participant=><form action={managePrivateParticipantAction} key={participant.user_id}>
                     <input type="hidden" name="threadId" value={thread.id}/><input type="hidden" name="operation" value="remove"/><input type="hidden" name="targetUserId" value={participant.user_id}/>
                     <button className="btn btnGhost">Eltávolítás: {profileMap.get(participant.user_id)?.full_name||profileMap.get(participant.user_id)?.email||shortId(participant.user_id)}</button>
                   </form>)}
                 </div>}
+                {memberParticipants.length>0&&<form action={transferPrivateThreadOwnerAction} className="adminToolbar">
+                  <input type="hidden" name="threadId" value={thread.id}/>
+                  <select name="targetUserId" required defaultValue=""><option value="" disabled>Új tulajdonos…</option>{memberParticipants.map(participant=><option key={participant.user_id} value={participant.user_id}>{profileMap.get(participant.user_id)?.full_name||profileMap.get(participant.user_id)?.email||shortId(participant.user_id)}</option>)}</select>
+                  <button className="btn btnGhost">Tulajdonjog átadása</button>
+                </form>}
               </>}
             </div>}
 
