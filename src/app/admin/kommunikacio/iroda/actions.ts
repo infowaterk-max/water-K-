@@ -8,6 +8,8 @@ import { createAdminClient } from '@/lib/supabase/admin';
 import { requireCurrentStoreContext } from '@/lib/instances/scope';
 
 type OfficeEmailActionState={status:'idle'|'success'|'blocked'|'error';message:string};
+type ChatObjectType='order'|'commercial_offer'|'return_case'|'support_ticket'|'task';
+const chatObjectTypes=new Set<ChatObjectType>(['order','commercial_offer','return_case','support_ticket','task']);
 
 class OfficeMutationError extends Error{
   readonly reason:string;
@@ -26,6 +28,10 @@ async function access(){
   return{db:createAdminClient(),userId:actor.id,instanceId:scope.instanceId};
 }
 
+function errorReason(error:{code?:string|null;message?:string|null;details?:string|null;hint?:string|null}){
+  return[error.code,error.message,error.details,error.hint].filter(Boolean).join(' ');
+}
+
 async function mutateOffice(db:ReturnType<typeof createAdminClient>,input:{instanceId:string;userId:string;action:string;payload:Record<string,unknown>}){
   const{data,error}=await db.rpc('admin_mutate_office_workspace_v2',{
     p_instance_id:input.instanceId,
@@ -33,10 +39,7 @@ async function mutateOffice(db:ReturnType<typeof createAdminClient>,input:{insta
     p_action:input.action,
     p_payload:input.payload,
   });
-  if(error){
-    const reason=[error.code,error.message,error.details,error.hint].filter(Boolean).join(' ');
-    throw new OfficeMutationError(reason);
-  }
+  if(error)throw new OfficeMutationError(errorReason(error));
   const result=(data??{})as{id?:string;threadId?:string;taskId?:string;jobId?:string};
   if(!result.id&&!result.threadId&&!result.taskId&&!result.jobId)throw new Error('A Digitális iroda műveletének eredménye nem igazolható.');
   return result;
@@ -49,13 +52,40 @@ async function mutateOfficePrivacy(db:ReturnType<typeof createAdminClient>,input
     p_action:input.action,
     p_payload:input.payload,
   });
-  if(error){
-    const reason=[error.code,error.message,error.details,error.hint].filter(Boolean).join(' ');
-    throw new OfficeMutationError(reason);
-  }
+  if(error)throw new OfficeMutationError(errorReason(error));
   const result=(data??{})as{id?:string;threadId?:string;messageId?:string;userId?:string;participantCount?:number};
   if(!result.id&&!result.threadId&&!result.messageId)throw new Error('A Digitális iroda privacy műveletének eredménye nem igazolható.');
   return result;
+}
+
+async function mutateOfficeTeamChat(db:ReturnType<typeof createAdminClient>,input:{instanceId:string;userId:string;action:string;payload:Record<string,unknown>}){
+  const{data,error}=await db.rpc('admin_mutate_office_team_chat_v2',{
+    p_instance_id:input.instanceId,
+    p_actor:input.userId,
+    p_action:input.action,
+    p_payload:input.payload,
+  });
+  if(error)throw new OfficeMutationError(errorReason(error));
+  const result=(data??{})as{
+    id?:string;threadId?:string;messageId?:string;targetUserId?:string;participantCount?:number;mentionCount?:number;objectLinked?:boolean;
+  };
+  if(!result.id&&!result.threadId&&!result.messageId)throw new Error('A Digitális iroda Team Chat műveletének eredménye nem igazolható.');
+  return result;
+}
+
+function selectedUserIds(form:FormData,name:string){
+  return[...new Set(form.getAll(name).map(value=>String(value).trim()).filter(Boolean))].slice(0,25);
+}
+
+function chatObjectFrom(form:FormData){
+  const raw=String(form.get('objectRef')??'').trim();
+  if(!raw)return{objectType:null,objectId:null};
+  const separator=raw.indexOf(':');
+  if(separator<1)return null;
+  const type=raw.slice(0,separator)as ChatObjectType;
+  const objectId=raw.slice(separator+1).trim();
+  if(!chatObjectTypes.has(type)||!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(objectId))return null;
+  return{objectType:type,objectId};
 }
 
 export async function createThreadAction(form:FormData){
@@ -73,9 +103,11 @@ export async function createPrivateThreadAction(form:FormData){
   const{db,userId,instanceId}=await access();
   const subject=String(form.get('subject')??'').trim().slice(0,180);
   const body=String(form.get('body')??'').trim().slice(0,10000);
-  const participantUserIds=[...new Set(form.getAll('participantUserId').map(value=>String(value).trim()).filter(Boolean))];
-  if(!subject||!body||participantUserIds.length===0)return;
-  await mutateOfficePrivacy(db,{instanceId,userId,action:'create_internal_thread',payload:{subject,body,participantUserIds}});
+  const participantUserIds=selectedUserIds(form,'participantUserId');
+  const mentionUserIds=selectedUserIds(form,'mentionUserId').slice(0,10);
+  const object=chatObjectFrom(form);
+  if(!subject||!body||participantUserIds.length===0||!object)return;
+  await mutateOfficeTeamChat(db,{instanceId,userId,action:'create_internal_thread',payload:{subject,body,participantUserIds,mentionUserIds,...object}});
   revalidatePath('/admin/kommunikacio/iroda');
 }
 
@@ -93,8 +125,20 @@ export async function addPrivateMessageAction(form:FormData){
   const{db,userId,instanceId}=await access();
   const threadId=String(form.get('threadId')??'');
   const body=String(form.get('body')??'').trim().slice(0,10000);
-  if(!threadId||!body)return;
-  await mutateOfficePrivacy(db,{instanceId,userId,action:'add_internal_message',payload:{threadId,body}});
+  const mentionUserIds=selectedUserIds(form,'mentionUserId').slice(0,10);
+  const object=chatObjectFrom(form);
+  if(!threadId||!body||!object)return;
+  await mutateOfficeTeamChat(db,{instanceId,userId,action:'add_internal_message',payload:{threadId,body,mentionUserIds,...object}});
+  revalidatePath('/admin/kommunikacio/iroda');
+}
+
+export async function managePrivateParticipantAction(form:FormData){
+  const{db,userId,instanceId}=await access();
+  const threadId=String(form.get('threadId')??'').trim();
+  const targetUserId=String(form.get('targetUserId')??'').trim();
+  const operation=String(form.get('operation')??'').trim();
+  if(!threadId||!targetUserId||!['add','remove'].includes(operation))return;
+  await mutateOfficeTeamChat(db,{instanceId,userId,action:'manage_participant',payload:{threadId,targetUserId,operation}});
   revalidatePath('/admin/kommunikacio/iroda');
 }
 
@@ -113,7 +157,7 @@ export async function markThreadReadAction(form:FormData){
   const{db,userId,instanceId}=await access();
   const threadId=String(form.get('threadId')??'');
   if(!threadId)return;
-  await mutateOfficePrivacy(db,{instanceId,userId,action:'mark_read',payload:{threadId}});
+  await mutateOfficeTeamChat(db,{instanceId,userId,action:'mark_read',payload:{threadId}});
   revalidatePath('/admin/kommunikacio/iroda');
 }
 
