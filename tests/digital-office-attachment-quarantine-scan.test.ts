@@ -70,9 +70,10 @@ describe('Digital Office attachment quarantine and malware scan gate',()=>{
     expect(scanRoute).toContain('A vírusellenőrző jelenleg nincs biztonságosan konfigurálva vagy nem érhető el.');
   });
 
-  it('disables attachment UI until an authenticated valid HTTPS scanner configuration exists',()=>{
+  it('disables attachment UI unless Pro entitlement and an authenticated valid HTTPS scanner configuration both exist',()=>{
     expect(statusRoute).toContain('getAdminRequestUser()');
-    expect(statusRoute).toContain("hasCurrentPlanFeature('officeCommunication')");
+    expect(statusRoute).toContain("hasCurrentPlanFeature('teamChatSecureAttachments')");
+    expect(statusRoute).toContain("reason:'pro_required'");
     expect(statusRoute).toContain('requireCurrentStoreContext()');
     expect(statusRoute).toContain('officeMalwareScannerConfigured()');
     expect(statusRoute).toContain("'Cache-Control':'no-store'");
