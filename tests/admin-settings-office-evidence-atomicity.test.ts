@@ -6,6 +6,7 @@ const root=process.cwd(),read=(file:string)=>fs.readFileSync(path.join(root,file
 const migration='supabase/migrations/20260903170000_admin_workspace_settings_evidence_atomic_v2.sql';
 const privacyMigration='supabase/migrations/20260908022500_digital_office_privacy_foundation_v1.sql';
 const teamChatMigration='supabase/migrations/20260908065000_digital_office_team_chat_2_foundation_v1.sql';
+const ownerTransferMigration='supabase/migrations/20260908065200_digital_office_team_chat_owner_transfer_v1.sql';
 
 describe('admin workspace and settings evidence atomicity',()=>{
   test('Digital Office business writes no longer use direct table mutations',()=>{
@@ -13,9 +14,11 @@ describe('admin workspace and settings evidence atomicity',()=>{
     const sql=read(migration);
     const privacySql=read(privacyMigration);
     const teamChatSql=read(teamChatMigration);
+    const ownerTransferSql=read(ownerTransferMigration);
     expect(actions).toContain("admin_mutate_office_workspace_v2");
     expect(actions).toContain("admin_mutate_office_privacy_v1");
     expect(actions).toContain("admin_mutate_office_team_chat_v2");
+    expect(actions).toContain("admin_transfer_office_thread_owner_v1");
     const legacyRpcWrites=actions.match(/await mutateOffice\(/g)?.length??0;
     const privacyRpcWrites=actions.match(/await mutateOfficePrivacy\(/g)?.length??0;
     const teamChatRpcWrites=actions.match(/await mutateOfficeTeamChat\(/g)?.length??0;
@@ -42,6 +45,7 @@ describe('admin workspace and settings evidence atomicity',()=>{
     expect(teamChatSql).toContain("'office.private_message_added_v2'");
     expect(teamChatSql).toContain("'office.private_participant_added'");
     expect(teamChatSql).toContain("'office.private_participant_removed'");
+    expect(ownerTransferSql).toContain("'office.private_owner_transferred'");
   });
 
   test('office customer email job, message, thread state and audit share one transaction',()=>{
@@ -87,6 +91,7 @@ describe('admin workspace and settings evidence atomicity',()=>{
     const sql=read(migration);
     const privacySql=read(privacyMigration);
     const teamChatSql=read(teamChatMigration);
+    const ownerTransferSql=read(ownerTransferMigration);
     for(const name of [
       'admin_mutate_office_workspace_v2',
       'platform_mutate_webshop_config_v3',
@@ -100,5 +105,7 @@ describe('admin workspace and settings evidence atomicity',()=>{
     expect(privacySql).toContain('grant execute on function public.admin_mutate_office_privacy_v1(uuid,uuid,text,jsonb) to service_role');
     expect(teamChatSql).toContain('revoke all on function public.admin_mutate_office_team_chat_v2');
     expect(teamChatSql).toContain('grant execute on function public.admin_mutate_office_team_chat_v2(uuid,uuid,text,jsonb) to service_role');
+    expect(ownerTransferSql).toContain('revoke all on function public.admin_transfer_office_thread_owner_v1');
+    expect(ownerTransferSql).toContain('grant execute on function public.admin_transfer_office_thread_owner_v1(uuid,uuid,uuid,uuid) to service_role');
   });
 });
