@@ -1,5 +1,5 @@
 -- Explicit ownership transfer for participant-protected Digital Office internal threads.
--- No elevated role may seize ownership; only the current active owner can transfer it to an active member.
+-- No elevated role may seize ownership; only the current active owner with current chat access can transfer it to an active member.
 
 create or replace function public.admin_transfer_office_thread_owner_v1(
   p_instance_id uuid,
@@ -38,6 +38,9 @@ begin
 
   if not private.office_active_thread_owner_v1(p_instance_id,p_thread_id,p_actor) then
     raise exception 'OFFICE_THREAD_OWNER_REQUIRED';
+  end if;
+  if not public.can_read_office_thread_v1(p_instance_id,p_thread_id,p_actor) then
+    raise exception 'OFFICE_PRIVATE_THREAD_ACCESS_DENIED';
   end if;
 
   select * into v_target
@@ -102,4 +105,4 @@ revoke all on function public.admin_transfer_office_thread_owner_v1(uuid,uuid,uu
 grant execute on function public.admin_transfer_office_thread_owner_v1(uuid,uuid,uuid,uuid) to service_role;
 
 comment on function public.admin_transfer_office_thread_owner_v1(uuid,uuid,uuid,uuid)
-is 'Explicitly transfers one private Team Chat thread from its current active owner to an active member. Elevated roles cannot seize ownership.';
+is 'Explicitly transfers one private Team Chat thread from its current active owner with current chat access to an active member. Elevated roles cannot seize ownership.';
