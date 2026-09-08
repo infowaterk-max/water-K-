@@ -19,40 +19,14 @@ const schema=z.object({
   if(new Set(value.attachmentIds).size!==value.attachmentIds.length)ctx.addIssue({code:z.ZodIssueCode.custom,message:'Duplikált csatolmány.'});
 });
 
-type BeginResult={
-  attachmentId?:string;
-  threadId?:string;
-  storageBucket?:string;
-  storagePath?:string;
-  originalName?:string;
-  declaredContentType?:string;
-  byteSize?:number|string;
-  scanNonce?:string;
-};
-
+type BeginResult={attachmentId?:string;threadId?:string;storageBucket?:string;storagePath?:string;originalName?:string;declaredContentType?:string;byteSize?:number|string;scanNonce?:string};
 type CompleteResult={attachmentId?:string;result?:string;readyForFinalize?:boolean};
 
-async function completeScan(db:ReturnType<typeof createAdminClient>,input:{
-  attachmentId:string;
-  scanNonce:string;
-  result:'clean'|'infected'|'rejected'|'scan_error';
-  sha256:string|null;
-  detectedContentType:string|null;
-  provider:string|null;
-  engineVersion:string|null;
-  malwareSignature:string|null;
-  reason:string|null;
-}){
+async function completeScan(db:ReturnType<typeof createAdminClient>,input:{attachmentId:string;scanNonce:string;result:'clean'|'infected'|'rejected'|'scan_error';sha256:string|null;detectedContentType:string|null;provider:string|null;engineVersion:string|null;malwareSignature:string|null;reason:string|null}){
   const{data,error}=await db.rpc('admin_complete_office_attachment_scan_v1',{
-    p_attachment_id:input.attachmentId,
-    p_scan_nonce:input.scanNonce,
-    p_result:input.result,
-    p_sha256:input.sha256,
-    p_detected_content_type:input.detectedContentType,
-    p_provider:input.provider,
-    p_engine_version:input.engineVersion,
-    p_malware_signature:input.malwareSignature,
-    p_reason:input.reason,
+    p_attachment_id:input.attachmentId,p_scan_nonce:input.scanNonce,p_result:input.result,p_sha256:input.sha256,
+    p_detected_content_type:input.detectedContentType,p_provider:input.provider,p_engine_version:input.engineVersion,
+    p_malware_signature:input.malwareSignature,p_reason:input.reason,
   });
   if(error)throw new Error(`scan_completion_failed:${String(error.message??'unknown')}`);
   const result=(data??{})as CompleteResult;
@@ -63,7 +37,7 @@ async function completeScan(db:ReturnType<typeof createAdminClient>,input:{
 export async function POST(request:Request){
   const actor=await getAdminRequestUser();
   if(!actor)return NextResponse.json({error:'Nincs jogosultság.'},{status:403});
-  if(!(await hasCurrentPlanFeature('officeCommunication')))return NextResponse.json({error:'A Digitális iroda Pro csomaghoz kötött.'},{status:403});
+  if(!(await hasCurrentPlanFeature('teamChatSecureAttachments')))return NextResponse.json({error:'A biztonságos Team Chat csatolmányok Pro csomagban érhetők el.'},{status:403});
   let scope;try{scope=await requireCurrentStoreContext()}catch{return NextResponse.json({error:'Nincs jogosultság ehhez a webshophoz.'},{status:403})}
   let raw:unknown;try{raw=await request.json()}catch{return NextResponse.json({error:'Érvénytelen kérés.'},{status:400})}
   const parsed=schema.safeParse(raw);
@@ -72,10 +46,7 @@ export async function POST(request:Request){
   const db=createAdminClient();
   for(const attachmentId of parsed.data.attachmentIds){
     const{data,error}=await db.rpc('admin_begin_office_attachment_scan_v1',{
-      p_instance_id:scope.instanceId,
-      p_actor:actor.id,
-      p_thread_id:parsed.data.threadId,
-      p_attachment_id:attachmentId,
+      p_instance_id:scope.instanceId,p_actor:actor.id,p_thread_id:parsed.data.threadId,p_attachment_id:attachmentId,
     });
     if(error){
       const reason=String(error.message??'');
@@ -86,12 +57,9 @@ export async function POST(request:Request){
 
     const item=(data??{})as BeginResult;
     const declared=item.declaredContentType;
-    if(
-      item.attachmentId!==attachmentId
-      ||item.threadId!==parsed.data.threadId
-      ||!item.storageBucket||!item.storagePath||!item.originalName||!item.scanNonce
-      ||!declared||!OFFICE_PRIVATE_ATTACHMENT_MIME_TYPES.includes(declared as OfficePrivateAttachmentMimeType)
-    )return NextResponse.json({error:'A karantén-fájl adatai nem igazolhatók.'},{status:500});
+    if(item.attachmentId!==attachmentId||item.threadId!==parsed.data.threadId||!item.storageBucket||!item.storagePath||!item.originalName||!item.scanNonce||!declared||!OFFICE_PRIVATE_ATTACHMENT_MIME_TYPES.includes(declared as OfficePrivateAttachmentMimeType)){
+      return NextResponse.json({error:'A karantén-fájl adatai nem igazolhatók.'},{status:500});
+    }
 
     const downloaded=await db.storage.from(item.storageBucket).download(item.storagePath);
     if(downloaded.error||!downloaded.data){
@@ -118,12 +86,7 @@ export async function POST(request:Request){
       return NextResponse.json({error:`${item.originalName}: a fájl valódi tartalma vagy szerkezete nem engedélyezett.`},{status:422});
     }
 
-    const verdict=await scanOfficePrivateAttachmentMalware({
-      bytes,
-      sha256:inspection.sha256,
-      contentType:inspection.detectedContentType,
-      originalName:item.originalName,
-    });
+    const verdict=await scanOfficePrivateAttachmentMalware({bytes,sha256:inspection.sha256,contentType:inspection.detectedContentType,originalName:item.originalName});
     if(verdict.status==='unavailable'||verdict.status==='error'){
       await completeScan(db,{attachmentId,scanNonce:item.scanNonce,result:'scan_error',sha256:inspection.sha256,detectedContentType:inspection.detectedContentType,provider:verdict.provider,engineVersion:verdict.engineVersion,malwareSignature:null,reason:verdict.reason});
       return NextResponse.json({error:'A vírusellenőrző jelenleg nincs biztonságosan konfigurálva vagy nem érhető el. A fájl karanténban marad és nem küldhető el.'},{status:503});
