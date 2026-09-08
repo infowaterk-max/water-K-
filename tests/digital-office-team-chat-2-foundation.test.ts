@@ -11,6 +11,7 @@ describe('Digital Office Team Chat 2 foundation',()=>{
   const ownerTransfer=read('supabase/migrations/20260908065200_digital_office_team_chat_owner_transfer_v1.sql');
   const actions=read('src/app/admin/kommunikacio/iroda/actions.ts');
   const page=read('src/app/admin/kommunikacio/iroda/page.tsx');
+  const privateComposer=read('src/components/admin/office-private-message-form.tsx');
 
   it('keeps mention and object-link data service-only behind RLS',()=>{
     expect(migration).toContain('create table if not exists public.office_message_mentions');
@@ -114,12 +115,13 @@ describe('Digital Office Team Chat 2 foundation',()=>{
     expect(actions).toContain("const mentionUserIds=selectedUserIds(form,'mentionUserId').slice(0,10)");
     expect(actions).toContain('const object=chatObjectFrom(form)');
     expect(page).toContain('managePrivateParticipantAction');
-    expect(page).toContain('name="mentionUserId" multiple');
-    expect(page).toContain('name="objectRef"');
+    expect(page).toContain('OfficePrivateMessageForm');
+    expect(privateComposer).toContain('name="mentionUserId" multiple');
+    expect(privateComposer).toContain('name="objectRef"');
   });
 
   it('fails closed if Team Chat read models are unavailable',()=>{
-    expect(page).toContain('mentionError||objectLinkError');
+    expect(page).toContain('mentionError||objectLinkError||attachmentError');
     expect(page).toContain('const canAct=!loadError&&!privacyFallback');
     expect(page).toContain('Team Chat foundation adatainak egy része most nem tölthető be.');
     expect(page).toContain('Hiányos adatok mellett a nulla és üres állapotokat ne tekintsd véglegesnek.');
@@ -131,7 +133,7 @@ describe('Digital Office Team Chat 2 foundation',()=>{
     expect(page).not.toContain('return <div key={message.id}>\n                  <span>\n                    <strong>{kindLabel');
   });
 
-  it('does not activate unrelated email, mailbox, storage or AI behavior',()=>{
+  it('keeps the original Team Chat foundation independent from mailbox and AI behavior',()=>{
     const lower=(migration+'\n'+integrity+'\n'+ownerTransfer).toLowerCase();
     expect(lower).not.toContain('office_mailboxes');
     expect(lower).not.toContain('email_from');
