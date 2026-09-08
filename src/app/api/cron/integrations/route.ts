@@ -202,7 +202,7 @@ async function runWorker(request:Request){
   for(const instance of instances){
     try{
       const result=await runOfficeTeamChatRetention(instance.id);
-      teamChatRetention.push({instanceId:instance.id,ok:true,...result});
+      teamChatRetention.push({...result,ok:true});
     }catch(error){
       teamChatRetention.push({instanceId:instance.id,ok:false,error:error instanceof Error?error.message:'OFFICE_TEAM_CHAT_RETENTION_FAILED'});
     }
