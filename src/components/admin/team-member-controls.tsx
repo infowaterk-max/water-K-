@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useActionState,useEffect,useState,type ReactNode } from 'react';
 import { useFormStatus } from 'react-dom';
 import { addTeamMemberAction,removeTeamMemberAction,updateTeamMemberRoleAction,type TeamActionState } from '@/app/admin/csapat/actions';
@@ -59,6 +60,7 @@ export function TeamMemberControl({userId,name,email,role,scopeLabel,validUntil,
   return <article className="teamMemberCard">
     <div className="teamMemberIdentity"><div><strong>{name}</strong><span>{email}</span></div><div className="actions"><span className="adminStatePill neutral">{scopeLabel}</span><span className="adminStatePill neutral">{validityLabel}</span></div></div>
     <p className="muted">{roleMeta?.description}</p>
+    <div className="actions"><Link className="btn btnGhost" href={`/admin/csapat/${userId}`}>Részletes hozzáférések</Link></div>
     {editable?<>
       <form action={updateAction} className="teamRoleForm">
         <input type="hidden" name="userId" value={userId}/><input type="hidden" name="currentValidUntil" value={validUntil??''}/>
