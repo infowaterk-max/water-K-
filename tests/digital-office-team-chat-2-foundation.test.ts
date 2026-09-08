@@ -9,7 +9,8 @@ describe('Digital Office Team Chat 2 foundation',()=>{
   const migration=read('supabase/migrations/20260908065000_digital_office_team_chat_2_foundation_v1.sql');
   const integrity=read('supabase/migrations/20260908065100_digital_office_team_chat_2_integrity_v1.sql');
   const ownerTransfer=read('supabase/migrations/20260908065200_digital_office_team_chat_owner_transfer_v1.sql');
-  const actions=read('src/app/admin/kommunikacio/iroda/actions.ts');
+  const actions=read('src/app/admin/kommunikacio/chat/actions.ts');
+  const messageRoute=read('src/app/api/admin/office/chat/message/route.ts');
   const page=read('src/app/admin/kommunikacio/chat/page.tsx');
   const privateComposer=read('src/components/admin/office-private-message-form.tsx');
 
@@ -109,15 +110,16 @@ describe('Digital Office Team Chat 2 foundation',()=>{
     expect(page).toContain('threadParticipants.length>2&&members.length>0');
   });
 
-  it('uses effective office.internal_chat capability instead of coarse support permission for private chat actions',()=>{
-    expect(actions).toContain('async function chatBaseAccess()');
+  it('uses a dedicated team-chat action layer with effective office.internal_chat capability',()=>{
     expect(actions).toContain("await requirePlanFeature('teamChat')");
     expect(actions).toContain('async function privateChatAccess()');
-    expect(actions).toContain("hasStoreCapability(access.instanceId,access.userId,'office.internal_chat'");
+    expect(actions).toContain("hasStoreCapability(scope.instanceId,actor.id,'office.internal_chat'");
     expect(actions).toContain('const{db,userId,instanceId}=await privateChatAccess()');
     expect(actions).toContain("action:'create_internal_thread'");
-    expect(actions).toContain("action:'add_internal_message'");
     expect(actions).toContain("action:'manage_participant'");
+    expect(messageRoute).toContain("await requirePlanFeature('teamChat')");
+    expect(messageRoute).toContain("action:'add_internal_message'");
+    expect(page).toContain("}from'./actions';");
     expect(migration).not.toContain("if not public.can_manage_support(p_instance_id,p_actor) then raise exception 'SUPPORT_PERMISSION_REQUIRED'; end if;\n    v_capability:=public.evaluate_store_capability_v1");
     expect(migration).toContain("v_capability:=public.evaluate_store_capability_v1(p_instance_id,p_actor,'office.internal_chat'");
   });
