@@ -15,7 +15,7 @@ describe('Digital Office private attachments',()=>{
   const finalize=read('src/app/api/admin/office/attachments/finalize/route.ts');
   const download=read('src/app/api/admin/office/attachments/[id]/route.ts');
   const composer=read('src/components/admin/office-private-message-form.tsx');
-  const page=read('src/app/admin/kommunikacio/iroda/page.tsx');
+  const page=read('src/app/admin/kommunikacio/chat/page.tsx');
 
   it('uses one private bucket with bounded file size and MIME types',()=>{
     expect(migration).toContain("'office-private'");
@@ -90,10 +90,10 @@ describe('Digital Office private attachments',()=>{
     expect(finalize).toContain("db.rpc('admin_finalize_office_private_message_v1'");
   });
 
-  it('keeps plan and tenant gates while letting current participant capability decide private attachment access',()=>{
+  it('keeps Pro attachment and tenant gates while letting current participant capability decide private attachment access',()=>{
     for(const route of[prepare,finalize,download]){
       expect(route).toContain('getAdminRequestUser()');
-      expect(route).toContain("hasCurrentPlanFeature('officeCommunication')");
+      expect(route).toContain("hasCurrentPlanFeature('teamChatSecureAttachments')");
       expect(route).toContain('requireCurrentStoreContext()');
       expect(route).not.toContain("getAdminRequestUser('support.manage')");
       expect(route).not.toContain("requireCurrentStoreContext('support.manage')");
@@ -101,9 +101,9 @@ describe('Digital Office private attachments',()=>{
     expect(finalize).toContain('OFFICE_OBJECT_LINK_PERMISSION_REQUIRED');
   });
 
-  it('loads only ready attachments for already-accessible threads and fails closed on read errors',()=>{
-    expect(page).toContain(".in('thread_id',threadIds).eq('status','ready')");
-    expect(page).toContain('mentionError||objectLinkError||attachmentError');
+  it('loads only ready attachments in the dedicated Team Chat workspace and fails closed on read errors',()=>{
+    expect(page).toContain("secureAttachments&&threadIds.length?db.from('office_message_attachments')");
+    expect(page).toContain(".eq('status','ready')");
     expect(page).toContain('/api/admin/office/attachments/${attachment.id}');
     expect(page).toContain('OfficePrivateMessageForm');
     expect(page).not.toContain('storage/v1/object/public');
