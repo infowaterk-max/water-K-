@@ -8,6 +8,7 @@ const read=(path:string)=>readFileSync(join(root,path),'utf8');
 describe('Digital Office real inbound foundation',()=>{
   const migration=read('supabase/migrations/20260908030000_digital_office_real_inbound_foundation_v1.sql');
   const normalization=read('supabase/migrations/20260908030500_digital_office_mailbox_normalization_v1.sql');
+  const leastPrivilege=read('supabase/migrations/20260908031000_digital_office_real_inbound_least_privilege_v1.sql');
   const webhook=read('src/app/api/webhooks/communication/route.ts');
   const helper=read('src/lib/communication/resend-inbound.ts');
   const worker=read('src/lib/communication/worker.ts');
@@ -31,6 +32,17 @@ describe('Digital Office real inbound foundation',()=>{
     expect(sql).toContain('office_thread_email_routes_reply_token_unique');
     expect(worker).toContain("admin.from('office_thread_email_routes')");
     expect(worker).not.toContain("select('id,conversation_type,mailbox_key,reply_token')");
+  });
+
+  it('restricts service-role mailbox metadata access to CRUD and covers the composite route FK',()=>{
+    expect(leastPrivilege).toContain('revoke all on table public.office_mailboxes from service_role');
+    expect(leastPrivilege).toContain('grant select,insert,update,delete on table public.office_mailboxes to service_role');
+    expect(leastPrivilege).toContain('revoke all on table public.office_thread_email_routes from service_role');
+    expect(leastPrivilege).toContain('grant select,insert,update,delete on table public.office_thread_email_routes to service_role');
+    expect(leastPrivilege).toContain('office_thread_email_routes_thread_instance_idx');
+    expect(leastPrivilege).not.toContain('grant truncate');
+    expect(leastPrivilege).not.toContain('grant trigger');
+    expect(leastPrivilege).not.toContain('grant references');
   });
 
   it('threads only by strong reply token or RFC reply evidence and retires sender-only v2',()=>{
