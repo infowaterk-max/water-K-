@@ -19,11 +19,14 @@ describe('campaign and office workspace mutation safety',()=>{
 
  test('digital office blocks all write forms while any workspace source is partial',()=>{
    const page=read('src/app/admin/kommunikacio/iroda/page.tsx');
-   expect(page).toContain('canAct=!loadError');
+   expect(page).toContain('const canAct=!loadError&&!privacyFallback');
    expect(page).toContain('canAct?<form action={createThreadAction}');
-   expect(page).toContain('canAct?<form action={updateThreadAction}');
+   expect(page).toContain('canAct?<form action={createPrivateThreadAction}');
+   expect(page).toContain('!isPrivate&&canAct&&<form action={updateThreadAction}');
    expect(page).toContain('canAct&&isUnread&&<form action={markThreadReadAction}');
+   expect(page).toContain('? canAct&&<form action={addPrivateMessageAction}');
+   expect(page).toContain(': canAct?<>');
+   expect(page).toContain('<form action={createTaskAction}');
    expect(page).toContain('Üzenetküldés átmenetileg letiltva.');
-   expect(page).toContain('canAct?<form action={createTaskAction}');
  });
 });
