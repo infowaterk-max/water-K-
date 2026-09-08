@@ -8,6 +8,7 @@ const read=(file:string)=>readFileSync(join(root,file),'utf8');
 describe('Digital Office Team Chat 2 foundation',()=>{
   const migration=read('supabase/migrations/20260908065000_digital_office_team_chat_2_foundation_v1.sql');
   const integrity=read('supabase/migrations/20260908065100_digital_office_team_chat_2_integrity_v1.sql');
+  const ownerTransfer=read('supabase/migrations/20260908065200_digital_office_team_chat_owner_transfer_v1.sql');
   const actions=read('src/app/admin/kommunikacio/iroda/actions.ts');
   const page=read('src/app/admin/kommunikacio/iroda/page.tsx');
 
@@ -83,6 +84,27 @@ describe('Digital Office Team Chat 2 foundation',()=>{
     expect(integrity).toContain("v_thread.conversation_type not in ('internal_private','internal_group')");
   });
 
+  it('transfers ownership only from the current owner to an active member with atomic evidence',()=>{
+    expect(ownerTransfer).toContain('create or replace function public.admin_transfer_office_thread_owner_v1');
+    expect(ownerTransfer).toContain('private.office_active_thread_owner_v1(p_instance_id,p_thread_id,p_actor)');
+    expect(ownerTransfer).toContain("participant_role='member'");
+    expect(ownerTransfer).toContain('public.can_read_office_thread_v1(p_instance_id,p_thread_id,p_target_user_id)');
+    const demote=ownerTransfer.indexOf("set participant_role='member'");
+    const promote=ownerTransfer.indexOf("set participant_role='owner'",demote);
+    const finalEvidence=ownerTransfer.indexOf('OFFICE_OWNER_TRANSFER_FINAL_EVIDENCE_MISSING',promote);
+    expect(demote).toBeGreaterThan(0);
+    expect(promote).toBeGreaterThan(demote);
+    expect(finalEvidence).toBeGreaterThan(promote);
+    expect(ownerTransfer).toContain("'office.private_owner_transferred'");
+    expect(ownerTransfer).toContain('revoke all on function public.admin_transfer_office_thread_owner_v1');
+    expect(ownerTransfer).toContain('grant execute on function public.admin_transfer_office_thread_owner_v1(uuid,uuid,uuid,uuid) to service_role');
+    expect(actions).toContain("db.rpc('admin_transfer_office_thread_owner_v1'");
+    expect(actions).toContain('result.transferred!==true');
+    expect(page).toContain('transferPrivateThreadOwnerAction');
+    expect(page).toContain('Tulajdonjog átadása');
+    expect(page).toContain('threadParticipants.length>2&&memberParticipants.length>0');
+  });
+
   it('uses the Team Chat v2 RPC for private messages, membership and read/mention acknowledgement',()=>{
     expect(actions).toContain("db.rpc('admin_mutate_office_team_chat_v2'");
     expect(actions).toContain("action:'create_internal_thread'");
@@ -110,7 +132,7 @@ describe('Digital Office Team Chat 2 foundation',()=>{
   });
 
   it('does not activate unrelated email, mailbox, storage or AI behavior',()=>{
-    const lower=(migration+'\n'+integrity).toLowerCase();
+    const lower=(migration+'\n'+integrity+'\n'+ownerTransfer).toLowerCase();
     expect(lower).not.toContain('office_mailboxes');
     expect(lower).not.toContain('email_from');
     expect(lower).not.toContain('storage.buckets');
