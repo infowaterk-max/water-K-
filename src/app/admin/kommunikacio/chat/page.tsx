@@ -12,7 +12,7 @@ import{
   managePrivateParticipantAction,
   markThreadReadAction,
   transferPrivateThreadOwnerAction,
-}from'../iroda/actions';
+}from'./actions';
 
 export const dynamic='force-dynamic';
 
