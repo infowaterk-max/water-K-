@@ -311,7 +311,7 @@ export const MONARCHE_HOME_PAGE=basePage('monarche.home','home',[
 
 export const MONARCHE_CATALOG_PAGE=basePage('monarche.catalog','catalog',[
   header('monarche-catalog'),
-  section('monarche-catalog-header',[
+  section('monarche-catalog-hero',[
     node({
       id:'monarche-catalog-collection-header',
       componentKey:'commerce.collection-header',
