@@ -81,13 +81,13 @@ describe('Roadmap Block 7 B2B Account Ownership',()=>{
   expect(manifest).not.toContain('inlineEditingRuntime:true');
  });
 
- test('fresh-customer path receives the exact same forward migrations and remains fail-closed until clean-install proof',()=>{
+ test('fresh-customer path receives the exact forward migrations and is proof-bound after clean-install acceptance',()=>{
   expect(read(baselinePath)).toBe(read(migrationPath));
   expect(read(baselinePerformancePath)).toBe(read(performanceMigrationPath));
   const manifest=JSON.parse(read('supabase/customer-baseline/manifest.json'));
-  expect(manifest.status).toBe('snapshot-reviewed');
-  expect(manifest.freshInstallProofRequired).toBe(true);
-  expect(manifest.proofContractSha256).toBeNull();
+  expect(manifest.status).toBe('ready');
+  expect(manifest.freshInstallProofRequired).toBe(false);
+  expect(manifest.proofContractSha256).toBe('5fd7f5770af6c78d16504944e938f6a32e238d5ad43ad84b03ee08ba11d586ed');
   const workflow=read('.github/workflows/fresh-install-proof.yml');
   expect(workflow).toContain("find supabase/customer-baseline/migrations");
  });
