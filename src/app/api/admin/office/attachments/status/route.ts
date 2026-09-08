@@ -6,8 +6,10 @@ import{officeMalwareScannerConfigured}from'@/lib/office/attachment-malware-scann
 
 export async function GET(){
   const actor=await getAdminRequestUser();
-  if(!actor)return NextResponse.json({attachmentsEnabled:false},{status:403,headers:{'Cache-Control':'no-store'}});
-  if(!(await hasCurrentPlanFeature('officeCommunication')))return NextResponse.json({attachmentsEnabled:false},{status:403,headers:{'Cache-Control':'no-store'}});
-  try{await requireCurrentStoreContext()}catch{return NextResponse.json({attachmentsEnabled:false},{status:403,headers:{'Cache-Control':'no-store'}})}
-  return NextResponse.json({attachmentsEnabled:officeMalwareScannerConfigured()},{headers:{'Cache-Control':'no-store'}});
+  if(!actor)return NextResponse.json({attachmentsEnabled:false,reason:'forbidden'},{status:403,headers:{'Cache-Control':'no-store'}});
+  const proAttachments=await hasCurrentPlanFeature('teamChatSecureAttachments');
+  if(!proAttachments)return NextResponse.json({attachmentsEnabled:false,reason:'pro_required'},{headers:{'Cache-Control':'no-store'}});
+  try{await requireCurrentStoreContext()}catch{return NextResponse.json({attachmentsEnabled:false,reason:'forbidden'},{status:403,headers:{'Cache-Control':'no-store'}})}
+  const scannerReady=officeMalwareScannerConfigured();
+  return NextResponse.json({attachmentsEnabled:scannerReady,reason:scannerReady?'ready':'scanner_unavailable'},{headers:{'Cache-Control':'no-store'}});
 }
