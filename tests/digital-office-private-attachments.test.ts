@@ -8,6 +8,9 @@ const read=(file:string)=>readFileSync(join(root,file),'utf8');
 describe('Digital Office private attachments',()=>{
   const migration=read('supabase/migrations/20260908065300_digital_office_private_attachments_v1.sql');
   const hardening=read('supabase/migrations/20260908065400_digital_office_private_attachment_failclosed_v1.sql');
+  const cleanupMigration=read('supabase/migrations/20260908065500_digital_office_private_attachment_cleanup_v1.sql');
+  const cleanupWorker=read('src/lib/office/private-attachment-cleanup.ts');
+  const cron=read('src/app/api/cron/integrations/route.ts');
   const prepare=read('src/app/api/admin/office/attachments/prepare/route.ts');
   const finalize=read('src/app/api/admin/office/attachments/finalize/route.ts');
   const download=read('src/app/api/admin/office/attachments/[id]/route.ts');
@@ -103,8 +106,34 @@ describe('Digital Office private attachments',()=>{
     expect(page).not.toContain('storage/v1/object/public');
   });
 
+  it('cleans only expired pending reservations and records system lifecycle evidence',()=>{
+    expect(cleanupWorker).toContain(".eq('status','pending')");
+    expect(cleanupWorker).toContain(".lte('expires_at',now)");
+    const storageRemove=cleanupWorker.indexOf(".remove([row.storage_path])");
+    const revoke=cleanupWorker.indexOf("db.rpc('admin_revoke_expired_office_private_attachment_v1'",storageRemove);
+    expect(storageRemove).toBeGreaterThan(0);
+    expect(revoke).toBeGreaterThan(storageRemove);
+    expect(cleanupMigration).toContain('create table if not exists public.office_attachment_cleanup_events');
+    expect(cleanupMigration).toContain("status='pending'");
+    expect(cleanupMigration).toContain('expires_at<=now()');
+    expect(cleanupMigration).toContain("set status='revoked',expires_at=null");
+    expect(cleanupMigration).toContain("'expired_reservation_revoked'");
+    expect(cleanupMigration).toContain("'cleanupSource','cron'");
+    expect(cleanupMigration).not.toContain('insert into public.admin_audit_log');
+    expect(cron).toContain('cleanupExpiredOfficePrivateAttachments(25)');
+    expect(cron).toContain('&&officeAttachmentCleanup.ok');
+  });
+
+  it('keeps cleanup evidence service-only without pretending a human actor performed CRON maintenance',()=>{
+    expect(cleanupMigration).toContain('alter table public.office_attachment_cleanup_events enable row level security');
+    expect(cleanupMigration).toContain('revoke all on table public.office_attachment_cleanup_events from public,anon,authenticated');
+    expect(cleanupMigration).toContain('grant select,insert on table public.office_attachment_cleanup_events to service_role');
+    expect(cleanupMigration).toContain('grant execute on function public.admin_revoke_expired_office_private_attachment_v1(uuid,text) to service_role');
+    expect(cleanupMigration).not.toContain('actor_user_id');
+  });
+
   it('does not enable customer-email attachment, mailbox or AI behavior',()=>{
-    const all=(migration+'\n'+hardening+'\n'+prepare+'\n'+finalize+'\n'+download+'\n'+composer).toLowerCase();
+    const all=(migration+'\n'+hardening+'\n'+cleanupMigration+'\n'+prepare+'\n'+finalize+'\n'+download+'\n'+composer).toLowerCase();
     expect(all).not.toContain('office_mailboxes');
     expect(all).not.toContain('gmail');
     expect(all).not.toContain('microsoft graph');
