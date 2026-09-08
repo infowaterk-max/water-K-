@@ -11,6 +11,7 @@ import {
   createPrivateThreadAction,
   createTaskAction,
   createThreadAction,
+  markOfficeNotificationReadAction,
   markThreadReadAction,
   updateThreadAction,
 } from './actions';
@@ -35,6 +36,7 @@ type Task={id:string;thread_id:string|null;title:string;status:string;due_at:str
 type Order={id:string;order_number:string;customer_email:string;status:string};
 type Job={id:string;status:string;last_error:string|null};
 type ParticipantRead={thread_id:string;last_read_at:string|null};
+type ThreadParticipant={thread_id:string;user_id:string};
 type Binding={user_id:string;role_code:string;instance_id:string|null;valid_until:string|null};
 type Profile={id:string;email:string|null;full_name:string|null};
 type Assignee={userId:string;label:string};
@@ -42,6 +44,7 @@ type ReplyDraft={id:string;thread_id:string;body:string;revision:number;updated_
 type Mailbox={mailbox_key:string};
 type EmailRoute={thread_id:string};
 type AccessibleThreadRow={thread_id:string};
+type OfficeNotification={id:string;event_type:'mention'|'assignment';thread_id:string;actor_user_id:string|null;created_at:string;read_at:string|null};
 
 const kindLabel:Record<string,string>={
   internal:'Belső üzenet',note:'Belső jegyzet',email_in:'Bejövő e-mail',email_out:'Kimenő e-mail',
@@ -50,6 +53,7 @@ const jobLabel:Record<string,string>={
   pending:'Küldésre vár',processing:'Küldés folyamatban',sent:'Elküldve',failed:'Küldési hiba',blocked:'Blokkolva',cancelled:'Törölve',
 };
 const priorityLabel:Record<string,string>={low:'Alacsony',normal:'Normál',high:'Magas',urgent:'Sürgős'};
+const notificationLabel:Record<OfficeNotification['event_type'],string>={mention:'Megemlítettek',assignment:'Ügyet adtak át neked'};
 const supportRoles=new Set(['owner','admin','order_manager','support']);
 const active=(validUntil:string|null)=>!validUntil||Date.parse(validUntil)>Date.now();
 
@@ -89,11 +93,19 @@ export default async function OfficeWorkspace({searchParams}:{searchParams:Promi
     ? db.from('office_thread_participants').select('thread_id,last_read_at')
       .eq('instance_id',scope.instanceId).eq('user_id',actor.id).in('thread_id',threadIds).is('left_at',null)
     : Promise.resolve({data:[] as ParticipantRead[],error:null});
+  const allParticipantPromise=threadIds.length
+    ? db.from('office_thread_participants').select('thread_id,user_id')
+      .eq('instance_id',scope.instanceId).in('thread_id',threadIds).is('left_at',null)
+    : Promise.resolve({data:[] as ThreadParticipant[],error:null});
   const replyDraftPromise=threadIds.length
     ? db.from('office_drafts').select('id,thread_id,body,revision,updated_at')
       .eq('instance_id',scope.instanceId).eq('author_user_id',actor.id).eq('draft_type','reply')
       .in('thread_id',threadIds).order('updated_at',{ascending:false}).limit(200)
     : Promise.resolve({data:[] as ReplyDraft[],error:null});
+  const notificationPromise=db.from('office_user_notifications')
+    .select('id,event_type,thread_id,actor_user_id,created_at,read_at')
+    .eq('instance_id',scope.instanceId).eq('user_id',actor.id)
+    .order('created_at',{ascending:false}).limit(50);
   const routePromise=threadIds.length
     ? db.from('office_thread_email_routes').select('thread_id')
       .eq('instance_id',scope.instanceId).in('thread_id',threadIds)
@@ -115,7 +127,9 @@ export default async function OfficeWorkspace({searchParams}:{searchParams:Promi
   const[
     {data:m,error:messageError},
     {data:participantData,error:participantError},
+    {data:allParticipantData,error:allParticipantError},
     {data:replyDraftData,error:replyDraftError},
+    {data:notificationData,error:notificationError},
     {data:routeData,error:routeError},
     {data:mailboxData,error:mailboxError},
     {data:k,error:taskError},
@@ -123,16 +137,23 @@ export default async function OfficeWorkspace({searchParams}:{searchParams:Promi
     {data:j,error:jobError},
     {data:bindingData,error:bindingError},
   ]=await Promise.all([
-    messagePromise,participantPromise,replyDraftPromise,routePromise,mailboxPromise,taskPromise,orderPromise,jobPromise,bindingPromise,
+    messagePromise,participantPromise,allParticipantPromise,replyDraftPromise,notificationPromise,routePromise,mailboxPromise,taskPromise,orderPromise,jobPromise,bindingPromise,
   ]);
 
   const messages=(m??[])as Message[];
   const reads=(participantData??[])as ParticipantRead[];
   const readMap=new Map(reads.map(row=>[row.thread_id,row.last_read_at]));
+  const participants=(allParticipantData??[])as ThreadParticipant[];
+  const participantMap=new Map<string,string[]>();
+  for(const participant of participants){
+    participantMap.set(participant.thread_id,[...(participantMap.get(participant.thread_id)??[]),participant.user_id]);
+  }
   const replyDraftMap=new Map<string,ReplyDraft>();
   for(const draft of (replyDraftData??[])as ReplyDraft[]){
     if(!replyDraftMap.has(draft.thread_id))replyDraftMap.set(draft.thread_id,draft);
   }
+  const notifications=(notificationData??[])as OfficeNotification[];
+  const unreadNotifications=notifications.filter(notification=>notification.read_at===null);
   const routedThreadIds=new Set(((routeData??[])as EmailRoute[]).map(route=>route.thread_id));
   const activeMailboxKeys=new Set(((mailboxData??[])as Mailbox[]).map(mailbox=>mailbox.mailbox_key));
   const allTasks=(k??[])as Task[];
@@ -143,17 +164,20 @@ export default async function OfficeWorkspace({searchParams}:{searchParams:Promi
 
   const bindings=((bindingData??[])as Binding[]).filter(row=>active(row.valid_until)&&supportRoles.has(row.role_code));
   const teamUserIds=[...new Set(bindings.map(row=>row.user_id))];
-  const{data:profileData,error:profileError}=teamUserIds.length
-    ? await db.from('profiles').select('id,email,full_name').in('id',teamUserIds)
+  const profileUserIds=[...new Set([
+    ...teamUserIds,
+    ...participants.map(row=>row.user_id),
+    ...notifications.map(row=>row.actor_user_id).filter((id):id is string=>Boolean(id)),
+  ])];
+  const{data:profileData,error:profileError}=profileUserIds.length
+    ? await db.from('profiles').select('id,email,full_name').in('id',profileUserIds)
     : {data:[] as Profile[],error:null};
   const profileMap=new Map(((profileData??[])as Profile[]).map(profile=>[profile.id,profile]));
-  const assignees:Assignee[]=teamUserIds.map(userId=>{
-    const profile=profileMap.get(userId);
-    return{userId,label:profile?.full_name||profile?.email||`${userId.slice(0,8)}…`};
-  }).sort((a,b)=>a.label.localeCompare(b.label,'hu'));
+  const labelFor=(userId:string)=>profileMap.get(userId)?.full_name||profileMap.get(userId)?.email||`${userId.slice(0,8)}…`;
+  const assignees:Assignee[]=teamUserIds.map(userId=>({userId,label:labelFor(userId)})).sort((a,b)=>a.label.localeCompare(b.label,'hu'));
 
   const loadError=Boolean(
-    threadError||messageError||taskError||orderError||jobError||participantError||replyDraftError||routeError||mailboxError||bindingError||profileError
+    threadError||messageError||taskError||orderError||jobError||participantError||allParticipantError||replyDraftError||notificationError||routeError||mailboxError||bindingError||profileError
   );
   const privacyFallback=Boolean(accessibleError);
   const canAct=!loadError&&!privacyFallback;
@@ -187,7 +211,7 @@ export default async function OfficeWorkspace({searchParams}:{searchParams:Promi
       <div>
         <span className="eyebrow">Pro · Digitális iroda</span>
         <h1 className="sectionTitle">Ügyfélkommunikációs és belső munkatér</h1>
-        <p className="lead">Ügyféllevelek, felelősség, feladatok és résztvevő-védett belső beszélgetések egy helyen.</p>
+        <p className="lead">Ügyféllevelek, felelősség, feladatok, @megemlítések és résztvevő-védett belső beszélgetések egy helyen.</p>
       </div>
       <div className="adminToolbar">
         <Link className="btn btnPrimary" href="/admin/kommunikacio/iroda/uj">Új e-mail</Link>
@@ -207,9 +231,30 @@ export default async function OfficeWorkspace({searchParams}:{searchParams:Promi
     <div className="cards adminMetricCards">
       <article className="card"><span className="badge">Nyitott ügyek</span><div className="price">{threadError?'—':threads.filter(x=>x.status==='open').length}</div></article>
       <article className="card"><span className="badge">Saját olvasatlan</span><div className="price">{threadError||messageError||participantError?'—':threads.filter(unread).length}</div></article>
+      <article className="card"><span className="badge">Saját értesítés</span><div className="price">{notificationError?'—':unreadNotifications.length}</div></article>
       <article className="card"><span className="badge">Lejárt feladat</span><div className="price">{taskError?'—':overdue.length}</div></article>
       <article className="card"><span className="badge">Saját reply draft</span><div className="price">{replyDraftError?'—':replyDraftMap.size}</div></article>
     </div>
+
+    <section className="featurePanel">
+      <div className="adminToolbar"><div><span className="eyebrow">Személyes</span><h2>Értesítések</h2></div><span className="badge">{notificationError?'—':unreadNotifications.length} olvasatlan</span></div>
+      {!notificationError&&unreadNotifications.length===0&&<p className="muted">Nincs új megemlítésed vagy neked átadott ügyed.</p>}
+      <div className="cards">
+        {unreadNotifications.slice(0,10).map(notification=>{
+          const thread=threads.find(item=>item.id===notification.thread_id);
+          const actorLabel=notification.actor_user_id?labelFor(notification.actor_user_id):'Munkatárs';
+          return <article className="card" key={notification.id}>
+            <span className="badge">{notificationLabel[notification.event_type]}</span>
+            <strong>{thread?.subject??'Digitális Iroda esemény'}</strong>
+            <p className="muted">{actorLabel} · {new Intl.DateTimeFormat('hu-HU',{dateStyle:'short',timeStyle:'short'}).format(new Date(notification.created_at))}</p>
+            <div className="adminToolbar">
+              {thread&&<Link className="textLink" href={`/admin/kommunikacio/iroda?filter=all#thread-${thread.id}`}>Beszélgetés megnyitása</Link>}
+              <form action={markOfficeNotificationReadAction}><input type="hidden" name="notificationId" value={notification.id}/><button className="btn btnGhost">Olvasottnak jelölöm</button></form>
+            </div>
+          </article>;
+        })}
+      </div>
+    </section>
 
     <form className="adminToolbar">
       <input name="q" defaultValue={q} placeholder="Keresés téma, e-mail vagy rendelés alapján"/>
@@ -266,7 +311,11 @@ export default async function OfficeWorkspace({searchParams}:{searchParams:Promi
           const sendingConfigured=Boolean(
             thread.mailbox_key&&activeMailboxKeys.has(thread.mailbox_key)&&routedThreadIds.has(thread.id)
           );
-          return <article className="card" key={thread.id}>
+          const mentionOptions=(isPrivate
+            ? (participantMap.get(thread.id)??[]).map(userId=>({userId,label:labelFor(userId)}))
+            : assignees
+          ).filter(member=>member.userId!==actor.id);
+          return <article className="card" id={`thread-${thread.id}`} key={thread.id}>
             <div className="adminToolbar">
               <span className="badge">{isPrivate?(thread.conversation_type==='internal_private'?'Privát belső':'Belső csoport'):priorityLabel[thread.priority]}</span>
               {isUnread&&<span className="badge">Olvasatlan</span>}
@@ -281,7 +330,7 @@ export default async function OfficeWorkspace({searchParams}:{searchParams:Promi
               <select name="priority" defaultValue={thread.priority}><option value="low">Alacsony</option><option value="normal">Normál</option><option value="high">Magas</option><option value="urgent">Sürgős</option></select>
               <select name="status" defaultValue={thread.status}><option value="open">Nyitott</option><option value="closed">Lezárt</option></select>
               <select name="assigneeUserId" defaultValue={thread.assigned_to??''}><option value="">Nincs felelős</option>{assignees.map(member=><option key={member.userId} value={member.userId}>{member.label}</option>)}</select>
-              <button className="btn btnGhost">Frissítés</button>
+              <button className="btn btnGhost">Állapot / átadás mentése</button>
             </form>}
 
             {canAct&&isUnread&&<form action={markThreadReadAction}><input type="hidden" name="threadId" value={thread.id}/><button className="btn btnGhost">Olvasottnak jelölöm</button></form>}
@@ -297,10 +346,21 @@ export default async function OfficeWorkspace({searchParams}:{searchParams:Promi
             </div>
 
             {isPrivate
-              ? canAct&&<form action={addPrivateMessageAction} className="stackForm"><input type="hidden" name="threadId" value={thread.id}/><textarea name="body" required rows={2} placeholder="Privát belső üzenet"/><button className="btn btnGhost">Belső üzenet küldése</button></form>
+              ? canAct&&<form action={addPrivateMessageAction} className="stackForm">
+                  <input type="hidden" name="threadId" value={thread.id}/>
+                  <textarea name="body" required rows={2} placeholder="Privát belső üzenet"/>
+                  {mentionOptions.length>0&&<label><span>@ Megemlítés</span><select name="mentionUserId" multiple size={Math.min(5,Math.max(2,mentionOptions.length))}>{mentionOptions.map(member=><option key={member.userId} value={member.userId}>{member.label}</option>)}</select></label>}
+                  <button className="btn btnGhost">Belső üzenet küldése</button>
+                </form>
               : canAct?<>
                 <div className="splitFeature">
-                  <form action={addMessageAction} className="stackForm"><input type="hidden" name="threadId" value={thread.id}/><select name="kind"><option value="internal">Ügyhöz tartozó belső üzenet</option><option value="note">Jegyzet</option></select><textarea name="body" required rows={2} placeholder="Az ügyön dolgozó csapatnak"/><button className="btn btnGhost">Belső bejegyzés</button></form>
+                  <form action={addMessageAction} className="stackForm">
+                    <input type="hidden" name="threadId" value={thread.id}/>
+                    <select name="kind"><option value="internal">Ügyhöz tartozó belső üzenet</option><option value="note">Jegyzet</option></select>
+                    <textarea name="body" required rows={2} placeholder="Az ügyön dolgozó csapatnak"/>
+                    {mentionOptions.length>0&&<label><span>@ Megemlítés</span><select name="mentionUserId" multiple size={Math.min(5,Math.max(2,mentionOptions.length))}>{mentionOptions.map(member=><option key={member.userId} value={member.userId}>{member.label}</option>)}</select></label>}
+                    <button className="btn btnGhost">Belső bejegyzés</button>
+                  </form>
                   {thread.customer_email&&<OfficeCustomerEmailForm
                     threadId={thread.id}
                     sendingConfigured={sendingConfigured}
