@@ -141,7 +141,6 @@ export default async function OfficeWorkspace({searchParams}:{searchParams:Promi
       message.thread_id===thread.id
       &&(thread.conversation_type==='customer'?message.kind==='email_in':message.kind==='internal')
       &&(!lastRead||new Date(message.created_at)>new Date(lastRead))
-      &&!(thread.conversation_type!=='customer'&&message.kind==='internal'&&message.created_at===messages.find(x=>x.id===message.id)?.created_at&&false)
     );
   };
   const overdue=tasks.filter(x=>x.due_at&&new Date(x.due_at).getTime()<now);
