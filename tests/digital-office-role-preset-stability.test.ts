@@ -21,11 +21,18 @@ describe('Digital Office role preset stability',()=>{
     }
   });
 
-  it('keeps personal access customization on the override model',()=>{
+  it('keeps role presets stable and personal customization on the override layer',()=>{
     const foundation=read('supabase/migrations/20260907203000_team_permissions_foundation_v1.sql');
     const controls=read('src/components/admin/team-permission-controls.tsx');
+    const actions=read('src/app/admin/csapat/[userId]/actions.ts');
     expect(foundation).toContain('create table if not exists public.store_permission_overrides');
     expect(foundation).toContain('merchant_replace_permission_overrides_v1');
-    expect(controls).toContain('Az alapszerepkör marad a kiindulópont');
+    expect(controls).toContain('Szerepkör + extra');
+    expect(controls).toContain('A szerepkör definíciója változatlan marad');
+    expect(controls).toContain('extraPermissionCode');
+    expect(actions).toContain('merchant_replace_permission_overrides_v1');
+    expect(actions).not.toContain(".from('store_role_permission_presets').update(");
+    expect(actions).not.toContain(".from('store_role_permission_presets').insert(");
+    expect(actions).not.toContain(".from('store_role_permission_presets').delete(");
   });
 });
