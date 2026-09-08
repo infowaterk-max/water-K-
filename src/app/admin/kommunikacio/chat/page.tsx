@@ -16,7 +16,7 @@ import{
 
 export const dynamic='force-dynamic';
 
-type Thread={id:string;subject:string;status:string;updated_at:string;conversation_type:'internal_private'|'internal_group'};
+type Thread={id:string;subject:string;status:string;updated_at:string;archived_at:string|null;conversation_type:'internal_private'|'internal_group'};
 type Message={id:string;thread_id:string;author_id:string|null;kind:string;body:string;created_at:string};
 type Participant={thread_id:string;user_id:string;participant_role:'owner'|'member';last_read_at:string|null};
 type Mention={message_id:string;thread_id:string;mentioned_user_id:string;seen_at:string|null};
@@ -54,7 +54,7 @@ export default async function TeamChatPage({searchParams}:{searchParams:Promise<
   if(accessibleIds===null)return <section className="adminMain"><div className="errorNotice"><strong>A Team Chat jogosultsági adatai most nem igazolhatók.</strong><p>Biztonsági okból egyetlen belső beszélgetést sem mutatunk.</p></div></section>;
 
   const empty=<T,>()=>Promise.resolve({data:[]as T[],error:null});
-  const threadResult=accessibleIds.length?await db.from('office_threads').select('id,subject,status,updated_at,conversation_type').eq('instance_id',scope.instanceId).in('id',accessibleIds).in('conversation_type',['internal_private','internal_group']).order('updated_at',{ascending:false}).limit(200):{data:[]as Thread[],error:null};
+  const threadResult=accessibleIds.length?await db.from('office_threads').select('id,subject,status,updated_at,archived_at,conversation_type').eq('instance_id',scope.instanceId).in('id',accessibleIds).in('conversation_type',['internal_private','internal_group']).order('updated_at',{ascending:false}).limit(200):{data:[]as Thread[],error:null};
   const threads=(threadResult.data??[])as Thread[],threadIds=threads.map(t=>t.id);
   const[
     messageResult,participantResult,mentionResult,objectLinkResult,attachmentResult,bindingResult,
@@ -93,11 +93,18 @@ export default async function TeamChatPage({searchParams}:{searchParams:Promise<
     ...tasks.map(t=>({value:`task:${t.id}`,label:`Feladat · ${t.title} · ${t.status}`})),
   ]:[];
 
+  const isArchived=(thread:Thread)=>Boolean(thread.archived_at);
+  const activeThreads=threads.filter(thread=>!isArchived(thread));
   const lastRead=new Map(participants.filter(p=>p.user_id===actor.id).map(p=>[p.thread_id,p.last_read_at]));
-  const unread=(thread:Thread)=>messages.some(m=>m.thread_id===thread.id&&m.author_id!==actor.id&&(!lastRead.get(thread.id)||new Date(m.created_at)>new Date(lastRead.get(thread.id)!)));
-  const mentionThreads=new Set(mentions.filter(m=>m.mentioned_user_id===actor.id&&!m.seen_at).map(m=>m.thread_id));
+  const unread=(thread:Thread)=>!isArchived(thread)&&messages.some(m=>m.thread_id===thread.id&&m.author_id!==actor.id&&(!lastRead.get(thread.id)||new Date(m.created_at)>new Date(lastRead.get(thread.id)!)));
+  const activeThreadIds=new Set(activeThreads.map(thread=>thread.id));
+  const mentionThreads=new Set(mentions.filter(m=>activeThreadIds.has(m.thread_id)&&m.mentioned_user_id===actor.id&&!m.seen_at).map(m=>m.thread_id));
   const needle=q.trim().toLowerCase();
-  const visible=threads.filter(thread=>(filter==='all'||filter==='unread'&&unread(thread)||filter==='mentions'&&mentionThreads.has(thread.id))&&(!needle||thread.subject.toLowerCase().includes(needle)));
+  const visible=threads.filter(thread=>{
+    const archived=isArchived(thread);
+    const filterMatch=filter==='archived'?archived:!archived&&(filter==='all'||filter==='unread'&&unread(thread)||filter==='mentions'&&mentionThreads.has(thread.id));
+    return filterMatch&&(!needle||thread.subject.toLowerCase().includes(needle));
+  });
 
   const renderObject=(link:ObjectLink)=>{
     if(!canBusinessObjects)return null;
@@ -110,17 +117,18 @@ export default async function TeamChatPage({searchParams}:{searchParams:Promise<
 
   return <section className="adminMain">
     <div className="sectionIntro"><div><span className="eyebrow">Team Chat 2.0 · Alap</span><h1 className="sectionTitle">Belső munkatársi chat</h1><p className="lead">Munkatárs ↔ munkatárs kommunikáció. Az ügyfelek nem résztvevői ennek a felületnek.</p></div>{await hasCurrentPlanFeature('officeCommunication')&&<Link className="btn btnGhost" href="/admin/kommunikacio">Ügyféllevelezés</Link>}</div>
-    <div className="adminAuditNotice"><strong>Adatvédelmi határ</strong><p>A beszélgetést csak az aktív résztvevők olvashatják. Owner/Admin szerepkör önmagában nem ad betekintést a privát chat tartalmába. A chat tartalma 12 hónapos megőrzési szabályt kap; az audit nem másolja az üzenetek szövegét.</p></div>
+    <div className="adminAuditNotice"><strong>Adatvédelmi határ</strong><p>A beszélgetést csak az aktív résztvevők olvashatják. Owner/Admin szerepkör önmagában nem ad betekintést a privát chat tartalmába. A chat tartalma 12 hónapos megőrzési szabályt kap; 90 nap inaktivitás után a beszélgetés archiválódik, az audit pedig nem másolja az üzenetek szövegét.</p></div>
     {!secureAttachments&&<div className="adminAuditNotice"><strong>Secure Attachments · Pro</strong><p>A szöveges chat, @említések és üzleti objektumhivatkozások az Alap részei. Biztonságos fájlcsatolmányok a Pro Team Chat 2.1 funkcióban lesznek elérhetők.</p></div>}
     {loadError&&<div className="errorNotice"><strong>A Team Chat adatainak egy része nem tölthető be.</strong><p>Hiányos adatok mellett a chatműveleteket biztonsági okból letiltjuk.</p></div>}
 
-    <div className="cards adminMetricCards"><article className="card"><span className="badge">Beszélgetések</span><div className="price">{threadResult.error?'—':threads.length}</div></article><article className="card"><span className="badge">Olvasatlan</span><div className="price">{loadError?'—':threads.filter(unread).length}</div></article><article className="card"><span className="badge">@ Említések</span><div className="price">{loadError?'—':mentionThreads.size}</div></article></div>
+    <div className="cards adminMetricCards"><article className="card"><span className="badge">Aktív beszélgetések</span><div className="price">{threadResult.error?'—':activeThreads.length}</div></article><article className="card"><span className="badge">Olvasatlan</span><div className="price">{loadError?'—':activeThreads.filter(unread).length}</div></article><article className="card"><span className="badge">Archivált</span><div className="price">{threadResult.error?'—':threads.length-activeThreads.length}</div></article></div>
 
     <section className="featurePanel"><h2>Új belső beszélgetés</h2>{!loadError?<form action={createPrivateThreadAction} className="stackForm"><input name="subject" required placeholder="Téma"/><label><span>Résztvevők</span><select name="participantUserId" multiple required size={Math.min(8,Math.max(3,chatUsers.length))}>{chatUsers.filter(id=>id!==actor.id).map(id=><option key={id} value={id}>{labelFor(id)}</option>)}</select></label>{canBusinessObjects&&<label className="stackForm"><span>Kapcsolt webshop-objektum</span><select name="objectRef" defaultValue=""><option value="">Nincs kapcsolt objektum</option>{objectOptions.map(option=><option key={option.value} value={option.value}>{option.label}</option>)}</select></label>}<textarea name="body" required rows={3} maxLength={10000} placeholder="Első belső üzenet"/><button className="btn btnPrimary">Beszélgetés indítása</button></form>:<p className="muted">A teljes Team Chat read model szükséges új beszélgetéshez.</p>}</section>
 
-    <form className="adminToolbar"><input name="q" defaultValue={q} placeholder="Keresés a beszélgetések témájában"/><select name="filter" defaultValue={filter}><option value="all">Összes</option><option value="unread">Olvasatlan</option><option value="mentions">@ Említések</option></select><button className="btn btnPrimary">Szűrés</button></form>
+    <form className="adminToolbar"><input name="q" defaultValue={q} placeholder="Keresés a beszélgetések témájában"/><select name="filter" defaultValue={filter}><option value="all">Aktív</option><option value="unread">Olvasatlan</option><option value="mentions">@ Említések</option><option value="archived">Archivált</option></select><button className="btn btnPrimary">Szűrés</button></form>
 
     <div className="cards">{visible.map(thread=>{
+      const archived=isArchived(thread);
       const threadMessages=messages.filter(m=>m.thread_id===thread.id).slice(0,20).reverse();
       const threadParticipants=participants.filter(p=>p.thread_id===thread.id);
       const actorParticipant=threadParticipants.find(p=>p.user_id===actor.id);
@@ -128,11 +136,11 @@ export default async function TeamChatPage({searchParams}:{searchParams:Promise<
       const members=threadParticipants.filter(p=>p.participant_role==='member');
       const available=chatUsers.filter(id=>id!==actor.id&&!threadParticipants.some(p=>p.user_id===id));
       const mentionOptions=threadParticipants.filter(p=>p.user_id!==actor.id&&chatUserIds.has(p.user_id)).map(p=>({userId:p.user_id,label:labelFor(p.user_id)}));
-      return <article className="card" key={thread.id}><div className="adminToolbar"><span className="badge">{thread.conversation_type==='internal_private'?'1:1':'Csoport'}</span>{unread(thread)&&<span className="badge">Olvasatlan</span>}{mentionThreads.has(thread.id)&&<span className="badge">@ Megemlítettek</span>}</div><h3>{thread.subject}</h3><div className="adminToolbar">{threadParticipants.map(p=><span className="badge" key={p.user_id}>{labelFor(p.user_id)}{p.participant_role==='owner'?' · tulajdonos':''}</span>)}</div>
-      {!loadError&&isOwner&&<div className="stackForm">{available.length>0&&<form action={managePrivateParticipantAction} className="adminToolbar"><input type="hidden" name="threadId" value={thread.id}/><input type="hidden" name="operation" value="add"/><select name="targetUserId" required defaultValue=""><option value="" disabled>Új résztvevő…</option>{available.map(id=><option key={id} value={id}>{labelFor(id)}</option>)}</select><button className="btn btnGhost">Hozzáadás</button></form>}{threadParticipants.length>2&&members.length>0&&<div className="adminToolbar">{members.map(p=><form action={managePrivateParticipantAction} key={p.user_id}><input type="hidden" name="threadId" value={thread.id}/><input type="hidden" name="operation" value="remove"/><input type="hidden" name="targetUserId" value={p.user_id}/><button className="btn btnGhost">Eltávolítás: {labelFor(p.user_id)}</button></form>)}</div>}{members.length>0&&<form action={transferPrivateThreadOwnerAction} className="adminToolbar"><input type="hidden" name="threadId" value={thread.id}/><select name="targetUserId" required defaultValue=""><option value="" disabled>Új tulajdonos…</option>{members.map(p=><option key={p.user_id} value={p.user_id}>{labelFor(p.user_id)}</option>)}</select><button className="btn btnGhost">Tulajdonjog átadása</button></form>}</div>}
-      {(unread(thread)||mentionThreads.has(thread.id))&&!loadError&&<form action={markThreadReadAction}><input type="hidden" name="threadId" value={thread.id}/><button className="btn btnGhost">Olvasottnak jelölöm</button></form>}
+      return <article className="card" key={thread.id}><div className="adminToolbar"><span className="badge">{thread.conversation_type==='internal_private'?'1:1':'Csoport'}</span>{archived&&<span className="badge">Archivált</span>}{unread(thread)&&<span className="badge">Olvasatlan</span>}{mentionThreads.has(thread.id)&&<span className="badge">@ Megemlítettek</span>}</div><h3>{thread.subject}</h3>{archived&&thread.archived_at&&<p className="muted">Archiválva: {new Intl.DateTimeFormat('hu-HU',{dateStyle:'short',timeStyle:'short',timeZone:'Europe/Budapest'}).format(new Date(thread.archived_at))}. Az archivált beszélgetés csak olvasható.</p>}<div className="adminToolbar">{threadParticipants.map(p=><span className="badge" key={p.user_id}>{labelFor(p.user_id)}{p.participant_role==='owner'?' · tulajdonos':''}</span>)}</div>
+      {!archived&&!loadError&&isOwner&&<div className="stackForm">{available.length>0&&<form action={managePrivateParticipantAction} className="adminToolbar"><input type="hidden" name="threadId" value={thread.id}/><input type="hidden" name="operation" value="add"/><select name="targetUserId" required defaultValue=""><option value="" disabled>Új résztvevő…</option>{available.map(id=><option key={id} value={id}>{labelFor(id)}</option>)}</select><button className="btn btnGhost">Hozzáadás</button></form>}{threadParticipants.length>2&&members.length>0&&<div className="adminToolbar">{members.map(p=><form action={managePrivateParticipantAction} key={p.user_id}><input type="hidden" name="threadId" value={thread.id}/><input type="hidden" name="operation" value="remove"/><input type="hidden" name="targetUserId" value={p.user_id}/><button className="btn btnGhost">Eltávolítás: {labelFor(p.user_id)}</button></form>)}</div>}{members.length>0&&<form action={transferPrivateThreadOwnerAction} className="adminToolbar"><input type="hidden" name="threadId" value={thread.id}/><select name="targetUserId" required defaultValue=""><option value="" disabled>Új tulajdonos…</option>{members.map(p=><option key={p.user_id} value={p.user_id}>{labelFor(p.user_id)}</option>)}</select><button className="btn btnGhost">Tulajdonjog átadása</button></form>}</div>}
+      {!archived&&(unread(thread)||mentionThreads.has(thread.id))&&!loadError&&<form action={markThreadReadAction}><input type="hidden" name="threadId" value={thread.id}/><button className="btn btnGhost">Olvasottnak jelölöm</button></form>}
       <div className="integrationList">{threadMessages.map(message=><div key={message.id}><div><strong>{message.author_id?labelFor(message.author_id):'Rendszer'}</strong><br/><span className="muted" style={{whiteSpace:'pre-wrap'}}>{message.body}</span>{mentions.filter(m=>m.message_id===message.id).length>0&&<div className="adminToolbar">{mentions.filter(m=>m.message_id===message.id).map(m=><span className="badge" key={m.mentioned_user_id}>@{labelFor(m.mentioned_user_id)}{m.mentioned_user_id===actor.id&&!m.seen_at?' · új':''}</span>)}</div>}{links.filter(l=>l.message_id===message.id).map(renderObject)}{secureAttachments&&attachments.filter(a=>a.message_id===message.id).length>0&&<div className="adminToolbar">{attachments.filter(a=>a.message_id===message.id).map(a=><a className="textLink" href={`/api/admin/office/attachments/${a.id}`} key={a.id}>📎 {a.original_name} · {fileSize(a.byte_size)}</a>)}</div>}</div><span className="muted">{new Intl.DateTimeFormat('hu-HU',{dateStyle:'short',timeStyle:'short',timeZone:'Europe/Budapest'}).format(new Date(message.created_at))}</span></div>)}</div>
-      {!loadError&&<OfficePrivateMessageForm threadId={thread.id} mentionOptions={mentionOptions} objectOptions={objectOptions}/>}</article>;
+      {!archived&&!loadError&&<OfficePrivateMessageForm threadId={thread.id} mentionOptions={mentionOptions} objectOptions={objectOptions}/>}</article>;
     })}</div>
     {!threadResult.error&&!visible.length&&<div className="card"><p className="muted">Nincs a szűrésnek megfelelő belső beszélgetés.</p></div>}
   </section>;
