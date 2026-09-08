@@ -31,7 +31,7 @@ describe('roadmap block 3 pilot acceptance batch',()=>{
     expect(checkout).toContain('12345676-1-12');
   });
 
-  it('adds tenant-scoped merchant RBAC management with audit evidence and permission-filtered navigation',()=>{
+  it('adds tenant-scoped merchant RBAC management with audit evidence and permission/capability-filtered navigation',()=>{
     const sql=read('supabase/migrations/20260905204538_block3_pilot_acceptance_batch_validation.sql');
     const orgScope=read('supabase/migrations/20260905213000_block3_rbac_org_scope_actor_fix.sql');
     const actions=read('src/app/admin/csapat/actions.ts');
@@ -52,8 +52,10 @@ describe('roadmap block 3 pilot acceptance batch',()=>{
     expect(ia).toContain("permission:'orders.manage'");
     expect(ia).toContain("permission:'catalog.manage'");
     expect(ia).toContain("permission:'store.manage'");
+    expect(ia).toContain("capability:'office.internal_chat'");
     expect(layout).toContain('roles.some(role=>roleHasPermission(role,permission))');
-    expect(layout).toContain('resolveMerchantNavigation(effectivePlan,can,instance?.status)');
+    expect(layout).toContain('const canCapability=(capability?:StoreCapability)');
+    expect(layout).toContain('resolveMerchantNavigation(effectivePlan,can,instance?.status,canCapability)');
     expect(scope).toContain("redirect('/admin/hozzaferes-megtagadva')");
     expect(controls).toContain('<select key={role} name="role" defaultValue={role}>');
   });
