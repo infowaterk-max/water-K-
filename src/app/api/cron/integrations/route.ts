@@ -3,6 +3,7 @@ import { createAdminClient } from '@/lib/supabase/admin';
 import { processIntegrationJob } from '@/lib/integrations/processor';
 import { runCommunicationWorker } from '@/lib/communication/worker';
 import { cleanupExpiredOfficePrivateAttachments } from '@/lib/office/private-attachment-cleanup';
+import { runOfficeTeamChatRetention } from '@/lib/office/team-chat-retention';
 
 export const dynamic='force-dynamic';
 export const maxDuration=60;
@@ -28,6 +29,15 @@ type LoyaltyResult={
   reversed?:number;
   refreshedProfiles?:number;
   completedAt?:string;
+  error?:string;
+};
+type TeamChatRetentionRun={
+  instanceId:string;
+  ok:boolean;
+  checkedAt?:string;
+  threadsArchived?:number;
+  messagesDeleted?:number;
+  auditDeleted?:number;
   error?:string;
 };
 
@@ -188,9 +198,20 @@ async function runWorker(request:Request){
     officeAttachmentCleanup={ok:false,error:error instanceof Error?error.message:'OFFICE_ATTACHMENT_CLEANUP_FAILED'};
   }
 
+  const teamChatRetention:TeamChatRetentionRun[]=[];
+  for(const instance of instances){
+    try{
+      const result=await runOfficeTeamChatRetention(instance.id);
+      teamChatRetention.push({instanceId:instance.id,ok:true,...result});
+    }catch(error){
+      teamChatRetention.push({instanceId:instance.id,ok:false,error:error instanceof Error?error.message:'OFFICE_TEAM_CHAT_RETENTION_FAILED'});
+    }
+  }
+
   const loyaltyOk=loyalty.every(result=>result.ok);
   const journeyOk=journeys.every(result=>result.ok);
-  const ok=inventorySnapshot.ok&&loyaltyOk&&journeyOk&&integrationResults.every(result=>result.ok)&&communication.ok&&officeAttachmentCleanup.ok;
+  const teamChatRetentionOk=teamChatRetention.every(result=>result.ok);
+  const ok=inventorySnapshot.ok&&loyaltyOk&&journeyOk&&integrationResults.every(result=>result.ok)&&communication.ok&&officeAttachmentCleanup.ok&&teamChatRetentionOk;
   return NextResponse.json({
     ok,
     inventorySnapshot,
@@ -199,6 +220,7 @@ async function runWorker(request:Request){
     integrations:{processed:integrationResults.length,results:integrationResults},
     communication,
     officeAttachmentCleanup,
+    teamChatRetention:{tenants:teamChatRetention.length,results:teamChatRetention},
     checkedAt,
   },{status:ok?200:503});
 }
