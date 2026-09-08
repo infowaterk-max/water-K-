@@ -8,14 +8,16 @@ import{
 import{useOfficeDraftAutosave}from'@/components/admin/use-office-draft-autosave';
 
 type MailboxOption={mailboxKey:string;label:string};
-type InitialDraft={id:string;revision:number;toEmail:string|null;subject:string;body:string};
-type DraftSnapshot={toEmail:string;subject:string;body:string};
+type InitialDraft={id:string;revision:number;toEmail:string|null;ccEmails:string[];bccEmails:string[];subject:string;body:string};
+type DraftSnapshot={toEmail:string;ccEmails:string;bccEmails:string;subject:string;body:string};
 
 function draftFormData(snapshot:DraftSnapshot,draftId:string,revision:number|null,mailboxKey?:string){
   const data=new FormData();
   if(draftId)data.set('draftId',draftId);
   if(revision)data.set('revision',String(revision));
   data.set('toEmail',snapshot.toEmail);
+  data.set('ccEmails',snapshot.ccEmails);
+  data.set('bccEmails',snapshot.bccEmails);
   data.set('subject',snapshot.subject);
   data.set('body',snapshot.body);
   if(mailboxKey)data.set('mailboxKey',mailboxKey);
@@ -24,15 +26,17 @@ function draftFormData(snapshot:DraftSnapshot,draftId:string,revision:number|nul
 
 export function OfficeNewEmailComposer({mailboxes,initialDraft,compact=false}:{mailboxes:MailboxOption[];initialDraft?:InitialDraft;compact?:boolean}){
   const[toEmail,setToEmail]=useState(initialDraft?.toEmail??'');
+  const[ccEmails,setCcEmails]=useState(initialDraft?.ccEmails.join(', ')??'');
+  const[bccEmails,setBccEmails]=useState(initialDraft?.bccEmails.join(', ')??'');
   const[subject,setSubject]=useState(initialDraft?.subject??'');
   const[body,setBody]=useState(initialDraft?.body??'');
   const[mailboxKey,setMailboxKey]=useState(mailboxes[0]?.mailboxKey??'');
   const[operationState,setOperationState]=useState<OfficeComposerActionState>(officeComposerInitialState);
   const[actionPending,startTransition]=useTransition();
   const sendingConfigured=mailboxes.length>0;
-  const snapshot:DraftSnapshot={toEmail,subject,body};
+  const snapshot:DraftSnapshot={toEmail,ccEmails,bccEmails,subject,body};
   const snapshotKey=JSON.stringify(snapshot);
-  const meaningful=toEmail.trim().length>0||subject.trim().length>0||body.trim().length>0;
+  const meaningful=[toEmail,ccEmails,bccEmails,subject,body].some(value=>value.trim().length>0);
 
   const draft=useOfficeDraftAutosave({
     snapshot,
@@ -56,6 +60,10 @@ export function OfficeNewEmailComposer({mailboxes,initialDraft,compact=false}:{m
     void draft.saveNow();
   }
 
+  function clearFields(){
+    setToEmail('');setCcEmails('');setBccEmails('');setSubject('');setBody('');
+  }
+
   function send(){
     if(!sendReady||hasBlockingDraftState)return;
     startTransition(async()=>{
@@ -73,7 +81,7 @@ export function OfficeNewEmailComposer({mailboxes,initialDraft,compact=false}:{m
       );
       setOperationState(result);
       if(result.status==='success'){
-        setToEmail('');setSubject('');setBody('');
+        clearFields();
         draft.reset();
       }
     });
@@ -91,7 +99,7 @@ export function OfficeNewEmailComposer({mailboxes,initialDraft,compact=false}:{m
       const result=await deleteOfficeDraftAction(data);
       setOperationState(result);
       if(result.status==='success'){
-        setToEmail('');setSubject('');setBody('');
+        clearFields();
         draft.reset();
       }
     });
@@ -100,6 +108,11 @@ export function OfficeNewEmailComposer({mailboxes,initialDraft,compact=false}:{m
   return <div className={compact?'stackForm':'featurePanel'} aria-busy={actionPending||draft.status==='saving'}>
     {!compact&&<><span className="eyebrow">1:1 operatív e-mail</span><h2>Új üzenet</h2></>}
     <input type="email" value={toEmail} onChange={event=>setToEmail(event.target.value)} maxLength={320} placeholder="Címzett e-mail címe" disabled={actionPending}/>
+    <div className="splitFeature">
+      <label className="stackForm"><span>Másolat (CC)</span><input value={ccEmails} onChange={event=>setCcEmails(event.target.value)} maxLength={3300} placeholder="pelda@ceg.hu, masik@ceg.hu" disabled={actionPending}/></label>
+      <label className="stackForm"><span>Titkos másolat (BCC)</span><input value={bccEmails} onChange={event=>setBccEmails(event.target.value)} maxLength={3300} placeholder="belso@ceg.hu" disabled={actionPending}/></label>
+    </div>
+    <p className="muted">A CC és BCC mezőben legfeljebb 10-10 cím adható meg, vesszővel, pontosvesszővel vagy új sorral elválasztva.</p>
     <input value={subject} onChange={event=>setSubject(event.target.value)} maxLength={300} placeholder="Tárgy" disabled={actionPending}/>
     <textarea value={body} onChange={event=>setBody(event.target.value)} maxLength={10000} rows={compact?4:6} placeholder="Üzenet" disabled={actionPending}/>
     {sendingConfigured&&<label><span>Küldő Office postafiók</span><select value={mailboxKey} onChange={event=>setMailboxKey(event.target.value)} disabled={actionPending}>{mailboxes.map(mailbox=><option key={mailbox.mailboxKey} value={mailbox.mailboxKey}>{mailbox.label}</option>)}</select></label>}
