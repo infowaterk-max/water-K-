@@ -1,0 +1,124 @@
+import type {FeatureCode} from '@/lib/plans/catalog';
+import {
+  STOREFRONT_BUILDER_FOUNDATION_VERSION,
+  defineStorefrontBuilderComponent,
+  type StorefrontBuilderPageType,
+  type StorefrontResponsiveMode,
+} from '@/lib/builder/storefront-foundation';
+import {
+  type StorefrontRuntimeComponentDefinition,
+} from '@/lib/builder/storefront-runtime';
+import {createStorefrontPrimitiveComponentRegistry} from '@/lib/builder/storefront-primitives';
+
+export const STOREFRONT_CORE_COMMERCE_VERSION='shoporation.storefront-core-commerce.v1' as const;
+
+const commerceDefinition=(input:{
+  componentKey:string;
+  pageTypes:readonly StorefrontBuilderPageType[];
+  configurable:readonly string[];
+  bindingSlots:readonly string[];
+  features:readonly FeatureCode[];
+  responsiveMode?:StorefrontResponsiveMode;
+}):StorefrontRuntimeComponentDefinition=>({
+  manifest:defineStorefrontBuilderComponent({
+    foundationVersion:STOREFRONT_BUILDER_FOUNDATION_VERSION,
+    componentKey:input.componentKey,
+    componentVersion:1,
+    schemaSlot:'children',
+    pageTypes:input.pageTypes,
+    configurable:input.configurable,
+    responsiveMode:input.responsiveMode??'fixed',
+    capability:{minPlan:'alap',features:input.features},
+  }),
+  bindingSlots:input.bindingSlots,
+});
+
+export const STOREFRONT_CORE_COMMERCE_COMPONENT_DEFINITIONS:readonly StorefrontRuntimeComponentDefinition[]=[
+  commerceDefinition({
+    componentKey:'commerce.collection-navigation',
+    pageTypes:['home','catalog'],
+    configurable:['title','items','columns','imageRatio','tone'],
+    bindingSlots:['title','items'],
+    features:['catalog'],
+    responsiveMode:'grid',
+  }),
+  commerceDefinition({
+    componentKey:'commerce.collection-header',
+    pageTypes:['home','catalog','search'],
+    configurable:['eyebrow','title','description','image','imageAlt','align'],
+    bindingSlots:['eyebrow','title','description','image','imageAlt'],
+    features:['catalog'],
+  }),
+  commerceDefinition({
+    componentKey:'commerce.product-grid',
+    pageTypes:['home','catalog','search','product','cart'],
+    configurable:['title','products','columns','presentation','showBadges','showCompareAt','imageRatio','emptyLabel','currency'],
+    bindingSlots:['title','products'],
+    features:['catalog'],
+    responsiveMode:'grid',
+  }),
+  commerceDefinition({
+    componentKey:'commerce.product-gallery',
+    pageTypes:['product'],
+    configurable:['images','aspectRatio','thumbnailPosition'],
+    bindingSlots:['images'],
+    features:['catalog'],
+    responsiveMode:'grid',
+  }),
+  commerceDefinition({
+    componentKey:'commerce.product-info',
+    pageTypes:['product'],
+    configurable:['eyebrow','title','price','compareAtPrice','description','stockLabel','badges','currency'],
+    bindingSlots:['eyebrow','title','price','compareAtPrice','description','stockLabel','badges'],
+    features:['catalog','inventory'],
+  }),
+  commerceDefinition({
+    componentKey:'commerce.variant-swatches',
+    pageTypes:['product'],
+    configurable:['label','options'],
+    bindingSlots:['label','options'],
+    features:['catalog','inventory'],
+  }),
+  commerceDefinition({
+    componentKey:'commerce.size-selector',
+    pageTypes:['product'],
+    configurable:['label','options'],
+    bindingSlots:['label','options'],
+    features:['catalog','inventory'],
+  }),
+  commerceDefinition({
+    componentKey:'commerce.review-summary',
+    pageTypes:['home','product'],
+    configurable:['rating','count','label'],
+    bindingSlots:['rating','count','label'],
+    features:['reviews'],
+  }),
+  commerceDefinition({
+    componentKey:'commerce.recommendation-row',
+    pageTypes:['home','product','cart'],
+    configurable:['title','products','columns','emptyLabel','currency'],
+    bindingSlots:['title','products'],
+    features:['catalog','productRecommendations'],
+    responsiveMode:'grid',
+  }),
+  commerceDefinition({
+    componentKey:'commerce.cart-summary',
+    pageTypes:['cart'],
+    configurable:['lines','subtotal','total','currency','checkoutHref','checkoutLabel','emptyLabel'],
+    bindingSlots:['lines','subtotal','total'],
+    features:['catalog','orders'],
+  }),
+  commerceDefinition({
+    componentKey:'commerce.checkout-summary',
+    pageTypes:['checkout'],
+    configurable:['lines','subtotal','shipping','total','currency','secureLabel'],
+    bindingSlots:['lines','subtotal','shipping','total'],
+    features:['catalog','orders','commerceIntegrations'],
+  }),
+] as const;
+
+export function createStorefrontCoreCommerceComponentRegistry(){
+  const registry=createStorefrontPrimitiveComponentRegistry();
+  for(const definition of STOREFRONT_CORE_COMMERCE_COMPONENT_DEFINITIONS)registry.register(definition);
+  return registry;
+}
