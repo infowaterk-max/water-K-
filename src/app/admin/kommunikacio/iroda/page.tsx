@@ -30,7 +30,7 @@ type Thread={
   conversation_type:'customer'|'internal_private'|'internal_group';
   mailbox_key:string|null;
 };
-type Message={id:string;thread_id:string;kind:string;body:string;created_at:string;communication_job_id:string|null;subject:string|null};
+type Message={id:string;thread_id:string;kind:string;body:string;created_at:string;communication_job_id:string|null;subject:string|null;cc_emails:string[];bcc_emails:string[]};
 type Task={id:string;thread_id:string|null;title:string;status:string;due_at:string|null};
 type Order={id:string;order_number:string;customer_email:string;status:string};
 type Job={id:string;status:string;last_error:string|null};
@@ -38,7 +38,7 @@ type ParticipantRead={thread_id:string;last_read_at:string|null};
 type Binding={user_id:string;role_code:string;instance_id:string|null;valid_until:string|null};
 type Profile={id:string;email:string|null;full_name:string|null};
 type Assignee={userId:string;label:string};
-type ReplyDraft={id:string;thread_id:string;body:string;revision:number;updated_at:string};
+type ReplyDraft={id:string;thread_id:string;body:string;cc_emails:string[];bcc_emails:string[];revision:number;updated_at:string};
 type Mailbox={mailbox_key:string};
 type EmailRoute={thread_id:string};
 type AccessibleThreadRow={thread_id:string};
@@ -82,7 +82,7 @@ export default async function OfficeWorkspace({searchParams}:{searchParams:Promi
   const threadIds=threads.map(thread=>thread.id);
 
   const messagePromise=threadIds.length
-    ? db.from('office_messages').select('id,thread_id,kind,body,created_at,communication_job_id,subject')
+    ? db.from('office_messages').select('id,thread_id,kind,body,created_at,communication_job_id,subject,cc_emails,bcc_emails')
       .eq('instance_id',scope.instanceId).in('thread_id',threadIds).order('created_at',{ascending:false}).limit(1500)
     : Promise.resolve({data:[] as Message[],error:null});
   const participantPromise=threadIds.length
@@ -90,7 +90,7 @@ export default async function OfficeWorkspace({searchParams}:{searchParams:Promi
       .eq('instance_id',scope.instanceId).eq('user_id',actor.id).in('thread_id',threadIds).is('left_at',null)
     : Promise.resolve({data:[] as ParticipantRead[],error:null});
   const replyDraftPromise=threadIds.length
-    ? db.from('office_drafts').select('id,thread_id,body,revision,updated_at')
+    ? db.from('office_drafts').select('id,thread_id,body,cc_emails,bcc_emails,revision,updated_at')
       .eq('instance_id',scope.instanceId).eq('author_user_id',actor.id).eq('draft_type','reply')
       .in('thread_id',threadIds).order('updated_at',{ascending:false}).limit(200)
     : Promise.resolve({data:[] as ReplyDraft[],error:null});
@@ -290,7 +290,12 @@ export default async function OfficeWorkspace({searchParams}:{searchParams:Promi
               {threadMessages.map(message=>{
                 const job=message.communication_job_id?jobMap.get(message.communication_job_id):null;
                 return <div key={message.id}>
-                  <span><strong>{kindLabel[message.kind]??message.kind}</strong>{message.subject&&<><br/>{message.subject}</>}<br/><span className="muted" style={{whiteSpace:'pre-wrap'}}>{message.body}</span></span>
+                  <span>
+                    <strong>{kindLabel[message.kind]??message.kind}</strong>{message.subject&&<><br/>{message.subject}</>}
+                    {!!message.cc_emails?.length&&<><br/><span className="muted">CC: {message.cc_emails.join(', ')}</span></>}
+                    {!!message.bcc_emails?.length&&<><br/><span className="muted">BCC: {message.bcc_emails.join(', ')}</span></>}
+                    <br/><span className="muted" style={{whiteSpace:'pre-wrap'}}>{message.body}</span>
+                  </span>
                   <span className="muted">{job?jobLabel[job.status]??job.status:new Intl.DateTimeFormat('hu-HU',{dateStyle:'short',timeStyle:'short'}).format(new Date(message.created_at))}</span>
                 </div>;
               })}
@@ -304,7 +309,7 @@ export default async function OfficeWorkspace({searchParams}:{searchParams:Promi
                   {thread.customer_email&&<OfficeCustomerEmailForm
                     threadId={thread.id}
                     sendingConfigured={sendingConfigured}
-                    initialDraft={replyDraft?{id:replyDraft.id,revision:replyDraft.revision,body:replyDraft.body}:undefined}
+                    initialDraft={replyDraft?{id:replyDraft.id,revision:replyDraft.revision,ccEmails:replyDraft.cc_emails??[],bccEmails:replyDraft.bcc_emails??[],body:replyDraft.body}:undefined}
                   />}
                 </div>
                 <form action={createTaskAction} className="stackForm"><input type="hidden" name="threadId" value={thread.id}/><input name="title" required placeholder="Kapcsolódó feladat"/><input name="due" type="datetime-local"/><button className="btn btnGhost">Feladat létrehozása</button></form>
