@@ -21,9 +21,11 @@ describe('Email Builder D2 editor',()=>{
     expect(editor).toContain("method:'PATCH'");
     expect(editor).toContain('Piszkozat mentése');
     expect(editor).toContain('Nincs aktiválás');
+    expect(editor).toContain('Az aktív e-mail sablon változatlan marad.');
     expect(editor).not.toContain('/activate');
     expect(editor).not.toContain('sendTransactionalEmail');
     expect(editor).not.toContain('tesztküld');
+    expect(editor).not.toContain('D2');
   });
 
   it('supports the first block editing operations and desktop/mobile preview',()=>{
@@ -44,10 +46,11 @@ describe('Email Builder D2 editor',()=>{
     expect(renderer).toContain('decorateBlockHtml');
   });
 
-  it('links an existing Essential draft into the D2 editor from the template library',()=>{
+  it('links an existing Essential draft into the visual editor from the template library without internal phase labels',()=>{
     const page=read('src/app/admin/email-sablonok/page.tsx');
-    expect(page).toContain('E-mail Builder · D2');
+    expect(page).toContain('<span className="eyebrow">E-mail Builder</span>');
     expect(page).toContain('/szerkesztes`}>Szerkesztés');
-    expect(page).toContain('D2 · szerkeszthető');
+    expect(page).toContain("ready?'Szerkeszthető':'Előkészítve'");
+    expect(page).not.toContain('D2');
   });
 });
