@@ -81,13 +81,25 @@ describe('Roadmap Block 7 B2B Account Ownership',()=>{
   expect(manifest).not.toContain('inlineEditingRuntime:true');
  });
 
- test('fresh-customer path receives the exact forward migrations and is proof-bound after clean-install acceptance',()=>{
+ test('fresh-customer path preserves exact Block 7 migrations and invalidates proof when later forward migrations are added',()=>{
   expect(read(baselinePath)).toBe(read(migrationPath));
   expect(read(baselinePerformancePath)).toBe(read(performanceMigrationPath));
+  const baselineDir=path.join(root,'supabase/customer-baseline/migrations');
+  const forwardMigrations=fs.readdirSync(baselineDir).filter(name=>/^\d{4}_[a-z0-9_]+\.sql$/i.test(name)).sort();
+  expect(forwardMigrations).toEqual(expect.arrayContaining([
+   '0002_block7_b2b_account_ownership.sql',
+   '0003_block7_b2b_account_indexes.sql',
+  ]));
   const manifest=JSON.parse(read('supabase/customer-baseline/manifest.json'));
-  expect(manifest.status).toBe('ready');
-  expect(manifest.freshInstallProofRequired).toBe(false);
-  expect(manifest.proofContractSha256).toBe('5fd7f5770af6c78d16504944e938f6a32e238d5ad43ad84b03ee08ba11d586ed');
+  expect(['snapshot-reviewed','ready']).toContain(manifest.status);
+  if(manifest.status==='snapshot-reviewed'){
+   expect(manifest.freshInstallProofRequired).toBe(true);
+   expect(manifest.proofContractSha256).toBeNull();
+  }else{
+   expect(manifest.freshInstallProofRequired).toBe(false);
+   expect(manifest.proofContractSha256).toMatch(/^[a-f0-9]{64}$/);
+  }
+  if(forwardMigrations.length>2)expect(manifest.proofContractSha256).not.toBe('5fd7f5770af6c78d16504944e938f6a32e238d5ad43ad84b03ee08ba11d586ed');
   const workflow=read('.github/workflows/fresh-install-proof.yml');
   expect(workflow).toContain("find supabase/customer-baseline/migrations");
  });
