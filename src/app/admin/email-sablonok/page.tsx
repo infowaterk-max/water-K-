@@ -24,15 +24,15 @@ export default async function EmailTemplatesAdmin(){
   const templates=(data??[]) as TemplateRow[];
   const essential=templates.find(item=>item.template_key==='essential.order_confirmation')??null;
   return <section className="adminMain">
-    <span className="eyebrow">E-mail Builder · D2</span>
+    <span className="eyebrow">E-mail Builder</span>
     <h1 className="sectionTitle">E-mail sablonok</h1>
-    <p className="lead">Az Essential rendelés-visszaigazolás már vizuális szerkesztőben módosítható, élő rendererrel előnézhető és külön piszkozatként menthető. Aktiválás és kiküldés továbbra sincs ezen a D2 felületen.</p>
+    <p className="lead">Az Essential rendelés-visszaigazolás vizuális szerkesztőben módosítható, élő rendererrel előnézhető és külön piszkozatként menthető. A piszkozat mentése nem módosítja az aktív e-mail sablont.</p>
     {error&&<div className="errorNotice" role="alert"><strong>A sablonok most nem tölthetők be.</strong> Hiányos állapotból nem engedünk új sablont létrehozni.</div>}
     <div className="cards">
       {families.map(family=>{
         const ready=family.key==='essential';
         return <article className="card" key={family.key}>
-          <span className="badge">{ready?'D2 · szerkeszthető':'Előkészítve'}</span>
+          <span className="badge">{ready?'Szerkeszthető':'Előkészítve'}</span>
           <h3>{family.name}</h3>
           <strong>{family.character}</strong>
           <p className="muted">{family.description}</p>
@@ -45,7 +45,7 @@ export default async function EmailTemplatesAdmin(){
     <section className="featurePanel" style={{marginTop:28}}>
       <span className="eyebrow">Tenant sablontár</span>
       <h2>Mentett sablonok</h2>
-      <p className="muted">A piszkozat és az aktív verzió továbbra is külön életciklus. A D2 csak a piszkozat vizuális szerkesztését és mentését adja hozzá.</p>
+      <p className="muted">A piszkozat és az aktív verzió külön életciklusú. A szerkesztőben végzett és elmentett módosítások csak a piszkozatot érintik.</p>
       {!error&&templates.length===0&&<div className="card"><strong>Még nincs tenant e-mail sablon.</strong><p className="muted">Az Essential kártyán hozhatod létre az első biztonságos piszkozatot.</p></div>}
       {!error&&templates.length>0&&<div className="tableCard"><table className="adminTable"><thead><tr><th>Sablon</th><th>Család</th><th>Állapot</th><th>Aktív verzió</th><th>Művelet</th></tr></thead><tbody>{templates.map(item=><tr key={item.id}><td><strong>{item.name}</strong><div className="muted">{item.template_key}</div></td><td>{item.family}</td><td><span className="badge">{statusLabel(item.status)}</span></td><td>{item.active_version_id?'Van':'Nincs'}</td><td><div className="actions"><Link className="btn btnPrimary" href={`/admin/email-sablonok/${item.id}/szerkesztes`}>Szerkesztés</Link><Link className="btn btnGhost" href={`/admin/email-sablonok/${item.id}/elonezet`}>Előnézet</Link></div></td></tr>)}</tbody></table></div>}
     </section>
