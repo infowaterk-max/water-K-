@@ -7,28 +7,33 @@ describe('Roadmap Block 4 IA, navigation and reporting contract',()=>{
   it('uses the accepted nine business workspaces from one capability-aware registry',()=>{
     expect(MERCHANT_NAVIGATION.map(section=>section.label)).toEqual(['Vezetői áttekintés','Értékesítés','Termékek','Ügyfelek','Készlet & Logisztika','Marketing','Digitális Iroda','Tartalom & Megjelenés','Beállítások']);
     const allow=()=>true;
-    const alap=resolveMerchantNavigation('alap',allow,'active').flatMap(section=>section.items);
-    const pro=resolveMerchantNavigation('pro',allow,'active').flatMap(section=>section.items);
+    const alap=resolveMerchantNavigation('alap',allow,'active',allow).flatMap(section=>section.items);
+    const pro=resolveMerchantNavigation('pro',allow,'active',allow).flatMap(section=>section.items);
     expect(alap.some(item=>item.href==='/admin/rendelesek')).toBe(true);
+    expect(alap.some(item=>item.href==='/admin/kommunikacio/chat')).toBe(true);
+    expect(alap.some(item=>item.href==='/admin/kommunikacio')).toBe(false);
     expect(alap.some(item=>item.href==='/admin/elemzes')).toBe(false);
     expect(alap.some(item=>item.href==='/admin/cashflow')).toBe(false);
     expect(pro.some(item=>item.href==='/admin/elemzes')).toBe(true);
     expect(pro.some(item=>item.href==='/admin/cashflow')).toBe(true);
     expect(pro.some(item=>item.href==='/admin/vezetoi')).toBe(true);
+    expect(pro.some(item=>item.href==='/admin/kommunikacio')).toBe(true);
   });
 
-  it('filters navigation and frequent tasks through least privilege and pilot audience rules',()=>{
+  it('filters navigation and frequent tasks through least privilege, capability and pilot audience rules',()=>{
     const readable=(permission?:string)=>permission==='store.read'||permission==='analytics.read';
-    const items=resolveMerchantNavigation('pro',readable,'active').flatMap(section=>section.items);
+    const noCapabilities=(capability?:string)=>!capability;
+    const items=resolveMerchantNavigation('pro',readable,'active',noCapabilities).flatMap(section=>section.items);
     const quick=resolveFrequentTasks('pro',readable);
     expect(items.some(item=>item.href==='/admin')).toBe(true);
     expect(items.some(item=>item.href==='/admin/elemzes')).toBe(true);
+    expect(items.some(item=>item.href==='/admin/kommunikacio/chat')).toBe(false);
     expect(items.some(item=>item.href==='/admin/rendelesek')).toBe(false);
     expect(items.some(item=>item.href==='/admin/termekek')).toBe(false);
     expect(quick).toEqual([]);
     const owner=()=>true;
-    expect(resolveMerchantNavigation('pro',owner,'active').flatMap(section=>section.items).some(item=>item.href==='/admin/pilot-acceptance')).toBe(false);
-    expect(resolveMerchantNavigation('pro',owner,'pilot').flatMap(section=>section.items).some(item=>item.href==='/admin/pilot-acceptance')).toBe(true);
+    expect(resolveMerchantNavigation('pro',owner,'active',owner).flatMap(section=>section.items).some(item=>item.href==='/admin/pilot-acceptance')).toBe(false);
+    expect(resolveMerchantNavigation('pro',owner,'pilot',owner).flatMap(section=>section.items).some(item=>item.href==='/admin/pilot-acceptance')).toBe(true);
   });
 
   it('maintains an auditable reporting registry with capability, permission and evidence ownership',()=>{
@@ -71,7 +76,7 @@ describe('Roadmap Block 4 IA, navigation and reporting contract',()=>{
     expect(navigation).toContain('useState<string|null>(null)');expect(navigation).toContain('setTimeout(()=>openPreview(sectionId,target),300)');expect(navigation).toContain('aria-expanded={open}');expect(navigation).toContain('Gyakori feladatok');expect(navigation).toContain('Intelligens Súgó');
     expect(navigation).toContain('left:rect.right+2');expect(navigation).toContain('setTimeout(()=>setPreview(null),260)');expect(navigation).toContain('onMouseDownCapture={()=>{clearClose();clearHover();}}');
     expect(css).toContain('@media(max-width:850px)');expect(css).toContain('.adminMobileSectionPanel');expect(routeContext).toContain('aria-label="Morzsamenü"');expect(routeContext).toContain('← Vissza: {baseItem.label}');expect(routeContext).toContain('Riport bizonyossági szintek');expect(routeContext).toContain("label:'Tényadat'");expect(routeContext).toContain("label:'Számított mutató'");expect(routeContext).toContain("label:'Ajánlás'");
-    expect(layout).toContain('resolveMerchantNavigation(effectivePlan,can,instance?.status)');expect(layout).toContain('<AdminRouteContext sections={sections} operatorItems={operatorItems}/>');expect(layout).not.toContain('const MERCHANT_NAV');expect(navigation.toLowerCase()).not.toContain('drag');
+    expect(layout).toContain('resolveMerchantNavigation(effectivePlan,can,instance?.status,canCapability)');expect(layout).toContain('<AdminRouteContext sections={sections} operatorItems={operatorItems}/>');expect(layout).not.toContain('const MERCHANT_NAV');expect(navigation.toLowerCase()).not.toContain('drag');
   });
 
   it('routes tenant storefront configuration through a reusable component adapter and preserves future config keys',()=>{

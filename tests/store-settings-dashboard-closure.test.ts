@@ -24,7 +24,7 @@ describe('store settings and dashboard closure',()=>{
  });
 
  test('communication monitoring includes consent failures and uses user-facing wording',()=>{
-  const page=read('src/app/admin/kommunikacio/page.tsx');
+  const page=read('src/app/admin/kommunikacio/felugyelet/page.tsx');
   expect(page).toContain('consentError');
   expect(page).toContain('Háttérfolyamat futások');
   expect(page).not.toContain('Worker futások');

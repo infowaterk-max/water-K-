@@ -21,18 +21,24 @@ import { AdminFontScale } from '@/components/admin/admin-font-scale';
 import { requireAdmin } from '@/lib/auth/require-admin';
 import { getPlatformRole } from '@/lib/auth/platform-operator';
 import { getActiveStoreRoles,roleHasPermission,type StorePermission } from '@/lib/auth/store-rbac';
+import { hasStoreCapability,type StoreCapability } from '@/lib/auth/store-capabilities';
 import { getCurrentWebshopInstance } from '@/lib/instances/access';
 import { getCurrentPlan } from '@/lib/plans/access';
 import { PLANS } from '@/lib/plans/catalog';
 import { PLATFORM_NAVIGATION,resolveFrequentTasks,resolveMerchantNavigation } from '@/lib/navigation/admin-ia';
 
 export default async function AdminLayout({children}:{children:React.ReactNode}){
-  await requireAdmin();
+  const user=await requireAdmin();
   const[plan,platformRole,instance]=await Promise.all([getCurrentPlan(),getPlatformRole(),getCurrentWebshopInstance()]);
   const effectivePlan=platformRole?'pro':plan,definition=PLANS[effectivePlan],merchantName=instance?.name??'Webáruház',isPlatform=Boolean(platformRole),platformLabel=platformRole==='owner'?'Rendszertulajdonos':platformRole==='admin'?'Platform admin':'Platform operátor';
   const roles=!isPlatform&&instance?await getActiveStoreRoles(instance.id):[];
   const can=(permission?:StorePermission)=>!permission||isPlatform||roles.some(role=>roleHasPermission(role,permission));
-  const sections=isPlatform&&!instance?[]:resolveMerchantNavigation(effectivePlan,can,instance?.status);
+  const chatAllowed=isPlatform||Boolean(instance&&await hasStoreCapability(instance.id,user.id,'office.internal_chat',{
+    resourceOwnerUserId:user.id,
+    resourceAssignedUserId:user.id,
+  }));
+  const canCapability=(capability?:StoreCapability)=>!capability||isPlatform||(capability==='office.internal_chat'&&chatAllowed);
+  const sections=isPlatform&&!instance?[]:resolveMerchantNavigation(effectivePlan,can,instance?.status,canCapability);
   const merchantHrefs=new Set(sections.flatMap(section=>section.items.map(item=>item.href)));
   const operatorItems=isPlatform?PLATFORM_NAVIGATION.filter(item=>!merchantHrefs.has(item.href)).map(item=>({...item})):[];
   const quickItems=(!isPlatform||Boolean(instance))?resolveFrequentTasks(effectivePlan,can):[];

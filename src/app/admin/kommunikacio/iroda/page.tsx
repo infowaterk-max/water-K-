@@ -1,19 +1,13 @@
 import Link from 'next/link';
+import { redirect } from 'next/navigation';
 import { OfficeCustomerEmailForm } from '@/components/admin/office-customer-email-form';
 import { getAdminRequestUser } from '@/lib/auth/admin-api';
+import { hasStoreCapability } from '@/lib/auth/store-capabilities';
 import { requirePlanFeature } from '@/lib/plans/access';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { requireCurrentStoreContext } from '@/lib/instances/scope';
-import {
-  addMessageAction,
-  addPrivateMessageAction,
-  completeTaskAction,
-  createPrivateThreadAction,
-  createTaskAction,
-  createThreadAction,
-  markThreadReadAction,
-  updateThreadAction,
-} from './actions';
+import { completeTaskAction,createTaskAction,updateThreadAction } from './actions';
+import { markCustomerThreadReadAction } from './customer-read-actions';
 
 export const dynamic='force-dynamic';
 
@@ -26,124 +20,95 @@ type Thread={
   priority:string;
   assigned_to:string|null;
   last_read_at:string|null;
+  mailbox_key:string|null;
   updated_at:string;
-  conversation_type:'customer'|'internal_private'|'internal_group';
+  conversation_type:'customer';
 };
-type Message={id:string;thread_id:string;kind:string;body:string;created_at:string;communication_job_id:string|null;subject:string|null};
-type Task={id:string;thread_id:string|null;title:string;status:string;due_at:string|null};
+type Message={id:string;thread_id:string;author_id:string|null;kind:string;body:string;created_at:string;communication_job_id:string|null;subject:string|null;cc_emails:string[];bcc_emails:string[]};
+type Task={id:string;thread_id:string|null;title:string;status:string;assigned_to:string|null;due_at:string|null;created_at:string};
 type Order={id:string;order_number:string;customer_email:string;status:string};
 type Job={id:string;status:string;last_error:string|null};
-type ParticipantRead={thread_id:string;last_read_at:string|null};
 type Binding={user_id:string;role_code:string;instance_id:string|null;valid_until:string|null};
 type Profile={id:string;email:string|null;full_name:string|null};
+type ReplyDraft={id:string;thread_id:string|null;body:string;cc_emails:string[];bcc_emails:string[];revision:number;updated_at:string};
+type Mailbox={mailbox_key:string;is_active:boolean};
+type EmailRoute={thread_id:string};
 type Assignee={userId:string;label:string};
 
-type AccessibleThreadRow={thread_id:string};
-
-const kindLabel:Record<string,string>={
-  internal:'Belső üzenet',note:'Belső jegyzet',email_in:'Bejövő e-mail',email_out:'Kimenő e-mail',
-};
-const jobLabel:Record<string,string>={
-  pending:'Küldésre vár',processing:'Küldés folyamatban',sent:'Elküldve',failed:'Küldési hiba',blocked:'Blokkolva',cancelled:'Törölve',
-};
 const priorityLabel:Record<string,string>={low:'Alacsony',normal:'Normál',high:'Magas',urgent:'Sürgős'};
+const jobLabel:Record<string,string>={pending:'Küldésre vár',processing:'Küldés folyamatban',sent:'Elküldve',failed:'Küldési hiba',blocked:'Blokkolva',cancelled:'Törölve'};
 const supportRoles=new Set(['owner','admin','order_manager','support']);
 const active=(validUntil:string|null)=>!validUntil||Date.parse(validUntil)>Date.now();
 
-export default async function OfficeWorkspace({searchParams}:{searchParams:Promise<{q?:string;filter?:string}>}){
+export default async function CustomerEmailWorkspace({searchParams}:{searchParams:Promise<{q?:string;filter?:string}>}){
   await requirePlanFeature('officeCommunication');
   const actor=await getAdminRequestUser('support.manage');
-  if(!actor)throw new Error('Nincs jogosultság.');
+  if(!actor)redirect('/admin/hozzaferes-megtagadva');
   const scope=await requireCurrentStoreContext('support.manage');
   const{q='',filter='open'}=await searchParams;
   const db=createAdminClient();
 
-  const{data:accessibleData,error:accessibleError}=await db.rpc('office_accessible_thread_ids_v1',{
-    p_instance_id:scope.instanceId,
-    p_user_id:actor.id,
-  });
-  const accessibleIds=accessibleError?null:((accessibleData??[])as AccessibleThreadRow[]).map(row=>row.thread_id);
-
-  const threadQuery=db.from('office_threads')
-    .select('id,subject,customer_email,order_id,status,priority,assigned_to,last_read_at,updated_at,conversation_type')
-    .eq('instance_id',scope.instanceId)
-    .order('updated_at',{ascending:false})
-    .limit(200);
-  const{data:t,error:threadError}=accessibleIds===null
-    ? await threadQuery.eq('conversation_type','customer')
-    : accessibleIds.length
-      ? await threadQuery.in('id',accessibleIds)
-      : {data:[],error:null};
-
-  const threads=(t??[])as Thread[];
-  const threadIds=threads.map(thread=>thread.id);
-
-  const messagePromise=threadIds.length
-    ? db.from('office_messages').select('id,thread_id,kind,body,created_at,communication_job_id,subject')
-      .eq('instance_id',scope.instanceId).in('thread_id',threadIds).order('created_at',{ascending:false}).limit(1500)
-    : Promise.resolve({data:[] as Message[],error:null});
-  const participantPromise=threadIds.length
-    ? db.from('office_thread_participants').select('thread_id,last_read_at')
-      .eq('instance_id',scope.instanceId).eq('user_id',actor.id).in('thread_id',threadIds).is('left_at',null)
-    : Promise.resolve({data:[] as ParticipantRead[],error:null});
-  const taskPromise=db.from('office_tasks').select('id,thread_id,title,status,due_at')
-    .eq('instance_id',scope.instanceId).eq('status','open').order('due_at',{ascending:true,nullsFirst:false}).limit(200);
-  const orderPromise=db.from('orders').select('id,order_number,customer_email,status')
-    .eq('instance_id',scope.instanceId).order('created_at',{ascending:false}).limit(300);
-  const jobPromise=db.from('communication_jobs').select('id,status,last_error')
-    .eq('instance_id',scope.instanceId).order('created_at',{ascending:false}).limit(1500);
-  const bindingPromise=scope.organizationId
-    ? db.from('role_bindings').select('user_id,role_code,instance_id,valid_until')
-      .eq('organization_id',scope.organizationId).is('revoked_at',null).lte('valid_from',new Date().toISOString())
-      .or(`instance_id.eq.${scope.instanceId},instance_id.is.null`)
-    : Promise.resolve({data:[] as Binding[],error:null});
-
   const[
-    {data:m,error:messageError},
-    {data:participantData,error:participantError},
-    {data:k,error:taskError},
-    {data:o,error:orderError},
-    {data:j,error:jobError},
-    {data:bindingData,error:bindingError},
-  ]=await Promise.all([messagePromise,participantPromise,taskPromise,orderPromise,jobPromise,bindingPromise]);
+    threadResult,taskResult,orderResult,jobResult,bindingResult,draftResult,mailboxResult,
+  ]=await Promise.all([
+    db.from('office_threads')
+      .select('id,subject,customer_email,order_id,status,priority,assigned_to,last_read_at,mailbox_key,updated_at,conversation_type')
+      .eq('instance_id',scope.instanceId).eq('conversation_type','customer')
+      .order('updated_at',{ascending:false}).limit(200),
+    db.from('office_tasks').select('id,thread_id,title,status,assigned_to,due_at,created_at')
+      .eq('instance_id',scope.instanceId).order('created_at',{ascending:false}).limit(300),
+    db.from('orders').select('id,order_number,customer_email,status')
+      .eq('instance_id',scope.instanceId).order('created_at',{ascending:false}).limit(300),
+    db.from('communication_jobs').select('id,status,last_error')
+      .eq('instance_id',scope.instanceId).order('created_at',{ascending:false}).limit(1500),
+    scope.organizationId
+      ?db.from('role_bindings').select('user_id,role_code,instance_id,valid_until')
+        .eq('organization_id',scope.organizationId).is('revoked_at',null).lte('valid_from',new Date().toISOString())
+        .or(`instance_id.eq.${scope.instanceId},instance_id.is.null`)
+      :Promise.resolve({data:[] as Binding[],error:null}),
+    db.from('office_drafts').select('id,thread_id,body,cc_emails,bcc_emails,revision,updated_at')
+      .eq('instance_id',scope.instanceId).eq('author_user_id',actor.id).eq('draft_type','reply')
+      .order('updated_at',{ascending:false}).limit(200),
+    db.from('office_mailboxes').select('mailbox_key,is_active')
+      .eq('instance_id',scope.instanceId).eq('is_active',true).limit(50),
+  ]);
 
-  const messages=(m??[])as Message[];
-  const reads=(participantData??[])as ParticipantRead[];
-  const readMap=new Map(reads.map(row=>[row.thread_id,row.last_read_at]));
-  const allTasks=(k??[])as Task[];
-  const visibleThreadIds=new Set(threadIds);
-  const tasks=allTasks.filter(task=>task.thread_id===null||visibleThreadIds.has(task.thread_id));
-  const orders=(o??[])as Order[];
-  const jobMap=new Map(((j??[])as Job[]).map(x=>[x.id,x]));
+  const threads=(threadResult.data??[])as Thread[];
+  const threadIds=threads.map(thread=>thread.id);
+  const messageResult=threadIds.length
+    ?await db.from('office_messages').select('id,thread_id,author_id,kind,body,created_at,communication_job_id,subject,cc_emails,bcc_emails')
+      .eq('instance_id',scope.instanceId).in('thread_id',threadIds).in('kind',['email_in','email_out'])
+      .order('created_at',{ascending:false}).limit(1500)
+    :{data:[] as Message[],error:null};
+  const routeResult=threadIds.length
+    ?await db.from('office_thread_email_routes').select('thread_id')
+      .eq('instance_id',scope.instanceId).in('thread_id',threadIds)
+    :{data:[] as EmailRoute[],error:null};
 
-  const bindings=((bindingData??[])as Binding[]).filter(row=>active(row.valid_until)&&supportRoles.has(row.role_code));
-  const teamUserIds=[...new Set(bindings.map(row=>row.user_id))];
-  const{data:profileData,error:profileError}=teamUserIds.length
-    ? await db.from('profiles').select('id,email,full_name').in('id',teamUserIds)
-    : {data:[] as Profile[],error:null};
-  const profileMap=new Map(((profileData??[])as Profile[]).map(profile=>[profile.id,profile]));
-  const assignees:Assignee[]=teamUserIds.map(userId=>{
-    const profile=profileMap.get(userId);
-    return{userId,label:profile?.full_name||profile?.email||`${userId.slice(0,8)}…`};
-  }).sort((a,b)=>a.label.localeCompare(b.label,'hu'));
+  const bindings=((bindingResult.data??[])as Binding[]).filter(row=>active(row.valid_until));
+  const supportUserIds=[...new Set(bindings.filter(row=>supportRoles.has(row.role_code)).map(row=>row.user_id))];
+  const profileResult=supportUserIds.length
+    ?await db.from('profiles').select('id,email,full_name').in('id',supportUserIds)
+    :{data:[] as Profile[],error:null};
+  const profileMap=new Map(((profileResult.data??[])as Profile[]).map(profile=>[profile.id,profile]));
+  const labelFor=(userId:string)=>profileMap.get(userId)?.full_name||profileMap.get(userId)?.email||`${userId.slice(0,8)}…`;
+  const assignees:Assignee[]=supportUserIds.map(userId=>({userId,label:labelFor(userId)})).sort((a,b)=>a.label.localeCompare(b.label,'hu'));
 
-  const loadError=Boolean(
-    threadError||messageError||taskError||orderError||jobError||participantError||bindingError||profileError
-  );
-  const privacyFallback=Boolean(accessibleError);
-  const canAct=!loadError&&!privacyFallback;
+  const messages=(messageResult.data??[])as Message[];
+  const tasks=((taskResult.data??[])as Task[]).filter(task=>task.thread_id===null||threadIds.includes(task.thread_id));
+  const orders=(orderResult.data??[])as Order[];
+  const jobMap=new Map(((jobResult.data??[])as Job[]).map(job=>[job.id,job]));
+  const drafts=(draftResult.data??[])as ReplyDraft[];
+  const draftByThread=new Map<string,ReplyDraft>();
+  for(const draft of drafts){if(draft.thread_id&&!draftByThread.has(draft.thread_id))draftByThread.set(draft.thread_id,draft);}
+  const routedThreadIds=new Set(((routeResult.data??[])as EmailRoute[]).map(route=>route.thread_id));
+  const activeMailboxKeys=new Set(((mailboxResult.data??[])as Mailbox[]).filter(mailbox=>mailbox.is_active).map(mailbox=>mailbox.mailbox_key));
+  const canChat=await hasStoreCapability(scope.instanceId,actor.id,'office.internal_chat',{resourceOwnerUserId:actor.id,resourceAssignedUserId:actor.id});
+
+  const loadError=Boolean(threadResult.error||taskResult.error||orderResult.error||jobResult.error||bindingResult.error||draftResult.error||mailboxResult.error||messageResult.error||routeResult.error||profileResult.error);
   const now=Date.now();
-
-  const lastReadFor=(thread:Thread)=>readMap.get(thread.id)??null;
-  const unread=(thread:Thread)=>{
-    const lastRead=lastReadFor(thread);
-    return messages.some(message=>
-      message.thread_id===thread.id
-      &&(thread.conversation_type==='customer'?message.kind==='email_in':message.kind==='internal')
-      &&(!lastRead||new Date(message.created_at)>new Date(lastRead))
-    );
-  };
-  const overdue=tasks.filter(x=>x.due_at&&new Date(x.due_at).getTime()<now);
+  const unread=(thread:Thread)=>messages.some(message=>message.thread_id===thread.id&&message.kind==='email_in'&&(!thread.last_read_at||new Date(message.created_at)>new Date(thread.last_read_at)));
+  const overdue=tasks.filter(task=>task.status==='open'&&task.due_at&&new Date(task.due_at).getTime()<now);
   const needle=q.trim().toLowerCase();
   const visible=threads.filter(thread=>
     (filter==='all'
@@ -160,90 +125,61 @@ export default async function OfficeWorkspace({searchParams}:{searchParams:Promi
   return <section className="adminMain">
     <div className="sectionIntro">
       <div>
-        <span className="eyebrow">Pro · Digitális iroda</span>
-        <h1 className="sectionTitle">Ügyfélkommunikációs és belső munkatér</h1>
-        <p className="lead">Ügyféllevelek, felelősség, feladatok és résztvevő-védett belső beszélgetések egy helyen.</p>
+        <span className="eyebrow">Pro · Ügyféllevelezés</span>
+        <h1 className="sectionTitle">Webshop ↔ ügyfél e-mail munkatér</h1>
+        <p className="lead">Ez a felület kizárólag a webshop és az ügyfelek közötti e-mailes kommunikációhoz tartozik. A munkatársi beszélgetések külön Team Chatben zajlanak.</p>
       </div>
-      <Link className="btn btnGhost" href="/admin/kommunikacio">Küldési központ</Link>
+      <div className="adminToolbar">
+        {canChat&&<Link className="btn btnGhost" href="/admin/kommunikacio/chat">Team Chat</Link>}
+        <Link className="btn btnGhost" href="/admin/kommunikacio/felugyelet">Küldési felügyelet</Link>
+        <Link className="btn btnPrimary" href="/admin/kommunikacio/iroda/uj">Új e-mail</Link>
+      </div>
     </div>
 
-    {privacyFallback&&<div className="errorNotice" role="alert">
-      <strong>A privacy-foundation még nem érhető el ebben a környezetben.</strong>
-      <p>Biztonsági okból ilyenkor csak a régi ügyfél-threadek tölthetők be, privát belső beszélgetés nem jelenik meg és nem módosítható.</p>
-    </div>}
-    {loadError&&<div className="errorNotice" role="alert">
-      <strong>A kommunikációs munkatér adatainak egy része most nem tölthető be.</strong>
-      <p>Hiányos adatok mellett a nulla és üres állapotokat ne tekintsd véglegesnek.</p>
-    </div>}
+    <div className="adminAuditNotice">
+      <strong>Külön kommunikációs csatorna</strong>
+      <p>Az ügyfél nem lehet Team Chat résztvevő, a belső Team Chat üzenetek pedig nem jelennek meg ezen az oldalon. Küldés csak később jóváhagyott külön Digitális Iroda postafiókból aktiválható; a működő webshop jelenlegi e-mail címeit nem használjuk.</p>
+    </div>
+    {loadError&&<div className="errorNotice" role="alert"><strong>Az ügyféllevelezés adatainak egy része most nem tölthető be.</strong><p>Hiányos adatok mellett módosítást nem tekintünk biztonságosan végrehajthatónak.</p></div>}
 
     <div className="cards adminMetricCards">
-      <article className="card"><span className="badge">Nyitott ügyek</span><div className="price">{threadError?'—':threads.filter(x=>x.status==='open').length}</div></article>
-      <article className="card"><span className="badge">Saját olvasatlan</span><div className="price">{threadError||messageError||participantError?'—':threads.filter(unread).length}</div></article>
-      <article className="card"><span className="badge">Lejárt feladat</span><div className="price">{taskError?'—':overdue.length}</div></article>
-      <article className="card"><span className="badge">Privát belső</span><div className="price">{threadError?'—':threads.filter(x=>x.conversation_type!=='customer').length}</div></article>
+      <article className="card"><span className="badge">Nyitott ügyféllevelek</span><div className="price">{threadResult.error?'—':threads.filter(thread=>thread.status==='open').length}</div></article>
+      <article className="card"><span className="badge">Olvasatlan bejövő</span><div className="price">{loadError?'—':threads.filter(unread).length}</div></article>
+      <article className="card"><span className="badge">Sürgős</span><div className="price">{threadResult.error?'—':threads.filter(thread=>thread.status==='open'&&thread.priority==='urgent').length}</div></article>
+      <article className="card"><span className="badge">Lejárt feladat</span><div className="price">{taskResult.error?'—':overdue.length}</div></article>
     </div>
 
     <form className="adminToolbar">
-      <input name="q" defaultValue={q} placeholder="Keresés téma, e-mail vagy rendelés alapján"/>
+      <input name="q" defaultValue={q} placeholder="Keresés téma, ügyfél e-mail vagy rendelés alapján"/>
       <select name="filter" defaultValue={filter}>
         <option value="open">Nyitott</option><option value="unread">Olvasatlan</option><option value="urgent">Sürgős</option><option value="closed">Lezárt</option><option value="all">Összes</option>
       </select>
       <button className="btn btnPrimary">Szűrés</button>
     </form>
 
-    <div className="splitFeature">
-      <section className="featurePanel">
-        <h2>Új ügyfélügy</h2>
-        {canAct?<form action={createThreadAction} className="stackForm">
-          <input name="subject" required placeholder="Téma"/>
-          <select name="orderId" defaultValue=""><option value="">Nincs konkrét rendelés</option>{orders.slice(0,100).map(order=><option key={order.id} value={order.id}>{order.order_number} · {order.customer_email}</option>)}</select>
-          <input name="email" type="email" placeholder="Ügyfél e-mail"/>
-          <textarea name="body" required rows={3} placeholder="Ügyhöz tartozó belső összefoglaló"/>
-          <button className="btn btnPrimary">Létrehozás</button>
-        </form>:<p className="muted">Teljes adat- és privacy foundation szükséges új ügy létrehozásához.</p>}
-      </section>
-
-      <section className="featurePanel">
-        <h2>Új privát belső beszélgetés</h2>
-        <p className="muted">A tartalmat kizárólag az aktív résztvevők láthatják. Tulajdonosi vagy platform rang önmagában nem ad betekintést.</p>
-        {canAct?<form action={createPrivateThreadAction} className="stackForm">
-          <input name="subject" required placeholder="Belső beszélgetés témája"/>
-          <label><span>Résztvevők</span><select name="participantUserId" multiple required size={Math.min(8,Math.max(3,assignees.length))}>{assignees.filter(member=>member.userId!==actor.id).map(member=><option key={member.userId} value={member.userId}>{member.label}</option>)}</select></label>
-          <textarea name="body" required rows={3} placeholder="Első privát belső üzenet"/>
-          <button className="btn btnPrimary">Privát beszélgetés indítása</button>
-        </form>:<p className="muted">A privát beszélgetés csak teljes privacy foundation mellett indítható.</p>}
-      </section>
-    </div>
-
-    <section className="featurePanel">
-      <h2>Feladatriasztások</h2>
-      {overdue.slice(0,10).map(task=><div className="card" key={task.id}>
-        <strong>{task.title}</strong>
-        <p className="muted">Lejárt: {new Intl.DateTimeFormat('hu-HU',{dateStyle:'short',timeStyle:'short'}).format(new Date(task.due_at!))}</p>
-        {canAct?<form action={completeTaskAction}><input type="hidden" name="id" value={task.id}/><button className="btn btnGhost">Kész</button></form>:<span className="muted">Csak megtekintés</span>}
-      </div>)}
-      {!taskError&&!overdue.length&&<p className="muted">Nincs lejárt feladat.</p>}
-    </section>
+    {overdue.length>0&&<section className="featurePanel"><h2>Lejárt ügyfélkommunikációs feladatok</h2>{overdue.slice(0,10).map(task=><div className="card" key={task.id}><strong>{task.title}</strong><p className="muted">Lejárt: {new Intl.DateTimeFormat('hu-HU',{dateStyle:'short',timeStyle:'short',timeZone:'Europe/Budapest'}).format(new Date(task.due_at!))}</p>{!loadError&&<form action={completeTaskAction}><input type="hidden" name="id" value={task.id}/><button className="btn btnGhost">Kész</button></form>}</div>)}</section>}
 
     <section>
-      <span className="eyebrow">{threadError?'—':visible.length} találat</span>
-      <h2>Beszélgetések</h2>
+      <span className="eyebrow">{threadResult.error?'—':visible.length} találat</span>
+      <h2>Ügyféllevelezések</h2>
       <div className="cards">
         {visible.map(thread=>{
-          const threadMessages=messages.filter(message=>message.thread_id===thread.id).slice(0,10);
+          const threadMessages=messages.filter(message=>message.thread_id===thread.id).slice(0,20).reverse();
           const order=orders.find(item=>item.id===thread.order_id);
           const isUnread=unread(thread);
-          const isPrivate=thread.conversation_type!=='customer';
+          const sendingConfigured=Boolean(thread.mailbox_key&&activeMailboxKeys.has(thread.mailbox_key)&&routedThreadIds.has(thread.id));
+          const replyDraft=draftByThread.get(thread.id);
           return <article className="card" key={thread.id}>
             <div className="adminToolbar">
-              <span className="badge">{isPrivate?(thread.conversation_type==='internal_private'?'Privát belső':'Belső csoport'):priorityLabel[thread.priority]}</span>
+              <span className="badge">{priorityLabel[thread.priority]??thread.priority}</span>
               {isUnread&&<span className="badge">Olvasatlan</span>}
+              {replyDraft&&<span className="badge">Saját piszkozat</span>}
               {order&&<Link className="textLink" href={`/admin/rendelesek/${order.id}`}>{order.order_number}</Link>}
             </div>
             <h3>{thread.subject}</h3>
-            <p className="muted">{isPrivate?'Résztvevő-védett beszélgetés':`${thread.customer_email??'Nincs ügyfél e-mail'} · ${thread.assigned_to?profileMap.get(thread.assigned_to)?.full_name||profileMap.get(thread.assigned_to)?.email||'Van felelős':'Nincs felelős'}`}</p>
+            <p className="muted">{thread.customer_email??'Nincs ügyfél e-mail'} · {thread.assigned_to?labelFor(thread.assigned_to):'Nincs felelős'}</p>
 
-            {!isPrivate&&canAct&&<form action={updateThreadAction} className="adminToolbar">
+            {!loadError&&<form action={updateThreadAction} className="adminToolbar">
               <input type="hidden" name="threadId" value={thread.id}/>
               <select name="priority" defaultValue={thread.priority}><option value="low">Alacsony</option><option value="normal">Normál</option><option value="high">Magas</option><option value="urgent">Sürgős</option></select>
               <select name="status" defaultValue={thread.status}><option value="open">Nyitott</option><option value="closed">Lezárt</option></select>
@@ -251,31 +187,21 @@ export default async function OfficeWorkspace({searchParams}:{searchParams:Promi
               <button className="btn btnGhost">Frissítés</button>
             </form>}
 
-            {canAct&&isUnread&&<form action={markThreadReadAction}><input type="hidden" name="threadId" value={thread.id}/><button className="btn btnGhost">Olvasottnak jelölöm</button></form>}
+            {isUnread&&!loadError&&<form action={markCustomerThreadReadAction}><input type="hidden" name="threadId" value={thread.id}/><button className="btn btnGhost">Olvasottnak jelölöm</button></form>}
 
             <div className="integrationList">
               {threadMessages.map(message=>{
                 const job=message.communication_job_id?jobMap.get(message.communication_job_id):null;
-                return <div key={message.id}>
-                  <span><strong>{kindLabel[message.kind]??message.kind}</strong>{message.subject&&<><br/>{message.subject}</>}<br/><span className="muted" style={{whiteSpace:'pre-wrap'}}>{message.body}</span></span>
-                  <span className="muted">{job?jobLabel[job.status]??job.status:new Intl.DateTimeFormat('hu-HU',{dateStyle:'short',timeStyle:'short'}).format(new Date(message.created_at))}</span>
-                </div>;
+                return <div key={message.id}><div><strong>{message.kind==='email_in'?'Ügyfél → webshop':'Webshop → ügyfél'}</strong>{message.subject&&<><br/>{message.subject}</>}{!!message.cc_emails?.length&&<><br/><span className="muted">CC: {message.cc_emails.join(', ')}</span></>}{!!message.bcc_emails?.length&&<><br/><span className="muted">BCC: {message.bcc_emails.join(', ')}</span></>}<br/><span className="muted" style={{whiteSpace:'pre-wrap'}}>{message.body}</span></div><span className="muted">{job?jobLabel[job.status]??job.status:new Intl.DateTimeFormat('hu-HU',{dateStyle:'short',timeStyle:'short',timeZone:'Europe/Budapest'}).format(new Date(message.created_at))}</span></div>;
               })}
             </div>
 
-            {isPrivate
-              ? canAct&&<form action={addPrivateMessageAction} className="stackForm"><input type="hidden" name="threadId" value={thread.id}/><textarea name="body" required rows={2} placeholder="Privát belső üzenet"/><button className="btn btnGhost">Belső üzenet küldése</button></form>
-              : canAct?<>
-                <div className="splitFeature">
-                  <form action={addMessageAction} className="stackForm"><input type="hidden" name="threadId" value={thread.id}/><select name="kind"><option value="internal">Ügyhöz tartozó belső üzenet</option><option value="note">Jegyzet</option></select><textarea name="body" required rows={2} placeholder="Az ügyön dolgozó csapatnak"/><button className="btn btnGhost">Belső bejegyzés</button></form>
-                  {thread.customer_email&&<OfficeCustomerEmailForm threadId={thread.id}/>} 
-                </div>
-                <form action={createTaskAction} className="stackForm"><input type="hidden" name="threadId" value={thread.id}/><input name="title" required placeholder="Kapcsolódó feladat"/><input name="due" type="datetime-local"/><button className="btn btnGhost">Feladat létrehozása</button></form>
-              </>:<div className="adminAuditNotice"><strong>Üzenetküldés átmenetileg letiltva.</strong><p>A munkatér teljes adatainak betöltése szükséges.</p></div>}
+            {thread.customer_email&&!loadError&&<section className="featurePanel"><h4>Válasz az ügyfélnek</h4><OfficeCustomerEmailForm threadId={thread.id} sendingConfigured={sendingConfigured} initialDraft={replyDraft?{id:replyDraft.id,revision:replyDraft.revision,ccEmails:replyDraft.cc_emails??[],bccEmails:replyDraft.bcc_emails??[],body:replyDraft.body}:undefined}/></section>}
+            {!loadError&&<form action={createTaskAction} className="stackForm"><input type="hidden" name="threadId" value={thread.id}/><input name="title" required placeholder="Kapcsolódó feladat"/><input name="due" type="datetime-local"/><button className="btn btnGhost">Feladat létrehozása</button></form>}
           </article>;
         })}
       </div>
-      {!threadError&&!visible.length&&<div className="card"><p className="muted">Nincs a szűrésnek megfelelő ügy.</p></div>}
+      {!threadResult.error&&!visible.length&&<div className="card"><p className="muted">Nincs a szűrésnek megfelelő ügyféllevelezés.</p></div>}
     </section>
   </section>;
 }

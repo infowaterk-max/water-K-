@@ -7,6 +7,7 @@ type ClaimedJob={id:string;instance_id:string;recipient_email:string;purpose:'tr
 type OfficeThreadReplyRow={id:string;conversation_type:string;mailbox_key:string|null};
 type OfficeRouteReplyRow={reply_token:string};
 type OfficeMailboxReplyRow={inbound_address:string;is_active:boolean};
+type OfficeEnvelope={cc:string[];bcc:string[]};
 export type WorkerSummary={recovered:number;queuedStock:number;queuedRecovery:number;claimed:number;sent:number;failed:number;blocked:number;tenantFailures:number};
 const empty=():WorkerSummary=>({recovered:0,queuedStock:0,queuedRecovery:0,claimed:0,sent:0,failed:0,blocked:0,tenantFailures:0});
 const uuidPattern=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -22,6 +23,26 @@ function plusReplyAddress(baseAddress:string,replyToken:string){
   const normalized=baseAddress.trim().toLowerCase(),at=normalized.lastIndexOf('@');
   if(at<=0||at===normalized.length-1||!uuidPattern.test(replyToken))throw new Error('OFFICE_REPLY_MAILBOX_INVALID');
   return `${normalized.slice(0,at)}+${replyToken}@${normalized.slice(at+1)}`;
+}
+function normalizedEnvelopeList(value:unknown,exclude:string[]){
+  if(value===undefined||value===null)return [];
+  if(!Array.isArray(value)||value.length>10)throw new Error('OFFICE_EMAIL_ENVELOPE_INVALID');
+  const result:string[]=[];
+  for(const entry of value){
+    if(typeof entry!=='string')throw new Error('OFFICE_EMAIL_ENVELOPE_INVALID');
+    const email=entry.trim().toLowerCase();
+    if(email.length<5||email.length>320||!email.includes('@')||/[\r\n]/.test(email))throw new Error('OFFICE_EMAIL_ENVELOPE_INVALID');
+    if(exclude.includes(email)||result.includes(email))throw new Error('OFFICE_EMAIL_ENVELOPE_DUPLICATE');
+    result.push(email);
+  }
+  return result;
+}
+function officeEnvelopeForJob(job:ClaimedJob):OfficeEnvelope{
+  if(job.template_key!=='support_reply')return{cc:[],bcc:[]};
+  const primary=job.recipient_email.trim().toLowerCase();
+  const cc=normalizedEnvelopeList(job.payload?.emailCc,[primary]);
+  const bcc=normalizedEnvelopeList(job.payload?.emailBcc,[primary,...cc]);
+  return{cc,bcc};
 }
 function subjectForJob(job:ClaimedJob,templateSubject:string,brandName:string){
   if(job.template_key==='support_reply'){
@@ -76,6 +97,7 @@ async function runForInstance(instanceId:string,limit:number):Promise<WorkerSumm
             await persistFailedClaim(admin,instanceId,job,'INVALID_TEMPLATE_OR_PURPOSE',false);
             summary.blocked++;continue;
           }
+          const envelope=officeEnvelopeForJob(job);
           const{data:suppressed,error:suppressionError}=await admin.rpc('is_communication_suppressed_v2',{p_instance_id:instanceId,p_email:job.recipient_email});
           if(suppressionError)throw suppressionError;
           if(suppressed===true){
@@ -83,6 +105,16 @@ async function runForInstance(instanceId:string,limit:number):Promise<WorkerSumm
             if(job.template_key==='stock_available')await admin.from('stock_notifications').update({status:'cancelled'}).eq('communication_job_id',job.id).eq('instance_id',instanceId);
             summary.blocked++;continue;
           }
+          let secondaryBlocked=false;
+          for(const secondary of [...envelope.cc,...envelope.bcc]){
+            const{data:secondarySuppressed,error:secondaryError}=await admin.rpc('is_communication_suppressed_v2',{p_instance_id:instanceId,p_email:secondary});
+            if(secondaryError)throw secondaryError;
+            if(secondarySuppressed===true){
+              await persistFailedClaim(admin,instanceId,job,'OFFICE_SECONDARY_RECIPIENT_SUPPRESSED_AT_SEND_TIME',false);
+              summary.blocked++;secondaryBlocked=true;break;
+            }
+          }
+          if(secondaryBlocked)continue;
           if(job.purpose==='marketing'){
             const{data:allowed,error:consentError}=await admin.rpc('has_marketing_consent_v2',{p_instance_id:instanceId,p_email:job.recipient_email,p_channel:'email'});
             if(consentError)throw consentError;
@@ -92,13 +124,13 @@ async function runForInstance(instanceId:string,limit:number):Promise<WorkerSumm
             }
           }
           const replyTo=await resolveOfficeReplyTo(admin,instanceId,job);
-          const result=await provider.send({to:job.recipient_email,subject:subjectForJob(job,template.subject,identity.brandName),templateKey:job.template_key,purpose:job.purpose,payload:job.payload??{},identity,replyTo});
+          const result=await provider.send({to:job.recipient_email,cc:envelope.cc,bcc:envelope.bcc,subject:subjectForJob(job,template.subject,identity.brandName),templateKey:job.template_key,purpose:job.purpose,payload:job.payload??{},identity,replyTo});
           const{data:completed,error:completeError}=await admin.rpc('complete_communication_job_v2',{p_instance_id:instanceId,p_id:job.id,p_claim_token:job.claim_token,p_provider_message_id:result.providerMessageId});
           if(completeError||completed!==true)throw completeError??new Error('COMMUNICATION_CLAIM_LOST');
           if(job.template_key==='stock_available')await admin.from('stock_notifications').update({status:'sent',sent_at:new Date().toISOString()}).eq('communication_job_id',job.id).eq('instance_id',instanceId);
           summary.sent++;
         }catch(error){
-          const message=error instanceof Error?error.message:'UNKNOWN_COMMUNICATION_ERROR',retry=job.attempts<5&&!message.startsWith('OFFICE_REPLY_');
+          const message=error instanceof Error?error.message:'UNKNOWN_COMMUNICATION_ERROR',retry=job.attempts<5&&!message.startsWith('OFFICE_');
           try{await persistFailedClaim(admin,instanceId,job,message,retry);summary.failed++;}
           catch(persistError){console.error('communication failure evidence missing',{instanceId,jobId:job.id,error:persistError});throw persistError;}
         }
