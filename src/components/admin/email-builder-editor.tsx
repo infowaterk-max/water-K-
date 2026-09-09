@@ -10,6 +10,7 @@ type TemplateMeta={id:string;name:string;status:string;activeVersionId:string|nu
 type Tab='content'|'design'|'conditions'|'responsive';
 type Device='desktop'|'mobile';
 type SaveState='saved'|'dirty'|'saving'|'error';
+type HistoryGroup={key:string;recorded:boolean};
 
 const blockLabels:Record<EmailBlockType,string>={header:'Fejléc',heading:'Címsor',text:'Szöveg',button:'Gomb',divider:'Elválasztó',spacer:'Térköz','order-items':'Rendelési tételek','order-summary':'Összesítés','payment-info':'Fizetési adatok',address:'Cím',footer:'Lábléc'};
 const palette:{type:EmailBlockType;description:string}[]=[
@@ -68,23 +69,32 @@ export function EmailBuilderEditor({template,initialDocument,previewContext}:{te
   const[future,setFuture]=useState<EmailDocument[]>([]);
   const iframeRef=useRef<HTMLIFrameElement>(null);
   const previewSequence=useRef(0);
+  const historyGroupRef=useRef<HistoryGroup|null>(null);
 
   const selected=useMemo(()=>document.blocks.find(block=>block.id===selectedId)??document.blocks[0]??null,[document.blocks,selectedId]);
   const selectedIndex=selected?document.blocks.findIndex(block=>block.id===selected.id):-1;
 
-  function commit(next:EmailDocument){
-    setHistory(items=>[...items.slice(-39),document]);
+  function beginHistoryGroup(key:string){historyGroupRef.current={key,recorded:false};}
+  function endHistoryGroup(key:string){if(historyGroupRef.current?.key===key)historyGroupRef.current=null;}
+  function commit(next:EmailDocument,groupKey?:string){
+    const group=groupKey&&historyGroupRef.current?.key===groupKey?historyGroupRef.current:null;
+    if(!group||!group.recorded){
+      setHistory(items=>[...items.slice(-39),document]);
+      if(group)group.recorded=true;
+      else if(groupKey)historyGroupRef.current={key:groupKey,recorded:true};
+    }
+    if(!groupKey)historyGroupRef.current=null;
     setFuture([]);
     setDocument(next);
     setSaveState('dirty');
     setSaveMessage('Nem mentett módosítás');
   }
-  function undo(){const previous=history.at(-1);if(!previous)return;setFuture(items=>[document,...items.slice(0,39)]);setHistory(items=>items.slice(0,-1));setDocument(previous);setSaveState('dirty');setSaveMessage('Visszavont módosítás');}
-  function redo(){const next=future[0];if(!next)return;setHistory(items=>[...items.slice(-39),document]);setFuture(items=>items.slice(1));setDocument(next);setSaveState('dirty');setSaveMessage('Újra alkalmazott módosítás');}
+  function undo(){const previous=history.at(-1);if(!previous)return;historyGroupRef.current=null;setFuture(items=>[document,...items.slice(0,39)]);setHistory(items=>items.slice(0,-1));setDocument(previous);setSaveState('dirty');setSaveMessage('Visszavont módosítás');}
+  function redo(){const next=future[0];if(!next)return;historyGroupRef.current=null;setHistory(items=>[...items.slice(-39),document]);setFuture(items=>items.slice(1));setDocument(next);setSaveState('dirty');setSaveMessage('Újra alkalmazott módosítás');}
 
-  function updateDocument(patch:Partial<EmailDocument>){commit({...document,...patch});}
-  function updateSelected(patch:Partial<EmailBlock>){if(!selected)return;commit({...document,blocks:document.blocks.map(block=>block.id===selected.id?{...block,...patch}:block)});}
-  function updateContent(key:string,value:unknown){if(!selected)return;updateSelected({content:{...selected.content,[key]:value}});}
+  function updateDocument(patch:Partial<EmailDocument>,groupKey?:string){commit({...document,...patch},groupKey);}
+  function updateSelected(patch:Partial<EmailBlock>,groupKey?:string){if(!selected)return;commit({...document,blocks:document.blocks.map(block=>block.id===selected.id?{...block,...patch}:block)},groupKey);}
+  function updateContent(key:string,value:unknown,groupKey?:string){if(!selected)return;updateSelected({content:{...selected.content,[key]:value}},groupKey);}
   function addBlock(type:EmailBlockType){const block=createBlock(type),index=selectedIndex>=0?selectedIndex+1:document.blocks.length;const blocks=[...document.blocks];blocks.splice(index,0,block);commit({...document,blocks});setSelectedId(block.id);setTab('content');}
   function duplicateSelected(){if(!selected)return;const copy:{[K in keyof EmailBlock]:EmailBlock[K]}={...structuredClone(selected),id:newId(selected.type)};const blocks=[...document.blocks];blocks.splice(selectedIndex+1,0,copy);commit({...document,blocks});setSelectedId(copy.id);}
   function deleteSelected(){if(!selected||document.blocks.length<=1)return;const blocks=document.blocks.filter(block=>block.id!==selected.id);const fallback=blocks[Math.min(selectedIndex,blocks.length-1)];commit({...document,blocks});setSelectedId(fallback?.id??'');}
@@ -143,8 +153,8 @@ export function EmailBuilderEditor({template,initialDocument,previewContext}:{te
     </header>
 
     <div className={styles.documentBar}>
-      <label><span>Tárgy</span><input value={document.subject} onChange={event=>updateDocument({subject:event.target.value})}/></label>
-      <label><span>Preheader</span><input value={document.preheader} onChange={event=>updateDocument({preheader:event.target.value})}/></label>
+      <label><span>Tárgy</span><input value={document.subject} onFocus={()=>beginHistoryGroup('document:subject')} onBlur={()=>endHistoryGroup('document:subject')} onChange={event=>updateDocument({subject:event.target.value},'document:subject')}/></label>
+      <label><span>Preheader</span><input value={document.preheader} onFocus={()=>beginHistoryGroup('document:preheader')} onBlur={()=>endHistoryGroup('document:preheader')} onChange={event=>updateDocument({preheader:event.target.value},'document:preheader')}/></label>
       <div className={styles.safety}><strong>Nincs aktiválás</strong><span>A D2 kizárólag a piszkozatot módosítja.</span></div>
     </div>
 
@@ -170,7 +180,7 @@ export function EmailBuilderEditor({template,initialDocument,previewContext}:{te
           <div className={styles.blockActions}><button type="button" onClick={()=>moveSelected(-1)} disabled={selectedIndex<=0}>↑</button><button type="button" onClick={()=>moveSelected(1)} disabled={selectedIndex>=document.blocks.length-1}>↓</button><button type="button" onClick={duplicateSelected}>Duplikálás</button><button type="button" className={styles.danger} onClick={deleteSelected} disabled={document.blocks.length<=1}>Törlés</button></div>
           <div className={styles.tabs}>{(['content','design','conditions','responsive'] as Tab[]).map(item=><button type="button" key={item} className={tab===item?styles.activeTab:''} onClick={()=>setTab(item)}>{item==='content'?'Tartalom':item==='design'?'Design':item==='conditions'?'Feltételek':'Responsive'}</button>)}</div>
           <div className={styles.settings}>
-            {tab==='content'&&<ContentSettings block={selected} onChange={updateContent}/>}            
+            {tab==='content'&&<ContentSettings block={selected} onChange={updateContent} onEditStart={beginHistoryGroup} onEditEnd={endHistoryGroup}/>}            
             {tab==='design'&&<DesignSettings document={document} onChange={updateDocument}/>}            
             {tab==='conditions'&&<div className={styles.settingGroup}><div className={styles.settingIntro}>A blokk csak akkor jelenik meg, ha a szabályok teljesülnek.</div>{selected.conditions&&<label><span>Logika</span><select value={selected.conditions.mode} onChange={event=>updateSelected({conditions:{...selected.conditions!,mode:event.target.value as 'all'|'any'}})}><option value="all">Minden feltétel</option><option value="any">Bármelyik feltétel</option></select></label>}{selected.conditions?.rules.map((rule,index)=><div className={styles.ruleCard} key={`${rule.field}-${index}`}><label><span>Mező</span><select value={rule.field} onChange={event=>setConditionRule(index,{field:event.target.value,value:numericBindings.has(event.target.value)?0:''})}>{emailBindingRegistry.map(binding=><option value={binding.key} key={binding.key}>{binding.label}</option>)}</select></label><label><span>Operátor</span><select value={rule.operator} onChange={event=>{const operator=event.target.value as EmailConditionRule['operator'];setConditionRule(index,{operator,value:parseRuleValue(rule.field,operator,ruleValueText(rule))});}}>{conditionOperators.map(operator=><option value={operator} key={operator}>{operatorLabels[operator]}</option>)}</select></label>{rule.operator!=='exists'&&rule.operator!=='notExists'&&<label><span>Érték</span><input value={ruleValueText(rule)} onChange={event=>setConditionRule(index,{value:parseRuleValue(rule.field,rule.operator,event.target.value)})}/></label>}<button type="button" className={styles.removeRule} onClick={()=>removeCondition(index)}>Feltétel törlése</button></div>)}<button type="button" className={styles.addRule} onClick={addCondition}>＋ Feltétel hozzáadása</button></div>}
             {tab==='responsive'&&<div className={styles.settingGroup}><div className={styles.settingIntro}>Kliensbiztos megjelenítési szabályok a blokkhoz.</div><Toggle label="Elrejtés asztali nézetben" checked={Boolean(selected.responsive.hideOnDesktop)} onChange={value=>updateSelected({responsive:{...selected.responsive,hideOnDesktop:value}})}/><Toggle label="Elrejtés mobil nézetben" checked={Boolean(selected.responsive.hideOnMobile)} onChange={value=>updateSelected({responsive:{...selected.responsive,hideOnMobile:value}})}/><Toggle label="Mobilon egymás alá rendezés" checked={Boolean(selected.responsive.stackOnMobile)} onChange={value=>updateSelected({responsive:{...selected.responsive,stackOnMobile:value}})}/></div>}
@@ -181,17 +191,19 @@ export function EmailBuilderEditor({template,initialDocument,previewContext}:{te
   </section>;
 }
 
-function ContentSettings({block,onChange}:{block:EmailBlock;onChange:(key:string,value:unknown)=>void}){
+function ContentSettings({block,onChange,onEditStart,onEditEnd}:{block:EmailBlock;onChange:(key:string,value:unknown,groupKey?:string)=>void;onEditStart:(key:string)=>void;onEditEnd:(key:string)=>void}){
   const c=block.content as Record<string,unknown>;
-  if(block.type==='heading')return <div className={styles.settingGroup}><label><span>Szöveg</span><textarea value={String(c.text??'')} onChange={e=>onChange('text',e.target.value)}/></label><label><span>Szint</span><select value={String(c.level??'h2')} onChange={e=>onChange('level',e.target.value)}><option value="h1">H1</option><option value="h2">H2</option><option value="h3">H3</option></select></label><Align value={String(c.align??'left')} onChange={value=>onChange('align',value)}/></div>;
-  if(block.type==='text')return <div className={styles.settingGroup}><label><span>Szöveg</span><textarea rows={7} value={String(c.text??'')} onChange={e=>onChange('text',e.target.value)}/></label><Align value={String(c.align??'left')} onChange={value=>onChange('align',value)}/><BindingHelp/></div>;
-  if(block.type==='button')return <div className={styles.settingGroup}><label><span>Gomb felirata</span><input value={String(c.label??'')} onChange={e=>onChange('label',e.target.value)}/></label><label><span>Hivatkozás</span><input value={String(c.href??'')} onChange={e=>onChange('href',e.target.value)}/></label><Align value={String(c.align??'left')} onChange={value=>onChange('align',value)}/><BindingHelp/></div>;
+  const groupKey=(field:string)=>`block:${block.id}:content:${field}`;
+  const editProps=(field:string)=>({onFocus:()=>onEditStart(groupKey(field)),onBlur:()=>onEditEnd(groupKey(field))});
+  if(block.type==='heading')return <div className={styles.settingGroup}><label><span>Szöveg</span><textarea {...editProps('text')} value={String(c.text??'')} onChange={e=>onChange('text',e.target.value,groupKey('text'))}/></label><label><span>Szint</span><select value={String(c.level??'h2')} onChange={e=>onChange('level',e.target.value)}><option value="h1">H1</option><option value="h2">H2</option><option value="h3">H3</option></select></label><Align value={String(c.align??'left')} onChange={value=>onChange('align',value)}/></div>;
+  if(block.type==='text')return <div className={styles.settingGroup}><label><span>Szöveg</span><textarea {...editProps('text')} rows={7} value={String(c.text??'')} onChange={e=>onChange('text',e.target.value,groupKey('text'))}/></label><Align value={String(c.align??'left')} onChange={value=>onChange('align',value)}/><BindingHelp/></div>;
+  if(block.type==='button')return <div className={styles.settingGroup}><label><span>Gomb felirata</span><input {...editProps('label')} value={String(c.label??'')} onChange={e=>onChange('label',e.target.value,groupKey('label'))}/></label><label><span>Hivatkozás</span><input {...editProps('href')} value={String(c.href??'')} onChange={e=>onChange('href',e.target.value,groupKey('href'))}/></label><Align value={String(c.align??'left')} onChange={value=>onChange('align',value)}/><BindingHelp/></div>;
   if(block.type==='spacer')return <div className={styles.settingGroup}><label><span>Méret</span><select value={String(c.size??'m')} onChange={e=>onChange('size',e.target.value)}><option value="s">Kicsi</option><option value="m">Normál</option><option value="l">Nagy</option><option value="xl">Extra nagy</option></select></label></div>;
-  if(block.type==='address')return <div className={styles.settingGroup}><label><span>Cím típusa</span><select value={String(c.kind??'shipping')} onChange={e=>onChange('kind',e.target.value)}><option value="shipping">Szállítási</option><option value="billing">Számlázási</option></select></label><label><span>Blokk címe</span><input value={String(c.title??'')} onChange={e=>onChange('title',e.target.value)}/></label></div>;
-  if(block.type==='header')return <div className={styles.settingGroup}><Toggle label="Logó megjelenítése" checked={c.showLogo!==false} onChange={value=>onChange('showLogo',value)}/><label><span>Szöveges márkanév felülírás</span><input value={String(c.brandText??'')} onChange={e=>onChange('brandText',e.target.value)}/></label></div>;
-  if(block.type==='footer')return <div className={styles.settingGroup}><label><span>Lábléc szövege</span><textarea value={String(c.text??'')} onChange={e=>onChange('text',e.target.value)}/></label><BindingHelp/></div>;
+  if(block.type==='address')return <div className={styles.settingGroup}><label><span>Cím típusa</span><select value={String(c.kind??'shipping')} onChange={e=>onChange('kind',e.target.value)}><option value="shipping">Szállítási</option><option value="billing">Számlázási</option></select></label><label><span>Blokk címe</span><input {...editProps('title')} value={String(c.title??'')} onChange={e=>onChange('title',e.target.value,groupKey('title'))}/></label></div>;
+  if(block.type==='header')return <div className={styles.settingGroup}><Toggle label="Logó megjelenítése" checked={c.showLogo!==false} onChange={value=>onChange('showLogo',value)}/><label><span>Szöveges márkanév felülírás</span><input {...editProps('brandText')} value={String(c.brandText??'')} onChange={e=>onChange('brandText',e.target.value,groupKey('brandText'))}/></label></div>;
+  if(block.type==='footer')return <div className={styles.settingGroup}><label><span>Lábléc szövege</span><textarea {...editProps('text')} value={String(c.text??'')} onChange={e=>onChange('text',e.target.value,groupKey('text'))}/></label><BindingHelp/></div>;
   if(block.type==='divider')return <div className={styles.settingIntro}>Az elválasztó D2-ben a sablon globális design-tokenjeit használja.</div>;
-  return <div className={styles.settingGroup}><label><span>Blokk címe</span><input value={String(c.title??'')} onChange={e=>onChange('title',e.target.value)}/></label></div>;
+  return <div className={styles.settingGroup}><label><span>Blokk címe</span><input {...editProps('title')} value={String(c.title??'')} onChange={e=>onChange('title',e.target.value,groupKey('title'))}/></label></div>;
 }
 
 function DesignSettings({document,onChange}:{document:EmailDocument;onChange:(patch:Partial<EmailDocument>)=>void}){
