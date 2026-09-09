@@ -42,6 +42,8 @@ describe('Scale-out Wave 21 Sport Hub',()=>{
 
   it('uses only shared Runtime, Discovery, Structured Product, Story and Checkout engines',()=>{
     expect(SPORT_HUB_ENGINE_CONTRACT.requiredForFullExperience).toEqual(['E1','E2','E7','E10','E13']);
+    expect(SPORT_HUB_ENGINE_CONTRACT.merchandising.skillLevel).toMatch(/merchant-configured-navigation/);
+    expect(SPORT_HUB_ENGINE_CONTRACT.merchandising.quickBuy).toMatch(/no-new-authority/);
     expect(SPORT_HUB_ENGINE_CONTRACT.separation.trailExpedition).toMatch(/no-expedition/);
     expect(SPORT_HUB_ENGINE_CONTRACT.separation.performanceLab).toMatch(/no-dark-data-lab/);
   });
@@ -80,12 +82,28 @@ describe('Scale-out Wave 21 Sport Hub',()=>{
     ]);
   });
 
-  it('renders broad sport discovery, commerce and editorial surfaces together',()=>{
+  it('locks the approved activity-first question, six sport entries and skill-level merchandising axis',()=>{
+    expect(SPORT_HUB_HOME_PAGE.metadata?.shoppingEntryQuestion).toBe('Milyen sportot űzöl?');
+    expect(SPORT_HUB_HOME_PAGE.metadata?.sportEntries).toEqual(['futás','kerékpár','fitnesz','túra','úszás','labdajátékok']);
+    expect(SPORT_HUB_HOME_PAGE.metadata?.merchandisingDimensions).toEqual([
+      'sportág/aktivitás',
+      'kezdő/haladó/profi',
+      'szezonális sportok',
+      'felszerelés+ruházat',
+      'gyorsan vásárolható termékek',
+    ]);
+    expect(JSON.stringify(SPORT_HUB_HOME_PAGE)).toContain('Milyen szinten sportolsz?');
+    expect(JSON.stringify(SPORT_HUB_HOME_PAGE)).toContain('Kezdő');
+    expect(JSON.stringify(SPORT_HUB_HOME_PAGE)).toContain('Haladó');
+    expect(JSON.stringify(SPORT_HUB_HOME_PAGE)).toContain('Profi');
+  });
+
+  it('renders activity-first sport discovery, skill routing, commerce and editorial surfaces together',()=>{
     const bindingContext={
       brand:{name:'Sport Hub Demo',homeHref:'/',copyright:'© Sport Hub Demo'},
       navigation:{primary:[],footer:[]},
       content:{
-        sportHero:{title:'Mozgásra készen.'},
+        sportLevels:{beginnerHref:'/webaruhaz?level=beginner',advancedHref:'/webaruhaz?level=advanced',proHref:'/webaruhaz?level=pro'},
         sportHubNewSeason:{title:'New Season'},
         sportHubFootwearApparel:{title:'Footwear & Apparel'},
         sportHubEquipment:{title:'Equipment Essentials'},
@@ -100,8 +118,12 @@ describe('Scale-out Wave 21 Sport Hub',()=>{
       },
       collection:{
         sports:[
-          {id:'run',label:'Running',href:'/webaruhaz?sport=run'},
-          {id:'training',label:'Training',href:'/webaruhaz?sport=training'},
+          {id:'run',label:'Futás',href:'/webaruhaz?sport=run'},
+          {id:'cycling',label:'Kerékpár',href:'/webaruhaz?sport=cycling'},
+          {id:'fitness',label:'Fitnesz',href:'/webaruhaz?sport=fitness'},
+          {id:'hiking',label:'Túra',href:'/webaruhaz?sport=hiking'},
+          {id:'swimming',label:'Úszás',href:'/webaruhaz?sport=swimming'},
+          {id:'ball-games',label:'Labdajátékok',href:'/webaruhaz?sport=ball-games'},
         ],
       },
       catalog:{
@@ -128,8 +150,15 @@ describe('Scale-out Wave 21 Sport Hub',()=>{
       />,
     );
 
-    expect(html).toContain('Mozgásra készen.');
-    expect(html).toContain('Running');
+    expect(html).toContain('Milyen sportot űzöl?');
+    expect(html).toContain('Milyen szinten sportolsz?');
+    expect(html).toContain('Kezdő');
+    expect(html).toContain('Haladó');
+    expect(html).toContain('Profi');
+    expect(html).toContain('Futás');
+    expect(html).toContain('Kerékpár');
+    expect(html).toContain('Úszás');
+    expect(html).toContain('Labdajátékok');
     expect(html).toContain('Daily Trainer');
     expect(html).toContain('Training Layer');
     expect(html).toContain('Training Ball');
@@ -200,6 +229,10 @@ describe('Scale-out Wave 21 Sport Hub',()=>{
   it('keeps install draft-only and demo fixtures free from fabricated sports authority',()=>{
     const demo=JSON.stringify(SPORT_HUB_TEMPLATE_PACKAGE.demoFixtures??[]);
     expect(demo).not.toMatch(/performanceGuarantee|officialTeam|eventResult|worldRecord|certifiedAthlete|guaranteed/i);
+    const sportCollections=(SPORT_HUB_TEMPLATE_PACKAGE.demoFixtures??[])
+      .filter(item=>item.entityType==='collection')
+      .map(item=>item.entityKey);
+    expect(sportCollections).toEqual(['running','cycling','fitness','hiking','swimming','ball-games']);
 
     const plan=planStorefrontTemplateInstallation({
       template:SPORT_HUB_TEMPLATE_PACKAGE,
