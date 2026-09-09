@@ -8,19 +8,56 @@ Wave 21 opens **Sport & Outdoor #8** with **Sport Hub**, stacked directly on Loo
 - Template version: `1`
 - Base branch: `feature/storefront-loot-vault-wave20`
 - Exact base head: `4f31d5a8e725e0ed28c914ce84280257d7001121`
-- Accepted implementation head: `16fe8565500c90ad54aba703698463a2a67502e7`
+- Accepted implementation head: `97313ca7ad9a9e7178988f56394584ebd852c70f`
 
 This wave is code-only storefront scale-out. It introduces no SQL/customer-baseline migration, production route switch, Vercel/Supabase deployment, payment change or Water-K status change.
 
 ## Portfolio position
 
-The Sport & Outdoor family is intentionally split into three different storefront roles:
+The Sport & Outdoor family remains intentionally split into three storefront roles:
 
-1. **Sport Hub** — broad multisport commerce hub;
+1. **Sport Hub** — broad mainstream multisport commerce hub;
 2. **Trail & Expedition** — expedition/outdoor-first discovery;
-3. **Performance Lab** — specialist, dark, data/spec/performance-oriented commerce.
+3. **Performance Lab** — specialist data/spec/performance-oriented commerce.
 
-Sport Hub must therefore remain broad, approachable and energetic without becoming either an expedition shop or a specialist performance lab.
+Sport Hub therefore stays broad, approachable and energetic. It is neither an expedition shop nor a specialist performance lab.
+
+## Activity-first shopping model
+
+The approved primary shopping entry is locked as:
+
+**`Milyen sportot űzöl?`**
+
+The v1 baseline explicitly records these sport directions:
+
+- futás;
+- kerékpár;
+- fitnesz;
+- túra;
+- úszás;
+- labdajátékok.
+
+The first discovery surface then adds the Builder-editable question:
+
+**`Milyen szinten sportolsz?`**
+
+with three navigation routes:
+
+- Kezdő;
+- Haladó;
+- Profi.
+
+These are navigation/merchandising entry points, not fabricated product-performance classifications. Product facts remain authoritative only when supplied by the catalog/structured product layers.
+
+The Home contract explicitly records the required merchandising dimensions:
+
+- sportág / aktivitás;
+- kezdő / haladó / profi;
+- szezonális sportok;
+- felszerelés + ruházat;
+- gyorsan vásárolható termékek.
+
+This correction is intentionally built from existing shared Builder components. No Sport Hub-specific runtime or engine was added.
 
 ## Visual DNA
 
@@ -74,25 +111,24 @@ Common Page Schema/runtime/component-registry/responsive authority.
 
 ### E2 — Product Discovery
 
-Owns catalog/search/channel eligibility and actual product visibility.
+Owns catalog/search/channel eligibility and actual product visibility. Activity navigation must resolve into authoritative catalog discovery rather than a separate Sport Hub product source.
 
 ### E7 — Structured Product / Compare & Spec
 
-Owns real product facts such as:
+Owns supplied product facts such as:
 
 - size;
 - material;
 - sport/use attributes;
+- level/season attributes when the merchant actually supplies them;
 - technical footwear/equipment data;
 - catalog facets.
 
-The template never invents performance characteristics.
+The template never invents performance characteristics, skill-level suitability or seasonal applicability.
 
 ### E10 — Editorial / Story
 
-Owns sport guides, community stories and editorial product/sport context.
-
-Editorial content does not establish official club/team affiliation or competition results.
+Owns sport guides, community stories and editorial product/sport context. Editorial content does not establish official club/team affiliation or competition results.
 
 ### E13 — Checkout
 
@@ -101,6 +137,14 @@ Provider-neutral cart/checkout and final commerce authority.
 Global authority rule:
 
 `multisport-presentation-never-invents-performance-team-affiliation-event-results-price-stock-or-order-authority`
+
+Merchandising contract:
+
+- activity: E2-authoritative collection navigation;
+- skill level: merchant-configured navigation and E7 facets only when supplied;
+- season: E2 eligibility and E7 facets only when supplied;
+- equipment/apparel: catalog segmentation over authoritative products;
+- quick-buy: existing commerce components only, with no new commerce authority.
 
 ## Exact Home order
 
@@ -115,7 +159,7 @@ Global authority rule:
 9. Guides & Advice
 10. Footer
 
-The sequence is locked in template metadata and regression tests.
+The sequence remains locked in template metadata and regression tests. The important distinction from a generic hero → cards → grids template is inside the first discovery block: activity-first entry plus Builder-native skill-level routing. `New Season` also uses the common recommendation-row presentation rather than repeating another identical full product grid.
 
 ## Product page
 
@@ -138,7 +182,7 @@ PDP includes:
 - E10 Sport Note/editorial context;
 - common recommendations.
 
-Missing sport/product evidence remains missing rather than being inferred.
+Missing sport/product/performance evidence remains missing rather than being inferred.
 
 ## Page package
 
@@ -152,10 +196,17 @@ Demo namespace: `sport-sport-hub`
 
 ## Demo content
 
-Namespaced fixtures:
+Namespaced collection fixtures now cover all six baseline sport entries:
 
-- collection `running`;
-- collection `training`;
+- `running` — Futás;
+- `cycling` — Kerékpár;
+- `fitness` — Fitnesz;
+- `hiking` — Túra;
+- `swimming` — Úszás;
+- `ball-games` — Labdajátékok.
+
+Additional fixtures:
+
 - product `daily-trainer`;
 - product `training-layer`;
 - content `sport-guide`.
@@ -174,8 +225,9 @@ Sport Hub remains native to the common Builder foundation:
 
 - Template Manifest;
 - Page Schema presets;
-- shared component registry;
-- responsive configuration;
+- shared component registry/contracts;
+- common design tokens;
+- desktop/tablet/mobile responsive configuration;
 - allowlisted bindings;
 - namespaced demo lifecycle;
 - draft-only installation.
@@ -184,33 +236,45 @@ Template installation/switching may mutate storefront Page Schema drafts only. I
 
 No drag/drop Visual Builder UI is introduced in this wave.
 
-## Implementation correction
+Hierarchy remains:
+
+`Template → Page Presets → Section Presets → Components`
+
+## Correction history
 
 Initial implementation head:
 
 `ba48e65e635308bb4c9376ff8f9786e56981e7f5`
 
-CI #2058 / run `34326646844` showed:
+CI #2058 / run `34326646844` found one test-file parser defect (`TS1005: '}' expected`). It was fixed without weakening assertions, runtime validation or engine contracts.
 
-- security PASS;
-- customer baseline guard PASS;
-- **200 test files / 1349 tests PASS**;
-- TypeScript FAIL only in `tests/storefront-sport-hub-template.test.tsx` with `TS1005: '}' expected`;
-- production build/manifest skipped as a consequence.
-
-The failure was a syntax/parsing defect in the minified Wave test JSX, not a runtime/engine failure. The test was rewritten into explicit formatted JSX/object structure without changing or weakening its assertions, template contract or runtime validation.
-
-Correction commit:
+First accepted implementation head:
 
 `16fe8565500c90ad54aba703698463a2a67502e7`
 
-## Accepted implementation CI
+CI #2059 / run `34326885105`: SUCCESS.
 
-Accepted implementation head:
+Pre-correction evidence/docs head:
 
-`16fe8565500c90ad54aba703698463a2a67502e7`
+`93e14981b30b0a1a2af69c8885d398bc038bab9e`
 
-GitHub **CI #2059 / Actions run `34326885105`: SUCCESS**.
+CI #2060 / run `34327164406`: SUCCESS.
+
+A subsequent specification check found that this technically green version did not yet encode the handoff's exact activity-first question and beginner/advanced/pro merchandising axis strongly enough. The implementation was therefore corrected rather than declaring a visually generic commerce flow complete.
+
+Activity-first implementation commit:
+
+`55a31d3df625cd9e8f56ff9b54aefd3558de4327`
+
+Its CI #2061 was superseded/cancelled by GitHub concurrency after the immediately following regression-test commit arrived. Before cancellation, security, baseline, quality tests and TypeScript had already passed; this was not a code failure.
+
+Accepted corrected implementation head:
+
+`97313ca7ad9a9e7178988f56394584ebd852c70f`
+
+## Accepted corrected implementation CI
+
+GitHub **CI #2062 / Actions run `34329936716`: SUCCESS** on exact head `97313ca7ad9a9e7178988f56394584ebd852c70f`.
 
 Verified:
 
@@ -224,24 +288,26 @@ Verified:
 
 Implementation release manifest:
 
-- version: `v24`
-- SHA: `16fe8565500c90ad54aba703698463a2a67502e7`
-- ref: `feature/storefront-sport-hub-wave21`
-- environment: `ci`
-- release hash: `b7d1b7d2118c1a907a9545d8449ef1d6dfc539a890dad0fcf68c08de7576962d`
+- version: `v24`;
+- SHA: `97313ca7ad9a9e7178988f56394584ebd852c70f`;
+- ref: `feature/storefront-sport-hub-wave21`;
+- environment: `ci`;
+- release hash: `32dacce80886b74f472c04b2b11e84898571694b3160b4eac59cc850f652545b`.
 
-Existing Supabase Edge-runtime and CSS autoprefixer warnings remain non-blocking and were not introduced by Sport Hub.
+The quality artifact reports 200 unique test files, 1349 total tests, 1349 passed and zero failed/pending/todo tests.
 
-## Implementation diff
+## Corrected implementation diff
 
-Compared with Loot Vault final head `4f31d5a8e725e0ed28c914ce84280257d7001121`, accepted implementation head is:
+Compared with Loot Vault final head `4f31d5a8e725e0ed28c914ce84280257d7001121`, accepted corrected implementation head `97313ca7ad9a9e7178988f56394584ebd852c70f` is:
 
-- 2 commits ahead;
+- 5 commits ahead;
 - 0 behind;
-- 5 added files;
+- 6 added files;
+- 0 deleted files;
+- 600 additions;
 - 0 deletions.
 
-No SQL/customer-baseline or pre-existing commerce-authority file is modified.
+No SQL/customer-baseline or pre-existing product/pricing/inventory/order authority file is modified.
 
 ## Explicit no-deploy rule
 
@@ -254,6 +320,10 @@ Wave 21 does not trigger or authorize:
 
 GitHub `production build` is compilation/evidence only.
 
+## Explicit non-scope
+
+No new Sport Hub-specific engine, Performance Lab duplication, expedition UX, fabricated performance/team/event authority, new commerce authority, Visual Builder drag/drop UI, SQL/customer-baseline migration, live route switch, payment/K&H/vPOS change or Water-K status change is introduced.
+
 ## Closure rule
 
-Wave 21 is closed only after this documentation HEAD also passes full CI and a Draft PR is created directly on Loot Vault / PR #143 and verified mergeable.
+Wave 21 is closed only after this documentation update itself passes full CI and Draft PR #144 remains directly stacked on Loot Vault / PR #143, open, not merged and mergeable.
