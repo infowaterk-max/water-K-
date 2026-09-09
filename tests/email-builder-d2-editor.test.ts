@@ -53,4 +53,11 @@ describe('Email Builder D2 editor',()=>{
     expect(page).toContain("ready?'Szerkeszthető':'Előkészítve'");
     expect(page).not.toContain('D2');
   });
+
+  it('keeps the dedicated preview user-facing and phase-neutral',()=>{
+    const preview=read('src/app/admin/email-sablonok/[id]/elonezet/page.tsx');
+    expect(preview).toContain('Biztonságos piszkozat');
+    expect(preview).toContain('Az aktív e-mail sablon változatlan marad.');
+    expect(preview).not.toContain('D1 biztonsági korlát');
+  });
 });
