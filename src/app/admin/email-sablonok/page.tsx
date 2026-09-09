@@ -16,6 +16,7 @@ const families=[
 ] as const;
 
 const statusLabel=(status:string)=>status==='active'?'Aktív':status==='archived'?'Archivált':'Piszkozat';
+const actions=(id:string)=><><Link className="btn btnPrimary" href={`/admin/email-sablonok/${id}/szerkesztes`}>Szerkesztés</Link><Link className="btn btnGhost" href={`/admin/email-sablonok/${id}/elonezet`}>Előnézet</Link><Link className="btn btnGhost" href={`/admin/email-sablonok/${id}/verziok`}>Verziók és aktiválás</Link></>;
 
 export default async function EmailTemplatesAdmin(){
   const scope=await requireCurrentStoreContext('marketing.manage');
@@ -26,7 +27,7 @@ export default async function EmailTemplatesAdmin(){
   return <section className="adminMain">
     <span className="eyebrow">E-mail Builder</span>
     <h1 className="sectionTitle">E-mail sablonok</h1>
-    <p className="lead">Az Essential rendelés-visszaigazolás vizuális szerkesztőben módosítható, élő rendererrel előnézhető és külön piszkozatként menthető. A piszkozat mentése nem módosítja az aktív e-mail sablont.</p>
+    <p className="lead">A sablon piszkozatként szerkeszthető és előnézhető. Az éles használathoz külön, megerősített aktiválás szükséges; minden aktiválás új, megváltoztathatatlan verziót hoz létre.</p>
     {error&&<div className="errorNotice" role="alert"><strong>A sablonok most nem tölthetők be.</strong> Hiányos állapotból nem engedünk új sablont létrehozni.</div>}
     <div className="cards">
       {families.map(family=>{
@@ -36,18 +37,16 @@ export default async function EmailTemplatesAdmin(){
           <h3>{family.name}</h3>
           <strong>{family.character}</strong>
           <p className="muted">{family.description}</p>
-          {ready&&!error&&<div className="actions">
-            {essential?<><Link className="btn btnPrimary" href={`/admin/email-sablonok/${essential.id}/szerkesztes`}>Szerkesztés</Link><Link className="btn btnGhost" href={`/admin/email-sablonok/${essential.id}/elonezet`}>Előnézet</Link></>:<EmailTemplateManager/>}
-          </div>}
+          {ready&&!error&&<div className="actions">{essential?actions(essential.id):<EmailTemplateManager/>}</div>}
         </article>;
       })}
     </div>
     <section className="featurePanel" style={{marginTop:28}}>
       <span className="eyebrow">Tenant sablontár</span>
       <h2>Mentett sablonok</h2>
-      <p className="muted">A piszkozat és az aktív verzió külön életciklusú. A szerkesztőben végzett és elmentett módosítások csak a piszkozatot érintik.</p>
+      <p className="muted">A piszkozat és az aktív verzió külön életciklusú. Korábbi aktív verzió bármikor visszatölthető piszkozatként anélkül, hogy az éles levelet azonnal megváltoztatná.</p>
       {!error&&templates.length===0&&<div className="card"><strong>Még nincs tenant e-mail sablon.</strong><p className="muted">Az Essential kártyán hozhatod létre az első biztonságos piszkozatot.</p></div>}
-      {!error&&templates.length>0&&<div className="tableCard"><table className="adminTable"><thead><tr><th>Sablon</th><th>Család</th><th>Állapot</th><th>Aktív verzió</th><th>Művelet</th></tr></thead><tbody>{templates.map(item=><tr key={item.id}><td><strong>{item.name}</strong><div className="muted">{item.template_key}</div></td><td>{item.family}</td><td><span className="badge">{statusLabel(item.status)}</span></td><td>{item.active_version_id?'Van':'Nincs'}</td><td><div className="actions"><Link className="btn btnPrimary" href={`/admin/email-sablonok/${item.id}/szerkesztes`}>Szerkesztés</Link><Link className="btn btnGhost" href={`/admin/email-sablonok/${item.id}/elonezet`}>Előnézet</Link></div></td></tr>)}</tbody></table></div>}
+      {!error&&templates.length>0&&<div className="tableCard"><table className="adminTable"><thead><tr><th>Sablon</th><th>Család</th><th>Állapot</th><th>Aktív verzió</th><th>Művelet</th></tr></thead><tbody>{templates.map(item=><tr key={item.id}><td><strong>{item.name}</strong><div className="muted">{item.template_key}</div></td><td>{item.family}</td><td><span className="badge">{statusLabel(item.status)}</span></td><td>{item.active_version_id?'Van':'Nincs'}</td><td><div className="actions">{actions(item.id)}</div></td></tr>)}</tbody></table></div>}
     </section>
   </section>;
 }
