@@ -16,9 +16,10 @@ describe('Digital Office private read-state invariants',()=>{
     expect(sql).toContain('office_messages_private_author_read_sync');
   });
 
-  it('never falls back to the legacy global thread read timestamp in the workspace',()=>{
-    const page=read('src/app/admin/kommunikacio/iroda/page.tsx');
-    expect(page).toContain('const lastReadFor=(thread:Thread)=>readMap.get(thread.id)??null');
-    expect(page).not.toContain('readMap.has(thread.id)?readMap.get(thread.id)??null:thread.last_read_at');
+  it('uses only the current participant read timestamp in the dedicated Team Chat workspace',()=>{
+    const page=read('src/app/admin/kommunikacio/chat/page.tsx');
+    expect(page).toContain('const lastRead=new Map(participants.filter(p=>p.user_id===actor.id).map(p=>[p.thread_id,p.last_read_at]))');
+    expect(page).toContain('!lastRead.get(thread.id)||new Date(m.created_at)>new Date(lastRead.get(thread.id)!)');
+    expect(page).not.toContain('thread.last_read_at');
   });
 });

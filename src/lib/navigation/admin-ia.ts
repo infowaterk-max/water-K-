@@ -1,5 +1,6 @@
 import { hasPlanFeature, type FeatureCode, type PlanCode } from '@/lib/plans/catalog';
 import type { StorePermission } from '@/lib/auth/store-rbac';
+import type { StoreCapability } from '@/lib/auth/store-capabilities';
 
 export type AdminReportFamily='overview'|'sales'|'customer'|'inventory'|'growth'|'finance'|'executive';
 export type AdminEvidenceKind='fact'|'calculation'|'recommendation';
@@ -12,6 +13,7 @@ export type AdminNavItem={
   description:string;
   feature?:FeatureCode;
   permission?:StorePermission;
+  capability?:StoreCapability;
   group?:string;
   reportFamily?:AdminReportFamily;
   evidenceKinds?:readonly AdminEvidenceKind[];
@@ -61,8 +63,9 @@ export const MERCHANT_NAVIGATION:readonly AdminNavSection[]=[
     {id:'automation',href:'/admin/automatizalas',label:'Automatizálási központ',description:'Automatizált üzleti és kommunikációs munkafolyamatok.',feature:'automation',permission:'analytics.read',group:'Automatizálás'},
   ]},
   {id:'digital-office',label:'Digitális Iroda',items:[
-    {id:'office',href:'/admin/kommunikacio',label:'Digitális iroda',description:'Tenant-szintű kommunikációs munkafolyamatok és üzenetek.',feature:'officeCommunication',permission:'support.manage',group:'Kommunikáció'},
-    {id:'blocklist',href:'/admin/kommunikacio/tiltolista',label:'Kommunikációs tiltólista',description:'Kommunikációból kizárt címzettek és tiltási állapotok.',feature:'officeCommunication',permission:'support.manage',group:'Kommunikáció'},
+    {id:'team-chat',href:'/admin/kommunikacio/chat',label:'Team Chat',description:'Belső munkatársi 1:1 és csoportos kommunikáció, @említésekkel és webshop-objektum hivatkozásokkal.',feature:'teamChat',capability:'office.internal_chat',group:'Belső kommunikáció'},
+    {id:'office',href:'/admin/kommunikacio',label:'Ügyféllevelezés',description:'A webshop és az ügyfelek közötti e-mailes kommunikáció és operatív munkafolyamatok.',feature:'officeCommunication',permission:'support.manage',group:'Ügyfélkommunikáció'},
+    {id:'blocklist',href:'/admin/kommunikacio/tiltolista',label:'Kommunikációs tiltólista',description:'Kommunikációból kizárt címzettek és tiltási állapotok.',feature:'officeCommunication',permission:'support.manage',group:'Ügyfélkommunikáció'},
     {id:'support',href:'/admin/ugyfelszolgalat',label:'Ügyfélszolgálat',description:'Ügyfélszolgálati esetek és támogatási munkafolyamatok.',feature:'support',permission:'support.manage',group:'Kiszolgálás'},
   ]},
   {id:'content-appearance',label:'Tartalom & Megjelenés',items:[
@@ -102,21 +105,21 @@ export const FREQUENT_TASKS:readonly AdminNavItem[]=[
 ] as const;
 
 const audienceAllowed=(item:AdminNavItem,status?:AdminInstanceStatus)=>item.audience!=='pilot'||status==='pilot';
-const allowed=(item:AdminNavItem,plan:PlanCode,can:(permission?:StorePermission)=>boolean,status?:AdminInstanceStatus)=>
-  (!item.feature||hasPlanFeature(plan,item.feature))&&can(item.permission)&&audienceAllowed(item,status);
+const allowed=(item:AdminNavItem,plan:PlanCode,can:(permission?:StorePermission)=>boolean,canCapability:(capability?:StoreCapability)=>boolean,status?:AdminInstanceStatus)=>
+  (!item.feature||hasPlanFeature(plan,item.feature))&&can(item.permission)&&canCapability(item.capability)&&audienceAllowed(item,status);
 
 const resolveItem=(item:AdminNavItem):ResolvedAdminNavItem=>({
   id:item.id,href:item.href,label:item.label,description:item.description,group:item.group,reportFamily:item.reportFamily,evidenceKinds:item.evidenceKinds,
 });
 
-export function resolveMerchantNavigation(plan:PlanCode,can:(permission?:StorePermission)=>boolean,status?:AdminInstanceStatus):ResolvedAdminNavSection[]{
+export function resolveMerchantNavigation(plan:PlanCode,can:(permission?:StorePermission)=>boolean,status?:AdminInstanceStatus,canCapability:(capability?:StoreCapability)=>boolean=()=>true):ResolvedAdminNavSection[]{
   return MERCHANT_NAVIGATION.map(section=>({
-    id:section.id,label:section.label,items:section.items.filter(item=>allowed(item,plan,can,status)).map(resolveItem),
+    id:section.id,label:section.label,items:section.items.filter(item=>allowed(item,plan,can,canCapability,status)).map(resolveItem),
   })).filter(section=>section.items.length>0);
 }
 
 export function resolveFrequentTasks(plan:PlanCode,can:(permission?:StorePermission)=>boolean):ResolvedAdminNavItem[]{
-  return FREQUENT_TASKS.filter(item=>allowed(item,plan,can)).map(resolveItem).slice(0,4);
+  return FREQUENT_TASKS.filter(item=>allowed(item,plan,can,()=>true)).map(resolveItem).slice(0,4);
 }
 
 export const ADMIN_REPORTING_DESTINATIONS=MERCHANT_NAVIGATION.flatMap(section=>section.items)

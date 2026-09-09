@@ -31,8 +31,8 @@ describe('admin mutation read-safety',()=>{
     expect(source).toContain('finally{setBusy(false)}');
   });
 
-  test('communication center never presents failed reads as zero and withholds marketing approval on consent read failure',()=>{
-    const page=read('src/app/admin/kommunikacio/page.tsx');
+  test('communication supervision never presents failed reads as zero and withholds marketing approval on consent read failure',()=>{
+    const page=read('src/app/admin/kommunikacio/felugyelet/page.tsx');
     const actions=read('src/components/admin/communication-job-actions.tsx');
     expect(page).toContain('loadError=Boolean(jobError||runError||eventError||consentError)');
     expect(page).toContain("jobError?'—':awaitingApproval.length");

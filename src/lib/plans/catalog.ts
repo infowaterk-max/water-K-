@@ -19,10 +19,12 @@ export type FeatureCode =
   | 'searchFiltering'
   | 'commerceIntegrations'
   | 'support'
+  | 'teamChat'
   | 'advancedAnalytics'
   | 'crm'
   | 'advancedCampaigns'
   | 'officeCommunication'
+  | 'teamChatSecureAttachments'
   | 'automation'
   | 'procurement'
   | 'cashflow'
@@ -56,6 +58,7 @@ const ALAP_FEATURES = [
   'searchFiltering',
   'commerceIntegrations',
   'support',
+  'teamChat',
 ] as const satisfies readonly FeatureCode[];
 
 const PRO_FEATURES = [
@@ -64,6 +67,7 @@ const PRO_FEATURES = [
   'crm',
   'advancedCampaigns',
   'officeCommunication',
+  'teamChatSecureAttachments',
   'automation',
   'procurement',
   'cashflow',
@@ -82,13 +86,13 @@ export const PLANS: Record<PlanCode, PlanDefinition> = {
   alap: {
     code: 'alap',
     name: 'Alap',
-    description: 'Versenyképes, teljes értékű webshop a napi értékesítéshez, tartalomhoz, marketinghez és üzemeltetéshez.',
+    description: 'Versenyképes, teljes értékű webshop a napi értékesítéshez, tartalomhoz, marketinghez, üzemeltetéshez és belső Team Chattel.',
     features: ALAP_FEATURES,
   },
   pro: {
     code: 'pro',
     name: 'Pro',
-    description: 'Az Alap minden funkciója digitális irodával, fejlett CRM-mel, automatizálással és üzleti döntéstámogatással.',
+    description: 'Az Alap minden funkciója biztonságos Team Chat csatolmányokkal, digitális irodával, fejlett CRM-mel, automatizálással és üzleti döntéstámogatással.',
     features: PRO_FEATURES,
   },
 };

@@ -20,6 +20,7 @@ const ALAP_REQUIRED: FeatureCode[] = [
   'searchFiltering',
   'commerceIntegrations',
   'support',
+  'teamChat',
 ];
 
 const PRO_ONLY: FeatureCode[] = [
@@ -27,6 +28,7 @@ const PRO_ONLY: FeatureCode[] = [
   'crm',
   'advancedCampaigns',
   'officeCommunication',
+  'teamChatSecureAttachments',
   'automation',
   'procurement',
   'cashflow',
@@ -47,6 +49,14 @@ describe('business plan entitlement matrix', () => {
       expect(hasPlanFeature('alap', feature), `Alap must not include ${feature}`).toBe(false);
       expect(hasPlanFeature('pro', feature), `Pro should include ${feature}`).toBe(true);
     }
+  });
+
+  it('keeps Team Chat in Alap while secure attachments stay Pro-only',()=>{
+    expect(hasPlanFeature('alap','teamChat')).toBe(true);
+    expect(hasPlanFeature('pro','teamChat')).toBe(true);
+    expect(hasPlanFeature('alap','teamChatSecureAttachments')).toBe(false);
+    expect(hasPlanFeature('pro','teamChatSecureAttachments')).toBe(true);
+    expect(hasPlanFeature('alap','officeCommunication')).toBe(false);
   });
 
   it('keeps planned Pro capabilities disabled until implementation is complete', () => {
