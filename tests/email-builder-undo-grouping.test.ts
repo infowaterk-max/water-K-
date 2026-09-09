@@ -23,6 +23,14 @@ describe('Email Builder grouped undo history',()=>{
     expect(editor).toContain("onChange={e=>onChange('text',e.target.value,groupKey('text'))}");
   });
 
+  it('groups condition value typing into one undo step',()=>{
+    const editor=read('src/components/admin/email-builder-editor.tsx');
+    expect(editor).toContain('function setConditionRule(index:number,patch:Partial<EmailConditionRule>,groupKey?:string)');
+    expect(editor).toContain('onFocus={()=>beginHistoryGroup(`block:${selected.id}:condition:${index}:value`)}');
+    expect(editor).toContain('onBlur={()=>endHistoryGroup(`block:${selected.id}:condition:${index}:value`)}');
+    expect(editor).toContain('`block:${selected.id}:condition:${index}:value`)');
+  });
+
   it('keeps structural actions discrete and preserves draft-only safety',()=>{
     const editor=read('src/components/admin/email-builder-editor.tsx');
     expect(editor).toContain('commit({...document,blocks})');
