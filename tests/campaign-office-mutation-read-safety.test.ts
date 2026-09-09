@@ -6,11 +6,18 @@ const root=process.cwd();
 const read=(file:string)=>fs.readFileSync(path.join(root,file),'utf8');
 
 describe('campaign and office workspace mutation safety',()=>{
- it('campaign lifecycle actions require complete campaign evidence',()=>{
-   const page=read('src/app/admin/kampanyok/page.tsx');
-   expect(page).toContain('const canMutate=!loadError');
-   expect(page).toContain('canMutate&&<form action={createCampaignAction}');
-   expect(page).toContain('canMutate&&campaigns.map');
+ it('campaign creation and lifecycle actions require the evidence each mutation actually depends on',()=>{
+   const listPage=read('src/app/admin/kampanyok/page.tsx');
+   const detailPage=read('src/app/admin/kampanyok/[id]/page.tsx');
+
+   expect(listPage).toContain('const loadError=Boolean(ce||ve||oe||itemError||items.length>=100000),canCreateCampaign=!ce');
+   expect(listPage).toContain('canCreateCampaign?<CampaignCreateForm/>');
+   expect(listPage).toContain('Kampány létrehozása átmenetileg letiltva');
+
+   expect(detailPage).toContain("if(campaignError)throw new Error('A kampány adatai most nem tölthetők be.');");
+   expect(detailPage).toContain('const loadError=Boolean(recipientError||conversionError||eventError);');
+   expect(detailPage).toContain('{!loadError?<CampaignActions campaignId={campaign.id} status={campaign.status}/>:');
+   expect(detailPage).toContain('Kampányművelet átmenetileg letiltva.');
  });
 
  it('customer email and Team Chat use separate write surfaces and both fail closed',()=>{

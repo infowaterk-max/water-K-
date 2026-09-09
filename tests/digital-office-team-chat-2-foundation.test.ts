@@ -4,61 +4,75 @@ import{describe,expect,it}from'vitest';
 
 const root=process.cwd();
 const read=(file:string)=>fs.readFileSync(path.join(root,file),'utf8');
-const migration=read('supabase/migrations/20260908065000_digital_office_team_chat_2_foundation_v1.sql');
+const privacy=read('supabase/migrations/20260908022500_digital_office_privacy_foundation_v1.sql');
+const foundation=read('supabase/migrations/20260908065000_digital_office_team_chat_2_foundation_v1.sql');
+const integrity=read('supabase/migrations/20260908065100_digital_office_team_chat_2_integrity_v1.sql');
 const ownerTransfer=read('supabase/migrations/20260908065200_digital_office_team_chat_owner_transfer_v1.sql');
 const actions=read('src/app/admin/kommunikacio/chat/actions.ts');
 const page=read('src/app/admin/kommunikacio/chat/page.tsx');
 const privateComposer=read('src/components/admin/office-private-message-form.tsx');
 
 describe('Digital Office Team Chat 2 foundation',()=>{
-  it('keeps mention and object-link data service-only behind RLS',()=>{
-    expect(migration).toContain('alter table public.office_message_mentions enable row level security');
-    expect(migration).toContain('alter table public.office_message_object_links enable row level security');
-    expect(migration).toContain('create policy office_message_mentions_service_all');
-    expect(migration).toContain('create policy office_message_object_links_service_all');
-    expect(migration).toContain("to service_role using(true) with check(true)");
+  it('keeps mention and object-link tables service-only behind RLS',()=>{
+    expect(foundation).toContain('alter table public.office_message_mentions enable row level security');
+    expect(foundation).toContain('alter table public.office_message_object_links enable row level security');
+    expect(foundation).toContain('revoke all on table public.office_message_mentions from public,anon,authenticated');
+    expect(foundation).toContain('revoke all on table public.office_message_object_links from public,anon,authenticated');
+    expect(foundation).toContain('grant select,insert,update,delete on table public.office_message_mentions to service_role');
+    expect(foundation).toContain('grant select,insert,update,delete on table public.office_message_object_links to service_role');
   });
 
-  it('models exactly one active thread owner and does not let elevated capability replace ownership',()=>{
-    expect(migration).toContain("participant_role text not null default 'member' check(participant_role in ('owner','member'))");
-    expect(migration).toContain('office_thread_participants_one_owner_idx');
-    expect(migration).toContain("where left_at is null and participant_role='owner'");
-    expect(migration).toContain('if v_participant.participant_role<>\'owner\' then raise exception \'OFFICE_THREAD_OWNER_REQUIRED\'; end if;');
+  it('models exactly one active thread owner without allowing elevated capability to replace membership',()=>{
+    expect(privacy).toContain("participant_role text not null default 'member' check (participant_role in ('member'))");
+    expect(foundation).toContain("check (participant_role in ('owner','member'))");
+    expect(foundation).toContain('office_thread_participants_active_owner_uidx');
+    expect(foundation).toContain("where left_at is null and participant_role='owner'");
+    expect(privacy).toContain('if not private.office_active_participant_v1(p_instance_id,p_thread_id,p_user_id) then return false; end if;');
+    expect(foundation).toContain("and p.participant_role='owner'");
   });
 
-  it('only mentions active participants and tracks per-user seen state',()=>{
-    expect(migration).toContain('office_message_mentions_active_participant_guard');
-    expect(migration).toContain("raise exception 'OFFICE_MENTION_PARTICIPANT_REQUIRED'");
-    expect(migration).toContain('seen_at timestamptz');
-    expect(migration).toContain('office_message_mentions_user_unseen_idx');
+  it('only mentions active readable participants and tracks per-user seen state',()=>{
+    expect(foundation).toContain('seen_at timestamptz');
+    expect(foundation).toContain('office_message_mentions_user_unseen_idx');
+    expect(integrity).toContain('not public.can_read_office_thread_v1(new.instance_id,new.thread_id,new.mentioned_user_id)');
+    expect(integrity).toContain("raise exception 'OFFICE_MENTION_PARTICIPANT_REQUIRED'");
+    expect(foundation).toContain('set seen_at=coalesce(seen_at,now())');
   });
 
   it('validates business cards against tenant-owned objects and keeps linking behind support authority',()=>{
-    expect(migration).toContain("v_object_type not in ('order','commercial_offer','return_case','support_ticket','task')");
-    expect(migration).toContain("raise exception 'OFFICE_OBJECT_NOT_FOUND'");
-    expect(migration).toContain("if not public.has_store_permission(p_instance_id,'support.manage')");
+    expect(foundation).toContain("object_type text not null check (object_type in ('order','commercial_offer','return_case','support_ticket','task'))");
+    expect(foundation).toContain('private.office_chat_object_exists_v1');
+    expect(foundation).toContain("if v_object_type is not null and not public.can_manage_support(p_instance_id,p_actor) then raise exception 'OFFICE_OBJECT_LINK_PERMISSION_REQUIRED'; end if;");
+    expect(foundation).toContain("raise exception 'OFFICE_OBJECT_LINK_NOT_FOUND'");
+    expect(integrity).toContain('not public.can_manage_support(new.instance_id,new.created_by)');
+    expect(integrity).toContain('not private.office_chat_object_exists_v1(new.instance_id,new.object_type,new.object_id)');
   });
 
-  it('creates chat message, mentions and object link in one audited database transaction',()=>{
-    expect(migration).toContain("elsif p_action='create_internal_thread' then");
-    expect(migration).toContain("elsif p_action='send_internal_message' then");
-    expect(migration).toContain('insert into public.office_message_mentions');
-    expect(migration).toContain('insert into public.office_message_object_links');
-    expect(migration).toContain("'office.private_thread_created_v2'");
-    expect(migration).toContain("'office.private_message_added_v2'");
+  it('creates thread/message, mentions and object links in the same audited RPC transaction',()=>{
+    expect(foundation).toContain("if p_action='create_internal_thread' then");
+    expect(foundation).toContain("if p_action='add_internal_message' then");
+    expect(foundation).toContain('insert into public.office_message_mentions');
+    expect(foundation).toContain('insert into public.office_message_object_links');
+    expect(foundation).toContain("'office.private_thread_created_v2'");
+    expect(foundation).toContain("'office.private_message_added_v2'");
   });
 
-  it('enforces mention and object integrity even below the RPC boundary',()=>{
-    expect(migration).toContain('office_message_mentions_integrity_guard');
-    expect(migration).toContain('office_message_object_links_integrity_guard');
-    expect(migration).toContain("raise exception 'OFFICE_MENTION_MESSAGE_MISMATCH'");
-    expect(migration).toContain("raise exception 'OFFICE_OBJECT_MESSAGE_MISMATCH'");
+  it('enforces mention and object integrity below the RPC boundary with table triggers',()=>{
+    expect(integrity).toContain('create trigger office_message_mentions_integrity');
+    expect(integrity).toContain('create trigger office_message_object_links_integrity');
+    expect(integrity).toContain("raise exception 'OFFICE_MENTION_MESSAGE_INTEGRITY_INVALID'");
+    expect(integrity).toContain("raise exception 'OFFICE_OBJECT_MESSAGE_INTEGRITY_INVALID'");
+    expect(integrity).toContain("raise exception 'OFFICE_OBJECT_LINK_PERMISSION_REQUIRED'");
   });
 
   it('transfers ownership only from the current authorized owner to an active authorized member',()=>{
     expect(ownerTransfer).toContain('admin_transfer_office_thread_owner_v1');
-    expect(ownerTransfer).toContain("participant_role<>'owner'");
-    expect(ownerTransfer).toContain("participant_role<>'member'");
+    expect(ownerTransfer).toContain('private.office_active_thread_owner_v1(p_instance_id,p_thread_id,p_actor)');
+    expect(ownerTransfer).toContain("and participant_role='member'");
+    expect(ownerTransfer).toContain("set participant_role='member',updated_at=now()");
+    expect(ownerTransfer).toContain("set participant_role='owner',updated_at=now()");
+    expect(ownerTransfer).toContain("if v_actor_updated<>1 then raise exception 'OFFICE_OWNER_TRANSFER_SOURCE_EVIDENCE_MISSING'; end if;");
+    expect(ownerTransfer).toContain("if v_target_updated<>1 then raise exception 'OFFICE_OWNER_TRANSFER_TARGET_EVIDENCE_MISSING'; end if;");
     expect(ownerTransfer).toContain("'office.private_owner_transferred'");
     expect(actions).toContain('admin_transfer_office_thread_owner_v1');
     expect(actions).toContain('transferPrivateThreadOwnerAction');
@@ -67,7 +81,7 @@ describe('Digital Office Team Chat 2 foundation',()=>{
   it('uses a dedicated team-chat action layer with effective office.internal_chat capability',()=>{
     expect(actions).toContain("requirePlanFeature('teamChat')");
     expect(actions).toContain("'office.internal_chat'");
-    expect(actions).toContain("admin_mutate_office_team_chat_v2");
+    expect(actions).toContain('admin_mutate_office_team_chat_v2');
     expect(actions).toContain('createPrivateThreadAction');
     expect(actions).toContain('managePrivateParticipantAction');
     expect(actions).toContain('markThreadReadAction');
