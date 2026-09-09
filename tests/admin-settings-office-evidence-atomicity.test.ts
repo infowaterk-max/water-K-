@@ -5,8 +5,8 @@ import {describe,expect,test} from 'vitest';
 const root=process.cwd(),read=(file:string)=>fs.readFileSync(path.join(root,file),'utf8');
 const migration='supabase/migrations/20260903170000_admin_workspace_settings_evidence_atomic_v2.sql';
 const privacyMigration='supabase/migrations/20260908022500_digital_office_privacy_foundation_v1.sql';
-const teamChatMigration='supabase/migrations/20260908065000_digital_office_team_chat_2_foundation_v1.sql';
-const ownerTransferMigration='supabase/migrations/20260908065200_digital_office_team_chat_owner_transfer_v1.sql';
+const teamChatMigration='supabase/migrations/20260909204503_digital_office_team_chat_2_foundation_v1.sql';
+const ownerTransferMigration='supabase/migrations/20260909204547_digital_office_team_chat_owner_transfer_v1.sql';
 
 describe('admin workspace and settings evidence atomicity',()=>{
   test('Digital Office business writes no longer use direct table mutations',()=>{
