@@ -25,9 +25,7 @@ export default async function EmailTemplatesAdmin(){
   const templates=(data??[]) as TemplateRow[];
   const essential=templates.find(item=>item.template_key==='essential.order_confirmation')??null;
   return <section className="adminMain">
-    <span className="eyebrow">E-mail Builder</span>
-    <h1 className="sectionTitle">E-mail sablonok</h1>
-    <p className="lead">A sablon piszkozatként szerkeszthető és előnézhető. Az éles használathoz külön, megerősített aktiválás szükséges; minden aktiválás új, megváltoztathatatlan verziót hoz létre.</p>
+    <div className="adminToolbar"><div><span className="eyebrow">E-mail Builder</span><h1 className="sectionTitle">E-mail sablonok</h1><p className="lead">A sablon piszkozatként szerkeszthető és előnézhető. Az éles használathoz külön, megerősített aktiválás szükséges; minden aktiválás új, megváltoztathatatlan verziót hoz létre.</p></div><Link className="btn btnGhost" href="/admin/email-sablonok/brand-kit">Brand Kit</Link></div>
     {error&&<div className="errorNotice" role="alert"><strong>A sablonok most nem tölthetők be.</strong> Hiányos állapotból nem engedünk új sablont létrehozni.</div>}
     <div className="cards">
       {families.map(family=>{
