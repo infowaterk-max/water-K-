@@ -17,15 +17,7 @@ export const SPEC_LAB_LEGACY_WORKING_NAME='Tech Command' as const;
 export const SPEC_LAB_VISUAL_DNA=Object.freeze({
   character:'dark-navy-specialist-tech-decision-lab',
   category:'electronics-tech',
-  palette:{
-    background:'deep-navy',
-    surface:'technical-navy-panels',
-    text:'cool-ivory-white',
-    accentPrimary:'controlled-orange-ochre',
-    accentSecondary:'muted-steel-blue',
-    compatible:'signal-green',
-    caution:'amber',
-  },
+  palette:{background:'deep-navy',surface:'technical-navy-panels',text:'cool-ivory-white',accentPrimary:'controlled-orange-ochre',accentSecondary:'muted-steel-blue',compatible:'signal-green',caution:'amber'},
   typography:{display:'strong-technical-sans',interface:'clean-sans',data:'monospace-spec-label'},
   visualLanguage:['spec-grid','comparison-rail','compatibility-node','finder-path','system-map','decision-evidence'],
   imagery:'specialist-electronics-components-ports-systems-accessories',
@@ -34,198 +26,54 @@ export const SPEC_LAB_VISUAL_DNA=Object.freeze({
 } as const);
 
 export const SPEC_LAB_DESIGN_TOKENS=Object.freeze({
-  '--shoporation-color-background':'#08111F',
-  '--shoporation-color-surface':'#0F1C2E',
-  '--shoporation-color-surface-muted':'#17263B',
-  '--shoporation-color-text':'#F5F2EA',
-  '--shoporation-color-muted-text':'#9EABBA',
-  '--shoporation-color-border':'#2A3A50',
-  '--shoporation-color-primary':'#0B1626',
-  '--shoporation-color-primary-contrast':'#F5F2EA',
-  '--shoporation-color-accent':'var(--merchant-accent, #D98A2B)',
-  '--shoporation-color-accent-secondary':'#52769A',
-  '--shoporation-color-success':'#4FD48B',
-  '--shoporation-color-warning':'#E5A640',
-  '--shoporation-heading-font':'var(--merchant-heading-font, Arial, sans-serif)',
-  '--shoporation-body-font':'var(--merchant-body-font, Arial, sans-serif)',
-  '--shoporation-data-font':'var(--merchant-data-font, ui-monospace, SFMono-Regular, Menlo, monospace)',
+  '--shoporation-color-background':'#08111F','--shoporation-color-surface':'#0F1C2E','--shoporation-color-surface-muted':'#17263B','--shoporation-color-text':'#F5F2EA','--shoporation-color-muted-text':'#9EABBA','--shoporation-color-border':'#2A3A50','--shoporation-color-primary':'#0B1626','--shoporation-color-primary-contrast':'#F5F2EA','--shoporation-color-accent':'var(--merchant-accent, #D98A2B)','--shoporation-color-accent-secondary':'#52769A','--shoporation-color-success':'#4FD48B','--shoporation-color-warning':'#E5A640','--shoporation-heading-font':'var(--merchant-heading-font, Arial, sans-serif)','--shoporation-body-font':'var(--merchant-body-font, Arial, sans-serif)','--shoporation-data-font':'var(--merchant-data-font, ui-monospace, SFMono-Regular, Menlo, monospace)',
 } as const);
 
 export const SPEC_LAB_ENGINE_CONTRACT=Object.freeze({
   requiredForFullExperience:['E1','E2','E3','E5','E6','E7','E10','E13'] as const,
-  integration:{
-    E1:'shared-page-schema-runtime',
-    E2:'catalog-search-and-channel-eligibility-authority',
-    E3:'tech-finder-for-product-and-use-case-guidance',
-    E5:'slot-based-system-and-accessory-setup-configurator',
-    E6:'explainable-product-system-and-accessory-compatibility',
-    E7:'structured-specification-comparison-and-system-requirements',
-    E10:'technology-magazine-and-buying-guide-story-authority',
-    E13:'provider-neutral-cart-checkout-and-final-validation',
-  },
+  integration:{E1:'shared-page-schema-runtime',E2:'catalog-search-and-channel-eligibility-authority',E3:'tech-finder-for-product-and-use-case-guidance',E5:'slot-based-system-and-accessory-setup-configurator',E6:'explainable-product-system-and-accessory-compatibility',E7:'structured-specification-comparison-and-system-requirements',E10:'technology-magazine-and-buying-guide-story-authority',E13:'provider-neutral-cart-checkout-and-final-validation'},
   authorityRule:'decision-support-never-invents-specs-price-stock-compatibility-performance-trade-in-value-or-order-authority',
   compatibilityPrinciples:{unknownIsCompatible:false,explainable:true,serverFinalValidation:true,noSilentReplacement:true},
   integrationHooks:{tradeIn:'cta-and-read-model-hook-only-no-valuation-authority',product3dViewer:'optional-viewer-launch-hook-no-template-owned-3d-engine'},
 } as const);
 
 export const SPEC_LAB_DECISION_PATH=['Mit keresel?','Mire használod?','Hasonlítsd össze','Tech Finder','Építsd fel a szetted'] as const;
-export const SPEC_LAB_HOME_SECTION_ORDER=[
-  'Mit keresel?',
-  'Mire használod?',
-  'Hasonlítsd össze',
-  'Tech Finder',
-  'Építsd fel a szetted',
-  'Compatibility Matrix',
-  'System Requirements',
-  'Accessory Matcher',
-  'Trade-in',
-  'Tech Magazine',
-  'Footer',
-] as const;
+export const SPEC_LAB_HOME_SECTION_ORDER=['Mit keresel?','Mire használod?','Hasonlítsd össze','Tech Finder','Építsd fel a szetted','Compatibility Matrix','System Requirements','Accessory Matcher','Trade-in','Tech Magazine','Footer'] as const;
 
 const node=(input:StorefrontComponentNode):StorefrontComponentNode=>input;
-const section=(id:string,children:StorefrontComponentNode[],tone='background'):StorefrontComponentNode=>node({
-  id,componentKey:'layout.section',componentVersion:1,config:{tone,spacing:'xl',width:'full'},
-  children:[node({id:`${id}-container`,componentKey:'layout.container',componentVersion:1,config:{width:'content',spacing:'m'},children})],
-});
-const header=(prefix:string):StorefrontComponentNode=>node({
-  id:`${prefix}-header`,componentKey:'system.header',componentVersion:1,
-  config:{brandLabel:'Spec Lab',brandHref:'/',tone:'primary',sticky:true},
-  bindings:{brandLabel:{path:'brand.name',fallback:'Spec Lab'},brandHref:{path:'brand.homeHref',fallback:'/'}},
-  children:[node({id:`${prefix}-nav`,componentKey:'system.navigation',componentVersion:1,config:{ariaLabel:'Fő navigáció',items:[],layout:'horizontal'},bindings:{items:{path:'navigation.primary',fallback:[]}}})],
-});
-const footerFallback=[
-  {id:'shop',title:'Tech Lab',items:[{label:'Termékek',href:'/webaruhaz'},{label:'Tech Finder',href:'/oldal/tech-finder'},{label:'Setup Builder',href:'/oldal/setup-builder'}]},
-  {id:'learn',title:'Tudástár',items:[{label:'Tech Magazine',href:'/blog'},{label:'GYIK',href:'/gyik'},{label:'Kapcsolat',href:'/kapcsolat'}]},
-];
-const footer=(prefix:string):StorefrontComponentNode=>node({
-  id:`${prefix}-footer`,componentKey:'editorial.footer',componentVersion:1,
-  config:{brandLabel:'Spec Lab',columns:footerFallback,copyright:'© Spec Lab',tone:'primary'},
-  bindings:{brandLabel:{path:'brand.name',fallback:'Spec Lab'},columns:{path:'navigation.footer',fallback:footerFallback},copyright:{path:'brand.copyright',fallback:'© Spec Lab'}},
-});
-const base=(pageKey:string,pageType:StorefrontBuilderPageType,sections:StorefrontComponentNode[],metadata:Record<string,unknown>={}):StorefrontPageDocument=>({
-  schemaVersion:STOREFRONT_PAGE_SCHEMA_VERSION,pageKey,pageType,templateKey:SPEC_LAB_TEMPLATE_KEY,templateVersion:SPEC_LAB_TEMPLATE_VERSION,
-  metadata:{scaleOutTemplate:'Spec Lab',legacyWorkingName:SPEC_LAB_LEGACY_WORKING_NAME,templateCategory:'electronics-tech',visualDNA:SPEC_LAB_VISUAL_DNA.character,...metadata},sections,
-});
-const productGrid=(id:string,title:string,path:string,columns=4):StorefrontComponentNode=>node({
-  id,componentKey:'commerce.product-grid',componentVersion:1,
-  config:{title,products:[],columns,presentation:'tech',showBadges:true,showCompareAt:true,imageRatio:'1 / 1',emptyLabel:'Jelenleg nincs megjeleníthető termék.',currency:'HUF'},
-  bindings:{title:{path:`content.${id}.title`,fallback:title},products:{path,fallback:[]}},
-});
-const recommendations=(id:string,title:string,path:string):StorefrontComponentNode=>node({
-  id,componentKey:'commerce.recommendation-row',componentVersion:1,
-  config:{title,products:[],columns:4,emptyLabel:'Nincs kapcsolódó ajánlat.',currency:'HUF'},
-  bindings:{products:{path,fallback:[]}},
-});
-const simple=(key:string,type:StorefrontBuilderPageType,title:string,copy:string):StorefrontPageDocument=>{
-  const prefix=key.replaceAll('.','-');
-  return base(key,type,[header(prefix),section(`${prefix}-body`,[
-    node({id:`${prefix}-title`,componentKey:'content.heading',componentVersion:1,config:{text:title,level:1,align:'left',tone:'text'}}),
-    node({id:`${prefix}-copy`,componentKey:'content.text',componentVersion:1,config:{text:copy,as:'p',align:'left',tone:'muted'}}),
-  ]),footer(prefix)],{visualPreset:'spec-lab-dark-content'});
-};
+const section=(id:string,children:StorefrontComponentNode[],tone='background'):StorefrontComponentNode=>node({id,componentKey:'layout.section',componentVersion:1,config:{tone,spacing:'xl',width:'full'},children:[node({id:`${id}-container`,componentKey:'layout.container',componentVersion:1,config:{width:'content',spacing:'m'},children})]});
+const header=(prefix:string):StorefrontComponentNode=>node({id:`${prefix}-header`,componentKey:'system.header',componentVersion:1,config:{brandLabel:'Spec Lab',brandHref:'/',tone:'primary',sticky:true},bindings:{brandLabel:{path:'brand.name',fallback:'Spec Lab'},brandHref:{path:'brand.homeHref',fallback:'/'}},children:[node({id:`${prefix}-nav`,componentKey:'system.navigation',componentVersion:1,config:{ariaLabel:'Fő navigáció',items:[],layout:'horizontal'},bindings:{items:{path:'navigation.primary',fallback:[]}}})]});
+const footerColumns=[{id:'lab',title:'Tech Lab',items:[{label:'Termékek',href:'/webaruhaz'},{label:'Tech Finder',href:'/oldal/tech-finder'},{label:'Setup Builder',href:'/oldal/setup-builder'}]},{id:'learn',title:'Tudástár',items:[{label:'Tech Magazine',href:'/blog'},{label:'GYIK',href:'/gyik'},{label:'Kapcsolat',href:'/kapcsolat'}]}];
+const footer=(prefix:string):StorefrontComponentNode=>node({id:`${prefix}-footer`,componentKey:'editorial.footer',componentVersion:1,config:{brandLabel:'Spec Lab',columns:footerColumns,copyright:'© Spec Lab',tone:'primary'},bindings:{brandLabel:{path:'brand.name',fallback:'Spec Lab'},columns:{path:'navigation.footer',fallback:footerColumns},copyright:{path:'brand.copyright',fallback:'© Spec Lab'}}});
+const base=(pageKey:string,pageType:StorefrontBuilderPageType,sections:StorefrontComponentNode[],metadata:Record<string,unknown>={}):StorefrontPageDocument=>({schemaVersion:STOREFRONT_PAGE_SCHEMA_VERSION,pageKey,pageType,templateKey:SPEC_LAB_TEMPLATE_KEY,templateVersion:SPEC_LAB_TEMPLATE_VERSION,metadata:{scaleOutTemplate:'Spec Lab',legacyWorkingName:SPEC_LAB_LEGACY_WORKING_NAME,templateCategory:'electronics-tech',visualDNA:SPEC_LAB_VISUAL_DNA.character,...metadata},sections});
+const grid=(id:string,title:string,path:string,columns=4):StorefrontComponentNode=>node({id,componentKey:'commerce.product-grid',componentVersion:1,config:{title,products:[],columns,presentation:'tech',showBadges:true,showCompareAt:true,imageRatio:'1 / 1',emptyLabel:'Jelenleg nincs megjeleníthető termék.',currency:'HUF'},bindings:{title:{path:`content.${id}.title`,fallback:title},products:{path,fallback:[]}}});
+const rec=(id:string,title:string,path:string):StorefrontComponentNode=>node({id,componentKey:'commerce.recommendation-row',componentVersion:1,config:{title,products:[],columns:4,emptyLabel:'Nincs kapcsolódó ajánlat.',currency:'HUF'},bindings:{products:{path,fallback:[]}}});
+const simple=(key:string,type:StorefrontBuilderPageType,title:string,copy:string)=>{const p=key.replaceAll('.','-');return base(key,type,[header(p),section(`${p}-body`,[node({id:`${p}-title`,componentKey:'content.heading',componentVersion:1,config:{text:title,level:1,align:'left',tone:'text'}}),node({id:`${p}-copy`,componentKey:'content.text',componentVersion:1,config:{text:copy,as:'p',align:'left',tone:'muted'}})]),footer(p)],{visualPreset:'spec-lab-dark-content'});};
 
 export const SPEC_LAB_HOME_PAGE=base('spec-lab.home','home',[
   header('spec-home'),
-  section('spec-what-are-you-looking-for',[
-    node({id:'spec-category-nav',componentKey:'commerce.collection-navigation',componentVersion:1,config:{title:'Mit keresel?',items:[],columns:4,imageRatio:'4 / 3',tone:'background'},bindings:{items:{path:'collection.techCategories',fallback:[]}}}),
-  ]),
-  section('spec-use-case-nav',[
-    node({id:'spec-use-case-navigation',componentKey:'guided.attribute-navigation',componentVersion:1,config:{eyebrow:'Decision Lab',title:'Mire használod?',items:[]},bindings:{items:{path:'catalog.useCaseNavigation',fallback:[]}}}),
-  ],'surface'),
-  section('spec-compare',[
-    node({id:'spec-compare-spotlight',componentKey:'commerce.compare-spotlight',componentVersion:1,config:{title:'Hasonlítsd össze',copy:'A valódi strukturált műszaki eltérések egy helyen.',products:[],rows:[],ctaLabel:'Teljes összehasonlítás',ctaHref:'/oldal/osszehasonlitas'},bindings:{products:{path:'commerce.compare.products',fallback:[]},rows:{path:'commerce.compare.rows',fallback:[]},ctaHref:{path:'commerce.compare.href',fallback:'/oldal/osszehasonlitas'}}}),
-  ]),
-  section('spec-tech-finder',[
-    node({id:'spec-tech-finder-block',componentKey:'guided.finder',componentVersion:1,config:{eyebrow:'Tech Finder',title:'Találd meg a megfelelő technológiát',copy:'Felhasználás, követelmény és preferencia alapján — kizárólag elérhető termékekből.',stepTitle:'1. lépés',stepCopy:'Válaszd ki a célt.',question:'Mire szeretnéd használni?',options:[],progressLabel:'1 / 3',actionLabel:'Ajánlások megnyitása',actionHref:'#spec-build-setup',resultStatus:''},bindings:{stepTitle:{path:'finder.currentStep.title',fallback:'1. lépés'},stepCopy:{path:'finder.currentStep.copy',fallback:'Válaszd ki a célt.'},question:{path:'finder.currentQuestion.label',fallback:'Mire szeretnéd használni?'},options:{path:'finder.currentQuestion.options',fallback:[]},progressLabel:{path:'finder.progressLabel',fallback:'1 / 3'},actionHref:{path:'finder.resultHref',fallback:'#spec-build-setup'},resultStatus:{path:'finder.resultStatus',fallback:''}}}),
-  ]),
-  section('spec-build-setup',[
-    node({id:'spec-build-setup-block',componentKey:'configurator.builder',componentVersion:1,config:{eyebrow:'Setup Builder',title:'Építsd fel a szetted',copy:'Valódi katalógustermékekből, slot-alapú rendszerben.',slots:[],selectedCount:0,requiredCount:0,subtotal:'',currency:'HUF',actionLabel:'Kompatibilitás ellenőrzése',actionHref:'#spec-compatibility',revalidationLabel:'A végleges kompatibilitás, ár, készlet és csatorna szerveroldali újraellenőrzést igényel.'},bindings:{slots:{path:'configurator.slots',fallback:[]},selectedCount:{path:'configurator.selectedCount',fallback:0},requiredCount:{path:'configurator.requiredCount',fallback:0},subtotal:{path:'configurator.currentSubtotal',fallback:''},currency:{path:'configurator.currency',fallback:'HUF'},actionHref:{path:'configurator.actionHref',fallback:'#spec-compatibility'}}}),
-  ],'surface'),
-  section('spec-compatibility',[
-    node({id:'spec-compatibility',componentKey:'compatibility.status',componentVersion:1,config:{title:'Compatibility Matrix',status:'unknown',compatibleLabel:'Kompatibilis',incompatibleLabel:'Nem kompatibilis',unknownLabel:'Ismeretlen',copy:'Az Ismeretlen állapot nem tekinthető kompatibilisnek.'},bindings:{status:{path:'compatibility.status',fallback:'unknown'},copy:{path:'compatibility.summary',fallback:'Az Ismeretlen állapot nem tekinthető kompatibilisnek.'}}}),
-    node({id:'spec-compatibility-evidence',componentKey:'compatibility.evidence',componentVersion:1,config:{title:'Döntési bizonyíték',items:[],emptyLabel:'Nincs elég adat a kompatibilitás megállapításához.'},bindings:{items:{path:'compatibility.evidence',fallback:[]}}}),
-  ]),
-  section('spec-system-requirements',[
-    node({id:'spec-system-requirements-block',componentKey:'commerce.key-specs',componentVersion:1,config:{title:'System Requirements',items:[],columns:4,missingLabel:'Nincs megadva'},bindings:{items:{path:'system.requirements',fallback:[]}}}),
-  ]),
-  section('spec-accessory-matcher',[recommendations('spec-accessory-matcher-row','Accessory Matcher','recommendations.accessories')]),
-  section('spec-trade-in',[
-    node({id:'spec-trade-in-title',componentKey:'content.heading',componentVersion:1,config:{text:'Trade-in',level:2,align:'left',tone:'text'}}),
-    node({id:'spec-trade-in-copy',componentKey:'content.text',componentVersion:1,config:{text:'A trade-in felület csak a kereskedő valódi csereprogramjához kapcsolódik; a sablon nem becsül és nem ígér visszavásárlási értéket.',as:'p',align:'left',tone:'muted'}}),
-    node({id:'spec-trade-in-cta',componentKey:'content.button',componentVersion:1,config:{label:'Trade-in lehetőségek',href:'/oldal/trade-in',variant:'secondary',size:'m',ariaLabel:'Trade-in lehetőségek'},bindings:{href:{path:'commerce.tradeInHref',fallback:'/oldal/trade-in'}}}),
-  ],'surface'),
-  section('spec-tech-magazine',[
-    node({id:'spec-tech-magazine-block',componentKey:'editorial.journal-preview',componentVersion:1,config:{title:'Tech Magazine',items:[{id:'ports-guide',title:'Portok és szabványok',href:'/blog/portok-es-szabvanyok',image:'/storefront-demo/spec-lab/matrix.svg',imageAlt:'Spec Lab műszaki mátrix illusztráció'}],columns:3,emptyLabel:'Hamarosan új útmutatók érkeznek.'},bindings:{items:{path:'story.techMagazine.items',fallback:[{id:'ports-guide',title:'Portok és szabványok',href:'/blog/portok-es-szabvanyok',image:'/storefront-demo/spec-lab/matrix.svg',imageAlt:'Spec Lab műszaki mátrix illusztráció'}]}}}),
-  ]),
+  section('spec-find-category',[node({id:'spec-category-nav',componentKey:'commerce.collection-navigation',componentVersion:1,config:{title:'Mit keresel?',items:[],columns:4,imageRatio:'4 / 3',tone:'background'},bindings:{items:{path:'collection.techCategories',fallback:[]}}})]),
+  section('spec-use-case',[node({id:'spec-use-case-nav',componentKey:'guided.attribute-navigation',componentVersion:1,config:{eyebrow:'Decision Lab',title:'Mire használod?',items:[]},bindings:{items:{path:'catalog.useCaseNavigation',fallback:[]}}})],'surface'),
+  section('spec-compare',[node({id:'spec-compare-spotlight',componentKey:'commerce.compare-spotlight',componentVersion:1,config:{title:'Hasonlítsd össze',copy:'A valódi strukturált műszaki eltérések egy helyen.',products:[],rows:[],ctaLabel:'Teljes összehasonlítás',ctaHref:'/oldal/osszehasonlitas'},bindings:{products:{path:'commerce.compareProducts',fallback:[]},rows:{path:'commerce.compareRows',fallback:[]},ctaHref:{path:'commerce.compareHref',fallback:'/oldal/osszehasonlitas'}}})]),
+  section('spec-finder',[node({id:'spec-tech-finder',componentKey:'guided.finder',componentVersion:1,config:{eyebrow:'Tech Finder',title:'Találd meg a megfelelő technológiát',copy:'Felhasználás, követelmény és preferencia alapján — kizárólag elérhető termékekből.',stepTitle:'1. lépés',stepCopy:'Válaszd ki a célt.',question:'Mire szeretnéd használni?',options:[],progressLabel:'1 / 3',actionLabel:'Ajánlások megnyitása',actionHref:'#spec-builder',resultStatus:''},bindings:{stepTitle:{path:'finder.currentStep.title',fallback:'1. lépés'},stepCopy:{path:'finder.currentStep.copy',fallback:'Válaszd ki a célt.'},question:{path:'finder.currentQuestion.label',fallback:'Mire szeretnéd használni?'},options:{path:'finder.currentQuestion.options',fallback:[]},progressLabel:{path:'finder.progressLabel',fallback:'1 / 3'},actionHref:{path:'finder.resultHref',fallback:'#spec-builder'},resultStatus:{path:'finder.resultStatus',fallback:''}}})]),
+  section('spec-builder',[node({id:'spec-builder-block',componentKey:'configurator.builder',componentVersion:1,config:{eyebrow:'Setup Builder',title:'Építsd fel a szetted',copy:'Valódi katalógustermékekből, slot-alapú rendszerben.',slots:[],selectedCount:0,requiredCount:0,subtotal:'',currency:'HUF',actionLabel:'Kompatibilitás ellenőrzése',actionHref:'#spec-compatibility',revalidationLabel:'A végleges kompatibilitás, ár, készlet és csatorna szerveroldali újraellenőrzést igényel.'},bindings:{slots:{path:'configurator.slots',fallback:[]},selectedCount:{path:'configurator.selectedCount',fallback:0},requiredCount:{path:'configurator.requiredCount',fallback:0},subtotal:{path:'configurator.currentSubtotal',fallback:''},currency:{path:'configurator.currency',fallback:'HUF'},actionHref:{path:'configurator.actionHref',fallback:'#spec-compatibility'}}})],'surface'),
+  section('spec-compatibility',[node({id:'spec-compatibility-status',componentKey:'compatibility.status',componentVersion:1,config:{title:'Compatibility Matrix',status:'unknown',compatibleLabel:'Kompatibilis',incompatibleLabel:'Nem kompatibilis',unknownLabel:'Ismeretlen',copy:'Az Ismeretlen állapot nem tekinthető kompatibilisnek.'},bindings:{status:{path:'compatibility.status',fallback:'unknown'},copy:{path:'compatibility.summary',fallback:'Az Ismeretlen állapot nem tekinthető kompatibilisnek.'}}}),node({id:'spec-compatibility-evidence',componentKey:'compatibility.evidence',componentVersion:1,config:{title:'Döntési bizonyíték',items:[],emptyLabel:'Nincs elég adat a kompatibilitás megállapításához.'},bindings:{items:{path:'compatibility.evidence',fallback:[]}}})]),
+  section('spec-requirements',[node({id:'spec-system-requirements',componentKey:'commerce.key-specs',componentVersion:1,config:{title:'System Requirements',items:[],columns:4,missingLabel:'Nincs megadva'},bindings:{items:{path:'product.systemRequirements',fallback:[]}}})]),
+  section('spec-accessories',[rec('spec-accessory-matcher','Accessory Matcher','recommendations.accessories')]),
+  section('spec-trade-in',[node({id:'spec-trade-title',componentKey:'content.heading',componentVersion:1,config:{text:'Trade-in',level:2,align:'left',tone:'text'}}),node({id:'spec-trade-copy',componentKey:'content.text',componentVersion:1,config:{text:'A sablon csak a kereskedő valódi csereprogramjához kapcsolódik; nem becsül és nem ígér visszavásárlási értéket.',as:'p',align:'left',tone:'muted'}}),node({id:'spec-trade-cta',componentKey:'content.button',componentVersion:1,config:{label:'Trade-in lehetőségek',href:'/oldal/trade-in',variant:'secondary',size:'m',ariaLabel:'Trade-in lehetőségek'},bindings:{href:{path:'commerce.tradeInHref',fallback:'/oldal/trade-in'}}})],'surface'),
+  section('spec-magazine',[node({id:'spec-magazine-block',componentKey:'editorial.journal-preview',componentVersion:1,config:{title:'Tech Magazine',items:[{id:'ports-guide',title:'Portok és szabványok',href:'/blog/portok-es-szabvanyok',image:'/storefront-demo/spec-lab/matrix.svg',imageAlt:'Spec Lab műszaki mátrix illusztráció'}],columns:3,emptyLabel:'Hamarosan új útmutatók érkeznek.'},bindings:{items:{path:'content.techMagazineItems',fallback:[{id:'ports-guide',title:'Portok és szabványok',href:'/blog/portok-es-szabvanyok',image:'/storefront-demo/spec-lab/matrix.svg',imageAlt:'Spec Lab műszaki mátrix illusztráció'}]}}})]),
   footer('spec-home'),
 ],{sectionOrder:SPEC_LAB_HOME_SECTION_ORDER,decisionPath:SPEC_LAB_DECISION_PATH,visualPreset:'dark-navy-ochre-specialist-tech',engineBinding:'E2+E3+E5+E6+E7+E10'});
 
-export const SPEC_LAB_CATALOG_PAGE=base('spec-lab.catalog','catalog',[
-  header('spec-catalog'),
-  section('spec-catalog-guidance',[node({id:'spec-catalog-nav',componentKey:'guided.attribute-navigation',componentVersion:1,config:{eyebrow:'Tech taxonomy',title:'Műszaki kategóriák és use case-ek',items:[]},bindings:{items:{path:'catalog.guidedNavigation',fallback:[]}}})]),
-  section('spec-catalog-body',[node({id:'spec-catalog-layout',componentKey:'layout.grid',componentVersion:1,config:{columns:12,gap:'l',align:'start'},children:[
-    node({id:'spec-catalog-facets',componentKey:'commerce.catalog-facets',componentVersion:1,config:{title:'Spec szűrés',facets:[],clearHref:'/webaruhaz',clearLabel:'Törlés'},bindings:{facets:{path:'catalog.facets',fallback:[]},clearHref:{path:'catalog.clearHref',fallback:'/webaruhaz'}},responsive:{desktop:{gridSpan:3},tablet:{gridSpan:4},mobile:{gridSpan:12}}}),
-    node({...productGrid('specCatalogGrid','Technológia','catalog.products',3),responsive:{desktop:{gridSpan:9},tablet:{gridSpan:8},mobile:{gridSpan:12}}}),
-  ]})]),
-  footer('spec-catalog'),
-],{engineBinding:'E2+E7'});
+export const SPEC_LAB_CATALOG_PAGE=base('spec-lab.catalog','catalog',[header('spec-catalog'),section('spec-catalog-guidance',[node({id:'spec-catalog-nav',componentKey:'guided.attribute-navigation',componentVersion:1,config:{eyebrow:'Tech taxonomy',title:'Műszaki kategóriák és use case-ek',items:[]},bindings:{items:{path:'catalog.guidedNavigation',fallback:[]}}})]),section('spec-catalog-body',[node({id:'spec-catalog-layout',componentKey:'layout.grid',componentVersion:1,config:{columns:12,gap:'l',align:'start'},children:[node({id:'spec-catalog-facets',componentKey:'commerce.catalog-facets',componentVersion:1,config:{title:'Spec szűrés',facets:[],clearHref:'/webaruhaz',clearLabel:'Törlés'},bindings:{facets:{path:'catalog.facets',fallback:[]},clearHref:{path:'catalog.clearHref',fallback:'/webaruhaz'}},responsive:{desktop:{gridSpan:3},tablet:{gridSpan:4},mobile:{gridSpan:12}}}),node({...grid('specCatalogGrid','Technológia','catalog.products',3),responsive:{desktop:{gridSpan:9},tablet:{gridSpan:8},mobile:{gridSpan:12}}})]})]),footer('spec-catalog')],{engineBinding:'E2+E7'});
 
-export const SPEC_LAB_PRODUCT_PAGE=base('spec-lab.product','product',[
-  header('spec-product'),
-  section('spec-product-main',[node({id:'spec-product-layout',componentKey:'layout.grid',componentVersion:1,config:{columns:12,gap:'l',align:'start'},children:[
-    node({id:'spec-product-gallery',componentKey:'commerce.product-gallery',componentVersion:1,config:{images:[],aspectRatio:'1 / 1',thumbnailPosition:'bottom'},bindings:{images:{path:'product.gallery',fallback:[]}},responsive:{desktop:{gridSpan:7},tablet:{gridSpan:7},mobile:{gridSpan:12}}}),
-    node({id:'spec-product-buybox',componentKey:'layout.stack',componentVersion:1,config:{direction:'vertical',gap:'m',align:'stretch',justify:'start'},responsive:{desktop:{gridSpan:5},tablet:{gridSpan:5},mobile:{gridSpan:12}},children:[
-      node({id:'spec-product-info',componentKey:'commerce.product-info',componentVersion:1,config:{eyebrow:'Spec Lab',title:'Termék',price:'',compareAtPrice:'',description:'',stockLabel:'',badges:[],currency:'HUF'},bindings:{title:{path:'product.name',fallback:'Termék'},price:{path:'pricing.displayPrice',fallback:''},compareAtPrice:{path:'pricing.compareAtPrice',fallback:''},description:{path:'product.description',fallback:''},stockLabel:{path:'inventory.stockLabel',fallback:''},badges:{path:'product.badges',fallback:[]}}}),
-      node({id:'spec-product-option',componentKey:'commerce.option-selector',componentVersion:1,config:{label:'Változat',options:[]},bindings:{label:{path:'variant.optionLabel',fallback:'Változat'},options:{path:'variant.optionOptions',fallback:[]}}}),
-      node({id:'spec-product-key-specs',componentKey:'commerce.key-specs',componentVersion:1,config:{title:'Key Specs',items:[],columns:2,missingLabel:'Nincs megadva'},bindings:{items:{path:'product.keySpecs',fallback:[]}}}),
-      node({id:'spec-product-compare',componentKey:'commerce.compare-button',componentVersion:1,config:{label:'Összehasonlítás',href:'#compare',count:0,disabled:false},bindings:{href:{path:'commerce.compareHref',fallback:'#compare'},count:{path:'commerce.compareCount',fallback:0}}}),
-      node({id:'spec-product-viewer',componentKey:'content.button',componentVersion:1,config:{label:'3D nézet',href:'#viewer',variant:'secondary',size:'m',ariaLabel:'3D terméknézet megnyitása'},bindings:{href:{path:'product.viewerHref',fallback:'#viewer'}}}),
-      node({id:'spec-product-cta',componentKey:'content.button',componentVersion:1,config:{label:'Kosárba teszem',href:'#purchase',variant:'primary',size:'l',ariaLabel:'Kosárba teszem'},bindings:{label:{path:'commerce.purchaseLabel',fallback:'Kosárba teszem'},href:{path:'commerce.purchaseHref',fallback:'#purchase'}}}),
-    ]}),
-  ]})]),
-  section('spec-product-specifications',[node({id:'spec-product-spec-groups',componentKey:'commerce.specification-groups',componentVersion:1,config:{title:'Részletes specifikáció',groups:[],missingLabel:'Nincs megadva'},bindings:{groups:{path:'product.specGroups',fallback:[]}}})]),
-  section('spec-product-compatibility',[
-    node({id:'spec-product-compatibility-status',componentKey:'compatibility.status',componentVersion:1,config:{title:'Kompatibilitás',status:'unknown',compatibleLabel:'Kompatibilis',incompatibleLabel:'Nem kompatibilis',unknownLabel:'Ismeretlen',copy:'A kompatibilitás csak bizonyíték alapján állapítható meg.'},bindings:{status:{path:'compatibility.status',fallback:'unknown'},copy:{path:'compatibility.summary',fallback:'A kompatibilitás csak bizonyíték alapján állapítható meg.'}}}),
-    node({id:'spec-product-compatibility-evidence',componentKey:'compatibility.evidence',componentVersion:1,config:{title:'Compatibility Evidence',items:[],emptyLabel:'Nincs elég kompatibilitási adat.'},bindings:{items:{path:'compatibility.productEvidence',fallback:[]}}}),
-  ]),
-  section('spec-product-accessories',[recommendations('spec-product-accessories-row','Kompatibilis kiegészítők','recommendations.accessories')]),
-  footer('spec-product'),
-],{engineBinding:'E6+E7',viewerHook:'optional-external-3d-viewer-launch'});
+export const SPEC_LAB_PRODUCT_PAGE=base('spec-lab.product','product',[header('spec-product'),section('spec-product-main',[node({id:'spec-product-layout',componentKey:'layout.grid',componentVersion:1,config:{columns:12,gap:'l',align:'start'},children:[node({id:'spec-product-gallery',componentKey:'commerce.product-gallery',componentVersion:1,config:{images:[],aspectRatio:'1 / 1',thumbnailPosition:'bottom'},bindings:{images:{path:'product.gallery',fallback:[]}},responsive:{desktop:{gridSpan:7},tablet:{gridSpan:7},mobile:{gridSpan:12}}}),node({id:'spec-product-buybox',componentKey:'layout.stack',componentVersion:1,config:{direction:'vertical',gap:'m',align:'stretch',justify:'start'},responsive:{desktop:{gridSpan:5},tablet:{gridSpan:5},mobile:{gridSpan:12}},children:[node({id:'spec-product-info',componentKey:'commerce.product-info',componentVersion:1,config:{eyebrow:'Spec Lab',title:'Termék',price:'',compareAtPrice:'',description:'',stockLabel:'',badges:[],currency:'HUF'},bindings:{title:{path:'product.name',fallback:'Termék'},price:{path:'pricing.displayPrice',fallback:''},compareAtPrice:{path:'pricing.compareAtPrice',fallback:''},description:{path:'product.description',fallback:''},stockLabel:{path:'inventory.stockLabel',fallback:''},badges:{path:'product.badges',fallback:[]}}}),node({id:'spec-product-option',componentKey:'commerce.option-selector',componentVersion:1,config:{label:'Változat',options:[]},bindings:{label:{path:'variant.optionLabel',fallback:'Változat'},options:{path:'variant.optionOptions',fallback:[]}}}),node({id:'spec-product-key-specs',componentKey:'commerce.key-specs',componentVersion:1,config:{title:'Key Specs',items:[],columns:2,missingLabel:'Nincs megadva'},bindings:{items:{path:'product.keySpecs',fallback:[]}}}),node({id:'spec-product-compare',componentKey:'commerce.compare-button',componentVersion:1,config:{label:'Összehasonlítás',href:'#compare',count:0,disabled:false},bindings:{href:{path:'commerce.compareHref',fallback:'#compare'},count:{path:'commerce.compareCount',fallback:0}}}),node({id:'spec-product-viewer',componentKey:'content.button',componentVersion:1,config:{label:'3D nézet',href:'#viewer',variant:'secondary',size:'m',ariaLabel:'3D terméknézet megnyitása'},bindings:{href:{path:'product.viewerHref',fallback:'#viewer'}}}),node({id:'spec-product-cta',componentKey:'content.button',componentVersion:1,config:{label:'Kosárba teszem',href:'#purchase',variant:'primary',size:'l',ariaLabel:'Kosárba teszem'},bindings:{label:{path:'commerce.purchaseLabel',fallback:'Kosárba teszem'},href:{path:'commerce.purchaseHref',fallback:'#purchase'}}})]})]})]),section('spec-product-specs',[node({id:'spec-product-spec-groups',componentKey:'commerce.specification-groups',componentVersion:1,config:{title:'Részletes specifikáció',groups:[],missingLabel:'Nincs megadva'},bindings:{groups:{path:'product.specGroups',fallback:[]}}})]),section('spec-product-compatibility',[node({id:'spec-product-compatibility-status',componentKey:'compatibility.status',componentVersion:1,config:{title:'Kompatibilitás',status:'unknown',compatibleLabel:'Kompatibilis',incompatibleLabel:'Nem kompatibilis',unknownLabel:'Ismeretlen',copy:'A kompatibilitás csak bizonyíték alapján állapítható meg.'},bindings:{status:{path:'compatibility.status',fallback:'unknown'},copy:{path:'compatibility.summary',fallback:'A kompatibilitás csak bizonyíték alapján állapítható meg.'}}}),node({id:'spec-product-compatibility-evidence',componentKey:'compatibility.evidence',componentVersion:1,config:{title:'Compatibility Evidence',items:[],emptyLabel:'Nincs elég kompatibilitási adat.'},bindings:{items:{path:'compatibility.productEvidence',fallback:[]}}})]),section('spec-product-accessories',[rec('spec-product-accessory-row','Kompatibilis kiegészítők','recommendations.accessories')]),footer('spec-product')],{engineBinding:'E6+E7',viewerHook:'optional-external-3d-viewer-launch'});
 
-export const SPEC_LAB_SEARCH_PAGE=base('spec-lab.search','search',[
-  header('spec-search'),
-  section('spec-search-guided',[node({id:'spec-search-results-guided',componentKey:'guided.results',componentVersion:1,config:{eyebrow:'Tech Finder',title:'Találatok',explanation:'',status:'',items:[],emptyLabel:'Nincs találat.'},bindings:{explanation:{path:'finder.explanation',fallback:''},status:{path:'finder.status',fallback:''},items:{path:'finder.items',fallback:[]}}})]),
-  section('spec-search-products',[productGrid('specSearchGrid','Keresési találatok','search.results',4)]),
-  footer('spec-search'),
-],{engineBinding:'E2+E3+E7'});
-
-export const SPEC_LAB_CART_PAGE=base('spec-lab.cart','cart',[
-  header('spec-cart'),
-  section('spec-cart-setup',[node({id:'spec-cart-config-summary',componentKey:'configurator.summary',componentVersion:1,config:{title:'Rendszer / setup',configurationId:'',items:[],subtotal:'',currency:'HUF',editLabel:'Setup szerkesztése',editHref:'#',revalidationLabel:'Ár, készlet, csatorna és kompatibilitás checkout előtt újraellenőrzésre kerül.'},bindings:{configurationId:{path:'configurator.cart.configurationId',fallback:''},items:{path:'configurator.cart.items',fallback:[]},subtotal:{path:'configurator.cart.subtotal',fallback:''},currency:{path:'configurator.cart.currency',fallback:'HUF'},editHref:{path:'configurator.cart.editHref',fallback:'#'}}})]),
-  section('spec-cart-summary',[node({id:'spec-cart-commerce-summary',componentKey:'commerce.cart-summary',componentVersion:1,config:{lines:[],subtotal:'',total:'',currency:'HUF',checkoutHref:'/penztar',checkoutLabel:'Tovább a pénztárhoz',emptyLabel:'A kosarad üres.'},bindings:{lines:{path:'cart.lines',fallback:[]},subtotal:{path:'cart.subtotal',fallback:''},total:{path:'cart.total',fallback:''}}})]),
-  footer('spec-cart'),
-],{engineBinding:'E5+E6'});
-
-export const SPEC_LAB_CHECKOUT_PAGE=base('spec-lab.checkout','checkout',[
-  header('spec-checkout'),
-  section('spec-checkout-summary',[node({id:'spec-checkout-commerce-summary',componentKey:'commerce.checkout-summary',componentVersion:1,config:{lines:[],subtotal:'',shipping:'',total:'',currency:'HUF',secureLabel:'Biztonságos, provider-neutral checkout.'},bindings:{lines:{path:'cart.lines',fallback:[]},subtotal:{path:'cart.subtotal',fallback:''},shipping:{path:'cart.shipping',fallback:''},total:{path:'cart.total',fallback:''}}})]),
-  footer('spec-checkout'),
-],{engineBinding:'E13'});
-
-export const SPEC_LAB_ACCOUNT_PAGE=base('spec-lab.account','account',[
-  header('spec-account'),
-  section('spec-account-setup',[node({id:'spec-account-config-summary',componentKey:'configurator.summary',componentVersion:1,config:{title:'Mentett setup',configurationId:'',items:[],subtotal:'',currency:'HUF',editLabel:'Setup megnyitása',editHref:'#',revalidationLabel:'A mentett setup nem garantál jelenlegi árat, készletet vagy kompatibilitást.'},bindings:{configurationId:{path:'configurator.account.configurationId',fallback:''},items:{path:'configurator.account.items',fallback:[]},subtotal:{path:'configurator.account.subtotal',fallback:''},currency:{path:'configurator.account.currency',fallback:'HUF'},editHref:{path:'configurator.account.editHref',fallback:'#'}}})]),
-  footer('spec-account'),
-],{engineBinding:'E5'});
-
-export const SPEC_LAB_CONTENT_PAGE=base('spec-lab.content','content',[
-  header('spec-content'),
-  section('spec-content-finder',[node({id:'spec-content-finder-block',componentKey:'guided.finder',componentVersion:1,config:{eyebrow:'Tech Finder',title:'Döntéstámogató Finder',copy:'Felhasználás és műszaki igény szerint segít szűkíteni.',stepTitle:'1. lépés',stepCopy:'Válassz célt.',question:'Mi a fő felhasználási cél?',options:[],progressLabel:'1 / 3',actionLabel:'Tovább',actionHref:'#spec-content-builder',resultStatus:''},bindings:{question:{path:'finder.currentQuestion.label',fallback:'Mi a fő felhasználási cél?'},options:{path:'finder.currentQuestion.options',fallback:[]},progressLabel:{path:'finder.progressLabel',fallback:'1 / 3'}}})]),
-  section('spec-content-builder',[node({id:'spec-content-builder-block',componentKey:'configurator.builder',componentVersion:1,config:{eyebrow:'System Builder',title:'Építs kompatibilis rendszert',copy:'Slot-alapú összeállítás valódi katalógustermékekből.',slots:[],selectedCount:0,requiredCount:0,subtotal:'',currency:'HUF',actionLabel:'Kompatibilitás ellenőrzése',actionHref:'#spec-content-compatibility',revalidationLabel:'A végleges kompatibilitás, ár, készlet és csatorna szerveroldali újraellenőrzést igényel.'},bindings:{slots:{path:'configurator.slots',fallback:[]},selectedCount:{path:'configurator.selectedCount',fallback:0},requiredCount:{path:'configurator.requiredCount',fallback:0},subtotal:{path:'configurator.currentSubtotal',fallback:''},currency:{path:'configurator.currency',fallback:'HUF'},actionHref:{path:'configurator.actionHref',fallback:'#spec-content-compatibility'}}})],'surface'),
-  section('spec-content-compatibility',[node({id:'spec-content-compatibility-status',componentKey:'compatibility.status',componentVersion:1,config:{title:'Compatibility Matrix',status:'unknown',compatibleLabel:'Kompatibilis',incompatibleLabel:'Nem kompatibilis',unknownLabel:'Ismeretlen',copy:'Az Ismeretlen állapot nem tekinthető kompatibilisnek.'},bindings:{status:{path:'compatibility.status',fallback:'unknown'},copy:{path:'compatibility.summary',fallback:'Az Ismeretlen állapot nem tekinthető kompatibilisnek.'}}}),node({id:'spec-content-compatibility-evidence',componentKey:'compatibility.evidence',componentVersion:1,config:{title:'Compatibility Evidence',items:[],emptyLabel:'Nincs elég adat.'},bindings:{items:{path:'compatibility.evidence',fallback:[]}}})]),
-  footer('spec-content'),
-],{contentRole:'tech-finder-and-system-builder',engineBinding:'E3+E5+E6+E7'});
+export const SPEC_LAB_SEARCH_PAGE=base('spec-lab.search','search',[header('spec-search'),section('spec-search-guided',[node({id:'spec-search-guided-results',componentKey:'guided.results',componentVersion:1,config:{eyebrow:'Tech Finder',title:'Találatok',explanation:'',status:'',items:[],emptyLabel:'Nincs találat.'},bindings:{explanation:{path:'finder.explanation',fallback:''},status:{path:'finder.status',fallback:''},items:{path:'finder.items',fallback:[]}}})]),section('spec-search-products',[grid('specSearchGrid','Keresési találatok','search.results',4)]),footer('spec-search')],{engineBinding:'E2+E3+E7'});
+export const SPEC_LAB_CART_PAGE=base('spec-lab.cart','cart',[header('spec-cart'),section('spec-cart-setup',[node({id:'spec-cart-config-summary',componentKey:'configurator.summary',componentVersion:1,config:{title:'Rendszer / setup',configurationId:'',items:[],subtotal:'',currency:'HUF',editLabel:'Setup szerkesztése',editHref:'#',revalidationLabel:'Ár, készlet, csatorna és kompatibilitás checkout előtt újraellenőrzésre kerül.'},bindings:{configurationId:{path:'configurator.cartConfigurationId',fallback:''},items:{path:'configurator.cartItems',fallback:[]},subtotal:{path:'configurator.cartSubtotal',fallback:''},currency:{path:'configurator.currency',fallback:'HUF'},editHref:{path:'configurator.editHref',fallback:'#'}}})]),section('spec-cart-summary',[node({id:'spec-cart-commerce-summary',componentKey:'commerce.cart-summary',componentVersion:1,config:{lines:[],subtotal:'',total:'',currency:'HUF',checkoutHref:'/penztar',checkoutLabel:'Tovább a pénztárhoz',emptyLabel:'A kosarad üres.'},bindings:{lines:{path:'cart.lines',fallback:[]},subtotal:{path:'cart.subtotal',fallback:''},total:{path:'cart.total',fallback:''}}})]),footer('spec-cart')],{engineBinding:'E5+E6'});
+export const SPEC_LAB_CHECKOUT_PAGE=base('spec-lab.checkout','checkout',[header('spec-checkout'),section('spec-checkout-summary',[node({id:'spec-checkout-commerce-summary',componentKey:'commerce.checkout-summary',componentVersion:1,config:{lines:[],subtotal:'',shipping:'',total:'',currency:'HUF',secureLabel:'Biztonságos, provider-neutral checkout.'},bindings:{lines:{path:'cart.lines',fallback:[]},subtotal:{path:'cart.subtotal',fallback:''},shipping:{path:'cart.shipping',fallback:''},total:{path:'cart.total',fallback:''}}})]),footer('spec-checkout')],{engineBinding:'E13'});
+export const SPEC_LAB_ACCOUNT_PAGE=base('spec-lab.account','account',[header('spec-account'),section('spec-account-setup',[node({id:'spec-account-config-summary',componentKey:'configurator.summary',componentVersion:1,config:{title:'Mentett setup',configurationId:'',items:[],subtotal:'',currency:'HUF',editLabel:'Setup megnyitása',editHref:'#',revalidationLabel:'A mentett setup nem garantál jelenlegi árat, készletet vagy kompatibilitást.'},bindings:{configurationId:{path:'configurator.accountConfigurationId',fallback:''},items:{path:'configurator.accountItems',fallback:[]},subtotal:{path:'configurator.accountSubtotal',fallback:''},currency:{path:'configurator.currency',fallback:'HUF'},editHref:{path:'configurator.editHref',fallback:'#'}}})]),footer('spec-account')],{engineBinding:'E5'});
+export const SPEC_LAB_CONTENT_PAGE=base('spec-lab.content','content',[header('spec-content'),section('spec-content-finder',[node({id:'spec-content-finder-block',componentKey:'guided.finder',componentVersion:1,config:{eyebrow:'Tech Finder',title:'Döntéstámogató Finder',copy:'Felhasználás és műszaki igény szerint segít szűkíteni.',stepTitle:'1. lépés',stepCopy:'Válassz célt.',question:'Mi a fő felhasználási cél?',options:[],progressLabel:'1 / 3',actionLabel:'Tovább',actionHref:'#spec-content-builder',resultStatus:''},bindings:{question:{path:'finder.currentQuestion.label',fallback:'Mi a fő felhasználási cél?'},options:{path:'finder.currentQuestion.options',fallback:[]},progressLabel:{path:'finder.progressLabel',fallback:'1 / 3'}}})]),section('spec-content-builder',[node({id:'spec-content-builder-block',componentKey:'configurator.builder',componentVersion:1,config:{eyebrow:'System Builder',title:'Építs kompatibilis rendszert',copy:'Slot-alapú összeállítás valódi katalógustermékekből.',slots:[],selectedCount:0,requiredCount:0,subtotal:'',currency:'HUF',actionLabel:'Kompatibilitás ellenőrzése',actionHref:'#spec-content-compatibility',revalidationLabel:'A végleges kompatibilitás, ár, készlet és csatorna szerveroldali újraellenőrzést igényel.'},bindings:{slots:{path:'configurator.slots',fallback:[]},selectedCount:{path:'configurator.selectedCount',fallback:0},requiredCount:{path:'configurator.requiredCount',fallback:0},subtotal:{path:'configurator.currentSubtotal',fallback:''},currency:{path:'configurator.currency',fallback:'HUF'},actionHref:{path:'configurator.actionHref',fallback:'#spec-content-compatibility'}}})],'surface'),section('spec-content-compatibility',[node({id:'spec-content-compatibility-status',componentKey:'compatibility.status',componentVersion:1,config:{title:'Compatibility Matrix',status:'unknown',compatibleLabel:'Kompatibilis',incompatibleLabel:'Nem kompatibilis',unknownLabel:'Ismeretlen',copy:'Az Ismeretlen állapot nem tekinthető kompatibilisnek.'},bindings:{status:{path:'compatibility.status',fallback:'unknown'},copy:{path:'compatibility.summary',fallback:'Az Ismeretlen állapot nem tekinthető kompatibilisnek.'}}}),node({id:'spec-content-compatibility-evidence',componentKey:'compatibility.evidence',componentVersion:1,config:{title:'Compatibility Evidence',items:[],emptyLabel:'Nincs elég adat.'},bindings:{items:{path:'compatibility.evidence',fallback:[]}}})]),footer('spec-content')],{contentRole:'tech-finder-and-system-builder',engineBinding:'E3+E5+E6+E7'});
 
 export const SPEC_LAB_BLOG_INDEX_PAGE=simple('spec-lab.blog-index','blog-index','Tech Magazine','Vásárlási útmutatók, szabványok, kompatibilitás és technológiai döntéstámogatás.');
 export const SPEC_LAB_BLOG_ARTICLE_PAGE=simple('spec-lab.blog-article','blog-article','Tech Magazine','Strukturált szerkesztőségi tartalom E10 story authority-ből.');
@@ -234,28 +82,5 @@ export const SPEC_LAB_CONTACT_PAGE=simple('spec-lab.contact','contact','Kapcsola
 export const SPEC_LAB_LEGAL_PAGE=simple('spec-lab.legal','legal','Jogi információk','A kereskedő jogi és adatkezelési tartalmának helye.');
 export const SPEC_LAB_NOT_FOUND_PAGE=simple('spec-lab.not-found','not-found','404','A keresett oldal nem található.');
 
-export const SPEC_LAB_TEMPLATE_MANIFEST=defineStorefrontTemplateManifest({
-  foundationVersion:STOREFRONT_BUILDER_FOUNDATION_VERSION,
-  manifestVersion:STOREFRONT_TEMPLATE_MANIFEST_VERSION,
-  templateKey:SPEC_LAB_TEMPLATE_KEY,
-  templateVersion:SPEC_LAB_TEMPLATE_VERSION,
-  pageSchemaVersion:STOREFRONT_PAGE_SCHEMA_VERSION,
-  minPlan:'alap',
-  requiredFeatures:['catalog','inventory','orders','contentMarketing','productRecommendations','searchFiltering','commerceIntegrations'],
-  pageTypes:['home','catalog','product','search','cart','checkout','account','content','blog-index','blog-article','faq','contact','legal','not-found'],
-  responsive:{desktop:true,tablet:true,mobile:true},
-  migration:STOREFRONT_TEMPLATE_MIGRATION_POLICY,
-  demoContent:{namespace:'tech-spec-lab',policy:STOREFRONT_DEMO_CONTENT_POLICY},
-});
-
-export const SPEC_LAB_TEMPLATE_PACKAGE:StorefrontInstallableTemplatePackage={
-  manifest:SPEC_LAB_TEMPLATE_MANIFEST,
-  pages:[SPEC_LAB_HOME_PAGE,SPEC_LAB_CATALOG_PAGE,SPEC_LAB_PRODUCT_PAGE,SPEC_LAB_SEARCH_PAGE,SPEC_LAB_CART_PAGE,SPEC_LAB_CHECKOUT_PAGE,SPEC_LAB_ACCOUNT_PAGE,SPEC_LAB_CONTENT_PAGE,SPEC_LAB_BLOG_INDEX_PAGE,SPEC_LAB_BLOG_ARTICLE_PAGE,SPEC_LAB_FAQ_PAGE,SPEC_LAB_CONTACT_PAGE,SPEC_LAB_LEGAL_PAGE,SPEC_LAB_NOT_FOUND_PAGE],
-  demoFixtures:[
-    {entityType:'collection',entityKey:'performance-computing',payload:{title:'Performance Computing',handle:'performance-computing',demo:true}},
-    {entityType:'collection',entityKey:'mobile-tech',payload:{title:'Mobile Tech',handle:'mobile-tech',demo:true}},
-    {entityType:'product',entityKey:'spec-lab-hub',payload:{name:'Spec Lab Hub',slug:'spec-lab-hub',kind:'connectivity-hub',demo:true}},
-    {entityType:'product',entityKey:'spec-lab-display',payload:{name:'Spec Lab Display',slug:'spec-lab-display',kind:'display',demo:true}},
-    {entityType:'content',entityKey:'standards-guide',payload:{title:'Standards Guide',kind:'technology-guide',demo:true}},
-  ],
-};
+export const SPEC_LAB_TEMPLATE_MANIFEST=defineStorefrontTemplateManifest({foundationVersion:STOREFRONT_BUILDER_FOUNDATION_VERSION,manifestVersion:STOREFRONT_TEMPLATE_MANIFEST_VERSION,templateKey:SPEC_LAB_TEMPLATE_KEY,templateVersion:SPEC_LAB_TEMPLATE_VERSION,pageSchemaVersion:STOREFRONT_PAGE_SCHEMA_VERSION,minPlan:'alap',requiredFeatures:['catalog','inventory','orders','contentMarketing','productRecommendations','searchFiltering','commerceIntegrations'],pageTypes:['home','catalog','product','search','cart','checkout','account','content','blog-index','blog-article','faq','contact','legal','not-found'],responsive:{desktop:true,tablet:true,mobile:true},migration:STOREFRONT_TEMPLATE_MIGRATION_POLICY,demoContent:{namespace:'tech-spec-lab',policy:STOREFRONT_DEMO_CONTENT_POLICY}});
+export const SPEC_LAB_TEMPLATE_PACKAGE:StorefrontInstallableTemplatePackage={manifest:SPEC_LAB_TEMPLATE_MANIFEST,pages:[SPEC_LAB_HOME_PAGE,SPEC_LAB_CATALOG_PAGE,SPEC_LAB_PRODUCT_PAGE,SPEC_LAB_SEARCH_PAGE,SPEC_LAB_CART_PAGE,SPEC_LAB_CHECKOUT_PAGE,SPEC_LAB_ACCOUNT_PAGE,SPEC_LAB_CONTENT_PAGE,SPEC_LAB_BLOG_INDEX_PAGE,SPEC_LAB_BLOG_ARTICLE_PAGE,SPEC_LAB_FAQ_PAGE,SPEC_LAB_CONTACT_PAGE,SPEC_LAB_LEGAL_PAGE,SPEC_LAB_NOT_FOUND_PAGE],demoFixtures:[{entityType:'collection',entityKey:'performance-computing',payload:{title:'Performance Computing',handle:'performance-computing',demo:true}},{entityType:'collection',entityKey:'mobile-tech',payload:{title:'Mobile Tech',handle:'mobile-tech',demo:true}},{entityType:'product',entityKey:'spec-lab-hub',payload:{name:'Spec Lab Hub',slug:'spec-lab-hub',kind:'connectivity-hub',demo:true}},{entityType:'product',entityKey:'spec-lab-display',payload:{name:'Spec Lab Display',slug:'spec-lab-display',kind:'display',demo:true}},{entityType:'content',entityKey:'standards-guide',payload:{title:'Standards Guide',kind:'technology-guide',demo:true}}]};
