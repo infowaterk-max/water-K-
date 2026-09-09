@@ -9,6 +9,7 @@ Wave 22 adds **Trail & Expedition** as the second Sport & Outdoor storefront dir
 - Base branch: `feature/storefront-sport-hub-wave21`
 - Exact base head: `2b796958557ca896277b0bfeca56b7ab3fb56694`
 - Branch: `feature/storefront-trail-expedition-wave22`
+- Accepted implementation head: `64aa8c4379bdd1f25ba09019b0fff8bc9c627308`
 
 This is a code-only storefront scale-out wave. It does not authorize a Vercel deploy, Supabase mutation, SQL migration, payment/K&H/vPOS change, main merge or Water-K status change.
 
@@ -75,7 +76,7 @@ Implementation palette:
 - trail amber accent `#D69A46`;
 - slate secondary.
 
-The exact token values above are a Wave 22 implementation choice supporting the previously approved dark/cinematic direction; they are not represented as an earlier pixel-level visual approval.
+The exact token values above are a Wave 22 implementation choice supporting the approved dark/cinematic direction; they are not represented as an earlier pixel-level visual approval.
 
 Imagery direction:
 
@@ -233,6 +234,46 @@ No drag/drop Visual Builder UI is added.
 
 Template installation/switching may write storefront Page Schema drafts only. It may not mutate products, variants, customers, orders, B2B data, payment authority or production configuration.
 
+## Accepted implementation CI
+
+Accepted implementation head:
+
+`64aa8c4379bdd1f25ba09019b0fff8bc9c627308`
+
+GitHub **CI #2070 / Actions run `34333281448`: SUCCESS**.
+
+Verified:
+
+- production dependency security audit: PASS;
+- customer database baseline guard: PASS;
+- quality: **200 test files / 1350 tests PASS**;
+- 1350 passed / 0 failed / 0 pending / 0 todo;
+- TypeScript: PASS;
+- production build: PASS;
+- release manifest generation/upload: PASS;
+- Fresh Install: intentionally SKIPPED because Wave 22 introduces no baseline migration.
+
+Implementation release manifest:
+
+- version: `v24`;
+- SHA: `64aa8c4379bdd1f25ba09019b0fff8bc9c627308`;
+- ref: `feature/storefront-trail-expedition-wave22`;
+- environment: `ci`;
+- release hash: `846fbfaa679b711626a62f8f4ed87781403090cf090a681a6da91726fa7c3e0f`.
+
+## Implementation diff
+
+Compared with Sport Hub final head `2b796958557ca896277b0bfeca56b7ab3fb56694`, accepted implementation head is:
+
+- 6 commits ahead;
+- 0 behind;
+- 6 added files;
+- 0 deleted files;
+- 525 additions;
+- 0 deletions.
+
+No SQL/customer-baseline or pre-existing product/pricing/inventory/order/payment authority file is modified.
+
 ## Explicit no-deploy rule
 
 Wave 22 does not trigger or authorize:
@@ -248,8 +289,6 @@ GitHub production build remains compilation/evidence only.
 
 Wave 22 closes only when:
 
-1. full current-head GitHub CI is green;
-2. implementation evidence and release hash are recorded;
-3. the final documentation HEAD also passes full CI;
-4. a Draft PR is stacked directly on `feature/storefront-sport-hub-wave21` / PR #144;
-5. that PR is open, not merged and mergeable.
+1. this final documentation HEAD passes full current-head GitHub CI;
+2. a Draft PR is stacked directly on `feature/storefront-sport-hub-wave21` / PR #144;
+3. that PR is open, not merged and mergeable.
