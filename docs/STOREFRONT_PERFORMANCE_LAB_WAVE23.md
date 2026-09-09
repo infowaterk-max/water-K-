@@ -9,6 +9,7 @@ Wave 23 adds **Performance Lab** as the third Sport & Outdoor storefront directi
 - Base branch: `feature/storefront-trail-expedition-wave22`
 - Exact base head: `5d33e337ffd8c8e92f3c1beb318d7509190b15fb`
 - Branch: `feature/storefront-performance-lab-wave23`
+- Accepted implementation head: `97df31aef8178ce523b1e940061908ebeec247dc`
 
 This is a code-only storefront scale-out wave. It does not authorize a Vercel deploy, Supabase mutation, SQL migration, payment/K&H/vPOS change, main merge or Water-K status change.
 
@@ -248,6 +249,46 @@ No drag/drop Visual Builder UI is added.
 
 Template installation/switching may write storefront Page Schema drafts only. It may not mutate products, variants, customers, orders, B2B data, payment authority or production configuration.
 
+## Accepted implementation CI
+
+Accepted implementation head:
+
+`97df31aef8178ce523b1e940061908ebeec247dc`
+
+GitHub **CI #2078 / Actions run `34336997495`: SUCCESS**.
+
+Verified:
+
+- production dependency security audit: PASS;
+- customer database baseline guard: PASS;
+- quality: **200 test files / 1351 tests PASS**;
+- 1351 passed / 0 failed / 0 pending / 0 todo;
+- TypeScript: PASS;
+- production build: PASS;
+- release manifest generation/upload: PASS;
+- Fresh Install: intentionally SKIPPED because Wave 23 introduces no baseline migration.
+
+Implementation release manifest:
+
+- version: `v24`;
+- SHA: `97df31aef8178ce523b1e940061908ebeec247dc`;
+- ref: `feature/storefront-performance-lab-wave23`;
+- environment: `ci`;
+- release hash: `91d0fd86a74bb1bb1360573ed2ba274c24759b6d1b1de84bd320f453bb171afb`.
+
+## Implementation diff
+
+Compared with Trail & Expedition final head `5d33e337ffd8c8e92f3c1beb318d7509190b15fb`, accepted implementation head is:
+
+- 6 commits ahead;
+- 0 behind;
+- 6 added files;
+- 0 deleted files;
+- 509 additions;
+- 0 deletions.
+
+No SQL/customer-baseline or pre-existing product/pricing/inventory/order/payment authority file is modified.
+
 ## Explicit no-deploy rule
 
 Wave 23 does not trigger or authorize:
@@ -263,8 +304,6 @@ GitHub production build remains compilation/evidence only.
 
 Wave 23 closes only when:
 
-1. full current-head GitHub CI is green;
-2. implementation evidence and release hash are recorded;
-3. final documentation HEAD also passes full CI;
-4. a Draft PR is stacked directly on `feature/storefront-trail-expedition-wave22` / PR #145;
-5. that PR is open, not merged and mergeable.
+1. this final documentation HEAD passes full current-head GitHub CI;
+2. a Draft PR is stacked directly on `feature/storefront-trail-expedition-wave22` / PR #145;
+3. that PR is open, not merged and mergeable.
