@@ -7,7 +7,12 @@ const migration=readFileSync(
   join(process.cwd(),'supabase/migrations/20260902213500_atomic_tenant_provisioning.sql'),
   'utf8',
 );
+const planSplitMigration=readFileSync(
+  join(process.cwd(),'supabase/migrations/20260908065800_team_chat_plan_split_v1.sql'),
+  'utf8',
+);
 const sql=migration.toLowerCase();
+const currentEntitlementSql=(migration+'\n'+planSplitMigration).toLowerCase();
 const actions=readFileSync(
   join(process.cwd(),'src/app/admin/platform/webaruhazak/actions.ts'),
   'utf8',
@@ -43,15 +48,16 @@ describe('atomic tenant provisioning gate',()=>{
     expect(sql).toContain('tenant_provisioning_organization_backfill_failed');
   });
 
-  it('keeps plan entitlements synchronized and boots every Alap feature',()=>{
+  it('keeps plan entitlements synchronized and boots every current Alap feature through the migration chain',()=>{
     expect(sql).toContain('webshop_instance_plan_entitlements_sync');
     expect(sql).toContain('create or replace function private.sync_webshop_plan_entitlements_trigger()');
     expect(sql).toContain('perform private.sync_webshop_plan_entitlements(new.id)');
     expect(sql).toContain('execute function private.sync_webshop_plan_entitlements_trigger()');
     expect(sql).not.toContain('execute function private.sync_webshop_plan_entitlements(new.id)');
-    expect(sql).toContain("where instance_id=p_instance_id and source='plan'");
+    expect(currentEntitlementSql).toContain("where instance_id=p_instance_id and source='plan'");
+    expect(planSplitMigration).toContain("managed_by','tenant_plan_sync_v2'");
     for(const feature of PLANS.alap.features){
-      expect(migration).toContain(`'${feature}'`);
+      expect(planSplitMigration).toContain(`'${feature}'`);
     }
   });
 

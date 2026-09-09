@@ -19,12 +19,19 @@ describe('cron tenant worker closure',()=>{
     expect(route).not.toMatch(/admin\.rpc\('claim_integration_jobs'/);
     expect(route).not.toMatch(/admin\.rpc\('plan_customer_retention_journeys'/);
     expect(route).not.toMatch(/admin\.rpc\('dispatch_due_customer_journey_steps'/);
-    expect(route).toContain('const ok=inventorySnapshot.ok&&loyaltyOk&&journeyOk&&integrationResults.every(result=>result.ok)&&communication.ok');
+    expect(route).toContain('const ok=inventorySnapshot.ok&&loyaltyOk&&journeyOk&&integrationResults.every(result=>result.ok)&&communication.ok&&officeAttachmentCleanup.ok');
   });
   test('communication worker owns its tenant worker-run logging',()=>{
     const route=read('src/app/api/cron/integrations/route.ts');
     expect(route).toMatch(/runCommunicationWorker\(20\)/);
     expect(route).not.toMatch(/from\('communication_worker_runs'\)\.insert/);
+  });
+  test('expired Office attachment cleanup reuses the same protected cron route',()=>{
+    const route=read('src/app/api/cron/integrations/route.ts');
+    expect(route).toContain("process.env.CRON_SECRET");
+    expect(route).toContain('cleanupExpiredOfficePrivateAttachments(25)');
+    expect(route).toContain('officeAttachmentCleanup={ok:summary.failed===0,...summary}');
+    expect(route).toContain('officeAttachmentCleanup,');
   });
   test('legacy global integration batch claim is not executable by service role',()=>{
     const sql=read('supabase/migrations/20260901171000_cron_tenant_worker_closure.sql');

@@ -17,16 +17,25 @@ describe('campaign and office workspace mutation safety',()=>{
    expect(list).toContain('Kampány létrehozása átmenetileg letiltva');
  });
 
- test('digital office blocks all write forms while any workspace source is partial',()=>{
-   const page=read('src/app/admin/kommunikacio/iroda/page.tsx');
-   expect(page).toContain('const canAct=!loadError&&!privacyFallback');
-   expect(page).toContain('canAct?<form action={createThreadAction}');
-   expect(page).toContain('canAct?<form action={createPrivateThreadAction}');
-   expect(page).toContain('!isPrivate&&canAct&&<form action={updateThreadAction}');
-   expect(page).toContain('canAct&&isUnread&&<form action={markThreadReadAction}');
-   expect(page).toContain('? canAct&&<form action={addPrivateMessageAction}');
-   expect(page).toContain(': canAct?<>');
-   expect(page).toContain('<form action={createTaskAction}');
-   expect(page).toContain('Üzenetküldés átmenetileg letiltva.');
+ test('customer email and Team Chat use separate write surfaces and both fail closed',()=>{
+   const email=read('src/app/admin/kommunikacio/iroda/page.tsx');
+   const chat=read('src/app/admin/kommunikacio/chat/page.tsx');
+   expect(email).toContain(".eq('conversation_type','customer')");
+   expect(email).toContain(".in('kind',['email_in','email_out'])");
+   expect(email).toContain('!loadError&&<form action={updateThreadAction}');
+   expect(email).toContain('form action={markCustomerThreadReadAction}');
+   expect(email).toContain('<OfficeCustomerEmailForm');
+   expect(email).toContain('<form action={createTaskAction}');
+   expect(email).not.toContain('createPrivateThreadAction');
+   expect(email).not.toContain('OfficePrivateMessageForm');
+   expect(email).not.toContain('managePrivateParticipantAction');
+
+   expect(chat).toContain(".in('conversation_type',['internal_private','internal_group'])");
+   expect(chat).toContain('{!loadError?<form action={createPrivateThreadAction}');
+   expect(chat).toContain('managePrivateParticipantAction');
+   expect(chat).toContain('transferPrivateThreadOwnerAction');
+   expect(chat).toContain('{!loadError&&<OfficePrivateMessageForm');
+   expect(chat).not.toContain('OfficeCustomerEmailForm');
+   expect(chat).not.toContain('customer_email');
  });
 });

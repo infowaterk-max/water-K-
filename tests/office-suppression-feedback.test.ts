@@ -17,7 +17,7 @@ describe('Digital Office suppression feedback',()=>{
     expect(form).toContain('Feldolgozás…');
     expect(form).toContain('animateTransform');
     expect(form).toContain("state.status==='blocked'||state.status==='error'");
-    expect(page).toContain('<OfficeCustomerEmailForm threadId={thread.id}/>');
+    expect(page).toContain('<OfficeCustomerEmailForm threadId={thread.id}');
     expect(page).not.toContain('action={sendCustomerEmailAction}');
   });
 });

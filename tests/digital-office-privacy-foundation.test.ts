@@ -57,16 +57,22 @@ describe('Digital Office privacy foundation',()=>{
     expect(sql).toContain('grant execute on function public.admin_mutate_office_privacy_v1(uuid,uuid,text,jsonb) to service_role');
   });
 
-  it('uses accessible thread ids before loading private messages and supports real assignees',()=>{
-    const page=read('src/app/admin/kommunikacio/iroda/page.tsx');
+  it('keeps customer email and private Team Chat on separate pages and read actions',()=>{
+    const email=read('src/app/admin/kommunikacio/iroda/page.tsx');
+    const chat=read('src/app/admin/kommunikacio/chat/page.tsx');
+    const emailRead=read('src/app/admin/kommunikacio/iroda/customer-read-actions.ts');
     const actions=read('src/app/admin/kommunikacio/iroda/actions.ts');
-    expect(page).toContain("db.rpc('office_accessible_thread_ids_v1'");
-    expect(page).toContain(".in('thread_id',threadIds)");
-    expect(page).toContain("name=\"assigneeUserId\"");
-    expect(page).toContain('createPrivateThreadAction');
-    expect(page).toContain('addPrivateMessageAction');
+    expect(email).toContain(".eq('conversation_type','customer')");
+    expect(email).toContain("name=\"assigneeUserId\"");
+    expect(email).not.toContain('OfficePrivateMessageForm');
+    expect(email).not.toContain('createPrivateThreadAction');
+    expect(chat).toContain("db.rpc('office_accessible_thread_ids_v1'");
+    expect(chat).toContain(".in('thread_id',threadIds)");
+    expect(chat).toContain('createPrivateThreadAction');
+    expect(chat).toContain('OfficePrivateMessageForm');
+    expect(emailRead).toContain("p_action:'mark_read'");
+    expect(emailRead).toContain("requirePlanFeature('officeCommunication')");
     expect(actions).toContain("action:'update_customer_thread'");
-    expect(actions).toContain("action:'mark_read'");
     expect(actions).toContain("action:'create_internal_thread'");
     expect(actions).toContain("action:'add_internal_message'");
     expect(actions).not.toContain("ownerSelf:owner==='self'");

@@ -14,13 +14,13 @@ describe('campaign and communication UX closure',()=>{
     expect(page).toContain('Kampányhoz köthető rendelések');
   });
 
-  test('campaign detail and office surface partial query failures instead of false zeros',()=>{
+  test('campaign detail and customer email workspace surface partial query failures instead of false zeros',()=>{
     const campaign=read('src/app/admin/kampanyok/[id]/page.tsx');
     const office=read('src/app/admin/kommunikacio/iroda/page.tsx');
     expect(campaign).toContain('recipientError||conversionError||eventError');
     expect(campaign).toContain('orderError||itemError');
-    expect(office).toContain('threadError||messageError||taskError||orderError||jobError');
-    expect(office).toContain('Hiányos adatok mellett a nulla és üres állapotokat');
+    expect(office).toContain('const loadError=Boolean(threadResult.error||taskResult.error||orderResult.error||jobResult.error||bindingResult.error||draftResult.error||mailboxResult.error||messageResult.error||profileResult.error)');
+    expect(office).toContain('Hiányos adatok mellett módosítást nem tekintünk biztonságosan végrehajthatónak.');
   });
 
   test('integration detail keeps raw provider payload out of the primary view',()=>{
