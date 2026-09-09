@@ -1,64 +1,21 @@
 import { createHash } from 'node:crypto';
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
-import { resolve } from 'node:path';
+import { basename, resolve } from 'node:path';
 
 const root = process.cwd();
 const manifestPath = resolve(root, 'supabase/customer-baseline/manifest.json');
 const forbidden = [/Water-K/i, /water-k-native/i, /info\.waterk/i, /WK-(?:040|750|25K)/i];
 const releaseMarkers = [
-  'public.customer_instance_roles',
-  'public.organizations',
-  'public.organization_members',
-  'public.role_bindings',
-  'public.feature_entitlements',
-  'public.webshop_sales_channels',
-  'public.coupon_redemptions',
-  'public.recovery_objectives',
-  'public.recovery_evidence',
-  'public.recovery_drills',
-  'public.recovery_findings',
-  'public.recovery_events',
-  'public.recovery_decisions',
-  'public.recovery_runs',
-  'detect_control_tower_alerts',
-  'process_recovery_governance_cycle',
-  'record_recovery_evidence',
-  'plan_recovery_drill',
-  'start_recovery_drill',
-  'complete_recovery_drill',
-  'acknowledge_recovery_finding',
-  'record_recovery_decision',
-  'quote_tenant_checkout_v2',
-  'place_order_provider_v5_idempotent',
-  'provision_webshop_tenant_v1',
-  'sync_webshop_plan_entitlements',
-  'sync_webshop_plan_entitlements_trigger',
-  'webshop_instance_plan_entitlements_sync',
-  'return_cases_store_all',
-  'return_case_items_store_all',
-  'support_tickets_store_all',
-  'support_ticket_messages_store_all',
-  'office_threads_store_all',
-  'office_messages_store_all',
-  'office_tasks_store_all',
-  'content_store_read',
-  'products_store_read',
-  'variants_store_read',
-  'orders_customer_or_store_read',
-  'order_items_customer_or_store_read',
-  'customer_instance_roles_self_select',
-  'is_platform_operator',
-  'can_read_store',
-  'can_manage_catalog',
-  'can_manage_orders',
-  'can_manage_support',
+  'public.customer_instance_roles','public.organizations','public.organization_members','public.role_bindings','public.feature_entitlements','public.webshop_sales_channels','public.coupon_redemptions',
+  'public.recovery_objectives','public.recovery_evidence','public.recovery_drills','public.recovery_findings','public.recovery_events','public.recovery_decisions','public.recovery_runs',
+  'detect_control_tower_alerts','process_recovery_governance_cycle','record_recovery_evidence','plan_recovery_drill','start_recovery_drill','complete_recovery_drill','acknowledge_recovery_finding','record_recovery_decision',
+  'quote_tenant_checkout_v2','place_order_provider_v5_idempotent','provision_webshop_tenant_v1','sync_webshop_plan_entitlements','sync_webshop_plan_entitlements_trigger','webshop_instance_plan_entitlements_sync',
+  'return_cases_store_all','return_case_items_store_all','support_tickets_store_all','support_ticket_messages_store_all','office_threads_store_all','office_messages_store_all','office_tasks_store_all',
+  'content_store_read','products_store_read','variants_store_read','orders_customer_or_store_read','order_items_customer_or_store_read','customer_instance_roles_self_select',
+  'is_platform_operator','can_read_store','can_manage_catalog','can_manage_orders','can_manage_support',
 ];
 
-function fail(message) {
-  console.error(`Customer baseline guard failed: ${message}`);
-  process.exit(1);
-}
-
+function fail(message) { console.error(`Customer baseline guard failed: ${message}`); process.exit(1); }
 if (!existsSync(manifestPath)) fail('manifest.json is missing');
 const manifest = JSON.parse(readFileSync(manifestPath, 'utf8'));
 if (!manifest.authBootstrapFile) fail('authBootstrapFile is required');
@@ -68,9 +25,13 @@ const authBootstrap = readFileSync(authBootstrapPath, 'utf8');
 if (!/drop\s+trigger\s+if\s+exists\s+on_auth_user_created\s+on\s+auth\.users/i.test(authBootstrap)) fail('Auth bootstrap must safely replace on_auth_user_created');
 if (!/create\s+trigger\s+on_auth_user_created[\s\S]*after\s+insert\s+on\s+auth\.users[\s\S]*execute\s+function\s+private\.handle_new_user\s*\(\s*\)/i.test(authBootstrap)) fail('Auth bootstrap must connect auth.users to private.handle_new_user');
 
+const migrationDir = resolve(root, manifest.baselineMigrationDirectory);
+const migrations = existsSync(migrationDir) ? readdirSync(migrationDir).filter((name) => name.endsWith('.sql')).sort() : [];
+const snapshotName=basename(manifest.snapshotFile??'');
+
 function proofContractHash() {
   const files = [
-    manifest.snapshotFile,
+    ...migrations.map((name)=>`${manifest.baselineMigrationDirectory}/${name}`),
     manifest.authBootstrapFile,
     manifest.seedFile,
     'supabase/customer-baseline/target-preflight.sql',
@@ -79,13 +40,11 @@ function proofContractHash() {
   const hash = createHash('sha256');
   for (const path of files) {
     const content = readFileSync(resolve(root, path));
-    hash.update(path);
-    hash.update('\0');
-    hash.update(content);
-    hash.update('\0');
+    hash.update(path); hash.update('\0'); hash.update(content); hash.update('\0');
   }
   return hash.digest('hex');
 }
+
 if (manifest.legacyMigrationReplay !== false) fail('legacyMigrationReplay must remain false');
 if (manifest.sourcePolicy !== 'schema-snapshot-only') fail('sourcePolicy must remain schema-snapshot-only');
 if (manifest.defaultPlan !== 'alap') fail('fresh customer databases must fail closed to Alap');
@@ -97,50 +56,32 @@ const seed = readFileSync(seedPath, 'utf8');
 for (const pattern of forbidden) if (pattern.test(seed)) fail(`forbidden customer-specific seed pattern: ${pattern}`);
 if (/insert\s+into\s+public\.(products|product_variants)/i.test(seed)) fail('default customer seed must not create catalog data');
 
-const migrationDir = resolve(root, manifest.baselineMigrationDirectory);
-const migrations = existsSync(migrationDir)
-  ? readdirSync(migrationDir).filter((name) => name.endsWith('.sql')).sort()
-  : [];
-
-if (manifest.status === 'snapshot-required' && migrations.length > 0) {
-  fail('baseline is marked snapshot-required but migration SQL already exists; review it and switch status explicitly');
+if (manifest.status === 'snapshot-required' && migrations.length > 0) fail('baseline is marked snapshot-required but migration SQL already exists; review it and switch status explicitly');
+if (manifest.status !== 'snapshot-required') {
+  if (migrations.length < 1) fail('reviewed baseline must contain the immutable schema snapshot');
+  if (migrations[0] !== snapshotName) fail(`the immutable snapshot must remain the first customer-baseline migration: ${snapshotName}`);
+  if (!existsSync(resolve(root,manifest.snapshotFile))) fail('snapshotFile is missing');
 }
-if (manifest.status === 'snapshot-reviewed' && migrations.length !== 1) {
-  fail(`snapshot-reviewed baseline must contain exactly one reviewed schema snapshot, found ${migrations.length}`);
-}
-if (manifest.status === 'snapshot-reviewed' && manifest.freshInstallProofRequired !== true) {
-  fail('snapshot-reviewed baseline must still require Fresh Install proof');
-}
-if (manifest.status === 'snapshot-reviewed' && manifest.proofContractSha256 !== null) {
-  fail('snapshot-reviewed baseline must clear the previous proof contract hash');
-}
-if (manifest.status === 'ready' && migrations.length !== 1) {
-  fail(`ready baseline must contain exactly one reviewed schema snapshot, found ${migrations.length}`);
-}
-if (manifest.status === 'ready' && manifest.freshInstallProofRequired !== false) {
-  fail('ready baseline must record completed Fresh Install proof');
+if (manifest.status === 'snapshot-reviewed') {
+  if (manifest.freshInstallProofRequired !== true) fail('snapshot-reviewed baseline must still require Fresh Install proof');
+  if (manifest.proofContractSha256 !== null) fail('snapshot-reviewed baseline must clear the previous proof contract hash');
 }
 if (manifest.status === 'ready') {
-  if (!/^[a-f0-9]{64}$/.test(manifest.proofContractSha256 ?? '')) {
-    fail('ready baseline must record a valid proofContractSha256');
-  }
-  const currentProofContractSha256 = proofContractHash();
-  if (currentProofContractSha256 !== manifest.proofContractSha256) {
-    fail('ready baseline proof is stale; reset to snapshot-reviewed and rerun Fresh Install proof');
-  }
+  if (manifest.freshInstallProofRequired !== false) fail('ready baseline must record completed Fresh Install proof');
+  if (!/^[a-f0-9]{64}$/.test(manifest.proofContractSha256 ?? '')) fail('ready baseline must record a valid proofContractSha256');
+  if (proofContractHash() !== manifest.proofContractSha256) fail('ready baseline proof is stale; reset to snapshot-reviewed and rerun Fresh Install proof');
 }
 
 for (const name of migrations) {
   const sql = readFileSync(resolve(migrationDir, name), 'utf8');
   for (const pattern of forbidden) if (pattern.test(sql)) fail(`${name} contains forbidden customer-specific pattern ${pattern}`);
   if (/\bWK-/i.test(sql)) fail(`${name} contains a legacy SKU/order prefix assumption`);
+  if (name!==snapshotName && !/^\d{4}_[a-z0-9_]+\.sql$/i.test(name)) fail(`${name} is not a versioned customer-baseline forward migration`);
+}
 
-  if (manifest.status === 'snapshot-reviewed' || manifest.status === 'ready') {
-    const normalized = sql.toLowerCase().replace(/"/g, '');
-    for (const marker of releaseMarkers) {
-      if (!normalized.includes(marker)) fail(`${name} is stale or incomplete; missing release marker: ${marker}`);
-    }
-  }
+if (manifest.status === 'snapshot-reviewed' || manifest.status === 'ready') {
+  const snapshotSql=readFileSync(resolve(root,manifest.snapshotFile),'utf8').toLowerCase().replace(/"/g, '');
+  for (const marker of releaseMarkers) if (!snapshotSql.includes(marker)) fail(`${snapshotName} is stale or incomplete; missing release marker: ${marker}`);
 }
 
 console.log(`Customer baseline guard OK: status=${manifest.status}, migrations=${migrations.length}, legacy replay disabled.`);
