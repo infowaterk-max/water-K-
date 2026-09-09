@@ -6,8 +6,8 @@ const root=process.cwd();
 const read=(file:string)=>readFileSync(join(root,file),'utf8');
 
 describe('Digital Office attachment quarantine and malware scan gate',()=>{
-  const migration=read('supabase/migrations/20260908065600_digital_office_attachment_quarantine_scan_v1.sql');
-  const cleanup=read('supabase/migrations/20260908065700_digital_office_attachment_scan_cleanup_hardening_v1.sql');
+  const migration=read('supabase/migrations/20260909204751_digital_office_attachment_quarantine_scan_v1.sql');
+  const cleanup=read('supabase/migrations/20260909204810_digital_office_attachment_scan_cleanup_hardening_v1.sql');
   const prepare=read('src/app/api/admin/office/attachments/prepare/route.ts');
   const statusRoute=read('src/app/api/admin/office/attachments/status/route.ts');
   const scanRoute=read('src/app/api/admin/office/attachments/scan/route.ts');

@@ -8,7 +8,7 @@ const migration=readFileSync(
   'utf8',
 );
 const planSplitMigration=readFileSync(
-  join(process.cwd(),'supabase/migrations/20260908065800_team_chat_plan_split_v1.sql'),
+  join(process.cwd(),'supabase/migrations/20260909204825_team_chat_plan_split_v1.sql'),
   'utf8',
 );
 const sql=migration.toLowerCase();

@@ -6,9 +6,9 @@ const root=process.cwd();
 const read=(file:string)=>readFileSync(join(root,file),'utf8');
 
 describe('Digital Office private attachments',()=>{
-  const migration=read('supabase/migrations/20260908065300_digital_office_private_attachments_v1.sql');
-  const hardening=read('supabase/migrations/20260908065400_digital_office_private_attachment_failclosed_v1.sql');
-  const cleanupMigration=read('supabase/migrations/20260908065500_digital_office_private_attachment_cleanup_v1.sql');
+  const migration=read('supabase/migrations/20260909204635_digital_office_private_attachments_v1.sql');
+  const hardening=read('supabase/migrations/20260909204653_digital_office_private_attachment_failclosed_v1.sql');
+  const cleanupMigration=read('supabase/migrations/20260909204709_digital_office_private_attachment_cleanup_v1.sql');
   const cleanupWorker=read('src/lib/office/private-attachment-cleanup.ts');
   const cron=read('src/app/api/cron/integrations/route.ts');
   const prepare=read('src/app/api/admin/office/attachments/prepare/route.ts');

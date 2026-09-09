@@ -6,8 +6,8 @@ const root=process.cwd();
 const read=(file:string)=>readFileSync(join(root,file),'utf8');
 
 describe('Digital Office recipient envelope and attachment metadata contract',()=>{
-  const migration=read('supabase/migrations/20260908054500_digital_office_recipient_envelope_v1.sql');
-  const attachmentIntegrity=read('supabase/migrations/20260908054600_digital_office_attachment_metadata_integrity_v1.sql');
+  const migration=read('supabase/migrations/20260909203604_digital_office_recipient_envelope_v1.sql');
+  const attachmentIntegrity=read('supabase/migrations/20260909203629_digital_office_attachment_metadata_integrity_v1.sql');
   const actions=read('src/app/admin/kommunikacio/iroda/composer-actions.ts');
   const newComposer=read('src/components/admin/office-new-email-composer.tsx');
   const replyComposer=read('src/components/admin/office-customer-email-form.tsx');

@@ -7,7 +7,7 @@ const read=(file:string)=>fs.readFileSync(path.join(root,file),'utf8');
 
 describe('Digital Office Team Chat retention',()=>{
   test('retention policy is tenant-scoped and matches the approved lifecycle',()=>{
-    const migration=read('supabase/migrations/20260908065900_digital_office_team_chat_retention_v1.sql');
+    const migration=read('supabase/migrations/20260909204847_digital_office_team_chat_retention_v1.sql');
     expect(migration).toContain("t.updated_at<=p_now-interval '90 days'");
     expect(migration).toContain("m.created_at<=p_now-interval '12 months'");
     expect(migration).toContain("a.created_at<=p_now-interval '24 months'");
@@ -17,7 +17,7 @@ describe('Digital Office Team Chat retention',()=>{
   });
 
   test('archived internal threads are mutation guarded and attachment rows fail closed',()=>{
-    const migration=read('supabase/migrations/20260908065900_digital_office_team_chat_retention_v1.sql');
+    const migration=read('supabase/migrations/20260909204847_digital_office_team_chat_retention_v1.sql');
     expect(migration).toContain("raise exception 'OFFICE_INTERNAL_THREAD_ARCHIVED'");
     expect(migration).toContain('office_internal_message_archive_guard');
     expect(migration).toContain('office_internal_participant_archive_guard');
@@ -37,9 +37,9 @@ describe('Digital Office Team Chat retention',()=>{
   });
 
   test('only Team Chat audit actions expire and message body is never copied into audit evidence',()=>{
-    const migration=read('supabase/migrations/20260908065900_digital_office_team_chat_retention_v1.sql');
-    const foundation=read('supabase/migrations/20260908065000_digital_office_team_chat_2_foundation_v1.sql');
-    const ownerTransfer=read('supabase/migrations/20260908065200_digital_office_team_chat_owner_transfer_v1.sql');
+    const migration=read('supabase/migrations/20260909204847_digital_office_team_chat_retention_v1.sql');
+    const foundation=read('supabase/migrations/20260909204503_digital_office_team_chat_2_foundation_v1.sql');
+    const ownerTransfer=read('supabase/migrations/20260909204547_digital_office_team_chat_owner_transfer_v1.sql');
     for(const action of[
       'office.private_thread_created_v2','office.private_message_added_v2',
       'office.private_participant_added','office.private_participant_removed','office.private_owner_transferred',

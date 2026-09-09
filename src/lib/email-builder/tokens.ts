@@ -7,11 +7,11 @@ export type EmailDesignTokens={
 };
 
 export const defaultEmailDesignTokens:EmailDesignTokens={
-  colors:{background:'#f6f4ef',surface:'#ffffff',primary:'#25483f',secondary:'#dfe8e2',text:'#1f2925',muted:'#6e7772',border:'#e3e6e3'},
-  typography:{fontFamily:'Arial, Helvetica, sans-serif',headingFontFamily:'Georgia, Times, serif',bodySize:16,smallSize:12,lineHeight:1.55},
-  spacing:{xs:6,s:10,m:16,l:24,xl:32,xxl:48},
-  radius:{button:10,card:14},
-  container:{maxWidth:620},
+  colors:{background:'#f3f0e9',surface:'#fffdf9',primary:'#2a665b',secondary:'#e9efe9',text:'#1f2925',muted:'#6b756f',border:'#dddcd5'},
+  typography:{fontFamily:'Arial, Helvetica, sans-serif',headingFontFamily:'Georgia, Times, serif',bodySize:15,smallSize:12,lineHeight:1.6},
+  spacing:{xs:6,s:10,m:16,l:24,xl:36,xxl:52},
+  radius:{button:12,card:20},
+  container:{maxWidth:640},
 };
 
 export function mergeEmailDesignTokens(overrides:unknown):EmailDesignTokens{

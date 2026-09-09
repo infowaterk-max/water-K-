@@ -6,8 +6,8 @@ const root=process.cwd();
 const read=(file:string)=>readFileSync(join(root,file),'utf8');
 
 describe('Digital Office autosave and concurrency contract',()=>{
-  const revisionMigration=read('supabase/migrations/20260908053000_digital_office_draft_revision_guard_v1.sql');
-  const singletonMigration=read('supabase/migrations/20260908053100_digital_office_reply_draft_singleton_v1.sql');
+  const revisionMigration=read('supabase/migrations/20260909203208_digital_office_draft_revision_guard_v1.sql');
+  const singletonMigration=read('supabase/migrations/20260909203242_digital_office_reply_draft_singleton_v1.sql');
   const actions=read('src/app/admin/kommunikacio/iroda/composer-actions.ts');
   const hook=read('src/components/admin/use-office-draft-autosave.ts');
   const newComposer=read('src/components/admin/office-new-email-composer.tsx');
