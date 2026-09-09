@@ -1,11 +1,14 @@
 import { createHash } from 'node:crypto';
-import { readFileSync } from 'node:fs';
+import { readFileSync,readdirSync } from 'node:fs';
 import { resolve } from 'node:path';
 
 const root=process.cwd();
 const manifest=JSON.parse(readFileSync(resolve(root,'supabase/customer-baseline/manifest.json'),'utf8'));
+const migrationFiles=readdirSync(resolve(root,manifest.baselineMigrationDirectory))
+  .filter((name)=>name.endsWith('.sql')).sort()
+  .map((name)=>`${manifest.baselineMigrationDirectory}/${name}`);
 const files=[
-  manifest.snapshotFile,
+  ...migrationFiles,
   manifest.authBootstrapFile,
   manifest.seedFile,
   'supabase/customer-baseline/target-preflight.sql',

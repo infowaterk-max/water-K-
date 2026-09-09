@@ -9,7 +9,7 @@
   "snapshotFile": "supabase/customer-baseline/migrations/0001_shoperation_v1_schema.sql",
   "snapshotCommand": "npm run db:customer:snapshot",
   "freshInstallProofRequired": false,
-  "notes": "The atomic tenant provisioning customer schema snapshot, Supabase Auth bootstrap, neutral seed and strengthened empty-target pre/postflight contract passed on an empty disposable Fresh Install Supabase project. The exact proof contract is pinned by proofContractSha256; any drift fails closed until re-proven.",
+  "notes": "Release checkpoint baseline: immutable Shoperation 1.0 snapshot plus ordered Block 7 forward migrations and Storefront Runtime Wave 0B/0D forward migrations. The exact combined baseline passed a genuine empty-target Fresh Install proof on the dedicated disposable Supabase project in GitHub Actions run 34346892406 (fresh-install-proof), including target preflight, atomic snapshot + 0002-0005 forward migrations, Supabase Auth bootstrap, neutral seed and target postflight. Production remained untouched by the proof.",
   "authBootstrapFile": "supabase/customer-baseline/auth-bootstrap.sql",
-  "proofContractSha256": "29bb4b303fd6c1da21e7a3d687d55b2d4c9a499fcc4a7964c2c9c428be3e43a8"
+  "proofContractSha256": "8cb833cfc5063c777c1335e6cc64d5447de3c0a418ac3145fbd54d38a6224e0a"
 }

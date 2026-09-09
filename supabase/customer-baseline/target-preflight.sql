@@ -9,6 +9,10 @@ declare
   public_functions integer;
   public_sequences integer;
   public_user_types integer;
+  private_relations integer;
+  private_functions integer;
+  private_sequences integer;
+  private_user_types integer;
   migration_rows integer := 0;
   auth_users integer := 0;
 begin
@@ -37,6 +41,31 @@ begin
       select 1 from pg_class c where c.oid = t.typrelid and c.relkind in ('r','p','v','m','f')
     );
 
+  select count(*) into private_relations
+  from pg_class c
+  join pg_namespace n on n.oid = c.relnamespace
+  where n.nspname = 'private'
+    and c.relkind in ('r','p','v','m','f');
+
+  select count(*) into private_functions
+  from pg_proc p
+  join pg_namespace n on n.oid = p.pronamespace
+  where n.nspname = 'private';
+
+  select count(*) into private_sequences
+  from pg_class c
+  join pg_namespace n on n.oid = c.relnamespace
+  where n.nspname = 'private' and c.relkind = 'S';
+
+  select count(*) into private_user_types
+  from pg_type t
+  join pg_namespace n on n.oid = t.typnamespace
+  where n.nspname = 'private'
+    and t.typtype in ('e','d','c')
+    and not exists (
+      select 1 from pg_class c where c.oid = t.typrelid and c.relkind in ('r','p','v','m','f')
+    );
+
   if to_regclass('supabase_migrations.schema_migrations') is not null then
     execute 'select count(*) from supabase_migrations.schema_migrations' into migration_rows;
   end if;
@@ -47,11 +76,17 @@ begin
      or public_functions <> 0
      or public_sequences <> 0
      or public_user_types <> 0
+     or private_relations <> 0
+     or private_functions <> 0
+     or private_sequences <> 0
+     or private_user_types <> 0
      or migration_rows <> 0
      or auth_users <> 0 then
     raise exception
-      'Fresh-install target is not empty: relations=%, functions=%, sequences=%, user_types=%, migration_rows=%, auth_users=%',
-      public_relations, public_functions, public_sequences, public_user_types, migration_rows, auth_users;
+      'Fresh-install target is not empty: public_relations=%, public_functions=%, public_sequences=%, public_user_types=%, private_relations=%, private_functions=%, private_sequences=%, private_user_types=%, migration_rows=%, auth_users=%',
+      public_relations, public_functions, public_sequences, public_user_types,
+      private_relations, private_functions, private_sequences, private_user_types,
+      migration_rows, auth_users;
   end if;
 end $$;
 
@@ -60,6 +95,10 @@ select
   0::integer as public_functions,
   0::integer as public_sequences,
   0::integer as public_user_types,
+  0::integer as private_relations,
+  0::integer as private_functions,
+  0::integer as private_sequences,
+  0::integer as private_user_types,
   0::integer as historical_migration_rows,
   0::integer as auth_users,
   'target-preflight-ok'::text as status;
