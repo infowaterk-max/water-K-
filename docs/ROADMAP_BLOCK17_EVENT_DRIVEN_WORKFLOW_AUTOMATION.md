@@ -23,8 +23,8 @@ Canonical sequence around this block:
 5. Idempotent processing and run evidence using the existing `automation_processing_runs` authority.
 6. Bounded retry/backoff through the single protected platform cron.
 7. Dead-letter state after bounded engine/step exhaustion; no infinite silent retry.
-8. Existing approval gates remain authoritative. `commercial-high-risk` does not bypass human approval.
-9. Admin observability for subscriptions, runs, retry state and dead-letter state.
+8. Existing approval gates remain authoritative. `commercial-high-risk` does not bypass human approval and resumes only against the same existing action proposal after approval.
+9. Admin observability for subscriptions, runs, approval waiting, retry state and dead-letter state.
 10. Evidence minimization/redaction before persistence.
 
 ## Reused Shoperation foundation
@@ -32,6 +32,7 @@ Canonical sequence around this block:
 Block 17 deliberately reuses:
 
 - `control_alerts` as the existing governed control-plane incident authority;
+- `action_proposals` as the existing approval authority for high-impact commercial actions;
 - `automation_runbooks` and `automation_runbook_steps` as the existing workflow catalog;
 - `automation_runbook_instances` and `automation_step_runs` as execution state;
 - `automation_events` as immutable runbook execution evidence produced by the existing RPCs;
@@ -56,22 +57,26 @@ The Block 17 event dispatcher itself never writes orders, prices, inventory, pro
 
 This catalog is intentionally small and semantic. Future modules may emit these normalized events through the shared dispatcher; they must not create module-specific workflow engines.
 
+For `commercial.high_risk.detected`, `sourceId` is the existing tenant-scoped `action_proposals.id`. `proposed` or `simulated` proposals remain `awaiting_approval`; `approved` or `executed` proposals may activate the governed runbook; rejected, cancelled or expired proposals move the workflow to dead-letter. The event layer never manufactures approval and never substitutes a second approval authority.
+
 ## Retry / dead-letter contract
 
 - A processing run key is deterministic from tenant + event type + source id.
-- A completed or approval-waiting event is idempotent on replay.
+- A completed event is idempotent on replay.
+- Approval-waiting events retain the same run identity and are re-evaluated after their next eligible check; approval does not create a second workflow instance.
 - Runtime failures are retried with bounded backoff and persisted `nextAttemptAt` evidence.
-- Engine retries stop after five attempts.
+- Engine failures stop after five attempts.
 - Step retries continue to obey the existing runbook step `max_attempts` and `retry_backoff_minutes` contract.
 - Exhausted execution is marked `dead_letter` and requires investigation; it is not silently converted to success.
-- Block 17 reuses the existing single protected `/api/cron/integrations` cron for due retries; it creates no second Vercel schedule.
-- The cron only retries already emitted events. It never discovers or invents first-time business events.
+- Block 17 reuses the existing single protected `/api/cron/integrations` cron for due retries and approval rechecks; it creates no second Vercel schedule.
+- The cron only revisits already emitted events. It never discovers or invents first-time business events.
 
 ## Security / tenancy
 
 - Admin event ingress requires `store.manage`, current store context, and the existing `automation` plan feature.
 - Tenant id is never accepted from request JSON.
 - Retry-by-run-id re-reads the run inside the current tenant and verifies the Block 17 authority marker.
+- High-risk approval lookup requires the same tenant and the exact existing proposal id.
 - Evidence is bounded and sensitive-looking keys are redacted before persistence.
 - CRON retry execution remains protected by the existing `CRON_SECRET` gate.
 - Existing tenant-safe v2 runbook RPCs remain mandatory.
@@ -86,6 +91,6 @@ It also does not pull forward **Block 21 — Page Schema / Templates** or **Bloc
 
 ## Database and customer-baseline impact
 
-Block 17 adds no database migration and does not alter the customer baseline contract. It uses existing production tables/RPCs. Therefore Block 17 itself does not invalidate Fresh Install proof.
+Block 17 adds no database migration and does not alter the customer baseline contract. It uses existing production tables and RPCs. Therefore Block 17 itself does not invalidate or create a new Fresh Install proof requirement.
 
-At branch creation, current `main` already contained the unrelated Product Intake Center merge (#212), which introduced customer-baseline migration 0010 and moved the manifest to `snapshot-reviewed` with `freshInstallProofRequired=true`. That inherited proof obligation is not Block 17 scope, but it remains a release gate for any subsequent main merge until a genuine empty-target proof is completed.
+At branch creation, current `main` already contained the unrelated Product Intake Center merge (#212), which introduced customer-baseline migration 0010 and moved the manifest to `snapshot-reviewed` with `freshInstallProofRequired=true`. That inherited state remains visible and Block 17 must neither clear nor relabel it. The Product Intake baseline can return to `ready` only after its own genuine empty-target Fresh Install proof succeeds; Block 17 does not modify that lifecycle.

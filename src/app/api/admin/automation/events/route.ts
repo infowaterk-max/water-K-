@@ -32,7 +32,7 @@ export async function GET() {
 export async function POST(req: NextRequest) {
   const context = await access();
   if (!context) return NextResponse.json({ error: 'Nincs jogosultság.' }, { status: 403 });
-  let body: { eventType?: string; sourceId?: string; title?: string; description?: string; evidence?: unknown; runId?: string; forceRetry?: boolean };
+  let body: { eventType?: string; sourceId?: string; title?: string; description?: string; evidence?: unknown; runId?: string };
   try { body = await req.json(); } catch { return NextResponse.json({ error: 'Érvénytelen kérés.' }, { status: 400 }); }
 
   let eventType = String(body.eventType ?? ''), sourceId = String(body.sourceId ?? ''), title = body.title, description = body.description, evidence = body.evidence;
@@ -42,7 +42,8 @@ export async function POST(req: NextRequest) {
     const { data: run, error } = await admin.from('automation_processing_runs').select('metadata').eq('id', String(body.runId)).eq('instance_id', context.store.instanceId).maybeSingle();
     if (error || !run) return NextResponse.json({ error: 'A workflow-futás nem található.' }, { status: 404 });
     const metadata = run.metadata && typeof run.metadata === 'object' && !Array.isArray(run.metadata) ? run.metadata as Record<string, unknown> : {};
-    if (metadata.authority !== EVENT_DRIVEN_WORKFLOW_AUTHORITY || metadata.status !== 'retry') return NextResponse.json({ error: 'Csak újrapróbálásra váró workflow indítható kézzel.' }, { status: 409 });
+    const retryableStatus = String(metadata.status ?? '');
+    if (metadata.authority !== EVENT_DRIVEN_WORKFLOW_AUTHORITY || !['retry', 'awaiting_approval'].includes(retryableStatus)) return NextResponse.json({ error: 'Csak retry vagy jóváhagyásra váró workflow ellenőrizhető újra.' }, { status: 409 });
     const event = metadata.event && typeof metadata.event === 'object' && !Array.isArray(metadata.event) ? metadata.event as Record<string, unknown> : {};
     eventType = typeof event.type === 'string' ? event.type : '';
     sourceId = typeof event.sourceId === 'string' ? event.sourceId : '';
@@ -65,6 +66,6 @@ export async function POST(req: NextRequest) {
     description,
     evidence: evidence as Record<string, unknown> | undefined,
   }, { forceRetry });
-  const status = result.status === 'dead_letter' ? 409 : result.status === 'retry' ? 202 : 200;
+  const status = result.status === 'dead_letter' ? 409 : result.status === 'retry' || result.status === 'awaiting_approval' ? 202 : 200;
   return NextResponse.json({ ok: result.ok, data: result }, { status });
 }

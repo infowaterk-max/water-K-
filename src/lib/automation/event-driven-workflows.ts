@@ -4,6 +4,7 @@ export const EVENT_DRIVEN_WORKFLOW_VERSION = 'block17.v1';
 export const EVENT_DRIVEN_WORKFLOW_AUTHORITY = 'event-driven-workflow';
 const MAX_ENGINE_ATTEMPTS = 5;
 const DEFAULT_RETRY_MINUTES = 15;
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 export const EVENT_DRIVEN_WORKFLOW_SUBSCRIPTIONS = {
   'operations.exception.detected': { runbookKey: 'operations-triage', category: 'operations', severity: 'warning', priority: 65, title: 'Műveleti kivétel' },
@@ -37,6 +38,7 @@ export type EventDrivenWorkflowResult = {
 
 type ProcessingRun = { id: string; run_key: string; metadata: Record<string, unknown> | null };
 type DispatchOptions = { forceRetry?: boolean };
+type ApprovalState = { mode: 'not_required' | 'waiting' | 'ready' | 'terminal'; proposalId?: string; reason?: string };
 
 function cleanToken(value: string, label: string) {
   const normalized = value.trim();
@@ -92,9 +94,9 @@ async function claimProcessingRun(admin: ReturnType<typeof createAdminClient>, i
     const metadata = metadataOf(run);
     const status = String(metadata.status ?? '');
     const nextAttemptAt = typeof metadata.nextAttemptAt === 'string' ? metadata.nextAttemptAt : undefined;
-    if (status === 'completed' || status === 'awaiting_approval') return { run, terminal: true as const };
+    if (status === 'completed') return { run, terminal: true as const };
     if (status === 'dead_letter' && !options.forceRetry) return { run, terminal: true as const };
-    if (status === 'retry' && !options.forceRetry && nextAttemptAt && Date.parse(nextAttemptAt) > Date.now()) return { run, terminal: true as const };
+    if ((status === 'retry' || status === 'awaiting_approval') && !options.forceRetry && nextAttemptAt && Date.parse(nextAttemptAt) > Date.now()) return { run, terminal: true as const };
     return { run, terminal: false as const };
   }
   const event = {
@@ -135,12 +137,28 @@ async function ensureAlert(admin: ReturnType<typeof createAdminClient>, input: E
   return String(data.id);
 }
 
+async function resolveApprovalState(admin: ReturnType<typeof createAdminClient>, input: EventDrivenWorkflowInput, requiresApproval: boolean): Promise<ApprovalState> {
+  if (!requiresApproval) return { mode: 'not_required' };
+  const sourceId = cleanToken(input.sourceId, 'SOURCE');
+  if (!UUID_RE.test(sourceId)) return { mode: 'terminal', reason: 'APPROVAL_PROPOSAL_ID_REQUIRED' };
+  const { data, error } = await admin.from('action_proposals').select('id,status,expires_at').eq('id', sourceId).eq('instance_id', input.instanceId).maybeSingle();
+  if (error) throw error;
+  if (!data?.id) return { mode: 'waiting', reason: 'APPROVAL_PROPOSAL_NOT_FOUND' };
+  const proposalId = String(data.id), status = String(data.status ?? '');
+  const expired = typeof data.expires_at === 'string' && Date.parse(data.expires_at) <= Date.now();
+  if (expired || ['rejected', 'cancelled'].includes(status)) return { mode: 'terminal', proposalId, reason: expired ? 'APPROVAL_PROPOSAL_EXPIRED' : `APPROVAL_PROPOSAL_${status.toUpperCase()}` };
+  if (['approved', 'executed'].includes(status)) return { mode: 'ready', proposalId };
+  return { mode: 'waiting', proposalId, reason: 'APPROVAL_PENDING' };
+}
+
 async function ensureRunbookInstance(admin: ReturnType<typeof createAdminClient>, input: EventDrivenWorkflowInput, runKey: string, alertId: string) {
   const subscription = EVENT_DRIVEN_WORKFLOW_SUBSCRIPTIONS[input.type];
   const { data: runbook, error: runbookError } = await admin.from('automation_runbooks').select('id,runbook_key,version,max_duration_hours,requires_action_approval').eq('runbook_key', subscription.runbookKey).eq('enabled', true).order('version', { ascending: false }).limit(1).maybeSingle();
   if (runbookError || !runbook?.id) throw runbookError ?? new Error('WORKFLOW_RUNBOOK_NOT_FOUND');
+  const requiresApproval = Boolean(runbook.requires_action_approval);
+  const approval = await resolveApprovalState(admin, input, requiresApproval);
   const instanceKey = `${runKey}:runbook:${runbook.runbook_key}:v${runbook.version}`;
-  const { data: existing, error: existingError } = await admin.from('automation_runbook_instances').select('id,status').eq('instance_id', input.instanceId).eq('instance_key', instanceKey).maybeSingle();
+  const { data: existing, error: existingError } = await admin.from('automation_runbook_instances').select('id,status,proposal_id').eq('instance_id', input.instanceId).eq('instance_key', instanceKey).maybeSingle();
   if (existingError) throw existingError;
   let runbookInstanceId = existing?.id ? String(existing.id) : '';
   if (!runbookInstanceId) {
@@ -150,13 +168,20 @@ async function ensureRunbookInstance(admin: ReturnType<typeof createAdminClient>
       instance_key: instanceKey,
       runbook_id: runbook.id,
       alert_id: alertId,
-      proposal_id: null,
+      proposal_id: approval.proposalId ?? null,
       status: 'planned',
       source_snapshot: { authority: EVENT_DRIVEN_WORKFLOW_AUTHORITY, eventType: input.type, sourceId: input.sourceId, runKey },
       deadline_at: deadlineAt,
-    }).select('id,status').single();
+    }).select('id,status,proposal_id').single();
     if (createError || !created?.id) throw createError ?? new Error('WORKFLOW_INSTANCE_CREATE_FAILED');
     runbookInstanceId = String(created.id);
+  } else if (requiresApproval && approval.proposalId) {
+    const currentProposalId = existing?.proposal_id ? String(existing.proposal_id) : null;
+    if (currentProposalId && currentProposalId !== approval.proposalId) throw new Error('WORKFLOW_APPROVAL_PROPOSAL_CONFLICT');
+    if (!currentProposalId) {
+      const { error: attachError } = await admin.from('automation_runbook_instances').update({ proposal_id: approval.proposalId, updated_at: new Date().toISOString() }).eq('id', runbookInstanceId).eq('instance_id', input.instanceId).is('proposal_id', null);
+      if (attachError) throw attachError;
+    }
   }
   const { data: steps, error: stepsError } = await admin.from('automation_runbook_steps').select('id,step_order').eq('runbook_id', runbook.id).order('step_order', { ascending: true });
   if (stepsError || !steps?.length) throw stepsError ?? new Error('WORKFLOW_STEPS_MISSING');
@@ -168,10 +193,10 @@ async function ensureRunbookInstance(admin: ReturnType<typeof createAdminClient>
     const { error } = await admin.from('automation_step_runs').insert({ instance_id: runbookInstanceId, store_instance_id: input.instanceId, step_id: step.id, status: step.step_order === 1 ? 'ready' : 'pending', ready_at: step.step_order === 1 ? new Date().toISOString() : null });
     if (error) throw error;
   }
-  return { runbookInstanceId, requiresApproval: Boolean(runbook.requires_action_approval), runbookKey: String(runbook.runbook_key), runbookVersion: Number(runbook.version) };
+  return { runbookInstanceId, requiresApproval, approval, runbookKey: String(runbook.runbook_key), runbookVersion: Number(runbook.version) };
 }
 
-async function executeRunbook(admin: ReturnType<typeof createAdminClient>, input: EventDrivenWorkflowInput, runKey: string, runbookInstanceId: string, requiresApproval: boolean) {
+async function executeRunbook(admin: ReturnType<typeof createAdminClient>, input: EventDrivenWorkflowInput, runKey: string, runbookInstanceId: string, requiresApproval: boolean, approval: ApprovalState) {
   for (let index = 0; index < 12; index++) {
     const { data: instance, error: instanceError } = await admin.from('automation_runbook_instances').select('status').eq('id', runbookInstanceId).eq('instance_id', input.instanceId).maybeSingle();
     if (instanceError || !instance) throw instanceError ?? new Error('WORKFLOW_INSTANCE_LOST');
@@ -179,7 +204,8 @@ async function executeRunbook(admin: ReturnType<typeof createAdminClient>, input
     if (instance.status === 'cancelled' || instance.status === 'failed') return { status: 'dead_letter' as const, error: `RUNBOOK_${String(instance.status).toUpperCase()}` };
     if (instance.status === 'paused') return { status: 'retry' as const, nextAttemptAt: isoAfterMinutes(DEFAULT_RETRY_MINUTES), error: 'RUNBOOK_PAUSED' };
     if (instance.status === 'planned') {
-      if (requiresApproval) return { status: 'awaiting_approval' as const };
+      if (requiresApproval && approval.mode === 'terminal') return { status: 'dead_letter' as const, error: approval.reason ?? 'APPROVAL_NOT_AVAILABLE' };
+      if (requiresApproval && approval.mode !== 'ready') return { status: 'awaiting_approval' as const, nextAttemptAt: isoAfterMinutes(DEFAULT_RETRY_MINUTES), error: approval.reason ?? 'APPROVAL_PENDING' };
       const { error } = await admin.rpc('activate_automation_runbook_v2', { p_store_instance_id: input.instanceId, p_runbook_instance_id: runbookInstanceId, p_actor_id: null, p_event_key: `${runKey}:activate` });
       if (error) throw error;
       continue;
@@ -213,10 +239,10 @@ export async function dispatchEventDrivenWorkflow(input: EventDrivenWorkflowInpu
   try {
     const alertId = await ensureAlert(admin, input, runKey);
     const instance = await ensureRunbookInstance(admin, input, runKey, alertId);
-    const outcome = await executeRunbook(admin, input, runKey, instance.runbookInstanceId, instance.requiresApproval);
+    const outcome = await executeRunbook(admin, input, runKey, instance.runbookInstanceId, instance.requiresApproval, instance.approval);
     const status = outcome.status;
-    const metadata = { authority: EVENT_DRIVEN_WORKFLOW_AUTHORITY, version: EVENT_DRIVEN_WORKFLOW_VERSION, status, attempt, event, alertId, runbookInstanceId: instance.runbookInstanceId, runbookKey: instance.runbookKey, runbookVersion: instance.runbookVersion, nextAttemptAt: 'nextAttemptAt' in outcome ? outcome.nextAttemptAt : undefined, error: 'error' in outcome ? outcome.error : undefined };
-    await updateProcessingRun(admin, input.instanceId, run.id, { eventType: input.type, subscriber: instance.runbookKey }, { status, runbookInstanceId: instance.runbookInstanceId }, metadata, status === 'completed' || status === 'awaiting_approval' || status === 'dead_letter');
+    const metadata = { authority: EVENT_DRIVEN_WORKFLOW_AUTHORITY, version: EVENT_DRIVEN_WORKFLOW_VERSION, status, attempt, event, alertId, runbookInstanceId: instance.runbookInstanceId, runbookKey: instance.runbookKey, runbookVersion: instance.runbookVersion, proposalId: instance.approval.proposalId, approvalMode: instance.approval.mode, nextAttemptAt: 'nextAttemptAt' in outcome ? outcome.nextAttemptAt : undefined, error: 'error' in outcome ? outcome.error : undefined };
+    await updateProcessingRun(admin, input.instanceId, run.id, { eventType: input.type, subscriber: instance.runbookKey }, { status, runbookInstanceId: instance.runbookInstanceId }, metadata, status === 'completed' || status === 'dead_letter');
     return { ok: status === 'completed' || status === 'awaiting_approval', status, runKey, processingRunId: run.id, runbookInstanceId: instance.runbookInstanceId, nextAttemptAt: 'nextAttemptAt' in outcome ? outcome.nextAttemptAt : undefined, error: 'error' in outcome ? outcome.error : undefined };
   } catch (error) {
     const message = error instanceof Error ? error.message : 'WORKFLOW_DISPATCH_FAILED';
@@ -229,7 +255,7 @@ export async function dispatchEventDrivenWorkflow(input: EventDrivenWorkflowInpu
 
 export async function retryDueEventDrivenWorkflows(instanceId: string, limit = 20) {
   const admin = createAdminClient();
-  const { data, error } = await admin.from('automation_processing_runs').select('id,metadata').eq('instance_id', instanceId).eq('metadata->>authority', EVENT_DRIVEN_WORKFLOW_AUTHORITY).eq('metadata->>status', 'retry').order('started_at', { ascending: true }).limit(Math.max(1, Math.min(limit, 50)));
+  const { data, error } = await admin.from('automation_processing_runs').select('id,metadata').eq('instance_id', instanceId).eq('metadata->>authority', EVENT_DRIVEN_WORKFLOW_AUTHORITY).in('metadata->>status', ['retry', 'awaiting_approval']).order('started_at', { ascending: true }).limit(Math.max(1, Math.min(limit, 50)));
   if (error) throw error;
   const results: EventDrivenWorkflowResult[] = [];
   for (const row of data ?? []) {

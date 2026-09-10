@@ -30,7 +30,7 @@ export default async function Page() {
 
     <section className="card">
       <h2>Developer-authored előfizetések</h2>
-      <p className="muted">A trigger → runbook párok verziózott alkalmazáskódban élnek; itt nincs drag-and-drop workflow builder.</p>
+      <p className="muted">A trigger → runbook párok verziózott alkalmazáskódban élnek; itt nincs drag-and-drop workflow builder. A commercial-high-risk esemény forrásazonosítója a meglévő action proposal azonosítója, így az approval authority nem kerülhető meg.</p>
       <div className="adminTableScroll"><table className="adminTable"><thead><tr><th>Esemény</th><th>Runbook</th><th>Kategória</th><th>Kockázat</th></tr></thead><tbody>
         {Object.entries(EVENT_DRIVEN_WORKFLOW_SUBSCRIPTIONS).map(([event, subscription]) => <tr key={event}><td><code>{event}</code></td><td><code>{subscription.runbookKey}</code></td><td>{subscription.category}</td><td>{subscription.severity}</td></tr>)}
       </tbody></table></div>
@@ -39,8 +39,8 @@ export default async function Page() {
     <section className="card">
       <h2>Futások, retry és dead-letter</h2>
       {error && <div className="errorNotice" role="alert">Az esemény-workflow napló most nem tölthető be. Biztonsági okból retry sem indítható.</div>}
-      {!error && <div className="adminTableScroll"><table className="adminTable"><thead><tr><th>Indult</th><th>Esemény</th><th>Forrás</th><th>Állapot</th><th>Próba</th><th>Következő retry</th><th>Művelet</th></tr></thead><tbody>
-        {rows.map((row: any) => { const meta = row.metadata && typeof row.metadata === 'object' ? row.metadata as Record<string, any> : {}; const event = meta.event && typeof meta.event === 'object' ? meta.event : {}; const status = String(meta.status ?? 'processing'); return <tr key={row.id}><td>{new Date(row.started_at).toLocaleString('hu-HU')}</td><td><code>{String(event.type ?? '—')}</code></td><td><code>{String(event.sourceId ?? '—').slice(0, 32)}</code></td><td>{statusLabel[status] ?? status}</td><td>{Number(meta.attempt ?? 0)}</td><td>{meta.nextAttemptAt ? new Date(meta.nextAttemptAt).toLocaleString('hu-HU') : '—'}</td><td>{canManage && !error && status === 'retry' ? <WorkflowEventRetryButton runId={row.id} /> : status === 'dead_letter' ? <span className="muted">Kézi kivizsgálás szükséges</span> : '—'}</td></tr>; })}
+      {!error && <div className="adminTableScroll"><table className="adminTable"><thead><tr><th>Indult</th><th>Esemény</th><th>Forrás</th><th>Állapot</th><th>Próba</th><th>Következő ellenőrzés</th><th>Művelet</th></tr></thead><tbody>
+        {rows.map((row: any) => { const meta = row.metadata && typeof row.metadata === 'object' ? row.metadata as Record<string, any> : {}; const event = meta.event && typeof meta.event === 'object' ? meta.event : {}; const status = String(meta.status ?? 'processing'); return <tr key={row.id}><td>{new Date(row.started_at).toLocaleString('hu-HU')}</td><td><code>{String(event.type ?? '—')}</code></td><td><code>{String(event.sourceId ?? '—').slice(0, 32)}</code></td><td>{statusLabel[status] ?? status}</td><td>{Number(meta.attempt ?? 0)}</td><td>{meta.nextAttemptAt ? new Date(meta.nextAttemptAt).toLocaleString('hu-HU') : '—'}</td><td>{canManage && !error && status === 'retry' ? <WorkflowEventRetryButton runId={row.id} /> : canManage && !error && status === 'awaiting_approval' ? <WorkflowEventRetryButton runId={row.id} label="Jóváhagyás ellenőrzése" /> : status === 'dead_letter' ? <span className="muted">Kézi kivizsgálás szükséges</span> : '—'}</td></tr>; })}
       </tbody></table></div>}
       {!error && rows.length === 0 && <p className="muted">Még nincs eseményvezérelt workflow-futás ennél a webshopnál.</p>}
     </section>

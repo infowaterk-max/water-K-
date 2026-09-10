@@ -35,6 +35,17 @@ describe('Roadmap Block 17 — Event-Driven Workflow Automation', () => {
     expect(engine).toMatch(/eq\('instance_id', input\.instanceId\)\.eq\('run_key', runKey\)/);
   });
 
+  test('high-risk commercial workflow reuses action proposal approval authority and can resume after approval', () => {
+    expect(engine).toMatch(/from\('action_proposals'\).*eq\('id', sourceId\).*eq\('instance_id', input\.instanceId\)/s);
+    expect(engine).toMatch(/proposal_id: approval\.proposalId \?\? null/);
+    expect(engine).toMatch(/\['approved', 'executed'\]\.includes\(status\)/);
+    expect(engine).toMatch(/\['rejected', 'cancelled'\]\.includes\(status\)/);
+    expect(engine).toMatch(/status === 'retry' \|\| status === 'awaiting_approval'/);
+    expect(engine).toMatch(/\.in\('metadata->>status', \['retry', 'awaiting_approval'\]\)/);
+    expect(api).toMatch(/\['retry', 'awaiting_approval'\]\.includes\(retryableStatus\)/);
+    expect(page).toMatch(/Jóváhagyás ellenőrzése/);
+  });
+
   test('admin event ingress is permission, plan and tenant scoped', () => {
     expect(api).toMatch(/getAdminRequestUser\('store\.manage'\)/);
     expect(api).toMatch(/requireCurrentStoreContext\('store\.manage'\)/);
@@ -59,7 +70,7 @@ describe('Roadmap Block 17 — Event-Driven Workflow Automation', () => {
     expect(vercel.crons?.[0]?.path).toBe('/api/cron/integrations');
   });
 
-  test('ops surface exposes catalog, retry and dead-letter without Visual Builder scope', () => {
+  test('ops surface exposes catalog, approval retry and dead-letter without Visual Builder scope', () => {
     expect(page).toMatch(/Developer-authored előfizetések/);
     expect(page).toMatch(/Futások, retry és dead-letter/);
     expect(page).toMatch(/Kézi kivizsgálás szükséges/);
