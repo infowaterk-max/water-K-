@@ -62,7 +62,7 @@ export async function DigitalOfficeChatDock({instanceId,actorId,baseHref,selecte
         </nav>
         <div className="digitalOfficeChatConversation">
           <div className="digitalOfficeChatMessages">{activeMessages.map(message=><div key={message.id} className={message.author_id===actorId?'isMine':'isOther'}><small>{message.author_id?labelFor(message.author_id):'Rendszer'}</small><p>{message.body}</p></div>)}{!activeMessages.length&&<p className="muted">Még nincs üzenet ebben a beszélgetésben.</p>}</div>
-          <div className="digitalOfficeChatComposer"><OfficePrivateMessageForm threadId={activeThread.id} mentionOptions={mentionOptions} objectOptions={[]}/></div>
+          <div className="digitalOfficeChatComposer"><OfficePrivateMessageForm compact threadId={activeThread.id} mentionOptions={mentionOptions} objectOptions={[]}/></div>
         </div>
       </div>
     </div>
