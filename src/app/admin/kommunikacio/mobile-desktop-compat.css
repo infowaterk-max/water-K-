@@ -1,0 +1,117 @@
+/* Compatibility layer for touch phones whose browser is forced into "desktop site" mode.
+   The browser can expose a ~980px layout viewport on a physically narrow device, so ordinary
+   max-width mobile media queries never run. The client bridge marks only that emulation case. */
+
+.adminGrid[data-mobile-desktop-compat="true"]{
+  display:block!important;
+  width:var(--admin-mobile-desktop-width)!important;
+  max-width:var(--admin-mobile-desktop-width)!important;
+  min-width:0!important;
+  zoom:var(--admin-mobile-desktop-scale);
+  overflow-x:hidden!important;
+}
+.adminGrid[data-mobile-desktop-compat="true"] .adminSide{
+  display:block!important;
+  position:sticky!important;
+  top:0!important;
+  z-index:1200!important;
+  width:100%!important;
+  height:auto!important;
+  max-height:none!important;
+  padding:0!important;
+  overflow:visible!important;
+  background:#152219!important;
+  color:#fff!important;
+  border:0!important;
+}
+.adminGrid[data-mobile-desktop-compat="true"] .adminSide>.adminBrand,
+.adminGrid[data-mobile-desktop-compat="true"] .adminSide>.adminNavigationStack,
+.adminGrid[data-mobile-desktop-compat="true"] .adminSide>.adminFontScale,
+.adminGrid[data-mobile-desktop-compat="true"] .adminSide>.adminStoreLink{display:none!important}
+.adminGrid[data-mobile-desktop-compat="true"] .adminMobileNavigation{display:block!important;position:relative!important;background:#152219!important;color:#fff!important}
+.adminGrid[data-mobile-desktop-compat="true"] .adminMobileHeader{min-height:66px;display:flex!important;align-items:center;justify-content:space-between;gap:14px;padding:10px 14px;border-bottom:1px solid rgba(255,255,255,.1)}
+.adminGrid[data-mobile-desktop-compat="true"] .adminMobileHeaderContext{display:grid;gap:2px;min-width:0}
+.adminGrid[data-mobile-desktop-compat="true"] .adminMobileHeaderContext strong{font-size:18px;line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.adminGrid[data-mobile-desktop-compat="true"] .adminMobileHeaderContext span{color:#b6c3b9;font-size:11px;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.adminGrid[data-mobile-desktop-compat="true"] .adminMobileMenuButton{flex:0 0 auto;min-height:42px;display:inline-flex;align-items:center;gap:8px;padding:0 13px;border:1px solid rgba(255,255,255,.16);border-radius:12px;background:rgba(255,255,255,.08);color:#fff;font-weight:850}
+.adminGrid[data-mobile-desktop-compat="true"] .adminMobileDrawerLayer{position:fixed!important;left:0!important;top:0!important;width:var(--admin-mobile-desktop-width)!important;height:var(--admin-mobile-desktop-height)!important;z-index:1400!important}
+.adminGrid[data-mobile-desktop-compat="true"] .adminMobileDrawerBackdrop{position:absolute;inset:0;width:100%;height:100%;border:0;background:rgba(5,12,8,.58);backdrop-filter:blur(3px)}
+.adminGrid[data-mobile-desktop-compat="true"] .adminMobileDrawer{position:absolute;top:0;right:0;width:min(90%,380px);height:100%;overflow-y:auto;overscroll-behavior:contain;padding:14px;background:#152219;color:#fff;box-shadow:-24px 0 70px rgba(0,0,0,.3)}
+.adminGrid[data-mobile-desktop-compat="true"] .adminMobileDrawerHeader{position:sticky;top:-14px;z-index:2;display:flex;align-items:center;justify-content:space-between;gap:12px;margin:-14px -14px 12px;padding:14px;background:#152219;border-bottom:1px solid rgba(255,255,255,.1)}
+.adminGrid[data-mobile-desktop-compat="true"] .adminMobileDrawerHeader>div{display:grid;gap:2px;min-width:0}
+.adminGrid[data-mobile-desktop-compat="true"] .adminMobileDrawerHeader strong{font-size:20px}
+.adminGrid[data-mobile-desktop-compat="true"] .adminMobileDrawerHeader span{color:#aebdb1;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.adminGrid[data-mobile-desktop-compat="true"] .adminMobileDrawerHeader>button{width:42px;height:42px;border:1px solid rgba(255,255,255,.14);border-radius:12px;background:rgba(255,255,255,.07);color:#fff;font-size:26px;line-height:1}
+.adminGrid[data-mobile-desktop-compat="true"] .adminMobileDrawerQuick{display:grid;gap:8px;padding:3px 0 14px;border-bottom:1px solid rgba(255,255,255,.1)}
+.adminGrid[data-mobile-desktop-compat="true"] .adminMobileDrawerQuick>span,
+.adminGrid[data-mobile-desktop-compat="true"] .adminMobileDrawerPlatform>span{color:#a8d15a;font-size:9px;font-weight:950;letter-spacing:.13em;text-transform:uppercase}
+.adminGrid[data-mobile-desktop-compat="true"] .adminMobileDrawerQuick>div{display:flex;gap:7px;overflow-x:auto;scrollbar-width:none}
+.adminGrid[data-mobile-desktop-compat="true"] .adminMobileDrawerQuick a{flex:0 0 auto;padding:8px 10px;border:1px solid rgba(255,255,255,.11);border-radius:9px;background:rgba(255,255,255,.06);color:#fff;text-decoration:none;font-size:11px;font-weight:800;white-space:nowrap}
+.adminGrid[data-mobile-desktop-compat="true"] .adminMobileDrawerMerchant{display:grid;gap:5px;padding:12px 0}
+.adminGrid[data-mobile-desktop-compat="true"] .adminMobileDrawerSection{display:grid;gap:4px}
+.adminGrid[data-mobile-desktop-compat="true"] .adminMobileDrawerSection>button{width:100%;min-height:45px;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:9px 11px;border:1px solid transparent;border-radius:11px;background:transparent;color:#e6eee8;text-align:left;font-weight:900}
+.adminGrid[data-mobile-desktop-compat="true"] .adminMobileDrawerSection[data-active="true"]>button{border-color:rgba(168,209,90,.3);background:rgba(168,209,90,.1);color:#fff}
+.adminGrid[data-mobile-desktop-compat="true"] .adminMobileDrawerPanel{display:grid;gap:7px;padding:3px 0 8px 10px}
+.adminGrid[data-mobile-desktop-compat="true"] .adminMobileDrawerPanel[hidden]{display:none!important}
+.adminGrid[data-mobile-desktop-compat="true"] .adminMobileDrawerGroup{display:grid;gap:4px}
+.adminGrid[data-mobile-desktop-compat="true"] .adminMobileDrawerGroup+.adminMobileDrawerGroup{margin-top:6px}
+.adminGrid[data-mobile-desktop-compat="true"] .adminMobileDrawerGroupLabel{padding:4px 8px;color:#819586;font-size:8px;font-weight:950;letter-spacing:.11em;text-transform:uppercase}
+.adminGrid[data-mobile-desktop-compat="true"] .adminMobileDrawerGroup a{display:block;padding:9px 10px;border-radius:9px;color:#cbd7ce;text-decoration:none;font-size:12px;font-weight:750}
+.adminGrid[data-mobile-desktop-compat="true"] .adminMobileDrawerGroup a.adminMobileDrawerActive{background:rgba(255,255,255,.08);color:#fff;box-shadow:inset 3px 0 0 #a8d15a}
+.adminGrid[data-mobile-desktop-compat="true"] .adminMobileDrawerPlatform{display:grid;gap:7px;padding:14px 0;border-top:1px solid rgba(255,255,255,.12)}
+.adminGrid[data-mobile-desktop-compat="true"] .adminMobileDrawerUtilities{display:grid;gap:10px;padding:14px 0 4px;border-top:1px solid rgba(255,255,255,.12)}
+.adminGrid[data-mobile-desktop-compat="true"] .adminMobileDrawerUtilities>.adminFontScale{display:block!important;margin:0!important}
+.adminGrid[data-mobile-desktop-compat="true"] .adminMobileDrawerUtilities>a{padding:10px 2px;color:#a8d15a;text-decoration:none;font-size:12px;font-weight:800}
+.adminGrid[data-mobile-desktop-compat="true"] .adminContentShell{width:100%!important;min-width:0!important}
+.adminGrid[data-mobile-desktop-compat="true"] .adminMain{width:100%!important;min-width:0!important;padding:16px 12px 44px!important;overflow-x:hidden!important}
+
+.adminGrid[data-mobile-desktop-compat="true"] .digitalOfficeMobileController{position:sticky;top:66px;z-index:42;display:flex!important;align-items:center;justify-content:space-between;gap:10px;padding:9px 12px;border-bottom:1px solid var(--workspace-line);background:rgba(255,255,255,.98);backdrop-filter:blur(12px)}
+.adminGrid[data-mobile-desktop-compat="true"] .digitalOfficeMobileBack{flex:0 0 auto;color:var(--workspace-accent-strong);text-decoration:none;font-size:12px;font-weight:900}
+.adminGrid[data-mobile-desktop-compat="true"] .digitalOfficeMobileSwitch{display:flex;gap:4px;min-width:0;padding:3px;border:1px solid var(--workspace-line);border-radius:11px;background:#f6f9f8}
+.adminGrid[data-mobile-desktop-compat="true"] .digitalOfficeMobileSwitch button{min-height:34px;padding:0 9px;border:0;border-radius:8px;background:transparent;color:#647571;font-size:10px;font-weight:850}
+.adminGrid[data-mobile-desktop-compat="true"] .digitalOfficeMobileSwitch button[data-active="true"]{background:#fff;color:var(--workspace-accent-strong);box-shadow:0 1px 4px rgba(22,43,39,.08)}
+.adminGrid[data-mobile-desktop-compat="true"] .digitalOfficeWorkstation{display:block!important;width:100%!important;height:auto!important;min-height:0!important;overflow:visible!important;border-top:0!important}
+.adminGrid[data-mobile-desktop-compat="true"] .digitalOfficeWorkstation[data-mobile-view="list"] .digitalOfficeConversationPane,
+.adminGrid[data-mobile-desktop-compat="true"] .digitalOfficeWorkstation[data-mobile-view="list"] .digitalOfficeContextPane{display:none!important}
+.adminGrid[data-mobile-desktop-compat="true"] .digitalOfficeWorkstation[data-mobile-view="list"] .digitalOfficeThreadListPane{display:flex!important;width:100%!important;max-height:none!important;min-height:0!important;border-right:0!important}
+.adminGrid[data-mobile-desktop-compat="true"] .digitalOfficeWorkstation[data-mobile-view="list"] .digitalOfficeLocalRail{display:block!important;width:100%!important}
+.adminGrid[data-mobile-desktop-compat="true"] .digitalOfficeWorkstation[data-mobile-view="conversation"] .digitalOfficeLocalRail,
+.adminGrid[data-mobile-desktop-compat="true"] .digitalOfficeWorkstation[data-mobile-view="conversation"] .digitalOfficeThreadListPane,
+.adminGrid[data-mobile-desktop-compat="true"] .digitalOfficeWorkstation[data-mobile-view="conversation"] .digitalOfficeContextPane{display:none!important}
+.adminGrid[data-mobile-desktop-compat="true"] .digitalOfficeWorkstation[data-mobile-view="conversation"] .digitalOfficeConversationPane{display:flex!important;width:100%!important;min-width:0!important;min-height:calc(var(--admin-mobile-desktop-height) - 122px)!important;border:0!important}
+.adminGrid[data-mobile-desktop-compat="true"] .digitalOfficeWorkstation[data-mobile-view="context"] .digitalOfficeLocalRail,
+.adminGrid[data-mobile-desktop-compat="true"] .digitalOfficeWorkstation[data-mobile-view="context"] .digitalOfficeThreadListPane,
+.adminGrid[data-mobile-desktop-compat="true"] .digitalOfficeWorkstation[data-mobile-view="context"] .digitalOfficeConversationPane{display:none!important}
+.adminGrid[data-mobile-desktop-compat="true"] .digitalOfficeWorkstation[data-mobile-view="context"] .digitalOfficeContextPane{display:block!important;width:100%!important;min-width:0!important;min-height:calc(var(--admin-mobile-desktop-height) - 122px)!important;border:0!important;background:#fff!important}
+.adminGrid[data-mobile-desktop-compat="true"] .digitalOfficeLocalRail nav{display:flex!important;flex-direction:row!important;gap:5px!important;padding:8px 10px!important;overflow-x:auto!important;scrollbar-width:none}
+.adminGrid[data-mobile-desktop-compat="true"] .digitalOfficeLocalRail nav>small,
+.adminGrid[data-mobile-desktop-compat="true"] .digitalOfficeLocalRailTitle,
+.adminGrid[data-mobile-desktop-compat="true"] .digitalOfficeLocalRailFooter{display:none!important}
+.adminGrid[data-mobile-desktop-compat="true"] .digitalOfficeLocalRail nav>a{flex:0 0 auto!important;min-height:36px!important;padding:0 11px!important}
+.adminGrid[data-mobile-desktop-compat="true"] .digitalOfficeThreadItem{grid-template-columns:46px minmax(0,1fr)!important}
+.adminGrid[data-mobile-desktop-compat="true"] .digitalOfficeConversationHeader{position:relative!important;top:auto!important}
+.adminGrid[data-mobile-desktop-compat="true"] .digitalOfficeConversationActions{display:flex!important;flex-wrap:wrap!important;width:100%!important}
+.adminGrid[data-mobile-desktop-compat="true"] .digitalOfficeMessage{max-width:100%!important}
+.adminGrid[data-mobile-desktop-compat="true"] .digitalOfficeMessageCard{max-width:calc(100% - 28px)!important}
+.adminGrid[data-mobile-desktop-compat="true"] .digitalOfficeReplyComposer .splitFeature{grid-template-columns:1fr!important}
+.adminGrid[data-mobile-desktop-compat="true"] .digitalOfficeReplyComposer .adminToolbar{display:grid!important;grid-template-columns:1fr!important;gap:8px!important}
+.adminGrid[data-mobile-desktop-compat="true"] .officeComposerExtrasToggle{display:inline-flex!important}
+.adminGrid[data-mobile-desktop-compat="true"] .officeComposerExtras[data-open="false"]{display:none!important}
+.adminGrid[data-mobile-desktop-compat="true"] .officeComposerExtras[data-open="true"]{display:grid!important}
+
+.adminGrid[data-mobile-desktop-compat="true"] .teamChatWorkspace{display:block!important;width:100%!important;height:auto!important;min-height:calc(var(--admin-mobile-desktop-height) - 66px)!important;border-top:0!important;overflow:visible!important;background:#fff!important}
+.adminGrid[data-mobile-desktop-compat="true"] .teamChatPeoplePane,
+.adminGrid[data-mobile-desktop-compat="true"] .teamChatConversationPane,
+.adminGrid[data-mobile-desktop-compat="true"] .teamChatInfoPane{width:100%!important;min-width:0!important;min-height:calc(var(--admin-mobile-desktop-height) - 66px)!important;border:0!important}
+.adminGrid[data-mobile-desktop-compat="true"] .teamChatWorkspace[data-mobile-view="list"] .teamChatConversationPane,
+.adminGrid[data-mobile-desktop-compat="true"] .teamChatWorkspace[data-mobile-view="list"] .teamChatInfoPane{display:none!important}
+.adminGrid[data-mobile-desktop-compat="true"] .teamChatWorkspace[data-mobile-view="list"] .teamChatPeoplePane{display:flex!important}
+.adminGrid[data-mobile-desktop-compat="true"] .teamChatWorkspace[data-mobile-view="chat"] .teamChatPeoplePane,
+.adminGrid[data-mobile-desktop-compat="true"] .teamChatWorkspace[data-mobile-view="chat"] .teamChatInfoPane{display:none!important}
+.adminGrid[data-mobile-desktop-compat="true"] .teamChatWorkspace[data-mobile-view="chat"] .teamChatConversationPane{display:flex!important}
+.adminGrid[data-mobile-desktop-compat="true"] .teamChatWorkspace[data-mobile-view="info"] .teamChatPeoplePane,
+.adminGrid[data-mobile-desktop-compat="true"] .teamChatWorkspace[data-mobile-view="info"] .teamChatConversationPane{display:none!important}
+.adminGrid[data-mobile-desktop-compat="true"] .teamChatWorkspace[data-mobile-view="info"] .teamChatInfoPane{display:block!important}
+.adminGrid[data-mobile-desktop-compat="true"] .teamChatMobileBack{display:inline-flex!important}
+.adminGrid[data-mobile-desktop-compat="true"] .teamChatLoadError{position:relative!important;left:auto!important;right:auto!important;top:auto!important;margin:10px!important}
+.adminGrid[data-mobile-desktop-compat="true"] .teamChatCreatePanel{grid-template-columns:1fr!important;padding:16px!important}

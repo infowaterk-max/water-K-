@@ -1,4 +1,6 @@
+import './mobile-desktop-compat.css';
 import type {ReactNode} from 'react';
+import {AdminMobileDesktopCompat} from '@/components/admin/admin-mobile-desktop-compat';
 import {DigitalOfficeMobileController} from '@/components/admin/digital-office-mobile-controller';
 import {DigitalOfficeNavigation} from '@/components/navigation/digital-office-navigation';
 import {getAdminRequestUser} from '@/lib/auth/admin-api';
@@ -24,6 +26,7 @@ export default async function DigitalOfficeLayout({children}:{children:ReactNode
   }
 
   return <div className="digitalOfficeShell">
+    <AdminMobileDesktopCompat/>
     <DigitalOfficeNavigation officeEmail={officeEmail} canChat={canChat} advancedEmail={advancedEmail}/>
     <DigitalOfficeMobileController/>
     {children}
