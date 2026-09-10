@@ -28,11 +28,10 @@ describe('Digital Office Team Chat retention',()=>{
     const page=read('src/app/admin/kommunikacio/chat/page.tsx');
     expect(page).toContain("archived_at:string|null");
     expect(page).toContain("updated_at,archived_at,conversation_type");
-    expect(page).toContain("filter==='archived'?archived");
-    expect(page).toContain('<option value="archived">Archivált</option>');
-    expect(page).toContain('Az archivált beszélgetés csak olvasható.');
-    expect(page).toContain('!archived&&!loadError&&isOwner');
-    expect(page).toContain('!archived&&!loadError&&<OfficePrivateMessageForm');
+    expect(page).toContain("filter==='archived'?archivedThreads:visibleThreads");
+    expect(page).toContain('filter=archived');
+    expect(page).toContain('Ez a beszélgetés archivált, ezért új üzenet nem küldhető.');
+    expect(page).toContain('!selectedThread.archived_at&&!loadError&&<div className="teamChatComposer"');
     expect(page).toContain('const activeThreads=threads.filter(thread=>!isArchived(thread));');
   });
 

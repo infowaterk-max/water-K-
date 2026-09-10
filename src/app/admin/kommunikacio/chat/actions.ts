@@ -1,6 +1,7 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
+import { redirect } from 'next/navigation';
 import { getAdminRequestUser } from '@/lib/auth/admin-api';
 import { hasStoreCapability } from '@/lib/auth/store-capabilities';
 import { requirePlanFeature } from '@/lib/plans/access';
@@ -66,6 +67,49 @@ function chatObjectFrom(form:FormData){
   return{objectType:type,objectId};
 }
 
+async function directThreadBetween(db:ReturnType<typeof createAdminClient>,instanceId:string,userId:string,targetUserId:string){
+  const{data,error}=await db.from('office_thread_participants')
+    .select('thread_id,user_id')
+    .eq('instance_id',instanceId)
+    .in('user_id',[userId,targetUserId])
+    .is('left_at',null);
+  if(error)throw new TeamChatMutationError(errorReason(error));
+  const membership=new Map<string,Set<string>>();
+  for(const row of data??[]){
+    const threadId=String(row.thread_id),memberId=String(row.user_id);
+    const members=membership.get(threadId)??new Set<string>();
+    members.add(memberId);membership.set(threadId,members);
+  }
+  const candidateIds=[...membership.entries()].filter(([,members])=>members.has(userId)&&members.has(targetUserId)).map(([threadId])=>threadId);
+  if(!candidateIds.length)return null;
+  const{data:threads,error:threadError}=await db.from('office_threads')
+    .select('id')
+    .eq('instance_id',instanceId)
+    .in('id',candidateIds)
+    .eq('conversation_type','internal_private')
+    .is('archived_at',null)
+    .order('updated_at',{ascending:false})
+    .limit(1);
+  if(threadError)throw new TeamChatMutationError(errorReason(threadError));
+  return threads?.[0]?.id?String(threads[0].id):null;
+}
+
+export async function sendDirectMessageAction(form:FormData){
+  const{db,userId,instanceId}=await privateChatAccess();
+  const targetUserId=String(form.get('targetUserId')??'').trim();
+  const body=String(form.get('body')??'').trim().slice(0,10000);
+  const object=chatObjectFrom(form);
+  if(!targetUserId||targetUserId===userId||!body||!object)return;
+  const existingThreadId=await directThreadBetween(db,instanceId,userId,targetUserId);
+  const result=existingThreadId
+    ?await mutateTeamChat(db,{instanceId,userId,action:'add_internal_message',payload:{threadId:existingThreadId,body,mentionUserIds:[],...object}})
+    :await mutateTeamChat(db,{instanceId,userId,action:'create_internal_thread',payload:{subject:'Közvetlen beszélgetés',body,participantUserIds:[targetUserId],mentionUserIds:[],...object}});
+  const threadId=result.threadId??result.id;
+  if(!threadId)throw new Error('A közvetlen beszélgetés azonosítója nem igazolható.');
+  revalidatePath('/admin/kommunikacio/chat');
+  redirect(`/admin/kommunikacio/chat?thread=${threadId}`);
+}
+
 export async function createPrivateThreadAction(form:FormData){
   const{db,userId,instanceId}=await privateChatAccess();
   const subject=String(form.get('subject')??'').trim().slice(0,180);
@@ -74,8 +118,9 @@ export async function createPrivateThreadAction(form:FormData){
   const mentionUserIds=selectedUserIds(form,'mentionUserId').slice(0,10);
   const object=chatObjectFrom(form);
   if(!subject||!body||participantUserIds.length===0||!object)return;
-  await mutateTeamChat(db,{instanceId,userId,action:'create_internal_thread',payload:{subject,body,participantUserIds,mentionUserIds,...object}});
+  const result=await mutateTeamChat(db,{instanceId,userId,action:'create_internal_thread',payload:{subject,body,participantUserIds,mentionUserIds,...object}});
   revalidatePath('/admin/kommunikacio/chat');
+  if(result.threadId)redirect(`/admin/kommunikacio/chat?thread=${result.threadId}`);
 }
 
 export async function managePrivateParticipantAction(form:FormData){

@@ -1,4 +1,5 @@
 import type {ReactNode} from 'react';
+import {DigitalOfficeMobileController} from '@/components/admin/digital-office-mobile-controller';
 import {DigitalOfficeNavigation} from '@/components/navigation/digital-office-navigation';
 import {getAdminRequestUser} from '@/lib/auth/admin-api';
 import {hasStoreCapability} from '@/lib/auth/store-capabilities';
@@ -24,6 +25,7 @@ export default async function DigitalOfficeLayout({children}:{children:ReactNode
 
   return <div className="digitalOfficeShell">
     <DigitalOfficeNavigation officeEmail={officeEmail} canChat={canChat} advancedEmail={advancedEmail}/>
+    <DigitalOfficeMobileController/>
     {children}
   </div>;
 }
