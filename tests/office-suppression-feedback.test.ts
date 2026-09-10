@@ -24,7 +24,7 @@ describe('Digital Office suppression feedback',()=>{
     expect(form).toContain('!sendingConfigured');
     expect(page).toContain('<OfficeCustomerEmailForm');
     expect(page).toContain('sendingConfigured={sendingConfigured}');
-    expect(page).toContain('initialDraft={replyDraft?');
+    expect(page).toContain('initialDraft={selectedDraft?');
     expect(page).not.toContain('action={sendCustomerEmailAction}');
   });
 });

@@ -50,7 +50,7 @@ describe('production pilot communication UI remediation',()=>{
 
   test('customer email workspace links to the dedicated send supervision route',()=>{
     const workspace=read('src/app/admin/kommunikacio/iroda/page.tsx');
-    expect(workspace).toContain('href="/admin/kommunikacio/felugyelet">Küldési felügyelet</Link>');
+    expect(workspace).toContain('href="/admin/kommunikacio/felugyelet"><span>Küldési központ</span></Link>');
   });
 
   test('scheduled communication times are not rendered in the server UTC timezone',()=>{
