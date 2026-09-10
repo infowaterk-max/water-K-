@@ -1,134 +1,39 @@
 'use client';
 
-import{useState,useTransition}from'react';
-import{
-  autosaveNewEmailDraftAction,deleteOfficeDraftAction,officeComposerInitialState,saveNewEmailDraftAction,sendNewEmailAction,
-  type OfficeComposerActionState,
-}from'@/app/admin/kommunikacio/iroda/composer-actions';
+import{useEffect,useRef,useState,useTransition}from'react';
+import{autosaveNewEmailDraftAction,deleteOfficeDraftAction,officeComposerInitialState,saveNewEmailDraftAction,sendNewEmailAction,type OfficeComposerActionState}from'@/app/admin/kommunikacio/iroda/composer-actions';
 import{useOfficeDraftAutosave}from'@/components/admin/use-office-draft-autosave';
+import{getOfficeEmailAttachmentAvailability,officeEmailAttachmentProblem,uploadAndScanOfficeEmailAttachments,type OfficeEmailAttachmentAvailability}from'@/lib/office/email-attachment-client';
+import{OFFICE_PRIVATE_ATTACHMENT_MIME_TYPES}from'@/lib/office/private-attachments';
 
 type MailboxOption={mailboxKey:string;label:string};
+type DelegationOption={userId:string;label:string};
 type InitialDraft={id:string;revision:number;toEmail:string|null;ccEmails:string[];bccEmails:string[];subject:string;body:string};
 type DraftSnapshot={toEmail:string;ccEmails:string;bccEmails:string;subject:string;body:string};
+function draftFormData(snapshot:DraftSnapshot,draftId:string,revision:number|null,mailboxKey?:string,attachmentIds:string[]=[],actingForUserId?:string){const data=new FormData();if(draftId)data.set('draftId',draftId);if(revision)data.set('revision',String(revision));data.set('toEmail',snapshot.toEmail);data.set('ccEmails',snapshot.ccEmails);data.set('bccEmails',snapshot.bccEmails);data.set('subject',snapshot.subject);data.set('body',snapshot.body);if(mailboxKey)data.set('mailboxKey',mailboxKey);for(const id of attachmentIds)data.append('attachmentId',id);if(actingForUserId)data.set('actingForUserId',actingForUserId);return data}
+function attachmentHelp(checked:boolean,availability:OfficeEmailAttachmentAvailability){if(!checked)return'A csatolmány-biztonsági rendszer állapotát ellenőrizzük…';if(availability.enabled)return'Legfeljebb 5 fájl, fájlonként 10 MB. A fájl privát karanténba kerül, és csak tartalom- + vírusellenőrzés után küldhető.';if(availability.reason==='scanner_unavailable')return'A vírusellenőrző jelenleg nem elérhető, ezért fájl nem küldhető. Szöveges e-mail továbbra is használható.';return'A csatolmányküldés jelenleg nem érhető el.'}
 
-function draftFormData(snapshot:DraftSnapshot,draftId:string,revision:number|null,mailboxKey?:string){
-  const data=new FormData();
-  if(draftId)data.set('draftId',draftId);
-  if(revision)data.set('revision',String(revision));
-  data.set('toEmail',snapshot.toEmail);
-  data.set('ccEmails',snapshot.ccEmails);
-  data.set('bccEmails',snapshot.bccEmails);
-  data.set('subject',snapshot.subject);
-  data.set('body',snapshot.body);
-  if(mailboxKey)data.set('mailboxKey',mailboxKey);
-  return data;
-}
-
-export function OfficeNewEmailComposer({mailboxes,initialDraft,compact=false,advancedEmail=false}:{mailboxes:MailboxOption[];initialDraft?:InitialDraft;compact?:boolean;advancedEmail?:boolean}){
-  const[toEmail,setToEmail]=useState(initialDraft?.toEmail??'');
-  const[ccEmails,setCcEmails]=useState(advancedEmail?initialDraft?.ccEmails.join(', ')??'':'');
-  const[bccEmails,setBccEmails]=useState(advancedEmail?initialDraft?.bccEmails.join(', ')??'':'');
-  const[subject,setSubject]=useState(initialDraft?.subject??'');
-  const[body,setBody]=useState(initialDraft?.body??'');
-  const[mailboxKey,setMailboxKey]=useState(mailboxes[0]?.mailboxKey??'');
-  const[operationState,setOperationState]=useState<OfficeComposerActionState>(officeComposerInitialState);
-  const[actionPending,startTransition]=useTransition();
-  const sendingConfigured=advancedEmail?mailboxes.length>0:mailboxes.length===1;
-  const snapshot:DraftSnapshot={toEmail,ccEmails:advancedEmail?ccEmails:'',bccEmails:advancedEmail?bccEmails:'',subject,body};
-  const snapshotKey=JSON.stringify(snapshot);
-  const meaningful=(advancedEmail?[toEmail,ccEmails,bccEmails,subject,body]:[toEmail,subject,body]).some(value=>value.trim().length>0);
-
-  const draft=useOfficeDraftAutosave({
-    snapshot,
-    snapshotKey,
-    meaningful,
-    initialDraftId:initialDraft?.id,
-    initialRevision:initialDraft?.revision??null,
-    autosave:({snapshot:next,draftId,revision})=>autosaveNewEmailDraftAction(
-      officeComposerInitialState,draftFormData(next,draftId,revision)
-    ),
-    manualSave:({snapshot:next,draftId,revision})=>saveNewEmailDraftAction(
-      officeComposerInitialState,draftFormData(next,draftId,revision)
-    ),
-  });
-
-  const sendReady=sendingConfigured&&toEmail.trim().length>0&&subject.trim().length>0&&body.trim().length>0;
-  const hasBlockingDraftState=draft.status==='conflict';
-
-  function save(){
-    setOperationState(officeComposerInitialState);
-    void draft.saveNow();
-  }
-
-  function clearFields(){
-    setToEmail('');setCcEmails('');setBccEmails('');setSubject('');setBody('');
-  }
-
-  function send(){
-    if(!sendReady||hasBlockingDraftState)return;
-    startTransition(async()=>{
-      setOperationState(officeComposerInitialState);
-      const saveResult=await draft.saveNow();
-      if(saveResult&&(saveResult.status==='conflict'||saveResult.status==='error'||saveResult.status==='blocked')){
-        setOperationState(saveResult);
-        return;
-      }
-      const safeDraftId=saveResult?.draftId??draft.draftId;
-      const safeRevision=saveResult?.revision??draft.revision;
-      const result=await sendNewEmailAction(
-        officeComposerInitialState,
-        draftFormData(snapshot,safeDraftId,safeRevision,advancedEmail?mailboxKey:undefined),
-      );
-      setOperationState(result);
-      if(result.status==='success'){
-        clearFields();
-        draft.reset();
-      }
-    });
-  }
-
-  function remove(){
-    if(!draft.draftId||!draft.revision||draft.status!=='saved')return;
-    const deletingId=draft.draftId;
-    const deletingRevision=draft.revision;
-    startTransition(async()=>{
-      setOperationState(officeComposerInitialState);
-      const data=new FormData();
-      data.set('draftId',deletingId);
-      data.set('revision',String(deletingRevision));
-      const result=await deleteOfficeDraftAction(data);
-      setOperationState(result);
-      if(result.status==='success'){
-        clearFields();
-        draft.reset();
-      }
-    });
-  }
-
+export function OfficeNewEmailComposer({mailboxes,initialDraft,compact=false,advancedEmail=false,delegationOptions=[]}:{mailboxes:MailboxOption[];initialDraft?:InitialDraft;compact?:boolean;advancedEmail?:boolean;delegationOptions?:DelegationOption[]}){
+  const[toEmail,setToEmail]=useState(initialDraft?.toEmail??'');const[ccEmails,setCcEmails]=useState(advancedEmail?initialDraft?.ccEmails.join(', ')??'':'');const[bccEmails,setBccEmails]=useState(advancedEmail?initialDraft?.bccEmails.join(', ')??'':'');const[subject,setSubject]=useState(initialDraft?.subject??'');const[body,setBody]=useState(initialDraft?.body??'');const[mailboxKey,setMailboxKey]=useState(mailboxes[0]?.mailboxKey??'');const[actingForUserId,setActingForUserId]=useState('');const[files,setFiles]=useState<File[]>([]);const[attachmentAvailability,setAttachmentAvailability]=useState<OfficeEmailAttachmentAvailability>({enabled:false,reason:'unknown'});const[attachmentChecked,setAttachmentChecked]=useState(false);const fileInput=useRef<HTMLInputElement>(null);const[operationState,setOperationState]=useState<OfficeComposerActionState>(officeComposerInitialState);const[actionPending,startTransition]=useTransition();
+  const sendingConfigured=advancedEmail?mailboxes.length>0:mailboxes.length===1;const snapshot:DraftSnapshot={toEmail,ccEmails:advancedEmail?ccEmails:'',bccEmails:advancedEmail?bccEmails:'',subject,body};const snapshotKey=JSON.stringify(snapshot);const meaningful=(advancedEmail?[toEmail,ccEmails,bccEmails,subject,body]:[toEmail,subject,body]).some(value=>value.trim().length>0);
+  useEffect(()=>{let active=true;getOfficeEmailAttachmentAvailability().then(value=>{if(active){setAttachmentAvailability(value);setAttachmentChecked(true)}});return()=>{active=false}},[]);
+  const draft=useOfficeDraftAutosave({snapshot,snapshotKey,meaningful,initialDraftId:initialDraft?.id,initialRevision:initialDraft?.revision??null,autosave:({snapshot:next,draftId,revision})=>autosaveNewEmailDraftAction(officeComposerInitialState,draftFormData(next,draftId,revision)),manualSave:({snapshot:next,draftId,revision})=>saveNewEmailDraftAction(officeComposerInitialState,draftFormData(next,draftId,revision))});
+  const sendReady=sendingConfigured&&toEmail.trim().length>0&&subject.trim().length>0&&body.trim().length>0&&!officeEmailAttachmentProblem(files);const hasBlockingDraftState=draft.status==='conflict';
+  function save(){setOperationState(officeComposerInitialState);void draft.saveNow()}
+  function clearFields(){setToEmail('');setCcEmails('');setBccEmails('');setSubject('');setBody('');setActingForUserId('');setFiles([]);if(fileInput.current)fileInput.current.value=''}
+  function send(){if(!sendReady||hasBlockingDraftState)return;startTransition(async()=>{setOperationState(officeComposerInitialState);const problem=officeEmailAttachmentProblem(files);if(problem){setOperationState({status:'error',message:problem});return}const saveResult=await draft.saveNow();if(saveResult&&(saveResult.status==='conflict'||saveResult.status==='error'||saveResult.status==='blocked')){setOperationState(saveResult);return}const safeDraftId=saveResult?.draftId??draft.draftId;const safeRevision=saveResult?.revision??draft.revision;if(!safeDraftId||!safeRevision){setOperationState({status:'error',message:'A csatolmányos küldéshez előbb igazolt piszkozatmentés szükséges.'});return}let attachmentIds:string[]=[];try{if(files.length){if(!attachmentAvailability.enabled)throw new Error('A fájlok biztonsági ellenőrzése jelenleg nem érhető el.');attachmentIds=await uploadAndScanOfficeEmailAttachments(safeDraftId,files)}}catch(error){setOperationState({status:'blocked',message:error instanceof Error?error.message:'A csatolmány ellenőrzése nem sikerült.'});return}const result=await sendNewEmailAction(officeComposerInitialState,draftFormData(snapshot,safeDraftId,safeRevision,advancedEmail?mailboxKey:undefined,attachmentIds,advancedEmail?actingForUserId:undefined));setOperationState(result);if(result.status==='success'){clearFields();draft.reset()}})}
+  function remove(){if(!draft.draftId||!draft.revision||draft.status!=='saved')return;const deletingId=draft.draftId,deletingRevision=draft.revision;startTransition(async()=>{setOperationState(officeComposerInitialState);const data=new FormData();data.set('draftId',deletingId);data.set('revision',String(deletingRevision));const result=await deleteOfficeDraftAction(data);setOperationState(result);if(result.status==='success'){clearFields();draft.reset()}})}
   return <div className={compact?'stackForm':'featurePanel'} aria-busy={actionPending||draft.status==='saving'}>
-    {!compact&&<><span className="eyebrow">1:1 operatív e-mail</span><h2>Új üzenet</h2></>}
-    <input type="email" value={toEmail} onChange={event=>setToEmail(event.target.value)} maxLength={320} placeholder="Címzett e-mail címe" disabled={actionPending}/>
-    {advancedEmail?<><div className="splitFeature">
-      <label className="stackForm"><span>Másolat (CC)</span><input value={ccEmails} onChange={event=>setCcEmails(event.target.value)} maxLength={3300} placeholder="pelda@ceg.hu, masik@ceg.hu" disabled={actionPending}/></label>
-      <label className="stackForm"><span>Titkos másolat (BCC)</span><input value={bccEmails} onChange={event=>setBccEmails(event.target.value)} maxLength={3300} placeholder="belso@ceg.hu" disabled={actionPending}/></label>
-    </div><p className="muted">A CC és BCC mezőben legfeljebb 10-10 cím adható meg, vesszővel, pontosvesszővel vagy új sorral elválasztva.</p></>:<p className="muted">CC/BCC és több feladó kezelése a Pro ügyféllevelezési csomagban érhető el.</p>}
-    <input value={subject} onChange={event=>setSubject(event.target.value)} maxLength={300} placeholder="Tárgy" disabled={actionPending}/>
-    <textarea value={body} onChange={event=>setBody(event.target.value)} maxLength={10000} rows={compact?4:6} placeholder="Üzenet" disabled={actionPending}/>
+    {!compact&&<><span className="eyebrow">1:1 operatív e-mail</span><h2>Új üzenet</h2></>}<input type="email" value={toEmail} onChange={event=>setToEmail(event.target.value)} maxLength={320} placeholder="Címzett e-mail címe" disabled={actionPending}/>
+    {advancedEmail?<><div className="splitFeature"><label className="stackForm"><span>Másolat (CC)</span><input value={ccEmails} onChange={event=>setCcEmails(event.target.value)} maxLength={3300} placeholder="pelda@ceg.hu, masik@ceg.hu" disabled={actionPending}/></label><label className="stackForm"><span>Titkos másolat (BCC)</span><input value={bccEmails} onChange={event=>setBccEmails(event.target.value)} maxLength={3300} placeholder="belso@ceg.hu" disabled={actionPending}/></label></div><p className="muted">A CC és BCC mezőben legfeljebb 10-10 cím adható meg.</p></>:<p className="muted">CC/BCC és több feladó kezelése a Pro ügyféllevelezési csomagban érhető el.</p>}
+    <input value={subject} onChange={event=>setSubject(event.target.value)} maxLength={300} placeholder="Tárgy" disabled={actionPending}/><textarea value={body} onChange={event=>setBody(event.target.value)} maxLength={10000} rows={compact?4:6} placeholder="Üzenet" disabled={actionPending}/>
+    <label className="stackForm"><span>Csatolmányok</span><input ref={fileInput} type="file" multiple accept={OFFICE_PRIVATE_ATTACHMENT_MIME_TYPES.join(',')} disabled={!attachmentAvailability.enabled||actionPending} onChange={event=>setFiles(Array.from(event.target.files??[]))}/><span className="muted">{attachmentHelp(attachmentChecked,attachmentAvailability)}</span></label>
+    {files.length>0&&<p className="muted">{files.length} fájl kiválasztva{officeEmailAttachmentProblem(files)?` · ${officeEmailAttachmentProblem(files)}`:''}</p>}
     {advancedEmail&&sendingConfigured&&<label><span>Küldő Office postafiók</span><select value={mailboxKey} onChange={event=>setMailboxKey(event.target.value)} disabled={actionPending}>{mailboxes.map(mailbox=><option key={mailbox.mailboxKey} value={mailbox.mailboxKey}>{mailbox.label}</option>)}</select></label>}
+    {advancedEmail&&delegationOptions.length>0&&<label><span>Küldés más nevében</span><select value={actingForUserId} onChange={event=>setActingForUserId(event.target.value)} disabled={actionPending}><option value="">Saját nevemben</option>{delegationOptions.map(option=><option key={option.userId} value={option.userId}>{option.label}</option>)}</select></label>}
     {!advancedEmail&&sendingConfigured&&<p className="muted">Az Alap csomag az egyetlen aktív, jóváhagyott ügyféllevelezési postafiókot használja automatikusan.</p>}
-    {!sendingConfigured&&<div className="adminAuditNotice"><strong>Küldés még nincs aktiválva.</strong><p>A piszkozat automatikusan menthető, de e-mailt csak a később általad jóváhagyott külön Digitális Iroda postafiók beállítása után lehet küldeni. A működő webshop jelenlegi e-mail címeit a rendszer nem használja.</p></div>}
-
-    <div className="adminToolbar">
-      <button type="button" className="btn btnGhost" onClick={save} disabled={actionPending||draft.status==='saving'||draft.status==='conflict'||!meaningful}>Piszkozat mentése</button>
-      {draft.draftId&&<button type="button" className="btn btnGhost" onClick={remove} disabled={actionPending||draft.status!=='saved'||!draft.revision}>Piszkozat törlése</button>}
-      <button type="button" className="btn btnPrimary" onClick={send} disabled={actionPending||draft.status==='conflict'||!sendReady}>Küldés</button>
-      {draft.status!=='conflict'&&draft.status!=='error'&&<span className="muted" role="status" aria-live="polite">{draft.message||'Még nincs mentett piszkozat.'}</span>}
-    </div>
-
-    {draft.status==='conflict'&&<div className="errorNotice" role="alert"><strong>Piszkozatütközés.</strong><p>{draft.message}</p></div>}
-    {draft.status==='error'&&<div className="errorNotice" role="alert"><strong>Az automatikus mentés nem sikerült.</strong><p>{draft.message} A kézi mentéssel újra próbálhatod.</p></div>}
-    {operationState.message&&(operationState.status==='blocked'||operationState.status==='error'||operationState.status==='conflict'
-      ?<div className="errorNotice" role="alert">{operationState.message}</div>
-      :<p className="muted" role="status">{operationState.message}</p>)}
+    {!sendingConfigured&&<div className="adminAuditNotice"><strong>Küldés még nincs aktiválva.</strong><p>A piszkozat automatikusan menthető, de e-mailt csak külön jóváhagyott Digitális Iroda postafiók beállítása után lehet küldeni.</p></div>}
+    <div className="adminToolbar"><button type="button" className="btn btnGhost" onClick={save} disabled={actionPending||draft.status==='saving'||draft.status==='conflict'||!meaningful}>Piszkozat mentése</button>{draft.draftId&&<button type="button" className="btn btnGhost" onClick={remove} disabled={actionPending||draft.status!=='saved'||!draft.revision}>Piszkozat törlése</button>}<button type="button" className="btn btnPrimary" onClick={send} disabled={actionPending||draft.status==='conflict'||!sendReady}>Küldés</button>{draft.status!=='conflict'&&draft.status!=='error'&&<span className="muted" role="status" aria-live="polite">{draft.message||'Még nincs mentett piszkozat.'}</span>}</div>
+    {draft.status==='conflict'&&<div className="errorNotice" role="alert"><strong>Piszkozatütközés.</strong><p>{draft.message}</p></div>}{draft.status==='error'&&<div className="errorNotice" role="alert"><strong>Az automatikus mentés nem sikerült.</strong><p>{draft.message} A kézi mentéssel újra próbálhatod.</p></div>}{operationState.message&&(operationState.status==='blocked'||operationState.status==='error'||operationState.status==='conflict'?<div className="errorNotice" role="alert">{operationState.message}</div>:<p className="muted" role="status">{operationState.message}</p>)}
   </div>;
 }
