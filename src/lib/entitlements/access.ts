@@ -11,7 +11,7 @@ export type FeatureEntitlementDecision={
   reason:'granted'|'revoked'|'not-released'|'unknown-capability';
 }|null;
 
-type EntitlementRow=EntitlementCandidate&{id:string};
+type EntitlementRow=EntitlementCandidate&{id:string;feature_code:string};
 
 function unavailableDecision(instanceId:string,capabilityCode:string):FeatureEntitlementDecision{
   const releaseState=capabilityReleaseState(capabilityCode);
@@ -45,7 +45,7 @@ export async function getFeatureEntitlementDecisions(
   }
 
   const {data,error}=await admin.from('feature_entitlements')
-    .select('id,enabled,source,instance_id,valid_from,valid_until,updated_at')
+    .select('id,feature_code,enabled,source,instance_id,valid_from,valid_until,updated_at')
     .eq('organization_id',instance.organization_id)
     .in('feature_code',releasedCodes);
   if(error){
@@ -56,26 +56,13 @@ export async function getFeatureEntitlementDecisions(
   const rows=(data??[]) as EntitlementRow[];
   const now=new Date();
   for(const capabilityCode of releasedCodes){
-    const candidates=rows.filter((row:any)=>row.feature_code===capabilityCode) as EntitlementRow[];
-    // Supabase omits feature_code from the inferred row shape above in untyped clients;
-    // the runtime payload still contains it only when selected, so resolve via a scoped query below.
-    if(candidates.length===0){
-      const {data:scopedRows,error:scopedError}=await admin.from('feature_entitlements')
-        .select('id,feature_code,enabled,source,instance_id,valid_from,valid_until,updated_at')
-        .eq('organization_id',instance.organization_id)
-        .eq('feature_code',capabilityCode);
-      if(scopedError){decisions.set(capabilityCode,null);continue;}
-      const winner=resolveEntitlementCandidate((scopedRows??[]) as EntitlementRow[],instanceId,now);
-      decisions.set(capabilityCode,winner?{
-        enabled:Boolean(winner.enabled),source:String(winner.source),instanceId:winner.instance_id,
-        validUntil:winner.valid_until,reason:winner.enabled?'granted':'revoked',
-      }:null);
-      continue;
-    }
-    const winner=resolveEntitlementCandidate(candidates,instanceId,now);
+    const winner=resolveEntitlementCandidate(rows.filter(row=>row.feature_code===capabilityCode),instanceId,now);
     decisions.set(capabilityCode,winner?{
-      enabled:Boolean(winner.enabled),source:String(winner.source),instanceId:winner.instance_id,
-      validUntil:winner.valid_until,reason:winner.enabled?'granted':'revoked',
+      enabled:Boolean(winner.enabled),
+      source:String(winner.source),
+      instanceId:winner.instance_id,
+      validUntil:winner.valid_until,
+      reason:winner.enabled?'granted':'revoked',
     }:null);
   }
   return decisions;
