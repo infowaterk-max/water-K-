@@ -3,7 +3,7 @@ import{join}from'node:path';
 import{describe,expect,it}from'vitest';
 const read=(path:string)=>readFileSync(join(process.cwd(),path),'utf8');
 
-describe('Communication responsive desktop-site contract v5',()=>{
+describe('Communication responsive desktop-site contract v6',()=>{
   it('detects touch browser desktop-site mode without JS resizing or counter-zoom',()=>{
     const bridge=read('src/components/admin/admin-mobile-desktop-compat.tsx');
     expect(bridge).toContain('navigator.maxTouchPoints');
@@ -37,6 +37,17 @@ describe('Communication responsive desktop-site contract v5',()=>{
     expect(css).not.toContain('width:1440px!important');
     expect(css).not.toContain('width:1280px!important');
     expect(css).not.toContain('zoom:');
+  });
+
+  it('hides the touch-only horizontal scrollbar without disabling horizontal pan',()=>{
+    const css=read('src/app/admin/kommunikacio/mobile-desktop-compat.css');
+    expect(css).toContain('overflow-x:auto!important');
+    expect(css).toContain('scrollbar-width:none!important');
+    expect(css).toContain('-ms-overflow-style:none!important');
+    expect(css).toContain('.adminContentShell::-webkit-scrollbar{');
+    expect(css).toContain('height:0!important');
+    expect(css).toContain('display:none!important');
+    expect(css).toContain('touch-action:pan-x pan-y pinch-zoom!important');
   });
 
   it('fills the desktop-site viewport vertically without fixed 760px or ratio multiplication',()=>{
