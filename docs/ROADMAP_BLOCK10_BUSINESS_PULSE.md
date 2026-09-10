@@ -45,7 +45,7 @@ View-only Pro feature usage (for example executive/cash-flow page viewing) is al
 - never includes `teamChatSecureAttachments` or `apiAccess`;
 - never mutates instance status or subscription plan.
 
-`service_generate_business_pulse_report_v1` refuses early generation. `service_generate_due_business_pulse_reports_v1` is called by the protected daily Business Pulse cron and generates due reports idempotently.
+`service_generate_business_pulse_report_v1` refuses early generation. `service_generate_due_business_pulse_reports_v1` is called by the existing protected daily `/api/cron/integrations` worker. Block 10 deliberately reuses the single daily Vercel schedule instead of adding a second cron. Due reports are generated idempotently.
 
 ## Recommendation rule
 

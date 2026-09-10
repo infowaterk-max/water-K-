@@ -6,8 +6,8 @@ const read=(path:string)=>readFileSync(join(process.cwd(),path),'utf8');
 const migration=read('supabase/migrations/20260910090000_business_pulse_trial_intelligence_v1.sql');
 const merchantPage=read('src/app/admin/business-pulse/page.tsx');
 const platformActions=read('src/app/admin/platform/business-pulse/actions.ts');
-const cron=read('src/app/api/cron/business-pulse/route.ts');
-const vercel=read('vercel.json');
+const cron=read('src/app/api/cron/integrations/route.ts');
+const vercel=JSON.parse(read('vercel.json')) as {crons?:Array<{path?:string;schedule?:string}>};
 
 describe('Roadmap Block 10 Business Pulse / Trial Intelligence',()=>{
   it('uses exact 30-day temporary trial entitlements without mutating plan or instance status',()=>{
@@ -54,18 +54,18 @@ describe('Roadmap Block 10 Business Pulse / Trial Intelligence',()=>{
     expect(migration).toContain('alter table public.business_pulse_trials enable row level security');
     expect(migration).toContain('alter table public.business_pulse_reports enable row level security');
     expect(migration).toContain('webshop_instance_members');
-    for(const fn of['service_start_business_pulse_trial_v1','service_generate_business_pulse_report_v1','service_generate_due_business_pulse_reports_v1']){
-      expect(migration).toContain(`grant execute on function public.${fn}`);
-    }
+    for(const fn of['service_start_business_pulse_trial_v1','service_generate_business_pulse_report_v1','service_generate_due_business_pulse_reports_v1'])expect(migration).toContain(`grant execute on function public.${fn}`);
     expect(migration).toContain('from public,anon,authenticated');
   });
 
-  it('starts trials only through a platform-operator action and generates due reports through authenticated cron',()=>{
+  it('starts trials only through a platform operator and reuses the existing protected daily cron',()=>{
     expect(platformActions).toContain('requirePlatformOperator()');
     expect(platformActions).toContain('service_start_business_pulse_trial_v1');
     expect(cron).toContain('CRON_SECRET');
     expect(cron).toContain('service_generate_due_business_pulse_reports_v1');
-    expect(vercel).toContain('/api/cron/business-pulse');
+    expect(cron).toContain('BUSINESS_PULSE_DUE_RUN_EVIDENCE_MISSING');
+    expect(vercel.crons).toHaveLength(1);
+    expect(vercel.crons?.[0]?.path).toBe('/api/cron/integrations');
   });
 
   it('does not activate Office infrastructure, public attachments, K&H/vPOS or storefront changes',()=>{

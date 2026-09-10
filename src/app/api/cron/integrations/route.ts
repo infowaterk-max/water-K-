@@ -40,6 +40,13 @@ type TeamChatRetentionRun={
   auditDeleted?:number;
   error?:string;
 };
+type BusinessPulseRun={
+  runKey?:unknown;
+  generated?:unknown;
+  failed?:unknown;
+  failures?:unknown;
+  checkedAt?:unknown;
+};
 
 function authorized(request:Request){
   const secret=process.env.CRON_SECRET;
@@ -90,6 +97,25 @@ function loyaltyEvidence(data:unknown,instanceId:string,runKey:string){
     reversed:row.reversed_points_entries,
     refreshedProfiles:row.refreshed_profiles,
     completedAt:row.completed_at,
+  };
+}
+function businessPulseEvidence(data:unknown,runKey:string){
+  if(!data||typeof data!=='object'||Array.isArray(data))return null;
+  const row=data as BusinessPulseRun;
+  if(
+    row.runKey!==runKey||
+    !nonNegativeInteger(row.generated)||
+    !nonNegativeInteger(row.failed)||
+    !Array.isArray(row.failures)||
+    typeof row.checkedAt!=='string'||
+    row.checkedAt.length===0
+  )return null;
+  return{
+    runKey,
+    generated:row.generated,
+    failed:row.failed,
+    failures:row.failures,
+    checkedAt:row.checkedAt,
   };
 }
 
@@ -208,10 +234,22 @@ async function runWorker(request:Request){
     }
   }
 
+  const businessPulseRunKey=`daily:${checkedAt.slice(0,10)}`;
+  let businessPulse:{ok:boolean;runKey:string;generated?:number;failed?:number;failures?:unknown[];checkedAt?:string;error?:string};
+  try{
+    const{data,error}=await admin.rpc('service_generate_due_business_pulse_reports_v1',{p_run_key:businessPulseRunKey});
+    if(error)throw error;
+    const evidence=businessPulseEvidence(data,businessPulseRunKey);
+    if(!evidence)throw new Error('BUSINESS_PULSE_DUE_RUN_EVIDENCE_MISSING');
+    businessPulse={ok:evidence.failed===0,...evidence};
+  }catch(error){
+    businessPulse={ok:false,runKey:businessPulseRunKey,error:error instanceof Error?error.message:'BUSINESS_PULSE_DUE_RUN_FAILED'};
+  }
+
   const loyaltyOk=loyalty.every(result=>result.ok);
   const journeyOk=journeys.every(result=>result.ok);
   const teamChatRetentionOk=teamChatRetention.every(result=>result.ok);
-  const ok=inventorySnapshot.ok&&loyaltyOk&&journeyOk&&integrationResults.every(result=>result.ok)&&communication.ok&&officeAttachmentCleanup.ok&&teamChatRetentionOk;
+  const ok=inventorySnapshot.ok&&loyaltyOk&&journeyOk&&integrationResults.every(result=>result.ok)&&communication.ok&&officeAttachmentCleanup.ok&&teamChatRetentionOk&&businessPulse.ok;
   return NextResponse.json({
     ok,
     inventorySnapshot,
@@ -221,6 +259,7 @@ async function runWorker(request:Request){
     communication,
     officeAttachmentCleanup,
     teamChatRetention:{tenants:teamChatRetention.length,results:teamChatRetention},
+    businessPulse,
     checkedAt,
   },{status:ok?200:503});
 }
