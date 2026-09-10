@@ -5,6 +5,8 @@ import './digital-office-workspace-redesign.css';
 import './digital-office-context-redesign.css';
 import './team-chat-composer-hardening.css';
 import './digital-office-performance-hardening.css';
+import './digital-office-ui-consistency.css';
+import './digital-office-file-picker-final.css';
 import {Suspense,type ReactNode} from 'react';
 import {AdminMobileDesktopCompat} from '@/components/admin/admin-mobile-desktop-compat';
 import {DigitalOfficeMobileController} from '@/components/admin/digital-office-mobile-controller';
