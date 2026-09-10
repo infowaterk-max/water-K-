@@ -2,6 +2,7 @@ import './communication-app-final.css';
 import './mobile-desktop-compat.css';
 import './digital-office-height-final.css';
 import './digital-office-workspace-redesign.css';
+import './digital-office-context-redesign.css';
 import type {ReactNode} from 'react';
 import {AdminMobileDesktopCompat} from '@/components/admin/admin-mobile-desktop-compat';
 import {DigitalOfficeMobileController} from '@/components/admin/digital-office-mobile-controller';
