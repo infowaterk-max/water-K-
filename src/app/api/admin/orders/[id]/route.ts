@@ -5,9 +5,13 @@ import { createAdminClient } from '@/lib/supabase/admin';
 import { getConfiguredInvoiceProviderCodeForInstance } from '@/lib/integrations/invoicing';
 import { requireCurrentStoreContext } from '@/lib/instances/scope';
 import { getExternalLogisticsConfig } from '@/lib/integrations/external-logistics';
+import {
+  ADMIN_ORDER_MUTATION_STATUSES,
+  ADMIN_ORDER_TRANSITIONS,
+  canAdminTransitionOrder,
+  type AdminOrderMutationStatus,
+} from '@/lib/orders/orchestration-contract';
 
-const statuses=['draft','pending','pending_payment','pending_transfer','paid','processing','shipped','completed','cancelled'] as const;
-type Status=typeof statuses[number];
 type PlannedJob={
   kind:'email_send'|'invoice_create'|'shipment_create'|'logistics_email';
   provider:string;
@@ -15,18 +19,7 @@ type PlannedJob={
 };
 type PlannedEvent={eventType:'invoice_manual_required';metadata:Record<string,unknown>};
 
-const bodySchema=z.object({status:z.enum(statuses),trackingNumber:z.string().trim().max(120).optional()});
-const allowed:Record<Status,Status[]>={
-  draft:['pending','pending_payment','pending_transfer','cancelled'],
-  pending:['paid','processing','cancelled'],
-  pending_payment:['paid','cancelled'],
-  pending_transfer:['paid','cancelled'],
-  paid:['processing'],
-  processing:['shipped'],
-  shipped:['completed'],
-  completed:[],
-  cancelled:[]
-};
+const bodySchema=z.object({status:z.enum(ADMIN_ORDER_MUTATION_STATUSES),trackingNumber:z.string().trim().max(120).optional()});
 
 export async function PATCH(request:Request,{params}:{params:Promise<{id:string}>}){
   const actor=await getAdminRequestUser('orders.manage');
@@ -52,8 +45,8 @@ export async function PATCH(request:Request,{params}:{params:Promise<{id:string}
   if(currentError||!current)return NextResponse.json({error:'A rendelés nem található ebben a webshopban.'},{status:404});
   if(current.status==='refunded')return NextResponse.json({error:'A visszatérített rendelés állapota ezen a végponton nem módosítható.'},{status:409});
 
-  const currentStatus=current.status as Status,nextStatus=parsed.data.status;
-  if(currentStatus!==nextStatus&&!allowed[currentStatus]?.includes(nextStatus)){
+  const currentStatus=current.status as AdminOrderMutationStatus,nextStatus=parsed.data.status;
+  if(!canAdminTransitionOrder(currentStatus,nextStatus)){
     return NextResponse.json({error:`Nem engedélyezett státuszváltás: ${currentStatus} → ${nextStatus}.`},{status:409});
   }
 
@@ -134,7 +127,7 @@ export async function PATCH(request:Request,{params}:{params:Promise<{id:string}
 
   const transition=(transitionData??{})as{
     orderId?:string;
-    status?:Status;
+    status?:AdminOrderMutationStatus;
     inventoryRestored?:boolean;
     replayed?:boolean;
     integrationJobs?:Array<{id?:string;kind?:string;provider?:string;status?:string}>;
@@ -161,7 +154,7 @@ export async function PATCH(request:Request,{params}:{params:Promise<{id:string}
   return NextResponse.json({
     ok:true,
     status:nextStatus,
-    allowedNext:allowed[nextStatus],
+    allowedNext:ADMIN_ORDER_TRANSITIONS[nextStatus],
     inventoryRestored:transition.inventoryRestored===true,
     integrationJobs:evidenceJobs.length,
     manualEvents:evidenceEvents.length
