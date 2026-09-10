@@ -91,6 +91,6 @@ describe('Digital Office autosave and concurrency contract',()=>{
     expect(combined).not.toContain('support_email');
     expect(combined).not.toContain('okospolymer');
     expect(newComposer).toContain('A működő webshop jelenlegi e-mail címeit a rendszer nem használja.');
-    expect(replyComposer).toContain('a működő webshop jelenlegi e-mail címeit nem használjuk');
+    expect(replyComposer).toContain('A működő webshop jelenlegi e-mail címeit a rendszer nem használja.');
   });
 });

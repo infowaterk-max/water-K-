@@ -2,6 +2,7 @@ import { createAdminClient } from '@/lib/supabase/admin';
 import { getCommunicationProvider, isCommunicationProviderConfigured } from './provider';
 import { getCommunicationTemplate } from './templates';
 import { brandedSubject, getCommunicationIdentityForInstance } from './identity';
+import { officeAttachmentsForJob } from './office-email-attachments';
 
 type ClaimedJob={id:string;instance_id:string;recipient_email:string;purpose:'transactional'|'marketing';template_key:string;payload:Record<string,unknown>;claim_token:string;attempts:number};
 type OfficeThreadReplyRow={id:string;conversation_type:string;mailbox_key:string|null};
@@ -123,8 +124,11 @@ async function runForInstance(instanceId:string,limit:number):Promise<WorkerSumm
               summary.blocked++;continue;
             }
           }
-          const replyTo=await resolveOfficeReplyTo(admin,instanceId,job);
-          const result=await provider.send({to:job.recipient_email,cc:envelope.cc,bcc:envelope.bcc,subject:subjectForJob(job,template.subject,identity.brandName),templateKey:job.template_key,purpose:job.purpose,payload:job.payload??{},identity,replyTo});
+          const [replyTo,attachments]=await Promise.all([
+            resolveOfficeReplyTo(admin,instanceId,job),
+            officeAttachmentsForJob(admin,instanceId,job.id),
+          ]);
+          const result=await provider.send({to:job.recipient_email,cc:envelope.cc,bcc:envelope.bcc,subject:subjectForJob(job,template.subject,identity.brandName),templateKey:job.template_key,purpose:job.purpose,payload:job.payload??{},identity,replyTo,attachments});
           const{data:completed,error:completeError}=await admin.rpc('complete_communication_job_v2',{p_instance_id:instanceId,p_id:job.id,p_claim_token:job.claim_token,p_provider_message_id:result.providerMessageId});
           if(completeError||completed!==true)throw completeError??new Error('COMMUNICATION_CLAIM_LOST');
           if(job.template_key==='stock_available')await admin.from('stock_notifications').update({status:'sent',sent_at:new Date().toISOString()}).eq('communication_job_id',job.id).eq('instance_id',instanceId);

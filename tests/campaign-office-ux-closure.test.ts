@@ -20,8 +20,8 @@ describe('campaign and communication UX closure',()=>{
     expect(campaign).toContain('recipientError||conversionError||eventError');
     expect(campaign).toContain('orderError||itemError');
     expect(office).toContain('const loadError=Boolean(');
-    expect(office).toContain('threadResult.error||orderResult.error||jobResult.error||draftResult.error||mailboxResult.error||messageResult.error||routeResult.error');
-    expect(office).toContain('(advancedEmail&&(taskResult.error||bindingResult.error||profileResult.error))');
+    expect(office).toContain('threadResult.error||orderResult.error||jobResult.error||draftResult.error||mailboxResult.error||messageResult.error||routeResult.error||attachmentResult.error');
+    expect(office).toContain('(advancedEmail&&(taskResult.error||bindingResult.error||profileResult.error||objectLinkResult.error))');
     expect(office).toContain('Hiányos adatok mellett módosítást nem tekintünk biztonságosan végrehajthatónak.');
   });
 

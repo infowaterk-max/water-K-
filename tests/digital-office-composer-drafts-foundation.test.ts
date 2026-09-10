@@ -10,6 +10,8 @@ describe('Digital Office composer and drafts foundation',()=>{
   const queueGuard=read('supabase/migrations/20260908034500_digital_office_reply_queue_guard_v1.sql');
   const tenantIntegrity=read('supabase/migrations/20260908034600_digital_office_drafts_tenant_integrity_v1.sql');
   const envelope=read('supabase/migrations/20260909203604_digital_office_recipient_envelope_v1.sql');
+  const block9Foundation=read('supabase/migrations/20260910070000_communication_hub_2_0_foundation_v1.sql');
+  const block9Advanced=read('supabase/migrations/20260910070200_communication_hub_2_0_advanced_guards_and_object_links_v1.sql');
   const capabilities=read('src/lib/auth/store-capabilities.ts');
   const actions=read('src/app/admin/kommunikacio/iroda/composer-actions.ts');
   const newComposer=read('src/components/admin/office-new-email-composer.tsx');
@@ -73,15 +75,17 @@ describe('Digital Office composer and drafts foundation',()=>{
     expect(replyComposer).toContain('initialRevision:initialDraft?.revision??null');
   });
 
-  it('lets the database queue consume only the exact persisted revision snapshot',()=>{
+  it('lets the current v6 queue preserve the exact persisted revision snapshot chain',()=>{
     expect(actions).not.toContain('async function validatedQueueDraftId');
-    expect(actions).toContain("db.rpc('admin_queue_office_email_v4'");
+    expect(actions).toContain("db.rpc('admin_queue_office_email_v6'");
     expect(actions).toContain('draftRevision:input.draftRevision');
     expect(envelope).toContain('where id=v_draft_id and instance_id=p_instance_id and author_user_id=p_actor and revision=v_draft_revision');
     expect(envelope).toContain('v_draft.to_email is distinct from v_email');
     expect(envelope).toContain('v_draft.subject is distinct from v_subject');
     expect(envelope).toContain('v_draft.body is distinct from v_body');
     expect(envelope).toContain("then raise exception 'OFFICE_DRAFT_CONFLICT'");
+    expect(block9Foundation).toContain('admin_queue_office_email_v5');
+    expect(block9Advanced).toContain('v_result:=public.admin_queue_office_email_v5');
   });
 
   it('only reports draft deletion after database evidence confirms it',()=>{
