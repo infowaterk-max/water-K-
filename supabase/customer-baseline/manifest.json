@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "status": "ready",
+  "status": "snapshot-reviewed",
   "legacyMigrationReplay": false,
   "sourcePolicy": "schema-snapshot-only",
   "seedFile": "supabase/customer-baseline/seed.sql",
@@ -8,8 +8,8 @@
   "defaultPlan": "alap",
   "snapshotFile": "supabase/customer-baseline/migrations/0001_shoperation_v1_schema.sql",
   "snapshotCommand": "npm run db:customer:snapshot",
-  "freshInstallProofRequired": false,
-  "notes": "Block 12 includes ordered 0006 Migration Assistant, 0007 trigger privilege hardening and 0008 foreign-key index hardening. The exact combined 0001-0008 customer baseline passed a genuine empty-target Fresh Install proof in GitHub Actions run 34503517794 from proof commit 98ed35b7abb8f2469f88ac1c43f7dacf164b7347: target preflight passed with zero public/private objects, zero historical migration rows and zero auth users; the reviewed snapshot plus ordered forward migrations, Supabase Auth bootstrap and neutral seed applied atomically; target postflight passed with 133 public tables, 283 public functions, 116 public policies and zero customer seed rows. Production was untouched by the proof job. Production advisor verification separately confirmed the Block 12 SECURITY DEFINER exposure findings and all ten Block 12 unindexed foreign-key findings were removed.",
+  "freshInstallProofRequired": true,
+  "notes": "Block 14 adds ordered customer forward migration 0009 for tenant-safe draft-first catalog onboarding, mapped CSV import evidence, categories, attributes and product media. The previously proven 0001-0008 contract is intentionally invalidated by this schema change; a genuine empty-target Fresh Install proof is required before the baseline may return to ready.",
   "authBootstrapFile": "supabase/customer-baseline/auth-bootstrap.sql",
-  "proofContractSha256": "09808a20451c1aeb8f7a684ed504235ea245b81a6ac3be59892cd1b040c4a21d"
+  "proofContractSha256": null
 }
