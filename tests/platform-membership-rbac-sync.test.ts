@@ -25,7 +25,7 @@ describe('platform membership RBAC synchronization',()=>{
     expect(sql).toContain('to service_role');
   });
 
-  test('platform actions use the synchronization RPCs instead of direct legacy-only membership writes',()=>{
+  test('platform actions use synchronization and catalog-driven Add-on RPCs instead of direct legacy writes',()=>{
     const source=read('src/app/admin/platform/webaruhazak/actions.ts');
     const assign=source.slice(source.indexOf('assignWebshopMemberAction'),source.indexOf('inviteWebshopOwnerAction'));
     const remove=source.slice(source.indexOf('removeWebshopMemberAction'));
@@ -33,9 +33,11 @@ describe('platform membership RBAC synchronization',()=>{
     expect(assign).not.toContain("from('webshop_instance_members').upsert");
     expect(source).toContain("rpc('platform_remove_webshop_member_v2'");
     expect(remove).not.toContain("from('webshop_instance_members').delete");
-    const configSql=read('supabase/migrations/20260903170000_admin_workspace_settings_evidence_atomic_v2.sql');
-    expect(source).toContain("p_action:'addon'");
-    expect(configSql).toContain('PLATFORM_ADDON_PLAN_INCOMPATIBLE');
+    const addonSql=read('supabase/migrations/20260910124700_block11_addon_mutation_authority_v1.sql');
+    expect(source).toContain("rpc('platform_set_webshop_addon_v1'");
+    expect(source).not.toContain("p_action:'addon'");
+    expect(addonSql).toContain('public.addon_plan_compatibility');
+    expect(addonSql).toContain('PLATFORM_ADDON_PLAN_INCOMPATIBLE');
   });
 
   test('platform webshop page fails closed when membership state is only partially readable',()=>{

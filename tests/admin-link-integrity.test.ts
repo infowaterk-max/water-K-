@@ -110,7 +110,8 @@ describe('admin link integrity',()=>{
     expect(page).toContain("roles.some(role=>roleHasPermission(role,'analytics.read'))");
     expect(page).toContain("roles.some(role=>roleHasPermission(role,'store.manage'))");
     expect(page).toContain("getFeatureEntitlementDecision(currentInstance.id,'executiveAnalytics')");
-    expect(page).toContain("hasPlanFeature(currentInstance.subscriptionPlan,'executiveAnalytics')");
+    expect(page).toContain("const featureEnabled=entitlement?.enabled===true");
+    expect(page).not.toContain("hasPlanFeature(currentInstance.subscriptionPlan,'executiveAnalytics')");
     expect(page).toContain("featureEnabled,canRead,canManage");
     expect(page).not.toContain("requirePlanFeature('executiveAnalytics')");
     expect(page).not.toContain("requireCurrentStoreContext('analytics.read')");

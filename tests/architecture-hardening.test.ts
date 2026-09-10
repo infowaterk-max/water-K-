@@ -45,13 +45,17 @@ describe('Shoperation architecture hardening contracts',()=>{
     expect(source).toContain('row.instance_id===instanceId||row.instance_id===null');
   });
 
-  it('lets explicit feature entitlements override plan defaults',()=>{
+  it('resolves explicit feature entitlements with deterministic source precedence',()=>{
     const access=read('src/lib/plans/access.ts');
     const entitlements=read('src/lib/entitlements/access.ts');
+    const policy=read('src/lib/entitlements/policy.ts');
     expect(access).toContain('getFeatureEntitlementDecision');
-    expect(access).toContain('if(explicit!==null)return explicit.enabled');
-    expect(entitlements).toContain('specificity');
-    expect(entitlements).toContain('Boolean(row.enabled)');
+    expect(access).toContain('return explicit?.enabled===true');
+    expect(entitlements).toContain('resolveEntitlementCandidate');
+    expect(policy).toContain('platform: 500');
+    expect(policy).toContain('trial: 300');
+    expect(policy).toContain('plan: 100');
+    expect(policy).toContain('specificity');
   });
 
   it('resolves organization-wide store bindings without crossing organizations',()=>{

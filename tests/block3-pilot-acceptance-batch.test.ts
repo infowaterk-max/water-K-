@@ -55,7 +55,8 @@ describe('roadmap block 3 pilot acceptance batch',()=>{
     expect(ia).toContain("capability:'office.internal_chat'");
     expect(layout).toContain('roles.some(role=>roleHasPermission(role,permission))');
     expect(layout).toContain('const canCapability=(capability?:StoreCapability)');
-    expect(layout).toContain('resolveMerchantNavigation(effectivePlan,can,instance?.status,canCapability)');
+    expect(layout).toContain('resolveEntitledMerchantNavigation(hasFeature,can,instance?.status,canCapability)');
+    expect(layout).toContain('getFeatureEntitlementDecisions(instance.id,featureCodes)');
     expect(scope).toContain("redirect('/admin/hozzaferes-megtagadva')");
     expect(controls).toContain('<select key={role} name="role" defaultValue={role}>');
   });
