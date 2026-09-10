@@ -74,14 +74,15 @@ export async function POST(request:Request){
     }
 
     if(parsed.data.action==='stage'){
+      const{entity,page,limit,accessKeyId,secretAccessKey}=parsed.data;
       if(!['inspected','staging','needs_attention','ready'].includes(run.status))return NextResponse.json({error:'A forrást előbb sikeresen ellenőrizni kell.'},{status:409});
-      if(parsed.data.entity==='catalog'&&String(run.source_summary?.systemCurrency??'').toUpperCase()!=='HUF')return NextResponse.json({error:'Automatikus katalógus-alkalmazás csak HUF rendszerpénznemnél engedélyezett.'},{status:409});
-      const result=await fetchShopwareStagePage({baseUrl:run.source_base_url,accessKeyId:parsed.data.accessKeyId,secretAccessKey:parsed.data.secretAccessKey},parsed.data.entity as ShopwareStageEntity,parsed.data.page,parsed.data.limit);
-      const rows=result.records.map((record,index)=>({run_id:run.id,instance_id:scope.instanceId,organization_id:scope.organizationId,entity_type:record.entityType,source_id:record.sourceId,source_parent_id:record.sourceParentId,payload:record.payload,normalized:record.normalized,checksum:record.checksum,status:'staged',target_table:null,target_id:null,sequence_no:(parsed.data.page-1)*parsed.data.limit+index}));
+      if(entity==='catalog'&&String(run.source_summary?.systemCurrency??'').toUpperCase()!=='HUF')return NextResponse.json({error:'Automatikus katalógus-alkalmazás csak HUF rendszerpénznemnél engedélyezett.'},{status:409});
+      const result=await fetchShopwareStagePage({baseUrl:run.source_base_url,accessKeyId,secretAccessKey},entity as ShopwareStageEntity,page,limit);
+      const rows=result.records.map((record,index)=>({run_id:run.id,instance_id:scope.instanceId,organization_id:scope.organizationId,entity_type:record.entityType,source_id:record.sourceId,source_parent_id:record.sourceParentId,payload:record.payload,normalized:record.normalized,checksum:record.checksum,status:'staged',target_table:null,target_id:null,sequence_no:(page-1)*limit+index}));
       if(rows.length){const{error}=await admin.from('migration_records').upsert(rows,{onConflict:'run_id,entity_type,source_id'});if(error)throw error;}
-      const checkpoint={...(run.checkpoint??{}),[parsed.data.entity]:{page:parsed.data.page,limit:parsed.data.limit,total:result.total,sourceRows:result.sourceRows,stagedRecords:rows.length,hasMore:result.hasMore,at:now}};
+      const checkpoint={...(run.checkpoint??{}),[entity]:{page,limit,total:result.total,sourceRows:result.sourceRows,stagedRecords:rows.length,hasMore:result.hasMore,at:now}};
       const{error:updateError}=await admin.from('migration_runs').update({checkpoint,status:'staging',phase:'stage',updated_at:now}).eq('id',run.id).eq('instance_id',scope.instanceId);if(updateError)throw updateError;
-      return NextResponse.json({ok:true,entity:parsed.data.entity,page:parsed.data.page,sourceRows:result.sourceRows,stagedRecords:rows.length,total:result.total,hasMore:result.hasMore,checkpoint});
+      return NextResponse.json({ok:true,entity,page,sourceRows:result.sourceRows,stagedRecords:rows.length,total:result.total,hasMore:result.hasMore,checkpoint});
     }
 
     if(parsed.data.action==='preview'){
