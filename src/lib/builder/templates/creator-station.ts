@@ -66,6 +66,20 @@ export const CREATOR_STATION_ENGINE_CONTRACT=Object.freeze({
   compatibilityPrinciples:{unknownIsCompatible:false,explainable:true,serverFinalValidation:true,noSilentReplacement:true},
 } as const);
 
+export const CREATOR_STATION_BUILDER_HARDENING_CONTRACT=Object.freeze({
+  hierarchy:'template-page-presets-section-presets-components',
+  stableIdentity:'stable-node-ids-and-stable-binding-paths',
+  workflowStateNamespace:'configurator',
+  editorialPresentationNamespace:'content',
+  forbiddenLegacyBindingNamespaces:['workflow','story'] as const,
+  commerceTruth:'shared-authoritative-bindings-only',
+  compatibility:'shared-E6-explainable-unknown-is-not-compatible',
+  structuredProduct:'shared-E7-only',
+  checkout:'provider-neutral-E13',
+  responsive:'desktop-tablet-mobile',
+  visualBuilder:'future-compatible-no-template-local-builder-engine',
+} as const);
+
 export const CREATOR_STATION_WORKFLOWS=['YouTube','Podcast','Stream','Fotó','Short Video','Home Studio'] as const;
 export const CREATOR_STATION_HOME_SECTION_ORDER=[
   'Build Your Workflow',
@@ -119,8 +133,8 @@ const productGrid=(id:string,title:string,path:string,columns=4):StorefrontCompo
 const simple=(key:string,type:StorefrontBuilderPageType,title:string,copy:string):StorefrontPageDocument=>{
   const prefix=key.replaceAll('.','-');
   return base(key,type,[header(prefix),section(`${prefix}-body`,[
-    node({id:`${prefix}-title`,componentKey:'content.heading',componentVersion:1,config:{text:title,level:1,align:'left',tone:'text'}}),
-    node({id:`${prefix}-copy`,componentKey:'content.text',componentVersion:1,config:{text:copy,as:'p',align:'left',tone:'muted'}}),
+    node({id:`${prefix}-title`,componentKey:'content.heading',componentVersion:1,config:{text:title,level:1,align:'left',tone:'text'},bindings:{text:{path:`content.${type}.title`,fallback:title}}}),
+    node({id:`${prefix}-copy`,componentKey:'content.text',componentVersion:1,config:{text:copy,as:'p',align:'left',tone:'muted'},bindings:{text:{path:`content.${type}.copy`,fallback:copy}}}),
   ]),footer(prefix)],{visualPreset:'creator-station-dark-content'});
 };
 
@@ -130,56 +144,56 @@ export const CREATOR_STATION_HOME_PAGE=base('creator-station.home','home',[
     node({
       id:'creator-workflow-finder',componentKey:'guided.finder',componentVersion:1,
       config:{eyebrow:'Build Your Workflow',title:'Építsd fel az alkotói workflow-dat',copy:'YouTube, Podcast, Stream, Fotó, Short Video vagy Home Studio — a Finder csak valóban elérhető termékeket rangsorol.',stepTitle:'1. lépés',stepCopy:'Válassz alkotói irányt.',question:'Milyen workflow-t építesz?',options:[],progressLabel:'1 / 3',actionLabel:'Workflow megnyitása',actionHref:'#equipment-chain',resultStatus:''},
-      bindings:{stepTitle:{path:'finder.currentStep.title',fallback:'1. lépés'},stepCopy:{path:'finder.currentStep.copy',fallback:'Válassz alkotói irányt.'},question:{path:'finder.currentQuestion.label',fallback:'Milyen workflow-t építesz?'},options:{path:'finder.currentQuestion.options',fallback:[]},progressLabel:{path:'finder.progressLabel',fallback:'1 / 3'},actionHref:{path:'finder.resultHref',fallback:'#equipment-chain'},resultStatus:{path:'finder.resultStatus',fallback:''}},
+      bindings:{eyebrow:{path:'content.buildYourWorkflow.eyebrow',fallback:'Build Your Workflow'},title:{path:'content.buildYourWorkflow.title',fallback:'Építsd fel az alkotói workflow-dat'},copy:{path:'content.buildYourWorkflow.copy',fallback:'YouTube, Podcast, Stream, Fotó, Short Video vagy Home Studio — a Finder csak valóban elérhető termékeket rangsorol.'},stepTitle:{path:'finder.currentStep.title',fallback:'1. lépés'},stepCopy:{path:'finder.currentStep.copy',fallback:'Válassz alkotói irányt.'},question:{path:'finder.currentQuestion.label',fallback:'Milyen workflow-t építesz?'},options:{path:'finder.currentQuestion.options',fallback:[]},progressLabel:{path:'finder.progressLabel',fallback:'1 / 3'},actionLabel:{path:'content.buildYourWorkflow.actionLabel',fallback:'Workflow megnyitása'},actionHref:{path:'finder.resultHref',fallback:'#equipment-chain'},resultStatus:{path:'finder.resultStatus',fallback:''}},
     }),
   ]),
   section('creator-equipment-chain',[
     node({
       id:'equipment-chain',componentKey:'configurator.slot-list',componentVersion:1,
       config:{title:'Visual Equipment Chain',slots:[],emptyLabel:'A workflow kiválasztása után jelenik meg az eszközlánc.'},
-      bindings:{title:{path:'configurator.chainTitle',fallback:'Visual Equipment Chain'},slots:{path:'configurator.slots',fallback:[]}},
+      bindings:{title:{path:'content.equipmentChain.title',fallback:'Visual Equipment Chain'},slots:{path:'configurator.slots',fallback:[]}},
     }),
   ],'surface'),
   section('creator-timeline',[
     node({
       id:'creator-timeline-flow',componentKey:'configurator.performance-targets',componentVersion:1,
       config:{eyebrow:'Timeline',title:'A jel útja, lépésről lépésre',copy:'Kamera → objektív → fény → mikrofon → capture → számítógép → szoftver. A konkrét workflow szerinti lépések bindingból érkeznek.',items:[]},
-      bindings:{items:{path:'workflow.timeline',fallback:[]}},
+      bindings:{eyebrow:{path:'content.timeline.eyebrow',fallback:'Timeline'},title:{path:'content.timeline.title',fallback:'A jel útja, lépésről lépésre'},copy:{path:'content.timeline.copy',fallback:'Kamera → objektív → fény → mikrofon → capture → számítógép → szoftver. A konkrét workflow szerinti lépések bindingból érkeznek.'},items:{path:'configurator.timeline',fallback:[]}},
     }),
   ]),
   section('creator-setup-scenes',[
     node({
       id:'creator-setup-scenes-nav',componentKey:'commerce.collection-navigation',componentVersion:1,
       config:{title:'Setup Scenes',items:[],columns:3,imageRatio:'16 / 9',tone:'background'},
-      bindings:{items:{path:'collection.setupScenes',fallback:[]}},
+      bindings:{title:{path:'content.setupScenes.title',fallback:'Setup Scenes'},items:{path:'collection.setupScenes',fallback:[]}},
     }),
   ]),
   section('creator-compatibility',[
     node({
       id:'creator-compatibility-status',componentKey:'compatibility.status',componentVersion:1,
       config:{title:'Compatibility Checker',status:'unknown',compatibleLabel:'Kompatibilis',incompatibleLabel:'Nem kompatibilis',unknownLabel:'Ismeretlen',copy:'Az Ismeretlen állapot soha nem számít kompatibilisnek.'},
-      bindings:{status:{path:'compatibility.status',fallback:'unknown'},copy:{path:'compatibility.summary',fallback:'Az Ismeretlen állapot soha nem számít kompatibilisnek.'}},
+      bindings:{title:{path:'content.compatibility.title',fallback:'Compatibility Checker'},status:{path:'compatibility.status',fallback:'unknown'},copy:{path:'compatibility.summary',fallback:'Az Ismeretlen állapot soha nem számít kompatibilisnek.'}},
     }),
   ],'surface'),
   section('creator-system-requirements',[
     node({
       id:'creator-system-requirements-block',componentKey:'commerce.key-specs',componentVersion:1,
       config:{title:'System Requirements',items:[],columns:4,missingLabel:'Nincs megadva'},
-      bindings:{items:{path:'workflow.systemRequirements',fallback:[]}},
+      bindings:{title:{path:'content.systemRequirements.title',fallback:'System Requirements'},items:{path:'configurator.systemRequirements',fallback:[]}},
     }),
   ]),
   section('creator-tiers',[
     node({
       id:'creator-tier-compare',componentKey:'commerce.compare-spotlight',componentVersion:1,
       config:{title:'Starter / Advanced / Studio',copy:'Valódi setup-szintek összehasonlítása strukturált adatokkal; nincs garantált teljesítményállítás.',products:[],rows:[],ctaLabel:'Setupok összehasonlítása',ctaHref:'/oldal/creator-workflow'},
-      bindings:{products:{path:'workflow.tiers.products',fallback:[]},rows:{path:'workflow.tiers.rows',fallback:[]},ctaHref:{path:'workflow.tiers.compareHref',fallback:'/oldal/creator-workflow'}},
+      bindings:{title:{path:'content.setupTiers.title',fallback:'Starter / Advanced / Studio'},copy:{path:'content.setupTiers.copy',fallback:'Valódi setup-szintek összehasonlítása strukturált adatokkal; nincs garantált teljesítményállítás.'},products:{path:'configurator.tiers.products',fallback:[]},rows:{path:'configurator.tiers.rows',fallback:[]},ctaLabel:{path:'content.setupTiers.ctaLabel',fallback:'Setupok összehasonlítása'},ctaHref:{path:'configurator.tiers.compareHref',fallback:'/oldal/creator-workflow'}},
     }),
   ]),
   section('creator-magazine',[
     node({
       id:'creator-magazine-index',componentKey:'editorial.journal-preview',componentVersion:1,
       config:{title:'Creator Magazine',items:[{id:'signal-chain',title:'Signal chain alapok',href:'/blog/signal-chain',image:'/storefront-demo/creator-station/magazine.svg',imageAlt:'Creator Station waveform és timeline illusztráció'}],columns:3,emptyLabel:'Hamarosan új tutorialok érkeznek.'},
-      bindings:{items:{path:'story.creatorMagazine.items',fallback:[{id:'signal-chain',title:'Signal chain alapok',href:'/blog/signal-chain',image:'/storefront-demo/creator-station/magazine.svg',imageAlt:'Creator Station waveform és timeline illusztráció'}]}},
+      bindings:{title:{path:'content.creatorMagazine.title',fallback:'Creator Magazine'},items:{path:'content.creatorMagazine.items',fallback:[{id:'signal-chain',title:'Signal chain alapok',href:'/blog/signal-chain',image:'/storefront-demo/creator-station/magazine.svg',imageAlt:'Creator Station waveform és timeline illusztráció'}]}},
     }),
   ]),
   footer('creator-home'),
@@ -193,11 +207,11 @@ export const CREATOR_STATION_HOME_PAGE=base('creator-station.home','home',[
 export const CREATOR_STATION_CATALOG_PAGE=base('creator-station.catalog','catalog',[
   header('creator-catalog'),
   section('creator-catalog-workflow-nav',[
-    node({id:'creator-catalog-guided-nav',componentKey:'guided.attribute-navigation',componentVersion:1,config:{eyebrow:'Workflow',title:'Eszközök felhasználás szerint',items:[]},bindings:{items:{path:'catalog.workflowNavigation',fallback:[]}}}),
+    node({id:'creator-catalog-guided-nav',componentKey:'guided.attribute-navigation',componentVersion:1,config:{eyebrow:'Workflow',title:'Eszközök felhasználás szerint',items:[]},bindings:{eyebrow:{path:'content.catalogWorkflow.eyebrow',fallback:'Workflow'},title:{path:'content.catalogWorkflow.title',fallback:'Eszközök felhasználás szerint'},items:{path:'catalog.workflowNavigation',fallback:[]}}}),
   ]),
   section('creator-catalog-body',[
     node({id:'creator-catalog-layout',componentKey:'layout.grid',componentVersion:1,config:{columns:12,gap:'l',align:'start'},children:[
-      node({id:'creator-catalog-facets',componentKey:'commerce.catalog-facets',componentVersion:1,config:{title:'Műszaki szűrés',facets:[],clearHref:'/webaruhaz',clearLabel:'Törlés'},bindings:{facets:{path:'catalog.facets',fallback:[]},clearHref:{path:'catalog.clearHref',fallback:'/webaruhaz'}},responsive:{desktop:{gridSpan:3},tablet:{gridSpan:4},mobile:{gridSpan:12}}}),
+      node({id:'creator-catalog-facets',componentKey:'commerce.catalog-facets',componentVersion:1,config:{title:'Műszaki szűrés',facets:[],clearHref:'/webaruhaz',clearLabel:'Törlés'},bindings:{title:{path:'content.catalogFacets.title',fallback:'Műszaki szűrés'},facets:{path:'catalog.facets',fallback:[]},clearHref:{path:'catalog.clearHref',fallback:'/webaruhaz'},clearLabel:{path:'content.catalogFacets.clearLabel',fallback:'Törlés'}},responsive:{desktop:{gridSpan:3},tablet:{gridSpan:4},mobile:{gridSpan:12}}}),
       node({...productGrid('creatorCatalogGrid','Creator eszközök','catalog.products',3),responsive:{desktop:{gridSpan:9},tablet:{gridSpan:8},mobile:{gridSpan:12}}}),
     ]}),
   ]),
@@ -210,22 +224,22 @@ export const CREATOR_STATION_PRODUCT_PAGE=base('creator-station.product','produc
     node({id:'creator-product-layout',componentKey:'layout.grid',componentVersion:1,config:{columns:12,gap:'l',align:'start'},children:[
       node({id:'creator-product-gallery',componentKey:'commerce.product-gallery',componentVersion:1,config:{images:[],aspectRatio:'1 / 1',thumbnailPosition:'bottom'},bindings:{images:{path:'product.gallery',fallback:[]}},responsive:{desktop:{gridSpan:7},tablet:{gridSpan:7},mobile:{gridSpan:12}}}),
       node({id:'creator-product-buybox',componentKey:'layout.stack',componentVersion:1,config:{direction:'vertical',gap:'m',align:'stretch',justify:'start'},responsive:{desktop:{gridSpan:5},tablet:{gridSpan:5},mobile:{gridSpan:12}},children:[
-        node({id:'creator-product-info',componentKey:'commerce.product-info',componentVersion:1,config:{eyebrow:'Creator Station',title:'Eszköz',price:'',compareAtPrice:'',description:'',stockLabel:'',badges:[],currency:'HUF'},bindings:{title:{path:'product.name',fallback:'Eszköz'},price:{path:'pricing.displayPrice',fallback:''},compareAtPrice:{path:'pricing.compareAtPrice',fallback:''},description:{path:'product.description',fallback:''},stockLabel:{path:'inventory.stockLabel',fallback:''},badges:{path:'product.badges',fallback:[]}}}),
+        node({id:'creator-product-info',componentKey:'commerce.product-info',componentVersion:1,config:{eyebrow:'Creator Station',title:'Eszköz',price:'',compareAtPrice:'',description:'',stockLabel:'',badges:[],currency:'HUF'},bindings:{eyebrow:{path:'content.productInfo.eyebrow',fallback:'Creator Station'},title:{path:'product.name',fallback:'Eszköz'},price:{path:'pricing.displayPrice',fallback:''},compareAtPrice:{path:'pricing.compareAtPrice',fallback:''},description:{path:'product.description',fallback:''},stockLabel:{path:'inventory.stockLabel',fallback:''},badges:{path:'product.badges',fallback:[]}}}),
         node({id:'creator-product-option',componentKey:'commerce.option-selector',componentVersion:1,config:{label:'Változat',options:[]},bindings:{label:{path:'variant.optionLabel',fallback:'Változat'},options:{path:'variant.optionOptions',fallback:[]}}}),
-        node({id:'creator-product-key-specs',componentKey:'commerce.key-specs',componentVersion:1,config:{title:'Creator Specs',items:[],columns:2,missingLabel:'Nincs megadva'},bindings:{items:{path:'product.keySpecs',fallback:[]}}}),
-        node({id:'creator-product-compare',componentKey:'commerce.compare-button',componentVersion:1,config:{label:'Összehasonlítás',href:'#compare',count:0,disabled:false},bindings:{href:{path:'commerce.compareHref',fallback:'#compare'},count:{path:'commerce.compareCount',fallback:0}}}),
+        node({id:'creator-product-key-specs',componentKey:'commerce.key-specs',componentVersion:1,config:{title:'Creator Specs',items:[],columns:2,missingLabel:'Nincs megadva'},bindings:{title:{path:'content.productKeySpecs.title',fallback:'Creator Specs'},items:{path:'product.keySpecs',fallback:[]}}}),
+        node({id:'creator-product-compare',componentKey:'commerce.compare-button',componentVersion:1,config:{label:'Összehasonlítás',href:'#compare',count:0,disabled:false},bindings:{label:{path:'content.productCompare.label',fallback:'Összehasonlítás'},href:{path:'commerce.compareHref',fallback:'#compare'},count:{path:'commerce.compareCount',fallback:0}}}),
         node({id:'creator-product-cta',componentKey:'content.button',componentVersion:1,config:{label:'Kosárba teszem',href:'#purchase',variant:'primary',size:'l',ariaLabel:'Kosárba teszem'},bindings:{label:{path:'commerce.purchaseLabel',fallback:'Kosárba teszem'},href:{path:'commerce.purchaseHref',fallback:'#purchase'}}}),
       ]}),
     ]}),
   ]),
   section('creator-product-specs',[
-    node({id:'creator-product-spec-groups',componentKey:'commerce.specification-groups',componentVersion:1,config:{title:'System & I/O Specifications',groups:[],missingLabel:'Nincs megadva'},bindings:{groups:{path:'product.specGroups',fallback:[]}}}),
+    node({id:'creator-product-spec-groups',componentKey:'commerce.specification-groups',componentVersion:1,config:{title:'System & I/O Specifications',groups:[],missingLabel:'Nincs megadva'},bindings:{title:{path:'content.productSpecifications.title',fallback:'System & I/O Specifications'},groups:{path:'product.specGroups',fallback:[]}}}),
   ]),
   section('creator-product-compatibility',[
-    node({id:'creator-product-compatibility-evidence',componentKey:'compatibility.evidence',componentVersion:1,config:{title:'Kompatibilitás az aktív workflow-val',items:[],emptyLabel:'Nincs elég adat a kompatibilitás megállapításához.'},bindings:{items:{path:'compatibility.productEvidence',fallback:[]}}}),
+    node({id:'creator-product-compatibility-evidence',componentKey:'compatibility.evidence',componentVersion:1,config:{title:'Kompatibilitás az aktív workflow-val',items:[],emptyLabel:'Nincs elég adat a kompatibilitás megállapításához.'},bindings:{title:{path:'content.productCompatibility.title',fallback:'Kompatibilitás az aktív workflow-val'},items:{path:'compatibility.productEvidence',fallback:[]}}}),
   ]),
   section('creator-product-recommendations',[
-    node({id:'creator-product-recommendations-block',componentKey:'commerce.recommendation-row',componentVersion:1,config:{title:'A workflow-hoz kapcsolódó eszközök',products:[],columns:4,emptyLabel:'Nincs kapcsolódó ajánlat.',currency:'HUF'},bindings:{products:{path:'recommendations.products',fallback:[]}}}),
+    node({id:'creator-product-recommendations-block',componentKey:'commerce.recommendation-row',componentVersion:1,config:{title:'A workflow-hoz kapcsolódó eszközök',products:[],columns:4,emptyLabel:'Nincs kapcsolódó ajánlat.',currency:'HUF'},bindings:{title:{path:'content.productRecommendations.title',fallback:'A workflow-hoz kapcsolódó eszközök'},products:{path:'recommendations.products',fallback:[]}}}),
   ]),
   footer('creator-product'),
 ],{engineBinding:'E6+E7'});
@@ -233,7 +247,7 @@ export const CREATOR_STATION_PRODUCT_PAGE=base('creator-station.product','produc
 export const CREATOR_STATION_SEARCH_PAGE=base('creator-station.search','search',[
   header('creator-search'),
   section('creator-search-finder',[
-    node({id:'creator-search-guided-results',componentKey:'guided.results',componentVersion:1,config:{eyebrow:'Workflow match',title:'Találatok',explanation:'',status:'',items:[],emptyLabel:'Nincs találat.'},bindings:{explanation:{path:'finder.explanation',fallback:''},status:{path:'finder.status',fallback:''},items:{path:'finder.items',fallback:[]}}}),
+    node({id:'creator-search-guided-results',componentKey:'guided.results',componentVersion:1,config:{eyebrow:'Workflow match',title:'Találatok',explanation:'',status:'',items:[],emptyLabel:'Nincs találat.'},bindings:{eyebrow:{path:'content.searchGuided.eyebrow',fallback:'Workflow match'},title:{path:'content.searchGuided.title',fallback:'Találatok'},explanation:{path:'finder.explanation',fallback:''},status:{path:'finder.status',fallback:''},items:{path:'finder.items',fallback:[]}}}),
   ]),
   section('creator-search-products',[productGrid('creatorSearchGrid','Keresési találatok','search.results',4)]),
   footer('creator-search'),
@@ -242,7 +256,7 @@ export const CREATOR_STATION_SEARCH_PAGE=base('creator-station.search','search',
 export const CREATOR_STATION_CART_PAGE=base('creator-station.cart','cart',[
   header('creator-cart'),
   section('creator-cart-configuration',[
-    node({id:'creator-cart-config-summary',componentKey:'configurator.summary',componentVersion:1,config:{title:'Creator setup',configurationId:'',items:[],subtotal:'',currency:'HUF',editLabel:'Setup szerkesztése',editHref:'#',revalidationLabel:'Ár, készlet, csatorna és kompatibilitás a checkout előtt újraellenőrzésre kerül.'},bindings:{configurationId:{path:'configurator.cart.configurationId',fallback:''},items:{path:'configurator.cart.items',fallback:[]},subtotal:{path:'configurator.cart.subtotal',fallback:''},currency:{path:'configurator.cart.currency',fallback:'HUF'},editHref:{path:'configurator.cart.editHref',fallback:'#'}}}),
+    node({id:'creator-cart-config-summary',componentKey:'configurator.summary',componentVersion:1,config:{title:'Creator setup',configurationId:'',items:[],subtotal:'',currency:'HUF',editLabel:'Setup szerkesztése',editHref:'#',revalidationLabel:'Ár, készlet, csatorna és kompatibilitás a checkout előtt újraellenőrzésre kerül.'},bindings:{title:{path:'content.cartSetup.title',fallback:'Creator setup'},configurationId:{path:'configurator.cart.configurationId',fallback:''},items:{path:'configurator.cart.items',fallback:[]},subtotal:{path:'configurator.cart.subtotal',fallback:''},currency:{path:'configurator.cart.currency',fallback:'HUF'},editHref:{path:'configurator.cart.editHref',fallback:'#'},revalidationLabel:{path:'content.cartSetup.revalidationLabel',fallback:'Ár, készlet, csatorna és kompatibilitás a checkout előtt újraellenőrzésre kerül.'}}}),
   ]),
   section('creator-cart-summary',[
     node({id:'creator-cart-commerce-summary',componentKey:'commerce.cart-summary',componentVersion:1,config:{lines:[],subtotal:'',total:'',currency:'HUF',checkoutHref:'/penztar',checkoutLabel:'Tovább a pénztárhoz',emptyLabel:'A kosarad üres.'},bindings:{lines:{path:'cart.lines',fallback:[]},subtotal:{path:'cart.subtotal',fallback:''},total:{path:'cart.total',fallback:''}}}),
@@ -261,7 +275,7 @@ export const CREATOR_STATION_CHECKOUT_PAGE=base('creator-station.checkout','chec
 export const CREATOR_STATION_ACCOUNT_PAGE=base('creator-station.account','account',[
   header('creator-account'),
   section('creator-account-summary',[
-    node({id:'creator-account-config-summary',componentKey:'configurator.summary',componentVersion:1,config:{title:'Mentett setup',configurationId:'',items:[],subtotal:'',currency:'HUF',editLabel:'Setup megnyitása',editHref:'#',revalidationLabel:'A mentett setup nem garantálja a jelenlegi árat, készletet vagy kompatibilitást.'},bindings:{configurationId:{path:'configurator.account.configurationId',fallback:''},items:{path:'configurator.account.items',fallback:[]},subtotal:{path:'configurator.account.subtotal',fallback:''},currency:{path:'configurator.account.currency',fallback:'HUF'},editHref:{path:'configurator.account.editHref',fallback:'#'}}}),
+    node({id:'creator-account-config-summary',componentKey:'configurator.summary',componentVersion:1,config:{title:'Mentett setup',configurationId:'',items:[],subtotal:'',currency:'HUF',editLabel:'Setup megnyitása',editHref:'#',revalidationLabel:'A mentett setup nem garantálja a jelenlegi árat, készletet vagy kompatibilitást.'},bindings:{title:{path:'content.accountSetup.title',fallback:'Mentett setup'},configurationId:{path:'configurator.account.configurationId',fallback:''},items:{path:'configurator.account.items',fallback:[]},subtotal:{path:'configurator.account.subtotal',fallback:''},currency:{path:'configurator.account.currency',fallback:'HUF'},editHref:{path:'configurator.account.editHref',fallback:'#'},revalidationLabel:{path:'content.accountSetup.revalidationLabel',fallback:'A mentett setup nem garantálja a jelenlegi árat, készletet vagy kompatibilitást.'}}}),
   ]),
   footer('creator-account'),
 ],{engineBinding:'E5'});
@@ -269,14 +283,14 @@ export const CREATOR_STATION_ACCOUNT_PAGE=base('creator-station.account','accoun
 export const CREATOR_STATION_CONTENT_PAGE=base('creator-station.content','content',[
   header('creator-content'),
   section('creator-content-finder',[
-    node({id:'creator-content-finder-block',componentKey:'guided.finder',componentVersion:1,config:{eyebrow:'Workflow Finder',title:'Találd meg a setup irányát',copy:'A Finder workflow és cél szerint segít.',stepTitle:'1. lépés',stepCopy:'Válassz workflow-t.',question:'Milyen tartalmat készítesz?',options:[],progressLabel:'1 / 3',actionLabel:'Tovább',actionHref:'#creator-builder',resultStatus:''},bindings:{question:{path:'finder.currentQuestion.label',fallback:'Milyen tartalmat készítesz?'},options:{path:'finder.currentQuestion.options',fallback:[]},progressLabel:{path:'finder.progressLabel',fallback:'1 / 3'}}}),
+    node({id:'creator-content-finder-block',componentKey:'guided.finder',componentVersion:1,config:{eyebrow:'Workflow Finder',title:'Találd meg a setup irányát',copy:'A Finder workflow és cél szerint segít.',stepTitle:'1. lépés',stepCopy:'Válassz workflow-t.',question:'Milyen tartalmat készítesz?',options:[],progressLabel:'1 / 3',actionLabel:'Tovább',actionHref:'#creator-builder',resultStatus:''},bindings:{eyebrow:{path:'content.workflowFinder.eyebrow',fallback:'Workflow Finder'},title:{path:'content.workflowFinder.title',fallback:'Találd meg a setup irányát'},copy:{path:'content.workflowFinder.copy',fallback:'A Finder workflow és cél szerint segít.'},stepTitle:{path:'finder.currentStep.title',fallback:'1. lépés'},stepCopy:{path:'finder.currentStep.copy',fallback:'Válassz workflow-t.'},question:{path:'finder.currentQuestion.label',fallback:'Milyen tartalmat készítesz?'},options:{path:'finder.currentQuestion.options',fallback:[]},progressLabel:{path:'finder.progressLabel',fallback:'1 / 3'},actionLabel:{path:'content.workflowFinder.actionLabel',fallback:'Tovább'},actionHref:{path:'finder.resultHref',fallback:'#creator-builder'},resultStatus:{path:'finder.resultStatus',fallback:''}}}),
   ]),
   section('creator-content-builder',[
-    node({id:'creator-builder',componentKey:'configurator.builder',componentVersion:1,config:{eyebrow:'Setup Builder',title:'Építs működő creator setupot',copy:'Slot-alapú összeállítás valódi katalógustermékekből.',slots:[],selectedCount:0,requiredCount:0,subtotal:'',currency:'HUF',actionLabel:'Kompatibilitás ellenőrzése',actionHref:'#creator-content-compatibility',revalidationLabel:'A végleges kompatibilitás, ár, készlet és csatorna szerveroldali újraellenőrzést igényel.'},bindings:{slots:{path:'configurator.slots',fallback:[]},selectedCount:{path:'configurator.selectedCount',fallback:0},requiredCount:{path:'configurator.requiredCount',fallback:0},subtotal:{path:'configurator.currentSubtotal',fallback:''},currency:{path:'configurator.currency',fallback:'HUF'},actionHref:{path:'configurator.actionHref',fallback:'#creator-content-compatibility'}}}),
+    node({id:'creator-builder',componentKey:'configurator.builder',componentVersion:1,config:{eyebrow:'Setup Builder',title:'Építs működő creator setupot',copy:'Slot-alapú összeállítás valódi katalógustermékekből.',slots:[],selectedCount:0,requiredCount:0,subtotal:'',currency:'HUF',actionLabel:'Kompatibilitás ellenőrzése',actionHref:'#creator-content-compatibility',revalidationLabel:'A végleges kompatibilitás, ár, készlet és csatorna szerveroldali újraellenőrzést igényel.'},bindings:{eyebrow:{path:'content.setupBuilder.eyebrow',fallback:'Setup Builder'},title:{path:'content.setupBuilder.title',fallback:'Építs működő creator setupot'},copy:{path:'content.setupBuilder.copy',fallback:'Slot-alapú összeállítás valódi katalógustermékekből.'},slots:{path:'configurator.slots',fallback:[]},selectedCount:{path:'configurator.selectedCount',fallback:0},requiredCount:{path:'configurator.requiredCount',fallback:0},subtotal:{path:'configurator.currentSubtotal',fallback:''},currency:{path:'configurator.currency',fallback:'HUF'},actionLabel:{path:'content.setupBuilder.actionLabel',fallback:'Kompatibilitás ellenőrzése'},actionHref:{path:'configurator.actionHref',fallback:'#creator-content-compatibility'},revalidationLabel:{path:'content.setupBuilder.revalidationLabel',fallback:'A végleges kompatibilitás, ár, készlet és csatorna szerveroldali újraellenőrzést igényel.'}}}),
   ],'surface'),
   section('creator-content-compatibility',[
-    node({id:'creator-content-compatibility-status',componentKey:'compatibility.status',componentVersion:1,config:{title:'Compatibility Checker',status:'unknown',compatibleLabel:'Kompatibilis',incompatibleLabel:'Nem kompatibilis',unknownLabel:'Ismeretlen',copy:'Az Ismeretlen állapot nem számít kompatibilisnek.'},bindings:{status:{path:'compatibility.status',fallback:'unknown'},copy:{path:'compatibility.summary',fallback:'Az Ismeretlen állapot nem számít kompatibilisnek.'}}}),
-    node({id:'creator-content-compatibility-evidence',componentKey:'compatibility.evidence',componentVersion:1,config:{title:'Compatibility Evidence',items:[],emptyLabel:'Nincs elég bizonyíték.'},bindings:{items:{path:'compatibility.evidence',fallback:[]}}}),
+    node({id:'creator-content-compatibility-status',componentKey:'compatibility.status',componentVersion:1,config:{title:'Compatibility Checker',status:'unknown',compatibleLabel:'Kompatibilis',incompatibleLabel:'Nem kompatibilis',unknownLabel:'Ismeretlen',copy:'Az Ismeretlen állapot nem számít kompatibilisnek.'},bindings:{title:{path:'content.contentCompatibility.title',fallback:'Compatibility Checker'},status:{path:'compatibility.status',fallback:'unknown'},copy:{path:'compatibility.summary',fallback:'Az Ismeretlen állapot nem számít kompatibilisnek.'}}}),
+    node({id:'creator-content-compatibility-evidence',componentKey:'compatibility.evidence',componentVersion:1,config:{title:'Compatibility Evidence',items:[],emptyLabel:'Nincs elég bizonyíték.'},bindings:{title:{path:'content.contentCompatibilityEvidence.title',fallback:'Compatibility Evidence'},items:{path:'compatibility.evidence',fallback:[]}}}),
   ]),
   footer('creator-content'),
 ],{contentRole:'creator-workflow-builder',engineBinding:'E3+E5+E6+E7'});

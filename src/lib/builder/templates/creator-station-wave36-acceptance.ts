@@ -1,0 +1,80 @@
+import {TABLE_GIFT_VISUAL_DNA} from '@/lib/builder/templates/table-gift';
+import {
+  CREATOR_STATION_BUILDER_HARDENING_CONTRACT,
+  CREATOR_STATION_ENGINE_CONTRACT,
+  CREATOR_STATION_HOME_SECTION_ORDER,
+  CREATOR_STATION_TEMPLATE_KEY,
+  CREATOR_STATION_TEMPLATE_VERSION,
+  CREATOR_STATION_VISUAL_DNA,
+  CREATOR_STATION_WORKFLOWS,
+} from '@/lib/builder/templates/creator-station';
+
+/** Wave 36 re-accepts the inherited Creator Station v1 on the current stacked
+ * Builder baseline. It creates no second creator template, no local workflow
+ * engine and does not widen E2/E3/E5/E6/E7/E10/E13 authority. */
+export const CREATOR_STATION_WAVE36_ACCEPTANCE=Object.freeze({
+  wave:36,
+  mode:'current-baseline-reacceptance-and-builder-hardening',
+  templateKey:CREATOR_STATION_TEMPLATE_KEY,
+  templateVersion:CREATOR_STATION_TEMPLATE_VERSION,
+  inheritedImplementation:true,
+  portfolio:{
+    category:'electronics-tech',
+    creatorStation:CREATOR_STATION_VISUAL_DNA.character,
+    previousTableGift:TABLE_GIFT_VISUAL_DNA.character,
+    workflows:CREATOR_STATION_WORKFLOWS,
+  },
+  visualContract:{
+    character:'dark-digital-creator-workflow-commerce',
+    palette:['deep-graphite-charcoal','neutral-dark-panels','cool-white','controlled-cyan','controlled-magenta-violet','rec-orange-red','signal-green'],
+    typography:['technical-grotesk-sans','clean-sans','monospace-timecode'],
+    visualLanguage:['timeline','waveform','timecode','audio-meter','port-node','connection-chain'],
+    exclusions:CREATOR_STATION_VISUAL_DNA.exclusions,
+  },
+  builderContract:{
+    hardening:CREATOR_STATION_BUILDER_HARDENING_CONTRACT,
+    stableIdentity:'stable-node-ids-and-stable-binding-paths',
+    pagePresetCount:14,
+    minimumPlan:'alap',
+    demoNamespace:'tech-creator-station',
+    installation:'draft-only',
+    homeOrder:CREATOR_STATION_HOME_SECTION_ORDER,
+  },
+  bindingCorrection:{
+    inheritedInvalidNamespaces:['workflow','story'],
+    workflowState:'shared-configurator-namespace',
+    editorialPresentation:'shared-content-namespace',
+    runtimeAllowlistWidened:false,
+  },
+  commerceAuthority:{
+    engineContract:CREATOR_STATION_ENGINE_CONTRACT,
+    discovery:'E2-only-for-catalog-and-channel-eligibility',
+    guidedFinder:'E3-guidance-and-ranking-only',
+    configurator:'E5-setup-intent-and-read-model-only',
+    compatibility:'E6-explainable-evidence-only-unknown-is-not-compatible',
+    structuredProduct:'E7-authoritative-structured-product-read-models-only',
+    editorial:'E10-editorial-read-model-presentation-only',
+    pricing:'shared-commerce-binding-only',
+    inventory:'shared-commerce-binding-only',
+    variants:'shared-commerce-binding-only',
+    recommendations:'shared-recommendation-binding-only',
+    checkout:'shared-provider-neutral-E13',
+  },
+  nonScope:[
+    'second-creator-station-template',
+    'template-local-workflow-engine',
+    'template-local-configurator-engine',
+    'template-local-compatibility-engine',
+    'template-local-structured-product-registry',
+    'runtime-binding-allowlist-widening',
+    'fabricated-compatibility',
+    'fabricated-performance-guarantee',
+    'price-or-stock-authority',
+    'payment-provider-change',
+    'sql-migration',
+    'vercel-production-deploy',
+    'supabase-mutation',
+    'main-merge',
+    'visual-builder-drag-drop-ui',
+  ],
+} as const);
