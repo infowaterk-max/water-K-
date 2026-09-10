@@ -1,0 +1,557 @@
+/*
+ * Digital Office / Team Chat final application shell (v4)
+ *
+ * One responsive contract owns the communication workspace:
+ * - desktop: true workstation layouts;
+ * - tablet: two-pane layouts with reachable context/info;
+ * - mobile: one task per screen, no nested page-scroll traps;
+ * - mobile browser "Desktop site": a bounded desktop canvas that may be panned/zoomed.
+ *
+ * Existing data, entitlement, privacy, sending and attachment gates are not changed here.
+ */
+
+.digitalOfficeShell{
+  width:100%;
+  min-width:0;
+  background:var(--workspace-bg);
+}
+
+/* ---------- Shared module header ---------- */
+.digitalOfficeShell .digitalOfficeWorkspaceBar{
+  position:relative;
+  z-index:8;
+  min-width:0;
+  border-bottom:1px solid var(--workspace-line);
+  background:#fff;
+}
+.digitalOfficeShell .digitalOfficeWorkspaceTabs{
+  min-width:0;
+  scrollbar-width:none;
+}
+.digitalOfficeShell .digitalOfficeWorkspaceTabs::-webkit-scrollbar{display:none}
+
+/* ---------- Customer e-mail: desktop ---------- */
+.digitalOfficeShell .digitalOfficeWorkstationPage{
+  width:100%!important;
+  max-width:none!important;
+  min-width:0!important;
+  margin:0!important;
+  padding:0!important;
+  overflow:visible!important;
+}
+.digitalOfficeShell .digitalOfficeWorkstation{
+  display:grid!important;
+  grid-template-columns:minmax(280px,320px) minmax(460px,1fr) minmax(260px,300px)!important;
+  grid-template-rows:auto minmax(0,1fr)!important;
+  width:100%!important;
+  min-width:0!important;
+  height:clamp(660px,calc(100dvh - 150px),860px)!important;
+  min-height:660px!important;
+  overflow:hidden!important;
+  border-top:0!important;
+  border-bottom:1px solid var(--workspace-line);
+  background:#fff!important;
+}
+
+/* The former second dark rail becomes a compact mailbox/filter strip.
+   This keeps every existing filter reachable without wasting a full column. */
+.digitalOfficeShell .digitalOfficeLocalRail{
+  grid-column:1/-1!important;
+  grid-row:1!important;
+  display:block!important;
+  min-width:0!important;
+  min-height:0!important;
+  border:0!important;
+  border-bottom:1px solid var(--workspace-line)!important;
+  background:#f7faf9!important;
+  color:var(--workspace-ink)!important;
+}
+.digitalOfficeShell .digitalOfficeLocalRailTitle,
+.digitalOfficeShell .digitalOfficeLocalRailFooter{display:none!important}
+.digitalOfficeShell .digitalOfficeLocalRail nav{
+  display:flex!important;
+  flex-direction:row!important;
+  align-items:center!important;
+  gap:5px!important;
+  padding:8px 10px!important;
+  overflow-x:auto!important;
+  overflow-y:hidden!important;
+  scrollbar-width:none!important;
+}
+.digitalOfficeShell .digitalOfficeLocalRail nav::-webkit-scrollbar{display:none}
+.digitalOfficeShell .digitalOfficeLocalRail nav>small{display:none!important}
+.digitalOfficeShell .digitalOfficeLocalRail nav>a{
+  display:inline-flex!important;
+  flex:0 0 auto!important;
+  min-height:34px!important;
+  padding:0 10px!important;
+  border:1px solid transparent!important;
+  border-radius:9px!important;
+  color:#5d706c!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  font-size:9px!important;
+  font-weight:820!important;
+  white-space:nowrap!important;
+}
+.digitalOfficeShell .digitalOfficeLocalRail nav>a:hover,
+.digitalOfficeShell .digitalOfficeLocalRail nav>a:focus-visible{
+  border-color:#d5e7e2!important;
+  background:#fff!important;
+  color:var(--workspace-accent-strong)!important;
+  outline:none!important;
+}
+.digitalOfficeShell .digitalOfficeLocalRail nav>a[aria-current="page"]{
+  border-color:#c9e7df!important;
+  background:var(--workspace-accent-soft)!important;
+  color:var(--workspace-accent-strong)!important;
+  box-shadow:none!important;
+}
+.digitalOfficeShell .digitalOfficeLocalRail nav>a b{
+  display:grid!important;
+  place-items:center!important;
+  min-width:20px!important;
+  height:20px!important;
+  margin-left:5px!important;
+  padding:0 5px!important;
+  border-radius:999px!important;
+  background:#e7efed!important;
+  color:#4e6761!important;
+  font-size:7px!important;
+}
+.digitalOfficeShell .digitalOfficeLocalRail nav>a[aria-current="page"] b{
+  background:#159b7b!important;
+  color:#fff!important;
+}
+
+.digitalOfficeShell .digitalOfficeThreadListPane{
+  grid-column:1!important;
+  grid-row:2!important;
+  display:flex!important;
+  flex-direction:column!important;
+  min-width:0!important;
+  min-height:0!important;
+  max-height:none!important;
+  overflow:hidden!important;
+  border-right:1px solid var(--workspace-line)!important;
+  border-bottom:0!important;
+  background:#fff!important;
+}
+.digitalOfficeShell .digitalOfficeThreadList{min-height:0!important;overflow:auto!important}
+.digitalOfficeShell .digitalOfficeThreadToolbar{padding:15px 14px 10px!important}
+.digitalOfficeShell .digitalOfficeThreadToolbar strong{font-size:16px!important}
+.digitalOfficeShell .digitalOfficeThreadToolbar small{font-size:9px!important}
+.digitalOfficeShell .digitalOfficeThreadToolbar .btn{min-height:36px!important;font-size:9px!important}
+.digitalOfficeShell .digitalOfficeThreadSearch input{font-size:11px!important}
+.digitalOfficeShell .digitalOfficeThreadItem{padding:12px 11px!important}
+
+.digitalOfficeShell .digitalOfficeConversationPane{
+  grid-column:2!important;
+  grid-row:2!important;
+  display:flex!important;
+  flex-direction:column!important;
+  min-width:0!important;
+  min-height:0!important;
+  overflow:hidden!important;
+  border-top:0!important;
+  border-right:1px solid var(--workspace-line)!important;
+  background:#f8faf9!important;
+}
+.digitalOfficeShell .digitalOfficeConversationHeader{flex:0 0 auto!important}
+.digitalOfficeShell .digitalOfficeConversationMessages{
+  flex:1 1 auto!important;
+  min-height:0!important;
+  overflow:auto!important;
+  overscroll-behavior:auto!important;
+  -webkit-overflow-scrolling:touch;
+}
+.digitalOfficeShell .digitalOfficeReplyComposer{
+  flex:0 0 auto!important;
+  position:relative!important;
+  inset:auto!important;
+  z-index:2!important;
+}
+.digitalOfficeShell .digitalOfficeContextPane{
+  grid-column:3!important;
+  grid-row:2!important;
+  display:block!important;
+  min-width:0!important;
+  min-height:0!important;
+  overflow:auto!important;
+  border:0!important;
+  background:#fff!important;
+}
+.digitalOfficeShell .digitalOfficeContextSection{border-right:0!important}
+
+/* ---------- Team Chat: desktop ---------- */
+.digitalOfficeShell .teamChatWorkspace{
+  display:grid!important;
+  grid-template-columns:minmax(270px,310px) minmax(440px,1fr) minmax(250px,290px)!important;
+  width:100%!important;
+  min-width:0!important;
+  height:clamp(660px,calc(100dvh - 150px),860px)!important;
+  min-height:660px!important;
+  overflow:hidden!important;
+  border-top:0!important;
+  border-bottom:1px solid var(--workspace-line)!important;
+  background:#f6f8f7!important;
+}
+.digitalOfficeShell .teamChatPeoplePane,
+.digitalOfficeShell .teamChatConversationPane,
+.digitalOfficeShell .teamChatInfoPane{min-width:0!important;min-height:0!important}
+.digitalOfficeShell .teamChatPeoplePane{display:flex!important;overflow:hidden!important}
+.digitalOfficeShell .teamChatPeopleScroll{min-height:0!important;overflow:auto!important;overscroll-behavior:auto!important}
+.digitalOfficeShell .teamChatConversationPane{
+  display:flex!important;
+  flex-direction:column!important;
+  overflow:hidden!important;
+  border-right:1px solid var(--workspace-line)!important;
+}
+.digitalOfficeShell .teamChatMessages{
+  flex:1 1 auto!important;
+  min-height:0!important;
+  overflow:auto!important;
+  overscroll-behavior:auto!important;
+  -webkit-overflow-scrolling:touch;
+}
+.digitalOfficeShell .teamChatComposer,
+.digitalOfficeShell .teamChatDirectStarter{flex:0 0 auto!important}
+.digitalOfficeShell .teamChatInfoPane{display:block!important;overflow:auto!important}
+
+/* ---------- Tablet: two panes, context/info still reachable ---------- */
+@media(max-width:1100px) and (min-width:851px){
+  .digitalOfficeShell .digitalOfficeMobileController{
+    display:flex!important;
+    position:relative!important;
+    top:auto!important;
+    z-index:9!important;
+  }
+  .digitalOfficeShell .digitalOfficeWorkstation{
+    grid-template-columns:minmax(250px,290px) minmax(390px,1fr)!important;
+    height:clamp(660px,calc(100dvh - 185px),840px)!important;
+  }
+  .digitalOfficeShell .digitalOfficeLocalRail{grid-column:1/-1!important}
+  .digitalOfficeShell .digitalOfficeThreadListPane{grid-column:1!important;grid-row:2!important}
+  .digitalOfficeShell .digitalOfficeConversationPane{grid-column:2!important;grid-row:2!important;border-right:0!important}
+  .digitalOfficeShell .digitalOfficeContextPane{grid-column:2!important;grid-row:2!important;display:none!important}
+  .digitalOfficeShell .digitalOfficeWorkstation[data-mobile-view="context"] .digitalOfficeConversationPane{display:none!important}
+  .digitalOfficeShell .digitalOfficeWorkstation[data-mobile-view="context"] .digitalOfficeContextPane{display:block!important}
+
+  .digitalOfficeShell .teamChatWorkspace{
+    grid-template-columns:minmax(250px,290px) minmax(390px,1fr)!important;
+    height:clamp(660px,calc(100dvh - 150px),840px)!important;
+  }
+  .digitalOfficeShell .teamChatPeoplePane{grid-column:1!important}
+  .digitalOfficeShell .teamChatConversationPane{grid-column:2!important;border-right:0!important}
+  .digitalOfficeShell .teamChatInfoPane{grid-column:2!important;display:none!important}
+  .digitalOfficeShell .teamChatWorkspace[data-mobile-view="info"] .teamChatConversationPane{display:none!important}
+  .digitalOfficeShell .teamChatWorkspace[data-mobile-view="info"] .teamChatInfoPane{display:block!important}
+}
+
+/* ---------- Native mobile: one job per screen ---------- */
+@media(max-width:850px){
+  .digitalOfficeShell{
+    width:100%!important;
+    max-width:100%!important;
+    overflow-x:hidden!important;
+  }
+  .digitalOfficeShell .digitalOfficeWorkspaceBar{
+    display:flex!important;
+    flex-direction:column!important;
+    align-items:stretch!important;
+    gap:8px!important;
+    padding:10px 12px!important;
+  }
+  .digitalOfficeShell .digitalOfficeWorkspaceBrand{min-height:36px!important}
+  .digitalOfficeShell .digitalOfficeWorkspaceBrand small{display:none!important}
+  .digitalOfficeShell .digitalOfficeWorkspaceTabs{display:flex!important;width:100%!important;overflow-x:auto!important}
+  .digitalOfficeShell .digitalOfficeWorkspaceTabs a{min-height:36px!important;padding:0 10px!important;font-size:10px!important}
+
+  .digitalOfficeShell .digitalOfficeMobileController{
+    position:sticky!important;
+    top:66px!important;
+    z-index:42!important;
+    display:flex!important;
+    padding:8px 10px!important;
+    background:rgba(255,255,255,.98)!important;
+  }
+
+  .digitalOfficeShell .digitalOfficeWorkstation{
+    display:block!important;
+    width:100%!important;
+    min-width:0!important;
+    height:auto!important;
+    min-height:0!important;
+    overflow:visible!important;
+    border:0!important;
+  }
+
+  /* Inbox/list is normal document flow: the page owns scrolling. */
+  .digitalOfficeShell .digitalOfficeWorkstation[data-mobile-view="list"] .digitalOfficeConversationPane,
+  .digitalOfficeShell .digitalOfficeWorkstation[data-mobile-view="list"] .digitalOfficeContextPane{display:none!important}
+  .digitalOfficeShell .digitalOfficeWorkstation[data-mobile-view="list"] .digitalOfficeLocalRail{
+    display:block!important;
+    width:100%!important;
+  }
+  .digitalOfficeShell .digitalOfficeWorkstation[data-mobile-view="list"] .digitalOfficeThreadListPane{
+    display:flex!important;
+    width:100%!important;
+    min-height:0!important;
+    max-height:none!important;
+    overflow:visible!important;
+    border:0!important;
+  }
+  .digitalOfficeShell .digitalOfficeWorkstation[data-mobile-view="list"] .digitalOfficeThreadList{
+    flex:none!important;
+    overflow:visible!important;
+    overscroll-behavior:auto!important;
+  }
+
+  /* Open e-mail: no nested viewport scroller. Header, history and composer are
+     one document-flow surface, so Android/iOS can always scroll to the reply. */
+  .digitalOfficeShell .digitalOfficeWorkstation[data-mobile-view="conversation"] .digitalOfficeLocalRail,
+  .digitalOfficeShell .digitalOfficeWorkstation[data-mobile-view="conversation"] .digitalOfficeThreadListPane,
+  .digitalOfficeShell .digitalOfficeWorkstation[data-mobile-view="conversation"] .digitalOfficeContextPane{display:none!important}
+  .digitalOfficeShell .digitalOfficeWorkstation[data-mobile-view="conversation"] .digitalOfficeConversationPane{
+    display:block!important;
+    width:100%!important;
+    min-height:0!important;
+    height:auto!important;
+    overflow:visible!important;
+    border:0!important;
+    background:#f7f9f8!important;
+  }
+  .digitalOfficeShell .digitalOfficeConversationHeader{
+    position:relative!important;
+    top:auto!important;
+    display:grid!important;
+    padding:13px 12px!important;
+  }
+  .digitalOfficeShell .digitalOfficeConversationTitle h1{font-size:18px!important}
+  .digitalOfficeShell .digitalOfficeConversationHeader p{font-size:11px!important;overflow-wrap:anywhere!important}
+  .digitalOfficeShell .digitalOfficeConversationActions{display:flex!important;flex-direction:row!important;flex-wrap:wrap!important;width:100%!important}
+  .digitalOfficeShell .digitalOfficeConversationActions .btn{min-height:38px!important;font-size:10px!important}
+  .digitalOfficeShell .digitalOfficeConversationMessages{
+    display:block!important;
+    min-height:0!important;
+    max-height:none!important;
+    overflow:visible!important;
+    overscroll-behavior:auto!important;
+    padding:14px 10px 18px!important;
+  }
+  .digitalOfficeShell .digitalOfficeConversationEmpty{margin:34px auto!important;padding-inline:14px!important}
+  .digitalOfficeShell .digitalOfficeMessage{max-width:100%!important;margin-bottom:12px!important}
+  .digitalOfficeShell .digitalOfficeMessageAvatar{width:30px!important;height:30px!important;flex-basis:30px!important}
+  .digitalOfficeShell .digitalOfficeMessageCard{max-width:calc(100% - 36px)!important;padding:11px!important}
+  .digitalOfficeShell .digitalOfficeMessageCard>header strong{font-size:11px!important}
+  .digitalOfficeShell .digitalOfficeMessageCard>header small,
+  .digitalOfficeShell .digitalOfficeMessageCard>header time{font-size:9px!important}
+  .digitalOfficeShell .digitalOfficeMessageCard h3{font-size:12px!important}
+  .digitalOfficeShell .digitalOfficeMessageCard>p{font-size:12px!important;line-height:1.5!important}
+  .digitalOfficeShell .digitalOfficeReplyComposer{
+    position:relative!important;
+    width:100%!important;
+    max-width:100%!important;
+    padding:12px 12px calc(18px + env(safe-area-inset-bottom))!important;
+    overflow:visible!important;
+  }
+  .digitalOfficeShell .digitalOfficeReplyComposer textarea{min-height:100px!important;max-height:220px!important;font-size:16px!important}
+  .digitalOfficeShell .officeComposerExtrasToggle{
+    display:inline-flex!important;
+    align-items:center!important;
+    justify-content:center!important;
+    min-height:40px!important;
+  }
+  .digitalOfficeShell .officeComposerExtras[data-open="false"]{display:none!important}
+  .digitalOfficeShell .officeComposerExtras[data-open="true"]{display:grid!important}
+  .digitalOfficeShell .digitalOfficeReplyComposer .splitFeature{grid-template-columns:1fr!important}
+  .digitalOfficeShell .digitalOfficeReplyComposer .adminToolbar{display:grid!important;grid-template-columns:1fr!important;gap:8px!important}
+  .digitalOfficeShell .digitalOfficeReplyComposer .adminToolbar .btn{width:100%!important;min-height:46px!important}
+
+  /* Customer/order/task context is a separate mobile screen. */
+  .digitalOfficeShell .digitalOfficeWorkstation[data-mobile-view="context"] .digitalOfficeLocalRail,
+  .digitalOfficeShell .digitalOfficeWorkstation[data-mobile-view="context"] .digitalOfficeThreadListPane,
+  .digitalOfficeShell .digitalOfficeWorkstation[data-mobile-view="context"] .digitalOfficeConversationPane{display:none!important}
+  .digitalOfficeShell .digitalOfficeWorkstation[data-mobile-view="context"] .digitalOfficeContextPane{
+    display:block!important;
+    width:100%!important;
+    min-height:0!important;
+    height:auto!important;
+    overflow:visible!important;
+    border:0!important;
+  }
+  .digitalOfficeShell .digitalOfficeContextSection{padding:17px 14px!important}
+  .digitalOfficeShell .digitalOfficeContextSection h2{font-size:17px!important}
+  .digitalOfficeShell .digitalOfficeCustomerIdentity strong{font-size:14px!important}
+  .digitalOfficeShell .digitalOfficeContextForm select,
+  .digitalOfficeShell .digitalOfficeNewTask input{min-height:46px!important;font-size:16px!important}
+
+  /* The floating internal-chat dock is a desktop convenience. On mobile the
+     dedicated Team Chat tab is clearer and cannot cover e-mail controls. */
+  .digitalOfficeShell .digitalOfficeChatDock{display:none!important}
+
+  /* Team Chat mobile list. */
+  .digitalOfficeShell .teamChatWorkspace{
+    display:block!important;
+    width:100%!important;
+    min-width:0!important;
+    height:auto!important;
+    min-height:0!important;
+    overflow:visible!important;
+    border:0!important;
+    background:#fff!important;
+  }
+  .digitalOfficeShell .teamChatWorkspace[data-mobile-view="list"] .teamChatConversationPane,
+  .digitalOfficeShell .teamChatWorkspace[data-mobile-view="list"] .teamChatInfoPane{display:none!important}
+  .digitalOfficeShell .teamChatWorkspace[data-mobile-view="list"] .teamChatPeoplePane{
+    display:flex!important;
+    width:100%!important;
+    min-height:0!important;
+    height:auto!important;
+    overflow:visible!important;
+    border:0!important;
+  }
+  .digitalOfficeShell .teamChatWorkspace[data-mobile-view="list"] .teamChatPeopleScroll{
+    flex:none!important;
+    overflow:visible!important;
+    overscroll-behavior:auto!important;
+  }
+
+  /* Team Chat conversation behaves like a messaging app: fixed usable stage,
+     scrollable history, composer always reachable at the bottom. */
+  .digitalOfficeShell .teamChatWorkspace[data-mobile-view="chat"] .teamChatPeoplePane,
+  .digitalOfficeShell .teamChatWorkspace[data-mobile-view="chat"] .teamChatInfoPane{display:none!important}
+  .digitalOfficeShell .teamChatWorkspace[data-mobile-view="chat"] .teamChatConversationPane{
+    display:grid!important;
+    grid-template-rows:auto minmax(240px,1fr) auto!important;
+    width:100%!important;
+    height:clamp(540px,calc(100svh - 150px),760px)!important;
+    min-height:540px!important;
+    overflow:hidden!important;
+    border:0!important;
+    background:#f7f9f8!important;
+  }
+  .digitalOfficeShell .teamChatConversationHeader{
+    position:relative!important;
+    top:auto!important;
+    min-height:62px!important;
+    padding:9px 11px!important;
+  }
+  .digitalOfficeShell .teamChatMobileBack{display:grid!important}
+  .digitalOfficeShell .teamChatMessages{
+    min-height:0!important;
+    height:auto!important;
+    overflow:auto!important;
+    overscroll-behavior:auto!important;
+    padding:13px 10px 15px!important;
+  }
+  .digitalOfficeShell .teamChatMessagesEmpty{min-height:100%!important}
+  .digitalOfficeShell .teamChatMessageAvatar{display:none!important}
+  .digitalOfficeShell .teamChatMessageBubble{max-width:88%!important;padding:10px 11px!important}
+  .digitalOfficeShell .teamChatMessageBubble>p{font-size:12px!important}
+  .digitalOfficeShell .teamChatComposer,
+  .digitalOfficeShell .teamChatDirectStarter{
+    position:relative!important;
+    width:100%!important;
+    max-height:none!important;
+    overflow:visible!important;
+    padding:9px 10px calc(10px + env(safe-area-inset-bottom))!important;
+    background:#fff!important;
+  }
+  .digitalOfficeShell .teamChatCompactComposer>textarea,
+  .digitalOfficeShell .teamChatDirectStarter textarea{font-size:16px!important}
+  .digitalOfficeShell .teamChatCreatePanel{display:block!important;min-height:0!important;padding:14px!important;overflow:visible!important}
+
+  /* Team Chat info/participants is its own mobile screen. */
+  .digitalOfficeShell .teamChatWorkspace[data-mobile-view="info"] .teamChatPeoplePane,
+  .digitalOfficeShell .teamChatWorkspace[data-mobile-view="info"] .teamChatConversationPane{display:none!important}
+  .digitalOfficeShell .teamChatWorkspace[data-mobile-view="info"] .teamChatInfoPane{
+    display:block!important;
+    width:100%!important;
+    min-height:0!important;
+    height:auto!important;
+    overflow:visible!important;
+    border:0!important;
+  }
+  .digitalOfficeShell .teamChatInfoHeader{position:relative!important;top:auto!important}
+}
+
+@media(max-width:520px){
+  .digitalOfficeShell .digitalOfficeWorkspaceBar{padding-inline:10px!important}
+  .digitalOfficeShell .digitalOfficeWorkspaceTabs a{padding-inline:8px!important;font-size:9px!important}
+  .digitalOfficeShell .digitalOfficeMobileSwitch button{padding-inline:7px!important;font-size:9px!important}
+  .digitalOfficeShell .digitalOfficeThreadItem{grid-template-columns:42px minmax(0,1fr)!important;padding-inline:10px!important}
+  .digitalOfficeShell .digitalOfficeAvatar{width:42px!important;height:42px!important}
+}
+
+/* ---------- Mobile browser "Desktop site" ----------
+   Do not force the mobile layout into a desktop-shaped viewport. Give the
+   browser a bounded real desktop canvas. The user may pan or pinch-zoom it.
+   Height is intentionally bounded; no viewport-ratio multiplication. */
+.adminGrid[data-desktop-site-touch="true"]{
+  display:grid!important;
+  grid-template-columns:230px minmax(1050px,1fr)!important;
+  width:1280px!important;
+  min-width:1280px!important;
+  max-width:none!important;
+  overflow:visible!important;
+  touch-action:pan-x pan-y pinch-zoom!important;
+}
+.adminGrid[data-desktop-site-touch="true"] .adminSide{
+  display:block!important;
+  position:sticky!important;
+  top:0!important;
+  width:230px!important;
+  height:760px!important;
+  max-height:760px!important;
+  overflow-y:auto!important;
+  overflow-x:hidden!important;
+}
+.adminGrid[data-desktop-site-touch="true"] .adminMobileNavigation{display:none!important}
+.adminGrid[data-desktop-site-touch="true"] .adminContentShell{width:1050px!important;min-width:1050px!important;overflow:visible!important}
+.adminGrid[data-desktop-site-touch="true"] .digitalOfficeShell{width:1050px!important;min-width:1050px!important;overflow:visible!important}
+.adminGrid[data-desktop-site-touch="true"] .digitalOfficeWorkspaceBar{
+  display:flex!important;
+  flex-direction:row!important;
+  align-items:center!important;
+  justify-content:space-between!important;
+  padding:12px 16px!important;
+}
+.adminGrid[data-desktop-site-touch="true"] .digitalOfficeWorkspaceTabs{width:auto!important}
+.adminGrid[data-desktop-site-touch="true"] .digitalOfficeMobileController{display:none!important}
+.adminGrid[data-desktop-site-touch="true"] .digitalOfficeWorkstation{
+  display:grid!important;
+  grid-template-columns:280px 500px 270px!important;
+  grid-template-rows:auto minmax(0,1fr)!important;
+  width:1050px!important;
+  min-width:1050px!important;
+  height:760px!important;
+  min-height:760px!important;
+  max-height:760px!important;
+  overflow:hidden!important;
+}
+.adminGrid[data-desktop-site-touch="true"] .digitalOfficeLocalRail{grid-column:1/-1!important;grid-row:1!important;display:block!important}
+.adminGrid[data-desktop-site-touch="true"] .digitalOfficeThreadListPane{grid-column:1!important;grid-row:2!important;display:flex!important;overflow:hidden!important}
+.adminGrid[data-desktop-site-touch="true"] .digitalOfficeConversationPane{grid-column:2!important;grid-row:2!important;display:flex!important;overflow:hidden!important;border-right:1px solid var(--workspace-line)!important}
+.adminGrid[data-desktop-site-touch="true"] .digitalOfficeContextPane{grid-column:3!important;grid-row:2!important;display:block!important;overflow:auto!important}
+.adminGrid[data-desktop-site-touch="true"] .digitalOfficeConversationMessages{overflow:auto!important}
+.adminGrid[data-desktop-site-touch="true"] .digitalOfficeReplyComposer{display:block!important}
+.adminGrid[data-desktop-site-touch="true"] .officeComposerExtrasToggle{display:none!important}
+.adminGrid[data-desktop-site-touch="true"] .officeComposerExtras{display:grid!important}
+.adminGrid[data-desktop-site-touch="true"] .digitalOfficeChatDock{display:block!important}
+
+.adminGrid[data-desktop-site-touch="true"] .teamChatWorkspace{
+  display:grid!important;
+  grid-template-columns:280px 500px 270px!important;
+  width:1050px!important;
+  min-width:1050px!important;
+  height:760px!important;
+  min-height:760px!important;
+  max-height:760px!important;
+  overflow:hidden!important;
+}
+.adminGrid[data-desktop-site-touch="true"] .teamChatPeoplePane{display:flex!important;overflow:hidden!important}
+.adminGrid[data-desktop-site-touch="true"] .teamChatConversationPane{display:flex!important;overflow:hidden!important;border-right:1px solid var(--workspace-line)!important}
+.adminGrid[data-desktop-site-touch="true"] .teamChatInfoPane{display:block!important;overflow:auto!important}
+.adminGrid[data-desktop-site-touch="true"] .teamChatMobileBack{display:none!important}
+.adminGrid[data-desktop-site-touch="true"] .teamChatMessages{overflow:auto!important}
