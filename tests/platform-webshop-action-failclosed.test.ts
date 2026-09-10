@@ -4,9 +4,10 @@ import {describe,expect,test} from 'vitest';
 const root=process.cwd(),read=(file:string)=>fs.readFileSync(path.join(root,file),'utf8');
 
 describe('platform webshop action fail-closed behavior',()=>{
-  test('platform configuration writes delegate state and audit to the atomic RPC',()=>{
+  test('platform configuration writes delegate state and audit to atomic RPC authorities',()=>{
     const source=read('src/app/admin/platform/webaruhazak/actions.ts');
-    expect(source.match(/platform_mutate_webshop_config_v3/g)?.length).toBeGreaterThanOrEqual(4);
+    expect(source.match(/platform_mutate_webshop_config_v3/g)?.length).toBeGreaterThanOrEqual(3);
+    expect(source).toContain("platform_set_webshop_addon_v1");
     expect(source).toContain('platformMutationEvidence');
     expect(source).toContain("platformWriteFailed('plan/status update',error)");
     expect(source).toContain("platformWriteFailed('branding update',error)");
@@ -17,13 +18,18 @@ describe('platform webshop action fail-closed behavior',()=>{
     expect(source).not.toContain(".from('webshop_instance_addons').upsert(");
   });
 
-  test('addon compatibility is enforced inside the locked platform mutation transaction',()=>{
+  test('addon compatibility is catalog-driven inside the locked platform mutation transaction',()=>{
     const source=read('src/app/admin/platform/webaruhazak/actions.ts');
-    const sql=read('supabase/migrations/20260903170000_admin_workspace_settings_evidence_atomic_v2.sql');
-    expect(source).toContain("p_action:'addon'");
+    const sql=read('supabase/migrations/20260910124700_block11_addon_mutation_authority_v1.sql');
+    expect(source).toContain("admin.rpc('platform_set_webshop_addon_v1'");
+    expect(source).not.toContain("p_action:'addon'");
     expect(source).not.toContain("addon prerequisite read");
-    expect(sql).toContain("v_addon='custom-integration' and v_before.subscription_plan<>'pro'");
+    expect(sql).toContain('public.addon_entitlement_catalog');
+    expect(sql).toContain('public.addon_plan_compatibility');
+    expect(sql).toContain('p_enabled and not exists');
     expect(sql).toContain('PLATFORM_ADDON_PLAN_INCOMPATIBLE');
+    expect(sql).toContain("coalesce(auth.jwt()->>'role','')<>'service_role'");
+    expect(sql).toContain('private.is_platform_operator_current(p_actor_id)');
   });
 
   test('owner invite does not create a new invitation after an ambiguous profile lookup',()=>{
