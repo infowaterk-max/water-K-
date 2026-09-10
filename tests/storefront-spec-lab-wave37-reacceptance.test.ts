@@ -75,7 +75,7 @@ describe('Scale-out Wave 37 Spec Lab current-baseline reacceptance',()=>{
   it('fully binds E5 setup surfaces and E6 compatibility without widening the runtime binding allowlist',()=>{
     expectCompleteBindings(home('spec-builder-block'),'configurator.builder');
     expectCompleteBindings(home('spec-compatibility-status'),'compatibility.status');
-    expectCompleteBindings(home('spec-compatibility-evidence'),'compatibility.evidence');
+    expect(home('spec-compatibility-evidence')).toBeUndefined();
     expectCompleteBindings(nodeById(SPEC_LAB_CART_PAGE,'spec-cart-config-summary'),'configurator.summary');
     expectCompleteBindings(nodeById(SPEC_LAB_ACCOUNT_PAGE,'spec-account-config-summary'),'configurator.summary');
     expectCompleteBindings(content('spec-content-builder-block'),'configurator.builder');
@@ -83,6 +83,7 @@ describe('Scale-out Wave 37 Spec Lab current-baseline reacceptance',()=>{
     expectCompleteBindings(content('spec-content-compatibility-evidence'),'compatibility.evidence');
     expect(SPEC_LAB_ENGINE_CONTRACT.compatibilityPrinciples).toEqual({unknownIsCompatible:false,explainable:true,serverFinalValidation:true,noSilentReplacement:true});
     expect(SPEC_LAB_BUILDER_HARDENING_CONTRACT.runtimeAllowlistWidened).toBe(false);
+    expect(SPEC_LAB_BUILDER_HARDENING_CONTRACT.historicalBindingCorrections).toEqual(expect.arrayContaining(['home-compatibility-evidence-to-supported-status-surface','product-compatibility-status-to-supported-evidence-surface']));
     expect(STOREFRONT_BINDING_NAMESPACES).not.toContain('system');
     expect(STOREFRONT_BINDING_NAMESPACES).not.toContain('story');
   });
@@ -125,7 +126,7 @@ describe('Scale-out Wave 37 Spec Lab current-baseline reacceptance',()=>{
   it('preserves stable node identity, all 14 Alap page presets, shared tokens and Desktop/Tablet/Mobile validation',()=>{
     const registry=createStorefrontConfiguratorComponentRegistry();
     const gate=evaluateStorefrontTemplateCapabilityGate({template:SPEC_LAB_TEMPLATE_PACKAGE,componentRegistry:registry,capability});
-    expect(gate.ok).toBe(true);
+    expect(gate.ok,JSON.stringify(gate.violations)).toBe(true);
     expect(gate.violations.filter(item=>item.severity==='error')).toEqual([]);
     expect(SPEC_LAB_TEMPLATE_MANIFEST.responsive).toEqual({desktop:true,tablet:true,mobile:true});
     expect(SPEC_LAB_TEMPLATE_PACKAGE.pages.map(page=>page.pageType)).toEqual(expectedPages);
