@@ -1,0 +1,14 @@
+'use server';
+
+import{revalidatePath}from'next/cache';
+import{getAdminRequestUser}from'@/lib/auth/admin-api';
+import{requireCurrentStoreContext}from'@/lib/instances/scope';
+import{requirePlanFeature}from'@/lib/plans/access';
+import{createAdminClient}from'@/lib/supabase/admin';
+
+function reason(error:{code?:string|null;message?:string|null;details?:string|null;hint?:string|null}){return[error.code,error.message,error.details,error.hint].filter(Boolean).join(' ')}
+async function advancedAccess(){const actor=await getAdminRequestUser('support.manage');if(!actor)throw new Error('Nincs jogosultság.');await requirePlanFeature('officeCommunicationAdvanced');const scope=await requireCurrentStoreContext('support.manage');return{db:createAdminClient(),actorId:actor.id,instanceId:scope.instanceId}}
+
+export async function updateMailboxResponsibilityAction(formData:FormData){const{db,actorId,instanceId}=await advancedAccess();const mailboxKey=String(formData.get('mailboxKey')??'').trim();const responsibleUserId=String(formData.get('responsibleUserId')??'').trim()||null;if(!mailboxKey)return;const{data,error}=await db.rpc('admin_update_office_mailbox_responsibility_v1',{p_instance_id:instanceId,p_actor:actorId,p_mailbox_key:mailboxKey,p_responsible_user_id:responsibleUserId});if(error)throw new Error(`A postafiók felelőse nem módosítható: ${reason(error)}`);const result=(data??{})as{mailboxKey?:string;responsibleUserId?:string|null};if(result.mailboxKey!==mailboxKey||result.responsibleUserId!==responsibleUserId)throw new Error('A postafiók-felelősi módosítás eredménye nem igazolható.');revalidatePath('/admin/kommunikacio/iroda');revalidatePath('/admin/kommunikacio/iroda/hub')}
+
+export async function updateThreadRelationshipsAction(formData:FormData){const{db,actorId,instanceId}=await advancedAccess();const threadId=String(formData.get('threadId')??'').trim();const customerUserId=String(formData.get('customerUserId')??'').trim()||null;const customerRef=String(formData.get('customerRef')??'').trim().slice(0,200)||null;const salesOwnerUserId=String(formData.get('salesOwnerUserId')??'').trim()||null;if(!threadId)return;const{data,error}=await db.rpc('admin_update_office_thread_relationships_v1',{p_instance_id:instanceId,p_actor:actorId,p_thread_id:threadId,p_customer_user_id:customerUserId,p_customer_ref:customerRef,p_sales_owner_user_id:salesOwnerUserId});if(error)throw new Error(`Az ügyfélkapcsolatok nem módosíthatók: ${reason(error)}`);const result=(data??{})as{threadId?:string;customerUserId?:string|null;customerRef?:string|null;salesOwnerUserId?:string|null};if(result.threadId!==threadId||result.customerUserId!==customerUserId||result.customerRef!==customerRef||result.salesOwnerUserId!==salesOwnerUserId)throw new Error('Az ügyfélkapcsolati módosítás eredménye nem igazolható.');revalidatePath('/admin/kommunikacio/iroda');revalidatePath('/admin/kommunikacio/iroda/hub')}
