@@ -17,6 +17,7 @@ import './workspace-design-system.css';
 import './digital-office-workstation.css';
 import './digital-office-mobile-final.css';
 import './team-chat-workspace.css';
+import './admin-viewport-floor.css';
 import Link from 'next/link';
 import { AdminNavigation } from '@/components/navigation/admin-navigation';
 import { AdminMobileNavigation } from '@/components/navigation/admin-mobile-navigation';
