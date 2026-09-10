@@ -1,7 +1,7 @@
 'use client';
 
 import{useRouter}from'next/navigation';
-import{useEffect,useRef,useState,type FormEvent}from'react';
+import{useEffect,useRef,useState,type ChangeEvent,type FormEvent}from'react';
 import{createClient}from'@/lib/supabase/browser';
 import{
   OFFICE_PRIVATE_ATTACHMENT_BUCKET,
@@ -32,14 +32,23 @@ function scannerAvailability(){
 }
 function objectFromRef(raw:string){if(!raw)return{objectType:null,objectId:null};const separator=raw.indexOf(':');if(separator<1)return null;const objectType=raw.slice(0,separator),objectId=raw.slice(separator+1);if(!['order','commercial_offer','return_case','support_ticket','task'].includes(objectType)||!objectId)return null;return{objectType,objectId}}
 function fileProblem(files:File[]){if(files.length>OFFICE_PRIVATE_ATTACHMENT_MAX_FILES)return`Legfeljebb ${OFFICE_PRIVATE_ATTACHMENT_MAX_FILES} csatolmány küldhető egy üzenettel.`;for(const file of files){if(file.size<1||file.size>OFFICE_PRIVATE_ATTACHMENT_MAX_BYTES)return`${file.name}: a fájl legfeljebb 10 MB lehet.`;if(!OFFICE_PRIVATE_ATTACHMENT_MIME_TYPES.includes(file.type as(typeof OFFICE_PRIVATE_ATTACHMENT_MIME_TYPES)[number]))return`${file.name}: ez a fájltípus nem engedélyezett.`}return null}
+function fileSize(bytes:number){if(bytes>=1024*1024)return`${(bytes/(1024*1024)).toFixed(1)} MB`;if(bytes>=1024)return`${Math.round(bytes/1024)} KB`;return`${bytes} B`}
 function phaseLabel(phase:Phase){if(phase==='uploading')return'Feltöltés…';if(phase==='scanning')return'Biztonsági és vírusellenőrzés…';if(phase==='finalizing')return'Küldés…';return'Küldés'}
 function attachmentHelp(checked:boolean,availability:AttachmentAvailability){if(!checked)return'A csatolmányok elérhetőségét ellenőrizzük…';if(availability.enabled)return'Legfeljebb 5 fájl, fájlonként 10 MB. A fájlok csak biztonsági ellenőrzés után küldhetők el.';if(availability.reason==='pro_required')return'A biztonságos fájlcsatolmányok Pro funkciók. A szöveges Team Chat továbbra is használható.';if(availability.reason==='scanner_unavailable')return'A Pro csatolmányküldés a biztonsági scanner jóváhagyásáig és konfigurálásáig le van tiltva. Szöveges belső üzenetet továbbra is küldhetsz.';return'A csatolmányküldés jelenleg nem érhető el.'}
 
 export function OfficePrivateMessageForm({threadId,mentionOptions,objectOptions,compact=false}:Props){
   const router=useRouter();
   const textareaRef=useRef<HTMLTextAreaElement|null>(null);
-  const[busy,setBusy]=useState(false);const[phase,setPhase]=useState<Phase>('idle');const[message,setMessage]=useState<string|null>(null);const[toolsOpen,setToolsOpen]=useState(false);const[availability,setAvailability]=useState<AttachmentAvailability>({enabled:false,reason:'unknown'});const[scannerChecked,setScannerChecked]=useState(false);
+  const fileInputRef=useRef<HTMLInputElement|null>(null);
+  const[busy,setBusy]=useState(false);
+  const[phase,setPhase]=useState<Phase>('idle');
+  const[message,setMessage]=useState<string|null>(null);
+  const[toolsOpen,setToolsOpen]=useState(false);
+  const[selectedFiles,setSelectedFiles]=useState<File[]>([]);
+  const[availability,setAvailability]=useState<AttachmentAvailability>({enabled:false,reason:'unknown'});
+  const[scannerChecked,setScannerChecked]=useState(false);
   const toolsId=`team-chat-tools-${threadId}`;
+  const attachmentHelpId=`team-chat-attachment-help-${threadId}`;
   useEffect(()=>{let active=true;scannerAvailability().then(result=>{if(!active)return;setAvailability(result);setScannerChecked(true)});return()=>{active=false}},[]);
 
   function autosize(event:FormEvent<HTMLTextAreaElement>){
@@ -48,9 +57,30 @@ export function OfficePrivateMessageForm({threadId,mentionOptions,objectOptions,
     textarea.style.height=`${Math.min(textarea.scrollHeight,132)}px`;
   }
 
+  function chooseFiles(event:ChangeEvent<HTMLInputElement>){
+    const files=Array.from(event.currentTarget.files??[]);
+    const problem=fileProblem(files);
+    if(problem){setSelectedFiles([]);setMessage(problem);event.currentTarget.value='';return}
+    setSelectedFiles(files);
+    setMessage(null);
+  }
+
+  function removeFile(index:number){
+    setSelectedFiles(files=>files.filter((_,fileIndex)=>fileIndex!==index));
+    if(fileInputRef.current)fileInputRef.current.value='';
+  }
+
   async function submit(event:FormEvent<HTMLFormElement>){
-    event.preventDefault();if(busy)return;const form=event.currentTarget;const data=new FormData(form);const body=String(data.get('body')??'').trim();const mentionUserIds=[...new Set(data.getAll('mentionUserId').map(value=>String(value)).filter(Boolean))].slice(0,10);const object=objectFromRef(String(data.get('objectRef')??''));const files=availability.enabled?data.getAll('attachment').filter((value):value is File=>value instanceof File&&value.size>0):[];
-    if(!body){setMessage('Írj üzenetet a küldéshez.');return}if(!object){setMessage('A kapcsolt üzleti objektum adata érvénytelen.');return}const problem=fileProblem(files);if(problem){setMessage(problem);return}
+    event.preventDefault();if(busy)return;
+    const form=event.currentTarget;
+    const data=new FormData(form);
+    const body=String(data.get('body')??'').trim();
+    const mentionUserIds=[...new Set(data.getAll('mentionUserId').map(value=>String(value)).filter(Boolean))].slice(0,10);
+    const object=objectFromRef(String(data.get('objectRef')??''));
+    const files=availability.enabled?selectedFiles:[];
+    if(!body){setMessage('Írj üzenetet a küldéshez.');return}
+    if(!object){setMessage('A kapcsolt üzleti objektum adata érvénytelen.');return}
+    const problem=fileProblem(files);if(problem){setMessage(problem);return}
     setBusy(true);setMessage(null);
     try{
       let attachmentIds:string[]=[];
@@ -63,12 +93,27 @@ export function OfficePrivateMessageForm({threadId,mentionOptions,objectOptions,
         for(let index=0;index<files.length;index+=1){const file=files[index],upload=prepared.uploads[index];const{error}=await supabase.storage.from(OFFICE_PRIVATE_ATTACHMENT_BUCKET).uploadToSignedUrl(upload.path,upload.token,file,{contentType:file.type});if(error)throw new Error(`${file.name}: a feltöltés nem sikerült.`)}
         attachmentIds=prepared.uploads.map(upload=>upload.attachmentId);
         setPhase('scanning');
-        const scanResponse=await fetch('/api/admin/office/attachments/scan',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({threadId,attachmentIds})});const scanned=(await scanResponse.json().catch(()=>({})))as ApiError;if(!scanResponse.ok)throw new Error(scanned.error||'A csatolmány biztonsági ellenőrzése nem sikerült. A fájl nem küldhető el.');
+        const scanResponse=await fetch('/api/admin/office/attachments/scan',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({threadId,attachmentIds})});
+        const scanned=(await scanResponse.json().catch(()=>({})))as ApiError;
+        if(!scanResponse.ok)throw new Error(scanned.error||'A csatolmány biztonsági ellenőrzése nem sikerült. A fájl nem küldhető el.');
       }
       setPhase('finalizing');
-      if(attachmentIds.length){const finalizeResponse=await fetch('/api/admin/office/attachments/finalize',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({threadId,body,mentionUserIds,objectType:object.objectType,objectId:object.objectId,attachmentIds})});const finalized=(await finalizeResponse.json().catch(()=>({})))as ApiError;if(!finalizeResponse.ok)throw new Error(finalized.error||'A privát üzenet nem véglegesíthető.');}
-      else{const textResponse=await fetch('/api/admin/office/chat/message',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({threadId,body,mentionUserIds,objectType:object.objectType,objectId:object.objectId})});const sent=(await textResponse.json().catch(()=>({})))as ApiError;if(!textResponse.ok)throw new Error(sent.error||'A belső üzenet nem küldhető el.');}
-      form.reset();if(textareaRef.current)textareaRef.current.style.height='';setToolsOpen(false);setMessage(files.length?'Az üzenet és a tisztának minősített csatolmányok elküldve.':'Az üzenet elküldve.');router.refresh();
+      if(attachmentIds.length){
+        const finalizeResponse=await fetch('/api/admin/office/attachments/finalize',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({threadId,body,mentionUserIds,objectType:object.objectType,objectId:object.objectId,attachmentIds})});
+        const finalized=(await finalizeResponse.json().catch(()=>({})))as ApiError;
+        if(!finalizeResponse.ok)throw new Error(finalized.error||'A privát üzenet nem véglegesíthető.');
+      }else{
+        const textResponse=await fetch('/api/admin/office/chat/message',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({threadId,body,mentionUserIds,objectType:object.objectType,objectId:object.objectId})});
+        const sent=(await textResponse.json().catch(()=>({})))as ApiError;
+        if(!textResponse.ok)throw new Error(sent.error||'A belső üzenet nem küldhető el.');
+      }
+      form.reset();
+      setSelectedFiles([]);
+      if(fileInputRef.current)fileInputRef.current.value='';
+      if(textareaRef.current)textareaRef.current.style.height='';
+      setToolsOpen(false);
+      setMessage(files.length?'Az üzenet és a tisztának minősített csatolmányok elküldve.':'Az üzenet elküldve.');
+      router.refresh();
     }catch(error){setMessage(error instanceof Error?error.message:'A privát üzenet küldése nem sikerült.');}
     finally{setBusy(false);setPhase('idle');}
   }
@@ -83,7 +128,13 @@ export function OfficePrivateMessageForm({threadId,mentionOptions,objectOptions,
       <header><div><strong>Hozzáadás az üzenethez</strong><small>Említés, üzleti kapcsolat vagy fájl</small></div><button type="button" aria-label="Eszközök bezárása" onClick={()=>setToolsOpen(false)}>×</button></header>
       {mentionOptions.length>0&&<label><span>@ Említés</span><select name="mentionUserId" multiple size={Math.min(4,Math.max(2,mentionOptions.length))}>{mentionOptions.map(option=><option key={option.userId} value={option.userId}>{option.label}</option>)}</select></label>}
       {objectOptions.length>0&&<label><span>Kapcsolt üzleti objektum</span><select name="objectRef" defaultValue=""><option value="">Nincs kapcsolt objektum</option>{objectOptions.map(option=><option key={option.value} value={option.value}>{option.label}</option>)}</select></label>}
-      <label><span>📎 Csatolmány {availability.reason==='pro_required'?'· Pro':''}</span><input name="attachment" type="file" multiple accept={OFFICE_PRIVATE_ATTACHMENT_MIME_TYPES.join(',')} disabled={!availability.enabled||busy}/><small className="muted">{attachmentHelp(scannerChecked,availability)}</small></label>
+      <section className="teamChatAttachmentPicker" aria-describedby={attachmentHelpId}>
+        <div className="teamChatAttachmentPickerHeader"><span>📎 Csatolmány {availability.reason==='pro_required'?'· Pro':''}</span><span className={`teamChatAttachmentState ${scannerChecked&&availability.enabled?'isReady':'isMuted'}`}>{!scannerChecked?'Ellenőrzés…':availability.enabled?'Biztonságos feltöltés':'Nem elérhető'}</span></div>
+        <input ref={fileInputRef} className="teamChatFileInput" name="attachment" type="file" multiple accept={OFFICE_PRIVATE_ATTACHMENT_MIME_TYPES.join(',')} disabled={!availability.enabled||busy} onChange={chooseFiles}/>
+        <button type="button" className="teamChatFilePickerButton" disabled={!availability.enabled||busy} onClick={()=>fileInputRef.current?.click()}><span>＋</span> Fájl csatolása</button>
+        {selectedFiles.length>0&&<div className="teamChatSelectedFiles">{selectedFiles.map((file,index)=><div className="teamChatSelectedFile" key={`${file.name}-${file.size}-${index}`}><span className="teamChatSelectedFileIcon">📄</span><span><strong>{file.name}</strong><small>{fileSize(file.size)}</small></span><button type="button" aria-label={`${file.name} eltávolítása`} onClick={()=>removeFile(index)}>×</button></div>)}</div>}
+        <small id={attachmentHelpId} className="muted">{attachmentHelp(scannerChecked,availability)}</small>
+      </section>
     </div>
     {message&&<p className="teamChatComposerStatus muted" role="status">{message}</p>}
   </form>;
