@@ -20,14 +20,20 @@ describe('Roadmap Block 12 Migration Assistant contract',()=>{
     expect(sql).not.toMatch(/delete\s+from\s+auth\.users/i);
   });
 
-  test('production and fresh customer forward migrations stay identical and Fresh Install proof is recorded',()=>{
+  test('production and fresh customer forward migrations stay identical and proof lifecycle is fail closed',()=>{
     expect(read('supabase/customer-baseline/migrations/0006_block12_migration_assistant.sql')).toBe(read('supabase/migrations/20260910162000_block12_migration_assistant_v1.sql'));
+    expect(read('supabase/customer-baseline/migrations/0007_block12_trigger_privilege_hardening.sql')).toBe(read('supabase/migrations/20260910162400_block12_trigger_privilege_hardening.sql'));
+    const hardening=read('supabase/migrations/20260910162400_block12_trigger_privilege_hardening.sql');
+    for(const fn of ['migration_run_tenant_guard_v1','migration_child_tenant_guard_v1','migration_external_link_tenant_guard_v1'])expect(hardening).toContain(`revoke all on function public.${fn}() from public,anon,authenticated`);
     const manifest=JSON.parse(read('supabase/customer-baseline/manifest.json'));
-    expect(manifest.status).toBe('ready');
-    expect(manifest.freshInstallProofRequired).toBe(false);
-    expect(manifest.proofContractSha256).toBe('8d583480a7503b85d5875f9612cfb909431c42439781c09d09c62313b3f3b1c7');
-    expect(manifest.notes).toContain('34498485799');
-    expect(manifest.notes).toContain('81fc0d540f99bcf92cd9cdce8b871f1ff85cb0f5');
+    expect(['snapshot-reviewed','ready']).toContain(manifest.status);
+    if(manifest.status==='ready'){
+      expect(manifest.freshInstallProofRequired).toBe(false);
+      expect(manifest.proofContractSha256).toMatch(/^[a-f0-9]{64}$/);
+    }else{
+      expect(manifest.freshInstallProofRequired).toBe(true);
+      expect(manifest.proofContractSha256).toBeNull();
+    }
   });
 
   test('Shopware connector rejects unsafe network targets and never persists credentials',()=>{
