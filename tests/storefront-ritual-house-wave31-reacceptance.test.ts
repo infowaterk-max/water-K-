@@ -47,7 +47,10 @@ describe('Wave 31 Ritual House current-baseline re-acceptance',()=>{
     expect(RITUAL_HOUSE_TEMPLATE_MANIFEST.demoContent.namespace).toBe('beauty-ritual-house');
     expect(RITUAL_HOUSE_TEMPLATE_PACKAGE.pages).toHaveLength(14);
     const registry=createStorefrontStoryVisualComponentRegistry();
-    for(const page of RITUAL_HOUSE_TEMPLATE_PACKAGE.pages)expect(validateStorefrontPageDocument(page,registry,capability).ok).toBe(true);
+    for(const page of RITUAL_HOUSE_TEMPLATE_PACKAGE.pages){
+      const result=validateStorefrontPageDocument(page,registry,capability);
+      expect(result.ok,`${page.pageType}: ${JSON.stringify(result.violations)}`).toBe(true);
+    }
     const plan=planStorefrontTemplateInstallation({template:RITUAL_HOUSE_TEMPLATE_PACKAGE,componentRegistry:registry,capability});
     expect(plan.mutationBoundary).toMatchObject({storefrontPageDrafts:true,products:false,variants:false,customers:false,orders:false,b2b:false});
     expect(plan.demoLifecycle.install.every(item=>item.namespace==='beauty-ritual-house')).toBe(true);
