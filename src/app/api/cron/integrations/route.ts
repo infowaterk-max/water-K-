@@ -66,7 +66,7 @@ async function runWorker(request:Request){
   try{const summary=await runBusinessPulseNotificationWorker(20);businessPulseNotifications={ok:summary.failed===0&&summary.blocked===0,...summary}}catch(error){businessPulseNotifications={ok:false,error:error instanceof Error?error.message:'BUSINESS_PULSE_NOTIFICATION_WORKER_FAILED'}}
 
   const loyaltyOk=loyalty.every(result=>result.ok),journeyOk=journeys.every(result=>result.ok),workflowRetryOk=workflowRetries.every(result=>result.ok),teamChatRetentionOk=teamChatRetention.every(result=>result.ok);
-  const ok=inventorySnapshot.ok&&loyaltyOk&&journeyOk&&workflowRetryOk&&integrationResults.every(result=>result.ok)&&communication.ok&&officeAttachmentCleanup.ok&&teamChatRetentionOk&&businessPulse.ok&&businessPulseNotifications.ok;
+  const ok=inventorySnapshot.ok&&loyaltyOk&&journeyOk&&integrationResults.every(result=>result.ok)&&communication.ok&&officeAttachmentCleanup.ok&&teamChatRetentionOk&&businessPulse.ok&&businessPulseNotifications.ok&&workflowRetryOk;
   return NextResponse.json({ok,inventorySnapshot,loyalty:{tenants:loyalty.length,runKey:loyaltyRunKey,results:loyalty},journeys:{tenants:journeys.length,results:journeys},eventDrivenWorkflows:{tenants:workflowRetries.length,results:workflowRetries},integrations:{processed:integrationResults.length,results:integrationResults},communication,officeAttachmentCleanup,teamChatRetention:{tenants:teamChatRetention.length,results:teamChatRetention},businessPulse,businessPulseNotifications,checkedAt},{status:ok?200:503});
 }
 
