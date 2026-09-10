@@ -8,6 +8,8 @@ const read=(file:string)=>readFileSync(join(root,file),'utf8');
 describe('Digital Office recipient envelope and attachment metadata contract',()=>{
   const migration=read('supabase/migrations/20260909203604_digital_office_recipient_envelope_v1.sql');
   const attachmentIntegrity=read('supabase/migrations/20260909203629_digital_office_attachment_metadata_integrity_v1.sql');
+  const block9Foundation=read('supabase/migrations/20260910070000_communication_hub_2_0_foundation_v1.sql');
+  const block9Advanced=read('supabase/migrations/20260910070200_communication_hub_2_0_advanced_guards_and_object_links_v1.sql');
   const actions=read('src/app/admin/kommunikacio/iroda/composer-actions.ts');
   const newComposer=read('src/components/admin/office-new-email-composer.tsx');
   const replyComposer=read('src/components/admin/office-customer-email-form.tsx');
@@ -27,16 +29,17 @@ describe('Digital Office recipient envelope and attachment metadata contract',()
     expect(migration).toContain('recipient_email,subject,cc_emails,bcc_emails');
   });
 
-  it('requires an exact persisted revision snapshot inside the queue transaction',()=>{
+  it('requires an exact persisted revision snapshot through the current queue wrappers',()=>{
     expect(migration).toContain('create or replace function public.admin_queue_office_email_v4');
     expect(migration).toContain("raise exception 'OFFICE_DRAFT_REQUIRED_FOR_SEND'");
     expect(migration).toContain('and revision=v_draft_revision');
     expect(migration).toContain('for update;');
     expect(migration).toContain("raise exception 'OFFICE_DRAFT_CONFLICT'");
     expect(migration).toContain('delete from public.office_drafts');
-    expect(migration).toContain('and revision=v_draft_revision');
-    expect(actions).toContain("db.rpc('admin_queue_office_email_v4'");
+    expect(actions).toContain("db.rpc('admin_queue_office_email_v6'");
     expect(actions).toContain('draftRevision:input.draftRevision');
+    expect(block9Foundation).toContain('admin_queue_office_email_v5');
+    expect(block9Advanced).toContain('v_result:=public.admin_queue_office_email_v5');
     expect(actions).not.toContain(".from('office_drafts')\n    .select('id,draft_type");
   });
 
