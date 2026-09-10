@@ -1,6 +1,9 @@
 import 'server-only';
 import { createAdminClient } from '@/lib/supabase/admin';
-export type PaymentAttemptStatus='created'|'pending'|'requires_action'|'succeeded'|'failed'|'cancelled'|'expired'|'refunded';
+import{isTerminalPaymentAttemptStatus,paymentAttemptStatusFromEvent}from'@/lib/orders/orchestration-contract';
+import type{PaymentAttemptStatus}from'@/lib/orders/orchestration-contract';
+export type{PaymentAttemptStatus}from'@/lib/orders/orchestration-contract';
+
 type CreatePaymentAttemptInput={instanceId?:string|null;orderId:string;providerCode:string;providerReference?:string|null;amountHuf:number;status?:PaymentAttemptStatus;metadata?:Record<string,unknown>};
 export type LatestPaymentAttempt={id:string;status:PaymentAttemptStatus;providerReference:string|null;checkoutUrl:string|null;createdAt:string};
 function objectMeta(value:unknown){return value&&typeof value==='object'&&!Array.isArray(value)?value as Record<string,unknown>:{};}
@@ -48,8 +51,8 @@ export async function markPaymentAttemptRequiresAction(attemptId:string,input?:{
 }
 
 export async function updatePaymentAttemptFromEvent(input:{instanceId:string;providerCode:string;providerReference:string;status:'pending'|'paid'|'failed'|'cancelled'|'refunded'|'unknown';eventId:string;eventType:string}){
-  const mapped:PaymentAttemptStatus|null=input.status==='paid'?'succeeded':input.status==='failed'?'failed':input.status==='cancelled'?'cancelled':input.status==='refunded'?'refunded':input.status==='pending'?'pending':null;if(!mapped)return;
-  const admin=createAdminClient(),now=new Date().toISOString(),terminal=['succeeded','failed','cancelled','expired','refunded'].includes(mapped);
+  const mapped=paymentAttemptStatusFromEvent(input.status);if(!mapped)return;
+  const admin=createAdminClient(),now=new Date().toISOString(),terminal=isTerminalPaymentAttemptStatus(mapped);
   const{data:attempt,error:readError}=await admin.from('payment_attempts').select('id,metadata').eq('instance_id',input.instanceId).eq('provider_code',input.providerCode).eq('provider_reference',input.providerReference).maybeSingle();
   if(readError)throw readError;if(!attempt)return;
   const metadata=objectMeta(attempt.metadata),{error}=await admin.from('payment_attempts').update({status:mapped,updated_at:now,completed_at:terminal?now:null,failure_code:null,failure_message:null,metadata:{...metadata,last_event_id:input.eventId,last_event_type:input.eventType}}).eq('id',attempt.id).eq('instance_id',input.instanceId);if(error)throw error;
