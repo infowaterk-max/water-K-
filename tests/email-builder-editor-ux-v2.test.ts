@@ -29,7 +29,8 @@ describe('Email Builder target UX v2 shell',()=>{
 
   it('retains editor operations and publication separation',()=>{
     const editor=read('src/components/admin/email-builder-editor.tsx');
-    for(const operation of['addBlock','duplicateSelected','deleteSelected','moveSelected','undo','redo','saveDraft'])expect(editor).toContain(`function ${operation}`)||expect(editor).toContain(`async function ${operation}`);
+    for(const operation of['addBlock','duplicateSelected','deleteSelected','moveSelected','undo','redo'])expect(editor).toContain(`function ${operation}`);
+    expect(editor).toContain('async function saveDraft');
     expect(editor).toContain('/verziok`');
     expect(editor).not.toContain('/activate');
     expect(editor).not.toContain('sendTransactionalEmail');
