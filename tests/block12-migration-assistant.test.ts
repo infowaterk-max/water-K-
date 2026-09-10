@@ -23,8 +23,11 @@ describe('Roadmap Block 12 Migration Assistant contract',()=>{
   test('production and fresh customer forward migrations stay identical and proof lifecycle is fail closed',()=>{
     expect(read('supabase/customer-baseline/migrations/0006_block12_migration_assistant.sql')).toBe(read('supabase/migrations/20260910162000_block12_migration_assistant_v1.sql'));
     expect(read('supabase/customer-baseline/migrations/0007_block12_trigger_privilege_hardening.sql')).toBe(read('supabase/migrations/20260910162400_block12_trigger_privilege_hardening.sql'));
+    expect(read('supabase/customer-baseline/migrations/0008_block12_fk_index_hardening.sql')).toBe(read('supabase/migrations/20260910163000_block12_fk_index_hardening.sql'));
     const hardening=read('supabase/migrations/20260910162400_block12_trigger_privilege_hardening.sql');
     for(const fn of ['migration_run_tenant_guard_v1','migration_child_tenant_guard_v1','migration_external_link_tenant_guard_v1'])expect(hardening).toContain(`revoke all on function public.${fn}() from public,anon,authenticated`);
+    const indexes=read('supabase/migrations/20260910163000_block12_fk_index_hardening.sql');
+    for(const index of ['migration_runs_organization_idx','migration_runs_created_by_idx','migration_records_instance_idx','migration_records_organization_idx','migration_issues_instance_idx','migration_issues_organization_idx','migration_issues_resolved_by_idx','migration_external_links_organization_idx','migration_change_journal_instance_idx','migration_change_journal_organization_idx'])expect(indexes).toContain(`create index if not exists ${index}`);
     const manifest=JSON.parse(read('supabase/customer-baseline/manifest.json'));
     expect(['snapshot-reviewed','ready']).toContain(manifest.status);
     if(manifest.status==='ready'){

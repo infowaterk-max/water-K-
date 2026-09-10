@@ -9,7 +9,7 @@
   "snapshotFile": "supabase/customer-baseline/migrations/0001_shoperation_v1_schema.sql",
   "snapshotCommand": "npm run db:customer:snapshot",
   "freshInstallProofRequired": true,
-  "notes": "Block 12 now includes ordered 0006 Migration Assistant plus 0007 trigger privilege hardening. Production advisor verification found the three internal SECURITY DEFINER tenant-guard trigger helpers still inherited API EXECUTE through PUBLIC; 0007 revokes PUBLIC/anon/authenticated EXECUTE without changing trigger behavior. The immutable 0001 snapshot remains unchanged. A new genuine empty-target Fresh Install proof is required for the exact 0001-0007 baseline before release readiness can be restored.",
+  "notes": "Block 12 now includes ordered 0006 Migration Assistant, 0007 trigger privilege hardening and 0008 foreign-key index hardening. Production advisor verification found the three internal SECURITY DEFINER tenant-guard helpers inherited API EXECUTE and ten Migration Assistant foreign keys lacked covering indexes; 0007 revokes PUBLIC/anon/authenticated EXECUTE and 0008 adds only the missing covering indexes. The immutable 0001 snapshot remains unchanged. A new genuine empty-target Fresh Install proof is required for the exact 0001-0008 baseline before release readiness can be restored.",
   "authBootstrapFile": "supabase/customer-baseline/auth-bootstrap.sql",
   "proofContractSha256": null
 }
