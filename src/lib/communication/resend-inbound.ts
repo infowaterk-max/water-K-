@@ -14,8 +14,22 @@ const receivedEmailSchema=z.object({
   headers:z.record(z.string()).default({}),
   attachments:z.array(z.object({id:z.string(),filename:z.string().optional(),content_type:z.string().optional()})).default([]),
 });
+const receivedAttachmentSchema=z.object({
+  id:z.string().min(1).max(500),
+  filename:z.string().trim().min(1).max(240),
+  size:z.number().int().positive(),
+  content_type:z.string().trim().min(1).max(200),
+  download_url:z.string().url(),
+  expires_at:z.string().min(1),
+});
+const receivedAttachmentListSchema=z.object({
+  object:z.literal('list').optional(),
+  has_more:z.boolean().default(false),
+  data:z.array(receivedAttachmentSchema).max(100),
+});
 
 export type ResendReceivedEmail=z.infer<typeof receivedEmailSchema>;
+export type ResendReceivedAttachment=z.infer<typeof receivedAttachmentSchema>;
 export type ParsedInboundRecipient={address:string;baseAddress:string;replyToken:string|null};
 
 export function normalizeEmailAddress(value:string){
@@ -74,21 +88,33 @@ export function receivedThreadingHeaders(email:ResendReceivedEmail){
   const headers=new Map(Object.entries(email.headers??{}).map(([key,value])=>[key.toLowerCase(),String(value)]));
   const inReplyToIds=messageIds(headers.get('in-reply-to'));
   const references=messageIds(headers.get('references'));
-  return{
-    inReplyTo:inReplyToIds[0]??null,
-    references,
-  };
+  return{inReplyTo:inReplyToIds[0]??null,references};
+}
+
+function resendKey(){
+  const key=process.env.RESEND_API_KEY?.trim();
+  if(!key)throw new Error('RESEND_NOT_CONFIGURED');
+  return key;
 }
 
 export async function getResendReceivedEmail(id:string):Promise<ResendReceivedEmail>{
-  const key=process.env.RESEND_API_KEY?.trim();
-  if(!key)throw new Error('RESEND_NOT_CONFIGURED');
   const response=await fetch(`https://api.resend.com/emails/receiving/${encodeURIComponent(id)}`,{
-    method:'GET',headers:{authorization:`Bearer ${key}`,accept:'application/json'},cache:'no-store',signal:AbortSignal.timeout(10000),
+    method:'GET',headers:{authorization:`Bearer ${resendKey()}`,accept:'application/json'},cache:'no-store',signal:AbortSignal.timeout(10000),
   });
   const payload=await response.json().catch(()=>null);
   if(!response.ok)throw new Error(`RESEND_RECEIVING_HTTP_${response.status}`);
   const parsed=receivedEmailSchema.safeParse(payload);
   if(!parsed.success)throw new Error('RESEND_RECEIVING_PAYLOAD_INVALID');
   return parsed.data;
+}
+
+export async function getResendReceivedEmailAttachments(id:string):Promise<ResendReceivedAttachment[]>{
+  const response=await fetch(`https://api.resend.com/emails/receiving/${encodeURIComponent(id)}/attachments`,{
+    method:'GET',headers:{authorization:`Bearer ${resendKey()}`,accept:'application/json'},cache:'no-store',signal:AbortSignal.timeout(10000),
+  });
+  const payload=await response.json().catch(()=>null);
+  if(!response.ok)throw new Error(`RESEND_RECEIVING_ATTACHMENTS_HTTP_${response.status}`);
+  const parsed=receivedAttachmentListSchema.safeParse(payload);
+  if(!parsed.success||parsed.data.has_more)throw new Error('RESEND_RECEIVING_ATTACHMENTS_PAYLOAD_INVALID');
+  return parsed.data.data;
 }
