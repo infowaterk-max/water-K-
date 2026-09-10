@@ -4,6 +4,7 @@ import {describe,expect,test} from 'vitest';
 
 const root=process.cwd(),read=(file:string)=>fs.readFileSync(path.join(root,file),'utf8');
 const migration='supabase/migrations/20260903170000_admin_workspace_settings_evidence_atomic_v2.sql';
+const addonMigration='supabase/migrations/20260910124700_block11_addon_mutation_authority_v1.sql';
 const privacyMigration='supabase/migrations/20260908022500_digital_office_privacy_foundation_v1.sql';
 const teamChatMigration='supabase/migrations/20260909204503_digital_office_team_chat_2_foundation_v1.sql';
 const ownerTransferMigration='supabase/migrations/20260909204547_digital_office_team_chat_owner_transfer_v1.sql';
@@ -56,15 +57,18 @@ describe('admin workspace and settings evidence atomicity',()=>{
     expect(sql).toContain('OFFICE_COMMUNICATION_JOB_MISSING');
   });
 
-  test('platform plan, branding, storefront and addon changes are audited in the same RPC',()=>{
+  test('platform plan, branding, storefront and addon changes are audited in atomic RPC authorities',()=>{
     const actions=read('src/app/admin/platform/webaruhazak/actions.ts');
     const sql=read(migration);
-    expect(actions.match(/platform_mutate_webshop_config_v3/g)?.length).toBeGreaterThanOrEqual(4);
+    const addonSql=read(addonMigration);
+    expect(actions.match(/platform_mutate_webshop_config_v3/g)?.length).toBeGreaterThanOrEqual(3);
+    expect(actions).toContain('platform_set_webshop_addon_v1');
     expect(sql).toContain("'platform.webshop_plan_status_updated'");
     expect(sql).toContain("'platform.webshop_branding_updated'");
     expect(sql).toContain("'platform.webshop_storefront_updated'");
-    expect(sql).toContain("'platform.webshop_addon_updated'");
+    expect(addonSql).toContain("'platform.webshop_addon_updated'");
     expect(sql).toContain('insert into public.admin_audit_log');
+    expect(addonSql).toContain('insert into public.admin_audit_log');
   });
 
   test('commerce provider save and verification mutations are store-manager scoped and audited',()=>{
@@ -89,6 +93,7 @@ describe('admin workspace and settings evidence atomicity',()=>{
 
   test('all privileged RPCs are executable only by service runtime',()=>{
     const sql=read(migration);
+    const addonSql=read(addonMigration);
     const privacySql=read(privacyMigration);
     const teamChatSql=read(teamChatMigration);
     const ownerTransferSql=read(ownerTransferMigration);
@@ -101,6 +106,8 @@ describe('admin workspace and settings evidence atomicity',()=>{
       expect(sql).toContain(`revoke all on function public.${name}`);
       expect(sql).toMatch(new RegExp(`grant execute on function public\\.${name}[\\s\\S]{0,220}to service_role`));
     }
+    expect(addonSql).toContain('revoke all on function public.platform_set_webshop_addon_v1');
+    expect(addonSql).toMatch(/grant execute on function public\.platform_set_webshop_addon_v1[\s\S]{0,220}to service_role/);
     expect(privacySql).toContain('revoke all on function public.admin_mutate_office_privacy_v1');
     expect(privacySql).toContain('grant execute on function public.admin_mutate_office_privacy_v1(uuid,uuid,text,jsonb) to service_role');
     expect(teamChatSql).toContain('revoke all on function public.admin_mutate_office_team_chat_v2');
