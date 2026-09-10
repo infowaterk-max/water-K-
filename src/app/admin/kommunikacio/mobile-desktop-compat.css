@@ -1,5 +1,5 @@
 /*
- * Communication desktop-site compatibility contract v5.
+ * Communication desktop-site compatibility contract v6.
  *
  * This file is intentionally loaded AFTER communication-app-final.css and owns
  * only the touch-browser "Desktop site" case. Native mobile/tablet/desktop
@@ -9,6 +9,7 @@
  * - do not squeeze the whole 1280/1440px product into the phone viewport;
  * - keep the global admin rail usable;
  * - make the communication workspace horizontally pannable inside the content area;
+ * - hide the touch-only horizontal scrollbar/track without disabling pan;
  * - fill the visible viewport vertically without ratio multiplication;
  * - keep the accepted three-pane e-mail and Team Chat layouts intact.
  */
@@ -46,6 +47,13 @@
   overscroll-behavior-x:contain!important;
   -webkit-overflow-scrolling:touch;
   touch-action:pan-x pan-y pinch-zoom!important;
+  scrollbar-width:none!important;
+  -ms-overflow-style:none!important;
+}
+.adminGrid[data-desktop-site-touch="true"] .adminContentShell::-webkit-scrollbar{
+  display:none!important;
+  width:0!important;
+  height:0!important;
 }
 
 .adminGrid[data-desktop-site-touch="true"] .adminMain{
