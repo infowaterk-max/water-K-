@@ -67,7 +67,6 @@ const PRO_FEATURES = [
   'crm',
   'advancedCampaigns',
   'officeCommunication',
-  'teamChatSecureAttachments',
   'automation',
   'procurement',
   'cashflow',
@@ -76,11 +75,14 @@ const PRO_FEATURES = [
 ] as const satisfies readonly FeatureCode[];
 
 /**
- * Reserved feature codes stay typed so future migrations and UI work can land
- * without renaming persisted capabilities, but they are not active entitlements
- * until their security model and runtime implementation are complete.
+ * Reserved feature codes stay typed so their completed foundations can remain in
+ * the codebase, but they are not active plan entitlements until a later release
+ * explicitly enables them. Secure Attachments is intentionally dormant at launch.
  */
-export const PLANNED_PRO_FEATURES = ['apiAccess'] as const satisfies readonly FeatureCode[];
+export const PLANNED_PRO_FEATURES = [
+  'teamChatSecureAttachments',
+  'apiAccess',
+] as const satisfies readonly FeatureCode[];
 
 export const PLANS: Record<PlanCode, PlanDefinition> = {
   alap: {
@@ -92,7 +94,7 @@ export const PLANS: Record<PlanCode, PlanDefinition> = {
   pro: {
     code: 'pro',
     name: 'Pro',
-    description: 'Az Alap minden funkciója biztonságos Team Chat csatolmányokkal, digitális irodával, fejlett CRM-mel, automatizálással és üzleti döntéstámogatással.',
+    description: 'Az Alap minden funkciója digitális irodával, fejlett CRM-mel, automatizálással és üzleti döntéstámogatással.',
     features: PRO_FEATURES,
   },
 };

@@ -24,7 +24,15 @@ async function platformHasFullAccess() {
   try { return (await getPlatformRole()) !== null; } catch { return false; }
 }
 
+export function isRuntimeFeatureReleased(feature: FeatureCode): boolean {
+  if (feature === 'teamChatSecureAttachments') {
+    return process.env.TEAM_CHAT_SECURE_ATTACHMENTS_RELEASED === 'true';
+  }
+  return true;
+}
+
 export async function hasCurrentPlanFeature(feature: FeatureCode): Promise<boolean> {
+  if (!isRuntimeFeatureReleased(feature)) return false;
   if (await platformHasFullAccess()) return true;
   const instance=await getCurrentWebshopInstance();
   if(instance){
@@ -36,6 +44,7 @@ export async function hasCurrentPlanFeature(feature: FeatureCode): Promise<boole
 }
 
 export async function requirePlanFeature(feature: FeatureCode) {
+  if (!isRuntimeFeatureReleased(feature)) redirect(`/admin/csomag?reason=not-released&feature=${encodeURIComponent(feature)}`);
   if (await platformHasFullAccess()) return 'pro' satisfies PlanCode;
   const plan=await getCurrentPlan();
   if (!(await hasCurrentPlanFeature(feature))) redirect(`/admin/csomag?reason=pro-required&feature=${encodeURIComponent(feature)}`);
