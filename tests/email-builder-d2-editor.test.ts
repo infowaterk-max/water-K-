@@ -12,16 +12,17 @@ describe('Email Builder D2 editor',()=>{
     expect(page).toContain('<EmailBuilderEditor');
   });
 
-  it('provides a three-panel draft editor with real renderer preview and no activation path',()=>{
+  it('provides the draft editor shell with real renderer preview and no direct activation path',()=>{
     const editor=read('src/components/admin/email-builder-editor.tsx');
+    expect(editor).toContain('leftRail');
     expect(editor).toContain('leftPanel');
     expect(editor).toContain('canvasPanel');
     expect(editor).toContain('rightPanel');
     expect(editor).toContain("fetch('/api/admin/email-builder/preview'");
     expect(editor).toContain("method:'PATCH'");
-    expect(editor).toContain('Piszkozat mentése');
-    expect(editor).toContain('Nincs aktiválás');
-    expect(editor).toContain('Az aktív e-mail sablon változatlan marad.');
+    expect(editor).toContain("saveState==='saving'?'Mentés…':'Mentés'");
+    expect(editor).toContain('Piszkozat mód');
+    expect(editor).toContain('A mentés nem aktiválja az e-mailt.');
     expect(editor).not.toContain('/activate');
     expect(editor).not.toContain('sendTransactionalEmail');
     expect(editor).not.toContain('tesztküld');
