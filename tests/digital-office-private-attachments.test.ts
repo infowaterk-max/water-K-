@@ -90,14 +90,17 @@ describe('Digital Office private attachments',()=>{
     expect(finalize).toContain("db.rpc('admin_finalize_office_private_message_v1'");
   });
 
-  it('keeps Pro attachment and tenant gates while letting current participant capability decide private attachment access',()=>{
+  it('keeps tenant gates while selecting the entitlement from the attachment source',()=>{
     for(const route of[prepare,finalize,download]){
       expect(route).toContain('getAdminRequestUser()');
-      expect(route).toContain("hasCurrentPlanFeature('teamChatSecureAttachments')");
       expect(route).toContain('requireCurrentStoreContext()');
       expect(route).not.toContain("getAdminRequestUser('support.manage')");
       expect(route).not.toContain("requireCurrentStoreContext('support.manage')");
     }
+    for(const route of[prepare,finalize])expect(route).toContain("hasCurrentPlanFeature('teamChatSecureAttachments')");
+    expect(download).toContain("source==='internal_upload'?'teamChatSecureAttachments'");
+    expect(download).toContain("source==='provider_inbound'||source==='customer_outbound'?'officeCommunication':null");
+    expect(download).toContain('hasCurrentPlanFeature(feature)');
     expect(finalize).toContain('OFFICE_OBJECT_LINK_PERMISSION_REQUIRED');
   });
 
@@ -135,8 +138,8 @@ describe('Digital Office private attachments',()=>{
     expect(cleanupMigration).not.toContain('actor_user_id');
   });
 
-  it('does not enable customer-email attachment, mailbox or AI behavior',()=>{
-    const all=(migration+'\n'+hardening+'\n'+cleanupMigration+'\n'+prepare+'\n'+finalize+'\n'+download+'\n'+composer).toLowerCase();
+  it('does not enable customer-email attachment, mailbox or AI behavior in the original Team Chat foundation',()=>{
+    const all=(migration+'\n'+hardening+'\n'+cleanupMigration+'\n'+prepare+'\n'+finalize+'\n'+composer).toLowerCase();
     expect(all).not.toContain('office_mailboxes');
     expect(all).not.toContain('gmail');
     expect(all).not.toContain('microsoft graph');
