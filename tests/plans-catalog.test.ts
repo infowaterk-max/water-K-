@@ -28,7 +28,6 @@ const PRO_ONLY: FeatureCode[] = [
   'crm',
   'advancedCampaigns',
   'officeCommunication',
-  'teamChatSecureAttachments',
   'automation',
   'procurement',
   'cashflow',
@@ -51,15 +50,18 @@ describe('business plan entitlement matrix', () => {
     }
   });
 
-  it('keeps Team Chat in Alap while secure attachments stay Pro-only',()=>{
+  it('keeps Team Chat in both launch packages while Secure Attachments stays unreleased',()=>{
     expect(hasPlanFeature('alap','teamChat')).toBe(true);
     expect(hasPlanFeature('pro','teamChat')).toBe(true);
     expect(hasPlanFeature('alap','teamChatSecureAttachments')).toBe(false);
-    expect(hasPlanFeature('pro','teamChatSecureAttachments')).toBe(true);
+    expect(hasPlanFeature('pro','teamChatSecureAttachments')).toBe(false);
+    expect(PLANNED_PRO_FEATURES).toContain('teamChatSecureAttachments');
     expect(hasPlanFeature('alap','officeCommunication')).toBe(false);
+    expect(hasPlanFeature('pro','officeCommunication')).toBe(true);
   });
 
-  it('keeps planned Pro capabilities disabled until implementation is complete', () => {
+  it('keeps planned Pro capabilities disabled until a later explicit release', () => {
+    expect(PLANNED_PRO_FEATURES).toContain('teamChatSecureAttachments');
     expect(PLANNED_PRO_FEATURES).toContain('apiAccess');
     for (const feature of PLANNED_PRO_FEATURES) {
       expect(hasPlanFeature('alap', feature)).toBe(false);
