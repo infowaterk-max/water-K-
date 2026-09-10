@@ -4,7 +4,9 @@ import Link from 'next/link';
 import { useEffect,useMemo,useRef,useState } from 'react';
 import type { EmailBlock,EmailBlockType,EmailConditionRule,EmailDocument,EmailRenderContext,RenderedEmail } from '@/lib/email-builder/types';
 import { emailBindingRegistry } from '@/lib/email-builder/bindings';
+import { emailPresetLibrary,emailSectionLibrary,type EmailBlockBlueprint,type EmailPresetDefinition,type EmailSectionDefinition } from '@/lib/email-builder/library';
 import styles from './email-builder-editor.module.css';
+import libraryStyles from './email-builder-library.module.css';
 
 type TemplateMeta={id:string;name:string;status:string;activeVersionId:string|null;updatedAt:string};
 type Tab='content'|'design'|'conditions'|'responsive';
@@ -12,7 +14,6 @@ type Device='desktop'|'mobile';
 type SaveState='saved'|'dirty'|'saving'|'error';
 type HistoryGroup={key:string;recorded:boolean};
 type LeftView='blocks'|'sections'|'presets'|'saved'|'dynamic';
-
 type PaletteItem={type:EmailBlockType;description:string;icon:string};
 type PaletteGroup={title:string;items:PaletteItem[]};
 
@@ -63,6 +64,18 @@ function createBlock(type:EmailBlockType):EmailBlock{
   return{...base,content:{text:'{{store.name}} · értesítés'}};
 }
 
+function materializeBlueprint(blueprint:EmailBlockBlueprint,sourceId:string):EmailBlock{
+  const base=createBlock(blueprint.type);
+  return{
+    ...base,
+    content:{...base.content,...structuredClone(blueprint.content??{})},
+    style:structuredClone(blueprint.style??{}),
+    responsive:structuredClone(blueprint.responsive??{}),
+    ...(blueprint.conditions?{conditions:structuredClone(blueprint.conditions)}:{}),
+    presetId:sourceId,
+  };
+}
+
 function parseRuleValue(field:string,operator:EmailConditionRule['operator'],raw:string):unknown{
   if(operator==='exists'||operator==='notExists')return undefined;
   if(operator==='in')return raw.split(',').map(item=>item.trim()).filter(Boolean);
@@ -94,6 +107,7 @@ export function EmailBuilderEditor({template,initialDocument,previewContext}:{te
 
   const selected=useMemo(()=>document.blocks.find(block=>block.id===selectedId)??document.blocks[0]??null,[document.blocks,selectedId]);
   const selectedIndex=selected?document.blocks.findIndex(block=>block.id===selected.id):-1;
+  const familyPresets=useMemo(()=>emailPresetLibrary.filter(item=>item.id.startsWith(`${document.family}-`)),[document.family]);
 
   function beginHistoryGroup(key:string){historyGroupRef.current={key,recorded:false};}
   function endHistoryGroup(key:string){if(historyGroupRef.current?.key===key)historyGroupRef.current=null;}
@@ -110,13 +124,36 @@ export function EmailBuilderEditor({template,initialDocument,previewContext}:{te
     setSaveState('dirty');
     setSaveMessage('Nem mentett módosítás');
   }
-  function undo(){const previous=history.at(-1);if(!previous)return;historyGroupRef.current=null;setFuture(items=>[document,...items.slice(0,39)]);setHistory(items=>items.slice(0,-1));setDocument(previous);setSaveState('dirty');setSaveMessage('Visszavont módosítás');}
-  function redo(){const next=future[0];if(!next)return;historyGroupRef.current=null;setHistory(items=>[...items.slice(-39),document]);setFuture(items=>items.slice(1));setDocument(next);setSaveState('dirty');setSaveMessage('Újra alkalmazott módosítás');}
+  function undo(){const previous=history.at(-1);if(!previous)return;historyGroupRef.current=null;setFuture(items=>[document,...items.slice(0,39)]);setHistory(items=>items.slice(0,-1));setDocument(previous);setSelectedId(previous.blocks[0]?.id??'');setSaveState('dirty');setSaveMessage('Visszavont módosítás');}
+  function redo(){const next=future[0];if(!next)return;historyGroupRef.current=null;setHistory(items=>[...items.slice(-39),document]);setFuture(items=>items.slice(1));setDocument(next);setSelectedId(next.blocks[0]?.id??'');setSaveState('dirty');setSaveMessage('Újra alkalmazott módosítás');}
 
   function updateDocument(patch:Partial<EmailDocument>,groupKey?:string){commit({...document,...patch},groupKey);}
   function updateSelected(patch:Partial<EmailBlock>,groupKey?:string){if(!selected)return;commit({...document,blocks:document.blocks.map(block=>block.id===selected.id?{...block,...patch}:block)},groupKey);}
   function updateContent(key:string,value:unknown,groupKey?:string){if(!selected)return;updateSelected({content:{...selected.content,[key]:value}},groupKey);}
   function addBlock(type:EmailBlockType){const block=createBlock(type),index=selectedIndex>=0?selectedIndex+1:document.blocks.length;const blocks=[...document.blocks];blocks.splice(index,0,block);commit({...document,blocks});setSelectedId(block.id);setTab('content');}
+  function addSection(section:EmailSectionDefinition){
+    const inserted=section.blocks.map(block=>materializeBlueprint(block,section.id));
+    const index=selectedIndex>=0?selectedIndex+1:document.blocks.length;
+    const blocks=[...document.blocks];
+    blocks.splice(index,0,...inserted);
+    commit({...document,blocks});
+    setSelectedId(inserted[0]?.id??selectedId);
+    setTab('content');
+  }
+  function applyPreset(preset:EmailPresetDefinition){
+    if(!window.confirm(`A(z) „${preset.name}” preset lecseréli a jelenlegi piszkozat teljes elrendezését. A művelet egyetlen Visszavonás lépéssel visszaállítható. Folytatod?`))return;
+    const blocks=preset.blocks.map(block=>materializeBlueprint(block,preset.id));
+    commit({
+      ...document,
+      subject:preset.subject,
+      preheader:preset.preheader,
+      design:structuredClone(preset.design),
+      blocks,
+      metadata:{...document.metadata,libraryPresetId:preset.id},
+    });
+    setSelectedId(blocks[0]?.id??'');
+    setTab('content');
+  }
   function duplicateSelected(){if(!selected)return;const copy:{[K in keyof EmailBlock]:EmailBlock[K]}={...structuredClone(selected),id:newId(selected.type)};const blocks=[...document.blocks];blocks.splice(selectedIndex+1,0,copy);commit({...document,blocks});setSelectedId(copy.id);}
   function deleteSelected(){if(!selected||document.blocks.length<=1)return;const blocks=document.blocks.filter(block=>block.id!==selected.id);const fallback=blocks[Math.min(selectedIndex,blocks.length-1)];commit({...document,blocks});setSelectedId(fallback?.id??'');}
   function moveSelected(delta:-1|1){if(!selected)return;const target=selectedIndex+delta;if(target<0||target>=document.blocks.length)return;const blocks=[...document.blocks];[blocks[selectedIndex],blocks[target]]=[blocks[target],blocks[selectedIndex]];commit({...document,blocks});}
@@ -203,8 +240,10 @@ export function EmailBuilderEditor({template,initialDocument,previewContext}:{te
           <div className={styles.structureHead}><span className={styles.kicker}>Szerkezet</span><strong>{document.blocks.length} blokk</strong></div>
           <div className={styles.structure}>{document.blocks.map((block,index)=><button type="button" key={block.id} className={block.id===selectedId?styles.selectedBlock:''} onClick={()=>setSelectedId(block.id)}><span>{index+1}</span><div><strong>{blockLabels[block.type]}</strong><small>{block.id}</small></div></button>)}</div>
         </>}
+        {leftView==='sections'&&<SectionLibrary sections={emailSectionLibrary} onInsert={addSection}/>}        
+        {leftView==='presets'&&<PresetLibrary presets={familyPresets} onApply={applyPreset}/>}        
         {leftView==='dynamic'&&<DynamicLibrary copiedBinding={copiedBinding} onCopy={copyBinding}/>}        
-        {leftView!=='blocks'&&leftView!=='dynamic'&&<LibraryPlaceholder view={leftView}/>}        
+        {leftView==='saved'&&<LibraryPlaceholder/>}        
       </aside>
 
       <main className={styles.canvasPanel}>
@@ -232,6 +271,15 @@ export function EmailBuilderEditor({template,initialDocument,previewContext}:{te
   </section>;
 }
 
+function SectionLibrary({sections,onInsert}:{sections:EmailSectionDefinition[];onInsert:(section:EmailSectionDefinition)=>void}){
+  const groups=Array.from(new Set(sections.map(item=>item.category)));
+  return <div className={styles.libraryPane}><div className={styles.panelHead}><div><span className={styles.kicker}>Szekciótár</span><strong>Kész összeállítások</strong></div><span className={styles.libraryCount}>{sections.length}</span></div><p className={styles.libraryIntro}>Egy szekció több valódi blokkot szúr be egyszerre a kijelölt blokk után. Egyetlen Visszavonás lépéssel eltávolítható.</p>{groups.map(group=><section key={group}><div className={libraryStyles.librarySummary}><strong>{group}</strong><span>{sections.filter(item=>item.category===group).length} szekció</span></div><div className={libraryStyles.libraryCards}>{sections.filter(item=>item.category===group).map(section=><article className={libraryStyles.libraryCard} key={section.id}><div className={libraryStyles.libraryCardTop}><span className={libraryStyles.libraryIcon}>{section.icon}</span><div className={libraryStyles.libraryMeta}><strong>{section.name}</strong><span>{section.blocks.length} blokk</span><p>{section.description}</p></div></div><button type="button" className={libraryStyles.libraryAction} onClick={()=>onInsert(section)}>＋ Szekció beszúrása</button></article>)}</div></section>)}</div>;
+}
+
+function PresetLibrary({presets,onApply}:{presets:EmailPresetDefinition[];onApply:(preset:EmailPresetDefinition)=>void}){
+  return <div className={styles.libraryPane}><div className={styles.panelHead}><div><span className={styles.kicker}>Presetek</span><strong>Teljes e-mail elrendezések</strong></div><span className={styles.libraryCount}>{presets.length}</span></div><p className={styles.libraryIntro}>A preset a teljes piszkozat tárgyát, preheaderét, design tokenjeit és blokkszerkezetét beállítja. A sablon identitását nem módosítja.</p><div className={libraryStyles.presetWarning}>A preset alkalmazása nem ment és nem aktivál automatikusan. A teljes művelet egyetlen Visszavonás lépéssel visszaállítható.</div><div className={libraryStyles.libraryCards}>{presets.map(preset=><article className={`${libraryStyles.libraryCard} ${libraryStyles.presetCard}`} key={preset.id}><span className={libraryStyles.presetBadge}>{preset.badge}</span><div className={libraryStyles.libraryCardTop}><span className={libraryStyles.libraryIcon}>✦</span><div className={libraryStyles.libraryMeta}><strong>{preset.name}</strong><span>{preset.blocks.length} blokk</span><p>{preset.description}</p></div></div><button type="button" className={libraryStyles.libraryAction} onClick={()=>onApply(preset)}>Preset alkalmazása</button></article>)}</div>{!presets.length&&<div className={styles.emptyLibrary}><span>◇</span><strong>Nincs preset ehhez a családhoz</strong><p>A család-specifikus presetek későbbi bővítéssel kerülnek ide.</p></div>}</div>;
+}
+
 function DynamicLibrary({copiedBinding,onCopy}:{copiedBinding:string;onCopy:(key:string)=>void}){
   const groups=useMemo(()=>Array.from(new Set(emailBindingRegistry.map(item=>item.requiredContext))),[]);
   return <div className={styles.libraryPane}><div className={styles.panelHead}><div><span className={styles.kicker}>Dinamikus adatok</span><strong>Változók</strong></div></div><p className={styles.libraryIntro}>Kattints egy változóra a vágólapra másoláshoz, majd illeszd be egy támogatott szövegmezőbe.</p>{groups.map(group=><section className={styles.bindingGroup} key={group}><h3>{bindingGroupLabel(group)}</h3><div>{emailBindingRegistry.filter(item=>item.requiredContext===group).map(binding=><button type="button" key={binding.key} onClick={()=>onCopy(binding.key)}><span>{binding.label}</span><code>{copiedBinding===binding.key?'Másolva':`{{${binding.key}}}`}</code></button>)}</div></section>)}</div>;
@@ -239,9 +287,8 @@ function DynamicLibrary({copiedBinding,onCopy}:{copiedBinding:string;onCopy:(key
 
 function bindingGroupLabel(group:string){return group==='store'?'Webshop':group==='customer'?'Vásárló':group==='order'?'Rendelés':group==='payment'?'Fizetés':group==='shipping'?'Szállítás':group==='billing'?'Számlázás':'Kupon';}
 
-function LibraryPlaceholder({view}:{view:Exclude<LeftView,'blocks'|'dynamic'>}){
-  const copy=view==='sections'?{title:'Szekciók',text:'A következő körben itt komplett, több blokkból álló újrahasznosítható e-mail szekciók jelennek meg.'}:view==='presets'?{title:'Presetek',text:'Itt kapnak helyet a család- és felhasználási cél alapú összeállítások, például rendelés-visszaigazolás vagy szállítási értesítő.'}:{title:'Saját blokkok',text:'Ide kerülnek majd a kereskedő által elmentett és újrahasznosítható saját blokkok.'};
-  return <div className={styles.libraryPane}><div className={styles.panelHead}><div><span className={styles.kicker}>Könyvtár</span><strong>{copy.title}</strong></div></div><div className={styles.emptyLibrary}><span>◇</span><strong>{copy.title}</strong><p>{copy.text}</p><small>Ebben a körben csak a már működő szerkesztőfunkciókat tesszük át az új UX shellbe; nem jelenítünk meg ál-funkciókat.</small></div></div>;
+function LibraryPlaceholder(){
+  return <div className={styles.libraryPane}><div className={styles.panelHead}><div><span className={styles.kicker}>Könyvtár</span><strong>Saját blokkok</strong></div></div><div className={styles.emptyLibrary}><span>◇</span><strong>Saját blokkok</strong><p>Ide kerülnek a kereskedő által elmentett és újrahasznosítható saját blokkok.</p><small>A menthető saját blokkok következő külön capability-ként készülnek el; addig nem jelenítünk meg ál-funkciókat.</small></div></div>;
 }
 
 function ContentSettings({block,onChange,onEditStart,onEditEnd}:{block:EmailBlock;onChange:(key:string,value:unknown,groupKey?:string)=>void;onEditStart:(key:string)=>void;onEditEnd:(key:string)=>void}){
