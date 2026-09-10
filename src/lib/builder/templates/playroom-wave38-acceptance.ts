@@ -43,6 +43,14 @@ export const PLAYROOM_WAVE38_ACCEPTANCE=Object.freeze({
     demoNamespace:'gaming-playroom',
     installation:'draft-only',
     homeOrder:PLAYROOM_HOME_SECTION_ORDER,
+    hardeningCorrections:[
+      'home-compatibility-evidence-to-supported-status-surface',
+      'product-compatibility-status-to-supported-evidence-surface',
+      'catalog-collection-header-node-id-deduplicated',
+      'catalog-guidance-section-node-id-deduplicated',
+      'content-guides-to-content-page-supported-shared-editorial-surface',
+    ] as const,
+    runtimeAllowlistWidened:false,
     visualBuilder:'future-compatible-no-template-local-builder-engine',
   },
   sharedAuthority:{
@@ -68,6 +76,7 @@ export const PLAYROOM_WAVE38_ACCEPTANCE=Object.freeze({
     'template-local-guided-finder-engine',
     'template-local-compatibility-engine',
     'template-local-structured-product-registry',
+    'runtime-binding-allowlist-widening',
     'pc-configurator-duplication',
     'collector-drop-authority',
     'loot-box-or-gambling-mechanics',
