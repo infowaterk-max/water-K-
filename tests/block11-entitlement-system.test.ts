@@ -7,6 +7,7 @@ import { ENTITLEMENT_SOURCE_PRIORITY, resolveEntitlementCandidate, type Entitlem
 const root=process.cwd();
 const read=(path:string)=>readFileSync(join(root,path),'utf8');
 const migration=read('supabase/migrations/20260910124500_block11_entitlement_contract_v1.sql');
+const uniquenessFix=read('supabase/migrations/20260910124600_block11_entitlement_uniqueness_fix_v1.sql');
 const planAccess=read('src/lib/plans/access.ts');
 const entitlementAccess=read('src/lib/entitlements/access.ts');
 const layout=read('src/app/admin/layout.tsx');
@@ -67,6 +68,15 @@ describe('Roadmap Block 11 effective entitlement contract',()=>{
     expect(migration).toContain('perform private.sync_webshop_addon_entitlements(new.id)');
   });
 
+  it('keeps historical trial/manual windows repeatable while persistent sources stay single-valued',()=>{
+    expect(uniquenessFix).toContain('drop index if exists public.feature_entitlements_scope_source_unique');
+    expect(uniquenessFix).toContain("where source in ('plan','addon','platform')");
+    expect(uniquenessFix).not.toContain("where source in ('plan','addon','trial','manual','platform')");
+    expect(uniquenessFix).toContain("if tg_op='DELETE' then");
+    expect(uniquenessFix).toContain('return old');
+    expect(uniquenessFix).toContain('return new');
+  });
+
   it('keeps reserved capabilities outside plan, trial, add-on and platform override grants',()=>{
     const planGrantSection=migration.slice(migration.indexOf('insert into public.plan_capability_grants'),migration.indexOf('insert into public.addon_entitlement_catalog'));
     expect(planGrantSection).not.toContain("('pro','teamChatSecureAttachments')");
@@ -93,8 +103,8 @@ describe('Roadmap Block 11 effective entitlement contract',()=>{
     expect(planAccess).not.toContain('platformHasFullAccess');
   });
 
-  it('does not alter launch-protected systems in the Block 11 migration',()=>{
-    const lower=migration.toLowerCase();
+  it('does not alter launch-protected systems in the Block 11 migrations',()=>{
+    const lower=(migration+uniquenessFix).toLowerCase();
     for(const forbidden of['water-k','khpos','vpos','team_chat_secure_attachments_released','dns/mx','resend receiving','storage.objects']){
       expect(lower).not.toContain(forbidden);
     }
