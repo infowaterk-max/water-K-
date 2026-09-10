@@ -9,7 +9,7 @@
   "snapshotFile": "supabase/customer-baseline/migrations/0001_shoperation_v1_schema.sql",
   "snapshotCommand": "npm run db:customer:snapshot",
   "freshInstallProofRequired": false,
-  "notes": "Release checkpoint baseline: immutable Shoperation 1.0 snapshot plus ordered Block 7 forward migrations and Storefront Runtime Wave 0B/0D forward migrations. The exact combined baseline passed a genuine empty-target Fresh Install proof on the dedicated disposable Supabase project in GitHub Actions run 34346892406 (fresh-install-proof), including target preflight, atomic snapshot + 0002-0005 forward migrations, Supabase Auth bootstrap, neutral seed and target postflight. Production remained untouched by the proof.",
+  "notes": "Block 12 adds the ordered 0006 Migration Assistant forward migration on top of the previously proven Shoperation 1.0 + Block 7 + Storefront Runtime baseline. The immutable 0001 snapshot remains unchanged. This exact combined baseline passed a genuine empty-target Fresh Install proof in GitHub Actions run 34498485799 (fresh-install-proof rerun job 102946104820) from proof commit 81fc0d540f99bcf92cd9cdce8b871f1ff85cb0f5: target preflight passed, 0001 plus ordered 0002-0006 forward migrations, Supabase Auth bootstrap and neutral seed applied atomically, target postflight passed, and production remained untouched by the proof.",
   "authBootstrapFile": "supabase/customer-baseline/auth-bootstrap.sql",
-  "proofContractSha256": "8cb833cfc5063c777c1335e6cc64d5447de3c0a418ac3145fbd54d38a6224e0a"
+  "proofContractSha256": "8d583480a7503b85d5875f9612cfb909431c42439781c09d09c62313b3f3b1c7"
 }
