@@ -45,7 +45,7 @@ describe('final communication application shell',()=>{
     const compatCss=read('src/app/admin/kommunikacio/mobile-desktop-compat.css');
     expect(appCss).toContain('.adminGrid[data-desktop-site-touch="true"]');
     expect(compatCss).toContain('.adminGrid[data-desktop-site-touch="true"]');
-    expect(compatCss).toContain('height:calc(100dvh - 112px)!important');
+    expect(compatCss).toContain('height:calc(100lvh - 112px)!important');
     expect(compatCss).toContain('overflow-x:auto!important');
     expect(compatCss).not.toContain('height:760px!important');
     expect(compatCss).not.toContain('width:1280px!important');
