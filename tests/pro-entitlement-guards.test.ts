@@ -3,15 +3,27 @@ import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 
 const protectedPagesAndActions = [
-  ['src/app/admin/automatizalas/page.tsx', 'automation'],['src/app/admin/beszerzes/page.tsx', 'procurement'],['src/app/admin/cashflow/page.tsx', 'cashflow'],['src/app/admin/kampanyok/page.tsx', 'advancedCampaigns'],['src/app/admin/ertekesites/page.tsx', 'crm'],['src/app/admin/elemzes/page.tsx', 'advancedAnalytics'],['src/app/admin/iranyitokozpont/page.tsx', 'executiveAnalytics'],['src/app/admin/integraciok/page.tsx', 'advancedIntegrations'],['src/app/admin/beallitasok/integraciok/[id]/page.tsx', 'advancedIntegrations'],['src/app/admin/kommunikacio/iroda/page.tsx', 'officeCommunication'],['src/app/admin/kommunikacio/iroda/actions.ts', 'officeCommunication'],
+  ['src/app/admin/automatizalas/page.tsx', 'automation'],['src/app/admin/beszerzes/page.tsx', 'procurement'],['src/app/admin/cashflow/page.tsx', 'cashflow'],['src/app/admin/kampanyok/page.tsx', 'advancedCampaigns'],['src/app/admin/ertekesites/page.tsx', 'crm'],['src/app/admin/elemzes/page.tsx', 'advancedAnalytics'],['src/app/admin/iranyitokozpont/page.tsx', 'executiveAnalytics'],['src/app/admin/integraciok/page.tsx', 'advancedIntegrations'],['src/app/admin/beallitasok/integraciok/[id]/page.tsx', 'advancedIntegrations'],['src/app/admin/kommunikacio/felugyelet/layout.tsx', 'officeCommunicationAdvanced'],
 ] as const;
 const protectedApis = [
-  ['src/app/api/admin/procurement/route.ts', 'procurement'],['src/app/api/admin/procurement/[id]/route.ts', 'procurement'],['src/app/api/admin/automation/control/route.ts', 'automation'],['src/app/api/admin/automation/run/route.ts', 'automation'],['src/app/api/admin/automation/instance/route.ts', 'automation'],['src/app/api/admin/campaigns/route.ts', 'advancedCampaigns'],['src/app/api/admin/campaigns/manage/route.ts', 'advancedCampaigns'],['src/app/api/admin/commercial/actions/route.ts', 'crm'],['src/app/api/admin/communication/enqueue/route.ts', 'officeCommunication'],['src/app/api/admin/communication/manage/route.ts', 'officeCommunication'],['src/app/api/admin/communication/suppression/route.ts', 'officeCommunication'],['src/app/api/admin/control-tower/run/route.ts', 'executiveAnalytics'],['src/app/api/admin/control-tower/alert/route.ts', 'executiveAnalytics'],['src/app/api/admin/control-tower/task/route.ts', 'executiveAnalytics'],['src/app/api/admin/actions/run/route.ts', 'executiveAnalytics'],['src/app/api/admin/actions/proposal/route.ts', 'executiveAnalytics'],['src/app/api/admin/assurance/run/route.ts', 'executiveAnalytics'],['src/app/api/admin/assurance/finding/route.ts', 'executiveAnalytics'],['src/app/api/admin/integrations/[id]/run/route.ts', 'advancedIntegrations'],
+  ['src/app/api/admin/procurement/route.ts', 'procurement'],['src/app/api/admin/procurement/[id]/route.ts', 'procurement'],['src/app/api/admin/automation/control/route.ts', 'automation'],['src/app/api/admin/automation/run/route.ts', 'automation'],['src/app/api/admin/automation/instance/route.ts', 'automation'],['src/app/api/admin/campaigns/route.ts', 'advancedCampaigns'],['src/app/api/admin/campaigns/manage/route.ts', 'advancedCampaigns'],['src/app/api/admin/commercial/actions/route.ts', 'crm'],['src/app/api/admin/communication/enqueue/route.ts', 'officeCommunicationAdvanced'],['src/app/api/admin/communication/manage/route.ts', 'officeCommunicationAdvanced'],['src/app/api/admin/control-tower/run/route.ts', 'executiveAnalytics'],['src/app/api/admin/control-tower/alert/route.ts', 'executiveAnalytics'],['src/app/api/admin/control-tower/task/route.ts', 'executiveAnalytics'],['src/app/api/admin/actions/run/route.ts', 'executiveAnalytics'],['src/app/api/admin/actions/proposal/route.ts', 'executiveAnalytics'],['src/app/api/admin/assurance/run/route.ts', 'executiveAnalytics'],['src/app/api/admin/assurance/finding/route.ts', 'executiveAnalytics'],['src/app/api/admin/integrations/[id]/run/route.ts', 'advancedIntegrations'],
 ] as const;
 function source(path: string) { return readFileSync(resolve(process.cwd(), path), 'utf8'); }
 
 describe('Pro entitlement entrypoint guards', () => {
   it.each(protectedPagesAndActions)('%s requires the expected Pro feature', (path, feature) => { const file=source(path); expect(file).toMatch(/requirePlanFeature/); expect(file).toContain(`requirePlanFeature('${feature}')`); });
+  it('keeps core customer email available to Alap while advanced workflow remains separately gated',()=>{
+    const catalog=source('src/lib/plans/catalog.ts');
+    const page=source('src/app/admin/kommunikacio/iroda/page.tsx');
+    const actions=source('src/app/admin/kommunikacio/iroda/actions.ts');
+    const suppression=source('src/app/api/admin/communication/suppression/route.ts');
+    expect(catalog).toContain("'officeCommunicationAdvanced'");
+    expect(page).toContain("requirePlanFeature('officeCommunication')");
+    expect(actions).toContain("requirePlanFeature('officeCommunication')");
+    expect(actions).toContain("requirePlanFeature('officeCommunicationAdvanced')");
+    expect(suppression).toContain("hasCurrentPlanFeature('officeCommunication')");
+    expect(suppression).not.toContain("hasCurrentPlanFeature('officeCommunicationAdvanced')");
+  });
   it('keeps the action center Pro-gated from the same resolved tenant snapshot used for RBAC',()=>{
     const file=source('src/app/admin/intezkedesek/page.tsx');
     expect(file).toContain("getFeatureEntitlementDecision(currentInstance.id,'executiveAnalytics')");

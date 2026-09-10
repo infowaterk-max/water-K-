@@ -32,7 +32,7 @@ describe('Digital Office individual internal-chat capability gate',()=>{
   });
 
   it('keeps customer support actions and customer email reads on coarse support authority',()=>{
-    expect(emailActions).toContain('async function supportAccess()');
+    expect(emailActions).toContain('async function supportAccess(options:');
     expect(emailActions).toContain("getAdminRequestUser('support.manage')");
     expect(emailActions).toContain("requireCurrentStoreContext('support.manage')");
     expect(emailActions).toContain('const{db,userId,instanceId}=await supportAccess();');

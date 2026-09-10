@@ -31,16 +31,16 @@ function replyFormData(threadId:string,snapshot:ReplySnapshot,draftId:string,rev
 }
 
 export function OfficeCustomerEmailForm({
-  threadId,sendingConfigured=false,initialDraft,
-}:{threadId:string;sendingConfigured?:boolean;initialDraft?:ReplyDraft}){
-  const[ccEmails,setCcEmails]=useState(initialDraft?.ccEmails.join(', ')??'');
-  const[bccEmails,setBccEmails]=useState(initialDraft?.bccEmails.join(', ')??'');
+  threadId,sendingConfigured=false,advancedEmail=false,initialDraft,
+}:{threadId:string;sendingConfigured?:boolean;advancedEmail?:boolean;initialDraft?:ReplyDraft}){
+  const[ccEmails,setCcEmails]=useState(advancedEmail?initialDraft?.ccEmails.join(', ')??'':'');
+  const[bccEmails,setBccEmails]=useState(advancedEmail?initialDraft?.bccEmails.join(', ')??'':'');
   const[body,setBody]=useState(initialDraft?.body??'');
   const[operationState,setOperationState]=useState<OfficeComposerActionState>(officeComposerInitialState);
   const[actionPending,startTransition]=useTransition();
-  const snapshot:ReplySnapshot={ccEmails,bccEmails,body};
+  const snapshot:ReplySnapshot={ccEmails:advancedEmail?ccEmails:'',bccEmails:advancedEmail?bccEmails:'',body};
   const snapshotKey=JSON.stringify(snapshot);
-  const meaningful=[ccEmails,bccEmails,body].some(value=>value.trim().length>0);
+  const meaningful=(advancedEmail?[ccEmails,bccEmails,body]:[body]).some(value=>value.trim().length>0);
   const sendReady=body.trim().length>0;
 
   const draft=useOfficeDraftAutosave({
@@ -86,10 +86,10 @@ export function OfficeCustomerEmailForm({
   }
 
   return <div className="stackForm" aria-busy={actionPending||draft.status==='saving'}>
-    <div className="splitFeature">
+    {advancedEmail?<div className="splitFeature">
       <label className="stackForm"><span>Másolat (CC)</span><input value={ccEmails} onChange={event=>setCcEmails(event.target.value)} maxLength={3300} placeholder="pelda@ceg.hu" disabled={actionPending}/></label>
       <label className="stackForm"><span>Titkos másolat (BCC)</span><input value={bccEmails} onChange={event=>setBccEmails(event.target.value)} maxLength={3300} placeholder="belso@ceg.hu" disabled={actionPending}/></label>
-    </div>
+    </div>:<p className="muted">CC/BCC címzettek a Pro ügyféllevelezési csomagban érhetők el.</p>}
     <textarea name="body" required rows={3} maxLength={10000} placeholder="Ügyfélnek" value={body} onChange={event=>setBody(event.target.value)} disabled={actionPending}/>
     {!sendingConfigured&&<div className="adminAuditNotice"><strong>Küldés még nincs aktiválva.</strong><p>A válasz automatikusan piszkozatként menthető. Küldéshez később külön Digitális Iroda postafiókot kell jóváhagyni; a működő webshop jelenlegi e-mail címeit nem használjuk.</p></div>}
     <div className="adminToolbar">
