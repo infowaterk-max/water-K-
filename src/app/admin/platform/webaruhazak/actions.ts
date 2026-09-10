@@ -75,7 +75,7 @@ export async function toggleWebshopAddonAction(formData:FormData){
   const instanceId=String(formData.get('instanceId')??''),addon=String(formData.get('addon')??'') as AddonCode,enabled=String(formData.get('enabled')??'')==='true';
   if(!uuid.test(instanceId)||!(addon in ADDONS))return;
   const admin=createAdminClient();
-  const{data,error}=await admin.rpc('platform_mutate_webshop_config_v3',{p_instance_id:instanceId,p_actor:actor.id,p_action:'addon',p_payload:{addon,enabled}});
+  const{data,error}=await admin.rpc('platform_set_webshop_addon_v1',{p_instance_id:instanceId,p_actor_id:actor.id,p_addon_code:addon,p_enabled:enabled});
   if(error)platformWriteFailed('addon update',error);platformMutationEvidence(data,instanceId,'addon update');
   revalidatePath('/admin/platform/webaruhazak');
 }
