@@ -27,7 +27,10 @@ export function ProductMediaManager({items,productId,onFiles,onRemove,onPrimary,
   <div className={styles.mediaStrip}>
    {items.slice(0,5).map((item,index)=><div key={item.key} className={mediaStyles.mediaItem} style={{backgroundImage:`url(${item.url})`}} title={item.name}>
     {index===0&&<span className={mediaStyles.primaryBadge}>Főkép</span>}
-    <div className={mediaStyles.mediaActions}><button type="button" disabled={busyKey===item.key||index===0} onClick={()=>void makePrimary(item)}>◇ Főképnek</button><button type="button" className={mediaStyles.deleteButton} disabled={busyKey===item.key} onClick={()=>void remove(item)}>⌫ Törlés</button></div>
+    <button type="button" className={mediaStyles.trashButton} aria-label={`${item.name} kép törlése`} title="Kép törlése" disabled={busyKey===item.key} onClick={()=>void remove(item)}>
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M9 7V4h6v3m-8 0 1 13h8l1-13M10 11v5m4-5v5"/></svg>
+    </button>
+    <div className={mediaStyles.mediaActions}><button type="button" disabled={busyKey===item.key||index===0} onClick={()=>void makePrimary(item)}>◇ Főképnek</button></div>
    </div>)}
    {Array.from({length:Math.max(0,5-items.length)}).map((_,index)=><div className={styles.mediaTile} key={`empty-${index}`}/>) }
    <label className={styles.uploadTile}>⇧<br/>Képek feltöltése<br/>vagy húzd ide<input multiple type="file" accept="image/jpeg,image/png,image/webp,image/avif" onChange={event=>onFiles(event.target.files)}/></label>
