@@ -5,13 +5,16 @@ import{describe,expect,it}from'vitest';
 const read=(path:string)=>readFileSync(join(process.cwd(),path),'utf8');
 
 describe('Digital Office UI consistency hardening',()=>{
-  it('loads the final consistency layer after previous Digital Office overrides',()=>{
+  it('loads the final consistency layers after previous Digital Office overrides',()=>{
     const layout=read('src/app/admin/kommunikacio/layout.tsx');
     const performance="import './digital-office-performance-hardening.css';";
     const consistency="import './digital-office-ui-consistency.css';";
+    const picker="import './digital-office-file-picker-final.css';";
     expect(layout).toContain(performance);
     expect(layout).toContain(consistency);
+    expect(layout).toContain(picker);
     expect(layout.indexOf(performance)).toBeLessThan(layout.indexOf(consistency));
+    expect(layout.indexOf(consistency)).toBeLessThan(layout.indexOf(picker));
   });
 
   it('uses compact desktop actions while retaining mobile touch targets',()=>{
@@ -24,15 +27,19 @@ describe('Digital Office UI consistency hardening',()=>{
     expect(css).toContain('min-height:38px!important');
   });
 
-  it('normalizes native email file inputs without changing upload behavior',()=>{
-    const css=read('src/app/admin/kommunikacio/digital-office-ui-consistency.css');
+  it('uses a Shoperation file picker while preserving the native input and secure upload pipeline',()=>{
+    const fallbackCss=read('src/app/admin/kommunikacio/digital-office-ui-consistency.css');
+    const pickerCss=read('src/app/admin/kommunikacio/digital-office-file-picker-final.css');
     const reply=read('src/components/admin/office-customer-email-form.tsx');
     const compose=read('src/components/admin/office-new-email-composer.tsx');
-    expect(css).toContain('input[type="file"]:not(.teamChatFileInput)::file-selector-button');
-    expect(css).toContain('color:transparent!important');
+    expect(fallbackCss).toContain('input[type="file"]:not(.teamChatFileInput)::file-selector-button');
+    expect(pickerCss).toContain('input.officeFilePickerInput[type="file"]');
+    expect(pickerCss).toContain('.officeFilePickerButton');
     for(const source of[reply,compose]){
       expect(source).toContain('OFFICE_PRIVATE_ATTACHMENT_MIME_TYPES');
       expect(source).toContain('uploadAndScanOfficeEmailAttachments');
+      expect(source).toContain('className="officeFilePickerInput"');
+      expect(source).toContain('＋ Fájl csatolása');
       expect(source).toContain('type="file"');
     }
   });
@@ -59,10 +66,13 @@ describe('Digital Office UI consistency hardening',()=>{
   it('does not weaken Team Chat or secure attachment authorization contracts',()=>{
     const chat=read('src/app/admin/kommunikacio/chat/page.tsx');
     const reply=read('src/components/admin/office-customer-email-form.tsx');
+    const compose=read('src/components/admin/office-new-email-composer.tsx');
     expect(chat).toContain("hasStoreCapability(scope.instanceId,actor.id,'office.internal_chat'");
     expect(chat).toContain("db.rpc('office_accessible_thread_ids_v1'");
     expect(chat).toContain(".eq('status','ready')");
-    expect(reply).toContain('uploadAndScanOfficeEmailAttachments');
-    expect(reply).toContain("if(!attachmentAvailability.enabled)throw new Error");
+    for(const source of[reply,compose]){
+      expect(source).toContain('uploadAndScanOfficeEmailAttachments');
+      expect(source).toContain("if(!attachmentAvailability.enabled)throw new Error");
+    }
   });
 });
