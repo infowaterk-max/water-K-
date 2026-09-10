@@ -37,7 +37,6 @@ const expectCompleteBindings=(target:StorefrontComponentNode|undefined,component
 const home=(id:string)=>nodeById(SPEC_LAB_HOME_PAGE,id);
 const product=(id:string)=>nodeById(SPEC_LAB_PRODUCT_PAGE,id);
 const content=(id:string)=>nodeById(SPEC_LAB_CONTENT_PAGE,id);
-
 const expectedPages=['home','catalog','product','search','cart','checkout','account','content','blog-index','blog-article','faq','contact','legal','not-found'];
 
 describe('Scale-out Wave 37 Spec Lab current-baseline reacceptance',()=>{
@@ -94,7 +93,7 @@ describe('Scale-out Wave 37 Spec Lab current-baseline reacceptance',()=>{
     expectCompleteBindings(product('spec-product-key-specs'),'commerce.key-specs');
     expectCompleteBindings(product('spec-product-compare'),'commerce.compare-button');
     expectCompleteBindings(product('spec-product-spec-groups'),'commerce.specification-groups');
-    expectCompleteBindings(product('spec-product-compatibility-status'),'compatibility.status');
+    expect(product('spec-product-compatibility-status')).toBeUndefined();
     expectCompleteBindings(product('spec-product-compatibility-evidence'),'compatibility.evidence');
     expectCompleteBindings(nodeById(SPEC_LAB_TEMPLATE_PACKAGE.pages.find(page=>page.pageType==='catalog')!,'spec-catalog-facets'),'commerce.catalog-facets');
     const source=JSON.stringify(SPEC_LAB_PRODUCT_PAGE);
