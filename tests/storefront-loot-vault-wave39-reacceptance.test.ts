@@ -1,7 +1,7 @@
 import {describe,expect,it} from 'vitest';
 import {PLANS} from '@/lib/plans/catalog';
 import {STOREFRONT_BINDING_NAMESPACES,validateStorefrontPageDocument,type StorefrontComponentNode,type StorefrontPageDocument} from '@/lib/builder/storefront-runtime';
-import {createStorefrontConfiguratorComponentRegistry} from '@/lib/builder/storefront-configurator';
+import {createStorefrontStoryComponentRegistry} from '@/lib/builder/storefront-story';
 import {evaluateStorefrontTemplateCapabilityGate,planStorefrontTemplateInstallation} from '@/lib/builder/storefront-template-installation';
 import {
   LOOT_VAULT_DESIGN_TOKENS,
@@ -98,7 +98,7 @@ describe('Scale-out Wave 39 Loot Vault current-baseline reacceptance',()=>{
   });
 
   it('preserves stable node identity, 14 Alap presets and current shared runtime validation',()=>{
-    const registry=createStorefrontConfiguratorComponentRegistry();
+    const registry=createStorefrontStoryComponentRegistry();
     const gate=evaluateStorefrontTemplateCapabilityGate({template:LOOT_VAULT_TEMPLATE_PACKAGE,componentRegistry:registry,capability});
     expect(gate.ok,JSON.stringify(gate.violations)).toBe(true);
     expect(gate.violations.filter(item=>item.severity==='error')).toEqual([]);
@@ -130,7 +130,7 @@ describe('Scale-out Wave 39 Loot Vault current-baseline reacceptance',()=>{
   });
 
   it('keeps installation draft-only and demo fixtures claim-neutral',()=>{
-    const plan=planStorefrontTemplateInstallation({template:LOOT_VAULT_TEMPLATE_PACKAGE,componentRegistry:createStorefrontConfiguratorComponentRegistry(),capability});
+    const plan=planStorefrontTemplateInstallation({template:LOOT_VAULT_TEMPLATE_PACKAGE,componentRegistry:createStorefrontStoryComponentRegistry(),capability});
     expect(plan.mode).toBe('install');
     expect(plan.pages).toHaveLength(14);
     expect(plan.mutationBoundary).toMatchObject({storefrontPageDrafts:true,products:false,variants:false,customers:false,orders:false,b2b:false});
@@ -152,6 +152,8 @@ describe('Scale-out Wave 39 Loot Vault current-baseline reacceptance',()=>{
       responsiveGrid:'shared-desktop-tablet-mobile-grid',
       pagePresetCount:14,
       minimumPlan:'alap',
+      hardeningCorrections:['catalog-collection-section-node-id-deduplicated'],
+      runtimeAllowlistWidened:false,
       visualBuilder:'future-compatible-no-template-local-builder-engine',
     });
     expect(LOOT_VAULT_WAVE39_ACCEPTANCE.nonScope).toEqual(expect.arrayContaining(['template-local-collector-engine','template-local-drop-or-preorder-engine','template-local-release-authority','visual-builder-drag-drop-ui','live-canvas','inline-editing']));

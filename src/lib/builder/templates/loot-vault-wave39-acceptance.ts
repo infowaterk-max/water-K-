@@ -42,6 +42,10 @@ export const LOOT_VAULT_WAVE39_ACCEPTANCE=Object.freeze({
     demoNamespace:'gaming-loot-vault',
     installation:'draft-only',
     homeOrder:LOOT_VAULT_HOME_SECTION_ORDER,
+    hardeningCorrections:[
+      'catalog-collection-section-node-id-deduplicated',
+    ] as const,
+    runtimeAllowlistWidened:false,
     visualBuilder:'future-compatible-no-template-local-builder-engine',
   },
   sharedAuthority:{
