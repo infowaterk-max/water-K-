@@ -11,18 +11,37 @@ type Tab='content'|'design'|'conditions'|'responsive';
 type Device='desktop'|'mobile';
 type SaveState='saved'|'dirty'|'saving'|'error';
 type HistoryGroup={key:string;recorded:boolean};
+type LeftView='blocks'|'sections'|'presets'|'saved'|'dynamic';
+
+type PaletteItem={type:EmailBlockType;description:string;icon:string};
+type PaletteGroup={title:string;items:PaletteItem[]};
 
 const blockLabels:Record<EmailBlockType,string>={header:'Fejléc',heading:'Címsor',text:'Szöveg',button:'Gomb',divider:'Elválasztó',spacer:'Térköz','order-items':'Rendelési tételek','order-summary':'Összesítés','payment-info':'Fizetési adatok',address:'Cím',footer:'Lábléc'};
-const palette:{type:EmailBlockType;description:string}[]=[
-  {type:'heading',description:'H1–H3 címsor'},
-  {type:'text',description:'Bekezdés vagy rövid üzenet'},
-  {type:'button',description:'CTA hivatkozással'},
-  {type:'divider',description:'Finom elválasztó vonal'},
-  {type:'spacer',description:'Függőleges térköz'},
-  {type:'order-items',description:'Rendelés tételei'},
-  {type:'order-summary',description:'Részösszeg és végösszeg'},
-  {type:'payment-info',description:'Fizetési információk'},
-  {type:'address',description:'Szállítási vagy számlázási cím'},
+const paletteGroups:PaletteGroup[]=[
+  {title:'Tartalom',items:[
+    {type:'heading',description:'H1–H3 címsor',icon:'H'},
+    {type:'text',description:'Bekezdés vagy rövid üzenet',icon:'≡'},
+    {type:'button',description:'CTA hivatkozással',icon:'▭'},
+    {type:'divider',description:'Finom elválasztó vonal',icon:'—'},
+    {type:'spacer',description:'Függőleges térköz',icon:'↕'},
+  ]},
+  {title:'Commerce',items:[
+    {type:'order-items',description:'Rendelés tételei',icon:'▤'},
+    {type:'order-summary',description:'Részösszeg és végösszeg',icon:'∑'},
+    {type:'payment-info',description:'Fizetési információk',icon:'¤'},
+    {type:'address',description:'Szállítási vagy számlázási cím',icon:'⌂'},
+  ]},
+  {title:'Rendszer',items:[
+    {type:'header',description:'Márkázott e-mail fejléc',icon:'▱'},
+    {type:'footer',description:'Lábléc és jogi információk',icon:'▂'},
+  ]},
+];
+const leftNav:{id:LeftView;label:string;icon:string}[]=[
+  {id:'blocks',label:'Blokkok',icon:'◇'},
+  {id:'sections',label:'Szekciók',icon:'♧'},
+  {id:'presets',label:'Presetek',icon:'⬡'},
+  {id:'saved',label:'Saját blokkok',icon:'⌘'},
+  {id:'dynamic',label:'Dinamikus adatok',icon:'◈'},
 ];
 const conditionOperators:EmailConditionRule['operator'][]=['equals','notEquals','exists','notExists','greaterThan','lessThan','contains','in'];
 const operatorLabels:Record<EmailConditionRule['operator'],string>={equals:'egyenlő',notEquals:'nem egyenlő',exists:'létezik',notExists:'nem létezik',greaterThan:'nagyobb mint',lessThan:'kisebb mint',contains:'tartalmazza',in:'egyik ezek közül'};
@@ -61,6 +80,8 @@ export function EmailBuilderEditor({template,initialDocument,previewContext}:{te
   const[selectedId,setSelectedId]=useState(initialDocument.blocks[0]?.id??'');
   const[tab,setTab]=useState<Tab>('content');
   const[device,setDevice]=useState<Device>('desktop');
+  const[leftView,setLeftView]=useState<LeftView>('blocks');
+  const[copiedBinding,setCopiedBinding]=useState('');
   const[saveState,setSaveState]=useState<SaveState>('saved');
   const[saveMessage,setSaveMessage]=useState('Piszkozat betöltve');
   const[preview,setPreview]=useState<RenderedEmail|null>(null);
@@ -100,6 +121,14 @@ export function EmailBuilderEditor({template,initialDocument,previewContext}:{te
   function deleteSelected(){if(!selected||document.blocks.length<=1)return;const blocks=document.blocks.filter(block=>block.id!==selected.id);const fallback=blocks[Math.min(selectedIndex,blocks.length-1)];commit({...document,blocks});setSelectedId(fallback?.id??'');}
   function moveSelected(delta:-1|1){if(!selected)return;const target=selectedIndex+delta;if(target<0||target>=document.blocks.length)return;const blocks=[...document.blocks];[blocks[selectedIndex],blocks[target]]=[blocks[target],blocks[selectedIndex]];commit({...document,blocks});}
 
+  async function copyBinding(key:string){
+    try{
+      await navigator.clipboard.writeText(`{{${key}}}`);
+      setCopiedBinding(key);
+      window.setTimeout(()=>setCopiedBinding(current=>current===key?'':current),1200);
+    }catch{setCopiedBinding('');}
+  }
+
   async function saveDraft(){
     setSaveState('saving');setSaveMessage('Mentés…');
     try{
@@ -129,7 +158,7 @@ export function EmailBuilderEditor({template,initialDocument,previewContext}:{te
     root.querySelectorAll<HTMLElement>('[data-email-block-id]').forEach(node=>{
       const id=node.dataset.emailBlockId||'';
       node.style.cursor='pointer';
-      node.style.outline=id===selectedId?'2px solid #a8781f':'2px solid transparent';
+      node.style.outline=id===selectedId?'2px solid #159b7b':'2px solid transparent';
       node.style.outlineOffset='3px';
       node.onclick=event=>{event.preventDefault();event.stopPropagation();if(id)setSelectedId(id);};
     });
@@ -143,42 +172,54 @@ export function EmailBuilderEditor({template,initialDocument,previewContext}:{te
   const statusClass=saveState==='error'?styles.saveError:saveState==='dirty'?styles.saveDirty:styles.saveOk;
   return <section className={styles.editorShell}>
     <header className={styles.topbar}>
-      <div className={styles.titleArea}><Link href="/admin/email-sablonok" className={styles.back}>← E-mail sablonok</Link><div><strong>{template.name}</strong><span className={`${styles.saveState} ${statusClass}`}>{saveMessage}</span></div></div>
+      <div className={styles.titleArea}>
+        <div className={styles.brandLockup}><span className={styles.brandMark}>◇</span><div><strong>Shoperation</strong><small>Email Builder</small></div></div>
+        <div className={styles.breadcrumbs}><Link href="/admin/email-sablonok">E-mail sablonok</Link><span>›</span><strong>{template.name}</strong><span className={`${styles.saveState} ${statusClass}`}>{saveMessage}</span></div>
+      </div>
       <div className={styles.toolbar}>
         <button type="button" onClick={undo} disabled={!history.length} title="Visszavonás">↶</button><button type="button" onClick={redo} disabled={!future.length} title="Újra">↷</button>
-        <div className={styles.deviceSwitch}><button type="button" className={device==='desktop'?styles.active:''} onClick={()=>setDevice('desktop')}>Asztali</button><button type="button" className={device==='mobile'?styles.active:''} onClick={()=>setDevice('mobile')}>Mobil</button></div>
-        <Link href={`/admin/email-sablonok/${template.id}/elonezet`} className={styles.secondaryAction}>Külön előnézet</Link>
-        <button type="button" className={styles.saveButton} onClick={saveDraft} disabled={saveState==='saving'||saveState==='saved'}>{saveState==='saving'?'Mentés…':'Piszkozat mentése'}</button>
+        <div className={styles.deviceSwitch}><button type="button" className={device==='desktop'?styles.active:''} onClick={()=>setDevice('desktop')}>▣ Asztali</button><button type="button" className={device==='mobile'?styles.active:''} onClick={()=>setDevice('mobile')}>▯ Mobil</button></div>
+        <Link href={`/admin/email-sablonok/${template.id}/elonezet`} className={styles.secondaryAction}>◉ Előnézet</Link>
+        <Link href={`/admin/email-sablonok/${template.id}/verziok`} className={styles.secondaryAction}>Verziók</Link>
+        <button type="button" className={styles.saveButton} onClick={saveDraft} disabled={saveState==='saving'||saveState==='saved'}>{saveState==='saving'?'Mentés…':'Mentés'}</button>
       </div>
     </header>
 
     <div className={styles.documentBar}>
       <label><span>Tárgy</span><input value={document.subject} onFocus={()=>beginHistoryGroup('document:subject')} onBlur={()=>endHistoryGroup('document:subject')} onChange={event=>updateDocument({subject:event.target.value},'document:subject')}/></label>
       <label><span>Preheader</span><input value={document.preheader} onFocus={()=>beginHistoryGroup('document:preheader')} onBlur={()=>endHistoryGroup('document:preheader')} onChange={event=>updateDocument({preheader:event.target.value},'document:preheader')}/></label>
-      <div className={styles.safety}><strong>Nincs aktiválás</strong><span>Csak a piszkozat módosul. Az aktív e-mail sablon változatlan marad.</span></div>
+      <div className={styles.safety}><strong>Piszkozat mód</strong><span>A mentés nem aktiválja az e-mailt. Az aktív verzió külön kezelhető.</span></div>
     </div>
 
     <div className={styles.workspace}>
+      <nav className={styles.leftRail} aria-label="E-mail Builder eszközök">
+        {leftNav.map(item=><button type="button" key={item.id} className={leftView===item.id?styles.railActive:''} onClick={()=>setLeftView(item.id)} title={item.label}><span>{item.icon}</span><small>{item.label}</small></button>)}
+      </nav>
+
       <aside className={styles.leftPanel}>
-        <div className={styles.panelHead}><span className={styles.kicker}>Blokkok</span><strong>Hozzáadás</strong></div>
-        <div className={styles.palette}>{palette.map(item=><button type="button" key={item.type} onClick={()=>addBlock(item.type)}><span>{blockLabels[item.type]}</span><small>{item.description}</small><b>＋</b></button>)}</div>
-        <div className={styles.structureHead}><span className={styles.kicker}>Struktúra</span><strong>{document.blocks.length} blokk</strong></div>
-        <div className={styles.structure}>{document.blocks.map((block,index)=><button type="button" key={block.id} className={block.id===selectedId?styles.selectedBlock:''} onClick={()=>setSelectedId(block.id)}><span>{index+1}</span><div><strong>{blockLabels[block.type]}</strong><small>{block.id}</small></div></button>)}</div>
+        {leftView==='blocks'&&<>
+          <div className={styles.panelHead}><div><span className={styles.kicker}>Blokktár</span><strong>Hozzáadás</strong></div><span className={styles.libraryCount}>{paletteGroups.reduce((sum,group)=>sum+group.items.length,0)}</span></div>
+          <div className={styles.paletteGroups}>{paletteGroups.map(group=><section key={group.title} className={styles.paletteGroup}><h3>{group.title}</h3><div className={styles.paletteGrid}>{group.items.map(item=><button type="button" key={item.type} onClick={()=>addBlock(item.type)}><b>{item.icon}</b><span>{blockLabels[item.type]}</span><small>{item.description}</small></button>)}</div></section>)}</div>
+          <div className={styles.structureHead}><span className={styles.kicker}>Szerkezet</span><strong>{document.blocks.length} blokk</strong></div>
+          <div className={styles.structure}>{document.blocks.map((block,index)=><button type="button" key={block.id} className={block.id===selectedId?styles.selectedBlock:''} onClick={()=>setSelectedId(block.id)}><span>{index+1}</span><div><strong>{blockLabels[block.type]}</strong><small>{block.id}</small></div></button>)}</div>
+        </>}
+        {leftView==='dynamic'&&<DynamicLibrary copiedBinding={copiedBinding} onCopy={copyBinding}/>}        
+        {leftView!=='blocks'&&leftView!=='dynamic'&&<LibraryPlaceholder view={leftView}/>}        
       </aside>
 
       <main className={styles.canvasPanel}>
-        <div className={styles.canvasToolbar}><div><span className={styles.kicker}>Élő canvas</span><strong>{device==='desktop'?'Asztali előnézet':'Mobil előnézet'}</strong></div><span>{preview?'Renderer: kész':'Renderer: frissítés…'}</span></div>
+        <div className={styles.canvasToolbar}><div><span className={styles.kicker}>Élő canvas</span><strong>{device==='desktop'?'Desktop':'Mobil'}</strong></div><span>{preview?'Renderer: kész':'Renderer: frissítés…'}</span></div>
         <div className={styles.canvasStage}>
           {previewError?<div className={styles.previewError}><strong>Az előnézet most nem renderelhető.</strong><span>{previewError}</span></div>:preview?<iframe ref={iframeRef} title="E-mail Builder élő előnézet" sandbox="allow-same-origin" srcDoc={preview.html} onLoad={wireIframe} className={styles.previewFrame} style={{width:device==='mobile'?390:720}}/>:<div className={styles.previewLoading}>Előnézet készítése…</div>}
         </div>
-        <p className={styles.canvasHint}>Az e-mailben lévő blokkra is kattinthatsz a kijelöléshez. A preview demó rendelési adatokkal fut.</p>
+        <p className={styles.canvasHint}>Kattints egy blokkra az e-mailben vagy a szerkezetlistában a szerkesztéshez.</p>
       </main>
 
       <aside className={styles.rightPanel}>
-        <div className={styles.panelHead}><span className={styles.kicker}>Kijelölt elem</span><strong>{selected?blockLabels[selected.type]:'Nincs kijelölés'}</strong></div>
+        <div className={styles.panelHead}><div><span className={styles.kicker}>Kijelölt elem</span><strong>{selected?blockLabels[selected.type]:'Nincs kijelölés'}</strong></div></div>
         {selected&&<>
           <div className={styles.blockActions}><button type="button" onClick={()=>moveSelected(-1)} disabled={selectedIndex<=0}>↑</button><button type="button" onClick={()=>moveSelected(1)} disabled={selectedIndex>=document.blocks.length-1}>↓</button><button type="button" onClick={duplicateSelected}>Duplikálás</button><button type="button" className={styles.danger} onClick={deleteSelected} disabled={document.blocks.length<=1}>Törlés</button></div>
-          <div className={styles.tabs}>{(['content','design','conditions','responsive'] as Tab[]).map(item=><button type="button" key={item} className={tab===item?styles.activeTab:''} onClick={()=>setTab(item)}>{item==='content'?'Tartalom':item==='design'?'Design':item==='conditions'?'Feltételek':'Responsive'}</button>)}</div>
+          <div className={styles.tabs}>{(['content','design','conditions','responsive'] as Tab[]).map(item=><button type="button" key={item} className={tab===item?styles.activeTab:''} onClick={()=>setTab(item)}>{item==='content'?'Tartalom':item==='design'?'Design':item==='conditions'?'Feltételek':'Reszponzív'}</button>)}</div>
           <div className={styles.settings}>
             {tab==='content'&&<ContentSettings block={selected} onChange={updateContent} onEditStart={beginHistoryGroup} onEditEnd={endHistoryGroup}/>}            
             {tab==='design'&&<DesignSettings document={document} onChange={updateDocument}/>}            
@@ -189,6 +230,18 @@ export function EmailBuilderEditor({template,initialDocument,previewContext}:{te
       </aside>
     </div>
   </section>;
+}
+
+function DynamicLibrary({copiedBinding,onCopy}:{copiedBinding:string;onCopy:(key:string)=>void}){
+  const groups=useMemo(()=>Array.from(new Set(emailBindingRegistry.map(item=>item.requiredContext))),[]);
+  return <div className={styles.libraryPane}><div className={styles.panelHead}><div><span className={styles.kicker}>Dinamikus adatok</span><strong>Változók</strong></div></div><p className={styles.libraryIntro}>Kattints egy változóra a vágólapra másoláshoz, majd illeszd be egy támogatott szövegmezőbe.</p>{groups.map(group=><section className={styles.bindingGroup} key={group}><h3>{bindingGroupLabel(group)}</h3><div>{emailBindingRegistry.filter(item=>item.requiredContext===group).map(binding=><button type="button" key={binding.key} onClick={()=>onCopy(binding.key)}><span>{binding.label}</span><code>{copiedBinding===binding.key?'Másolva':`{{${binding.key}}}`}</code></button>)}</div></section>)}</div>;
+}
+
+function bindingGroupLabel(group:string){return group==='store'?'Webshop':group==='customer'?'Vásárló':group==='order'?'Rendelés':group==='payment'?'Fizetés':group==='shipping'?'Szállítás':group==='billing'?'Számlázás':'Kupon';}
+
+function LibraryPlaceholder({view}:{view:Exclude<LeftView,'blocks'|'dynamic'>}){
+  const copy=view==='sections'?{title:'Szekciók',text:'A következő körben itt komplett, több blokkból álló újrahasznosítható e-mail szekciók jelennek meg.'}:view==='presets'?{title:'Presetek',text:'Itt kapnak helyet a család- és felhasználási cél alapú összeállítások, például rendelés-visszaigazolás vagy szállítási értesítő.'}:{title:'Saját blokkok',text:'Ide kerülnek majd a kereskedő által elmentett és újrahasznosítható saját blokkok.'};
+  return <div className={styles.libraryPane}><div className={styles.panelHead}><div><span className={styles.kicker}>Könyvtár</span><strong>{copy.title}</strong></div></div><div className={styles.emptyLibrary}><span>◇</span><strong>{copy.title}</strong><p>{copy.text}</p><small>Ebben a körben csak a már működő szerkesztőfunkciókat tesszük át az új UX shellbe; nem jelenítünk meg ál-funkciókat.</small></div></div>;
 }
 
 function ContentSettings({block,onChange,onEditStart,onEditEnd}:{block:EmailBlock;onChange:(key:string,value:unknown,groupKey?:string)=>void;onEditStart:(key:string)=>void;onEditEnd:(key:string)=>void}){
@@ -209,7 +262,7 @@ function ContentSettings({block,onChange,onEditStart,onEditEnd}:{block:EmailBloc
 function DesignSettings({document,onChange}:{document:EmailDocument;onChange:(patch:Partial<EmailDocument>)=>void}){
   const colors=document.design.colors??{},radius=document.design.radius??{};
   function color(key:'background'|'surface'|'primary'|'text',value:string){onChange({design:{...document.design,colors:{...colors,[key]:value}}});}
-  return <div className={styles.settingGroup}><div className={styles.settingIntro}>A design tokenek sablonszinten érvényesülnek, így az egész e-mail konzisztens marad.</div><label><span>Elsődleges szín</span><div className={styles.colorRow}><input type="color" value={colors.primary??'#2f6f3e'} onChange={e=>color('primary',e.target.value)}/><input value={colors.primary??'#2f6f3e'} onChange={e=>color('primary',e.target.value)}/></div></label><label><span>Háttér</span><div className={styles.colorRow}><input type="color" value={colors.background??'#f3f6f0'} onChange={e=>color('background',e.target.value)}/><input value={colors.background??'#f3f6f0'} onChange={e=>color('background',e.target.value)}/></div></label><label><span>Kártya háttér</span><div className={styles.colorRow}><input type="color" value={colors.surface??'#ffffff'} onChange={e=>color('surface',e.target.value)}/><input value={colors.surface??'#ffffff'} onChange={e=>color('surface',e.target.value)}/></div></label><label><span>Szövegszín</span><div className={styles.colorRow}><input type="color" value={colors.text??'#17231a'} onChange={e=>color('text',e.target.value)}/><input value={colors.text??'#17231a'} onChange={e=>color('text',e.target.value)}/></div></label><label><span>Kártya lekerekítés: {radius.card??16}px</span><input type="range" min="0" max="32" value={radius.card??16} onChange={e=>onChange({design:{...document.design,radius:{...radius,card:Number(e.target.value)}}})}/></label></div>;
+  return <div className={styles.settingGroup}><div className={styles.settingIntro}>A design tokenek sablonszinten érvényesülnek, így az egész e-mail konzisztens marad.</div><label><span>Elsődleges szín</span><div className={styles.colorRow}><input type="color" value={colors.primary??'#159b7b'} onChange={e=>color('primary',e.target.value)}/><input value={colors.primary??'#159b7b'} onChange={e=>color('primary',e.target.value)}/></div></label><label><span>Háttér</span><div className={styles.colorRow}><input type="color" value={colors.background??'#f4f6f4'} onChange={e=>color('background',e.target.value)}/><input value={colors.background??'#f4f6f4'} onChange={e=>color('background',e.target.value)}/></div></label><label><span>Kártya háttér</span><div className={styles.colorRow}><input type="color" value={colors.surface??'#ffffff'} onChange={e=>color('surface',e.target.value)}/><input value={colors.surface??'#ffffff'} onChange={e=>color('surface',e.target.value)}/></div></label><label><span>Szövegszín</span><div className={styles.colorRow}><input type="color" value={colors.text??'#17231a'} onChange={e=>color('text',e.target.value)}/><input value={colors.text??'#17231a'} onChange={e=>color('text',e.target.value)}/></div></label><label><span>Kártya lekerekítés: {radius.card??16}px</span><input type="range" min="0" max="32" value={radius.card??16} onChange={e=>onChange({design:{...document.design,radius:{...radius,card:Number(e.target.value)}}})}/></label></div>;
 }
 
 function Align({value,onChange}:{value:string;onChange:(value:string)=>void}){return <label><span>Igazítás</span><div className={styles.segmented}>{['left','center','right'].map(item=><button type="button" key={item} className={value===item?styles.active:''} onClick={()=>onChange(item)}>{item==='left'?'Bal':item==='center'?'Közép':'Jobb'}</button>)}</div></label>}

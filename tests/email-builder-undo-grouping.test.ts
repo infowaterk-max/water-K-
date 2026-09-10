@@ -34,8 +34,8 @@ describe('Email Builder grouped undo history',()=>{
   it('keeps structural actions discrete and preserves draft-only safety',()=>{
     const editor=read('src/components/admin/email-builder-editor.tsx');
     expect(editor).toContain('commit({...document,blocks})');
-    expect(editor).toContain('Piszkozat mentése');
-    expect(editor).toContain('Nincs aktiválás');
+    expect(editor).toContain("saveState==='saving'?'Mentés…':'Mentés'");
+    expect(editor).toContain('Piszkozat mód');
     expect(editor).not.toContain('activate_email_template_v1');
     expect(editor).not.toContain('Tesztküldés');
   });
