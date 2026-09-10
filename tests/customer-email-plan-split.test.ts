@@ -13,6 +13,7 @@ const supervisionLayout=read('src/app/admin/kommunikacio/felugyelet/layout.tsx')
 const manageApi=read('src/app/api/admin/communication/manage/route.ts');
 const suppressionApi=read('src/app/api/admin/communication/suppression/route.ts');
 const enqueueApi=read('src/app/api/admin/communication/enqueue/route.ts');
+const planMigration=read('supabase/migrations/20260910061815_customer_email_plan_split_v1.sql');
 
 describe('Customer e-mail Alap / Pro plan split',()=>{
   it('keeps core customer email in both packages and advanced workflow Pro-only',()=>{
@@ -63,5 +64,22 @@ describe('Customer e-mail Alap / Pro plan split',()=>{
     expect(newComposer).toContain('A működő webshop jelenlegi e-mail címeit a rendszer nem használja.');
     expect(composerActions.toLowerCase()).not.toContain('resend receiving');
     expect(composerActions.toLowerCase()).not.toContain('openai');
+  });
+
+  it('records the exact production v4 plan provisioning contract and keeps unreleased attachments absent',()=>{
+    const alap=planMigration.slice(planMigration.indexOf("if v_plan='alap'"),planMigration.indexOf("elsif v_plan='pro'"));
+    const pro=planMigration.slice(planMigration.indexOf("elsif v_plan='pro'"),planMigration.indexOf("else\n    raise exception 'TENANT_PLAN_SYNC_UNKNOWN_PLAN"));
+    expect(alap).toContain("'officeCommunication'");
+    expect(alap).not.toContain("'officeCommunicationAdvanced'");
+    expect(pro).toContain("'officeCommunication'");
+    expect(pro).toContain("'officeCommunicationAdvanced'");
+    expect(planMigration).not.toContain("'teamChatSecureAttachments'");
+    expect(planMigration).toContain("'managed_by','tenant_plan_sync_v4'");
+    expect(planMigration).toContain("security definer\nset search_path = ''");
+    expect(planMigration).toContain('revoke all on function private.sync_webshop_plan_entitlements(uuid) from public;');
+    expect(planMigration).toContain('revoke all on function private.sync_webshop_plan_entitlements(uuid) from anon;');
+    expect(planMigration).toContain('revoke all on function private.sync_webshop_plan_entitlements(uuid) from authenticated;');
+    expect(planMigration).toContain('revoke all on function private.sync_webshop_plan_entitlements(uuid) from service_role;');
+    expect(planMigration).toContain('perform private.sync_webshop_plan_entitlements(v_instance_id);');
   });
 });
