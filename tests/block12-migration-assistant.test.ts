@@ -20,12 +20,14 @@ describe('Roadmap Block 12 Migration Assistant contract',()=>{
     expect(sql).not.toMatch(/delete\s+from\s+auth\.users/i);
   });
 
-  test('production and fresh customer forward migrations stay identical',()=>{
+  test('production and fresh customer forward migrations stay identical and Fresh Install proof is recorded',()=>{
     expect(read('supabase/customer-baseline/migrations/0006_block12_migration_assistant.sql')).toBe(read('supabase/migrations/20260910162000_block12_migration_assistant_v1.sql'));
     const manifest=JSON.parse(read('supabase/customer-baseline/manifest.json'));
-    expect(manifest.status).toBe('snapshot-reviewed');
-    expect(manifest.freshInstallProofRequired).toBe(true);
-    expect(manifest.proofContractSha256).toBeNull();
+    expect(manifest.status).toBe('ready');
+    expect(manifest.freshInstallProofRequired).toBe(false);
+    expect(manifest.proofContractSha256).toBe('8d583480a7503b85d5875f9612cfb909431c42439781c09d09c62313b3f3b1c7');
+    expect(manifest.notes).toContain('34498485799');
+    expect(manifest.notes).toContain('81fc0d540f99bcf92cd9cdce8b871f1ff85cb0f5');
   });
 
   test('Shopware connector rejects unsafe network targets and never persists credentials',()=>{
