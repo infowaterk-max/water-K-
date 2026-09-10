@@ -38,9 +38,9 @@ export async function POST(request:Request){
   if(!card)return NextResponse.json({error:'A döntési javaslat már nem aktuális vagy nem ehhez a webshophoz tartozik.'},{status:404});
 
   const fallback=deterministicDecisionExplanation(card);
-  const apiKey=process.env.AI_GATEWAY_API_KEY?.trim();
+  const gatewayToken=(process.env.AI_GATEWAY_API_KEY||process.env.VERCEL_OIDC_TOKEN)?.trim();
   const model=(process.env.SHOPOPERATION_DECISIONING_MODEL?.trim()||'openai/gpt-5.4');
-  if(!apiKey||!MODEL_RE.test(model)){
+  if(!gatewayToken||!MODEL_RE.test(model)){
     await recordAdminAudit({actorUserId:actor.id,action:'decisioning.explain',entityType:'decision_insight',entityId:null,summary:'Block 18 bizonyíték-alapú magyarázat megnyitva.',organizationId:scope.organizationId,instanceId:scope.instanceId,metadata:{version:MERCHANT_DECISIONING_VERSION,cardKey:card.key,mode:'evidence-fallback',authority:card.authority}});
     return NextResponse.json({ok:true,mode:'evidence',...fallback});
   }
@@ -57,7 +57,7 @@ export async function POST(request:Request){
   try{
     const gateway=await fetch('https://ai-gateway.vercel.sh/v1/chat/completions',{
       method:'POST',
-      headers:{Authorization:`Bearer ${apiKey}`,'Content-Type':'application/json'},
+      headers:{Authorization:`Bearer ${gatewayToken}`,'Content-Type':'application/json'},
       body:JSON.stringify({
         model,
         temperature:0.1,

@@ -27,7 +27,7 @@ The Block 18 decisioning layer now:
 - detects missing product cost evidence and fails closed instead of estimating contribution margin;
 - exposes the source authority and bounded source evidence on every recommendation;
 - adds a rate-limited AI explanation endpoint to explain an already-derived recommendation;
-- uses the Vercel AI Gateway only as an optional explanation layer; if the gateway is unavailable or not configured, the canonical evidence-based explanation remains available;
+- uses the Vercel AI Gateway only as an explanation layer, authenticating with `AI_GATEWAY_API_KEY` locally when configured or the Vercel-provided `VERCEL_OIDC_TOKEN` in deployments; if Gateway use is unavailable, the canonical evidence-based explanation remains available;
 - records explanation access through the existing admin audit authority;
 - keeps the merchant in the loop for every business decision.
 
@@ -55,7 +55,7 @@ The AI prompt contains only bounded non-customer-identifying recommendation evid
 
 For high-risk actions the card points to the existing `action_proposals` authority. Approval, rejection, simulation and execution remain there. Block 18 cannot approve or execute a proposal.
 
-AI Gateway calls are separately rate-limited. Gateway/model failure is fail-safe: the endpoint returns the same deterministic evidence explanation instead of fabricating a result or mutating state. AI explanation access is recorded in the existing audit authority with mode/model/card metadata, not raw sensitive commerce payloads.
+AI Gateway calls are separately rate-limited. On Vercel the endpoint can authenticate with the deployment-provided `VERCEL_OIDC_TOKEN`; local/non-Vercel execution can use `AI_GATEWAY_API_KEY`. Gateway/model failure is fail-safe: the endpoint returns the same deterministic evidence explanation instead of fabricating a result or mutating state. AI explanation access is recorded in the existing audit authority with mode/model/card metadata, not raw sensitive commerce payloads.
 
 ## Merchandising intelligence boundary
 

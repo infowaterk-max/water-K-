@@ -7,9 +7,7 @@ const root=process.cwd();
 const read=(file:string)=>fs.readFileSync(path.join(root,file),'utf8');
 
 function snapshot(overrides:Partial<MerchantDecisionSnapshot>={}):MerchantDecisionSnapshot{
-  return{
-    growth:null,opportunities:[],proposals:[],variants:[],promotionPreviews:[],...overrides,
-  };
+  return{growth:null,opportunities:[],proposals:[],variants:[],promotionPreviews:[],...overrides};
 }
 
 describe('Roadmap Block 18 – AI-Assisted Decisioning & Merchandising Intelligence',()=>{
@@ -63,7 +61,8 @@ describe('Roadmap Block 18 – AI-Assisted Decisioning & Merchandising Intellige
     expect(route).toContain("hasCurrentPlanFeature('executiveAnalytics')");
     expect(route).toContain("rpc('consume_security_rate_limit'");
     expect(route).toContain('ai-gateway.vercel.sh/v1/chat/completions');
-    expect(route).toContain("recordAdminAudit");
+    expect(route).toContain('AI_GATEWAY_API_KEY||process.env.VERCEL_OIDC_TOKEN');
+    expect(route).toContain('recordAdminAudit');
     expect(page).toContain('<MerchantDecisionPanel cards={decisionCards}/>');
   });
 
@@ -71,9 +70,7 @@ describe('Roadmap Block 18 – AI-Assisted Decisioning & Merchandising Intellige
     const route=read('src/app/api/admin/decisioning/explain/route.ts');
     const loader=read('src/lib/decisioning/merchant-intelligence.ts');
     const core=read('src/lib/decisioning/merchant-intelligence-core.ts');
-    for(const forbidden of["from('products').update","from('product_variants').update","from('orders').update","from('commercial_offers').update","from('action_proposals').insert","execute_automation_step_v2","activate_automation_runbook_v2"]){
-      expect(route+loader+core).not.toContain(forbidden);
-    }
+    for(const forbidden of["from('products').update","from('product_variants').update","from('orders').update","from('commercial_offers').update","from('action_proposals').insert","execute_automation_step_v2","activate_automation_runbook_v2"]){expect(route+loader+core).not.toContain(forbidden);}
     expect(route).toMatch(/human-in-the-loop/i);
     expect(core).toContain('az AI nem hagyhatja jóvá és nem hajthatja végre helyetted');
   });
@@ -99,5 +96,6 @@ describe('Roadmap Block 18 – AI-Assisted Decisioning & Merchandising Intellige
     expect(docs).toMatch(/action_proposals/);
     expect(docs).toMatch(/preview_promotion_margin_v2/);
     expect(docs).toMatch(/no SQL migration/i);
+    expect(docs).toMatch(/VERCEL_OIDC_TOKEN/);
   });
 });
