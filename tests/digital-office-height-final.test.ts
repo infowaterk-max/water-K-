@@ -22,8 +22,7 @@ describe('Digital Office height completion',()=>{
     expect(css).toContain('height:calc(100dvh - 185px)!important');
     expect(css).toContain('max-height:none!important');
     expect(css).toContain(':not([data-desktop-site-touch="true"])');
-    expect(css).not.toContain('860px');
-    expect(css).not.toContain('840px');
+    expect(css).not.toContain('height:clamp(');
   });
 
   it('keeps the original floating Team Chat dock styling',()=>{
