@@ -4,19 +4,26 @@ import {useEffect} from 'react';
 
 const MOBILE_BREAKPOINT=850;
 const MAX_TOUCH_DESKTOP_VIEWPORT=1280;
+const DESKTOP_CANVAS_WIDTH=1440;
 
 /**
  * Marks the narrow touch-device case where the browser is explicitly exposing
  * a desktop-sized layout viewport (for example Android "Desktop site" mode).
  *
- * Important: this component does not resize, zoom or counter-scale the app.
- * Normal mobile remains CSS/media-query driven. The marker is only used to
- * preserve the real desktop workspace when a touch browser asks for desktop.
+ * Normal mobile remains CSS/media-query driven. In desktop-site mode we keep
+ * the real desktop canvas and only expose a compensated viewport height. A
+ * phone browser scales the 1440px canvas down from its smaller layout viewport;
+ * without the same ratio on height, 100vh would render physically too short.
  */
 export function AdminMobileDesktopCompat(){
   useEffect(()=>{
     const root=document.querySelector<HTMLElement>('.adminGrid');
     if(!root)return;
+
+    const clear=()=>{
+      delete root.dataset.desktopSiteTouch;
+      root.style.removeProperty('--admin-desktop-site-height');
+    };
 
     const sync=()=>{
       const layoutWidth=window.innerWidth;
@@ -29,8 +36,15 @@ export function AdminMobileDesktopCompat(){
         &&layoutWidth<=MAX_TOUCH_DESKTOP_VIEWPORT
         &&(primaryCoarse||anyCoarse||noHover);
 
-      if(desktopSiteTouch)root.dataset.desktopSiteTouch='true';
-      else delete root.dataset.desktopSiteTouch;
+      if(!desktopSiteTouch){
+        clear();
+        return;
+      }
+
+      const widthCompensation=Math.max(1,DESKTOP_CANVAS_WIDTH/layoutWidth);
+      const compensatedHeight=Math.ceil(window.innerHeight*widthCompensation);
+      root.dataset.desktopSiteTouch='true';
+      root.style.setProperty('--admin-desktop-site-height',`${compensatedHeight}px`);
     };
 
     sync();
@@ -39,7 +53,7 @@ export function AdminMobileDesktopCompat(){
     return()=>{
       window.removeEventListener('resize',sync);
       window.removeEventListener('orientationchange',sync);
-      delete root.dataset.desktopSiteTouch;
+      clear();
     };
   },[]);
 
