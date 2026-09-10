@@ -69,8 +69,8 @@ describe('Digital Office recipient envelope and attachment metadata contract',()
     expect(replyComposer).toContain('type ReplySnapshot={ccEmails:string;bccEmails:string;body:string}');
     expect(newPage).toContain("select('id,revision,to_email,cc_emails,bcc_emails,subject,body,updated_at')");
     expect(workspace).toContain("select('id,thread_id,body,cc_emails,bcc_emails,revision,updated_at')");
-    expect(workspace).toContain('ccEmails:replyDraft.cc_emails??[]');
-    expect(workspace).toContain('bccEmails:replyDraft.bcc_emails??[]');
+    expect(workspace).toContain('ccEmails:selectedDraft.cc_emails??[]');
+    expect(workspace).toContain('bccEmails:selectedDraft.bcc_emails??[]');
   });
 
   it('creates attachment metadata only, with no binary upload or public storage exposure',()=>{
