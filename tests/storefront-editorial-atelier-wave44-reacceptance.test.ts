@@ -113,7 +113,8 @@ describe('Scale-out Wave 44 Editorial Atelier current-baseline reacceptance',()=
     });
     expect(EDITORIAL_ATELIER_PRO_CONTRACT.implementationBoundary).toMatch(/shared-interactive-scene-or-composer-engine/);
     expect(EDITORIAL_ATELIER_PRO_CONTRACT.authorityBoundary).toMatch(/never-own-price-stock-variant-or-order-state/);
-    expect(JSON.stringify(EDITORIAL_ATELIER_HOME_PAGE)).not.toMatch(/componentKey":".*hotspot|componentKey":".*interactive-scene/i);
+    const componentKeys=walk(EDITORIAL_ATELIER_HOME_PAGE.sections).map(node=>node.componentKey);
+    expect(componentKeys.some(key=>/hotspot|interactive-scene/i.test(key))).toBe(false);
   });
 
   it('keeps every binding inside current shared namespaces with no template-local truth namespace',()=>{
