@@ -4,12 +4,12 @@ export type ParsedCatalogRow={line:number;change:CatalogChange;error?:string};
 export type CatalogOnboardingMapping={
   name:string;sku:string;netPrice:string;grossPrice:string;
   slug?:string;stock?:string;category?:string;attributes?:string;
-  shortDescription?:string;description?:string;variantLabel?:string;
+  shortDescription?:string;description?:string;variantLabel?:string;seoTitle?:string;seoDescription?:string;
 };
 export type CatalogOnboardingDraft={
   line:number;name:string;slug:string;sku:string;netPrice:number;grossPrice:number;stock:number;
   category?:string;categorySlug?:string;attributes:Record<string,string>;
-  shortDescription?:string;description?:string;variantLabel?:string;
+  shortDescription?:string;description?:string;variantLabel?:string;seoTitle?:string;seoDescription?:string;
 };
 export type ParsedCatalogOnboardingRow={line:number;draft?:CatalogOnboardingDraft;error?:string};
 
@@ -53,7 +53,9 @@ export function suggestCatalogOnboardingMapping(headers:string[]):Partial<Catalo
     attributes:find('attributes','attributes_json','tulajdonsagok','attributumok'),
     shortDescription:find('short_description','rovid_leiras'),
     description:find('description','leiras'),
-    variantLabel:find('variant_label','valtozat','variant')
+    variantLabel:find('variant_label','valtozat','variant'),
+    seoTitle:find('seo_title','meta_title','seo_cim'),
+    seoDescription:find('seo_description','meta_description','meta_leiras')
   };
 }
 
@@ -91,15 +93,17 @@ export function parseCatalogOnboardingCsv(text:string,mapping:CatalogOnboardingM
     if(stock===null)errors.push('Hibás készlet');
     if(category.length>120)errors.push('Túl hosszú kategórianév');
     if(attributes.error)errors.push(attributes.error);
-    const skuKey=sku.toLowerCase();if(sku&&seenSku.has(skuKey))errors.push('Duplikált SKU a CSV-ben');else if(sku)seenSku.add(skuKey);
-    if(slug&&seenSlug.has(slug))errors.push('Duplikált slug a CSV-ben');else if(slug)seenSlug.add(slug);
+    const skuKey=sku.toLowerCase();if(sku&&seenSku.has(skuKey))errors.push('Duplikált SKU az importban');else if(sku)seenSku.add(skuKey);
+    if(slug&&seenSlug.has(slug))errors.push('Duplikált slug az importban');else if(slug)seenSlug.add(slug);
     if(errors.length)return{line,error:errors.join(', ')};
-    const shortDescription=cell(mapping.shortDescription),description=cell(mapping.description),variantLabel=cell(mapping.variantLabel);
+    const shortDescription=cell(mapping.shortDescription),description=cell(mapping.description),variantLabel=cell(mapping.variantLabel),seoTitle=cell(mapping.seoTitle),seoDescription=cell(mapping.seoDescription);
     if(shortDescription.length>1000)return{line,error:'Túl hosszú rövid leírás'};
     if(description.length>20000)return{line,error:'Túl hosszú leírás'};
+    if(seoTitle.length>200)return{line,error:'Túl hosszú SEO cím'};
+    if(seoDescription.length>500)return{line,error:'Túl hosszú meta description'};
     return{line,draft:{line,name,slug,sku,netPrice:net as number,grossPrice:gross as number,stock:stock??0,
       category:category||undefined,categorySlug:category?slugifyCatalogValue(category):undefined,attributes:attributes.value??{},
-      shortDescription:shortDescription||undefined,description:description||undefined,variantLabel:variantLabel||undefined}};
+      shortDescription:shortDescription||undefined,description:description||undefined,variantLabel:variantLabel||undefined,seoTitle:seoTitle||undefined,seoDescription:seoDescription||undefined}};
   });
 }
 

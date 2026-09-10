@@ -14,13 +14,13 @@ const header=z.string().trim().min(1).max(200),idempotencyKey=z.string().trim().
 const mapping=z.object({
   name:header,sku:header,netPrice:header,grossPrice:header,
   slug:header.optional(),stock:header.optional(),category:header.optional(),attributes:header.optional(),
-  shortDescription:header.optional(),description:header.optional(),variantLabel:header.optional()
+  shortDescription:header.optional(),description:header.optional(),variantLabel:header.optional(),seoTitle:header.optional(),seoDescription:header.optional()
 });
 const body=z.discriminatedUnion('mode',[
   z.object({mode:z.literal('preview'),csv:z.string().min(1).max(1000000)}),
   z.object({mode:z.literal('apply'),changes:z.array(change).min(1).max(500)}),
   z.object({mode:z.literal('headers'),csv:z.string().min(1).max(1000000)}),
-  z.object({mode:z.literal('onboardingPreview'),csv:z.string().min(1).max(1000000),mapping,idempotencyKey}),
+  z.object({mode:z.literal('onboardingPreview'),csv:z.string().min(1).max(1000000),mapping,idempotencyKey,sourceType:z.enum(['csv','xlsx']).default('csv')}),
   z.object({mode:z.literal('onboardingApply'),batchId:z.string().uuid()})
 ]);
 
@@ -45,7 +45,7 @@ export async function POST(request:Request){
 
   if(parsed.data.mode==='onboardingPreview'){
     const rows=parseCatalogOnboardingCsv(parsed.data.csv,parsed.data.mapping as CatalogOnboardingMapping);
-    if(!rows.length)return NextResponse.json({error:'A CSV nem tartalmaz importálható adatsort.'},{status:400});
+    if(!rows.length)return NextResponse.json({error:'Az import nem tartalmaz importálható adatsort.'},{status:400});
     if(rows.length>500)return NextResponse.json({error:'Egy onboarding import legfeljebb 500 adatsort tartalmazhat.'},{status:400});
     const candidates=rows.flatMap(row=>row.draft?[row.draft]:[]),skus=candidates.map(row=>row.sku),slugs=candidates.map(row=>row.slug);
     const[{data:variants,error:variantError},{data:products,error:productError}]=await Promise.all([
@@ -62,24 +62,24 @@ export async function POST(request:Request){
     });
     const validLines=new Set(preview.filter(row=>row.status==='ready').map(row=>row.line));
     const applyPlan=candidates.filter(row=>validLines.has(row.line));
-    const payloadHash=createHash('sha256').update(JSON.stringify({csv:parsed.data.csv,mapping:parsed.data.mapping})).digest('hex');
-    const{data:existing,error:existingError}=await admin.from('catalog_onboarding_batches').select('id,payload_hash,state,preview_rows,apply_plan,error_count,result').eq('instance_id',scope.instanceId).eq('idempotency_key',parsed.data.idempotencyKey).maybeSingle();
+    const payloadHash=createHash('sha256').update(JSON.stringify({sourceType:parsed.data.sourceType,csv:parsed.data.csv,mapping:parsed.data.mapping})).digest('hex');
+    const{data:existing,error:existingError}=await admin.from('catalog_onboarding_batches').select('id,source_type,payload_hash,state,preview_rows,apply_plan,error_count,result').eq('instance_id',scope.instanceId).eq('idempotency_key',parsed.data.idempotencyKey).maybeSingle();
     if(existingError)return NextResponse.json({error:'Az import-előnézet állapota nem ellenőrizhető.'},{status:500});
     if(existing){
-      if(existing.payload_hash!==payloadHash)return NextResponse.json({error:'Az idempotenciakulcs már más CSV előnézethez tartozik.'},{status:409});
-      return NextResponse.json({batchId:existing.id,preview:existing.preview_rows,validCount:Array.isArray(existing.apply_plan)?existing.apply_plan.length:0,errorCount:existing.error_count,applied:existing.state==='applied',result:existing.result});
+      if(existing.payload_hash!==payloadHash||existing.source_type!==parsed.data.sourceType)return NextResponse.json({error:'Az idempotenciakulcs már más import-előnézethez tartozik.'},{status:409});
+      return NextResponse.json({batchId:existing.id,preview:existing.preview_rows,validCount:Array.isArray(existing.apply_plan)?existing.apply_plan.length:0,errorCount:existing.error_count,applied:existing.state==='applied',result:existing.result,sourceType:existing.source_type});
     }
     const{data:created,error:createError}=await admin.from('catalog_onboarding_batches').insert({
-      instance_id:scope.instanceId,created_by:actor.id,source_type:'csv',idempotency_key:parsed.data.idempotencyKey,payload_hash:payloadHash,
+      instance_id:scope.instanceId,created_by:actor.id,source_type:parsed.data.sourceType,idempotency_key:parsed.data.idempotencyKey,payload_hash:payloadHash,
       preview_rows:preview,apply_plan:applyPlan,error_count:preview.filter(row=>row.status==='error').length
     }).select('id').single();
     if(createError||!created)return NextResponse.json({error:'Az import-előnézet nem rögzíthető biztonságosan. Ismételd meg ugyanazzal a fájllal.'},{status:409});
-    return NextResponse.json({batchId:created.id,preview,validCount:applyPlan.length,errorCount:preview.filter(row=>row.status==='error').length,applied:false});
+    return NextResponse.json({batchId:created.id,preview,validCount:applyPlan.length,errorCount:preview.filter(row=>row.status==='error').length,applied:false,sourceType:parsed.data.sourceType});
   }
 
   if(parsed.data.mode==='onboardingApply'){
     const{data,error}=await admin.rpc('apply_catalog_onboarding_batch_v1',{p_instance_id:scope.instanceId,p_batch_id:parsed.data.batchId,p_actor:actor.id});
-    if(error)return NextResponse.json({error:'A CSV onboarding tranzakció megszakadt. Piszkozatot csak teljes, igazolt tranzakcióból tekintünk létrehozottnak.'},{status:409});
+    if(error)return NextResponse.json({error:'Az onboarding tranzakció megszakadt. Piszkozatot csak teljes, igazolt tranzakcióból tekintünk létrehozottnak.'},{status:409});
     const result=Array.isArray(data)?data:[];
     return NextResponse.json({ok:true,count:result.length,result});
   }
@@ -115,7 +115,7 @@ export async function POST(request:Request){
     p_audit_metadata:{count:parsed.data.changes.length}
   });
   if(error)return NextResponse.json({error:'Az import tranzakció megszakadt. A módosítás és az audit együtt vissza lett vonva.'},{status:409});
-  const evidence=Array.isArray(data)?data as {id?:string}[]:[],expectedIds=new Set(parsed.data.changes.map(c=>c.id)),evidenceIds=new Set(evidence.map(r=>r.id).filter((id):id is string=>Boolean(id)));
+  const evidence=Array.isArray(data)?data as{id?:string}[]:[],expectedIds=new Set(parsed.data.changes.map(c=>c.id)),evidenceIds=new Set(evidence.map(r=>r.id).filter((id):id is string=>Boolean(id)));
   if(evidence.length!==parsed.data.changes.length||evidenceIds.size!==expectedIds.size||[...expectedIds].some(id=>!evidenceIds.has(id)))return NextResponse.json({error:'Az import eredménye nem igazolható.'},{status:500});
   return NextResponse.json({ok:true,count:parsed.data.changes.length,result:data});
 }
