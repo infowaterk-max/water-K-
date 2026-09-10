@@ -5,6 +5,10 @@
     {
       "path": "/api/cron/integrations",
       "schedule": "15 3 * * *"
+    },
+    {
+      "path": "/api/cron/workflows",
+      "schedule": "7 * * * *"
     }
   ]
 }

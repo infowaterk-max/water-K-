@@ -39,6 +39,7 @@ export default async function Page(){
     <span className="eyebrow">Pro · Automatizálás</span>
     <h1 className="sectionTitle">Automatizálási központ</h1>
     <p className="lead">Az automatizált üzleti folyamatok webshoponként elkülönített folyamatként futnak. Itt látható az állapotuk, a hibák és a következő szükséges beavatkozás.</p>
+    <div className="actions"><a className="btn btnGhost" href="/admin/automatizalas/esemenyek">Esemény-workflow-k és dead-letter</a></div>
     {loadError&&<div className="errorNotice" role="alert"><strong>Az automatizálási állapot egy része most nem tölthető be.</strong> Biztonsági okból a módosító műveleteket addig letiltjuk.</div>}
     {canAct
       ?<div className="actions"><AutomationCycleButton/><AutomationGlobalControl paused={health.global_paused}/></div>
