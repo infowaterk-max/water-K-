@@ -9,7 +9,6 @@ import { AdminAccessDenied } from '@/components/admin/admin-access-denied';
 import { getActiveStoreRoles,roleHasPermission } from '@/lib/auth/store-rbac';
 import { resolveAdminUiAccess } from '@/lib/admin/ui-access-contract';
 import { getFeatureEntitlementDecision } from '@/lib/entitlements/access';
-import { hasPlanFeature } from '@/lib/plans/catalog';
 
 export const dynamic='force-dynamic';
 
@@ -92,14 +91,11 @@ export default async function Page(){
 
   if(!currentInstance)redirect('/admin/hozzaferes-megtagadva?reason=context');
 
-  // Resolve delegated-store roles once, then derive every permission from that
-  // same immutable role snapshot. This prevents concurrent auth/RBAC lookups
-  // from disagreeing during a single App Router request.
   const roles=platformRole?[]:await getActiveStoreRoles(currentInstance.id);
   const canRead=Boolean(platformRole)||roles.some(role=>roleHasPermission(role,'analytics.read'));
   const canManage=Boolean(platformRole)||roles.some(role=>roleHasPermission(role,'store.manage'));
   const entitlement=await getFeatureEntitlementDecision(currentInstance.id,'executiveAnalytics');
-  const featureEnabled=entitlement?.enabled??hasPlanFeature(currentInstance.subscriptionPlan,'executiveAnalytics');
+  const featureEnabled=entitlement?.enabled===true;
   const access=resolveAdminUiAccess({id:'action-center-control',feature:'executiveAnalytics',readPermission:'analytics.read',managePermission:'store.manage'},{featureEnabled,canRead,canManage});
 
   console.info('admin.action-center.access',{instance:currentInstance.slug,roles,canRead,canManage,featureEnabled,mode:access.mode});
