@@ -29,11 +29,14 @@ describe('Roadmap Block 14 – Catalog Product Onboarding & Import UX',()=>{
   });
 
   test('adds tenant-scoped category, attribute, media and durable onboarding contracts',()=>{
-    for(const sql of[productionMigration,customerMigration])for(const marker of[
-      'public.catalog_categories','public.product_category_assignments','public.product_attributes','public.product_media','public.catalog_onboarding_batches',
-      'products_instance_slug_uidx','product_variants_instance_sku_uidx','public.create_catalog_draft_v1','public.apply_catalog_onboarding_batch_v1','public.record_product_media_v1',
-      "values(p_instance_id,p_product->>'slug'","false,'retail',false","p_actor,'catalog.product_draft_created'","to service_role"
-    ])expect(sql).toContain(marker);
+    for(const sql of[productionMigration,customerMigration]){
+      for(const marker of[
+        'public.catalog_categories','public.product_category_assignments','public.product_attributes','public.product_media','public.catalog_onboarding_batches',
+        'products_instance_slug_uidx','product_variants_instance_sku_uidx','public.create_catalog_draft_v1','public.apply_catalog_onboarding_batch_v1','public.record_product_media_v1',
+        "p_product->>'slug'","false,'retail',false","p_actor,'catalog.product_draft_created'","to service_role"
+      ])expect(sql).toContain(marker);
+      expect(sql).toMatch(/insert\s+into\s+public\.products\s*\(instance_id,slug,name,short_description,description,active,audience,featured\)/i);
+    }
     expect(productionMigration).toContain("revoke all on public.catalog_categories");expect(productionMigration).toContain('foreign key(product_id, instance_id)');
   });
 
