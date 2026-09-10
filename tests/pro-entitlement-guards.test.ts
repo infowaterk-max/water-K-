@@ -24,17 +24,17 @@ describe('Pro entitlement entrypoint guards', () => {
     expect(suppression).toContain("hasCurrentPlanFeature('officeCommunication')");
     expect(suppression).not.toContain("hasCurrentPlanFeature('officeCommunicationAdvanced')");
   });
-  it('keeps the action center Pro-gated from the same resolved tenant snapshot used for RBAC',()=>{
+  it('keeps the action center Pro-gated from the authoritative entitlement decision used for UI access',()=>{
     const file=source('src/app/admin/intezkedesek/page.tsx');
     expect(file).toContain("getFeatureEntitlementDecision(currentInstance.id,'executiveAnalytics')");
-    expect(file).toContain("hasPlanFeature(currentInstance.subscriptionPlan,'executiveAnalytics')");
-    expect(file).toContain('const featureEnabled=');
+    expect(file).toContain("const featureEnabled=entitlement?.enabled===true");
     expect(file).toContain('featureEnabled,canRead,canManage');
+    expect(file).not.toContain("hasPlanFeature(currentInstance.subscriptionPlan,'executiveAnalytics')");
     expect(file).not.toContain("requirePlanFeature('executiveAnalytics')");
   });
   it.each(protectedApis)('%s rejects Alap through an API-safe feature check', (path, feature) => { const file=source(path); expect(file).toMatch(/hasCurrentPlanFeature/); expect(file).toContain(`hasCurrentPlanFeature('${feature}')`); expect(file).toMatch(/status:403/); });
   it('keeps platform assurance behind platform-operator access rather than a tenant plan gate',()=>{const file=source('src/app/admin/biztositekok/page.tsx');expect(file).toContain('requirePlatformOperator');expect(file).not.toContain("requirePlanFeature('executiveAnalytics')")});
   it('keeps standard commerce integrations in Alap while advanced operations remain Pro', () => { const catalog=source('src/lib/plans/catalog.ts'); expect(catalog).toContain("'commerceIntegrations'"); expect(catalog).toContain("'advancedIntegrations'"); const alapSection=catalog.slice(catalog.indexOf('const ALAP_FEATURES'),catalog.indexOf('const PRO_FEATURES')); expect(alapSection).toContain("'commerceIntegrations'"); expect(alapSection).not.toContain("'advancedIntegrations'"); });
-  it('provides an API-safe entitlement-aware feature helper without redirect semantics', () => { const file=source('src/lib/plans/access.ts'); const helper=file.slice(file.indexOf('export async function hasCurrentPlanFeature'),file.indexOf('export async function requirePlanFeature')); expect(helper).toContain('getFeatureEntitlementDecision'); expect(helper).toContain('return hasPlanFeature(instance.subscriptionPlan,feature)'); expect(helper).toContain('return hasPlanFeature(await getCurrentPlan(),feature)'); expect(helper).not.toContain('redirect('); });
+  it('provides an API-safe entitlement-aware feature helper without redirect semantics', () => { const file=source('src/lib/plans/access.ts'); const helper=file.slice(file.indexOf('export async function hasCurrentPlanFeature'),file.indexOf('export async function requirePlanFeature')); expect(helper).toContain('getFeatureEntitlementDecision'); expect(helper).toContain('return explicit?.enabled===true'); expect(helper).toContain('return hasPlanFeature(await getCurrentPlan(),feature)'); expect(helper).not.toContain('return hasPlanFeature(instance.subscriptionPlan,feature)'); expect(helper).not.toContain('redirect('); });
   it('fails closed to Alap when no valid default plan is configured', () => { const file=source('src/lib/plans/access.ts'); expect(file).toContain("const fallback: PlanCode = isPlanCode(configuredDefault) ? configuredDefault : 'alap'"); expect(file).not.toContain("configuredDefault) ? configuredDefault : 'pro'"); });
 });
