@@ -1,7 +1,7 @@
 import 'server-only';
 import { createAdminClient } from '@/lib/supabase/admin';
 import{isTerminalPaymentAttemptStatus,paymentAttemptStatusFromEvent}from'@/lib/orders/orchestration-contract';
-import type{PaymentAttemptStatus}from'@/lib/orders/orchestration-contract';
+import type{PaymentAttemptStatus,PaymentState}from'@/lib/orders/orchestration-contract';
 export type{PaymentAttemptStatus}from'@/lib/orders/orchestration-contract';
 
 type CreatePaymentAttemptInput={instanceId?:string|null;orderId:string;providerCode:string;providerReference?:string|null;amountHuf:number;status?:PaymentAttemptStatus;metadata?:Record<string,unknown>};
@@ -50,7 +50,7 @@ export async function markPaymentAttemptRequiresAction(attemptId:string,input?:{
   const{error}=await admin.from('payment_attempts').update({status:'requires_action',failure_code:input?.code?.slice(0,120)??'PAYMENT_OUTCOME_UNKNOWN',failure_message:sanitizeFailure(input?.message),metadata:{...metadata,...(input?.metadata??{})},updated_at:new Date().toISOString(),completed_at:null}).eq('id',attemptId).in('status',['created','pending','requires_action']);if(error)throw error;
 }
 
-export async function updatePaymentAttemptFromEvent(input:{instanceId:string;providerCode:string;providerReference:string;status:'pending'|'paid'|'failed'|'cancelled'|'refunded'|'unknown';eventId:string;eventType:string}){
+export async function updatePaymentAttemptFromEvent(input:{instanceId:string;providerCode:string;providerReference:string;status:PaymentState;eventId:string;eventType:string}){
   const mapped=paymentAttemptStatusFromEvent(input.status);if(!mapped)return;
   const admin=createAdminClient(),now=new Date().toISOString(),terminal=isTerminalPaymentAttemptStatus(mapped);
   const{data:attempt,error:readError}=await admin.from('payment_attempts').select('id,metadata').eq('instance_id',input.instanceId).eq('provider_code',input.providerCode).eq('provider_reference',input.providerReference).maybeSingle();
