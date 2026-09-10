@@ -2,14 +2,15 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import{adminOrderNextStatuses}from'@/lib/orders/orchestration-contract';
 
 const labels:Record<string,string>={draft:'Piszkozat',pending:'Függőben',pending_payment:'Fizetésre vár',pending_transfer:'Átutalásra vár',paid:'Fizetve',processing:'Feldolgozás',shipped:'Átadva',completed:'Teljesítve',cancelled:'Lemondva',refunded:'Visszatérítve'};
-const allowed:Record<string,string[]>={draft:['pending','pending_payment','pending_transfer','cancelled'],pending:['paid','processing','cancelled'],pending_payment:['paid','cancelled'],pending_transfer:['paid','cancelled'],paid:['processing'],processing:['shipped'],shipped:['completed'],completed:[],cancelled:[],refunded:[]};
 const risky=new Set(['cancelled']);
 
 export function OrderStatusControl({id,status,trackingNumber='',shippingMethod}:{id:string;status:string;trackingNumber?:string|null;shippingMethod?:string|null}){
   const router=useRouter();
-  const options=[status,...(allowed[status]??[])];
+  const allowed=adminOrderNextStatuses(status);
+  const options=[status,...allowed];
   const[value,setValue]=useState(status),[tracking,setTracking]=useState(trackingNumber??''),[busy,setBusy]=useState(false),[error,setError]=useState(''),[success,setSuccess]=useState(''),[confirmOpen,setConfirmOpen]=useState(false);
   useEffect(()=>{setValue(status);setTracking(trackingNumber??'');setConfirmOpen(false)},[status,trackingNumber]);
 
@@ -36,7 +37,7 @@ export function OrderStatusControl({id,status,trackingNumber='',shippingMethod}:
   return <div className="orderStatusControl" aria-busy={busy}>
     <div className="orderStatusFields"><label><span className="srOnly">Rendelési állapot</span><select value={value} onChange={e=>{setValue(e.target.value);setError('');setSuccess('');}} disabled={busy}>{options.map(s=><option key={s} value={s}>{labels[s]??s}</option>)}</select></label>{value==='shipped'&&shippingMethod!=='pickup'&&<label><span className="srOnly">Csomagkövetési azonosító</span><input value={tracking} onChange={e=>setTracking(e.target.value)} placeholder="Csomagkövetési azonosító" maxLength={120} disabled={busy}/></label>}<button className="btn btnGhost" type="button" disabled={busy||value===status} onClick={save}>{busy?'Mentés…':'Mentés'}</button></div>
     {risky.has(value)&&value!==status&&<small className="warningNotice">Figyelem: ez kiemelt állapotváltás, mentés előtt megerősítést kérünk.</small>}
-    {error&&<small className="errorNotice" role="alert">{error}</small>}{success&&<small className="helperText" role="status">{success}</small>}{(allowed[status]??[]).length===0&&<small className="muted">Végállapot; innen csak rendszerfolyam vagy külön üzleti művelet léphet tovább.</small>}
+    {error&&<small className="errorNotice" role="alert">{error}</small>}{success&&<small className="helperText" role="status">{success}</small>}{allowed.length===0&&<small className="muted">Végállapot; innen csak rendszerfolyam vagy külön üzleti művelet léphet tovább.</small>}
     {confirmOpen&&<div className="adminModalBackdrop" role="presentation" onMouseDown={e=>{if(e.target===e.currentTarget&&!busy)setConfirmOpen(false)}}><div className="adminModal" role="dialog" aria-modal="true" aria-labelledby="order-status-confirm-title"><span className="eyebrow">Megerősítés</span><h3 id="order-status-confirm-title">Rendelés lemondása</h3><p>A rendelést <strong>{labels[value]?.toLowerCase()??value}</strong> állapotra állítod. Ennek pénzügyi vagy készletkezelési következménye lehet.</p><div className="actions"><button className="btn btnGhost" type="button" disabled={busy} onClick={()=>setConfirmOpen(false)}>Mégsem</button><button className="btn btnPrimary" type="button" disabled={busy} onClick={()=>void persist()}>{busy?'Mentés…':'Lemondás megerősítése'}</button></div></div></div>}
   </div>;
 }
