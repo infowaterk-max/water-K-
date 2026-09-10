@@ -48,6 +48,11 @@ export function canAdminTransitionOrder(from:AdminOrderMutationStatus,to:AdminOr
   return from===to||(ADMIN_ORDER_TRANSITIONS[from] as readonly AdminOrderMutationStatus[]).includes(to);
 }
 
+export function adminOrderNextStatuses(status:OrderLifecycleStatus):readonly AdminOrderMutationStatus[]{
+  if(status==='refunded')return[];
+  return ADMIN_ORDER_TRANSITIONS[status];
+}
+
 export const PAYMENT_STATES=['pending','paid','failed','cancelled','refunded','unknown'] as const;
 export type PaymentState=typeof PAYMENT_STATES[number];
 
