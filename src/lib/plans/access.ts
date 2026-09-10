@@ -1,9 +1,8 @@
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
-import { createAdminClient } from '@/lib/supabase/admin';
 import { getCurrentWebshopInstance } from '@/lib/instances/access';
-import { getPlatformRole } from '@/lib/auth/platform-operator';
-import { getFeatureEntitlementDecision } from '@/lib/entitlements/access';
+import { addonCapabilityCode, isCapabilityReleased } from '@/lib/entitlements/catalog';
+import { getFeatureEntitlementDecision, getFeatureEntitlementDecisions } from '@/lib/entitlements/access';
 import { hasPlanFeature, isPlanCode, type FeatureCode, type PlanCode } from './catalog';
 import { ADDONS, parseAddonList, type AddonCode } from './addons';
 
@@ -20,54 +19,53 @@ export async function getCurrentPlan(): Promise<PlanCode> {
   return isPlanCode(data?.subscription_plan) ? data.subscription_plan : fallback;
 }
 
-async function platformHasFullAccess() {
-  try { return (await getPlatformRole()) !== null; } catch { return false; }
-}
-
 export function isRuntimeFeatureReleased(feature: FeatureCode): boolean {
-  if (feature === 'teamChatSecureAttachments') {
-    return process.env.TEAM_CHAT_SECURE_ATTACHMENTS_RELEASED === 'true';
-  }
-  return true;
+  return isCapabilityReleased(feature);
 }
 
 export async function hasCurrentPlanFeature(feature: FeatureCode): Promise<boolean> {
   if (!isRuntimeFeatureReleased(feature)) return false;
-  if (await platformHasFullAccess()) return true;
   const instance=await getCurrentWebshopInstance();
   if(instance){
     const explicit=await getFeatureEntitlementDecision(instance.id,feature);
-    if(explicit!==null)return explicit.enabled;
-    return hasPlanFeature(instance.subscriptionPlan,feature);
+    return explicit?.enabled===true;
   }
   return hasPlanFeature(await getCurrentPlan(),feature);
 }
 
 export async function requirePlanFeature(feature: FeatureCode) {
   if (!isRuntimeFeatureReleased(feature)) redirect(`/admin/csomag?reason=not-released&feature=${encodeURIComponent(feature)}`);
-  if (await platformHasFullAccess()) return 'pro' satisfies PlanCode;
   const plan=await getCurrentPlan();
-  if (!(await hasCurrentPlanFeature(feature))) redirect(`/admin/csomag?reason=pro-required&feature=${encodeURIComponent(feature)}`);
+  if (!(await hasCurrentPlanFeature(feature))) {
+    const reason=plan==='alap'&&hasPlanFeature('pro',feature)?'pro-required':'feature-disabled';
+    redirect(`/admin/csomag?reason=${reason}&feature=${encodeURIComponent(feature)}`);
+  }
   return plan;
 }
 
 export async function getCurrentAddons(): Promise<AddonCode[]> {
   const [plan,instance] = await Promise.all([getCurrentPlan(),getCurrentWebshopInstance()]);
   if (instance) {
-    try {
-      const admin = createAdminClient();
-      const { data } = await admin.from('webshop_instance_addons').select('addon_code').eq('instance_id',instance.id).eq('enabled',true);
-      const enabled = parseAddonList((data??[]).map(row=>row.addon_code).join(','));
-      return enabled.filter(addon=>ADDONS[addon].compatiblePlans.includes(plan));
-    } catch { return []; }
+    const addonCodes=Object.keys(ADDONS) as AddonCode[];
+    const capabilityCodes=addonCodes.map(addonCapabilityCode);
+    const decisions=await getFeatureEntitlementDecisions(instance.id,capabilityCodes);
+    return addonCodes.filter(addon=>
+      ADDONS[addon].compatiblePlans.includes(plan)
+      && decisions.get(addonCapabilityCode(addon))?.enabled===true
+    );
   }
   const configured = parseAddonList(process.env.WEBSHOP_ENABLED_ADDONS);
   return configured.filter((addon) => ADDONS[addon].compatiblePlans.includes(plan));
 }
 
 export async function hasAddon(addon: AddonCode): Promise<boolean> {
-  const enabled = await getCurrentAddons();
-  return enabled.includes(addon);
+  const instance=await getCurrentWebshopInstance();
+  if(instance){
+    const plan=await getCurrentPlan();
+    if(!ADDONS[addon].compatiblePlans.includes(plan))return false;
+    return (await getFeatureEntitlementDecision(instance.id,addonCapabilityCode(addon)))?.enabled===true;
+  }
+  return (await getCurrentAddons()).includes(addon);
 }
 
 export async function requireAddon(addon: AddonCode) {
