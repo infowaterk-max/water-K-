@@ -1,0 +1,90 @@
+import {BEAUTY_LAB_HOME_SECTION_ORDER,BEAUTY_LAB_VISUAL_DNA} from '@/lib/builder/templates/beauty-lab';
+import {DERMA_STUDIO_HOME_SECTION_ORDER,DERMA_STUDIO_VISUAL_DNA} from '@/lib/builder/templates/derma-studio';
+import {
+  RITUAL_HOUSE_ENGINE_CONTRACT,
+  RITUAL_HOUSE_HOME_SECTION_ORDER,
+  RITUAL_HOUSE_MARKETING_LAYER_CONTRACT,
+  RITUAL_HOUSE_TEMPLATE_KEY,
+  RITUAL_HOUSE_TEMPLATE_VERSION,
+  RITUAL_HOUSE_VISUAL_DNA,
+} from '@/lib/builder/templates/ritual-house';
+import {STOREFRONT_STORY_VISUAL_COMPONENT_DEPENDENCIES} from '@/lib/builder/storefront-story-visual';
+
+/** Wave 31 re-accepts the inherited Ritual House v1 against the current stacked
+ * Builder contract. Mood/ritual guidance remains editorial merchandising only. */
+export const RITUAL_HOUSE_WAVE31_ACCEPTANCE=Object.freeze({
+  wave:31,
+  mode:'current-baseline-reacceptance-and-builder-authority-hardening',
+  templateKey:RITUAL_HOUSE_TEMPLATE_KEY,
+  templateVersion:RITUAL_HOUSE_TEMPLATE_VERSION,
+  inheritedImplementation:true,
+  portfolio:{
+    category:'beauty-wellness',
+    beautyLab:BEAUTY_LAB_VISUAL_DNA.character,
+    dermaStudio:DERMA_STUDIO_VISUAL_DNA.character,
+    ritualHouse:RITUAL_HOUSE_VISUAL_DNA.character,
+    beautyLabJourney:BEAUTY_LAB_VISUAL_DNA.journey,
+    dermaStudioJourney:DERMA_STUDIO_VISUAL_DNA.journey,
+    ritualHouseJourney:RITUAL_HOUSE_VISUAL_DNA.journey,
+    beautyLabHomeOrder:BEAUTY_LAB_HOME_SECTION_ORDER,
+    dermaStudioHomeOrder:DERMA_STUDIO_HOME_SECTION_ORDER,
+    ritualHouseHomeOrder:RITUAL_HOUSE_HOME_SECTION_ORDER,
+  },
+  visualContract:{
+    palette:['smoked-umber','warm-taupe','soft-ivory','candle-amber','muted-sage'],
+    typography:['soft-editorial-serif','clean-warm-sans'],
+    fontRequirements:['builder-available','legally-usable','hungarian-characters'],
+    imagery:'candle-diffuser-oil-cream-bath-steam-tactile-texture',
+    spacing:'slow-generous-cocooning',
+    cardTreatment:'sensory-editorial-commerce-not-clinical-grid',
+    rhythm:'atmosphere-navigation-body-home-fragrance-story-sets-notes-reviews-journal',
+  },
+  builderContract:{
+    heroLayers:RITUAL_HOUSE_MARKETING_LAYER_CONTRACT.hero,
+    imageRule:RITUAL_HOUSE_MARKETING_LAYER_CONTRACT.imageRule,
+    composition:RITUAL_HOUSE_MARKETING_LAYER_CONTRACT.composition,
+    registryComposition:STOREFRONT_STORY_VISUAL_COMPONENT_DEPENDENCIES,
+    responsiveModes:['desktop','tablet','mobile'],
+    hierarchy:'Template -> Page Presets -> Section Presets -> Components',
+    pagePresetCount:14,
+    minimumPlan:'alap',
+    demoNamespace:'beauty-ritual-house',
+    installation:'draft-only',
+  },
+  guidanceAuthority:{
+    engineContract:RITUAL_HOUSE_ENGINE_CONTRACT,
+    mode:'editorial-merchandising-navigation-only',
+    mood:'merchant-taxonomy-not-psychological-state-inference',
+    ritual:'merchant-navigation-not-health-protocol',
+    E7:'supplied-structured-scent-format-ingredient-and-product-attribute-evidence-only',
+    E10:'editorial-story-content-only',
+    diagnosis:false,
+    psychologicalAssessment:false,
+    medicalAdvice:false,
+    healthOutcomeScoring:false,
+    sleepStressAnxietyOutcomeAuthority:false,
+    productEligibilityAuthority:'E2-shared-discovery-only',
+  },
+  commerceAuthority:{
+    pricing:'pricing-binding-only',
+    inventory:'inventory-binding-only',
+    variants:'variant-binding-only',
+    reviews:'review-binding-only',
+    structuredFacts:'E7-or-authoritative-product-binding-only-when-supplied',
+    checkout:'shared-provider-neutral-E13',
+    noFakeIngredientConcentration:true,
+    noFakeScentOrMaterialFact:true,
+    noFakeWellnessClaim:true,
+    noFakePriceStockRatingOrProductAttribute:true,
+  },
+  exactHomeOrder:RITUAL_HOUSE_HOME_SECTION_ORDER,
+  distinctness:{
+    notBeautyLab:'not-formula-ingredient-texture-concept-store-first',
+    notDermaStudio:'not-clinical-concern-routine-active-ingredient-skincare-first',
+    ownPosition:'warm-dark-sensory-cocooning-mood-ritual-format-scent-led-wellness-commerce',
+    separationIncludes:['layout','section-order','rhythm','typography','imagery','card-treatment','merchandising-journey'],
+  },
+  nonScope:[
+    'second-ritual-house-template','visual-builder-drag-drop-ui','template-local-layout-engine','template-local-hero-engine','template-local-guidance-engine','medical-or-psychological-recommender','template-local-product-attribute-engine','template-local-pricing-inventory-review-authority','payment-provider-change','sql-migration','vercel-production-deploy','supabase-mutation','main-merge',
+  ],
+} as const);
