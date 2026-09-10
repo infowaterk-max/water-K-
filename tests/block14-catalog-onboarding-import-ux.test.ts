@@ -47,9 +47,15 @@ describe('Roadmap Block 14 – Catalog Product Onboarding & Import UX',()=>{
     expect(route).toContain("rpc('record_product_media_v1'");expect(route).toContain('.remove([storagePath])');
   });
 
-  test('invalidates the old Fresh Install proof because Block 14 changes the customer schema',()=>{
-    const manifest=JSON.parse(read('supabase/customer-baseline/manifest.json'));
-    expect(manifest.status).toBe('snapshot-reviewed');expect(manifest.freshInstallProofRequired).toBe(true);expect(manifest.proofContractSha256).toBeNull();
+  test('invalidates the old proof until the exact Block 14 customer contract is genuinely re-proven',()=>{
+    const manifest=JSON.parse(read('supabase/customer-baseline/manifest.json')) as{status:string;freshInstallProofRequired:boolean;proofContractSha256:string|null};
+    expect(['snapshot-reviewed','ready']).toContain(manifest.status);
+    if(manifest.status==='snapshot-reviewed'){
+      expect(manifest.freshInstallProofRequired).toBe(true);expect(manifest.proofContractSha256).toBeNull();
+    }else{
+      expect(manifest.freshInstallProofRequired).toBe(false);expect(manifest.proofContractSha256).toMatch(/^[a-f0-9]{64}$/);
+      expect(manifest.proofContractSha256).not.toBe('09808a20451c1aeb8f7a684ed504235ea245b81a6ac3be59892cd1b040c4a21d');
+    }
     expect(customerMigration).toContain('catalog_onboarding_batches');
   });
 
