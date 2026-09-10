@@ -5,7 +5,7 @@
  * - desktop: true workstation layouts;
  * - tablet: two-pane layouts with reachable context/info;
  * - mobile: one task per screen, no nested page-scroll traps;
- * - mobile browser "Desktop site": a bounded desktop canvas that may be panned/zoomed.
+ * - mobile browser "Desktop site": delegated to mobile-desktop-compat.css.
  *
  * Existing data, entitlement, privacy, sending and attachment gates are not changed here.
  */
@@ -483,75 +483,3 @@
   .digitalOfficeShell .digitalOfficeThreadItem{grid-template-columns:42px minmax(0,1fr)!important;padding-inline:10px!important}
   .digitalOfficeShell .digitalOfficeAvatar{width:42px!important;height:42px!important}
 }
-
-/* ---------- Mobile browser "Desktop site" ----------
-   Do not force the mobile layout into a desktop-shaped viewport. Give the
-   browser a bounded real desktop canvas. The user may pan or pinch-zoom it.
-   Height is intentionally bounded; no viewport-ratio multiplication. */
-.adminGrid[data-desktop-site-touch="true"]{
-  display:grid!important;
-  grid-template-columns:230px minmax(1050px,1fr)!important;
-  width:1280px!important;
-  min-width:1280px!important;
-  max-width:none!important;
-  overflow:visible!important;
-  touch-action:pan-x pan-y pinch-zoom!important;
-}
-.adminGrid[data-desktop-site-touch="true"] .adminSide{
-  display:block!important;
-  position:sticky!important;
-  top:0!important;
-  width:230px!important;
-  height:760px!important;
-  max-height:760px!important;
-  overflow-y:auto!important;
-  overflow-x:hidden!important;
-}
-.adminGrid[data-desktop-site-touch="true"] .adminMobileNavigation{display:none!important}
-.adminGrid[data-desktop-site-touch="true"] .adminContentShell{width:1050px!important;min-width:1050px!important;overflow:visible!important}
-.adminGrid[data-desktop-site-touch="true"] .digitalOfficeShell{width:1050px!important;min-width:1050px!important;overflow:visible!important}
-.adminGrid[data-desktop-site-touch="true"] .digitalOfficeWorkspaceBar{
-  display:flex!important;
-  flex-direction:row!important;
-  align-items:center!important;
-  justify-content:space-between!important;
-  padding:12px 16px!important;
-}
-.adminGrid[data-desktop-site-touch="true"] .digitalOfficeWorkspaceTabs{width:auto!important}
-.adminGrid[data-desktop-site-touch="true"] .digitalOfficeMobileController{display:none!important}
-.adminGrid[data-desktop-site-touch="true"] .digitalOfficeWorkstation{
-  display:grid!important;
-  grid-template-columns:280px 500px 270px!important;
-  grid-template-rows:auto minmax(0,1fr)!important;
-  width:1050px!important;
-  min-width:1050px!important;
-  height:760px!important;
-  min-height:760px!important;
-  max-height:760px!important;
-  overflow:hidden!important;
-}
-.adminGrid[data-desktop-site-touch="true"] .digitalOfficeLocalRail{grid-column:1/-1!important;grid-row:1!important;display:block!important}
-.adminGrid[data-desktop-site-touch="true"] .digitalOfficeThreadListPane{grid-column:1!important;grid-row:2!important;display:flex!important;overflow:hidden!important}
-.adminGrid[data-desktop-site-touch="true"] .digitalOfficeConversationPane{grid-column:2!important;grid-row:2!important;display:flex!important;overflow:hidden!important;border-right:1px solid var(--workspace-line)!important}
-.adminGrid[data-desktop-site-touch="true"] .digitalOfficeContextPane{grid-column:3!important;grid-row:2!important;display:block!important;overflow:auto!important}
-.adminGrid[data-desktop-site-touch="true"] .digitalOfficeConversationMessages{overflow:auto!important}
-.adminGrid[data-desktop-site-touch="true"] .digitalOfficeReplyComposer{display:block!important}
-.adminGrid[data-desktop-site-touch="true"] .officeComposerExtrasToggle{display:none!important}
-.adminGrid[data-desktop-site-touch="true"] .officeComposerExtras{display:grid!important}
-.adminGrid[data-desktop-site-touch="true"] .digitalOfficeChatDock{display:block!important}
-
-.adminGrid[data-desktop-site-touch="true"] .teamChatWorkspace{
-  display:grid!important;
-  grid-template-columns:280px 500px 270px!important;
-  width:1050px!important;
-  min-width:1050px!important;
-  height:760px!important;
-  min-height:760px!important;
-  max-height:760px!important;
-  overflow:hidden!important;
-}
-.adminGrid[data-desktop-site-touch="true"] .teamChatPeoplePane{display:flex!important;overflow:hidden!important}
-.adminGrid[data-desktop-site-touch="true"] .teamChatConversationPane{display:flex!important;overflow:hidden!important;border-right:1px solid var(--workspace-line)!important}
-.adminGrid[data-desktop-site-touch="true"] .teamChatInfoPane{display:block!important;overflow:auto!important}
-.adminGrid[data-desktop-site-touch="true"] .teamChatMobileBack{display:none!important}
-.adminGrid[data-desktop-site-touch="true"] .teamChatMessages{overflow:auto!important}
