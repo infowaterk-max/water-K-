@@ -1,0 +1,41 @@
+import{describe,expect,it}from'vitest';
+import{readFileSync}from'node:fs';
+import{join}from'node:path';
+
+const read=(path:string)=>readFileSync(join(process.cwd(),path),'utf8');
+
+describe('Email Builder native mobile shell',()=>{
+  it('wraps the real editor without replacing its document or renderer logic',()=>{
+    const page=read('src/app/admin/email-sablonok/[id]/szerkesztes/page.tsx');
+    expect(page).toContain("import { EmailBuilderMobileShell } from '@/components/admin/email-builder-mobile-shell';");
+    expect(page).toContain('<EmailBuilderMobileShell><EmailBuilderEditor');
+    expect(page).toContain('</EmailBuilderMobileShell>');
+  });
+
+  it('offers canvas, library and inspector mobile work modes',()=>{
+    const shell=read('src/components/admin/email-builder-mobile-shell.tsx');
+    for(const label of['Canvas','Hozzáadás','Szerkesztés'])expect(shell).toContain(label);
+    for(const library of['Blokkok','Szekciók','Presetek','Saját blokkok','Dinamikus adatok'])expect(shell).toContain(library);
+    expect(shell).toContain("type MobilePanel='canvas'|'library'|'inspector'");
+    expect(shell).toContain('nav[aria-label="E-mail Builder eszközök"]');
+    expect(shell).toContain("button?.click()");
+  });
+
+  it('keeps desktop untouched and turns mobile library and inspector into overlay drawers',()=>{
+    const css=read('src/components/admin/email-builder-mobile-shell.module.css');
+    expect(css).toContain('@media(max-width:760px)');
+    expect(css).toContain('.backdrop,.drawerChrome,.mobileDock{display:none}');
+    expect(css).toContain('data-mobile-panel="library"');
+    expect(css).toContain('data-mobile-panel="inspector"');
+    expect(css).toContain('position:fixed');
+    expect(css).toContain('overflow-y:auto!important');
+    expect(css).toContain('grid-column:1/-1!important');
+  });
+
+  it('does not introduce activation or sending into the mobile shell',()=>{
+    const shell=read('src/components/admin/email-builder-mobile-shell.tsx');
+    expect(shell).not.toContain('/activate');
+    expect(shell).not.toContain('sendTransactionalEmail');
+    expect(shell).not.toContain('fetch(');
+  });
+});

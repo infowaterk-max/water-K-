@@ -5,6 +5,7 @@ import { createAdminClient } from '@/lib/supabase/admin';
 import { getCommunicationIdentityForInstance } from '@/lib/communication/identity';
 import { emailDocumentSchema, type EmailRenderContext } from '@/lib/email-builder/types';
 import { EmailBuilderEditor } from '@/components/admin/email-builder-editor';
+import { EmailBuilderMobileShell } from '@/components/admin/email-builder-mobile-shell';
 import styles from './email-builder-workspace-page.module.css';
 
 export const dynamic='force-dynamic';
@@ -35,5 +36,5 @@ export default async function EmailTemplateEditorPage({params}:{params:Promise<{
   if(template.brand_kit_id){const{data}=await admin.from('email_brand_kits').select('logo_url').eq('instance_id',scope.instanceId).eq('id',template.brand_kit_id).maybeSingle();logoUrl=data?.logo_url??null;}
   else{const{data}=await admin.from('email_brand_kits').select('logo_url').eq('instance_id',scope.instanceId).eq('is_default',true).maybeSingle();logoUrl=data?.logo_url??null;}
   const identity=await getCommunicationIdentityForInstance(scope.instanceId);
-  return <div className={styles.workspacePage}><EmailBuilderEditor template={{id:template.id,name:template.name,status:template.status,activeVersionId:template.active_version_id,updatedAt:template.updated_at}} initialDocument={parsed.data} previewContext={demoContext({name:identity.brandName,siteUrl:identity.siteUrl,supportEmail:identity.supportEmail},logoUrl)}/></div>;
+  return <div className={styles.workspacePage}><EmailBuilderMobileShell><EmailBuilderEditor template={{id:template.id,name:template.name,status:template.status,activeVersionId:template.active_version_id,updatedAt:template.updated_at}} initialDocument={parsed.data} previewContext={demoContext({name:identity.brandName,siteUrl:identity.siteUrl,supportEmail:identity.supportEmail},logoUrl)}/></EmailBuilderMobileShell></div>;
 }
