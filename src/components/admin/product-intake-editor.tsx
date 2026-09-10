@@ -32,7 +32,7 @@ export function ProductIntakeEditor({initialData}: {initialData?:ProductIntakeIn
   const[category,setCategory]=useState(initialData?.category??'');
   const[baseSku,setBaseSku]=useState(initialData?.baseSku??initialData?.variants?.[0]?.sku.split('-')[0]??'RUN');
   const[netPrice,setNetPrice]=useState(fallbackNet),[grossPrice,setGrossPrice]=useState(fallbackGross);
-  const[colors,setColors]=useState(initialData?.colors?.length?initialData.colors:initialColors),[sizes,setSizes]=useState(initialData?.sizes?.length?initialData.sizes:initialSizes);
+  const[colors,setColors]=useState(editing?(initialData?.colors??[]):(initialData?.colors?.length?initialData.colors:initialColors)),[sizes,setSizes]=useState(editing?(initialData?.sizes??[]):(initialData?.sizes?.length?initialData.sizes:initialSizes));
   const[variants,setVariants]=useState<VariantDraft[]>(()=>initialData?.variants?.length?initialData.variants.map((v,index)=>({key:v.id||`${v.label}-${index}`,id:v.id,label:v.label,sku:v.sku,netPrice:v.netPrice,grossPrice:v.grossPrice,stock:v.stock,active:v.active,selected:false,mediaKey:v.primaryMediaId&&mediaKeys.has(v.primaryMediaId)?v.primaryMediaId:null})):buildVariants(initialColors,initialSizes,'RUN',19677,24990));
   const[mediaItems,setMediaItems]=useState<MediaItem[]>(initialMedia);
   const[productId,setProductId]=useState(initialData?.productId??''),[revision,setRevision]=useState(initialData?.updatedAt??'');
@@ -42,7 +42,7 @@ export function ProductIntakeEditor({initialData}: {initialData?:ProductIntakeIn
 
   const selectedCount=variants.filter(v=>v.selected).length,activeCount=variants.filter(v=>v.active).length;
   const mediaByKey=useMemo(()=>new Map(mediaItems.map(item=>[item.key,item])),[mediaItems]);
-  const signature=useMemo(()=>JSON.stringify({name,shortDescription,description,seoTitle,seoDescription,category,colors,sizes,b2cVisible,b2bVisible,variants:variants.map(({id,label,sku,netPrice,grossPrice,stock,active,mediaKey})=>({id,label,sku,netPrice,grossPrice,stock,active,mediaKey}))}),[name,shortDescription,description,seoTitle,seoDescription,category,colors,sizes,b2cVisible,b2bVisible,variants]);
+  const signature=useMemo(()=>JSON.stringify({name,shortDescription,description,seoTitle,seoDescription,category,colors,sizes,b2cVisible,b2bVisible,variants:variants.map(({label,sku,netPrice,grossPrice,stock,active,mediaKey})=>({label,sku,netPrice,grossPrice,stock,active,mediaKey}))}),[name,shortDescription,description,seoTitle,seoDescription,category,colors,sizes,b2cVisible,b2bVisible,variants]);
   const savedSignature=useRef(signature);
   const dirty=signature!==savedSignature.current;
   const pendingAssignedMedia=variants.some(v=>v.mediaKey&&!mediaByKey.get(v.mediaKey)?.id);
