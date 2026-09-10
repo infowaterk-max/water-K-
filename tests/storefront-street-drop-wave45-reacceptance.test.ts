@@ -97,7 +97,7 @@ describe('Scale-out Wave 45 Street Drop current-baseline reacceptance',()=>{
 
   it('keeps scarcity, release status and urgency fail-closed without template-local truth',()=>{
     const release=nodeById(STREET_DROP_HOME_PAGE,'street-drop-release-copy');
-    expect(release?.bindings?.text?.path).toBe('drop.releaseStatus');
+    expect(release?.bindings?.text?.path).toBe('inventory.releaseStatus');
     expect(release?.bindings?.text?.fallback).toBe('Nincs aktív release státusz.');
     const limited=nodeById(STREET_DROP_HOME_PAGE,'limitedStock');
     expect(limited?.bindings?.products?.path).toBe('catalog.limited');
