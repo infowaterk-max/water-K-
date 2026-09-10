@@ -25,7 +25,7 @@ describe('campaign and office workspace mutation safety',()=>{
    const chat=read('src/app/admin/kommunikacio/chat/page.tsx');
 
    expect(email).toContain(".eq('conversation_type','customer')");
-   expect(email).toContain('!loadError&&<form action={updateThreadAction}');
+   expect(email).toContain('!loadError?<form action={updateThreadAction}');
    expect(email).toContain('form action={markCustomerThreadReadAction}');
    expect(email).toContain('<OfficeCustomerEmailForm');
    expect(email).toContain('<form action={createTaskAction}');

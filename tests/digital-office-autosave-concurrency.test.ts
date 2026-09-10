@@ -72,7 +72,7 @@ describe('Digital Office autosave and concurrency contract',()=>{
     expect(newPage).toContain('revision:draft.revision');
     expect(workspace).toContain(".eq('instance_id',scope.instanceId).eq('author_user_id',actor.id).eq('draft_type','reply')");
     expect(workspace).toContain("select('id,thread_id,body,cc_emails,bcc_emails,revision,updated_at')");
-    expect(workspace).toContain('initialDraft={replyDraft?{id:replyDraft.id,revision:replyDraft.revision,ccEmails:replyDraft.cc_emails??[],bccEmails:replyDraft.bcc_emails??[],body:replyDraft.body}:undefined}');
+    expect(workspace).toContain('initialDraft={selectedDraft?{id:selectedDraft.id,revision:selectedDraft.revision,ccEmails:selectedDraft.cc_emails??[],bccEmails:selectedDraft.bcc_emails??[],body:selectedDraft.body}:undefined}');
   });
 
   it('keeps typing responsive during background autosave and blocks sending on conflict or missing mailbox readiness',()=>{
@@ -82,7 +82,7 @@ describe('Digital Office autosave and concurrency contract',()=>{
     expect(replyComposer).not.toContain("disabled={actionPending||draft.status==='saving'}");
     expect(newComposer).toContain("draft.status==='conflict'");
     expect(replyComposer).toContain("draft.status==='conflict'");
-    expect(workspace).toContain('thread.mailbox_key&&activeMailboxKeys.has(thread.mailbox_key)&&routedThreadIds.has(thread.id)');
+    expect(workspace).toContain('selectedThread?.mailbox_key&&activeMailboxKeys.has(selectedThread.mailbox_key)&&routedThreadIds.has(selectedThread.id)');
     expect(replyComposer).toContain('!sendingConfigured');
   });
 
