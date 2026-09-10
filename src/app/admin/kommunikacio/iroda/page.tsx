@@ -4,25 +4,27 @@ import {DigitalOfficeChatDock} from '@/components/admin/digital-office-chat-dock
 import {OfficeCustomerEmailForm} from '@/components/admin/office-customer-email-form';
 import {getAdminRequestUser} from '@/lib/auth/admin-api';
 import {hasStoreCapability} from '@/lib/auth/store-capabilities';
+import {hasStorePermission} from '@/lib/auth/store-rbac';
 import {hasCurrentPlanFeature,requirePlanFeature} from '@/lib/plans/access';
 import {createAdminClient} from '@/lib/supabase/admin';
 import {requireCurrentStoreContext} from '@/lib/instances/scope';
+import {formatHuf} from '@/lib/catalog';
 import {completeTaskAction,createTaskAction,updateThreadAction} from './actions';
 import {markCustomerThreadReadAction} from './customer-read-actions';
 
 export const dynamic='force-dynamic';
 
-type Thread={id:string;subject:string;customer_email:string|null;order_id:string|null;status:string;priority:string;assigned_to:string|null;last_read_at:string|null;mailbox_key:string|null;updated_at:string;conversation_type:'customer'};
+type Thread={id:string;subject:string;customer_email:string|null;order_id:string|null;status:string;priority:string;assigned_to:string|null;last_read_at:string|null;mailbox_key:string|null;updated_at:string;conversation_type:'customer';customer_user_id:string|null;customer_ref:string|null;sales_owner_user_id:string|null};
 type Message={id:string;thread_id:string;author_id:string|null;acting_for_user_id:string|null;kind:string;body:string;created_at:string;communication_job_id:string|null;subject:string|null;cc_emails:string[];bcc_emails:string[];attachment_count:number};
 type Attachment={id:string;message_id:string;original_name:string;byte_size:number|string};
 type ObjectLink={id:string;message_id:string;object_type:'order'|'commercial_offer'|'return_case'|'support_ticket'|'task';object_id:string};
 type Task={id:string;thread_id:string|null;title:string;status:string;assigned_to:string|null;due_at:string|null;created_at:string};
-type Order={id:string;order_number:string;customer_email:string;status:string};
+type Order={id:string;order_number:string;billing_name:string;customer_email:string;status:string;total_gross_huf:number;shipping_method:string|null;payment_method:string|null;tracking_number:string|null};
 type Job={id:string;status:string;last_error:string|null};
 type Binding={user_id:string;role_code:string;instance_id:string|null;valid_until:string|null};
 type Profile={id:string;email:string|null;full_name:string|null};
 type ReplyDraft={id:string;thread_id:string|null;body:string;cc_emails:string[];bcc_emails:string[];revision:number;updated_at:string};
-type Mailbox={mailbox_key:string;is_active:boolean};
+type Mailbox={mailbox_key:string;label:string;is_active:boolean;responsible_user_id:string|null};
 type EmailRoute={thread_id:string};
 type Assignee={userId:string;label:string};
 type InboxFilter='inbox'|'unread'|'mine'|'drafts'|'sent'|'urgent'|'closed'|'all';
@@ -42,7 +44,10 @@ export default async function CustomerEmailWorkspace({searchParams}:{searchParam
   const actor=await getAdminRequestUser('support.manage');
   if(!actor)redirect('/admin/hozzaferes-megtagadva');
   const scope=await requireCurrentStoreContext('support.manage');
-  const advancedEmail=await hasCurrentPlanFeature('officeCommunicationAdvanced');
+  const[advancedEmail,canMarketing]=await Promise.all([
+    hasCurrentPlanFeature('officeCommunicationAdvanced'),
+    hasStorePermission(scope.instanceId,'marketing.manage'),
+  ]);
   const{q='',filter:rawFilter='inbox',thread:requestedThreadId,chat:selectedChatId}=await searchParams;
   const allowedFilters=new Set<InboxFilter>(['inbox','unread','mine','drafts','sent','urgent','closed','all']);
   const normalizedRaw=rawFilter==='open'?'inbox':rawFilter;
@@ -50,16 +55,18 @@ export default async function CustomerEmailWorkspace({searchParams}:{searchParam
   const db=createAdminClient();
 
   const[threadResult,taskResult,orderResult,jobResult,bindingResult,draftResult,mailboxResult]=await Promise.all([
-    db.from('office_threads').select('id,subject,customer_email,order_id,status,priority,assigned_to,last_read_at,mailbox_key,updated_at,conversation_type').eq('instance_id',scope.instanceId).eq('conversation_type','customer').order('updated_at',{ascending:false}).limit(200),
+    db.from('office_threads').select('id,subject,customer_email,order_id,status,priority,assigned_to,last_read_at,mailbox_key,updated_at,conversation_type,customer_user_id,customer_ref,sales_owner_user_id').eq('instance_id',scope.instanceId).eq('conversation_type','customer').order('updated_at',{ascending:false}).limit(200),
     db.from('office_tasks').select('id,thread_id,title,status,assigned_to,due_at,created_at').eq('instance_id',scope.instanceId).order('created_at',{ascending:false}).limit(300),
-    db.from('orders').select('id,order_number,customer_email,status').eq('instance_id',scope.instanceId).order('created_at',{ascending:false}).limit(300),
+    db.from('orders').select('id,order_number,billing_name,customer_email,status,total_gross_huf,shipping_method,payment_method,tracking_number').eq('instance_id',scope.instanceId).order('created_at',{ascending:false}).limit(300),
     db.from('communication_jobs').select('id,status,last_error').eq('instance_id',scope.instanceId).order('created_at',{ascending:false}).limit(1500),
     scope.organizationId?db.from('role_bindings').select('user_id,role_code,instance_id,valid_until').eq('organization_id',scope.organizationId).is('revoked_at',null).lte('valid_from',new Date().toISOString()).or(`instance_id.eq.${scope.instanceId},instance_id.is.null`):Promise.resolve({data:[] as Binding[],error:null}),
     db.from('office_drafts').select('id,thread_id,body,cc_emails,bcc_emails,revision,updated_at').eq('instance_id',scope.instanceId).eq('author_user_id',actor.id).eq('draft_type','reply').order('updated_at',{ascending:false}).limit(200),
-    db.from('office_mailboxes').select('mailbox_key,is_active').eq('instance_id',scope.instanceId).eq('is_active',true).limit(50),
+    db.from('office_mailboxes').select('mailbox_key,label,is_active,responsible_user_id').eq('instance_id',scope.instanceId).eq('is_active',true).limit(50),
   ]);
 
   const threads=(threadResult.data??[])as Thread[];
+  const orders=(orderResult.data??[])as Order[];
+  const mailboxes=(mailboxResult.data??[])as Mailbox[];
   const threadIds=threads.map(thread=>thread.id);
   const messageResult=threadIds.length?await db.from('office_messages').select('id,thread_id,author_id,acting_for_user_id,kind,body,created_at,communication_job_id,subject,cc_emails,bcc_emails,attachment_count').eq('instance_id',scope.instanceId).in('thread_id',threadIds).in('kind',['email_in','email_out']).order('created_at',{ascending:false}).limit(1500):{data:[] as Message[],error:null};
   const messages=(messageResult.data??[])as Message[];
@@ -73,21 +80,25 @@ export default async function CustomerEmailWorkspace({searchParams}:{searchParam
   const bindings=((bindingResult.data??[])as Binding[]).filter(row=>active(row.valid_until));
   const supportUserIds=[...new Set(bindings.filter(row=>supportRoles.has(row.role_code)).map(row=>row.user_id))];
   const evidenceUserIds=[...new Set(messages.flatMap(message=>[message.author_id,message.acting_for_user_id]).filter((value):value is string=>Boolean(value)))];
-  const profileIds=[...new Set([...supportUserIds,...evidenceUserIds])];
+  const relationshipUserIds=[...new Set([
+    ...threads.flatMap(thread=>[thread.assigned_to,thread.customer_user_id,thread.sales_owner_user_id]),
+    ...mailboxes.map(mailbox=>mailbox.responsible_user_id),
+  ].filter((value):value is string=>Boolean(value)))];
+  const profileIds=[...new Set([...supportUserIds,...evidenceUserIds,...relationshipUserIds])];
   const profileResult=profileIds.length?await db.from('profiles').select('id,email,full_name').in('id',profileIds):{data:[] as Profile[],error:null};
   const profileMap=new Map(((profileResult.data??[])as Profile[]).map(profile=>[profile.id,profile]));
   const labelFor=(userId:string)=>profileMap.get(userId)?.full_name||profileMap.get(userId)?.email||shortId(userId);
+  const customerLabelFor=(thread:Thread)=>thread.customer_user_id&&profileMap.get(thread.customer_user_id)?.full_name||orders.find(order=>order.id===thread.order_id)?.billing_name||thread.customer_email||'Ismeretlen ügyfél';
   const assignees:Assignee[]=supportUserIds.map(userId=>({userId,label:labelFor(userId)})).sort((a,b)=>a.label.localeCompare(b.label,'hu'));
 
   const attachments=(attachmentResult.data??[])as Attachment[];
   const objectLinks=(objectLinkResult.data??[])as ObjectLink[];
   const tasks=((taskResult.data??[])as Task[]).filter(task=>task.thread_id===null||threadIds.includes(task.thread_id));
-  const orders=(orderResult.data??[])as Order[];
   const jobMap=new Map(((jobResult.data??[])as Job[]).map(job=>[job.id,job]));
   const drafts=(draftResult.data??[])as ReplyDraft[];
   const draftByThread=new Map<string,ReplyDraft>();for(const draft of drafts){if(draft.thread_id&&!draftByThread.has(draft.thread_id))draftByThread.set(draft.thread_id,draft)}
   const routedThreadIds=new Set(((routeResult.data??[])as EmailRoute[]).map(route=>route.thread_id));
-  const activeMailboxKeys=new Set(((mailboxResult.data??[])as Mailbox[]).filter(mailbox=>mailbox.is_active).map(mailbox=>mailbox.mailbox_key));
+  const activeMailboxKeys=new Set(mailboxes.filter(mailbox=>mailbox.is_active).map(mailbox=>mailbox.mailbox_key));
   const canChat=await hasStoreCapability(scope.instanceId,actor.id,'office.internal_chat',{resourceOwnerUserId:actor.id,resourceAssignedUserId:actor.id});
   const loadError=Boolean(threadResult.error||orderResult.error||jobResult.error||draftResult.error||mailboxResult.error||messageResult.error||routeResult.error||attachmentResult.error||(advancedEmail&&(taskResult.error||bindingResult.error||profileResult.error||objectLinkResult.error)));
 
@@ -104,13 +115,19 @@ export default async function CustomerEmailWorkspace({searchParams}:{searchParam
     if(filter==='urgent')return thread.status==='open'&&thread.priority==='urgent';
     return thread.status==='closed';
   };
-  const matchesSearch=(thread:Thread)=>!needle||thread.subject.toLowerCase().includes(needle)||thread.customer_email?.toLowerCase().includes(needle)||orders.find(order=>order.id===thread.order_id)?.order_number.toLowerCase().includes(needle);
+  const matchesSearch=(thread:Thread)=>!needle||thread.subject.toLowerCase().includes(needle)||thread.customer_email?.toLowerCase().includes(needle)||orders.find(order=>order.id===thread.order_id)?.order_number.toLowerCase().includes(needle)||customerLabelFor(thread).toLowerCase().includes(needle);
   const visible=threads.filter(thread=>matchesFilter(thread)&&matchesSearch(thread));
   const selectedThread=threads.find(thread=>thread.id===requestedThreadId)??visible[0]??null;
   const selectedMessages=selectedThread?messages.filter(message=>message.thread_id===selectedThread.id).slice(0,60).reverse():[];
+  const selectedMessageIds=new Set(selectedMessages.map(message=>message.id));
   const selectedOrder=selectedThread?orders.find(order=>order.id===selectedThread.order_id):undefined;
+  const selectedMailbox=selectedThread?mailboxes.find(mailbox=>mailbox.mailbox_key===selectedThread.mailbox_key):undefined;
   const selectedDraft=selectedThread?draftByThread.get(selectedThread.id):undefined;
   const selectedTasks=selectedThread?tasks.filter(task=>task.thread_id===selectedThread.id):[];
+  const selectedObjectLinks=objectLinks.filter(link=>selectedMessageIds.has(link.message_id));
+  const linkedCount=(type:ObjectLink['object_type'])=>new Set(selectedObjectLinks.filter(link=>link.object_type===type).map(link=>link.object_id)).size;
+  const selectedOrderCount=new Set([...selectedObjectLinks.filter(link=>link.object_type==='order').map(link=>link.object_id),...(selectedOrder?[selectedOrder.id]:[])]).size;
+  const previousThreadCount=selectedThread?.customer_email?threads.filter(thread=>thread.id!==selectedThread.id&&thread.customer_email?.toLowerCase()===selectedThread.customer_email?.toLowerCase()).length:0;
   const sendingConfigured=Boolean(selectedThread?.mailbox_key&&activeMailboxKeys.has(selectedThread.mailbox_key)&&routedThreadIds.has(selectedThread.id));
   const now=Date.now();
   const dateTime=new Intl.DateTimeFormat('hu-HU',{dateStyle:'short',timeStyle:'short',timeZone:'Europe/Budapest'});
@@ -154,12 +171,9 @@ export default async function CustomerEmailWorkspace({searchParams}:{searchParam
           {navItem('sent','Elküldött',sentCount)}
           {navItem('urgent','Sürgős',urgentCount)}
           {navItem('closed','Lezárt',closedCount)}
-          {navItem('all','Összes',threads.length)}
-          <small>MUNKATÉR</small>
-          {canChat&&<Link href="/admin/kommunikacio/chat"><span>Belső chat</span></Link>}
-          {advancedEmail&&<Link href="/admin/kommunikacio/iroda/hub"><span>Communication Hub</span></Link>}
-          {advancedEmail&&<Link href="/admin/kommunikacio/felugyelet"><span>Küldési központ</span></Link>}
-          <Link href="/admin/kommunikacio/tiltolista"><span>Tiltólista</span></Link>
+          <span className="digitalOfficeFilterSpacer" aria-hidden="true"/>
+          {advancedEmail&&canMarketing&&<Link href="/admin/kommunikacio/felugyelet"><span>Küldési központ</span></Link>}
+          {canMarketing&&<Link href="/admin/email-sablonok"><span>E-mail sablonok</span></Link>}
         </nav>
         <div className="digitalOfficeLocalRailFooter"><span className={sendingConfigured?'isReady':'isLocked'}>{sendingConfigured?'Küldés aktív':'Küldés nincs aktiválva'}</span><small>A jelenlegi webshop e-mail címeit nem használjuk.</small></div>
       </aside>
@@ -173,8 +187,8 @@ export default async function CustomerEmailWorkspace({searchParams}:{searchParam
         <div className="digitalOfficeQuickFilters"><Link href={href({filter:'inbox',thread:null})} aria-current={filter==='inbox'?'page':undefined}>Összes nyitott</Link><Link href={href({filter:'unread',thread:null})} aria-current={filter==='unread'?'page':undefined}>Olvasatlan</Link><Link href={href({filter:'urgent',thread:null})} aria-current={filter==='urgent'?'page':undefined}>Sürgős</Link></div>
         <div className="digitalOfficeThreadList">
           {visible.map(thread=>{const lastMessage=messages.find(message=>message.thread_id===thread.id);const order=orders.find(item=>item.id===thread.order_id);const draft=draftByThread.get(thread.id);return <Link className="digitalOfficeThreadItem" data-active={selectedThread?.id===thread.id?'true':'false'} key={thread.id} href={threadHref(thread)}>
-            <span className="digitalOfficeAvatar">{initials(thread.customer_email??thread.subject)}</span>
-            <span className="digitalOfficeThreadItemBody"><span><strong>{thread.customer_email??'Ismeretlen ügyfél'}</strong><time>{timeOnly.format(new Date(thread.updated_at))}</time></span><b>{thread.subject}</b><small>{lastMessage?shortText(lastMessage.body):'Még nincs üzenet'}</small><em>{order&&<i>{order.order_number}</i>}<i data-priority={thread.priority}>{priorityLabel[thread.priority]??thread.priority}</i>{draft&&<i>Piszkozat</i>}</em></span>
+            <span className="digitalOfficeAvatar">{initials(customerLabelFor(thread))}</span>
+            <span className="digitalOfficeThreadItemBody"><span><strong>{customerLabelFor(thread)}</strong><time>{timeOnly.format(new Date(thread.updated_at))}</time></span><b>{thread.subject}</b><small>{lastMessage?shortText(lastMessage.body):'Még nincs üzenet'}</small><em>{order&&<i>{order.order_number}</i>}<i data-priority={thread.priority}>{priorityLabel[thread.priority]??thread.priority}</i>{draft&&<i>Piszkozat</i>}</em></span>
             {unread(thread)&&<span className="digitalOfficeUnreadDot" aria-label="Olvasatlan"/>}
           </Link>})}
           {!threadResult.error&&!visible.length&&<div className="digitalOfficeThreadEmpty"><strong>Nincs találat</strong><p>A kiválasztott szűrőhöz nem tartozik ügyféllevelezés.</p></div>}
@@ -184,19 +198,19 @@ export default async function CustomerEmailWorkspace({searchParams}:{searchParam
       <main className="digitalOfficeConversationPane">
         {selectedThread?<>
           <header className="digitalOfficeConversationHeader">
-            <div><div className="digitalOfficeConversationTitle"><h1>{selectedThread.subject}</h1><span className="adminStatePill" data-status={selectedThread.status==='open'?'processing':'sent'}>{selectedThread.status==='open'?'Nyitott':'Lezárt'}</span><span className="badge">{priorityLabel[selectedThread.priority]??selectedThread.priority}</span></div><p>{selectedThread.customer_email??'Nincs ügyfél e-mail'}{selectedOrder&&<> · <Link className="textLink" href={`/admin/rendelesek/${selectedOrder.id}`}>{selectedOrder.order_number}</Link></>}</p></div>
+            <div><div className="digitalOfficeConversationTitle"><h1>{selectedThread.subject}{selectedOrder?` · ${selectedOrder.order_number}`:''}</h1><span className="adminStatePill" data-status={selectedThread.status==='open'?'processing':'sent'}>{selectedThread.status==='open'?'Nyitott':'Lezárt'}</span><span className="badge">{priorityLabel[selectedThread.priority]??selectedThread.priority}</span></div><p>{customerLabelFor(selectedThread)} · {selectedThread.customer_email??'Nincs ügyfél e-mail'}{selectedMailbox?` · mailbox: ${selectedMailbox.label}`:''}</p></div>
             <div className="digitalOfficeConversationActions">{unread(selectedThread)&&!loadError&&<form action={markCustomerThreadReadAction}><input type="hidden" name="threadId" value={selectedThread.id}/><button className="btn btnGhost">Olvasottnak</button></form>}{selectedOrder&&<Link className="btn btnGhost" href={`/admin/rendelesek/${selectedOrder.id}`}>Rendelés megnyitása</Link>}</div>
           </header>
           <div className="digitalOfficeConversationMessages">
             {selectedMessages.map(message=>{const job=message.communication_job_id?jobMap.get(message.communication_job_id):null;const messageAttachments=attachments.filter(item=>item.message_id===message.id);const links=objectLinks.filter(item=>item.message_id===message.id);const outbound=message.kind==='email_out';return <article className={outbound?'digitalOfficeMessage isOutbound':'digitalOfficeMessage isInbound'} key={message.id}>
-              <div className="digitalOfficeMessageAvatar">{initials(outbound?(message.author_id?labelFor(message.author_id):'Shoporation'):(selectedThread.customer_email??'Ügyfél'))}</div>
+              <div className="digitalOfficeMessageAvatar">{initials(outbound?(message.author_id?labelFor(message.author_id):'Shoporation'):customerLabelFor(selectedThread))}</div>
               <div className="digitalOfficeMessageCard">
-                <header><div><strong>{outbound?(message.author_id?labelFor(message.author_id):'Webshop'):(selectedThread.customer_email??'Ügyfél')}</strong><small>{outbound&&message.acting_for_user_id?` · ${labelFor(message.acting_for_user_id)} nevében`:outbound?' · Shoporation':' · ügyfél'}</small></div><time>{dateTime.format(new Date(message.created_at))}</time></header>
+                <header><div><strong>{outbound?(message.author_id?labelFor(message.author_id):'Webshop'):customerLabelFor(selectedThread)}</strong><small>{outbound&&message.acting_for_user_id?` · ${labelFor(message.acting_for_user_id)} nevében`:outbound?' · Shoporation':' · ügyfél'}</small></div><time>{dateTime.format(new Date(message.created_at))}</time></header>
                 {message.subject&&<h3>{message.subject}</h3>}
                 {!!message.cc_emails?.length&&<small className="digitalOfficeEnvelope">CC: {message.cc_emails.join(', ')}</small>}
                 {!!message.bcc_emails?.length&&<small className="digitalOfficeEnvelope">BCC: {message.bcc_emails.join(', ')}</small>}
                 <p>{message.body}</p>
-                {messageAttachments.length>0&&<div className="digitalOfficeAttachmentRow">{messageAttachments.map(item=><Link key={item.id} href={`/api/admin/office/attachments/${item.id}`}>📎 {item.original_name}<small>{fileSize(item.byte_size)}</small></Link>)}</div>}
+                {messageAttachments.length>0&&<div className="digitalOfficeAttachmentRow">{messageAttachments.map(item=><Link key={item.id} href={`/api/admin/office/attachments/${item.id}`}>📎 {item.original_name}<small>{fileSize(item.byte_size)} · ellenőrzött</small></Link>)}</div>}
                 {advancedEmail&&links.length>0&&<div className="digitalOfficeObjectRow">{links.map(link=><span className="badge" key={link.id}>{objectLabel[link.object_type]} · {link.object_type==='order'?(orders.find(order=>order.id===link.object_id)?.order_number??shortId(link.object_id)):shortId(link.object_id)}</span>)}</div>}
                 {job&&<footer><span className="adminStatePill" data-status={job.status}>{jobLabel[job.status]??job.status}</span>{job.last_error&&<small>{job.last_error}</small>}</footer>}
               </div>
@@ -209,10 +223,12 @@ export default async function CustomerEmailWorkspace({searchParams}:{searchParam
 
       <aside className="digitalOfficeContextPane" aria-label="Ügyfélkontextus">
         {selectedThread?<>
-          <section className="digitalOfficeContextSection"><span className="eyebrow">Ügyfél</span><div className="digitalOfficeCustomerIdentity"><span className="digitalOfficeAvatar isLarge">{initials(selectedThread.customer_email??selectedThread.subject)}</span><div><strong>{selectedThread.customer_email??'Ismeretlen ügyfél'}</strong><small>{selectedOrder?'Rendeléshez kapcsolt ügyfél':'Közvetlen ügyféllevél'}</small></div></div></section>
-          {selectedOrder&&<section className="digitalOfficeContextSection"><div className="digitalOfficeContextHeading"><h2>Rendelés</h2><span>{selectedOrder.status}</span></div><strong className="digitalOfficeOrderNumber">{selectedOrder.order_number}</strong><p>{selectedOrder.customer_email}</p><Link className="btn btnGhost" href={`/admin/rendelesek/${selectedOrder.id}`}>Rendelés megnyitása</Link></section>}
+          <section className="digitalOfficeContextSection"><span className="eyebrow">Ügyfél</span><div className="digitalOfficeCustomerIdentity"><span className="digitalOfficeAvatar isLarge">{initials(customerLabelFor(selectedThread))}</span><div><strong>{customerLabelFor(selectedThread)}</strong><small>{selectedThread.customer_email??'Nincs ügyfél e-mail'}</small>{selectedThread.customer_user_id&&<span className="digitalOfficeContextBadge">Regisztrált vásárló</span>}</div></div></section>
+          {selectedOrder&&<section className="digitalOfficeContextSection"><div className="digitalOfficeContextHeading"><h2>Aktuális rendelés</h2><span>{selectedOrder.status}</span></div><strong className="digitalOfficeOrderNumber">{selectedOrder.order_number}</strong><div className="digitalOfficeContextStats"><div><span>Állapot</span><strong>{selectedOrder.status}</strong></div><div><span>Fizetés</span><strong>{selectedOrder.payment_method??'—'}</strong></div><div><span>Szállítás</span><strong>{selectedOrder.shipping_method??'—'}</strong></div><div><span>Összeg</span><strong>{formatHuf(selectedOrder.total_gross_huf)}</strong></div>{selectedOrder.tracking_number&&<div><span>Nyomkövetés</span><strong>{selectedOrder.tracking_number}</strong></div>}</div><Link className="btn btnGhost" href={`/admin/rendelesek/${selectedOrder.id}`}>Rendelés megnyitása</Link></section>}
+          {advancedEmail&&<section className="digitalOfficeContextSection"><div className="digitalOfficeContextHeading"><h2>Felelősség</h2><Link href="/admin/kommunikacio/iroda/hub">Kapcsolatok kezelése</Link></div><div className="digitalOfficeContextStats"><div><span>Ügy felelőse</span><strong>{selectedThread.assigned_to?(selectedThread.assigned_to===actor.id?'Te':labelFor(selectedThread.assigned_to)):'Nincs'}</strong></div><div><span>Mailbox felelős</span><strong>{selectedMailbox?.responsible_user_id?labelFor(selectedMailbox.responsible_user_id):'Nincs'}</strong></div><div><span>Sales owner</span><strong>{selectedThread.sales_owner_user_id?labelFor(selectedThread.sales_owner_user_id):'Nincs'}</strong></div><div><span>CRM ref</span><strong>{selectedThread.customer_ref??'Nincs'}</strong></div></div></section>}
           <section className="digitalOfficeContextSection"><h2>Ügykezelés</h2>{!loadError?<form action={updateThreadAction} className="stackForm digitalOfficeContextForm"><input type="hidden" name="threadId" value={selectedThread.id}/><label><span>Prioritás</span><select name="priority" defaultValue={selectedThread.priority}><option value="low">Alacsony</option><option value="normal">Normál</option><option value="high">Magas</option><option value="urgent">Sürgős</option></select></label><label><span>Állapot</span><select name="status" defaultValue={selectedThread.status}><option value="open">Nyitott</option><option value="closed">Lezárt</option></select></label>{advancedEmail&&<label><span>Felelős</span><select name="assigneeUserId" defaultValue={selectedThread.assigned_to??''}><option value="">Nincs felelős</option>{assignees.map(member=><option key={member.userId} value={member.userId}>{member.label}</option>)}</select></label>}<button className="btn btnPrimary">Mentés</button></form>:<p className="muted">Az ügykezelési adatok most nem módosíthatók.</p>}</section>
-          {advancedEmail&&<section className="digitalOfficeContextSection" id="office-tasks"><div className="digitalOfficeContextHeading"><h2>Feladatok</h2><span>{selectedTasks.filter(task=>task.status==='open').length} nyitott</span></div><div className="digitalOfficeTaskList">{selectedTasks.slice(0,8).map(task=><div key={task.id} data-status={task.status}><span><strong>{task.title}</strong><small>{task.due_at?`${new Date(task.due_at).getTime()<now?'Lejárt · ':''}${dateTime.format(new Date(task.due_at))}`:'Nincs határidő'}{task.assigned_to?` · ${labelFor(task.assigned_to)}`:''}</small></span>{task.status==='open'&&!loadError&&<form action={completeTaskAction}><input type="hidden" name="id" value={task.id}/><button title="Kész">✓</button></form>}</div>)}{!selectedTasks.length&&<p className="muted">Nincs kapcsolódó feladat.</p>}</div>{!loadError&&<form action={createTaskAction} className="stackForm digitalOfficeNewTask"><input type="hidden" name="threadId" value={selectedThread.id}/><input name="title" required placeholder="Új feladat"/><input name="due" type="datetime-local"/><button className="btn btnGhost">+ Feladat</button></form>}</section>}
+          {advancedEmail&&<section className="digitalOfficeContextSection" id="office-tasks"><div className="digitalOfficeContextHeading"><h2>Nyitott teendők</h2><span>{selectedTasks.filter(task=>task.status==='open').length}</span></div><div className="digitalOfficeTaskList">{selectedTasks.slice(0,8).map(task=><div key={task.id} data-status={task.status}><span><strong>{task.title}</strong><small>{task.due_at?`${new Date(task.due_at).getTime()<now?'Lejárt · ':''}${dateTime.format(new Date(task.due_at))}`:'Nincs határidő'}{task.assigned_to?` · ${labelFor(task.assigned_to)}`:''}</small></span>{task.status==='open'&&!loadError&&<form action={completeTaskAction}><input type="hidden" name="id" value={task.id}/><button title="Kész">✓</button></form>}</div>)}{!selectedTasks.length&&<p className="muted">Nincs kapcsolódó feladat.</p>}</div>{!loadError&&<form action={createTaskAction} className="stackForm digitalOfficeNewTask"><input type="hidden" name="threadId" value={selectedThread.id}/><input name="title" required placeholder="Új feladat"/><input name="due" type="datetime-local"/><button className="btn btnGhost">+ Feladat hozzáadása</button></form>}</section>}
+          {advancedEmail&&<section className="digitalOfficeContextSection"><h2>Kapcsolt elemek</h2><div className="digitalOfficeContextStats"><div><span>Rendelések</span><strong>{selectedOrderCount}</strong></div><div><span>Support ticket</span><strong>{linkedCount('support_ticket')}</strong></div><div><span>Visszáru</span><strong>{linkedCount('return_case')}</strong></div><div><span>Árajánlat</span><strong>{linkedCount('commercial_offer')}</strong></div><div><span>Korábbi thread</span><strong>{previousThreadCount}</strong></div></div></section>}
           <section className="digitalOfficeContextSection digitalOfficeSafetyNote"><strong>Biztonsági határ</strong><p>Az ügyféllevelezés és a Team Chat külön csatorna. Küldés csak külön jóváhagyott Digitális Iroda postafiókból történhet.</p></section>
         </>:<div className="digitalOfficeContextPlaceholder"><span>Ü</span><p>Az ügyfél, rendelés és feladatok adatai a kiválasztott beszélgetéshez jelennek meg.</p></div>}
       </aside>
