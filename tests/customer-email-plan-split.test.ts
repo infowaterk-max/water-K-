@@ -36,9 +36,9 @@ describe('Customer e-mail Alap / Pro plan split',()=>{
     expect(workspaceActions).toContain("supportAccess({advanced:true})");
     expect(workspaceActions).toContain("hasCurrentPlanFeature('officeCommunicationAdvanced')");
     expect(workspaceActions).toContain("select('assigned_to')");
-    expect(workspace).toContain('advancedEmail&&<Link className="btn btnGhost" href="/admin/kommunikacio/felugyelet">');
-    expect(workspace).toContain('{advancedEmail&&<select name="assigneeUserId"');
-    expect(workspace).toContain('{advancedEmail&&!loadError&&<form action={createTaskAction}');
+    expect(workspace).toMatch(/advancedEmail&&<Link href="\/admin\/kommunikacio\/felugyelet">/);
+    expect(workspace).toMatch(/advancedEmail&&<label><span>Felelős<\/span><select name="assigneeUserId"/);
+    expect(workspace).toMatch(/advancedEmail&&<section[^>]*id="office-tasks"[\s\S]*?<form action=\{createTaskAction\}/);
     expect(supervisionLayout).toContain("requirePlanFeature('officeCommunicationAdvanced')");
   });
 

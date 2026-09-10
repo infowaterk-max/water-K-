@@ -14,6 +14,7 @@ import './block4-reporting-context.css';
 import './block4-mobile-navigation.css';
 import './deferred-ui-polish.css';
 import './workspace-design-system.css';
+import './digital-office-workstation.css';
 import Link from 'next/link';
 import { AdminNavigation } from '@/components/navigation/admin-navigation';
 import { AdminMobileNavigation } from '@/components/navigation/admin-mobile-navigation';
