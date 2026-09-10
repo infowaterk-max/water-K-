@@ -5,11 +5,11 @@ import{describe,expect,it}from'vitest';
 const read=(path:string)=>readFileSync(join(process.cwd(),path),'utf8');
 
 describe('final communication application shell',()=>{
-  it('loads one route-scoped final shell after the compatibility layer',()=>{
+  it('loads the shared app shell before the dedicated desktop-site compatibility owner',()=>{
     const layout=read('src/app/admin/kommunikacio/layout.tsx');
-    expect(layout).toContain("import './mobile-desktop-compat.css';");
     expect(layout).toContain("import './communication-app-final.css';");
-    expect(layout.indexOf("import './mobile-desktop-compat.css';")).toBeLessThan(layout.indexOf("import './communication-app-final.css';"));
+    expect(layout).toContain("import './mobile-desktop-compat.css';");
+    expect(layout.indexOf("import './communication-app-final.css';")).toBeLessThan(layout.indexOf("import './mobile-desktop-compat.css';"));
   });
 
   it('uses three useful desktop panes without the duplicate local rail column',()=>{
@@ -32,7 +32,7 @@ describe('final communication application shell',()=>{
     expect(css).toContain('.digitalOfficeWorkstation[data-mobile-view="context"] .digitalOfficeContextPane');
   });
 
-  it('keeps Team Chat composer reachable on mobile and preserves list/chat/info screens',()=>{
+  it('keeps Team Chat composer reachable on native mobile and preserves list/chat/info screens',()=>{
     const css=read('src/app/admin/kommunikacio/communication-app-final.css');
     for(const state of['list','chat','info'])expect(css).toContain(`data-mobile-view=\"${state}\"`);
     expect(css).toContain('grid-template-rows:auto minmax(240px,1fr) auto!important');
@@ -40,16 +40,16 @@ describe('final communication application shell',()=>{
     expect(css).toContain('.teamChatDirectStarter{flex:0 0 auto!important}');
   });
 
-  it('gives mobile Desktop-site mode a bounded real desktop canvas without ratio height multiplication',()=>{
-    const css=read('src/app/admin/kommunikacio/communication-app-final.css');
-    expect(css).toContain('.adminGrid[data-desktop-site-touch="true"]');
-    expect(css).toContain('width:1280px!important');
-    expect(css).toContain('grid-template-columns:230px minmax(1050px,1fr)!important');
-    expect(css).toContain('height:760px!important');
-    expect(css).toContain('touch-action:pan-x pan-y pinch-zoom!important');
-    expect(css).not.toContain('1440 /');
-    expect(css).not.toContain('devicePixelRatio');
-    expect(css).not.toContain('visualViewport');
+  it('delegates touch-browser Desktop-site acceptance to the final compatibility file',()=>{
+    const appCss=read('src/app/admin/kommunikacio/communication-app-final.css');
+    const compatCss=read('src/app/admin/kommunikacio/mobile-desktop-compat.css');
+    expect(appCss).toContain('.adminGrid[data-desktop-site-touch="true"]');
+    expect(compatCss).toContain('.adminGrid[data-desktop-site-touch="true"]');
+    expect(compatCss).toContain('height:calc(100dvh - 112px)!important');
+    expect(compatCss).toContain('overflow-x:auto!important');
+    expect(compatCss).not.toContain('height:760px!important');
+    expect(compatCss).not.toContain('width:1280px!important');
+    expect(compatCss).not.toContain('width:1440px!important');
   });
 
   it('does not remove existing communication functions or release deferred infrastructure',()=>{
