@@ -1,0 +1,87 @@
+/* Digital Office performance/UI hardening — 2026-09-10.
+   Visual overrides only: no authorization, tenant, scanner or retention contract changes. */
+
+/* Immediate shell/loading feedback. */
+.digitalOfficeShell .digitalOfficeWorkspaceBarLoading{pointer-events:none}
+.digitalOfficeShell .digitalOfficeWorkspaceTabsSkeleton{display:flex;align-items:center;gap:6px;margin-left:auto}
+.digitalOfficeShell .digitalOfficeWorkspaceTabsSkeleton i{display:block;width:68px;height:28px;border-radius:8px;background:#edf3f1}
+.digitalOfficeLoading{min-height:520px}
+.digitalOfficeLoading .digitalOfficeSkeleton{display:block;background:linear-gradient(90deg,#eef3f1 25%,#f7f9f8 45%,#eef3f1 65%);background-size:220% 100%;animation:digitalOfficeSkeletonPulse 1.15s ease-in-out infinite;border-radius:8px}
+.digitalOfficeSkeletonTitle{width:min(360px,64vw);height:27px;margin-bottom:8px}
+.digitalOfficeSkeletonText{width:min(420px,72vw);height:11px}
+.digitalOfficeSkeletonDate{width:150px;height:28px}
+.digitalOfficeSkeletonCard{pointer-events:none}
+.digitalOfficeSkeletonIcon{width:34px;height:34px!important;flex:0 0 34px;border-radius:10px!important}
+.digitalOfficeSkeletonCard>span:last-child{width:100%}
+.digitalOfficeSkeletonCard i{display:block;font-style:normal}
+.digitalOfficeSkeletonLabel{width:58%;height:8px;margin-bottom:7px}
+.digitalOfficeSkeletonValue{width:34px;height:20px;margin-bottom:6px}
+.digitalOfficeSkeletonMeta{width:72%;height:7px}
+.digitalOfficeSkeletonPanel{display:grid;align-content:start;gap:12px;pointer-events:none}
+.digitalOfficeSkeletonPanelTitle{width:42%;height:12px}
+.digitalOfficeSkeletonRow{width:100%;height:38px;border-radius:9px!important}
+@keyframes digitalOfficeSkeletonPulse{0%{background-position:100% 0}100%{background-position:-100% 0}}
+@media(prefers-reduced-motion:reduce){.digitalOfficeLoading .digitalOfficeSkeleton{animation:none}}
+
+/* Action-needed rows: the whole item communicates state, not only the tiny chip. */
+.digitalOfficeShell .digitalOfficeApproval{
+  margin:6px 0!important;
+  padding:8px 9px!important;
+  border:1px solid transparent!important;
+  border-radius:10px!important;
+  transition:border-color .15s ease,background .15s ease,box-shadow .15s ease;
+}
+.digitalOfficeShell .digitalOfficeApproval:has(em[data-tone="warn"]){
+  border-color:#efd59e!important;
+  background:#fffaf0!important;
+}
+.digitalOfficeShell .digitalOfficeApproval:has(em[data-tone="danger"]){
+  border-color:#efc3bd!important;
+  background:#fff5f3!important;
+}
+.digitalOfficeShell .digitalOfficeApproval:hover:has(em[data-tone="warn"]),
+.digitalOfficeShell .digitalOfficeApproval:focus-visible:has(em[data-tone="warn"]){border-color:#dfb965!important;box-shadow:0 0 0 2px rgba(190,126,17,.06);outline:none}
+.digitalOfficeShell .digitalOfficeApproval:hover:has(em[data-tone="danger"]),
+.digitalOfficeShell .digitalOfficeApproval:focus-visible:has(em[data-tone="danger"]){border-color:#dc9188!important;box-shadow:0 0 0 2px rgba(190,70,60,.06);outline:none}
+
+.digitalOfficeShell .digitalOfficeTaskRow:has(>em[data-hot="true"]){
+  margin:5px 0!important;
+  padding:7px 8px!important;
+  border:1px solid #efc3bd!important;
+  border-radius:9px!important;
+  background:#fff5f3!important;
+}
+.digitalOfficeShell .digitalOfficeTaskRow:hover:has(>em[data-hot="true"]),
+.digitalOfficeShell .digitalOfficeTaskRow:focus-visible:has(>em[data-hot="true"]){border-color:#dc9188!important;background:#fff1ef!important;outline:none}
+
+/* Composer add-panel controls: deliberately compact, not form-sized. */
+.digitalOfficeShell .teamChatComposerTools>header>button{
+  width:22px!important;
+  height:22px!important;
+  min-width:22px!important;
+  min-height:22px!important;
+  flex:0 0 22px!important;
+  padding:0!important;
+  border-radius:7px!important;
+  font-size:12px!important;
+  line-height:1!important;
+}
+.digitalOfficeShell .teamChatAttachmentPicker{
+  gap:6px!important;
+  padding:7px!important;
+  border-radius:10px!important;
+}
+.digitalOfficeShell .teamChatFilePickerButton{
+  min-height:26px!important;
+  height:26px!important;
+  padding:0 8px!important;
+  border-radius:7px!important;
+  font-size:7px!important;
+  line-height:1!important;
+}
+.digitalOfficeShell .teamChatAttachmentState{padding:2px 5px!important;font-size:6px!important}
+
+@media(max-width:850px){
+  .digitalOfficeShell .digitalOfficeWorkspaceTabsSkeleton{display:none}
+  .digitalOfficeSkeletonDate{display:none!important}
+}
