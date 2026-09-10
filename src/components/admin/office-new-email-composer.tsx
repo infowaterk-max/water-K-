@@ -24,19 +24,19 @@ function draftFormData(snapshot:DraftSnapshot,draftId:string,revision:number|nul
   return data;
 }
 
-export function OfficeNewEmailComposer({mailboxes,initialDraft,compact=false}:{mailboxes:MailboxOption[];initialDraft?:InitialDraft;compact?:boolean}){
+export function OfficeNewEmailComposer({mailboxes,initialDraft,compact=false,advancedEmail=false}:{mailboxes:MailboxOption[];initialDraft?:InitialDraft;compact?:boolean;advancedEmail?:boolean}){
   const[toEmail,setToEmail]=useState(initialDraft?.toEmail??'');
-  const[ccEmails,setCcEmails]=useState(initialDraft?.ccEmails.join(', ')??'');
-  const[bccEmails,setBccEmails]=useState(initialDraft?.bccEmails.join(', ')??'');
+  const[ccEmails,setCcEmails]=useState(advancedEmail?initialDraft?.ccEmails.join(', ')??'':'');
+  const[bccEmails,setBccEmails]=useState(advancedEmail?initialDraft?.bccEmails.join(', ')??'':'');
   const[subject,setSubject]=useState(initialDraft?.subject??'');
   const[body,setBody]=useState(initialDraft?.body??'');
   const[mailboxKey,setMailboxKey]=useState(mailboxes[0]?.mailboxKey??'');
   const[operationState,setOperationState]=useState<OfficeComposerActionState>(officeComposerInitialState);
   const[actionPending,startTransition]=useTransition();
-  const sendingConfigured=mailboxes.length>0;
-  const snapshot:DraftSnapshot={toEmail,ccEmails,bccEmails,subject,body};
+  const sendingConfigured=advancedEmail?mailboxes.length>0:mailboxes.length===1;
+  const snapshot:DraftSnapshot={toEmail,ccEmails:advancedEmail?ccEmails:'',bccEmails:advancedEmail?bccEmails:'',subject,body};
   const snapshotKey=JSON.stringify(snapshot);
-  const meaningful=[toEmail,ccEmails,bccEmails,subject,body].some(value=>value.trim().length>0);
+  const meaningful=(advancedEmail?[toEmail,ccEmails,bccEmails,subject,body]:[toEmail,subject,body]).some(value=>value.trim().length>0);
 
   const draft=useOfficeDraftAutosave({
     snapshot,
@@ -77,7 +77,7 @@ export function OfficeNewEmailComposer({mailboxes,initialDraft,compact=false}:{m
       const safeRevision=saveResult?.revision??draft.revision;
       const result=await sendNewEmailAction(
         officeComposerInitialState,
-        draftFormData(snapshot,safeDraftId,safeRevision,mailboxKey),
+        draftFormData(snapshot,safeDraftId,safeRevision,advancedEmail?mailboxKey:undefined),
       );
       setOperationState(result);
       if(result.status==='success'){
@@ -108,14 +108,14 @@ export function OfficeNewEmailComposer({mailboxes,initialDraft,compact=false}:{m
   return <div className={compact?'stackForm':'featurePanel'} aria-busy={actionPending||draft.status==='saving'}>
     {!compact&&<><span className="eyebrow">1:1 operatív e-mail</span><h2>Új üzenet</h2></>}
     <input type="email" value={toEmail} onChange={event=>setToEmail(event.target.value)} maxLength={320} placeholder="Címzett e-mail címe" disabled={actionPending}/>
-    <div className="splitFeature">
+    {advancedEmail?<><div className="splitFeature">
       <label className="stackForm"><span>Másolat (CC)</span><input value={ccEmails} onChange={event=>setCcEmails(event.target.value)} maxLength={3300} placeholder="pelda@ceg.hu, masik@ceg.hu" disabled={actionPending}/></label>
       <label className="stackForm"><span>Titkos másolat (BCC)</span><input value={bccEmails} onChange={event=>setBccEmails(event.target.value)} maxLength={3300} placeholder="belso@ceg.hu" disabled={actionPending}/></label>
-    </div>
-    <p className="muted">A CC és BCC mezőben legfeljebb 10-10 cím adható meg, vesszővel, pontosvesszővel vagy új sorral elválasztva.</p>
+    </div><p className="muted">A CC és BCC mezőben legfeljebb 10-10 cím adható meg, vesszővel, pontosvesszővel vagy új sorral elválasztva.</p></>:<p className="muted">CC/BCC és több feladó kezelése a Pro ügyféllevelezési csomagban érhető el.</p>}
     <input value={subject} onChange={event=>setSubject(event.target.value)} maxLength={300} placeholder="Tárgy" disabled={actionPending}/>
     <textarea value={body} onChange={event=>setBody(event.target.value)} maxLength={10000} rows={compact?4:6} placeholder="Üzenet" disabled={actionPending}/>
-    {sendingConfigured&&<label><span>Küldő Office postafiók</span><select value={mailboxKey} onChange={event=>setMailboxKey(event.target.value)} disabled={actionPending}>{mailboxes.map(mailbox=><option key={mailbox.mailboxKey} value={mailbox.mailboxKey}>{mailbox.label}</option>)}</select></label>}
+    {advancedEmail&&sendingConfigured&&<label><span>Küldő Office postafiók</span><select value={mailboxKey} onChange={event=>setMailboxKey(event.target.value)} disabled={actionPending}>{mailboxes.map(mailbox=><option key={mailbox.mailboxKey} value={mailbox.mailboxKey}>{mailbox.label}</option>)}</select></label>}
+    {!advancedEmail&&sendingConfigured&&<p className="muted">Az Alap csomag az egyetlen aktív, jóváhagyott ügyféllevelezési postafiókot használja automatikusan.</p>}
     {!sendingConfigured&&<div className="adminAuditNotice"><strong>Küldés még nincs aktiválva.</strong><p>A piszkozat automatikusan menthető, de e-mailt csak a később általad jóváhagyott külön Digitális Iroda postafiók beállítása után lehet küldeni. A működő webshop jelenlegi e-mail címeit a rendszer nem használja.</p></div>}
 
     <div className="adminToolbar">

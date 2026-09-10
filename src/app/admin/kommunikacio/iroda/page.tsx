@@ -3,7 +3,7 @@ import { redirect } from 'next/navigation';
 import { OfficeCustomerEmailForm } from '@/components/admin/office-customer-email-form';
 import { getAdminRequestUser } from '@/lib/auth/admin-api';
 import { hasStoreCapability } from '@/lib/auth/store-capabilities';
-import { requirePlanFeature } from '@/lib/plans/access';
+import { hasCurrentPlanFeature, requirePlanFeature } from '@/lib/plans/access';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { requireCurrentStoreContext } from '@/lib/instances/scope';
 import { completeTaskAction,createTaskAction,updateThreadAction } from './actions';
@@ -45,6 +45,7 @@ export default async function CustomerEmailWorkspace({searchParams}:{searchParam
   const actor=await getAdminRequestUser('support.manage');
   if(!actor)redirect('/admin/hozzaferes-megtagadva');
   const scope=await requireCurrentStoreContext('support.manage');
+  const advancedEmail=await hasCurrentPlanFeature('officeCommunicationAdvanced');
   const{q='',filter='open'}=await searchParams;
   const db=createAdminClient();
 
@@ -105,10 +106,10 @@ export default async function CustomerEmailWorkspace({searchParams}:{searchParam
   const activeMailboxKeys=new Set(((mailboxResult.data??[])as Mailbox[]).filter(mailbox=>mailbox.is_active).map(mailbox=>mailbox.mailbox_key));
   const canChat=await hasStoreCapability(scope.instanceId,actor.id,'office.internal_chat',{resourceOwnerUserId:actor.id,resourceAssignedUserId:actor.id});
 
-  const loadError=Boolean(threadResult.error||taskResult.error||orderResult.error||jobResult.error||bindingResult.error||draftResult.error||mailboxResult.error||messageResult.error||routeResult.error||profileResult.error);
+  const loadError=Boolean(threadResult.error||orderResult.error||jobResult.error||draftResult.error||mailboxResult.error||messageResult.error||routeResult.error||(advancedEmail&&(taskResult.error||bindingResult.error||profileResult.error)));
   const now=Date.now();
   const unread=(thread:Thread)=>messages.some(message=>message.thread_id===thread.id&&message.kind==='email_in'&&(!thread.last_read_at||new Date(message.created_at)>new Date(thread.last_read_at)));
-  const overdue=tasks.filter(task=>task.status==='open'&&task.due_at&&new Date(task.due_at).getTime()<now);
+  const overdue=advancedEmail?tasks.filter(task=>task.status==='open'&&task.due_at&&new Date(task.due_at).getTime()<now):[];
   const needle=q.trim().toLowerCase();
   const visible=threads.filter(thread=>
     (filter==='all'
@@ -125,13 +126,13 @@ export default async function CustomerEmailWorkspace({searchParams}:{searchParam
   return <section className="adminMain">
     <div className="sectionIntro">
       <div>
-        <span className="eyebrow">Pro · Ügyféllevelezés</span>
+        <span className="eyebrow">Ügyféllevelezés · Alap + Pro</span>
         <h1 className="sectionTitle">Webshop ↔ ügyfél e-mail munkatér</h1>
         <p className="lead">Ez a felület kizárólag a webshop és az ügyfelek közötti e-mailes kommunikációhoz tartozik. A munkatársi beszélgetések külön Team Chatben zajlanak.</p>
       </div>
       <div className="adminToolbar">
         {canChat&&<Link className="btn btnGhost" href="/admin/kommunikacio/chat">Team Chat</Link>}
-        <Link className="btn btnGhost" href="/admin/kommunikacio/felugyelet">Küldési felügyelet</Link>
+        {advancedEmail&&<Link className="btn btnGhost" href="/admin/kommunikacio/felugyelet">Küldési felügyelet</Link>}
         <Link className="btn btnPrimary" href="/admin/kommunikacio/iroda/uj">Új e-mail</Link>
       </div>
     </div>
@@ -140,13 +141,14 @@ export default async function CustomerEmailWorkspace({searchParams}:{searchParam
       <strong>Külön kommunikációs csatorna</strong>
       <p>Az ügyfél nem lehet Team Chat résztvevő, a belső Team Chat üzenetek pedig nem jelennek meg ezen az oldalon. Küldés csak később jóváhagyott külön Digitális Iroda postafiókból aktiválható; a működő webshop jelenlegi e-mail címeit nem használjuk.</p>
     </div>
+    {!advancedEmail&&<div className="adminAuditNotice"><strong>Alap ügyféllevelezés</strong><p>Olvasás, válasz, új 1:1 e-mail, olvasatlan állapot és saját piszkozat elérhető. A csapatkiosztás, kapcsolódó feladatok, CC/BCC, több postafiók és küldési felügyelet Pro funkció.</p></div>}
     {loadError&&<div className="errorNotice" role="alert"><strong>Az ügyféllevelezés adatainak egy része most nem tölthető be.</strong><p>Hiányos adatok mellett módosítást nem tekintünk biztonságosan végrehajthatónak.</p></div>}
 
     <div className="cards adminMetricCards">
       <article className="card"><span className="badge">Nyitott ügyféllevelek</span><div className="price">{threadResult.error?'—':threads.filter(thread=>thread.status==='open').length}</div></article>
       <article className="card"><span className="badge">Olvasatlan bejövő</span><div className="price">{loadError?'—':threads.filter(unread).length}</div></article>
       <article className="card"><span className="badge">Sürgős</span><div className="price">{threadResult.error?'—':threads.filter(thread=>thread.status==='open'&&thread.priority==='urgent').length}</div></article>
-      <article className="card"><span className="badge">Lejárt feladat</span><div className="price">{taskResult.error?'—':overdue.length}</div></article>
+      {advancedEmail&&<article className="card"><span className="badge">Lejárt feladat</span><div className="price">{taskResult.error?'—':overdue.length}</div></article>}
     </div>
 
     <form className="adminToolbar">
@@ -157,7 +159,7 @@ export default async function CustomerEmailWorkspace({searchParams}:{searchParam
       <button className="btn btnPrimary">Szűrés</button>
     </form>
 
-    {overdue.length>0&&<section className="featurePanel"><h2>Lejárt ügyfélkommunikációs feladatok</h2>{overdue.slice(0,10).map(task=><div className="card" key={task.id}><strong>{task.title}</strong><p className="muted">Lejárt: {new Intl.DateTimeFormat('hu-HU',{dateStyle:'short',timeStyle:'short',timeZone:'Europe/Budapest'}).format(new Date(task.due_at!))}</p>{!loadError&&<form action={completeTaskAction}><input type="hidden" name="id" value={task.id}/><button className="btn btnGhost">Kész</button></form>}</div>)}</section>}
+    {advancedEmail&&overdue.length>0&&<section className="featurePanel"><h2>Lejárt ügyfélkommunikációs feladatok</h2>{overdue.slice(0,10).map(task=><div className="card" key={task.id}><strong>{task.title}</strong><p className="muted">Lejárt: {new Intl.DateTimeFormat('hu-HU',{dateStyle:'short',timeStyle:'short',timeZone:'Europe/Budapest'}).format(new Date(task.due_at!))}</p>{!loadError&&<form action={completeTaskAction}><input type="hidden" name="id" value={task.id}/><button className="btn btnGhost">Kész</button></form>}</div>)}</section>}
 
     <section>
       <span className="eyebrow">{threadResult.error?'—':visible.length} találat</span>
@@ -177,13 +179,13 @@ export default async function CustomerEmailWorkspace({searchParams}:{searchParam
               {order&&<Link className="textLink" href={`/admin/rendelesek/${order.id}`}>{order.order_number}</Link>}
             </div>
             <h3>{thread.subject}</h3>
-            <p className="muted">{thread.customer_email??'Nincs ügyfél e-mail'} · {thread.assigned_to?labelFor(thread.assigned_to):'Nincs felelős'}</p>
+            <p className="muted">{thread.customer_email??'Nincs ügyfél e-mail'}{advancedEmail&&<> · {thread.assigned_to?labelFor(thread.assigned_to):'Nincs felelős'}</>}</p>
 
             {!loadError&&<form action={updateThreadAction} className="adminToolbar">
               <input type="hidden" name="threadId" value={thread.id}/>
               <select name="priority" defaultValue={thread.priority}><option value="low">Alacsony</option><option value="normal">Normál</option><option value="high">Magas</option><option value="urgent">Sürgős</option></select>
               <select name="status" defaultValue={thread.status}><option value="open">Nyitott</option><option value="closed">Lezárt</option></select>
-              <select name="assigneeUserId" defaultValue={thread.assigned_to??''}><option value="">Nincs felelős</option>{assignees.map(member=><option key={member.userId} value={member.userId}>{member.label}</option>)}</select>
+              {advancedEmail&&<select name="assigneeUserId" defaultValue={thread.assigned_to??''}><option value="">Nincs felelős</option>{assignees.map(member=><option key={member.userId} value={member.userId}>{member.label}</option>)}</select>}
               <button className="btn btnGhost">Frissítés</button>
             </form>}
 
@@ -196,8 +198,8 @@ export default async function CustomerEmailWorkspace({searchParams}:{searchParam
               })}
             </div>
 
-            {thread.customer_email&&!loadError&&<section className="featurePanel"><h4>Válasz az ügyfélnek</h4><OfficeCustomerEmailForm threadId={thread.id} sendingConfigured={sendingConfigured} initialDraft={replyDraft?{id:replyDraft.id,revision:replyDraft.revision,ccEmails:replyDraft.cc_emails??[],bccEmails:replyDraft.bcc_emails??[],body:replyDraft.body}:undefined}/></section>}
-            {!loadError&&<form action={createTaskAction} className="stackForm"><input type="hidden" name="threadId" value={thread.id}/><input name="title" required placeholder="Kapcsolódó feladat"/><input name="due" type="datetime-local"/><button className="btn btnGhost">Feladat létrehozása</button></form>}
+            {thread.customer_email&&!loadError&&<section className="featurePanel"><h4>Válasz az ügyfélnek</h4><OfficeCustomerEmailForm threadId={thread.id} sendingConfigured={sendingConfigured} advancedEmail={advancedEmail} initialDraft={replyDraft?{id:replyDraft.id,revision:replyDraft.revision,ccEmails:replyDraft.cc_emails??[],bccEmails:replyDraft.bcc_emails??[],body:replyDraft.body}:undefined}/></section>}
+            {advancedEmail&&!loadError&&<form action={createTaskAction} className="stackForm"><input type="hidden" name="threadId" value={thread.id}/><input name="title" required placeholder="Kapcsolódó feladat"/><input name="due" type="datetime-local"/><button className="btn btnGhost">Feladat létrehozása</button></form>}
           </article>;
         })}
       </div>

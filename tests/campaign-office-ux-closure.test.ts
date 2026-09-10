@@ -19,7 +19,9 @@ describe('campaign and communication UX closure',()=>{
     const office=read('src/app/admin/kommunikacio/iroda/page.tsx');
     expect(campaign).toContain('recipientError||conversionError||eventError');
     expect(campaign).toContain('orderError||itemError');
-    expect(office).toContain('const loadError=Boolean(threadResult.error||taskResult.error||orderResult.error||jobResult.error||bindingResult.error||draftResult.error||mailboxResult.error||messageResult.error||routeResult.error||profileResult.error)');
+    expect(office).toContain('const loadError=Boolean(');
+    expect(office).toContain('threadResult.error||orderResult.error||jobResult.error||draftResult.error||mailboxResult.error||messageResult.error||routeResult.error');
+    expect(office).toContain('(advancedEmail&&(taskResult.error||bindingResult.error||profileResult.error))');
     expect(office).toContain('Hiányos adatok mellett módosítást nem tekintünk biztonságosan végrehajthatónak.');
   });
 

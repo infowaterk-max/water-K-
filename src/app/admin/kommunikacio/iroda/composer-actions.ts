@@ -3,7 +3,7 @@
 import {randomUUID} from 'node:crypto';
 import {revalidatePath} from 'next/cache';
 import {getAdminRequestUser} from '@/lib/auth/admin-api';
-import {requirePlanFeature} from '@/lib/plans/access';
+import {hasCurrentPlanFeature,requirePlanFeature} from '@/lib/plans/access';
 import {createAdminClient} from '@/lib/supabase/admin';
 import {requireCurrentStoreContext} from '@/lib/instances/scope';
 
@@ -30,7 +30,8 @@ async function access(){
   if(!actor)throw new OfficeComposerError('SUPPORT_PERMISSION_REQUIRED');
   await requirePlanFeature('officeCommunication');
   const scope=await requireCurrentStoreContext('support.manage');
-  return{db:createAdminClient(),userId:actor.id,instanceId:scope.instanceId};
+  const advancedEmail=await hasCurrentPlanFeature('officeCommunicationAdvanced');
+  return{db:createAdminClient(),userId:actor.id,instanceId:scope.instanceId,advancedEmail};
 }
 
 function reasonFrom(error:unknown){
@@ -42,6 +43,9 @@ function stateForError(error:unknown):OfficeComposerActionState{
   const reason=reasonFrom(error);
   if(reason.includes('office_draft_conflict')){
     return{status:'conflict',message:'A piszkozat közben egy másik munkamenetben megváltozott. A biztonság kedvéért nem írtuk felül; frissítsd az oldalt, majd ellenőrizd a frissebb változatot.'};
+  }
+  if(reason.includes('office_email_advanced_plan_required')){
+    return{status:'blocked',message:'Ez a levelezési művelet Pro funkció. Az Alap csomag normál 1:1 ügyféllevelezést használhat, de CC/BCC és több feladó vagy postafiók kezelése csak Próban érhető el.'};
   }
   if(reason.includes('office_mailbox_not_configured')||reason.includes('office_email_route_missing')){
     return{status:'blocked',message:'A Digitális Iroda e-mail-küldése még nincs aktiválva. Küldeni csak a később külön jóváhagyott Office postafiók beállítása után lehet; a jelenlegi webshopos e-mail címeket nem használjuk.'};
@@ -75,6 +79,29 @@ function emailList(formData:FormData,name:string){
     if(result.length>10)throw new OfficeComposerError('OFFICE_EMAIL_LIST_TOO_LARGE');
   }
   return result;
+}
+
+function recipientEnvelope(formData:FormData,advancedEmail:boolean){
+  const ccEmails=emailList(formData,'ccEmails');
+  const bccEmails=emailList(formData,'bccEmails');
+  if(!advancedEmail&&(ccEmails.length>0||bccEmails.length>0))throw new OfficeComposerError('OFFICE_EMAIL_ADVANCED_PLAN_REQUIRED');
+  return{ccEmails,bccEmails};
+}
+
+async function resolveOutboundMailboxKey(
+  db:ReturnType<typeof createAdminClient>,
+  instanceId:string,
+  requestedMailboxKey:string|null,
+  advancedEmail:boolean,
+){
+  if(advancedEmail)return requestedMailboxKey;
+  const{data,error}=await db.from('office_mailboxes').select('mailbox_key')
+    .eq('instance_id',instanceId).eq('is_active',true).order('mailbox_key',{ascending:true}).limit(2);
+  if(error)throw new OfficeComposerError('OFFICE_MAILBOX_LOOKUP_FAILED');
+  const active=(data??[])as{mailbox_key:string}[];
+  if(active.length===0)return null;
+  if(active.length!==1)throw new OfficeComposerError('OFFICE_EMAIL_ADVANCED_PLAN_REQUIRED');
+  return active[0].mailbox_key;
 }
 
 async function mutateDraft(db:ReturnType<typeof createAdminClient>,input:{instanceId:string;userId:string;action:'save'|'delete';payload:Record<string,unknown>}){
@@ -119,13 +146,12 @@ async function queueEmail(db:ReturnType<typeof createAdminClient>,input:{
 
 async function persistNewEmailDraft(formData:FormData,saveMode:DraftSaveMode):Promise<OfficeComposerActionState>{
   try{
-    const{db,userId,instanceId}=await access();
+    const{db,userId,instanceId,advancedEmail}=await access();
     const draftId=String(formData.get('draftId')??'').trim()||null;
     const revision=expectedRevision(formData,draftId);
     if(draftId&&!revision)return{status:'error',message:'A meglévő piszkozat mentési verziója hiányzik. Frissítsd az oldalt a biztonságos folytatáshoz.'};
     const toEmail=String(formData.get('toEmail')??'').trim().toLowerCase().slice(0,320)||null;
-    const ccEmails=emailList(formData,'ccEmails');
-    const bccEmails=emailList(formData,'bccEmails');
+    const{ccEmails,bccEmails}=recipientEnvelope(formData,advancedEmail);
     const subject=String(formData.get('subject')??'').trim().slice(0,300);
     const body=String(formData.get('body')??'').slice(0,10000);
     const result=await mutateDraft(db,{instanceId,userId,action:'save',payload:{
@@ -141,13 +167,12 @@ async function persistNewEmailDraft(formData:FormData,saveMode:DraftSaveMode):Pr
 
 async function persistReplyDraft(formData:FormData,saveMode:DraftSaveMode):Promise<OfficeComposerActionState>{
   try{
-    const{db,userId,instanceId}=await access();
+    const{db,userId,instanceId,advancedEmail}=await access();
     const draftId=String(formData.get('draftId')??'').trim()||null;
     const revision=expectedRevision(formData,draftId);
     if(draftId&&!revision)return{status:'error',message:'A meglévő válaszpiszkozat mentési verziója hiányzik. Frissítsd az oldalt a biztonságos folytatáshoz.'};
     const threadId=String(formData.get('threadId')??'').trim();
-    const ccEmails=emailList(formData,'ccEmails');
-    const bccEmails=emailList(formData,'bccEmails');
+    const{ccEmails,bccEmails}=recipientEnvelope(formData,advancedEmail);
     const body=String(formData.get('body')??'').slice(0,10000);
     if(!threadId)return{status:'error',message:'A válaszpiszkozathoz beszélgetés szükséges.'};
     const result=await mutateDraft(db,{instanceId,userId,action:'save',payload:{
@@ -180,12 +205,11 @@ export async function deleteOfficeDraftAction(formData:FormData):Promise<OfficeC
 
 export async function sendCustomerEmailV4Action(_previous:OfficeComposerActionState,formData:FormData):Promise<OfficeComposerActionState>{
   try{
-    const{db,userId,instanceId}=await access();
+    const{db,userId,instanceId,advancedEmail}=await access();
     const threadId=String(formData.get('threadId')??'').trim();
     const draftId=String(formData.get('draftId')??'').trim()||null;
     const draftRevision=expectedRevision(formData,draftId);
-    const ccEmails=emailList(formData,'ccEmails');
-    const bccEmails=emailList(formData,'bccEmails');
+    const{ccEmails,bccEmails}=recipientEnvelope(formData,advancedEmail);
     const body=String(formData.get('body')??'').slice(0,10000);
     if(!threadId||!body.trim())return{status:'error',message:'Az e-mail válaszhoz üzenetszöveg szükséges.'};
     await queueEmail(db,{instanceId,userId,mode:'reply',threadId,mailboxKey:null,toEmail:null,ccEmails,bccEmails,subject:null,body,draftId,draftRevision});
@@ -197,13 +221,13 @@ export async function sendCustomerEmailV4Action(_previous:OfficeComposerActionSt
 
 export async function sendNewEmailAction(_previous:OfficeComposerActionState,formData:FormData):Promise<OfficeComposerActionState>{
   try{
-    const{db,userId,instanceId}=await access();
+    const{db,userId,instanceId,advancedEmail}=await access();
     const draftId=String(formData.get('draftId')??'').trim()||null;
     const draftRevision=expectedRevision(formData,draftId);
-    const mailboxKey=String(formData.get('mailboxKey')??'').trim()||null;
+    const requestedMailboxKey=String(formData.get('mailboxKey')??'').trim()||null;
+    const mailboxKey=await resolveOutboundMailboxKey(db,instanceId,requestedMailboxKey,advancedEmail);
     const toEmail=String(formData.get('toEmail')??'').trim().toLowerCase().slice(0,320)||null;
-    const ccEmails=emailList(formData,'ccEmails');
-    const bccEmails=emailList(formData,'bccEmails');
+    const{ccEmails,bccEmails}=recipientEnvelope(formData,advancedEmail);
     const subject=String(formData.get('subject')??'').trim().slice(0,300);
     const body=String(formData.get('body')??'').slice(0,10000);
     if(!toEmail||!subject||!body.trim())return{status:'error',message:'Küldéshez címzett, tárgy és üzenetszöveg szükséges.'};

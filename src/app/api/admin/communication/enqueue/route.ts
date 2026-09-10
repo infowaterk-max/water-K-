@@ -14,7 +14,7 @@ export async function POST(request:Request){
  const permission=body.kind==='payment_followup'?'orders.manage':'marketing.manage';
  const actor=await getAdminRequestUser(permission);if(!actor)return NextResponse.json({error:'Nincs jogosultság.'},{status:403});
  let scope;try{scope=await requireCurrentStoreContext(permission)}catch{return NextResponse.json({error:'Nincs jogosultság ehhez a webshophoz.'},{status:403})}
- if(!(await hasCurrentPlanFeature('officeCommunication')))return NextResponse.json({error:'A Digitális iroda kommunikáció a Pro csomag része.'},{status:403});
+ if(!(await hasCurrentPlanFeature('officeCommunicationAdvanced')))return NextResponse.json({error:'Az automatizált ügyfélkommunikáció a Pro csomag része.'},{status:403});
  const admin=createAdminClient(),now=new Date(),bucket=`${now.getUTCFullYear()}-${String(now.getUTCMonth()+1).padStart(2,'0')}`;
  try{
   if(body.kind==='payment_followup'){

@@ -62,7 +62,7 @@ describe('Digital Office composer and drafts foundation',()=>{
   });
 
   it('allows revision-safe drafts while keeping send disabled by default without a mailbox',()=>{
-    expect(newComposer).toContain('const sendingConfigured=mailboxes.length>0');
+    expect(newComposer).toContain('const sendingConfigured=advancedEmail?mailboxes.length>0:mailboxes.length===1');
     expect(newComposer).toContain('Piszkozat mentése');
     expect(newComposer).toContain('const sendReady=sendingConfigured');
     expect(newComposer).toContain("disabled={actionPending||draft.status==='conflict'||!sendReady}");

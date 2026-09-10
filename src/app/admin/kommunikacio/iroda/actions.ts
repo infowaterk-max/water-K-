@@ -4,7 +4,7 @@ import { randomUUID } from 'node:crypto';
 import { revalidatePath } from 'next/cache';
 import { getAdminRequestUser } from '@/lib/auth/admin-api';
 import { hasStoreCapability } from '@/lib/auth/store-capabilities';
-import { requirePlanFeature } from '@/lib/plans/access';
+import { hasCurrentPlanFeature, requirePlanFeature } from '@/lib/plans/access';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { requireCurrentStoreContext } from '@/lib/instances/scope';
 
@@ -29,12 +29,14 @@ async function chatBaseAccess(){
   return{db:createAdminClient(),userId:actor.id,instanceId:scope.instanceId};
 }
 
-async function supportAccess(){
+async function supportAccess(options:{advanced?:boolean}={}){
   const actor=await getAdminRequestUser('support.manage');
   if(!actor)throw new Error('Nincs jogosultság.');
   await requirePlanFeature('officeCommunication');
+  if(options.advanced)await requirePlanFeature('officeCommunicationAdvanced');
   const scope=await requireCurrentStoreContext('support.manage');
-  return{db:createAdminClient(),userId:actor.id,instanceId:scope.instanceId};
+  const advancedEmail=options.advanced?true:await hasCurrentPlanFeature('officeCommunicationAdvanced');
+  return{db:createAdminClient(),userId:actor.id,instanceId:scope.instanceId,advancedEmail};
 }
 
 async function privateChatAccess(){
@@ -181,12 +183,18 @@ export async function transferPrivateThreadOwnerAction(form:FormData){
 }
 
 export async function updateThreadAction(form:FormData){
-  const{db,userId,instanceId}=await supportAccess();
+  const{db,userId,instanceId,advancedEmail}=await supportAccess();
   const threadId=String(form.get('threadId')??'');
   const status=String(form.get('status')??'open');
   const priority=String(form.get('priority')??'normal');
-  const assigneeUserId=String(form.get('assigneeUserId')??'').trim()||null;
+  let assigneeUserId=String(form.get('assigneeUserId')??'').trim()||null;
   if(!threadId||!['open','closed'].includes(status)||!['low','normal','high','urgent'].includes(priority))return;
+  if(!advancedEmail){
+    const{data,error}=await db.from('office_threads').select('assigned_to')
+      .eq('instance_id',instanceId).eq('id',threadId).eq('conversation_type','customer').maybeSingle();
+    if(error||!data)throw new Error('Az ügyféllevelezés felelőse nem ellenőrizhető.');
+    assigneeUserId=data.assigned_to as string|null;
+  }
   await mutateOfficePrivacy(db,{instanceId,userId,action:'update_customer_thread',payload:{threadId,status,priority,assigneeUserId}});
   revalidatePath('/admin/kommunikacio/iroda');
 }
@@ -218,7 +226,7 @@ export async function sendCustomerEmailAction(_previous:OfficeEmailActionState,f
 }
 
 export async function createTaskAction(form:FormData){
-  const{db,userId,instanceId}=await supportAccess();
+  const{db,userId,instanceId}=await supportAccess({advanced:true});
   const threadId=String(form.get('threadId')??'');
   const title=String(form.get('title')??'').trim().slice(0,240);
   const due=String(form.get('due')??'');
@@ -234,7 +242,7 @@ export async function createTaskAction(form:FormData){
 }
 
 export async function completeTaskAction(form:FormData){
-  const{db,userId,instanceId}=await supportAccess();
+  const{db,userId,instanceId}=await supportAccess({advanced:true});
   const id=String(form.get('id')??'');
   if(!id)return;
   await mutateOffice(db,{instanceId,userId,action:'complete_task',payload:{id}});

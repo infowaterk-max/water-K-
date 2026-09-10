@@ -21,13 +21,14 @@ const ALAP_REQUIRED: FeatureCode[] = [
   'commerceIntegrations',
   'support',
   'teamChat',
+  'officeCommunication',
 ];
 
 const PRO_ONLY: FeatureCode[] = [
   'advancedAnalytics',
   'crm',
   'advancedCampaigns',
-  'officeCommunication',
+  'officeCommunicationAdvanced',
   'automation',
   'procurement',
   'cashflow',
@@ -50,14 +51,16 @@ describe('business plan entitlement matrix', () => {
     }
   });
 
-  it('keeps Team Chat in both launch packages while Secure Attachments stays unreleased',()=>{
+  it('keeps Team Chat and core customer email in both launch packages while Secure Attachments stays unreleased',()=>{
     expect(hasPlanFeature('alap','teamChat')).toBe(true);
     expect(hasPlanFeature('pro','teamChat')).toBe(true);
+    expect(hasPlanFeature('alap','officeCommunication')).toBe(true);
+    expect(hasPlanFeature('pro','officeCommunication')).toBe(true);
+    expect(hasPlanFeature('alap','officeCommunicationAdvanced')).toBe(false);
+    expect(hasPlanFeature('pro','officeCommunicationAdvanced')).toBe(true);
     expect(hasPlanFeature('alap','teamChatSecureAttachments')).toBe(false);
     expect(hasPlanFeature('pro','teamChatSecureAttachments')).toBe(false);
     expect(PLANNED_PRO_FEATURES).toContain('teamChatSecureAttachments');
-    expect(hasPlanFeature('alap','officeCommunication')).toBe(false);
-    expect(hasPlanFeature('pro','officeCommunication')).toBe(true);
   });
 
   it('keeps planned Pro capabilities disabled until a later explicit release', () => {

@@ -3,7 +3,7 @@ import {OfficeNewEmailComposer} from '@/components/admin/office-new-email-compos
 import {getAdminRequestUser} from '@/lib/auth/admin-api';
 import {hasStoreCapability} from '@/lib/auth/store-capabilities';
 import {requireCurrentStoreContext} from '@/lib/instances/scope';
-import {requirePlanFeature} from '@/lib/plans/access';
+import {hasCurrentPlanFeature,requirePlanFeature} from '@/lib/plans/access';
 import {createAdminClient} from '@/lib/supabase/admin';
 
 export const dynamic='force-dynamic';
@@ -19,6 +19,7 @@ export default async function OfficeComposerPage(){
   const actor=await getAdminRequestUser('support.manage');
   if(!actor)throw new Error('Nincs jogosultság.');
   const scope=await requireCurrentStoreContext('support.manage');
+  const advancedEmail=await hasCurrentPlanFeature('officeCommunicationAdvanced');
   const db=createAdminClient();
   const now=new Date().toISOString();
 
@@ -51,7 +52,7 @@ export default async function OfficeComposerPage(){
   return <section className="adminMain">
     <div className="sectionIntro">
       <div>
-        <span className="eyebrow">Pro · Digitális Iroda</span>
+        <span className="eyebrow">Ügyféllevelezés · {advancedEmail?'Pro':'Alap'}</span>
         <h1 className="sectionTitle">Új e-mail és piszkozatok</h1>
         <p className="lead">Egyedi 1:1 operatív levelek előkészítése. A piszkozat a saját fiókodhoz tartozik; más munkatárs nem kap automatikus betekintést.</p>
       </div>
@@ -62,11 +63,12 @@ export default async function OfficeComposerPage(){
       <strong>Jelenlegi webshopos e-mail cím nem használható.</strong>
       <p>A küldés kizárólag egy később, külön jóváhagyott Digitális Iroda postafiókkal aktiválható. Addig a felület csak biztonságos, revision-védett piszkozatkezelést enged.</p>
     </div>
+    {!advancedEmail&&<div className="adminAuditNotice"><strong>Alap csomag</strong><p>Normál 1:1 ügyfél-e-mail és saját piszkozat használható. CC/BCC és több küldő postafiók a Pro csomag része.</p></div>}
 
     {foundationError&&<div className="errorNotice" role="alert"><strong>A Composer foundation még nem érhető el teljesen ebben a környezetben.</strong><p>Biztonsági okból hiányos foundation mellett sem piszkozatot, sem e-mailt nem tekintünk mentettnek vagy elküldöttnek.</p></div>}
     {!canCompose&&!foundationError&&<div className="adminAuditNotice"><strong>Új e-mail írása nincs engedélyezve.</strong><p>Ehhez a munkatárshoz az „Új ügyfél-e-mail írása” extra jogosultság szükséges. A meglévő szerepkörét emiatt nem kell magasabb rangra módosítani.</p></div>}
 
-    {canCompose&&!foundationError&&<OfficeNewEmailComposer mailboxes={mailboxOptions}/>}
+    {canCompose&&!foundationError&&<OfficeNewEmailComposer mailboxes={mailboxOptions} advancedEmail={advancedEmail}/>}
 
     <section className="featurePanel">
       <div className="adminToolbar"><div><span className="eyebrow">Saját</span><h2>Piszkozatok</h2></div><span className="badge">{draftError?'—':drafts.length}</span></div>
@@ -74,7 +76,7 @@ export default async function OfficeComposerPage(){
       <div className="cards">
         {canCompose&&!foundationError&&drafts.map(draft=><article className="card" key={draft.id}>
           <div className="adminToolbar"><strong>{draft.subject||'(Nincs tárgy)'}</strong><span className="muted">{new Intl.DateTimeFormat('hu-HU',{dateStyle:'short',timeStyle:'short',timeZone:'Europe/Budapest'}).format(new Date(draft.updated_at))}</span></div>
-          <OfficeNewEmailComposer compact mailboxes={mailboxOptions} initialDraft={{id:draft.id,revision:draft.revision,toEmail:draft.to_email,ccEmails:draft.cc_emails??[],bccEmails:draft.bcc_emails??[],subject:draft.subject,body:draft.body}}/>
+          <OfficeNewEmailComposer compact mailboxes={mailboxOptions} advancedEmail={advancedEmail} initialDraft={{id:draft.id,revision:draft.revision,toEmail:draft.to_email,ccEmails:draft.cc_emails??[],bccEmails:draft.bcc_emails??[],subject:draft.subject,body:draft.body}}/>
         </article>)}
       </div>
     </section>

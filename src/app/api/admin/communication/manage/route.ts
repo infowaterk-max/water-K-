@@ -10,7 +10,7 @@ export async function POST(request:Request){
  if(!body.jobId||!body.action||!actions.includes(body.action))return NextResponse.json({error:'Hiányzó adat.'},{status:400});
  const basicActor=await getAdminRequestUser('store.read');if(!basicActor)return NextResponse.json({error:'Nincs jogosultság.'},{status:403});
  let basicScope;try{basicScope=await requireCurrentStoreContext('store.read')}catch{return NextResponse.json({error:'Nincs jogosultság ehhez a webshophoz.'},{status:403})}
- if(!(await hasCurrentPlanFeature('officeCommunication')))return NextResponse.json({error:'A Digitális iroda kommunikáció a Pro csomag része.'},{status:403});
+ if(!(await hasCurrentPlanFeature('officeCommunicationAdvanced')))return NextResponse.json({error:'A haladó e-mail küldési felügyelet a Pro csomag része.'},{status:403});
  const admin=createAdminClient(),{data:job}=await admin.from('communication_jobs').select('purpose,template_key').eq('id',body.jobId).eq('instance_id',basicScope.instanceId).maybeSingle();
  if(!job)return NextResponse.json({error:'Az üzenet nem található ebben a webshopban.'},{status:404});
  const permission=job.purpose==='marketing'?'marketing.manage':job.template_key==='support_reply'?'support.manage':'orders.manage';
