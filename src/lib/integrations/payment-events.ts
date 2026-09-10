@@ -3,8 +3,9 @@ import { createHash } from 'node:crypto';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { recordWebhookEvent } from '@/lib/integrations/outbox';
 import { getConfiguredInvoiceProviderCodeForInstance } from '@/lib/integrations/invoicing';
+import type{PaymentState}from'@/lib/orders/orchestration-contract';
+export type{PaymentState}from'@/lib/orders/orchestration-contract';
 
-export type PaymentState='pending'|'paid'|'failed'|'cancelled'|'refunded'|'unknown';
 export type VerifiedPaymentEvent={providerCode:string;eventId:string;providerReference:string;eventType:string;status:PaymentState;signatureValid:boolean;rawPayload:string};
 type ResolvedOrder={id:string;instance_id:string;status:string;external_payment_id:string|null};
 type PaymentEventEvidence={
