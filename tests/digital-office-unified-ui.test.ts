@@ -20,15 +20,20 @@ describe('Digital Office unified workspace UI',()=>{
     expect(theme).toContain('linear-gradient(180deg,#172c29 0%,#11231f 100%)!important');
   });
 
-  it('uses one Digital Office entry point and the approved internal workspace navigation',()=>{
+  it('uses one Digital Office entry point and keeps authorization request-scoped and fail-closed',()=>{
     const layout=read('src/app/admin/kommunikacio/layout.tsx');
+    const access=read('src/lib/digital-office/access.ts');
     const navigation=read('src/components/navigation/digital-office-navigation.tsx');
     const adminNavigation=read('src/components/navigation/admin-navigation.tsx');
     expect(layout).toContain('digitalOfficeShell');
-    expect(layout).toContain("hasCurrentPlanFeature('officeCommunicationAdvanced')");
-    expect(layout).toContain('hasStoreCapability(instance.id,actor.id');
-    expect(layout).toContain("import './digital-office-workspace-redesign.css';");
-    expect(layout).toContain("import './digital-office-context-redesign.css';");
+    expect(layout).toContain('getDigitalOfficeAccess');
+    expect(layout).toContain('<Suspense');
+    expect(layout).toContain("import './digital-office-performance-hardening.css';");
+    for(const contract of['getAdminRequestUser','getCurrentWebshopInstance','getActiveStoreRoles','roleHasPermission','getFeatureEntitlementDecisions','isCapabilityReleased','hasStoreCapability','cache(async()=>'])expect(access).toContain(contract);
+    expect(access).toContain("roleHasPermission(role,'support.manage')");
+    expect(access).toContain("roleHasPermission(role,'marketing.manage')");
+    expect(access).toContain("'office.internal_chat'");
+    expect(access).toContain('featureDecisions.get(code)?.enabled===true');
     for(const label of['Kezdőlap','E-mail','Team Chat','Feladatok','Jóváhagyások','Küldési központ','E-mail sablonok'])expect(navigation).toContain(label);
     expect(navigation).toContain("href:'/admin/kommunikacio'");
     expect(navigation).toContain('usePathname()');
@@ -36,11 +41,26 @@ describe('Digital Office unified workspace UI',()=>{
     expect(adminNavigation).toContain('adminNavSectionDirect');
   });
 
-  it('renders the Digital Office home from real communication, task, chat and attachment sources',()=>{
+  it('renders the Digital Office home from real sources without repeating the layout authorization waterfall',()=>{
     const page=read('src/app/admin/kommunikacio/page.tsx');
     for(const source of['office_threads','office_tasks','communication_jobs','office_accessible_thread_ids_v1','office_message_mentions','office_message_attachments'])expect(page).toContain(source);
     for(const label of['Mai fókusz','Feladataim','Mai határidők','Legutóbbi aktivitás','Jóváhagyások & problémák','Értesítések','Legutóbbi fájlok','Gyors műveletek'])expect(page).toContain(label);
+    expect(page).toContain('getDigitalOfficeAccess');
+    for(const duplicate of['getAdminRequestUser','requireCurrentStoreContext','hasCurrentPlanFeature','hasStorePermission','hasStoreCapability'])expect(page).not.toContain(duplicate);
     expect(page).not.toContain("redirect('/admin/kommunikacio/iroda')");
+    expect(page).toContain('profileResult,threadResult,taskResult,jobResult,accessibleResult');
+    expect(page).toContain('messageResult,chatThreadResult,chatMessageResult,participantResult,mentionResult');
+    expect(page).toContain('authorResult,attachmentResult');
+  });
+
+  it('provides instant loading feedback and colocates compute with the Frankfurt production database',()=>{
+    const loading=read('src/app/admin/kommunikacio/loading.tsx');
+    const css=read('src/app/admin/kommunikacio/digital-office-performance-hardening.css');
+    const vercel=JSON.parse(read('vercel.json')) as {regions?:string[]};
+    expect(loading).toContain('aria-busy="true"');
+    expect(loading).toContain('digitalOfficeSkeleton');
+    expect(css).toContain('@keyframes digitalOfficeSkeletonPulse');
+    expect(vercel.regions).toEqual(['fra1']);
   });
 
   it('pins the approved dashboard and workstation proportions in the final redesign layer',()=>{
@@ -50,6 +70,19 @@ describe('Digital Office unified workspace UI',()=>{
     expect(css).toContain('grid-template-columns:300px minmax(470px,1fr) 285px!important');
     expect(css).toContain('grid-template-columns:290px minmax(460px,1fr) 280px!important');
     expect(css).toContain('.digitalOfficeDashboardMetric');
+  });
+
+  it('uses full-row attention states and compact composer utility controls',()=>{
+    const page=read('src/app/admin/kommunikacio/page.tsx');
+    const css=read('src/app/admin/kommunikacio/digital-office-performance-hardening.css');
+    expect(page).toContain('Date.parse(task.due_at)<now.getTime()');
+    expect(css).toContain('.digitalOfficeApproval:has(em[data-tone="warn"])');
+    expect(css).toContain('.digitalOfficeApproval:has(em[data-tone="danger"])');
+    expect(css).toContain('.digitalOfficeTaskRow:has(>em[data-hot="true"])');
+    expect(css).toContain('.teamChatComposerTools>header>button');
+    expect(css).toContain('width:22px!important');
+    expect(css).toContain('.teamChatFilePickerButton');
+    expect(css).toContain('height:26px!important');
   });
 
   it('surfaces the approved real-data context summaries in e-mail and Team Chat',()=>{

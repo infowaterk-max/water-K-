@@ -1,10 +1,6 @@
 import Link from 'next/link';
 import {redirect} from 'next/navigation';
-import {getAdminRequestUser} from '@/lib/auth/admin-api';
-import {hasStoreCapability} from '@/lib/auth/store-capabilities';
-import {hasStorePermission} from '@/lib/auth/store-rbac';
-import {requireCurrentStoreContext} from '@/lib/instances/scope';
-import {hasCurrentPlanFeature} from '@/lib/plans/access';
+import {getDigitalOfficeAccess} from '@/lib/digital-office/access';
 import {createAdminClient} from '@/lib/supabase/admin';
 
 export const dynamic='force-dynamic';
@@ -35,27 +31,19 @@ const timeLabel=(value:string)=>new Intl.DateTimeFormat('hu-HU',{timeZone:'Europ
 const dateLabel=(value:Date)=>new Intl.DateTimeFormat('hu-HU',{timeZone:'Europe/Budapest',year:'numeric',month:'long',day:'numeric',weekday:'long'}).format(value);
 
 export default async function DigitalOfficeHome(){
-  const actor=await getAdminRequestUser();
-  if(!actor)redirect('/admin/hozzaferes-megtagadva');
-  const scope=await requireCurrentStoreContext();
+  const access=await getDigitalOfficeAccess();
+  if(!access)redirect('/admin/hozzaferes-megtagadva');
+  const{actor,scope,officeEmail,advancedEmail,canSupport,canMarketing,canChat}=access;
   const now=new Date();
   const today=dayKey(now);
-
-  const[officeEmail,advancedEmail,teamChat,canSupport,canMarketing]=await Promise.all([
-    hasCurrentPlanFeature('officeCommunication'),
-    hasCurrentPlanFeature('officeCommunicationAdvanced'),
-    hasCurrentPlanFeature('teamChat'),
-    hasStorePermission(scope.instanceId,'support.manage'),
-    hasStorePermission(scope.instanceId,'marketing.manage'),
-  ]);
-  const canChat=teamChat&&await hasStoreCapability(scope.instanceId,actor.id,'office.internal_chat',{resourceOwnerUserId:actor.id,resourceAssignedUserId:actor.id});
   const db=createAdminClient();
 
-  const[profileResult,threadResult,taskResult,jobResult]=await Promise.all([
+  const[profileResult,threadResult,taskResult,jobResult,accessibleResult]=await Promise.all([
     db.from('profiles').select('id,email,full_name').eq('id',actor.id).maybeSingle(),
     officeEmail&&canSupport?db.from('office_threads').select('id,subject,customer_email,order_id,status,priority,assigned_to,last_read_at,updated_at,conversation_type').eq('instance_id',scope.instanceId).eq('conversation_type','customer').order('updated_at',{ascending:false}).limit(160):empty<CustomerThread>(),
     officeEmail&&canSupport?db.from('office_tasks').select('id,thread_id,title,status,assigned_to,due_at,created_at,completed_at').eq('instance_id',scope.instanceId).eq('status','open').order('due_at',{ascending:true,nullsFirst:false}).limit(120):empty<OfficeTask>(),
     advancedEmail&&canMarketing?db.from('communication_jobs').select('id,recipient_email,template_key,status,scheduled_at,requires_approval,approved_at,last_error,created_at').eq('instance_id',scope.instanceId).order('created_at',{ascending:false}).limit(220):empty<CommunicationJob>(),
+    canChat?db.rpc('office_accessible_thread_ids_v1',{p_instance_id:scope.instanceId,p_user_id:actor.id}):empty<AccessibleThreadRow>(),
   ]);
 
   const profile=(profileResult.data??null)as Profile|null;
@@ -63,29 +51,21 @@ export default async function DigitalOfficeHome(){
   const tasks=(taskResult.data??[])as OfficeTask[];
   const jobs=(jobResult.data??[])as CommunicationJob[];
   const threadIds=threads.map(thread=>thread.id);
-  const messageResult=threadIds.length?await db.from('office_messages').select('id,thread_id,author_id,kind,body,created_at').eq('instance_id',scope.instanceId).in('thread_id',threadIds).in('kind',['email_in','email_out']).order('created_at',{ascending:false}).limit(1200):{data:[] as OfficeMessage[],error:null};
-  const customerMessages=(messageResult.data??[])as OfficeMessage[];
+  const accessibleIds=accessibleResult.error?[]:((accessibleResult.data??[])as AccessibleThreadRow[]).map(row=>row.thread_id);
 
-  let chatThreads:InternalThread[]=[];
-  let chatMessages:OfficeMessage[]=[];
-  let chatParticipants:Participant[]=[];
-  let mentions:Mention[]=[];
-  if(canChat){
-    const accessibleResult=await db.rpc('office_accessible_thread_ids_v1',{p_instance_id:scope.instanceId,p_user_id:actor.id});
-    const accessibleIds=accessibleResult.error?[]:((accessibleResult.data??[])as AccessibleThreadRow[]).map(row=>row.thread_id);
-    if(accessibleIds.length){
-      const[chatThreadResult,chatMessageResult,participantResult,mentionResult]=await Promise.all([
-        db.from('office_threads').select('id,subject,updated_at,conversation_type').eq('instance_id',scope.instanceId).in('id',accessibleIds).in('conversation_type',['internal_private','internal_group']).is('archived_at',null).order('updated_at',{ascending:false}).limit(120),
-        db.from('office_messages').select('id,thread_id,author_id,kind,body,created_at').eq('instance_id',scope.instanceId).in('thread_id',accessibleIds).eq('kind','internal').order('created_at',{ascending:false}).limit(800),
-        db.from('office_thread_participants').select('thread_id,user_id,last_read_at').eq('instance_id',scope.instanceId).in('thread_id',accessibleIds).eq('user_id',actor.id).is('left_at',null),
-        db.from('office_message_mentions').select('message_id,thread_id,mentioned_user_id,seen_at,created_at').eq('instance_id',scope.instanceId).in('thread_id',accessibleIds).eq('mentioned_user_id',actor.id).is('seen_at',null).order('created_at',{ascending:false}).limit(80),
-      ]);
-      chatThreads=(chatThreadResult.data??[])as InternalThread[];
-      chatMessages=(chatMessageResult.data??[])as OfficeMessage[];
-      chatParticipants=(participantResult.data??[])as Participant[];
-      mentions=(mentionResult.data??[])as Mention[];
-    }
-  }
+  const[messageResult,chatThreadResult,chatMessageResult,participantResult,mentionResult]=await Promise.all([
+    threadIds.length?db.from('office_messages').select('id,thread_id,author_id,kind,body,created_at').eq('instance_id',scope.instanceId).in('thread_id',threadIds).in('kind',['email_in','email_out']).order('created_at',{ascending:false}).limit(1200):empty<OfficeMessage>(),
+    accessibleIds.length?db.from('office_threads').select('id,subject,updated_at,conversation_type').eq('instance_id',scope.instanceId).in('id',accessibleIds).in('conversation_type',['internal_private','internal_group']).is('archived_at',null).order('updated_at',{ascending:false}).limit(120):empty<InternalThread>(),
+    accessibleIds.length?db.from('office_messages').select('id,thread_id,author_id,kind,body,created_at').eq('instance_id',scope.instanceId).in('thread_id',accessibleIds).eq('kind','internal').order('created_at',{ascending:false}).limit(800):empty<OfficeMessage>(),
+    accessibleIds.length?db.from('office_thread_participants').select('thread_id,user_id,last_read_at').eq('instance_id',scope.instanceId).in('thread_id',accessibleIds).eq('user_id',actor.id).is('left_at',null):empty<Participant>(),
+    accessibleIds.length?db.from('office_message_mentions').select('message_id,thread_id,mentioned_user_id,seen_at,created_at').eq('instance_id',scope.instanceId).in('thread_id',accessibleIds).eq('mentioned_user_id',actor.id).is('seen_at',null).order('created_at',{ascending:false}).limit(80):empty<Mention>(),
+  ]);
+
+  const customerMessages=(messageResult.data??[])as OfficeMessage[];
+  const chatThreads=(chatThreadResult.data??[])as InternalThread[];
+  const chatMessages=(chatMessageResult.data??[])as OfficeMessage[];
+  const chatParticipants=(participantResult.data??[])as Participant[];
+  const mentions=(mentionResult.data??[])as Mention[];
 
   const unreadThread=(thread:CustomerThread)=>customerMessages.some(message=>message.thread_id===thread.id&&message.kind==='email_in'&&(!thread.last_read_at||Date.parse(message.created_at)>Date.parse(thread.last_read_at)));
   const unreadCustomerThreads=threads.filter(thread=>thread.status==='open'&&unreadThread(thread));
@@ -126,8 +106,14 @@ export default async function DigitalOfficeHome(){
   ].sort((a,b)=>a.time.localeCompare(b.time,'hu')).slice(0,4);
 
   const participantAuthorIds=[...new Set(chatMessages.map(message=>message.author_id).filter((value):value is string=>Boolean(value)))];
-  const authorResult=participantAuthorIds.length?await db.from('profiles').select('id,email,full_name').in('id',participantAuthorIds):{data:[] as Profile[],error:null};
+  const accessibleMessageIds=[...new Set([...customerMessages.map(message=>message.id),...chatMessages.map(message=>message.id)])];
+  const[authorResult,attachmentResult]=await Promise.all([
+    participantAuthorIds.length?db.from('profiles').select('id,email,full_name').in('id',participantAuthorIds):empty<Profile>(),
+    accessibleMessageIds.length?db.from('office_message_attachments').select('id,message_id,thread_id,original_name,byte_size,source,created_at').eq('instance_id',scope.instanceId).in('message_id',accessibleMessageIds).eq('status','ready').order('created_at',{ascending:false}).limit(8):empty<Attachment>(),
+  ]);
   const authorMap=new Map(((authorResult.data??[])as Profile[]).map(item=>[item.id,item]));
+  const attachments=(attachmentResult.data??[])as Attachment[];
+
   const activities:ActivityItem[]=[
     ...customerMessages.slice(0,12).map(message=>{const thread=threadMap.get(message.thread_id);const sender=message.kind==='email_in'?(thread?.customer_email??'Ügyfél'):(message.author_id===actor.id?'Te':'Munkatárs');return{label:sender,detail:message.kind==='email_in'?`új ügyfélüzenet · ${thread?.subject??'ügyfélthread'}`:`válaszolt · ${thread?.subject??'ügyfélthread'}`,time:timeAgo(message.created_at),initials:initials(sender)};}),
     ...chatMessages.slice(0,12).map(message=>{const sender=message.author_id===actor.id?'Te':(message.author_id?(authorMap.get(message.author_id)?.full_name||authorMap.get(message.author_id)?.email||'Munkatárs'):'Munkatárs');return{label:sender,detail:`Team Chat · ${chatThreadMap.get(message.thread_id)?.subject??'beszélgetés'}`,time:timeAgo(message.created_at),initials:initials(sender)};}),
@@ -142,14 +128,10 @@ export default async function DigitalOfficeHome(){
   for(const job of problemJobs.slice(0,1))notices.push({label:'Küldési probléma beavatkozást igényel',time:timeAgo(job.created_at),tone:'danger'});
   for(const thread of threads.filter(item=>item.status==='closed').slice(0,1))notices.push({label:`Lezárt ügy · ${thread.subject}`,time:timeAgo(thread.updated_at),tone:'muted'});
 
-  const accessibleMessageIds=[...new Set([...customerMessages.map(message=>message.id),...chatMessages.map(message=>message.id)])];
-  const attachmentResult=accessibleMessageIds.length?await db.from('office_message_attachments').select('id,message_id,thread_id,original_name,byte_size,source,created_at').eq('instance_id',scope.instanceId).in('message_id',accessibleMessageIds).eq('status','ready').order('created_at',{ascending:false}).limit(8):{data:[] as Attachment[],error:null};
-  const attachments=(attachmentResult.data??[])as Attachment[];
-
   const greetingHour=Number(new Intl.DateTimeFormat('hu-HU',{timeZone:'Europe/Budapest',hour:'2-digit',hourCycle:'h23'}).format(now));
   const greeting=greetingHour<10?'Jó reggelt!':greetingHour<18?'Szép napot!':'Jó estét!';
   const displayName=profile?.full_name?.trim().split(/\s+/)[0]??'';
-  const loadError=Boolean(profileResult.error||threadResult.error||taskResult.error||jobResult.error||messageResult.error||authorResult.error||attachmentResult.error);
+  const loadError=Boolean(profileResult.error||threadResult.error||taskResult.error||jobResult.error||accessibleResult.error||messageResult.error||chatThreadResult.error||chatMessageResult.error||participantResult.error||mentionResult.error||authorResult.error||attachmentResult.error);
 
   return <main className="digitalOfficeDashboardPage">
     <section className="digitalOfficeDashboardHero">
@@ -175,7 +157,7 @@ export default async function DigitalOfficeHome(){
       <article className="digitalOfficeDashboardPanel" id="feladatok">
         <header><div><small>Saját munka</small><h2>Feladataim</h2></div><Link href="/admin/kommunikacio/iroda">Ügyfélmunkák →</Link></header>
         <div className="digitalOfficeTaskTabs"><span>Ma ({todayTasks.length})</span><span>Közelgő ({Math.max(0,myTasks.length-todayTasks.length-overdueTasks.length)})</span><span>Lejárt ({overdueTasks.length})</span></div>
-        {myTasks.slice(0,4).map(task=><Link href={task.thread_id?`/admin/kommunikacio/iroda?thread=${task.thread_id}`:'/admin/kommunikacio'} className="digitalOfficeTaskRow" key={task.id}><i/><span><strong>{task.title}</strong><small>{task.thread_id?threadMap.get(task.thread_id)?.subject??'Kapcsolt ügyfélthread':'Önálló feladat'}</small></span><em data-hot={Boolean(task.due_at&&Date.parse(task.due_at)<now.getTime()+60*60*1000)?'true':'false'}>{task.due_at?(dayKey(task.due_at)===today?timeLabel(task.due_at):new Intl.DateTimeFormat('hu-HU',{timeZone:'Europe/Budapest',month:'short',day:'numeric'}).format(new Date(task.due_at))):'Nincs határidő'}</em></Link>)}
+        {myTasks.slice(0,4).map(task=><Link href={task.thread_id?`/admin/kommunikacio/iroda?thread=${task.thread_id}`:'/admin/kommunikacio'} className="digitalOfficeTaskRow" key={task.id}><i/><span><strong>{task.title}</strong><small>{task.thread_id?threadMap.get(task.thread_id)?.subject??'Kapcsolt ügyfélthread':'Önálló feladat'}</small></span><em data-hot={Boolean(task.due_at&&Date.parse(task.due_at)<now.getTime())?'true':'false'}>{task.due_at?(dayKey(task.due_at)===today?timeLabel(task.due_at):new Intl.DateTimeFormat('hu-HU',{timeZone:'Europe/Budapest',month:'short',day:'numeric'}).format(new Date(task.due_at))):'Nincs határidő'}</em></Link>)}
         {!myTasks.length&&<div className="digitalOfficeDashboardEmpty"><strong>Nincs nyitott saját feladat.</strong><span>A hozzád rendelt feladatok itt jelennek meg.</span></div>}
       </article>
 
