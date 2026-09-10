@@ -1,5 +1,5 @@
 /*
- * Communication desktop-site compatibility contract v7.
+ * Communication desktop-site compatibility contract v6.
  *
  * This file is intentionally loaded AFTER communication-app-final.css and owns
  * only the touch-browser "Desktop site" case. Native mobile/tablet/desktop
@@ -10,7 +10,7 @@
  * - keep the global admin rail usable;
  * - make the communication workspace horizontally pannable inside the content area;
  * - hide the touch-only horizontal scrollbar/track without disabling pan;
- * - fill the collapsed-browser viewport vertically without ratio multiplication;
+ * - fill the visible viewport vertically without ratio multiplication;
  * - keep the accepted three-pane e-mail and Team Chat layouts intact.
  */
 
@@ -20,7 +20,7 @@
   width:100%!important;
   min-width:960px!important;
   max-width:none!important;
-  min-height:100lvh!important;
+  min-height:100dvh!important;
   height:auto!important;
   overflow:visible!important;
 }
@@ -30,8 +30,8 @@
   position:sticky!important;
   top:0!important;
   width:220px!important;
-  height:100lvh!important;
-  max-height:100lvh!important;
+  height:100dvh!important;
+  max-height:100dvh!important;
   overflow-y:auto!important;
   overflow-x:hidden!important;
 }
@@ -41,14 +41,13 @@
 .adminGrid[data-desktop-site-touch="true"] .adminContentShell{
   width:100%!important;
   min-width:0!important;
-  min-height:100lvh!important;
+  min-height:100dvh!important;
   overflow-x:auto!important;
   overflow-y:visible!important;
   overscroll-behavior-x:contain!important;
   -webkit-overflow-scrolling:touch;
   touch-action:pan-x pan-y pinch-zoom!important;
   scrollbar-width:none!important;
-  scrollbar-gutter:auto!important;
   -ms-overflow-style:none!important;
 }
 .adminGrid[data-desktop-site-touch="true"] .adminContentShell::-webkit-scrollbar{
@@ -68,7 +67,7 @@
   width:1050px!important;
   min-width:1050px!important;
   max-width:none!important;
-  min-height:100lvh!important;
+  min-height:100dvh!important;
   overflow:visible!important;
 }
 
@@ -106,7 +105,7 @@
   grid-template-rows:auto minmax(0,1fr)!important;
   width:1050px!important;
   min-width:1050px!important;
-  height:calc(100lvh - 112px)!important;
+  height:calc(100dvh - 112px)!important;
   min-height:720px!important;
   max-height:none!important;
   overflow:hidden!important;
@@ -199,7 +198,7 @@
   grid-template-columns:280px 500px 270px!important;
   width:1050px!important;
   min-width:1050px!important;
-  height:calc(100lvh - 112px)!important;
+  height:calc(100dvh - 112px)!important;
   min-height:720px!important;
   max-height:none!important;
   overflow:hidden!important;
