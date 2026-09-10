@@ -79,6 +79,7 @@ export const SPORT_HUB_WAVE40_ACCEPTANCE=Object.freeze({
     responsiveGrid:'shared-desktop-tablet-mobile-grid',
     pagePresetCount:14,
     minimumPlan:'alap',
+    hardeningCorrections:['catalog-collection-header-node-id-deduplicated','content-story-index-replaced-with-content-allowed-story-body'],
     runtimeAllowlistWidened:false,
     visualBuilder:'future-compatible-no-template-local-builder-engine',
   },
@@ -93,7 +94,7 @@ export const SPORT_HUB_WAVE40_ACCEPTANCE=Object.freeze({
     'sql-migration',
     'vercel-production-deploy',
     'supabase-mutation',
-    'water-k-status-change',
+    'tenant-status-change',
     'main-merge',
   ] as const,
 });
