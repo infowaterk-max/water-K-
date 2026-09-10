@@ -21,7 +21,7 @@ describe('strict admin catalogue read contract',()=>{
     expect(bulk).toContain('Tömeges módosítást addig nem engedünk.');
     expect(bulk).toContain('!result.error?<BulkProductEditor');
     expect(transfer).toContain('Importot addig nem engedünk');
-    expect(transfer).toContain('!result.error?<CatalogImporter');
+    expect(transfer).toContain('!result.error?<><CatalogProductOnboarding/><CatalogImporter/>');
   });
 
   test('procurement recommendations and dashboard do not treat a failed catalogue read as empty stock',()=>{
