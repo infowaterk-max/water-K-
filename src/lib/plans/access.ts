@@ -44,6 +44,7 @@ export async function hasCurrentPlanFeature(feature: FeatureCode): Promise<boole
 }
 
 export async function requirePlanFeature(feature: FeatureCode) {
+  if (!isRuntimeFeatureReleased(feature)) redirect(`/admin/csomag?reason=not-released&feature=${encodeURIComponent(feature)}`);
   if (await platformHasFullAccess()) return 'pro' satisfies PlanCode;
   const plan=await getCurrentPlan();
   if (!(await hasCurrentPlanFeature(feature))) redirect(`/admin/csomag?reason=pro-required&feature=${encodeURIComponent(feature)}`);
