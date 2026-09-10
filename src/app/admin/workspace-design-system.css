@@ -1,0 +1,334 @@
+.adminGrid{
+  --workspace-bg:#f4f6f5;
+  --workspace-surface:#ffffff;
+  --workspace-surface-soft:#f8fbfa;
+  --workspace-line:#dce5e3;
+  --workspace-line-strong:#c8d6d2;
+  --workspace-ink:#132326;
+  --workspace-muted:#667675;
+  --workspace-accent:#0f987d;
+  --workspace-accent-strong:#0b775f;
+  --workspace-accent-soft:#e7f5f0;
+  --workspace-warning:#906014;
+  --workspace-warning-soft:#fff3dd;
+  --workspace-danger:#973d35;
+  --workspace-danger-soft:#fdeae7;
+  --workspace-shadow:0 14px 38px rgba(22,43,39,.07);
+  background:var(--workspace-bg)!important;
+  color:var(--workspace-ink);
+}
+
+/* Shared Shoporation workspace language: Admin, Digital Office and the builders use one palette. */
+.adminGrid .btn.btnPrimary{
+  border:1px solid var(--workspace-accent)!important;
+  background:var(--workspace-accent)!important;
+  color:#fff!important;
+  box-shadow:none!important;
+}
+.adminGrid .btn.btnPrimary:hover,.adminGrid .btn.btnPrimary:focus-visible{
+  border-color:var(--workspace-accent-strong)!important;
+  background:var(--workspace-accent-strong)!important;
+}
+.adminGrid .btn.btnGhost{
+  border:1px solid var(--workspace-line)!important;
+  background:#fff!important;
+  color:#203033!important;
+  box-shadow:none!important;
+}
+.adminGrid .btn.btnGhost:hover,.adminGrid .btn.btnGhost:focus-visible{
+  border-color:#a8cfc4!important;
+  background:#f7fbfa!important;
+  color:var(--workspace-accent-strong)!important;
+}
+.adminGrid .textLink{color:var(--workspace-accent-strong)!important}
+.adminGrid .textLink:hover,.adminGrid .textLink:focus-visible{color:#075f50!important}
+.adminGrid input:not([type=checkbox]):not([type=radio]):not([type=hidden]):not([type=color]):not([type=range]),
+.adminGrid select,.adminGrid textarea{
+  border-color:var(--workspace-line)!important;
+  border-radius:10px!important;
+  background:#fff!important;
+  color:var(--workspace-ink)!important;
+  box-shadow:none!important;
+}
+.adminGrid input:not([type=checkbox]):not([type=radio]):not([type=hidden]):not([type=color]):not([type=range]):focus,
+.adminGrid select:focus,.adminGrid textarea:focus{
+  border-color:#159b7b!important;
+  outline:none!important;
+  box-shadow:0 0 0 3px rgba(21,155,123,.1)!important;
+}
+.adminGrid .adminMain>.eyebrow,.adminGrid .eyebrow{
+  border-color:#d5e9e3!important;
+  background:var(--workspace-accent-soft)!important;
+  color:var(--workspace-accent-strong)!important;
+}
+.adminGrid .adminMain>.card,.adminGrid .adminMetricCards>.card{
+  border-color:var(--workspace-line)!important;
+  background:#fff!important;
+  box-shadow:none!important;
+}
+.adminGrid .adminMetricCards>.card:after{background:#eef7f4!important}
+.adminGrid .adminMetricCards .badge{
+  border-color:#d8ebe5!important;
+  background:#eef7f4!important;
+  color:#286c5d!important;
+}
+.adminGrid .adminReturnLink{
+  border-color:var(--workspace-line)!important;
+  background:#fff!important;
+  color:var(--workspace-accent-strong)!important;
+}
+
+@media(min-width:851px){
+  .adminGrid .adminSide{
+    background:linear-gradient(180deg,#172c29 0%,#11231f 100%)!important;
+    color:#f5fbf9!important;
+    border-right:1px solid rgba(255,255,255,.06)!important;
+  }
+  .adminGrid .adminBrand{border-bottom-color:rgba(255,255,255,.09)!important}
+  .adminGrid .adminBrand:before{
+    background:linear-gradient(135deg,#20ad8f,#0b775f)!important;
+    color:#fff!important;
+    box-shadow:0 8px 22px rgba(15,152,125,.2);
+  }
+  .adminGrid .adminBrandWordmark strong{color:#fff!important}
+  .adminGrid .adminBrandWordmark span,.adminGrid .adminRoleBadge{color:#9eb2ad!important}
+  .adminGrid .adminSide .adminDiscoveryLabel,
+  .adminGrid .adminSide .adminNavContextLabel,
+  .adminGrid .adminSide .adminNavLabel,
+  .adminGrid .adminSide .adminNavItemGroupLabel,
+  .adminGrid .adminSide .adminFontScale>span{color:#78918b!important}
+  .adminGrid .adminSide .adminNavSectionTrigger{color:#dce9e5!important}
+  .adminGrid .adminSide .adminNavSectionTrigger>span:last-child{color:#79938d!important}
+  .adminGrid .adminSide .adminNavSectionTrigger:hover,
+  .adminGrid .adminSide .adminNavSectionTrigger:focus-visible{background:rgba(255,255,255,.065)!important;color:#fff!important}
+  .adminGrid .adminSide .adminNavSectionTrigger[data-active="true"]{
+    background:rgba(21,155,123,.14)!important;
+    color:#fff!important;
+    box-shadow:inset 3px 0 0 #28b797!important;
+  }
+  .adminGrid .adminSide .adminNavItemGroup a,.adminGrid .adminSide .adminNav a{color:#dce9e5!important}
+  .adminGrid .adminSide .adminNavItemGroup a small{color:#829a94!important}
+  .adminGrid .adminSide .adminNavItemGroup a:hover small,
+  .adminGrid .adminSide .adminNavItemGroup a:focus-visible small,
+  .adminGrid .adminSide .adminNavItemGroup a.adminNavActive small{color:#bad0ca!important}
+  .adminGrid .adminSide .adminQuickTasks a{
+    border-color:rgba(255,255,255,.09)!important;
+    background:rgba(255,255,255,.045)!important;
+    color:#dce9e5!important;
+  }
+  .adminGrid .adminSide .adminQuickTasks a:hover,.adminGrid .adminSide .adminQuickTasks a:focus-visible{
+    border-color:rgba(40,183,151,.35)!important;
+    background:rgba(21,155,123,.13)!important;
+    color:#fff!important;
+  }
+  .adminGrid .adminSide .adminHelpDiscovery{border-top-color:rgba(255,255,255,.08)!important;color:#a8bbb6!important}
+  .adminGrid .adminSide .adminHelpDiscovery summary,.adminGrid .adminSide .adminStoreLink{color:#63d2ba!important}
+  .adminGrid .adminSide .adminHelpDiscovery p{color:#879e98!important}
+  .adminGrid .adminSide .adminFontScale button{
+    border-color:rgba(255,255,255,.12)!important;
+    background:rgba(255,255,255,.04)!important;
+    color:#dce9e5!important;
+  }
+  .adminGrid .adminSide .adminFontScale button.active{
+    border-color:#45c5aa!important;
+    background:rgba(21,155,123,.16)!important;
+    color:#fff!important;
+  }
+}
+
+/* Digital Office: one coherent workspace, not a separate visual theme. */
+.digitalOfficeShell{min-height:100%;background:var(--workspace-bg);color:var(--workspace-ink)}
+.digitalOfficeWorkspaceBar{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:22px;
+  padding:14px clamp(20px,4vw,58px);
+  border-bottom:1px solid var(--workspace-line);
+  background:rgba(255,255,255,.96);
+  backdrop-filter:blur(16px);
+}
+.digitalOfficeWorkspaceBrand{display:flex;align-items:center;gap:11px;min-width:0}
+.digitalOfficeWorkspaceMark{
+  display:grid;
+  place-items:center;
+  width:36px;
+  height:36px;
+  flex:0 0 36px;
+  border:1px solid #bfe1d7;
+  border-radius:11px;
+  background:var(--workspace-accent-soft);
+  color:var(--workspace-accent-strong);
+  font-size:11px;
+  font-weight:950;
+  letter-spacing:.05em;
+}
+.digitalOfficeWorkspaceBrand>div{display:grid;gap:2px;min-width:0}
+.digitalOfficeWorkspaceBrand strong{font-size:14px;letter-spacing:-.015em}
+.digitalOfficeWorkspaceBrand small{color:var(--workspace-muted);font-size:9px;font-weight:800;letter-spacing:.08em;text-transform:uppercase}
+.digitalOfficeWorkspaceTabs{display:flex;align-items:center;gap:5px;overflow-x:auto;scrollbar-width:none}
+.digitalOfficeWorkspaceTabs::-webkit-scrollbar{display:none}
+.digitalOfficeWorkspaceTabs a{
+  display:inline-flex;
+  align-items:center;
+  min-height:38px;
+  padding:0 12px;
+  flex:0 0 auto;
+  border:1px solid transparent;
+  border-radius:10px;
+  color:#526462;
+  text-decoration:none;
+  font-size:11px;
+  font-weight:850;
+  white-space:nowrap;
+}
+.digitalOfficeWorkspaceTabs a:hover,.digitalOfficeWorkspaceTabs a:focus-visible{background:#f3f8f6;color:var(--workspace-accent-strong);outline:none}
+.digitalOfficeWorkspaceTabs a[aria-current="page"]{
+  border-color:#cce7df;
+  background:var(--workspace-accent-soft);
+  color:var(--workspace-accent-strong);
+}
+.digitalOfficeShell .adminMain{padding-top:28px}
+.digitalOfficeShell .sectionIntro{
+  align-items:flex-start;
+  gap:24px;
+  margin-bottom:18px;
+  padding:25px 27px;
+  border:1px solid var(--workspace-line);
+  border-radius:20px;
+  background:#fff;
+  box-shadow:0 8px 26px rgba(22,43,39,.035);
+}
+.digitalOfficeShell .sectionIntro .sectionTitle{
+  margin-top:10px;
+  max-width:880px;
+  font-size:clamp(34px,4vw,52px)!important;
+  line-height:1.02;
+  letter-spacing:-.045em;
+}
+.digitalOfficeShell .sectionIntro .lead{max-width:850px;margin-bottom:0;color:#657472}
+.digitalOfficeShell .sectionIntro>.adminToolbar{justify-content:flex-end;margin:0;padding:0;background:transparent;border:0}
+.digitalOfficeShell .adminAuditNotice{
+  margin:12px 0;
+  padding:14px 16px;
+  border:1px solid #d9e9e4!important;
+  border-radius:14px;
+  background:#f7fbfa!important;
+  color:#334744!important;
+  box-shadow:none!important;
+}
+.digitalOfficeShell .adminAuditNotice strong{color:#285f51}
+.digitalOfficeShell .adminAuditNotice p{color:#647471}
+.digitalOfficeShell .errorNotice{
+  border:1px solid #efd1cb!important;
+  border-radius:14px;
+  background:var(--workspace-danger-soft)!important;
+  color:#7d302b!important;
+}
+.digitalOfficeShell .adminMetricCards{margin:18px 0 24px}
+.digitalOfficeShell .adminMetricCards>.card{
+  min-height:118px;
+  padding:19px 20px!important;
+  border:1px solid var(--workspace-line)!important;
+  border-radius:16px!important;
+}
+.digitalOfficeShell .adminMetricCards .price{color:#19312d}
+.digitalOfficeShell .featurePanel,.digitalOfficeShell .tableCard,.digitalOfficeShell section>.card{
+  border:1px solid var(--workspace-line)!important;
+  border-radius:18px!important;
+  background:#fff!important;
+  box-shadow:none!important;
+}
+.digitalOfficeShell .featurePanel{padding:22px}
+.digitalOfficeShell .featurePanel>h2,.digitalOfficeShell .tableCard>h2{letter-spacing:-.025em}
+.digitalOfficeShell .stackForm{gap:11px}
+.digitalOfficeShell form.adminToolbar{
+  gap:9px;
+  margin:14px 0;
+  padding:11px;
+  border:1px solid #e1e8e6;
+  border-radius:13px;
+  background:#f8fbfa;
+}
+.digitalOfficeShell .card form.adminToolbar{padding:9px;background:#fbfcfc}
+.digitalOfficeShell .integrationList{display:grid;gap:8px;margin-top:14px}
+.digitalOfficeShell .integrationList>div{
+  padding:13px 14px;
+  border:1px solid #e0e8e6;
+  border-radius:13px;
+  background:#f9fbfa;
+}
+.digitalOfficeShell .integrationList>div strong{color:#253b37}
+.digitalOfficeShell .integrationList>div p{color:#566865;line-height:1.55}
+.digitalOfficeShell .badge{
+  border:1px solid #d9ebe5!important;
+  background:#eef7f4!important;
+  color:#286c5d!important;
+}
+.digitalOfficeShell .adminStatePill{
+  border:1px solid #dce5e3;
+  background:#f5f8f7;
+  color:#536663;
+}
+.digitalOfficeShell .adminStatePill[data-status="sent"]{border-color:#cce6dc;background:#eaf7f2;color:#25735e}
+.digitalOfficeShell .adminStatePill[data-status="processing"]{border-color:#cbdfe8;background:#edf6fa;color:#356b82}
+.digitalOfficeShell .adminStatePill[data-status="pending"]{border-color:#ead9b8;background:#fff7e7;color:#835d16}
+.digitalOfficeShell .adminStatePill[data-status="failed"],.digitalOfficeShell .adminStatePill[data-status="blocked"]{border-color:#edcec9;background:#fdeeea;color:#943f36}
+.digitalOfficeShell .adminStatePill[data-status="cancelled"]{border-color:#dfe3e2;background:#f1f3f2;color:#687370}
+.digitalOfficeFilterBar{display:grid!important;grid-template-columns:minmax(260px,1fr) minmax(170px,220px) auto;align-items:center}
+.digitalOfficeFilterBar input,.digitalOfficeFilterBar select{min-height:42px}
+.communicationQueueSection{overflow:hidden}
+.communicationQueueSection .digitalOfficeSectionHead{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:14px;
+  padding:20px 22px 10px;
+}
+.communicationQueueSection .digitalOfficeSectionHead h2{margin:0}
+.communicationQueueSection .digitalOfficeSectionHead span{color:var(--workspace-muted);font-size:11px}
+.communicationQueueSection .adminTable th{background:#f8fbfa;color:#60716e;font-size:10px;letter-spacing:.06em;text-transform:uppercase}
+.communicationQueueSection .adminTable td{vertical-align:top;border-color:#e6ecea}
+.communicationJobDetails{margin-top:7px}
+.communicationJobDetails summary{cursor:pointer;color:var(--workspace-accent-strong);font-size:10px;font-weight:850}
+.communicationJobMeta{display:grid;gap:5px;margin-top:8px;padding:9px 10px;border:1px solid #e2e9e7;border-radius:9px;background:#f8fbfa;color:#657572;font-size:10px;line-height:1.45}
+.communicationJobMeta code{overflow-wrap:anywhere;color:#41605a}
+.communicationJobError{padding:7px 8px;border-radius:8px;background:var(--workspace-danger-soft);color:#8d3932}
+.communicationQueueCard{border-color:#e5ebe9!important;background:#fff!important}
+.communicationQueueCard details summary{color:var(--workspace-accent-strong)!important}
+.digitalOfficeOperationsGrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:18px}
+.digitalOfficeOperationsGrid>.card{margin:0!important;padding:20px!important}
+.digitalOfficeOperationsGrid h2{margin-top:0;font-size:18px}
+.digitalOfficeOperationsGrid p{padding:7px 0;border-bottom:1px solid #edf1f0}
+.digitalOfficeOperationsGrid p:last-child{border-bottom:0}
+
+@media(max-width:1050px){
+  .digitalOfficeWorkspaceBar{align-items:flex-start;flex-direction:column;gap:10px}
+  .digitalOfficeWorkspaceTabs{width:100%}
+  .digitalOfficeOperationsGrid{grid-template-columns:1fr}
+}
+@media(max-width:850px){
+  .adminGrid .adminSide{background:#132824!important;color:#f5fbf9!important;box-shadow:0 7px 22px rgba(15,35,31,.18)!important}
+  .adminGrid .adminSide .adminNav a,.adminGrid .adminMerchantNav .adminNavSectionTrigger,.adminGrid .adminMobileSectionPanel a{
+    border-color:rgba(255,255,255,.08)!important;
+    background:rgba(255,255,255,.055)!important;
+    color:#e1ece9!important;
+  }
+  .adminGrid .adminMerchantNav .adminNavSectionTrigger[data-active="true"],.adminGrid .adminMobileSectionPanel a.adminNavActive{
+    border-color:rgba(40,183,151,.32)!important;
+    background:rgba(21,155,123,.14)!important;
+    color:#fff!important;
+  }
+  .digitalOfficeWorkspaceBar{padding:12px 15px}
+  .digitalOfficeShell .adminMain{padding-top:20px}
+  .digitalOfficeShell .sectionIntro{padding:20px;border-radius:16px}
+  .digitalOfficeFilterBar{grid-template-columns:1fr!important}
+  .digitalOfficeFilterBar .btn{width:100%}
+}
+@media(max-width:560px){
+  .digitalOfficeWorkspaceBrand small{display:none}
+  .digitalOfficeWorkspaceTabs a{min-height:36px;padding:0 10px}
+  .digitalOfficeShell .sectionIntro .sectionTitle{font-size:36px!important}
+  .digitalOfficeShell .sectionIntro>.adminToolbar{width:100%;justify-content:flex-start}
+  .digitalOfficeShell .sectionIntro>.adminToolbar .btn{flex:1 1 150px}
+}
