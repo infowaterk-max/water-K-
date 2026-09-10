@@ -9,7 +9,6 @@ import {planStorefrontTemplateInstallation} from '@/lib/builder/storefront-templ
 import {validateStorefrontPageDocument} from '@/lib/builder/storefront-runtime';
 
 const capability={plan:'alap' as const,features:PLANS.alap.features};
-
 const allNodes=(nodes:readonly any[]):any[]=>nodes.flatMap(node=>[node,...allNodes(node.children??[])]);
 
 describe('Wave 31 Ritual House current-baseline re-acceptance',()=>{
