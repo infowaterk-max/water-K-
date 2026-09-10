@@ -6,6 +6,7 @@ const read=(path:string)=>readFileSync(join(process.cwd(),path),'utf8');
 const foundation=read('supabase/migrations/20260910070000_communication_hub_2_0_foundation_v1.sql');
 const assignment=read('supabase/migrations/20260910070100_communication_hub_2_0_mailbox_default_assignment_v1.sql');
 const advanced=read('supabase/migrations/20260910070200_communication_hub_2_0_advanced_guards_and_object_links_v1.sql');
+const fkIndexes=read('supabase/migrations/20260910070300_communication_hub_2_0_fk_indexes_v1.sql');
 const worker=read('src/lib/communication/worker.ts');
 const provider=read('src/lib/communication/provider.ts');
 const inbound=read('src/app/api/webhooks/communication/route.ts');
@@ -17,7 +18,7 @@ const officePage=read('src/app/admin/kommunikacio/iroda/page.tsx');
 describe('Roadmap Block 9 Communication Hub 2.0',()=>{
   it('extends the existing Office model without seeding or activating external infrastructure',()=>{
     for(const field of['responsible_user_id','customer_user_id','customer_ref text','sales_owner_user_id'])expect(foundation).toContain(field);
-    const all=`${foundation}\n${assignment}\n${advanced}`.toLowerCase();
+    const all=`${foundation}\n${assignment}\n${advanced}\n${fkIndexes}`.toLowerCase();
     expect(all).not.toContain('insert into public.office_mailboxes');
     expect(all).not.toContain('update public.office_mailboxes set is_active=true');
     expect(all).not.toContain("storage_bucket text not null default 'public'");
@@ -79,6 +80,17 @@ describe('Roadmap Block 9 Communication Hub 2.0',()=>{
     expect(foundation).toContain("source='customer_outbound'");
     expect(advanced).toContain('v_result:=public.admin_queue_office_email_v5');
     expect(advanced).toContain("jsonb_build_object('objectLinked'");
+  });
+
+  it('covers every new user/delegation foreign key with a maintenance index',()=>{
+    for(const index of[
+      'office_mailboxes_responsible_user_fk_idx',
+      'office_threads_customer_user_fk_idx',
+      'office_threads_sales_owner_user_fk_idx',
+      'office_messages_acting_for_user_fk_idx',
+      'office_messages_delegation_fk_idx',
+    ])expect(fkIndexes).toContain(index);
+    for(const column of['responsible_user_id','customer_user_id','sales_owner_user_id','acting_for_user_id','delegation_id'])expect(fkIndexes).toContain(`(${column})`);
   });
 
   it('never turns untrusted inbound email content into business commands',()=>{
