@@ -1,0 +1,82 @@
+import {STOREFRONT_STORY_VISUAL_COMPONENT_DEPENDENCIES} from '@/lib/builder/storefront-story-visual';
+import {
+  ALPINE_LODGE_ENGINE_CONTRACT,
+  ALPINE_LODGE_HOME_SECTION_ORDER,
+  ALPINE_LODGE_MARKETING_LAYER_CONTRACT,
+  ALPINE_LODGE_TEMPLATE_KEY,
+  ALPINE_LODGE_TEMPLATE_VERSION,
+  ALPINE_LODGE_VISUAL_DNA,
+} from '@/lib/builder/templates/alpine-lodge';
+import {TRAIL_EXPEDITION_VISUAL_DNA} from '@/lib/builder/templates/trail-expedition';
+
+/** Wave 33 re-accepts the inherited Alpine Lodge v1 against the current stacked
+ * Builder contract without creating a second template or new commerce authority. */
+export const ALPINE_LODGE_WAVE33_ACCEPTANCE=Object.freeze({
+  wave:33,
+  mode:'current-baseline-reacceptance-and-builder-hardening',
+  templateKey:ALPINE_LODGE_TEMPLATE_KEY,
+  templateVersion:ALPINE_LODGE_TEMPLATE_VERSION,
+  inheritedImplementation:true,
+  portfolio:{
+    category:'outdoor-lifestyle',
+    alpineLodge:ALPINE_LODGE_VISUAL_DNA.character,
+    alpineJourney:ALPINE_LODGE_VISUAL_DNA.journey,
+    alpineHomeOrder:ALPINE_LODGE_HOME_SECTION_ORDER,
+    nearbyTrailExpedition:TRAIL_EXPEDITION_VISUAL_DNA.character,
+  },
+  visualContract:{
+    character:'premium-swiss-boutique-lodge-not-generic-outdoor-shop',
+    palette:['wool-ivory','weathered-stone','charcoal','deep-pine','restrained-copper-bronze','misty-mountain-blue-grey'],
+    materials:['dark-timber','stone','wool','tactile-natural-materials'],
+    typography:['quiet-editorial-serif','clean-refined-sans'],
+    spacing:'generous-calm-boutique-lodge',
+    imageRule:ALPINE_LODGE_MARKETING_LAYER_CONTRACT.imageRule,
+    exclusions:ALPINE_LODGE_VISUAL_DNA.exclusions,
+  },
+  builderContract:{
+    heroLayers:ALPINE_LODGE_MARKETING_LAYER_CONTRACT.hero,
+    composition:ALPINE_LODGE_MARKETING_LAYER_CONTRACT.composition,
+    registryComposition:STOREFRONT_STORY_VISUAL_COMPONENT_DEPENDENCIES,
+    stableIdentity:'stable-node-ids-and-stable-binding-paths',
+    responsiveModes:['desktop','tablet','mobile'],
+    hierarchy:'Template -> Page Presets -> Section Presets -> Components',
+    pagePresetCount:14,
+    minimumPlan:'alap',
+    demoNamespace:'outdoor-alpine-lodge',
+    installation:'draft-only',
+  },
+  commerceAuthority:{
+    engineContract:ALPINE_LODGE_ENGINE_CONTRACT,
+    pricing:'pricing-binding-only',
+    inventory:'inventory-binding-only',
+    variants:'variant-binding-only',
+    reviews:'review-binding-only',
+    structuredFacts:'E7-or-authoritative-product-binding-only-when-supplied',
+    recommendations:'shared-recommendation-binding-only',
+    checkout:'shared-provider-neutral-E13',
+    noFakePerformanceClaim:true,
+    noFakeOriginClaim:true,
+    noFakeSustainabilityClaim:true,
+  },
+  exactHomeOrder:ALPINE_LODGE_HOME_SECTION_ORDER,
+  distinctness:{
+    notTrailExpedition:'not-dark-cinematic-route-first-expedition-commerce',
+    ownPosition:'warm-natural-premium-boutique-lodge-material-and-layer-editorial-commerce',
+    separationIncludes:['layout','section-order','rhythm','palette','typography','imagery','materials','merchandising-journey'],
+  },
+  nonScope:[
+    'second-alpine-lodge-template',
+    'visual-builder-drag-drop-ui',
+    'template-local-layout-engine',
+    'template-local-hero-engine',
+    'template-local-product-discovery-engine',
+    'template-local-structured-product-engine',
+    'template-local-pricing-inventory-review-authority',
+    'performance-or-provenance-inference-engine',
+    'payment-provider-change',
+    'sql-migration',
+    'vercel-production-deploy',
+    'supabase-mutation',
+    'main-merge',
+  ],
+} as const);
