@@ -20,14 +20,49 @@ describe('Digital Office unified workspace UI',()=>{
     expect(theme).toContain('linear-gradient(180deg,#172c29 0%,#11231f 100%)!important');
   });
 
-  it('wraps all communication routes in one contextual Digital Office workspace',()=>{
+  it('uses one Digital Office entry point and the approved internal workspace navigation',()=>{
     const layout=read('src/app/admin/kommunikacio/layout.tsx');
     const navigation=read('src/components/navigation/digital-office-navigation.tsx');
+    const adminNavigation=read('src/components/navigation/admin-navigation.tsx');
     expect(layout).toContain('digitalOfficeShell');
     expect(layout).toContain("hasCurrentPlanFeature('officeCommunicationAdvanced')");
     expect(layout).toContain('hasStoreCapability(instance.id,actor.id');
-    for(const label of['Ügyféllevelezés','Team Chat','Küldési központ','Tiltólista'])expect(navigation).toContain(label);
+    expect(layout).toContain("import './digital-office-workspace-redesign.css';");
+    expect(layout).toContain("import './digital-office-context-redesign.css';");
+    for(const label of['Kezdőlap','E-mail','Team Chat','Feladatok','Jóváhagyások','Küldési központ','E-mail sablonok'])expect(navigation).toContain(label);
+    expect(navigation).toContain("href:'/admin/kommunikacio'");
     expect(navigation).toContain('usePathname()');
+    expect(adminNavigation).toContain("'digital-office':'/admin/kommunikacio'");
+    expect(adminNavigation).toContain('adminNavSectionDirect');
+  });
+
+  it('renders the Digital Office home from real communication, task, chat and attachment sources',()=>{
+    const page=read('src/app/admin/kommunikacio/page.tsx');
+    for(const source of['office_threads','office_tasks','communication_jobs','office_accessible_thread_ids_v1','office_message_mentions','office_message_attachments'])expect(page).toContain(source);
+    for(const label of['Mai fókusz','Feladataim','Mai határidők','Legutóbbi aktivitás','Jóváhagyások & problémák','Értesítések','Legutóbbi fájlok','Gyors műveletek'])expect(page).toContain(label);
+    expect(page).not.toContain("redirect('/admin/kommunikacio/iroda')");
+  });
+
+  it('pins the approved dashboard and workstation proportions in the final redesign layer',()=>{
+    const css=read('src/app/admin/kommunikacio/digital-office-workspace-redesign.css');
+    expect(css).toContain('grid-template-columns:repeat(4,minmax(0,1fr))');
+    expect(css).toContain('grid-template-columns:5fr 4fr 3fr');
+    expect(css).toContain('grid-template-columns:300px minmax(470px,1fr) 285px!important');
+    expect(css).toContain('grid-template-columns:290px minmax(460px,1fr) 280px!important');
+    expect(css).toContain('.digitalOfficeDashboardMetric');
+  });
+
+  it('surfaces the approved real-data context summaries in e-mail and Team Chat',()=>{
+    const email=read('src/app/admin/kommunikacio/iroda/page.tsx');
+    const chat=read('src/app/admin/kommunikacio/chat/page.tsx');
+    const css=read('src/app/admin/kommunikacio/digital-office-context-redesign.css');
+    for(const field of['customer_user_id','customer_ref','sales_owner_user_id','responsible_user_id','total_gross_huf','shipping_method','payment_method'])expect(email).toContain(field);
+    for(const label of['Aktuális rendelés','Felelősség','Mailbox felelős','Sales owner','CRM ref','Nyitott teendők','Kapcsolt elemek'])expect(email).toContain(label);
+    for(const label of['Kapcsolt üzleti elemek','Olvasottság','Megosztott fájlok','Adatvédelem és megőrzés','Secure Attachments'])expect(chat).toContain(label);
+    expect(chat).toContain("linkedCount('commercial_offer')");
+    expect(chat).toContain('readTimeLabel(participant.last_read_at)');
+    expect(css).toContain('.digitalOfficeContextStats');
+    expect(css).toContain('.teamChatContextStats');
   });
 
   it('finishes the send center with searchable filters and inspectable job evidence',()=>{

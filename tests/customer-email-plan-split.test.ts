@@ -32,11 +32,12 @@ describe('Customer e-mail Alap / Pro plan split',()=>{
     expect(composerActions).toContain("if(active.length!==1)throw new OfficeComposerError('OFFICE_EMAIL_ADVANCED_PLAN_REQUIRED')");
   });
 
-  it('keeps assignment, communication tasks and sending supervision Pro-only',()=>{
+  it('keeps assignment and communication tasks Pro-only while supervision remains permission-aware',()=>{
     expect(workspaceActions).toContain("supportAccess({advanced:true})");
     expect(workspaceActions).toContain("hasCurrentPlanFeature('officeCommunicationAdvanced')");
     expect(workspaceActions).toContain("select('assigned_to')");
-    expect(workspace).toMatch(/advancedEmail&&<Link href="\/admin\/kommunikacio\/felugyelet">/);
+    expect(workspace).toContain("hasStorePermission(scope.instanceId,'marketing.manage')");
+    expect(workspace).toMatch(/advancedEmail&&canMarketing&&<Link href="\/admin\/kommunikacio\/felugyelet">/);
     expect(workspace).toMatch(/advancedEmail&&<label><span>Felelős<\/span><select name="assigneeUserId"/);
     expect(workspace).toMatch(/advancedEmail&&<section[^>]*id="office-tasks"[\s\S]*?<form action=\{createTaskAction\}/);
     expect(supervisionLayout).toContain("requirePlanFeature('officeCommunicationAdvanced')");

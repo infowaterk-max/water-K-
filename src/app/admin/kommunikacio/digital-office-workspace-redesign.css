@@ -1,0 +1,442 @@
+/* Digital Office workstation redesign — approved 2026-09-10 UI baseline.
+   This layer changes presentation only. Existing tenant, permission, privacy,
+   sending, attachment and retention contracts remain authoritative. */
+
+.adminNavSectionDirect{
+  text-decoration:none!important;
+}
+.adminNavSectionDirect>span:last-child{
+  font-size:12px!important;
+  opacity:.72;
+}
+
+.digitalOfficeShell .digitalOfficeWorkspaceBar{
+  min-height:58px;
+  height:58px;
+  padding:0 22px;
+  gap:14px;
+  background:rgba(255,255,255,.97);
+}
+.digitalOfficeShell .digitalOfficeWorkspaceBrand{
+  min-width:180px;
+  color:var(--workspace-ink);
+  text-decoration:none;
+}
+.digitalOfficeShell .digitalOfficeWorkspaceMark{
+  width:36px;
+  height:36px;
+  flex-basis:36px;
+  border-radius:11px;
+  font-size:10px;
+}
+.digitalOfficeShell .digitalOfficeWorkspaceBrand strong{font-size:14px}
+.digitalOfficeShell .digitalOfficeWorkspaceBrand small{font-size:8px}
+.digitalOfficeShell .digitalOfficeWorkspaceTabs{gap:4px}
+.digitalOfficeShell .digitalOfficeWorkspaceTabs a{
+  min-height:36px;
+  height:36px;
+  padding:0 11px;
+  border-radius:9px;
+  font-size:10px;
+}
+
+.digitalOfficeDashboardPage{
+  width:100%;
+  max-width:none;
+  padding:18px 20px 20px;
+  min-width:0;
+  color:var(--workspace-ink);
+}
+.digitalOfficeDashboardHero{
+  display:flex;
+  align-items:flex-end;
+  justify-content:space-between;
+  gap:24px;
+  padding:4px 2px 14px;
+}
+.digitalOfficeDashboardHero h1{
+  margin:0 0 3px;
+  font-size:26px;
+  line-height:1.08;
+  letter-spacing:-.035em;
+}
+.digitalOfficeDashboardHero h1 span{color:var(--workspace-accent)}
+.digitalOfficeDashboardHero p{margin:0;color:var(--workspace-muted);font-size:11px}
+.digitalOfficeDashboardDate{text-align:right;white-space:nowrap}
+.digitalOfficeDashboardDate strong{display:block;font-size:10px;text-transform:capitalize}
+.digitalOfficeDashboardDate span{display:block;margin-top:2px;color:var(--workspace-muted);font-size:8px}
+.digitalOfficeDashboardError{margin:0 0 10px!important}
+
+.digitalOfficeDashboardMetrics{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:10px;
+  margin-bottom:10px;
+}
+.digitalOfficeDashboardMetric{
+  display:flex;
+  align-items:center;
+  gap:11px;
+  min-height:78px;
+  padding:13px 14px;
+  border:1px solid var(--workspace-line);
+  border-radius:14px;
+  background:#fff;
+  color:inherit;
+  text-decoration:none;
+  box-shadow:0 7px 22px rgba(22,43,39,.03);
+}
+.digitalOfficeDashboardMetric:hover,.digitalOfficeDashboardMetric:focus-visible{
+  border-color:#b9d8d0;
+  box-shadow:0 9px 24px rgba(22,43,39,.05);
+  outline:none;
+}
+.digitalOfficeDashboardIcon{
+  display:grid;
+  place-items:center;
+  width:34px;
+  height:34px;
+  flex:0 0 34px;
+  border-radius:10px;
+  background:var(--workspace-accent-soft);
+  color:var(--workspace-accent-strong);
+  font-size:15px;
+  font-weight:900;
+}
+.digitalOfficeDashboardMetric>span:last-child{display:grid;min-width:0}
+.digitalOfficeDashboardMetric small{margin-bottom:5px;color:#4f625e;font-size:9px;font-style:normal}
+.digitalOfficeDashboardMetric strong{font-size:22px;line-height:1;font-weight:900}
+.digitalOfficeDashboardMetric em{margin-top:4px;color:var(--workspace-muted);font-size:8px;font-style:normal}
+
+.digitalOfficeDashboardPrimaryGrid{
+  display:grid;
+  grid-template-columns:5fr 4fr 3fr;
+  gap:10px;
+  margin-bottom:10px;
+}
+.digitalOfficeDashboardLowerGrid{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:10px;
+  margin-bottom:10px;
+}
+.digitalOfficeDashboardBottomGrid{
+  display:grid;
+  grid-template-columns:7fr 5fr;
+  gap:10px;
+}
+.digitalOfficeDashboardPanel{
+  min-width:0;
+  min-height:222px;
+  padding:14px;
+  border:1px solid var(--workspace-line);
+  border-radius:14px;
+  background:#fff;
+  box-shadow:0 7px 22px rgba(22,43,39,.03);
+}
+.digitalOfficeDashboardSmall{min-height:190px}
+.digitalOfficeDashboardFiles,.digitalOfficeDashboardQuick{min-height:138px}
+.digitalOfficeDashboardPanel>header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  margin-bottom:11px;
+}
+.digitalOfficeDashboardPanel>header>div>small{
+  display:block;
+  margin-bottom:1px;
+  color:var(--workspace-accent-strong);
+  font-size:8px;
+  font-weight:850;
+  letter-spacing:.09em;
+  text-transform:uppercase;
+}
+.digitalOfficeDashboardPanel h2{margin:0;font-size:13px;letter-spacing:-.01em}
+.digitalOfficeDashboardPanel>header>a{
+  color:var(--workspace-accent-strong);
+  text-decoration:none;
+  font-size:8px;
+  font-weight:800;
+  white-space:nowrap;
+}
+.digitalOfficeDashboardEmpty{
+  display:grid;
+  gap:3px;
+  place-content:center;
+  min-height:92px;
+  padding:14px;
+  color:var(--workspace-muted);
+  text-align:center;
+}
+.digitalOfficeDashboardEmpty strong{color:#425652;font-size:9px}
+.digitalOfficeDashboardEmpty span{font-size:8px;line-height:1.4}
+
+.digitalOfficeFocusItem{
+  display:grid;
+  grid-template-columns:28px minmax(0,1fr) auto;
+  gap:9px;
+  align-items:center;
+  padding:10px 0;
+  border-bottom:1px solid #edf1f0;
+  color:inherit;
+  text-decoration:none;
+}
+.digitalOfficeFocusItem:last-child{border-bottom:0}
+.digitalOfficeFocusItem>b{
+  display:grid;
+  place-items:center;
+  width:26px;
+  height:26px;
+  border-radius:50%;
+  background:#eef3f2;
+  color:#5d706c;
+  font-size:10px;
+  font-weight:850;
+}
+.digitalOfficeFocusItem>b[data-first="true"]{background:var(--workspace-accent);color:#fff}
+.digitalOfficeFocusItem>span{min-width:0}
+.digitalOfficeFocusItem strong,.digitalOfficeTaskRow strong{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:10px}
+.digitalOfficeFocusItem small,.digitalOfficeTaskRow small{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--workspace-muted);font-size:8px}
+.digitalOfficeFocusItem em,.digitalOfficeApproval em{
+  display:inline-flex;
+  align-items:center;
+  border:1px solid #d8ebe5;
+  border-radius:999px;
+  padding:4px 7px;
+  background:#eef7f4;
+  color:#286c5d;
+  font-size:8px;
+  font-style:normal;
+  font-weight:800;
+  white-space:nowrap;
+}
+.digitalOfficeFocusItem em[data-tone="warn"],.digitalOfficeApproval em[data-tone="warn"]{border-color:#f2dfba;background:var(--workspace-warning-soft);color:var(--workspace-warning)}
+.digitalOfficeFocusItem em[data-tone="danger"],.digitalOfficeApproval em[data-tone="danger"]{border-color:#f4cbc5;background:var(--workspace-danger-soft);color:var(--workspace-danger)}
+
+.digitalOfficeTaskTabs{display:flex;gap:3px;margin:-2px 0 7px}
+.digitalOfficeTaskTabs span{padding:5px 7px;border-radius:7px;color:#657572;font-size:8px}
+.digitalOfficeTaskTabs span:first-child{background:var(--workspace-accent-soft);color:var(--workspace-accent-strong);font-weight:850}
+.digitalOfficeTaskRow{
+  display:grid;
+  grid-template-columns:16px minmax(0,1fr) auto;
+  gap:7px;
+  align-items:center;
+  padding:7px 0;
+  border-bottom:1px solid #edf1f0;
+  color:inherit;
+  text-decoration:none;
+}
+.digitalOfficeTaskRow>i{width:14px;height:14px;border:1px solid #b7c7c3;border-radius:4px}
+.digitalOfficeTaskRow>em{
+  padding:3px 5px;
+  border-radius:6px;
+  background:#f4f6f5;
+  color:#61736f;
+  font-size:7px;
+  font-style:normal;
+  white-space:nowrap;
+}
+.digitalOfficeTaskRow>em[data-hot="true"]{background:var(--workspace-danger-soft);color:var(--workspace-danger)}
+
+.digitalOfficeDeadlineList{display:grid;gap:8px}
+.digitalOfficeDeadlineItem{
+  display:grid;
+  grid-template-columns:38px 3px minmax(0,1fr);
+  gap:8px;
+  align-items:center;
+  color:inherit;
+  text-decoration:none;
+}
+.digitalOfficeDeadlineItem time{color:#6d7d79;font-size:8px}
+.digitalOfficeDeadlineItem>i{width:3px;height:30px;border-radius:5px;background:#a8b9b5}
+.digitalOfficeDeadlineItem[data-hot="true"]>i{background:var(--workspace-accent)}
+.digitalOfficeDeadlineItem strong{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:9px}
+.digitalOfficeDeadlineItem small{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--workspace-muted);font-size:7px}
+
+.digitalOfficeActivity{
+  display:grid;
+  grid-template-columns:26px minmax(0,1fr) auto;
+  gap:8px;
+  align-items:center;
+  padding:7px 0;
+  border-bottom:1px solid #edf1f0;
+}
+.digitalOfficeActivity>b{
+  display:grid;
+  place-items:center;
+  width:25px;
+  height:25px;
+  border-radius:50%;
+  background:linear-gradient(135deg,#dfeae7,#a7c7bf);
+  color:#24443c;
+  font-size:8px;
+}
+.digitalOfficeActivity strong{display:block;font-size:9px}
+.digitalOfficeActivity small{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--workspace-muted);font-size:7px}
+.digitalOfficeActivity time{color:var(--workspace-muted);font-size:8px}
+.digitalOfficeApproval{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+  padding:8px 0;
+  border-bottom:1px solid #edf1f0;
+  color:inherit;
+  text-decoration:none;
+}
+.digitalOfficeApproval strong{display:block;font-size:9px}
+.digitalOfficeApproval small{display:block;color:var(--workspace-muted);font-size:7px}
+.digitalOfficeNotice{
+  display:grid;
+  grid-template-columns:8px minmax(0,1fr) auto;
+  gap:7px;
+  align-items:start;
+  padding:9px 0;
+  border-bottom:1px solid #edf1f0;
+}
+.digitalOfficeNotice>i{display:block;width:7px;height:7px;margin-top:2px;border-radius:50%;background:var(--workspace-accent)}
+.digitalOfficeNotice>i[data-tone="danger"]{background:#d6534b}
+.digitalOfficeNotice>i[data-tone="muted"]{background:#aab6b3}
+.digitalOfficeNotice strong{font-size:9px;font-weight:750}
+.digitalOfficeNotice time{color:var(--workspace-muted);font-size:7px}
+
+.digitalOfficeFileGrid{display:grid;grid-template-columns:1fr 1fr;column-gap:18px}
+.digitalOfficeFileRow{
+  display:grid;
+  grid-template-columns:26px minmax(0,1fr) auto;
+  gap:8px;
+  align-items:center;
+  padding:7px 0;
+  border-bottom:1px solid #edf1f0;
+}
+.digitalOfficeFileRow>b{
+  display:grid;
+  place-items:center;
+  width:24px;
+  height:24px;
+  border-radius:7px;
+  background:#eef7f4;
+  color:var(--workspace-accent-strong);
+  font-size:7px;
+}
+.digitalOfficeFileRow strong{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:8px}
+.digitalOfficeFileRow small{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--workspace-muted);font-size:7px}
+.digitalOfficeFileRow em{color:var(--workspace-muted);font-size:8px;font-style:normal;white-space:nowrap}
+.digitalOfficeQuickGrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px}
+.digitalOfficeQuickGrid>a{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:7px;
+  height:76px;
+  border:1px solid #e4ebe9;
+  border-radius:10px;
+  background:#f9fbfa;
+  color:#4d615d;
+  text-decoration:none;
+  font-size:8px;
+  font-weight:750;
+}
+.digitalOfficeQuickGrid>a:hover,.digitalOfficeQuickGrid>a:focus-visible{border-color:#c8dfd9;background:#f3f9f7;outline:none}
+.digitalOfficeQuickGrid b{color:var(--workspace-accent-strong);font-size:17px}
+
+@media(min-width:1101px){
+  .digitalOfficeShell .digitalOfficeWorkstation{
+    grid-template-columns:300px minmax(470px,1fr) 285px!important;
+    grid-template-rows:44px minmax(0,1fr)!important;
+    height:clamp(660px,calc(100dvh - 150px),860px)!important;
+  }
+  .digitalOfficeShell .teamChatWorkspace{
+    grid-template-columns:290px minmax(460px,1fr) 280px!important;
+    height:clamp(660px,calc(100dvh - 150px),860px)!important;
+  }
+}
+.digitalOfficeShell .digitalOfficeLocalRail nav{min-height:44px!important;padding:6px 10px!important;gap:5px!important}
+.digitalOfficeShell .digitalOfficeLocalRail nav>a{min-height:30px!important;height:30px!important;padding:0 9px!important;border-radius:8px!important;font-size:8px!important}
+.digitalOfficeShell .digitalOfficeThreadToolbar{padding:14px 13px 10px!important}
+.digitalOfficeShell .digitalOfficeThreadToolbar strong{font-size:14px!important}
+.digitalOfficeShell .digitalOfficeThreadToolbar small{font-size:8px!important}
+.digitalOfficeShell .digitalOfficeThreadSearch input{height:34px!important;font-size:9px!important;border-radius:9px!important}
+.digitalOfficeShell .digitalOfficeQuickFilters{gap:4px!important;padding:0 12px 9px!important}
+.digitalOfficeShell .digitalOfficeQuickFilters a{padding:6px 8px!important;border-radius:8px!important;font-size:8px!important}
+.digitalOfficeShell .digitalOfficeThreadItem{padding:12px!important}
+.digitalOfficeShell .digitalOfficeThreadItem strong{font-size:9px!important}
+.digitalOfficeShell .digitalOfficeConversationHeader{min-height:64px!important;padding:10px 14px!important}
+.digitalOfficeShell .digitalOfficeConversationHeader strong{font-size:12px!important}
+.digitalOfficeShell .digitalOfficeConversationHeader small{font-size:8px!important}
+.digitalOfficeShell .digitalOfficeConversationMessages{padding:16px 18px!important;background:#f8faf9!important}
+.digitalOfficeShell .digitalOfficeMessage{margin-bottom:13px!important}
+.digitalOfficeShell .digitalOfficeMessageCard{max-width:78%!important;padding:10px 12px!important;border-radius:12px!important;box-shadow:none!important}
+.digitalOfficeShell .digitalOfficeMessage.isOutbound .digitalOfficeMessageCard{background:#eaf7f2!important;border-color:#cde7de!important}
+.digitalOfficeShell .digitalOfficeMessageCard>header strong{font-size:8px!important}
+.digitalOfficeShell .digitalOfficeMessageCard>header small,.digitalOfficeShell .digitalOfficeMessageCard>header time{font-size:7px!important}
+.digitalOfficeShell .digitalOfficeMessageCard>p{font-size:9px!important;line-height:1.45!important}
+.digitalOfficeShell .digitalOfficeReplyComposer{padding:10px 12px!important;background:#fff!important}
+.digitalOfficeShell .digitalOfficeReplyComposer textarea{min-height:64px!important;font-size:10px!important}
+.digitalOfficeShell .digitalOfficeContextSection{padding:13px 14px!important}
+.digitalOfficeShell .digitalOfficeContextSection h2{font-size:10px!important}
+
+.digitalOfficeShell .teamChatPeopleHeader{padding:14px 13px 10px!important}
+.digitalOfficeShell .teamChatPeopleHeader strong{font-size:14px!important}
+.digitalOfficeShell .teamChatPeopleHeader small{font-size:8px!important}
+.digitalOfficeShell .teamChatNewButton{width:34px!important;height:34px!important;border-radius:9px!important;font-size:18px!important}
+.digitalOfficeShell .teamChatSearch{margin:0 12px 8px!important}
+.digitalOfficeShell .teamChatSearch input{height:34px!important;font-size:9px!important}
+.digitalOfficeShell .teamChatFilterTabs{padding:0 11px 9px!important}
+.digitalOfficeShell .teamChatFilterTabs a{padding:6px 8px!important;font-size:8px!important}
+.digitalOfficeShell .teamChatPeopleSection{padding:9px 0!important}
+.digitalOfficeShell .teamChatPersonRow{grid-template-columns:34px minmax(0,1fr) auto!important;gap:8px!important;padding:8px 12px!important}
+.digitalOfficeShell .teamChatAvatar{width:32px!important;height:32px!important;font-size:8px!important}
+.digitalOfficeShell .teamChatPersonBody strong{font-size:9px!important}
+.digitalOfficeShell .teamChatPersonBody>small{font-size:7px!important}
+.digitalOfficeShell .teamChatConversationHeader{min-height:64px!important;padding:10px 14px!important}
+.digitalOfficeShell .teamChatConversationIdentity strong{font-size:12px!important}
+.digitalOfficeShell .teamChatConversationIdentity small{font-size:8px!important}
+.digitalOfficeShell .teamChatMessages{padding:16px 18px!important;background:#f8faf9!important}
+.digitalOfficeShell .teamChatMessage{gap:9px!important;margin-bottom:14px!important}
+.digitalOfficeShell .teamChatMessageAvatar{width:32px!important;height:32px!important;flex-basis:32px!important;font-size:8px!important}
+.digitalOfficeShell .teamChatMessageBubble{max-width:78%!important;padding:9px 11px!important;border-radius:12px!important;box-shadow:none!important}
+.digitalOfficeShell .teamChatMessageBubble header strong{font-size:9px!important}
+.digitalOfficeShell .teamChatMessageBubble header time{font-size:7px!important}
+.digitalOfficeShell .teamChatMessageBubble>p{font-size:9px!important;line-height:1.45!important}
+.digitalOfficeShell .teamChatObjectCard{padding:7px 8px!important;border-radius:9px!important}
+.digitalOfficeShell .teamChatComposer{padding:10px 12px!important}
+.digitalOfficeShell .teamChatCompactComposer>textarea{min-height:58px!important;font-size:10px!important}
+.digitalOfficeShell .teamChatInfoHeader{min-height:64px!important;padding:10px 14px!important}
+.digitalOfficeShell .teamChatInfoSection{padding:13px 14px!important}
+.digitalOfficeShell .teamChatInfoSection h2{font-size:9px!important}
+.digitalOfficeShell .teamChatPrivacyInfo p{font-size:7px!important;line-height:1.45!important}
+
+@media(max-width:1200px){
+  .digitalOfficeDashboardMetrics,.digitalOfficeDashboardPrimaryGrid,.digitalOfficeDashboardLowerGrid,.digitalOfficeDashboardBottomGrid{gap:8px}
+  .digitalOfficeShell .digitalOfficeWorkspaceTabs a{padding:0 8px;font-size:9px}
+}
+@media(max-width:980px){
+  .digitalOfficeDashboardMetrics{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .digitalOfficeDashboardPrimaryGrid{grid-template-columns:1fr 1fr}
+  .digitalOfficeDashboardPrimaryGrid>.digitalOfficeDashboardPanel:last-child{grid-column:1/-1;min-height:170px}
+  .digitalOfficeDashboardLowerGrid{grid-template-columns:1fr 1fr}
+  .digitalOfficeDashboardLowerGrid>.digitalOfficeDashboardPanel:last-child{grid-column:1/-1}
+  .digitalOfficeDashboardBottomGrid{grid-template-columns:1fr}
+}
+@media(max-width:850px){
+  .digitalOfficeShell .digitalOfficeWorkspaceBar{height:auto;min-height:0;padding:10px 12px!important}
+  .digitalOfficeDashboardPage{padding:14px 12px 22px}
+  .digitalOfficeDashboardHero{align-items:flex-start;flex-direction:column;gap:8px}
+  .digitalOfficeDashboardHero h1{font-size:24px}
+  .digitalOfficeDashboardDate{text-align:left}
+  .digitalOfficeDashboardMetrics,.digitalOfficeDashboardPrimaryGrid,.digitalOfficeDashboardLowerGrid,.digitalOfficeDashboardBottomGrid{grid-template-columns:1fr}
+  .digitalOfficeDashboardPrimaryGrid>.digitalOfficeDashboardPanel:last-child,.digitalOfficeDashboardLowerGrid>.digitalOfficeDashboardPanel:last-child{grid-column:auto}
+  .digitalOfficeDashboardMetric{min-height:72px}
+  .digitalOfficeDashboardPanel,.digitalOfficeDashboardSmall,.digitalOfficeDashboardFiles,.digitalOfficeDashboardQuick{min-height:0}
+  .digitalOfficeFileGrid{grid-template-columns:1fr}
+  .digitalOfficeQuickGrid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:520px){
+  .digitalOfficeDashboardMetrics{grid-template-columns:1fr}
+  .digitalOfficeDashboardHero h1{font-size:22px}
+  .digitalOfficeFocusItem{grid-template-columns:28px minmax(0,1fr)}
+  .digitalOfficeFocusItem>em{grid-column:2;width:max-content}
+}

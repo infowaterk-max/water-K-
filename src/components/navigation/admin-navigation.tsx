@@ -9,6 +9,10 @@ type NavItem={id:string;href:string;label:string;description:string;group?:strin
 type NavSection={id:string;label:string;items:NavItem[]};
 type PreviewState={sectionId:string;top:number;left:number}|null;
 
+const DIRECT_SECTION_HREFS:Record<string,string>={
+  'digital-office':'/admin/kommunikacio',
+};
+
 function getActiveHref(pathname:string,items:NavItem[]){
   return items
     .filter(item=>item.href==='/admin'?pathname==='/admin':pathname===item.href||pathname.startsWith(`${item.href}/`))
@@ -67,7 +71,7 @@ export function AdminNavigation({
   const clearHover=()=>{if(hoverTimer.current){clearTimeout(hoverTimer.current);hoverTimer.current=null;}};
   const clearClose=()=>{if(closeTimer.current){clearTimeout(closeTimer.current);closeTimer.current=null;}};
   const openPreview=(sectionId:string,target:HTMLElement)=>{
-    if(!window.matchMedia('(min-width:851px)').matches||openSection===sectionId)return;
+    if(DIRECT_SECTION_HREFS[sectionId]||!window.matchMedia('(min-width:851px)').matches||openSection===sectionId)return;
     const rect=target.getBoundingClientRect();
     setPreview({sectionId,top:Math.max(12,Math.min(rect.top,window.innerHeight-360)),left:rect.right+2});
   };
@@ -94,7 +98,13 @@ export function AdminNavigation({
         <nav className="adminNav adminMerchantNav" aria-label="Aktuális webshop adminisztrációja">
           <span className="adminNavContextLabel">Aktuális webshop</span>
           {sections.map(section=>{
+            const directHref=DIRECT_SECTION_HREFS[section.id];
             const open=openSection===section.id,active=activeSectionId===section.id;
+            if(directHref)return <section className="adminNavSection" key={section.id} data-open="false">
+              <Link href={directHref} className="adminNavSectionTrigger adminNavSectionDirect" data-active={active?'true':'false'} aria-current={active?'page':undefined} title="Digitális Iroda kezdőlap">
+                <span>{section.label}</span><span aria-hidden="true">→</span>
+              </Link>
+            </section>;
             return <section className="adminNavSection" key={section.id} data-open={open?'true':'false'}>
               <button
                 type="button"
@@ -117,7 +127,7 @@ export function AdminNavigation({
           })}
           {showUpgrade&&<Link className="adminUpgrade" href="/admin/csomag">Pro funkciók megtekintése</Link>}
         </nav>
-        {activeSection&&<section className="adminMobileSectionPanel" aria-label={`${activeSection.label} menüpontjai`}>
+        {activeSection&&!DIRECT_SECTION_HREFS[activeSection.id]&&<section className="adminMobileSectionPanel" aria-label={`${activeSection.label} menüpontjai`}>
           <span className="adminMobileSectionTitle">{activeSection.label}</span>
           <ItemLinks items={activeSection.items} activeHref={activeHref}/>
         </section>}
