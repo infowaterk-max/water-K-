@@ -5,6 +5,7 @@ import { runCommunicationWorker } from '@/lib/communication/worker';
 import { cleanupExpiredOfficePrivateAttachments } from '@/lib/office/private-attachment-cleanup';
 import { runOfficeTeamChatRetention } from '@/lib/office/team-chat-retention';
 import {runBusinessPulseNotificationWorker} from '@/lib/business-pulse/notifications';
+import {retryDueEventDrivenWorkflows} from '@/lib/automation/event-driven-workflows';
 
 export const dynamic='force-dynamic';
 export const maxDuration=60;
@@ -17,6 +18,7 @@ type LoyaltyRun={instance_id?:unknown;run_key?:unknown;accrued_points_entries?:u
 type LoyaltyResult={instanceId:string;runKey:string;ok:boolean;accrued?:number;reversed?:number;refreshedProfiles?:number;completedAt?:string;error?:string};
 type TeamChatRetentionRun={instanceId:string;ok:boolean;checkedAt?:string;threadsArchived?:number;messagesDeleted?:number;auditDeleted?:number;error?:string};
 type BusinessPulseLifecycle={runKey?:unknown;planned?:unknown;evaluated?:unknown;paused?:unknown;failed?:unknown;failures?:unknown;checkedAt?:unknown};
+type WorkflowRetryResult={instanceId:string;ok:boolean;retried?:number;deadLetters?:number;error?:string};
 
 function authorized(request:Request){const secret=process.env.CRON_SECRET;return Boolean(secret)&&request.headers.get('authorization')===`Bearer ${secret}`;}
 function due(job:JobRow,now:number){if(job.status==='pending')return true;if(job.status==='failed')return Boolean(job.next_attempt_at)&&new Date(job.next_attempt_at as string).getTime()<=now;if(job.status==='processing')return new Date(job.updated_at).getTime()<=now-15*60*1000;return false;}
@@ -41,6 +43,9 @@ async function runWorker(request:Request){
   const journeys:JourneyResult[]=[];
   for(const instance of instances){try{const{data:planned,error:planError}=await admin.rpc('plan_customer_retention_journeys_v2',{p_instance_id:instance.id});if(planError)throw planError;const planEvidence=journeyPlanEvidence(planned,instance.id);if(!planEvidence)throw new Error('RETENTION_JOURNEY_PLAN_EVIDENCE_MISSING');const{data:dispatched,error:dispatchError}=await admin.rpc('dispatch_due_customer_journey_steps_v2',{p_instance_id:instance.id,p_limit:50});if(dispatchError)throw dispatchError;journeys.push({instanceId:instance.id,ok:true,planned:planEvidence,dispatched})}catch(error){journeys.push({instanceId:instance.id,ok:false,error:error instanceof Error?error.message:'A tenant ügyfélút-feldolgozás nem sikerült.'})}}
 
+  const workflowRetries:WorkflowRetryResult[]=[];
+  for(const instance of instances){try{const retried=await retryDueEventDrivenWorkflows(instance.id,20);const deadLetters=retried.filter(result=>result.status==='dead_letter').length;workflowRetries.push({instanceId:instance.id,ok:deadLetters===0,retried:retried.length,deadLetters})}catch(error){workflowRetries.push({instanceId:instance.id,ok:false,error:error instanceof Error?error.message:'EVENT_DRIVEN_WORKFLOW_RETRY_FAILED'})}}
+
   const integrationResults:Array<{id:string;instanceId:string;ok:boolean;error?:string}>=[];let remaining=10;const now=Date.now();
   for(const instance of instances){if(remaining<=0)break;const{data:jobData,error:jobError}=await admin.from('integration_jobs').select('id,status,next_attempt_at,updated_at').eq('instance_id',instance.id).in('status',['pending','failed','processing']).order('created_at',{ascending:true}).limit(Math.min(50,remaining*5));if(jobError){integrationResults.push({id:'tenant-scan',instanceId:instance.id,ok:false,error:jobError.message});continue}const jobs=((jobData??[]) as JobRow[]).filter(job=>due(job,now)).slice(0,remaining);for(const job of jobs){const{data:claimed,error:claimError}=await admin.rpc('claim_integration_job_v2',{p_instance_id:instance.id,p_id:job.id});if(claimError){integrationResults.push({id:job.id,instanceId:instance.id,ok:false,error:claimError.message});remaining--;continue}const claim=claimed?.[0];if(!claim?.processing_token)continue;try{await processIntegrationJob(instance.id,job.id,claim.processing_token);integrationResults.push({id:job.id,instanceId:instance.id,ok:true})}catch(error){integrationResults.push({id:job.id,instanceId:instance.id,ok:false,error:error instanceof Error?error.message:'Ismeretlen hiba'})}remaining--;if(remaining<=0)break}}
 
@@ -60,9 +65,9 @@ async function runWorker(request:Request){
   let businessPulseNotifications:{ok:boolean;configured?:boolean;claimed?:number;sent?:number;failed?:number;blocked?:number;error?:string};
   try{const summary=await runBusinessPulseNotificationWorker(20);businessPulseNotifications={ok:summary.failed===0&&summary.blocked===0,...summary}}catch(error){businessPulseNotifications={ok:false,error:error instanceof Error?error.message:'BUSINESS_PULSE_NOTIFICATION_WORKER_FAILED'}}
 
-  const loyaltyOk=loyalty.every(result=>result.ok),journeyOk=journeys.every(result=>result.ok),teamChatRetentionOk=teamChatRetention.every(result=>result.ok);
-  const ok=inventorySnapshot.ok&&loyaltyOk&&journeyOk&&integrationResults.every(result=>result.ok)&&communication.ok&&officeAttachmentCleanup.ok&&teamChatRetentionOk&&businessPulse.ok&&businessPulseNotifications.ok;
-  return NextResponse.json({ok,inventorySnapshot,loyalty:{tenants:loyalty.length,runKey:loyaltyRunKey,results:loyalty},journeys:{tenants:journeys.length,results:journeys},integrations:{processed:integrationResults.length,results:integrationResults},communication,officeAttachmentCleanup,teamChatRetention:{tenants:teamChatRetention.length,results:teamChatRetention},businessPulse,businessPulseNotifications,checkedAt},{status:ok?200:503});
+  const loyaltyOk=loyalty.every(result=>result.ok),journeyOk=journeys.every(result=>result.ok),workflowRetryOk=workflowRetries.every(result=>result.ok),teamChatRetentionOk=teamChatRetention.every(result=>result.ok);
+  const ok=inventorySnapshot.ok&&loyaltyOk&&journeyOk&&workflowRetryOk&&integrationResults.every(result=>result.ok)&&communication.ok&&officeAttachmentCleanup.ok&&teamChatRetentionOk&&businessPulse.ok&&businessPulseNotifications.ok;
+  return NextResponse.json({ok,inventorySnapshot,loyalty:{tenants:loyalty.length,runKey:loyaltyRunKey,results:loyalty},journeys:{tenants:journeys.length,results:journeys},eventDrivenWorkflows:{tenants:workflowRetries.length,results:workflowRetries},integrations:{processed:integrationResults.length,results:integrationResults},communication,officeAttachmentCleanup,teamChatRetention:{tenants:teamChatRetention.length,results:teamChatRetention},businessPulse,businessPulseNotifications,checkedAt},{status:ok?200:503});
 }
 
 export async function GET(request:Request){return runWorker(request)}

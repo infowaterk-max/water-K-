@@ -6,7 +6,8 @@ const root = process.cwd();
 const read = (file: string) => fs.readFileSync(path.join(root, file), 'utf8');
 const engine = read('src/lib/automation/event-driven-workflows.ts');
 const api = read('src/app/api/admin/automation/events/route.ts');
-const retryCron = read('src/app/api/cron/workflows/route.ts');
+const sharedCron = read('src/app/api/cron/integrations/route.ts');
+const vercel = JSON.parse(read('vercel.json')) as {crons?:Array<{path?:string;schedule?:string}>};
 const page = read('src/app/admin/automatizalas/esemenyek/page.tsx');
 const docs = read('docs/ROADMAP_BLOCK17_EVENT_DRIVEN_WORKFLOW_AUTOMATION.md');
 
@@ -21,7 +22,7 @@ describe('Roadmap Block 17 — Event-Driven Workflow Automation', () => {
     expect(engine).toContain("activate_automation_runbook_v2");
     expect(engine).toContain("execute_automation_step_v2");
     expect(engine).not.toMatch(/from\('orders'\).*update|from\('products'\).*update|from\('inventory'\).*update/s);
-    expect(docs).toMatch(/nem hoz létre második order, pricing, inventory, catalog vagy customer authority/i);
+    expect(docs).toMatch(/does not create a second order, pricing, inventory, catalog or customer authority/i);
   });
 
   test('event processing is deterministic, idempotent and bounded', () => {
@@ -49,11 +50,13 @@ describe('Roadmap Block 17 — Event-Driven Workflow Automation', () => {
     expect(engine).toMatch(/Object\.entries\(value \?\? \{\}\)\.slice\(0, 32\)/);
   });
 
-  test('retry worker is CRON_SECRET protected and never invents first-time events', () => {
-    expect(retryCron).toMatch(/process\.env\.CRON_SECRET/);
-    expect(retryCron).toMatch(/authorization/);
-    expect(retryCron).toMatch(/retryDueEventDrivenWorkflows/);
-    expect(retryCron).not.toMatch(/dispatchEventDrivenWorkflow/);
+  test('retry reuses the single protected platform cron and never creates a second schedule', () => {
+    expect(sharedCron).toMatch(/process\.env\.CRON_SECRET/);
+    expect(sharedCron).toMatch(/authorization/);
+    expect(sharedCron).toMatch(/retryDueEventDrivenWorkflows/);
+    expect(sharedCron).toMatch(/eventDrivenWorkflows/);
+    expect(vercel.crons).toHaveLength(1);
+    expect(vercel.crons?.[0]?.path).toBe('/api/cron/integrations');
   });
 
   test('ops surface exposes catalog, retry and dead-letter without Visual Builder scope', () => {
@@ -63,5 +66,6 @@ describe('Roadmap Block 17 — Event-Driven Workflow Automation', () => {
     expect(docs).toMatch(/Block 21.*Page Schema \/ Templates/s);
     expect(docs).toMatch(/Block 22.*Visual Builder/s);
     expect(docs).toMatch(/AI-assisted decisioning.*Block 18/s);
+    expect(docs).toMatch(/single protected.*cron/i);
   });
 });

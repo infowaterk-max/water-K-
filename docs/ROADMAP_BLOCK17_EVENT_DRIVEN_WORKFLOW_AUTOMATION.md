@@ -21,7 +21,7 @@ Canonical sequence around this block:
 3. Tenant-safe event ingress. Tenant identity comes from current store context, never from caller supplied tenant data.
 4. Immediate deterministic dispatch into the existing governed automation runbooks.
 5. Idempotent processing and run evidence using the existing `automation_processing_runs` authority.
-6. Bounded retry/backoff with an authenticated retry worker.
+6. Bounded retry/backoff through the single protected platform cron.
 7. Dead-letter state after bounded engine/step exhaustion; no infinite silent retry.
 8. Existing approval gates remain authoritative. `commercial-high-risk` does not bypass human approval.
 9. Admin observability for subscriptions, runs, retry state and dead-letter state.
@@ -41,7 +41,7 @@ Block 17 deliberately reuses:
 - current RBAC, Pro entitlement and current-store scope;
 - the existing communication/journey/order/catalog/pricing/inventory authorities rather than duplicating them.
 
-The Block 17 event dispatcher itself never writes orders, prices, inventory, products or customer state. Runbook actions remain control-plane-only and delegate through already governed platform authorities.
+The Block 17 event dispatcher itself never writes orders, prices, inventory, products or customer state. Runbook actions remain control-plane-only and delegate through already governed platform authorities. It does not create a second order, pricing, inventory, catalog or customer authority.
 
 ## Canonical event/subscriber contract v1
 
@@ -64,7 +64,8 @@ This catalog is intentionally small and semantic. Future modules may emit these 
 - Engine retries stop after five attempts.
 - Step retries continue to obey the existing runbook step `max_attempts` and `retry_backoff_minutes` contract.
 - Exhausted execution is marked `dead_letter` and requires investigation; it is not silently converted to success.
-- `/api/cron/workflows` only retries already emitted events. It never discovers or invents first-time business events.
+- Block 17 reuses the existing single protected `/api/cron/integrations` cron for due retries; it creates no second Vercel schedule.
+- The cron only retries already emitted events. It never discovers or invents first-time business events.
 
 ## Security / tenancy
 
@@ -72,7 +73,7 @@ This catalog is intentionally small and semantic. Future modules may emit these 
 - Tenant id is never accepted from request JSON.
 - Retry-by-run-id re-reads the run inside the current tenant and verifies the Block 17 authority marker.
 - Evidence is bounded and sensitive-looking keys are redacted before persistence.
-- CRON retry execution requires `CRON_SECRET`.
+- CRON retry execution remains protected by the existing `CRON_SECRET` gate.
 - Existing tenant-safe v2 runbook RPCs remain mandatory.
 
 ## Explicit non-scope
