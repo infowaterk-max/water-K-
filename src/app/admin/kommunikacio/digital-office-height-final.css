@@ -1,29 +1,52 @@
 /*
- * Digital Office desktop/tablet height completion.
+ * Digital Office vertical layout completion.
  *
- * The shared communication shell previously capped the desktop workspaces at
- * 840/860px. On taller screens that leaves the Digital Office surface ending
- * early, exposing a bottom strip. Native mobile remains document-flow based,
- * and the dedicated touch Desktop-site compatibility contract keeps ownership
- * whenever its marker is active.
+ * Digital Office owns a full application workspace below AdminRouteContext.
+ * Let flex layout measure the real route header and module toolbar instead of
+ * independently subtracting magic viewport constants at several levels.
+ * Native mobile (<851px) keeps its accepted document-flow contract unchanged.
  */
 
-@media (min-width:1101px){
-  .adminGrid:not([data-desktop-site-touch="true"]) .digitalOfficeShell .digitalOfficeWorkstation,
-  .adminGrid:not([data-desktop-site-touch="true"]) .digitalOfficeShell .teamChatWorkspace{
-    height:calc(100dvh - 150px)!important;
-    max-height:none!important;
-  }
-}
-
-@media (min-width:851px) and (max-width:1100px){
-  .adminGrid:not([data-desktop-site-touch="true"]) .digitalOfficeShell .digitalOfficeWorkstation{
-    height:calc(100dvh - 185px)!important;
-    max-height:none!important;
+@media (min-width:851px){
+  .adminContentShell:has(> .digitalOfficeShell){
+    display:flex!important;
+    flex-direction:column!important;
+    min-height:100dvh!important;
   }
 
-  .adminGrid:not([data-desktop-site-touch="true"]) .digitalOfficeShell .teamChatWorkspace{
-    height:calc(100dvh - 150px)!important;
+  .adminContentShell:has(> .digitalOfficeShell) > .adminRouteContext{
+    flex:0 0 auto!important;
+  }
+
+  .adminContentShell:has(> .digitalOfficeShell) > .digitalOfficeShell{
+    display:flex!important;
+    flex:1 1 auto!important;
+    flex-direction:column!important;
+    min-height:0!important;
+  }
+
+  /* The old touch Desktop-site contract gave the module itself a full viewport
+     in addition to the route header above it. Remove that double-counting. */
+  .adminGrid[data-desktop-site-touch="true"] .digitalOfficeShell{
+    min-height:0!important;
+  }
+
+  .digitalOfficeShell > .digitalOfficeWorkspaceBar,
+  .digitalOfficeShell > .digitalOfficeMobileController{
+    flex:0 0 auto!important;
+  }
+
+  .digitalOfficeShell > .digitalOfficeWorkstationPage{
+    display:flex!important;
+    flex:1 1 auto!important;
+    flex-direction:column!important;
+    min-height:0!important;
+  }
+
+  .digitalOfficeShell > .digitalOfficeWorkstationPage > .digitalOfficeWorkstation,
+  .digitalOfficeShell > .teamChatWorkspace{
+    flex:1 1 auto!important;
+    height:auto!important;
     max-height:none!important;
   }
 }

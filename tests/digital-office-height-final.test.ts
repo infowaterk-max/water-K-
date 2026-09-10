@@ -12,17 +12,25 @@ describe('Digital Office height completion',()=>{
     expect(officeLayout).toContain("import './digital-office-height-final.css';");
   });
 
-  it('removes the desktop/tablet max-height ceiling while preserving mobile ownership',()=>{
+  it('uses measured flex remainder instead of viewport subtraction or height caps',()=>{
     const css=read('src/app/admin/kommunikacio/digital-office-height-final.css');
-    expect(css).toContain('@media (min-width:1101px)');
-    expect(css).toContain('@media (min-width:851px) and (max-width:1100px)');
-    expect(css).toContain('.digitalOfficeWorkstation');
+    expect(css).toContain('@media (min-width:851px)');
+    expect(css).toContain('.adminContentShell:has(> .digitalOfficeShell)');
+    expect(css).toContain('display:flex!important');
+    expect(css).toContain('flex:1 1 auto!important');
+    expect(css).toContain('.digitalOfficeWorkstationPage');
     expect(css).toContain('.teamChatWorkspace');
-    expect(css).toContain('height:calc(100dvh - 150px)!important');
-    expect(css).toContain('height:calc(100dvh - 185px)!important');
+    expect(css).toContain('height:auto!important');
     expect(css).toContain('max-height:none!important');
-    expect(css).toContain(':not([data-desktop-site-touch="true"])');
     expect(css).not.toContain('height:clamp(');
+    expect(css).not.toContain('height:calc(');
+  });
+
+  it('removes touch Desktop-site double-counting without changing native mobile',()=>{
+    const css=read('src/app/admin/kommunikacio/digital-office-height-final.css');
+    expect(css).toContain('.adminGrid[data-desktop-site-touch="true"] .digitalOfficeShell');
+    expect(css).toContain('min-height:0!important');
+    expect(css).not.toContain('@media (max-width:850px)');
   });
 
   it('keeps the original floating Team Chat dock styling',()=>{
