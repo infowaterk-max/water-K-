@@ -40,10 +40,10 @@ describe('final communication application shell',()=>{
     expect(css).toContain('.teamChatDirectStarter{flex:0 0 auto!important}');
   });
 
-  it('delegates touch-browser Desktop-site acceptance to the final compatibility file',()=>{
+  it('delegates touch-browser Desktop-site acceptance exclusively to the final compatibility file',()=>{
     const appCss=read('src/app/admin/kommunikacio/communication-app-final.css');
     const compatCss=read('src/app/admin/kommunikacio/mobile-desktop-compat.css');
-    expect(appCss).toContain('.adminGrid[data-desktop-site-touch="true"]');
+    expect(appCss).not.toContain('.adminGrid[data-desktop-site-touch="true"]');
     expect(compatCss).toContain('.adminGrid[data-desktop-site-touch="true"]');
     expect(compatCss).toContain('height:calc(100dvh - 112px)!important');
     expect(compatCss).toContain('overflow-x:auto!important');
