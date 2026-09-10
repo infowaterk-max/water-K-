@@ -83,6 +83,7 @@ describe('Digital Office Team Chat 2 foundation',()=>{
     expect(actions).toContain("'office.internal_chat'");
     expect(actions).toContain('admin_mutate_office_team_chat_v2');
     expect(actions).toContain('createPrivateThreadAction');
+    expect(actions).toContain('sendDirectMessageAction');
     expect(actions).toContain('managePrivateParticipantAction');
     expect(actions).toContain('markThreadReadAction');
   });
@@ -95,18 +96,30 @@ describe('Digital Office Team Chat 2 foundation',()=>{
     expect(privateComposer).toContain('name="mentionUserId" multiple');
   });
 
-  it('fails closed if Team Chat read models are unavailable',()=>{
+  it('fails closed if Team Chat read models are unavailable while keeping direct and group creation separate',()=>{
     expect(page).toContain('if(accessibleIds===null)return');
     expect(page).toContain('const loadError=Boolean(');
     expect(page).toContain('Hiányos adatok mellett a chatműveleteket biztonsági okból letiltjuk.');
     expect(page).toContain('{!loadError?<form action={createPrivateThreadAction}');
-    expect(page).toContain('{!archived&&!loadError&&<OfficePrivateMessageForm');
+    expect(page).toContain('!selectedThread.archived_at&&!loadError&&<div className="teamChatComposer"');
+    expect(actions).toContain("action:'create_internal_thread'");
+    expect(actions).toContain("action:'add_internal_message'");
   });
 
-  it('keeps block-level mention and object cards inside the dedicated Team Chat rendering tree',()=>{
-    expect(page).toContain('links.filter(l=>l.message_id===message.id).map(renderObject)');
-    expect(page).toContain('mentions.filter(m=>m.message_id===message.id)');
-    expect(page).toContain('Munkatárs ↔ munkatárs kommunikáció. Az ügyfelek nem résztvevői ennek a felületnek.');
+  it('keeps mention and business-object cards inside the dedicated Team Chat rendering tree',()=>{
+    expect(page).toContain('const messageMentions=mentions.filter(m=>m.message_id===message.id)');
+    expect(page).toContain('const messageLinks=links.filter(l=>l.message_id===message.id)');
+    expect(page).toContain('messageLinks.map(renderObject)');
+    expect(page).toContain('teamChatObjectCard');
+    expect(page).toContain('Rendelés vagy más objektum');
+  });
+
+  it('keeps policy copy out of the primary conversation flow but still available in the info panel',()=>{
+    expect(page).toContain('teamChatPrivacyInfo');
+    expect(page).toContain('Adatvédelem és megőrzés');
+    expect(page).toContain('90 nap inaktivitás után archiválódik');
+    expect(page).not.toContain('className="sectionIntro"');
+    expect(page).not.toContain('className="cards adminMetricCards"');
   });
 
   it('keeps the original Team Chat foundation independent from mailbox and AI behavior',()=>{

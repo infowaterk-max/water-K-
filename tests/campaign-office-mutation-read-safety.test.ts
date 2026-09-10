@@ -35,9 +35,10 @@ describe('campaign and office workspace mutation safety',()=>{
 
    expect(chat).toContain(".in('conversation_type',['internal_private','internal_group'])");
    expect(chat).toContain('{!loadError?<form action={createPrivateThreadAction}');
+   expect(chat).toContain('sendDirectMessageAction');
    expect(chat).toContain('managePrivateParticipantAction');
    expect(chat).toContain('transferPrivateThreadOwnerAction');
-   expect(chat).toContain('{!archived&&!loadError&&<OfficePrivateMessageForm');
+   expect(chat).toContain('!selectedThread.archived_at&&!loadError&&<div className="teamChatComposer"');
    expect(chat).not.toContain('OfficeCustomerEmailForm');
    expect(chat).not.toContain('customer_email');
  });
