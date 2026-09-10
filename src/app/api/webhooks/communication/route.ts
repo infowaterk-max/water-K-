@@ -1,6 +1,7 @@
 import{createHmac,timingSafeEqual}from'node:crypto';
 import{NextResponse}from'next/server';
 import{createAdminClient}from'@/lib/supabase/admin';
+import{persistResendInboundAttachments}from'@/lib/communication/office-email-attachments';
 import{getResendReceivedEmail,normalizeEmailAddress,parseInboundRecipient,receivedEmailBody,receivedThreadingHeaders}from'@/lib/communication/resend-inbound';
 
 type LegacyEvent={eventId?:string;type?:'hard_bounce'|'complaint'|'invalid';email?:string;note?:string};
@@ -43,7 +44,13 @@ async function handleReceived(event:ResendEvent){
  const evidence=(data??{})as InboundEvidence;
  if(evidence.processed===false)return NextResponse.json({ok:true,ignored:true,reason:evidence.reason??'not_processed'});
  if(evidence.processed!==true||!evidence.id||!evidence.threadId||!evidence.instanceId||!evidence.mailboxKey)return NextResponse.json({error:'Inbound evidence mismatch'},{status:500});
- return NextResponse.json({ok:true,received:true,duplicate:evidence.duplicate===true,threadId:evidence.threadId,matchMethod:evidence.matchMethod});
+ if(received.attachments.length>0){
+  try{
+   const attachmentEvidence=await persistResendInboundAttachments(db,{instanceId:evidence.instanceId,threadId:evidence.threadId,messageId:evidence.id,emailId,expectedCount:received.attachments.length});
+   if(attachmentEvidence.ready!==attachmentEvidence.expected)throw new Error('OFFICE_INBOUND_ATTACHMENT_READY_EVIDENCE_MISMATCH');
+  }catch(error){console.error('Resend inbound attachment persistence failed',{emailId,threadId:evidence.threadId,error});return NextResponse.json({error:'Inbound attachment persistence failed'},{status:500})}
+ }
+ return NextResponse.json({ok:true,received:true,duplicate:evidence.duplicate===true,threadId:evidence.threadId,matchMethod:evidence.matchMethod,attachments:received.attachments.length});
 }
 
 export async function POST(request:Request){
