@@ -4,6 +4,10 @@ import { join } from 'node:path';
 import { hasPlanFeature, PLANNED_PRO_FEATURES } from '../src/lib/plans/catalog';
 
 const planAccess = readFileSync(join(process.cwd(), 'src/lib/plans/access.ts'), 'utf8');
+const launchMigration = readFileSync(
+  join(process.cwd(), 'supabase/migrations/20260910041011_team_chat_secure_attachments_launch_gate_v1.sql'),
+  'utf8',
+);
 
 describe('Team Chat 2.1 Secure Attachments launch gate', () => {
   it('does not grant Secure Attachments to either launch package', () => {
@@ -27,5 +31,17 @@ describe('Team Chat 2.1 Secure Attachments launch gate', () => {
     const requirePlatformBypass = planAccess.indexOf("if (await platformHasFullAccess()) return 'pro'", requireCheck);
     expect(requireReleaseGate).toBeGreaterThan(requireCheck);
     expect(requirePlatformBypass).toBeGreaterThan(requireReleaseGate);
+  });
+
+  it('keeps production plan provisioning aligned with the launch model', () => {
+    expect(launchMigration).toContain("'commerceIntegrations','support','teamChat'");
+    expect(launchMigration).toContain("'officeCommunication','automation','procurement','cashflow','executiveAnalytics'");
+    expect(launchMigration).toContain("'managed_by','tenant_plan_sync_v3'");
+    expect(launchMigration).toContain("set search_path=''");
+    expect(launchMigration).toContain('revoke all on function private.sync_webshop_plan_entitlements(uuid) from public,anon,authenticated,service_role');
+
+    const proBranch = launchMigration.slice(launchMigration.indexOf("elsif v_plan='pro'"), launchMigration.indexOf("else\n    raise exception 'TENANT_PLAN_SYNC_UNKNOWN_PLAN"));
+    expect(proBranch).toContain("'teamChat'");
+    expect(proBranch).not.toContain("'teamChatSecureAttachments'");
   });
 });
