@@ -114,10 +114,11 @@ describe('Digital Office Team Chat 2 foundation',()=>{
     expect(page).toContain('Rendelés vagy más objektum');
   });
 
-  it('keeps policy copy out of the primary conversation flow but still available in the info panel',()=>{
-    expect(page).toContain('teamChatPrivacyInfo');
+  it('keeps policy copy out of the primary conversation flow but still available in the redesigned info panel',()=>{
+    expect(page).toContain('className="teamChatContextPrivacy"');
     expect(page).toContain('Adatvédelem és megőrzés');
-    expect(page).toContain('90 nap inaktivitás után archiválódik');
+    expect(page).toContain('90 nap inaktivitás után archiválható');
+    expect(page).toContain('12 hónapos megőrzési szabály');
     expect(page).not.toContain('className="sectionIntro"');
     expect(page).not.toContain('className="cards adminMetricCards"');
   });
