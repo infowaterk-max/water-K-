@@ -41,6 +41,20 @@ export async function getCommunicationIdentityForInstance(instanceId:string):Pro
   return fromInstance(instance);
 }
 
+export async function getPlatformCommunicationIdentity(instanceId:string):Promise<CommunicationIdentity>{
+  const configured=process.env.SHOPERATION_APP_URL?.trim().replace(/\/$/,'');
+  const siteUrl=configured||getServerPublicSiteUrl();
+  if(!siteUrl)throw new Error('SHOPERATION_PUBLIC_SITE_URL_REQUIRED');
+  return{
+    instanceId,
+    brandName:'Shoperation',
+    fromName:'Shoperation',
+    siteUrl,
+    supportEmail:process.env.SHOPERATION_SUPPORT_EMAIL?.trim()||null,
+    primaryColor:'#17231a',
+  };
+}
+
 export function brandedSubject(subject:string,brandName:string){
   const clean=subject.trim();
   return clean.startsWith(`${brandName} –`)||clean.startsWith(`${brandName}:`)?clean:`${brandName} – ${clean}`;

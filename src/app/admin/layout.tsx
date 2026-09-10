@@ -27,11 +27,13 @@ import { getCurrentWebshopInstance } from '@/lib/instances/access';
 import { getCurrentPlan } from '@/lib/plans/access';
 import { PLANS } from '@/lib/plans/catalog';
 import { PLATFORM_NAVIGATION,resolveFrequentTasks,resolveMerchantNavigation } from '@/lib/navigation/admin-ia';
+import {hasActiveBusinessPulseTrial} from '@/lib/business-pulse/access';
 
 export default async function AdminLayout({children}:{children:React.ReactNode}){
   const user=await requireAdmin();
   const[plan,platformRole,instance]=await Promise.all([getCurrentPlan(),getPlatformRole(),getCurrentWebshopInstance()]);
-  const effectivePlan=platformRole?'pro':plan,definition=PLANS[effectivePlan],merchantName=instance?.name??'Webáruház',isPlatform=Boolean(platformRole),platformLabel=platformRole==='owner'?'Rendszertulajdonos':platformRole==='admin'?'Platform admin':'Platform operátor';
+  const trialPro=!platformRole&&instance?await hasActiveBusinessPulseTrial(instance.id):false;
+  const effectivePlan=platformRole||trialPro?'pro':plan,definition=PLANS[effectivePlan],merchantName=instance?.name??'Webáruház',isPlatform=Boolean(platformRole),platformLabel=platformRole==='owner'?'Rendszertulajdonos':platformRole==='admin'?'Platform admin':'Platform operátor';
   const roles=!isPlatform&&instance?await getActiveStoreRoles(instance.id):[];
   const can=(permission?:StorePermission)=>!permission||isPlatform||roles.some(role=>roleHasPermission(role,permission));
   const chatAllowed=isPlatform||Boolean(instance&&await hasStoreCapability(instance.id,user.id,'office.internal_chat',{
@@ -44,5 +46,6 @@ export default async function AdminLayout({children}:{children:React.ReactNode})
   const operatorItems=isPlatform?PLATFORM_NAVIGATION.filter(item=>!merchantHrefs.has(item.href)).map(item=>({...item})):[];
   const quickItems=(!isPlatform||Boolean(instance))?resolveFrequentTasks(effectivePlan,can):[];
   const mobileTitle=isPlatform&&!instance?'Shoperation':merchantName;
-  return <main className="adminGrid"><aside className="adminSide"><div className="adminBrand">{isPlatform?<><div className="adminBrandWordmark"><strong>SHOPERATION</strong><span>WEBSHOP, AMI VELED GONDOLKODIK.</span></div><span className="adminRoleBadge">{platformLabel}</span></>:<><div className="adminBrandWordmark"><strong>{merchantName}</strong><span>Shoperation {definition.name}</span></div></>}</div><AdminMobileNavigation mobileTitle={mobileTitle} sections={sections} operatorItems={operatorItems} quickItems={quickItems} showUpgrade={!isPlatform&&plan==='alap'}/><AdminNavigation sections={sections} operatorItems={operatorItems} quickItems={quickItems} showUpgrade={!isPlatform&&plan==='alap'}/><AdminFontScale/><Link className="adminStoreLink" href="/">← Webshop előnézet</Link></aside><div className="adminContentShell"><AdminRouteContext sections={sections} operatorItems={operatorItems}/>{children}</div></main>;
+  const showUpgrade=!isPlatform&&plan==='alap'&&!trialPro;
+  return <main className="adminGrid"><aside className="adminSide"><div className="adminBrand">{isPlatform?<><div className="adminBrandWordmark"><strong>SHOPERATION</strong><span>WEBSHOP, AMI VELED GONDOLKODIK.</span></div><span className="adminRoleBadge">{platformLabel}</span></>:<><div className="adminBrandWordmark"><strong>{merchantName}</strong><span>Shoperation {definition.name}{trialPro?' · Trial':''}</span></div></>}</div><AdminMobileNavigation mobileTitle={mobileTitle} sections={sections} operatorItems={operatorItems} quickItems={quickItems} showUpgrade={showUpgrade}/><AdminNavigation sections={sections} operatorItems={operatorItems} quickItems={quickItems} showUpgrade={showUpgrade}/><AdminFontScale/><Link className="adminStoreLink" href="/">← Webshop előnézet</Link></aside><div className="adminContentShell"><AdminRouteContext sections={sections} operatorItems={operatorItems}/>{children}</div></main>;
 }

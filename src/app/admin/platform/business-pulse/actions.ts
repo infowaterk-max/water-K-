@@ -10,19 +10,28 @@ export async function startBusinessPulseTrialAction(formData:FormData){
   const actor=await requirePlatformOperator();
   const instanceId=String(formData.get('instanceId')??'').trim();
   if(!UUID.test(instanceId))throw new Error('Érvénytelen webshop-azonosító.');
-
   const startKey=`platform:${instanceId}:${new Date().toISOString().slice(0,10)}`;
   const db=createAdminClient();
   const{data,error}=await db.rpc('service_start_business_pulse_trial_v1',{
-    p_instance_id:instanceId,
-    p_actor_id:actor.id,
-    p_start_key:startKey,
-    p_source:'platform',
+    p_instance_id:instanceId,p_actor_id:actor.id,p_start_key:startKey,p_source:'platform',
   });
   if(error)throw new Error(`A trial nem indítható: ${error.message}`);
   const row=(data??{}) as {id?:unknown;instance_id?:unknown;status?:unknown;starts_at?:unknown;ends_at?:unknown};
-  if(row.instance_id!==instanceId||row.status!=='active'||typeof row.id!=='string'||typeof row.starts_at!=='string'||typeof row.ends_at!=='string'){
-    throw new Error('BUSINESS_PULSE_TRIAL_EVIDENCE_MISSING');
-  }
+  if(row.instance_id!==instanceId||row.status!=='active'||typeof row.id!=='string'||typeof row.starts_at!=='string'||typeof row.ends_at!=='string')throw new Error('BUSINESS_PULSE_TRIAL_EVIDENCE_MISSING');
+  revalidatePath('/admin/platform/business-pulse');
+}
+
+export async function activateBusinessPulseTrialAction(formData:FormData){
+  const actor=await requirePlatformOperator();
+  const trialId=String(formData.get('trialId')??'').trim();
+  const plan=String(formData.get('plan')??'').trim();
+  if(!UUID.test(trialId)||!['alap','pro'].includes(plan))throw new Error('Érvénytelen aktiválási kérés.');
+  const db=createAdminClient();
+  const{data,error}=await db.rpc('service_activate_business_pulse_trial_v1',{
+    p_trial_id:trialId,p_actor_id:actor.id,p_plan:plan,
+  });
+  if(error)throw new Error(`A trial nem aktiválható: ${error.message}`);
+  const result=(data??{}) as {trialId?:unknown;plan?:unknown;status?:unknown;dataPreserved?:unknown};
+  if(result.trialId!==trialId||result.plan!==plan||result.status!=='activated'||result.dataPreserved!==true)throw new Error('BUSINESS_PULSE_ACTIVATION_EVIDENCE_MISSING');
   revalidatePath('/admin/platform/business-pulse');
 }

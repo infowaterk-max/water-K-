@@ -2,7 +2,7 @@ import 'server-only';
 import {createAdminClient} from '@/lib/supabase/admin';
 import {getCommunicationProvider,isCommunicationProviderConfigured} from '@/lib/communication/provider';
 import {getCommunicationTemplate} from '@/lib/communication/templates';
-import {getPlatformCommunicationIdentity} from '@/lib/communication/identity';
+import {brandedSubject,getPlatformCommunicationIdentity} from '@/lib/communication/identity';
 
 type ClaimedEvent={
   id:string;instance_id:string;recipient_email:string;template_key:string;payload:Record<string,unknown>;
@@ -39,7 +39,7 @@ export async function runBusinessPulseNotificationWorker(limit=20):Promise<Busin
       }
       const identity=await getPlatformCommunicationIdentity(event.instance_id);
       const result=await provider.send({
-        to:event.recipient_email,subject:template.subject,templateKey:event.template_key,purpose:'transactional',
+        to:event.recipient_email,subject:brandedSubject(template.subject,identity.brandName),templateKey:event.template_key,purpose:'transactional',
         payload:event.payload??{},identity,replyTo:null,attachments:[],
       });
       const{data:completed,error:completeError}=await db.rpc('service_complete_business_pulse_notification_v1',{
@@ -49,8 +49,8 @@ export async function runBusinessPulseNotificationWorker(limit=20):Promise<Busin
       summary.sent++;
     }catch(error){
       const message=error instanceof Error?error.message:'UNKNOWN_BUSINESS_PULSE_NOTIFICATION_ERROR';
-      try{await persistFailure(db,event,message,event.attempts<5);summary.failed++;}
-      catch(persistError){throw persistError}
+      await persistFailure(db,event,message,event.attempts<5);
+      summary.failed++;
     }
   }
   return summary;
