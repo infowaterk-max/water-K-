@@ -3,73 +3,86 @@ import {readFileSync} from 'node:fs';
 import {join} from 'node:path';
 
 const read=(path:string)=>readFileSync(join(process.cwd(),path),'utf8');
-const migration=read('supabase/migrations/20260910050000_communication_hub_2_0_foundation_v1.sql');
+const foundation=read('supabase/migrations/20260910070000_communication_hub_2_0_foundation_v1.sql');
+const assignment=read('supabase/migrations/20260910070100_communication_hub_2_0_mailbox_default_assignment_v1.sql');
+const advanced=read('supabase/migrations/20260910070200_communication_hub_2_0_advanced_guards_and_object_links_v1.sql');
 const worker=read('src/lib/communication/worker.ts');
 const provider=read('src/lib/communication/provider.ts');
 const inbound=read('src/app/api/webhooks/communication/route.ts');
 const resendInbound=read('src/lib/communication/resend-inbound.ts');
+const composerActions=read('src/app/admin/kommunikacio/iroda/composer-actions.ts');
+const hubActions=read('src/app/admin/kommunikacio/iroda/communication-hub-actions.ts');
+const officePage=read('src/app/admin/kommunikacio/iroda/page.tsx');
 
 describe('Roadmap Block 9 Communication Hub 2.0',()=>{
-  it('extends the existing Office model without seeding or activating a mailbox',()=>{
-    expect(migration).toContain('add column if not exists responsible_user_id');
-    expect(migration).toContain('add column if not exists customer_user_id');
-    expect(migration).toContain('add column if not exists customer_ref text');
-    expect(migration).toContain('add column if not exists sales_owner_user_id');
-    expect(migration.toLowerCase()).not.toContain('insert into public.office_mailboxes');
-    expect(migration.toLowerCase()).not.toContain('update public.office_mailboxes set is_active=true');
+  it('extends the existing Office model without seeding or activating external infrastructure',()=>{
+    for(const field of['responsible_user_id','customer_user_id','customer_ref text','sales_owner_user_id'])expect(foundation).toContain(field);
+    const all=`${foundation}\n${assignment}\n${advanced}`.toLowerCase();
+    expect(all).not.toContain('insert into public.office_mailboxes');
+    expect(all).not.toContain('update public.office_mailboxes set is_active=true');
+    expect(all).not.toContain("storage_bucket text not null default 'public'");
+    expect(all).not.toContain('dns/mx');
   });
 
-  it('keeps customer identity and CRM references distinct and tenant checked',()=>{
-    expect(migration).toContain('OFFICE_CUSTOMER_USER_NOT_IN_INSTANCE');
-    expect(migration).toContain('OFFICE_CUSTOMER_REF_NOT_IN_INSTANCE');
-    expect(migration).toContain('OFFICE_SALES_OWNER_ACTIVE_MEMBER_REQUIRED');
-    expect(migration).toContain('admin_update_office_thread_relationships_v1');
+  it('keeps customer identity, CRM reference and sales ownership distinct and tenant checked',()=>{
+    for(const evidence of['OFFICE_CUSTOMER_USER_NOT_IN_INSTANCE','OFFICE_CUSTOMER_REF_NOT_IN_INSTANCE','OFFICE_SALES_OWNER_ACTIVE_MEMBER_REQUIRED'])expect(foundation).toContain(evidence);
+    expect(advanced).toContain('admin_update_office_thread_relationships_v2');
+    expect(hubActions).toContain("requirePlanFeature('officeCommunicationAdvanced')");
+    expect(hubActions).toContain('admin_update_office_thread_relationships_v2');
   });
 
-  it('records actual actor separately from explicitly proven delegation provenance',()=>{
-    expect(migration).toContain('acting_for_user_id');
-    expect(migration).toContain('delegation_id');
-    expect(migration).toContain('source_user_id=new.acting_for_user_id');
-    expect(migration).toContain('delegate_user_id=new.author_id');
-    expect(migration).toContain("dp.permission_code in('office.thread.reply','office.email.compose')");
-    expect(migration).toContain('OFFICE_EMAIL_ACTIVE_DELEGATION_REQUIRED');
+  it('uses mailbox responsibility only as a default and never overwrites an existing assignee',()=>{
+    expect(assignment).toContain("new.assigned_to is not null");
+    expect(assignment).toContain('responsible_user_id');
+    expect(assignment).toContain('office_customer_mailbox_default_assignee_v1');
   });
 
-  it('reuses one private attachment engine with explicit source boundaries',()=>{
-    expect(migration).toContain("source in('internal_upload','provider_inbound','customer_outbound')");
-    expect(migration).toContain("new.source='internal_upload'");
-    expect(migration).toContain("new.source='provider_inbound'");
-    expect(migration).toContain("new.source='customer_outbound'");
-    expect(migration).toContain("v_message_kind<>'email_in'");
-    expect(migration).toContain("v_message_kind<>'email_out'");
-    expect(migration).not.toContain("storage_bucket text not null default 'public'");
+  it('records the actual actor separately from proven delegation provenance',()=>{
+    for(const evidence of['acting_for_user_id','delegation_id','source_user_id=new.acting_for_user_id','delegate_user_id=new.author_id',"dp.permission_code in('office.thread.reply','office.email.compose')",'OFFICE_EMAIL_ACTIVE_DELEGATION_REQUIRED'])expect(foundation).toContain(evidence);
+    expect(composerActions).toContain('actingForUserId');
   });
 
-  it('keeps inbound attachments quarantined until clean scan evidence exists',()=>{
-    expect(migration).toContain('service_prepare_inbound_office_attachments_v1');
-    expect(migration).toContain('service_begin_inbound_office_attachment_scan_v1');
-    expect(migration).toContain('service_finalize_inbound_office_attachment_v1');
-    expect(migration).toContain("scan_status='clean'");
-    expect(migration).toContain("status='ready'");
+  it('reuses one private attachment engine with explicit inbound, outbound and Team Chat boundaries',()=>{
+    for(const evidence of["source in('internal_upload','provider_inbound','customer_outbound')","new.source='internal_upload'","new.source='provider_inbound'","new.source='customer_outbound'","v_message_kind<>'email_in'","v_message_kind<>'email_out'"])expect(foundation).toContain(evidence);
+    expect(foundation).toContain('service_prepare_inbound_office_attachments_v1');
+    expect(foundation).toContain('service_begin_inbound_office_attachment_scan_v1');
+    expect(foundation).toContain('service_finalize_inbound_office_attachment_v1');
+    expect(foundation).toContain('admin_prepare_office_email_attachments_v1');
+    expect(foundation).toContain('admin_begin_office_email_attachment_scan_v1');
+    expect(foundation).toContain("scan_status='clean'");
     expect(inbound).toContain('persistResendInboundAttachments');
     expect(resendInbound).toContain('getResendReceivedEmailAttachments');
-  });
-
-  it('allows outbound attachments only through the exact draft snapshot and clean evidence',()=>{
-    expect(migration).toContain('admin_prepare_office_email_attachments_v1');
-    expect(migration).toContain('admin_begin_office_email_attachment_scan_v1');
-    expect(migration).toContain('admin_queue_office_email_v5');
-    expect(migration).toContain("draft_reservation_id=v_draft_id");
-    expect(migration).toContain("source='customer_outbound'");
-    expect(migration).toContain("scan_status='clean'");
     expect(worker).toContain('officeAttachmentsForJob');
     expect(provider).toContain('attachments?:CommunicationAttachment[]');
   });
 
+  it('keeps advanced team email capabilities Pro-only while ordinary customer email remains compatible',()=>{
+    expect(advanced).toContain("officeCommunicationAdvanced");
+    expect(advanced).toContain('admin_update_office_mailbox_responsibility_v2');
+    expect(advanced).toContain('admin_update_office_thread_relationships_v2');
+    expect(advanced).toContain('admin_queue_office_email_v6');
+    expect(composerActions).toContain('admin_queue_office_email_v6');
+    expect(officePage).toContain("hasCurrentPlanFeature('officeCommunicationAdvanced')");
+  });
+
+  it('reuses office_message_object_links atomically instead of creating a parallel relation engine',()=>{
+    expect(advanced).toContain('insert into public.office_message_object_links');
+    expect(advanced).toContain("v_message.kind='email_out'");
+    expect(advanced).toContain("v_thread.conversation_type<>'customer'");
+    expect(advanced).toContain('OFFICE_OBJECT_LINK_EVIDENCE_MISSING');
+    expect(advanced).not.toContain('create table public.office_email_object_links');
+  });
+
+  it('queues outbound attachments and business links only with transaction evidence',()=>{
+    expect(foundation).toContain('admin_queue_office_email_v5');
+    expect(foundation).toContain('draft_reservation_id=v_draft_id');
+    expect(foundation).toContain("source='customer_outbound'");
+    expect(advanced).toContain('v_result:=public.admin_queue_office_email_v5');
+    expect(advanced).toContain("jsonb_build_object('objectLinked'");
+  });
+
   it('never turns untrusted inbound email content into business commands',()=>{
-    expect(inbound).not.toContain('place_order');
-    expect(inbound).not.toContain('refund');
-    expect(inbound).not.toContain('update_order');
+    for(const forbidden of['place_order','refund','update_order'])expect(inbound).not.toContain(forbidden);
     expect(resendInbound).not.toContain('eval(');
   });
 });
