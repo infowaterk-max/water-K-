@@ -1,0 +1,29 @@
+/*
+ * Digital Office desktop/tablet height completion.
+ *
+ * The shared communication shell previously capped the desktop workspaces at
+ * 840/860px. On taller screens that leaves the Digital Office surface ending
+ * early, exposing a bottom strip. Native mobile remains document-flow based,
+ * and the dedicated touch Desktop-site compatibility contract keeps ownership
+ * whenever its marker is active.
+ */
+
+@media (min-width:1101px){
+  .adminGrid:not([data-desktop-site-touch="true"]) .digitalOfficeShell .digitalOfficeWorkstation,
+  .adminGrid:not([data-desktop-site-touch="true"]) .digitalOfficeShell .teamChatWorkspace{
+    height:calc(100dvh - 150px)!important;
+    max-height:none!important;
+  }
+}
+
+@media (min-width:851px) and (max-width:1100px){
+  .adminGrid:not([data-desktop-site-touch="true"]) .digitalOfficeShell .digitalOfficeWorkstation{
+    height:calc(100dvh - 185px)!important;
+    max-height:none!important;
+  }
+
+  .adminGrid:not([data-desktop-site-touch="true"]) .digitalOfficeShell .teamChatWorkspace{
+    height:calc(100dvh - 150px)!important;
+    max-height:none!important;
+  }
+}
