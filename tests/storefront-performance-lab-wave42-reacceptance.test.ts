@@ -100,6 +100,7 @@ describe('Scale-out Wave 42 Performance Lab current-baseline reacceptance',()=>{
     expect(PERFORMANCE_LAB_WAVE42_ACCEPTANCE.sharedAuthority).toMatchObject({
       discovery:'E2-only-for-catalog-search-channel-product-eligibility-and-goal-routing-results',
       structuredFacts:'E7-only-for-source-supplied-specs-measurements-and-comparisons',
+      metricSnapshot:'shared-commerce-read-model-backed-by-E7-supplied-measurements-only',
       goalConsole:'merchant-configured-navigation-not-product-suitability-authority',
       labTested:'presentation-only-never-infers-missing-values-deltas-rankings-or-gains',
       checkout:'shared-provider-neutral-E13',
@@ -117,6 +118,8 @@ describe('Scale-out Wave 42 Performance Lab current-baseline reacceptance',()=>{
       const namespace=path.split('.')[0];
       expect(STOREFRONT_BINDING_NAMESPACES,`Unexpected binding namespace for ${path}`).toContain(namespace as never);
     }
+    expect(paths.some(path=>path.startsWith('performance.'))).toBe(false);
+    expect(paths.some(path=>path.startsWith('compare.'))).toBe(false);
     expect(paths.some(path=>path.startsWith('performanceLab.'))).toBe(false);
     expect(paths.some(path=>path.startsWith('labResult.'))).toBe(false);
     expect(paths.some(path=>path.startsWith('fitness.'))).toBe(false);
@@ -156,7 +159,12 @@ describe('Scale-out Wave 42 Performance Lab current-baseline reacceptance',()=>{
     expect(product('performance-product-option')?.bindings?.options?.path).toBe('variant.optionOptions');
     expect(product('performance-product-key-specs')?.bindings?.items?.path).toBe('product.keySpecs');
     expect(product('performance-product-spec-groups')?.bindings?.groups?.path).toBe('product.specGroups');
-    expect(product('performance-product-compare-table-node')?.bindings).toMatchObject({products:{path:'compare.products'},groups:{path:'compare.groups'}});
+    expect(product('performance-product-compare')?.bindings).toMatchObject({
+      label:{path:'content.productCompare.label'},
+      href:{path:'commerce.compareHref'},
+      count:{path:'commerce.compareCount'},
+    });
+    expect(product('performance-product-compare-table-node')?.bindings).toMatchObject({products:{path:'commerce.compareProducts'},groups:{path:'commerce.compareGroups'}});
   });
 
   it('keeps installation draft-only and fixtures free from fabricated lab/performance authority',()=>{
@@ -170,15 +178,23 @@ describe('Scale-out Wave 42 Performance Lab current-baseline reacceptance',()=>{
 
   it('keeps checkout provider-neutral and Builder-ready without Visual Builder or template-local authority',()=>{
     const checkout=PERFORMANCE_LAB_TEMPLATE_PACKAGE.pages.find(page=>page.pageType==='checkout')!;
+    const content=PERFORMANCE_LAB_TEMPLATE_PACKAGE.pages.find(page=>page.pageType==='content')!;
     expect(checkout.metadata?.engineBinding).toBe('E13');
     expect(JSON.stringify(checkout)).not.toMatch(/K&H|khpos|vpos|payment_secret|merchantId|callbackUrl|paymentStatus/i);
+    expect(nodeById(content,'performance-content-research-body')?.componentKey).toBe('story.body');
     expect(PERFORMANCE_LAB_WAVE42_ACCEPTANCE.builderContract).toMatchObject({
       hierarchy:'template-page-presets-section-presets-components',
       stableIdentity:'stable-node-ids-and-stable-binding-paths',
       responsiveGrid:'shared-desktop-tablet-mobile-grid',
       pagePresetCount:14,
       minimumPlan:'alap',
-      hardeningCorrections:[],
+      hardeningCorrections:[
+        'performance-metric-namespace-to-shared-commerce-read-model',
+        'compare-namespace-to-shared-commerce-read-models',
+        'catalog-collection-header-node-id-deduplicated',
+        'product-compare-button-to-content-and-commerce-bindings',
+        'content-story-index-to-story-body',
+      ],
       runtimeAllowlistWidened:false,
       visualBuilder:'future-compatible-no-template-local-builder-engine',
     });

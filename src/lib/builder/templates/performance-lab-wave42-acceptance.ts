@@ -49,6 +49,7 @@ export const PERFORMANCE_LAB_WAVE42_ACCEPTANCE=Object.freeze({
   sharedAuthority:{
     discovery:'E2-only-for-catalog-search-channel-product-eligibility-and-goal-routing-results',
     structuredFacts:'E7-only-for-source-supplied-specs-measurements-and-comparisons',
+    metricSnapshot:'shared-commerce-read-model-backed-by-E7-supplied-measurements-only',
     editorial:'E10-for-expert-video-research-note-and-lab-editorial-context',
     goalConsole:'merchant-configured-navigation-not-product-suitability-authority',
     gearFinder:'declarative-discovery-compose-with-shared-guided-finder-when-integrated',
@@ -80,7 +81,13 @@ export const PERFORMANCE_LAB_WAVE42_ACCEPTANCE=Object.freeze({
     responsiveGrid:'shared-desktop-tablet-mobile-grid',
     pagePresetCount:14,
     minimumPlan:'alap',
-    hardeningCorrections:[] as readonly string[],
+    hardeningCorrections:[
+      'performance-metric-namespace-to-shared-commerce-read-model',
+      'compare-namespace-to-shared-commerce-read-models',
+      'catalog-collection-header-node-id-deduplicated',
+      'product-compare-button-to-content-and-commerce-bindings',
+      'content-story-index-to-story-body',
+    ] as const,
     runtimeAllowlistWidened:false,
     visualBuilder:'future-compatible-no-template-local-builder-engine',
   },
