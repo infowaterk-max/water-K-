@@ -15,9 +15,17 @@ describe('Team Chat 2.1 Secure Attachments launch gate', () => {
   it('requires an explicit later release flag before any entitlement or platform bypass can enable it', () => {
     expect(planAccess).toContain("feature === 'teamChatSecureAttachments'");
     expect(planAccess).toContain("process.env.TEAM_CHAT_SECURE_ATTACHMENTS_RELEASED === 'true'");
-    const releaseGate = planAccess.indexOf('if (!isRuntimeFeatureReleased(feature)) return false;');
-    const platformBypass = planAccess.indexOf('if (await platformHasFullAccess()) return true;');
-    expect(releaseGate).toBeGreaterThan(0);
+
+    const featureCheck = planAccess.indexOf('export async function hasCurrentPlanFeature');
+    const releaseGate = planAccess.indexOf('if (!isRuntimeFeatureReleased(feature)) return false;', featureCheck);
+    const platformBypass = planAccess.indexOf('if (await platformHasFullAccess()) return true;', featureCheck);
+    expect(releaseGate).toBeGreaterThan(featureCheck);
     expect(platformBypass).toBeGreaterThan(releaseGate);
+
+    const requireCheck = planAccess.indexOf('export async function requirePlanFeature');
+    const requireReleaseGate = planAccess.indexOf('if (!isRuntimeFeatureReleased(feature)) redirect', requireCheck);
+    const requirePlatformBypass = planAccess.indexOf("if (await platformHasFullAccess()) return 'pro'", requireCheck);
+    expect(requireReleaseGate).toBeGreaterThan(requireCheck);
+    expect(requirePlatformBypass).toBeGreaterThan(requireReleaseGate);
   });
 });
