@@ -3,8 +3,8 @@ import{join}from'node:path';
 import{describe,expect,it}from'vitest';
 const read=(path:string)=>readFileSync(join(process.cwd(),path),'utf8');
 
-describe('Communication responsive contract v2',()=>{
-  it('detects touch browser desktop-site mode without resizing or counter-zooming the app',()=>{
+describe('Communication responsive desktop-site contract v5',()=>{
+  it('detects touch browser desktop-site mode without JS resizing or counter-zoom',()=>{
     const bridge=read('src/components/admin/admin-mobile-desktop-compat.tsx');
     expect(bridge).toContain('navigator.maxTouchPoints');
     expect(bridge).toContain("(pointer: coarse)");
@@ -16,49 +16,57 @@ describe('Communication responsive contract v2',()=>{
     expect(bridge).not.toContain('devicePixelRatio');
     expect(bridge).not.toContain('visualViewport');
     expect(bridge).not.toContain('style.setProperty');
-    expect(bridge).not.toContain('mobileDesktopCompat');
   });
 
-  it('preserves the real desktop workspace in desktop-site mode',()=>{
-    const css=read('src/app/admin/kommunikacio/mobile-desktop-compat.css');
-    expect(css).toContain('.adminGrid[data-desktop-site-touch="true"]');
-    expect(css).toContain('width:1440px!important');
-    expect(css).toContain('min-width:1440px!important');
-    expect(css).toContain('grid-template-columns:286px minmax(0,1fr)!important');
-    expect(css).toContain('touch-action:pan-x pan-y pinch-zoom');
-    expect(css).toContain('.adminMobileNavigation{display:none!important}');
-    expect(css).not.toContain('zoom:');
-    expect(css).not.toContain('--admin-mobile-desktop');
-  });
-
-  it('restores full desktop Digital Office and Team Chat columns instead of forcing mobile panes',()=>{
-    const css=read('src/app/admin/kommunikacio/mobile-desktop-compat.css');
-    expect(css).toContain('grid-template-columns:176px 310px minmax(430px,1fr) 292px!important');
-    expect(css).toContain('grid-template-columns:310px minmax(430px,1fr) 300px!important');
-    expect(css).toContain('.digitalOfficeMobileController{display:none!important}');
-    expect(css).toContain('.teamChatMobileBack{display:none!important}');
-    expect(css).not.toContain('[data-mobile-view="list"]');
-    expect(css).not.toContain('[data-mobile-view="conversation"]');
-    expect(css).not.toContain('[data-mobile-view="context"]');
-    expect(css).not.toContain('[data-mobile-view="chat"]');
-    expect(css).not.toContain('[data-mobile-view="info"]');
-  });
-
-  it('leaves normal mobile behaviour under the native <=850px contracts',()=>{
-    const officeMobile=read('src/app/admin/digital-office-mobile-final.css');
-    const teamChat=read('src/app/admin/team-chat-workspace.css');
-    const routeCss=read('src/app/admin/kommunikacio/mobile-desktop-compat.css');
-    expect(officeMobile).toContain('@media(max-width:850px)');
-    expect(officeMobile).toContain('.digitalOfficeWorkstation[data-mobile-view="conversation"]');
-    expect(teamChat).toContain('@media(max-width:850px)');
-    expect(teamChat).toContain('.teamChatWorkspace[data-mobile-view="chat"]');
-    expect(routeCss).toContain('@media(max-width:850px)');
-  });
-
-  it('loads the mode marker only inside the communication workspace',()=>{
+  it('loads desktop-site compat after the shared application shell so there is one final owner',()=>{
     const layout=read('src/app/admin/kommunikacio/layout.tsx');
+    expect(layout).toContain("import './communication-app-final.css';");
     expect(layout).toContain("import './mobile-desktop-compat.css';");
-    expect(layout).toContain('AdminMobileDesktopCompat');
-    expect(layout).toContain('<AdminMobileDesktopCompat/>');
+    expect(layout.indexOf("import './communication-app-final.css';")).toBeLessThan(layout.indexOf("import './mobile-desktop-compat.css';"));
+  });
+
+  it('keeps the browser viewport width and pans only the full desktop communication canvas',()=>{
+    const css=read('src/app/admin/kommunikacio/mobile-desktop-compat.css');
+    expect(css).toContain('grid-template-columns:220px minmax(0,1fr)!important');
+    expect(css).toContain('width:100%!important');
+    expect(css).toContain('min-width:960px!important');
+    expect(css).toContain('.adminContentShell{');
+    expect(css).toContain('overflow-x:auto!important');
+    expect(css).toContain('touch-action:pan-x pan-y pinch-zoom!important');
+    expect(css).toContain('width:1050px!important');
+    expect(css).not.toContain('width:1440px!important');
+    expect(css).not.toContain('width:1280px!important');
+    expect(css).not.toContain('zoom:');
+  });
+
+  it('fills the desktop-site viewport vertically without fixed 760px or ratio multiplication',()=>{
+    const css=read('src/app/admin/kommunikacio/mobile-desktop-compat.css');
+    expect(css).toContain('min-height:100dvh!important');
+    expect(css).toContain('height:calc(100dvh - 112px)!important');
+    expect(css).toContain('height:100dvh!important');
+    expect(css).not.toContain('height:760px!important');
+    expect(css).not.toContain('1440 /');
+    expect(css).not.toContain('devicePixelRatio');
+    expect(css).not.toContain('visualViewport');
+  });
+
+  it('keeps customer e-mail three-pane and resets the former vertical rail into one compact filter row',()=>{
+    const css=read('src/app/admin/kommunikacio/mobile-desktop-compat.css');
+    expect(css).toContain('grid-template-columns:280px 500px 270px!important');
+    expect(css).toContain('.digitalOfficeLocalRail{');
+    expect(css).toContain('grid-column:1/-1!important');
+    expect(css).toContain('height:auto!important');
+    expect(css).toContain('.digitalOfficeLocalRailTitle,');
+    expect(css).toContain('.digitalOfficeLocalRailFooter{display:none!important}');
+    expect(css).toContain('flex-direction:row!important');
+    expect(css).not.toContain('grid-template-columns:176px 310px minmax(430px,1fr) 292px!important');
+  });
+
+  it('keeps full Team Chat three-pane desktop behavior while native mobile remains owned elsewhere',()=>{
+    const css=read('src/app/admin/kommunikacio/mobile-desktop-compat.css');
+    expect(css).toContain('.teamChatWorkspace{');
+    expect(css).toContain('grid-template-columns:280px 500px 270px!important');
+    expect(css).toContain('.teamChatMobileBack{display:none!important}');
+    expect(css).not.toContain('@media(max-width:850px)');
   });
 });
