@@ -1,13 +1,9 @@
-/* Communication responsive contract v3.
+/* Communication responsive contract v2.
    Normal mobile is owned by the existing <=850px mobile workspaces.
-   This file handles two cross-cutting browser behaviours only:
-   1) touch devices whose browser exposes a desktop-sized viewport;
-   2) mobile scroll chaining between inner chat scrollers and the page.
-
-   Desktop-site mode preserves the REAL desktop product: no counter-zoom,
-   no mobile drawer injection and no single-pane forcing. The 1440px canvas
-   may be zoomed/panned by the browser naturally. Because a phone scales that
-   wider canvas down, JS provides a height compensated by the same width ratio. */
+   This file only handles touch devices whose browser explicitly exposes a
+   desktop-sized viewport. In that mode we preserve the REAL desktop product:
+   no counter-zoom, no mobile drawer injection, no single-pane forcing.
+   The browser may zoom/pan the 1440px workspace naturally. */
 
 .adminGrid[data-desktop-site-touch="true"]{
   display:grid!important;
@@ -15,7 +11,6 @@
   width:1440px!important;
   min-width:1440px!important;
   max-width:none!important;
-  min-height:var(--admin-desktop-site-height,100vh)!important;
   overflow:visible!important;
   touch-action:pan-x pan-y pinch-zoom;
 }
@@ -24,9 +19,8 @@
   position:sticky!important;
   top:0!important;
   width:auto!important;
-  height:auto!important;
-  min-height:var(--admin-desktop-site-height,100vh)!important;
-  max-height:none!important;
+  height:100vh!important;
+  max-height:100vh!important;
   padding:20px 15px!important;
   overflow-y:auto!important;
   overflow-x:hidden!important;
@@ -39,7 +33,6 @@
 .adminGrid[data-desktop-site-touch="true"] .adminContentShell{
   width:auto!important;
   min-width:0!important;
-  min-height:var(--admin-desktop-site-height,100vh)!important;
   overflow:visible!important;
 }
 .adminGrid[data-desktop-site-touch="true"] .adminMain{
@@ -79,8 +72,8 @@
   grid-template-rows:none!important;
   width:100%!important;
   min-width:1120px!important;
-  min-height:max(720px,calc(var(--admin-desktop-site-height,100vh) - 118px))!important;
-  height:auto!important;
+  min-height:720px!important;
+  height:calc(100dvh - 118px)!important;
   overflow:hidden!important;
   border-top:1px solid var(--workspace-line)!important;
 }
@@ -152,8 +145,8 @@
   grid-template-columns:310px minmax(430px,1fr) 300px!important;
   width:100%!important;
   min-width:1040px!important;
-  min-height:max(680px,calc(var(--admin-desktop-site-height,100vh) - 118px))!important;
-  height:auto!important;
+  min-height:680px!important;
+  height:calc(100dvh - 118px)!important;
   overflow:hidden!important;
   border-top:1px solid var(--workspace-line)!important;
   background:#f6f8f7!important;
@@ -190,19 +183,10 @@
   grid-template-columns:minmax(190px,.75fr) minmax(280px,1.25fr)!important;
 }
 
-/* Normal mobile safeguards. The Team Chat keeps its internal message scroller,
-   but scroll chaining must remain available: when that scroller is already at
-   its top/bottom (especially an empty new conversation), the same touch gesture
-   must be able to move the outer page and reveal the composer. */
+/* Small, explicit normal-mobile safeguards. These do not emulate desktop-site. */
 @media(max-width:850px){
-  .digitalOfficeShell{max-width:100%;overflow-x:hidden;overflow-y:visible}
+  .digitalOfficeShell{max-width:100%;overflow-x:hidden}
   .digitalOfficeWorkstation,.teamChatWorkspace{max-width:100%!important}
   .teamChatMobileBack{color:var(--workspace-accent-strong)!important;text-decoration:none!important}
   .teamChatComposer,.digitalOfficeReplyComposer{max-width:100%!important}
-  .teamChatPeopleScroll,
-  .teamChatMessages,
-  .teamChatInfoPane{overscroll-behavior-y:auto!important}
-  .teamChatWorkspace,
-  .teamChatConversationPane,
-  .teamChatMessages{touch-action:pan-y!important}
 }
