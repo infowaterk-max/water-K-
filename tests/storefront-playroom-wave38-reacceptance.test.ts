@@ -4,6 +4,7 @@ import {STOREFRONT_BINDING_NAMESPACES,validateStorefrontPageDocument,type Storef
 import {createStorefrontConfiguratorComponentRegistry} from '@/lib/builder/storefront-configurator';
 import {evaluateStorefrontTemplateCapabilityGate,planStorefrontTemplateInstallation} from '@/lib/builder/storefront-template-installation';
 import {
+  PLAYROOM_CONTENT_PAGE,
   PLAYROOM_DESIGN_TOKENS,
   PLAYROOM_DISCOVERY_PATH,
   PLAYROOM_ENGINE_CONTRACT,
@@ -23,6 +24,7 @@ const nodeById=(page:StorefrontPageDocument,id:string)=>walk(page.sections).find
 const bindingPaths=(page:StorefrontPageDocument)=>walk(page.sections).flatMap(node=>Object.values(node.bindings??{}).map(binding=>binding.path));
 const home=(id:string)=>nodeById(PLAYROOM_HOME_PAGE,id);
 const product=(id:string)=>nodeById(PLAYROOM_PRODUCT_PAGE,id);
+const content=(id:string)=>nodeById(PLAYROOM_CONTENT_PAGE,id);
 
 describe('Scale-out Wave 38 Playroom current-baseline reacceptance',()=>{
   it('re-accepts original Wave 19 Playroom directly after Spec Lab with its canonical identity',()=>{
@@ -83,8 +85,10 @@ describe('Scale-out Wave 38 Playroom current-baseline reacceptance',()=>{
     expect(home('playroom-genre-navigation')?.bindings?.items?.path).toBe('catalog.genreNavigation');
     expect(home('playroomAccessories')?.bindings?.products?.path).toBe('recommendations.accessories');
     expect(home('playroom-platform-match-status')?.bindings?.status?.path).toBe('compatibility.status');
-    expect(home('playroom-platform-match-evidence')?.bindings?.items?.path).toBe('compatibility.evidence');
+    expect(home('playroom-platform-match-evidence')).toBeUndefined();
     expect(home('playroom-guides-block')?.bindings?.items?.path).toBe('content.guides.items');
+    expect(content('playroom-content-guides-block')?.componentKey).toBe('editorial.split-feature');
+    expect(content('playroom-content-guides-block')?.bindings?.ctaHref?.path).toBe('content.guides.ctaHref');
   });
 
   it('keeps product, price, stock, variants, reviews and structured facts outside template authority',()=>{
@@ -98,6 +102,7 @@ describe('Scale-out Wave 38 Playroom current-baseline reacceptance',()=>{
     expect(product('playroom-product-key-specs')?.bindings?.items?.path).toBe('product.keySpecs');
     expect(product('playroom-product-review-summary')?.bindings).toMatchObject({rating:{path:'reviews.summary.rating'},count:{path:'reviews.summary.count'}});
     expect(product('playroom-product-spec-groups')?.bindings?.groups?.path).toBe('product.specGroups');
+    expect(product('playroom-product-compatibility-status')).toBeUndefined();
     expect(product('playroom-product-compatibility-evidence')?.bindings?.items?.path).toBe('compatibility.productEvidence');
     expect(product('playroomProductRecommendations')?.bindings?.products?.path).toBe('recommendations.products');
     expect(PLAYROOM_WAVE38_ACCEPTANCE.sharedAuthority).toMatchObject({pricing:'shared-commerce-binding-only',inventory:'shared-commerce-binding-only',variants:'shared-commerce-binding-only',reviews:'shared-review-binding-only-no-fabricated-score'});
