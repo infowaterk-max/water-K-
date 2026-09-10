@@ -1,0 +1,320 @@
+/* Team Chat composer hardening — 2026-09-10.
+   Presentation-only: message, mention, business-object and secure-attachment contracts stay unchanged. */
+
+.digitalOfficeShell .teamChatMessageComposer{
+  position:relative;
+  display:block!important;
+  width:100%;
+  min-width:0;
+  margin:0!important;
+}
+
+.digitalOfficeShell .teamChatComposerSurface{
+  display:grid;
+  grid-template-columns:38px minmax(0,1fr) auto;
+  align-items:end;
+  gap:8px;
+  width:100%;
+  min-width:0;
+  padding:6px;
+  border:1px solid #d9e4e1;
+  border-radius:14px;
+  background:#fff;
+  box-shadow:0 2px 8px rgba(20,48,41,.04);
+  transition:border-color .16s ease,box-shadow .16s ease;
+}
+.digitalOfficeShell .teamChatComposerSurface:focus-within{
+  border-color:#91cfc0;
+  box-shadow:0 0 0 3px rgba(15,152,125,.08);
+}
+
+.digitalOfficeShell .teamChatComposerInput{
+  display:block!important;
+  width:100%!important;
+  min-width:0!important;
+  min-height:38px!important;
+  height:38px;
+  max-height:132px!important;
+  margin:0!important;
+  padding:9px 4px 7px!important;
+  border:0!important;
+  border-radius:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  outline:0!important;
+  resize:none!important;
+  overflow-y:auto;
+  color:#263a36;
+  font:inherit;
+  font-size:11px!important;
+  line-height:1.45!important;
+}
+.digitalOfficeShell .teamChatComposerInput::placeholder{color:#98a6a2;opacity:1}
+
+.digitalOfficeShell .teamChatToolsButton{
+  display:grid!important;
+  place-items:center;
+  width:38px!important;
+  height:38px!important;
+  min-width:38px!important;
+  min-height:38px!important;
+  margin:0!important;
+  padding:0!important;
+  border:1px solid #dce7e4!important;
+  border-radius:10px!important;
+  background:#f8fbfa!important;
+  color:var(--workspace-accent-strong)!important;
+  font-size:18px!important;
+  font-weight:500!important;
+  line-height:1!important;
+  cursor:pointer;
+}
+.digitalOfficeShell .teamChatToolsButton:hover,
+.digitalOfficeShell .teamChatToolsButton:focus-visible,
+.digitalOfficeShell .teamChatToolsButton[aria-expanded="true"]{
+  border-color:#bcded5!important;
+  background:var(--workspace-accent-soft)!important;
+  outline:none!important;
+}
+
+.digitalOfficeShell .teamChatSendButton{
+  align-self:end;
+  min-width:72px!important;
+  min-height:38px!important;
+  height:38px!important;
+  margin:0!important;
+  padding:0 14px!important;
+  border-radius:10px!important;
+  font-size:9px!important;
+  font-weight:850!important;
+  white-space:nowrap;
+}
+
+.digitalOfficeShell .teamChatComposerTools{
+  position:absolute;
+  z-index:30;
+  left:0;
+  bottom:calc(100% + 8px);
+  display:grid;
+  gap:9px;
+  width:min(410px,calc(100% - 2px));
+  max-height:min(330px,48vh);
+  overflow:auto;
+  margin:0!important;
+  padding:11px!important;
+  border:1px solid #d8e4e1!important;
+  border-radius:13px!important;
+  background:#fff!important;
+  box-shadow:0 18px 44px rgba(18,47,40,.16)!important;
+}
+.digitalOfficeShell .teamChatComposerTools[data-open="false"]{display:none!important}
+.digitalOfficeShell .teamChatComposerTools>header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  margin:0 0 1px;
+  padding:0 0 8px;
+  border-bottom:1px solid #edf1f0;
+}
+.digitalOfficeShell .teamChatComposerTools>header>div{display:grid;gap:1px;min-width:0}
+.digitalOfficeShell .teamChatComposerTools>header strong{font-size:9px;color:#2b403b}
+.digitalOfficeShell .teamChatComposerTools>header small{font-size:7px;color:#83918d}
+.digitalOfficeShell .teamChatComposerTools>header>button{
+  display:grid;
+  place-items:center;
+  width:28px;
+  height:28px;
+  flex:0 0 28px;
+  border:1px solid #e0e8e6;
+  border-radius:8px;
+  background:#f9fbfa;
+  color:#667873;
+  font-size:16px;
+  cursor:pointer;
+}
+.digitalOfficeShell .teamChatComposerTools label{
+  display:grid!important;
+  gap:4px!important;
+  margin:0!important;
+}
+.digitalOfficeShell .teamChatComposerTools label>span{
+  color:#5c706b!important;
+  font-size:8px!important;
+  font-weight:850!important;
+}
+.digitalOfficeShell .teamChatComposerTools select,
+.digitalOfficeShell .teamChatComposerTools input[type="file"]{
+  width:100%!important;
+  min-height:36px!important;
+  margin:0!important;
+  font-size:9px!important;
+}
+.digitalOfficeShell .teamChatComposerTools select[multiple]{
+  min-height:72px!important;
+  max-height:92px!important;
+  padding:4px!important;
+}
+.digitalOfficeShell .teamChatComposerTools .muted{
+  margin:0!important;
+  color:#81908c!important;
+  font-size:7px!important;
+  line-height:1.4!important;
+}
+.digitalOfficeShell .teamChatComposerStatus{
+  margin:5px 4px 0!important;
+  font-size:7px!important;
+  line-height:1.35!important;
+}
+
+/* Dedicated Team Chat: one cohesive input bar, no split textarea/button rows. */
+.digitalOfficeShell .teamChatComposer{
+  position:relative!important;
+  overflow:visible!important;
+  padding:10px 12px 12px!important;
+  background:#fff!important;
+}
+.digitalOfficeShell .teamChatCompactComposer{
+  width:100%!important;
+  max-width:none!important;
+}
+.digitalOfficeShell .teamChatCompactComposer>textarea{display:none!important}
+
+/* Floating Digital Office chat: compact two-pane messenger, never a form-heavy modal. */
+.digitalOfficeShell .digitalOfficeChatDock{
+  filter:drop-shadow(0 18px 44px rgba(15,36,31,.16))!important;
+}
+.digitalOfficeShell .digitalOfficeChatDock[open]{
+  width:min(720px,calc(100vw - 44px))!important;
+}
+.digitalOfficeShell .digitalOfficeChatDock[open]>summary{
+  min-height:40px!important;
+  border-radius:13px 13px 0 0!important;
+}
+.digitalOfficeShell .digitalOfficeChatDockBody{
+  overflow:hidden!important;
+  border-radius:0 0 13px 13px!important;
+  background:#fff!important;
+}
+.digitalOfficeShell .digitalOfficeChatDockHeader{
+  min-height:44px!important;
+  padding:8px 12px!important;
+  background:#fff!important;
+}
+.digitalOfficeShell .digitalOfficeChatDockHeader strong{font-size:9px!important}
+.digitalOfficeShell .digitalOfficeChatDockHeader small{font-size:7px!important}
+.digitalOfficeShell .digitalOfficeChatDockLayout{
+  grid-template-columns:200px minmax(0,1fr)!important;
+  height:min(420px,62vh)!important;
+  min-height:340px;
+}
+.digitalOfficeShell .digitalOfficeChatRooms{
+  min-width:0;
+  overflow-y:auto!important;
+  overflow-x:hidden!important;
+  background:#f7faf9!important;
+}
+.digitalOfficeShell .digitalOfficeChatRooms>a{
+  min-height:52px;
+  padding:9px 10px!important;
+}
+.digitalOfficeShell .digitalOfficeChatConversation{
+  position:relative;
+  min-width:0;
+  overflow:hidden;
+  background:#f8faf9;
+}
+.digitalOfficeShell .digitalOfficeChatMessages{
+  min-height:0;
+  padding:14px!important;
+  overflow:auto!important;
+  overscroll-behavior:contain;
+  background:linear-gradient(180deg,#fafcfb,#f5f8f7)!important;
+}
+.digitalOfficeShell .digitalOfficeChatMessages>div{
+  width:max-content;
+  max-width:72%!important;
+  margin-bottom:8px!important;
+  padding:7px 9px!important;
+  border:1px solid #e2e9e7;
+  border-radius:12px 12px 12px 4px!important;
+  background:#fff!important;
+}
+.digitalOfficeShell .digitalOfficeChatMessages>div.isMine{
+  margin-left:auto!important;
+  border-color:#cee7df!important;
+  border-radius:12px 12px 4px 12px!important;
+  background:#eaf7f3!important;
+}
+.digitalOfficeShell .digitalOfficeChatMessages small{font-size:6.5px!important}
+.digitalOfficeShell .digitalOfficeChatMessages p{font-size:8px!important;line-height:1.45!important}
+.digitalOfficeShell .digitalOfficeChatComposer{
+  position:relative!important;
+  z-index:5;
+  max-height:none!important;
+  overflow:visible!important;
+  padding:9px 10px 10px!important;
+  border-top:1px solid #e3eae8!important;
+  background:#fff!important;
+}
+.digitalOfficeShell .digitalOfficeChatComposer .teamChatComposerSurface{
+  grid-template-columns:34px minmax(0,1fr) auto;
+  gap:6px;
+  padding:5px;
+  border-radius:12px;
+}
+.digitalOfficeShell .digitalOfficeChatComposer .teamChatToolsButton{
+  width:34px!important;
+  height:34px!important;
+  min-width:34px!important;
+  min-height:34px!important;
+  border-radius:9px!important;
+  font-size:16px!important;
+}
+.digitalOfficeShell .digitalOfficeChatComposer .teamChatComposerInput{
+  min-height:34px!important;
+  height:34px;
+  max-height:94px!important;
+  padding:8px 3px 6px!important;
+  font-size:9px!important;
+}
+.digitalOfficeShell .digitalOfficeChatComposer .teamChatSendButton{
+  min-width:64px!important;
+  min-height:34px!important;
+  height:34px!important;
+  padding:0 11px!important;
+  border-radius:9px!important;
+  font-size:8px!important;
+}
+.digitalOfficeShell .digitalOfficeChatComposer .teamChatComposerTools{
+  width:min(360px,calc(100% - 2px));
+  max-height:min(270px,44vh);
+}
+
+@media(max-width:850px){
+  .digitalOfficeShell .teamChatComposer{padding:8px 9px calc(9px + env(safe-area-inset-bottom))!important}
+  .digitalOfficeShell .teamChatComposerSurface{
+    grid-template-columns:38px minmax(0,1fr) auto;
+    gap:6px;
+    padding:5px;
+    border-radius:12px;
+  }
+  .digitalOfficeShell .teamChatComposerInput{
+    min-height:38px!important;
+    height:38px;
+    max-height:120px!important;
+    padding:8px 4px 6px!important;
+    font-size:16px!important;
+  }
+  .digitalOfficeShell .teamChatSendButton{
+    min-width:68px!important;
+    min-height:38px!important;
+    height:38px!important;
+    padding:0 11px!important;
+  }
+  .digitalOfficeShell .teamChatComposerTools{
+    left:0;
+    width:min(390px,calc(100vw - 28px));
+    max-height:42vh;
+  }
+}
