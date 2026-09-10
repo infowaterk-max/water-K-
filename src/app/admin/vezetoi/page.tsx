@@ -2,6 +2,8 @@ import { requirePlanFeature } from '@/lib/plans/access';
 import { requireCurrentStoreContext } from '@/lib/instances/scope';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { formatHuf } from '@/lib/catalog';
+import { buildMerchantDecisionCards,loadMerchantDecisionSnapshot,type MerchantDecisionCard } from '@/lib/decisioning/merchant-intelligence';
+import { MerchantDecisionPanel } from '@/components/admin/merchant-decision-panel';
 
 export const dynamic='force-dynamic';
 
@@ -18,6 +20,9 @@ export default async function Page(){
     a.from('v9_growth_dashboard_v2').select('*').eq('instance_id',scope.instanceId).maybeSingle(),
   ]);
 
+  let decisionCards:MerchantDecisionCard[]=[];let decisionError=false;
+  try{decisionCards=buildMerchantDecisionCards(await loadMerchantDecisionSnapshot(scope.instanceId));}catch{decisionError=true;}
+
   const ch=(channels??[])as Channel[],co=(cohorts??[])as Cohort[],retail=ch.find(x=>x.channel==='retail'),reseller=ch.find(x=>x.channel==='reseller');
   const revenue=ch.reduce((s,x)=>s+Number(x.revenue_gross_huf||0),0),customers=ch.reduce((s,x)=>s+Number(x.paying_customers||0),0),repeat=ch.reduce((s,x)=>s+Number(x.repeat_customers||0),0);
   const repeatRate=customers?repeat/customers*100:0,weightedLtv=customers?revenue/customers:0,loadError=Boolean(ce||cohe||ge),cohortMonths=[...new Set(co.map(x=>x.cohort_month))].slice(0,8);
@@ -25,7 +30,7 @@ export default async function Page(){
   return <section className="adminMain">
     <span className="eyebrow">Pro · Vezetői analitika</span>
     <h1 className="sectionTitle">Üzleti döntési központ</h1>
-    <p className="lead">B2C/B2B teljesítmény, visszatérő vásárlók, ügyfélérték és első vásárlási hónap szerinti megtartás egy helyen.</p>
+    <p className="lead">B2C/B2B teljesítmény, visszatérő vásárlók, ügyfélérték, megtartás és bizonyíték-alapú kereskedői döntéstámogatás egy helyen.</p>
     {loadError&&<div className="errorNotice" role="alert"><strong>Az analitika egy része most nem tölthető be.</strong> Hiányos adatok mellett a nulla értékeket ne tekintsd biztos üzleti eredménynek.</div>}
 
     <div className="cards adminMetricCards">
@@ -34,6 +39,8 @@ export default async function Page(){
       <div className="card"><span className="badge">Átlagos ügyfélérték</span><div className="price">{ce?'—':formatHuf(Math.round(weightedLtv))}</div><p className="muted">történeti bevétel / fizető ügyfél</p></div>
       <div className="card"><span className="badge">Megtartási teendő</span><div className="price">{ge?'—':Number(growth?.at_risk_customers??0)+Number(growth?.winback_customers??0)}</div><p className="muted">kockázatban lévő vagy visszanyerendő ügyfél</p></div>
     </div>
+
+    {decisionError?<div className="errorNotice" role="alert"><strong>A döntési intelligencia most nem tölthető be.</strong> Biztonsági okból a rendszer ilyenkor nem gyárt hiányos bizonyítékból javaslatot és nem indít AI-hívást.</div>:<MerchantDecisionPanel cards={decisionCards}/>}
 
     <div className="splitFeature">
       <section className="featurePanel">
@@ -64,7 +71,7 @@ export default async function Page(){
       <p className="muted">M0 az első vásárlás hónapja, M1 az azt követő hónap, M2 a második követő hónap és így tovább.</p>
       <div className="adminTableScroll"><table className="adminTable">
         <thead><tr><th>Első vásárlás hónapja</th><th>Induló ügyfelek</th><th>M0</th><th>M1</th><th>M2</th><th>M3</th><th>M6</th></tr></thead>
-        <tbody>{cohortMonths.map(m=>{const rows=co.filter(x=>x.cohort_month===m),get=(n:number)=>rows.find(x=>x.month_number===n);return <tr key={m}><td><strong>{new Intl.DateTimeFormat('hu-HU',{year:'numeric',month:'short'}).format(new Date(m))}</strong></td><td>{get(0)?.cohort_customers??0}</td>{[0,1,2,3,6].map(n=><td key={n}>{get(n)?`${Number(get(n)!.retention_percent).toFixed(1)}%`:'—'}</td>)}</tr>})}</tbody>
+        <tbody>{cohortMonths.map(m=>{const rows=co.filter(x=>x.cohort_month===m),get=(num:number)=>rows.find(x=>x.month_number===num);return <tr key={m}><td><strong>{new Intl.DateTimeFormat('hu-HU',{year:'numeric',month:'short'}).format(new Date(m))}</strong></td><td>{get(0)?.cohort_customers??0}</td>{[0,1,2,3,6].map(num=><td key={num}>{get(num)?`${Number(get(num)!.retention_percent).toFixed(1)}%`:'—'}</td>)}</tr>})}</tbody>
       </table></div>
       {!cohe&&cohortMonths.length===0&&<p className="muted">Még nincs elegendő történeti adat a megtartási elemzéshez.</p>}
     </section>
