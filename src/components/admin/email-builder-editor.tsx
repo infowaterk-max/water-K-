@@ -5,6 +5,7 @@ import { useEffect,useMemo,useRef,useState } from 'react';
 import type { EmailBlock,EmailBlockType,EmailConditionRule,EmailDocument,EmailRenderContext,RenderedEmail } from '@/lib/email-builder/types';
 import { emailBindingRegistry } from '@/lib/email-builder/bindings';
 import { emailPresetLibrary,emailSectionLibrary,type EmailBlockBlueprint,type EmailPresetDefinition,type EmailSectionDefinition } from '@/lib/email-builder/library';
+import { SavedBlockLibrary } from './email-builder-saved-block-library';
 import styles from './email-builder-editor.module.css';
 import libraryStyles from './email-builder-library.module.css';
 
@@ -157,6 +158,7 @@ export function EmailBuilderEditor({template,initialDocument,previewContext}:{te
   function duplicateSelected(){if(!selected)return;const copy:{[K in keyof EmailBlock]:EmailBlock[K]}={...structuredClone(selected),id:newId(selected.type)};const blocks=[...document.blocks];blocks.splice(selectedIndex+1,0,copy);commit({...document,blocks});setSelectedId(copy.id);}
   function deleteSelected(){if(!selected||document.blocks.length<=1)return;const blocks=document.blocks.filter(block=>block.id!==selected.id);const fallback=blocks[Math.min(selectedIndex,blocks.length-1)];commit({...document,blocks});setSelectedId(fallback?.id??'');}
   function moveSelected(delta:-1|1){if(!selected)return;const target=selectedIndex+delta;if(target<0||target>=document.blocks.length)return;const blocks=[...document.blocks];[blocks[selectedIndex],blocks[target]]=[blocks[target],blocks[selectedIndex]];commit({...document,blocks});}
+  function insertSavedBlock(source:EmailBlock,savedBlockId:string){const block:EmailBlock={...structuredClone(source),id:newId(source.type),presetId:`saved:${savedBlockId}`.slice(0,120)};const index=selectedIndex>=0?selectedIndex+1:document.blocks.length;const blocks=[...document.blocks];blocks.splice(index,0,block);commit({...document,blocks});setSelectedId(block.id);setTab('content');}
 
   async function copyBinding(key:string){
     try{
@@ -243,7 +245,7 @@ export function EmailBuilderEditor({template,initialDocument,previewContext}:{te
         {leftView==='sections'&&<SectionLibrary sections={emailSectionLibrary} onInsert={addSection}/>}        
         {leftView==='presets'&&<PresetLibrary presets={familyPresets} onApply={applyPreset}/>}        
         {leftView==='dynamic'&&<DynamicLibrary copiedBinding={copiedBinding} onCopy={copyBinding}/>}        
-        {leftView==='saved'&&<LibraryPlaceholder/>}        
+        {leftView==='saved'&&<SavedBlockLibrary selected={selected} onInsert={insertSavedBlock}/>}        
       </aside>
 
       <main className={styles.canvasPanel}>
