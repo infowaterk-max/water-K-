@@ -33,15 +33,39 @@ describe('storefront template library UX',()=>{
     expect(source).toContain('A konkrét Pro sablonvariáns még nincs publikálva a katalógusban');
   });
 
-  it('provides category filtering, search, live preview and no merchant-facing AI generator in the empty Builder state',()=>{
+  it('provides category filtering, search, live preview and no merchant-facing AI generator',()=>{
     const library=read('src/components/admin/storefront-template-library.tsx');
+    const builder=read('src/components/admin/storefront-visual-builder.tsx');
     const page=read('src/app/admin/tartalom/builder/page.tsx');
     expect(library).toContain('Kategóriák');
     expect(library).toContain('Keresés a sablonok között');
     expect(library).toContain('Élő előnézet');
     expect(library).toContain('/storefront-template-preview?template=');
     expect(page).toContain('<StorefrontTemplateLibrary');
-    expect(page).not.toContain('StorefrontAiGeneratorPanel');
+    expect(library).not.toContain('StorefrontAiGeneratorPanel');
+    expect(builder).not.toContain('StorefrontAiGeneratorPanel');
+  });
+
+  it('keeps the library reachable after a template was selected and marks the current template',()=>{
+    const library=read('src/components/admin/storefront-template-library.tsx');
+    const builder=read('src/components/admin/storefront-visual-builder.tsx');
+    const page=read('src/app/admin/tartalom/builder/page.tsx');
+    expect(page).toContain("params.view==='templates'");
+    expect(page).toContain('hasExistingStorefront={Boolean(document)}');
+    expect(library).toContain('Vissza a szerkesztőhöz');
+    expect(library).toContain('Jelenlegi sablon');
+    expect(builder).toContain('▦ Sablonok');
+    expect(builder).toContain("router.push('/admin/tartalom/builder?view=templates')");
+  });
+
+  it('requires an explicit safe confirmation before switching an existing storefront template',()=>{
+    const library=read('src/components/admin/storefront-template-library.tsx');
+    expect(library).toContain('SABLONVÁLTÁS');
+    expect(library).toContain('A most publikált webshop');
+    expect(library).toContain('Termékek, készlet és árak nem változnak');
+    expect(library).toContain('Rendelések és ügyféladatok nem változnak');
+    expect(library).toContain('A jelenlegi draft oldalak szerkesztéseit a sablonváltás felülírhatja');
+    expect(library).toContain('Igen, váltok erre a sablonra');
   });
 
   it('renders template live preview through the shared Storefront runtime without installing a draft',()=>{
