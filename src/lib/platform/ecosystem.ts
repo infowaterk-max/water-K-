@@ -1,8 +1,10 @@
 import 'server-only';
 import {createHash,createHmac,randomBytes,timingSafeEqual} from 'node:crypto';
+import {lookup} from 'node:dns/promises';
+import {request as httpsRequest} from 'node:https';
 import {createAdminClient} from '@/lib/supabase/admin';
 import {hasFeatureEntitlement} from '@/lib/entitlements/access';
-import {boundedExtensionEvidence,EXTENSION_API_SCOPES,normalizeExtensionScopes,normalizeWebhookEndpoint,parseExtensionApiToken,PLATFORM_ECOSYSTEM_VERSION,webhookRetryDelayMinutes,type ExtensionApiScope} from './ecosystem-contract';
+import {boundedExtensionEvidence,EXTENSION_API_SCOPES,isNonPublicWebhookAddress,normalizeExtensionScopes,normalizeWebhookEndpoint,parseExtensionApiToken,PLATFORM_ECOSYSTEM_VERSION,webhookRetryDelayMinutes,type ExtensionApiScope} from './ecosystem-contract';
 
 const MAX_WEBHOOK_ATTEMPTS=5,STALE_PROCESSING_MS=15*60_000;
 type CredentialRow={id:string;instance_id:string;installation_id:string;key_prefix:string;secret_hash:string;scopes:string[]|null;expires_at:string|null;revoked_at:string|null};
@@ -13,6 +15,24 @@ const sha256=(value:string)=>createHash('sha256').update(value).digest('hex');
 const cleanError=(error:unknown)=>(error instanceof Error?error.message:String(error)).slice(0,500);
 function safeEqualHex(left:string,right:string){if(!/^[0-9a-f]{64}$/.test(left)||!/^[0-9a-f]{64}$/.test(right))return false;return timingSafeEqual(Buffer.from(left,'hex'),Buffer.from(right,'hex'));}
 function cleanAppKey(value:string){const key=value.trim().toLowerCase();if(!/^[a-z0-9][a-z0-9._-]{2,79}$/.test(key))throw new Error('EXTENSION_APP_KEY_INVALID');return key;}
+function endpointHostname(url:URL){return url.hostname.toLowerCase().replace(/^\[|\]$/g,'');}
+
+async function resolvePublicWebhookTarget(endpoint:string){
+  const normalized=normalizeWebhookEndpoint(endpoint);if(!normalized)throw new Error('EXTENSION_WEBHOOK_ENDPOINT_INVALID');
+  const url=new URL(normalized),hostname=endpointHostname(url),records=await lookup(hostname,{all:true,verbatim:true});
+  if(!records.length||records.some(record=>isNonPublicWebhookAddress(record.address)))throw new Error('EXTENSION_WEBHOOK_DNS_NOT_PUBLIC');
+  return{url,hostname,address:records[0]!.address,family:records[0]!.family};
+}
+
+async function postPinnedWebhook(endpoint:string,headers:Record<string,string>,body:string){
+  const target=await resolvePublicWebhookTarget(endpoint);
+  return new Promise<number>((resolve,reject)=>{
+    const request=httpsRequest({protocol:'https:',hostname:target.address,family:target.family,port:443,method:'POST',path:`${target.url.pathname}${target.url.search}`,servername:target.hostname,rejectUnauthorized:true,headers:{...headers,host:target.url.host,'content-length':String(Buffer.byteLength(body))}},response=>{
+      const status=response.statusCode??0;response.resume();response.on('end',()=>status>=200&&status<300?resolve(status):reject(new Error(`EXTENSION_WEBHOOK_HTTP_${status||'UNKNOWN'}`)));
+    });
+    request.setTimeout(10_000,()=>request.destroy(new Error('EXTENSION_WEBHOOK_TIMEOUT')));request.on('error',reject);request.end(body);
+  });
+}
 
 export async function registerExtensionApp(input:{appKey:string;displayName:string;version:string;releaseState:'draft'|'released'|'suspended';allowedScopes:unknown;actorId:string;metadata?:Record<string,unknown>}){
   const appKey=cleanAppKey(input.appKey),displayName=input.displayName.trim(),version=input.version.trim();
@@ -81,6 +101,7 @@ export function deriveExtensionWebhookSigningSecret(subscriptionId:string){retur
 
 export async function createExtensionWebhookSubscription(input:{instanceId:string;installationId:string;eventType:string;endpointUrl:unknown;actorId:string}){
   const endpointUrl=normalizeWebhookEndpoint(input.endpointUrl);if(!endpointUrl)throw new Error('EXTENSION_WEBHOOK_ENDPOINT_INVALID');
+  await resolvePublicWebhookTarget(endpointUrl);
   const admin=createAdminClient(),{data:installation,error:installationError}=await admin.from('extension_installations').select('id,status').eq('id',input.installationId).eq('instance_id',input.instanceId).maybeSingle();
   if(installationError)throw installationError;if(!installation||installation.status!=='enabled')throw new Error('EXTENSION_INSTALLATION_NOT_ENABLED');webhookMasterSecret();
   const{data,error}=await admin.from('extension_webhook_subscriptions').upsert({instance_id:input.instanceId,installation_id:input.installationId,event_type:input.eventType,endpoint_url:endpointUrl,enabled:true,created_by:input.actorId,updated_at:nowIso()},{onConflict:'installation_id,event_type,endpoint_url'}).select('id,instance_id,installation_id,event_type,endpoint_url,enabled,created_at').single();
@@ -105,8 +126,8 @@ export async function processDueExtensionWebhookDeliveries(limit=20){
       const{data:subscription,error:subscriptionError}=await admin.from('extension_webhook_subscriptions').select('id,installation_id,endpoint_url,enabled').eq('id',row.subscription_id).eq('instance_id',row.instance_id).maybeSingle();if(subscriptionError)throw subscriptionError;if(!subscription?.enabled)throw new Error('EXTENSION_WEBHOOK_SUBSCRIPTION_DISABLED');
       const{data:installation,error:installationError}=await admin.from('extension_installations').select('status').eq('id',subscription.installation_id).eq('instance_id',row.instance_id).maybeSingle();if(installationError)throw installationError;if(!installation||installation.status!=='enabled')throw new Error('EXTENSION_INSTALLATION_NOT_ENABLED');
       const timestamp=Math.floor(Date.now()/1000).toString(),body=JSON.stringify({version:PLATFORM_ECOSYSTEM_VERSION,deliveryId:row.id,eventType:row.event_type,eventKey:row.event_key,payload:row.payload??{}}),signature=createHmac('sha256',deriveExtensionWebhookSigningSecret(row.subscription_id)).update(`${timestamp}.${body}`).digest('hex');
-      const response=await fetch(subscription.endpoint_url,{method:'POST',headers:{'content-type':'application/json','user-agent':'Shoperation-Platform-Ecosystem/1.0','x-shoperation-delivery':row.id,'x-shoperation-event':row.event_type,'x-shoperation-timestamp':timestamp,'x-shoperation-signature':`v1=${signature}`},body,redirect:'error',signal:AbortSignal.timeout(10_000)});if(!response.ok)throw new Error(`EXTENSION_WEBHOOK_HTTP_${response.status}`);
-      await admin.from('extension_webhook_deliveries').update({status:'delivered',response_status:response.status,last_error:null,next_attempt_at:null,delivered_at:nowIso(),updated_at:nowIso()}).eq('id',row.id).eq('instance_id',row.instance_id);results.push({id:row.id,instanceId:row.instance_id,status:'delivered'});
+      const responseStatus=await postPinnedWebhook(subscription.endpoint_url,{'content-type':'application/json','user-agent':'Shoperation-Platform-Ecosystem/1.0','x-shoperation-delivery':row.id,'x-shoperation-event':row.event_type,'x-shoperation-timestamp':timestamp,'x-shoperation-signature':`v1=${signature}`},body);
+      await admin.from('extension_webhook_deliveries').update({status:'delivered',response_status:responseStatus,last_error:null,next_attempt_at:null,delivered_at:nowIso(),updated_at:nowIso()}).eq('id',row.id).eq('instance_id',row.instance_id);results.push({id:row.id,instanceId:row.instance_id,status:'delivered'});
     }catch(deliveryError){
       const terminal=attempt>=MAX_WEBHOOK_ATTEMPTS,errorText=cleanError(deliveryError),nextAttemptAt=terminal?null:new Date(Date.now()+webhookRetryDelayMinutes(attempt)*60_000).toISOString();
       await admin.from('extension_webhook_deliveries').update({status:terminal?'dead_letter':'retry',last_error:errorText,next_attempt_at:nextAttemptAt,updated_at:nowIso()}).eq('id',row.id).eq('instance_id',row.instance_id);results.push({id:row.id,instanceId:row.instance_id,status:terminal?'dead_letter':'retry',error:errorText});
