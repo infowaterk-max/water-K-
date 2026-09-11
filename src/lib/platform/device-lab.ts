@@ -11,7 +11,8 @@ export const DEVICE_LAB_PRESETS={
 } as const satisfies Record<DeviceLabDevice,{label:string;width:number;height:number}>;
 
 export function normalizeDeviceLabDevice(value:string|null|undefined):DeviceLabDevice{
-  return value==='tablet'||value==='mobile'?'tablet'===value?'tablet':'mobile':'desktop';
+  if(value==='tablet'||value==='mobile')return value;
+  return'desktop';
 }
 
 export function normalizeDeviceLabTarget(value:string|null|undefined){
