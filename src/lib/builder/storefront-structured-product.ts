@@ -33,7 +33,7 @@ const structuredDefinition=(input:{
 
 export const STOREFRONT_STRUCTURED_PRODUCT_COMPONENT_DEFINITIONS:readonly StorefrontRuntimeComponentDefinition[]=[
   structuredDefinition({componentKey:'commerce.option-selector',pageTypes:['product'],configurable:['label','options'],bindingSlots:['label','options'],features:['catalog','inventory']}),
-  structuredDefinition({componentKey:'commerce.key-specs',pageTypes:['product','home'],configurable:['title','items','columns','missingLabel'],bindingSlots:['title','items'],responsiveMode:'grid'}),
+  structuredDefinition({componentKey:'commerce.key-specs',pageTypes:['product','home','content'],configurable:['title','items','columns','missingLabel'],bindingSlots:['title','items'],responsiveMode:'grid'}),
   structuredDefinition({componentKey:'commerce.specification-groups',pageTypes:['product'],configurable:['title','groups','missingLabel'],bindingSlots:['title','groups']}),
   structuredDefinition({componentKey:'commerce.compare-button',pageTypes:['product','catalog','search'],configurable:['label','href','count','disabled'],bindingSlots:['label','href','count']}),
   structuredDefinition({componentKey:'commerce.compare-tray',pageTypes:['product','catalog','search'],configurable:['title','items','compareHref','compareLabel','maxItems','emptyLabel'],bindingSlots:['title','items','compareHref','compareLabel']}),
