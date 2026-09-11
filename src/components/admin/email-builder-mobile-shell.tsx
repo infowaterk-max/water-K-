@@ -32,7 +32,7 @@ export function EmailBuilderMobileShell({children}:{children:ReactNode}){
     if(reentryRef.current)return;
     const target=event.target as HTMLElement;
     const button=target.closest<HTMLButtonElement>('button');
-    if(!button||!rootRef.current?.contains(button))return;
+    if(!button||!rootRef.current?.contains(button)||button.closest('.adminModal'))return;
 
     const buttonText=button.textContent?.replace(/\s+/g,' ').trim()??'';
     if(buttonText==='Preset alkalmazása'){
