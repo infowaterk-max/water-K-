@@ -83,9 +83,11 @@ Those domain integrations may later use the Block 20 boundary, but their busines
 
 ## Database / customer baseline
 
-The current integrated `main` already owns customer forward migration `0013_product_media_editor_v1.sql`. Block 20 therefore adds customer forward migration `0014_block20_platform_ecosystem.sql` plus production migration `20260911074000_block20_platform_ecosystem.sql`. The Block 20 migration creates the extension catalog/install/credential/webhook evidence contract and releases Pro `apiAccess` through the existing entitlement model.
+The current integrated `main` already owns customer forward migration `0013_product_media_editor_v1.sql`. The first genuine Block 20 Fresh Install attempt exposed that the `0001` schema snapshot predates Block 11's data-driven entitlement authority even though production already contains that authority. The customer baseline therefore restores the canonical production migrations byte-identically as `0014_block11_entitlement_contract_v1.sql`, `0015_block11_entitlement_uniqueness_fix_v1.sql` and `0016_block11_addon_mutation_authority_v1.sql`. Block 20 follows as `0017_block20_platform_ecosystem.sql`, while its production migration remains `20260911074000_block20_platform_ecosystem.sql`.
 
-The customer manifest must remain `snapshot-reviewed`, `freshInstallProofRequired=true`, `proofContractSha256=null` until a **genuine empty-target Fresh Install proof for ordered baseline 0001–0014** succeeds. No previous proof may be relabeled as evidence for this baseline.
+This is dependency restoration, not a second entitlement implementation: the three customer migration blobs are identical to the already-shipped Block 11 production migration blobs. Block 20 then releases Pro `apiAccess` through that restored authority before creating the extension catalog/install/credential/webhook evidence contract.
+
+The customer manifest must remain `snapshot-reviewed`, `freshInstallProofRequired=true`, `proofContractSha256=null` until a **genuine empty-target Fresh Install proof for ordered baseline 0001–0017** succeeds. The failed 0001–0014 attempt is diagnostic evidence only and may not be relabeled as a successful proof.
 
 ## Acceptance / release contract
 
@@ -99,7 +101,7 @@ Before merge:
 - Supabase security advisors reviewed after DDL;
 - Vercel preview READY;
 - PR mergeable against the then-current `main` and integration CI green;
-- genuine empty-target Fresh Install proof for 0001–0014 green before release authorization.
+- genuine empty-target Fresh Install proof for 0001–0017 green before release authorization.
 
 After merge/release:
 
