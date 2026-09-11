@@ -24,6 +24,7 @@ import {TABLE_GIFT_TEMPLATE_PACKAGE} from '@/lib/builder/templates/table-gift';
 import {TECH_DECK_TEMPLATE_PACKAGE} from '@/lib/builder/templates/tech-deck';
 import {TOOL_DEPOT_TEMPLATE_PACKAGE} from '@/lib/builder/templates/tool-depot';
 import {TRAIL_EXPEDITION_TEMPLATE_PACKAGE} from '@/lib/builder/templates/trail-expedition';
+import {WARM_MINIMAL_TEMPLATE_PACKAGE} from '@/lib/builder/templates/warm-minimal';
 
 export const STOREFRONT_TEMPLATE_CATALOG_VERSION='shoporation.storefront-template-catalog.block21.v1' as const;
 export const STOREFRONT_TEMPLATE_LAUNCH_TARGET=42 as const;
@@ -110,6 +111,7 @@ export const STOREFRONT_IMPLEMENTED_TEMPLATE_PACKAGES:readonly StorefrontInstall
   TECH_DECK_TEMPLATE_PACKAGE,
   TOOL_DEPOT_TEMPLATE_PACKAGE,
   TRAIL_EXPEDITION_TEMPLATE_PACKAGE,
+  WARM_MINIMAL_TEMPLATE_PACKAGE,
 ].map(normalizeLegacyTemplatePackage);
 
 const identity=(template:StorefrontInstallableTemplatePackage)=>`${template.manifest.templateKey}@${template.manifest.templateVersion}`;
