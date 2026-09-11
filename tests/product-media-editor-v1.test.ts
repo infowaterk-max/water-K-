@@ -98,6 +98,6 @@ describe('Product Media Editor v1',()=>{
   expect(manifest.freshInstallProofRequired).toBe(true);
   expect(read(baselinePath)).toBe(read(migrationPath));
   expect(manifest.notes).toContain('Product Media Editor adds 0013');
-  expect(manifest.notes).toContain('0001-0014');
+  expect(manifest.notes).toContain('0001-0017');
  });
 });
