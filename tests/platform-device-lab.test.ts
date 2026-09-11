@@ -46,12 +46,11 @@ describe('Platform persistent device view',()=>{
     expect(layout).toContain('<PlatformResponsiveViewport enabled={isPlatform}>');
   });
 
-  test('uses the current central Products page in desktop and mobile navigation',()=>{
+  test('keeps the approved Product Intake Center as Products landing in desktop and mobile navigation',()=>{
     const desktopNav=read('src/components/navigation/admin-navigation.tsx');
     const mobileNav=read('src/components/navigation/admin-mobile-navigation.tsx');
-    expect(desktopNav).toContain("'products':'/admin/termekek'");
-    expect(desktopNav).not.toContain("'products':'/admin/termekek/feltoltes'");
-    expect(mobileNav).toContain("'products':'/admin/termekek'");
+    expect(desktopNav).toContain("'products':'/admin/termekek/feltoltes'");
+    expect(mobileNav).toContain("'products':'/admin/termekek/feltoltes'");
     expect(mobileNav).toContain('const directHref=DIRECT_SECTION_HREFS[section.id]');
     expect(mobileNav).toContain('if(directHref)return');
   });
