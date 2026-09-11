@@ -41,6 +41,17 @@ describe('Email Builder native mobile shell',()=>{
     expect(css).toContain('grid-column:1/-1!important');
   });
 
+  it('keeps the mobile canvas compact and gives the preview one dominant scroll surface',()=>{
+    const css=read('src/components/admin/email-builder-mobile-shell.module.css');
+    expect(css).toContain('height:calc(100dvh - 205px)');
+    expect(css).toContain('overflow:hidden!important');
+    expect(css).toContain('height:100%!important');
+    expect(css).toContain('calc(70px + env(safe-area-inset-bottom))');
+    expect(css).toContain('min-height:48px');
+    expect(css).toContain('align-items:baseline;gap:5px');
+    expect(css).toContain('main > p:last-child){display:none}');
+  });
+
   it('does not introduce activation or sending into the mobile shell',()=>{
     const shell=read('src/components/admin/email-builder-mobile-shell.tsx');
     expect(shell).not.toContain('/activate');
