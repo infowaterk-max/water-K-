@@ -7,7 +7,7 @@ import {hasPlanFeature,PLANNED_PRO_FEATURES} from '../src/lib/plans/catalog';
 
 const root=process.cwd(),read=(path:string)=>readFileSync(join(root,path),'utf8');
 const migration=read('supabase/migrations/20260911074000_block20_platform_ecosystem.sql');
-const baseline=read('supabase/customer-baseline/migrations/0014_block20_platform_ecosystem.sql');
+const baseline=read('supabase/customer-baseline/migrations/0017_block20_platform_ecosystem.sql');
 const runtime=read('src/lib/platform/ecosystem.ts');
 const adminRoute=read('src/app/api/admin/platform-ecosystem/route.ts');
 const catalogRoute=read('src/app/api/platform/v1/catalog/products/route.ts');
@@ -17,6 +17,13 @@ const manifest=read('supabase/customer-baseline/manifest.json');
 const doc=read('docs/ROADMAP_BLOCK20_PLATFORM_ECOSYSTEM_ENTERPRISE_EXTENSIBILITY.md');
 
 describe('Roadmap Block 20 – Platform Ecosystem & Enterprise Extensibility',()=>{
+  it('restores canonical Block 11 authority byte-identically before Block 20 on Fresh Install',()=>{
+    expect(read('supabase/customer-baseline/migrations/0014_block11_entitlement_contract_v1.sql')).toBe(read('supabase/migrations/20260910124500_block11_entitlement_contract_v1.sql'));
+    expect(read('supabase/customer-baseline/migrations/0015_block11_entitlement_uniqueness_fix_v1.sql')).toBe(read('supabase/migrations/20260910124600_block11_entitlement_uniqueness_fix_v1.sql'));
+    expect(read('supabase/customer-baseline/migrations/0016_block11_addon_mutation_authority_v1.sql')).toBe(read('supabase/migrations/20260910124700_block11_addon_mutation_authority_v1.sql'));
+    expect(baseline).toContain('update public.entitlement_capabilities');
+  });
+
   it('explicitly releases apiAccess only for Pro through the existing entitlement authority',()=>{
     expect(capabilityReleaseState('apiAccess')).toBe('released');
     expect(isCapabilityReleased('apiAccess')).toBe(true);
@@ -99,9 +106,9 @@ describe('Roadmap Block 20 – Platform Ecosystem & Enterprise Extensibility',()
     expect(boundedExtensionEvidence({token:'secret',email:'a@b.c',count:3,note:'ok'})).toEqual({token:'[redacted]',email:'[redacted]',count:3,note:'ok'});
   });
 
-  it('keeps the customer baseline fail-closed until a genuine 0001-0014 Fresh Install proof',()=>{
+  it('keeps the customer baseline fail-closed until a genuine 0001-0017 Fresh Install proof',()=>{
     const parsed=JSON.parse(manifest) as {status:string;freshInstallProofRequired:boolean;proofContractSha256:string|null;notes:string};
-    expect(parsed.status).toBe('snapshot-reviewed');expect(parsed.freshInstallProofRequired).toBe(true);expect(parsed.proofContractSha256).toBeNull();expect(parsed.notes).toContain('0001-0014');
+    expect(parsed.status).toBe('snapshot-reviewed');expect(parsed.freshInstallProofRequired).toBe(true);expect(parsed.proofContractSha256).toBeNull();expect(parsed.notes).toContain('0001-0017');
   });
 
   it('records Block 21/22 as explicit non-scope',()=>{
