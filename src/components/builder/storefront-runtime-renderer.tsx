@@ -1,4 +1,4 @@
-import React,{Fragment,type ReactNode} from 'react';
+import {Fragment,type ReactNode} from 'react';
 import type {StorefrontViewport} from '@/lib/builder/storefront-foundation';
 import {
   StorefrontComponentRegistry,
