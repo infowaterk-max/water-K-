@@ -1,122 +1,264 @@
-import {STOREFRONT_BUILDER_FOUNDATION_VERSION,STOREFRONT_DEMO_CONTENT_POLICY,STOREFRONT_PAGE_SCHEMA_VERSION,STOREFRONT_TEMPLATE_MANIFEST_VERSION,STOREFRONT_TEMPLATE_MIGRATION_POLICY,defineStorefrontTemplateManifest,type StorefrontBuilderPageType} from '@/lib/builder/storefront-foundation';
+import {
+  STOREFRONT_BUILDER_FOUNDATION_VERSION,
+  STOREFRONT_DEMO_CONTENT_POLICY,
+  STOREFRONT_PAGE_SCHEMA_VERSION,
+  STOREFRONT_TEMPLATE_MANIFEST_VERSION,
+  STOREFRONT_TEMPLATE_MIGRATION_POLICY,
+  defineStorefrontTemplateManifest,
+  type StorefrontBuilderPageType,
+} from '@/lib/builder/storefront-foundation';
 import type {StorefrontComponentNode,StorefrontPageDocument} from '@/lib/builder/storefront-runtime';
 import type {StorefrontInstallableTemplatePackage} from '@/lib/builder/storefront-template-installation';
 import {createStorefrontPresetBundle} from '@/lib/builder/storefront-presets';
 
 export const BEAUTY_LAB_TEMPLATE_KEY='beauty.beauty-lab' as const;
 export const BEAUTY_LAB_TEMPLATE_VERSION=1 as const;
-export const BEAUTY_LAB_VISUAL_DNA=Object.freeze({character:'premium-editorial-clean-beauty-formula-lab-sage-cream-photographic',palette:{background:'warm-ivory',surface:'stone-cream',primary:'deep-sage',accent:'muted-sage',text:'charcoal'},typography:{display:'editorial-serif',interface:'clean-sans'},imagery:'large-photographic-skincare-editorial-product-texture',spacing:'airy-editorial',journey:'hero-to-concern-to-formula-finder-to-ingredient-to-texture-to-routine-to-product',exclusions:['medical-clinic','diagnostic-ui','black-box-score','fake-clinical-claims','primitive-svg-hero','baked-in-copy']} as const);
-export const BEAUTY_LAB_DESIGN_TOKENS=Object.freeze({'--shoporation-color-background':'#F7F3EB','--shoporation-color-surface':'#EEE9DF','--shoporation-color-surface-muted':'#E3DDD2','--shoporation-color-text':'#282A24','--shoporation-color-muted-text':'#66675E','--shoporation-color-border':'#D4CCBF','--shoporation-color-primary':'#46523F','--shoporation-color-primary-contrast':'#FFFDF7','--shoporation-color-accent':'var(--merchant-accent, #A6AA92)','--shoporation-color-sage':'#87937A','--shoporation-color-peach':'#CDB39E','--shoporation-heading-font':'var(--merchant-heading-font, Georgia, serif)','--shoporation-display-font':'var(--merchant-display-font, Georgia, serif)','--shoporation-body-font':'var(--merchant-body-font, Arial, sans-serif)'} as const);
-export const BEAUTY_LAB_ENGINE_CONTRACT=Object.freeze({requiredForFullExperience:['E1','E2','E3','E7','E13'] as const,optionalLater:['E4'] as const,wave5Integration:{E1:'runtime-implemented',E2:'product-discovery-binding-contract',E3:'guided-finder-v1-implemented',E7:'structured-ingredient-attribute-data-consumed',E13:'checkout-binding-contract',E4:'routine-engine-later'}} as const);
-export const BEAUTY_LAB_MARKETING_LAYER_CONTRACT=Object.freeze({hero:['photo','copy-panel','product-inset','badge','title','copy','cta'] as const,imageRule:'marketing-copy-price-clinical-evidence-and-cta-never-baked-into-image-assets',composition:'shared-visual-layers-plus-guided-finder-no-template-local-engine'} as const);
+export const BEAUTY_LAB_VISUAL_DNA=Object.freeze({
+  character:'premium-editorial-clean-beauty-formula-lab-sage-cream-photographic',
+  palette:{background:'warm-ivory',surface:'stone-cream',primary:'deep-sage',accent:'muted-sage',text:'charcoal'},
+  typography:{display:'editorial-serif',interface:'clean-sans'},
+  imagery:'large-photographic-skincare-editorial-product-texture',
+  spacing:'airy-editorial',
+  journey:'hero-to-concern-to-formula-finder-to-ingredient-to-texture-to-routine-to-product',
+  exclusions:['medical-clinic','diagnostic-ui','black-box-score','fake-clinical-claims','primitive-svg-hero','baked-in-copy'],
+} as const);
+export const BEAUTY_LAB_DESIGN_TOKENS=Object.freeze({
+  '--shoporation-color-background':'#F7F3EB',
+  '--shoporation-color-surface':'#EEE9DF',
+  '--shoporation-color-surface-muted':'#E3DDD2',
+  '--shoporation-color-text':'#282A24',
+  '--shoporation-color-muted-text':'#66675E',
+  '--shoporation-color-border':'#D4CCBF',
+  '--shoporation-color-primary':'#46523F',
+  '--shoporation-color-primary-contrast':'#FFFDF7',
+  '--shoporation-color-accent':'var(--merchant-accent, #A6AA92)',
+  '--shoporation-color-sage':'#87937A',
+  '--shoporation-color-peach':'#CDB39E',
+  '--shoporation-heading-font':'var(--merchant-heading-font, Georgia, serif)',
+  '--shoporation-display-font':'var(--merchant-display-font, Georgia, serif)',
+  '--shoporation-body-font':'var(--merchant-body-font, Arial, sans-serif)',
+} as const);
+export const BEAUTY_LAB_ENGINE_CONTRACT=Object.freeze({
+  requiredForFullExperience:['E1','E2','E3','E7','E13'] as const,
+  optionalLater:['E4'] as const,
+  wave5Integration:{E1:'runtime-implemented',E2:'product-discovery-binding-contract',E3:'guided-finder-v1-implemented',E7:'structured-ingredient-attribute-data-consumed',E13:'checkout-binding-contract',E4:'routine-engine-later'},
+} as const);
+export const BEAUTY_LAB_MARKETING_LAYER_CONTRACT=Object.freeze({
+  hero:['photo','copy-panel','product-inset','badge','title','copy','cta'] as const,
+  imageRule:'marketing-copy-price-clinical-evidence-and-cta-never-baked-into-image-assets',
+  composition:'shared-visual-layers-plus-guided-finder-no-template-local-engine',
+} as const);
 export const BEAUTY_LAB_HOME_SECTION_ORDER=['Trust Bar','Formula Hero','USP Row','Shop by Concern','Formula Finder','Ingredient Index Preview','Texture Lab','New Formulas','Routine Feature','Product Grid','Ingredient Story','Reviews','Newsletter','Footer'] as const;
 
 const IMG=Object.freeze({
- hero:'https://images.unsplash.com/photo-1775642548476-281dcab984fc?auto=format&fit=crop&w=1800&q=82',
- products:'https://images.unsplash.com/photo-1772429378994-15c1e8568085?auto=format&fit=crop&w=1600&q=80',
- serum:'https://images.unsplash.com/photo-1768235146410-2c5196dfe48c?auto=format&fit=crop&w=1400&q=80',
- skin:'https://images.unsplash.com/photo-1778373620793-a369943bf9b3?auto=format&fit=crop&w=1400&q=80',
- shelf:'https://images.unsplash.com/photo-1739980155900-36562bcb7857?auto=format&fit=crop&w=1400&q=80',
- botanical:'https://images.unsplash.com/photo-1774999118349-43d391a89b7a?auto=format&fit=crop&w=1400&q=80',
- routine:'https://images.unsplash.com/photo-1773565744218-d8d11de58362?auto=format&fit=crop&w=1400&q=80',
+  hero:'https://images.unsplash.com/photo-1556228578-8c89e6adf883?auto=format&fit=crop&w=1800&q=82',
+  products:'https://images.unsplash.com/photo-1598440947619-2c35fc9aa908?auto=format&fit=crop&w=1600&q=80',
+  serum:'https://images.unsplash.com/photo-1608248543803-ba4f8c70ae0b?auto=format&fit=crop&w=1400&q=80',
+  skin:'https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?auto=format&fit=crop&w=1400&q=80',
+  shelf:'https://images.unsplash.com/photo-1611930022073-b7a4ba5fcccd?auto=format&fit=crop&w=1400&q=80',
+  botanical:'https://images.unsplash.com/photo-1601049541289-9b1b7bbbfe19?auto=format&fit=crop&w=1400&q=80',
+  routine:'https://images.unsplash.com/photo-1612817288484-6f916006741a?auto=format&fit=crop&w=1400&q=80',
 } as const);
-const node=(x:StorefrontComponentNode):StorefrontComponentNode=>x;
-const section=(id:string,children:StorefrontComponentNode[],tone='background',spacing='xl'):StorefrontComponentNode=>node({id,componentKey:'layout.section',componentVersion:1,config:{tone,spacing,width:'full'},children:[node({id:`${id}-container`,componentKey:'layout.container',componentVersion:1,config:{width:'content',spacing:'m'},children})]});
-const fallbackNav=[{label:'Újdonságok',href:'/webaruhaz'},{label:'Arcápolás',href:'/webaruhaz'},{label:'Összetevők',href:'/osszetevok'},{label:'Rutinok',href:'/journal/rutin'},{label:'Journal',href:'/blog'}];
-const header=(p:string):StorefrontComponentNode=>node({id:`${p}-header`,componentKey:'system.header',componentVersion:1,config:{brandLabel:'BEAUTY LAB',tagline:'SKIN · BODY · HAIR · WELLNESS',brandHref:'/',tone:'background',sticky:true,presentation:'editorial-lab',utilityItems:[{label:'Keresés',href:'/kereses',symbol:'⌕'},{label:'Fiók',href:'/fiok',symbol:'○'},{label:'Kosár',href:'/kosar',symbol:'□'}]},bindings:{brandLabel:{path:'brand.name',fallback:'BEAUTY LAB'},brandHref:{path:'brand.homeHref',fallback:'/'}},children:[node({id:`${p}-nav`,componentKey:'system.navigation',componentVersion:1,config:{ariaLabel:'Fő navigáció',items:fallbackNav,layout:'horizontal',presentation:'editorial-lab'},bindings:{items:{path:'navigation.primary',fallback:fallbackNav}}})]});
-const footerFallback=[{id:'shop',title:'SHOP',items:[{label:'Újdonságok',href:'/webaruhaz'},{label:'Arcápolás',href:'/webaruhaz'},{label:'Összetevők',href:'/osszetevok'}]},{id:'care',title:'BEAUTY LAB',items:[{label:'Rutinok',href:'/journal/rutin'},{label:'Journal',href:'/blog'},{label:'Rólunk',href:'/rolunk'}]},{id:'help',title:'SEGÍTSÉG',items:[{label:'GYIK',href:'/gyik'},{label:'Kapcsolat',href:'/kapcsolat'},{label:'Szállítás',href:'/szallitas'}]}];
-const footer=(p:string):StorefrontComponentNode=>node({id:`${p}-footer`,componentKey:'editorial.footer',componentVersion:1,config:{brandLabel:'BEAUTY LAB',columns:footerFallback,copyright:'© Beauty Lab',tone:'primary'},bindings:{brandLabel:{path:'brand.name',fallback:'BEAUTY LAB'},columns:{path:'navigation.footer',fallback:footerFallback},copyright:{path:'brand.copyright',fallback:'© Beauty Lab'}}});
-const trustBar=(p:string):StorefrontComponentNode=>node({id:`${p}-trust-bar`,componentKey:'layout.section',componentVersion:1,config:{tone:'primary',spacing:'xs',width:'full',presentation:'flush'},children:[node({id:`${p}-trust-container`,componentKey:'layout.container',componentVersion:1,config:{width:'content',spacing:'s'},children:[node({id:`${p}-trust-grid`,componentKey:'layout.grid',componentVersion:1,config:{columns:4,gap:'s',align:'center',presentation:'trust-strip'},children:['Tiszta formulák','Szakértői válogatás','Ingyenes szállítás 25 000 Ft felett','30 napos visszaküldés'].map((textValue,index)=>node({id:`${p}-trust-${index+1}`,componentKey:'content.text',componentVersion:1,config:{text:textValue,as:'small',align:'center',tone:'text',presentation:'eyebrow-editorial'}}))})]})]});
-const base=(key:string,type:StorefrontBuilderPageType,sections:StorefrontComponentNode[],metadata:Record<string,unknown>={}):StorefrontPageDocument=>({schemaVersion:STOREFRONT_PAGE_SCHEMA_VERSION,pageKey:key,pageType:type,templateKey:BEAUTY_LAB_TEMPLATE_KEY,templateVersion:BEAUTY_LAB_TEMPLATE_VERSION,metadata:{goldenTemplate:'Golden #5',visualDNA:BEAUTY_LAB_VISUAL_DNA.character,visualFidelityPilot:'pilot-01',...metadata},sections});
+
+const node=(value:StorefrontComponentNode):StorefrontComponentNode=>value;
+const section=(id:string,children:StorefrontComponentNode[],tone='background',spacing='xl'):StorefrontComponentNode=>node({
+  id,componentKey:'layout.section',componentVersion:1,config:{tone,spacing,width:'full'},
+  children:[node({id:`${id}-container`,componentKey:'layout.container',componentVersion:1,config:{width:'content',spacing:'m'},children})],
+});
+const fallbackNav=[
+  {label:'Újdonságok',href:'/webaruhaz'},
+  {label:'Arcápolás',href:'/webaruhaz'},
+  {label:'Összetevők',href:'/osszetevok'},
+  {label:'Rutinok',href:'/journal/rutin'},
+  {label:'Journal',href:'/blog'},
+];
+const header=(prefix:string):StorefrontComponentNode=>node({
+  id:`${prefix}-site-header`,componentKey:'system.header',componentVersion:1,
+  config:{brandLabel:'BEAUTY LAB',tagline:'SKIN · BODY · HAIR · WELLNESS',brandHref:'/',tone:'background',sticky:true,presentation:'editorial-lab',utilityItems:[{label:'Keresés',href:'/kereses',symbol:'⌕'},{label:'Fiók',href:'/fiok',symbol:'○'},{label:'Kosár',href:'/kosar',symbol:'□'}]},
+  bindings:{brandLabel:{path:'brand.name',fallback:'BEAUTY LAB'},brandHref:{path:'brand.homeHref',fallback:'/'}},
+  children:[node({id:`${prefix}-site-nav`,componentKey:'system.navigation',componentVersion:1,config:{ariaLabel:'Fő navigáció',items:fallbackNav,layout:'horizontal',presentation:'editorial-lab'},bindings:{items:{path:'navigation.primary',fallback:fallbackNav}}})],
+});
+const footerFallback=[
+  {id:'shop',title:'SHOP',items:[{label:'Újdonságok',href:'/webaruhaz'},{label:'Arcápolás',href:'/webaruhaz'},{label:'Összetevők',href:'/osszetevok'}]},
+  {id:'care',title:'BEAUTY LAB',items:[{label:'Rutinok',href:'/journal/rutin'},{label:'Journal',href:'/blog'},{label:'Rólunk',href:'/rolunk'}]},
+  {id:'help',title:'SEGÍTSÉG',items:[{label:'GYIK',href:'/gyik'},{label:'Kapcsolat',href:'/kapcsolat'},{label:'Szállítás',href:'/szallitas'}]},
+];
+const footer=(prefix:string):StorefrontComponentNode=>node({
+  id:`${prefix}-footer`,componentKey:'editorial.footer',componentVersion:1,
+  config:{brandLabel:'BEAUTY LAB',columns:footerFallback,copyright:'© Beauty Lab',tone:'primary'},
+  bindings:{brandLabel:{path:'brand.name',fallback:'BEAUTY LAB'},columns:{path:'navigation.footer',fallback:footerFallback},copyright:{path:'brand.copyright',fallback:'© Beauty Lab'}},
+});
+const trustBar=(prefix:string):StorefrontComponentNode=>node({
+  id:`${prefix}-trust-bar`,componentKey:'layout.section',componentVersion:1,config:{tone:'primary',spacing:'xs',width:'full',presentation:'flush'},children:[
+    node({id:`${prefix}-trust-container`,componentKey:'layout.container',componentVersion:1,config:{width:'content',spacing:'s'},children:[
+      node({id:`${prefix}-trust-grid`,componentKey:'layout.grid',componentVersion:1,config:{columns:4,gap:'s',align:'center',presentation:'trust-strip'},children:['Tiszta formulák','Szakértői válogatás','Ingyenes szállítás 25 000 Ft felett','30 napos visszaküldés'].map((label,index)=>node({id:`${prefix}-trust-${index+1}`,componentKey:'content.text',componentVersion:1,config:{text:label,as:'small',align:'center',tone:'text',presentation:'eyebrow-editorial'}}))}),
+    ]}),
+  ],
+});
+const base=(pageKey:string,pageType:StorefrontBuilderPageType,sections:StorefrontComponentNode[],metadata:Record<string,unknown>={}):StorefrontPageDocument=>({
+  schemaVersion:STOREFRONT_PAGE_SCHEMA_VERSION,pageKey,pageType,templateKey:BEAUTY_LAB_TEMPLATE_KEY,templateVersion:BEAUTY_LAB_TEMPLATE_VERSION,
+  metadata:{goldenTemplate:'Golden #5',visualDNA:BEAUTY_LAB_VISUAL_DNA.character,visualFidelityPilot:'pilot-01',...metadata},sections,
+});
 
 const concernItems=[
- {id:'hydration',label:'Hidratálás',href:'/webaruhaz?concern=hydration',image:IMG.skin,imageAlt:'Hidratált bőr közeli részlet'},
- {id:'glow',label:'Ragyogás',href:'/webaruhaz?concern=glow',image:IMG.botanical,imageAlt:'Botanikai bőrápolási hangulat'},
- {id:'barrier',label:'Barrier',href:'/webaruhaz?concern=barrier',image:IMG.routine,imageAlt:'Nyugodt bőrápolási rutin'},
- {id:'texture',label:'Textúra',href:'/webaruhaz?concern=texture',image:IMG.serum,imageAlt:'Szérum textúra'},
- {id:'balance',label:'Egyensúly',href:'/webaruhaz?concern=balance',image:IMG.shelf,imageAlt:'Letisztult beauty polc'},
- {id:'comfort',label:'Komfort',href:'/webaruhaz?concern=comfort',image:IMG.products,imageAlt:'Bőrápolási termékek'},
+  {id:'hydration',label:'Hidratálás',href:'/webaruhaz?concern=hydration',image:IMG.skin,imageAlt:'Hidratált bőr közeli részlet'},
+  {id:'glow',label:'Ragyogás',href:'/webaruhaz?concern=glow',image:IMG.botanical,imageAlt:'Botanikai bőrápolási hangulat'},
+  {id:'barrier',label:'Barrier',href:'/webaruhaz?concern=barrier',image:IMG.routine,imageAlt:'Nyugodt bőrápolási rutin'},
+  {id:'texture',label:'Textúra',href:'/webaruhaz?concern=texture',image:IMG.serum,imageAlt:'Szérum textúra'},
+  {id:'balance',label:'Egyensúly',href:'/webaruhaz?concern=balance',image:IMG.shelf,imageAlt:'Letisztult beauty polc'},
+  {id:'comfort',label:'Komfort',href:'/webaruhaz?concern=comfort',image:IMG.products,imageAlt:'Bőrápolási termékek'},
 ];
 const finderOptions=[
- {id:'hydrate',label:'Hidratálás',symbol:'◌',href:'#finder-results',selected:true},
- {id:'calm',label:'Komfort',symbol:'◇',href:'#finder-results'},
- {id:'glow',label:'Ragyogás',symbol:'✦',href:'#finder-results'},
- {id:'balance',label:'Egyensúly',symbol:'○',href:'#finder-results'},
- {id:'texture',label:'Textúra',symbol:'≋',href:'#finder-results'},
+  {id:'hydrate',label:'Hidratálás',symbol:'◌',href:'#finder-results',selected:true},
+  {id:'calm',label:'Komfort',symbol:'◇',href:'#finder-results'},
+  {id:'glow',label:'Ragyogás',symbol:'✦',href:'#finder-results'},
+  {id:'balance',label:'Egyensúly',symbol:'○',href:'#finder-results'},
+  {id:'texture',label:'Textúra',symbol:'≋',href:'#finder-results'},
 ];
 const ingredientItems=[
- {id:'niacinamide',label:'Niacinamide',href:'/osszetevok/niacinamide',image:IMG.botanical,imageAlt:'Botanikai részlet',copy:'Sokoldalú összetevő a kiegyensúlyozott formulákban.',meta:'B3'},
- {id:'hyaluron',label:'Hyaluron',href:'/osszetevok/hyaluron',image:IMG.serum,imageAlt:'Szérum cseppentő',copy:'Vízkedvelő összetevő könnyű, rétegezhető formulákhoz.',meta:'HA'},
- {id:'ceramide',label:'Ceramide',href:'/osszetevok/ceramide',image:IMG.products,imageAlt:'Krémes beauty formula',copy:'Lipidtípus, amely több komfortfókuszú formulában megjelenhet.',meta:'LIPID'},
- {id:'squalane',label:'Squalane',href:'/osszetevok/squalane',image:IMG.shelf,imageAlt:'Letisztult kozmetikumok',copy:'Könnyű emolliens, selymes érzetű termékekhez.',meta:'OIL'},
+  {id:'niacinamide',label:'Niacinamide',href:'/osszetevok/niacinamide',image:IMG.botanical,imageAlt:'Botanikai részlet',copy:'Sokoldalú összetevő a kiegyensúlyozott formulákban.',meta:'B3'},
+  {id:'hyaluron',label:'Hyaluron',href:'/osszetevok/hyaluron',image:IMG.serum,imageAlt:'Szérum cseppentő',copy:'Vízkedvelő összetevő könnyű, rétegezhető formulákhoz.',meta:'HA'},
+  {id:'ceramide',label:'Ceramide',href:'/osszetevok/ceramide',image:IMG.products,imageAlt:'Krémes beauty formula',copy:'Lipidtípus, amely több komfortfókuszú formulában megjelenhet.',meta:'LIPID'},
+  {id:'squalane',label:'Squalane',href:'/osszetevok/squalane',image:IMG.shelf,imageAlt:'Letisztult kozmetikumok',copy:'Könnyű emolliens, selymes érzetű termékekhez.',meta:'OIL'},
 ];
 const textureItems=[
- {id:'gel',label:'GÉL',href:'/webaruhaz?texture=gel',image:IMG.serum,imageAlt:'Könnyű szérum textúra',copy:'Friss, könnyű érzet',ctaLabel:'Felfedezem'},
- {id:'cream',label:'KRÉM',href:'/webaruhaz?texture=cream',image:IMG.products,imageAlt:'Krémes bőrápolás',copy:'Komfortos, puha réteg',ctaLabel:'Felfedezem'},
- {id:'oil',label:'OLAJ',href:'/webaruhaz?texture=oil',image:IMG.botanical,imageAlt:'Botanikai olajos formula',copy:'Selymes befejezés',ctaLabel:'Felfedezem'},
- {id:'mist',label:'MIST',href:'/webaruhaz?texture=mist',image:IMG.routine,imageAlt:'Frissítő beauty rutin',copy:'Ultrakönnyű réteg',ctaLabel:'Felfedezem'},
+  {id:'gel',label:'GÉL',href:'/webaruhaz?texture=gel',image:IMG.serum,imageAlt:'Könnyű szérum textúra',copy:'Friss, könnyű érzet',ctaLabel:'Felfedezem'},
+  {id:'cream',label:'KRÉM',href:'/webaruhaz?texture=cream',image:IMG.products,imageAlt:'Krémes bőrápolás',copy:'Komfortos, puha réteg',ctaLabel:'Felfedezem'},
+  {id:'oil',label:'OLAJ',href:'/webaruhaz?texture=oil',image:IMG.botanical,imageAlt:'Botanikai olajos formula',copy:'Selymes befejezés',ctaLabel:'Felfedezem'},
+  {id:'mist',label:'MIST',href:'/webaruhaz?texture=mist',image:IMG.routine,imageAlt:'Frissítő beauty rutin',copy:'Ultrakönnyű réteg',ctaLabel:'Felfedezem'},
 ];
 const productItems=[
- {id:'cloud-serum',name:'Cloud Serum',href:'/termek/cloud-serum',image:IMG.serum,imageAlt:'Cloud Serum',price:12990,compareAtPrice:null,badge:'NEW',subtitle:'Hydration · lightweight serum'},
- {id:'barrier-cream',name:'Barrier Cream',href:'/termek/barrier-cream',image:IMG.products,imageAlt:'Barrier Cream',price:14990,compareAtPrice:null,badge:'BESTSELLER',subtitle:'Comfort · ceramide cream'},
- {id:'daily-mist',name:'Daily Mist',href:'/termek/daily-mist',image:IMG.shelf,imageAlt:'Daily Mist',price:8990,compareAtPrice:9990,badge:'',subtitle:'Refresh · fine mist'},
- {id:'glow-drops',name:'Glow Drops',href:'/termek/glow-drops',image:IMG.botanical,imageAlt:'Glow Drops',price:13990,compareAtPrice:null,badge:'NEW',subtitle:'Glow · silky concentrate'},
- {id:'soft-cleanse',name:'Soft Cleanse',href:'/termek/soft-cleanse',image:IMG.routine,imageAlt:'Soft Cleanse',price:9990,compareAtPrice:null,badge:'',subtitle:'Cleanse · soft milk'},
- {id:'night-balm',name:'Night Balm',href:'/termek/night-balm',image:IMG.skin,imageAlt:'Night Balm',price:15990,compareAtPrice:null,badge:'EDITOR\'S PICK',subtitle:'Night · rich balm'},
+  {id:'cloud-serum',name:'Cloud Serum',href:'/termek/cloud-serum',image:IMG.serum,imageAlt:'Cloud Serum',price:12990,compareAtPrice:null,badge:'NEW',subtitle:'Hydration · lightweight serum'},
+  {id:'barrier-cream',name:'Barrier Cream',href:'/termek/barrier-cream',image:IMG.products,imageAlt:'Barrier Cream',price:14990,compareAtPrice:null,badge:'BESTSELLER',subtitle:'Comfort · ceramide cream'},
+  {id:'daily-mist',name:'Daily Mist',href:'/termek/daily-mist',image:IMG.shelf,imageAlt:'Daily Mist',price:8990,compareAtPrice:9990,badge:'',subtitle:'Refresh · fine mist'},
+  {id:'glow-drops',name:'Glow Drops',href:'/termek/glow-drops',image:IMG.botanical,imageAlt:'Glow Drops',price:13990,compareAtPrice:null,badge:'NEW',subtitle:'Glow · silky concentrate'},
+  {id:'soft-cleanse',name:'Soft Cleanse',href:'/termek/soft-cleanse',image:IMG.routine,imageAlt:'Soft Cleanse',price:9990,compareAtPrice:null,badge:'',subtitle:'Cleanse · soft milk'},
+  {id:'night-balm',name:'Night Balm',href:'/termek/night-balm',image:IMG.skin,imageAlt:'Night Balm',price:15990,compareAtPrice:null,badge:"EDITOR'S PICK",subtitle:'Night · rich balm'},
 ];
-const productGrid=(id:string,title:string,path:string,items=productItems):StorefrontComponentNode=>node({id,componentKey:'commerce.product-grid',componentVersion:1,config:{title,products:items,columns:6,presentation:'beauty-lab',showBadges:true,showCompareAt:true,showCta:true,ctaLabel:'Kosárba',imageRatio:'4 / 5',emptyLabel:'Jelenleg nincs megjeleníthető formula.',currency:'HUF'},bindings:{title:{path:`content.${id}.title`,fallback:title},products:{path,fallback:items}}});
+const productGrid=(id:string,title:string,path:string,items=productItems):StorefrontComponentNode=>node({
+  id,componentKey:'commerce.product-grid',componentVersion:1,
+  config:{title,products:items,columns:6,presentation:'beauty-lab',showBadges:true,showCompareAt:true,showCta:true,ctaLabel:'Kosárba',imageRatio:'4 / 5',emptyLabel:'Jelenleg nincs megjeleníthető formula.',currency:'HUF'},
+  bindings:{title:{path:`content.${id}.title`,fallback:title},products:{path,fallback:items}},
+});
+
+const routineFeature=node({
+  id:'beauty-routine-feature',componentKey:'editorial.split-feature',componentVersion:1,
+  config:{eyebrow:'BUILD YOUR ROUTINE',title:'Három lépés. Egy átlátható rutin.',copy:'Tisztítás, célzott formula, hidratálás. A blokk szerkesztett útmutató; automatizált rutinmotor csak külön E4 funkcióként kerülhet mögé.',image:IMG.routine,imageAlt:'Beauty Lab esti skincare rutin',ctaLabel:'Rutin útmutató',ctaHref:'/journal/rutin',imagePosition:'left',tone:'surface'},
+  bindings:{
+    eyebrow:{path:'content.routineFeature.eyebrow',fallback:'BUILD YOUR ROUTINE'},
+    title:{path:'content.routineFeature.title',fallback:'Három lépés. Egy átlátható rutin.'},
+    copy:{path:'content.routineFeature.copy',fallback:'Tisztítás, célzott formula, hidratálás.'},
+    image:{path:'content.routineFeature.image',fallback:IMG.routine},
+    imageAlt:{path:'content.routineFeature.imageAlt',fallback:'Beauty Lab esti skincare rutin'},
+    ctaLabel:{path:'content.routineFeature.ctaLabel',fallback:'Rutin útmutató'},
+    ctaHref:{path:'content.routineFeature.ctaHref',fallback:'/journal/rutin'},
+  },
+});
+const ingredientStory=node({
+  id:'beauty-ingredient-story',componentKey:'editorial.split-feature',componentVersion:1,
+  config:{eyebrow:'INGREDIENT STORY',title:'Egy formula mögött több van, mint egy trend.',copy:'Szerkesztett edukációs tartalom az összetevőkről és textúrákról — diagnózis és orvosi ígéret nélkül.',image:IMG.botanical,imageAlt:'Botanikai összetevő Beauty Lab editorial képen',ctaLabel:'Összetevő-index',ctaHref:'/osszetevok',imagePosition:'right',tone:'background'},
+  bindings:{
+    eyebrow:{path:'content.ingredientStory.eyebrow',fallback:'INGREDIENT STORY'},
+    title:{path:'content.ingredientStory.title',fallback:'Egy formula mögött több van, mint egy trend.'},
+    copy:{path:'content.ingredientStory.copy',fallback:'Szerkesztett edukációs tartalom az összetevőkről és textúrákról.'},
+    image:{path:'content.ingredientStory.image',fallback:IMG.botanical},
+    imageAlt:{path:'content.ingredientStory.imageAlt',fallback:'Botanikai összetevő Beauty Lab editorial képen'},
+    ctaLabel:{path:'content.ingredientStory.ctaLabel',fallback:'Összetevő-index'},
+    ctaHref:{path:'content.ingredientStory.ctaHref',fallback:'/osszetevok'},
+  },
+});
 
 export const BEAUTY_LAB_HOME_PAGE=base('beauty-lab.home','home',[
- trustBar('beauty-home'),
- header('beauty-home'),
- node({id:'beauty-formula-hero',componentKey:'visual.layered-canvas',componentVersion:1,config:{height:'beauty-hero',tone:'background',radius:'none',presentation:'editorial-lab'},children:[
-  node({id:'beauty-hero-photo-layer',componentKey:'visual.layer',componentVersion:1,config:{position:'full',offsetX:'none',offsetY:'none',zIndex:0,width:'major',height:'full',tone:'transparent',padding:'none',opacity:1,pointerEvents:'none',presentation:'editorial-photo'},children:[node({id:'beauty-hero-photo',componentKey:'content.image',componentVersion:1,config:{src:IMG.hero,alt:'Beauty Lab editorial skincare hero',width:1800,height:1400,fit:'cover',loading:'eager',radius:'none',objectPosition:'center 42%',presentation:'fill'},bindings:{src:{path:'content.formulaHero.image',fallback:IMG.hero},alt:{path:'content.formulaHero.imageAlt',fallback:'Beauty Lab editorial skincare hero'}}})]}),
-  node({id:'beauty-hero-copy-layer',componentKey:'visual.layer',componentVersion:1,config:{position:'top-left',offsetX:'none',offsetY:'none',zIndex:2,width:'minor',height:'full',tone:'surface',padding:'xl',opacity:1,pointerEvents:'auto',presentation:'editorial-copy-panel'},children:[node({id:'beauty-hero-copy-stack',componentKey:'layout.stack',componentVersion:1,config:{direction:'vertical',gap:'m',align:'start',justify:'center'},children:[
-   node({id:'beauty-hero-eyebrow',componentKey:'content.text',componentVersion:1,config:{text:'PERSONAL FORMULAS · CLEAN BEAUTY',as:'small',align:'left',tone:'text',presentation:'eyebrow-editorial'},bindings:{text:{path:'content.formulaHero.eyebrow',fallback:'PERSONAL FORMULAS · CLEAN BEAUTY'}}}),
-   node({id:'beauty-hero-title',componentKey:'content.heading',componentVersion:1,config:{text:'YOUR SKIN.\nYOUR FORMULA.',level:1,align:'left',tone:'text',presentation:'display-editorial',accentText:'FORMULA.'},bindings:{text:{path:'content.formulaHero.title',fallback:'YOUR SKIN.\nYOUR FORMULA.'}}}),
-   node({id:'beauty-hero-copy',componentKey:'content.text',componentVersion:1,config:{text:'Tudd, mi kerül a bőrödre. Válassz összetevő, textúra és preferencia alapján — átláthatóan, érthetően.',as:'p',align:'left',tone:'muted',presentation:'body-editorial'},bindings:{text:{path:'content.formulaHero.copy',fallback:'Tudd, mi kerül a bőrödre. Válassz összetevő, textúra és preferencia alapján — átláthatóan, érthetően.'}}}),
-   node({id:'beauty-hero-cta',componentKey:'content.button',componentVersion:1,config:{label:'Találd meg a formulád',href:'#formula-finder',variant:'primary',size:'l',ariaLabel:'Találd meg a formulád',presentation:'editorial-square'},bindings:{label:{path:'content.formulaHero.primaryLabel',fallback:'Találd meg a formulád'},href:{path:'content.formulaHero.primaryHref',fallback:'#formula-finder'}}}),
-  ]})]}),
-  node({id:'beauty-hero-product-inset',componentKey:'visual.layer',componentVersion:1,config:{position:'bottom-right',offsetX:'l',offsetY:'l',zIndex:3,width:'medium',height:'auto',tone:'surface',padding:'s',opacity:1,pointerEvents:'none',presentation:'editorial-product-inset'},children:[node({id:'beauty-hero-product-image',componentKey:'content.image',componentVersion:1,config:{src:IMG.products,alt:'Beauty Lab formula product still life',width:900,height:650,fit:'cover',loading:'eager',radius:'none',objectPosition:'center',presentation:'fill'},bindings:{src:{path:'content.formulaHero.productImage',fallback:IMG.products},alt:{path:'content.formulaHero.productImageAlt',fallback:'Beauty Lab formula product still life'}}})]}),
-  node({id:'beauty-hero-badge-layer',componentKey:'visual.layer',componentVersion:1,config:{position:'top-right',offsetX:'m',offsetY:'m',zIndex:4,width:'auto',height:'auto',tone:'surface',padding:'m',opacity:.96,pointerEvents:'none',presentation:'editorial-badge'},children:[node({id:'beauty-hero-badge',componentKey:'content.text',componentVersion:1,config:{text:'CLEAN\nBEAUTY',as:'strong',align:'center',tone:'text',presentation:'eyebrow-editorial'}})]}),
- ]}),
- section('beauty-usp-row',[node({id:'beauty-usp-grid',componentKey:'layout.grid',componentVersion:1,config:{columns:4,gap:'m',align:'start',presentation:'trust-strip'},children:[
-  ['01','FORMULA FIRST','Összetevők és textúra egy helyen.'],['02','NO GUESSWORK','Magyarázható választás feketedoboz pontszám nélkül.'],['03','LAYER FRIENDLY','Rutinba illeszthető, szerkesztett ajánlások.'],['04','REAL CHOICE','Minden lényegi elem Builderből szerkeszthető.'],
- ].map(([index,title,copy])=>node({id:`beauty-usp-${index}`,componentKey:'layout.stack',componentVersion:1,config:{direction:'vertical',gap:'xs',align:'start',justify:'start'},children:[node({id:`beauty-usp-${index}-num`,componentKey:'content.text',componentVersion:1,config:{text:index,as:'small',align:'left',tone:'muted',presentation:'eyebrow-editorial'}}),node({id:`beauty-usp-${index}-title`,componentKey:'content.text',componentVersion:1,config:{text:title,as:'strong',align:'left',tone:'text',presentation:'eyebrow-editorial'}}),node({id:`beauty-usp-${index}-copy`,componentKey:'content.text',componentVersion:1,config:{text:copy,as:'small',align:'left',tone:'muted'}})]}))})], 'surface','l'),
- section('beauty-concern',[node({id:'beauty-concern-nav',componentKey:'commerce.collection-navigation',componentVersion:1,config:{title:'SHOP BY SKIN GOAL',items:concernItems,columns:6,imageRatio:'1 / 1',tone:'background',presentation:'beauty-lab'},bindings:{title:{path:'content.beautyConcerns.title',fallback:'SHOP BY SKIN GOAL'},items:{path:'collection.concerns',fallback:concernItems}}})]),
- section('beauty-formula-finder',[node({id:'formula-finder',componentKey:'guided.finder',componentVersion:1,config:{eyebrow:'FORMULA FINDER',title:'Találd meg, ami illik a rutinodhoz.',copy:'Válassz fő célt, majd finomíts textúra és preferencia szerint. A találatok strukturált termékattribútumok alapján készülnek.',stepTitle:'1. lépés',stepCopy:'Kezdjük a fő preferenciával.',question:'Mi a fő célod?',options:finderOptions,progressLabel:'1 / 3',actionLabel:'Mutasd a találatokat',actionHref:'#finder-results',resultStatus:'',presentation:'editorial-choice-grid',columns:5,asideImage:IMG.skin,asideImageAlt:'Beauty Lab személyre szabott bőrápolási hangulat',asideTitle:'YOUR ROUTINE',asideCopy:'Néhány választás. Átlátható eredmény.'},bindings:{question:{path:'finder.currentQuestion.label',fallback:'Mi a fő célod?'},options:{path:'finder.currentQuestion.options',fallback:finderOptions},progressLabel:{path:'finder.progressLabel',fallback:'1 / 3'},actionHref:{path:'finder.resultHref',fallback:'#finder-results'}}})]),
- section('beauty-ingredient-index',[node({id:'beauty-ingredient-index-block',componentKey:'guided.attribute-index',componentVersion:1,config:{eyebrow:'INGREDIENT INDEX',title:'Összetevők, érthetően.',copy:'Ne csak a termék nevét lásd. Ismerd meg, melyik összetevő milyen típusú formulákban jelenik meg.',items:ingredientItems,columns:4,presentation:'media-index',linkLabel:'Teljes index'},bindings:{items:{path:'catalog.ingredientIndex',fallback:ingredientItems}}})],'surface'),
- section('beauty-texture-lab',[node({id:'beauty-texture-navigation',componentKey:'guided.attribute-navigation',componentVersion:1,config:{eyebrow:'TEXTURE LAB',title:'Válassz érzet alapján.',copy:'Gél, krém, olaj vagy mist — a textúra a napi rutin élményének része.',items:textureItems,columns:4,presentation:'media-navigation'},bindings:{items:{path:'catalog.textureNavigation',fallback:textureItems}}})]),
- section('beauty-new-formulas',[productGrid('newFormulas','NEW FORMULAS','catalog.newFormulas')]),
- node({id:'beauty-routine-feature',componentKey:'editorial.split-feature',componentVersion:1,config:{eyebrow:'BUILD YOUR ROUTINE',title:'Három lépés. Egy átlátható rutin.',copy:'Tisztítás, célzott formula, hidratálás. A blokk szerkesztett útmutató; automatizált rutinmotor csak külön E4 funkcióként kerülhet mögé.',image:IMG.routine,imageAlt:'Beauty Lab esti skincare rutin',ctaLabel:'Rutin útmutató',ctaHref:'/journal/rutin',imagePosition:'left',tone:'surface'},bindings:{title:{path:'content.routineFeature.title',fallback:'Három lépés. Egy átlátható rutin.'},copy:{path:'content.routineFeature.copy',fallback:'Tisztítás, célzott formula, hidratálás.'},image:{path:'content.routineFeature.image',fallback:IMG.routine},ctaLabel:{path:'content.routineFeature.ctaLabel',fallback:'Rutin útmutató'},ctaHref:{path:'content.routineFeature.ctaHref',fallback:'/journal/rutin'}}}),
- section('beauty-product-grid',[productGrid('beautyProductGrid','BEAUTY LAB EDIT','catalog.featured')]),
- node({id:'beauty-ingredient-story',componentKey:'editorial.split-feature',componentVersion:1,config:{eyebrow:'INGREDIENT STORY',title:'Egy formula mögött több van, mint egy trend.',copy:'Szerkesztett edukációs tartalom az összetevőkről és textúrákról — diagnózis és orvosi ígéret nélkül.',image:IMG.botanical,imageAlt:'Botanikai összetevő Beauty Lab editorial képen',ctaLabel:'Összetevő-index',ctaHref:'/osszetevok',imagePosition:'right',tone:'background'},bindings:{title:{path:'content.ingredientStory.title',fallback:'Egy formula mögött több van, mint egy trend.'},copy:{path:'content.ingredientStory.copy',fallback:'Szerkesztett edukációs tartalom az összetevőkről és textúrákról.'},image:{path:'content.ingredientStory.image',fallback:IMG.botanical}}}),
- section('beauty-reviews',[node({id:'beauty-review-title',componentKey:'content.heading',componentVersion:1,config:{text:'REAL ROUTINES. REAL FEEDBACK.',level:2,align:'left',tone:'text',presentation:'section-editorial'}}),node({id:'beauty-review-summary',componentKey:'commerce.review-summary',componentVersion:1,config:{rating:4.9,count:128,label:'128 ellenőrzött értékelés',presentation:'beauty-lab'},bindings:{rating:{path:'reviews.summary.rating',fallback:4.9},count:{path:'reviews.summary.count',fallback:128}}})],'surface','l'),
- node({id:'beauty-newsletter',componentKey:'marketing.newsletter-signup',componentVersion:1,config:{eyebrow:'BEAUTY NOTES',title:'Formula knowledge, not noise.',copy:'Rövid útmutatók, összetevő-fókusz és új formulák.',actionHref:'#newsletter',inputLabel:'E-mail-cím',buttonLabel:'Feliratkozom',consentLabel:'Feliratkozással elfogadod az adatkezelési tájékoztatót.',tone:'primary'}}),
- footer('beauty-home'),
+  trustBar('beauty-home'),
+  header('beauty-home'),
+  node({id:'beauty-formula-hero',componentKey:'visual.layered-canvas',componentVersion:1,config:{height:'beauty-hero',tone:'background',radius:'none',presentation:'editorial-lab'},children:[
+    node({id:'beauty-hero-photo-layer',componentKey:'visual.layer',componentVersion:1,config:{position:'full',offsetX:'none',offsetY:'none',zIndex:0,width:'major',height:'full',tone:'transparent',padding:'none',opacity:1,pointerEvents:'none',presentation:'editorial-photo'},children:[
+      node({id:'beauty-hero-photo',componentKey:'content.image',componentVersion:1,config:{src:IMG.hero,alt:'Beauty Lab editorial skincare hero',width:1800,height:1400,fit:'cover',loading:'eager',radius:'none',objectPosition:'center 42%',presentation:'fill'},bindings:{src:{path:'content.formulaHero.image',fallback:IMG.hero},alt:{path:'content.formulaHero.imageAlt',fallback:'Beauty Lab editorial skincare hero'}}}),
+    ]}),
+    node({id:'beauty-hero-copy-layer',componentKey:'visual.layer',componentVersion:1,config:{position:'top-left',offsetX:'none',offsetY:'none',zIndex:2,width:'minor',height:'full',tone:'surface',padding:'xl',opacity:1,pointerEvents:'auto',presentation:'editorial-copy-panel'},children:[
+      node({id:'beauty-hero-copy-stack',componentKey:'layout.stack',componentVersion:1,config:{direction:'vertical',gap:'m',align:'start',justify:'center'},children:[
+        node({id:'beauty-hero-eyebrow',componentKey:'content.text',componentVersion:1,config:{text:'PERSONAL FORMULAS · CLEAN BEAUTY',as:'small',align:'left',tone:'text',presentation:'eyebrow-editorial'},bindings:{text:{path:'content.formulaHero.eyebrow',fallback:'PERSONAL FORMULAS · CLEAN BEAUTY'}}}),
+        node({id:'beauty-hero-title',componentKey:'content.heading',componentVersion:1,config:{text:'YOUR SKIN.\nYOUR FORMULA.',level:1,align:'left',tone:'text',presentation:'display-editorial',accentText:'FORMULA.'},bindings:{text:{path:'content.formulaHero.title',fallback:'YOUR SKIN.\nYOUR FORMULA.'}}}),
+        node({id:'beauty-hero-copy',componentKey:'content.text',componentVersion:1,config:{text:'Tudd, mi kerül a bőrödre. Válassz összetevő, textúra és preferencia alapján — átláthatóan, érthetően.',as:'p',align:'left',tone:'muted',presentation:'body-editorial'},bindings:{text:{path:'content.formulaHero.copy',fallback:'Tudd, mi kerül a bőrödre. Válassz összetevő, textúra és preferencia alapján — átláthatóan, érthetően.'}}}),
+        node({id:'beauty-hero-cta',componentKey:'content.button',componentVersion:1,config:{label:'Találd meg a formulád',href:'#formula-finder',variant:'primary',size:'l',ariaLabel:'Találd meg a formulád',presentation:'editorial-square'},bindings:{label:{path:'content.formulaHero.primaryLabel',fallback:'Találd meg a formulád'},href:{path:'content.formulaHero.primaryHref',fallback:'#formula-finder'}}}),
+      ]}),
+    ]}),
+    node({id:'beauty-hero-product-inset',componentKey:'visual.layer',componentVersion:1,config:{position:'bottom-right',offsetX:'l',offsetY:'l',zIndex:3,width:'medium',height:'auto',tone:'surface',padding:'s',opacity:1,pointerEvents:'none',presentation:'editorial-product-inset'},children:[
+      node({id:'beauty-hero-product-image',componentKey:'content.image',componentVersion:1,config:{src:IMG.products,alt:'Beauty Lab formula product still life',width:900,height:650,fit:'cover',loading:'eager',radius:'none',objectPosition:'center',presentation:'fill'},bindings:{src:{path:'content.formulaHero.productImage',fallback:IMG.products},alt:{path:'content.formulaHero.productImageAlt',fallback:'Beauty Lab formula product still life'}}}),
+    ]}),
+    node({id:'beauty-hero-badge-layer',componentKey:'visual.layer',componentVersion:1,config:{position:'top-right',offsetX:'m',offsetY:'m',zIndex:4,width:'auto',height:'auto',tone:'surface',padding:'m',opacity:.96,pointerEvents:'none',presentation:'editorial-badge'},children:[
+      node({id:'beauty-hero-badge',componentKey:'content.text',componentVersion:1,config:{text:'CLEAN\nBEAUTY',as:'strong',align:'center',tone:'text',presentation:'eyebrow-editorial'}}),
+    ]}),
+  ]}),
+  section('beauty-usp-row',[node({id:'beauty-usp-grid',componentKey:'layout.grid',componentVersion:1,config:{columns:4,gap:'m',align:'start',presentation:'trust-strip'},children:[
+    ['01','FORMULA FIRST','Összetevők és textúra egy helyen.'],
+    ['02','NO GUESSWORK','Magyarázható választás feketedoboz pontszám nélkül.'],
+    ['03','LAYER FRIENDLY','Rutinba illeszthető, szerkesztett ajánlások.'],
+    ['04','REAL CHOICE','Minden lényegi elem Builderből szerkeszthető.'],
+  ].map(([index,title,copy])=>node({id:`beauty-usp-${index}`,componentKey:'layout.stack',componentVersion:1,config:{direction:'vertical',gap:'xs',align:'start',justify:'start'},children:[
+    node({id:`beauty-usp-${index}-num`,componentKey:'content.text',componentVersion:1,config:{text:index,as:'small',align:'left',tone:'muted',presentation:'eyebrow-editorial'}}),
+    node({id:`beauty-usp-${index}-title`,componentKey:'content.text',componentVersion:1,config:{text:title,as:'strong',align:'left',tone:'text',presentation:'eyebrow-editorial'}}),
+    node({id:`beauty-usp-${index}-copy`,componentKey:'content.text',componentVersion:1,config:{text:copy,as:'small',align:'left',tone:'muted'}}),
+  ]}))})],'surface','l'),
+  section('beauty-concern',[node({id:'beauty-concern-nav',componentKey:'commerce.collection-navigation',componentVersion:1,config:{title:'SHOP BY SKIN GOAL',items:concernItems,columns:6,imageRatio:'1 / 1',tone:'background',presentation:'beauty-lab'},bindings:{title:{path:'content.beautyConcerns.title',fallback:'SHOP BY SKIN GOAL'},items:{path:'collection.concerns',fallback:concernItems}}})]),
+  section('beauty-formula-finder',[node({id:'formula-finder',componentKey:'guided.finder',componentVersion:1,config:{eyebrow:'FORMULA FINDER',title:'Találd meg, ami illik a rutinodhoz.',copy:'Válassz fő célt, majd finomíts textúra és preferencia szerint. A találatok strukturált termékattribútumok alapján készülnek.',stepTitle:'1. lépés',stepCopy:'Kezdjük a fő preferenciával.',question:'Mi a fő célod?',options:finderOptions,progressLabel:'1 / 3',actionLabel:'Mutasd a találatokat',actionHref:'#finder-results',resultStatus:'',presentation:'editorial-choice-grid',columns:5,asideImage:IMG.skin,asideImageAlt:'Beauty Lab személyre szabott bőrápolási hangulat',asideTitle:'YOUR ROUTINE',asideCopy:'Néhány választás. Átlátható eredmény.'},bindings:{question:{path:'finder.currentQuestion.label',fallback:'Mi a fő célod?'},options:{path:'finder.currentQuestion.options',fallback:finderOptions},progressLabel:{path:'finder.progressLabel',fallback:'1 / 3'},actionHref:{path:'finder.resultHref',fallback:'#finder-results'}}})]),
+  section('beauty-ingredient-index',[node({id:'beauty-ingredient-index-block',componentKey:'guided.attribute-index',componentVersion:1,config:{eyebrow:'INGREDIENT INDEX',title:'Összetevők, érthetően.',copy:'Ne csak a termék nevét lásd. Ismerd meg, melyik összetevő milyen típusú formulákban jelenik meg.',items:ingredientItems,columns:4,presentation:'media-index',linkLabel:'Teljes index'},bindings:{items:{path:'catalog.ingredientIndex',fallback:ingredientItems}}})],'surface'),
+  section('beauty-texture-lab',[node({id:'beauty-texture-navigation',componentKey:'guided.attribute-navigation',componentVersion:1,config:{eyebrow:'TEXTURE LAB',title:'Válassz érzet alapján.',copy:'Gél, krém, olaj vagy mist — a textúra a napi rutin élményének része.',items:textureItems,columns:4,presentation:'media-navigation'},bindings:{items:{path:'catalog.textureNavigation',fallback:textureItems}}})]),
+  section('beauty-new-formulas',[productGrid('newFormulas','NEW FORMULAS','catalog.newFormulas')]),
+  routineFeature,
+  section('beauty-product-grid',[productGrid('beautyProductGrid','BEAUTY LAB EDIT','catalog.featured')]),
+  ingredientStory,
+  section('beauty-reviews',[node({id:'beauty-review-title',componentKey:'content.heading',componentVersion:1,config:{text:'REAL ROUTINES. REAL FEEDBACK.',level:2,align:'left',tone:'text',presentation:'section-editorial'}}),node({id:'beauty-review-summary',componentKey:'commerce.review-summary',componentVersion:1,config:{rating:4.9,count:128,label:'128 ellenőrzött értékelés',presentation:'beauty-lab'},bindings:{rating:{path:'reviews.summary.rating',fallback:4.9},count:{path:'reviews.summary.count',fallback:128}}})],'surface','l'),
+  node({id:'beauty-newsletter',componentKey:'marketing.newsletter-signup',componentVersion:1,config:{eyebrow:'BEAUTY NOTES',title:'Formula knowledge, not noise.',copy:'Rövid útmutatók, összetevő-fókusz és új formulák.',actionHref:'#newsletter',inputLabel:'E-mail-cím',buttonLabel:'Feliratkozom',consentLabel:'Feliratkozással elfogadod az adatkezelési tájékoztatót.',tone:'primary'}}),
+  footer('beauty-home'),
 ],{sectionOrder:BEAUTY_LAB_HOME_SECTION_ORDER,visualPreset:'beauty-lab-canonical-editorial-v1',layerContract:BEAUTY_LAB_MARKETING_LAYER_CONTRACT.composition});
 
-export const BEAUTY_LAB_CATALOG_PAGE=base('beauty-lab.catalog','catalog',[trustBar('beauty-catalog'),header('beauty-catalog'),section('beauty-catalog-head',[node({id:'beauty-catalog-header',componentKey:'commerce.collection-header',componentVersion:1,config:{eyebrow:'FORMULAS',title:'Minden formula',description:'Szűrj cél, textúra és összetevő szerint.',image:IMG.shelf,imageAlt:'Beauty Lab termékválogatás',align:'left',presentation:'beauty-lab'},bindings:{title:{path:'collection.current.title',fallback:'Minden formula'},description:{path:'collection.current.description',fallback:'Szűrj cél, textúra és összetevő szerint.'}}})]),section('beauty-catalog-grid',[productGrid('beautyCatalog','Termékek','catalog.products')]),footer('beauty-catalog')],{engineBinding:'E2',visualPreset:'beauty-lab-catalog'});
+export const BEAUTY_LAB_CATALOG_PAGE=base('beauty-lab.catalog','catalog',[
+  trustBar('beauty-catalog'),header('beauty-catalog'),
+  section('beauty-catalog-head',[node({id:'beauty-catalog-collection-header',componentKey:'commerce.collection-header',componentVersion:1,config:{eyebrow:'FORMULAS',title:'Minden formula',description:'Szűrj cél, textúra és összetevő szerint.',image:IMG.shelf,imageAlt:'Beauty Lab termékválogatás',align:'left',presentation:'beauty-lab'},bindings:{title:{path:'collection.current.title',fallback:'Minden formula'},description:{path:'collection.current.description',fallback:'Szűrj cél, textúra és összetevő szerint.'}}})]),
+  section('beauty-catalog-grid',[productGrid('beautyCatalog','Termékek','catalog.products')]),footer('beauty-catalog'),
+],{engineBinding:'E2',visualPreset:'beauty-lab-catalog'});
 
 const productGallery=[{src:IMG.products,alt:'Beauty Lab formula front'},{src:IMG.serum,alt:'Beauty Lab texture detail'},{src:IMG.shelf,alt:'Beauty Lab formula shelf'},{src:IMG.botanical,alt:'Beauty Lab ingredient editorial'}];
 const variantFallback=[{id:'30',label:'30 ml',value:'30ml',available:true,selected:true,href:'#30'},{id:'50',label:'50 ml',value:'50ml',available:true,selected:false,href:'#50'},{id:'100',label:'100 ml',value:'100ml',available:false,selected:false,href:'#100'}];
-const contentTabs=[{id:'description',label:'Leírás',title:'A formuláról',copy:'Könnyű, rétegezhető textúra mindennapi használatra. A termékleírás kereskedői tartalomként szerkeszthető.'},{id:'usage',label:'Használat',title:'Hogyan használd',copy:'Vidd fel tiszta bőrre, majd folytasd a rutin következő lépésével. Mindig a termék címkéjén szereplő útmutató az irányadó.'},{id:'ingredients',label:'Összetevők',title:'Ingredient information',copy:'A teljes INCI lista és az összetevőkhöz kapcsolódó edukációs információ itt jeleníthető meg. A tartalom nem helyettesít egészségügyi tanácsot.'}];
-export const BEAUTY_LAB_PRODUCT_PAGE=base('beauty-lab.product','product',[trustBar('beauty-product'),header('beauty-product'),section('beauty-product-main',[node({id:'beauty-product-grid',componentKey:'layout.grid',componentVersion:1,config:{columns:12,gap:'l',align:'start'},children:[
- node({id:'beauty-product-gallery',componentKey:'commerce.product-gallery',componentVersion:1,config:{images:productGallery,aspectRatio:'4 / 5',thumbnailPosition:'left',presentation:'editorial-thumbnails'},bindings:{images:{path:'product.gallery',fallback:productGallery}},responsive:{desktop:{gridSpan:7},tablet:{gridSpan:7},mobile:{gridSpan:12}}}),
- node({id:'beauty-product-buybox',componentKey:'layout.stack',componentVersion:1,config:{direction:'vertical',gap:'s',align:'stretch',justify:'start',presentation:'sticky-buybox'},responsive:{desktop:{gridSpan:5},tablet:{gridSpan:5},mobile:{gridSpan:12}},children:[
-  node({id:'beauty-product-rating',componentKey:'commerce.review-summary',componentVersion:1,config:{rating:4.9,count:128,label:'128 értékelés',presentation:'beauty-lab'},bindings:{rating:{path:'reviews.summary.rating',fallback:4.9},count:{path:'reviews.summary.count',fallback:128}}}),
-  node({id:'beauty-product-info',componentKey:'commerce.product-info',componentVersion:1,config:{eyebrow:'BEAUTY LAB FORMULA',title:'Cloud Serum',price:12990,compareAtPrice:null,description:'Könnyű, rétegezhető formula selymes érzetű befejezéssel.',stockLabel:'Raktáron',badges:['NEW','FORMULA FIRST'],currency:'HUF',presentation:'beauty-lab'},bindings:{title:{path:'product.name',fallback:'Cloud Serum'},price:{path:'pricing.displayPrice',fallback:'12 990 Ft'},compareAtPrice:{path:'pricing.compareAtPrice',fallback:''},description:{path:'product.description',fallback:'Könnyű, rétegezhető formula selymes érzetű befejezéssel.'},stockLabel:{path:'inventory.stockLabel',fallback:'Raktáron'},badges:{path:'product.badges',fallback:['NEW','FORMULA FIRST']}}}),
-  node({id:'beauty-product-variants',componentKey:'commerce.variant-swatches',componentVersion:1,config:{label:'Kiszerelés',options:variantFallback,presentation:'chips'},bindings:{options:{path:'variant.options',fallback:variantFallback}}}),
-  node({id:'beauty-product-key-specs',componentKey:'commerce.key-specs',componentVersion:1,config:{title:'Formula profile',items:[{specKey:'texture',label:'Textúra',displayValue:'Könnyű szérum',missing:false},{specKey:'finish',label:'Érzet',displayValue:'Selymes',missing:false},{specKey:'routine',label:'Rutinlépés',displayValue:'Célzott formula',missing:false}],columns:3,missingLabel:'—'},bindings:{items:{path:'product.keySpecs',fallback:[{specKey:'texture',label:'Textúra',displayValue:'Könnyű szérum',missing:false},{specKey:'finish',label:'Érzet',displayValue:'Selymes',missing:false},{specKey:'routine',label:'Rutinlépés',displayValue:'Célzott formula',missing:false}]}}}),
-  node({id:'beauty-product-purchase',componentKey:'content.button',componentVersion:1,config:{label:'Kosárba teszem',href:'#purchase',variant:'primary',size:'l',ariaLabel:'Kosárba teszem',presentation:'editorial-square'},bindings:{label:{path:'commerce.purchaseLabel',fallback:'Kosárba teszem'},href:{path:'commerce.purchaseHref',fallback:'#purchase'}}}),
-  node({id:'beauty-product-trust',componentKey:'content.text',componentVersion:1,config:{text:'Biztonságos fizetés · 30 napos visszaküldés · nyomon követhető szállítás',as:'small',align:'left',tone:'muted'}}),
- ]}),
-]})]),section('beauty-product-tabs',[node({id:'beauty-product-content-tabs',componentKey:'commerce.content-tabs',componentVersion:1,config:{tabs:contentTabs,presentation:'editorial-tabs'},bindings:{tabs:{path:'product.contentTabs',fallback:contentTabs}}})]),section('beauty-product-explanation',[node({id:'beauty-product-explain',componentKey:'guided.explanation',componentVersion:1,config:{title:'Miért került a találatok közé?',matchedTitle:'Egyező preferenciák',mismatchedTitle:'Amit érdemes mérlegelni',evidence:[{ruleId:'texture-light',matched:true,reason:'Könnyű textúrát választottál.'},{ruleId:'routine-targeted',matched:true,reason:'Célzott formula illik a választott rutinlépéshez.'}],presentation:'beauty-lab'},bindings:{evidence:{path:'finder.productEvidence',fallback:[{ruleId:'texture-light',matched:true,reason:'Könnyű textúrát választottál.'}]}}})],'surface'),section('beauty-product-related',[node({id:'beauty-product-recommendations',componentKey:'commerce.recommendation-row',componentVersion:1,config:{title:'COMPLETE THE ROUTINE',products:productItems.slice(1,5),columns:4,emptyLabel:'Nincs kapcsolódó formula.',currency:'HUF',presentation:'beauty-lab',showCta:true,ctaLabel:'Megnézem',imageRatio:'4 / 5'},bindings:{products:{path:'recommendations.products',fallback:productItems.slice(1,5)}}})]),footer('beauty-product')],{engineBinding:'E7+E3',visualPreset:'beauty-lab-pdp-editorial',desktopLayout:'7/12-gallery-5/12-sticky-buybox'});
+const keySpecs=[{specKey:'texture',label:'Textúra',displayValue:'Könnyű szérum',missing:false},{specKey:'finish',label:'Érzet',displayValue:'Selymes',missing:false},{specKey:'routine',label:'Rutinlépés',displayValue:'Célzott formula',missing:false}];
+const specGroups=[{groupKey:'formula',title:'Formula',rows:[{specKey:'texture',label:'Textúra',displayValue:'Könnyű szérum',missing:false},{specKey:'finish',label:'Érzet',displayValue:'Selymes',missing:false}]},{groupKey:'routine',title:'Rutin',rows:[{specKey:'step',label:'Lépés',displayValue:'Célzott formula',missing:false}]}];
+const contentTabs=[
+  {id:'description',label:'Leírás',title:'A formuláról',copy:'Könnyű, rétegezhető textúra mindennapi használatra. A termékleírás kereskedői tartalomként szerkeszthető.'},
+  {id:'usage',label:'Használat',title:'Hogyan használd',copy:'Vidd fel tiszta bőrre, majd folytasd a rutin következő lépésével. Mindig a termék címkéjén szereplő útmutató az irányadó.'},
+  {id:'ingredients',label:'Összetevők',title:'Ingredient information',copy:'A teljes INCI lista és az összetevőkhöz kapcsolódó edukációs információ itt jeleníthető meg. A tartalom nem helyettesít egészségügyi tanácsot.'},
+];
+export const BEAUTY_LAB_PRODUCT_PAGE=base('beauty-lab.product','product',[
+  trustBar('beauty-product'),header('beauty-product'),
+  section('beauty-product-main',[node({id:'beauty-product-layout',componentKey:'layout.grid',componentVersion:1,config:{columns:12,gap:'l',align:'start'},children:[
+    node({id:'beauty-product-gallery',componentKey:'commerce.product-gallery',componentVersion:1,config:{images:productGallery,aspectRatio:'4 / 5',thumbnailPosition:'left',presentation:'editorial-thumbnails'},bindings:{images:{path:'product.gallery',fallback:productGallery}},responsive:{desktop:{gridSpan:7},tablet:{gridSpan:7},mobile:{gridSpan:12}}}),
+    node({id:'beauty-product-buybox',componentKey:'layout.stack',componentVersion:1,config:{direction:'vertical',gap:'s',align:'stretch',justify:'start',presentation:'sticky-buybox'},responsive:{desktop:{gridSpan:5},tablet:{gridSpan:5},mobile:{gridSpan:12}},children:[
+      node({id:'beauty-product-rating',componentKey:'commerce.review-summary',componentVersion:1,config:{rating:4.9,count:128,label:'128 értékelés',presentation:'beauty-lab'},bindings:{rating:{path:'reviews.summary.rating',fallback:4.9},count:{path:'reviews.summary.count',fallback:128}}}),
+      node({id:'beauty-product-info',componentKey:'commerce.product-info',componentVersion:1,config:{eyebrow:'BEAUTY LAB FORMULA',title:'Cloud Serum',price:12990,compareAtPrice:null,description:'Könnyű, rétegezhető formula selymes érzetű befejezéssel.',stockLabel:'Raktáron',badges:['NEW','FORMULA FIRST'],currency:'HUF',presentation:'beauty-lab'},bindings:{title:{path:'product.name',fallback:'Cloud Serum'},price:{path:'pricing.displayPrice',fallback:'12 990 Ft'},compareAtPrice:{path:'pricing.compareAtPrice',fallback:''},description:{path:'product.description',fallback:'Könnyű, rétegezhető formula selymes érzetű befejezéssel.'},stockLabel:{path:'inventory.stockLabel',fallback:'Raktáron'},badges:{path:'product.badges',fallback:['NEW','FORMULA FIRST']}}}),
+      node({id:'beauty-product-variants',componentKey:'commerce.variant-swatches',componentVersion:1,config:{label:'Kiszerelés',options:variantFallback,presentation:'chips'},bindings:{options:{path:'variant.options',fallback:variantFallback}}}),
+      node({id:'beauty-product-key-specs',componentKey:'commerce.key-specs',componentVersion:1,config:{title:'Formula profile',items:keySpecs,columns:3,missingLabel:'—'},bindings:{items:{path:'product.keySpecs',fallback:keySpecs}}}),
+      node({id:'beauty-product-purchase',componentKey:'content.button',componentVersion:1,config:{label:'Kosárba teszem',href:'#purchase',variant:'primary',size:'l',ariaLabel:'Kosárba teszem',presentation:'editorial-square'},bindings:{label:{path:'commerce.purchaseLabel',fallback:'Kosárba teszem'},href:{path:'commerce.purchaseHref',fallback:'#purchase'}}}),
+      node({id:'beauty-product-trust',componentKey:'content.text',componentVersion:1,config:{text:'Biztonságos fizetés · 30 napos visszaküldés · nyomon követhető szállítás',as:'small',align:'left',tone:'muted'}}),
+    ]}),
+  ]})]),
+  section('beauty-product-specifications',[node({id:'beauty-product-spec-groups',componentKey:'commerce.specification-groups',componentVersion:1,config:{title:'Formula details',groups:specGroups,missingLabel:'—'},bindings:{groups:{path:'product.specGroups',fallback:specGroups}}})],'surface','l'),
+  section('beauty-product-tabs',[node({id:'beauty-product-content-tabs',componentKey:'commerce.content-tabs',componentVersion:1,config:{tabs:contentTabs,presentation:'editorial-tabs'},bindings:{tabs:{path:'product.contentTabs',fallback:contentTabs}}})]),
+  section('beauty-product-explanation',[node({id:'beauty-product-explain',componentKey:'guided.explanation',componentVersion:1,config:{title:'Miért került a találatok közé?',matchedTitle:'Egyező preferenciák',mismatchedTitle:'Amit érdemes mérlegelni',evidence:[{ruleId:'texture-light',matched:true,reason:'Könnyű textúrát választottál.'},{ruleId:'routine-targeted',matched:true,reason:'Célzott formula illik a választott rutinlépéshez.'}],presentation:'beauty-lab'},bindings:{evidence:{path:'finder.productEvidence',fallback:[{ruleId:'texture-light',matched:true,reason:'Könnyű textúrát választottál.'}]}}})],'surface'),
+  section('beauty-product-related',[node({id:'beauty-product-recommendations',componentKey:'commerce.recommendation-row',componentVersion:1,config:{title:'COMPLETE THE ROUTINE',products:productItems.slice(1,5),columns:4,emptyLabel:'Nincs kapcsolódó formula.',currency:'HUF',presentation:'beauty-lab',showCta:true,ctaLabel:'Megnézem',imageRatio:'4 / 5'},bindings:{products:{path:'recommendations.products',fallback:productItems.slice(1,5)}}})]),
+  footer('beauty-product'),
+],{engineBinding:'E7+E3',visualPreset:'beauty-lab-pdp-editorial',desktopLayout:'7/12-gallery-5/12-sticky-buybox'});
 
 export const BEAUTY_LAB_SEARCH_PAGE=base('beauty-lab.search','search',[header('beauty-search'),section('beauty-search-head',[node({id:'beauty-search-title',componentKey:'content.heading',componentVersion:1,config:{text:'Keresés',level:1,align:'left',tone:'text',presentation:'section-editorial'}})]),section('beauty-search-products',[productGrid('beautySearch','Találatok','search.results')]),footer('beauty-search')],{engineBinding:'E2'});
 export const BEAUTY_LAB_CART_PAGE=base('beauty-lab.cart','cart',[header('beauty-cart'),section('beauty-cart-body',[node({id:'beauty-cart-summary',componentKey:'commerce.cart-summary',componentVersion:1,config:{lines:[],subtotal:0,total:0,currency:'HUF',checkoutHref:'/penztar',checkoutLabel:'Tovább a pénztárhoz',emptyLabel:'A kosarad jelenleg üres.'},bindings:{lines:{path:'cart.lines',fallback:[]},subtotal:{path:'cart.subtotal',fallback:0},total:{path:'cart.total',fallback:0}}})]),footer('beauty-cart')]);
 export const BEAUTY_LAB_CHECKOUT_PAGE=base('beauty-lab.checkout','checkout',[header('beauty-checkout'),section('beauty-checkout-body',[node({id:'beauty-checkout-summary',componentKey:'commerce.checkout-summary',componentVersion:1,config:{lines:[],subtotal:0,shipping:0,total:0,currency:'HUF',secureLabel:'Biztonságos rendelés · a fizetés szolgáltatósemleges checkout-contracton keresztül történik.'},bindings:{lines:{path:'cart.lines',fallback:[]},subtotal:{path:'cart.subtotal',fallback:0},shipping:{path:'cart.shipping',fallback:0},total:{path:'cart.total',fallback:0}}})]),footer('beauty-checkout')],{engineBinding:'E13'});
-const simple=(key:string,type:StorefrontBuilderPageType,title:string,copy:string)=>base(key,type,[header(key.replaceAll('.','-')),section(`${key.replaceAll('.','-')}-body`,[node({id:`${key}-title`,componentKey:'content.heading',componentVersion:1,config:{text:title,level:1,align:'left',tone:'text',presentation:'display-editorial'}}),node({id:`${key}-copy`,componentKey:'content.text',componentVersion:1,config:{text:copy,as:'p',align:'left',tone:'muted',presentation:'body-editorial'}})]),footer(key.replaceAll('.','-'))],{visualPreset:'beauty-content-editorial'});
+
+const simple=(pageKey:string,pageType:StorefrontBuilderPageType,title:string,copy:string)=>{
+  const prefix=pageKey.replaceAll('.','-');
+  return base(pageKey,pageType,[header(prefix),section(`${prefix}-body`,[
+    node({id:`${prefix}-title`,componentKey:'content.heading',componentVersion:1,config:{text:title,level:1,align:'left',tone:'text',presentation:'display-editorial'}}),
+    node({id:`${prefix}-copy`,componentKey:'content.text',componentVersion:1,config:{text:copy,as:'p',align:'left',tone:'muted',presentation:'body-editorial'}}),
+  ]),footer(prefix)],{visualPreset:'beauty-content-editorial'});
+};
 export const BEAUTY_LAB_ACCOUNT_PAGE=simple('beauty-lab.account','account','Fiókom','Rendelések, címek és fiókadatok közös storefront contracton.');
 export const BEAUTY_LAB_CONTENT_PAGE=simple('beauty-lab.content','content','Beauty Lab','Formula- és összetevő-központú szerkesztett tartalom.');
 export const BEAUTY_LAB_BLOG_INDEX_PAGE=simple('beauty-lab.blog-index','blog-index','Beauty Journal','Rutinok, formulák, összetevők és textúrák szerkesztett cikkei.');
@@ -126,6 +268,27 @@ export const BEAUTY_LAB_CONTACT_PAGE=simple('beauty-lab.contact','contact','Kapc
 export const BEAUTY_LAB_LEGAL_PAGE=simple('beauty-lab.legal','legal','Jogi információk','A kereskedő jogi és adatkezelési tartalmának helye.');
 export const BEAUTY_LAB_NOT_FOUND_PAGE=simple('beauty-lab.not-found','not-found','404 — Nem található','A keresett oldal nem érhető el.');
 
-export const BEAUTY_LAB_TEMPLATE_MANIFEST=defineStorefrontTemplateManifest({foundationVersion:STOREFRONT_BUILDER_FOUNDATION_VERSION,manifestVersion:STOREFRONT_TEMPLATE_MANIFEST_VERSION,templateKey:BEAUTY_LAB_TEMPLATE_KEY,templateVersion:BEAUTY_LAB_TEMPLATE_VERSION,pageSchemaVersion:STOREFRONT_PAGE_SCHEMA_VERSION,minPlan:'alap',requiredFeatures:['catalog','inventory','orders','contentMarketing','productRecommendations','reviews','searchFiltering','commerceIntegrations'],pageTypes:['home','catalog','product','search','cart','checkout','account','content','blog-index','blog-article','faq','contact','legal','not-found'],responsive:{desktop:true,tablet:true,mobile:true},migration:STOREFRONT_TEMPLATE_MIGRATION_POLICY,demoContent:{namespace:'beauty-beauty-lab',policy:STOREFRONT_DEMO_CONTENT_POLICY}});
-export const BEAUTY_LAB_TEMPLATE_PACKAGE:StorefrontInstallableTemplatePackage={manifest:BEAUTY_LAB_TEMPLATE_MANIFEST,pages:[BEAUTY_LAB_HOME_PAGE,BEAUTY_LAB_CATALOG_PAGE,BEAUTY_LAB_PRODUCT_PAGE,BEAUTY_LAB_SEARCH_PAGE,BEAUTY_LAB_CART_PAGE,BEAUTY_LAB_CHECKOUT_PAGE,BEAUTY_LAB_ACCOUNT_PAGE,BEAUTY_LAB_CONTENT_PAGE,BEAUTY_LAB_BLOG_INDEX_PAGE,BEAUTY_LAB_BLOG_ARTICLE_PAGE,BEAUTY_LAB_FAQ_PAGE,BEAUTY_LAB_CONTACT_PAGE,BEAUTY_LAB_LEGAL_PAGE,BEAUTY_LAB_NOT_FOUND_PAGE],demoFixtures:[{entityType:'collection',entityKey:'new-formulas',payload:{title:'Új formulák',handle:'new-formulas',demo:true}},{entityType:'product',entityKey:'cloud-serum',payload:{name:'Cloud Serum',slug:'cloud-serum',demo:true}},{entityType:'product',entityKey:'barrier-cream',payload:{name:'Barrier Cream',slug:'barrier-cream',demo:true}},{entityType:'content',entityKey:'ingredient-index',payload:{title:'Összetevő-index',kind:'ingredient-index',demo:true}}]};
+export const BEAUTY_LAB_TEMPLATE_MANIFEST=defineStorefrontTemplateManifest({
+  foundationVersion:STOREFRONT_BUILDER_FOUNDATION_VERSION,
+  manifestVersion:STOREFRONT_TEMPLATE_MANIFEST_VERSION,
+  templateKey:BEAUTY_LAB_TEMPLATE_KEY,
+  templateVersion:BEAUTY_LAB_TEMPLATE_VERSION,
+  pageSchemaVersion:STOREFRONT_PAGE_SCHEMA_VERSION,
+  minPlan:'alap',
+  requiredFeatures:['catalog','inventory','orders','contentMarketing','productRecommendations','reviews','searchFiltering','commerceIntegrations'],
+  pageTypes:['home','catalog','product','search','cart','checkout','account','content','blog-index','blog-article','faq','contact','legal','not-found'],
+  responsive:{desktop:true,tablet:true,mobile:true},
+  migration:STOREFRONT_TEMPLATE_MIGRATION_POLICY,
+  demoContent:{namespace:'beauty-beauty-lab',policy:STOREFRONT_DEMO_CONTENT_POLICY},
+});
+export const BEAUTY_LAB_TEMPLATE_PACKAGE:StorefrontInstallableTemplatePackage={
+  manifest:BEAUTY_LAB_TEMPLATE_MANIFEST,
+  pages:[BEAUTY_LAB_HOME_PAGE,BEAUTY_LAB_CATALOG_PAGE,BEAUTY_LAB_PRODUCT_PAGE,BEAUTY_LAB_SEARCH_PAGE,BEAUTY_LAB_CART_PAGE,BEAUTY_LAB_CHECKOUT_PAGE,BEAUTY_LAB_ACCOUNT_PAGE,BEAUTY_LAB_CONTENT_PAGE,BEAUTY_LAB_BLOG_INDEX_PAGE,BEAUTY_LAB_BLOG_ARTICLE_PAGE,BEAUTY_LAB_FAQ_PAGE,BEAUTY_LAB_CONTACT_PAGE,BEAUTY_LAB_LEGAL_PAGE,BEAUTY_LAB_NOT_FOUND_PAGE],
+  demoFixtures:[
+    {entityType:'collection',entityKey:'new-formulas',payload:{title:'Új formulák',handle:'new-formulas',demo:true}},
+    {entityType:'product',entityKey:'cloud-serum',payload:{name:'Cloud Serum',slug:'cloud-serum',demo:true}},
+    {entityType:'product',entityKey:'barrier-cream',payload:{name:'Barrier Cream',slug:'barrier-cream',demo:true}},
+    {entityType:'content',entityKey:'ingredient-index',payload:{title:'Összetevő-index',kind:'ingredient-index',demo:true}},
+  ],
+};
 export const BEAUTY_LAB_PRESET_BUNDLE=createStorefrontPresetBundle(BEAUTY_LAB_TEMPLATE_PACKAGE);
