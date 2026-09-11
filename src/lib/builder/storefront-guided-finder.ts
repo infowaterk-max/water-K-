@@ -9,6 +9,6 @@ export const STOREFRONT_GUIDED_FINDER_COMPONENT_DEFINITIONS:readonly StorefrontR
  def({componentKey:'guided.results',pageTypes:['home','catalog','search','content'],configurable:['eyebrow','title','explanation','status','items','emptyLabel'],bindingSlots:['eyebrow','title','explanation','status','items'],responsiveMode:'grid'}),
  def({componentKey:'guided.explanation',pageTypes:['product','content'],configurable:['title','matchedTitle','mismatchedTitle','evidence'],bindingSlots:['title','evidence']}),
  def({componentKey:'guided.attribute-index',pageTypes:['home','catalog','content'],configurable:['eyebrow','title','copy','items','columns'],bindingSlots:['eyebrow','title','copy','items'],features:['catalog'],responsiveMode:'grid'}),
- def({componentKey:'guided.attribute-navigation',pageTypes:['home','catalog'],configurable:['eyebrow','title','items'],bindingSlots:['eyebrow','title','items'],features:['catalog'],responsiveMode:'grid'}),
+ def({componentKey:'guided.attribute-navigation',pageTypes:['home','catalog','search','content'],configurable:['eyebrow','title','items'],bindingSlots:['eyebrow','title','items'],features:['catalog'],responsiveMode:'grid'}),
 ] as const;
 export function createStorefrontGuidedFinderComponentRegistry(){const registry=createStorefrontStructuredProductComponentRegistry();for(const definition of STOREFRONT_GUIDED_FINDER_COMPONENT_DEFINITIONS)registry.register(definition);return registry;}

@@ -1,4 +1,5 @@
 import type {StorefrontInstallableTemplatePackage} from '@/lib/builder/storefront-template-installation';
+import type {StorefrontComponentNode,StorefrontPageDocument} from '@/lib/builder/storefront-runtime';
 import {ALPINE_LODGE_TEMPLATE_PACKAGE} from '@/lib/builder/templates/alpine-lodge';
 import {BEAUTY_LAB_TEMPLATE_PACKAGE} from '@/lib/builder/templates/beauty-lab';
 import {CREATOR_STATION_TEMPLATE_PACKAGE} from '@/lib/builder/templates/creator-station';
@@ -27,10 +28,62 @@ import {TRAIL_EXPEDITION_TEMPLATE_PACKAGE} from '@/lib/builder/templates/trail-e
 export const STOREFRONT_TEMPLATE_CATALOG_VERSION='shoporation.storefront-template-catalog.block21.v1' as const;
 export const STOREFRONT_TEMPLATE_LAUNCH_TARGET=42 as const;
 
+function normalizeLegacyTemplatePage(page:StorefrontPageDocument):StorefrontPageDocument{
+  const ids=new Set<string>();
+  const normalizeNode=(node:StorefrontComponentNode):StorefrontComponentNode=>{
+    let id=node.id;
+    let suffix=2;
+    while(ids.has(id))id=`${node.id}--${suffix++}`;
+    ids.add(id);
+
+    const config:{[key:string]:unknown}={...node.config};
+    const bindings=node.bindings?Object.fromEntries(Object.entries(node.bindings).map(([slot,binding])=>[
+      slot,
+      binding.path==='wishlist.items'?{...binding,path:'context.favorites'}:binding,
+    ])):undefined;
+
+    let normalizedBindings=bindings;
+    if(node.componentKey==='commerce.review-summary'){
+      const legacyLabel=typeof config.label==='string'?config.label:typeof config.title==='string'?config.title:'Vásárlói értékelések';
+      config.label=legacyLabel;
+      delete config.title;
+      delete config.summary;
+      delete config.href;
+      normalizedBindings={
+        ...(bindings??{}),
+        label:bindings?.label??{path:'reviews.label',fallback:legacyLabel},
+      };
+      delete normalizedBindings.summary;
+      delete normalizedBindings.href;
+    }
+
+    return{
+      ...node,
+      id,
+      config,
+      ...(normalizedBindings?{bindings:normalizedBindings}:{}),
+      ...(node.children?{children:node.children.map(normalizeNode)}:{}),
+    };
+  };
+  return{...page,sections:page.sections.map(normalizeNode)};
+}
+
+function normalizeLegacyTemplatePackage(template:StorefrontInstallableTemplatePackage):StorefrontInstallableTemplatePackage{
+  return{
+    ...template,
+    pages:template.pages.map(normalizeLegacyTemplatePage),
+  };
+}
+
 /**
  * Only concrete source-controlled packages may enter this catalog. The accepted
  * 42-template launch target is tracked separately so missing packages can never
  * be silently fabricated to satisfy cardinality.
+ *
+ * Legacy source packages are normalized at this single catalog boundary before
+ * preview or installation. The runtime validator remains fail-closed; this
+ * compatibility bridge only repairs known historical contract drift (duplicate
+ * node ids and legacy binding shapes) without creating a second schema authority.
  */
 export const STOREFRONT_IMPLEMENTED_TEMPLATE_PACKAGES:readonly StorefrontInstallableTemplatePackage[]=[
   ALPINE_LODGE_TEMPLATE_PACKAGE,
@@ -57,7 +110,7 @@ export const STOREFRONT_IMPLEMENTED_TEMPLATE_PACKAGES:readonly StorefrontInstall
   TECH_DECK_TEMPLATE_PACKAGE,
   TOOL_DEPOT_TEMPLATE_PACKAGE,
   TRAIL_EXPEDITION_TEMPLATE_PACKAGE,
-] as const;
+].map(normalizeLegacyTemplatePackage);
 
 const identity=(template:StorefrontInstallableTemplatePackage)=>`${template.manifest.templateKey}@${template.manifest.templateVersion}`;
 
