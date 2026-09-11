@@ -15,6 +15,7 @@ import {
   evaluateStorefrontTemplateCapabilityGate,
   planStorefrontTemplateInstallation,
 } from '@/lib/builder/storefront-template-installation';
+import {validateStorefrontBuilderSchemaStructure} from '@/lib/builder/storefront-builder-schema-policy';
 import {saveCurrentStorefrontTemplateDraftPlan} from '@/lib/builder/storefront-template-persistence';
 import {
   applyStorefrontAiModelPlan,
@@ -119,6 +120,7 @@ export async function generateCurrentStorefrontWithAi(rawInput:StorefrontAiGener
   if(!template)throw new Error('STOREFRONT_AI_TEMPLATE_NOT_ALLOWED');
   const installationPlan=planStorefrontTemplateInstallation({template,componentRegistry:registry,capability,existingPages});
   const generatedPlan=applyStorefrontAiModelPlan({plan:installationPlan,modelPlan,registry,capability});
+  for(const page of generatedPlan.pages)validateStorefrontBuilderSchemaStructure({document:page.document,registry});
   const saved=await saveCurrentStorefrontTemplateDraftPlan({plan:generatedPlan,operationKey:input.operationKey});
   const home=generatedPlan.pages.find(page=>page.pageType==='home')??generatedPlan.pages[0];
   return{
