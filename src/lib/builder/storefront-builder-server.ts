@@ -1,0 +1,100 @@
+import 'server-only';
+import {createAdminClient} from '@/lib/supabase/admin';
+import {requireCurrentStoreContext} from '@/lib/instances/scope';
+import {getCurrentWebshopInstance} from '@/lib/instances/access';
+import {PLANS} from '@/lib/plans/catalog';
+import type {StorefrontRuntimeCapabilityContext,StorefrontPageDocument} from '@/lib/builder/storefront-runtime';
+import type {StorefrontExistingTemplatePage} from '@/lib/builder/storefront-template-installation';
+
+export type StorefrontBuilderPageListItem={
+  pageId:string;
+  pageKey:string;
+  pageType:string;
+  draftRevision:number|null;
+  publishedRevision:number|null;
+  draftTemplateKey:string|null;
+  draftTemplateVersion:number|null;
+  publishedTemplateKey:string|null;
+  publishedTemplateVersion:number|null;
+};
+
+export type StorefrontBuilderRevisionListItem={
+  revisionId:string;
+  revisionNumber:number;
+  kind:'draft'|'published';
+  documentSha256:string;
+  sourceRevisionId:string|null;
+  createdAt:string;
+};
+
+export async function getCurrentStorefrontBuilderCapability():Promise<StorefrontRuntimeCapabilityContext>{
+  const[scope,instance]=await Promise.all([requireCurrentStoreContext('store.read'),getCurrentWebshopInstance()]);
+  if(!instance||instance.id!==scope.instanceId)throw new Error('BUILDER_STORE_CONTEXT_MISMATCH');
+  return{plan:instance.subscriptionPlan,features:[...PLANS[instance.subscriptionPlan].features]};
+}
+
+export async function listCurrentStorefrontBuilderPages():Promise<StorefrontBuilderPageListItem[]>{
+  const scope=await requireCurrentStoreContext('store.read');
+  const admin=createAdminClient();
+  const{data:pages,error}=await admin.from('storefront_pages')
+    .select('id,page_key,page_type,draft_revision_id,published_revision_id')
+    .eq('instance_id',scope.instanceId).order('page_key');
+  if(error)throw new Error(`BUILDER_PAGE_LIST_FAILED:${error.message}`);
+  const revisionIds=[...new Set((pages??[]).flatMap(page=>[page.draft_revision_id,page.published_revision_id]).filter((value):value is string=>typeof value==='string'))];
+  const{data:revisions,error:revisionError}=revisionIds.length?await admin.from('storefront_page_revisions')
+    .select('id,revision_number,template_key,template_version').eq('instance_id',scope.instanceId).in('id',revisionIds):{data:[],error:null};
+  if(revisionError)throw new Error(`BUILDER_PAGE_REVISION_LIST_FAILED:${revisionError.message}`);
+  const byId=new Map((revisions??[]).map(row=>[row.id,row]));
+  return(pages??[]).map(page=>{
+    const draft=page.draft_revision_id?byId.get(page.draft_revision_id):undefined;
+    const published=page.published_revision_id?byId.get(page.published_revision_id):undefined;
+    return{
+      pageId:page.id,pageKey:page.page_key,pageType:page.page_type,
+      draftRevision:draft?.revision_number??null,publishedRevision:published?.revision_number??null,
+      draftTemplateKey:draft?.template_key??null,draftTemplateVersion:draft?.template_version??null,
+      publishedTemplateKey:published?.template_key??null,publishedTemplateVersion:published?.template_version??null,
+    };
+  });
+}
+
+export async function listCurrentStorefrontBuilderRevisionHistory(pageId:string):Promise<StorefrontBuilderRevisionListItem[]>{
+  const scope=await requireCurrentStoreContext('store.read');
+  const admin=createAdminClient();
+  const{data:page,error:pageError}=await admin.from('storefront_pages').select('id').eq('instance_id',scope.instanceId).eq('id',pageId).maybeSingle();
+  if(pageError||!page)throw new Error('BUILDER_PAGE_NOT_FOUND');
+  const{data,error}=await admin.from('storefront_page_revisions')
+    .select('id,revision_number,kind,document_sha256,source_revision_id,created_at')
+    .eq('instance_id',scope.instanceId).eq('page_id',pageId).order('revision_number',{ascending:false}).limit(50);
+  if(error)throw new Error(`BUILDER_REVISION_HISTORY_FAILED:${error.message}`);
+  return(data??[]).flatMap(row=>row.kind==='draft'||row.kind==='published'?[{
+    revisionId:row.id,revisionNumber:row.revision_number,kind:row.kind,documentSha256:row.document_sha256,
+    sourceRevisionId:row.source_revision_id,createdAt:row.created_at,
+  }]:[]);
+}
+
+export async function listCurrentStorefrontTemplatePlanningPages():Promise<StorefrontExistingTemplatePage[]>{
+  const pages=await listCurrentStorefrontBuilderPages();
+  return pages.map(page=>({
+    pageKey:page.pageKey,
+    pageType:page.pageType as StorefrontExistingTemplatePage['pageType'],
+    draftRevision:page.draftRevision,
+    draftTemplateKey:page.draftTemplateKey,
+    draftTemplateVersion:page.draftTemplateVersion,
+    publishedTemplateKey:page.publishedTemplateKey,
+    publishedTemplateVersion:page.publishedTemplateVersion,
+  }));
+}
+
+export async function getCurrentStorefrontBuilderBindingContext():Promise<Record<string,unknown>>{
+  const[scope,instance]=await Promise.all([requireCurrentStoreContext('store.read'),getCurrentWebshopInstance()]);
+  if(!instance||instance.id!==scope.instanceId)throw new Error('BUILDER_STORE_CONTEXT_MISMATCH');
+  return{
+    brand:{name:instance.brand.name,tagline:instance.brand.tagline,logoUrl:instance.brand.logoUrl,primaryColor:instance.brand.primaryColor},
+    navigation:{primary:[]},
+  };
+}
+
+export function assertBuilderDocumentSerializable(document:StorefrontPageDocument){
+  JSON.stringify(document);
+  return document;
+}
