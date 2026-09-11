@@ -1,0 +1,148 @@
+import {
+  SPORT_HUB_DESIGN_TOKENS,
+  SPORT_HUB_ENGINE_CONTRACT,
+  SPORT_HUB_HOME_SECTION_ORDER,
+  SPORT_HUB_TEMPLATE_KEY,
+  SPORT_HUB_TEMPLATE_VERSION,
+  SPORT_HUB_VISUAL_DNA,
+} from '@/lib/builder/templates/sport-hub';
+import {SPORT_HUB_WAVE40_ACCEPTANCE} from '@/lib/builder/templates/sport-hub-wave40-acceptance';
+import {LOOT_VAULT_TEMPLATE_KEY,LOOT_VAULT_VISUAL_DNA} from '@/lib/builder/templates/loot-vault';
+import {TRAIL_EXPEDITION_TEMPLATE_KEY,TRAIL_EXPEDITION_VISUAL_DNA} from '@/lib/builder/templates/trail-expedition';
+
+/**
+ * Wave 59 replays repository-proven historical Wave 40 / PR #215 directly
+ * after current Wave 58 Loot Vault. Sport Hub v1 is inherited byte-for-byte
+ * from the accepted Wave 40 implementation. This contract re-accepts that
+ * package on the current Storefront/Page Schema/Builder baseline without
+ * inventing a template, engine, binding namespace, registry widening or
+ * intervening checkpoint.
+ */
+export const SPORT_HUB_WAVE59_ACCEPTANCE=Object.freeze({
+  wave:59,
+  historicalCounterpartWave:40,
+  historicalPullRequest:215,
+  originalTemplateWave:21,
+  originalTemplatePullRequest:144,
+  historicalAcceptance:SPORT_HUB_WAVE40_ACCEPTANCE.mode,
+  mode:'current-baseline-reacceptance-and-builder-hardening',
+  templateKey:SPORT_HUB_TEMPLATE_KEY,
+  templateVersion:SPORT_HUB_TEMPLATE_VERSION,
+  inheritedImplementation:true,
+  sequence:{
+    previous:'wave58-gaming.loot-vault',
+    current:SPORT_HUB_TEMPLATE_KEY,
+    historicalPrevious:'wave39-gaming.loot-vault',
+    historicalCurrent:'wave40-sport.sport-hub',
+    originalPrevious:'wave20-gaming.loot-vault',
+    originalCurrent:'wave21-sport.sport-hub',
+    next:TRAIL_EXPEDITION_TEMPLATE_KEY,
+    relationship:'historical-wave40-successor-replayed-on-current-stacked-baseline',
+    releaseCheckpointBeforeCurrent:false,
+  },
+  portfolio:{
+    category:'sport-outdoor',
+    categoryPosition:8,
+    position:'broad-mainstream-multisport-commerce-hub',
+    sportHub:SPORT_HUB_VISUAL_DNA.character,
+    previousLootVault:LOOT_VAULT_VISUAL_DNA.character,
+    previousTemplateKey:LOOT_VAULT_TEMPLATE_KEY,
+    nextTrailExpedition:TRAIL_EXPEDITION_VISUAL_DNA.character,
+  },
+  experience:{
+    shoppingEntryQuestion:'Milyen sportot űzöl?',
+    sports:['futás','kerékpár','fitnesz','túra','úszás','labdajátékok'] as const,
+    skillLevels:['Kezdő','Haladó','Profi'] as const,
+    homeOrder:SPORT_HUB_HOME_SECTION_ORDER,
+  },
+  visualContract:{
+    character:'clean-energetic-multisport-premium-retail',
+    palette:['warm-white','cool-light-grey','graphite','sport-blue','signal-orange','deep-navy'],
+    typography:['strong-modern-grotesk','clean-sans'],
+    imagery:'running-training-team-sports-footwear-apparel-equipment-community',
+    exclusions:SPORT_HUB_VISUAL_DNA.exclusions,
+    merchantEditableTokens:SPORT_HUB_DESIGN_TOKENS,
+  },
+  builderContract:{
+    hierarchy:'template-page-presets-section-presets-components',
+    responsiveModes:['desktop','tablet','mobile'],
+    pagePresetCount:14,
+    minimumPlan:'alap',
+    stableIdentity:'unique-node-ids-and-stable-binding-paths',
+    merchantEditableDesignTokens:true,
+    marketingCopyOrCommerceTruthBakedIntoImages:false,
+    runtimeAllowlistWidened:false,
+    componentRegistryWidened:false,
+    bindingNamespaceWidened:false,
+    visualBuilder:'current-shared-builder-compatible-no-template-local-builder-engine',
+    homeOrder:SPORT_HUB_HOME_SECTION_ORDER,
+    inheritedHistoricalCorrections:SPORT_HUB_WAVE40_ACCEPTANCE.builderContract.hardeningCorrections,
+  },
+  historicalHardening:{
+    catalogNodeIdentity:'collection-header-renamed-to-sport-catalog-collection-header-to-remove-system-header-collision',
+    contentComponent:'content-story-index-replaced-with-content-allowed-story-body',
+    contentBindings:'provisional-story-current-bindings-mapped-to-existing-content-guideBody-paths',
+    acceptanceMetadata:'kept-customer-neutral',
+    currentBlobExpectedToContainCorrections:true,
+    noAutomaticReplayOfHistoricalPatch:true,
+  },
+  bindingContract:{
+    currentSharedNamespacesOnly:true,
+    forbiddenTemplateLocalNamespaces:['sportHub','sports','liveScore','performance'],
+    runtimeAllowlistWidened:false,
+    componentRegistryWidened:false,
+    bindingNamespaceWidened:false,
+  },
+  commerceAuthority:{
+    engineContract:SPORT_HUB_ENGINE_CONTRACT,
+    discovery:'E2-only-for-catalog-search-channel-and-product-eligibility',
+    structuredSportFacts:'E7-only-when-authoritative-product-data-supplies-them',
+    editorial:'E10-editorial-read-model-presentation-only',
+    activity:'E2-authoritative-collection-navigation',
+    skillLevel:'merchant-configured-navigation-and-E7-facets-only-when-supplied',
+    season:'E2-eligibility-and-E7-facets-only-when-supplied',
+    quickBuy:'existing-commerce-components-only',
+    pricing:'shared-commerce-binding-only',
+    inventory:'shared-commerce-binding-only',
+    variants:'shared-commerce-binding-only',
+    reviews:'shared-review-binding-only-no-fabricated-score',
+    checkout:'shared-provider-neutral-E13',
+    noTemplateProductAuthority:true,
+    noTemplatePricingAuthority:true,
+    noTemplateInventoryAuthority:true,
+    noTemplateVariantAuthority:true,
+    noTemplateSportSuitabilityAuthority:true,
+    noTemplatePerformanceAuthority:true,
+    noTemplateCheckoutAuthority:true,
+    noTemplatePaymentAuthority:true,
+  },
+  distinctness:{
+    lootVault:'not-collector-drop-preorder-vault-commerce',
+    trailExpedition:'not-route-expedition-first-outdoor-commerce',
+    performanceLab:'not-specialist-performance-data-lab-commerce',
+    ownPosition:'broad-approachable-activity-first-multisport-commerce-over-shared-truth',
+    separationIncludes:['layout','section-order','palette','typography','multisport-imagery','activity-navigation','skill-routing','editorial-tone'],
+  },
+  safety:{
+    fabricatedPerformanceClaims:false,
+    fabricatedTeamAffiliation:false,
+    fabricatedEventResults:false,
+    fabricatedSportSuitability:false,
+    templateLocalSportsEngine:false,
+    liveScoreEngine:false,
+  },
+  installationContract:{
+    draftOnly:true,
+    demoNamespace:'sport-sport-hub',
+    mutableAuthority:['storefrontPageDrafts'],
+    immutableAuthority:['products','variants','pricing','inventory','customers','orders','b2b'],
+  },
+  nonScope:[
+    'second-sport-hub-template','template-local-sports-engine','template-local-live-score-engine','template-local-performance-authority',
+    'template-local-product-authority','template-local-layout-engine','template-local-commerce-engine','template-local-checkout-engine',
+    'shared-runtime-allowlist-widening','shared-component-registry-widening','shared-binding-namespace-widening',
+    'fabricated-performance-team-affiliation-event-results-or-sport-suitability','trail-expedition-duplication','performance-lab-duplication','loot-vault-duplication',
+    'price-or-stock-authority','payment-provider-change','visual-builder-roadmap-expansion','ai-builder-roadmap-expansion',
+    'sql-migration','vercel-production-deploy','supabase-mutation','fresh-install-project-state-change','tenant-status-change','tenant-plan-change','main-merge','wave60-implementation',
+  ],
+} as const);
