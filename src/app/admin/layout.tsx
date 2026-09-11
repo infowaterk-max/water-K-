@@ -23,6 +23,7 @@ import { AdminMobileNavigation } from '@/components/navigation/admin-mobile-navi
 import { AdminRouteContext } from '@/components/navigation/admin-route-context';
 import { AdminFontScale } from '@/components/admin/admin-font-scale';
 import { PlatformDeviceLabLauncher } from '@/components/admin/platform-device-lab-launcher';
+import { PlatformResponsiveViewport } from '@/components/admin/platform-responsive-viewport';
 import { requireAdmin } from '@/lib/auth/require-admin';
 import { getPlatformRole } from '@/lib/auth/platform-operator';
 import { getActiveStoreRoles,roleHasPermission,type StorePermission } from '@/lib/auth/store-rbac';
@@ -61,5 +62,6 @@ export default async function AdminLayout({children}:{children:React.ReactNode})
   const quickItems=(!isPlatform||Boolean(instance))?resolveEntitledFrequentTasks(hasFeature,can):[];
   const mobileTitle=isPlatform&&!instance?'Shoperation':merchantName;
   const showUpgrade=!isPlatform&&plan==='alap'&&!trialPro;
-  return <main className="adminGrid"><aside className="adminSide"><div className="adminBrand">{isPlatform?<><div className="adminBrandWordmark"><strong>SHOPERATION</strong><span>WEBSHOP, AMI VELED GONDOLKODIK.</span></div><span className="adminRoleBadge">{platformLabel}</span></>:<><div className="adminBrandWordmark"><strong>{merchantName}</strong><span>Shoperation {definition.name}{trialPro?' · Trial':''}</span></div></>}</div><AdminMobileNavigation mobileTitle={mobileTitle} sections={sections} operatorItems={operatorItems} quickItems={quickItems} showUpgrade={showUpgrade}/><AdminNavigation sections={sections} operatorItems={operatorItems} quickItems={quickItems} showUpgrade={showUpgrade}/>{isPlatform&&<PlatformDeviceLabLauncher/>}<AdminFontScale/><Link className="adminStoreLink" href="/">← Webshop előnézet</Link></aside><div className="adminContentShell"><AdminRouteContext sections={sections} operatorItems={operatorItems}/>{children}</div></main>;
+  const shell=<main className="adminGrid"><aside className="adminSide"><div className="adminBrand">{isPlatform?<><div className="adminBrandWordmark"><strong>SHOPERATION</strong><span>WEBSHOP, AMI VELED GONDOLKODIK.</span></div><span className="adminRoleBadge">{platformLabel}</span></>:<><div className="adminBrandWordmark"><strong>{merchantName}</strong><span>Shoperation {definition.name}{trialPro?' · Trial':''}</span></div></>}</div><AdminMobileNavigation mobileTitle={mobileTitle} sections={sections} operatorItems={operatorItems} quickItems={quickItems} showUpgrade={showUpgrade}/><AdminNavigation sections={sections} operatorItems={operatorItems} quickItems={quickItems} showUpgrade={showUpgrade}/>{isPlatform&&<PlatformDeviceLabLauncher/>}<AdminFontScale/><Link className="adminStoreLink" href="/">← Webshop előnézet</Link></aside><div className="adminContentShell"><AdminRouteContext sections={sections} operatorItems={operatorItems}/>{children}</div></main>;
+  return <PlatformResponsiveViewport enabled={isPlatform}>{shell}</PlatformResponsiveViewport>;
 }
