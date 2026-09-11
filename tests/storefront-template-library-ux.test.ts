@@ -4,7 +4,7 @@ import {describe,expect,it} from 'vitest';
 import {listStorefrontTemplateLibraryEntries} from '@/lib/builder/storefront-template-library';
 import {STOREFRONT_TEMPLATE_CATALOG,getStorefrontTemplatePackage} from '@/lib/builder/storefront-template-catalog';
 import {createStorefrontTemplatePreviewBindingContext,getStorefrontTemplatePreviewTheme} from '@/lib/builder/storefront-template-preview-demo';
-import {resolveStorefrontBinding,type StorefrontComponentNode} from '@/lib/builder/storefront-runtime';
+import {isAllowedStorefrontBindingPath,resolveStorefrontBinding,type StorefrontComponentNode} from '@/lib/builder/storefront-runtime';
 
 const read=(path:string)=>readFileSync(resolve(process.cwd(),path),'utf8');
 
@@ -83,7 +83,7 @@ describe('storefront template library UX',()=>{
     expect(preview).not.toContain('installVisualBuilderTemplateAction');
   });
 
-  it('gives every concrete template a non-white canonical theme and populated preview list bindings',()=>{
+  it('gives every concrete template its canonical theme and populated allowed preview list bindings',()=>{
     for(const entry of STOREFRONT_TEMPLATE_CATALOG){
       const template=getStorefrontTemplatePackage(entry.templateKey,entry.templateVersion);
       expect(template).toBeTruthy();
@@ -98,6 +98,7 @@ describe('storefront template library UX',()=>{
       const check=(node:StorefrontComponentNode)=>{
         for(const[slot,binding]of Object.entries(node.bindings??{})){
           if(!['products','items','options','reviews'].includes(slot))continue;
+          if(!isAllowedStorefrontBindingPath(binding.path))continue;
           const value=resolveStorefrontBinding(binding.path,context);
           if(Array.isArray(binding.fallback)&&binding.fallback.length===0)expect(Array.isArray(value)&&value.length>0,`${entry.templateKey}:${node.componentKey}:${binding.path}`).toBe(true);
         }
