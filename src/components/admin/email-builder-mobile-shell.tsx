@@ -46,9 +46,6 @@ export function EmailBuilderMobileShell({children}:{children:ReactNode}){
     const code=button.querySelector('code')?.textContent?.trim()??'';
     const match=code.match(/^\{\{(.+)\}\}$/);
     if(!match)return;
-    const pane=button.closest('aside');
-    const hasTarget=[...(pane?.querySelectorAll('p')??[])].some(item=>item.textContent?.includes('Beszúrás helye:'));
-    if(hasTarget)return;
 
     event.preventDefault();event.stopPropagation();
     const binding={key:match[1],label:button.querySelector('span')?.textContent?.trim()||match[1]};
