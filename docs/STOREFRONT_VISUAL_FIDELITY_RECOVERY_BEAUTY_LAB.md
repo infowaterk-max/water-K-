@@ -1,6 +1,6 @@
 # Storefront Visual Fidelity Recovery — Beauty Lab canary
 
-Status: **architecture proof / no Product Owner visual PASS yet**
+Status: **shared capability proof green; Beauty Lab reference-driven schema rebuild in progress; no Product Owner visual PASS yet**
 
 Branch authority: `feature/visual-fidelity-recovery-beauty-lab`
 
@@ -36,102 +36,98 @@ No production/Supabase mutation belongs to this recovery branch.
 
 ## 3. Reference → Builder decomposition matrix
 
-| Reference area | Reference geometry / visual contract | Current primitive / presentation | 1:1 today? | Capability gap / required shared repair |
+| Reference area | Reference geometry / visual contract | Pre-recovery primitive / presentation | Recovery state | Shared solution / remaining gap |
 |---|---|---|---|---|
-| Header | slim white horizontal shell, compact brand lockup, centered nav, utility icons | `system.header` + `system.navigation`, `editorial-lab` | No | Header typography, spacing and mobile behavior are renderer-special-cased; make shell geometry/style editable and breakpoint-aware. |
-| Hero composition | photo-dominant asymmetric composition; title overlays left; portrait central; product/texture composition to right; no generic split-panel look | `visual.layered-canvas` + `visual.layer` | No | General breakpoint-aware layer frame/position/size needed; remove Beauty-specific renderer branches. |
-| Hero headline | condensed editorial display, strong two-tone emphasis, exact line breaks and tight leading | `content.heading`, `display-editorial` | No | Editable font family, font size, weight, line-height, letter-spacing, text transform, max-width and responsive values. |
-| Hero copy / CTA | compact text block and square black CTA under headline | `content.text` + `content.button` | Partial | Exact width, spacing, typography and frame values must be schema-driven rather than preset-hardcoded. |
-| Hero product / texture imagery | independently positioned product render / watery texture / badge-like elements | `visual.layer`, `content.image` | Partial | General layer frame, aspect ratio, min/max dimensions, focal point/crop and breakpoint visibility/position. |
-| USP row | three compact icon/label items aligned under hero copy | generic grid/text | Partial | Reusable inline icon+label / track sizing plus exact gap/alignment controls. |
-| Formula Finder | left title, five equal choice tiles, action; adjacent personalized recommendation panel | `guided.finder`, `editorial-choice-grid` | Partial | Arbitrary grid tracks, card frame/spacing, selected state styling, responsive track definitions. |
-| Ingredient Index | six media cards with different ingredient imagery and compact metadata | editorial/media index presentation | Partial | Exact card aspect ratio, card frame, typography, image crop/focal point and track sizing must be editable. |
-| Texture Lab | four wide texture tiles, strong image dominance and compact text footer | media navigation presentation | Partial | Per-card aspect ratio, image/text region geometry and responsive layout need general controls. |
-| Featured products | 5-up desktop cards, dense product/meta/CTA composition | `commerce.product-grid`, `beauty-lab` | Partial | Card image ratio/frame, internal spacing, badge/CTA placement, typography and responsive columns need schema-driven values. |
-| Routine band | horizontal editorial routine strip with steps and image accents | split/editorial components | Partial | General asymmetric tracks, step-item layout and per-breakpoint arrangement. |
-| PDP gallery | left media rail + large product image, desktop dominant gallery | structured product gallery, `editorial-thumbnails` | Partial | Exact gallery track ratio, thumbnail sizing, media aspect/focal/crop and breakpoint geometry. |
-| PDP buybox | right compact purchase column, badge, title, rating, price, copy, chips, quantity/CTA | commerce/shared buybox + stack | Partial | Exact widths/spacing/typography/chip/button layout must be configurable; sticky behavior cannot encode visual geometry alone. |
-| PDP tabs | horizontal tabs and ingredient/content table | content tabs | Partial | Exact border, spacing, typography and responsive behavior. |
-| Related products | compact 3-up recommendation cards beside before/after area in reference | recommendation/product cards | Partial | Flexible asymmetric lower PDP grid and exact card geometry. |
-| Spacing rhythm | very dense hero, then consistent narrow white editorial bands | section/container token spacing | No | Current fixed token scale is too coarse; add safe explicit spacing style values + breakpoint overrides. |
-| Borders / surfaces | thin light borders, near-square cards, white/very pale surfaces | tone/radius tokens | Partial | Border width/style/color, radius and background must be general style properties. |
-| Shadows | restrained / near-flat | mostly component defaults | No | Explicit shadow control, including `none`, must be shared. |
-| Image crop / focal point | visual focus varies per hero/card/gallery | `objectPosition` exists on images | Partial | Builder currently does not provide full focal/crop/aspect controls and responsive override is missing. |
-| Desktop / tablet / mobile | same visual language but composition reflows, hides/repositions layers and changes spacing/type | `responsive.hidden` + `gridSpan` | No | Responsive config currently supports only hidden/gridSpan. It needs safe per-breakpoint config overrides. |
+| Header | slim white horizontal shell, compact brand lockup, centered nav, utility icons | `system.header` + `system.navigation`, `editorial-lab` | Shared capability available | Header/inner/brand/tagline/utility/mobile-toggle style slots are Page Schema data; Builder inspector classification still needs polish. |
+| Hero composition | photo-dominant asymmetric composition; title overlays left; portrait central; product/texture composition to right | `visual.layered-canvas` + hardcoded Beauty presentations | Shared capability available | Layer geometry is now allowlisted schema style with D/T/M inheritance; Beauty-specific presentation branches are no longer required by rebuilt canary schema. |
+| Hero headline | condensed editorial display, two-tone emphasis, exact line breaks and tight leading | `content.heading`, `display-editorial` | Shared capability available | Font family/size/weight/stretch/leading/tracking/max-width/color are schema-driven. Exact final font face remains a visual-acceptance item. |
+| Hero copy / CTA | compact text block and square black CTA | text/button presentation defaults | Shared capability available | Schema style controls exact frame and type while preserving normal content bindings. |
+| Hero product / texture imagery | independently positioned product render / texture / badge | visual layer + inset presentation | Shared capability available | Layer and image geometry/crop are editable schema data. Exact approved-reference media remains replaceable content, not baked UI. |
+| USP row | three compact icon/label items aligned under hero | generic grid/text | Implemented in canary schema | Shared grid + style controls 3-up desktop/mobile geometry. |
+| Formula Finder | left title, five choice tiles, adjacent recommendation panel | `guided.finder` | Partial | Shared finder semantics remain; exact internal card micro-style still needs visual screenshot tuning. |
+| Ingredient Index | six media cards | guided/media index | Partial | Semantic component retained; final card geometry remains screenshot-tuning work. |
+| Texture Lab | four wide texture tiles | guided/media navigation | Partial | Semantic component retained; final card geometry remains screenshot-tuning work. |
+| Featured products | 5-up dense product cards | `commerce.product-grid` | Partial | columns/imageRatio are configurable; finer internal card style is a later shared commerce-style capability if screenshot proves necessary. |
+| Routine band | horizontal editorial routine strip | split feature | Partial | Existing shared presentation retained pending runtime comparison. |
+| PDP gallery | thumbnail rail + dominant image | product gallery | Partial | 7/5 shared PDP structure retained; gallery aspect/thumbnail presentation already configurable. |
+| PDP buybox | compact purchase column | shared commerce + stack | Partial | Stack frame and CTA geometry are schema-driven; internal commerce micro-style remains screenshot-tuning work. |
+| PDP tabs | horizontal tabs and ingredient/content table | content tabs | Partial | Existing shared tabs retained pending runtime comparison. |
+| Related products | compact recommendation cards | recommendation row | Partial | Existing shared recommendation semantics retained pending runtime comparison. |
+| Spacing rhythm | dense hero, narrow white editorial bands | token spacing | Shared capability available | Explicit safe spacing values + breakpoint overrides are supported. |
+| Borders / surfaces | thin borders, near-square cards, pale surfaces | tone/radius tokens | Shared capability available | border/radius/background/shadow are allowlisted schema style. |
+| Image crop / focal point | per-placement focus/crop | objectPosition + renderer defaults | Shared capability available for primitive media | Page Schema controls image object-fit/object-position; specialized commerce media may need shared extension after screenshot evidence. |
+| Desktop / tablet / mobile | composition reflows/repositions and changes type/spacing | only hidden/gridSpan | Shared capability available | Structural hidden/gridSpan stays canonical; visual geometry uses inherited `style.base → desktop → tablet → mobile` overrides. |
 
-## 4. Proven architecture gaps
+## 4. Shared capability proof
 
-### 4.1 Responsive model
+### 4.1 Responsive visual model
 
-Current `StorefrontResponsiveOverride` contains only `hidden` and `gridSpan`. This is the primary blocker for faithful desktop/tablet/mobile geometry.
+The recovery deliberately did **not** add an unrestricted arbitrary responsive-config override. Structural `responsive.hidden` / `gridSpan` remains intact.
 
-Required shared extension: safe, manifest-validated **per-breakpoint config override** with inherited desktop → tablet → mobile resolution.
+Visual geometry now uses a safe Page Schema `style` model:
 
-### 4.2 Layout model
+- `base`;
+- `desktop`;
+- `tablet` inheriting desktop;
+- `mobile` inheriting tablet.
 
-Current `layout.grid` renders equal `1fr` tracks. The reference requires asymmetric tracks and explicit editorial ratios.
+The style surface is allowlisted and rejects CSS URL/expression payloads and fixed positioning. This keeps the Page Schema editable without turning it into arbitrary CSS injection.
 
-Required shared extension: validated custom grid tracks / rows while preserving numeric `columns` compatibility.
+### 4.2 Layout / typography / layer model
 
-### 4.3 Style model
+Shared primitives expose style slots for section/container/grid/stack/heading/text/image/button/header/navigation and visual layered canvas/layer. Explicit schema style is applied after reusable presentation defaults, so a template can express its geometry without adding template-specific runtime branches.
 
-Current layout and typography values are mostly token presets or presentation-specific renderer branches.
+The executable technical proof covers asymmetric grid tracks and responsive typography from the same Page Schema.
 
-Required shared extension: an allowlisted `style` object for visual properties required by reference fidelity, including dimensions, min/max sizes, spacing, alignment, background, border, radius, shadow, typography, aspect ratio and safe positioning. No raw arbitrary DOM/CSS injection.
+### 4.3 CI proof and discovered infrastructure incident
 
-### 4.4 Layer model
+The first executable `.test.ts` Runtime render surfaced a previously hidden Vitest JSX-runtime defect (`React is not defined`). A one-file React import merely moved the failure to the next renderer and was rejected as a patchwork fix.
 
-`visual.layer` has generic anchors, but Pilot 01 overrides those values with `editorial-photo`, `editorial-copy-panel`, `editorial-product-inset` and `editorial-badge` branches in the renderer.
+The verified shared fix is Vitest automatic React JSX transform. Exact head `1e21b95e8058f2b570b0174d46c59cd16697d708` passed:
 
-Required repair: presentation names may remain reusable semantic presets, but exact geometry must come from canonical Page Schema / style config and responsive overrides, not Beauty-Lab-specific renderer branches.
+- security audit;
+- Quality tests;
+- TypeScript check;
+- production build;
+- release-manifest generation.
 
-### 4.5 Builder inspector
+This also proves why the old `.test.tsx` Pilot 01 check was not a valid release gate: repository Vitest includes `tests/**/*.test.ts`, not `.test.tsx`.
 
-The current inspector exposes only manifest config plus breakpoint `hidden` and `gridSpan`.
+## 5. Beauty Lab rebuild decision
 
-Required repair: edit the new shared style/config objects at the selected breakpoint and expose the same authoritative Page Schema that Runtime renders.
+Home and PDP visual schemas are rebuilt from the approved-reference decomposition while preserving reusable commerce/binding/finder semantics.
 
-### 4.6 Presets
+The hidden Wave-32 compatibility aliases are removed. Historical semantic intent must be carried by visible canonical schema nodes and authoritative bindings, never invisible DOM inserted only to satisfy assertions.
 
-The current preset system safely materializes canonical template/page/section/component nodes but does not provide independent reusable design/layout preset definitions.
+The first rebuilt canary uses only shared primitives plus schema style. Remaining specialized component micro-style gaps must be proven by actual Runtime screenshots before another shared capability is added.
 
-Required repair: keep canonical preset authority but allow reusable shared layout/style preset fragments rather than template-local CSS or renderer branches.
+## 6. Visual acceptance gate
 
-## 5. Acceptance defect in Pilot 01
+Technical green is necessary but not sufficient. Required next evidence:
 
-`tests/storefront-beauty-lab-visual-fidelity-pilot01.test.tsx` validates static HTML strings, presentation markers and a few inline style fragments. It is not a screenshot comparison.
+1. actual Runtime Desktop screenshot;
+2. actual Runtime Tablet screenshot;
+3. actual Runtime Mobile screenshot;
+4. side-by-side approved-reference comparison;
+5. overlay/diff assistance;
+6. Product Owner visual PASS.
 
-More importantly, current `vitest.config.ts` includes only `tests/**/*.test.ts`, therefore `.test.tsx` files are not part of the normal Vitest suite.
+The approved reference remains the decision authority. Automated screenshot differences cannot overrule the Product Owner.
 
-The recovery must:
+## 7. Support Knowledge backfill
 
-1. move/replace required executable gates so CI actually runs them;
-2. add actual Runtime screenshot capture for desktop/tablet/mobile;
-3. retain technical Page Schema/registry/round-trip tests;
-4. keep visual acceptance as a separate Product Owner gate.
+PR #156 remains historical input, not a safe current branch. The recovery will create a current-main successor after verified recovery facts stabilize. It must preserve the old knowledge and add:
 
-## 6. Architecture decision
-
-**Do not rebuild the whole Visual Builder.** Preserve:
-
-- one Page Schema;
-- one Component Registry;
-- one Storefront Runtime / renderer authority;
-- Builder draft/history/publish authority;
-- existing binding and commerce engines;
-- canonical template/preset authority.
-
-Refactor the shared responsive/layout/style capability layer.
-
-## 7. Beauty Lab rebuild decision
-
-Home and PDP visual schemas must be rebuilt against this decomposition after the shared capabilities exist. Preserve only reusable commerce/binding/finder semantics that survive the visual contract.
-
-The current hidden Wave-32 compatibility nodes are not an acceptable long-term solution. Historical semantic compatibility must be proven without invisible DOM inserted only to satisfy old acceptance assertions.
+- technically green but visually unacceptable Beauty Lab incident;
+- missing pre-implementation Reference → Builder capability proof;
+- CI-green incorrectly treated as visual release-readiness;
+- `.test.tsx` fidelity gate excluded by Vitest include;
+- first real Runtime test exposing JSX transform failure;
+- rejected one-file React-import workaround;
+- verified Vitest automatic JSX runtime fix;
+- Product Owner visual gate as prevention.
 
 ## 8. Release gate
-
-Required order:
 
 `architecture proof → shared capability implementation → Beauty Lab rebuild → technical tests → actual Runtime D/T/M screenshots → side-by-side + overlay/diff → Product Owner visual PASS → only then merge/deploy`
 
