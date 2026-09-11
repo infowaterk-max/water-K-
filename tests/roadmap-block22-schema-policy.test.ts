@@ -14,7 +14,7 @@ const find=(document:StorefrontPageDocument,id:string)=>{
 };
 
 describe('Roadmap Block 22 schema-slot persistence policy',()=>{
-  it('accepts the canonical reference Page Schema',()=>{
+  it('accepts the canonical reference Page Schema including protected header navigation',()=>{
     expect(validateStorefrontBuilderSchemaStructure({document:fresh(),registry})).toBe(true);
   });
 
@@ -29,14 +29,16 @@ describe('Roadmap Block 22 schema-slot persistence policy',()=>{
     expect(()=>validateStorefrontBuilderSchemaStructure({document,registry})).toThrow('BUILDER_SCHEMA_SECTION_NESTING_FORBIDDEN');
   });
 
-  it('rejects protected system nodes nested below the page root',()=>{
+  it('rejects protected navigation moved below a non-protected parent',()=>{
     const document=fresh();
     const nested=find(document,'reference-hero-stack');
-    const protectedNode=document.sections.find(node=>node.id==='reference-navigation');
+    const header=find(document,'reference-header');
+    const protectedNode=find(document,'reference-navigation');
     expect(nested).toBeTruthy();
+    expect(header).toBeTruthy();
     expect(protectedNode).toBeTruthy();
-    nested!.children=[...(nested!.children??[]),structuredClone(protectedNode!)];
-    document.sections=document.sections.filter(node=>node.id!==protectedNode!.id);
+    header!.children=(header!.children??[]).filter(node=>node.id!==protectedNode!.id);
+    nested!.children=[...(nested!.children??[]),protectedNode!];
     expect(()=>validateStorefrontBuilderSchemaStructure({document,registry})).toThrow('BUILDER_SCHEMA_PROTECTED_NESTING_FORBIDDEN');
   });
 });
