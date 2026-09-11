@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "status": "snapshot-reviewed",
+  "status": "ready",
   "legacyMigrationReplay": false,
   "sourcePolicy": "schema-snapshot-only",
   "seedFile": "supabase/customer-baseline/seed.sql",
@@ -8,8 +8,8 @@
   "defaultPlan": "alap",
   "snapshotFile": "supabase/customer-baseline/migrations/0001_shoperation_v1_schema.sql",
   "snapshotCommand": "npm run db:customer:snapshot",
-  "freshInstallProofRequired": true,
-  "notes": "Block 14 remains the last genuine Fresh Install proof. Product Intake Center forward migrations 0010-0012 add multi-variant draft editing, SEO/media/channel hardening, CSV/XLSX onboarding, tenant-scoped product-copy authority, safe product-media deletion and persistent primary-image ordering. Product Media Editor adds 0013 for non-destructive media presentation, presets and tenant-safe variant apply; the combined Product Intake/Media forward sequence is 0010-0013. Product Copilot remains application-side suggestion-only. The previously reviewed ordered baseline 0001-0012 remains proof-pending, and a new genuine empty-target Fresh Install proof for ordered baseline 0001-0013 is required before status can return to ready.",
+  "freshInstallProofRequired": false,
+  "notes": "Genuine empty-target Fresh Install proof completed successfully for ordered customer baseline 0001-0017 in CI #2671. Product Intake Center forward migrations 0010-0012 and Product Media Editor 0013 are followed by byte-identical restoration of the already-shipped Block 11 authority as 0014 entitlement contract, 0015 persistent-source uniqueness fix and 0016 catalog-driven add-on mutation authority. Block 20 is 0017 and releases fail-closed Pro apiAccess before creating the tenant-scoped Platform Ecosystem persistence contract. Target preflight, atomic baseline apply, Auth bootstrap, neutral seed and target postflight all passed; production was untouched by the proof job.",
   "authBootstrapFile": "supabase/customer-baseline/auth-bootstrap.sql",
-  "proofContractSha256": null
+  "proofContractSha256": "c0127ea9f035df7d0978a38dafe4f1fa174f69eb6667921d25663875867ef618"
 }

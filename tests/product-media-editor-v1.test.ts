@@ -5,6 +5,7 @@ import{describe,expect,it}from'vitest';
 const read=(path:string)=>readFileSync(resolve(process.cwd(),path),'utf8');
 const migrationPath='supabase/migrations/20260911051500_product_media_editor_v1.sql';
 const baselinePath='supabase/customer-baseline/migrations/0013_product_media_editor_v1.sql';
+const provenBaselineHash='c0127ea9f035df7d0978a38dafe4f1fa174f69eb6667921d25663875867ef618';
 
 describe('Product Media Editor v1',()=>{
  it('keeps production and customer-baseline migration byte-identical',()=>{
@@ -92,11 +93,14 @@ describe('Product Media Editor v1',()=>{
   expect(page).toContain('context="detail"');
   expect(image).toContain("objectFit:'contain'");
  });
- it('keeps the customer baseline proof pending for ordered 0001-0013',()=>{
-  const manifest=JSON.parse(read('supabase/customer-baseline/manifest.json'))as{status:string;freshInstallProofRequired:boolean;notes:string};
-  expect(manifest.status).toBe('snapshot-reviewed');
-  expect(manifest.freshInstallProofRequired).toBe(true);
-  expect(manifest.notes).toContain('0010-0013');
-  expect(manifest.notes).toContain('0001-0013');
+ it('preserves Product Media Editor as baseline 0013 while later roadmap work may prove the advanced baseline',()=>{
+  const manifest=JSON.parse(read('supabase/customer-baseline/manifest.json'))as{status:string;freshInstallProofRequired:boolean;proofContractSha256:string|null;notes:string};
+  expect(manifest.status).toBe('ready');
+  expect(manifest.freshInstallProofRequired).toBe(false);
+  expect(manifest.proofContractSha256).toBe(provenBaselineHash);
+  expect(read(baselinePath)).toBe(read(migrationPath));
+  expect(manifest.notes).toContain('Product Media Editor');
+  expect(manifest.notes).toContain('0013');
+  expect(manifest.notes).toContain('0001-0017');
  });
 });
