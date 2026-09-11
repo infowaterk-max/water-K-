@@ -1,12 +1,12 @@
 import fs from'node:fs';
 import path from'node:path';
 import{describe,expect,test}from'vitest';
-import{buildDeviceLabPreviewSrc,DEVICE_LAB_PRESETS,normalizeDeviceLabDevice,normalizeDeviceLabTarget}from'../src/lib/platform/device-lab';
+import{buildDeviceLabPreviewSrc,DEVICE_LAB_CHANGE_EVENT,DEVICE_LAB_PRESETS,DEVICE_LAB_STORAGE_KEY,normalizeDeviceLabDevice,normalizeDeviceLabTarget}from'../src/lib/platform/device-lab';
 
 const root=process.cwd();
 const read=(file:string)=>fs.readFileSync(path.join(root,file),'utf8');
 
-describe('Platform Device Lab',()=>{
+describe('Platform persistent device view',()=>{
   test('defines deterministic desktop, tablet and mobile viewport presets',()=>{
     expect(DEVICE_LAB_PRESETS.desktop).toEqual({label:'Asztali',width:1440,height:900});
     expect(DEVICE_LAB_PRESETS.tablet).toEqual({label:'Táblagép',width:768,height:1024});
@@ -16,27 +16,44 @@ describe('Platform Device Lab',()=>{
     expect(normalizeDeviceLabDevice('unknown')).toBe('desktop');
   });
 
-  test('keeps preview targets inside admin and blocks recursive or external framing',()=>{
+  test('keeps preview targets inside admin and retires the old Device Lab route',()=>{
     expect(normalizeDeviceLabTarget('/admin/rendelesek?status=open#top')).toBe('/admin/rendelesek?status=open#top');
     expect(normalizeDeviceLabTarget('https://example.com/admin')).toBe('/admin/platform');
     expect(normalizeDeviceLabTarget('//example.com/admin')).toBe('/admin/platform');
     expect(normalizeDeviceLabTarget('/admin/platform/device-lab?device=mobile')).toBe('/admin/platform');
     expect(normalizeDeviceLabTarget('/shop')).toBe('/admin/platform');
+    expect(fs.existsSync(path.join(root,'src/app/admin/platform/device-lab/page.tsx'))).toBe(false);
+    expect(fs.existsSync(path.join(root,'src/components/admin/platform-device-lab.tsx'))).toBe(false);
   });
 
-  test('marks only the iframe request for the same-origin frame policy',()=>{
+  test('marks iframe requests while leaving the visible admin route clean',()=>{
     expect(buildDeviceLabPreviewSrc('/admin/ugyfelek?tab=active')).toBe('/admin/ugyfelek?tab=active&__shoperation_device_preview=1');
     expect(normalizeDeviceLabTarget('/admin/ugyfelek?__shoperation_device_preview=1&tab=active')).toBe('/admin/ugyfelek?tab=active');
   });
 
-  test('renders the launcher only for platform accounts and protects the Device Lab route',()=>{
-    const layout=read('src/app/admin/layout.tsx'),page=read('src/app/admin/platform/device-lab/page.tsx');
-    expect(layout).toContain("import { PlatformDeviceLabLauncher }");
-    expect(layout).toContain('{isPlatform&&<PlatformDeviceLabLauncher/>}');
-    expect(page).toContain('await requirePlatformOperator()');
+  test('persists the selected view globally instead of navigating to a preview page',()=>{
+    const launcher=read('src/components/admin/platform-device-lab-launcher.tsx');
+    const viewport=read('src/components/admin/platform-responsive-viewport.tsx');
+    const layout=read('src/app/admin/layout.tsx');
+    expect(DEVICE_LAB_STORAGE_KEY).toBe('shoperation.platform.device-view');
+    expect(DEVICE_LAB_CHANGE_EVENT).toBe('shoperation:device-view-change');
+    expect(launcher).toContain('window.localStorage.setItem(DEVICE_LAB_STORAGE_KEY,device)');
+    expect(launcher).not.toContain('router.push');
+    expect(viewport).toContain("window.localStorage.getItem(DEVICE_LAB_STORAGE_KEY)");
+    expect(viewport).toContain("window.history.replaceState(window.history.state,'',route)");
+    expect(viewport).toContain('<iframe');
+    expect(layout).toContain('PlatformResponsiveViewport');
+    expect(layout).toContain('<PlatformResponsiveViewport enabled={isPlatform}>');
   });
 
-  test('preserves global anti-framing while allowing marked same-origin admin previews',()=>{
+  test('keeps device controls platform-only and hides the nested launcher inside the iframe',()=>{
+    const layout=read('src/app/admin/layout.tsx'),launcher=read('src/components/admin/platform-device-lab-launcher.tsx');
+    expect(layout).toContain('{isPlatform&&<PlatformDeviceLabLauncher/>}');
+    expect(launcher).toContain('setTopLevel(window.self===window.top)');
+    expect(launcher).toContain('if(!topLevel)return null');
+  });
+
+  test('preserves global anti-framing while allowing only same-origin admin previews',()=>{
     const config=read('next.config.ts');
     expect(config).toContain("{key:'X-Frame-Options',value:'DENY'}");
     expect(config).toContain("frame-ancestors 'none'");
@@ -45,7 +62,7 @@ describe('Platform Device Lab',()=>{
     expect(config).toContain("frame-ancestors 'self'");
   });
 
-  test('uses a distinct wide tablet glyph rather than a stretched phone',()=>{
+  test('uses the refined wide tablet glyph',()=>{
     const launcher=read('src/components/admin/platform-device-lab-launcher.tsx');
     expect(launcher).toContain('width="23" height="15.6"');
     expect(launcher).toContain('<circle cx="14" cy="6.5" r=".65"/>');
