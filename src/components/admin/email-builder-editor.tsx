@@ -19,6 +19,7 @@ type LeftView='blocks'|'sections'|'presets'|'saved'|'dynamic';
 type PaletteItem={type:EmailBlockType;description:string;icon:string};
 type PaletteGroup={title:string;items:PaletteItem[]};
 type DynamicTarget={scope:'document'|'block';field:string;label:string;blockId?:string;start:number;end:number};
+type InlineEditorCommit={blockId:string;field:'text'|'label';source:string;richText:unknown;align?:'left'|'center'|'right'};
 
 const blockLabels:Record<EmailBlockType,string>={header:'Fejléc',heading:'Címsor',text:'Szöveg',button:'Gomb',divider:'Elválasztó',spacer:'Térköz','order-items':'Rendelési tételek','order-summary':'Összesítés','payment-info':'Fizetési adatok',address:'Cím',footer:'Lábléc'};
 const paletteGroups:PaletteGroup[]=[
@@ -137,7 +138,12 @@ export function EmailBuilderEditor({template,initialDocument,previewContext}:{te
 
   function updateDocument(patch:Partial<EmailDocument>,groupKey?:string){commit({...document,...patch},groupKey);}
   function updateSelected(patch:Partial<EmailBlock>,groupKey?:string){if(!selected)return;commit({...document,blocks:document.blocks.map(block=>block.id===selected.id?{...block,...patch}:block)},groupKey);}
-  function updateContent(key:string,value:unknown,groupKey?:string){if(!selected)return;updateSelected({content:{...selected.content,[key]:value}},groupKey);}
+  function updateContent(key:string,value:unknown,groupKey?:string){
+    if(!selected)return;
+    const content:Record<string,unknown>={...selected.content,[key]:value};
+    if(((selected.type==='heading'||selected.type==='text')&&key==='text')||(selected.type==='button'&&key==='label'))delete content.richText;
+    updateSelected({content},groupKey);
+  }
   function addBlock(type:EmailBlockType){const block=createBlock(type),index=selectedIndex>=0?selectedIndex+1:document.blocks.length;const blocks=[...document.blocks];blocks.splice(index,0,block);commit({...document,blocks});setSelectedId(block.id);setTab('content');}
   function addSection(section:EmailSectionDefinition){
     const inserted=section.blocks.map(block=>materializeBlueprint(block,section.id));
@@ -211,7 +217,9 @@ export function EmailBuilderEditor({template,initialDocument,previewContext}:{te
       const end=Math.max(start,Math.min(target.end,current.length));
       const next=`${current.slice(0,start)}${token}${current.slice(end)}`;
       const blocks=[...document.blocks];
-      blocks[index]={...block,content:{...block.content,[target.field]:next}};
+      const content:Record<string,unknown>={...block.content,[target.field]:next};
+      if(((block.type==='heading'||block.type==='text')&&target.field==='text')||(block.type==='button'&&target.field==='label'))delete content.richText;
+      blocks[index]={...block,content};
       commit({...document,blocks});
       setSelectedId(block.id);
       setTab('content');
@@ -246,6 +254,28 @@ export function EmailBuilderEditor({template,initialDocument,previewContext}:{te
     },260);
     return()=>window.clearTimeout(timer);
   },[document,previewContext]);
+
+  useEffect(()=>{
+    const handleInlineCommit=(event:Event)=>{
+      const detail=(event as CustomEvent<InlineEditorCommit>).detail;
+      if(!detail||!detail.blockId||!['text','label'].includes(detail.field)||!Array.isArray(detail.richText))return;
+      const index=document.blocks.findIndex(block=>block.id===detail.blockId);
+      if(index<0)return;
+      const block=document.blocks[index];
+      const expectedField=block.type==='button'?'label':block.type==='heading'||block.type==='text'?'text':null;
+      if(!expectedField||detail.field!==expectedField)return;
+      const current=block.content as Record<string,unknown>;
+      const align=detail.align&&['left','center','right'].includes(detail.align)?detail.align:String(current.align??'left');
+      if(String(current[expectedField]??'')===detail.source&&JSON.stringify(current.richText??null)===JSON.stringify(detail.richText)&&String(current.align??'left')===align)return;
+      const blocks=[...document.blocks];
+      blocks[index]={...block,content:{...current,[expectedField]:detail.source,richText:detail.richText,align}};
+      commit({...document,blocks});
+      setSelectedId(block.id);
+      setTab('content');
+    };
+    window.addEventListener('shoperation:email-builder-inline-commit',handleInlineCommit as EventListener);
+    return()=>window.removeEventListener('shoperation:email-builder-inline-commit',handleInlineCommit as EventListener);
+  },[document]);
 
   function wireIframe(){
     const root=iframeRef.current?.contentDocument;if(!root)return;
