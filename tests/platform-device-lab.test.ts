@@ -46,11 +46,26 @@ describe('Platform persistent device view',()=>{
     expect(layout).toContain('<PlatformResponsiveViewport enabled={isPlatform}>');
   });
 
-  test('keeps device controls platform-only and hides the nested launcher inside the iframe',()=>{
-    const layout=read('src/app/admin/layout.tsx'),launcher=read('src/components/admin/platform-device-lab-launcher.tsx');
-    expect(layout).toContain('{isPlatform&&<PlatformDeviceLabLauncher/>}');
-    expect(launcher).toContain('setTopLevel(window.self===window.top)');
-    expect(launcher).toContain('if(!topLevel)return null');
+  test('uses the current central Products page in desktop and mobile navigation',()=>{
+    const desktopNav=read('src/components/navigation/admin-navigation.tsx');
+    const mobileNav=read('src/components/navigation/admin-mobile-navigation.tsx');
+    expect(desktopNav).toContain("'products':'/admin/termekek'");
+    expect(desktopNav).not.toContain("'products':'/admin/termekek/feltoltes'");
+    expect(mobileNav).toContain("'products':'/admin/termekek'");
+    expect(mobileNav).toContain('const directHref=DIRECT_SECTION_HREFS[section.id]');
+    expect(mobileNav).toContain('if(directHref)return');
+  });
+
+  test('keeps device controls desktop-host only and native touch devices on the real admin',()=>{
+    const launcher=read('src/components/admin/platform-device-lab-launcher.tsx');
+    const viewport=read('src/components/admin/platform-responsive-viewport.tsx');
+    const deviceLib=read('src/lib/platform/device-lab.ts');
+    expect(deviceLib).toContain("window.innerWidth>=1100");
+    expect(deviceLib).toContain("'(hover: hover) and (pointer: fine)'");
+    expect(launcher).toContain('canUsePlatformDevicePreview()');
+    expect(viewport).toContain("const stored=available?normalizeDeviceLabDevice");
+    expect(viewport).toContain("setDevice('desktop')");
+    expect(viewport).toContain('!previewAvailable');
   });
 
   test('preserves global anti-framing while allowing only same-origin admin previews',()=>{
