@@ -24,8 +24,31 @@ import {
   type StorefrontAiGenerationInput,
 } from '@/lib/builder/storefront-ai-generator';
 
-const MODEL_DEFAULT='openai/gpt-5.6-luna';
+const MODEL_DEFAULT='openai/gpt-5.6-sol';
 const cleanJson=(text:string)=>text.trim().startsWith('```')?text.trim().replace(/^```(?:json)?\s*/i,'').replace(/\s*```$/,''):text.trim();
+const RESPONSE_SCHEMA={
+  type:'object',
+  additionalProperties:false,
+  properties:{
+    templateKey:{type:'string'},
+    reason:{type:'string'},
+    copy:{
+      type:'object',
+      additionalProperties:false,
+      properties:{
+        heroTitle:{type:'string'},
+        heroSubtitle:{type:'string'},
+        primaryCtaLabel:{type:'string'},
+        catalogTitle:{type:'string'},
+        catalogDescription:{type:'string'},
+        storyTitle:{type:'string'},
+        storyCopy:{type:'string'},
+      },
+      required:['heroTitle','heroSubtitle','primaryCtaLabel','catalogTitle','catalogDescription','storyTitle','storyCopy'],
+    },
+  },
+  required:['templateKey','reason','copy'],
+} as const;
 
 export type StorefrontAiGenerationResult={
   ok:true;
@@ -79,7 +102,7 @@ export async function generateCurrentStorefrontWithAi(rawInput:StorefrontAiGener
     'Egyetlen feladatod, hogy a megadott üzleti briefhez a felsorolt engedélyezett Shoporation template-ek közül válassz, és rövid szerkeszthető storefront szövegeket adj.',
     'Soha ne generálj Next.js/React/HTML/JavaScript/SQL/RPC kódot, komponenst, template-kulcsot vagy oldalstruktúrát az allowlisten kívül.',
     'Ne találj ki termékárat, készletet, műszaki tulajdonságot, garanciát, tanúsítványt vagy üzleti tényt.',
-    'A kimenet csak JSON objektum lehet: templateKey, reason, copy{heroTitle,heroSubtitle,primaryCtaLabel,catalogTitle,catalogDescription,storyTitle,storyCopy}.',
+    'A kimenet csak a kért strukturált JSON lehet: templateKey, reason, copy{heroTitle,heroSubtitle,primaryCtaLabel,catalogTitle,catalogDescription,storyTitle,storyCopy}.',
     'Minden copy mező legyen a brief nyelvén, HTML nélkül. A generált eredmény kizárólag draft lesz és emberi ellenőrzést igényel.',
   ].join(' ');
   const userPayload={
@@ -99,7 +122,14 @@ export async function generateCurrentStorefrontWithAi(rawInput:StorefrontAiGener
         model,
         temperature:0,
         messages:[{role:'system',content:system},{role:'user',content:JSON.stringify(userPayload)}],
-        response_format:{type:'json_object'},
+        response_format:{
+          type:'json_schema',
+          json_schema:{
+            name:'shoporation_storefront_plan',
+            description:'A bounded Shoporation storefront template choice and editable copy plan.',
+            schema:RESPONSE_SCHEMA,
+          },
+        },
         user:actor.id,
       }),
       signal:controller.signal,
