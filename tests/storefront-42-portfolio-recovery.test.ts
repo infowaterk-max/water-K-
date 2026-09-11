@@ -5,13 +5,14 @@ import {
   STOREFRONT_TEMPLATE_PORTFOLIO_STATUS,
 } from '@/lib/builder/storefront-template-catalog';
 
-const RECOVERY_BASELINE_IDENTITIES=[
+const EXPECTED_IMPLEMENTED_IDENTITIES=[
   'outdoor.alpine-lodge@1',
   'beauty.beauty-lab@1',
   'tech.creator-station@1',
   'beauty.derma-studio@1',
   'fashion.editorial-atelier@1',
   'home.gallery-edit@1',
+  'home.warm-minimal@1',
   'jewelry.heritage-atelier@1',
   'gaming.loot-vault@1',
   'food.market-pantry@1',
@@ -37,21 +38,21 @@ const catalogIdentities=()=>STOREFRONT_TEMPLATE_CATALOG.map(
 );
 
 describe('Storefront 42 portfolio recovery gate',()=>{
-  it('locks the recovered launch arithmetic at 24 implemented / 18 remaining',()=>{
+  it('advances only when a concrete package is added',()=>{
     expect(STOREFRONT_TEMPLATE_LAUNCH_TARGET).toBe(42);
-    expect(STOREFRONT_TEMPLATE_PORTFOLIO_STATUS.implemented).toBe(24);
-    expect(STOREFRONT_TEMPLATE_PORTFOLIO_STATUS.remaining).toBe(18);
+    expect(STOREFRONT_TEMPLATE_PORTFOLIO_STATUS.implemented).toBe(25);
+    expect(STOREFRONT_TEMPLATE_PORTFOLIO_STATUS.remaining).toBe(17);
     expect(STOREFRONT_TEMPLATE_PORTFOLIO_STATUS.fabricatedEntriesAllowed).toBe(false);
   });
 
-  it('locks the exact concrete package identities present at the recovery baseline',()=>{
-    expect([...catalogIdentities()].sort()).toEqual([...RECOVERY_BASELINE_IDENTITIES].sort());
+  it('locks the exact concrete package identities after Warm Minimal',()=>{
+    expect([...catalogIdentities()].sort()).toEqual([...EXPECTED_IMPLEMENTED_IDENTITIES].sort());
   });
 
-  it('forces future scale-out work to make portfolio growth explicit',()=>{
-    expect(STOREFRONT_TEMPLATE_CATALOG).toHaveLength(RECOVERY_BASELINE_IDENTITIES.length);
+  it('keeps launch arithmetic tied to concrete source-controlled packages',()=>{
+    expect(STOREFRONT_TEMPLATE_CATALOG).toHaveLength(EXPECTED_IMPLEMENTED_IDENTITIES.length);
     expect(STOREFRONT_TEMPLATE_PORTFOLIO_STATUS.remaining).toBe(
-      STOREFRONT_TEMPLATE_LAUNCH_TARGET-RECOVERY_BASELINE_IDENTITIES.length,
+      STOREFRONT_TEMPLATE_LAUNCH_TARGET-EXPECTED_IMPLEMENTED_IDENTITIES.length,
     );
   });
 });
