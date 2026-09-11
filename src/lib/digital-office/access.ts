@@ -8,7 +8,7 @@ import {getFeatureEntitlementDecisions} from '@/lib/entitlements/access';
 import {isCapabilityReleased} from '@/lib/entitlements/catalog';
 import {getCurrentWebshopInstance} from '@/lib/instances/access';
 
-const DIGITAL_OFFICE_FEATURES=['officeCommunication','officeCommunicationAdvanced','teamChat'] as const;
+const DIGITAL_OFFICE_FEATURES=['officeCommunication','officeCommunicationAdvanced','support','teamChat'] as const;
 
 /**
  * Request-scoped Digital Office access snapshot.
@@ -35,6 +35,7 @@ export const getDigitalOfficeAccess=cache(async()=>{
 
   const officeEmail=featureEnabled('officeCommunication');
   const advancedEmail=featureEnabled('officeCommunicationAdvanced');
+  const supportEnabled=featureEnabled('support');
   const teamChat=featureEnabled('teamChat');
   const canSupport=roles.some(role=>roleHasPermission(role,'support.manage'));
   const canMarketing=roles.some(role=>roleHasPermission(role,'marketing.manage'));
@@ -53,6 +54,7 @@ export const getDigitalOfficeAccess=cache(async()=>{
     },
     officeEmail,
     advancedEmail,
+    supportEnabled,
     teamChat,
     canSupport,
     canMarketing,
