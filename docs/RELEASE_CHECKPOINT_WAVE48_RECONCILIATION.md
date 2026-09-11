@@ -4,113 +4,104 @@ Date: 2026-09-11
 
 ## Canonical historical evidence
 
-The repository history proves that the direct successor of historical Wave 29 / PR #152 was **not** a new template wave.
-
-PR #152 explicitly stopped template scale-out and required a controlled release checkpoint. The immediate historical chain was:
-
-1. PR #153 — `RC preflight – reconcile Block 7 prerequisite`;
-2. PR #154 — `RC preflight – integrate storefront through Wave 29`;
-3. PR #155 — `Release Checkpoint – Storefront through Wave 29`.
-
-Only after that checkpoint established a new production baseline did historical Wave 30 / PR #175 (`beauty.derma-studio`) begin.
+Repository history proves that the direct successor of historical Wave 29 / PR #152 was **not** a new template wave. PR #152 stopped template scale-out and required a controlled release checkpoint; PRs #153–#155 performed the prerequisite reconciliation, storefront integration and release checkpoint. Only after that checkpoint established a new production baseline did historical Wave 30 / PR #175 begin.
 
 Therefore the current-baseline successor of Wave 48 is this release/integration checkpoint, **not** an invented Wave 49 template.
 
-## Current reconciliation inputs
+## Reconciliation chain
 
-- production/current `main` at checkpoint start: `f06ac77d64053cfe6739fcb1f773eaa5785f1eef`;
+Initial checkpoint inputs:
+
+- Block 19 `main` at checkpoint start: `f06ac77d64053cfe6739fcb1f773eaa5785f1eef`;
 - Wave 48 final head: `fb63722ceb012a8f7a5b8ae103f6d92cc11b4f4d`;
 - dedicated RC branch: `release/storefront-wave48-checkpoint`;
-- integration preflight PR: #236;
-- integration merge head before checkpoint evidence: `aaeae51f45106f033b1786eab4f914f6021b0ff0`;
-- controlled Draft release PR: #237, base `main`, head `release/storefront-wave48-checkpoint`.
+- storefront integration PR: #236;
+- controlled Draft release PR: #237.
 
-The checkpoint branch was created from the exact current `main`, then the complete inherited storefront stack through Wave 48 was integrated into it. The storefront stack was **not** rebased onto `main`, and the stacked Draft PR chain was not rewritten.
+While the checkpoint remained open, Roadmap Block 20 was completed and released independently. The production baseline therefore advanced to:
 
-## Baseline reconciliation
+- current `main`: `6a313899e5151a6faa0ebae2fd4e096c49ec3e62`;
+- release: Roadmap Block 20 — Platform Ecosystem & Enterprise Extensibility;
+- production Vercel deployment: `dpl_BaLxvqiFohheGT7tsMsEar3HKpBu`, READY;
+- production `/api/health`: HTTP 200, `status=ok`, `database=ok`, version `6a313899e515`.
 
-The two development lines intentionally carried different customer-baseline states before integration.
+PR #241 (`RC sync – reconcile Storefront Wave 48 checkpoint with Block 20 main`) merged the exact current `main` **only into the RC branch**, producing reconciled RC head `936c54f7682dbe1cde795f9e4d7f731a54129bfb`. This did not merge PR #237 into `main` and did not deploy the Storefront checkpoint to production.
 
-### Wave 48 inherited storefront baseline
+The storefront stack remains represented by the existing Wave 30–48 changes; the stacked template history was not rewritten.
 
-- ordered customer baseline: 0001–0005;
-- `status = ready`;
-- `freshInstallProofRequired = false`;
-- proof contract from the earlier historical checkpoint: `8cb833cfc5063c777c1335e6cc64d5447de3c0a418ac3145fbd54d38a6224e0a`.
+## Customer baseline and Fresh Install proof — resolved
 
-### Current `main` baseline
+The earlier checkpoint state inherited a `snapshot-reviewed` customer baseline and therefore correctly failed closed while a new genuine Fresh Install proof was missing.
 
-- ordered customer baseline: 0001–0012;
-- `status = snapshot-reviewed`;
-- `freshInstallProofRequired = true`;
-- `proofContractSha256 = null`;
-- the manifest explicitly requires a new genuine empty-target Fresh Install proof before returning to `ready`.
+That blocker was resolved as part of the completed Block 20 release. Current production `main` now carries the proof-bound customer baseline:
 
-The RC integration preserves the **current-main** manifest and ordered migrations through `0012_product_media_management_v1.sql`. No Wave 30–48 storefront change introduces a customer-baseline migration, so no storefront-local migration is invented or added by this checkpoint.
+- ordered migrations: `0001–0017`;
+- manifest status: `ready`;
+- `freshInstallProofRequired=false`;
+- `proofContractSha256=c0127ea9f035df7d0978a38dafe4f1fa174f69eb6667921d25663875867ef618`;
+- genuine empty-target proof: CI #2671.
 
-## Fresh Install requirement and allowed disposable-target scope
+The Block 20 proof executed the reviewed Fresh Install contract against a genuinely empty disposable target: target preflight, atomic ordered baseline apply, Auth bootstrap, neutral seed and target postflight all passed. Production was untouched by the proof job.
 
-A genuine Fresh Install proof is required by the current-main manifest and by the historical release-checkpoint contract. The repository workflow `Fresh Install proof` is manual (`workflow_dispatch`) and applies the exact ordered `supabase/customer-baseline/migrations/*.sql`, Auth bootstrap and neutral seed only after the read-only `target-preflight.sql` proves that the disposable target is genuinely empty.
+After PR #241, the RC branch inherits this manifest byte-for-byte. PR #237 changes no `supabase/customer-baseline/**` file relative to current `main`, so the Storefront checkpoint does not alter the proof contract. A second identical Fresh Install run would add no evidence and is not required; the normal PR Fresh Install job may remain skipped because there is no baseline diff.
 
-Dedicated disposable project:
+Operational Supabase state after the completed proof rotation is restored normally:
 
-- name: `Shoperation Fresh Install`;
-- ref: `istjjkdcvsvilrycqecd`;
-- state at checkpoint start: `INACTIVE`.
+- `waterk-platform`: active/healthy;
+- `waterk-staging`: active/healthy;
+- `Shoperation Fresh Install` (`istjjkdcvsvilrycqecd`): inactive.
 
-For this checkpoint, the only permitted Supabase mutation outside CI is limited to this **disposable Fresh Install project** and only as necessary to establish a genuinely empty proof target and run the reviewed baseline proof. Production `waterk-platform` and `waterk-staging` remain read-only and must not be mutated.
+No paid Supabase development branch is required for this checkpoint.
 
-No production migration is authorized by Fresh Install proof. Proof completion only satisfies an evidence prerequisite.
+## Reconciled exact-head release evidence
 
-## Fresh Install fail-closed blocker observed on 2026-09-11
+On reconciled RC head `936c54f7682dbe1cde795f9e4d7f731a54129bfb`, GitHub CI #2679 / run `34572643967` completed **SUCCESS**.
 
-The checkpoint attempted to restore the dedicated disposable `Shoperation Fresh Install` project so the genuine empty-target proof could run. Supabase rejected the restore before any database mutation occurred because the organization is already at the maximum **2 active free projects**; the two active projects are production `waterk-platform` and `waterk-staging`.
+Passed gates:
 
-The rejected restore reported that organization members have reached the active free-project limit and must delete, pause, or upgrade a project before another can be restored.
+- Security audit;
+- Customer database baseline guard;
+- full Quality tests;
+- TypeScript;
+- production build;
+- Release Manifest generation/upload.
 
-This is an external account-capacity blocker, not a storefront code failure. The release gate therefore remains deliberately fail-closed:
+Artifacts:
 
-- production is **not** paused, reset, reused, or mutated;
-- staging is **not** paused, reset, reused, or mutated;
-- no alternative non-empty database is accepted as a Fresh Install target;
-- `status` remains `snapshot-reviewed`;
-- `freshInstallProofRequired` remains `true`;
-- `proofContractSha256` remains `null`;
-- PR #237 remains Draft and is **not authorized for production release**.
+- Quality artifact `10188368923`, SHA-256 `e5f28429561bf30fe0caa4004bf4d21009af3efbf4b2f8f89c55aaa6d281112a`;
+- Release Manifest artifact `10188410609`, SHA-256 `e1c3dc3cabe271706f26d9db7912ffd253761ca0bfdf30b415f035591e065ebd`.
 
-The only acceptable resolution is to make a genuinely disposable empty Supabase target available and run the existing reviewed Fresh Install contract against the exact ordered current baseline. The gate must not be bypassed by changing the manifest or weakening CI.
+The Fresh Install job is skipped on this PR because the checkpoint introduces no customer-baseline diff; release proof authority is the already completed exact `0001–0017` proof bound into current `main`.
 
-## Required exact-head release evidence
+## Reconciled preview evidence
 
-Before any production authorization:
+Exact-head Vercel preview for `936c54f7682dbe1cde795f9e4d7f731a54129bfb`:
 
-- PR #237 must remain mergeable against the exact current `main`;
-- Security PASS;
-- Customer baseline guard PASS;
-- full Quality suite PASS;
-- TypeScript PASS;
-- production build PASS;
-- Release Manifest generation/upload PASS;
-- genuine empty-target Fresh Install proof PASS for the exact ordered current baseline;
-- exact final RC Vercel Preview READY, `target=null`, correct branch and exact Git SHA;
-- Quality and Release Manifest artifacts downloaded and independently SHA-256 verified;
-- exact release hash recorded;
-- production `/api/health` remains healthy;
-- Water-K remains `pilot / pro`.
+- deployment: `dpl_6yHTJupeBs7dMXvW9JspQo9sSUpi`;
+- state: READY;
+- target: `null`;
+- branch: `release/storefront-wave48-checkpoint`.
 
-If `main` advances again before release authorization, reconciliation must be repeated against the new exact `main` SHA.
+Direct preview `/api/health` remains behind Vercel Deployment Protection and returns an SSO HTTP 302 before the application endpoint. This is not recorded as a false HTTP 200 smoke PASS. Production health remains independently proven on the Block 20 production deployment.
+
+## Current release gate
+
+PR #237 is open, Draft and mergeable against current `main`. The code/database proof gates are reconciled and green. Any later movement of `main` before release authorization requires another exact-main reconciliation.
+
+The remaining protected-preview health limitation is an evidence-access limitation caused by Vercel Deployment Protection; no security control is disabled to manufacture a smoke result.
 
 ## Production boundary
 
-This checkpoint evidence/implementation phase does **not** authorize or perform:
+This checkpoint does **not** authorize or perform:
 
 - merge of PR #237 into `main`;
-- Vercel production deploy or promotion;
+- Storefront production deployment or promotion;
 - production or staging Supabase mutation;
-- production SQL migration;
+- new production SQL migration;
 - Water-K status or plan change;
 - K&H/vPOS/payment changes;
 - shared Storefront/commerce authority loosening;
-- Visual Builder implementation or Block 22 work.
+- Block 21 Page Schema / Templates implementation;
+- Block 22 Visual Builder implementation.
 
-A production rollout requires a separate explicit controlled release GO after every release gate is satisfied. Until then PR #237 remains Draft and the template scale-out stays stopped.
+A production rollout remains a separate explicit controlled-release GO. Until then PR #237 remains Draft and template scale-out stays stopped.
