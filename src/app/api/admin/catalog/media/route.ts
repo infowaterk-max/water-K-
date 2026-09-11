@@ -6,7 +6,7 @@ import{createAdminClient}from'@/lib/supabase/admin';
 
 export const runtime='nodejs';
 const PRODUCT_MEDIA_BUCKET='product-media',MAX_BYTES=8*1024*1024,allowed=new Set(['image/jpeg','image/png','image/webp','image/avif']);
-const uuid=z.string().uuid(),key=z.string().trim().min(16).max(120);
+const uuid=z.string().uuid(),key=z.string().trim().min(16).max(120),mediaMutation=z.object({productId:uuid,mediaId:uuid});
 
 function safeName(name:string){return name.normalize('NFKD').replace(/[^a-zA-Z0-9._-]+/g,'-').replace(/^-+|-+$/g,'').slice(-160)||'image'}
 function signatureMatches(type:string,bytes:Uint8Array){
@@ -52,4 +52,31 @@ export async function POST(request:Request){
   if(!result.mediaId||result.storagePath!==storagePath){await admin.storage.from(PRODUCT_MEDIA_BUCKET).remove([storagePath]).catch(()=>null);return NextResponse.json({error:'A médiafeltöltés eredménye nem igazolható.'},{status:500})}
   const publicUrl=admin.storage.from(PRODUCT_MEDIA_BUCKET).getPublicUrl(storagePath).data.publicUrl;
   return NextResponse.json({ok:true,...result,publicUrl});
+}
+
+export async function PATCH(request:Request){
+  const actor=await getAdminRequestUser('catalog.manage');if(!actor)return NextResponse.json({error:'Nincs jogosultság.'},{status:403});
+  let scope;try{scope=await requireCurrentStoreContext('catalog.manage')}catch{return NextResponse.json({error:'Nincs jogosultság ehhez a webshophoz.'},{status:403})}
+  let raw:unknown;try{raw=await request.json()}catch{return NextResponse.json({error:'Érvénytelen kérés.'},{status:400})}
+  const parsed=mediaMutation.safeParse(raw);if(!parsed.success)return NextResponse.json({error:'Érvénytelen médiaazonosító.'},{status:400});
+  const admin=createAdminClient(),{data,error}=await admin.rpc('set_product_primary_media_v1',{p_instance_id:scope.instanceId,p_product_id:parsed.data.productId,p_media_id:parsed.data.mediaId,p_actor:actor.id});
+  if(error)return NextResponse.json({error:'A főkép beállítása nem sikerült.'},{status:409});
+  const result=(data??{})as{primaryMediaId?:string};if(result.primaryMediaId!==parsed.data.mediaId)return NextResponse.json({error:'A főkép módosításának eredménye nem igazolható.'},{status:500});
+  return NextResponse.json({ok:true,primaryMediaId:result.primaryMediaId});
+}
+
+export async function DELETE(request:Request){
+  const actor=await getAdminRequestUser('catalog.manage');if(!actor)return NextResponse.json({error:'Nincs jogosultság.'},{status:403});
+  let scope;try{scope=await requireCurrentStoreContext('catalog.manage')}catch{return NextResponse.json({error:'Nincs jogosultság ehhez a webshophoz.'},{status:403})}
+  let raw:unknown;try{raw=await request.json()}catch{return NextResponse.json({error:'Érvénytelen kérés.'},{status:400})}
+  const parsed=mediaMutation.safeParse(raw);if(!parsed.success)return NextResponse.json({error:'Érvénytelen médiaazonosító.'},{status:400});
+  const admin=createAdminClient(),{data,error}=await admin.rpc('delete_product_media_v1',{p_instance_id:scope.instanceId,p_product_id:parsed.data.productId,p_media_id:parsed.data.mediaId,p_actor:actor.id});
+  if(error)return NextResponse.json({error:'A kép törlése nem sikerült. A katalógus állapota nem változott.'},{status:409});
+  const result=(data??{})as{deleted?:boolean;cleanupJobId?:string;storageBucket?:string;storagePath?:string;nextPrimaryMediaId?:string|null};
+  if(result.deleted!==true||!result.cleanupJobId||result.storageBucket!==PRODUCT_MEDIA_BUCKET||!result.storagePath)return NextResponse.json({error:'A képtörlés eredménye nem igazolható.'},{status:500});
+  const removed=await admin.storage.from(PRODUCT_MEDIA_BUCKET).remove([result.storagePath]);
+  if(removed.error)return NextResponse.json({ok:true,deleted:true,cleanupPending:true,nextPrimaryMediaId:result.nextPrimaryMediaId??null},{status:202});
+  const{error:cleanupError}=await admin.rpc('complete_product_media_cleanup_v1',{p_instance_id:scope.instanceId,p_cleanup_job_id:result.cleanupJobId,p_actor:actor.id});
+  if(cleanupError)return NextResponse.json({ok:true,deleted:true,cleanupPending:true,nextPrimaryMediaId:result.nextPrimaryMediaId??null},{status:202});
+  return NextResponse.json({ok:true,deleted:true,cleanupPending:false,nextPrimaryMediaId:result.nextPrimaryMediaId??null});
 }

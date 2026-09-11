@@ -1,0 +1,29 @@
+@media(min-width:851px){
+  /* Product Intake owns the workspace canvas, never the global Shoperation sidebar skin. */
+  .adminGrid:has(.productIntakeScreen) .adminSide .adminDiscoveryLayer{
+    background:transparent!important;
+    border-color:rgba(255,255,255,.08)!important;
+  }
+  .adminGrid:has(.productIntakeScreen) .adminSide .adminDiscoveryLabel{
+    color:#78918b!important;
+  }
+  .adminGrid:has(.productIntakeScreen) .adminSide .adminQuickTasks a{
+    border-color:rgba(255,255,255,.09)!important;
+    background:rgba(255,255,255,.045)!important;
+    color:#dce9e5!important;
+  }
+  .adminGrid:has(.productIntakeScreen) .adminSide .adminQuickTasks a:hover,
+  .adminGrid:has(.productIntakeScreen) .adminSide .adminQuickTasks a:focus-visible{
+    border-color:rgba(40,183,151,.35)!important;
+    background:rgba(21,155,123,.13)!important;
+    color:#fff!important;
+  }
+  .adminGrid:has(.productIntakeScreen) .adminSide .adminHelpDiscovery{
+    border-top-color:rgba(255,255,255,.08)!important;
+    color:#a8bbb6!important;
+  }
+  .adminGrid:has(.productIntakeScreen) .adminSide .adminHelpDiscovery summary,
+  .adminGrid:has(.productIntakeScreen) .adminSide .adminStoreLink{
+    color:#63d2ba!important;
+  }
+}

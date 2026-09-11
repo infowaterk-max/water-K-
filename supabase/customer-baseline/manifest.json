@@ -9,7 +9,7 @@
   "snapshotFile": "supabase/customer-baseline/migrations/0001_shoperation_v1_schema.sql",
   "snapshotCommand": "npm run db:customer:snapshot",
   "freshInstallProofRequired": true,
-  "notes": "Block 14 remains the proven 0001-0009 baseline. Product Intake Center hardening adds ordered customer forward migration 0010 for multi-variant draft creation, concurrency-safe resumable editing, product SEO, variant primary-media references and per-product B2C/B2B visibility. A new genuine empty-target Fresh Install proof is required before the baseline can return to ready.",
+  "notes": "Block 14 remains the last genuine Fresh Install proof. Product Intake Center forward migrations 0010-0012 add multi-variant draft editing, SEO/media/channel hardening, CSV/XLSX onboarding, tenant-scoped product-copy authority, safe product-media deletion and persistent primary-image ordering. Product Copilot remains application-side suggestion-only. A new genuine empty-target Fresh Install proof for ordered baseline 0001-0012 is required before status can return to ready.",
   "authBootstrapFile": "supabase/customer-baseline/auth-bootstrap.sql",
   "proofContractSha256": null
 }
