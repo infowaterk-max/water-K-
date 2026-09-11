@@ -41,13 +41,14 @@ create table if not exists public.extension_installations(
   installed_by uuid null references auth.users(id) on delete set null,
   installed_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
-  unique(instance_id,app_key)
+  unique(instance_id,app_key),
+  unique(instance_id,id)
 );
 
 create table if not exists public.extension_api_credentials(
   id uuid primary key default gen_random_uuid(),
   instance_id uuid not null references public.webshop_instances(id) on delete cascade,
-  installation_id uuid not null references public.extension_installations(id) on delete cascade,
+  installation_id uuid not null,
   key_prefix text not null unique check(key_prefix ~ '^[A-Za-z0-9_-]{8,32}$'),
   secret_hash text not null unique check(secret_hash ~ '^[0-9a-f]{64}$'),
   scopes text[] not null default '{}'::text[],
@@ -59,21 +60,8 @@ create table if not exists public.extension_api_credentials(
   constraint extension_api_credentials_installation_tenant_fk
     foreign key(instance_id,installation_id)
     references public.extension_installations(instance_id,id)
-    deferrable initially immediate
+    on delete cascade
 );
-
--- Composite FK target for strict tenant binding.
-create unique index if not exists extension_installations_instance_id_id_unique
-  on public.extension_installations(instance_id,id);
-
--- PostgreSQL requires the referenced uniqueness before the FK can be validated on older baselines.
--- Recreate defensively after the index exists.
-alter table public.extension_api_credentials drop constraint if exists extension_api_credentials_installation_tenant_fk;
-alter table public.extension_api_credentials
-  add constraint extension_api_credentials_installation_tenant_fk
-  foreign key(instance_id,installation_id)
-  references public.extension_installations(instance_id,id)
-  on delete cascade;
 
 create table if not exists public.extension_webhook_subscriptions(
   id uuid primary key default gen_random_uuid(),
@@ -86,6 +74,7 @@ create table if not exists public.extension_webhook_subscriptions(
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
   unique(installation_id,event_type,endpoint_url),
+  unique(instance_id,id),
   constraint extension_webhook_subscriptions_installation_tenant_fk
     foreign key(instance_id,installation_id)
     references public.extension_installations(instance_id,id)
@@ -113,16 +102,6 @@ create table if not exists public.extension_webhook_deliveries(
     references public.extension_webhook_subscriptions(instance_id,id)
     on delete cascade
 );
-
-create unique index if not exists extension_webhook_subscriptions_instance_id_id_unique
-  on public.extension_webhook_subscriptions(instance_id,id);
-
-alter table public.extension_webhook_deliveries drop constraint if exists extension_webhook_deliveries_subscription_tenant_fk;
-alter table public.extension_webhook_deliveries
-  add constraint extension_webhook_deliveries_subscription_tenant_fk
-  foreign key(instance_id,subscription_id)
-  references public.extension_webhook_subscriptions(instance_id,id)
-  on delete cascade;
 
 create index if not exists extension_installations_instance_status_idx
   on public.extension_installations(instance_id,status);
