@@ -1,0 +1,146 @@
+import {EDITORIAL_ATELIER_TEMPLATE_KEY,EDITORIAL_ATELIER_VISUAL_DNA} from '@/lib/builder/templates/editorial-atelier';
+import {EDITORIAL_ATELIER_WAVE63_ACCEPTANCE} from '@/lib/builder/templates/editorial-atelier-wave63-acceptance';
+import {MONARCHE_VISUAL_DNA} from '@/lib/builder/templates/monarche';
+import {
+  STREET_DROP_ENGINE_CONTRACT,
+  STREET_DROP_HOME_SECTION_ORDER,
+  STREET_DROP_TEMPLATE_KEY,
+  STREET_DROP_TEMPLATE_VERSION,
+  STREET_DROP_VISUAL_DNA,
+} from '@/lib/builder/templates/street-drop';
+import {STREET_DROP_WAVE45_ACCEPTANCE} from '@/lib/builder/templates/street-drop-wave45-acceptance';
+
+/**
+ * Wave 64 re-accepts repository-proven historical Wave 45 / PR #227
+ * directly after current Wave 63 Editorial Atelier. Street Drop v1 is inherited
+ * byte-for-byte from the accepted hardened Wave 45 package, so this wave must
+ * not manufacture a canonical template diff merely to create implementation churn.
+ */
+export const STREET_DROP_WAVE64_ACCEPTANCE=Object.freeze({
+  wave:64,
+  historicalCounterpartWave:45,
+  historicalOriginalWave:26,
+  historicalPullRequest:227,
+  originalTemplatePullRequest:149,
+  predecessorAcceptance:EDITORIAL_ATELIER_WAVE63_ACCEPTANCE.mode,
+  historicalAcceptance:STREET_DROP_WAVE45_ACCEPTANCE.mode,
+  mode:'current-baseline-reacceptance-and-builder-hardening',
+  templateKey:STREET_DROP_TEMPLATE_KEY,
+  templateVersion:STREET_DROP_TEMPLATE_VERSION,
+  inheritedImplementation:true,
+  sequence:{
+    previous:EDITORIAL_ATELIER_TEMPLATE_KEY,
+    current:STREET_DROP_TEMPLATE_KEY,
+    historicalPrevious:'wave44-fashion.editorial-atelier',
+    historicalCurrent:'wave45-fashion.street-drop',
+    originalPrevious:'pr148-fashion.editorial-atelier',
+    originalCurrent:'pr149-fashion.street-drop',
+    relationship:'historical-wave45-successor-replayed-on-current-wave63-stacked-baseline',
+    releaseCheckpointBeforeCurrent:false,
+  },
+  provenance:{
+    currentParentWave:63,
+    currentParentHead:'9a8b9e0bfe7501af4054ab4353d2f6da4e217378',
+    historicalAcceptedImplementationHead:'cb2be0616055078d1c42de94ebffc2a2b88b8e8c',
+    historicalAcceptedTemplateBlob:'d463c6a37cbda3dc00b265b7331049dfaa58ece1',
+    currentInheritedTemplateBlob:'d463c6a37cbda3dc00b265b7331049dfaa58ece1',
+    byteIdenticalToHistoricalAcceptedTemplate:true,
+    historicalAcceptancePassedOnWave63Baseline:true,
+    templateModifiedByWave64:false,
+  },
+  portfolio:{
+    category:'fashion-apparel',
+    position:'aggressive-readable-streetwear-sneaker-drop-culture',
+    character:STREET_DROP_VISUAL_DNA.character,
+    monarche:MONARCHE_VISUAL_DNA.character,
+    editorialAtelier:EDITORIAL_ATELIER_VISUAL_DNA.character,
+    separation:[
+      'not-monarche-balanced-mainstream-premium-retail',
+      'not-editorial-atelier-asymmetric-luxury-magazine',
+      'not-gamer-rgb-or-unreadable-graffiti',
+    ] as const,
+  },
+  visualContract:{
+    audience:['streetwear','sneaker','street-workout','skate','roller','bmx'] as const,
+    foundation:'black-off-white-with-merchant-replaceable-neon-accent',
+    displayTypography:'characterful-readable-display-headlines-only',
+    interfaceTypography:'clean-sans-ui',
+    fontRequirements:['builder-available','legally-usable','hungarian-characters'] as const,
+    rhythm:'high-energy-home-ordered-commerce-pages-restrained-checkout',
+  },
+  experience:{
+    homeOrder:STREET_DROP_HOME_SECTION_ORDER,
+    heroLayers:['badge','headline','copy','primary-cta','secondary-cta','image'] as const,
+    dropAlertLayers:['eyebrow','headline','copy','cta'] as const,
+    pdpGrid:'desktop-tablet-7-5-mobile-12-12',
+    checkoutPresentation:'shared-provider-neutral-E13',
+  },
+  engineContract:{
+    historicalRequiredForFullExperience:STREET_DROP_WAVE45_ACCEPTANCE.engineContract.currentRequiredForFullExperience,
+    historicalOptional:STREET_DROP_WAVE45_ACCEPTANCE.engineContract.currentOptional,
+    currentRequiredForFullExperience:STREET_DROP_ENGINE_CONTRACT.requiredForFullExperience,
+    currentOptional:STREET_DROP_ENGINE_CONTRACT.optional,
+  },
+  sharedAuthority:{
+    runtime:'E1-shared-page-schema-runtime',
+    discovery:'E2-only-for-catalog-search-product-eligibility-authority',
+    structuredFacts:'E7-optional-source-supplied-structured-product-facts',
+    guidedFinder:'E3-optional-shared-guided-fit-finder',
+    recommendations:'shared-recommendation-surface-only',
+    scarcity:'inventory-binding-only',
+    releaseStatus:'authoritative-binding-only',
+    checkout:'shared-provider-neutral-E13',
+    futureReleaseEngine:'shared-release-or-drop-engine-only-never-template-local',
+  },
+  builderContract:{
+    hierarchy:'template-page-presets-section-presets-components',
+    stableIdentity:'stable-node-ids-and-stable-binding-paths',
+    responsiveGrid:'shared-desktop-tablet-mobile-grid',
+    pagePresetCount:14,
+    minimumPlan:'alap',
+    protectedHomeSequence:true,
+    protectedPdpGrid:'desktop-tablet-7-5-mobile-12-12',
+    imageRule:'business-copy-price-promo-and-cta-never-baked-into-image-assets',
+    runtimeAllowlistWidened:false,
+    componentRegistryWidened:false,
+    bindingNamespaceWidened:false,
+    visualBuilder:'current-shared-builder-compatible-no-template-local-builder-engine',
+  },
+  historicalHardening:{
+    historicalDriftFound:true,
+    correctedReleaseBindingFrom:'drop.releaseStatus',
+    correctedReleaseBindingTo:'inventory.releaseStatus',
+    correctedDuplicateNodeIdFrom:'street-drop-catalog-header',
+    correctedDuplicateNodeIdTo:'street-drop-catalog-collection-header',
+    currentBlobContainsAcceptedWave45Fixes:true,
+    noCurrentContractDrift:true,
+    noAutomaticReplayOfHistoricalPatch:true,
+  },
+  safety:{
+    fabricatedPrice:false,
+    fabricatedStock:false,
+    fabricatedStockCount:false,
+    fabricatedCountdown:false,
+    fabricatedReleaseStatus:false,
+    fabricatedRating:false,
+    templateProductEligibilityAuthority:false,
+    templateInventoryAuthority:false,
+    templateDropScheduler:false,
+    templateCheckoutAuthority:false,
+    templatePaymentAuthority:false,
+  },
+  installationContract:{
+    draftOnly:true,
+    demoNamespace:'fashion-street-drop',
+    mutableAuthority:['storefrontPageDrafts'],
+    immutableAuthority:['products','variants','pricing','inventory','customers','orders','b2b'],
+  },
+  nonScope:[
+    'duplicate-street-drop-template','template-specific-drop-scheduler','template-specific-release-engine',
+    'template-specific-scarcity-engine','template-specific-inventory-engine','fabricated-commerce-or-product-authority',
+    'shared-runtime-allowlist-widening','shared-component-registry-widening','shared-binding-namespace-widening',
+    'template-local-layout-engine','template-local-builder-engine','payment-provider-change','kh-vpos-change',
+    'sql-migration','customer-baseline-change','vercel-production-deploy','supabase-mutation',
+    'fresh-install-project-state-change','tenant-status-change','tenant-plan-change','main-merge','wave65-implementation',
+  ] as const,
+} as const);
