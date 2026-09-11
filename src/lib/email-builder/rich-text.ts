@@ -6,10 +6,15 @@ export type EmailRichTextNode=
   |{type:'text';text:string;marks?:EmailRichTextMarks}
   |{type:'binding';key:string;marks?:EmailRichTextMarks};
 
+function isSafeRichTextHref(value:string){
+  if(value.startsWith('/')&&!value.startsWith('//'))return true;
+  try{const url=new URL(value);return url.protocol==='http:'||url.protocol==='https:';}catch{return false;}
+}
+
 const marksSchema=z.object({
   bold:z.literal(true).optional(),
   italic:z.literal(true).optional(),
-  href:z.string().min(1).max(2048).optional(),
+  href:z.string().min(1).max(2048).refine(isSafeRichTextHref,'Unsafe email link').optional(),
 }).strict().optional();
 
 const textNodeSchema=z.object({type:z.literal('text'),text:z.string().max(12000),marks:marksSchema}).strict();
