@@ -22,14 +22,14 @@ Therefore the current-baseline successor of Wave 48 is this release/integration 
 - Wave 48 final head: `fb63722ceb012a8f7a5b8ae103f6d92cc11b4f4d`;
 - dedicated RC branch: `release/storefront-wave48-checkpoint`;
 - integration preflight PR: #236;
-- integration merge head before this evidence commit: `aaeae51f45106f033b1786eab4f914f6021b0ff0`;
+- integration merge head before checkpoint evidence: `aaeae51f45106f033b1786eab4f914f6021b0ff0`;
 - controlled Draft release PR: #237, base `main`, head `release/storefront-wave48-checkpoint`.
 
 The checkpoint branch was created from the exact current `main`, then the complete inherited storefront stack through Wave 48 was integrated into it. The storefront stack was **not** rebased onto `main`, and the stacked Draft PR chain was not rewritten.
 
 ## Baseline reconciliation
 
-The two development lines intentionally carried different customer-baseline states before integration:
+The two development lines intentionally carried different customer-baseline states before integration.
 
 ### Wave 48 inherited storefront baseline
 
@@ -62,9 +62,27 @@ For this checkpoint, the only permitted Supabase mutation outside CI is limited 
 
 No production migration is authorized by Fresh Install proof. Proof completion only satisfies an evidence prerequisite.
 
+## Fresh Install fail-closed blocker observed on 2026-09-11
+
+The checkpoint attempted to restore the dedicated disposable `Shoperation Fresh Install` project so the genuine empty-target proof could run. Supabase rejected the restore before any database mutation occurred because the organization is already at the maximum **2 active free projects**; the two active projects are production `waterk-platform` and `waterk-staging`.
+
+The rejected restore reported that organization members have reached the active free-project limit and must delete, pause, or upgrade a project before another can be restored.
+
+This is an external account-capacity blocker, not a storefront code failure. The release gate therefore remains deliberately fail-closed:
+
+- production is **not** paused, reset, reused, or mutated;
+- staging is **not** paused, reset, reused, or mutated;
+- no alternative non-empty database is accepted as a Fresh Install target;
+- `status` remains `snapshot-reviewed`;
+- `freshInstallProofRequired` remains `true`;
+- `proofContractSha256` remains `null`;
+- PR #237 remains Draft and is **not authorized for production release**.
+
+The only acceptable resolution is to make a genuinely disposable empty Supabase target available and run the existing reviewed Fresh Install contract against the exact ordered current baseline. The gate must not be bypassed by changing the manifest or weakening CI.
+
 ## Required exact-head release evidence
 
-Before this checkpoint can be considered code/evidence complete:
+Before any production authorization:
 
 - PR #237 must remain mergeable against the exact current `main`;
 - Security PASS;
@@ -80,7 +98,7 @@ Before this checkpoint can be considered code/evidence complete:
 - production `/api/health` remains healthy;
 - Water-K remains `pilot / pro`.
 
-If `main` advances again before checkpoint closure, reconciliation must be repeated against the new exact `main` SHA before any release authorization.
+If `main` advances again before release authorization, reconciliation must be repeated against the new exact `main` SHA.
 
 ## Production boundary
 
@@ -95,4 +113,4 @@ This checkpoint evidence/implementation phase does **not** authorize or perform:
 - shared Storefront/commerce authority loosening;
 - Visual Builder implementation or Block 22 work.
 
-A production rollout requires a separate explicit controlled release GO after every gate above is satisfied. Until then PR #237 remains Draft.
+A production rollout requires a separate explicit controlled release GO after every release gate is satisfied. Until then PR #237 remains Draft and the template scale-out stays stopped.
