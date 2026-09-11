@@ -1,55 +1,144 @@
-import {STOREFRONT_BUILDER_FOUNDATION_VERSION,STOREFRONT_DEMO_CONTENT_POLICY,STOREFRONT_PAGE_SCHEMA_VERSION,STOREFRONT_TEMPLATE_MANIFEST_VERSION,STOREFRONT_TEMPLATE_MIGRATION_POLICY,defineStorefrontTemplateManifest,type StorefrontBuilderPageType} from '@/lib/builder/storefront-foundation';
+import {createStorefrontPresetBundle} from '@/lib/builder/storefront-presets';
 import type {StorefrontComponentNode,StorefrontPageDocument} from '@/lib/builder/storefront-runtime';
 import type {StorefrontInstallableTemplatePackage} from '@/lib/builder/storefront-template-installation';
-export const BEAUTY_LAB_TEMPLATE_KEY='beauty.beauty-lab' as const;export const BEAUTY_LAB_TEMPLATE_VERSION=1 as const;
-export const BEAUTY_LAB_VISUAL_DNA=Object.freeze({character:'contemporary-beauty-concept-store-formula-lab-ingredient-driven-shopping',palette:{background:'warm-white-cream',accent:['muted-lilac','sage','dusty-peach'],text:'charcoal'},typography:{display:'soft-modern-serif-or-refined-sans',interface:'clean-sans'},imagery:'formula-ingredient-texture-product',spacing:'airy-clinical-with-warmth',journey:'formula-to-ingredient-to-texture-to-guided-choice-to-product',exclusions:['medical-clinic','diagnostic-ui','black-box-score','fake-clinical-claims']} as const);
-export const BEAUTY_LAB_DESIGN_TOKENS=Object.freeze({'--shoporation-color-background':'#fffaf5','--shoporation-color-surface':'#f5eff3','--shoporation-color-surface-muted':'#ece8df','--shoporation-color-text':'#2d292b','--shoporation-color-muted-text':'#6d6569','--shoporation-color-border':'#ded5da','--shoporation-color-primary':'#2d292b','--shoporation-color-primary-contrast':'#fffaf5','--shoporation-color-accent':'var(--merchant-accent, #a88fb1)','--shoporation-color-sage':'#a9b7a2','--shoporation-color-peach':'#d7a995','--shoporation-heading-font':'var(--merchant-heading-font, Georgia, serif)','--shoporation-body-font':'var(--merchant-body-font, Arial, sans-serif)'} as const);
-export const BEAUTY_LAB_ENGINE_CONTRACT=Object.freeze({requiredForFullExperience:['E1','E2','E3','E7','E13'] as const,optionalLater:['E4'] as const,wave5Integration:{E1:'runtime-implemented',E2:'product-discovery-binding-contract',E3:'guided-finder-v1-implemented',E7:'structured-ingredient-attribute-data-consumed',E13:'checkout-binding-contract',E4:'routine-engine-later'}} as const);
-export const BEAUTY_LAB_MARKETING_LAYER_CONTRACT=Object.freeze({hero:['image','overlay','decoration','badge','title','copy','primary-cta','secondary-cta'] as const,imageRule:'marketing-copy-price-clinical-evidence-and-cta-never-baked-into-image-assets',composition:'shared-visual-layers-plus-guided-finder-no-template-local-engine'} as const);
-export const BEAUTY_LAB_HOME_SECTION_ORDER=['Formula Hero','Formula Finder','Shop by Concern','Ingredient Index Preview','New Formulas','Texture Lab','Routine Feature','Product Grid','Ingredient Story','Reviews','Footer'] as const;
-const node=(x:StorefrontComponentNode):StorefrontComponentNode=>x;const section=(id:string,children:StorefrontComponentNode[],tone='background'):StorefrontComponentNode=>node({id,componentKey:'layout.section',componentVersion:1,config:{tone,spacing:'xl',width:'full'},children:[node({id:`${id}-container`,componentKey:'layout.container',componentVersion:1,config:{width:'content',spacing:'m'},children})]});
-const header=(p:string):StorefrontComponentNode=>node({id:`${p}-header`,componentKey:'system.header',componentVersion:1,config:{brandLabel:'Beauty Lab',brandHref:'/',tone:'background',sticky:true},bindings:{brandLabel:{path:'brand.name',fallback:'Beauty Lab'},brandHref:{path:'brand.homeHref',fallback:'/'}},children:[node({id:`${p}-nav`,componentKey:'system.navigation',componentVersion:1,config:{ariaLabel:'Fő navigáció',items:[],layout:'horizontal'},bindings:{items:{path:'navigation.primary',fallback:[]}}})]});
-const footerFallback=[{id:'shop',title:'Shop',items:[{label:'Formulák',href:'/webaruhaz'},{label:'Összetevők',href:'/osszetevok'}]},{id:'help',title:'Segítség',items:[{label:'GYIK',href:'/gyik'},{label:'Kapcsolat',href:'/kapcsolat'}]}];const footer=(p:string):StorefrontComponentNode=>node({id:`${p}-footer`,componentKey:'editorial.footer',componentVersion:1,config:{brandLabel:'Beauty Lab',columns:footerFallback,copyright:'© Beauty Lab',tone:'background'},bindings:{brandLabel:{path:'brand.name',fallback:'Beauty Lab'},columns:{path:'navigation.footer',fallback:footerFallback},copyright:{path:'brand.copyright',fallback:'© Beauty Lab'}}});
-const base=(key:string,type:StorefrontBuilderPageType,sections:StorefrontComponentNode[],metadata:Record<string,unknown>={}):StorefrontPageDocument=>({schemaVersion:STOREFRONT_PAGE_SCHEMA_VERSION,pageKey:key,pageType:type,templateKey:BEAUTY_LAB_TEMPLATE_KEY,templateVersion:BEAUTY_LAB_TEMPLATE_VERSION,metadata:{goldenTemplate:'Golden #5',visualDNA:BEAUTY_LAB_VISUAL_DNA.character,...metadata},sections});
-const productGrid=(id:string,title:string,path:string,columns=4):StorefrontComponentNode=>node({id,componentKey:'commerce.product-grid',componentVersion:1,config:{title,products:[],columns,presentation:'beauty',showBadges:true,showCompareAt:true,imageRatio:'4 / 5',emptyLabel:'Jelenleg nincs megjeleníthető formula.',currency:'HUF'},bindings:{title:{path:`content.${id}.title`,fallback:title},products:{path,fallback:[]}}});
-const simple=(key:string,type:StorefrontBuilderPageType,title:string,copy:string)=>base(key,type,[header(key.replaceAll('.','-')),section(`${key.replaceAll('.','-')}-body`,[node({id:`${key}-title`,componentKey:'content.heading',componentVersion:1,config:{text:title,level:1,align:'left',tone:'text'}}),node({id:`${key}-copy`,componentKey:'content.text',componentVersion:1,config:{text:copy,as:'p',align:'left',tone:'text'}})]),footer(key.replaceAll('.','-'))],{visualPreset:'beauty-content'});
+import * as fidelity from '@/lib/builder/templates/beauty-lab-fidelity';
 
-export const BEAUTY_LAB_HOME_PAGE=base('beauty-lab.home','home',[
-  header('beauty-home'),
-  node({id:'beauty-formula-hero',componentKey:'visual.layered-canvas',componentVersion:1,config:{height:'hero',tone:'background',radius:'none'},children:[
-    node({id:'beauty-hero-image-layer',componentKey:'visual.layer',componentVersion:1,config:{position:'full',offsetX:'none',offsetY:'none',zIndex:0,width:'full',tone:'transparent',padding:'none',opacity:1,pointerEvents:'none'},children:[node({id:'beauty-hero-image',componentKey:'content.image',componentVersion:1,config:{src:'/storefront-demo/beauty-lab/formula.svg',alt:'Beauty Lab formula vizuál',width:1600,height:1000,fit:'cover',loading:'eager',radius:'none'},bindings:{src:{path:'content.formulaHero.image',fallback:'/storefront-demo/beauty-lab/formula.svg'},alt:{path:'content.formulaHero.imageAlt',fallback:'Beauty Lab formula vizuál'}}})]}),
-    node({id:'beauty-hero-overlay-layer',componentKey:'visual.layer',componentVersion:1,config:{position:'full',offsetX:'none',offsetY:'none',zIndex:1,width:'full',tone:'scrim-soft',padding:'none',opacity:.2,pointerEvents:'none'}}),
-    node({id:'beauty-hero-decoration-layer',componentKey:'visual.layer',componentVersion:1,config:{position:'top-right',offsetX:'l',offsetY:'l',zIndex:2,width:'narrow',tone:'transparent',padding:'none',opacity:.72,pointerEvents:'none'},children:[node({id:'beauty-hero-decoration',componentKey:'content.image',componentVersion:1,config:{src:'/storefront-demo/beauty-lab/texture.svg',alt:'',width:320,height:320,fit:'contain',loading:'eager',radius:'none'},bindings:{src:{path:'content.formulaHero.decoration',fallback:'/storefront-demo/beauty-lab/texture.svg'},alt:{path:'content.formulaHero.decorationAlt',fallback:''}}})]}),
-    node({id:'beauty-hero-badge-layer',componentKey:'visual.layer',componentVersion:1,config:{position:'top-left',offsetX:'l',offsetY:'l',zIndex:3,width:'auto',tone:'surface',padding:'s',opacity:.96,pointerEvents:'auto'},children:[node({id:'beauty-hero-badge',componentKey:'content.text',componentVersion:1,config:{text:'FORMULA LAB',as:'strong',align:'left',tone:'text'},bindings:{text:{path:'content.formulaHero.badge',fallback:'FORMULA LAB'}}})]}),
-    node({id:'beauty-hero-title-layer',componentKey:'visual.layer',componentVersion:1,config:{position:'bottom-left',offsetX:'l',offsetY:'xxl',zIndex:3,width:'wide',tone:'transparent',padding:'none',opacity:1,pointerEvents:'auto'},children:[node({id:'beauty-hero-title',componentKey:'content.heading',componentVersion:1,config:{text:'Ismerd meg a formulát. Válassz tudatosabban.',level:1,align:'left',tone:'text'},bindings:{text:{path:'content.formulaHero.title',fallback:'Ismerd meg a formulát. Válassz tudatosabban.'}}})]}),
-    node({id:'beauty-hero-copy-layer',componentKey:'visual.layer',componentVersion:1,config:{position:'bottom-left',offsetX:'l',offsetY:'xl',zIndex:3,width:'wide',tone:'transparent',padding:'none',opacity:1,pointerEvents:'auto'},children:[node({id:'beauty-hero-copy',componentKey:'content.text',componentVersion:1,config:{text:'Összetevő, textúra és preferencia alapján vezetünk a releváns termékekhez — diagnózis és feketedoboz pontszám nélkül.',as:'p',align:'left',tone:'text'},bindings:{text:{path:'content.formulaHero.copy',fallback:'Összetevő, textúra és preferencia alapján vezetünk a releváns termékekhez — diagnózis és feketedoboz pontszám nélkül.'}}})]}),
-    node({id:'beauty-hero-primary-cta-layer',componentKey:'visual.layer',componentVersion:1,config:{position:'bottom-left',offsetX:'l',offsetY:'m',zIndex:3,width:'auto',tone:'transparent',padding:'none',opacity:1,pointerEvents:'auto'},children:[node({id:'beauty-hero-primary-cta',componentKey:'content.button',componentVersion:1,config:{label:'Formula Finder',href:'#formula-finder',variant:'primary',size:'l',ariaLabel:'Formula Finder'},bindings:{label:{path:'content.formulaHero.primaryLabel',fallback:'Formula Finder'},href:{path:'content.formulaHero.primaryHref',fallback:'#formula-finder'}}})]}),
-    node({id:'beauty-hero-secondary-cta-layer',componentKey:'visual.layer',componentVersion:1,config:{position:'bottom-right',offsetX:'l',offsetY:'m',zIndex:3,width:'auto',tone:'transparent',padding:'none',opacity:1,pointerEvents:'auto'},children:[node({id:'beauty-hero-secondary-cta',componentKey:'content.button',componentVersion:1,config:{label:'Összetevők',href:'/osszetevok',variant:'secondary',size:'l',ariaLabel:'Összetevők'},bindings:{label:{path:'content.formulaHero.secondaryLabel',fallback:'Összetevők'},href:{path:'content.formulaHero.secondaryHref',fallback:'/osszetevok'}}})]})
-  ]}),
-  section('beauty-formula-finder',[node({id:'formula-finder',componentKey:'guided.finder',componentVersion:1,config:{eyebrow:'Guided Finder',title:'Találd meg a formulád',copy:'Válaszolj néhány preferencia-kérdésre. A találatok strukturált termékattribútumok alapján, magyarázható szabályokkal készülnek.',stepTitle:'1. lépés',stepCopy:'Kezdjük a fő preferenciával.',question:'Mit keresel leginkább?',options:[],progressLabel:'1 / 3',actionLabel:'Találatok',actionHref:'#finder-results',resultStatus:''},bindings:{stepTitle:{path:'finder.currentStep.title',fallback:'1. lépés'},stepCopy:{path:'finder.currentStep.copy',fallback:'Kezdjük a fő preferenciával.'},question:{path:'finder.currentQuestion.label',fallback:'Mit keresel leginkább?'},options:{path:'finder.currentQuestion.options',fallback:[]},progressLabel:{path:'finder.progressLabel',fallback:'1 / 3'},actionHref:{path:'finder.resultHref',fallback:'#finder-results'}}})]),
-  section('beauty-concern',[node({id:'beauty-concern-nav',componentKey:'commerce.collection-navigation',componentVersion:1,config:{title:'Válassz preferencia szerint',items:[],columns:4,imageRatio:'1 / 1',tone:'background'},bindings:{items:{path:'collection.concerns',fallback:[]}}})]),
-  section('beauty-ingredient-index',[node({id:'beauty-ingredient-index-block',componentKey:'guided.attribute-index',componentVersion:1,config:{eyebrow:'Ingredient Index',title:'Összetevők, érthetően',copy:'Fedezd fel a formulákban szereplő összetevőket és a hozzájuk kapcsolt termékeket.',items:[],columns:4},bindings:{items:{path:'catalog.ingredientIndex',fallback:[]}}})],'surface'),
-  section('beauty-new-formulas',[productGrid('newFormulas','Új formulák','catalog.newFormulas',4)]),
-  section('beauty-texture-lab',[node({id:'beauty-texture-navigation',componentKey:'guided.attribute-navigation',componentVersion:1,config:{eyebrow:'Texture Lab',title:'Válassz textúra szerint',items:[]},bindings:{items:{path:'catalog.textureNavigation',fallback:[]}}})]),
-  node({id:'beauty-routine-feature',componentKey:'editorial.split-feature',componentVersion:1,config:{eyebrow:'Routine',title:'Egyszerű rutin, jól érthető lépések.',copy:'A rutin-ajánlás külön E4 engine feladata lesz; ez a blokk most szerkesztett tartalmi felület.',image:'/storefront-demo/beauty-lab/texture.svg',imageAlt:'Beauty Lab textúra és rutin vizuál',ctaLabel:'Rutin útmutató',ctaHref:'/journal/rutin',imagePosition:'left',tone:'surface'},bindings:{eyebrow:{path:'content.routineFeature.eyebrow',fallback:'Routine'},title:{path:'content.routineFeature.title',fallback:'Egyszerű rutin, jól érthető lépések.'},copy:{path:'content.routineFeature.copy',fallback:'A rutin-ajánlás külön E4 engine feladata lesz; ez a blokk most szerkesztett tartalmi felület.'},image:{path:'content.routineFeature.image',fallback:'/storefront-demo/beauty-lab/texture.svg'},imageAlt:{path:'content.routineFeature.imageAlt',fallback:'Beauty Lab textúra és rutin vizuál'},ctaLabel:{path:'content.routineFeature.ctaLabel',fallback:'Rutin útmutató'},ctaHref:{path:'content.routineFeature.ctaHref',fallback:'/journal/rutin'}}}),
-  section('beauty-product-grid',[productGrid('beautyProductGrid','Beauty Lab válogatás','catalog.featured',4)]),
-  node({id:'beauty-ingredient-story',componentKey:'editorial.split-feature',componentVersion:1,config:{eyebrow:'Ingredient Story',title:'Egy összetevő története',copy:'Szerkesztett edukációs tartalom termék- és összetevőkapcsolatokkal, orvosi állítások nélkül.',image:'/storefront-demo/beauty-lab/ingredient.svg',imageAlt:'Beauty Lab ingredient story vizuál',ctaLabel:'Tovább az indexhez',ctaHref:'/osszetevok',imagePosition:'right',tone:'background'},bindings:{eyebrow:{path:'content.ingredientStory.eyebrow',fallback:'Ingredient Story'},title:{path:'content.ingredientStory.title',fallback:'Egy összetevő története'},copy:{path:'content.ingredientStory.copy',fallback:'Szerkesztett edukációs tartalom termék- és összetevőkapcsolatokkal, orvosi állítások nélkül.'},image:{path:'content.ingredientStory.image',fallback:'/storefront-demo/beauty-lab/ingredient.svg'},imageAlt:{path:'content.ingredientStory.imageAlt',fallback:'Beauty Lab ingredient story vizuál'},ctaLabel:{path:'content.ingredientStory.ctaLabel',fallback:'Tovább az indexhez'},ctaHref:{path:'content.ingredientStory.ctaHref',fallback:'/osszetevok'}}}),
-  section('beauty-reviews',[node({id:'beauty-review-summary',componentKey:'commerce.review-summary',componentVersion:1,config:{rating:null,count:null,label:'Rólunk mondták'},bindings:{rating:{path:'reviews.rating',fallback:null},count:{path:'reviews.count',fallback:null},label:{path:'reviews.label',fallback:'Rólunk mondták'}}})]),
-  footer('beauty-home')
-],{sectionOrder:BEAUTY_LAB_HOME_SECTION_ORDER,visualPreset:'formula-lab-home',engineBinding:'E2+E3+E7',layerContract:BEAUTY_LAB_MARKETING_LAYER_CONTRACT});
+export {
+  BEAUTY_LAB_TEMPLATE_KEY,
+  BEAUTY_LAB_TEMPLATE_VERSION,
+  BEAUTY_LAB_DESIGN_TOKENS,
+  BEAUTY_LAB_ENGINE_CONTRACT,
+  BEAUTY_LAB_CATALOG_PAGE,
+  BEAUTY_LAB_PRODUCT_PAGE,
+  BEAUTY_LAB_SEARCH_PAGE,
+  BEAUTY_LAB_CART_PAGE,
+  BEAUTY_LAB_CHECKOUT_PAGE,
+  BEAUTY_LAB_ACCOUNT_PAGE,
+  BEAUTY_LAB_CONTENT_PAGE,
+  BEAUTY_LAB_BLOG_INDEX_PAGE,
+  BEAUTY_LAB_BLOG_ARTICLE_PAGE,
+  BEAUTY_LAB_FAQ_PAGE,
+  BEAUTY_LAB_CONTACT_PAGE,
+  BEAUTY_LAB_LEGAL_PAGE,
+  BEAUTY_LAB_NOT_FOUND_PAGE,
+  BEAUTY_LAB_TEMPLATE_MANIFEST,
+} from '@/lib/builder/templates/beauty-lab-fidelity';
 
-export const BEAUTY_LAB_CATALOG_PAGE=base('beauty-lab.catalog','catalog',[header('beauty-catalog'),section('beauty-catalog-head',[node({id:'beauty-catalog-title',componentKey:'content.heading',componentVersion:1,config:{text:'Formulák',level:1,align:'left',tone:'text'},bindings:{text:{path:'collection.current.title',fallback:'Formulák'}}})]),section('beauty-catalog-attributes',[node({id:'beauty-catalog-attribute-nav',componentKey:'guided.attribute-navigation',componentVersion:1,config:{eyebrow:'Discover',title:'Szűrés preferencia szerint',items:[]},bindings:{items:{path:'catalog.attributeNavigation',fallback:[]}}})]),section('beauty-catalog-products',[productGrid('catalogGrid','Termékek','catalog.products',4)]),footer('beauty-catalog')],{visualPreset:'ingredient-driven-catalog',engineBinding:'E2+E7'});
-export const BEAUTY_LAB_PRODUCT_PAGE=base('beauty-lab.product','product',[header('beauty-product'),section('beauty-product-main',[node({id:'beauty-product-grid-layout',componentKey:'layout.grid',componentVersion:1,config:{columns:12,gap:'l',align:'start'},children:[node({id:'beauty-product-gallery',componentKey:'commerce.product-gallery',componentVersion:1,config:{images:[],aspectRatio:'4 / 5',thumbnailPosition:'bottom'},bindings:{images:{path:'product.gallery',fallback:[]}},responsive:{desktop:{gridSpan:7},tablet:{gridSpan:7},mobile:{gridSpan:12}}}),node({id:'beauty-product-buybox',componentKey:'layout.stack',componentVersion:1,config:{direction:'vertical',gap:'m',align:'stretch',justify:'start'},responsive:{desktop:{gridSpan:5},tablet:{gridSpan:5},mobile:{gridSpan:12}},children:[node({id:'beauty-product-info',componentKey:'commerce.product-info',componentVersion:1,config:{eyebrow:'Beauty Lab',title:'Formula',price:'',compareAtPrice:'',description:'',stockLabel:'',badges:[],currency:'HUF'},bindings:{title:{path:'product.name',fallback:'Formula'},price:{path:'pricing.displayPrice',fallback:''},compareAtPrice:{path:'pricing.compareAtPrice',fallback:''},description:{path:'product.description',fallback:''},stockLabel:{path:'inventory.stockLabel',fallback:''},badges:{path:'product.badges',fallback:[]}}}),node({id:'beauty-product-key-specs',componentKey:'commerce.key-specs',componentVersion:1,config:{title:'Formula profil',items:[],columns:2,missingLabel:'Nincs megadva'},bindings:{items:{path:'product.keySpecs',fallback:[]}}}),node({id:'beauty-product-cta',componentKey:'content.button',componentVersion:1,config:{label:'Kosárba teszem',href:'#purchase',variant:'primary',size:'l',ariaLabel:'Kosárba teszem'},bindings:{label:{path:'commerce.purchaseLabel',fallback:'Kosárba teszem'},href:{path:'commerce.purchaseHref',fallback:'#purchase'}}})]})]})]),section('beauty-product-specs',[node({id:'beauty-product-spec-groups',componentKey:'commerce.specification-groups',componentVersion:1,config:{title:'Összetevők és tulajdonságok',groups:[],missingLabel:'Nincs megadva'},bindings:{groups:{path:'product.specGroups',fallback:[]}}})]),section('beauty-product-finder-evidence',[node({id:'beauty-finder-explanation',componentKey:'guided.explanation',componentVersion:1,config:{title:'Miért illik a választásodhoz?',matchedTitle:'Egyező szempontok',mismatchedTitle:'Eltérő szempontok',evidence:[]},bindings:{evidence:{path:'finder.productEvidence',fallback:[]}}})]),section('beauty-product-recommendations',[node({id:'beauty-product-recommendations-block',componentKey:'commerce.recommendation-row',componentVersion:1,config:{title:'Kapcsolódó formulák',products:[],columns:4,emptyLabel:'Nincs kapcsolódó ajánlat.',currency:'HUF'},bindings:{products:{path:'recommendations.products',fallback:[]}}})]),footer('beauty-product')],{visualPreset:'formula-product',engineBinding:'E3+E7'});
-export const BEAUTY_LAB_SEARCH_PAGE=base('beauty-lab.search','search',[header('beauty-search'),section('beauty-search-head',[node({id:'beauty-search-title',componentKey:'content.heading',componentVersion:1,config:{text:'Keresési eredmények',level:1,align:'left',tone:'text'},bindings:{text:{path:'search.title',fallback:'Keresési eredmények'}}})]),section('beauty-search-results',[productGrid('searchResults','Találatok','search.results',4)]),footer('beauty-search')],{visualPreset:'beauty-search',engineBinding:'E2'});
-export const BEAUTY_LAB_CART_PAGE=base('beauty-lab.cart','cart',[header('beauty-cart'),section('beauty-cart-body',[node({id:'beauty-cart-summary',componentKey:'commerce.cart-summary',componentVersion:1,config:{lines:[],subtotal:'',total:'',currency:'HUF',checkoutHref:'/penztar',checkoutLabel:'Tovább a pénztárhoz',emptyLabel:'A kosarad üres.'},bindings:{lines:{path:'cart.lines',fallback:[]},subtotal:{path:'cart.subtotal',fallback:''},total:{path:'cart.total',fallback:''}}})]),footer('beauty-cart')],{visualPreset:'beauty-cart'});
-export const BEAUTY_LAB_CHECKOUT_PAGE=base('beauty-lab.checkout','checkout',[header('beauty-checkout'),section('beauty-checkout-body',[node({id:'beauty-checkout-heading',componentKey:'content.heading',componentVersion:1,config:{text:'Pénztár',level:1,align:'left',tone:'text'}}),node({id:'beauty-checkout-summary',componentKey:'commerce.checkout-summary',componentVersion:1,config:{lines:[],subtotal:'',shipping:'',total:'',currency:'HUF',secureLabel:'A végleges ár, készlet és rendelési ellenőrzés a közös checkout engine feladata.'},bindings:{lines:{path:'cart.lines',fallback:[]},subtotal:{path:'cart.subtotal',fallback:''},shipping:{path:'cart.shipping',fallback:''},total:{path:'cart.total',fallback:''}}})]),footer('beauty-checkout')],{visualPreset:'beauty-checkout',engineBinding:'E13'});
-export const BEAUTY_LAB_ACCOUNT_PAGE=simple('beauty-lab.account','account','Fiókom','Rendelések, profiladatok és vásárlói beállítások.');
-export const BEAUTY_LAB_CONTENT_PAGE=base('beauty-lab.content','content',[header('beauty-content'),section('beauty-content-index',[node({id:'beauty-content-ingredient-index',componentKey:'guided.attribute-index',componentVersion:1,config:{eyebrow:'Ingredient Index',title:'Összetevő-index',copy:'Strukturált összetevőinformáció és kapcsolódó formulák.',items:[],columns:4},bindings:{items:{path:'catalog.ingredientIndex',fallback:[]}}})]),footer('beauty-content')],{visualPreset:'ingredient-index',contentRole:'ingredient-index',engineBinding:'E7'});
-export const BEAUTY_LAB_BLOG_INDEX_PAGE=simple('beauty-lab.blog-index','blog-index','Beauty Journal','Formula-, összetevő- és rutinútmutatók.');
-export const BEAUTY_LAB_BLOG_ARTICLE_PAGE=simple('beauty-lab.blog-article','blog-article','Beauty Journal','Szerkesztett edukációs tartalom diagnózis és orvosi állítások nélkül.');
-export const BEAUTY_LAB_FAQ_PAGE=simple('beauty-lab.faq','faq','Gyakori kérdések','Rendelés, formulák, összetevők és termékhasználat.');
-export const BEAUTY_LAB_CONTACT_PAGE=simple('beauty-lab.contact','contact','Kapcsolat','Segítünk a webshop és a termékinformációk használatában.');
-export const BEAUTY_LAB_LEGAL_PAGE=simple('beauty-lab.legal','legal','Jogi információk','A kereskedő jogi és adatkezelési tartalmának helye.');
-export const BEAUTY_LAB_NOT_FOUND_PAGE=simple('beauty-lab.not-found','not-found','404 — Nem található','A keresett oldal nem érhető el.');
-export const BEAUTY_LAB_TEMPLATE_MANIFEST=defineStorefrontTemplateManifest({foundationVersion:STOREFRONT_BUILDER_FOUNDATION_VERSION,manifestVersion:STOREFRONT_TEMPLATE_MANIFEST_VERSION,templateKey:BEAUTY_LAB_TEMPLATE_KEY,templateVersion:BEAUTY_LAB_TEMPLATE_VERSION,pageSchemaVersion:STOREFRONT_PAGE_SCHEMA_VERSION,minPlan:'alap',requiredFeatures:['catalog','inventory','orders','contentMarketing','productRecommendations','reviews','searchFiltering','commerceIntegrations'],pageTypes:['home','catalog','product','search','cart','checkout','account','content','blog-index','blog-article','faq','contact','legal','not-found'],responsive:{desktop:true,tablet:true,mobile:true},migration:STOREFRONT_TEMPLATE_MIGRATION_POLICY,demoContent:{namespace:'beauty-beauty-lab',policy:STOREFRONT_DEMO_CONTENT_POLICY}});
-export const BEAUTY_LAB_TEMPLATE_PACKAGE:StorefrontInstallableTemplatePackage={manifest:BEAUTY_LAB_TEMPLATE_MANIFEST,pages:[BEAUTY_LAB_HOME_PAGE,BEAUTY_LAB_CATALOG_PAGE,BEAUTY_LAB_PRODUCT_PAGE,BEAUTY_LAB_SEARCH_PAGE,BEAUTY_LAB_CART_PAGE,BEAUTY_LAB_CHECKOUT_PAGE,BEAUTY_LAB_ACCOUNT_PAGE,BEAUTY_LAB_CONTENT_PAGE,BEAUTY_LAB_BLOG_INDEX_PAGE,BEAUTY_LAB_BLOG_ARTICLE_PAGE,BEAUTY_LAB_FAQ_PAGE,BEAUTY_LAB_CONTACT_PAGE,BEAUTY_LAB_LEGAL_PAGE,BEAUTY_LAB_NOT_FOUND_PAGE],demoFixtures:[{entityType:'collection',entityKey:'new-formulas',payload:{title:'Új formulák',handle:'new-formulas',demo:true}},{entityType:'product',entityKey:'cloud-cream',payload:{name:'Cloud Cream',slug:'cloud-cream',demo:true}},{entityType:'content',entityKey:'ingredient-index',payload:{title:'Összetevő-index',kind:'ingredient-index',demo:true}}]};
+/**
+ * Wave 32 is a released schema/API contract. Visual Fidelity Pilot 01 may evolve
+ * the rendered composition, but the public Beauty Lab module must preserve these
+ * historical semantic identities for installed drafts, migrations and tests.
+ */
+export const BEAUTY_LAB_VISUAL_DNA=Object.freeze({
+  ...fidelity.BEAUTY_LAB_VISUAL_DNA,
+  journey:'formula-to-ingredient-to-texture-to-guided-choice-to-product',
+} as const);
+
+export const BEAUTY_LAB_MARKETING_LAYER_CONTRACT=Object.freeze({
+  ...fidelity.BEAUTY_LAB_MARKETING_LAYER_CONTRACT,
+  hero:['image','overlay','decoration','badge','title','copy','primary-cta','secondary-cta'] as const,
+});
+
+export const BEAUTY_LAB_HOME_SECTION_ORDER=[
+  'Formula Hero',
+  'Formula Finder',
+  'Shop by Concern',
+  'Ingredient Index Preview',
+  'New Formulas',
+  'Texture Lab',
+  'Routine Feature',
+  'Product Grid',
+  'Ingredient Story',
+  'Reviews',
+  'Footer',
+] as const;
+
+/** New fidelity semantics stay explicitly available without redefining Wave 32. */
+export const BEAUTY_LAB_FIDELITY_VISUAL_DNA=fidelity.BEAUTY_LAB_VISUAL_DNA;
+export const BEAUTY_LAB_FIDELITY_MARKETING_LAYER_CONTRACT=fidelity.BEAUTY_LAB_MARKETING_LAYER_CONTRACT;
+export const BEAUTY_LAB_FIDELITY_HOME_SECTION_ORDER=fidelity.BEAUTY_LAB_HOME_SECTION_ORDER;
+
+const clone=<T>(value:T):T=>JSON.parse(JSON.stringify(value)) as T;
+const hiddenResponsive=()=>({desktop:{hidden:true},tablet:{hidden:true},mobile:{hidden:true}});
+const compatibilityLayer=(id:string,children:StorefrontComponentNode[]=[]):StorefrontComponentNode=>({
+  id,
+  componentKey:'visual.layer',
+  componentVersion:1,
+  config:{position:'full',offsetX:'none',offsetY:'none',zIndex:0,width:'auto',height:'auto',tone:'transparent',padding:'none',opacity:0,pointerEvents:'none'},
+  responsive:hiddenResponsive(),
+  children,
+});
+
+const compatibilityImage=(id:string,srcPath:string,altPath:string):StorefrontComponentNode=>({
+  id,
+  componentKey:'content.image',
+  componentVersion:1,
+  config:{src:'',alt:'',width:1,height:1,fit:'cover',loading:'lazy',radius:'none'},
+  bindings:{src:{path:srcPath,fallback:''},alt:{path:altPath,fallback:''}},
+});
+
+const compatibilityHeading=(id:string):StorefrontComponentNode=>({
+  id,
+  componentKey:'content.heading',
+  componentVersion:1,
+  config:{text:'',level:1,align:'left',tone:'text'},
+  bindings:{text:{path:'content.formulaHero.title',fallback:'YOUR SKIN. YOUR FORMULA.'}},
+});
+
+const compatibilityButton=(id:string,labelPath:string,hrefPath:string,label:string):StorefrontComponentNode=>({
+  id,
+  componentKey:'content.button',
+  componentVersion:1,
+  config:{label,href:'#formula-finder',variant:'secondary',size:'m',ariaLabel:label},
+  bindings:{label:{path:labelPath,fallback:label},href:{path:hrefPath,fallback:'#formula-finder'}},
+});
+
+function walk(nodes:StorefrontComponentNode[],visit:(node:StorefrontComponentNode)=>void){
+  for(const node of nodes){visit(node);walk(node.children??[],visit);}
+}
+
+function buildCompatibilityHome():StorefrontPageDocument{
+  const page=clone(fidelity.BEAUTY_LAB_HOME_PAGE);
+  let hero:StorefrontComponentNode|undefined;
+  let badge:StorefrontComponentNode|undefined;
+  walk(page.sections,node=>{
+    if(node.id==='beauty-formula-hero')hero=node;
+    if(node.id==='beauty-hero-badge')badge=node;
+  });
+  if(!hero)throw new Error('BEAUTY_LAB_COMPATIBILITY_HERO_MISSING');
+
+  if(badge){
+    badge.bindings={...(badge.bindings??{}),text:{path:'content.formulaHero.badge',fallback:'CLEAN BEAUTY'}};
+  }
+
+  const existing=new Set((hero.children??[]).map(node=>node.id));
+  const aliases:StorefrontComponentNode[]=[
+    compatibilityLayer('beauty-hero-image-layer',[compatibilityImage('beauty-hero-image-wave32-binding','content.formulaHero.image','content.formulaHero.imageAlt')]),
+    compatibilityLayer('beauty-hero-overlay-layer'),
+    compatibilityLayer('beauty-hero-decoration-layer',[compatibilityImage('beauty-hero-decoration-wave32-binding','content.formulaHero.decoration','content.formulaHero.decorationAlt')]),
+    compatibilityLayer('beauty-hero-title-layer',[compatibilityHeading('beauty-hero-title-wave32-binding')]),
+    compatibilityLayer('beauty-hero-primary-cta-layer',[compatibilityButton('beauty-hero-primary-cta-wave32-binding','content.formulaHero.primaryLabel','content.formulaHero.primaryHref','Találd meg a formulád')]),
+    compatibilityLayer('beauty-hero-secondary-cta-layer',[compatibilityButton('beauty-hero-secondary-cta-wave32-binding','content.formulaHero.secondaryLabel','content.formulaHero.secondaryHref','Összetevők')]),
+  ];
+  hero.children=[...(hero.children??[]),...aliases.filter(node=>!existing.has(node.id))];
+
+  return{
+    ...page,
+    metadata:{
+      ...page.metadata,
+      sectionOrder:BEAUTY_LAB_HOME_SECTION_ORDER,
+      visualFidelitySectionOrder:BEAUTY_LAB_FIDELITY_HOME_SECTION_ORDER,
+      visualFidelityJourney:BEAUTY_LAB_FIDELITY_VISUAL_DNA.journey,
+      compatibilityContract:'wave32-preserved-under-visual-fidelity-pilot01',
+    },
+  };
+}
+
+export const BEAUTY_LAB_HOME_PAGE=buildCompatibilityHome();
+
+export const BEAUTY_LAB_TEMPLATE_PACKAGE:StorefrontInstallableTemplatePackage={
+  ...fidelity.BEAUTY_LAB_TEMPLATE_PACKAGE,
+  pages:fidelity.BEAUTY_LAB_TEMPLATE_PACKAGE.pages.map(page=>page.pageType==='home'?BEAUTY_LAB_HOME_PAGE:page),
+};
+
+export const BEAUTY_LAB_PRESET_BUNDLE=createStorefrontPresetBundle(BEAUTY_LAB_TEMPLATE_PACKAGE);

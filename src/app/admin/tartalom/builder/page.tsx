@@ -1,3 +1,4 @@
+import type {CSSProperties} from 'react';
 import {requirePlanFeature} from '@/lib/plans/access';
 import {requireCurrentStoreContext} from '@/lib/instances/scope';
 import {getCurrentStorefrontPageState} from '@/lib/builder/storefront-persistence';
@@ -9,6 +10,7 @@ import {
 } from '@/lib/builder/storefront-builder-server';
 import {STOREFRONT_TEMPLATE_CATALOG} from '@/lib/builder/storefront-template-catalog';
 import {listStorefrontTemplateLibraryEntries} from '@/lib/builder/storefront-template-library';
+import {getStorefrontTemplatePreviewTheme} from '@/lib/builder/storefront-template-preview-demo';
 import {StorefrontVisualBuilder} from '@/components/admin/storefront-visual-builder';
 import {StorefrontTemplateLibrary} from '@/components/admin/storefront-template-library';
 
@@ -41,7 +43,8 @@ export default async function VisualBuilderAdmin({searchParams}:Props){
     />
   </section>;
 
-  return <section className="adminMain">
+  const theme=getStorefrontTemplatePreviewTheme(document.templateKey) as CSSProperties;
+  return <section className="adminMain" style={theme} data-storefront-builder-theme={document.templateKey}>
     <StorefrontVisualBuilder
       key={selectedKey??'no-page'}
       pages={pages}
