@@ -5,17 +5,18 @@ import {createStorefrontVisualBuilderComponentRegistry} from '@/lib/builder/stor
 import {validateStorefrontPageDocument} from '@/lib/builder/storefront-runtime';
 
 describe('storefront template preview runtime',()=>{
-  it('validates every catalog template home page with preview capabilities',()=>{
+  it('validates every catalog template page with preview capabilities',()=>{
     const registry=createStorefrontVisualBuilderComponentRegistry();
     const capability={plan:'pro' as const,features:[...PLANS.pro.features]};
-    const failures:Array<{templateKey:string;violations:unknown[]}|{templateKey:string;missing:string}>=[];
+    const failures:Array<{templateKey:string;pageKey?:string;violations?:unknown[];missing?:string}>=[];
     for(const entry of STOREFRONT_TEMPLATE_CATALOG){
       const template=getStorefrontTemplatePackage(entry.templateKey,entry.templateVersion);
       if(!template){failures.push({templateKey:entry.templateKey,missing:'template'});continue;}
-      const page=template.pages.find(candidate=>candidate.pageType==='home')??template.pages[0];
-      if(!page){failures.push({templateKey:entry.templateKey,missing:'page'});continue;}
-      const result=validateStorefrontPageDocument(page,registry,capability);
-      if(!result.ok)failures.push({templateKey:entry.templateKey,violations:result.violations});
+      if(!template.pages.length){failures.push({templateKey:entry.templateKey,missing:'pages'});continue;}
+      for(const page of template.pages){
+        const result=validateStorefrontPageDocument(page,registry,capability);
+        if(!result.ok)failures.push({templateKey:entry.templateKey,pageKey:page.pageKey,violations:result.violations});
+      }
     }
     expect(failures,JSON.stringify(failures)).toEqual([]);
   });
