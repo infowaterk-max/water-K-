@@ -30,16 +30,9 @@ export async function loadPredictiveCommerceSignals(instanceId:string):Promise<P
 export async function loadCommerceAutonomyPolicy(instanceId:string):Promise<CommerceAutonomyPolicy>{
   const admin=createAdminClient();
   const{data,error}=await admin.from('commerce_autonomy_policies').select('mode,kill_switch,min_confidence,max_risk_score,max_impact_net_huf,margin_floor_percent,inventory_floor_quantity,max_discount_percent,max_budget_net_huf,stale_after_minutes,allowed_actions').eq('instance_id',instanceId).maybeSingle();
-  if(error){
-    if(error.code==='42P01')return DEFAULT_COMMERCE_AUTONOMY_POLICY;
-    throw error;
-  }
+  if(error){if(error.code==='42P01')return DEFAULT_COMMERCE_AUTONOMY_POLICY;throw error;}
   if(!data)return DEFAULT_COMMERCE_AUTONOMY_POLICY;
-  return{
-    mode:mode(data.mode),killSwitch:Boolean(data.kill_switch),minConfidence:n(data.min_confidence),maxRiskScore:n(data.max_risk_score),maxImpactNetHuf:n(data.max_impact_net_huf),
-    marginFloorPercent:n(data.margin_floor_percent),inventoryFloorQuantity:n(data.inventory_floor_quantity),maxDiscountPercent:n(data.max_discount_percent),maxBudgetNetHuf:n(data.max_budget_net_huf),
-    staleAfterMinutes:n(data.stale_after_minutes)||15,allowedActions:allowed(data.allowed_actions),
-  };
+  return{mode:mode(data.mode),killSwitch:Boolean(data.kill_switch),minConfidence:n(data.min_confidence),maxRiskScore:n(data.max_risk_score),maxImpactNetHuf:n(data.max_impact_net_huf),marginFloorPercent:n(data.margin_floor_percent),inventoryFloorQuantity:n(data.inventory_floor_quantity),maxDiscountPercent:n(data.max_discount_percent),maxBudgetNetHuf:n(data.max_budget_net_huf),staleAfterMinutes:n(data.stale_after_minutes)||15,allowedActions:allowed(data.allowed_actions)};
 }
 
 export async function loadAutomationControl(instanceId:string):Promise<AutomationControlState>{
@@ -53,19 +46,13 @@ export async function saveCommerceAutonomyPolicy(instanceId:string,actorId:strin
   const admin=createAdminClient();
   const payload={instance_id:instanceId,mode:policy.mode,kill_switch:policy.killSwitch,min_confidence:policy.minConfidence,max_risk_score:policy.maxRiskScore,max_impact_net_huf:policy.maxImpactNetHuf,margin_floor_percent:policy.marginFloorPercent,inventory_floor_quantity:policy.inventoryFloorQuantity,max_discount_percent:policy.maxDiscountPercent,max_budget_net_huf:policy.maxBudgetNetHuf,stale_after_minutes:policy.staleAfterMinutes,allowed_actions:policy.allowedActions,updated_by:actorId,updated_at:new Date().toISOString()};
   const{data,error}=await admin.from('commerce_autonomy_policies').upsert(payload,{onConflict:'instance_id'}).select().single();
-  if(error)throw error;
-  return data;
+  if(error)throw error;return data;
 }
 
 export async function ensureHighRiskProposal(instanceId:string,actorId:string,signal:PredictiveCommerceSignal){
   const admin=createAdminClient();
-  const{data,error}=await admin.rpc('create_block19_action_proposal_v1',{
-    p_instance_id:instanceId,p_actor_id:actorId,p_prediction_key:signal.key,p_requested_action_kind:signal.actionKind,p_risk_score:signal.riskScore,
-    p_rationale:signal.recommendation,p_source_snapshot:sanitizeWorkflowEvidence({authority:signal.authority,confidence:signal.confidence,expectedImpactNetHuf:signal.expectedImpactNetHuf,observedAt:signal.observedAt}),
-    p_proposed_payload:sanitizeWorkflowEvidence({requestedActionKind:signal.actionKind,...signal.guardMetrics}),
-  });
-  if(error)throw error;
-  return String(data);
+  const{data,error}=await admin.rpc('create_block19_action_proposal_v1',{p_instance_id:instanceId,p_actor_id:actorId,p_prediction_key:signal.key,p_requested_action_kind:signal.actionKind,p_risk_score:signal.riskScore,p_rationale:signal.recommendation,p_source_snapshot:sanitizeWorkflowEvidence({authority:signal.authority,confidence:signal.confidence,expectedImpactNetHuf:signal.expectedImpactNetHuf,observedAt:signal.observedAt}),p_proposed_payload:sanitizeWorkflowEvidence({requestedActionKind:signal.actionKind,...signal.guardMetrics})});
+  if(error)throw error;return String(data);
 }
 
 export async function executeBoundedPrediction(instanceId:string,actorId:string,signal:PredictiveCommerceSignal){
@@ -74,10 +61,8 @@ export async function executeBoundedPrediction(instanceId:string,actorId:string,
   const guard=evaluateAutonomyGuardrails(signal,policy,control);
   const runKey=`block19:${signal.key}:${signal.observedAt.slice(0,13)}`;
   const snapshot={version:PREDICTIVE_COMMERCE_VERSION,signalKey:signal.key,actionKind:signal.actionKind,confidence:signal.confidence,riskScore:signal.riskScore,riskClass:signal.riskClass,expectedImpactNetHuf:signal.expectedImpactNetHuf,observedAt:signal.observedAt,authority:signal.authority};
-
   const{data:existing,error:existingError}=await admin.from('commerce_autonomy_runs').select('*').eq('instance_id',instanceId).eq('run_key',runKey).maybeSingle();
-  if(existingError)throw existingError;
-  if(existing)return existing;
+  if(existingError)throw existingError;if(existing)return existing;
 
   if(guard.decision==='approval_required'){
     const proposalId=await ensureHighRiskProposal(instanceId,actorId,signal);
@@ -101,6 +86,9 @@ export async function compensateAutonomyRun(instanceId:string,actorId:string,run
   const{data:run,error}=await admin.from('commerce_autonomy_runs').select('id,status,runbook_instance_id').eq('id',runId).eq('instance_id',instanceId).maybeSingle();
   if(error||!run)throw error??new Error('AUTONOMY_RUN_NOT_FOUND');
   if(!run.runbook_instance_id)throw new Error('AUTONOMY_RUN_NOT_COMPENSATABLE');
+  const{data:runbook,error:runbookError}=await admin.from('automation_runbook_instances').select('status').eq('id',run.runbook_instance_id).eq('instance_id',instanceId).maybeSingle();
+  if(runbookError||!runbook)throw runbookError??new Error('AUTONOMY_RUNBOOK_NOT_FOUND');
+  if(!['planned','active','paused'].includes(String(runbook.status)))throw new Error('AUTONOMY_RUN_NOT_COMPENSATABLE_TERMINAL');
   const eventKey=`block19:compensate:${run.id}`;
   const{data:transition,error:transitionError}=await admin.rpc('transition_automation_instance_v2',{p_store_instance_id:instanceId,p_runbook_instance_id:run.runbook_instance_id,p_actor_id:actorId,p_target:'cancelled',p_event_key:eventKey,p_reason:'Block 19 human override / compensation'});
   if(transitionError)throw transitionError;
