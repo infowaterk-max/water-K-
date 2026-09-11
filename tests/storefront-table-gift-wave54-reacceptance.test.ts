@@ -134,8 +134,8 @@ describe('Scale-out Wave 54 Table & Gift current-baseline reacceptance',()=>{
     expect(product('table-gift-product-gallery')?.responsive).toEqual({desktop:{gridSpan:7},tablet:{gridSpan:7},mobile:{gridSpan:12}});
     expect(product('table-gift-product-buybox')?.responsive).toEqual({desktop:{gridSpan:5},tablet:{gridSpan:5},mobile:{gridSpan:12}});
     const source=JSON.stringify(TABLE_GIFT_PRODUCT_PAGE);
-    for(const path of ['product.gallery','product.name','pricing.displayPrice','pricing.compareAtPrice','inventory.stockLabel','variant.optionOptions','commerce.purchaseHref','finder.productEvidence','recommendations.products'])expect(source).toContain(path);
-    expect(TABLE_GIFT_WAVE54_ACCEPTANCE.commerceAuthority).toMatchObject({productEligibility:'E2-shared-discovery-only',pricing:'shared-commerce-binding-only',inventory:'shared-commerce-binding-only',variants:'shared-variant-binding-only',checkout:'shared-provider-neutral-E13'});
+    for(const path of ['product.gallery','product.name','pricing.displayPrice','pricing.compareAtPrice','inventory.stockLabel','commerce.purchaseHref','finder.productEvidence','recommendations.products'])expect(source).toContain(path);
+    expect(TABLE_GIFT_WAVE54_ACCEPTANCE.commerceAuthority).toMatchObject({productEligibility:'E2-shared-discovery-only',pricing:'shared-commerce-binding-only',inventory:'shared-commerce-binding-only',variants:'shared-variant-binding-only',checkout:'shared-provider-neutral-E13',noTemplateVariantAuthority:true});
   });
 
   it('keeps template installation draft-only and unable to mutate commerce, customer, order or B2B authority',()=>{
