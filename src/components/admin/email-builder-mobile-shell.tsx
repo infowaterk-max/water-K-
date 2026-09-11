@@ -7,7 +7,7 @@ type MobilePanel='canvas'|'library'|'inspector';
 const libraryViews=['Blokkok','Szekciók','Presetek','Saját blokkok','Dinamikus adatok'] as const;
 type LibraryView=typeof libraryViews[number];
 type PendingBinding={key:string;label:string};
-type ConfirmAction={source:HTMLButtonElement;kind:'preset'|'saved-delete';name:string};
+type ConfirmAction={source:HTMLButtonElement;name:string};
 
 export function EmailBuilderMobileShell({children}:{children:ReactNode}){
   const rootRef=useRef<HTMLDivElement>(null);
@@ -38,19 +38,8 @@ export function EmailBuilderMobileShell({children}:{children:ReactNode}){
     if(buttonText==='Preset alkalmazása'){
       event.preventDefault();event.stopPropagation();
       const name=button.closest('article')?.querySelector('strong')?.textContent?.trim()||'Kiválasztott preset';
-      setConfirmAction({source:button,kind:'preset',name});
+      setConfirmAction({source:button,name});
       return;
-    }
-
-    if(buttonText==='Törlés'){
-      const card=button.closest('article');
-      const isSavedBlock=Boolean(card&&[...card.querySelectorAll<HTMLButtonElement>('button')].some(item=>item.textContent?.includes('Beszúrás')));
-      if(isSavedBlock){
-        event.preventDefault();event.stopPropagation();
-        const name=card?.querySelector('strong')?.textContent?.trim()||'Kiválasztott blokk';
-        setConfirmAction({source:button,kind:'saved-delete',name});
-        return;
-      }
     }
 
     if(!window.matchMedia('(max-width:760px)').matches||panel!=='library'||libraryView!=='Dinamikus adatok')return;
@@ -86,7 +75,7 @@ export function EmailBuilderMobileShell({children}:{children:ReactNode}){
     },0);
   }
 
-  function runConfirmedAction(){
+  function runConfirmedPreset(){
     const action=confirmAction;
     if(!action)return;
     setConfirmAction(null);
@@ -130,7 +119,7 @@ export function EmailBuilderMobileShell({children}:{children:ReactNode}){
 
     {pendingBinding&&<div className={styles.pendingBinding} role="status"><div><span>Dinamikus adat kiválasztva</span><strong>Válaszd ki, hová szeretnéd beszúrni: {pendingBinding.label}</strong></div><button type="button" onClick={clearPendingBinding}>Mégse</button></div>}
 
-    {confirmAction&&<div className="adminModalBackdrop" role="presentation" onMouseDown={event=>{if(event.target===event.currentTarget)setConfirmAction(null)}}><section className="adminModal" role="dialog" aria-modal="true" aria-labelledby="email-builder-confirm-title"><span className="eyebrow">Megerősítés</span><h3 id="email-builder-confirm-title">{confirmAction.kind==='preset'?'Preset alkalmazása':'Saját blokk törlése'}</h3><p>{confirmAction.kind==='preset'?<>A(z) <strong>{confirmAction.name}</strong> preset lecseréli a jelenlegi piszkozat teljes elrendezését. A művelet egyetlen Visszavonás lépéssel visszaállítható.</>:<>Biztosan törlöd a(z) <strong>{confirmAction.name}</strong> saját blokkot a tenant könyvtárból?</>}</p><div className="actions"><button className="btn btnGhost" type="button" onClick={()=>setConfirmAction(null)}>Mégsem</button><button className="btn btnPrimary" type="button" onClick={runConfirmedAction}>{confirmAction.kind==='preset'?'Preset alkalmazása':'Törlés megerősítése'}</button></div></section></div>}
+    {confirmAction&&<div className="adminModalBackdrop" role="presentation" onMouseDown={event=>{if(event.target===event.currentTarget)setConfirmAction(null)}}><section className="adminModal" role="dialog" aria-modal="true" aria-labelledby="email-builder-preset-confirm-title"><span className="eyebrow">Megerősítés</span><h3 id="email-builder-preset-confirm-title">Preset alkalmazása</h3><p>A(z) <strong>{confirmAction.name}</strong> preset lecseréli a jelenlegi piszkozat teljes elrendezését. A művelet egyetlen Visszavonás lépéssel visszaállítható.</p><div className="actions"><button className="btn btnGhost" type="button" onClick={()=>setConfirmAction(null)}>Mégsem</button><button className="btn btnPrimary" type="button" onClick={runConfirmedPreset}>Preset alkalmazása</button></div></section></div>}
 
     <nav className={styles.mobileDock} aria-label="Mobil E-mail Builder nézetek">
       <button type="button" className={panel==='canvas'?styles.dockActive:''} onClick={()=>setPanel('canvas')}><span>▣</span><small>Canvas</small></button>
