@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "status": "snapshot-reviewed",
+  "status": "ready",
   "legacyMigrationReplay": false,
   "sourcePolicy": "schema-snapshot-only",
   "seedFile": "supabase/customer-baseline/seed.sql",
@@ -8,8 +8,8 @@
   "defaultPlan": "alap",
   "snapshotFile": "supabase/customer-baseline/migrations/0001_shoperation_v1_schema.sql",
   "snapshotCommand": "npm run db:customer:snapshot",
-  "freshInstallProofRequired": true,
-  "notes": "Roadmap Block 24 adds ordered customer migration 0018, byte-identical to the production storefront trigger privilege lockdown. It revokes direct EXECUTE from PUBLIC, anon, authenticated and service_role for the three trigger-only storefront SECURITY DEFINER guards. The previous 0001-0017 proof remains historical evidence only; a new genuine empty-target Fresh Install proof for ordered baseline 0001-0018 is required before release authorization.",
+  "freshInstallProofRequired": false,
+  "notes": "Genuine empty-target Fresh Install proof completed successfully for ordered customer baseline 0001-0018 from Roadmap Block 24 commit 38be4112cf56becaf0f7dae197855c29702c5383. Target preflight was empty, the reviewed snapshot plus all forward migrations applied atomically, Supabase Auth bootstrap and the neutral seed applied, target postflight passed with zero customer seed rows, and production was untouched by the proof job. Migration 0018 is byte-identical to the production storefront trigger privilege lockdown.",
   "authBootstrapFile": "supabase/customer-baseline/auth-bootstrap.sql",
-  "proofContractSha256": null
+  "proofContractSha256": "d89415496bd733001d9772a1f88291a2004babee8cd22de6f697aaf602a9ab70"
 }
