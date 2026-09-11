@@ -6,7 +6,7 @@ import{usePathname}from'next/navigation';
 import{AdminMobileTableEnhancer}from'@/components/admin/admin-mobile-table-enhancer';
 
 type NavItem={id:string;href:string;label:string;description:string;group?:string;reportFamily?:string};type NavSection={id:string;label:string;items:NavItem[]};type PreviewState={sectionId:string;top:number;left:number}|null;
-const DIRECT_SECTION_HREFS:Record<string,string>={'digital-office':'/admin/kommunikacio','products':'/admin/termekek/feltoltes'};
+const DIRECT_SECTION_HREFS:Record<string,string>={'digital-office':'/admin/kommunikacio','products':'/admin/termekek'};
 function getActiveHref(pathname:string,items:NavItem[]){return items.filter(item=>item.href==='/admin'?pathname==='/admin':pathname===item.href||pathname.startsWith(`${item.href}/`)).sort((a,b)=>b.href.length-a.href.length)[0]?.href}
 function groupItems(items:NavItem[]){const groups=new Map<string,NavItem[]>();for(const item of items){const key=item.group??'';groups.set(key,[...(groups.get(key)??[]),item])}return[...groups.entries()]}
 function ItemLinks({items,activeHref,describe=false}:{items:NavItem[];activeHref?:string;describe?:boolean}){return <>{groupItems(items).map(([group,grouped])=><div className="adminNavItemGroup" key={group||'default'}>{group&&<span className="adminNavItemGroupLabel">{group}</span>}{grouped.map(item=>{const active=item.href===activeHref;return <Link key={item.id} href={item.href} className={active?'adminNavActive':undefined} aria-current={active?'page':undefined} title={item.description} data-report-family={item.reportFamily}><span>{item.label}</span>{describe&&<small>{item.description}</small>}</Link>})}</div>)}</>}
