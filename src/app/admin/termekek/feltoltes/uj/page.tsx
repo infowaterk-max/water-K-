@@ -9,6 +9,11 @@ export default async function NewProductIntakePage(){
   const scope=await requireCurrentStorePageContext('catalog.manage'),admin=createAdminClient();
   const{data:channels}=await admin.from('webshop_sales_channels').select('channel_code,enabled').eq('instance_id',scope.instanceId);
   const state=new Map((channels??[]).map(item=>[item.channel_code,item.enabled]));
-  const initialData:ProductIntakeInitialData={channels:{b2cVisible:true,b2bVisible:false,b2cEnabled:state.get('b2c')!==false,b2bEnabled:state.get('b2b')===true}};
+  const initialData:ProductIntakeInitialData={
+    name:'',shortDescription:'',description:'',seoTitle:'',seoDescription:'',category:'',baseSku:'',colors:[],sizes:[],
+    variants:[{id:'',label:'Alap',sku:'',netPrice:0,grossPrice:0,stock:0,active:true,primaryMediaId:null}],
+    media:[],
+    channels:{b2cVisible:true,b2bVisible:false,b2cEnabled:state.get('b2c')!==false,b2bEnabled:state.get('b2b')===true},
+  };
   return <ProductIntakeEditor initialData={initialData}/>;
 }
