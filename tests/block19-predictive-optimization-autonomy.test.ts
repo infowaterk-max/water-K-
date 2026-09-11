@@ -96,11 +96,11 @@ describe('Roadmap Block 19 — Predictive Optimization & Autonomous Commerce Gua
     expect(api).not.toMatch(/body\.instanceId/);
   });
 
-  test('Block 19 itself did not pull forward Blocks 20–22; later Block 20 may advance the baseline explicitly',()=>{
+  test('Block 19 itself did not pull forward Blocks 20–22; later work may advance the baseline explicitly',()=>{
     const manifest=JSON.parse(read('supabase/customer-baseline/manifest.json')) as{status:string;freshInstallProofRequired:boolean;proofContractSha256:string|null;notes:string};
     const docs=read('docs/ROADMAP_BLOCK19_PREDICTIVE_OPTIMIZATION_AUTONOMOUS_COMMERCE_GUARDRAILS.md');
     const block20=read('docs/ROADMAP_BLOCK20_PLATFORM_ECOSYSTEM_ENTERPRISE_EXTENSIBILITY.md');
-    expect(manifest.status).toBe('snapshot-reviewed');expect(manifest.freshInstallProofRequired).toBe(true);expect(manifest.proofContractSha256).toBeNull();expect(manifest.notes).toMatch(/0001-0013/);
+    expect(manifest.status).toBe('snapshot-reviewed');expect(manifest.freshInstallProofRequired).toBe(true);expect(manifest.proofContractSha256).toBeNull();expect(manifest.notes).toMatch(/0001-0014/);
     expect(docs).toMatch(/Block 20.*Platform Ecosystem/s);expect(docs).toMatch(/Block 21.*Page Schema/s);expect(docs).toMatch(/Block 22.*Visual Builder/s);
     expect(docs).toMatch(/not included|non-scope/i);
     expect(block20).toContain('Block 21 Page Schema / Templates');expect(block20).toContain('Block 22 Visual Builder');
