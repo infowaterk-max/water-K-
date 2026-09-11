@@ -47,3 +47,22 @@
   .pendingBinding{left:8px;right:8px;bottom:74px}
   .mobileDock{left:8px;right:8px;bottom:6px}
 }
+
+@media(max-width:760px){
+  .shell{padding-bottom:calc(66px + env(safe-area-inset-bottom))}
+  .mobileDock{padding:4px}
+  .mobileDock button{min-height:48px}
+  .mobileDock button span{font-size:16px}
+  .mobileDock button small{font-size:8px}
+  .shell :global(nav[aria-label="E-mail Builder eszközök"] ~ main){padding:10px 6px calc(70px + env(safe-area-inset-bottom))!important;overflow:hidden}
+  .shell :global(nav[aria-label="E-mail Builder eszközök"] ~ main > div:first-child){align-items:center!important;padding:0 2px}
+  .shell :global(nav[aria-label="E-mail Builder eszközök"] ~ main > div:first-child > div:first-child){display:flex;align-items:baseline;gap:5px;flex-wrap:wrap}
+  .shell :global(nav[aria-label="E-mail Builder eszközök"] ~ main > div:first-child > div:first-child > strong){font-size:12px}
+  .shell :global(nav[aria-label="E-mail Builder eszközök"] ~ main > div:nth-child(2)){height:calc(100dvh - 205px);min-height:0!important;margin-top:8px!important;padding:6px!important;overflow:hidden!important;border-radius:14px!important}
+  .shell :global(nav[aria-label="E-mail Builder eszközök"] ~ main iframe){width:100%!important;height:100%!important;min-height:0!important;max-height:100%!important;border-radius:11px!important;box-shadow:none!important}
+  .shell :global(nav[aria-label="E-mail Builder eszközök"] ~ main > p:last-child){display:none}
+}
+
+@media(max-width:420px){
+  .shell :global(nav[aria-label="E-mail Builder eszközök"] ~ main > div:nth-child(2)){height:calc(100dvh - 196px)}
+}
