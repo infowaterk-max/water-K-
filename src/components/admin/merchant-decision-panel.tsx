@@ -25,6 +25,7 @@ export function MerchantDecisionPanel({cards}:{cards:MerchantDecisionCard[]}){
     <span className="eyebrow">Block 18 · Human-in-the-loop</span>
     <h2>Döntési intelligencia</h2>
     <p className="muted">A javaslatok az aktuális webshop canonical commerce és operational bizonyítékaiból készülnek. Az AI csak magyaráz: nem ír árat, készletet, promóciót, rendelést vagy ügyfélállapotot.</p>
+    <div className="buttonRow"><Link className="btn btnGhost" href="/admin/optimalizalas">Prediktív optimalizáció és guardrail-ek</Link></div>
     <div className="cards">
       {cards.map(card=>{
         const explanation=explanations[card.key],error=errors[card.key];
