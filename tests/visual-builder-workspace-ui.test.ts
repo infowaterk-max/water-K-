@@ -45,21 +45,22 @@ describe('Visual Builder accepted workspace UI contract',()=>{
     ])expect(component).toContain(token);
   });
 
-  it('keeps responsive editing, history and AI generation inside the Builder',()=>{
+  it('keeps responsive editing and history inside the Builder while AI generation stays hidden from merchant UI',()=>{
     expect(component).toContain("{key:'desktop',label:'Desktop',width:1200");
     expect(component).toContain("{key:'tablet',label:'Tablet',width:768");
     expect(component).toContain("{key:'mobile',label:'Mobil',width:390");
     expect(component).toContain('Előzmények');
-    expect(component).toContain('StorefrontAiGeneratorPanel');
+    expect(component).not.toContain('StorefrontAiGeneratorPanel');
     expect(page).not.toContain('<StorefrontAiGeneratorPanel/>');
   });
 
-  it('provides page switching, insertable components and template presets without a second runtime',()=>{
+  it('provides page switching, insertable components and a permanent route back to the template library without a second runtime',()=>{
     expect(component).toContain('listStorefrontBuilderInsertableComponents');
-    expect(component).toContain('Teljes sablon presetek');
-    expect(component).toContain('installVisualBuilderTemplateAction');
+    expect(component).toContain("router.push('/admin/tartalom/builder?view=templates')");
+    expect(component).toContain('Sablonkönyvtár megnyitása');
     expect(component).toContain('router.push(`/admin/tartalom/builder?page=');
     expect(component).toContain('componentRegistry={componentRegistry}');
     expect(component).toContain('rendererRegistry={rendererRegistry}');
+    expect(page).toContain("params.view==='templates'");
   });
 });
