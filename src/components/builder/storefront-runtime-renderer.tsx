@@ -15,6 +15,7 @@ export type StorefrontComponentRenderProps={
   config:Record<string,unknown>;
   children:ReactNode;
   page:StorefrontPageDocument;
+  viewport:StorefrontViewport;
 };
 
 export type StorefrontComponentRenderer=(props:StorefrontComponentRenderProps)=>ReactNode;
@@ -81,7 +82,7 @@ export function StorefrontRuntimeRenderer({
       {code:'RENDERER_NOT_REGISTERED',path:node.id,message:'No renderer is registered for the component key/version.',severity:'error',metadata:{componentKey:node.componentKey,componentVersion:node.componentVersion}},
     ]);
     const children=node.children.map(child=><Fragment key={child.id}>{renderNode(child)}</Fragment>);
-    const rendered=renderer({node,config:node.config,children,page});
+    const rendered=renderer({node,config:node.config,children,page,viewport});
     return decorateNode?decorateNode(node,rendered):rendered;
   };
 
