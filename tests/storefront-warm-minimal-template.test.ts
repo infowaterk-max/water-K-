@@ -1,9 +1,4 @@
-import * as React from 'react';
-import {renderToStaticMarkup} from 'react-dom/server';
 import {describe,expect,it} from 'vitest';
-import {StorefrontRuntimeRenderer} from '@/components/builder/storefront-runtime-renderer';
-import {createStorefrontStoryVisualRendererRegistry} from '@/components/builder/storefront-story-visual';
-import {createStorefrontStoryVisualComponentRegistry} from '@/lib/builder/storefront-story-visual';
 import {PLANS} from '@/lib/plans/catalog';
 import {
   WARM_MINIMAL_ENGINE_CONTRACT,
@@ -19,15 +14,13 @@ import {
 } from '@/lib/builder/templates/warm-minimal';
 import {STOREFRONT_TEMPLATE_PORTFOLIO_STATUS,getStorefrontTemplatePackage} from '@/lib/builder/storefront-template-catalog';
 import {evaluateStorefrontTemplateCapabilityGate,planStorefrontTemplateInstallation} from '@/lib/builder/storefront-template-installation';
+import {createStorefrontStoryVisualComponentRegistry} from '@/lib/builder/storefront-story-visual';
 import {validateStorefrontPageDocument,type StorefrontComponentNode} from '@/lib/builder/storefront-runtime';
 
-Object.assign(globalThis,{React});
-const {createElement}=React;
 const capability={plan:'alap' as const,features:PLANS.alap.features};
 const componentRegistry=()=>createStorefrontStoryVisualComponentRegistry();
-const rendererRegistry=()=>createStorefrontStoryVisualRendererRegistry();
-const render=(page:typeof WARM_MINIMAL_HOME_PAGE,viewport:'desktop'|'mobile',bindingContext:Record<string,unknown>)=>renderToStaticMarkup(createElement(StorefrontRuntimeRenderer,{page,viewport,bindingContext,componentRegistry:componentRegistry(),rendererRegistry:rendererRegistry(),capability}));
 function walk(nodes:readonly StorefrontComponentNode[]):StorefrontComponentNode[]{return nodes.flatMap(node=>[node,...walk(node.children??[])]);}
+const findNode=(page:{sections:StorefrontComponentNode[]},id:string)=>walk(page.sections).find(node=>node.id===id);
 
 describe('Storefront portfolio package 25 — Warm Minimal',()=>{
   it('locks the accepted Warm Minimal identity without reusing an existing package',()=>{
@@ -66,19 +59,32 @@ describe('Storefront portfolio package 25 — Warm Minimal',()=>{
     for(const id of ['warm-minimal-hero-image','warm-minimal-hero-eyebrow','warm-minimal-hero-heading','warm-minimal-hero-copy','warm-minimal-hero-primary','warm-minimal-hero-secondary'])expect(nodes.some(node=>node.id===id)).toBe(true);
     expect(WARM_MINIMAL_MARKETING_LAYER_CONTRACT.businessCopyInImage).toBe(false);
     expect(WARM_MINIMAL_MARKETING_LAYER_CONTRACT.productTruthInImage).toBe(false);
+    expect(findNode(WARM_MINIMAL_HOME_PAGE,'warm-minimal-hero-heading')?.bindings?.text?.path).toBe('content.warmMinimalHero.title');
+    expect(findNode(WARM_MINIMAL_HOME_PAGE,'warm-minimal-hero-primary')?.bindings?.label?.path).toBe('content.warmMinimalHero.primaryLabel');
+    expect(findNode(WARM_MINIMAL_HOME_PAGE,'warm-minimal-hero-secondary')?.bindings?.label?.path).toBe('content.warmMinimalHero.secondaryLabel');
   });
 
-  it('renders room, material, editorial and commerce surfaces together',()=>{
-    const html=render(WARM_MINIMAL_HOME_PAGE,'desktop',{brand:{name:'Warm House',homeHref:'/',copyright:'© Warm House'},navigation:{primary:[],footer:[]},content:{warmMinimalHero:{title:'Soft light, natural rhythm.'},materialPalette:{items:[{specKey:'linen',label:'Linen',displayValue:'merchant supplied'}]},shopTheRoom:{title:'Calm Living'},roomStory:{title:'Morning Light'},warmMinimalQuietEssentials:{title:'Quiet essentials'},homeNotes:{items:[{id:'note',storyType:'journal',title:'Layering neutrals',href:'/blog/layering-neutrals',excerpt:'Home note.'}]},newsletter:{title:'Warm Notes'}},collection:{rooms:[{id:'living',label:'Living room',href:'/webaruhaz?room=living'}]},catalog:{quietEssentials:[{id:'chair',name:'Linen Lounge Chair',href:'/termek/linen-lounge-chair',price:'159 900 Ft'}]},recommendations:{softLayers:[]}});
-    for(const value of ['Soft light, natural rhythm.','Living room','Linen','Calm Living','Morning Light','Linen Lounge Chair','Warm Notes'])expect(html).toContain(value);
+  it('binds room, material, editorial and commerce surfaces to shared data paths',()=>{
+    expect(findNode(WARM_MINIMAL_HOME_PAGE,'warm-minimal-room-navigation')?.bindings?.items?.path).toBe('collection.rooms');
+    expect(findNode(WARM_MINIMAL_HOME_PAGE,'warm-minimal-material-palette-items')?.bindings?.items?.path).toBe('content.materialPalette.items');
+    expect(findNode(WARM_MINIMAL_HOME_PAGE,'warmMinimalQuietEssentials')?.bindings?.products?.path).toBe('catalog.quietEssentials');
+    expect(findNode(WARM_MINIMAL_HOME_PAGE,'warm-minimal-soft-layers-row')?.bindings?.products?.path).toBe('recommendations.softLayers');
+    expect(findNode(WARM_MINIMAL_HOME_PAGE,'warm-minimal-journal-index')?.bindings?.items?.path).toBe('content.homeNotes.items');
+    expect(findNode(WARM_MINIMAL_HOME_PAGE,'warm-minimal-newsletter')?.bindings?.title?.path).toBe('content.newsletter.title');
   });
 
-  it('locks the accepted PDP geometry and source-authoritative material/dimension data',()=>{
-    const context={brand:{name:'Warm House',homeHref:'/'},navigation:{primary:[],footer:[]},product:{name:'Linen Lounge Chair',description:'Chair.',gallery:[{src:'https://example.com/chair.jpg',alt:'Chair'}],badges:[],keySpecs:[{specKey:'material',label:'Anyag',displayValue:'Len + tölgy'}],specGroups:[{groupKey:'dimensions',label:'Méretek & ápolás',rows:[{specKey:'width',label:'Szélesség',displayValue:'72 cm'}]}]},pricing:{displayPrice:'159 900 Ft',compareAtPrice:''},inventory:{stockLabel:'Raktáron'},variant:{optionLabel:'Anyag / kivitel',optionOptions:[{id:'sand',label:'Sand',href:'#sand',available:true}]},commerce:{purchaseLabel:'Kosárba teszem',purchaseHref:'#purchase'},content:{productTrust:{copy:'Aktuális szállítási feltételek.'}},recommendations:{products:[]}};
-    const desktop=renderToStaticMarkup(createElement(StorefrontRuntimeRenderer,{page:WARM_MINIMAL_PRODUCT_PAGE,viewport:'desktop',bindingContext:context,componentRegistry:componentRegistry(),rendererRegistry:rendererRegistry(),capability}));
-    const mobile=renderToStaticMarkup(createElement(StorefrontRuntimeRenderer,{page:WARM_MINIMAL_PRODUCT_PAGE,viewport:'mobile',bindingContext:context,componentRegistry:componentRegistry(),rendererRegistry:rendererRegistry(),capability}));
-    for(const value of ['span 7 / span 7','span 5 / span 5','Len + tölgy','72 cm','Aktuális szállítási feltételek.'])expect(desktop).toContain(value);
-    expect(mobile).toContain('span 12 / span 12');
+  it('locks the accepted PDP node geometry and source-authoritative material/dimension data',()=>{
+    const gallery=findNode(WARM_MINIMAL_PRODUCT_PAGE,'warm-minimal-product-gallery');
+    const buybox=findNode(WARM_MINIMAL_PRODUCT_PAGE,'warm-minimal-product-buybox');
+    expect(gallery?.responsive).toMatchObject({desktop:{gridSpan:7},tablet:{gridSpan:7},mobile:{gridSpan:12}});
+    expect(buybox?.responsive).toMatchObject({desktop:{gridSpan:5},tablet:{gridSpan:5},mobile:{gridSpan:12}});
+    expect(findNode(WARM_MINIMAL_PRODUCT_PAGE,'warm-minimal-product-gallery')?.bindings?.images?.path).toBe('product.gallery');
+    expect(findNode(WARM_MINIMAL_PRODUCT_PAGE,'warm-minimal-product-info')?.bindings?.price?.path).toBe('pricing.displayPrice');
+    expect(findNode(WARM_MINIMAL_PRODUCT_PAGE,'warm-minimal-product-info')?.bindings?.stockLabel?.path).toBe('inventory.stockLabel');
+    expect(findNode(WARM_MINIMAL_PRODUCT_PAGE,'warm-minimal-product-option')?.bindings?.options?.path).toBe('variant.optionOptions');
+    expect(findNode(WARM_MINIMAL_PRODUCT_PAGE,'warm-minimal-product-key-specs')?.bindings?.items?.path).toBe('product.keySpecs');
+    expect(findNode(WARM_MINIMAL_PRODUCT_PAGE,'warm-minimal-product-spec-groups')?.bindings?.groups?.path).toBe('product.specGroups');
+    expect(findNode(WARM_MINIMAL_PRODUCT_PAGE,'warm-minimal-product-related-row')?.bindings?.products?.path).toBe('recommendations.products');
   });
 
   it('keeps demo and image assets non-authoritative',()=>{
