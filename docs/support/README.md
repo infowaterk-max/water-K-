@@ -173,3 +173,27 @@ The first consolidated knowledge set is maintained in:
 - `SUPPORT_KNOWLEDGE_BASELINE_V1.md`
 
 Future playbooks and machine-readable records may be split into additional files or database/vector indexes without invalidating this governance contract.
+
+## 12. Incident and anti-pattern records
+
+Detailed incident files supplement the compact baseline. They preserve failed hypotheses and do-not-repeat rules that would create too much noise in the baseline itself.
+
+- `DIGITAL_OFFICE_RESPONSIVE_INCIDENT_2026-09-10.md` — Digital Office / Team Chat responsive history, rejected approaches, later proven nested-height and duplicate-CSS-owner root causes.
+- `RECENT_ENGINEERING_INCIDENTS_2026-09-10_11.md` — recent cross-cutting failures and repairs covering Product Intake navigation/skin, platform responsive preview, Digital Office layout/performance, Fresh Install, Storefront contract drift, Vercel preview evidence, concurrent-main reconciliation, canonical Product Intake authority and Support-in-Digital-Office integration.
+
+When a detailed incident record contains newer, stronger evidence than an older baseline/hypothesis, the newer evidence governs. The old record must remain available as failed-attempt/history evidence rather than being silently erased.
+
+## 13. Engineering anti-pattern policy
+
+Support Knowledge is also a prevention system. A verified failed approach may be more valuable than a successful patch if it prevents the same mistake from recurring.
+
+Before a fix is implemented, search incident knowledge for:
+
+- the same symptom on the same route/module;
+- a previous rejected root-cause hypothesis;
+- duplicate authority/owner problems;
+- a previously accepted route/IA decision;
+- a shared-contract boundary that must not be widened;
+- a prior Fresh Install/release/deployment evidence rule.
+
+If a proposed fix matches an explicit **do-not-repeat** rule, new evidence is required before reusing that approach.
