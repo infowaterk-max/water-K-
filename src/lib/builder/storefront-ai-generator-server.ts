@@ -2,6 +2,13 @@ import 'server-only';
 import {getAdminRequestUser} from '@/lib/auth/admin-api';
 import {requireCurrentStoreContext} from '@/lib/instances/scope';
 import {createAdminClient} from '@/lib/supabase/admin';
+import {getFeatureEntitlementDecision} from '@/lib/entitlements/access';
+import {
+  BLOCK24_COMMERCIAL_POLICY_VERSION,
+  STOREFRONT_AI_COMMERCIAL_CAPABILITY,
+  STOREFRONT_AI_CREDIT_LIMIT_ENV,
+  resolveStorefrontAiCommercialDecision,
+} from '@/lib/commercial/block24-policy';
 import {createStorefrontVisualBuilderComponentRegistry} from '@/lib/builder/storefront-builder-registry';
 import {
   getCurrentStorefrontBuilderBindingContext,
@@ -62,6 +69,8 @@ export type StorefrontAiGenerationResult={
   openPageKey:string|null;
   model:string;
   reason:string;
+  commercialPolicyVersion:string;
+  creditCost:1;
 };
 
 export async function generateCurrentStorefrontWithAi(rawInput:StorefrontAiGenerationInput):Promise<StorefrontAiGenerationResult>{
@@ -74,6 +83,18 @@ export async function generateCurrentStorefrontWithAi(rawInput:StorefrontAiGener
     listCurrentStorefrontTemplatePlanningPages(),
     getCurrentStorefrontBuilderBindingContext(),
   ]);
+
+  const aiEntitlement=await getFeatureEntitlementDecision(scope.instanceId,STOREFRONT_AI_COMMERCIAL_CAPABILITY);
+  const commercial=resolveStorefrontAiCommercialDecision({
+    entitled:aiEntitlement?.enabled===true,
+    configuredCredits:process.env[STOREFRONT_AI_CREDIT_LIMIT_ENV],
+  });
+  if(!commercial.ok){
+    throw new Error(commercial.reason==='addon-required'
+      ?'STOREFRONT_AI_ADDON_REQUIRED'
+      :'STOREFRONT_AI_COMMERCIAL_POLICY_NOT_CONFIGURED');
+  }
+
   const registry=createStorefrontVisualBuilderComponentRegistry();
   const eligible=STOREFRONT_IMPLEMENTED_TEMPLATE_PACKAGES.filter(template=>evaluateStorefrontTemplateCapabilityGate({template,componentRegistry:registry,capability}).ok);
   if(!eligible.length)throw new Error('STOREFRONT_AI_NO_ELIGIBLE_TEMPLATE');
@@ -86,6 +107,14 @@ export async function generateCurrentStorefrontWithAi(rawInput:StorefrontAiGener
   });
   if(rateLimitError)throw new Error('STOREFRONT_AI_RATE_LIMIT_UNAVAILABLE');
   if(allowed!==true)throw new Error('STOREFRONT_AI_RATE_LIMIT_EXCEEDED');
+
+  const{data:creditAllowed,error:creditError}=await admin.rpc('consume_security_rate_limit',{
+    p_rate_key:`commercial:storefront-ai-generator:${BLOCK24_COMMERCIAL_POLICY_VERSION}:${scope.instanceId}`,
+    p_window_seconds:commercial.windowSeconds,
+    p_max_count:commercial.creditLimit,
+  });
+  if(creditError)throw new Error('STOREFRONT_AI_CREDIT_METER_UNAVAILABLE');
+  if(creditAllowed!==true)throw new Error('STOREFRONT_AI_CREDITS_EXHAUSTED');
 
   const token=process.env.AI_GATEWAY_API_KEY?.trim()||process.env.VERCEL_OIDC_TOKEN?.trim();
   if(!token)throw new Error('STOREFRONT_AI_GATEWAY_NOT_CONFIGURED');
@@ -165,5 +194,7 @@ export async function generateCurrentStorefrontWithAi(rawInput:StorefrontAiGener
     openPageKey:home?.pageKey??null,
     model,
     reason:modelPlan.reason,
+    commercialPolicyVersion:commercial.policyVersion,
+    creditCost:commercial.creditCost,
   };
 }

@@ -5,6 +5,7 @@ on:
     branches:
       - main
       - 'feature/**'
+      - 'roadmap/**'
       - core-engine-2-batch
       - production-provisioning-acceptance
       - release-nonpayment-final-batch
@@ -88,6 +89,17 @@ jobs:
       - name: Customer database baseline guard
         run: npm run db:customer:guard
 
+      - name: Block 24 market-ready contract
+        run: npm run market-ready:gate
+
+      - name: Upload Block 24 market-ready contract
+        uses: actions/upload-artifact@v4
+        with:
+          name: block24-market-ready-contract
+          path: artifacts/block24-market-ready-contract.json
+          if-no-files-found: error
+          retention-days: 30
+
       - name: Prepare quality artifacts
         run: mkdir -p artifacts
 
@@ -123,7 +135,7 @@ jobs:
           retention-days: 30
 
   fresh-install-proof:
-    if: (github.ref == 'refs/heads/core-engine-2-batch' || github.ref == 'refs/heads/production-provisioning-acceptance') && github.event_name == 'push' && contains(github.event.head_commit.message, '[fresh-install-proof]')
+    if: (github.ref == 'refs/heads/core-engine-2-batch' || github.ref == 'refs/heads/production-provisioning-acceptance' || github.ref == 'refs/heads/feature/roadmap-block24-commercial-security-maturity' || startsWith(github.ref, 'refs/heads/roadmap/')) && github.event_name == 'push' && contains(github.event.head_commit.message, '[fresh-install-proof]')
     runs-on: ubuntu-latest
     timeout-minutes: 20
     env:

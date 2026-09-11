@@ -9,7 +9,7 @@
   "snapshotFile": "supabase/customer-baseline/migrations/0001_shoperation_v1_schema.sql",
   "snapshotCommand": "npm run db:customer:snapshot",
   "freshInstallProofRequired": false,
-  "notes": "Genuine empty-target Fresh Install proof completed successfully for ordered customer baseline 0001-0017 in CI #2671. Product Intake Center forward migrations 0010-0012 and Product Media Editor 0013 are followed by byte-identical restoration of the already-shipped Block 11 authority as 0014 entitlement contract, 0015 persistent-source uniqueness fix and 0016 catalog-driven add-on mutation authority. Block 20 is 0017 and releases fail-closed Pro apiAccess before creating the tenant-scoped Platform Ecosystem persistence contract. Target preflight, atomic baseline apply, Auth bootstrap, neutral seed and target postflight all passed; production was untouched by the proof job.",
+  "notes": "Genuine empty-target Fresh Install proof completed successfully for ordered customer baseline 0001-0018 from Roadmap Block 24 commit 38be4112cf56becaf0f7dae197855c29702c5383. Target preflight was empty, the reviewed snapshot plus all forward migrations applied atomically, Supabase Auth bootstrap and the neutral seed applied, target postflight passed with zero customer seed rows, and production was untouched by the proof job. Migration 0018 is byte-identical to the production storefront trigger privilege lockdown.",
   "authBootstrapFile": "supabase/customer-baseline/auth-bootstrap.sql",
-  "proofContractSha256": "c0127ea9f035df7d0978a38dafe4f1fa174f69eb6667921d25663875867ef618"
+  "proofContractSha256": "d89415496bd733001d9772a1f88291a2004babee8cd22de6f697aaf602a9ab70"
 }
