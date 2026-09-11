@@ -118,7 +118,7 @@ describe('Scale-out Wave 47 Heritage Atelier current-baseline reacceptance',()=>
     const provenance=find(HERITAGE_ATELIER_HOME_PAGE.sections,'heritage-provenance');
     expect(provenance?.componentKey).toBe('story.provenance');
     expect(provenance?.config.claims).toEqual([]);
-    expect(provenance?.bindings?.claims?.path).toBe('story.provenance.claims');
+    expect(provenance?.bindings?.claims?.path).toBe('origin.verifiedClaims');
     expect(HERITAGE_ATELIER_WAVE47_ACCEPTANCE.authorityContract.noFakeMakerClaim).toBe(true);
   });
 
@@ -129,6 +129,7 @@ describe('Scale-out Wave 47 Heritage Atelier current-baseline reacceptance',()=>
       const namespace=path.split('.')[0];
       expect(STOREFRONT_BINDING_NAMESPACES,`Unexpected binding namespace for ${path}`).toContain(namespace as never);
     }
+    expect(paths.some(path=>path.startsWith('story.'))).toBe(false);
     expect(paths.some(path=>path.startsWith('heritage.'))).toBe(false);
     expect(paths.some(path=>path.startsWith('jewelry.'))).toBe(false);
     expect(paths.some(path=>path.startsWith('price.'))).toBe(false);
