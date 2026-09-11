@@ -131,7 +131,7 @@ describe('Scale-out Wave 49 Derma Studio current-baseline reacceptance',()=>{
     expect(DERMA_STUDIO_HOME_SECTION_ORDER).toEqual(['Clinical Clarity Hero','Shop by Concern','Routine Finder','Active Ingredient Index','Routine Steps','Targeted Formulas','Ingredient Education','Reviews','Footer']);
     expect(DERMA_STUDIO_HOME_PAGE.metadata?.sectionOrder).toEqual(DERMA_STUDIO_HOME_SECTION_ORDER);
     const gallery=find(DERMA_STUDIO_PRODUCT_PAGE.sections,'derma-product-gallery');
-    const buybox=find(DERMA_STUDIO_PRODUCT_PAGE.sections,'derma-product-info');
+    const buybox=find(DERMA_STUDIO_PRODUCT_PAGE.sections,'derma-product-buybox');
     expect(gallery?.responsive).toEqual({desktop:{gridSpan:7},tablet:{gridSpan:7},mobile:{gridSpan:12}});
     expect(buybox?.responsive).toEqual({desktop:{gridSpan:5},tablet:{gridSpan:5},mobile:{gridSpan:12}});
     const product=JSON.stringify(DERMA_STUDIO_PRODUCT_PAGE);
