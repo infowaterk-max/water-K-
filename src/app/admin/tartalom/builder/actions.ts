@@ -13,6 +13,7 @@ import {getStorefrontTemplatePackage} from '@/lib/builder/storefront-template-ca
 import {planStorefrontTemplateInstallation} from '@/lib/builder/storefront-template-installation';
 import {createStorefrontVisualBuilderComponentRegistry} from '@/lib/builder/storefront-builder-registry';
 import {validateStorefrontBuilderWorkingCopy} from '@/lib/builder/storefront-visual-builder';
+import {validateStorefrontBuilderSchemaStructure} from '@/lib/builder/storefront-builder-schema-policy';
 import {
   getCurrentStorefrontBuilderCapability,
   listCurrentStorefrontTemplatePlanningPages,
@@ -31,12 +32,14 @@ export async function saveVisualBuilderDraftAction(input:{document:StorefrontPag
   if(authoritativeRevision!==input.expectedDraftRevision)throw new Error('BUILDER_DRAFT_REVISION_STALE');
   const previous=state.draft?.document??state.published?.document;
   if(!previous)throw new Error('BUILDER_PAGE_BASE_REVISION_REQUIRED');
+  const registry=createStorefrontVisualBuilderComponentRegistry();
   validateStorefrontBuilderWorkingCopy({
     previous,
     next:input.document,
-    registry:createStorefrontVisualBuilderComponentRegistry(),
+    registry,
     capability,
   });
+  validateStorefrontBuilderSchemaStructure({document:input.document,registry});
   const result=await saveCurrentStorefrontPageDraft(input);
   refresh();
   return result;
