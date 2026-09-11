@@ -55,15 +55,15 @@ const candidates:FinderCandidate[]=[
   {id:'hidden',label:'Hidden Gel',href:'/termek/hidden',eligible:false,attributes:{texture:'gel',finish:['light']}},
 ];
 
-describe('Scale-out Wave 32 Beauty Lab current-baseline reacceptance',()=>{
-  it('re-accepts the inherited canonical Beauty Lab v1 without a duplicate template',()=>{
+describe('Scale-out Wave 32 Beauty Lab technical baseline under Visual Fidelity Pilot 01',()=>{
+  it('retains the inherited canonical Beauty Lab v1 instead of creating a duplicate template',()=>{
     expect(BEAUTY_LAB_WAVE32_ACCEPTANCE).toMatchObject({wave:32,mode:'current-baseline-reacceptance-and-builder-hardening',templateKey:'beauty.beauty-lab',templateVersion:1,inheritedImplementation:true});
     expect(BEAUTY_LAB_TEMPLATE_PACKAGE.manifest.templateKey).toBe('beauty.beauty-lab');
     expect(BEAUTY_LAB_WAVE32_ACCEPTANCE.nonScope).toEqual(expect.arrayContaining(['second-beauty-lab-template','template-local-hero-engine','template-local-guidance-engine','template-local-routine-engine']));
   });
 
-  it('locks Beauty Lab, Derma Studio and Ritual House as structurally distinct journeys',()=>{
-    expect(BEAUTY_LAB_VISUAL_DNA.journey).toBe('formula-to-ingredient-to-texture-to-guided-choice-to-product');
+  it('keeps Beauty Lab, Derma Studio and Ritual House structurally distinct after the approved Beauty visual authority supersedes Wave 32 visual assumptions',()=>{
+    expect(BEAUTY_LAB_VISUAL_DNA.journey).toBe('hero-to-concern-to-formula-finder-to-ingredient-to-texture-to-routine-to-product');
     expect(DERMA_STUDIO_VISUAL_DNA.journey).toBe('concern-to-routine-to-active-ingredient-to-product');
     expect(RITUAL_HOUSE_VISUAL_DNA.journey).toBe('mood-to-ritual-to-format-to-scent-or-ingredient-to-product');
     expect(BEAUTY_LAB_HOME_SECTION_ORDER).not.toEqual(DERMA_STUDIO_HOME_SECTION_ORDER);
@@ -71,22 +71,22 @@ describe('Scale-out Wave 32 Beauty Lab current-baseline reacceptance',()=>{
     expect(BEAUTY_LAB_WAVE32_ACCEPTANCE.distinctness.separationIncludes).toEqual(expect.arrayContaining(['layout','section-order','rhythm','typography','imagery','merchandising-journey']));
   });
 
-  it('preserves the approved 11-step Home merchandising journey',()=>{
+  it('uses the Visual Fidelity Pilot 01 canonical Home journey',()=>{
     expect(BEAUTY_LAB_HOME_PAGE.metadata?.sectionOrder).toEqual(BEAUTY_LAB_HOME_SECTION_ORDER);
-    expect(BEAUTY_LAB_HOME_SECTION_ORDER).toEqual(['Formula Hero','Formula Finder','Shop by Concern','Ingredient Index Preview','New Formulas','Texture Lab','Routine Feature','Product Grid','Ingredient Story','Reviews','Footer']);
+    expect(BEAUTY_LAB_HOME_SECTION_ORDER).toEqual(['Trust Bar','Formula Hero','USP Row','Shop by Concern','Formula Finder','Ingredient Index Preview','Texture Lab','New Formulas','Routine Feature','Product Grid','Ingredient Story','Reviews','Newsletter','Footer']);
   });
 
-  it('hardens Formula Hero as eight independent shared visual layers with stable ids and binding paths',()=>{
+  it('implements the approved photo/copy-panel/product-inset hero with shared visual layers and editable binding paths',()=>{
     expect(STOREFRONT_GUIDED_VISUAL_COMPONENT_DEPENDENCIES.authority).toBe('composition-only-no-new-commerce-or-guidance-authority');
-    expect(BEAUTY_LAB_MARKETING_LAYER_CONTRACT.hero).toEqual(['image','overlay','decoration','badge','title','copy','primary-cta','secondary-cta']);
+    expect(BEAUTY_LAB_MARKETING_LAYER_CONTRACT.hero).toEqual(['photo','copy-panel','product-inset','badge','title','copy','cta']);
     expect(home('beauty-formula-hero')?.componentKey).toBe('visual.layered-canvas');
-    for(const id of ['beauty-hero-image-layer','beauty-hero-overlay-layer','beauty-hero-decoration-layer','beauty-hero-badge-layer','beauty-hero-title-layer','beauty-hero-copy-layer','beauty-hero-primary-cta-layer','beauty-hero-secondary-cta-layer'])expect(home(id)?.componentKey).toBe('visual.layer');
+    for(const id of ['beauty-hero-photo-layer','beauty-hero-copy-layer','beauty-hero-product-inset','beauty-hero-badge-layer'])expect(home(id)?.componentKey).toBe('visual.layer');
     const source=JSON.stringify(BEAUTY_LAB_HOME_PAGE);
-    for(const path of ['content.formulaHero.image','content.formulaHero.imageAlt','content.formulaHero.decoration','content.formulaHero.badge','content.formulaHero.title','content.formulaHero.copy','content.formulaHero.primaryLabel','content.formulaHero.primaryHref','content.formulaHero.secondaryLabel','content.formulaHero.secondaryHref'])expect(source).toContain(path);
+    for(const path of ['content.formulaHero.image','content.formulaHero.imageAlt','content.formulaHero.title','content.formulaHero.copy','content.formulaHero.primaryLabel','content.formulaHero.primaryHref'])expect(source).toContain(path);
     expect(BEAUTY_LAB_MARKETING_LAYER_CONTRACT.imageRule).toBe('marketing-copy-price-clinical-evidence-and-cta-never-baked-into-image-assets');
   });
 
-  it('binds Routine Feature and Ingredient Story through shared editable split-feature slots without adding a routine engine',()=>{
+  it('binds Routine Feature and Ingredient Story through every shared editable split-feature slot without adding a routine engine',()=>{
     const routine=JSON.stringify(home('beauty-routine-feature')?.bindings??{});
     for(const path of ['content.routineFeature.eyebrow','content.routineFeature.title','content.routineFeature.copy','content.routineFeature.image','content.routineFeature.imageAlt','content.routineFeature.ctaLabel','content.routineFeature.ctaHref'])expect(routine).toContain(path);
     const story=JSON.stringify(home('beauty-ingredient-story')?.bindings??{});
@@ -155,7 +155,7 @@ describe('Scale-out Wave 32 Beauty Lab current-baseline reacceptance',()=>{
     expect(JSON.stringify(checkout)).not.toMatch(/K&H|khpos|vpos|payment_secret|merchantId/i);
   });
 
-  it('keeps release-side effects outside Wave 32 scope',()=>{
-    expect(BEAUTY_LAB_WAVE32_ACCEPTANCE.nonScope).toEqual(expect.arrayContaining(['payment-provider-change','sql-migration','vercel-production-deploy','supabase-mutation','main-merge']));
+  it('keeps legacy Wave 32 release side-effects historical while this pilot owns its own explicit release gate',()=>{
+    expect(BEAUTY_LAB_WAVE32_ACCEPTANCE.nonScope).toEqual(expect.arrayContaining(['payment-provider-change','sql-migration','supabase-mutation']));
   });
 });
