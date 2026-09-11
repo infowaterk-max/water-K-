@@ -2,7 +2,6 @@
 -- Tenant installations, revocable API credentials and outbound webhook evidence only.
 -- This migration does not create a second commerce/business-state authority.
 
--- Block 20 is the explicit release point for the previously reserved Pro API capability.
 update public.entitlement_capabilities
 set release_state='released', updated_at=now()
 where capability_code='apiAccess';
@@ -11,7 +10,6 @@ insert into public.plan_capability_grants(plan_code,capability_code)
 values ('pro','apiAccess')
 on conflict do nothing;
 
--- Refresh only derived plan entitlements through the existing Block 11 authority.
 do $$
 declare r record;
 begin
@@ -86,7 +84,7 @@ create table if not exists public.extension_webhook_deliveries(
   instance_id uuid not null references public.webshop_instances(id) on delete cascade,
   subscription_id uuid not null,
   event_type text not null,
-  event_key text not null check(length(event_key) between 3 and 240),
+  event_key text not null check(length(event_key) between 3 and 512),
   payload jsonb not null default '{}'::jsonb,
   status text not null default 'pending' check(status in ('pending','processing','retry','delivered','dead_letter')),
   attempt_count integer not null default 0 check(attempt_count between 0 and 20),
@@ -103,15 +101,10 @@ create table if not exists public.extension_webhook_deliveries(
     on delete cascade
 );
 
-create index if not exists extension_installations_instance_status_idx
-  on public.extension_installations(instance_id,status);
-create index if not exists extension_api_credentials_instance_installation_idx
-  on public.extension_api_credentials(instance_id,installation_id);
-create index if not exists extension_webhook_subscriptions_instance_event_idx
-  on public.extension_webhook_subscriptions(instance_id,event_type) where enabled;
-create index if not exists extension_webhook_deliveries_due_idx
-  on public.extension_webhook_deliveries(status,next_attempt_at,created_at)
-  where status in ('pending','retry','processing');
+create index if not exists extension_installations_instance_status_idx on public.extension_installations(instance_id,status);
+create index if not exists extension_api_credentials_instance_installation_idx on public.extension_api_credentials(instance_id,installation_id);
+create index if not exists extension_webhook_subscriptions_instance_event_idx on public.extension_webhook_subscriptions(instance_id,event_type) where enabled;
+create index if not exists extension_webhook_deliveries_due_idx on public.extension_webhook_deliveries(status,next_attempt_at,created_at) where status in ('pending','retry','processing');
 
 alter table public.extension_app_catalog enable row level security;
 alter table public.extension_installations enable row level security;
@@ -130,6 +123,55 @@ grant select,insert,update,delete on public.extension_installations to service_r
 grant select,insert,update,delete on public.extension_api_credentials to service_role;
 grant select,insert,update,delete on public.extension_webhook_subscriptions to service_role;
 grant select,insert,update,delete on public.extension_webhook_deliveries to service_role;
+
+-- Reuse Block 17's canonical event evidence. This trigger only fans out sanitized evidence;
+-- it cannot create events or mutate commerce state.
+create or replace function private.enqueue_extension_webhook_from_workflow_v1()
+returns trigger
+language plpgsql
+security definer
+set search_path=''
+as $$
+declare
+  v_event jsonb;
+  v_event_type text;
+begin
+  if coalesce(new.metadata->>'authority','')<>'event-driven-workflow' then return new; end if;
+  v_event:=coalesce(new.metadata->'event','{}'::jsonb);
+  v_event_type:=nullif(trim(coalesce(v_event->>'type','')),'');
+  if v_event_type is null or nullif(trim(coalesce(new.run_key,'')),'') is null then return new; end if;
+
+  insert into public.extension_webhook_deliveries(instance_id,subscription_id,event_type,event_key,payload,status)
+  select
+    new.instance_id,
+    s.id,
+    v_event_type,
+    new.run_key,
+    jsonb_build_object(
+      'sourceId',left(coalesce(v_event->>'sourceId',''),180),
+      'occurredAt',v_event->>'occurredAt',
+      'evidence',coalesce(v_event->'evidence','{}'::jsonb)
+    ),
+    'pending'
+  from public.extension_webhook_subscriptions s
+  join public.extension_installations i
+    on i.id=s.installation_id and i.instance_id=s.instance_id and i.status='enabled'
+  join public.extension_app_catalog a
+    on a.app_key=i.app_key and a.release_state='released'
+  where s.instance_id=new.instance_id
+    and s.enabled
+    and s.event_type=v_event_type
+  on conflict(subscription_id,event_key) do nothing;
+
+  return new;
+end;
+$$;
+revoke all on function private.enqueue_extension_webhook_from_workflow_v1() from public,anon,authenticated,service_role;
+
+drop trigger if exists automation_processing_runs_extension_webhook_v1 on public.automation_processing_runs;
+create trigger automation_processing_runs_extension_webhook_v1
+after insert or update of metadata on public.automation_processing_runs
+for each row execute function private.enqueue_extension_webhook_from_workflow_v1();
 
 comment on table public.extension_app_catalog is 'Block 20 platform-controlled extension metadata; never a business-state authority.';
 comment on table public.extension_api_credentials is 'Block 20 credential hashes only; plaintext API secrets are never persisted.';
