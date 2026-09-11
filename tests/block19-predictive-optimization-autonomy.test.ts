@@ -76,6 +76,13 @@ describe('Roadmap Block 19 — Predictive Optimization & Autonomous Commerce Gua
     expect(server).not.toMatch(/from\('(products|product_variants|orders|customers|commercial_offers)'\)\.update/);
   });
 
+  test('Block 19 prediction and guard evaluation remain deterministic during AI/model outage',()=>{
+    const core=read('src/lib/optimization/predictive-commerce-core.ts');
+    const server=read('src/lib/optimization/predictive-commerce.ts');
+    expect(`${core}\n${server}`).not.toMatch(/ai\/gateway|generateText|AI_GATEWAY_API_KEY|VERCEL_OIDC_TOKEN/i);
+    expect(buildPredictiveCommerceSignals(snapshot())).toHaveLength(1);
+  });
+
   test('API is entitlement/RBAC scoped and exposes emergency stop',()=>{
     const api=read('src/app/api/admin/optimization/route.ts');
     expect(api).toContain("getAdminRequestUser('analytics.read')");
