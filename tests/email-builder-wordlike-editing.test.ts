@@ -7,35 +7,52 @@ const read=(path:string)=>readFileSync(join(process.cwd(),path),'utf8');
 describe('Email Builder Word-like editing shell',()=>{
   it('wraps the existing editor without replacing the schema or renderer engine',()=>{
     const page=read('src/app/admin/email-sablonok/[id]/szerkesztes/page.tsx');
-    expect(page).toContain("import { EmailBuilderWordLikeShellV2 } from '@/components/admin/email-builder-wordlike-shell-v2';");
+    expect(page).toContain("import { EmailBuilderWordLikeShellV3 } from '@/components/admin/email-builder-wordlike-shell-v3';");
     expect(page).toContain('const previewContext=demoContext');
-    expect(page).toContain('<EmailBuilderWordLikeShellV2 previewContext={previewContext}><EmailBuilderMobileShell><EmailBuilderEditor');
-    expect(page).toContain('</EmailBuilderMobileShell></EmailBuilderWordLikeShellV2>');
+    expect(page).toContain('<EmailBuilderWordLikeShellV3 previewContext={previewContext}><EmailBuilderMobileShell><EmailBuilderEditor');
+    expect(page).toContain('</EmailBuilderMobileShell></EmailBuilderWordLikeShellV3>');
   });
 
-  it('keeps dynamic preview values visible while direct canvas editing is active',()=>{
-    const shell=read('src/components/admin/email-builder-wordlike-shell-v2.tsx');
-    expect(shell).toContain("import { emailBindingRegistry,getEmailBinding,resolveEmailString }");
+  it('provides a compact contextual toolbar for familiar editing actions',()=>{
+    const shell=read('src/components/admin/email-builder-wordlike-shell-v3.tsx');
+    expect(shell).toContain("'Félkövér'");
+    expect(shell).toContain("'Dőlt'");
+    expect(shell).toContain("'Hivatkozás'");
+    expect(shell).toContain("'Balra igazítás'");
+    expect(shell).toContain("'Középre igazítás'");
+    expect(shell).toContain("'Jobbra igazítás'");
+    expect(shell).toContain("'Dinamikus adat'");
+    expect(shell).toContain('position:fixed');
+    expect(shell).toContain('shoperation-inline-toolbar');
+  });
+
+  it('persists structured edits instead of raw HTML and avoids click-only dirty state',()=>{
+    const shell=read('src/components/admin/email-builder-wordlike-shell-v3.tsx');
+    const editor=read('src/components/admin/email-builder-editor.tsx');
+    const rich=read('src/lib/email-builder/rich-text.ts');
+    expect(shell).toContain('serializeRichText');
+    expect(shell).toContain('snapshotOf');
+    expect(shell).toContain('commitIfChanged');
+    expect(shell).toContain('before.source===after.source');
+    expect(shell).toContain("new CustomEvent('shoperation:email-builder-inline-commit'");
+    expect(editor).toContain("window.addEventListener('shoperation:email-builder-inline-commit'");
+    expect(editor).toContain('delete content.richText');
+    expect(rich).toContain("type:'binding'");
+    expect(rich).toContain('emailRichTextSchema');
+    expect(rich).not.toContain('dangerouslySetInnerHTML');
+  });
+
+  it('keeps dynamic data field-bound and user values visible',()=>{
+    const shell=read('src/components/admin/email-builder-wordlike-shell-v3.tsx');
     expect(shell).toContain('bindingPreview(context,key)');
-    expect(shell).toContain("chip.textContent=bindingPreview(context,key)");
-    expect(shell).toContain('restoreResolved(editable,raw,previewContext)');
-    expect(shell).toContain("editable.contentEditable='true'");
-    expect(shell).toContain('shoperation-binding-chip');
-  });
-
-  it('opens dynamic data from the edited field and keeps the old variable library reference-only',()=>{
-    const shell=read('src/components/admin/email-builder-wordlike-shell-v2.tsx');
-    expect(shell).toContain('supportedFieldLabels');
-    expect(shell).toContain('openForControl');
+    expect(shell).toContain('data-email-binding-key');
+    expect(shell).toContain('rangeAtEnd(editable)');
     expect(shell).toContain('A változókönyvtár referencia.');
     expect(shell).toContain('Beszúrás a kurzorhoz');
-    expect(shell).toContain('setNativeValue(control,next)');
-    expect(shell).toContain('placeCaretAtRawOffset');
   });
 
-  it('keeps editor controls out of the email geometry and activation outside the interaction layer',()=>{
-    const shell=read('src/components/admin/email-builder-wordlike-shell-v2.tsx');
-    expect(shell).toContain("#shoperation-inline-toolbar{position:fixed;top:8px;right:8px");
+  it('keeps activation and sending outside the interaction layer',()=>{
+    const shell=read('src/components/admin/email-builder-wordlike-shell-v3.tsx');
     expect(shell).not.toContain('/activate');
     expect(shell).not.toContain('sendTransactionalEmail');
     expect(shell).not.toContain('Test e-mail');
