@@ -21,11 +21,14 @@ describe('Email Builder Foundation A',()=>{
   it('renders resolved transactional HTML and plain text while escaping dynamic content',()=>{
     const rendered=renderEmail(essentialOrderConfirmation,baseContext);
     expect(rendered.subject).toBe('Demo Shop · Rendelés visszaigazolása – WK-1001');
-    expect(rendered.html).toContain('Kedves &lt;Richárd&gt;!');
+    expect(rendered.html).toContain('data-email-binding-key="customer.firstName"');
+    expect(rendered.html).toContain('&lt;Richárd&gt;');
+    expect(rendered.html).not.toContain('<Richárd>');
     expect(rendered.html).toContain('Water-K &lt;750 g&gt;');
     expect(rendered.html).not.toContain('Water-K <750 g>');
     expect(rendered.html).toContain('Banki átutalás adatai');
     expect(rendered.html).toContain('HU12 &lt;unsafe&gt;');
+    expect(rendered.text).toContain('Kedves <Richárd>!');
     expect(rendered.text).toContain('Banki átutalás adatai');
     expect(rendered.text).not.toContain('<table');
   });

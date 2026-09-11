@@ -23,4 +23,4 @@
 .bindingList button span{font-size:13px;font-weight:800;color:#143028}
 .bindingList button small{font-size:11px;color:#75877f}
 .empty{padding:24px;text-align:center;color:#6f817a}
-@media(max-width:760px){.insertButton{display:none}.notice{bottom:84px;font-size:12px}.pickerBackdrop{align-items:flex-end;padding:0}.picker{width:100%;max-height:78vh;border-radius:24px 24px 0 0}.pickerHead{padding:18px 18px 12px}.pickerHead strong{font-size:21px}.search{margin:14px 16px 8px;width:calc(100% - 32px)}.bindingList{padding:4px 16px 22px}.bindingList section>div{grid-template-columns:1fr}.fieldBindingButton{width:100%;text-align:center}}
+@media(max-width:760px){.insertButton{display:none}.notice{bottom:84px;font-size:12px}.pickerBackdrop{align-items:flex-end;padding:0}.picker{width:100%;max-height:78vh;border-radius:24px 24px 0 0}.pickerHead{padding:18px 18px 12px}.pickerHead strong{font-size:21px}.search{margin:14px 16px 8px;width:calc(100% - 32px)}.bindingList{padding:4px 16px 22px}.bindingList section>div{grid-template-columns:1fr}.fieldBindingButton{width:auto;align-self:flex-end;margin-top:5px;padding:6px 9px;line-height:1}}

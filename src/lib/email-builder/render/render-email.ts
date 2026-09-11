@@ -1,5 +1,6 @@
 import type { EmailBlock, EmailRenderContext, RenderedEmail } from '../types';
-import { resolveEmailString } from '../bindings';
+import { getEmailBinding, resolveEmailString } from '../bindings';
+import { emailRichTextSource, parseEmailRichText, sourceToEmailRichText, type EmailRichTextNode } from '../rich-text';
 import { evaluateEmailConditions } from '../conditions';
 import { mergeEmailDesignTokens, type EmailDesignTokens } from '../tokens';
 import { emailBlockRegistry } from '../registry';
@@ -16,6 +17,30 @@ function requireContext(block:EmailBlock,context:EmailRenderContext){
   if(required&&!context[required])throw new Error(`EMAIL_CONTEXT_MISSING:${required}:${block.id}`);
 }
 
+function primaryRichText(c:Record<string,unknown>,field:'text'|'label'){
+  const source=textValue(c[field]);
+  const stored=parseEmailRichText(c.richText);
+  return stored&&emailRichTextSource(stored)===source?stored:sourceToEmailRichText(source);
+}
+function richNodeValue(node:EmailRichTextNode,context:EmailRenderContext){
+  if(node.type==='text')return node.text;
+  const value=getEmailBinding(context,node.key);
+  return value===null||value===undefined?'':String(value);
+}
+function renderInlineRich(nodes:EmailRichTextNode[],context:EmailRenderContext,allowLinks=true){
+  let html='',text='';
+  for(const node of nodes){
+    const value=richNodeValue(node,context);text+=value;
+    let fragment=escapeHtml(value).replace(/\r?\n/g,'<br>');
+    if(node.type==='binding')fragment=`<span data-email-binding-key="${escapeHtml(node.key)}">${fragment}</span>`;
+    if(node.marks?.bold)fragment=`<strong style="font-weight:700">${fragment}</strong>`;
+    if(node.marks?.italic)fragment=`<em style="font-style:italic">${fragment}</em>`;
+    if(allowLinks&&node.marks?.href){const href=safeHref(resolveEmailString(node.marks.href,context));fragment=`<a data-email-inline-link="true" href="${escapeHtml(href)}" style="color:inherit;text-decoration:underline">${fragment}</a>`;}
+    html+=fragment;
+  }
+  return{html,text};
+}
+
 function renderBlock(block:EmailBlock,context:EmailRenderContext,tokens:EmailDesignTokens):{html:string;text:string}{
   requireContext(block,context);
   const c=block.content as Record<string,unknown>;
@@ -26,16 +51,16 @@ function renderBlock(block:EmailBlock,context:EmailRenderContext,tokens:EmailDes
     return{html:`<tr><td style="padding:0 0 ${tokens.spacing.xl}px">${logoHtml}</td></tr>`,text:brand};
   }
   if(block.type==='heading'){
-    const value=resolve(c.text,context),level=c.level==='h1'?'h1':c.level==='h3'?'h3':'h2',size=level==='h1'?36:level==='h2'?26:20,align=c.align==='center'?'center':c.align==='right'?'right':'left';
-    return{html:`<tr><td style="padding:0 0 ${tokens.spacing.m}px;text-align:${align}"><${level} class="email-${level}" style="margin:0;font-family:${tokens.typography.headingFontFamily};font-size:${size}px;line-height:1.16;color:${text};font-weight:600;letter-spacing:-.015em">${escapeHtml(value)}</${level}></td></tr>`,text:value};
+    const rich=renderInlineRich(primaryRichText(c,'text'),context),level=c.level==='h1'?'h1':c.level==='h3'?'h3':'h2',size=level==='h1'?36:level==='h2'?26:20,align=c.align==='center'?'center':c.align==='right'?'right':'left';
+    return{html:`<tr><td style="padding:0 0 ${tokens.spacing.m}px;text-align:${align}"><${level} class="email-${level}" style="margin:0;font-family:${tokens.typography.headingFontFamily};font-size:${size}px;line-height:1.16;color:${text};font-weight:600;letter-spacing:-.015em">${rich.html}</${level}></td></tr>`,text:rich.text};
   }
   if(block.type==='text'){
-    const value=resolve(c.text,context),align=c.align==='center'?'center':c.align==='right'?'right':'left';
-    return{html:`<tr><td style="padding:0 0 ${tokens.spacing.l}px;text-align:${align};font-size:${tokens.typography.bodySize}px;line-height:${tokens.typography.lineHeight};color:${text}">${escapeHtml(value).replace(/\r?\n/g,'<br>')}</td></tr>`,text:value};
+    const rich=renderInlineRich(primaryRichText(c,'text'),context),align=c.align==='center'?'center':c.align==='right'?'right':'left';
+    return{html:`<tr><td style="padding:0 0 ${tokens.spacing.l}px;text-align:${align};font-size:${tokens.typography.bodySize}px;line-height:${tokens.typography.lineHeight};color:${text}">${rich.html}</td></tr>`,text:rich.text};
   }
   if(block.type==='button'){
-    const label=resolve(c.label,context),href=safeHref(resolve(c.href,context)),align=c.align==='center'?'center':c.align==='right'?'right':'left';
-    return{html:`<tr><td style="padding:${tokens.spacing.xs}px 0 ${tokens.spacing.l}px;text-align:${align}"><a class="email-button" href="${escapeHtml(href)}" style="display:inline-block;padding:14px 22px;border-radius:${tokens.radius.button}px;background:${primary};color:#ffffff;text-decoration:none;font-size:14px;line-height:1.2;font-weight:700;letter-spacing:.005em">${escapeHtml(label)}</a></td></tr>`,text:`${label}: ${href}`};
+    const rich=renderInlineRich(primaryRichText(c,'label'),context,false),href=safeHref(resolve(c.href,context)),align=c.align==='center'?'center':c.align==='right'?'right':'left';
+    return{html:`<tr><td style="padding:${tokens.spacing.xs}px 0 ${tokens.spacing.l}px;text-align:${align}"><a class="email-button" href="${escapeHtml(href)}" style="display:inline-block;padding:14px 22px;border-radius:${tokens.radius.button}px;background:${primary};color:#ffffff;text-decoration:none;font-size:14px;line-height:1.2;font-weight:700;letter-spacing:.005em">${rich.html}</a></td></tr>`,text:`${rich.text}: ${href}`};
   }
   if(block.type==='divider')return{html:`<tr><td style="padding:${tokens.spacing.s}px 0 ${tokens.spacing.l}px"><div style="border-top:1px solid ${border}"></div></td></tr>`,text:''};
   if(block.type==='spacer'){
