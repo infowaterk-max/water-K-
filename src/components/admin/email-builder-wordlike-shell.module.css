@@ -1,4 +1,11 @@
 .shell{display:contents}
+.sourceControl{display:none!important}
+.documentFieldWrap{display:flex;align-items:center;gap:7px;width:100%;min-width:0}
+.documentField{flex:1;min-width:0;min-height:40px;border:1px solid #cddbd7;border-radius:11px;background:#fff;padding:9px 11px;color:#17372e;font-size:13px;line-height:1.45;outline:none;cursor:text;white-space:pre-wrap;overflow-wrap:anywhere}
+.documentField:focus{border-color:#159b7b;box-shadow:0 0 0 3px rgba(21,155,123,.10)}
+.documentBindingChip{display:inline-flex;align-items:center;margin:0 2px;padding:2px 7px;border:1px solid #a8d8cb;border-radius:999px;background:#ecf8f4;color:#08745f;font:700 11px/1.45 system-ui,sans-serif;vertical-align:baseline;white-space:nowrap}
+.documentFieldButton{flex:0 0 auto;width:38px;height:38px;border:1px solid #b7d9cf;border-radius:10px;background:#f6fbf9;color:#08745f;font-size:14px;font-weight:800;cursor:pointer}
+.documentFieldButton:hover{background:#e8f6f1}
 .fieldBindingButton{align-self:flex-start;margin-top:6px;border:1px solid #b7d9cf;border-radius:999px;background:#f6fbf9;color:#08745f;padding:7px 10px;font-size:12px;font-weight:800;cursor:pointer}
 .fieldBindingButton:hover{background:#e8f6f1}
 .insertButton{margin-left:auto;border:1px solid #b7d9cf;border-radius:10px;background:#fff;color:#08745f;padding:8px 11px;font-size:12px;font-weight:800;cursor:pointer}
@@ -23,4 +30,4 @@
 .bindingList button span{font-size:13px;font-weight:800;color:#143028}
 .bindingList button small{font-size:11px;color:#75877f}
 .empty{padding:24px;text-align:center;color:#6f817a}
-@media(max-width:760px){.insertButton{display:none}.notice{bottom:84px;font-size:12px}.pickerBackdrop{align-items:flex-end;padding:0}.picker{width:100%;max-height:78vh;border-radius:24px 24px 0 0}.pickerHead{padding:18px 18px 12px}.pickerHead strong{font-size:21px}.search{margin:14px 16px 8px;width:calc(100% - 32px)}.bindingList{padding:4px 16px 22px}.bindingList section>div{grid-template-columns:1fr}.fieldBindingButton{width:auto;align-self:flex-end;margin-top:5px;padding:6px 9px;line-height:1}}
+@media(max-width:760px){.insertButton{display:none}.notice{bottom:84px;font-size:12px}.pickerBackdrop{align-items:flex-end;padding:0}.picker{width:100%;max-height:78vh;border-radius:24px 24px 0 0}.pickerHead{padding:18px 18px 12px}.pickerHead strong{font-size:21px}.search{margin:14px 16px 8px;width:calc(100% - 32px)}.bindingList{padding:4px 16px 22px}.bindingList section>div{grid-template-columns:1fr}.fieldBindingButton{width:auto;align-self:flex-end;margin-top:5px;padding:6px 9px;line-height:1}.documentFieldWrap{gap:6px}.documentField{min-height:38px;padding:8px 9px;font-size:12px}.documentBindingChip{padding:2px 6px;font-size:10px}.documentFieldButton{width:36px;height:36px;border-radius:9px;font-size:13px}}
