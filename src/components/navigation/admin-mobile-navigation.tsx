@@ -6,7 +6,7 @@ import { AdminFontScale } from '@/components/admin/admin-font-scale';
 import type { ResolvedAdminNavItem,ResolvedAdminNavSection } from '@/lib/navigation/admin-ia';
 
 const DIRECT_SECTION_HREFS:Record<string,string>={
-  'products':'/admin/termekek',
+  'products':'/admin/termekek/feltoltes',
   'digital-office':'/admin/kommunikacio',
 };
 
