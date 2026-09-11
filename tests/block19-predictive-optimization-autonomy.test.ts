@@ -69,11 +69,14 @@ describe('Roadmap Block 19 — Predictive Optimization & Autonomous Commerce Gua
 
   test('execution reuses Block 17 and action_proposals authorities with idempotent tenant run keys',()=>{
     const server=read('src/lib/optimization/predictive-commerce.ts');
+    const compensation=read('supabase/migrations/20260911050200_block19_compensation_task_cleanup.sql');
     expect(server).toContain('dispatchEventDrivenWorkflow');
     expect(server).toContain("rpc('create_block19_action_proposal_v1'");
     expect(server).toContain("eq('instance_id',instanceId).eq('run_key',runKey)");
-    expect(server).toContain("transition_automation_instance_v2");
+    expect(server).toContain("rpc('compensate_block19_runbook_v1'");
+    expect(compensation).toContain('transition_automation_instance_v2');
     expect(server).not.toMatch(/from\('(products|product_variants|orders|customers|commercial_offers)'\)\.update/);
+    expect(compensation).not.toMatch(/update public\.(products|product_variants|orders|customers|commercial_offers)/i);
   });
 
   test('Block 19 prediction and guard evaluation remain deterministic during AI/model outage',()=>{
