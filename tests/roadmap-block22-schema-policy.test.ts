@@ -21,7 +21,7 @@ describe('Roadmap Block 22 schema-slot persistence policy',()=>{
   it('rejects a top-level section injected into a child slot',()=>{
     const document=fresh();
     const nested=find(document,'reference-hero-stack');
-    const section=document.sections.find(node=>node.componentKey==='layout.section');
+    const section=document.sections.find(node=>node.id==='reference-grid-section');
     expect(nested).toBeTruthy();
     expect(section).toBeTruthy();
     nested!.children=[...(nested!.children??[]),structuredClone(section!)];
