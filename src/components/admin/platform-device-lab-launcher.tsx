@@ -25,8 +25,9 @@ function currentTarget(pathname:string){
 
 export function PlatformDeviceLabLauncher(){
   const pathname=usePathname()||'/admin/platform',router=useRouter();
-  const[active,setActive]=useState<DeviceLabDevice|null>(null);
+  const[active,setActive]=useState<DeviceLabDevice|null>(null),[topLevel,setTopLevel]=useState(false);
   useEffect(()=>{
+    setTopLevel(window.self===window.top);
     const sync=()=>setActive(pathname===DEVICE_LAB_ROUTE?normalizeDeviceLabDevice(new URLSearchParams(window.location.search).get('device')):null);
     sync();window.addEventListener('popstate',sync);return()=>window.removeEventListener('popstate',sync);
   },[pathname]);
@@ -34,6 +35,7 @@ export function PlatformDeviceLabLauncher(){
     const params=new URLSearchParams({device,target:currentTarget(pathname)});
     setActive(device);router.push(`${DEVICE_LAB_ROUTE}?${params.toString()}`);
   };
+  if(!topLevel)return null;
   return <section className={styles.launcher} aria-label="Responsive Device Lab">
     <span className={styles.launcherLabel}>Eszköznézet</span>
     <div className={styles.launcherButtons}>
