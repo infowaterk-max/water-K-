@@ -1,5 +1,6 @@
 .shell{min-width:0}
 .backdrop,.drawerChrome,.mobileDock{display:none}
+.pendingBinding{display:none}
 
 @media(max-width:760px){
   .shell{position:relative;min-width:0;padding-bottom:74px}
@@ -14,6 +15,12 @@
   .libraryTabs::-webkit-scrollbar{display:none}
   .libraryTabs button{flex:0 0 auto;min-height:34px;padding:0 11px;border:1px solid #dce6e3;border-radius:999px;background:#f7faf9;color:#4e615d;font-size:10px;font-weight:850;white-space:nowrap}
   .libraryTabs .activeTab{border-color:#9dd7c7;background:#e7f6f0;color:#08745d}
+
+  .pendingBinding{display:flex;position:fixed;left:max(12px,env(safe-area-inset-left));right:max(12px,env(safe-area-inset-right));bottom:76px;z-index:91;align-items:center;justify-content:space-between;gap:12px;padding:11px 12px;border:1px solid #9ed8c8;border-radius:14px;background:rgba(240,250,247,.98);box-shadow:0 12px 34px rgba(13,56,46,.18);backdrop-filter:blur(14px)}
+  .pendingBinding>div{display:grid;gap:2px;min-width:0}
+  .pendingBinding span{color:#4f7067;font-size:8px;font-weight:900;letter-spacing:.08em;text-transform:uppercase}
+  .pendingBinding strong{color:#145f50;font-size:11px;line-height:1.35}
+  .pendingBinding button{flex:0 0 auto;min-height:34px;padding:0 10px;border:1px solid #b9dbd2;border-radius:9px;background:#fff;color:#335d54;font-size:10px;font-weight:850}
 
   .mobileDock{display:grid;grid-template-columns:repeat(3,1fr);position:fixed;left:max(10px,env(safe-area-inset-left));right:max(10px,env(safe-area-inset-right));bottom:max(8px,env(safe-area-inset-bottom));z-index:90;padding:5px;border:1px solid #d6e1de;border-radius:17px;background:rgba(255,255,255,.97);box-shadow:0 12px 38px rgba(14,39,33,.2);backdrop-filter:blur(16px)}
   .mobileDock button{display:grid;place-items:center;gap:2px;min-height:54px;border:0;border-radius:12px;background:transparent;color:#5d6d6a}
@@ -37,5 +44,6 @@
   .drawerChrome{left:8px;right:8px;top:10dvh;padding:12px}
   .shell[data-mobile-panel="library"] :global(nav[aria-label="E-mail Builder eszközök"] + aside){left:8px;right:8px;top:calc(10dvh + 101px);bottom:74px}
   .shell[data-mobile-panel="inspector"] :global(nav[aria-label="E-mail Builder eszközök"] ~ aside:last-child){left:8px;right:8px;top:calc(10dvh + 62px);bottom:74px}
+  .pendingBinding{left:8px;right:8px;bottom:74px}
   .mobileDock{left:8px;right:8px;bottom:6px}
 }
