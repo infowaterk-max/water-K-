@@ -40,17 +40,22 @@ describe('Email Builder target UX v2 shell',()=>{
     expect(library).toContain('conditions:bankTransferCondition');
   });
 
-  it('makes the existing dynamic binding registry usable from the new library',()=>{
+  it('inserts whitelisted dynamic bindings into the last selected supported field with clipboard fallback',()=>{
     const editor=read('src/components/admin/email-builder-editor.tsx');
     expect(editor).toContain('function DynamicLibrary');
+    expect(editor).toContain('function insertBinding(key:string)');
+    expect(editor).toContain('emailBindingRegistry.some');
+    expect(editor).toContain('rememberDocumentDynamicTarget');
+    expect(editor).toContain('rememberBlockDynamicTarget');
+    expect(editor).toContain('Beszúrás helye:');
+    expect(editor).toContain("bindingFeedback===`inserted:${binding.key}`?'Beszúrva'");
     expect(editor).toContain('navigator.clipboard.writeText');
-    expect(editor).toContain('emailBindingRegistry.filter');
-    expect(editor).toContain("copiedBinding===binding.key?'Másolva'");
+    expect(editor).toContain('Célmező nélkül a változó a vágólapra kerül.');
   });
 
   it('retains editor operations and publication separation',()=>{
     const editor=read('src/components/admin/email-builder-editor.tsx');
-    for(const operation of['addBlock','addSection','applyPreset','duplicateSelected','deleteSelected','moveSelected','insertSavedBlock','undo','redo'])expect(editor).toContain(`function ${operation}`);
+    for(const operation of['addBlock','addSection','applyPreset','duplicateSelected','deleteSelected','moveSelected','insertSavedBlock','insertBinding','undo','redo'])expect(editor).toContain(`function ${operation}`);
     expect(editor).toContain('async function saveDraft');
     expect(editor).toContain('/verziok`');
     expect(editor).not.toContain('/activate');

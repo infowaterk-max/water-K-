@@ -16,11 +16,16 @@ describe('Email Builder grouped undo history',()=>{
 
   it('groups subject, preheader and editable block text by focus session',()=>{
     const editor=read('src/components/admin/email-builder-editor.tsx');
-    expect(editor).toContain("onFocus={()=>beginHistoryGroup('document:subject')}");
+    expect(editor).toContain("beginHistoryGroup('document:subject')");
     expect(editor).toContain("onBlur={()=>endHistoryGroup('document:subject')}");
-    expect(editor).toContain("onFocus={()=>beginHistoryGroup('document:preheader')}");
+    expect(editor).toContain("beginHistoryGroup('document:preheader')");
+    expect(editor).toContain("onBlur={()=>endHistoryGroup('document:preheader')}");
     expect(editor).toContain("const groupKey=(field:string)=>`block:${block.id}:content:${field}`");
+    expect(editor).toContain('onEditStart(groupKey(field))');
+    expect(editor).toContain('onEditEnd(groupKey(field))');
     expect(editor).toContain("onChange={e=>onChange('text',e.target.value,groupKey('text'))}");
+    expect(editor).toContain('rememberDocumentDynamicTarget');
+    expect(editor).toContain('rememberBlockDynamicTarget');
   });
 
   it('groups condition value typing into one undo step',()=>{
