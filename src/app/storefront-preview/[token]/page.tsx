@@ -1,7 +1,9 @@
+import type {CSSProperties} from 'react';
 import {notFound} from 'next/navigation';
 import {StorefrontRuntimeRenderer} from '@/components/builder/storefront-runtime-renderer';
 import {createStorefrontVisualBuilderRendererRegistry} from '@/components/builder/storefront-builder-renderer-registry';
 import {createStorefrontVisualBuilderComponentRegistry} from '@/lib/builder/storefront-builder-registry';
+import {getStorefrontTemplatePreviewTheme} from '@/lib/builder/storefront-template-preview-demo';
 import {resolveStorefrontPreviewRuntimePage} from '@/lib/builder/storefront-runtime-source';
 
 export const dynamic='force-dynamic';
@@ -13,7 +15,8 @@ export default async function StorefrontBuilderPreview({params,searchParams}:Pro
   const resolved=await resolveStorefrontPreviewRuntimePage(token);
   if(!resolved)notFound();
   const viewport=query.viewport==='mobile'?'mobile':query.viewport==='tablet'?'tablet':'desktop';
-  return <main data-storefront-preview="immutable-draft" data-preview-viewport={viewport} style={{minHeight:'100vh',background:'var(--shoporation-color-background,#fff)'}}>
+  const theme=getStorefrontTemplatePreviewTheme(resolved.page.templateKey) as CSSProperties;
+  return <main data-storefront-preview="immutable-draft" data-preview-viewport={viewport} data-template-key={resolved.page.templateKey} style={{...theme,minHeight:'100vh',background:'var(--shoporation-color-background,#fff)'}}>
     <StorefrontRuntimeRenderer
       page={resolved.page}
       viewport={viewport}
