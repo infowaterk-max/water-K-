@@ -1,4 +1,5 @@
 import type{Product}from'@/lib/catalog';
+import{normalizeMediaPresentationSet,type MediaPresentationContext}from'@/lib/catalog-media-presentation';
 import{createAdminClient}from'@/lib/supabase/admin';
 import{createClient}from'@/lib/supabase/server';
 import{getCurrentWebshopInstance}from'@/lib/instances/access';
@@ -6,6 +7,7 @@ import{getCurrentWebshopInstance}from'@/lib/instances/access';
 type ProductAudience=Product['audience'];type SalesChannelCode='b2c'|'b2b';
 type VariantRow={id:string;sku:string;label:string;net_price_huf:number;gross_price_huf:number;reseller_net_price_huf:number|null;reseller_gross_price_huf:number|null;stock_quantity:number;weight_grams:number|null;minimum_order_quantity:number|null;order_multiple:number|null;primary_media_id:string|null;product_id:string;instance_id:string|null;products:{slug:string;name:string;short_description:string|null;seo_title:string|null;seo_description:string|null;active:boolean;audience:string|null;featured:boolean|null;use_cases:string[]|null;highlights:string[]|null;instance_id:string|null}|null};
 type ChannelRow={product_id:string;channel_code:SalesChannelCode;visible:boolean;gross_price:number|null;minimum_quantity:number;discount_percent:number|null};type MediaRow={id:string;storage_path:string};
+type PresentationRow={media_id:string;context:string;zoom:number|string;offset_x:number|string;offset_y:number|string;rotation:number|string};
 const slugify=(value:string)=>value.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'');
 const variantSlug=(productSlug:string,label:string,sku:string)=>{const suffix=slugify(label)||slugify(sku);return suffix?`${productSlug}-${suffix}`:productSlug};
 const normalizeAudience=(value:string|null|undefined):ProductAudience=>value==='professional'?'professional':'retail';
@@ -25,8 +27,19 @@ export async function getProducts(options:{includeAllChannels?:boolean;throwOnEr
   if(error){if(options.throwOnError)throw error;return[]}if(!data?.length)return[];
   const rows=data as unknown as VariantRow[],productIds=[...new Set(rows.map(row=>row.product_id))];let channelRows:ChannelRow[]=[];
   if(!includeAllChannels&&productIds.length){const{data:settings,error:settingsError}=await admin.from('product_channel_settings').select('product_id,channel_code,visible,gross_price,minimum_quantity,discount_percent').eq('instance_id',instance.id).eq('channel_code',channel).in('product_id',productIds);if(settingsError){if(options.throwOnError)throw settingsError;return[]}channelRows=(settings??[])as ChannelRow[]}
-  const primaryMediaIds=[...new Set(rows.flatMap(row=>row.primary_media_id?[row.primary_media_id]:[]))],mediaUrlById=new Map<string,string>();
-  if(primaryMediaIds.length){const{data:media}=await admin.from('product_media').select('id,storage_path').eq('instance_id',instance.id).in('id',primaryMediaIds);for(const item of(media??[])as MediaRow[])mediaUrlById.set(item.id,admin.storage.from('product-media').getPublicUrl(item.storage_path).data.publicUrl)}
+  const primaryMediaIds=[...new Set(rows.flatMap(row=>row.primary_media_id?[row.primary_media_id]:[]))],mediaUrlById=new Map<string,string>(),mediaPresentationById=new Map<string,Product['imagePresentation']>();
+  if(primaryMediaIds.length){
+   const[mediaResult,presentationResult]=await Promise.all([
+    admin.from('product_media').select('id,storage_path').eq('instance_id',instance.id).in('id',primaryMediaIds),
+    admin.from('product_media_presentations').select('media_id,context,zoom,offset_x,offset_y,rotation').eq('instance_id',instance.id).in('media_id',primaryMediaIds),
+   ]);
+   if(mediaResult.error){if(options.throwOnError)throw mediaResult.error}else for(const item of(mediaResult.data??[])as MediaRow[])mediaUrlById.set(item.id,admin.storage.from('product-media').getPublicUrl(item.storage_path).data.publicUrl);
+   if(presentationResult.error){if(options.throwOnError)throw presentationResult.error}else{
+    const partial=new Map<string,Partial<Record<MediaPresentationContext,{zoom:number;offsetX:number;offsetY:number;rotation:number}>>>();
+    for(const row of(presentationResult.data??[])as PresentationRow[]){if(!['card','detail','mobile'].includes(row.context))continue;const context=row.context as MediaPresentationContext,current=partial.get(row.media_id)??{};current[context]={zoom:Number(row.zoom),offsetX:Number(row.offset_x),offsetY:Number(row.offset_y),rotation:Number(row.rotation)};partial.set(row.media_id,current)}
+    for(const[mediaId,value]of partial)mediaPresentationById.set(mediaId,normalizeMediaPresentationSet(value));
+   }
+  }
   const settingByProduct=new Map(channelRows.map(row=>[row.product_id,row])),activeCount=new Map<string,number>();for(const row of rows)activeCount.set(row.product_id,(activeCount.get(row.product_id)??0)+1);
   return rows.filter(row=>row.instance_id===instance.id&&row.products?.instance_id===instance.id).filter(row=>{if(includeAllChannels)return true;const setting=settingByProduct.get(row.product_id);if(channel==='b2b')return setting?.visible===true;return setting?setting.visible:normalizeAudience(row.products?.audience)!=='professional'}).map(row=>{
    const product=row.products,setting=includeAllChannels?undefined:settingByProduct.get(row.product_id),baseSlug=product?.slug||slugify(product?.name||row.sku)||row.id,resellerBase=channel==='b2b'&&row.reseller_gross_price_huf!=null,baseGross=resellerBase?Number(row.reseller_gross_price_huf):Number(row.gross_price_huf),baseNet=resellerBase?(row.reseller_net_price_huf!=null?Number(row.reseller_net_price_huf):deriveNet(baseGross,Number(row.gross_price_huf),Number(row.net_price_huf))):Number(row.net_price_huf),explicitChannelPrice=!includeAllChannels&&setting?.gross_price!=null&&(activeCount.get(row.product_id)??0)===1&&!resellerBase;
@@ -35,7 +48,7 @@ export async function getProducts(options:{includeAllChannels?:boolean;throwOnEr
    const orderMultiple=b2bRules?positiveInt(row.order_multiple):1;
    const minimumQuantity=b2bRules?normalizeMinimum(Math.max(positiveInt(row.minimum_order_quantity),positiveInt(setting?.minimum_quantity)),orderMultiple):1;
    const audience:ProductAudience=!includeAllChannels&&channel==='b2b'?'professional':normalizeAudience(product?.audience);
-   return{id:row.id,sku:row.sku,slug:variantSlug(baseSlug,row.label,row.sku),name:[product?.name,row.label].filter(Boolean).join(' '),size:row.label,grossPrice,netPrice,originalGrossPrice,discountPercent:discountPercent??undefined,stock:row.stock_quantity,short:product?.short_description??'',featured:product?.featured??false,weightGrams:row.weight_grams??0,audience,useCases:product?.use_cases??[],highlights:product?.highlights??[],minimumQuantity,orderMultiple,seoTitle:product?.seo_title??undefined,seoDescription:product?.seo_description??undefined,imageUrl:row.primary_media_id?mediaUrlById.get(row.primary_media_id):undefined};
+   return{id:row.id,sku:row.sku,slug:variantSlug(baseSlug,row.label,row.sku),name:[product?.name,row.label].filter(Boolean).join(' '),size:row.label,grossPrice,netPrice,originalGrossPrice,discountPercent:discountPercent??undefined,stock:row.stock_quantity,short:product?.short_description??'',featured:product?.featured??false,weightGrams:row.weight_grams??0,audience,useCases:product?.use_cases??[],highlights:product?.highlights??[],minimumQuantity,orderMultiple,seoTitle:product?.seo_title??undefined,seoDescription:product?.seo_description??undefined,imageUrl:row.primary_media_id?mediaUrlById.get(row.primary_media_id):undefined,imagePresentation:row.primary_media_id?mediaPresentationById.get(row.primary_media_id):undefined};
   })
  }catch(error){if(options.throwOnError)throw error;return[]}
 }
