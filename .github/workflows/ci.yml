@@ -88,6 +88,17 @@ jobs:
       - name: Customer database baseline guard
         run: npm run db:customer:guard
 
+      - name: Block 24 market-ready contract
+        run: npm run market-ready:gate
+
+      - name: Upload Block 24 market-ready contract
+        uses: actions/upload-artifact@v4
+        with:
+          name: block24-market-ready-contract
+          path: artifacts/block24-market-ready-contract.json
+          if-no-files-found: error
+          retention-days: 30
+
       - name: Prepare quality artifacts
         run: mkdir -p artifacts
 

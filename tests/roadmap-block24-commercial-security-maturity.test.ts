@@ -46,11 +46,16 @@ describe('Roadmap Block 24 Commercial / Security / Maturity Gate',()=>{
     }
   });
 
-  it('reopens Fresh Install proof only because Block 24 changes the sellable schema security contract',()=>{
+  it('keeps the Fresh Install lifecycle explicit before and after the required 0001-0018 proof',()=>{
     const manifest=JSON.parse(read('supabase/customer-baseline/manifest.json')) as {status:string;freshInstallProofRequired:boolean;proofContractSha256:string|null;notes:string};
-    expect(manifest.status).toBe('snapshot-reviewed');
-    expect(manifest.freshInstallProofRequired).toBe(true);
-    expect(manifest.proofContractSha256).toBeNull();
+    expect(['snapshot-reviewed','ready']).toContain(manifest.status);
+    if(manifest.status==='snapshot-reviewed'){
+      expect(manifest.freshInstallProofRequired).toBe(true);
+      expect(manifest.proofContractSha256).toBeNull();
+    }else{
+      expect(manifest.freshInstallProofRequired).toBe(false);
+      expect(manifest.proofContractSha256).toMatch(/^[a-f0-9]{64}$/);
+    }
     expect(manifest.notes).toContain('0001-0018');
   });
 
