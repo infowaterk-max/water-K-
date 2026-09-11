@@ -48,8 +48,10 @@ describe('Product Media Editor v1',()=>{
   expect(route).toContain("admin.rpc('apply_product_media_to_variants_v1'");
  });
  it('offers visual drag/zoom, three live previews, presets and transparent variant groups',()=>{
-  const editor=read('src/components/admin/product-media-editor.tsx');
-  for(const label of['Termékkártya','Termékoldal','Mobil','Fogd meg és húzd a képet','Preset mentése','Azonos szín · minden méret','Azonos méret · minden szín','Minden létező variáns'])expect(editor).toContain(label);
+  const editor=read('src/components/admin/product-media-editor.tsx'),meta=read('src/lib/catalog-media-presentation.ts');
+  for(const label of['Termékkártya','Termékoldal','Mobil'])expect(meta).toContain(label);
+  for(const label of['Fogd meg és húzd a képet','Preset mentése','Azonos szín · minden méret','Azonos méret · minden szín','Minden létező variáns'])expect(editor).toContain(label);
+  expect(editor).toContain('MEDIA_PRESENTATION_CONTEXTS.map');
   expect(editor).toContain('onPointerMove={moveDrag}');
   expect(editor).toContain('type="range"');
   expect(editor).toContain("mode==='presentation-only'");
@@ -95,5 +97,6 @@ describe('Product Media Editor v1',()=>{
   expect(manifest.status).toBe('snapshot-reviewed');
   expect(manifest.freshInstallProofRequired).toBe(true);
   expect(manifest.notes).toContain('0010-0013');
+  expect(manifest.notes).toContain('0001-0013');
  });
 });

@@ -9,7 +9,7 @@
   "snapshotFile": "supabase/customer-baseline/migrations/0001_shoperation_v1_schema.sql",
   "snapshotCommand": "npm run db:customer:snapshot",
   "freshInstallProofRequired": true,
-  "notes": "Block 14 remains the last genuine Fresh Install proof. Product Intake Center forward migrations 0010-0013 add multi-variant draft editing, SEO/media/channel hardening, CSV/XLSX onboarding, tenant-scoped product-copy authority, safe product-media deletion, persistent primary-image ordering and non-destructive media presentation/preset/variant-apply authority. Product Copilot remains application-side suggestion-only. A new genuine empty-target Fresh Install proof for ordered baseline 0001-0013 is required before status can return to ready.",
+  "notes": "Block 14 remains the last genuine Fresh Install proof. Product Intake Center forward migrations 0010-0012 add multi-variant draft editing, SEO/media/channel hardening, CSV/XLSX onboarding, tenant-scoped product-copy authority, safe product-media deletion and persistent primary-image ordering. Product Media Editor adds 0013 for non-destructive media presentation, presets and tenant-safe variant apply; the combined Product Intake/Media forward sequence is 0010-0013. Product Copilot remains application-side suggestion-only. The previously reviewed ordered baseline 0001-0012 remains proof-pending, and a new genuine empty-target Fresh Install proof for ordered baseline 0001-0013 is required before status can return to ready.",
   "authBootstrapFile": "supabase/customer-baseline/auth-bootstrap.sql",
   "proofContractSha256": null
 }
