@@ -36,9 +36,11 @@ const find=(nodes:StorefrontComponentNode[],predicate:(node:StorefrontComponentN
 };
 
 describe('Roadmap Block 23 AI-assisted Builder / template generation',()=>{
-  it('accepts bounded merchant intent and rejects HTML/script-shaped input',()=>{
-    expect(storefrontAiGenerationInputSchema.parse({businessCategory:'ékszer',description:'Prémium kiegészítők.',style:'levegős',targetAudience:'ajándékot kereső felnőttek',language:'hu',operationKey:'ai-12345678'}).language).toBe('hu');
-    expect(()=>storefrontAiGenerationInputSchema.parse({businessCategory:'ékszer',description:'<script>alert(1)</script>',style:'levegős',targetAudience:'felnőttek',language:'hu',operationKey:'ai-12345678'})).toThrow();
+  it('accepts bounded merchant intent and rejects HTML/script-shaped or tenant-spoofed input',()=>{
+    const valid={businessCategory:'ékszer',description:'Prémium kiegészítők.',style:'levegős',targetAudience:'ajándékot kereső felnőttek',language:'hu' as const,operationKey:'ai-12345678'};
+    expect(storefrontAiGenerationInputSchema.parse(valid).language).toBe('hu');
+    expect(()=>storefrontAiGenerationInputSchema.parse({...valid,description:'<script>alert(1)</script>'})).toThrow();
+    expect(()=>storefrontAiGenerationInputSchema.parse({...valid,instanceId:'00000000-0000-4000-8000-000000000023'})).toThrow();
   });
 
   it('allows only a server-provided eligible template key',()=>{
@@ -69,13 +71,16 @@ describe('Roadmap Block 23 AI-assisted Builder / template generation',()=>{
     expect(()=>applyStorefrontAiModelPlan({plan:base,modelPlan:{...modelPlan,templateKey:'other.template'},registry,capability:pro})).toThrow('STOREFRONT_AI_PLAN_TEMPLATE_MISMATCH');
   });
 
-  it('keeps tenant, authorization, rate-limit and draft persistence authority on the server',()=>{
+  it('keeps tenant, authorization, entitlement, schema, rate-limit and draft persistence authority on the server',()=>{
     const source=readFileSync('src/lib/builder/storefront-ai-generator-server.ts','utf8');
     expect(source).toContain("getAdminRequestUser('store.manage')");
     expect(source).toContain("requireCurrentStoreContext('store.manage')");
-    expect(source).toContain("consume_security_rate_limit");
+    expect(source).toContain('evaluateStorefrontTemplateCapabilityGate');
+    expect(source).toContain('validateStorefrontBuilderSchemaStructure');
+    expect(source).toContain('consume_security_rate_limit');
     expect(source).toContain('saveCurrentStorefrontTemplateDraftPlan');
     expect(source).toContain('STOREFRONT_IMPLEMENTED_TEMPLATE_PACKAGES');
+    expect(source).not.toContain('input.instanceId');
     expect(source).not.toContain("from('products').update");
     expect(source).not.toContain("from('orders').update");
     expect(source).not.toContain('publishCurrentStorefrontPage');
