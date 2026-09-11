@@ -75,7 +75,7 @@ export function storefrontBuilderEditabilityMetadata(
       minPlan:definition.manifest.capability.minPlan,
       features:[...definition.manifest.capability.features],
     },
-    interactions:{dragDrop:false,inlineEditing:false,resizeHandles:false,canvas:false},
+    interactions:{dragDrop:false,inlineEditing:false,resizeHandles:false,canvas:false} as const,
   });
 }
 
