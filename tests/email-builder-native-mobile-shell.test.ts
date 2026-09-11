@@ -21,6 +21,15 @@ describe('Email Builder native mobile shell',()=>{
     expect(shell).toContain("button?.click()");
   });
 
+  it('forces mobile dynamic variable choices through a fresh target handoff',()=>{
+    const shell=read('src/components/admin/email-builder-mobile-shell.tsx');
+    const clickHandler=shell.slice(shell.indexOf('function captureEditorClick'),shell.indexOf('function captureEditorFocus'));
+    expect(clickHandler).toContain("libraryView!=='Dinamikus adatok'");
+    expect(clickHandler).toContain('pendingBindingRef.current=binding');
+    expect(clickHandler).toContain("setPanel('canvas')");
+    expect(clickHandler).not.toContain('hasTarget');
+  });
+
   it('keeps desktop untouched and turns mobile library and inspector into overlay drawers',()=>{
     const css=read('src/components/admin/email-builder-mobile-shell.module.css');
     expect(css).toContain('@media(max-width:760px)');
