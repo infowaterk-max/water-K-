@@ -106,9 +106,9 @@ describe('Roadmap Block 20 – Platform Ecosystem & Enterprise Extensibility',()
     expect(boundedExtensionEvidence({token:'secret',email:'a@b.c',count:3,note:'ok'})).toEqual({token:'[redacted]',email:'[redacted]',count:3,note:'ok'});
   });
 
-  it('keeps the customer baseline fail-closed until a genuine 0001-0017 Fresh Install proof',()=>{
+  it('binds the ready customer baseline to the genuine 0001-0017 Fresh Install proof',()=>{
     const parsed=JSON.parse(manifest) as {status:string;freshInstallProofRequired:boolean;proofContractSha256:string|null;notes:string};
-    expect(parsed.status).toBe('snapshot-reviewed');expect(parsed.freshInstallProofRequired).toBe(true);expect(parsed.proofContractSha256).toBeNull();expect(parsed.notes).toContain('0001-0017');
+    expect(parsed.status).toBe('ready');expect(parsed.freshInstallProofRequired).toBe(false);expect(parsed.proofContractSha256).toBe('c0127ea9f035df7d0978a38dafe4f1fa174f69eb6667921d25663875867ef618');expect(parsed.notes).toContain('0001-0017');
   });
 
   it('records Block 21/22 as explicit non-scope',()=>{
