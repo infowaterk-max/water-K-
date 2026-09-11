@@ -1,0 +1,55 @@
+import {readFileSync} from 'node:fs';
+import {resolve} from 'node:path';
+import {describe,expect,it} from 'vitest';
+import {listStorefrontTemplateLibraryEntries} from '@/lib/builder/storefront-template-library';
+
+const read=(path:string)=>readFileSync(resolve(process.cwd(),path),'utf8');
+
+describe('storefront template library UX',()=>{
+  it('enriches every concrete template with merchant-facing discovery metadata',()=>{
+    const entries=listStorefrontTemplateLibraryEntries();
+    expect(entries.length).toBeGreaterThan(0);
+    for(const entry of entries){
+      expect(entry.displayName.length).toBeGreaterThan(2);
+      expect(entry.categoryLabel.length).toBeGreaterThan(2);
+      expect(entry.description.length).toBeGreaterThan(20);
+      expect(entry.audience.length).toBeGreaterThan(10);
+      expect(entry.highlights.length).toBeGreaterThan(0);
+      expect(entry.previewPageKey).toBeTruthy();
+      expect(entry.proComparison.summary.length).toBeGreaterThan(20);
+      expect(entry.proComparison.highlights.length).toBeGreaterThanOrEqual(3);
+      expect(entry.proComparison.status).toBe(entry.minPlan==='pro'?'available':'planned');
+    }
+  });
+
+  it('keeps Pro differentiation functional and explicitly non-deceptive while concrete Pro variants are absent',()=>{
+    const entries=listStorefrontTemplateLibraryEntries();
+    const currentAlap=entries.filter(entry=>entry.minPlan==='alap');
+    expect(currentAlap.length).toBeGreaterThan(0);
+    expect(currentAlap.every(entry=>entry.proComparison.status==='planned')).toBe(true);
+    const source=read('src/components/admin/storefront-template-library.tsx');
+    expect(source).toContain('A Pro nem „szebb skin”');
+    expect(source).toContain('Tervezett Pro többlet');
+    expect(source).toContain('A konkrét Pro sablonvariáns még nincs publikálva a katalógusban');
+  });
+
+  it('provides category filtering, search, live preview and no merchant-facing AI generator in the empty Builder state',()=>{
+    const library=read('src/components/admin/storefront-template-library.tsx');
+    const page=read('src/app/admin/tartalom/builder/page.tsx');
+    expect(library).toContain('Kategóriák');
+    expect(library).toContain('Keresés a sablonok között');
+    expect(library).toContain('Élő előnézet');
+    expect(library).toContain('/storefront-template-preview?template=');
+    expect(page).toContain('<StorefrontTemplateLibrary');
+    expect(page).not.toContain('StorefrontAiGeneratorPanel');
+  });
+
+  it('renders template live preview through the shared Storefront runtime without installing a draft',()=>{
+    const preview=read('src/app/storefront-template-preview/page.tsx');
+    expect(preview).toContain('getStorefrontTemplatePackage');
+    expect(preview).toContain('<StorefrontRuntimeRenderer');
+    expect(preview).toContain('createStorefrontVisualBuilderComponentRegistry');
+    expect(preview).toContain('createStorefrontVisualBuilderRendererRegistry');
+    expect(preview).not.toContain('installVisualBuilderTemplateAction');
+  });
+});
