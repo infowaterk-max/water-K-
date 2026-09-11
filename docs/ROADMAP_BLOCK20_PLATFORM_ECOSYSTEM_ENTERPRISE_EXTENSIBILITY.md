@@ -21,7 +21,7 @@ Block 20 therefore exposes existing Shoperation authorities to governed external
 9. Bounded retry/backoff and dead-letter after five failed deliveries, processed by the existing single protected `/api/cron/integrations` schedule.
 10. Webhook delivery respects the existing tenant automation pause/circuit-breaker control plane.
 11. Tenant lifecycle mutations and platform catalog mutations are privileged, RBAC/entitlement gated and appended to the existing admin audit chain.
-12. Webhook endpoints are HTTPS-only and reject credentials, non-standard ports, localhost and directly-addressed private/link-local networks. Redirects are disabled during delivery.
+12. Webhook endpoints are HTTPS-only; direct private/link-local IPv4/IPv6 targets are rejected and delivery resolves DNS before connect, rejects non-public answers, pins the chosen public address and preserves TLS SNI/hostname validation. Redirects are disabled.
 
 ## Existing authorities reused
 
@@ -63,7 +63,7 @@ Disabling an installation stops new requests. Revoking an installation also revo
 
 Outbound webhooks are evidence/notification only. They never act as a commerce authority. The private database trigger observes Block 17 processing evidence with `authority='event-driven-workflow'`, selects only enabled same-tenant subscriptions/installations/released apps, and inserts an idempotent delivery row. The trigger is `SECURITY DEFINER` in the non-exposed `private` schema and has all direct execution revoked from `PUBLIC`, `anon`, `authenticated` and `service_role`.
 
-The existing integrations cron processes due deliveries. A delivery is claimed optimistically, signed with a per-subscription HMAC secret derived from a server-only master secret, sent without redirects, and marked delivered/retry/dead-letter. Five failures are terminal. Tenant automation pause/circuit-open state suppresses delivery attempts without losing the queued evidence.
+The existing integrations cron processes due deliveries. A delivery is claimed optimistically, signed with a per-subscription HMAC secret derived from a server-only master secret, resolves and pins a public network target, and is marked delivered/retry/dead-letter. Five failures are terminal. Tenant automation pause/circuit-open state suppresses delivery attempts without losing queued evidence.
 
 ## Explicit non-scope
 
@@ -83,9 +83,9 @@ Those domain integrations may later use the Block 20 boundary, but their busines
 
 ## Database / customer baseline
 
-Block 20 adds customer forward migration `0013_block20_platform_ecosystem.sql` and production migration `20260911074000_block20_platform_ecosystem.sql`. The migration creates the extension catalog/install/credential/webhook evidence contract and releases Pro `apiAccess` through the existing entitlement model.
+The current integrated `main` already owns customer forward migration `0013_product_media_editor_v1.sql`. Block 20 therefore adds customer forward migration `0014_block20_platform_ecosystem.sql` plus production migration `20260911074000_block20_platform_ecosystem.sql`. The Block 20 migration creates the extension catalog/install/credential/webhook evidence contract and releases Pro `apiAccess` through the existing entitlement model.
 
-The customer manifest must remain `snapshot-reviewed`, `freshInstallProofRequired=true`, `proofContractSha256=null` until a **genuine empty-target Fresh Install proof for ordered baseline 0001–0013** succeeds. No previous proof may be relabeled as evidence for this baseline.
+The customer manifest must remain `snapshot-reviewed`, `freshInstallProofRequired=true`, `proofContractSha256=null` until a **genuine empty-target Fresh Install proof for ordered baseline 0001–0014** succeeds. No previous proof may be relabeled as evidence for this baseline.
 
 ## Acceptance / release contract
 
@@ -99,7 +99,7 @@ Before merge:
 - Supabase security advisors reviewed after DDL;
 - Vercel preview READY;
 - PR mergeable against the then-current `main` and integration CI green;
-- genuine empty-target Fresh Install proof for 0001–0013 green before release authorization.
+- genuine empty-target Fresh Install proof for 0001–0014 green before release authorization.
 
 After merge/release:
 
