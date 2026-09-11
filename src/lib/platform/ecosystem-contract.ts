@@ -18,21 +18,38 @@ export function parseExtensionApiToken(value:string|null){
   return match?{token,prefix:match[1],secret:match[2]}:null;
 }
 
-function privateIpv4(host:string){
+function normalizedIpHost(value:string){return value.trim().toLowerCase().replace(/^\[|\]$/g,'');}
+function nonPublicIpv4(host:string){
   const parts=host.split('.');
   if(parts.length!==4||parts.some(part=>!/^[0-9]{1,3}$/.test(part)||Number(part)>255))return false;
-  const[a,b]=parts.map(Number);
-  return a===10||a===127||a===0||(a===169&&b===254)||(a===172&&b>=16&&b<=31)||(a===192&&b===168)||(a===100&&b>=64&&b<=127);
+  const[a,b,c]=parts.map(Number);
+  return a===0||a===10||a===127||(a===100&&b>=64&&b<=127)||(a===169&&b===254)||(a===172&&b>=16&&b<=31)||(a===192&&b===0&&c===0)||(a===192&&b===0&&c===2)||(a===192&&b===168)||(a===198&&(b===18||b===19))||(a===198&&b===51&&c===100)||(a===203&&b===0&&c===113)||a>=224;
+}
+function nonPublicIpv6(host:string){
+  const value=normalizedIpHost(host);
+  if(!value.includes(':'))return false;
+  if(value==='::'||value==='::1')return true;
+  if(value.startsWith('::ffff:'))return true;
+  const first=value.split(':')[0]??'';
+  if(/^f[cd]/.test(first)||/^fe[89ab]/.test(first)||/^ff/.test(first))return true;
+  if(value==='100::'||value.startsWith('100::'))return true;
+  if(value==='2001:db8::'||value.startsWith('2001:db8:'))return true;
+  return false;
+}
+
+export function isNonPublicWebhookAddress(value:string){
+  const host=normalizedIpHost(value);
+  return nonPublicIpv4(host)||nonPublicIpv6(host);
 }
 
 export function normalizeWebhookEndpoint(value:unknown){
   if(typeof value!=='string'||value.length>2048)return null;
   try{
     const url=new URL(value.trim());
-    const host=url.hostname.toLowerCase();
+    const host=normalizedIpHost(url.hostname);
     if(url.protocol!=='https:'||url.username||url.password)return null;
     if(url.port&&url.port!=='443')return null;
-    if(!host||host==='localhost'||host.endsWith('.localhost')||host.endsWith('.local')||host==='::1'||host.startsWith('fe80:')||host.startsWith('fc')||host.startsWith('fd')||privateIpv4(host))return null;
+    if(!host||host==='localhost'||host.endsWith('.localhost')||host.endsWith('.local')||isNonPublicWebhookAddress(host))return null;
     url.hash='';
     return url.toString();
   }catch{return null}
