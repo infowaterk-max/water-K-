@@ -1,4 +1,4 @@
-import {createElement} from 'react';
+import * as React from 'react';
 import {renderToStaticMarkup} from 'react-dom/server';
 import {describe,expect,it} from 'vitest';
 import {StorefrontRuntimeRenderer} from '@/components/builder/storefront-runtime-renderer';
@@ -21,6 +21,8 @@ import {STOREFRONT_TEMPLATE_PORTFOLIO_STATUS,getStorefrontTemplatePackage} from 
 import {evaluateStorefrontTemplateCapabilityGate,planStorefrontTemplateInstallation} from '@/lib/builder/storefront-template-installation';
 import {validateStorefrontPageDocument,type StorefrontComponentNode} from '@/lib/builder/storefront-runtime';
 
+Object.assign(globalThis,{React});
+const {createElement}=React;
 const capability={plan:'alap' as const,features:PLANS.alap.features};
 const componentRegistry=()=>createStorefrontStoryVisualComponentRegistry();
 const rendererRegistry=()=>createStorefrontStoryVisualRendererRegistry();
