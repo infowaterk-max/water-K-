@@ -13,7 +13,7 @@ describe('Email Builder Word-like editing shell',()=>{
     expect(page).toContain('</EmailBuilderMobileShell></EmailBuilderWordLikeShellV3>');
   });
 
-  it('provides a compact contextual toolbar for familiar editing actions',()=>{
+  it('provides a contextual toolbar attached to the edited content with familiar actions',()=>{
     const shell=read('src/components/admin/email-builder-wordlike-shell-v3.tsx');
     expect(shell).toContain("'Félkövér'");
     expect(shell).toContain("'Dőlt'");
@@ -22,8 +22,26 @@ describe('Email Builder Word-like editing shell',()=>{
     expect(shell).toContain("'Középre igazítás'");
     expect(shell).toContain("'Jobbra igazítás'");
     expect(shell).toContain("'Dinamikus adat'");
-    expect(shell).toContain('position:fixed');
+    expect(shell).toContain('setAlignmentIcon');
+    expect(shell).toContain('positionToolbar');
+    expect(shell).toContain('position:absolute');
+    expect(shell).toContain('shoperation-toolbar-label');
     expect(shell).toContain('shoperation-inline-toolbar');
+  });
+
+  it('tokenizes Subject and Preheader bindings instead of exposing raw binding syntax',()=>{
+    const shell=read('src/components/admin/email-builder-wordlike-shell-v3.tsx');
+    const css=read('src/components/admin/email-builder-wordlike-shell.module.css');
+    expect(shell).toContain("const documentFieldLabels=new Set(['Tárgy','Preheader'])");
+    expect(shell).toContain('documentBindingSpan');
+    expect(shell).toContain('documentFieldSource');
+    expect(shell).toContain('renderDocumentField');
+    expect(shell).toContain("data.wordlikeDocumentField").not;
+    expect(shell).toContain("editable.dataset.wordlikeDocumentField='true'");
+    expect(shell).toContain("button.textContent='✦'");
+    expect(css).toContain('.sourceControl{display:none!important}');
+    expect(css).toContain('.documentBindingChip');
+    expect(css).toContain('.documentFieldButton');
   });
 
   it('persists structured edits instead of raw HTML and avoids click-only dirty state',()=>{
