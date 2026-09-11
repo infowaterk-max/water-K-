@@ -92,11 +92,12 @@ describe('Product Media Editor v1',()=>{
   expect(page).toContain('context="detail"');
   expect(image).toContain("objectFit:'contain'");
  });
- it('keeps the customer baseline proof pending for ordered 0001-0013',()=>{
+ it('preserves Product Media Editor as baseline 0013 while later roadmap work may advance the ordered baseline',()=>{
   const manifest=JSON.parse(read('supabase/customer-baseline/manifest.json'))as{status:string;freshInstallProofRequired:boolean;notes:string};
   expect(manifest.status).toBe('snapshot-reviewed');
   expect(manifest.freshInstallProofRequired).toBe(true);
-  expect(manifest.notes).toContain('0010-0013');
-  expect(manifest.notes).toContain('0001-0013');
+  expect(read(baselinePath)).toBe(read(migrationPath));
+  expect(manifest.notes).toContain('Product Media Editor adds 0013');
+  expect(manifest.notes).toContain('0001-0014');
  });
 });
