@@ -56,16 +56,18 @@ describe('Platform persistent device view',()=>{
     expect(mobileNav).toContain('if(directHref)return');
   });
 
-  test('keeps device controls desktop-host only and native touch devices on the real admin',()=>{
+  test('keeps all three platform view controls available in every top-level browser',()=>{
     const launcher=read('src/components/admin/platform-device-lab-launcher.tsx');
     const viewport=read('src/components/admin/platform-responsive-viewport.tsx');
     const deviceLib=read('src/lib/platform/device-lab.ts');
-    expect(deviceLib).toContain("window.innerWidth>=1100");
-    expect(deviceLib).toContain("'(hover: hover) and (pointer: fine)'");
-    expect(launcher).toContain('canUsePlatformDevicePreview()');
-    expect(viewport).toContain("const stored=available?normalizeDeviceLabDevice");
-    expect(viewport).toContain("setDevice('desktop')");
-    expect(viewport).toContain('!previewAvailable');
+    expect(launcher).toContain('setTopLevel(window.self===window.top)');
+    expect(launcher).toContain('if(!topLevel)return null');
+    expect(launcher).not.toContain('canUsePlatformDevicePreview');
+    expect(viewport).not.toContain('canUsePlatformDevicePreview');
+    expect(viewport).toContain("const stored=enabled?normalizeDeviceLabDevice");
+    expect(viewport).toContain("window.localStorage.setItem(DEVICE_LAB_STORAGE_KEY,next)");
+    expect(deviceLib).not.toContain('window.innerWidth>=1100');
+    expect(deviceLib).not.toContain('(hover: hover) and (pointer: fine)');
   });
 
   test('preserves global anti-framing while allowing only same-origin admin previews',()=>{
