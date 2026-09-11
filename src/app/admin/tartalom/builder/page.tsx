@@ -8,6 +8,7 @@ import {
   listCurrentStorefrontBuilderRevisionHistory,
 } from '@/lib/builder/storefront-builder-server';
 import {STOREFRONT_TEMPLATE_CATALOG} from '@/lib/builder/storefront-template-catalog';
+import {StorefrontAiGeneratorPanel} from '@/components/admin/storefront-ai-generator-panel';
 import {StorefrontVisualBuilder} from '@/components/admin/storefront-visual-builder';
 
 export const dynamic='force-dynamic';
@@ -28,6 +29,7 @@ export default async function VisualBuilderAdmin({searchParams}:Props){
   const revisions=state?await listCurrentStorefrontBuilderRevisionHistory(state.pageId):[];
   const document=state?.draft?.document??state?.published?.document??null;
   return <section className="adminMain">
+    <StorefrontAiGeneratorPanel/>
     <StorefrontVisualBuilder
       key={selectedKey??'no-page'}
       pages={pages}
