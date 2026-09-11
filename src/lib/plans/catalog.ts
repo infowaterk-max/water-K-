@@ -74,16 +74,12 @@ const PRO_FEATURES = [
   'cashflow',
   'executiveAnalytics',
   'advancedIntegrations',
+  'apiAccess',
 ] as const satisfies readonly FeatureCode[];
 
-/**
- * Reserved feature codes stay typed so their completed foundations can remain in
- * the codebase, but they are not active plan entitlements until a later release
- * explicitly enables them. Secure Attachments is intentionally dormant at launch.
- */
+/** Reserved feature codes remain typed but fail closed until a later explicit release. */
 export const PLANNED_PRO_FEATURES = [
   'teamChatSecureAttachments',
-  'apiAccess',
 ] as const satisfies readonly FeatureCode[];
 
 export const PLANS: Record<PlanCode, PlanDefinition> = {

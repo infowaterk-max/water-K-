@@ -1,3 +1,4 @@
+import type{MediaPresentationSet}from'@/lib/catalog-media-presentation';
 export type Product={
   id:string;
   sku:string;
@@ -20,6 +21,7 @@ export type Product={
   seoTitle?:string;
   seoDescription?:string;
   imageUrl?:string;
+  imagePresentation?:MediaPresentationSet;
 };
 export const products:Product[]=[];
 export const formatHuf=(value:number)=>new Intl.NumberFormat('hu-HU',{style:'currency',currency:'HUF',maximumFractionDigits:0}).format(value);

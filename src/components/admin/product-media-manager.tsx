@@ -1,17 +1,21 @@
 'use client';
 
-import{useState}from'react';
+import{useMemo,useState}from'react';
 import{useShoperationConfirm}from'@/components/admin/shoperation-dialog';
+import{ProductMediaEditor,type MediaEditorVariant}from'@/components/admin/product-media-editor';
+import type{MediaPresentationPreset,MediaPresentationSet}from'@/lib/catalog-media-presentation';
 import styles from'@/app/admin/termekek/feltoltes/product-intake.module.css';
 import mediaStyles from'./product-media-manager.module.css';
 
-export type ProductMediaManagerItem={key:string;id?:string;url:string;name:string};
-type Props={items:ProductMediaManagerItem[];productId:string;onFiles:(files:FileList|null)=>void;onRemove:(key:string)=>void;onPrimary:(key:string)=>void;onStatus:(message:string,error?:boolean)=>void};
+export type ProductMediaManagerItem={key:string;id?:string;url:string;name:string;presentation?:MediaPresentationSet};
+type ApplyMode='same-media'|'presentation-only';
+type Props={items:ProductMediaManagerItem[];productId:string;variants:MediaEditorVariant[];colors:string[];sizes:string[];presets:MediaPresentationPreset[];onFiles:(files:FileList|null)=>void;onRemove:(key:string)=>void;onPrimary:(key:string)=>void;onPresentation:(key:string,presentation:MediaPresentationSet)=>void;onVariantApply:(sourceKey:string,targetKeys:string[],mode:ApplyMode,presentation:MediaPresentationSet)=>void;onStatus:(message:string,error?:boolean)=>void};
 type DeleteResponse={error?:string;deleted?:boolean;cleanupPending?:boolean;nextPrimaryMediaId?:string|null};
 const MAX_MEDIA=8,MAX_BYTES=8*1024*1024,ALLOWED_TYPES=new Set(['image/jpeg','image/png','image/webp','image/avif']);
 
-export function ProductMediaManager({items,productId,onFiles,onRemove,onPrimary,onStatus}:Props){
- const{confirm:showConfirm,dialog}=useShoperationConfirm(),[busyKey,setBusyKey]=useState(''),[dragActive,setDragActive]=useState(false);
+export function ProductMediaManager({items,productId,variants,colors,sizes,presets,onFiles,onRemove,onPrimary,onPresentation,onVariantApply,onStatus}:Props){
+ const{confirm:showConfirm,dialog}=useShoperationConfirm(),[busyKey,setBusyKey]=useState(''),[dragActive,setDragActive]=useState(false),[editingKey,setEditingKey]=useState(''),[localPresets,setLocalPresets]=useState<MediaPresentationPreset[]>(presets);
+ const editingItem=useMemo(()=>items.find(item=>item.key===editingKey),[items,editingKey]);
  function acceptFiles(list:FileList|null){
   if(!list?.length)return;const incoming=Array.from(list),unsupported=incoming.filter(file=>!ALLOWED_TYPES.has(file.type)),oversized=incoming.filter(file=>file.size>MAX_BYTES);
   if(unsupported.length){onStatus(`Nem támogatott képformátum: ${unsupported.map(file=>file.name).join(', ')}. Használj JPEG, PNG, WebP vagy AVIF fájlt.`,true);return}
@@ -39,11 +43,12 @@ export function ProductMediaManager({items,productId,onFiles,onRemove,onPrimary,
     <button type="button" className={mediaStyles.trashButton} aria-label={`${item.name} kép törlése`} title="Kép törlése" disabled={busyKey===item.key} onClick={()=>void remove(item)}>
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M9 7V4h6v3m-8 0 1 13h8l1-13M10 11v5m4-5v5"/></svg>
     </button>
-    <div className={mediaStyles.mediaActions}><button type="button" disabled={busyKey===item.key||index===0} onClick={()=>void makePrimary(item)}>◇ Főképnek</button></div>
+    <div className={mediaStyles.mediaActions}><button type="button" disabled={busyKey===item.key} onClick={()=>setEditingKey(item.key)}>✎ Szerkesztés</button><button type="button" disabled={busyKey===item.key||index===0} onClick={()=>void makePrimary(item)}>◇ Főképnek</button></div>
    </div>)}
    {Array.from({length:Math.max(0,5-items.length)}).map((_,index)=><div className={styles.mediaTile} key={`empty-${index}`}/>) }
    {items.length<MAX_MEDIA?<label className={`${styles.uploadTile} ${mediaStyles.dropZone}`} data-drag-active={dragActive?'true':'false'} onDragEnter={event=>{event.preventDefault();setDragActive(true)}} onDragOver={event=>{event.preventDefault();setDragActive(true)}} onDragLeave={event=>{event.preventDefault();if(event.currentTarget===event.target)setDragActive(false)}} onDrop={event=>{event.preventDefault();setDragActive(false);acceptFiles(event.dataTransfer.files)}}>⇧<br/>Képek feltöltése<br/>vagy húzd ide<small>{items.length}/8 kép · max. 8 MB</small><input multiple type="file" accept="image/jpeg,image/png,image/webp,image/avif" onChange={event=>{acceptFiles(event.target.files);event.currentTarget.value=''}}/></label>:<div className={`${styles.uploadTile} ${mediaStyles.uploadDisabled}`} aria-label="Termékkép limit elérve">✓<br/>8/8 kép<br/><small>Limit elérve</small></div>}
   </div>
+  {editingItem&&<ProductMediaEditor item={editingItem} productId={productId} variants={variants} colors={colors} sizes={sizes} presets={localPresets} onClose={()=>setEditingKey('')} onPresentation={onPresentation} onPresetUpsert={preset=>setLocalPresets(current=>[...current.filter(item=>item.id!==preset.id&&item.name.toLocaleLowerCase()!==preset.name.toLocaleLowerCase()),preset].sort((a,b)=>a.name.localeCompare(b.name,'hu')))} onPresetDelete={presetId=>setLocalPresets(current=>current.filter(item=>item.id!==presetId))} onVariantApply={onVariantApply} onStatus={onStatus}/>} 
   {dialog}
  </>;
 }
