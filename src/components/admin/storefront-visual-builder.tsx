@@ -3,7 +3,6 @@
 import Link from 'next/link';
 import {useState,useTransition,type DragEvent,type ReactNode} from 'react';
 import {useRouter} from 'next/navigation';
-import {StorefrontAiGeneratorPanel} from '@/components/admin/storefront-ai-generator-panel';
 import {StorefrontRuntimeRenderer} from '@/components/builder/storefront-runtime-renderer';
 import {createStorefrontVisualBuilderRendererRegistry} from '@/components/builder/storefront-builder-renderer-registry';
 import {createStorefrontVisualBuilderComponentRegistry} from '@/lib/builder/storefront-builder-registry';
@@ -258,6 +257,13 @@ export function StorefrontVisualBuilder({pages,document:initialDocument,pageId,d
     setNotice(`${result.templateKey} draftként telepítve · ${result.pageCount} oldal`);
     router.refresh();
   });
+  const openTemplateLibrary=()=>{
+    if(dirty){
+      setError('A Sablonok megnyitása előtt mentsd a jelenlegi oldal nem mentett módosításait.');
+      return;
+    }
+    router.push('/admin/tartalom/builder?view=templates');
+  };
 
   if(!document)return <div className={styles.builderShell}>
     <header className={styles.topbar}>
@@ -267,7 +273,6 @@ export function StorefrontVisualBuilder({pages,document:initialDocument,pageId,d
     <section className={styles.emptyState}>
       <div><span className={styles.kicker}>Visual Builder</span><h1>Indulj egy valódi sablonból</h1><p>A kiválasztott sablon draft Page Schema oldalakat hoz létre. Nem publikál automatikusan és nem módosít üzleti adatot.</p></div>
       <div className={styles.templateGrid}>{templates.map(template=><article className={styles.templateCard} key={`${template.templateKey}@${template.templateVersion}`}><span>{template.category}</span><h2>{humanize(template.templateKey)}</h2><p>{template.pageTypes.length} oldal preset · {template.minPlan==='pro'?'Pro':'Alap'}</p><button type="button" disabled={busy||!entitled(template)} onClick={()=>install(template)}>{entitled(template)?'Sablon használata':'Csomag vagy jogosultság szükséges'}</button></article>)}</div>
-      <details className={styles.aiDetails}><summary>AI webshop-váz generálása</summary><StorefrontAiGeneratorPanel/></details>
       {error&&<div className={styles.errorNotice} role="alert">{error}</div>}
       {notice&&<div className={styles.notice}>{notice}</div>}
     </section>
@@ -326,6 +331,7 @@ export function StorefrontVisualBuilder({pages,document:initialDocument,pageId,d
         <button type="button" className={styles.iconButton} aria-label="Újra" title="Újra" disabled={busy||!history?.future.length} onClick={()=>{setHistory(current=>current?redoStorefrontBuilderHistory(current):current);setDirty(true);}}>↷</button>
         <span className={styles.saveState}>{dirty?'Nem mentett módosítás':draftRevision?`Mentve · r${draftRevision}`:'Draft'}</span>
         <button type="button" className={styles.secondaryButton} disabled={busy||!dirty} onClick={save}>Mentés</button>
+        <button type="button" className={styles.secondaryButton} disabled={busy} onClick={openTemplateLibrary}>▦ Sablonok</button>
         <button type="button" className={styles.secondaryButton} onClick={()=>setHistoryOpen(true)}>◷ Előzmények</button>
         <button type="button" className={styles.secondaryButton} disabled={busy||dirty||!draftRevision} onClick={preview}>◉ Előnézet</button>
         <button type="button" className={styles.publishButton} disabled={busy||dirty||!draftRevision} onClick={publish}>⬆ Publikálás</button>
@@ -370,7 +376,7 @@ export function StorefrontVisualBuilder({pages,document:initialDocument,pageId,d
               const canInsertRoot=insertableRoot.some(candidate=>candidate.componentKey===item.componentKey&&candidate.componentVersion===item.componentVersion);
               return <article key={`${item.componentKey}@${item.componentVersion}`}><span className={styles.componentLibraryIcon}>{componentIcon(item.componentKey)}</span><span><strong>{componentLabel(item.componentKey)}</strong><small>{componentGroup(item.componentKey)} · {item.responsiveMode}</small></span><div>{canInsertIntoSelected?<button type="button" title="Beillesztés a kijelölt elembe" onClick={()=>addComponent(item,selected?.id??null)}>Beillesztés</button>:canInsertRoot?<button type="button" onClick={()=>addComponent(item,null)}>Hozzáadás</button>:null}</div></article>})}</div>
             {!visibleInsertable.length?<p className={styles.emptyHint}>Nincs a keresésnek megfelelő, ezen az oldalon engedélyezett komponens.</p>:null}
-            <details className={styles.presetDetails}><summary>Teljes sablon presetek</summary><p>Ezek több oldalt tartalmazó, jogosultság-ellenőrzött Shoporation sablonok.</p><div className={styles.presetList}>{templates.map(template=><button type="button" key={`${template.templateKey}@${template.templateVersion}`} disabled={busy||!entitled(template)} onClick={()=>{if(window.confirm('A teljes sablon preset draft oldalakat telepít. Folytatod?'))install(template);}}><span><strong>{humanize(template.templateKey)}</strong><small>{template.category} · {template.pageTypes.length} oldal</small></span><b>{entitled(template)?'Használom':'Zárolt'}</b></button>)}</div></details>
+            <button type="button" className={styles.addSectionButton} onClick={openTemplateLibrary}>▦ Sablonkönyvtár megnyitása</button>
           </>:null}
 
           {panelMode==='structure'?<>
@@ -382,8 +388,7 @@ export function StorefrontVisualBuilder({pages,document:initialDocument,pageId,d
           {panelMode==='settings'?<>
             <div className={styles.panelSectionHead}><div><strong>Beállítások</strong><span>Az oldal és a Builder aktuális állapota.</span></div></div>
             <div className={styles.settingsCards}><article><small>Aktuális oldal</small><strong>{pageLabel({pageKey:document.pageKey,pageType:document.pageType} as StorefrontBuilderPageListItem)}</strong><span>{document.pageKey}</span></article><article><small>Sablon</small><strong>{humanize(document.templateKey)}</strong><span>v{document.templateVersion}</span></article><article><small>Draft / Publikált</small><strong>r{draftRevision??'—'} / r{publishedRevision??'—'}</strong><span>{dirty?'Van nem mentett módosítás':'Szinkronban'}</span></article></div>
-            <details className={styles.aiDetails}><summary>✦ AI webshop-váz generálása</summary><StorefrontAiGeneratorPanel/></details>
-            <details className={styles.presetDetails}><summary>Teljes sablon presetek</summary><div className={styles.presetList}>{templates.map(template=><button type="button" key={`${template.templateKey}@${template.templateVersion}`} disabled={busy||!entitled(template)} onClick={()=>{if(window.confirm('A teljes sablon preset draft oldalakat telepít. Folytatod?'))install(template);}}><span><strong>{humanize(template.templateKey)}</strong><small>{template.category} · {template.pageTypes.length} oldal</small></span><b>{entitled(template)?'Használom':'Zárolt'}</b></button>)}</div></details>
+            <button type="button" className={styles.addSectionButton} onClick={openTemplateLibrary}>▦ Másik sablon megtekintése</button>
           </>:null}
         </div>
       </aside>
