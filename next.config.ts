@@ -12,8 +12,8 @@ const securityHeaders=[
   {key:'Content-Security-Policy',value:"default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'self' https:; img-src 'self' data: blob: https:; connect-src 'self' https:; upgrade-insecure-requests"},
 ];
 
-// Device Lab keeps the global anti-clickjacking policy intact and opens framing only
-// for explicitly marked admin previews, still restricted to the same Shoperation origin.
+// Device Lab keeps the global anti-clickjacking policy intact. Only same-origin admin
+// iframe navigations (or the explicit preview marker used for the initial load) can be framed.
 const devicePreviewHeaders=[
   {key:'X-Frame-Options',value:'SAMEORIGIN'},
   {key:'Content-Security-Policy',value:"default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; object-src 'none'; base-uri 'self'; frame-ancestors 'self'; form-action 'self' https:; img-src 'self' data: blob: https:; connect-src 'self' https:; upgrade-insecure-requests"},
@@ -27,6 +27,7 @@ const nextConfig: NextConfig = {
   async headers(){return[
     {source:'/:path*',headers:securityHeaders},
     {source:'/admin/:path*',has:[{type:'query',key:'__shoperation_device_preview',value:'1'}],headers:devicePreviewHeaders},
+    {source:'/admin/:path*',has:[{type:'header',key:'sec-fetch-dest',value:'iframe'}],headers:devicePreviewHeaders},
   ]},
 };
 
