@@ -46,5 +46,5 @@ function Layer({config,children}:StorefrontComponentRenderProps){
   return <div data-storefront-visual="layer" data-layer-position={position} style={style}>{children}</div>;
 }
 
-const RENDERERS:readonly [string,number,(props:StorefrontComponentRenderProps)=>ReactNode][]=[['visual.layered-canvas',1,Canvas],['visual.layer',1,Layer]] as const;
-export function createStorefrontVisualLayerRendererRegistry(){const registry=createStorefrontStructuredProductRendererRegistry();for(const[key,version,renderer]of RENDERERS)registry.register(key,version,renderer);return registry;}
+export const STOREFRONT_VISUAL_LAYER_RENDERERS:readonly [string,number,(props:StorefrontComponentRenderProps)=>ReactNode][]=[['visual.layered-canvas',1,Canvas],['visual.layer',1,Layer]] as const;
+export function createStorefrontVisualLayerRendererRegistry(){const registry=createStorefrontStructuredProductRendererRegistry();for(const[key,version,renderer]of STOREFRONT_VISUAL_LAYER_RENDERERS)registry.register(key,version,renderer);return registry;}
