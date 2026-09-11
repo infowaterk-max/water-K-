@@ -3,14 +3,15 @@
 import Link from 'next/link';
 import {usePathname} from 'next/navigation';
 
-type Props={officeEmail:boolean;canChat:boolean;advancedEmail:boolean;canSupport:boolean;canMarketing:boolean};
+type Props={officeEmail:boolean;supportEnabled:boolean;canChat:boolean;advancedEmail:boolean;canSupport:boolean;canMarketing:boolean};
 type Item={href:string;label:string;match?:string;exact?:boolean};
 
-export function DigitalOfficeNavigation({officeEmail,canChat,advancedEmail,canSupport,canMarketing}:Props){
+export function DigitalOfficeNavigation({officeEmail,supportEnabled,canChat,advancedEmail,canSupport,canMarketing}:Props){
   const pathname=usePathname();
   const items:Item[]=[
     {href:'/admin/kommunikacio',label:'Kezdőlap',exact:true},
     ...(officeEmail&&canSupport?[{href:'/admin/kommunikacio/iroda',label:'E-mail',match:'/admin/kommunikacio/iroda'}]:[]),
+    ...(supportEnabled&&canSupport?[{href:'/admin/kommunikacio/ugyfelszolgalat',label:'Ügyfélszolgálat',match:'/admin/kommunikacio/ugyfelszolgalat'}]:[]),
     ...(canChat?[{href:'/admin/kommunikacio/chat',label:'Team Chat',match:'/admin/kommunikacio/chat'}]:[]),
     ...(officeEmail&&canSupport?[{href:'/admin/kommunikacio#feladatok',label:'Feladatok'}]:[]),
     ...(advancedEmail&&canMarketing?[{href:'/admin/kommunikacio/felugyelet?status=approval',label:'Jóváhagyások'}]:[]),
