@@ -10,13 +10,24 @@ describe('Roadmap Block 21 — scope guard',()=>{
     const schema=read('src/lib/builder/storefront-page-schema.ts');
     const catalog=read('src/lib/builder/storefront-template-catalog.ts');
     const authority=read('src/lib/builder/storefront-template-authority.ts');
-    const joined=`${schema}\n${catalog}\n${authority}`;
+    const runtimeSource=read('src/lib/builder/storefront-runtime-source.ts');
+    const joined=`${schema}\n${catalog}\n${authority}\n${runtimeSource}`;
     expect(joined).not.toContain('onDragStart');
     expect(joined).not.toContain('onDrop');
     expect(joined).not.toContain('ResizeObserver');
     expect(joined).not.toContain('contentEditable');
     expect(joined).not.toContain('<canvas');
     expect(joined).not.toContain('supabase.rpc(');
+  });
+
+  it('derives published tenant identity server-side and keeps preview capability isolated from publication',()=>{
+    const runtimeSource=read('src/lib/builder/storefront-runtime-source.ts');
+    expect(runtimeSource).toContain("import 'server-only'");
+    expect(runtimeSource).toContain('requireStorefrontAccess()');
+    expect(runtimeSource).toContain('getPublishedStorefrontPage(instance.id,pageKey)');
+    expect(runtimeSource).toContain('resolveStorefrontPreviewToken(token)');
+    expect(runtimeSource).not.toContain('publish_storefront_page_v1');
+    expect(runtimeSource).not.toContain('p_instance_id');
   });
 
   it('does not introduce a Block 21 migration or customer-baseline mutation',()=>{
