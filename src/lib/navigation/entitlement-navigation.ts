@@ -35,17 +35,34 @@ const resolveItem=(item:AdminNavItem):ResolvedAdminNavItem=>({
   evidenceKinds:item.evidenceKinds,
 });
 
+/**
+ * Temporary IA placement for the dedicated Visual Builder workspace.
+ * Keep this outside MERCHANT_NAVIGATION so the upcoming admin-menu redesign
+ * can move or remove the entry without coupling the Builder route to today's IA.
+ */
+const TEMPORARY_VISUAL_BUILDER_NAV_ITEM:AdminNavItem={
+  id:'visual-builder',
+  href:'/admin/tartalom/builder',
+  label:'Webshop szerkesztő',
+  description:'A webshop oldalainak vizuális szerkesztése, reszponzív nézetekkel, mentéssel és publikálással.',
+  feature:'contentMarketing',
+  permission:'store.manage',
+  group:'Megjelenés',
+};
+
 export function resolveEntitledMerchantNavigation(
   hasFeature:AdminFeatureGate,
   can:(permission?:StorePermission)=>boolean,
   status?:AdminInstanceStatus,
   canCapability:(capability?:StoreCapability)=>boolean=()=>true,
 ):ResolvedAdminNavSection[]{
-  return MERCHANT_NAVIGATION.map(section=>({
-    id:section.id,
-    label:section.label,
-    items:section.items.filter(item=>allowed(item,hasFeature,can,canCapability,status)).map(resolveItem),
-  })).filter(section=>section.items.length>0);
+  return MERCHANT_NAVIGATION.map(section=>{
+    const items=section.items.filter(item=>allowed(item,hasFeature,can,canCapability,status)).map(resolveItem);
+    if(section.id==='content-appearance'&&allowed(TEMPORARY_VISUAL_BUILDER_NAV_ITEM,hasFeature,can,canCapability,status)){
+      items.unshift(resolveItem(TEMPORARY_VISUAL_BUILDER_NAV_ITEM));
+    }
+    return{id:section.id,label:section.label,items};
+  }).filter(section=>section.items.length>0);
 }
 
 export function resolveEntitledFrequentTasks(
