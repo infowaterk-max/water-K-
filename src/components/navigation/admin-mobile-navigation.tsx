@@ -5,6 +5,11 @@ import { usePathname } from 'next/navigation';
 import { AdminFontScale } from '@/components/admin/admin-font-scale';
 import type { ResolvedAdminNavItem,ResolvedAdminNavSection } from '@/lib/navigation/admin-ia';
 
+const DIRECT_SECTION_HREFS:Record<string,string>={
+  'products':'/admin/termekek',
+  'digital-office':'/admin/kommunikacio',
+};
+
 function getActiveHref(pathname:string,items:ResolvedAdminNavItem[]){
   return items
     .filter(item=>item.href==='/admin'?pathname==='/admin':pathname===item.href||pathname.startsWith(`${item.href}/`))
@@ -69,7 +74,7 @@ export function AdminMobileNavigation({mobileTitle,sections,operatorItems,quickI
         <header className="adminMobileDrawerHeader"><div><strong>{mobileTitle}</strong><span>{currentPath}</span></div><button type="button" aria-label="Admin menü bezárása" onClick={close}>×</button></header>
         {quickItems.length>0&&<section className="adminMobileDrawerQuick" aria-label="Gyakori feladatok"><span>Gyakori feladatok</span><div>{quickItems.map(item=><a key={item.id} href={item.href} data-admin-target={item.href} onClick={event=>forceNavigate(event,item.href)}>{item.label}</a>)}</div></section>}
         {sections.length>0&&<nav className="adminMobileDrawerMerchant" aria-label="Aktuális webshop adminisztrációja">
-          {sections.map(section=>{const expanded=currentOpenSection===section.id,active=activeSectionId===section.id;return <section key={section.id} className="adminMobileDrawerSection" data-active={active?'true':'false'}>
+          {sections.map(section=>{const directHref=DIRECT_SECTION_HREFS[section.id],expanded=currentOpenSection===section.id,active=activeSectionId===section.id;if(directHref)return <section key={section.id} className="adminMobileDrawerSection" data-active={active?'true':'false'}><a className={active?'adminMobileDrawerActive':undefined} aria-current={active?'page':undefined} href={directHref} data-admin-target={directHref} onClick={event=>forceNavigate(event,directHref)}><span>{section.label}</span><span aria-hidden="true">→</span></a></section>;return <section key={section.id} className="adminMobileDrawerSection" data-active={active?'true':'false'}>
             <button type="button" aria-expanded={expanded} aria-controls={`admin-mobile-section-${section.id}`} onClick={()=>setCurrentOpenSection(current=>current===section.id?null:section.id)}><span>{section.label}</span><span aria-hidden="true">{expanded?'−':'+'}</span></button>
             <div id={`admin-mobile-section-${section.id}`} className="adminMobileDrawerPanel" hidden={!expanded}><ItemLinks items={section.items} activeHref={activeHref}/></div>
           </section>})}

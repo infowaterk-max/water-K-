@@ -17,6 +17,11 @@ export function normalizeDeviceLabDevice(value:string|null|undefined):DeviceLabD
   return'desktop';
 }
 
+export function canUsePlatformDevicePreview(){
+  if(typeof window==='undefined')return false;
+  return window.innerWidth>=1100&&window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+}
+
 export function normalizeDeviceLabTarget(value:string|null|undefined){
   if(!value||value.length>2048)return DEVICE_LAB_DEFAULT_TARGET;
   try{
