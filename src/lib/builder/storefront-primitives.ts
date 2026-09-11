@@ -28,11 +28,11 @@ export const STOREFRONT_PRIMITIVE_DEFINITIONS:readonly StorefrontRuntimeComponen
   {manifest:manifest({componentKey:'layout.container',schemaSlot:'children',configurable:['width','spacing','presentation'],responsiveMode:'container'}),allowsChildren:true},
   {manifest:manifest({componentKey:'layout.grid',schemaSlot:'children',configurable:['columns','gap','align','presentation'],responsiveMode:'grid'}),allowsChildren:true},
   {manifest:manifest({componentKey:'layout.stack',schemaSlot:'children',configurable:['direction','gap','align','justify','presentation'],responsiveMode:'stack'}),allowsChildren:true},
-  {manifest:manifest({componentKey:'content.heading',schemaSlot:'children',configurable:['text','level','align','tone','presentation','accentText'],responsiveMode:'fixed'}),bindingSlots:['text','accentText']},
+  {manifest:manifest({componentKey:'content.heading',schemaSlot:'children',configurable:['text','level','align','tone','presentation','accentText'],responsiveMode:'fixed'}),bindingSlots:['text']},
   {manifest:manifest({componentKey:'content.text',schemaSlot:'children',configurable:['text','as','align','tone','presentation'],responsiveMode:'fixed'}),bindingSlots:['text']},
   {manifest:manifest({componentKey:'content.image',schemaSlot:'children',configurable:['src','alt','width','height','fit','loading','radius','presentation','objectPosition'],responsiveMode:'fixed'}),bindingSlots:['src','alt']},
   {manifest:manifest({componentKey:'content.button',schemaSlot:'children',configurable:['label','href','variant','size','ariaLabel','presentation'],responsiveMode:'fixed'}),bindingSlots:['label','href']},
-  {manifest:manifest({componentKey:'system.header',schemaSlot:'protected.header',configurable:['brandLabel','brandHref','tone','sticky','presentation','tagline','utilityItems'],responsiveMode:'primary-navigation'}),bindingSlots:['brandLabel','brandHref','tagline','utilityItems'],allowsChildren:true,allowedChildren:['system.navigation'],protectedSystem:true},
+  {manifest:manifest({componentKey:'system.header',schemaSlot:'protected.header',configurable:['brandLabel','brandHref','tone','sticky','presentation','tagline','utilityItems'],responsiveMode:'primary-navigation'}),bindingSlots:['brandLabel','brandHref'],allowsChildren:true,allowedChildren:['system.navigation'],protectedSystem:true},
   {manifest:manifest({componentKey:'system.navigation',schemaSlot:'protected.navigation',configurable:['items','ariaLabel','layout','presentation'],responsiveMode:'primary-navigation'}),bindingSlots:['items'],protectedSystem:true},
 ] as const;
 
