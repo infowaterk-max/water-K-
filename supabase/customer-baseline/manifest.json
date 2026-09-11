@@ -9,7 +9,7 @@
   "snapshotFile": "supabase/customer-baseline/migrations/0001_shoperation_v1_schema.sql",
   "snapshotCommand": "npm run db:customer:snapshot",
   "freshInstallProofRequired": true,
-  "notes": "Block 14 remains the last genuine Fresh Install proof. Product Intake Center forward migrations 0010-0012 add multi-variant draft editing, SEO/media/channel hardening, CSV/XLSX onboarding, tenant-scoped product-copy authority, safe product-media deletion and persistent primary-image ordering. Product Copilot remains application-side suggestion-only. A new genuine empty-target Fresh Install proof for ordered baseline 0001-0012 is required before status can return to ready.",
+  "notes": "Block 14 remains the last genuine Fresh Install proof. Product Intake Center forward migrations 0010-0012 add multi-variant draft editing, SEO/media/channel hardening, CSV/XLSX onboarding, tenant-scoped product-copy authority, safe product-media deletion and persistent primary-image ordering. Block 20 forward migration 0013 adds the tenant-scoped Platform Ecosystem persistence contract and explicitly releases fail-closed Pro apiAccess while storing only hashed extension credentials. A new genuine empty-target Fresh Install proof for ordered baseline 0001-0013 is required before status can return to ready.",
   "authBootstrapFile": "supabase/customer-baseline/auth-bootstrap.sql",
   "proofContractSha256": null
 }
