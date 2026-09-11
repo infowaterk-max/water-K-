@@ -8,11 +8,12 @@
     "start": "next start",
     "typecheck": "tsc --noEmit",
     "test": "vitest run --coverage=false",
-    "check": "npm run db:customer:guard && npm run test && npm run typecheck && npm run build",
+    "check": "npm run db:customer:guard && npm run market-ready:gate && npm run test && npm run typecheck && npm run build",
     "validate:env": "node scripts/validate-env.mjs",
     "db:customer:guard": "node scripts/validate-customer-baseline.mjs",
     "db:customer:snapshot": "node scripts/generate-customer-baseline.mjs",
     "db:customer:review": "node scripts/review-customer-baseline-snapshot.mjs",
+    "market-ready:gate": "node scripts/block24-market-ready-gate.mjs",
     "smoke": "node scripts/smoke.mjs",
     "release:manifest": "node scripts/release-manifest.mjs"
   },

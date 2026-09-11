@@ -2,6 +2,7 @@ import 'server-only';
 import {getAdminRequestUser} from '@/lib/auth/admin-api';
 import {requireCurrentStoreContext} from '@/lib/instances/scope';
 import {createAdminClient} from '@/lib/supabase/admin';
+import {hasAddon} from '@/lib/plans/access';
 import {createStorefrontVisualBuilderComponentRegistry} from '@/lib/builder/storefront-builder-registry';
 import {
   getCurrentStorefrontBuilderBindingContext,
@@ -68,12 +69,14 @@ export async function generateCurrentStorefrontWithAi(rawInput:StorefrontAiGener
   const input=storefrontAiGenerationInputSchema.parse(rawInput);
   const actor=await getAdminRequestUser('store.manage');
   if(!actor)throw new Error('STOREFRONT_AI_AUTH_REQUIRED');
-  const[scope,capability,existingPages,bindingContext]=await Promise.all([
+  const[scope,capability,existingPages,bindingContext,aiAddonEnabled]=await Promise.all([
     requireCurrentStoreContext('store.manage'),
     getCurrentStorefrontBuilderCapability(),
     listCurrentStorefrontTemplatePlanningPages(),
     getCurrentStorefrontBuilderBindingContext(),
+    hasAddon('ai-assistant'),
   ]);
+  if(!aiAddonEnabled)throw new Error('STOREFRONT_AI_ADDON_REQUIRED');
   const registry=createStorefrontVisualBuilderComponentRegistry();
   const eligible=STOREFRONT_IMPLEMENTED_TEMPLATE_PACKAGES.filter(template=>evaluateStorefrontTemplateCapabilityGate({template,componentRegistry:registry,capability}).ok);
   if(!eligible.length)throw new Error('STOREFRONT_AI_NO_ELIGIBLE_TEMPLATE');

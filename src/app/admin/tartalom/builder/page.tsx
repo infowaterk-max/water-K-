@@ -1,4 +1,4 @@
-import {requirePlanFeature} from '@/lib/plans/access';
+import {hasAddon,requirePlanFeature} from '@/lib/plans/access';
 import {requireCurrentStoreContext} from '@/lib/instances/scope';
 import {getCurrentStorefrontPageState} from '@/lib/builder/storefront-persistence';
 import {
@@ -17,11 +17,12 @@ type Props={searchParams:Promise<{page?:string}>};
 export default async function VisualBuilderAdmin({searchParams}:Props){
   await requirePlanFeature('contentMarketing');
   await requireCurrentStoreContext('store.manage');
-  const[params,pages,capability,bindingContext]=await Promise.all([
+  const[params,pages,capability,bindingContext,aiAddonEnabled]=await Promise.all([
     searchParams,
     listCurrentStorefrontBuilderPages(),
     getCurrentStorefrontBuilderCapability(),
     getCurrentStorefrontBuilderBindingContext(),
+    hasAddon('ai-assistant'),
   ]);
   const requested=(params.page??'').trim();
   const selectedKey=pages.some(page=>page.pageKey===requested)?requested:pages[0]?.pageKey??null;
@@ -29,7 +30,7 @@ export default async function VisualBuilderAdmin({searchParams}:Props){
   const revisions=state?await listCurrentStorefrontBuilderRevisionHistory(state.pageId):[];
   const document=state?.draft?.document??state?.published?.document??null;
   return <section className="adminMain">
-    <StorefrontAiGeneratorPanel/>
+    <StorefrontAiGeneratorPanel enabled={aiAddonEnabled}/>
     <StorefrontVisualBuilder
       key={selectedKey??'no-page'}
       pages={pages}

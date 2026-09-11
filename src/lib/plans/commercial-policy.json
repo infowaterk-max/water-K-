@@ -1,0 +1,56 @@
+{
+  "schemaVersion": 1,
+  "currency": "HUF",
+  "vatMode": "net-plus-vat",
+  "plans": {
+    "alap": {
+      "monthlyNetHuf": 17990,
+      "foundingMonthlyNetHuf": 14990
+    },
+    "pro": {
+      "monthlyNetHuf": 39990,
+      "foundingMonthlyNetHuf": 34990
+    }
+  },
+  "founding": {
+    "discountGuaranteeMonths": 12,
+    "availability": "limited-launch-cohort"
+  },
+  "trial": {
+    "durationDays": 30,
+    "fullProductEvaluation": true,
+    "mutatesPersistedPlan": false
+  },
+  "addons": {
+    "ai-assistant": {
+      "billingMode": "usage",
+      "variableCostRequired": true,
+      "fixedMonthlyNetHuf": null,
+      "includedCredits": null,
+      "overageNetHuf": null
+    },
+    "advanced-export": {
+      "billingMode": "separate",
+      "variableCostRequired": false,
+      "fixedMonthlyNetHuf": null,
+      "includedCredits": null,
+      "overageNetHuf": null
+    },
+    "priority-support": {
+      "billingMode": "separate",
+      "variableCostRequired": false,
+      "fixedMonthlyNetHuf": null,
+      "includedCredits": null,
+      "overageNetHuf": null
+    },
+    "custom-integration": {
+      "billingMode": "custom",
+      "variableCostRequired": false,
+      "fixedMonthlyNetHuf": null,
+      "includedCredits": null,
+      "overageNetHuf": null
+    }
+  },
+  "providerContractOwner": "merchant",
+  "commercialAuthority": "informational-only-entitlements-remain-authoritative"
+}

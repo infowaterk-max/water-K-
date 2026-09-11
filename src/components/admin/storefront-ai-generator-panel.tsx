@@ -7,7 +7,7 @@ import {generateVisualBuilderStorefrontAction} from '@/app/admin/tartalom/builde
 const fieldStyle={display:'grid',gap:6} as const;
 const inputStyle={width:'100%',minHeight:40,padding:'9px 11px',border:'1px solid var(--admin-border, #d7dbe0)',borderRadius:10,background:'var(--admin-surface, #fff)',color:'inherit'} as const;
 
-export function StorefrontAiGeneratorPanel(){
+export function StorefrontAiGeneratorPanel({enabled}:{enabled:boolean}){
   const router=useRouter();
   const[pending,startTransition]=useTransition();
   const[message,setMessage]=useState<string|null>(null);
@@ -19,10 +19,12 @@ export function StorefrontAiGeneratorPanel(){
         <p style={{margin:'0 0 4px',fontSize:12,fontWeight:700,letterSpacing:'.06em',textTransform:'uppercase',opacity:.65}}>Block 23 · AI webshop generátor</p>
         <h2 id="storefront-ai-generator-title" style={{margin:'0 0 6px'}}>Első webshop-váz generálása</h2>
         <p style={{margin:0,maxWidth:760,opacity:.72}}>A generátor csak a Shoporation engedélyezett sablonjaiból és komponenseiből dolgozik. Az eredmény kizárólag draft, utána ugyanebben a Visual Builderben szerkeszthető és csak külön művelettel publikálható.</p>
+        {!enabled?<p role="status" style={{margin:'10px 0 0',fontWeight:650}}>Az AI generátor külön AI asszisztens Add-onhoz kötött. A Builder kézi szerkesztése ettől továbbra is elérhető.</p>:null}
       </div>
     </div>
-    <form style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(220px,1fr))',gap:12,marginTop:16}} onSubmit={event=>{
+    <form aria-disabled={!enabled} style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(220px,1fr))',gap:12,marginTop:16}} onSubmit={event=>{
       event.preventDefault();setError(null);setMessage(null);
+      if(!enabled){setError('Az AI asszisztens Add-on nem aktív ezen a webshopon.');return;}
       const data=new FormData(event.currentTarget);
       const input={
         businessCategory:String(data.get('businessCategory')??''),
@@ -39,7 +41,7 @@ export function StorefrontAiGeneratorPanel(){
           if(result.openPageKey)router.push(`/admin/tartalom/builder?page=${encodeURIComponent(result.openPageKey)}`);
           router.refresh();
         }catch{
-          setError('A generálás nem fejeződött be. Nem mentettünk részleges vagy nem validált draftot. Ellenőrizd a briefet vagy próbáld újra.');
+          setError('A generálás nem fejeződött be. Nem mentettünk részleges vagy nem validált draftot. Ellenőrizd a jogosultságot és a briefet, majd próbáld újra.');
         }
       });
     }}>
@@ -59,8 +61,8 @@ export function StorefrontAiGeneratorPanel(){
         <textarea name="description" required maxLength={1200} rows={4} placeholder="Mit árulsz, milyen hangulatot és első benyomást szeretnél? Ne adj meg érzékeny adatot." style={{...inputStyle,resize:'vertical'}}/>
       </label>
       <div style={{gridColumn:'1 / -1',display:'flex',gap:12,alignItems:'center',flexWrap:'wrap'}}>
-        <button type="submit" disabled={pending} className="buttonPrimary">{pending?'Generálás…':'AI webshop-váz generálása'}</button>
-        <span style={{fontSize:13,opacity:.68}}>A jelenlegi webshop brandadatait a szerver adja a generátornak; a tenant és jogosultság nem kliensből érkezik.</span>
+        <button type="submit" disabled={pending||!enabled} className="buttonPrimary">{pending?'Generálás…':'AI webshop-váz generálása'}</button>
+        <span style={{fontSize:13,opacity:.68}}>A jelenlegi webshop brandadatait és az Add-on jogosultságot a szerver állapítja meg; tenant vagy entitlement nem kliensből érkezik.</span>
       </div>
       {message?<p role="status" style={{gridColumn:'1 / -1',margin:0}}>{message}</p>:null}
       {error?<p role="alert" style={{gridColumn:'1 / -1',margin:0}}>{error}</p>:null}
