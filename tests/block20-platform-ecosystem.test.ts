@@ -7,7 +7,7 @@ import {hasPlanFeature,PLANNED_PRO_FEATURES} from '../src/lib/plans/catalog';
 
 const root=process.cwd(),read=(path:string)=>readFileSync(join(root,path),'utf8');
 const migration=read('supabase/migrations/20260911074000_block20_platform_ecosystem.sql');
-const baseline=read('supabase/customer-baseline/migrations/0013_block20_platform_ecosystem.sql');
+const baseline=read('supabase/customer-baseline/migrations/0014_block20_platform_ecosystem.sql');
 const runtime=read('src/lib/platform/ecosystem.ts');
 const adminRoute=read('src/app/api/admin/platform-ecosystem/route.ts');
 const catalogRoute=read('src/app/api/platform/v1/catalog/products/route.ts');
@@ -92,14 +92,16 @@ describe('Roadmap Block 20 – Platform Ecosystem & Enterprise Extensibility',()
     expect(parseExtensionApiToken('Bearer shop_ext_abcdefgh_abcdefghijklmnopqrstuvwxyz012345')).toEqual(expect.objectContaining({prefix:'abcdefgh'}));
     expect(parseExtensionApiToken('Bearer bad')).toBeNull();
     expect(normalizeWebhookEndpoint('https://example.com/hooks')).toBe('https://example.com/hooks');
-    for(const endpoint of['http://example.com/x','https://localhost/x','https://127.0.0.1/x','https://10.0.0.1/x','https://192.168.1.2/x','https://example.com:8443/x'])expect(normalizeWebhookEndpoint(endpoint)).toBeNull();
+    for(const endpoint of['http://example.com/x','https://localhost/x','https://127.0.0.1/x','https://10.0.0.1/x','https://192.168.1.2/x','https://[::1]/x','https://[fd00::1]/x','https://example.com:8443/x'])expect(normalizeWebhookEndpoint(endpoint)).toBeNull();
+    expect(runtime).toContain("lookup(hostname,{all:true,verbatim:true})");
+    expect(runtime).toContain('isNonPublicWebhookAddress(record.address)');
     expect([1,2,3,4,5].map(webhookRetryDelayMinutes)).toEqual([5,10,20,40,60]);
     expect(boundedExtensionEvidence({token:'secret',email:'a@b.c',count:3,note:'ok'})).toEqual({token:'[redacted]',email:'[redacted]',count:3,note:'ok'});
   });
 
-  it('keeps the customer baseline fail-closed until a genuine 0001-0013 Fresh Install proof',()=>{
+  it('keeps the customer baseline fail-closed until a genuine 0001-0014 Fresh Install proof',()=>{
     const parsed=JSON.parse(manifest) as {status:string;freshInstallProofRequired:boolean;proofContractSha256:string|null;notes:string};
-    expect(parsed.status).toBe('snapshot-reviewed');expect(parsed.freshInstallProofRequired).toBe(true);expect(parsed.proofContractSha256).toBeNull();expect(parsed.notes).toContain('0001-0013');
+    expect(parsed.status).toBe('snapshot-reviewed');expect(parsed.freshInstallProofRequired).toBe(true);expect(parsed.proofContractSha256).toBeNull();expect(parsed.notes).toContain('0001-0014');
   });
 
   it('records Block 21/22 as explicit non-scope',()=>{
