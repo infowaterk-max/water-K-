@@ -36,6 +36,12 @@ export class StorefrontRendererRegistry{
   get(componentKey:string,componentVersion:number):StorefrontComponentRenderer|undefined{
     return this.renderers.get(componentKey)?.get(componentVersion);
   }
+
+  /** Read-only composition surface used by Block 22 to combine existing renderer families. */
+  list():readonly {componentKey:string;componentVersion:number;renderer:StorefrontComponentRenderer}[]{
+    return [...this.renderers.entries()].flatMap(([componentKey,versions])=>[...versions.entries()].map(([componentVersion,renderer])=>({componentKey,componentVersion,renderer})))
+      .sort((a,b)=>a.componentKey.localeCompare(b.componentKey)||a.componentVersion-b.componentVersion);
+  }
 }
 
 export class StorefrontRuntimeRenderError extends Error{
@@ -54,6 +60,7 @@ export function StorefrontRuntimeRenderer({
   componentRegistry,
   rendererRegistry,
   capability,
+  decorateNode,
 }:{
   page:StorefrontPageDocument;
   viewport:StorefrontViewport;
@@ -61,6 +68,7 @@ export function StorefrontRuntimeRenderer({
   componentRegistry:StorefrontComponentRegistry;
   rendererRegistry:StorefrontRendererRegistry;
   capability?:StorefrontRuntimeCapabilityContext;
+  decorateNode?:(node:StorefrontResolvedComponentNode,rendered:ReactNode)=>ReactNode;
 }){
   const validation=validateStorefrontPageDocument(page,componentRegistry,capability);
   if(!validation.ok)throw new StorefrontRuntimeRenderError('STOREFRONT_PAGE_VALIDATION_FAILED',validation.violations);
@@ -73,7 +81,8 @@ export function StorefrontRuntimeRenderer({
       {code:'RENDERER_NOT_REGISTERED',path:node.id,message:'No renderer is registered for the component key/version.',severity:'error',metadata:{componentKey:node.componentKey,componentVersion:node.componentVersion}},
     ]);
     const children=node.children.map(child=><Fragment key={child.id}>{renderNode(child)}</Fragment>);
-    return renderer({node,config:node.config,children,page});
+    const rendered=renderer({node,config:node.config,children,page});
+    return decorateNode?decorateNode(node,rendered):rendered;
   };
 
   return <>{sections.map(section=><Fragment key={section.id}>{renderNode(section)}</Fragment>)}</>;
