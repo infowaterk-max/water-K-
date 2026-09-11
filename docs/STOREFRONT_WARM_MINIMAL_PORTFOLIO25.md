@@ -112,7 +112,7 @@ Installation remains draft-only and cannot mutate products, variants, customers,
 - new canonical package: `src/lib/builder/templates/warm-minimal.ts`
 - catalog registration: `src/lib/builder/storefront-template-catalog.ts`
 - deterministic text-free demo media under `public/storefront-demo/warm-minimal/`
-- executable acceptance: `tests/storefront-warm-minimal-template.test.tsx`
+- CI-executed acceptance: `tests/storefront-warm-minimal-template.test.ts`
 - portfolio gate advances to 25/42 in `tests/storefront-42-portfolio-recovery.test.ts`
 
 ## Release boundary
