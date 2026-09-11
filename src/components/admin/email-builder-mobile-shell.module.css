@@ -1,5 +1,6 @@
 .shell{min-width:0}
-.backdrop,.drawerChrome,.mobileDock,.pendingBinding{display:none}
+.backdrop,.drawerChrome,.mobileDock{display:none}
+.pendingBinding{display:none}
 
 @media(max-width:760px){
   .shell{position:relative;min-width:0;padding-bottom:74px}
