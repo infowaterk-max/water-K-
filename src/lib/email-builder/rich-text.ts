@@ -13,8 +13,8 @@ const marksSchema=z.object({
 }).strict().optional();
 
 const textNodeSchema=z.object({type:z.literal('text'),text:z.string().max(12000),marks:marksSchema}).strict();
-const bindingNodeSchema=z.object({type:z.literal('binding'),key:z.string().min(1).max(120),marks:marksSchema}).strict();
-const richTextSchema=z.array(z.discriminatedUnion('type',[textNodeSchema,bindingNodeSchema])).max(800);
+const bindingNodeSchema=z.object({type:z.literal('binding'),key:z.string().min(1).max(120).refine(isAllowedEmailBinding,'Unknown email binding'),marks:marksSchema}).strict();
+export const emailRichTextSchema=z.array(z.discriminatedUnion('type',[textNodeSchema,bindingNodeSchema])).max(800);
 
 function sameMarks(a?:EmailRichTextMarks,b?:EmailRichTextMarks){return Boolean(a?.bold)===Boolean(b?.bold)&&Boolean(a?.italic)===Boolean(b?.italic)&&(a?.href??'')===(b?.href??'');}
 function cleanMarks(marks?:EmailRichTextMarks):EmailRichTextMarks|undefined{
@@ -42,8 +42,8 @@ export function normalizeEmailRichText(nodes:EmailRichTextNode[]):EmailRichTextN
 }
 
 export function parseEmailRichText(value:unknown):EmailRichTextNode[]|null{
-  const parsed=richTextSchema.safeParse(value);
-  if(!parsed.success||parsed.data.some(node=>node.type==='binding'&&!isAllowedEmailBinding(node.key)))return null;
+  const parsed=emailRichTextSchema.safeParse(value);
+  if(!parsed.success)return null;
   return normalizeEmailRichText(parsed.data as EmailRichTextNode[]);
 }
 
