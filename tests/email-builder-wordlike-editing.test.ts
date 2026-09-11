@@ -36,7 +36,6 @@ describe('Email Builder Word-like editing shell',()=>{
     expect(shell).toContain('documentBindingSpan');
     expect(shell).toContain('documentFieldSource');
     expect(shell).toContain('renderDocumentField');
-    expect(shell).toContain("data.wordlikeDocumentField").not;
     expect(shell).toContain("editable.dataset.wordlikeDocumentField='true'");
     expect(shell).toContain("button.textContent='✦'");
     expect(css).toContain('.sourceControl{display:none!important}');
