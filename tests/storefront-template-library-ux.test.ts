@@ -2,6 +2,9 @@ import {readFileSync} from 'node:fs';
 import {resolve} from 'node:path';
 import {describe,expect,it} from 'vitest';
 import {listStorefrontTemplateLibraryEntries} from '@/lib/builder/storefront-template-library';
+import {STOREFRONT_TEMPLATE_CATALOG,getStorefrontTemplatePackage} from '@/lib/builder/storefront-template-catalog';
+import {createStorefrontTemplatePreviewBindingContext,getStorefrontTemplatePreviewTheme} from '@/lib/builder/storefront-template-preview-demo';
+import {resolveStorefrontBinding,type StorefrontComponentNode} from '@/lib/builder/storefront-runtime';
 
 const read=(path:string)=>readFileSync(resolve(process.cwd(),path),'utf8');
 
@@ -74,6 +77,33 @@ describe('storefront template library UX',()=>{
     expect(preview).toContain('<StorefrontRuntimeRenderer');
     expect(preview).toContain('createStorefrontVisualBuilderComponentRegistry');
     expect(preview).toContain('createStorefrontVisualBuilderRendererRegistry');
+    expect(preview).toContain('createStorefrontTemplatePreviewBindingContext');
+    expect(preview).toContain('getStorefrontTemplatePreviewTheme');
+    expect(preview).toContain('representative-demo');
     expect(preview).not.toContain('installVisualBuilderTemplateAction');
+  });
+
+  it('gives every concrete template a non-white canonical theme and populated preview list bindings',()=>{
+    for(const entry of STOREFRONT_TEMPLATE_CATALOG){
+      const template=getStorefrontTemplatePackage(entry.templateKey,entry.templateVersion);
+      expect(template).toBeTruthy();
+      if(!template)continue;
+      const page=template.pages.find(candidate=>candidate.pageType==='home')??template.pages[0];
+      expect(page).toBeTruthy();
+      if(!page)continue;
+      const theme=getStorefrontTemplatePreviewTheme(entry.templateKey);
+      expect(theme['--shoporation-color-background']).toBeTruthy();
+      expect(theme['--shoporation-color-text']).toBeTruthy();
+      const context=createStorefrontTemplatePreviewBindingContext({template,page});
+      const check=(node:StorefrontComponentNode)=>{
+        for(const[slot,binding]of Object.entries(node.bindings??{})){
+          if(!['products','items','options','reviews'].includes(slot))continue;
+          const value=resolveStorefrontBinding(binding.path,context);
+          if(Array.isArray(binding.fallback)&&binding.fallback.length===0)expect(Array.isArray(value)&&value.length>0,`${entry.templateKey}:${node.componentKey}:${binding.path}`).toBe(true);
+        }
+        for(const child of node.children??[])check(child);
+      };
+      for(const node of page.sections)check(node);
+    }
   });
 });
