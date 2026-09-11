@@ -1,16 +1,22 @@
 'use client';
 
-import{useEffect,useRef,useState,type ReactNode}from'react';
+import{useEffect,useRef,useState,type FocusEvent as ReactFocusEvent,type MouseEvent as ReactMouseEvent,type ReactNode}from'react';
 import styles from'./email-builder-mobile-shell.module.css';
 
 type MobilePanel='canvas'|'library'|'inspector';
 const libraryViews=['Blokkok','Szekciók','Presetek','Saját blokkok','Dinamikus adatok'] as const;
 type LibraryView=typeof libraryViews[number];
+type PendingBinding={key:string;label:string};
+type ConfirmAction={source:HTMLButtonElement;kind:'preset'|'saved-delete';name:string};
 
 export function EmailBuilderMobileShell({children}:{children:ReactNode}){
   const rootRef=useRef<HTMLDivElement>(null);
+  const reentryRef=useRef(false);
+  const pendingBindingRef=useRef<PendingBinding|null>(null);
   const[panel,setPanel]=useState<MobilePanel>('canvas');
   const[libraryView,setLibraryView]=useState<LibraryView>('Blokkok');
+  const[pendingBinding,setPendingBinding]=useState<PendingBinding|null>(null);
+  const[confirmAction,setConfirmAction]=useState<ConfirmAction|null>(null);
 
   function selectLibrary(view:LibraryView){
     const nav=rootRef.current?.querySelector<HTMLElement>('nav[aria-label="E-mail Builder eszközök"]');
@@ -20,14 +26,94 @@ export function EmailBuilderMobileShell({children}:{children:ReactNode}){
     setPanel('library');
   }
 
+  function clearPendingBinding(){pendingBindingRef.current=null;setPendingBinding(null);}
+
+  function captureEditorClick(event:ReactMouseEvent<HTMLDivElement>){
+    if(reentryRef.current)return;
+    const target=event.target as HTMLElement;
+    const button=target.closest<HTMLButtonElement>('button');
+    if(!button||!rootRef.current?.contains(button))return;
+
+    const buttonText=button.textContent?.replace(/\s+/g,' ').trim()??'';
+    if(buttonText==='Preset alkalmazása'){
+      event.preventDefault();event.stopPropagation();
+      const name=button.closest('article')?.querySelector('strong')?.textContent?.trim()||'Kiválasztott preset';
+      setConfirmAction({source:button,kind:'preset',name});
+      return;
+    }
+
+    if(buttonText==='Törlés'){
+      const card=button.closest('article');
+      const isSavedBlock=Boolean(card&&[...card.querySelectorAll<HTMLButtonElement>('button')].some(item=>item.textContent?.includes('Beszúrás')));
+      if(isSavedBlock){
+        event.preventDefault();event.stopPropagation();
+        const name=card?.querySelector('strong')?.textContent?.trim()||'Kiválasztott blokk';
+        setConfirmAction({source:button,kind:'saved-delete',name});
+        return;
+      }
+    }
+
+    if(!window.matchMedia('(max-width:760px)').matches||panel!=='library'||libraryView!=='Dinamikus adatok')return;
+    const code=button.querySelector('code')?.textContent?.trim()??'';
+    const match=code.match(/^\{\{(.+)\}\}$/);
+    if(!match)return;
+    const pane=button.closest('aside');
+    const hasTarget=[...(pane?.querySelectorAll('p')??[])].some(item=>item.textContent?.includes('Beszúrás helye:'));
+    if(hasTarget)return;
+
+    event.preventDefault();event.stopPropagation();
+    const binding={key:match[1],label:button.querySelector('span')?.textContent?.trim()||match[1]};
+    pendingBindingRef.current=binding;
+    setPendingBinding(binding);
+    setPanel('canvas');
+  }
+
+  function captureEditorFocus(_event:ReactFocusEvent<HTMLDivElement>){
+    if(!pendingBindingRef.current)return;
+    window.setTimeout(()=>{
+      const pending=pendingBindingRef.current;
+      const root=rootRef.current;
+      if(!pending||!root)return;
+      const nav=root.querySelector<HTMLElement>('nav[aria-label="E-mail Builder eszközök"]');
+      const pane=nav?.nextElementSibling as HTMLElement|null;
+      if(!pane)return;
+      const hasTarget=[...pane.querySelectorAll('p')].some(item=>item.textContent?.includes('Beszúrás helye:'));
+      if(!hasTarget)return;
+      const source=[...pane.querySelectorAll<HTMLButtonElement>('button')].find(item=>item.querySelector('code')?.textContent?.trim()===`{{${pending.key}}}`);
+      if(!source)return;
+      source.click();
+      clearPendingBinding();
+    },0);
+  }
+
+  function runConfirmedAction(){
+    const action=confirmAction;
+    if(!action)return;
+    setConfirmAction(null);
+    const nativeConfirm=window.confirm;
+    reentryRef.current=true;
+    try{
+      window.confirm=()=>true;
+      action.source.click();
+    }finally{
+      window.confirm=nativeConfirm;
+      reentryRef.current=false;
+    }
+  }
+
   useEffect(()=>{
-    if(panel==='canvas')return;
-    const onKey=(event:KeyboardEvent)=>{if(event.key==='Escape')setPanel('canvas');};
+    if(panel==='canvas'&&!confirmAction&&!pendingBinding)return;
+    const onKey=(event:KeyboardEvent)=>{
+      if(event.key!=='Escape')return;
+      if(confirmAction){setConfirmAction(null);return;}
+      if(pendingBinding){clearPendingBinding();return;}
+      setPanel('canvas');
+    };
     window.addEventListener('keydown',onKey);
     return()=>window.removeEventListener('keydown',onKey);
-  },[panel]);
+  },[panel,confirmAction,pendingBinding]);
 
-  return <div ref={rootRef} className={styles.shell} data-mobile-panel={panel}>
+  return <div ref={rootRef} className={styles.shell} data-mobile-panel={panel} onClickCapture={captureEditorClick} onFocusCapture={captureEditorFocus}>
     {children}
     {panel!=='canvas'&&<button type="button" className={styles.backdrop} aria-label="Mobil szerkesztőpanel bezárása" onClick={()=>setPanel('canvas')}/>} 
 
@@ -41,6 +127,10 @@ export function EmailBuilderMobileShell({children}:{children:ReactNode}){
     {panel==='inspector'&&<div className={`${styles.drawerChrome} ${styles.inspectorChrome}`} role="dialog" aria-modal="true" aria-label="Kijelölt blokk szerkesztése">
       <div className={styles.drawerTitle}><div><span>Szerkesztés</span><strong>Kijelölt blokk</strong></div><button type="button" onClick={()=>setPanel('canvas')} aria-label="Panel bezárása">×</button></div>
     </div>}
+
+    {pendingBinding&&<div className={styles.pendingBinding} role="status"><div><span>Dinamikus adat kiválasztva</span><strong>Válaszd ki, hová szeretnéd beszúrni: {pendingBinding.label}</strong></div><button type="button" onClick={clearPendingBinding}>Mégse</button></div>}
+
+    {confirmAction&&<div className="adminModalBackdrop" role="presentation" onMouseDown={event=>{if(event.target===event.currentTarget)setConfirmAction(null)}}><section className="adminModal" role="dialog" aria-modal="true" aria-labelledby="email-builder-confirm-title"><span className="eyebrow">Megerősítés</span><h3 id="email-builder-confirm-title">{confirmAction.kind==='preset'?'Preset alkalmazása':'Saját blokk törlése'}</h3><p>{confirmAction.kind==='preset'?<>A(z) <strong>{confirmAction.name}</strong> preset lecseréli a jelenlegi piszkozat teljes elrendezését. A művelet egyetlen Visszavonás lépéssel visszaállítható.</>:<>Biztosan törlöd a(z) <strong>{confirmAction.name}</strong> saját blokkot a tenant könyvtárból?</>}</p><div className="actions"><button className="btn btnGhost" type="button" onClick={()=>setConfirmAction(null)}>Mégsem</button><button className="btn btnPrimary" type="button" onClick={runConfirmedAction}>{confirmAction.kind==='preset'?'Preset alkalmazása':'Törlés megerősítése'}</button></div></section></div>}
 
     <nav className={styles.mobileDock} aria-label="Mobil E-mail Builder nézetek">
       <button type="button" className={panel==='canvas'?styles.dockActive:''} onClick={()=>setPanel('canvas')}><span>▣</span><small>Canvas</small></button>
