@@ -2,5 +2,5 @@ import type{ReactNode}from'react';
 import'./product-intake-sidebar.css';
 
 export default function ProductIntakeLayout({children}:{children:ReactNode}){
-  return children;
+  return <div data-product-intake-route="true">{children}</div>;
 }
