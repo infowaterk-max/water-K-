@@ -8,10 +8,12 @@ import {
   listCurrentStorefrontBuilderRevisionHistory,
 } from '@/lib/builder/storefront-builder-server';
 import {STOREFRONT_TEMPLATE_CATALOG} from '@/lib/builder/storefront-template-catalog';
+import {listStorefrontTemplateLibraryEntries} from '@/lib/builder/storefront-template-library';
 import {StorefrontVisualBuilder} from '@/components/admin/storefront-visual-builder';
+import {StorefrontTemplateLibrary} from '@/components/admin/storefront-template-library';
 
 export const dynamic='force-dynamic';
-type Props={searchParams:Promise<{page?:string}>};
+type Props={searchParams:Promise<{page?:string;view?:string}>};
 
 export default async function VisualBuilderAdmin({searchParams}:Props){
   await requirePlanFeature('contentMarketing');
@@ -27,6 +29,18 @@ export default async function VisualBuilderAdmin({searchParams}:Props){
   const state=selectedKey?await getCurrentStorefrontPageState(selectedKey):null;
   const revisions=state?await listCurrentStorefrontBuilderRevisionHistory(state.pageId):[];
   const document=state?.draft?.document??state?.published?.document??null;
+  const showTemplateLibrary=params.view==='templates'||!document;
+
+  if(showTemplateLibrary)return <section className="adminMain">
+    <StorefrontTemplateLibrary
+      templates={listStorefrontTemplateLibraryEntries()}
+      capability={capability}
+      hasExistingStorefront={Boolean(document)}
+      currentTemplateKey={document?.templateKey??null}
+      editorHref={selectedKey?`/admin/tartalom/builder?page=${encodeURIComponent(selectedKey)}`:'/admin/tartalom/builder'}
+    />
+  </section>;
+
   return <section className="adminMain">
     <StorefrontVisualBuilder
       key={selectedKey??'no-page'}
