@@ -14,6 +14,8 @@ import {planStorefrontTemplateInstallation} from '@/lib/builder/storefront-templ
 import {createStorefrontVisualBuilderComponentRegistry} from '@/lib/builder/storefront-builder-registry';
 import {validateStorefrontBuilderWorkingCopy} from '@/lib/builder/storefront-visual-builder';
 import {validateStorefrontBuilderSchemaStructure} from '@/lib/builder/storefront-builder-schema-policy';
+import {generateCurrentStorefrontWithAi} from '@/lib/builder/storefront-ai-generator-server';
+import {storefrontAiGenerationInputSchema} from '@/lib/builder/storefront-ai-generator';
 import {
   getCurrentStorefrontBuilderCapability,
   listCurrentStorefrontTemplatePlanningPages,
@@ -76,6 +78,14 @@ export async function installVisualBuilderTemplateAction(input:{templateKey:stri
     existingPages,
   });
   const result=await saveCurrentStorefrontTemplateDraftPlan({plan,operationKey:input.operationKey});
+  refresh();
+  return result;
+}
+
+export async function generateVisualBuilderStorefrontAction(rawInput:unknown){
+  const parsed=storefrontAiGenerationInputSchema.safeParse(rawInput);
+  if(!parsed.success)throw new Error('STOREFRONT_AI_INPUT_INVALID');
+  const result=await generateCurrentStorefrontWithAi(parsed.data);
   refresh();
   return result;
 }
