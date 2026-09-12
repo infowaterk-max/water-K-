@@ -15,20 +15,27 @@ function setPath(target:Record<string,unknown>,path:string,value:unknown){
   cursor[parts.at(-1)!]=clone(value);
 }
 
-function shouldPreferAuthoredFallback(path:string,fallback:unknown){
-  if(path.startsWith('brand.')||path.startsWith('navigation.'))return fallback!==undefined;
-  return Array.isArray(fallback)&&fallback.length>0;
+function shouldPreferAuthoredFallback(fallback:unknown){
+  if(fallback===undefined)return false;
+  if(Array.isArray(fallback))return fallback.length>0;
+  if(isRecord(fallback))return Object.keys(fallback).length>0;
+  return true;
 }
 
 function visit(node:StorefrontComponentNode,context:Record<string,unknown>){
   for(const binding of Object.values(node.bindings??{})){
     if(!Object.prototype.hasOwnProperty.call(binding,'fallback'))continue;
-    if(!shouldPreferAuthoredFallback(binding.path,binding.fallback))continue;
+    if(!shouldPreferAuthoredFallback(binding.fallback))continue;
     setPath(context,binding.path,binding.fallback);
   }
   for(const child of node.children??[])visit(child,context);
 }
 
+/**
+ * Template preview must showcase the authored Page Schema rather than generic
+ * fixture scalars. Generic demo data remains useful only where the schema has
+ * no meaningful fallback (notably empty business-data arrays).
+ */
 export function applyAuthoredTemplatePreviewFallbacks(input:{page:StorefrontPageDocument;context:Record<string,unknown>}):Record<string,unknown>{
   const next=clone(input.context);
   for(const section of input.page.sections)visit(section,next);
