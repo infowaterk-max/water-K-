@@ -1,33 +1,31 @@
 # Storefront Template Performance Contract
 
-Status: mandatory architecture contract for the Visual Builder Fidelity Engine and every Storefront template.
+Status: mandatory architecture and release contract for the Visual Builder Fidelity Engine and every Storefront template.
 
 ## Product rule
 
 High visual fidelity must never be purchased with a slow storefront. A template is acceptable only when it is visually faithful, safely editable and measurably fast on Desktop, Tablet and Mobile.
 
-The Builder may become substantially more capable, but the published storefront must stay structurally lean. Builder/editor complexity is not allowed to leak into customer-facing runtime cost.
+The Builder may become substantially more capable, but published storefronts must stay structurally lean. Builder/editor complexity is not allowed to leak into customer-facing runtime cost.
 
 ## Non-negotiable runtime principles
 
-1. **Templates are data, not template-local application code.** Layout, style slots, responsive order, art direction and composition remain Page Schema data consumed by the shared Runtime. No template-specific JavaScript engine is introduced for visual fidelity.
-2. **No duplicate hidden DOM for breakpoint tricks.** Responsive order and visibility are resolved before rendering. We do not render multiple copies of the same expensive subtree and hide variants with CSS.
-3. **Above-the-fold media is explicitly budgeted.** Only probable LCP media may be eager. Everything below the fold is lazy by default. Responsive art direction must serve the correct crop/asset instead of downloading unnecessary desktop media on mobile.
-4. **Image cost is part of template quality.** Production media delivery must support responsive sizes, modern formats, correct intrinsic dimensions, focal/crop metadata and CDN/cache-friendly URLs. Decorative images must not block interaction.
-5. **Animation is compositing-first.** Prefer transform and opacity. Avoid layout-thrashing animation of width/height/top/left where an equivalent composited effect is possible. Respect `prefers-reduced-motion`.
-6. **No unbounded visual-layer growth.** Layered editorial sections remain section-bound and subject to structural budgets. A visually complex hero cannot become hundreds of positioned nodes.
-7. **Typography must not cause layout instability.** Font loading requires stable fallbacks/metrics and should not introduce avoidable CLS. Template identity must not depend on a large uncontrolled font bundle.
-8. **Published storefronts stay server-first.** Static presentation must not require per-node client state. Hydration/interactivity is limited to components that genuinely need it.
-9. **Builder chrome is isolated from storefront runtime.** Selection outlines, guides, inspectors, drag handles, history, Design Guard and Expert controls exist only in the editor and must never ship as customer-facing runtime work.
-10. **Third-party scripts are outside template authority.** A visual preset cannot silently add analytics, trackers, widgets or remote executable code.
+1. **Templates are data, not template-local application code.** Layout, style slots, responsive order, art direction and composition remain Page Schema data consumed by the shared Runtime.
+2. **No duplicate hidden DOM for breakpoint tricks.** Responsive order and visibility are resolved before rendering; expensive subtrees are not duplicated and hidden with CSS.
+3. **Above-the-fold media is explicitly budgeted.** Only probable LCP media may be eager. Below-fold media is lazy by default where the shared component contract supports it.
+4. **Image cost is part of template quality.** Production media delivery should use responsive sizes, modern formats, intrinsic dimensions, focal/crop metadata and cache-friendly URLs.
+5. **Animation is compositing-first.** Prefer transform/opacity and respect `prefers-reduced-motion`.
+6. **No unbounded visual-layer growth.** Layered editorial sections remain section-bound and structurally budgeted.
+7. **Typography must not cause avoidable layout instability.** Use stable fallbacks/metrics and controlled font payloads.
+8. **Published storefronts stay server-first.** Static presentation must not require per-node client state; hydrate only genuinely interactive components.
+9. **Builder chrome is isolated from storefront runtime.** Selection, inspectors, history and Design Guard UI never become customer-facing runtime work.
+10. **Third-party scripts are outside template authority.** Visual presets cannot silently add trackers, widgets or remote executable code.
 
 ## Schema complexity budgets
 
-The executable contract lives in `src/lib/builder/storefront-performance-contract.ts`.
+The executable structural contract lives in `src/lib/builder/storefront-performance-contract.ts`.
 
-Soft budgets produce warnings and Design Guard diagnostics. Hard budgets are release-blocking once the gate is wired into template-package CI.
-
-Current structural budgets per page:
+Soft budgets produce warnings/Design Guard diagnostics. Hard budgets are release-blocking.
 
 | Metric | Soft | Hard |
 | --- | ---: | ---: |
@@ -38,54 +36,73 @@ Current structural budgets per page:
 | `visual.layer` nodes | 32 | 48 |
 | Style declarations | 900 | 1400 |
 
-These limits are safety ceilings, not targets. A normal page should remain comfortably below them.
+These are safety ceilings, not targets.
 
 ## Runtime quality targets
 
-The release gate will measure real rendered pages in Desktop/Tablet/Mobile profiles. Initial target thresholds are:
+Current targets:
 
-- LCP: <= 2.5 s
-- INP: <= 200 ms
-- CLS: <= 0.1
-- avoid main-thread long tasks above 50 ms during ordinary navigation/edit-independent storefront interaction
+- LCP <= 2.5 s
+- INP <= 200 ms
+- CLS <= 0.1
+- avoid main-thread long tasks above 50 ms during ordinary navigation / edit-independent storefront interaction
 
-The visual-fidelity screenshot gate and the performance gate are independent. Passing one cannot waive the other.
+The visual-fidelity gate and performance gate are independent. Passing one cannot waive the other.
+
+## Exact-head runtime evidence method
+
+The visual acceptance workflow also produces lab runtime-performance evidence. The measurement contract is intentionally isolated from screenshot work.
+
+For every Home/PDP Desktop / Tablet / Mobile case:
+
+1. use a stable device-class performance viewport (`1200x900`, `768x1024`, `390x844`);
+2. open **three independent clean navigation pages**;
+3. install PerformanceObserver instrumentation before navigation;
+4. collect LCP, CLS and maximum long-task duration before screenshot-specific DOM traversal, geometry reads, image waits, animation overrides or reference-frame sizing;
+5. read the canonical runtime budget exposed by the QA route and fail if the budget/contract drifts between samples;
+6. use the **median of the three supported samples** as the blocking value;
+7. retain every raw sample and every individual threshold excursion in the artifact manifest;
+8. fail the release gate when the median is over budget or required measured evidence is missing.
+
+The threshold is **not raised** to absorb CI noise. Median sampling distinguishes a persistent regression from an isolated shared-runner scheduling spike while keeping the spike visible for diagnosis.
+
+INP remains explicitly `not measured` in this lab gate until a standardized, non-mutating storefront interaction probe exists. No PASS claim may be made for INP before that probe is implemented.
+
+Canonical implementation: `scripts/capture-visual-fidelity.mjs`.
 
 ## Template authoring rules
 
-Every template and preset must be optimized for the shared engine:
+Every template/preset must be optimized for the shared engine:
 
 - reuse primitives and style slots rather than adding one-off wrapper trees;
 - keep section nesting shallow;
-- do not ship invisible duplicate content to achieve mobile variants;
+- do not ship invisible duplicate content for mobile variants;
 - limit eager images to actual first-viewport candidates;
-- keep product grids lazy below the fold;
-- use responsive order instead of DOM duplication;
+- use responsive ordering instead of DOM duplication;
 - use responsive art direction for materially different mobile crops;
-- keep hover/motion effects inexpensive and optional;
-- avoid huge box-shadows, filters and backdrop-filter over large continuously moving surfaces;
-- never add a dependency solely for one template when the same result can be expressed by the shared engine;
-- presets may alter visual configuration but may not add runtime scripts or commerce/business logic.
+- keep motion inexpensive and optional;
+- avoid large animated filters/backdrop-filter surfaces;
+- never add a dependency solely for one template when the shared engine can express the result;
+- presets may alter visual configuration but may not add runtime scripts or commerce/business logic;
+- use `layout.section` offscreen deferral only for genuinely below-fold sections, never for the hero/LCP-critical surface.
 
 ## Builder UX requirements
 
-Performance must be visible to the editor, not only CI.
+Performance should be visible in the editor as the tooling matures:
 
-Planned Builder surfaces:
-
-- live page-complexity indicator;
-- soft-budget warnings beside problematic sections;
-- eager-image counter and LCP candidate marker;
+- page-complexity indicator;
+- soft-budget warnings near responsible sections;
+- eager-image/LCP candidate diagnostics;
 - media-size/crop diagnostics;
-- layer-count warning for complex editorial sections;
-- animation-cost warning in Expert mode;
-- Design Guard rule: a preset may be visually valid but still fail performance quality;
-- one-click jump from a warning to the responsible component.
+- layer-count warnings;
+- animation-cost warnings in Expert mode;
+- Design Guard performance findings;
+- jump-to-component from a performance warning.
 
 ## Acceptance sequence
 
 A template is releasable only after:
 
-`schema validation -> security validation -> structural performance budget -> build/type/tests -> D/T/M runtime screenshots -> runtime performance measurement -> Product Owner visual PASS`
+`schema validation -> security validation -> structural performance budget -> quality/type/build gates -> D/T/M runtime performance evidence -> D/T/M runtime screenshots -> exact approved-reference comparison -> Product Owner visual PASS`
 
-For the Beauty Lab canary, the Fidelity Engine must first prove that the approved visual direction can be reproduced without exceeding these budgets. Only after that proof should the same capabilities be propagated to the remaining template catalog.
+For Beauty Lab, the shared Fidelity Engine must prove the approved visual direction without bypassing these budgets. Only after Product Owner visual PASS should the validated capabilities be propagated to the remaining template catalog.
