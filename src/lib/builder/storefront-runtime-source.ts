@@ -1,17 +1,42 @@
 import 'server-only';
-import type {StorefrontPageDocument} from '@/lib/builder/storefront-runtime';
+import type {StorefrontPageDocument,StorefrontRuntimeCapabilityContext} from '@/lib/builder/storefront-runtime';
 import {getPublishedStorefrontPage,resolveStorefrontPreviewToken} from '@/lib/builder/storefront-persistence';
 import {listStorefrontReusableSymbolsForInstance} from '@/lib/builder/storefront-reusable-symbol-persistence';
 import {materializeStorefrontReusableSymbols} from '@/lib/builder/storefront-linked-symbols';
 import {requireStorefrontAccess} from '@/lib/storefront/access';
+import {getStorefrontInteractiveSceneCatalogForInstance} from '@/lib/builder/storefront-interactive-scene-server';
+import {getStorefrontRuntimeCapabilityForInstance} from '@/lib/builder/storefront-runtime-capability-server';
+import {resolveStorefrontPreviewInstanceId} from '@/lib/builder/storefront-preview-context';
 
 const PAGE_KEY_PATTERN=/^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$/;
 
 export type StorefrontResolvedRuntimePage={
   source:'published'|'preview';
-  instanceId:string|null;
+  instanceId:string;
   page:StorefrontPageDocument;
+  bindingContext:Record<string,unknown>;
+  capability:StorefrontRuntimeCapabilityContext;
 };
+
+function failClosedSpecialCommerce(page:StorefrontPageDocument,capability:StorefrontRuntimeCapabilityContext):StorefrontPageDocument{
+  if(capability.features instanceof Set?capability.features.has('interactiveSceneCommerce'):capability.features.includes('interactiveSceneCommerce'))return page;
+  const prune=(nodes:StorefrontPageDocument['sections']):StorefrontPageDocument['sections']=>nodes
+    .filter(node=>node.componentKey!=='commerce.interactive-scene')
+    .map(node=>({...node,...(node.children?{children:prune(node.children)}:{})}));
+  return{...page,sections:prune(page.sections)};
+}
+
+async function resolveRuntimeCommerceContext(instanceId:string,knownPlan?:StorefrontRuntimeCapabilityContext['plan']){
+  const[sceneCatalog,capability]=await Promise.all([
+    getStorefrontInteractiveSceneCatalogForInstance(instanceId),
+    getStorefrontRuntimeCapabilityForInstance(instanceId,knownPlan),
+  ]);
+  if(!capability)return null;
+  return{
+    capability,
+    bindingContext:{catalog:{interactiveSceneProducts:sceneCatalog.products}} as Record<string,unknown>,
+  };
+}
 
 /**
  * Resolve the published Page Schema for the current storefront host/context.
@@ -24,23 +49,41 @@ export async function resolveCurrentStorefrontPublishedRuntimePage(
   if(!PAGE_KEY_PATTERN.test(pageKey))return null;
   const instance=await requireStorefrontAccess();
   if(!instance)return null;
-  const page=await getPublishedStorefrontPage(instance.id,pageKey);
-  if(!page)return null;
-  const symbols=await listStorefrontReusableSymbolsForInstance(instance.id);
-  return{source:'published',instanceId:instance.id,page:materializeStorefrontReusableSymbols(page,symbols)};
+  const[page,symbols,runtime]=await Promise.all([
+    getPublishedStorefrontPage(instance.id,pageKey),
+    listStorefrontReusableSymbolsForInstance(instance.id),
+    resolveRuntimeCommerceContext(instance.id,instance.subscriptionPlan),
+  ]);
+  if(!page||!runtime)return null;
+  const materialized=materializeStorefrontReusableSymbols(page,symbols);
+  return{
+    source:'published',instanceId:instance.id,
+    page:failClosedSpecialCommerce(materialized,runtime.capability),
+    bindingContext:runtime.bindingContext,
+    capability:runtime.capability,
+  };
 }
 
 /**
  * Preview tokens stay immutable bearer snapshots. Linked instances are already
- * rebased into the saved draft before token creation; current store-level symbol
- * state is intentionally not read here because doing so would mutate preview
- * semantics after a token was issued.
+ * rebased into the saved draft before token creation. Commerce truth is intentionally
+ * read at render time so prices, stock and product eligibility remain authoritative.
  */
 export async function resolveStorefrontPreviewRuntimePage(
   token:string,
 ):Promise<StorefrontResolvedRuntimePage|null>{
   if(typeof token!=='string'||token.length<32||token.length>256)return null;
-  const page=await resolveStorefrontPreviewToken(token);
-  if(!page)return null;
-  return{source:'preview',instanceId:null,page};
+  const[page,instanceId]=await Promise.all([
+    resolveStorefrontPreviewToken(token),
+    resolveStorefrontPreviewInstanceId(token),
+  ]);
+  if(!page||!instanceId)return null;
+  const runtime=await resolveRuntimeCommerceContext(instanceId);
+  if(!runtime)return null;
+  return{
+    source:'preview',instanceId,
+    page:failClosedSpecialCommerce(page,runtime.capability),
+    bindingContext:runtime.bindingContext,
+    capability:runtime.capability,
+  };
 }
