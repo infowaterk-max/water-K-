@@ -37,6 +37,11 @@ import {
   getCurrentStorefrontBuilderCapability,
   listCurrentStorefrontTemplatePlanningPages,
 } from '@/lib/builder/storefront-builder-server';
+import {
+  getStorefrontGlobalStyleState,
+  storefrontGlobalStyleStatesEqual,
+} from '@/lib/builder/storefront-global-styles';
+import {saveCurrentStorefrontGlobalStyleDrafts} from '@/lib/builder/storefront-global-style-persistence';
 import type {StorefrontComponentNode,StorefrontPageDocument} from '@/lib/builder/storefront-runtime';
 
 const refresh=()=>revalidatePath('/admin/tartalom/builder');
@@ -58,6 +63,20 @@ export async function saveVisualBuilderDraftAction(input:{document:StorefrontPag
   const registry=createStorefrontVisualBuilderComponentRegistry();
   validateStorefrontBuilderWorkingCopy({previous,next:document,registry,capability});
   validateStorefrontBuilderSchemaStructure({document,registry});
+
+  const previousGlobalStyles=getStorefrontGlobalStyleState(previous);
+  const nextGlobalStyles=getStorefrontGlobalStyleState(document);
+  if(!storefrontGlobalStyleStatesEqual(previousGlobalStyles,nextGlobalStyles)){
+    const result=await saveCurrentStorefrontGlobalStyleDrafts({
+      currentDocument:document,
+      expectedDraftRevision:input.expectedDraftRevision,
+      state:nextGlobalStyles,
+      operationKey:input.operationKey,
+    });
+    refresh();
+    return result;
+  }
+
   const result=await saveCurrentStorefrontPageDraft({...input,document});
   refresh();
   return result;

@@ -3,6 +3,8 @@ import {hashStorefrontPageDocument} from '@/lib/builder/storefront-persistence';
 import type {StorefrontTemplateInstallationPlan} from '@/lib/builder/storefront-template-installation';
 import {assertSafeStorefrontFidelityDocument} from '@/lib/builder/storefront-fidelity-security';
 import {assertStorefrontPerformance} from '@/lib/builder/storefront-performance-contract';
+import {getCurrentStorefrontGlobalStyleState} from '@/lib/builder/storefront-global-style-persistence';
+import {setStorefrontGlobalStyleState} from '@/lib/builder/storefront-global-styles';
 import {requireCurrentStoreContext} from '@/lib/instances/scope';
 import {createAdminClient} from '@/lib/supabase/admin';
 import {createClient} from '@/lib/supabase/server';
@@ -57,7 +59,10 @@ export async function saveCurrentStorefrontTemplateDraftPlan(input:{
   if(!input.plan.pages.length)throw new Error('STOREFRONT_TEMPLATE_PAGES_REQUIRED');
   if(input.plan.pages.length>32)throw new Error('STOREFRONT_TEMPLATE_PAGE_LIMIT_EXCEEDED');
   if(!OPERATION_KEY_PATTERN.test(input.operationKey))throw new Error('STOREFRONT_TEMPLATE_OPERATION_KEY_INVALID');
-  for(const page of input.plan.pages){
+
+  const globalStyles=await getCurrentStorefrontGlobalStyleState();
+  const pages=input.plan.pages.map(page=>({...page,document:setStorefrontGlobalStyleState(page.document,globalStyles)}));
+  for(const page of pages){
     assertSafeStorefrontFidelityDocument(page.document);
     assertStorefrontPerformance(page.document);
   }
@@ -69,7 +74,7 @@ export async function saveCurrentStorefrontTemplateDraftPlan(input:{
     p_actor_user_id:actorUserId,
     p_template_key:input.plan.templateKey,
     p_template_version:input.plan.templateVersion,
-    p_pages:input.plan.pages.map(page=>({
+    p_pages:pages.map(page=>({
       pageKey:page.pageKey,
       pageType:page.pageType,
       schemaVersion:page.document.schemaVersion,
@@ -84,7 +89,7 @@ export async function saveCurrentStorefrontTemplateDraftPlan(input:{
   const record=asRecord(data,'STOREFRONT_TEMPLATE_SAVE_RESULT_INVALID');
   const rawPages=record.pages;
   if(!Array.isArray(rawPages))throw new Error('STOREFRONT_TEMPLATE_SAVE_PAGES_INVALID');
-  const pages=rawPages.map(value=>{
+  const savedPages=rawPages.map(value=>{
     const page=asRecord(value,'STOREFRONT_TEMPLATE_SAVE_PAGE_INVALID');
     if(page.kind!=='draft')throw new Error('STOREFRONT_TEMPLATE_SAVE_PAGE_KIND_INVALID');
     return{
@@ -100,7 +105,7 @@ export async function saveCurrentStorefrontTemplateDraftPlan(input:{
   const templateKey=requiredString(record,'templateKey','STOREFRONT_TEMPLATE_SAVE_KEY_MISSING');
   const templateVersion=requiredNumber(record,'templateVersion','STOREFRONT_TEMPLATE_SAVE_VERSION_MISSING');
   const pageCount=requiredNumber(record,'pageCount','STOREFRONT_TEMPLATE_SAVE_COUNT_MISSING');
-  if(templateKey!==input.plan.templateKey||templateVersion!==input.plan.templateVersion||pageCount!==pages.length){
+  if(templateKey!==input.plan.templateKey||templateVersion!==input.plan.templateVersion||pageCount!==savedPages.length){
     throw new Error('STOREFRONT_TEMPLATE_SAVE_IDENTITY_MISMATCH');
   }
   if(record.mutationScope!=='storefront_page_drafts_only')throw new Error('STOREFRONT_TEMPLATE_SAVE_SCOPE_INVALID');
@@ -111,6 +116,6 @@ export async function saveCurrentStorefrontTemplateDraftPlan(input:{
     pageCount,
     replayed:record.replayed===true,
     mutationScope:'storefront_page_drafts_only',
-    pages,
+    pages:savedPages,
   };
 }

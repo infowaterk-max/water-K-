@@ -1,6 +1,7 @@
-import {Fragment,type ReactNode} from 'react';
+import {Fragment,type CSSProperties,type ReactNode} from 'react';
 import type {StorefrontViewport} from '@/lib/builder/storefront-foundation';
 import {materializeStorefrontFidelityPage} from '@/lib/builder/storefront-fidelity-engine';
+import {resolveStorefrontGlobalStyleCssVariables} from '@/lib/builder/storefront-global-styles';
 import {decorateStorefrontInteractiveStateTree} from '@/components/builder/storefront-interactive-state';
 import {
   StorefrontComponentRegistry,
@@ -90,5 +91,9 @@ export function StorefrontRuntimeRenderer({
     return decorateNode?decorateNode(node,stateDecorated):stateDecorated;
   };
 
-  return <>{sections.map(section=><Fragment key={section.id}>{renderNode(section)}</Fragment>)}</>;
+  const globalStyle:CSSProperties={
+    ...(resolveStorefrontGlobalStyleCssVariables(runtimePage) as CSSProperties),
+    fontFamily:'var(--shoporation-body-font, Arial, sans-serif)',
+  };
+  return <div data-storefront-global-styles-v1 style={globalStyle}>{sections.map(section=><Fragment key={section.id}>{renderNode(section)}</Fragment>)}</div>;
 }
