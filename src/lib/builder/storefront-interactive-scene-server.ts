@@ -11,13 +11,12 @@ export type StorefrontInteractiveSceneCatalog={
 
 const formatHuf=(value:number)=>`${new Intl.NumberFormat('hu-HU').format(value)} Ft`;
 
-/** Tenant-scoped read model for Builder selection/preview. It owns no commerce state. */
-export async function getCurrentStorefrontInteractiveSceneCatalog():Promise<StorefrontInteractiveSceneCatalog>{
-  const scope=await requireCurrentStoreContext('store.read');
+/** Internal tenant-scoped read model. Callers must supply an already-authorized instance id. */
+export async function getStorefrontInteractiveSceneCatalogForInstance(instanceId:string):Promise<StorefrontInteractiveSceneCatalog>{
   const admin=createAdminClient();
   const[productResult,variantResult]=await Promise.all([
-    admin.from('products').select('id,slug,name,active').eq('instance_id',scope.instanceId).eq('active',true).order('name').limit(500),
-    admin.from('product_variants').select('product_id,gross_price_huf,stock_quantity,active').eq('instance_id',scope.instanceId).eq('active',true),
+    admin.from('products').select('id,slug,name,active').eq('instance_id',instanceId).eq('active',true).order('name').limit(500),
+    admin.from('product_variants').select('product_id,gross_price_huf,stock_quantity,active').eq('instance_id',instanceId).eq('active',true),
   ]);
   if(productResult.error)throw new Error(`INTERACTIVE_SCENE_PRODUCTS_FAILED:${productResult.error.message}`);
   if(variantResult.error)throw new Error(`INTERACTIVE_SCENE_VARIANTS_FAILED:${variantResult.error.message}`);
@@ -33,11 +32,12 @@ export async function getCurrentStorefrontInteractiveSceneCatalog():Promise<Stor
     const minPrice=prices.length?Math.min(...prices):null;
     const maxPrice=prices.length?Math.max(...prices):null;
     const stock=variants.reduce((sum,variant)=>sum+Math.max(0,variant.stock_quantity),0);
+    const slug=typeof product.slug==='string'?product.slug.trim():'';
     return{
       productId:product.id,
       label:product.name,
-      href:`#product-${product.id}`,
-      eligible:Boolean(product.active&&variants.length),
+      href:slug?`/termek/${encodeURIComponent(slug)}`:'#',
+      eligible:Boolean(product.active&&variants.length&&slug),
       priceDisplay:minPrice===null?null:minPrice===maxPrice?formatHuf(minPrice):`${formatHuf(minPrice)}-tól`,
       stockLabel:variants.length?(stock>0?'Készleten':'Jelenleg nem készleten'):null,
       imageUrl:null,
@@ -47,4 +47,10 @@ export async function getCurrentStorefrontInteractiveSceneCatalog():Promise<Stor
     products:Object.freeze(products),
     options:Object.freeze(products.filter(product=>product.eligible).map(product=>({productId:product.productId,label:product.label}))),
   };
+}
+
+/** Tenant-scoped Builder read model. It owns no commerce state. */
+export async function getCurrentStorefrontInteractiveSceneCatalog():Promise<StorefrontInteractiveSceneCatalog>{
+  const scope=await requireCurrentStoreContext('store.read');
+  return getStorefrontInteractiveSceneCatalogForInstance(scope.instanceId);
 }
