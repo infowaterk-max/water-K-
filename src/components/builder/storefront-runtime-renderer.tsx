@@ -1,6 +1,7 @@
 import {Fragment,type ReactNode} from 'react';
 import type {StorefrontViewport} from '@/lib/builder/storefront-foundation';
 import {materializeStorefrontFidelityPage} from '@/lib/builder/storefront-fidelity-engine';
+import {decorateStorefrontInteractiveStateTree} from '@/components/builder/storefront-interactive-state';
 import {
   StorefrontComponentRegistry,
   type StorefrontPageDocument,
@@ -85,7 +86,8 @@ export function StorefrontRuntimeRenderer({
     ]);
     const children=node.children.map(child=><Fragment key={child.id}>{renderNode(child)}</Fragment>);
     const rendered=renderer({node,config:node.config,children,page:runtimePage,viewport});
-    return decorateNode?decorateNode(node,rendered):rendered;
+    const stateDecorated=decorateStorefrontInteractiveStateTree(node.componentKey,rendered,node.config.styleSlots,viewport);
+    return decorateNode?decorateNode(node,stateDecorated):stateDecorated;
   };
 
   return <>{sections.map(section=><Fragment key={section.id}>{renderNode(section)}</Fragment>)}</>;

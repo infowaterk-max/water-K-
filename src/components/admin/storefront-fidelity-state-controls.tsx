@@ -9,17 +9,12 @@ import {
   STOREFRONT_INTERACTION_STATES,
   sanitizeStorefrontInteractionStyle,
   storefrontInteractionSlotName,
+  storefrontInteractionTargetsForComponent,
   type StorefrontInteractionState,
   type StorefrontInteractionStyle,
 } from '@/lib/builder/storefront-fidelity-interaction-state';
 import styles from './storefront-visual-builder.module.css';
 
-type Target={slot:string;label:string};
-const TARGETS:Record<string,readonly Target[]>={
-  'content.button':[{slot:'root',label:'Gomb'}],
-  'system.navigation':[{slot:'item',label:'Navigációs link'}],
-  'system.header':[{slot:'brand',label:'Márkalink'},{slot:'utilityItem',label:'Gyorsművelet'}],
-};
 const STATE_LABELS:Record<StorefrontInteractionState,string>={hover:'Hover',focus:'Billentyűzet-fókusz',active:'Lenyomott / aktív',disabled:'Tiltott'};
 const viewportLabel=(viewport:StorefrontViewport)=>viewport==='desktop'?'Desktop':viewport==='tablet'?'Tablet':'Mobil';
 const numberOrUndefined=(value:string)=>{if(!value.trim())return undefined;const parsed=Number(value);return Number.isFinite(parsed)?parsed:undefined;};
@@ -37,7 +32,7 @@ export function StorefrontFidelityStateControls({document,node,viewport,configur
   configurable:readonly string[];
   onApply:(next:StorefrontPageDocument,notice:string)=>void;
 }){
-  const targets=TARGETS[node.componentKey]??[];
+  const targets=storefrontInteractionTargetsForComponent(node.componentKey);
   const[state,setState]=useState<StorefrontInteractionState>('hover');
   const[targetSlot,setTargetSlot]=useState(targets[0]?.slot??'root');
   if(!configurable.includes('styleSlots')||!targets.length)return null;
