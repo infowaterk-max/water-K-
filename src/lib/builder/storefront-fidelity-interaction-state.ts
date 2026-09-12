@@ -15,18 +15,18 @@ export type StorefrontInteractionTarget={slot:string;label:string;runtime:'rende
 const SLOT_PATTERN=/^[A-Za-z][A-Za-z0-9_-]{0,63}$/;
 const PROPERTY_SET=new Set<string>(STOREFRONT_INTERACTION_STYLE_PROPERTIES);
 const upperFirst=(value:string)=>value?`${value[0].toUpperCase()}${value.slice(1)}`:value;
-const TARGETS:Readonly<Record<string,readonly StorefrontInteractionTarget[]>>=Object.freeze({
-  'content.button':Object.freeze([{slot:'root',label:'Gomb',runtime:'renderer'}]),
-  'system.navigation':Object.freeze([{slot:'item',label:'Navigációs link',runtime:'renderer'}]),
-  'system.header':Object.freeze([{slot:'brand',label:'Márkalink',runtime:'renderer'},{slot:'utilityItem',label:'Gyorsművelet',runtime:'renderer'}]),
-  'commerce.collection-navigation':Object.freeze([{slot:'card',label:'Kollekciókártya',runtime:'descendants'}]),
-  'commerce.product-grid':Object.freeze([{slot:'cardLink',label:'Termékkártya link',runtime:'descendants'}]),
-  'commerce.product-gallery':Object.freeze([{slot:'thumbnail',label:'Galéria thumbnail',runtime:'descendants'}]),
-  'commerce.variant-swatches':Object.freeze([{slot:'option',label:'Variáns opció',runtime:'descendants'}]),
-  'commerce.content-tabs':Object.freeze([{slot:'tab',label:'Tartalmi tab',runtime:'descendants'}]),
-  'commerce.recommendation-row':Object.freeze([{slot:'cardLink',label:'Ajánláskártya link',runtime:'descendants'}]),
-  'commerce.cart-summary':Object.freeze([{slot:'checkout',label:'Checkout CTA',runtime:'descendants'}]),
-});
+const TARGETS={
+  'content.button':[{slot:'root',label:'Gomb',runtime:'renderer'}],
+  'system.navigation':[{slot:'item',label:'Navigációs link',runtime:'renderer'}],
+  'system.header':[{slot:'brand',label:'Márkalink',runtime:'renderer'},{slot:'utilityItem',label:'Gyorsművelet',runtime:'renderer'}],
+  'commerce.collection-navigation':[{slot:'card',label:'Kollekciókártya',runtime:'descendants'}],
+  'commerce.product-grid':[{slot:'cardLink',label:'Termékkártya link',runtime:'descendants'}],
+  'commerce.product-gallery':[{slot:'thumbnail',label:'Galéria thumbnail',runtime:'descendants'}],
+  'commerce.variant-swatches':[{slot:'option',label:'Variáns opció',runtime:'descendants'}],
+  'commerce.content-tabs':[{slot:'tab',label:'Tartalmi tab',runtime:'descendants'}],
+  'commerce.recommendation-row':[{slot:'cardLink',label:'Ajánláskártya link',runtime:'descendants'}],
+  'commerce.cart-summary':[{slot:'checkout',label:'Checkout CTA',runtime:'descendants'}],
+} as const satisfies Readonly<Record<string,readonly StorefrontInteractionTarget[]>>;
 
 /** Interaction states remain ordinary named styleSlots, shared by Builder and Runtime. */
 export function storefrontInteractionSlotName(baseSlot:string,state:StorefrontInteractionState):string{
@@ -35,7 +35,7 @@ export function storefrontInteractionSlotName(baseSlot:string,state:StorefrontIn
 }
 
 export function storefrontInteractionTargetsForComponent(componentKey:string):readonly StorefrontInteractionTarget[]{
-  return TARGETS[componentKey]??[];
+  return TARGETS[componentKey as keyof typeof TARGETS]??[];
 }
 
 export function sanitizeStorefrontInteractionStyle(value:unknown):StorefrontInteractionStyle{
