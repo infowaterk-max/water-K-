@@ -26,6 +26,7 @@ export type StorefrontFidelityMetadata={
   engineVersion:typeof STOREFRONT_FIDELITY_ENGINE_VERSION;
   editMode?:StorefrontBuilderEditMode;
   sectionOrder?:StorefrontResponsiveSectionOrder;
+  nodeOrder?:Record<string,StorefrontResponsiveSectionOrder>;
   designGuard?:StorefrontDesignGuardConfig;
 };
 
@@ -56,6 +57,7 @@ export type StorefrontFidelityPreset={
   label:string;
   pageType?:StorefrontPageDocument['pageType'];
   sectionOrder?:StorefrontResponsiveSectionOrder;
+  nodeOrder?:Record<string,StorefrontResponsiveSectionOrder>;
   nodes:Record<string,StorefrontFidelityNodePreset>;
   protectedNodeIds?:string[];
 };
@@ -118,6 +120,13 @@ export function resolveStorefrontSectionOrder(document:StorefrontPageDocument,vi
   return uniqueKnownOrder(configured,known);
 }
 
+export function resolveStorefrontChildOrder(document:StorefrontPageDocument,parent:StorefrontComponentNode,viewport:StorefrontViewport):string[]{
+  const known=(parent.children??[]).map(child=>child.id);
+  const metadata=readStorefrontFidelityMetadata(document);
+  const configured=inherited(metadata?.nodeOrder?.[parent.id],viewport);
+  return uniqueKnownOrder(configured,known);
+}
+
 export function reorderStorefrontSections(document:StorefrontPageDocument,viewport:StorefrontViewport):StorefrontComponentNode[]{
   const byId=new Map(document.sections.map(section=>[section.id,section]));
   return resolveStorefrontSectionOrder(document,viewport).flatMap(id=>{const section=byId.get(id);return section?[section]:[];});
@@ -167,6 +176,51 @@ export function resolveStorefrontImageArtDirection(value:unknown,viewport:Storef
   return viewport==='desktop'?desktop:viewport==='tablet'?tablet:mobile;
 }
 
+function mergeViewportStyle(value:unknown,viewport:StorefrontViewport,patch:StorefrontVisualStyleSlot){
+  if(!Object.keys(patch).length)return value;
+  if(!isRecord(value))return{base:patch};
+  const usesSlots=['base','desktop','tablet','mobile'].some(key=>Object.prototype.hasOwnProperty.call(value,key));
+  if(!usesSlots)return{...value,...patch};
+  const slot=isRecord(value[viewport])?value[viewport] as Record<string,unknown>:{};
+  return{...value,[viewport]:{...slot,...patch}};
+}
+
+function applyArtDirection(node:StorefrontComponentNode,viewport:StorefrontViewport){
+  if(node.componentKey!=='content.image'||!node.config.artDirection)return;
+  const art=resolveStorefrontImageArtDirection(node.config.artDirection,viewport);
+  if(art.src)node.config.src=art.src;
+  if(art.objectPosition)node.config.objectPosition=art.objectPosition;
+  if(art.objectFit)node.config.fit=art.objectFit;
+  if(art.width)node.config.width=art.width;
+  if(art.height)node.config.height=art.height;
+  if(art.aspectRatio)node.config.style=mergeViewportStyle(node.config.style,viewport,{aspectRatio:art.aspectRatio});
+}
+
+/**
+ * Materializes viewport-specific composition before the canonical Runtime validates
+ * and renders it. This does not create a parallel renderer; it only resolves the
+ * additive fidelity metadata into the existing Page Schema tree.
+ */
+export function materializeStorefrontFidelityPage(document:StorefrontPageDocument,viewport:StorefrontViewport):StorefrontPageDocument{
+  const next=clone(document);
+  const metadata=readStorefrontFidelityMetadata(next);
+  if(metadata?.sectionOrder){
+    const byId=new Map(next.sections.map(section=>[section.id,section]));
+    next.sections=resolveStorefrontSectionOrder(next,viewport).flatMap(id=>{const section=byId.get(id);return section?[section]:[];});
+  }
+  const walk=(node:StorefrontComponentNode)=>{
+    applyArtDirection(node,viewport);
+    if(node.children?.length){
+      const byId=new Map(node.children.map(child=>[child.id,child]));
+      const order=resolveStorefrontChildOrder(next,node,viewport);
+      node.children=order.flatMap(id=>{const child=byId.get(id);return child?[child]:[];});
+      node.children.forEach(walk);
+    }
+  };
+  next.sections.forEach(walk);
+  return next;
+}
+
 function findNode(document:StorefrontPageDocument,id:string):StorefrontComponentNode|undefined{
   const visit=(nodes:readonly StorefrontComponentNode[]):StorefrontComponentNode|undefined=>{
     for(const node of nodes){if(node.id===id)return node;const nested=visit(node.children??[]);if(nested)return nested;}
@@ -194,8 +248,9 @@ export function applyStorefrontFidelityPreset(document:StorefrontPageDocument,pr
   }
   const current=readStorefrontFidelityMetadata(next);
   return writeStorefrontFidelityMetadata(next,{
-    ...(current??{}),
+    ...(current?{editMode:current.editMode,designGuard:current.designGuard}:{}),
     ...(preset.sectionOrder?{sectionOrder:clone(preset.sectionOrder)}:{}),
+    ...(preset.nodeOrder?{nodeOrder:clone(preset.nodeOrder)}:{}),
     designGuard:{
       mode:current?.designGuard?.mode??'warn',
       presetId:preset.presetId,
@@ -220,15 +275,13 @@ export function evaluateStorefrontFidelityDrift(document:StorefrontPageDocument,
     if(patch.responsive)expected.responsive={...(expected.responsive??{}),...clone(patch.responsive)};
     if(stableVisualSnapshot(current)!==stableVisualSnapshot(expected))changedNodeIds.push(id);
   }
-  const currentIds=document.sections.map(section=>section.id);
   const currentMeta=readStorefrontFidelityMetadata(document);
-  const sectionOrderDrift=Boolean(preset.sectionOrder)&&JSON.stringify(currentMeta?.sectionOrder??{})!==JSON.stringify(preset.sectionOrder);
+  const sectionOrderDrift=(Boolean(preset.sectionOrder)&&JSON.stringify(currentMeta?.sectionOrder??{})!==JSON.stringify(preset.sectionOrder))||(Boolean(preset.nodeOrder)&&JSON.stringify(currentMeta?.nodeOrder??{})!==JSON.stringify(preset.nodeOrder));
   const protectedIds=new Set(preset.protectedNodeIds??[]);
   const structuralDrift=missingNodeIds.some(id=>protectedIds.has(id));
-  const denominator=Math.max(1,Object.keys(preset.nodes).length+(preset.sectionOrder?1:0));
+  const denominator=Math.max(1,Object.keys(preset.nodes).length+(preset.sectionOrder?1:0)+(preset.nodeOrder?1:0));
   const weighted=changedNodeIds.length+missingNodeIds.length+(sectionOrderDrift?1:0)+(structuralDrift?1:0);
   const score=Math.min(100,Math.round(weighted/denominator*100));
-  void currentIds;
   return{score,changedNodeIds,missingNodeIds,structuralDrift,sectionOrderDrift};
 }
 

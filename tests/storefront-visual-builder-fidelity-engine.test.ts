@@ -5,8 +5,10 @@ import {
   applyStorefrontFidelityPreset,
   evaluateStorefrontDesignGuard,
   evaluateStorefrontFidelityDrift,
+  materializeStorefrontFidelityPage,
   readStorefrontFidelityMetadata,
   reorderStorefrontSections,
+  resolveStorefrontChildOrder,
   resolveStorefrontImageArtDirection,
   resolveStorefrontSectionOrder,
   resolveStorefrontStyleSlot,
@@ -22,7 +24,10 @@ const page=():StorefrontPageDocument=>({
   templateKey:'reference.fidelity',
   templateVersion:1,
   sections:[
-    {id:'hero',componentKey:'layout.section',componentVersion:1,config:{tone:'background',spacing:'xl',style:{base:{paddingBlock:'4rem'}}}},
+    {id:'hero',componentKey:'layout.section',componentVersion:1,config:{tone:'background',spacing:'xl',style:{base:{paddingBlock:'4rem'}}},children:[
+      {id:'hero-copy',componentKey:'content.text',componentVersion:1,config:{text:'Hero copy',as:'p',align:'left',tone:'text'}},
+      {id:'hero-image',componentKey:'content.image',componentVersion:1,config:{src:'/desktop.jpg',alt:'Hero',width:1200,height:800,fit:'cover',loading:'eager',radius:'none',objectPosition:'50% 50%',artDirection:{mobile:{src:'/mobile.jpg',objectPosition:'72% center',aspectRatio:'4 / 5'}}}},
+    ]},
     {id:'trust',componentKey:'layout.section',componentVersion:1,config:{tone:'surface',spacing:'s'}},
     {id:'featured',componentKey:'layout.section',componentVersion:1,config:{tone:'background',spacing:'l'}},
     {id:'finder',componentKey:'layout.section',componentVersion:1,config:{tone:'background',spacing:'l'}},
@@ -35,6 +40,7 @@ const preset:StorefrontFidelityPreset={
   label:'Beauty reference Home',
   pageType:'home',
   sectionOrder:{desktop:['hero','trust','finder','featured'],mobile:['hero','trust','featured','finder']},
+  nodeOrder:{hero:{desktop:['hero-copy','hero-image'],mobile:['hero-image','hero-copy']}},
   protectedNodeIds:['hero','trust'],
   nodes:{
     hero:{config:{spacing:'none',style:{base:{paddingBlock:0},mobile:{minHeight:'24rem'}},styleSlots:{title:{base:{fontSize:'5rem'},mobile:{fontSize:'2.75rem'}}}}},
@@ -58,6 +64,13 @@ describe('Visual Builder Fidelity Engine foundation',()=>{
     expect(reorderStorefrontSections(configured,'mobile').map(section=>section.id)).toEqual(['hero','trust','featured','finder']);
   });
 
+  it('resolves child order independently per viewport',()=>{
+    const configured=writeStorefrontFidelityMetadata(page(),{nodeOrder:{hero:{desktop:['hero-copy','hero-image'],mobile:['hero-image','hero-copy']}}});
+    const hero=configured.sections[0];
+    expect(resolveStorefrontChildOrder(configured,hero,'tablet')).toEqual(['hero-copy','hero-image']);
+    expect(resolveStorefrontChildOrder(configured,hero,'mobile')).toEqual(['hero-image','hero-copy']);
+  });
+
   it('supports responsive image art direction instead of forcing one desktop crop everywhere',()=>{
     const art={
       base:{src:'https://images.example.test/desktop.jpg',objectFit:'cover' as const,objectPosition:'50% 40%'},
@@ -67,6 +80,15 @@ describe('Visual Builder Fidelity Engine foundation',()=>{
     expect(resolveStorefrontImageArtDirection(art,'desktop')).toMatchObject({src:'https://images.example.test/desktop.jpg',objectPosition:'50% 40%',objectFit:'cover'});
     expect(resolveStorefrontImageArtDirection(art,'tablet')).toMatchObject({src:'https://images.example.test/desktop.jpg',objectPosition:'60% 50%'});
     expect(resolveStorefrontImageArtDirection(art,'mobile')).toMatchObject({src:'/mobile.jpg',objectPosition:'72% center',aspectRatio:'4 / 5'});
+  });
+
+  it('materializes section order, child order and image art direction into the existing Page Schema tree',()=>{
+    const configured=writeStorefrontFidelityMetadata(page(),{sectionOrder:preset.sectionOrder,nodeOrder:preset.nodeOrder});
+    const mobile=materializeStorefrontFidelityPage(configured,'mobile');
+    expect(mobile.sections.map(section=>section.id)).toEqual(['hero','trust','featured','finder']);
+    expect(mobile.sections[0].children?.map(child=>child.id)).toEqual(['hero-image','hero-copy']);
+    expect(mobile.sections[0].children?.[0].config).toMatchObject({src:'/mobile.jpg',objectPosition:'72% center'});
+    expect(mobile.sections[0].children?.[0].config.style).toMatchObject({base:{aspectRatio:'4 / 5'}});
   });
 
   it('sanitizes named component style slots and resolves them by viewport',()=>{
@@ -104,10 +126,12 @@ describe('Visual Builder Fidelity Engine foundation',()=>{
 
   it('supports warn and enforce design-guard decisions',()=>{
     let guarded=applyStorefrontFidelityPreset(page(),preset);
-    guarded=writeStorefrontFidelityMetadata(guarded,{...readStorefrontFidelityMetadata(guarded)!,designGuard:{mode:'warn',presetId:preset.presetId,baselineVersion:preset.version,protectedNodeIds:preset.protectedNodeIds}});
+    const current=readStorefrontFidelityMetadata(guarded)!;
+    guarded=writeStorefrontFidelityMetadata(guarded,{editMode:current.editMode,sectionOrder:current.sectionOrder,nodeOrder:current.nodeOrder,designGuard:{mode:'warn',presetId:preset.presetId,baselineVersion:preset.version,protectedNodeIds:preset.protectedNodeIds}});
     guarded.sections[0].config.spacing='2xl';
     expect(evaluateStorefrontDesignGuard(guarded,preset)).toMatchObject({mode:'warn',allowed:true,warning:true});
-    const enforced=writeStorefrontFidelityMetadata(guarded,{...readStorefrontFidelityMetadata(guarded)!,designGuard:{mode:'enforce',presetId:preset.presetId,baselineVersion:preset.version,protectedNodeIds:preset.protectedNodeIds}});
+    const warned=readStorefrontFidelityMetadata(guarded)!;
+    const enforced=writeStorefrontFidelityMetadata(guarded,{editMode:warned.editMode,sectionOrder:warned.sectionOrder,nodeOrder:warned.nodeOrder,designGuard:{mode:'enforce',presetId:preset.presetId,baselineVersion:preset.version,protectedNodeIds:preset.protectedNodeIds}});
     expect(evaluateStorefrontDesignGuard(enforced,preset).allowed).toBe(false);
   });
 });
