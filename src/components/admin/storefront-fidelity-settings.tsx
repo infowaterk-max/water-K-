@@ -13,6 +13,7 @@ import {inspectStorefrontFidelityBuilder,type StorefrontFidelityInspectorStatus}
 import type {StorefrontBuilderEditMode,StorefrontDesignGuardMode} from '@/lib/builder/storefront-fidelity-engine';
 import {createStorefrontVisualBuilderComponentRegistry} from '@/lib/builder/storefront-builder-registry';
 import {StorefrontFidelityNodeControls} from '@/components/admin/storefront-fidelity-node-controls';
+import {StorefrontFidelityLayoutControls} from '@/components/admin/storefront-fidelity-layout-controls';
 import styles from './storefront-visual-builder.module.css';
 
 const componentRegistry=createStorefrontVisualBuilderComponentRegistry();
@@ -53,6 +54,7 @@ export function StorefrontFidelitySettings({document,viewport,onApply}:{
   const[editedNodeId,setEditedNodeId]=useState(nodes[0]?.id??'');
   const editedNode=nodes.find(node=>node.id===editedNodeId)??nodes[0]??null;
   const editedDefinition=editedNode?componentRegistry.get(editedNode.componentKey,editedNode.componentVersion):undefined;
+  const editedConfigurable=editedDefinition?.manifest.configurable??[];
 
   return <div className={styles.editorFields}>
     <div className={styles.fieldGroup}>
@@ -118,7 +120,8 @@ export function StorefrontFidelitySettings({document,viewport,onApply}:{
         <p className={styles.emptyHint}>Válassz egy valódi Page Schema elemet. A módosítás ugyanazon közös Runtime-on jelenik meg, nem külön sablon-specifikus kódban.</p>
         <label className={styles.field}><span>Szerkesztett elem</span><select value={editedNode?.id??''} onChange={event=>setEditedNodeId(event.target.value)}>{nodes.map(node=><option key={node.id} value={node.id}>{node.id} · {node.componentKey}</option>)}</select></label>
       </div>
-      {editedNode&&editedDefinition?<StorefrontFidelityNodeControls document={document} node={editedNode} viewport={viewport} configurable={editedDefinition.manifest.configurable} onApply={onApply}/>:null}
+      {editedNode&&editedDefinition&&editedConfigurable.includes('style')?<StorefrontFidelityLayoutControls document={document} node={editedNode} viewport={viewport} editMode={inspector.editMode} onApply={onApply}/>:null}
+      {editedNode&&editedDefinition?<StorefrontFidelityNodeControls document={document} node={editedNode} viewport={viewport} configurable={editedConfigurable} onApply={onApply}/>:null}
     </>:<div className={styles.fieldGroup}><strong>Responsive kompozíció</strong><p className={styles.emptyHint}>A külön Desktop/Tablet/Mobil sorrend és elem-szintű tipográfia/képfókusz a Haladó módban érhető el. A Normál mód szándékosan egyszerűbb és biztonságosabb.</p></div>}
   </div>;
 }
