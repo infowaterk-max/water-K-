@@ -38,6 +38,28 @@ try{
     const roots=page.locator('[data-visual-fidelity-root="runtime"]');
     const rootCount=await roots.count();
     if(rootCount<1)throw new Error(`VISUAL_FIDELITY_ROOT_MISSING:${item.name}`);
+    if(rootCount!==1){
+      const diagnostics=await roots.evaluateAll(nodes=>nodes.map((node,index)=>{
+        const style=getComputedStyle(node);
+        const rect=node.getBoundingClientRect();
+        return {
+          index,
+          tagName:node.tagName,
+          display:style.display,
+          visibility:style.visibility,
+          opacity:style.opacity,
+          hidden:node.hasAttribute('hidden'),
+          ariaHidden:node.getAttribute('aria-hidden'),
+          rect:{x:rect.x,y:rect.y,width:rect.width,height:rect.height},
+          parentTag:node.parentElement?.tagName??null,
+          parentId:node.parentElement?.id??null,
+          parentClass:node.parentElement?.className??null,
+          html:node.outerHTML.slice(0,700),
+        };
+      }));
+      console.error(JSON.stringify({event:'VISUAL_FIDELITY_DUPLICATE_RUNTIME_ROOTS',case:item.name,rootCount,diagnostics},null,2));
+      throw new Error(`VISUAL_FIDELITY_ROOT_COUNT_INVALID:${item.name}:${rootCount}`);
+    }
     const root=roots.first();
     await root.waitFor({state:'visible',timeout:15000});
     await page.waitForTimeout(250);
@@ -57,11 +79,11 @@ try{
 }
 
 await writeFile(`${outputDir}/manifest.json`,JSON.stringify({
-  version:'shoporation.visual-fidelity-capture.v3',
+  version:'shoporation.visual-fidelity-capture.v4',
   template,
   sourceCommit:process.env.GITHUB_SHA??null,
   capturedAt:new Date().toISOString(),
-  comparisonPolicy:'Primary PNGs use reference-proportional browser frames; *-full.png retains the complete Runtime root for regression evidence.',
+  comparisonPolicy:'Primary PNGs use reference-proportional browser frames; *-full.png retains the complete Runtime root for regression evidence. Every capture must expose exactly one runtime root.',
   captures,
 },null,2));
 console.log(JSON.stringify({ok:true,count:captures.length,outputDir},null,2));
