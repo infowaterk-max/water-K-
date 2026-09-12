@@ -11,14 +11,12 @@ import {STOREFRONT_STORY_COMPONENT_DEFINITIONS} from '@/lib/builder/storefront-s
 import {STOREFRONT_VISUAL_LAYER_COMPONENT_DEFINITIONS} from '@/lib/builder/storefront-visual-layers';
 import {STOREFRONT_PURCHASE_CONTROLS_COMPONENT_DEFINITIONS} from '@/lib/builder/storefront-purchase-controls';
 import {STOREFRONT_SHARED_CONTENT_COMPONENT_DEFINITIONS} from '@/lib/builder/storefront-shared-content';
+import {STOREFRONT_INTERACTIVE_SCENE_COMPONENT_DEFINITIONS} from '@/lib/builder/storefront-interactive-scene';
 import {StorefrontComponentRegistry,type StorefrontRuntimeComponentDefinition} from '@/lib/builder/storefront-runtime';
 
-export const STOREFRONT_BUILDER_REGISTRY_VERSION='shoporation.storefront-builder-registry.block22.v1' as const;
+export const STOREFRONT_BUILDER_REGISTRY_VERSION='shoporation.storefront-builder-registry.special-commerce-v1' as const;
 
-/**
- * One manifest registry for Builder validation. It only composes the existing
- * canonical component families; it does not create another component authority.
- */
+/** One source-controlled allowlist composed from canonical runtime component families. */
 const DEFINITION_FAMILIES:readonly (readonly StorefrontRuntimeComponentDefinition[])[]=[
   STOREFRONT_PRIMITIVE_DEFINITIONS,
   STOREFRONT_CORE_COMMERCE_COMPONENT_DEFINITIONS,
@@ -33,6 +31,7 @@ const DEFINITION_FAMILIES:readonly (readonly StorefrontRuntimeComponentDefinitio
   STOREFRONT_VISUAL_LAYER_COMPONENT_DEFINITIONS,
   STOREFRONT_PURCHASE_CONTROLS_COMPONENT_DEFINITIONS,
   STOREFRONT_SHARED_CONTENT_COMPONENT_DEFINITIONS,
+  STOREFRONT_INTERACTIVE_SCENE_COMPONENT_DEFINITIONS,
 ] as const;
 
 export function createStorefrontVisualBuilderComponentRegistry(){
