@@ -14,6 +14,7 @@ import type {StorefrontBuilderEditMode,StorefrontDesignGuardMode} from '@/lib/bu
 import {createStorefrontVisualBuilderComponentRegistry} from '@/lib/builder/storefront-builder-registry';
 import {StorefrontFidelityNodeControls} from '@/components/admin/storefront-fidelity-node-controls';
 import {StorefrontFidelityLayoutControls} from '@/components/admin/storefront-fidelity-layout-controls';
+import {StorefrontFidelityStateControls} from '@/components/admin/storefront-fidelity-state-controls';
 import styles from './storefront-visual-builder.module.css';
 
 const componentRegistry=createStorefrontVisualBuilderComponentRegistry();
@@ -122,6 +123,7 @@ export function StorefrontFidelitySettings({document,viewport,onApply}:{
       </div>
       {editedNode&&editedDefinition&&editedConfigurable.includes('style')?<StorefrontFidelityLayoutControls document={document} node={editedNode} viewport={viewport} editMode={inspector.editMode} onApply={onApply}/>:null}
       {editedNode&&editedDefinition?<StorefrontFidelityNodeControls document={document} node={editedNode} viewport={viewport} configurable={editedConfigurable} onApply={onApply}/>:null}
+      {editedNode&&editedDefinition?<StorefrontFidelityStateControls document={document} node={editedNode} viewport={viewport} configurable={editedConfigurable} onApply={onApply}/>:null}
     </>:<div className={styles.fieldGroup}><strong>Responsive kompozíció</strong><p className={styles.emptyHint}>A külön Desktop/Tablet/Mobil sorrend és elem-szintű tipográfia/képfókusz a Haladó módban érhető el. A Normál mód szándékosan egyszerűbb és biztonságosabb.</p></div>}
   </div>;
 }
