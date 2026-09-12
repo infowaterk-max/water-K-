@@ -1,11 +1,12 @@
 import {StorefrontRendererRegistry} from '@/components/builder/storefront-runtime-renderer';
 import {createStorefrontInteractiveSceneRendererRegistry} from '@/components/builder/storefront-interactive-scene';
+import {createStorefrontRecipeCommerceRendererRegistry} from '@/components/builder/storefront-recipe-commerce';
 import {createStorefrontProfessionalRendererRegistry} from '@/components/builder/storefront-professional';
 import {createStorefrontStoryVisualRendererRegistry} from '@/components/builder/storefront-story-visual';
 import {createStorefrontSharedContentRendererRegistry} from '@/components/builder/storefront-shared-content';
 import {STOREFRONT_PURCHASE_CONTROLS_RENDERERS} from '@/components/builder/storefront-purchase-controls';
 
-export const STOREFRONT_BUILDER_RENDERER_REGISTRY_VERSION='shoporation.storefront-builder-renderers.special-commerce-v1' as const;
+export const STOREFRONT_BUILDER_RENDERER_REGISTRY_VERSION='shoporation.storefront-builder-renderers.special-commerce-v2' as const;
 
 /** Runtime renderers stay canonical; this registry is only a composition view for the Builder. */
 export function createStorefrontVisualBuilderRendererRegistry(){
@@ -19,6 +20,7 @@ export function createStorefrontVisualBuilderRendererRegistry(){
   };
   for(const source of[
     createStorefrontInteractiveSceneRendererRegistry(),
+    createStorefrontRecipeCommerceRendererRegistry(),
     createStorefrontProfessionalRendererRegistry(),
     createStorefrontStoryVisualRendererRegistry(),
     createStorefrontSharedContentRendererRegistry(),
