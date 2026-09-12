@@ -5,6 +5,7 @@ import {getCurrentWebshopInstance} from '@/lib/instances/access';
 import {PLANS} from '@/lib/plans/catalog';
 import type {StorefrontRuntimeCapabilityContext,StorefrontPageDocument} from '@/lib/builder/storefront-runtime';
 import type {StorefrontExistingTemplatePage} from '@/lib/builder/storefront-template-installation';
+import {getCurrentStorefrontInteractiveSceneCatalog} from '@/lib/builder/storefront-interactive-scene-server';
 
 export type StorefrontBuilderPageListItem={
   pageId:string;
@@ -86,11 +87,16 @@ export async function listCurrentStorefrontTemplatePlanningPages():Promise<Store
 }
 
 export async function getCurrentStorefrontBuilderBindingContext():Promise<Record<string,unknown>>{
-  const[scope,instance]=await Promise.all([requireCurrentStoreContext('store.read'),getCurrentWebshopInstance()]);
+  const[scope,instance,sceneCatalog]=await Promise.all([
+    requireCurrentStoreContext('store.read'),
+    getCurrentWebshopInstance(),
+    getCurrentStorefrontInteractiveSceneCatalog(),
+  ]);
   if(!instance||instance.id!==scope.instanceId)throw new Error('BUILDER_STORE_CONTEXT_MISMATCH');
   return{
     brand:{name:instance.brand.name,tagline:instance.brand.tagline,logoUrl:instance.brand.logoUrl,primaryColor:instance.brand.primaryColor},
     navigation:{primary:[]},
+    catalog:{interactiveSceneProducts:sceneCatalog.products},
   };
 }
 
