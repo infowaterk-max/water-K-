@@ -3,7 +3,6 @@
 import {useMemo,useState,type CSSProperties} from 'react';
 import {useCart} from '@/components/cart/cart-provider';
 import {useAnalytics} from '@/components/analytics/analytics-provider';
-import {addWishlistAction} from '@/app/termek/[slug]/actions';
 import {normalizeMinimumQuantity,normalizeOrderMultiple,normalizeQuantity} from '@/lib/commerce/cart-engine';
 
 type Props={
@@ -18,11 +17,12 @@ type Props={
   purchaseLabel:string;
   wishlistLabel:string;
   currency:string;
+  wishlistActionHref?:string;
   styles?:Partial<Record<'root'|'quantity'|'step'|'value'|'purchase'|'wishlist',CSSProperties>>;
 };
 
 export function StorefrontPurchaseControlsClient({
-  productId,variantId,slug,name,unitPrice,availableQuantity,minimumQuantity,orderMultiple,purchaseLabel,wishlistLabel,currency,styles={},
+  productId,variantId,slug,name,unitPrice,availableQuantity,minimumQuantity,orderMultiple,purchaseLabel,wishlistLabel,currency,wishlistActionHref='/api/storefront/wishlist',styles={},
 }:Props){
   const{add}=useCart();
   const{track}=useAnalytics();
@@ -55,7 +55,7 @@ export function StorefrontPurchaseControlsClient({
       add({productId,variantId,slug,name,unitPrice,quantity,minimumQuantity:minimum,orderMultiple:step});
       track('add_to_cart',{item_id:variantId??productId,item_name:name,value:unitPrice*quantity,currency,product_id:productId,variant_id:variantId??'',quantity});
     }}>{purchaseText}</button>
-    <form action={addWishlistAction} style={{display:'contents'}}>
+    <form action={wishlistActionHref} method="post" style={{display:'contents'}}>
       <input type="hidden" name="variantId" value={variantId??''}/>
       <input type="hidden" name="slug" value={slug}/>
       <button type="submit" disabled={!canWishlist} aria-disabled={!canWishlist} aria-label={wishlistText} title={wishlistText} style={wishlistStyle}>♡</button>
