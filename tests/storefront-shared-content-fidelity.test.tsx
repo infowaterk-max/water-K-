@@ -68,6 +68,11 @@ describe('Shared fidelity content primitives',()=>{
     expect(mobile).toContain('grid-template-columns:repeat(1,minmax(0,1fr))');
     expect((desktop.match(/Raktáron/g)??[])).toHaveLength(1);
     expect((mobile.match(/Raktáron/g)??[])).toHaveLength(1);
+
+    const threeColumn=structuredClone(page);
+    const trust=threeColumn.sections.find(section=>section.id==='trust')!;
+    trust.config={...trust.config,mobileColumns:3};
+    expect(render(threeColumn,'mobile')).toContain('grid-template-columns:repeat(3,minmax(0,1fr))');
   });
 
   it('renders before/after only when evidence is explicitly verified and both images are safe',()=>{
