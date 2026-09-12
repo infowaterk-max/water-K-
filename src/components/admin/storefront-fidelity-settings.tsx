@@ -15,8 +15,8 @@ import {createStorefrontVisualBuilderComponentRegistry} from '@/lib/builder/stor
 import {StorefrontGlobalStylesControls} from '@/components/admin/storefront-global-styles-controls';
 import {StorefrontComponentVariantControls} from '@/components/admin/storefront-component-variant-controls';
 import {StorefrontFidelityNodeControls} from '@/components/admin/storefront-fidelity-node-controls';
-import {StorefrontFidelityLayoutControls} from '@/components/admin/storefront-fidelity-layout-controls';
 import {StorefrontFidelityStateControls} from '@/components/admin/storefront-fidelity-state-controls';
+import {StorefrontResponsiveLayoutDepthControls} from '@/components/admin/storefront-responsive-layout-depth-controls';
 import styles from './storefront-visual-builder.module.css';
 
 const componentRegistry=createStorefrontVisualBuilderComponentRegistry();
@@ -73,6 +73,20 @@ export function StorefrontFidelitySettings({document,viewport,onApply}:{
     <StorefrontComponentVariantControls document={document} onApply={onApply}/>
 
     <div className={styles.fieldGroup}>
+      <strong>Responsive / Layout Depth</strong>
+      <p className={styles.emptyHint}>Válassz egy Page Schema elemet, majd a Desktop / Tablet / Mobil nézetváltóval ugyanazon az elemen állíts breakpoint-specifikus elrendezést. A Normál, Haladó és Expert mód ugyanazt a közös layout authorityt használja, csak a kontroll mélysége változik.</p>
+      <label className={styles.field}><span>Szerkesztett elem</span><select value={editedNode?.id??''} onChange={event=>setEditedNodeId(event.target.value)}>{nodes.map(node=><option key={node.id} value={node.id}>{node.id} · {node.componentKey}</option>)}</select></label>
+    </div>
+    {editedNode&&editedDefinition?<StorefrontResponsiveLayoutDepthControls
+      document={document}
+      node={editedNode}
+      viewport={viewport}
+      responsiveMode={editedDefinition.manifest.responsiveMode}
+      supportsStyle={editedConfigurable.includes('style')}
+      onApply={onApply}
+    />:null}
+
+    <div className={styles.fieldGroup}>
       <strong>Design Guard</strong>
       <label className={styles.field}><span>Sablonvédelem</span><select value={inspector.designGuard.mode} onChange={event=>{
         const mode=event.target.value as StorefrontDesignGuardMode;
@@ -121,14 +135,8 @@ export function StorefrontFidelitySettings({document,viewport,onApply}:{
         <button type="button" className={styles.addSectionButton} onClick={()=>onApply(clearStorefrontResponsiveOrder(document,{viewport}),`${viewport} egyedi sorrend törölve.`)}>Örökölt sorrend visszaállítása</button>
       </div>
 
-      <div className={styles.fieldGroup}>
-        <strong>Elem-szintű Haladó szerkesztés</strong>
-        <p className={styles.emptyHint}>Válassz egy valódi Page Schema elemet. A módosítás ugyanazon közös Runtime-on jelenik meg, nem külön sablon-specifikus kódban.</p>
-        <label className={styles.field}><span>Szerkesztett elem</span><select value={editedNode?.id??''} onChange={event=>setEditedNodeId(event.target.value)}>{nodes.map(node=><option key={node.id} value={node.id}>{node.id} · {node.componentKey}</option>)}</select></label>
-      </div>
-      {editedNode&&editedDefinition&&editedConfigurable.includes('style')?<StorefrontFidelityLayoutControls document={document} node={editedNode} viewport={viewport} editMode={inspector.editMode} onApply={onApply}/>:null}
       {editedNode&&editedDefinition?<StorefrontFidelityNodeControls document={document} node={editedNode} viewport={viewport} configurable={editedConfigurable} onApply={onApply}/>:null}
       {editedNode&&editedDefinition?<StorefrontFidelityStateControls document={document} node={editedNode} viewport={viewport} configurable={editedConfigurable} onApply={onApply}/>:null}
-    </>:<div className={styles.fieldGroup}><strong>Responsive kompozíció</strong><p className={styles.emptyHint}>A külön Desktop/Tablet/Mobil sorrend és elem-szintű tipográfia/képfókusz a Haladó módban érhető el. A Normál mód szándékosan egyszerűbb és biztonságosabb.</p></div>}
+    </>:null}
   </div>;
 }
