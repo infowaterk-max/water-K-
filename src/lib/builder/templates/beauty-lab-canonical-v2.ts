@@ -1,5 +1,5 @@
 import type {StorefrontInstallableTemplatePackage} from '@/lib/builder/storefront-template-installation';
-import {BEAUTY_LAB_TEMPLATE_PACKAGE as BEAUTY_LAB_REFERENCE_PACKAGE} from '@/lib/builder/templates/beauty-lab-reference-v25';
+import {BEAUTY_LAB_TEMPLATE_PACKAGE as BEAUTY_LAB_REFERENCE_PACKAGE} from '@/lib/builder/templates/beauty-lab-reference-v26';
 
 /**
  * Canonical catalog release for the recovered Beauty Lab visual system.
@@ -23,7 +23,7 @@ export const BEAUTY_LAB_TEMPLATE_PACKAGE:StorefrontInstallableTemplatePackage={
     metadata:{
       ...(page.metadata??{}),
       canonicalTemplateVersion:BEAUTY_LAB_CANONICAL_TEMPLATE_VERSION,
-      canonicalTemplateSource:'beauty-lab-reference-v25',
+      canonicalTemplateSource:'beauty-lab-reference-v26',
     },
   })),
 };
