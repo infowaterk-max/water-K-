@@ -1,4 +1,5 @@
 import type {StorefrontComponentNode,StorefrontPageDocument} from '@/lib/builder/storefront-runtime';
+import {assertSafeStorefrontGlobalStylesDocument} from '@/lib/builder/storefront-global-styles';
 import {
   STOREFRONT_BUILDER_EDIT_MODES,
   STOREFRONT_FIDELITY_ENGINE_VERSION,
@@ -40,6 +41,7 @@ function assertOrderMap(value:unknown,knownIds:ReadonlySet<string>,scope:string)
 }
 
 export function assertSafeStorefrontFidelityDocument(document:StorefrontPageDocument):void{
+  assertSafeStorefrontGlobalStylesDocument(document);
   const raw=document.metadata?.[STOREFRONT_FIDELITY_METADATA_KEY];
   if(raw===undefined)return;
   if(!isRecord(raw))throw new Error('FIDELITY_SECURITY_METADATA_OBJECT_REQUIRED');
