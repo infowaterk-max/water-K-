@@ -7,7 +7,9 @@ import {setStorefrontNodeStyleSlot} from '@/lib/builder/storefront-fidelity-buil
 import {sanitizeStorefrontStyleSlots} from '@/lib/builder/storefront-fidelity-engine';
 import {
   sanitizeStorefrontContentTabsBehavior,
+  sanitizeStorefrontHeaderScrolledStyle,
   sanitizeStorefrontMobileCollectionBehavior,
+  sanitizeStorefrontStickyHeaderBehavior,
   setStorefrontNodeBehavior,
   storefrontBehaviorKind,
   type StorefrontContentDisclosureMode,
@@ -20,10 +22,13 @@ import {
   type StorefrontInteractionState,
   type StorefrontInteractionStyle,
 } from '@/lib/builder/storefront-fidelity-interaction-state';
+import type {StorefrontVisualStyleSlot} from '@/lib/builder/storefront-visual-style';
 import styles from './storefront-visual-builder.module.css';
 
 const STATE_LABELS:Record<StorefrontInteractionState,string>={hover:'Hover',focus:'Billentyűzet-fókusz',active:'Lenyomott / aktív',disabled:'Tiltott'};
 const DISCLOSURE_LABELS:Record<StorefrontContentDisclosureMode,string>={static:'Statikus tartalom',tabs:'Fülek',accordion:'Accordion',responsive:'Desktop/Tablet fülek → Mobil accordion'};
+const SCROLL_TARGETS=[{slot:'rootScrolled',label:'Header külső réteg'},{slot:'innerScrolled',label:'Header belső tartalom'}] as const;
+type ScrollTargetSlot=typeof SCROLL_TARGETS[number]['slot'];
 const viewportLabel=(viewport:StorefrontViewport)=>viewport==='desktop'?'Desktop':viewport==='tablet'?'Tablet':'Mobil';
 const numberOrUndefined=(value:string)=>{if(!value.trim())return undefined;const parsed=Number(value);return Number.isFinite(parsed)?parsed:undefined;};
 
@@ -31,6 +36,11 @@ function directStateStyle(node:StorefrontComponentNode,viewport:StorefrontViewpo
   const slots=sanitizeStorefrontStyleSlots(node.config.styleSlots);
   const slot=slots[storefrontInteractionSlotName(baseSlot,state)];
   return sanitizeStorefrontInteractionStyle(slot?.[viewport]);
+}
+
+function directHeaderScrollStyle(node:StorefrontComponentNode,viewport:StorefrontViewport,slotName:ScrollTargetSlot):StorefrontVisualStyleSlot{
+  const slots=sanitizeStorefrontStyleSlots(node.config.styleSlots);
+  return sanitizeStorefrontHeaderScrolledStyle(slots[slotName]?.[viewport]);
 }
 
 export function StorefrontFidelityStateControls({document,node,viewport,configurable,onApply}:{
@@ -43,6 +53,7 @@ export function StorefrontFidelityStateControls({document,node,viewport,configur
   const targets=storefrontInteractionTargetsForComponent(node.componentKey);
   const[state,setState]=useState<StorefrontInteractionState>('hover');
   const[targetSlot,setTargetSlot]=useState(targets[0]?.slot??'root');
+  const[scrollTargetSlot,setScrollTargetSlot]=useState<ScrollTargetSlot>('rootScrolled');
   const behaviorKind=storefrontBehaviorKind(node.componentKey);
   const supportsStates=configurable.includes('styleSlots')&&targets.length>0;
   const supportsBehavior=configurable.includes('behavior')&&behaviorKind!==null;
@@ -60,8 +71,35 @@ export function StorefrontFidelityStateControls({document,node,viewport,configur
   const hasExplicitBehavior=node.config.behavior!==undefined;
   const disclosure=sanitizeStorefrontContentTabsBehavior(node.config.behavior);
   const mobile=sanitizeStorefrontMobileCollectionBehavior(node.config.behavior);
+  const stickyHeader=sanitizeStorefrontStickyHeaderBehavior(node.config.behavior);
+  const scrollCurrent=directHeaderScrollStyle(node,viewport,scrollTargetSlot);
+  const applyScroll=(patch:Partial<StorefrontVisualStyleSlot>)=>{
+    const next={...scrollCurrent,...patch};
+    for(const[key,value]of Object.entries(next))if(value===''||value===undefined)delete(next[key]);
+    onApply(setStorefrontNodeStyleSlot(document,node.id,scrollTargetSlot,viewport,sanitizeStorefrontHeaderScrolledStyle(next)),`${viewportLabel(viewport)} scroll header állapot módosítva.`);
+  };
 
   return <>
+    {supportsBehavior&&behaviorKind==='sticky-header'?<div className={styles.fieldGroup}>
+      <strong>Sticky header scroll állapot</strong>
+      <p className={styles.emptyHint}>A meglévő sticky headert egészíti ki. Csak bekapcsolva hidratálódik; kikapcsolva a jelenlegi header markup és működés marad. A scroll stílus szűkített allowlisten fut.</p>
+      {node.config.sticky!==true?<p className={styles.emptyHint}>A scroll állapot csak akkor aktiválható, ha a header „sticky” beállítása is aktív.</p>:null}
+      <label className={styles.field}><span>Scroll állapot engedélyezve</span><input type="checkbox" disabled={node.config.sticky!==true} checked={stickyHeader.enabled&&node.config.sticky===true} onChange={event=>onApply(setStorefrontNodeBehavior(document,node.id,{...stickyHeader,enabled:event.target.checked}),'Sticky header scroll állapot módosítva.')}/></label>
+      <label className={styles.field}><span>Aktiválási küszöb (px)</span><input type="number" min="1" max="320" step="1" value={stickyHeader.threshold} onChange={event=>onApply(setStorefrontNodeBehavior(document,node.id,{...stickyHeader,threshold:Number(event.target.value||24)}),'Sticky header küszöb módosítva.')}/></label>
+      <label className={styles.field}><span>Scroll stílus célja</span><select value={scrollTargetSlot} onChange={event=>setScrollTargetSlot(event.target.value as ScrollTargetSlot)}>{SCROLL_TARGETS.map(item=><option key={item.slot} value={item.slot}>{item.label}</option>)}</select></label>
+      <label className={styles.field}><span>Háttérszín</span><input value={String(scrollCurrent.backgroundColor??'')} placeholder="Örökölt" onChange={event=>applyScroll({backgroundColor:event.target.value})}/></label>
+      <label className={styles.field}><span>Szövegszín</span><input value={String(scrollCurrent.color??'')} placeholder="Örökölt" onChange={event=>applyScroll({color:event.target.value})}/></label>
+      <label className={styles.field}><span>Szegélyszín</span><input value={String(scrollCurrent.borderColor??'')} placeholder="Örökölt" onChange={event=>applyScroll({borderColor:event.target.value})}/></label>
+      <label className={styles.field}><span>Árnyék</span><input value={String(scrollCurrent.boxShadow??'')} placeholder="pl. 0 8px 24px rgba(0,0,0,.08)" onChange={event=>applyScroll({boxShadow:event.target.value})}/></label>
+      <label className={styles.field}><span>Háttér blur/filter</span><input value={String(scrollCurrent.backdropFilter??'')} placeholder="pl. blur(12px)" onChange={event=>applyScroll({backdropFilter:event.target.value})}/></label>
+      <label className={styles.field}><span>Padding</span><input value={String(scrollCurrent.padding??'')} placeholder="pl. .45rem 1rem" onChange={event=>applyScroll({padding:event.target.value})}/></label>
+      <label className={styles.field}><span>Minimum magasság</span><input value={String(scrollCurrent.minHeight??'')} placeholder="pl. 3.4rem" onChange={event=>applyScroll({minHeight:event.target.value})}/></label>
+      <label className={styles.field}><span>Gap</span><input value={String(scrollCurrent.gap??'')} placeholder="Örökölt" onChange={event=>applyScroll({gap:event.target.value})}/></label>
+      <label className={styles.field}><span>Transform</span><input value={String(scrollCurrent.transform??'')} placeholder="pl. translateY(0)" onChange={event=>applyScroll({transform:event.target.value})}/></label>
+      <label className={styles.field}><span>Átlátszóság</span><input type="number" min="0" max="1" step="0.05" value={scrollCurrent.opacity??''} onChange={event=>applyScroll({opacity:numberOrUndefined(event.target.value)})}/></label>
+      {Object.keys(scrollCurrent).length?<button type="button" className={styles.addSectionButton} onClick={()=>onApply(setStorefrontNodeStyleSlot(document,node.id,scrollTargetSlot,viewport,{}),`${viewportLabel(viewport)} scroll header stílus öröklésre állítva.`)}>Scroll stílus visszaállítása öröklésre</button>:null}
+      {hasExplicitBehavior?<button type="button" className={styles.addSectionButton} onClick={resetBehavior}>Scroll viselkedés kikapcsolása</button>:null}
+    </div>:null}
     {supportsBehavior&&behaviorKind==='content-disclosure'?<div className={styles.fieldGroup}>
       <strong>Tartalom viselkedése</strong>
       <p className={styles.emptyHint}>A statikus mód megtartja a jelenlegi storefrontot. Az interaktív módok ugyanazt a Page Schema tartalmat használják; külön tartalmi vagy commerce authority nem jön létre.</p>
