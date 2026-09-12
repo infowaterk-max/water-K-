@@ -23,6 +23,15 @@ function setFallback(node:StorefrontComponentNode,slot:string,path:string,fallba
   node.bindings={...(node.bindings??{}),[slot]:{path,fallback}};
 }
 
+function deferHomeSectionsAfter(page:StorefrontPageDocument,anchorId:string){
+  const anchorIndex=page.sections.findIndex(section=>section.id===anchorId);
+  if(anchorIndex<0)throw new Error(`BEAUTY_LAB_REFERENCE_V28_DEFER_ANCHOR_MISSING:${anchorId}`);
+  for(const section of page.sections.slice(anchorIndex+1)){
+    if(section.componentKey!=='layout.section')continue;
+    section.config={...section.config,deferOffscreen:true,intrinsicSize:'auto 720px'};
+  }
+}
+
 const HOME_TRUST_ITEMS=[
   {id:'skin',symbol:'◌',label:'Bőrbarát formulák'},
   {id:'clean',symbol:'♧',label:'Tisztább összetevők'},
@@ -55,10 +64,12 @@ function buildHome(base:StorefrontPageDocument){
   trust.bindings={};
   setFallback(trust,'items','content.homeTrust.items',HOME_TRUST_ITEMS);
   delete trust.children;
+  deferHomeSectionsAfter(page,'beauty-usp-row');
   page.metadata={
     ...(page.metadata??{}),
     referencePass:'beauty-lab-reference-v2.8',
     homeTrustStrip:'shared-content-trust-strip-v1',
+    offscreenSectionDeferral:'shared-layout-section-v1',
   };
   return page;
 }
