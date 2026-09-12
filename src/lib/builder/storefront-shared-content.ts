@@ -1,5 +1,6 @@
 import {STOREFRONT_BUILDER_FOUNDATION_VERSION,STOREFRONT_PAGE_TYPES,defineStorefrontBuilderComponent} from '@/lib/builder/storefront-foundation';
-import {createStorefrontPrimitiveComponentRegistry,type StorefrontRuntimeComponentDefinition} from '@/lib/builder/storefront-primitives';
+import {createStorefrontPrimitiveComponentRegistry} from '@/lib/builder/storefront-primitives';
+import type {StorefrontRuntimeComponentDefinition} from '@/lib/builder/storefront-runtime';
 
 export const STOREFRONT_SHARED_CONTENT_VERSION='shoporation.storefront-shared-content.v1' as const;
 
