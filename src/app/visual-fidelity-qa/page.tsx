@@ -10,6 +10,7 @@ import {applyAuthoredTemplatePreviewFallbacks} from '@/lib/builder/storefront-te
 import {StorefrontRuntimeRenderer} from '@/components/builder/storefront-runtime-renderer';
 import {createStorefrontVisualBuilderRendererRegistry} from '@/components/builder/storefront-builder-renderer-registry';
 import {createStorefrontVisualBuilderComponentRegistry} from '@/lib/builder/storefront-builder-registry';
+import {STOREFRONT_TEMPLATE_PERFORMANCE_BUDGET,STOREFRONT_PERFORMANCE_CONTRACT_VERSION} from '@/lib/builder/storefront-performance-contract';
 import type {StorefrontBuilderPageType,StorefrontViewport} from '@/lib/builder/storefront-foundation';
 
 export const dynamic='force-dynamic';
@@ -37,6 +38,8 @@ export default async function VisualFidelityQaPage({searchParams}:Props){
     data-template-key={templateKey}
     data-page-type={pageType}
     data-viewport={viewport}
+    data-performance-contract={STOREFRONT_PERFORMANCE_CONTRACT_VERSION}
+    data-runtime-performance-budget={JSON.stringify(STOREFRONT_TEMPLATE_PERFORMANCE_BUDGET.runtime)}
     style={{...theme,width:'100%',maxWidth:'none',minHeight:'100vh',margin:0,padding:0,overflow:'hidden',background:'var(--shoporation-color-background,#fff)'}}
   >
     <StorefrontRuntimeRenderer
