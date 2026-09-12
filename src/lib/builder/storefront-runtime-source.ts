@@ -5,6 +5,7 @@ import {listStorefrontReusableSymbolsForInstance} from '@/lib/builder/storefront
 import {materializeStorefrontReusableSymbols} from '@/lib/builder/storefront-linked-symbols';
 import {requireStorefrontAccess} from '@/lib/storefront/access';
 import {getStorefrontInteractiveSceneCatalogForInstance} from '@/lib/builder/storefront-interactive-scene-server';
+import {getStorefrontRecipeCommerceBundleForInstance} from '@/lib/builder/storefront-recipe-commerce-server';
 import {getStorefrontRuntimeCapabilityForInstance} from '@/lib/builder/storefront-runtime-capability-server';
 import {resolveStorefrontPreviewInstanceId} from '@/lib/builder/storefront-preview-context';
 
@@ -20,22 +21,36 @@ export type StorefrontResolvedRuntimePage={
 
 function failClosedSpecialCommerce(page:StorefrontPageDocument,capability:StorefrontRuntimeCapabilityContext):StorefrontPageDocument{
   const enabledFeatures=new Set(capability.features);
-  if(enabledFeatures.has('interactiveSceneCommerce'))return page;
+  const allowed=(componentKey:string)=>{
+    if(componentKey==='commerce.interactive-scene')return enabledFeatures.has('interactiveSceneCommerce');
+    if(componentKey==='commerce.recipe')return enabledFeatures.has('recipeCommerce');
+    return true;
+  };
   const prune=(nodes:StorefrontPageDocument['sections']):StorefrontPageDocument['sections']=>nodes
-    .filter(node=>node.componentKey!=='commerce.interactive-scene')
+    .filter(node=>allowed(node.componentKey))
     .map(node=>({...node,...(node.children?{children:prune(node.children)}:{})}));
   return{...page,sections:prune(page.sections)};
 }
 
 async function resolveRuntimeCommerceContext(instanceId:string,knownPlan?:StorefrontRuntimeCapabilityContext['plan']){
-  const[sceneCatalog,capability]=await Promise.all([
-    getStorefrontInteractiveSceneCatalogForInstance(instanceId),
-    getStorefrontRuntimeCapabilityForInstance(instanceId,knownPlan),
-  ]);
+  const capability=await getStorefrontRuntimeCapabilityForInstance(instanceId,knownPlan);
   if(!capability)return null;
+  const enabledFeatures=new Set(capability.features);
+  const[sceneCatalog,recipeBundle]=await Promise.all([
+    getStorefrontInteractiveSceneCatalogForInstance(instanceId),
+    enabledFeatures.has('recipeCommerce')
+      ?getStorefrontRecipeCommerceBundleForInstance(instanceId)
+      :Promise.resolve({recipes:[],options:[],catalog:[]} as const),
+  ]);
   return{
     capability,
-    bindingContext:{catalog:{interactiveSceneProducts:sceneCatalog.products}} as Record<string,unknown>,
+    bindingContext:{
+      catalog:{
+        interactiveSceneProducts:sceneCatalog.products,
+        recipeDefinitions:recipeBundle.recipes,
+        recipeProducts:recipeBundle.catalog,
+      },
+    } as Record<string,unknown>,
   };
 }
 
