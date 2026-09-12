@@ -15,6 +15,7 @@ import {
 } from '@/lib/builder/storefront-fidelity-engine';
 import {
   sanitizeStorefrontTypographyValue,
+  type StorefrontResponsiveTypography,
   type StorefrontTypographyValue,
 } from '@/lib/builder/storefront-fidelity-typography';
 import {
@@ -64,6 +65,21 @@ function normalizeResponsiveStyle(value:unknown):StorefrontVisualStyleConfig{
   const result:StorefrontVisualStyleConfig={};
   for(const key of VIEWPORT_STYLE_KEYS){
     const slot=sanitizeStorefrontVisualStyleSlot(value[key]);
+    if(Object.keys(slot).length)result[key]=slot;
+  }
+  return result;
+}
+
+function normalizeResponsiveTypography(value:unknown):StorefrontResponsiveTypography{
+  if(!isRecord(value))return{};
+  const slotted=VIEWPORT_STYLE_KEYS.some(key=>Object.prototype.hasOwnProperty.call(value,key));
+  if(!slotted){
+    const base=sanitizeStorefrontTypographyValue(value);
+    return Object.keys(base).length?{base}:{};
+  }
+  const result:StorefrontResponsiveTypography={};
+  for(const key of VIEWPORT_STYLE_KEYS){
+    const slot=sanitizeStorefrontTypographyValue(value[key]);
     if(Object.keys(slot).length)result[key]=slot;
   }
   return result;
@@ -132,7 +148,7 @@ export function clearStorefrontResponsiveOrder(document:StorefrontPageDocument,i
 export function setStorefrontNodeTypography(document:StorefrontPageDocument,nodeId:string,viewport:StorefrontViewport,value:StorefrontTypographyValue){
   return mutateNode(document,nodeId,node=>{
     if(!['content.heading','content.text','content.button'].includes(node.componentKey))throw new Error('FIDELITY_TYPOGRAPHY_COMPONENT_UNSUPPORTED');
-    const current=isRecord(node.config.typography)?clone(node.config.typography):{};
+    const current=normalizeResponsiveTypography(node.config.typography);
     const sanitized=sanitizeStorefrontTypographyValue(value);
     if(Object.keys(sanitized).length)current[viewport]=sanitized;else delete current[viewport];
     node.config={...node.config,typography:current};
