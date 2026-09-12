@@ -75,7 +75,7 @@ function buildHome(base:StorefrontPageDocument){
   ingredient.config={...ingredient.config,eyebrow:'INGREDIENT INDEX',title:'Ismerd meg az összetevőket',copy:'Tudatos választás. Valódi hatás.'};
   const texture=required(page,'beauty-texture-navigation');
   texture.config={...texture.config,eyebrow:'TEXTURE LAB',title:'Találd meg a hozzád illő textúrát',copy:'Érezd a különbséget.'};
-  const featured=required(page,'newFormulas-grid');
+  const featured=required(page,'newFormulas');
   featured.config={...featured.config,title:'Népszerű formulák'};
 
   page.metadata={...page.metadata,referencePass:'beauty-lab-reference-v2',heroAsset:'pexels-8990301',productAsset:'pexels-14473397'};
