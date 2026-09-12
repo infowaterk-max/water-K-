@@ -19,7 +19,8 @@ export type StorefrontResolvedRuntimePage={
 };
 
 function failClosedSpecialCommerce(page:StorefrontPageDocument,capability:StorefrontRuntimeCapabilityContext):StorefrontPageDocument{
-  if(capability.features instanceof Set?capability.features.has('interactiveSceneCommerce'):capability.features.includes('interactiveSceneCommerce'))return page;
+  const enabledFeatures=new Set(capability.features);
+  if(enabledFeatures.has('interactiveSceneCommerce'))return page;
   const prune=(nodes:StorefrontPageDocument['sections']):StorefrontPageDocument['sections']=>nodes
     .filter(node=>node.componentKey!=='commerce.interactive-scene')
     .map(node=>({...node,...(node.children?{children:prune(node.children)}:{})}));
