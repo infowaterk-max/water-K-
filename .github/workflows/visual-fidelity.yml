@@ -1,0 +1,80 @@
+name: Visual Fidelity
+
+on:
+  push:
+    branches:
+      - feature/visual-fidelity-recovery-beauty-lab
+
+permissions:
+  contents: read
+
+concurrency:
+  group: visual-fidelity-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  capture:
+    if: contains(github.event.head_commit.message, '[visual-fidelity]')
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      VISUAL_FIDELITY_QA: '1'
+      VISUAL_FIDELITY_BASE_URL: http://127.0.0.1:3000
+      NEXT_PUBLIC_SITE_URL: http://127.0.0.1:3000
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Install locked application dependencies
+        run: npm ci --no-audit --no-fund
+
+      - name: Install pinned screenshot runner without changing repository lock authority
+        run: npm install --no-save --ignore-scripts --no-audit --no-fund playwright@1.55.0
+
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Build exact-head Runtime
+        run: npm run build
+
+      - name: Start exact-head Runtime
+        shell: bash
+        run: |
+          npm run start -- -H 127.0.0.1 -p 3000 > /tmp/visual-fidelity-next.log 2>&1 &
+          echo $! > /tmp/visual-fidelity-next.pid
+          for attempt in $(seq 1 60); do
+            if curl --fail --silent --show-error 'http://127.0.0.1:3000/visual-fidelity-qa?template=beauty.beauty-lab&page=home&viewport=desktop' > /dev/null; then
+              exit 0
+            fi
+            sleep 2
+          done
+          cat /tmp/visual-fidelity-next.log
+          exit 1
+
+      - name: Capture Beauty Lab Home and PDP D/T/M
+        run: node scripts/capture-visual-fidelity.mjs
+
+      - name: Upload visual fidelity screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: beauty-lab-visual-fidelity-${{ github.sha }}
+          path: |
+            artifacts/visual-fidelity/*.png
+            artifacts/visual-fidelity/manifest.json
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Upload QA server log on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: visual-fidelity-server-log-${{ github.sha }}
+          path: /tmp/visual-fidelity-next.log
+          if-no-files-found: warn
+          retention-days: 14
