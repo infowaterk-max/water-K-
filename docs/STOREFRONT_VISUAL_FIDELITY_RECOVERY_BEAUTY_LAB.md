@@ -1,6 +1,6 @@
 # Storefront Visual Fidelity Recovery — Beauty Lab canary
 
-Status: **shared capability proof green; Beauty Lab reference-driven schema rebuild in progress; no Product Owner visual PASS yet**
+Status: **shared capability proof green; Beauty Lab canonical v2 + explicit Builder draft-upgrade path implemented; technical gates green; Product Owner visual PASS still required**
 
 Branch authority: `feature/visual-fidelity-recovery-beauty-lab`
 
@@ -99,15 +99,50 @@ Home and PDP visual schemas are rebuilt from the approved-reference decompositio
 
 The hidden Wave-32 compatibility aliases are removed. Historical semantic intent must be carried by visible canonical schema nodes and authoritative bindings, never invisible DOM inserted only to satisfy assertions.
 
-The first rebuilt canary uses only shared primitives plus schema style. Remaining specialized component micro-style gaps must be proven by actual Runtime screenshots before another shared capability is added.
+The rebuilt canary uses only shared primitives plus schema style. Remaining specialized component micro-style gaps must be proven by actual Runtime screenshots before another shared capability is added.
 
-## 6. Visual acceptance gate
+### 5.1 Persisted Builder-v1 authority gap and canonical v2 recovery
 
-Technical green is necessary but not sufficient. Required next evidence:
+A Product Owner screenshot from the real Visual Builder exposed a separate authority defect after the catalog/QA rebuild: the Builder still showed the old WATER-K / beige-cactus Beauty Lab composition even though the current source-controlled Beauty Lab package rendered the recovered reference-driven design.
 
-1. actual Runtime Desktop screenshot;
-2. actual Runtime Tablet screenshot;
-3. actual Runtime Mobile screenshot;
+Root cause: the Builder correctly loaded the tenant's already-persisted Beauty Lab **v1 draft Page Schema**. Updating the source-controlled template catalog did not and must not silently overwrite an existing merchant draft.
+
+The recovery therefore promotes the reference-driven package to a real canonical **Beauty Lab v2** installable template identity and uses the existing shared template-installation contract to distinguish `upgrade` from `refresh`/`switch`.
+
+Builder behavior is now explicit and safe:
+
+- same Beauty Lab key + persisted v1 + catalog v2 => **Frissítés elérhető · v1 → v2**;
+- the action is **Sablon frissítése**, never an automatic migration;
+- a dedicated **SABLONFRISSÍTÉS** confirmation explains that current draft pages can be replaced;
+- products, pricing, inventory, orders and customer data remain outside the template mutation boundary;
+- the published storefront remains unchanged until a later explicit publish action;
+- no production Supabase mutation is performed by this recovery process before Product Owner visual acceptance.
+
+The canonical wrapper does not introduce another renderer. It advances template identity only; all pages still use the same Page Schema, Component Registry, Storefront Runtime and Visual Builder authority.
+
+## 6. Visual acceptance gate and screenshot evidence
+
+Technical green is necessary but not sufficient.
+
+The screenshot gate now captures both reference-proportioned browser viewports and full Runtime roots, rather than comparing a 6000–9000 px full-page render directly against a reference crop.
+
+Exact visual head `9c6077a6b6149467c0466cb47ddc8cc72a4313a6` successfully produced real Runtime Home/PDP screenshots for Desktop, Tablet and Mobile. The recovered content includes the Beauty Lab brand, reference-driven hero direction, three-up trust strip, corrected upper-page flow, six-item ingredient index and denser featured-product grid. This is evidence of the correct runtime/schema path, **not Product Owner visual PASS**.
+
+The current Builder-version recovery head before this documentation trigger is `36691dde8f75b8d122daeded01d53e5420e78349`. On that exact head:
+
+- Quality tests: PASS;
+- TypeScript: PASS;
+- production build: PASS;
+- security audit: PASS;
+- release manifest: PASS;
+- Vercel branch preview: READY;
+- production deployment: untouched.
+
+Required release evidence remains:
+
+1. actual Runtime Desktop screenshot on final exact head;
+2. actual Runtime Tablet screenshot on final exact head;
+3. actual Runtime Mobile screenshot on final exact head;
 4. side-by-side approved-reference comparison;
 5. overlay/diff assistance;
 6. Product Owner visual PASS.
@@ -125,11 +160,13 @@ PR #156 remains historical input, not a safe current branch. The recovery will c
 - first real Runtime test exposing JSX transform failure;
 - rejected one-file React-import workaround;
 - verified Vitest automatic JSX runtime fix;
+- persisted Builder-v1 schema remaining visually stale while catalog/QA had recovered;
+- versioned canonical template upgrade with explicit merchant confirmation as the fix;
 - Product Owner visual gate as prevention.
 
 ## 8. Release gate
 
-`architecture proof → shared capability implementation → Beauty Lab rebuild → technical tests → actual Runtime D/T/M screenshots → side-by-side + overlay/diff → Product Owner visual PASS → only then merge/deploy`
+`architecture proof → shared capability implementation → Beauty Lab rebuild → canonical template versioning → technical tests → actual Runtime D/T/M screenshots → side-by-side + overlay/diff → Product Owner visual PASS → only then merge/deploy`
 
 Until Product Owner PASS:
 
