@@ -5,9 +5,10 @@ import {
   readStorefrontFidelityMetadata,
   type StorefrontBuilderEditMode,
 } from '@/lib/builder/storefront-fidelity-engine';
+import {inspectStorefrontFidelityDiagnostics} from '@/lib/builder/storefront-fidelity-diagnostics';
 import {evaluateStorefrontPerformance} from '@/lib/builder/storefront-performance-contract';
 
-export const STOREFRONT_FIDELITY_INSPECTOR_VERSION='shoporation.visual-builder-fidelity-inspector.v1' as const;
+export const STOREFRONT_FIDELITY_INSPECTOR_VERSION='shoporation.visual-builder-fidelity-inspector.v2' as const;
 
 export type StorefrontFidelityCapability=
   |typeof STOREFRONT_EDIT_MODE_CAPABILITIES.normal[number]
@@ -17,6 +18,7 @@ export type StorefrontFidelityCapability=
 export type StorefrontFidelityInspectorStatus='ok'|'warning'|'error';
 
 const MODE_RANK:Record<StorefrontBuilderEditMode,number>={normal:0,advanced:1,expert:2};
+const issueStatus=(issues:readonly{severity:'warning'|'error'}[]):StorefrontFidelityInspectorStatus=>issues.some(issue=>issue.severity==='error')?'error':issues.length?'warning':'ok';
 
 export function resolveStorefrontBuilderEditCapabilities(mode:StorefrontBuilderEditMode):StorefrontFidelityCapability[]{
   if(!STOREFRONT_BUILDER_EDIT_MODES.includes(mode))return[];
@@ -39,7 +41,7 @@ export function inspectStorefrontFidelityBuilder(document:StorefrontPageDocument
   const editMode=metadata?.editMode??'normal';
   const capabilities=resolveStorefrontBuilderEditCapabilities(editMode);
   const performance=evaluateStorefrontPerformance(document);
-  const performanceStatus:StorefrontFidelityInspectorStatus=performance.issues.some(issue=>issue.severity==='error')?'error':performance.issues.length?'warning':'ok';
+  const diagnostics=inspectStorefrontFidelityDiagnostics(document);
   return{
     inspectorVersion:STOREFRONT_FIDELITY_INSPECTOR_VERSION,
     editMode,
@@ -50,8 +52,18 @@ export function inspectStorefrontFidelityBuilder(document:StorefrontPageDocument
       baselineVersion:metadata?.designGuard?.baselineVersion??null,
       protectedNodeCount:metadata?.designGuard?.protectedNodeIds?.length??0,
     },
+    accessibility:{
+      status:issueStatus(diagnostics.accessibility.issues),
+      ok:diagnostics.accessibility.ok,
+      issues:diagnostics.accessibility.issues,
+    },
+    layout:{
+      status:issueStatus(diagnostics.layout.issues),
+      ok:diagnostics.layout.ok,
+      issues:diagnostics.layout.issues,
+    },
     performance:{
-      status:performanceStatus,
+      status:issueStatus(performance.issues),
       ok:performance.ok,
       metrics:performance.metrics,
       issues:performance.issues,
