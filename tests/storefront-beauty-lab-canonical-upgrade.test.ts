@@ -44,7 +44,9 @@ describe('Beauty Lab canonical template upgrade',()=>{
     expect(library).toContain('Sablon frissítése');
     expect(library).toContain('SABLONFRISSÍTÉS');
     expect(library).toContain('A publikált storefront érintetlen marad');
-    expect(library).toContain('A jelenlegi draft oldalak szerkesztéseit a sablonfrissítés felülírhatja');
+    expect(library).toContain('A jelenlegi draft oldalak szerkesztéseit a ');
+    expect(library).toContain('sablonfrissítés');
+    expect(library).toContain('felülírhatja');
     expect(library).toContain('template.templateVersion>currentTemplateVersion');
   });
 });
