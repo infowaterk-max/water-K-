@@ -1,4 +1,4 @@
-export const STOREFRONT_MANAGED_CONFIG_VERSION='shoporation.storefront-managed-config.v1' as const;
+export const STOREFRONT_MANAGED_CONFIG_VERSION='shoporation.storefront-managed-config.v2' as const;
 
 const MANAGED_CONFIG_KEYS:Readonly<Record<string,ReadonlySet<string>>>=Object.freeze({
   'commerce.interactive-scene':new Set([
@@ -10,6 +10,10 @@ const MANAGED_CONFIG_KEYS:Readonly<Record<string,ReadonlySet<string>>>=Object.fr
     'setCtaLabel',
     'setCtaHref',
     'hotspotStyle',
+  ]),
+  'commerce.recipe':new Set([
+    'recipeKey',
+    'defaultServings',
   ]),
 });
 
