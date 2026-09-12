@@ -9,7 +9,7 @@ import {
   setStorefrontDesignGuardMode,
   setStorefrontFidelityEditMode,
 } from '@/lib/builder/storefront-fidelity-builder-operations';
-import {inspectStorefrontFidelityBuilder} from '@/lib/builder/storefront-fidelity-inspector';
+import {inspectStorefrontFidelityBuilder,type StorefrontFidelityInspectorStatus} from '@/lib/builder/storefront-fidelity-inspector';
 import type {StorefrontBuilderEditMode,StorefrontDesignGuardMode} from '@/lib/builder/storefront-fidelity-engine';
 import {createStorefrontVisualBuilderComponentRegistry} from '@/lib/builder/storefront-builder-registry';
 import {StorefrontFidelityNodeControls} from '@/components/admin/storefront-fidelity-node-controls';
@@ -26,6 +26,7 @@ const GUARD_COPY:Record<StorefrontDesignGuardMode,{label:string;description:stri
   warn:{label:'Figyelmeztetés',description:'Szabadon szerkeszthetsz, de a Builder jelzi a jelentős eltéréseket.'},
   enforce:{label:'Védett',description:'A sablon védett szerkezetének sérülését a rendszer nem engedi át.'},
 };
+const STATUS_COPY:Record<StorefrontFidelityInspectorStatus,string>={ok:'Rendben',warning:'Figyelmeztetés',error:'Javítandó'};
 
 function listNodes(document:StorefrontPageDocument){
   const result:StorefrontComponentNode[]=[];
@@ -71,6 +72,20 @@ export function StorefrontFidelitySettings({document,viewport,onApply}:{
       }}>{(['off','warn','enforce'] as const).map(mode=><option key={mode} value={mode}>{GUARD_COPY[mode].label}</option>)}</select></label>
       <p className={styles.emptyHint}>{GUARD_COPY[inspector.designGuard.mode].description}</p>
       {inspector.designGuard.presetId?<div className={styles.metaGrid}><span><small>Aktív preset</small><b>{inspector.designGuard.presetId}</b></span><span><small>Védett elemek</small><b>{inspector.designGuard.protectedNodeCount}</b></span></div>:null}
+    </div>
+
+    <div className={styles.fieldGroup}>
+      <strong>Közzétételi minőség</strong>
+      <div className={styles.metaGrid}>
+        <span><small>Akadálymentesség</small><b>{STATUS_COPY[inspector.accessibility.status]}</b></span>
+        <span><small>Responsive elrendezés</small><b>{STATUS_COPY[inspector.layout.status]}</b></span>
+        <span><small>Teljesítmény</small><b>{performanceLabel}</b></span>
+      </div>
+      <p className={styles.emptyHint}>A Builder a Page Schema alapján jelzi a hiányzó alt szöveget, heading-hierarchia problémákat és a Desktop/Tablet/Mobil overflow vagy clipping kockázatokat. Ez diagnosztika; nem hoz létre külön layout- vagy publication authorityt.</p>
+      {inspector.accessibility.issues.length||inspector.layout.issues.length?<div className={styles.complexField}>
+        {inspector.accessibility.issues.map((issue,index)=><span key={`a11y:${issue.code}:${issue.nodeId}:${index}`} className={styles.muted}>{issue.severity==='error'?'Javítandó':'Figyelmeztetés'} · {issue.nodeId}: {issue.message}</span>)}
+        {inspector.layout.issues.map((issue,index)=><span key={`layout:${issue.code}:${issue.nodeId}:${issue.viewport}:${index}`} className={styles.muted}>{issue.severity==='error'?'Javítandó':'Figyelmeztetés'} · {issue.viewport} · {issue.nodeId}: {issue.message}</span>)}
+      </div>:<p className={styles.emptyHint}>Nincs ismert akadálymentességi vagy responsive overflow/clipping probléma ezen a dokumentumon.</p>}
     </div>
 
     <div className={styles.fieldGroup}>
