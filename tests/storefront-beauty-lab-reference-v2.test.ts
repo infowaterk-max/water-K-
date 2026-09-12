@@ -30,15 +30,17 @@ describe('Beauty Lab reference-v2 catalog package',()=>{
     expect(node(home,'beauty-ingredient-index-block').config.title).toBe('Ismerd meg az összetevőket');
   });
 
-  it('locks the approved top-page flow and three-item trust strip into Page Schema',()=>{
+  it('locks the approved top-page flow and shared three-item trust strip into Page Schema',()=>{
     const order=home.sections.map(section=>section.id);
     const finderAt=order.indexOf('beauty-formula-finder');
     expect(finderAt).toBeGreaterThan(-1);
     expect(order[finderAt+1]).toBe('beauty-ingredient-index');
     expect(order.indexOf('beauty-concern')).toBeGreaterThan(order.indexOf('beauty-routine-feature'));
     const trustGrid=node(home,'beauty-usp-grid');
-    expect(trustGrid.children).toHaveLength(3);
-    expect(flatten(home).filter(candidate=>candidate.id.endsWith('-label')).map(candidate=>candidate.config.text)).toEqual(expect.arrayContaining(['Bőrbarát formulák','Tisztább összetevők','Valódi eredmények']));
+    expect(trustGrid.componentKey).toBe('content.trust-strip');
+    expect(trustGrid.children).toBeUndefined();
+    const items=Array.isArray(trustGrid.config.items)?trustGrid.config.items as Array<Record<string,unknown>>:[];
+    expect(items.map(item=>item.label)).toEqual(expect.arrayContaining(['Bőrbarát formulák','Tisztább összetevők','Valódi eredmények']));
   });
 
   it('uses the reference PDP product identity and structured ingredient content',()=>{
