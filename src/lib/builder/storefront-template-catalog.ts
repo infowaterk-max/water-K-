@@ -1,7 +1,7 @@
 import type {StorefrontInstallableTemplatePackage} from '@/lib/builder/storefront-template-installation';
 import type {StorefrontComponentNode,StorefrontPageDocument} from '@/lib/builder/storefront-runtime';
 import {ALPINE_LODGE_TEMPLATE_PACKAGE} from '@/lib/builder/templates/alpine-lodge';
-import {BEAUTY_LAB_TEMPLATE_PACKAGE} from '@/lib/builder/templates/beauty-lab-reference-v2';
+import {BEAUTY_LAB_TEMPLATE_PACKAGE} from '@/lib/builder/templates/beauty-lab-canonical-v2';
 import {CREATOR_STATION_TEMPLATE_PACKAGE} from '@/lib/builder/templates/creator-station';
 import {DERMA_STUDIO_TEMPLATE_PACKAGE} from '@/lib/builder/templates/derma-studio';
 import {EDITORIAL_ATELIER_TEMPLATE_PACKAGE} from '@/lib/builder/templates/editorial-atelier';
