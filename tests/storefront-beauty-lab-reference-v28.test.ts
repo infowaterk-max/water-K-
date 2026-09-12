@@ -34,6 +34,18 @@ describe('Beauty Lab reference v2.8 shared fidelity integration',()=>{
     expect(productTrust.config.items).toEqual(expect.arrayContaining([expect.objectContaining({label:'Raktáron'}),expect.objectContaining({label:'30 napos visszaküldés'})]));
   });
 
+  it('defers only below-fold Home sections through the shared layout.section performance capability',()=>{
+    const sections=BEAUTY_LAB_REFERENCE_V28_HOME_PAGE.sections;
+    const trustIndex=sections.findIndex(section=>section.id==='beauty-usp-row');
+    expect(trustIndex).toBeGreaterThan(0);
+    expect(find(sections,'beauty-formula-hero')?.config.deferOffscreen).not.toBe(true);
+    expect(sections[trustIndex].config.deferOffscreen).not.toBe(true);
+    const deferred=sections.slice(trustIndex+1).filter(section=>section.componentKey==='layout.section');
+    expect(deferred.length).toBeGreaterThan(0);
+    for(const section of deferred)expect(section.config).toMatchObject({deferOffscreen:true,intrinsicSize:'auto 720px'});
+    expect(BEAUTY_LAB_REFERENCE_V28_HOME_PAGE.metadata).toMatchObject({offscreenSectionDeferral:'shared-layout-section-v1'});
+  });
+
   it('wires before/after to merchant evidence while failing closed by default',()=>{
     const evidence=find(BEAUTY_LAB_REFERENCE_V28_PRODUCT_PAGE.sections,'beauty-product-before-after')!;
     expect(evidence.componentKey).toBe('editorial.before-after');
