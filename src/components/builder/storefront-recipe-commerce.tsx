@@ -1,5 +1,5 @@
 import type {CSSProperties} from 'react';
-import type {StorefrontComponentRenderProps} from '@/components/builder/storefront-runtime-renderer';
+import {StorefrontRendererRegistry,type StorefrontComponentRenderProps} from '@/components/builder/storefront-runtime-renderer';
 import {StorefrontRecipeCommerceExperience} from '@/components/builder/storefront-recipe-commerce-experience';
 import {validateRecipeDefinition,type RecipeDefinition} from '@/lib/commerce/recipe-commerce';
 import type {ComposerCatalogItem} from '@/lib/commerce/multi-product-composer';
@@ -39,4 +39,10 @@ export function StorefrontRecipeCommerce({config,node}:StorefrontComponentRender
     </header>
     <StorefrontRecipeCommerceExperience recipe={recipe} catalog={catalog} initialServings={initialServings} showClaims={bool(config.showClaims,true)} actionLabel={text(config.actionLabel,'A recept hozzávalói a kosárba')}/>
   </section>;
+}
+
+export function createStorefrontRecipeCommerceRendererRegistry(){
+  const registry=new StorefrontRendererRegistry();
+  registry.register('commerce.recipe',1,StorefrontRecipeCommerce);
+  return registry;
 }
