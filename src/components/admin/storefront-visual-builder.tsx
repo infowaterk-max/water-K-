@@ -4,6 +4,7 @@ import Link from 'next/link';
 import {useState,useTransition,type DragEvent,type ReactNode} from 'react';
 import {useRouter} from 'next/navigation';
 import {StorefrontRuntimeRenderer} from '@/components/builder/storefront-runtime-renderer';
+import {StorefrontFidelitySettings} from '@/components/admin/storefront-fidelity-settings';
 import {createStorefrontVisualBuilderRendererRegistry} from '@/components/builder/storefront-builder-renderer-registry';
 import {createStorefrontVisualBuilderComponentRegistry} from '@/lib/builder/storefront-builder-registry';
 import {
@@ -209,6 +210,12 @@ export function StorefrontVisualBuilder({pages,document:initialDocument,pageId,d
       setError(null);
     }catch(reason){setError(reason instanceof Error?reason.message:'A módosítás nem hajtható végre.');}
   };
+  const applyFidelity=(next:StorefrontPageDocument,message:string)=>{
+    setHistory(current=>current?pushStorefrontBuilderHistory(current,next):current);
+    setDirty(true);
+    setError(null);
+    setNotice(message);
+  };
   const run=(job:()=>Promise<void>)=>startTransition(()=>{
     setError(null);
     setNotice(null);
@@ -389,6 +396,7 @@ export function StorefrontVisualBuilder({pages,document:initialDocument,pageId,d
           {panelMode==='settings'?<>
             <div className={styles.panelSectionHead}><div><strong>Beállítások</strong><span>Az oldal és a Builder aktuális állapota.</span></div></div>
             <div className={styles.settingsCards}><article><small>Aktuális oldal</small><strong>{pageLabel({pageKey:document.pageKey,pageType:document.pageType} as StorefrontBuilderPageListItem)}</strong><span>{document.pageKey}</span></article><article><small>Sablon</small><strong>{humanize(document.templateKey)}</strong><span>v{document.templateVersion}</span></article><article><small>Draft / Publikált</small><strong>r{draftRevision??'—'} / r{publishedRevision??'—'}</strong><span>{dirty?'Van nem mentett módosítás':'Szinkronban'}</span></article></div>
+            <StorefrontFidelitySettings document={document} viewport={viewport} onApply={applyFidelity}/>
             <button type="button" className={styles.addSectionButton} onClick={openTemplateLibrary}>▦ Másik sablon megtekintése</button>
           </>:null}
         </div>
