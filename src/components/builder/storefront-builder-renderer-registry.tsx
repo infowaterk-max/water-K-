@@ -2,6 +2,7 @@ import {StorefrontRendererRegistry} from '@/components/builder/storefront-runtim
 import {createStorefrontContextRetentionRendererRegistry} from '@/components/builder/storefront-context-retention';
 import {createStorefrontProfessionalRendererRegistry} from '@/components/builder/storefront-professional';
 import {createStorefrontStoryVisualRendererRegistry} from '@/components/builder/storefront-story-visual';
+import {createStorefrontSharedContentRendererRegistry} from '@/components/builder/storefront-shared-content';
 
 export const STOREFRONT_BUILDER_RENDERER_REGISTRY_VERSION='shoporation.storefront-builder-renderers.block22.v1' as const;
 
@@ -16,6 +17,7 @@ export function createStorefrontVisualBuilderRendererRegistry(){
     createStorefrontContextRetentionRendererRegistry(),
     createStorefrontProfessionalRendererRegistry(),
     createStorefrontStoryVisualRendererRegistry(),
+    createStorefrontSharedContentRendererRegistry(),
   ]){
     for(const item of source.list()){
       const key=`${item.componentKey}@${item.componentVersion}`;
