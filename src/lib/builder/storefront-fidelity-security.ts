@@ -15,14 +15,12 @@ const isRecord=(value:unknown):value is Record<string,unknown>=>Boolean(value)&&
 
 function collectNodes(document:StorefrontPageDocument){
   const nodes=new Map<string,StorefrontComponentNode>();
-  const parents=new Map<string,string|null>();
-  const walk=(items:readonly StorefrontComponentNode[],parentId:string|null)=>items.forEach(node=>{
+  const walk=(items:readonly StorefrontComponentNode[])=>items.forEach(node=>{
     nodes.set(node.id,node);
-    parents.set(node.id,parentId);
-    walk(node.children??[],node.id);
+    walk(node.children??[]);
   });
-  walk(document.sections,null);
-  return{nodes,parents};
+  walk(document.sections);
+  return nodes;
 }
 
 function assertOrderMap(value:unknown,knownIds:ReadonlySet<string>,scope:string){
@@ -47,9 +45,9 @@ export function assertSafeStorefrontFidelityDocument(document:StorefrontPageDocu
   if(!isRecord(raw))throw new Error('FIDELITY_SECURITY_METADATA_OBJECT_REQUIRED');
   if(raw.engineVersion!==STOREFRONT_FIDELITY_ENGINE_VERSION)throw new Error('FIDELITY_SECURITY_ENGINE_VERSION_INVALID');
 
-  if(raw.editMode!==undefined&&(!STOREFRONT_BUILDER_EDIT_MODES.includes(raw.editMode as never)))throw new Error('FIDELITY_SECURITY_EDIT_MODE_INVALID');
+  if(raw.editMode!==undefined&&!(STOREFRONT_BUILDER_EDIT_MODES as readonly unknown[]).includes(raw.editMode))throw new Error('FIDELITY_SECURITY_EDIT_MODE_INVALID');
 
-  const{nodes}=collectNodes(document);
+  const nodes=collectNodes(document);
   const sectionIds=new Set(document.sections.map(section=>section.id));
   assertOrderMap(raw.sectionOrder,sectionIds,'SECTION');
 
@@ -66,7 +64,7 @@ export function assertSafeStorefrontFidelityDocument(document:StorefrontPageDocu
     if(!isRecord(raw.designGuard))throw new Error('FIDELITY_SECURITY_GUARD_OBJECT_REQUIRED');
     if(!GUARD_MODES.has(String(raw.designGuard.mode)))throw new Error('FIDELITY_SECURITY_GUARD_MODE_INVALID');
     if(raw.designGuard.presetId!==undefined&&(typeof raw.designGuard.presetId!=='string'||!PRESET_PATTERN.test(raw.designGuard.presetId)))throw new Error('FIDELITY_SECURITY_PRESET_ID_INVALID');
-    if(raw.designGuard.baselineVersion!==undefined&&(!Number.isInteger(raw.designGuard.baselineVersion)||Number(raw.designGuard.baselineVersion)<1))throw new Error('FIDELITY_SECURITY_BASELINE_VERSION_INVALID');
+    if(raw.designGuard.baselineVersion!==undefined&&(typeof raw.designGuard.baselineVersion!=='number'||!Number.isInteger(raw.designGuard.baselineVersion)||raw.designGuard.baselineVersion<1))throw new Error('FIDELITY_SECURITY_BASELINE_VERSION_INVALID');
     if(raw.designGuard.protectedNodeIds!==undefined){
       if(!Array.isArray(raw.designGuard.protectedNodeIds)||raw.designGuard.protectedNodeIds.length>nodes.size)throw new Error('FIDELITY_SECURITY_PROTECTED_NODES_INVALID');
       const seen=new Set<string>();
