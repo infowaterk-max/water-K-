@@ -18,6 +18,7 @@ export default defineConfig({
       'tests/storefront-commerce-fidelity-slots.test.tsx',
       'tests/storefront-fidelity-primitive-renderers.test.tsx',
       'tests/storefront-guided-fidelity-slots.test.tsx',
+      'tests/storefront-shared-content-fidelity.test.tsx',
     ],
     reporters: ['default', 'json'],
     outputFile: { json: 'artifacts/test-results.json' },
