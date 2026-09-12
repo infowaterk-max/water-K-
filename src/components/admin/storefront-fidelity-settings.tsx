@@ -17,6 +17,7 @@ import {StorefrontComponentVariantControls} from '@/components/admin/storefront-
 import {StorefrontFidelityNodeControls} from '@/components/admin/storefront-fidelity-node-controls';
 import {StorefrontFidelityStateControls} from '@/components/admin/storefront-fidelity-state-controls';
 import {StorefrontResponsiveLayoutDepthControls} from '@/components/admin/storefront-responsive-layout-depth-controls';
+import {StorefrontInteractiveSceneControls} from '@/components/admin/storefront-interactive-scene-controls';
 import styles from './storefront-visual-builder.module.css';
 
 const componentRegistry=createStorefrontVisualBuilderComponentRegistry();
@@ -85,6 +86,7 @@ export function StorefrontFidelitySettings({document,viewport,onApply}:{
       supportsStyle={editedConfigurable.includes('style')}
       onApply={onApply}
     />:null}
+    {editedNode?.componentKey==='commerce.interactive-scene'?<StorefrontInteractiveSceneControls document={document} node={editedNode} viewport={viewport} onApply={onApply}/>:null}
 
     <div className={styles.fieldGroup}>
       <strong>Design Guard</strong>
