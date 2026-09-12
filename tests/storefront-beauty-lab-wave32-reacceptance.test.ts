@@ -77,7 +77,7 @@ describe('Scale-out Wave 32 Beauty Lab current-baseline reacceptance',()=>{
   });
 
   it('keeps shared hero authority and authoritative bindings without forcing legacy hidden visual aliases',()=>{
-    expect(STOREFRONT_GUIDED_VISUAL_COMPONENT_DEPENDENCIES.authority).toBe('composition-only-no-new-commerce-or-guidance-authority');
+    expect(STOREFRONT_GUIDED_VISUAL_COMPONENT_DEPENDENCIES.authority).toBe('composition-only-no-new-commerce-pricing-inventory-or-guidance-authority');
     expect(BEAUTY_LAB_MARKETING_LAYER_CONTRACT.hero).toEqual(['image','overlay','decoration','badge','title','copy','primary-cta']);
     expect(home('beauty-formula-hero')?.componentKey).toBe('visual.layered-canvas');
     const visibleLayerIds=['beauty-hero-image-layer','beauty-hero-overlay-layer','beauty-hero-decoration-layer','beauty-hero-badge-layer','beauty-hero-title-layer','beauty-hero-copy-layer','beauty-hero-primary-cta-layer'];

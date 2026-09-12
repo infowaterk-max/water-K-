@@ -19,7 +19,7 @@ const STYLE_PROPERTIES=new Set([
   'display','position','top','right','bottom','left','inset','zIndex','overflow','overflowX','overflowY','visibility','isolation','boxSizing',
   'background','backgroundColor','color','opacity',
   'border','borderTop','borderRight','borderBottom','borderLeft','borderWidth','borderStyle','borderColor','borderRadius','boxShadow',
-  'fontFamily','fontSize','fontWeight','fontStyle','fontStretch','lineHeight','letterSpacing','textTransform','textAlign','whiteSpace','textDecoration','textOverflow',
+  'fontFamily','fontSize','fontWeight','fontStyle','fontStretch','lineHeight','letterSpacing','textTransform','textAlign','textWrap','whiteSpace','textDecoration','textOverflow',
   'gridTemplateColumns','gridTemplateRows','gridColumn','gridRow','gridAutoFlow','alignItems','justifyItems','placeItems','alignContent','justifyContent','placeContent','alignSelf','justifySelf',
   'flex','flexBasis','flexGrow','flexShrink','flexDirection','flexWrap','order',
   'aspectRatio','objectFit','objectPosition',

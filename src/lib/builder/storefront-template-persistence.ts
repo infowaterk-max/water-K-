@@ -1,6 +1,8 @@
 import 'server-only';
 import {hashStorefrontPageDocument} from '@/lib/builder/storefront-persistence';
 import type {StorefrontTemplateInstallationPlan} from '@/lib/builder/storefront-template-installation';
+import {assertSafeStorefrontFidelityDocument} from '@/lib/builder/storefront-fidelity-security';
+import {assertStorefrontPerformance} from '@/lib/builder/storefront-performance-contract';
 import {requireCurrentStoreContext} from '@/lib/instances/scope';
 import {createAdminClient} from '@/lib/supabase/admin';
 import {createClient} from '@/lib/supabase/server';
@@ -55,6 +57,10 @@ export async function saveCurrentStorefrontTemplateDraftPlan(input:{
   if(!input.plan.pages.length)throw new Error('STOREFRONT_TEMPLATE_PAGES_REQUIRED');
   if(input.plan.pages.length>32)throw new Error('STOREFRONT_TEMPLATE_PAGE_LIMIT_EXCEEDED');
   if(!OPERATION_KEY_PATTERN.test(input.operationKey))throw new Error('STOREFRONT_TEMPLATE_OPERATION_KEY_INVALID');
+  for(const page of input.plan.pages){
+    assertSafeStorefrontFidelityDocument(page.document);
+    assertStorefrontPerformance(page.document);
+  }
 
   const[scope,actorUserId]=await Promise.all([requireCurrentStoreContext('store.manage'),requireActor()]);
   const admin=createAdminClient();

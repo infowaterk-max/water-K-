@@ -14,6 +14,8 @@ import {planStorefrontTemplateInstallation} from '@/lib/builder/storefront-templ
 import {createStorefrontVisualBuilderComponentRegistry} from '@/lib/builder/storefront-builder-registry';
 import {validateStorefrontBuilderWorkingCopy} from '@/lib/builder/storefront-visual-builder';
 import {validateStorefrontBuilderSchemaStructure} from '@/lib/builder/storefront-builder-schema-policy';
+import {assertSafeStorefrontFidelityDocument} from '@/lib/builder/storefront-fidelity-security';
+import {assertStorefrontPerformance} from '@/lib/builder/storefront-performance-contract';
 import {generateCurrentStorefrontWithAi} from '@/lib/builder/storefront-ai-generator-server';
 import {storefrontAiGenerationInputSchema} from '@/lib/builder/storefront-ai-generator';
 import {
@@ -34,6 +36,8 @@ export async function saveVisualBuilderDraftAction(input:{document:StorefrontPag
   if(authoritativeRevision!==input.expectedDraftRevision)throw new Error('BUILDER_DRAFT_REVISION_STALE');
   const previous=state.draft?.document??state.published?.document;
   if(!previous)throw new Error('BUILDER_PAGE_BASE_REVISION_REQUIRED');
+  assertSafeStorefrontFidelityDocument(input.document);
+  assertStorefrontPerformance(input.document);
   const registry=createStorefrontVisualBuilderComponentRegistry();
   validateStorefrontBuilderWorkingCopy({
     previous,
@@ -67,6 +71,7 @@ export async function rollbackVisualBuilderPageAction(input:{pageId:string;targe
 export async function installVisualBuilderTemplateAction(input:{templateKey:string;templateVersion?:number;operationKey:string}){
   const template=getStorefrontTemplatePackage(input.templateKey,input.templateVersion);
   if(!template)throw new Error('BUILDER_TEMPLATE_NOT_FOUND');
+  for(const page of template.pages)assertStorefrontPerformance(page);
   const[capability,existingPages]=await Promise.all([
     getCurrentStorefrontBuilderCapability(),
     listCurrentStorefrontTemplatePlanningPages(),
