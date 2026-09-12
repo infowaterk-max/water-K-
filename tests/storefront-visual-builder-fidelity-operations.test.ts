@@ -9,9 +9,15 @@ import {
   setStorefrontDesignGuardMode,
   setStorefrontFidelityEditMode,
   setStorefrontImageArtDirection,
+  setStorefrontNodeStyleSlot,
+  setStorefrontNodeTypography,
+  setStorefrontNodeViewportStyle,
   setStorefrontResponsiveChildOrder,
   setStorefrontResponsiveSectionOrder,
 } from '@/lib/builder/storefront-fidelity-builder-operations';
+import {resolveStorefrontTypography} from '@/lib/builder/storefront-fidelity-typography';
+import {resolveStorefrontStyleSlot} from '@/lib/builder/storefront-fidelity-engine';
+import {resolveStorefrontVisualStyle} from '@/lib/builder/storefront-visual-style';
 
 const page=():StorefrontPageDocument=>({
   schemaVersion:1,pageKey:'ops.home',pageType:'home',templateKey:'reference.ops',templateVersion:1,
@@ -53,6 +59,24 @@ describe('Visual Builder fidelity operations',()=>{
     const document=setStorefrontImageArtDirection(page(),'media',{desktop:{objectPosition:'50% 40%'},mobile:{src:'/mobile.jpg',objectPosition:'75% center'}});
     const mobile=materializeStorefrontFidelityPage(document,'mobile');
     expect(mobile.sections[0].children?.[1].config).toMatchObject({src:'/mobile.jpg',objectPosition:'75% center'});
+  });
+
+  it('writes sanitized viewport typography through one canonical node operation',()=>{
+    const document=setStorefrontNodeTypography(page(),'copy','mobile',{fontToken:'display',fontSizeRem:2.25,fontWeight:725,lineHeight:1.05,letterSpacingEm:-.04,maxWidthCh:19});
+    const copy=document.sections[0].children?.[0];
+    expect(resolveStorefrontTypography(copy?.config.typography,'mobile')).toMatchObject({
+      fontFamily:'var(--shoporation-display-font, var(--shoporation-heading-font, Georgia, serif))',
+      fontSize:'2.25rem',fontWeight:750,lineHeight:1.05,letterSpacing:'-0.04em',maxWidth:'19ch',
+    });
+  });
+
+  it('writes responsive root styles and named style slots without unsafe properties',()=>{
+    let document=setStorefrontNodeViewportStyle(page(),'hero','tablet',{paddingBlock:'1rem',position:'fixed',color:'#111'} as never);
+    document=setStorefrontNodeStyleSlot(document,'hero','inner','mobile',{gap:'.5rem',backgroundImage:'url(https://bad.example/x)' as never} as never);
+    const hero=document.sections[0];
+    expect(resolveStorefrontVisualStyle(hero.config.style,'tablet')).toMatchObject({paddingBlock:'1rem',color:'#111'});
+    expect(resolveStorefrontVisualStyle(hero.config.style,'tablet')).not.toHaveProperty('position');
+    expect(resolveStorefrontStyleSlot(hero.config.styleSlots,'inner','mobile')).toEqual({gap:'.5rem'});
   });
 
   it('resets visual composition to a preset without replacing content fields',()=>{
