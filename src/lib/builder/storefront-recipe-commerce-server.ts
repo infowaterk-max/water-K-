@@ -5,6 +5,7 @@ import type {ComposerCatalogItem} from '@/lib/commerce/multi-product-composer';
 import type {RecipeDefinition,RecipeIngredient,RecipeStructuredClaim} from '@/lib/commerce/recipe-commerce';
 
 export type StorefrontRecipeOption={recipeKey:string;title:string;baseServings:number;minServings:number;maxServings:number};
+export type StorefrontRecipeCatalogOption={productId:string;variantId:string;label:string};
 export type StorefrontRecipeCommerceBundle={
   recipes:readonly RecipeDefinition[];
   options:readonly StorefrontRecipeOption[];
@@ -21,6 +22,22 @@ type ChannelRow={product_id:string;visible:boolean;gross_price:number|null;disco
 
 const applyDiscount=(value:number,discount:number|null)=>discount==null?value:Math.max(0,Math.round(value*(1-Math.min(100,Math.max(0,discount))/100)));
 const priceDisplay=(value:number)=>`${new Intl.NumberFormat('hu-HU').format(value)} Ft`;
+
+export async function getStorefrontRecipeCatalogOptionsForInstance(instanceId:string):Promise<readonly StorefrontRecipeCatalogOption[]>{
+  const admin=createAdminClient();
+  const[productResult,variantResult]=await Promise.all([
+    admin.from('products').select('id,name,active').eq('instance_id',instanceId).eq('active',true).order('name').limit(1000),
+    admin.from('product_variants').select('id,product_id,label,active').eq('instance_id',instanceId).eq('active',true),
+  ]);
+  if(productResult.error)throw new Error(`RECIPE_COMMERCE_PRODUCT_OPTIONS_FAILED:${productResult.error.message}`);
+  if(variantResult.error)throw new Error(`RECIPE_COMMERCE_VARIANT_OPTIONS_FAILED:${variantResult.error.message}`);
+  const products=new Map((productResult.data??[]).map(row=>[row.id,String(row.name??'')]));
+  return Object.freeze((variantResult.data??[]).flatMap(row=>{
+    const productName=products.get(row.product_id);
+    if(!productName)return[];
+    return[{productId:row.product_id,variantId:row.id,label:[productName,String(row.label??'')].filter(Boolean).join(' · ')}];
+  }).sort((a,b)=>a.label.localeCompare(b.label,'hu')));
+}
 
 export async function getStorefrontRecipeCommerceBundleForInstance(instanceId:string):Promise<StorefrontRecipeCommerceBundle>{
   const admin=createAdminClient();
@@ -117,4 +134,9 @@ export async function getStorefrontRecipeCommerceBundleForInstance(instanceId:st
 export async function getCurrentStorefrontRecipeCommerceBundle(){
   const scope=await requireCurrentStoreContext('store.read');
   return getStorefrontRecipeCommerceBundleForInstance(scope.instanceId);
+}
+
+export async function getCurrentStorefrontRecipeCatalogOptions(){
+  const scope=await requireCurrentStoreContext('catalog.manage');
+  return getStorefrontRecipeCatalogOptionsForInstance(scope.instanceId);
 }
