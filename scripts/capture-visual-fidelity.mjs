@@ -4,6 +4,11 @@ import {chromium} from 'playwright';
 const baseUrl=(process.env.VISUAL_FIDELITY_BASE_URL??'http://127.0.0.1:3000').replace(/\/$/,'');
 const outputDir=process.env.VISUAL_FIDELITY_OUTPUT_DIR??'artifacts/visual-fidelity';
 const template='beauty.beauty-lab';
+const performanceProfiles=Object.freeze({
+  desktop:Object.freeze({width:1200,height:900}),
+  tablet:Object.freeze({width:768,height:1024}),
+  mobile:Object.freeze({width:390,height:844}),
+});
 const cases=[
   {name:'beauty-home-desktop',pageType:'home',viewport:'desktop',width:1200,referenceFrameHeight:1934},
   {name:'beauty-home-tablet',pageType:'home',viewport:'tablet',width:768,referenceFrameHeight:1238},
@@ -88,10 +93,11 @@ const performanceBlockers=[];
 try{
   for(const item of cases){
     const url=`${baseUrl}/visual-fidelity-qa?template=${encodeURIComponent(template)}&page=${item.pageType}&viewport=${item.viewport}`;
+    const performanceViewport=performanceProfiles[item.viewport];
 
-    // Performance is measured on a clean page before any screenshot-specific DOM walk,
-    // forced geometry read, animation override or image wait can contaminate the main-thread evidence.
-    const performancePage=await browser.newPage({viewport:{width:item.width,height:item.referenceFrameHeight},deviceScaleFactor:1});
+    // Performance uses a stable device-class viewport and a clean page. It must not inherit
+    // reference-artifact frame heights or screenshot-specific DOM work.
+    const performancePage=await browser.newPage({viewport:performanceViewport,deviceScaleFactor:1});
     await installPerformanceObservers(performancePage);
     const performanceResponse=await performancePage.goto(url,{waitUntil:'domcontentloaded',timeout:30000});
     if(!performanceResponse?.ok())throw new Error(`VISUAL_FIDELITY_ROUTE_FAILED:${item.name}:${performanceResponse?.status()??'no-response'}`);
@@ -196,6 +202,7 @@ try{
       performance:{
         contract:performanceContract,
         budget:runtimeBudget,
+        viewport:performanceViewport,
         measurementIsolation:'clean-navigation-page-before-capture-instrumentation',
         evidence:performanceEvidence,
         checks,
@@ -210,12 +217,12 @@ try{
 }
 
 await writeFile(`${outputDir}/manifest.json`,JSON.stringify({
-  version:'shoporation.visual-fidelity-capture.v7',
+  version:'shoporation.visual-fidelity-capture.v8',
   template,
   sourceCommit:process.env.GITHUB_SHA??null,
   capturedAt:new Date().toISOString(),
   comparisonPolicy:'Primary PNGs use reference-proportional browser frames; *-full.png retains the complete Runtime root. Exactly one renderable Runtime root is required. Zero-size roots are tolerated only inside hidden React/Next S:* streaming staging containers; authored hidden duplicate roots fail the gate.',
-  performancePolicy:'Desktop/Tablet/Mobile lab evidence is measured on a clean navigation page before screenshot-specific DOM traversal, geometry reads, image waits or animation overrides. The canonical runtime budget is exposed by the QA route. LCP, CLS and maximum long-task duration are blocking measured checks. INP is explicitly not claimed until a standardized non-mutating storefront interaction is available.',
+  performancePolicy:'Desktop/Tablet/Mobile lab evidence uses stable device-class performance viewports (1200x900, 768x1024, 390x844) on a clean navigation page before screenshot-specific DOM traversal, geometry reads, image waits or animation overrides. Reference-artifact frame heights never define runtime performance profiles. The canonical runtime budget is exposed by the QA route. LCP, CLS and maximum long-task duration are blocking measured checks. INP is explicitly not claimed until a standardized non-mutating storefront interaction is available.',
   performanceBlockers,
   captures,
 },null,2));
