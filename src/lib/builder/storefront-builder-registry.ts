@@ -9,6 +9,7 @@ import {STOREFRONT_CONTEXT_RETENTION_COMPONENT_DEFINITIONS} from '@/lib/builder/
 import {STOREFRONT_PROFESSIONAL_COMPONENT_DEFINITIONS} from '@/lib/builder/storefront-professional';
 import {STOREFRONT_STORY_COMPONENT_DEFINITIONS} from '@/lib/builder/storefront-story';
 import {STOREFRONT_VISUAL_LAYER_COMPONENT_DEFINITIONS} from '@/lib/builder/storefront-visual-layers';
+import {STOREFRONT_PURCHASE_CONTROLS_COMPONENT_DEFINITIONS} from '@/lib/builder/storefront-purchase-controls';
 import {StorefrontComponentRegistry,type StorefrontRuntimeComponentDefinition} from '@/lib/builder/storefront-runtime';
 
 export const STOREFRONT_BUILDER_REGISTRY_VERSION='shoporation.storefront-builder-registry.block22.v1' as const;
@@ -29,6 +30,7 @@ const DEFINITION_FAMILIES:readonly (readonly StorefrontRuntimeComponentDefinitio
   STOREFRONT_PROFESSIONAL_COMPONENT_DEFINITIONS,
   STOREFRONT_STORY_COMPONENT_DEFINITIONS,
   STOREFRONT_VISUAL_LAYER_COMPONENT_DEFINITIONS,
+  STOREFRONT_PURCHASE_CONTROLS_COMPONENT_DEFINITIONS,
 ] as const;
 
 export function createStorefrontVisualBuilderComponentRegistry(){
