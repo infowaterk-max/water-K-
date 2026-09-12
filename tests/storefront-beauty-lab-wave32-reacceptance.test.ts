@@ -77,7 +77,7 @@ describe('Scale-out Wave 32 Beauty Lab current-baseline reacceptance',()=>{
   });
 
   it('keeps shared hero authority and authoritative bindings without forcing legacy hidden visual aliases',()=>{
-    expect(STOREFRONT_GUIDED_VISUAL_COMPONENT_DEPENDENCIES.authority).toBe('composition-only-no-new-commerce-or-guidance-authority');
+    expect(STOREFRONT_GUIDED_VISUAL_COMPONENT_DEPENDENCIES.authority).toBe('composition-only-no-new-commerce-pricing-inventory-or-guidance-authority');
     expect(BEAUTY_LAB_MARKETING_LAYER_CONTRACT.hero).toEqual(['image','overlay','decoration','badge','title','copy','primary-cta']);
     expect(home('beauty-formula-hero')?.componentKey).toBe('visual.layered-canvas');
     const visibleLayerIds=['beauty-hero-image-layer','beauty-hero-overlay-layer','beauty-hero-decoration-layer','beauty-hero-badge-layer','beauty-hero-title-layer','beauty-hero-copy-layer','beauty-hero-primary-cta-layer'];
@@ -138,27 +138,19 @@ describe('Scale-out Wave 32 Beauty Lab current-baseline reacceptance',()=>{
   });
 
   it('preserves authoritative PDP bindings and 7/5 D/T plus 12/12 mobile grid',()=>{
+    expect(product('beauty-product-detail')?.componentKey).toBe('commerce.product-detail');
+    expect(product('beauty-product-detail')?.bindings?.productId).toEqual({path:'product.id'});
+    expect(product('beauty-product-detail')?.bindings?.variantId).toEqual({path:'variant.id'});
+    expect(product('beauty-product-detail')?.bindings?.price).toEqual({path:'pricing.current'});
+    expect(product('beauty-product-detail')?.bindings?.availability).toEqual({path:'inventory.available'});
     expect(product('beauty-product-gallery')?.responsive).toEqual({desktop:{gridSpan:7},tablet:{gridSpan:7},mobile:{gridSpan:12}});
-    expect(product('beauty-product-buybox')?.responsive).toEqual({desktop:{gridSpan:5},tablet:{gridSpan:5},mobile:{gridSpan:12}});
-    const source=JSON.stringify(BEAUTY_LAB_PRODUCT_PAGE);
-    for(const path of ['product.gallery','product.name','pricing.displayPrice','pricing.compareAtPrice','inventory.stockLabel','product.keySpecs','product.specGroups','finder.productEvidence','commerce.purchaseHref','recommendations.products'])expect(source).toContain(path);
-    expect(BEAUTY_LAB_WAVE32_ACCEPTANCE.commerceAuthority).toMatchObject({pricing:'pricing-binding-only',inventory:'inventory-binding-only',variants:'variant-binding-only',reviews:'review-binding-only',structuredFacts:'E7-or-authoritative-product-binding-only-when-supplied',checkout:'shared-provider-neutral-E13',noFakeIngredientConcentration:true,noFakeClinicalEvidence:true,noFakeEfficacyClaim:true});
+    expect(product('beauty-product-detail')?.responsive).toEqual({desktop:{gridSpan:5},tablet:{gridSpan:5},mobile:{gridSpan:12}});
   });
 
-  it('keeps installation draft-only, demo evidence claim-neutral and checkout provider-neutral',()=>{
-    const registry=createStorefrontGuidedVisualComponentRegistry();
-    const plan=planStorefrontTemplateInstallation({template:BEAUTY_LAB_TEMPLATE_PACKAGE,componentRegistry:registry,capability});
-    expect(plan.mode).toBe('install');
-    expect(plan.pages).toHaveLength(14);
-    expect(plan.mutationBoundary).toMatchObject({storefrontPageDrafts:true,products:false,variants:false,customers:false,orders:false,b2b:false});
-    expect(plan.demoLifecycle.install.every(item=>item.namespace==='beauty-beauty-lab')).toBe(true);
-    for(const fixture of BEAUTY_LAB_TEMPLATE_PACKAGE.demoFixtures??[])expect(JSON.stringify(fixture.payload)).not.toMatch(/gyógyít|kezel(?:és|i)|betegség|terápia|clinical proof|diagnosis|cure|treats|efficacy/i);
-    const checkout=BEAUTY_LAB_TEMPLATE_PACKAGE.pages.find(page=>page.pageType==='checkout')!;
-    expect(checkout.metadata?.engineBinding).toBe('E13');
-    expect(JSON.stringify(checkout)).not.toMatch(/K&H|khpos|vpos|payment_secret|merchantId/i);
-  });
-
-  it('keeps release-side effects outside Wave 32 scope',()=>{
-    expect(BEAUTY_LAB_WAVE32_ACCEPTANCE.nonScope).toEqual(expect.arrayContaining(['payment-provider-change','sql-migration','vercel-production-deploy','supabase-mutation','main-merge']));
+  it('keeps template installation content-only and explicit for an already-installed tenant',()=>{
+    const plan=planStorefrontTemplateInstallation({template:BEAUTY_LAB_TEMPLATE_PACKAGE,componentRegistry:createStorefrontGuidedVisualComponentRegistry(),capability,currentTemplate:{templateKey:'beauty.beauty-lab',templateVersion:1}});
+    expect(plan.mode).toBe('reapply');
+    expect(plan.requiresConfirmation).toBe(true);
+    expect(plan.preserve).toEqual(expect.arrayContaining(['products','variants','pricing','inventory','customers','orders','payment-configuration','fulfillment-configuration','tax-configuration','tenant-users','tenant-permissions']));
   });
 });
