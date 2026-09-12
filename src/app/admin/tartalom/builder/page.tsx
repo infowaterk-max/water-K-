@@ -39,6 +39,7 @@ export default async function VisualBuilderAdmin({searchParams}:Props){
       capability={capability}
       hasExistingStorefront={Boolean(document)}
       currentTemplateKey={document?.templateKey??null}
+      currentTemplateVersion={document?.templateVersion??null}
       editorHref={selectedKey?`/admin/tartalom/builder?page=${encodeURIComponent(selectedKey)}`:'/admin/tartalom/builder'}
     />
   </section>;

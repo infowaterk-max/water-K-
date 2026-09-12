@@ -82,6 +82,7 @@ const TOKEN_OPTIONS:Record<string,readonly string[]>={
   size:['s','m','l'],
 };
 const APPEARANCE_KEYS=new Set(['gap','spacing','align','justify','width','tone','direction','fit','radius','variant','size','background','backgroundColor','color','textColor','overlay','padding']);
+const isAppearanceKey=(key:string)=>APPEARANCE_KEYS.has(key)||key==='style'||key.endsWith('Style');
 const operationKey=(kind:string)=>`builder:${kind}:${crypto.randomUUID()}`;
 const humanize=(value:string)=>value
   .replace(/([a-z0-9])([A-Z])/g,'$1 $2')
@@ -296,8 +297,8 @@ export function StorefrontVisualBuilder({pages,document:initialDocument,pageId,d
     setEditorTab('content');
   };
   const selectedFlat=selected?flat.find(entry=>entry.node.id===selected.id)??null:null;
-  const contentKeys=definition?.manifest.configurable.filter(key=>!APPEARANCE_KEYS.has(key))??[];
-  const appearanceKeys=definition?.manifest.configurable.filter(key=>APPEARANCE_KEYS.has(key))??[];
+  const contentKeys=definition?.manifest.configurable.filter(key=>!isAppearanceKey(key))??[];
+  const appearanceKeys=definition?.manifest.configurable.filter(key=>isAppearanceKey(key))??[];
   const selectNode=(id:string)=>{setSelectedId(id);setPanelMode('pages');setEditorTab('content');};
   const canvasDecorator=(node:StorefrontResolvedComponentNode,rendered:ReactNode)=>{
     const entry=flat.find(item=>item.node.id===node.id);

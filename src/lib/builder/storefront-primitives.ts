@@ -24,16 +24,16 @@ const NO_FEATURES=[] as const;
 function manifest(input:{componentKey:string;schemaSlot:string;configurable:readonly string[];responsiveMode:StorefrontBuilderComponentManifest['responsiveMode']}){return defineStorefrontBuilderComponent({foundationVersion:STOREFRONT_BUILDER_FOUNDATION_VERSION,componentKey:input.componentKey,componentVersion:1,schemaSlot:input.schemaSlot,pageTypes:ALL_PAGE_TYPES,configurable:input.configurable,responsiveMode:input.responsiveMode,capability:{minPlan:'alap',features:NO_FEATURES}});}
 
 export const STOREFRONT_PRIMITIVE_DEFINITIONS:readonly StorefrontRuntimeComponentDefinition[]=[
-  {manifest:manifest({componentKey:'layout.section',schemaSlot:'sections',configurable:['tone','spacing','width','presentation'],responsiveMode:'container'}),allowsChildren:true},
-  {manifest:manifest({componentKey:'layout.container',schemaSlot:'children',configurable:['width','spacing','presentation'],responsiveMode:'container'}),allowsChildren:true},
-  {manifest:manifest({componentKey:'layout.grid',schemaSlot:'children',configurable:['columns','gap','align','presentation'],responsiveMode:'grid'}),allowsChildren:true},
-  {manifest:manifest({componentKey:'layout.stack',schemaSlot:'children',configurable:['direction','gap','align','justify','presentation'],responsiveMode:'stack'}),allowsChildren:true},
-  {manifest:manifest({componentKey:'content.heading',schemaSlot:'children',configurable:['text','level','align','tone','presentation','accentText'],responsiveMode:'fixed'}),bindingSlots:['text']},
-  {manifest:manifest({componentKey:'content.text',schemaSlot:'children',configurable:['text','as','align','tone','presentation'],responsiveMode:'fixed'}),bindingSlots:['text']},
-  {manifest:manifest({componentKey:'content.image',schemaSlot:'children',configurable:['src','alt','width','height','fit','loading','radius','presentation','objectPosition'],responsiveMode:'fixed'}),bindingSlots:['src','alt']},
-  {manifest:manifest({componentKey:'content.button',schemaSlot:'children',configurable:['label','href','variant','size','ariaLabel','presentation'],responsiveMode:'fixed'}),bindingSlots:['label','href']},
-  {manifest:manifest({componentKey:'system.header',schemaSlot:'protected.header',configurable:['brandLabel','brandHref','tone','sticky','presentation','tagline','utilityItems'],responsiveMode:'primary-navigation'}),bindingSlots:['brandLabel','brandHref'],allowsChildren:true,allowedChildren:['system.navigation'],protectedSystem:true},
-  {manifest:manifest({componentKey:'system.navigation',schemaSlot:'protected.navigation',configurable:['items','ariaLabel','layout','presentation'],responsiveMode:'primary-navigation'}),bindingSlots:['items'],protectedSystem:true},
+  {manifest:manifest({componentKey:'layout.section',schemaSlot:'sections',configurable:['tone','spacing','width','presentation','style','innerStyle'],responsiveMode:'container'}),allowsChildren:true},
+  {manifest:manifest({componentKey:'layout.container',schemaSlot:'children',configurable:['width','spacing','presentation','style'],responsiveMode:'container'}),allowsChildren:true},
+  {manifest:manifest({componentKey:'layout.grid',schemaSlot:'children',configurable:['columns','gap','align','presentation','style'],responsiveMode:'grid'}),allowsChildren:true},
+  {manifest:manifest({componentKey:'layout.stack',schemaSlot:'children',configurable:['direction','gap','align','justify','presentation','style'],responsiveMode:'stack'}),allowsChildren:true},
+  {manifest:manifest({componentKey:'content.heading',schemaSlot:'children',configurable:['text','level','align','tone','presentation','accentText','style','accentStyle'],responsiveMode:'fixed'}),bindingSlots:['text']},
+  {manifest:manifest({componentKey:'content.text',schemaSlot:'children',configurable:['text','as','align','tone','presentation','style'],responsiveMode:'fixed'}),bindingSlots:['text']},
+  {manifest:manifest({componentKey:'content.image',schemaSlot:'children',configurable:['src','alt','width','height','fit','loading','radius','presentation','objectPosition','style'],responsiveMode:'fixed'}),bindingSlots:['src','alt']},
+  {manifest:manifest({componentKey:'content.button',schemaSlot:'children',configurable:['label','href','variant','size','ariaLabel','presentation','style'],responsiveMode:'fixed'}),bindingSlots:['label','href']},
+  {manifest:manifest({componentKey:'system.header',schemaSlot:'protected.header',configurable:['brandLabel','brandHref','tone','sticky','presentation','tagline','utilityItems','style','innerStyle','brandStyle','taglineStyle','utilityStyle','mobileToggleStyle'],responsiveMode:'primary-navigation'}),bindingSlots:['brandLabel','brandHref'],allowsChildren:true,allowedChildren:['system.navigation'],protectedSystem:true},
+  {manifest:manifest({componentKey:'system.navigation',schemaSlot:'protected.navigation',configurable:['items','ariaLabel','layout','presentation','style'],responsiveMode:'primary-navigation'}),bindingSlots:['items'],protectedSystem:true},
 ] as const;
 
 export function createStorefrontPrimitiveComponentRegistry(){const registry=new StorefrontComponentRegistry();for(const definition of STOREFRONT_PRIMITIVE_DEFINITIONS)registry.register(definition);return registry;}

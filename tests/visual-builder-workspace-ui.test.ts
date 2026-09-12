@@ -45,6 +45,14 @@ describe('Visual Builder accepted workspace UI contract',()=>{
     ])expect(component).toContain(token);
   });
 
+  it('keeps shared schema visual style fields in the Appearance inspector instead of content',()=>{
+    expect(component).toContain("const isAppearanceKey=(key:string)=>APPEARANCE_KEYS.has(key)||key==='style'||key.endsWith('Style')");
+    expect(component).toContain('filter(key=>!isAppearanceKey(key))');
+    expect(component).toContain('filter(key=>isAppearanceKey(key))');
+    expect(component).toContain("editorTab==='appearance'");
+    expect(component).toContain('StructuredEditor key={key} label={key} value={selected.config[key]}');
+  });
+
   it('keeps responsive editing and history inside the Builder while AI generation stays hidden from merchant UI',()=>{
     expect(component).toContain("{key:'desktop',label:'Desktop',width:1200");
     expect(component).toContain("{key:'tablet',label:'Tablet',width:768");

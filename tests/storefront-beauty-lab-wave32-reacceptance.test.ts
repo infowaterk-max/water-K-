@@ -76,13 +76,16 @@ describe('Scale-out Wave 32 Beauty Lab current-baseline reacceptance',()=>{
     expect(BEAUTY_LAB_HOME_SECTION_ORDER).toEqual(['Formula Hero','Formula Finder','Shop by Concern','Ingredient Index Preview','New Formulas','Texture Lab','Routine Feature','Product Grid','Ingredient Story','Reviews','Footer']);
   });
 
-  it('hardens Formula Hero as eight independent shared visual layers with stable ids and binding paths',()=>{
+  it('keeps shared hero authority and authoritative bindings without forcing legacy hidden visual aliases',()=>{
     expect(STOREFRONT_GUIDED_VISUAL_COMPONENT_DEPENDENCIES.authority).toBe('composition-only-no-new-commerce-or-guidance-authority');
-    expect(BEAUTY_LAB_MARKETING_LAYER_CONTRACT.hero).toEqual(['image','overlay','decoration','badge','title','copy','primary-cta','secondary-cta']);
+    expect(BEAUTY_LAB_MARKETING_LAYER_CONTRACT.hero).toEqual(['image','overlay','decoration','badge','title','copy','primary-cta']);
     expect(home('beauty-formula-hero')?.componentKey).toBe('visual.layered-canvas');
-    for(const id of ['beauty-hero-image-layer','beauty-hero-overlay-layer','beauty-hero-decoration-layer','beauty-hero-badge-layer','beauty-hero-title-layer','beauty-hero-copy-layer','beauty-hero-primary-cta-layer','beauty-hero-secondary-cta-layer'])expect(home(id)?.componentKey).toBe('visual.layer');
+    const visibleLayerIds=['beauty-hero-image-layer','beauty-hero-overlay-layer','beauty-hero-decoration-layer','beauty-hero-badge-layer','beauty-hero-title-layer','beauty-hero-copy-layer','beauty-hero-primary-cta-layer'];
+    for(const id of visibleLayerIds)expect(home(id)?.componentKey).toBe('visual.layer');
+    expect(home('beauty-hero-secondary-cta-layer')).toBeUndefined();
     const source=JSON.stringify(BEAUTY_LAB_HOME_PAGE);
-    for(const path of ['content.formulaHero.image','content.formulaHero.imageAlt','content.formulaHero.decoration','content.formulaHero.badge','content.formulaHero.title','content.formulaHero.copy','content.formulaHero.primaryLabel','content.formulaHero.primaryHref','content.formulaHero.secondaryLabel','content.formulaHero.secondaryHref'])expect(source).toContain(path);
+    for(const path of ['content.formulaHero.image','content.formulaHero.imageAlt','content.formulaHero.productImage','content.formulaHero.productImageAlt','content.formulaHero.badge','content.formulaHero.title','content.formulaHero.copy','content.formulaHero.primaryLabel','content.formulaHero.primaryHref'])expect(source).toContain(path);
+    expect(source).not.toContain('wave32-binding');
     expect(BEAUTY_LAB_MARKETING_LAYER_CONTRACT.imageRule).toBe('marketing-copy-price-clinical-evidence-and-cta-never-baked-into-image-assets');
   });
 
