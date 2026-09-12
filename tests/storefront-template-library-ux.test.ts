@@ -61,14 +61,18 @@ describe('storefront template library UX',()=>{
     expect(builder).toContain("router.push('/admin/tartalom/builder?view=templates')");
   });
 
-  it('requires an explicit safe confirmation before switching an existing storefront template',()=>{
+  it('requires an explicit safe confirmation before switching or upgrading an existing storefront template',()=>{
     const library=read('src/components/admin/storefront-template-library.tsx');
     expect(library).toContain('SABLONVÁLTÁS');
+    expect(library).toContain('SABLONFRISSÍTÉS');
     expect(library).toContain('A most publikált webshop');
     expect(library).toContain('Termékek, készlet és árak nem változnak');
     expect(library).toContain('Rendelések és ügyféladatok nem változnak');
-    expect(library).toContain('A jelenlegi draft oldalak szerkesztéseit a sablonváltás felülírhatja');
+    expect(library).toContain('A jelenlegi draft oldalak szerkesztéseit a ');
+    expect(library).toContain("pendingUpgrade?'sablonfrissítés':'sablonváltás'");
+    expect(library).toContain('felülírhatja');
     expect(library).toContain('Igen, váltok erre a sablonra');
+    expect(library).toContain('Igen, frissítem a draft sablont');
   });
 
   it('renders template live preview through the shared Storefront runtime without installing a draft',()=>{
