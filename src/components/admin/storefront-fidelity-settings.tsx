@@ -18,6 +18,7 @@ import {StorefrontFidelityNodeControls} from '@/components/admin/storefront-fide
 import {StorefrontFidelityStateControls} from '@/components/admin/storefront-fidelity-state-controls';
 import {StorefrontResponsiveLayoutDepthControls} from '@/components/admin/storefront-responsive-layout-depth-controls';
 import {StorefrontInteractiveSceneControls} from '@/components/admin/storefront-interactive-scene-controls';
+import {StorefrontRecipeCommerceControls} from '@/components/admin/storefront-recipe-commerce-controls';
 import styles from './storefront-visual-builder.module.css';
 
 const componentRegistry=createStorefrontVisualBuilderComponentRegistry();
@@ -87,6 +88,7 @@ export function StorefrontFidelitySettings({document,viewport,onApply}:{
       onApply={onApply}
     />:null}
     {editedNode?.componentKey==='commerce.interactive-scene'?<StorefrontInteractiveSceneControls document={document} node={editedNode} viewport={viewport} onApply={onApply}/>:null}
+    {editedNode?.componentKey==='commerce.recipe'?<StorefrontRecipeCommerceControls document={document} node={editedNode} onApply={onApply}/>:null}
 
     <div className={styles.fieldGroup}>
       <strong>Design Guard</strong>
