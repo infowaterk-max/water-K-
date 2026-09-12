@@ -17,8 +17,7 @@ export const STOREFRONT_INTERACTIVE_SCENE_COMPONENT_DEFINITIONS:readonly Storefr
     schemaSlot:'sections',
     pageTypes:['home','catalog','product','content'],
     configurable:[
-      'eyebrow','title','copy','sceneKey','sceneKind','backgroundImage','backgroundAlt','hotspots',
-      'showSetSummary','setTitle','setCtaLabel','setCtaHref','emptyLabel','hotspotStyle','style',
+      'eyebrow','title','copy','backgroundImage','backgroundAlt','emptyLabel','style',
     ],
     responsiveMode:'grid',
     capability:{minPlan:'pro',features:['catalog','interactiveSceneCommerce']},
