@@ -1,4 +1,5 @@
 import {describe,expect,it} from 'vitest';
+import {createStorefrontVisualBuilderRendererRegistry} from '@/components/builder/storefront-builder-renderer-registry';
 import {createStorefrontGuidedVisualComponentRegistry} from '@/lib/builder/storefront-guided-visual';
 import {PLANS} from '@/lib/plans/catalog';
 import type {StorefrontComponentNode} from '@/lib/builder/storefront-runtime';
@@ -56,6 +57,16 @@ describe('Beauty Lab reference v2.8 shared fidelity integration',()=>{
       const result=validateStorefrontPageDocument(page,registry,capability);
       expect(result.ok,`${page.pageType}: ${JSON.stringify(result.violations)}`).toBe(true);
     }
+  });
+
+  it('keeps the Visual Builder renderer registry symmetric with every Beauty Lab page node',()=>{
+    const renderers=createStorefrontVisualBuilderRendererRegistry();
+    for(const page of BEAUTY_LAB_CANONICAL_V2_PACKAGE.pages){
+      for(const node of flatten(page.sections)){
+        expect(renderers.get(node.componentKey,node.componentVersion),`${page.pageType}:${node.id}:${node.componentKey}@${node.componentVersion}`).toBeDefined();
+      }
+    }
+    expect(renderers.get('commerce.purchase-controls',1)).toBeDefined();
   });
 
   it('promotes v2.8 as the canonical v2 source without creating a new template identity',()=>{
