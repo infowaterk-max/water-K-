@@ -78,7 +78,7 @@ export function StorefrontSavedBlocksPanel({document,selectedNode,selectedIsTopL
     if(!selectedNode||!canSave){setError('Mentéshez válassz ki egy nem védett, legfelső szintű szekciót.');return;}
     const blockName=name.trim()||label(selectedNode.componentKey);
     run(async()=>{
-      const saved=await createVisualBuilderSavedBlockAction({name:blockName,fragment:selectedNode,operationKey:operationKey('saved-block-create')});
+      const saved=await createVisualBuilderSavedBlockAction({name:blockName,fragment:selectedNode,operationKey:operationKey('create')});
       setBlocks(current=>[saved,...current.filter(item=>item.id!==saved.id)]);setName('');
       setMessage(`„${saved.name}” elmentve a saját blokkok közé.`);
     });
@@ -93,13 +93,13 @@ export function StorefrontSavedBlocksPanel({document,selectedNode,selectedIsTopL
   const saveRename=(blockId:string)=>{
     const nextName=editingName.trim();if(!nextName){setError('A mentett blokk neve nem lehet üres.');return;}
     run(async()=>{
-      const updated=await updateVisualBuilderSavedBlockAction({blockId,name:nextName,operationKey:operationKey('saved-block-update')});
+      const updated=await updateVisualBuilderSavedBlockAction({blockId,name:nextName,operationKey:operationKey('update')});
       setBlocks(current=>current.map(item=>item.id===updated.id?updated:item));cancelRename();setMessage(`„${updated.name}” néven mentve.`);
     });
   };
   const deleteBlock=(blockId:string)=>run(async()=>{
     const target=blocks.find(item=>item.id===blockId);
-    await deleteVisualBuilderSavedBlockAction({blockId,operationKey:operationKey('saved-block-delete')});
+    await deleteVisualBuilderSavedBlockAction({blockId,operationKey:operationKey('delete')});
     setBlocks(current=>current.filter(item=>item.id!==blockId));if(editingId===blockId)cancelRename();
     setMessage(target?`„${target.name}” törölve a saját blokkok közül.`:'Mentett blokk törölve.');
   });
