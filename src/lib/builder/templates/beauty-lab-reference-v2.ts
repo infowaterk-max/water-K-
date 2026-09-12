@@ -2,7 +2,7 @@ import type {StorefrontComponentNode,StorefrontPageDocument} from '@/lib/builder
 import type {StorefrontInstallableTemplatePackage} from '@/lib/builder/storefront-template-installation';
 import {BEAUTY_LAB_TEMPLATE_PACKAGE as BEAUTY_LAB_CANARY_PACKAGE} from '@/lib/builder/templates/beauty-lab';
 
-export const BEAUTY_LAB_REFERENCE_V2_VERSION='shoporation.beauty-lab-reference-v2.2' as const;
+export const BEAUTY_LAB_REFERENCE_V2_VERSION='shoporation.beauty-lab-reference-v2.3' as const;
 
 const HERO_IMAGE='https://images.pexels.com/photos/8990301/pexels-photo-8990301.jpeg?auto=compress&dpr=1&h=750&w=1260';
 const SERUM_IMAGE='https://images.pexels.com/photos/14473397/pexels-photo-14473397.jpeg?auto=compress&dpr=1&h=750&w=1260';
@@ -83,6 +83,7 @@ function buildHome(base:StorefrontPageDocument){
   uspGrid.children=trustItems.map(([id,symbol,label])=>({
     id:`beauty-usp-${id}`,componentKey:'layout.stack',componentVersion:1,
     config:{direction:'horizontal',gap:'xs',align:'center',justify:'start',style:{base:{display:'flex',flexDirection:'row',alignItems:'center',gap:'.45rem'},mobile:{gap:'.28rem'}}},
+    responsive:{desktop:{gridSpan:1},tablet:{gridSpan:1},mobile:{gridSpan:1}},
     children:[
       {id:`beauty-usp-${id}-symbol`,componentKey:'content.text',componentVersion:1,config:{text:symbol,as:'strong',align:'left',tone:'text',style:{base:{fontSize:'.88rem',lineHeight:1},mobile:{fontSize:'.78rem'}}}},
       {id:`beauty-usp-${id}-label`,componentKey:'content.text',componentVersion:1,config:{text:label,as:'small',align:'left',tone:'text',style:{base:{fontSize:'.67rem',fontWeight:650,lineHeight:1.2},mobile:{fontSize:'.54rem',lineHeight:1.15}}}},
@@ -104,7 +105,7 @@ function buildHome(base:StorefrontPageDocument){
   const byId=new Map(page.sections.map(section=>[section.id,section]));
   page.sections=order.flatMap(id=>{const section=byId.get(id);return section?[section]:[];});
 
-  page.metadata={...page.metadata,referencePass:'beauty-lab-reference-v2.2',heroAsset:'pexels-8990301',productAsset:'pexels-14473397',topFlow:'hero-trust-finder-ingredient-texture-featured-routine'};
+  page.metadata={...page.metadata,referencePass:'beauty-lab-reference-v2.3',heroAsset:'pexels-8990301',productAsset:'pexels-14473397',topFlow:'hero-trust-finder-ingredient-texture-featured-routine'};
   return page;
 }
 
@@ -194,7 +195,7 @@ function buildProduct(base:StorefrontPageDocument){
   const related=required(page,'beauty-product-recommendations');
   related.config={...related.config,title:'Jól kombinálható',columns:3,ctaLabel:'Kosárba'};
 
-  page.metadata={...page.metadata,referencePass:'beauty-lab-reference-v2.2',pdpAsset:'pexels-14473397'};
+  page.metadata={...page.metadata,referencePass:'beauty-lab-reference-v2.3',pdpAsset:'pexels-14473397'};
   return page;
 }
 
