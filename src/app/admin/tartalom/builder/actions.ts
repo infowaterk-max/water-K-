@@ -12,6 +12,7 @@ import {
   createCurrentStorefrontSavedBlock,
   deleteCurrentStorefrontSavedBlock,
   getCurrentStorefrontSavedBlock,
+  updateCurrentStorefrontSavedBlock,
 } from '@/lib/builder/storefront-saved-block-persistence';
 import {saveCurrentStorefrontTemplateDraftPlan} from '@/lib/builder/storefront-template-persistence';
 import {getStorefrontTemplatePackage} from '@/lib/builder/storefront-template-catalog';
@@ -81,6 +82,12 @@ export async function createVisualBuilderSavedBlockAction(input:{name:string;fra
 
 export async function getVisualBuilderSavedBlockAction(input:{blockId:string}){
   return getCurrentStorefrontSavedBlock(input.blockId);
+}
+
+export async function updateVisualBuilderSavedBlockAction(input:{blockId:string;name?:string;description?:string|null;category?:string|null;operationKey:string}){
+  const result=await updateCurrentStorefrontSavedBlock(input);
+  refresh();
+  return result;
 }
 
 export async function deleteVisualBuilderSavedBlockAction(input:{blockId:string;operationKey:string}){

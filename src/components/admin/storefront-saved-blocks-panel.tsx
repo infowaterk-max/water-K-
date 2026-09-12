@@ -5,6 +5,7 @@ import {
   createVisualBuilderSavedBlockAction,
   deleteVisualBuilderSavedBlockAction,
   getVisualBuilderSavedBlockAction,
+  updateVisualBuilderSavedBlockAction,
 } from '@/app/admin/tartalom/builder/actions';
 import {createStorefrontVisualBuilderComponentRegistry} from '@/lib/builder/storefront-builder-registry';
 import {insertStorefrontSavedBlock} from '@/lib/builder/storefront-saved-blocks';
@@ -28,6 +29,8 @@ type Props={
 export function StorefrontSavedBlocksPanel({document,selectedNode,selectedIsTopLevel,initialSavedBlocks,capability,onApply}:Props){
   const[blocks,setBlocks]=useState(initialSavedBlocks);
   const[name,setName]=useState('');
+  const[editingId,setEditingId]=useState<string|null>(null);
+  const[editingName,setEditingName]=useState('');
   const[busy,startTransition]=useTransition();
   const[message,setMessage]=useState<string|null>(null);
   const[error,setError]=useState<string|null>(null);
@@ -64,10 +67,38 @@ export function StorefrontSavedBlocksPanel({document,selectedNode,selectedIsTopL
     setMessage(`„${block.name}” beillesztve. A módosítás a következő Mentéskor kerül a draftba.`);
   });
 
+  const beginRename=(block:StorefrontSavedBlockSummary)=>{
+    setError(null);
+    setMessage(null);
+    setEditingId(block.id);
+    setEditingName(block.name);
+  };
+
+  const cancelRename=()=>{
+    setEditingId(null);
+    setEditingName('');
+  };
+
+  const saveRename=(blockId:string)=>{
+    const nextName=editingName.trim();
+    if(!nextName){
+      setError('A mentett blokk neve nem lehet üres.');
+      return;
+    }
+    run(async()=>{
+      const updated=await updateVisualBuilderSavedBlockAction({blockId,name:nextName,operationKey:operationKey('update')});
+      setBlocks(current=>current.map(item=>item.id===updated.id?updated:item));
+      setEditingId(null);
+      setEditingName('');
+      setMessage(`„${updated.name}” néven mentve.`);
+    });
+  };
+
   const deleteBlock=(blockId:string)=>run(async()=>{
     const target=blocks.find(item=>item.id===blockId);
     await deleteVisualBuilderSavedBlockAction({blockId,operationKey:operationKey('delete')});
     setBlocks(current=>current.filter(item=>item.id!==blockId));
+    if(editingId===blockId)cancelRename();
     setMessage(target?`„${target.name}” törölve a saját blokkok közül.`:'Mentett blokk törölve.');
   });
 
@@ -82,8 +113,17 @@ export function StorefrontSavedBlocksPanel({document,selectedNode,selectedIsTopL
     <div className={styles.componentLibrary}>
       {blocks.map(block=><article key={block.id}>
         <span className={styles.componentLibraryIcon}>☆</span>
-        <span><strong>{block.name}</strong><small>{label(block.componentKey)} · v{block.componentVersion}</small></span>
-        <div><button type="button" disabled={busy} onClick={()=>insertBlock(block.id)}>Beillesztés</button><button type="button" disabled={busy} onClick={()=>deleteBlock(block.id)}>Törlés</button></div>
+        <span>
+          {editingId===block.id
+            ?<input aria-label="Mentett blokk új neve" value={editingName} maxLength={80} disabled={busy} onChange={event=>setEditingName(event.target.value)}/>
+            :<strong>{block.name}</strong>}
+          <small>{label(block.componentKey)} · v{block.componentVersion}</small>
+        </span>
+        <div>
+          {editingId===block.id
+            ?<><button type="button" disabled={busy} onClick={()=>saveRename(block.id)}>Mentés</button><button type="button" disabled={busy} onClick={cancelRename}>Mégse</button></>
+            :<><button type="button" disabled={busy} onClick={()=>insertBlock(block.id)}>Beillesztés</button><button type="button" disabled={busy} onClick={()=>beginRename(block)}>Átnevezés</button><button type="button" disabled={busy} onClick={()=>deleteBlock(block.id)}>Törlés</button></>}
+        </div>
       </article>)}
     </div>
     {!blocks.length?<p className={styles.emptyHint}>Még nincs saját mentett blokk ebben a webshopban.</p>:null}
