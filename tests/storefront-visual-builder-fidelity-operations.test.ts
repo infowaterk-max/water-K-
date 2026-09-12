@@ -9,6 +9,7 @@ import {
   setStorefrontDesignGuardMode,
   setStorefrontFidelityEditMode,
   setStorefrontImageArtDirection,
+  setStorefrontLayerViewportGeometry,
   setStorefrontNodeStyleSlot,
   setStorefrontNodeTypography,
   setStorefrontNodeViewportStyle,
@@ -29,6 +30,16 @@ const page=():StorefrontPageDocument=>({
     {id:'trust',componentKey:'layout.section',componentVersion:1,config:{tone:'surface',spacing:'s'}},
     {id:'products',componentKey:'layout.section',componentVersion:1,config:{tone:'background',spacing:'l'}},
   ],
+});
+const layeredPage=():StorefrontPageDocument=>({
+  schemaVersion:1,pageKey:'ops.layers',pageType:'home',templateKey:'reference.ops',templateVersion:1,
+  sections:[{id:'hero',componentKey:'layout.section',componentVersion:1,config:{tone:'background',spacing:'none'},children:[
+    {id:'canvas',componentKey:'visual.layered-canvas',componentVersion:1,config:{height:'hero',tone:'background',radius:'none'},children:[
+      {id:'layer',componentKey:'visual.layer',componentVersion:1,config:{position:'center',width:'medium',style:{mobile:{backgroundColor:'#fff'}}},children:[
+        {id:'layer-copy',componentKey:'content.text',componentVersion:1,config:{text:'Layer',as:'p',align:'left',tone:'text'}},
+      ]},
+    ]},
+  ]}],
 });
 const preset:StorefrontFidelityPreset={presetId:'reference.ops',version:1,label:'Ops',pageType:'home',sectionOrder:{desktop:['hero','trust','products'],mobile:['hero','products','trust']},nodeOrder:{hero:{mobile:['media','copy']}},nodes:{hero:{config:{spacing:'none'}}}};
 
@@ -77,6 +88,21 @@ describe('Visual Builder fidelity operations',()=>{
     expect(resolveStorefrontVisualStyle(hero.config.style,'tablet')).toMatchObject({paddingBlock:'1rem',color:'#111'});
     expect(resolveStorefrontVisualStyle(hero.config.style,'tablet')).not.toHaveProperty('position');
     expect(resolveStorefrontStyleSlot(hero.config.styleSlots,'inner','mobile')).toEqual({gap:'.5rem'});
+  });
+
+  it('positions layers only inside the shared layered canvas and preserves unrelated viewport style',()=>{
+    let document=setStorefrontLayerViewportGeometry(layeredPage(),'layer','mobile',{anchor:'center-right',offsetXPercent:6,offsetYPercent:-8,widthPercent:42,heightPercent:65,zIndex:8,opacity:.9});
+    let layer=document.sections[0].children?.[0].children?.[0];
+    expect(resolveStorefrontVisualStyle(layer?.config.style,'mobile')).toMatchObject({
+      position:'absolute',right:'6%',top:'calc(50% + -8%)',transform:'translateY(-50%)',width:'42%',height:'65%',zIndex:8,opacity:.9,backgroundColor:'#fff',
+    });
+    document=setStorefrontLayerViewportGeometry(document,'layer','mobile',{anchor:'top-left',offsetXPercent:4,offsetYPercent:3});
+    layer=document.sections[0].children?.[0].children?.[0];
+    expect(resolveStorefrontVisualStyle(layer?.config.style,'mobile')).toMatchObject({position:'absolute',left:'4%',top:'3%',transform:'none',width:'42%',height:'65%',backgroundColor:'#fff'});
+    document=setStorefrontLayerViewportGeometry(document,'layer','mobile',null);
+    layer=document.sections[0].children?.[0].children?.[0];
+    expect(resolveStorefrontVisualStyle(layer?.config.style,'mobile')).toEqual({backgroundColor:'#fff'});
+    expect(()=>setStorefrontLayerViewportGeometry(page(),'copy','mobile',{anchor:'center'})).toThrow('FIDELITY_LAYER_REQUIRED');
   });
 
   it('resets visual composition to a preset without replacing content fields',()=>{
