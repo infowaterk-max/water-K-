@@ -12,6 +12,7 @@ import {
   updateVisualBuilderSavedBlockAction,
 } from '@/app/admin/tartalom/builder/actions';
 import {listVisualBuilderPresetLibraryAction} from '@/app/admin/tartalom/builder/preset-actions';
+import {StorefrontPageTemplatesPanel} from '@/components/admin/storefront-page-templates-panel';
 import {createStorefrontVisualBuilderComponentRegistry} from '@/lib/builder/storefront-builder-registry';
 import {
   applyStorefrontComponentPresetAppearance,
@@ -169,6 +170,8 @@ export function StorefrontSavedBlocksPanel({document,selectedNode,selectedIsTopL
   });
 
   return <div className={styles.fieldGroup} data-storefront-saved-blocks-v1>
+    <StorefrontPageTemplatesPanel document={document} capability={capability} onApply={onApply}/>
+    <div className={styles.panelDivider}/>
     <div data-storefront-preset-library-v1>
       <strong>Preset könyvtár</strong>
       <p className={styles.emptyHint}>Az aktuális sablon gyári szekcióit friss ID-kkel illesztheted be. Komponens preset csak a kijelölt kompatibilis elem megjelenését és responsive beállításait módosítja; tartalmat, bindingot és gyerekstruktúrát nem ír felül.</p>
