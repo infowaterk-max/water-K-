@@ -36,31 +36,43 @@ try{
       }));
     });
     const roots=page.locator('[data-visual-fidelity-root="runtime"]');
-    const rootCount=await roots.count();
-    if(rootCount<1)throw new Error(`VISUAL_FIDELITY_ROOT_MISSING:${item.name}`);
-    if(rootCount!==1){
-      const diagnostics=await roots.evaluateAll(nodes=>nodes.map((node,index)=>{
-        const style=getComputedStyle(node);
-        const rect=node.getBoundingClientRect();
-        return {
-          index,
-          tagName:node.tagName,
-          display:style.display,
-          visibility:style.visibility,
-          opacity:style.opacity,
-          hidden:node.hasAttribute('hidden'),
-          ariaHidden:node.getAttribute('aria-hidden'),
-          rect:{x:rect.x,y:rect.y,width:rect.width,height:rect.height},
-          parentTag:node.parentElement?.tagName??null,
-          parentId:node.parentElement?.id??null,
-          parentClass:node.parentElement?.className??null,
-          html:node.outerHTML.slice(0,700),
-        };
-      }));
-      console.error(JSON.stringify({event:'VISUAL_FIDELITY_DUPLICATE_RUNTIME_ROOTS',case:item.name,rootCount,diagnostics},null,2));
-      throw new Error(`VISUAL_FIDELITY_ROOT_COUNT_INVALID:${item.name}:${rootCount}`);
+    const domRootCount=await roots.count();
+    if(domRootCount<1)throw new Error(`VISUAL_FIDELITY_ROOT_MISSING:${item.name}`);
+    const diagnostics=await roots.evaluateAll(nodes=>nodes.map((node,index)=>{
+      const style=getComputedStyle(node);
+      const rect=node.getBoundingClientRect();
+      const hiddenAncestor=node.closest('[hidden]');
+      const hiddenAncestorId=hiddenAncestor?.id??null;
+      const active=rect.width>0&&rect.height>0&&style.display!=='none'&&style.visibility!=='hidden'&&style.opacity!=='0'&&!hiddenAncestor;
+      const frameworkStaging=!active&&rect.width===0&&rect.height===0&&Boolean(hiddenAncestorId&&/^S:\d+$/.test(hiddenAncestorId));
+      return {
+        index,
+        active,
+        frameworkStaging,
+        tagName:node.tagName,
+        display:style.display,
+        visibility:style.visibility,
+        opacity:style.opacity,
+        hidden:node.hasAttribute('hidden'),
+        ariaHidden:node.getAttribute('aria-hidden'),
+        rect:{x:rect.x,y:rect.y,width:rect.width,height:rect.height},
+        parentTag:node.parentElement?.tagName??null,
+        parentId:node.parentElement?.id??null,
+        parentClass:node.parentElement?.className??null,
+        hiddenAncestorTag:hiddenAncestor?.tagName??null,
+        hiddenAncestorId,
+        html:node.outerHTML.slice(0,700),
+      };
+    }));
+    const activeRoots=diagnostics.filter(item=>item.active);
+    const unexpectedInactive=diagnostics.filter(item=>!item.active&&!item.frameworkStaging);
+    if(activeRoots.length!==1||unexpectedInactive.length){
+      console.error(JSON.stringify({event:'VISUAL_FIDELITY_RUNTIME_ROOT_INVARIANT_FAILED',case:item.name,domRootCount,activeRootCount:activeRoots.length,unexpectedInactiveCount:unexpectedInactive.length,diagnostics},null,2));
+      throw new Error(`VISUAL_FIDELITY_ROOT_INVARIANT_FAILED:${item.name}:dom=${domRootCount}:active=${activeRoots.length}:unexpected=${unexpectedInactive.length}`);
     }
-    const root=roots.first();
+    const activeRootIndex=activeRoots[0].index;
+    const frameworkStagingRootCount=diagnostics.filter(item=>item.frameworkStaging).length;
+    const root=roots.nth(activeRootIndex);
     await root.waitFor({state:'visible',timeout:15000});
     await page.waitForTimeout(250);
     const box=await root.boundingBox();
@@ -71,7 +83,7 @@ try{
 
     const path=`${outputDir}/${item.name}.png`;
     await page.screenshot({path,animations:'disabled',timeout:15000,fullPage:false});
-    captures.push({...item,url,path,fullPath,rootCount,renderedWidth:box.width,renderedHeight:box.height,capturedHeight:item.referenceFrameHeight,title:await page.title()});
+    captures.push({...item,url,path,fullPath,rootCount:activeRoots.length,domRootCount,frameworkStagingRootCount,renderedWidth:box.width,renderedHeight:box.height,capturedHeight:item.referenceFrameHeight,title:await page.title()});
     await page.close();
   }
 }finally{
@@ -79,11 +91,11 @@ try{
 }
 
 await writeFile(`${outputDir}/manifest.json`,JSON.stringify({
-  version:'shoporation.visual-fidelity-capture.v4',
+  version:'shoporation.visual-fidelity-capture.v5',
   template,
   sourceCommit:process.env.GITHUB_SHA??null,
   capturedAt:new Date().toISOString(),
-  comparisonPolicy:'Primary PNGs use reference-proportional browser frames; *-full.png retains the complete Runtime root for regression evidence. Every capture must expose exactly one runtime root.',
+  comparisonPolicy:'Primary PNGs use reference-proportional browser frames; *-full.png retains the complete Runtime root. Exactly one renderable Runtime root is required. Zero-size roots are tolerated only inside hidden React/Next S:* streaming staging containers; authored hidden duplicate roots fail the gate.',
   captures,
 },null,2));
 console.log(JSON.stringify({ok:true,count:captures.length,outputDir},null,2));
