@@ -41,7 +41,7 @@ describe('Beauty Lab Visual Fidelity Recovery canary technical gate',()=>{
     const mobile=render(BEAUTY_LAB_HOME_PAGE,'mobile');
     for(const html of [desktop,tablet,mobile]){
       expect(html).toContain('YOUR SKIN.');
-      expect(html).toContain('YOUR FORMULA.');
+      expect(html).toContain('>FORMULA.</span>');
       expect(html).toContain('SCIENCE MEETS BEAUTY');
       expect(html).toContain('data-storefront-visual="layered-canvas"');
     }
