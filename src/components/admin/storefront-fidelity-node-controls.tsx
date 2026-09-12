@@ -3,11 +3,15 @@
 import type {StorefrontViewport} from '@/lib/builder/storefront-foundation';
 import type {StorefrontComponentNode,StorefrontPageDocument} from '@/lib/builder/storefront-runtime';
 import {
+  STOREFRONT_LAYER_ANCHORS,
   clearStorefrontResponsiveOrder,
   moveStorefrontChildAtViewport,
   setStorefrontImageArtDirection,
+  setStorefrontLayerViewportGeometry,
   setStorefrontNodeTypography,
   setStorefrontNodeViewportStyle,
+  type StorefrontLayerAnchor,
+  type StorefrontLayerViewportGeometry,
 } from '@/lib/builder/storefront-fidelity-builder-operations';
 import {inspectStorefrontFidelityBuilder} from '@/lib/builder/storefront-fidelity-inspector';
 import {
@@ -24,6 +28,12 @@ import {
 import styles from './storefront-visual-builder.module.css';
 
 const VIEWPORT_KEYS=['base','desktop','tablet','mobile'] as const;
+const LAYER_ANCHOR_LABELS:Record<StorefrontLayerAnchor,string>={
+  fill:'Kitöltés',
+  'top-left':'Bal felső','top-center':'Felső közép','top-right':'Jobb felső',
+  'center-left':'Bal közép',center:'Közép','center-right':'Jobb közép',
+  'bottom-left':'Bal alsó','bottom-center':'Alsó közép','bottom-right':'Jobb alsó',
+};
 const isRecord=(value:unknown):value is Record<string,unknown>=>Boolean(value)&&typeof value==='object'&&!Array.isArray(value);
 const viewportLabel=(viewport:StorefrontViewport)=>viewport==='desktop'?'Desktop':viewport==='tablet'?'Tablet':'Mobil';
 
@@ -64,6 +74,41 @@ function numberOrUndefined(value:string){
   return Number.isFinite(parsed)?parsed:undefined;
 }
 
+function percentValue(value:unknown):number|undefined{
+  if(typeof value!=='string')return undefined;
+  const match=value.trim().match(/^(-?\d+(?:\.\d+)?)%$/);
+  return match?Number(match[1]):undefined;
+}
+
+function centeredPercentValue(value:unknown):number|undefined{
+  if(typeof value!=='string')return undefined;
+  const match=value.trim().match(/^calc\(50% \+ (-?\d+(?:\.\d+)?)%\)$/);
+  return match?Number(match[1]):undefined;
+}
+
+function layerGeometryFromStyle(style:StorefrontVisualStyleSlot):StorefrontLayerViewportGeometry|null{
+  if(style.position!=='absolute')return null;
+  if(style.inset==='0')return{anchor:'fill'};
+  let vertical:'top'|'center'|'bottom'|null=null;
+  let horizontal:'left'|'center'|'right'|null=null;
+  let offsetXPercent=0;let offsetYPercent=0;
+  if(centeredPercentValue(style.top)!==undefined){vertical='center';offsetYPercent=centeredPercentValue(style.top)??0;}
+  else if(style.top!==undefined){vertical='top';offsetYPercent=percentValue(style.top)??0;}
+  else if(style.bottom!==undefined){vertical='bottom';offsetYPercent=percentValue(style.bottom)??0;}
+  if(centeredPercentValue(style.left)!==undefined){horizontal='center';offsetXPercent=centeredPercentValue(style.left)??0;}
+  else if(style.left!==undefined){horizontal='left';offsetXPercent=percentValue(style.left)??0;}
+  else if(style.right!==undefined){horizontal='right';offsetXPercent=percentValue(style.right)??0;}
+  if(!vertical||!horizontal)return null;
+  const anchor=(vertical==='center'&&horizontal==='center'?'center':`${vertical}-${horizontal}`) as StorefrontLayerAnchor;
+  if(!STOREFRONT_LAYER_ANCHORS.includes(anchor))return null;
+  return{
+    anchor,offsetXPercent,offsetYPercent,
+    widthPercent:percentValue(style.width),heightPercent:percentValue(style.height),
+    zIndex:typeof style.zIndex==='number'?style.zIndex:undefined,
+    opacity:typeof style.opacity==='number'?style.opacity:undefined,
+  };
+}
+
 export function StorefrontFidelityNodeControls({document,node,viewport,configurable,onApply}:{
   document:StorefrontPageDocument;
   node:StorefrontComponentNode;
@@ -77,8 +122,10 @@ export function StorefrontFidelityNodeControls({document,node,viewport,configura
   const supportsTypography=configurable.includes('typography')&&['content.heading','content.text','content.button'].includes(node.componentKey);
   const supportsStyle=configurable.includes('style');
   const supportsArtDirection=node.componentKey==='content.image'&&configurable.includes('artDirection');
+  const supportsLayerGeometry=node.componentKey==='visual.layer'&&configurable.includes('style');
   const typography=directTypography(node,viewport);
   const visualStyle=directStyle(node,viewport);
+  const layerGeometry=supportsLayerGeometry?layerGeometryFromStyle(visualStyle):null;
   const childOrder=node.children?.length?resolveStorefrontChildOrder(document,node,viewport):[];
   const childById=new Map((node.children??[]).map(child=>[child.id,child]));
   const applyTypography=(patch:Partial<StorefrontTypographyValue>)=>{
@@ -90,6 +137,11 @@ export function StorefrontFidelityNodeControls({document,node,viewport,configura
     const next={...visualStyle,...patch};
     for(const[key,value]of Object.entries(next))if(value===''||value===undefined)delete next[key];
     onApply(setStorefrontNodeViewportStyle(document,node.id,viewport,next),`${viewportLabel(viewport)} vizuális stílus módosítva.`);
+  };
+  const applyLayerGeometry=(patch:Partial<StorefrontLayerViewportGeometry>)=>{
+    const base=layerGeometry??{anchor:'center' as const,offsetXPercent:0,offsetYPercent:0};
+    const next={...base,...patch,anchor:(patch.anchor??base.anchor)};
+    onApply(setStorefrontLayerViewportGeometry(document,node.id,viewport,next),`${viewportLabel(viewport)} rétegpozíció módosítva.`);
   };
   const currentArt=artDirection(node);
   const source=(currentArt[viewport]??{}) as StorefrontImageArtDirectionSource;
@@ -114,6 +166,23 @@ export function StorefrontFidelityNodeControls({document,node,viewport,configura
         </div>;
       })}</div>
       <button type="button" className={styles.addSectionButton} onClick={()=>onApply(clearStorefrontResponsiveOrder(document,{parentId:node.id,viewport}),`${viewportLabel(viewport)} belső sorrend öröklésre állítva.`)}>Örökölt belső sorrend visszaállítása</button>
+    </div>:null}
+
+    {supportsLayerGeometry?<div className={styles.fieldGroup}>
+      <strong>{viewportLabel(viewport)} rétegezett kompozíció</strong>
+      <p className={styles.emptyHint}>A réteg csak a saját Layered Canvas területén belül pozicionálható; a vászon levágja a kilógást. Nincs fixed pozíció és nem készül rejtett másolat.</p>
+      <label className={styles.field}><span>Rögzítési pont</span><select value={layerGeometry?.anchor??''} onChange={event=>{
+        const anchor=event.target.value as StorefrontLayerAnchor|'';
+        if(!anchor){onApply(setStorefrontLayerViewportGeometry(document,node.id,viewport,null),`${viewportLabel(viewport)} rétegpozíció öröklésre állítva.`);return;}
+        applyLayerGeometry({anchor});
+      }}><option value="">Örökölt</option>{STOREFRONT_LAYER_ANCHORS.map(anchor=><option key={anchor} value={anchor}>{LAYER_ANCHOR_LABELS[anchor]}</option>)}</select></label>
+      {layerGeometry&&layerGeometry.anchor!=='fill'?<>
+        <label className={styles.field}><span>X eltérés (%)</span><input type="number" min="-50" max="50" step="1" value={layerGeometry.offsetXPercent??0} onChange={event=>applyLayerGeometry({offsetXPercent:numberOrUndefined(event.target.value)??0})}/></label>
+        <label className={styles.field}><span>Y eltérés (%)</span><input type="number" min="-50" max="50" step="1" value={layerGeometry.offsetYPercent??0} onChange={event=>applyLayerGeometry({offsetYPercent:numberOrUndefined(event.target.value)??0})}/></label>
+        <label className={styles.field}><span>Szélesség (%)</span><input type="number" min="5" max="100" step="1" value={layerGeometry.widthPercent??''} placeholder="Örökölt" onChange={event=>applyLayerGeometry({widthPercent:numberOrUndefined(event.target.value)??null})}/></label>
+        <label className={styles.field}><span>Magasság (%)</span><input type="number" min="5" max="100" step="1" value={layerGeometry.heightPercent??''} placeholder="Örökölt" onChange={event=>applyLayerGeometry({heightPercent:numberOrUndefined(event.target.value)??null})}/></label>
+      </>:null}
+      {layerGeometry?<button type="button" className={styles.addSectionButton} onClick={()=>onApply(setStorefrontLayerViewportGeometry(document,node.id,viewport,null),`${viewportLabel(viewport)} rétegpozíció öröklésre állítva.`)}>Rétegpozíció visszaállítása</button>:null}
     </div>:null}
 
     {supportsTypography?<div className={styles.fieldGroup}>
