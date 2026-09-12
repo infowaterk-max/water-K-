@@ -9,6 +9,7 @@ import {
   type StorefrontRuntimeCapabilityContext,
   type StorefrontRuntimeComponentDefinition,
 } from '@/lib/builder/storefront-runtime';
+import {isStorefrontManagedConfigKey} from '@/lib/builder/storefront-managed-config';
 
 export const STOREFRONT_VISUAL_BUILDER_VERSION='shoporation.visual-builder.block22.v1' as const;
 
@@ -275,7 +276,7 @@ export function validateStorefrontBuilderWorkingCopy(input:{
     const previousNode=before.get(id)?.node;
     for(const[key,value]of Object.entries(node.config)){
       assertSafeValue(value);
-      if(definition.manifest.configurable.includes(key))continue;
+      if(definition.manifest.configurable.includes(key)||isStorefrontManagedConfigKey(node.componentKey,key))continue;
       if(!previousNode||!(key in previousNode.config)||JSON.stringify(previousNode.config[key])!==JSON.stringify(value))throw new Error('BUILDER_UNKNOWN_CONFIG_MUTATION_FORBIDDEN');
     }
     for(const[slot,binding]of Object.entries(node.bindings??{})){
