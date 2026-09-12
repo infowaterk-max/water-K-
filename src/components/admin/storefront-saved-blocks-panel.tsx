@@ -11,7 +11,15 @@ import {
   setVisualBuilderReusableSymbolGlobalSlotAction,
   updateVisualBuilderSavedBlockAction,
 } from '@/app/admin/tartalom/builder/actions';
+import {listVisualBuilderPresetLibraryAction} from '@/app/admin/tartalom/builder/preset-actions';
 import {createStorefrontVisualBuilderComponentRegistry} from '@/lib/builder/storefront-builder-registry';
+import {
+  applyStorefrontComponentPresetAppearance,
+  insertStorefrontSectionPreset,
+  type StorefrontBuilderComponentPreset,
+  type StorefrontBuilderPresetLibrary,
+  type StorefrontBuilderSectionPreset,
+} from '@/lib/builder/storefront-preset-application';
 import {insertStorefrontSavedBlock} from '@/lib/builder/storefront-saved-blocks';
 import {
   assertStorefrontReusableSymbolSource,
@@ -43,6 +51,7 @@ type Props={
 export function StorefrontSavedBlocksPanel({document,selectedNode,selectedIsTopLevel,initialSavedBlocks,capability,onApply}:Props){
   const[blocks,setBlocks]=useState(initialSavedBlocks);
   const[symbols,setSymbols]=useState<StorefrontReusableSymbol[]>([]);
+  const[presetLibrary,setPresetLibrary]=useState<StorefrontBuilderPresetLibrary|null>(null);
   const[name,setName]=useState('');
   const[symbolName,setSymbolName]=useState('');
   const[editingId,setEditingId]=useState<string|null>(null);
@@ -57,12 +66,20 @@ export function StorefrontSavedBlocksPanel({document,selectedNode,selectedIsTopL
     if(!selectedNode||!selectedIsTopLevel)return false;
     try{assertStorefrontReusableSymbolSource(selectedNode);return true;}catch{return false;}
   })();
+  const compatibleComponentPresets=selectedNode?presetLibrary?.componentPresets.filter(preset=>preset.componentKey===selectedNode.componentKey&&preset.componentVersion===selectedNode.componentVersion)??[]:[];
 
   useEffect(()=>{
     let active=true;
     listVisualBuilderReusableSymbolsAction().then(items=>{if(active)setSymbols(items);}).catch(reason=>{if(active)setError(reason instanceof Error?reason.message:'A reusable symbol lista nem tölthető be.');});
     return()=>{active=false;};
   },[]);
+
+  useEffect(()=>{
+    let active=true;
+    setPresetLibrary(null);
+    listVisualBuilderPresetLibraryAction({pageKey:document.pageKey}).then(library=>{if(active)setPresetLibrary(library);}).catch(reason=>{if(active)setError(reason instanceof Error?reason.message:'A preset könyvtár nem tölthető be.');});
+    return()=>{active=false;};
+  },[document.pageKey,document.templateKey,document.templateVersion]);
 
   const run=(job:()=>Promise<void>)=>startTransition(()=>{
     setMessage(null);setError(null);
@@ -72,6 +89,18 @@ export function StorefrontSavedBlocksPanel({document,selectedNode,selectedIsTopL
     const validation=validateStorefrontPageDocument(next,registry,capability);
     const failure=validation.violations.find(item=>item.severity==='error');
     if(failure)throw new Error(`STOREFRONT_SYMBOL_NOT_COMPATIBLE:${failure.code}`);
+  };
+
+  const insertPresetSection=(preset:StorefrontBuilderSectionPreset)=>run(async()=>{
+    const inserted=insertStorefrontSectionPreset(document,preset,registry,capability);
+    onApply(inserted.document,inserted.insertedNodeId,`„${preset.label}” gyári szekció-preset beillesztve · a draft még nincs mentve.`);
+  });
+  const applyComponentPreset=(preset:StorefrontBuilderComponentPreset)=>{
+    if(!selectedNode){setError('Komponens presethez válassz ki egy kompatibilis elemet.');return;}
+    run(async()=>{
+      const next=applyStorefrontComponentPresetAppearance(document,{nodeId:selectedNode.id,preset},registry,capability);
+      onApply(next,selectedNode.id,`„${preset.label}” megjelenési preset alkalmazva · a tartalom és bindingok változatlanok.`);
+    });
   };
 
   const saveSelected=()=>{
@@ -140,6 +169,26 @@ export function StorefrontSavedBlocksPanel({document,selectedNode,selectedIsTopL
   });
 
   return <div className={styles.fieldGroup} data-storefront-saved-blocks-v1>
+    <div data-storefront-preset-library-v1>
+      <strong>Preset könyvtár</strong>
+      <p className={styles.emptyHint}>Az aktuális sablon gyári szekcióit friss ID-kkel illesztheted be. Komponens preset csak a kijelölt kompatibilis elem megjelenését és responsive beállításait módosítja; tartalmat, bindingot és gyerekstruktúrát nem ír felül.</p>
+      {presetLibrary?<p className={styles.emptyHint}>{presetLibrary.templateKey} · v{presetLibrary.templateVersion} · forrás: {presetLibrary.sourcePageKey}</p>:<p className={styles.emptyHint}>Presetek betöltése…</p>}
+      <div className={styles.componentLibrary}>{presetLibrary?.sectionPresets.map(preset=><article key={preset.presetId}>
+        <span className={styles.componentLibraryIcon}>▧</span><span><strong>{preset.label}</strong><small>{label(preset.componentKey)} · gyári szekció</small></span>
+        <div><button type="button" disabled={busy} onClick={()=>insertPresetSection(preset)}>Beillesztés</button></div>
+      </article>)}</div>
+      {presetLibrary&&!presetLibrary.sectionPresets.length?<p className={styles.emptyHint}>Ehhez az oldaltípushoz nincs beilleszthető gyári szekció-preset.</p>:null}
+      {selectedNode?<>
+        <p className={styles.emptyHint}>Kijelölt komponens: <strong>{label(selectedNode.componentKey)}</strong></p>
+        <div className={styles.componentLibrary}>{compatibleComponentPresets.map(preset=><article key={preset.presetId}>
+          <span className={styles.componentLibraryIcon}>◫</span><span><strong>{preset.label}</strong><small>{label(preset.componentKey)} · megjelenési preset</small></span>
+          <div><button type="button" disabled={busy} onClick={()=>applyComponentPreset(preset)}>Alkalmazás</button></div>
+        </article>)}</div>
+        {presetLibrary&&!compatibleComponentPresets.length?<p className={styles.emptyHint}>A kijelölt elemhez nincs kompatibilis gyári komponens-preset ezen a sablonoldalon.</p>:null}
+      </>:<p className={styles.emptyHint}>Komponens-presethez jelölj ki egy elemet a vásznon.</p>}
+    </div>
+
+    <div className={styles.panelDivider}/>
     <strong>Saját mentett blokkok</strong>
     <p className={styles.emptyHint}>Ments el egy teljes felső szintű szekciót, majd illeszd be bármely kompatibilis oldalra. A beillesztés nem publikál és nem ment automatikusan.</p>
     <label className={styles.field}><span>Blokk neve</span><input value={name} maxLength={80} placeholder={selectedNode?label(selectedNode.componentKey):'Pl. Nyári hero'} onChange={event=>setName(event.target.value)}/></label>
