@@ -6,7 +6,7 @@ const ALAP_REQUIRED: FeatureCode[] = [
 ];
 
 const PRO_ONLY: FeatureCode[] = [
-  'advancedAnalytics','crm','advancedCampaigns','officeCommunicationAdvanced','automation','procurement','cashflow','executiveAnalytics','advancedIntegrations','apiAccess',
+  'advancedAnalytics','crm','advancedCampaigns','officeCommunicationAdvanced','automation','procurement','cashflow','executiveAnalytics','advancedIntegrations','apiAccess','interactiveSceneCommerce',
 ];
 
 describe('business plan entitlement matrix', () => {

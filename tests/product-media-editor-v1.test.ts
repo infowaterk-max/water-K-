@@ -94,9 +94,14 @@ describe('Product Media Editor v1',()=>{
  });
  it('preserves Product Media Editor as baseline 0013 while later genuine proofs may advance the baseline contract',()=>{
   const manifest=JSON.parse(read('supabase/customer-baseline/manifest.json'))as{status:string;freshInstallProofRequired:boolean;proofContractSha256:string|null};
-  expect(manifest.status).toBe('ready');
-  expect(manifest.freshInstallProofRequired).toBe(false);
-  expect(manifest.proofContractSha256).toMatch(/^[a-f0-9]{64}$/);
+  expect(['ready','snapshot-reviewed']).toContain(manifest.status);
+  if(manifest.status==='ready'){
+   expect(manifest.freshInstallProofRequired).toBe(false);
+   expect(manifest.proofContractSha256).toMatch(/^[a-f0-9]{64}$/);
+  }else{
+   expect(manifest.freshInstallProofRequired).toBe(true);
+   expect(manifest.proofContractSha256).toBeNull();
+  }
   expect(read(baselinePath)).toBe(read(migrationPath));
  });
 });

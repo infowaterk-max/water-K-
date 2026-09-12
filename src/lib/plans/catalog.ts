@@ -31,7 +31,8 @@ export type FeatureCode =
   | 'cashflow'
   | 'executiveAnalytics'
   | 'advancedIntegrations'
-  | 'apiAccess';
+  | 'apiAccess'
+  | 'interactiveSceneCommerce';
 
 export type PlanDefinition = {
   code: PlanCode;
@@ -75,6 +76,7 @@ const PRO_FEATURES = [
   'executiveAnalytics',
   'advancedIntegrations',
   'apiAccess',
+  'interactiveSceneCommerce',
 ] as const satisfies readonly FeatureCode[];
 
 /** Reserved feature codes remain typed but fail closed until a later explicit release. */
