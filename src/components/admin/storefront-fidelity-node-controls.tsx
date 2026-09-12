@@ -3,6 +3,8 @@
 import type {StorefrontViewport} from '@/lib/builder/storefront-foundation';
 import type {StorefrontComponentNode,StorefrontPageDocument} from '@/lib/builder/storefront-runtime';
 import {
+  clearStorefrontResponsiveOrder,
+  moveStorefrontChildAtViewport,
   setStorefrontImageArtDirection,
   setStorefrontNodeTypography,
   setStorefrontNodeViewportStyle,
@@ -14,7 +16,11 @@ import {
   type StorefrontTypographyValue,
 } from '@/lib/builder/storefront-fidelity-typography';
 import {sanitizeStorefrontVisualStyleSlot,type StorefrontVisualStyleSlot} from '@/lib/builder/storefront-visual-style';
-import type {StorefrontImageArtDirection,StorefrontImageArtDirectionSource} from '@/lib/builder/storefront-fidelity-engine';
+import {
+  resolveStorefrontChildOrder,
+  type StorefrontImageArtDirection,
+  type StorefrontImageArtDirectionSource,
+} from '@/lib/builder/storefront-fidelity-engine';
 import styles from './storefront-visual-builder.module.css';
 
 const VIEWPORT_KEYS=['base','desktop','tablet','mobile'] as const;
@@ -73,6 +79,8 @@ export function StorefrontFidelityNodeControls({document,node,viewport,configura
   const supportsArtDirection=node.componentKey==='content.image'&&configurable.includes('artDirection');
   const typography=directTypography(node,viewport);
   const visualStyle=directStyle(node,viewport);
+  const childOrder=node.children?.length?resolveStorefrontChildOrder(document,node,viewport):[];
+  const childById=new Map((node.children??[]).map(child=>[child.id,child]));
   const applyTypography=(patch:Partial<StorefrontTypographyValue>)=>{
     const next={...typography,...patch};
     for(const[key,value]of Object.entries(next))if(value===undefined)delete(next as Record<string,unknown>)[key];
@@ -95,6 +103,19 @@ export function StorefrontFidelityNodeControls({document,node,viewport,configura
   if(!advanced)return <div className={styles.fieldGroup}><strong>Haladó elemvezérlés</strong><p className={styles.emptyHint}>A responsive tipográfia, képfókusz és részletes vizuális beállítások a Haladó vagy Expert szerkesztési módban érhetők el.</p></div>;
 
   return <>
+    {childOrder.length>1?<div className={styles.fieldGroup}>
+      <strong>{viewportLabel(viewport)} belső elemsorrend</strong>
+      <p className={styles.emptyHint}>A gyerek-elemek nézetenként rendezhetők, valódi DOM-duplikáció nélkül. Az örökölt sorrend bármikor visszaállítható.</p>
+      <div className={styles.outline}>{childOrder.map((childId,index)=>{
+        const child=childById.get(childId);if(!child)return null;
+        return <div key={child.id} className={styles.outlineRow}>
+          <span className={styles.outlineIcon} aria-hidden="true">↳</span><span><strong>{child.id}</strong><small>{child.componentKey}</small></span>
+          <span className={styles.rowMoves}><button type="button" aria-label={`${child.id} feljebb`} disabled={index===0} onClick={()=>onApply(moveStorefrontChildAtViewport(document,node.id,viewport,child.id,index-1),`${viewportLabel(viewport)} belső sorrend módosítva.`)}>↑</button><button type="button" aria-label={`${child.id} lejjebb`} disabled={index===childOrder.length-1} onClick={()=>onApply(moveStorefrontChildAtViewport(document,node.id,viewport,child.id,index+1),`${viewportLabel(viewport)} belső sorrend módosítva.`)}>↓</button></span>
+        </div>;
+      })}</div>
+      <button type="button" className={styles.addSectionButton} onClick={()=>onApply(clearStorefrontResponsiveOrder(document,{parentId:node.id,viewport}),`${viewportLabel(viewport)} belső sorrend öröklésre állítva.`)}>Örökölt belső sorrend visszaállítása</button>
+    </div>:null}
+
     {supportsTypography?<div className={styles.fieldGroup}>
       <strong>{viewportLabel(viewport)} tipográfia</strong>
       <p className={styles.emptyHint}>Csak ezt a nézetet módosítja; az üres mező az örökölt értéket használja.</p>
