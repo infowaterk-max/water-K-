@@ -4,7 +4,7 @@ import {getFeatureEntitlementDecisions} from '@/lib/entitlements/access';
 import {isPlanCode,PLANS,type FeatureCode, type PlanCode} from '@/lib/plans/catalog';
 import type {StorefrontRuntimeCapabilityContext} from '@/lib/builder/storefront-runtime';
 
-const ENTITLEMENT_GATED_STOREFRONT_FEATURES=['interactiveSceneCommerce'] as const satisfies readonly FeatureCode[];
+const ENTITLEMENT_GATED_STOREFRONT_FEATURES=['interactiveSceneCommerce','recipeCommerce'] as const satisfies readonly FeatureCode[];
 const gatedSet=new Set<FeatureCode>(ENTITLEMENT_GATED_STOREFRONT_FEATURES);
 
 async function resolvePlan(instanceId:string,knownPlan?:PlanCode):Promise<PlanCode|null>{

@@ -5,6 +5,7 @@ import {getCurrentWebshopInstance} from '@/lib/instances/access';
 import type {StorefrontRuntimeCapabilityContext,StorefrontPageDocument} from '@/lib/builder/storefront-runtime';
 import type {StorefrontExistingTemplatePage} from '@/lib/builder/storefront-template-installation';
 import {getCurrentStorefrontInteractiveSceneCatalog} from '@/lib/builder/storefront-interactive-scene-server';
+import {getStorefrontRecipeCommerceBundleForInstance} from '@/lib/builder/storefront-recipe-commerce-server';
 import {getStorefrontRuntimeCapabilityForInstance} from '@/lib/builder/storefront-runtime-capability-server';
 
 export type StorefrontBuilderPageListItem={
@@ -95,10 +96,19 @@ export async function getCurrentStorefrontBuilderBindingContext():Promise<Record
     getCurrentStorefrontInteractiveSceneCatalog(),
   ]);
   if(!instance||instance.id!==scope.instanceId)throw new Error('BUILDER_STORE_CONTEXT_MISMATCH');
+  const capability=await getStorefrontRuntimeCapabilityForInstance(instance.id,instance.subscriptionPlan);
+  if(!capability)throw new Error('BUILDER_CAPABILITY_UNAVAILABLE');
+  const recipeBundle=new Set(capability.features).has('recipeCommerce')
+    ?await getStorefrontRecipeCommerceBundleForInstance(instance.id)
+    :{recipes:[],options:[],catalog:[]} as const;
   return{
     brand:{name:instance.brand.name,tagline:instance.brand.tagline,logoUrl:instance.brand.logoUrl,primaryColor:instance.brand.primaryColor},
     navigation:{primary:[]},
-    catalog:{interactiveSceneProducts:sceneCatalog.products},
+    catalog:{
+      interactiveSceneProducts:sceneCatalog.products,
+      recipeDefinitions:recipeBundle.recipes,
+      recipeProducts:recipeBundle.catalog,
+    },
   };
 }
 
