@@ -1,5 +1,6 @@
 import type {CSSProperties,ReactNode} from 'react';
-import {createStorefrontPrimitiveRendererRegistry,type StorefrontComponentRenderProps} from '@/components/builder/storefront-primitives';
+import {createStorefrontPrimitiveRendererRegistry} from '@/components/builder/storefront-primitives';
+import type {StorefrontComponentRenderProps} from '@/components/builder/storefront-runtime-renderer';
 import {sanitizeStorefrontStyleSlots} from '@/lib/builder/storefront-fidelity-engine';
 import {resolveStorefrontVisualStyle} from '@/lib/builder/storefront-visual-style';
 
