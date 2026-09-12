@@ -26,7 +26,7 @@ function TrustStripRenderer({config,node,viewport}:StorefrontComponentRenderProp
   })).filter(item=>item.label||item.copy);
   if(!items.length)return null;
   const requested=Math.max(1,Math.min(6,Math.round(number(config.columns,items.length||3))));
-  const mobile=Math.max(1,Math.min(2,Math.round(number(config.mobileColumns,1))));
+  const mobile=Math.max(1,Math.min(3,Math.round(number(config.mobileColumns,1))));
   const columns=viewport==='mobile'?Math.min(mobile,requested):viewport==='tablet'?Math.min(3,requested):requested;
   const slot=slotStyles(config,viewport);
   return <ul data-storefront-content="trust-strip" data-presentation={text(config.presentation)||undefined} style={{...span(node),listStyle:'none',margin:0,padding:0,display:'grid',gridTemplateColumns:`repeat(${columns},minmax(0,1fr))`,gap:'var(--shoporation-space-s, 1rem)',...slot('root')}}>
