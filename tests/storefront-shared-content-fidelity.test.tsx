@@ -9,6 +9,11 @@ import {PLANS} from '@/lib/plans/catalog';
 import type {StorefrontPageDocument} from '@/lib/builder/storefront-runtime';
 
 const capability={plan:'alap' as const,features:PLANS.alap.features};
+const trustItems=[
+  {id:'stock',symbol:'◌',label:'Raktáron',copy:'Készletinformáció'},
+  {id:'shipping',symbol:'↗',label:'Gyors szállítás',copy:'Szállítási információ'},
+  {id:'returns',symbol:'✓',label:'Visszaküldés',copy:'Visszaküldési feltétel'},
+] as const;
 const page:StorefrontPageDocument={
   schemaVersion:1,
   pageKey:'shared-content.product',
@@ -19,15 +24,10 @@ const page:StorefrontPageDocument={
     {
       id:'trust',componentKey:'content.trust-strip',componentVersion:1,
       config:{
-        columns:3,mobileColumns:1,presentation:'compact',
-        items:[
-          {id:'stock',symbol:'◌',label:'Raktáron',copy:'Készletinformáció'},
-          {id:'shipping',symbol:'↗',label:'Gyors szállítás',copy:'Szállítási információ'},
-          {id:'returns',symbol:'✓',label:'Visszaküldés',copy:'Visszaküldési feltétel'},
-        ],
+        columns:3,mobileColumns:1,presentation:'compact',items:trustItems,
         styleSlots:{root:{base:{borderTop:'1px solid #e6e6e6'},mobile:{gap:'.4rem'}},label:{base:{fontWeight:750}}},
       },
-      bindings:{items:{path:'content.productTrust.items',fallback:[]}},
+      bindings:{items:{path:'content.productTrust.items',fallback:trustItems}},
     },
     {
       id:'comparison',componentKey:'editorial.before-after',componentVersion:1,
