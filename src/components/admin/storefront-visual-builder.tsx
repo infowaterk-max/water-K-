@@ -5,6 +5,7 @@ import {useState,useTransition,type DragEvent,type ReactNode} from 'react';
 import {useRouter} from 'next/navigation';
 import {StorefrontRuntimeRenderer} from '@/components/builder/storefront-runtime-renderer';
 import {StorefrontFidelitySettings} from '@/components/admin/storefront-fidelity-settings';
+import {StorefrontSavedBlocksPanel} from '@/components/admin/storefront-saved-blocks-panel';
 import {createStorefrontVisualBuilderRendererRegistry} from '@/components/builder/storefront-builder-renderer-registry';
 import {createStorefrontVisualBuilderComponentRegistry} from '@/lib/builder/storefront-builder-registry';
 import {
@@ -24,6 +25,7 @@ import {
   type StorefrontRuntimeCapabilityContext,
   type StorefrontResolvedComponentNode,
 } from '@/lib/builder/storefront-runtime';
+import type {StorefrontSavedBlockSummary} from '@/lib/builder/storefront-saved-block-persistence';
 import type {StorefrontViewport} from '@/lib/builder/storefront-foundation';
 import type {FeatureCode} from '@/lib/plans/catalog';
 import type {StorefrontBuilderPageListItem,StorefrontBuilderRevisionListItem} from '@/lib/builder/storefront-builder-server';
@@ -55,6 +57,7 @@ type Props={
   capability:StorefrontRuntimeCapabilityContext;
   bindingContext:Record<string,unknown>;
   templates:TemplateEntry[];
+  savedBlocks:StorefrontSavedBlockSummary[];
 };
 
 type FlatNode={node:StorefrontComponentNode;parentId:string|null;index:number;depth:number};
@@ -179,7 +182,7 @@ function Outline({document,selectedId,onSelect,onMove}:{document:StorefrontPageD
   </div>)}</div>;
 }
 
-export function StorefrontVisualBuilder({pages,document:initialDocument,pageId,draftRevision:initialDraftRevision,publishedRevision:initialPublishedRevision,revisions,capability,bindingContext,templates}:Props){
+export function StorefrontVisualBuilder({pages,document:initialDocument,pageId,draftRevision:initialDraftRevision,publishedRevision:initialPublishedRevision,revisions,capability,bindingContext,templates,savedBlocks}:Props){
   const router=useRouter();
   const[busy,startTransition]=useTransition();
   const[history,setHistory]=useState<StorefrontBuilderHistory|null>(()=>initialDocument?createStorefrontBuilderHistory(initialDocument):null);
@@ -384,6 +387,19 @@ export function StorefrontVisualBuilder({pages,document:initialDocument,pageId,d
               const canInsertRoot=insertableRoot.some(candidate=>candidate.componentKey===item.componentKey&&candidate.componentVersion===item.componentVersion);
               return <article key={`${item.componentKey}@${item.componentVersion}`}><span className={styles.componentLibraryIcon}>{componentIcon(item.componentKey)}</span><span><strong>{componentLabel(item.componentKey)}</strong><small>{componentGroup(item.componentKey)} · {item.responsiveMode}</small></span><div>{canInsertIntoSelected?<button type="button" title="Beillesztés a kijelölt elembe" onClick={()=>addComponent(item,selected?.id??null)}>Beillesztés</button>:canInsertRoot?<button type="button" onClick={()=>addComponent(item,null)}>Hozzáadás</button>:null}</div></article>})}</div>
             {!visibleInsertable.length?<p className={styles.emptyHint}>Nincs a keresésnek megfelelő, ezen az oldalon engedélyezett komponens.</p>:null}
+            <StorefrontSavedBlocksPanel
+              document={document}
+              selectedNode={selected}
+              selectedIsTopLevel={selectedFlat?.parentId===null}
+              initialSavedBlocks={savedBlocks}
+              capability={capability}
+              onApply={(next,insertedNodeId,message)=>{
+                applyFidelity(next,message);
+                setSelectedId(insertedNodeId);
+                setPanelMode('pages');
+                setEditorTab('content');
+              }}
+            />
             <button type="button" className={styles.addSectionButton} onClick={openTemplateLibrary}>▦ Sablonkönyvtár megnyitása</button>
           </>:null}
 

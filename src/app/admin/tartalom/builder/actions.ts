@@ -8,6 +8,12 @@ import {
   rollbackCurrentStorefrontPage,
   saveCurrentStorefrontPageDraft,
 } from '@/lib/builder/storefront-persistence';
+import {
+  createCurrentStorefrontSavedBlock,
+  deleteCurrentStorefrontSavedBlock,
+  getCurrentStorefrontSavedBlock,
+  updateCurrentStorefrontSavedBlock,
+} from '@/lib/builder/storefront-saved-block-persistence';
 import {saveCurrentStorefrontTemplateDraftPlan} from '@/lib/builder/storefront-template-persistence';
 import {getStorefrontTemplatePackage} from '@/lib/builder/storefront-template-catalog';
 import {planStorefrontTemplateInstallation} from '@/lib/builder/storefront-template-installation';
@@ -22,7 +28,7 @@ import {
   getCurrentStorefrontBuilderCapability,
   listCurrentStorefrontTemplatePlanningPages,
 } from '@/lib/builder/storefront-builder-server';
-import type {StorefrontPageDocument} from '@/lib/builder/storefront-runtime';
+import type {StorefrontComponentNode,StorefrontPageDocument} from '@/lib/builder/storefront-runtime';
 
 const refresh=()=>revalidatePath('/admin/tartalom/builder');
 
@@ -64,6 +70,28 @@ export async function publishVisualBuilderPageAction(input:{pageId:string;expect
 
 export async function rollbackVisualBuilderPageAction(input:{pageId:string;targetPublishedRevision:number;expectedCurrentPublishedRevision:number;operationKey:string}){
   const result=await rollbackCurrentStorefrontPage(input);
+  refresh();
+  return result;
+}
+
+export async function createVisualBuilderSavedBlockAction(input:{name:string;fragment:StorefrontComponentNode;operationKey:string}){
+  const result=await createCurrentStorefrontSavedBlock(input);
+  refresh();
+  return result;
+}
+
+export async function getVisualBuilderSavedBlockAction(input:{blockId:string}){
+  return getCurrentStorefrontSavedBlock(input.blockId);
+}
+
+export async function updateVisualBuilderSavedBlockAction(input:{blockId:string;name?:string;description?:string|null;category?:string|null;operationKey:string}){
+  const result=await updateCurrentStorefrontSavedBlock(input);
+  refresh();
+  return result;
+}
+
+export async function deleteVisualBuilderSavedBlockAction(input:{blockId:string;operationKey:string}){
+  const result=await deleteCurrentStorefrontSavedBlock(input);
   refresh();
   return result;
 }

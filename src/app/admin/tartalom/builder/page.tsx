@@ -2,6 +2,7 @@ import type {CSSProperties} from 'react';
 import {requirePlanFeature} from '@/lib/plans/access';
 import {requireCurrentStoreContext} from '@/lib/instances/scope';
 import {getCurrentStorefrontPageState} from '@/lib/builder/storefront-persistence';
+import {listCurrentStorefrontSavedBlocks} from '@/lib/builder/storefront-saved-block-persistence';
 import {
   getCurrentStorefrontBuilderBindingContext,
   getCurrentStorefrontBuilderCapability,
@@ -20,11 +21,12 @@ type Props={searchParams:Promise<{page?:string;view?:string}>};
 export default async function VisualBuilderAdmin({searchParams}:Props){
   await requirePlanFeature('contentMarketing');
   await requireCurrentStoreContext('store.manage');
-  const[params,pages,capability,bindingContext]=await Promise.all([
+  const[params,pages,capability,bindingContext,savedBlocks]=await Promise.all([
     searchParams,
     listCurrentStorefrontBuilderPages(),
     getCurrentStorefrontBuilderCapability(),
     getCurrentStorefrontBuilderBindingContext(),
+    listCurrentStorefrontSavedBlocks(),
   ]);
   const requested=(params.page??'').trim();
   const selectedKey=pages.some(page=>page.pageKey===requested)?requested:pages[0]?.pageKey??null;
@@ -56,6 +58,7 @@ export default async function VisualBuilderAdmin({searchParams}:Props){
       revisions={revisions}
       capability={capability}
       bindingContext={bindingContext}
+      savedBlocks={savedBlocks}
       templates={STOREFRONT_TEMPLATE_CATALOG.map(template=>({
         templateKey:template.templateKey,
         templateVersion:template.templateVersion,
