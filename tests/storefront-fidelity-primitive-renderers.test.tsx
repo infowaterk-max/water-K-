@@ -12,7 +12,7 @@ const page:StorefrontPageDocument={
   templateKey:'reference.fidelity-primitive',
   templateVersion:1,
   sections:[{
-    id:'section',componentKey:'layout.section',componentVersion:1,config:{tone:'background',spacing:'none',width:'full',styleSlots:{root:{base:{backgroundColor:'#faf7ff'}},inner:{base:{maxWidth:'70rem'}}}},children:[
+    id:'section',componentKey:'layout.section',componentVersion:1,config:{tone:'background',spacing:'none',width:'full',deferOffscreen:true,intrinsicSize:'auto 720px',styleSlots:{root:{base:{backgroundColor:'#faf7ff'}},inner:{base:{maxWidth:'70rem'}}}},children:[
       {id:'title',componentKey:'content.heading',componentVersion:1,config:{text:'YOUR SKIN.\nYOUR FORMULA.',level:1,align:'left',tone:'text',typography:{base:{fontToken:'display',fluidSize:{minRem:3,maxRem:6,preferredVw:7},fontWeight:800,lineHeight:.88,letterSpacingEm:-.04,maxWidthCh:13,preserveLineBreaks:true},mobile:{fluidSize:{minRem:2.4,maxRem:3.1,preferredVw:10}}},styleSlots:{root:{base:{color:'#7c5aa6'}}}}},
     ],
   }],
@@ -26,6 +26,13 @@ describe('Fidelity primitive renderer controls',()=>{
     expect(html).toContain('background-color:#faf7ff');
     expect(html).toContain('max-width:70rem');
     expect(html).toContain('color:#7c5aa6');
+  });
+
+  it('renders opt-in offscreen deferral through the shared section primitive',()=>{
+    const html=render('desktop');
+    expect(html).toContain('data-storefront-defer-offscreen="true"');
+    expect(html).toContain('content-visibility:auto');
+    expect(html).toContain('contain-intrinsic-size:auto 720px');
   });
 
   it('renders responsive typography and deliberate line breaks through the shared heading primitive',()=>{
