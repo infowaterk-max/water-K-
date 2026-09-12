@@ -25,3 +25,8 @@ export const STOREFRONT_PURCHASE_CONTROLS_COMPONENT_DEFINITION:StorefrontRuntime
     'productId','variantId','slug','name','unitPrice','availableQuantity','minimumQuantity','orderMultiple','purchaseLabel','wishlistLabel',
   ],
 };
+
+/** Canonical family export consumed by the shared Builder component registry. */
+export const STOREFRONT_PURCHASE_CONTROLS_COMPONENT_DEFINITIONS=[
+  STOREFRONT_PURCHASE_CONTROLS_COMPONENT_DEFINITION,
+] as const satisfies readonly StorefrontRuntimeComponentDefinition[];
