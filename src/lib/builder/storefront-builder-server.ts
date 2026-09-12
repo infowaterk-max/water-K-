@@ -2,10 +2,10 @@ import 'server-only';
 import {createAdminClient} from '@/lib/supabase/admin';
 import {requireCurrentStoreContext} from '@/lib/instances/scope';
 import {getCurrentWebshopInstance} from '@/lib/instances/access';
-import {PLANS} from '@/lib/plans/catalog';
 import type {StorefrontRuntimeCapabilityContext,StorefrontPageDocument} from '@/lib/builder/storefront-runtime';
 import type {StorefrontExistingTemplatePage} from '@/lib/builder/storefront-template-installation';
 import {getCurrentStorefrontInteractiveSceneCatalog} from '@/lib/builder/storefront-interactive-scene-server';
+import {getStorefrontRuntimeCapabilityForInstance} from '@/lib/builder/storefront-runtime-capability-server';
 
 export type StorefrontBuilderPageListItem={
   pageId:string;
@@ -31,7 +31,9 @@ export type StorefrontBuilderRevisionListItem={
 export async function getCurrentStorefrontBuilderCapability():Promise<StorefrontRuntimeCapabilityContext>{
   const[scope,instance]=await Promise.all([requireCurrentStoreContext('store.read'),getCurrentWebshopInstance()]);
   if(!instance||instance.id!==scope.instanceId)throw new Error('BUILDER_STORE_CONTEXT_MISMATCH');
-  return{plan:instance.subscriptionPlan,features:[...PLANS[instance.subscriptionPlan].features]};
+  const capability=await getStorefrontRuntimeCapabilityForInstance(instance.id,instance.subscriptionPlan);
+  if(!capability)throw new Error('BUILDER_CAPABILITY_UNAVAILABLE');
+  return capability;
 }
 
 export async function listCurrentStorefrontBuilderPages():Promise<StorefrontBuilderPageListItem[]>{
