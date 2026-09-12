@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - feature/visual-fidelity-recovery-beauty-lab
+      - feature/visual-builder-fidelity-engine
 
 permissions:
   contents: read
