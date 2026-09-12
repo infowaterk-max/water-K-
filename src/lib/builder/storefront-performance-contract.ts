@@ -50,11 +50,11 @@ const isRecord=(value:unknown):value is Record<string,unknown>=>Boolean(value)&&
 
 function countStyleDeclarations(value:unknown):number{
   if(!isRecord(value))return 0;
-  return Object.values(value).reduce((sum,child)=>sum+(isRecord(child)?countStyleDeclarations(child):1),0);
+  return Object.values(value).reduce<number>((sum,child)=>sum+(isRecord(child)?countStyleDeclarations(child):1),0);
 }
 
 function nodeStyleDeclarations(node:StorefrontComponentNode):number{
-  return Object.entries(node.config).reduce((sum,[key,value])=>sum+((key==='style'||key.endsWith('Style'))?countStyleDeclarations(value):0),0);
+  return Object.entries(node.config).reduce<number>((sum,[key,value])=>sum+((key==='style'||key.endsWith('Style'))?countStyleDeclarations(value):0),0);
 }
 
 export function measureStorefrontPerformance(document:StorefrontPageDocument):StorefrontPerformanceMetrics{
