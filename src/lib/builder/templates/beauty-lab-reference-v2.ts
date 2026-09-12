@@ -2,7 +2,7 @@ import type {StorefrontComponentNode,StorefrontPageDocument} from '@/lib/builder
 import type {StorefrontInstallableTemplatePackage} from '@/lib/builder/storefront-template-installation';
 import {BEAUTY_LAB_TEMPLATE_PACKAGE as BEAUTY_LAB_CANARY_PACKAGE} from '@/lib/builder/templates/beauty-lab';
 
-export const BEAUTY_LAB_REFERENCE_V2_VERSION='shoporation.beauty-lab-reference-v2.3' as const;
+export const BEAUTY_LAB_REFERENCE_V2_VERSION='shoporation.beauty-lab-reference-v2.4' as const;
 
 const HERO_IMAGE='https://images.pexels.com/photos/8990301/pexels-photo-8990301.jpeg?auto=compress&dpr=1&h=750&w=1260';
 const SERUM_IMAGE='https://images.pexels.com/photos/14473397/pexels-photo-14473397.jpeg?auto=compress&dpr=1&h=750&w=1260';
@@ -42,7 +42,7 @@ function buildHome(base:StorefrontPageDocument){
   setFallback(productImage,'alt','content.formulaHero.productImageAlt','Beauty Lab targeted serum');
 
   const title=required(page,'beauty-hero-title');
-  title.config={...title.config,style:{base:{fontFamily:'var(--shoporation-display-font, "Arial Narrow", Impact, sans-serif)',fontSize:'clamp(4rem,6.7vw,6.8rem)',fontWeight:900,fontStretch:'condensed',lineHeight:.82,letterSpacing:'-.052em',textTransform:'uppercase',maxWidth:'7.4ch',color:'#111111',whiteSpace:'pre-line'},tablet:{fontSize:'clamp(3.8rem,8vw,5.6rem)'},mobile:{fontSize:'clamp(2.85rem,13vw,4rem)',lineHeight:.82,maxWidth:'7ch',color:'#111111'}},accentStyle:{base:{color:'#B58AD3'},mobile:{color:'#B58AD3'}}};
+  title.config={...title.config,style:{base:{fontFamily:'var(--shoporation-display-font, "Arial Narrow", Impact, sans-serif)',fontSize:'clamp(3.65rem,5.8vw,5.8rem)',fontWeight:900,fontStretch:'condensed',lineHeight:.84,letterSpacing:'-.04em',textTransform:'uppercase',maxWidth:'12ch',color:'#111111',whiteSpace:'pre-line'},tablet:{fontSize:'clamp(3.2rem,7.2vw,4.8rem)',maxWidth:'12ch'},mobile:{fontSize:'clamp(2.45rem,11vw,3.15rem)',lineHeight:.84,maxWidth:'12ch',color:'#111111'}},accentStyle:{base:{color:'#B58AD3'},mobile:{color:'#B58AD3'}}};
 
   const copy=required(page,'beauty-hero-copy');
   copy.config={...copy.config,text:'Hatékony összetevők.\nLátható eredmények.\nNeked.',tone:'text',style:{base:{fontFamily:'Arial, Helvetica, sans-serif',fontSize:'.86rem',fontWeight:520,lineHeight:1.5,maxWidth:'24ch',whiteSpace:'pre-line',color:'#222222'},mobile:{display:'block',fontSize:'.76rem',lineHeight:1.42,maxWidth:'21ch',color:'#222222'}}};
@@ -53,7 +53,7 @@ function buildHome(base:StorefrontPageDocument){
   setFallback(cta,'label','content.formulaHero.primaryLabel','Találd meg a formulád  →');
 
   const titleLayer=required(page,'beauty-hero-title-layer');
-  titleLayer.config={...titleLayer.config,style:{base:{top:'13%',left:'4.5%',right:'auto',bottom:'auto',width:'43%',maxWidth:'36rem',height:'auto',padding:0,transform:'none'},tablet:{top:'16%',left:'3.5%',width:'49%'},mobile:{top:'12%',left:'1rem',right:'1rem',width:'auto',maxWidth:'none'}}};
+  titleLayer.config={...titleLayer.config,style:{base:{top:'14%',left:'4.5%',right:'auto',bottom:'auto',width:'54%',maxWidth:'43rem',height:'auto',padding:0,transform:'none'},tablet:{top:'16%',left:'3.5%',width:'58%'},mobile:{top:'12%',left:'1rem',right:'1rem',width:'auto',maxWidth:'none'}}};
   const copyLayer=required(page,'beauty-hero-copy-layer');
   copyLayer.config={...copyLayer.config,style:{base:{top:'auto',left:'4.5%',bottom:'19%',right:'auto',width:'25rem',maxWidth:'34%',height:'auto',padding:0,transform:'none'},tablet:{left:'3.5%',bottom:'18%',maxWidth:'40%'},mobile:{display:'block',left:'1rem',bottom:'5rem',width:'auto',maxWidth:'53%'}}};
   const ctaLayer=required(page,'beauty-hero-primary-cta-layer');
@@ -93,11 +93,21 @@ function buildHome(base:StorefrontPageDocument){
   const finder=required(page,'formula-finder');
   finder.config={...finder.config,eyebrow:'FORMULA FINDER',title:'Mi az, amin javítani szeretnél?',copy:'Válassz célt, majd finomíts textúra és preferencia szerint.',actionLabel:'Tovább  →',asideTitle:'SZEMÉLYRE SZABOTT AJÁNLÁSOK',asideCopy:'3 egyszerű kérdés, valódi eredmények.'};
   const ingredient=required(page,'beauty-ingredient-index-block');
-  ingredient.config={...ingredient.config,eyebrow:'INGREDIENT INDEX',title:'Ismerd meg az összetevőket',copy:'Tudatos választás. Valódi hatás.'};
+  const ingredientItems=Array.isArray(ingredient.config.items)?clone(ingredient.config.items) as Record<string,unknown>[]:[];
+  const ingredientFallback=[
+    ...ingredientItems,
+    ...(ingredientItems[0]?[{...ingredientItems[0],id:'vitamin-c',label:'Vitamin C',href:'/osszetevok/vitamin-c',copy:'Ragyogásfókuszú antioxidáns összetevő.',meta:'C'}]:[]),
+    ...(ingredientItems[1]?[{...ingredientItems[1],id:'peptides',label:'Peptides',href:'/osszetevok/peptides',copy:'Peptid-alapú összetevő a feszességfókuszú formulákhoz.',meta:'PEP'}]:[]),
+  ];
+  ingredient.config={...ingredient.config,eyebrow:'INGREDIENT INDEX',title:'Ismerd meg az összetevőket',copy:'Tudatos választás. Valódi hatás.',items:ingredientFallback,columns:6};
+  setFallback(ingredient,'items','catalog.ingredientIndex',ingredientFallback);
   const texture=required(page,'beauty-texture-navigation');
   texture.config={...texture.config,eyebrow:'TEXTURE LAB',title:'Találd meg a hozzád illő textúrát',copy:'Érezd a különbséget.'};
   const featured=required(page,'newFormulas');
-  featured.config={...featured.config,title:'Népszerű formulák'};
+  const featuredItems=Array.isArray(featured.config.products)?clone(featured.config.products) as Record<string,unknown>[]:[];
+  featured.config={...featured.config,title:'Népszerű formulák',products:featuredItems.slice(0,5),columns:5};
+  setFallback(featured,'title','content.newFormulas.title','Népszerű formulák');
+  setFallback(featured,'products','catalog.newFormulas',featuredItems.slice(0,5));
 
   const order=[
     'beauty-home-site-header','beauty-formula-hero','beauty-usp-row','beauty-formula-finder','beauty-ingredient-index','beauty-texture-lab','beauty-new-formulas','beauty-routine-feature','beauty-concern','beauty-product-grid','beauty-ingredient-story','beauty-reviews','beauty-newsletter','beauty-home-footer',
@@ -105,7 +115,7 @@ function buildHome(base:StorefrontPageDocument){
   const byId=new Map(page.sections.map(section=>[section.id,section]));
   page.sections=order.flatMap(id=>{const section=byId.get(id);return section?[section]:[];});
 
-  page.metadata={...page.metadata,referencePass:'beauty-lab-reference-v2.3',heroAsset:'pexels-8990301',productAsset:'pexels-14473397',topFlow:'hero-trust-finder-ingredient-texture-featured-routine'};
+  page.metadata={...page.metadata,referencePass:'beauty-lab-reference-v2.4',heroAsset:'pexels-8990301',productAsset:'pexels-14473397',topFlow:'hero-trust-finder-ingredient-texture-featured-routine'};
   return page;
 }
 
@@ -195,7 +205,7 @@ function buildProduct(base:StorefrontPageDocument){
   const related=required(page,'beauty-product-recommendations');
   related.config={...related.config,title:'Jól kombinálható',columns:3,ctaLabel:'Kosárba'};
 
-  page.metadata={...page.metadata,referencePass:'beauty-lab-reference-v2.3',pdpAsset:'pexels-14473397'};
+  page.metadata={...page.metadata,referencePass:'beauty-lab-reference-v2.4',pdpAsset:'pexels-14473397'};
   return page;
 }
 
