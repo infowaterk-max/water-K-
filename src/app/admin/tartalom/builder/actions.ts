@@ -71,6 +71,7 @@ export async function rollbackVisualBuilderPageAction(input:{pageId:string;targe
 export async function installVisualBuilderTemplateAction(input:{templateKey:string;templateVersion?:number;operationKey:string}){
   const template=getStorefrontTemplatePackage(input.templateKey,input.templateVersion);
   if(!template)throw new Error('BUILDER_TEMPLATE_NOT_FOUND');
+  for(const page of template.pages)assertStorefrontPerformance(page);
   const[capability,existingPages]=await Promise.all([
     getCurrentStorefrontBuilderCapability(),
     listCurrentStorefrontTemplatePlanningPages(),
