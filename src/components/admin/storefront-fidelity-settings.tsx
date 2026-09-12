@@ -12,6 +12,7 @@ import {
 import {inspectStorefrontFidelityBuilder,type StorefrontFidelityInspectorStatus} from '@/lib/builder/storefront-fidelity-inspector';
 import type {StorefrontBuilderEditMode,StorefrontDesignGuardMode} from '@/lib/builder/storefront-fidelity-engine';
 import {createStorefrontVisualBuilderComponentRegistry} from '@/lib/builder/storefront-builder-registry';
+import {StorefrontComponentVariantControls} from '@/components/admin/storefront-component-variant-controls';
 import {StorefrontFidelityNodeControls} from '@/components/admin/storefront-fidelity-node-controls';
 import {StorefrontFidelityLayoutControls} from '@/components/admin/storefront-fidelity-layout-controls';
 import {StorefrontFidelityStateControls} from '@/components/admin/storefront-fidelity-state-controls';
@@ -66,6 +67,8 @@ export function StorefrontFidelitySettings({document,viewport,onApply}:{
       }}>{(['normal','advanced','expert'] as const).map(mode=><option key={mode} value={mode}>{MODE_COPY[mode].label}</option>)}</select></label>
       <p className={styles.emptyHint}>{MODE_COPY[inspector.editMode].description}</p>
     </div>
+
+    <StorefrontComponentVariantControls document={document} onApply={onApply}/>
 
     <div className={styles.fieldGroup}>
       <strong>Design Guard</strong>
