@@ -59,7 +59,16 @@ export async function resolveCurrentStorefrontPublishedRuntimePage(
   return{
     source:'published',instanceId:instance.id,
     page:failClosedSpecialCommerce(materialized,runtime.capability),
-    bindingContext:runtime.bindingContext,
+    bindingContext:{
+      ...runtime.bindingContext,
+      brand:{
+        name:instance.brand.name,
+        tagline:instance.brand.tagline,
+        logoUrl:instance.brand.logoUrl,
+        primaryColor:instance.brand.primaryColor,
+      },
+      navigation:{primary:[]},
+    },
     capability:runtime.capability,
   };
 }
