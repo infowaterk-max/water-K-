@@ -19,21 +19,25 @@ const captures=[];
 try{
   for(const item of cases){
     const page=await browser.newPage({viewport:{width:item.width,height:item.height},deviceScaleFactor:1});
+    page.setDefaultTimeout(15000);
     await page.emulateMedia({reducedMotion:'reduce'});
     const url=`${baseUrl}/visual-fidelity-qa?template=${encodeURIComponent(template)}&page=${item.pageType}&viewport=${item.viewport}`;
     const response=await page.goto(url,{waitUntil:'domcontentloaded',timeout:30000});
     if(!response?.ok())throw new Error(`VISUAL_FIDELITY_ROUTE_FAILED:${item.name}:${response?.status()??'no-response'}`);
     await page.addStyleTag({content:'html,body,#main-content{margin:0!important;padding:0!important;background:#fff!important}.cookieBanner,.skipLink{display:none!important}*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}'});
     await page.locator('img').evaluateAll(async images=>{
-      await Promise.all(images.map(async image=>{
-        try{if(!image.complete)await new Promise(resolve=>{const done=()=>resolve(undefined);image.addEventListener('load',done,{once:true});image.addEventListener('error',done,{once:true});setTimeout(done,5000);});await image.decode?.();}catch{}
-      }));
+      await Promise.all(images.map(image=>image.complete?Promise.resolve():new Promise(resolve=>{
+        const done=()=>resolve(undefined);
+        image.addEventListener('load',done,{once:true});
+        image.addEventListener('error',done,{once:true});
+        setTimeout(done,3000);
+      })));
     });
     const root=page.locator('[data-visual-fidelity-root="runtime"]');
     await root.waitFor({state:'visible',timeout:15000});
     await page.waitForTimeout(250);
     const path=`${outputDir}/${item.name}.png`;
-    await root.screenshot({path,animations:'disabled'});
+    await root.screenshot({path,animations:'disabled',timeout:20000});
     const box=await root.boundingBox();
     captures.push({...item,url,path,renderedWidth:box?.width??null,renderedHeight:box?.height??null,title:await page.title()});
     await page.close();
