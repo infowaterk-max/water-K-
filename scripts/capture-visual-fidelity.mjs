@@ -16,14 +16,45 @@ const cases=[
 await mkdir(outputDir,{recursive:true});
 const browser=await chromium.launch({headless:true});
 const captures=[];
+const performanceBlockers=[];
 try{
   for(const item of cases){
     const page=await browser.newPage({viewport:{width:item.width,height:item.referenceFrameHeight},deviceScaleFactor:1});
     await page.emulateMedia({reducedMotion:'reduce'});
+    await page.addInitScript(()=>{
+      const supported=globalThis.PerformanceObserver?.supportedEntryTypes??[];
+      const state={
+        lcpSupported:supported.includes('largest-contentful-paint'),
+        clsSupported:supported.includes('layout-shift'),
+        longTaskSupported:supported.includes('longtask'),
+        lcpMs:null,
+        cls:0,
+        longTasks:[],
+      };
+      Object.defineProperty(globalThis,'__shoporationPerformanceEvidence',{value:state,configurable:false,writable:false});
+      if(state.lcpSupported){
+        new PerformanceObserver(list=>{
+          for(const entry of list.getEntries())state.lcpMs=entry.startTime;
+        }).observe({type:'largest-contentful-paint',buffered:true});
+      }
+      if(state.clsSupported){
+        new PerformanceObserver(list=>{
+          for(const entry of list.getEntries()){
+            if(!entry.hadRecentInput)state.cls+=entry.value;
+          }
+        }).observe({type:'layout-shift',buffered:true});
+      }
+      if(state.longTaskSupported){
+        new PerformanceObserver(list=>{
+          for(const entry of list.getEntries())state.longTasks.push({startTime:entry.startTime,duration:entry.duration});
+        }).observe({type:'longtask',buffered:true});
+      }
+    });
     const url=`${baseUrl}/visual-fidelity-qa?template=${encodeURIComponent(template)}&page=${item.pageType}&viewport=${item.viewport}`;
     const response=await page.goto(url,{waitUntil:'domcontentloaded',timeout:30000});
     if(!response?.ok())throw new Error(`VISUAL_FIDELITY_ROUTE_FAILED:${item.name}:${response?.status()??'no-response'}`);
     await page.addStyleTag({content:'html,body,#main-content{margin:0!important;padding:0!important;background:#fff!important}.cookieBanner,.skipLink{display:none!important}*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}'});
+    await page.waitForLoadState('load',{timeout:15000}).catch(()=>undefined);
     await page.locator('img').evaluateAll(async images=>{
       await Promise.all(images.map(async image=>{
         if(image.complete)return;
@@ -64,26 +95,94 @@ try{
         html:node.outerHTML.slice(0,700),
       };
     }));
-    const activeRoots=diagnostics.filter(item=>item.active);
-    const unexpectedInactive=diagnostics.filter(item=>!item.active&&!item.frameworkStaging);
+    const activeRoots=diagnostics.filter(entry=>entry.active);
+    const unexpectedInactive=diagnostics.filter(entry=>!entry.active&&!entry.frameworkStaging);
     if(activeRoots.length!==1||unexpectedInactive.length){
       console.error(JSON.stringify({event:'VISUAL_FIDELITY_RUNTIME_ROOT_INVARIANT_FAILED',case:item.name,domRootCount,activeRootCount:activeRoots.length,unexpectedInactiveCount:unexpectedInactive.length,diagnostics},null,2));
       throw new Error(`VISUAL_FIDELITY_ROOT_INVARIANT_FAILED:${item.name}:dom=${domRootCount}:active=${activeRoots.length}:unexpected=${unexpectedInactive.length}`);
     }
     const activeRootIndex=activeRoots[0].index;
-    const frameworkStagingRootCount=diagnostics.filter(item=>item.frameworkStaging).length;
+    const frameworkStagingRootCount=diagnostics.filter(entry=>entry.frameworkStaging).length;
     const root=roots.nth(activeRootIndex);
     await root.waitFor({state:'visible',timeout:15000});
-    await page.waitForTimeout(250);
+    await page.waitForTimeout(600);
     const box=await root.boundingBox();
     if(!box)throw new Error(`VISUAL_FIDELITY_ROOT_BOX_MISSING:${item.name}`);
 
+    const rawBudget=await root.getAttribute('data-runtime-performance-budget');
+    const performanceContract=await root.getAttribute('data-performance-contract');
+    if(!rawBudget)throw new Error(`VISUAL_FIDELITY_PERFORMANCE_BUDGET_MISSING:${item.name}`);
+    const runtimeBudget=JSON.parse(rawBudget);
+    const performanceEvidence=await page.evaluate(()=>{
+      const state=globalThis.__shoporationPerformanceEvidence??{};
+      const navigation=performance.getEntriesByType('navigation')[0];
+      const resources=performance.getEntriesByType('resource');
+      const longTasks=Array.isArray(state.longTasks)?state.longTasks:[];
+      const sum=(key)=>resources.reduce((total,entry)=>total+(Number(entry[key])||0),0);
+      return {
+        lcpMs:typeof state.lcpMs==='number'?state.lcpMs:null,
+        cls:typeof state.cls==='number'?state.cls:null,
+        longTaskMaxMs:state.longTaskSupported?(longTasks.length?Math.max(...longTasks.map(entry=>Number(entry.duration)||0)):0):null,
+        longTaskCount:state.longTaskSupported?longTasks.length:null,
+        navigation:navigation?{
+          ttfbMs:navigation.responseStart,
+          domContentLoadedMs:navigation.domContentLoadedEventEnd,
+          loadMs:navigation.loadEventEnd,
+          responseEndMs:navigation.responseEnd,
+        }:null,
+        resources:{
+          count:resources.length,
+          transferSizeBytes:sum('transferSize'),
+          encodedBodySizeBytes:sum('encodedBodySize'),
+          decodedBodySizeBytes:sum('decodedBodySize'),
+        },
+        support:{
+          lcp:Boolean(state.lcpSupported),
+          cls:Boolean(state.clsSupported),
+          longTask:Boolean(state.longTaskSupported),
+          inp:false,
+        },
+        inpMs:null,
+        inpStatus:'not-measured-no-standardized-non-mutating-storefront-interaction',
+      };
+    });
+    const checks=[
+      {metric:'lcpMs',actual:performanceEvidence.lcpMs,limit:runtimeBudget.lcpMs,supported:performanceEvidence.support.lcp},
+      {metric:'cls',actual:performanceEvidence.cls,limit:runtimeBudget.cls,supported:performanceEvidence.support.cls},
+      {metric:'longTaskMaxMs',actual:performanceEvidence.longTaskMaxMs,limit:runtimeBudget.longTaskMs,supported:performanceEvidence.support.longTask},
+    ].map(check=>({
+      ...check,
+      status:!check.supported?'unsupported':check.actual===null?'missing':check.actual<=check.limit?'pass':'fail',
+    }));
+    for(const check of checks){
+      if(check.status==='fail'||check.status==='missing')performanceBlockers.push({case:item.name,...check});
+    }
+
     const fullPath=`${outputDir}/${item.name}-full.png`;
     await root.screenshot({path:fullPath,animations:'disabled',timeout:20000});
-
     const path=`${outputDir}/${item.name}.png`;
     await page.screenshot({path,animations:'disabled',timeout:15000,fullPage:false});
-    captures.push({...item,url,path,fullPath,rootCount:activeRoots.length,domRootCount,frameworkStagingRootCount,renderedWidth:box.width,renderedHeight:box.height,capturedHeight:item.referenceFrameHeight,title:await page.title()});
+    captures.push({
+      ...item,
+      url,
+      path,
+      fullPath,
+      rootCount:activeRoots.length,
+      domRootCount,
+      frameworkStagingRootCount,
+      renderedWidth:box.width,
+      renderedHeight:box.height,
+      capturedHeight:item.referenceFrameHeight,
+      title:await page.title(),
+      performance:{
+        contract:performanceContract,
+        budget:runtimeBudget,
+        evidence:performanceEvidence,
+        checks,
+        measuredGateStatus:checks.some(check=>check.status==='fail'||check.status==='missing')?'fail':'pass',
+        overallStatus:'partial-inp-not-measured',
+      },
+    });
     await page.close();
   }
 }finally{
@@ -91,11 +190,14 @@ try{
 }
 
 await writeFile(`${outputDir}/manifest.json`,JSON.stringify({
-  version:'shoporation.visual-fidelity-capture.v5',
+  version:'shoporation.visual-fidelity-capture.v6',
   template,
   sourceCommit:process.env.GITHUB_SHA??null,
   capturedAt:new Date().toISOString(),
   comparisonPolicy:'Primary PNGs use reference-proportional browser frames; *-full.png retains the complete Runtime root. Exactly one renderable Runtime root is required. Zero-size roots are tolerated only inside hidden React/Next S:* streaming staging containers; authored hidden duplicate roots fail the gate.',
+  performancePolicy:'Desktop/Tablet/Mobile lab evidence uses the canonical runtime performance budget exposed by the QA route. LCP, CLS and maximum long-task duration are blocking measured checks. INP is explicitly not claimed until a standardized non-mutating storefront interaction is available.',
+  performanceBlockers,
   captures,
 },null,2));
-console.log(JSON.stringify({ok:true,count:captures.length,outputDir},null,2));
+console.log(JSON.stringify({ok:performanceBlockers.length===0,count:captures.length,performanceBlockerCount:performanceBlockers.length,outputDir},null,2));
+if(performanceBlockers.length)throw new Error(`VISUAL_FIDELITY_RUNTIME_PERFORMANCE_FAILED:${performanceBlockers.map(issue=>`${issue.case}:${issue.metric}`).join(',')}`);
