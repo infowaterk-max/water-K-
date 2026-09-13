@@ -18,7 +18,7 @@ import {
   type StorefrontTemplatePackage,
 } from '@/lib/builder/storefront-runtime';
 
-export const STOREFRONT_PRIMITIVES_VERSION='shoporation.storefront-primitives.v1' as const;
+export const STOREFRONT_PRIMITIVES_VERSION='shoporation.storefront-primitives.v2' as const;
 const ALL_PAGE_TYPES=[...STOREFRONT_PAGE_TYPES] as const;
 const NO_FEATURES=[] as const;
 function manifest(input:{componentKey:string;schemaSlot:string;configurable:readonly string[];responsiveMode:StorefrontBuilderComponentManifest['responsiveMode']}){return defineStorefrontBuilderComponent({foundationVersion:STOREFRONT_BUILDER_FOUNDATION_VERSION,componentKey:input.componentKey,componentVersion:1,schemaSlot:input.schemaSlot,pageTypes:ALL_PAGE_TYPES,configurable:input.configurable,responsiveMode:input.responsiveMode,capability:{minPlan:'alap',features:NO_FEATURES}});}
@@ -32,7 +32,8 @@ export const STOREFRONT_PRIMITIVE_DEFINITIONS:readonly StorefrontRuntimeComponen
   {manifest:manifest({componentKey:'content.text',schemaSlot:'children',configurable:['text','as','align','tone','presentation','typography','style','styleSlots'],responsiveMode:'fixed'}),bindingSlots:['text']},
   {manifest:manifest({componentKey:'content.image',schemaSlot:'children',configurable:['src','alt','width','height','fit','loading','radius','presentation','objectPosition','style','styleSlots','artDirection'],responsiveMode:'fixed'}),bindingSlots:['src','alt']},
   {manifest:manifest({componentKey:'content.button',schemaSlot:'children',configurable:['label','href','variant','size','ariaLabel','presentation','typography','style','styleSlots'],responsiveMode:'fixed'}),bindingSlots:['label','href']},
-  {manifest:manifest({componentKey:'system.header',schemaSlot:'protected.header',configurable:['brandLabel','brandHref','tone','sticky','behavior','presentation','tagline','utilityItems','style','styleSlots','innerStyle','brandStyle','taglineStyle','utilityStyle','mobileToggleStyle'],responsiveMode:'primary-navigation'}),bindingSlots:['brandLabel','brandHref'],allowsChildren:true,allowedChildren:['system.navigation'],protectedSystem:true},
+  {manifest:manifest({componentKey:'system.search',schemaSlot:'children',configurable:['action','queryParam','placeholder','ariaLabel','submitLabel','presentation','style','styleSlots','inputStyle','buttonStyle'],responsiveMode:'fixed'}),bindingSlots:['placeholder']},
+  {manifest:manifest({componentKey:'system.header',schemaSlot:'protected.header',configurable:['brandLabel','brandHref','tone','sticky','behavior','presentation','tagline','utilityItems','style','styleSlots','innerStyle','brandStyle','taglineStyle','utilityStyle','mobileToggleStyle'],responsiveMode:'primary-navigation'}),bindingSlots:['brandLabel','brandHref'],allowsChildren:true,allowedChildren:['system.navigation','system.search'],protectedSystem:true},
   {manifest:manifest({componentKey:'system.navigation',schemaSlot:'protected.navigation',configurable:['items','ariaLabel','layout','presentation','style','styleSlots'],responsiveMode:'primary-navigation'}),bindingSlots:['items'],protectedSystem:true},
 ] as const;
 
