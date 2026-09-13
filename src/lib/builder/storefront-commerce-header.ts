@@ -3,6 +3,7 @@ import {
   STOREFRONT_PAGE_TYPES,
   defineStorefrontBuilderComponent,
 } from '@/lib/builder/storefront-foundation';
+import {createStorefrontPrimitiveComponentRegistry} from '@/lib/builder/storefront-primitives';
 import type {StorefrontRuntimeComponentDefinition} from '@/lib/builder/storefront-runtime';
 
 export const STOREFRONT_COMMERCE_HEADER_VERSION='shoporation.storefront-commerce-header.v1' as const;
@@ -42,3 +43,9 @@ export const STOREFRONT_COMMERCE_HEADER_COMPONENT_DEFINITIONS:readonly Storefron
     bindingSlots:['action','placeholder','buttonLabel','ariaLabel'],
   },
 ] as const;
+
+export function createStorefrontCommerceHeaderComponentRegistry(){
+  const registry=createStorefrontPrimitiveComponentRegistry();
+  for(const definition of STOREFRONT_COMMERCE_HEADER_COMPONENT_DEFINITIONS)registry.register(definition);
+  return registry;
+}
