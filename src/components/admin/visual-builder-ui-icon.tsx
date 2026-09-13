@@ -2,7 +2,7 @@ import type {SVGProps} from 'react';
 
 export type VisualBuilderIconName=
   |'arrow-left'|'desktop'|'tablet'|'mobile'|'layout'|'box'|'star'|'mail'|'help'|'image'|'menu'|'text'|'plus'|'component'
-  |'pages'|'layers'|'templates'|'presets'|'saved'|'globals'|'edit'|'chevron-up'|'chevron-down'|'duplicate'|'eye'|'more'|'trash'
+  |'pages'|'layers'|'templates'|'presets'|'saved'|'globals'|'edit'|'chevron-up'|'chevron-down'|'chevron-right'|'duplicate'|'eye'|'more'|'trash'
   |'panel-menu'|'panel-right'|'undo'|'redo'|'history'|'upload'|'home'|'page'|'settings'|'reset'|'pointer'|'close'|'check'|'warning'|'error'|'grip'
   |'link'|'unlink'|'sync'|'header'|'footer';
 
@@ -30,6 +30,7 @@ const paths:Record<VisualBuilderIconName,readonly string[]>={
   edit:['M4 20h4L19 9l-4-4L4 16v4Z','m13.5-13.5 4 4'],
   'chevron-up':['m6 15 6-6 6 6'],
   'chevron-down':['m6 9 6 6 6-6'],
+  'chevron-right':['m9 6 6 6-6 6'],
   duplicate:['M9 9h11v11H9z','M4 4h11v11H4z'],
   eye:['M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z','M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z'],
   more:['M5 12h.01','M12 12h.01','M19 12h.01'],
