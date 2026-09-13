@@ -128,6 +128,9 @@ export function VisualBuilderRouteController({children}:{children:ReactNode}){
 
   return <div ref={rootRef} className="visualBuilderRouteIsolation" data-visual-builder-route>
     {children}
-    {drawerOpen?<button type="button" className="visualBuilderDrawerScrim" aria-label="Szerkesztőpanel bezárása" onClick={closePanels}/>:null}
+    {drawerOpen?<>
+      <button type="button" className="visualBuilderDrawerClose" aria-label="Szerkesztőpanel bezárása" onClick={closePanels}>×</button>
+      <button type="button" className="visualBuilderDrawerScrim" aria-label="Szerkesztőpanel bezárása" onClick={closePanels}/>
+    </>:null}
   </div>;
 }
