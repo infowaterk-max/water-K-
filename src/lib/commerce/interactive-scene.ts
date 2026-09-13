@@ -11,6 +11,19 @@ export type InteractiveSceneHotspot={
   productId:string;
   label?:string;
   position:InteractiveSceneResponsivePoint;
+  /** Room/set specialization only. Missing means required. */
+  setRequired?:boolean;
+  /** Optional merchant-selected default. Multiple variants are never silently guessed. */
+  defaultVariantId?:string;
+};
+
+export type InteractiveSceneVariantProjection={
+  variantId:string;
+  label:string;
+  eligible:boolean;
+  channelVisible:boolean;
+  price:{amountMinor:number;currency:string;display:string;source:'shared-pricing-authority'};
+  stock:{available:boolean;statusLabel:string};
 };
 
 export type InteractiveSceneConfig={
@@ -28,6 +41,8 @@ export type InteractiveSceneProductProjection={
   priceDisplay?:string|null;
   stockLabel?:string|null;
   imageUrl?:string|null;
+  /** Variant evidence is consumed by room/set specialization and remains read-only. */
+  variants?:readonly InteractiveSceneVariantProjection[];
 };
 
 export type ResolvedInteractiveSceneHotspot={
@@ -83,6 +98,7 @@ export function validateInteractiveSceneConfig(config:InteractiveSceneConfig):re
     if(ids.has(hotspot.id))errors.push('INTERACTIVE_SCENE_HOTSPOT_ID_DUPLICATE');
     ids.add(hotspot.id);
     if(!hotspot.productId.trim())errors.push('INTERACTIVE_SCENE_PRODUCT_REQUIRED');
+    if(hotspot.defaultVariantId!==undefined&&!ID_PATTERN.test(hotspot.defaultVariantId))errors.push('INTERACTIVE_SCENE_DEFAULT_VARIANT_INVALID');
     for(const point of [hotspot.position.desktop,hotspot.position.tablet,hotspot.position.mobile].filter(Boolean) as InteractiveScenePoint[]){
       if(!validPoint(point))errors.push('INTERACTIVE_SCENE_POINT_INVALID');
     }
