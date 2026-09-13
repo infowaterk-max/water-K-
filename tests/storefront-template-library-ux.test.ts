@@ -57,7 +57,7 @@ describe('storefront template library UX',()=>{
     expect(page).toContain('hasExistingStorefront={Boolean(document)}');
     expect(library).toContain('Vissza a szerkesztőhöz');
     expect(library).toContain('Jelenlegi sablon');
-    expect(builder).toContain('▦ Sablonok');
+    expect(builder).toContain("['templates','▦','Sablonok']");
     expect(builder).toContain("router.push('/admin/tartalom/builder?view=templates')");
   });
 
