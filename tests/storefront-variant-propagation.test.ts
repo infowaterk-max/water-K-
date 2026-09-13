@@ -24,8 +24,7 @@ describe('storefront variant identity propagation',()=>{
 
   test('checkout aggregates duplicate cart lines but only submits explicit variant ids to quote and order APIs',()=>{
     expect(checkout).toContain('const quoteByVariant=new Map<string,number>()');
-    expect(checkout).toContain('if(!item.variantId)continue');
-    expect(checkout).toContain("quoteByVariant.set(item.variantId,(quoteByVariant.get(item.variantId)??0)+item.quantity)");
+    expect(checkout).toMatch(/for\s*\(const item of cart\.items\)\s*if\s*\(item\.variantId\)\s*quoteByVariant\.set\(item\.variantId,\s*\(quoteByVariant\.get\(item\.variantId\)\?\?0\)\+item\.quantity\)/);
     expect(checkout).toContain('const quoteItems=[...quoteByVariant].map(([variantId,quantity])=>({variantId,quantity}))');
     expect(checkout).toContain('const items=quoteItems.map(i=>({productId:i.variantId,quantity:i.quantity}))');
     expect(checkout).toMatch(/missingVariant/);
