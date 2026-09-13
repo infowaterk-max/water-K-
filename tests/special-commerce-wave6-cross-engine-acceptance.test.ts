@@ -143,7 +143,7 @@ describe('Special Commerce Wave 6 cross-engine acceptance',()=>{
     const release=read('src/lib/commerce/release-commerce.ts'),releaseServer=read('src/lib/builder/storefront-release-commerce-server.ts'),bindings=read('src/lib/builder/storefront-existing-commerce-bindings.ts');expect(release).toContain('clientClockCanUnlockCommerce:false');expect(release).toContain("state==='live'&&resolved.some(item=>item.stockQuantity>0)");expect(releaseServer).toContain('const now=new Date()');expect(releaseServer).toContain("stockSource:'shared-inventory-authority'");expect(bindings).toContain('commerce.existingEngines.finders');expect(bindings).toContain('catalog.existingCommerceProducts');expect(read('docs/SPECIAL_COMMERCE_WAVE3_RELEASE.md')).toContain('catalog.limited');
   });
 
-  it('pins accepted engine identities and group engines without introducing a Wave 6 commerce authority',()=>{
-    expect(MULTI_PRODUCT_COMPOSER_ENGINE_VERSION).toBe('shoporation.multi-product-composer.v1');expect(PRODUCT_CONFIGURATOR_ENGINE_VERSION).toBe('shoporation.product-configurator.v1');const migrationFiles=read('docs/SPECIAL_COMMERCE_WAVE6_CROSS_ENGINE_ACCEPTANCE.md');expect(migrationFiles).toContain('No new database migration');
+  it('pins the accepted group engines to the shared v6 checkout wrapper over the existing v5 authority',()=>{
+    expect(MULTI_PRODUCT_COMPOSER_ENGINE_VERSION).toBe('shoporation.multi-product-composer.v1');expect(PRODUCT_CONFIGURATOR_ENGINE_VERSION).toBe('shoporation.product-configurator.v1');const checkout=read('src/lib/orders/tenant-checkout.ts'),migration=read('supabase/migrations/20260913062000_special_commerce_existing_engine_closure.sql');expect(checkout).toContain('place_order_provider_v6_idempotent');expect(migration).toContain('place_order_provider_v5_idempotent');expect(migration).not.toContain('place_order_provider_v7');
   });
 });
