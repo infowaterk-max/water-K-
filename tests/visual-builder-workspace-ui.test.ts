@@ -63,7 +63,8 @@ describe('Visual Builder final UI fidelity contract',()=>{
   it('uses existing Fidelity diagnostics for publish readiness and includes the canonical groups',()=>{
     expect(component).toContain('inspectStorefrontFidelityBuilder');
     expect(component).toContain('Közzététel előtti ellenőrzés');
-    for(const label of ['Desktop nézet','Tablet nézet','Mobil nézet','Akadálymentesség','Képek','Linkek','Kötelező tartalmak','Teljesítmény','Optimalizálás','Design Guard'])expect(component).toContain(label);
+    expect(component).toContain("label:`${item.label} nézet`");
+    for(const label of ['Akadálymentesség','Képek','Linkek','Kötelező tartalmak','Teljesítmény','Optimalizálás','Design Guard'])expect(component).toContain(label);
     expect(component).toContain('fidelity.accessibility.issues.filter');
     expect(component).toContain('meglévő Fidelity / Page Schema / performance diagnosztikát');
     expect(component).toContain('publishVisualBuilderPageAction');
