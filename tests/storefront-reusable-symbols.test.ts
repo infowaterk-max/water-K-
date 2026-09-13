@@ -18,6 +18,7 @@ const actions=read('src/app/admin/tartalom/builder/actions.ts');
 const panel=read('src/components/admin/storefront-saved-blocks-panel.tsx');
 const runtimeSource=read('src/lib/builder/storefront-runtime-source.ts');
 const migration=read('supabase/migrations/20260912235500_storefront_reusable_symbols.sql').toLowerCase();
+const commerceHeaderMigration=read('supabase/migrations/20260913211500_storefront_global_commerce_header_symbol.sql').toLowerCase();
 
 const section=(text='Forrás'):StorefrontComponentNode=>({
   id:'source-root',componentKey:'layout.section',componentVersion:1,config:{tone:'surface'},children:[
@@ -82,6 +83,20 @@ describe('linked reusable symbols',()=>{
     expect(result.sections.filter(node=>node.id==='source-root')).toHaveLength(1);
     expect(result.sections.at(-1)?.componentKey).toBe('layout.section');
   });
+
+  it('treats the shared commerce header as the same canonical global header slot',()=>{
+    const legacyHeader:StorefrontComponentNode={id:'legacy-header',componentKey:'system.header',componentVersion:1,config:{brandLabel:'Legacy',brandHref:'/',tone:'surface',sticky:false},children:[{id:'legacy-nav',componentKey:'system.navigation',componentVersion:1,config:{ariaLabel:'Fő navigáció',items:[],layout:'horizontal'}}]};
+    const commerceHeader:StorefrontComponentNode={id:'commerce-header',componentKey:'system.commerce-header',componentVersion:1,config:{brandLabel:'Global Commerce',brandHref:'/',tagline:'Play together'},children:[
+      {id:'commerce-search',componentKey:'system.search',componentVersion:1,config:{action:'/kereses',queryParam:'q',placeholder:'Keresés',buttonLabel:'Keresés',ariaLabel:'Keresés'}},
+      {id:'commerce-nav',componentKey:'system.navigation',componentVersion:1,config:{ariaLabel:'Fő navigáció',items:[],layout:'horizontal'}},
+    ]};
+    const document:StorefrontPageDocument={...page,sections:[legacyHeader,section()]};
+    const result=materializeStorefrontGlobalSymbols(document,[{...symbol(commerceHeader),id:'44444444-4444-4444-8444-444444444444',componentKey:'system.commerce-header',globalSlot:'header'}]);
+    expect(result.sections[0]?.id).toBe('legacy-header');
+    expect(result.sections[0]?.componentKey).toBe('system.commerce-header');
+    expect(result.sections.filter(node=>node.componentKey==='system.header')).toHaveLength(0);
+    expect(result.sections.filter(node=>node.componentKey==='system.commerce-header')).toHaveLength(1);
+  });
 });
 
 describe('reusable symbol persistence and Builder contract',()=>{
@@ -104,6 +119,13 @@ describe('reusable symbol persistence and Builder contract',()=>{
     expect(migration).toContain('if not public.can_manage_storefront(p_instance_id,p_actor_user_id)');
     expect(migration).toContain('revoke insert,update,delete on public.storefront_reusable_symbols from service_role');
     expect(migration).toContain('before update or delete on public.storefront_reusable_symbol_events');
+  });
+
+  it('extends the existing global header guard only to the shared commerce header family',()=>{
+    expect(commerceHeaderMigration).toContain("p_component_key not in ('system.header','system.commerce-header')");
+    expect(commerceHeaderMigration).toContain("v_symbol.component_key not in ('system.header','system.commerce-header')");
+    expect(commerceHeaderMigration).toContain("if p_global_slot='footer' and v_symbol.component_key<>'layout.section'");
+    expect(panel).toContain("key==='system.header'||key==='system.commerce-header'");
   });
 
   it('keeps insert/detach inside the current Builder document and rebases again on save',()=>{

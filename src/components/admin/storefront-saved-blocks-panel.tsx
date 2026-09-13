@@ -40,6 +40,7 @@ import styles from './storefront-visual-builder.module.css';
 const registry=createStorefrontVisualBuilderComponentRegistry();
 const operationKey=(kind:string)=>`builder:fidelity:${kind}:${crypto.randomUUID()}`;
 const label=(key:string)=>key.split('.').at(-1)?.replace(/[-_]/g,' ')??key;
+const isGlobalHeaderComponent=(key:string)=>key==='system.header'||key==='system.commerce-header';
 
 type Props={
   document:StorefrontPageDocument;
@@ -216,7 +217,7 @@ export function StorefrontSavedBlocksPanel({document,selectedNode,selectedIsTopL
       <span><strong>{symbol.name}</strong><small>{label(symbol.componentKey)} · r{symbol.revision}{symbol.globalSlot?` · globális ${symbol.globalSlot}`:''}</small></span>
       <div>
         <button type="button" disabled={busy} onClick={()=>insertLinkedSymbol(symbol)}>Linkelve beilleszt</button>
-        {symbol.componentKey==='system.header'?<button type="button" disabled={busy} onClick={()=>setGlobal(symbol,symbol.globalSlot==='header'?null:'header')}>{symbol.globalSlot==='header'?'Globális ki':'Globális fejléc'}</button>:null}
+        {isGlobalHeaderComponent(symbol.componentKey)?<button type="button" disabled={busy} onClick={()=>setGlobal(symbol,symbol.globalSlot==='header'?null:'header')}>{symbol.globalSlot==='header'?'Globális ki':'Globális fejléc'}</button>:null}
         {symbol.componentKey==='layout.section'?<button type="button" disabled={busy} onClick={()=>setGlobal(symbol,symbol.globalSlot==='footer'?null:'footer')}>{symbol.globalSlot==='footer'?'Globális ki':'Globális lábléc'}</button>:null}
         <button type="button" disabled={busy} onClick={()=>deleteSymbol(symbol)}>Törlés</button>
       </div>

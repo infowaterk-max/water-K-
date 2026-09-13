@@ -13,22 +13,14 @@ import {assertSafeStorefrontFidelityDocument} from '@/lib/builder/storefront-fid
 import type {StorefrontPageDocument} from '@/lib/builder/storefront-runtime';
 
 const read=(path:string)=>readFileSync(path,'utf8');
-const page=():StorefrontPageDocument=>({
-  schemaVersion:1,
-  pageKey:'home.main',
-  pageType:'home',
-  templateKey:'test.template',
-  templateVersion:1,
-  metadata:{source:'test'},
-  sections:[],
-});
+const page=():StorefrontPageDocument=>({schemaVersion:1,pageKey:'home.main',pageType:'home',templateKey:'test.template',templateVersion:1,metadata:{source:'test'},sections:[]});
 
 describe('Storefront Global Design Tokens / Global Styles v1',()=>{
   it('uses one versioned Page Schema metadata contract',()=>{
     expect(STOREFRONT_GLOBAL_STYLES_VERSION).toBe('shoporation.storefront-global-styles.v1');
     expect(STOREFRONT_GLOBAL_STYLES_METADATA_KEY).toBe('shoporationGlobalStyles');
-    const document=setStorefrontGlobalStyleState(page(),{version:STOREFRONT_GLOBAL_STYLES_VERSION,tokens:{accent:'#11aa88'}});
-    expect(getStorefrontGlobalStyleState(document).tokens.accent).toBe('#11aa88');
+    const document=setStorefrontGlobalStyleState(page(),{version:STOREFRONT_GLOBAL_STYLES_VERSION,tokens:{accent:'#11aa88',accentSecondary:'#3355ff',accentTertiary:'#bbdd44'}});
+    expect(getStorefrontGlobalStyleState(document).tokens).toMatchObject({accent:'#11aa88',accentSecondary:'#3355ff',accentTertiary:'#bbdd44'});
     expect(document.metadata?.source).toBe('test');
     expect(document.sections).toEqual([]);
   });
@@ -36,6 +28,7 @@ describe('Storefront Global Design Tokens / Global Styles v1',()=>{
   it('fails closed on arbitrary token keys and non-hex colors',()=>{
     expect(()=>parseStorefrontGlobalStyleState({version:STOREFRONT_GLOBAL_STYLES_VERSION,tokens:{rawCss:'body{display:none}'}})).toThrow('STOREFRONT_GLOBAL_STYLES_TOKEN_UNKNOWN');
     expect(()=>parseStorefrontGlobalStyleState({version:STOREFRONT_GLOBAL_STYLES_VERSION,tokens:{accent:'red'}})).toThrow('STOREFRONT_GLOBAL_STYLES_COLOR_INVALID');
+    expect(()=>parseStorefrontGlobalStyleState({version:STOREFRONT_GLOBAL_STYLES_VERSION,tokens:{accentSecondary:'blue'}})).toThrow('STOREFRONT_GLOBAL_STYLES_COLOR_INVALID');
     expect(()=>parseStorefrontGlobalStyleState({version:STOREFRONT_GLOBAL_STYLES_VERSION,tokens:{headingFont:'https://evil.test/font.woff2'}})).toThrow('STOREFRONT_GLOBAL_STYLES_HEADING_FONT_INVALID');
   });
 
@@ -46,11 +39,13 @@ describe('Storefront Global Design Tokens / Global Styles v1',()=>{
     expect(()=>parseStorefrontGlobalStyleState({version:STOREFRONT_GLOBAL_STYLES_VERSION,tokens:{radiusScale:'9999px'}})).toThrow('STOREFRONT_GLOBAL_STYLES_RADIUS_INVALID');
   });
 
-  it('maps safe state to the existing storefront CSS token vocabulary',()=>{
-    const document=setStorefrontGlobalStyleState(page(),{version:STOREFRONT_GLOBAL_STYLES_VERSION,tokens:{background:'#112233',accent:'#44aa77',headingFont:'editorial-serif',bodyFont:'humanist-sans',spacingScale:'compact',radiusScale:'sharp'}});
+  it('maps the controlled palette to the shared storefront CSS token vocabulary',()=>{
+    const document=setStorefrontGlobalStyleState(page(),{version:STOREFRONT_GLOBAL_STYLES_VERSION,tokens:{background:'#112233',accent:'#44aa77',accentSecondary:'#5566ee',accentTertiary:'#bbee44',headingFont:'editorial-serif',bodyFont:'humanist-sans',spacingScale:'compact',radiusScale:'sharp'}});
     const css=resolveStorefrontGlobalStyleCssVariables(document);
     expect(css['--shoporation-color-background']).toBe('#112233');
     expect(css['--shoporation-color-accent']).toBe('#44aa77');
+    expect(css['--shoporation-color-accent-secondary']).toBe('#5566ee');
+    expect(css['--shoporation-color-accent-tertiary']).toBe('#bbee44');
     expect(css['--shoporation-heading-font']).toContain('Georgia');
     expect(css['--shoporation-body-font']).toContain('Trebuchet');
     expect(css['--shoporation-space-m']).toBe('1rem');
@@ -86,18 +81,24 @@ describe('Storefront Global Design Tokens / Global Styles v1',()=>{
     const controls=read('src/components/admin/storefront-global-styles-controls.tsx');
     expect(settings).toContain('<StorefrontGlobalStylesControls document={document} onApply={onApply}/>');
     expect(controls).toContain('data-storefront-global-styles-v1');
+    expect(controls).toContain('Másodlagos akcentus');
+    expect(controls).toContain('Harmadlagos akcentus');
     expect(controls).toContain('Sablon alapértékek visszaállítása');
     expect(controls).not.toMatch(/textarea|raw css|dangerouslySetInnerHTML/i);
   });
 
-  it('uses one atomic draft-only database operation for a tenant-wide style change',()=>{
-    const migration=read('supabase/migrations/20260913000500_storefront_global_styles_v1.sql');
-    expect(migration).toContain('create or replace function public.save_storefront_global_style_drafts_v1');
-    expect(migration).toContain('public.save_storefront_page_draft_v1(');
-    expect(migration).toContain("'storefront_page_drafts_only'");
-    expect(migration).toContain('public.can_manage_storefront');
-    expect(migration).toContain("v_item->'document'->'metadata'->'shoporationGlobalStyles' is distinct from p_global_styles");
-    expect(migration).not.toContain('publish_storefront_page_v1');
+  it('keeps one atomic draft-only database operation and forward-hardens its palette allowlist',()=>{
+    const original=read('supabase/migrations/20260913000500_storefront_global_styles_v1.sql');
+    const palette=read('supabase/migrations/20260913193000_storefront_global_styles_accent_palette.sql');
+    expect(original).toContain('create or replace function public.save_storefront_global_style_drafts_v1');
+    expect(palette).toContain('create or replace function public.save_storefront_global_style_drafts_v1');
+    expect(palette).toContain("'accentSecondary'");
+    expect(palette).toContain("'accentTertiary'");
+    expect(palette).toContain('public.save_storefront_page_draft_v1(');
+    expect(palette).toContain("'storefront_page_drafts_only'");
+    expect(palette).toContain('public.can_manage_storefront');
+    expect(palette).toContain("v_item->'document'->'metadata'->'shoporationGlobalStyles' is distinct from p_global_styles");
+    expect(palette).not.toContain('publish_storefront_page_v1');
   });
 
   it('only fans out from the normal Save action when global style state changed',()=>{

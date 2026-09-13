@@ -24,6 +24,8 @@ const COLOR_FIELDS:readonly {key:Extract<keyof StorefrontGlobalStyleTokens,strin
   {key:'primary',label:'Elsődleges',fallback:'#171717'},
   {key:'primaryContrast',label:'Elsődleges kontraszt',fallback:'#ffffff'},
   {key:'accent',label:'Akcentus',fallback:'#2f7f6f'},
+  {key:'accentSecondary',label:'Másodlagos akcentus',fallback:'#4e46d8'},
+  {key:'accentTertiary',label:'Harmadlagos akcentus',fallback:'#b8e34a'},
 ] as const;
 
 const FONT_LABELS:Record<string,string>={
