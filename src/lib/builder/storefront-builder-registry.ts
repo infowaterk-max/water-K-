@@ -13,41 +13,9 @@ import {STOREFRONT_PURCHASE_CONTROLS_COMPONENT_DEFINITIONS} from '@/lib/builder/
 import {STOREFRONT_SHARED_CONTENT_COMPONENT_DEFINITIONS} from '@/lib/builder/storefront-shared-content';
 import {STOREFRONT_INTERACTIVE_SCENE_COMPONENT_DEFINITIONS} from '@/lib/builder/storefront-interactive-scene';
 import {STOREFRONT_RECIPE_COMMERCE_COMPONENT_DEFINITIONS} from '@/lib/builder/storefront-recipe-commerce';
+import {STOREFRONT_RELEASE_COMMERCE_COMPONENT_DEFINITIONS} from '@/lib/builder/storefront-release-commerce';
 import {StorefrontComponentRegistry,type StorefrontRuntimeComponentDefinition} from '@/lib/builder/storefront-runtime';
-
-export const STOREFRONT_BUILDER_REGISTRY_VERSION='shoporation.storefront-builder-registry.special-commerce-v2' as const;
-
-/** One source-controlled allowlist composed from canonical runtime component families. */
-const DEFINITION_FAMILIES:readonly (readonly StorefrontRuntimeComponentDefinition[])[]=[
-  STOREFRONT_PRIMITIVE_DEFINITIONS,
-  STOREFRONT_CORE_COMMERCE_COMPONENT_DEFINITIONS,
-  STOREFRONT_EDITORIAL_COMPONENT_DEFINITIONS,
-  STOREFRONT_STRUCTURED_PRODUCT_COMPONENT_DEFINITIONS,
-  STOREFRONT_GUIDED_FINDER_COMPONENT_DEFINITIONS,
-  STOREFRONT_MULTI_PRODUCT_COMPOSER_COMPONENT_DEFINITIONS,
-  STOREFRONT_CONFIGURATOR_COMPONENT_DEFINITIONS,
-  STOREFRONT_CONTEXT_RETENTION_COMPONENT_DEFINITIONS,
-  STOREFRONT_PROFESSIONAL_COMPONENT_DEFINITIONS,
-  STOREFRONT_STORY_COMPONENT_DEFINITIONS,
-  STOREFRONT_VISUAL_LAYER_COMPONENT_DEFINITIONS,
-  STOREFRONT_PURCHASE_CONTROLS_COMPONENT_DEFINITIONS,
-  STOREFRONT_SHARED_CONTENT_COMPONENT_DEFINITIONS,
-  STOREFRONT_INTERACTIVE_SCENE_COMPONENT_DEFINITIONS,
-  STOREFRONT_RECIPE_COMMERCE_COMPONENT_DEFINITIONS,
-] as const;
-
-export function createStorefrontVisualBuilderComponentRegistry(){
-  const registry=new StorefrontComponentRegistry();
-  const seen=new Set<string>();
-  for(const family of DEFINITION_FAMILIES){
-    for(const definition of family){
-      const key=`${definition.manifest.componentKey}@${definition.manifest.componentVersion}`;
-      if(seen.has(key))continue;
-      seen.add(key);
-      registry.register(definition);
-    }
-  }
-  return registry;
-}
-
+export const STOREFRONT_BUILDER_REGISTRY_VERSION='shoporation.storefront-builder-registry.special-commerce-v3' as const;
+const DEFINITION_FAMILIES:readonly (readonly StorefrontRuntimeComponentDefinition[])[]=[STOREFRONT_PRIMITIVE_DEFINITIONS,STOREFRONT_CORE_COMMERCE_COMPONENT_DEFINITIONS,STOREFRONT_EDITORIAL_COMPONENT_DEFINITIONS,STOREFRONT_STRUCTURED_PRODUCT_COMPONENT_DEFINITIONS,STOREFRONT_GUIDED_FINDER_COMPONENT_DEFINITIONS,STOREFRONT_MULTI_PRODUCT_COMPOSER_COMPONENT_DEFINITIONS,STOREFRONT_CONFIGURATOR_COMPONENT_DEFINITIONS,STOREFRONT_CONTEXT_RETENTION_COMPONENT_DEFINITIONS,STOREFRONT_PROFESSIONAL_COMPONENT_DEFINITIONS,STOREFRONT_STORY_COMPONENT_DEFINITIONS,STOREFRONT_VISUAL_LAYER_COMPONENT_DEFINITIONS,STOREFRONT_PURCHASE_CONTROLS_COMPONENT_DEFINITIONS,STOREFRONT_SHARED_CONTENT_COMPONENT_DEFINITIONS,STOREFRONT_INTERACTIVE_SCENE_COMPONENT_DEFINITIONS,STOREFRONT_RECIPE_COMMERCE_COMPONENT_DEFINITIONS,STOREFRONT_RELEASE_COMMERCE_COMPONENT_DEFINITIONS] as const;
+export function createStorefrontVisualBuilderComponentRegistry(){const registry=new StorefrontComponentRegistry(),seen=new Set<string>();for(const family of DEFINITION_FAMILIES)for(const definition of family){const key=`${definition.manifest.componentKey}@${definition.manifest.componentVersion}`;if(seen.has(key))continue;seen.add(key);registry.register(definition);}return registry;}
 export const STOREFRONT_BUILDER_COMPONENT_FAMILY_COUNT=DEFINITION_FAMILIES.length;
