@@ -6,7 +6,7 @@ import {
 import {createStorefrontPrimitiveComponentRegistry} from '@/lib/builder/storefront-primitives';
 import type {StorefrontRuntimeComponentDefinition} from '@/lib/builder/storefront-runtime';
 
-export const STOREFRONT_COMMERCE_HEADER_VERSION='shoporation.storefront-commerce-header.v1' as const;
+export const STOREFRONT_COMMERCE_HEADER_VERSION='shoporation.storefront-commerce-header.v2' as const;
 const ALL_PAGE_TYPES=[...STOREFRONT_PAGE_TYPES] as const;
 
 export const STOREFRONT_COMMERCE_HEADER_COMPONENT_DEFINITIONS:readonly StorefrontRuntimeComponentDefinition[]=[
@@ -19,6 +19,7 @@ export const STOREFRONT_COMMERCE_HEADER_COMPONENT_DEFINITIONS:readonly Storefron
       pageTypes:ALL_PAGE_TYPES,
       configurable:[
         'brandLabel','brandHref','logoUrl','logoAlt','tagline','utilityItems','tone','sticky','presentation',
+        'showUtilityLabels','categoryTriggerLabel','categoryTriggerHref','categoryTriggerSymbol','navTagline',
         'style','styleSlots','innerStyle','brandStyle','taglineStyle','utilityStyle','logoStyle',
       ],
       responsiveMode:'primary-navigation',
