@@ -93,6 +93,10 @@ Newsletter capture:
 
 Wave 8 requires **no database migration**. All new behavior is a projection/composition layer over existing canonical tables and APIs. The inherited production/customer-baseline migration state is unchanged.
 
+## Stacked PR / CI contract
+
+Wave 8 is based on the Wave 7 head branch `feature/storefront-special-commerce-template2-adoption`, not on `main`. The Wave 8 implementation branch uses the repository-supported `feature/**` namespace so the existing push-triggered CI runs on the stacked branch without retargeting the Draft PR to production `main`.
+
 ## Acceptance gates
 
 Before Wave 8 can be considered closed:
