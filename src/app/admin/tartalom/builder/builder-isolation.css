@@ -6,6 +6,7 @@ html.visual-builder-route-active .visualBuilderRouteIsolation{position:relative;
 html.visual-builder-route-active .visualBuilderRouteIsolation>.adminMain{width:100%;max-width:none!important;height:100%;min-height:0;margin:0!important;padding:0!important}
 html.visual-builder-route-active .visualBuilderRouteIsolation>.adminMain>div{min-width:0;max-width:none}
 html.visual-builder-route-active .visualBuilderDrawerScrim{display:none}
+html.visual-builder-route-active .visualBuilderDrawerClose{display:none}
 
 @media(max-width:1100px){
   html.visual-builder-route-active .visualBuilderRouteIsolation>.adminMain>div{height:100dvh;min-height:100dvh!important;grid-template-rows:auto minmax(0,1fr)!important;overflow:hidden}
@@ -86,6 +87,22 @@ html.visual-builder-phone-active .visualBuilderRouteIsolation [data-left-collaps
 html.visual-builder-phone-active .visualBuilderRouteIsolation [data-left-collapsed][data-inspector-open] nav[aria-label="Visual Builder fő navigáció"] button,html.visual-builder-phone-active .visualBuilderRouteIsolation [data-left-collapsed][data-inspector-open] nav[aria-label="Inspector navigáció"] button{flex:0 0 auto!important;min-height:44px!important}
 html.visual-builder-phone-active .visualBuilderRouteIsolation [data-left-collapsed][data-inspector-open] aside input:not([type="checkbox"]),html.visual-builder-phone-active .visualBuilderRouteIsolation [data-left-collapsed][data-inspector-open] aside select,html.visual-builder-phone-active .visualBuilderRouteIsolation [data-left-collapsed][data-inspector-open] aside textarea{min-height:46px!important;font-size:13px!important}
 html.visual-builder-phone-active .visualBuilderRouteIsolation [data-viewport="mobile"]{width:min(100%,390px)!important;max-width:390px!important;transform:scale(1)!important;transform-origin:top center!important;margin-inline:auto!important}
+
+/* Final mobile polish: preserve accessible targets while reducing chrome and making sheets self-explanatory. */
+html.visual-builder-phone-active .visualBuilderRouteIsolation>.adminMain>div>header{gap:4px!important;padding:4px 6px!important}
+html.visual-builder-phone-active .visualBuilderRouteIsolation>.adminMain>div>header>label select{height:40px!important}
+html.visual-builder-phone-active .visualBuilderRouteIsolation>.adminMain>div>header>div:nth-of-type(3){gap:3px!important}
+html.visual-builder-phone-active .visualBuilderRouteIsolation [data-left-collapsed][data-inspector-open]>aside::before{content:"";position:absolute;top:6px;left:50%;z-index:3;width:42px;height:4px;border-radius:999px;background:#c4d1cd;transform:translateX(-50%);pointer-events:none}
+html.visual-builder-phone-active .visualBuilderRouteIsolation [data-left-collapsed][data-inspector-open]>aside{padding-top:10px!important}
+html.visual-builder-phone-active .visualBuilderDrawerClose{display:grid;place-items:center;position:fixed;right:20px;bottom:calc(min(76dvh,760px) - 50px);z-index:295;width:38px;height:38px;margin:0;padding:0;border:1px solid #d6e2df;border-radius:999px;background:rgba(255,255,255,.96);box-shadow:0 6px 18px rgba(20,39,33,.13);color:#36504a;font:700 24px/1 system-ui;cursor:pointer}
+html.visual-builder-phone-active .visualBuilderDrawerClose:focus-visible{outline:3px solid rgba(12,151,123,.26);outline-offset:2px}
+html.visual-builder-phone-active .visualBuilderRouteIsolation [data-viewport="mobile"] div[class*="nodeToolbar"]{gap:2px!important;padding:4px 5px!important;border-radius:12px!important;box-shadow:0 8px 20px rgba(22,43,39,.12)!important}
+html.visual-builder-phone-active .visualBuilderRouteIsolation [data-viewport="mobile"] div[class*="nodeToolbar"]>button{min-width:30px!important;width:30px!important;height:30px!important;min-height:30px!important;padding:0!important}
+html.visual-builder-phone-active .visualBuilderRouteIsolation [data-viewport="mobile"] div[class*="nodeToolbar"] svg{width:14px!important;height:14px!important}
+
+@media(max-width:480px){
+  html.visual-builder-phone-active .visualBuilderDrawerClose{right:18px;bottom:calc(min(80dvh,760px) - 48px);width:36px;height:36px;font-size:22px}
+}
 
 @media(prefers-reduced-motion:reduce){
   html.visual-builder-route-active .visualBuilderRouteIsolation *{scroll-behavior:auto!important;transition-duration:.01ms!important;animation-duration:.01ms!important}
