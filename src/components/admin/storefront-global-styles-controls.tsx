@@ -57,7 +57,7 @@ export function StorefrontGlobalStylesControls({document,onApply}:{
   onApply:(next:StorefrontPageDocument,notice:string)=>void;
 }){
   const state=getStorefrontGlobalStyleState(document);
-  const apply=(next:StorefrontGlobalStyleState,message='Globális stílus módosítva. Mentéskor minden oldal draftjára érvényesül.')=>{
+  const apply=(next:StorefrontGlobalStyleState,message='Globális stílus módosítva. Mentés után a webshop szerkesztett változatában érvényesül.')=>{
     onApply(setStorefrontGlobalStyleState(document,next),message);
   };
   const change=(key:keyof StorefrontGlobalStyleTokens,value:string|undefined)=>apply(nextState(state,key,value));
@@ -80,9 +80,9 @@ export function StorefrontGlobalStylesControls({document,onApply}:{
   return <div className={styles.fieldGroup} data-storefront-global-styles-v1>
     <div data-global-style-heading>
       <div><strong>Globális stílusok</strong><small>Teljes webshop</small></div>
-      <span>{hasOverrides?`${Object.keys(state.tokens).length} egyedi token`:'Sablon alapértékek'}</span>
+      <span>{hasOverrides?`${Object.keys(state.tokens).length} egyedi beállítás`:'Sablon alapértékek'}</span>
     </div>
-    <p className={styles.emptyHint}>A sablon marad az alap vizuális rendszer. Itt csak a meglévő, kontrollált Page Schema design tokeneket állítod; nincs nyers CSS és nincs külön stílus-authority.</p>
+    <p className={styles.emptyHint}>A sablon marad a vizuális alap. Itt a teljes webshop biztonságos márkastílusait állíthatod át anélkül, hogy az egyes oldalakat külön kellene szerkesztened.</p>
 
     <div data-global-style-preview style={{background:preview.background,color:preview.text,borderColor:preview.border,fontFamily:preview.bodyFont}}>
       <div data-preview-eyebrow style={{color:preview.accent}}>ÉLŐ STÍLUS-ELŐNÉZET</div>
@@ -90,7 +90,7 @@ export function StorefrontGlobalStylesControls({document,onApply}:{
       <p style={{color:preview.muted}}>A színek, tipográfia, térköz és lekerekítés együtt jelenik meg.</p>
       <div data-preview-card style={{background:preview.surface,borderColor:preview.border,borderRadius:preview.radius}}>
         <span><VisualBuilderIcon name="star"/></span>
-        <div><strong>Prémium termékkártya</strong><small style={{color:preview.muted}}>Egységes tokenekből épül.</small></div>
+        <div><strong>Prémium termékkártya</strong><small style={{color:preview.muted}}>A globális stílusokból épül.</small></div>
         <button type="button" tabIndex={-1} aria-hidden="true" style={{background:preview.primary,color:preview.primaryContrast,borderRadius:preview.radius}}>Megnézem</button>
       </div>
     </div>
@@ -120,13 +120,13 @@ export function StorefrontGlobalStylesControls({document,onApply}:{
     </div>
 
     <div data-global-style-category="buttons">
-      <div data-style-category-head><span><VisualBuilderIcon name="component"/></span><div><strong>Gombok</strong><small>A meglévő elsődleges, kontraszt- és radius tokenek előnézete</small></div></div>
+      <div data-style-category-head><span><VisualBuilderIcon name="component"/></span><div><strong>Gombok</strong><small>Elsődleges és másodlagos gombok előnézete</small></div></div>
       <div data-button-preview><button type="button" tabIndex={-1} aria-hidden="true" style={{background:preview.primary,color:preview.primaryContrast,borderRadius:preview.radius}}>Elsődleges gomb</button><button type="button" tabIndex={-1} aria-hidden="true" style={{color:preview.primary,borderColor:preview.border,borderRadius:preview.radius}}>Másodlagos</button></div>
     </div>
 
     <div data-global-style-category="cards">
       <div data-style-category-head><span><VisualBuilderIcon name="layout"/></span><div><strong>Kártyák</strong><small>Felület, szegély és lekerekítés együtt</small></div></div>
-      <div data-card-preview style={{background:preview.surface,borderColor:preview.border,borderRadius:preview.radius}}><span style={{background:preview.accent}}/><div><strong>Termékkártya</strong><small style={{color:preview.muted}}>A globális tokenekből származó megjelenés.</small></div></div>
+      <div data-card-preview style={{background:preview.surface,borderColor:preview.border,borderRadius:preview.radius}}><span style={{background:preview.accent}}/><div><strong>Termékkártya</strong><small style={{color:preview.muted}}>A globális stílusok szerinti megjelenés.</small></div></div>
       <label className={styles.field}><span>Globális lekerekítés</span><select value={state.tokens.radiusScale??''} onChange={event=>change('radiusScale',event.target.value||undefined)}><option value="">Sablon alapérték</option>{STOREFRONT_GLOBAL_RADIUS_SCALES.map(item=><option key={item} value={item}>{RADIUS_LABELS[item]}</option>)}</select></label>
     </div>
 
@@ -137,15 +137,15 @@ export function StorefrontGlobalStylesControls({document,onApply}:{
     </div>
 
     <div data-global-style-category="icons">
-      <div data-style-category-head><span><VisualBuilderIcon name="star"/></span><div><strong>Ikonok</strong><small>Az egységes SVG rendszer a globális színtónusokkal</small></div></div>
+      <div data-style-category-head><span><VisualBuilderIcon name="star"/></span><div><strong>Ikonok</strong><small>Az ikonok a globális márkaszíneket követik</small></div></div>
       <div data-icon-preview style={{color:preview.primary}}><span><VisualBuilderIcon name="star"/></span><span><VisualBuilderIcon name="image"/></span><span><VisualBuilderIcon name="box"/></span><span style={{color:preview.accent}}><VisualBuilderIcon name="check"/></span></div>
-      <p className={styles.emptyHint}>Az ikonok nem kapnak külön párhuzamos tokent: a meglévő szín- és komponens-authorityt öröklik.</p>
+      <p className={styles.emptyHint}>Az ikonok automatikusan a webshop globális színrendszerét használják.</p>
     </div>
 
     <div className={styles.metaGrid}>
       <span><small>Hatókör</small><b>Teljes webshop</b></span>
-      <span><small>Authority</small><b>Page Schema revision</b></span>
+      <span><small>Mentés</small><b>Piszkozatverzió</b></span>
     </div>
-    <button type="button" className={styles.addSectionButton} disabled={!hasOverrides} onClick={()=>apply({version:STOREFRONT_GLOBAL_STYLES_VERSION,tokens:{}},'Globális felülírások törölve; a sablon alap design tokenjei lesznek érvényesek mentés után.')}>Sablon alapértékek visszaállítása</button>
+    <button type="button" className={styles.addSectionButton} disabled={!hasOverrides} onClick={()=>apply({version:STOREFRONT_GLOBAL_STYLES_VERSION,tokens:{}},'Globális felülírások törölve; mentés után ismét a sablon alapstílusai lesznek érvényesek.')}>Sablon alapértékek visszaállítása</button>
   </div>;
 }

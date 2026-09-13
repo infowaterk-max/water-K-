@@ -58,15 +58,15 @@ export function StorefrontPageTemplatesPanel({document,capability,onApply}:Props
   const applyTemplate=(template:StorefrontBuilderPageTemplate)=>run(async()=>{
     const source=await getVisualBuilderPageTemplateSourceAction({pageKey:document.pageKey,presetId:template.presetId});
     const next=applyStorefrontPageTemplate({current:document,source,registry,capability});
-    onApply(next,next.sections[0]?.id??document.sections[0]?.id??'root',`„${template.label}” oldalsablon alkalmazva · a teljes working copy lecserélve, a draft még nincs mentve.`);
+    onApply(next,next.sections[0]?.id??document.sections[0]?.id??'root',`„${template.label}” oldalsablon alkalmazva · a módosítás még nincs mentve.`);
   });
 
   const createPage=()=>run(async()=>{
-    if(!newPresetId)throw new Error('STOREFRONT_PAGE_TEMPLATE_SELECTION_REQUIRED');
+    if(!newPresetId)throw new Error('Válassz oldalsablont.');
     const targetPageKey=newPageKey.trim();
-    if(!targetPageKey)throw new Error('STOREFRONT_PAGE_TEMPLATE_PAGE_KEY_REQUIRED');
+    if(!targetPageKey)throw new Error('Adj meg egy oldalazonosítót.');
     const result=await createVisualBuilderPageFromTemplateAction({referencePageKey:document.pageKey,presetId:newPresetId,targetPageKey,operationKey:operationKey()});
-    setMessage(`Új ${label(result.pageType)} oldal létrehozva · r${result.revisionNumber}.`);
+    setMessage(`Új ${label(result.pageType)} oldal létrehozva · piszkozat r${result.revisionNumber}.`);
     setNewPageKey('');
     router.push(`/admin/tartalom/builder?page=${encodeURIComponent(result.pageKey)}`);
     router.refresh();
@@ -74,22 +74,22 @@ export function StorefrontPageTemplatesPanel({document,capability,onApply}:Props
 
   return <div data-storefront-page-templates-v1>
     <strong>Oldalsablonok</strong>
-    <p className={styles.emptyHint}>Teljes Page Presetet alkalmazhatsz az aktuális oldal working copyjára. Ez lecseréli az oldal kompozícióját, de nem ment és nem publikál automatikusan; a globális márkastílus megmarad, és a Builder visszavonása használható.</p>
-    {library?<p className={styles.emptyHint}>{library.templateKey} · v{library.templateVersion} · {label(library.currentPageType)}</p>:<p className={styles.emptyHint}>Oldalsablonok betöltése…</p>}
+    <p className={styles.emptyHint}>Cseréld le az aktuális oldal teljes elrendezését egy kész oldalsablonra. A globális márkastílus megmarad, a módosítás pedig mentésig visszavonható.</p>
+    {library?<p className={styles.emptyHint}>Az aktuális oldaltípushoz elérhető sablonok.</p>:<p className={styles.emptyHint}>Oldalsablonok betöltése…</p>}
     <div className={styles.componentLibrary}>{applicable.map(template=><article key={template.presetId}>
       <span className={styles.componentLibraryIcon} aria-hidden="true"><VisualBuilderIcon name="templates"/></span>
       <span><strong>{template.label}</strong><small>{label(template.pageType)} · teljes oldal</small></span>
-      <div><button type="button" disabled={busy} onClick={()=>applyTemplate(template)}>Teljes oldal alkalmazása</button></div>
+      <div><button type="button" disabled={busy} onClick={()=>applyTemplate(template)}>Alkalmazás</button></div>
     </article>)}</div>
-    {library&&!applicable.length?<p className={styles.emptyHint}>Az aktuális oldaltípushoz nincs kompatibilis gyári Page Preset.</p>:null}
+    {library&&!applicable.length?<p className={styles.emptyHint}>Az aktuális oldaltípushoz nincs kompatibilis gyári oldalsablon.</p>:null}
 
     <div className={styles.panelDivider}/>
-    <strong>Új oldal oldalsablonból</strong>
-    <p className={styles.emptyHint}>V1-ben új, ismételhető tartalmi oldal hozható létre: Tartalom, Blogbejegyzés vagy Jogi oldal. Az új oldal elsőként draftként jön létre.</p>
+    <strong>Új oldal sablonból</strong>
+    <p className={styles.emptyHint}>Kész sablonból új tartalmi, blog- vagy jogi oldalt hozhatsz létre. Az új oldal először piszkozatként jön létre.</p>
     <label className={styles.field}><span>Oldalsablon</span><select value={newPresetId} disabled={busy||!creatable.length} onChange={event=>setNewPresetId(event.target.value)}>{creatable.map(template=><option key={template.presetId} value={template.presetId}>{template.label} · {label(template.pageType)}</option>)}</select></label>
-    <label className={styles.field}><span>Új oldal kulcsa</span><input value={newPageKey} maxLength={128} placeholder="pl. content.rolunk" disabled={busy} onChange={event=>setNewPageKey(event.target.value)}/></label>
-    <button type="button" className={styles.addSectionButton} disabled={busy||!newPresetId||!newPageKey.trim()} onClick={createPage}><VisualBuilderIcon name="plus"/> Új draft oldal létrehozása</button>
-    {!creatable.length&&library?<p className={styles.emptyHint}>Ebben a sablonban nincs új oldal létrehozására engedélyezett Page Preset.</p>:null}
+    <label className={styles.field}><span>Oldal azonosítója</span><input value={newPageKey} maxLength={128} placeholder="pl. rolunk" disabled={busy} onChange={event=>setNewPageKey(event.target.value)}/><small>Rövid, egyedi azonosító az oldalhoz.</small></label>
+    <button type="button" className={styles.addSectionButton} disabled={busy||!newPresetId||!newPageKey.trim()} onClick={createPage}><VisualBuilderIcon name="plus"/> Új piszkozat oldal</button>
+    {!creatable.length&&library?<p className={styles.emptyHint}>Ebben a sablonban nincs új oldal létrehozására engedélyezett oldalsablon.</p>:null}
     {error?<div className={styles.errorNotice} role="alert">{error}</div>:null}
     {message?<div className={styles.notice} role="status">{message}</div>:null}
   </div>;

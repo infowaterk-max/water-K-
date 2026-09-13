@@ -87,8 +87,8 @@ describe('Storefront Page Templates v1',()=>{
     const panel=read('src/components/admin/storefront-page-templates-panel.tsx');
     const host=read('src/components/admin/storefront-saved-blocks-panel.tsx');
     expect(panel).toContain('data-storefront-page-templates-v1');
-    expect(panel).toContain('Teljes oldal alkalmazása');
-    expect(panel).toContain('Új draft oldal létrehozása');
+    expect(panel).toContain('onClick={()=>applyTemplate(template)}>Alkalmazás</button>');
+    expect(panel).toContain('Új piszkozat oldal');
     expect(panel).toContain('getVisualBuilderPageTemplateSourceAction');
     expect(panel).toContain('createVisualBuilderPageFromTemplateAction');
     expect(host).toContain('StorefrontPageTemplatesPanel');

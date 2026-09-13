@@ -99,7 +99,8 @@ describe('Responsive / Layout Depth v1',()=>{
     const engine=read('src/lib/builder/storefront-responsive-layout-depth.ts');
     expect(runtime).toContain('visualStyle(config.style,viewport)');
     expect(settings).toContain('StorefrontResponsiveLayoutDepthControls');
-    expect(settings).toContain('Responsive / Layout Depth');
+    expect(settings).toContain('Haladó elrendezési vezérlés');
+    expect(settings).toContain("const advanced=inspector.editMode==='advanced'||inspector.editMode==='expert'");
     expect(controls).toContain('StorefrontFidelityLayoutControls');
     expect(controls).toContain("state.editMode==='advanced'||state.editMode==='expert'");
     expect(controls).toContain('Breakpoin');
