@@ -10,6 +10,7 @@ import {StorefrontPageTemplatesPanel} from '@/components/admin/storefront-page-t
 import {StorefrontPresetLibraryPanel} from '@/components/admin/storefront-preset-library-panel';
 import {createStorefrontVisualBuilderRendererRegistry} from '@/components/builder/storefront-builder-renderer-registry';
 import {createStorefrontVisualBuilderComponentRegistry} from '@/lib/builder/storefront-builder-registry';
+import {findStorefrontLinkedSymbolInstance} from '@/lib/builder/storefront-linked-symbols';
 import {
   applyStorefrontBuilderMutation,
   createStorefrontBuilderHistory,
@@ -105,20 +106,24 @@ const componentIcon=(key:string)=>{
   if(value.includes('review')||value.includes('testimonial'))return'☆';
   if(value.includes('newsletter')||value.includes('email'))return'✉';
   if(value.includes('faq'))return'?';
-  if(value.includes('image')||value.includes('gallery'))return'▣';
+  if(value.includes('image')||value.includes('gallery')||value.includes('video'))return'▣';
+  if(value.includes('navigation')||value.includes('menu'))return'≡';
   if(value.includes('text')||value.includes('copy')||value.includes('heading'))return'T';
   if(value.includes('button')||value.includes('cta'))return'＋';
   return'◆';
 };
 const componentGroup=(key:string)=>{
   const value=key.toLowerCase();
-  if(value.includes('hero')||value.includes('banner'))return'Hero';
-  if(value.includes('product')||value.includes('collection')||value.includes('recommend'))return'Termékek';
-  if(value.includes('review')||value.includes('testimonial')||value.includes('story')||value.includes('editorial')||value.includes('blog'))return'Tartalom';
-  if(value.includes('newsletter')||value.includes('cta')||value.includes('promo')||value.includes('finder')||value.includes('cart')||value.includes('recipe')||value.includes('scene'))return'Kereskedelem';
+  if(value.includes('cart')||value.includes('finder')||value.includes('recipe')||value.includes('scene')||value.includes('shop-the-look'))return'Interaktív kereskedelem';
+  if(value.includes('product')||value.includes('collection')||value.includes('recommend')||value.includes('promo')||value.includes('newsletter')||value.includes('cta'))return'Commerce';
+  if(value.includes('image')||value.includes('gallery')||value.includes('video')||value.includes('media'))return'Média';
+  if(value.includes('navigation')||value.includes('menu')||value.includes('header')||value.includes('footer'))return'Navigáció';
+  if(value.includes('review')||value.includes('testimonial')||value.includes('story')||value.includes('editorial')||value.includes('blog')||value.includes('text')||value.includes('heading'))return'Tartalom';
+  if(value.includes('hero')||value.includes('banner')||value.includes('section')||value.includes('container')||value.includes('button'))return'Alap elemek';
   return'Egyéb';
 };
 const statusLabel=(status:StorefrontFidelityInspectorStatus)=>status==='ok'?'Rendben':status==='warning'?'Figyelmeztetés':'Javítandó';
+const statusFromIssues=(issues:readonly {severity:'warning'|'error'}[]):StorefrontFidelityInspectorStatus=>issues.some(issue=>issue.severity==='error')?'error':issues.length?'warning':'ok';
 
 function flatten(document:StorefrontPageDocument){
   const result:FlatNode[]=[];
@@ -159,7 +164,7 @@ function StructuredEditor({label,value,onChange}:{label:string;value:unknown;onC
   if(Array.isArray(value))return <div className={styles.complexField}><strong>{humanize(label)}</strong>{value.length===0?<span className={styles.muted}>Üres lista – ezt adatbinding vagy a komponens logikája töltheti.</span>:value.map((item,index)=><StructuredEditor key={index} label={`${index+1}. elem`} value={item} onChange={next=>onChange(setNested(value,[index],next))}/>)}</div>;
   return <div className={styles.complexField}><strong>{humanize(label)}</strong>{Object.entries(value as Record<string,unknown>).map(([key,child])=><StructuredEditor key={key} label={key} value={child} onChange={next=>onChange(setNested(value,[key],next))}/>)}</div>;
 }
-function Outline({document,selectedId,onSelect,onMove}:{document:StorefrontPageDocument;selectedId:string|null;onSelect:(id:string)=>void;onMove:(nodeId:string,parentId:string|null,index:number)=>void}){
+function Outline({document,viewport,selectedId,onSelect,onMove}:{document:StorefrontPageDocument;viewport:StorefrontViewport;selectedId:string|null;onSelect:(id:string)=>void;onMove:(nodeId:string,parentId:string|null,index:number)=>void}){
   const items=flatten(document);
   const[dragging,setDragging]=useState<string|null>(null);
   const drop=(event:DragEvent,entry:FlatNode)=>{
@@ -167,19 +172,29 @@ function Outline({document,selectedId,onSelect,onMove}:{document:StorefrontPageD
     if(dragging&&dragging!==entry.node.id)onMove(dragging,entry.parentId,entry.index);
     setDragging(null);
   };
-  return <div className={styles.outline}>{items.map(entry=><div
-    key={entry.node.id}
-    className={`${styles.outlineRow} ${selectedId===entry.node.id?styles.selected:''}`}
-    style={{paddingLeft:8+entry.depth*16}}
-    draggable
-    onDragStart={()=>setDragging(entry.node.id)}
-    onDragEnd={()=>setDragging(null)}
-    onDragOver={event=>event.preventDefault()}
-    onDrop={event=>drop(event,entry)}
-  >
-    <button type="button" onClick={()=>onSelect(entry.node.id)}><span className={styles.dragHandle} aria-hidden="true">⋮⋮</span><span className={styles.outlineIcon} aria-hidden="true">{componentIcon(entry.node.componentKey)}</span><span><strong>{componentLabel(entry.node.componentKey)}</strong><small>{entry.node.id}</small></span></button>
-    <span className={styles.rowMoves}><button type="button" aria-label="Mozgatás felfelé" disabled={entry.index===0} onClick={()=>onMove(entry.node.id,entry.parentId,Math.max(0,entry.index-1))}>↑</button><button type="button" aria-label="Mozgatás lefelé" onClick={()=>onMove(entry.node.id,entry.parentId,entry.index+1)}>↓</button></span>
-  </div>)}</div>;
+  return <div className={styles.outline}>{items.map(entry=>{
+    const nodeDefinition=componentRegistry.get(entry.node.componentKey,entry.node.componentVersion);
+    const linked=findStorefrontLinkedSymbolInstance(document,entry.node.id);
+    const protectedNode=nodeDefinition?.protectedSystem===true;
+    const hidden=entry.node.responsive?.[viewport]?.hidden===true;
+    return <div
+      key={entry.node.id}
+      className={`${styles.outlineRow} ${selectedId===entry.node.id?styles.selected:''}`}
+      style={{paddingLeft:8+entry.depth*16}}
+      draggable={!protectedNode}
+      data-linked={Boolean(linked)}
+      data-protected={protectedNode}
+      data-hidden={hidden}
+      onDragStart={()=>setDragging(entry.node.id)}
+      onDragEnd={()=>setDragging(null)}
+      onDragOver={event=>event.preventDefault()}
+      onDrop={event=>drop(event,entry)}
+    >
+      <button type="button" onClick={()=>onSelect(entry.node.id)}><span className={styles.dragHandle} aria-hidden="true">⋮⋮</span><span className={styles.outlineIcon} aria-hidden="true">{componentIcon(entry.node.componentKey)}</span><span><strong>{componentLabel(entry.node.componentKey)}</strong><small>{entry.depth===0?'Szekció':`Szint ${entry.depth+1}`} · {entry.node.id}</small></span></button>
+      <span className={ui.layerBadges} aria-label="Réteg állapota">{linked?<b title="Linked Symbol">Linked</b>:null}{protectedNode?<b title="Védett rendszerkomponens">Védett</b>:null}{hidden?<b title={`Rejtett ${viewport} nézetben`}>Rejtett</b>:null}</span>
+      <span className={styles.rowMoves}><button type="button" aria-label="Mozgatás felfelé" disabled={protectedNode||entry.index===0} onClick={()=>onMove(entry.node.id,entry.parentId,Math.max(0,entry.index-1))}>↑</button><button type="button" aria-label="Mozgatás lefelé" disabled={protectedNode} onClick={()=>onMove(entry.node.id,entry.parentId,entry.index+1)}>↓</button></span>
+    </div>;
+  })}</div>;
 }
 
 export function StorefrontVisualBuilder({pages,document:initialDocument,pageId,draftRevision:initialDraftRevision,publishedRevision:initialPublishedRevision,revisions,capability,bindingContext,templates,savedBlocks}:Props){
@@ -199,6 +214,9 @@ export function StorefrontVisualBuilder({pages,document:initialDocument,pageId,d
   const[publishOpen,setPublishOpen]=useState(false);
   const[componentQuery,setComponentQuery]=useState('');
   const[componentFilter,setComponentFilter]=useState('Összes');
+  const[pageQuery,setPageQuery]=useState('');
+  const[leftCollapsed,setLeftCollapsed]=useState(false);
+  const[inspectorOpen,setInspectorOpen]=useState(Boolean(initialDocument?.sections[0]));
   const document=history?.present??null;
   const selected=document?getNode(document,selectedId):null;
   const definition=selected?componentRegistry.get(selected.componentKey,selected.componentVersion):undefined;
@@ -269,26 +287,39 @@ export function StorefrontVisualBuilder({pages,document:initialDocument,pageId,d
     const matchesFilter=componentFilter==='Összes'||componentGroup(item.componentKey)===componentFilter;
     return matchesQuery&&matchesFilter;
   });
+  const visiblePages=pages.filter(page=>!pageQuery.trim()||`${pageLabel(page)} ${page.pageKey} ${page.pageType}`.toLowerCase().includes(pageQuery.trim().toLowerCase()));
   const setConfig=(key:string,value:unknown)=>selected&&mutate({type:'config',nodeId:selected.id,key,value});
   const addComponent=(item:{componentKey:string;componentVersion:number},parentId:string|null)=>{
     const nodeId=`${item.componentKey.replace(/[^a-z0-9._:-]+/gi,'-')}-${crypto.randomUUID().slice(0,8)}`.toLowerCase().slice(0,127);
     mutate({type:'add',parentId,componentKey:item.componentKey,componentVersion:item.componentVersion,nodeId});
-    setSelectedId(nodeId);setPanelMode('pages');setEditorTab('content');
+    setSelectedId(nodeId);setInspectorOpen(true);setPanelMode('pages');setEditorTab('content');
   };
   const selectedFlat=selected?flat.find(entry=>entry.node.id===selected.id)??null:null;
   const contentKeys=definition?.manifest.configurable.filter(key=>!isAppearanceKey(key))??[];
   const appearanceKeys=definition?.manifest.configurable.filter(key=>isAppearanceKey(key))??[];
-  const selectNode=(id:string)=>{setSelectedId(id);setEditorTab('content');};
+  const spacingKey=appearanceKeys.includes('spacing')?'spacing':appearanceKeys.includes('gap')?'gap':null;
+  const alignKey=appearanceKeys.includes('align')?'align':null;
+  const selectNode=(id:string)=>{setSelectedId(id);setInspectorOpen(true);setEditorTab('content');};
   const fidelity=inspectStorefrontFidelityBuilder(document);
+  const advancedMode=fidelity.editMode!=='normal';
+  const activeResponsive=selected?.responsive?.[viewport];
+  const responsiveOverrideActive=Boolean(activeResponsive&&(activeResponsive.hidden===true||activeResponsive.gridSpan!==undefined));
+  const resetResponsive=()=>selected&&mutate({type:'responsive',nodeId:selected.id,viewport,hidden:false,gridSpan:null});
   const viewportStatus=(target:StorefrontViewport):StorefrontFidelityInspectorStatus=>{
     const issues=fidelity.layout.issues.filter(issue=>issue.viewport===target);
     if(issues.some(issue=>issue.severity==='error'))return'error';
     return issues.length?'warning':'ok';
   };
+  const imageIssues=fidelity.accessibility.issues.filter(issue=>issue.code.startsWith('ACCESSIBILITY_IMAGE_'));
+  const linkIssues=fidelity.accessibility.issues.filter(issue=>issue.code.includes('HREF')||issue.code.includes('CONTROL_LABEL'));
+  const contentIssues=fidelity.accessibility.issues.filter(issue=>issue.code.includes('HEADING'));
   const readiness=[
     {label:'Mentett draft',status:(dirty||!draftRevision?'error':'ok') as StorefrontFidelityInspectorStatus,detail:dirty?'Mentsd a módosításokat a közzététel előtt.':draftRevision?`Aktuális draft: r${draftRevision}`:'Nincs mentett draft.'},
     ...VIEWPORTS.map(item=>({label:`${item.label} nézet`,status:viewportStatus(item.key),detail:viewportStatus(item.key)==='ok'?'Nincs ismert overflow vagy clipping probléma.':'A diagnosztika jelzett elrendezési problémát.'})),
     {label:'Akadálymentesség',status:fidelity.accessibility.status,detail:fidelity.accessibility.issues.length?`${fidelity.accessibility.issues.length} jelzés található.`:'Nincs ismert akadálymentességi probléma.'},
+    {label:'Képek',status:statusFromIssues(imageIssues),detail:imageIssues.length?`${imageIssues.length} képhez kapcsolódó accessibility jelzés.`:'A diagnosztika nem talált hiányzó kötelező képleírást.'},
+    {label:'Linkek és CTA-k',status:statusFromIssues(linkIssues),detail:linkIssues.length?`${linkIssues.length} hivatkozás- vagy vezérlőjelzés.`:'Nincs ismert hibás URL-séma vagy címkézetlen CTA.'},
+    {label:'Kötelező tartalom',status:statusFromIssues(contentIssues),detail:contentIssues.length?`${contentIssues.length} címsor-hierarchia vagy tartalmi jelzés.`:'A heading diagnosztika nem talált ismert tartalmi problémát.'},
     {label:'Teljesítmény',status:fidelity.performance.status,detail:fidelity.performance.issues.length?`${fidelity.performance.issues.length} teljesítményjelzés található.`:'A dokumentum a szerkezeti performance kereten belül van.'},
     {label:'Design Guard',status:(fidelity.designGuard.mode==='off'?'warning':'ok') as StorefrontFidelityInspectorStatus,detail:fidelity.designGuard.mode==='off'?'A Design Guard ki van kapcsolva.':`Design Guard: ${fidelity.designGuard.mode}.`},
   ];
@@ -300,17 +331,20 @@ export function StorefrontVisualBuilder({pages,document:initialDocument,pageId,d
     const nodeDefinition=componentRegistry.get(node.componentKey,node.componentVersion);
     const protectedNode=nodeDefinition?.protectedSystem===true;
     const active=selectedId===node.id;
-    return <div className={`${styles.canvasNode} ${active?styles.canvasNodeSelected:''}`} data-builder-node-id={node.id} onClick={event=>{event.stopPropagation();selectNode(node.id);}}>
+    return <div className={`${styles.canvasNode} ${active?styles.canvasNodeSelected:''}`} data-builder-node-id={node.id} data-protected={protectedNode} onClick={event=>{event.stopPropagation();selectNode(node.id);}}>
       {active?<>
-        <span className={styles.nodeLabel}>{componentLabel(node.componentKey)}</span>
+        <span className={styles.nodeLabel}>{componentLabel(node.componentKey)}{protectedNode?' · védett':''}</span>
         <div className={`${styles.nodeToolbar} ${ui.nodeToolbarV2}`} onClick={event=>event.stopPropagation()}>
-          <button type="button" title="Szerkesztés" onClick={()=>setEditorTab('content')}>✎</button>
+          <button type="button" title="Tartalom szerkesztése" onClick={()=>setEditorTab('content')}>✎</button>
           <button type="button" title="Felfelé" disabled={!entry||entry.index===0||protectedNode} onClick={()=>entry&&move(node.id,entry.parentId,Math.max(0,entry.index-1))}>↑</button>
           <button type="button" title="Lefelé" disabled={!entry||protectedNode} onClick={()=>entry&&move(node.id,entry.parentId,entry.index+1)}>↓</button>
           <button type="button" title="Duplikálás" disabled={protectedNode} onClick={()=>mutate({type:'duplicate',nodeId:node.id})}>⧉</button>
-          <button type="button" title="Törlés" disabled={protectedNode} onClick={()=>{mutate({type:'remove',nodeId:node.id});setSelectedId(null);}}>⌫</button>
+          <button type="button" title="Preset / variáns" onClick={()=>{setPanelMode('presets');setEditorTab('appearance');}}>◫</button>
+          <button type="button" title="Láthatóság / responsive" onClick={()=>setEditorTab('responsive')}>◉</button>
+          <button type="button" title="További beállítások" onClick={()=>setEditorTab(advancedMode?'advanced':'appearance')}>•••</button>
+          <button type="button" title="Törlés" disabled={protectedNode} onClick={()=>{mutate({type:'remove',nodeId:node.id});setSelectedId(null);setInspectorOpen(false);}}>⌫</button>
         </div>
-        {!protectedNode?<button type="button" className={styles.insertAfterButton} title="Új szekció hozzáadása" onClick={event=>{event.stopPropagation();setPanelMode('add');}}>＋</button>:null}
+        {!protectedNode?<button type="button" className={styles.insertAfterButton} title="Új szekció hozzáadása" onClick={event=>{event.stopPropagation();setPanelMode('add');setLeftCollapsed(false);}}>＋</button>:null}
       </>:null}
       {rendered}
     </div>;
@@ -323,6 +357,8 @@ export function StorefrontVisualBuilder({pages,document:initialDocument,pageId,d
       <label className={styles.pageSelect}><span className={styles.srOnly}>Szerkesztett oldal</span><select value={document.pageKey} onChange={event=>router.push(`/admin/tartalom/builder?page=${encodeURIComponent(event.target.value)}`)}>{pages.map(page=><option key={page.pageId} value={page.pageKey}>{pageLabel(page)}</option>)}</select></label>
       <div className={styles.viewportSwitch}>{VIEWPORTS.map(item=><button key={item.key} type="button" data-active={viewport===item.key} onClick={()=>setViewport(item.key)}><span aria-hidden="true">{item.icon}</span>{item.label}</button>)}</div>
       <div className={styles.topbarActions}>
+        <button type="button" className={ui.panelToggle} aria-label={leftCollapsed?'Bal panel megnyitása':'Bal panel bezárása'} aria-expanded={!leftCollapsed} onClick={()=>setLeftCollapsed(value=>!value)}>☰</button>
+        <button type="button" className={ui.panelToggle} aria-label={inspectorOpen?'Inspector bezárása':'Inspector megnyitása'} aria-expanded={inspectorOpen} onClick={()=>setInspectorOpen(value=>!value)}>◧</button>
         <button type="button" className={styles.iconButton} aria-label="Visszavonás" title="Visszavonás" disabled={busy||!history?.past.length} onClick={()=>{setHistory(current=>current?undoStorefrontBuilderHistory(current):current);setDirty(true);}}>↶</button>
         <button type="button" className={styles.iconButton} aria-label="Újra" title="Újra" disabled={busy||!history?.future.length} onClick={()=>{setHistory(current=>current?redoStorefrontBuilderHistory(current):current);setDirty(true);}}>↷</button>
         <span className={styles.saveState}>{dirty?'Nem mentett módosítás':draftRevision?`Mentve · r${draftRevision}`:'Draft'}</span>
@@ -335,8 +371,8 @@ export function StorefrontVisualBuilder({pages,document:initialDocument,pageId,d
 
     {(error||notice)?<div className={styles.feedbackBar}>{error?<span className={styles.errorNotice} role="alert">{error}</span>:null}{notice?<span className={styles.notice} role="status">{notice}</span>:null}</div>:null}
 
-    <div className={ui.workspaceV2}>
-      <aside className={ui.leftWorkspace}>
+    <div className={ui.workspaceV2} data-left-collapsed={leftCollapsed} data-inspector-open={inspectorOpen}>
+      <aside className={ui.leftWorkspace} data-collapsed={leftCollapsed}>
         <nav className={ui.primaryNav} aria-label="Visual Builder fő navigáció">
           {([
             ['pages','▣','Oldalak'],
@@ -346,18 +382,20 @@ export function StorefrontVisualBuilder({pages,document:initialDocument,pageId,d
             ['presets','◫','Presetek'],
             ['saved','☆','Saját blokkok'],
             ['globals','◎','Globális elemek'],
-          ] as const).map(([mode,icon,label])=><button key={mode} type="button" data-active={panelMode===mode} onClick={()=>setPanelMode(mode)}><span aria-hidden="true">{icon}</span>{label}</button>)}
+          ] as const).map(([mode,icon,label])=><button key={mode} type="button" data-active={panelMode===mode} onClick={()=>{setPanelMode(mode);setLeftCollapsed(false);}}><span aria-hidden="true">{icon}</span>{label}</button>)}
         </nav>
         <div className={ui.leftPanelBody}>
           {panelMode==='pages'?<>
             <div className={styles.panelSectionHead}><div><strong>Oldalak</strong><span>Válassz oldalt a szerkesztéshez.</span></div></div>
-            <div className={styles.pageList}>{pages.map(page=><Link key={page.pageId} data-active={page.pageKey===document.pageKey} href={`/admin/tartalom/builder?page=${encodeURIComponent(page.pageKey)}`}><span className={styles.pageIcon}>{page.pageKey===document.pageKey?'⌂':'▱'}</span><span><strong>{pageLabel(page)}</strong><small>{page.pageKey}</small></span></Link>)}</div>
+            <label className={ui.searchField}><span className={styles.srOnly}>Oldalak keresése</span><input type="search" value={pageQuery} onChange={event=>setPageQuery(event.target.value)} placeholder="Oldal keresése…"/></label>
+            <div className={styles.pageList}>{visiblePages.map(page=><Link key={page.pageId} data-active={page.pageKey===document.pageKey} href={`/admin/tartalom/builder?page=${encodeURIComponent(page.pageKey)}`}><span className={styles.pageIcon}>{page.pageKey===document.pageKey?'⌂':'▱'}</span><span><strong>{pageLabel(page)}</strong><small>{humanize(page.pageType)} · {page.pageKey}</small></span></Link>)}</div>
+            {!visiblePages.length?<p className={styles.emptyHint}>Nincs a keresésnek megfelelő oldal.</p>:null}
           </>:null}
 
           {panelMode==='add'?<>
             <div className={styles.panelSectionHead}><div><strong>Hozzáadás</strong><span>Komponensek és interaktív kereskedelmi elemek.</span></div></div>
-            <input className={styles.componentSearch} value={componentQuery} onChange={event=>setComponentQuery(event.target.value)} placeholder="Keresés a blokkok között…"/>
-            <div className={styles.filterTabs}>{['Összes','Hero','Termékek','Tartalom','Kereskedelem','Egyéb'].map(filter=><button key={filter} type="button" data-active={componentFilter===filter} onClick={()=>setComponentFilter(filter)}>{filter}</button>)}</div>
+            <input className={styles.componentSearch} aria-label="Komponensek keresése" value={componentQuery} onChange={event=>setComponentQuery(event.target.value)} placeholder="Keresés a blokkok között…"/>
+            <div className={styles.filterTabs}>{['Összes','Alap elemek','Tartalom','Média','Navigáció','Commerce','Interaktív kereskedelem','Egyéb'].map(filter=><button key={filter} type="button" data-active={componentFilter===filter} onClick={()=>setComponentFilter(filter)}>{filter}</button>)}</div>
             {selected&&insertableSelected.length?<div className={styles.addTarget}><span>Kijelölt elem:</span><strong>{componentLabel(selected.componentKey)}</strong><small>A kompatibilis komponensek ide is beilleszthetők.</small></div>:null}
             <div className={styles.componentLibrary}>{visibleInsertable.map(item=>{
               const canInsertIntoSelected=Boolean(selected&&insertableSelected.some(candidate=>candidate.componentKey===item.componentKey&&candidate.componentVersion===item.componentVersion));
@@ -368,18 +406,18 @@ export function StorefrontVisualBuilder({pages,document:initialDocument,pageId,d
           </>:null}
 
           {panelMode==='structure'?<>
-            <div className={styles.panelSectionHead}><div><strong>Rétegek</strong><span>Átlátható Page Schema hierarchia.</span></div></div>
-            <Outline document={document} selectedId={selectedId} onSelect={selectNode} onMove={move}/>
+            <div className={styles.panelSectionHead}><div><strong>Rétegek</strong><span>Page → Section → Container → Component hierarchia.</span></div></div>
+            <Outline document={document} viewport={viewport} selectedId={selectedId} onSelect={selectNode} onMove={move}/>
             <button type="button" className={styles.addSectionButton} onClick={()=>setPanelMode('add')}>＋ Blokk hozzáadása</button>
           </>:null}
 
           {panelMode==='templates'?<>
             <div className={styles.panelSectionHead}><div><strong>Sablonok és oldalsablonok</strong><span>Teljes oldal vagy teljes webshop kiindulópontjai.</span></div></div>
-            <StorefrontPageTemplatesPanel document={document} capability={capability} onApply={(next,nodeId,message)=>{applyFidelity(next,message);setSelectedId(nodeId);}}/>
+            <StorefrontPageTemplatesPanel document={document} capability={capability} onApply={(next,nodeId,message)=>{applyFidelity(next,message);setSelectedId(nodeId);setInspectorOpen(true);}}/>
             <button type="button" className={styles.addSectionButton} onClick={openTemplateLibrary}>▦ Teljes sablonkönyvtár megnyitása</button>
           </>:null}
 
-          {panelMode==='presets'?<StorefrontPresetLibraryPanel document={document} selectedNode={selected} capability={capability} onApply={(next,nodeId,message)=>{applyFidelity(next,message);setSelectedId(nodeId);}}/>:null}
+          {panelMode==='presets'?<StorefrontPresetLibraryPanel document={document} selectedNode={selected} capability={capability} onApply={(next,nodeId,message)=>{applyFidelity(next,message);setSelectedId(nodeId);setInspectorOpen(true);}}/>:null}
 
           {panelMode==='saved'?<div className={ui.savedPanelV2}><StorefrontSavedBlocksPanel
             document={document}
@@ -387,7 +425,7 @@ export function StorefrontVisualBuilder({pages,document:initialDocument,pageId,d
             selectedIsTopLevel={selectedFlat?.parentId===null}
             initialSavedBlocks={savedBlocks}
             capability={capability}
-            onApply={(next,insertedNodeId,message)=>{applyFidelity(next,message);setSelectedId(insertedNodeId);setEditorTab('content');}}
+            onApply={(next,insertedNodeId,message)=>{applyFidelity(next,message);setSelectedId(insertedNodeId);setInspectorOpen(true);setEditorTab('content');}}
           /></div>:null}
 
           {panelMode==='globals'?<>
@@ -397,43 +435,51 @@ export function StorefrontVisualBuilder({pages,document:initialDocument,pageId,d
         </div>
       </aside>
 
-      <main className={`${styles.canvasStage} ${ui.canvasStageV2}`} onClick={()=>setSelectedId(null)}>
+      <main className={`${styles.canvasStage} ${ui.canvasStageV2}`} onClick={()=>{setSelectedId(null);setInspectorOpen(false);}}>
+        <div className={ui.breakpointContext} data-override={Boolean(selected&&responsiveOverrideActive)}>
+          <span>{viewport==='desktop'?'Desktop':viewport==='tablet'?'Tablet':'Mobil'} · {viewportWidth}px</span>
+          <b>{selected?(responsiveOverrideActive?'Breakpoint override aktív':'Örökölt beállítások'):'Élő Storefront Runtime'}</b>
+        </div>
         {viewport==='mobile'?<div className={ui.viewportNotice}><span>▯</span><div><strong>Mobil nézet szerkesztése</strong><small>Az itt végzett breakpoint-specifikus módosítások csak mobilon érvényesülnek.</small></div></div>:null}
         <div className={styles.canvasMeta}><span>{humanize(viewport)} nézet</span><span>{viewportWidth}px · élő storefront runtime</span></div>
         <div className={`${styles.canvasViewport} ${ui.canvasViewportV2}`} data-viewport={viewport} style={{width:`min(100%, ${viewportWidth}px)`}}><StorefrontRuntimeRenderer page={document} viewport={viewport} bindingContext={bindingContext} componentRegistry={componentRegistry} rendererRegistry={rendererRegistry} capability={capability} decorateNode={canvasDecorator}/></div>
       </main>
 
-      <aside className={ui.inspector}>
+      <aside className={ui.inspector} data-open={inspectorOpen}>
         {selected&&definition?<div className={styles.selectionEditor}>
           <div className={ui.inspectorHeader}>
-            <div className={styles.selectionHead}><span className={styles.selectionThumb}>{componentIcon(selected.componentKey)}</span><span><strong>{componentLabel(selected.componentKey)}</strong><small>{selected.componentKey}</small></span></div>
+            <div className={styles.selectionHead}><span className={styles.selectionThumb}>{componentIcon(selected.componentKey)}</span><span><strong>{componentLabel(selected.componentKey)}</strong><small>{definition.protectedSystem?'Védett elem · ':''}{selected.componentKey}</small></span></div>
             <span className={ui.modeBadge}>{fidelity.editMode==='normal'?'Normál':fidelity.editMode==='advanced'?'Haladó':'Expert'}</span>
           </div>
           <div className={ui.quickActions} aria-label="Gyors szerkesztés">
             <button type="button" onClick={()=>setEditorTab('content')}>✎ Tartalom</button>
             <button type="button" onClick={()=>setEditorTab('appearance')}>◫ Megjelenés</button>
-            <button type="button" onClick={()=>setEditorTab('responsive')}>▯ Mobil / responsive</button>
-            <button type="button" onClick={()=>setEditorTab('advanced')}>⚙ Haladó</button>
+            <button type="button" onClick={()=>setEditorTab('responsive')}>▯ Responsive</button>
+            {advancedMode?<button type="button" onClick={()=>setEditorTab('advanced')}>⚙ Haladó</button>:<button type="button" onClick={()=>setPanelMode('globals')}>◎ Globális stílus</button>}
           </div>
-          <div className={`${styles.editorTabs} ${ui.editorTabsV2}`}>
+          <div className={`${styles.editorTabs} ${ui.editorTabsV2}`} data-advanced={advancedMode}>
             <button type="button" data-active={editorTab==='content'} onClick={()=>setEditorTab('content')}>Tartalom</button>
             <button type="button" data-active={editorTab==='appearance'} onClick={()=>setEditorTab('appearance')}>Megjelenés</button>
             <button type="button" data-active={editorTab==='responsive'} onClick={()=>setEditorTab('responsive')}>Responsive</button>
-            <button type="button" data-active={editorTab==='advanced'} onClick={()=>setEditorTab('advanced')}>Haladó</button>
+            {advancedMode?<button type="button" data-active={editorTab==='advanced'} onClick={()=>setEditorTab('advanced')}>Haladó</button>:null}
           </div>
           <div className={ui.inspectorBody}>
             {editorTab==='content'?<div className={styles.editorFields}>{contentKeys.length?contentKeys.map(key=><StructuredEditor key={key} label={key} value={selected.config[key]} onChange={value=>setConfig(key,value)}/>):<p className={styles.emptyHint}>Ennek az elemnek nincs külön tartalmi mezője.</p>}</div>:null}
-            {editorTab==='appearance'?<div className={styles.editorFields}>{appearanceKeys.length?appearanceKeys.map(key=><StructuredEditor key={key} label={key} value={selected.config[key]} onChange={value=>setConfig(key,value)}/>):<p className={styles.emptyHint}>Ennek az elemnek nincs külön megjelenési mezője.</p>}</div>:null}
-            {editorTab==='responsive'?<div className={styles.editorFields}>
-              <div className={styles.fieldGroup}><strong>{humanize(viewport)} beállítások</strong><label className={styles.switchField}><span>Elrejtés ezen a nézeten</span><input type="checkbox" checked={selected.responsive?.[viewport]?.hidden??false} onChange={event=>mutate({type:'responsive',nodeId:selected.id,viewport,hidden:event.target.checked})}/><i aria-hidden="true"/></label>{definition.manifest.responsiveMode!=='fixed'?<label className={styles.field}><span>Grid szélesség</span><select value={selected.responsive?.[viewport]?.gridSpan??''} onChange={event=>mutate({type:'responsive',nodeId:selected.id,viewport,gridSpan:event.target.value?Number(event.target.value):null})}><option value="">Örökölt / 12</option>{Array.from({length:12},(_,index)=>index+1).map(value=><option key={value} value={value}>{value} / 12</option>)}</select></label>:null}</div>
-              <p className={styles.emptyHint}>A mélyebb breakpoint-, grid- és stack-beállításokat a Globális elemek / Haladó szerkesztési módban éred el. Ugyanaz a Page Schema marad az authority.</p>
+            {editorTab==='appearance'?<div className={styles.editorFields}>
+              {(spacingKey||alignKey)?<div className={ui.smartSettings}><div><strong>Gyors beállítások</strong><small>A meglévő token- és alignment authorityt használják.</small></div><div>{spacingKey?<><button type="button" onClick={()=>setConfig(spacingKey,'l')}>Tágasabb</button><button type="button" onClick={()=>setConfig(spacingKey,'s')}>Kompaktabb</button></>:null}{alignKey?<><button type="button" onClick={()=>setConfig(alignKey,'left')}>Balra igazítva</button><button type="button" onClick={()=>setConfig(alignKey,'center')}>Középre igazítva</button></>:null}</div></div>:null}
+              {appearanceKeys.length?appearanceKeys.map(key=><StructuredEditor key={key} label={key} value={selected.config[key]} onChange={value=>setConfig(key,value)}/>):<p className={styles.emptyHint}>Ennek az elemnek nincs külön megjelenési mezője.</p>}
             </div>:null}
-            {editorTab==='advanced'?<div className={styles.editorFields}>
+            {editorTab==='responsive'?<div className={styles.editorFields}>
+              <div className={ui.responsiveContext} data-override={responsiveOverrideActive}><div><span>{viewport==='desktop'?'Desktop':viewport==='tablet'?'Tablet':'Mobil'}</span><strong>{responsiveOverrideActive?'Egyedi override':'Örökölt érték'}</strong></div><small>{viewport==='desktop'?'Base → Desktop':viewport==='tablet'?'Desktop → Tablet':'Desktop → Tablet → Mobil'}</small></div>
+              <div className={styles.fieldGroup}><strong>{humanize(viewport)} beállítások</strong><label className={styles.switchField}><span>Elrejtés ezen a nézeten</span><input type="checkbox" checked={selected.responsive?.[viewport]?.hidden??false} onChange={event=>mutate({type:'responsive',nodeId:selected.id,viewport,hidden:event.target.checked})}/><i aria-hidden="true"/></label>{definition.manifest.responsiveMode!=='fixed'?<label className={styles.field}><span>Grid szélesség</span><select value={selected.responsive?.[viewport]?.gridSpan??''} onChange={event=>mutate({type:'responsive',nodeId:selected.id,viewport,gridSpan:event.target.value?Number(event.target.value):null})}><option value="">Örökölt / 12</option>{Array.from({length:12},(_,index)=>index+1).map(value=><option key={value} value={value}>{value} / 12</option>)}</select></label>:null}{responsiveOverrideActive?<button type="button" className={ui.resetInherited} onClick={resetResponsive}>↺ Reset to inherited</button>:null}</div>
+              <p className={styles.emptyHint}>A Desktop → Tablet → Mobil öröklés ugyanazon Page Schema része. A mélyebb grid-, order- és stack-beállításokat a Globális elemek / Haladó szerkesztési módban éred el.</p>
+            </div>:null}
+            {editorTab==='advanced'&&advancedMode?<div className={styles.editorFields}>
               <div className={styles.metaGrid}><span><small>Node ID</small><code>{selected.id}</code></span><span><small>Responsive</small><b>{definition.manifest.responsiveMode}</b></span><span><small>Csomag</small><b>{definition.manifest.capability.minPlan}</b></span></div>
-              <div className={styles.dangerActions}><button type="button" disabled={definition.protectedSystem} onClick={()=>mutate({type:'duplicate',nodeId:selected.id})}>⧉ Duplikálás</button><button type="button" disabled={definition.protectedSystem} onClick={()=>{mutate({type:'remove',nodeId:selected.id});setSelectedId(null);}}>⌫ Eltávolítás</button></div>
+              <div className={styles.dangerActions}><button type="button" disabled={definition.protectedSystem} onClick={()=>mutate({type:'duplicate',nodeId:selected.id})}>⧉ Duplikálás</button><button type="button" disabled={definition.protectedSystem} onClick={()=>{mutate({type:'remove',nodeId:selected.id});setSelectedId(null);setInspectorOpen(false);}}>⌫ Eltávolítás</button></div>
             </div>:null}
           </div>
-        </div>:<div className={styles.emptySelection}><span>↖</span><strong>Válassz ki egy elemet</strong><p>Kattints a vásznon egy szekcióra vagy komponensre. A szerkesztési lehetőségek itt jelennek meg.</p></div>}
+        </div>:<div className={styles.emptySelection}><span>↖</span><strong>Válassz ki egy elemet</strong><p>Kattints a vásznon egy szekcióra vagy komponensre. A merchant-facing beállítások itt jelennek meg.</p></div>}
       </aside>
     </div>
 
@@ -443,7 +489,7 @@ export function StorefrontVisualBuilder({pages,document:initialDocument,pageId,d
       <header><div><span>Közzététel</span><strong>Közzététel előtti ellenőrzés</strong></div><button type="button" onClick={()=>setPublishOpen(false)}>×</button></header>
       <div className={`${styles.drawerStatus} ${readinessErrors?ui.readinessError:readinessWarnings?ui.readinessWarning:''}`}><span>{readinessErrors?'!':'✓'}</span><div><strong>{readinessErrors?'Még van javítandó pont':readinessWarnings?'Közzétehető, de van figyelmeztetés':'Készen áll a közzétételre'}</strong><small>{readinessErrors} javítandó · {readinessWarnings} figyelmeztetés</small></div></div>
       <div className={ui.readinessList}>{readiness.map(item=><article key={item.label} data-status={item.status}><span aria-hidden="true">{item.status==='ok'?'✓':item.status==='warning'?'△':'!'}</span><div><strong>{item.label}</strong><small>{item.detail}</small></div><b>{statusLabel(item.status)}</b></article>)}</div>
-      <div className={ui.readinessFoot}><p>A diagnosztika a meglévő Fidelity / Page Schema ellenőrzéseket használja; nem hoz létre új publication authorityt.</p><div><button type="button" className={styles.secondaryButton} onClick={()=>setPublishOpen(false)}>Mégse</button><button type="button" className={styles.publishButton} disabled={busy||dirty||!draftRevision} onClick={publish}>⬆ Közzététel</button></div></div>
+      <div className={ui.readinessFoot}><p>A quality panel kizárólag a meglévő Fidelity / Page Schema / performance diagnosztikát és draft-state-et használja; nem hoz létre második publication authorityt.</p><div><button type="button" className={styles.secondaryButton} onClick={()=>setPublishOpen(false)}>Mégse</button><button type="button" className={styles.publishButton} disabled={busy||dirty||!draftRevision} onClick={publish}>⬆ Közzététel</button></div></div>
     </aside></div>:null}
   </div>;
 }
