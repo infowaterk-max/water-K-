@@ -7,12 +7,16 @@ const migration=readFileSync(
   join(process.cwd(),'supabase/migrations/20260902213500_atomic_tenant_provisioning.sql'),
   'utf8',
 );
-const planSplitMigration=readFileSync(
-  join(process.cwd(),'supabase/migrations/20260909204825_team_chat_plan_split_v1.sql'),
+const entitlementContractMigration=readFileSync(
+  join(process.cwd(),'supabase/migrations/20260910124500_block11_entitlement_contract_v1.sql'),
+  'utf8',
+);
+const releaseCommerceMigration=readFileSync(
+  join(process.cwd(),'supabase/migrations/20260913024500_special_commerce_release_authority.sql'),
   'utf8',
 );
 const sql=migration.toLowerCase();
-const currentEntitlementSql=(migration+'\n'+planSplitMigration).toLowerCase();
+const currentEntitlementSql=(migration+'\n'+entitlementContractMigration+'\n'+releaseCommerceMigration).toLowerCase();
 const actions=readFileSync(
   join(process.cwd(),'src/app/admin/platform/webaruhazak/actions.ts'),
   'utf8',
@@ -54,10 +58,16 @@ describe('atomic tenant provisioning gate',()=>{
     expect(sql).toContain('perform private.sync_webshop_plan_entitlements(new.id)');
     expect(sql).toContain('execute function private.sync_webshop_plan_entitlements_trigger()');
     expect(sql).not.toContain('execute function private.sync_webshop_plan_entitlements(new.id)');
-    expect(currentEntitlementSql).toContain("where instance_id=p_instance_id and source='plan'");
-    expect(planSplitMigration).toContain("managed_by','tenant_plan_sync_v2'");
+
+    const entitlementContract=entitlementContractMigration.toLowerCase();
+    const releaseCommerce=releaseCommerceMigration.toLowerCase();
+    expect(entitlementContract).toContain("where instance_id=p_instance_id and source='plan'");
+    expect(entitlementContract).toContain('from public.plan_capability_grants g');
+    expect(entitlementContract).toContain("c.release_state='released'");
+    expect(releaseCommerce).toContain("values('alap','releasecommerce'),('pro','releasecommerce')");
+    expect(releaseCommerce).toContain('perform private.sync_webshop_plan_entitlements(r.id)');
     for(const feature of PLANS.alap.features){
-      expect(planSplitMigration).toContain(`'${feature}'`);
+      expect(currentEntitlementSql).toContain(`'${feature.toLowerCase()}'`);
     }
   });
 

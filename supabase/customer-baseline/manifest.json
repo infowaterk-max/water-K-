@@ -9,7 +9,7 @@
   "snapshotFile": "supabase/customer-baseline/migrations/0001_shoperation_v1_schema.sql",
   "snapshotCommand": "npm run db:customer:snapshot",
   "freshInstallProofRequired": true,
-  "notes": "The previously ready Fresh Install proof covered customer baseline 0001-0018. Special Commerce Wave 1 adds reviewed forward migration 0019_special_commerce_interactive_scene_entitlement.sql, so the proof contract changed by design. The old proof hash is invalidated and status is reset to snapshot-reviewed until a genuine empty-target Fresh Install proof is rerun for ordered baseline 0001-0019. Production remains untouched.",
+  "notes": "The previously ready Fresh Install proof covered customer baseline 0001-0018. Special Commerce Waves 1-3 add reviewed forward migrations through 0022_special_commerce_release_authority.sql, so the proof contract changed by design. The old proof hash remains invalidated and status remains snapshot-reviewed until a genuine empty-target Fresh Install proof is rerun for the complete ordered baseline. Production remains untouched.",
   "authBootstrapFile": "supabase/customer-baseline/auth-bootstrap.sql",
   "proofContractSha256": null
 }
