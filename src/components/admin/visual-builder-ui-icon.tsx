@@ -3,7 +3,8 @@ import type {SVGProps} from 'react';
 export type VisualBuilderIconName=
   |'arrow-left'|'desktop'|'tablet'|'mobile'|'layout'|'box'|'star'|'mail'|'help'|'image'|'menu'|'text'|'plus'|'component'
   |'pages'|'layers'|'templates'|'presets'|'saved'|'globals'|'edit'|'chevron-up'|'chevron-down'|'duplicate'|'eye'|'more'|'trash'
-  |'panel-menu'|'panel-right'|'undo'|'redo'|'history'|'upload'|'home'|'page'|'settings'|'reset'|'pointer'|'close'|'check'|'warning'|'error'|'grip';
+  |'panel-menu'|'panel-right'|'undo'|'redo'|'history'|'upload'|'home'|'page'|'settings'|'reset'|'pointer'|'close'|'check'|'warning'|'error'|'grip'
+  |'link'|'unlink'|'sync'|'header'|'footer';
 
 const paths:Record<VisualBuilderIconName,readonly string[]>={
   'arrow-left':['M19 12H5','m12 19-7-7 7-7'],
@@ -41,7 +42,7 @@ const paths:Record<VisualBuilderIconName,readonly string[]>={
   upload:['M12 16V4','m7 9 5-5 5 5','M5 20h14'],
   home:['m3 11 9-8 9 8','M5 10v11h14V10','M9 21v-6h6v6'],
   page:['M6 3h9l3 3v15H6z','M15 3v4h4'],
-  settings:['M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z','M19 13a7 7 0 0 0 0-2l2-1-2-3-2 .5a7 7 0 0 0-1.7-1L14 3h-4L9.7 5.5a7 7 0 0 0-1.7 1L6 6 4 9l2 1a7 7 0 0 0 0 2l-2 1 2 3 2-.5a7 7 0 0 0 1.7 1L10 21h4l.3-2.5a7 7 0 0 0 1.7-1l2 .5 2-3-2-1Z'],
+  settings:['M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z','M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1-2.8 4.8-.2-.1a1.7 1.7 0 0 0-1.9-.1l-1.2.7a1.7 1.7 0 0 0-.9 1.6V24H7.2v-.1a1.7 1.7 0 0 0-.9-1.6l-1.2-.7a1.7 1.7 0 0 0-1.9.1l-.2.1L.2 17l.1-.1A1.7 1.7 0 0 0 .6 15v-1.4a1.7 1.7 0 0 0-.9-1.6l-.1-.1L2.4 7l.2.1a1.7 1.7 0 0 0 1.9.1l1.2-.7a1.7 1.7 0 0 0 .9-1.6V4.8h5.6v.1a1.7 1.7 0 0 0 .9 1.6l1.2.7a1.7 1.7 0 0 0 1.9-.1l.2-.1 2.8 4.9-.1.1a1.7 1.7 0 0 0-.9 1.6V15Z'],
   reset:['M4 4v6h6','M5 9a8 8 0 1 1-1 5'],
   pointer:['m5 3 13 8-6 2 3 6-3 1-3-6-4 4V3Z'],
   close:['m6 6 12 12','M18 6 6 18'],
@@ -49,6 +50,11 @@ const paths:Record<VisualBuilderIconName,readonly string[]>={
   warning:['m12 3 10 18H2L12 3Z','M12 9v4','M12 17h.01'],
   error:['M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20Z','M12 7v6','M12 17h.01'],
   grip:['M8 7h.01','M8 12h.01','M8 17h.01','M16 7h.01','M16 12h.01','M16 17h.01'],
+  link:['M10 13a5 5 0 0 0 7.1.1l2-2a5 5 0 0 0-7.1-7.1l-1.1 1.1','M14 11a5 5 0 0 0-7.1-.1l-2 2A5 5 0 0 0 12 20l1.1-1.1'],
+  unlink:['M10 13a5 5 0 0 0 7.1.1l2-2a5 5 0 0 0 .3-6.7','M14 11a5 5 0 0 0-7.1-.1l-2 2A5 5 0 0 0 11 20','M3 3l18 18'],
+  sync:['M20 7v5h-5','M4 17v-5h5','M6.1 9A7 7 0 0 1 18 6l2 1','M17.9 15A7 7 0 0 1 6 18l-2-1'],
+  header:['M4 4h16v16H4z','M4 9h16'],
+  footer:['M4 4h16v16H4z','M4 15h16'],
 };
 
 export function VisualBuilderIcon({name,...props}:{name:VisualBuilderIconName}&Omit<SVGProps<SVGSVGElement>,'name'>){
