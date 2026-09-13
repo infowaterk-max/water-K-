@@ -14,6 +14,7 @@ describe('Visual Builder final UI fidelity contract',()=>{
   const pageTemplates=read('src/components/admin/storefront-page-templates-panel.tsx');
   const savedBlocks=read('src/components/admin/storefront-saved-blocks-panel.tsx');
   const fidelitySettings=read('src/components/admin/storefront-fidelity-settings.tsx');
+  const globalStyles=read('src/components/admin/storefront-global-styles-controls.tsx');
   const page=read('src/app/admin/tartalom/builder/page.tsx');
 
   it('stays a dedicated workspace outside the normal Admin chrome',()=>{
@@ -94,6 +95,17 @@ describe('Visual Builder final UI fidelity contract',()=>{
     expect(component).toContain('Biztonságos, meglévő Builder-műveletek.');
   });
 
+  it('makes Global Styles a visual six-category surface without creating a second token authority',()=>{
+    for(const label of ['Színek','Tipográfia','Gombok','Kártyák','Térköz','Ikonok'])expect(globalStyles).toContain(label);
+    for(const category of ['colors','typography','buttons','cards','spacing','icons'])expect(globalStyles).toContain(`data-global-style-category="${category}"`);
+    expect(globalStyles).toContain('data-global-style-preview');
+    expect(globalStyles).toContain('setStorefrontGlobalStyleState');
+    expect(globalStyles).toContain('STOREFRONT_GLOBAL_STYLES_VERSION');
+    expect(globalStyles).not.toContain('buttonStyleToken');
+    expect(globalStyles).not.toContain('cardStyleToken');
+    expect(globalStyles).not.toContain('iconStyleToken');
+  });
+
   it('makes Layers hierarchical and keeps linked protected and hidden cues',()=>{
     expect(component).toContain('Oldal → Szekció → Konténer → Komponens → Gyermek.');
     expect(component).toContain('aria-expanded={!collapsed.has(entry.node.id)}');
@@ -113,7 +125,7 @@ describe('Visual Builder final UI fidelity contract',()=>{
 
   it('uses one lightweight SVG stroke icon language across the workspace and embedded libraries',()=>{
     expect(component).toContain("import {VisualBuilderIcon,type VisualBuilderIconName} from './visual-builder-ui-icon'");
-    for(const surface of [component,presetPanel,pageTemplates,savedBlocks,fidelitySettings])expect(surface).toContain('VisualBuilderIcon');
+    for(const surface of [component,presetPanel,pageTemplates,savedBlocks,fidelitySettings,globalStyles])expect(surface).toContain('VisualBuilderIcon');
     expect(iconSystem).toContain('viewBox="0 0 24 24"');
     expect(iconSystem).toContain('stroke="currentColor"');
     expect(iconSystem).toContain('strokeWidth="1.8"');
