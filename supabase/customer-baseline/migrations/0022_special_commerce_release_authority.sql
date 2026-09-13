@@ -8,3 +8,13 @@ create or replace function public.save_release_commerce_v1(p_instance_id uuid,p_
 create or replace function public.delete_release_commerce_v1(p_instance_id uuid,p_actor uuid,p_release_id uuid) returns boolean language plpgsql security definer set search_path='' as $$ begin if not public.can_manage_catalog(p_instance_id,p_actor) then raise exception 'RELEASE_COMMERCE_FORBIDDEN';end if;delete from public.release_definitions where instance_id=p_instance_id and id=p_release_id;return found;end;$$;
 revoke all on function public.save_release_commerce_v1(uuid,uuid,jsonb) from public,anon,authenticated;revoke all on function public.delete_release_commerce_v1(uuid,uuid,uuid) from public,anon,authenticated;grant execute on function public.save_release_commerce_v1(uuid,uuid,jsonb) to service_role;grant execute on function public.delete_release_commerce_v1(uuid,uuid,uuid) to service_role;
 insert into public.entitlement_capabilities(capability_code,release_state,capability_kind,metadata) values('releaseCommerce','released','feature',jsonb_build_object('surface','storefront','family','special-commerce','engine','release-commerce-v1')) on conflict(capability_code) do update set release_state='released',capability_kind='feature',metadata=excluded.metadata,updated_at=now();insert into public.plan_capability_grants(plan_code,capability_code) values('alap','releaseCommerce'),('pro','releaseCommerce') on conflict do nothing;
+
+-- Keep already-provisioned customer tenants aligned with the Block 11 data-driven
+-- plan authority after the new Release Commerce grant enters the plan catalog.
+do $$
+declare r record;
+begin
+  for r in select id from public.webshop_instances loop
+    perform private.sync_webshop_plan_entitlements(r.id);
+  end loop;
+end $$;
