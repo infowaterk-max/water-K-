@@ -27,16 +27,17 @@ import styles from './storefront-visual-builder.module.css';
 
 const componentRegistry=createStorefrontVisualBuilderComponentRegistry();
 const MODE_COPY:Record<StorefrontBuilderEditMode,{label:string;description:string}>={
-  normal:{label:'Normál',description:'Biztonságos tartalom-, kép-, szín- és alap elrendezés-szerkesztés.'},
-  advanced:{label:'Haladó',description:'Responsive sorrend, finomabb elrendezés, tipográfia és komponens-részletek.'},
-  expert:{label:'Expert',description:'Maximális vizuális kontroll, továbbra is csak ellenőrzött Builder-beállításokon keresztül.'},
+  normal:{label:'Normál',description:'A legfontosabb, biztonságos kereskedői beállítások.'},
+  advanced:{label:'Haladó',description:'Finomabb responsive, tipográfiai és elrendezési kontroll.'},
+  expert:{label:'Expert',description:'Maximális szerkesztési mélység ellenőrzött Builder-kontrollokkal.'},
 };
 const GUARD_COPY:Record<StorefrontDesignGuardMode,{label:string;description:string}>={
   off:{label:'Kikapcsolva',description:'A Builder nem figyeli a sablon eredeti vizuális rendszerét.'},
-  warn:{label:'Figyelmeztetés',description:'Szabadon szerkeszthetsz, de a Builder jelzi a jelentős eltéréseket.'},
+  warn:{label:'Figyelmeztetés',description:'Szabadon szerkeszthetsz, a rendszer jelzi a jelentős eltéréseket.'},
   enforce:{label:'Védett',description:'A sablon védett szerkezetének sérülését a rendszer nem engedi át.'},
 };
 const STATUS_COPY:Record<StorefrontFidelityInspectorStatus,string>={ok:'Rendben',warning:'Figyelmeztetés',error:'Javítandó'};
+const humanize=(value:string)=>value.replace(/([a-z0-9])([A-Z])/g,'$1 $2').replace(/[._:-]+/g,' ').replace(/\b\w/g,letter=>letter.toUpperCase());
 
 function listNodes(document:StorefrontPageDocument){
   const result:StorefrontComponentNode[]=[];
@@ -57,7 +58,7 @@ export function StorefrontFidelitySettings({document,viewport,onApply}:{
     ?'Az oldal szerkezete a teljesítménykereten belül van.'
     :inspector.performance.status==='warning'
       ?'Az oldal még menthető, de érdemes egyszerűsíteni a jelzett részeket.'
-      :'A hard teljesítménylimit sérült; a mentés blokkolva lesz.';
+      :'A teljesítménylimit sérült; a mentés blokkolva lesz.';
   const sections=document.sections;
   const nodes=listNodes(document);
   const[editedNodeId,setEditedNodeId]=useState(nodes[0]?.id??'');
@@ -65,81 +66,60 @@ export function StorefrontFidelitySettings({document,viewport,onApply}:{
   const editedDefinition=editedNode?componentRegistry.get(editedNode.componentKey,editedNode.componentVersion):undefined;
   const editedConfigurable=editedDefinition?.manifest.configurable??[];
 
-  return <div className={styles.editorFields}>
+  return <div className={styles.editorFields} data-storefront-fidelity-settings-v2>
     <div className={styles.fieldGroup}>
-      <strong>Szerkesztési mód</strong>
-      <label className={styles.field}><span>Builder képességszint</span><select value={inspector.editMode} onChange={event=>{
-        const mode=event.target.value as StorefrontBuilderEditMode;
-        onApply(setStorefrontFidelityEditMode(document,mode),`${MODE_COPY[mode].label} szerkesztési mód bekapcsolva.`);
-      }}>{(['normal','advanced','expert'] as const).map(mode=><option key={mode} value={mode}>{MODE_COPY[mode].label}</option>)}</select></label>
-      <p className={styles.emptyHint}>{MODE_COPY[inspector.editMode].description}</p>
+      <strong>Szerkesztési mélység</strong>
+      <p className={styles.emptyHint}>Ugyanazt a Buildert használod minden módban; csak a látható kontrollok részletessége változik.</p>
+      <div data-fidelity-mode-cards>{(['normal','advanced','expert'] as const).map(mode=><button type="button" key={mode} data-active={inspector.editMode===mode} onClick={()=>onApply(setStorefrontFidelityEditMode(document,mode),`${MODE_COPY[mode].label} szerkesztési mód bekapcsolva.`)}><strong>{MODE_COPY[mode].label}</strong><small>{MODE_COPY[mode].description}</small></button>)}</div>
     </div>
 
     <StorefrontGlobalStylesControls document={document} onApply={onApply}/>
     <StorefrontComponentVariantControls document={document} onApply={onApply}/>
 
     <div className={styles.fieldGroup}>
-      <strong>Responsive / Layout Depth</strong>
-      <p className={styles.emptyHint}>Válassz egy Page Schema elemet, majd a Desktop / Tablet / Mobil nézetváltóval ugyanazon az elemen állíts breakpoint-specifikus elrendezést. A Normál, Haladó és Expert mód ugyanazt a közös layout authorityt használja, csak a kontroll mélysége változik.</p>
-      <label className={styles.field}><span>Szerkesztett elem</span><select value={editedNode?.id??''} onChange={event=>setEditedNodeId(event.target.value)}>{nodes.map(node=><option key={node.id} value={node.id}>{node.id} · {node.componentKey}</option>)}</select></label>
-    </div>
-    {editedNode&&editedDefinition?<StorefrontResponsiveLayoutDepthControls
-      document={document}
-      node={editedNode}
-      viewport={viewport}
-      responsiveMode={editedDefinition.manifest.responsiveMode}
-      supportsStyle={editedConfigurable.includes('style')}
-      onApply={onApply}
-    />:null}
-    {editedNode?.componentKey==='commerce.interactive-scene'?<StorefrontInteractiveSceneControls document={document} node={editedNode} viewport={viewport} onApply={onApply}/>:null}
-    {editedNode?.componentKey==='commerce.recipe'?<StorefrontRecipeCommerceControls document={document} node={editedNode} onApply={onApply}/>:null}
-    {editedNode?.componentKey==='commerce.release'?<StorefrontReleaseCommerceControls document={document} node={editedNode} onApply={onApply}/>:null}
-    {editedNode&&getStorefrontExistingCommerceFamily(editedNode.componentKey)?<StorefrontExistingCommerceControls document={document} node={editedNode} onApply={onApply}/>:null}
-
-    <div className={styles.fieldGroup}>
       <strong>Design Guard</strong>
+      <p className={styles.emptyHint}>A sablon karaktere megőrizhető úgy, hogy közben a tartalom és a megjelenés továbbra is szerkeszthető marad.</p>
       <label className={styles.field}><span>Sablonvédelem</span><select value={inspector.designGuard.mode} onChange={event=>{
         const mode=event.target.value as StorefrontDesignGuardMode;
         onApply(setStorefrontDesignGuardMode(document,mode),`Design Guard: ${GUARD_COPY[mode].label}.`);
       }}>{(['off','warn','enforce'] as const).map(mode=><option key={mode} value={mode}>{GUARD_COPY[mode].label}</option>)}</select></label>
       <p className={styles.emptyHint}>{GUARD_COPY[inspector.designGuard.mode].description}</p>
-      {inspector.designGuard.presetId?<div className={styles.metaGrid}><span><small>Aktív preset</small><b>{inspector.designGuard.presetId}</b></span><span><small>Védett elemek</small><b>{inspector.designGuard.protectedNodeCount}</b></span></div>:null}
     </div>
 
     <div className={styles.fieldGroup}>
-      <strong>Közzétételi minőség</strong>
-      <div className={styles.metaGrid}>
+      <strong>Oldalminőség</strong>
+      <div data-quality-summary>
         <span><small>Akadálymentesség</small><b>{STATUS_COPY[inspector.accessibility.status]}</b></span>
         <span><small>Responsive elrendezés</small><b>{STATUS_COPY[inspector.layout.status]}</b></span>
         <span><small>Teljesítmény</small><b>{performanceLabel}</b></span>
       </div>
-      <p className={styles.emptyHint}>A Builder a Page Schema alapján jelzi a hiányzó alt szöveget, heading-hierarchia problémákat és a Desktop/Tablet/Mobil overflow vagy clipping kockázatokat. Ez diagnosztika; nem hoz létre külön layout- vagy publication authorityt.</p>
-      {inspector.accessibility.issues.length||inspector.layout.issues.length?<div className={styles.complexField}>
-        {inspector.accessibility.issues.map((issue,index)=><span key={`a11y:${issue.code}:${issue.nodeId}:${index}`} className={styles.muted}>{issue.severity==='error'?'Javítandó':'Figyelmeztetés'} · {issue.nodeId}: {issue.message}</span>)}
-        {inspector.layout.issues.map((issue,index)=><span key={`layout:${issue.code}:${issue.nodeId}:${issue.viewport}:${index}`} className={styles.muted}>{issue.severity==='error'?'Javítandó':'Figyelmeztetés'} · {issue.viewport} · {issue.nodeId}: {issue.message}</span>)}
-      </div>:<p className={styles.emptyHint}>Nincs ismert akadálymentességi vagy responsive overflow/clipping probléma ezen a dokumentumon.</p>}
-    </div>
-
-    <div className={styles.fieldGroup}>
-      <strong>Teljesítmény</strong>
-      <div className={styles.metaGrid}>
-        <span><small>Állapot</small><b>{performanceLabel}</b></span>
-        <span><small>Szekciók</small><b>{inspector.performance.metrics.sectionCount}</b></span>
-        <span><small>Elemek</small><b>{inspector.performance.metrics.nodeCount}</b></span>
-        <span><small>Rétegek</small><b>{inspector.performance.metrics.visualLayerCount}</b></span>
-        <span><small>Eager képek</small><b>{inspector.performance.metrics.eagerImageCount}</b></span>
-        <span><small>Max. mélység</small><b>{inspector.performance.metrics.maxDepth}</b></span>
-      </div>
-      <p className={styles.emptyHint}>{performanceCopy}</p>
-      {inspector.performance.issues.length?<div className={styles.complexField}>{inspector.performance.issues.map(issue=><span key={issue.code} className={styles.muted}>{issue.severity==='error'?'Blokkoló':'Figyelmeztetés'} · {issue.metric}: {issue.actual} / {issue.limit}</span>)}</div>:null}
+      <p className={styles.emptyHint}>A részletes közzétételi ellenőrzést a Közzététel gombnál kapod meg; itt csak a legfontosabb állapot látszik.</p>
     </div>
 
     {advanced?<>
       <div className={styles.fieldGroup}>
+        <strong>Haladó elrendezési vezérlés</strong>
+        <p className={styles.emptyHint}>Válassz egy elemet, majd ugyanazon a komponensen állíts Desktop / Tablet / Mobil specifikus viselkedést.</p>
+        <label className={styles.field}><span>Szerkesztett elem</span><select value={editedNode?.id??''} onChange={event=>setEditedNodeId(event.target.value)}>{nodes.map(node=><option key={node.id} value={node.id}>{humanize(node.componentKey)}</option>)}</select></label>
+      </div>
+      {editedNode&&editedDefinition?<StorefrontResponsiveLayoutDepthControls
+        document={document}
+        node={editedNode}
+        viewport={viewport}
+        responsiveMode={editedDefinition.manifest.responsiveMode}
+        supportsStyle={editedConfigurable.includes('style')}
+        onApply={onApply}
+      />:null}
+      {editedNode?.componentKey==='commerce.interactive-scene'?<StorefrontInteractiveSceneControls document={document} node={editedNode} viewport={viewport} onApply={onApply}/>:null}
+      {editedNode?.componentKey==='commerce.recipe'?<StorefrontRecipeCommerceControls document={document} node={editedNode} onApply={onApply}/>:null}
+      {editedNode?.componentKey==='commerce.release'?<StorefrontReleaseCommerceControls document={document} node={editedNode} onApply={onApply}/>:null}
+      {editedNode&&getStorefrontExistingCommerceFamily(editedNode.componentKey)?<StorefrontExistingCommerceControls document={document} node={editedNode} onApply={onApply}/>:null}
+
+      <div className={styles.fieldGroup}>
         <strong>{viewport==='desktop'?'Desktop':viewport==='tablet'?'Tablet':'Mobil'} szekciósorrend</strong>
-        <p className={styles.emptyHint}>Itt külön sorrendet adhatsz ennek a nézetnek. Ettől nem készül duplikált rejtett oldalrész.</p>
+        <p className={styles.emptyHint}>Külön megjelenítési sorrendet adhatsz ennek a nézetnek anélkül, hogy az oldal elemei duplikálódnának.</p>
         <div className={styles.outline}>{sections.map((section,index)=><div key={section.id} className={styles.outlineRow}>
-          <span className={styles.outlineIcon} aria-hidden="true"><VisualBuilderIcon name="layers"/></span><span><strong>{section.id}</strong><small>{section.componentKey}</small></span>
+          <span className={styles.outlineIcon} aria-hidden="true"><VisualBuilderIcon name="layers"/></span><span><strong>{humanize(section.componentKey)}</strong><small>{index+1}. szekció</small></span>
           <span className={styles.rowMoves}><button type="button" aria-label="Szekció feljebb" disabled={index===0} onClick={()=>onApply(moveStorefrontSectionAtViewport(document,viewport,section.id,index-1),`${viewport} sorrend módosítva.`)}><VisualBuilderIcon name="chevron-up"/></button><button type="button" aria-label="Szekció lejjebb" disabled={index===sections.length-1} onClick={()=>onApply(moveStorefrontSectionAtViewport(document,viewport,section.id,index+1),`${viewport} sorrend módosítva.`)}><VisualBuilderIcon name="chevron-down"/></button></span>
         </div>)}</div>
         <button type="button" className={styles.addSectionButton} onClick={()=>onApply(clearStorefrontResponsiveOrder(document,{viewport}),`${viewport} egyedi sorrend törölve.`)}><VisualBuilderIcon name="reset"/> Örökölt sorrend visszaállítása</button>
@@ -147,6 +127,19 @@ export function StorefrontFidelitySettings({document,viewport,onApply}:{
 
       {editedNode&&editedDefinition?<StorefrontFidelityNodeControls document={document} node={editedNode} viewport={viewport} configurable={editedConfigurable} onApply={onApply}/>:null}
       {editedNode&&editedDefinition?<StorefrontFidelityStateControls document={document} node={editedNode} viewport={viewport} configurable={editedConfigurable} onApply={onApply}/>:null}
-    </>:null}
+
+      <div className={styles.fieldGroup}>
+        <strong>Teljesítmény részletei</strong>
+        <div className={styles.metaGrid}>
+          <span><small>Szekciók</small><b>{inspector.performance.metrics.sectionCount}</b></span>
+          <span><small>Elemek</small><b>{inspector.performance.metrics.nodeCount}</b></span>
+          <span><small>Rétegek</small><b>{inspector.performance.metrics.visualLayerCount}</b></span>
+          <span><small>Eager képek</small><b>{inspector.performance.metrics.eagerImageCount}</b></span>
+          <span><small>Max. mélység</small><b>{inspector.performance.metrics.maxDepth}</b></span>
+        </div>
+        <p className={styles.emptyHint}>{performanceCopy}</p>
+        {inspector.performance.issues.length?<div className={styles.complexField}>{inspector.performance.issues.map(issue=><span key={issue.code} className={styles.muted}>{issue.severity==='error'?'Blokkoló':'Figyelmeztetés'} · {issue.metric}: {issue.actual} / {issue.limit}</span>)}</div>:null}
+      </div>
+    </>:<p className={styles.emptyHint}>Haladó vagy Expert módban megjelenik a részletes responsive, állapot- és teljesítményvezérlés.</p>}
   </div>;
 }
