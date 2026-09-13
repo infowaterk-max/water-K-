@@ -32,7 +32,7 @@ describe('external logistics carrier matrix',()=>{
   it('collects partner-managed pickup point text without calling a carrier API validator',()=>{
     expect(checkout).toContain("shipping.externalLogistics?");
     expect(checkout).toContain('Átvételi pont / automata');
-    expect(orders).toContain('if (!shipping.externalLogistics)');
+    expect(orders).toMatch(/if\s*\(\s*!shipping\.externalLogistics\s*\)/);
   });
 
   it('keeps customer-facing labels and carrier tracking families',()=>{
