@@ -152,7 +152,7 @@ export function StorefrontFidelityNodeControls({document,node,viewport,configura
     onApply(setStorefrontImageArtDirection(document,node.id,{...currentArt,[viewport]:nextSource}),`${viewportLabel(viewport)} képkivágás módosítva.`);
   };
 
-  if(!advanced)return <div className={styles.fieldGroup}><strong>Haladó elemvezérlés</strong><p className={styles.emptyHint}>A responsive tipográfia, képfókusz és részletes vizuális beállítások a Haladó vagy Expert szerkesztési módban érhetők el.</p></div>;
+  if(!advanced)return null;
 
   return <>
     {childOrder.length>1?<div className={styles.fieldGroup}>

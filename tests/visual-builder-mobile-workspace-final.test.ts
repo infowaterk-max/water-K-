@@ -1,40 +1,46 @@
-import {readFileSync} from 'node:fs';
+import {existsSync,readFileSync} from 'node:fs';
 import {describe,expect,it} from 'vitest';
 
 const read=(path:string)=>readFileSync(path,'utf8');
 
 describe('Visual Builder mobile workspace final pass',()=>{
-  it('activates the route-scoped mobile workspace controller',()=>{
+  it('uses one route-scoped compact workspace controller',()=>{
     const page=read('src/app/admin/tartalom/builder/page.tsx');
-    expect(page).toContain("VisualBuilderMobileWorkspace");
-    expect(page).toContain('<VisualBuilderMobileWorkspace/>');
+    const layout=read('src/app/admin/tartalom/builder/layout.tsx');
+    expect(layout).toContain('VisualBuilderRouteController');
+    expect(page).not.toContain('VisualBuilderMobileWorkspace');
+    expect(page).not.toContain('VisualBuilderMobileViewport');
+    expect(existsSync('src/components/admin/visual-builder-mobile-workspace.tsx')).toBe(false);
+    expect(existsSync('src/components/admin/visual-builder-mobile-viewport.tsx')).toBe(false);
   });
 
-  it('starts compact screens canvas-first and keeps drawers mutually exclusive',()=>{
-    const source=read('src/components/admin/visual-builder-mobile-workspace.tsx');
-    expect(source).toContain("(max-width: 820px)");
+  it('starts small screens canvas-first and keeps drawers mutually exclusive',()=>{
+    const source=read('src/app/admin/tartalom/builder/visual-builder-route-controller.tsx');
+    expect(source).toContain("const SMALL_VIEWPORT='(max-width: 1100px)'");
+    expect(source).toContain("const PHONE_VIEWPORT='(max-width: 900px)'");
     expect(source).toContain("workspace.dataset.leftCollapsed==='false'");
     expect(source).toContain("workspace.dataset.inspectorOpen==='true'");
-    expect(source).toContain("leftToggle.click()");
-    expect(source).toContain("inspectorToggle.click()");
-    expect(source).toContain("MutationObserver");
+    expect(source).toContain('MutationObserver');
     expect(source).toContain("event.key==='Escape'");
+    expect(source).toContain('visualBuilderDrawerScrim');
   });
 
-  it('renders real overlay drawers instead of stacking panels above the canvas',()=>{
-    const source=read('src/components/admin/visual-builder-mobile-workspace.tsx');
-    expect(source).toContain('position:fixed!important');
-    expect(source).toContain('height:min(74dvh,760px)!important');
-    expect(source).toContain('vb-mobile-workspace-scrim');
-    expect(source).toContain('nav[aria-label="Visual Builder fő navigáció"]{display:flex!important');
-    expect(source).toContain('nav[aria-label="Inspector navigáció"]{display:flex!important');
+  it('renders real phone bottom sheets over the persistent canvas',()=>{
+    const css=read('src/app/admin/tartalom/builder/builder-isolation.css');
+    expect(css).toContain('@media(max-width:900px)');
+    expect(css).toContain('position:fixed!important');
+    expect(css).toContain('height:min(76dvh,760px)!important');
+    expect(css).toContain('.visualBuilderDrawerScrim');
+    expect(css).toContain('nav[aria-label="Visual Builder fő navigáció"]');
+    expect(css).toContain('nav[aria-label="Inspector navigáció"]');
   });
 
-  it('uses touch-sized merchant controls on phones',()=>{
-    const source=read('src/components/admin/visual-builder-mobile-workspace.tsx');
-    expect(source).toContain('height:44px!important');
-    expect(source).toContain('min-height:46px!important');
-    expect(source).toContain('font-size:13px!important');
-    expect(source).toContain('grid-template-columns:1fr!important');
+  it('uses touch-sized phone controls and the canonical mobile frame',()=>{
+    const css=read('src/app/admin/tartalom/builder/builder-isolation.css');
+    expect(css).toContain('min-height:44px');
+    expect(css).toContain('min-height:46px!important');
+    expect(css).toContain('[data-viewport="mobile"]');
+    expect(css).toContain('max-width:390px!important');
+    expect(css).toContain('transform:scale(1)!important');
   });
 });
