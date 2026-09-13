@@ -79,7 +79,7 @@ describe('Special Commerce Wave 6 cross-engine acceptance',()=>{
       if(requirement.minPlan==='pro')expect(validateStorefrontPageDocument(page,registry,{plan:'alap',features:requirement.features}).violations.some(v=>v.code==='COMPONENT_CAPABILITY_REQUIRED'),`${key} plan gate`).toBe(true);
     }
     expect(STOREFRONT_MANAGED_CONFIG_VERSION).toBe('shoporation.storefront-managed-config.v5');
-    for(const[key,selectors]of Object.entries(managedSelectors)){const definition=registry.get(key,1);expect(definition).toBeDefined();if(!definition)continue;expect(listStorefrontManagedConfigKeys(key).sort()).toEqual([...selectors].sort());for(const selector of selectors){expect(isStorefrontManagedConfigKey(key,selector)).toBe(true);expect(definition.manifest.configurable).not.toContain(selector);}expect(definition.manifest.configurable).not.toContain('engineConfigs');expect(definition.manifest.configurable).not.toContain('catalog');}
+    for(const[key,selectors]of Object.entries(managedSelectors)){const definition=registry.get(key,1);expect(definition).toBeDefined();if(!definition)continue;expect([...listStorefrontManagedConfigKeys(key)].sort()).toEqual([...selectors].sort());for(const selector of selectors){expect(isStorefrontManagedConfigKey(key,selector)).toBe(true);expect(definition.manifest.configurable).not.toContain(selector);}expect(definition.manifest.configurable).not.toContain('engineConfigs');expect(definition.manifest.configurable).not.toContain('catalog');}
   });
 
   it('uses one D/T/M responsive inheritance and binding-security contract across engines',()=>{
