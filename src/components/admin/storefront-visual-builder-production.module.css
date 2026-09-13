@@ -1,0 +1,92 @@
+.viewportSwitch :global(button){
+  transition:background .15s ease,color .15s ease,box-shadow .15s ease,opacity .15s ease!important;
+}
+.viewportSwitch :global(button[data-active="false"]){
+  background:transparent!important;
+  color:#5f716d!important;
+  box-shadow:none!important;
+  opacity:.68!important;
+}
+.viewportSwitch :global(button[data-active="false"]:hover),
+.viewportSwitch :global(button[data-active="false"]:active){
+  background:#eaf2f0!important;
+  color:#315e59!important;
+  box-shadow:none!important;
+  opacity:1!important;
+}
+.viewportSwitch :global(button[data-active="true"]){
+  background:#149b7d!important;
+  color:#fff!important;
+  box-shadow:0 1px 2px rgba(13,75,63,.18),0 0 0 1px rgba(9,117,94,.16)!important;
+  opacity:1!important;
+}
+.viewportSwitch :global(button[data-active="true"] svg){stroke-width:2.2}
+
+.nodeToolbar :global(button:not(:disabled)){
+  color:#50635f!important;
+  opacity:1!important;
+}
+.nodeToolbar :global(button:not(:disabled) svg){opacity:.9}
+.nodeToolbar :global(button:disabled){opacity:.27!important}
+.nodeToolbar :global(button:first-child:not(:disabled)){color:#0d9b7e!important}
+
+.boundField{
+  display:grid;
+  gap:7px;
+  padding:11px 12px;
+  border:1px solid #d9e4e1;
+  border-radius:10px;
+  background:#f8fbfa;
+}
+.boundFieldHead{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.boundFieldHead span{font-size:10px;font-weight:800;color:#40524e}
+.boundBadge{
+  display:inline-flex;
+  align-items:center;
+  min-height:20px;
+  padding:0 7px;
+  border-radius:999px;
+  background:#e1f2ed;
+  color:#087b64;
+  font-size:8px;
+  font-weight:850;
+  letter-spacing:.02em;
+}
+.boundValue{
+  min-height:37px;
+  display:flex;
+  align-items:center;
+  padding:8px 10px;
+  border:1px solid #e1e9e7;
+  border-radius:8px;
+  background:#fff;
+  color:#263632;
+  font-size:10px;
+  font-weight:700;
+  overflow-wrap:anywhere;
+}
+.boundField small{font-size:8px;line-height:1.45;color:#71817d}
+
+.pageStatus{color:#71817d!important;font-size:8px!important}
+.inspectorKind{color:#74827f!important}
+.merchantHint{
+  display:flex;
+  align-items:flex-start;
+  gap:7px;
+  margin:0;
+  padding:9px 10px;
+  border-radius:9px;
+  background:#f4f8f7;
+  color:#657672;
+  font-size:8px;
+  line-height:1.45;
+}
+.merchantHint :global(svg){width:13px;height:13px;flex:0 0 auto;color:#17997e}
+
+@media(max-width:1180px){
+  .boundField{padding:9px 10px}
+}
+
+@media(prefers-reduced-motion:reduce){
+  .viewportSwitch :global(button){transition:none!important}
+}
