@@ -12,7 +12,7 @@ import {
 import {STOREFRONT_TEMPLATE_CATALOG} from '@/lib/builder/storefront-template-catalog';
 import {listStorefrontTemplateLibraryEntries} from '@/lib/builder/storefront-template-library';
 import {getStorefrontTemplatePreviewTheme} from '@/lib/builder/storefront-template-preview-demo';
-import {StorefrontVisualBuilder} from '@/components/admin/storefront-visual-builder';
+import {StorefrontVisualBuilderProduction} from '@/components/admin/storefront-visual-builder-production';
 import {StorefrontTemplateLibrary} from '@/components/admin/storefront-template-library';
 
 export const dynamic='force-dynamic';
@@ -48,7 +48,7 @@ export default async function VisualBuilderAdmin({searchParams}:Props){
 
   const theme=getStorefrontTemplatePreviewTheme(document.templateKey) as CSSProperties;
   return <section className="adminMain" style={theme} data-storefront-builder-theme={document.templateKey}>
-    <StorefrontVisualBuilder
+    <StorefrontVisualBuilderProduction
       key={selectedKey??'no-page'}
       pages={pages}
       document={document}
