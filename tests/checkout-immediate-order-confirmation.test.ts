@@ -17,6 +17,6 @@ describe('checkout immediate order confirmation',()=>{
     const source=route();
     expect(source).toContain("console.error('checkout confirmation dispatch deferred'");
     expect(source).toContain('jobId:local.confirmationJobId');
-    expect(source).toContain('return NextResponse.json({ ok: true, replayed');
+    expect(source).toMatch(/return\s+NextResponse\.json\(\{\s*ok\s*:\s*true\s*,\s*replayed/);
   });
 });

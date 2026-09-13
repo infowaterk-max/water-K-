@@ -1,9 +1,39 @@
 import Link from 'next/link';
+import {headers} from 'next/headers';
 import { formatHuf } from '@/lib/catalog';
 import { getProducts } from '@/lib/catalog-server';
 import { requireStorefrontAccess } from '@/lib/storefront/access';
+import {StorefrontRuntimeRenderer} from '@/components/builder/storefront-runtime-renderer';
+import {createStorefrontVisualBuilderComponentRegistry} from '@/lib/builder/storefront-builder-registry';
+import {createStorefrontVisualBuilderRendererRegistry} from '@/components/builder/storefront-builder-renderer-registry';
+import {resolveCurrentStorefrontPublishedRuntimePage} from '@/lib/builder/storefront-runtime-source';
+import type {StorefrontViewport} from '@/lib/builder/storefront-foundation';
+
+function storefrontViewportFromUserAgent(userAgent:string):StorefrontViewport{
+ const value=userAgent.toLowerCase();
+ if(/ipad|tablet|kindle|silk/.test(value))return'tablet';
+ if(/mobi|iphone|ipod|android/.test(value))return'mobile';
+ return'desktop';
+}
 
 export default async function HomePage(){
+ const published=await resolveCurrentStorefrontPublishedRuntimePage('home');
+ if(published){
+  const userAgent=(await headers()).get('user-agent')??'';
+  const viewport=storefrontViewportFromUserAgent(userAgent);
+  return <main data-storefront-published-runtime="page-schema" data-storefront-page-key="home">
+   <StorefrontRuntimeRenderer
+    page={published.page}
+    viewport={viewport}
+    bindingContext={published.bindingContext}
+    capability={published.capability}
+    componentRegistry={createStorefrontVisualBuilderComponentRegistry()}
+    rendererRegistry={createStorefrontVisualBuilderRendererRegistry()}
+   />
+  </main>;
+ }
+
+ // Compatibility fallback for tenants that have not published a Page Schema homepage yet.
  const instance=await requireStorefrontAccess();
  const products=await getProducts();
  const brand=instance?.brand.name??'Shoperation Webshop',c=instance?.storefront??{};
@@ -13,7 +43,7 @@ export default async function HomePage(){
  const categoryList=categories.length?categories:['Otthon','Mindennapok','Újdonságok','Ajándékötletek'];
  const heroTitle=c.heroTitle||'A jó webshop nem akadály. Segít választani.';
  const heroLead=c.heroLead||instance?.brand.tagline||'Gyors, letisztult és mobilra tervezett vásárlási élmény, ahol a termék van a középpontban.';
- return <main>
+ return <main data-storefront-legacy-fallback="home">
   <section className="showcaseHero"><div className="shell showcaseHeroGrid"><div className="showcaseCopy"><span className="showcaseKicker">{c.heroEyebrow||brand}</span><h1>{heroTitle}</h1><p>{heroLead}</p><div className="actions"><Link className="btn btnPrimary" href="/webaruhaz">{c.primaryCtaLabel||'Felfedezem a kínálatot'}</Link><a className="btn btnGhost" href="#kiemelt">Kiemelt termékek</a></div><div className="heroTrust"><span>✓ Biztonságos rendelés</span><span>✓ Mobilbarát vásárlás</span><span>✓ Átlátható árak</span></div></div><div className="showcaseVisual"><div className="visualGlow"/><div className="visualCard visualCardMain"><span className="visualLabel">Válogatás</span><strong>{showcase[0]?.name||'Új kedvencek'}</strong><p>{showcase[0]?.short||'Gondosan összeállított kínálat, egyszerű vásárlással.'}</p>{showcase[0]&&<><div className="visualPrice">{formatHuf(showcase[0].grossPrice)}</div><Link href={`/termek/${showcase[0].slug}`}>Megnézem →</Link></>}</div><div className="visualCard visualCardMini"><span>Újdonság</span><strong>{showcase[1]?.name||brand}</strong></div></div></div></section>
   <section className="categoryRail"><div className="shell categoryRailInner"><span className="railTitle">Népszerű témák</span>{categoryList.map(item=><Link key={item} href={`/webaruhaz?kereses=${encodeURIComponent(item)}`}>{item}<b>↗</b></Link>)}</div></section>
   <section className="section showcaseSection" id="kiemelt"><div className="shell"><div className="showcaseHeading"><div><span className="showcaseKicker">Kiemelt válogatás</span><h2>Termékek, amiket érdemes megnézni.</h2></div><Link className="showcaseAll" href="/webaruhaz">Összes termék →</Link></div>{showcase.length?<div className="showcaseProducts">{showcase.map((product,index)=><article className="showcaseProduct" key={product.id}><div className="showcaseProductMedia"><span className="productNumber">0{index+1}</span><span className="productSize">{product.size}</span>{product.featured&&<span className="floatingBadge">Kiemelt</span>}</div><div className="showcaseProductBody"><div className="productMeta"><span>{product.stock>0?'Raktáron':'Elfogyott'}</span><span>{product.useCases?.[0]||'Válogatás'}</span></div><h3>{product.name}</h3><p>{product.short}</p><div className="productBuyRow"><div><strong>{formatHuf(product.grossPrice)}</strong><small>bruttó</small></div><Link aria-label={`${product.name} megnyitása`} href={`/termek/${product.slug}`}>→</Link></div></div></article>)}</div>:<div className="showcaseEmpty"><span>Hamarosan</span><h3>A kínálat feltöltés alatt áll.</h3><p>Az üzlet hamarosan közzéteszi első termékeit.</p></div>}</div></section>

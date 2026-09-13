@@ -17,6 +17,11 @@ import {StorefrontComponentVariantControls} from '@/components/admin/storefront-
 import {StorefrontFidelityNodeControls} from '@/components/admin/storefront-fidelity-node-controls';
 import {StorefrontFidelityStateControls} from '@/components/admin/storefront-fidelity-state-controls';
 import {StorefrontResponsiveLayoutDepthControls} from '@/components/admin/storefront-responsive-layout-depth-controls';
+import {StorefrontInteractiveSceneControls} from '@/components/admin/storefront-interactive-scene-controls';
+import {StorefrontRecipeCommerceControls} from '@/components/admin/storefront-recipe-commerce-controls';
+import {StorefrontReleaseCommerceControls} from '@/components/admin/storefront-release-commerce-controls';
+import {StorefrontExistingCommerceControls} from '@/components/admin/storefront-existing-commerce-controls';
+import {getStorefrontExistingCommerceFamily} from '@/lib/builder/storefront-existing-commerce-operations';
 import {VisualBuilderIcon} from './visual-builder-ui-icon';
 import styles from './storefront-visual-builder.module.css';
 
@@ -86,6 +91,10 @@ export function StorefrontFidelitySettings({document,viewport,onApply}:{
       supportsStyle={editedConfigurable.includes('style')}
       onApply={onApply}
     />:null}
+    {editedNode?.componentKey==='commerce.interactive-scene'?<StorefrontInteractiveSceneControls document={document} node={editedNode} viewport={viewport} onApply={onApply}/>:null}
+    {editedNode?.componentKey==='commerce.recipe'?<StorefrontRecipeCommerceControls document={document} node={editedNode} onApply={onApply}/>:null}
+    {editedNode?.componentKey==='commerce.release'?<StorefrontReleaseCommerceControls document={document} node={editedNode} onApply={onApply}/>:null}
+    {editedNode&&getStorefrontExistingCommerceFamily(editedNode.componentKey)?<StorefrontExistingCommerceControls document={document} node={editedNode} onApply={onApply}/>:null}
 
     <div className={styles.fieldGroup}>
       <strong>Design Guard</strong>

@@ -20,7 +20,8 @@ export default async function StorefrontBuilderPreview({params,searchParams}:Pro
     <StorefrontRuntimeRenderer
       page={resolved.page}
       viewport={viewport}
-      bindingContext={{}}
+      bindingContext={resolved.bindingContext}
+      capability={resolved.capability}
       componentRegistry={createStorefrontVisualBuilderComponentRegistry()}
       rendererRegistry={createStorefrontVisualBuilderRendererRegistry()}
     />

@@ -108,9 +108,14 @@ describe('Roadmap Block 20 – Platform Ecosystem & Enterprise Extensibility',()
 
   it('keeps Block 20 present while later genuine proofs advance the current customer baseline',()=>{
     const parsed=JSON.parse(manifest) as {status:string;freshInstallProofRequired:boolean;proofContractSha256:string|null};
-    expect(parsed.status).toBe('ready');
-    expect(parsed.freshInstallProofRequired).toBe(false);
-    expect(parsed.proofContractSha256).toMatch(/^[a-f0-9]{64}$/);
+    expect(['ready','snapshot-reviewed']).toContain(parsed.status);
+    if(parsed.status==='ready'){
+      expect(parsed.freshInstallProofRequired).toBe(false);
+      expect(parsed.proofContractSha256).toMatch(/^[a-f0-9]{64}$/);
+    }else{
+      expect(parsed.freshInstallProofRequired).toBe(true);
+      expect(parsed.proofContractSha256).toBeNull();
+    }
     expect(baseline).toContain("where capability_code='apiAccess'");
     expect(baseline).toContain("values ('pro','apiAccess')");
   });

@@ -1,5 +1,6 @@
 import 'server-only';
 import { createAdminClient } from '@/lib/supabase/admin';
+import type {CartCommerceGroupRequest} from '@/lib/cart/types';
 
 export type TenantCheckoutInput={
   instanceId:string;
@@ -26,11 +27,12 @@ export type TenantCheckoutInput={
   customerId:string|null;
   couponCode:string;
   items:Array<{variant_id:string;quantity:number}>;
+  commerceGroups:CartCommerceGroupRequest[];
 };
 
 export async function placeTenantOrder(input:TenantCheckoutInput){
   const admin=createAdminClient();
-  const {data,error}=await admin.rpc('place_order_provider_v5_idempotent',{
+  const {data,error}=await admin.rpc('place_order_provider_v6_idempotent',{
     p_instance_id:input.instanceId,
     p_idempotency_key:input.idempotencyKey,
     p_customer_email:input.customerEmail,
@@ -55,6 +57,7 @@ export async function placeTenantOrder(input:TenantCheckoutInput){
     p_customer_id:input.customerId,
     p_coupon_code:input.couponCode,
     p_items:input.items,
+    p_commerce_groups:input.commerceGroups,
   });
   if(error||!data)throw error??new Error('Tenant checkout RPC returned no data.');
   return data;
