@@ -55,7 +55,7 @@ function InteractiveScene({config,node,viewport}:StorefrontComponentRenderProps)
   const background=text(config.backgroundImage),tenantId=text(config.tenantId);
   const span:CSSProperties={gridColumn:`span ${node.resolved.gridSpan} / span ${node.resolved.gridSpan}`};
   const showSummary=bool(config.showSetSummary,true)&&hotspots.length>0;
-  return <section data-storefront-interactive-scene-v1 data-scene-kind={sceneKind} style={{...span,display:'grid',gap:'1rem'}}>
+  return <section data-storefront-interactive-scene-v1 data-scene-kind={sceneKind} data-hotspot-label-mode={viewport==='mobile'?'summary':'inline'} style={{...span,display:'grid',gap:'1rem'}}>
     <header style={{display:'grid',gap:'.45rem'}}>
       {text(config.eyebrow)?<small style={{textTransform:'uppercase',letterSpacing:'.12em'}}>{text(config.eyebrow)}</small>:null}
       <h2 style={{margin:0,fontSize:'clamp(2rem,4vw,3.8rem)'}}>{text(config.title,sceneKind==='look'?'Vásárold meg a szettet':sceneKind==='room'?'Vásárold meg a teret':'Fedezd fel a jelenetet')}</h2>
@@ -63,9 +63,9 @@ function InteractiveScene({config,node,viewport}:StorefrontComponentRenderProps)
     </header>
     <div style={{position:'relative',minHeight:'clamp(20rem,55vw,46rem)',overflow:'hidden',borderRadius:'var(--shoporation-radius-l,1.4rem)',background:'var(--shoporation-color-surface,#eee)'}}>
       {background?<img src={safeHref(background,'')} alt={text(config.backgroundAlt)} style={{position:'absolute',inset:0,width:'100%',height:'100%',objectFit:'cover'}}/>:null}
-      {hotspots.map((hotspot,index)=><a key={hotspot.id} href={hotspot.href} aria-label={`${hotspot.label}${hotspot.priceDisplay?` – ${hotspot.priceDisplay}`:''}`} style={{position:'absolute',left:`${hotspot.position.x}%`,top:`${hotspot.position.y}%`,transform:'translate(-50%,-50%)',display:'grid',gridTemplateColumns:'2.5rem minmax(0,auto)',alignItems:'center',gap:'.5rem',maxWidth:'min(18rem,70vw)',color:'var(--shoporation-color-text,#111)',textDecoration:'none',zIndex:2}}>
+      {hotspots.map((hotspot,index)=><a key={hotspot.id} href={hotspot.href} aria-label={`${hotspot.label}${hotspot.priceDisplay?` – ${hotspot.priceDisplay}`:''}`} style={{position:'absolute',left:`${hotspot.position.x}%`,top:`${hotspot.position.y}%`,transform:'translate(-50%,-50%)',display:'grid',gridTemplateColumns:viewport==='mobile'?'2.5rem':'2.5rem minmax(0,auto)',alignItems:'center',gap:'.5rem',maxWidth:viewport==='mobile'?'2.5rem':'min(18rem,70vw)',color:'var(--shoporation-color-text,#111)',textDecoration:'none',zIndex:2}}>
         <span aria-hidden="true" style={{display:'grid',placeItems:'center',width:'2.5rem',height:'2.5rem',borderRadius:'999px',background:'var(--shoporation-color-background,#fff)',border:'2px solid var(--shoporation-color-primary,#111)',fontWeight:900,boxShadow:'var(--shoporation-shadow-overlay,0 8px 24px rgba(0,0,0,.14))'}}>{index+1}</span>
-        <span style={{display:'grid',gap:'.1rem',padding:'.55rem .7rem',borderRadius:'.75rem',background:'var(--shoporation-color-background,#fff)',boxShadow:'var(--shoporation-shadow-overlay,0 8px 24px rgba(0,0,0,.14))'}}><strong>{hotspot.label}</strong>{hotspot.priceDisplay?<small>{hotspot.priceDisplay}</small>:null}{hotspot.stockLabel?<small>{hotspot.stockLabel}</small>:null}</span>
+        {viewport!=='mobile'?<span style={{display:'grid',gap:'.1rem',padding:'.55rem .7rem',borderRadius:'.75rem',background:'var(--shoporation-color-background,#fff)',boxShadow:'var(--shoporation-shadow-overlay,0 8px 24px rgba(0,0,0,.14))'}}><strong>{hotspot.label}</strong>{hotspot.priceDisplay?<small>{hotspot.priceDisplay}</small>:null}{hotspot.stockLabel?<small>{hotspot.stockLabel}</small>:null}</span>:null}
       </a>)}
       {!hotspots.length?<div style={{position:'absolute',inset:0,display:'grid',placeItems:'center',padding:'2rem',textAlign:'center'}}><p>{text(config.emptyLabel,'A jelenet termékei jelenleg nem érhetők el. Böngészd tovább a katalógust.')}</p></div>:null}
     </div>
