@@ -1,5 +1,8 @@
-import {Fragment,type ReactNode} from 'react';
+import {Fragment,type CSSProperties,type ReactNode} from 'react';
 import type {StorefrontViewport} from '@/lib/builder/storefront-foundation';
+import {materializeStorefrontFidelityPage} from '@/lib/builder/storefront-fidelity-engine';
+import {resolveStorefrontGlobalStyleCssVariables} from '@/lib/builder/storefront-global-styles';
+import {decorateStorefrontInteractiveStateTree} from '@/components/builder/storefront-interactive-state';
 import {
   StorefrontComponentRegistry,
   type StorefrontPageDocument,
@@ -71,9 +74,10 @@ export function StorefrontRuntimeRenderer({
   capability?:StorefrontRuntimeCapabilityContext;
   decorateNode?:(node:StorefrontResolvedComponentNode,rendered:ReactNode)=>ReactNode;
 }){
-  const validation=validateStorefrontPageDocument(page,componentRegistry,capability);
+  const runtimePage=materializeStorefrontFidelityPage(page,viewport);
+  const validation=validateStorefrontPageDocument(runtimePage,componentRegistry,capability);
   if(!validation.ok)throw new StorefrontRuntimeRenderError('STOREFRONT_PAGE_VALIDATION_FAILED',validation.violations);
-  const sections=resolveStorefrontPageDocument(page,viewport,bindingContext);
+  const sections=resolveStorefrontPageDocument(runtimePage,viewport,bindingContext);
 
   const renderNode=(node:StorefrontResolvedComponentNode):ReactNode=>{
     if(node.resolved.hidden)return null;
@@ -82,9 +86,14 @@ export function StorefrontRuntimeRenderer({
       {code:'RENDERER_NOT_REGISTERED',path:node.id,message:'No renderer is registered for the component key/version.',severity:'error',metadata:{componentKey:node.componentKey,componentVersion:node.componentVersion}},
     ]);
     const children=node.children.map(child=><Fragment key={child.id}>{renderNode(child)}</Fragment>);
-    const rendered=renderer({node,config:node.config,children,page,viewport});
-    return decorateNode?decorateNode(node,rendered):rendered;
+    const rendered=renderer({node,config:node.config,children,page:runtimePage,viewport});
+    const stateDecorated=decorateStorefrontInteractiveStateTree(node.componentKey,rendered,node.config.styleSlots,viewport);
+    return decorateNode?decorateNode(node,stateDecorated):stateDecorated;
   };
 
-  return <>{sections.map(section=><Fragment key={section.id}>{renderNode(section)}</Fragment>)}</>;
+  const globalStyle:CSSProperties={
+    ...(resolveStorefrontGlobalStyleCssVariables(runtimePage) as CSSProperties),
+    fontFamily:'var(--shoporation-body-font, Arial, sans-serif)',
+  };
+  return <div data-storefront-global-styles-v1 style={globalStyle}>{sections.map(section=><Fragment key={section.id}>{renderNode(section)}</Fragment>)}</div>;
 }

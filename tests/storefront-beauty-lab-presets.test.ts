@@ -41,7 +41,7 @@ describe('Beauty Lab canonical preset chain',()=>{
 
   it('materializes required component presets with the canonical presentations intact',()=>{
     const expected:[string,string,string][]=[
-      ['beauty-lab.home','beauty-formula-hero','editorial-lab'],
+      ['beauty-lab.home','beauty-formula-hero','reference-driven'],
       ['beauty-lab.home','formula-finder','editorial-choice-grid'],
       ['beauty-lab.home','beauty-ingredient-index-block','media-index'],
       ['beauty-lab.home','beauty-texture-navigation','media-navigation'],
