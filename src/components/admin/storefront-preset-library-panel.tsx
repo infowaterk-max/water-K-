@@ -9,6 +9,7 @@ import {
   type StorefrontBuilderPresetLibrary,
 } from '@/lib/builder/storefront-preset-application';
 import type {StorefrontComponentNode,StorefrontPageDocument,StorefrontRuntimeCapabilityContext} from '@/lib/builder/storefront-runtime';
+import {VisualBuilderIcon} from './visual-builder-ui-icon';
 import styles from './storefront-visual-builder.module.css';
 
 const registry=createStorefrontVisualBuilderComponentRegistry();
@@ -50,7 +51,7 @@ export function StorefrontPresetLibraryPanel({
     <strong>Szekció presetek</strong>
     <p className={styles.emptyHint}>Új szekció friss node ID-kkal; a jelenlegi üzleti adatok authorityja változatlan marad.</p>
     <div className={styles.componentLibrary}>{library?.sectionPresets.map(preset=><article key={preset.presetId}>
-      <span className={styles.componentLibraryIcon}>▧</span>
+      <span className={styles.componentLibraryIcon} aria-hidden="true"><VisualBuilderIcon name="layers"/></span>
       <span><strong>{preset.label}</strong><small>{label(preset.componentKey)} · gyári szekció</small></span>
       <div><button type="button" disabled={busy} onClick={()=>run(()=>{
         const inserted=insertStorefrontSectionPreset(document,preset,registry,capability);
@@ -63,7 +64,7 @@ export function StorefrontPresetLibraryPanel({
     <strong>Komponens presetek</strong>
     {selectedNode?<p className={styles.emptyHint}>Kijelölt elem: <strong>{label(selectedNode.componentKey)}</strong>. A preset a megjelenést módosítja, a tartalmat és bindingokat nem.</p>:<p className={styles.emptyHint}>Válassz ki egy elemet a vásznon a kompatibilis presetekhez.</p>}
     <div className={styles.componentLibrary}>{compatible.map(preset=><article key={preset.presetId}>
-      <span className={styles.componentLibraryIcon}>◫</span>
+      <span className={styles.componentLibraryIcon} aria-hidden="true"><VisualBuilderIcon name="presets"/></span>
       <span><strong>{preset.label}</strong><small>{label(preset.componentKey)} · megjelenési preset</small></span>
       <div><button type="button" disabled={busy||!selectedNode} onClick={()=>run(()=>{
         if(!selectedNode)return;
