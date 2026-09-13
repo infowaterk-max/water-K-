@@ -27,13 +27,17 @@ const basePage=(child:StorefrontPageDocument['sections'][number]):StorefrontPage
 });
 
 describe('Special Commerce Wave 8 growth / marketing surfaces',()=>{
-  it('keeps the reconstructed surface catalogue on existing authorities and excludes unproven future domains',()=>{
+  it('keeps the reconstructed surface catalogue on existing authorities without duplicating entitlement or future domains',()=>{
     const source=JSON.stringify(STOREFRONT_GROWTH_MARKETING_SURFACES);
     expect(source).toContain('marketing_consents');
     expect(source).toContain('coupons');
     expect(source).toContain('commerce.interactive-scene');
     expect(source).toContain('retention.saved-cart-recovery');
     expect(source).not.toMatch(/gift.?card|store.?credit|referral|affiliate/i);
+    for(const surface of STOREFRONT_GROWTH_MARKETING_SURFACES){
+      expect(surface).not.toHaveProperty('minPlan');
+      expect(surface).not.toHaveProperty('features');
+    }
   });
 
   it('registers a Builder-editable promotion surface with coupon entitlement and runtime-owned business evidence',()=>{
@@ -57,12 +61,13 @@ describe('Special Commerce Wave 8 growth / marketing surfaces',()=>{
     expect(bad?.bindings?.promotion).toBeUndefined();
   });
 
-  it('renders an active canonical promotion and hides unverifiable promotion state',()=>{
+  it('renders canonical promotion evidence and hides unverifiable promotion state',()=>{
     const page=basePage({id:'promo',componentKey:'marketing.promotion-banner',componentVersion:1,config:{couponCode:'SAVE10',eyebrow:'Hétvégi ajánlat',title:'Spórolj most',copy:'Ellenőrzött promóció.',ctaLabel:'Vásárlás',ctaHref:'/webaruhaz',showCode:true,tone:'surface'}});
     const componentRegistry=createStorefrontVisualBuilderComponentRegistry(),rendererRegistry=createStorefrontVisualBuilderRendererRegistry();
-    const html=renderToStaticMarkup(<StorefrontRuntimeRenderer page={page} viewport="desktop" bindingContext={{offer:{promotions:{SAVE10:{code:'SAVE10',description:'',discountLabel:'10% kedvezmény',minimumLabel:'Nincs minimum kosárérték',validityLabel:'Visszavonásig érvényes',source:'canonical-coupon-authority'}}}}} componentRegistry={componentRegistry} rendererRegistry={rendererRegistry} capability={capability}/>);
+    const html=renderToStaticMarkup(<StorefrontRuntimeRenderer page={page} viewport="desktop" bindingContext={{offer:{promotions:{SAVE10:{code:'SAVE10',description:'',discountLabel:'10% kedvezmény · legfeljebb 5 000 Ft',minimumLabel:'Nincs minimum kosárérték',validityLabel:'Visszavonásig érvényes',source:'canonical-coupon-authority'}}}}} componentRegistry={componentRegistry} rendererRegistry={rendererRegistry} capability={capability}/>);
     expect(html).toContain('data-storefront-marketing="promotion-banner"');
     expect(html).toContain('SAVE10');
+    expect(html).toContain('legfeljebb 5 000 Ft');
     expect(html).toContain('canonical-coupon-authority');
     const hidden=renderToStaticMarkup(<StorefrontRuntimeRenderer page={page} viewport="mobile" bindingContext={{offer:{promotions:{}}}} componentRegistry={componentRegistry} rendererRegistry={rendererRegistry} capability={capability}/>);
     expect(hidden).not.toContain('promotion-banner');
@@ -73,13 +78,15 @@ describe('Special Commerce Wave 8 growth / marketing surfaces',()=>{
     const html=renderToStaticMarkup(<StorefrontRuntimeRenderer page={page} viewport="mobile" bindingContext={{}} componentRegistry={createStorefrontVisualBuilderComponentRegistry()} rendererRegistry={createStorefrontVisualBuilderRendererRegistry()} capability={capability}/>);
     expect(html).toContain('data-consent-authority="marketing_consents"');
     expect(html).toContain('type="checkbox"');
+    expect(html).not.toContain('checked=""');
     expect(html).not.toContain('example.invalid');
     const client=read('src/components/builder/storefront-newsletter-signup-runtime.tsx');
     expect(client).toContain("fetch('/api/marketing/newsletter'");
     expect(client).toContain('consent:true');
+    expect(client).not.toContain('defaultChecked');
   });
 
-  it('keeps the server projection tenant-scoped, read-only and bounded to referenced coupon codes',()=>{
+  it('keeps the server projection tenant-scoped, read-only, bounded and faithful to coupon constraints',()=>{
     const server=read('src/lib/builder/storefront-growth-marketing-server.ts');
     expect(server).toContain(".eq('instance_id',instanceId)");
     expect(server).toContain(".in('code',[...codes])");
@@ -88,12 +95,15 @@ describe('Special Commerce Wave 8 growth / marketing surfaces',()=>{
     expect(server).toContain('usage_limit');
     expect(server).toContain('starts_at');
     expect(server).toContain('ends_at');
+    expect(server).toContain('max_discount_huf');
+    expect(server).toContain('legfeljebb');
   });
 
-  it('injects the same promotion state into preview and published runtime without a second storefront authority',()=>{
+  it('injects the same promotion authority into preview and published runtime and fails closed before coupon reads without entitlement',()=>{
     const runtime=read('src/lib/builder/storefront-runtime-source.ts');
-    expect(runtime).toContain('getStorefrontGrowthMarketingBundleForInstance(instance.id,materialized)');
-    expect(runtime).toContain('getStorefrontGrowthMarketingBundleForInstance(instanceId,page)');
+    expect(runtime).toContain('resolveGrowthContext(instance.id,materialized,runtime.capability)');
+    expect(runtime).toContain('resolveGrowthContext(instanceId,page,runtime.capability)');
+    expect(runtime).toContain("has('coupons')");
     expect(runtime).toContain('offer:{...current,promotions}');
     expect(runtime).not.toMatch(/marketing_campaigns.*insert|coupons.*insert|place_order\(/);
   });
