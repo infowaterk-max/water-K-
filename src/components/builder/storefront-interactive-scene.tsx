@@ -1,58 +1,60 @@
 import type {CSSProperties} from 'react';
 import type {StorefrontComponentRenderProps} from '@/components/builder/storefront-runtime-renderer';
 import {createStorefrontContextRetentionRendererRegistry} from '@/components/builder/storefront-context-retention';
+import {StorefrontRoomSceneExperience} from '@/components/builder/storefront-room-scene-experience';
 import {
   INTERACTIVE_SCENE_KINDS,
   resolveInteractiveScene,
   type InteractiveSceneHotspot,
   type InteractiveSceneKind,
   type InteractiveSceneProductProjection,
+  type InteractiveSceneVariantProjection,
 } from '@/lib/commerce/interactive-scene';
 
-export const STOREFRONT_INTERACTIVE_SCENE_RENDERERS_VERSION='shoporation.storefront-interactive-scene-renderers.v1' as const;
+export const STOREFRONT_INTERACTIVE_SCENE_RENDERERS_VERSION='shoporation.storefront-interactive-scene-renderers.v2' as const;
 const text=(value:unknown,fallback='')=>typeof value==='string'?value:fallback;
 const bool=(value:unknown,fallback=false)=>typeof value==='boolean'?value:fallback;
 const rows=(value:unknown):Record<string,unknown>[]=>Array.isArray(value)?value.filter((item):item is Record<string,unknown>=>Boolean(item)&&typeof item==='object'&&!Array.isArray(item)):[];
 const safeHref=(value:unknown,fallback='#')=>{const href=text(value).trim();return href.startsWith('/')||href.startsWith('#')||href.startsWith('https://')?href:fallback;};
 const number=(value:unknown,fallback:number)=>typeof value==='number'&&Number.isFinite(value)?value:fallback;
 const point=(value:unknown,fallback:{x:number;y:number})=>{const record=value&&typeof value==='object'&&!Array.isArray(value)?value as Record<string,unknown>:{};return{x:number(record.x,fallback.x),y:number(record.y,fallback.y)};};
+const object=(value:unknown):Record<string,unknown>=>value&&typeof value==='object'&&!Array.isArray(value)?value as Record<string,unknown>:{};
 
 function parseHotspots(value:unknown):InteractiveSceneHotspot[]{
   return rows(value).map((row,index)=>{
-    const positions=row.position&&typeof row.position==='object'&&!Array.isArray(row.position)?row.position as Record<string,unknown>:{};
-    const desktop=point(positions.desktop,{x:50,y:50});
+    const positions=object(row.position),desktop=point(positions.desktop,{x:50,y:50});
     return{
       id:text(row.id,`hotspot-${index+1}`),
       productId:text(row.productId),
       label:text(row.label)||undefined,
-      position:{
-        desktop,
-        ...(positions.tablet?{tablet:point(positions.tablet,desktop)}:{}),
-        ...(positions.mobile?{mobile:point(positions.mobile,point(positions.tablet,desktop))}:{}),
-      },
+      position:{desktop,...(positions.tablet?{tablet:point(positions.tablet,desktop)}:{}),...(positions.mobile?{mobile:point(positions.mobile,point(positions.tablet,desktop))}:{})},
+      ...(typeof row.setRequired==='boolean'?{setRequired:row.setRequired}:{}),
+      ...(text(row.defaultVariantId)?{defaultVariantId:text(row.defaultVariantId)}:{}),
     };
   });
+}
+function parseVariant(value:Record<string,unknown>):InteractiveSceneVariantProjection|null{
+  const price=object(value.price),stock=object(value.stock);
+  if(!text(value.variantId)||!text(value.label)||typeof value.eligible!=='boolean'||typeof value.channelVisible!=='boolean'||typeof price.amountMinor!=='number'||!text(price.currency)||!text(price.display)||price.source!=='shared-pricing-authority'||typeof stock.available!=='boolean'||!text(stock.statusLabel))return null;
+  return{variantId:text(value.variantId),label:text(value.label),eligible:value.eligible,channelVisible:value.channelVisible,price:{amountMinor:price.amountMinor,currency:text(price.currency),display:text(price.display),source:'shared-pricing-authority'},stock:{available:stock.available,statusLabel:text(stock.statusLabel)}};
 }
 function parseProducts(value:unknown):InteractiveSceneProductProjection[]{
   return rows(value).map(row=>({
     productId:text(row.productId),label:text(row.label),href:safeHref(row.href,'#'),eligible:row.eligible===true,
     priceDisplay:text(row.priceDisplay)||null,stockLabel:text(row.stockLabel)||null,imageUrl:text(row.imageUrl)||null,
+    variants:rows(row.variants).flatMap(variant=>{const parsed=parseVariant(variant);return parsed?[parsed]:[];}),
   }));
 }
 
 function InteractiveScene({config,node,viewport}:StorefrontComponentRenderProps){
   const sceneKind=INTERACTIVE_SCENE_KINDS.includes(text(config.sceneKind) as InteractiveSceneKind)?text(config.sceneKind) as InteractiveSceneKind:'generic';
+  const rawHotspots=parseHotspots(config.hotspots),products=parseProducts(config.products);
   let resolved:ReturnType<typeof resolveInteractiveScene>|null=null;
-  try{
-    resolved=resolveInteractiveScene({
-      config:{sceneKey:text(config.sceneKey,node.id),kind:sceneKind,hotspots:parseHotspots(config.hotspots)},
-      products:parseProducts(config.products),
-      viewport,
-    });
-  }catch{resolved=null;}
+  try{resolved=resolveInteractiveScene({config:{sceneKey:text(config.sceneKey,node.id),kind:sceneKind,hotspots:rawHotspots},products,viewport});}catch{resolved=null;}
   const hotspots=resolved?.hotspots??[];
-  const background=text(config.backgroundImage);
+  const background=text(config.backgroundImage),tenantId=text(config.tenantId);
   const span:CSSProperties={gridColumn:`span ${node.resolved.gridSpan} / span ${node.resolved.gridSpan}`};
+  const showSummary=bool(config.showSetSummary,true)&&hotspots.length>0;
   return <section data-storefront-interactive-scene-v1 data-scene-kind={sceneKind} style={{...span,display:'grid',gap:'1rem'}}>
     <header style={{display:'grid',gap:'.45rem'}}>
       {text(config.eyebrow)?<small style={{textTransform:'uppercase',letterSpacing:'.12em'}}>{text(config.eyebrow)}</small>:null}
@@ -67,11 +69,12 @@ function InteractiveScene({config,node,viewport}:StorefrontComponentRenderProps)
       </a>)}
       {!hotspots.length?<div style={{position:'absolute',inset:0,display:'grid',placeItems:'center',padding:'2rem',textAlign:'center'}}><p>{text(config.emptyLabel,'A jelenet termékei jelenleg nem érhetők el. Böngészd tovább a katalógust.')}</p></div>:null}
     </div>
-    {bool(config.showSetSummary,true)&&hotspots.length?<div style={{display:'grid',gap:'.75rem',padding:'1rem',border:'1px solid var(--shoporation-color-border,#ddd)',borderRadius:'var(--shoporation-radius-m,1rem)'}}>
+    {showSummary&&sceneKind==='room'&&tenantId?<StorefrontRoomSceneExperience tenantId={tenantId} sceneKey={text(config.sceneKey,node.id)} hotspots={rawHotspots} products={products} title={text(config.setTitle,'A teljes enteriőr')}/>:null}
+    {showSummary&&(sceneKind!=='room'||!tenantId)?<div style={{display:'grid',gap:'.75rem',padding:'1rem',border:'1px solid var(--shoporation-color-border,#ddd)',borderRadius:'var(--shoporation-radius-m,1rem)'}}>
       <strong>{text(config.setTitle,sceneKind==='look'?'A teljes look':'A jelenet termékei')}</strong>
       <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(11rem,1fr))',gap:'.6rem'}}>{hotspots.map(hotspot=><a key={`summary-${hotspot.id}`} href={hotspot.href} style={{color:'inherit',textDecoration:'none',padding:'.7rem',background:'var(--shoporation-color-surface,#f5f5f5)',borderRadius:'.7rem'}}><strong>{hotspot.label}</strong>{hotspot.priceDisplay?<small style={{display:'block'}}>{hotspot.priceDisplay}</small>:null}</a>)}</div>
-      {text(config.setCtaLabel)?<a href={safeHref(config.setCtaHref,'#')} style={{width:'fit-content',fontWeight:800,color:'inherit'}}>{text(config.setCtaLabel)}</a>:null}
     </div>:null}
+    {showSummary&&text(config.setCtaLabel)?<a href={safeHref(config.setCtaHref,'#')} style={{width:'fit-content',fontWeight:800,color:'inherit'}}>{text(config.setCtaLabel)}</a>:null}
   </section>;
 }
 

@@ -1,7 +1,7 @@
 import 'server-only';
 import {createAdminClient} from '@/lib/supabase/admin';
 import {requireCurrentStoreContext} from '@/lib/instances/scope';
-import type {InteractiveSceneProductProjection} from '@/lib/commerce/interactive-scene';
+import type {InteractiveSceneProductProjection,InteractiveSceneVariantProjection} from '@/lib/commerce/interactive-scene';
 import type {StorefrontInteractiveSceneProductOption} from '@/lib/builder/storefront-interactive-scene';
 
 export type StorefrontInteractiveSceneCatalog={
@@ -9,43 +9,77 @@ export type StorefrontInteractiveSceneCatalog={
   options:readonly StorefrontInteractiveSceneProductOption[];
 };
 
+type ProductRow={id:string;slug:string;name:string;active:boolean;audience:string|null};
+type VariantRow={id:string;product_id:string;label:string;gross_price_huf:number;stock_quantity:number;active:boolean};
+type ChannelRow={product_id:string;visible:boolean;gross_price:number|null;discount_percent:number|null};
 const formatHuf=(value:number)=>`${new Intl.NumberFormat('hu-HU').format(value)} Ft`;
+const applyDiscount=(value:number,discount:number|null)=>discount==null?value:Math.max(0,Math.round(value*(1-Math.min(100,Math.max(0,discount))/100)));
 
 /** Internal tenant-scoped read model. Callers must supply an already-authorized instance id. */
 export async function getStorefrontInteractiveSceneCatalogForInstance(instanceId:string):Promise<StorefrontInteractiveSceneCatalog>{
   const admin=createAdminClient();
-  const[productResult,variantResult]=await Promise.all([
-    admin.from('products').select('id,slug,name,active').eq('instance_id',instanceId).eq('active',true).order('name').limit(500),
-    admin.from('product_variants').select('product_id,gross_price_huf,stock_quantity,active').eq('instance_id',instanceId).eq('active',true),
+  const[productResult,variantResult,channelResult]=await Promise.all([
+    admin.from('products').select('id,slug,name,active,audience').eq('instance_id',instanceId).eq('active',true).order('name').limit(500),
+    admin.from('product_variants').select('id,product_id,label,gross_price_huf,stock_quantity,active').eq('instance_id',instanceId).eq('active',true),
+    admin.from('product_channel_settings').select('product_id,visible,gross_price,discount_percent').eq('instance_id',instanceId).eq('channel_code','b2c'),
   ]);
   if(productResult.error)throw new Error(`INTERACTIVE_SCENE_PRODUCTS_FAILED:${productResult.error.message}`);
   if(variantResult.error)throw new Error(`INTERACTIVE_SCENE_VARIANTS_FAILED:${variantResult.error.message}`);
-  const variantsByProduct=new Map<string,{gross_price_huf:number;stock_quantity:number}[]>();
-  for(const row of variantResult.data??[]){
-    const list=variantsByProduct.get(row.product_id)??[];
-    list.push({gross_price_huf:Number(row.gross_price_huf??0),stock_quantity:Number(row.stock_quantity??0)});
-    variantsByProduct.set(row.product_id,list);
-  }
-  const products=(productResult.data??[]).map(product=>{
-    const variants=variantsByProduct.get(product.id)??[];
-    const prices=variants.map(variant=>variant.gross_price_huf).filter(value=>Number.isFinite(value)&&value>=0);
+  if(channelResult.error)throw new Error(`INTERACTIVE_SCENE_CHANNEL_FAILED:${channelResult.error.message}`);
+  const products=(productResult.data??[]) as ProductRow[];
+  const variants=(variantResult.data??[]) as VariantRow[];
+  const channels=new Map(((channelResult.data??[]) as ChannelRow[]).map(row=>[row.product_id,row]));
+  const variantsByProduct=new Map<string,VariantRow[]>();
+  for(const row of variants){const list=variantsByProduct.get(row.product_id)??[];list.push(row);variantsByProduct.set(row.product_id,list);}
+  const projections:InteractiveSceneProductProjection[]=products.map(product=>{
+    const productVariants=variantsByProduct.get(product.id)??[];
+    const channel=channels.get(product.id);
+    const channelVisible=channel?channel.visible:product.audience!=='professional';
+    const activeVariantCount=productVariants.filter(variant=>variant.active).length;
+    const variantProjections:InteractiveSceneVariantProjection[]=productVariants.map(variant=>{
+      const explicit=channel?.gross_price!=null&&activeVariantCount===1;
+      const base=explicit?Math.max(0,Number(channel?.gross_price)):Math.max(0,Number(variant.gross_price_huf));
+      const gross=explicit?base:applyDiscount(base,channel?.discount_percent==null?null:Number(channel.discount_percent));
+      const stock=Math.max(0,Number(variant.stock_quantity));
+      return{
+        variantId:variant.id,
+        label:String(variant.label??'').trim()||'Alapértelmezett változat',
+        eligible:Boolean(product.active&&variant.active),
+        channelVisible,
+        price:{amountMinor:gross,currency:'HUF',display:formatHuf(gross),source:'shared-pricing-authority'},
+        stock:{available:stock>0,statusLabel:stock>0?'Készleten':'Jelenleg nem készleten'},
+      };
+    });
+    const visible=variantProjections.filter(variant=>variant.eligible&&variant.channelVisible);
+    const prices=visible.map(variant=>variant.price.amountMinor);
     const minPrice=prices.length?Math.min(...prices):null;
     const maxPrice=prices.length?Math.max(...prices):null;
-    const stock=variants.reduce((sum,variant)=>sum+Math.max(0,variant.stock_quantity),0);
+    const stockAvailable=visible.some(variant=>variant.stock.available);
     const slug=typeof product.slug==='string'?product.slug.trim():'';
     return{
       productId:product.id,
       label:product.name,
       href:slug?`/termek/${encodeURIComponent(slug)}`:'#',
-      eligible:Boolean(product.active&&variants.length&&slug),
+      eligible:Boolean(product.active&&visible.length&&slug),
       priceDisplay:minPrice===null?null:minPrice===maxPrice?formatHuf(minPrice):`${formatHuf(minPrice)}-tól`,
-      stockLabel:variants.length?(stock>0?'Készleten':'Jelenleg nem készleten'):null,
+      stockLabel:visible.length?(stockAvailable?'Készleten':'Jelenleg nem készleten'):null,
       imageUrl:null,
+      variants:Object.freeze(variantProjections),
     } satisfies InteractiveSceneProductProjection;
   });
   return{
-    products:Object.freeze(products),
-    options:Object.freeze(products.filter(product=>product.eligible).map(product=>({productId:product.productId,label:product.label}))),
+    products:Object.freeze(projections),
+    options:Object.freeze(projections.filter(product=>product.eligible).map(product=>({
+      productId:product.productId,
+      label:product.label,
+      variants:Object.freeze((product.variants??[]).filter(variant=>variant.eligible&&variant.channelVisible).map(variant=>({
+        variantId:variant.variantId,
+        label:variant.label,
+        priceDisplay:variant.price.display,
+        stockLabel:variant.stock.statusLabel,
+        available:variant.stock.available,
+      }))),
+    }))),
   };
 }
 

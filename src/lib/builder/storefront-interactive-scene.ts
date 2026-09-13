@@ -2,12 +2,9 @@ import {STOREFRONT_BUILDER_FOUNDATION_VERSION,defineStorefrontBuilderComponent} 
 import type {StorefrontRuntimeComponentDefinition} from '@/lib/builder/storefront-runtime';
 import {createStorefrontContextRetentionComponentRegistry} from '@/lib/builder/storefront-context-retention';
 
-export const STOREFRONT_INTERACTIVE_SCENE_COMPONENTS_VERSION='shoporation.storefront-interactive-scene.v1' as const;
-
-export type StorefrontInteractiveSceneProductOption={
-  productId:string;
-  label:string;
-};
+export const STOREFRONT_INTERACTIVE_SCENE_COMPONENTS_VERSION='shoporation.storefront-interactive-scene.v2' as const;
+export type StorefrontInteractiveSceneVariantOption={variantId:string;label:string;priceDisplay:string;stockLabel:string;available:boolean};
+export type StorefrontInteractiveSceneProductOption={productId:string;label:string;variants:readonly StorefrontInteractiveSceneVariantOption[]};
 
 export const STOREFRONT_INTERACTIVE_SCENE_COMPONENT_DEFINITIONS:readonly StorefrontRuntimeComponentDefinition[]=[{
   manifest:defineStorefrontBuilderComponent({
@@ -16,17 +13,11 @@ export const STOREFRONT_INTERACTIVE_SCENE_COMPONENT_DEFINITIONS:readonly Storefr
     componentVersion:1,
     schemaSlot:'sections',
     pageTypes:['home','catalog','product','content'],
-    configurable:[
-      'eyebrow','title','copy','backgroundImage','backgroundAlt','emptyLabel','style',
-    ],
+    configurable:['eyebrow','title','copy','backgroundImage','backgroundAlt','emptyLabel','style'],
     responsiveMode:'grid',
     capability:{minPlan:'pro',features:['catalog','interactiveSceneCommerce']},
   }),
-  bindingSlots:['backgroundImage','products'],
+  bindingSlots:['tenantId','backgroundImage','products'],
 }] as const;
 
-export function createStorefrontInteractiveSceneComponentRegistry(){
-  const registry=createStorefrontContextRetentionComponentRegistry();
-  for(const definition of STOREFRONT_INTERACTIVE_SCENE_COMPONENT_DEFINITIONS)registry.register(definition);
-  return registry;
-}
+export function createStorefrontInteractiveSceneComponentRegistry(){const registry=createStorefrontContextRetentionComponentRegistry();for(const definition of STOREFRONT_INTERACTIVE_SCENE_COMPONENT_DEFINITIONS)registry.register(definition);return registry;}
