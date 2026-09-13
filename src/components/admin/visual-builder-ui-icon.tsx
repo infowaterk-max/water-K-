@@ -1,7 +1,7 @@
 import type {SVGProps} from 'react';
 
 export type VisualBuilderIconName=
-  |'arrow-left'|'desktop'|'tablet'|'mobile'|'layout'|'box'|'star'|'mail'|'help'|'image'|'menu'|'text'|'plus'|'component'
+  |'arrow-left'|'desktop'|'tablet'|'mobile'|'layout'|'box'|'star'|'mail'|'help'|'info'|'image'|'menu'|'text'|'plus'|'component'
   |'pages'|'layers'|'templates'|'presets'|'saved'|'globals'|'edit'|'chevron-up'|'chevron-down'|'chevron-right'|'duplicate'|'eye'|'more'|'trash'
   |'panel-menu'|'panel-right'|'undo'|'redo'|'history'|'upload'|'home'|'page'|'settings'|'reset'|'pointer'|'close'|'check'|'warning'|'error'|'grip'
   |'link'|'unlink'|'sync'|'header'|'footer';
@@ -16,6 +16,7 @@ const paths:Record<VisualBuilderIconName,readonly string[]>={
   star:['m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-2.9-5.6 2.9 1.1-6.2-4.5-4.4 6.2-.9L12 3Z'],
   mail:['M3 5h18v14H3z','m3 6 9 7 9-7'],
   help:['M9.7 9a2.5 2.5 0 1 1 4.6 1.4c-.7 1.1-2.3 1.4-2.3 3','M12 18h.01','M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20Z'],
+  info:['M12 10v7','M12 7h.01','M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20Z'],
   image:['M3 5h18v14H3z','M7 9h.01','m3 17 5-5 4 4 3-3 6 6'],
   menu:['M4 6h16','M4 12h16','M4 18h16'],
   text:['M5 5h14','M12 5v14','M8 19h8'],
