@@ -7,6 +7,7 @@ import { useCart } from '@/components/cart/cart-provider';
 import { useAnalytics } from '@/components/analytics/analytics-provider';
 import { PickupPointPicker } from '@/components/checkout/pickup-point-picker';
 import { formatHuf } from '@/lib/catalog';
+import { buildCartCommerceGroups } from '@/lib/cart/types';
 import { isValidHuTaxNumber,normalizeHuTaxNumber } from '@/lib/commerce/hu-tax-number';
 import type { CustomerType,OrderStatus } from '@/lib/orders/types';
 import type { ShippingOption,PaymentOption } from '@/lib/commerce/settings';
@@ -23,7 +24,9 @@ export function CheckoutForm({shippingOptions,paymentOptions,freeShippingThresho
   const{cart,clear}=useCart(),router=useRouter(),{track}=useAnalytics(),submitting=useRef(false),requestKey=useRef(key());
   const[state,setState]=useState<'idle'|'sending'|'error'>('idle'),[error,setError]=useState(''),[customerType,setCustomerType]=useState<CustomerType>(resellerApproved?'reseller':'retail'),[shippingCode,setShippingCode]=useState(shippingOptions[0]?.code??''),[paymentCode,setPaymentCode]=useState(paymentOptions[0]?.code??''),[parcelPointId,setParcelPointId]=useState(''),[pickupInvalid,setPickupInvalid]=useState(false),[sameAddress,setSameAddress]=useState(true),[legalAccepted,setLegalAccepted]=useState(false),[couponInput,setCouponInput]=useState(''),[couponCode,setCouponCode]=useState(''),[couponMessage,setCouponMessage]=useState(''),[quote,setQuote]=useState<Quote|null>(null),[quoteLoading,setQuoteLoading]=useState(false),[quoteError,setQuoteError]=useState('');
   const shipping=shippingOptions.find(o=>o.code===shippingCode)??shippingOptions[0];
-  const quoteItems=cart.items.filter(i=>i.variantId).map(i=>({variantId:i.variantId as string,quantity:i.quantity}));
+  const quoteByVariant=new Map<string,number>();for(const item of cart.items)if(item.variantId)quoteByVariant.set(item.variantId,(quoteByVariant.get(item.variantId)??0)+item.quantity);
+  const quoteItems=[...quoteByVariant].map(([variantId,quantity])=>({variantId,quantity}));
+  const commerceGroups=buildCartCommerceGroups(cart);
   const missingVariant=cart.items.some(i=>!i.variantId);
   const effectiveCustomerType:CustomerType=resellerApproved?'reseller':customerType;
 
@@ -71,7 +74,7 @@ export function CheckoutForm({shippingOptions,paymentOptions,freeShippingThresho
     try{
       checkout.sameAddress=sameAddress?'true':'false';checkout.legalAccepted='true';checkout.couponCode=couponCode;checkout.shippingProvider=shipping.code;checkout.shippingKind=shipping.kind;checkout.paymentProvider=paymentCode;checkout.parcelPointId=shipping.kind==='parcel_point'?parcelPointId:'';
       const items=quoteItems.map(i=>({productId:i.variantId,quantity:i.quantity}));
-      const r=await fetch('/api/orders',{method:'POST',headers:{'content-type':'application/json','x-idempotency-key':requestKey.current},body:JSON.stringify({checkout,items})}),p=await r.json()as OrderApiResponse;
+      const r=await fetch('/api/orders',{method:'POST',headers:{'content-type':'application/json','x-idempotency-key':requestKey.current},body:JSON.stringify({checkout,items,commerceGroups})}),p=await r.json()as OrderApiResponse;
       if(!r.ok||!p.orderNumber||!p.status||!p.confirmationToken){setState('error');setError(p.error??'Nem sikerült létrehozni a rendelést.');submitting.current=false;return}
       clear();track('order_submitted',{transaction_id:p.orderNumber,value:p.total??verified.total_gross_huf,currency:'HUF',shipping:verified.shipping_gross_huf,coupon:couponCode||'',payment_provider:paymentCode,shipping_provider:shipping.code});
       if(p.paymentRedirectUrl){window.location.assign(p.paymentRedirectUrl);return}
@@ -84,6 +87,7 @@ export function CheckoutForm({shippingOptions,paymentOptions,freeShippingThresho
 
   return <div className="checkoutLayout"><form className="checkout-form" onSubmit={submit} aria-busy={state==='sending'||quoteLoading}>
     <div className="checkoutHeading"><span className="eyebrow">Biztonságos rendelés</span><h1>Pénztár</h1><p className="muted">A végösszeget és a készletet a rendelés előtt újra ellenőrizzük.</p></div>
+    {commerceGroups.length?<div className="partnerCheckoutBadge" role="status"><strong>{commerceGroups.length} összeállítás megőrzése</strong><span>A csoportos kosártételek az authoritative rendelésben is együtt maradnak; az ár és készlet ettől továbbra is külön újraellenőrzött.</span></div>:null}
     {resellerApproved&&<div className="partnerCheckoutBadge" role="status"><strong>B2B partner mód aktív</strong><span>A partnerár, a B2B minimum rendelés és a rendelési egység automatikusan érvényes.</span></div>}
     <fieldset className="formSection" disabled={state==='sending'}><legend>Kapcsolattartó és vásárlói típus</legend><div className="form-grid">
       <label className="checkoutField"><span>Név / kapcsolattartó</span><input name="name" required autoComplete="name" placeholder="Név / kapcsolattartó"/></label>
