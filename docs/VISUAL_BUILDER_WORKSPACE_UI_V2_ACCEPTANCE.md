@@ -2,7 +2,9 @@
 
 Base: `feature/storefront-responsive-layout-depth-v1@2d26a99060dcd7e3c6e68194beb938cc12965473`
 
-Final head: `65ebc064b05c69a5dae19d52499f759009ff229b`
+Verified functional code head: `65ebc064b05c69a5dae19d52499f759009ff229b`
+
+The acceptance/documentation marker is intentionally a later docs-only commit. It does not change the verified Builder runtime/UI implementation.
 
 ## Scope
 - accepted Shoperation light/turquoise dedicated Builder shell;
@@ -15,8 +17,8 @@ Final head: `65ebc064b05c69a5dae19d52499f759009ff229b`
 - AI Builder remains absent from merchant UI;
 - no Page Schema, renderer, publication or commerce authority replacement.
 
-## Exact-head verification
-GitHub Actions CI run `34745697953` on exact final head: **PASS**.
+## Verification
+GitHub Actions CI run `34745697953` on the verified functional code head: **PASS**.
 
 - customer database baseline guard: PASS;
 - Block 24 market-ready contract: PASS;
@@ -27,10 +29,11 @@ GitHub Actions CI run `34745697953` on exact final head: **PASS**.
 - production dependency security audit: PASS;
 - Fresh Install proof: skipped because this UI-only branch has no customer-baseline/schema change.
 
+The later acceptance-documentation marker must also remain CI-green before the Draft PR is treated as exact-head clean.
+
 ## Diff
 Compared with the exact Responsive/Layout Depth base:
-- 6 commits ahead;
-- 6 changed files;
+- UI workspace implementation plus acceptance documentation;
 - no database migration;
 - no production deployment;
 - no production Supabase mutation.
