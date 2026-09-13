@@ -4,6 +4,8 @@ import {describe,expect,it} from 'vitest';
 import {StorefrontRuntimeRenderer} from '@/components/builder/storefront-runtime-renderer';
 import {createStorefrontVisualBuilderRendererRegistry} from '@/components/builder/storefront-builder-renderer-registry';
 import {createStorefrontVisualBuilderComponentRegistry} from '@/lib/builder/storefront-builder-registry';
+import {inspectStorefrontFidelityDiagnostics} from '@/lib/builder/storefront-fidelity-diagnostics';
+import {evaluateStorefrontPerformance} from '@/lib/builder/storefront-performance-contract';
 import {createStorefrontPresetBundle} from '@/lib/builder/storefront-presets';
 import {createStorefrontTemplatePreviewBindingContext} from '@/lib/builder/storefront-template-preview-demo';
 import {getStorefrontGlobalStyleState} from '@/lib/builder/storefront-global-styles';
@@ -91,6 +93,16 @@ describe('Playroom canonical template — visual fidelity recovery',()=>{
       const result=validateStorefrontPageDocument(page,components,capability);
       expect(result.ok,`${page.pageType}: ${JSON.stringify(result.violations)}`).toBe(true);
       expect(page.sections[0]?.componentKey).toBe('system.commerce-header');
+    }
+  });
+
+  it('passes the same diagnostics and performance gates used by Publish Readiness',()=>{
+    for(const page of PLAYROOM_TEMPLATE_PACKAGE.pages){
+      const diagnostics=inspectStorefrontFidelityDiagnostics(page);
+      const performance=evaluateStorefrontPerformance(page);
+      expect(diagnostics.accessibility.ok,`${page.pageType} accessibility: ${JSON.stringify(diagnostics.accessibility.issues)}`).toBe(true);
+      expect(diagnostics.layout.ok,`${page.pageType} layout: ${JSON.stringify(diagnostics.layout.issues)}`).toBe(true);
+      expect(performance.ok,`${page.pageType} performance: ${JSON.stringify(performance.issues)}`).toBe(true);
     }
   });
 
