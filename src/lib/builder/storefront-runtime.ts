@@ -56,6 +56,8 @@ export type StorefrontResolvedComponentNode=Omit<StorefrontComponentNode,'childr
 export type StorefrontRuntimeComponentDefinition={
   manifest:StorefrontBuilderComponentManifest;
   bindingSlots?:readonly string[];
+  /** Server/runtime-managed binding slots are injected during materialization, not authored by templates. */
+  runtimeBindingSlots?:readonly string[];
   allowsChildren?:boolean;
   allowedChildren?:readonly string[];
   protectedSystem?:boolean;
@@ -131,7 +133,7 @@ export class StorefrontComponentRegistry{
     const{manifest}=definition;
     const versions=this.definitions.get(manifest.componentKey)??new Map<number,StorefrontRuntimeComponentDefinition>();
     if(versions.has(manifest.componentVersion))throw new Error('STOREFRONT_COMPONENT_DUPLICATE');
-    for(const slot of definition.bindingSlots??[])if(!SLOT_PATTERN.test(slot))throw new Error('STOREFRONT_BINDING_SLOT_INVALID');
+    for(const slot of[...(definition.bindingSlots??[]),...(definition.runtimeBindingSlots??[])])if(!SLOT_PATTERN.test(slot))throw new Error('STOREFRONT_BINDING_SLOT_INVALID');
     versions.set(manifest.componentVersion,Object.freeze({...definition}));
     this.definitions.set(manifest.componentKey,versions);
     return this;
@@ -181,7 +183,7 @@ export function validateStorefrontPageDocument(document:StorefrontPageDocument,r
       if(!definition.manifest.pageTypes.includes(document.pageType))issue(violations,'COMPONENT_PAGE_TYPE_NOT_ALLOWED',path,'Component is not allowed on this page type.');
       if(capability&&!hasStorefrontRuntimeCapability(definition.manifest.capability,capability))issue(violations,'COMPONENT_CAPABILITY_REQUIRED',path,'Runtime capability requirement is not satisfied.');
       if(parent?.allowedChildren&&!parent.allowedChildren.includes(node.componentKey))issue(violations,'COMPONENT_CHILD_NOT_ALLOWED',path,'Component is not allowed inside the parent component.');
-      const supportedBindings=new Set(definition.bindingSlots??[]);
+      const supportedBindings=new Set([...(definition.bindingSlots??[]),...(definition.runtimeBindingSlots??[])]);
       for(const[slot,reference]of Object.entries(node.bindings??{})){
         if(!SLOT_PATTERN.test(slot))issue(violations,'BINDING_SLOT_INVALID',`${path}.bindings.${slot}`,'Binding slot is invalid.');
         if(!supportedBindings.has(slot))issue(violations,'BINDING_SLOT_NOT_SUPPORTED',`${path}.bindings.${slot}`,'Binding slot is not declared by the component.');

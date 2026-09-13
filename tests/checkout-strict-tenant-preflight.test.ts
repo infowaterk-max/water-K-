@@ -11,9 +11,11 @@ describe('checkout strict-tenant preflight',()=>{
     expect(sql).toContain("raise exception 'Order insert blocked: explicit webshop tenant context is required.'");
   });
 
-  it('uses channel-aware v5 from application code',()=>{
+  it('uses Wave 5 v6 metadata wrapper while preserving channel-aware v5 authority',()=>{
     const source=read('src/lib/orders/tenant-checkout.ts');
-    expect(source).toContain("admin.rpc('place_order_provider_v5_idempotent'");
+    const wave5=read('supabase/migrations/20260913062000_special_commerce_existing_engine_closure.sql');
+    expect(source).toContain("admin.rpc('place_order_provider_v6_idempotent'");
+    expect(wave5).toContain('v_result:=public.place_order_provider_v5_idempotent');
     expect(source).not.toContain("admin.rpc('place_order_provider_v4_idempotent'");
   });
 

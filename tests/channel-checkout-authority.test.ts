@@ -21,12 +21,14 @@ describe('B2C/B2B channel checkout authority',()=>{
     expect(sql).toContain('to service_role');
   });
 
-  test('application runtime uses v2 quote and v5 atomic checkout',()=>{
+  test('application runtime uses v2 quote and v6 metadata wrapper over v5 atomic checkout',()=>{
     const quote=read('src/lib/commerce/checkout-quote.ts');
     const order=read('src/lib/orders/tenant-checkout.ts');
+    const wave5=read('supabase/migrations/20260913062000_special_commerce_existing_engine_closure.sql');
     expect(quote).toContain("admin.rpc('quote_tenant_checkout_v2'");
     expect(quote).not.toContain("admin.rpc('quote_tenant_checkout_v1'");
-    expect(order).toContain("admin.rpc('place_order_provider_v5_idempotent'");
+    expect(order).toContain("admin.rpc('place_order_provider_v6_idempotent'");
+    expect(wave5).toContain('v_result:=public.place_order_provider_v5_idempotent');
     expect(order).not.toContain("admin.rpc('place_order_provider_v4_idempotent'");
   });
 

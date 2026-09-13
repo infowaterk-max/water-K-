@@ -2,7 +2,7 @@ import {COMPATIBILITY_ENGINE_VERSION,evaluateCompatibility,type CompatibilityEva
 
 export const PRODUCT_CONFIGURATOR_ENGINE_VERSION='shoporation.product-configurator.v1' as const;
 export type ConfiguratorPriceEvidence={amountMinor:number;currency:string;display:string;source:'shared-pricing-authority'};
-export type ConfiguratorStockEvidence={available:boolean;label:string};
+export type ConfiguratorStockEvidence={available:boolean}&({label:string;statusLabel?:string}|{label?:string;statusLabel:string});
 export type ConfiguratorSlot={id:string;label:string;required:boolean;eligibleProductIds?:readonly string[]};
 export type ProductConfiguratorConfig={version:1;tenantId:string;configuratorKey:string;label:string;slots:readonly ConfiguratorSlot[]};
 export type ConfiguratorCatalogPart={productId:string;variantId:string;label:string;href:string;slotIds:readonly string[];eligible:boolean;channelVisible:boolean;price:ConfiguratorPriceEvidence;stock:ConfiguratorStockEvidence;compatibility:CompatibilityPart['specs']};
