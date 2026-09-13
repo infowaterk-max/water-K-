@@ -44,35 +44,35 @@ export function StorefrontPresetLibraryPanel({
   const run=(job:()=>void)=>startTransition(()=>{setError(null);job();});
 
   return <div data-storefront-preset-library-workspace-v2>
-    <div className={styles.panelSectionHead}><div><strong>Preset könyvtár</strong><span>Gyári, biztonságos kompozíciók és megjelenési variációk.</span></div></div>
-    {library?<p className={styles.emptyHint}>{library.templateKey} · v{library.templateVersion} · {library.sourcePageKey}</p>:<p className={styles.emptyHint}>Presetek betöltése…</p>}
+    <div className={styles.panelSectionHead}><div><strong>Preset könyvtár</strong><span>Gyári kompozíciók és megjelenések, amelyeket egy kattintással használhatsz.</span></div></div>
+    {library?<p className={styles.emptyHint}>Az aktuális sablonhoz elérhető presetek.</p>:<p className={styles.emptyHint}>Presetek betöltése…</p>}
 
     <div className={styles.panelDivider}/>
     <strong>Szekció presetek</strong>
-    <p className={styles.emptyHint}>Új szekció friss node ID-kkal; a jelenlegi üzleti adatok authorityja változatlan marad.</p>
+    <p className={styles.emptyHint}>Kész szekciókat illeszthetsz be úgy, hogy a webshop meglévő adatai és működése változatlan marad.</p>
     <div className={styles.componentLibrary}>{library?.sectionPresets.map(preset=><article key={preset.presetId}>
       <span className={styles.componentLibraryIcon} aria-hidden="true"><VisualBuilderIcon name="layers"/></span>
-      <span><strong>{preset.label}</strong><small>{label(preset.componentKey)} · gyári szekció</small></span>
+      <span><strong>{preset.label}</strong><small>{label(preset.componentKey)} · kész szekció</small></span>
       <div><button type="button" disabled={busy} onClick={()=>run(()=>{
         const inserted=insertStorefrontSectionPreset(document,preset,registry,capability);
-        onApply(inserted.document,inserted.insertedNodeId,`„${preset.label}” szekció-preset beillesztve · a draft még nincs mentve.`);
+        onApply(inserted.document,inserted.insertedNodeId,`„${preset.label}” szekció beillesztve · a módosítás még nincs mentve.`);
       })}>Beillesztés</button></div>
     </article>)}</div>
     {library&&!library.sectionPresets.length?<p className={styles.emptyHint}>Ehhez az oldaltípushoz nincs gyári szekció-preset.</p>:null}
 
     <div className={styles.panelDivider}/>
-    <strong>Komponens presetek</strong>
-    {selectedNode?<p className={styles.emptyHint}>Kijelölt elem: <strong>{label(selectedNode.componentKey)}</strong>. A preset a megjelenést módosítja, a tartalmat és bindingokat nem.</p>:<p className={styles.emptyHint}>Válassz ki egy elemet a vásznon a kompatibilis presetekhez.</p>}
+    <strong>Megjelenési presetek</strong>
+    {selectedNode?<p className={styles.emptyHint}>Kijelölt elem: <strong>{label(selectedNode.componentKey)}</strong>. Ezek a presetek csak a megjelenést módosítják; a tartalom megmarad.</p>:<p className={styles.emptyHint}>Válassz ki egy elemet a vásznon a hozzá illő megjelenési presetekhez.</p>}
     <div className={styles.componentLibrary}>{compatible.map(preset=><article key={preset.presetId}>
       <span className={styles.componentLibraryIcon} aria-hidden="true"><VisualBuilderIcon name="presets"/></span>
       <span><strong>{preset.label}</strong><small>{label(preset.componentKey)} · megjelenési preset</small></span>
       <div><button type="button" disabled={busy||!selectedNode} onClick={()=>run(()=>{
         if(!selectedNode)return;
         const next=applyStorefrontComponentPresetAppearance(document,{nodeId:selectedNode.id,preset},registry,capability);
-        onApply(next,selectedNode.id,`„${preset.label}” preset alkalmazva · a tartalom és bindingok változatlanok.`);
+        onApply(next,selectedNode.id,`„${preset.label}” preset alkalmazva · a tartalom változatlan maradt.`);
       })}>Alkalmazás</button></div>
     </article>)}</div>
-    {selectedNode&&library&&!compatible.length?<p className={styles.emptyHint}>A kijelölt elemhez nincs kompatibilis gyári komponens-preset.</p>:null}
+    {selectedNode&&library&&!compatible.length?<p className={styles.emptyHint}>A kijelölt elemhez nincs kompatibilis gyári megjelenési preset.</p>:null}
     {error?<div className={styles.errorNotice} role="alert">{error}</div>:null}
   </div>;
 }
