@@ -20,6 +20,8 @@ export type StorefrontGlobalStyleTokens={
   primary?:string;
   primaryContrast?:string;
   accent?:string;
+  accentSecondary?:string;
+  accentTertiary?:string;
   headingFont?:StorefrontGlobalFontPreset;
   bodyFont?:StorefrontGlobalFontPreset;
   spacingScale?:StorefrontGlobalSpacingScale;
@@ -31,7 +33,7 @@ export type StorefrontGlobalStyleState={
   tokens:StorefrontGlobalStyleTokens;
 };
 
-const COLOR_KEYS=['background','surface','surfaceMuted','text','mutedText','border','primary','primaryContrast','accent'] as const;
+const COLOR_KEYS=['background','surface','surfaceMuted','text','mutedText','border','primary','primaryContrast','accent','accentSecondary','accentTertiary'] as const;
 const TOKEN_KEYS=new Set<string>([...COLOR_KEYS,'headingFont','bodyFont','spacingScale','radiusScale']);
 const HEX=/^#[0-9a-fA-F]{6}$/;
 const isRecord=(value:unknown):value is Record<string,unknown>=>Boolean(value)&&typeof value==='object'&&!Array.isArray(value);
@@ -45,7 +47,7 @@ function normalizeTokens(value:unknown):StorefrontGlobalStyleTokens{
   if(value===undefined)return{};
   if(!isRecord(value))throw new Error('STOREFRONT_GLOBAL_STYLES_TOKENS_INVALID');
   const keys=Object.keys(value);
-  if(keys.length>16)throw new Error('STOREFRONT_GLOBAL_STYLES_TOKENS_TOO_LARGE');
+  if(keys.length>18)throw new Error('STOREFRONT_GLOBAL_STYLES_TOKENS_TOO_LARGE');
   for(const key of keys)if(!TOKEN_KEYS.has(key))throw new Error('STOREFRONT_GLOBAL_STYLES_TOKEN_UNKNOWN');
   const tokens:StorefrontGlobalStyleTokens={};
   for(const key of COLOR_KEYS){
@@ -123,7 +125,7 @@ export function resolveStorefrontGlobalStyleCssVariables(document:StorefrontPage
   const{tokens}=getStorefrontGlobalStyleState(document);
   const css:Record<string,string>={};
   const colorMap:Record<typeof COLOR_KEYS[number],string>={
-    background:'--shoporation-color-background',surface:'--shoporation-color-surface',surfaceMuted:'--shoporation-color-surface-muted',text:'--shoporation-color-text',mutedText:'--shoporation-color-muted-text',border:'--shoporation-color-border',primary:'--shoporation-color-primary',primaryContrast:'--shoporation-color-primary-contrast',accent:'--shoporation-color-accent',
+    background:'--shoporation-color-background',surface:'--shoporation-color-surface',surfaceMuted:'--shoporation-color-surface-muted',text:'--shoporation-color-text',mutedText:'--shoporation-color-muted-text',border:'--shoporation-color-border',primary:'--shoporation-color-primary',primaryContrast:'--shoporation-color-primary-contrast',accent:'--shoporation-color-accent',accentSecondary:'--shoporation-color-accent-secondary',accentTertiary:'--shoporation-color-accent-tertiary',
   };
   for(const key of COLOR_KEYS)if(tokens[key])css[colorMap[key]]=tokens[key]!;
   if(tokens.headingFont)css['--shoporation-heading-font']=FONT_STACKS[tokens.headingFont];
