@@ -23,6 +23,7 @@ type CouponRow={
   discount_type:'percent'|'fixed';
   discount_value:number;
   min_subtotal_huf:number;
+  max_discount_huf:number|null;
   usage_limit:number|null;
   usage_count:number;
   starts_at:string|null;
@@ -37,7 +38,8 @@ const activeNow=(row:CouponRow,now:number)=>row.active
   &&(row.usage_limit===null||Number(row.usage_count)<Number(row.usage_limit));
 
 function toReadModel(row:CouponRow):StorefrontPromotionReadModel{
-  const discountLabel=row.discount_type==='percent'?`${row.discount_value}% kedvezmény`:`${huf(row.discount_value)} kedvezmény`;
+  const baseDiscount=row.discount_type==='percent'?`${row.discount_value}% kedvezmény`:`${huf(row.discount_value)} kedvezmény`;
+  const discountLabel=row.discount_type==='percent'&&row.max_discount_huf!==null?`${baseDiscount} · legfeljebb ${huf(row.max_discount_huf)}`:baseDiscount;
   const minimumLabel=row.min_subtotal_huf>0?`${huf(row.min_subtotal_huf)} kosárértéktől`:'Nincs minimum kosárérték';
   const validityLabel=row.ends_at?`Érvényes: ${new Intl.DateTimeFormat('hu-HU',{dateStyle:'medium',timeZone:'Europe/Budapest'}).format(new Date(row.ends_at))}-ig`:'Visszavonásig érvényes';
   return{code:row.code,description:row.description??'',discountLabel,minimumLabel,expiresAt:row.ends_at,validityLabel,source:'canonical-coupon-authority'};
@@ -52,7 +54,7 @@ export async function getStorefrontGrowthMarketingBundleForInstance(instanceId:s
   if(!codes.length)return{promotions:Object.freeze({})};
   const admin=createAdminClient();
   const{data,error}=await admin.from('coupons')
-    .select('code,description,discount_type,discount_value,min_subtotal_huf,usage_limit,usage_count,starts_at,ends_at,active')
+    .select('code,description,discount_type,discount_value,min_subtotal_huf,max_discount_huf,usage_limit,usage_count,starts_at,ends_at,active')
     .eq('instance_id',instanceId)
     .in('code',[...codes])
     .limit(codes.length);
