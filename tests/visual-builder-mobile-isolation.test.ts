@@ -30,8 +30,12 @@ describe('Visual Builder mobile workspace isolation',()=>{
 
   it('keeps the compact toolbar and Inspector usable on phone widths',()=>{
     const css=read('src/app/admin/tartalom/builder/builder-isolation.css');
-    expect(css).toContain('@media(max-width:620px)');
+    expect(css).toContain('@media(max-width:900px)');
     expect(css).toContain('grid-template-areas:"brand page" "view view" "back actions"');
+    expect(css).toContain('button:nth-of-type(6)');
+    expect(css).toContain('button:nth-of-type(7)');
+    expect(css).toContain('>main>div:first-child>div>button:last-child{display:none!important}');
+    expect(css).toContain('>main>div:nth-of-type(3){margin:34px auto 0!important}');
     expect(css).toContain('nav[aria-label="Inspector navigáció"]');
     expect(css).toContain('overflow-x:auto');
   });
