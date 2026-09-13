@@ -1,4 +1,3 @@
-import type {FeatureCode,PlanCode} from '@/lib/plans/catalog';
 import {
   STOREFRONT_BUILDER_FOUNDATION_VERSION,
   defineStorefrontBuilderComponent,
@@ -18,19 +17,18 @@ export type StorefrontGrowthMarketingSurface={
   label:string;
   authority:string;
   componentKeys:readonly string[];
-  minPlan:PlanCode;
-  features:readonly FeatureCode[];
 };
 
 /**
  * Wave 8 is a surface catalogue over already accepted authorities. It is not a
- * second campaign, promotion, retention or Special Commerce engine.
+ * second campaign, promotion, retention or Special Commerce engine. Entitlement
+ * remains exclusively in each component manifest; this catalogue does not copy it.
  */
 export const STOREFRONT_GROWTH_MARKETING_SURFACES:readonly StorefrontGrowthMarketingSurface[]=[
-  {surfaceKey:'newsletter-capture',label:'Hírlevél-feliratkozás',authority:'marketing_consents',componentKeys:['marketing.newsletter-signup'],minPlan:'alap',features:['marketingBasics']},
-  {surfaceKey:'promotion-callout',label:'Kupon / promóciós kiemelés',authority:'coupons',componentKeys:['marketing.promotion-banner'],minPlan:'alap',features:['coupons']},
-  {surfaceKey:'special-commerce-discovery',label:'Special Commerce discovery',authority:'existing Special Commerce + catalog/pricing/inventory authorities',componentKeys:['guided.finder','guided.results','commerce.interactive-scene','commerce.recipe','commerce.release','composer.builder','configurator.builder','configurator.slot-list','compatibility.status','compatibility.evidence'],minPlan:'alap',features:['catalog']},
-  {surfaceKey:'retention-recovery',label:'Megtartás és visszatérés',authority:'existing retention/recovery/recommendation authorities',componentKeys:['retention.running-low','retention.reorder-row','retention.recently-purchased','retention.buy-again','retention.profile-replenishment','retention.post-purchase-recommendations','retention.saved-cart-recovery'],minPlan:'alap',features:['orders','customers']},
+  {surfaceKey:'newsletter-capture',label:'Hírlevél-feliratkozás',authority:'marketing_consents',componentKeys:['marketing.newsletter-signup']},
+  {surfaceKey:'promotion-callout',label:'Kupon / promóciós kiemelés',authority:'coupons',componentKeys:['marketing.promotion-banner']},
+  {surfaceKey:'special-commerce-discovery',label:'Special Commerce discovery',authority:'existing Special Commerce + catalog/pricing/inventory authorities',componentKeys:['guided.finder','guided.results','commerce.interactive-scene','commerce.recipe','commerce.release','composer.builder','configurator.builder','configurator.slot-list','compatibility.status','compatibility.evidence']},
+  {surfaceKey:'retention-recovery',label:'Megtartás és visszatérés',authority:'existing retention/recovery/recommendation authorities',componentKeys:['retention.running-low','retention.reorder-row','retention.recently-purchased','retention.buy-again','retention.profile-replenishment','retention.post-purchase-recommendations','retention.saved-cart-recovery']},
 ] as const;
 
 const PROMOTION_PAGE_TYPES:readonly StorefrontBuilderPageType[]=['home','catalog','product','cart','content'];
@@ -43,7 +41,7 @@ export const STOREFRONT_GROWTH_MARKETING_COMPONENT_DEFINITIONS:readonly Storefro
       componentVersion:1,
       schemaSlot:'children',
       pageTypes:PROMOTION_PAGE_TYPES,
-      configurable:['couponCode','eyebrow','title','copy','ctaLabel','ctaHref','tone','showCode','inactiveLabel'],
+      configurable:['couponCode','eyebrow','title','copy','ctaLabel','ctaHref','tone','showCode'],
       responsiveMode:'grid',
       capability:{minPlan:'alap',features:['coupons']},
     }),
