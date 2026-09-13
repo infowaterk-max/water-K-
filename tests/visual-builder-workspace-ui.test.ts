@@ -6,6 +6,7 @@ const read=(file:string)=>fs.readFileSync(path.join(process.cwd(),file),'utf8');
 
 describe('Visual Builder Workspace UI v2 contract',()=>{
   const component=read('src/components/admin/storefront-visual-builder.tsx');
+  const iconSystem=read('src/components/admin/visual-builder-ui-icon.tsx');
   const legacyCss=read('src/components/admin/storefront-visual-builder.module.css');
   const workspaceCss=read('src/components/admin/storefront-visual-builder-workspace-v2.module.css');
   const presetPanel=read('src/components/admin/storefront-preset-library-panel.tsx');
@@ -95,6 +96,15 @@ describe('Visual Builder Workspace UI v2 contract',()=>{
     expect(component).toContain('Gyors beállítások');
     expect(component).toContain("setConfig(spacingKey,'l')");
     expect(component).toContain("setConfig(alignKey,'center')");
+  });
+
+  it('uses one lightweight SVG stroke icon language instead of mixed text glyph icons',()=>{
+    expect(component).toContain("import {VisualBuilderIcon,type VisualBuilderIconName} from './visual-builder-ui-icon'");
+    expect(component).toContain('<VisualBuilderIcon name=');
+    expect(iconSystem).toContain('viewBox="0 0 24 24"');
+    expect(iconSystem).toContain('stroke="currentColor"');
+    expect(iconSystem).toContain('strokeWidth="1.8"');
+    for(const glyph of ['▣','▯','▧','◇','☆','✉','≡','＋','◆','✎','⧉','◫','◉','☰','◧','↶','↷','◷','⬆','⌂','▱','▦','⚙','◎','↺','↖','⌫','✓','△'])expect(component).not.toContain(glyph);
   });
 
   it('keeps smaller viewports resilient with collapsible panels and accessibility motion handling',()=>{
