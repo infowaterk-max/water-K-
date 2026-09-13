@@ -1,0 +1,39 @@
+html.visual-builder-route-active,html.visual-builder-route-active body{min-width:0;overflow:hidden;background:#eef3f1}
+html.visual-builder-route-active .adminGrid{display:block!important;grid-template-columns:minmax(0,1fr)!important;min-width:0;min-height:100dvh;background:#eef3f1!important}
+html.visual-builder-route-active .adminSide,html.visual-builder-route-active .adminRouteContext{display:none!important}
+html.visual-builder-route-active .adminContentShell{width:100%;min-width:0;max-width:none;height:100dvh;min-height:0;overflow:hidden}
+html.visual-builder-route-active .visualBuilderRouteIsolation{width:100%;height:100dvh;min-width:0;min-height:0;overflow:hidden}
+html.visual-builder-route-active .visualBuilderRouteIsolation>.adminMain{width:100%;max-width:none!important;height:100%;min-height:0;margin:0!important;padding:0!important}
+html.visual-builder-route-active .visualBuilderRouteIsolation>.adminMain>div{min-width:0;max-width:none}
+
+@media(max-width:1100px){
+  html.visual-builder-route-active .visualBuilderRouteIsolation>.adminMain>div{height:100dvh;min-height:100dvh!important;grid-template-rows:auto minmax(0,1fr)!important;overflow:hidden}
+  html.visual-builder-route-active .visualBuilderRouteIsolation>.adminMain>div>header{position:relative!important;top:auto!important;z-index:190!important;display:grid!important;grid-template-columns:auto minmax(0,1fr)!important;grid-template-areas:"brand page" "view view" "back actions"!important;gap:7px!important;padding:8px!important;width:100%;min-width:0}
+  html.visual-builder-route-active .visualBuilderRouteIsolation>.adminMain>div>header>div:nth-of-type(1){grid-area:brand}
+  html.visual-builder-route-active .visualBuilderRouteIsolation>.adminMain>div>header>a{grid-area:back;min-width:0}
+  html.visual-builder-route-active .visualBuilderRouteIsolation>.adminMain>div>header>label{grid-area:page;min-width:0}
+  html.visual-builder-route-active .visualBuilderRouteIsolation>.adminMain>div>header>div:nth-of-type(2){grid-area:view;justify-self:stretch;justify-content:center;min-width:0}
+  html.visual-builder-route-active .visualBuilderRouteIsolation>.adminMain>div>header>div:nth-of-type(3){grid-area:actions;justify-self:stretch;max-width:100%;min-width:0;overflow-x:auto;overscroll-behavior-inline:contain;scrollbar-width:none}
+  html.visual-builder-route-active .visualBuilderRouteIsolation>.adminMain>div>header>div:nth-of-type(3)::-webkit-scrollbar{display:none}
+  html.visual-builder-route-active .visualBuilderRouteIsolation [data-left-collapsed][data-inspector-open]{position:relative!important;display:grid!important;grid-template-columns:minmax(0,1fr)!important;height:auto!important;min-height:0!important;overflow:hidden!important}
+  html.visual-builder-route-active .visualBuilderRouteIsolation [data-left-collapsed][data-inspector-open]>main{grid-column:1;min-width:0;padding:38px 12px 64px!important}
+  html.visual-builder-route-active .visualBuilderRouteIsolation [data-left-collapsed][data-inspector-open]>aside{position:absolute!important;top:0;bottom:0;z-index:150;width:min(92vw,380px)!important;max-width:100%;background:#fff;box-shadow:0 16px 44px rgba(22,43,37,.2)}
+  html.visual-builder-route-active .visualBuilderRouteIsolation [data-left-collapsed="false"][data-inspector-open]>aside:first-of-type{display:grid!important;visibility:visible!important;pointer-events:auto!important;left:0;right:auto}
+  html.visual-builder-route-active .visualBuilderRouteIsolation [data-left-collapsed="true"][data-inspector-open]>aside:first-of-type{display:none!important}
+  html.visual-builder-route-active .visualBuilderRouteIsolation [data-left-collapsed][data-inspector-open="true"]>aside:last-of-type{display:grid!important;visibility:visible!important;pointer-events:auto!important;right:0;left:auto}
+  html.visual-builder-route-active .visualBuilderRouteIsolation [data-left-collapsed][data-inspector-open="false"]>aside:last-of-type{display:none!important}
+  html.visual-builder-route-active .visualBuilderRouteIsolation [data-left-collapsed][data-inspector-open] nav[aria-label="Inspector navigáció"]{grid-template-columns:repeat(5,minmax(72px,1fr));overflow-x:auto;scrollbar-width:none}
+  html.visual-builder-route-active .visualBuilderRouteIsolation [data-left-collapsed][data-inspector-open] nav[aria-label="Inspector navigáció"]::-webkit-scrollbar{display:none}
+}
+
+@media(max-width:620px){
+  html.visual-builder-route-active .visualBuilderRouteIsolation>.adminMain>div>header{grid-template-columns:42px minmax(0,1fr)!important;grid-template-areas:"brand page" "view view" "back actions"!important;padding:6px!important}
+  html.visual-builder-route-active .visualBuilderRouteIsolation>.adminMain>div>header>div:nth-of-type(1)>span:last-child{display:none!important}
+  html.visual-builder-route-active .visualBuilderRouteIsolation>.adminMain>div>header>a{width:40px!important;min-width:40px!important;padding:0!important;font-size:0!important;justify-content:center!important}
+  html.visual-builder-route-active .visualBuilderRouteIsolation>.adminMain>div>header>a svg{width:16px;height:16px}
+  html.visual-builder-route-active .visualBuilderRouteIsolation>.adminMain>div>header>label select{height:38px!important;font-size:11px!important}
+  html.visual-builder-route-active .visualBuilderRouteIsolation>.adminMain>div>header>div:nth-of-type(2) button{flex:1;justify-content:center;padding-inline:8px!important}
+  html.visual-builder-route-active .visualBuilderRouteIsolation>.adminMain>div>header>div:nth-of-type(3)>button,html.visual-builder-route-active .visualBuilderRouteIsolation>.adminMain>div>header>div:nth-of-type(3)>span{flex:0 0 auto}
+  html.visual-builder-route-active .visualBuilderRouteIsolation [data-left-collapsed][data-inspector-open]>main{padding:34px 8px 56px!important}
+  html.visual-builder-route-active .visualBuilderRouteIsolation [data-left-collapsed][data-inspector-open]>aside{width:100%!important;max-width:none!important}
+}
