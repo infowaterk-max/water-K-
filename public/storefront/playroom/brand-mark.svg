@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" role="img" aria-labelledby="title desc">
+<title id="title">Playroom gamepad mark</title><desc id="desc">A neon gamepad mark with cobalt, cyan, coral and lime accents.</desc>
+<defs><linearGradient id="g" x1="8" y1="12" x2="86" y2="88"><stop stop-color="#78E7FF"/><stop offset=".48" stop-color="#5C7CFA"/><stop offset="1" stop-color="#B35CFF"/></linearGradient><filter id="glow"><feGaussianBlur stdDeviation="2.4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
+<path d="M27 31c7-6 15-9 24-9h5c9 0 17 3 24 9 6 6 10 16 13 28 2 9-7 16-15 11L66 61H30L18 70C10 75 1 68 3 59c3-12 8-22 14-28 3-2 6-1 10 0Z" fill="#12112B" stroke="url(#g)" stroke-width="4" filter="url(#glow)"/>
+<path d="M25 43v14M18 50h14" stroke="#FFF7E8" stroke-width="5" stroke-linecap="round"/>
+<circle cx="69" cy="44" r="4" fill="#B8E34A"/><circle cx="78" cy="52" r="4" fill="#FF6B5E"/><circle cx="63" cy="55" r="4" fill="#78E7FF"/><circle cx="72" cy="61" r="4" fill="#FFF7E8"/>
+<path d="M43 48h10" stroke="#5C7CFA" stroke-width="4" stroke-linecap="round"/>
+</svg>
