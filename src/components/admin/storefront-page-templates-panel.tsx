@@ -14,6 +14,7 @@ import {
   type StorefrontBuilderPageTemplateLibrary,
 } from '@/lib/builder/storefront-page-templates';
 import type {StorefrontPageDocument,StorefrontRuntimeCapabilityContext} from '@/lib/builder/storefront-runtime';
+import {VisualBuilderIcon} from './visual-builder-ui-icon';
 import styles from './storefront-visual-builder.module.css';
 
 const registry=createStorefrontVisualBuilderComponentRegistry();
@@ -76,7 +77,7 @@ export function StorefrontPageTemplatesPanel({document,capability,onApply}:Props
     <p className={styles.emptyHint}>Teljes Page Presetet alkalmazhatsz az aktuális oldal working copyjára. Ez lecseréli az oldal kompozícióját, de nem ment és nem publikál automatikusan; a globális márkastílus megmarad, és a Builder visszavonása használható.</p>
     {library?<p className={styles.emptyHint}>{library.templateKey} · v{library.templateVersion} · {label(library.currentPageType)}</p>:<p className={styles.emptyHint}>Oldalsablonok betöltése…</p>}
     <div className={styles.componentLibrary}>{applicable.map(template=><article key={template.presetId}>
-      <span className={styles.componentLibraryIcon}>▤</span>
+      <span className={styles.componentLibraryIcon} aria-hidden="true"><VisualBuilderIcon name="templates"/></span>
       <span><strong>{template.label}</strong><small>{label(template.pageType)} · teljes oldal</small></span>
       <div><button type="button" disabled={busy} onClick={()=>applyTemplate(template)}>Teljes oldal alkalmazása</button></div>
     </article>)}</div>
@@ -87,7 +88,7 @@ export function StorefrontPageTemplatesPanel({document,capability,onApply}:Props
     <p className={styles.emptyHint}>V1-ben új, ismételhető tartalmi oldal hozható létre: Tartalom, Blogbejegyzés vagy Jogi oldal. Az új oldal elsőként draftként jön létre.</p>
     <label className={styles.field}><span>Oldalsablon</span><select value={newPresetId} disabled={busy||!creatable.length} onChange={event=>setNewPresetId(event.target.value)}>{creatable.map(template=><option key={template.presetId} value={template.presetId}>{template.label} · {label(template.pageType)}</option>)}</select></label>
     <label className={styles.field}><span>Új oldal kulcsa</span><input value={newPageKey} maxLength={128} placeholder="pl. content.rolunk" disabled={busy} onChange={event=>setNewPageKey(event.target.value)}/></label>
-    <button type="button" className={styles.addSectionButton} disabled={busy||!newPresetId||!newPageKey.trim()} onClick={createPage}>＋ Új draft oldal létrehozása</button>
+    <button type="button" className={styles.addSectionButton} disabled={busy||!newPresetId||!newPageKey.trim()} onClick={createPage}><VisualBuilderIcon name="plus"/> Új draft oldal létrehozása</button>
     {!creatable.length&&library?<p className={styles.emptyHint}>Ebben a sablonban nincs új oldal létrehozására engedélyezett Page Preset.</p>:null}
     {error?<div className={styles.errorNotice} role="alert">{error}</div>:null}
     {message?<div className={styles.notice} role="status">{message}</div>:null}
