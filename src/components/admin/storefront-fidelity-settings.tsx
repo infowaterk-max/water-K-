@@ -17,6 +17,7 @@ import {StorefrontComponentVariantControls} from '@/components/admin/storefront-
 import {StorefrontFidelityNodeControls} from '@/components/admin/storefront-fidelity-node-controls';
 import {StorefrontFidelityStateControls} from '@/components/admin/storefront-fidelity-state-controls';
 import {StorefrontResponsiveLayoutDepthControls} from '@/components/admin/storefront-responsive-layout-depth-controls';
+import {VisualBuilderIcon} from './visual-builder-ui-icon';
 import styles from './storefront-visual-builder.module.css';
 
 const componentRegistry=createStorefrontVisualBuilderComponentRegistry();
@@ -129,10 +130,10 @@ export function StorefrontFidelitySettings({document,viewport,onApply}:{
         <strong>{viewport==='desktop'?'Desktop':viewport==='tablet'?'Tablet':'Mobil'} szekciósorrend</strong>
         <p className={styles.emptyHint}>Itt külön sorrendet adhatsz ennek a nézetnek. Ettől nem készül duplikált rejtett oldalrész.</p>
         <div className={styles.outline}>{sections.map((section,index)=><div key={section.id} className={styles.outlineRow}>
-          <span className={styles.outlineIcon} aria-hidden="true">◇</span><span><strong>{section.id}</strong><small>{section.componentKey}</small></span>
-          <span className={styles.rowMoves}><button type="button" aria-label="Szekció feljebb" disabled={index===0} onClick={()=>onApply(moveStorefrontSectionAtViewport(document,viewport,section.id,index-1),`${viewport} sorrend módosítva.`)}>↑</button><button type="button" aria-label="Szekció lejjebb" disabled={index===sections.length-1} onClick={()=>onApply(moveStorefrontSectionAtViewport(document,viewport,section.id,index+1),`${viewport} sorrend módosítva.`)}>↓</button></span>
+          <span className={styles.outlineIcon} aria-hidden="true"><VisualBuilderIcon name="layers"/></span><span><strong>{section.id}</strong><small>{section.componentKey}</small></span>
+          <span className={styles.rowMoves}><button type="button" aria-label="Szekció feljebb" disabled={index===0} onClick={()=>onApply(moveStorefrontSectionAtViewport(document,viewport,section.id,index-1),`${viewport} sorrend módosítva.`)}><VisualBuilderIcon name="chevron-up"/></button><button type="button" aria-label="Szekció lejjebb" disabled={index===sections.length-1} onClick={()=>onApply(moveStorefrontSectionAtViewport(document,viewport,section.id,index+1),`${viewport} sorrend módosítva.`)}><VisualBuilderIcon name="chevron-down"/></button></span>
         </div>)}</div>
-        <button type="button" className={styles.addSectionButton} onClick={()=>onApply(clearStorefrontResponsiveOrder(document,{viewport}),`${viewport} egyedi sorrend törölve.`)}>Örökölt sorrend visszaállítása</button>
+        <button type="button" className={styles.addSectionButton} onClick={()=>onApply(clearStorefrontResponsiveOrder(document,{viewport}),`${viewport} egyedi sorrend törölve.`)}><VisualBuilderIcon name="reset"/> Örökölt sorrend visszaállítása</button>
       </div>
 
       {editedNode&&editedDefinition?<StorefrontFidelityNodeControls document={document} node={editedNode} viewport={viewport} configurable={editedConfigurable} onApply={onApply}/>:null}
