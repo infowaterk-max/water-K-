@@ -9,6 +9,7 @@ import {
   listCurrentStorefrontBuilderPages,
   listCurrentStorefrontBuilderRevisionHistory,
 } from '@/lib/builder/storefront-builder-server';
+import type {StorefrontComponentNode,StorefrontPageDocument} from '@/lib/builder/storefront-runtime';
 import {STOREFRONT_TEMPLATE_CATALOG} from '@/lib/builder/storefront-template-catalog';
 import {listStorefrontTemplateLibraryEntries} from '@/lib/builder/storefront-template-library';
 import {getStorefrontTemplatePreviewTheme} from '@/lib/builder/storefront-template-preview-demo';
@@ -17,6 +18,25 @@ import {StorefrontTemplateLibrary} from '@/components/admin/storefront-template-
 
 export const dynamic='force-dynamic';
 type Props={searchParams:Promise<{page?:string;view?:string}>};
+
+function withMerchantEditorDefaults(document:StorefrontPageDocument):StorefrontPageDocument{
+  const visit=(node:StorefrontComponentNode):StorefrontComponentNode=>{
+    const config={...node.config};
+    if(node.componentKey==='system.header'){
+      const editorial=config.presentation==='editorial-lab';
+      if(config.showBrandText===undefined)config.showBrandText=true;
+      if(config.showNavigation===undefined)config.showNavigation=true;
+      if(config.showUtilities===undefined)config.showUtilities=editorial;
+      if(config.showSearch===undefined)config.showSearch=false;
+      if(config.showAccount===undefined)config.showAccount=false;
+      if(config.showCart===undefined)config.showCart=false;
+      if(config.mobileMenu===undefined)config.mobileMenu=editorial;
+      if(config.utilityItems===undefined)config.utilityItems=[];
+    }
+    return{...node,config,children:node.children?.map(visit)};
+  };
+  return{...document,sections:document.sections.map(visit)};
+}
 
 export default async function VisualBuilderAdmin({searchParams}:Props){
   await requirePlanFeature('contentMarketing');
@@ -32,7 +52,8 @@ export default async function VisualBuilderAdmin({searchParams}:Props){
   const selectedKey=pages.some(page=>page.pageKey===requested)?requested:pages[0]?.pageKey??null;
   const state=selectedKey?await getCurrentStorefrontPageState(selectedKey):null;
   const revisions=state?await listCurrentStorefrontBuilderRevisionHistory(state.pageId):[];
-  const document=state?.draft?.document??state?.published?.document??null;
+  const persistedDocument=state?.draft?.document??state?.published?.document??null;
+  const document=persistedDocument?withMerchantEditorDefaults(persistedDocument):null;
   const showTemplateLibrary=params.view==='templates'||!document;
 
   if(showTemplateLibrary)return <section className="adminMain">
