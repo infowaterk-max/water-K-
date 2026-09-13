@@ -50,10 +50,11 @@ describe('Visual Builder Workspace UI v2 contract',()=>{
   it('moves selected-node editing into the right inspector and exposes responsive editing explicitly',()=>{
     expect(component).toContain("type EditorTab='content'|'appearance'|'responsive'|'advanced'");
     expect(component).toContain('Gyors szerkesztés');
-    expect(component).toContain('Mobil / responsive');
     expect(component).toContain("editorTab==='responsive'");
     expect(component).toContain("type:'responsive'");
     expect(component).toContain('Örökölt / 12');
+    expect(component).toContain('Reset to inherited');
+    expect(component).toContain('Desktop → Tablet → Mobil');
   });
 
   it('keeps Presets, Page Templates, Saved Blocks and Fidelity controls on canonical authorities',()=>{
@@ -69,19 +70,41 @@ describe('Visual Builder Workspace UI v2 contract',()=>{
   it('uses existing Fidelity diagnostics for publish readiness instead of inventing a second publication authority',()=>{
     expect(component).toContain('inspectStorefrontFidelityBuilder');
     expect(component).toContain('Közzététel előtti ellenőrzés');
-    expect(component).toContain('Akadálymentesség');
-    expect(component).toContain('Teljesítmény');
-    expect(component).toContain('Design Guard');
-    expect(component).toContain('A diagnosztika a meglévő Fidelity / Page Schema ellenőrzéseket használja');
+    for(const label of ['Akadálymentesség','Képek','Linkek és CTA-k','Kötelező tartalom','Teljesítmény','Design Guard'])expect(component).toContain(label);
+    expect(component).toContain('fidelity.accessibility.issues.filter');
+    expect(component).toContain('quality panel kizárólag a meglévő Fidelity / Page Schema / performance diagnosztikát');
     expect(component).toContain('publishVisualBuilderPageAction');
   });
 
-  it('keeps Desktop Tablet Mobile in one Page Schema and makes mobile override context obvious',()=>{
+  it('keeps Desktop Tablet Mobile in one Page Schema and makes override context obvious',()=>{
     expect(component).toContain("{key:'desktop',label:'Desktop',width:1200");
     expect(component).toContain("{key:'tablet',label:'Tablet',width:768");
     expect(component).toContain("{key:'mobile',label:'Mobil',width:390");
     expect(component).toContain('Mobil nézet szerkesztése');
     expect(component).toContain('breakpoint-specifikus módosítások csak mobilon érvényesülnek');
+    expect(component).toContain('Breakpoint override aktív');
+    expect(component).toContain('Örökölt beállítások');
+  });
+
+  it('adds production-polish discovery and progressive disclosure without a second state authority',()=>{
+    expect(component).toContain('Oldalak keresése');
+    expect(component).toContain('Interaktív kereskedelem');
+    expect(component).toContain('findStorefrontLinkedSymbolInstance');
+    expect(component).toContain('data-linked={Boolean(linked)}');
+    expect(component).toContain("const advancedMode=fidelity.editMode!=='normal'");
+    expect(component).toContain('Gyors beállítások');
+    expect(component).toContain("setConfig(spacingKey,'l')");
+    expect(component).toContain("setConfig(alignKey,'center')");
+  });
+
+  it('keeps smaller viewports resilient with collapsible panels and accessibility motion handling',()=>{
+    expect(component).toContain('aria-expanded={!leftCollapsed}');
+    expect(component).toContain('aria-expanded={inspectorOpen}');
+    expect(workspaceCss).toContain('[data-left-collapsed=true]');
+    expect(workspaceCss).toContain('[data-inspector-open=false]');
+    expect(workspaceCss).toContain('@media(max-width:680px)');
+    expect(workspaceCss).toContain('@media(prefers-reduced-motion:reduce)');
+    expect(workspaceCss).toContain('focus-visible');
   });
 
   it('keeps AI generation dark-launched and absent from merchant Builder UI',()=>{
