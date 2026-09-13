@@ -3,7 +3,6 @@
 import {useState,type CSSProperties,type FormEvent} from 'react';
 
 const text=(value:unknown,fallback='')=>typeof value==='string'?value:fallback;
-const bool=(value:unknown,fallback=false)=>typeof value==='boolean'?value:fallback;
 
 type Feedback={kind:'success'|'error';message:string}|null;
 
@@ -38,7 +37,7 @@ export function StorefrontNewsletterSignupRuntime({config,nodeId,gridSpan}:{conf
         <button type="submit" disabled={busy} style={{padding:'.9rem 1.15rem',border:'1px solid currentColor',background:'transparent',color:'inherit',fontWeight:600,cursor:busy?'wait':'pointer'}}>{busy?'Küldés…':text(config.buttonLabel,'Feliratkozom')}</button>
       </div>
       <label htmlFor={consentId} style={{display:'grid',gridTemplateColumns:'auto 1fr',gap:'.55rem',alignItems:'start',textAlign:'left',fontSize:'.82rem',opacity:.9}}>
-        <input id={consentId} name="consent" type="checkbox" required defaultChecked={bool(config.consentChecked,false)} style={{marginTop:'.15rem'}}/>
+        <input id={consentId} name="consent" type="checkbox" required style={{marginTop:'.15rem'}}/>
         <span>{text(config.consentLabel,'Hozzájárulok, hogy e-mailben marketingüzeneteket kapjak. A hozzájárulás bármikor visszavonható.')}</span>
       </label>
       {feedback?<p role={feedback.kind==='error'?'alert':'status'} aria-live="polite" style={{margin:0,fontWeight:600}}>{feedback.message}</p>:null}
