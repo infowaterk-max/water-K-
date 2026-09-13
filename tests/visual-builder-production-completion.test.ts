@@ -3,53 +3,52 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 const root=process.cwd();
-const productionSource=fs.readFileSync(path.join(root,'src/components/admin/storefront-visual-builder-production.tsx'),'utf8');
+const finalSource=fs.readFileSync(path.join(root,'src/components/admin/storefront-visual-builder-95.tsx'),'utf8');
 const routeSource=fs.readFileSync(path.join(root,'src/app/admin/tartalom/builder/page.tsx'),'utf8');
-const productionCss=fs.readFileSync(path.join(root,'src/components/admin/storefront-visual-builder-production.module.css'),'utf8');
+const finalCss=fs.readFileSync(path.join(root,'src/components/admin/storefront-visual-builder-95.module.css'),'utf8');
 
 describe('Visual Builder production completion',()=>{
-  it('routes the authenticated Builder to the completed production workspace',()=>{
-    expect(routeSource).toContain("StorefrontVisualBuilderProduction");
-    expect(routeSource).toContain("@/components/admin/storefront-visual-builder-production");
+  it('routes the authenticated Builder to the final fidelity workspace',()=>{
+    expect(routeSource).toContain('StorefrontVisualBuilder95');
+    expect(routeSource).toContain("@/components/admin/storefront-visual-builder-95");
   });
 
-  it('keeps exactly one explicit viewport state and the canvas on the same viewport authority',()=>{
-    expect(productionSource).toContain("data-active={active?'true':'false'}");
-    expect(productionSource).toContain('aria-pressed={active}');
-    expect(productionSource).toContain('viewport={viewport}');
-    expect(productionSource).toContain('data-viewport={viewport}');
-    expect(productionCss).toContain('button[data-active="true"]');
-    expect(productionCss).toContain('button[data-active="false"]');
+  it('keeps exactly one viewport state and the runtime canvas on the same authority',()=>{
+    expect(finalSource).toContain('data-active={viewport===item.key}');
+    expect(finalSource).toContain('aria-pressed={viewport===item.key}');
+    expect(finalSource).toContain('viewport={viewport}');
+    expect(finalCss).toContain('.devices button[data-active="true"]');
   });
 
-  it('renders externally bound merchant data read-only instead of showing stale template config',()=>{
-    expect(productionSource).toContain('applyStorefrontBindings(selected,editorBindingContext)');
-    expect(productionSource).toContain('resolveStorefrontBinding(reference.path,editorBindingContext)');
-    expect(productionSource).toContain('Webshop adat');
-    expect(productionSource).toContain('csak olvasható');
+  it('renders externally bound merchant data read-only instead of stale template config',()=>{
+    expect(finalSource).toContain('applyStorefrontBindings(selected,editorBindingContext)');
+    expect(finalSource).toContain('resolveStorefrontBinding(binding.path,editorBindingContext)');
+    expect(finalSource).toContain('Webshop adat');
+    expect(finalSource).toContain('Központi webshop-adat');
   });
 
   it('keeps editable binding fallbacks in sync through existing Builder mutation authority',()=>{
-    expect(productionSource).toContain("type:'config',nodeId:selected.id,key,value");
-    expect(productionSource).toContain("type:'binding',nodeId:selected.id,slot:key,path:reference.path,fallback:value");
-    expect(productionSource).toContain('applyStorefrontBuilderMutation');
+    expect(finalSource).toContain("type:'config',nodeId:selected.id,key,value");
+    expect(finalSource).toContain("type:'binding',nodeId:selected.id,slot:key,path:binding.path,fallback:value");
+    expect(finalSource).toContain('applyStorefrontBuilderMutation');
   });
 
-  it('removes developer identifiers from Normal merchant surfaces',()=>{
-    expect(productionSource).toContain("pageStatus(page)");
-    expect(productionSource).toContain("definition.protectedSystem?'Védett rendszer elem':componentGroup(selected.componentKey)");
-    expect(productionSource).toContain("'system.header':'Fejléc'");
-    expect(productionSource).toContain("utilityitems:'Gyorsműveletek'");
-    expect(productionSource).toContain("behavior:'Viselkedés'");
-    expect(productionSource).toContain("'behavior'");
+  it('keeps Normal merchant surfaces readable and retains the canonical libraries',()=>{
+    expect(finalSource).toContain('pageStatus(page)');
+    expect(finalSource).toContain("'system.header':'Fejléc'");
+    expect(finalSource).toContain("utilityitems:'Gyorsműveletek'");
+    for(const label of ['Oldalak','Hozzáadás','Rétegek','Sablonok','Presetek','Saját blokkok','Globális elemek'])expect(finalSource).toContain(label);
+    expect(finalSource).toContain('StorefrontPageTemplatesPanel');
+    expect(finalSource).toContain('StorefrontPresetLibraryPanel');
+    expect(finalSource).toContain('StorefrontSavedBlocksPanel');
+    expect(finalSource).toContain('StorefrontFidelitySettings');
+    expect(finalSource).not.toContain('AI Builder');
   });
 
-  it('retains all canonical Builder libraries and dark-launches AI',()=>{
-    for(const label of ['Oldalak','Hozzáadás','Rétegek','Sablonok','Presetek','Saját blokkok','Globális elemek'])expect(productionSource).toContain(label);
-    expect(productionSource).toContain('StorefrontPageTemplatesPanel');
-    expect(productionSource).toContain('StorefrontPresetLibraryPanel');
-    expect(productionSource).toContain('StorefrontSavedBlocksPanel');
-    expect(productionSource).toContain('StorefrontFidelitySettings');
-    expect(productionSource).not.toContain('AI Builder');
+  it('uses a premium three-zone workspace rather than the admin dashboard layout',()=>{
+    for(const token of ['.workspace{','.left,','.stage{','.inspector{','.floating{','.sectionCard{','.variants{','.responsiveRail{'])expect(finalCss).toContain(token);
+    expect(finalSource).toContain('Tartalom');
+    expect(finalSource).toContain('Megjelenés');
+    expect(finalSource).toContain('Elrendezés');
   });
 });
