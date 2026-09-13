@@ -1,0 +1,136 @@
+import {
+  MONARCHE_DESIGN_TOKENS,
+  MONARCHE_ENGINE_CONTRACT,
+  MONARCHE_HEADER_CONTRACT,
+  MONARCHE_HOME_SECTION_ORDER,
+  MONARCHE_TEMPLATE_KEY,
+  MONARCHE_TEMPLATE_VERSION,
+  MONARCHE_VISUAL_DNA,
+} from '@/lib/builder/templates/monarche';
+import {MONARCHE_WAVE43_ACCEPTANCE} from '@/lib/builder/templates/monarche-wave43-acceptance';
+import {PERFORMANCE_LAB_TEMPLATE_KEY} from '@/lib/builder/templates/performance-lab';
+import {PERFORMANCE_LAB_WAVE61_ACCEPTANCE} from '@/lib/builder/templates/performance-lab-wave61-acceptance';
+
+/**
+ * Wave 62 re-accepts repository-proven historical Wave 43 / PR #222
+ * directly after current Wave 61 Performance Lab. Monarche v1 is inherited
+ * byte-for-byte from the accepted Wave 43 package, so this wave must not
+ * manufacture a canonical template diff merely to create implementation churn.
+ */
+export const MONARCHE_WAVE62_ACCEPTANCE=Object.freeze({
+  wave:62,
+  historicalCounterpartWave:43,
+  historicalPullRequest:222,
+  originalTemplatePullRequest:147,
+  predecessorAcceptance:PERFORMANCE_LAB_WAVE61_ACCEPTANCE.mode,
+  historicalAcceptance:MONARCHE_WAVE43_ACCEPTANCE.mode,
+  mode:'current-baseline-reacceptance-and-builder-hardening',
+  templateKey:MONARCHE_TEMPLATE_KEY,
+  templateVersion:MONARCHE_TEMPLATE_VERSION,
+  inheritedImplementation:true,
+  sequence:{
+    previous:PERFORMANCE_LAB_TEMPLATE_KEY,
+    current:MONARCHE_TEMPLATE_KEY,
+    historicalPrevious:'wave42-sport.performance-lab',
+    historicalCurrent:'wave43-fashion.monarche',
+    originalPrevious:'pr146-sport.performance-lab',
+    originalCurrent:'pr147-fashion.monarche',
+    relationship:'historical-wave43-successor-replayed-on-current-wave61-stacked-baseline',
+    releaseCheckpointBeforeCurrent:false,
+  },
+  provenance:{
+    currentParentWave:61,
+    currentParentHead:'380b45b97ffebfdfc1968e418efd2ba2ac8a8b08',
+    historicalAcceptedImplementationHead:'0d6383b238da704edec81789d1cc0cc6526b6e90',
+    historicalAcceptedTemplateBlob:'8725b711ae20212318cebba2a2f7691f8feadaf0',
+    currentInheritedTemplateBlob:'8725b711ae20212318cebba2a2f7691f8feadaf0',
+    byteIdenticalToHistoricalAcceptedTemplate:true,
+    templateModifiedByWave62:false,
+  },
+  portfolio:{
+    category:'fashion-apparel',
+    goldenPosition:'Golden #1',
+    position:'balanced-modern-premium-mainstream',
+    character:MONARCHE_VISUAL_DNA.character,
+    separation:['not-editorial-atelier-asymmetry','not-street-drop-culture','not-discount-megastore-density'] as const,
+  },
+  experience:{
+    homeOrder:MONARCHE_HOME_SECTION_ORDER,
+    headerLayout:MONARCHE_HEADER_CONTRACT.layout,
+    headerUtilities:MONARCHE_HEADER_CONTRACT.utilityLabels,
+    headerBoundary:MONARCHE_HEADER_CONTRACT.utilityBoundary,
+    imageRatios:MONARCHE_VISUAL_DNA.imageRatios,
+  },
+  visualContract:{
+    character:MONARCHE_VISUAL_DNA.character,
+    palette:MONARCHE_VISUAL_DNA.palette,
+    typography:MONARCHE_VISUAL_DNA.typography,
+    spacing:MONARCHE_VISUAL_DNA.spacing,
+    imagery:MONARCHE_VISUAL_DNA.imagery,
+    chrome:MONARCHE_VISUAL_DNA.chrome,
+    exclusions:MONARCHE_VISUAL_DNA.exclusions,
+    merchantEditableTokens:MONARCHE_DESIGN_TOKENS,
+  },
+  engineContract:{
+    requiredForFullExperience:MONARCHE_ENGINE_CONTRACT.requiredForFullExperience,
+    optional:MONARCHE_ENGINE_CONTRACT.optional,
+    authorityRule:MONARCHE_ENGINE_CONTRACT.authorityRule,
+  },
+  sharedAuthority:{
+    runtime:'E1-shared-page-schema-runtime',
+    discovery:'E2-only-for-catalog-search-product-eligibility-and-collections',
+    editorial:'E10-only-for-journal-editorial-story-content',
+    structuredFacts:'E7-optional-source-supplied-structured-product-facts',
+    checkout:'shared-provider-neutral-E13',
+    ratings:'shared-review-authority-only-no-template-default-score',
+  },
+  builderContract:{
+    hierarchy:'template-page-presets-section-presets-components',
+    stableIdentity:'stable-page-local-unique-node-ids-and-stable-binding-paths',
+    responsiveGrid:'shared-desktop-tablet-mobile-grid',
+    pagePresetCount:14,
+    minimumPlan:'alap',
+    protectedHomeSequence:true,
+    protectedPdpGrid:'desktop-tablet-7-5-mobile-12-12',
+    merchantEditableDesignTokens:true,
+    marketingCopyOrCommerceTruthBakedIntoImages:false,
+    runtimeAllowlistWidened:false,
+    componentRegistryWidened:false,
+    bindingNamespaceWidened:false,
+    visualBuilder:'current-shared-builder-compatible-no-template-local-builder-engine',
+  },
+  historicalHardening:{
+    acceptedWave43NoTemplateChange:true,
+    protectedHeaderBoundary:'shared-header-extension-required-no-template-specific-child-hack',
+    reviewFallbackAuthority:'shared-review-authority-only-no-template-default-score',
+    demoCommerceFacts:'not-fabricated-by-template',
+    currentBlobExpectedToContainAcceptedWave43Contract:true,
+    noAutomaticReplayOfHistoricalPatch:true,
+  },
+  safety:{
+    fabricatedPrice:false,
+    fabricatedStock:false,
+    fabricatedRating:false,
+    fabricatedProductAttribute:false,
+    fabricatedMaterialClaim:false,
+    fabricatedDurabilityClaim:false,
+    templateProductEligibilityAuthority:false,
+    templateCheckoutAuthority:false,
+    templatePaymentAuthority:false,
+    templateSpecificHeaderRenderer:false,
+  },
+  installationContract:{
+    draftOnly:true,
+    demoNamespace:'fashion-monarche',
+    mutableAuthority:['storefrontPageDrafts'],
+    immutableAuthority:['products','variants','pricing','inventory','customers','orders','b2b'],
+  },
+  nonScope:[
+    'duplicate-monarche-template','fashion-specific-commerce-engine','template-specific-header-child-hack',
+    'shared-runtime-allowlist-widening','shared-component-registry-widening','shared-binding-namespace-widening',
+    'fabricated-commerce-or-product-authority','template-local-layout-engine','template-local-builder-engine',
+    'payment-provider-change','kh-vpos-change','sql-migration','customer-baseline-change',
+    'vercel-production-deploy','supabase-mutation','fresh-install-project-state-change',
+    'tenant-status-change','tenant-plan-change','main-merge','wave63-implementation',
+  ] as const,
+} as const);

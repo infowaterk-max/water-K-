@@ -1,0 +1,137 @@
+import {
+  LOOT_VAULT_DESIGN_TOKENS,
+  LOOT_VAULT_ENGINE_CONTRACT,
+  LOOT_VAULT_HOME_SECTION_ORDER,
+  LOOT_VAULT_TEMPLATE_KEY,
+  LOOT_VAULT_TEMPLATE_VERSION,
+  LOOT_VAULT_VISUAL_DNA,
+} from '@/lib/builder/templates/loot-vault';
+import {LOOT_VAULT_WAVE39_ACCEPTANCE} from '@/lib/builder/templates/loot-vault-wave39-acceptance';
+import {PLAYROOM_TEMPLATE_KEY,PLAYROOM_VISUAL_DNA} from '@/lib/builder/templates/playroom';
+
+/**
+ * Wave 58 replays repository-proven historical Wave 39 / PR #213 directly
+ * after current Wave 57 Playroom. Loot Vault v1 is inherited byte-for-byte
+ * from the accepted Wave 39 implementation. This contract re-accepts that
+ * package on the current Storefront/Page Schema/Builder baseline without
+ * inventing a template, engine, binding namespace, registry widening or
+ * checkpoint.
+ */
+export const LOOT_VAULT_WAVE58_ACCEPTANCE=Object.freeze({
+  wave:58,
+  historicalCounterpartWave:39,
+  historicalPullRequest:213,
+  originalTemplateWave:20,
+  originalTemplatePullRequest:143,
+  historicalAcceptance:LOOT_VAULT_WAVE39_ACCEPTANCE.mode,
+  mode:'current-baseline-reacceptance-and-builder-hardening',
+  templateKey:LOOT_VAULT_TEMPLATE_KEY,
+  templateVersion:LOOT_VAULT_TEMPLATE_VERSION,
+  inheritedImplementation:true,
+  sequence:{
+    previous:'wave57-gaming.playroom',
+    current:LOOT_VAULT_TEMPLATE_KEY,
+    historicalPrevious:'wave38-gaming.playroom',
+    historicalCurrent:'wave39-gaming.loot-vault',
+    originalPrevious:'wave19-gaming.playroom',
+    originalCurrent:'wave20-gaming.loot-vault',
+    relationship:'historical-wave39-successor-replayed-on-current-stacked-baseline',
+    releaseCheckpointBeforeCurrent:false,
+  },
+  portfolio:{
+    category:'gaming-geek',
+    categoryPosition:8,
+    position:'collector-merch-drop-preorder-storefront',
+    lootVault:LOOT_VAULT_VISUAL_DNA.character,
+    previousPlayroom:PLAYROOM_VISUAL_DNA.character,
+    previousTemplateKey:PLAYROOM_TEMPLATE_KEY,
+  },
+  visualContract:{
+    character:'dark-theatrical-collector-vault-commerce',
+    palette:['near-black','smoke-grey','warm-ivory','antique-bronze-gold','oxidized-green','data-driven-rarity-only'],
+    typography:['cinematic-editorial-serif-or-display','clean-sans','compact-spec-sans'],
+    imagery:'collectibles-display-cases-figurines-props-art-books-boxed-editions-vault-lighting',
+    exclusions:LOOT_VAULT_VISUAL_DNA.exclusions,
+    merchantEditableTokens:LOOT_VAULT_DESIGN_TOKENS,
+  },
+  builderContract:{
+    hierarchy:'template-page-presets-section-presets-components',
+    responsiveModes:['desktop','tablet','mobile'],
+    pagePresetCount:14,
+    minimumPlan:'alap',
+    stableIdentity:'unique-node-ids-and-stable-binding-paths',
+    merchantEditableDesignTokens:true,
+    marketingCopyOrCommerceTruthBakedIntoImages:false,
+    runtimeAllowlistWidened:false,
+    componentRegistryWidened:false,
+    bindingNamespaceWidened:false,
+    visualBuilder:'current-shared-builder-compatible-no-template-local-builder-engine',
+    homeOrder:LOOT_VAULT_HOME_SECTION_ORDER,
+    inheritedHistoricalCorrections:LOOT_VAULT_WAVE39_ACCEPTANCE.builderContract.hardeningCorrections,
+  },
+  historicalHardening:{
+    acceptanceHarness:'story-components-validated-by-shared-story-registry-not-configurator-registry',
+    catalogNodeIdentity:'collection-section-renamed-to-loot-catalog-collection-section-to-remove-header-collision',
+    currentBlobExpectedToContainCorrections:true,
+    noAutomaticReplayOfHistoricalPatch:true,
+  },
+  bindingContract:{
+    currentSharedNamespacesOnly:true,
+    forbiddenTemplateLocalNamespaces:['lootVault','drop','release','rarity'],
+    runtimeAllowlistWidened:false,
+    componentRegistryWidened:false,
+    bindingNamespaceWidened:false,
+  },
+  commerceAuthority:{
+    engineContract:LOOT_VAULT_ENGINE_CONTRACT,
+    discovery:'E2-only-for-catalog-search-channel-and-product-eligibility',
+    structuredCollectorFacts:'E7-only-when-authoritative-product-data-supplies-them',
+    editorial:'E10-editorial-read-model-presentation-only',
+    releaseAndPreorder:'catalog-product-commerce-inventory-read-models-only',
+    pricing:'shared-commerce-binding-only',
+    inventory:'shared-commerce-binding-only',
+    variants:'shared-commerce-binding-only',
+    reviews:'shared-review-binding-only-no-fabricated-score',
+    checkout:'shared-provider-neutral-E13',
+    noTemplateProductAuthority:true,
+    noTemplatePricingAuthority:true,
+    noTemplateInventoryAuthority:true,
+    noTemplateVariantAuthority:true,
+    noTemplateCollectorFactAuthority:true,
+    noTemplateScarcityAuthority:true,
+    noTemplateReleaseAuthority:true,
+    noTemplateCheckoutAuthority:true,
+    noTemplatePaymentAuthority:true,
+  },
+  distinctness:{
+    playroom:'not-broad-console-discovery-or-social-play-store',
+    rigForge:'no-pc-build-configurator',
+    ownPosition:'theatrical-collector-merch-edition-drop-preorder-presentation-over-shared-truth',
+    separationIncludes:['layout','section-order','palette','typography','vault-imagery','collector-facts','editorial-tone','claim-safety'],
+  },
+  safety:{
+    lootBoxOrGambling:false,
+    fabricatedScarcity:false,
+    fabricatedCountdown:false,
+    fabricatedStock:false,
+    fabricatedRarity:false,
+    fabricatedExclusivity:false,
+    fabricatedNumbering:false,
+    fabricatedPreorderOrRelease:false,
+    collectionTrackerV1:false,
+  },
+  installationContract:{
+    draftOnly:true,
+    demoNamespace:'gaming-loot-vault',
+    mutableAuthority:['storefrontPageDrafts'],
+    immutableAuthority:['products','variants','pricing','inventory','customers','orders','b2b'],
+  },
+  nonScope:[
+    'second-loot-vault-template','template-local-collector-engine','template-local-drop-or-preorder-engine','template-local-release-authority',
+    'template-local-product-authority','template-local-layout-engine','template-local-commerce-engine','template-local-checkout-engine',
+    'shared-runtime-allowlist-widening','shared-component-registry-widening','shared-binding-namespace-widening','loot-box-or-gambling-mechanics',
+    'fabricated-scarcity-countdown-stock-rarity-exclusivity-numbering-preorder-or-release-state','collection-tracker-v1','playroom-broad-discovery-duplication',
+    'rig-forge-configurator-duplication','price-or-stock-authority','payment-provider-change','visual-builder-roadmap-expansion','ai-builder-roadmap-expansion',
+    'sql-migration','vercel-production-deploy','supabase-mutation','fresh-install-project-state-change','tenant-status-change','tenant-plan-change','main-merge','wave59-implementation',
+  ],
+} as const);
