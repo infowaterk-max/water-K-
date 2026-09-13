@@ -10,6 +10,9 @@ describe('Visual Builder Workspace UI v2 contract',()=>{
   const legacyCss=read('src/components/admin/storefront-visual-builder.module.css');
   const workspaceCss=read('src/components/admin/storefront-visual-builder-workspace-v2.module.css');
   const presetPanel=read('src/components/admin/storefront-preset-library-panel.tsx');
+  const pageTemplates=read('src/components/admin/storefront-page-templates-panel.tsx');
+  const savedBlocks=read('src/components/admin/storefront-saved-blocks-panel.tsx');
+  const fidelitySettings=read('src/components/admin/storefront-fidelity-settings.tsx');
   const page=read('src/app/admin/tartalom/builder/page.tsx');
 
   it('stays a dedicated workspace outside the normal Admin chrome',()=>{
@@ -98,13 +101,14 @@ describe('Visual Builder Workspace UI v2 contract',()=>{
     expect(component).toContain("setConfig(alignKey,'center')");
   });
 
-  it('uses one lightweight SVG stroke icon language instead of mixed text glyph icons',()=>{
+  it('uses one lightweight SVG stroke icon language across the workspace and embedded libraries',()=>{
     expect(component).toContain("import {VisualBuilderIcon,type VisualBuilderIconName} from './visual-builder-ui-icon'");
-    expect(component).toContain('<VisualBuilderIcon name=');
+    for(const surface of [component,presetPanel,pageTemplates,savedBlocks,fidelitySettings])expect(surface).toContain('VisualBuilderIcon');
     expect(iconSystem).toContain('viewBox="0 0 24 24"');
     expect(iconSystem).toContain('stroke="currentColor"');
     expect(iconSystem).toContain('strokeWidth="1.8"');
-    for(const glyph of ['▣','▯','▧','◇','☆','✉','≡','＋','◆','✎','⧉','◫','◉','☰','◧','↶','↷','◷','⬆','⌂','▱','▦','⚙','◎','↺','↖','⌫','✓','△'])expect(component).not.toContain(glyph);
+    const legacyGlyphs=['▣','▯','▧','▤','◇','☆','✉','≡','＋','◆','✎','⧉','◫','◉','☰','◧','↶','↷','◷','⬆','⌂','▱','▦','⚙','◎','↺','↻','↖','⌫','⎋','✓','△'];
+    for(const surface of [component,presetPanel,pageTemplates,savedBlocks,fidelitySettings])for(const glyph of legacyGlyphs)expect(surface).not.toContain(glyph);
   });
 
   it('keeps smaller viewports resilient with collapsible panels and accessibility motion handling',()=>{
