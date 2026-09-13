@@ -34,6 +34,7 @@ import {
 } from '@/lib/builder/storefront-linked-symbols';
 import {validateStorefrontPageDocument,type StorefrontComponentNode,type StorefrontPageDocument,type StorefrontRuntimeCapabilityContext} from '@/lib/builder/storefront-runtime';
 import type {StorefrontSavedBlockSummary} from '@/lib/builder/storefront-saved-block-persistence';
+import {VisualBuilderIcon} from './visual-builder-ui-icon';
 import styles from './storefront-visual-builder.module.css';
 
 const registry=createStorefrontVisualBuilderComponentRegistry();
@@ -177,14 +178,14 @@ export function StorefrontSavedBlocksPanel({document,selectedNode,selectedIsTopL
       <p className={styles.emptyHint}>Az aktuális sablon gyári szekcióit friss ID-kkel illesztheted be. Komponens preset csak a kijelölt kompatibilis elem megjelenését és responsive beállításait módosítja; tartalmat, bindingot és gyerekstruktúrát nem ír felül.</p>
       {presetLibrary?<p className={styles.emptyHint}>{presetLibrary.templateKey} · v{presetLibrary.templateVersion} · forrás: {presetLibrary.sourcePageKey}</p>:<p className={styles.emptyHint}>Presetek betöltése…</p>}
       <div className={styles.componentLibrary}>{presetLibrary?.sectionPresets.map(preset=><article key={preset.presetId}>
-        <span className={styles.componentLibraryIcon}>▧</span><span><strong>{preset.label}</strong><small>{label(preset.componentKey)} · gyári szekció</small></span>
+        <span className={styles.componentLibraryIcon} aria-hidden="true"><VisualBuilderIcon name="layers"/></span><span><strong>{preset.label}</strong><small>{label(preset.componentKey)} · gyári szekció</small></span>
         <div><button type="button" disabled={busy} onClick={()=>insertPresetSection(preset)}>Beillesztés</button></div>
       </article>)}</div>
       {presetLibrary&&!presetLibrary.sectionPresets.length?<p className={styles.emptyHint}>Ehhez az oldaltípushoz nincs beilleszthető gyári szekció-preset.</p>:null}
       {selectedNode?<>
         <p className={styles.emptyHint}>Kijelölt komponens: <strong>{label(selectedNode.componentKey)}</strong></p>
         <div className={styles.componentLibrary}>{compatibleComponentPresets.map(preset=><article key={preset.presetId}>
-          <span className={styles.componentLibraryIcon}>◫</span><span><strong>{preset.label}</strong><small>{label(preset.componentKey)} · megjelenési preset</small></span>
+          <span className={styles.componentLibraryIcon} aria-hidden="true"><VisualBuilderIcon name="presets"/></span><span><strong>{preset.label}</strong><small>{label(preset.componentKey)} · megjelenési preset</small></span>
           <div><button type="button" disabled={busy} onClick={()=>applyComponentPreset(preset)}>Alkalmazás</button></div>
         </article>)}</div>
         {presetLibrary&&!compatibleComponentPresets.length?<p className={styles.emptyHint}>A kijelölt elemhez nincs kompatibilis gyári komponens-preset ezen a sablonoldalon.</p>:null}
@@ -195,10 +196,10 @@ export function StorefrontSavedBlocksPanel({document,selectedNode,selectedIsTopL
     <strong>Saját mentett blokkok</strong>
     <p className={styles.emptyHint}>Ments el egy teljes felső szintű szekciót, majd illeszd be bármely kompatibilis oldalra. A beillesztés nem publikál és nem ment automatikusan.</p>
     <label className={styles.field}><span>Blokk neve</span><input value={name} maxLength={80} placeholder={selectedNode?label(selectedNode.componentKey):'Pl. Nyári hero'} onChange={event=>setName(event.target.value)}/></label>
-    <button type="button" className={styles.addSectionButton} disabled={busy||!canSave} onClick={saveSelected}>☆ Kijelölt szekció mentése</button>
+    <button type="button" className={styles.addSectionButton} disabled={busy||!canSave} onClick={saveSelected}><VisualBuilderIcon name="saved"/> Kijelölt szekció mentése</button>
     {!canSave&&selectedNode?<p className={styles.emptyHint}>V1-ben csak nem védett, legfelső szintű szekció menthető. Belső komponenshez válaszd ki a szülő szekciót.</p>:null}
     <div className={styles.componentLibrary}>{blocks.map(block=><article key={block.id}>
-      <span className={styles.componentLibraryIcon}>☆</span><span>{editingId===block.id?<input aria-label="Mentett blokk új neve" value={editingName} maxLength={80} disabled={busy} onChange={event=>setEditingName(event.target.value)}/>:<strong>{block.name}</strong>}<small>{label(block.componentKey)} · v{block.componentVersion}</small></span>
+      <span className={styles.componentLibraryIcon} aria-hidden="true"><VisualBuilderIcon name="saved"/></span><span>{editingId===block.id?<input aria-label="Mentett blokk új neve" value={editingName} maxLength={80} disabled={busy} onChange={event=>setEditingName(event.target.value)}/>:<strong>{block.name}</strong>}<small>{label(block.componentKey)} · v{block.componentVersion}</small></span>
       <div>{editingId===block.id?<><button type="button" disabled={busy} onClick={()=>saveRename(block.id)}>Mentés</button><button type="button" disabled={busy} onClick={cancelRename}>Mégse</button></>:<><button type="button" disabled={busy} onClick={()=>insertBlock(block.id)}>Beillesztés</button><button type="button" disabled={busy} onClick={()=>beginRename(block)}>Átnevezés</button><button type="button" disabled={busy} onClick={()=>deleteBlock(block.id)}>Törlés</button></>}</div>
     </article>)}</div>
     {!blocks.length?<p className={styles.emptyHint}>Még nincs saját mentett blokk ebben a webshopban.</p>:null}
@@ -207,11 +208,11 @@ export function StorefrontSavedBlocksPanel({document,selectedNode,selectedIsTopL
     <strong>Linked reusable symbols</strong>
     <p className={styles.emptyHint}>A linked példányok követik a közös forrás változásait, miközben a helyi felülírások megmaradnak. A Leválasztás a jelenlegi effektív tartalmat hagyja az oldalon.</p>
     <label className={styles.field}><span>Symbol neve</span><input value={symbolName} maxLength={80} placeholder={selectedNode?label(selectedNode.componentKey):'Pl. Kiemelt ajánlat'} onChange={event=>setSymbolName(event.target.value)}/></label>
-    <button type="button" className={styles.addSectionButton} disabled={busy||!canCreateSymbol} onClick={createLinkedSymbol}>◇ Kijelölt elem linked symbollá</button>
-    {linkedInstance?<button type="button" className={styles.addSectionButton} disabled={busy} onClick={detachSelected}>⎋ Kijelölt példány leválasztása</button>:null}
-    <button type="button" className={styles.addSectionButton} disabled={busy||!symbols.length} onClick={syncLinked}>↻ Linked példányok szinkronizálása</button>
+    <button type="button" className={styles.addSectionButton} disabled={busy||!canCreateSymbol} onClick={createLinkedSymbol}><VisualBuilderIcon name="link"/> Kijelölt elem linked symbollá</button>
+    {linkedInstance?<button type="button" className={styles.addSectionButton} disabled={busy} onClick={detachSelected}><VisualBuilderIcon name="unlink"/> Kijelölt példány leválasztása</button>:null}
+    <button type="button" className={styles.addSectionButton} disabled={busy||!symbols.length} onClick={syncLinked}><VisualBuilderIcon name="sync"/> Linked példányok szinkronizálása</button>
     <div className={styles.componentLibrary}>{symbols.map(symbol=><article key={symbol.id}>
-      <span className={styles.componentLibraryIcon}>{symbol.globalSlot==='header'?'H':symbol.globalSlot==='footer'?'F':'◇'}</span>
+      <span className={styles.componentLibraryIcon} aria-hidden="true"><VisualBuilderIcon name={symbol.globalSlot==='header'?'header':symbol.globalSlot==='footer'?'footer':'link'}/></span>
       <span><strong>{symbol.name}</strong><small>{label(symbol.componentKey)} · r{symbol.revision}{symbol.globalSlot?` · globális ${symbol.globalSlot}`:''}</small></span>
       <div>
         <button type="button" disabled={busy} onClick={()=>insertLinkedSymbol(symbol)}>Linkelve beilleszt</button>
