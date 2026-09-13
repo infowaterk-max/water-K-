@@ -121,7 +121,8 @@ export function VisualBuilderRouteController({children}:{children:ReactNode}){
       window.removeEventListener('resize',normalize);
       window.removeEventListener('orientationchange',normalize);
       window.removeEventListener('keydown',onKeyDown);
-      html.classList.remove('visual-builder-route-active','visual-builder-small-active','visual-builder-phone-active');
+      html.classList.remove('visual-builder-route-active');
+      html.classList.remove('visual-builder-small-active','visual-builder-phone-active');
     };
   },[closePanels]);
 
