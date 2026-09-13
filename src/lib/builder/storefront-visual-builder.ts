@@ -41,6 +41,15 @@ const valueShape=(value:unknown):string=>{
   return typeof value;
 };
 
+const compatibleValueShape=(previous:unknown,next:unknown):boolean=>{
+  if(Array.isArray(previous)&&Array.isArray(next)){
+    if(previous.length===0||next.length===0)return true;
+    const allowedShapes=new Set(previous.map(valueShape));
+    return next.every(item=>allowedShapes.has(valueShape(item)));
+  }
+  return valueShape(previous)===valueShape(next);
+};
+
 function assertSafeValue(value:unknown,path='value',depth=0){
   if(depth>8)throw new Error('BUILDER_VALUE_DEPTH_EXCEEDED');
   if(typeof value==='function'||typeof value==='symbol'||typeof value==='bigint')throw new Error('BUILDER_VALUE_TYPE_FORBIDDEN');
@@ -172,7 +181,7 @@ export function applyStorefrontBuilderMutation(input:{
     if(!definition.manifest.configurable.includes(mutation.key))throw new Error('BUILDER_CONFIG_KEY_NOT_EDITABLE');
     assertSafeValue(mutation.value);
     const previous=located.node.config[mutation.key];
-    if(previous!==undefined&&mutation.value!==null&&valueShape(previous)!==valueShape(mutation.value))throw new Error('BUILDER_CONFIG_SHAPE_CHANGE_FORBIDDEN');
+    if(previous!==undefined&&mutation.value!==null&&!compatibleValueShape(previous,mutation.value))throw new Error('BUILDER_CONFIG_SHAPE_CHANGE_FORBIDDEN');
     located.node.config={...located.node.config,[mutation.key]:clone(mutation.value)};
   }
 
