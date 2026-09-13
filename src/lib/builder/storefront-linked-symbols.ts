@@ -24,6 +24,7 @@ export type StorefrontLinkedSymbolInstance={
 export type StorefrontLinkedSymbolMetadataV1={version:1;instances:StorefrontLinkedSymbolInstance[]};
 
 const METADATA_KEY='reusableSymbols';
+const GLOBAL_HEADER_COMPONENT_KEYS=new Set(['system.header','system.commerce-header']);
 const registry=createStorefrontVisualBuilderComponentRegistry();
 const clone=<T>(value:T):T=>structuredClone(value);
 const isRecord=(value:unknown):value is Record<string,unknown>=>Boolean(value)&&typeof value==='object'&&!Array.isArray(value);
@@ -50,7 +51,7 @@ export function assertStorefrontReusableSymbolSource(fragment:StorefrontComponen
   if(!definition)throw new Error('STOREFRONT_SYMBOL_COMPONENT_UNKNOWN');
   const schemaSlot=definition.manifest.schemaSlot;
   if(schemaSlot!=='sections'&&schemaSlot!=='protected.header')throw new Error('STOREFRONT_SYMBOL_TOP_LEVEL_REQUIRED');
-  if(slot==='header'&&schemaSlot!=='protected.header')throw new Error('STOREFRONT_GLOBAL_HEADER_INVALID');
+  if(slot==='header'&&(schemaSlot!=='protected.header'||!GLOBAL_HEADER_COMPONENT_KEYS.has(source.componentKey)))throw new Error('STOREFRONT_GLOBAL_HEADER_INVALID');
   if(slot==='footer'&&(schemaSlot!=='sections'||source.componentKey!=='layout.section'))throw new Error('STOREFRONT_GLOBAL_FOOTER_INVALID');
   return source;
 }
@@ -188,7 +189,7 @@ export function materializeStorefrontGlobalSymbols(document:StorefrontPageDocume
   const header=symbols.find(symbol=>symbol.globalSlot==='header');
   if(header){
     assertStorefrontReusableSymbolSource(header.fragment,'header');
-    const existingIndex=sections.findIndex(node=>node.componentKey==='system.header');
+    const existingIndex=sections.findIndex(node=>GLOBAL_HEADER_COMPONENT_KEYS.has(node.componentKey));
     const rootId=existingIndex>=0?sections[existingIndex]!.id:generatedRootId('global-header',document.pageKey);
     const mapped=mapStorefrontSymbolSourceToInstance(header.fragment,rootId);
     if(existingIndex>=0)sections[existingIndex]=mapped;else sections=[mapped,...sections];
