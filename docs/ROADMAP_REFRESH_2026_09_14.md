@@ -13,8 +13,8 @@ Status: canonical sequencing update before the next development block.
 ## Canonical launch principles
 
 1. Shared commerce capability first; template integration second. No feature may be implemented as a Playroom-only commerce engine if it belongs to every storefront.
-2. Every storefront template must support physical products, digital/downloadable products and product documents. A merchant who does not use a capability simply gets no related storefront surface.
-3. Product documents and purchased digital assets are different authorities. Public/manual documents must never be confused with purchase-protected downloads.
+2. Every storefront template must support physical products, digital/downloadable products, product documents and post-purchase customer documents. A merchant who does not use a capability simply gets no related storefront/account surface.
+3. Purchased digital assets, product documents and customer/order documents are **three separate authorities**. Public/manual product files, purchase-protected digital goods and private post-purchase records such as invoices or warranty letters must never be collapsed into one entitlement model even if the customer sees them in one document center.
 4. Alap and Pro use the same visual template family. Pro means additional entitled capabilities, not a second skin.
 5. Add-ons/capabilities inherit the current live storefront design system and appear at semantic insertion points where merchants and shoppers naturally expect them.
 6. Template version increments represent actual factory Page Schema/composition/schema/migration changes. A backward-compatible shared engine improvement must not force `v21`, `v22`, ... clones.
@@ -60,9 +60,27 @@ Acceptance scenarios:
 7. cross-tenant asset access fails closed;
 8. repeated download remains within explicit policy/audit bounds.
 
-## A2 — Product Documents / Attachments
+## A2 — Customer Documents + Product Documents / Attachments
 
-Add a shared product-document authority separate from paid digital assets.
+Provide one coherent customer-facing document center while keeping post-purchase order documents and product documents separate from paid digital assets and separate from each other.
+
+### A2.1 — Post-purchase Customer / Order Documents
+
+Required scope:
+
+- private, tenant-scoped document association to a canonical order;
+- document types including invoice/invoice copy, warranty letter, certificate, service record, merchant attachment and other order-related files;
+- merchant upload/manage/revoke workflow from the order administration surface;
+- private object storage and short-lived authorized download delivery;
+- customer ownership check derived from canonical order ownership, never from a client-supplied customer identity;
+- account `Documents and downloads` surface combining discoverability without collapsing authorities;
+- existing invoicing provider `invoice_url` remains the canonical generated-invoice source and should not be duplicated into private storage without a reason;
+- merchant-uploaded documents are not automatically revoked merely because a digital entitlement is refunded; they have their own retention/revocation lifecycle;
+- download audit/evidence and bounded abuse controls;
+- no permanent public document URL for private merchant-uploaded order files;
+- migration + customer-baseline + Fresh Install parity.
+
+### A2.2 — Product Documents / Attachments
 
 Required scope:
 
@@ -75,7 +93,7 @@ Required scope:
 - optionally protected document visibility when product/account context requires it;
 - storefront `Product documents` component using real document data;
 - no document block when a product has no documents;
-- never reuse paid digital-download entitlement as the document model.
+- never reuse paid digital-download entitlement or private order-document ownership as the product-document model.
 
 ## A3 — Shared Storefront + Builder Integration
 
@@ -86,12 +104,12 @@ Required surfaces:
 - Product: fulfillment/download information, purchase-delivery expectation, Product Documents block;
 - Cart: line-level digital/physical fulfillment cues without duplicating cart authority;
 - Checkout: pure-digital, physical and mixed fulfillment composition;
-- Account / order detail: `Downloads` / purchased digital assets surface;
-- order confirmation / post-purchase surfaces: authorized digital-access guidance;
+- Account / order detail: `Documents and downloads` with distinct Digital content and Order documents sections;
+- order confirmation / post-purchase surfaces: authorized digital-access and document-center guidance;
 - Builder component registry, renderer registry, semantic contexts, Presets and capability discovery;
 - Global Styles/live-theme inheritance;
 - empty/loading/error/locked/revoked states;
-- no template-local digital-commerce business authority.
+- no template-local digital-commerce or document business authority.
 
 Playroom factory acceptance must prove a downloadable game, a physical gaming product and a mixed basket. Other templates do not need factory sample digital products, but they must be capable of rendering the shared surfaces when such data exists.
 
@@ -108,7 +126,8 @@ After A1–A3 are integrated into the Playroom branch:
 - Global Styles mutation test;
 - local style override -> Reset to inherited test;
 - digital physical/mixed fulfillment E2E acceptance;
-- product-document storefront acceptance.
+- product-document storefront acceptance;
+- customer document-center acceptance with invoice + merchant-uploaded warranty/document scenario.
 
 ## A5 — Playroom Responsive Completion
 
@@ -118,7 +137,7 @@ The desktop family is accepted; responsive launch acceptance remains required.
 - all 14 pages at Mobile;
 - Product, Cart and Checkout mobile task flow;
 - digital/physical/mixed checkout mobile states;
-- Account Downloads mobile surface;
+- Account Documents and downloads mobile surface;
 - Contact Form and Newsletter mobile acceptance;
 - no separate mobile Page Schema authority.
 
@@ -168,7 +187,7 @@ For every remaining template family:
 - shared grid/Page Schema/Builder contract;
 - full Builder editability of merchant-meaningful media/copy/CTA/layout without moving commerce truth into decorative content;
 - Alap + Pro capability-aware behavior;
-- shared Digital Commerce + Product Documents support from Phase A;
+- shared Digital Commerce + Product Documents + Customer Order Documents support from Phase A;
 - Contact/Newsletter where appropriate through shared capability surfaces;
 - category-relevant Special Commerce semantic integration;
 - current-theme add-on inheritance and contextual discovery;
@@ -190,7 +209,7 @@ Required closure includes:
 - current customer baseline and genuine Fresh Install proof after all new sellable schema changes;
 - neutral, non-Water-K pilot acceptance;
 - critical checkout/payment/order/e-mail/inventory/returns regression;
-- digital-commerce/download/document security and tenant-isolation regression;
+- digital-commerce/download/product-document/order-document security and tenant-isolation regression;
 - Vercel preview / release-manifest / exact-SHA evidence;
 - Supabase Security Advisor review;
 - leaked-password protection gate before public password-auth launch;
@@ -237,7 +256,7 @@ All such capabilities must attach to the shared Page Schema/Builder/add-on contr
 # Immediate execution order
 
 1. **Digital Commerce Foundation**.
-2. **Product Documents**.
+2. **Customer / Order Document Vault + Product Documents**.
 3. **Shared storefront/Builder integration** across all templates, with Playroom as the first full acceptance implementation.
 4. **Playroom functional + responsive + accessibility/state/performance closure**.
 5. **Playroom v20 final merge/release**.
