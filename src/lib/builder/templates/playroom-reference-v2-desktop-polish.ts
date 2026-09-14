@@ -2,7 +2,7 @@ import type {StorefrontComponentNode,StorefrontPageDocument} from '@/lib/builder
 import type {StorefrontInstallableTemplatePackage} from '@/lib/builder/storefront-template-installation';
 import {PLAYROOM_REFERENCE_V2_TEMPLATE_PACKAGE} from '@/lib/builder/templates/playroom-reference-v2';
 
-export const PLAYROOM_REFERENCE_V2_DESKTOP_POLISH_VERSION='shoporation.playroom.reference-v2.desktop-polish.v1' as const;
+export const PLAYROOM_REFERENCE_V2_DESKTOP_POLISH_VERSION='shoporation.playroom.reference-v2.desktop-polish.v2' as const;
 
 type JsonRecord=Record<string,unknown>;
 const rec=(value:unknown):JsonRecord=>value&&typeof value==='object'&&!Array.isArray(value)?value as JsonRecord:{};
@@ -27,7 +27,7 @@ const footerNavigation=(id:string,label:string,items:{label:string;href:string}[
     ariaLabel:label,
     layout:'vertical',
     items,
-    style:{gap:'.18rem',fontSize:'.59rem',fontWeight:600,color:'#aec0d3',lineHeight:1.15},
+    style:{gap:'.12rem',fontSize:'.56rem',fontWeight:600,color:'#aec0d3',lineHeight:1.08},
     styleSlots:{item:{base:{padding:'0',minHeight:'0'}}},
   },
 });
@@ -47,50 +47,55 @@ function polishNode(node:StorefrontComponentNode):StorefrontComponentNode{
       next={...next,config:withStyle(config,{gap:'1.55rem',fontSize:'.69rem'})};
       break;
     case 'playroom-hero':
-      next={...next,config:withStyle(config,{minHeight:'15.35rem'})};
+      next={...next,config:withStyle(config,{minHeight:'13.4rem'})};
       break;
     case 'playroom-hero-copy':
-      next={...next,config:withStyle(config,{minHeight:'11.4rem',padding:'.78rem 1.18rem 3.7rem',width:'50%',justifyContent:'center'})};
+      next={...next,config:withStyle(config,{minHeight:'9.45rem',padding:'.56rem 1.18rem 3.25rem',width:'49%',justifyContent:'center',background:'linear-gradient(90deg,rgba(2,8,22,.91),rgba(2,8,22,.62) 62%,rgba(2,8,22,.06))'})};
       break;
     case 'playroom-hero-title':
-      next={...next,config:withStyle(config,{fontSize:'clamp(2.7rem,4.2vw,4.45rem)',lineHeight:.86})};
+      next={...next,config:withStyle(config,{fontSize:'clamp(2.75rem,4.15vw,4.4rem)',lineHeight:.86})};
       break;
     case 'playroom-hero-support':
-      next={...next,config:withStyle(config,{fontSize:'.75rem',lineHeight:1.15,maxWidth:'32ch'})};
+      next={...next,config:withStyle(config,{fontSize:'.74rem',lineHeight:1.12,maxWidth:'32ch'})};
       break;
     case 'playroom-hero-primary':
-      next={...next,config:withStyle(config,{padding:'.5rem .82rem',fontSize:'.65rem'})};
+      next={...next,config:withStyle(config,{padding:'.48rem .8rem',fontSize:'.64rem'})};
       break;
     case 'playroom-trust-grid':
-      next={...next,config:withStyle(config,{left:'.48rem',right:'.48rem',bottom:'.35rem'})};
+      next={...next,config:withStyle(config,{left:'.48rem',right:'.48rem',bottom:'.3rem'})};
       break;
     case 'playroom-style-card':
     case 'playroom-platform-card':
-      next={...next,config:withStyle(config,{padding:'.48rem .58rem'})};
+      next={...next,config:withStyle(config,{padding:'.5rem .58rem'})};
       break;
     case 'playroom-game-finder':
-      next={...next,config:withSlots(config,{options:{base:{gap:'.3rem'}},option:{base:{minHeight:'3.72rem',padding:'.28rem .1rem'}},optionMedia:{base:{fontSize:'1.12rem'}},optionLabel:{base:{fontSize:'.55rem'}}})};
+      next={...next,config:withSlots(config,{options:{base:{gap:'.34rem'}},option:{base:{minHeight:'4.16rem',padding:'.34rem .1rem'}},optionMedia:{base:{fontSize:'1.42rem'}},optionLabel:{base:{fontSize:'.57rem'}}})};
       break;
     case 'playroom-platform-navigation':
-      next={...next,config:withSlots(config,{grid:{base:{gap:'.3rem'}},card:{base:{minHeight:'3.56rem',padding:'.24rem .08rem',fontSize:'.51rem'}}})};
+      next={...next,config:withSlots(config,{grid:{base:{gap:'.34rem'}},card:{base:{minHeight:'3.95rem',padding:'.28rem .08rem',fontSize:'.52rem'}}})};
+      break;
+    case 'playroom-setup':
+    case 'playroom-player-two':
+    case 'playroom-upgrade':
+      next={...next,config:withStyle(config,{minHeight:'13rem'})};
       break;
     case 'playroomFeaturedGames':
-      next={...next,config:withSlots({...config,showCta:false,imageRatio:'16 / 7'},{root:{base:{gap:'.24rem'}},grid:{base:{gap:'.3rem'}},card:{base:{gap:'.24rem',padding:'.28rem'}},body:{base:{gap:'.08rem'}},name:{base:{fontSize:'.66rem',lineHeight:1.05}},price:{base:{fontSize:'.64rem'}},comparePrice:{base:{fontSize:'.5rem'}},stock:{base:{fontSize:'.51rem',lineHeight:1.05}},badge:{base:{top:'.3rem',left:'.3rem',fontSize:'.46rem',padding:'.15rem .28rem'}}})};
+      next={...next,config:withSlots({...config,showCta:false,imageRatio:'16 / 9'},{root:{base:{gap:'.22rem'}},grid:{base:{gap:'.28rem'}},card:{base:{gap:'.2rem',padding:'.27rem'}},body:{base:{gap:'.07rem'}},name:{base:{fontSize:'.64rem',lineHeight:1.03}},price:{base:{fontSize:'.63rem'}},comparePrice:{base:{fontSize:'.49rem'}},stock:{base:{fontSize:'.5rem',lineHeight:1.02}},badge:{base:{top:'.26rem',left:'.26rem',fontSize:'.45rem',padding:'.13rem .26rem'}}})};
       break;
     case 'playroom-featured-games':
-      next={...next,config:withStyle(config,{padding:'.48rem .58rem',minHeight:'9rem'})};
+      next={...next,config:withStyle(config,{padding:'.46rem .56rem',minHeight:'9rem'})};
       break;
     case 'playroom-compatibility-card':
-      next={...next,config:withStyle(config,{padding:'.46rem',minHeight:'9rem'})};
+      next={...next,config:withStyle(config,{padding:'.44rem',minHeight:'9rem'})};
       break;
     case 'playroom-compatibility-art':
-      next={...next,config:withStyle(config,{height:'4.5rem'})};
+      next={...next,config:withStyle(config,{height:'4.75rem'})};
       break;
     case 'playroom-gift-card':
-      next={...next,config:withStyle(config,{padding:'.42rem',minHeight:'9rem',gap:'.28rem'})};
+      next={...next,config:withStyle(config,{padding:'.4rem',minHeight:'9rem',gap:'.24rem'})};
       break;
     case 'playroom-gift-image':
-      next={...next,config:withStyle(config,{height:'4.25rem'})};
+      next={...next,config:withStyle(config,{height:'4.4rem'})};
       break;
     case 'playroom-gift-title':
       next={...next,config:withStyle(config,{fontSize:'.82rem'})};
@@ -99,40 +104,40 @@ function polishNode(node:StorefrontComponentNode):StorefrontComponentNode{
       next={...next,config:withStyle(config,{padding:'.3rem .42rem',fontSize:'.5rem'})};
       break;
     case 'playroom-community-stage':
-      next={...next,config:withStyle(config,{minHeight:'3.35rem',padding:'.3rem .6rem'})};
+      next={...next,config:withStyle(config,{minHeight:'3.25rem',padding:'.28rem .58rem'})};
       break;
     case 'playroom-community-title':
-      next={...next,config:withStyle(config,{fontSize:'1.15rem'})};
+      next={...next,config:withStyle(config,{fontSize:'1.12rem'})};
       break;
     case 'playroom-home-footer':
-      next={...next,config:withStyle(config,{padding:'.62rem 2.35rem .68rem'})};
+      next={...next,config:withStyle(config,{padding:'.36rem 2.35rem .4rem'})};
       break;
     case 'playroom-footer-brand':
-      next={...next,config:withStyle(config,{gap:'.18rem'})};
+      next={...next,config:withStyle(config,{gap:'.1rem'})};
       break;
     case 'playroom-footer-logo':
-      next={...next,config:withStyle(config,{width:'2rem',height:'2rem'})};
+      next={...next,config:withStyle(config,{width:'1.8rem',height:'1.8rem'})};
       break;
     case 'playroom-footer-shop':
-      next={...next,config:withStyle(config,{gap:'.24rem'}),children:[
+      next={...next,config:withStyle(config,{gap:'.18rem'}),children:[
         next.children?.[0]??{id:'playroom-footer-shop-title',componentKey:'content.text',componentVersion:1,config:{text:'Vásárlási információk',as:'strong',align:'left',tone:'text'}},
         footerNavigation('playroom-footer-shop-nav','Vásárlási információk',[{label:'Szállítás',href:'/oldal/szallitas'},{label:'Fizetés',href:'/oldal/fizetes'},{label:'Visszaküldés',href:'/oldal/visszakuldes'},{label:'GYIK',href:'/gyik'}]),
       ]};
       break;
     case 'playroom-footer-world':
-      next={...next,config:withStyle(config,{gap:'.24rem'}),children:[
+      next={...next,config:withStyle(config,{gap:'.18rem'}),children:[
         next.children?.[0]??{id:'playroom-footer-world-title',componentKey:'content.text',componentVersion:1,config:{text:'Gaming világ',as:'strong',align:'left',tone:'text'}},
         footerNavigation('playroom-footer-world-nav','Gaming világ',[{label:'Újdonságok',href:'/webaruhaz?sort=new'},{label:'Playroom Magazin',href:'/blog'},{label:'Játékajánlók',href:'/blog'},{label:'Események',href:'/blog'}]),
       ]};
       break;
     case 'playroom-footer-about':
-      next={...next,config:withStyle(config,{gap:'.24rem'}),children:[
+      next={...next,config:withStyle(config,{gap:'.18rem'}),children:[
         next.children?.[0]??{id:'playroom-footer-about-title',componentKey:'content.text',componentVersion:1,config:{text:'Rólunk',as:'strong',align:'left',tone:'text'}},
         footerNavigation('playroom-footer-about-nav','Rólunk',[{label:'Történetünk',href:'/oldal/rolunk'},{label:'Fenntarthatóság',href:'/oldal/fenntarthatosag'},{label:'Karrier',href:'/oldal/karrier'},{label:'Kapcsolat',href:'/kapcsolat'}]),
       ]};
       break;
     case 'playroom-footer-social':
-      next={...next,config:withStyle(config,{gap:'.22rem',paddingLeft:'.9rem'})};
+      next={...next,config:withStyle(config,{gap:'.12rem',paddingLeft:'.8rem'})};
       break;
   }
   return next;
