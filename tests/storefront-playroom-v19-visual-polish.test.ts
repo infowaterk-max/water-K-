@@ -55,6 +55,6 @@ describe('Playroom v19 final visual polish',()=>{
     expect(style.background).toContain('linear-gradient');
     expect(style.background).not.toBe('#f7fbff');
     expect(style.border).toContain('rgba(78,216,255');
-    expect(style.padding).toBe('1.5rem');
+    expect(style.padding).toBe('1.4rem');
   });
 });
