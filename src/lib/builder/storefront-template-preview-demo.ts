@@ -26,7 +26,7 @@ import {TECH_DECK_DESIGN_TOKENS} from '@/lib/builder/templates/tech-deck';
 import {TOOL_DEPOT_DESIGN_TOKENS} from '@/lib/builder/templates/tool-depot';
 import {TRAIL_EXPEDITION_DESIGN_TOKENS} from '@/lib/builder/templates/trail-expedition';
 
-export const STOREFRONT_TEMPLATE_PREVIEW_DEMO_VERSION='shoporation.storefront-template-preview-demo.v1' as const;
+export const STOREFRONT_TEMPLATE_PREVIEW_DEMO_VERSION='shoporation.storefront-template-preview-demo.v2' as const;
 
 const PREVIEW_THEME_BY_TEMPLATE:Record<string,Readonly<Record<string,string>>>=Object.freeze({
   'outdoor.alpine-lodge':ALPINE_LODGE_DESIGN_TOKENS,
@@ -116,6 +116,19 @@ function collectImageFallbacks(page:StorefrontPageDocument):string[]{
   return images;
 }
 
+function previewProductLimit(page:StorefrontPageDocument){
+  let limit=4;
+  const visit=(node:StorefrontComponentNode)=>{
+    if(node.componentKey==='commerce.product-grid'){
+      const columns=node.config.columns;
+      if(typeof columns==='number'&&Number.isFinite(columns))limit=Math.max(limit,Math.min(6,Math.max(2,Math.round(columns))));
+    }
+    for(const child of node.children??[])visit(child);
+  };
+  for(const section of page.sections)visit(section);
+  return limit;
+}
+
 function fixtureNames(template:StorefrontInstallableTemplatePackage,type:'product'|'collection'){
   return(template.demoFixtures??[])
     .filter(item=>item.entityType===type)
@@ -129,7 +142,7 @@ function demoProducts(template:StorefrontInstallableTemplatePackage,page:Storefr
   const category=template.manifest.templateKey.split('.')[0]??'tech';
   const fixture=fixtureNames(template,'product');
   const fallback=CATEGORY_PRODUCTS[category]??CATEGORY_PRODUCTS.tech;
-  const names=[...fixture,...fallback].slice(0,4);
+  const names=[...new Set([...fixture,...fallback])].slice(0,previewProductLimit(page));
   const images=collectImageFallbacks(page);
   return names.map((name,index)=>({
     id:`preview-product-${index+1}`,

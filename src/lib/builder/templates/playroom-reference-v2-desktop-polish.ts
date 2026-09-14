@@ -2,7 +2,7 @@ import type {StorefrontComponentNode,StorefrontPageDocument} from '@/lib/builder
 import type {StorefrontInstallableTemplatePackage} from '@/lib/builder/storefront-template-installation';
 import {PLAYROOM_REFERENCE_V2_TEMPLATE_PACKAGE} from '@/lib/builder/templates/playroom-reference-v2';
 
-export const PLAYROOM_REFERENCE_V2_DESKTOP_POLISH_VERSION='shoporation.playroom.reference-v2.desktop-polish.v3' as const;
+export const PLAYROOM_REFERENCE_V2_DESKTOP_POLISH_VERSION='shoporation.playroom.reference-v2.desktop-polish.v4' as const;
 
 type JsonRecord=Record<string,unknown>;
 const rec=(value:unknown):JsonRecord=>value&&typeof value==='object'&&!Array.isArray(value)?value as JsonRecord:{};
@@ -86,7 +86,7 @@ function polishNode(node:StorefrontComponentNode):StorefrontComponentNode{
       next={...next,config:withStyle(config,{minHeight:'13rem'})};
       break;
     case 'playroomFeaturedGames':
-      next={...next,config:withSlots({...config,showCta:false,imageRatio:'16 / 7'},{root:{base:{gap:'.22rem'}},grid:{base:{gap:'.28rem'}},card:{base:{gap:'.2rem',padding:'.27rem'}},body:{base:{gap:'.07rem'}},name:{base:{fontSize:'.64rem',lineHeight:1.03}},price:{base:{fontSize:'.63rem'}},comparePrice:{base:{fontSize:'.49rem'}},stock:{base:{fontSize:'.5rem',lineHeight:1.02}},badge:{base:{top:'.26rem',left:'.26rem',fontSize:'.45rem',padding:'.13rem .26rem'}}})};
+      next={...next,config:withSlots({...config,columns:6,showCta:false,imageRatio:'16 / 8.5'},{root:{base:{gap:'.2rem'}},grid:{base:{gap:'.24rem'}},card:{base:{gap:'.17rem',padding:'.22rem'}},body:{base:{gap:'.05rem'}},name:{base:{fontSize:'.56rem',lineHeight:1.02}},price:{base:{fontSize:'.57rem'}},comparePrice:{base:{fontSize:'.43rem'}},stock:{base:{fontSize:'.44rem',lineHeight:1.01}},badge:{base:{top:'.22rem',left:'.22rem',fontSize:'.41rem',padding:'.12rem .22rem'}}})};
       break;
     case 'playroom-featured-games':
       next={...next,config:withStyle(config,{padding:'.46rem .56rem',minHeight:'9rem'})};
@@ -98,22 +98,31 @@ function polishNode(node:StorefrontComponentNode):StorefrontComponentNode{
       next={...next,config:withStyle(config,{height:'4.75rem'})};
       break;
     case 'playroom-gift-card':
-      next={...next,config:withStyle(config,{padding:'.4rem',minHeight:'9rem',gap:'.24rem'})};
+      next={...next,config:withStyle(config,{padding:'.4rem',minHeight:'9rem',gap:'.2rem'})};
       break;
     case 'playroom-gift-image':
-      next={...next,config:withStyle(config,{height:'4.4rem'})};
+      next={...next,config:withStyle(config,{height:'5.05rem'})};
       break;
     case 'playroom-gift-title':
-      next={...next,config:withStyle(config,{fontSize:'.82rem'})};
+      next={...next,config:withStyle(config,{fontSize:'1.08rem',lineHeight:.92})};
+      break;
+    case 'playroom-gift-copy':
+      next={...next,config:withStyle(config,{fontSize:'.58rem',lineHeight:1.15})};
       break;
     case 'playroom-gift-cta':
-      next={...next,config:withStyle(config,{padding:'.3rem .42rem',fontSize:'.5rem'})};
+      next={...next,config:withStyle(config,{padding:'.3rem .42rem',fontSize:'.52rem'})};
       break;
     case 'playroom-community-stage':
       next={...next,config:withStyle(config,{minHeight:'3.25rem',padding:'.28rem .58rem'})};
       break;
+    case 'playroom-community-art':
+      next={...next,config:withStyle(config,{opacity:.48})};
+      break;
     case 'playroom-community-title':
       next={...next,config:withStyle(config,{fontSize:'1.12rem'})};
+      break;
+    case 'playroom-community-benefit-text':
+      next={...next,config:withStyle(config,{fontSize:'.56rem',letterSpacing:'.01em'})};
       break;
     case 'playroom-home-footer':
       next={...next,config:withStyle(config,{padding:'.36rem 2.35rem .4rem'})};
