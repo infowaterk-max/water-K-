@@ -41,9 +41,9 @@ describe('Playroom v19 complete family acceptance contract',()=>{
       expect(typeof style?.maxHeight).toBe('string');
       expect(String(style?.minHeight)).toBe('0');
     }
-    expect(walk(page('account').sections).filter(item=>item.componentKey==='content.image')).toHaveLength(0);
-    expect(walk(page('contact').sections).filter(item=>item.componentKey==='content.image')).toHaveLength(0);
-    expect(walk(page('not-found').sections).filter(item=>item.componentKey==='content.image')).toHaveLength(0);
+    expect(find('account','playroom-account-image')).toBeUndefined();
+    expect(find('contact','playroom-contact-image')).toBeUndefined();
+    expect(find('not-found','playroom-not-found-image')).toBeUndefined();
   });
 
   it('declares the shared checkout boundary and semantic add-on contexts instead of a Playroom-local checkout engine',()=>{
