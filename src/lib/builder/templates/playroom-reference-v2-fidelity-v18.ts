@@ -24,8 +24,8 @@ const withSlots=(config:JsonRecord,patch:Record<string,JsonRecord>):JsonRecord=>
 // Photo-first visual fill. These remain normal content.image nodes, so merchants can
 // replace sources, alt text, crop/focal point and responsive art direction in Builder.
 const PHOTO={
-  hero:'https://images.pexels.com/photos/7776099/pexels-photo-7776099.jpeg?auto=compress&cs=tinysrgb&w=1800',
-  setup:'https://images.pexels.com/photos/33888375/pexels-photo-33888375.jpeg?auto=compress&cs=tinysrgb&w=1600',
+  hero:'https://images.pexels.com/photos/7776096/pexels-photo-7776096.jpeg?auto=compress&cs=tinysrgb&w=1800',
+  setup:'https://images.pexels.com/photos/3945673/pexels-photo-3945673.jpeg?auto=compress&cs=tinysrgb&w=1600',
   controller:'https://images.pexels.com/photos/7987293/pexels-photo-7987293.jpeg?auto=compress&cs=tinysrgb&w=1100',
   player:'https://images.pexels.com/photos/9071471/pexels-photo-9071471.jpeg?auto=compress&cs=tinysrgb&w=1200',
   community:'https://images.pexels.com/photos/7862405/pexels-photo-7862405.jpeg?auto=compress&cs=tinysrgb&w=1500',
@@ -77,7 +77,7 @@ function refineNode(node:StorefrontComponentNode):StorefrontComponentNode{
       };
       break;
     case 'playroom-hero-art':
-      next={...next,config:photo(config,PHOTO.hero,'Három barát közös gaming esten kanapén, nagy képernyő előtt','center 52%',{filter:'saturate(1.32) contrast(1.12) brightness(.8)',transform:'scale(1.015)'})};
+      next={...next,config:photo(config,PHOTO.hero,'Három barát közös gaming esten kanapén, a nagy képernyő felé fordulva','center 54%',{filter:'saturate(1.38) contrast(1.13) brightness(.78)',transform:'scale(1.02)'})};
       break;
     case 'playroom-hero-copy':
       next={...next,config:withStyle(config,{background:'linear-gradient(90deg,rgba(1,7,20,.97),rgba(2,9,24,.72) 54%,rgba(2,9,24,.12) 86%,transparent)'})};
@@ -103,7 +103,7 @@ function refineNode(node:StorefrontComponentNode):StorefrontComponentNode{
       })};
       break;
     case 'playroom-setup-image':
-      next={...next,config:photo(config,PHOTO.setup,'RGB gaming setup monitorokkal és gamer perifériákkal','center 50%',{width:'62%',right:'0',bottom:'0',height:'100%',minHeight:'100%',filter:'saturate(1.18) contrast(1.07) brightness(.88)',transform:'none'})};
+      next={...next,config:photo(config,PHOTO.setup,'Gaming csomag konzollal, kontrollerekkel és headsettel','center 50%',{width:'62%',right:'0',bottom:'0',height:'100%',minHeight:'100%',filter:'saturate(1.14) contrast(1.12) brightness(.64)',transform:'scale(1.01)'})};
       break;
     case 'playroom-setup':
       next={...next,config:withStyle(config,{minHeight:'10.2rem',background:'linear-gradient(105deg,#071936 0%,#111344 48%,#161041 100%)'})};
