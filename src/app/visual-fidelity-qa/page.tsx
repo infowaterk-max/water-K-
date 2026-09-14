@@ -7,6 +7,7 @@ import {
   getStorefrontTemplatePreviewTheme,
 } from '@/lib/builder/storefront-template-preview-demo';
 import {applyAuthoredTemplatePreviewFallbacks} from '@/lib/builder/storefront-template-preview-canonical';
+import {augmentStorefrontDigitalCommercePreviewContext} from '@/lib/builder/storefront-digital-commerce-preview';
 import {StorefrontRuntimeRenderer} from '@/components/builder/storefront-runtime-renderer';
 import {createStorefrontVisualBuilderRendererRegistry} from '@/components/builder/storefront-builder-renderer-registry';
 import {createStorefrontVisualBuilderComponentRegistry} from '@/lib/builder/storefront-builder-registry';
@@ -32,7 +33,8 @@ export default async function VisualFidelityQaPage({searchParams}:Props){
   const page=template.pages.find(candidate=>candidate.pageType===pageType);
   if(!page)notFound();
   const viewport:StorefrontViewport=query.viewport==='mobile'?'mobile':query.viewport==='tablet'?'tablet':'desktop';
-  const bindingContext=applyAuthoredTemplatePreviewFallbacks({page,context:createStorefrontTemplatePreviewBindingContext({template,page})});
+  const baseContext=applyAuthoredTemplatePreviewFallbacks({page,context:createStorefrontTemplatePreviewBindingContext({template,page})});
+  const bindingContext=augmentStorefrontDigitalCommercePreviewContext({template,page,context:baseContext});
   const theme=getStorefrontTemplatePreviewTheme(template.manifest.templateKey) as CSSProperties;
   const capability={plan:'pro' as const,features:[...PLANS.pro.features]};
   return <main
