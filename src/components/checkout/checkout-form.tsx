@@ -137,8 +137,8 @@ export function CheckoutForm({shippingOptions,paymentOptions,freeShippingThresho
 
   return <div className={`${styles.root} checkoutLayout`} data-storefront-design-inheritance="current-theme" data-checkout-ux="guided-accordion">
     <form ref={formRef} className="checkout-form" onSubmit={submit} aria-busy={state==='sending'||quoteLoading}>
-      <div className="checkoutHeading"><span className="eyebrow">Biztonságos rendelés</span><h1>Pénztár</h1><p className="muted">Szállítás → Fizetés → Összesítés. Egyszerre csak az aktuális lépés van nyitva.</p></div>
-      {commerceGroups.length?<div className="partnerCheckoutBadge" role="status"><strong>{commerceGroups.length} összeállítás megőrzése</strong><span>A csoportos kosártételek az authoritative rendelésben is együtt maradnak; az ár és készlet ettől továbbra is külön újraellenőrzött.</span></div>:null}
+      <div className="checkoutHeading"><span className="eyebrow">Biztonságos rendelés</span><h1>Pénztár</h1><p className="muted">A végösszeget és a készletet a rendelés előtt újra ellenőrizzük. Szállítás → Fizetés → Összesítés; egyszerre csak az aktuális lépés van nyitva.</p></div>
+      {commerceGroups.length?<div className="partnerCheckoutBadge" role="status"><strong>{commerceGroups.length} összeállítás megőrzése</strong><span>A csoportos kosártételek a rendelésben is együtt maradnak, miközben az ár és a készlet a véglegesítés előtt újra ellenőrzésre kerül.</span></div>:null}
       {resellerApproved&&<div className="partnerCheckoutBadge" role="status"><strong>B2B partner mód aktív</strong><span>A partnerár, a B2B minimum rendelés és a rendelési egység automatikusan érvényes.</span></div>}
       <div className={styles.accordion}>
         <CheckoutAccordionStep step="shipping" number={2} title="Szállítás" summary={shippingSummary} active={activeStep==='shipping'} completed={furthestStep>0} locked={false} onOpen={()=>openStep('shipping')}>
