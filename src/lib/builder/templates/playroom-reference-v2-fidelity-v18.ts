@@ -24,7 +24,7 @@ const withSlots=(config:JsonRecord,patch:Record<string,JsonRecord>):JsonRecord=>
 // Photo-first visual fill. These remain normal content.image nodes, so merchants can
 // replace sources, alt text, crop/focal point and responsive art direction in Builder.
 const PHOTO={
-  hero:'https://images.pexels.com/photos/9069213/pexels-photo-9069213.jpeg?auto=compress&cs=tinysrgb&w=1800',
+  hero:'https://images.pexels.com/photos/7776099/pexels-photo-7776099.jpeg?auto=compress&cs=tinysrgb&w=1800',
   setup:'https://images.pexels.com/photos/33888375/pexels-photo-33888375.jpeg?auto=compress&cs=tinysrgb&w=1600',
   controller:'https://images.pexels.com/photos/7987293/pexels-photo-7987293.jpeg?auto=compress&cs=tinysrgb&w=1100',
   player:'https://images.pexels.com/photos/9071471/pexels-photo-9071471.jpeg?auto=compress&cs=tinysrgb&w=1200',
@@ -36,15 +36,15 @@ const PHOTO={
   gift:'https://images.pexels.com/photos/6045528/pexels-photo-6045528.jpeg?auto=compress&cs=tinysrgb&w=1200',
 } as const;
 
-// Reuse the existing image-capable attribute-navigation contract instead of adding
-// Playroom-only icon rendering. Icons remain ordinary per-item image fields.
+// Platform icons are local static assets so storefront rendering does not depend on a
+// third-party icon CDN. They still use the shared image-capable navigation contract.
 const platformItems=[
-  {id:'pc',label:'PC',href:'/webaruhaz?platform=pc',image:'https://cdn.simpleicons.org/windows11/5C7CFA',imageAlt:'PC platform ikon'},
-  {id:'playstation',label:'PlayStation',href:'/webaruhaz?platform=playstation',image:'https://cdn.simpleicons.org/playstation/8FDFFF',imageAlt:'PlayStation platform ikon'},
-  {id:'xbox',label:'Xbox',href:'/webaruhaz?platform=xbox',image:'https://cdn.simpleicons.org/xbox/73D216',imageAlt:'Xbox platform ikon'},
-  {id:'nintendo',label:'Nintendo',href:'/webaruhaz?platform=nintendo',image:'https://cdn.simpleicons.org/nintendoswitch/FF5964',imageAlt:'Nintendo Switch platform ikon'},
-  {id:'handheld',label:'Handheld',href:'/webaruhaz?platform=handheld',image:'https://cdn.simpleicons.org/steamdeck/B8E34A',imageAlt:'Kézikonzol platform ikon'},
-  {id:'mobile',label:'Mobile',href:'/webaruhaz?platform=mobile',image:'https://cdn.simpleicons.org/android/A4C639',imageAlt:'Mobil platform ikon'},
+  {id:'pc',label:'PC',href:'/webaruhaz?platform=pc',image:'/playroom/platforms/pc.svg',imageAlt:'PC platform ikon'},
+  {id:'playstation',label:'PlayStation',href:'/webaruhaz?platform=playstation',image:'/playroom/platforms/playstation.svg',imageAlt:'PlayStation platform ikon'},
+  {id:'xbox',label:'Xbox',href:'/webaruhaz?platform=xbox',image:'/playroom/platforms/xbox.svg',imageAlt:'Xbox platform ikon'},
+  {id:'nintendo',label:'Nintendo',href:'/webaruhaz?platform=nintendo',image:'/playroom/platforms/nintendo.svg',imageAlt:'Nintendo Switch platform ikon'},
+  {id:'handheld',label:'Handheld',href:'/webaruhaz?platform=handheld',image:'/playroom/platforms/handheld.svg',imageAlt:'Kézikonzol platform ikon'},
+  {id:'mobile',label:'Mobile',href:'/webaruhaz?platform=mobile',image:'/playroom/platforms/mobile.svg',imageAlt:'Mobil platform ikon'},
 ];
 
 function photo(config:JsonRecord,src:string,alt:string,objectPosition:string,stylePatch:JsonRecord={}):JsonRecord{
@@ -77,7 +77,7 @@ function refineNode(node:StorefrontComponentNode):StorefrontComponentNode{
       };
       break;
     case 'playroom-hero-art':
-      next={...next,config:photo(config,PHOTO.hero,'Barátok közös gaming esten egy LED-fényes nappaliban, nagy TV előtt','center 54%',{filter:'saturate(1.28) contrast(1.12) brightness(.82)',transform:'scale(1.015)'})};
+      next={...next,config:photo(config,PHOTO.hero,'Három barát közös gaming esten kanapén, nagy képernyő előtt','center 52%',{filter:'saturate(1.32) contrast(1.12) brightness(.8)',transform:'scale(1.015)'})};
       break;
     case 'playroom-hero-copy':
       next={...next,config:withStyle(config,{background:'linear-gradient(90deg,rgba(1,7,20,.97),rgba(2,9,24,.72) 54%,rgba(2,9,24,.12) 86%,transparent)'})};
@@ -96,7 +96,7 @@ function refineNode(node:StorefrontComponentNode):StorefrontComponentNode{
         grid:{base:{gap:'.38rem'}},
         card:{base:{position:'relative',minHeight:'5.2rem',background:'linear-gradient(180deg,#0b2b49,#07182c)',border:'1px solid rgba(82,219,255,.36)',borderRadius:'.62rem',boxShadow:'inset 0 0 18px rgba(51,220,255,.05),0 8px 18px rgba(0,0,0,.18)',overflow:'hidden'}},
         media:{base:{aspectRatio:'1 / 1',minHeight:'5.2rem',background:'radial-gradient(circle at 50% 42%,rgba(80,220,255,.12),rgba(3,11,24,.15) 58%,rgba(3,11,24,.5))'}},
-        mediaImage:{base:{width:'76%',height:'76%',margin:'10% 12% 14%',objectFit:'contain',filter:'drop-shadow(0 0 12px rgba(77,221,255,.38))'}},
+        mediaImage:{base:{width:'82%',height:'82%',margin:'7% 9% 11%',objectFit:'contain',filter:'drop-shadow(0 0 12px rgba(77,221,255,.38))'}},
         cardBody:{base:{position:'absolute',left:0,right:0,bottom:0,padding:'.28rem .2rem .32rem',textAlign:'center',background:'linear-gradient(180deg,transparent,rgba(3,10,22,.93) 45%)'}},
         label:{base:{fontSize:'.54rem',fontWeight:900,textTransform:'none',letterSpacing:'.01em'}},
         itemCopy:{base:{display:'none'}},
@@ -169,8 +169,8 @@ function refinePage(page:StorefrontPageDocument):StorefrontPageDocument{
       assetStrategy:'photo-first-no-bespoke-artwork',
       desktopLayout:'frozen',
       visualQa:'exact-head-desktop-capture',
-      heroVisual:'reference-like-led-living-room-gaming-photo',
-      platformVisualMode:'large-image-icon-tiles',
+      heroVisual:'reference-like-three-player-couch-tv-photo',
+      platformVisualMode:'large-local-image-icon-tiles',
     },
     sections:page.sections.map(refineNode),
   };
