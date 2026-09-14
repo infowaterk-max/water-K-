@@ -38,7 +38,8 @@ describe('Playroom v18 pragmatic visual-fill contract',()=>{
       expect(node?.config.objectPosition,id).toEqual(expect.any(String));
       expect(node?.config.artDirection,id).toMatchObject({desktop:{objectFit:'cover'},tablet:{objectFit:'cover'},mobile:{objectFit:'cover'}});
     }
-    expect(byId('playroom-hero-art')?.config.src).toContain('/7776099/');
+    expect(byId('playroom-hero-art')?.config.src).toContain('/7776096/');
+    expect(byId('playroom-setup-image')?.config.src).toContain('/3945673/');
   });
 
   it('keeps hero copy and CTA separate from the image and removes the bespoke overlay asset from the active composition',()=>{
