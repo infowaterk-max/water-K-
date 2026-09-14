@@ -5,10 +5,10 @@ import {createStorefrontPresetBundle,materializeStorefrontSectionPreset} from '@
 import {validateStorefrontPageDocument,type StorefrontComponentNode} from '@/lib/builder/storefront-runtime';
 import {getStorefrontTemplatePackage,STOREFRONT_TEMPLATE_CATALOG} from '@/lib/builder/storefront-template-catalog';
 import {PLAYROOM_V18_TEMPLATE_PACKAGE} from '@/lib/builder/templates/playroom-v18';
-import {PLAYROOM_V19_TEMPLATE_PACKAGE,PLAYROOM_V19_TEMPLATE_VERSION} from '@/lib/builder/templates/playroom-v19';
+import {PLAYROOM_V19_CANONICAL_TEMPLATE_PACKAGE,PLAYROOM_V19_CANONICAL_TEMPLATE_VERSION} from '@/lib/builder/templates/playroom-v19-canonical';
 
 const walk=(nodes:readonly StorefrontComponentNode[]):StorefrontComponentNode[]=>nodes.flatMap(node=>[node,...walk(node.children??[])]);
-const page=(type:string)=>PLAYROOM_V19_TEMPLATE_PACKAGE.pages.find(item=>item.pageType===type)!;
+const page=(type:string)=>PLAYROOM_V19_CANONICAL_TEMPLATE_PACKAGE.pages.find(item=>item.pageType===type)!;
 const sectionIds=(type:string)=>page(type).sections.map(item=>item.id);
 
 const expectedSections:Record<string,readonly string[]>={
@@ -29,13 +29,13 @@ const expectedSections:Record<string,readonly string[]>={
 
 describe('Playroom v19 full page family + section presets',()=>{
   it('publishes one coherent v19 package across all 14 canonical page types',()=>{
-    expect(PLAYROOM_V19_TEMPLATE_VERSION).toBe(19);
-    expect(PLAYROOM_V19_TEMPLATE_PACKAGE.manifest.templateVersion).toBe(19);
-    expect(PLAYROOM_V19_TEMPLATE_PACKAGE.pages).toHaveLength(14);
-    expect(new Set(PLAYROOM_V19_TEMPLATE_PACKAGE.pages.map(item=>item.pageType))).toEqual(new Set(PLAYROOM_V19_TEMPLATE_PACKAGE.manifest.pageTypes));
-    expect(PLAYROOM_V19_TEMPLATE_PACKAGE.pages.every(item=>item.templateVersion===19)).toBe(true);
-    expect(PLAYROOM_V19_TEMPLATE_PACKAGE.pages.every(item=>item.metadata?.pageFamilyVisualLanguage==='accepted-playroom-v18-home')).toBe(true);
-    expect(PLAYROOM_V19_TEMPLATE_PACKAGE.pages.every(item=>item.metadata?.canonicalUpgradeFromTemplateVersion===18)).toBe(true);
+    expect(PLAYROOM_V19_CANONICAL_TEMPLATE_VERSION).toBe(19);
+    expect(PLAYROOM_V19_CANONICAL_TEMPLATE_PACKAGE.manifest.templateVersion).toBe(19);
+    expect(PLAYROOM_V19_CANONICAL_TEMPLATE_PACKAGE.pages).toHaveLength(14);
+    expect(new Set(PLAYROOM_V19_CANONICAL_TEMPLATE_PACKAGE.pages.map(item=>item.pageType))).toEqual(new Set(PLAYROOM_V19_CANONICAL_TEMPLATE_PACKAGE.manifest.pageTypes));
+    expect(PLAYROOM_V19_CANONICAL_TEMPLATE_PACKAGE.pages.every(item=>item.templateVersion===19)).toBe(true);
+    expect(PLAYROOM_V19_CANONICAL_TEMPLATE_PACKAGE.pages.every(item=>item.metadata?.pageFamilyVisualLanguage==='accepted-playroom-v18-home')).toBe(true);
+    expect(PLAYROOM_V19_CANONICAL_TEMPLATE_PACKAGE.pages.every(item=>item.metadata?.canonicalUpgradeFromTemplateVersion===18)).toBe(true);
   });
 
   it('does not redesign the already accepted home while carrying it into the v19 package',()=>{
@@ -70,23 +70,23 @@ describe('Playroom v19 full page family + section presets',()=>{
       expect(target,`${type}:${id}`).toBeTruthy();
       expect(Object.values(target?.bindings??{}).some(binding=>binding.path===path),`${id}:${path}`).toBe(true);
     }
-    expect(JSON.stringify(PLAYROOM_V19_TEMPLATE_PACKAGE)).not.toMatch(/fixedPrice|stockCount|payment_secret|merchantId|callbackUrl|paymentStatus/i);
+    expect(JSON.stringify(PLAYROOM_V19_CANONICAL_TEMPLATE_PACKAGE)).not.toMatch(/fixedPrice|stockCount|payment_secret|merchantId|callbackUrl|paymentStatus/i);
   });
 
   it('materializes section presets from the finished page family instead of a separate hardcoded preset authority',()=>{
-    const bundle=createStorefrontPresetBundle(PLAYROOM_V19_TEMPLATE_PACKAGE);
+    const bundle=createStorefrontPresetBundle(PLAYROOM_V19_CANONICAL_TEMPLATE_PACKAGE);
     expect(bundle.templateVersion).toBe(19);
     expect(bundle.pagePresets).toHaveLength(14);
 
-    for(const sourcePage of PLAYROOM_V19_TEMPLATE_PACKAGE.pages){
+    for(const sourcePage of PLAYROOM_V19_CANONICAL_TEMPLATE_PACKAGE.pages){
       const raw=bundle.sectionPresets.filter(item=>item.pageKey===sourcePage.pageKey);
       expect(raw).toHaveLength(sourcePage.sections.length);
       for(const preset of raw){
-        const materialized=materializeStorefrontSectionPreset(PLAYROOM_V19_TEMPLATE_PACKAGE,preset);
+        const materialized=materializeStorefrontSectionPreset(PLAYROOM_V19_CANONICAL_TEMPLATE_PACKAGE,preset);
         expect(materialized.id).toBe(preset.nodeId);
       }
 
-      const builderLibrary=createStorefrontBuilderPresetLibrary(PLAYROOM_V19_TEMPLATE_PACKAGE,sourcePage);
+      const builderLibrary=createStorefrontBuilderPresetLibrary(PLAYROOM_V19_CANONICAL_TEMPLATE_PACKAGE,sourcePage);
       const expectedInsertable=sourcePage.sections.filter(item=>item.componentKey==='layout.section').length;
       expect(builderLibrary.sectionPresets.length,sourcePage.pageKey).toBe(expectedInsertable);
       expect(builderLibrary.sectionPresets.every(item=>item.fragment.componentKey==='layout.section')).toBe(true);
@@ -95,7 +95,7 @@ describe('Playroom v19 full page family + section presets',()=>{
 
   it('keeps every v19 page valid through the shared Visual Builder registry with unique node ids',()=>{
     const registry=createStorefrontVisualBuilderComponentRegistry();
-    for(const sourcePage of PLAYROOM_V19_TEMPLATE_PACKAGE.pages){
+    for(const sourcePage of PLAYROOM_V19_CANONICAL_TEMPLATE_PACKAGE.pages){
       const ids=walk(sourcePage.sections).map(item=>item.id);
       expect(new Set(ids).size,sourcePage.pageKey).toBe(ids.length);
       const validation=validateStorefrontPageDocument(sourcePage,registry);
