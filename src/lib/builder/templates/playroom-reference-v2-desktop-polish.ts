@@ -2,7 +2,7 @@ import type {StorefrontComponentNode,StorefrontPageDocument} from '@/lib/builder
 import type {StorefrontInstallableTemplatePackage} from '@/lib/builder/storefront-template-installation';
 import {PLAYROOM_REFERENCE_V2_TEMPLATE_PACKAGE} from '@/lib/builder/templates/playroom-reference-v2';
 
-export const PLAYROOM_REFERENCE_V2_DESKTOP_POLISH_VERSION='shoporation.playroom.reference-v2.desktop-polish.v4' as const;
+export const PLAYROOM_REFERENCE_V2_DESKTOP_POLISH_VERSION='shoporation.playroom.reference-v2.desktop-polish.v5' as const;
 
 type JsonRecord=Record<string,unknown>;
 const rec=(value:unknown):JsonRecord=>value&&typeof value==='object'&&!Array.isArray(value)?value as JsonRecord:{};
@@ -30,6 +30,38 @@ const footerNavigation=(id:string,label:string,items:{label:string;href:string}[
     style:{gap:'.12rem',fontSize:'.56rem',fontWeight:600,color:'#aec0d3',lineHeight:1.08},
     styleSlots:{item:{base:{padding:'0',minHeight:'0'}}},
   },
+});
+
+const platformButton=(id:string,label:string,href:string,background:string,border:string):StorefrontComponentNode=>({
+  id,
+  componentKey:'content.button',
+  componentVersion:1,
+  config:{
+    label,
+    href,
+    variant:'ghost',
+    size:'s',
+    ariaLabel:label.replace('\n',' '),
+    style:{
+      minHeight:'5.05rem',
+      width:'100%',
+      padding:'.38rem .12rem',
+      display:'grid',
+      placeItems:'center',
+      alignContent:'center',
+      whiteSpace:'pre-line',
+      textAlign:'center',
+      fontSize:'.58rem',
+      fontWeight:850,
+      lineHeight:1.25,
+      color:'#f7fbff',
+      background,
+      border,
+      borderRadius:'.42rem',
+      boxShadow:'inset 0 0 20px rgba(255,255,255,.035),0 7px 18px rgba(0,0,0,.18)',
+    },
+  },
+  responsive:{desktop:{gridSpan:2},tablet:{gridSpan:4},mobile:{gridSpan:6}},
 });
 
 function polishNode(node:StorefrontComponentNode):StorefrontComponentNode{
@@ -78,7 +110,20 @@ function polishNode(node:StorefrontComponentNode):StorefrontComponentNode{
       next={...next,config:withSlots(config,{options:{base:{gap:'.34rem'}},option:{base:{minHeight:'5.25rem',padding:'.38rem .1rem'}},optionMedia:{base:{fontSize:'1.48rem'}},optionLabel:{base:{fontSize:'.57rem'}}})};
       break;
     case 'playroom-platform-navigation':
-      next={...next,config:withSlots(config,{grid:{base:{gap:'.34rem'}},card:{base:{minHeight:'5.05rem',padding:'.3rem .08rem',fontSize:'.52rem'}}})};
+      next={
+        ...next,
+        componentKey:'layout.grid',
+        config:{columns:12,gap:'xs',align:'stretch',style:{gap:'.34rem'}},
+        bindings:undefined,
+        children:[
+          platformButton('playroom-platform-playsphere','🎮\nPlaySphere','/webaruhaz?platform=playsphere','linear-gradient(180deg,#1767ff,#1547c8)','1px solid #2f88ff'),
+          platformButton('playroom-platform-boxone','✕\nBoxOne','/webaruhaz?platform=boxone','linear-gradient(180deg,#118748,#08632f)','1px solid #1ebf65'),
+          platformButton('playroom-platform-nintari','▣\nNintari','/webaruhaz?platform=nintari','linear-gradient(180deg,#d91d32,#a10f24)','1px solid #ff4054'),
+          platformButton('playroom-platform-pc','▰\nPC','/webaruhaz?platform=pc','linear-gradient(180deg,#0c2d49,#081e34)','1px solid rgba(91,207,255,.34)'),
+          platformButton('playroom-platform-handheld','▱\nHandheld','/webaruhaz?platform=handheld','linear-gradient(180deg,#12334d,#0a2138)','1px solid rgba(91,207,255,.32)'),
+          platformButton('playroom-platform-mobile','▯\nMobile','/webaruhaz?platform=mobile','linear-gradient(180deg,#12334d,#0a2138)','1px solid rgba(91,207,255,.32)'),
+        ],
+      };
       break;
     case 'playroom-setup':
     case 'playroom-player-two':
