@@ -13,7 +13,9 @@ import {MODERN_LUXE_TEMPLATE_PACKAGE} from '@/lib/builder/templates/modern-luxe'
 import {MONARCHE_TEMPLATE_PACKAGE} from '@/lib/builder/templates/monarche';
 import {MY_PACK_TEMPLATE_PACKAGE} from '@/lib/builder/templates/my-pack';
 import {PERFORMANCE_LAB_TEMPLATE_PACKAGE} from '@/lib/builder/templates/performance-lab';
-import {PLAYROOM_REFERENCE_V2_FIDELITY_V18_TEMPLATE_PACKAGE} from '@/lib/builder/templates/playroom-reference-v2-fidelity-v18';
+import {PLAYROOM_TEMPLATE_PACKAGE} from '@/lib/builder/templates/playroom';
+import {PLAYROOM_REFERENCE_V2_TEMPLATE_PACKAGE} from '@/lib/builder/templates/playroom-reference-v2';
+import {PLAYROOM_V18_TEMPLATE_PACKAGE} from '@/lib/builder/templates/playroom-v18';
 import {RIG_FORGE_TEMPLATE_PACKAGE} from '@/lib/builder/templates/rig-forge';
 import {RITUAL_HOUSE_TEMPLATE_PACKAGE} from '@/lib/builder/templates/ritual-house';
 import {SPEC_LAB_TEMPLATE_PACKAGE} from '@/lib/builder/templates/spec-lab';
@@ -99,7 +101,7 @@ export const STOREFRONT_IMPLEMENTED_TEMPLATE_PACKAGES:readonly StorefrontInstall
   MONARCHE_TEMPLATE_PACKAGE,
   MY_PACK_TEMPLATE_PACKAGE,
   PERFORMANCE_LAB_TEMPLATE_PACKAGE,
-  PLAYROOM_REFERENCE_V2_FIDELITY_V18_TEMPLATE_PACKAGE,
+  PLAYROOM_V18_TEMPLATE_PACKAGE,
   RIG_FORGE_TEMPLATE_PACKAGE,
   RITUAL_HOUSE_TEMPLATE_PACKAGE,
   SPEC_LAB_TEMPLATE_PACKAGE,
@@ -111,6 +113,19 @@ export const STOREFRONT_IMPLEMENTED_TEMPLATE_PACKAGES:readonly StorefrontInstall
   TOOL_DEPOT_TEMPLATE_PACKAGE,
   TRAIL_EXPEDITION_TEMPLATE_PACKAGE,
 ].map(normalizeLegacyTemplatePackage);
+
+// Historical template packages do not appear as separate cards in Template Library,
+// but remain resolvable by exact version so persisted storefronts stay editable
+// until the merchant applies the latest upgrade.
+const STOREFRONT_LEGACY_RESOLVABLE_TEMPLATE_PACKAGES:readonly StorefrontInstallableTemplatePackage[]=[
+  PLAYROOM_TEMPLATE_PACKAGE,
+  PLAYROOM_REFERENCE_V2_TEMPLATE_PACKAGE,
+].map(normalizeLegacyTemplatePackage);
+
+const STOREFRONT_RESOLVABLE_TEMPLATE_PACKAGES:readonly StorefrontInstallableTemplatePackage[]=[
+  ...STOREFRONT_IMPLEMENTED_TEMPLATE_PACKAGES,
+  ...STOREFRONT_LEGACY_RESOLVABLE_TEMPLATE_PACKAGES,
+];
 
 const identity=(template:StorefrontInstallableTemplatePackage)=>`${template.manifest.templateKey}@${template.manifest.templateVersion}`;
 
@@ -129,6 +144,7 @@ function validateConcreteCatalog(packages:readonly StorefrontInstallableTemplate
 }
 
 validateConcreteCatalog(STOREFRONT_IMPLEMENTED_TEMPLATE_PACKAGES);
+validateConcreteCatalog(STOREFRONT_RESOLVABLE_TEMPLATE_PACKAGES);
 
 export type StorefrontTemplateCatalogEntry={
   templateKey:string;
@@ -166,7 +182,7 @@ export const STOREFRONT_TEMPLATE_PORTFOLIO_STATUS=Object.freeze({
 });
 
 export function getStorefrontTemplatePackage(templateKey:string,templateVersion?:number):StorefrontInstallableTemplatePackage|undefined{
-  const candidates=STOREFRONT_IMPLEMENTED_TEMPLATE_PACKAGES.filter(template=>template.manifest.templateKey===templateKey);
+  const candidates=STOREFRONT_RESOLVABLE_TEMPLATE_PACKAGES.filter(template=>template.manifest.templateKey===templateKey);
   if(!candidates.length)return undefined;
   if(templateVersion!==undefined)return candidates.find(template=>template.manifest.templateVersion===templateVersion);
   return candidates.reduce((latest,current)=>current.manifest.templateVersion>latest.manifest.templateVersion?current:latest);
