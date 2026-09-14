@@ -11,12 +11,14 @@ import {StorefrontRuntimeRenderer} from '@/components/builder/storefront-runtime
 import {createStorefrontVisualBuilderRendererRegistry} from '@/components/builder/storefront-builder-renderer-registry';
 import {createStorefrontVisualBuilderComponentRegistry} from '@/lib/builder/storefront-builder-registry';
 import {STOREFRONT_TEMPLATE_PERFORMANCE_BUDGET,STOREFRONT_PERFORMANCE_CONTRACT_VERSION} from '@/lib/builder/storefront-performance-contract';
-import type {StorefrontBuilderPageType,StorefrontViewport} from '@/lib/builder/storefront-foundation';
+import {STOREFRONT_PAGE_TYPES,type StorefrontBuilderPageType,type StorefrontViewport} from '@/lib/builder/storefront-foundation';
 
 export const dynamic='force-dynamic';
 
 type Props={searchParams:Promise<{template?:string;version?:string;page?:string;viewport?:string}>};
-const ALLOWED_PAGE_TYPES=new Set<StorefrontBuilderPageType>(['home','product']);
+// The route is gated by VISUAL_FIDELITY_QA=1, so it can safely render the full
+// canonical storefront page family for exact-head screenshot acceptance.
+const ALLOWED_PAGE_TYPES=new Set<StorefrontBuilderPageType>(STOREFRONT_PAGE_TYPES);
 
 export default async function VisualFidelityQaPage({searchParams}:Props){
   if(process.env.VISUAL_FIDELITY_QA!=='1')notFound();
