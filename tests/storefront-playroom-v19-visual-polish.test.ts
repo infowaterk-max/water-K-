@@ -11,6 +11,10 @@ const find=(nodes:readonly StorefrontComponentNode[],id:string):StorefrontCompon
   }
   return undefined;
 };
+const visibleStrings=(nodes:readonly StorefrontComponentNode[]):string[]=>nodes.flatMap(node=>{
+  const own=['text','title','copy','description','subtitle','label'].flatMap(key=>typeof node.config[key]==='string'?[String(node.config[key])]:[]);
+  return[...own,...visibleStrings(node.children??[])];
+});
 
 describe('Playroom v19 final visual polish',()=>{
   it('ships authored editorial preview fallbacks without replacing E10 authority',()=>{
@@ -21,6 +25,9 @@ describe('Playroom v19 final visual polish',()=>{
     expect(items).toHaveLength(3);
     expect(items.every(item=>typeof item.image==='string'&&String(item.image).startsWith('https://images.pexels.com/'))).toBe(true);
     expect(items.every(item=>typeof item.title==='string'&&String(item.title).length>0)).toBe(true);
+    const coop=items.find(item=>item.id==='coop-night');
+    expect(String(coop?.image)).toContain('/7987293/');
+    expect(String(preview?.bindings?.items?.fallback)).not.toContain('/9071471/');
   });
 
   it('removes the rejected couch lifestyle fallback from editorial hero media while preserving article bindings',()=>{
@@ -33,6 +40,11 @@ describe('Playroom v19 final visual polish',()=>{
     expect(String(articleMedia?.config.src)).toContain('/7987293/');
     expect(articleMedia?.bindings?.src?.path).toBe('content.article.image');
     expect(String(articleMedia?.bindings?.src?.fallback)).toContain('/7987293/');
+  });
+
+  it('keeps internal architecture vocabulary out of customer-facing template copy',()=>{
+    const copy=PLAYROOM_V19_CANONICAL_TEMPLATE_PACKAGE.pages.flatMap(item=>visibleStrings(item.sections)).join(' | ');
+    for(const internal of ['E13','authority','Semantic slot','template-local','Provider-neutral','lifestyle fotó'])expect(copy).not.toContain(internal);
   });
 
   it('keeps account, faq and contact opening compositions compact instead of repeating stacked status cards',()=>{
