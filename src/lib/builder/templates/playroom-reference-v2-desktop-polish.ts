@@ -2,7 +2,7 @@ import type {StorefrontComponentNode,StorefrontPageDocument} from '@/lib/builder
 import type {StorefrontInstallableTemplatePackage} from '@/lib/builder/storefront-template-installation';
 import {PLAYROOM_REFERENCE_V2_TEMPLATE_PACKAGE} from '@/lib/builder/templates/playroom-reference-v2';
 
-export const PLAYROOM_REFERENCE_V2_DESKTOP_POLISH_VERSION='shoporation.playroom.reference-v2.desktop-polish.v6' as const;
+export const PLAYROOM_REFERENCE_V2_DESKTOP_POLISH_VERSION='shoporation.playroom.reference-v2.desktop-polish.v7' as const;
 
 type JsonRecord=Record<string,unknown>;
 const rec=(value:unknown):JsonRecord=>value&&typeof value==='object'&&!Array.isArray(value)?value as JsonRecord:{};
@@ -111,7 +111,7 @@ function polishNode(node:StorefrontComponentNode):StorefrontComponentNode{
       break;
     case 'playroom-game-finder':{
       const options=mapRows(config.options,row=>({...row,copy:PLAY_STYLE_COPY[typeof row.id==='string'?row.id:'']??row.copy}));
-      const bindings=rec(next.bindings);const optionsBinding=rec(bindings.options);
+      const optionsBinding=next.bindings?.options;
       next={...next,...(optionsBinding?{bindings:{...next.bindings,options:{...optionsBinding,fallback:options}}}:{}),config:withSlots({...config,options},{options:{base:{gap:'.34rem'}},option:{base:{minHeight:'5.25rem',padding:'.34rem .1rem',gap:'.13rem'}},optionMedia:{base:{fontSize:'1.48rem'}},optionLabel:{base:{fontSize:'.57rem'}},optionCopy:{base:{fontSize:'.44rem',color:'#9eb4c9',lineHeight:1.05}}})};
       break;
     }
