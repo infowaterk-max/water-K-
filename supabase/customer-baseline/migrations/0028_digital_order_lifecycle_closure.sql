@@ -1,17 +1,5 @@
 -- Digital fulfillment lifecycle guard at the database authority.
 -- Pure digital orders complete without a physical shipped state; mixed orders retain physical shipping.
---
--- Fresh Install baseline normalization:
--- production forward history carries orders.paid_at in the earlier
--- 20260904191500_orders_paid_at_baseline_fix migration. The reviewed customer
--- snapshot predates that repair, so an empty-target replay must restore the same
--- canonical column before the lifecycle function below references it.
-
-alter table public.orders
-  add column if not exists paid_at timestamptz;
-
-comment on column public.orders.paid_at
-is 'Timestamp when payment is confirmed or an admin marks the order paid.';
 
 create or replace function public.transition_tenant_order_v1(
   p_instance_id uuid,
