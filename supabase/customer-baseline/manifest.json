@@ -9,7 +9,7 @@
   "snapshotFile": "supabase/customer-baseline/migrations/0001_shoperation_v1_schema.sql",
   "snapshotCommand": "npm run db:customer:snapshot",
   "freshInstallProofRequired": true,
-  "notes": "The previously ready Fresh Install proof covered customer baseline 0001-0018. Special Commerce Waves 1-5 extended the reviewed forward chain through 0023_special_commerce_existing_engine_closure.sql, and Digital Commerce / customer order documents / fulfillment lifecycle now extend it through 0028_digital_order_lifecycle_closure.sql. The proof contract changed by design; the old proof hash remains invalidated and status remains snapshot-reviewed until a genuine empty-target Fresh Install proof is rerun for the complete ordered baseline. Production remains untouched.",
+  "notes": "The previously ready Fresh Install proof covered customer baseline 0001-0018. Special Commerce Waves 1-5 extended the reviewed forward chain through 0023_special_commerce_existing_engine_closure.sql. Digital Commerce, customer order documents and fulfillment lifecycle extended it through 0028_digital_order_lifecycle_closure.sql; Product Documents now extend the reviewed forward chain through 0030_product_documents_runtime_hardening.sql. The proof contract changed by design; the old proof hash remains invalidated and status remains snapshot-reviewed until a genuine empty-target Fresh Install proof is rerun for the complete ordered baseline. Production remains untouched.",
   "authBootstrapFile": "supabase/customer-baseline/auth-bootstrap.sql",
   "proofContractSha256": null
 }
