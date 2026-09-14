@@ -28,7 +28,9 @@ export function augmentStorefrontDigitalCommercePreviewContext(input:{
     {id:'preview-revoked',title:'Korábbi digitális tartalom',description:'Revoked állapot mintája',status:'revoked'},
   ],orderDocuments:[
     {id:'preview-invoice',title:'Számla · PLAY-2026-001',description:'Rendelési dokumentum',status:'available',href:'/fiokom/letoltesek'},
-    {id:'preview-warranty',title:'Garancialevél · Neon Pro Controller',description:'Merchant által biztosított dokumentum',status:'available',href:'/fiokom/letoltesek'},
+    {id:'preview-warranty',title:'Garancialevél · Neon Pro Controller',description:'Merchant által biztosított rendelési dokumentum',status:'available',href:'/fiokom/letoltesek'},
+  ],productDocuments:[
+    {id:'preview-product-manual',title:'Neon Pro Controller – használati útmutató',description:'Termékhez kapcsolódó dokumentum, külön Product Documents authorityból.',meta:'Neon Pro Controller · PDF',status:'available',href:'/storefront-template-preview?previewProductDocument=1'},
   ]};
   if(input.page.pageType==='product'){
     digitalCommerce.productFulfillment={state:'ready',mode:'digital',copy:'Digitális játék: nincs fizikai szállítás, a hozzáférés az igazolt fizetés után aktiválódik.',documentCenterHref:'/fiokom/letoltesek'};

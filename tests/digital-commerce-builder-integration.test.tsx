@@ -37,6 +37,7 @@ describe('Digital Commerce A3 shared Builder integration',()=>{
       expect(definition?.runtimeBindingSlots).toContain('model');
       expect(definition?.bindingSlots??[]).not.toContain('model');
     }
+    expect(components.get('commerce.documents-center',1)?.manifest.configurable).toContain('productTitle');
   });
 
   it('overwrites forged Page Schema model bindings with canonical shared runtime authority paths',()=>{
@@ -78,6 +79,25 @@ describe('Digital Commerce A3 shared Builder integration',()=>{
       capability={capability}
     />);
     expect(html).not.toContain('data-storefront-digital-commerce="product-documents"');
+  });
+
+  it('converges account discoverability while keeping all three document authorities visibly distinct',()=>{
+    const document=page('account','commerce.documents-center');
+    const html=renderToStaticMarkup(<StorefrontRuntimeRenderer
+      page={document}
+      viewport="desktop"
+      bindingContext={{commerce:{digitalCommerce:{documentsCenter:{state:'ready',digital:[{id:'digital-1',title:'Orbit Breakers',status:'available',href:'/api/digital-downloads/asset-1'}],orderDocuments:[{id:'order-1',title:'Garancialevél',status:'available',href:'/api/order-documents/order-1'}],productDocuments:[{id:'product-1',title:'Controller kézikönyv',status:'available',href:'/api/product-documents/product-1?variantId=variant-1'}]}}}}}
+      componentRegistry={createStorefrontVisualBuilderComponentRegistry()}
+      rendererRegistry={createStorefrontVisualBuilderRendererRegistry()}
+      capability={capability}
+    />);
+    expect(html).toContain('data-document-authority="digital"');
+    expect(html).toContain('data-document-authority="order"');
+    expect(html).toContain('data-document-authority="product"');
+    expect(html).toContain('Digitális tartalmak');
+    expect(html).toContain('Rendelési dokumentumok');
+    expect(html).toContain('Termékdokumentumok');
+    expect(html).toContain('Controller kézikönyv');
   });
 
   it('composes A3 surfaces into Playroom v20 and exposes them through semantic capability discovery',()=>{

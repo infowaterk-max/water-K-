@@ -44,7 +44,7 @@ export const STOREFRONT_DIGITAL_COMMERCE_COMPONENT_DEFINITIONS:readonly Storefro
   definition({
     componentKey:'commerce.documents-center',
     pageTypes:['account'],
-    configurable:['eyebrow','title','copy','digitalTitle','orderTitle','emptyLabel','loginLabel','presentation','styleSlots'],
+    configurable:['eyebrow','title','copy','digitalTitle','orderTitle','productTitle','emptyLabel','loginLabel','presentation','styleSlots'],
     features:['orders'],
   }),
   definition({

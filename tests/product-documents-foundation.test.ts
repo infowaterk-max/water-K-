@@ -71,6 +71,19 @@ describe('Product Documents foundation',()=>{
     expect(page).toContain('/api/product-documents/${document.documentId}?variantId=');
   });
 
+  test('account convergence discovers purchased-product documents without becoming a new file authority',()=>{
+    const service=read('src/lib/commerce/product-documents.ts');
+    const account=read('src/app/fiokom/letoltesek/page.tsx');
+    expect(service).toContain("from('order_items')");
+    expect(service).toContain(".eq('orders.instance_id',instanceId)");
+    expect(service).toContain(".eq('orders.customer_id',customerId)");
+    expect(service).toContain('listStorefrontProductDocuments(instanceId,variant.variantId,customerId)');
+    expect(service).not.toContain("from('product_documents')");
+    expect(account).toContain('listAccountProductDocuments');
+    expect(account).toContain('Termékdokumentumok');
+    expect(account).toContain('item.downloadHref');
+  });
+
   test('merchant can discover the Product Documents manager from canonical admin navigation',()=>{
     const nav=read('src/lib/navigation/admin-ia.ts');
     const page=read('src/app/admin/termekek/dokumentumok/page.tsx');

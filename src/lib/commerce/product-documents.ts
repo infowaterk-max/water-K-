@@ -19,6 +19,12 @@ export type StorefrontProductDocument={
   sizeBytes:number;
   variantSpecific:boolean;
 };
+export type AccountProductDocument=StorefrontProductDocument&{
+  variantId:string;
+  productName:string;
+  variantLabel:string|null;
+  downloadHref:string;
+};
 
 type AuthorizedProductDocument={
   documentId:string;
@@ -47,6 +53,44 @@ export async function listStorefrontProductDocuments(instanceId:string,variantId
     if(!row.documentId||!row.title||!row.fileName||!['public','account'].includes(String(row.visibility)))return[];
     return[{...row,description:row.description??null,sortOrder:Number(row.sortOrder??0),sizeBytes:Number(row.sizeBytes??0),variantSpecific:row.variantSpecific===true}as StorefrontProductDocument];
   });
+}
+
+/**
+ * Account discoverability projection only. Product Document visibility and
+ * download authorization remain owned by the Product Documents RPC authority.
+ * The order query only determines which purchased variants are relevant to the
+ * signed-in customer; it never grants file access by itself.
+ */
+export async function listAccountProductDocuments(instanceId:string,customerId:string):Promise<AccountProductDocument[]>{
+  const admin=createAdminClient();
+  const{data,error}=await admin.from('order_items')
+    .select('variant_id,product_name,variant_label,orders!inner(customer_id,status,instance_id)')
+    .eq('instance_id',instanceId)
+    .eq('orders.instance_id',instanceId)
+    .eq('orders.customer_id',customerId)
+    .in('orders.status',['paid','processing','shipped','completed'])
+    .limit(100);
+  if(error)throw error;
+
+  const variants=new Map<string,{variantId:string;productName:string;variantLabel:string|null}>();
+  for(const raw of data??[]){
+    const row=raw as unknown as{variant_id?:string|null;product_name?:string|null;variant_label?:string|null};
+    if(!row.variant_id||variants.has(row.variant_id))continue;
+    variants.set(row.variant_id,{variantId:row.variant_id,productName:row.product_name?.trim()||'Termék',variantLabel:row.variant_label?.trim()||null});
+  }
+
+  const groups=await Promise.all([...variants.values()].map(async variant=>{
+    const documents=await listStorefrontProductDocuments(instanceId,variant.variantId,customerId);
+    return documents.map(document=>({
+      ...document,
+      variantId:variant.variantId,
+      productName:variant.productName,
+      variantLabel:variant.variantLabel,
+      downloadHref:`/api/product-documents/${document.documentId}?variantId=${encodeURIComponent(variant.variantId)}`,
+    }));
+  }));
+  const seen=new Set<string>();
+  return groups.flat().filter(document=>{if(seen.has(document.documentId))return false;seen.add(document.documentId);return true;});
 }
 
 export async function authorizeProductDocumentDownload(input:{instanceId:string;documentId:string;variantId:string;customerId:string|null;requestFingerprint:string}){
