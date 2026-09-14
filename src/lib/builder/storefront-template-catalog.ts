@@ -13,7 +13,7 @@ import {MODERN_LUXE_TEMPLATE_PACKAGE} from '@/lib/builder/templates/modern-luxe'
 import {MONARCHE_TEMPLATE_PACKAGE} from '@/lib/builder/templates/monarche';
 import {MY_PACK_TEMPLATE_PACKAGE} from '@/lib/builder/templates/my-pack';
 import {PERFORMANCE_LAB_TEMPLATE_PACKAGE} from '@/lib/builder/templates/performance-lab';
-import {PLAYROOM_REFERENCE_V2_TEMPLATE_PACKAGE} from '@/lib/builder/templates/playroom-reference-v2';
+import {PLAYROOM_REFERENCE_V2_FIDELITY_V18_TEMPLATE_PACKAGE} from '@/lib/builder/templates/playroom-reference-v2-fidelity-v18';
 import {RIG_FORGE_TEMPLATE_PACKAGE} from '@/lib/builder/templates/rig-forge';
 import {RITUAL_HOUSE_TEMPLATE_PACKAGE} from '@/lib/builder/templates/ritual-house';
 import {SPEC_LAB_TEMPLATE_PACKAGE} from '@/lib/builder/templates/spec-lab';
@@ -99,7 +99,7 @@ export const STOREFRONT_IMPLEMENTED_TEMPLATE_PACKAGES:readonly StorefrontInstall
   MONARCHE_TEMPLATE_PACKAGE,
   MY_PACK_TEMPLATE_PACKAGE,
   PERFORMANCE_LAB_TEMPLATE_PACKAGE,
-  PLAYROOM_REFERENCE_V2_TEMPLATE_PACKAGE,
+  PLAYROOM_REFERENCE_V2_FIDELITY_V18_TEMPLATE_PACKAGE,
   RIG_FORGE_TEMPLATE_PACKAGE,
   RITUAL_HOUSE_TEMPLATE_PACKAGE,
   SPEC_LAB_TEMPLATE_PACKAGE,

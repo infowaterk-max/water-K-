@@ -26,7 +26,7 @@ import {TECH_DECK_DESIGN_TOKENS} from '@/lib/builder/templates/tech-deck';
 import {TOOL_DEPOT_DESIGN_TOKENS} from '@/lib/builder/templates/tool-depot';
 import {TRAIL_EXPEDITION_DESIGN_TOKENS} from '@/lib/builder/templates/trail-expedition';
 
-export const STOREFRONT_TEMPLATE_PREVIEW_DEMO_VERSION='shoporation.storefront-template-preview-demo.v1' as const;
+export const STOREFRONT_TEMPLATE_PREVIEW_DEMO_VERSION='shoporation.storefront-template-preview-demo.v3' as const;
 
 const PREVIEW_THEME_BY_TEMPLATE:Record<string,Readonly<Record<string,string>>>=Object.freeze({
   'outdoor.alpine-lodge':ALPINE_LODGE_DESIGN_TOKENS,
@@ -73,6 +73,15 @@ const CATEGORY_PRODUCTS:Record<string,readonly string[]>={
   tech:['Studio One','Creator Pro','Core Device','Desk Dock'],
 };
 
+const PLAYROOM_PREVIEW_PRODUCTS=Object.freeze([
+  {name:'Orbit Breakers',image:'/storefront/playroom/game-orbit.svg',price:22990,badge:'KIEMELT',stockLabel:'Raktáron'},
+  {name:'Neon Rally',image:'/storefront/playroom/game-rally.svg',price:19990,badge:'ÚJ',stockLabel:'Raktáron'},
+  {name:'Midnight Quest',image:'/storefront/playroom/game-quest.svg',price:26990,badge:'',stockLabel:'Raktáron'},
+  {name:'Cyber Arena',image:'/storefront/playroom/game-arena.svg',price:23990,badge:'TRENDING',stockLabel:'Raktáron'},
+  {name:'Party Rift',image:'/storefront/playroom/game-party.svg',price:14990,badge:'CO-OP',stockLabel:'Raktáron'},
+  {name:'Starforge',image:'/storefront/playroom/game-starforge.svg',price:29990,badge:'LIMITÁLT',stockLabel:'Limitált készlet'},
+]);
+
 const CATEGORY_COLLECTIONS:Record<string,readonly string[]>={
   beauty:['Rutinok','Újdonságok','Összetevők','Best seller'],
   fashion:['New season','Essentials','Editorial edit','Accessories'],
@@ -116,6 +125,19 @@ function collectImageFallbacks(page:StorefrontPageDocument):string[]{
   return images;
 }
 
+function previewProductLimit(page:StorefrontPageDocument){
+  let limit=4;
+  const visit=(node:StorefrontComponentNode)=>{
+    if(node.componentKey==='commerce.product-grid'){
+      const columns=node.config.columns;
+      if(typeof columns==='number'&&Number.isFinite(columns))limit=Math.max(limit,Math.min(6,Math.max(2,Math.round(columns))));
+    }
+    for(const child of node.children??[])visit(child);
+  };
+  for(const section of page.sections)visit(section);
+  return limit;
+}
+
 function fixtureNames(template:StorefrontInstallableTemplatePackage,type:'product'|'collection'){
   return(template.demoFixtures??[])
     .filter(item=>item.entityType===type)
@@ -126,10 +148,23 @@ function fixtureNames(template:StorefrontInstallableTemplatePackage,type:'produc
 }
 
 function demoProducts(template:StorefrontInstallableTemplatePackage,page:StorefrontPageDocument){
+  if(template.manifest.templateKey==='gaming.playroom'){
+    return PLAYROOM_PREVIEW_PRODUCTS.slice(0,previewProductLimit(page)).map((product,index)=>({
+      id:`preview-product-${index+1}`,
+      name:product.name,
+      href:'#preview-demo',
+      image:product.image,
+      imageAlt:`${product.name} eredeti Playroom játékborító`,
+      price:product.price,
+      compareAtPrice:index===1?24990:null,
+      badge:product.badge,
+      stockLabel:product.stockLabel,
+    }));
+  }
   const category=template.manifest.templateKey.split('.')[0]??'tech';
   const fixture=fixtureNames(template,'product');
   const fallback=CATEGORY_PRODUCTS[category]??CATEGORY_PRODUCTS.tech;
-  const names=[...fixture,...fallback].slice(0,4);
+  const names=[...new Set([...fixture,...fallback])].slice(0,previewProductLimit(page));
   const images=collectImageFallbacks(page);
   return names.map((name,index)=>({
     id:`preview-product-${index+1}`,
