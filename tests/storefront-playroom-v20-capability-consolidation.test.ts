@@ -31,8 +31,10 @@ describe('Playroom v20 launch capability consolidation',()=>{
     expect(walk(page('contact').sections,'support.contact-form')).toBe(true);
     expect(page('home').metadata?.templateVersionPolicy).toBe('bump-only-for-factory-composition-or-schema-change');
     expect(page('contact').metadata?.adaptivePlanModel).toBe('same-template-alap-pro-entitlement-aware');
-    const support=read('src/components/builder/storefront-support.tsx');
-    expect(support).toContain("fetch('/api/support'");
+    const supportRenderer=read('src/components/builder/storefront-support.tsx');
+    const supportClient=read('src/components/builder/storefront-support-contact-form-client.tsx');
+    expect(supportRenderer).toContain('StorefrontSupportContactFormClient');
+    expect(supportClient).toContain("fetch('/api/support'");
     const newsletter=read('src/components/builder/storefront-newsletter-signup-runtime.tsx');
     expect(newsletter).toContain("fetch('/api/marketing/newsletter'");
     expect(newsletter).toContain('--shoporation-radius-s');
