@@ -64,15 +64,17 @@ export async function authorizeDigitalDownload(input:{
   assetId:string;
   customerId:string|null;
   guestToken?:string|null;
+  requestFingerprint?:string|null;
 }){
   const guestHash=input.guestToken?hashDigitalGuestToken(input.guestToken):null;
   const admin=createAdminClient();
-  const{data,error}=await admin.rpc('authorize_digital_download_v1',{
+  const{data,error}=await admin.rpc('authorize_digital_download_v2',{
     p_instance_id:input.instanceId,
     p_asset_id:input.assetId,
     p_order_id:input.orderId,
     p_customer_id:input.customerId,
     p_guest_token_hash:guestHash,
+    p_request_fingerprint:input.requestFingerprint??null,
   });
   if(error||!data)throw error??new Error('DIGITAL_DOWNLOAD_NOT_AUTHORIZED');
   const authorization=data as Partial<AuthorizedDownload>;
