@@ -11,7 +11,7 @@ const withStyle=(config:JsonRecord,patch:JsonRecord):JsonRecord=>({...config,sty
 // Decorative stock photography only. Sources are free-to-use Pexels assets; no UI,
 // pricing, product truth, compatibility state or other storefront authority is baked in.
 const PHOTO={
-  hero:'https://images.pexels.com/photos/9069213/pexels-photo-9069213.jpeg?auto=compress&cs=tinysrgb&w=1800',
+  hero:'https://images.pexels.com/photos/7776099/pexels-photo-7776099.jpeg?auto=compress&cs=tinysrgb&w=1800',
   community:'https://images.pexels.com/photos/8762792/pexels-photo-8762792.jpeg?auto=compress&cs=tinysrgb&w=1400',
   controllers:'https://images.pexels.com/photos/7776882/pexels-photo-7776882.jpeg?auto=compress&cs=tinysrgb&w=1000',
   headset:'https://images.pexels.com/photos/7858756/pexels-photo-7858756.jpeg?auto=compress&cs=tinysrgb&w=1000',
@@ -41,20 +41,28 @@ function refineNode(node:StorefrontComponentNode):StorefrontComponentNode{
   const config=next.config as JsonRecord;
 
   switch(next.id){
+    case 'playroom-hero':
+      next={...next,config:withStyle(config,{minHeight:'13.75rem'})};
+      break;
     case 'playroom-hero-art':
-      next={...next,config:{...withStyle(config,{objectFit:'cover',objectPosition:'center 55%',filter:'saturate(1.22) contrast(1.12) brightness(.78)',transform:'scale(1.02)'}),src:PHOTO.hero,alt:'Barátok közös gaming esten, neonfényes nappaliban'}};
+      next={...next,config:{...withStyle(config,{objectFit:'cover',objectPosition:'center 51%',filter:'saturate(1.2) contrast(1.12) brightness(.7)',transform:'scale(1.015)'}),src:PHOTO.hero,alt:'Három barát közös gaming esten, kanapéról nézve'}};
       break;
     case 'playroom-hero-copy':
-      next={...next,config:withStyle(config,{width:'43%',padding:'.82rem 1.2rem 3.05rem',background:'linear-gradient(90deg,rgba(1,7,20,.91),rgba(2,9,24,.69) 58%,rgba(2,9,24,.18) 88%,transparent)'})};
+      next={...next,config:withStyle(config,{width:'40.5%',padding:'.7rem 1.2rem 2.85rem',background:'linear-gradient(90deg,rgba(1,7,20,.94),rgba(2,9,24,.7) 58%,rgba(2,9,24,.13) 90%,transparent)'})};
       break;
     case 'playroom-hero-title':
-      next={...next,config:withStyle(config,{fontSize:'clamp(2.8rem,4vw,4.25rem)',maxWidth:'7.8ch',textShadow:'0 5px 24px rgba(0,0,0,.62)'})};
+      next={...next,config:withStyle(config,{fontSize:'clamp(2.7rem,3.8vw,4.05rem)',maxWidth:'7.7ch',textShadow:'0 5px 24px rgba(0,0,0,.7)'})};
       break;
     case 'playroom-game-finder':
-      next={...next,config:{...config,options:playStyleOptions,styleSlots:{...rec(config.styleSlots),option:{base:{minHeight:'4.45rem',padding:'.38rem .12rem',borderRadius:'.42rem',background:'linear-gradient(180deg,#0b2742,#07192d)',border:'1px solid rgba(76,208,255,.25)',boxShadow:'inset 0 0 18px rgba(49,222,255,.035)'}},optionActive:{base:{background:'linear-gradient(180deg,#164fb5,#11347c)',border:'1px solid #50b6ff',boxShadow:'0 0 20px rgba(40,134,255,.2)'}},optionMedia:{base:{fontSize:'1.5rem',color:'#53e8ff',textShadow:'0 0 14px rgba(55,230,255,.28)'}},optionLabel:{base:{fontSize:'.58rem',fontWeight:850}},optionCopy:{base:{fontSize:'.47rem',color:'#a8bdd2'}}}}};
+      next={...next,config:{...config,options:playStyleOptions,styleSlots:{...rec(config.styleSlots),option:{base:{minHeight:'4.05rem',padding:'.34rem .12rem',borderRadius:'.42rem',background:'linear-gradient(180deg,#0b2742,#07192d)',border:'1px solid rgba(76,208,255,.25)',boxShadow:'inset 0 0 18px rgba(49,222,255,.035)'}},optionActive:{base:{background:'linear-gradient(180deg,#164fb5,#11347c)',border:'1px solid #50b6ff',boxShadow:'0 0 20px rgba(40,134,255,.2)'}},optionMedia:{base:{fontSize:'1.42rem',color:'#53e8ff',textShadow:'0 0 14px rgba(55,230,255,.28)'}},optionLabel:{base:{fontSize:'.56rem',fontWeight:850}},optionCopy:{base:{fontSize:'.45rem',color:'#a8bdd2'}}}}};
       break;
     case 'playroom-platform-navigation':
-      next={...next,config:{...config,items:platformItems,columns:6,styleSlots:{...rec(config.styleSlots),grid:{base:{display:'grid',gridTemplateColumns:'repeat(6,minmax(0,1fr))',gap:'.38rem'}},card:{base:{display:'grid',placeItems:'center',minHeight:'4.3rem',padding:'.32rem .1rem',borderRadius:'.42rem',background:'linear-gradient(180deg,#0a2946,#06182d)',border:'1px solid rgba(76,208,255,.24)',fontSize:'.54rem',fontWeight:800,textAlign:'center',lineHeight:1.2,boxShadow:'inset 0 0 16px rgba(61,223,255,.025)'}},symbol:{base:{fontSize:'1.46rem',lineHeight:1,color:'#f3f7ff'}},label:{base:{fontSize:'.57rem',fontWeight:850}},itemCopy:{base:{fontSize:'.46rem',color:'#9fb6cc'}}}}};
+      next={...next,config:{...config,items:platformItems,columns:6,styleSlots:{...rec(config.styleSlots),grid:{base:{display:'grid',gridTemplateColumns:'repeat(6,minmax(0,1fr))',gap:'.38rem'}},card:{base:{display:'grid',placeItems:'center',minHeight:'3.95rem',padding:'.3rem .1rem',borderRadius:'.42rem',background:'linear-gradient(180deg,#0a2946,#06182d)',border:'1px solid rgba(76,208,255,.24)',fontSize:'.54rem',fontWeight:800,textAlign:'center',lineHeight:1.2,boxShadow:'inset 0 0 16px rgba(61,223,255,.025)'}},symbol:{base:{fontSize:'1.4rem',lineHeight:1,color:'#f3f7ff'}},label:{base:{fontSize:'.56rem',fontWeight:850}},itemCopy:{base:{fontSize:'.44rem',color:'#9fb6cc'}}}}};
+      break;
+    case 'playroom-setup':
+    case 'playroom-player-two':
+    case 'playroom-upgrade':
+      next={...next,config:withStyle(config,{minHeight:'11.45rem'})};
       break;
     case 'playroom-player-controller-image':
       next={...next,config:{...withStyle(config,{objectFit:'cover',objectPosition:'center 58%',filter:'saturate(1.18) contrast(1.06)'}),src:PHOTO.controllers,alt:'Két kontroller hangulatos game night környezetben'}};
@@ -67,14 +75,26 @@ function refineNode(node:StorefrontComponentNode):StorefrontComponentNode{
       next={...next,config:{...withStyle(config,{objectFit:'cover',objectPosition:'center 36%',filter:'saturate(1.15) contrast(1.04) brightness(.92)'}),src:PHOTO.community,alt:'Barátok közös játék közben'}};
       break;
     case 'playroom-player-couch-image':
-      next={...next,config:{...withStyle(config,{objectFit:'cover',objectPosition:'center 55%',filter:'saturate(1.15) contrast(1.05) brightness(.86)'}),src:PHOTO.hero,alt:'Kanapés közös videojáték neonfényes szobában'}};
+      next={...next,config:{...withStyle(config,{objectFit:'cover',objectPosition:'center 50%',filter:'saturate(1.14) contrast(1.05) brightness(.82)'}),src:PHOTO.hero,alt:'Kanapés közös videojáték neonfényes szobában'}};
       break;
     case 'playroom-upgrade-monitor-image':
     case 'playroom-upgrade-chair-image':
       next={...next,config:{...withStyle(config,{objectFit:'cover',objectPosition:next.id==='playroom-upgrade-chair-image'?'84% center':'22% center',filter:'saturate(1.2) contrast(1.08)'}),src:PHOTO.setup,alt:next.id==='playroom-upgrade-chair-image'?'Gaming szék RGB setup mellett':'RGB gaming monitor és asztali setup'}};
       break;
+    case 'playroom-featured-games':
+      next={...next,config:withStyle(config,{minHeight:'10.65rem'})};
+      break;
+    case 'playroom-community-stage':
+      next={...next,config:withStyle(config,{minHeight:'3.7rem',padding:'.3rem .62rem'})};
+      break;
     case 'playroom-community-art':
       next={...next,config:{...withStyle(config,{opacity:.98,objectFit:'cover',objectPosition:'center 43%',filter:'saturate(1.22) contrast(1.08) brightness(.82)'}),src:PHOTO.community,alt:'Gaming közösség együtt játszik neonfényben'}};
+      break;
+    case 'playroom-home-footer':
+      next={...next,config:withStyle(config,{padding:'.58rem 2.35rem .68rem'})};
+      break;
+    case 'playroom-footer-logo':
+      next={...next,config:withStyle(config,{width:'2.15rem',height:'2.15rem'})};
       break;
   }
 
