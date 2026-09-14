@@ -13,7 +13,8 @@ const withSlots=(config:JsonRecord,patch:Record<string,JsonRecord>):JsonRecord=>
     ...config,
     styleSlots:Object.fromEntries(Object.entries({...existing,...patch}).map(([slot,value])=>{
       const current=rec(existing[slot]);
-      return[slot,{...current,base:{...rec(current.base),...rec(value.base)}}];
+      const incoming=rec(value);
+      return[slot,{...current,base:{...rec(current.base),...rec(incoming.base)}}];
     })),
   };
 };
