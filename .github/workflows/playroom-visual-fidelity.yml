@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - feature/playroom-reference-fidelity-production-polish
+      - fix/playroom-v18-upgrade-path
 
 permissions:
   contents: read
@@ -41,7 +42,7 @@ jobs:
         run: |
           npm run start -- -H 127.0.0.1 -p 3000 > /tmp/playroom-fidelity-next.log 2>&1 &
           for attempt in $(seq 1 60); do
-            if curl --fail --silent --show-error 'http://127.0.0.1:3000/visual-fidelity-qa?template=gaming.playroom&version=2&page=home&viewport=desktop' > /dev/null; then
+            if curl --fail --silent --show-error 'http://127.0.0.1:3000/visual-fidelity-qa?template=gaming.playroom&version=18&page=home&viewport=desktop' > /dev/null; then
               exit 0
             fi
             sleep 2
