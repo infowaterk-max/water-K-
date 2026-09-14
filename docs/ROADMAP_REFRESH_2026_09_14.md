@@ -6,7 +6,8 @@ Status: canonical sequencing update before the next development block.
 
 - Production `main`: `74f4a1b17cb9775d3ea228f76b4aaff8c1b4696c`.
 - Playroom v20 consolidation: Draft PR #343, head `428ff9f963c4eeebda01a2bf5011bb12f9675402`, exact-head CI and 14-page desktop screenshot QA green, not merged and not deployed.
-- The accepted storefront catalog target remains 42 concrete source-controlled designs. The current catalog contains 24 merchant-facing concrete packages; missing entries must never be fabricated.
+- The accepted storefront portfolio target remains **42 genuinely distinct, launch-quality designs**.
+- The source-controlled catalog currently contains 24 merchant-facing technical packages, but **package existence is not launch-quality acceptance**. At this checkpoint only **Playroom** is accepted as the reference-quality template family. Therefore the launch-quality portfolio gap is **41 templates**: the existing non-Playroom packages must be rebuilt/reworked to the accepted quality bar, and the still-missing designs must be implemented as real packages. Missing or inadequate entries must never be counted as finished merely because a technical package exists.
 - Page Schema, Storefront Runtime, draft/preview/publish/rollback, Visual Builder, responsive inheritance, Global Styles, Presets, Saved Blocks/Global Elements, Alap/Pro entitlement gates and the shared Special Commerce engines remain the existing authorities.
 
 ## Canonical launch principles
@@ -18,6 +19,7 @@ Status: canonical sequencing update before the next development block.
 5. Add-ons/capabilities inherit the current live storefront design system and appear at semantic insertion points where merchants and shoppers naturally expect them.
 6. Template version increments represent actual factory Page Schema/composition/schema/migration changes. A backward-compatible shared engine improvement must not force `v21`, `v22`, ... clones.
 7. No `main` merge or production deployment before the exact-head acceptance gate of the current block and explicit Product Owner approval.
+8. **Playroom is the current visual/structural launch-quality benchmark.** Existing non-Playroom template packages do not count as finished merely because they compile, render or previously passed technical acceptance; each must earn fresh visual/UX/Builder acceptance against the current standard.
 
 ---
 
@@ -145,17 +147,26 @@ Only after A1–A6:
 
 ---
 
-# Phase B — Complete the 42-template portfolio
+# Phase B — Complete / rebuild the remaining 41 launch-quality templates
 
-The catalog target is 42 genuinely different visual designs, not 42 aliases/reskins and not Alap/Pro duplication.
+The launch target is **42 genuinely different, launch-quality visual designs**, not 42 aliases/reskins, not Alap/Pro duplication, and not a count of technically existing packages.
 
-Current concrete merchant-facing package count: 24. Remaining design gap: 18.
+**Accepted launch-quality template families at this checkpoint: 1 — Playroom.**
+
+**Remaining launch-quality work: 41 template families.** This consists of both:
+
+- existing non-Playroom source packages that must be substantially reworked/rebuilt where needed to reach the Playroom-level quality bar; and
+- template families/designs that do not yet have a genuine source-controlled implementation.
+
+A previous technical acceptance, compile PASS, registry presence or old screenshot does **not** make a template launch-ready. Every one of the remaining 41 must pass the current product-quality gate independently.
 
 For every remaining template family:
 
-- genuinely distinct visual composition;
+- genuinely distinct visual composition; no reskin-only acceptance;
+- quality and information-density appropriate to its category rather than a generic storefront shell;
 - all canonical page types required by the package contract;
 - shared grid/Page Schema/Builder contract;
+- full Builder editability of merchant-meaningful media/copy/CTA/layout without moving commerce truth into decorative content;
 - Alap + Pro capability-aware behavior;
 - shared Digital Commerce + Product Documents support from Phase A;
 - Contact/Newsletter where appropriate through shared capability surfaces;
@@ -230,6 +241,6 @@ All such capabilities must attach to the shared Page Schema/Builder/add-on contr
 3. **Shared storefront/Builder integration** across all templates, with Playroom as the first full acceptance implementation.
 4. **Playroom functional + responsive + accessibility/state/performance closure**.
 5. **Playroom v20 final merge/release**.
-6. **Remaining 18 template designs**, reusing the completed shared capability platform.
+6. **Remaining 41 template families — rebuild/rework/implement to the Playroom launch-quality bar**, reusing the completed shared capability platform.
 7. **Market Ready 1.0 final certification**.
 8. **AI Support / Shoperation Knowledge** and post-launch premium expansion according to business priority.
