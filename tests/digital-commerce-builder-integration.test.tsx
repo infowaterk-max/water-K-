@@ -1,3 +1,5 @@
+import {readFileSync} from 'node:fs';
+import {join} from 'node:path';
 import {renderToStaticMarkup} from 'react-dom/server';
 import {describe,expect,it} from 'vitest';
 import {StorefrontRuntimeRenderer} from '@/components/builder/storefront-runtime-renderer';
@@ -100,5 +102,11 @@ describe('Digital Commerce A3 shared Builder integration',()=>{
     for(const pageDocument of PLAYROOM_V20_TEMPLATE_PACKAGE.pages){
       expect(pageDocument.metadata?.digitalCommerceFactoryAcceptance).toEqual(['downloadable-game','physical-gaming-product','mixed-basket']);
     }
+  });
+
+  it('keeps storefront fulfillment projection aligned with the canonical variant-over-product precedence',()=>{
+    const source=readFileSync(join(process.cwd(),'src/lib/catalog-server.ts'),'utf8');
+    expect(source).toContain("instance_id,fulfillment_type,products!inner");
+    expect(source).toContain("fulfillmentType:normalizeFulfillment(row.fulfillment_type??product?.fulfillment_type)");
   });
 });
