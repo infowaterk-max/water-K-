@@ -7,13 +7,47 @@ const read = (file: string) => fs.readFileSync(path.join(root, file), 'utf8');
 const cartPage = read('src/app/kosar/page.tsx');
 const checkoutPage = read('src/app/penztar/page.tsx');
 const checkoutForm = read('src/components/checkout/checkout-form.tsx');
+const checkoutStyle = read('src/components/checkout/checkout-guided.module.css');
 
 describe('checkout workflow contracts', () => {
-  test('cart keeps the customer on the three-step commerce journey', () => {
-    expect(cartPage).toMatch(/1 · Kosár/);expect(cartPage).toMatch(/2 · Adatok és szállítás/);expect(cartPage).toMatch(/3 · Fizetés és rendelés/);expect(cartPage).toMatch(/CartView/);expect(cartPage).toMatch(/ProductRecommendations/);
+  test('cart and checkout expose the canonical four-step commerce journey', () => {
+    for(const source of [cartPage,checkoutPage]){
+      expect(source).toMatch(/1 · Kosár/);
+      expect(source).toMatch(/2 · Szállítás/);
+      expect(source).toMatch(/3 · Fizetés/);
+      expect(source).toMatch(/4 · Összesítés/);
+    }
+    expect(cartPage).toMatch(/CartView/);expect(cartPage).toMatch(/ProductRecommendations/);
+    expect(checkoutPage).toMatch(/data-shared-checkout-contract="guided-accordion-v1"/);
   });
   test('checkout keeps recovery and configured commerce settings wired in', () => {
     expect(checkoutPage).toMatch(/getCommerceSettings/);expect(checkoutPage).toMatch(/CheckoutRecoverySaver/);expect(checkoutPage).toMatch(/shippingOptions=\{settings\.shippingOptions\}/);expect(checkoutPage).toMatch(/paymentOptions=\{settings\.paymentOptions\}/);expect(checkoutPage).toMatch(/freeShippingThreshold=\{settings\.freeShippingThreshold\}/);
+  });
+  test('shared E13 checkout owns a real accessible accordion instead of template-local fake steps',()=>{
+    expect(checkoutForm).toMatch(/type CheckoutStep='shipping'\|'payment'\|'summary'/);
+    expect(checkoutForm).toMatch(/aria-expanded=\{active\}/);
+    expect(checkoutForm).toMatch(/aria-controls=\{panelId\}/);
+    expect(checkoutForm).toMatch(/data-checkout-panel=\{step\}/);
+    expect(checkoutForm).toMatch(/activeStep==='shipping'/);
+    expect(checkoutForm).toMatch(/activeStep==='payment'/);
+    expect(checkoutForm).toMatch(/activeStep==='summary'/);
+    expect(checkoutForm).toMatch(/Tovább a fizetéshez/);
+    expect(checkoutForm).toMatch(/Tovább az összesítéshez/);
+  });
+  test('shipping and payment providers occupy their semantic add-on insertion points',()=>{
+    expect(checkoutForm).toMatch(/data-addon-insertion-point="checkout\.shipping\.methods"/);
+    expect(checkoutForm).toMatch(/data-addon-insertion-point="checkout\.payment\.methods"/);
+    expect(checkoutForm).toMatch(/data-storefront-design-inheritance="current-theme"/);
+  });
+  test('checkout presentation resolves current storefront design tokens before shared fallbacks',()=>{
+    expect(checkoutStyle).toMatch(/--shoporation-color-background/);
+    expect(checkoutStyle).toMatch(/--shoporation-color-surface/);
+    expect(checkoutStyle).toMatch(/--shoporation-color-text/);
+    expect(checkoutStyle).toMatch(/--shoporation-color-primary/);
+    expect(checkoutStyle).toMatch(/--shoporation-radius-l/);
+    expect(checkoutStyle).toMatch(/--shoporation-space-m/);
+    expect(checkoutStyle).toMatch(/checkoutSummary/);
+    expect(checkoutStyle).toMatch(/position:sticky/);
   });
   test('checkout validates parcel point and legal acceptance before order creation', () => {
     expect(checkoutForm).toMatch(/shipping\.kind==='parcel_point'&&!parcelPointId/);expect(checkoutForm).toMatch(/!legalAccepted/);expect(checkoutForm).toMatch(/legalAccepted='true'/);expect(checkoutForm).toMatch(/href="\/aszf"/);expect(checkoutForm).toMatch(/href="\/adatvedelem"/);
