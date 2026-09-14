@@ -17,6 +17,8 @@ describe('Playroom v18 pragmatic visual-fill contract',()=>{
       visualFillMode:'merchant-editable-image-slots',
       assetStrategy:'photo-first-no-bespoke-artwork',
       desktopLayout:'frozen',
+      heroVisual:'reference-like-led-living-room-gaming-photo',
+      platformVisualMode:'large-image-icon-tiles',
     });
     expect(byId('playroom-hero')?.responsive?.desktop?.gridSpan).toBe(8);
     expect(byId('playroom-selectors')?.responsive?.desktop?.gridSpan).toBe(4);
@@ -36,6 +38,7 @@ describe('Playroom v18 pragmatic visual-fill contract',()=>{
       expect(node?.config.objectPosition,id).toEqual(expect.any(String));
       expect(node?.config.artDirection,id).toMatchObject({desktop:{objectFit:'cover'},tablet:{objectFit:'cover'},mobile:{objectFit:'cover'}});
     }
+    expect(byId('playroom-hero-art')?.config.src).toContain('/9069213/');
   });
 
   it('keeps hero copy and CTA separate from the image and removes the bespoke overlay asset from the active composition',()=>{
@@ -52,14 +55,21 @@ describe('Playroom v18 pragmatic visual-fill contract',()=>{
     expect(byId('playroom-platform-match-status')?.bindings?.status?.path).toBe('compatibility.status');
   });
 
-  it('uses lightweight platform color coding instead of per-card artwork mechanics',()=>{
+  it('uses large image-backed platform icons instead of dot symbols',()=>{
     const platform=byId('playroom-platform-navigation');
     expect(platform?.componentKey).toBe('guided.attribute-navigation');
+    expect(platform?.config.presentation).toBe('media-navigation');
+    expect(platform?.config.columns).toBe(3);
     expect(platform?.config.items).toEqual(expect.arrayContaining([
-      expect.objectContaining({id:'playsphere',symbol:'🔵'}),
-      expect.objectContaining({id:'boxone',symbol:'🟢'}),
-      expect.objectContaining({id:'nintari',symbol:'🔴'}),
-      expect.objectContaining({id:'pc',symbol:'🟣'}),
+      expect.objectContaining({id:'playstation',label:'PlayStation',image:expect.stringContaining('simpleicons.org/playstation')}),
+      expect.objectContaining({id:'xbox',label:'Xbox',image:expect.stringContaining('simpleicons.org/xbox')}),
+      expect.objectContaining({id:'nintendo',label:'Nintendo',image:expect.stringContaining('simpleicons.org/nintendoswitch')}),
+      expect.objectContaining({id:'pc',label:'PC',image:expect.stringContaining('simpleicons.org/windows11')}),
+      expect.objectContaining({id:'handheld',label:'Handheld',image:expect.stringContaining('simpleicons.org/steamdeck')}),
+      expect.objectContaining({id:'mobile',label:'Mobile',image:expect.stringContaining('simpleicons.org/android')}),
     ]));
+    for(const item of platform?.config.items as Array<Record<string,unknown>>){
+      expect(item).not.toHaveProperty('symbol');
+    }
   });
 });
