@@ -2,7 +2,7 @@ import type {StorefrontComponentNode,StorefrontPageDocument} from '@/lib/builder
 import type {StorefrontInstallableTemplatePackage} from '@/lib/builder/storefront-template-installation';
 import {PLAYROOM_REFERENCE_V2_TEMPLATE_PACKAGE} from '@/lib/builder/templates/playroom-reference-v2';
 
-export const PLAYROOM_REFERENCE_V2_DESKTOP_POLISH_VERSION='shoporation.playroom.reference-v2.desktop-polish.v9' as const;
+export const PLAYROOM_REFERENCE_V2_DESKTOP_POLISH_VERSION='shoporation.playroom.reference-v2.desktop-polish.v10' as const;
 
 type JsonRecord=Record<string,unknown>;
 const rec=(value:unknown):JsonRecord=>value&&typeof value==='object'&&!Array.isArray(value)?value as JsonRecord:{};
@@ -135,7 +135,7 @@ function polishNode(node:StorefrontComponentNode):StorefrontComponentNode{
       break;
     case 'playroom-platform-match-status':{
       const copyBinding=next.bindings?.copy;
-      next={...next,config:{...config,title:'Kompatibilitás',copy:'Ismeretlen = nem kompatibilis.'},...(copyBinding?{bindings:{...next.bindings,copy:{...copyBinding,fallback:'Ismeretlen = nem kompatibilis.'}}}:{})};
+      next={...next,config:{...config,title:'Kompatibilitás',copy:'Ismeretlen = nem kompatibilis.',presentation:'compact'},...(copyBinding?{bindings:{...next.bindings,copy:{...copyBinding,fallback:'Ismeretlen = nem kompatibilis.'}}}:{})};
       break;
     }
     case 'playroom-compatibility-status-wrap':{
