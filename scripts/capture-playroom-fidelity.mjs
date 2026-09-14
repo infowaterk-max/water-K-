@@ -3,7 +3,7 @@ import {chromium} from 'playwright';
 
 const baseUrl=(process.env.VISUAL_FIDELITY_BASE_URL??'http://127.0.0.1:3000').replace(/\/$/,'');
 const outputDir=process.env.PLAYROOM_FIDELITY_OUTPUT_DIR??'artifacts/playroom-fidelity';
-const url=`${baseUrl}/visual-fidelity-qa?template=gaming.playroom&version=2&page=home&viewport=desktop`;
+const url=`${baseUrl}/visual-fidelity-qa?template=gaming.playroom&version=18&page=home&viewport=desktop`;
 
 await mkdir(outputDir,{recursive:true});
 const browser=await chromium.launch({headless:true});
@@ -26,7 +26,7 @@ try{
   const fullPath=`${outputDir}/playroom-home-desktop-full.png`;
   await page.screenshot({path:viewportPath,animations:'disabled',fullPage:false,timeout:20000});
   await root.screenshot({path:fullPath,animations:'disabled',timeout:20000});
-  const evidence={version:'shoporation.playroom-fidelity.v1',template:'gaming.playroom',templateVersion:2,sourceCommit:process.env.GITHUB_SHA??null,url,viewport:{width:1648,height:928},runtimeRoot:{width:box.width,height:box.height},viewportPath,fullPath,title:await page.title(),capturedAt:new Date().toISOString()};
+  const evidence={version:'shoporation.playroom-fidelity.v1',template:'gaming.playroom',templateVersion:18,sourceCommit:process.env.GITHUB_SHA??null,url,viewport:{width:1648,height:928},runtimeRoot:{width:box.width,height:box.height},viewportPath,fullPath,title:await page.title(),capturedAt:new Date().toISOString()};
   await writeFile(`${outputDir}/manifest.json`,JSON.stringify(evidence,null,2));
   console.log(JSON.stringify(evidence,null,2));
   await page.close();
