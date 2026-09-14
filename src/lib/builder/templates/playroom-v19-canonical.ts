@@ -122,7 +122,7 @@ function buildBlogIndex(){
 function patchBlogArticleMedia(item:StorefrontComponentNode):StorefrontComponentNode{
   const children=item.children?.map(patchBlogArticleMedia);
   if(item.id!=='playroom-blog-article-image')return{...clone(item),...(children?{children}:{})};
-  const config=rec(item.config),artDirection=rec(config.artDirection),style=rec(config.style),bindings=rec(item.bindings),srcBinding=rec(bindings.src),altBinding=rec(bindings.alt);
+  const config=rec(item.config),artDirection=rec(config.artDirection),style=rec(config.style),bindings=rec(item.bindings);
   return{
     ...clone(item),
     config:{
@@ -140,8 +140,8 @@ function patchBlogArticleMedia(item:StorefrontComponentNode):StorefrontComponent
     },
     bindings:{
       ...bindings,
-      src:{...srcBinding,fallback:PHOTO.controller},
-      alt:{...altBinding,fallback:'Gaming kontroller és RGB setup részlet'},
+      src:{path:'content.article.image',fallback:PHOTO.controller},
+      alt:{path:'content.article.imageAlt',fallback:'Gaming kontroller és RGB setup részlet'},
     },
     ...(children?{children}:{}),
   };
