@@ -16,7 +16,7 @@ import {PERFORMANCE_LAB_TEMPLATE_PACKAGE} from '@/lib/builder/templates/performa
 import {PLAYROOM_TEMPLATE_PACKAGE} from '@/lib/builder/templates/playroom';
 import {PLAYROOM_REFERENCE_V2_TEMPLATE_PACKAGE} from '@/lib/builder/templates/playroom-reference-v2';
 import {PLAYROOM_V18_TEMPLATE_PACKAGE} from '@/lib/builder/templates/playroom-v18';
-import {PLAYROOM_V19_TEMPLATE_PACKAGE} from '@/lib/builder/templates/playroom-v19';
+import {PLAYROOM_V19_CANONICAL_TEMPLATE_PACKAGE} from '@/lib/builder/templates/playroom-v19-canonical';
 import {RIG_FORGE_TEMPLATE_PACKAGE} from '@/lib/builder/templates/rig-forge';
 import {RITUAL_HOUSE_TEMPLATE_PACKAGE} from '@/lib/builder/templates/ritual-house';
 import {SPEC_LAB_TEMPLATE_PACKAGE} from '@/lib/builder/templates/spec-lab';
@@ -102,7 +102,7 @@ export const STOREFRONT_IMPLEMENTED_TEMPLATE_PACKAGES:readonly StorefrontInstall
   MONARCHE_TEMPLATE_PACKAGE,
   MY_PACK_TEMPLATE_PACKAGE,
   PERFORMANCE_LAB_TEMPLATE_PACKAGE,
-  PLAYROOM_V19_TEMPLATE_PACKAGE,
+  PLAYROOM_V19_CANONICAL_TEMPLATE_PACKAGE,
   RIG_FORGE_TEMPLATE_PACKAGE,
   RITUAL_HOUSE_TEMPLATE_PACKAGE,
   SPEC_LAB_TEMPLATE_PACKAGE,
