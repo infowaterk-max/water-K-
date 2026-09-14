@@ -2,12 +2,12 @@
 
 import{FormEvent,useEffect,useState}from'react';
 import{createClient}from'@/lib/supabase/browser';
-import{ORDER_DOCUMENT_BUCKET}from'@/lib/commerce/order-documents';
 
 type Kind='invoice'|'warranty'|'certificate'|'service_record'|'merchant_attachment'|'other';
 type DocumentRow={id:string;kind:Kind;title:string;description:string|null;original_name:string;media_type:string;size_bytes:number;status:'pending'|'active'|'revoked';customer_visible:boolean;download_count:number;last_download_at:string|null;created_at:string};
 type ListResponse={documents?:DocumentRow[];error?:string};
 type PrepareResponse={documentId?:string;bucket?:string;path?:string;token?:string;error?:string};
+const ORDER_DOCUMENT_BUCKET='order-documents-private';
 const kindLabels:Record<Kind,string>={invoice:'Számla / számlamásolat',warranty:'Garancialevél',certificate:'Tanúsítvány',service_record:'Szervizdokumentum',merchant_attachment:'Kereskedői dokumentum',other:'Egyéb dokumentum'};
 const accept='.pdf,.jpg,.jpeg,.png,.txt,.doc,.docx';
 const allowedTypes=new Set(['application/pdf','image/jpeg','image/png','text/plain','application/msword','application/vnd.openxmlformats-officedocument.wordprocessingml.document']);
