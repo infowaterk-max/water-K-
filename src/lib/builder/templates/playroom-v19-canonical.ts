@@ -55,6 +55,43 @@ const compactImage=(id:string,src:string,alt:string,span:GridSpan,height:string,
 const micro=(id:string,kicker:string,title:string,text:string,span:GridSpan=4,accent='#55e7ff')=>stack(id,[eyebrow(`${id}-kicker`,kicker,accent),heading(`${id}-title`,title,3,undefined,{fontSize:'1rem'}),copy(`${id}-copy`,text,undefined,{fontSize:'.72rem'})],span,{...PANEL,padding:'.7rem',minHeight:'5.2rem'});
 const complete=(source:StorefrontPageDocument,sections:StorefrontComponentNode[],metadata:JsonRecord={}):StorefrontPageDocument=>({...source,sections,metadata:{...(source.metadata??{}),subpageParityRelease:'playroom-v19-complete-family-v4',homeParityGrammar:true,compactMedia:true,...metadata}});
 
+const CUSTOMER_COPY_REPLACEMENTS:Record<string,string>={
+  'Az aktív provider opciói.':'A kiválasztott fizetési mód.',
+  'Commerce authority.':'Mindig az aktuális ár.',
+  'E13 checkout.':'Rendelés előtt újra ellenőrizve.',
+  'A működő accordion a közös E13 checkout runtime feladata; a sablon a vizuális nyelvet adja.':'Lépésről lépésre haladsz a szállítástól a fizetésen át a végső ellenőrzésig.',
+  'Provider-neutral':'Biztonságos',
+  'Nincs template-local fizetési logika.':'A webshopban beállított fizetési módokkal.',
+  'Desktop order summary.':'A rendelés összesítése végig kéznél marad.',
+  'Aktív fizetési provider.':'Válaszd ki a fizetési módot.',
+  'A Szállítás és Fizetés lépés a saját provider/add-on lehetőségeit ugyanebben a folyamban jeleníti meg.':'Egyszerre csak az aktuális lépést látod, a korábbiakat bármikor visszanyithatod.',
+  'Semantic slot':'Elérhető lehetőségek',
+  'checkout.shipping.methods':'Cím, futár vagy átvételi pont.',
+  'checkout.payment.methods':'A webshopban elérhető fizetési módok.',
+  'Commerce marad authority.':'Ár és készlet mindig aktuális.',
+  'A strukturált compatibility authority dönt.':'A termékoldalon jelzett kompatibilitási adatok alapján ellenőrizheted.',
+  'A közös E13 checkout végzi a végső validációt.':'A rendelés leadása előtt a rendszer újra ellenőrzi az árat és a készletet.',
+  'Az ügyfélszolgálati oldal feladata a jó útvonal megmutatása, nem egy hatalmas lifestyle fotó.':'Rendeléssel, termékkel vagy kompatibilitással kapcsolatos kérdésed van? Innen gyorsan a megfelelő segítséghez jutsz.',
+  'Commerce authorityból.':'Mindig az aktuális készletből.',
+  'Szerveroldali validáció.':'Rendeléskor újra ellenőrizve.',
+  'Strukturált bizonyíték.':'Ellenőrzött termékadatok.',
+  'Bizonyíték-alapú.':'Ellenőrzött adatok alapján.',
+  'A kosár nem talál ki készletet.':'Mindig a valós készletet látod.',
+  'Az ár a commerce authorityból jön.':'Mindig az aktuális árat látod.',
+  'A checkout végén szerveroldali validáció történik.':'A rendelés előtt az ár és a készlet újra ellenőrzésre kerül.',
+  'Provider-neutral fizetés.':'Válaszd ki a fizetési módot.',
+  'A végső validáció a közös checkout authority feladata.':'A rendelés leadása előtt az ár és a készlet újra ellenőrzésre kerül.',
+};
+const CUSTOMER_COPY_KEYS=['text','title','copy','description','subtitle','label'] as const;
+function polishCustomerFacingCopy(item:StorefrontComponentNode):StorefrontComponentNode{
+  const config:{[key:string]:unknown}={...item.config};
+  for(const key of CUSTOMER_COPY_KEYS){
+    const value=config[key];
+    if(typeof value==='string'&&CUSTOMER_COPY_REPLACEMENTS[value])config[key]=CUSTOMER_COPY_REPLACEMENTS[value];
+  }
+  return{...clone(item),config,...(item.children?{children:item.children.map(polishCustomerFacingCopy)}:{})};
+}
+
 function patchHomeMedia(item:StorefrontComponentNode):StorefrontComponentNode{
   const children=item.children?.map(patchHomeMedia);
   if(item.id!=='playroom-hero-art')return{...clone(item),...(children?{children}:{})};
@@ -116,6 +153,12 @@ function buildContent(){
 function buildBlogIndex(){
   const source=pageOf('blog-index');
   const preview=must(source,'playroom-blog-index-preview');
+  const previewItems=Array.isArray(preview.config.items)?preview.config.items.map(value=>{
+    const item=rec(value);
+    return item.id==='coop-night'?{...item,image:PHOTO.controller,imageAlt:'Gaming kontroller közelről co-op útmutatóhoz'}:item;
+  }):[];
+  preview.config={...preview.config,items:previewItems};
+  preview.bindings={...(preview.bindings??{}),items:{path:'content.guides.items',fallback:previewItems}};
   return complete(source,[header(source),section('playroom-blog-index-feature-preset',[grid('playroom-blog-index-feature-grid',[stack('playroom-blog-index-feature-copy',[eyebrow('playroom-blog-index-kicker','PLAYROOM MAGAZIN','#ff63bf'),heading('playroom-blog-index-title','Tippek. Útmutatók. Játékesték.',1),copy('playroom-blog-index-copy','Editorial ritmus, de a Home-hoz illő sűrűséggel.'),grid('playroom-blog-index-feature-signals',[micro('playroom-blog-index-signal-platform','PLATFORM','Guide','Választási segítség.',4),micro('playroom-blog-index-signal-coop','TOGETHER','Co-op','Közös esték.',4,'#ff63bf'),micro('playroom-blog-index-signal-setup','SETUP','Tips','Audio és kontroll.',4,'#b8e34a')])],8,{...PANEL_ALT,padding:'1rem'}),compactImage('playroom-blog-index-feature-image',PHOTO.setup,'RGB gaming setup magazin feature',4,'14rem')],'m')]),section('playroom-blog-index-body',[preview]),section('playroom-blog-index-topic-presets',[grid('playroom-blog-index-topics',[micro('playroom-blog-topic-platform','PLATFORM','Platform guide','Segítség a választáshoz.',4),micro('playroom-blog-topic-together','TOGETHER','Co-op esték','Ötletek közös játékhoz.',4,'#ff63bf'),micro('playroom-blog-topic-setup','SETUP','Setup tippek','Kontroller, audio és tér.',4,'#b8e34a')])],'s'),footer(source)],{visualPreset:'playroom-v19-editorial-index-home-parity',engineBinding:'E10',archetype:'editorial-index'});
 }
 
@@ -180,7 +223,7 @@ const ADDON_CONTEXTS:Partial<Record<StorefrontPageDocument['pageType'],readonly 
 };
 const finalize=(source:StorefrontPageDocument):StorefrontPageDocument=>{
   const page=clone(overrides[source.pageType]??source),contexts=ADDON_CONTEXTS[page.pageType]??[];
-  return{...page,metadata:{...(page.metadata??{}),addonIntegration:{styleAuthority:'current-storefront-design-system',factoryPreset:'playroom-v19',discoverability:'contextual-plus-central',semanticContexts:[...contexts],localOverridePolicy:'explicit-only-reset-to-inherited'}}};
+  return{...page,sections:page.sections.map(polishCustomerFacingCopy),metadata:{...(page.metadata??{}),addonIntegration:{styleAuthority:'current-storefront-design-system',factoryPreset:'playroom-v19',discoverability:'contextual-plus-central',semanticContexts:[...contexts],localOverridePolicy:'explicit-only-reset-to-inherited'}}};
 };
 
 export const PLAYROOM_V19_CANONICAL_TEMPLATE_PACKAGE:StorefrontInstallableTemplatePackage={
