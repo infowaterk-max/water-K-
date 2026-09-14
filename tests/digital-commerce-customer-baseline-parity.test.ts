@@ -18,12 +18,13 @@ describe('Digital Commerce and document customer baseline parity',()=>{
     expect(read(customer)).toBe(read(production));
   });
 
-  test('keeps Fresh Install proof explicitly invalidated until an empty-target proof is rerun',()=>{
+  test('records the successful empty-target Fresh Install proof for the current baseline contract',()=>{
     const manifest=JSON.parse(read('supabase/customer-baseline/manifest.json'))as{status?:string;freshInstallProofRequired?:boolean;proofContractSha256?:string|null;notes?:string};
-    expect(manifest.status).toBe('snapshot-reviewed');
-    expect(manifest.freshInstallProofRequired).toBe(true);
-    expect(manifest.proofContractSha256).toBeNull();
+    expect(manifest.status).toBe('ready');
+    expect(manifest.freshInstallProofRequired).toBe(false);
+    expect(manifest.proofContractSha256).toBe('49dade94a34dccea12de8ab22a8cc90b412cab69d8601734156dfb72655c81a7');
     expect(manifest.notes).toContain('0030_product_documents_runtime_hardening.sql');
-    expect(manifest.notes).toContain('Production remains untouched');
+    expect(manifest.notes).toContain('b53067ff76fb6a0804f1b8becfe22f4168f59517');
+    expect(manifest.notes).toContain('Production remained untouched');
   });
 });
