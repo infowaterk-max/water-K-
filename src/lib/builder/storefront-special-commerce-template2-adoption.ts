@@ -6,58 +6,22 @@ import {
   STOREFRONT_TEMPLATE_PORTFOLIO_STATUS,
 } from '@/lib/builder/storefront-template-catalog';
 import type {StorefrontComponentNode} from '@/lib/builder/storefront-runtime';
+import {
+  STOREFRONT_SPECIAL_COMMERCE_CAPABILITIES,
+  STOREFRONT_SPECIAL_COMMERCE_CAPABILITY_COMPONENT_KEYS,
+  getStorefrontTemplateSpecialCommercePolicy,
+  type StorefrontSpecialCommerceCapability,
+  type StorefrontTemplateCapabilityStatus,
+} from '@/lib/builder/storefront-template-capability-policy';
 
-export const STOREFRONT_SPECIAL_COMMERCE_TEMPLATE2_ADOPTION_VERSION='shoporation.special-commerce.template2-adoption.wave7.v1' as const;
+export {
+  STOREFRONT_SPECIAL_COMMERCE_CAPABILITIES,
+  STOREFRONT_SPECIAL_COMMERCE_CAPABILITY_COMPONENT_KEYS,
+  type StorefrontSpecialCommerceCapability,
+  type StorefrontTemplateCapabilityStatus,
+} from '@/lib/builder/storefront-template-capability-policy';
 
-export const STOREFRONT_SPECIAL_COMMERCE_CAPABILITIES=[
-  'scene','room','recipe','release','finder','composer','configurator','compatibility',
-] as const;
-export type StorefrontSpecialCommerceCapability=typeof STOREFRONT_SPECIAL_COMMERCE_CAPABILITIES[number];
-export type StorefrontTemplateCapabilityStatus='required'|'supported'|'optional'|'not applicable';
-
-/**
- * These are references to production component keys, never replacement engines.
- * Entitlement truth is deliberately NOT duplicated here: it is resolved from each
- * real component manifest in the shared Builder registry.
- */
-export const STOREFRONT_SPECIAL_COMMERCE_CAPABILITY_COMPONENT_KEYS:Readonly<Record<StorefrontSpecialCommerceCapability,readonly string[]>>=Object.freeze({
-  scene:['commerce.interactive-scene'],
-  room:['commerce.interactive-scene','composer.builder'],
-  recipe:['commerce.recipe'],
-  release:['commerce.release'],
-  finder:['guided.finder','guided.results'],
-  composer:['composer.builder'],
-  configurator:['configurator.builder','configurator.slot-list'],
-  compatibility:['compatibility.status','compatibility.evidence'],
-});
-
-const N='not applicable' as const;
-const templatePolicy:Readonly<Record<string,Readonly<Record<StorefrontSpecialCommerceCapability,StorefrontTemplateCapabilityStatus>>>>=Object.freeze({
-  'alpine-lodge':{scene:'supported',room:N,recipe:N,release:'optional',finder:'supported',composer:'supported',configurator:'optional',compatibility:'optional'},
-  'beauty-lab':{scene:'supported',room:N,recipe:N,release:'optional',finder:'required',composer:'optional',configurator:'optional',compatibility:N},
-  'creator-station':{scene:'optional',room:N,recipe:N,release:'required',finder:N,composer:'supported',configurator:N,compatibility:N},
-  'derma-studio':{scene:'optional',room:N,recipe:N,release:'optional',finder:'required',composer:'optional',configurator:'optional',compatibility:N},
-  'editorial-atelier':{scene:'required',room:N,recipe:N,release:'optional',finder:'optional',composer:'supported',configurator:N,compatibility:N},
-  'gallery-edit':{scene:'required',room:'required',recipe:N,release:N,finder:'optional',composer:'required',configurator:'supported',compatibility:'optional'},
-  'heritage-atelier':{scene:'supported',room:N,recipe:N,release:'optional',finder:'optional',composer:'supported',configurator:'supported',compatibility:'optional'},
-  'loot-vault':{scene:'optional',room:N,recipe:N,release:'required',finder:'supported',composer:'supported',configurator:'optional',compatibility:'optional'},
-  'market-pantry':{scene:'optional',room:N,recipe:'required',release:'optional',finder:'optional',composer:'supported',configurator:N,compatibility:N},
-  'modern-luxe':{scene:'supported',room:N,recipe:N,release:'optional',finder:'optional',composer:'supported',configurator:'supported',compatibility:'optional'},
-  'monarche':{scene:'required',room:N,recipe:N,release:'supported',finder:'optional',composer:'supported',configurator:N,compatibility:N},
-  'my-pack':{scene:N,room:N,recipe:N,release:'optional',finder:'required',composer:'supported',configurator:'optional',compatibility:'optional'},
-  'performance-lab':{scene:'optional',room:N,recipe:N,release:'optional',finder:'required',composer:'supported',configurator:'optional',compatibility:'optional'},
-  'playroom':{scene:'optional',room:N,recipe:N,release:'supported',finder:'supported',composer:'supported',configurator:'optional',compatibility:'optional'},
-  'rig-forge':{scene:'optional',room:N,recipe:N,release:'supported',finder:'required',composer:'required',configurator:'required',compatibility:'required'},
-  'ritual-house':{scene:'supported',room:N,recipe:N,release:'optional',finder:'required',composer:'supported',configurator:'optional',compatibility:N},
-  'spec-lab':{scene:'optional',room:N,recipe:N,release:'supported',finder:'required',composer:'supported',configurator:'required',compatibility:'required'},
-  'sport-hub':{scene:'optional',room:N,recipe:N,release:'optional',finder:'required',composer:'supported',configurator:'optional',compatibility:'optional'},
-  'statement-lab':{scene:'required',room:N,recipe:N,release:'supported',finder:'optional',composer:'supported',configurator:N,compatibility:N},
-  'street-drop':{scene:'supported',room:N,recipe:N,release:'required',finder:'optional',composer:'supported',configurator:N,compatibility:N},
-  'table-gift':{scene:'optional',room:N,recipe:'supported',release:'optional',finder:'optional',composer:'required',configurator:N,compatibility:N},
-  'tech-deck':{scene:'optional',room:N,recipe:N,release:'supported',finder:'required',composer:'supported',configurator:'required',compatibility:'required'},
-  'tool-depot':{scene:'optional',room:N,recipe:N,release:'optional',finder:'required',composer:'required',configurator:'required',compatibility:'required'},
-  'trail-expedition':{scene:'supported',room:N,recipe:N,release:'optional',finder:'required',composer:'supported',configurator:'optional',compatibility:'optional'},
-});
+export const STOREFRONT_SPECIAL_COMMERCE_TEMPLATE2_ADOPTION_VERSION='shoporation.special-commerce.template2-adoption.wave7.v2' as const;
 
 const titleCase=(value:string)=>value.split('-').map(part=>part?`${part[0]?.toUpperCase()}${part.slice(1)}`:'').join(' ');
 const slugFor=(templateKey:string)=>templateKey.split('.').at(-1)??templateKey;
@@ -80,14 +44,13 @@ export type StorefrontTemplate2Wave7InventoryEntry={
 
 export const STOREFRONT_TEMPLATE2_WAVE7_INVENTORY:readonly StorefrontTemplate2Wave7InventoryEntry[]=Object.freeze(
   STOREFRONT_IMPLEMENTED_TEMPLATE_PACKAGES.map(template=>{
-    const slug=slugFor(template.manifest.templateKey);
-    const policy=templatePolicy[slug];
+    const policy=getStorefrontTemplateSpecialCommercePolicy(template.manifest.templateKey);
     if(!policy)throw new Error(`WAVE7_TEMPLATE_POLICY_MISSING:${template.manifest.templateKey}`);
     const usage=new Set<string>();
     for(const page of template.pages)walk(page.sections,usage);
     return Object.freeze({
       templateKey:template.manifest.templateKey,
-      templateName:titleCase(slug),
+      templateName:titleCase(slugFor(template.manifest.templateKey)),
       category:categoryFor(template.manifest.templateKey),
       templateVersion:template.manifest.templateVersion,
       pageSchemaVersion:template.manifest.pageSchemaVersion,
@@ -95,7 +58,7 @@ export const STOREFRONT_TEMPLATE2_WAVE7_INVENTORY:readonly StorefrontTemplate2Wa
       builderRegistry:STOREFRONT_BUILDER_REGISTRY_VERSION,
       runtimeRenderer:'shared-storefront-runtime-renderer' as const,
       currentCommerceComponentUsage:[...usage].filter(isCommerceUsage).sort(),
-      specialCommerceUseCases:STOREFRONT_SPECIAL_COMMERCE_CAPABILITIES.filter(capability=>policy[capability]!==N),
+      specialCommerceUseCases:STOREFRONT_SPECIAL_COMMERCE_CAPABILITIES.filter(capability=>policy[capability]!=='not applicable'),
     });
   }).sort((a,b)=>a.templateKey.localeCompare(b.templateKey)),
 );
@@ -106,11 +69,11 @@ export type StorefrontTemplate2Wave7MatrixRow=StorefrontTemplate2Wave7InventoryE
 };
 
 export const STOREFRONT_TEMPLATE2_WAVE7_CAPABILITY_MATRIX:readonly StorefrontTemplate2Wave7MatrixRow[]=Object.freeze(
-  STOREFRONT_TEMPLATE2_WAVE7_INVENTORY.map(entry=>Object.freeze({
-    ...entry,
-    capabilities:templatePolicy[slugFor(entry.templateKey)]!,
-    plan:'manifest-derived' as const,
-  })),
+  STOREFRONT_TEMPLATE2_WAVE7_INVENTORY.map(entry=>{
+    const policy=getStorefrontTemplateSpecialCommercePolicy(entry.templateKey);
+    if(!policy)throw new Error(`WAVE7_TEMPLATE_POLICY_MISSING:${entry.templateKey}`);
+    return Object.freeze({...entry,capabilities:policy,plan:'manifest-derived' as const});
+  }),
 );
 
 export function getStorefrontSpecialCommerceCapabilityRequirement(capability:StorefrontSpecialCommerceCapability){
