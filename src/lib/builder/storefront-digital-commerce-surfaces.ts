@@ -3,11 +3,7 @@ import {
   defineStorefrontBuilderComponent,
   type StorefrontBuilderPageType,
 } from '@/lib/builder/storefront-foundation';
-import type {
-  StorefrontComponentNode,
-  StorefrontPageDocument,
-  StorefrontRuntimeComponentDefinition,
-} from '@/lib/builder/storefront-runtime';
+import type {StorefrontRuntimeComponentDefinition} from '@/lib/builder/storefront-runtime';
 
 export const STOREFRONT_DIGITAL_COMMERCE_SURFACES_VERSION='shoporation.storefront-digital-commerce-surfaces.v1' as const;
 
@@ -27,8 +23,8 @@ const definition=(input:{
     responsiveMode:'grid',
     capability:{minPlan:'alap',features:input.features},
   }),
-  // Commerce/document truth is injected by the runtime. Builder mutations may
-  // edit presentation config, but never the authoritative model binding.
+  // Commerce/document truth is injected by the shared runtime binding layer.
+  // Builder mutations may edit presentation config, but never this model slot.
   runtimeBindingSlots:['model'],
 });
 
@@ -58,34 +54,3 @@ export const STOREFRONT_DIGITAL_COMMERCE_COMPONENT_DEFINITIONS:readonly Storefro
     features:['orders'],
   }),
 ] as const;
-
-const MODEL_PATHS:Readonly<Record<string,Partial<Record<StorefrontBuilderPageType,string>>>>=Object.freeze({
-  'commerce.fulfillment-summary':{
-    product:'commerce.digitalCommerce.productFulfillment',
-    cart:'commerce.digitalCommerce.cartFulfillment',
-    checkout:'commerce.digitalCommerce.checkoutFulfillment',
-  },
-  'commerce.product-documents':{product:'commerce.digitalCommerce.productDocuments'},
-  'commerce.documents-center':{account:'commerce.digitalCommerce.documentsCenter'},
-  'commerce.post-purchase-guidance':{
-    checkout:'commerce.digitalCommerce.postPurchase',
-    account:'commerce.digitalCommerce.postPurchase',
-  },
-});
-
-function bindNode(node:StorefrontComponentNode,pageType:StorefrontBuilderPageType):StorefrontComponentNode{
-  const children=node.children?.map(child=>bindNode(child,pageType));
-  const path=MODEL_PATHS[node.componentKey]?.[pageType];
-  if(!path)return children?{...node,children}:node;
-  return{
-    ...node,
-    // Always replace a persisted/authored model binding with the canonical
-    // runtime path. This keeps business authority outside Page Schema content.
-    bindings:{...(node.bindings??{}),model:{path}},
-    ...(children?{children}:{}),
-  };
-}
-
-export function bindStorefrontDigitalCommerceRuntime(document:StorefrontPageDocument):StorefrontPageDocument{
-  return{...document,sections:document.sections.map(section=>bindNode(section,document.pageType))};
-}
