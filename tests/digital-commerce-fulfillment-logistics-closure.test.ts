@@ -15,8 +15,7 @@ describe('Digital Commerce fulfillment/logistics closure',()=>{
     expect(migration).toContain("v_payment_flow='cash_on_delivery'");
     expect(migration).toContain("DIGITAL_COMMERCE_COD_NOT_SUPPORTED");
     expect(migration).toContain("shipping_method=case when v_requires_shipping then shipping_method else 'digital_delivery' end");
-    expect(orderRoute).toContain("fulfillment.mode==='digital'");
-    expect(orderRoute).toContain("payment.flow==='cash_on_delivery'");
+    expect(orderRoute).toContain("fulfillment.digitalLines>0&&payment.flow==='cash_on_delivery'");
   });
 
   test('never sends digital order lines to courier shipment calculations',()=>{
@@ -51,8 +50,8 @@ describe('Digital Commerce fulfillment/logistics closure',()=>{
     const lifecycle=read('supabase/migrations/20260914133500_digital_order_lifecycle_closure.sql');
     const contract=read('src/lib/orders/orchestration-contract.ts');
     expect(lifecycle).toContain("v_order.fulfillment_mode='digital'");
-    expect(lifecycle).toContain("v_target_status='completed'");
-    expect(lifecycle).toContain("v_target_status='shipped'");
+    expect(lifecycle).toContain("v_target_status in ('completed','refunded')");
+    expect(lifecycle).toContain("v_target_status in ('shipped','refunded')");
     expect(contract).toContain("processing:['shipped','completed']");
   });
 });

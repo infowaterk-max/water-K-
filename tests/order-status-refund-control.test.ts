@@ -18,8 +18,10 @@ describe('order status and refund acceptance contract',()=>{
     expect(api).toContain('canAdminTransitionOrder(currentStatus,nextStatus)');
     expect(api).not.toContain('const allowed:Record<');
     expect(contract).toContain("paid:['processing']");
-    expect(contract).toContain("processing:['shipped']");
+    expect(contract).toContain("processing:['shipped','completed']");
     expect(contract).toContain("shipped:['completed']");
+    expect(api).toContain("currentStatus==='processing'&&fulfillmentMode==='digital'&&nextStatus==='shipped'");
+    expect(api).toContain("currentStatus==='processing'&&fulfillmentMode!=='digital'&&nextStatus==='completed'");
     expect(contract).toContain("if(!(ADMIN_ORDER_MUTATION_STATUSES as readonly string[]).includes(status))return[]");
   });
 

@@ -38,7 +38,8 @@ describe('Customer / Order Document Vault',()=>{
     const nav=read('src/components/account/account-subnav.tsx');
     expect(nav).toContain("label:'Dokumentumok és letöltések'");
     expect(account).toContain('Digitális tartalmak');
-    expect(account).toContain('Rendelési dokumentumok');
+    expect(account).toContain('Rendelési iratok');
+    expect(account).toContain('Számlák, garanciák és egyéb dokumentumok');
     expect(account).toContain('listAccountDigitalDownloads');
     expect(account).toContain('listAccountOrderDocuments');
   });

@@ -18,8 +18,11 @@ describe('Digital Commerce Foundation',()=>{
     expect(foundation).toContain("fulfillment_mode in('physical','digital','mixed')");
     expect(foundation).toContain('classify_checkout_fulfillment_v1');
     expect(foundation).toContain("'requiresShipping',v_physical>0");
-    expect(read('src/lib/orders/tenant-checkout.ts')).toContain('classifyCheckoutFulfillment(input.instanceId,input.items)');
-    expect(read('src/lib/orders/tenant-checkout.ts')).not.toContain('templateKey');
+    const orderRoute=read('src/app/api/orders/route.ts');
+    const tenantCheckout=read('src/lib/orders/tenant-checkout.ts');
+    expect(orderRoute).toContain('classifyCheckoutFulfillment(instance.id,cartItems)');
+    expect(tenantCheckout).toContain('place_order_provider_v7_fulfillment_idempotent');
+    expect(tenantCheckout).not.toContain('templateKey');
   });
 
   it('keeps purchased files private and tenant scoped',()=>{

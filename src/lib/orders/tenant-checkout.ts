@@ -30,6 +30,9 @@ export type TenantCheckoutInput={
   commerceGroups:CartCommerceGroupRequest[];
 };
 
+// Historical Special Commerce runtime called admin.rpc('place_order_provider_v6_idempotent', ...).
+// Digital Commerce v7 supersedes that wrapper with server-derived fulfillment while preserving
+// the grouped-commerce metadata contract and the existing pricing/stock/order authority chain.
 export async function placeTenantOrder(input:TenantCheckoutInput){
   const admin=createAdminClient();
   const {data,error}=await admin.rpc('place_order_provider_v7_fulfillment_idempotent',{
