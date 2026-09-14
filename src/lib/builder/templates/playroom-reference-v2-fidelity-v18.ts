@@ -150,6 +150,7 @@ function refinePage(page:StorefrontPageDocument):StorefrontPageDocument{
       visualFillMode:'merchant-editable-image-slots',
       assetStrategy:'photo-first-no-bespoke-artwork',
       desktopLayout:'frozen',
+      visualQa:'exact-head-desktop-capture',
     },
     sections:page.sections.map(refineNode),
   };
