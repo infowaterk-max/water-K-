@@ -2,7 +2,7 @@ import type {StorefrontComponentNode,StorefrontPageDocument} from '@/lib/builder
 import type {StorefrontInstallableTemplatePackage} from '@/lib/builder/storefront-template-installation';
 import {PLAYROOM_REFERENCE_V2_TEMPLATE_PACKAGE} from '@/lib/builder/templates/playroom-reference-v2';
 
-export const PLAYROOM_REFERENCE_V2_DESKTOP_POLISH_VERSION='shoporation.playroom.reference-v2.desktop-polish.v7' as const;
+export const PLAYROOM_REFERENCE_V2_DESKTOP_POLISH_VERSION='shoporation.playroom.reference-v2.desktop-polish.v8' as const;
 
 type JsonRecord=Record<string,unknown>;
 const rec=(value:unknown):JsonRecord=>value&&typeof value==='object'&&!Array.isArray(value)?value as JsonRecord:{};
@@ -33,39 +33,15 @@ const footerNavigation=(id:string,label:string,items:{label:string;href:string}[
   },
 });
 
-const platformButton=(id:string,label:string,href:string,background:string,border:string):StorefrontComponentNode=>({
-  id,
-  componentKey:'content.button',
-  componentVersion:1,
-  config:{
-    label,
-    href,
-    variant:'ghost',
-    size:'s',
-    ariaLabel:label.replace('\n',' '),
-    style:{
-      minHeight:'5.05rem',
-      width:'100%',
-      padding:'.38rem .12rem',
-      display:'grid',
-      placeItems:'center',
-      alignContent:'center',
-      whiteSpace:'pre-line',
-      textAlign:'center',
-      fontSize:'.58rem',
-      fontWeight:850,
-      lineHeight:1.25,
-      color:'#f7fbff',
-      background,
-      border,
-      borderRadius:'.42rem',
-      boxShadow:'inset 0 0 20px rgba(255,255,255,.035),0 7px 18px rgba(0,0,0,.18)',
-    },
-  },
-  responsive:{desktop:{gridSpan:2},tablet:{gridSpan:4},mobile:{gridSpan:6}},
-});
-
 const PLAY_STYLE_COPY:Record<string,string>={solo:'Egyedül',coop:'Együtt jobb',party:'Barátokkal',racing:'Sebesség',adventure:'Felfedezés',family:'Az egész családnak'};
+const PLATFORM_VISUALS:Record<string,{label:string;symbol:string;copy:string}>={
+  playsphere:{label:'PlaySphere',symbol:'🎮',copy:'Konzol'},
+  boxone:{label:'BoxOne',symbol:'◉',copy:'Konzol'},
+  nintari:{label:'Nintari',symbol:'▣',copy:'Hibrid'},
+  pc:{label:'PC',symbol:'▰',copy:'Asztali'},
+  handheld:{label:'Handheld',symbol:'▱',copy:'Kézi'},
+  mobile:{label:'Mobile',symbol:'▯',copy:'Mobil'},
+};
 
 function polishNode(node:StorefrontComponentNode):StorefrontComponentNode{
   let next:StorefrontComponentNode={...node,config:{...node.config},...(node.children?{children:node.children.map(polishNode)}:{})};
@@ -73,7 +49,7 @@ function polishNode(node:StorefrontComponentNode):StorefrontComponentNode{
 
   switch(next.id){
     case 'playroom-home-header':
-      next={...next,config:withSlots({...config,innerStyle:{...rec(config.innerStyle),padding:'.34rem 2.35rem .24rem',gap:'.28rem'},logoStyle:{...rec(config.logoStyle),width:'2.3rem',height:'2.3rem'}},{topRow:{base:{minHeight:'2.45rem'}},navigationFrame:{base:{paddingTop:'.22rem',minHeight:'1.72rem'}},utilityLabel:{base:{fontSize:'.68rem'}}})};
+      next={...next,config:withSlots({...config,innerStyle:{...rec(config.innerStyle),padding:'.34rem 2.35rem .24rem',gap:'.28rem'},logoStyle:{...rec(config.logoStyle),width:'2.45rem',height:'2.45rem'}},{topRow:{base:{minHeight:'2.5rem'}},navigationFrame:{base:{paddingTop:'.22rem',minHeight:'1.72rem'}},utilityLabel:{base:{fontSize:'.68rem'}}})};
       break;
     case 'playroom-home-search':
       next={...next,config:{...config,style:{...rec(config.style),height:'2.12rem'},inputStyle:{...rec(config.inputStyle),fontSize:'.71rem',padding:'.55rem .8rem'},buttonStyle:{...rec(config.buttonStyle),padding:'.32rem .66rem'}}};
@@ -82,22 +58,25 @@ function polishNode(node:StorefrontComponentNode):StorefrontComponentNode{
       next={...next,config:withStyle(config,{gap:'1.55rem',fontSize:'.69rem'})};
       break;
     case 'playroom-hero':
-      next={...next,config:withStyle(config,{minHeight:'10.9rem'})};
+      next={...next,config:withStyle(config,{minHeight:'10.9rem',boxShadow:'0 18px 55px rgba(0,0,0,.42),0 0 28px rgba(42,213,255,.07)'})};
+      break;
+    case 'playroom-hero-art':
+      next={...next,config:withStyle(config,{filter:'saturate(1.16) contrast(1.06) brightness(1.03)',objectPosition:'center 48%'})};
       break;
     case 'playroom-hero-copy':
-      next={...next,config:withStyle(config,{minHeight:'7.7rem',padding:'.42rem 1.18rem 2.75rem',width:'49%',justifyContent:'center',background:'linear-gradient(90deg,rgba(2,8,22,.91),rgba(2,8,22,.62) 62%,rgba(2,8,22,.06))'})};
+      next={...next,config:withStyle(config,{minHeight:'7.7rem',padding:'.42rem 1.18rem 2.75rem',width:'49%',justifyContent:'center',background:'linear-gradient(90deg,rgba(2,8,22,.93),rgba(2,8,22,.64) 62%,rgba(2,8,22,.04))'})};
       break;
     case 'playroom-hero-title':
-      next={...next,config:withStyle(config,{fontSize:'clamp(2.55rem,3.55vw,3.75rem)',lineHeight:.84,letterSpacing:'-.045em',transform:'scaleX(1.08)',transformOrigin:'left center'})};
+      next={...next,config:withStyle(config,{fontSize:'clamp(2.6rem,3.65vw,3.85rem)',lineHeight:.83,letterSpacing:'-.05em',fontStyle:'italic',textShadow:'0 4px 18px rgba(0,0,0,.58),0 0 18px rgba(55,226,255,.08)',transform:'scaleX(1.08)',transformOrigin:'left center'})};
       break;
     case 'playroom-hero-support':
       next={...next,config:withStyle(config,{fontSize:'.72rem',lineHeight:1.08,maxWidth:'33ch'})};
       break;
     case 'playroom-hero-primary':
-      next={...next,config:withStyle(config,{padding:'.45rem .78rem',fontSize:'.62rem'})};
+      next={...next,config:withStyle(config,{padding:'.45rem .78rem',fontSize:'.62rem',boxShadow:'0 6px 22px rgba(255,70,174,.22)'})};
       break;
     case 'playroom-trust-grid':
-      next={...next,config:withStyle(config,{left:'.48rem',right:'.48rem',bottom:'.24rem'})};
+      next={...next,config:withStyle(config,{left:'.48rem',right:'.48rem',bottom:'.24rem',background:'rgba(2,12,28,.88)'})};
       break;
     case 'playroom-trust-shipping':
     case 'playroom-trust-warranty':
@@ -107,37 +86,43 @@ function polishNode(node:StorefrontComponentNode):StorefrontComponentNode{
       break;
     case 'playroom-style-card':
     case 'playroom-platform-card':
-      next={...next,config:withStyle(config,{padding:'.5rem .58rem'})};
+      next={...next,config:withStyle(config,{padding:'.5rem .58rem',boxShadow:'0 10px 28px rgba(0,0,0,.18),inset 0 0 26px rgba(65,210,255,.025)'})};
       break;
     case 'playroom-game-finder':{
       const options=mapRows(config.options,row=>({...row,copy:PLAY_STYLE_COPY[typeof row.id==='string'?row.id:'']??row.copy}));
       const optionsBinding=next.bindings?.options;
-      next={...next,...(optionsBinding?{bindings:{...next.bindings,options:{...optionsBinding,fallback:options}}}:{}),config:withSlots({...config,options},{options:{base:{gap:'.34rem'}},option:{base:{minHeight:'5.25rem',padding:'.34rem .1rem',gap:'.13rem'}},optionMedia:{base:{fontSize:'1.48rem'}},optionLabel:{base:{fontSize:'.57rem'}},optionCopy:{base:{fontSize:'.44rem',color:'#9eb4c9',lineHeight:1.05}}})};
+      next={...next,...(optionsBinding?{bindings:{...next.bindings,options:{...optionsBinding,fallback:options}}}:{}),config:withSlots({...config,options},{options:{base:{gap:'.34rem'}},option:{base:{minHeight:'5.25rem',padding:'.32rem .08rem',gap:'.1rem'}},optionMedia:{base:{fontSize:'1.78rem',lineHeight:1,color:'#4feaff',filter:'drop-shadow(0 0 8px rgba(79,234,255,.2))'}},optionLabel:{base:{fontSize:'.6rem',lineHeight:1.05}},optionCopy:{base:{fontSize:'.46rem',color:'#9eb4c9',lineHeight:1.05}}})};
       break;
     }
-    case 'playroom-platform-navigation':
-      next={
-        ...next,
-        componentKey:'layout.grid',
-        config:{columns:12,gap:'xs',align:'stretch',style:{gap:'.34rem'}},
-        bindings:undefined,
-        children:[
-          platformButton('playroom-platform-playsphere','🎮\nPlaySphere','/webaruhaz?platform=playsphere','linear-gradient(180deg,#1767ff,#1547c8)','1px solid #2f88ff'),
-          platformButton('playroom-platform-boxone','✕\nBoxOne','/webaruhaz?platform=boxone','linear-gradient(180deg,#118748,#08632f)','1px solid #1ebf65'),
-          platformButton('playroom-platform-nintari','▣\nNintari','/webaruhaz?platform=nintari','linear-gradient(180deg,#d91d32,#a10f24)','1px solid #ff4054'),
-          platformButton('playroom-platform-pc','▰\nPC','/webaruhaz?platform=pc','linear-gradient(180deg,#0c2d49,#081e34)','1px solid rgba(91,207,255,.34)'),
-          platformButton('playroom-platform-handheld','▱\nHandheld','/webaruhaz?platform=handheld','linear-gradient(180deg,#12334d,#0a2138)','1px solid rgba(91,207,255,.32)'),
-          platformButton('playroom-platform-mobile','▯\nMobile','/webaruhaz?platform=mobile','linear-gradient(180deg,#12334d,#0a2138)','1px solid rgba(91,207,255,.32)'),
-        ],
-      };
+    case 'playroom-platform-navigation':{
+      const items=mapRows(config.items,row=>{
+        const visual=PLATFORM_VISUALS[typeof row.id==='string'?row.id:''];
+        return visual?{...row,...visual}:row;
+      });
+      next={...next,config:withSlots({...config,columns:6,presentation:'cards',items},{root:{base:{gap:'0'}},header:{base:{display:'none'}},grid:{base:{display:'grid',gridTemplateColumns:'repeat(6,minmax(0,1fr))',gap:'.34rem'}},card:{base:{minHeight:'5.05rem',padding:'.32rem .08rem',borderRadius:'.42rem',background:'linear-gradient(180deg,#0c2d49,#071c31)',border:'1px solid rgba(76,208,255,.28)',boxShadow:'inset 0 0 20px rgba(255,255,255,.03),0 7px 18px rgba(0,0,0,.18)'}},symbol:{base:{fontSize:'1.62rem',lineHeight:1,color:'#f4f9ff',filter:'drop-shadow(0 0 8px rgba(68,222,255,.24))'}},label:{base:{fontSize:'.58rem',fontWeight:850,lineHeight:1.05}},itemCopy:{base:{fontSize:'.43rem',lineHeight:1.05,color:'#9eb4c9'}}})};
       break;
+    }
     case 'playroom-setup':
+      next={...next,config:withStyle(config,{minHeight:'13rem',background:'radial-gradient(circle at 82% 54%,rgba(45,109,255,.42),transparent 44%),radial-gradient(circle at 72% 88%,rgba(255,43,180,.16),transparent 33%),linear-gradient(135deg,#091c3c,#17134b)',boxShadow:'0 12px 34px rgba(0,0,0,.24)'})};
+      break;
     case 'playroom-player-two':
+      next={...next,config:withStyle(config,{minHeight:'13rem',background:'radial-gradient(circle at 15% 0%,rgba(33,233,217,.09),transparent 34%),linear-gradient(155deg,#07263b,#071b31)',boxShadow:'0 12px 34px rgba(0,0,0,.22)'})};
+      break;
     case 'playroom-upgrade':
-      next={...next,config:withStyle(config,{minHeight:'13rem'})};
+      next={...next,config:withStyle(config,{minHeight:'13rem',background:'radial-gradient(circle at 85% 5%,rgba(255,78,198,.1),transparent 34%),linear-gradient(150deg,#101c39,#17112f)',boxShadow:'0 12px 34px rgba(0,0,0,.22)'})};
+      break;
+    case 'playroom-player-controller-image':
+    case 'playroom-player-headset-image':
+    case 'playroom-player-family-image':
+    case 'playroom-player-couch-image':
+    case 'playroom-upgrade-monitor-image':
+    case 'playroom-upgrade-audio-image':
+    case 'playroom-upgrade-light-image':
+    case 'playroom-upgrade-chair-image':
+      next={...next,config:withStyle(config,{height:'5.05rem',filter:'saturate(1.14) contrast(1.04)'})};
       break;
     case 'playroomFeaturedGames':
-      next={...next,config:withSlots({...config,columns:6,showCta:false,imageRatio:'16 / 8.5'},{root:{base:{gap:'.2rem'}},grid:{base:{gap:'.24rem'}},card:{base:{gap:'.17rem',padding:'.22rem'}},body:{base:{gap:'.05rem'}},name:{base:{fontSize:'.56rem',lineHeight:1.02}},price:{base:{fontSize:'.57rem'}},comparePrice:{base:{fontSize:'.43rem'}},stock:{base:{fontSize:'.44rem',lineHeight:1.01}},badge:{base:{top:'.22rem',left:'.22rem',fontSize:'.41rem',padding:'.12rem .22rem'}}})};
+      next={...next,config:withSlots({...config,columns:6,showCta:false,imageRatio:'16 / 8.5'},{root:{base:{gap:'.2rem'}},grid:{base:{gap:'.24rem'}},card:{base:{gap:'.17rem',padding:'.22rem',boxShadow:'0 6px 18px rgba(0,0,0,.14)'}},body:{base:{gap:'.05rem'}},name:{base:{fontSize:'.56rem',lineHeight:1.02}},price:{base:{fontSize:'.57rem'}},comparePrice:{base:{fontSize:'.43rem'}},stock:{base:{fontSize:'.44rem',lineHeight:1.01}},badge:{base:{top:'.22rem',left:'.22rem',fontSize:'.41rem',padding:'.12rem .22rem'}}})};
       break;
     case 'playroom-featured-games':
       next={...next,config:withStyle(config,{padding:'.46rem .56rem',minHeight:'9rem'})};
@@ -146,14 +131,22 @@ function polishNode(node:StorefrontComponentNode):StorefrontComponentNode{
       next={...next,config:withStyle(config,{padding:'.44rem',minHeight:'9rem'})};
       break;
     case 'playroom-compatibility-art':
-      next={...next,config:withStyle(config,{height:'5.4rem'})};
+      next={...next,config:withStyle(config,{height:'5.4rem',filter:'saturate(1.12)'})};
       break;
-    case 'playroom-compatibility-status-wrap':
-      next={...next,config:withStyle(config,{gap:'.24rem'}),children:[...(next.children??[]),
-        {id:'playroom-compatibility-platform-list',componentKey:'content.text',componentVersion:1,config:{text:'PlaySphere  —\nBoxOne      —\nNintari     —\nPC          —\nMobile      —',as:'small',align:'left',tone:'text',style:{whiteSpace:'pre-line',fontSize:'.5rem',lineHeight:1.24,color:'#b7c9db',letterSpacing:'.01em'}}},
-        {id:'playroom-compatibility-check',componentKey:'content.button',componentVersion:1,config:{label:'Ellenőrzöm  →',href:'/webaruhaz',variant:'primary',size:'s',ariaLabel:'Platform kompatibilitás ellenőrzése',style:{width:'fit-content',padding:'.3rem .48rem',fontSize:'.48rem',fontWeight:850,background:'#ffc65a',color:'#071326',border:'0',borderRadius:'.3rem'}}},
+    case 'playroom-platform-match-status':{
+      const copyBinding=next.bindings?.copy;
+      next={...next,config:{...config,title:'Kompatibilitás',copy:'Ismeretlen = nem kompatibilis.'},...(copyBinding?{bindings:{...next.bindings,copy:{...copyBinding,fallback:'Ismeretlen = nem kompatibilis.'}}}:{})};
+      break;
+    }
+    case 'playroom-compatibility-status-wrap':{
+      const original=next.children?.[0];
+      next={...next,config:withStyle(config,{gap:'.2rem'}),children:[
+        {id:'playroom-compatibility-platform-list',componentKey:'content.text',componentVersion:1,config:{text:'PlaySphere  —\nBoxOne      —\nNintari     —\nPC          —\nMobile      —',as:'small',align:'left',tone:'text',style:{whiteSpace:'pre-line',fontSize:'.48rem',lineHeight:1.16,color:'#b7c9db',letterSpacing:'.01em'}}},
+        ...(original?[original]:[]),
+        {id:'playroom-compatibility-check',componentKey:'content.button',componentVersion:1,config:{label:'Ellenőrzöm  →',href:'/webaruhaz',variant:'primary',size:'s',ariaLabel:'Platform kompatibilitás ellenőrzése',style:{width:'fit-content',padding:'.28rem .44rem',fontSize:'.46rem',fontWeight:850,background:'#ffc65a',color:'#071326',border:'0',borderRadius:'.3rem'}}},
       ]};
       break;
+    }
     case 'playroom-gift-card':
       next={...next,config:withStyle(config,{position:'relative',overflow:'hidden',padding:'.72rem',minHeight:'9rem',gap:'.25rem',justifyContent:'center',background:'linear-gradient(90deg,#171047 0%,#211052 48%,#2d0c54 100%)'})};
       break;
@@ -173,7 +166,7 @@ function polishNode(node:StorefrontComponentNode):StorefrontComponentNode{
       next={...next,config:withStyle(config,{minHeight:'3.45rem',padding:'.3rem .58rem'})};
       break;
     case 'playroom-community-art':
-      next={...next,config:withStyle(config,{opacity:.58})};
+      next={...next,config:withStyle(config,{opacity:.58,filter:'saturate(1.18)'})};
       break;
     case 'playroom-community-title':
       next={...next,config:withStyle(config,{fontSize:'1.18rem'})};
