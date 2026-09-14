@@ -17,6 +17,7 @@ import {PLAYROOM_TEMPLATE_PACKAGE} from '@/lib/builder/templates/playroom';
 import {PLAYROOM_REFERENCE_V2_TEMPLATE_PACKAGE} from '@/lib/builder/templates/playroom-reference-v2';
 import {PLAYROOM_V18_TEMPLATE_PACKAGE} from '@/lib/builder/templates/playroom-v18';
 import {PLAYROOM_V19_CANONICAL_TEMPLATE_PACKAGE} from '@/lib/builder/templates/playroom-v19-canonical';
+import {PLAYROOM_V20_TEMPLATE_PACKAGE} from '@/lib/builder/templates/playroom-v20';
 import {RIG_FORGE_TEMPLATE_PACKAGE} from '@/lib/builder/templates/rig-forge';
 import {RITUAL_HOUSE_TEMPLATE_PACKAGE} from '@/lib/builder/templates/ritual-house';
 import {SPEC_LAB_TEMPLATE_PACKAGE} from '@/lib/builder/templates/spec-lab';
@@ -28,7 +29,7 @@ import {TECH_DECK_TEMPLATE_PACKAGE} from '@/lib/builder/templates/tech-deck';
 import {TOOL_DEPOT_TEMPLATE_PACKAGE} from '@/lib/builder/templates/tool-depot';
 import {TRAIL_EXPEDITION_TEMPLATE_PACKAGE} from '@/lib/builder/templates/trail-expedition';
 
-export const STOREFRONT_TEMPLATE_CATALOG_VERSION='shoporation.storefront-template-catalog.block21.v1' as const;
+export const STOREFRONT_TEMPLATE_CATALOG_VERSION='shoporation.storefront-template-catalog.block21.v2' as const;
 export const STOREFRONT_TEMPLATE_LAUNCH_TARGET=42 as const;
 
 function normalizeLegacyTemplatePage(page:StorefrontPageDocument):StorefrontPageDocument{
@@ -102,7 +103,7 @@ export const STOREFRONT_IMPLEMENTED_TEMPLATE_PACKAGES:readonly StorefrontInstall
   MONARCHE_TEMPLATE_PACKAGE,
   MY_PACK_TEMPLATE_PACKAGE,
   PERFORMANCE_LAB_TEMPLATE_PACKAGE,
-  PLAYROOM_V19_CANONICAL_TEMPLATE_PACKAGE,
+  PLAYROOM_V20_TEMPLATE_PACKAGE,
   RIG_FORGE_TEMPLATE_PACKAGE,
   RITUAL_HOUSE_TEMPLATE_PACKAGE,
   SPEC_LAB_TEMPLATE_PACKAGE,
@@ -122,6 +123,7 @@ const STOREFRONT_LEGACY_RESOLVABLE_TEMPLATE_PACKAGES:readonly StorefrontInstalla
   PLAYROOM_TEMPLATE_PACKAGE,
   PLAYROOM_REFERENCE_V2_TEMPLATE_PACKAGE,
   PLAYROOM_V18_TEMPLATE_PACKAGE,
+  PLAYROOM_V19_CANONICAL_TEMPLATE_PACKAGE,
 ].map(normalizeLegacyTemplatePackage);
 
 const STOREFRONT_RESOLVABLE_TEMPLATE_PACKAGES:readonly StorefrontInstallableTemplatePackage[]=[

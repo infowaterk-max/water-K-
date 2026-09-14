@@ -1,7 +1,7 @@
 import {STOREFRONT_TEMPLATE_CATALOG,getStorefrontTemplatePackage,type StorefrontTemplateCatalogEntry} from '@/lib/builder/storefront-template-catalog';
 
 export type StorefrontTemplateProComparison={
-  status:'planned'|'available';
+  status:'available';
   summary:string;
   highlights:readonly string[];
   optionalAddOns:readonly string[];
@@ -39,17 +39,17 @@ const CATEGORY_PROFILES:Record<string,MerchandisingProfile>={
 };
 
 const PRO_PROFILES:Record<string,ProProfile>={
-  beauty:{summary:'A Pro irány több személyre szabást és automatizált merchandisingot ad, nem „szebb skint”.',highlights:['személyre szabott termék- és rutinajánlás','fejlettebb kampány- és upsell blokkok','CRM/automatizálás alapú utánkövetés']},
-  fashion:{summary:'A Pro változat a look-alapú értékesítést és fejlettebb merchandisingot erősíti.',highlights:['Shop the Look / Complete the Look','személyre szabott ajánlók és cross-sell','fejlettebb promóciós és kollekciós merchandising']},
-  food:{summary:'A Pro változat inspirációból közvetlenebb vásárlási útvonalat és automatizálást ad.',highlights:['receptből kosárba jellegű vásárlási flow','összeállítások, bundle és cross-sell','fejlettebb kampány- és automatizálási lehetőségek']},
-  gaming:{summary:'A Pro változat összetettebb termékválasztást és konverziós segédleteket ad.',highlights:['összehasonlítás és kompatibilitási segédletek','sticky cart, upsell és bundle blokkok','személyre szabott ajánlók']},
-  home:{summary:'A Pro változat a teljes enteriőr és összeállítás megvásárlását támogatja.',highlights:['Shop the Room / komplett összeállítás','anyag- és színvariánsok erősebb bemutatása','set shopping és fejlettebb ajánlások'],optionalAddOns:['AR / térbe helyezés külön prémium add-onként']},
-  industrial:{summary:'A Pro irány B2B és döntéstámogató kereskedelmi folyamatokkal bővíthető.',highlights:['B2B ügyfél- és CRM folyamatok','beszerzéshez és nagyobb rendelésekhez kapcsolódó workflow-k','haladó integráció és API-kapcsolatok']},
-  jewelry:{summary:'A Pro változat a részletgazdag termékbemutatást és magas értékű döntéstámogatást erősíti.',highlights:['360° termékforgatás / több nézet','nagyítás és részletfókusz','összehasonlítás és prémium merchandising'],optionalAddOns:['haladó 3D, hotspotok, robbantott nézet vagy AR külön add-onként']},
-  outdoor:{summary:'A Pro változat útvonal- és felhasználási helyzet alapján segíti a felszerelésválasztást.',highlights:['kaland/útvonal alapú termékfelfedezés','felszerelés-csomagok és cross-sell','személyre szabott ajánlók és kampányblokkok']},
-  pet:{summary:'A Pro változat több profilalapú személyre szabást és utánkövetést ad.',highlights:['profilalapú személyre szabott ajánlás','újravásárlási és automatizált utánkövetési flow','fejlettebb cross-sell és csomagajánlatok']},
-  sport:{summary:'A Pro változat erősebb választási támogatást és teljesítményorientált merchandisingot ad.',highlights:['termék-összehasonlítás és választási segédlet','bundle / teljes felszerelés ajánlás','személyre szabott és kampányalapú ajánlók']},
-  tech:{summary:'A Pro változat összetettebb specifikációs döntést és prémium termékbemutatást támogat.',highlights:['összehasonlítás és kompatibilitási segédlet','360°/többnézetes termékbemutatás ahol releváns','személyre szabott ajánlók, upsell és sticky cart'],optionalAddOns:['haladó 3D / robbantott nézet / AR külön add-onként']},
+  beauty:{summary:'Ugyanez a sablon Pro csomagban több személyre szabást és automatizált merchandisingot tud használni.',highlights:['személyre szabott termék- és rutinajánlás','fejlettebb kampány- és upsell blokkok','CRM/automatizálás alapú utánkövetés']},
+  fashion:{summary:'Ugyanez a sablon Pro csomagban look-alapú értékesítéssel és fejlettebb merchandisinggal bővíthető.',highlights:['Shop the Look / Complete the Look','személyre szabott ajánlók és cross-sell','fejlettebb promóciós és kollekciós merchandising']},
+  food:{summary:'Ugyanez a sablon Pro csomagban inspirációból közvetlenebb vásárlási útvonalat és automatizálást használhat.',highlights:['receptből kosárba jellegű vásárlási flow','összeállítások, bundle és cross-sell','fejlettebb kampány- és automatizálási lehetőségek']},
+  gaming:{summary:'Ugyanez a gaming sablon Pro csomagban a közös motor fejlettebb interaktív és üzleti képességeit is használhatja.',highlights:['interaktív Shop the Setup / scene jellegű Pro blokkok','fejlett CRM, kampány és automatizálás','kontextuális Pro capabilityk a Builderben, ugyanebben a vizuális rendszerben']},
+  home:{summary:'Ugyanez a sablon Pro csomagban teljes enteriőr- és összeállítás-vásárlási képességekkel bővíthető.',highlights:['Shop the Room / komplett összeállítás','anyag- és színvariánsok erősebb bemutatása','set shopping és fejlettebb ajánlások'],optionalAddOns:['AR / térbe helyezés külön prémium add-onként']},
+  industrial:{summary:'Ugyanez a sablon Pro csomagban B2B és döntéstámogató kereskedelmi folyamatokat is használhat.',highlights:['B2B ügyfél- és CRM folyamatok','beszerzéshez és nagyobb rendelésekhez kapcsolódó workflow-k','haladó integráció és API-kapcsolatok']},
+  jewelry:{summary:'Ugyanez a sablon Pro csomagban részletgazdagabb termékbemutatást és magas értékű döntéstámogatást kaphat.',highlights:['360° termékforgatás / több nézet','nagyítás és részletfókusz','összehasonlítás és prémium merchandising'],optionalAddOns:['haladó 3D, hotspotok, robbantott nézet vagy AR külön add-onként']},
+  outdoor:{summary:'Ugyanez a sablon Pro csomagban útvonal- és felhasználási helyzet alapján fejlettebb választási segítséget használhat.',highlights:['kaland/útvonal alapú termékfelfedezés','felszerelés-csomagok és cross-sell','személyre szabott ajánlók és kampányblokkok']},
+  pet:{summary:'Ugyanez a sablon Pro csomagban több profilalapú személyre szabást és utánkövetést használhat.',highlights:['profilalapú személyre szabott ajánlás','újravásárlási és automatizált utánkövetési flow','fejlettebb cross-sell és csomagajánlatok']},
+  sport:{summary:'Ugyanez a sablon Pro csomagban erősebb választási támogatást és teljesítményorientált merchandisingot használhat.',highlights:['termék-összehasonlítás és választási segédlet','bundle / teljes felszerelés ajánlás','személyre szabott és kampányalapú ajánlók']},
+  tech:{summary:'Ugyanez a sablon Pro csomagban összetettebb specifikációs döntést és prémium termékbemutatást támogat.',highlights:['összehasonlítás és kompatibilitási segédlet','360°/többnézetes termékbemutatás ahol releváns','személyre szabott ajánlók, upsell és fejlett kampányok'],optionalAddOns:['haladó 3D / robbantott nézet / AR külön add-onként']},
 };
 
 const TEMPLATE_DESCRIPTIONS:Record<string,string>={
@@ -88,7 +88,7 @@ export function listStorefrontTemplateLibraryEntries():readonly StorefrontTempla
     const home=template?.pages.find(page=>page.pageType==='home')??template?.pages[0];
     const category=entry.category.toLowerCase();
     const categoryProfile=CATEGORY_PROFILES[category]??{description:'Szerkeszthető, reszponzív Shoperation storefront sablon.',audience:'általános webshopoknak'};
-    const pro=PRO_PROFILES[category]??{summary:'A Pro változat funkcionalitásban bővebb, nem vizuális minőségben.',highlights:['fejlettebb merchandising','személyre szabás és automatizálás','Pro csomaghoz kötött üzleti képességek']};
+    const pro=PRO_PROFILES[category]??{summary:'Ugyanez a sablon Pro csomagban a közös motor fejlettebb üzleti képességeit is használhatja.',highlights:['fejlettebb merchandising','személyre szabás és automatizálás','Pro csomaghoz kötött üzleti képességek']};
     const metadataHighlights=strings(home?.metadata?.sectionOrder).slice(0,4);
     const fallbackHighlights=(home?.sections??[]).slice(0,4).map(section=>humanize(section.componentKey));
     return Object.freeze({
@@ -99,12 +99,7 @@ export function listStorefrontTemplateLibraryEntries():readonly StorefrontTempla
       audience:categoryProfile.audience,
       highlights:Object.freeze(metadataHighlights.length?metadataHighlights:fallbackHighlights),
       previewPageKey:home?.pageKey??null,
-      proComparison:Object.freeze({
-        status:entry.minPlan==='pro'?'available' as const:'planned' as const,
-        summary:pro.summary,
-        highlights:Object.freeze([...pro.highlights]),
-        optionalAddOns:Object.freeze([...(pro.optionalAddOns??[])]),
-      }),
+      proComparison:Object.freeze({status:'available' as const,summary:pro.summary,highlights:Object.freeze([...pro.highlights]),optionalAddOns:Object.freeze([...(pro.optionalAddOns??[])])}),
     });
   });
 }
