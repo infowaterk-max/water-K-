@@ -46,7 +46,7 @@ export async function POST(request:Request,{params}:{params:Promise<{id:string}>
   if(error||!data)return NextResponse.json({error:'A dokumentum feltöltése nem készíthető elő biztonságosan.'},{status:409});
   const prepared=data as{documentId?:string;path?:string;bucket?:string};if(!prepared.documentId||prepared.path!==path||prepared.bucket!==ORDER_DOCUMENT_BUCKET)return NextResponse.json({error:'A dokumentum-előjegyzés eredménye nem igazolható.'},{status:500});
   const signed=await admin.storage.from(ORDER_DOCUMENT_BUCKET).createSignedUploadUrl(path);
-  if(signed.error||!signed.data?.token){await admin.rpc('admin_revoke_order_customer_document_v1',{p_instance_id:ctx.scope.instanceId,p_actor:ctx.actor.id,p_document_id:prepared.documentId}).catch(()=>undefined);return NextResponse.json({error:'A privát feltöltési cím nem hozható létre.'},{status:500})}
+  if(signed.error||!signed.data?.token){await admin.rpc('admin_revoke_order_customer_document_v1',{p_instance_id:ctx.scope.instanceId,p_actor:ctx.actor.id,p_document_id:prepared.documentId});return NextResponse.json({error:'A privát feltöltési cím nem hozható létre.'},{status:500})}
   return NextResponse.json({documentId:prepared.documentId,bucket:ORDER_DOCUMENT_BUCKET,path,token:signed.data.token});
 }
 
