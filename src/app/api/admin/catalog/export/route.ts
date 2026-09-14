@@ -13,15 +13,18 @@ export async function GET(){
 
   const admin=createAdminClient();
   const{data,error}=await admin.from('product_variants')
-    .select('id,sku,label,stock_quantity,net_price_huf,gross_price_huf,active,products!inner(name,instance_id)')
+    .select('id,sku,label,stock_quantity,net_price_huf,gross_price_huf,active,fulfillment_type,products!inner(name,instance_id,fulfillment_type)')
     .eq('instance_id',scope.instanceId)
     .eq('products.instance_id',scope.instanceId)
     .order('sku');
 
   if(error)return new Response('Export hiba.',{status:500});
   const lines=[
-    ['id','sku','name','label','stock','net_price','gross_price','active'].join(','),
-    ...(data??[]).map((r:any)=>[r.id,r.sku,r.products?.name??'',r.label,r.stock_quantity,r.net_price_huf,r.gross_price_huf,r.active].map(cell).join(','))
+    ['id','sku','name','label','stock','net_price','gross_price','active','fulfillment_type'].join(','),
+    ...(data??[]).map((r:any)=>[
+      r.id,r.sku,r.products?.name??'',r.label,r.stock_quantity,r.net_price_huf,r.gross_price_huf,r.active,
+      r.fulfillment_type??r.products?.fulfillment_type??'physical'
+    ].map(cell).join(','))
   ];
   return new Response('\uFEFF'+lines.join('\n'),{headers:{'content-type':'text/csv; charset=utf-8','content-disposition':'attachment; filename="termekek.csv"','cache-control':'no-store'}});
 }
