@@ -49,11 +49,11 @@ export const STOREFRONT_TEMPLATE_SPECIAL_COMMERCE_POLICY:Readonly<Record<string,
 export const STOREFRONT_PAGE_SEMANTIC_CONTEXTS:Readonly<Record<StorefrontBuilderPageType,readonly string[]>>=Object.freeze({
   home:['home.discovery','home.marketing','home.retention','home.special-commerce'],
   catalog:['catalog.discovery','catalog.merchandising'],
-  product:['product.media.after','product.buybox.after','product.compatibility','product.related'],
+  product:['product.media.after','product.buybox.after','product.fulfillment','product.documents','product.compatibility','product.related'],
   search:['search.discovery'],
-  cart:['cart.recommendations','cart.retention'],
-  checkout:['checkout.shipping.methods','checkout.payment.methods','checkout.retention'],
-  account:['account.order-details','account.retention'],
+  cart:['cart.fulfillment','cart.recommendations','cart.retention'],
+  checkout:['checkout.fulfillment','checkout.shipping.methods','checkout.payment.methods','checkout.post-purchase','checkout.retention'],
+  account:['account.documents','account.order-details','account.post-purchase','account.retention'],
   content:['content.commerce','content.marketing','content.support'],
   'blog-index':['content.marketing'],
   'blog-article':['content.commerce','content.marketing'],
@@ -72,6 +72,10 @@ export type StorefrontContextualCapabilityDescriptor={
 };
 
 export const STOREFRONT_CONTEXTUAL_CAPABILITIES:readonly StorefrontContextualCapabilityDescriptor[]=Object.freeze([
+  {key:'fulfillment',label:'Fizikai / digitális teljesítés',description:'A valós termék- és kosáradatból származó teljesítési mód és kézbesítési elvárás.',componentKeys:['commerce.fulfillment-summary'],contexts:['product.fulfillment','cart.fulfillment','checkout.fulfillment']},
+  {key:'product-documents',label:'Termékdokumentumok',description:'Termékhez vagy változathoz kapcsolt, külön Product Documents authorityból érkező dokumentumlista.',componentKeys:['commerce.product-documents'],contexts:['product.documents']},
+  {key:'documents-center',label:'Dokumentumok és letöltések',description:'Digitális vásárlások és rendelési dokumentumok közös felfedezési felülete, külön backend authoritykkal.',componentKeys:['commerce.documents-center'],contexts:['account.documents']},
+  {key:'post-purchase-access',label:'Vásárlás utáni hozzáférés',description:'Fizetés utáni digitális hozzáférés és dokumentumközpont útmutatás a rendelési authority állapotából.',componentKeys:['commerce.post-purchase-guidance'],contexts:['checkout.post-purchase','account.post-purchase']},
   {key:'newsletter',label:'Hírlevél-feliratkozás',description:'Valódi marketing hozzájárulással működő Builder-blokk.',componentKeys:['marketing.newsletter-signup'],contexts:['home.marketing','content.marketing']},
   {key:'promotion',label:'Promóció / kupon kiemelés',description:'A kupon authorityból olvasott promóciós storefront-felület.',componentKeys:['marketing.promotion-banner'],contexts:['home.marketing','catalog.merchandising','product.related','cart.recommendations','content.marketing']},
   {key:'support',label:'Kapcsolati / ügyfélszolgálati űrlap',description:'Tenant-szintű, követhető support ticketet létrehozó űrlap.',componentKeys:['support.contact-form'],contexts:['contact.support','content.support']},
