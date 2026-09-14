@@ -16,7 +16,7 @@ const positiveInt=(value:number|null|undefined,fallback=1)=>{const numeric=Numbe
 const normalizeMinimum=(minimum:number,multiple:number)=>Math.ceil(Math.max(1,minimum)/Math.max(1,multiple))*Math.max(1,multiple);
 const deriveNet=(gross:number,baseGross:number,baseNet:number)=>baseGross>0?Math.max(0,Math.round(gross*(baseNet/baseGross))):Math.max(0,gross);
 const normalizeDiscount=(discount:number|null|undefined)=>discount==null?null:Math.min(100,Math.max(0,Number(discount)));
-const applyDiscount=(value:number,discount:number|null|undefined)=>discount==null?value:Math.max(0,Math.round(value*(1-Math.min(100,Math.max(0,Number(discount)))/100));
+const applyDiscount=(value:number,discount:number|null|undefined)=>discount==null?value:Math.max(0,Math.round(value*(1-Math.min(100,Math.max(0,Number(discount)))/100)));
 
 export async function getProducts(options:{includeAllChannels?:boolean;throwOnError?:boolean}={}):Promise<Product[]>{
  try{
