@@ -40,14 +40,23 @@ export async function PATCH(request:Request,{params}:{params:Promise<{id:string}
 
   const admin=createAdminClient();
   const{data:current,error:currentError}=await admin.from('orders')
-    .select('status,tracking_number,shipping_method,order_number,payment_method,instance_id')
+    .select('status,tracking_number,shipping_method,order_number,payment_method,instance_id,fulfillment_mode,paid_at')
     .eq('id',id).eq('instance_id',scope.instanceId).maybeSingle();
   if(currentError||!current)return NextResponse.json({error:'A rendelés nem található ebben a webshopban.'},{status:404});
   if(current.status==='refunded')return NextResponse.json({error:'A visszatérített rendelés állapota ezen a végponton nem módosítható.'},{status:409});
 
-  const currentStatus=current.status as AdminOrderMutationStatus,nextStatus=parsed.data.status;
+  const currentStatus=current.status as AdminOrderMutationStatus,nextStatus=parsed.data.status,fulfillmentMode=String(current.fulfillment_mode??(current.shipping_method==='digital_delivery'?'digital':'physical'));
   if(!canAdminTransitionOrder(currentStatus,nextStatus)){
     return NextResponse.json({error:`Nem engedélyezett státuszváltás: ${currentStatus} → ${nextStatus}.`},{status:409});
+  }
+  if(['digital','mixed'].includes(fulfillmentMode)&&['processing','shipped','completed'].includes(nextStatus)&&nextStatus!==currentStatus&&!current.paid_at&&currentStatus!=='paid'){
+    return NextResponse.json({error:'Digitális tartalmat tartalmazó rendelés csak igazolt fizetés után teljesíthető.'},{status:409});
+  }
+  if(currentStatus==='processing'&&fulfillmentMode==='digital'&&nextStatus==='shipped'){
+    return NextResponse.json({error:'Tisztán digitális rendeléshez nincs fizikai feladási állapot. A következő lépés a teljesítés.'},{status:409});
+  }
+  if(currentStatus==='processing'&&fulfillmentMode!=='digital'&&nextStatus==='completed'){
+    return NextResponse.json({error:'Fizikai terméket tartalmazó rendelést a teljesítés előtt feladott állapotra kell állítani.'},{status:409});
   }
 
   const jobs:PlannedJob[]=[];
@@ -63,7 +72,7 @@ export async function PATCH(request:Request,{params}:{params:Promise<{id:string}
       }else{
         manualEvents.push({eventType:'invoice_manual_required',metadata:{source:'admin_paid',reason:'Automatikus számlázó adapter nincs aktiválva vagy ellenőrizve.'}});
       }
-      if(current.shipping_method){
+      if(fulfillmentMode!=='digital'&&current.shipping_method){
         const external=await getExternalLogisticsConfig(scope.instanceId,current.shipping_method,{strict:true});
         if(current.shipping_method==='external_logistics'&&!external){
           return NextResponse.json({error:'A külső logisztikai partner beállítása nem aktív vagy hiányos. A rendelés állapota nem változott.'},{status:409});
@@ -73,19 +82,19 @@ export async function PATCH(request:Request,{params}:{params:Promise<{id:string}
     }
 
     if(nextStatus==='processing'){
-      const external=current.shipping_method
+      const external=fulfillmentMode!=='digital'&&current.shipping_method
         ?await getExternalLogisticsConfig(scope.instanceId,current.shipping_method,{strict:true})
         :null;
-      if(current.shipping_method==='external_logistics'&&!external){
+      if(fulfillmentMode!=='digital'&&current.shipping_method==='external_logistics'&&!external){
         return NextResponse.json({error:'A külső logisztikai partner beállítása nem aktív vagy hiányos. A rendelés állapota nem változott.'},{status:409});
       }
-      if(current.shipping_method&&current.shipping_method!=='pickup'){
+      if(fulfillmentMode!=='digital'&&current.shipping_method&&current.shipping_method!=='pickup'){
         if(external){
           if(current.payment_method==='cash_on_delivery'){
             jobs.push({kind:'logistics_email',provider:'external_logistics_email',payload:{recipient:external.recipient,shippingCode:external.shippingCode,label:external.label}});
           }
         }else{
-          jobs.push({kind:'shipment_create',provider:current.shipping_method,payload:{orderNumber:current.order_number,shippingKind:'auto'}});
+          jobs.push({kind:'shipment_create',provider:current.shipping_method,payload:{orderNumber:current.order_number,shippingKind:'auto',fulfillmentMode}});
         }
       }
       if(current.payment_method==='cash_on_delivery'){
