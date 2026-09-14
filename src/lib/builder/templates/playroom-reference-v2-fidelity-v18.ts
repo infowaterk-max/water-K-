@@ -24,16 +24,16 @@ const withSlots=(config:JsonRecord,patch:Record<string,JsonRecord>):JsonRecord=>
 // Photo-first visual fill. These remain normal content.image nodes, so merchants can
 // replace sources, alt text, crop/focal point and responsive art direction in Builder.
 const PHOTO={
-  hero:'https://images.pexels.com/photos/7776099/pexels-photo-7776099.jpeg?auto=compress&cs=tinysrgb&w=1800',
+  hero:'https://images.pexels.com/photos/7862349/pexels-photo-7862349.jpeg?auto=compress&cs=tinysrgb&w=1800',
   setup:'https://images.pexels.com/photos/33888375/pexels-photo-33888375.jpeg?auto=compress&cs=tinysrgb&w=1600',
   controller:'https://images.pexels.com/photos/7987293/pexels-photo-7987293.jpeg?auto=compress&cs=tinysrgb&w=1100',
   player:'https://images.pexels.com/photos/9071471/pexels-photo-9071471.jpeg?auto=compress&cs=tinysrgb&w=1200',
-  community:'https://images.pexels.com/photos/8762792/pexels-photo-8762792.jpeg?auto=compress&cs=tinysrgb&w=1500',
+  community:'https://images.pexels.com/photos/7862405/pexels-photo-7862405.jpeg?auto=compress&cs=tinysrgb&w=1500',
   headset:'https://images.pexels.com/photos/7858756/pexels-photo-7858756.jpeg?auto=compress&cs=tinysrgb&w=1100',
   monitor:'https://images.pexels.com/photos/17784701/pexels-photo-17784701.jpeg?auto=compress&cs=tinysrgb&w=1200',
   lighting:'https://images.pexels.com/photos/31018745/pexels-photo-31018745.jpeg?auto=compress&cs=tinysrgb&w=1200',
-  compatibility:'https://images.pexels.com/photos/34543044/pexels-photo-34543044.jpeg?auto=compress&cs=tinysrgb&w=1200',
-  gift:'https://images.pexels.com/photos/7773732/pexels-photo-7773732.jpeg?auto=compress&cs=tinysrgb&w=1200',
+  compatibility:'https://images.pexels.com/photos/7987293/pexels-photo-7987293.jpeg?auto=compress&cs=tinysrgb&w=1200',
+  gift:'https://images.pexels.com/photos/6045528/pexels-photo-6045528.jpeg?auto=compress&cs=tinysrgb&w=1200',
 } as const;
 
 const platformItems=[
@@ -75,48 +75,60 @@ function refineNode(node:StorefrontComponentNode):StorefrontComponentNode{
       };
       break;
     case 'playroom-hero-art':
-      next={...next,config:photo(config,PHOTO.hero,'Barátok közös gaming esten neonfényes nappaliban','center 52%',{filter:'saturate(1.18) contrast(1.09) brightness(.72)',transform:'scale(1.01)'})};
+      next={...next,config:photo(config,PHOTO.hero,'Barátok közös gaming esten nagy képernyő és neonfények előtt','center 48%',{filter:'saturate(1.22) contrast(1.1) brightness(.7)',transform:'scale(1.01)'})};
       break;
     case 'playroom-hero-copy':
       next={...next,config:withStyle(config,{background:'linear-gradient(90deg,rgba(1,7,20,.97),rgba(2,9,24,.76) 56%,rgba(2,9,24,.18) 88%,transparent)'})};
       break;
+    case 'playroom-game-finder':
+      next={...next,config:withSlots(config,{
+        option:{base:{minHeight:'3.58rem',padding:'.28rem .12rem'}},
+        optionMedia:{base:{fontSize:'1.24rem'}},
+        optionLabel:{base:{fontSize:'.55rem'}},
+        optionCopy:{base:{fontSize:'.43rem'}},
+      })};
+      break;
     case 'playroom-platform-navigation':
       next={...next,config:withSlots({...config,items:platformItems,columns:6},{
-        card:{base:{minHeight:'3.95rem',background:'linear-gradient(180deg,#0b2b49,#07182c)',border:'1px solid rgba(82,219,255,.34)',boxShadow:'inset 0 0 18px rgba(51,220,255,.05),0 8px 18px rgba(0,0,0,.18)'}},
-        symbol:{base:{fontSize:'1.32rem',filter:'drop-shadow(0 0 10px rgba(77,221,255,.34))'}},
-        label:{base:{fontSize:'.56rem',fontWeight:900}},
-        itemCopy:{base:{fontSize:'.44rem',color:'#9fb8cf'}},
+        card:{base:{minHeight:'3.58rem',padding:'.26rem .1rem',background:'linear-gradient(180deg,#0b2b49,#07182c)',border:'1px solid rgba(82,219,255,.34)',boxShadow:'inset 0 0 18px rgba(51,220,255,.05),0 8px 18px rgba(0,0,0,.18)'}},
+        symbol:{base:{fontSize:'1.2rem',filter:'drop-shadow(0 0 10px rgba(77,221,255,.34))'}},
+        label:{base:{fontSize:'.55rem',fontWeight:900}},
+        itemCopy:{base:{fontSize:'.43rem',color:'#9fb8cf'}},
       })};
       break;
     case 'playroom-setup-image':
       next={...next,config:photo(config,PHOTO.setup,'RGB gaming setup monitorokkal és gamer perifériákkal','center 50%',{width:'62%',right:'0',bottom:'0',height:'100%',minHeight:'100%',filter:'saturate(1.18) contrast(1.07) brightness(.88)',transform:'none'})};
       break;
     case 'playroom-setup':
-      next={...next,config:withStyle(config,{background:'linear-gradient(105deg,#071936 0%,#111344 48%,#161041 100%)'})};
+      next={...next,config:withStyle(config,{minHeight:'10.2rem',background:'linear-gradient(105deg,#071936 0%,#111344 48%,#161041 100%)'})};
+      break;
+    case 'playroom-player-two':
+    case 'playroom-upgrade':
+      next={...next,config:withStyle(config,{minHeight:'10.2rem',padding:'.52rem'})};
       break;
     case 'playroom-player-controller-image':
-      next={...next,config:photo(config,PHOTO.controller,'Gaming kontroller közeli képe','center 58%',{filter:'saturate(1.13) contrast(1.06)'})};
+      next={...next,config:photo(config,PHOTO.controller,'Gaming kontroller közeli képe','center 58%',{height:'4.15rem',filter:'saturate(1.13) contrast(1.06)'})};
       break;
     case 'playroom-player-headset-image':
-      next={...next,config:photo(config,PHOTO.headset,'Gaming headset RGB megvilágításban','center 72%',{filter:'saturate(1.12) contrast(1.06)'})};
+      next={...next,config:photo(config,PHOTO.headset,'Gaming headset RGB megvilágításban','center 72%',{height:'4.15rem',filter:'saturate(1.12) contrast(1.06)'})};
       break;
     case 'playroom-player-family-image':
-      next={...next,config:photo(config,PHOTO.community,'Barátok közös videojáték közben','center 40%',{filter:'saturate(1.14) contrast(1.05) brightness(.92)'})};
+      next={...next,config:photo(config,PHOTO.community,'Barátok közös videojáték közben','center 48%',{height:'4.15rem',filter:'saturate(1.16) contrast(1.06) brightness(.92)'})};
       break;
     case 'playroom-player-couch-image':
-      next={...next,config:photo(config,PHOTO.player,'Kanapés multiplayer gaming este','center 46%',{filter:'saturate(1.16) contrast(1.06) brightness(.86)'})};
+      next={...next,config:photo(config,PHOTO.player,'Kanapés multiplayer gaming este','center 46%',{height:'4.15rem',filter:'saturate(1.16) contrast(1.06) brightness(.86)'})};
       break;
     case 'playroom-upgrade-monitor-image':
-      next={...next,config:photo(config,PHOTO.monitor,'Neonfényes gaming monitor és asztali setup','center 48%',{filter:'saturate(1.15) contrast(1.07)'})};
+      next={...next,config:photo(config,PHOTO.monitor,'Neonfényes gaming monitor és asztali setup','center 48%',{height:'4.15rem',filter:'saturate(1.15) contrast(1.07)'})};
       break;
     case 'playroom-upgrade-audio-image':
-      next={...next,config:photo(config,PHOTO.headset,'Gaming audio és headset részlet','center 70%',{filter:'saturate(1.13) contrast(1.07)'})};
+      next={...next,config:photo(config,PHOTO.headset,'Gaming audio és headset részlet','center 70%',{height:'4.15rem',filter:'saturate(1.13) contrast(1.07)'})};
       break;
     case 'playroom-upgrade-light-image':
-      next={...next,config:photo(config,PHOTO.lighting,'RGB megvilágítású gaming asztal és perifériák','center 52%',{filter:'saturate(1.15) contrast(1.07)'})};
+      next={...next,config:photo(config,PHOTO.lighting,'RGB megvilágítású gaming asztal és perifériák','center 52%',{height:'4.15rem',filter:'saturate(1.15) contrast(1.07)'})};
       break;
     case 'playroom-upgrade-chair-image':
-      next={...next,config:photo(config,PHOTO.setup,'Gaming szék és RGB setup','82% center',{filter:'saturate(1.15) contrast(1.06)'})};
+      next={...next,config:photo(config,PHOTO.setup,'Gaming szék és RGB setup','82% center',{height:'4.15rem',filter:'saturate(1.15) contrast(1.06)'})};
       break;
     case 'playroomFeaturedGames':
       next={...next,config:withSlots({...config,imageRatio:'16 / 10'},{
@@ -127,13 +139,13 @@ function refineNode(node:StorefrontComponentNode):StorefrontComponentNode{
       })};
       break;
     case 'playroom-compatibility-art':
-      next={...next,config:photo(config,PHOTO.compatibility,'Neon gaming kontroller kompatibilitási blokkhoz','center 52%',{height:'6.8rem',borderRadius:'.36rem',filter:'saturate(1.16) contrast(1.08) brightness(.9)'})};
+      next={...next,config:photo(config,PHOTO.compatibility,'Gaming kontroller kompatibilitási blokkhoz','center 60%',{height:'6rem',borderRadius:'.36rem',filter:'saturate(1.13) contrast(1.06) brightness(.9)'})};
       break;
     case 'playroom-gift-image':
-      next={...next,config:photo(config,PHOTO.gift,'Gaming ajándékötlet neonfényes kontrollerrel','center 48%',{position:'absolute',right:'0',top:'0',width:'58%',height:'100%',opacity:.92,filter:'saturate(1.18) contrast(1.08) brightness(.88)'})};
+      next={...next,config:photo(config,PHOTO.gift,'Ajándékdoboz neon rózsaszín fényben','center 52%',{position:'absolute',right:'0',top:'0',width:'54%',height:'100%',opacity:.94,filter:'saturate(1.16) contrast(1.06) brightness(.9)'})};
       break;
     case 'playroom-community-art':
-      next={...next,config:photo(config,PHOTO.community,'Gaming közösség együtt játszik','center 43%',{inset:'auto 0 0 auto',width:'64%',height:'100%',minHeight:'100%',opacity:.93,filter:'saturate(1.18) contrast(1.07) brightness(.82)'})};
+      next={...next,config:photo(config,PHOTO.community,'Gaming közösség együtt játszik','center 48%',{inset:'auto 0 0 auto',width:'56%',height:'100%',minHeight:'100%',opacity:.92,filter:'saturate(1.16) contrast(1.06) brightness(.84)'})};
       break;
   }
 
