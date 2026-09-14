@@ -38,6 +38,7 @@ export async function GET(request:Request,{params}:{params:Promise<{assetId:stri
       assetId:parsedParams.data.assetId,
       customerId:user?.id??null,
       guestToken,
+      requestFingerprint:fingerprint,
     });
     return NextResponse.redirect(signed.url,302);
   }catch(error){
