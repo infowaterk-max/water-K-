@@ -4,6 +4,7 @@ import {listStorefrontTemplateLibraryEntries} from '@/lib/builder/storefront-tem
 import {PLAYROOM_REFERENCE_V2_TEMPLATE_PACKAGE} from '@/lib/builder/templates/playroom-reference-v2';
 import {PLAYROOM_V18_TEMPLATE_PACKAGE,PLAYROOM_V18_TEMPLATE_VERSION} from '@/lib/builder/templates/playroom-v18';
 
+// Exact-head regression guard: v2 remains resolvable, while merchant-facing latest is v18.
 describe('Playroom canonical upgrade v2 -> v18',()=>{
   it('publishes the accepted fidelity implementation as a real v18 template identity',()=>{
     expect(PLAYROOM_V18_TEMPLATE_VERSION).toBe(18);
