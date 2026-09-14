@@ -2,7 +2,7 @@ import type {StorefrontComponentNode,StorefrontPageDocument} from '@/lib/builder
 import type {StorefrontInstallableTemplatePackage} from '@/lib/builder/storefront-template-installation';
 import {PLAYROOM_REFERENCE_V2_TEMPLATE_PACKAGE} from '@/lib/builder/templates/playroom-reference-v2';
 
-export const PLAYROOM_REFERENCE_V2_DESKTOP_POLISH_VERSION='shoporation.playroom.reference-v2.desktop-polish.v8' as const;
+export const PLAYROOM_REFERENCE_V2_DESKTOP_POLISH_VERSION='shoporation.playroom.reference-v2.desktop-polish.v9' as const;
 
 type JsonRecord=Record<string,unknown>;
 const rec=(value:unknown):JsonRecord=>value&&typeof value==='object'&&!Array.isArray(value)?value as JsonRecord:{};
@@ -28,7 +28,7 @@ const footerNavigation=(id:string,label:string,items:{label:string;href:string}[
     ariaLabel:label,
     layout:'vertical',
     items,
-    style:{gap:'.12rem',fontSize:'.56rem',fontWeight:600,color:'#aec0d3',lineHeight:1.08},
+    style:{gap:'.1rem',fontSize:'.54rem',fontWeight:600,color:'#aec0d3',lineHeight:1.04},
     styleSlots:{item:{base:{padding:'0',minHeight:'0'}}},
   },
 });
@@ -103,13 +103,13 @@ function polishNode(node:StorefrontComponentNode):StorefrontComponentNode{
       break;
     }
     case 'playroom-setup':
-      next={...next,config:withStyle(config,{minHeight:'13rem',background:'radial-gradient(circle at 82% 54%,rgba(45,109,255,.42),transparent 44%),radial-gradient(circle at 72% 88%,rgba(255,43,180,.16),transparent 33%),linear-gradient(135deg,#091c3c,#17134b)',boxShadow:'0 12px 34px rgba(0,0,0,.24)'})};
+      next={...next,config:withStyle(config,{minHeight:'12rem',background:'radial-gradient(circle at 82% 54%,rgba(45,109,255,.42),transparent 44%),radial-gradient(circle at 72% 88%,rgba(255,43,180,.16),transparent 33%),linear-gradient(135deg,#091c3c,#17134b)',boxShadow:'0 12px 34px rgba(0,0,0,.24)'})};
       break;
     case 'playroom-player-two':
-      next={...next,config:withStyle(config,{minHeight:'13rem',background:'radial-gradient(circle at 15% 0%,rgba(33,233,217,.09),transparent 34%),linear-gradient(155deg,#07263b,#071b31)',boxShadow:'0 12px 34px rgba(0,0,0,.22)'})};
+      next={...next,config:withStyle(config,{minHeight:'12rem',background:'radial-gradient(circle at 15% 0%,rgba(33,233,217,.09),transparent 34%),linear-gradient(155deg,#07263b,#071b31)',boxShadow:'0 12px 34px rgba(0,0,0,.22)'})};
       break;
     case 'playroom-upgrade':
-      next={...next,config:withStyle(config,{minHeight:'13rem',background:'radial-gradient(circle at 85% 5%,rgba(255,78,198,.1),transparent 34%),linear-gradient(150deg,#101c39,#17112f)',boxShadow:'0 12px 34px rgba(0,0,0,.22)'})};
+      next={...next,config:withStyle(config,{minHeight:'12rem',background:'radial-gradient(circle at 85% 5%,rgba(255,78,198,.1),transparent 34%),linear-gradient(150deg,#101c39,#17112f)',boxShadow:'0 12px 34px rgba(0,0,0,.22)'})};
       break;
     case 'playroom-player-controller-image':
     case 'playroom-player-headset-image':
@@ -119,19 +119,19 @@ function polishNode(node:StorefrontComponentNode):StorefrontComponentNode{
     case 'playroom-upgrade-audio-image':
     case 'playroom-upgrade-light-image':
     case 'playroom-upgrade-chair-image':
-      next={...next,config:withStyle(config,{height:'5.05rem',filter:'saturate(1.14) contrast(1.04)'})};
+      next={...next,config:withStyle(config,{height:'4.75rem',filter:'saturate(1.14) contrast(1.04)'})};
       break;
     case 'playroomFeaturedGames':
       next={...next,config:withSlots({...config,columns:6,showCta:false,imageRatio:'16 / 8.5'},{root:{base:{gap:'.2rem'}},grid:{base:{gap:'.24rem'}},card:{base:{gap:'.17rem',padding:'.22rem',boxShadow:'0 6px 18px rgba(0,0,0,.14)'}},body:{base:{gap:'.05rem'}},name:{base:{fontSize:'.56rem',lineHeight:1.02}},price:{base:{fontSize:'.57rem'}},comparePrice:{base:{fontSize:'.43rem'}},stock:{base:{fontSize:'.44rem',lineHeight:1.01}},badge:{base:{top:'.22rem',left:'.22rem',fontSize:'.41rem',padding:'.12rem .22rem'}}})};
       break;
     case 'playroom-featured-games':
-      next={...next,config:withStyle(config,{padding:'.46rem .56rem',minHeight:'9rem'})};
+      next={...next,config:withStyle(config,{padding:'.4rem .56rem',minHeight:'8.6rem'})};
       break;
     case 'playroom-compatibility-card':
-      next={...next,config:withStyle(config,{padding:'.44rem',minHeight:'9rem'})};
+      next={...next,config:withStyle(config,{padding:'.4rem',minHeight:'8.6rem'})};
       break;
     case 'playroom-compatibility-art':
-      next={...next,config:withStyle(config,{height:'5.4rem',filter:'saturate(1.12)'})};
+      next={...next,config:withStyle(config,{height:'5.1rem',filter:'saturate(1.12)'})};
       break;
     case 'playroom-platform-match-status':{
       const copyBinding=next.bindings?.copy;
@@ -140,69 +140,69 @@ function polishNode(node:StorefrontComponentNode):StorefrontComponentNode{
     }
     case 'playroom-compatibility-status-wrap':{
       const original=next.children?.[0];
-      next={...next,config:withStyle(config,{gap:'.2rem'}),children:[
-        {id:'playroom-compatibility-platform-list',componentKey:'content.text',componentVersion:1,config:{text:'PlaySphere  —\nBoxOne      —\nNintari     —\nPC          —\nMobile      —',as:'small',align:'left',tone:'text',style:{whiteSpace:'pre-line',fontSize:'.48rem',lineHeight:1.16,color:'#b7c9db',letterSpacing:'.01em'}}},
+      next={...next,config:withStyle(config,{gap:'.18rem'}),children:[
+        {id:'playroom-compatibility-platform-list',componentKey:'content.text',componentVersion:1,config:{text:'PlaySphere  —\nBoxOne      —\nNintari     —\nPC          —\nMobile      —',as:'small',align:'left',tone:'text',style:{whiteSpace:'pre-line',fontSize:'.46rem',lineHeight:1.12,color:'#b7c9db',letterSpacing:'.01em'}}},
         ...(original?[original]:[]),
-        {id:'playroom-compatibility-check',componentKey:'content.button',componentVersion:1,config:{label:'Ellenőrzöm  →',href:'/webaruhaz',variant:'primary',size:'s',ariaLabel:'Platform kompatibilitás ellenőrzése',style:{width:'fit-content',padding:'.28rem .44rem',fontSize:'.46rem',fontWeight:850,background:'#ffc65a',color:'#071326',border:'0',borderRadius:'.3rem'}}},
+        {id:'playroom-compatibility-check',componentKey:'content.button',componentVersion:1,config:{label:'Ellenőrzöm  →',href:'/webaruhaz',variant:'primary',size:'s',ariaLabel:'Platform kompatibilitás ellenőrzése',style:{width:'fit-content',padding:'.26rem .42rem',fontSize:'.45rem',fontWeight:850,background:'#ffc65a',color:'#071326',border:'0',borderRadius:'.3rem'}}},
       ]};
       break;
     }
     case 'playroom-gift-card':
-      next={...next,config:withStyle(config,{position:'relative',overflow:'hidden',padding:'.72rem',minHeight:'9rem',gap:'.25rem',justifyContent:'center',background:'linear-gradient(90deg,#171047 0%,#211052 48%,#2d0c54 100%)'})};
+      next={...next,config:withStyle(config,{position:'relative',overflow:'hidden',padding:'.64rem',minHeight:'8.6rem',gap:'.22rem',justifyContent:'center',background:'linear-gradient(90deg,#171047 0%,#211052 48%,#2d0c54 100%)'})};
       break;
     case 'playroom-gift-image':
       next={...next,config:withStyle(config,{position:'absolute',right:'0',top:'0',width:'58%',height:'100%',objectFit:'cover',objectPosition:'center',opacity:.97})};
       break;
     case 'playroom-gift-title':
-      next={...next,config:withStyle(config,{position:'relative',zIndex:2,width:'49%',fontSize:'1.28rem',lineHeight:.9,textShadow:'0 2px 12px rgba(0,0,0,.55)'})};
+      next={...next,config:withStyle(config,{position:'relative',zIndex:2,width:'49%',fontSize:'1.22rem',lineHeight:.9,textShadow:'0 2px 12px rgba(0,0,0,.55)'})};
       break;
     case 'playroom-gift-copy':
-      next={...next,config:withStyle(config,{position:'relative',zIndex:2,width:'47%',fontSize:'.56rem',lineHeight:1.16})};
+      next={...next,config:withStyle(config,{position:'relative',zIndex:2,width:'47%',fontSize:'.54rem',lineHeight:1.12})};
       break;
     case 'playroom-gift-cta':
-      next={...next,config:withStyle(config,{position:'relative',zIndex:2,width:'fit-content',padding:'.34rem .48rem',fontSize:'.5rem',marginTop:'.18rem'})};
+      next={...next,config:withStyle(config,{position:'relative',zIndex:2,width:'fit-content',padding:'.3rem .44rem',fontSize:'.48rem',marginTop:'.12rem'})};
       break;
     case 'playroom-community-stage':
-      next={...next,config:withStyle(config,{minHeight:'3.45rem',padding:'.3rem .58rem'})};
+      next={...next,config:withStyle(config,{minHeight:'3.2rem',padding:'.24rem .58rem'})};
       break;
     case 'playroom-community-art':
       next={...next,config:withStyle(config,{opacity:.58,filter:'saturate(1.18)'})};
       break;
     case 'playroom-community-title':
-      next={...next,config:withStyle(config,{fontSize:'1.18rem'})};
+      next={...next,config:withStyle(config,{fontSize:'1.12rem'})};
       break;
     case 'playroom-community-benefit-text':
-      next={...next,config:withStyle(config,{fontSize:'.56rem',letterSpacing:'.01em'})};
+      next={...next,config:withStyle(config,{fontSize:'.53rem',letterSpacing:'.01em'})};
       break;
     case 'playroom-home-footer':
-      next={...next,config:withStyle(config,{padding:'.36rem 2.35rem .4rem'})};
+      next={...next,config:withStyle(config,{padding:'.28rem 2.35rem .3rem'})};
       break;
     case 'playroom-footer-brand':
-      next={...next,config:withStyle(config,{gap:'.1rem'})};
+      next={...next,config:withStyle(config,{gap:'.08rem'})};
       break;
     case 'playroom-footer-logo':
-      next={...next,config:withStyle(config,{width:'1.8rem',height:'1.8rem'})};
+      next={...next,config:withStyle(config,{width:'1.7rem',height:'1.7rem'})};
       break;
     case 'playroom-footer-shop':
-      next={...next,config:withStyle(config,{gap:'.18rem'}),children:[
+      next={...next,config:withStyle(config,{gap:'.14rem'}),children:[
         next.children?.[0]??{id:'playroom-footer-shop-title',componentKey:'content.text',componentVersion:1,config:{text:'Vásárlási információk',as:'strong',align:'left',tone:'text'}},
         footerNavigation('playroom-footer-shop-nav','Vásárlási információk',[{label:'Szállítás',href:'/oldal/szallitas'},{label:'Fizetés',href:'/oldal/fizetes'},{label:'Visszaküldés',href:'/oldal/visszakuldes'},{label:'GYIK',href:'/gyik'}]),
       ]};
       break;
     case 'playroom-footer-world':
-      next={...next,config:withStyle(config,{gap:'.18rem'}),children:[
+      next={...next,config:withStyle(config,{gap:'.14rem'}),children:[
         next.children?.[0]??{id:'playroom-footer-world-title',componentKey:'content.text',componentVersion:1,config:{text:'Gaming világ',as:'strong',align:'left',tone:'text'}},
         footerNavigation('playroom-footer-world-nav','Gaming világ',[{label:'Újdonságok',href:'/webaruhaz?sort=new'},{label:'Playroom Magazin',href:'/blog'},{label:'Játékajánlók',href:'/blog'},{label:'Események',href:'/blog'}]),
       ]};
       break;
     case 'playroom-footer-about':
-      next={...next,config:withStyle(config,{gap:'.18rem'}),children:[
+      next={...next,config:withStyle(config,{gap:'.14rem'}),children:[
         next.children?.[0]??{id:'playroom-footer-about-title',componentKey:'content.text',componentVersion:1,config:{text:'Rólunk',as:'strong',align:'left',tone:'text'}},
         footerNavigation('playroom-footer-about-nav','Rólunk',[{label:'Történetünk',href:'/oldal/rolunk'},{label:'Fenntarthatóság',href:'/oldal/fenntarthatosag'},{label:'Karrier',href:'/oldal/karrier'},{label:'Kapcsolat',href:'/kapcsolat'}]),
       ]};
       break;
     case 'playroom-footer-social':
-      next={...next,config:withStyle(config,{gap:'.12rem',paddingLeft:'.8rem'})};
+      next={...next,config:withStyle(config,{gap:'.1rem',paddingLeft:'.8rem'})};
       break;
   }
   return next;
