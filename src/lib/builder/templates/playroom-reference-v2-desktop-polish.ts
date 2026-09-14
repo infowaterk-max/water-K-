@@ -2,10 +2,11 @@ import type {StorefrontComponentNode,StorefrontPageDocument} from '@/lib/builder
 import type {StorefrontInstallableTemplatePackage} from '@/lib/builder/storefront-template-installation';
 import {PLAYROOM_REFERENCE_V2_TEMPLATE_PACKAGE} from '@/lib/builder/templates/playroom-reference-v2';
 
-export const PLAYROOM_REFERENCE_V2_DESKTOP_POLISH_VERSION='shoporation.playroom.reference-v2.desktop-polish.v5' as const;
+export const PLAYROOM_REFERENCE_V2_DESKTOP_POLISH_VERSION='shoporation.playroom.reference-v2.desktop-polish.v6' as const;
 
 type JsonRecord=Record<string,unknown>;
 const rec=(value:unknown):JsonRecord=>value&&typeof value==='object'&&!Array.isArray(value)?value as JsonRecord:{};
+const mapRows=(value:unknown,fn:(row:JsonRecord)=>JsonRecord):unknown=>Array.isArray(value)?value.map(item=>fn(rec(item))):value;
 const withStyle=(config:JsonRecord,patch:JsonRecord):JsonRecord=>({...config,style:{...rec(config.style),...patch}});
 const withSlots=(config:JsonRecord,patch:Record<string,JsonRecord>):JsonRecord=>{
   const existing=rec(config.styleSlots);
@@ -64,6 +65,8 @@ const platformButton=(id:string,label:string,href:string,background:string,borde
   responsive:{desktop:{gridSpan:2},tablet:{gridSpan:4},mobile:{gridSpan:6}},
 });
 
+const PLAY_STYLE_COPY:Record<string,string>={solo:'Egyedül',coop:'Együtt jobb',party:'Barátokkal',racing:'Sebesség',adventure:'Felfedezés',family:'Az egész családnak'};
+
 function polishNode(node:StorefrontComponentNode):StorefrontComponentNode{
   let next:StorefrontComponentNode={...node,config:{...node.config},...(node.children?{children:node.children.map(polishNode)}:{})};
   const config=next.config as JsonRecord;
@@ -106,9 +109,12 @@ function polishNode(node:StorefrontComponentNode):StorefrontComponentNode{
     case 'playroom-platform-card':
       next={...next,config:withStyle(config,{padding:'.5rem .58rem'})};
       break;
-    case 'playroom-game-finder':
-      next={...next,config:withSlots(config,{options:{base:{gap:'.34rem'}},option:{base:{minHeight:'5.25rem',padding:'.38rem .1rem'}},optionMedia:{base:{fontSize:'1.48rem'}},optionLabel:{base:{fontSize:'.57rem'}}})};
+    case 'playroom-game-finder':{
+      const options=mapRows(config.options,row=>({...row,copy:PLAY_STYLE_COPY[typeof row.id==='string'?row.id:'']??row.copy}));
+      const bindings=rec(next.bindings);const optionsBinding=rec(bindings.options);
+      next={...next,...(optionsBinding?{bindings:{...next.bindings,options:{...optionsBinding,fallback:options}}}:{}),config:withSlots({...config,options},{options:{base:{gap:'.34rem'}},option:{base:{minHeight:'5.25rem',padding:'.34rem .1rem',gap:'.13rem'}},optionMedia:{base:{fontSize:'1.48rem'}},optionLabel:{base:{fontSize:'.57rem'}},optionCopy:{base:{fontSize:'.44rem',color:'#9eb4c9',lineHeight:1.05}}})};
       break;
+    }
     case 'playroom-platform-navigation':
       next={
         ...next,
@@ -140,31 +146,37 @@ function polishNode(node:StorefrontComponentNode):StorefrontComponentNode{
       next={...next,config:withStyle(config,{padding:'.44rem',minHeight:'9rem'})};
       break;
     case 'playroom-compatibility-art':
-      next={...next,config:withStyle(config,{height:'4.75rem'})};
+      next={...next,config:withStyle(config,{height:'5.4rem'})};
+      break;
+    case 'playroom-compatibility-status-wrap':
+      next={...next,config:withStyle(config,{gap:'.24rem'}),children:[...(next.children??[]),
+        {id:'playroom-compatibility-platform-list',componentKey:'content.text',componentVersion:1,config:{text:'PlaySphere  —\nBoxOne      —\nNintari     —\nPC          —\nMobile      —',as:'small',align:'left',tone:'text',style:{whiteSpace:'pre-line',fontSize:'.5rem',lineHeight:1.24,color:'#b7c9db',letterSpacing:'.01em'}}},
+        {id:'playroom-compatibility-check',componentKey:'content.button',componentVersion:1,config:{label:'Ellenőrzöm  →',href:'/webaruhaz',variant:'primary',size:'s',ariaLabel:'Platform kompatibilitás ellenőrzése',style:{width:'fit-content',padding:'.3rem .48rem',fontSize:'.48rem',fontWeight:850,background:'#ffc65a',color:'#071326',border:'0',borderRadius:'.3rem'}}},
+      ]};
       break;
     case 'playroom-gift-card':
-      next={...next,config:withStyle(config,{padding:'.4rem',minHeight:'9rem',gap:'.2rem'})};
+      next={...next,config:withStyle(config,{position:'relative',overflow:'hidden',padding:'.72rem',minHeight:'9rem',gap:'.25rem',justifyContent:'center',background:'linear-gradient(90deg,#171047 0%,#211052 48%,#2d0c54 100%)'})};
       break;
     case 'playroom-gift-image':
-      next={...next,config:withStyle(config,{height:'5.05rem'})};
+      next={...next,config:withStyle(config,{position:'absolute',right:'0',top:'0',width:'58%',height:'100%',objectFit:'cover',objectPosition:'center',opacity:.97})};
       break;
     case 'playroom-gift-title':
-      next={...next,config:withStyle(config,{fontSize:'1.08rem',lineHeight:.92})};
+      next={...next,config:withStyle(config,{position:'relative',zIndex:2,width:'49%',fontSize:'1.28rem',lineHeight:.9,textShadow:'0 2px 12px rgba(0,0,0,.55)'})};
       break;
     case 'playroom-gift-copy':
-      next={...next,config:withStyle(config,{fontSize:'.58rem',lineHeight:1.15})};
+      next={...next,config:withStyle(config,{position:'relative',zIndex:2,width:'47%',fontSize:'.56rem',lineHeight:1.16})};
       break;
     case 'playroom-gift-cta':
-      next={...next,config:withStyle(config,{padding:'.3rem .42rem',fontSize:'.52rem'})};
+      next={...next,config:withStyle(config,{position:'relative',zIndex:2,width:'fit-content',padding:'.34rem .48rem',fontSize:'.5rem',marginTop:'.18rem'})};
       break;
     case 'playroom-community-stage':
-      next={...next,config:withStyle(config,{minHeight:'3.25rem',padding:'.28rem .58rem'})};
+      next={...next,config:withStyle(config,{minHeight:'3.45rem',padding:'.3rem .58rem'})};
       break;
     case 'playroom-community-art':
-      next={...next,config:withStyle(config,{opacity:.48})};
+      next={...next,config:withStyle(config,{opacity:.58})};
       break;
     case 'playroom-community-title':
-      next={...next,config:withStyle(config,{fontSize:'1.12rem'})};
+      next={...next,config:withStyle(config,{fontSize:'1.18rem'})};
       break;
     case 'playroom-community-benefit-text':
       next={...next,config:withStyle(config,{fontSize:'.56rem',letterSpacing:'.01em'})};
