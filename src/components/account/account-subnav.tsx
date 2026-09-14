@@ -6,6 +6,7 @@ import { usePathname } from 'next/navigation';
 type Item={href:string;label:string;exact?:boolean;loyalty?:boolean};
 const items:Item[]=[
   {href:'/fiokom',label:'Áttekintés',exact:true},
+  {href:'/fiokom/letoltesek',label:'Letöltések'},
   {href:'/fiokom/huseg',label:'Hűségprogram',loyalty:true},
   {href:'/fiokom/kivansaglista',label:'Kívánságlista'},
   {href:'/fiokom/ugyek',label:'Ügyeim'},
