@@ -23,10 +23,17 @@ export async function getCurrentWebshopInstance():Promise<WebshopInstance|null>{
     if(configured)return configured;
 
     // Customer-bound production deployments remain fail-closed when their configured
-    // instance cannot be resolved. Preview is different: the same deployment settings
-    // can point at a staging database whose tenant slugs intentionally differ. Only an
-    // authenticated platform operator may then fall back to the normal RBAC resolver.
+    // instance cannot be resolved. Preview may point at a staging database whose tenant
+    // slugs intentionally differ. A signed pilot acceptance session may resolve its exact
+    // pilot tenant before auth; otherwise only an authenticated platform operator may
+    // fall back to the normal RBAC resolver.
     if(process.env.VERCEL_ENV!=='preview')return null;
+    const previewPilotAcceptanceInstanceId=await getPilotAcceptanceInstanceId();
+    if(previewPilotAcceptanceInstanceId){
+      const{data:acceptedData}=await admin.from('webshop_instances').select(SELECT).eq('id',previewPilotAcceptanceInstanceId).eq('status','pilot').maybeSingle();
+      const accepted=normalize(acceptedData as unknown as InstanceRow|null);
+      if(accepted)return accepted;
+    }
     const previewSupabase=await createClient();
     const{data:previewAuth}=await previewSupabase.auth.getUser();
     if(!previewAuth.user)return null;
