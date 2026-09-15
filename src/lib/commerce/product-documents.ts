@@ -25,6 +25,17 @@ export type AccountProductDocument=StorefrontProductDocument&{
   variantLabel:string|null;
   downloadHref:string;
 };
+export type OrderProductDocument={
+  documentId:string;
+  variantId:string;
+  productName:string;
+  variantLabel:string|null;
+  kind:ProductDocumentKind;
+  title:string;
+  fileName:string;
+  mediaType:string;
+  sizeBytes:number;
+};
 
 type AuthorizedProductDocument={
   documentId:string;
@@ -35,6 +46,15 @@ type AuthorizedProductDocument={
   sizeBytes:number;
   visibility:ProductDocumentVisibility;
   actorType:'public'|'account';
+};
+type AuthorizedOrderProductDocument={
+  documentId:string;
+  bucket:string;
+  path:string;
+  fileName:string;
+  mediaType:string;
+  sizeBytes:number;
+  actorType:'order';
 };
 
 export function productDocumentRequestFingerprint(parts:Array<string|null|undefined>){
@@ -93,6 +113,23 @@ export async function listAccountProductDocuments(instanceId:string,customerId:s
   return groups.flat().filter(document=>{if(seen.has(document.documentId))return false;seen.add(document.documentId);return true;});
 }
 
+export async function listOrderProductDocuments(instanceId:string,orderId:string,confirmationToken:string):Promise<OrderProductDocument[]>{
+  const admin=createAdminClient();
+  const{data,error}=await admin.rpc('list_order_product_documents_v1',{
+    p_instance_id:instanceId,p_order_id:orderId,p_confirmation_token:confirmationToken,
+  });
+  if(error)throw error;
+  if(!Array.isArray(data))return[];
+  return data.flatMap(raw=>{
+    const row=(raw??{})as Partial<OrderProductDocument>;
+    if(!row.documentId||!row.variantId||!row.title||!row.fileName)return[];
+    return[{
+      documentId:row.documentId,variantId:row.variantId,productName:row.productName?.trim()||'Termék',variantLabel:row.variantLabel?.trim()||null,
+      kind:(row.kind??'other')as ProductDocumentKind,title:row.title,fileName:row.fileName,mediaType:row.mediaType??'application/octet-stream',sizeBytes:Number(row.sizeBytes??0),
+    }];
+  });
+}
+
 export async function authorizeProductDocumentDownload(input:{instanceId:string;documentId:string;variantId:string;customerId:string|null;requestFingerprint:string}){
   const admin=createAdminClient();
   const{data,error}=await admin.rpc('authorize_product_document_download_v1',{
@@ -102,6 +139,21 @@ export async function authorizeProductDocumentDownload(input:{instanceId:string;
   const authorization=data as Partial<AuthorizedProductDocument>;
   if(authorization.documentId!==input.documentId||authorization.bucket!==PRODUCT_DOCUMENT_BUCKET||!authorization.path||!authorization.fileName||!['public','account'].includes(String(authorization.actorType))){
     throw new Error('PRODUCT_DOCUMENT_AUTHORITY_MISMATCH');
+  }
+  const{data:signed,error:signedError}=await admin.storage.from(PRODUCT_DOCUMENT_BUCKET).createSignedUrl(authorization.path,SIGNED_DOWNLOAD_SECONDS,{download:authorization.fileName});
+  if(signedError||!signed?.signedUrl)throw signedError??new Error('PRODUCT_DOCUMENT_SIGNING_FAILED');
+  return{url:signed.signedUrl,expiresInSeconds:SIGNED_DOWNLOAD_SECONDS,fileName:authorization.fileName,mediaType:authorization.mediaType??'application/octet-stream'};
+}
+
+export async function authorizeOrderProductDocumentDownload(input:{instanceId:string;documentId:string;orderId:string;variantId:string;confirmationToken:string;requestFingerprint:string}){
+  const admin=createAdminClient();
+  const{data,error}=await admin.rpc('authorize_order_product_document_download_v1',{
+    p_instance_id:input.instanceId,p_document_id:input.documentId,p_order_id:input.orderId,p_variant_id:input.variantId,p_confirmation_token:input.confirmationToken,p_request_fingerprint:input.requestFingerprint,
+  });
+  if(error||!data)throw error??new Error('ORDER_PRODUCT_DOCUMENT_NOT_AUTHORIZED');
+  const authorization=data as Partial<AuthorizedOrderProductDocument>;
+  if(authorization.documentId!==input.documentId||authorization.bucket!==PRODUCT_DOCUMENT_BUCKET||!authorization.path||!authorization.fileName||authorization.actorType!=='order'){
+    throw new Error('ORDER_PRODUCT_DOCUMENT_AUTHORITY_MISMATCH');
   }
   const{data:signed,error:signedError}=await admin.storage.from(PRODUCT_DOCUMENT_BUCKET).createSignedUrl(authorization.path,SIGNED_DOWNLOAD_SECONDS,{download:authorization.fileName});
   if(signedError||!signed?.signedUrl)throw signedError??new Error('PRODUCT_DOCUMENT_SIGNING_FAILED');

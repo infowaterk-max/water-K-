@@ -9,7 +9,7 @@
   "snapshotFile": "supabase/customer-baseline/migrations/0001_shoperation_v1_schema.sql",
   "snapshotCommand": "npm run db:customer:snapshot",
   "freshInstallProofRequired": true,
-  "notes": "The reviewed customer baseline preserves the canonical ordered 0001-0018 Block 24 lineage, followed by later reviewed forward migrations. The previously ready Fresh Install proof covered the baseline only through 0030_product_documents_runtime_hardening.sql. Baseline migrations 0031_profiles_service_role_read_contract.sql, 0032_role_bindings_service_role_read_contract.sql and 0033_catalog_service_role_read_contract.sql now make the server-side service-role read contracts explicit, so the previous proof is intentionally invalidated. A new genuine empty-target Fresh Install proof is required before this manifest may return to ready. Production remains untouched.",
+  "notes": "The reviewed customer baseline preserves the canonical ordered 0001-0018 Block 24 lineage, followed by later reviewed forward migrations. The previously ready Fresh Install proof covered the baseline only through 0030_product_documents_runtime_hardening.sql. Baseline migrations 0031_profiles_service_role_read_contract.sql, 0032_role_bindings_service_role_read_contract.sql, 0033_catalog_service_role_read_contract.sql and 0034_product_documents_merchant_workflow.sql now make the server-side read and canonical Product Documents merchant-delivery contracts explicit, so the previous proof remains intentionally invalidated. A new genuine empty-target Fresh Install proof is required before this manifest may return to ready. Production remains untouched.",
   "authBootstrapFile": "supabase/customer-baseline/auth-bootstrap.sql",
   "proofContractSha256": null
 }

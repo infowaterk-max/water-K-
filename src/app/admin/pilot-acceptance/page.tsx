@@ -38,15 +38,18 @@ export default async function PilotAcceptancePage(){
       <div className="adminAuditNotice" style={{marginTop:12}}><strong>Fail-closed előfeltétel</strong><p>A Vercel környezet ÉS a kapcsolt Supabase target non-production volta legyen bizonyított. Ha a database target nem azonosítható biztonságosan, az acceptance státusz: <strong>NOT PROVEN</strong>.</p></div>
       <ol className="stack" data-product-documents-acceptance-checklist style={{gap:10,marginTop:16,paddingLeft:22}}>
         <li><strong>Valódi merchant auth.</strong> A merchant normál admin belépéssel nyissa meg ezt az oldalt; az authot nem szabad technikai kerülőúttal szimulálni.</li>
-        <li><strong>Feltöltés + aktiválás.</strong> A <Link href="/admin/termekek/dokumentumok">Termékdokumentumok</Link> oldalon tölts fel egy tesztfájlt <em>Bejelentkezett fiók</em> láthatósággal, és ellenőrizd az „A termékdokumentum aktiválva.” visszajelzést.</li>
-        <li><strong>Public scope.</strong> Tölts fel külön <em>Nyilvános termékoldal</em> dokumentumot, indíts guest acceptance sessiont, majd a storefront termékoldalon ellenőrizd a megjelenést és a rövid élettartamú, engedélyezett letöltést. Permanent public storage URL nem elfogadható.</li>
+        <li><strong>Termékhez kötött feltöltés + aktiválás.</strong> A <Link href="/admin/termekek/feltoltes">Termékfeltöltő Központban</Link> nyiss meg egy termékpiszkozatot, és annak <em>Dokumentumok</em> részében tölts fel tesztfájlt. A külön Termékdokumentumok oldal csak központi áttekintő/karbantartó nézet.</li>
+        <li><strong>Termékoldali megjelenés.</strong> Kapcsold be a <em>Megjelenjen a nyilvános termékoldalon</em> beállítást, indíts guest acceptance sessiont, majd ellenőrizd a storefront termékoldalon a dokumentumot és a rövid élettartamú, engedélyezett letöltést. Permanent public storage URL nem elfogadható.</li>
+        <li><strong>Vásárlás utáni automatikus kézbesítés.</strong> Kapcsold be a <em>Vásárlás után automatikusan küldjük</em> beállítást, hozz létre valódi tesztrendelést, majd fizetett állapot után ellenőrizd, hogy a payment-confirmed e-mail csak Shoperation-linket küld. A link a hitelesített rendelési oldalon listázza a dokumentumot; a tényleges fájl-URL csak kattintáskor, rövid életű signed URL-ként készül.</li>
+        <li><strong>Számla külön authority.</strong> Ellenőrizd, hogy a Product Documents blokk nem próbál számlát létrehozni vagy tárolni. A számla továbbra is a számlázóintegráció / <code>invoiceUrl</code> folyamat tulajdona.</li>
         <li><strong>Account scope.</strong> Valódi customer/order kontextusban ellenőrizd a <Link href="/fiokom/letoltesek">Dokumentumok és letöltések</Link> központot: a Product Documents jelenjen meg külön authorityként a Digital Goods és Customer/Order Documents mellett.</li>
-        <li><strong>Variant scope.</strong> Egy másik tesztdokumentumot köss konkrét aktív változathoz; csak a megfelelő variant kontextusban legyen felfedezhető.</li>
-        <li><strong>Revoke + audit.</strong> Vond vissza a tesztdokumentum storefront hozzáférését, ellenőrizd, hogy a korábbi hozzáférés többé nem használható, majd nézd meg az <Link href="/admin/audit">Audit és műveleti napló</Link> tenant-szűrt bizonyítékát.</li>
+        <li><strong>Variant scope.</strong> Egy tesztdokumentumot köss konkrét aktív változathoz; termékoldalon és rendelés után is csak a megfelelő variant kontextusban legyen felfedezhető.</li>
+        <li><strong>Revoke + audit.</strong> Vond vissza a tesztdokumentum hozzáférését, ellenőrizd, hogy a korábbi Shoperation-link többé nem ad fájlhozzáférést, majd nézd meg az <Link href="/admin/audit">Audit és műveleti napló</Link> tenant-szűrt bizonyítékát.</li>
         <li><strong>Fixture cleanup.</strong> A tesztfájlokat és teszt-dokumentumokat kizárólag a meglévő alkalmazás-lifecycle szerint takarítsd el; közvetlen DB/storage törlés nem acceptance lépés.</li>
       </ol>
       <div className="actions" style={{marginTop:16}}>
-        <Link className="btn btnPrimary" href="/admin/termekek/dokumentumok">Termékdokumentumok megnyitása</Link>
+        <Link className="btn btnPrimary" href="/admin/termekek/feltoltes">Termékfeltöltő Központ</Link>
+        <Link className="btn btnGhost" href="/admin/termekek/dokumentumok">Dokumentumáttekintő</Link>
         <Link className="btn btnGhost" href="/admin/audit">Audit megnyitása</Link>
       </div>
       <p className="muted" data-product-documents-acceptance-status style={{marginTop:12}}>A checklist megjelenése önmagában nem PASS. Merchant E2E csak akkor PROVEN, ha a teljes folyamat ugyanazon exact SHA/deploymenten, valódi merchant sessionnel és bizonyítottan non-production targeten sikeresen végigfutott.</p>
