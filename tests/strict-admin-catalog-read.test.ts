@@ -17,7 +17,8 @@ describe('strict admin catalogue read contract',()=>{
     const bulk=read('src/app/admin/termekek/tomeges/page.tsx');
     const transfer=read('src/app/admin/termekek/import-export/page.tsx');
     expect(products).toContain('includeAllChannels:true,throwOnError:true');
-    expect(products).toContain('!loadError?<details');
+    expect(products).toContain('!loadError?<div className="stack"');
+    expect(products).toContain('<details><summary className="textLink">Ár, készlet és beszerzési adatok</summary>');
     expect(bulk).toContain('Tömeges módosítást addig nem engedünk.');
     expect(bulk).toContain('!result.error?<BulkProductEditor');
     expect(transfer).toContain('Importot addig nem engedünk');

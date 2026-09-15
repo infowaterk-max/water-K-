@@ -36,6 +36,17 @@ describe('pilot acceptance guest access',()=>{
     expect(storefrontAccess).not.toContain("searchParams.get('pilot')");
   });
 
+  it('resolves the signed pilot tenant before preview auth fallback when the configured slug is absent from staging',()=>{
+    const source=read('src/lib/instances/access.ts');
+    const previewGuard=source.indexOf("if(process.env.VERCEL_ENV!=='preview')return null;");
+    const acceptanceResolver=source.indexOf('const previewPilotAcceptanceInstanceId=await getPilotAcceptanceInstanceId();');
+    const previewAuth=source.indexOf('const previewSupabase=await createClient();');
+    expect(previewGuard).toBeGreaterThan(-1);
+    expect(acceptanceResolver).toBeGreaterThan(previewGuard);
+    expect(previewAuth).toBeGreaterThan(acceptanceResolver);
+    expect(source).toContain(".eq('id',previewPilotAcceptanceInstanceId).eq('status','pilot')");
+  });
+
   it('provides explicit merchant start and end controls without activating the webshop',()=>{
     const page=read('src/app/admin/pilot-acceptance/page.tsx');
     expect(page).toContain('/api/pilot-access/start');

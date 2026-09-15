@@ -1,13 +1,14 @@
 export type CatalogChange={id:string;stock?:number;grossPrice?:number;netPrice?:number;active?:boolean};
 export type ParsedCatalogRow={line:number;change:CatalogChange;error?:string};
+export type CatalogFulfillmentType='physical'|'digital';
 
 export type CatalogOnboardingMapping={
   name:string;sku:string;netPrice:string;grossPrice:string;
   slug?:string;stock?:string;category?:string;attributes?:string;
-  shortDescription?:string;description?:string;variantLabel?:string;seoTitle?:string;seoDescription?:string;
+  shortDescription?:string;description?:string;variantLabel?:string;seoTitle?:string;seoDescription?:string;fulfillmentType?:string;
 };
 export type CatalogOnboardingDraft={
-  line:number;name:string;slug:string;sku:string;netPrice:number;grossPrice:number;stock:number;
+  line:number;name:string;slug:string;sku:string;netPrice:number;grossPrice:number;stock:number;fulfillmentType:CatalogFulfillmentType;
   category?:string;categorySlug?:string;attributes:Record<string,string>;
   shortDescription?:string;description?:string;variantLabel?:string;seoTitle?:string;seoDescription?:string;
 };
@@ -53,9 +54,10 @@ export function suggestCatalogOnboardingMapping(headers:string[]):Partial<Catalo
     attributes:find('attributes','attributes_json','tulajdonsagok','attributumok'),
     shortDescription:find('short_description','rovid_leiras'),
     description:find('description','leiras'),
-    variantLabel:find('variant_label','valtozat','variant'),
+    variantLabel:find('variant_label','valtozat','variant','label'),
     seoTitle:find('seo_title','meta_title','seo_cim'),
-    seoDescription:find('seo_description','meta_description','meta_leiras')
+    seoDescription:find('seo_description','meta_description','meta_leiras'),
+    fulfillmentType:find('fulfillment_type','fulfillment','product_type','termektipus','termek_tipus','teljesitesi_tipus')
   };
 }
 
@@ -72,6 +74,13 @@ function parseAttributes(raw:string){
   return{value:result};
 }
 
+function parseFulfillmentType(raw:string):CatalogFulfillmentType|null{
+  const value=normalized(raw);
+  if(!value||['physical','fizikai','physical_product','fizikai_termek'].includes(value))return'physical';
+  if(['digital','digitalis','digital_product','digitalis_termek','download','downloadable','letoltheto','letoltheto_termek'].includes(value))return'digital';
+  return null;
+}
+
 export function parseCatalogOnboardingCsv(text:string,mapping:CatalogOnboardingMapping):ParsedCatalogOnboardingRow[]{
   const matrix=parseMatrix(text.replace(/^\uFEFF/,''));if(matrix.length<2)return[];
   const headers=matrix[0].map(h=>h.trim());
@@ -84,13 +93,14 @@ export function parseCatalogOnboardingCsv(text:string,mapping:CatalogOnboardingM
     const line=rowIndex+2,cell=(header?:string)=>{const i=index(header);return i>=0?(cells[i]??'').trim():''};
     const name=cell(mapping.name),sku=cell(mapping.sku),slug=slugifyCatalogValue(cell(mapping.slug)||name);
     const net=int(cell(mapping.netPrice),0,10000000),gross=int(cell(mapping.grossPrice),0,10000000),stock=int(cell(mapping.stock),0,100000);
-    const category=cell(mapping.category),attributes=parseAttributes(cell(mapping.attributes)),errors:string[]=[];
+    const category=cell(mapping.category),attributes=parseAttributes(cell(mapping.attributes)),fulfillmentType=parseFulfillmentType(cell(mapping.fulfillmentType)),errors:string[]=[];
     if(!name||name.length>200)errors.push('Hibás vagy hiányzó terméknév');
     if(!sku||sku.length>120)errors.push('Hibás vagy hiányzó SKU');
     if(!slug)errors.push('Nem képezhető slug');
     if(net===undefined||net===null)errors.push('Hibás vagy hiányzó nettó ár');
     if(gross===undefined||gross===null)errors.push('Hibás vagy hiányzó bruttó ár');
     if(stock===null)errors.push('Hibás készlet');
+    if(fulfillmentType===null)errors.push('A teljesítési típus csak physical/fizikai vagy digital/digitális lehet');
     if(category.length>120)errors.push('Túl hosszú kategórianév');
     if(attributes.error)errors.push(attributes.error);
     const skuKey=sku.toLowerCase();if(sku&&seenSku.has(skuKey))errors.push('Duplikált SKU az importban');else if(sku)seenSku.add(skuKey);
@@ -101,7 +111,7 @@ export function parseCatalogOnboardingCsv(text:string,mapping:CatalogOnboardingM
     if(description.length>20000)return{line,error:'Túl hosszú leírás'};
     if(seoTitle.length>200)return{line,error:'Túl hosszú SEO cím'};
     if(seoDescription.length>500)return{line,error:'Túl hosszú meta description'};
-    return{line,draft:{line,name,slug,sku,netPrice:net as number,grossPrice:gross as number,stock:stock??0,
+    return{line,draft:{line,name,slug,sku,netPrice:net as number,grossPrice:gross as number,stock:stock??0,fulfillmentType:fulfillmentType as CatalogFulfillmentType,
       category:category||undefined,categorySlug:category?slugifyCatalogValue(category):undefined,attributes:attributes.value??{},
       shortDescription:shortDescription||undefined,description:description||undefined,variantLabel:variantLabel||undefined,seoTitle:seoTitle||undefined,seoDescription:seoDescription||undefined}};
   });

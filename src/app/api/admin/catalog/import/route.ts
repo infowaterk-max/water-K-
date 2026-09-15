@@ -5,7 +5,7 @@ import{getAdminRequestUser}from'@/lib/auth/admin-api';
 import{createAdminClient}from'@/lib/supabase/admin';
 import{
   catalogCsvHeaders,parseCatalogCsv,parseCatalogOnboardingCsv,suggestCatalogOnboardingMapping,
-  type CatalogChange,type CatalogOnboardingMapping
+  type CatalogChange,type CatalogOnboardingMapping,type CatalogFulfillmentType
 }from'@/lib/catalog-import';
 import{requireCurrentStoreContext}from'@/lib/instances/scope';
 
@@ -14,7 +14,7 @@ const header=z.string().trim().min(1).max(200),idempotencyKey=z.string().trim().
 const mapping=z.object({
   name:header,sku:header,netPrice:header,grossPrice:header,
   slug:header.optional(),stock:header.optional(),category:header.optional(),attributes:header.optional(),
-  shortDescription:header.optional(),description:header.optional(),variantLabel:header.optional(),seoTitle:header.optional(),seoDescription:header.optional()
+  shortDescription:header.optional(),description:header.optional(),variantLabel:header.optional(),seoTitle:header.optional(),seoDescription:header.optional(),fulfillmentType:header.optional()
 });
 const body=z.discriminatedUnion('mode',[
   z.object({mode:z.literal('preview'),csv:z.string().min(1).max(1000000)}),
@@ -23,6 +23,9 @@ const body=z.discriminatedUnion('mode',[
   z.object({mode:z.literal('onboardingPreview'),csv:z.string().min(1).max(1000000),mapping,idempotencyKey,sourceType:z.enum(['csv','xlsx']).default('csv')}),
   z.object({mode:z.literal('onboardingApply'),batchId:z.string().uuid()})
 ]);
+
+type ApplyPlanRow={line:number;fulfillmentType?:CatalogFulfillmentType};
+type ApplyResultRow={line?:number;productId?:string;variantId?:string;draft?:boolean};
 
 export async function POST(request:Request){
   const actor=await getAdminRequestUser('catalog.manage');
@@ -58,7 +61,7 @@ export async function POST(request:Request){
       if(row.error||!row.draft)return{line:row.line,status:'error' as const,message:row.error??'Érvénytelen sor.'};
       if(existingSkus.has(row.draft.sku.toLowerCase()))return{line:row.line,status:'error' as const,name:row.draft.name,sku:row.draft.sku,slug:row.draft.slug,message:'Ez az SKU már létezik ebben a webshopban.'};
       if(existingSlugs.has(row.draft.slug))return{line:row.line,status:'error' as const,name:row.draft.name,sku:row.draft.sku,slug:row.draft.slug,message:'Ez a slug már létezik ebben a webshopban.'};
-      return{line:row.line,status:'ready' as const,name:row.draft.name,sku:row.draft.sku,slug:row.draft.slug,category:row.draft.category??null};
+      return{line:row.line,status:'ready' as const,name:row.draft.name,sku:row.draft.sku,slug:row.draft.slug,category:row.draft.category??null,fulfillmentType:row.draft.fulfillmentType};
     });
     const validLines=new Set(preview.filter(row=>row.status==='ready').map(row=>row.line));
     const applyPlan=candidates.filter(row=>validLines.has(row.line));
@@ -78,9 +81,22 @@ export async function POST(request:Request){
   }
 
   if(parsed.data.mode==='onboardingApply'){
+    const{data:batch,error:batchError}=await admin.from('catalog_onboarding_batches').select('apply_plan').eq('id',parsed.data.batchId).eq('instance_id',scope.instanceId).maybeSingle();
+    if(batchError||!batch||!Array.isArray(batch.apply_plan))return NextResponse.json({error:'Az onboarding importterv nem igazolható ebben a webshopban.'},{status:404});
+    const applyPlan=batch.apply_plan as ApplyPlanRow[],fulfillmentByLine=new Map(applyPlan.map(row=>[Number(row.line),row.fulfillmentType??'physical' as CatalogFulfillmentType]));
     const{data,error}=await admin.rpc('apply_catalog_onboarding_batch_v1',{p_instance_id:scope.instanceId,p_batch_id:parsed.data.batchId,p_actor:actor.id});
     if(error)return NextResponse.json({error:'Az onboarding tranzakció megszakadt. Piszkozatot csak teljes, igazolt tranzakcióból tekintünk létrehozottnak.'},{status:409});
-    const result=Array.isArray(data)?data:[];
+    const result=(Array.isArray(data)?data:[]) as ApplyResultRow[];
+    for(const row of result){
+      if(!row.productId||!Number.isInteger(row.line))return NextResponse.json({error:'Az onboarding eredménye nem igazolható.'},{status:500});
+      const fulfillmentType=fulfillmentByLine.get(Number(row.line))??'physical';
+      const{data:fulfillmentData,error:fulfillmentError}=await admin.rpc('set_product_fulfillment_v1',{p_instance_id:scope.instanceId,p_actor:actor.id,p_product_id:row.productId,p_fulfillment_type:fulfillmentType});
+      const evidence=(fulfillmentData??{})as{productId?:string;fulfillmentType?:string};
+      if(fulfillmentError||evidence.productId!==row.productId||evidence.fulfillmentType!==fulfillmentType){
+        console.error('catalog onboarding fulfillment assignment failed',{instanceId:scope.instanceId,batchId:parsed.data.batchId,productId:row.productId,fulfillmentType,error:fulfillmentError});
+        return NextResponse.json({error:'A termékpiszkozatok létrejöttek, de legalább egy teljesítési típus nem rögzíthető biztonságosan. A piszkozatokat ellenőrizni kell publikálás előtt.'},{status:503});
+      }
+    }
     return NextResponse.json({ok:true,count:result.length,result});
   }
 

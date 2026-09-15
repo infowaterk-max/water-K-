@@ -21,13 +21,13 @@ describe('B2C/B2B channel checkout authority',()=>{
     expect(sql).toContain('to service_role');
   });
 
-  test('application runtime uses v2 quote and v6 metadata wrapper over v5 atomic checkout',()=>{
+  test('application runtime uses v2 quote and the current fulfillment-aware checkout wrapper over historical v5/v6 authority',()=>{
     const quote=read('src/lib/commerce/checkout-quote.ts');
     const order=read('src/lib/orders/tenant-checkout.ts');
     const wave5=read('supabase/migrations/20260913062000_special_commerce_existing_engine_closure.sql');
     expect(quote).toContain("admin.rpc('quote_tenant_checkout_v2'");
     expect(quote).not.toContain("admin.rpc('quote_tenant_checkout_v1'");
-    expect(order).toContain("admin.rpc('place_order_provider_v6_idempotent'");
+    expect(order).toContain("admin.rpc('place_order_provider_v7_fulfillment_idempotent'");
     expect(wave5).toContain('v_result:=public.place_order_provider_v5_idempotent');
     expect(order).not.toContain("admin.rpc('place_order_provider_v4_idempotent'");
   });
@@ -50,14 +50,16 @@ describe('B2C/B2B channel checkout authority',()=>{
     expect(normalizeQuantity(1,3,4,2)).toBe(0);
   });
 
-  test('checkout quote API returns the contract consumed by checkout UI',()=>{
+  test('checkout quote API returns the fulfillment-aware contract consumed by checkout UI',()=>{
     const route=read('src/app/api/checkout/quote/route.ts');
     const form=read('src/components/checkout/checkout-form.tsx');
     expect(route).toContain('subtotal_gross_huf:quote.subtotalGrossHuf');
     expect(route).toContain('discount_gross_huf:quote.discountGrossHuf');
-    expect(route).toContain('shipping_gross_huf:quote.shippingGrossHuf');
-    expect(route).toContain('total_gross_huf:quote.totalGrossHuf');
+    expect(route).toContain('shipping_gross_huf:fulfillment.requiresShipping?quote.shippingGrossHuf:0');
+    expect(route).toContain('total_gross_huf:fulfillment.requiresShipping?quote.totalGrossHuf:Math.max(0,quote.subtotalGrossHuf-quote.discountGrossHuf)');
     expect(route).toContain('coupon_code:quote.couponCode');
+    expect(route).toContain('fulfillment_mode:fulfillment.mode');
+    expect(route).toContain('requires_shipping:fulfillment.requiresShipping');
     expect(form).toContain('subtotal_gross_huf');
     expect(form).toContain('total_gross_huf');
   });

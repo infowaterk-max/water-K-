@@ -17,7 +17,29 @@ export async function getCurrentWebshopInstance():Promise<WebshopInstance|null>{
   if(!process.env.NEXT_PUBLIC_SUPABASE_URL)return null;
   let admin:ReturnType<typeof createAdminClient>;try{admin=createAdminClient()}catch{return null}
   const configuredSlug=process.env.WEBSHOP_INSTANCE_SLUG?.trim().toLowerCase();
-  if(configuredSlug){const{data}=await admin.from('webshop_instances').select(SELECT).eq('slug',configuredSlug).in('status',['pilot','active']).maybeSingle();return normalize(data as unknown as InstanceRow|null)}
+  if(configuredSlug){
+    const{data}=await admin.from('webshop_instances').select(SELECT).eq('slug',configuredSlug).in('status',['pilot','active']).maybeSingle();
+    const configured=normalize(data as unknown as InstanceRow|null);
+    if(configured)return configured;
+
+    // Customer-bound production deployments remain fail-closed when their configured
+    // instance cannot be resolved. Preview may point at a staging database whose tenant
+    // slugs intentionally differ. A signed pilot acceptance session may resolve its exact
+    // pilot tenant before auth; otherwise only an authenticated platform operator may
+    // fall back to the normal RBAC resolver.
+    if(process.env.VERCEL_ENV!=='preview')return null;
+    const previewPilotAcceptanceInstanceId=await getPilotAcceptanceInstanceId();
+    if(previewPilotAcceptanceInstanceId){
+      const{data:acceptedData}=await admin.from('webshop_instances').select(SELECT).eq('id',previewPilotAcceptanceInstanceId).eq('status','pilot').maybeSingle();
+      const accepted=normalize(acceptedData as unknown as InstanceRow|null);
+      if(accepted)return accepted;
+    }
+    const previewSupabase=await createClient();
+    const{data:previewAuth}=await previewSupabase.auth.getUser();
+    if(!previewAuth.user)return null;
+    const{data:platformOperator}=await admin.from('platform_operators').select('role').eq('user_id',previewAuth.user.id).in('role',['owner','admin','operator']).maybeSingle();
+    if(!platformOperator)return null;
+  }
 
   const pilotAcceptanceInstanceId=await getPilotAcceptanceInstanceId();
   if(pilotAcceptanceInstanceId){
