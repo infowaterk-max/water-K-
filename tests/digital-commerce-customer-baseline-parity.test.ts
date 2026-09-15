@@ -28,8 +28,8 @@ describe('Digital Commerce and document customer baseline parity',()=>{
       expect(manifest.freshInstallProofRequired).toBe(true);
       expect(manifest.proofContractSha256).toBeNull();
     }
-    expect(manifest.notes).toContain('0030_product_documents_runtime_hardening.sql');
+    expect(manifest.notes).toContain('0001-0018');
     expect(manifest.notes).toContain('0034_product_documents_merchant_workflow.sql');
-    expect(manifest.notes).toContain('Production remains untouched');
+    expect(manifest.notes).toContain('Production remained untouched');
   });
 });
