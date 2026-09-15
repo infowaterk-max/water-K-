@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "status": "ready",
+  "status": "snapshot-reviewed",
   "legacyMigrationReplay": false,
   "sourcePolicy": "schema-snapshot-only",
   "seedFile": "supabase/customer-baseline/seed.sql",
@@ -8,8 +8,8 @@
   "defaultPlan": "alap",
   "snapshotFile": "supabase/customer-baseline/migrations/0001_shoperation_v1_schema.sql",
   "snapshotCommand": "npm run db:customer:snapshot",
-  "freshInstallProofRequired": false,
-  "notes": "Genuine canonical empty-target Fresh Install database proof completed successfully for the complete reviewed customer baseline through 0034_product_documents_merchant_workflow.sql from Digital Commerce + Product Documents source commit a0baea4745aae1fe0045cd935ec9e1851d8af560 in CI run 34942276502 (#3762). The canonical ordered 0001-0018 Block 24 lineage is preserved, followed by the reviewed forward migrations through 0034. Target preflight proved zero public/private application objects, zero historical migration rows and zero Auth users; the reviewed snapshot plus ordered forward migrations, Supabase Auth bootstrap and neutral seed then applied atomically. Target postflight passed with 171 public tables, 334 public functions, 124 public policies and zero customer seed rows. Production remained untouched by the proof job.",
+  "freshInstallProofRequired": true,
+  "notes": "The genuine empty-target Fresh Install proof through 0034_product_documents_merchant_workflow.sql from source commit a0baea4745aae1fe0045cd935ec9e1851d8af560 in CI run 34942276502 (#3762), contract hash c80132d6c087cf0f19afed3f0c247723e2da040a22281064d63c8260a94d2c33, remains valid evidence for that previous baseline only. The canonical ordered 0001-0018 Block 24 lineage remains preserved. Merchant E2E exposed a staging privilege drift on RLS-governed order-operation tables, so 0035_order_operational_authenticated_privilege_contract.sql now makes the least-privilege authenticated SELECT/UPDATE contract explicit. Because the ordered customer baseline changed after the previous proof, that proof contract cannot be reused; a new genuine empty-target Fresh Install replay is required before status may return to ready. Production was not mutated by this contract repair.",
   "authBootstrapFile": "supabase/customer-baseline/auth-bootstrap.sql",
-  "proofContractSha256": "c80132d6c087cf0f19afed3f0c247723e2da040a22281064d63c8260a94d2c33"
+  "proofContractSha256": null
 }

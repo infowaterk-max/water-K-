@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { getAdminRequestUser } from '@/lib/auth/admin-api';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { getConfiguredInvoiceProviderCodeForInstance } from '@/lib/integrations/invoicing';
+import { processIntegrationJob } from '@/lib/integrations/processor';
 import { requireCurrentStoreContext } from '@/lib/instances/scope';
 import { getExternalLogisticsConfig } from '@/lib/integrations/external-logistics';
 import {
@@ -160,12 +161,46 @@ export async function PATCH(request:Request,{params}:{params:Promise<{id:string}
     return NextResponse.json({error:'A rendeléshez tartozó integrációs terv eredménye nem igazolható.'},{status:500});
   }
 
+  // Core transactional e-mails are part of the base commerce lifecycle, not a Pro integration feature.
+  // Persist the outbox atomically first, then try to deliver immediately. Failure stays recoverable
+  // through the integration worker and must never roll back an already committed order transition.
+  const transactionalEmails:Array<{jobId:string;status:'succeeded'|'deferred'}>=[];
+  for(const evidence of evidenceJobs){
+    if(evidence.kind!=='email_send'||!evidence.id)continue;
+    if(evidence.status==='succeeded'){
+      transactionalEmails.push({jobId:evidence.id,status:'succeeded'});
+      continue;
+    }
+    if(evidence.status!=='pending'){
+      transactionalEmails.push({jobId:evidence.id,status:'deferred'});
+      continue;
+    }
+    try{
+      const{data:claimed,error:claimError}=await admin.rpc('claim_integration_job_v2',{
+        p_instance_id:scope.instanceId,
+        p_id:evidence.id
+      });
+      const claim=(claimed?.[0]??null)as{id?:string;instance_id?:string;processing_token?:string}|null;
+      if(claimError||!claim?.processing_token||claim.id!==evidence.id||claim.instance_id!==scope.instanceId){
+        if(claimError)console.error('transactional email immediate claim failed',{orderId:id,instanceId:scope.instanceId,jobId:evidence.id,error:claimError});
+        transactionalEmails.push({jobId:evidence.id,status:'deferred'});
+        continue;
+      }
+      await processIntegrationJob(scope.instanceId,evidence.id,claim.processing_token);
+      transactionalEmails.push({jobId:evidence.id,status:'succeeded'});
+    }catch(error){
+      console.error('transactional email immediate dispatch deferred',{orderId:id,instanceId:scope.instanceId,jobId:evidence.id,error});
+      transactionalEmails.push({jobId:evidence.id,status:'deferred'});
+    }
+  }
+
   return NextResponse.json({
     ok:true,
     status:nextStatus,
     allowedNext:ADMIN_ORDER_TRANSITIONS[nextStatus],
     inventoryRestored:transition.inventoryRestored===true,
     integrationJobs:evidenceJobs.length,
-    manualEvents:evidenceEvents.length
+    manualEvents:evidenceEvents.length,
+    transactionalEmails
   });
 }
