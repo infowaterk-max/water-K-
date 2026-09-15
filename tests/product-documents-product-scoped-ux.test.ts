@@ -24,7 +24,7 @@ describe('Product Documents product-scoped merchant UX',()=>{
     const draftApi=read('src/app/api/admin/catalog/products/[id]/draft/route.ts');
     const productDocs=read('src/app/admin/termekek/[id]/dokumentumok/page.tsx');
     expect(draftPage).toContain('product.active||');
-    expect(draftApi).toContain('product.active');
+    expect(draftApi).toContain('CATALOG_DRAFT_ALREADY_PUBLISHED');
     expect(productDocs).not.toContain('admin_update_product_draft_v1');
     expect(productDocs).not.toContain("method:'PATCH'");
   });
