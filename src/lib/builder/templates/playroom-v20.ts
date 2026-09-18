@@ -9,6 +9,78 @@ const clone=<T>(value:T):T=>structuredClone(value);
 const rec=(value:unknown):Record<string,unknown>=>value&&typeof value==='object'&&!Array.isArray(value)?value as Record<string,unknown>:{};
 const node=(value:StorefrontComponentNode)=>value;
 
+const PLAYROOM_V20_HU_COPY=Object.freeze(new Map<string,string>([
+  ['Prémium RGB gaming setup monitorral, kontrollerekkel és perifériákkal','Prémium RGB játékos felszerelés monitorral, kontrollerekkel és perifériákkal'],
+  ['Solo','Egyedül'],
+  ['Co-op','Kooperatív'],
+  ['Party','Társasági'],
+  ['Racing','Verseny'],
+  ['Adventure','Kaland'],
+  ['Family','Családi'],
+  ['Handheld','Kézikonzol'],
+  ['Mobile','Mobil'],
+  ['MOBILE','MOBIL'],
+  ['Gaming csomag konzollal, kontrollerekkel és headsettel','Játékos felszereléscsomag konzollal, kontrollerekkel és fejhallgatóval'],
+  ['Gaming kontroller közeli képe','Játékkontroller közeli képe'],
+  ['Gaming headset RGB megvilágításban','Játékos fejhallgató RGB megvilágításban'],
+  ['Kanapés multiplayer gaming este','Kanapés többjátékos játékest'],
+  ['Nézd meg a multiplayer ajánlatokat  →','Nézd meg a többjátékos ajánlatokat  →'],
+  ['Neonfényes gaming monitor és asztali setup','Neonfényes játékmonitor és asztali felszerelés'],
+  ['Gaming audio és headset részlet','Játékos hangtechnika és fejhallgató részlet'],
+  ['RGB megvilágítású gaming asztal és perifériák','RGB megvilágítású játékasztal és perifériák'],
+  ['Gaming szék és RGB setup','Játékszék és RGB felszerelés'],
+  ['A legfrissebb megjelenések, amik lazán tartják a gaming világot.','A legfrissebb megjelenések, amelyek igazán frissen tartják a játékvilágot.'],
+  ['Gaming kontroller kompatibilitási blokkhoz','Játékkontroller a kompatibilitási blokkhoz'],
+  ['Gaming közösség együtt játszik','Játékos közösség együtt játszik'],
+  ['Újdonságok, gaming tippek és válogatott ajánlatok — csak akkor, ha kéred.','Újdonságok, játéktippek és válogatott ajánlatok — csak akkor, ha kéred.'],
+  ['Gaming világ','Játékvilág'],
+  ['SEARCH THE PLAYROOM','KERESÉS A PLAYROOMBAN'],
+  ['Kontroller, audio, setup.','Kontroller, hangtechnika, felszerelés.'],
+  ['READY PLAYER CHECKOUT','IRÁNY A PÉNZTÁR'],
+  ['PRICE','ÁR'],
+  ['STOCK','KÉSZLET'],
+  ['NEXT','KÖVETKEZŐ'],
+  ['SECURE CHECKOUT','BIZTONSÁGOS PÉNZTÁR'],
+  ['PLAYER PROFILE','JÁTÉKOS PROFIL'],
+  ['ORDERS','RENDELÉSEK'],
+  ['SAVED','MENTETT'],
+  ['PROFILE','PROFIL'],
+  ['Gaming útmutató setup részlet','Játékútmutató felszerelési részlet'],
+  ['PLAYROOM GUIDE','PLAYROOM ÚTMUTATÓ'],
+  ['Szerkeszthető gaming útmutató.','Szerkeszthető játékútmutató.'],
+  ['GUIDE','ÚTMUTATÓ'],
+  ['DATA','ADATOK'],
+  ['Guide','Útmutató'],
+  ['SETUP','FELSZERELÉS'],
+  ['RGB gaming setup magazin feature','RGB játékos felszerelés magazin kiemelt kép'],
+  ['Gaming kontroller közelről co-op útmutatóhoz','Játékkontroller közelről kooperatív útmutatóhoz'],
+  ['Platform guide','Platformútmutató'],
+  ['Co-op esték','Közös játékesték'],
+  ['Setup tippek','Felszerelési tippek'],
+  ['Gaming kontroller és RGB setup részlet','Játékkontroller és RGB felszerelés részlet'],
+  ['HELP CENTER','SEGÍTSÉGKÖZPONT'],
+  ['STILL STUCK?','TOVÁBBRA IS KÉRDÉSED VAN?'],
+  ['Gaming headset részlet','Játékos fejhallgató részlet'],
+  ['PLAYER SUPPORT','ÜGYFÉLSZOLGÁLAT'],
+  ['ORDER HELP','RENDELÉSI SEGÍTSÉG'],
+  ['PRODUCT HELP','TERMÉKTÁMOGATÁS'],
+  ['LEGAL / PRIVACY','JOGI / ADATVÉDELMI'],
+  ['404 / GAME OVER?','404 / VÉGE A JÁTÉKNAK?'],
+]));
+
+const localizeValue=(value:unknown):unknown=>{
+  if(typeof value==='string')return PLAYROOM_V20_HU_COPY.get(value)??value;
+  if(Array.isArray(value))return value.map(localizeValue);
+  if(value&&typeof value==='object')return Object.fromEntries(Object.entries(value as Record<string,unknown>).map(([key,item])=>[key,localizeValue(item)]));
+  return value;
+};
+
+const localizeNode=(source:StorefrontComponentNode):StorefrontComponentNode=>({
+  ...source,
+  config:localizeValue(source.config) as StorefrontComponentNode['config'],
+  ...(source.children?{children:source.children.map(localizeNode)}:{}),
+});
+
 const newsletterSection=()=>node({
   id:'playroom-home-newsletter',componentKey:'layout.section',componentVersion:1,
   config:{tone:'background',spacing:'m',width:'full',style:{background:'var(--shoporation-color-background,#020b17)'}},
@@ -61,6 +133,7 @@ function upgradePage(source:StorefrontPageDocument):StorefrontPageDocument{
   const previousAddon=rec(source.metadata?.addonIntegration);
   const previousContexts=Array.isArray(previousAddon.semanticContexts)?previousAddon.semanticContexts.filter((value):value is string=>typeof value==='string'):[];
   const semanticContexts=[...new Set([...STOREFRONT_PAGE_SEMANTIC_CONTEXTS[source.pageType],...previousContexts])];
+  sections=sections.map(localizeNode);
   return{
     ...clone(source),templateVersion:PLAYROOM_V20_TEMPLATE_VERSION,sections,
     metadata:{
