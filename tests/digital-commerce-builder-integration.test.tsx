@@ -147,6 +147,15 @@ describe('Digital Commerce A3 shared Builder integration',()=>{
     expect(runtimeSource).not.toContain('guestToken');
   });
 
+  it('hydrates the live Builder canvas with the same safe shared preview fixture instead of customer data',()=>{
+    const builderPage=readFileSync(join(process.cwd(),'src/app/admin/tartalom/builder/page.tsx'),'utf8');
+    expect(builderPage).toContain("import {augmentStorefrontDigitalCommercePreviewContext} from '@/lib/builder/storefront-digital-commerce-preview'");
+    expect(builderPage).toContain('augmentStorefrontDigitalCommercePreviewContext({page:document,context:bindingContext})');
+    expect(builderPage).toContain('bindingContext={editorBindingContext}');
+    expect(builderPage).not.toContain('listAccountDigitalDownloads');
+    expect(builderPage).not.toContain('listGuestDigitalDownloads');
+  });
+
   it('wires published runtime models only through server authority and keeps Builder preview fixture-only',()=>{
     const server=readFileSync(join(process.cwd(),'src/lib/builder/storefront-digital-commerce-server.ts'),'utf8');
     expect(server).toContain("import 'server-only'");
