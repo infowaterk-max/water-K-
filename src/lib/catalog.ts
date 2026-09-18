@@ -18,6 +18,7 @@ export type Product={
   highlights:string[];
   minimumQuantity:number;
   orderMultiple:number;
+  fulfillmentType?:'physical'|'digital';
   seoTitle?:string;
   seoDescription?:string;
   imageUrl?:string;

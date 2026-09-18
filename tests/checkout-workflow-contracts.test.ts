@@ -50,7 +50,7 @@ describe('checkout workflow contracts', () => {
     expect(checkoutStyle).toMatch(/position:sticky/);
   });
   test('checkout validates parcel point and legal acceptance before order creation', () => {
-    expect(checkoutForm).toMatch(/shipping\.kind==='parcel_point'&&!parcelPointId/);expect(checkoutForm).toMatch(/!legalAccepted/);expect(checkoutForm).toMatch(/legalAccepted='true'/);expect(checkoutForm).toMatch(/href="\/aszf"/);expect(checkoutForm).toMatch(/href="\/adatvedelem"/);
+    expect(checkoutForm).toMatch(/requiresShipping&&shipping\?\.kind==='parcel_point'&&!parcelPointId/);expect(checkoutForm).toMatch(/!legalAccepted/);expect(checkoutForm).toMatch(/legalAccepted='true'/);expect(checkoutForm).toMatch(/href="\/aszf"/);expect(checkoutForm).toMatch(/href="\/adatvedelem"/);
   });
   test('checkout snapshots the submitted form before awaiting quote refresh', () => {
     const snapshot=checkoutForm.indexOf('const form=e.currentTarget');

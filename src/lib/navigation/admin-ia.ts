@@ -40,6 +40,7 @@ export const MERCHANT_NAVIGATION:readonly AdminNavSection[]=[
   ]},
   {id:'products',label:'Termékek',items:[
     {id:'products',href:'/admin/termekek',label:'Termékek',description:'Termékek, variánsok, árak, csatornaszabályok és készlet alapadatai.',feature:'catalog',permission:'catalog.manage',group:'Katalóguskezelés'},
+    {id:'product-documents',href:'/admin/termekek/dokumentumok',label:'Termékdokumentumok',description:'Használati útmutatók, adatlapok, mérettáblák és más termékhez vagy variánshoz kötött fájlok.',feature:'catalog',permission:'catalog.manage',group:'Katalóguskezelés'},
     {id:'recommendations',href:'/admin/termekajanlasok',label:'Termékajánlások',description:'Kapcsolódó és ajánlott termékek konfigurációja.',feature:'productRecommendations',permission:'catalog.manage',group:'Katalóguskezelés'},
     {id:'import-export',href:'/admin/termekek/import-export',label:'Import / export',description:'Katalógusadatok ellenőrzött importja és exportja.',feature:'importExport',permission:'catalog.manage',group:'Adatműveletek'},
     {id:'bulk',href:'/admin/termekek/tomeges',label:'Tömeges műveletek',description:'Több termék vagy variáns együttes módosítása.',feature:'bulkOperations',permission:'catalog.manage',group:'Adatműveletek'},

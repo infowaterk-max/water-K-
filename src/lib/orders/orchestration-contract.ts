@@ -38,7 +38,10 @@ export const ADMIN_ORDER_TRANSITIONS={
   pending_payment:['paid','cancelled'],
   pending_transfer:['paid','cancelled'],
   paid:['processing'],
-  processing:['shipped'],
+  // The generic graph allows both fulfillment outcomes. The order mutation endpoint
+  // applies the server-authoritative fulfillment_mode guard: digital -> completed,
+  // physical/mixed -> shipped.
+  processing:['shipped','completed'],
   shipped:['completed'],
   completed:[],
   cancelled:[],

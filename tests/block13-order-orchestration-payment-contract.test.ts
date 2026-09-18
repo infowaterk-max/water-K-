@@ -28,9 +28,10 @@ describe('Roadmap Block 13 order orchestration and payment contract',()=>{
     expect(ADMIN_ORDER_MUTATION_STATUSES).not.toContain('refunded');
     expect(ADMIN_ORDER_TRANSITIONS.pending_payment).toEqual(['paid','cancelled']);
     expect(ADMIN_ORDER_TRANSITIONS.pending_transfer).toEqual(['paid','cancelled']);
-    expect(ADMIN_ORDER_TRANSITIONS.processing).toEqual(['shipped']);
+    expect(ADMIN_ORDER_TRANSITIONS.processing).toEqual(['shipped','completed']);
     expect(canAdminTransitionOrder('paid','processing')).toBe(true);
     expect(canAdminTransitionOrder('processing','paid')).toBe(false);
+    expect(canAdminTransitionOrder('processing','completed')).toBe(true);
     expect(canAdminTransitionOrder('completed','completed')).toBe(true);
 
     const sharedTypes=read('src/lib/orders/types.ts');
@@ -42,6 +43,8 @@ describe('Roadmap Block 13 order orchestration and payment contract',()=>{
     expect(adminRoute).toContain('ADMIN_ORDER_MUTATION_STATUSES');
     expect(adminRoute).toContain('canAdminTransitionOrder(currentStatus,nextStatus)');
     expect(adminRoute).toContain('ADMIN_ORDER_TRANSITIONS[nextStatus]');
+    expect(adminRoute).toContain("currentStatus==='processing'&&fulfillmentMode==='digital'&&nextStatus==='shipped'");
+    expect(adminRoute).toContain("currentStatus==='processing'&&fulfillmentMode!=='digital'&&nextStatus==='completed'");
     expect(adminRoute).not.toContain("const statuses=['draft'");
     expect(adminRoute).not.toContain('const allowed:Record<');
   });

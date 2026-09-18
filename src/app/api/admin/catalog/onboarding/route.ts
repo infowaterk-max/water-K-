@@ -13,6 +13,7 @@ const body=z.object({
   sku:z.string().trim().min(1).max(120),variantLabel:z.string().trim().max(200).optional(),netPrice:z.number().int().min(0).max(10000000),grossPrice:z.number().int().min(0).max(10000000),stock:z.number().int().min(0).max(100000).default(0),
   category:z.string().trim().max(120).optional(),attributes,shortDescription:z.string().trim().max(1000).optional(),description:z.string().trim().max(20000).optional(),
   seoTitle:z.string().trim().max(200).optional(),seoDescription:z.string().trim().max(500).optional(),b2cVisible:z.boolean().default(true),b2bVisible:z.boolean().default(false),
+  fulfillmentType:z.enum(['physical','digital']).default('physical'),
   variants:z.array(onboardingVariant).min(1).max(100).optional()
 });
 
@@ -27,11 +28,14 @@ export async function POST(request:Request){
   const product={name:parsed.data.name,slug,sku:parsed.data.sku,variantLabel:parsed.data.variantLabel||parsed.data.name,netPrice:parsed.data.netPrice,grossPrice:parsed.data.grossPrice,stock:parsed.data.stock,category:parsed.data.category||undefined,categorySlug:parsed.data.category?slugifyCatalogValue(parsed.data.category):undefined,attributes:cleanAttributes,shortDescription:parsed.data.shortDescription||undefined,description:parsed.data.description||undefined,seoTitle:parsed.data.seoTitle||undefined,seoDescription:parsed.data.seoDescription||undefined,b2cVisible:parsed.data.b2cVisible,b2bVisible:parsed.data.b2bVisible};
   const variants=parsed.data.variants?.map(item=>({sku:item.sku.trim(),label:item.label.trim(),netPrice:item.netPrice,grossPrice:item.grossPrice,stock:item.stock,active:item.active}));
   if(variants){const normalized=variants.map(item=>item.sku.toLocaleLowerCase('hu-HU'));if(new Set(normalized).size!==normalized.length)return NextResponse.json({error:'A variánsok között duplikált SKU található.'},{status:409})}
-  const payloadHash=createHash('sha256').update(JSON.stringify(variants?{product,variants}:product)).digest('hex');const admin=createAdminClient();
+  const payloadHash=createHash('sha256').update(JSON.stringify(variants?{product,variants,fulfillmentType:parsed.data.fulfillmentType}:{...product,fulfillmentType:parsed.data.fulfillmentType})).digest('hex');const admin=createAdminClient();
   const call=variants?admin.rpc('create_catalog_draft_v2',{p_instance_id:scope.instanceId,p_actor:actor.id,p_idempotency_key:parsed.data.idempotencyKey,p_payload_hash:payloadHash,p_product:product,p_variants:variants}):admin.rpc('create_catalog_draft_v1',{p_instance_id:scope.instanceId,p_actor:actor.id,p_idempotency_key:parsed.data.idempotencyKey,p_payload_hash:payloadHash,p_product:product});
   const{data,error}=await call;
   if(error){const message=String(error.message??'');if(message.includes('CATALOG_ONBOARDING_IDEMPOTENCY_CONFLICT'))return NextResponse.json({error:'Az idempotenciakulcs már más termékhez tartozik.'},{status:409});if(message.includes('CATALOG_VARIANTS_INVALID')||message.includes('CATALOG_VARIANT_SKU_DUPLICATE'))return NextResponse.json({error:'A variánsmátrix érvénytelen vagy duplikált SKU-t tartalmaz.'},{status:409});if(message.includes('products_instance_slug_uidx'))return NextResponse.json({error:'Ez a termék-slug már létezik ebben a webshopban.'},{status:409});if(message.includes('product_variants_instance_sku_uidx'))return NextResponse.json({error:'Legalább egy SKU már létezik ebben a webshopban.'},{status:409});if(message.includes('CATALOG_PERMISSION_REQUIRED'))return NextResponse.json({error:'Nincs jogosultság ehhez a webshophoz.'},{status:403});return NextResponse.json({error:'A termékpiszkozat nem hozható létre biztonságosan.'},{status:409})}
   const result=(data??{})as{productId?:string;variantId?:string;variantIds?:string[];draft?:boolean;updatedAt?:string};const hasVerifiedVariants=variants?Array.isArray(result.variantIds)&&result.variantIds.length===variants.length:Boolean(result.variantId);
   if(!result.productId||!hasVerifiedVariants||result.draft!==true)return NextResponse.json({error:'A termékpiszkozat eredménye nem igazolható.'},{status:500});
-  return NextResponse.json({ok:true,...result});
+  const{data:fulfillmentData,error:fulfillmentError}=await admin.rpc('set_product_fulfillment_v1',{p_instance_id:scope.instanceId,p_actor:actor.id,p_product_id:result.productId,p_fulfillment_type:parsed.data.fulfillmentType});
+  const fulfillment=(fulfillmentData??{})as{productId?:string;fulfillmentType?:string};
+  if(fulfillmentError||fulfillment.productId!==result.productId||fulfillment.fulfillmentType!==parsed.data.fulfillmentType){console.error('catalog fulfillment assignment failed',{instanceId:scope.instanceId,productId:result.productId,error:fulfillmentError});return NextResponse.json({error:'A termékpiszkozat létrejött, de a teljesítési típus nem rögzíthető biztonságosan. A termék inaktív maradt.'},{status:503})}
+  return NextResponse.json({ok:true,...result,fulfillmentType:parsed.data.fulfillmentType});
 }

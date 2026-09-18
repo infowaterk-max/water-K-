@@ -8,6 +8,7 @@ import {OrderStatusControl} from '@/components/admin/order-status-control';
 import {ManualFulfillmentControl} from '@/components/admin/manual-fulfillment-control';
 import {IntegrationJobRetry} from '@/components/admin/integration-job-retry';
 import {AdminOrderRefundControl} from '@/components/admin/admin-order-refund-control';
+import {OrderDocumentManager} from '@/components/admin/order-document-manager';
 
 const labels:Record<string,string>={
   draft:'Piszkozat',pending:'Függőben',pending_payment:'Fizetésre vár',pending_transfer:'Átutalásra vár',
@@ -78,6 +79,8 @@ export default async function AdminOrderPage({params}:{params:Promise<{id:string
 
     {canAct?<AdminOrderRefundControl id={order.id} orderNumber={order.order_number} status={order.status} paymentMethod={order.payment_method} totalGrossHuf={order.total_gross_huf}/>:null}
     <div style={{marginTop:28}}>{canAct?<ManualFulfillmentControl id={order.id} trackingNumber={order.tracking_number} invoiceNumber={order.invoice_number} invoiceUrl={order.invoice_url} paymentReference={order.external_payment_id}/>:<div className="adminAuditNotice"><strong>Kézi teljesítés átmenetileg letiltva.</strong><p>Előbb a rendelés összes operatív adatát be kell tölteni.</p></div>}</div>
+
+    <OrderDocumentManager orderId={order.id}/>
 
     <div className="splitFeature" style={{marginTop:28}}>
       <section className="card"><span className="eyebrow">Rendelési audit</span><h2>Eseménytörténet</h2><div className="timeline">{!eventError&&(events??[]).map(e=><div key={e.id} className="timelineItem"><strong>{eventLabels[e.event_type]??e.event_type}{e.event_type==='status_changed'?` · ${labels[e.from_status]??e.from_status} → ${labels[e.to_status]??e.to_status}`:''}</strong><span className="muted">{fmtDate(e.created_at)}</span></div>)}</div>{!eventError&&!events?.length&&<p className="muted">Még nincs naplózott esemény.</p>}{eventError&&<p className="errorNotice">Az eseménytörténet most nem tölthető be.</p>}</section>
