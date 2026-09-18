@@ -151,7 +151,7 @@ The approved reference remains the decision authority. Automated screenshot diff
 
 ## 7. Support Knowledge backfill
 
-PR #156 remains historical input, not a safe current branch. The recovery will create a current-main successor after verified recovery facts stabilize. It must preserve the old knowledge and add:
+PR #156 remains historical input, not a safe current branch. A current-development successor now exists under `docs/support/`. Governance is restored in `docs/support/README.md`, and the first current detailed successor is `docs/support/PLAYROOM_V20_PHASE4_BUILDER_ACCEPTANCE_INCIDENTS_2026-09-18.md`. Future fidelity recoveries must preserve the old knowledge and add:
 
 - technically green but visually unacceptable Beauty Lab incident;
 - missing pre-implementation Reference → Builder capability proof;
