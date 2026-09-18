@@ -11,13 +11,6 @@ const node=(input:Partial<StorefrontResolvedComponentNode>={}):StorefrontResolve
   children:[],
   resolved:{hidden:false,gridSpan:7},
   ...input,
-  it('fits canonical viewport width to the real available canvas width without changing runtime geometry',()=>{
-    expect(resolveStorefrontBuilderFitZoom(1200,660)).toBe(55);
-    expect(resolveStorefrontBuilderFitZoom(1200,720)).toBe(60);
-    expect(resolveStorefrontBuilderFitZoom(768,660)).toBe(85);
-    expect(resolveStorefrontBuilderFitZoom(390,660)).toBe(100);
-  });
-
 });
 
 describe('Visual Builder canvas placement wrapper',()=>{
@@ -66,5 +59,12 @@ describe('Visual Builder canvas placement wrapper',()=>{
       scale:1.3,
       transform:'scale(1.3)',
     });
+  });
+
+  it('fits canonical viewport width to the real available canvas width without changing runtime geometry',()=>{
+    expect(resolveStorefrontBuilderFitZoom(1200,660)).toBe(55);
+    expect(resolveStorefrontBuilderFitZoom(1200,720)).toBe(60);
+    expect(resolveStorefrontBuilderFitZoom(768,660)).toBe(85);
+    expect(resolveStorefrontBuilderFitZoom(390,660)).toBe(100);
   });
 });
