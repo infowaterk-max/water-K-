@@ -13,6 +13,7 @@ import {STOREFRONT_TEMPLATE_CATALOG} from '@/lib/builder/storefront-template-cat
 import {listStorefrontTemplateLibraryEntries} from '@/lib/builder/storefront-template-library';
 import {getStorefrontTemplatePreviewTheme} from '@/lib/builder/storefront-template-preview-demo';
 import {augmentStorefrontDigitalCommercePreviewContext} from '@/lib/builder/storefront-digital-commerce-preview';
+import {composeStorefrontDigitalCommerceCapabilities} from '@/lib/builder/storefront-digital-commerce-composition';
 import {StorefrontVisualBuilderV3} from '@/components/admin/storefront-visual-builder-v3';
 import {StorefrontTemplateLibrary} from '@/components/admin/storefront-template-library';
 
@@ -48,12 +49,13 @@ export default async function VisualBuilderAdmin({searchParams}:Props){
   </section>;
 
   const theme=getStorefrontTemplatePreviewTheme(document.templateKey) as CSSProperties;
-  const editorBindingContext=augmentStorefrontDigitalCommercePreviewContext({page:document,context:bindingContext});
+  const editorDocument=composeStorefrontDigitalCommerceCapabilities(document);
+  const editorBindingContext=augmentStorefrontDigitalCommercePreviewContext({page:editorDocument,context:bindingContext});
   return <section className="adminMain" style={theme} data-storefront-builder-theme={document.templateKey}>
     <StorefrontVisualBuilderV3
       key={selectedKey??'no-page'}
       pages={pages}
-      document={document}
+      document={editorDocument}
       pageId={state?.pageId??null}
       draftRevision={state?.draft?.revisionNumber??null}
       publishedRevision={state?.published?.revisionNumber??null}
