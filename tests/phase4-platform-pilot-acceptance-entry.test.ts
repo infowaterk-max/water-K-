@@ -7,6 +7,7 @@ const read=(path:string)=>readFileSync(resolve(process.cwd(),path),'utf8');
 describe('Phase 4 platform pilot acceptance entry',()=>{
   const page=read('src/app/admin/platform/acceptance/[instanceId]/page.tsx');
   const action=read('src/app/admin/platform/acceptance/[instanceId]/actions.ts');
+  const builder=read('src/app/admin/tartalom/builder/page.tsx');
 
   it('is preview-only and requires an authenticated platform operator',()=>{
     expect(page).toContain("process.env.VERCEL_ENV!=='preview'");
@@ -38,5 +39,15 @@ describe('Phase 4 platform pilot acceptance entry',()=>{
     expect(action).toContain("redirect('/admin/tartalom/builder?page=playroom.home&acceptance=platform')");
     for(const forbidden of['.insert(','.update(','.delete(','.upsert('])expect(action).not.toContain(forbidden);
     expect(page).toContain('Playroom Builder megnyitása');
+  });
+
+  it('bypasses only the Builder route-level Pro gate during an exact preview pilot acceptance session',()=>{
+    expect(builder).toContain("process.env.VERCEL_ENV==='preview'");
+    expect(builder).toContain('getPilotAcceptanceInstanceId()');
+    expect(builder).toContain('getPlatformRole()');
+    expect(builder).toContain('acceptanceInstanceId===context.instanceId');
+    expect(builder).toContain("requireCurrentStoreContext('store.manage')");
+    expect(builder).toContain("requirePlanFeature('contentMarketing')");
+    expect(builder).toContain('if(!isPlatformPilotAcceptance)await requirePlanFeature');
   });
 });
