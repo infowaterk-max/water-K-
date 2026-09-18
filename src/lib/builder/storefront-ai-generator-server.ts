@@ -23,6 +23,7 @@ import {
   planStorefrontTemplateInstallation,
 } from '@/lib/builder/storefront-template-installation';
 import {validateStorefrontBuilderSchemaStructure} from '@/lib/builder/storefront-builder-schema-policy';
+import {composeStorefrontDigitalCommerceTemplatePackage} from '@/lib/builder/storefront-digital-commerce-composition';
 import {saveCurrentStorefrontTemplateDraftPlan} from '@/lib/builder/storefront-template-persistence';
 import {
   applyStorefrontAiModelPlan,
@@ -175,8 +176,9 @@ export async function generateCurrentStorefrontWithAi(rawInput:StorefrontAiGener
 
   const allowedTemplateKeys=new Set(eligible.map(template=>template.manifest.templateKey));
   const modelPlan=parseStorefrontAiModelPlan(candidate,allowedTemplateKeys);
-  const template=eligible.find(item=>item.manifest.templateKey===modelPlan.templateKey);
-  if(!template)throw new Error('STOREFRONT_AI_TEMPLATE_NOT_ALLOWED');
+  const sourceTemplate=eligible.find(item=>item.manifest.templateKey===modelPlan.templateKey);
+  if(!sourceTemplate)throw new Error('STOREFRONT_AI_TEMPLATE_NOT_ALLOWED');
+  const template=composeStorefrontDigitalCommerceTemplatePackage(sourceTemplate);
   const installationPlan=planStorefrontTemplateInstallation({template,componentRegistry:registry,capability,existingPages});
   const generatedPlan=applyStorefrontAiModelPlan({plan:installationPlan,modelPlan,registry,capability});
   for(const page of generatedPlan.pages)validateStorefrontBuilderSchemaStructure({document:page.document,registry});
