@@ -41,29 +41,42 @@ export function composeStorefrontDigitalCommerceCapabilities(
 ):StorefrontPageDocument{
   const required=STOREFRONT_DIGITAL_COMMERCE_COMPONENTS_BY_PAGE_TYPE[document.pageType as SupportedPageType];
   if(!required)return clone(document);
-  const missing=required.filter(componentKey=>!hasComponent(document.sections,componentKey));
-  if(!missing.length)return clone(document);
-  const prefix=`shared-${idPart(document.pageKey)}-digital-commerce`;
-  const capabilityNodes=missing.map((componentKey,index)=>node({
-    id:`${prefix}-${index+1}`,
-    componentKey,
-    componentVersion:1,
-    config:{...defaultConfig(componentKey),...(options.presentation?{presentation:options.presentation}:{})},
-  }));
-  const section=node({
-    id:prefix,
-    componentKey:'layout.section',
-    componentVersion:1,
-    config:{tone:'background',spacing:'s',width:'full',...(options.presentation?{presentation:options.presentation}:{})},
-    children:[node({
-      id:`${prefix}-container`,
-      componentKey:'layout.container',
+  if(document.metadata?.digitalCommerceCompositionVersion===STOREFRONT_DIGITAL_COMMERCE_COMPOSITION_VERSION)return clone(document);
+
+  const next=clone(document);
+  const missing=required.filter(componentKey=>!hasComponent(next.sections,componentKey));
+  const prefix=`shared-${idPart(next.pageKey)}-digital-commerce`;
+
+  if(missing.length){
+    const capabilityNodes=missing.map((componentKey,index)=>node({
+      id:`${prefix}-${index+1}`,
+      componentKey,
       componentVersion:1,
-      config:{width:'content',spacing:'s',...(options.presentation?{presentation:options.presentation}:{})},
-      children:capabilityNodes,
-    })],
-  });
-  return{...clone(document),sections:[...clone(document.sections),section]};
+      config:{...defaultConfig(componentKey),...(options.presentation?{presentation:options.presentation}:{})},
+    }));
+    const section=node({
+      id:prefix,
+      componentKey:'layout.section',
+      componentVersion:1,
+      config:{tone:'background',spacing:'s',width:'full',...(options.presentation?{presentation:options.presentation}:{})},
+      children:[node({
+        id:`${prefix}-container`,
+        componentKey:'layout.container',
+        componentVersion:1,
+        config:{width:'content',spacing:'s',...(options.presentation?{presentation:options.presentation}:{})},
+        children:capabilityNodes,
+      })],
+    });
+    const footerIndex=next.sections.findIndex(item=>item.componentKey==='editorial.footer'||item.componentKey.endsWith('.footer'));
+    const insertIndex=footerIndex>=0?footerIndex:next.sections.length;
+    next.sections.splice(insertIndex,0,section);
+  }
+
+  next.metadata={
+    ...(next.metadata??{}),
+    digitalCommerceCompositionVersion:STOREFRONT_DIGITAL_COMMERCE_COMPOSITION_VERSION,
+  };
+  return next;
 }
 
 /** Applies the same shared composition contract to a complete template package. */
