@@ -43,15 +43,15 @@ describe('Visual Builder canvas placement wrapper',()=>{
   it('keeps canonical viewport width while zoom only scales its presentation',()=>{
     expect(resolveStorefrontBuilderCanvasFrameGeometry(1200,60)).toEqual({
       width:'1200px',
-      transform:'scale(0.6)',
+      zoom:0.6,
     });
     expect(resolveStorefrontBuilderCanvasFrameGeometry(768,100)).toEqual({
       width:'768px',
-      transform:'scale(1)',
+      zoom:1,
     });
     expect(resolveStorefrontBuilderCanvasFrameGeometry(390,130)).toEqual({
       width:'390px',
-      transform:'scale(1.3)',
+      zoom:1.3,
     });
   });
 });
