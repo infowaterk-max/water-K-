@@ -69,8 +69,16 @@ const PLAYROOM_V20_HU_COPY=Object.freeze(new Map<string,string>([
   ['404 / GAME OVER?','404 / VÉGE A JÁTÉKNAK?'],
 ]));
 
+const localizeString=(value:string):string=>{
+  const exact=PLAYROOM_V20_HU_COPY.get(value);
+  if(exact)return exact;
+  return value
+    .replace(/(^|\\n)Mobile(?=\\s|$)/g,'$1Mobil')
+    .replace(/Gaming kontroller közelről co-op útmutatóhoz/g,'Játékkontroller közelről kooperatív útmutatóhoz');
+};
+
 const localizeValue=(value:unknown):unknown=>{
-  if(typeof value==='string')return PLAYROOM_V20_HU_COPY.get(value)??value;
+  if(typeof value==='string')return localizeString(value);
   if(Array.isArray(value))return value.map(localizeValue);
   if(value&&typeof value==='object')return Object.fromEntries(Object.entries(value as Record<string,unknown>).map(([key,item])=>[key,localizeValue(item)]));
   return value;
@@ -79,6 +87,7 @@ const localizeValue=(value:unknown):unknown=>{
 const localizeNode=(source:StorefrontComponentNode):StorefrontComponentNode=>({
   ...source,
   config:localizeValue(source.config) as StorefrontComponentNode['config'],
+  ...(source.bindings?{bindings:localizeValue(source.bindings) as StorefrontComponentNode['bindings']}:{}),
   ...(source.children?{children:source.children.map(localizeNode)}:{}),
 });
 
