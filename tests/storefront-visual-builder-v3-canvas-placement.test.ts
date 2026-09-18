@@ -1,6 +1,6 @@
 import {describe,expect,it} from 'vitest';
 import {resolveStorefrontBuilderCanvasPlacement} from '@/lib/builder/storefront-builder-canvas-placement';
-import {resolveStorefrontBuilderCanvasFrameGeometry} from '@/lib/builder/storefront-builder-canvas-geometry';
+import {resolveStorefrontBuilderCanvasFrameGeometry,resolveStorefrontBuilderFitZoom} from '@/lib/builder/storefront-builder-canvas-geometry';
 import type {StorefrontResolvedComponentNode} from '@/lib/builder/storefront-runtime';
 
 const node=(input:Partial<StorefrontResolvedComponentNode>={}):StorefrontResolvedComponentNode=>({
@@ -11,6 +11,13 @@ const node=(input:Partial<StorefrontResolvedComponentNode>={}):StorefrontResolve
   children:[],
   resolved:{hidden:false,gridSpan:7},
   ...input,
+  it('fits canonical viewport width to the real available canvas width without changing runtime geometry',()=>{
+    expect(resolveStorefrontBuilderFitZoom(1200,660)).toBe(55);
+    expect(resolveStorefrontBuilderFitZoom(1200,720)).toBe(60);
+    expect(resolveStorefrontBuilderFitZoom(768,660)).toBe(85);
+    expect(resolveStorefrontBuilderFitZoom(390,660)).toBe(100);
+  });
+
 });
 
 describe('Visual Builder canvas placement wrapper',()=>{
