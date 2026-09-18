@@ -101,6 +101,7 @@ If yes, update Support Knowledge in the same development cycle.
 
 ## Current incident index
 
+- `RECENT_ENGINEERING_BACKFILL_2026-09-12_18.md` — backfill of support-relevant lessons between the original baseline and Phase 4: Builder authority/mobile failures, Email Builder stale target, Playroom template-version upgrade failures, stale Storefront-stack release integration, Special Commerce authority/idempotency/Fresh Install rules, AI Builder/Block 24 boundaries, Product Documents security/guest acceptance and Phase 3 shared runtime/composition lessons.
 - `PLAYROOM_V20_PHASE4_BUILDER_ACCEPTANCE_INCIDENTS_2026-09-18.md` — Playroom v20 Phase 4 human acceptance: tenant-entry, Alap entitlement gate, Preview/staging proof constraints, Visual Builder wrapper fidelity, canonical viewport, zoom/fit, absolute media, grid stretch, dense header and CI/harness lessons.
 
 ## Core engineering rules
@@ -113,3 +114,11 @@ If yes, update Support Knowledge in the same development cycle.
 6. **A CI/test harness defect is not evidence that runtime safety should be weakened.**
 7. **Product Owner/live human visual acceptance is independent evidence.** Green CI does not imply visual fidelity.
 8. **Preserve failed attempts.** Repeating a disproven workaround is an avoidable support/engineering regression.
+9. **One concern gets one canonical controller/authority.** Do not add parallel responsive controllers, Builder shells, renderers, commerce engines or document authorities to patch UX.
+10. **Template source changes require explicit version/upgrade semantics** when persisted merchant Page Schema must change.
+11. **Never release a stale stacked branch over newer main.** Reconcile the actual runtime delta into current main and rerun exact-head integration gates.
+12. **Fresh Install SKIPPED is not PASS**, especially when customer-baseline/schema changes exist.
+13. **Special Commerce cannot fabricate commerce truth.** Server catalog/pricing/inventory/checkout/order/payment authorities remain canonical; client clock/claims are presentation only.
+14. **Private document/digital delivery needs negative authorization tests plus real-byte proof.** DB/storage metadata alone is insufficient.
+15. **Digital assets, Product Documents and Order Documents remain separate backend authorities** even if one UI aggregates them.
+16. **Shared launch capabilities belong in shared package/install/runtime contracts**, not manual edits repeated across every template.
