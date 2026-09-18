@@ -6,9 +6,13 @@ import {StorefrontRuntimeRenderer} from '@/components/builder/storefront-runtime
 import {createStorefrontVisualBuilderRendererRegistry} from '@/components/builder/storefront-builder-renderer-registry';
 import {createStorefrontVisualBuilderComponentRegistry} from '@/lib/builder/storefront-builder-registry';
 import {bindStorefrontExistingCommerceRuntime} from '@/lib/builder/storefront-existing-commerce-bindings';
+import {applyStorefrontBuilderMutation,listStorefrontBuilderInsertableComponents} from '@/lib/builder/storefront-visual-builder';
+import {composeStorefrontDigitalCommerceCapabilities,composeStorefrontDigitalCommerceTemplatePackage,STOREFRONT_DIGITAL_COMMERCE_COMPONENTS_BY_PAGE_TYPE,STOREFRONT_DIGITAL_COMMERCE_COMPOSITION_VERSION} from '@/lib/builder/storefront-digital-commerce-composition';
+import {augmentStorefrontDigitalCommercePreviewContext} from '@/lib/builder/storefront-digital-commerce-preview';
 import {listStorefrontContextualCapabilityOpportunities} from '@/lib/builder/storefront-template-capability-discovery';
 import {getStorefrontPageSemanticContexts} from '@/lib/builder/storefront-template-capability-policy';
-import type {StorefrontPageDocument} from '@/lib/builder/storefront-runtime';
+import {validateStorefrontPageDocument,type StorefrontPageDocument} from '@/lib/builder/storefront-runtime';
+import {STOREFRONT_IMPLEMENTED_TEMPLATE_PACKAGES,STOREFRONT_TEMPLATE_LAUNCH_TARGET,STOREFRONT_TEMPLATE_PORTFOLIO_STATUS} from '@/lib/builder/storefront-template-catalog';
 import {PLANS} from '@/lib/plans/catalog';
 import {PLAYROOM_V20_TEMPLATE_PACKAGE} from '@/lib/builder/templates/playroom-v20';
 
@@ -49,6 +53,39 @@ describe('Digital Commerce A3 shared Builder integration',()=>{
     const documents=page('product','commerce.product-documents');
     documents.sections[0]!.children![0]!.bindings={model:{path:'commerce.existingEngines.configurators'}};
     expect(bindStorefrontExistingCommerceRuntime(documents).sections[0]!.children![0]!.bindings?.model?.path).toBe('commerce.digitalCommerce.productDocuments');
+  });
+
+  it('uses the real Builder mutation authority for insert, edit and responsive overrides while protecting runtime model binding',()=>{
+    const registry=createStorefrontVisualBuilderComponentRegistry();
+    const source=page('product','commerce.product-documents');
+    const insertable=listStorefrontBuilderInsertableComponents({document:source,registry,capability,parentId:'a3-section'});
+    expect(insertable.map(item=>item.componentKey)).toContain('commerce.fulfillment-summary');
+    expect(insertable.find(item=>item.componentKey==='commerce.fulfillment-summary')?.bindingSlots).not.toContain('model');
+
+    const added=applyStorefrontBuilderMutation({
+      document:source,registry,capability,
+      mutation:{type:'add',parentId:'a3-section',componentKey:'commerce.fulfillment-summary',componentVersion:1,nodeId:'builder-fulfillment'},
+    });
+    expect(findComponent(added,'commerce.fulfillment-summary')).toBe(true);
+
+    const edited=applyStorefrontBuilderMutation({
+      document:added,registry,capability,
+      mutation:{type:'config',nodeId:'builder-fulfillment',key:'title',value:'Saját teljesítési cím'},
+    });
+    const fulfillment=edited.sections[0]!.children!.find(item=>item.id==='builder-fulfillment')!;
+    expect(fulfillment.config.title).toBe('Saját teljesítési cím');
+
+    const responsive=applyStorefrontBuilderMutation({
+      document:edited,registry,capability,
+      mutation:{type:'responsive',nodeId:'builder-fulfillment',viewport:'mobile',gridSpan:12,hidden:false},
+    });
+    const responsiveNode=responsive.sections[0]!.children!.find(item=>item.id==='builder-fulfillment')!;
+    expect(responsiveNode.responsive?.mobile).toEqual({gridSpan:12,hidden:false});
+
+    expect(()=>applyStorefrontBuilderMutation({
+      document:responsive,registry,capability,
+      mutation:{type:'binding',nodeId:'builder-fulfillment',slot:'model',path:'commerce.digitalCommerce.productFulfillment'},
+    })).toThrow('BUILDER_BINDING_SLOT_NOT_EDITABLE');
   });
 
   it('renders fulfillment from runtime data with live storefront tokens and without authored commerce truth',()=>{
@@ -115,6 +152,133 @@ describe('Digital Commerce A3 shared Builder integration',()=>{
     expect(listStorefrontContextualCapabilityOpportunities({document:account,capability}).map(item=>item.key)).toContain('documents-center');
   });
 
+  it('guards every concrete template package without fabricating the remaining 42-template target',()=>{
+    expect(STOREFRONT_TEMPLATE_LAUNCH_TARGET).toBe(42);
+    expect(STOREFRONT_TEMPLATE_PORTFOLIO_STATUS.implemented).toBe(STOREFRONT_IMPLEMENTED_TEMPLATE_PACKAGES.length);
+    expect(STOREFRONT_TEMPLATE_PORTFOLIO_STATUS.remaining).toBe(STOREFRONT_TEMPLATE_LAUNCH_TARGET-STOREFRONT_IMPLEMENTED_TEMPLATE_PACKAGES.length);
+    expect(STOREFRONT_TEMPLATE_PORTFOLIO_STATUS.fabricatedEntriesAllowed).toBe(false);
+    const registry=createStorefrontVisualBuilderComponentRegistry();
+    for(const template of STOREFRONT_IMPLEMENTED_TEMPLATE_PACKAGES){
+      for(const source of template.pages.filter(item=>item.pageType in STOREFRONT_DIGITAL_COMMERCE_COMPONENTS_BY_PAGE_TYPE)){
+        const composed=composeStorefrontDigitalCommerceCapabilities(source);
+        const required=STOREFRONT_DIGITAL_COMMERCE_COMPONENTS_BY_PAGE_TYPE[source.pageType as keyof typeof STOREFRONT_DIGITAL_COMMERCE_COMPONENTS_BY_PAGE_TYPE];
+        for(const key of required)expect(findComponent(composed,key),`${template.manifest.templateKey}:${source.pageType}:${key}`).toBe(true);
+        expect(validateStorefrontPageDocument(composed,registry).ok,`${template.manifest.templateKey}:${source.pageType}`).toBe(true);
+        const recomposed=composeStorefrontDigitalCommerceCapabilities(composed);
+        for(const key of required){
+          const count=(nodes:StorefrontPageDocument['sections']):number=>nodes.reduce((sum,item)=>sum+Number(item.componentKey===key)+count(item.children??[]),0);
+          expect(count(recomposed.sections),`${template.manifest.templateKey}:${source.pageType}:${key}:idempotent`).toBe(1);
+        }
+      }
+    }
+  });
+
+  it('inserts shared capability before the footer once and preserves later merchant removal',()=>{
+    const source=page('product','commerce.product-documents');
+    source.sections.push({id:'a3-footer',componentKey:'editorial.footer',componentVersion:1,config:{}});
+    const composed=composeStorefrontDigitalCommerceCapabilities(source);
+    expect(composed.metadata?.digitalCommerceCompositionVersion).toBe(STOREFRONT_DIGITAL_COMMERCE_COMPOSITION_VERSION);
+    const capabilityIndex=composed.sections.findIndex(item=>item.id.startsWith('shared-')&&item.id.endsWith('-digital-commerce'));
+    const footerIndex=composed.sections.findIndex(item=>item.id==='a3-footer');
+    expect(capabilityIndex).toBeGreaterThanOrEqual(0);
+    expect(capabilityIndex).toBeLessThan(footerIndex);
+
+    const merchantEdited=structuredClone(composed);
+    const prune=(nodes:StorefrontPageDocument['sections']):StorefrontPageDocument['sections']=>nodes
+      .filter(item=>item.componentKey!=='commerce.fulfillment-summary')
+      .map(item=>({...item,...(item.children?{children:prune(item.children)}:{})}));
+    merchantEdited.sections=prune(merchantEdited.sections);
+    expect(findComponent(merchantEdited,'commerce.fulfillment-summary')).toBe(false);
+    const reopened=composeStorefrontDigitalCommerceCapabilities(merchantEdited);
+    expect(findComponent(reopened,'commerce.fulfillment-summary')).toBe(false);
+  });
+
+  it('applies the same shared composition package-wide for template install and AI Builder paths',()=>{
+    for(const template of STOREFRONT_IMPLEMENTED_TEMPLATE_PACKAGES){
+      const composed=composeStorefrontDigitalCommerceTemplatePackage(template);
+      expect(composed.manifest).toEqual(template.manifest);
+      for(const page of composed.pages.filter(item=>item.pageType in STOREFRONT_DIGITAL_COMMERCE_COMPONENTS_BY_PAGE_TYPE)){
+        const required=STOREFRONT_DIGITAL_COMMERCE_COMPONENTS_BY_PAGE_TYPE[page.pageType as keyof typeof STOREFRONT_DIGITAL_COMMERCE_COMPONENTS_BY_PAGE_TYPE];
+        for(const key of required)expect(findComponent(page,key),`${template.manifest.templateKey}:${page.pageType}:${key}`).toBe(true);
+      }
+    }
+    const actions=readFileSync(join(process.cwd(),'src/app/admin/tartalom/builder/actions.ts'),'utf8');
+    const ai=readFileSync(join(process.cwd(),'src/lib/builder/storefront-ai-generator-server.ts'),'utf8');
+    expect(actions).toContain('composeStorefrontDigitalCommerceTemplatePackage(sourceTemplate)');
+    expect(ai).toContain('composeStorefrontDigitalCommerceTemplatePackage(sourceTemplate)');
+  });
+
+  it('uses safe shared preview fixtures for every template and Builder preview instead of real customer authority',()=>{
+    const template=STOREFRONT_IMPLEMENTED_TEMPLATE_PACKAGES.find(item=>item.manifest.templateKey!=='gaming.playroom')!;
+    const product=template.pages.find(item=>item.pageType==='product')!;
+    const preview=augmentStorefrontDigitalCommercePreviewContext({template,page:product,context:{}}) as{commerce?:{digitalCommerce?:{productFulfillment?:{mode?:string};productDocuments?:{documents?:unknown[]}}}};
+    expect(preview.commerce?.digitalCommerce?.productFulfillment?.mode).toBe('digital');
+    expect(preview.commerce?.digitalCommerce?.productDocuments?.documents?.length).toBeGreaterThan(0);
+    const runtimeSource=readFileSync(join(process.cwd(),'src/lib/builder/storefront-runtime-source.ts'),'utf8');
+    expect(runtimeSource).toContain('augmentStorefrontDigitalCommercePreviewContext({page');
+    expect(runtimeSource).not.toContain('guestToken');
+  });
+
+  it('hydrates the live Builder canvas with the same safe shared preview fixture instead of customer data',()=>{
+    const builderPage=readFileSync(join(process.cwd(),'src/app/admin/tartalom/builder/page.tsx'),'utf8');
+    expect(builderPage).toContain("import {augmentStorefrontDigitalCommercePreviewContext} from '@/lib/builder/storefront-digital-commerce-preview'");
+    expect(builderPage).toContain('composeStorefrontDigitalCommerceCapabilities(document)');
+    expect(builderPage).toContain('augmentStorefrontDigitalCommercePreviewContext({page:editorDocument,context:bindingContext})');
+    expect(builderPage).toContain('document={editorDocument}');
+    expect(builderPage).toContain('bindingContext={editorBindingContext}');
+    expect(builderPage).not.toContain('listAccountDigitalDownloads');
+    expect(builderPage).not.toContain('listGuestDigitalDownloads');
+  });
+
+  it('wires published runtime models only through server authority and keeps Builder preview fixture-only',()=>{
+    const server=readFileSync(join(process.cwd(),'src/lib/builder/storefront-digital-commerce-server.ts'),'utf8');
+    expect(server).toContain("import 'server-only'");
+    expect(server).toContain('classifyCheckoutFulfillment');
+    expect(server).toContain('listStorefrontProductDocuments');
+    expect(server).toContain('listAccountDigitalDownloadSurface');
+    expect(server).toContain('listAccountOrderDocuments');
+    expect(server).toContain('listAccountProductDocuments');
+    expect(server).not.toContain('guestToken');
+    const runtimeSource=readFileSync(join(process.cwd(),'src/lib/builder/storefront-runtime-source.ts'),'utf8');
+    expect(runtimeSource).toContain('getStorefrontDigitalCommerceRuntimeModel(instance.id,digitalCommerceRequest)');
+    expect(runtimeSource).toContain('digitalCommerceRequest.pageType!==materialized.pageType');
+    expect(runtimeSource).toContain('augmentStorefrontDigitalCommercePreviewContext({page');
+  });
+
+  it('keeps COD, guest access and Product Documents on their canonical server authorities',()=>{
+    const checkout=readFileSync(join(process.cwd(),'src/components/checkout/checkout-form.tsx'),'utf8');
+    const orderRoute=readFileSync(join(process.cwd(),'src/app/api/orders/route.ts'),'utf8');
+    const guestPage=readFileSync(join(process.cwd(),'src/app/digitalis-hozzaferes/page.tsx'),'utf8');
+    const downloadRoute=readFileSync(join(process.cwd(),'src/app/api/digital-downloads/[assetId]/route.ts'),'utf8');
+    const digital=readFileSync(join(process.cwd(),'src/lib/commerce/digital-commerce.ts'),'utf8');
+    const productDocuments=readFileSync(join(process.cwd(),'src/lib/commerce/product-documents.ts'),'utf8');
+    expect(checkout).toContain("containsDigital?paymentOptions.filter(option=>option.flow!=='cash_on_delivery')");
+    expect(orderRoute).toContain("fulfillment.digitalLines>0&&payment.flow==='cash_on_delivery'");
+    expect(guestPage).toContain('listGuestDigitalDownloads(instance.id,orderId,token)');
+    expect(digital).toContain(".is('revoked_at',null).gt('expires_at',now)");
+    expect(downloadRoute).toContain('guestToken');
+    expect(downloadRoute).toContain('authorizeDigitalDownload');
+    expect(downloadRoute).not.toContain('getPublicUrl');
+    expect(productDocuments).toContain("admin.rpc('list_storefront_product_documents_v1'");
+    expect(productDocuments).toContain("admin.rpc('authorize_product_document_download_v1'");
+  });
+
+  it('renders exhausted and revoked account states without emitting a download link',()=>{
+    const document=page('account','commerce.documents-center');
+    const html=renderToStaticMarkup(<StorefrontRuntimeRenderer
+      page={document} viewport="desktop"
+      bindingContext={{commerce:{digitalCommerce:{documentsCenter:{state:'ready',digital:[
+        {id:'exhausted',title:'Elfogyott keret',status:'exhausted',href:'/api/digital-downloads/forged'},
+        {id:'revoked',title:'Visszavont',status:'revoked',href:'/api/digital-downloads/forged-2'},
+      ],orderDocuments:[],productDocuments:[]}}}}}
+      componentRegistry={createStorefrontVisualBuilderComponentRegistry()}
+      rendererRegistry={createStorefrontVisualBuilderRendererRegistry()}
+      capability={capability}/>)
+    expect(html).toContain('Letöltési keret elfogyott');
+    expect(html).toContain('Hozzáférés visszavonva');
+    expect(html).not.toContain('/api/digital-downloads/forged');
+  });
+
   it('ships explicit Playroom factory fixtures for digital, physical and mixed acceptance without creating a template-local engine',()=>{
     const fixtures=PLAYROOM_V20_TEMPLATE_PACKAGE.demoFixtures??[];
     expect(fixtures.some(item=>item.entityKey==='a3-downloadable-game'&&item.payload.fulfillment_type==='digital')).toBe(true);
@@ -128,5 +292,8 @@ describe('Digital Commerce A3 shared Builder integration',()=>{
     const source=readFileSync(join(process.cwd(),'src/lib/catalog-server.ts'),'utf8');
     expect(source).toContain("instance_id,fulfillment_type,products!inner");
     expect(source).toContain("fulfillmentType:normalizeFulfillment(row.fulfillment_type??product?.fulfillment_type)");
+    const runtimeServer=readFileSync(join(process.cwd(),'src/lib/builder/storefront-digital-commerce-server.ts'),'utf8');
+    expect(runtimeServer).toContain('normalizeFulfillment(row.fulfillment_type??row.products?.fulfillment_type)');
+    expect(runtimeServer).not.toContain("row.fulfillment_type==='digital'||row.products?.fulfillment_type==='digital'");
   });
 });

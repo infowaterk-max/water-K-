@@ -104,6 +104,41 @@ export async function listAccountDigitalDownloads(instanceId:string,customerId:s
   return hydrateDownloadItems(instanceId,(data??[])as Array<{id:string;order_id:string;asset_id:string;download_count:number;max_downloads:number;granted_at:string}>);
 }
 
+export type AccountDigitalDownloadSurfaceItem=DigitalDownloadItem&{
+  status:'available'|'revoked'|'exhausted';
+  revokedAt:string|null;
+};
+
+export async function listAccountDigitalDownloadSurface(instanceId:string,customerId:string):Promise<AccountDigitalDownloadSurfaceItem[]>{
+  const admin=createAdminClient();
+  const{data,error}=await admin.from('digital_entitlements')
+    .select('id,order_id,asset_id,download_count,max_downloads,granted_at,status,revoked_at')
+    .eq('instance_id',instanceId).eq('customer_id',customerId).order('granted_at',{ascending:false});
+  if(error)throw error;
+  const entitlements=(data??[])as Array<{id:string;order_id:string;asset_id:string;download_count:number;max_downloads:number;granted_at:string;status:'active'|'revoked';revoked_at:string|null}>;
+  if(!entitlements.length)return[];
+  const assetIds=[...new Set(entitlements.map(row=>row.asset_id))],orderIds=[...new Set(entitlements.map(row=>row.order_id))];
+  const[{data:assets,error:assetError},{data:orders,error:orderError}]=await Promise.all([
+    admin.from('digital_assets').select('id,original_name,media_type,size_bytes,active').eq('instance_id',instanceId).in('id',assetIds),
+    admin.from('orders').select('id,order_number,status').eq('instance_id',instanceId).in('id',orderIds),
+  ]);
+  if(assetError||orderError)throw assetError??orderError??new Error('DIGITAL_DOWNLOAD_SURFACE_LIST_FAILED');
+  const assetById=new Map((assets??[]).map(row=>[row.id,row])),orderById=new Map((orders??[]).map(row=>[row.id,row]));
+  return entitlements.flatMap(row=>{
+    const asset=assetById.get(row.asset_id),order=orderById.get(row.order_id);
+    if(!asset||!order)return[];
+    const downloadCount=Number(row.download_count),maxDownloads=Number(row.max_downloads),remainingDownloads=Math.max(0,maxDownloads-downloadCount);
+    const revoked=row.status==='revoked'||asset.active!==true||!ELIGIBLE_ORDER_STATUSES.has(String(order.status));
+    return[{
+      entitlementId:row.id,orderId:row.order_id,orderNumber:String(order.order_number),assetId:row.asset_id,
+      fileName:String(asset.original_name),mediaType:String(asset.media_type),sizeBytes:Number(asset.size_bytes),
+      downloadCount,maxDownloads,remainingDownloads,grantedAt:row.granted_at,
+      status:revoked?'revoked':remainingDownloads<1?'exhausted':'available',
+      revokedAt:row.revoked_at??null,
+    }];
+  });
+}
+
 export async function listGuestDigitalDownloads(instanceId:string,orderId:string,guestToken:string):Promise<DigitalDownloadItem[]>{
   const admin=createAdminClient(),tokenHash=hashDigitalGuestToken(guestToken),now=new Date().toISOString();
   const{data:access,error:accessError}=await admin.from('digital_guest_access_tokens').select('id').eq('instance_id',instanceId).eq('order_id',orderId).eq('token_hash',tokenHash).is('revoked_at',null).gt('expires_at',now).maybeSingle();
