@@ -1,0 +1,8 @@
+.denseNavigation {
+  gap: .4rem !important;
+}
+
+.denseNavigation :global([data-storefront-component="system.navigation"]) {
+  gap: clamp(.55rem, 1vw, 1rem) !important;
+  font-size: .68rem !important;
+}
