@@ -1,5 +1,5 @@
 import type {CSSProperties} from 'react';
-import type {StorefrontResolvedComponentNode} from '@/lib/builder/storefront-runtime';
+import type {StorefrontComponentNode,StorefrontResolvedComponentNode} from '@/lib/builder/storefront-runtime';
 import type {StorefrontViewport} from '@/lib/builder/storefront-foundation';
 import {resolveStorefrontVisualStyle} from '@/lib/builder/storefront-visual-style';
 
@@ -48,7 +48,7 @@ export function isStorefrontBuilderAbsolutePlacement(style:StorefrontBuilderCanv
 
 
 export function shouldStretchStorefrontBuilderGridChild(
-  parent:StorefrontResolvedComponentNode|undefined,
+  parent:StorefrontComponentNode|undefined,
   viewport:StorefrontViewport,
 ):boolean{
   if(!parent||parent.componentKey!=='layout.grid')return false;
