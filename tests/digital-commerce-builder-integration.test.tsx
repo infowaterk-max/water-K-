@@ -6,7 +6,7 @@ import {StorefrontRuntimeRenderer} from '@/components/builder/storefront-runtime
 import {createStorefrontVisualBuilderRendererRegistry} from '@/components/builder/storefront-builder-renderer-registry';
 import {createStorefrontVisualBuilderComponentRegistry} from '@/lib/builder/storefront-builder-registry';
 import {bindStorefrontExistingCommerceRuntime} from '@/lib/builder/storefront-existing-commerce-bindings';
-import {composeStorefrontDigitalCommerceCapabilities,STOREFRONT_DIGITAL_COMMERCE_COMPONENTS_BY_PAGE_TYPE} from '@/lib/builder/storefront-digital-commerce-composition';
+import {composeStorefrontDigitalCommerceCapabilities,composeStorefrontDigitalCommerceTemplatePackage,STOREFRONT_DIGITAL_COMMERCE_COMPONENTS_BY_PAGE_TYPE} from '@/lib/builder/storefront-digital-commerce-composition';
 import {augmentStorefrontDigitalCommercePreviewContext} from '@/lib/builder/storefront-digital-commerce-preview';
 import {listStorefrontContextualCapabilityOpportunities} from '@/lib/builder/storefront-template-capability-discovery';
 import {getStorefrontPageSemanticContexts} from '@/lib/builder/storefront-template-capability-policy';
@@ -136,6 +136,21 @@ describe('Digital Commerce A3 shared Builder integration',()=>{
     }
   });
 
+  it('applies the same shared composition package-wide for template install and AI Builder paths',()=>{
+    for(const template of STOREFRONT_IMPLEMENTED_TEMPLATE_PACKAGES){
+      const composed=composeStorefrontDigitalCommerceTemplatePackage(template);
+      expect(composed.manifest).toEqual(template.manifest);
+      for(const page of composed.pages.filter(item=>item.pageType in STOREFRONT_DIGITAL_COMMERCE_COMPONENTS_BY_PAGE_TYPE)){
+        const required=STOREFRONT_DIGITAL_COMMERCE_COMPONENTS_BY_PAGE_TYPE[page.pageType as keyof typeof STOREFRONT_DIGITAL_COMMERCE_COMPONENTS_BY_PAGE_TYPE];
+        for(const key of required)expect(findComponent(page,key),`${template.manifest.templateKey}:${page.pageType}:${key}`).toBe(true);
+      }
+    }
+    const actions=readFileSync(join(process.cwd(),'src/app/admin/tartalom/builder/actions.ts'),'utf8');
+    const ai=readFileSync(join(process.cwd(),'src/lib/builder/storefront-ai-generator-server.ts'),'utf8');
+    expect(actions).toContain('composeStorefrontDigitalCommerceTemplatePackage(sourceTemplate)');
+    expect(ai).toContain('composeStorefrontDigitalCommerceTemplatePackage(sourceTemplate)');
+  });
+
   it('uses safe shared preview fixtures for every template and Builder preview instead of real customer authority',()=>{
     const template=STOREFRONT_IMPLEMENTED_TEMPLATE_PACKAGES.find(item=>item.manifest.templateKey!=='gaming.playroom')!;
     const product=template.pages.find(item=>item.pageType==='product')!;
@@ -150,7 +165,9 @@ describe('Digital Commerce A3 shared Builder integration',()=>{
   it('hydrates the live Builder canvas with the same safe shared preview fixture instead of customer data',()=>{
     const builderPage=readFileSync(join(process.cwd(),'src/app/admin/tartalom/builder/page.tsx'),'utf8');
     expect(builderPage).toContain("import {augmentStorefrontDigitalCommercePreviewContext} from '@/lib/builder/storefront-digital-commerce-preview'");
-    expect(builderPage).toContain('augmentStorefrontDigitalCommercePreviewContext({page:document,context:bindingContext})');
+    expect(builderPage).toContain('composeStorefrontDigitalCommerceCapabilities(document)');
+    expect(builderPage).toContain('augmentStorefrontDigitalCommercePreviewContext({page:editorDocument,context:bindingContext})');
+    expect(builderPage).toContain('document={editorDocument}');
     expect(builderPage).toContain('bindingContext={editorBindingContext}');
     expect(builderPage).not.toContain('listAccountDigitalDownloads');
     expect(builderPage).not.toContain('listGuestDigitalDownloads');
