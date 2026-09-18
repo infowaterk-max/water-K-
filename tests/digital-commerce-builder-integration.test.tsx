@@ -147,6 +147,37 @@ describe('Digital Commerce A3 shared Builder integration',()=>{
     expect(runtimeSource).not.toContain('guestToken');
   });
 
+  it('wires published runtime models only through server authority and keeps Builder preview fixture-only',()=>{
+    const server=readFileSync(join(process.cwd(),'src/lib/builder/storefront-digital-commerce-server.ts'),'utf8');
+    expect(server).toContain("import 'server-only'");
+    expect(server).toContain('classifyCheckoutFulfillment');
+    expect(server).toContain('listStorefrontProductDocuments');
+    expect(server).toContain('listAccountDigitalDownloadSurface');
+    expect(server).toContain('listAccountOrderDocuments');
+    expect(server).toContain('listAccountProductDocuments');
+    expect(server).not.toContain('guestToken');
+    const runtimeSource=readFileSync(join(process.cwd(),'src/lib/builder/storefront-runtime-source.ts'),'utf8');
+    expect(runtimeSource).toContain('getStorefrontDigitalCommerceRuntimeModel(instance.id,digitalCommerceRequest)');
+    expect(runtimeSource).toContain('digitalCommerceRequest.pageType!==materialized.pageType');
+    expect(runtimeSource).toContain('augmentStorefrontDigitalCommercePreviewContext({page');
+  });
+
+  it('renders exhausted and revoked account states without emitting a download link',()=>{
+    const document=page('account','commerce.documents-center');
+    const html=renderToStaticMarkup(<StorefrontRuntimeRenderer
+      page={document} viewport="desktop"
+      bindingContext={{commerce:{digitalCommerce:{documentsCenter:{state:'ready',digital:[
+        {id:'exhausted',title:'Elfogyott keret',status:'exhausted',href:'/api/digital-downloads/forged'},
+        {id:'revoked',title:'Visszavont',status:'revoked',href:'/api/digital-downloads/forged-2'},
+      ],orderDocuments:[],productDocuments:[]}}}}}
+      componentRegistry={createStorefrontVisualBuilderComponentRegistry()}
+      rendererRegistry={createStorefrontVisualBuilderRendererRegistry()}
+      capability={capability}/>)
+    expect(html).toContain('Letöltési keret elfogyott');
+    expect(html).toContain('Hozzáférés visszavonva');
+    expect(html).not.toContain('/api/digital-downloads/forged');
+  });
+
   it('ships explicit Playroom factory fixtures for digital, physical and mixed acceptance without creating a template-local engine',()=>{
     const fixtures=PLAYROOM_V20_TEMPLATE_PACKAGE.demoFixtures??[];
     expect(fixtures.some(item=>item.entityKey==='a3-downloadable-game'&&item.payload.fulfillment_type==='digital')).toBe(true);
