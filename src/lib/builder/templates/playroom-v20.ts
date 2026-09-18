@@ -54,6 +54,7 @@ const PLAYROOM_V20_HU_COPY=Object.freeze(new Map<string,string>([
   ['SETUP','FELSZERELÉS'],
   ['RGB gaming setup magazin feature','RGB játékos felszerelés magazin kiemelt kép'],
   ['Gaming kontroller közelről co-op útmutatóhoz','Játékkontroller közelről kooperatív útmutatóhoz'],
+  ['PlaySphere-szerű   ✓   ✓\\nBox-szerű          ✓   ✓\\nNintari-szerű      ✓\\nPC                  ✓\\nMobile              ✓','PlaySphere-szerű   ✓   ✓\\nBox-szerű          ✓   ✓\\nNintari-szerű      ✓\\nPC                  ✓\\nMobil               ✓'],
   ['Platform guide','Platformútmutató'],
   ['Co-op esték','Közös játékesték'],
   ['Setup tippek','Felszerelési tippek'],
