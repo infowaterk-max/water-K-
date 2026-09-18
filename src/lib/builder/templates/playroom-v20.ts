@@ -73,7 +73,7 @@ const localizeString=(value:string):string=>{
   const exact=PLAYROOM_V20_HU_COPY.get(value);
   if(exact)return exact;
   return value
-    .replace(/(^|\\n)Mobile(?=\\s|$)/g,'$1Mobil')
+    .replace(/(^|\\n)(\\s*)Mobile(?=\\s|$)/g,'$1$2Mobil')
     .replace(/Gaming kontroller közelről co-op útmutatóhoz/g,'Játékkontroller közelről kooperatív útmutatóhoz');
 };
 
