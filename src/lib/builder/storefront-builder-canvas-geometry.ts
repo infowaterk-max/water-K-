@@ -1,6 +1,6 @@
 export type StorefrontBuilderCanvasFrameGeometry={
   width:string;
-  transform:string;
+  zoom:number;
 };
 
 export function resolveStorefrontBuilderCanvasFrameGeometry(viewportWidth:number,zoomPercent:number):StorefrontBuilderCanvasFrameGeometry{
@@ -8,6 +8,6 @@ export function resolveStorefrontBuilderCanvasFrameGeometry(viewportWidth:number
   const zoom=Math.max(60,Math.min(130,Number.isFinite(zoomPercent)?zoomPercent:100));
   return{
     width:`${width}px`,
-    transform:`scale(${zoom/100})`,
+    zoom:zoom/100,
   };
 }
