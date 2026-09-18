@@ -1,5 +1,5 @@
 import {describe,expect,it} from 'vitest';
-import {resolveStorefrontBuilderCanvasPlacement} from '@/lib/builder/storefront-builder-canvas-placement';
+import {isStorefrontBuilderAbsolutePlacement,resolveStorefrontBuilderCanvasPlacement} from '@/lib/builder/storefront-builder-canvas-placement';
 import {resolveStorefrontBuilderCanvasFrameGeometry,resolveStorefrontBuilderFitZoom} from '@/lib/builder/storefront-builder-canvas-geometry';
 import type {StorefrontResolvedComponentNode} from '@/lib/builder/storefront-runtime';
 
@@ -38,6 +38,35 @@ describe('Visual Builder canvas placement wrapper',()=>{
       justifySelf:'end',
       minWidth:0,
     });
+  });
+
+  it('moves absolute placement geometry onto the Builder decorator wrapper',()=>{
+    const resolved=node({
+      componentKey:'content.image',
+      config:{
+        style:{
+          base:{
+            position:'absolute',
+            right:'0',
+            top:'0',
+            width:'54%',
+            height:'100%',
+            zIndex:2,
+          },
+        },
+      },
+    });
+    const placement=resolveStorefrontBuilderCanvasPlacement(resolved,'desktop');
+    expect(placement).toMatchObject({
+      position:'absolute',
+      right:'0',
+      top:'0',
+      width:'54%',
+      height:'100%',
+      zIndex:2,
+      minWidth:0,
+    });
+    expect(isStorefrontBuilderAbsolutePlacement(placement)).toBe(true);
   });
 
   it('keeps canonical viewport width while zoom only scales its presentation',()=>{
