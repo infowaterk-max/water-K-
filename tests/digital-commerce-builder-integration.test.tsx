@@ -6,6 +6,7 @@ import {StorefrontRuntimeRenderer} from '@/components/builder/storefront-runtime
 import {createStorefrontVisualBuilderRendererRegistry} from '@/components/builder/storefront-builder-renderer-registry';
 import {createStorefrontVisualBuilderComponentRegistry} from '@/lib/builder/storefront-builder-registry';
 import {bindStorefrontExistingCommerceRuntime} from '@/lib/builder/storefront-existing-commerce-bindings';
+import {applyStorefrontBuilderMutation,listStorefrontBuilderInsertableComponents} from '@/lib/builder/storefront-visual-builder';
 import {composeStorefrontDigitalCommerceCapabilities,composeStorefrontDigitalCommerceTemplatePackage,STOREFRONT_DIGITAL_COMMERCE_COMPONENTS_BY_PAGE_TYPE} from '@/lib/builder/storefront-digital-commerce-composition';
 import {augmentStorefrontDigitalCommercePreviewContext} from '@/lib/builder/storefront-digital-commerce-preview';
 import {listStorefrontContextualCapabilityOpportunities} from '@/lib/builder/storefront-template-capability-discovery';
@@ -52,6 +53,39 @@ describe('Digital Commerce A3 shared Builder integration',()=>{
     const documents=page('product','commerce.product-documents');
     documents.sections[0]!.children![0]!.bindings={model:{path:'commerce.existingEngines.configurators'}};
     expect(bindStorefrontExistingCommerceRuntime(documents).sections[0]!.children![0]!.bindings?.model?.path).toBe('commerce.digitalCommerce.productDocuments');
+  });
+
+  it('uses the real Builder mutation authority for insert, edit and responsive overrides while protecting runtime model binding',()=>{
+    const registry=createStorefrontVisualBuilderComponentRegistry();
+    const source=page('product','commerce.product-documents');
+    const insertable=listStorefrontBuilderInsertableComponents({document:source,registry,capability,parentId:'a3-section'});
+    expect(insertable.map(item=>item.componentKey)).toContain('commerce.fulfillment-summary');
+    expect(insertable.find(item=>item.componentKey==='commerce.fulfillment-summary')?.bindingSlots).not.toContain('model');
+
+    const added=applyStorefrontBuilderMutation({
+      document:source,registry,capability,
+      mutation:{type:'add',parentId:'a3-section',componentKey:'commerce.fulfillment-summary',componentVersion:1,nodeId:'builder-fulfillment'},
+    });
+    expect(findComponent(added,'commerce.fulfillment-summary')).toBe(true);
+
+    const edited=applyStorefrontBuilderMutation({
+      document:added,registry,capability,
+      mutation:{type:'config',nodeId:'builder-fulfillment',key:'title',value:'Saját teljesítési cím'},
+    });
+    const fulfillment=edited.sections[0]!.children!.find(item=>item.id==='builder-fulfillment')!;
+    expect(fulfillment.config.title).toBe('Saját teljesítési cím');
+
+    const responsive=applyStorefrontBuilderMutation({
+      document:edited,registry,capability,
+      mutation:{type:'responsive',nodeId:'builder-fulfillment',viewport:'mobile',gridSpan:12,hidden:false},
+    });
+    const responsiveNode=responsive.sections[0]!.children!.find(item=>item.id==='builder-fulfillment')!;
+    expect(responsiveNode.responsive?.mobile).toEqual({gridSpan:12,hidden:false});
+
+    expect(()=>applyStorefrontBuilderMutation({
+      document:responsive,registry,capability,
+      mutation:{type:'binding',nodeId:'builder-fulfillment',slot:'model',path:'commerce.digitalCommerce.productFulfillment'},
+    })).toThrow('BUILDER_BINDING_SLOT_NOT_EDITABLE');
   });
 
   it('renders fulfillment from runtime data with live storefront tokens and without authored commerce truth',()=>{
@@ -217,5 +251,8 @@ describe('Digital Commerce A3 shared Builder integration',()=>{
     const source=readFileSync(join(process.cwd(),'src/lib/catalog-server.ts'),'utf8');
     expect(source).toContain("instance_id,fulfillment_type,products!inner");
     expect(source).toContain("fulfillmentType:normalizeFulfillment(row.fulfillment_type??product?.fulfillment_type)");
+    const runtimeServer=readFileSync(join(process.cwd(),'src/lib/builder/storefront-digital-commerce-server.ts'),'utf8');
+    expect(runtimeServer).toContain('normalizeFulfillment(row.fulfillment_type??row.products?.fulfillment_type)');
+    expect(runtimeServer).not.toContain("row.fulfillment_type==='digital'||row.products?.fulfillment_type==='digital'");
   });
 });
