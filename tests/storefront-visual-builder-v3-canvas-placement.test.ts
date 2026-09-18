@@ -1,5 +1,9 @@
 import {describe,expect,it} from 'vitest';
-import {isStorefrontBuilderAbsolutePlacement,resolveStorefrontBuilderCanvasPlacement} from '@/lib/builder/storefront-builder-canvas-placement';
+import {
+  isStorefrontBuilderAbsolutePlacement,
+  resolveStorefrontBuilderCanvasPlacement,
+  shouldStretchStorefrontBuilderGridChild,
+} from '@/lib/builder/storefront-builder-canvas-placement';
 import {resolveStorefrontBuilderCanvasFrameGeometry,resolveStorefrontBuilderFitZoom} from '@/lib/builder/storefront-builder-canvas-geometry';
 import type {StorefrontResolvedComponentNode} from '@/lib/builder/storefront-runtime';
 
@@ -67,6 +71,16 @@ describe('Visual Builder canvas placement wrapper',()=>{
       minWidth:0,
     });
     expect(isStorefrontBuilderAbsolutePlacement(placement)).toBe(true);
+  });
+
+  it('preserves runtime grid stretch semantics through the Builder decorator wrapper',()=>{
+    const stretchParent=node({componentKey:'layout.grid',config:{}});
+    const startParent=node({componentKey:'layout.grid',config:{align:'start'}});
+    const visualOverride=node({componentKey:'layout.grid',config:{align:'start',style:{base:{alignItems:'stretch'}}}});
+    expect(shouldStretchStorefrontBuilderGridChild(stretchParent,'desktop')).toBe(true);
+    expect(shouldStretchStorefrontBuilderGridChild(startParent,'desktop')).toBe(false);
+    expect(shouldStretchStorefrontBuilderGridChild(visualOverride,'desktop')).toBe(true);
+    expect(shouldStretchStorefrontBuilderGridChild(node({componentKey:'layout.stack'}),'desktop')).toBe(false);
   });
 
   it('keeps canonical viewport width while zoom only scales its presentation',()=>{
