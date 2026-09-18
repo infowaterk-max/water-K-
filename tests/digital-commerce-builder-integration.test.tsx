@@ -7,7 +7,7 @@ import {createStorefrontVisualBuilderRendererRegistry} from '@/components/builde
 import {createStorefrontVisualBuilderComponentRegistry} from '@/lib/builder/storefront-builder-registry';
 import {bindStorefrontExistingCommerceRuntime} from '@/lib/builder/storefront-existing-commerce-bindings';
 import {applyStorefrontBuilderMutation,listStorefrontBuilderInsertableComponents} from '@/lib/builder/storefront-visual-builder';
-import {composeStorefrontDigitalCommerceCapabilities,composeStorefrontDigitalCommerceTemplatePackage,STOREFRONT_DIGITAL_COMMERCE_COMPONENTS_BY_PAGE_TYPE} from '@/lib/builder/storefront-digital-commerce-composition';
+import {composeStorefrontDigitalCommerceCapabilities,composeStorefrontDigitalCommerceTemplatePackage,STOREFRONT_DIGITAL_COMMERCE_COMPONENTS_BY_PAGE_TYPE,STOREFRONT_DIGITAL_COMMERCE_COMPOSITION_VERSION} from '@/lib/builder/storefront-digital-commerce-composition';
 import {augmentStorefrontDigitalCommercePreviewContext} from '@/lib/builder/storefront-digital-commerce-preview';
 import {listStorefrontContextualCapabilityOpportunities} from '@/lib/builder/storefront-template-capability-discovery';
 import {getStorefrontPageSemanticContexts} from '@/lib/builder/storefront-template-capability-policy';
@@ -170,6 +170,26 @@ describe('Digital Commerce A3 shared Builder integration',()=>{
     }
   });
 
+  it('inserts shared capability before the footer once and preserves later merchant removal',()=>{
+    const source=page('product','commerce.product-documents');
+    source.sections.push({id:'a3-footer',componentKey:'editorial.footer',componentVersion:1,config:{}});
+    const composed=composeStorefrontDigitalCommerceCapabilities(source);
+    expect(composed.metadata?.digitalCommerceCompositionVersion).toBe(STOREFRONT_DIGITAL_COMMERCE_COMPOSITION_VERSION);
+    const capabilityIndex=composed.sections.findIndex(item=>item.id.startsWith('shared-')&&item.id.endsWith('-digital-commerce'));
+    const footerIndex=composed.sections.findIndex(item=>item.id==='a3-footer');
+    expect(capabilityIndex).toBeGreaterThanOrEqual(0);
+    expect(capabilityIndex).toBeLessThan(footerIndex);
+
+    const merchantEdited=structuredClone(composed);
+    const prune=(nodes:StorefrontPageDocument['sections']):StorefrontPageDocument['sections']=>nodes
+      .filter(item=>item.componentKey!=='commerce.fulfillment-summary')
+      .map(item=>({...item,...(item.children?{children:prune(item.children)}:{})}));
+    merchantEdited.sections=prune(merchantEdited.sections);
+    expect(findComponent(merchantEdited,'commerce.fulfillment-summary')).toBe(false);
+    const reopened=composeStorefrontDigitalCommerceCapabilities(merchantEdited);
+    expect(findComponent(reopened,'commerce.fulfillment-summary')).toBe(false);
+  });
+
   it('applies the same shared composition package-wide for template install and AI Builder paths',()=>{
     for(const template of STOREFRONT_IMPLEMENTED_TEMPLATE_PACKAGES){
       const composed=composeStorefrontDigitalCommerceTemplatePackage(template);
@@ -220,6 +240,24 @@ describe('Digital Commerce A3 shared Builder integration',()=>{
     expect(runtimeSource).toContain('getStorefrontDigitalCommerceRuntimeModel(instance.id,digitalCommerceRequest)');
     expect(runtimeSource).toContain('digitalCommerceRequest.pageType!==materialized.pageType');
     expect(runtimeSource).toContain('augmentStorefrontDigitalCommercePreviewContext({page');
+  });
+
+  it('keeps COD, guest access and Product Documents on their canonical server authorities',()=>{
+    const checkout=readFileSync(join(process.cwd(),'src/components/checkout/checkout-form.tsx'),'utf8');
+    const orderRoute=readFileSync(join(process.cwd(),'src/app/api/orders/route.ts'),'utf8');
+    const guestPage=readFileSync(join(process.cwd(),'src/app/digitalis-hozzaferes/page.tsx'),'utf8');
+    const downloadRoute=readFileSync(join(process.cwd(),'src/app/api/digital-downloads/[assetId]/route.ts'),'utf8');
+    const digital=readFileSync(join(process.cwd(),'src/lib/commerce/digital-commerce.ts'),'utf8');
+    const productDocuments=readFileSync(join(process.cwd(),'src/lib/commerce/product-documents.ts'),'utf8');
+    expect(checkout).toContain("containsDigital?paymentOptions.filter(option=>option.flow!=='cash_on_delivery')");
+    expect(orderRoute).toContain("fulfillment.digitalLines>0&&payment.flow==='cash_on_delivery'");
+    expect(guestPage).toContain('listGuestDigitalDownloads(instance.id,orderId,token)');
+    expect(digital).toContain(".is('revoked_at',null).gt('expires_at',now)");
+    expect(downloadRoute).toContain('guestToken');
+    expect(downloadRoute).toContain('authorizeDigitalDownload');
+    expect(downloadRoute).not.toContain('getPublicUrl');
+    expect(productDocuments).toContain("admin.rpc('list_storefront_product_documents_v1'");
+    expect(productDocuments).toContain("admin.rpc('authorize_product_document_download_v1'");
   });
 
   it('renders exhausted and revoked account states without emitting a download link',()=>{
