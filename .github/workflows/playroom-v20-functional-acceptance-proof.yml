@@ -70,13 +70,15 @@ jobs:
             e?.storefront?.v19?.mutationScope==='storefront_page_drafts_only',
             e?.storefront?.v20?.pageCount===14,
             e?.storefront?.v20?.publishedCount===0,
-            Array.isArray(e?.storefront?.v20?.revisions)&&e.storefront.v20.revisions.length===14&&e.storefront.v20.revisions.every(x=>x===2),
+            Array.isArray(e?.storefront?.v19?.revisions)&&Array.isArray(e?.storefront?.v20?.revisions)&&e.storefront.v19.revisions.length===14&&e.storefront.v20.revisions.length===14&&e.storefront.v20.revisions.every((x,i)=>x===e.storefront.v19.revisions[i]+1),
             e?.storefront?.v20?.mutationScope==='storefront_page_drafts_only',
-            e?.boundary?.ordersBefore===e?.boundary?.ordersAfter,
-            e?.boundary?.productsBefore===e?.boundary?.productsAfter,
+            e?.boundary?.unchanged===true,
             e?.cleanup?.supportCount===0,
             e?.cleanup?.newsletterCount===0,
-            e?.cleanup?.storefrontPageCount===0,
+            e?.cleanup?.storefrontPageCount===14,
+            e?.cleanup?.publishedPageCount===0,
+            e?.cleanup?.storefrontRevisionCount>=28,
+            e?.cleanup?.immutableStorefrontHistoryRetained===true,
           ];
           if(required.some(result=>result!==true)){
             console.error(JSON.stringify(value,null,2));
@@ -98,6 +100,7 @@ jobs:
             echo '- Newsletter success + idempotent duplicate: PASS'
             echo '- v19 -> v20 draft-only persistence: PASS'
             echo '- Business-data mutation boundary: PASS'
-            echo '- Acceptance data cleanup: PASS'
+            echo '- Ephemeral Contact/Newsletter cleanup: PASS'
+            echo '- Immutable storefront draft history retained as staging evidence: PASS'
             echo '- Production: untouched'
           } >> "$GITHUB_STEP_SUMMARY"
