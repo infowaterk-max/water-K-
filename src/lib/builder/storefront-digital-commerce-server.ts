@@ -70,10 +70,12 @@ export async function getStorefrontDigitalCommerceRuntimeModel(instanceId:string
       :{checkoutFulfillment:model,postPurchase:{state:'ready',mode:fulfillment.mode,paymentStatus:'pending',copy:'A digitális hozzáférést kizárólag az igazolt fizetési állapot aktiválja.',documentCenterHref:'/fiokom/letoltesek'}};
   }
 
+  if(request.pageType!=='account')throw new Error('STOREFRONT_DIGITAL_COMMERCE_PAGE_CONTEXT_INVALID');
+  const customerId=request.customerId;
   const[digital,orders,productDocuments]=await Promise.all([
-    listAccountDigitalDownloadSurface(instanceId,request.customerId),
-    listAccountOrderDocuments(instanceId,request.customerId),
-    listAccountProductDocuments(instanceId,request.customerId),
+    listAccountDigitalDownloadSurface(instanceId,customerId),
+    listAccountOrderDocuments(instanceId,customerId),
+    listAccountProductDocuments(instanceId,customerId),
   ]);
   const digitalEntries=digital.map(item=>({
     id:item.entitlementId,title:item.fileName,description:`Rendelés: ${item.orderNumber}`,
