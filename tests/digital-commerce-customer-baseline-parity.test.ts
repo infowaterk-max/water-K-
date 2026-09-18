@@ -29,7 +29,8 @@ describe('Digital Commerce and document customer baseline parity',()=>{
       expect(manifest.proofContractSha256).toBeNull();
     }
     expect(manifest.notes).toContain('0001-0018');
-    expect(manifest.notes).toContain('0034_product_documents_merchant_workflow.sql');
+    expect(manifest.notes).toContain('0035_order_operational_authenticated_privilege_contract.sql');
+    expect(manifest.notes).toContain('0036_product_documents_post_purchase_account_authority.sql');
     expect(manifest.notes).toContain('Production remained untouched');
   });
 });
