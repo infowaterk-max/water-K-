@@ -21,6 +21,19 @@ const errorMessage=(error:unknown)=>error instanceof Error?error.message:String(
 const capability={plan:'alap' as const,features:PLANS.alap.features};
 const registry=createStorefrontVisualBuilderComponentRegistry();
 
+async function businessSnapshot(admin:ReturnType<typeof createAdminClient>){
+  const[{data:orders,error:orderError},{data:products,error:productError}]=await Promise.all([
+    admin.from('orders').select('id').eq('instance_id',INSTANCE_ID).order('id'),
+    admin.from('products').select('id').eq('instance_id',INSTANCE_ID).order('id'),
+  ]);
+  if(orderError||productError)throw orderError??productError??new Error('A4_BUSINESS_SNAPSHOT_FAILED');
+  return{
+    orders:(orders??[]).map(row=>row.id),
+    products:(products??[]).map(row=>row.id),
+  };
+}
+
+
 async function persistPlan(admin:ReturnType<typeof createAdminClient>,plan:ReturnType<typeof planStorefrontTemplateInstallation>,operationKey:string){
   const{data,error}=await admin.rpc('save_storefront_template_drafts_v1',{
     p_instance_id:INSTANCE_ID,
@@ -88,30 +101,34 @@ async function storefrontEvidence(admin:ReturnType<typeof createAdminClient>){
   };
 }
 
-async function cleanup(admin:ReturnType<typeof createAdminClient>,input:{supportEmail:string;newsletterEmail:string;startedAt:string}){
-  const{data:tickets}=await admin.from('support_tickets').select('id').eq('email',input.supportEmail);
+async function cleanupEphemeral(admin:ReturnType<typeof createAdminClient>,input:{supportEmail:string;newsletterEmail:string}){
+  const{data:tickets,error:ticketQueryError}=await admin.from('support_tickets').select('id').eq('email',input.supportEmail);
+  if(ticketQueryError)throw ticketQueryError;
   const ticketIds=(tickets??[]).map(row=>row.id);
-  if(ticketIds.length)await admin.from('support_ticket_messages').delete().in('ticket_id',ticketIds);
-  if(ticketIds.length)await admin.from('support_tickets').delete().in('id',ticketIds);
-  await admin.from('marketing_consents').delete().eq('email',input.newsletterEmail).eq('source','a4_playroom_acceptance');
-
-  const{data:pages}=await admin.from('storefront_pages').select('id').eq('instance_id',INSTANCE_ID);
-  const pageIds=(pages??[]).map(row=>row.id);
-  if(pageIds.length){
-    await admin.from('storefront_pages').update({draft_revision_id:null,published_revision_id:null}).in('id',pageIds);
-    await admin.from('storefront_page_revisions').delete().eq('instance_id',INSTANCE_ID);
-    await admin.from('storefront_pages').delete().in('id',pageIds);
+  if(ticketIds.length){
+    const{error:messageDeleteError}=await admin.from('support_ticket_messages').delete().in('ticket_id',ticketIds);
+    if(messageDeleteError)throw messageDeleteError;
+    const{error:ticketDeleteError}=await admin.from('support_tickets').delete().in('id',ticketIds);
+    if(ticketDeleteError)throw ticketDeleteError;
   }
-  await admin.from('admin_audit_log').delete()
-    .eq('instance_id',INSTANCE_ID).eq('actor_user_id',ACTOR_ID).gte('created_at',input.startedAt)
-    .in('action',['storefront.page_draft_saved','storefront.template_drafts_materialized']);
+  const{error:consentDeleteError}=await admin.from('marketing_consents').delete().eq('email',input.newsletterEmail).eq('source','a4_playroom_acceptance');
+  if(consentDeleteError)throw consentDeleteError;
 
-  const[{count:supportCount},{count:newsletterCount},{count:pageCount}]=await Promise.all([
+  const[{count:supportCount},{count:newsletterCount},{count:pageCount},{count:revisionCount},{count:publishedCount}]=await Promise.all([
     admin.from('support_tickets').select('id',{count:'exact',head:true}).eq('email',input.supportEmail),
     admin.from('marketing_consents').select('id',{count:'exact',head:true}).eq('email',input.newsletterEmail).eq('source','a4_playroom_acceptance'),
     admin.from('storefront_pages').select('id',{count:'exact',head:true}).eq('instance_id',INSTANCE_ID),
+    admin.from('storefront_page_revisions').select('id',{count:'exact',head:true}).eq('instance_id',INSTANCE_ID),
+    admin.from('storefront_pages').select('id',{count:'exact',head:true}).eq('instance_id',INSTANCE_ID).not('published_revision_id','is',null),
   ]);
-  return{supportCount:supportCount??0,newsletterCount:newsletterCount??0,storefrontPageCount:pageCount??0};
+  return{
+    supportCount:supportCount??0,
+    newsletterCount:newsletterCount??0,
+    storefrontPageCount:pageCount??0,
+    storefrontRevisionCount:revisionCount??0,
+    publishedPageCount:publishedCount??0,
+    immutableStorefrontHistoryRetained:true,
+  };
 }
 
 export async function GET(request:Request){
@@ -120,21 +137,22 @@ export async function GET(request:Request){
   const commitProof=request.headers.get('x-shoperation-acceptance-proof')??'';
   if(!/^[a-f0-9]{40}$/.test(commitProof)||commitProof!==(process.env.VERCEL_GIT_COMMIT_SHA??''))return new NextResponse(null,{status:404});
 
-  const startedAt=new Date().toISOString();
   const tag=commitProof.slice(0,12);
   const supportEmail=`a4-support-${tag}@example.invalid`;
   const newsletterEmail=`a4-newsletter-${tag}@example.invalid`;
   const supportSubject=`A4 Playroom acceptance ${tag}`;
   const admin=createAdminClient();
-  let cleanupEvidence={supportCount:-1,newsletterCount:-1,storefrontPageCount:-1};
+  let cleanupEvidence={supportCount:-1,newsletterCount:-1,storefrontPageCount:-1,storefrontRevisionCount:-1,publishedPageCount:-1,immutableStorefrontHistoryRetained:true};
 
   try{
-    const[{count:pagePreflight},{count:orderBefore},{count:productBefore}]=await Promise.all([
-      admin.from('storefront_pages').select('id',{count:'exact',head:true}).eq('instance_id',INSTANCE_ID),
-      admin.from('orders').select('id',{count:'exact',head:true}).eq('instance_id',INSTANCE_ID),
-      admin.from('products').select('id',{count:'exact',head:true}).eq('instance_id',INSTANCE_ID),
-    ]);
-    if((pagePreflight??0)!==0)return NextResponse.json({ok:false,errorCode:'A4_STOREFRONT_PREFLIGHT_NOT_EMPTY',count:pagePreflight},{status:409});
+    const existingAtStart=await readExistingPages(admin);
+    if(existingAtStart.length!==0&&existingAtStart.length!==14){
+      return NextResponse.json({ok:false,errorCode:'A4_STOREFRONT_PREFLIGHT_CARDINALITY_INVALID',count:existingAtStart.length},{status:409});
+    }
+    if(existingAtStart.some(page=>page.publishedTemplateKey!==null&&page.publishedTemplateKey!==undefined)){
+      return NextResponse.json({ok:false,errorCode:'A4_STOREFRONT_PREFLIGHT_PUBLISHED_STATE_PRESENT'},{status:409});
+    }
+    const businessBefore=await businessSnapshot(admin);
 
     const pilotToken=createPilotAcceptanceToken(INSTANCE_ID);
     const bypass=request.headers.get('x-vercel-protection-bypass')??'';
@@ -170,8 +188,8 @@ export async function GET(request:Request){
     if(newsletterRows![0]!.instance_id!==publicInstanceId)throw new Error('A4_PUBLIC_TENANT_MISMATCH');
 
     const v19=composeStorefrontDigitalCommerceTemplatePackage(PLAYROOM_V19_CANONICAL_TEMPLATE_PACKAGE);
-    const v19Plan=planStorefrontTemplateInstallation({template:v19,componentRegistry:registry,capability});
-    if(!v19Plan.gate.ok||v19Plan.mode!=='install'||v19Plan.pages.length!==14)throw new Error('A4_V19_INSTALL_PLAN_INVALID');
+    const v19Plan=planStorefrontTemplateInstallation({template:v19,componentRegistry:registry,capability,...(existingAtStart.length?{existingPages:existingAtStart}:{})});
+    if(!v19Plan.gate.ok||v19Plan.pages.length!==14)throw new Error('A4_V19_SETUP_PLAN_INVALID');
     const v19Result=await persistPlan(admin,v19Plan,`a4-playroom-${tag}-v19`);
     const v19Evidence=await storefrontEvidence(admin);
     if(v19Evidence.pageCount!==14||v19Evidence.publishedCount!==0||!v19Evidence.allTemplate19)throw new Error('A4_V19_PERSISTENCE_FAILED');
@@ -182,18 +200,22 @@ export async function GET(request:Request){
     if(!v20Plan.gate.ok||v20Plan.mode!=='upgrade'||v20Plan.pages.length!==14)throw new Error('A4_V20_UPGRADE_PLAN_INVALID');
     const v20Result=await persistPlan(admin,v20Plan,`a4-playroom-${tag}-v20`);
     const v20Evidence=await storefrontEvidence(admin);
-    if(v20Evidence.pageCount!==14||v20Evidence.publishedCount!==0||!v20Evidence.allTemplate20||!v20Evidence.revisions.every(value=>value===2)){
+    const revisionStepOk=v20Evidence.revisions.every((value,index)=>{
+      const previous=v19Evidence.revisions[index];
+      return typeof value==='number'&&typeof previous==='number'&&value===previous+1;
+    });
+    if(v20Evidence.pageCount!==14||v20Evidence.publishedCount!==0||!v20Evidence.allTemplate20||!revisionStepOk){
       throw new Error('A4_V20_PERSISTENCE_FAILED');
     }
 
-    const[{count:orderAfter},{count:productAfter}]=await Promise.all([
-      admin.from('orders').select('id',{count:'exact',head:true}).eq('instance_id',INSTANCE_ID),
-      admin.from('products').select('id',{count:'exact',head:true}).eq('instance_id',INSTANCE_ID),
-    ]);
-    if(orderAfter!==orderBefore||productAfter!==productBefore)throw new Error('A4_BUSINESS_DATA_BOUNDARY_CHANGED');
+    const businessAfter=await businessSnapshot(admin);
+    const boundaryUnchanged=JSON.stringify(businessAfter)===JSON.stringify(businessBefore);
+    if(!boundaryUnchanged)throw new Error(`A4_BUSINESS_DATA_BOUNDARY_CHANGED:${JSON.stringify({before:businessBefore,after:businessAfter})}`);
 
-    cleanupEvidence=await cleanup(admin,{supportEmail,newsletterEmail,startedAt});
-    if(cleanupEvidence.supportCount!==0||cleanupEvidence.newsletterCount!==0||cleanupEvidence.storefrontPageCount!==0)throw new Error('A4_CLEANUP_FAILED');
+    cleanupEvidence=await cleanupEphemeral(admin,{supportEmail,newsletterEmail});
+    if(cleanupEvidence.supportCount!==0||cleanupEvidence.newsletterCount!==0||cleanupEvidence.storefrontPageCount!==14||cleanupEvidence.publishedPageCount!==0){
+      throw new Error('A4_EPHEMERAL_CLEANUP_OR_STOREFRONT_EVIDENCE_FAILED');
+    }
 
     return NextResponse.json({
       ok:true,
@@ -203,13 +225,13 @@ export async function GET(request:Request){
         commit:process.env.VERCEL_GIT_COMMIT_SHA??null,
         support:{firstStatus:supportFirst.status,secondStatus:supportSecond.status,ticketNumber:supportFirstBody.ticketNumber??null,duplicateResponse:supportSecondBody.error??null,instanceId:publicInstanceId,oneTicket:true},
         newsletter:{firstStatus:newsletterFirst.status,secondStatus:newsletterSecond.status,firstDuplicate:newsletterFirstBody.duplicate,secondDuplicate:newsletterSecondBody.duplicate,instanceId:publicInstanceId,oneConsent:true},
-        storefront:{v19:{pageCount:v19Evidence.pageCount,publishedCount:v19Evidence.publishedCount,mutationScope:v19Result.mutationScope??null},v20:{pageCount:v20Evidence.pageCount,publishedCount:v20Evidence.publishedCount,revisions:v20Evidence.revisions,mutationScope:v20Result.mutationScope??null}},
-        boundary:{ordersBefore:orderBefore??0,ordersAfter:orderAfter??0,productsBefore:productBefore??0,productsAfter:productAfter??0},
+        storefront:{v19:{pageCount:v19Evidence.pageCount,publishedCount:v19Evidence.publishedCount,revisions:v19Evidence.revisions,mutationScope:v19Result.mutationScope??null},v20:{pageCount:v20Evidence.pageCount,publishedCount:v20Evidence.publishedCount,revisions:v20Evidence.revisions,mutationScope:v20Result.mutationScope??null}},
+        boundary:{unchanged:true,orders:businessAfter.orders.length,products:businessAfter.products.length},
         cleanup:cleanupEvidence,
       },
     },{headers:{'Cache-Control':'no-store'}});
   }catch(error){
-    try{cleanupEvidence=await cleanup(admin,{supportEmail,newsletterEmail,startedAt})}catch{}
+    try{cleanupEvidence=await cleanupEphemeral(admin,{supportEmail,newsletterEmail})}catch{}
     return NextResponse.json({ok:false,errorCode:'A4_PLAYROOM_ACCEPTANCE_FAILED',detail:errorMessage(error).slice(0,300),cleanup:cleanupEvidence},{status:500,headers:{'Cache-Control':'no-store'}});
   }
 }
