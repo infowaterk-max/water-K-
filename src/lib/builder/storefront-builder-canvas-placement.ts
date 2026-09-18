@@ -45,3 +45,15 @@ export function resolveStorefrontBuilderCanvasPlacement(
 export function isStorefrontBuilderAbsolutePlacement(style:StorefrontBuilderCanvasPlacementStyle):boolean{
   return style.position==='absolute';
 }
+
+
+export function shouldStretchStorefrontBuilderGridChild(
+  parent:StorefrontResolvedComponentNode|undefined,
+  viewport:StorefrontViewport,
+):boolean{
+  if(!parent||parent.componentKey!=='layout.grid')return false;
+  const visual=resolveStorefrontVisualStyle(parent.config.style,viewport) as Record<string,unknown>;
+  const visualAlign=typeof visual.alignItems==='string'?visual.alignItems:undefined;
+  const configAlign=typeof parent.config.align==='string'?parent.config.align:undefined;
+  return (visualAlign??configAlign??'stretch')==='stretch';
+}
