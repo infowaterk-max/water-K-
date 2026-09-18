@@ -17,7 +17,7 @@ const INSTANCE_ID='6027c79a-e5f3-4c9c-a8d0-b6090958efde';
 const ACTOR_ID='f6ee71eb-8c50-4d85-bcd9-743a3cc8a7ef';
 
 const json=async(response:Response)=>{try{return await response.json() as Record<string,unknown>}catch{return{}}};
-const errorMessage=(error:unknown)=>error instanceof Error?error.message:String(error);
+const errorMessage=(error:unknown)=>error instanceof Error?error.message:error&&typeof error==='object'?JSON.stringify(error):String(error);
 const capability={plan:'alap' as const,features:PLANS.alap.features};
 const registry=createStorefrontVisualBuilderComponentRegistry();
 
@@ -101,35 +101,6 @@ async function storefrontEvidence(admin:ReturnType<typeof createAdminClient>){
   };
 }
 
-async function cleanupEphemeral(admin:ReturnType<typeof createAdminClient>,input:{supportEmail:string;newsletterEmail:string}){
-  const{data:tickets,error:ticketQueryError}=await admin.from('support_tickets').select('id').eq('email',input.supportEmail);
-  if(ticketQueryError)throw ticketQueryError;
-  const ticketIds=(tickets??[]).map(row=>row.id);
-  if(ticketIds.length){
-    const{error:messageDeleteError}=await admin.from('support_ticket_messages').delete().in('ticket_id',ticketIds);
-    if(messageDeleteError)throw messageDeleteError;
-    const{error:ticketDeleteError}=await admin.from('support_tickets').delete().in('id',ticketIds);
-    if(ticketDeleteError)throw ticketDeleteError;
-  }
-  const{error:consentDeleteError}=await admin.from('marketing_consents').delete().eq('email',input.newsletterEmail).eq('source','a4_playroom_acceptance');
-  if(consentDeleteError)throw consentDeleteError;
-
-  const[{count:supportCount},{count:newsletterCount},{count:pageCount},{count:revisionCount},{count:publishedCount}]=await Promise.all([
-    admin.from('support_tickets').select('id',{count:'exact',head:true}).eq('email',input.supportEmail),
-    admin.from('marketing_consents').select('id',{count:'exact',head:true}).eq('email',input.newsletterEmail).eq('source','a4_playroom_acceptance'),
-    admin.from('storefront_pages').select('id',{count:'exact',head:true}).eq('instance_id',INSTANCE_ID),
-    admin.from('storefront_page_revisions').select('id',{count:'exact',head:true}).eq('instance_id',INSTANCE_ID),
-    admin.from('storefront_pages').select('id',{count:'exact',head:true}).eq('instance_id',INSTANCE_ID).not('published_revision_id','is',null),
-  ]);
-  return{
-    supportCount:supportCount??0,
-    newsletterCount:newsletterCount??0,
-    storefrontPageCount:pageCount??0,
-    storefrontRevisionCount:revisionCount??0,
-    publishedPageCount:publishedCount??0,
-    immutableStorefrontHistoryRetained:true,
-  };
-}
 
 export async function GET(request:Request){
   if(process.env.VERCEL_ENV!=='preview'||process.env.VERCEL_GIT_COMMIT_REF!==EXPECTED_BRANCH)return new NextResponse(null,{status:404});
@@ -142,7 +113,6 @@ export async function GET(request:Request){
   const newsletterEmail=`a4-newsletter-${tag}@example.invalid`;
   const supportSubject=`A4 Playroom acceptance ${tag}`;
   const admin=createAdminClient();
-  let cleanupEvidence={supportCount:-1,newsletterCount:-1,storefrontPageCount:-1,storefrontRevisionCount:-1,publishedPageCount:-1,immutableStorefrontHistoryRetained:true};
 
   try{
     const existingAtStart=await readExistingPages(admin);
@@ -212,10 +182,13 @@ export async function GET(request:Request){
     const boundaryUnchanged=JSON.stringify(businessAfter)===JSON.stringify(businessBefore);
     if(!boundaryUnchanged)throw new Error(`A4_BUSINESS_DATA_BOUNDARY_CHANGED:${JSON.stringify({before:businessBefore,after:businessAfter})}`);
 
-    cleanupEvidence=await cleanupEphemeral(admin,{supportEmail,newsletterEmail});
-    if(cleanupEvidence.supportCount!==0||cleanupEvidence.newsletterCount!==0||cleanupEvidence.storefrontPageCount!==14||cleanupEvidence.publishedPageCount!==0){
-      throw new Error('A4_EPHEMERAL_CLEANUP_OR_STOREFRONT_EVIDENCE_FAILED');
-    }
+    const[{count:supportPostflight},{count:newsletterPostflight},{count:revisionPostflight},{count:publishedPostflight}]=await Promise.all([
+      admin.from('support_tickets').select('id',{count:'exact',head:true}).eq('email',supportEmail).eq('subject',supportSubject),
+      admin.from('marketing_consents').select('id',{count:'exact',head:true}).eq('email',newsletterEmail).eq('source','a4_playroom_acceptance'),
+      admin.from('storefront_page_revisions').select('id',{count:'exact',head:true}).eq('instance_id',INSTANCE_ID),
+      admin.from('storefront_pages').select('id',{count:'exact',head:true}).eq('instance_id',INSTANCE_ID).not('published_revision_id','is',null),
+    ]);
+    if(supportPostflight!==1||newsletterPostflight!==1||publishedPostflight!==0)throw new Error('A4_POSTFLIGHT_EVIDENCE_INVALID');
 
     return NextResponse.json({
       ok:true,
@@ -227,11 +200,10 @@ export async function GET(request:Request){
         newsletter:{firstStatus:newsletterFirst.status,secondStatus:newsletterSecond.status,firstDuplicate:newsletterFirstBody.duplicate,secondDuplicate:newsletterSecondBody.duplicate,instanceId:publicInstanceId,oneConsent:true},
         storefront:{v19:{pageCount:v19Evidence.pageCount,publishedCount:v19Evidence.publishedCount,revisions:v19Evidence.revisions,mutationScope:v19Result.mutationScope??null},v20:{pageCount:v20Evidence.pageCount,publishedCount:v20Evidence.publishedCount,revisions:v20Evidence.revisions,mutationScope:v20Result.mutationScope??null}},
         boundary:{unchanged:true,orders:businessAfter.orders.length,products:businessAfter.products.length},
-        cleanup:cleanupEvidence,
+        postflight:{supportEphemeralCount:supportPostflight??0,newsletterEphemeralCount:newsletterPostflight??0,storefrontRevisionCount:revisionPostflight??0,publishedPageCount:publishedPostflight??0,operatorCleanupRequired:true,serviceRoleDeleteIntentionallyUnavailable:true,immutableStorefrontHistoryRetained:true},
       },
     },{headers:{'Cache-Control':'no-store'}});
   }catch(error){
-    try{cleanupEvidence=await cleanupEphemeral(admin,{supportEmail,newsletterEmail})}catch{}
-    return NextResponse.json({ok:false,errorCode:'A4_PLAYROOM_ACCEPTANCE_FAILED',detail:errorMessage(error).slice(0,300),cleanup:cleanupEvidence},{status:500,headers:{'Cache-Control':'no-store'}});
+    return NextResponse.json({ok:false,errorCode:'A4_PLAYROOM_ACCEPTANCE_FAILED',detail:errorMessage(error).slice(0,500),operatorCleanupRequired:true},{status:500,headers:{'Cache-Control':'no-store'}});
   }
 }
