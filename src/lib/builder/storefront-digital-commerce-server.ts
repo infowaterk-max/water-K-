@@ -22,6 +22,7 @@ export type StorefrontDigitalCommerceRuntimeRequest=
 type VariantRow={id:string;label:string|null;fulfillment_type:string|null;products:{name:string;fulfillment_type:string|null}|null};
 const kindLabel:Record<ProductDocumentKind,string>={manual:'Használati útmutató',datasheet:'Adatlap',size_guide:'Mérettáblázat',warranty_info:'Garanciális információ',compatibility:'Kompatibilitási lap',installation_guide:'Telepítési útmutató',other:'Dokumentum'};
 const fileSize=(bytes:number)=>bytes<1024?`${bytes} B`:bytes<1024*1024?`${(bytes/1024).toFixed(1)} KB`:`${(bytes/(1024*1024)).toFixed(1)} MB`;
+const normalizeFulfillment=(value:unknown):'physical'|'digital'=>value==='digital'?'digital':'physical';
 
 async function resolveLines(instanceId:string,items:readonly {variantId:string;quantity:number}[]){
   if(!items.length)throw new Error('STOREFRONT_DIGITAL_COMMERCE_ITEMS_REQUIRED');
@@ -36,7 +37,7 @@ async function resolveLines(instanceId:string,items:readonly {variantId:string;q
   if(ids.some(id=>!byId.has(id)))throw new Error('STOREFRONT_DIGITAL_COMMERCE_VARIANT_CONTEXT_INVALID');
   return items.map(item=>{
     const row=byId.get(item.variantId)!;
-    const fulfillmentType=row.fulfillment_type==='digital'||row.products?.fulfillment_type==='digital'?'digital':'physical';
+    const fulfillmentType=normalizeFulfillment(row.fulfillment_type??row.products?.fulfillment_type);
     return{id:item.variantId,name:[row.products?.name,row.label].filter(Boolean).join(' ')||'Termék',quantity:item.quantity,fulfillmentType};
   });
 }
