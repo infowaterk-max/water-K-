@@ -633,6 +633,35 @@ For every launch-quality template family:
 
 ---
 
+
+## SKB-P4-015 — Hungarian template contained English customer-facing labels
+
+- status: `implemented`
+- evidence: `code_and_test_verified`
+- area: `storefront/template/localization`
+- risk: `medium`
+- automation: `AUTO_FIX`
+
+### Symptom
+
+The Hungarian Playroom template still exposed English or mixed-language customer-facing labels, including examples such as `PRODUCT FILES`, `PLAYER SUPPORT`, `AFTER PURCHASE`, `PLAYER LIBRARY`, `STOCK`, `CHECKOUT`, `GAME NIGHT READY`, `PLAY TOGETHER` and mixed copy using `gaming/setup/co-op/multiplayer`.
+
+### Root cause
+
+The template family was assembled over multiple fidelity/version waves. Visual parity and capability work preserved older English marketing/eyebrow strings, while later commerce additions introduced additional English labels.
+
+### Verified resolution
+
+- localized the active Playroom Home source, v19 full-page family, v19 parity/archetype pages and v20 Digital Commerce additions;
+- brand/proper names remain unchanged where appropriate (e.g. Playroom, PlayStation, Xbox, Nintendo, PC, RGB);
+- functional labels, CTAs, helper copy and natural-language category text are Hungarian;
+- added `tests/storefront-playroom-v20-hungarian-language.test.ts` to scan customer-facing config fields and reject known English UI terms.
+
+### Prevention
+
+Every localized template must have a language gate over customer-facing Page Schema/config strings before portfolio acceptance. Do not treat internal metadata/component ids as storefront language.
+
+
 # Failed-approach / do-not-repeat index
 
 ## DNR-01 — Do not “fix” Alap acceptance by changing the tenant to Pro
@@ -684,7 +713,8 @@ Before accepting each of the remaining 41 templates, run this shared preflight:
 9. Confirm no template-local workaround was introduced for a shared Builder defect.
 10. Confirm Alap/Pro capability difference without switching template skin.
 11. Record any failed hypothesis before moving on.
-12. Final exact-head CI + READY Preview + human visual PASS are separate gates.
+12. Run the template language gate: customer-facing labels/copy must match the template locale; brand/proper names may remain unchanged.
+13. Final exact-head CI + READY Preview + human visual PASS are separate gates.
 
 ---
 
