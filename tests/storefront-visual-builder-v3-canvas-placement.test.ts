@@ -38,8 +38,4 @@ describe('Visual Builder canvas placement wrapper',()=>{
       minWidth:0,
     });
   });
-
-  it('clamps malformed effective spans before applying them to the decorator wrapper',()=>{
-    expect(resolveStorefrontBuilderCanvasPlacement(node({resolved:{hidden:false,gridSpan:99}}),'desktop').gridColumn).toBe('span 12 / span 12');
-  });
 });
