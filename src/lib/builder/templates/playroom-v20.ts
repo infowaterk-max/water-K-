@@ -16,28 +16,28 @@ const newsletterSection=()=>node({
     id:'playroom-home-newsletter-container',componentKey:'layout.container',componentVersion:1,config:{width:'content',spacing:'s'},
     children:[node({
       id:'playroom-home-newsletter-signup',componentKey:'marketing.newsletter-signup',componentVersion:1,
-      config:{eyebrow:'JOIN THE PLAYROOM',title:'Ne maradj le a következő játékról.',copy:'Újdonságok, gaming tippek és válogatott ajánlatok — csak akkor, ha kéred.',inputLabel:'E-mail-cím',buttonLabel:'Feliratkozom',consentLabel:'Hozzájárulok, hogy e-mailben marketingüzeneteket kapjak. A hozzájárulás bármikor visszavonható.',tone:'surface'},
+      config:{eyebrow:'CSATLAKOZZ A PLAYROOMHOZ',title:'Ne maradj le a következő játékról.',copy:'Újdonságok, gaming tippek és válogatott ajánlatok — csak akkor, ha kéred.',inputLabel:'E-mail-cím',buttonLabel:'Feliratkozom',consentLabel:'Hozzájárulok, hogy e-mailben marketingüzeneteket kapjak. A hozzájárulás bármikor visszavonható.',tone:'surface'},
     })],
   })],
 });
 
 const supportForm=()=>node({
   id:'playroom-contact-form',componentKey:'support.contact-form',componentVersion:1,
-  config:{eyebrow:'PLAYER SUPPORT',title:'Írj nekünk közvetlenül.',copy:'A megkeresésed követhető ügyfélszolgálati azonosítót kap. Ha rendelésről írsz, add meg a rendelési számodat is.',nameLabel:'Név',emailLabel:'E-mail',orderNumberLabel:'Rendelésszám',categoryLabel:'Téma',subjectLabel:'Tárgy',messageLabel:'Üzenet',buttonLabel:'Üzenet elküldése',successLead:'Köszönjük! Az ügy száma:',tone:'surface'},
+  config:{eyebrow:'ÜGYFÉLSZOLGÁLAT',title:'Írj nekünk közvetlenül.',copy:'A megkeresésed követhető ügyfélszolgálati azonosítót kap. Ha rendelésről írsz, add meg a rendelési számodat is.',nameLabel:'Név',emailLabel:'E-mail',orderNumberLabel:'Rendelésszám',categoryLabel:'Téma',subjectLabel:'Tárgy',messageLabel:'Üzenet',buttonLabel:'Üzenet elküldése',successLead:'Köszönjük! Az ügy száma:',tone:'surface'},
 });
 
 const digitalCommerceSection=(pageType:StorefrontPageDocument['pageType'])=>{
   const children:StorefrontComponentNode[]=[];
   if(pageType==='product')children.push(
     node({id:'playroom-product-fulfillment',componentKey:'commerce.fulfillment-summary',componentVersion:1,config:{title:'Hogyan kapod meg?',documentCenterLabel:'Dokumentumok és letöltések',presentation:'playroom-native'}}),
-    node({id:'playroom-product-documents',componentKey:'commerce.product-documents',componentVersion:1,config:{eyebrow:'PRODUCT FILES',title:'Termékdokumentumok',copy:'Útmutatók, adatlapok és kompatibilitási segédletek az aktuális termékhez.',downloadLabel:'Dokumentum letöltése',loginLabel:'Belépés a fiókba',presentation:'playroom-native'}}),
+    node({id:'playroom-product-documents',componentKey:'commerce.product-documents',componentVersion:1,config:{eyebrow:'TERMÉKDOKUMENTUMOK',title:'Termékdokumentumok',copy:'Útmutatók, adatlapok és kompatibilitási segédletek az aktuális termékhez.',downloadLabel:'Dokumentum letöltése',loginLabel:'Belépés a fiókba',presentation:'playroom-native'}}),
   );
   if(pageType==='cart')children.push(node({id:'playroom-cart-fulfillment',componentKey:'commerce.fulfillment-summary',componentVersion:1,config:{title:'Teljesítés a kosárban',documentCenterLabel:'Dokumentumok és letöltések',presentation:'playroom-native'}}));
   if(pageType==='checkout')children.push(
     node({id:'playroom-checkout-fulfillment',componentKey:'commerce.fulfillment-summary',componentVersion:1,config:{title:'Kézbesítés',documentCenterLabel:'Dokumentumok és letöltések',presentation:'playroom-native'}}),
-    node({id:'playroom-checkout-post-purchase',componentKey:'commerce.post-purchase-guidance',componentVersion:1,config:{eyebrow:'AFTER PURCHASE',title:'Hozzáférés és dokumentumok',pendingLabel:'Fizetés után elérhető',documentCenterLabel:'Dokumentumok és letöltések',presentation:'playroom-native'}}),
+    node({id:'playroom-checkout-post-purchase',componentKey:'commerce.post-purchase-guidance',componentVersion:1,config:{eyebrow:'VÁSÁRLÁS UTÁN',title:'Hozzáférés és dokumentumok',pendingLabel:'Fizetés után elérhető',documentCenterLabel:'Dokumentumok és letöltések',presentation:'playroom-native'}}),
   );
-  if(pageType==='account')children.push(node({id:'playroom-account-documents',componentKey:'commerce.documents-center',componentVersion:1,config:{eyebrow:'PLAYER LIBRARY',title:'Dokumentumok és letöltések',copy:'A megvásárolt digitális tartalmak, a rendelési iratok és a termékhez kapcsolódó dokumentumok egy helyen, külön authority- és jogosultsági szabályokkal.',digitalTitle:'Digitális tartalmak',orderTitle:'Rendelési dokumentumok',productTitle:'Termékdokumentumok',emptyLabel:'Még nincs megjeleníthető dokumentum vagy letölthető tartalom.',loginLabel:'Belépés a fiókba',presentation:'playroom-native'}}));
+  if(pageType==='account')children.push(node({id:'playroom-account-documents',componentKey:'commerce.documents-center',componentVersion:1,config:{eyebrow:'SAJÁT TÁR',title:'Dokumentumok és letöltések',copy:'A megvásárolt digitális tartalmak, a rendelési iratok és a termékhez kapcsolódó dokumentumok egy helyen, külön authority- és jogosultsági szabályokkal.',digitalTitle:'Digitális tartalmak',orderTitle:'Rendelési dokumentumok',productTitle:'Termékdokumentumok',emptyLabel:'Még nincs megjeleníthető dokumentum vagy letölthető tartalom.',loginLabel:'Belépés a fiókba',presentation:'playroom-native'}}));
   if(!children.length)return null;
   return node({
     id:`playroom-${pageType}-digital-commerce`,componentKey:'layout.section',componentVersion:1,
