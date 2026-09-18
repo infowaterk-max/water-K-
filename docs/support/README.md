@@ -101,6 +101,8 @@ If yes, update Support Knowledge in the same development cycle.
 
 ## Current incident index
 
+- `DIGITAL_OFFICE_RESPONSIVE_INCIDENT_2026-09-10.md` — preserved Digital Office / Team Chat responsive failure history, rejected global/ratio-based fixes, nested-height root cause and duplicate Desktop-site CSS-owner repair.
+- `RECENT_ENGINEERING_INCIDENTS_2026-09-10_11.md` — migrated historical incident set covering Product Intake route/selector drift, device-preview heuristics, Digital Office performance/layout, Fresh Install dependency gaps, Storefront contract drift, preview 302 evidence, concurrent-main reconciliation and Support/Digital Office authority reuse.
 - `RECENT_ENGINEERING_BACKFILL_2026-09-12_18.md` — backfill of support-relevant lessons between the original baseline and Phase 4: Builder authority/mobile failures, Email Builder stale target, Playroom template-version upgrade failures, stale Storefront-stack release integration, Special Commerce authority/idempotency/Fresh Install rules, AI Builder/Block 24 boundaries, Product Documents security/guest acceptance and Phase 3 shared runtime/composition lessons.
 - `PLAYROOM_V20_PHASE4_BUILDER_ACCEPTANCE_INCIDENTS_2026-09-18.md` — Playroom v20 Phase 4 human acceptance: tenant-entry, Alap entitlement gate, Preview/staging proof constraints, Visual Builder wrapper fidelity, canonical viewport, zoom/fit, absolute media, grid stretch, dense header and CI/harness lessons.
 
