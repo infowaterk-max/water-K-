@@ -26,6 +26,7 @@ import {rebaseStorefrontReusableSymbolInstances,type StorefrontGlobalSymbolSlot}
 import {saveCurrentStorefrontTemplateDraftPlan} from '@/lib/builder/storefront-template-persistence';
 import {getStorefrontTemplatePackage} from '@/lib/builder/storefront-template-catalog';
 import {planStorefrontTemplateInstallation} from '@/lib/builder/storefront-template-installation';
+import {composeStorefrontDigitalCommerceTemplatePackage} from '@/lib/builder/storefront-digital-commerce-composition';
 import {createStorefrontVisualBuilderComponentRegistry} from '@/lib/builder/storefront-builder-registry';
 import {validateStorefrontBuilderWorkingCopy} from '@/lib/builder/storefront-visual-builder';
 import {validateStorefrontBuilderSchemaStructure} from '@/lib/builder/storefront-builder-schema-policy';
@@ -128,8 +129,9 @@ export async function deleteVisualBuilderReusableSymbolAction(input:{symbolId:st
 }
 
 export async function installVisualBuilderTemplateAction(input:{templateKey:string;templateVersion?:number;operationKey:string}){
-  const template=getStorefrontTemplatePackage(input.templateKey,input.templateVersion);
-  if(!template)throw new Error('BUILDER_TEMPLATE_NOT_FOUND');
+  const sourceTemplate=getStorefrontTemplatePackage(input.templateKey,input.templateVersion);
+  if(!sourceTemplate)throw new Error('BUILDER_TEMPLATE_NOT_FOUND');
+  const template=composeStorefrontDigitalCommerceTemplatePackage(sourceTemplate);
   for(const page of template.pages)assertStorefrontPerformance(page);
   const[capability,existingPages]=await Promise.all([getCurrentStorefrontBuilderCapability(),listCurrentStorefrontTemplatePlanningPages()]);
   const plan=planStorefrontTemplateInstallation({template,componentRegistry:createStorefrontVisualBuilderComponentRegistry(),capability,existingPages});
