@@ -26,7 +26,8 @@ export async function GET(request:Request){
   if((process.env.NEXT_PUBLIC_SUPABASE_URL??'').replace(/\/$/,'')!==EXPECTED_STAGING_URL)return new NextResponse(null,{status:404});
 
   const token=new URL(request.url).searchParams.get('token')??'';
-  if(!/^[a-f0-9]{64}$/.test(token))return new NextResponse(null,{status:404});
+  const commitProof=request.headers.get('x-shoperation-acceptance-proof')??'';
+  const expectedCommitProof=process.env.VERCEL_GIT_COMMIT_SHA??'';
 
   const admin=createAdminClient();
   const{data:instance,error:instanceError}=await admin.from('webshop_instances')
@@ -35,7 +36,9 @@ export async function GET(request:Request){
   const config=instance.storefront_config&&typeof instance.storefront_config==='object'&&!Array.isArray(instance.storefront_config)
     ?instance.storefront_config as Record<string,unknown>:{};
   const storedHash=typeof config.acceptanceHarnessHash==='string'?config.acceptanceHarnessHash:'';
-  if(!safeEqualHex(sha256(token),storedHash))return new NextResponse(null,{status:404});
+  const nonceAuthorized=/^[a-f0-9]{64}$/.test(token)&&safeEqualHex(sha256(token),storedHash);
+  const ciAuthorized=/^[a-f0-9]{40}$/.test(commitProof)&&commitProof===expectedCommitProof;
+  if(!nonceAuthorized&&!ciAuthorized)return new NextResponse(null,{status:404});
 
   const{data:order,error:orderError}=await admin.from('orders')
     .select('id,status,customer_id,fulfillment_mode,paid_at').eq('id',ORDER_ID).eq('instance_id',INSTANCE_ID).maybeSingle();
