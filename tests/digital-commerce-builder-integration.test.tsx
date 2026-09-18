@@ -6,9 +6,12 @@ import {StorefrontRuntimeRenderer} from '@/components/builder/storefront-runtime
 import {createStorefrontVisualBuilderRendererRegistry} from '@/components/builder/storefront-builder-renderer-registry';
 import {createStorefrontVisualBuilderComponentRegistry} from '@/lib/builder/storefront-builder-registry';
 import {bindStorefrontExistingCommerceRuntime} from '@/lib/builder/storefront-existing-commerce-bindings';
+import {composeStorefrontDigitalCommerceCapabilities,STOREFRONT_DIGITAL_COMMERCE_COMPONENTS_BY_PAGE_TYPE} from '@/lib/builder/storefront-digital-commerce-composition';
+import {augmentStorefrontDigitalCommercePreviewContext} from '@/lib/builder/storefront-digital-commerce-preview';
 import {listStorefrontContextualCapabilityOpportunities} from '@/lib/builder/storefront-template-capability-discovery';
 import {getStorefrontPageSemanticContexts} from '@/lib/builder/storefront-template-capability-policy';
-import type {StorefrontPageDocument} from '@/lib/builder/storefront-runtime';
+import {validateStorefrontPageDocument,type StorefrontPageDocument} from '@/lib/builder/storefront-runtime';
+import {STOREFRONT_IMPLEMENTED_TEMPLATE_PACKAGES,STOREFRONT_TEMPLATE_LAUNCH_TARGET} from '@/lib/builder/storefront-template-catalog';
 import {PLANS} from '@/lib/plans/catalog';
 import {PLAYROOM_V20_TEMPLATE_PACKAGE} from '@/lib/builder/templates/playroom-v20';
 
@@ -113,6 +116,35 @@ describe('Digital Commerce A3 shared Builder integration',()=>{
     expect(getStorefrontPageSemanticContexts(checkout)).toEqual(expect.arrayContaining(['checkout.fulfillment','checkout.post-purchase']));
     expect(listStorefrontContextualCapabilityOpportunities({document:product,capability}).map(item=>item.key)).toEqual(expect.arrayContaining(['fulfillment','product-documents']));
     expect(listStorefrontContextualCapabilityOpportunities({document:account,capability}).map(item=>item.key)).toContain('documents-center');
+  });
+
+  it('proves one shared composition contract across the implemented portfolio and the canonical 42-template target',()=>{
+    expect(STOREFRONT_TEMPLATE_LAUNCH_TARGET).toBe(42);
+    const registry=createStorefrontVisualBuilderComponentRegistry();
+    for(const template of STOREFRONT_IMPLEMENTED_TEMPLATE_PACKAGES){
+      for(const source of template.pages.filter(item=>item.pageType in STOREFRONT_DIGITAL_COMMERCE_COMPONENTS_BY_PAGE_TYPE)){
+        const composed=composeStorefrontDigitalCommerceCapabilities(source);
+        const required=STOREFRONT_DIGITAL_COMMERCE_COMPONENTS_BY_PAGE_TYPE[source.pageType as keyof typeof STOREFRONT_DIGITAL_COMMERCE_COMPONENTS_BY_PAGE_TYPE];
+        for(const key of required)expect(findComponent(composed,key),`${template.manifest.templateKey}:${source.pageType}:${key}`).toBe(true);
+        expect(validateStorefrontPageDocument(composed,registry).ok,`${template.manifest.templateKey}:${source.pageType}`).toBe(true);
+        const recomposed=composeStorefrontDigitalCommerceCapabilities(composed);
+        for(const key of required){
+          const count=(nodes:StorefrontPageDocument['sections']):number=>nodes.reduce((sum,item)=>sum+Number(item.componentKey===key)+count(item.children??[]),0);
+          expect(count(recomposed.sections),`${template.manifest.templateKey}:${source.pageType}:${key}:idempotent`).toBe(1);
+        }
+      }
+    }
+  });
+
+  it('uses safe shared preview fixtures for every template and Builder preview instead of real customer authority',()=>{
+    const template=STOREFRONT_IMPLEMENTED_TEMPLATE_PACKAGES.find(item=>item.manifest.templateKey!=='gaming.playroom')!;
+    const product=template.pages.find(item=>item.pageType==='product')!;
+    const preview=augmentStorefrontDigitalCommercePreviewContext({template,page:product,context:{}}) as{commerce?:{digitalCommerce?:{productFulfillment?:{mode?:string};productDocuments?:{documents?:unknown[]}}}};
+    expect(preview.commerce?.digitalCommerce?.productFulfillment?.mode).toBe('digital');
+    expect(preview.commerce?.digitalCommerce?.productDocuments?.documents?.length).toBeGreaterThan(0);
+    const runtimeSource=readFileSync(join(process.cwd(),'src/lib/builder/storefront-runtime-source.ts'),'utf8');
+    expect(runtimeSource).toContain('augmentStorefrontDigitalCommercePreviewContext({page');
+    expect(runtimeSource).not.toContain('guestToken');
   });
 
   it('ships explicit Playroom factory fixtures for digital, physical and mixed acceptance without creating a template-local engine',()=>{
