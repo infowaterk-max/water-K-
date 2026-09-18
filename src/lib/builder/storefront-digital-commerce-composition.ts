@@ -1,4 +1,5 @@
 import type {StorefrontComponentNode,StorefrontPageDocument} from '@/lib/builder/storefront-runtime';
+import type {StorefrontInstallableTemplatePackage} from '@/lib/builder/storefront-template-installation';
 
 export const STOREFRONT_DIGITAL_COMMERCE_COMPOSITION_VERSION='shoporation.storefront-digital-commerce-composition.v1' as const;
 
@@ -63,4 +64,12 @@ export function composeStorefrontDigitalCommerceCapabilities(
     })],
   });
   return{...clone(document),sections:[...clone(document.sections),section]};
+}
+
+/** Applies the same shared composition contract to a complete template package. */
+export function composeStorefrontDigitalCommerceTemplatePackage<T extends StorefrontInstallableTemplatePackage>(template:T):T{
+  return{
+    ...clone(template),
+    pages:template.pages.map(page=>composeStorefrontDigitalCommerceCapabilities(page)),
+  } as T;
 }
