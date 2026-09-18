@@ -1,15 +1,15 @@
+import type {CSSProperties} from 'react';
 import type {StorefrontResolvedComponentNode} from '@/lib/builder/storefront-runtime';
 import type {StorefrontViewport} from '@/lib/builder/storefront-foundation';
 import {resolveStorefrontVisualStyle} from '@/lib/builder/storefront-visual-style';
 
-export type StorefrontBuilderCanvasPlacementStyle={
+export type StorefrontBuilderCanvasPlacementStyle=CSSProperties&{
   gridColumn:string;
-  gridRow?:string;
-  order?:number;
-  alignSelf?:string;
-  justifySelf?:string;
   minWidth:0;
 };
+
+const stringValue=(value:unknown)=>typeof value==='string'&&value.trim()?value:undefined;
+const sizeValue=(value:unknown)=>typeof value==='string'||typeof value==='number'?value:undefined;
 
 export function resolveStorefrontBuilderCanvasPlacement(
   node:StorefrontResolvedComponentNode,
@@ -17,15 +17,31 @@ export function resolveStorefrontBuilderCanvasPlacement(
 ):StorefrontBuilderCanvasPlacementStyle{
   const visual=resolveStorefrontVisualStyle(node.config.style,viewport) as Record<string,unknown>;
   const span=Math.max(1,Math.min(12,Math.round(node.resolved.gridSpan)));
-  const gridColumn=typeof visual.gridColumn==='string'&&visual.gridColumn.trim()
-    ?visual.gridColumn
-    :`span ${span} / span ${span}`;
+  const gridColumn=stringValue(visual.gridColumn)??`span ${span} / span ${span}`;
+  const absolute=visual.position==='absolute';
   return{
     gridColumn,
-    ...(typeof visual.gridRow==='string'&&visual.gridRow.trim()?{gridRow:visual.gridRow}:{}),
+    ...(stringValue(visual.gridRow)?{gridRow:String(visual.gridRow)}:{}),
     ...(typeof visual.order==='number'&&Number.isFinite(visual.order)?{order:visual.order}:{}),
-    ...(typeof visual.alignSelf==='string'&&visual.alignSelf.trim()?{alignSelf:visual.alignSelf}:{}),
-    ...(typeof visual.justifySelf==='string'&&visual.justifySelf.trim()?{justifySelf:visual.justifySelf}:{}),
+    ...(stringValue(visual.alignSelf)?{alignSelf:String(visual.alignSelf)}:{}),
+    ...(stringValue(visual.justifySelf)?{justifySelf:String(visual.justifySelf)}:{}),
+    ...(absolute?{
+      position:'absolute' as const,
+      ...(stringValue(visual.inset)?{inset:String(visual.inset)}:{}),
+      ...(sizeValue(visual.top)!==undefined?{top:sizeValue(visual.top)}:{}),
+      ...(sizeValue(visual.right)!==undefined?{right:sizeValue(visual.right)}:{}),
+      ...(sizeValue(visual.bottom)!==undefined?{bottom:sizeValue(visual.bottom)}:{}),
+      ...(sizeValue(visual.left)!==undefined?{left:sizeValue(visual.left)}:{}),
+      ...(sizeValue(visual.width)!==undefined?{width:sizeValue(visual.width)}:{}),
+      ...(sizeValue(visual.height)!==undefined?{height:sizeValue(visual.height)}:{}),
+      ...(sizeValue(visual.minHeight)!==undefined?{minHeight:sizeValue(visual.minHeight)}:{}),
+      ...(sizeValue(visual.maxWidth)!==undefined?{maxWidth:sizeValue(visual.maxWidth)}:{}),
+      ...(typeof visual.zIndex==='number'&&Number.isFinite(visual.zIndex)?{zIndex:visual.zIndex}:{}),
+    }:{}),
     minWidth:0,
   };
+}
+
+export function isStorefrontBuilderAbsolutePlacement(style:StorefrontBuilderCanvasPlacementStyle):boolean{
+  return style.position==='absolute';
 }
