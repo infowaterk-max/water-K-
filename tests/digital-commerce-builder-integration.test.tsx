@@ -12,7 +12,7 @@ import {augmentStorefrontDigitalCommercePreviewContext} from '@/lib/builder/stor
 import {listStorefrontContextualCapabilityOpportunities} from '@/lib/builder/storefront-template-capability-discovery';
 import {getStorefrontPageSemanticContexts} from '@/lib/builder/storefront-template-capability-policy';
 import {validateStorefrontPageDocument,type StorefrontPageDocument} from '@/lib/builder/storefront-runtime';
-import {STOREFRONT_IMPLEMENTED_TEMPLATE_PACKAGES,STOREFRONT_TEMPLATE_LAUNCH_TARGET} from '@/lib/builder/storefront-template-catalog';
+import {STOREFRONT_IMPLEMENTED_TEMPLATE_PACKAGES,STOREFRONT_TEMPLATE_LAUNCH_TARGET,STOREFRONT_TEMPLATE_PORTFOLIO_STATUS} from '@/lib/builder/storefront-template-catalog';
 import {PLANS} from '@/lib/plans/catalog';
 import {PLAYROOM_V20_TEMPLATE_PACKAGE} from '@/lib/builder/templates/playroom-v20';
 
@@ -152,8 +152,11 @@ describe('Digital Commerce A3 shared Builder integration',()=>{
     expect(listStorefrontContextualCapabilityOpportunities({document:account,capability}).map(item=>item.key)).toContain('documents-center');
   });
 
-  it('proves one shared composition contract across the implemented portfolio and the canonical 42-template target',()=>{
+  it('guards every concrete template package without fabricating the remaining 42-template target',()=>{
     expect(STOREFRONT_TEMPLATE_LAUNCH_TARGET).toBe(42);
+    expect(STOREFRONT_TEMPLATE_PORTFOLIO_STATUS.implemented).toBe(STOREFRONT_IMPLEMENTED_TEMPLATE_PACKAGES.length);
+    expect(STOREFRONT_TEMPLATE_PORTFOLIO_STATUS.remaining).toBe(STOREFRONT_TEMPLATE_LAUNCH_TARGET-STOREFRONT_IMPLEMENTED_TEMPLATE_PACKAGES.length);
+    expect(STOREFRONT_TEMPLATE_PORTFOLIO_STATUS.fabricatedEntriesAllowed).toBe(false);
     const registry=createStorefrontVisualBuilderComponentRegistry();
     for(const template of STOREFRONT_IMPLEMENTED_TEMPLATE_PACKAGES){
       for(const source of template.pages.filter(item=>item.pageType in STOREFRONT_DIGITAL_COMMERCE_COMPONENTS_BY_PAGE_TYPE)){
