@@ -178,14 +178,18 @@ export async function GET(request:Request){
     },{headers:{'Cache-Control':'no-store'}});
   }catch(error){
     if(paid){
-      await admin.rpc('transition_tenant_order_v1',{
-        p_instance_id:INSTANCE_ID,p_order_id:ORDER_ID,p_actor:ACTOR_ID,p_target_status:'refunded',p_tracking_number:null,
-      }).catch(()=>undefined);
+      try{
+        await admin.rpc('transition_tenant_order_v1',{
+          p_instance_id:INSTANCE_ID,p_order_id:ORDER_ID,p_actor:ACTOR_ID,p_target_status:'refunded',p_tracking_number:null,
+        });
+      }catch{}
     }
     if(activated){
-      await admin.rpc('deactivate_digital_asset_v1',{
-        p_instance_id:INSTANCE_ID,p_actor:ACTOR_ID,p_asset_id:assetId,
-      }).catch(()=>undefined);
+      try{
+        await admin.rpc('deactivate_digital_asset_v1',{
+          p_instance_id:INSTANCE_ID,p_actor:ACTOR_ID,p_asset_id:assetId,
+        });
+      }catch{}
     }
     return NextResponse.json({ok:false,errorCode:'DIGITAL_COMMERCE_ACCEPTANCE_FAILED',detail:errorMessage(error).slice(0,240)},{status:500,headers:{'Cache-Control':'no-store'}});
   }
