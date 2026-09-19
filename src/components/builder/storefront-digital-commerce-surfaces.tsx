@@ -4,7 +4,7 @@ import {createStorefrontSharedContentRendererRegistry} from '@/components/builde
 import {sanitizeStorefrontStyleSlots} from '@/lib/builder/storefront-fidelity-engine';
 import {resolveStorefrontVisualStyle} from '@/lib/builder/storefront-visual-style';
 
-export const STOREFRONT_DIGITAL_COMMERCE_RENDERERS_VERSION='shoporation.storefront-digital-commerce-renderers.v1' as const;
+export const STOREFRONT_DIGITAL_COMMERCE_RENDERERS_VERSION='shoporation.storefront-digital-commerce-renderers.v2' as const;
 
 const text=(value:unknown,fallback='')=>typeof value==='string'?value:fallback;
 const record=(value:unknown):Record<string,unknown>|null=>value&&typeof value==='object'&&!Array.isArray(value)?value as Record<string,unknown>:null;
@@ -31,6 +31,27 @@ const statePanel=(state:string,config:Record<string,unknown>,slot:(key:string)=>
   if(state==='revoked')return <p role="status" style={{margin:0,color:'var(--shoporation-color-muted-text,#667085)',...slot('state')}}>A hozzáférés ehhez a tartalomhoz már nem aktív.</p>;
   return null;
 };
+
+function DownloadsTileRenderer({config,node,viewport}:StorefrontComponentRenderProps){
+  const model=record(config.model),state=stateOf(model),slot=styles(config,viewport);
+  if(state!=='ready')return state==='empty'?null:<section data-storefront-digital-commerce="downloads-tile" data-state={state} style={{...span(node),padding:'1rem',...surface(slot),...slot('root')}}>{statePanel(state,config,slot)}</section>;
+  const documents=rows(model?.documents),mode=text(model?.mode,'physical');
+  const hasDigital=mode==='digital'||mode==='mixed';
+  if(!documents.length&&!hasDigital)return null;
+  const documentsHref=documents.length===1?safeInternalHref(documents[0]?.downloadHref):'';
+  const centerHref=safeInternalHref(model?.documentCenterHref,'/fiokom/letoltesek');
+  return <section data-storefront-digital-commerce="downloads-tile" data-fulfillment-mode={mode} data-presentation={text(config.presentation,'priority-tile')} style={{...span(node),display:'grid',gap:'.75rem',padding:'clamp(.9rem,2vw,1.15rem)',...surface(slot),...slot('root')}}>
+    <header style={{display:'grid',gap:'.25rem',...slot('header')}}>{text(config.eyebrow)?<small style={{fontWeight:800,letterSpacing:'.09em',textTransform:'uppercase',color:'var(--shoporation-color-accent,#2f7f6f)',...slot('eyebrow')}}>{text(config.eyebrow)}</small>:null}<h2 style={{margin:0,fontFamily:'var(--shoporation-heading-font,Georgia,serif)',fontSize:'clamp(1.1rem,2vw,1.35rem)',...slot('title')}}>{text(config.title,'Letöltések')}</h2></header>
+    <div style={{display:'grid',gap:'.5rem',...slot('list')}}>
+      {documents.length?<div style={{display:'grid',gap:'.4rem',padding:'.75rem .85rem',border:'1px solid var(--shoporation-color-border,#d8dce7)',borderRadius:'calc(var(--shoporation-radius-m,.75rem) * .8)',...slot('row')}}>
+        <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',gap:'.75rem'}}><strong>{text(config.documentsLabel,'Dokumentumok')}</strong><small style={{color:'var(--shoporation-color-muted-text,#667085)'}}>{documents.length} db</small></div>
+        <div style={{display:'grid',gap:'.32rem'}}>{documents.map((document,index)=>{const href=safeInternalHref(document.downloadHref);return href?<a key={text(document.id,`document-${index}`)} href={href} style={{color:'inherit',fontWeight:700,textDecoration:'none',...slot('download')}}>{text(document.title,text(document.fileName,'Dokumentum'))}</a>:<span key={text(document.id,`document-${index}`)}>{text(document.title,text(document.fileName,'Dokumentum'))}</span>})}</div>
+        {documentsHref?<a href={documentsHref} style={{justifySelf:'start',color:'inherit',fontWeight:750,...slot('open')}}>{text(config.openLabel,'Megnyitás')}</a>:null}
+      </div>:null}
+      {hasDigital?<a href={centerHref} style={{display:'flex',justifyContent:'space-between',alignItems:'center',gap:'.75rem',padding:'.8rem .85rem',border:'1px solid var(--shoporation-color-border,#d8dce7)',borderRadius:'calc(var(--shoporation-radius-m,.75rem) * .8)',color:'inherit',fontWeight:750,textDecoration:'none',...slot('row')}}><span>{text(config.digitalLabel,'Digitális anyagok')}</span><small style={{color:'var(--shoporation-color-muted-text,#667085)',fontWeight:650}}>{text(config.digitalPendingLabel,'Vásárlás után')}</small></a>:null}
+    </div>
+  </section>;
+}
 
 function FulfillmentSummaryRenderer({config,node,viewport}:StorefrontComponentRenderProps){
   const model=record(config.model),state=stateOf(model),slot=styles(config,viewport);
@@ -82,6 +103,7 @@ function PostPurchaseGuidanceRenderer({config,node,viewport}:StorefrontComponent
 }
 
 const RENDERERS:readonly [string,number,(props:StorefrontComponentRenderProps)=>ReactNode][]=[
+  ['commerce.downloads-tile',1,DownloadsTileRenderer],
   ['commerce.fulfillment-summary',1,FulfillmentSummaryRenderer],
   ['commerce.product-documents',1,ProductDocumentsRenderer],
   ['commerce.documents-center',1,DocumentsCenterRenderer],
