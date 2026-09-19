@@ -199,7 +199,7 @@ describe('Playroom v20 functional acceptance',()=>{
     if(mode==='mixed'){expect(html).toContain('Neon Pro Controller');expect(html).toContain('Orbit Breakers Digital');}
   });
 
-  it('keeps the product downloads tile immediately after the primary product zone and renders one compact surface for documents and digital material',()=>{
+  it('keeps public documents on the PDP while purchased digital files stay in Fiókom → Letöltéseim',()=>{
     const product=playroomPage('product');
     const mainIndex=product.sections.findIndex(section=>section.id==='playroom-product-main');
     const downloadsIndex=product.sections.findIndex(section=>section.id==='playroom-product-digital-commerce');
@@ -207,7 +207,7 @@ describe('Playroom v20 functional acceptance',()=>{
     expect(downloadsIndex).toBe(mainIndex+1);
 
     const withDownloads=render(product,{commerce:{digitalCommerce:{
-      productDownloads:{state:'ready',mode:'mixed',documentCenterHref:'/fiokom/letoltesek',documents:[{
+      productDownloads:{state:'ready',mode:'mixed',accountDownloadsHref:'/fiokom/letoltesek',documents:[{
         id:'manual-1',kindLabel:'Használati útmutató',title:'Neon Pro Controller kézikönyv',
         description:'Magyar használati útmutató',fileName:'controller-manual.pdf',sizeLabel:'1.2 MB',
         variantSpecific:true,downloadHref:'/api/product-documents/manual-1?variantId=variant-1',
@@ -217,13 +217,23 @@ describe('Playroom v20 functional acceptance',()=>{
     expect(withDownloads).toContain('Letöltések');
     expect(withDownloads).toContain('Dokumentumok');
     expect(withDownloads).toContain('Neon Pro Controller kézikönyv');
-    expect(withDownloads).toContain('Digitális anyagok');
-    expect(withDownloads).toContain('Vásárlás után');
+    expect(withDownloads).toContain('Digitális termék');
+    expect(withDownloads).toContain('Vásárlás után a letöltés a Fiókom → Letöltéseim menüpontban érhető el.');
+    expect(withDownloads).toContain('data-digital-download-location="account"');
+    expect(withDownloads).not.toContain('href="/fiokom/letoltesek"');
 
     const emptyPhysical=render(product,{commerce:{digitalCommerce:{
       productDownloads:{state:'ready',mode:'physical',documents:[]},
     }}});
     expect(emptyPhysical).not.toContain('data-storefront-digital-commerce="downloads-tile"');
+
+    const server=read('src/lib/builder/storefront-digital-commerce-server.ts');
+    expect(server).toContain("documents.filter(document=>document.visibility==='public')");
+    const accountPage=read('src/app/fiokom/page.tsx');
+    const downloadsPage=read('src/app/fiokom/letoltesek/page.tsx');
+    expect(accountPage).toContain('href="/fiokom/letoltesek">Letöltéseim</Link>');
+    expect(downloadsPage).toContain('<h1 className="sectionTitle">Letöltéseim</h1>');
+    expect(downloadsPage).toContain('listAccountDigitalDownloads');
   });
 
   it('renders the customer document center with invoice and merchant warranty while keeping authorities distinct',()=>{
