@@ -873,3 +873,35 @@ The first SVG search fix also remained visually weak because the template's pers
 ### Prevention
 
 For every remaining template, live shared commerce surfaces must inherit the active template's Global Styles by default. A missing optional template-local theme block must never fall back to a different visual system. Icon-only controls must use deterministic SVG geometry, and historical fidelity compression must be normalized at the current template-version boundary before portfolio acceptance.
+
+
+## SKB-P4-018 — Dark checkout inherited panel colors but not readable field-label hierarchy
+
+- status: `implemented`
+- evidence: `human_visual_plus_css_contract`
+- area: `checkout/dark-theme/readability`
+- risk: `medium`
+- automation: `STYLE_CONTRACT`
+
+### Symptom
+
+After the E13 checkout inherited the Playroom dark theme, the inner form remained hard to read:
+- native `fieldset > legend` titles visually sat on the panel border instead of reading as content inside the panel;
+- field labels inherited insufficient contrast and nearly disappeared against the dark muted surface;
+- placeholders were not clearly differentiated from actual field labels.
+
+### Root cause
+
+The shared checkout CSS had only switched surface/input colors. It did not define a dark-theme-safe semantic hierarchy for native fieldset legends, checkout labels, helper text and placeholders. The global checkout stylesheet still supplied the structural legend behavior.
+
+### Resolution
+
+- fieldset legends are moved into the panel's visual content flow with a full-width internal heading row and divider;
+- `.checkoutField > span` receives explicit high-contrast text, weight and line-height;
+- helper text remains muted while placeholders use a separate, lower-emphasis token blend;
+- input/select/textarea text is explicitly bound to the active checkout text token;
+- regression coverage locks the dark-theme readability contract.
+
+### Prevention
+
+Every shared form surface used inside a template-native shell must define a complete semantic contrast hierarchy: section heading → field label → field value → helper/placeholder. Theme inheritance is not complete if only background and border tokens are inherited.
