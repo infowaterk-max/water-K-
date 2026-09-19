@@ -934,7 +934,7 @@ The corresponding Preview runtime logs showed `/penztar` page loads but no `/api
 
 The acceptance seeder wrote `shoperation-cart-v4` directly to `localStorage` while the root shared `CartProvider` independently hydrated and persisted its own cart state. The seeder also navigated with a native anchor.
 
-This created a state-authority race: the acceptance helper could report itself ready after a raw storage write even though the shared provider still held an empty basket and could persist that empty state. The following full navigation then hydrated the checkout from the empty shared state. Because `CheckoutForm` correctly skips quote calls when there are no quoteable cart items, no quote request was emitted and the summary stayed at 0 Ft.
+This created a state-authority race: the acceptance helper could report itself ready after a raw storage write even though the shared provider still held an empty basket and could persist that empty state. A second race existed at mount time as well: a child seeder could attempt to seed before the root `CartProvider` finished its initial storage hydration, allowing the provider hydration pass to overwrite the seed. The following navigation could therefore reach checkout with an empty shared state. Because `CheckoutForm` correctly skips quote calls when there are no quoteable cart items, no quote request was emitted and the summary stayed at 0 Ft.
 
 ### Failed approach / do not repeat
 
@@ -947,9 +947,11 @@ This created a state-authority race: the acceptance helper could report itself r
 
 The acceptance seeder now uses the shared cart authority:
 
+- the shared `CartProvider` exposes an explicit `hydrated` readiness flag;
+- the acceptance seeder waits for `hydrated === true` before it may seed;
 - `useCart().replace(items)` seeds the same state consumed by the storefront checkout;
 - `setCouponCode('')` resets the coupon through the same provider contract;
-- readiness is derived from the provider's actual cart items, not from completion of a storage write;
+- readiness is derived from the hydrated provider's actual cart items, not from completion of a storage write;
 - navigation uses Next `Link`, preserving the shared provider during the route transition while normal CartProvider persistence remains responsible for storage.
 
 No production database or order path was changed.
@@ -959,6 +961,7 @@ No production database or order path was changed.
 The Playroom Phase 4 functional acceptance test now locks that the acceptance seeder:
 
 - uses `useCart`;
+- requires the shared provider's `hydrated` contract before seeding or enabling navigation;
 - calls `replace(items)`;
 - clears the coupon through `setCouponCode`;
 - gates checkout navigation on provider-observed readiness;
@@ -968,5 +971,5 @@ Live verification is still required before changing this incident to `verified_f
 
 ### Template Factory prevention
 
-All future template acceptance seeders must enter commerce state through the shared runtime/provider API rather than through implementation-detail storage keys. Acceptance helpers must consider state ready only when the canonical provider observes the seeded lines. Storage format and migrations remain private implementation details of the shared cart engine.
+All future template acceptance seeders must enter commerce state through the shared runtime/provider API rather than through implementation-detail storage keys. Acceptance helpers must consider state ready only after provider hydration has completed and the canonical provider observes the seeded lines. Storage format and migrations remain private implementation details of the shared cart engine.
 
