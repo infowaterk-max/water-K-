@@ -38,9 +38,15 @@
 .stepPanel[hidden]{display:none}
 .stepPanelInner{padding-top:1rem}
 .stepActions{display:flex;justify-content:flex-end;gap:.65rem;margin-top:.35rem}.stepActions :global(.btn){min-height:44px}
-.root :global(.formSection){margin:0 0 .85rem;padding:1rem;border:1px solid var(--checkout-border);border-radius:var(--checkout-radius-m);background:var(--checkout-surface-muted)}
-.root :global(.formSection legend){color:var(--checkout-text)}
-.root :global(.form-grid input),.root :global(.form-grid select),.root :global(.form-grid textarea),.root :global(.formSection>textarea){background:var(--checkout-surface);color:var(--checkout-text);border-color:var(--checkout-border);border-radius:var(--checkout-radius-s)}
+.root :global(.formSection){margin:0 0 .85rem;padding:1rem;border:1px solid var(--checkout-border);border-radius:var(--checkout-radius-m);background:var(--checkout-surface-muted);min-width:0}
+.root :global(.formSection legend){float:left;width:100%;box-sizing:border-box;margin:0 0 .9rem;padding:0 0 .72rem;border-bottom:1px solid var(--checkout-border);color:var(--checkout-text)!important;font-family:var(--shoporation-heading-font,inherit);font-size:.95rem;font-weight:900;line-height:1.25}
+.root :global(.formSection legend + *){clear:both}
+.root :global(.checkoutField){display:grid;gap:.42rem;color:var(--checkout-text)!important}
+.root :global(.checkoutField>span){color:color-mix(in srgb,var(--checkout-text) 92%,var(--checkout-muted) 8%)!important;font-size:.76rem;font-weight:800;line-height:1.25;opacity:1}
+.root :global(.checkoutField>small),.root :global(.helperText){color:var(--checkout-muted)!important}
+.root :global(.form-grid input),.root :global(.form-grid select),.root :global(.form-grid textarea),.root :global(.formSection>textarea){background:var(--checkout-surface);color:var(--checkout-text)!important;border-color:var(--checkout-border);border-radius:var(--checkout-radius-s)}
+.root :global(.form-grid input::placeholder),.root :global(.form-grid textarea::placeholder),.root :global(.formSection>textarea::placeholder){color:color-mix(in srgb,var(--checkout-muted) 86%,var(--checkout-text) 14%)!important;opacity:.9}
+.root :global(.form-grid select){color-scheme:dark}
 .root :global(.form-grid input:focus),.root :global(.form-grid select:focus),.root :global(.form-grid textarea:focus){outline:2px solid color-mix(in srgb,var(--checkout-primary) 25%,transparent);border-color:var(--checkout-primary)}
 .root :global(.choiceCard){background:var(--checkout-surface-muted);color:var(--checkout-text);border-color:var(--checkout-border);border-radius:var(--checkout-radius-m)}
 .root :global(.choiceCard:hover){background:var(--checkout-surface);border-color:color-mix(in srgb,var(--checkout-primary) 44%,var(--checkout-border))}
