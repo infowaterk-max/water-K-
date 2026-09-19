@@ -14,7 +14,6 @@ function containsCheckoutSummary(node:StorefrontComponentNode):boolean{
   return node.componentKey==='commerce.checkout-summary'||(node.children??[]).some(containsCheckoutSummary);
 }
 const record=(value:unknown):Record<string,unknown>=>value&&typeof value==='object'&&!Array.isArray(value)?value as Record<string,unknown>:{};
-const cssValue=(recordValue:Record<string,unknown>,key:string,fallback:string)=>typeof recordValue[key]==='string'&&String(recordValue[key]).trim()?String(recordValue[key]):fallback;
 
 function checkoutThemeStyle(page:StorefrontPageDocument):CSSProperties{
   const theme=record(page.metadata?.checkoutTheme);
