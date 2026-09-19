@@ -158,8 +158,8 @@ describe('Playroom v20 functional acceptance',()=>{
 
     const builder=read('src/app/admin/tartalom/builder/page.tsx');
     const runtimeSource=read('src/lib/builder/storefront-runtime-source.ts');
-    expect(builder).toContain('composeStorefrontDigitalCommerceCapabilities(document)');
-    expect(runtimeSource).toContain('const composedPage=composeStorefrontDigitalCommerceCapabilities(page)');
+    expect(builder).toContain('composeStorefrontDigitalCommerceCapabilities(normalizeStorefrontTemplateRuntimeComposition(document))');
+    expect(runtimeSource).toContain('const composedPage=composeStorefrontDigitalCommerceCapabilities(normalizeStorefrontTemplateRuntimeComposition(page))');
     expect(runtimeSource).toContain('page:failClosedSpecialCommerce(composedPage,runtime.capability)');
   });
 
@@ -205,6 +205,22 @@ describe('Playroom v20 functional acceptance',()=>{
     const resetSlots=resetNode.config.styleSlots as Record<string,Record<string,unknown>>;
     expect(resolveStorefrontVisualStyle(resetSlots.root,'mobile').backgroundColor).toBeUndefined();
     expect(resolveStorefrontGlobalStyleCssVariables(reset)['--shoporation-color-surface']).toBe('#101820');
+  });
+
+  it('keeps the Playroom cart customer-task focused and removes redundant internal validation panels',()=>{
+    const cart=playroomPage('cart');
+    const ids=collectNodes(cart,()=>true).map(node=>node.id);
+    expect(ids).not.toContain('playroom-cart-intro-status');
+    expect(ids).not.toContain('playroom-cart-next-shell');
+    expect(ids).not.toContain('playroom-cart-trust-preset');
+    expect(ids).not.toContain('playroom-cart-digital-commerce');
+    expect(collectNodes(cart,node=>node.componentKey==='commerce.fulfillment-summary')).toHaveLength(0);
+    expect(findNode(cart,'playroom-cart-summary-shell').responsive?.desktop?.gridSpan).toBe(12);
+    expect(findNode(cart,'playroom-cart-intro-copy').responsive?.desktop?.gridSpan).toBe(12);
+
+    const source=read('src/lib/builder/storefront-digital-commerce-composition.ts');
+    expect(source).toContain("cart:[]");
+    expect(source).toContain("isDeprecatedCartDigitalCommerceSection");
   });
 
   it.each(['physical','digital','mixed'] as const)('renders Playroom checkout fulfillment state %s through the shared runtime',mode=>{
