@@ -1,5 +1,7 @@
 import {describe,expect,it} from 'vitest';
 import {PLAYROOM_V20_TEMPLATE_PACKAGE} from '@/lib/builder/templates/playroom-v20';
+import {PLAYROOM_V19_CANONICAL_TEMPLATE_PACKAGE} from '@/lib/builder/templates/playroom-v19-canonical';
+import {normalizeStorefrontTemplateRuntimeComposition} from '@/lib/builder/storefront-template-runtime-normalization';
 
 const TEXT_KEYS=new Set([
   'text','label','title','copy','eyebrow','buttonLabel','ctaLabel','emptyLabel','placeholder','ariaLabel',
@@ -29,6 +31,16 @@ const FORBIDDEN=[
   /SEARCH THE PLAYROOM/i,
   /READY PLAYER CHECKOUT/i,
   /SECURE CHECKOUT/i,
+  /^SECURE$/i,
+  /^SUMMARY$/i,
+  /GUIDED ACCORDION/i,
+  /^SHIPPING$/i,
+  /^PAYMENT$/i,
+  /Provider-neutral/i,
+  /Semantic slot/i,
+  /Desktop order summary/i,
+  /template-local/i,
+  /provider\/add-on/i,
   /PLAYER PROFILE/i,
   /\bORDERS\b/i,
   /\bSAVED\b/i,
@@ -70,6 +82,16 @@ describe('Playroom v20 Hungarian storefront language gate',()=>{
     const texts=PLAYROOM_V20_TEMPLATE_PACKAGE.pages.flatMap(page=>page.sections.flatMap(section=>collect(section)));
     const violations=texts.flatMap(value=>FORBIDDEN.some(pattern=>pattern.test(value))?[value]:[]);
     expect(violations).toEqual([]);
+  });
+
+  it('localizes already-persisted Playroom v20 checkout drafts at runtime',()=>{
+    const historical=PLAYROOM_V19_CANONICAL_TEMPLATE_PACKAGE.pages.find(page=>page.pageType==='checkout')!;
+    const persisted={...structuredClone(historical),templateVersion:20};
+    const normalized=normalizeStorefrontTemplateRuntimeComposition(persisted);
+    const texts=normalized.sections.flatMap(section=>collect(section));
+    const serialized=texts.join(' | ');
+    for(const expected of['BIZTONSÁGOS PÉNZTÁR','BIZTONSÁG','ÖSSZESÍTÉS','VEZETETT PÉNZTÁR','SZÁLLÍTÁS','FIZETÉS','Szolgáltatófüggetlen','Integrációs pont'])expect(serialized).toContain(expected);
+    for(const forbidden of['SECURE CHECKOUT','SECURE','SUMMARY','GUIDED ACCORDION','SHIPPING','PAYMENT','Provider-neutral','Semantic slot','Desktop order summary.'])expect(serialized).not.toContain(forbidden);
   });
 
   it('keeps the digital-commerce labels localized explicitly',()=>{
