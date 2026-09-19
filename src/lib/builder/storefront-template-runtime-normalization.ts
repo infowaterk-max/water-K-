@@ -2,25 +2,90 @@ import type {StorefrontComponentNode,StorefrontPageDocument} from '@/lib/builder
 
 const clone=<T>(value:T):T=>structuredClone(value);
 
-function normalizeNode(
-  node:StorefrontComponentNode,
-  removeIds:Set<string>,
-  span12Ids:Set<string>,
-):StorefrontComponentNode|null{
-  if(removeIds.has(node.id))return null;
-  const children=(node.children??[])
-    .map(child=>normalizeNode(child,removeIds,span12Ids))
-    .filter((child):child is StorefrontComponentNode=>Boolean(child));
-  const next:StorefrontComponentNode={...clone(node),...(node.children?{children}:{})};
-  if(span12Ids.has(next.id)){
-    next.responsive={
-      ...(next.responsive??{}),
-      desktop:{...(next.responsive?.desktop??{}),gridSpan:12},
-      tablet:{...(next.responsive?.tablet??{}),gridSpan:12},
-      mobile:{...(next.responsive?.mobile??{}),gridSpan:12},
-    };
+const CART_FORBIDDEN_COMPONENT_KEYS=new Set([
+  'commerce.fulfillment-summary',
+  'commerce.documents-center',
+  'commerce.product-documents',
+  'commerce.downloads-tile',
+  'commerce.post-purchase-guidance',
+]);
+
+const CART_INTERNAL_ASSURANCE_PATTERNS=[
+  /valós készlet/i,
+  /valós elérhetőség/i,
+  /valós ár(?:ak)?/i,
+  /végső ellenőrzés/i,
+  /szerveroldali validáció/i,
+  /commerce authority/i,
+  /innen már (?:végig )?vezetünk/i,
+  /szállítás\s*→\s*fizetés\s*→\s*összesítés/i,
+  /server[- ]side validation/i,
+  /authoritative (?:price|stock|inventory)/i,
+];
+
+const CART_INTERNAL_COPY_KEYS=new Set([
+  'revalidationLabel',
+  'secureLabel',
+]);
+
+function textValues(config:Record<string,unknown>):string[]{
+  return Object.values(config).flatMap(value=>{
+    if(typeof value==='string')return[value];
+    if(Array.isArray(value))return value.filter((item):item is string=>typeof item==='string');
+    return[];
+  });
+}
+
+function containsCartInternalAssurance(node:StorefrontComponentNode):boolean{
+  return textValues(node.config).some(value=>CART_INTERNAL_ASSURANCE_PATTERNS.some(pattern=>pattern.test(value)));
+}
+
+function hasFunctionalCartDescendant(node:StorefrontComponentNode):boolean{
+  if(['commerce.cart-summary','commerce.recommendation-row'].includes(node.componentKey))return true;
+  return(node.children??[]).some(hasFunctionalCartDescendant);
+}
+
+function sanitizeCartConfig(config:Record<string,unknown>):Record<string,unknown>{
+  const next={...config};
+  for(const key of CART_INTERNAL_COPY_KEYS){
+    const value=next[key];
+    if(typeof value==='string'&&CART_INTERNAL_ASSURANCE_PATTERNS.some(pattern=>pattern.test(value)))delete next[key];
   }
   return next;
+}
+
+function normalizeCartNode(node:StorefrontComponentNode):StorefrontComponentNode|null{
+  if(CART_FORBIDDEN_COMPONENT_KEYS.has(node.componentKey))return null;
+  if(containsCartInternalAssurance(node)&&!hasFunctionalCartDescendant(node))return null;
+
+  const hadChildren=Boolean(node.children?.length);
+  const children=(node.children??[])
+    .map(normalizeCartNode)
+    .filter((child):child is StorefrontComponentNode=>Boolean(child));
+
+  if(hadChildren&&!children.length&&['layout.section','layout.container','layout.grid','layout.stack'].includes(node.componentKey))return null;
+
+  return{
+    ...clone(node),
+    config:sanitizeCartConfig(node.config),
+    ...(node.children?{children}:{}),
+  };
+}
+
+function normalizeGenericCart(document:StorefrontPageDocument):StorefrontPageDocument{
+  const sections=document.sections
+    .map(normalizeCartNode)
+    .filter((section):section is StorefrontComponentNode=>Boolean(section));
+  return{
+    ...clone(document),
+    sections,
+    metadata:{
+      ...(document.metadata??{}),
+      cartPresentation:'customer-task-focused-v1',
+      cartDocumentSurface:'forbidden',
+      cartInternalAssurancePanels:'forbidden',
+    },
+  };
 }
 
 function normalizePlayroomCart(document:StorefrontPageDocument):StorefrontPageDocument{
@@ -34,26 +99,61 @@ function normalizePlayroomCart(document:StorefrontPageDocument):StorefrontPageDo
     'playroom-cart-intro-copy',
     'playroom-cart-summary-shell',
   ]);
-  const sections=document.sections
-    .map(section=>normalizeNode(section,removeIds,span12Ids))
-    .filter((section):section is StorefrontComponentNode=>Boolean(section));
-  return{
-    ...clone(document),
-    sections,
-    metadata:{
-      ...(document.metadata??{}),
-      cartPresentation:'customer-task-focused-v1',
-    },
+
+  const normalizePlayroomNode=(node:StorefrontComponentNode):StorefrontComponentNode|null=>{
+    if(removeIds.has(node.id))return null;
+    const children=(node.children??[])
+      .map(normalizePlayroomNode)
+      .filter((child):child is StorefrontComponentNode=>Boolean(child));
+    const next:StorefrontComponentNode={...clone(node),...(node.children?{children}:{})};
+    if(span12Ids.has(next.id)){
+      next.responsive={
+        ...(next.responsive??{}),
+        desktop:{...(next.responsive?.desktop??{}),gridSpan:12},
+        tablet:{...(next.responsive?.tablet??{}),gridSpan:12},
+        mobile:{...(next.responsive?.mobile??{}),gridSpan:12},
+      };
+    }
+    return next;
   };
+
+  const playroom={
+    ...clone(document),
+    sections:document.sections
+      .map(normalizePlayroomNode)
+      .filter((section):section is StorefrontComponentNode=>Boolean(section)),
+  };
+  return normalizeGenericCart(playroom);
 }
 
 /**
- * Preview/editor compatibility normalization for persisted drafts.
- * This does not mutate published pages or commerce authority.
+ * Shared storefront presentation normalization.
+ *
+ * Cart policy is portfolio-wide:
+ * - cart content is customer-task focused;
+ * - documents/downloads/post-purchase surfaces are forbidden on cart pages;
+ * - internal price/stock/validation assurance panels are not customer-facing UI;
+ * - engine validation remains mandatory and is not weakened by hiding explanatory chrome.
+ *
+ * Playroom keeps a small compatibility layer for already-persisted v20 drafts, but
+ * the generic cart policy applies to every current and future template.
  */
 export function normalizeStorefrontTemplateRuntimeComposition(document:StorefrontPageDocument):StorefrontPageDocument{
-  if(document.templateKey==='gaming.playroom'&&document.templateVersion===20&&document.pageType==='cart'){
-    return normalizePlayroomCart(document);
-  }
-  return clone(document);
+  if(document.pageType!=='cart')return clone(document);
+  if(document.templateKey==='gaming.playroom'&&document.templateVersion===20)return normalizePlayroomCart(document);
+  return normalizeGenericCart(document);
+}
+
+export function storefrontCartPresentationViolations(document:StorefrontPageDocument):readonly string[]{
+  if(document.pageType!=='cart')return[];
+  const violations:string[]=[];
+  const walk=(nodes:readonly StorefrontComponentNode[])=>{
+    for(const node of nodes){
+      if(CART_FORBIDDEN_COMPONENT_KEYS.has(node.componentKey))violations.push(`forbidden-component:${node.componentKey}:${node.id}`);
+      if(containsCartInternalAssurance(node)&&!hasFunctionalCartDescendant(node))violations.push(`internal-assurance:${node.id}`);
+      walk(node.children??[]);
+    }
+  };
+  walk(document.sections);
+  return violations;
 }
