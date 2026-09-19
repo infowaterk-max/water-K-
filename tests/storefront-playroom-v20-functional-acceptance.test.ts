@@ -212,6 +212,11 @@ describe('Playroom v20 functional acceptance',()=>{
     expect(shell).toContain('resolveStorefrontGlobalStyleCssVariables');
     expect(shell).toContain('const inherited=resolveStorefrontGlobalStyleCssVariables(page)');
     expect(shell).not.toContain("cssValue(theme,'surface','#ffffff')");
+    expect(shell).toContain("assign('headingText','--shoporation-checkout-heading-color')");
+    expect(shell).toContain("assign('fieldLabel','--shoporation-checkout-field-label-color')");
+    expect(shell).toContain("assign('inputText','--shoporation-checkout-input-text-color')");
+    expect(shell).toContain("assign('placeholder','--shoporation-checkout-placeholder-color')");
+    expect(shell).toContain("assign('helperText','--shoporation-checkout-helper-color')");
     expect(header).toContain('data-storefront-search-icon="true"');
     expect(header).toContain('width="20" height="20"');
     expect(header).toContain("minWidth:'2.7rem',width:'2.7rem',height:'100%',padding:0");
@@ -244,6 +249,13 @@ describe('Playroom v20 functional acceptance',()=>{
     expect(runtimeSource).toContain('acceptanceMode:true');
     expect(playroom).toContain("checkoutTheme:{");
     expect(playroom).toContain("background:'#020b17'");
+    expect(playroom).toContain("fieldLabel:'#dce9f5'");
+    expect(playroom).toContain("placeholder:'#9bb1c6'");
+    expect(checkoutCss).toContain('--checkout-heading:var(--shoporation-checkout-heading-color');
+    expect(checkoutCss).toContain('--checkout-label:var(--shoporation-checkout-field-label-color');
+    expect(checkoutCss).toContain('--checkout-input-text:var(--shoporation-checkout-input-text-color');
+    expect(checkoutCss).toContain('--checkout-placeholder:var(--shoporation-checkout-placeholder-color');
+    expect(checkoutCss).toContain('--checkout-helper:var(--shoporation-checkout-helper-color');
     expect(settings).toContain("label:'Acceptance · személyes átvétel'");
     expect(settings).toContain("label:'Acceptance · banki átutalás'");
     expect(checkout).toContain("Acceptance módban a rendelés tényleges leadása tiltva van.");
