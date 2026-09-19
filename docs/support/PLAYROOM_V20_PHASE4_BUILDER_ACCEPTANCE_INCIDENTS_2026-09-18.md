@@ -905,3 +905,68 @@ The shared checkout CSS had only switched surface/input colors. It did not defin
 ### Prevention
 
 Every shared form surface used inside a template-native shell must define a complete semantic contrast hierarchy: section heading → field label → field value → helper/placeholder. Theme inheritance is not complete if only background and border tokens are inherited.
+
+## SKB-P4-019 — Acceptance mixed cart bypassed shared CartProvider state and checkout stayed at 0 Ft
+
+- status: `implemented_pending_live_verification`
+- evidence: `staging_rpc_plus_preview_runtime_logs_plus_code_contract`
+- area: `storefront/checkout/acceptance-cart-state`
+- risk: `high`
+- automation: `SHARED_STATE_REQUIRED`
+
+### Symptom
+
+The interactive Playroom checkout acceptance page rendered the real shared E13 checkout and the fulfillment preview could identify one physical and one digital product, but the live order summary showed `Termékek: 0 Ft` / `Fizetendő: 0 Ft` and no line items.
+
+The intended acceptance basket is:
+
+- Acceptance Physical Product — 1270 Ft;
+- Acceptance Digital Product — 2540 Ft;
+- mixed subtotal before coupon/shipping — 3810 Ft.
+
+### Diagnosis
+
+Read-only staging verification proved that both acceptance variants exist and the canonical checkout RPC classifies the exact pair as `mixed`. Calling the canonical quote function with the same variant ids returned two lines and a 3810 Ft subtotal.
+
+The corresponding Preview runtime logs showed `/penztar` page loads but no `/api/checkout/quote` request at all. Therefore the failure was upstream of the quote backend: the client checkout never had usable quote items.
+
+### Root cause
+
+The acceptance seeder wrote `shoperation-cart-v4` directly to `localStorage` while the root shared `CartProvider` independently hydrated and persisted its own cart state. The seeder also navigated with a native anchor.
+
+This created a state-authority race: the acceptance helper could report itself ready after a raw storage write even though the shared provider still held an empty basket and could persist that empty state. The following full navigation then hydrated the checkout from the empty shared state. Because `CheckoutForm` correctly skips quote calls when there are no quoteable cart items, no quote request was emitted and the summary stayed at 0 Ft.
+
+### Failed approach / do not repeat
+
+- Do not hard-code 3810 Ft or acceptance line items into the checkout summary.
+- Do not seed commerce acceptance by writing the provider's storage key directly.
+- Do not treat a correct database quote RPC as proof that the browser cart pipeline is healthy.
+- Do not debug the quote backend first when Preview runtime logs prove that the quote endpoint was never called.
+
+### Implemented resolution
+
+The acceptance seeder now uses the shared cart authority:
+
+- `useCart().replace(items)` seeds the same state consumed by the storefront checkout;
+- `setCouponCode('')` resets the coupon through the same provider contract;
+- readiness is derived from the provider's actual cart items, not from completion of a storage write;
+- navigation uses Next `Link`, preserving the shared provider during the route transition while normal CartProvider persistence remains responsible for storage.
+
+No production database or order path was changed.
+
+### Regression coverage
+
+The Playroom Phase 4 functional acceptance test now locks that the acceptance seeder:
+
+- uses `useCart`;
+- calls `replace(items)`;
+- clears the coupon through `setCouponCode`;
+- gates checkout navigation on provider-observed readiness;
+- no longer writes `shoperation-cart-v4` directly.
+
+Live verification is still required before changing this incident to `verified_fixed`: the checkout must visibly show both lines and a 3810 Ft subtotal and must emit the real shared quote request.
+
+### Template Factory prevention
+
+All future template acceptance seeders must enter commerce state through the shared runtime/provider API rather than through implementation-detail storage keys. Acceptance helpers must consider state ready only when the canonical provider observes the seeded lines. Storage format and migrations remain private implementation details of the shared cart engine.
+
