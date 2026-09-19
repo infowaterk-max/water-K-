@@ -61,15 +61,16 @@ function collectNodes(document:StorefrontPageDocument,predicate:(node:Storefront
 
 function hasFactClusterHost(document:StorefrontPageDocument):boolean{
   const factKeys=new Set(['commerce.key-specs','commerce.specification-groups','commerce.technical-documents','compatibility.evidence','compatibility.status']);
-  const purchaseKeys=new Set(['commerce.product-info','commerce.option-selector','commerce.variant-swatches','commerce.purchase-controls','commerce.add-to-cart']);
+  const purchaseKeys=new Set(['commerce.product-info','commerce.option-selector','commerce.variant-swatches','commerce.size-selector','commerce.purchase-controls','commerce.add-to-cart','content.button']);
+  const subtreeHas=(node:StorefrontComponentNode,keys:Set<string>):boolean=>keys.has(node.componentKey)||(node.children??[]).some(child=>subtreeHas(child,keys));
   return collectNodes(document,node=>{
-    const keys=(node.children??[]).map(child=>child.componentKey);
-    const facts=keys.filter(key=>factKeys.has(key)).length;
-    const purchases=keys.filter(key=>purchaseKeys.has(key)).length;
-    const layoutBonus=['layout.container','layout.grid'].includes(node.componentKey);
-    const rich=keys.some(key=>['commerce.specification-groups','commerce.technical-documents','compatibility.evidence','compatibility.status'].includes(key));
-    const score=facts*10+(layoutBonus?4:0)+(rich?4:0)+(facts>1?6:0)-(purchases?18:0);
-    return score>0;
+    if(!['layout.section','layout.container','layout.grid','layout.stack'].includes(node.componentKey))return false;
+    const children=node.children??[];
+    const factBranches=children.filter(child=>subtreeHas(child,factKeys)).length;
+    const purchaseBranches=children.filter(child=>subtreeHas(child,purchaseKeys)).length;
+    if(!factBranches)return false;
+    if(purchaseBranches>0&&factBranches<2)return false;
+    return true;
   }).length>0;
 }
 
@@ -259,23 +260,26 @@ describe('Playroom v20 functional acceptance',()=>{
     });
     product.metadata={...(product.metadata??{}),digitalCommerceCompositionVersion:'shoporation.storefront-digital-commerce-composition.v2'};
     const migrated=composeStorefrontDigitalCommerceTemplatePackage({...PLAYROOM_V20_TEMPLATE_PACKAGE,pages:[product]}).pages[0];
-    const migratedFacts=findNode(migrated,'playroom-product-facts-container');
+    const migratedFacts=findNode(migrated,'playroom-product-facts-grid');
     expect(migrated.sections.some(section=>section.id==='playroom-product-digital-commerce')).toBe(false);
     expect(migratedFacts.children?.map(item=>item.id)).toEqual([
-      'playroom-product-key-specs',
-      'playroom-product-compatibility',
+      'playroom-product-facts-specs',
+      'playroom-product-facts-compatibility',
       'playroom-product-downloads',
     ]);
   });
 
   it('keeps public documents as the third Product Facts tile while purchased digital files stay in Fiókom → Letöltéseim',()=>{
     const product=playroomPage('product');
-    const factsContainer=findNode(product,'playroom-product-facts-container');
-    expect(factsContainer.children?.map(item=>item.id)).toEqual([
-      'playroom-product-key-specs',
-      'playroom-product-compatibility',
+    const factsGrid=findNode(product,'playroom-product-facts-grid');
+    expect(factsGrid.children?.map(item=>item.id)).toEqual([
+      'playroom-product-facts-specs',
+      'playroom-product-facts-compatibility',
       'playroom-product-downloads',
     ]);
+    expect(factsGrid.children?.map(item=>item.responsive?.desktop?.gridSpan)).toEqual([4,4,4]);
+    expect(factsGrid.children?.map(item=>item.responsive?.tablet?.gridSpan)).toEqual([4,4,4]);
+    expect(factsGrid.children?.map(item=>item.responsive?.mobile?.gridSpan)).toEqual([12,12,12]);
     expect(product.sections.some(section=>section.id==='playroom-product-digital-commerce')).toBe(false);
 
     const withDownloads=render(product,{commerce:{digitalCommerce:{
