@@ -28,6 +28,11 @@ function checkoutThemeStyle(page:StorefrontPageDocument):CSSProperties{
   assign('surfaceMuted','--shoporation-color-surface-muted');
   assign('text','--shoporation-color-text');
   assign('mutedText','--shoporation-color-muted-text');
+  assign('headingText','--shoporation-checkout-heading-color');
+  assign('fieldLabel','--shoporation-checkout-field-label-color');
+  assign('inputText','--shoporation-checkout-input-text-color');
+  assign('placeholder','--shoporation-checkout-placeholder-color');
+  assign('helperText','--shoporation-checkout-helper-color');
   assign('border','--shoporation-color-border');
   assign('primary','--shoporation-color-primary');
   assign('primaryContrast','--shoporation-color-primary-contrast');
