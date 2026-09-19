@@ -111,14 +111,14 @@ const supportForm=()=>node({
 const digitalCommerceSection=(pageType:StorefrontPageDocument['pageType'])=>{
   const children:StorefrontComponentNode[]=[];
   if(pageType==='product')children.push(
-    node({id:'playroom-product-downloads',componentKey:'commerce.downloads-tile',componentVersion:1,config:{eyebrow:'LETÖLTÉSEK',title:'Letöltések',documentsLabel:'Dokumentumok',digitalLabel:'Digitális anyagok',digitalPendingLabel:'Vásárlás után',openLabel:'Megnyitás',presentation:'playroom-priority-tile'}}),
+    node({id:'playroom-product-downloads',componentKey:'commerce.downloads-tile',componentVersion:1,config:{eyebrow:'LETÖLTÉSEK',title:'Letöltések',documentsLabel:'Dokumentumok',digitalLabel:'Digitális termék',digitalAccountCopy:'Vásárlás után a letöltés a Fiókom → Letöltéseim menüpontban érhető el.',openLabel:'Megnyitás',presentation:'playroom-priority-tile'}}),
   );
-  if(pageType==='cart')children.push(node({id:'playroom-cart-fulfillment',componentKey:'commerce.fulfillment-summary',componentVersion:1,config:{title:'Teljesítés a kosárban',documentCenterLabel:'Dokumentumok és letöltések',presentation:'playroom-native'}}));
+  if(pageType==='cart')children.push(node({id:'playroom-cart-fulfillment',componentKey:'commerce.fulfillment-summary',componentVersion:1,config:{title:'Teljesítés a kosárban',documentCenterLabel:'Fiókom → Letöltéseim',presentation:'playroom-native'}}));
   if(pageType==='checkout')children.push(
-    node({id:'playroom-checkout-fulfillment',componentKey:'commerce.fulfillment-summary',componentVersion:1,config:{title:'Kézbesítés',documentCenterLabel:'Dokumentumok és letöltések',presentation:'playroom-native'}}),
-    node({id:'playroom-checkout-post-purchase',componentKey:'commerce.post-purchase-guidance',componentVersion:1,config:{eyebrow:'VÁSÁRLÁS UTÁN',title:'Hozzáférés és dokumentumok',pendingLabel:'Fizetés után elérhető',documentCenterLabel:'Dokumentumok és letöltések',presentation:'playroom-native'}}),
+    node({id:'playroom-checkout-fulfillment',componentKey:'commerce.fulfillment-summary',componentVersion:1,config:{title:'Kézbesítés',documentCenterLabel:'Fiókom → Letöltéseim',presentation:'playroom-native'}}),
+    node({id:'playroom-checkout-post-purchase',componentKey:'commerce.post-purchase-guidance',componentVersion:1,config:{eyebrow:'VÁSÁRLÁS UTÁN',title:'Hozzáférés és dokumentumok',pendingLabel:'Fizetés után elérhető',documentCenterLabel:'Fiókom → Letöltéseim',presentation:'playroom-native'}}),
   );
-  if(pageType==='account')children.push(node({id:'playroom-account-documents',componentKey:'commerce.documents-center',componentVersion:1,config:{eyebrow:'SAJÁT TÁR',title:'Dokumentumok és letöltések',copy:'A megvásárolt digitális tartalmak, a rendelési iratok és a termékhez kapcsolódó dokumentumok egy helyen, külön authority- és jogosultsági szabályokkal.',digitalTitle:'Digitális tartalmak',orderTitle:'Rendelési dokumentumok',productTitle:'Termékdokumentumok',emptyLabel:'Még nincs megjeleníthető dokumentum vagy letölthető tartalom.',loginLabel:'Belépés a fiókba',presentation:'playroom-native'}}));
+  if(pageType==='account')children.push(node({id:'playroom-account-documents',componentKey:'commerce.documents-center',componentVersion:1,config:{eyebrow:'SAJÁT TÁR',title:'Letöltéseim',copy:'A megvásárolt digitális tartalmak innen tölthetők le. A rendelési iratok és a megvásárolt termékhez kapcsolódó fiókos dokumentumok ugyanitt, külön jogosultsági szabályokkal érhetők el.',digitalTitle:'Digitális vásárlások',orderTitle:'Rendelési dokumentumok',productTitle:'Termékdokumentumok',emptyLabel:'Még nincs megjeleníthető dokumentum vagy letölthető tartalom.',loginLabel:'Belépés a fiókba',presentation:'playroom-native'}}));
   if(!children.length)return null;
   return node({
     id:`playroom-${pageType}-digital-commerce`,componentKey:'layout.section',componentVersion:1,
