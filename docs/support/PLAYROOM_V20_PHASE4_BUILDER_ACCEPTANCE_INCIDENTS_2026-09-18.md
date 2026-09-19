@@ -778,3 +778,52 @@ Do not wait until all 41 templates are complete. Promote reusable findings as so
 - The standalone cart `commerce.fulfillment-summary` surface was also removed. Physical/digital fulfillment belongs with the actual cart line/runtime where relevant, not in a detached full-width panel.
 - Persisted v20 acceptance drafts are normalized in Builder/Direct Preview without mutating published storefront pages.
 - Template Factory guidance: do not expose internal authority/validation assurances as decorative cart tiles when the engine can enforce them silently and correctly.
+
+
+## SKB-P4-016 — Template-native checkout crashed because staging missed reusable-symbol migrations
+
+- status: `verified_fixed`
+- evidence: `runtime_log_plus_staging_schema_verification`
+- area: `storefront/checkout/runtime/environment-drift`
+- risk: `high`
+- automation: `PRECHECK_REQUIRED`
+
+### Symptom
+
+Opening the interactive Playroom checkout acceptance route reached the generic application error boundary instead of the Playroom checkout. The visible message looked like an idempotency/retry warning, which initially made the failure appear related to order recovery.
+
+### Root cause
+
+Vercel runtime logs showed the real failure:
+
+`STOREFRONT_SYMBOL_LIST_FAILED: Could not find the table 'public.storefront_reusable_symbols' in the schema cache`
+
+The template-native checkout resolver correctly materializes current linked/global reusable symbols before rendering. The staging acceptance database had not received:
+
+- `20260912235500_storefront_reusable_symbols.sql`
+- `20260913211500_storefront_global_commerce_header_symbol.sql`
+
+The failure was therefore **environment/migration drift**, not checkout recovery and not an already-submitted order.
+
+### Verified resolution
+
+- confirmed `storefront_reusable_symbols` and `storefront_reusable_symbol_events` were absent in staging;
+- confirmed their prerequisite functions/tables already existed;
+- applied the two canonical forward migrations to **staging only**;
+- verified both reusable-symbol tables now exist;
+- kept production unchanged;
+- added an acceptance preflight so the interactive checkout test reports `STOREFRONT_SYMBOL_SCHEMA_REQUIRED` before launching instead of falling through to the generic application error boundary.
+
+### Failed approach / do not repeat
+
+Do not infer the root cause from the generic `src/app/error.tsx` copy. That screen intentionally contains conservative order-retry language and can mask unrelated server-render failures. Always inspect the exact Vercel runtime error for the failing route first.
+
+### Template Factory prevention
+
+Before interactive storefront acceptance for any template:
+
+1. verify all runtime schema dependencies required by the active template/runtime are present in the target staging environment;
+2. distinguish migration/schema drift from component/runtime defects;
+3. fail acceptance preflight with a specific dependency code instead of opening a route that will hit the global error boundary;
+4. only then continue with human UI acceptance.
+
