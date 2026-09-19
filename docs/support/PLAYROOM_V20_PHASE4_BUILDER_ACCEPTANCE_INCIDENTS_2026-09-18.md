@@ -165,8 +165,8 @@ Acceptance bypasses may open a test surface, but must never spoof the entitlemen
 
 ## SKB-P4-003 — Acceptance deep-link template page key did not match persisted page key
 
-- status: `pending_validation`
-- evidence: `acceptance_verified`
+- status: `implemented`
+- evidence: `code_and_test_verified`
 - area: `builder/navigation/page-key`
 - risk: `low`
 - automation: `DIAGNOSE_ONLY`
@@ -190,15 +190,17 @@ Template metadata separately contains preset identities such as `playroom.home`.
 
 The Builder page selector compares the route query to persisted `storefront_pages.page_key`. `playroom.home` is therefore not a persisted page key and falls back to the first available page.
 
-### Current handling
+### Verified resolution
 
-Human acceptance manually selected Főoldal.
+The Preview-only platform acceptance action now deep-links with the persisted runtime key `page=home`, not the template preset identity `playroom.home`. The Builder therefore resolves Főoldal deterministically instead of falling back to the first available persisted page.
 
-### Prevention / follow-up
+Regression coverage now asserts both sides of the contract:
+- the acceptance action contains `page=home&acceptance=platform`;
+- `page=playroom.home` must not return.
 
-Do not conflate **template preset page identity** with **persisted runtime page key**. Acceptance/deep links should use the persisted page key or an explicit preset→page mapping.
+### Prevention
 
-This remains a follow-up finding until deliberately fixed and re-verified.
+Do not conflate **template preset page identity** with **persisted runtime page key**. Acceptance/deep links must use the persisted page key or an explicit preset→page mapping. Keep this contract covered whenever acceptance/navigation entry points are changed.
 
 ---
 
