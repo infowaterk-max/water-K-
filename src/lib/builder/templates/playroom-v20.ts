@@ -1,5 +1,6 @@
 import type {FeatureCode} from '@/lib/plans/catalog';
 import type {StorefrontComponentNode,StorefrontPageDocument} from '@/lib/builder/storefront-runtime';
+import {normalizeStorefrontTemplateRuntimeComposition} from '@/lib/builder/storefront-template-runtime-normalization';
 import type {StorefrontInstallableTemplatePackage} from '@/lib/builder/storefront-template-installation';
 import {STOREFRONT_PAGE_SEMANTIC_CONTEXTS} from '@/lib/builder/storefront-template-capability-policy';
 import {PLAYROOM_V19_CANONICAL_TEMPLATE_PACKAGE} from '@/lib/builder/templates/playroom-v19-canonical';
@@ -112,7 +113,6 @@ const productDownloadsTile=()=>node({id:'playroom-product-downloads',componentKe
 
 const digitalCommerceSection=(pageType:StorefrontPageDocument['pageType'])=>{
   const children:StorefrontComponentNode[]=[];
-  if(pageType==='cart')children.push(node({id:'playroom-cart-fulfillment',componentKey:'commerce.fulfillment-summary',componentVersion:1,config:{title:'Teljesítés a kosárban',documentCenterLabel:'Fiókom → Letöltéseim',presentation:'playroom-native'}}));
   if(pageType==='checkout')children.push(
     node({id:'playroom-checkout-fulfillment',componentKey:'commerce.fulfillment-summary',componentVersion:1,config:{title:'Kézbesítés',documentCenterLabel:'Fiókom → Letöltéseim',presentation:'playroom-native'}}),
     node({id:'playroom-checkout-post-purchase',componentKey:'commerce.post-purchase-guidance',componentVersion:1,config:{eyebrow:'VÁSÁRLÁS UTÁN',title:'Hozzáférés és dokumentumok',pendingLabel:'Fizetés után elérhető',documentCenterLabel:'Fiókom → Letöltéseim',presentation:'playroom-native'}}),
@@ -161,12 +161,12 @@ function upgradePage(source:StorefrontPageDocument):StorefrontPageDocument{
   if(source.pageType==='home'&&!sections.some(item=>item.id==='playroom-home-newsletter'))sections=insertBeforeFooter(sections,newsletterSection());
   if(source.pageType==='contact'&&!sections.some(item=>item.id==='playroom-contact-form'))sections=insertBeforeFooter(sections,supportForm());
   if(source.pageType==='product')sections=appendChildToNode(sections,'playroom-product-facts-grid',productDownloadsTile());
-  if(['cart','checkout','account'].includes(source.pageType)&&!sections.some(item=>item.id===`playroom-${source.pageType}-digital-commerce`))sections=insertBeforeFooter(sections,digitalCommerceSection(source.pageType));
+  if(['checkout','account'].includes(source.pageType)&&!sections.some(item=>item.id===`playroom-${source.pageType}-digital-commerce`))sections=insertBeforeFooter(sections,digitalCommerceSection(source.pageType));
   const previousAddon=rec(source.metadata?.addonIntegration);
   const previousContexts=Array.isArray(previousAddon.semanticContexts)?previousAddon.semanticContexts.filter((value):value is string=>typeof value==='string'):[];
   const semanticContexts=[...new Set([...STOREFRONT_PAGE_SEMANTIC_CONTEXTS[source.pageType],...previousContexts])];
   sections=sections.map(localizeNode);
-  return{
+  return normalizeStorefrontTemplateRuntimeComposition({
     ...clone(source),templateVersion:PLAYROOM_V20_TEMPLATE_VERSION,sections,
     metadata:{
       ...(source.metadata??{}),
@@ -184,7 +184,7 @@ function upgradePage(source:StorefrontPageDocument):StorefrontPageDocument{
         localOverridePolicy:'explicit-only-reset-to-inherited',
       },
     },
-  };
+  });
 }
 
 const requiredFeatures:readonly FeatureCode[]=Object.freeze([...new Set<FeatureCode>([...PLAYROOM_V19_CANONICAL_TEMPLATE_PACKAGE.manifest.requiredFeatures,'marketingBasics','support'])]);
