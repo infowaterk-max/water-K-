@@ -131,7 +131,7 @@ function appendChildToNode(nodes:readonly StorefrontComponentNode[],targetId:str
     const next=clone(item);
     if(next.id===targetId){
       const children=[...(next.children??[])].map(entry=>targetId==='playroom-product-facts-grid'
-        ?{...entry,responsive:{...(entry.responsive??{}),desktop:{...(entry.responsive?.desktop??{}),gridSpan:4},tablet:{...(entry.responsive?.tablet??{}),gridSpan:4},mobile:{...(entry.responsive?.mobile??{}),gridSpan:12}}}
+        ?{...entry,responsive:{...(entry.responsive??{}),desktop:{...(entry.responsive?.desktop??{}),gridSpan:4 as const},tablet:{...(entry.responsive?.tablet??{}),gridSpan:4 as const},mobile:{...(entry.responsive?.mobile??{}),gridSpan:12 as const}}}
         :entry);
       if(!children.some(entry=>entry.id===child.id))children.push(clone(child));
       return{...next,children};
