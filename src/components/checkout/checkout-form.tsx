@@ -103,8 +103,9 @@ export function CheckoutForm({shippingOptions,paymentOptions,freeShippingThresho
   async function applyCoupon(){
     const code=couponInput.trim().toUpperCase();setCouponMessage('');
     if(!code){setCouponCode('');return}
+    const previousQuote=quote;
     const q=await refreshQuote(code);
-    if(!q){setCouponCode('');setCouponMessage('A kupon nem alkalmazható.');return}
+    if(!q){if(previousQuote)setQuote(previousQuote);setCouponCode('');setCouponMessage('A kupon nem alkalmazható. Az ellenőrzött kosárösszeg változatlan maradt.');return}
     setCouponCode(q.coupon_code??code);setCouponMessage(`Kupon érvényesítve: −${formatHuf(q.discount_gross_huf)}`);track('select_promotion',{promotion_id:q.coupon_code??code,value:q.discount_gross_huf,currency:'HUF'});
   }
 

@@ -204,6 +204,7 @@ describe('Playroom v20 functional acceptance',()=>{
     const shell=read('src/components/checkout/storefront-checkout-shell.tsx');
     const runtimeSource=read('src/lib/builder/storefront-runtime-source.ts');
     const settings=read('src/lib/commerce/settings.ts');
+    const acceptanceCheckoutPage=read('src/app/admin/platform/acceptance/[instanceId]/checkout/page.tsx');
     const checkout=read('src/components/checkout/checkout-form.tsx');
     const checkoutCss=read('src/components/checkout/checkout-guided.module.css');
     const playroom=read('src/lib/builder/templates/playroom-v20.ts');
@@ -269,6 +270,14 @@ describe('Playroom v20 functional acceptance',()=>{
     expect(checkoutCss).toContain('--checkout-helper:var(--shoporation-checkout-helper-color');
     expect(settings).toContain("label:'Acceptance · személyes átvétel'");
     expect(settings).toContain("label:'Acceptance · banki átutalás'");
+    expect(acceptanceCheckoutPage).toContain("code:'ACCEPT10'");
+    expect(acceptanceCheckoutPage).toContain("discount_type:'percent'");
+    expect(acceptanceCheckoutPage).toContain("discount_value:10");
+    expect(acceptanceCheckoutPage).toContain("{onConflict:'instance_id,code'}");
+    expect(acceptanceCheckoutPage).toContain('ACCEPTANCE_COUPON_FIXTURE_REQUIRED');
+    expect(checkout).toContain('const previousQuote=quote');
+    expect(checkout).toContain('if(previousQuote)setQuote(previousQuote)');
+    expect(checkout).toContain('Az ellenőrzött kosárösszeg változatlan maradt.');
     expect(checkout).toContain("Acceptance proof: a rendelés leadási kísérletét a rendszer blokkolta.");
     expect(checkout).toContain("data-checkout-embedded={embedded?'true':'false'}");
     expect(checkoutCss).toContain('.formSection legend){float:left;width:100%');

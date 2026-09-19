@@ -1096,3 +1096,39 @@ Acceptance and sandbox flows must exercise the same customer action surface as p
 
 ### Verification
 Human Preview proof showed the explicit fail-closed message after clicking the final action. Exact-head Preview runtime logs for the same interaction window contained `POST /api/checkout/quote 200` and no `/api/orders` request, confirming that no order-creation side effect crossed the protected boundary.
+
+
+---
+
+## SKB-P4-023 — Acceptance coupon fixture was missing and failed coupon quote erased the last valid total
+
+**Status:** `implemented_pending_live_verification`  
+**Evidence:** `human_preview_screenshot_plus_preview_runtime_log_plus_staging_read`  
+**Area:** `storefront/checkout/coupon + acceptance-fixtures`  
+**Risk:** high  
+**Automation:** `ACCEPTANCE_FIXTURE_AND_LAST_VALID_QUOTE_REQUIRED`
+
+### Symptom
+
+After entering `ACCEPT10`, the Checkout displayed “A kupon nem alkalmazható”, the verified summary changed from 3810 Ft to 0 Ft, and the final action became unavailable.
+
+### Evidence and root cause
+
+Exact-head Preview runtime logs showed `POST /api/checkout/quote 409` with database error `Érvénytelen vagy inaktív kuponkód.`. A read-only staging query for the acceptance tenant returned zero rows from `public.coupons`, so the documented `ACCEPT10` acceptance code had never been provisioned. Separately, `refreshQuote` correctly invalidated its quote on a failed authoritative request, but `applyCoupon` had no rollback to the last known-good quote. Because the shared coupon code was already empty, resetting it to an empty string triggered no follow-up refresh, leaving the UI at a false 0 Ft state.
+
+### Resolution
+
+- the preview-only Checkout acceptance entry idempotently upserts an active tenant-scoped `ACCEPT10` coupon with a 10% percentage discount before exposing the test flow;
+- fixture creation is fail-closed: if the coupon cannot be prepared, the acceptance page stops with `ACCEPTANCE_COUPON_FIXTURE_REQUIRED` instead of pretending the coupon test is available;
+- failed coupon attempts preserve the previous authoritative quote and only show a coupon-specific error, so an invalid promotion can never turn a valid basket total into a misleading 0 Ft summary;
+- production code paths do not seed coupons; the fixture is reachable only through the existing Vercel Preview + platform-operator + pilot-acceptance route.
+
+### Regression coverage
+
+Phase 4 acceptance coverage locks the `ACCEPT10` fixture contract, its tenant-scoped upsert conflict key, the 10% discount, the fail-closed fixture error, and preservation of the previous quote after a failed coupon request.
+
+### Template Factory prevention
+
+Acceptance scenarios that name a coupon, shipping provider, payment provider, product or other commerce object must provision that object as part of the acceptance fixture rather than rely on hidden environment state. Coupon failure is a local promotion failure; it must not erase an already verified cart quote unless the underlying cart itself became invalid.
+
+Live human proof of 3810 Ft → 381 Ft discount → 3429 Ft total is required before changing this incident to `verified_fixed`.

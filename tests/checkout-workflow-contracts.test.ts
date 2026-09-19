@@ -92,4 +92,9 @@ describe('checkout workflow contracts', () => {
     expect(checkoutForm).not.toMatch(/\/api\/coupons\/validate/);
     expect(checkoutForm).not.toMatch(/freeShippingApplies/);
   });
+  test('failed coupon attempts preserve the last valid authoritative quote', () => {
+    expect(checkoutForm).toMatch(/const previousQuote=quote/);
+    expect(checkoutForm).toMatch(/if\(!q\)\{if\(previousQuote\)setQuote\(previousQuote\)/);
+    expect(checkoutForm).toMatch(/Az ellenőrzött kosárösszeg változatlan maradt/);
+  });
 });

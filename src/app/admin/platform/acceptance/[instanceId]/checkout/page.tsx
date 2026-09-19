@@ -18,6 +18,27 @@ export default async function CheckoutAcceptancePage({params}:Props){
   if(acceptedInstanceId!==instanceId)redirect(`/admin/platform/acceptance/${instanceId}?reason=session`);
 
   const admin=createAdminClient();
+  const{error:couponFixtureError}=await admin
+    .from('coupons')
+    .upsert({
+      instance_id:instanceId,
+      code:'ACCEPT10',
+      description:'Preview-only Phase 4 acceptance coupon · 10%',
+      discount_type:'percent',
+      discount_value:10,
+      min_subtotal_huf:0,
+      max_discount_huf:null,
+      usage_limit:null,
+      starts_at:null,
+      ends_at:null,
+      active:true,
+    },{onConflict:'instance_id,code'});
+  if(couponFixtureError)return <main className="adminMain">
+    <span className="eyebrow">Phase 4 · Checkout acceptance</span>
+    <h1 className="sectionTitle">Az acceptance kupon fixture nem készíthető elő.</h1>
+    <div className="errorNotice" role="alert"><strong>ACCEPTANCE_COUPON_FIXTURE_REQUIRED</strong><br/>{couponFixtureError.message}</div>
+  </main>;
+
   const{error:symbolSchemaError}=await admin
     .from('storefront_reusable_symbols')
     .select('id')
