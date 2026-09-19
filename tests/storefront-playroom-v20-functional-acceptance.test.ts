@@ -293,7 +293,8 @@ describe('Playroom v20 functional acceptance',()=>{
     expect(withDownloads).toContain('Letöltések');
     expect(withDownloads).toContain('Dokumentumok');
     expect(withDownloads).toContain('data-presentation="playroom-facts-tile"');
-    expect(withDownloads).toContain('Dokumentumok · 1 db');
+    expect(withDownloads).toContain('Használati útmutató');
+    expect(withDownloads).not.toContain('Dokumentumok · 1 db');
     expect(withDownloads).toContain('Megnyitás');
     expect(withDownloads).toContain('Digitális tartalom: Fiókom → Letöltéseim');
     expect(withDownloads).toContain('data-digital-download-location="account"');
