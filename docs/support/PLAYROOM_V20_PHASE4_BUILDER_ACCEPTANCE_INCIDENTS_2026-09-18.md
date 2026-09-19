@@ -716,7 +716,7 @@ Before accepting each of the remaining 41 templates, run this shared preflight:
 10. Confirm Alap/Pro capability difference without switching template skin.
 11. Record any failed hypothesis before moving on.
 12. Run the template language gate: customer-facing labels/copy must match the template locale; brand/proper names may remain unchanged.
-13. On product pages, keep only **public Product Documents** discoverable in the primary PDP decision zone: the shared `commerce.downloads-tile` belongs directly after the main product gallery/buybox surface (or the first primary product section as fallback), never buried near the footer. Purchased digital assets are **never downloaded from the PDP**; after an eligible purchase they belong to `Fiókom → Letöltéseim` and remain entitlement-authorized. A digital/mixed PDP may show a short informational note pointing users to the profile library after purchase, but must not expose a digital asset download link there.
+13. On product pages, keep only **public Product Documents** discoverable in the primary PDP decision zone. Prefer embedding the shared `commerce.downloads-tile` as a compact peer tile inside an existing product-facts / compatibility / specification cluster when the template has one; only fall back to a standalone section directly after the main product surface when there is no suitable cluster. Never bury it near the footer. Purchased digital assets are **never downloaded from the PDP**; after an eligible purchase they belong to `Fiókom → Letöltéseim` and remain entitlement-authorized. A digital/mixed PDP may show a short informational note pointing users to the profile library after purchase, but must not expose a digital asset download link there.
 13. Final exact-head CI + READY Preview + human visual PASS are separate gates.
 
 ---
@@ -762,3 +762,10 @@ The following should be added as acceptance continues:
 - Tablet/Mobile findings in later canonical phases.
 
 Do not wait until all 41 templates are complete. Promote reusable findings as soon as they become verified.
+
+
+### 2026-09-19 — Playroom compact downloads placement refinement
+- Human visual feedback showed the standalone full-width downloads section was still too prominent.
+- Playroom now embeds `playroom-product-downloads` directly into `playroom-product-facts-container` as the third peer tile after `Játékadatok` and `Platform Compatibility`.
+- This is a presentation/composition refinement only; public-vs-account document authority and entitlement rules are unchanged.
+- Template Factory guidance: when a PDP already has a compact facts/specification cluster, downloads should usually join that cluster instead of creating a new full-width section.
