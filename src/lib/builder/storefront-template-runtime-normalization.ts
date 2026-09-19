@@ -47,22 +47,22 @@ function normalizePlayroomV20FooterNode(node:StorefrontComponentNode,isFooterRoo
   const config={...next.config};
   if(isFooterRoot){
     const style=(config.style&&typeof config.style==='object'&&!Array.isArray(config.style)?config.style:{}) as Record<string,unknown>;
-    config.style={...style,padding:'1.05rem 2.35rem 1.2rem',minHeight:'9rem'};
+    config.style={...style,padding:'1.45rem 2.35rem 1.7rem',minHeight:'12rem'};
   }
   if(node.componentKey==='layout.grid'){
-    config.gap='s';
+    config.gap='m';
   }
   if(node.componentKey==='layout.stack'){
     const style=(config.style&&typeof config.style==='object'&&!Array.isArray(config.style)?config.style:{}) as Record<string,unknown>;
-    config.style={...style,gap:'.3rem'};
+    config.style={...style,gap:'.5rem'};
   }
   if(node.componentKey==='system.navigation'){
     const style=(config.style&&typeof config.style==='object'&&!Array.isArray(config.style)?config.style:{}) as Record<string,unknown>;
     const slots=(config.styleSlots&&typeof config.styleSlots==='object'&&!Array.isArray(config.styleSlots)?config.styleSlots:{}) as Record<string,unknown>;
     const item=(slots.item&&typeof slots.item==='object'&&!Array.isArray(slots.item)?slots.item:{}) as Record<string,unknown>;
     const base=(item.base&&typeof item.base==='object'&&!Array.isArray(item.base)?item.base:{}) as Record<string,unknown>;
-    config.style={...style,gap:'.18rem',lineHeight:1.35};
-    config.styleSlots={...slots,item:{...item,base:{...base,minHeight:'1rem',display:'flex',alignItems:'center'}}};
+    config.style={...style,gap:'.32rem',lineHeight:1.5};
+    config.styleSlots={...slots,item:{...item,base:{...base,minHeight:'1.75rem',display:'flex',alignItems:'center'}}};
   }
   return{
     ...next,
