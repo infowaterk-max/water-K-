@@ -36,6 +36,13 @@ describe('Portfolio-wide cart customer-task contract',()=>{
       for(const recommendation of nodes.filter(node=>node.componentKey==='commerce.recommendation-row')){
         expect(recommendation.config.hideWhenEmpty,template.manifest.templateKey).toBe(true);
       }
+      for(const section of nodes.filter(node=>node.componentKey==='layout.section')){
+        const descendants=walk(section.children??[]);
+        if(descendants.some(node=>node.componentKey==='commerce.recommendation-row')
+          &&descendants.every(node=>['layout.container','layout.grid','layout.stack','commerce.recommendation-row'].includes(node.componentKey))){
+          expect(section.config.presentation,template.manifest.templateKey).toBe('flush');
+        }
+      }
       expect(nodes.filter(node=>forbiddenCartComponents.has(node.componentKey)),template.manifest.templateKey).toEqual([]);
       expect(storefrontCartPresentationViolations(cart!),template.manifest.templateKey).toEqual([]);
     }
