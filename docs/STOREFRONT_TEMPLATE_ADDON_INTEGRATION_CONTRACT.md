@@ -136,6 +136,22 @@ Examples of semantic insertion points:
 
 Exact implementation names may evolve, but the architectural rule remains: add-ons attach to semantic page responsibilities, not arbitrary coordinates or one-off template DOM structure.
 
+### Product downloads placement contract
+
+The shared `commerce.downloads-tile` follows a portfolio-wide PDP placement rule for **all current and future storefront templates**:
+
+- if the PDP already has a natural facts/specification/compatibility cluster, the compact downloads tile joins that cluster as a peer surface;
+- the exact visual composition remains template-specific: fashion may place it beside size/material facts, tech beside specifications/compatibility, beauty beside ingredients/usage facts, gaming beside game/platform data, and so on;
+- the shared composition engine identifies semantic fact surfaces rather than relying on Playroom-specific node IDs or fixed coordinates;
+- purchase/buybox controls are not treated as a facts cluster merely because a key-spec component is nested inside the buybox;
+- if no suitable semantic cluster exists, the fallback is a compact standalone downloads surface immediately after the primary product gallery/buybox section;
+- the tile must never be buried near the footer;
+- public Product Documents may be downloaded from the PDP;
+- account-only documents and purchased digital assets remain under `Fiókom → Letöltéseim` and keep their existing authorization/entitlement boundaries.
+
+This rule is part of Template Factory acceptance. A new template does not need a template-local downloads engine, but its PDP composition must pass the shared placement contract before market-ready acceptance.
+
+
 ## Checkout integration
 
 The canonical checkout flow remains:
@@ -215,6 +231,7 @@ Before release, verify the set of add-ons/capabilities that are expected to work
 
 - native factory appearance;
 - semantic placement;
+- product-download placement follows the shared facts-cluster-first / primary-PDP fallback contract;
 - discoverability;
 - live design inheritance;
 - Builder editability where applicable;
