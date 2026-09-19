@@ -34,12 +34,23 @@ const statePanel=(state:string,config:Record<string,unknown>,slot:(key:string)=>
 
 function DownloadsTileRenderer({config,node,viewport}:StorefrontComponentRenderProps){
   const model=record(config.model),state=stateOf(model),slot=styles(config,viewport);
-  if(state!=='ready')return state==='empty'?null:<section data-storefront-digital-commerce="downloads-tile" data-state={state} style={{...span(node),padding:'1rem',...surface(slot),...slot('root')}}>{statePanel(state,config,slot)}</section>;
+  const presentation=text(config.presentation,'priority-tile');
+  const compact=presentation.includes('facts-tile');
+  if(state!=='ready')return state==='empty'?null:<section data-storefront-digital-commerce="downloads-tile" data-state={state} data-presentation={presentation} style={{...span(node),padding:compact?'.72rem .8rem':'1rem',...surface(slot),...slot('root')}}>{statePanel(state,config,slot)}</section>;
   const documents=rows(model?.documents),mode=text(model?.mode,'physical');
   const hasDigital=mode==='digital'||mode==='mixed';
   if(!documents.length&&!hasDigital)return null;
-  const documentsHref=documents.length===1?safeInternalHref(documents[0]?.downloadHref):'';
-  return <section data-storefront-digital-commerce="downloads-tile" data-fulfillment-mode={mode} data-presentation={text(config.presentation,'priority-tile')} style={{...span(node),display:'grid',gap:'.75rem',padding:'clamp(.9rem,2vw,1.15rem)',...surface(slot),...slot('root')}}>
+  const firstDocument=documents[0],firstHref=safeInternalHref(firstDocument?.downloadHref);
+
+  if(compact)return <section data-storefront-digital-commerce="downloads-tile" data-fulfillment-mode={mode} data-presentation={presentation} style={{...span(node),display:'grid',alignContent:'start',gap:'.34rem',minHeight:'100%',padding:'.72rem .8rem',...surface(slot),...slot('root')}}>
+    <small style={{fontWeight:850,fontSize:'.68rem',letterSpacing:'.08em',textTransform:'uppercase',color:'var(--shoporation-color-accent,#2f7f6f)',...slot('eyebrow')}}>{text(config.eyebrow,'LETÖLTÉSEK')}</small>
+    <strong style={{fontSize:'clamp(.92rem,1.4vw,1.02rem)',lineHeight:1.15,...slot('title')}}>{text(config.title,'Letöltések')}</strong>
+    {documents.length?<div style={{display:'flex',alignItems:'baseline',justifyContent:'space-between',gap:'.5rem',fontSize:'.78rem',...slot('row')}}><span>{text(config.documentsLabel,'Dokumentumok')} · {documents.length} db</span>{firstHref?<a href={firstHref} style={{color:'inherit',fontWeight:750,...slot('open')}}>{text(config.openLabel,'Megnyitás')}</a>:null}</div>:null}
+    {hasDigital?<small data-digital-download-location="account" style={{color:'var(--shoporation-color-muted-text,#667085)',lineHeight:1.35,fontWeight:650,...slot('copy')}}>{text(config.digitalCompactCopy,'Digitális tartalom: Fiókom → Letöltéseim')}</small>:null}
+  </section>;
+
+  const documentsHref=documents.length===1?firstHref:'';
+  return <section data-storefront-digital-commerce="downloads-tile" data-fulfillment-mode={mode} data-presentation={presentation} style={{...span(node),display:'grid',gap:'.75rem',padding:'clamp(.9rem,2vw,1.15rem)',...surface(slot),...slot('root')}}>
     <header style={{display:'grid',gap:'.25rem',...slot('header')}}>{text(config.eyebrow)?<small style={{fontWeight:800,letterSpacing:'.09em',textTransform:'uppercase',color:'var(--shoporation-color-accent,#2f7f6f)',...slot('eyebrow')}}>{text(config.eyebrow)}</small>:null}<h2 style={{margin:0,fontFamily:'var(--shoporation-heading-font,Georgia,serif)',fontSize:'clamp(1.1rem,2vw,1.35rem)',...slot('title')}}>{text(config.title,'Letöltések')}</h2></header>
     <div style={{display:'grid',gap:'.5rem',...slot('list')}}>
       {documents.length?<div style={{display:'grid',gap:'.4rem',padding:'.75rem .85rem',border:'1px solid var(--shoporation-color-border,#d8dce7)',borderRadius:'calc(var(--shoporation-radius-m,.75rem) * .8)',...slot('row')}}>
