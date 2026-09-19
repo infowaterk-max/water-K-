@@ -120,7 +120,9 @@ export async function GET(request:Request){
       existingPages:before.existing,
     });
     if(!plan.gate.ok||plan.mode!=='refresh'||plan.pages.length!==14||plan.templateKey!==TEMPLATE_KEY||plan.templateVersion!==TEMPLATE_VERSION)throw new Error('L10N_REFRESH_PLAN_INVALID');
-    if(JSON.stringify(plan.pages.map(page=>page.pageKey))!==JSON.stringify(beforeKeys))throw new Error('L10N_PAGE_KEYS_CHANGED');
+    const plannedKeys=plan.pages.map(page=>page.pageKey).sort();
+    const persistedKeys=[...beforeKeys].sort();
+    if(JSON.stringify(plannedKeys)!==JSON.stringify(persistedKeys))throw new Error('L10N_PAGE_KEYS_CHANGED');
 
     const materialized=plan.pages.map(page=>{
       const document=setStorefrontGlobalStyleState(page.document,globalStyles);
