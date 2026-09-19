@@ -23,6 +23,7 @@ import {resolveStorefrontVisualStyle} from '@/lib/builder/storefront-visual-styl
 import type {StorefrontComponentNode,StorefrontPageDocument} from '@/lib/builder/storefront-runtime';
 import {PLAYROOM_V19_CANONICAL_TEMPLATE_PACKAGE} from '@/lib/builder/templates/playroom-v19-canonical';
 import {PLAYROOM_V20_TEMPLATE_PACKAGE} from '@/lib/builder/templates/playroom-v20';
+import {STOREFRONT_IMPLEMENTED_TEMPLATE_PACKAGES,STOREFRONT_TEMPLATE_LAUNCH_TARGET} from '@/lib/builder/storefront-template-catalog';
 import {PLANS} from '@/lib/plans/catalog';
 
 const read=(path:string)=>readFileSync(path,'utf8');
@@ -44,6 +45,32 @@ function findNode(document:StorefrontPageDocument,nodeId:string):StorefrontCompo
   const found=walk(document.sections);
   if(!found)throw new Error(`TEST_NODE_NOT_FOUND:${nodeId}`);
   return found;
+}
+
+function collectNodes(document:StorefrontPageDocument,predicate:(node:StorefrontComponentNode)=>boolean):StorefrontComponentNode[]{
+  const found:StorefrontComponentNode[]=[];
+  const walk=(nodes:readonly StorefrontComponentNode[])=>{
+    for(const node of nodes){
+      if(predicate(node))found.push(node);
+      walk(node.children??[]);
+    }
+  };
+  walk(document.sections);
+  return found;
+}
+
+function hasFactClusterHost(document:StorefrontPageDocument):boolean{
+  const factKeys=new Set(['commerce.key-specs','commerce.specification-groups','commerce.technical-documents','compatibility.evidence','compatibility.status']);
+  const purchaseKeys=new Set(['commerce.product-info','commerce.option-selector','commerce.variant-swatches','commerce.purchase-controls','commerce.add-to-cart']);
+  return collectNodes(document,node=>{
+    const keys=(node.children??[]).map(child=>child.componentKey);
+    const facts=keys.filter(key=>factKeys.has(key)).length;
+    const purchases=keys.filter(key=>purchaseKeys.has(key)).length;
+    const layoutBonus=['layout.container','layout.grid'].includes(node.componentKey);
+    const rich=keys.some(key=>['commerce.specification-groups','commerce.technical-documents','compatibility.evidence','compatibility.status'].includes(key));
+    const score=facts*10+(layoutBonus?4:0)+(rich?4:0)+(facts>1?6:0)-(purchases?18:0);
+    return score>0;
+  }).length>0;
 }
 
 function render(page:StorefrontPageDocument,bindingContext:Record<string,unknown>,viewport:'desktop'|'tablet'|'mobile'='desktop'){
@@ -197,6 +224,26 @@ describe('Playroom v20 functional acceptance',()=>{
     expect(html).toContain(`Acceptance ${mode}`);
     if(mode==='digital')expect(html).not.toContain('Neon Pro Controller');
     if(mode==='mixed'){expect(html).toContain('Neon Pro Controller');expect(html).toContain('Orbit Breakers Digital');}
+  });
+
+  it('applies the downloads placement contract across every implemented template and remains future-template generic',()=>{
+    expect(STOREFRONT_IMPLEMENTED_TEMPLATE_PACKAGES.length).toBeLessThanOrEqual(STOREFRONT_TEMPLATE_LAUNCH_TARGET);
+    for(const template of STOREFRONT_IMPLEMENTED_TEMPLATE_PACKAGES){
+      const source=structuredClone(template.pages.find(page=>page.pageType==='product')!);
+      delete source.metadata?.digitalCommerceCompositionVersion;
+      const composed=composeStorefrontDigitalCommerceTemplatePackage({...template,pages:[source]}).pages[0];
+      const tiles=collectNodes(composed,node=>node.componentKey==='commerce.downloads-tile');
+      expect(tiles,template.manifest.templateKey).toHaveLength(1);
+
+      const eligibleCluster=hasFactClusterHost(source);
+      const standalone=composed.sections.find(section=>section.id.startsWith('shared-')&&section.id.endsWith('-digital-commerce'));
+      if(eligibleCluster)expect(standalone,template.manifest.templateKey).toBeUndefined();
+      else {
+        expect(standalone,template.manifest.templateKey).toBeTruthy();
+        const primaryIndex=composed.sections.findIndex(section=>collectNodes({...composed,sections:[section]},node=>['commerce.product-gallery','commerce.product-info','commerce.variant-swatches','commerce.option-selector','commerce.purchase-controls','commerce.add-to-cart'].includes(node.componentKey)).length>0);
+        expect(composed.sections.indexOf(standalone!),template.manifest.templateKey).toBe(primaryIndex+1);
+      }
+    }
   });
 
   it('migrates an already-saved standalone downloads section into an existing Product Facts cluster',()=>{
