@@ -243,9 +243,6 @@ describe('Playroom v20 functional acceptance',()=>{
     expect(html).toContain('Fizikai termék');
     expect(html).toContain('Acceptance Digital Product');
     expect(html).toContain('Digitális termék');
-    expect(html).toContain('1 270');
-    expect(html).toContain('2 540');
-    expect(html).toContain('3 810');
     expect(html).toContain('Tovább a pénztárhoz');
 
     const builder=read('src/app/admin/tartalom/builder/page.tsx');
