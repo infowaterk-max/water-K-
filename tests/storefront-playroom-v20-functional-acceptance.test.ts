@@ -123,6 +123,18 @@ describe('Playroom v20 functional acceptance',()=>{
     expect(client).toContain("role={feedback.kind==='error'?'alert':'status'}");
   });
 
+  it('keeps acceptance deep links on persisted runtime page keys and Direct Preview on the same shared digital composition as Builder',()=>{
+    const acceptance=read('src/app/admin/platform/acceptance/[instanceId]/actions.ts');
+    expect(acceptance).toContain("page=home&acceptance=platform");
+    expect(acceptance).not.toContain("page=playroom.home");
+
+    const builder=read('src/app/admin/tartalom/builder/page.tsx');
+    const runtimeSource=read('src/lib/builder/storefront-runtime-source.ts');
+    expect(builder).toContain('composeStorefrontDigitalCommerceCapabilities(document)');
+    expect(runtimeSource).toContain('const composedPage=composeStorefrontDigitalCommerceCapabilities(page)');
+    expect(runtimeSource).toContain('page:failClosedSpecialCommerce(composedPage,runtime.capability)');
+  });
+
   it('proves one Playroom package for Alap and Pro and exposes contextual locked/available capabilities from real manifests',()=>{
     for(const capability of[alap,pro]){
       const template=composeStorefrontDigitalCommerceTemplatePackage(PLAYROOM_V20_TEMPLATE_PACKAGE);
