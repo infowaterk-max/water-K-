@@ -40,6 +40,22 @@ function containsCartInternalAssurance(node:StorefrontComponentNode):boolean{
   return textValues(node.config).some(value=>CART_INTERNAL_ASSURANCE_PATTERNS.some(pattern=>pattern.test(value)));
 }
 
+function hasOnlyRecommendationContent(node:StorefrontComponentNode):boolean{
+  let hasRecommendation=false;
+  let hasOtherLeaf=false;
+  const visit=(current:StorefrontComponentNode)=>{
+    if(current.componentKey==='commerce.recommendation-row'){hasRecommendation=true;return;}
+    const children=current.children??[];
+    if(!children.length){
+      if(!['layout.section','layout.container','layout.grid','layout.stack'].includes(current.componentKey))hasOtherLeaf=true;
+      return;
+    }
+    for(const child of children)visit(child);
+  };
+  visit(node);
+  return hasRecommendation&&!hasOtherLeaf;
+}
+
 function hasFunctionalCartDescendant(node:StorefrontComponentNode):boolean{
   if(['commerce.cart-summary','commerce.recommendation-row'].includes(node.componentKey))return true;
   return(node.children??[]).some(hasFunctionalCartDescendant);
@@ -71,6 +87,7 @@ function normalizeCartNode(node:StorefrontComponentNode):StorefrontComponentNode
     config.emptyCtaHref=typeof config.emptyCtaHref==='string'&&config.emptyCtaHref.trim()?config.emptyCtaHref:'/webaruhaz';
   }
   if(node.componentKey==='commerce.recommendation-row')config.hideWhenEmpty=true;
+  if(node.componentKey==='layout.section'&&hasOnlyRecommendationContent(node))config.presentation='flush';
 
   return{
     ...clone(node),
