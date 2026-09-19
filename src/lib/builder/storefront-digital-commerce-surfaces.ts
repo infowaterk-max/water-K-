@@ -32,7 +32,7 @@ export const STOREFRONT_DIGITAL_COMMERCE_COMPONENT_DEFINITIONS:readonly Storefro
   definition({
     componentKey:'commerce.downloads-tile',
     pageTypes:['product'],
-    configurable:['eyebrow','title','documentsLabel','digitalLabel','digitalPendingLabel','openLabel','presentation','styleSlots'],
+    configurable:['eyebrow','title','documentsLabel','digitalLabel','digitalAccountCopy','openLabel','presentation','styleSlots'],
     features:['catalog'],
   }),
   definition({
