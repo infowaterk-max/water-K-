@@ -16,6 +16,7 @@ export async function startPlatformPilotAcceptanceAction(formData:FormData){
   if(process.env.VERCEL_ENV!=='preview')redirect('/admin/platform?acceptance=preview-only');
   const actor=await requirePlatformOperator();
   const instanceId=String(formData.get('instanceId')??'').trim();
+  const flow=String(formData.get('flow')??'builder').trim();
   if(!UUID.test(instanceId))redirect('/admin/platform?acceptance=invalid');
 
   const admin=createAdminClient();
@@ -56,5 +57,6 @@ export async function startPlatformPilotAcceptanceAction(formData:FormData){
     path:'/',
     maxAge:PILOT_ACCEPTANCE_MAX_AGE_SECONDS,
   });
+  if(flow==='checkout')redirect(`/admin/platform/acceptance/${instanceId}/checkout`);
   redirect('/admin/tartalom/builder?page=home&acceptance=platform');
 }
