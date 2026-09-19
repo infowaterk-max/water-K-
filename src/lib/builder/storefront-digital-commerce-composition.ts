@@ -75,16 +75,20 @@ function downloadsFactsHostScore(item:StorefrontComponentNode):number{
 }
 
 function findDownloadsFactsHostId(nodes:readonly StorefrontComponentNode[]):string|null{
-  let best:{id:string;score:number}|null=null;
+  let bestId:string|null=null;
+  let bestScore=0;
   const visit=(items:readonly StorefrontComponentNode[])=>{
     for(const item of items){
       const score=downloadsFactsHostScore(item);
-      if(score>0&&(!best||score>best.score))best={id:item.id,score};
+      if(score>bestScore){
+        bestId=item.id;
+        bestScore=score;
+      }
       if(item.children?.length)visit(item.children);
     }
   };
   visit(nodes);
-  return best?.id??null;
+  return bestId;
 }
 
 function appendNodeToTarget(nodes:readonly StorefrontComponentNode[],targetId:string,child:StorefrontComponentNode):StorefrontComponentNode[]{
