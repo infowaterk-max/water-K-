@@ -65,9 +65,16 @@ function normalizeCartNode(node:StorefrontComponentNode):StorefrontComponentNode
 
   if(hadChildren&&!children.length&&['layout.section','layout.container','layout.grid','layout.stack'].includes(node.componentKey))return null;
 
+  const config=sanitizeCartConfig(node.config);
+  if(node.componentKey==='commerce.cart-summary'){
+    config.emptyCtaLabel=typeof config.emptyCtaLabel==='string'&&config.emptyCtaLabel.trim()?config.emptyCtaLabel:'Vásárlás folytatása';
+    config.emptyCtaHref=typeof config.emptyCtaHref==='string'&&config.emptyCtaHref.trim()?config.emptyCtaHref:'/webaruhaz';
+  }
+  if(node.componentKey==='commerce.recommendation-row')config.hideWhenEmpty=true;
+
   return{
     ...clone(node),
-    config:sanitizeCartConfig(node.config),
+    config,
     ...(node.children?{children}:{}),
   };
 }
