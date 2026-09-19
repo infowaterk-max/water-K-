@@ -858,6 +858,18 @@ The template-native Playroom checkout successfully loaded the real shared E13 fl
 - the Playroom v20 shared-shell normalizer restores footer vertical padding, minimum height, column gap and navigation line spacing for current/future v20 pages without rewriting historical exact-version packages;
 - regression coverage locks all three contracts.
 
+### Follow-up diagnosis
+
+The first footer fix still did not affect the live checkout footer. The reason was the global reusable-symbol materializer: when a global footer replaces a page-local footer with a different root id, it remaps the root and every descendant id to generated `global-footer-*` / `sym-*` ids. An id-based `playroom-footer-*` compatibility pass therefore cannot reliably target the live footer.
+
+The first SVG search fix also remained visually weak because the template's persisted `buttonStyle.padding` was merged after the icon-only geometry and overrode its fixed padding/box model.
+
+### Follow-up resolution
+
+- Playroom v20 footer normalization is now semantic: it detects the footer by preserved customer-facing content (`Vásárlási információk`, `Kövess minket`, Playroom brand copy) and normalizes the entire detected footer subtree regardless of remapped node ids.
+- The search button applies template visual styles first, then reapplies invariant icon-only geometry (fixed width, zero padding, flex centering), so template-local padding cannot distort the icon control.
+- Regression coverage explicitly remaps all footer ids before normalization and verifies the footer still receives the v20 spacing contract.
+
 ### Prevention
 
 For every remaining template, live shared commerce surfaces must inherit the active template's Global Styles by default. A missing optional template-local theme block must never fall back to a different visual system. Icon-only controls must use deterministic SVG geometry, and historical fidelity compression must be normalized at the current template-version boundary before portfolio acceptance.
