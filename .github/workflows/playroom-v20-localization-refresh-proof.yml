@@ -17,8 +17,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     env:
-      BASE_URL: https://water-k-native-73cankymn-infowaterk-5067.vercel.app
-      PROOF_SHA: e0e757ff97afea808aa7acc95b43e706dc8c7803
+      BASE_URL: https://water-k-native-bx775h8rh-infowaterk-5067.vercel.app
+      PROOF_SHA: 10d7d217a1250909795e704fcc943a37e75d466b
       VERCEL_AUTOMATION_BYPASS_SECRET: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
     steps:
       - name: Verify Vercel automation bypass secret
