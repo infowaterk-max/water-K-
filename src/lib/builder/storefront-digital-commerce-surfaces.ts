@@ -5,7 +5,7 @@ import {
 } from '@/lib/builder/storefront-foundation';
 import type {StorefrontRuntimeComponentDefinition} from '@/lib/builder/storefront-runtime';
 
-export const STOREFRONT_DIGITAL_COMMERCE_SURFACES_VERSION='shoporation.storefront-digital-commerce-surfaces.v1' as const;
+export const STOREFRONT_DIGITAL_COMMERCE_SURFACES_VERSION='shoporation.storefront-digital-commerce-surfaces.v2' as const;
 
 const definition=(input:{
   componentKey:string;
@@ -29,6 +29,12 @@ const definition=(input:{
 });
 
 export const STOREFRONT_DIGITAL_COMMERCE_COMPONENT_DEFINITIONS:readonly StorefrontRuntimeComponentDefinition[]=[
+  definition({
+    componentKey:'commerce.downloads-tile',
+    pageTypes:['product'],
+    configurable:['eyebrow','title','documentsLabel','digitalLabel','digitalPendingLabel','openLabel','presentation','styleSlots'],
+    features:['catalog'],
+  }),
   definition({
     componentKey:'commerce.fulfillment-summary',
     pageTypes:['product','cart','checkout'],
