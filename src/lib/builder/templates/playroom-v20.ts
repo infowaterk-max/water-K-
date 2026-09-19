@@ -108,7 +108,7 @@ const supportForm=()=>node({
   config:{eyebrow:'ÜGYFÉLSZOLGÁLAT',title:'Írj nekünk közvetlenül.',copy:'A megkeresésed követhető ügyfélszolgálati azonosítót kap. Ha rendelésről írsz, add meg a rendelési számodat is.',nameLabel:'Név',emailLabel:'E-mail',orderNumberLabel:'Rendelésszám',categoryLabel:'Téma',subjectLabel:'Tárgy',messageLabel:'Üzenet',buttonLabel:'Üzenet elküldése',successLead:'Köszönjük! Az ügy száma:',tone:'surface'},
 });
 
-const productDownloadsTile=()=>node({id:'playroom-product-downloads',componentKey:'commerce.downloads-tile',componentVersion:1,config:{eyebrow:'LETÖLTÉSEK',title:'Letöltések',documentsLabel:'Dokumentumok',digitalLabel:'Digitális termék',digitalAccountCopy:'Vásárlás után a letöltés a Fiókom → Letöltéseim menüpontban érhető el.',openLabel:'Megnyitás',presentation:'playroom-facts-tile'}});
+const productDownloadsTile=()=>node({id:'playroom-product-downloads',componentKey:'commerce.downloads-tile',componentVersion:1,config:{eyebrow:'LETÖLTÉSEK',title:'Letöltések',documentsLabel:'Dokumentumok',digitalLabel:'Digitális termék',digitalAccountCopy:'Vásárlás után a letöltés a Fiókom → Letöltéseim menüpontban érhető el.',openLabel:'Megnyitás',presentation:'playroom-facts-tile'},responsive:{desktop:{gridSpan:4},tablet:{gridSpan:4},mobile:{gridSpan:12}}});
 
 const digitalCommerceSection=(pageType:StorefrontPageDocument['pageType'])=>{
   const children:StorefrontComponentNode[]=[];
@@ -130,7 +130,9 @@ function appendChildToNode(nodes:readonly StorefrontComponentNode[],targetId:str
   return nodes.map(item=>{
     const next=clone(item);
     if(next.id===targetId){
-      const children=[...(next.children??[])];
+      const children=[...(next.children??[])].map(entry=>targetId==='playroom-product-facts-grid'
+        ?{...entry,responsive:{...(entry.responsive??{}),desktop:{...(entry.responsive?.desktop??{}),gridSpan:4},tablet:{...(entry.responsive?.tablet??{}),gridSpan:4},mobile:{...(entry.responsive?.mobile??{}),gridSpan:12}}}
+        :entry);
       if(!children.some(entry=>entry.id===child.id))children.push(clone(child));
       return{...next,children};
     }
@@ -158,7 +160,7 @@ function upgradePage(source:StorefrontPageDocument):StorefrontPageDocument{
   let sections=source.sections.map(clone);
   if(source.pageType==='home'&&!sections.some(item=>item.id==='playroom-home-newsletter'))sections=insertBeforeFooter(sections,newsletterSection());
   if(source.pageType==='contact'&&!sections.some(item=>item.id==='playroom-contact-form'))sections=insertBeforeFooter(sections,supportForm());
-  if(source.pageType==='product')sections=appendChildToNode(sections,'playroom-product-facts-container',productDownloadsTile());
+  if(source.pageType==='product')sections=appendChildToNode(sections,'playroom-product-facts-grid',productDownloadsTile());
   if(['cart','checkout','account'].includes(source.pageType)&&!sections.some(item=>item.id===`playroom-${source.pageType}-digital-commerce`))sections=insertBeforeFooter(sections,digitalCommerceSection(source.pageType));
   const previousAddon=rec(source.metadata?.addonIntegration);
   const previousContexts=Array.isArray(previousAddon.semanticContexts)?previousAddon.semanticContexts.filter((value):value is string=>typeof value==='string'):[];
