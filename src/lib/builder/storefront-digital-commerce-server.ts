@@ -52,13 +52,15 @@ export async function getStorefrontDigitalCommerceRuntimeModel(instanceId:string
   if(request.pageType==='product'){
     const fulfillment=await classifyCheckoutFulfillment(instanceId,[{variant_id:request.variantId,quantity:1}]);
     const documents=await listStorefrontProductDocuments(instanceId,request.variantId,request.customerId);
+    const productDocuments=documents.map(document=>({
+      id:document.documentId,kindLabel:kindLabel[document.kind],title:document.title,description:document.description,
+      fileName:document.fileName,sizeLabel:fileSize(document.sizeBytes),variantSpecific:document.variantSpecific,
+      downloadHref:`/api/product-documents/${document.documentId}?variantId=${encodeURIComponent(request.variantId)}`,
+    }));
     return{
       productFulfillment:{state:'ready',mode:fulfillment.mode,copy:fulfillmentCopy(fulfillment.mode),documentCenterHref:'/fiokom/letoltesek'},
-      productDocuments:{state:'ready',documents:documents.map(document=>({
-        id:document.documentId,kindLabel:kindLabel[document.kind],title:document.title,description:document.description,
-        fileName:document.fileName,sizeLabel:fileSize(document.sizeBytes),variantSpecific:document.variantSpecific,
-        downloadHref:`/api/product-documents/${document.documentId}?variantId=${encodeURIComponent(request.variantId)}`,
-      }))},
+      productDocuments:{state:'ready',documents:productDocuments},
+      productDownloads:{state:'ready',mode:fulfillment.mode,documents:productDocuments,documentCenterHref:'/fiokom/letoltesek'},
     };
   }
 
