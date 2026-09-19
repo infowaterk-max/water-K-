@@ -194,6 +194,7 @@ describe('Playroom v20 functional acceptance',()=>{
     const runtimeSource=read('src/lib/builder/storefront-runtime-source.ts');
     const settings=read('src/lib/commerce/settings.ts');
     const checkout=read('src/components/checkout/checkout-form.tsx');
+    const checkoutCss=read('src/components/checkout/checkout-guided.module.css');
     const playroom=read('src/lib/builder/templates/playroom-v20.ts');
     const header=read('src/components/builder/storefront-commerce-header.tsx');
     const normalizer=read('src/lib/builder/storefront-template-runtime-normalization.ts');
@@ -235,6 +236,11 @@ describe('Playroom v20 functional acceptance',()=>{
     expect(settings).toContain("label:'Acceptance · banki átutalás'");
     expect(checkout).toContain("Acceptance módban a rendelés tényleges leadása tiltva van.");
     expect(checkout).toContain("data-checkout-embedded={embedded?'true':'false'}");
+    expect(checkoutCss).toContain('.formSection legend){float:left;width:100%');
+    expect(checkoutCss).toContain('color:var(--checkout-text)!important');
+    expect(checkoutCss).toContain('.checkoutField>span');
+    expect(checkoutCss).toContain('font-weight:800');
+    expect(checkoutCss).toContain('input::placeholder');
   });
 
   it('proves one Playroom package for Alap and Pro and exposes contextual locked/available capabilities from real manifests',()=>{
