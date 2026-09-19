@@ -258,7 +258,7 @@ describe('Playroom v20 functional acceptance',()=>{
       componentKey:'layout.section',componentVersion:1,config:{},
       children:[{id:'playroom-product-digital-commerce-container',componentKey:'layout.container',componentVersion:1,config:{},children:[structuredClone(tile!)]}],
     });
-    product.metadata={...(product.metadata??{}),digitalCommerceCompositionVersion:'shoporation.storefront-digital-commerce-composition.v2'};
+    product.metadata={...(product.metadata??{}),digitalCommerceCompositionVersion:'shoporation.storefront-digital-commerce-composition.v4'};
     const migrated=composeStorefrontDigitalCommerceTemplatePackage({...PLAYROOM_V20_TEMPLATE_PACKAGE,pages:[product]}).pages[0];
     const migratedFacts=findNode(migrated,'playroom-product-facts-grid');
     expect(migrated.sections.some(section=>section.id==='playroom-product-digital-commerce')).toBe(false);
@@ -292,10 +292,12 @@ describe('Playroom v20 functional acceptance',()=>{
     expect(withDownloads).toContain('data-storefront-digital-commerce="downloads-tile"');
     expect(withDownloads).toContain('Letöltések');
     expect(withDownloads).toContain('Dokumentumok');
-    expect(withDownloads).toContain('Neon Pro Controller kézikönyv');
-    expect(withDownloads).toContain('Digitális termék');
-    expect(withDownloads).toContain('Vásárlás után a letöltés a Fiókom → Letöltéseim menüpontban érhető el.');
+    expect(withDownloads).toContain('data-presentation="playroom-facts-tile"');
+    expect(withDownloads).toContain('Dokumentumok · 1 db');
+    expect(withDownloads).toContain('Megnyitás');
+    expect(withDownloads).toContain('Digitális tartalom: Fiókom → Letöltéseim');
     expect(withDownloads).toContain('data-digital-download-location="account"');
+    expect(withDownloads).not.toContain('Neon Pro Controller kézikönyv');
     expect(withDownloads).not.toContain('href="/fiokom/letoltesek"');
 
     const emptyPhysical=render(product,{commerce:{digitalCommerce:{
