@@ -7,6 +7,7 @@ import {createStorefrontVisualBuilderRendererRegistry} from '@/components/builde
 import {createStorefrontVisualBuilderComponentRegistry} from '@/lib/builder/storefront-builder-registry';
 import {bindStorefrontExistingCommerceRuntime} from '@/lib/builder/storefront-existing-commerce-bindings';
 import {composeStorefrontDigitalCommerceTemplatePackage} from '@/lib/builder/storefront-digital-commerce-composition';
+import {augmentStorefrontDigitalCommercePreviewContext} from '@/lib/builder/storefront-digital-commerce-preview';
 import {
   planStorefrontTemplateInstallation,
   STOREFRONT_TEMPLATE_SWITCH_DATA_BOUNDARY,
@@ -221,6 +222,34 @@ describe('Playroom v20 functional acceptance',()=>{
     const source=read('src/lib/builder/storefront-digital-commerce-composition.ts');
     expect(source).toContain("cart:[]");
     expect(source).toContain("isDeprecatedCartDigitalCommerceSection");
+  });
+
+  it('injects a mixed non-empty cart only for the signed platform acceptance preview',()=>{
+    const cart=playroomPage('cart');
+    const ordinary=augmentStorefrontDigitalCommercePreviewContext({page:cart,context:{cart:{lines:[]}}});
+    expect((ordinary.cart as {lines?:unknown[]}).lines).toEqual([]);
+
+    const acceptance=augmentStorefrontDigitalCommercePreviewContext({page:cart,context:{cart:{lines:[]}},acceptanceMode:true});
+    const fixture=acceptance.cart as {lines:Array<{name:string;variantLabel:string;quantity:number;lineTotal:number}>;subtotal:number;total:number};
+    expect(fixture.lines).toEqual([
+      expect.objectContaining({name:'Acceptance Physical Product',variantLabel:'Fizikai termék',quantity:1,lineTotal:1270}),
+      expect.objectContaining({name:'Acceptance Digital Product',variantLabel:'Digitális termék',quantity:1,lineTotal:2540}),
+    ]);
+    expect(fixture.subtotal).toBe(3810);
+    expect(fixture.total).toBe(3810);
+
+    const html=render(cart,acceptance);
+    expect(html).toContain('Acceptance Physical Product');
+    expect(html).toContain('Fizikai termék');
+    expect(html).toContain('Acceptance Digital Product');
+    expect(html).toContain('Digitális termék');
+    expect(html).toContain('1 270');
+    expect(html).toContain('2 540');
+    expect(html).toContain('3 810');
+    expect(html).toContain('Tovább a pénztárhoz');
+
+    const builder=read('src/app/admin/tartalom/builder/page.tsx');
+    expect(builder).toContain('acceptanceMode:isPlatformPilotAcceptance');
   });
 
   it('renders a useful empty-cart exit and hides an empty recommendation section',()=>{
