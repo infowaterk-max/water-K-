@@ -13,11 +13,12 @@ permissions:
 
 jobs:
   prove:
-    if: github.event.head_commit.message == '[acceptance] Add temporary localization refresh harness'
+    if: github.event.head_commit.message == '[acceptance] Run exact deployment localization refresh proof'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     env:
-      BASE_URL: https://water-k-native-git-feature-playroom-v20-c02349-infowaterk-5067.vercel.app
+      BASE_URL: https://water-k-native-73cankymn-infowaterk-5067.vercel.app
+      PROOF_SHA: e0e757ff97afea808aa7acc95b43e706dc8c7803
       VERCEL_AUTOMATION_BYPASS_SECRET: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
     steps:
       - name: Verify Vercel automation bypass secret
@@ -34,7 +35,7 @@ jobs:
           set -euo pipefail
           rm -f response.json
           for attempt in $(seq 1 60); do
-            status="$(curl --silent --show-error               --output response.json               --write-out '%{http_code}'               --header "x-vercel-protection-bypass: $VERCEL_AUTOMATION_BYPASS_SECRET"               --header "x-shoperation-acceptance-proof: $GITHUB_SHA"               "$BASE_URL/api/internal/playroom-v20-localization-refresh")"
+            status="$(curl --silent --show-error               --output response.json               --write-out '%{http_code}'               --header "x-vercel-protection-bypass: $VERCEL_AUTOMATION_BYPASS_SECRET"               --header "x-shoperation-acceptance-proof: $PROOF_SHA"               "$BASE_URL/api/internal/playroom-v20-localization-refresh")"
 
             if [ "$status" = "200" ]; then break; fi
             if [ "$status" = "500" ] || [ "$status" = "409" ]; then
@@ -43,7 +44,7 @@ jobs:
               exit 1
             fi
             if [ "$attempt" -eq 60 ]; then
-              echo "Localization refresh endpoint did not become ready for exact SHA $GITHUB_SHA; last HTTP $status." >&2
+              echo "Localization refresh endpoint did not become ready for exact SHA $PROOF_SHA; last HTTP $status." >&2
               cat response.json >&2 || true
               exit 1
             fi
@@ -59,7 +60,7 @@ jobs:
           const after=r?.revisionsAfter;
           const required=[
             value?.ok===true,
-            e?.commit===process.env.GITHUB_SHA,
+            e?.commit===process.env.PROOF_SHA,
             e?.environment==='preview-staging',
             e?.tenant?.id==='6027c79a-e5f3-4c9c-a8d0-b6090958efde',
             e?.tenant?.plan==='alap',
@@ -91,7 +92,7 @@ jobs:
           {
             echo '## Playroom v20 localization refresh'
             echo ''
-            echo "- Source commit: $GITHUB_SHA"
+            echo "- Source commit: $PROOF_SHA"
             echo '- Environment: protected Vercel Preview -> staging Supabase'
             echo '- Mode: refresh'
             echo '- 14/14 persisted draft pages: exact current localized documents'
