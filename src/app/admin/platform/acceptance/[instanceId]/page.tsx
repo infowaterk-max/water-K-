@@ -58,10 +58,18 @@ export default async function PlatformPilotAcceptanceEntry({params,searchParams}
       {query.reason&&reasonText[query.reason]?<div className="errorNotice" role="alert">{reasonText[query.reason]}</div>:null}
       {!allowed
         ?<div className="errorNotice" role="alert">A belépés fail-closed: ehhez a tenanthez aktív owner/admin binding szükséges.</div>
-        :<form action={startPlatformPilotAcceptanceAction}>
-          <input type="hidden" name="instanceId" value={instance.id}/>
-          <button className="btn btnPrimary" type="submit">Playroom Builder megnyitása</button>
-        </form>}
+        :<div className="actions">
+          <form action={startPlatformPilotAcceptanceAction}>
+            <input type="hidden" name="instanceId" value={instance.id}/>
+            <input type="hidden" name="flow" value="builder"/>
+            <button className="btn btnPrimary" type="submit">Playroom Builder megnyitása</button>
+          </form>
+          <form action={startPlatformPilotAcceptanceAction}>
+            <input type="hidden" name="instanceId" value={instance.id}/>
+            <input type="hidden" name="flow" value="checkout"/>
+            <button className="btn btnGhost" type="submit">Interaktív pénztár teszt</button>
+          </form>
+        </div>}
     </section>
 
     <p className="muted">Az acceptance session legfeljebb 2 óráig él, HttpOnly/SameSite cookie-val, és kizárólag Vercel Preview környezetben indítható.</p>
