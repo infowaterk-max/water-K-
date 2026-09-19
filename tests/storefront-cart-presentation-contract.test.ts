@@ -32,6 +32,10 @@ describe('Portfolio-wide cart customer-task contract',()=>{
       for(const summary of summaries){
         expect(summary.config.emptyCtaLabel,template.manifest.templateKey).toBe('Vásárlás folytatása');
         expect(summary.config.emptyCtaHref,template.manifest.templateKey).toBe('/webaruhaz');
+        expect(summary.config.showQuantityControls,template.manifest.templateKey).toBe(true);
+        expect(summary.config.showRemoveControl,template.manifest.templateKey).toBe(true);
+        expect(summary.config.showCouponEntry,template.manifest.templateKey).toBe(true);
+        expect(summary.config.couponLabel,template.manifest.templateKey).toBe('Van kuponkódod?');
       }
       for(const recommendation of nodes.filter(node=>node.componentKey==='commerce.recommendation-row')){
         expect(recommendation.config.hideWhenEmpty,template.manifest.templateKey).toBe(true);
@@ -100,6 +104,10 @@ describe('Portfolio-wide cart customer-task contract',()=>{
     expect(summary).toBeTruthy();
     expect(summary?.config.emptyCtaLabel).toBe('Vásárlás folytatása');
     expect(summary?.config.emptyCtaHref).toBe('/webaruhaz');
+    expect(summary?.config.showQuantityControls).toBe(true);
+    expect(summary?.config.showRemoveControl).toBe(true);
+    expect(summary?.config.showCouponEntry).toBe(true);
+    expect(summary?.config.couponLabel).toBe('Van kuponkódod?');
     expect(nodes.some(node=>forbiddenCartComponents.has(node.componentKey))).toBe(false);
     expect(nodes.some(node=>['stock-copy','price-copy','final-copy','assurance','cart-digital-commerce'].includes(node.id))).toBe(false);
     expect(storefrontCartPresentationViolations(normalized)).toEqual([]);
