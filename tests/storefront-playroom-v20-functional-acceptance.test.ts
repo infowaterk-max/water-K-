@@ -177,6 +177,8 @@ describe('Playroom v20 functional acceptance',()=>{
     expect(checkoutEntry).toContain('getPilotAcceptanceInstanceId');
     expect(checkoutEntry).toContain("acceptance-physical-product");
     expect(checkoutEntry).toContain("acceptance-digital-product");
+    expect(checkoutEntry).toContain(".from('storefront_reusable_symbols')");
+    expect(checkoutEntry).toContain('STOREFRONT_SYMBOL_SCHEMA_REQUIRED');
     expect(seeder).toContain("localStorage.setItem('shoperation-cart-v4'");
     expect(seeder).toContain('href="/penztar"');
   });
