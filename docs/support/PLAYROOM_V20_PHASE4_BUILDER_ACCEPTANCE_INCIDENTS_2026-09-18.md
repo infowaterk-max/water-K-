@@ -769,3 +769,12 @@ Do not wait until all 41 templates are complete. Promote reusable findings as so
 - Playroom now embeds `playroom-product-downloads` directly into `playroom-product-facts-container` as the third peer tile after `Játékadatok` and `Platform Compatibility`.
 - This is a presentation/composition refinement only; public-vs-account document authority and entitlement rules are unchanged.
 - Template Factory guidance: when a PDP already has a compact facts/specification cluster, downloads should usually join that cluster instead of creating a new full-width section.
+
+
+### 2026-09-19 — Cart customer-task simplification
+- Human visual acceptance rejected customer-facing `Valós ár`, `Valós készlet`, `Végső ellenőrzés` trust tiles and the `Innen már vezetünk` step panel as internal-engine communication rather than useful cart UX.
+- Playroom v20 cart now focuses on cart lines, quantity, authoritative price/total, checkout CTA and optional recommendations.
+- Price, inventory and final order validation remain mandatory server/runtime responsibilities; removing the explanatory tiles does **not** remove validation.
+- The standalone cart `commerce.fulfillment-summary` surface was also removed. Physical/digital fulfillment belongs with the actual cart line/runtime where relevant, not in a detached full-width panel.
+- Persisted v20 acceptance drafts are normalized in Builder/Direct Preview without mutating published storefront pages.
+- Template Factory guidance: do not expose internal authority/validation assurances as decorative cart tiles when the engine can enforce them silently and correctly.
