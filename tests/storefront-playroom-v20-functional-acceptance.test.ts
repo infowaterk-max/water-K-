@@ -249,10 +249,10 @@ describe('Playroom v20 functional acceptance',()=>{
 
   it('migrates an already-saved standalone downloads section into an existing Product Facts cluster',()=>{
     const product=playroomPage('product');
-    const facts=findNode(product,'playroom-product-facts-container');
-    const tile=facts.children?.find(item=>item.id==='playroom-product-downloads');
+    const factsGrid=findNode(product,'playroom-product-facts-grid');
+    const tile=factsGrid.children?.find(item=>item.id==='playroom-product-downloads');
     expect(tile).toBeTruthy();
-    facts.children=(facts.children??[]).filter(item=>item.id!=='playroom-product-downloads');
+    factsGrid.children=(factsGrid.children??[]).filter(item=>item.id!=='playroom-product-downloads');
     product.sections.splice(2,0,{
       id:'playroom-product-digital-commerce',
       componentKey:'layout.section',componentVersion:1,config:{},
