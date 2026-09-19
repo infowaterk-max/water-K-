@@ -34,6 +34,7 @@ export function augmentStorefrontDigitalCommercePreviewContext(input:{
   if(input.page.pageType==='product'){
     digitalCommerce.productFulfillment={state:'ready',mode:'digital',copy:'Digitális termék: nincs fizikai szállítás, a hozzáférés az igazolt fizetés után aktiválódik.',documentCenterHref:'/fiokom/letoltesek'};
     digitalCommerce.productDocuments=productDocuments;
+    digitalCommerce.productDownloads={state:'ready',mode:'digital',documents:productDocuments.documents,documentCenterHref:'/fiokom/letoltesek'};
   }
   if(input.page.pageType==='cart')digitalCommerce.cartFulfillment={state:'ready',mode:'mixed',copy:'A kosár digitális és fizikai tételt is tartalmaz.',lines:mixedLines,documentCenterHref:'/fiokom/letoltesek'};
   if(input.page.pageType==='checkout'){
