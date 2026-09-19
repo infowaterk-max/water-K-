@@ -88,8 +88,7 @@ describe('Playroom v20 Hungarian storefront language gate',()=>{
     const historical=PLAYROOM_V19_CANONICAL_TEMPLATE_PACKAGE.pages.find(page=>page.pageType==='checkout')!;
     const persisted={...structuredClone(historical),templateVersion:20};
     const normalized=normalizeStorefrontTemplateRuntimeComposition(persisted);
-    const texts=normalized.sections.flatMap(section=>collect(section));
-    const serialized=texts.join(' | ');
+    const serialized=JSON.stringify(normalized.sections);
     for(const expected of['BIZTONSÁGOS PÉNZTÁR','BIZTONSÁG','ÖSSZESÍTÉS','VEZETETT PÉNZTÁR','SZÁLLÍTÁS','FIZETÉS','Szolgáltatófüggetlen','Integrációs pont'])expect(serialized).toContain(expected);
     for(const forbidden of['SECURE CHECKOUT','SECURE','SUMMARY','GUIDED ACCORDION','SHIPPING','PAYMENT','Provider-neutral','Semantic slot','Desktop order summary.'])expect(serialized).not.toContain(forbidden);
   });
