@@ -27,43 +27,53 @@ function localizePlayroomV20CheckoutValue(value:unknown):unknown{
   return value;
 }
 
-function normalizePlayroomV20SharedShell(document:StorefrontPageDocument):StorefrontPageDocument{
-  const footerStackIds=new Set([
-    'playroom-footer-brand',
-    'playroom-footer-shop',
-    'playroom-footer-world',
-    'playroom-footer-about',
-    'playroom-footer-social',
-  ]);
-  const visit=(node:StorefrontComponentNode):StorefrontComponentNode=>{
-    const next=clone(node);
-    const config={...next.config};
-    if(next.componentKey==='layout.section'&&/playroom-.*-footer$/.test(next.id)){
-      const style=(config.style&&typeof config.style==='object'&&!Array.isArray(config.style)?config.style:{}) as Record<string,unknown>;
-      config.style={...style,padding:'1rem 2.35rem 1.15rem',minHeight:'8.25rem'};
-    }
-    if(next.id==='playroom-footer-grid'){
-      config.gap='s';
-    }
-    if(footerStackIds.has(next.id)){
-      const style=(config.style&&typeof config.style==='object'&&!Array.isArray(config.style)?config.style:{}) as Record<string,unknown>;
-      config.style={...style,gap:next.id==='playroom-footer-brand'?'.2rem':'.28rem'};
-    }
-    if(next.componentKey==='system.navigation'&&next.id.startsWith('playroom-footer-')){
-      const style=(config.style&&typeof config.style==='object'&&!Array.isArray(config.style)?config.style:{}) as Record<string,unknown>;
-      const slots=(config.styleSlots&&typeof config.styleSlots==='object'&&!Array.isArray(config.styleSlots)?config.styleSlots:{}) as Record<string,unknown>;
-      const item=(slots.item&&typeof slots.item==='object'&&!Array.isArray(slots.item)?slots.item:{}) as Record<string,unknown>;
-      const base=(item.base&&typeof item.base==='object'&&!Array.isArray(item.base)?item.base:{}) as Record<string,unknown>;
-      config.style={...style,gap:'.16rem',lineHeight:1.3};
-      config.styleSlots={...slots,item:{...item,base:{...base,minHeight:'.95rem',display:'flex',alignItems:'center'}}};
-    }
-    return{
-      ...next,
-      config,
-      ...(next.children?{children:next.children.map(visit)}:{}),
-    };
+function playroomFooterTextValues(node:StorefrontComponentNode):string[]{
+  const values=Object.values(node.config).flatMap(value=>{
+    if(typeof value==='string')return[value];
+    if(Array.isArray(value))return value.filter((item):item is string=>typeof item==='string');
+    return[];
+  });
+  return[...values,...((node.children??[]).flatMap(playroomFooterTextValues))];
+}
+
+function isPlayroomFooterSection(node:StorefrontComponentNode):boolean{
+  if(node.componentKey!=='layout.section')return false;
+  const values=new Set(playroomFooterTextValues(node));
+  return values.has('Vásárlási információk')&&values.has('Kövess minket')&&(values.has('PLAYROOM')||values.has('SHOPORATION'));
+}
+
+function normalizePlayroomV20FooterNode(node:StorefrontComponentNode,isFooterRoot=false):StorefrontComponentNode{
+  const next=clone(node);
+  const config={...next.config};
+  if(isFooterRoot){
+    const style=(config.style&&typeof config.style==='object'&&!Array.isArray(config.style)?config.style:{}) as Record<string,unknown>;
+    config.style={...style,padding:'1.05rem 2.35rem 1.2rem',minHeight:'9rem'};
+  }
+  if(node.componentKey==='layout.grid'){
+    config.gap='s';
+  }
+  if(node.componentKey==='layout.stack'){
+    const style=(config.style&&typeof config.style==='object'&&!Array.isArray(config.style)?config.style:{}) as Record<string,unknown>;
+    config.style={...style,gap:'.3rem'};
+  }
+  if(node.componentKey==='system.navigation'){
+    const style=(config.style&&typeof config.style==='object'&&!Array.isArray(config.style)?config.style:{}) as Record<string,unknown>;
+    const slots=(config.styleSlots&&typeof config.styleSlots==='object'&&!Array.isArray(config.styleSlots)?config.styleSlots:{}) as Record<string,unknown>;
+    const item=(slots.item&&typeof slots.item==='object'&&!Array.isArray(slots.item)?slots.item:{}) as Record<string,unknown>;
+    const base=(item.base&&typeof item.base==='object'&&!Array.isArray(item.base)?item.base:{}) as Record<string,unknown>;
+    config.style={...style,gap:'.18rem',lineHeight:1.35};
+    config.styleSlots={...slots,item:{...item,base:{...base,minHeight:'1rem',display:'flex',alignItems:'center'}}};
+  }
+  return{
+    ...next,
+    config,
+    ...(next.children?{children:next.children.map(child=>normalizePlayroomV20FooterNode(child,false))}:{}),
   };
-  return{...clone(document),sections:document.sections.map(visit)};
+}
+
+function normalizePlayroomV20SharedShell(document:StorefrontPageDocument):StorefrontPageDocument{
+  const sections=document.sections.map(section=>isPlayroomFooterSection(section)?normalizePlayroomV20FooterNode(section,true):clone(section));
+  return{...clone(document),sections};
 }
 
 function normalizePlayroomV20Checkout(document:StorefrontPageDocument):StorefrontPageDocument{
