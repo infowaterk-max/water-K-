@@ -1,7 +1,7 @@
 import type {StorefrontComponentNode,StorefrontPageDocument} from '@/lib/builder/storefront-runtime';
 import type {StorefrontInstallableTemplatePackage} from '@/lib/builder/storefront-template-installation';
 
-export const STOREFRONT_DIGITAL_COMMERCE_COMPOSITION_VERSION='shoporation.storefront-digital-commerce-composition.v2' as const;
+export const STOREFRONT_DIGITAL_COMMERCE_COMPOSITION_VERSION='shoporation.storefront-digital-commerce-composition.v3' as const;
 
 export const STOREFRONT_DIGITAL_COMMERCE_COMPONENTS_BY_PAGE_TYPE=Object.freeze({
   product:['commerce.downloads-tile'],
@@ -25,6 +25,49 @@ function isLegacyProductDigitalCommerceSection(section:StorefrontComponentNode):
   const hasLegacy=hasComponent([section],'commerce.fulfillment-summary')||hasComponent([section],'commerce.product-documents');
   const hasPriorityTile=hasComponent([section],'commerce.downloads-tile');
   return hasLegacy&&!hasPriorityTile;
+}
+
+function findComponentNode(nodes:readonly StorefrontComponentNode[],componentKey:string):StorefrontComponentNode|null{
+  for(const item of nodes){
+    if(item.componentKey===componentKey)return clone(item);
+    const nested=findComponentNode(item.children??[],componentKey);
+    if(nested)return nested;
+  }
+  return null;
+}
+
+function findDownloadsFactsHostId(nodes:readonly StorefrontComponentNode[]):string|null{
+  for(const item of nodes){
+    const directKeys=new Set((item.children??[]).map(child=>child.componentKey));
+    if(directKeys.has('commerce.key-specs')||directKeys.has('compatibility.evidence'))return item.id;
+    const nested=findDownloadsFactsHostId(item.children??[]);
+    if(nested)return nested;
+  }
+  return null;
+}
+
+function appendNodeToTarget(nodes:readonly StorefrontComponentNode[],targetId:string,child:StorefrontComponentNode):StorefrontComponentNode[]{
+  return nodes.map(item=>{
+    const next=clone(item);
+    if(next.id===targetId){
+      const children=[...(next.children??[])];
+      if(!children.some(entry=>entry.componentKey===child.componentKey))children.push(clone(child));
+      return{...next,children};
+    }
+    if(next.children?.length)return{...next,children:appendNodeToTarget(next.children,targetId,child)};
+    return next;
+  });
+}
+
+function embedStandaloneDownloadsIntoFacts(sections:readonly StorefrontComponentNode[]):StorefrontComponentNode[]{
+  const hostId=findDownloadsFactsHostId(sections);
+  if(!hostId)return sections.map(clone);
+  const standalone=sections.find(section=>section.id.endsWith('-digital-commerce')&&hasComponent([section],'commerce.downloads-tile'));
+  if(!standalone)return sections.map(clone);
+  const tile=findComponentNode([standalone],'commerce.downloads-tile');
+  if(!tile)return sections.map(clone);
+  const withoutStandalone=sections.filter(section=>section.id!==standalone.id).map(clone);
+  return appendNodeToTarget(withoutStandalone,hostId,tile);
 }
 
 function containsProductPrimarySurface(nodes:readonly StorefrontComponentNode[]):boolean{
@@ -75,7 +118,10 @@ export function composeStorefrontDigitalCommerceCapabilities(
   if(document.metadata?.digitalCommerceCompositionVersion===STOREFRONT_DIGITAL_COMMERCE_COMPOSITION_VERSION)return clone(document);
 
   const next=clone(document);
-  if(next.pageType==='product')next.sections=next.sections.filter(section=>!isLegacyProductDigitalCommerceSection(section));
+  if(next.pageType==='product'){
+    next.sections=next.sections.filter(section=>!isLegacyProductDigitalCommerceSection(section));
+    next.sections=embedStandaloneDownloadsIntoFacts(next.sections);
+  }
   const missing=required.filter(componentKey=>!hasComponent(next.sections,componentKey));
   const prefix=`shared-${idPart(next.pageKey)}-digital-commerce`;
 
