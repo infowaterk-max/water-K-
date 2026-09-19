@@ -20,6 +20,13 @@ function hasComponent(nodes:readonly StorefrontComponentNode[],componentKey:stri
   return nodes.some(item=>item.componentKey===componentKey||hasComponent(item.children??[],componentKey));
 }
 
+function isLegacyProductDigitalCommerceSection(section:StorefrontComponentNode):boolean{
+  if(!section.id.endsWith('-digital-commerce'))return false;
+  const hasLegacy=hasComponent([section],'commerce.fulfillment-summary')||hasComponent([section],'commerce.product-documents');
+  const hasPriorityTile=hasComponent([section],'commerce.downloads-tile');
+  return hasLegacy&&!hasPriorityTile;
+}
+
 function containsProductPrimarySurface(nodes:readonly StorefrontComponentNode[]):boolean{
   return nodes.some(item=>
     ['commerce.product-gallery','commerce.product-info','commerce.variant-swatches','commerce.option-selector','commerce.purchase-controls','commerce.add-to-cart'].includes(item.componentKey)
@@ -68,6 +75,7 @@ export function composeStorefrontDigitalCommerceCapabilities(
   if(document.metadata?.digitalCommerceCompositionVersion===STOREFRONT_DIGITAL_COMMERCE_COMPOSITION_VERSION)return clone(document);
 
   const next=clone(document);
+  if(next.pageType==='product')next.sections=next.sections.filter(section=>!isLegacyProductDigitalCommerceSection(section));
   const missing=required.filter(componentKey=>!hasComponent(next.sections,componentKey));
   const prefix=`shared-${idPart(next.pageKey)}-digital-commerce`;
 
