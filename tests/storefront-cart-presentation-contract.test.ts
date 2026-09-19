@@ -27,7 +27,15 @@ describe('Portfolio-wide cart customer-task contract',()=>{
       const cart=template.pages.find(page=>page.pageType==='cart');
       expect(cart,template.manifest.templateKey).toBeTruthy();
       const nodes=walk(cart!.sections);
-      expect(nodes.some(node=>node.componentKey==='commerce.cart-summary'),template.manifest.templateKey).toBe(true);
+      const summaries=nodes.filter(node=>node.componentKey==='commerce.cart-summary');
+      expect(summaries.length,template.manifest.templateKey).toBeGreaterThan(0);
+      for(const summary of summaries){
+        expect(summary.config.emptyCtaLabel,template.manifest.templateKey).toBe('Vásárlás folytatása');
+        expect(summary.config.emptyCtaHref,template.manifest.templateKey).toBe('/webaruhaz');
+      }
+      for(const recommendation of nodes.filter(node=>node.componentKey==='commerce.recommendation-row')){
+        expect(recommendation.config.hideWhenEmpty,template.manifest.templateKey).toBe(true);
+      }
       expect(nodes.filter(node=>forbiddenCartComponents.has(node.componentKey)),template.manifest.templateKey).toEqual([]);
       expect(storefrontCartPresentationViolations(cart!),template.manifest.templateKey).toEqual([]);
     }
@@ -81,7 +89,10 @@ describe('Portfolio-wide cart customer-task contract',()=>{
 
     const normalized=normalizeStorefrontTemplateRuntimeComposition(page);
     const nodes=walk(normalized.sections);
-    expect(nodes.some(node=>node.componentKey==='commerce.cart-summary')).toBe(true);
+    const summary=nodes.find(node=>node.componentKey==='commerce.cart-summary');
+    expect(summary).toBeTruthy();
+    expect(summary?.config.emptyCtaLabel).toBe('Vásárlás folytatása');
+    expect(summary?.config.emptyCtaHref).toBe('/webaruhaz');
     expect(nodes.some(node=>forbiddenCartComponents.has(node.componentKey))).toBe(false);
     expect(nodes.some(node=>['stock-copy','price-copy','final-copy','assurance','cart-digital-commerce'].includes(node.id))).toBe(false);
     expect(storefrontCartPresentationViolations(normalized)).toEqual([]);
