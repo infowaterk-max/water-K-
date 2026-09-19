@@ -975,6 +975,9 @@ All future template acceptance seeders must enter commerce state through the sha
 
 
 
+### Verification
+Human Preview proof showed both acceptance items with 1270 Ft + 2540 Ft = 3810 Ft, and exact-head Preview runtime logs showed `POST /api/checkout/quote 200` after provider-driven cart hydration/seeding.
+
 ---
 
 ## SKB-P4-020 — Search action optical centering and checkout summary secondary-text contrast escaped shared semantic styling
@@ -1062,7 +1065,7 @@ Live human screenshot verification is still required before changing this incide
 
 ## SKB-P4-022 — Acceptance preview disabled the final submit control and made fail-closed proof impossible
 
-**Status:** `implemented_pending_live_verification`  
+**Status:** `verified_fixed`  
 **Evidence:** `human_preview_screenshot_plus_shared_checkout_contract`  
 **Area:** `storefront/checkout/acceptance-submit-guard`  
 **Risk:** high  
@@ -1091,4 +1094,5 @@ The shared checkout workflow contract now requires the acceptance final action t
 
 Acceptance and sandbox flows must exercise the same customer action surface as production up to the protected boundary. A safety mode must block the side effect at the authoritative action handler, not by making the action unreachable. Otherwise the acceptance test proves only that a button can be disabled, not that the transactional guard is fail-closed.
 
-Live human click proof is required before changing this incident to `verified_fixed`.
+### Verification
+Human Preview proof showed the explicit fail-closed message after clicking the final action. Exact-head Preview runtime logs for the same interaction window contained `POST /api/checkout/quote 200` and no `/api/orders` request, confirming that no order-creation side effect crossed the protected boundary.
