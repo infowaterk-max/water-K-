@@ -248,9 +248,13 @@ describe('Playroom v20 functional acceptance',()=>{
     expect(html).toContain('data-cart-stepper="vertical"');
     expect(html).toContain('data-cart-step="increase"');
     expect(html).toContain('data-cart-step="decrease"');
+    expect(html).toContain('data-cart-icon="chevron-up"');
+    expect(html).toContain('data-cart-icon="chevron-down"');
+    expect(html).toContain('fill="currentColor"');
     expect(html).toContain('Mennyiség csökkentése');
     expect(html).toContain('Mennyiség növelése');
     expect(html).toContain('data-cart-remove-control="true"');
+    expect(html).toContain('data-cart-icon="trash"');
     expect(html).toContain('Tétel törlése');
     expect(html).toContain('data-cart-coupon-entry="true"');
     expect(html).toContain('data-cart-coupon-presentation="template-native"');
@@ -286,6 +290,11 @@ describe('Playroom v20 functional acceptance',()=>{
     expect(cart).toContain('<CartTrashIcon/>');
     expect(cart).toContain('<CartChevronIcon direction="up"/>');
     expect(cart).toContain('<CartChevronIcon direction="down"/>');
+    expect(cart).toContain('fill="currentColor"');
+    const builderCss=read('src/components/admin/storefront-visual-builder-final-fix.module.css');
+    expect(builderCss).toContain('[data-cart-coupon-input="true"]');
+    expect(builderCss).toContain('background:var(--shoporation-color-surface,#15142c)!important');
+    expect(builderCss).toContain('[data-cart-coupon-apply="true"]');
     expect(checkout).toContain('couponCode,setCouponCode}=useCart()');
     expect(checkout).toContain('step="summary" number={4}');
     expect(checkout).toContain('<span>Kuponkód</span>');
