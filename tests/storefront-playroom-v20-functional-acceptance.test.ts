@@ -244,9 +244,12 @@ describe('Playroom v20 functional acceptance',()=>{
     expect(html).toContain('Acceptance Digital Product');
     expect(html).toContain('Digitális termék');
     expect(html).toContain('data-cart-quantity-controls="true"');
+    expect(html).toContain('data-cart-quantity-layout="vertical-arrows"');
     expect(html).toContain('Mennyiség csökkentése');
     expect(html).toContain('Mennyiség növelése');
-    expect(html).toContain('Törlés');
+    expect(html).toContain('▲');
+    expect(html).toContain('▼');
+    expect(html).toContain('Tétel törlése');
     expect(html).toContain('data-cart-coupon-entry="true"');
     expect(html).toContain('Van kuponkódod?');
     expect(html).toContain('Tovább a pénztárhoz');
@@ -264,6 +267,9 @@ describe('Playroom v20 functional acceptance',()=>{
     expect(provider).toContain('setCouponCode:(code:string)=>void');
     expect(cart).toContain("mode:'cart'");
     expect(cart).toContain('Van kuponkódod?');
+    expect(cart).toContain('data-cart-quantity-layout="vertical-arrows"');
+    expect(cart).toContain('Tétel törlése');
+    expect(cart).toContain('<CartTrashIcon/>');
     expect(checkout).toContain('couponCode,setCouponCode}=useCart()');
     expect(checkout).toContain('step="summary" number={4}');
     expect(checkout).toContain('<span>Kuponkód</span>');
