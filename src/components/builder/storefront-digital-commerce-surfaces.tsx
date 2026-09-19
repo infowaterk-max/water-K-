@@ -39,7 +39,6 @@ function DownloadsTileRenderer({config,node,viewport}:StorefrontComponentRenderP
   const hasDigital=mode==='digital'||mode==='mixed';
   if(!documents.length&&!hasDigital)return null;
   const documentsHref=documents.length===1?safeInternalHref(documents[0]?.downloadHref):'';
-  const centerHref=safeInternalHref(model?.documentCenterHref,'/fiokom/letoltesek');
   return <section data-storefront-digital-commerce="downloads-tile" data-fulfillment-mode={mode} data-presentation={text(config.presentation,'priority-tile')} style={{...span(node),display:'grid',gap:'.75rem',padding:'clamp(.9rem,2vw,1.15rem)',...surface(slot),...slot('root')}}>
     <header style={{display:'grid',gap:'.25rem',...slot('header')}}>{text(config.eyebrow)?<small style={{fontWeight:800,letterSpacing:'.09em',textTransform:'uppercase',color:'var(--shoporation-color-accent,#2f7f6f)',...slot('eyebrow')}}>{text(config.eyebrow)}</small>:null}<h2 style={{margin:0,fontFamily:'var(--shoporation-heading-font,Georgia,serif)',fontSize:'clamp(1.1rem,2vw,1.35rem)',...slot('title')}}>{text(config.title,'Letöltések')}</h2></header>
     <div style={{display:'grid',gap:'.5rem',...slot('list')}}>
@@ -48,7 +47,7 @@ function DownloadsTileRenderer({config,node,viewport}:StorefrontComponentRenderP
         <div style={{display:'grid',gap:'.32rem'}}>{documents.map((document,index)=>{const href=safeInternalHref(document.downloadHref);return href?<a key={text(document.id,`document-${index}`)} href={href} style={{color:'inherit',fontWeight:700,textDecoration:'none',...slot('download')}}>{text(document.title,text(document.fileName,'Dokumentum'))}</a>:<span key={text(document.id,`document-${index}`)}>{text(document.title,text(document.fileName,'Dokumentum'))}</span>})}</div>
         {documentsHref?<a href={documentsHref} style={{justifySelf:'start',color:'inherit',fontWeight:750,...slot('open')}}>{text(config.openLabel,'Megnyitás')}</a>:null}
       </div>:null}
-      {hasDigital?<a href={centerHref} style={{display:'flex',justifyContent:'space-between',alignItems:'center',gap:'.75rem',padding:'.8rem .85rem',border:'1px solid var(--shoporation-color-border,#d8dce7)',borderRadius:'calc(var(--shoporation-radius-m,.75rem) * .8)',color:'inherit',fontWeight:750,textDecoration:'none',...slot('row')}}><span>{text(config.digitalLabel,'Digitális anyagok')}</span><small style={{color:'var(--shoporation-color-muted-text,#667085)',fontWeight:650}}>{text(config.digitalPendingLabel,'Vásárlás után')}</small></a>:null}
+      {hasDigital?<div data-digital-download-location="account" style={{display:'grid',gap:'.2rem',padding:'.8rem .85rem',border:'1px solid var(--shoporation-color-border,#d8dce7)',borderRadius:'calc(var(--shoporation-radius-m,.75rem) * .8)',...slot('row')}}><strong>{text(config.digitalLabel,'Digitális termék')}</strong><small style={{color:'var(--shoporation-color-muted-text,#667085)',lineHeight:1.45,fontWeight:650}}>{text(config.digitalAccountCopy,'Vásárlás után a letöltés a Fiókom → Letöltéseim menüpontban érhető el.')}</small></div>:null}
     </div>
   </section>;
 }
