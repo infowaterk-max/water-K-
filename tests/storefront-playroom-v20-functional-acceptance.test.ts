@@ -199,6 +199,28 @@ describe('Playroom v20 functional acceptance',()=>{
     if(mode==='mixed'){expect(html).toContain('Neon Pro Controller');expect(html).toContain('Orbit Breakers Digital');}
   });
 
+  it('migrates an already-saved standalone downloads section into an existing Product Facts cluster',()=>{
+    const product=playroomPage('product');
+    const facts=findNode(product,'playroom-product-facts-container');
+    const tile=facts.children?.find(item=>item.id==='playroom-product-downloads');
+    expect(tile).toBeTruthy();
+    facts.children=(facts.children??[]).filter(item=>item.id!=='playroom-product-downloads');
+    product.sections.splice(2,0,{
+      id:'playroom-product-digital-commerce',
+      componentKey:'layout.section',componentVersion:1,config:{},
+      children:[{id:'playroom-product-digital-commerce-container',componentKey:'layout.container',componentVersion:1,config:{},children:[structuredClone(tile!)]}],
+    });
+    product.metadata={...(product.metadata??{}),digitalCommerceCompositionVersion:'shoporation.storefront-digital-commerce-composition.v2'};
+    const migrated=composeStorefrontDigitalCommerceTemplatePackage({...PLAYROOM_V20_TEMPLATE_PACKAGE,pages:[product]}).pages[0];
+    const migratedFacts=findNode(migrated,'playroom-product-facts-container');
+    expect(migrated.sections.some(section=>section.id==='playroom-product-digital-commerce')).toBe(false);
+    expect(migratedFacts.children?.map(item=>item.id)).toEqual([
+      'playroom-product-key-specs',
+      'playroom-product-compatibility',
+      'playroom-product-downloads',
+    ]);
+  });
+
   it('keeps public documents as the third Product Facts tile while purchased digital files stay in Fiókom → Letöltéseim',()=>{
     const product=playroomPage('product');
     const factsContainer=findNode(product,'playroom-product-facts-container');
