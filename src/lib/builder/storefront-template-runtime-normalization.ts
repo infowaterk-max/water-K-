@@ -2,6 +2,41 @@ import type {StorefrontComponentNode,StorefrontPageDocument} from '@/lib/builder
 
 const clone=<T>(value:T):T=>structuredClone(value);
 
+const PLAYROOM_V20_CHECKOUT_COPY=new Map<string,string>([
+  ['SECURE CHECKOUT','BIZTONSÁGOS PÉNZTÁR'],
+  ['SECURE','BIZTONSÁG'],
+  ['SUMMARY','ÖSSZESÍTÉS'],
+  ['GUIDED ACCORDION','VEZETETT PÉNZTÁR'],
+  ['SHIPPING','SZÁLLÍTÁS'],
+  ['PAYMENT','FIZETÉS'],
+  ['Provider-neutral','Szolgáltatófüggetlen'],
+  ['Nincs template-local fizetési logika.','Nincs sablonba épített fizetési logika.'],
+  ['Desktop order summary.','Asztali rendelési összesítő.'],
+  ['Aktív fizetési provider.','Aktív fizetési szolgáltató.'],
+  ['Semantic slot','Integrációs pont'],
+  ['checkout.shipping.methods','A választható szállítási módok helye.'],
+  ['checkout.payment.methods','A választható fizetési módok helye.'],
+  ['A működő accordion a közös E13 checkout runtime feladata; a sablon a vizuális nyelvet adja.','A működő, lépésenkénti pénztár a közös rendszer része; a sablon a vizuális megjelenést adja.'],
+  ['A Szállítás és Fizetés lépés a saját provider/add-on lehetőségeit ugyanebben a folyamban jeleníti meg.','A Szállítás és Fizetés lépés a saját szolgáltatói és kiegészítő lehetőségeit ugyanebben a folyamatban jeleníti meg.'],
+]);
+
+function localizePlayroomV20CheckoutValue(value:unknown):unknown{
+  if(typeof value==='string')return PLAYROOM_V20_CHECKOUT_COPY.get(value)??value;
+  if(Array.isArray(value))return value.map(localizePlayroomV20CheckoutValue);
+  if(value&&typeof value==='object')return Object.fromEntries(Object.entries(value as Record<string,unknown>).map(([key,item])=>[key,localizePlayroomV20CheckoutValue(item)]));
+  return value;
+}
+
+function normalizePlayroomV20Checkout(document:StorefrontPageDocument):StorefrontPageDocument{
+  const visit=(node:StorefrontComponentNode):StorefrontComponentNode=>({
+    ...clone(node),
+    config:localizePlayroomV20CheckoutValue(node.config) as StorefrontComponentNode['config'],
+    ...(node.bindings?{bindings:localizePlayroomV20CheckoutValue(node.bindings) as StorefrontComponentNode['bindings']}:{}),
+    ...(node.children?{children:node.children.map(visit)}:{}),
+  });
+  return{...clone(document),sections:document.sections.map(visit)};
+}
+
 const CART_FORBIDDEN_COMPONENT_KEYS=new Set([
   'commerce.fulfillment-summary',
   'commerce.documents-center',
@@ -169,6 +204,7 @@ function normalizePlayroomCart(document:StorefrontPageDocument):StorefrontPageDo
  * the generic cart policy applies to every current and future template.
  */
 export function normalizeStorefrontTemplateRuntimeComposition(document:StorefrontPageDocument):StorefrontPageDocument{
+  if(document.templateKey==='gaming.playroom'&&document.templateVersion===20&&document.pageType==='checkout')return normalizePlayroomV20Checkout(document);
   if(document.pageType!=='cart')return clone(document);
   if(document.templateKey==='gaming.playroom'&&document.templateVersion===20)return normalizePlayroomCart(document);
   return normalizeGenericCart(document);
