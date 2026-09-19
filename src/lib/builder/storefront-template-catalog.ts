@@ -1,5 +1,6 @@
 import type {StorefrontInstallableTemplatePackage} from '@/lib/builder/storefront-template-installation';
 import type {StorefrontComponentNode,StorefrontPageDocument} from '@/lib/builder/storefront-runtime';
+import {normalizeStorefrontTemplateRuntimeComposition,storefrontCartPresentationViolations} from '@/lib/builder/storefront-template-runtime-normalization';
 import {ALPINE_LODGE_TEMPLATE_PACKAGE} from '@/lib/builder/templates/alpine-lodge';
 import {BEAUTY_LAB_TEMPLATE_PACKAGE} from '@/lib/builder/templates/beauty-lab-canonical-v2';
 import {CREATOR_STATION_TEMPLATE_PACKAGE} from '@/lib/builder/templates/creator-station';
@@ -69,7 +70,7 @@ function normalizeLegacyTemplatePage(page:StorefrontPageDocument):StorefrontPage
       ...(node.children?{children:node.children.map(normalizeNode)}:{}),
     };
   };
-  return{...page,sections:page.sections.map(normalizeNode)};
+  return normalizeStorefrontTemplateRuntimeComposition({...page,sections:page.sections.map(normalizeNode)});
 }
 
 function normalizeLegacyTemplatePackage(template:StorefrontInstallableTemplatePackage):StorefrontInstallableTemplatePackage{
@@ -143,6 +144,11 @@ function validateConcreteCatalog(packages:readonly StorefrontInstallableTemplate
     const pageTypes=new Set(template.pages.map(page=>page.pageType));
     for(const pageType of template.manifest.pageTypes){
       if(!pageTypes.has(pageType))throw new Error('STOREFRONT_TEMPLATE_CATALOG_PAGE_PRESET_MISSING');
+    }
+    for(const page of template.pages){
+      if(page.pageType!=='cart')continue;
+      const violations=storefrontCartPresentationViolations(page);
+      if(violations.length)throw new Error(`STOREFRONT_TEMPLATE_CART_PRESENTATION_CONTRACT:${template.manifest.templateKey}:${violations.join(',')}`);
     }
   }
 }
