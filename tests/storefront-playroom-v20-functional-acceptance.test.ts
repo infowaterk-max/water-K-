@@ -153,15 +153,15 @@ describe('Playroom v20 functional acceptance',()=>{
       '--shoporation-color-surface':'#101820',
       '--shoporation-radius-m':'1.125rem',
     });
-    expect(findNode(styled,'playroom-product-fulfillment').config.title).toBe('Hogyan kapod meg?');
+    expect(findNode(styled,'playroom-product-downloads').config.title).toBe('Letöltések');
 
-    const overridden=setStorefrontNodeStyleSlot(styled,'playroom-product-fulfillment','root','mobile',{backgroundColor:'#334455'});
-    const overriddenNode=findNode(overridden,'playroom-product-fulfillment');
+    const overridden=setStorefrontNodeStyleSlot(styled,'playroom-product-downloads','root','mobile',{backgroundColor:'#334455'});
+    const overriddenNode=findNode(overridden,'playroom-product-downloads');
     const overrideSlots=overriddenNode.config.styleSlots as Record<string,Record<string,unknown>>;
     expect(resolveStorefrontVisualStyle(overrideSlots.root,'mobile').backgroundColor).toBe('#334455');
 
-    const reset=setStorefrontNodeStyleSlot(overridden,'playroom-product-fulfillment','root','mobile',{});
-    const resetNode=findNode(reset,'playroom-product-fulfillment');
+    const reset=setStorefrontNodeStyleSlot(overridden,'playroom-product-downloads','root','mobile',{});
+    const resetNode=findNode(reset,'playroom-product-downloads');
     const resetSlots=resetNode.config.styleSlots as Record<string,Record<string,unknown>>;
     expect(resolveStorefrontVisualStyle(resetSlots.root,'mobile').backgroundColor).toBeUndefined();
     expect(resolveStorefrontGlobalStyleCssVariables(reset)['--shoporation-color-surface']).toBe('#101820');
@@ -187,24 +187,31 @@ describe('Playroom v20 functional acceptance',()=>{
     if(mode==='mixed'){expect(html).toContain('Neon Pro Controller');expect(html).toContain('Orbit Breakers Digital');}
   });
 
-  it('renders Product Documents only with real runtime document data and keeps the empty state absent',()=>{
+  it('keeps the product downloads tile immediately after the primary product zone and renders one compact surface for documents and digital material',()=>{
     const product=playroomPage('product');
-    const withDocument=render(product,{commerce:{digitalCommerce:{
-      productFulfillment:{state:'ready',mode:'physical',copy:'Fizikai termék.',documentCenterHref:'/fiokom/letoltesek'},
-      productDocuments:{state:'ready',documents:[{
+    const mainIndex=product.sections.findIndex(section=>section.id==='playroom-product-main');
+    const downloadsIndex=product.sections.findIndex(section=>section.id==='playroom-product-digital-commerce');
+    expect(mainIndex).toBeGreaterThanOrEqual(0);
+    expect(downloadsIndex).toBe(mainIndex+1);
+
+    const withDownloads=render(product,{commerce:{digitalCommerce:{
+      productDownloads:{state:'ready',mode:'mixed',documentCenterHref:'/fiokom/letoltesek',documents:[{
         id:'manual-1',kindLabel:'Használati útmutató',title:'Neon Pro Controller kézikönyv',
         description:'Magyar használati útmutató',fileName:'controller-manual.pdf',sizeLabel:'1.2 MB',
         variantSpecific:true,downloadHref:'/api/product-documents/manual-1?variantId=variant-1',
       }]},
     }}});
-    expect(withDocument).toContain('data-storefront-digital-commerce="product-documents"');
-    expect(withDocument).toContain('Neon Pro Controller kézikönyv');
-    expect(withDocument).toContain('controller-manual.pdf');
-    const empty=render(product,{commerce:{digitalCommerce:{
-      productFulfillment:{state:'ready',mode:'physical',copy:'Fizikai termék.'},
-      productDocuments:{state:'ready',documents:[]},
+    expect(withDownloads).toContain('data-storefront-digital-commerce="downloads-tile"');
+    expect(withDownloads).toContain('Letöltések');
+    expect(withDownloads).toContain('Dokumentumok');
+    expect(withDownloads).toContain('Neon Pro Controller kézikönyv');
+    expect(withDownloads).toContain('Digitális anyagok');
+    expect(withDownloads).toContain('Vásárlás után');
+
+    const emptyPhysical=render(product,{commerce:{digitalCommerce:{
+      productDownloads:{state:'ready',mode:'physical',documents:[]},
     }}});
-    expect(empty).not.toContain('data-storefront-digital-commerce="product-documents"');
+    expect(emptyPhysical).not.toContain('data-storefront-digital-commerce="downloads-tile"');
   });
 
   it('renders the customer document center with invoice and merchant warranty while keeping authorities distinct',()=>{
