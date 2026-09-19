@@ -142,7 +142,7 @@ const STOREFRONT_RESOLVABLE_TEMPLATE_PACKAGES:readonly StorefrontInstallableTemp
 
 const identity=(template:StorefrontInstallableTemplatePackage)=>`${template.manifest.templateKey}@${template.manifest.templateVersion}`;
 
-function validateConcreteCatalog(packages:readonly StorefrontInstallableTemplatePackage[]){
+function validateConcreteCatalog(packages:readonly StorefrontInstallableTemplatePackage[],options:{enforceCurrentCartContract:boolean}){
   const identities=new Set<string>();
   for(const template of packages){
     const key=identity(template);
@@ -153,16 +153,18 @@ function validateConcreteCatalog(packages:readonly StorefrontInstallableTemplate
     for(const pageType of template.manifest.pageTypes){
       if(!pageTypes.has(pageType))throw new Error('STOREFRONT_TEMPLATE_CATALOG_PAGE_PRESET_MISSING');
     }
-    for(const page of template.pages){
-      if(page.pageType!=='cart')continue;
-      const violations=storefrontCartPresentationViolations(page);
-      if(violations.length)throw new Error(`STOREFRONT_TEMPLATE_CART_PRESENTATION_CONTRACT:${template.manifest.templateKey}:${violations.join(',')}`);
+    if(options.enforceCurrentCartContract){
+      for(const page of template.pages){
+        if(page.pageType!=='cart')continue;
+        const violations=storefrontCartPresentationViolations(page);
+        if(violations.length)throw new Error(`STOREFRONT_TEMPLATE_CART_PRESENTATION_CONTRACT:${template.manifest.templateKey}@${template.manifest.templateVersion}:${violations.join(',')}`);
+      }
     }
   }
 }
 
-validateConcreteCatalog(STOREFRONT_IMPLEMENTED_TEMPLATE_PACKAGES);
-validateConcreteCatalog(STOREFRONT_RESOLVABLE_TEMPLATE_PACKAGES);
+validateConcreteCatalog(STOREFRONT_IMPLEMENTED_TEMPLATE_PACKAGES,{enforceCurrentCartContract:true});
+validateConcreteCatalog(STOREFRONT_RESOLVABLE_TEMPLATE_PACKAGES,{enforceCurrentCartContract:false});
 
 export type StorefrontTemplateCatalogEntry={
   templateKey:string;
