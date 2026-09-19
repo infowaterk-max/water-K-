@@ -16,17 +16,17 @@ type AcceptanceCartItem={
 };
 
 export function CheckoutAcceptanceSeeder({items}:{items:AcceptanceCartItem[]}){
-  const{items:cartItems,replace,setCouponCode}=useCart();
+  const{items:cartItems,replace,setCouponCode,hydrated}=useCart();
   const seeded=useRef(false);
 
   useEffect(()=>{
-    if(seeded.current)return;
+    if(!hydrated||seeded.current)return;
     seeded.current=true;
     replace(items);
     setCouponCode('');
-  },[items,replace,setCouponCode]);
+  },[hydrated,items,replace,setCouponCode]);
 
-  const ready=cartItems.length===items.length&&items.every(seed=>cartItems.some(item=>
+  const ready=hydrated&&cartItems.length===items.length&&items.every(seed=>cartItems.some(item=>
     item.productId===seed.productId&&
     item.variantId===seed.variantId&&
     item.quantity===seed.quantity
