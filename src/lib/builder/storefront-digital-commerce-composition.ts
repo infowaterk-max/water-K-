@@ -1,10 +1,10 @@
 import type {StorefrontComponentNode,StorefrontPageDocument} from '@/lib/builder/storefront-runtime';
 import type {StorefrontInstallableTemplatePackage} from '@/lib/builder/storefront-template-installation';
 
-export const STOREFRONT_DIGITAL_COMMERCE_COMPOSITION_VERSION='shoporation.storefront-digital-commerce-composition.v1' as const;
+export const STOREFRONT_DIGITAL_COMMERCE_COMPOSITION_VERSION='shoporation.storefront-digital-commerce-composition.v2' as const;
 
 export const STOREFRONT_DIGITAL_COMMERCE_COMPONENTS_BY_PAGE_TYPE=Object.freeze({
-  product:['commerce.fulfillment-summary','commerce.product-documents'],
+  product:['commerce.downloads-tile'],
   cart:['commerce.fulfillment-summary'],
   checkout:['commerce.fulfillment-summary','commerce.post-purchase-guidance'],
   account:['commerce.documents-center','commerce.post-purchase-guidance'],
@@ -20,8 +20,32 @@ function hasComponent(nodes:readonly StorefrontComponentNode[],componentKey:stri
   return nodes.some(item=>item.componentKey===componentKey||hasComponent(item.children??[],componentKey));
 }
 
+function containsProductPrimarySurface(nodes:readonly StorefrontComponentNode[]):boolean{
+  return nodes.some(item=>
+    ['commerce.product-gallery','commerce.product-info','commerce.variant-swatches','commerce.option-selector','commerce.purchase-controls','commerce.add-to-cart'].includes(item.componentKey)
+    ||containsProductPrimarySurface(item.children??[])
+  );
+}
+
+function isHeaderSection(item:StorefrontComponentNode):boolean{
+  return item.componentKey==='system.commerce-header'||item.componentKey==='editorial.header'||item.componentKey.endsWith('.header');
+}
+
+function resolveCapabilityInsertIndex(document:StorefrontPageDocument):number{
+  if(document.pageType==='product'){
+    const primary=document.sections.findIndex(section=>containsProductPrimarySurface([section]));
+    if(primary>=0)return primary+1;
+    const firstContent=document.sections.findIndex(section=>!isHeaderSection(section));
+    if(firstContent>=0)return firstContent+1;
+    return 0;
+  }
+  const footer=document.sections.findIndex(item=>item.componentKey==='editorial.footer'||item.componentKey.endsWith('.footer'));
+  return footer>=0?footer:document.sections.length;
+}
+
 function defaultConfig(componentKey:string):Record<string,unknown>{
   switch(componentKey){
+    case'commerce.downloads-tile':return{eyebrow:'LETÖLTÉSEK',title:'Letöltések',documentsLabel:'Dokumentumok',digitalLabel:'Digitális anyagok',digitalPendingLabel:'Vásárlás után',openLabel:'Megnyitás',presentation:'priority-tile'};
     case'commerce.fulfillment-summary':return{title:'Teljesítés és kézbesítés',documentCenterLabel:'Dokumentumok és letöltések'};
     case'commerce.product-documents':return{eyebrow:'Dokumentumok',title:'Termékdokumentumok',downloadLabel:'Dokumentum letöltése',loginLabel:'Belépés a fiókba'};
     case'commerce.documents-center':return{eyebrow:'Saját fiók',title:'Dokumentumok és letöltések',digitalTitle:'Digitális tartalmak',orderTitle:'Rendelési dokumentumok',productTitle:'Termékdokumentumok',emptyLabel:'Még nincs megjeleníthető dokumentum vagy letölthető tartalom.',loginLabel:'Belépés a fiókba'};
@@ -67,8 +91,7 @@ export function composeStorefrontDigitalCommerceCapabilities(
         children:capabilityNodes,
       })],
     });
-    const footerIndex=next.sections.findIndex(item=>item.componentKey==='editorial.footer'||item.componentKey.endsWith('.footer'));
-    const insertIndex=footerIndex>=0?footerIndex:next.sections.length;
+    const insertIndex=resolveCapabilityInsertIndex(next);
     next.sections.splice(insertIndex,0,section);
   }
 
