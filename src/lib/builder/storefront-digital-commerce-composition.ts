@@ -91,12 +91,39 @@ function findDownloadsFactsHostId(nodes:readonly StorefrontComponentNode[]):stri
   return bestId;
 }
 
+function withGridSpan(item:StorefrontComponentNode,desktop:4|6|12,tablet:4|6|12,mobile:12):StorefrontComponentNode{
+  return{
+    ...clone(item),
+    responsive:{
+      ...(item.responsive??{}),
+      desktop:{...(item.responsive?.desktop??{}),gridSpan:desktop},
+      tablet:{...(item.responsive?.tablet??{}),gridSpan:tablet},
+      mobile:{...(item.responsive?.mobile??{}),gridSpan:mobile},
+    },
+  };
+}
+
 function appendNodeToTarget(nodes:readonly StorefrontComponentNode[],targetId:string,child:StorefrontComponentNode):StorefrontComponentNode[]{
   return nodes.map(item=>{
     const next=clone(item);
     if(next.id===targetId){
-      const children=[...(next.children??[])];
-      if(!children.some(entry=>entry.componentKey===child.componentKey))children.push(clone(child));
+      let children=[...(next.children??[])];
+      let compactChild:StorefrontComponentNode={
+        ...clone(child),
+        config:{...child.config,presentation:'facts-tile'},
+      };
+      if(next.componentKey==='layout.grid'){
+        if(children.length===2){
+          children=children.map(entry=>withGridSpan(entry,4,4,12));
+          compactChild=withGridSpan(compactChild,4,4,12);
+        }else if(children.length===1){
+          children=children.map(entry=>withGridSpan(entry,6,6,12));
+          compactChild=withGridSpan(compactChild,6,6,12);
+        }else{
+          compactChild=withGridSpan(compactChild,4,6,12);
+        }
+      }
+      if(!children.some(entry=>entry.componentKey===compactChild.componentKey))children.push(compactChild);
       return{...next,children};
     }
     if(next.children?.length)return{...next,children:appendNodeToTarget(next.children,targetId,child)};
@@ -160,13 +187,14 @@ export function composeStorefrontDigitalCommerceCapabilities(
 ):StorefrontPageDocument{
   const required=STOREFRONT_DIGITAL_COMMERCE_COMPONENTS_BY_PAGE_TYPE[document.pageType as SupportedPageType];
   if(!required)return clone(document);
-  if(document.metadata?.digitalCommerceCompositionVersion===STOREFRONT_DIGITAL_COMMERCE_COMPOSITION_VERSION)return clone(document);
 
   const next=clone(document);
   if(next.pageType==='product'){
     next.sections=next.sections.filter(section=>!isLegacyProductDigitalCommerceSection(section));
     next.sections=embedStandaloneDownloadsIntoFacts(next.sections);
   }
+  if(next.metadata?.digitalCommerceCompositionVersion===STOREFRONT_DIGITAL_COMMERCE_COMPOSITION_VERSION
+    &&required.every(componentKey=>hasComponent(next.sections,componentKey)))return next;
   const missing=required.filter(componentKey=>!hasComponent(next.sections,componentKey));
   const prefix=`shared-${idPart(next.pageKey)}-digital-commerce`;
 
