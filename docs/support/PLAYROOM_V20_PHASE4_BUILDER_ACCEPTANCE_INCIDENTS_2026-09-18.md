@@ -1044,15 +1044,15 @@ The shared guided checkout theme covered controls under `.form-grid` and a direc
 
 - all `.checkoutField>input/select/textarea` controls now receive the checkout semantic surface, input-text, border, placeholder and focus tokens;
 - Chromium/WebKit autofill states are explicitly repainted with the same semantic surface and text tokens using inset autofill hardening, with the standard `:autofill` state covered as well;
-- the legal consent keeps one checkbox but moves copy into an explicit two-line text stack, with stable link styling and checkbox alignment;
+- the two independent legal statements now have two independent required checkbox controls: one for accepting the ÁSZF and one for acknowledging the adatkezelési tájékoztató; each control owns its own state and row;
 - no checkout business rules, legal acceptance semantics, order submission logic or production state changed.
 
 ### Regression coverage
 
-The Phase 4 acceptance contract now requires nested textarea theming, autofill hardening, and the explicit two-line legal-copy structure. This prevents future templates from appearing correct in empty-field screenshots while breaking once a browser autofills customer data.
+The Phase 4 acceptance contract now requires nested textarea theming, autofill hardening, and two distinct controlled legal checkboxes with separate names and state. The checkout submit gate requires both controls, while the existing backend `legalAccepted=true` contract is only produced after both conditions pass.
 
 ### Template Factory prevention
 
-Checkout visual acceptance must cover control states, not only control types: empty, populated, focused and autofilled inputs plus textarea/select. Shared theme selectors must target semantic field wrappers rather than depend on incidental layout containers such as `.form-grid`. Legal/consent copy that must preserve a deliberate reading order should use explicit layout structure instead of uncontrolled inline wrapping.
+Checkout visual acceptance must cover control states, not only control types: empty, populated, focused and autofilled inputs plus textarea/select. Shared theme selectors must target semantic field wrappers rather than depend on incidental layout containers such as `.form-grid`. Independent legal statements must not be visually grouped behind one checkbox. Each independently required user action needs its own explicit control and state; layout may group the rows visually, but must not merge the actions.
 
 Live human screenshot verification is still required before changing this incident to `verified_fixed`.

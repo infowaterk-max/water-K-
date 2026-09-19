@@ -279,9 +279,13 @@ describe('Playroom v20 functional acceptance',()=>{
     expect(checkoutCss).toContain('.checkoutField>textarea');
     expect(checkoutCss).toContain('input:-webkit-autofill');
     expect(checkoutCss).toContain('-webkit-box-shadow:0 0 0 1000px var(--checkout-surface) inset!important');
-    expect(checkout).toContain('className="legalCopy"');
-    expect(checkout).toContain('className="legalLine"');
-    expect(checkoutCss).toContain('.legalCopy');
+    expect(checkout).toContain('[termsAccepted,setTermsAccepted]=useState(false)');
+    expect(checkout).toContain('[privacyAcknowledged,setPrivacyAcknowledged]=useState(false)');
+    expect(checkout).toContain('name="termsAccepted"');
+    expect(checkout).toContain('name="privacyAcknowledged"');
+    expect(checkout).toContain('!termsAccepted||!privacyAcknowledged');
+    expect(checkout).toContain('!termsAccepted||!privacyAcknowledged||!payment');
+    expect(checkoutCss).toContain('.legalConsentList');
     expect(checkoutCss).toContain('grid-template-columns:auto minmax(0,1fr)');
     expect(checkoutCss).toContain('.checkoutSummary .summaryLine>span');
     expect(checkoutCss).toContain('color:var(--checkout-label)!important');
