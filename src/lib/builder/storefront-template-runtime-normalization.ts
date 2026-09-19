@@ -85,6 +85,12 @@ function normalizeCartNode(node:StorefrontComponentNode):StorefrontComponentNode
   if(node.componentKey==='commerce.cart-summary'){
     config.emptyCtaLabel=typeof config.emptyCtaLabel==='string'&&config.emptyCtaLabel.trim()?config.emptyCtaLabel:'Vásárlás folytatása';
     config.emptyCtaHref=typeof config.emptyCtaHref==='string'&&config.emptyCtaHref.trim()?config.emptyCtaHref:'/webaruhaz';
+    config.showQuantityControls=true;
+    config.showRemoveControl=true;
+    config.showCouponEntry=true;
+    config.couponLabel=typeof config.couponLabel==='string'&&config.couponLabel.trim()?config.couponLabel:'Van kuponkódod?';
+    config.couponPlaceholder=typeof config.couponPlaceholder==='string'&&config.couponPlaceholder.trim()?config.couponPlaceholder:'Kuponkód';
+    config.couponApplyLabel=typeof config.couponApplyLabel==='string'&&config.couponApplyLabel.trim()?config.couponApplyLabel:'Alkalmazás';
   }
   if(node.componentKey==='commerce.recommendation-row')config.hideWhenEmpty=true;
   if(node.componentKey==='layout.section'&&hasOnlyRecommendationContent(node))config.presentation='flush';
