@@ -185,8 +185,11 @@ describe('Playroom v20 functional acceptance',()=>{
     expect(checkoutEntry).toContain("acceptance-digital-product");
     expect(checkoutEntry).toContain(".from('storefront_reusable_symbols')");
     expect(checkoutEntry).toContain('STOREFRONT_SYMBOL_SCHEMA_REQUIRED');
-    expect(seeder).toContain("localStorage.setItem('shoperation-cart-v4'");
-    expect(seeder).toContain('href="/penztar"');
+    expect(seeder).toContain("useCart");
+    expect(seeder).toContain("replace(items)");
+    expect(seeder).toContain("setCouponCode('')");
+    expect(seeder).toContain("href={ready?'/penztar':'#'}");
+    expect(seeder).not.toContain("localStorage.setItem('shoperation-cart-v4'");
   });
 
   it('renders the real E13 checkout inside the active Playroom template instead of the generic checkout shell',()=>{
