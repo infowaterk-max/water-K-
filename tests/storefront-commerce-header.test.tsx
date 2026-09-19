@@ -52,6 +52,27 @@ describe('shared commerce header',()=>{
     expect(html).toContain('aria-label="Webshop műveletek"');
   });
 
+
+  it('compacts dense desktop navigation before the horizontal-scroll fallback is needed',()=>{
+    const dense=structuredClone(page);
+    const header=dense.sections[0];
+    header.config.navTagline='JÁTÉK. KÖZÖSSÉG. ÉLMÉNY.';
+    const navigation=header.children?.find(child=>child.componentKey==='system.navigation');
+    if(!navigation)throw new Error('NAV_NODE_MISSING');
+    navigation.config.items=Array.from({length:9},(_,index)=>({label:`Menüpont ${index+1}`,href:`/menu-${index+1}`}));
+    const html=render('desktop',dense);
+    expect(html).toContain('data-navigation-density="dense"');
+    expect(html).not.toContain('JÁTÉK. KÖZÖSSÉG. ÉLMÉNY.');
+  });
+
+  it('keeps the optional navigation tagline for sparse desktop commerce headers',()=>{
+    const sparse=structuredClone(page);
+    sparse.sections[0].config.navTagline='VÁLOGATOTT KÍNÁLAT';
+    const html=render('desktop',sparse);
+    expect(html).not.toContain('data-navigation-density="dense"');
+    expect(html).toContain('VÁLOGATOTT KÍNÁLAT');
+  });
+
   it('keeps search and navigation present on mobile instead of a non-functional fake hamburger',()=>{
     const html=render('mobile');
     expect(html).toContain('Mit keresel?');

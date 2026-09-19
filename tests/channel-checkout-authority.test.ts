@@ -55,8 +55,9 @@ describe('B2C/B2B channel checkout authority',()=>{
     const form=read('src/components/checkout/checkout-form.tsx');
     expect(route).toContain('subtotal_gross_huf:quote.subtotalGrossHuf');
     expect(route).toContain('discount_gross_huf:quote.discountGrossHuf');
-    expect(route).toContain('shipping_gross_huf:fulfillment.requiresShipping?quote.shippingGrossHuf:0');
-    expect(route).toContain('total_gross_huf:fulfillment.requiresShipping?quote.totalGrossHuf:Math.max(0,quote.subtotalGrossHuf-quote.discountGrossHuf)');
+    expect(route).toContain("mode:z.enum(['cart','checkout'])");
+    expect(route).toContain('shipping_gross_huf:cartMode?0:fulfillment.requiresShipping?quote.shippingGrossHuf:0');
+    expect(route).toContain('total_gross_huf:cartMode?cartTotal:fulfillment.requiresShipping?quote.totalGrossHuf:cartTotal');
     expect(route).toContain('coupon_code:quote.couponCode');
     expect(route).toContain('fulfillment_mode:fulfillment.mode');
     expect(route).toContain('requires_shipping:fulfillment.requiresShipping');

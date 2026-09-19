@@ -1,6 +1,8 @@
 import type {CSSProperties} from 'react';
 import {requirePlanFeature} from '@/lib/plans/access';
 import {requireCurrentStoreContext} from '@/lib/instances/scope';
+import {getPlatformRole} from '@/lib/auth/platform-operator';
+import {getPilotAcceptanceInstanceId} from '@/lib/storefront/pilot-access';
 import {getCurrentStorefrontPageState} from '@/lib/builder/storefront-persistence';
 import {listCurrentStorefrontSavedBlocks} from '@/lib/builder/storefront-saved-block-persistence';
 import {
@@ -14,15 +16,30 @@ import {listStorefrontTemplateLibraryEntries} from '@/lib/builder/storefront-tem
 import {getStorefrontTemplatePreviewTheme} from '@/lib/builder/storefront-template-preview-demo';
 import {augmentStorefrontDigitalCommercePreviewContext} from '@/lib/builder/storefront-digital-commerce-preview';
 import {composeStorefrontDigitalCommerceCapabilities} from '@/lib/builder/storefront-digital-commerce-composition';
+import {normalizeStorefrontTemplateRuntimeComposition} from '@/lib/builder/storefront-template-runtime-normalization';
 import {StorefrontVisualBuilderV3} from '@/components/admin/storefront-visual-builder-v3';
 import {StorefrontTemplateLibrary} from '@/components/admin/storefront-template-library';
 
 export const dynamic='force-dynamic';
 type Props={searchParams:Promise<{page?:string;view?:string}>};
 
+async function requireVisualBuilderEntry(){
+  const context=await requireCurrentStoreContext('store.manage');
+  const acceptanceInstanceId=process.env.VERCEL_ENV==='preview'
+    ?await getPilotAcceptanceInstanceId()
+    :null;
+  const platformRole=acceptanceInstanceId?await getPlatformRole():null;
+  const isPlatformPilotAcceptance=Boolean(
+    platformRole
+    &&acceptanceInstanceId
+    &&acceptanceInstanceId===context.instanceId
+  );
+  if(!isPlatformPilotAcceptance)await requirePlanFeature('contentMarketing');
+  return{isPlatformPilotAcceptance};
+}
+
 export default async function VisualBuilderAdmin({searchParams}:Props){
-  await requirePlanFeature('contentMarketing');
-  await requireCurrentStoreContext('store.manage');
+  const{isPlatformPilotAcceptance}=await requireVisualBuilderEntry();
   const[params,pages,capability,bindingContext,savedBlocks]=await Promise.all([
     searchParams,
     listCurrentStorefrontBuilderPages(),
@@ -49,8 +66,8 @@ export default async function VisualBuilderAdmin({searchParams}:Props){
   </section>;
 
   const theme=getStorefrontTemplatePreviewTheme(document.templateKey) as CSSProperties;
-  const editorDocument=composeStorefrontDigitalCommerceCapabilities(document);
-  const editorBindingContext=augmentStorefrontDigitalCommercePreviewContext({page:editorDocument,context:bindingContext});
+  const editorDocument=composeStorefrontDigitalCommerceCapabilities(normalizeStorefrontTemplateRuntimeComposition(document));
+  const editorBindingContext=augmentStorefrontDigitalCommercePreviewContext({page:editorDocument,context:bindingContext,acceptanceMode:isPlatformPilotAcceptance});
   return <section className="adminMain" style={theme} data-storefront-builder-theme={document.templateKey}>
     <StorefrontVisualBuilderV3
       key={selectedKey??'no-page'}

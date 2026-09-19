@@ -3,6 +3,7 @@ import {StorefrontRendererRegistry,type StorefrontComponentRenderProps} from '@/
 import {createStorefrontPrimitiveRendererRegistry} from '@/components/builder/storefront-primitives';
 import {resolveStorefrontStyleSlot} from '@/lib/builder/storefront-fidelity-engine';
 import {resolveStorefrontVisualStyle} from '@/lib/builder/storefront-visual-style';
+import styles from './storefront-commerce-header.module.css';
 
 export const STOREFRONT_COMMERCE_HEADER_RENDERERS_VERSION='shoporation.storefront-commerce-header-renderers.v2' as const;
 const text=(value:unknown,fallback='')=>typeof value==='string'?value:fallback;
@@ -39,6 +40,10 @@ function SearchRenderer({config,node,viewport}:StorefrontComponentRenderProps){
 function CommerceHeaderRenderer({config,children,node,viewport}:StorefrontComponentRenderProps){
   const sticky=bool(config.sticky,true),mobile=viewport==='mobile',tablet=viewport==='tablet',utility=utilityItems(config.utilityItems),rendered=Children.toArray(children);
   const showUtilityLabels=bool(config.showUtilityLabels,false);
+  const navigationItemCount=node.children
+    .filter(child=>child.componentKey==='system.navigation')
+    .reduce((count,child)=>count+(Array.isArray(child.config.items)?child.config.items.length:0),0);
+  const denseDesktop=viewport==='desktop'&&navigationItemCount>=8;
   const paired=node.children.map((child,index)=>({componentKey:child.componentKey,rendered:rendered[index]??null}));
   const search=paired.filter(item=>item.componentKey==='system.search').map(item=>item.rendered);
   const navigation=paired.filter(item=>item.componentKey==='system.navigation').map(item=>item.rendered);
@@ -48,7 +53,7 @@ function CommerceHeaderRenderer({config,children,node,viewport}:StorefrontCompon
   const brand=<a href={safeHref(config.brandHref,'/')} style={{display:'flex',alignItems:'center',gap:'.65rem',minWidth:0,color:'inherit',textDecoration:'none',fontWeight:850,letterSpacing:'-.02em',...visualStyle(config.brandStyle,viewport),...slotStyle(config.styleSlots,'brand',viewport)}}>{logo?<img src={logo} alt={text(config.logoAlt,text(config.brandLabel,'Webshop'))} loading="eager" style={{display:'block',width:mobile?'2rem':'2.35rem',height:mobile?'2rem':'2.35rem',objectFit:'contain',...visualStyle(config.logoStyle,viewport),...slotStyle(config.styleSlots,'logo',viewport)}}/>:null}<span style={{display:'grid',gap:'.08rem',minWidth:0}}><strong style={{whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{text(config.brandLabel,'Webshop')}</strong>{text(config.tagline)?<small style={{color:'var(--shoporation-color-muted-text,#677084)',fontSize:'.68rem',fontWeight:600,letterSpacing:'.05em',...visualStyle(config.taglineStyle,viewport),...slotStyle(config.styleSlots,'tagline',viewport)}}>{text(config.tagline)}</small>:null}</span></a>;
   const utilities=<nav aria-label="Webshop műveletek" style={{display:'flex',alignItems:'center',justifyContent:'flex-end',gap:mobile?'.45rem':'.7rem',...visualStyle(config.utilityStyle,viewport),...slotStyle(config.styleSlots,'utility',viewport)}}>{utility.map(item=><a key={`${item.label}:${item.href}`} href={item.href} aria-label={item.label} title={item.label} style={{position:'relative',display:'inline-flex',alignItems:'center',justifyContent:'center',gap:showUtilityLabels&&!mobile?'.38rem':undefined,minWidth:mobile?'2rem':showUtilityLabels?'auto':'2.25rem',minHeight:mobile?'2rem':'2.25rem',padding:showUtilityLabels&&!mobile?'.35rem .55rem':'.35rem',border:'1px solid var(--shoporation-color-border,#d8dce7)',borderRadius:'var(--shoporation-radius-m,.75rem)',color:'inherit',textDecoration:'none',fontWeight:800,...slotStyle(config.styleSlots,'utilityItem',viewport)}}><span aria-hidden="true">{item.symbol}</span>{showUtilityLabels&&!mobile?<span style={{fontSize:'.72rem',whiteSpace:'nowrap',...slotStyle(config.styleSlots,'utilityLabel',viewport)}}>{item.label}</span>:null}{item.count?<small style={{position:'absolute',top:'-.35rem',right:'-.35rem',minWidth:'1.1rem',height:'1.1rem',padding:'0 .2rem',display:'grid',placeItems:'center',borderRadius:'999px',background:'var(--shoporation-color-accent,#ff6b5e)',color:'var(--shoporation-color-background,#fff)',fontSize:'.62rem',fontWeight:900}}>{item.count}</small>:null}</a>)}</nav>;
   const topStyle:CSSProperties=mobile?{display:'grid',gridTemplateColumns:'minmax(0,1fr) auto',alignItems:'center',gap:'.75rem'}:{display:'grid',gridTemplateColumns:tablet?'minmax(9rem,.8fr) minmax(15rem,1.4fr) auto':'minmax(11rem,.75fr) minmax(20rem,1.6fr) auto',alignItems:'center',gap:'clamp(1rem,2vw,2rem)'};
-  const navFrameStyle:CSSProperties={display:'flex',alignItems:'center',gap:'.7rem',minWidth:0,overflowX:'auto',overflowY:'hidden',overscrollBehaviorX:'contain',paddingTop:mobile?'.15rem':'.25rem',borderTop:'1px solid color-mix(in srgb,var(--shoporation-color-border,#d8dce7) 70%,transparent)',...slotStyle(config.styleSlots,'navigationFrame',viewport)};
+  const navFrameStyle:CSSProperties={display:'flex',alignItems:'center',gap:denseDesktop?'.4rem':'.7rem',minWidth:0,overflowX:'auto',overflowY:'hidden',overscrollBehaviorX:'contain',paddingTop:mobile?'.15rem':'.25rem',borderTop:'1px solid color-mix(in srgb,var(--shoporation-color-border,#d8dce7) 70%,transparent)',...slotStyle(config.styleSlots,'navigationFrame',viewport)};
   const categoryLabel=text(config.categoryTriggerLabel),categorySymbol=text(config.categoryTriggerSymbol,'☰'),categoryHref=safeHref(config.categoryTriggerHref,'/webaruhaz');
   const categoryTrigger=categoryLabel||text(config.categoryTriggerSymbol)?<a href={categoryHref} aria-label={categoryLabel||'Kategóriák'} style={{display:'inline-flex',alignItems:'center',gap:'.4rem',flex:'0 0 auto',color:'inherit',textDecoration:'none',fontWeight:850,...slotStyle(config.styleSlots,'categoryTrigger',viewport)}}><span aria-hidden="true">{categorySymbol}</span>{categoryLabel&&!mobile?<span>{categoryLabel}</span>:null}</a>:null;
   const navTagline=text(config.navTagline);
@@ -56,7 +61,7 @@ function CommerceHeaderRenderer({config,children,node,viewport}:StorefrontCompon
     <div style={innerStyle}>
       <div style={{...topStyle,...slotStyle(config.styleSlots,'topRow',viewport)}}>{brand}{!mobile?<div style={{minWidth:0,...slotStyle(config.styleSlots,'searchFrame',viewport)}}>{search}</div>:null}{utilities}</div>
       {mobile?<div style={{minWidth:0,...slotStyle(config.styleSlots,'searchFrame',viewport)}}>{search}</div>:null}
-      <div style={navFrameStyle}>{categoryTrigger}<div style={{minWidth:0,flex:'1 1 auto'}}>{navigation}</div>{navTagline&&!mobile?<small style={{flex:'0 0 auto',whiteSpace:'nowrap',fontSize:'.58rem',letterSpacing:'.22em',textTransform:'uppercase',opacity:.72,...slotStyle(config.styleSlots,'navTagline',viewport)}}>{navTagline}</small>:null}</div>
+      <div className={denseDesktop?styles.denseNavigation:undefined} data-navigation-density={denseDesktop?'dense':undefined} style={navFrameStyle}>{categoryTrigger}<div style={{minWidth:0,flex:'1 1 auto'}}>{navigation}</div>{navTagline&&!mobile&&!denseDesktop?<small style={{flex:'0 0 auto',whiteSpace:'nowrap',fontSize:'.58rem',letterSpacing:'.22em',textTransform:'uppercase',opacity:.72,...slotStyle(config.styleSlots,'navTagline',viewport)}}>{navTagline}</small>:null}</div>
     </div>
   </header>;
 }

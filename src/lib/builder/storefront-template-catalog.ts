@@ -1,5 +1,6 @@
 import type {StorefrontInstallableTemplatePackage} from '@/lib/builder/storefront-template-installation';
 import type {StorefrontComponentNode,StorefrontPageDocument} from '@/lib/builder/storefront-runtime';
+import {normalizeStorefrontTemplateRuntimeComposition,storefrontCartPresentationViolations} from '@/lib/builder/storefront-template-runtime-normalization';
 import {ALPINE_LODGE_TEMPLATE_PACKAGE} from '@/lib/builder/templates/alpine-lodge';
 import {BEAUTY_LAB_TEMPLATE_PACKAGE} from '@/lib/builder/templates/beauty-lab-canonical-v2';
 import {CREATOR_STATION_TEMPLATE_PACKAGE} from '@/lib/builder/templates/creator-station';
@@ -79,6 +80,14 @@ function normalizeLegacyTemplatePackage(template:StorefrontInstallableTemplatePa
   };
 }
 
+function normalizeImplementedTemplatePackage(template:StorefrontInstallableTemplatePackage):StorefrontInstallableTemplatePackage{
+  const legacyNormalized=normalizeLegacyTemplatePackage(template);
+  return{
+    ...legacyNormalized,
+    pages:legacyNormalized.pages.map(normalizeStorefrontTemplateRuntimeComposition),
+  };
+}
+
 /**
  * Only concrete source-controlled packages may enter this catalog. The accepted
  * 42-template launch target is tracked separately so missing packages can never
@@ -114,7 +123,7 @@ export const STOREFRONT_IMPLEMENTED_TEMPLATE_PACKAGES:readonly StorefrontInstall
   TECH_DECK_TEMPLATE_PACKAGE,
   TOOL_DEPOT_TEMPLATE_PACKAGE,
   TRAIL_EXPEDITION_TEMPLATE_PACKAGE,
-].map(normalizeLegacyTemplatePackage);
+].map(normalizeImplementedTemplatePackage);
 
 // Historical template packages do not appear as separate cards in Template Library,
 // but remain resolvable by exact version so persisted storefronts stay editable
@@ -133,7 +142,7 @@ const STOREFRONT_RESOLVABLE_TEMPLATE_PACKAGES:readonly StorefrontInstallableTemp
 
 const identity=(template:StorefrontInstallableTemplatePackage)=>`${template.manifest.templateKey}@${template.manifest.templateVersion}`;
 
-function validateConcreteCatalog(packages:readonly StorefrontInstallableTemplatePackage[]){
+function validateConcreteCatalog(packages:readonly StorefrontInstallableTemplatePackage[],options:{enforceCurrentCartContract:boolean}){
   const identities=new Set<string>();
   for(const template of packages){
     const key=identity(template);
@@ -144,11 +153,18 @@ function validateConcreteCatalog(packages:readonly StorefrontInstallableTemplate
     for(const pageType of template.manifest.pageTypes){
       if(!pageTypes.has(pageType))throw new Error('STOREFRONT_TEMPLATE_CATALOG_PAGE_PRESET_MISSING');
     }
+    if(options.enforceCurrentCartContract){
+      for(const page of template.pages){
+        if(page.pageType!=='cart')continue;
+        const violations=storefrontCartPresentationViolations(page);
+        if(violations.length)throw new Error(`STOREFRONT_TEMPLATE_CART_PRESENTATION_CONTRACT:${template.manifest.templateKey}@${template.manifest.templateVersion}:${violations.join(',')}`);
+      }
+    }
   }
 }
 
-validateConcreteCatalog(STOREFRONT_IMPLEMENTED_TEMPLATE_PACKAGES);
-validateConcreteCatalog(STOREFRONT_RESOLVABLE_TEMPLATE_PACKAGES);
+validateConcreteCatalog(STOREFRONT_IMPLEMENTED_TEMPLATE_PACKAGES,{enforceCurrentCartContract:true});
+validateConcreteCatalog(STOREFRONT_RESOLVABLE_TEMPLATE_PACKAGES,{enforceCurrentCartContract:false});
 
 export type StorefrontTemplateCatalogEntry={
   templateKey:string;

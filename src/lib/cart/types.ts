@@ -21,7 +21,7 @@ export type CartItem={
   lineId?:string;
   commerceGroup?:CartCommerceGroupMeta;
 };
-export type Cart={items:CartItem[]};
+export type Cart={items:CartItem[];couponCode?:string};
 export type CartCommerceGroupRequest={
   type:CartCommerceGroupType;
   id:string;
