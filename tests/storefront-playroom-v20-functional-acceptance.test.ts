@@ -253,6 +253,11 @@ describe('Playroom v20 functional acceptance',()=>{
     expect(html).toContain('data-cart-remove-control="true"');
     expect(html).toContain('Tétel törlése');
     expect(html).toContain('data-cart-coupon-entry="true"');
+    expect(html).toContain('data-cart-coupon-presentation="template-native"');
+    expect(html).toContain('data-cart-coupon-input="true"');
+    expect(html).toContain('data-cart-coupon-apply="true"');
+    expect(html).toContain('var(--shoporation-color-surface');
+    expect(html).toContain('var(--shoporation-color-primary');
     expect(html).toContain('Van kuponkódod?');
     expect(html).toContain('Tovább a pénztárhoz');
 
@@ -269,6 +274,9 @@ describe('Playroom v20 functional acceptance',()=>{
     expect(provider).toContain('setCouponCode:(code:string)=>void');
     expect(cart).toContain("mode:'cart'");
     expect(cart).toContain('Van kuponkódod?');
+    expect(cart).toContain('data-cart-coupon-presentation="template-native"');
+    expect(cart).toContain('data-cart-coupon-input="true"');
+    expect(cart).toContain('data-cart-coupon-apply="true"');
     expect(cart).toContain('data-cart-quantity-layout="vertical-arrows"');
     expect(cart).toContain('data-cart-stepper="vertical"');
     expect(cart).toContain('data-cart-step="increase"');
