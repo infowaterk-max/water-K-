@@ -19,6 +19,10 @@ const toneStyle=(value:unknown):CSSProperties=>value==='primary'
     ?{background:'var(--shoporation-color-surface,#f8fafc)',color:'var(--shoporation-color-text,#111827)'}
     :{background:'var(--shoporation-color-background,#fff)',color:'var(--shoporation-color-text,#111827)'};
 
+function SearchIcon(){
+  return <svg data-storefront-search-icon="true" aria-hidden="true" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" style={{display:'block',flex:'0 0 auto'}}><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.2 4.2"/></svg>;
+}
+
 type UtilityItem={label:string;href:string;symbol:string;count:string};
 const utilityItems=(value:unknown):UtilityItem[]=>Array.isArray(value)?value.flatMap((item,index)=>{
   if(!item||typeof item!=='object'||Array.isArray(item))return[];
@@ -30,10 +34,12 @@ const utilityItems=(value:unknown):UtilityItem[]=>Array.isArray(value)?value.fla
 
 function SearchRenderer({config,node,viewport}:StorefrontComponentRenderProps){
   const action=safeHref(config.action,'/kereses'),queryParam=safeQueryParam(config.queryParam),presentation=text(config.presentation,'commerce');
+  const buttonLabel=text(config.buttonLabel,'Keresés').trim();
+  const iconOnly=['⌕','🔍','🔎'].includes(buttonLabel);
   const rootStyle:CSSProperties={gridColumn:`span ${node.resolved.gridSpan} / span ${node.resolved.gridSpan}`,display:'flex',width:'100%',minWidth:0,alignItems:'stretch',border:'1px solid var(--shoporation-color-border,#d8dce7)',borderRadius:'var(--shoporation-radius-m,.75rem)',background:'var(--shoporation-color-surface,#fff)',overflow:'hidden',...visualStyle(config.style,viewport),...slotStyle(config.styleSlots,'root',viewport)};
   return <form data-storefront-component="system.search" data-presentation={presentation} role="search" method="get" action={action} style={rootStyle}>
     <input type="search" name={queryParam} placeholder={text(config.placeholder,'Keresés a webshopban')} aria-label={text(config.ariaLabel,'Keresés a webshopban')} style={{appearance:'none',flex:'1 1 auto',minWidth:0,border:0,outline:0,background:'transparent',color:'inherit',padding:viewport==='mobile'?'.72rem .82rem':'.78rem 1rem',font:'inherit',...visualStyle(config.inputStyle,viewport),...slotStyle(config.styleSlots,'input',viewport)}}/>
-    <button type="submit" style={{border:0,borderLeft:'1px solid var(--shoporation-color-border,#d8dce7)',padding:viewport==='mobile'?'.7rem .82rem':'.75rem 1rem',background:'var(--shoporation-color-primary,#111827)',color:'var(--shoporation-color-primary-contrast,#fff)',font:'inherit',fontWeight:750,cursor:'pointer',...visualStyle(config.buttonStyle,viewport),...slotStyle(config.styleSlots,'button',viewport)}}>{text(config.buttonLabel,'Keresés')}</button>
+    <button type="submit" aria-label={iconOnly?text(config.ariaLabel,'Keresés a webshopban'):undefined} style={{display:'flex',alignItems:'center',justifyContent:'center',flex:'0 0 auto',minWidth:iconOnly?'2.45rem':undefined,width:iconOnly?'2.45rem':undefined,border:0,borderLeft:'1px solid var(--shoporation-color-border,#d8dce7)',padding:iconOnly?0:viewport==='mobile'?'.7rem .82rem':'.75rem 1rem',background:'var(--shoporation-color-primary,#111827)',color:'var(--shoporation-color-primary-contrast,#fff)',font:'inherit',fontWeight:750,lineHeight:1,cursor:'pointer',...visualStyle(config.buttonStyle,viewport),...slotStyle(config.styleSlots,'button',viewport)}}>{iconOnly?<SearchIcon/>:buttonLabel}</button>
   </form>;
 }
 
