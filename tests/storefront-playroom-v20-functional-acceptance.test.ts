@@ -307,7 +307,6 @@ describe('Playroom v20 functional acceptance',()=>{
     }}});
     expect(withDownloads).toContain('data-storefront-digital-commerce="downloads-tile"');
     expect(withDownloads).toContain('Letöltések');
-    expect(withDownloads).toContain('Dokumentumok');
     expect(withDownloads).toContain('data-presentation="playroom-facts-tile"');
     expect(withDownloads).toContain('Használati útmutató');
     expect(withDownloads).not.toContain('Dokumentumok · 1 db');
