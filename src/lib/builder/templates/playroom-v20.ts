@@ -111,8 +111,7 @@ const supportForm=()=>node({
 const digitalCommerceSection=(pageType:StorefrontPageDocument['pageType'])=>{
   const children:StorefrontComponentNode[]=[];
   if(pageType==='product')children.push(
-    node({id:'playroom-product-fulfillment',componentKey:'commerce.fulfillment-summary',componentVersion:1,config:{title:'Hogyan kapod meg?',documentCenterLabel:'Dokumentumok és letöltések',presentation:'playroom-native'}}),
-    node({id:'playroom-product-documents',componentKey:'commerce.product-documents',componentVersion:1,config:{eyebrow:'TERMÉKDOKUMENTUMOK',title:'Termékdokumentumok',copy:'Útmutatók, adatlapok és kompatibilitási segédletek az aktuális termékhez.',downloadLabel:'Dokumentum letöltése',loginLabel:'Belépés a fiókba',presentation:'playroom-native'}}),
+    node({id:'playroom-product-downloads',componentKey:'commerce.downloads-tile',componentVersion:1,config:{eyebrow:'LETÖLTÉSEK',title:'Letöltések',documentsLabel:'Dokumentumok',digitalLabel:'Digitális anyagok',digitalPendingLabel:'Vásárlás után',openLabel:'Megnyitás',presentation:'playroom-priority-tile'}}),
   );
   if(pageType==='cart')children.push(node({id:'playroom-cart-fulfillment',componentKey:'commerce.fulfillment-summary',componentVersion:1,config:{title:'Teljesítés a kosárban',documentCenterLabel:'Dokumentumok és letöltések',presentation:'playroom-native'}}));
   if(pageType==='checkout')children.push(
@@ -135,11 +134,20 @@ function insertBeforeFooter(sections:readonly StorefrontComponentNode[],...extra
   return result;
 }
 
+function insertAfterSection(sections:readonly StorefrontComponentNode[],sectionId:string,...extras:Array<StorefrontComponentNode|null>){
+  const result=sections.map(clone);
+  const anchor=result.findIndex(item=>item.id===sectionId);
+  const insertIndex=anchor>=0?anchor+1:Math.min(1,result.length);
+  result.splice(insertIndex,0,...extras.filter((item):item is StorefrontComponentNode=>Boolean(item)));
+  return result;
+}
+
 function upgradePage(source:StorefrontPageDocument):StorefrontPageDocument{
   let sections=source.sections.map(clone);
   if(source.pageType==='home'&&!sections.some(item=>item.id==='playroom-home-newsletter'))sections=insertBeforeFooter(sections,newsletterSection());
   if(source.pageType==='contact'&&!sections.some(item=>item.id==='playroom-contact-form'))sections=insertBeforeFooter(sections,supportForm());
-  if(['product','cart','checkout','account'].includes(source.pageType)&&!sections.some(item=>item.id===`playroom-${source.pageType}-digital-commerce`))sections=insertBeforeFooter(sections,digitalCommerceSection(source.pageType));
+  if(source.pageType==='product'&&!sections.some(item=>item.id==='playroom-product-digital-commerce'))sections=insertAfterSection(sections,'playroom-product-main',digitalCommerceSection(source.pageType));
+  if(['cart','checkout','account'].includes(source.pageType)&&!sections.some(item=>item.id===`playroom-${source.pageType}-digital-commerce`))sections=insertBeforeFooter(sections,digitalCommerceSection(source.pageType));
   const previousAddon=rec(source.metadata?.addonIntegration);
   const previousContexts=Array.isArray(previousAddon.semanticContexts)?previousAddon.semanticContexts.filter((value):value is string=>typeof value==='string'):[];
   const semanticContexts=[...new Set([...STOREFRONT_PAGE_SEMANTIC_CONTEXTS[source.pageType],...previousContexts])];
