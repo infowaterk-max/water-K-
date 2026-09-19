@@ -239,3 +239,19 @@ Before release, verify the set of add-ons/capabilities that are expected to work
 - no duplicated template-specific add-on engine.
 
 The goal is that a merchant can install a finished Shoperation template, enable supported capabilities, customize the storefront months later, and never feel that the add-ons belong to a different product or to an old version of the design.
+
+### Cart customer-task contract
+
+The cart is a customer task surface across **all storefront templates**, not a place to explain internal commerce-engine guarantees.
+
+Required portfolio-wide behavior:
+- keep the primary cart focused on cart lines, quantity, authoritative price/total, checkout continuation, and optional relevant recommendations;
+- do not add decorative panels whose purpose is to tell the shopper that price, stock, or final validation is "real", authoritative, or server-validated;
+- do not add a second static "what happens next" / checkout-step explainer beside the cart when the checkout flow itself owns those steps;
+- do not render `commerce.fulfillment-summary`, `commerce.documents-center`, `commerce.product-documents`, `commerce.downloads-tile`, or `commerce.post-purchase-guidance` on cart pages;
+- physical/digital fulfillment may be shown at the actual cart-line level when it materially helps identify the item, but must not create a detached full-width cart section;
+- public product documents belong on the PDP;
+- purchased digital assets and account-only documents belong under `Fiókom → Letöltéseim`;
+- stock, price, eligibility, MOQ/order-multiple and final-order validation remain mandatory runtime/server responsibilities even when explanatory chrome is absent.
+
+The shared cart normalizer applies this contract to persisted drafts and template packages, and the template catalog validates the normalized result. New Template Factory output must satisfy the same contract before acceptance.
