@@ -716,7 +716,7 @@ Before accepting each of the remaining 41 templates, run this shared preflight:
 10. Confirm Alap/Pro capability difference without switching template skin.
 11. Record any failed hypothesis before moving on.
 12. Run the template language gate: customer-facing labels/copy must match the template locale; brand/proper names may remain unchanged.
-13. On product pages, keep merchant/customer downloads discoverable in the primary PDP decision zone: the shared `commerce.downloads-tile` belongs directly after the main product gallery/buybox surface (or the first primary product section as fallback), never buried near the footer. Present one compact `Letöltések` tile that groups product documents and purchased digital material; do not duplicate separate low-priority Product Documents / digital-delivery panels.
+13. On product pages, keep only **public Product Documents** discoverable in the primary PDP decision zone: the shared `commerce.downloads-tile` belongs directly after the main product gallery/buybox surface (or the first primary product section as fallback), never buried near the footer. Purchased digital assets are **never downloaded from the PDP**; after an eligible purchase they belong to `Fiókom → Letöltéseim` and remain entitlement-authorized. A digital/mixed PDP may show a short informational note pointing users to the profile library after purchase, but must not expose a digital asset download link there.
 13. Final exact-head CI + READY Preview + human visual PASS are separate gates.
 
 ---
