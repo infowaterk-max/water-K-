@@ -181,6 +181,31 @@ describe('Playroom v20 functional acceptance',()=>{
     expect(seeder).toContain('href="/penztar"');
   });
 
+  it('renders the real E13 checkout inside the active Playroom template instead of the generic checkout shell',()=>{
+    const route=read('src/app/penztar/page.tsx');
+    const shell=read('src/components/checkout/storefront-checkout-shell.tsx');
+    const runtimeSource=read('src/lib/builder/storefront-runtime-source.ts');
+    const settings=read('src/lib/commerce/settings.ts');
+    const checkout=read('src/components/checkout/checkout-form.tsx');
+    const playroom=read('src/lib/builder/templates/playroom-v20.ts');
+    expect(route).toContain('resolveCurrentStorefrontCheckoutRuntimePage');
+    expect(route).toContain('<StorefrontCheckoutShell');
+    expect(route).toContain('embedded={Boolean(runtime)}');
+    expect(route).toContain('acceptancePreview={acceptancePreview}');
+    expect(shell).toContain("node.componentKey==='commerce.checkout-summary'");
+    expect(shell).toContain('data-storefront-checkout-runtime="template-native"');
+    expect(shell).toContain('data-storefront-live-checkout="shared-e13"');
+    expect(shell).toContain('resolveStorefrontGlobalStyleCssVariables');
+    expect(runtimeSource).toContain("getCurrentStorefrontPageState('checkout')");
+    expect(runtimeSource).toContain('acceptanceMode:true');
+    expect(playroom).toContain("checkoutTheme:{");
+    expect(playroom).toContain("background:'#020b17'");
+    expect(settings).toContain("label:'Acceptance · személyes átvétel'");
+    expect(settings).toContain("label:'Acceptance · banki átutalás'");
+    expect(checkout).toContain("Acceptance módban a rendelés tényleges leadása tiltva van.");
+    expect(checkout).toContain("data-checkout-embedded={embedded?'true':'false'}");
+  });
+
   it('proves one Playroom package for Alap and Pro and exposes contextual locked/available capabilities from real manifests',()=>{
     for(const capability of[alap,pro]){
       const template=composeStorefrontDigitalCommerceTemplatePackage(PLAYROOM_V20_TEMPLATE_PACKAGE);
