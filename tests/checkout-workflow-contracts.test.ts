@@ -10,14 +10,15 @@ const checkoutForm = read('src/components/checkout/checkout-form.tsx');
 const checkoutStyle = read('src/components/checkout/checkout-guided.module.css');
 
 describe('checkout workflow contracts', () => {
-  test('cart and checkout expose the canonical four-step commerce journey', () => {
-    for(const source of [cartPage,checkoutPage]){
-      expect(source).toMatch(/1 · Kosár/);
-      expect(source).toMatch(/2 · Szállítás/);
-      expect(source).toMatch(/3 · Fizetés/);
-      expect(source).toMatch(/4 · Összesítés/);
-    }
+  test('checkout exposes the canonical four-step journey while cart stays customer-task focused', () => {
     expect(cartPage).toMatch(/CartView/);expect(cartPage).toMatch(/ProductRecommendations/);
+    expect(cartPage).not.toMatch(/commerceSteps/);
+    expect(cartPage).not.toMatch(/cartAssurance/);
+    expect(cartPage).not.toMatch(/Valós készlet/);
+    expect(checkoutPage).toMatch(/1 · Kosár/);
+    expect(checkoutPage).toMatch(/2 · Szállítás/);
+    expect(checkoutPage).toMatch(/3 · Fizetés/);
+    expect(checkoutPage).toMatch(/4 · Összesítés/);
     expect(checkoutPage).toMatch(/data-shared-checkout-contract="guided-accordion-v1"/);
   });
   test('checkout keeps recovery and configured commerce settings wired in', () => {
