@@ -243,10 +243,32 @@ describe('Playroom v20 functional acceptance',()=>{
     expect(html).toContain('Fizikai termék');
     expect(html).toContain('Acceptance Digital Product');
     expect(html).toContain('Digitális termék');
+    expect(html).toContain('data-cart-quantity-controls="true"');
+    expect(html).toContain('Mennyiség csökkentése');
+    expect(html).toContain('Mennyiség növelése');
+    expect(html).toContain('Törlés');
+    expect(html).toContain('data-cart-coupon-entry="true"');
+    expect(html).toContain('Van kuponkódod?');
     expect(html).toContain('Tovább a pénztárhoz');
 
     const builder=read('src/app/admin/tartalom/builder/page.tsx');
     expect(builder).toContain('acceptanceMode:isPlatformPilotAcceptance');
+  });
+
+  it('shares one persisted coupon between cart and checkout while keeping the checkout step-4 entry',()=>{
+    const provider=read('src/components/cart/cart-provider.tsx');
+    const cart=read('src/components/cart/cart-view.tsx');
+    const checkout=read('src/components/checkout/checkout-form.tsx');
+    const quote=read('src/app/api/checkout/quote/route.ts');
+    expect(provider).toContain("CART_STORAGE_KEY='shoperation-cart-v4'");
+    expect(provider).toContain('setCouponCode:(code:string)=>void');
+    expect(cart).toContain("mode:'cart'");
+    expect(cart).toContain('Van kuponkódod?');
+    expect(checkout).toContain('couponCode,setCouponCode}=useCart()');
+    expect(checkout).toContain('step="summary" number={4}');
+    expect(checkout).toContain('<span>Kuponkód</span>');
+    expect(checkout).toContain('Kupon alkalmazása');
+    expect(quote).toContain("mode:z.enum(['cart','checkout'])");
   });
 
   it('renders a useful empty-cart exit and hides an empty recommendation section',()=>{
