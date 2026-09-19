@@ -827,3 +827,37 @@ Before interactive storefront acceptance for any template:
 3. fail acceptance preflight with a specific dependency code instead of opening a route that will hit the global error boundary;
 4. only then continue with human UI acceptance.
 
+
+
+## SKB-P4-017 — Live checkout rendered with light fallback theme; search icon and footer lost Playroom fidelity
+
+- status: `implemented`
+- evidence: `human_visual_plus_code_contract`
+- area: `storefront/template-shell/live-checkout-fidelity`
+- risk: `medium`
+- automation: `AUTO_FIX_AND_VISUAL_GATE`
+
+### Symptom
+
+The template-native Playroom checkout successfully loaded the real shared E13 flow, but three visual regressions remained:
+
+1. the embedded checkout cards, fields and summary used the generic light fallback instead of the Playroom dark storefront theme;
+2. the icon-only search action used a tiny text glyph that was optically off-center;
+3. the Playroom footer inherited an aggressively compressed historical fidelity override and appeared unnaturally flat.
+
+### Root cause
+
+- `StorefrontCheckoutShell.checkoutThemeStyle` resolved the active storefront global CSS variables, then overwrote them with light hard-coded fallbacks whenever a persisted draft did not yet contain the newer `checkoutTheme` metadata.
+- `system.search` rendered the historical `⌕` label as font text instead of a stable SVG icon with a centered fixed hit area.
+- persisted Playroom v20 drafts still carried the v16 compact footer values such as `.34rem ... .42rem` padding and near-zero link spacing.
+
+### Verified resolution
+
+- checkout theme inheritance now keeps the active storefront Global Styles as authority and only applies explicit `checkoutTheme` values as overrides;
+- icon-only search controls render an 18 px SVG magnifier in a centered fixed-width action button;
+- the Playroom v20 shared-shell normalizer restores footer vertical padding, minimum height, column gap and navigation line spacing for current/future v20 pages without rewriting historical exact-version packages;
+- regression coverage locks all three contracts.
+
+### Prevention
+
+For every remaining template, live shared commerce surfaces must inherit the active template's Global Styles by default. A missing optional template-local theme block must never fall back to a different visual system. Icon-only controls must use deterministic SVG geometry, and historical fidelity compression must be normalized at the current template-version boundary before portfolio acceptance.
