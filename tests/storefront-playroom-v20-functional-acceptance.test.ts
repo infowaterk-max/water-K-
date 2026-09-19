@@ -199,12 +199,15 @@ describe('Playroom v20 functional acceptance',()=>{
     if(mode==='mixed'){expect(html).toContain('Neon Pro Controller');expect(html).toContain('Orbit Breakers Digital');}
   });
 
-  it('keeps public documents on the PDP while purchased digital files stay in Fiókom → Letöltéseim',()=>{
+  it('keeps public documents as the third Product Facts tile while purchased digital files stay in Fiókom → Letöltéseim',()=>{
     const product=playroomPage('product');
-    const mainIndex=product.sections.findIndex(section=>section.id==='playroom-product-main');
-    const downloadsIndex=product.sections.findIndex(section=>section.id==='playroom-product-digital-commerce');
-    expect(mainIndex).toBeGreaterThanOrEqual(0);
-    expect(downloadsIndex).toBe(mainIndex+1);
+    const factsContainer=findNode(product,'playroom-product-facts-container');
+    expect(factsContainer.children?.map(item=>item.id)).toEqual([
+      'playroom-product-key-specs',
+      'playroom-product-compatibility',
+      'playroom-product-downloads',
+    ]);
+    expect(product.sections.some(section=>section.id==='playroom-product-digital-commerce')).toBe(false);
 
     const withDownloads=render(product,{commerce:{digitalCommerce:{
       productDownloads:{state:'ready',mode:'mixed',accountDownloadsHref:'/fiokom/letoltesek',documents:[{
