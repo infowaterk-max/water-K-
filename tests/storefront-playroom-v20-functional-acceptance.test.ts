@@ -21,6 +21,7 @@ import {
 } from '@/lib/builder/storefront-global-styles';
 import {setStorefrontNodeStyleSlot} from '@/lib/builder/storefront-fidelity-builder-operations';
 import {resolveStorefrontVisualStyle} from '@/lib/builder/storefront-visual-style';
+import {normalizeStorefrontTemplateRuntimeComposition} from '@/lib/builder/storefront-template-runtime-normalization';
 import type {StorefrontComponentNode,StorefrontPageDocument} from '@/lib/builder/storefront-runtime';
 import {PLAYROOM_V19_CANONICAL_TEMPLATE_PACKAGE} from '@/lib/builder/templates/playroom-v19-canonical';
 import {PLAYROOM_V20_TEMPLATE_PACKAGE} from '@/lib/builder/templates/playroom-v20';
