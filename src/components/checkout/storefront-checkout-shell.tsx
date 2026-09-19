@@ -18,20 +18,27 @@ const cssValue=(recordValue:Record<string,unknown>,key:string,fallback:string)=>
 
 function checkoutThemeStyle(page:StorefrontPageDocument):CSSProperties{
   const theme=record(page.metadata?.checkoutTheme);
+  const inherited=resolveStorefrontGlobalStyleCssVariables(page) as CSSProperties;
+  const overrides:CSSProperties={};
+  const assign=(themeKey:string,cssKey:string)=>{
+    const value=theme[themeKey];
+    if(typeof value==='string'&&value.trim())(overrides as Record<string,string>)[cssKey]=value;
+  };
+  assign('background','--shoporation-color-background');
+  assign('surface','--shoporation-color-surface');
+  assign('surfaceMuted','--shoporation-color-surface-muted');
+  assign('text','--shoporation-color-text');
+  assign('mutedText','--shoporation-color-muted-text');
+  assign('border','--shoporation-color-border');
+  assign('primary','--shoporation-color-primary');
+  assign('primaryContrast','--shoporation-color-primary-contrast');
+  assign('accent','--shoporation-color-accent');
+  assign('radiusS','--shoporation-radius-s');
+  assign('radiusM','--shoporation-radius-m');
+  assign('radiusL','--shoporation-radius-l');
   return {
-    ...(resolveStorefrontGlobalStyleCssVariables(page) as CSSProperties),
-    '--shoporation-color-background':cssValue(theme,'background','#f3f6f0'),
-    '--shoporation-color-surface':cssValue(theme,'surface','#ffffff'),
-    '--shoporation-color-surface-muted':cssValue(theme,'surfaceMuted','#f7f9f6'),
-    '--shoporation-color-text':cssValue(theme,'text','#17231a'),
-    '--shoporation-color-muted-text':cssValue(theme,'mutedText','#637066'),
-    '--shoporation-color-border':cssValue(theme,'border','rgba(23,35,26,.11)'),
-    '--shoporation-color-primary':cssValue(theme,'primary','#2f6f3e'),
-    '--shoporation-color-primary-contrast':cssValue(theme,'primaryContrast','#ffffff'),
-    '--shoporation-color-accent':cssValue(theme,'accent',cssValue(theme,'primary','#2f6f3e')),
-    '--shoporation-radius-s':cssValue(theme,'radiusS','.55rem'),
-    '--shoporation-radius-m':cssValue(theme,'radiusM','.9rem'),
-    '--shoporation-radius-l':cssValue(theme,'radiusL','1.6rem'),
+    ...inherited,
+    ...overrides,
     color:'var(--shoporation-color-text)',
     fontFamily:'var(--shoporation-body-font,Arial,sans-serif)',
   } as CSSProperties;
