@@ -223,6 +223,16 @@ describe('Playroom v20 functional acceptance',()=>{
     expect(source).toContain("isDeprecatedCartDigitalCommerceSection");
   });
 
+  it('renders a useful empty-cart exit and hides an empty recommendation section',()=>{
+    const cart=playroomPage('cart');
+    const html=render(cart,{cart:{lines:[],subtotal:'',total:''},recommendations:{products:[]}});
+    expect(html).toContain('data-cart-empty-state="true"');
+    expect(html).toContain('Vásárlás folytatása');
+    expect(html).toContain('href="/webaruhaz"');
+    expect(html).not.toContain('data-storefront-commerce="recommendation-row"');
+    expect(html).not.toContain('Jelenleg nincs kapcsolódó ajánlat.');
+  });
+
   it.each(['physical','digital','mixed'] as const)('renders Playroom checkout fulfillment state %s through the shared runtime',mode=>{
     const checkout=playroomPage('checkout');
     const html=render(checkout,{commerce:{digitalCommerce:{
