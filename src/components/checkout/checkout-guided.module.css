@@ -63,7 +63,12 @@
 .root :global(.btnGhost){background:var(--checkout-surface);color:var(--checkout-text);border:1px solid var(--checkout-border)}
 .root :global(.checkoutSummary){position:sticky;top:6.2rem;background:var(--checkout-surface);color:var(--checkout-text);border-color:var(--checkout-border);border-radius:var(--checkout-radius-l);box-shadow:0 16px 42px rgba(0,0,0,.08)}
 .root :global(.summaryLine){border-color:var(--checkout-border)}
-.root :global(.shippingProgress){color:var(--checkout-primary)}
+.root :global(.checkoutSummary .summaryLine>span){color:var(--checkout-label)!important;line-height:1.35;min-width:0}
+.root :global(.checkoutSummary .summaryLine>strong){color:var(--checkout-text)!important;white-space:nowrap;flex:0 0 auto}
+.root :global(.checkoutSummary .summaryTotal>span),.root :global(.checkoutSummary .summaryTotal>strong){color:var(--checkout-heading)!important}
+.root :global(.checkoutSummary .trustList){color:var(--checkout-helper)!important}
+.root :global(.checkoutSummary .trustList>span){color:inherit!important;line-height:1.35}
+.root :global(.shippingProgress){color:var(--checkout-primary)!important}
 .root :global(.pickupPicker),.root :global(.pickupSelected){background:var(--checkout-surface-muted);border-color:var(--checkout-border)}
 .root :global(.errorNotice){border-radius:var(--checkout-radius-s)}
 .summaryPreview{display:grid;gap:.35rem;margin:0 0 1rem;padding:.85rem;border:1px solid var(--checkout-border);border-radius:var(--checkout-radius-m);background:var(--checkout-surface-muted)}

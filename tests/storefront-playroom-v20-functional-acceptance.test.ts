@@ -225,8 +225,9 @@ describe('Playroom v20 functional acceptance',()=>{
     expect(shell).toContain("assign('placeholder','--shoporation-checkout-placeholder-color')");
     expect(shell).toContain("assign('helperText','--shoporation-checkout-helper-color')");
     expect(header).toContain('data-storefront-search-icon="true"');
-    expect(header).toContain('width="20" height="20"');
-    expect(header).toContain("minWidth:'2.7rem',width:'2.7rem',height:'100%',padding:0");
+    expect(header).toContain('width="22" height="22"');
+    expect(header).toContain("minWidth:'3rem',width:'3rem',minHeight:'2.75rem',padding:0,lineHeight:0");
+    expect(header).toContain("transform:'translateY(-1px)'");
     expect(normalizer).toContain("padding:'1.45rem 2.35rem 1.7rem'");
     expect(normalizer).toContain("minHeight:'12rem'");
     const checkoutTemplate=playroomPage('checkout');
@@ -272,6 +273,11 @@ describe('Playroom v20 functional acceptance',()=>{
     expect(checkoutCss).toContain('.checkoutField>span');
     expect(checkoutCss).toContain('font-weight:800');
     expect(checkoutCss).toContain('input::placeholder');
+    expect(checkoutCss).toContain('.checkoutSummary .summaryLine>span');
+    expect(checkoutCss).toContain('color:var(--checkout-label)!important');
+    expect(checkoutCss).toContain('.checkoutSummary .trustList');
+    expect(checkoutCss).toContain('color:var(--checkout-helper)!important');
+    expect(checkoutCss).toContain('white-space:nowrap');
   });
 
   it('proves one Playroom package for Alap and Pro and exposes contextual locked/available capabilities from real manifests',()=>{

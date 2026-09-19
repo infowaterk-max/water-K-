@@ -973,3 +973,43 @@ Live verification is still required before changing this incident to `verified_f
 
 All future template acceptance seeders must enter commerce state through the shared runtime/provider API rather than through implementation-detail storage keys. Acceptance helpers must consider state ready only after provider hydration has completed and the canonical provider observes the seeded lines. Storage format and migrations remain private implementation details of the shared cart engine.
 
+
+
+---
+
+## SKB-P4-020 — Search action optical centering and checkout summary secondary-text contrast escaped shared semantic styling
+
+**Status:** `implemented_pending_live_verification`  
+**Evidence:** `human_preview_screenshot_plus_shared_renderer_contract`  
+**Area:** `storefront/header/search + checkout/summary`  
+**Risk:** medium  
+**Automation:** `SEMANTIC_CONTRAST_AND_ICON_ALIGNMENT_REQUIRED`
+
+### Symptom
+
+On the exact-head Playroom Checkout Preview, the search action was functionally present but the magnifier still sat optically low inside its button. In the same Preview, the verified order summary rendered correct line items and a correct 3810 Ft total, but item labels and trust/verification copy were too dark against the dark summary surface.
+
+### Root cause
+
+Two shared presentation gaps remained:
+
+- the search button relied on `height:'100%'` inside an auto-sized flex row and centered the SVG by its raw view-box geometry, which did not provide stable optical centering for the magnifier glyph;
+- the checkout summary did not explicitly bind all secondary summary text to checkout semantic color tokens, while legacy global checkout styles still expose `var(--muted)` for trust text.
+
+The issue was therefore not a Playroom-only asset problem. It was a shared renderer/theme-boundary problem.
+
+### Resolution
+
+- the shared commerce-header search action now stretches with the row, uses a fixed icon action width/min-height and grid centering, and applies a small optical Y correction to a 22 px magnifier;
+- the shared guided checkout summary now explicitly maps line labels to `--checkout-label`, trust copy to `--checkout-helper`, total text to `--checkout-heading`, and keeps monetary values on one line;
+- no business logic, quote logic, production database state, or production deployment was changed.
+
+### Regression coverage
+
+The Playroom functional acceptance contract now locks the shared search geometry and the semantic summary contrast selectors/tokens so future templates cannot silently fall back to legacy muted text on dark checkout surfaces.
+
+### Template Factory prevention
+
+Protected system chrome must not depend on raw SVG geometry or implicit parent height for icon alignment. Checkout summaries must bind customer-facing secondary copy to checkout semantic tokens, not legacy global variables. New templates may supply token values, but they must not bypass these shared contrast and alignment contracts.
+
+Live human screenshot verification is still required before changing this incident to `verified_fixed`.
