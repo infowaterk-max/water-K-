@@ -12,12 +12,17 @@ export function augmentStorefrontDigitalCommercePreviewContext(input:{
   template?:StorefrontInstallableTemplatePackage;
   page:StorefrontPageDocument;
   context:Record<string,unknown>;
+  acceptanceMode?:boolean;
 }):Record<string,unknown>{
   const next=clone(input.context);
   const commerce=rec(next.commerce),digitalCommerce=rec(commerce.digitalCommerce);
   const mixedLines=[
     {id:'preview-digital-game',name:'Digitális bemutatótermék',quantity:1,fulfillmentType:'digital'},
     {id:'preview-physical-controller',name:'Fizikai bemutatótermék',quantity:1,fulfillmentType:'physical'},
+  ];
+  const acceptanceCartLines=[
+    {id:'acceptance-physical-product',name:'Acceptance Physical Product',variantLabel:'Fizikai termék',quantity:1,lineTotal:1270,fulfillmentType:'physical'},
+    {id:'acceptance-digital-product',name:'Acceptance Digital Product',variantLabel:'Digitális termék',quantity:1,lineTotal:2540,fulfillmentType:'digital'},
   ];
   const productDocuments={state:'ready',documents:[
     {id:'preview-manual',kindLabel:'Használati útmutató',title:'Termék – gyors kezdés',description:'Preview dokumentum a Product Documents komponens vizuális ellenőrzéséhez.',fileName:'product-guide.pdf',sizeLabel:'1.2 MB',variantSpecific:true,downloadHref:'/storefront-template-preview?previewDocument=1'},
@@ -36,8 +41,12 @@ export function augmentStorefrontDigitalCommercePreviewContext(input:{
     digitalCommerce.productDocuments=productDocuments;
     digitalCommerce.productDownloads={state:'ready',mode:'digital',documents:productDocuments.documents,accountDownloadsHref:'/fiokom/letoltesek'};
   }
-  if(input.page.pageType==='cart')digitalCommerce.cartFulfillment={state:'ready',mode:'mixed',copy:'A kosár digitális és fizikai tételt is tartalmaz.',lines:mixedLines,documentCenterHref:'/fiokom/letoltesek'};
+  if(input.page.pageType==='cart'){
+    digitalCommerce.cartFulfillment={state:'ready',mode:'mixed',copy:'A kosár digitális és fizikai tételt is tartalmaz.',lines:mixedLines,documentCenterHref:'/fiokom/letoltesek'};
+    if(input.acceptanceMode)next.cart={lines:acceptanceCartLines,subtotal:3810,total:3810,shipping:0,currency:'HUF'};
+  }
   if(input.page.pageType==='checkout'){
+    if(input.acceptanceMode)next.cart={lines:acceptanceCartLines,subtotal:3810,total:3810,shipping:0,currency:'HUF'};
     digitalCommerce.checkoutFulfillment={state:'ready',mode:'mixed',copy:'A fizikai tétel kézbesítést kap, a digitális tartalom az igazolt fizetés után válik letölthetővé.',lines:mixedLines,documentCenterHref:'/fiokom/letoltesek'};
     digitalCommerce.postPurchase={state:'ready',mode:'mixed',paymentStatus:'pending',copy:'A digitális hozzáférés a fizetés hitelesítése után aktiválódik.',documentCenterHref:'/fiokom/letoltesek'};
   }
