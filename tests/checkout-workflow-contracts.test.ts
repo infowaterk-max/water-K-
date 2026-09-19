@@ -62,6 +62,16 @@ describe('checkout workflow contracts', () => {
     expect(formData).toBeGreaterThan(quoteRefresh);
     expect(checkoutForm).not.toMatch(/new FormData\(e\.currentTarget\)/);
   });
+  test('acceptance preview keeps final submit clickable but blocks before any order creation side effect', () => {
+    expect(checkoutForm).toMatch(/type="submit" disabled=\{state==='sending'\|\|quoteLoading\|\|!quote\|\|!termsAccepted\|\|!privacyAcknowledged\|\|!payment\}/);
+    expect(checkoutForm).toMatch(/Acceptance · rendelésleadás tesztelése/);
+    expect(checkoutForm).not.toMatch(/disabled=\{acceptancePreview\|\|/);
+    const guard=checkoutForm.indexOf("if(acceptancePreview){");
+    const orderFetch=checkoutForm.indexOf("fetch('/api/orders'");
+    expect(guard).toBeGreaterThanOrEqual(0);
+    expect(orderFetch).toBeGreaterThan(guard);
+    expect(checkoutForm).toMatch(/Nem jött létre rendelés, nem indult fizetés, számlázás vagy szállítás/);
+  });
   test('order creation remains idempotent and server-backed', () => {
     expect(checkoutForm).toMatch(/x-idempotency-key/);expect(checkoutForm).toMatch(/fetch\('\/api\/orders'/);expect(checkoutForm).toMatch(/confirmationToken/);expect(checkoutForm).toMatch(/router\.replace\(`\/rendeles-sikeres\?token=/);
   });

@@ -1056,3 +1056,39 @@ The Phase 4 acceptance contract now requires nested textarea theming, autofill h
 Checkout visual acceptance must cover control states, not only control types: empty, populated, focused and autofilled inputs plus textarea/select. Shared theme selectors must target semantic field wrappers rather than depend on incidental layout containers such as `.form-grid`. Independent legal statements must not be visually grouped behind one checkbox. Each independently required user action needs its own explicit control and state; layout may group the rows visually, but must not merge the actions.
 
 Live human screenshot verification is still required before changing this incident to `verified_fixed`.
+
+
+---
+
+## SKB-P4-022 — Acceptance preview disabled the final submit control and made fail-closed proof impossible
+
+**Status:** `implemented_pending_live_verification`  
+**Evidence:** `human_preview_screenshot_plus_shared_checkout_contract`  
+**Area:** `storefront/checkout/acceptance-submit-guard`  
+**Risk:** high  
+**Automation:** `ACCEPTANCE_FAIL_CLOSED_MUST_BE_CLICKABLE`
+
+### Symptom
+
+The acceptance Checkout reached the final summary with a valid quote, selected payment method and both legal controls checked, but the final action remained disabled. The UI therefore stated that order submission was blocked without allowing the acceptance flow to prove that the runtime submit guard actually intercepted a real submit attempt.
+
+### Root cause
+
+The shared checkout implemented two independent protections at once: the submit handler already returned immediately when `acceptancePreview` was true, but the button was also rendered as `type='button'` and disabled whenever `acceptancePreview` was true. The UI-level disable made the deeper fail-closed guard unreachable and therefore untestable.
+
+### Resolution
+
+- the final acceptance action is now a real `type='submit'` control once quote, payment and both legal acknowledgements are valid;
+- acceptance mode is no longer part of the button's disabled predicate;
+- the submit handler still intercepts `acceptancePreview` before any order-creation path and returns an explicit proof message that no order, payment, invoice or shipment was started;
+- live checkout behavior remains unchanged.
+
+### Regression coverage
+
+The shared checkout workflow contract now requires the acceptance final action to be clickable, requires the acceptance guard to appear before the `/api/orders` call in source order, and forbids reintroducing an `acceptancePreview`-based disabled predicate or button-only control.
+
+### Template Factory prevention
+
+Acceptance and sandbox flows must exercise the same customer action surface as production up to the protected boundary. A safety mode must block the side effect at the authoritative action handler, not by making the action unreachable. Otherwise the acceptance test proves only that a button can be disabled, not that the transactional guard is fail-closed.
+
+Live human click proof is required before changing this incident to `verified_fixed`.

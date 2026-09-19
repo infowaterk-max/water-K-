@@ -283,6 +283,11 @@ describe('Playroom v20 functional acceptance',()=>{
     expect(checkout).toContain('[privacyAcknowledged,setPrivacyAcknowledged]=useState(false)');
     expect(checkout).toContain('name="termsAccepted"');
     expect(checkout).toContain('name="privacyAcknowledged"');
+    expect(checkout).toContain('type="submit" disabled={state===\'sending\'||quoteLoading||!quote||!termsAccepted||!privacyAcknowledged||!payment}');
+    expect(checkout).toContain('Acceptance · rendelésleadás tesztelése');
+    expect(checkout).not.toContain("type={acceptancePreview?'button':'submit'}");
+    expect(checkout).not.toContain("disabled={acceptancePreview||");
+    expect(checkout.indexOf('if(acceptancePreview){')).toBeLessThan(checkout.indexOf("fetch('/api/orders'"));
     expect(checkout).toContain('!termsAccepted||!privacyAcknowledged');
     expect(checkout).toContain('!termsAccepted||!privacyAcknowledged||!payment');
     expect(checkoutCss).toContain('.legalConsentList');
