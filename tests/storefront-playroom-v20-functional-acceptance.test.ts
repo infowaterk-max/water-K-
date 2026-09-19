@@ -175,6 +175,7 @@ describe('Playroom v20 functional acceptance',()=>{
     const actions=read('src/app/admin/platform/acceptance/[instanceId]/actions.ts');
     const checkoutEntry=read('src/app/admin/platform/acceptance/[instanceId]/checkout/page.tsx');
     const seeder=read('src/app/admin/platform/acceptance/[instanceId]/checkout/checkout-acceptance-seeder.tsx');
+    const cartProvider=read('src/components/cart/cart-provider.tsx');
     expect(entry).toContain('Interaktív pénztár teszt');
     expect(entry).toContain('name="flow" value="checkout"');
     expect(actions).toContain("if(flow==='checkout')");
@@ -185,7 +186,13 @@ describe('Playroom v20 functional acceptance',()=>{
     expect(checkoutEntry).toContain("acceptance-digital-product");
     expect(checkoutEntry).toContain(".from('storefront_reusable_symbols')");
     expect(checkoutEntry).toContain('STOREFRONT_SYMBOL_SCHEMA_REQUIRED');
+    expect(cartProvider).toContain('hydrated:boolean');
+    expect(cartProvider).toContain("hydrated,setHydrated");
+    expect(cartProvider).toContain("hydrated,add(item)");
     expect(seeder).toContain("useCart");
+    expect(seeder).toContain("setCouponCode,hydrated");
+    expect(seeder).toContain("if(!hydrated||seeded.current)return");
+    expect(seeder).toContain("const ready=hydrated&&");
     expect(seeder).toContain("replace(items)");
     expect(seeder).toContain("setCouponCode('')");
     expect(seeder).toContain("href={ready?'/penztar':'#'}");
