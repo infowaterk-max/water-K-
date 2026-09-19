@@ -1,6 +1,7 @@
 import 'server-only';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { getCurrentWebshopInstance } from '@/lib/instances/access';
+import { getPilotAcceptanceInstanceId } from '@/lib/storefront/pilot-access';
 import { getCommerceProviders,isProviderCheckoutReady,type FulfillmentKind,type PaymentFlow } from '@/lib/commerce/providers';
 
 export type ShippingOption={code:string;label:string;fee:number;kind:Exclude<FulfillmentKind,null>;adapterKey:string;externalLogistics:boolean};
@@ -18,8 +19,15 @@ export async function getCommerceSettings():Promise<CommerceSettings>{
  try{
   const providers=await getCommerceProviders();
   const connected=providers.filter(isProviderCheckoutReady);
+  const acceptanceInstanceId=process.env.VERCEL_ENV==='preview'?await getPilotAcceptanceInstanceId():null;
+  const acceptancePreview=acceptanceInstanceId===instance.id;
   const shippingOptions=connected.filter(p=>p.type==='shipping'&&p.fulfillmentKind).map(p=>({code:p.code,label:p.displayLabel||p.name,fee:p.feeHuf??0,kind:p.fulfillmentKind as Exclude<FulfillmentKind,null>,adapterKey:p.adapterKey,externalLogistics:p.adapterKey==='external_logistics_email'}));
   const paymentOptions=connected.filter(p=>p.type==='payment'&&p.paymentFlow).map(p=>({code:p.code,label:p.displayLabel||p.name,adapterKey:p.adapterKey,flow:p.paymentFlow as Exclude<PaymentFlow,null>}));
+  if(acceptancePreview&&!shippingOptions.length&&!paymentOptions.length)return{
+    shippingOptions:[{code:'pickup',label:'Acceptance · személyes átvétel',fee:0,kind:'pickup',adapterKey:'pickup',externalLogistics:false}],
+    paymentOptions:[{code:'bank_transfer',label:'Acceptance · banki átutalás',adapterKey:'bank_transfer',flow:'bank_transfer'}],
+    freeShippingThreshold:0,
+  };
   const admin=createAdminClient();
   const{data:instanceSettings,error}=await admin.from('webshop_instance_commerce_settings').select('free_shipping_threshold_huf').eq('instance_id',instance.id).maybeSingle();
   if(error)throw error;
