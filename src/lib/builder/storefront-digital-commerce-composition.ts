@@ -48,20 +48,30 @@ const DOWNLOADS_PURCHASE_COMPONENT_KEYS=new Set([
   'commerce.product-info',
   'commerce.option-selector',
   'commerce.variant-swatches',
+  'commerce.size-selector',
   'commerce.purchase-controls',
   'commerce.add-to-cart',
+  'content.button',
 ]);
 
+function subtreeHasAny(node:StorefrontComponentNode,keys:Set<string>):boolean{
+  return keys.has(node.componentKey)||(node.children??[]).some(child=>subtreeHasAny(child,keys));
+}
+
 function downloadsFactsHostScore(item:StorefrontComponentNode):number{
-  const keys=(item.children??[]).map(child=>child.componentKey);
-  const factCount=keys.filter(key=>DOWNLOADS_FACT_COMPONENT_KEYS.has(key)).length;
-  if(!factCount)return 0;
-  const purchaseCount=keys.filter(key=>DOWNLOADS_PURCHASE_COMPONENT_KEYS.has(key)).length;
-  const layoutBonus=['layout.container','layout.grid'].includes(item.componentKey)?4:0;
-  const richFactsBonus=keys.some(key=>['commerce.specification-groups','commerce.technical-documents','compatibility.evidence','compatibility.status'].includes(key))?4:0;
-  const multiFactsBonus=factCount>1?6:0;
-  const purchasePenalty=purchaseCount?18:0;
-  return factCount*10+layoutBonus+richFactsBonus+multiFactsBonus-purchasePenalty;
+  const children=item.children??[];
+  if(!children.length)return 0;
+  const factBranches=children.filter(child=>subtreeHasAny(child,DOWNLOADS_FACT_COMPONENT_KEYS)).length;
+  const purchaseBranches=children.filter(child=>subtreeHasAny(child,DOWNLOADS_PURCHASE_COMPONENT_KEYS)).length;
+  if(!factBranches)return 0;
+  const isLayout=['layout.section','layout.container','layout.grid','layout.stack'].includes(item.componentKey);
+  if(!isLayout)return 0;
+  // A buybox with one nested key-spec block is not a facts cluster.
+  if(purchaseBranches>0&&factBranches<2)return 0;
+  const gridBonus=item.componentKey==='layout.grid'?16:item.componentKey==='layout.container'?10:item.componentKey==='layout.section'?8:2;
+  const multiFactBonus=factBranches>1?24:0;
+  const purchasePenalty=purchaseBranches*10;
+  return factBranches*12+gridBonus+multiFactBonus-purchasePenalty;
 }
 
 function findDownloadsFactsHostId(nodes:readonly StorefrontComponentNode[]):string|null{
