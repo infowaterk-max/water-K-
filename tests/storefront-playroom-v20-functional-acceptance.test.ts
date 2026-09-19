@@ -276,6 +276,13 @@ describe('Playroom v20 functional acceptance',()=>{
     expect(checkoutCss).toContain('.checkoutField>span');
     expect(checkoutCss).toContain('font-weight:800');
     expect(checkoutCss).toContain('input::placeholder');
+    expect(checkoutCss).toContain('.checkoutField>textarea');
+    expect(checkoutCss).toContain('input:-webkit-autofill');
+    expect(checkoutCss).toContain('-webkit-box-shadow:0 0 0 1000px var(--checkout-surface) inset!important');
+    expect(checkout).toContain('className="legalCopy"');
+    expect(checkout).toContain('className="legalLine"');
+    expect(checkoutCss).toContain('.legalCopy');
+    expect(checkoutCss).toContain('grid-template-columns:auto minmax(0,1fr)');
     expect(checkoutCss).toContain('.checkoutSummary .summaryLine>span');
     expect(checkoutCss).toContain('color:var(--checkout-label)!important');
     expect(checkoutCss).toContain('.checkoutSummary .trustList');

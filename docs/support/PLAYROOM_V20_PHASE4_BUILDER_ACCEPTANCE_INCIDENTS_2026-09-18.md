@@ -1020,3 +1020,39 @@ The shared commerce-header renderer has a render-level regression that deliberat
 Protected system chrome must not give a child control a minimum cross-size larger than a themed parent that clips overflow. Search/icon controls must center decorative glyphs against the final clickable box rather than by raw SVG offsets. Template-specific compact heights are allowed, but shared controls must honor them instead of fighting them. Checkout summaries must bind customer-facing secondary copy to checkout semantic tokens, not legacy global variables.
 
 Live human screenshot verification is still required before changing this incident to `verified_fixed`.
+
+
+---
+
+## SKB-P4-021 — Checkout field theming missed nested textarea and browser autofill; legal links relied on uncontrolled wrapping
+
+**Status:** `implemented_pending_live_verification`  
+**Evidence:** `human_preview_screenshot_plus_shared_css_contract`  
+**Area:** `storefront/checkout/form-theme + legal-consent-layout`  
+**Risk:** medium  
+**Automation:** `CHECKOUT_CONTROL_STATE_COVERAGE_REQUIRED`
+
+### Symptom
+
+In the Playroom Checkout Preview, a browser-autofilled e-mail field rendered with a light background while adjacent themed inputs stayed dark. The order-note textarea also rendered light. The legal-consent sentence wrapped into an irregular multi-column-looking line with links breaking at visually poor positions.
+
+### Root cause
+
+The shared guided checkout theme covered controls under `.form-grid` and a direct `.formSection>textarea`, but the order-note textarea is nested inside `.checkoutField`, so it fell back to the legacy global `.formSection textarea { background:#fbfcfa; }` rule. Separately, browser autofill paints its own input background/text unless explicitly neutralized, so the e-mail field could escape the theme even though normal input state was correctly themed. The legal copy was one inline text run and therefore delegated all wrapping to available width and link boundaries.
+
+### Resolution
+
+- all `.checkoutField>input/select/textarea` controls now receive the checkout semantic surface, input-text, border, placeholder and focus tokens;
+- Chromium/WebKit autofill states are explicitly repainted with the same semantic surface and text tokens using inset autofill hardening, with the standard `:autofill` state covered as well;
+- the legal consent keeps one checkbox but moves copy into an explicit two-line text stack, with stable link styling and checkbox alignment;
+- no checkout business rules, legal acceptance semantics, order submission logic or production state changed.
+
+### Regression coverage
+
+The Phase 4 acceptance contract now requires nested textarea theming, autofill hardening, and the explicit two-line legal-copy structure. This prevents future templates from appearing correct in empty-field screenshots while breaking once a browser autofills customer data.
+
+### Template Factory prevention
+
+Checkout visual acceptance must cover control states, not only control types: empty, populated, focused and autofilled inputs plus textarea/select. Shared theme selectors must target semantic field wrappers rather than depend on incidental layout containers such as `.form-grid`. Legal/consent copy that must preserve a deliberate reading order should use explicit layout structure instead of uncontrolled inline wrapping.
+
+Live human screenshot verification is still required before changing this incident to `verified_fixed`.
