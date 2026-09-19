@@ -35,10 +35,11 @@ async function requireVisualBuilderEntry(){
     &&acceptanceInstanceId===context.instanceId
   );
   if(!isPlatformPilotAcceptance)await requirePlanFeature('contentMarketing');
+  return{isPlatformPilotAcceptance};
 }
 
 export default async function VisualBuilderAdmin({searchParams}:Props){
-  await requireVisualBuilderEntry();
+  const{isPlatformPilotAcceptance}=await requireVisualBuilderEntry();
   const[params,pages,capability,bindingContext,savedBlocks]=await Promise.all([
     searchParams,
     listCurrentStorefrontBuilderPages(),
@@ -66,7 +67,7 @@ export default async function VisualBuilderAdmin({searchParams}:Props){
 
   const theme=getStorefrontTemplatePreviewTheme(document.templateKey) as CSSProperties;
   const editorDocument=composeStorefrontDigitalCommerceCapabilities(normalizeStorefrontTemplateRuntimeComposition(document));
-  const editorBindingContext=augmentStorefrontDigitalCommercePreviewContext({page:editorDocument,context:bindingContext});
+  const editorBindingContext=augmentStorefrontDigitalCommercePreviewContext({page:editorDocument,context:bindingContext,acceptanceMode:isPlatformPilotAcceptance});
   return <section className="adminMain" style={theme} data-storefront-builder-theme={document.templateKey}>
     <StorefrontVisualBuilderV3
       key={selectedKey??'no-page'}
