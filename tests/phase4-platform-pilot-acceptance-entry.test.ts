@@ -36,7 +36,8 @@ describe('Phase 4 platform pilot acceptance entry',()=>{
   });
 
   it('enters the Playroom home Builder without mutating tenant data',()=>{
-    expect(action).toContain("redirect('/admin/tartalom/builder?page=playroom.home&acceptance=platform')");
+    expect(action).toContain("redirect('/admin/tartalom/builder?page=home&acceptance=platform')");
+    expect(action).not.toContain('page=playroom.home');
     for(const forbidden of['.insert(','.update(','.delete(','.upsert('])expect(action).not.toContain(forbidden);
     expect(page).toContain('Playroom Builder megnyitása');
   });
