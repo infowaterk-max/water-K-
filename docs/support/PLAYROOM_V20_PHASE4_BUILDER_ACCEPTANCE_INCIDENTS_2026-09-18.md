@@ -987,29 +987,38 @@ All future template acceptance seeders must enter commerce state through the sha
 
 ### Symptom
 
-On the exact-head Playroom Checkout Preview, the search action was functionally present but the magnifier still sat optically low inside its button. In the same Preview, the verified order summary rendered correct line items and a correct 3810 Ft total, but item labels and trust/verification copy were too dark against the dark summary surface.
+On the exact-head Playroom Checkout Preview, the search action was functionally present but the magnifier still looked vertically wrong inside its button. In the same Preview, the verified order summary rendered correct line items and a correct 3810 Ft total, but item labels and trust/verification copy were too dark against the dark summary surface.
 
-### Root cause
+### Deeper root cause
 
-Two shared presentation gaps remained:
+The first icon-centering patch treated the symptom but missed an inherited layout contradiction:
 
-- the search button relied on `height:'100%'` inside an auto-sized flex row and centered the SVG by its raw view-box geometry, which did not provide stable optical centering for the magnifier glyph;
-- the checkout summary did not explicitly bind all secondary summary text to checkout semantic color tokens, while legacy global checkout styles still expose `var(--muted)` for trust text.
+- the Playroom desktop-polish preset fixed the search root at `height:'2.24rem'`;
+- the shared search root clips overflow;
+- the first patch then gave the icon-only button `minHeight:'2.75rem'`.
 
-The issue was therefore not a Playroom-only asset problem. It was a shared renderer/theme-boundary problem.
+That made the button's minimum cross-size larger than its own clipped parent. Flex/grid centering could therefore be mathematically correct inside the button while the button itself was vertically clipped by the 2.24 rem search root. Increasing the icon/button size made the visual defect more obvious instead of fixing the geometry contract.
+
+The checkout-summary issue was separate: secondary text did not explicitly bind to checkout semantic color tokens, while legacy global checkout styles still expose `var(--muted)` for trust text.
+
+### Failed approach / do not repeat
+
+Do not fix a clipped icon by repeatedly changing SVG size, `translateY`, or by adding a child `min-height` without first checking the resolved parent height and overflow contract. In protected storefront chrome, parent and child geometry must be inspected together.
 
 ### Resolution
 
-- the shared commerce-header search action now stretches with the row, uses a fixed icon action width/min-height and grid centering, and applies a small optical Y correction to a 22 px magnifier;
-- the shared guided checkout summary now explicitly maps line labels to `--checkout-label`, trust copy to `--checkout-helper`, total text to `--checkout-heading`, and keeps monetary values on one line;
+- the inherited Playroom search preset now uses `minHeight:'2.24rem'` instead of a hard fixed height;
+- the shared icon-only search button no longer imposes a larger minimum height than the root; it stretches to the root with `height:'auto'` and `minHeight:0`;
+- the magnifier is taken out of normal flow and centered from the actual button box with absolute `left:50%` / `top:50%` plus `translate(-50%,-50%)`, so the icon cannot change button sizing or be centered against a clipped child box;
+- the shared guided checkout summary explicitly maps line labels to `--checkout-label`, trust copy to `--checkout-helper`, total text to `--checkout-heading`, and keeps monetary values on one line;
 - no business logic, quote logic, production database state, or production deployment was changed.
 
 ### Regression coverage
 
-The Playroom functional acceptance contract now locks the shared search geometry and the semantic summary contrast selectors/tokens so future templates cannot silently fall back to legacy muted text on dark checkout surfaces.
+The shared commerce-header renderer now has a render-level regression that deliberately combines a compact 2.24 rem search root, `overflow:hidden`, and an icon-only action. The test requires the button to remain at `min-height:0` / `height:auto`, the icon to use absolute 50/50 centering, and forbids the previous 2.75 rem child minimum. The Playroom Phase 4 acceptance contract also verifies that the inherited search preset no longer contains a fixed height.
 
 ### Template Factory prevention
 
-Protected system chrome must not depend on raw SVG geometry or implicit parent height for icon alignment. Checkout summaries must bind customer-facing secondary copy to checkout semantic tokens, not legacy global variables. New templates may supply token values, but they must not bypass these shared contrast and alignment contracts.
+Protected system chrome must not give a child control a minimum cross-size larger than a themed parent that clips overflow. Search/icon controls must center decorative glyphs against the final clickable box rather than by raw SVG offsets. Template presets should prefer minimum size constraints over hard heights where shared controls may need to establish intrinsic size. Checkout summaries must bind customer-facing secondary copy to checkout semantic tokens, not legacy global variables.
 
 Live human screenshot verification is still required before changing this incident to `verified_fixed`.

@@ -52,7 +52,7 @@ function polishNode(node:StorefrontComponentNode):StorefrontComponentNode{
       next={...next,config:withSlots({...config,innerStyle:{...rec(config.innerStyle),padding:'.42rem 2.35rem .3rem',gap:'.34rem'},logoStyle:{...rec(config.logoStyle),width:'2.65rem',height:'2.65rem'}},{topRow:{base:{minHeight:'2.72rem'}},navigationFrame:{base:{paddingTop:'.28rem',minHeight:'1.9rem'}},utilityLabel:{base:{fontSize:'.7rem'}}})};
       break;
     case 'playroom-home-search':
-      next={...next,config:{...config,style:{...rec(config.style),height:'2.24rem',boxShadow:'0 0 0 1px rgba(55,222,255,.08),0 8px 24px rgba(0,0,0,.18)'},inputStyle:{...rec(config.inputStyle),fontSize:'.73rem',padding:'.58rem .84rem'},buttonStyle:{...rec(config.buttonStyle),padding:'.34rem .7rem'}}};
+      next={...next,config:{...config,style:{...rec(config.style),minHeight:'2.24rem',boxShadow:'0 0 0 1px rgba(55,222,255,.08),0 8px 24px rgba(0,0,0,.18)'},inputStyle:{...rec(config.inputStyle),fontSize:'.73rem',padding:'.58rem .84rem'},buttonStyle:{...rec(config.buttonStyle),padding:'.34rem .7rem'}}};
       break;
     case 'playroom-home-nav':
       next={...next,config:withStyle(config,{gap:'1.62rem',fontSize:'.7rem'})};

@@ -226,8 +226,12 @@ describe('Playroom v20 functional acceptance',()=>{
     expect(shell).toContain("assign('helperText','--shoporation-checkout-helper-color')");
     expect(header).toContain('data-storefront-search-icon="true"');
     expect(header).toContain('width="22" height="22"');
-    expect(header).toContain("minWidth:'3rem',width:'3rem',minHeight:'2.75rem',padding:0,lineHeight:0");
-    expect(header).toContain("transform:'translateY(-1px)'");
+    expect(header).toContain("minWidth:'3rem',width:'3rem',height:'auto',minHeight:0,padding:0,lineHeight:0");
+    expect(header).toContain("left:'50%',top:'50%'");
+    expect(header).toContain("transform:'translate(-50%,-50%)'");
+    const checkoutSearch=findNode(checkoutTemplate,'playroom-checkout-search');
+    expect(checkoutSearch.config.style).toMatchObject({minHeight:'2.24rem'});
+    expect((checkoutSearch.config.style as Record<string,unknown>).height).toBeUndefined();
     expect(normalizer).toContain("padding:'1.45rem 2.35rem 1.7rem'");
     expect(normalizer).toContain("minHeight:'12rem'");
     const checkoutTemplate=playroomPage('checkout');

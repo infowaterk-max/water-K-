@@ -80,6 +80,25 @@ describe('shared commerce header',()=>{
     expect(html).not.toContain('Mobil navigáció');
   });
 
+  it('centers an icon-only search action inside a compact fixed-height template root without child overflow',()=>{
+    const compact=structuredClone(page);
+    const header=compact.sections[0];
+    const search=header.children?.find(child=>child.componentKey==='system.search');
+    if(!search)throw new Error('SEARCH_NODE_MISSING');
+    search.config.buttonLabel='🔍';
+    search.config.style={height:'2.24rem',overflow:'hidden'};
+    search.config.buttonStyle={padding:'.34rem .7rem'};
+    const html=render('desktop',compact);
+    expect(html).toContain('height:2.24rem');
+    expect(html).toContain('min-height:0');
+    expect(html).toContain('height:auto');
+    expect(html).toContain('position:relative');
+    expect(html).toContain('left:50%');
+    expect(html).toContain('top:50%');
+    expect(html).toContain('transform:translate(-50%,-50%)');
+    expect(html).not.toContain('min-height:2.75rem');
+  });
+
   it('sanitizes unsafe search actions and query parameter names',()=>{
     const unsafe=structuredClone(page);
     const header=unsafe.sections[0];
