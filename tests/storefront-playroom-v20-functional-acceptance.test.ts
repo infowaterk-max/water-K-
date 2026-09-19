@@ -190,6 +190,8 @@ describe('Playroom v20 functional acceptance',()=>{
     const settings=read('src/lib/commerce/settings.ts');
     const checkout=read('src/components/checkout/checkout-form.tsx');
     const playroom=read('src/lib/builder/templates/playroom-v20.ts');
+    const header=read('src/components/builder/storefront-commerce-header.tsx');
+    const normalizer=read('src/lib/builder/storefront-template-runtime-normalization.ts');
     expect(route).toContain('resolveCurrentStorefrontCheckoutRuntimePage');
     expect(route).toContain('<StorefrontCheckoutShell');
     expect(route).toContain('embedded={Boolean(runtime)}');
@@ -198,6 +200,16 @@ describe('Playroom v20 functional acceptance',()=>{
     expect(shell).toContain('data-storefront-checkout-runtime="template-native"');
     expect(shell).toContain('data-storefront-live-checkout="shared-e13"');
     expect(shell).toContain('resolveStorefrontGlobalStyleCssVariables');
+    expect(shell).toContain('const inherited=resolveStorefrontGlobalStyleCssVariables(page)');
+    expect(shell).not.toContain("cssValue(theme,'surface','#ffffff')");
+    expect(header).toContain('data-storefront-search-icon="true"');
+    expect(header).toContain('width="18" height="18"');
+    expect(header).toContain("display:'flex',alignItems:'center',justifyContent:'center'");
+    expect(normalizer).toContain("padding:'1rem 2.35rem 1.15rem'");
+    expect(normalizer).toContain("minHeight:'8.25rem'");
+    const checkoutTemplate=playroomPage('checkout');
+    const footer=findNode(checkoutTemplate,'playroom-checkout-footer');
+    expect(footer.config.style).toMatchObject({padding:'1rem 2.35rem 1.15rem',minHeight:'8.25rem'});
     expect(runtimeSource).toContain("getCurrentStorefrontPageState('checkout')");
     expect(runtimeSource).toContain('acceptanceMode:true');
     expect(playroom).toContain("checkoutTheme:{");
