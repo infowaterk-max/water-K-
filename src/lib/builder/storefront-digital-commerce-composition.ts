@@ -5,7 +5,7 @@ export const STOREFRONT_DIGITAL_COMMERCE_COMPOSITION_VERSION='shoporation.storef
 
 export const STOREFRONT_DIGITAL_COMMERCE_COMPONENTS_BY_PAGE_TYPE=Object.freeze({
   product:['commerce.downloads-tile'],
-  cart:['commerce.fulfillment-summary'],
+  cart:[],
   checkout:['commerce.fulfillment-summary','commerce.post-purchase-guidance'],
   account:['commerce.documents-center','commerce.post-purchase-guidance'],
 } as const);
@@ -18,6 +18,10 @@ const idPart=(value:string)=>value.replace(/[^A-Za-z0-9._:-]/g,'-').slice(0,72)|
 
 function hasComponent(nodes:readonly StorefrontComponentNode[],componentKey:string):boolean{
   return nodes.some(item=>item.componentKey===componentKey||hasComponent(item.children??[],componentKey));
+}
+
+function isDeprecatedCartDigitalCommerceSection(section:StorefrontComponentNode):boolean{
+  return section.id.endsWith('-digital-commerce')&&hasComponent([section],'commerce.fulfillment-summary');
 }
 
 function isLegacyProductDigitalCommerceSection(section:StorefrontComponentNode):boolean{
@@ -193,6 +197,7 @@ export function composeStorefrontDigitalCommerceCapabilities(
     next.sections=next.sections.filter(section=>!isLegacyProductDigitalCommerceSection(section));
     next.sections=embedStandaloneDownloadsIntoFacts(next.sections);
   }
+  if(next.pageType==='cart')next.sections=next.sections.filter(section=>!isDeprecatedCartDigitalCommerceSection(section));
   if(next.metadata?.digitalCommerceCompositionVersion===STOREFRONT_DIGITAL_COMMERCE_COMPOSITION_VERSION
     &&required.every(componentKey=>hasComponent(next.sections,componentKey)))return next;
   const missing=required.filter(componentKey=>!hasComponent(next.sections,componentKey));
