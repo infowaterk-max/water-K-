@@ -231,8 +231,7 @@ describe('Playroom v20 functional acceptance',()=>{
     expect(header).toContain("transform:'translate(-50%,-50%)'");
     const checkoutTemplate=playroomPage('checkout');
     const checkoutSearch=findNode(checkoutTemplate,'playroom-checkout-search');
-    expect(checkoutSearch.config.style).toMatchObject({minHeight:'2.24rem'});
-    expect((checkoutSearch.config.style as Record<string,unknown>).height).toBeUndefined();
+    expect(checkoutSearch.config.style).toMatchObject({height:'2.24rem'});
     expect(normalizer).toContain("padding:'1.45rem 2.35rem 1.7rem'");
     expect(normalizer).toContain("minHeight:'12rem'");
     const originalFooter=checkoutTemplate.sections.at(-1)!;
