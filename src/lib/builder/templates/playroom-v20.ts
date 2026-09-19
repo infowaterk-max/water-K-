@@ -108,11 +108,10 @@ const supportForm=()=>node({
   config:{eyebrow:'ÜGYFÉLSZOLGÁLAT',title:'Írj nekünk közvetlenül.',copy:'A megkeresésed követhető ügyfélszolgálati azonosítót kap. Ha rendelésről írsz, add meg a rendelési számodat is.',nameLabel:'Név',emailLabel:'E-mail',orderNumberLabel:'Rendelésszám',categoryLabel:'Téma',subjectLabel:'Tárgy',messageLabel:'Üzenet',buttonLabel:'Üzenet elküldése',successLead:'Köszönjük! Az ügy száma:',tone:'surface'},
 });
 
+const productDownloadsTile=()=>node({id:'playroom-product-downloads',componentKey:'commerce.downloads-tile',componentVersion:1,config:{eyebrow:'LETÖLTÉSEK',title:'Letöltések',documentsLabel:'Dokumentumok',digitalLabel:'Digitális termék',digitalAccountCopy:'Vásárlás után a letöltés a Fiókom → Letöltéseim menüpontban érhető el.',openLabel:'Megnyitás',presentation:'playroom-facts-tile'}});
+
 const digitalCommerceSection=(pageType:StorefrontPageDocument['pageType'])=>{
   const children:StorefrontComponentNode[]=[];
-  if(pageType==='product')children.push(
-    node({id:'playroom-product-downloads',componentKey:'commerce.downloads-tile',componentVersion:1,config:{eyebrow:'LETÖLTÉSEK',title:'Letöltések',documentsLabel:'Dokumentumok',digitalLabel:'Digitális termék',digitalAccountCopy:'Vásárlás után a letöltés a Fiókom → Letöltéseim menüpontban érhető el.',openLabel:'Megnyitás',presentation:'playroom-priority-tile'}}),
-  );
   if(pageType==='cart')children.push(node({id:'playroom-cart-fulfillment',componentKey:'commerce.fulfillment-summary',componentVersion:1,config:{title:'Teljesítés a kosárban',documentCenterLabel:'Fiókom → Letöltéseim',presentation:'playroom-native'}}));
   if(pageType==='checkout')children.push(
     node({id:'playroom-checkout-fulfillment',componentKey:'commerce.fulfillment-summary',componentVersion:1,config:{title:'Kézbesítés',documentCenterLabel:'Fiókom → Letöltéseim',presentation:'playroom-native'}}),
@@ -126,6 +125,19 @@ const digitalCommerceSection=(pageType:StorefrontPageDocument['pageType'])=>{
     children:[node({id:`playroom-${pageType}-digital-commerce-container`,componentKey:'layout.container',componentVersion:1,config:{width:'content',spacing:'s'},children})],
   });
 };
+
+function appendChildToNode(nodes:readonly StorefrontComponentNode[],targetId:string,child:StorefrontComponentNode):StorefrontComponentNode[]{
+  return nodes.map(item=>{
+    const next=clone(item);
+    if(next.id===targetId){
+      const children=[...(next.children??[])];
+      if(!children.some(entry=>entry.id===child.id))children.push(clone(child));
+      return{...next,children};
+    }
+    if(next.children?.length)return{...next,children:appendChildToNode(next.children,targetId,child)};
+    return next;
+  });
+}
 
 function insertBeforeFooter(sections:readonly StorefrontComponentNode[],...extras:Array<StorefrontComponentNode|null>){
   const result=sections.map(clone);
@@ -146,7 +158,7 @@ function upgradePage(source:StorefrontPageDocument):StorefrontPageDocument{
   let sections=source.sections.map(clone);
   if(source.pageType==='home'&&!sections.some(item=>item.id==='playroom-home-newsletter'))sections=insertBeforeFooter(sections,newsletterSection());
   if(source.pageType==='contact'&&!sections.some(item=>item.id==='playroom-contact-form'))sections=insertBeforeFooter(sections,supportForm());
-  if(source.pageType==='product'&&!sections.some(item=>item.id==='playroom-product-digital-commerce'))sections=insertAfterSection(sections,'playroom-product-main',digitalCommerceSection(source.pageType));
+  if(source.pageType==='product')sections=appendChildToNode(sections,'playroom-product-facts-container',productDownloadsTile());
   if(['cart','checkout','account'].includes(source.pageType)&&!sections.some(item=>item.id===`playroom-${source.pageType}-digital-commerce`))sections=insertBeforeFooter(sections,digitalCommerceSection(source.pageType));
   const previousAddon=rec(source.metadata?.addonIntegration);
   const previousContexts=Array.isArray(previousAddon.semanticContexts)?previousAddon.semanticContexts.filter((value):value is string=>typeof value==='string'):[];
