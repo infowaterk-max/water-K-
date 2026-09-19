@@ -18,6 +18,17 @@ export default async function CheckoutAcceptancePage({params}:Props){
   if(acceptedInstanceId!==instanceId)redirect(`/admin/platform/acceptance/${instanceId}?reason=session`);
 
   const admin=createAdminClient();
+  const{error:symbolSchemaError}=await admin
+    .from('storefront_reusable_symbols')
+    .select('id')
+    .eq('instance_id',instanceId)
+    .limit(1);
+  if(symbolSchemaError)return <main className="adminMain">
+    <span className="eyebrow">Phase 4 · Checkout acceptance</span>
+    <h1 className="sectionTitle">Az acceptance adatbázis nincs a szükséges sémán.</h1>
+    <p className="lead">A checkout-template runtime a reusable symbol sémára támaszkodik. A tesztet addig nem indítjuk el, amíg a staging migráció nincs alkalmazva.</p>
+    <div className="errorNotice" role="alert"><strong>STOREFRONT_SYMBOL_SCHEMA_REQUIRED</strong><br/>{symbolSchemaError.message}</div>
+  </main>;
   const{data:products,error:productError}=await admin
     .from('products')
     .select('id,name,slug')
