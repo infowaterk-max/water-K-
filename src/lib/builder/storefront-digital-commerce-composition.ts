@@ -52,11 +52,11 @@ function resolveCapabilityInsertIndex(document:StorefrontPageDocument):number{
 
 function defaultConfig(componentKey:string):Record<string,unknown>{
   switch(componentKey){
-    case'commerce.downloads-tile':return{eyebrow:'LETÖLTÉSEK',title:'Letöltések',documentsLabel:'Dokumentumok',digitalLabel:'Digitális anyagok',digitalPendingLabel:'Vásárlás után',openLabel:'Megnyitás',presentation:'priority-tile'};
+    case'commerce.downloads-tile':return{eyebrow:'LETÖLTÉSEK',title:'Letöltések',documentsLabel:'Dokumentumok',digitalLabel:'Digitális termék',digitalAccountCopy:'Vásárlás után a letöltés a Fiókom → Letöltéseim menüpontban érhető el.',openLabel:'Megnyitás',presentation:'priority-tile'};
     case'commerce.fulfillment-summary':return{title:'Teljesítés és kézbesítés',documentCenterLabel:'Dokumentumok és letöltések'};
     case'commerce.product-documents':return{eyebrow:'Dokumentumok',title:'Termékdokumentumok',downloadLabel:'Dokumentum letöltése',loginLabel:'Belépés a fiókba'};
-    case'commerce.documents-center':return{eyebrow:'Saját fiók',title:'Dokumentumok és letöltések',digitalTitle:'Digitális tartalmak',orderTitle:'Rendelési dokumentumok',productTitle:'Termékdokumentumok',emptyLabel:'Még nincs megjeleníthető dokumentum vagy letölthető tartalom.',loginLabel:'Belépés a fiókba'};
-    case'commerce.post-purchase-guidance':return{eyebrow:'Vásárlás után',title:'Hozzáférés és dokumentumok',pendingLabel:'Fizetés után elérhető',documentCenterLabel:'Dokumentumok és letöltések'};
+    case'commerce.documents-center':return{eyebrow:'Saját fiók',title:'Letöltéseim',digitalTitle:'Digitális vásárlások',orderTitle:'Rendelési dokumentumok',productTitle:'Termékdokumentumok',emptyLabel:'Még nincs megjeleníthető dokumentum vagy letölthető tartalom.',loginLabel:'Belépés a fiókba'};
+    case'commerce.post-purchase-guidance':return{eyebrow:'Vásárlás után',title:'Hozzáférés és dokumentumok',pendingLabel:'Fizetés után elérhető',documentCenterLabel:'Fiókom → Letöltéseim'};
     default:return{};
   }
 }
