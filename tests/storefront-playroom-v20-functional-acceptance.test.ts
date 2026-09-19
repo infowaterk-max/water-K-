@@ -164,6 +164,23 @@ describe('Playroom v20 functional acceptance',()=>{
     expect(runtimeSource).toContain('page:failClosedSpecialCommerce(composedPage,runtime.capability)');
   });
 
+  it('exposes a preview-only interactive checkout acceptance path with a real mixed cart seed',()=>{
+    const entry=read('src/app/admin/platform/acceptance/[instanceId]/page.tsx');
+    const actions=read('src/app/admin/platform/acceptance/[instanceId]/actions.ts');
+    const checkoutEntry=read('src/app/admin/platform/acceptance/[instanceId]/checkout/page.tsx');
+    const seeder=read('src/app/admin/platform/acceptance/[instanceId]/checkout/checkout-acceptance-seeder.tsx');
+    expect(entry).toContain('Interaktív pénztár teszt');
+    expect(entry).toContain('name="flow" value="checkout"');
+    expect(actions).toContain("if(flow==='checkout')");
+    expect(actions).toContain('/checkout');
+    expect(checkoutEntry).toContain("process.env.VERCEL_ENV!=='preview'");
+    expect(checkoutEntry).toContain('getPilotAcceptanceInstanceId');
+    expect(checkoutEntry).toContain("acceptance-physical-product");
+    expect(checkoutEntry).toContain("acceptance-digital-product");
+    expect(seeder).toContain("localStorage.setItem('shoperation-cart-v4'");
+    expect(seeder).toContain('href="/penztar"');
+  });
+
   it('proves one Playroom package for Alap and Pro and exposes contextual locked/available capabilities from real manifests',()=>{
     for(const capability of[alap,pro]){
       const template=composeStorefrontDigitalCommerceTemplatePackage(PLAYROOM_V20_TEMPLATE_PACKAGE);
