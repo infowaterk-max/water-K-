@@ -60,6 +60,11 @@ function collectNodes(document:StorefrontPageDocument,predicate:(node:Storefront
   return found;
 }
 
+function playroomFooterText(node:StorefrontComponentNode):boolean{
+  const serialized=JSON.stringify(node.config);
+  return serialized.includes('Vásárlási információk')||serialized.includes('Kövess minket')||serialized.includes('Szállítás')||serialized.includes('Fizetés');
+}
+
 function hasFactClusterHost(document:StorefrontPageDocument):boolean{
   const factKeys=new Set(['commerce.key-specs','commerce.specification-groups','commerce.technical-documents','compatibility.evidence','compatibility.status']);
   const purchaseKeys=new Set(['commerce.product-info','commerce.option-selector','commerce.variant-swatches','commerce.size-selector','commerce.purchase-controls','commerce.add-to-cart','content.button']);
@@ -203,13 +208,25 @@ describe('Playroom v20 functional acceptance',()=>{
     expect(shell).toContain('const inherited=resolveStorefrontGlobalStyleCssVariables(page)');
     expect(shell).not.toContain("cssValue(theme,'surface','#ffffff')");
     expect(header).toContain('data-storefront-search-icon="true"');
-    expect(header).toContain('width="18" height="18"');
-    expect(header).toContain("display:'flex',alignItems:'center',justifyContent:'center'");
-    expect(normalizer).toContain("padding:'1rem 2.35rem 1.15rem'");
-    expect(normalizer).toContain("minHeight:'8.25rem'");
+    expect(header).toContain('width="20" height="20"');
+    expect(header).toContain("minWidth:'2.7rem',width:'2.7rem',height:'100%',padding:0");
+    expect(normalizer).toContain("padding:'1.05rem 2.35rem 1.2rem'");
+    expect(normalizer).toContain("minHeight:'9rem'");
     const checkoutTemplate=playroomPage('checkout');
-    const footer=findNode(checkoutTemplate,'playroom-checkout-footer');
-    expect(footer.config.style).toMatchObject({padding:'1rem 2.35rem 1.15rem',minHeight:'8.25rem'});
+    const originalFooter=checkoutTemplate.sections.at(-1)!;
+    let remapIndex=0;
+    const remap=(node:StorefrontComponentNode):StorefrontComponentNode=>({
+      ...structuredClone(node),
+      id:remapIndex++===0?'global-footer-test':`sym-test-${remapIndex}`,
+      ...(node.children?{children:node.children.map(remap)}:{}),
+    });
+    const remapped={...checkoutTemplate,sections:[...checkoutTemplate.sections.slice(0,-1),remap(originalFooter)]};
+    const normalizedRemapped=normalizeStorefrontTemplateRuntimeComposition(remapped);
+    const footer=normalizedRemapped.sections.at(-1)!;
+    expect(footer.id).toBe('global-footer-test');
+    expect(footer.config.style).toMatchObject({padding:'1.05rem 2.35rem 1.2rem',minHeight:'9rem'});
+    const footerNav=collectNodes(normalizedRemapped,node=>node.componentKey==='system.navigation'&&playroomFooterText(node)).at(-1);
+    expect(footerNav).toBeTruthy();
     expect(runtimeSource).toContain("getCurrentStorefrontPageState('checkout')");
     expect(runtimeSource).toContain('acceptanceMode:true');
     expect(playroom).toContain("checkoutTheme:{");
