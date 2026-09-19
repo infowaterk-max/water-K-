@@ -56,5 +56,5 @@ export async function startPlatformPilotAcceptanceAction(formData:FormData){
     path:'/',
     maxAge:PILOT_ACCEPTANCE_MAX_AGE_SECONDS,
   });
-  redirect('/admin/tartalom/builder?page=playroom.home&acceptance=platform');
+  redirect('/admin/tartalom/builder?page=home&acceptance=platform');
 }
