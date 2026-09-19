@@ -269,7 +269,7 @@ describe('Playroom v20 functional acceptance',()=>{
     expect(checkoutCss).toContain('--checkout-helper:var(--shoporation-checkout-helper-color');
     expect(settings).toContain("label:'Acceptance · személyes átvétel'");
     expect(settings).toContain("label:'Acceptance · banki átutalás'");
-    expect(checkout).toContain("Acceptance módban a rendelés tényleges leadása tiltva van.");
+    expect(checkout).toContain("Acceptance proof: a rendelés leadási kísérletét a rendszer blokkolta.");
     expect(checkout).toContain("data-checkout-embedded={embedded?'true':'false'}");
     expect(checkoutCss).toContain('.formSection legend){float:left;width:100%');
     expect(checkoutCss).toContain('color:var(--checkout-text)!important');
