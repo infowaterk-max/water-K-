@@ -70,13 +70,21 @@ function normalizeLegacyTemplatePage(page:StorefrontPageDocument):StorefrontPage
       ...(node.children?{children:node.children.map(normalizeNode)}:{}),
     };
   };
-  return normalizeStorefrontTemplateRuntimeComposition({...page,sections:page.sections.map(normalizeNode)});
+  return{...page,sections:page.sections.map(normalizeNode)};
 }
 
 function normalizeLegacyTemplatePackage(template:StorefrontInstallableTemplatePackage):StorefrontInstallableTemplatePackage{
   return{
     ...template,
     pages:template.pages.map(normalizeLegacyTemplatePage),
+  };
+}
+
+function normalizeImplementedTemplatePackage(template:StorefrontInstallableTemplatePackage):StorefrontInstallableTemplatePackage{
+  const legacyNormalized=normalizeLegacyTemplatePackage(template);
+  return{
+    ...legacyNormalized,
+    pages:legacyNormalized.pages.map(normalizeStorefrontTemplateRuntimeComposition),
   };
 }
 
@@ -115,7 +123,7 @@ export const STOREFRONT_IMPLEMENTED_TEMPLATE_PACKAGES:readonly StorefrontInstall
   TECH_DECK_TEMPLATE_PACKAGE,
   TOOL_DEPOT_TEMPLATE_PACKAGE,
   TRAIL_EXPEDITION_TEMPLATE_PACKAGE,
-].map(normalizeLegacyTemplatePackage);
+].map(normalizeImplementedTemplatePackage);
 
 // Historical template packages do not appear as separate cards in Template Library,
 // but remain resolvable by exact version so persisted storefronts stay editable
