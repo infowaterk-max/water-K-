@@ -27,6 +27,45 @@ function localizePlayroomV20CheckoutValue(value:unknown):unknown{
   return value;
 }
 
+function normalizePlayroomV20SharedShell(document:StorefrontPageDocument):StorefrontPageDocument{
+  const footerStackIds=new Set([
+    'playroom-footer-brand',
+    'playroom-footer-shop',
+    'playroom-footer-world',
+    'playroom-footer-about',
+    'playroom-footer-social',
+  ]);
+  const visit=(node:StorefrontComponentNode):StorefrontComponentNode=>{
+    const next=clone(node);
+    const config={...next.config};
+    if(next.componentKey==='layout.section'&&/playroom-.*-footer$/.test(next.id)){
+      const style=(config.style&&typeof config.style==='object'&&!Array.isArray(config.style)?config.style:{}) as Record<string,unknown>;
+      config.style={...style,padding:'1rem 2.35rem 1.15rem',minHeight:'8.25rem'};
+    }
+    if(next.id==='playroom-footer-grid'){
+      config.gap='s';
+    }
+    if(footerStackIds.has(next.id)){
+      const style=(config.style&&typeof config.style==='object'&&!Array.isArray(config.style)?config.style:{}) as Record<string,unknown>;
+      config.style={...style,gap:next.id==='playroom-footer-brand'?'.2rem':'.28rem'};
+    }
+    if(next.componentKey==='system.navigation'&&next.id.startsWith('playroom-footer-')){
+      const style=(config.style&&typeof config.style==='object'&&!Array.isArray(config.style)?config.style:{}) as Record<string,unknown>;
+      const slots=(config.styleSlots&&typeof config.styleSlots==='object'&&!Array.isArray(config.styleSlots)?config.styleSlots:{}) as Record<string,unknown>;
+      const item=(slots.item&&typeof slots.item==='object'&&!Array.isArray(slots.item)?slots.item:{}) as Record<string,unknown>;
+      const base=(item.base&&typeof item.base==='object'&&!Array.isArray(item.base)?item.base:{}) as Record<string,unknown>;
+      config.style={...style,gap:'.16rem',lineHeight:1.3};
+      config.styleSlots={...slots,item:{...item,base:{...base,minHeight:'.95rem',display:'flex',alignItems:'center'}}};
+    }
+    return{
+      ...next,
+      config,
+      ...(next.children?{children:next.children.map(visit)}:{}),
+    };
+  };
+  return{...clone(document),sections:document.sections.map(visit)};
+}
+
 function normalizePlayroomV20Checkout(document:StorefrontPageDocument):StorefrontPageDocument{
   const visit=(node:StorefrontComponentNode):StorefrontComponentNode=>({
     ...clone(node),
@@ -204,10 +243,12 @@ function normalizePlayroomCart(document:StorefrontPageDocument):StorefrontPageDo
  * the generic cart policy applies to every current and future template.
  */
 export function normalizeStorefrontTemplateRuntimeComposition(document:StorefrontPageDocument):StorefrontPageDocument{
-  if(document.templateKey==='gaming.playroom'&&document.templateVersion===20&&document.pageType==='checkout')return normalizePlayroomV20Checkout(document);
-  if(document.pageType!=='cart')return clone(document);
-  if(document.templateKey==='gaming.playroom'&&document.templateVersion===20)return normalizePlayroomCart(document);
-  return normalizeGenericCart(document);
+  const playroomV20=document.templateKey==='gaming.playroom'&&document.templateVersion===20;
+  const normalized=playroomV20?normalizePlayroomV20SharedShell(document):clone(document);
+  if(playroomV20&&normalized.pageType==='checkout')return normalizePlayroomV20Checkout(normalized);
+  if(normalized.pageType!=='cart')return normalized;
+  if(playroomV20)return normalizePlayroomCart(normalized);
+  return normalizeGenericCart(normalized);
 }
 
 export function storefrontCartPresentationViolations(document:StorefrontPageDocument):readonly string[]{
