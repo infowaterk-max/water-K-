@@ -38,8 +38,8 @@ function CheckoutAccordionStep({step,number,title,summary,active,completed,locke
 }
 
 export function CheckoutForm({shippingOptions,paymentOptions,freeShippingThreshold,resellerApproved}:{shippingOptions:ShippingOption[];paymentOptions:PaymentOption[];freeShippingThreshold:number;resellerApproved:boolean}){
-  const{cart,clear}=useCart(),router=useRouter(),{track}=useAnalytics(),submitting=useRef(false),requestKey=useRef(key()),formRef=useRef<HTMLFormElement|null>(null);
-  const[state,setState]=useState<'idle'|'sending'|'error'>('idle'),[error,setError]=useState(''),[customerType,setCustomerType]=useState<CustomerType>(resellerApproved?'reseller':'retail'),[shippingCode,setShippingCode]=useState(shippingOptions[0]?.code??''),[paymentCode,setPaymentCode]=useState(paymentOptions[0]?.code??''),[parcelPointId,setParcelPointId]=useState(''),[pickupInvalid,setPickupInvalid]=useState(false),[sameAddress,setSameAddress]=useState(true),[legalAccepted,setLegalAccepted]=useState(false),[couponInput,setCouponInput]=useState(''),[couponCode,setCouponCode]=useState(''),[couponMessage,setCouponMessage]=useState(''),[quote,setQuote]=useState<Quote|null>(null),[quoteLoading,setQuoteLoading]=useState(false),[quoteError,setQuoteError]=useState(''),[activeStep,setActiveStep]=useState<CheckoutStep>('shipping'),[furthestStep,setFurthestStep]=useState(0);
+  const{cart,clear,couponCode,setCouponCode}=useCart(),router=useRouter(),{track}=useAnalytics(),submitting=useRef(false),requestKey=useRef(key()),formRef=useRef<HTMLFormElement|null>(null);
+  const[state,setState]=useState<'idle'|'sending'|'error'>('idle'),[error,setError]=useState(''),[customerType,setCustomerType]=useState<CustomerType>(resellerApproved?'reseller':'retail'),[shippingCode,setShippingCode]=useState(shippingOptions[0]?.code??''),[paymentCode,setPaymentCode]=useState(paymentOptions[0]?.code??''),[parcelPointId,setParcelPointId]=useState(''),[pickupInvalid,setPickupInvalid]=useState(false),[sameAddress,setSameAddress]=useState(true),[legalAccepted,setLegalAccepted]=useState(false),[couponInput,setCouponInput]=useState(''),[couponMessage,setCouponMessage]=useState(''),[quote,setQuote]=useState<Quote|null>(null),[quoteLoading,setQuoteLoading]=useState(false),[quoteError,setQuoteError]=useState(''),[activeStep,setActiveStep]=useState<CheckoutStep>('shipping'),[furthestStep,setFurthestStep]=useState(0);
   const shipping=shippingOptions.find(o=>o.code===shippingCode)??shippingOptions[0];
   const requiresShipping=quote?.requires_shipping!==false;
   const containsDigital=(quote?.digital_lines??0)>0;
@@ -64,6 +64,7 @@ export function CheckoutForm({shippingOptions,paymentOptions,freeShippingThresho
   }
 
   useEffect(()=>{const t=setTimeout(()=>{void refreshQuote()},180);return()=>clearTimeout(t)},[shippingCode,couponCode,JSON.stringify(quoteItems)]);
+  useEffect(()=>{if(couponCode&&!couponInput)setCouponInput(couponCode)},[couponCode,couponInput]);
   useEffect(()=>{if(quote?.digital_lines&&paymentOptions.find(option=>option.code===paymentCode)?.flow==='cash_on_delivery'){const fallback=paymentOptions.find(option=>option.flow!=='cash_on_delivery');if(fallback)setPaymentCode(fallback.code)}},[quote?.digital_lines,paymentCode,paymentOptions]);
 
   function validatePanel(step:CheckoutStep){
