@@ -94,6 +94,8 @@ describe('Storefront Desktop scale / density contract',()=>{
     expect(cartStyleQuantity).not.toContain("background:'#fbfcfa'");
     expect(cartStyleQuantity).not.toContain('borderLeft');
     expect(cartStyleQuantity).not.toContain('borderBottom');
+    expect(cartStyleQuantity).toContain("style={{display:'flex',alignItems:'center',gap:8,background:'var(--shoporation-color-surface-muted,var(--shoporation-color-surface,#fff))'");
+    expect(cartStyleQuantity).not.toContain('background:#fff');
     expect(overview).toContain('className="actions accountPrimaryActions"');
     expect(overview).not.toContain('className="btn btnGhost" href="/fiokom/letoltesek"');
     expect(surfaces).toContain("flexWrap:mobile?'nowrap':'wrap'");
