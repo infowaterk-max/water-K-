@@ -9,6 +9,7 @@ describe('Phase 4 platform pilot acceptance entry',()=>{
   const action=read('src/app/admin/platform/acceptance/[instanceId]/actions.ts');
   const builder=read('src/app/admin/tartalom/builder/page.tsx');
   const b2bDirect=read('src/app/admin/platform/acceptance/[instanceId]/b2b-rfq/route.ts');
+  const sales=read('src/app/admin/ertekesites/page.tsx');
 
   it('is preview-only and requires an authenticated platform operator',()=>{
     expect(page).toContain("process.env.VERCEL_ENV!=='preview'");
@@ -50,6 +51,15 @@ describe('Phase 4 platform pilot acceptance entry',()=>{
     expect(b2bDirect).toContain('PILOT_ACCEPTANCE_COOKIE');
     expect(b2bDirect).toContain("new URL('/fiokom/ajanlatkeresek',request.url)");
     expect(b2bDirect).toContain("sameSite:'lax'");
+  });
+
+  it('allows CRM only inside the exact signed preview pilot acceptance context',()=>{
+    expect(sales).toContain("requireCurrentStoreContext('sales.manage')");
+    expect(sales).toContain("process.env.VERCEL_ENV==='preview'");
+    expect(sales).toContain('getPilotAcceptanceInstanceId()');
+    expect(sales).toContain('getPlatformRole()');
+    expect(sales).toContain('acceptanceInstanceId===scope.instanceId');
+    expect(sales).toContain("if(!isPlatformPilotAcceptance)await requirePlanFeature('crm')");
   });
 
   it('bypasses only the Builder route-level Pro gate during an exact preview pilot acceptance session',()=>{

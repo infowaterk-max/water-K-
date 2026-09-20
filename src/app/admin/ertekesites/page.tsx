@@ -1,5 +1,7 @@
 import{requirePlanFeature}from'@/lib/plans/access';
 import{requireCurrentStoreContext}from'@/lib/instances/scope';
+import{getPlatformRole}from'@/lib/auth/platform-operator';
+import{getPilotAcceptanceInstanceId}from'@/lib/storefront/pilot-access';
 import{createAdminClient}from'@/lib/supabase/admin';
 import{formatHuf}from'@/lib/catalog';
 import{CommercialRefresh,OpportunityActions,OfferCreate,TaskActions,OfferActions}from'@/components/admin/commercial-actions';
@@ -22,8 +24,17 @@ function rfqContext(source:unknown){
  };
 }
 
+async function requireSalesAcceptanceEntry(){
+ const scope=await requireCurrentStoreContext('sales.manage');
+ const acceptanceInstanceId=process.env.VERCEL_ENV==='preview'?await getPilotAcceptanceInstanceId():null;
+ const platformRole=acceptanceInstanceId?await getPlatformRole():null;
+ const isPlatformPilotAcceptance=Boolean(platformRole&&acceptanceInstanceId&&acceptanceInstanceId===scope.instanceId);
+ if(!isPlatformPilotAcceptance)await requirePlanFeature('crm');
+ return scope;
+}
+
 export default async function SalesAdmin(){
- await requirePlanFeature('crm');const scope=await requireCurrentStoreContext('sales.manage');const a=createAdminClient();
+ const scope=await requireSalesAcceptanceEntry();const a=createAdminClient();
  const[summaryResult,opportunityResult,taskResult,offerResult,variantResult]=await Promise.all([
   a.from('commercial_pipeline_summary').select('*').eq('instance_id',scope.instanceId),
   a.from('commercial_opportunities').select('id,channel,kind,status,priority_score,expected_value_net_huf,probability_percent,due_at,reason,recommended_action,source').eq('instance_id',scope.instanceId).in('status',['open','in_progress']).order('priority_score',{ascending:false}).limit(100),
