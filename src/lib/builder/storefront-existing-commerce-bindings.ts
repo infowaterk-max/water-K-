@@ -14,6 +14,7 @@ const TARGETS:Readonly<Record<string,BindingTarget>>=Object.freeze({
   'commerce.downloads-tile':{catalog:false,modelPath:{product:'commerce.digitalCommerce.productDownloads'}},
   'commerce.fulfillment-summary':{catalog:false,modelPath:{product:'commerce.digitalCommerce.productFulfillment',cart:'commerce.digitalCommerce.cartFulfillment',checkout:'commerce.digitalCommerce.checkoutFulfillment'}},
   'commerce.product-documents':{catalog:false,modelPath:{product:'commerce.digitalCommerce.productDocuments'}},
+  'commerce.b2b-quote-cta':{catalog:false,modelPath:{product:'commerce.digitalCommerce.b2bQuote'}},
   'account.capability-navigation':{catalog:false,modelPath:{account:'commerce.digitalCommerce.accountCapabilities'}},
   'commerce.account-downloads':{catalog:false,modelPath:{account:'commerce.digitalCommerce.accountDownloads'}},
   'commerce.account-documents':{catalog:false,modelPath:{account:'commerce.digitalCommerce.accountDocuments'}},

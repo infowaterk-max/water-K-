@@ -55,6 +55,17 @@ describe('Digital Commerce A3 shared Builder integration',()=>{
     expect(bindStorefrontExistingCommerceRuntime(documents).sections[0]!.children![0]!.bindings?.model?.path).toBe('commerce.digitalCommerce.productDocuments');
   });
 
+  it('binds the B2B quote CTA to runtime authority and hides it when the customer is not eligible',()=>{
+    const document=page('product','commerce.b2b-quote-cta');
+    const bound=bindStorefrontExistingCommerceRuntime(document);
+    expect(bound.sections[0]!.children![0]!.bindings?.model?.path).toBe('commerce.digitalCommerce.b2bQuote');
+    const hidden=renderToStaticMarkup(<StorefrontRuntimeRenderer page={document} viewport="desktop" bindingContext={{commerce:{digitalCommerce:{b2bQuote:{state:'ready',eligible:false,href:null}}}}} componentRegistry={createStorefrontVisualBuilderComponentRegistry()} rendererRegistry={createStorefrontVisualBuilderRendererRegistry()} capability={capability}/>);
+    expect(hidden).not.toContain('Ajánlatot kérek');
+    const shown=renderToStaticMarkup(<StorefrontRuntimeRenderer page={document} viewport="desktop" bindingContext={{commerce:{digitalCommerce:{b2bQuote:{state:'ready',eligible:true,href:'/fiokom/ajanlatkeresek?variantId=v1'}}}}} componentRegistry={createStorefrontVisualBuilderComponentRegistry()} rendererRegistry={createStorefrontVisualBuilderRendererRegistry()} capability={capability}/>);
+    expect(shown).toContain('Ajánlatot kérek');
+    expect(shown).toContain('/fiokom/ajanlatkeresek?variantId=v1');
+  });
+
   it('uses the real Builder mutation authority for insert, edit and responsive overrides while protecting runtime model binding',()=>{
     const registry=createStorefrontVisualBuilderComponentRegistry();
     const source=page('product','commerce.product-documents');

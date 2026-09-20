@@ -13,7 +13,7 @@ import {
   type ProductDocumentKind,
 } from '@/lib/commerce/product-documents';
 
-export const STOREFRONT_DIGITAL_COMMERCE_SERVER_VERSION='shoporation.storefront-digital-commerce-server.v1' as const;
+export const STOREFRONT_DIGITAL_COMMERCE_SERVER_VERSION='shoporation.storefront-digital-commerce-server.v2' as const;
 
 export type StorefrontDigitalCommerceRuntimeRequest=
   |{pageType:'product';variantId:string;customerId:string|null}
@@ -51,17 +51,24 @@ function fulfillmentCopy(mode:FulfillmentMode){
 
 export async function getStorefrontDigitalCommerceRuntimeModel(instanceId:string,request:StorefrontDigitalCommerceRuntimeRequest):Promise<Record<string,unknown>>{
   if(request.pageType==='product'){
-    const fulfillment=await classifyCheckoutFulfillment(instanceId,[{variant_id:request.variantId,quantity:1}]);
-    const documents=await listStorefrontProductDocuments(instanceId,request.variantId,request.customerId);
+    const admin=createAdminClient();
+    const[fulfillment,documents,relationResult]=await Promise.all([
+      classifyCheckoutFulfillment(instanceId,[{variant_id:request.variantId,quantity:1}]),
+      listStorefrontProductDocuments(instanceId,request.variantId,request.customerId),
+      request.customerId?admin.from('customer_instance_roles').select('role,reseller_approved,b2b_account_id').eq('instance_id',instanceId).eq('user_id',request.customerId).maybeSingle():Promise.resolve({data:null,error:null}),
+    ]);
     const productDocuments=documents.filter(document=>document.visibility==='public').map(document=>({
       id:document.documentId,kindLabel:kindLabel[document.kind],title:document.title,description:document.description,
       fileName:document.fileName,sizeLabel:fileSize(document.sizeBytes),variantSpecific:document.variantSpecific,
       downloadHref:`/api/product-documents/${document.documentId}?variantId=${encodeURIComponent(request.variantId)}`,
     }));
+    const relation=relationResult.data as{role?:string;reseller_approved?:boolean;b2b_account_id?:string|null}|null;
+    const quoteEligible=relation?.role==='reseller'&&relation?.reseller_approved===true&&Boolean(relation?.b2b_account_id);
     return{
       productFulfillment:{state:'ready',mode:fulfillment.mode,copy:fulfillmentCopy(fulfillment.mode),documentCenterHref:'/fiokom/letoltesek'},
       productDocuments:{state:'ready',documents:productDocuments},
       productDownloads:{state:'ready',mode:fulfillment.mode,documents:productDocuments,accountDownloadsHref:'/fiokom/letoltesek'},
+      b2bQuote:{state:'ready',eligible:quoteEligible,href:quoteEligible?`/fiokom/ajanlatkeresek?variantId=${encodeURIComponent(request.variantId)}`:null},
     };
   }
 

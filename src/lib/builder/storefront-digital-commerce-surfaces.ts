@@ -5,7 +5,7 @@ import {
 } from '@/lib/builder/storefront-foundation';
 import type {StorefrontRuntimeComponentDefinition} from '@/lib/builder/storefront-runtime';
 
-export const STOREFRONT_DIGITAL_COMMERCE_SURFACES_VERSION='shoporation.storefront-digital-commerce-surfaces.v4' as const;
+export const STOREFRONT_DIGITAL_COMMERCE_SURFACES_VERSION='shoporation.storefront-digital-commerce-surfaces.v5' as const;
 
 const definition=(input:{
   componentKey:string;
@@ -45,6 +45,12 @@ export const STOREFRONT_DIGITAL_COMMERCE_COMPONENT_DEFINITIONS:readonly Storefro
     componentKey:'commerce.product-documents',
     pageTypes:['product'],
     configurable:['eyebrow','title','copy','downloadLabel','emptyLabel','loginLabel','presentation','styleSlots'],
+    features:['catalog'],
+  }),
+  definition({
+    componentKey:'commerce.b2b-quote-cta',
+    pageTypes:['product'],
+    configurable:['eyebrow','title','copy','buttonLabel','presentation','styleSlots'],
     features:['catalog'],
   }),
   definition({

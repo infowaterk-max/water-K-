@@ -1,10 +1,10 @@
 import type {StorefrontComponentNode,StorefrontPageDocument} from '@/lib/builder/storefront-runtime';
 import type {StorefrontInstallableTemplatePackage} from '@/lib/builder/storefront-template-installation';
 
-export const STOREFRONT_DIGITAL_COMMERCE_COMPOSITION_VERSION='shoporation.storefront-digital-commerce-composition.v4' as const;
+export const STOREFRONT_DIGITAL_COMMERCE_COMPOSITION_VERSION='shoporation.storefront-digital-commerce-composition.v5' as const;
 
 export const STOREFRONT_DIGITAL_COMMERCE_COMPONENTS_BY_PAGE_TYPE=Object.freeze({
-  product:['commerce.downloads-tile'],
+  product:['commerce.downloads-tile','commerce.b2b-quote-cta'],
   cart:[],
   checkout:['commerce.fulfillment-summary','commerce.post-purchase-guidance'],
   account:['commerce.account-downloads','commerce.account-documents'],
@@ -198,6 +198,7 @@ function defaultConfig(componentKey:string):Record<string,unknown>{
     case'commerce.downloads-tile':return{eyebrow:'LETÖLTÉSEK',title:'Letöltések',documentsLabel:'Dokumentumok',digitalLabel:'Digitális termék',digitalAccountCopy:'Vásárlás után a letöltés a Fiókom → Letöltéseim menüpontban érhető el.',openLabel:'Megnyitás',presentation:'priority-tile'};
     case'commerce.fulfillment-summary':return{title:'Teljesítés és kézbesítés',documentCenterLabel:'Dokumentumok és letöltések'};
     case'commerce.product-documents':return{eyebrow:'Dokumentumok',title:'Termékdokumentumok',downloadLabel:'Dokumentum letöltése',loginLabel:'Belépés a fiókba'};
+    case'commerce.b2b-quote-cta':return{eyebrow:'B2B AJÁNLATKÉRÉS',title:'Egyedi ajánlatot kérsz?',copy:'Jóváhagyott B2B partnerként kérj egyedi ajánlatot erre a termékre.',buttonLabel:'Ajánlatot kérek'};
     case'commerce.account-downloads':return{eyebrow:'Saját fiók',title:'Letöltéseim',copy:'Digitális vásárlások és hozzáférések.',emptyLabel:'Még nincs digitális tartalom.',openLabel:'Letöltés'};
     case'commerce.account-documents':return{eyebrow:'Saját fiók',title:'Dokumentumaim',copy:'Számlák, garanciák, rendelési és termékdokumentumok.',orderTitle:'Rendelési dokumentumok',productTitle:'Termékdokumentumok',emptyLabel:'Még nincs dokumentum.',openLabel:'Megnyitás / letöltés'};
     case'commerce.documents-center':return{eyebrow:'Saját fiók',title:'Dokumentumok és letöltések',digitalTitle:'Digitális vásárlások',orderTitle:'Rendelési dokumentumok',productTitle:'Termékdokumentumok',emptyLabel:'Még nincs megjeleníthető dokumentum vagy letölthető tartalom.',loginLabel:'Belépés a fiókba'};

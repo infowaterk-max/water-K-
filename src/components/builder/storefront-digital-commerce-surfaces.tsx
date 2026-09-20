@@ -4,7 +4,7 @@ import {createStorefrontSharedContentRendererRegistry} from '@/components/builde
 import {sanitizeStorefrontStyleSlots} from '@/lib/builder/storefront-fidelity-engine';
 import {resolveStorefrontVisualStyle} from '@/lib/builder/storefront-visual-style';
 
-export const STOREFRONT_DIGITAL_COMMERCE_RENDERERS_VERSION='shoporation.storefront-digital-commerce-renderers.v4' as const;
+export const STOREFRONT_DIGITAL_COMMERCE_RENDERERS_VERSION='shoporation.storefront-digital-commerce-renderers.v5' as const;
 
 const text=(value:unknown,fallback='')=>typeof value==='string'?value:fallback;
 const record=(value:unknown):Record<string,unknown>|null=>value&&typeof value==='object'&&!Array.isArray(value)?value as Record<string,unknown>:null;
@@ -90,6 +90,19 @@ function ProductDocumentsRenderer({config,node,viewport}:StorefrontComponentRend
   </section>;
 }
 
+function B2BQuoteCtaRenderer({config,node,viewport}:StorefrontComponentRenderProps){
+  const model=record(config.model),slot=styles(config,viewport);
+  if(stateOf(model)!=='ready'||!bool(model?.eligible,false))return null;
+  const href=safeInternalHref(model?.href);
+  if(!href)return null;
+  return <section data-storefront-b2b="quote-request" style={{...span(node),display:'grid',gap:'.65rem',padding:'clamp(.9rem,2vw,1.15rem)',...surface(slot),...slot('root')}}>
+    <small style={{fontWeight:800,letterSpacing:'.08em',textTransform:'uppercase',color:'var(--shoporation-color-accent,#2f7f6f)',...slot('eyebrow')}}>{text(config.eyebrow,'B2B AJÁNLATKÉRÉS')}</small>
+    <h2 style={{margin:0,fontFamily:'var(--shoporation-heading-font,Georgia,serif)',fontSize:'clamp(1.05rem,2vw,1.3rem)',...slot('title')}}>{text(config.title,'Egyedi ajánlatot kérsz?')}</h2>
+    <p style={{margin:0,color:'var(--shoporation-color-muted-text,#667085)',lineHeight:1.5,...slot('copy')}}>{text(config.copy,'Jóváhagyott B2B partnerként kérj egyedi ajánlatot erre a termékre.')}</p>
+    <a href={href} style={{justifySelf:'start',padding:'.72rem 1rem',borderRadius:'var(--shoporation-radius-m,.75rem)',background:'var(--shoporation-color-primary,#111827)',color:'var(--shoporation-color-primary-contrast,#fff)',fontWeight:800,textDecoration:'none',...slot('button')}}>{text(config.buttonLabel,'Ajánlatot kérek')}</a>
+  </section>;
+}
+
 function AccountCapabilityNavigationRenderer({config,node,viewport}:StorefrontComponentRenderProps){
   const model=record(config.model),state=stateOf(model),slot=styles(config,viewport),items=rows(model?.items);
   if(state!=='ready'||!items.length)return null;
@@ -134,6 +147,7 @@ const RENDERERS:readonly [string,number,(props:StorefrontComponentRenderProps)=>
   ['commerce.downloads-tile',1,DownloadsTileRenderer],
   ['commerce.fulfillment-summary',1,FulfillmentSummaryRenderer],
   ['commerce.product-documents',1,ProductDocumentsRenderer],
+  ['commerce.b2b-quote-cta',1,B2BQuoteCtaRenderer],
   ['account.capability-navigation',1,AccountCapabilityNavigationRenderer],
   ['commerce.account-downloads',1,AccountDownloadsRenderer],
   ['commerce.account-documents',1,AccountDocumentsRenderer],
