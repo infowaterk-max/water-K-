@@ -1388,3 +1388,23 @@ Human proof confirmed that the structure and RFQ cart-control parity were correc
 - The Playroom v20 persisted footer readability floor is also raised modestly: navigation links, headings/support copy, link target height and vertical spacing all increase without changing the footer information architecture.
 
 These are density/readability corrections only. They do not change account IA, B2B behavior, cart semantics, Page Schema ownership or template-specific color/composition authority.
+
+
+---
+
+## SKB-P4-030 — Customer return initiation must be a canonical Account capability
+
+**Status:** `implemented_pending_live_verification`  
+**Area:** `storefront/account/post-purchase/returns`
+
+The return engine already supported authenticated customer initiation at `/fiokom/visszakuldes`, item/quantity-level requests, user/tenant scoping, merchant-side approval/rejection, received/refund states and explicit inventory restock. The Account case centre also linked to return initiation.
+
+A navigation regression was introduced when the new shared Account left-rail capability registry replaced the older subnav: `Visszaküldés` was not copied into the canonical capability list. The backend remained functional, but the operation was no longer a first-class Account destination.
+
+Resolution:
+- `Visszaküldés` is now a canonical shared Account capability for every storefront;
+- eligible `shipped` / `completed` order-detail pages expose `Visszaküldés indítása` directly;
+- the request still creates a case only; it does not auto-refund or auto-restock;
+- merchant/admin review remains authoritative for approve/reject, receipt, refund progression and restock.
+
+Template Factory rule: post-purchase operational capabilities belong to the shared Account IA and must not depend on a template-local navigation item.

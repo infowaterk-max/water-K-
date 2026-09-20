@@ -25,6 +25,14 @@ describe('post-purchase service contracts', () => {
     expect(returnsPage).toMatch(/\.in\('status',\['shipped','completed'\]\)/);
   });
 
+  test('return flow is globally reachable from the account and eligible order detail', () => {
+    const capabilities = read('src/lib/account/account-capabilities.ts');
+    const orderDetail = read('src/app/fiokom/rendeles/[id]/page.tsx');
+    expect(capabilities).toContain("key:'returns',href:'/fiokom/visszakuldes',label:'Visszaküldés'");
+    expect(orderDetail).toContain("['shipped','completed'].includes(order.status)");
+    expect(orderDetail).toContain('href="/fiokom/visszakuldes">Visszaküldés indítása</Link>');
+  });
+
   test('return requests are item and quantity based and never promise automatic refunds', () => {
     expect(returnForm).toMatch(/orderItemId:i\.id,quantity:/);
     expect(returnForm).toMatch(/\.filter\(i=>i\.quantity>0\)/);
