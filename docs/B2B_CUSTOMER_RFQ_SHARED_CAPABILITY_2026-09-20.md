@@ -90,3 +90,25 @@ Resolution:
 - offer actions/forms expose stable responsive hooks and become one-column, full-width controls on native mobile;
 - desktop and touch Desktop-site keep a real wide table (`1180px` minimum) inside `adminTableScroll`, so the table scrolls rather than crushing content;
 - native mobile and Desktop-site remain separate responsive contracts. Browser/Desktop-site mode is never used as a substitute for mobile card layout.
+
+
+## Quote conversion probability — learning mode
+
+Product decision accepted on 2026-09-20:
+
+- the underlying commercial probability capability remains in place; it is not deleted;
+- synthetic/default RFQ probability (currently a fixed bootstrap value) must not be presented to merchants as if it were an evidence-backed forecast;
+- the Sales workspace therefore hides both the visible `Becsült esély` field and probability-weighted `Várható érték` KPI until enough tenant-specific outcome history exists;
+- launch-visible KPIs use factual values only: open opportunity value, open opportunity count, overdue opportunity value and open task count;
+- Shoperation begins collecting quote lifecycle evidence immediately from the existing RFQ/opportunity/offer authorities, so the learning period starts from launch rather than from a later feature release.
+
+Activation policy for a future visible estimate:
+
+1. minimum learning age: **3 months**;
+2. minimum evidence volume: **30 closed quote outcomes** for the tenant;
+3. if the evidence threshold is not met after 3 months, learning continues silently;
+4. by **6 months**, activation is still evidence-gated — elapsed time alone must never force a percentage;
+5. the visible estimate must identify its evidence basis, including sample size and calculation time;
+6. if confidence/evidence quality drops below the accepted threshold, the probability UI must hide again rather than fall back to a fabricated default.
+
+Future probability metadata should distinguish source and evidence, e.g. historical/manual/model source, sample size, confidence and calculated-at timestamp. The initial implementation should prefer transparent historical conversion statistics over an opaque model.
