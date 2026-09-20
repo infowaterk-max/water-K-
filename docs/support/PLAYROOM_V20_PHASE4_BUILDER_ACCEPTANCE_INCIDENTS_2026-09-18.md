@@ -1274,3 +1274,19 @@ Browser zoom is an accessibility/user preference input, never a layout compensat
 ### Live verification still required
 
 The protected Preview is SSO-gated from the automated browser available to this audit, so computed DOM measurements could not be collected from the live deployment in this pass. Before changing this incident to `verified_fixed`, authorized browser proof must record at 100% and 125% browser zoom: viewport width, scroll width, primary content width, H1 computed size, Account nav item bounds, form control height, card padding, section gap and horizontal overflow on the representative template sample.
+
+
+### 2026-09-20 human 100% / 100% re-baseline
+
+The original visual symptom was partly amplified by the local workstation display scale: Windows had been set to 150% while the browser was viewed around 75%. That combination produces an effective physical scaling near 112.5% relative to a 100% / 100% baseline and therefore must not be used as evidence that the storefront itself needs another global shrink.
+
+Fresh human screenshots with both Windows display scale and browser zoom at 100% show the shared 1200px Desktop density as broadly correct. The remaining defects are local information-architecture and form-layout issues, not a reason to reduce global storefront scale again:
+
+- the customer Account capability set must live in a Desktop left rail rather than consume the top of every route as a large tile row;
+- the Account overview keeps only primary actions in its heading while the rail owns secondary destinations;
+- the B2B RFQ form requires semantic field wrappers and a responsive product/quantity grid, with the note field full-width;
+- Tablet/Mobile collapse the Account rail to a horizontally scrollable compact navigation instead of forcing a narrow sidebar.
+
+The implementation therefore adds the shared `storefrontAccountWorkspace` / `storefrontAccountSidebar` shell and normalizes the RFQ field geometry. Global container and typography density are intentionally not reduced further.
+
+Status remains `implemented_pending_live_verification` until the same route passes human proof at browser 125% with Windows display scale held at 100%.

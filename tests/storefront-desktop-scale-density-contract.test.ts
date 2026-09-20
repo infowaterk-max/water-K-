@@ -56,6 +56,9 @@ describe('Storefront Desktop scale / density contract',()=>{
   it('keeps operational account density semantic and capability navigation compact',()=>{
     const globals=read('src/lib/builder/storefront-global-styles.ts');
     const accountCss=read('src/app/account-workflow.css');
+    const accountShell=read('src/components/account/storefront-account-shell.tsx');
+    const quoteManager=read('src/components/account/b2b-quote-request-manager.tsx');
+    const overview=read('src/app/fiokom/page.tsx');
     const surfaces=read('src/components/builder/storefront-digital-commerce-surfaces.tsx');
     expect(globals).toContain("'--shoporation-type-page-title'");
     expect(globals).toContain("'--shoporation-control-height'");
@@ -64,6 +67,16 @@ describe('Storefront Desktop scale / density contract',()=>{
     expect(accountCss).toContain('.storefrontAccountShell .storefrontAccountRouteContent .sectionTitle');
     expect(accountCss).toContain('var(--shoporation-type-page-title');
     expect(accountCss).toContain('var(--shoporation-control-height');
+    expect(accountShell).toContain('className="storefrontAccountWorkspace"');
+    expect(accountShell).toContain('className="storefrontAccountSidebar"');
+    expect(accountCss).toContain('grid-template-columns:minmax(13.5rem,15.5rem) minmax(0,1fr)');
+    expect(accountCss).toContain('@media(max-width:960px)');
+    expect(accountCss).toContain('.accountQuoteFormGrid');
+    expect(quoteManager).toContain('className="accountFormField accountQuoteProduct"');
+    expect(quoteManager).toContain('className="accountFormField accountQuoteQuantity"');
+    expect(quoteManager).toContain('className="accountFormField accountQuoteNote"');
+    expect(overview).toContain('className="actions accountPrimaryActions"');
+    expect(overview).not.toContain('className="btn btnGhost" href="/fiokom/letoltesek"');
     expect(surfaces).toContain("flexWrap:mobile?'nowrap':'wrap'");
     expect(surfaces).toContain("overflowX:mobile?'auto':'visible'");
   });

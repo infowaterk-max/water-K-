@@ -15,20 +15,22 @@ function viewportFromUserAgent(value:string):StorefrontViewport{const v=value.to
 function slicePage(page:StorefrontPageDocument,sections:StorefrontComponentNode[]):StorefrontPageDocument{return{...page,sections}}
 
 export async function StorefrontAccountShell({customerId,fallbackNavigation,children}:{customerId:string|null;fallbackNavigation:ReactNode;children:ReactNode}){
- if(!customerId)return <>{fallbackNavigation}{children}</>;
+ if(!customerId)return <>{children}</>;
  const runtime=await resolveCurrentStorefrontAccountRuntimePage(customerId);
- if(!runtime)return <>{fallbackNavigation}{children}</>;
+ if(!runtime)return <div className="storefrontAccountShell"><div className="storefrontAccountWorkspace"><aside className="storefrontAccountSidebar" aria-label="Fiók navigáció">{fallbackNavigation}</aside><div className="storefrontAccountRouteContent">{children}</div></div></div>;
  const userAgent=(await headers()).get('user-agent')??'',viewport=viewportFromUserAgent(userAgent);
  const headerSections=runtime.page.sections.filter(isHeader);
  const navSections=runtime.page.sections.filter(isAccountNav);
  const footerSections=runtime.page.sections.filter(isFooter);
- if(!headerSections.length||!footerSections.length)return <>{fallbackNavigation}{children}</>;
+ if(!headerSections.length||!footerSections.length)return <div className="storefrontAccountShell"><div className="storefrontAccountWorkspace"><aside className="storefrontAccountSidebar" aria-label="Fiók navigáció">{fallbackNavigation}</aside><div className="storefrontAccountRouteContent">{children}</div></div></div>;
  const vars=resolveStorefrontGlobalStyleCssVariables(runtime.page) as CSSProperties;
  const render=(sections:StorefrontComponentNode[])=><StorefrontResponsiveRuntime page={slicePage(runtime.page,sections)} initialViewport={viewport} bindingContext={runtime.bindingContext} capability={runtime.capability}/>;
  return <div className="storefrontAccountShell" data-storefront-account-shell={runtime.source} style={{...vars,fontFamily:'var(--shoporation-body-font,Arial,sans-serif)',background:'var(--shoporation-color-background,#fff)',color:'var(--shoporation-color-text,#111827)'}}>
    {render(headerSections)}
-   {navSections.length?render(navSections):fallbackNavigation}
-   <div className="storefrontAccountRouteContent">{children}</div>
+   <div className="storefrontAccountWorkspace">
+     <aside className="storefrontAccountSidebar" aria-label="Fiók navigáció">{navSections.length?render(navSections):fallbackNavigation}</aside>
+     <div className="storefrontAccountRouteContent">{children}</div>
+   </div>
    {render(footerSections)}
   </div>;
 }
