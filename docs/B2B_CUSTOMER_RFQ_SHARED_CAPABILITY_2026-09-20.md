@@ -56,3 +56,21 @@ Because this slice adds a customer-baseline migration, acceptance requires:
 - Fresh Install proof on an exact commit containing the baseline migration.
 
 Production database mutation is explicitly out of scope for this proof.
+
+
+## 2026-09-20 live acceptance incident — draft duplication + submit failure
+
+Human acceptance proved draft creation, but submitting the same form produced a second draft and returned the generic failure message.
+
+Two independent defects were confirmed:
+
+1. The customer manager always called the save RPC with `requestId:null`, so every save/submit cycle created a new draft instead of reusing the current one.
+2. The submit RPC inserted the sales task with `on conflict(task_key)`, while the real database uniqueness authority is `sales_tasks_instance_key_uidx(instance_id,task_key)`. PostgreSQL rejected the submit with: `there is no unique or exclusion constraint matching the ON CONFLICT specification`.
+
+Resolution:
+
+- the customer manager resumes the latest single-item draft when entering the account RFQ page without an explicit product deep-link;
+- subsequent save/submit calls reuse that draft id;
+- successful submit clears the active draft id only after the submit RPC succeeds;
+- the submit RPC now targets `on conflict(instance_id,task_key)`;
+- the original migration/customer baseline are corrected for fresh installs and a forward migration repairs already-installed staging/customer databases.

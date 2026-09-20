@@ -129,7 +129,7 @@ begin
 
  insert into public.sales_tasks(instance_id,opportunity_id,task_key,title,description,status,priority,due_at)
  values(p_instance_id,v_opportunity,'rfq:'||p_request_id::text,'B2B ajánlatkérés feldolgozása','A partner ajánlatkérést küldött a webáruházból.','open',90,now()+interval '2 days')
- on conflict(task_key) do nothing;
+ on conflict(instance_id,task_key) do nothing;
 
  update public.b2b_quote_requests set status='submitted',opportunity_id=v_opportunity,submitted_at=now(),updated_at=now()
  where id=p_request_id and instance_id=p_instance_id;
