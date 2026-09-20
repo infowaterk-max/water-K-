@@ -37,6 +37,8 @@ describe('Storefront Desktop scale / density contract',()=>{
     expect(primitives).toContain('var(--shoporation-content-max, 1200px)');
     expect(primitives).toContain('var(--shoporation-wide-commerce-max, 1440px)');
     expect(globals).toContain('.shell{width:min(1200px,calc(100% - 32px))');
+    expect(globals).toContain('.shell{width:min(100% - 22px,1200px)');
+    expect(globals).not.toContain('.shell{width:min(100% - 22px,1240px)');
     expect(responsive).toContain('.shell{width:min(100% - 32px,1200px)');
     expect(responsive).not.toContain('.shell{width:min(100% - 32px,1280px)');
   });
