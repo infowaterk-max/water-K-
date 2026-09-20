@@ -1408,3 +1408,17 @@ Resolution:
 - merchant/admin review remains authoritative for approve/reject, receipt, refund progression and restock.
 
 Template Factory rule: post-purchase operational capabilities belong to the shared Account IA and must not depend on a template-local navigation item.
+
+
+### 2026-09-20 quantity-field visual correction
+
+Human proof showed that the first primary-color change was applied to the quantity value as a separate blue pill while the chevrons remained separate light buttons. That was not the intended cart/RFQ visual contract.
+
+The corrected shared control now treats value + vertical chevrons as one single quantity field:
+- the field itself inherits the template primary color;
+- value and chevrons inherit the primary-contrast color;
+- the value has no independent background/layer;
+- chevron buttons are transparent inside the same field;
+- the red trash action remains a separate destructive control.
+
+This stays one shared component for Cart and B2B RFQ, so the two surfaces cannot drift again.
