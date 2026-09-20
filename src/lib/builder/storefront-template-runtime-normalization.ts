@@ -43,10 +43,11 @@ function isPlayroomFooterSection(node:StorefrontComponentNode):boolean{
 }
 
 function footerRemFloor(value:unknown,floor:number):string{
-  if(typeof value!=='string')return `${floor}rem`;
+  const floorValue=(floor<1?String(floor).replace(/^0/,''):String(floor))+'rem';
+  if(typeof value!=='string')return floorValue;
   const match=value.trim().match(/^([0-9]*\.?[0-9]+)rem$/i);
   if(!match)return value;
-  return Number(match[1])<floor?`${floor}rem`:value;
+  return Number(match[1])<floor?floorValue:value;
 }
 
 function normalizePlayroomV20FooterNode(node:StorefrontComponentNode,isFooterRoot=false):StorefrontComponentNode{

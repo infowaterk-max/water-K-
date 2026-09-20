@@ -66,14 +66,16 @@ describe('roadmap block 3 pilot acceptance batch',()=>{
     const products=read('src/app/admin/termekek/page.tsx');
     const submit=read('src/components/admin/admin-submit-button.tsx');
     const cart=read('src/components/cart/cart-view.tsx');
+    const cartQuantity=read('src/components/commerce/cart-style-quantity-control.tsx');
     const status=read('src/components/admin/order-status-control.tsx');
     expect(inventory).toContain('B2B minimum rendelés (db)');
     expect(inventory).not.toContain('minWidth:620');
     expect(products).toContain('AdminSubmitButton');
     expect(products).toContain("requireCurrentStorePageContext('catalog.manage')");
     expect(submit).toContain('useFormStatus');
-    expect(cart).toContain('cartQuantityStepper');
-    expect(cart).toContain('Mennyiség csökkentése');
+    expect(cart).toContain('CartStyleQuantityControl');
+    expect(cartQuantity).toContain('cartQuantityStepper');
+    expect(cartQuantity).toContain('Mennyiség csökkentése');
     expect(cart).toContain('rendelési egység {multiple} db');
     expect(status).not.toContain('window.confirm');
     expect(status).toContain('adminModalBackdrop');
