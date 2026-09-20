@@ -72,8 +72,8 @@ describe('Storefront Desktop scale / density contract',()=>{
     expect(accountCss).toContain('var(--shoporation-type-page-title');
     expect(accountCss).toContain('var(--shoporation-control-height');
     expect(accountCss).toContain('.storefrontAccountShell .storefrontAccountRouteContent .notice');
-    expect(accountCss).toContain("background:var(--shoporation-color-surface-muted,var(--shoporation-color-surface,#fff))!important");
-    expect(accountCss).toContain("color:var(--shoporation-color-text,#17231a)!important");
+    expect(accountCss).toContain("background:var(--shoporation-color-background,#15142c)!important");
+    expect(accountCss).toContain("color:var(--shoporation-color-text,#fff)!important");
     expect(accountShell).toContain('className="storefrontAccountWorkspace"');
     expect(accountShell).toContain('className="storefrontAccountSidebar"');
     expect(accountCss).toContain('grid-template-columns:minmax(15rem,17rem) minmax(0,1fr)');
