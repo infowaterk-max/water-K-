@@ -39,31 +39,37 @@ export function CartStyleQuantityControl({
     aria-label={ariaLabel}
     style={{display:'flex',alignItems:'center',gap:8}}
   >
-    <output aria-live="polite" style={{display:'inline-flex',alignItems:'center',justifyContent:'center',minWidth:48,height:32,padding:'0 10px',border:0,borderRadius:8,background:'var(--shoporation-color-primary,#5c7cfa)',color:'var(--shoporation-color-primary-contrast,#fff)',fontWeight:900,lineHeight:1}}>{quantity} db</output>
     <span
-      data-cart-stepper={cart?'vertical':undefined}
-      data-rfq-stepper={!cart?'vertical':undefined}
-      style={{display:'grid',gap:3,alignContent:'center'}}
+      data-cart-quantity-field={cart?'true':undefined}
+      data-rfq-quantity-field={!cart?'true':undefined}
+      style={{display:'inline-flex',alignItems:'stretch',height:32,borderRadius:8,overflow:'hidden',background:'var(--shoporation-color-primary,#5c7cfa)',color:'var(--shoporation-color-primary-contrast,#fff)'}}
     >
-      <button
-        data-cart-step={cart?'increase':undefined}
-        data-rfq-step={!cart?'increase':undefined}
-        type="button"
-        aria-label="Mennyiség növelése"
-        disabled={disabled}
-        onClick={onIncrease}
-        style={{display:'flex',alignItems:'center',justifyContent:'center',width:28,height:16,minWidth:28,minHeight:16,padding:0,margin:0,border:'1px solid var(--line)',borderRadius:5,background:'#fbfcfa',color:'var(--ink)',lineHeight:0,opacity:disabled?.55:1}}
-      ><CartChevronIcon direction="up"/></button>
-      <button
-        data-cart-step={cart?'decrease':undefined}
-        data-rfq-step={!cart?'decrease':undefined}
-        type="button"
-        aria-label="Mennyiség csökkentése"
-        aria-disabled={!canDecrease}
-        disabled={!canDecrease}
-        onClick={onDecrease}
-        style={{display:'flex',alignItems:'center',justifyContent:'center',width:28,height:16,minWidth:28,minHeight:16,padding:0,margin:0,border:'1px solid var(--line)',borderRadius:5,background:'#fbfcfa',color:'var(--ink)',lineHeight:0,opacity:canDecrease?1:.55}}
-      ><CartChevronIcon direction="down"/></button>
+      <output aria-live="polite" style={{display:'inline-flex',alignItems:'center',justifyContent:'center',minWidth:48,padding:'0 10px',background:'transparent',color:'inherit',fontWeight:900,lineHeight:1}}>{quantity} db</output>
+      <span
+        data-cart-stepper={cart?'vertical':undefined}
+        data-rfq-stepper={!cart?'vertical':undefined}
+        style={{display:'grid',gridTemplateRows:'1fr 1fr',width:28,borderLeft:'1px solid color-mix(in srgb,currentColor 30%,transparent)'}}
+      >
+        <button
+          data-cart-step={cart?'increase':undefined}
+          data-rfq-step={!cart?'increase':undefined}
+          type="button"
+          aria-label="Mennyiség növelése"
+          disabled={disabled}
+          onClick={onIncrease}
+          style={{display:'flex',alignItems:'center',justifyContent:'center',width:28,minWidth:28,minHeight:0,padding:0,margin:0,border:0,borderBottom:'1px solid color-mix(in srgb,currentColor 30%,transparent)',borderRadius:0,background:'transparent',color:'inherit',lineHeight:0,opacity:disabled?.55:1}}
+        ><CartChevronIcon direction="up"/></button>
+        <button
+          data-cart-step={cart?'decrease':undefined}
+          data-rfq-step={!cart?'decrease':undefined}
+          type="button"
+          aria-label="Mennyiség csökkentése"
+          aria-disabled={!canDecrease}
+          disabled={!canDecrease}
+          onClick={onDecrease}
+          style={{display:'flex',alignItems:'center',justifyContent:'center',width:28,minWidth:28,minHeight:0,padding:0,margin:0,border:0,borderRadius:0,background:'transparent',color:'inherit',lineHeight:0,opacity:canDecrease?1:.55}}
+        ><CartChevronIcon direction="down"/></button>
+      </span>
     </span>
     {onRemove?<button
       data-cart-remove-control={cart?'true':undefined}
