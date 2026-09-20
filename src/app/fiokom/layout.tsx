@@ -1,13 +1,2 @@
-import { AccountSubnav } from '@/components/account/account-subnav';
-import { createAdminClient } from '@/lib/supabase/admin';
-import { getCurrentWebshopInstance } from '@/lib/instances/access';
-
-export default async function AccountLayout({children}:{children:React.ReactNode}){
-  const instance=await getCurrentWebshopInstance();
-  let showLoyalty=false;
-  if(instance){
-    const{data}=await createAdminClient().from('loyalty_program_settings').select('enabled').eq('instance_id',instance.id).maybeSingle();
-    showLoyalty=Boolean(data?.enabled);
-  }
-  return <><AccountSubnav showLoyalty={showLoyalty}/>{children}</>;
-}
+import{AccountSubnav}from'@/components/account/account-subnav';import{createAdminClient}from'@/lib/supabase/admin';import{createClient}from'@/lib/supabase/server';import{getCurrentWebshopInstance}from'@/lib/instances/access';
+export default async function AccountLayout({children}:{children:React.ReactNode}){const instance=await getCurrentWebshopInstance();let showLoyalty=false,showB2BOrganization=false,showB2BQuotes=false;if(instance){const supabase=await createClient(),{data:{user}}=await supabase.auth.getUser(),admin=createAdminClient();const[loyalty,relation]=await Promise.all([admin.from('loyalty_program_settings').select('enabled').eq('instance_id',instance.id).maybeSingle(),user?admin.from('customer_instance_roles').select('role,reseller_approved,b2b_account_id').eq('instance_id',instance.id).eq('user_id',user.id).maybeSingle():Promise.resolve({data:null,error:null})]);showLoyalty=Boolean(loyalty.data?.enabled);const r=relation.data as{role?:string;reseller_approved?:boolean;b2b_account_id?:string|null}|null;showB2BOrganization=Boolean(r?.b2b_account_id);showB2BQuotes=r?.role==='reseller'&&r?.reseller_approved===true}return <><AccountSubnav showLoyalty={showLoyalty} showB2BOrganization={showB2BOrganization} showB2BQuotes={showB2BQuotes}/>{children}</>}
