@@ -112,3 +112,18 @@ Activation policy for a future visible estimate:
 6. if confidence/evidence quality drops below the accepted threshold, the probability UI must hide again rather than fall back to a fabricated default.
 
 Future probability metadata should distinguish source and evidence, e.g. historical/manual/model source, sample size, confidence and calculated-at timestamp. The initial implementation should prefer transparent historical conversion statistics over an opaque model.
+
+
+## 2026-09-20 live acceptance incident — offer approval blocked by missing cost
+
+The RFQ offer draft was created correctly, but approval failed with the generic merchant message `Az ajánlat nem hagyható jóvá.`.
+
+Root cause:
+- the acceptance variant `ACC-PHYS-001` had `unit_cost_net_huf = NULL`;
+- the canonical margin guard therefore returned `safe=false / reason=missing_unit_cost`;
+- approval correctly failed closed, but the API hid the actionable reason behind a generic message.
+
+Resolution:
+- staging acceptance fixture cost was completed with a test-only net unit cost so the real margin guard can be exercised;
+- the admin commercial API now distinguishes missing cost from an actual minimum-margin failure and returns an actionable Hungarian error message;
+- the margin guard itself remains unchanged and fail-closed.

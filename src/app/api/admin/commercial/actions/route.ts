@@ -98,7 +98,17 @@ export async function POST(req:Request){
     const{data,error}=await a.rpc('admin_approve_commercial_offer_v3',{
       p_instance_id:store.instanceId,p_offer_id:p.id,p_actor:user.id
     });
-    if(error)return fail(error,'Az ajánlat nem hagyható jóvá.');
+    if(error){
+      const message=String(error.message??'');
+      if(message.includes('margin_guard_failed')){
+        const{data:offer}=await a.from('commercial_offers').select('variant_id').eq('instance_id',store.instanceId).eq('id',p.id).maybeSingle();
+        const variantId=typeof offer?.variant_id==='string'?offer.variant_id:null;
+        const{data:variant}=variantId?await a.from('product_variants').select('unit_cost_net_huf').eq('instance_id',store.instanceId).eq('id',variantId).maybeSingle():{data:null};
+        if(variant?.unit_cost_net_huf==null)return NextResponse.json({error:'Az ajánlat nem hagyható jóvá, mert a termékváltozathoz nincs nettó beszerzési költség megadva.'},{status:409});
+        return NextResponse.json({error:'Az ajánlat nem hagyható jóvá, mert az árengedmény mellett nem teljesül az elvárt minimum árrés.'},{status:409});
+      }
+      return fail(error,'Az ajánlat nem hagyható jóvá.');
+    }
     const e=(data??{})as Evidence;
     if(!hasAudit(data)||e.id!==p.id||e.status!=='approved'||!e.offer)return NextResponse.json({error:'Az ajánlat jóváhagyásának eredménye nem igazolható.'},{status:500});
     return NextResponse.json(e);
