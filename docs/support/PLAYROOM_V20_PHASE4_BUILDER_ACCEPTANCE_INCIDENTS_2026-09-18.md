@@ -1033,7 +1033,7 @@ Human Preview screenshots on desktop and mobile showed the search magnifier cent
 
 ## SKB-P4-021 — Checkout field theming missed nested textarea and browser autofill; legal links relied on uncontrolled wrapping
 
-**Status:** `implemented_pending_live_verification`  
+**Status:** `verified_fixed`  
 **Evidence:** `human_preview_screenshot_plus_shared_css_contract`  
 **Area:** `storefront/checkout/form-theme + legal-consent-layout`  
 **Risk:** medium  
@@ -1064,6 +1064,10 @@ Checkout visual acceptance must cover control states, not only control types: em
 
 Live human screenshot verification is still required before changing this incident to `verified_fixed`.
 
+
+
+### Verification
+Human Preview confirmation established that the e-mail field now stays on the Playroom dark checkout theme in the tested browser state, the order-note textarea is themed consistently, and the legal area renders as two independent checkbox rows. This closes the remaining visual verification for the field-theme/legal-layout incident.
 
 ---
 
