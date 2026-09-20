@@ -27,6 +27,16 @@ describe('admin pre-render authorization closure',()=>{
     expect(source).not.toContain('SUPABASE_SERVICE_ROLE');
   });
 
+  test('preserves a safe admin return path through customer-account login',()=>{
+    const middleware=read('src/middleware.ts');
+    const auth=read('src/components/auth/auth-form.tsx');
+    expect(middleware).toContain("function adminReturnPath(request:NextRequest)");
+    expect(middleware).toContain("if(reason==='login')target.searchParams.set('next',next)");
+    expect(auth).toContain("function safeAdminNext()");
+    expect(auth).toContain("requestedNext?.startsWith('/admin')&&!requestedNext.startsWith('//')");
+    expect(auth).toContain("if(target){router.replace(target);router.refresh();return;}");
+  });
+
   test('database gate is tenant-bound, fail-closed, time-aware and only callable by authenticated users',()=>{
     const sql=read('supabase/migrations/20260907130000_block6_person_delegation_authority.sql').toLowerCase().replace(/\s+/g,' ');
     const gate=sql.slice(sql.indexOf('create or replace function private.can_access_admin_context_current'),sql.indexOf('-- organization-level reads'));
