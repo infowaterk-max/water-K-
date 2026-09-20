@@ -51,6 +51,14 @@ export function augmentStorefrontDigitalCommercePreviewContext(input:{
     digitalCommerce.postPurchase={state:'ready',mode:'mixed',paymentStatus:'pending',copy:'A digitális hozzáférés a fizetés hitelesítése után aktiválódik.',documentCenterHref:'/fiokom/letoltesek'};
   }
   if(input.page.pageType==='account'){
+    digitalCommerce.accountCapabilities={state:'ready',items:[
+      {key:'overview',label:'Áttekintés',href:'/fiokom'},{key:'orders',label:'Rendeléseim',href:'/fiokom#rendelesek'},
+      {key:'downloads',label:'Letöltéseim',href:'/fiokom/letoltesek'},{key:'documents',label:'Dokumentumaim',href:'/fiokom/dokumentumok'},
+      {key:'wishlist',label:'Kívánságlista',href:'/fiokom/kivansaglista'},{key:'cases',label:'Ügyeim',href:'/fiokom/ugyek'},
+      {key:'b2bQuotes',label:'Ajánlatkéréseim',href:'/fiokom/ajanlatkeresek'},{key:'loyalty',label:'Hűségprogram',href:'/fiokom/huseg'}
+    ]};
+    digitalCommerce.accountDownloads={state:'ready',digital:documentsCenter.digital};
+    digitalCommerce.accountDocuments={state:'ready',orderDocuments:documentsCenter.orderDocuments,productDocuments:documentsCenter.productDocuments};
     digitalCommerce.documentsCenter=documentsCenter;
     digitalCommerce.postPurchase={state:'ready',mode:'mixed',paymentStatus:'paid',hasDocuments:true,documentCenterHref:'/fiokom/letoltesek'};
   }

@@ -1,5 +1,6 @@
 import 'server-only';
 import {createAdminClient} from '@/lib/supabase/admin';
+import {resolveAccountCapabilities} from '@/lib/account/account-capabilities';
 import {
   classifyCheckoutFulfillment,
   listAccountDigitalDownloadSurface,
@@ -75,10 +76,13 @@ export async function getStorefrontDigitalCommerceRuntimeModel(instanceId:string
 
   if(request.pageType!=='account')throw new Error('STOREFRONT_DIGITAL_COMMERCE_PAGE_CONTEXT_INVALID');
   const customerId=request.customerId;
-  const[digital,orders,productDocuments]=await Promise.all([
+  const admin=createAdminClient();
+  const[digital,orders,productDocuments,loyaltyResult,relationResult]=await Promise.all([
     listAccountDigitalDownloadSurface(instanceId,customerId),
     listAccountOrderDocuments(instanceId,customerId),
     listAccountProductDocuments(instanceId,customerId),
+    admin.from('loyalty_program_settings').select('enabled').eq('instance_id',instanceId).maybeSingle(),
+    admin.from('customer_instance_roles').select('role,reseller_approved,b2b_account_id').eq('instance_id',instanceId).eq('user_id',customerId).maybeSingle(),
   ]);
   const digitalEntries=digital.map(item=>({
     id:item.entitlementId,title:item.fileName,description:`Rendelés: ${item.orderNumber}`,
@@ -87,14 +91,19 @@ export async function getStorefrontDigitalCommerceRuntimeModel(instanceId:string
   }));
   const orderEntries=[
     ...orders.documents.map(item=>({id:item.documentId,title:item.title,description:`Rendelés: ${item.orderNumber}`,meta:item.fileName,status:'available',href:`/api/order-documents/${item.documentId}`})),
-    ...orders.invoices.map(item=>({id:`invoice:${item.orderId}:${item.invoiceNumber}`,title:`Számla · ${item.invoiceNumber}`,description:`Rendelés: ${item.orderNumber}`,status:'available',href:'/fiokom/letoltesek'})),
+    ...orders.invoices.map(item=>({id:`invoice:${item.orderId}:${item.invoiceNumber}`,title:`Számla · ${item.invoiceNumber}`,description:`Rendelés: ${item.orderNumber}`,status:'available',href:'/fiokom/dokumentumok'})),
   ];
   const productEntries=productDocuments.map(item=>({
     id:item.documentId,title:item.title,description:item.productName,meta:[item.variantLabel,item.fileName].filter(Boolean).join(' · '),status:'available',href:item.downloadHref,
   }));
   const hasDocuments=Boolean(digitalEntries.length||orderEntries.length||productEntries.length);
+  const relation=relationResult.data as{role?:string;reseller_approved?:boolean;b2b_account_id?:string|null}|null;
+  const accountItems=resolveAccountCapabilities({showLoyalty:Boolean(loyaltyResult.data?.enabled),showB2BOrganization:Boolean(relation?.b2b_account_id),showB2BQuotes:relation?.role==='reseller'&&relation?.reseller_approved===true});
   return{
+    accountCapabilities:{state:'ready',items:accountItems},
+    accountDownloads:{state:'ready',digital:digitalEntries},
+    accountDocuments:{state:'ready',orderDocuments:orderEntries,productDocuments:productEntries},
     documentsCenter:{state:'ready',digital:digitalEntries,orderDocuments:orderEntries,productDocuments:productEntries},
-    postPurchase:{state:'ready',mode:'physical',paymentStatus:'paid',hasDocuments,documentCenterHref:'/fiokom/letoltesek'},
+    postPurchase:{state:'ready',mode:'physical',paymentStatus:'paid',hasDocuments,documentCenterHref:'/fiokom/dokumentumok'},
   };
 }

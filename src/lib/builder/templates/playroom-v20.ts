@@ -131,7 +131,10 @@ const digitalCommerceSection=(pageType:StorefrontPageDocument['pageType'])=>{
     node({id:'playroom-checkout-fulfillment',componentKey:'commerce.fulfillment-summary',componentVersion:1,config:{title:'Kézbesítés',documentCenterLabel:'Fiókom → Letöltéseim',presentation:'playroom-native'}}),
     node({id:'playroom-checkout-post-purchase',componentKey:'commerce.post-purchase-guidance',componentVersion:1,config:{eyebrow:'VÁSÁRLÁS UTÁN',title:'Hozzáférés és dokumentumok',pendingLabel:'Fizetés után elérhető',documentCenterLabel:'Fiókom → Letöltéseim',presentation:'playroom-native'}}),
   );
-  if(pageType==='account')children.push(node({id:'playroom-account-documents',componentKey:'commerce.documents-center',componentVersion:1,config:{eyebrow:'SAJÁT TÁR',title:'Letöltéseim',copy:'A megvásárolt digitális tartalmak innen tölthetők le. A rendelési iratok és a megvásárolt termékhez kapcsolódó fiókos dokumentumok ugyanitt, külön jogosultsági szabályokkal érhetők el.',digitalTitle:'Digitális vásárlások',orderTitle:'Rendelési dokumentumok',productTitle:'Termékdokumentumok',emptyLabel:'Még nincs megjeleníthető dokumentum vagy letölthető tartalom.',loginLabel:'Belépés a fiókba',presentation:'playroom-native'}}));
+  if(pageType==='account')children.push(
+    node({id:'playroom-account-downloads',componentKey:'commerce.account-downloads',componentVersion:1,config:{eyebrow:'SAJÁT TÁR',title:'Letöltéseim',copy:'Digitális tartalmak és hozzáférések.',emptyLabel:'Még nincs digitális tartalom.',openLabel:'Letöltés',presentation:'playroom-native'}}),
+    node({id:'playroom-account-documents',componentKey:'commerce.account-documents',componentVersion:1,config:{eyebrow:'IRATTÁR',title:'Dokumentumaim',copy:'Számlák, garanciák, rendelési iratok és termékdokumentumok.',orderTitle:'Rendelési dokumentumok',productTitle:'Termékdokumentumok',emptyLabel:'Még nincs dokumentum.',openLabel:'Megnyitás / letöltés',presentation:'playroom-native'}}),
+  );
   if(!children.length)return null;
   return node({
     id:`playroom-${pageType}-digital-commerce`,componentKey:'layout.section',componentVersion:1,
