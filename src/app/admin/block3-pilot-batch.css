@@ -78,3 +78,32 @@
 @media(max-width:560px){
   .returnCaseRefundFields{grid-template-columns:1fr!important}
 }
+
+
+/* B2B sales/RFQ acceptance: wide desktop table + real mobile cards.
+   Desktop-site on a touch phone stays a desktop workspace and scrolls the wide table
+   instead of crushing seven columns into unreadable character stacks. */
+@media(min-width:851px){
+  .salesOpportunityTable{min-width:1180px!important;table-layout:auto!important}
+  .salesOpportunityTable th:nth-child(3),.salesOpportunityTable td:nth-child(3){min-width:250px}
+  .salesOpportunityTable th:nth-child(6),.salesOpportunityTable td:nth-child(6){min-width:220px}
+  .salesOpportunityTable th:nth-child(7),.salesOpportunityTable td:nth-child(7){min-width:310px}
+}
+@media(max-width:850px){
+  .salesOpportunityCard{padding:18px!important}
+  .salesOpportunityCard .adminMobileCardTableWrap{margin-top:12px!important}
+  .salesOpportunityTable{min-width:0!important}
+  .salesOpportunityTable td{grid-template-columns:minmax(108px,.4fr) minmax(0,1fr)!important}
+  .salesOpportunityTable td[data-mobile-label="Művelet"]{grid-template-columns:1fr!important;gap:8px!important}
+  .salesOpportunityTable td[data-mobile-label="Művelet"]::before{margin-bottom:2px}
+  .commercialOpportunityActions,.commercialOfferCreate,.commercialOfferForm{width:100%!important;min-width:0!important}
+  .commercialOpportunityActions .adminInlineActions{display:grid!important;grid-template-columns:1fr!important;gap:8px!important;width:100%!important}
+  .commercialOpportunityActions .btn,.commercialOfferCreate>summary,.commercialOfferForm>.btn{width:100%!important;max-width:100%!important;justify-content:center!important;white-space:normal!important}
+  .commercialOfferCreate[open]>summary{margin-bottom:10px!important}
+  .commercialOfferForm{display:grid!important;grid-template-columns:1fr!important;gap:10px!important}
+  .commercialOfferForm label{display:grid!important;gap:6px!important;min-width:0!important}
+  .commercialOfferForm input,.commercialOfferForm select{width:100%!important;min-width:0!important;max-width:100%!important}
+}
+@media(max-width:520px){
+  .salesOpportunityTable td{grid-template-columns:1fr!important;gap:4px!important}
+}

@@ -74,3 +74,19 @@ Resolution:
 - successful submit clears the active draft id only after the submit RPC succeeds;
 - the submit RPC now targets `on conflict(instance_id,task_key)`;
 - the original migration/customer baseline are corrected for fresh installs and a forward migration repairs already-installed staging/customer databases.
+
+
+## 2026-09-20 live acceptance incident — sales workspace responsive collapse
+
+Human acceptance on both Android native mobile and Android "Desktop site" mode exposed a second, independent presentation defect after the RFQ handoff itself had already succeeded.
+
+Observed failure:
+- the seven-column `/admin/ertekesites` opportunity table stayed in desktop-table geometry on native mobile;
+- the RFQ type/summary and offer form were squeezed to character-wide columns;
+- in touch Desktop-site mode the table was allowed to compress instead of preserving a usable desktop minimum width and scrolling inside its own table wrapper.
+
+Resolution:
+- the opportunity table now opts into the shared `adminMobileCardTable` contract with explicit `data-mobile-label` cells;
+- offer actions/forms expose stable responsive hooks and become one-column, full-width controls on native mobile;
+- desktop and touch Desktop-site keep a real wide table (`1180px` minimum) inside `adminTableScroll`, so the table scrolls rather than crushing content;
+- native mobile and Desktop-site remain separate responsive contracts. Browser/Desktop-site mode is never used as a substitute for mobile card layout.
