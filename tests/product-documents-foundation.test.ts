@@ -100,7 +100,7 @@ describe('Product Documents foundation',()=>{
     expect(service).not.toContain("from('product_documents')");
     expect(account).toContain('listAccountProductDocuments');
     expect(account).toContain('Termékdokumentumok');
-    expect(account).toContain('item.downloadHref');
+    expect(account).toContain('x.downloadHref');
   });
 
   test('post-purchase email sends a Shoperation link and the file route signs only after order authorization',()=>{
