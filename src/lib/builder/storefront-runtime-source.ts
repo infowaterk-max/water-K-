@@ -24,6 +24,34 @@ function mergeDigitalCommerceContext(bindingContext:Record<string,unknown>,digit
 function mergeGrowthContext(bindingContext:Record<string,unknown>,promotions:Readonly<Record<string,unknown>>){const current=bindingContext.offer&&typeof bindingContext.offer==='object'&&!Array.isArray(bindingContext.offer)?bindingContext.offer as Record<string,unknown>:{};return{...bindingContext,offer:{...current,promotions}};}
 async function resolveGrowthContext(instanceId:string,page:StorefrontPageDocument,capability:StorefrontRuntimeCapabilityContext){if(!new Set(capability.features).has('coupons'))return{promotions:Object.freeze({})};return getStorefrontGrowthMarketingBundleForInstance(instanceId,page);}
 export async function resolveCurrentStorefrontPublishedRuntimePage(pageKey:string,digitalCommerceRequest?:StorefrontDigitalCommerceRuntimeRequest):Promise<StorefrontResolvedRuntimePage|null>{if(!PAGE_KEY_PATTERN.test(pageKey))return null;const instance=await requireStorefrontAccess();if(!instance)return null;const[page,symbols,runtime]=await Promise.all([getPublishedStorefrontPage(instance.id,pageKey),listStorefrontReusableSymbolsForInstance(instance.id),resolveRuntimeCommerceContext(instance.id,instance.subscriptionPlan)]);if(!page||!runtime)return null;const materialized=materializeStorefrontReusableSymbols(page,symbols);if(digitalCommerceRequest&&digitalCommerceRequest.pageType!==materialized.pageType)return null;const[growth,digitalCommerce]=await Promise.all([resolveGrowthContext(instance.id,materialized,runtime.capability),digitalCommerceRequest?getStorefrontDigitalCommerceRuntimeModel(instance.id,digitalCommerceRequest):Promise.resolve(null)]);const baseContext={...mergeGrowthContext(runtime.bindingContext,growth.promotions),brand:{name:instance.brand.name,tagline:instance.brand.tagline,logoUrl:instance.brand.logoUrl,primaryColor:instance.brand.primaryColor},navigation:{primary:[]}};return{source:'published',instanceId:instance.id,page:failClosedSpecialCommerce(materialized,runtime.capability),bindingContext:mergeDigitalCommerceContext(baseContext,digitalCommerce),capability:runtime.capability};}
+export async function resolveCurrentStorefrontAccountRuntimePage(customerId:string):Promise<StorefrontResolvedRuntimePage|null>{
+ const instance=await requireStorefrontAccess();if(!instance||!customerId)return null;
+ const request:StorefrontDigitalCommerceRuntimeRequest={pageType:'account',customerId};
+ const acceptanceInstanceId=process.env.VERCEL_ENV==='preview'?await getPilotAcceptanceInstanceId():null;
+ if(acceptanceInstanceId===instance.id){
+  try{
+   const[state,symbols,runtime]=await Promise.all([
+    getCurrentStorefrontPageState('account'),
+    listStorefrontReusableSymbolsForInstance(instance.id),
+    resolveRuntimeCommerceContext(instance.id,instance.subscriptionPlan),
+   ]);
+   const draft=state?.draft?.document;
+   if(draft&&runtime){
+    const materialized=materializeStorefrontReusableSymbols(draft,symbols);
+    const composed=composeStorefrontDigitalCommerceCapabilities(normalizeStorefrontTemplateRuntimeComposition(materialized));
+    if(composed.pageType!=='account')return null;
+    const[growth,digitalCommerce]=await Promise.all([
+      resolveGrowthContext(instance.id,composed,runtime.capability),
+      getStorefrontDigitalCommerceRuntimeModel(instance.id,request),
+    ]);
+    const baseContext={...mergeGrowthContext(runtime.bindingContext,growth.promotions),brand:{name:instance.brand.name,tagline:instance.brand.tagline,logoUrl:instance.brand.logoUrl,primaryColor:instance.brand.primaryColor},navigation:{primary:[]}};
+    return{source:'preview',instanceId:instance.id,page:failClosedSpecialCommerce(composed,runtime.capability),bindingContext:mergeDigitalCommerceContext(baseContext,digitalCommerce),capability:runtime.capability};
+   }
+  }catch{}
+ }
+ return resolveCurrentStorefrontPublishedRuntimePage('account',request);
+}
+
 export async function resolveCurrentStorefrontCheckoutRuntimePage():Promise<StorefrontResolvedRuntimePage|null>{
  const instance=await requireStorefrontAccess();if(!instance)return null;
  const acceptanceInstanceId=process.env.VERCEL_ENV==='preview'?await getPilotAcceptanceInstanceId():null;
