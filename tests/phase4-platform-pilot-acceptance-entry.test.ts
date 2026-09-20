@@ -8,6 +8,7 @@ describe('Phase 4 platform pilot acceptance entry',()=>{
   const page=read('src/app/admin/platform/acceptance/[instanceId]/page.tsx');
   const action=read('src/app/admin/platform/acceptance/[instanceId]/actions.ts');
   const builder=read('src/app/admin/tartalom/builder/page.tsx');
+  const b2bDirect=read('src/app/admin/platform/acceptance/[instanceId]/b2b-rfq/route.ts');
 
   it('is preview-only and requires an authenticated platform operator',()=>{
     expect(page).toContain("process.env.VERCEL_ENV!=='preview'");
@@ -40,6 +41,15 @@ describe('Phase 4 platform pilot acceptance entry',()=>{
     expect(action).not.toContain('page=playroom.home');
     for(const forbidden of['.insert(','.update(','.delete(','.upsert('])expect(action).not.toContain(forbidden);
     expect(page).toContain('Playroom Builder megnyitása');
+  });
+
+  it('provides a stable direct B2B acceptance entry that refreshes the pilot cookie and lands on the RFQ account page',()=>{
+    expect(b2bDirect).toContain("process.env.VERCEL_ENV!=='preview'");
+    expect(b2bDirect).toContain("getAdminRequestUser('store.read')");
+    expect(b2bDirect).toContain('createPilotAcceptanceToken(instanceId)');
+    expect(b2bDirect).toContain('PILOT_ACCEPTANCE_COOKIE');
+    expect(b2bDirect).toContain("new URL('/fiokom/ajanlatkeresek',request.url)");
+    expect(b2bDirect).toContain("sameSite:'lax'");
   });
 
   it('bypasses only the Builder route-level Pro gate during an exact preview pilot acceptance session',()=>{
