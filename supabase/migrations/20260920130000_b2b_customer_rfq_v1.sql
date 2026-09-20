@@ -58,7 +58,7 @@ revoke all on function private.resolve_b2b_quote_account_v1(uuid,uuid) from publ
 create or replace function public.customer_save_b2b_quote_request_v1(
  p_instance_id uuid,p_actor uuid,p_request_id uuid,p_note text,p_items jsonb
 ) returns jsonb language plpgsql security definer set search_path='' as $$
-declare v_account uuid;v_request public.b2b_quote_requests%rowtype;v_item jsonb;v_variant uuid;v_quantity integer;v_item_note text;v_audit uuid;v_count integer:=0;
+declare v_account uuid;v_request public.b2b_quote_requests%rowtype;v_item jsonb;v_variant uuid;v_quantity integer;v_item_note text;v_audit uuid;v_count integer:=0;v_minimum integer;v_multiple integer;
 begin
  v_account:=private.resolve_b2b_quote_account_v1(p_instance_id,p_actor);
  if p_note is not null and char_length(p_note)>4000 then raise exception 'B2B_QUOTE_NOTE_INVALID';end if;
@@ -83,8 +83,10 @@ begin
   v_quantity:=(v_item->>'quantity')::integer;
   v_item_note:=nullif(trim(v_item->>'note'),'');
   if v_quantity is null or v_quantity<1 or v_quantity>100000 or (v_item_note is not null and char_length(v_item_note)>1000) then raise exception 'B2B_QUOTE_ITEM_INVALID';end if;
-  perform 1 from public.product_variants pv where pv.id=v_variant and pv.instance_id=p_instance_id and pv.active=true;
+  select greatest(1,coalesce(pv.minimum_order_quantity,1)),greatest(1,coalesce(pv.order_multiple,1)) into v_minimum,v_multiple
+  from public.product_variants pv where pv.id=v_variant and pv.instance_id=p_instance_id and pv.active=true;
   if not found then raise exception 'B2B_QUOTE_VARIANT_INVALID';end if;
+  if v_quantity<v_minimum or mod(v_quantity-v_minimum,v_multiple)<>0 then raise exception 'B2B_QUOTE_QUANTITY_RULE_INVALID';end if;
   insert into public.b2b_quote_request_items(request_id,instance_id,variant_id,quantity,note)
   values(v_request.id,p_instance_id,v_variant,v_quantity,v_item_note)
   on conflict(request_id,variant_id) do update set quantity=excluded.quantity,note=excluded.note;

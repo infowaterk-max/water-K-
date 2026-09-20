@@ -495,12 +495,13 @@ describe('Playroom v20 functional acceptance',()=>{
       expect(tiles,template.manifest.templateKey).toHaveLength(1);
 
       const eligibleCluster=hasFactClusterHost(source);
-      const standalone=composed.sections.find(section=>section.id.startsWith('shared-')&&section.id.endsWith('-digital-commerce'));
-      if(eligibleCluster)expect(standalone,template.manifest.templateKey).toBeUndefined();
+      const sharedSections=composed.sections.filter(section=>section.id.startsWith('shared-')&&section.id.endsWith('-digital-commerce'));
+      const standaloneDownloads=sharedSections.find(section=>collectNodes({...composed,sections:[section]},node=>node.componentKey==='commerce.downloads-tile').length>0);
+      if(eligibleCluster)expect(standaloneDownloads,template.manifest.templateKey).toBeUndefined();
       else {
-        expect(standalone,template.manifest.templateKey).toBeTruthy();
+        expect(standaloneDownloads,template.manifest.templateKey).toBeTruthy();
         const primaryIndex=composed.sections.findIndex(section=>collectNodes({...composed,sections:[section]},node=>['commerce.product-gallery','commerce.product-info','commerce.variant-swatches','commerce.option-selector','commerce.purchase-controls','commerce.add-to-cart'].includes(node.componentKey)).length>0);
-        expect(composed.sections.indexOf(standalone!),template.manifest.templateKey).toBe(primaryIndex+1);
+        expect(composed.sections.indexOf(standaloneDownloads!),template.manifest.templateKey).toBe(primaryIndex+1);
       }
     }
   });
@@ -574,18 +575,16 @@ describe('Playroom v20 functional acceptance',()=>{
 
   it('renders the customer document center with invoice and merchant warranty while keeping authorities distinct',()=>{
     const account=playroomPage('account');
-    const html=render(account,{commerce:{digitalCommerce:{documentsCenter:{
-      state:'ready',
-      digital:[{id:'game-1',title:'Orbit Breakers Digital',description:'Rendelés: SHOP-1001',status:'available',href:'/api/digital-downloads/asset-1?orderId=order-1'}],
-      orderDocuments:[
-        {id:'invoice-1',title:'Számla · INV-1001',description:'Rendelés: SHOP-1001',status:'available',href:'/fiokom/letoltesek'},
+    const html=render(account,{commerce:{digitalCommerce:{
+      accountCapabilities:{state:'ready',items:[{key:'downloads',label:'Letöltéseim',href:'/fiokom/letoltesek'},{key:'documents',label:'Dokumentumaim',href:'/fiokom/dokumentumok'}]},
+      accountDownloads:{state:'ready',digital:[{id:'game-1',title:'Orbit Breakers Digital',description:'Rendelés: SHOP-1001',status:'available',href:'/api/digital-downloads/asset-1?orderId=order-1'}]},
+      accountDocuments:{state:'ready',orderDocuments:[
+        {id:'invoice-1',title:'Számla · INV-1001',description:'Rendelés: SHOP-1001',status:'available',href:'/fiokom/dokumentumok'},
         {id:'warranty-1',title:'Garancialevél · Neon Pro Controller',description:'Merchant által feltöltött dokumentum',meta:'warranty.pdf',status:'available',href:'/api/order-documents/warranty-1'},
-      ],
-      productDocuments:[{id:'manual-1',title:'Controller kézikönyv',description:'Neon Pro Controller',meta:'controller-manual.pdf',status:'available',href:'/api/product-documents/manual-1?variantId=variant-1'}],
-    },postPurchase:{state:'ready',mode:'mixed',paymentStatus:'paid',hasDocuments:true,documentCenterHref:'/fiokom/letoltesek'}}}});
-    expect(html).toContain('data-document-authority="digital"');
-    expect(html.match(/data-document-authority="order"/g)?.length).toBe(2);
-    expect(html).toContain('data-document-authority="product"');
+      ],productDocuments:[{id:'manual-1',title:'Controller kézikönyv',description:'Neon Pro Controller',meta:'controller-manual.pdf',status:'available',href:'/api/product-documents/manual-1?variantId=variant-1'}]},
+    }}});
+    expect(html).toContain('data-storefront-account="downloads"');
+    expect(html).toContain('data-storefront-account="documents"');
     expect(html).toContain('Számla · INV-1001');
     expect(html).toContain('Garancialevél · Neon Pro Controller');
     expect(html).toContain('Controller kézikönyv');

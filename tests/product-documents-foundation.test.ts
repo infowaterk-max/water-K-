@@ -92,7 +92,7 @@ describe('Product Documents foundation',()=>{
 
   test('account convergence discovers purchased-product documents without becoming a new file authority',()=>{
     const service=read('src/lib/commerce/product-documents.ts');
-    const account=read('src/app/fiokom/letoltesek/page.tsx');
+    const account=read('src/app/fiokom/dokumentumok/page.tsx');
     expect(service).toContain("from('order_items')");
     expect(service).toContain(".eq('orders.instance_id',instanceId)");
     expect(service).toContain(".eq('orders.customer_id',customerId)");
