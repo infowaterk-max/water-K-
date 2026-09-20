@@ -1,4 +1,5 @@
 import type {StorefrontPageDocument} from '@/lib/builder/storefront-runtime';
+import {STOREFRONT_DESKTOP_SCALE_DENSITY_CONTRACT} from '@/lib/builder/storefront-foundation';
 
 export const STOREFRONT_GLOBAL_STYLES_VERSION='shoporation.storefront-global-styles.v1' as const;
 export const STOREFRONT_GLOBAL_STYLES_METADATA_KEY='shoporationGlobalStyles' as const;
@@ -123,7 +124,24 @@ const RADIUS:Record<StorefrontGlobalRadiusScale,Record<string,string>>={
 
 export function resolveStorefrontGlobalStyleCssVariables(document:StorefrontPageDocument):Record<string,string>{
   const{tokens}=getStorefrontGlobalStyleState(document);
-  const css:Record<string,string>={};
+  const density=STOREFRONT_DESKTOP_SCALE_DENSITY_CONTRACT;
+  const css:Record<string,string>={
+    '--shoporation-content-max':`${density.contentMaxWidthPx}px`,
+    '--shoporation-wide-commerce-max':`${density.wideCommerceMaxWidthPx}px`,
+    '--shoporation-readable-max':`${density.narrowContentMaxWidthPx}px`,
+    '--shoporation-type-page-title':`clamp(${density.pageTitle.minRem}rem, 3vw, ${density.pageTitle.maxRem}rem)`,
+    '--shoporation-type-section-title':'clamp(1.5rem, 2.4vw, 2.25rem)',
+    '--shoporation-type-card-title':'1.25rem',
+    '--shoporation-type-body':'1rem',
+    '--shoporation-type-label':'.875rem',
+    '--shoporation-type-helper':'.8125rem',
+    '--shoporation-control-min-height':`${density.formControl.minHeightPx}px`,
+    '--shoporation-control-height':`${density.formControl.comfortableHeightPx}px`,
+    '--shoporation-control-font-size':`${density.formControl.fontSizePx}px`,
+    '--shoporation-control-textarea-min-height':`${density.formControl.textareaMinHeightPx}px`,
+    '--shoporation-control-padding-inline':'14px',
+    '--shoporation-control-padding-block':'11px',
+  };
   const colorMap:Record<typeof COLOR_KEYS[number],string>={
     background:'--shoporation-color-background',surface:'--shoporation-color-surface',surfaceMuted:'--shoporation-color-surface-muted',text:'--shoporation-color-text',mutedText:'--shoporation-color-muted-text',border:'--shoporation-color-border',primary:'--shoporation-color-primary',primaryContrast:'--shoporation-color-primary-contrast',accent:'--shoporation-color-accent',accentSecondary:'--shoporation-color-accent-secondary',accentTertiary:'--shoporation-color-accent-tertiary',
   };
