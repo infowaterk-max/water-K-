@@ -42,27 +42,47 @@ function isPlayroomFooterSection(node:StorefrontComponentNode):boolean{
   return values.has('Vásárlási információk')&&values.has('Kövess minket')&&(values.has('PLAYROOM')||values.has('SHOPORATION'));
 }
 
+function footerRemFloor(value:unknown,floor:number):string{
+  if(typeof value!=='string')return `${floor}rem`;
+  const match=value.trim().match(/^([0-9]*\.?[0-9]+)rem$/i);
+  if(!match)return value;
+  return Number(match[1])<floor?`${floor}rem`:value;
+}
+
 function normalizePlayroomV20FooterNode(node:StorefrontComponentNode,isFooterRoot=false):StorefrontComponentNode{
   const next=clone(node);
   const config={...next.config};
   if(isFooterRoot){
     const style=(config.style&&typeof config.style==='object'&&!Array.isArray(config.style)?config.style:{}) as Record<string,unknown>;
-    config.style={...style,padding:'1.45rem 2.35rem 1.7rem',minHeight:'12rem'};
+    config.style={...style,padding:'1.6rem 2.35rem 1.9rem',minHeight:'13rem'};
   }
   if(node.componentKey==='layout.grid'){
     config.gap='m';
   }
   if(node.componentKey==='layout.stack'){
     const style=(config.style&&typeof config.style==='object'&&!Array.isArray(config.style)?config.style:{}) as Record<string,unknown>;
-    config.style={...style,gap:'.5rem'};
+    config.style={...style,gap:'.65rem'};
   }
   if(node.componentKey==='system.navigation'){
     const style=(config.style&&typeof config.style==='object'&&!Array.isArray(config.style)?config.style:{}) as Record<string,unknown>;
     const slots=(config.styleSlots&&typeof config.styleSlots==='object'&&!Array.isArray(config.styleSlots)?config.styleSlots:{}) as Record<string,unknown>;
     const item=(slots.item&&typeof slots.item==='object'&&!Array.isArray(slots.item)?slots.item:{}) as Record<string,unknown>;
     const base=(item.base&&typeof item.base==='object'&&!Array.isArray(item.base)?item.base:{}) as Record<string,unknown>;
-    config.style={...style,gap:'.32rem',lineHeight:1.5};
-    config.styleSlots={...slots,item:{...item,base:{...base,minHeight:'1.75rem',display:'flex',alignItems:'center'}}};
+    config.style={...style,gap:'.38rem',lineHeight:1.5,fontSize:footerRemFloor(style.fontSize,.82)};
+    config.styleSlots={...slots,item:{...item,base:{...base,minHeight:'2rem',display:'flex',alignItems:'center'}}};
+  }
+  if(node.componentKey==='content.button'){
+    const style=(config.style&&typeof config.style==='object'&&!Array.isArray(config.style)?config.style:{}) as Record<string,unknown>;
+    config.style={...style,fontSize:footerRemFloor(style.fontSize,.82),lineHeight:1.45,minHeight:'2rem'};
+  }
+  if(node.componentKey==='content.text'){
+    const style=(config.style&&typeof config.style==='object'&&!Array.isArray(config.style)?config.style:{}) as Record<string,unknown>;
+    const floor=config.as==='strong'?.8:.75;
+    config.style={...style,fontSize:footerRemFloor(style.fontSize,floor),lineHeight:style.lineHeight??1.45};
+  }
+  if(node.componentKey==='content.heading'){
+    const style=(config.style&&typeof config.style==='object'&&!Array.isArray(config.style)?config.style:{}) as Record<string,unknown>;
+    config.style={...style,fontSize:footerRemFloor(style.fontSize,1),lineHeight:style.lineHeight??1.2};
   }
   return{
     ...next,

@@ -58,6 +58,7 @@ describe('Storefront Desktop scale / density contract',()=>{
     const accountCss=read('src/app/account-workflow.css');
     const accountShell=read('src/components/account/storefront-account-shell.tsx');
     const quoteManager=read('src/components/account/b2b-quote-request-manager.tsx');
+    const cartStyleQuantity=read('src/components/commerce/cart-style-quantity-control.tsx');
     const overview=read('src/app/fiokom/page.tsx');
     const surfaces=read('src/components/builder/storefront-digital-commerce-surfaces.tsx');
     const commerceHeader=read('src/components/builder/storefront-commerce-header.tsx');
@@ -77,6 +78,13 @@ describe('Storefront Desktop scale / density contract',()=>{
     expect(quoteManager).toContain('className="accountFormField accountQuoteProduct"');
     expect(quoteManager).toContain('className="accountFormField accountQuoteQuantity"');
     expect(quoteManager).toContain('className="accountFormField accountQuoteNote"');
+    expect(quoteManager).toContain('<CartStyleQuantityControl contract="rfq"');
+    expect(quoteManager).toContain('<option value="">Válassz terméket</option>');
+    expect(quoteManager).not.toContain('type="number"');
+    expect(cartStyleQuantity).toContain("data-rfq-quantity-layout={!cart?'cart-vertical-arrows':undefined}");
+    expect(cartStyleQuantity).toContain("data-rfq-remove-control={!cart?'true':undefined}");
+    expect(cartStyleQuantity).toContain('background:\'#cf3038\'');
+    expect(cartStyleQuantity).toContain('data-cart-icon="trash"');
     expect(overview).toContain('className="actions accountPrimaryActions"');
     expect(overview).not.toContain('className="btn btnGhost" href="/fiokom/letoltesek"');
     expect(surfaces).toContain("flexWrap:mobile?'nowrap':'wrap'");

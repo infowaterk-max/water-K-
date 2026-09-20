@@ -1324,3 +1324,56 @@ The protected shared commerce header still allowed template fidelity styles to s
 Template fidelity may make a header visually compact, but protected search, primary navigation and customer utility controls must remain readable at the canonical 100% browser baseline. Dense-navigation fallback may reduce spacing before it reduces type size, and it must not cross the shared readability floor.
 
 Live human proof at 100% and 125% browser zoom is required before changing this incident to `verified_fixed`.
+
+
+---
+
+## SKB-P4-028 — Playroom footer typography fell below the 1920×1080 / 100% readability baseline
+
+**Status:** `implemented_pending_live_verification`  
+**Evidence:** `human_storefront_screenshot_plus_runtime-normalizer-audit`  
+**Area:** `storefront/footer/readability`  
+**Risk:** medium  
+**Automation:** `PLAYROOM_FOOTER_READABILITY_FLOOR`
+
+### Symptom
+
+On a 1920×1080 display with both operating-system scaling and browser zoom at 100%, the Playroom footer structure was visible but its menu labels and supporting copy were too small for comfortable reading.
+
+### Root cause
+
+The accepted visual-reference footer carried fidelity-era micro-type values around .52–.66rem. Existing runtime normalization repaired footer height, spacing and link target geometry, but did not raise the actual text size. The result was technically navigable but visually undersized at the canonical Desktop acceptance baseline.
+
+### Shared resolution
+
+Persisted Playroom v20 pages now receive a runtime footer readability floor: links and navigation are at least .82rem, strong labels at least .8rem, supporting text at least .75rem and headings at least 1rem. Footer padding, vertical spacing and link target height were increased moderately so the larger type is not cramped.
+
+### Template Factory prevention
+
+A visual-reference footer may preserve density and brand character, but customer-facing navigation must remain readable at 1920×1080 with OS scale 100% and browser zoom 100%. Micro-copy below the shared footer floor is not acceptable solely for visual fidelity.
+
+---
+
+## SKB-P4-029 — B2B RFQ quantity control diverged from the canonical cart interaction
+
+**Status:** `implemented_pending_live_verification`  
+**Evidence:** `human_storefront_screenshot_plus_cart-source-parity`  
+**Area:** `storefront/account/b2b-rfq + shared-commerce-controls`  
+**Risk:** medium  
+**Automation:** `RFQ_CART_STYLE_QUANTITY_CONTROL_PARITY`
+
+### Symptom
+
+The B2B RFQ form used a native HTML number input. Browser-native spinner arrows did not match the cart quantity UI, and the selected product could not be removed with the cart's red trash control.
+
+### Root cause
+
+The RFQ form independently implemented quantity editing instead of consuming the canonical cart interaction. That produced browser-dependent steppers and omitted the removal affordance.
+
+### Shared resolution
+
+The cart quantity UI has been extracted into one shared `CartStyleQuantityControl`. The cart and RFQ now use the same vertical chevron buttons, dimensions, borders, output layout and red trash control. In RFQ, trash clears the selected product and returns the selector to `Válassz terméket`; the native `type="number"` spinner is removed.
+
+### Template Factory prevention
+
+When a commerce interaction already has an accepted canonical control, account/B2B surfaces must reuse that control rather than reproducing browser-native or template-local variants. Visual and behavioral parity must be enforced from one component authority.
