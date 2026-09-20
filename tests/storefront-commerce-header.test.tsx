@@ -65,6 +65,26 @@ describe('shared commerce header',()=>{
     expect(html).not.toContain('JÁTÉK. KÖZÖSSÉG. ÉLMÉNY.');
   });
 
+  it('enforces a readable protected-header floor even when a template requests compact desktop chrome',()=>{
+    const compact=structuredClone(page);
+    const header=compact.sections[0];
+    header.config.showUtilityLabels=true;
+    header.config.innerStyle={padding:'.35rem'};
+    header.config.tagline='PLAYROOM';
+    header.config.taglineStyle={fontSize:'.55rem'};
+    const search=header.children?.find(child=>child.componentKey==='system.search');
+    const navigation=header.children?.find(child=>child.componentKey==='system.navigation');
+    if(!search||!navigation)throw new Error('HEADER_CHILD_MISSING');
+    search.config.inputStyle={fontSize:'.62rem'};
+    navigation.config.items=Array.from({length:9},(_,index)=>({label:`Menüpont ${index+1}`,href:`/menu-${index+1}`}));
+    const html=render('desktop',compact);
+    expect(html).toContain('min-height:2.7rem');
+    expect(html).toContain('font-size:.875rem');
+    expect(html).toContain('min-height:3.5rem');
+    expect(html).toContain('font-size:.82rem');
+    expect(html).toContain('font-size:.74rem');
+  });
+
   it('keeps the optional navigation tagline for sparse desktop commerce headers',()=>{
     const sparse=structuredClone(page);
     sparse.sections[0].config.navTagline='VÁLOGATOTT KÍNÁLAT';

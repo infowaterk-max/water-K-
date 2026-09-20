@@ -1290,3 +1290,37 @@ Fresh human screenshots with both Windows display scale and browser zoom at 100%
 The implementation therefore adds the shared `storefrontAccountWorkspace` / `storefrontAccountSidebar` shell and normalizes the RFQ field geometry. Global container and typography density are intentionally not reduced further.
 
 Status remains `implemented_pending_live_verification` until the same route passes human proof at browser 125% with Windows display scale held at 100%.
+
+
+---
+
+## SKB-P4-027 — Protected commerce header became technically complete but visually unreadable at Desktop density
+
+**Status:** `implemented_pending_live_verification`  
+**Evidence:** `human_storefront_screenshot_plus_shared_renderer_audit`  
+**Area:** `storefront/protected-header/readability + account-navigation-density`  
+**Risk:** medium  
+**Automation:** `PROTECTED_COMMERCE_HEADER_READABILITY_FLOOR`
+
+### Symptom
+
+At the canonical Windows 100% / browser 100% acceptance baseline, the Account / B2B RFQ page body was proportioned correctly, but the Playroom commerce header remained visually undersized. Search copy, utility labels and the dense nine-item primary navigation were difficult to read, even though all controls and links were functionally present.
+
+### Root cause
+
+The protected shared commerce header still allowed template fidelity styles to shrink critical text and chrome below a practical customer-facing readability floor. Playroom reference styling requested a compact 2.35rem search bar, .76rem search text, .72rem utility labels and .73rem navigation. The shared dense-navigation fallback then reduced nine-item Desktop navigation further to .68rem. Template inner padding also compressed the total header height.
+
+### Shared resolution
+
+- protected Desktop search text now has a shared .875rem readability floor and the search root has a minimum usable height;
+- brand/logo/tagline, utility items, top-row height and navigation-frame height receive protected minimum geometry after template style slots;
+- dense Desktop navigation uses .82rem instead of .68rem;
+- the category trigger and utility labels receive explicit readable sizing;
+- the customer Account left rail is widened modestly and its navigation targets now use 48px minimum height with .95rem labels;
+- template identity, colors, borders and composition remain inherited; the fix only prevents protected chrome from becoming too small to read.
+
+### Template Factory prevention
+
+Template fidelity may make a header visually compact, but protected search, primary navigation and customer utility controls must remain readable at the canonical 100% browser baseline. Dense-navigation fallback may reduce spacing before it reduces type size, and it must not cross the shared readability floor.
+
+Live human proof at 100% and 125% browser zoom is required before changing this incident to `verified_fixed`.

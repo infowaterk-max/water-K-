@@ -4,5 +4,6 @@
 
 .denseNavigation :global([data-storefront-component="system.navigation"]) {
   gap: clamp(.55rem, 1vw, 1rem) !important;
-  font-size: .68rem !important;
+  font-size: .82rem !important;
+  line-height: 1.35 !important;
 }

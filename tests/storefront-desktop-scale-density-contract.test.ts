@@ -60,6 +60,8 @@ describe('Storefront Desktop scale / density contract',()=>{
     const quoteManager=read('src/components/account/b2b-quote-request-manager.tsx');
     const overview=read('src/app/fiokom/page.tsx');
     const surfaces=read('src/components/builder/storefront-digital-commerce-surfaces.tsx');
+    const commerceHeader=read('src/components/builder/storefront-commerce-header.tsx');
+    const commerceHeaderCss=read('src/components/builder/storefront-commerce-header.module.css');
     expect(globals).toContain("'--shoporation-type-page-title'");
     expect(globals).toContain("'--shoporation-control-height'");
     expect(accountCss).toContain('.storefrontAccountShell .accountPage.section');
@@ -69,7 +71,7 @@ describe('Storefront Desktop scale / density contract',()=>{
     expect(accountCss).toContain('var(--shoporation-control-height');
     expect(accountShell).toContain('className="storefrontAccountWorkspace"');
     expect(accountShell).toContain('className="storefrontAccountSidebar"');
-    expect(accountCss).toContain('grid-template-columns:minmax(13.5rem,15.5rem) minmax(0,1fr)');
+    expect(accountCss).toContain('grid-template-columns:minmax(15rem,17rem) minmax(0,1fr)');
     expect(accountCss).toContain('@media(max-width:960px)');
     expect(accountCss).toContain('.accountQuoteFormGrid');
     expect(quoteManager).toContain('className="accountFormField accountQuoteProduct"');
@@ -79,5 +81,8 @@ describe('Storefront Desktop scale / density contract',()=>{
     expect(overview).not.toContain('className="btn btnGhost" href="/fiokom/letoltesek"');
     expect(surfaces).toContain("flexWrap:mobile?'nowrap':'wrap'");
     expect(surfaces).toContain("overflowX:mobile?'auto':'visible'");
+    expect(commerceHeader).toContain("fontSize:viewport==='mobile'?'1rem':'.875rem'");
+    expect(commerceHeader).toContain("minHeight:tablet?'3.25rem':'3.5rem'");
+    expect(commerceHeaderCss).toContain('font-size: .82rem !important;');
   });
 });

@@ -40,17 +40,17 @@
 
 /* Canonical customer-account information architecture.
    Desktop uses a persistent left capability rail; Tablet/Mobile collapse back to a compact top rail. */
-.storefrontAccountWorkspace{width:min(calc(100% - 32px),var(--shoporation-content-max,1200px));margin:0 auto;display:grid;grid-template-columns:minmax(13.5rem,15.5rem) minmax(0,1fr);gap:clamp(1.5rem,3vw,2.5rem);align-items:start}
+.storefrontAccountWorkspace{width:min(calc(100% - 32px),var(--shoporation-content-max,1200px));margin:0 auto;display:grid;grid-template-columns:minmax(15rem,17rem) minmax(0,1fr);gap:clamp(1.75rem,3vw,2.75rem);align-items:start}
 .storefrontAccountSidebar{min-width:0;padding-top:clamp(2rem,3vw,3rem)}
 .storefrontAccountSidebar [data-storefront-component="layout.section"]{padding-block:0!important;background:transparent!important}
 .storefrontAccountSidebar [data-storefront-component="layout.section"]>div{width:100%!important;max-width:none!important;margin:0!important}
 .storefrontAccountSidebar [data-storefront-component="layout.container"]{width:100%!important;max-width:none!important;margin:0!important;padding-inline:0!important}
 .storefrontAccountSidebar [data-storefront-account="capability-navigation"]{display:flex!important;flex-direction:column!important;flex-wrap:nowrap!important;gap:.45rem!important;overflow:visible!important}
-.storefrontAccountSidebar [data-storefront-account="capability-navigation"] a{width:100%;justify-content:flex-start;white-space:normal!important}
+.storefrontAccountSidebar [data-storefront-account="capability-navigation"] a{width:100%;justify-content:flex-start;white-space:normal!important;min-height:48px!important;font-size:.95rem!important;padding:.7rem .9rem!important}
 .storefrontAccountSidebar .accountSubnav{position:static;top:auto;z-index:auto;border:0;background:transparent;backdrop-filter:none}
 .storefrontAccountSidebar .accountSubnav .shell{width:100%;padding:0;margin:0}
 .storefrontAccountSidebar .accountSubnav .actions{display:flex;flex-direction:column;gap:.45rem;overflow:visible}
-.storefrontAccountSidebar .accountSubnav .btn{width:100%;justify-content:flex-start;min-height:var(--shoporation-control-min-height,44px);border-radius:var(--shoporation-radius-m,.75rem);background:var(--shoporation-color-surface,#fff);border-color:var(--shoporation-color-border,#d8dce7);color:var(--shoporation-color-text,#17231a)}
+.storefrontAccountSidebar .accountSubnav .btn{width:100%;justify-content:flex-start;min-height:48px;border-radius:var(--shoporation-radius-m,.75rem);background:var(--shoporation-color-surface,#fff);border-color:var(--shoporation-color-border,#d8dce7);color:var(--shoporation-color-text,#17231a);font-size:.95rem;padding:.7rem .9rem}
 .storefrontAccountSidebar .accountSubnav .btn.isActive,.storefrontAccountSidebar .accountSubnav .btn[aria-current="page"]{background:var(--shoporation-color-primary,#111827);border-color:var(--shoporation-color-primary,#111827);color:var(--shoporation-color-primary-contrast,#fff)}
 .storefrontAccountWorkspace .storefrontAccountRouteContent{min-width:0}
 .storefrontAccountWorkspace .storefrontAccountRouteContent .shell{width:100%!important;max-width:none!important;margin-left:0!important;margin-right:0!important}
