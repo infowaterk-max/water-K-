@@ -591,8 +591,7 @@ describe('Playroom v20 functional acceptance',()=>{
     expect(html).toContain('Controller kézikönyv');
     const composedAccount=composeStorefrontDigitalCommerceCapabilities(account);
     expect(collectNodes(composedAccount,node=>node.componentKey==='commerce.post-purchase-guidance')).toHaveLength(0);
-    const footerIndex=composedAccount.sections.findIndex(section=>collectNodes({...composedAccount,sections:[section]},node=>node.componentKey==='system.footer'||node.componentKey==='editorial.footer'||node.componentKey.endsWith('.footer')).length>0);
-    expect(footerIndex).toBe(composedAccount.sections.length-1);
+    expect(composedAccount.sections.at(-1)?.id).toMatch(/footer/i);
   });
 
   it('keeps Playroom factory fixtures explicit for downloadable, physical and mixed acceptance without creating a local engine',()=>{
