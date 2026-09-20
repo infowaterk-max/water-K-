@@ -27,6 +27,17 @@ describe('pilot acceptance guest access',()=>{
     expect(start).toContain("origin===new URL(request.url).origin");
   });
 
+  it('supports a preview-only explicit tenant entry through the non-admin API path',()=>{
+    const start=read('src/app/api/pilot-access/start/route.ts');
+    expect(start).toContain("export async function GET(request:Request)");
+    expect(start).toContain("process.env.VERCEL_ENV!=='preview'");
+    expect(start).toContain("instanceId=(url.searchParams.get('instanceId')");
+    expect(start).toContain("'b2b-rfq':'/fiokom/ajanlatkeresek'");
+    expect(start).toContain("sales:'/admin/ertekesites'");
+    expect(start).toContain("binding.role_code==='owner'||binding.role_code==='admin'");
+    expect(start).toContain('createPilotAcceptanceToken(instanceId)');
+  });
+
   it('binds anonymous tenant resolution and storefront access to the signed pilot instance',()=>{
     const instanceAccess=read('src/lib/instances/access.ts');
     const storefrontAccess=read('src/lib/storefront/access.ts');
