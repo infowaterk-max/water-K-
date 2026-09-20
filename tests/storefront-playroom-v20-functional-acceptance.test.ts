@@ -282,6 +282,11 @@ describe('Playroom v20 functional acceptance',()=>{
     expect(checkout).toContain('const previousQuote=quote');
     expect(checkout).toContain('if(previousQuote)setQuote(previousQuote)');
     expect(checkout).toContain('Az ellenőrzött kosárösszeg változatlan maradt.');
+    expect(checkout).toContain("control.setAttribute('aria-invalid','true')");
+    expect(checkout).toContain('kitöltése kötelező.');
+    expect(checkout).toContain('checkoutStepError');
+    expect(checkout).toContain('onInput={clearFieldValidationFeedback}');
+    expect(checkoutCss).toContain('[aria-invalid="true"]');
     expect(checkout).toContain("Acceptance proof: a rendelés leadási kísérletét a rendszer blokkolta.");
     expect(checkout).toContain("data-checkout-embedded={embedded?'true':'false'}");
     expect(checkoutCss).toContain('.formSection legend){float:left;width:100%');

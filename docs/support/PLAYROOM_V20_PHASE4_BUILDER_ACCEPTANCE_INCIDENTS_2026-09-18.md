@@ -1139,3 +1139,40 @@ Acceptance scenarios that name a coupon, shipping provider, payment provider, pr
 ### Verification
 Human Preview proof showed `ACCEPT10` applied successfully to the mixed acceptance cart: 3810 Ft products, −381 Ft discount, free delivery, and 3429 Ft payable total. Exact-head Preview runtime logs in the same interaction window showed repeated `POST /api/checkout/quote 200` responses, confirming the authoritative quote path accepted the coupon.
 
+
+
+---
+
+## SKB-P4-024 — Guided checkout blocked invalid fields without visible in-app validation feedback
+
+**Status:** `implemented_pending_live_verification`  
+**Evidence:** `human_preview_behavior_plus_shared_checkout_contract`  
+**Area:** `storefront/checkout/guided-validation`  
+**Risk:** medium  
+**Automation:** `VISIBLE_STEP_VALIDATION_REQUIRED`
+
+### Symptom
+
+On the Shipping step, clearing a required field correctly prevented navigation to Payment, but no visible error message appeared in the checkout. The implementation relied on the browser's native `reportValidity()` UI, which was not reliably surfaced in the mobile Preview.
+
+### Root cause
+
+`validatePanel()` returned `false` after `checkValidity()` / `reportValidity()`, but it did not set the checkout's own error state, identify the failing field for assistive technology, or render feedback inside the active accordion panel. The navigation guard therefore worked while the UX gave no explanation.
+
+### Resolution
+
+- the first invalid control receives `aria-invalid=true`, focus, and centered scroll positioning;
+- the shared checkout derives a customer-facing field name from the semantic `.checkoutField > span` label and emits an explicit Hungarian error message such as `Név / kapcsolattartó: kitöltése kötelező.`;
+- the message is rendered inside the currently active accordion step, next to the step action, instead of only after the complete accordion;
+- editing the marked field clears stale validation feedback;
+- native `reportValidity()` remains as a secondary browser hint, not the sole feedback channel.
+
+### Regression coverage
+
+Checkout workflow and Playroom Phase 4 acceptance contracts now require explicit application-level validation text, `aria-invalid`, focus/scroll behavior, active-step error placement and stale-error clearing on edit.
+
+### Template Factory prevention
+
+A guided/multi-step form must never depend exclusively on browser-native validation bubbles. Every blocked progression must provide an application-rendered error within the active step and identify the failing control programmatically. Native constraint validation is a guardrail, not the user-facing error system.
+
+Live human proof of the visible required-field message is required before changing this incident to `verified_fixed`.

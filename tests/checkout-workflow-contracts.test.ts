@@ -92,6 +92,16 @@ describe('checkout workflow contracts', () => {
     expect(checkoutForm).not.toMatch(/\/api\/coupons\/validate/);
     expect(checkoutForm).not.toMatch(/freeShippingApplies/);
   });
+  test('guided validation exposes an in-step error instead of relying only on browser validity UI', () => {
+    expect(checkoutForm).toMatch(/control\.validity\.valueMissing/);
+    expect(checkoutForm).toMatch(/kitöltése kötelező/);
+    expect(checkoutForm).toMatch(/control\.setAttribute\('aria-invalid','true'\)/);
+    expect(checkoutForm).toMatch(/control\.focus\(\{preventScroll:true\}\)/);
+    expect(checkoutForm).toMatch(/control\.scrollIntoView\(\{block:'center',behavior:'smooth'\}\)/);
+    expect(checkoutForm).toMatch(/checkoutStepError/);
+    expect(checkoutForm).toMatch(/onInput=\{clearFieldValidationFeedback\}/);
+  });
+
   test('failed coupon attempts preserve the last valid authoritative quote', () => {
     expect(checkoutForm).toMatch(/const previousQuote=quote/);
     expect(checkoutForm).toMatch(/if\(!q\)\{if\(previousQuote\)setQuote\(previousQuote\)/);

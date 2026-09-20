@@ -69,13 +69,27 @@ export function CheckoutForm({shippingOptions,paymentOptions,freeShippingThresho
 
   function validatePanel(step:CheckoutStep){
     const panel=formRef.current?.querySelector<HTMLElement>(`[data-checkout-panel="${step}"]`);
-    if(!panel)return false;
+    if(!panel){setState('error');setError('Az aktuális pénztári lépés nem ellenőrizhető.');return false}
     const controls=Array.from(panel.querySelectorAll<HTMLInputElement|HTMLSelectElement|HTMLTextAreaElement>('input,select,textarea'));
     for(const control of controls){
       if(control.disabled||control.type==='hidden')continue;
-      if(!control.checkValidity()){control.reportValidity();return false}
+      if(!control.checkValidity()){
+        const label=control.closest('label')?.querySelector(':scope > span')?.textContent?.trim()||control.getAttribute('aria-label')||control.name||'Kötelező mező';
+        const message=control.validity.valueMissing?`${label}: kitöltése kötelező.`:`${label}: ellenőrizd a megadott értéket.`;
+        control.setAttribute('aria-invalid','true');
+        setState('error');setError(message);
+        control.focus({preventScroll:true});control.scrollIntoView({block:'center',behavior:'smooth'});control.reportValidity();
+        return false
+      }
+      control.removeAttribute('aria-invalid');
     }
     return true;
+  }
+  function clearFieldValidationFeedback(e:React.FormEvent<HTMLFormElement>){
+    const target=e.target;
+    if(!(target instanceof HTMLInputElement||target instanceof HTMLSelectElement||target instanceof HTMLTextAreaElement))return;
+    if(target.getAttribute('aria-invalid')!=='true')return;
+    target.removeAttribute('aria-invalid');setState('idle');setError('');
   }
   function validateTaxNumber(){
     if(effectiveCustomerType==='retail')return true;
@@ -150,7 +164,7 @@ export function CheckoutForm({shippingOptions,paymentOptions,freeShippingThresho
   const firstStepTitle=quote?.requires_shipping===false?'Adatok és kézbesítés':'Szállítás';
 
   return <div className={`${styles.root} checkoutLayout`} data-storefront-design-inheritance="current-theme" data-checkout-ux="guided-accordion" data-fulfillment-mode={quote?.fulfillment_mode??'unknown'} data-checkout-embedded={embedded?'true':'false'} data-checkout-acceptance={acceptancePreview?'preview':'live'}>
-    <form ref={formRef} className="checkout-form" onSubmit={submit} aria-busy={state==='sending'||quoteLoading}>
+    <form ref={formRef} className="checkout-form" onSubmit={submit} onInput={clearFieldValidationFeedback} aria-busy={state==='sending'||quoteLoading}>
       {!embedded?<div className="checkoutHeading"><span className="eyebrow">Biztonságos rendelés</span><h1>Pénztár</h1><p className="muted">A végösszeget, készletet és teljesítési módot a rendelés előtt szerveroldalon újra ellenőrizzük. Kézbesítés → Fizetés → Összesítés; egyszerre csak az aktuális lépés van nyitva.</p></div>:null}
       {acceptancePreview?<div className="partnerCheckoutBadge" role="status"><strong>Acceptance tesztmód</strong><span>A rendelés tényleges elküldése tiltva van; a szállítási, fizetési, kupon- és összesítési folyamat tesztelhető.</span></div>:null}
       {quote?.fulfillment_mode==='digital'&&<div className="partnerCheckoutBadge" role="status"><strong>Digitális kézbesítés</strong><span>Ehhez a kosárhoz nem kell fizikai szállítást választanod. Fizetés után a jogosult tartalmak a Dokumentumok és letöltések felületen érhetők el.</span></div>}
@@ -176,11 +190,13 @@ export function CheckoutForm({shippingOptions,paymentOptions,freeShippingThresho
             {shipping?.kind==='parcel_point'&&(shipping.externalLogistics?<label className="checkoutField"><span>Átvételi pont / automata</span><input value={parcelPointId} onChange={e=>{setParcelPointId(e.target.value.slice(0,160));if(e.target.value)setPickupInvalid(false)}} placeholder="Írd be a választott automata vagy átvételi pont nevét / címét" required aria-invalid={pickupInvalid}/></label>:<PickupPointPicker key={shipping.code} provider={shipping.code} label={shipping.label} selectedId={parcelPointId} invalid={pickupInvalid} onChange={id=>{setParcelPointId(id);if(id)setPickupInvalid(false)}}/>)}
             {shipping?.kind==='home_delivery'&&<><label className="inlineCheck"><input type="checkbox" checked={sameAddress} onChange={e=>setSameAddress(e.target.checked)}/> A szállítási cím megegyezik a számlázási címmel</label>{!sameAddress&&<div className="form-grid"><label className="checkoutField"><span>Szállítási irányítószám</span><input name="shippingPostcode" required placeholder="Szállítási irányítószám"/></label><label className="checkoutField"><span>Szállítási település</span><input name="shippingCity" required placeholder="Szállítási település"/></label><label className="checkoutField"><span>Szállítási utca, házszám</span><input name="shippingAddress" required placeholder="Szállítási utca, házszám"/></label></div>}</>}
           </fieldset>:<section className="formSection" aria-label="Digitális kézbesítés"><h3>Digitális kézbesítés</h3><p className="muted">Nincs fizikai szállítás vagy csomagpont. A hozzáférés a fizetés igazolása után a fiók Dokumentumok és letöltések felületén, vendég vásárlásnál pedig biztonságos hozzáférési linken jelenik meg.</p></section>}
+          {state==='error'&&error&&activeStep==='shipping'&&<p className="errorNotice checkoutStepError" role="alert">{error}</p>}
           <div className={styles.stepActions}><button className="btn btnPrimary" type="button" onClick={continueFromShipping}>Tovább a fizetéshez</button></div>
         </CheckoutAccordionStep>
 
         <CheckoutAccordionStep step="payment" number={3} title="Fizetés" summary={paymentSummary} active={activeStep==='payment'} completed={furthestStep>1} locked={furthestStep<1} onOpen={()=>openStep('payment')}>
           <fieldset className="formSection" disabled={state==='sending'}><legend>Fizetési mód</legend><div className="choiceCards paymentChoices" data-addon-insertion-point="checkout.payment.methods">{availablePayments.map(o=>{const meta=paymentMeta(o.flow),active=o.code===payment?.code;return <label key={o.code} className={active?'choiceCard active':'choiceCard'}><input type="radio" name="paymentProvider" value={o.code} checked={active} onChange={()=>setPaymentCode(o.code)}/><span className="choiceIcon">{meta.icon}</span><span className="choiceBody"><strong>{o.label}</strong><em>{meta.description}</em></span><span className="choiceCheck">{active?'✓':''}</span></label>})}</div>{containsDigital&&paymentOptions.some(o=>o.flow==='cash_on_delivery')&&<p className="muted">Digitális tartalmat tartalmazó kosárnál az utánvét nem elérhető, mert a letöltési jogosultság csak igazolt fizetésből oldható fel.</p>}</fieldset>
+          {state==='error'&&error&&activeStep==='payment'&&<p className="errorNotice checkoutStepError" role="alert">{error}</p>}
           <div className={styles.stepActions}><button className="btn btnGhost" type="button" onClick={()=>setActiveStep('shipping')}>Vissza</button><button className="btn btnPrimary" type="button" onClick={continueFromPayment}>Tovább az összesítéshez</button></div>
         </CheckoutAccordionStep>
 
@@ -188,10 +204,11 @@ export function CheckoutForm({shippingOptions,paymentOptions,freeShippingThresho
           <div className={styles.summaryPreview}><span>Kézbesítés <strong>{requiresShipping?shipping?.label??'—':'Digitális kézbesítés'}</strong></span><span>Fizetés <strong>{payment?.label??'—'}</strong></span><span>Végösszeg <strong>{quote?formatHuf(total):'Ellenőrzés alatt'}</strong></span></div>
           <fieldset className="formSection" disabled={state==='sending'}><legend>Kupon és megjegyzés</legend><div className="form-grid"><label className="checkoutField"><span>Kuponkód</span><input value={couponInput} onChange={e=>setCouponInput(e.target.value.toUpperCase())} placeholder="Kuponkód"/></label><button className="btn btnGhost" type="button" onClick={applyCoupon} disabled={quoteLoading||!quoteItems.length}>{quoteLoading?'Ellenőrzés…':'Kupon alkalmazása'}</button></div>{couponMessage&&<p className="helperText" role="status">{couponMessage}</p>}<label className="checkoutField"><span>Megjegyzés a rendeléshez</span><textarea name="note" placeholder="Megjegyzés a rendeléshez" rows={4}/></label></fieldset>
           <fieldset className="formSection" disabled={state==='sending'}><legend>Nyilatkozatok</legend><div className="legalConsentList"><label className="inlineCheck"><input type="checkbox" name="termsAccepted" checked={termsAccepted} onChange={e=>setTermsAccepted(e.target.checked)} required/><span>Elolvastam és elfogadom az <Link href="/aszf" target="_blank">ÁSZF-et</Link>.</span></label><label className="inlineCheck"><input type="checkbox" name="privacyAcknowledged" checked={privacyAcknowledged} onChange={e=>setPrivacyAcknowledged(e.target.checked)} required/><span>Tudomásul vettem az <Link href="/adatvedelem" target="_blank">adatkezelési tájékoztatót</Link>.</span></label></div></fieldset>
+          {state==='error'&&error&&activeStep==='summary'&&<p className="errorNotice checkoutStepError" role="alert">{error}</p>}
           <div className={styles.stepActions}><button className="btn btnGhost" type="button" onClick={()=>setActiveStep('payment')}>Vissza</button><button className="btn btnPrimary checkoutSubmit" type="submit" disabled={state==='sending'||quoteLoading||!quote||!termsAccepted||!privacyAcknowledged||!payment}>{acceptancePreview?'Acceptance · rendelésleadás tesztelése':state==='sending'?'Rendelés előkészítése…':quoteLoading?'Kosár ellenőrzése…':`Rendelés leadása · ${formatHuf(total)}`}</button></div>
         </CheckoutAccordionStep>
       </div>
-      {(state==='error'||quoteError)&&<p className="errorNotice" role="alert">{error||quoteError}</p>}
+      {quoteError&&<p className="errorNotice" role="alert">{quoteError}</p>}
     </form>
     <aside className="checkoutSummary card"><span className="eyebrow">Rendelésed</span><h2>Ellenőrzött összesítő</h2>{resellerApproved&&<div className="partnerSummaryBadge">B2B partnerár és rendelési szabályok</div>}{quote?.items.map(i=><div className="summaryLine" key={i.variantId}><span>{i.name}{i.variantLabel?` · ${i.variantLabel}`:''} × {i.quantity}{i.channel==='b2b'&&i.orderMultiple&&i.orderMultiple>1?` · egység: ${i.orderMultiple} db`:''}</span><strong>{formatHuf(i.lineGrossHuf)}</strong></div>)}{!quote&&<p className="muted">{quoteLoading?'A kosár ellenőrzése folyamatban…':'A kosár ellenőrzésre vár.'}</p>}<div className="summaryLine"><span>Termékek</span><strong>{formatHuf(subtotal)}</strong></div>{discount>0&&<div className="summaryLine"><span>Kedvezmény · {couponCode}</span><strong>−{formatHuf(discount)}</strong></div>}<div className="summaryLine"><span>Kézbesítés</span><strong>{requiresShipping?(deliveryFee===0?'Díjmentes':formatHuf(deliveryFee)):'Digitális · díjmentes'}</strong></div><div className="summaryTotal"><span>Fizetendő</span><strong>{formatHuf(total)}</strong></div>{requiresShipping&&freeShippingThreshold>0&&subtotal-discount<freeShippingThreshold&&shipping?.kind!=='pickup'&&<p className="shippingProgress">Még {formatHuf(freeShippingThreshold-(subtotal-discount))} a díjmentes szállításhoz.</p>}<div className="trustList"><span>✓ Ellenőrzött ár</span><span>✓ Ellenőrzött készlet</span><span>✓ Szerveroldali teljesítési és jogosultsági ellenőrzés</span></div></aside>
   </div>;
