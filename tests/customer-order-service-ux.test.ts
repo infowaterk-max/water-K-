@@ -16,7 +16,7 @@ describe('customer order service UX',()=>{
     const page=read('src/app/fiokom/visszakuldes/page.tsx');
     expect(page).toContain('ordersError||casesError||itemsError');
     expect(page).toContain('Hiányos lista mellett ne add le ugyanazt az igényt újra.');
-    expect(page).toContain("!casesError&&!(cases??[]).length");
+    expect(page).toContain("(cases??[]).length>0");expect(page).toContain("!casesError?<p className=\"muted accountReturnEmptyState\"");
   });
 
   test('confirmation and buying information use customer-facing wording',()=>{
