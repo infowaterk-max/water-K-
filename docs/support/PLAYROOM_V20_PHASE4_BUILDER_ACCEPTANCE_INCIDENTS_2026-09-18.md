@@ -1468,3 +1468,20 @@ Final resolution:
 - legacy admin-table rules remain available for genuine tabular surfaces but are no longer part of the return-history contract.
 
 Template Factory rule: customer post-purchase status/history surfaces that must work as cards on mobile must use a card/tile component authority, not a desktop `adminTable` transformed by CSS.
+
+
+#### SKB-P4-029 follow-up — service_role table grants were also missing
+
+Live proof showed the explicit tenant-scoped admin reads still failed even after removing nested relation embeds.
+
+The exact remaining blocker was table privilege, not RLS:
+- `createAdminClient()` uses the server/service-role credential;
+- `service_role` had SELECT on `orders` and `order_items`, but no SELECT grant on `return_cases` or `return_case_items`;
+- therefore the admin page could not read the return queue at all and correctly rendered the fail-closed error state.
+
+Resolution:
+- restore `SELECT` on `return_cases` and `return_case_items` for `service_role`;
+- keep customer access separately restricted by authenticated grants + RLS;
+- keep merchant mutations RPC-driven rather than granting broad table write privileges.
+
+Staging replay after the grant returned the acceptance case and item successfully as `service_role`.
