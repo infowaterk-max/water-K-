@@ -1114,10 +1114,11 @@ After entering `ACCEPT10`, the Checkout displayed “A kupon nem alkalmazható�
 
 ### Evidence and root cause
 
-Exact-head Preview runtime logs showed `POST /api/checkout/quote 409` with database error `Érvénytelen vagy inaktív kuponkód.`. A read-only staging query for the acceptance tenant returned zero rows from `public.coupons`, so the documented `ACCEPT10` acceptance code had never been provisioned. Separately, `refreshQuote` correctly invalidated its quote on a failed authoritative request, but `applyCoupon` had no rollback to the last known-good quote. Because the shared coupon code was already empty, resetting it to an empty string triggered no follow-up refresh, leaving the UI at a false 0 Ft state.
+Exact-head Preview runtime logs showed `POST /api/checkout/quote 409` with database error `Érvénytelen vagy inaktív kuponkód.`. A read-only staging query for the acceptance tenant returned zero rows from `public.coupons`, so the documented `ACCEPT10` acceptance code had never been provisioned. The first fixture implementation then failed closed with `permission denied for table coupons`. A read-only privilege check proved that `public.coupons` had table privileges only for `postgres`: the historical coupon migration had revoked browser roles, but no later migration restored the service-role CRUD contract used by server-side coupon administration and acceptance setup. Separately, `refreshQuote` correctly invalidated its quote on a failed authoritative request, but `applyCoupon` had no rollback to the last known-good quote. Because the shared coupon code was already empty, resetting it to an empty string triggered no follow-up refresh, leaving the UI at a false 0 Ft state.
 
 ### Resolution
 
+- a dedicated privilege-repair migration restores `select,insert,update,delete` on `public.coupons` to `service_role` only; it does not widen direct browser-role CRUD;
 - the preview-only Checkout acceptance entry idempotently upserts an active tenant-scoped `ACCEPT10` coupon with a 10% percentage discount before exposing the test flow;
 - fixture creation is fail-closed: if the coupon cannot be prepared, the acceptance page stops with `ACCEPTANCE_COUPON_FIXTURE_REQUIRED` instead of pretending the coupon test is available;
 - failed coupon attempts preserve the previous authoritative quote and only show a coupon-specific error, so an invalid promotion can never turn a valid basket total into a misleading 0 Ft summary;
@@ -1125,10 +1126,10 @@ Exact-head Preview runtime logs showed `POST /api/checkout/quote 409` with datab
 
 ### Regression coverage
 
-Phase 4 acceptance coverage locks the `ACCEPT10` fixture contract, its tenant-scoped upsert conflict key, the 10% discount, the fail-closed fixture error, and preservation of the previous quote after a failed coupon request.
+Phase 4 acceptance coverage locks the service-role-only coupon privilege repair, the `ACCEPT10` fixture contract, its tenant-scoped upsert conflict key, the 10% discount, the fail-closed fixture error, and preservation of the previous quote after a failed coupon request.
 
 ### Template Factory prevention
 
-Acceptance scenarios that name a coupon, shipping provider, payment provider, product or other commerce object must provision that object as part of the acceptance fixture rather than rely on hidden environment state. Coupon failure is a local promotion failure; it must not erase an already verified cart quote unless the underlying cart itself became invalid.
+Acceptance scenarios that name a coupon, shipping provider, payment provider, product or other commerce object must provision that object as part of the acceptance fixture rather than rely on hidden environment state. Fixture code must also validate that its server-side authority has the table/function privileges it depends on; RLS policy presence alone does not imply SQL table privileges. Coupon failure is a local promotion failure; it must not erase an already verified cart quote unless the underlying cart itself became invalid.
 
 Live human proof of 3810 Ft → 381 Ft discount → 3429 Ft total is required before changing this incident to `verified_fixed`.

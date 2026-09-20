@@ -205,6 +205,7 @@ describe('Playroom v20 functional acceptance',()=>{
     const runtimeSource=read('src/lib/builder/storefront-runtime-source.ts');
     const settings=read('src/lib/commerce/settings.ts');
     const acceptanceCheckoutPage=read('src/app/admin/platform/acceptance/[instanceId]/checkout/page.tsx');
+    const couponPrivilegeRepair=read('supabase/migrations/20260920072500_coupons_service_role_privilege_repair.sql');
     const checkout=read('src/components/checkout/checkout-form.tsx');
     const checkoutCss=read('src/components/checkout/checkout-guided.module.css');
     const playroom=read('src/lib/builder/templates/playroom-v20.ts');
@@ -275,6 +276,9 @@ describe('Playroom v20 functional acceptance',()=>{
     expect(acceptanceCheckoutPage).toContain("discount_value:10");
     expect(acceptanceCheckoutPage).toContain("{onConflict:'instance_id,code'}");
     expect(acceptanceCheckoutPage).toContain('ACCEPTANCE_COUPON_FIXTURE_REQUIRED');
+    expect(couponPrivilegeRepair).toContain('revoke all on table public.coupons from service_role');
+    expect(couponPrivilegeRepair).toContain('grant select,insert,update,delete on table public.coupons to service_role');
+    expect(couponPrivilegeRepair).not.toContain('grant select,insert,update,delete on table public.coupons to authenticated');
     expect(checkout).toContain('const previousQuote=quote');
     expect(checkout).toContain('if(previousQuote)setQuote(previousQuote)');
     expect(checkout).toContain('Az ellenőrzött kosárösszeg változatlan maradt.');
