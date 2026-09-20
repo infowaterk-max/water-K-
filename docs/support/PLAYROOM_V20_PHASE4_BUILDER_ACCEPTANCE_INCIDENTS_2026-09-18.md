@@ -1184,3 +1184,42 @@ Live human proof of the visible required-field message is required before changi
 
 ### Verification
 Human mobile Preview proof showed the Shipping step refusing progression with the required name field empty, the invalid field visibly highlighted, and an in-step application error reading `Név / kapcsolattartó: kitöltése kötelező.`. This confirms the guided checkout no longer depends solely on browser-native validity UI.
+
+
+---
+
+## SKB-P4-025 — Account post-purchase block was redundant and shared capability insertion could land below a wrapped footer
+
+**Status:** `implemented_pending_live_verification`  
+**Evidence:** `human_builder_screenshot_plus_shared_composition_contract`  
+**Area:** `storefront/digital-commerce/account-composition + footer-boundary`  
+**Risk:** medium  
+**Automation:** `FOOTER_MUST_BE_FINAL_AND_ACCOUNT_POST_PURCHASE_NOT_REQUIRED`
+
+### Symptom
+
+The Playroom Fiókom Builder preview rendered a complete “Dokumentumok és letöltések” center, then the footer, and then an additional “Vásárlás után / Hozzáférés és dokumentumok” block below the footer.
+
+### Root cause
+
+Two shared composition assumptions combined:
+
+- the digital-commerce page contract required `commerce.post-purchase-guidance` on `account` even though the account document center already owns post-purchase access and document discoverability;
+- `resolveCapabilityInsertIndex()` only recognized a footer when the top-level section itself had a footer component key. Playroom wraps its real footer inside a layout section, so the shared capability fallback treated the document as footer-less and appended the missing block after the visual footer.
+
+### Resolution
+
+- `account` now requires only `commerce.documents-center`; post-purchase guidance remains a Checkout concern;
+- previously generated shared account sections containing only the stale post-purchase capability are pruned during composition;
+- footer detection now walks each top-level section recursively and treats nested `system.footer`, `editorial.footer`, or any `*.footer` component as the terminal boundary;
+- shared capability insertion therefore cannot append customer-facing content below a wrapped footer.
+
+### Regression coverage
+
+The shared digital-commerce integration suite now covers a nested footer boundary and stale account post-purchase cleanup. Playroom Phase 4 acceptance additionally requires zero post-purchase guidance nodes on the composed Account page and requires the section containing the footer to be the final top-level section.
+
+### Template Factory prevention
+
+The footer is a semantic document boundary, not merely a top-level component-key convention. Capability composition must detect footer surfaces recursively. Account/document-center pages must not duplicate post-purchase guidance already represented by the canonical customer document center.
+
+Live Builder screenshot verification is required before changing this incident to `verified_fixed`.

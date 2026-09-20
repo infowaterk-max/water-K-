@@ -173,6 +173,35 @@ describe('Digital Commerce A3 shared Builder integration',()=>{
     }
   });
 
+  it('treats a nested footer surface as the final document boundary',()=>{
+    const source=page('checkout','commerce.fulfillment-summary');
+    source.sections.push({
+      id:'wrapped-footer',componentKey:'layout.section',componentVersion:1,config:{},
+      children:[{id:'actual-footer',componentKey:'system.footer',componentVersion:1,config:{}}],
+    });
+    const composed=composeStorefrontDigitalCommerceCapabilities(source);
+    const postPurchaseIndex=composed.sections.findIndex(item=>findComponent({ ...composed, sections:[item] } as StorefrontPageDocument,'commerce.post-purchase-guidance'));
+    const footerIndex=composed.sections.findIndex(item=>item.id==='wrapped-footer');
+    expect(postPurchaseIndex).toBeGreaterThanOrEqual(0);
+    expect(postPurchaseIndex).toBeLessThan(footerIndex);
+    expect(composed.sections.at(-1)?.id).toBe('wrapped-footer');
+  });
+
+  it('removes stale shared post-purchase guidance from account while keeping the document center',()=>{
+    const source=page('account','commerce.documents-center');
+    source.sections.push({
+      id:'shared-a3-account-digital-commerce',componentKey:'layout.section',componentVersion:1,config:{},
+      children:[{id:'shared-a3-account-digital-commerce-container',componentKey:'layout.container',componentVersion:1,config:{},children:[
+        {id:'shared-a3-account-digital-commerce-1',componentKey:'commerce.post-purchase-guidance',componentVersion:1,config:{}},
+      ]}],
+    });
+    source.sections.push({id:'account-footer',componentKey:'system.footer',componentVersion:1,config:{}});
+    const composed=composeStorefrontDigitalCommerceCapabilities(source);
+    expect(findComponent(composed,'commerce.documents-center')).toBe(true);
+    expect(findComponent(composed,'commerce.post-purchase-guidance')).toBe(false);
+    expect(composed.sections.at(-1)?.id).toBe('account-footer');
+  });
+
   it('inserts shared capability before the footer once and preserves later merchant removal',()=>{
     const source=page('product','commerce.product-documents');
     source.sections.push({id:'a3-footer',componentKey:'editorial.footer',componentVersion:1,config:{}});

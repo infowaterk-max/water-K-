@@ -7,7 +7,7 @@ export const STOREFRONT_DIGITAL_COMMERCE_COMPONENTS_BY_PAGE_TYPE=Object.freeze({
   product:['commerce.downloads-tile'],
   cart:[],
   checkout:['commerce.fulfillment-summary','commerce.post-purchase-guidance'],
-  account:['commerce.documents-center','commerce.post-purchase-guidance'],
+  account:['commerce.documents-center'],
 } as const);
 
 type SupportedPageType=keyof typeof STOREFRONT_DIGITAL_COMMERCE_COMPONENTS_BY_PAGE_TYPE;
@@ -157,6 +157,21 @@ function isHeaderSection(item:StorefrontComponentNode):boolean{
   return item.componentKey==='system.commerce-header'||item.componentKey==='editorial.header'||item.componentKey.endsWith('.header');
 }
 
+function containsFooterSurface(item:StorefrontComponentNode):boolean{
+  if(item.componentKey==='system.footer'||item.componentKey==='editorial.footer'||item.componentKey.endsWith('.footer'))return true;
+  return (item.children??[]).some(containsFooterSurface);
+}
+
+function isSharedDigitalCommerceSection(item:StorefrontComponentNode):boolean{
+  return item.id.startsWith('shared-')&&item.id.endsWith('-digital-commerce');
+}
+
+function removeStaleAccountPostPurchase(sections:readonly StorefrontComponentNode[]):StorefrontComponentNode[]{
+  return sections
+    .filter(section=>!(isSharedDigitalCommerceSection(section)&&hasComponent([section],'commerce.post-purchase-guidance')))
+    .map(clone);
+}
+
 function resolveCapabilityInsertIndex(document:StorefrontPageDocument):number{
   if(document.pageType==='product'){
     const primary=document.sections.findIndex(section=>containsProductPrimarySurface([section]));
@@ -165,7 +180,7 @@ function resolveCapabilityInsertIndex(document:StorefrontPageDocument):number{
     if(firstContent>=0)return firstContent+1;
     return 0;
   }
-  const footer=document.sections.findIndex(item=>item.componentKey==='editorial.footer'||item.componentKey.endsWith('.footer'));
+  const footer=document.sections.findIndex(containsFooterSurface);
   return footer>=0?footer:document.sections.length;
 }
 
@@ -193,6 +208,7 @@ export function composeStorefrontDigitalCommerceCapabilities(
   if(!required)return clone(document);
 
   const next=clone(document);
+  if(next.pageType==='account')next.sections=removeStaleAccountPostPurchase(next.sections);
   if(next.pageType==='product'){
     next.sections=next.sections.filter(section=>!isLegacyProductDigitalCommerceSection(section));
     next.sections=embedStandaloneDownloadsIntoFacts(next.sections);
