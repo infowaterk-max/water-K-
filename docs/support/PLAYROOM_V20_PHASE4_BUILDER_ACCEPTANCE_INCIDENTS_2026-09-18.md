@@ -1223,3 +1223,53 @@ The shared digital-commerce integration suite now covers a nested footer boundar
 The footer is a semantic document boundary, not merely a top-level component-key convention. Capability composition must detect footer surfaces recursively. Account/document-center pages must not duplicate post-purchase guidance already represented by the canonical customer document center.
 
 Live Builder screenshot verification is required before changing this incident to `verified_fixed`.
+
+
+---
+
+## SKB-P4-026 — Storefront desktop scale/density contract drift made 75% browser zoom look “normal”
+
+**Status:** `implemented_pending_live_verification`  
+**Evidence:** `human_storefront_screenshot_plus_static_shared_runtime_audit`  
+**Area:** `storefront/runtime/container + responsive-authority + account-density`  
+**Risk:** high  
+**Automation:** `STOREFRONT_DESKTOP_SCALE_DENSITY_CONTRACT`
+
+### Symptom
+
+The Playroom storefront Account / B2B RFQ route looked naturally proportioned only around 75% browser zoom. Canonical customer-facing Desktop acceptance is 100% browser zoom; 125% must remain usable.
+
+### Root cause
+
+This was not one RFQ card defect. Four shared assumptions overlapped:
+
+1. Builder/direct template Preview use a canonical 1200px Desktop logical viewport, while shared `layout.container` / primitive header content could keep growing to 1440px in published runtime.
+2. The active storefront Account shell wraps legacy `/fiokom/*` route content. Those routes still inherited marketing-era geometry such as global `.sectionTitle`, `.section`, `.card` and button sizing instead of semantic operational-page density.
+3. The legacy `.sectionTitle` can reach 62px. At 75% browser zoom that is visually about 46.5px, closely matching the intended account page-title range; browser zoom therefore masked the semantic typography error.
+4. Published Page Schema Home and Account chrome selected `desktop/tablet/mobile` from User-Agent only. A desktop browser narrowed below 1200 CSS pixels — including zoom-induced layout viewport changes — could keep the Desktop renderer active and violate the breakpoint contract.
+
+The form controls were not the primary source of enlargement: legacy account controls already had a 44px minimum height. They looked disproportionately small because headings, vertical rhythm and surrounding chrome belonged to a much larger marketing density system.
+
+### Shared resolution
+
+- breakpoint authority is explicit: mobile 0–767, tablet 768–1199, desktop 1200+;
+- logical Preview widths come from one contract: 1200 / 768 / 390;
+- default Page Schema `content` max-width is aligned to 1200px; an explicit `wide` role preserves deliberate 1440px surfaces;
+- published Page Schema runtime re-resolves from actual browser layout width after hydration and on resize/orientation changes; User-Agent is only the SSR initial hint;
+- semantic shared CSS variables define page-title and form-control usability metrics;
+- the storefront Account bridge scopes operational-page title/section/control density instead of inheriting marketing scale;
+- canonical Account capability navigation is compact and wrap-aware on Desktop/Tablet and horizontally scrollable on Mobile.
+
+### Regression coverage
+
+`tests/storefront-desktop-scale-density-contract.test.ts` locks breakpoint boundaries, logical widths, 100%/125% browser-zoom contract metadata, actual-layout viewport authority, semantic Account density tokens and compact capability navigation.
+
+### Template Factory prevention
+
+Do not approve a new template/page family when default `content` expands beyond the canonical Desktop logical viewport without an explicit wide role; an operational page uses marketing display typography; form controls bypass shared usability metrics; responsive authority depends only on device/User-Agent; or capability navigation requires browser zoom-out.
+
+Browser zoom is an accessibility/user preference input, never a layout compensation mechanism. Builder zoom remains presentation-only and is not storefront runtime geometry.
+
+### Live verification still required
+
+The protected Preview is SSO-gated from the automated browser available to this audit, so computed DOM measurements could not be collected from the live deployment in this pass. Before changing this incident to `verified_fixed`, authorized browser proof must record at 100% and 125% browser zoom: viewport width, scroll width, primary content width, H1 computed size, Account nav item bounds, form control height, card padding, section gap and horizontal overflow on the representative template sample.

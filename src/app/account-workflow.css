@@ -13,3 +13,15 @@
 .storefrontAccountShell .accountPage .badge,.storefrontAccountShell .accountPage .eyebrow{border-color:var(--shoporation-color-border,#d8dce7)!important;color:var(--shoporation-color-accent,var(--shoporation-color-primary,#2f7f6f))!important;background:var(--shoporation-color-surface-muted,var(--shoporation-color-surface,#fff))!important}
 .storefrontAccountShell .accountPage .notice,.storefrontAccountShell .accountPage [role="status"]{color:var(--shoporation-color-text,#17231a)}
 .storefrontAccountShell .accountPage a:not(.btn){color:var(--shoporation-color-accent,var(--shoporation-color-primary,#5c7cfa))}
+
+/* Shared storefront desktop scale / density bridge.
+   Account routes are operational surfaces: they must not inherit marketing display geometry. */
+.storefrontAccountShell .accountPage.section{padding:clamp(2rem,3vw,3rem) 0}
+.storefrontAccountShell .accountPage>.shell{width:min(calc(100% - 32px),var(--shoporation-content-max,1200px))}
+.storefrontAccountShell .accountPage .sectionTitle{font-size:var(--shoporation-type-page-title,clamp(2.25rem,3vw,3rem))!important;line-height:1.05;letter-spacing:-.035em}
+.storefrontAccountShell .accountPage .sectionIntro{gap:var(--shoporation-space-m,1.5rem)}
+.storefrontAccountShell .accountPage .lead,.storefrontAccountShell .accountPage .muted{font-size:var(--shoporation-type-body,1rem)}
+.storefrontAccountShell .accountPage .btn{min-height:var(--shoporation-control-height,48px);padding-inline:var(--shoporation-control-padding-inline,14px)}
+.storefrontAccountShell .accountPage input,.storefrontAccountShell .accountPage select,.storefrontAccountShell .accountPage textarea{font-size:var(--shoporation-control-font-size,16px);padding:var(--shoporation-control-padding-block,11px) var(--shoporation-control-padding-inline,14px)}
+.storefrontAccountShell .accountPage input,.storefrontAccountShell .accountPage select{min-height:var(--shoporation-control-height,48px)}
+.storefrontAccountShell .accountPage textarea{min-height:var(--shoporation-control-textarea-min-height,112px)}

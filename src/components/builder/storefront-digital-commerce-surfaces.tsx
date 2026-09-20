@@ -106,8 +106,11 @@ function B2BQuoteCtaRenderer({config,node,viewport}:StorefrontComponentRenderPro
 function AccountCapabilityNavigationRenderer({config,node,viewport}:StorefrontComponentRenderProps){
   const model=record(config.model),state=stateOf(model),slot=styles(config,viewport),items=rows(model?.items);
   if(state!=='ready'||!items.length)return null;
-  const layout=text(config.layout,'tabs'),columns=viewport==='mobile'?'1fr':layout==='sidebar'?'minmax(13rem,18rem)':'repeat(auto-fit,minmax(9rem,1fr))';
-  return <nav data-storefront-account="capability-navigation" data-layout={layout} aria-label={text(config.title,'Fiókom')} style={{...span(node),display:'grid',gridTemplateColumns:columns,gap:'.55rem',...slot('root')}}>{items.map((item,index)=><a key={text(item.key,`account-${index}`)} href={safeInternalHref(item.href,'/fiokom')} style={{padding:'.72rem .9rem',border:'1px solid var(--shoporation-color-border,#d8dce7)',borderRadius:'var(--shoporation-radius-m,.75rem)',background:'var(--shoporation-color-surface,#fff)',color:'inherit',fontWeight:750,textDecoration:'none',...slot('item')}}>{text(item.label,'Fiók')}</a>)}</nav>;
+  const layout=text(config.layout,'tabs'),sidebar=layout==='sidebar',mobile=viewport==='mobile';
+  const root:CSSProperties=sidebar
+    ?{...span(node),display:'grid',gridTemplateColumns:'minmax(13rem,18rem)',gap:'.45rem'}
+    :{...span(node),display:'flex',flexWrap:mobile?'nowrap':'wrap',gap:'.45rem',overflowX:mobile?'auto':'visible',overscrollBehaviorX:mobile?'contain':undefined,scrollbarWidth:mobile?'none':undefined};
+  return <nav data-storefront-account="capability-navigation" data-layout={layout} aria-label={text(config.title,'Fiókom')} style={{...root,...slot('root')}}>{items.map((item,index)=><a key={text(item.key,`account-${index}`)} href={safeInternalHref(item.href,'/fiokom')} style={{flex:sidebar?'1 1 auto':'0 0 auto',minWidth:0,minHeight:'var(--shoporation-control-min-height,44px)',display:'inline-flex',alignItems:'center',padding:'.55rem .75rem',border:'1px solid var(--shoporation-color-border,#d8dce7)',borderRadius:'var(--shoporation-radius-m,.75rem)',background:'var(--shoporation-color-surface,#fff)',color:'inherit',fontSize:'var(--shoporation-type-label,.875rem)',fontWeight:750,lineHeight:1.2,textDecoration:'none',whiteSpace:'nowrap',...slot('item')}}>{text(item.label,'Fiók')}</a>)}</nav>;
 }
 function AccountDownloadsRenderer({config,node,viewport}:StorefrontComponentRenderProps){
   const model=record(config.model),state=stateOf(model),slot=styles(config,viewport),items=rows(model?.digital);
