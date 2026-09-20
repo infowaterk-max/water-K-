@@ -908,7 +908,7 @@ Every shared form surface used inside a template-native shell must define a comp
 
 ## SKB-P4-019 — Acceptance mixed cart bypassed shared CartProvider state and checkout stayed at 0 Ft
 
-- status: `implemented_pending_live_verification`
+- status: `verified_fixed`
 - evidence: `staging_rpc_plus_preview_runtime_logs_plus_code_contract`
 - area: `storefront/checkout/acceptance-cart-state`
 - risk: `high`
@@ -982,7 +982,7 @@ Human Preview proof showed both acceptance items with 1270 Ft + 2540 Ft = 3810 F
 
 ## SKB-P4-020 — Search action optical centering and checkout summary secondary-text contrast escaped shared semantic styling
 
-**Status:** `implemented_pending_live_verification`  
+**Status:** `verified_fixed`  
 **Evidence:** `human_preview_screenshot_plus_shared_renderer_contract`  
 **Area:** `storefront/header/search + checkout/summary`  
 **Risk:** medium  
@@ -1024,6 +1024,10 @@ Protected system chrome must not give a child control a minimum cross-size large
 
 Live human screenshot verification is still required before changing this incident to `verified_fixed`.
 
+
+
+### Verification
+Human Preview screenshots on desktop and mobile showed the search magnifier centered inside the compact Playroom search action and the checkout summary secondary text readable against the dark surface. The later mobile summary proof also showed stable one-line monetary values.
 
 ---
 
