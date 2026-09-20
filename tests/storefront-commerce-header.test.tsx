@@ -78,11 +78,11 @@ describe('shared commerce header',()=>{
     search.config.inputStyle={fontSize:'.62rem'};
     navigation.config.items=Array.from({length:9},(_,index)=>({label:`Menüpont ${index+1}`,href:`/menu-${index+1}`}));
     const html=render('desktop',compact);
-    expect(html).toContain('min-height:2.7rem');
-    expect(html).toContain('font-size:.875rem');
-    expect(html).toContain('min-height:3.5rem');
-    expect(html).toContain('font-size:.82rem');
-    expect(html).toContain('font-size:.74rem');
+    expect(html).toContain('min-height:2.85rem');
+    expect(html).toContain('font-size:.94rem');
+    expect(html).toContain('min-height:3.65rem');
+    expect(html).toContain('font-size:.88rem');
+    expect(html).toContain('font-size:.78rem');
   });
 
   it('keeps the optional navigation tagline for sparse desktop commerce headers',()=>{

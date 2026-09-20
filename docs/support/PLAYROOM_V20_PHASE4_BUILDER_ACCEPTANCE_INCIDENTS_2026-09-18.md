@@ -1377,3 +1377,14 @@ The cart quantity UI has been extracted into one shared `CartStyleQuantityContro
 ### Template Factory prevention
 
 When a commerce interaction already has an accepted canonical control, account/B2B surfaces must reuse that control rather than reproducing browser-native or template-local variants. Visual and behavioral parity must be enforced from one component authority.
+
+
+### 2026-09-20 second 1920×1080 / 100% readability tuning
+
+Human proof confirmed that the structure and RFQ cart-control parity were correct, but two presentation details still needed a small adjustment at the canonical 1920×1080, OS 100%, browser 100% baseline.
+
+- The shared cart/RFQ quantity output now uses the storefront primary blue surface with primary-contrast white text, while retaining the accepted cart chevrons and trash control.
+- The protected commerce header readability floor is raised one additional step: Desktop search text, utility labels, brand/tagline geometry, top-row height and dense navigation are slightly larger.
+- The Playroom v20 persisted footer readability floor is also raised modestly: navigation links, headings/support copy, link target height and vertical spacing all increase without changing the footer information architecture.
+
+These are density/readability corrections only. They do not change account IA, B2B behavior, cart semantics, Page Schema ownership or template-specific color/composition authority.

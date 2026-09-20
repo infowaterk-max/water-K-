@@ -85,12 +85,14 @@ describe('Storefront Desktop scale / density contract',()=>{
     expect(cartStyleQuantity).toContain("data-rfq-remove-control={!cart?'true':undefined}");
     expect(cartStyleQuantity).toContain('background:\'#cf3038\'');
     expect(cartStyleQuantity).toContain('data-cart-icon="trash"');
+    expect(cartStyleQuantity).toContain("background:'var(--shoporation-color-primary,#5c7cfa)'");
+    expect(cartStyleQuantity).toContain("color:'var(--shoporation-color-primary-contrast,#fff)'");
     expect(overview).toContain('className="actions accountPrimaryActions"');
     expect(overview).not.toContain('className="btn btnGhost" href="/fiokom/letoltesek"');
     expect(surfaces).toContain("flexWrap:mobile?'nowrap':'wrap'");
     expect(surfaces).toContain("overflowX:mobile?'auto':'visible'");
-    expect(commerceHeader).toContain("fontSize:viewport==='mobile'?'1rem':'.875rem'");
-    expect(commerceHeader).toContain("minHeight:tablet?'3.25rem':'3.5rem'");
-    expect(commerceHeaderCss).toContain('font-size: .82rem !important;');
+    expect(commerceHeader).toContain("fontSize:viewport==='mobile'?'1rem':'.94rem'");
+    expect(commerceHeader).toContain("minHeight:tablet?'3.35rem':'3.65rem'");
+    expect(commerceHeaderCss).toContain('font-size: .88rem !important;');
   });
 });
