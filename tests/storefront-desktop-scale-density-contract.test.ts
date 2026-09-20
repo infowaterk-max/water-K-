@@ -85,8 +85,11 @@ describe('Storefront Desktop scale / density contract',()=>{
     expect(cartStyleQuantity).toContain("data-rfq-remove-control={!cart?'true':undefined}");
     expect(cartStyleQuantity).toContain('background:\'#cf3038\'');
     expect(cartStyleQuantity).toContain('data-cart-icon="trash"');
+    expect(cartStyleQuantity).toContain("data-rfq-quantity-field={!cart?'true':undefined}");
     expect(cartStyleQuantity).toContain("background:'var(--shoporation-color-primary,#5c7cfa)'");
     expect(cartStyleQuantity).toContain("color:'var(--shoporation-color-primary-contrast,#fff)'");
+    expect(cartStyleQuantity).toContain("background:'transparent',color:'inherit'");
+    expect(cartStyleQuantity).not.toContain("background:'#fbfcfa'");
     expect(overview).toContain('className="actions accountPrimaryActions"');
     expect(overview).not.toContain('className="btn btnGhost" href="/fiokom/letoltesek"');
     expect(surfaces).toContain("flexWrap:mobile?'nowrap':'wrap'");
