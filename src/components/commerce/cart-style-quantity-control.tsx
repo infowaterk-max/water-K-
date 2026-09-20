@@ -37,7 +37,7 @@ export function CartStyleQuantityControl({
     data-rfq-quantity-layout={!cart?'cart-vertical-arrows':undefined}
     role="group"
     aria-label={ariaLabel}
-    style={{display:'flex',alignItems:'center',gap:8}}
+    style={{display:'flex',alignItems:'center',gap:8,background:'var(--shoporation-color-surface-muted,var(--shoporation-color-surface,#fff))',border:'1px solid var(--shoporation-color-border,var(--line,#d8dce7))',borderRadius:8,overflow:'hidden'}}
   >
     <span
       data-cart-quantity-field={cart?'true':undefined}
