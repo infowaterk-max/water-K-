@@ -56,6 +56,8 @@ describe('post-purchase service contracts', () => {
 
   test('customer return history uses one shared tile renderer on both return surfaces',()=>{expect(returnsPage).toContain('<AccountReturnCaseGrid');expect(casesPage).toContain('<AccountReturnCaseGrid');expect(returnCaseCards).toContain("Még nincs visszaküldési vagy visszatérítési ügyed.");expect(returnCaseCards).toContain('Visszatérítés');});
 
+  test('return admin avoids fragile PostgREST relation embeds and joins tenant-scoped rows in memory',()=>{expect(returnsAdmin).not.toContain('orders(order_number');expect(returnsAdmin).not.toContain('order_items(product_name');expect(returnsAdmin).toContain("a.from('orders').select('id,order_number,total_gross_huf,status')");expect(returnsAdmin).toContain("a.from('order_items').select('id,product_name,variant_label,quantity,unit_gross_huf')");expect(returnsAdmin).toContain('const orderMap=new Map');expect(returnsAdmin).toContain('const orderItemMap=new Map');expect(returnsAdmin).toContain("serult:'Sérült termék'");});
+
   test('return administration keeps refund and inventory restock as explicit operations', () => {
     expect(returnsAdmin).toMatch(/A banki pénzmozgás nem automatikus/);
     expect(returnsAdmin).toMatch(/return_case_items/);
