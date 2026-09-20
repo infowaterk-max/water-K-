@@ -82,3 +82,25 @@
  .storefrontAccountShell .accountQuoteFormGrid{grid-template-columns:minmax(0,1fr)}
  .storefrontAccountShell .accountQuoteActions .btn{flex:1 1 12rem}
 }
+
+
+/* Customer return workflow: keep the operational form and history usable on
+   the same responsive account contract as RFQ. Wide tables must never force
+   the account route wider than the mobile viewport. */
+.storefrontAccountShell .accountReturnRequestForm{display:grid;gap:1rem;min-width:0}
+.storefrontAccountShell .accountReturnRequestForm .accountFormField{display:grid;gap:.45rem;min-width:0}
+.storefrontAccountShell .accountReturnRequestForm .accountFormField>span{display:block}
+.storefrontAccountShell .accountReturnRequestForm select,
+.storefrontAccountShell .accountReturnRequestForm textarea{width:100%;max-width:100%;box-sizing:border-box}
+.storefrontAccountShell .accountReturnItems{min-width:0}
+.storefrontAccountShell .accountReturnItemRow{display:grid;grid-template-columns:minmax(0,1fr) minmax(5rem,6rem);gap:.75rem;align-items:center;min-width:0}
+.storefrontAccountShell .accountReturnItemRow input{width:100%;max-width:100%!important}
+.storefrontAccountShell .accountReturnCases{min-width:0;overflow:hidden}
+.storefrontAccountShell .accountReturnCases .adminMobileCardTableWrap{max-width:100%;overflow-x:hidden}
+@media(max-width:720px){
+ .storefrontAccountShell .accountReturnCases .adminMobileCardTable{min-width:0!important}
+ .storefrontAccountShell .accountReturnItemRow{grid-template-columns:minmax(0,1fr) minmax(4.5rem,5.5rem)}
+}
+@media(max-width:430px){
+ .storefrontAccountShell .accountReturnItemRow{grid-template-columns:1fr}
+}
