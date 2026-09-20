@@ -12,6 +12,7 @@
   --workspace-warning:#906014;
   --workspace-warning-soft:#fff3dd;
   --workspace-danger:#973d35;
+  --workspace-danger-strong:#7f302a;
   --workspace-danger-soft:#fdeae7;
   --workspace-shadow:0 14px 38px rgba(22,43,39,.07);
   --workspace-overlay:rgba(19,35,38,.52);
@@ -52,8 +53,8 @@
   box-shadow:none!important;
 }
 .adminGrid .btn.btnDanger:hover,.adminGrid .btn.btnDanger:focus-visible{
-  border-color:#7f302a!important;
-  background:#7f302a!important;
+  border-color:var(--workspace-danger-strong)!important;
+  background:var(--workspace-danger-strong)!important;
   color:#fff!important;
 }
 .adminGrid .textLink{color:var(--workspace-accent-strong)!important}
