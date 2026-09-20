@@ -1102,7 +1102,7 @@ Human Preview proof showed the explicit fail-closed message after clicking the f
 
 ## SKB-P4-023 — Acceptance coupon fixture was missing and failed coupon quote erased the last valid total
 
-**Status:** `implemented_pending_live_verification`  
+**Status:** `verified_fixed`  
 **Evidence:** `human_preview_screenshot_plus_preview_runtime_log_plus_staging_read`  
 **Area:** `storefront/checkout/coupon + acceptance-fixtures`  
 **Risk:** high  
@@ -1132,4 +1132,6 @@ Phase 4 acceptance coverage locks the service-role-only coupon privilege repair,
 
 Acceptance scenarios that name a coupon, shipping provider, payment provider, product or other commerce object must provision that object as part of the acceptance fixture rather than rely on hidden environment state. Fixture code must also validate that its server-side authority has the table/function privileges it depends on; RLS policy presence alone does not imply SQL table privileges. Coupon failure is a local promotion failure; it must not erase an already verified cart quote unless the underlying cart itself became invalid.
 
-Live human proof of 3810 Ft → 381 Ft discount → 3429 Ft total is required before changing this incident to `verified_fixed`.
+### Verification
+Human Preview proof showed `ACCEPT10` applied successfully to the mixed acceptance cart: 3810 Ft products, −381 Ft discount, free delivery, and 3429 Ft payable total. Exact-head Preview runtime logs in the same interaction window showed repeated `POST /api/checkout/quote 200` responses, confirming the authoritative quote path accepted the coupon.
+
