@@ -24,3 +24,11 @@ using (
       and r.user_id=(select auth.uid())
   )
 );
+
+
+-- RLS policies do not grant table privileges by themselves. The strict
+-- operational hardening revoked the authenticated table privilege, so the
+-- customer self-read path must explicitly restore SELECT while RLS continues
+-- to restrict rows to the owning customer.
+grant select on table public.return_cases to authenticated;
+grant select on table public.return_case_items to authenticated;

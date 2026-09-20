@@ -1422,3 +1422,16 @@ The corrected shared control now treats value + vertical chevrons as one single 
 - the red trash action remains a separate destructive control.
 
 This stays one shared component for Cart and B2B RFQ, so the two surfaces cannot drift again.
+
+
+#### SKB-P4-028 follow-up — policy existed but table privilege was still missing
+
+Second live finding:
+- the first repair restored customer RLS policies, but the page still failed to load return history;
+- authenticated SQL replay proved the actual blocker: `permission denied for table return_cases`;
+- the earlier strict operational hardening had removed the authenticated table-level SELECT grant, and an RLS policy cannot restore a missing table privilege by itself;
+- the mobile card classes were also ineffective because their renderer existed only in admin CSS, which customer account routes do not import.
+
+Follow-up resolution:
+- explicitly grant SELECT on `return_cases` and `return_case_items` to `authenticated`, with RLS still restricting rows to the owning customer/tenant;
+- implement the return-history card renderer directly in storefront account CSS instead of relying on admin-only CSS.

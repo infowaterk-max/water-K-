@@ -33,7 +33,7 @@ describe('post-purchase service contracts', () => {
     expect(orderDetail).toContain('href="/fiokom/visszakuldes">Visszaküldés indítása</Link>');
   });
 
-  test('customer return history restores tenant-safe self-read after strict operational RLS',()=>{const sql=read('supabase/customer-baseline/migrations/0038_return_customer_read_restore.sql');expect(sql).toContain('return_cases_customer_read');expect(sql).toContain('return_case_items_customer_read');expect(sql).toContain('o.instance_id=return_cases.instance_id');expect(sql).toContain('r.instance_id=return_case_items.instance_id');});
+  test('customer return history restores tenant-safe self-read after strict operational RLS',()=>{const sql=read('supabase/customer-baseline/migrations/0038_return_customer_read_restore.sql');expect(sql).toContain('return_cases_customer_read');expect(sql).toContain('return_case_items_customer_read');expect(sql).toContain('o.instance_id=return_cases.instance_id');expect(sql).toContain('r.instance_id=return_case_items.instance_id');expect(sql).toContain('grant select on table public.return_cases to authenticated');expect(sql).toContain('grant select on table public.return_case_items to authenticated');});
 
   test('return requests are item and quantity based and never promise automatic refunds', () => {
     expect(returnForm).toMatch(/orderItemId:i\.id,quantity:/);
@@ -43,7 +43,7 @@ describe('post-purchase service contracts', () => {
     expect(returnForm).toMatch(/nem jelent automatikus pénzvisszatérítést/);
     expect(returnForm).toContain('accountReturnRequestForm');
     expect(returnsPage).toContain('adminTable adminMobileCardTable accountReturnCasesTable');
-    for(const label of ['Rendelés','Ok','Állapot','Visszatérítés','Indítva'])expect(returnsPage).toContain(`data-mobile-label="${label}"`);
+    for(const label of ['Rendelés','Ok','Állapot','Visszatérítés','Indítva'])expect(returnsPage).toContain(`data-mobile-label="${label}"`);const css=read('src/app/account-workflow.css');expect(css).toContain('admin mobile-table CSS is not loaded on customer account routes');expect(css).toContain('.accountReturnCases .adminMobileCardTable td::before');
   });
 
   test('return administration keeps refund and inventory restock as explicit operations', () => {
