@@ -1145,7 +1145,7 @@ Human Preview proof showed `ACCEPT10` applied successfully to the mixed acceptan
 
 ## SKB-P4-024 — Guided checkout blocked invalid fields without visible in-app validation feedback
 
-**Status:** `implemented_pending_live_verification`  
+**Status:** `verified_fixed`  
 **Evidence:** `human_preview_behavior_plus_shared_checkout_contract`  
 **Area:** `storefront/checkout/guided-validation`  
 **Risk:** medium  
@@ -1176,3 +1176,7 @@ Checkout workflow and Playroom Phase 4 acceptance contracts now require explicit
 A guided/multi-step form must never depend exclusively on browser-native validation bubbles. Every blocked progression must provide an application-rendered error within the active step and identify the failing control programmatically. Native constraint validation is a guardrail, not the user-facing error system.
 
 Live human proof of the visible required-field message is required before changing this incident to `verified_fixed`.
+
+
+### Verification
+Human mobile Preview proof showed the Shipping step refusing progression with the required name field empty, the invalid field visibly highlighted, and an in-step application error reading `Név / kapcsolattartó: kitöltése kötelező.`. This confirms the guided checkout no longer depends solely on browser-native validity UI.
