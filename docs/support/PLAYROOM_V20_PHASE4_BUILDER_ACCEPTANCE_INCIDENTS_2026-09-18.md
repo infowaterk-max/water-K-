@@ -1445,3 +1445,26 @@ Resolution:
 - render the return-history table only when at least one case exists;
 - render the empty-state copy directly when there are zero cases;
 - once a case exists, the same table continues to use the storefront mobile-card renderer.
+
+
+#### SKB-P4-028 final presentation correction — semantic return tiles replace legacy account tables
+
+Human proof confirmed the underlying return data and eligibility were repaired, but the old table primitive still produced the wrong customer-account presentation.
+
+Legacy rules found in the shared cascade:
+- `globals.css`: generic `.adminTable` carries a desktop minimum width;
+- `responsive-final.css`: `.adminTable` keeps a large minimum width even below the mobile breakpoint;
+- `account-workflow.css`: the older mobile account rule explicitly sets `.accountPage .adminTable{min-width:820px}`;
+- those rules were designed for horizontally scrollable data tables, not customer-facing post-purchase case history.
+
+Trying to override the table into a card was therefore the wrong abstraction: it kept semantic table/header behavior and remained coupled to old admin-table CSS.
+
+Final resolution:
+- customer return history no longer renders `adminTable` at all;
+- one shared `AccountReturnCaseGrid` renders true semantic tiles/cards;
+- both `/fiokom/visszakuldes` and the return section of `/fiokom/ugyek` use the same component;
+- empty state is a tile, never a header-only table;
+- desktop may show multiple tiles; tablet/mobile collapse naturally to one column;
+- legacy admin-table rules remain available for genuine tabular surfaces but are no longer part of the return-history contract.
+
+Template Factory rule: customer post-purchase status/history surfaces that must work as cards on mobile must use a card/tile component authority, not a desktop `adminTable` transformed by CSS.

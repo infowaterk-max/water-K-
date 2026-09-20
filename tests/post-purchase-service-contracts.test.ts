@@ -7,6 +7,7 @@ const read = (file: string) => fs.readFileSync(path.join(root, file), 'utf8');
 
 const returnsPage = read('src/app/fiokom/visszakuldes/page.tsx');
 const returnForm = read('src/components/account/return-request-form.tsx');
+const returnCaseCards = read('src/components/account/return-case-cards.tsx');
 const returnsAdmin = read('src/app/admin/visszaru/page.tsx');
 const returnActions = read('src/components/admin/return-case-actions.tsx');
 const casesPage = read('src/app/fiokom/ugyek/page.tsx');
@@ -42,9 +43,18 @@ describe('post-purchase service contracts', () => {
     expect(returnForm).toMatch(/fetch\('\/api\/account\/returns'/);
     expect(returnForm).toMatch(/nem jelent automatikus pénzvisszatérítést/);
     expect(returnForm).toContain('accountReturnRequestForm');
-    expect(returnsPage).toContain('adminTable adminMobileCardTable accountReturnCasesTable');expect(returnsPage).toContain("(cases??[]).length>0");expect(returnsPage).toContain('accountReturnEmptyState');
-    for(const label of ['Rendelés','Ok','Állapot','Visszatérítés','Indítva'])expect(returnsPage).toContain(`data-mobile-label="${label}"`);const css=read('src/app/account-workflow.css');expect(css).toContain('admin mobile-table CSS is not loaded on customer account routes');expect(css).toContain('.accountReturnCases .adminMobileCardTable td::before');
+    expect(returnsPage).toContain('<AccountReturnCaseGrid');
+    expect(returnsPage).not.toContain('adminTable');
+    expect(returnCaseCards).toContain('accountReturnCaseTile');
+    expect(returnCaseCards).toContain('<dl className="accountReturnCaseMeta">');
+    expect(returnCaseCards).not.toContain('<table');
+    const css=read('src/app/account-workflow.css');
+    expect(css).toContain('Return history is intentionally rendered as semantic tiles, not adminTable');
+    expect(css).toContain('.accountReturnCaseGrid{display:grid');
+    expect(css).toContain('.accountReturnCaseMeta>div{display:grid');
   });
+
+  test('customer return history uses one shared tile renderer on both return surfaces',()=>{expect(returnsPage).toContain('<AccountReturnCaseGrid');expect(casesPage).toContain('<AccountReturnCaseGrid');expect(returnCaseCards).toContain("Még nincs visszaküldési vagy visszatérítési ügyed.");expect(returnCaseCards).toContain('Visszatérítés');});
 
   test('return administration keeps refund and inventory restock as explicit operations', () => {
     expect(returnsAdmin).toMatch(/A banki pénzmozgás nem automatikus/);
