@@ -177,7 +177,7 @@ describe('Digital Commerce A3 shared Builder integration',()=>{
     const source=page('checkout','commerce.fulfillment-summary');
     source.sections.push({
       id:'wrapped-footer',componentKey:'layout.section',componentVersion:1,config:{},
-      children:[{id:'actual-footer',componentKey:'system.footer',componentVersion:1,config:{}}],
+      children:[{id:'wrapped-footer-inner',componentKey:'layout.container',componentVersion:1,config:{}}],
     });
     const composed=composeStorefrontDigitalCommerceCapabilities(source);
     const postPurchaseIndex=composed.sections.findIndex(item=>findComponent({ ...composed, sections:[item] } as StorefrontPageDocument,'commerce.post-purchase-guidance'));
