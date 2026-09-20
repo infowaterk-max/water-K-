@@ -575,8 +575,10 @@ describe('Playroom v20 functional acceptance',()=>{
     const server=read('src/lib/builder/storefront-digital-commerce-server.ts');
     expect(server).toContain("documents.filter(document=>document.visibility==='public')");
     const accountPage=read('src/app/fiokom/page.tsx');
+    const accountCapabilities=read('src/lib/account/account-capabilities.ts');
     const downloadsPage=read('src/app/fiokom/letoltesek/page.tsx');
-    expect(accountPage).toContain('href="/fiokom/letoltesek">Letöltéseim</Link>');
+    expect(accountPage).not.toContain('href="/fiokom/letoltesek">Letöltéseim</Link>');
+    expect(accountCapabilities).toContain("{key:'downloads',href:'/fiokom/letoltesek',label:'Letöltéseim'}");
     expect(downloadsPage).toContain('<h1 className="sectionTitle">Letöltéseim</h1>');
     expect(downloadsPage).toContain('listAccountDigitalDownloads');
   });
