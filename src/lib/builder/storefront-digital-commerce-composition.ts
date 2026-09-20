@@ -159,6 +159,7 @@ function isHeaderSection(item:StorefrontComponentNode):boolean{
 
 function containsFooterSurface(item:StorefrontComponentNode):boolean{
   if(item.componentKey==='system.footer'||item.componentKey==='editorial.footer'||item.componentKey.endsWith('.footer'))return true;
+  if(/(^|[-_.])footer($|[-_.])/i.test(item.id))return true;
   return (item.children??[]).some(containsFooterSurface);
 }
 
