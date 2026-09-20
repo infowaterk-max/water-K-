@@ -1435,3 +1435,13 @@ Second live finding:
 Follow-up resolution:
 - explicitly grant SELECT on `return_cases` and `return_case_items` to `authenticated`, with RLS still restricting rows to the owning customer/tenant;
 - implement the return-history card renderer directly in storefront account CSS instead of relying on admin-only CSS.
+
+
+#### SKB-P4-028 follow-up — empty return history must not render a header-only table
+
+Human mobile proof after the RLS/read repair showed that data loading and order eligibility were fixed, but an empty return-history section still rendered the table header by itself. On a narrow viewport this produced vertically broken labels even though there were no return cases to display.
+
+Resolution:
+- render the return-history table only when at least one case exists;
+- render the empty-state copy directly when there are zero cases;
+- once a case exists, the same table continues to use the storefront mobile-card renderer.

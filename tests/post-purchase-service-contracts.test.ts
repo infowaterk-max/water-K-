@@ -42,7 +42,7 @@ describe('post-purchase service contracts', () => {
     expect(returnForm).toMatch(/fetch\('\/api\/account\/returns'/);
     expect(returnForm).toMatch(/nem jelent automatikus pénzvisszatérítést/);
     expect(returnForm).toContain('accountReturnRequestForm');
-    expect(returnsPage).toContain('adminTable adminMobileCardTable accountReturnCasesTable');
+    expect(returnsPage).toContain('adminTable adminMobileCardTable accountReturnCasesTable');expect(returnsPage).toContain("(cases??[]).length>0");expect(returnsPage).toContain('accountReturnEmptyState');
     for(const label of ['Rendelés','Ok','Állapot','Visszatérítés','Indítva'])expect(returnsPage).toContain(`data-mobile-label="${label}"`);const css=read('src/app/account-workflow.css');expect(css).toContain('admin mobile-table CSS is not loaded on customer account routes');expect(css).toContain('.accountReturnCases .adminMobileCardTable td::before');
   });
 
