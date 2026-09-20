@@ -14,12 +14,12 @@ import {augmentStorefrontDigitalCommercePreviewContext} from '@/lib/builder/stor
 import {StorefrontRuntimeRenderer} from '@/components/builder/storefront-runtime-renderer';
 import {createStorefrontVisualBuilderRendererRegistry} from '@/components/builder/storefront-builder-renderer-registry';
 import {createStorefrontVisualBuilderComponentRegistry} from '@/lib/builder/storefront-builder-registry';
-import type {StorefrontViewport} from '@/lib/builder/storefront-foundation';
+import {STOREFRONT_CANONICAL_VIEWPORT_WIDTH_PX,type StorefrontViewport} from '@/lib/builder/storefront-foundation';
 import styles from './storefront-template-preview.module.css';
 
 export const dynamic='force-dynamic';
 type Props={searchParams:Promise<{template?:string;version?:string;viewport?:string;embed?:string}>};
-const widths:Record<StorefrontViewport,number>={desktop:1200,tablet:768,mobile:390};
+const widths=STOREFRONT_CANONICAL_VIEWPORT_WIDTH_PX;
 
 export default async function StorefrontTemplatePreview({searchParams}:Props){
   await requirePlanFeature('contentMarketing');

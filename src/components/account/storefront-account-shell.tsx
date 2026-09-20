@@ -1,8 +1,6 @@
 import type{CSSProperties,ReactNode}from'react';
 import{headers}from'next/headers';
-import{StorefrontRuntimeRenderer}from'@/components/builder/storefront-runtime-renderer';
-import{createStorefrontVisualBuilderComponentRegistry}from'@/lib/builder/storefront-builder-registry';
-import{createStorefrontVisualBuilderRendererRegistry}from'@/components/builder/storefront-builder-renderer-registry';
+import{StorefrontResponsiveRuntime}from'@/components/builder/storefront-responsive-runtime';
 import{resolveCurrentStorefrontAccountRuntimePage}from'@/lib/builder/storefront-runtime-source';
 import{resolveStorefrontGlobalStyleCssVariables}from'@/lib/builder/storefront-global-styles';
 import type{StorefrontComponentNode,StorefrontPageDocument}from'@/lib/builder/storefront-runtime';
@@ -26,8 +24,7 @@ export async function StorefrontAccountShell({customerId,fallbackNavigation,chil
  const footerSections=runtime.page.sections.filter(isFooter);
  if(!headerSections.length||!footerSections.length)return <>{fallbackNavigation}{children}</>;
  const vars=resolveStorefrontGlobalStyleCssVariables(runtime.page) as CSSProperties;
- const registry=createStorefrontVisualBuilderComponentRegistry(),renderers=createStorefrontVisualBuilderRendererRegistry();
- const render=(sections:StorefrontComponentNode[])=><StorefrontRuntimeRenderer page={slicePage(runtime.page,sections)} viewport={viewport} bindingContext={runtime.bindingContext} capability={runtime.capability} componentRegistry={registry} rendererRegistry={renderers}/>;
+ const render=(sections:StorefrontComponentNode[])=><StorefrontResponsiveRuntime page={slicePage(runtime.page,sections)} initialViewport={viewport} bindingContext={runtime.bindingContext} capability={runtime.capability}/>;
  return <div className="storefrontAccountShell" data-storefront-account-shell={runtime.source} style={{...vars,fontFamily:'var(--shoporation-body-font,Arial,sans-serif)',background:'var(--shoporation-color-background,#fff)',color:'var(--shoporation-color-text,#111827)'}}>
    {render(headerSections)}
    {navSections.length?render(navSections):fallbackNavigation}

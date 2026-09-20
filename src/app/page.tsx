@@ -3,9 +3,7 @@ import {headers} from 'next/headers';
 import { formatHuf } from '@/lib/catalog';
 import { getProducts } from '@/lib/catalog-server';
 import { requireStorefrontAccess } from '@/lib/storefront/access';
-import {StorefrontRuntimeRenderer} from '@/components/builder/storefront-runtime-renderer';
-import {createStorefrontVisualBuilderComponentRegistry} from '@/lib/builder/storefront-builder-registry';
-import {createStorefrontVisualBuilderRendererRegistry} from '@/components/builder/storefront-builder-renderer-registry';
+import {StorefrontResponsiveRuntime} from '@/components/builder/storefront-responsive-runtime';
 import {resolveCurrentStorefrontPublishedRuntimePage} from '@/lib/builder/storefront-runtime-source';
 import type {StorefrontViewport} from '@/lib/builder/storefront-foundation';
 
@@ -22,13 +20,11 @@ export default async function HomePage(){
   const userAgent=(await headers()).get('user-agent')??'';
   const viewport=storefrontViewportFromUserAgent(userAgent);
   return <main data-storefront-published-runtime="page-schema" data-storefront-page-key="home">
-   <StorefrontRuntimeRenderer
+   <StorefrontResponsiveRuntime
     page={published.page}
-    viewport={viewport}
+    initialViewport={viewport}
     bindingContext={published.bindingContext}
     capability={published.capability}
-    componentRegistry={createStorefrontVisualBuilderComponentRegistry()}
-    rendererRegistry={createStorefrontVisualBuilderRendererRegistry()}
    />
   </main>;
  }
