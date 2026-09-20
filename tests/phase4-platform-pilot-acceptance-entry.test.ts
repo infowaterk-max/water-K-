@@ -9,6 +9,7 @@ describe('Phase 4 platform pilot acceptance entry',()=>{
   const action=read('src/app/admin/platform/acceptance/[instanceId]/actions.ts');
   const builder=read('src/app/admin/tartalom/builder/page.tsx');
   const sales=read('src/app/admin/ertekesites/page.tsx');
+  const commercialApi=read('src/app/api/admin/commercial/actions/route.ts');
 
   it('is preview-only and requires an authenticated platform operator',()=>{
     expect(page).toContain("process.env.VERCEL_ENV!=='preview'");
@@ -41,6 +42,14 @@ describe('Phase 4 platform pilot acceptance entry',()=>{
     expect(action).not.toContain('page=playroom.home');
     for(const forbidden of['.insert(','.update(','.delete(','.upsert('])expect(action).not.toContain(forbidden);
     expect(page).toContain('Playroom Builder megnyitása');
+  });
+
+  it('allows CRM mutations only inside the exact signed preview pilot acceptance context',()=>{
+    expect(commercialApi).toContain("process.env.VERCEL_ENV==='preview'");
+    expect(commercialApi).toContain('getPilotAcceptanceInstanceId()');
+    expect(commercialApi).toContain('getPlatformRole()');
+    expect(commercialApi).toContain('acceptanceInstanceId===store.instanceId');
+    expect(commercialApi).toContain("if(!isPlatformPilotAcceptance&&!(await hasCurrentPlanFeature('crm')))");
   });
 
   it('allows CRM only inside the exact signed preview pilot acceptance context',()=>{

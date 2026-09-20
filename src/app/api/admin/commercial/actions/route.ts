@@ -4,6 +4,8 @@ import{getAdminRequestUser}from'@/lib/auth/admin-api';
 import{createAdminClient}from'@/lib/supabase/admin';
 import{hasCurrentPlanFeature}from'@/lib/plans/access';
 import{requireCurrentStoreContext}from'@/lib/instances/scope';
+import{getPlatformRole}from'@/lib/auth/platform-operator';
+import{getPilotAcceptanceInstanceId}from'@/lib/storefront/pilot-access';
 
 const schema=z.discriminatedUnion('action',[
   z.object({action:z.literal('refresh')}),
@@ -36,7 +38,10 @@ export async function POST(req:Request){
   let store;
   try{store=await requireCurrentStoreContext('sales.manage')}
   catch{return NextResponse.json({error:'Nincs jogosultság ehhez a webshophoz.'},{status:403})}
-  if(!(await hasCurrentPlanFeature('crm')))return NextResponse.json({error:'Az értékesítési CRM a Pro csomag része.'},{status:403});
+  const acceptanceInstanceId=process.env.VERCEL_ENV==='preview'?await getPilotAcceptanceInstanceId():null;
+  const platformRole=acceptanceInstanceId?await getPlatformRole():null;
+  const isPlatformPilotAcceptance=Boolean(platformRole&&acceptanceInstanceId&&acceptanceInstanceId===store.instanceId);
+  if(!isPlatformPilotAcceptance&&!(await hasCurrentPlanFeature('crm')))return NextResponse.json({error:'Az értékesítési CRM a Pro csomag része.'},{status:403});
 
   let body:unknown;
   try{body=await req.json()}
