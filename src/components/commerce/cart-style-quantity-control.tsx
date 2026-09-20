@@ -57,7 +57,7 @@ export function CartStyleQuantityControl({
           aria-label="Mennyiség növelése"
           disabled={disabled}
           onClick={onIncrease}
-          style={{display:'flex',alignItems:'center',justifyContent:'center',width:28,minWidth:28,minHeight:0,padding:0,margin:0,border:0,borderRadius:0,background:'var(--shoporation-color-surface-muted,var(--shoporation-color-surface,#fff))',color:'inherit',lineHeight:0,opacity:disabled?.55:1}}
+          style={{display:'flex',alignItems:'center',justifyContent:'center',width:28,minWidth:28,minHeight:0,padding:0,margin:0,border:0,borderRadius:0,background:'var(--shoporation-color-surface-muted,var(--shoporation-color-surface,#fff))',color:'#fff',lineHeight:0,opacity:disabled?.55:1}}
         ><CartChevronIcon direction="up"/></button>
         <button
           data-cart-step={cart?'decrease':undefined}
@@ -67,7 +67,7 @@ export function CartStyleQuantityControl({
           aria-disabled={!canDecrease}
           disabled={!canDecrease}
           onClick={onDecrease}
-          style={{display:'flex',alignItems:'center',justifyContent:'center',width:28,minWidth:28,minHeight:0,padding:0,margin:0,border:0,borderRadius:0,background:'var(--shoporation-color-surface-muted,var(--shoporation-color-surface,#fff))',color:'inherit',lineHeight:0,opacity:canDecrease?1:.55}}
+          style={{display:'flex',alignItems:'center',justifyContent:'center',width:28,minWidth:28,minHeight:0,padding:0,margin:0,border:0,borderRadius:0,background:'var(--shoporation-color-surface-muted,var(--shoporation-color-surface,#fff))',color:'#fff',lineHeight:0,opacity:canDecrease?1:.55}}
         ><CartChevronIcon direction="down"/></button>
       </span>
     </span>
