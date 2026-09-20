@@ -62,7 +62,7 @@ describe('admin decision reliability closure',()=>{
     expect(actions).toContain("const canAct=access.mode==='enabled'&&!error");
     expect(actions).toContain("access.mode==='read-only'");
     expect(actions).toContain("proposalError?'—'");
-    expect(returns).toContain('loadError=Boolean(error||itemError)');
+    expect(returns).toContain('loadError=Boolean(error||orderError||itemError||orderItemError)');
     expect(returns).toContain('Adatbetöltés szükséges');
     expect(procurement).toContain('overdue=open.filter');
     expect(procurement).toContain('!loadError&&formVariants.length>0');
