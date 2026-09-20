@@ -271,6 +271,14 @@ describe('Playroom v20 functional acceptance',()=>{
     expect(checkoutCss).toContain('--checkout-helper:var(--shoporation-checkout-helper-color');
     expect(settings).toContain("label:'Acceptance · személyes átvétel'");
     expect(settings).toContain("label:'Acceptance · banki átutalás'");
+    const acceptanceActions=read('src/app/admin/platform/acceptance/[instanceId]/actions.ts');
+    const acceptanceEntry=read('src/app/admin/platform/acceptance/[instanceId]/page.tsx');
+    expect(acceptanceEntry).toContain('B2B ajánlatkérés teszt');
+    expect(acceptanceEntry).toContain('value="b2b-rfq"');
+    expect(acceptanceActions).toContain("if(flow==='b2b-rfq')");
+    expect(acceptanceActions).toContain(".eq('channel_code','b2b')");
+    expect(acceptanceActions).toContain(".eq('visible',true)");
+    expect(acceptanceActions).toContain("redirect(\`/termek/");
     expect(acceptanceCheckoutPage).toContain("code:'ACCEPT10'");
     expect(acceptanceCheckoutPage).toContain("discount_type:'percent'");
     expect(acceptanceCheckoutPage).toContain("discount_value:10");

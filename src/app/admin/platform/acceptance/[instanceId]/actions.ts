@@ -11,6 +11,7 @@ import {
 } from '@/lib/storefront/pilot-access';
 
 const UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+const slugify=(value:string)=>value.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'');
 
 export async function startPlatformPilotAcceptanceAction(formData:FormData){
   if(process.env.VERCEL_ENV!=='preview')redirect('/admin/platform?acceptance=preview-only');
@@ -58,5 +59,39 @@ export async function startPlatformPilotAcceptanceAction(formData:FormData){
     maxAge:PILOT_ACCEPTANCE_MAX_AGE_SECONDS,
   });
   if(flow==='checkout')redirect(`/admin/platform/acceptance/${instanceId}/checkout`);
+  if(flow==='b2b-rfq'){
+    const{data:channel,error:channelError}=await admin
+      .from('webshop_sales_channels')
+      .select('enabled')
+      .eq('instance_id',instanceId)
+      .eq('channel_code','b2b')
+      .maybeSingle();
+    if(channelError||channel?.enabled!==true)redirect(`/admin/platform/acceptance/${instanceId}?reason=b2b-channel`);
+
+    const{data:visible,error:visibleError}=await admin
+      .from('product_channel_settings')
+      .select('product_id')
+      .eq('instance_id',instanceId)
+      .eq('channel_code','b2b')
+      .eq('visible',true)
+      .limit(1);
+    const productId=visible?.[0]?.product_id;
+    if(visibleError||!productId)redirect(`/admin/platform/acceptance/${instanceId}?reason=b2b-product`);
+
+    const{data:variant,error:variantError}=await admin
+      .from('product_variants')
+      .select('id,label,active,products!inner(slug,active)')
+      .eq('instance_id',instanceId)
+      .eq('product_id',productId)
+      .eq('active',true)
+      .eq('products.active',true)
+      .order('created_at',{ascending:true})
+      .limit(1)
+      .maybeSingle();
+    const product=variant?.products as unknown as{slug?:string}|null;
+    if(variantError||!variant?.id||!product?.slug)redirect(`/admin/platform/acceptance/${instanceId}?reason=b2b-product`);
+    const suffix=slugify(String(variant.label??''))||slugify(String(variant.id));
+    redirect(`/termek/${product.slug}${suffix?`-${suffix}`:''}`);
+  }
   redirect('/admin/tartalom/builder?page=home&acceptance=platform');
 }

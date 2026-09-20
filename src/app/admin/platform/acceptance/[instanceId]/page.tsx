@@ -14,6 +14,8 @@ const UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]
 const reasonText:Record<string,string>={
   forbidden:'Ehhez a pilot webshophoz nincs aktív owner/admin tenant-bindingod.',
   session:'Az acceptance munkamenet most nem indítható.',
+  'b2b-channel':'A B2B acceptance-hez nincs aktív B2B értékesítési csatorna.',
+  'b2b-product':'A B2B acceptance-hez nincs aktív, B2B-visible termék.',
 };
 
 export default async function PlatformPilotAcceptanceEntry({params,searchParams}:Props){
@@ -68,6 +70,11 @@ export default async function PlatformPilotAcceptanceEntry({params,searchParams}
             <input type="hidden" name="instanceId" value={instance.id}/>
             <input type="hidden" name="flow" value="checkout"/>
             <button className="btn btnGhost" type="submit">Interaktív pénztár teszt</button>
+          </form>
+          <form action={startPlatformPilotAcceptanceAction}>
+            <input type="hidden" name="instanceId" value={instance.id}/>
+            <input type="hidden" name="flow" value="b2b-rfq"/>
+            <button className="btn btnGhost" type="submit">B2B ajánlatkérés teszt</button>
           </form>
         </div>}
     </section>
