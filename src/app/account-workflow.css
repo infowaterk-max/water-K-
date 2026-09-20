@@ -25,3 +25,14 @@
 .storefrontAccountShell .accountPage input,.storefrontAccountShell .accountPage select,.storefrontAccountShell .accountPage textarea{font-size:var(--shoporation-control-font-size,16px);padding:var(--shoporation-control-padding-block,11px) var(--shoporation-control-padding-inline,14px)}
 .storefrontAccountShell .accountPage input,.storefrontAccountShell .accountPage select{min-height:var(--shoporation-control-height,48px)}
 .storefrontAccountShell .accountPage textarea{min-height:var(--shoporation-control-textarea-min-height,112px)}
+
+/* Account-shell-wide operational density: covers every /fiokom/* route, including
+   legacy subroutes that do not carry the accountPage class themselves. */
+.storefrontAccountShell .storefrontAccountRouteContent>.section{padding:clamp(2rem,3vw,3rem) 0}
+.storefrontAccountShell .storefrontAccountRouteContent .shell{width:min(calc(100% - 32px),var(--shoporation-content-max,1200px))}
+.storefrontAccountShell .storefrontAccountRouteContent .sectionTitle{font-size:var(--shoporation-type-page-title,clamp(2.25rem,3vw,3rem))!important;line-height:1.05;letter-spacing:-.035em}
+.storefrontAccountShell .storefrontAccountRouteContent .lead,.storefrontAccountShell .storefrontAccountRouteContent .muted{font-size:var(--shoporation-type-body,1rem)}
+.storefrontAccountShell .storefrontAccountRouteContent .btn{min-height:var(--shoporation-control-height,48px);padding-inline:var(--shoporation-control-padding-inline,14px)}
+.storefrontAccountShell .storefrontAccountRouteContent input,.storefrontAccountShell .storefrontAccountRouteContent select,.storefrontAccountShell .storefrontAccountRouteContent textarea{font-size:var(--shoporation-control-font-size,16px);padding:var(--shoporation-control-padding-block,11px) var(--shoporation-control-padding-inline,14px)}
+.storefrontAccountShell .storefrontAccountRouteContent input,.storefrontAccountShell .storefrontAccountRouteContent select{min-height:var(--shoporation-control-height,48px)}
+.storefrontAccountShell .storefrontAccountRouteContent textarea{min-height:var(--shoporation-control-textarea-min-height,112px)}

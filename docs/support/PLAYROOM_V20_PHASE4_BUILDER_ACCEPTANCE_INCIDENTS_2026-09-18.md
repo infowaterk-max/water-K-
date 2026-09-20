@@ -1244,7 +1244,7 @@ The Playroom storefront Account / B2B RFQ route looked naturally proportioned on
 This was not one RFQ card defect. Four shared assumptions overlapped:
 
 1. Builder/direct template Preview use a canonical 1200px Desktop logical viewport, while shared `layout.container` / primitive header content could keep growing to 1440px in published runtime.
-2. The active storefront Account shell wraps legacy `/fiokom/*` route content. Those routes still inherited marketing-era geometry such as global `.sectionTitle`, `.section`, `.card` and button sizing instead of semantic operational-page density.
+2. The active storefront Account shell wraps legacy `/fiokom/*` route content. Those routes still inherited marketing-era geometry such as global `.sectionTitle`, `.section`, `.card` and button sizing instead of semantic operational-page density. Some B2B subroutes also omit the `accountPage` class entirely, so account-only selectors were insufficient.
 3. The legacy `.sectionTitle` can reach 62px. At 75% browser zoom that is visually about 46.5px, closely matching the intended account page-title range; browser zoom therefore masked the semantic typography error.
 4. Published Page Schema Home and Account chrome selected `desktop/tablet/mobile` from User-Agent only. A desktop browser narrowed below 1200 CSS pixels — including zoom-induced layout viewport changes — could keep the Desktop renderer active and violate the breakpoint contract.
 
@@ -1257,7 +1257,8 @@ The form controls were not the primary source of enlargement: legacy account con
 - default Page Schema `content` max-width is aligned to 1200px; an explicit `wide` role preserves deliberate 1440px surfaces;
 - published Page Schema runtime re-resolves from actual browser layout width after hydration and on resize/orientation changes; User-Agent is only the SSR initial hint;
 - semantic shared CSS variables define page-title and form-control usability metrics;
-- the storefront Account bridge scopes operational-page title/section/control density instead of inheriting marketing scale;
+- the storefront Account bridge scopes operational-page title/section/control density from the shell's `storefrontAccountRouteContent`, so every `/fiokom/*` subroute inherits it even without an `accountPage` class;
+- the legacy public `.shell` contract is aligned from 1280/1240px to the same canonical 1200px max used by Page Schema content;
 - canonical Account capability navigation is compact and wrap-aware on Desktop/Tablet and horizontally scrollable on Mobile.
 
 ### Regression coverage

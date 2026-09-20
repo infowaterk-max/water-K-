@@ -31,9 +31,14 @@ describe('Storefront Desktop scale / density contract',()=>{
     expect(STOREFRONT_DESKTOP_SCALE_DENSITY_CONTRACT.browserZoomBaselinePercent).toBe(100);
     expect(STOREFRONT_DESKTOP_SCALE_DENSITY_CONTRACT.browserZoomSupportedPercent).toBe(125);
     const primitives=read('src/components/builder/storefront-primitives.tsx');
+    const globals=read('src/app/globals.css');
+    const responsive=read('src/app/responsive-final.css');
     expect(primitives).toContain("['full','wide','content','narrow']");
     expect(primitives).toContain('var(--shoporation-content-max, 1200px)');
     expect(primitives).toContain('var(--shoporation-wide-commerce-max, 1440px)');
+    expect(globals).toContain('.shell{width:min(1200px,calc(100% - 32px))');
+    expect(responsive).toContain('.shell{width:min(100% - 32px,1200px)');
+    expect(responsive).not.toContain('.shell{width:min(100% - 32px,1280px)');
   });
 
   it('uses actual browser layout width as published runtime breakpoint authority',()=>{
@@ -53,6 +58,8 @@ describe('Storefront Desktop scale / density contract',()=>{
     expect(globals).toContain("'--shoporation-type-page-title'");
     expect(globals).toContain("'--shoporation-control-height'");
     expect(accountCss).toContain('.storefrontAccountShell .accountPage.section');
+    expect(accountCss).toContain('.storefrontAccountShell .storefrontAccountRouteContent>.section');
+    expect(accountCss).toContain('.storefrontAccountShell .storefrontAccountRouteContent .sectionTitle');
     expect(accountCss).toContain('var(--shoporation-type-page-title');
     expect(accountCss).toContain('var(--shoporation-control-height');
     expect(surfaces).toContain("flexWrap:mobile?'nowrap':'wrap'");
