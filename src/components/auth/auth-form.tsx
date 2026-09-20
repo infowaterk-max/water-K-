@@ -9,6 +9,11 @@ type AccountType='customer'|'company'|'reseller';
 type AuthFlow='invite'|'recovery';
 type FlowStatus='idle'|'checking'|'ready'|'invalid';
 
+function safeAdminNext(){
+  const requestedNext=new URLSearchParams(window.location.search).get('next');
+  return requestedNext?.startsWith('/admin')&&!requestedNext.startsWith('//')?requestedNext:null;
+}
+
 export function AuthForm({instanceId}:{instanceId:string|null}){
   const router=useRouter();
   const [mode,setMode]=useState<Mode>('login');
@@ -60,7 +65,10 @@ export function AuthForm({instanceId}:{instanceId:string|null}){
       const result=await supabase.auth.signInWithPassword({email:normalizedEmail,password});
       setBusy(false);
       if(result.error){setMessage(result.error.message);return;}
-      setMessage('Sikeres bejelentkezés.');router.refresh();return;
+      setMessage('Sikeres bejelentkezés.');
+      const target=safeAdminNext();
+      if(target){router.replace(target);router.refresh();return;}
+      router.refresh();return;
     }
     if(!instanceId){setBusy(false);setMessage('Ehhez a regisztrációhoz nincs aktív webshop.');return;}
     const fullName=String(formData.get('fullName')??'').trim();
@@ -102,8 +110,7 @@ export function AuthForm({instanceId}:{instanceId:string|null}){
     const{error}=await supabase.auth.updateUser({password});
     setBusy(false);
     if(error){setMessage(error.message);return;}
-    const requestedNext=new URLSearchParams(window.location.search).get('next');
-    const target=requestedNext?.startsWith('/admin')&&!requestedNext.startsWith('//')?requestedNext:'/fiokom';
+    const target=safeAdminNext()??'/fiokom';
     window.history.replaceState(null,'','/fiokom');
     setMessage('A jelszó beállítva.');
     router.replace(target);
