@@ -27,6 +27,7 @@ const UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]
 const previewTargets:Record<string,string>={
   'b2b-rfq':'/fiokom/ajanlatkeresek',
   sales:'/admin/ertekesites',
+  returns:'/admin/visszaru',
   storefront:'/webaruhaz?pilot=acceptance',
 };
 
