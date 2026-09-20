@@ -58,6 +58,8 @@ describe('post-purchase service contracts', () => {
 
   test('return admin avoids fragile PostgREST relation embeds and joins tenant-scoped rows in memory',()=>{expect(returnsAdmin).not.toContain('orders(order_number');expect(returnsAdmin).not.toContain('order_items(product_name');expect(returnsAdmin).toContain("a.from('orders').select('id,order_number,total_gross_huf,status')");expect(returnsAdmin).toContain("a.from('order_items').select('id,product_name,variant_label,quantity,unit_gross_huf')");expect(returnsAdmin).toContain('const orderMap=new Map');expect(returnsAdmin).toContain('const orderItemMap=new Map');expect(returnsAdmin).toContain("serult:'Sérült termék'");});
 
+  test('return admin service role can read the operational queue without broad write grants',()=>{const sql=read('supabase/customer-baseline/migrations/0039_return_admin_service_read_restore.sql');expect(sql).toContain('grant select on table public.return_cases to service_role');expect(sql).toContain('grant select on table public.return_case_items to service_role');expect(sql).not.toContain('grant all');});
+
   test('return administration keeps refund and inventory restock as explicit operations', () => {
     expect(returnsAdmin).toMatch(/A banki pénzmozgás nem automatikus/);
     expect(returnsAdmin).toMatch(/return_case_items/);
