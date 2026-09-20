@@ -42,7 +42,7 @@ export function CartStyleQuantityControl({
     <span
       data-cart-quantity-field={cart?'true':undefined}
       data-rfq-quantity-field={!cart?'true':undefined}
-      style={{display:'inline-flex',alignItems:'stretch',height:32,borderRadius:8,overflow:'hidden',background:'var(--shoporation-color-background,#020b17)',color:'var(--shoporation-color-text,#fff)'}}
+      style={{display:'inline-flex',alignItems:'stretch',height:32,borderRadius:8,overflow:'hidden',background:'var(--shoporation-color-surface-muted,var(--shoporation-color-surface,#fff))',color:'var(--shoporation-color-text,#fff)',border:'1px solid var(--shoporation-color-border,#d8dce7)'}}
     >
       <output aria-live="polite" style={{display:'inline-flex',alignItems:'center',justifyContent:'center',minWidth:48,padding:'0 10px',background:'transparent',color:'inherit',fontWeight:900,lineHeight:1}}>{quantity} db</output>
       <span
