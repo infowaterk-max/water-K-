@@ -39,7 +39,7 @@ export function CartStyleQuantityControl({
     aria-label={ariaLabel}
     style={{display:'flex',alignItems:'center',gap:8}}
   >
-    <output aria-live="polite" style={{display:'inline-flex',alignItems:'center',justifyContent:'center',minWidth:48,height:32,padding:'0 10px',border:'1px solid rgba(255,255,255,.18)',borderRadius:8,background:'var(--shoporation-color-primary,#5c7cfa)',color:'var(--shoporation-color-primary-contrast,#fff)',fontWeight:900,lineHeight:1,boxShadow:'0 6px 16px rgba(20,58,150,.22)'}}>{quantity} db</output>
+    <output aria-live="polite" style={{display:'inline-flex',alignItems:'center',justifyContent:'center',minWidth:48,height:32,padding:'0 10px',border:0,borderRadius:8,background:'var(--shoporation-color-primary,#5c7cfa)',color:'var(--shoporation-color-primary-contrast,#fff)',fontWeight:900,lineHeight:1}}>{quantity} db</output>
     <span
       data-cart-stepper={cart?'vertical':undefined}
       data-rfq-stepper={!cart?'vertical':undefined}
