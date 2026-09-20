@@ -7,7 +7,7 @@ export const STOREFRONT_DIGITAL_COMMERCE_COMPONENTS_BY_PAGE_TYPE=Object.freeze({
   product:['commerce.downloads-tile'],
   cart:[],
   checkout:['commerce.fulfillment-summary','commerce.post-purchase-guidance'],
-  account:['commerce.documents-center'],
+  account:['commerce.account-downloads','commerce.account-documents'],
 } as const);
 
 type SupportedPageType=keyof typeof STOREFRONT_DIGITAL_COMMERCE_COMPONENTS_BY_PAGE_TYPE;
@@ -167,10 +167,11 @@ function isSharedDigitalCommerceSection(item:StorefrontComponentNode):boolean{
   return item.id.startsWith('shared-')&&item.id.endsWith('-digital-commerce');
 }
 
-function removeStaleAccountPostPurchase(sections:readonly StorefrontComponentNode[]):StorefrontComponentNode[]{
-  return sections
-    .filter(section=>!(isSharedDigitalCommerceSection(section)&&hasComponent([section],'commerce.post-purchase-guidance')))
-    .map(clone);
+function removeStaleAccountSurfaces(sections:readonly StorefrontComponentNode[]):StorefrontComponentNode[]{
+  const strip=(nodes:readonly StorefrontComponentNode[]):StorefrontComponentNode[]=>nodes
+    .filter(node=>node.componentKey!=='commerce.post-purchase-guidance'&&node.componentKey!=='commerce.documents-center')
+    .map(node=>({...clone(node),...(node.children?{children:strip(node.children)}:{})}));
+  return strip(sections);
 }
 
 function resolveCapabilityInsertIndex(document:StorefrontPageDocument):number{
@@ -190,7 +191,9 @@ function defaultConfig(componentKey:string):Record<string,unknown>{
     case'commerce.downloads-tile':return{eyebrow:'LETÖLTÉSEK',title:'Letöltések',documentsLabel:'Dokumentumok',digitalLabel:'Digitális termék',digitalAccountCopy:'Vásárlás után a letöltés a Fiókom → Letöltéseim menüpontban érhető el.',openLabel:'Megnyitás',presentation:'priority-tile'};
     case'commerce.fulfillment-summary':return{title:'Teljesítés és kézbesítés',documentCenterLabel:'Dokumentumok és letöltések'};
     case'commerce.product-documents':return{eyebrow:'Dokumentumok',title:'Termékdokumentumok',downloadLabel:'Dokumentum letöltése',loginLabel:'Belépés a fiókba'};
-    case'commerce.documents-center':return{eyebrow:'Saját fiók',title:'Letöltéseim',digitalTitle:'Digitális vásárlások',orderTitle:'Rendelési dokumentumok',productTitle:'Termékdokumentumok',emptyLabel:'Még nincs megjeleníthető dokumentum vagy letölthető tartalom.',loginLabel:'Belépés a fiókba'};
+    case'commerce.account-downloads':return{eyebrow:'Saját fiók',title:'Letöltéseim',copy:'Digitális vásárlások és hozzáférések.',emptyLabel:'Még nincs digitális tartalom.',openLabel:'Letöltés'};
+    case'commerce.account-documents':return{eyebrow:'Saját fiók',title:'Dokumentumaim',copy:'Számlák, garanciák, rendelési és termékdokumentumok.',orderTitle:'Rendelési dokumentumok',productTitle:'Termékdokumentumok',emptyLabel:'Még nincs dokumentum.',openLabel:'Megnyitás / letöltés'};
+    case'commerce.documents-center':return{eyebrow:'Saját fiók',title:'Dokumentumok és letöltések',digitalTitle:'Digitális vásárlások',orderTitle:'Rendelési dokumentumok',productTitle:'Termékdokumentumok',emptyLabel:'Még nincs megjeleníthető dokumentum vagy letölthető tartalom.',loginLabel:'Belépés a fiókba'};
     case'commerce.post-purchase-guidance':return{eyebrow:'Vásárlás után',title:'Hozzáférés és dokumentumok',pendingLabel:'Fizetés után elérhető',documentCenterLabel:'Fiókom → Letöltéseim'};
     default:return{};
   }
@@ -209,7 +212,7 @@ export function composeStorefrontDigitalCommerceCapabilities(
   if(!required)return clone(document);
 
   const next=clone(document);
-  if(next.pageType==='account')next.sections=removeStaleAccountPostPurchase(next.sections);
+  if(next.pageType==='account')next.sections=removeStaleAccountSurfaces(next.sections);
   if(next.pageType==='product'){
     next.sections=next.sections.filter(section=>!isLegacyProductDigitalCommerceSection(section));
     next.sections=embedStandaloneDownloadsIntoFacts(next.sections);

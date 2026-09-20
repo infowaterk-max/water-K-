@@ -4,7 +4,7 @@ import {createStorefrontSharedContentRendererRegistry} from '@/components/builde
 import {sanitizeStorefrontStyleSlots} from '@/lib/builder/storefront-fidelity-engine';
 import {resolveStorefrontVisualStyle} from '@/lib/builder/storefront-visual-style';
 
-export const STOREFRONT_DIGITAL_COMMERCE_RENDERERS_VERSION='shoporation.storefront-digital-commerce-renderers.v2' as const;
+export const STOREFRONT_DIGITAL_COMMERCE_RENDERERS_VERSION='shoporation.storefront-digital-commerce-renderers.v3' as const;
 
 const text=(value:unknown,fallback='')=>typeof value==='string'?value:fallback;
 const record=(value:unknown):Record<string,unknown>|null=>value&&typeof value==='object'&&!Array.isArray(value)?value as Record<string,unknown>:null;
@@ -90,6 +90,18 @@ function ProductDocumentsRenderer({config,node,viewport}:StorefrontComponentRend
   </section>;
 }
 
+function AccountDownloadsRenderer({config,node,viewport}:StorefrontComponentRenderProps){
+  const model=record(config.model),state=stateOf(model),slot=styles(config,viewport),items=rows(model?.digital);
+  if(state!=='ready')return <section data-storefront-account="downloads" data-state={state} style={{...span(node),padding:'1rem',...surface(slot)}}>{state==='empty'?<p>{text(config.emptyLabel,'Még nincs digitális tartalom.')}</p>:statePanel(state,config,slot)}</section>;
+  return <section data-storefront-account="downloads" style={{...span(node),display:'grid',gap:'.9rem',...slot('root')}}><header><small>{text(config.eyebrow,'LETÖLTÉSEIM')}</small><h2 style={{margin:'.2rem 0'}}>{text(config.title,'Digitális tartalmak')}</h2><p style={{margin:0,color:'var(--shoporation-color-muted-text,#667085)'}}>{text(config.copy,'A megvásárolt digitális tartalmak és hozzáférések.')}</p></header>{items.length?<div style={{display:'grid',gap:'.55rem'}}>{items.map((item,index)=>{const status=text(item.status,'available'),href=status==='available'?safeInternalHref(item.href):'';return <article key={text(item.id,`download-${index}`)} style={{padding:'.8rem 0',borderTop:'1px solid var(--shoporation-color-border,#d8dce7)'}}><strong>{text(item.title,'Digitális tartalom')}</strong>{text(item.description)?<small style={{display:'block',color:'var(--shoporation-color-muted-text,#667085)'}}>{text(item.description)}</small>:null}{status==='revoked'?<small>Hozzáférés visszavonva</small>:status==='exhausted'?<small>Letöltési keret elfogyott</small>:href?<a href={href} style={{display:'block',marginTop:'.3rem',fontWeight:750,color:'inherit'}}>{text(config.openLabel,'Letöltés')}</a>:null}</article>})}</div>:<p>{text(config.emptyLabel,'Még nincs digitális tartalom.')}</p>}</section>;
+}
+function AccountDocumentsRenderer({config,node,viewport}:StorefrontComponentRenderProps){
+  const model=record(config.model),state=stateOf(model),slot=styles(config,viewport),orders=rows(model?.orderDocuments),products=rows(model?.productDocuments);
+  if(state!=='ready')return <section data-storefront-account="documents" data-state={state} style={{...span(node),padding:'1rem',...surface(slot)}}>{state==='empty'?<p>{text(config.emptyLabel,'Még nincs dokumentum.')}</p>:statePanel(state,config,slot)}</section>;
+  const group=(title:string,items:Record<string,unknown>[])=><section style={{padding:'1rem',...surface(slot)}}><h3 style={{margin:'0 0 .5rem'}}>{title}</h3>{items.length?items.map((item,index)=>{const href=safeInternalHref(item.href);return <article key={text(item.id,`document-${index}`)} style={{padding:'.7rem 0',borderTop:'1px solid var(--shoporation-color-border,#d8dce7)'}}><strong>{text(item.title,'Dokumentum')}</strong>{text(item.description)?<small style={{display:'block',color:'var(--shoporation-color-muted-text,#667085)'}}>{text(item.description)}</small>:null}{href?<a href={href} style={{display:'block',marginTop:'.3rem',fontWeight:750,color:'inherit'}}>{text(config.openLabel,'Megnyitás / letöltés')}</a>:null}</article>}):<p style={{margin:0,color:'var(--shoporation-color-muted-text,#667085)'}}>Nincs elérhető dokumentum.</p>}</section>;
+  return <section data-storefront-account="documents" style={{...span(node),display:'grid',gap:'1rem',...slot('root')}}><header><small>{text(config.eyebrow,'DOKUMENTUMAIM')}</small><h2 style={{margin:'.2rem 0'}}>{text(config.title,'Számlák, garanciák és termékdokumentumok')}</h2><p style={{margin:0,color:'var(--shoporation-color-muted-text,#667085)'}}>{text(config.copy,'A vásárlásokhoz és termékekhez tartozó dokumentumok.')}</p></header><div style={{display:'grid',gridTemplateColumns:viewport==='mobile'?'1fr':'repeat(2,minmax(0,1fr))',gap:'1rem'}}>{group(text(config.orderTitle,'Rendelési dokumentumok'),orders)}{group(text(config.productTitle,'Termékdokumentumok'),products)}</div></section>;
+}
+
 function DocumentsCenterRenderer({config,node,viewport}:StorefrontComponentRenderProps){
   const model=record(config.model),state=stateOf(model),slot=styles(config,viewport);
   if(state!=='ready')return <section data-storefront-digital-commerce="documents-center" data-state={state} style={{...span(node),display:'grid',gap:'.75rem',padding:'1rem',...surface(slot),...slot('root')}}>{state==='empty'?<p style={{margin:0,color:'var(--shoporation-color-muted-text,#667085)'}}>{text(config.emptyLabel,'Még nincs megjeleníthető dokumentum vagy letölthető tartalom.')}</p>:statePanel(state,config,slot)}</section>;
@@ -116,6 +128,8 @@ const RENDERERS:readonly [string,number,(props:StorefrontComponentRenderProps)=>
   ['commerce.downloads-tile',1,DownloadsTileRenderer],
   ['commerce.fulfillment-summary',1,FulfillmentSummaryRenderer],
   ['commerce.product-documents',1,ProductDocumentsRenderer],
+  ['commerce.account-downloads',1,AccountDownloadsRenderer],
+  ['commerce.account-documents',1,AccountDocumentsRenderer],
   ['commerce.documents-center',1,DocumentsCenterRenderer],
   ['commerce.post-purchase-guidance',1,PostPurchaseGuidanceRenderer],
 ] as const;

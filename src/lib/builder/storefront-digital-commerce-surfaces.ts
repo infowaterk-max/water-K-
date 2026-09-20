@@ -5,7 +5,7 @@ import {
 } from '@/lib/builder/storefront-foundation';
 import type {StorefrontRuntimeComponentDefinition} from '@/lib/builder/storefront-runtime';
 
-export const STOREFRONT_DIGITAL_COMMERCE_SURFACES_VERSION='shoporation.storefront-digital-commerce-surfaces.v2' as const;
+export const STOREFRONT_DIGITAL_COMMERCE_SURFACES_VERSION='shoporation.storefront-digital-commerce-surfaces.v3' as const;
 
 const definition=(input:{
   componentKey:string;
@@ -46,6 +46,18 @@ export const STOREFRONT_DIGITAL_COMMERCE_COMPONENT_DEFINITIONS:readonly Storefro
     pageTypes:['product'],
     configurable:['eyebrow','title','copy','downloadLabel','emptyLabel','loginLabel','presentation','styleSlots'],
     features:['catalog'],
+  }),
+  definition({
+    componentKey:'commerce.account-downloads',
+    pageTypes:['account'],
+    configurable:['eyebrow','title','copy','emptyLabel','openLabel','presentation','styleSlots'],
+    features:['orders'],
+  }),
+  definition({
+    componentKey:'commerce.account-documents',
+    pageTypes:['account'],
+    configurable:['eyebrow','title','copy','orderTitle','productTitle','emptyLabel','openLabel','presentation','styleSlots'],
+    features:['orders'],
   }),
   definition({
     componentKey:'commerce.documents-center',
