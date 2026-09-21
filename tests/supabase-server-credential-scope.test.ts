@@ -38,6 +38,17 @@ describe('Supabase server credential scoping', () => {
     ).toBe('staging-secret');
   });
 
+  it('treats Vercel preview as authoritative over a conflicting custom deploy environment', () => {
+    expect(
+      resolveSupabaseServerKey({
+        VERCEL_ENV: 'preview',
+        DEPLOY_ENVIRONMENT: 'production',
+        SUPABASE_STAGING_SECRET_KEY: 'staging-secret',
+        SUPABASE_SECRET_KEY: 'production-secret',
+      }),
+    ).toBe('staging-secret');
+  });
+
   it('fails the Vercel production preflight when a staging secret leaks into production scope', () => {
     const result = spawnSync(
       process.execPath,
