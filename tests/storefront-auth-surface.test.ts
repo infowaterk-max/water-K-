@@ -15,6 +15,7 @@ describe('template-aware storefront auth surface',()=>{
     expect(auth).toMatch(/data-storefront-auth-surface="true"/);
     expect(auth).toMatch(/--shoporation-color-primary/);
     expect(auth).toMatch(/min-height:44px/);
+    expect(auth).toMatch(/width:min\(100%,34rem\);max-width:34rem;margin:2rem auto/);
   });
 
   it('keeps signed-out customer auth inside the active storefront template shell',()=>{
