@@ -1589,20 +1589,30 @@ Playroom Account showed only three template-authored shortcuts (orders, favourit
 
 ### Root cause
 
-Account navigation had been treated as visual preset content inside individual templates. That duplicated platform IA and allowed templates to drift from the real account capability registry.
+The platform already had the correct shared Digital Commerce account-navigation authority:
+
+- `account.capability-navigation`;
+- `composeStorefrontDigitalCommerceCapabilities()`;
+- runtime-managed `model` binding through `commerce.digitalCommerce.accountCapabilities`;
+- production data sourced from `resolveAccountCapabilities()`.
+
+The gap was that historical exact-version packages such as `gaming.playroom@19` are resolved through the legacy package path, which did not receive the shared Digital Commerce composition before preview/runtime rendering. The template therefore fell back to its own three visual shortcut cards.
+
+A rejected intermediate fix created a second `account.capability-navigation@1` definition with a different binding contract. That duplicated an existing platform primitive and caused `BINDING_SLOT_NOT_SUPPORTED` validation failures. The duplicate implementation was removed.
 
 ### Resolution
 
-Account navigation is now a shared protected Storefront Runtime primitive:
-
-- `account.capability-navigation`;
-- canonical authority: `CANONICAL_ACCOUNT_CAPABILITIES`;
-- binding authority: `account.capabilities`;
-- injected portfolio-wide by `normalizeStorefrontTemplateRuntimeComposition()` for every `account` page;
-- rendered from the shared Builder component/renderer registries;
-- Desktop, Tablet and Mobile use the same capability list; only layout changes;
-- template-local quick-access cards may remain as secondary shortcuts but are no longer the navigation authority.
+- no template-local replacement Account IA;
+- no duplicate Account navigation primitive;
+- Account pages are routed through the existing `composeStorefrontDigitalCommerceCapabilities()` authority during shared runtime normalization;
+- the canonical Digital Commerce definition/renderer remains the single component authority;
+- preview capability data is now produced by `resolveAccountCapabilities()`, matching production authority;
+- production keeps tenant/user conditional visibility for B2B organization, quote requests and loyalty;
+- Desktop, Tablet and Mobile receive the same capability set; only shared responsive layout changes;
+- mobile renders the complete navigation vertically instead of hiding destinations in a horizontally clipped row;
+- template-authored quick-access cards may remain as secondary shortcuts only.
 
 ### Prevention
 
-No template may own or hardcode a reduced Account IA. Future account capability changes must update the canonical capability registry/runtime binding once, not each template or viewport separately.
+No template may own or hardcode a reduced Account IA. Historical/legacy template versions must pass through the same shared Account capability composition before render. Never create a second component definition for a key/version that already exists in the Builder/Digital Commerce registries; fix the composition or binding path instead.
+
