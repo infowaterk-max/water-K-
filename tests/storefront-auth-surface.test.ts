@@ -47,6 +47,8 @@ describe('template-aware storefront auth surface',()=>{
     expect(source).toMatch(/customerId:string\|null/);
     expect(source).toMatch(/const instance=await getCurrentWebshopInstance\(\);if\(!instance\)return null;/);
     expect(source).toMatch(/getPreviewStorefrontDraftPage\(instance\.id,'account'\)/);
+    expect(source).not.toMatch(/previewDraft=!customerId/);
+    expect(source).toMatch(/const previewDraft=process\.env\.VERCEL_ENV==='preview'/);
     expect(source).toMatch(/applyTemplateAuthComposition/);
     expect(source).not.toMatch(/resolveCurrentStorefrontAccountRuntimePage[\s\S]{0,220}requireStorefrontAccess\(\)/);
     expect(source).toMatch(/request\?getStorefrontDigitalCommerceRuntimeModel/);
