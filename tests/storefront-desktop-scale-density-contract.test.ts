@@ -91,7 +91,8 @@ describe('Storefront Desktop scale / density contract',()=>{
     expect(cartStyleQuantity).toContain('data-cart-icon="trash"');
     expect(cartStyleQuantity).toContain("data-rfq-quantity-field={!cart?'true':undefined}");
     expect(accountCss).toContain('--shoporation-account-control-background:var(--shoporation-color-surface-muted');
-    expect(cartStyleQuantity).toContain("height:48");
+    expect(cartStyleQuantity).toContain("height:64");
+    expect(cartStyleQuantity).toContain("gridTemplateRows:'32px 32px'");
     expect(cartStyleQuantity).toContain("background:'var(--shoporation-account-control-background,var(--shoporation-color-surface-muted,var(--shoporation-color-surface,#fff)))'");
     expect(cartStyleQuantity).toContain("border:'1px solid var(--shoporation-color-border,#d8dce7)'");
     expect(cartStyleQuantity).toContain("color:'var(--shoporation-color-text,#fff)'");
