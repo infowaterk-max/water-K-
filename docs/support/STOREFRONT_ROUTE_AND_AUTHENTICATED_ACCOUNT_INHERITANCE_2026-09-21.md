@@ -85,4 +85,20 @@ System information pages must use one shared vertical stack contract between car
 
 The shipping fallback must also remain useful when no carrier is configured: explain checkout selection, final fee visibility and post-order tracking availability without inventing carrier names, delivery times or unsupported promises.
 
+## 8. Public returns information vs authenticated return workflow
+
+The public `/oldal/visszakuldes` page is informational. It explains the process, points to the applicable terms and hands operational work to the authenticated return center.
+
+The authenticated `/fiokom/visszakuldes` page remains the only customer workflow authority for:
+- choosing an eligible order;
+- choosing order items and quantities;
+- submitting a reason/note;
+- tracking return-case status;
+- viewing refund information when available.
+
+The public page MUST NOT duplicate the mutation workflow or hardcode legal deadlines that may depend on the transaction, customer type or applicable terms.
+
+Acceptance contract:
+PUBLIC GUIDANCE + AUTHENTICATED OPERATIONAL WORKFLOW + ASZF AUTHORITY.
+
 ONE DEFECT -> ONE SHARED FIX -> REGRESSION TEST -> QUALITY GATE.
