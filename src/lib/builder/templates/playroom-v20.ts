@@ -131,7 +131,7 @@ function playroomV20AuthPublicSection():StorefrontComponentNode{
       tone:'background',spacing:'l',width:'full',authPublic:true,
       style:{
         base:{background:'radial-gradient(circle at 12% 10%,rgba(54,225,255,.12),transparent 28%),radial-gradient(circle at 86% 20%,rgba(255,93,190,.10),transparent 24%),linear-gradient(180deg,#020b17 0%,#061326 54%,#020b17 100%)',padding:'2rem 1rem 1rem'},
-        mobile:{padding:'1rem .85rem .55rem'},
+        mobile:{padding:'.45rem .5rem .2rem'},
       },
     },
     responsive:playroomContentResponsive,
@@ -139,13 +139,13 @@ function playroomV20AuthPublicSection():StorefrontComponentNode{
       id:'playroom-account-auth-public-container',
       componentKey:'layout.container',
       componentVersion:1,
-      config:{width:'content',spacing:'m',style:{base:{maxWidth:'72rem',margin:'0 auto'}}},
+      config:{width:'content',spacing:'s',style:{base:{maxWidth:'72rem',margin:'0 auto'}}},
       responsive:playroomContentResponsive,
       children:[node({
         id:'playroom-account-auth-public-grid',
         componentKey:'layout.grid',
         componentVersion:1,
-        config:{columns:12,gap:'l',align:'stretch'},
+        config:{columns:12,gap:'m',align:'stretch'},
         responsive:playroomContentResponsive,
         children:[
           node({
@@ -156,14 +156,14 @@ function playroomV20AuthPublicSection():StorefrontComponentNode{
               direction:'vertical',gap:'m',align:'stretch',justify:'center',
               style:{
                 base:{padding:'clamp(1.4rem,4vw,3.25rem)',minHeight:'23rem',background:'linear-gradient(145deg,rgba(27,22,71,.97),rgba(6,26,48,.99))',border:'1px solid rgba(54,225,255,.30)',borderRadius:'.95rem',boxShadow:'0 24px 70px rgba(0,0,0,.32)'},
-                mobile:{padding:'1.2rem',minHeight:'0'},
+                mobile:{padding:'1rem',minHeight:'0'},
               },
             },
             responsive:{desktop:{gridSpan:7},tablet:{gridSpan:7},mobile:{gridSpan:12}},
             children:[
               node({id:'playroom-account-auth-kicker',componentKey:'content.text',componentVersion:1,config:{text:'JÁTÉKOS FIÓK',as:'strong',align:'left',tone:'text',style:{base:{color:'#55e7ff',fontSize:'.7rem',fontWeight:900,letterSpacing:'.18em'}}}}),
-              node({id:'playroom-account-auth-title',componentKey:'content.heading',componentVersion:1,config:{text:'Lépj vissza a játékba.',level:1,align:'left',tone:'text',style:{base:{fontSize:'clamp(2.35rem,6vw,5.35rem)',lineHeight:.92,letterSpacing:'-.055em',maxWidth:'10ch'},mobile:{fontSize:'2.45rem',lineHeight:.95}}}}),
-              node({id:'playroom-account-auth-copy',componentKey:'content.text',componentVersion:1,config:{text:'Belépés után eléred a rendeléseidet, digitális letöltéseidet, dokumentumaidat és mentett játékaidat.',as:'p',align:'left',tone:'text',style:{base:{color:'#b9cadc',fontSize:'1rem',lineHeight:1.6,maxWidth:'44rem'},mobile:{fontSize:'.94rem'}}}}),
+              node({id:'playroom-account-auth-title',componentKey:'content.heading',componentVersion:1,config:{text:'Lépj vissza a játékba.',level:1,align:'left',tone:'text',style:{base:{fontSize:'clamp(2.35rem,6vw,5.35rem)',lineHeight:.92,letterSpacing:'-.055em',maxWidth:'10ch'},mobile:{fontSize:'2.05rem',lineHeight:.98}}}}),
+              node({id:'playroom-account-auth-copy',componentKey:'content.text',componentVersion:1,config:{text:'Belépés után eléred a rendeléseidet, digitális letöltéseidet, dokumentumaidat és mentett játékaidat.',as:'p',align:'left',tone:'text',style:{base:{color:'#b9cadc',fontSize:'1rem',lineHeight:1.6,maxWidth:'44rem'},mobile:{fontSize:'.9rem',lineHeight:1.45}}}}),
               node({id:'playroom-account-auth-signal',componentKey:'content.text',componentVersion:1,config:{text:'PLAY · DISCOVER · TOGETHER',as:'strong',align:'left',tone:'text',style:{base:{color:'#b8e34a',fontSize:'.68rem',fontWeight:900,letterSpacing:'.16em'}}}}),
             ],
           }),
@@ -175,7 +175,7 @@ function playroomV20AuthPublicSection():StorefrontComponentNode{
               direction:'vertical',gap:'m',align:'stretch',justify:'center',
               style:{
                 base:{padding:'clamp(1.25rem,3vw,2.2rem)',background:'linear-gradient(160deg,#0b2947,#07172b)',border:'1px solid rgba(255,93,190,.28)',borderRadius:'.95rem',boxShadow:'0 22px 60px rgba(0,0,0,.28)'},
-                mobile:{padding:'1.15rem'},
+                mobile:{display:'none',padding:'0'},
               },
             },
             responsive:{desktop:{gridSpan:5},tablet:{gridSpan:5},mobile:{gridSpan:12}},
