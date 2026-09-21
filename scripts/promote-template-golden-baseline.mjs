@@ -14,7 +14,7 @@ const evidence=JSON.parse(await readFile(path.join(evidenceDir,'manifest.json'),
 if(evidence.contract!=='shoporation.template-factory-quality-evidence.v2')throw new Error('GOLDEN_PROMOTION_EVIDENCE_CONTRACT');
 if((evidence.errors??[]).length)throw new Error('GOLDEN_PROMOTION_REQUIRES_CLEAN_EVIDENCE');
 
-const pageTypes=['home','catalog','product','cart','checkout','account','blog','blog-article','faq','content','legal','search','not-found','order-confirmation'];
+const pageTypes=['home','catalog','product','cart','checkout','account','search','content','blog-index','blog-article','faq','contact','legal','not-found'];
 const viewports=['desktop','tablet','mobile'];
 const expected=new Set(pageTypes.flatMap(pageType=>viewports.map(viewport=>`${pageType}:${viewport}`)));
 const selected=(evidence.cases??[]).filter(item=>item.templateKey===templateKey&&item.templateVersion===templateVersion&&expected.has(`${item.pageType}:${item.viewport}`));
