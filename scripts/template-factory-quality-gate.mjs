@@ -19,6 +19,8 @@ const qualityInfrastructurePrefixes=[
   'src/app/visual-fidelity-qa/',
   'scripts/template-factory-quality-gate.mjs',
   '.github/workflows/template-factory-quality-gate.yml',
+  'tests/storefront-template-quality-gate-v2.test.ts',
+  'tests/playroom-v20-canonical-shell-content.test.ts',
 ];
 const sharedRuntimePrefixes=[
   'src/components/builder/',
