@@ -15,7 +15,7 @@ export default async function Shop() {
     <Suspense fallback={null}><ReorderLoader products={products.map(product => ({ id: product.id, slug: product.slug, name: product.name, grossPrice: product.grossPrice, sku: product.sku, stock: product.stock, minimumQuantity: product.minimumQuantity, orderMultiple: product.orderMultiple }))}/></Suspense>
     <div className="sectionIntro shopIntro"><div><span className="eyebrow">{brand}</span><h1 className="sectionTitle">Válassz egyszerűen a teljes kínálatból.</h1></div><p className="lead">Aktuális árak és készlet közvetlenül a webáruházból.</p></div>
     <div className="shopTrustBar"><span>✓ Aktuális készlet</span><span>✓ Biztonságos pénztár</span><span>✓ Céges és B2B vásárlás</span><span>✓ Átlátható árak</span></div>
-    <ShopCatalog products={products} signedIn={access.signedIn} resellerApproved={access.resellerApproved}/>
+    <Suspense fallback={<section className="catalogEmpty"><p>Termékek betöltése…</p></section>}><ShopCatalog products={products} signedIn={access.signedIn} resellerApproved={access.resellerApproved}/></Suspense>
     {selection.length>0&&<section className="selectionHelp"><div><span className="eyebrow">Segítség a választáshoz</span><h2>Kiemelt lehetőségek</h2></div><div className="selectionGrid">{selection.map(product=><div key={product.id}><strong>{product.size||product.name}</strong><span>{product.short||product.name}</span></div>)}</div></section>}
     <NewsletterSignup/>
   </div></main>;
