@@ -18,7 +18,9 @@ const qualityInfrastructurePrefixes=[
   'src/app/api/visual-fidelity/templates/',
   'src/app/visual-fidelity-qa/',
   'scripts/template-factory-quality-gate.mjs',
+  'scripts/promote-template-golden-baseline.mjs',
   '.github/workflows/template-factory-quality-gate.yml',
+  '.github/workflows/template-golden-baseline-promotion.yml',
   'tests/storefront-template-quality-gate-v2.test.ts',
   'tests/playroom-v20-canonical-shell-content.test.ts',
 ];
