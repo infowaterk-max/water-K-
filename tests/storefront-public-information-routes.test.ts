@@ -5,6 +5,8 @@ const page=fs.readFileSync('src/app/oldal/[slug]/page.tsx','utf8');
 const shell=fs.readFileSync('src/components/content/storefront-content-shell.tsx','utf8');
 const source=fs.readFileSync('src/lib/builder/storefront-runtime-source.ts','utf8');
 const css=fs.readFileSync('src/app/public-pages-polish.css','utf8');
+const commerceSettings=fs.readFileSync('src/lib/commerce/settings.ts','utf8');
+const acceptanceFixture=fs.readFileSync('supabase/acceptance/digital-commerce-provider-fixture.sql','utf8');
 
 describe('storefront public information route integrity',()=>{
  it('keeps canonical footer information routes functional even without CMS content',()=>{
@@ -40,4 +42,18 @@ describe('storefront public information route integrity',()=>{
   expect(page).toMatch(/Vissza a webáruházba/);
   expect(page).not.toMatch(/SimplePay|Barion|Stripe|PayPal/);
  });
+ it('uses a representative preview-only commerce fixture instead of testing only empty states',()=>{
+  expect(commerceSettings).toMatch(/instance\.storefront\.acceptance==='digital-commerce-guest-matrix'/);
+  expect(commerceSettings).toMatch(/Acceptance · személyes átvétel/);
+  expect(commerceSettings).toMatch(/Acceptance · házhozszállítás/);
+  expect(commerceSettings).toMatch(/Acceptance · csomagpont/);
+  expect(commerceSettings).toMatch(/Acceptance · banki átutalás/);
+  expect(commerceSettings).toMatch(/Acceptance · utánvét/);
+  expect(commerceSettings).toMatch(/freeShippingThreshold:20000/);
+  expect(acceptanceFixture).toMatch(/NOT a migration/);
+  expect(acceptanceFixture).toMatch(/example\.invalid/);
+  expect(acceptanceFixture).toMatch(/ne utalj valódi pénzt/);
+  expect(acceptanceFixture).not.toMatch(/kh_card|stripe|simplepay|barion/);
+ });
+
 });
