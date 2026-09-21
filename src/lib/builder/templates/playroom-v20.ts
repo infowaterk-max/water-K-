@@ -387,6 +387,7 @@ function upgradePage(source:StorefrontPageDocument):StorefrontPageDocument{
       adaptivePlanModel:'same-template-alap-pro-entitlement-aware',
       templateVersionPolicy:'bump-only-for-factory-composition-or-schema-change',
       digitalCommerceFactoryAcceptance:['downloadable-game','physical-gaming-product','mixed-basket'],
+      ...(source.pageType==='account'?{authComposition:'template-owned-v1',authPreset:'playroom-v20-command-center'}:{}),
       ...(source.pageType==='checkout'?{checkoutTheme:{
         background:'#020b17',
         surface:'#0b2947',
