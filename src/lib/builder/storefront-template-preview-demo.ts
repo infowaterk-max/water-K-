@@ -202,6 +202,13 @@ const demoReviews=()=>[
   {id:'review-3',name:'Dóra',author:'Dóra',rating:4.8,title:'Jól böngészhető',copy:'Reszponzív elrendezés és szerkeszthető blokkok ugyanazon storefront motoron.'},
 ];
 
+const PREVIEW_SOCIAL_LINKS=Object.freeze([
+  {label:'YouTube',href:'https://www.youtube.com/',symbol:'▶',ariaLabel:'YouTube'},
+  {label:'Instagram',href:'https://www.instagram.com/',symbol:'◎',ariaLabel:'Instagram'},
+  {label:'TikTok',href:'https://www.tiktok.com/',symbol:'♪',ariaLabel:'TikTok'},
+  {label:'Facebook',href:'https://www.facebook.com/',symbol:'f',ariaLabel:'Facebook'},
+]);
+
 function genericItems(template:StorefrontInstallableTemplatePackage,page:StorefrontPageDocument){
   const collections=demoCollections(template,page);
   return collections.map((item,index)=>({
@@ -224,6 +231,7 @@ function valueForBinding(input:{template:StorefrontInstallableTemplatePackage;pa
 
   if(slot==='products'||key==='commerce.product-grid'||key==='commerce.recommendation-row')return products;
   if(slot==='items'){
+    if(key==='system.social-links')return PREVIEW_SOCIAL_LINKS.map(item=>({...item}));
     if(key==='commerce.collection-navigation')return collections;
     if(key.includes('review'))return demoReviews();
     return items;
