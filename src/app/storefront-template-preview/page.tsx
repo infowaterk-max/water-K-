@@ -16,10 +16,11 @@ import {StorefrontRuntimeRenderer} from '@/components/builder/storefront-runtime
 import {createStorefrontVisualBuilderRendererRegistry} from '@/components/builder/storefront-builder-renderer-registry';
 import {createStorefrontVisualBuilderComponentRegistry} from '@/lib/builder/storefront-builder-registry';
 import {STOREFRONT_CANONICAL_VIEWPORT_WIDTH_PX,STOREFRONT_PAGE_TYPES,type StorefrontBuilderPageType,type StorefrontViewport} from '@/lib/builder/storefront-foundation';
+import {applyStorefrontTemplateDemoNotice,getStorefrontTemplateDemoContent,rewriteStorefrontTemplatePreviewLinks} from '@/lib/builder/storefront-template-route-integrity';
 import styles from './storefront-template-preview.module.css';
 
 export const dynamic='force-dynamic';
-type Props={searchParams:Promise<{template?:string;version?:string;page?:string;viewport?:string;embed?:string}>};
+type Props={searchParams:Promise<{template?:string;version?:string;page?:string;viewport?:string;embed?:string;demoContent?:string}>};
 const widths=STOREFRONT_CANONICAL_VIEWPORT_WIDTH_PX;
 const allowedPageTypes=new Set<StorefrontBuilderPageType>(STOREFRONT_PAGE_TYPES);
 
@@ -36,11 +37,27 @@ export default async function StorefrontTemplatePreview({searchParams}:Props){
   if(!templateKey||version!==undefined&&!Number.isInteger(version)||!allowedPageTypes.has(pageType))notFound();
   const template=getStorefrontTemplatePackage(templateKey,version);
   if(!template)notFound();
-  const page=template.pages.find(candidate=>candidate.pageType===pageType);
-  if(!page)notFound();
+  const sourcePage=template.pages.find(candidate=>candidate.pageType===pageType);
+  if(!sourcePage)notFound();
   const viewport:StorefrontViewport=query.viewport==='mobile'?'mobile':query.viewport==='tablet'?'tablet':'desktop';
+  const demoFixture=query.demoContent?getStorefrontTemplateDemoContent(template,query.demoContent):null;
+  if(query.demoContent&&!demoFixture)notFound();
+  const demoPayload=demoFixture?.payload??null;
+  const noticedPage=demoPayload?applyStorefrontTemplateDemoNotice(sourcePage):sourcePage;
+  const page=rewriteStorefrontTemplatePreviewLinks(noticedPage,{templateKey:template.manifest.templateKey,templateVersion:template.manifest.templateVersion,viewport});
   const embed=query.embed==='1';
   const baseContext=applyAuthoredTemplatePreviewFallbacks({page,context:createStorefrontTemplatePreviewBindingContext({template,page})});
+  if(demoPayload){
+    const content=baseContext.content&&typeof baseContext.content==='object'&&!Array.isArray(baseContext.content)?baseContext.content as Record<string,unknown>:{};
+    const title=typeof demoPayload.title==='string'?demoPayload.title:'Minta tartalom';
+    const summary=typeof demoPayload.excerpt==='string'?demoPayload.excerpt:'Előre generált mintaoldal.';
+    const body=typeof demoPayload.body==='string'?demoPayload.body:'';
+    baseContext.content={
+      ...content,
+      page:{title,summary,body},
+      article:{title,excerpt:summary,summary,body,image:'',imageAlt:''},
+    };
+  }
   const bindingContext=augmentStorefrontDigitalCommercePreviewContext({template,page,context:baseContext});
   const theme=getStorefrontTemplatePreviewTheme(template.manifest.templateKey) as CSSProperties;
   const previewCapability={plan:'pro' as const,features:[...PLANS.pro.features]};
