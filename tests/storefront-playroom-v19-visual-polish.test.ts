@@ -74,12 +74,13 @@ describe('Playroom v19 final visual polish',()=>{
       expect(brand,document.pageType).toBeTruthy();
       expect(brand?.responsive?.mobile?.gridSpan,document.pageType).toBe(12);
       for(const item of [shop,world,about,social])expect(item?.responsive?.mobile?.gridSpan,document.pageType).toBe(6);
-      const footerLinks=nodes.filter(item=>item.componentKey==='content.button'&&String(item.id).startsWith('playroom-footer-'));
-      expect(footerLinks.length,document.pageType).toBeGreaterThan(0);
-      for(const link of footerLinks){
-        expect((link.config.style as any)?.mobile?.fontSize,document.pageType+':'+link.id).toBe('.86rem');
-        expect((link.config.style as any)?.mobile?.minHeight,document.pageType+':'+link.id).toBe('2.25rem');
+      const footerNavigation=nodes.filter(item=>item.componentKey==='system.navigation'&&String(item.id).startsWith('playroom-footer-'));
+      expect(footerNavigation.length,document.pageType).toBeGreaterThan(0);
+      for(const navigation of footerNavigation){
+        expect((navigation.config.style as any)?.fontSize,document.pageType+':'+navigation.id).toBe('.86rem');
+        expect((navigation.config.styleSlots as any)?.item?.base?.minHeight,document.pageType+':'+navigation.id).toBe('2.1rem');
       }
+      expect(social?.componentKey,document.pageType).toBe('system.social-links');
     }
   });
   it('keeps every Playroom v19 commerce header compact and reachable on mobile',()=>{
