@@ -5,6 +5,7 @@ const instance=fs.readFileSync('src/lib/instances/access.ts','utf8');
 const runtime=fs.readFileSync('src/lib/builder/storefront-runtime-source.ts','utf8');
 const playroom=fs.readFileSync('src/lib/builder/templates/playroom-v20.ts','utf8');
 const primitives=fs.readFileSync('src/components/builder/storefront-primitives.tsx','utf8');
+const normalization=fs.readFileSync('src/lib/builder/storefront-template-runtime-normalization.ts','utf8');
 const primitiveRegistry=fs.readFileSync('src/lib/builder/storefront-primitives.ts','utf8');
 const page=fs.readFileSync('src/app/admin/beallitasok/megjelenes/page.tsx','utf8');
 const actions=fs.readFileSync('src/app/admin/beallitasok/megjelenes/actions.ts','utf8');
@@ -34,5 +35,7 @@ describe('storefront social settings authority',()=>{
     expect(primitives).toMatch(/if\(!items\.length\)return null/);
     expect(playroom).toMatch(/componentKey:'system\.social-links'/);
     expect(playroom).toMatch(/path:'brand\.socialLinks'/);
+    expect(normalization).toMatch(/node\.id==='playroom-footer-social'/);
+    expect(normalization).toMatch(/componentKey:'system\.social-links'/);
   });
 });
