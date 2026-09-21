@@ -4,7 +4,8 @@ import { useEffect,useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/browser';
 
-type Mode='login'|'register';
+export type AuthMode='login'|'register';
+type Mode=AuthMode;
 type AccountType='customer'|'company'|'reseller';
 type AuthFlow='invite'|'recovery';
 type FlowStatus='idle'|'checking'|'ready'|'invalid';
@@ -16,9 +17,9 @@ function safeAdminNext(){
   return safeAdmin||safeTemplatePreview?requestedNext:null;
 }
 
-export function AuthForm({instanceId}:{instanceId:string|null}){
+export function AuthForm({instanceId,initialMode='login',onAuthenticated,returnTo}:{instanceId:string|null;initialMode?:AuthMode;onAuthenticated?:()=>void;returnTo?:string|null}){
   const router=useRouter();
-  const [mode,setMode]=useState<Mode>('login');
+  const [mode,setMode]=useState<Mode>(initialMode);
   const [accountType,setAccountType]=useState<AccountType>('customer');
   const [email,setEmail]=useState('');
   const [message,setMessage]=useState('');
@@ -68,11 +69,16 @@ export function AuthForm({instanceId}:{instanceId:string|null}){
       setBusy(false);
       if(result.error){setMessage(result.error.message);return;}
       setMessage('Sikeres bejelentkezés.');
-      const target=safeAdminNext();
+      if(onAuthenticated){onAuthenticated();return;}
+      const target=returnTo&&returnTo.startsWith('/')&&!returnTo.startsWith('//')?returnTo:safeAdminNext();
       if(target){router.replace(target);router.refresh();return;}
       router.refresh();return;
     }
-    if(!instanceId){setBusy(false);setMessage('Ehhez a regisztrációhoz nincs aktív webshop.');return;}
+    let registrationInstanceId=instanceId;
+    if(!registrationInstanceId){
+      try{const context=await fetch('/api/storefront/auth-context',{cache:'no-store'}).then(response=>response.ok?response.json():null) as {instanceId?:string|null}|null;registrationInstanceId=context?.instanceId??null}catch{registrationInstanceId=null}
+    }
+    if(!registrationInstanceId){setBusy(false);setMessage('Ehhez a regisztrációhoz nincs aktív webshop.');return;}
     const fullName=String(formData.get('fullName')??'').trim();
     const companyName=String(formData.get('companyName')??'').trim();
     const taxNumber=String(formData.get('taxNumber')??'').trim();
@@ -84,11 +90,12 @@ export function AuthForm({instanceId}:{instanceId:string|null}){
         company_name:companyName,
         tax_number:taxNumber,
         account_type:accountType,
-        requested_instance_id:instanceId,
+        requested_instance_id:registrationInstanceId,
       }},
     });
     setBusy(false);
     if(result.error){setMessage(result.error.message);return;}
+    if(result.data.session&&onAuthenticated){onAuthenticated();return;}
     setMessage(accountType==='reseller'?'Partnerigény elküldve ehhez a webshophoz. A viszonteladói árak admin jóváhagyás után aktiválódnak.':'Regisztráció elküldve. Ellenőrizd az e-mail-fiókodat.');
   }
 
