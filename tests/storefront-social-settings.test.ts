@@ -6,6 +6,7 @@ const runtime=fs.readFileSync('src/lib/builder/storefront-runtime-source.ts','ut
 const playroom=fs.readFileSync('src/lib/builder/templates/playroom-v20.ts','utf8');
 const primitives=fs.readFileSync('src/components/builder/storefront-primitives.tsx','utf8');
 const normalization=fs.readFileSync('src/lib/builder/storefront-template-runtime-normalization.ts','utf8');
+const previewDemo=fs.readFileSync('src/lib/builder/storefront-template-preview-demo.ts','utf8');
 const primitiveRegistry=fs.readFileSync('src/lib/builder/storefront-primitives.ts','utf8');
 const page=fs.readFileSync('src/app/admin/beallitasok/megjelenes/page.tsx','utf8');
 const actions=fs.readFileSync('src/app/admin/beallitasok/megjelenes/actions.ts','utf8');
@@ -28,6 +29,14 @@ describe('storefront social settings authority',()=>{
     expect(actions).toMatch(/admin_mutate_storefront_social_links_v1/);
     expect(migration).toMatch(/can_manage_storefront\(p_instance_id,p_actor\)/);
     expect(migration).toMatch(/storefront\.social_links_updated/);
+  });
+
+  it('keeps template preview social data functional instead of reusing generic hash demo items',()=>{
+    expect(previewDemo).toMatch(/PREVIEW_SOCIAL_LINKS/);
+    expect(previewDemo).toMatch(/key==='system\.social-links'/);
+    expect(previewDemo).toMatch(/https:\/\/www\.youtube\.com\//);
+    expect(previewDemo).toMatch(/https:\/\/www\.instagram\.com\//);
+    expect(previewDemo).not.toMatch(/key==='system\.social-links'\)return items/);
   });
 
   it('renders a shared self-hiding social primitive instead of template-local fake controls',()=>{
