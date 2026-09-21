@@ -35,14 +35,14 @@ function SystemInfoPage({slug,brand,settings}:{slug:string;brand:string;settings
       <section className="featurePanel systemInfoGuide"><span className="eyebrow">Hogyan működik?</span><h2>A végleges lehetőséget mindig a pénztár mutatja.</h2><div className="cards"><article className="card"><span className="badge">1</span><h3>Rendelési adatok</h3><p className="muted">Add meg pontosan a kézbesítéshez szükséges adatokat.</p></article><article className="card"><span className="badge">2</span><h3>Elérhető módok</h3><p className="muted">A pénztár csak az adott rendeléshez használható, aktív szállítási módokat kínálja fel.</p></article><article className="card"><span className="badge">3</span><h3>Díj ellenőrzése</h3><p className="muted">A végleges szállítási díjat még a rendelés elküldése előtt látod.</p></article></div></section>
       <section className="card"><h2>Rendelés után</h2><p className="muted">A kiválasztott szállítási mód a rendelési adatok között is megjelenik. Ha az adott szolgáltató nyomkövetési adatot biztosít, azt a fiókod rendelési nézetében érheted el.</p></section>
     </div>
-    <div className="actions systemInfoActions"><Link className="btn btnPrimary" href="/webaruhaz">Vásárlás</Link><Link className="btn btnGhost" href="/oldal/fizetes">Fizetési információk</Link></div>
+    <div className="actions systemInfoActions"><Link className="btn btnPrimary" href="/webaruhaz">Vissza a webáruházba</Link><Link className="btn btnGhost" href="/oldal/fizetes">Fizetési információk</Link></div>
   </div></main>;
  }
  if(slug==='fizetes'){
   return <main className="section contentPage systemInfoPage" data-system-info-page="payment"><div className="shell">
     <span className="eyebrow">{brand} · vásárlási információk</span><h1 className="sectionTitle">Fizetés</h1><p className="lead">Csak azok a fizetési módok jelennek meg, amelyek ennél a webshopnál ténylegesen aktívak és konfiguráltak.</p>
     {settings.paymentOptions.length?<div className="cards">{settings.paymentOptions.map(option=><article className="card" key={option.code}><span className="badge">Aktív fizetési mód</span><h2>{option.label}</h2></article>)}</div>:<div className="card"><h2>A fizetési módok beállítás alatt állnak</h2><p className="muted">A pénztár nem kínál fel nem konfigurált fizetési szolgáltatást.</p></div>}
-    <div className="actions"><Link className="btn btnPrimary" href="/webaruhaz">Vásárlás</Link><Link className="btn btnGhost" href="/oldal/szallitas">Szállítási információk</Link></div>
+    <div className="actions"><Link className="btn btnPrimary" href="/webaruhaz">Vissza a webáruházba</Link><Link className="btn btnGhost" href="/oldal/szallitas">Szállítási információk</Link></div>
   </div></main>;
  }
  return <main className="section contentPage systemInfoPage" data-system-info-page="returns"><div className="shell">
