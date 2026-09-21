@@ -34,6 +34,7 @@ export const STOREFRONT_PRIMITIVE_DEFINITIONS:readonly StorefrontRuntimeComponen
   {manifest:manifest({componentKey:'content.button',schemaSlot:'children',configurable:['label','href','variant','size','ariaLabel','presentation','typography','style','styleSlots'],responsiveMode:'fixed'}),bindingSlots:['label','href']},
   {manifest:manifest({componentKey:'system.header',schemaSlot:'protected.header',configurable:['brandLabel','brandHref','tone','sticky','behavior','presentation','tagline','utilityItems','style','styleSlots','innerStyle','brandStyle','taglineStyle','utilityStyle','mobileToggleStyle'],responsiveMode:'primary-navigation'}),bindingSlots:['brandLabel','brandHref'],allowsChildren:true,allowedChildren:['system.navigation'],protectedSystem:true},
   {manifest:manifest({componentKey:'system.navigation',schemaSlot:'protected.navigation',configurable:['items','ariaLabel','layout','presentation','style','styleSlots'],responsiveMode:'primary-navigation'}),bindingSlots:['items'],protectedSystem:true},
+  {manifest:manifest({componentKey:'system.social-links',schemaSlot:'protected.social',configurable:['title','copy','items','ariaLabel','presentation','style','styleSlots','titleStyle','copyStyle','navigationStyle','itemStyle'],responsiveMode:'primary-navigation'}),bindingSlots:['items'],protectedSystem:true},
 ] as const;
 
 export function createStorefrontPrimitiveComponentRegistry(){const registry=new StorefrontComponentRegistry();for(const definition of STOREFRONT_PRIMITIVE_DEFINITIONS)registry.register(definition);return registry;}
