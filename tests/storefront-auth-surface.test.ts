@@ -6,6 +6,9 @@ const shell=fs.readFileSync('src/components/account/storefront-account-shell.tsx
 const source=fs.readFileSync('src/lib/builder/storefront-runtime-source.ts','utf8');
 const accountPage=fs.readFileSync('src/app/fiokom/page.tsx','utf8');
 const playroom=fs.readFileSync('src/lib/builder/templates/playroom-v20.ts','utf8');
+const primitives=fs.readFileSync('src/components/builder/storefront-primitives.tsx','utf8');
+const commerceHeader=fs.readFileSync('src/components/builder/storefront-commerce-header.tsx','utf8');
+const accountCss=fs.readFileSync('src/app/account-workflow.css','utf8');
 
 describe('template-aware storefront auth surface',()=>{
   it('exposes the shared auth surface and inherits storefront design tokens',()=>{
@@ -31,6 +34,13 @@ describe('template-aware storefront auth surface',()=>{
     expect(playroom).toMatch(/authPublic:true/);
     expect(playroom).toMatch(/authComposition:'template-owned-v1'/);
     expect(playroom).toMatch(/authPreset:'playroom-v20-command-center'/);
+  });
+
+  it('locks mobile width and overflow geometry for signed-out auth',()=>{
+    expect(primitives).toMatch(/width:'100%',maxWidth:'100%',minWidth:0,boxSizing:'border-box'/);
+    expect(commerceHeader).toMatch(/width:'100%',maxWidth:'100%',minWidth:0,boxSizing:'border-box'/);
+    expect(accountCss).toMatch(/\.storefrontAccountShell\{width:100%;max-width:100%;min-width:0;/);
+    expect(playroom).toMatch(/mobile:\{display:'none',padding:'0'\}/);
   });
 
   it('resolves anonymous account pages without requesting customer-only commerce data',()=>{
