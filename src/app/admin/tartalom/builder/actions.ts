@@ -36,6 +36,7 @@ import {generateCurrentStorefrontWithAi} from '@/lib/builder/storefront-ai-gener
 import {storefrontAiGenerationInputSchema} from '@/lib/builder/storefront-ai-generator';
 import {
   getCurrentStorefrontBuilderCapability,
+  listCurrentStorefrontTemplateDemoContent,
   listCurrentStorefrontTemplatePlanningPages,
 } from '@/lib/builder/storefront-builder-server';
 import {
@@ -133,8 +134,8 @@ export async function installVisualBuilderTemplateAction(input:{templateKey:stri
   if(!sourceTemplate)throw new Error('BUILDER_TEMPLATE_NOT_FOUND');
   const template=composeStorefrontDigitalCommerceTemplatePackage(sourceTemplate);
   for(const page of template.pages)assertStorefrontPerformance(page);
-  const[capability,existingPages]=await Promise.all([getCurrentStorefrontBuilderCapability(),listCurrentStorefrontTemplatePlanningPages()]);
-  const plan=planStorefrontTemplateInstallation({template,componentRegistry:createStorefrontVisualBuilderComponentRegistry(),capability,existingPages});
+  const[capability,existingPages,currentDemoContent]=await Promise.all([getCurrentStorefrontBuilderCapability(),listCurrentStorefrontTemplatePlanningPages(),listCurrentStorefrontTemplateDemoContent()]);
+  const plan=planStorefrontTemplateInstallation({template,componentRegistry:createStorefrontVisualBuilderComponentRegistry(),capability,existingPages,currentDemoContent});
   const result=await saveCurrentStorefrontTemplateInstallationPlan({plan,operationKey:input.operationKey});
   refresh();
   return result;
