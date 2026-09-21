@@ -27,6 +27,8 @@ export function AuthForm({instanceId,initialMode='login',onAuthenticated,returnT
   const [authFlow,setAuthFlow]=useState<AuthFlow|null>(null);
   const [flowStatus,setFlowStatus]=useState<FlowStatus>('idle');
 
+  useEffect(()=>{setMode(initialMode)},[initialMode]);
+
   useEffect(()=>{
     const search=new URLSearchParams(window.location.search);
     const hash=new URLSearchParams(window.location.hash.replace(/^#/,''));
