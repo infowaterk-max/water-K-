@@ -207,10 +207,7 @@ const PREVIEW_SOCIAL_LINKS=Object.freeze([
   {label:'Instagram',href:'https://www.instagram.com/',symbol:'IG',ariaLabel:'Instagram'},
   {label:'TikTok',href:'https://www.tiktok.com/',symbol:'TT',ariaLabel:'TikTok'},
   {label:'Facebook',href:'https://www.facebook.com/',symbol:'FB',ariaLabel:'Facebook'},
-  {label:'X',href:'https://x.com/',symbol:'X',ariaLabel:'X'},
-  {label:'Twitch',href:'https://www.twitch.tv/',symbol:'TW',ariaLabel:'Twitch'},
   {label:'LinkedIn',href:'https://www.linkedin.com/',symbol:'IN',ariaLabel:'LinkedIn'},
-  {label:'Pinterest',href:'https://www.pinterest.com/',symbol:'PI',ariaLabel:'Pinterest'},
 ]);
 
 function genericItems(template:StorefrontInstallableTemplatePackage,page:StorefrontPageDocument){
