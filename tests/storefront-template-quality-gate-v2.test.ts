@@ -52,7 +52,10 @@ describe('Template Factory Quality Gate v2',()=>{
     expect(workflow).toContain('Run Template Factory 14x3 browser matrix');
     expect(workflow).toContain('workflow_dispatch');
     expect(runner).toContain('TEMPLATE_FACTORY_QUALITY_MANIFEST_REQUIRED');
-    expect(runner).toContain('TEMPLATE_FACTORY_REACCEPTANCE_MANIFEST_REQUIRED');
+    expect(runner).toContain('LEGACY_TEMPLATE_REACCEPTANCE_PENDING');
+    expect(runner).toContain("mode:'full',reason:'shared-runtime-changed'");
+    expect(runner).toContain("'src/components/admin/storefront-visual-builder-v3.tsx'");
+    expect(runner).toContain("'src/app/storefront-template-preview/'");
     expect(runner).toContain('MOBILE_DESKTOP_NAV_LEAK');
     expect(runner).toContain('GOLDEN_BASELINE_MISSING');
   });
