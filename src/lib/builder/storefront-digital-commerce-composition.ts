@@ -177,7 +177,7 @@ function removeStaleAccountSurfaces(sections:readonly StorefrontComponentNode[])
 function ensureAccountCapabilityNavigation(document:StorefrontPageDocument):void{
   if(document.pageType!=='account'||hasComponent(document.sections,'account.capability-navigation'))return;
   const prefix=`shared-${idPart(document.pageKey)}-account-navigation`;
-  const section=node({id:prefix,componentKey:'layout.section',componentVersion:1,config:{tone:'background',spacing:'s',width:'full'},children:[node({id:`${prefix}-container`,componentKey:'layout.container',componentVersion:1,config:{width:'content',spacing:'s'},children:[node({id:`${prefix}-nav`,componentKey:'account.capability-navigation',componentVersion:1,config:{title:'Fiókom',layout:'tabs',presentation:'canonical-account'}})]})]});
+  const section=node({id:prefix,componentKey:'layout.section',componentVersion:1,config:{tone:'background',spacing:'s',width:'full'},children:[node({id:`${prefix}-container`,componentKey:'layout.container',componentVersion:1,config:{width:'content',spacing:'s'},children:[node({id:`${prefix}-nav`,componentKey:'account.capability-navigation',componentVersion:1,config:{title:'Fiókom',layout:'responsive',presentation:'canonical-account'}})]})]});
   const header=document.sections.findIndex(isHeaderSection);document.sections.splice(header>=0?header+1:0,0,section);
 }
 
