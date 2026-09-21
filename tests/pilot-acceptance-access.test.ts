@@ -33,6 +33,7 @@ describe('pilot acceptance guest access',()=>{
     expect(start).toContain("process.env.VERCEL_ENV!=='preview'");
     expect(start).toContain("instanceId=(url.searchParams.get('instanceId')");
     expect(start).toContain("'b2b-rfq':'/fiokom/ajanlatkeresek'");
+    expect(start).toContain("'catalog-new':'/webaruhaz?sort=new&pilot=acceptance'");
     expect(start).toContain("sales:'/admin/ertekesites'");
     expect(start).toContain("returns:'/admin/visszaru'");
     expect(start).toContain("binding.role_code==='owner'||binding.role_code==='admin'");
