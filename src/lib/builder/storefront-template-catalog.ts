@@ -1,6 +1,7 @@
 import type {StorefrontInstallableTemplatePackage} from '@/lib/builder/storefront-template-installation';
 import type {StorefrontComponentNode,StorefrontPageDocument} from '@/lib/builder/storefront-runtime';
 import {normalizeStorefrontTemplateRuntimeComposition,storefrontCartPresentationViolations} from '@/lib/builder/storefront-template-runtime-normalization';
+import {augmentStorefrontTemplateDemoContent} from '@/lib/builder/storefront-template-route-integrity';
 import {ALPINE_LODGE_TEMPLATE_PACKAGE} from '@/lib/builder/templates/alpine-lodge';
 import {BEAUTY_LAB_TEMPLATE_PACKAGE} from '@/lib/builder/templates/beauty-lab-canonical-v2';
 import {CREATOR_STATION_TEMPLATE_PACKAGE} from '@/lib/builder/templates/creator-station';
@@ -74,18 +75,18 @@ function normalizeLegacyTemplatePage(page:StorefrontPageDocument):StorefrontPage
 }
 
 function normalizeLegacyTemplatePackage(template:StorefrontInstallableTemplatePackage):StorefrontInstallableTemplatePackage{
-  return{
+  return augmentStorefrontTemplateDemoContent({
     ...template,
     pages:template.pages.map(normalizeLegacyTemplatePage),
-  };
+  });
 }
 
 function normalizeImplementedTemplatePackage(template:StorefrontInstallableTemplatePackage):StorefrontInstallableTemplatePackage{
   const legacyNormalized=normalizeLegacyTemplatePackage(template);
-  return{
+  return augmentStorefrontTemplateDemoContent({
     ...legacyNormalized,
     pages:legacyNormalized.pages.map(normalizeStorefrontTemplateRuntimeComposition),
-  };
+  });
 }
 
 /**
