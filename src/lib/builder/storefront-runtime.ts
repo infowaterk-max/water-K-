@@ -12,7 +12,7 @@ import {
 export const STOREFRONT_RUNTIME_VERSION='shoporation.storefront-runtime.v1' as const;
 
 export const STOREFRONT_BINDING_NAMESPACES=[
-  'brand','navigation','account','collection','product','variant','pricing','inventory','cart','customer','content','catalog','search',
+  'brand','navigation','collection','product','variant','pricing','inventory','cart','customer','content','catalog','search',
   'reviews','recommendations','commerce','finder','composer','composition','configurator','compatibility','context','retention',
   'reorder','b2b','rfq','offer','maker','origin',
 ] as const;
