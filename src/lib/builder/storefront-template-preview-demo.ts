@@ -203,10 +203,14 @@ const demoReviews=()=>[
 ];
 
 const PREVIEW_SOCIAL_LINKS=Object.freeze([
-  {label:'YouTube',href:'https://www.youtube.com/',symbol:'▶',ariaLabel:'YouTube'},
-  {label:'Instagram',href:'https://www.instagram.com/',symbol:'◎',ariaLabel:'Instagram'},
-  {label:'TikTok',href:'https://www.tiktok.com/',symbol:'♪',ariaLabel:'TikTok'},
-  {label:'Facebook',href:'https://www.facebook.com/',symbol:'f',ariaLabel:'Facebook'},
+  {label:'YouTube',href:'https://www.youtube.com/',symbol:'YT',ariaLabel:'YouTube'},
+  {label:'Instagram',href:'https://www.instagram.com/',symbol:'IG',ariaLabel:'Instagram'},
+  {label:'TikTok',href:'https://www.tiktok.com/',symbol:'TT',ariaLabel:'TikTok'},
+  {label:'Facebook',href:'https://www.facebook.com/',symbol:'FB',ariaLabel:'Facebook'},
+  {label:'X',href:'https://x.com/',symbol:'X',ariaLabel:'X'},
+  {label:'Twitch',href:'https://www.twitch.tv/',symbol:'TW',ariaLabel:'Twitch'},
+  {label:'LinkedIn',href:'https://www.linkedin.com/',symbol:'IN',ariaLabel:'LinkedIn'},
+  {label:'Pinterest',href:'https://www.pinterest.com/',symbol:'PI',ariaLabel:'Pinterest'},
 ]);
 
 function genericItems(template:StorefrontInstallableTemplatePackage,page:StorefrontPageDocument){
