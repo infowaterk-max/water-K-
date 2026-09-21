@@ -83,3 +83,26 @@ A template is not portfolio-accepted until:
 4. every dynamic content target has demo content;
 5. preview navigation stays within the selected template;
 6. demo fixture persistence remains draft-only and provenance-safe.
+## 8. Canonical shell inheritance
+
+Every template produced or re-accepted by Template Factory must define one canonical storefront shell for its page family.
+
+The shell includes, at minimum:
+
+- header/brand/navigation behavior;
+- mobile navigation model (for dense navigation, use an explicit hamburger/disclosure pattern rather than compressed desktop navigation);
+- search and utility placement;
+- footer composition;
+- responsive shell spacing and touch-target rules.
+
+All page presets of the same template inherit that shell. A Content, Blog, FAQ, Legal, Account or other subpage may change its body archetype, but it may not silently carry a different header/footer implementation or responsive navigation model.
+
+Template-local page fixes must never fork the shell. If a shell behavior changes after acceptance, update the canonical shell authority and let every page inherit it.
+
+For Playroom v20 this rule is build-enforced: every page preset must serialize to the same canonical commerce-header and footer nodes. Future templates should implement the same invariant in their Template Factory acceptance before portfolio sign-off.
+
+## 9. Demo content readability
+
+Demo service/information pages must use a content archetype appropriate for reading factual information. Do not reuse a lifestyle/editorial preset when it makes shipping, payment, returns, legal or business information visually fragmented or semantically misleading.
+
+Demo warning UI must carry explicit foreground/background contrast and must not depend on the template's inherited text token for legibility.
