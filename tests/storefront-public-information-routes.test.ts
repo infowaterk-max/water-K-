@@ -31,4 +31,13 @@ describe('storefront public information route integrity',()=>{
   expect(css).toMatch(/\.systemInfoPage \.systemInfoStack\{display:grid;gap:/);
   expect(page).not.toMatch(/GLS|Foxpost|MPL|DPD/);
  });
+ it('renders payment information from active tenant methods with the same system-page rhythm',()=>{
+  expect(page).toMatch(/settings\.paymentOptions\.map/);
+  expect(page).toMatch(/option\.flow==='bank_transfer'/);
+  expect(page).toMatch(/Fizetési mód kiválasztása/);
+  expect(page).toMatch(/Végösszeg ellenőrzése/);
+  expect(page).toMatch(/Visszaigazolás/);
+  expect(page).toMatch(/Vissza a webáruházba/);
+  expect(page).not.toMatch(/SimplePay|Barion|Stripe|PayPal/);
+ });
 });
