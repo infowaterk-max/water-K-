@@ -281,7 +281,7 @@ export function createStorefrontTemplatePreviewBindingContext(input:{template:St
   const category=template.manifest.templateKey.split('.')[0]??'shop';
   const label=CATEGORY_LABELS[category]??'Shop';
   const context:Record<string,unknown>={
-    brand:{name:`${label} Demo`,tagline:'Shoperation sablonbemutató',homeHref:'/',copyright:`© ${label} Demo`},
+    brand:{name:`${label} Demo`,tagline:'Shoperation sablonbemutató',homeHref:'/',copyright:`© ${label} Demo`,socialLinks:PREVIEW_SOCIAL_LINKS.map(item=>({...item}))},
     navigation:{
       primary:[{label:'Újdonságok',href:'#preview-demo'},{label:'Kollekciók',href:'#preview-demo'},{label:'Rólunk',href:'#preview-demo'},{label:'Kapcsolat',href:'#preview-demo'}],
       footer:[{id:'shop',title:'Vásárlás',items:[{label:'Újdonságok',href:'#preview-demo'},{label:'Kategóriák',href:'#preview-demo'}]},{id:'help',title:'Segítség',items:[{label:'GYIK',href:'#preview-demo'},{label:'Kapcsolat',href:'#preview-demo'}]}],
