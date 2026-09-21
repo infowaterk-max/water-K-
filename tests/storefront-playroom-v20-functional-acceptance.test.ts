@@ -118,7 +118,7 @@ describe('Playroom v20 functional acceptance',()=>{
     const start=actions.indexOf('export async function installVisualBuilderTemplateAction');
     const end=actions.indexOf('export async function generateVisualBuilderStorefrontAction',start);
     const installAction=actions.slice(start,end);
-    expect(installAction).toContain('saveCurrentStorefrontTemplateDraftPlan');
+    expect(installAction).toContain('saveCurrentStorefrontTemplateInstallationPlan');
     expect(installAction).not.toContain('publishVisualBuilderPageAction');
     expect(installAction).not.toContain('publishCurrentStorefrontPage');
   });
@@ -232,8 +232,9 @@ describe('Playroom v20 functional acceptance',()=>{
     expect(header).toContain("left:'50%',top:'50%'");
     expect(header).toContain("transform:'translate(-50%,-50%)'");
     const checkoutTemplate=playroomPage('checkout');
-    const checkoutSearch=findNode(checkoutTemplate,'playroom-checkout-search');
-    expect(checkoutSearch.config.style).toMatchObject({height:'2.24rem'});
+    const checkoutSearch=collectNodes(checkoutTemplate,node=>node.componentKey==='system.search')[0];
+    expect(checkoutSearch).toBeTruthy();
+    expect(checkoutSearch?.config.style).toMatchObject({height:'2.24rem'});
     expect(normalizer).toContain("padding:'1.75rem 2.35rem 2rem'");
     expect(normalizer).toContain("minHeight:'13.5rem'");
     expect(normalizer).toContain("fontSize:footerRemFloor(style.fontSize,.86)");
@@ -588,23 +589,25 @@ describe('Playroom v20 functional acceptance',()=>{
     expect(downloadsPage).toContain('listAccountDigitalDownloads');
   });
 
-  it('renders the customer document center with invoice and merchant warranty while keeping authorities distinct',()=>{
+  it('keeps account overview navigation-only while downloads and documents remain dedicated route authorities',()=>{
     const account=playroomPage('account');
-    const html=render(account,{commerce:{digitalCommerce:{
+    const composedAccount=composeStorefrontDigitalCommerceCapabilities(account);
+    const html=render(composedAccount,{commerce:{digitalCommerce:{
       accountCapabilities:{state:'ready',items:[{key:'downloads',label:'Letöltéseim',href:'/fiokom/letoltesek'},{key:'documents',label:'Dokumentumaim',href:'/fiokom/dokumentumok'}]},
       accountDownloads:{state:'ready',digital:[{id:'game-1',title:'Orbit Breakers Digital',description:'Rendelés: SHOP-1001',status:'available',href:'/api/digital-downloads/asset-1?orderId=order-1'}]},
-      accountDocuments:{state:'ready',orderDocuments:[
-        {id:'invoice-1',title:'Számla · INV-1001',description:'Rendelés: SHOP-1001',status:'available',href:'/fiokom/dokumentumok'},
-        {id:'warranty-1',title:'Garancialevél · Neon Pro Controller',description:'Merchant által feltöltött dokumentum',meta:'warranty.pdf',status:'available',href:'/api/order-documents/warranty-1'},
-      ],productDocuments:[{id:'manual-1',title:'Controller kézikönyv',description:'Neon Pro Controller',meta:'controller-manual.pdf',status:'available',href:'/api/product-documents/manual-1?variantId=variant-1'}]},
+      accountDocuments:{state:'ready',orderDocuments:[{id:'invoice-1',title:'Számla · INV-1001',description:'Rendelés: SHOP-1001',status:'available',href:'/fiokom/dokumentumok'}],productDocuments:[]},
     }}});
-    expect(html).toContain('data-storefront-account="downloads"');
-    expect(html).toContain('data-storefront-account="documents"');
-    expect(html).toContain('Számla · INV-1001');
-    expect(html).toContain('Garancialevél · Neon Pro Controller');
-    expect(html).toContain('Controller kézikönyv');
-    const composedAccount=composeStorefrontDigitalCommerceCapabilities(account);
-    expect(collectNodes(composedAccount,node=>node.componentKey==='commerce.post-purchase-guidance')).toHaveLength(0);
+    expect(html).not.toContain('data-storefront-account="downloads"');
+    expect(html).not.toContain('data-storefront-account="documents"');
+    expect(collectNodes(composedAccount,node=>node.componentKey==='account.capability-navigation')).toHaveLength(1);
+    expect(collectNodes(composedAccount,node=>['commerce.documents-center','commerce.account-downloads','commerce.account-documents','commerce.post-purchase-guidance'].includes(node.componentKey))).toHaveLength(0);
+    const downloadsPage=read('src/app/fiokom/letoltesek/page.tsx');
+    const documentsPage=read('src/app/fiokom/dokumentumok/page.tsx');
+    expect(downloadsPage).toContain('listAccountDigitalDownloads');
+    expect(downloadsPage).toContain('<h1 className="sectionTitle">Letöltéseim</h1>');
+    expect(documentsPage).toContain('listAccountOrderDocuments');
+    expect(documentsPage).toContain('listAccountProductDocuments');
+    expect(documentsPage).toContain('<h1 className="sectionTitle">Dokumentumaim</h1>');
     expect(composedAccount.sections.at(-1)?.id).toMatch(/footer/i);
   });
 
