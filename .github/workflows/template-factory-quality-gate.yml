@@ -1,0 +1,119 @@
+name: Template Factory Quality Gate v2
+
+on:
+  push:
+    paths:
+      - 'src/lib/builder/templates/**'
+      - 'src/lib/builder/storefront-**'
+      - 'src/components/builder/**'
+      - 'src/components/admin/storefront-visual-builder-v3.tsx'
+      - 'src/app/visual-fidelity-qa/**'
+      - 'src/app/api/visual-fidelity/templates/**'
+      - 'src/app/storefront-template-preview/**'
+      - 'scripts/template-factory-quality-gate.mjs'
+      - 'tests/**storefront**'
+      - 'tests/**playroom**'
+      - '.github/workflows/template-factory-quality-gate.yml'
+  pull_request:
+    paths:
+      - 'src/lib/builder/templates/**'
+      - 'src/lib/builder/storefront-**'
+      - 'src/components/builder/**'
+      - 'src/components/admin/storefront-visual-builder-v3.tsx'
+      - 'src/app/visual-fidelity-qa/**'
+      - 'src/app/api/visual-fidelity/templates/**'
+      - 'src/app/storefront-template-preview/**'
+      - 'scripts/template-factory-quality-gate.mjs'
+      - 'tests/**storefront**'
+      - 'tests/**playroom**'
+      - '.github/workflows/template-factory-quality-gate.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: template-factory-quality-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality-gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      VISUAL_FIDELITY_QA: '1'
+      VISUAL_FIDELITY_BASE_URL: http://127.0.0.1:3000
+      NEXT_PUBLIC_SITE_URL: http://127.0.0.1:3000
+      QUALITY_BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
+      TEMPLATE_QUALITY_OUTPUT_DIR: artifacts/template-factory-quality
+    steps:
+      - name: Checkout exact head
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Install locked application dependencies
+        run: npm ci --no-audit --no-fund
+
+      - name: Install pinned QA dependencies without changing lock authority
+        run: npm install --no-save --package-lock=false --ignore-scripts --no-audit --no-fund playwright@1.55.0 pixelmatch@7.1.0 pngjs@7.0.0
+
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Run Template Factory contract regressions
+        run: >
+          npx vitest run
+          tests/playroom-v20-canonical-shell-content.test.ts
+          tests/storefront-template-route-integrity.test.ts
+          tests/storefront-template-demo-content-persistence.test.ts
+          tests/storefront-account-capability-navigation.test.tsx
+          tests/storefront-commerce-header.test.tsx
+
+      - name: Typecheck exact head
+        run: npm run typecheck
+
+      - name: Build exact-head Runtime
+        run: npm run build
+
+      - name: Start exact-head QA Runtime
+        shell: bash
+        run: |
+          npm run start -- -H 127.0.0.1 -p 3000 > /tmp/template-factory-quality-next.log 2>&1 &
+          echo $! > /tmp/template-factory-quality-next.pid
+          for attempt in $(seq 1 75); do
+            if curl --fail --silent --show-error 'http://127.0.0.1:3000/api/visual-fidelity/templates' > /dev/null; then
+              exit 0
+            fi
+            sleep 2
+          done
+          cat /tmp/template-factory-quality-next.log
+          exit 1
+
+      - name: Run Template Factory 14x3 browser matrix
+        run: node scripts/template-factory-quality-gate.mjs
+
+      - name: Upload Template Factory quality evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: template-factory-quality-${{ github.sha }}
+          path: |
+            artifacts/template-factory-quality/*.png
+            artifacts/template-factory-quality/manifest.json
+          if-no-files-found: warn
+          retention-days: 30
+
+      - name: Upload QA server log on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: template-factory-quality-server-log-${{ github.sha }}
+          path: /tmp/template-factory-quality-next.log
+          if-no-files-found: warn
+          retention-days: 14
