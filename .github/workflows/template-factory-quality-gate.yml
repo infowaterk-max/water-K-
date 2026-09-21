@@ -74,6 +74,8 @@ jobs:
           tests/storefront-template-demo-content-persistence.test.ts
           tests/storefront-account-capability-navigation.test.tsx
           tests/storefront-commerce-header.test.tsx
+          tests/storefront-runtime-primitives.test.tsx
+          tests/cart-style-quantity-control.test.tsx
 
       - name: Typecheck exact head
         run: npm run typecheck
