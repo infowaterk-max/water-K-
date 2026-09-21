@@ -1,4 +1,5 @@
 import type {StorefrontComponentNode,StorefrontPageDocument} from '@/lib/builder/storefront-runtime';
+import {CANONICAL_ACCOUNT_CAPABILITIES} from '@/lib/account/account-capabilities';
 import type {StorefrontInstallableTemplatePackage} from '@/lib/builder/storefront-template-installation';
 
 import {ALPINE_LODGE_DESIGN_TOKENS} from '@/lib/builder/templates/alpine-lodge';
@@ -278,6 +279,7 @@ export function createStorefrontTemplatePreviewBindingContext(input:{template:St
       primary:[{label:'Újdonságok',href:'#preview-demo'},{label:'Kollekciók',href:'#preview-demo'},{label:'Rólunk',href:'#preview-demo'},{label:'Kapcsolat',href:'#preview-demo'}],
       footer:[{id:'shop',title:'Vásárlás',items:[{label:'Újdonságok',href:'#preview-demo'},{label:'Kategóriák',href:'#preview-demo'}]},{id:'help',title:'Segítség',items:[{label:'GYIK',href:'#preview-demo'},{label:'Kapcsolat',href:'#preview-demo'}]}],
     },
+    account:{capabilities:CANONICAL_ACCOUNT_CAPABILITIES.map(item=>({key:item.key,label:item.label,href:item.href}))},
     catalog:{featured:demoProducts(template,page),newProducts:demoProducts(template,page),collections:demoCollections(template,page)},
     recommendations:{featured:demoProducts(template,page)},
     reviews:{summary:{rating:4.9,count:128},items:demoReviews()},
