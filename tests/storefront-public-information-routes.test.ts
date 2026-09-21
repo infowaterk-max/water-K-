@@ -2,6 +2,7 @@ import fs from'node:fs';
 import{describe,expect,it}from'vitest';
 
 const page=fs.readFileSync('src/app/oldal/[slug]/page.tsx','utf8');
+const faqPage=fs.readFileSync('src/app/gyik/page.tsx','utf8');
 const shell=fs.readFileSync('src/components/content/storefront-content-shell.tsx','utf8');
 const source=fs.readFileSync('src/lib/builder/storefront-runtime-source.ts','utf8');
 const css=fs.readFileSync('src/app/public-pages-polish.css','utf8');
@@ -65,6 +66,23 @@ describe('storefront public information route integrity',()=>{
   expect(page).toMatch(/href="\/fiokom\/ugyek">Összes ügyem/);
   expect(page).toMatch(/href="\/aszf">ÁSZF megnyitása/);
   expect(page).not.toMatch(/14 nap|tizennégy nap|30 nap/);
+ });
+
+ it('keeps FAQ template-aware, commerce-contextual and merchant-overridable',()=>{
+  expect(faqPage).toMatch(/StorefrontContentShell/);
+  expect(faqPage).toMatch(/getPublicContentBySlug\('page','gyik'\)/);
+  expect(faqPage).toMatch(/commerce\.shippingOptions\.map/);
+  expect(faqPage).toMatch(/commerce\.paymentOptions\.map/);
+  expect(faqPage).toMatch(/commerce\.freeShippingThreshold/);
+  expect(faqPage).toMatch(/data-system-info-page="faq"/);
+  expect(faqPage).toMatch(/Vásárlás és rendelési folyamat/);
+  expect(faqPage).toMatch(/Aktív lehetőségek és díjak/);
+  expect(faqPage).toMatch(/Fiók és ügyintézés/);
+  expect(faqPage).toMatch(/href="\/oldal\/szallitas"/);
+  expect(faqPage).toMatch(/href="\/oldal\/fizetes"/);
+  expect(faqPage).toMatch(/href="\/oldal\/visszakuldes"/);
+  expect(css).toMatch(/Shared FAQ system surface/);
+  expect(css).toMatch(/\.storefrontContentShell \.faqPage \.faqGroups\{display:grid;gap:/);
  });
 
 });
