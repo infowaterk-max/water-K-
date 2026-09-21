@@ -24,6 +24,8 @@ const qualityInfrastructurePrefixes=[
 ];
 const sharedRuntimePrefixes=[
   'src/components/builder/',
+  'src/components/admin/storefront-visual-builder-v3.tsx',
+  'src/app/storefront-template-preview/',
   'src/lib/builder/storefront-',
 ];
 
@@ -76,7 +78,7 @@ function selectScope(catalog,changes){
     for(const template of templates)selected.set(template.templateKey,{template,mode:'full',reason:'quality-infrastructure-changed'});
   }else if(sharedRuntime){
     for(const template of templates){
-      if(!selected.has(template.templateKey))selected.set(template.templateKey,{template,mode:'canary',reason:'shared-runtime-changed'});
+      if(!selected.has(template.templateKey))selected.set(template.templateKey,{template,mode:'full',reason:'shared-runtime-changed'});
     }
   }
 
