@@ -10,3 +10,18 @@
 .storefrontContentShell .btnPrimary{background:var(--shoporation-color-primary,#111827)!important;border-color:var(--shoporation-color-primary,#111827)!important;color:var(--shoporation-color-primary-contrast,#fff)!important}
 .storefrontContentShell .btnGhost{background:var(--shoporation-color-surface,#fff)!important;border-color:var(--shoporation-color-border,#d8dce7)!important;color:var(--shoporation-color-text,#111827)!important}
 .storefrontContentShell a:not(.btn){color:var(--shoporation-color-accent,var(--shoporation-color-primary,#5c7cfa))}
+
+
+/* Public system information page rhythm. */
+.storefrontContentShell .systemInfoPage .systemInfoStack{display:grid;gap:clamp(1rem,2.2vw,1.5rem);margin-top:clamp(1.25rem,2.5vw,2rem)}
+.storefrontContentShell .systemInfoPage .systemInfoStack>.cards,
+.storefrontContentShell .systemInfoPage .systemInfoStack>.card,
+.storefrontContentShell .systemInfoPage .systemInfoStack>.featurePanel{margin:0!important}
+.storefrontContentShell .systemInfoPage .systemInfoGuide{display:grid;gap:1rem}
+.storefrontContentShell .systemInfoPage .systemInfoGuide>.cards{margin:0}
+.storefrontContentShell .systemInfoPage .systemInfoActions{margin-top:clamp(1.25rem,2.5vw,2rem);gap:.75rem}
+@media(max-width:720px){
+ .storefrontContentShell .systemInfoPage .systemInfoGuide>.cards{grid-template-columns:1fr}
+ .storefrontContentShell .systemInfoPage .systemInfoActions{display:grid}
+ .storefrontContentShell .systemInfoPage .systemInfoActions .btn{width:100%}
+}
