@@ -3,6 +3,7 @@
 ```yaml
 id: SKB-TEMPLATE-FACTORY-QG-V2-CLOSURE-2026-09-21
 status: implemented
+evidence: code_and_test_verified
 scope: global
 area: template-factory/storefront/visual-builder
 principle: "One defect -> one shared fix -> regression test -> build/CI gate"
@@ -29,13 +30,26 @@ cross_template_policy:
   - "Quality infrastructure change: full matrix for every strict manifest."
   - "Shared Runtime, Builder geometry authority, or Preview authority change: full matrix for every strict manifest."
   - "Unrelated/default execution: canary matrix."
+verification:
+  - "Exact-head closure proof completed successfully on branch feature/playroom-v20-functional-acceptance."
+  - "Verified source HEAD: 5d142f17193137e8a478db7d8e61f2ebcfe3cd11."
+  - "GitHub Actions run 35590861943: Template Factory Quality Gate v2 — completed / success."
+  - "The successful run used the same exact HEAD; therefore the Quality Gate v2 foundation closure condition is satisfied."
 prevention:
   - "Do not downgrade shared Runtime changes to page-local fixes or canary-only acceptance."
   - "Do not accept a template without committed golden baselines and golden.required=true."
   - "Do not promote screenshots from evidence whose source commit differs from the checked-out acceptance source."
+  - "Green Quality Gate is prevention evidence, not human visual acceptance; Playroom visual acceptance remains a separate gate."
+automation: DIAGNOSE_ONLY
 risk: low
 ```
 
 ## Closure note
 
-This record closes the Quality Gate v2 foundation only after the new branch head receives a green exact-head Quality Gate v2 run. It does not constitute Playroom human visual acceptance and does not authorize production deployment or merge to main.
+**QUALITY GATE v2 FOUNDATION CLOSED.**
+
+Closure authority is the successful exact-head Quality Gate v2 run `35590861943` on commit `5d142f17193137e8a478db7d8e61f2ebcfe3cd11`.
+
+This closes the shared Quality Gate v2 foundation. It does **not** constitute Playroom human visual acceptance, does not authorize production deployment, and does not authorize merge to `main`.
+
+Subsequent Playroom/template visual defects must first be classified as **local defect vs. shared invariant violation**. A shared invariant violation must be repaired at the highest appropriate shared authority and locked with regression coverage rather than patched page-by-page.
