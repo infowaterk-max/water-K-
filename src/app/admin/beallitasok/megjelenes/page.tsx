@@ -8,14 +8,14 @@ export const dynamic='force-dynamic';
 type Props={searchParams:Promise<{social?:string}>};
 const notices:Record<string,{kind:'success'|'error';text:string}>={
   saved:{kind:'success',text:'A közösségi média hivatkozások mentve. A storefront lábléce automatikusan frissül.'},
-  invalid:{kind:'error',text:'Legalább egy közösségi média URL érvénytelen. Teljes http:// vagy https:// címet adj meg.'},
+  invalid:{kind:'error',text:'Legalább egy közösségi média URL érvénytelen. HTTPS címet adj meg, és a link a kiválasztott szolgáltató saját domainjére mutasson.'},
   forbidden:{kind:'error',text:'Nincs jogosultságod a webshop megjelenési beállításainak módosításához.'},
   error:{kind:'error',text:'A közösségi média beállításokat nem tekintjük elmentettnek. Próbáld újra.'},
 };
 const socialRecord=(value:unknown)=>{
   if(!value||typeof value!=='object'||Array.isArray(value))return{} as Record<string,string>;
   const source=value as Record<string,unknown>,result:Record<string,string>={};
-  for(const key of ['facebook','instagram','youtube','tiktok','linkedin']){
+  for(const key of ['facebook','instagram','youtube','tiktok','x','twitch','linkedin','pinterest']){
     if(typeof source[key]==='string')result[key]=String(source[key]);
   }
   return result;
@@ -53,7 +53,10 @@ export default async function StorefrontAppearanceSettingsPage({searchParams}:Pr
         <label>Instagram URL<input name="instagram" type="url" inputMode="url" placeholder="https://www.instagram.com/..." defaultValue={social.instagram??''}/></label>
         <label>YouTube URL<input name="youtube" type="url" inputMode="url" placeholder="https://www.youtube.com/@..." defaultValue={social.youtube??''}/></label>
         <label>TikTok URL<input name="tiktok" type="url" inputMode="url" placeholder="https://www.tiktok.com/@..." defaultValue={social.tiktok??''}/></label>
+        <label>X URL<input name="x" type="url" inputMode="url" placeholder="https://x.com/..." defaultValue={social.x??''}/></label>
+        <label>Twitch URL<input name="twitch" type="url" inputMode="url" placeholder="https://www.twitch.tv/..." defaultValue={social.twitch??''}/></label>
         <label>LinkedIn URL<input name="linkedin" type="url" inputMode="url" placeholder="https://www.linkedin.com/company/..." defaultValue={social.linkedin??''}/></label>
+        <label>Pinterest URL<input name="pinterest" type="url" inputMode="url" placeholder="https://www.pinterest.com/..." defaultValue={social.pinterest??''}/></label>
         <div className="actions">
           <button className="btn btnPrimary" type="submit">Közösségi profilok mentése</button>
           <Link className="btn btnGhost" href="/admin/beallitasok">Vissza a beállításokhoz</Link>
