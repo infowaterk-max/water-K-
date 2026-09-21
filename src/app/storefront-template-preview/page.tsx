@@ -2,6 +2,7 @@ import type {CSSProperties} from 'react';
 import Link from 'next/link';
 import {notFound} from 'next/navigation';
 import {requirePlanFeature} from '@/lib/plans/access';
+import {requireAdmin} from '@/lib/auth/require-admin';
 import {PLANS} from '@/lib/plans/catalog';
 import {requireCurrentStoreContext} from '@/lib/instances/scope';
 import {getStorefrontTemplatePackage} from '@/lib/builder/storefront-template-catalog';
@@ -23,9 +24,12 @@ const widths=STOREFRONT_CANONICAL_VIEWPORT_WIDTH_PX;
 const allowedPageTypes=new Set<StorefrontBuilderPageType>(STOREFRONT_PAGE_TYPES);
 
 export default async function StorefrontTemplatePreview({searchParams}:Props){
+  const query=await searchParams;
+  const returnParams=new URLSearchParams();
+  for(const [key,value] of Object.entries(query))if(typeof value==='string'&&value) returnParams.set(key,value);
+  await requireAdmin(`/storefront-template-preview?${returnParams.toString()}`);
   await requirePlanFeature('contentMarketing');
   await requireCurrentStoreContext('store.manage');
-  const query=await searchParams;
   const templateKey=(query.template??'').trim();
   const version=query.version?Number(query.version):undefined;
   const pageType=(query.page??'home') as StorefrontBuilderPageType;
