@@ -17,6 +17,7 @@ describe('storefront social settings authority',()=>{
     expect(runtime).toMatch(/instance\.storefront\.socialLinks/);
     expect(runtime).not.toMatch(/email_brand_kits/);
     expect(runtime).not.toMatch(/resolveStorefrontSocialLinks\(instanceId\)/);
+    expect(runtime).toMatch(/const composed=composeStorefrontDigitalCommerceCapabilities\(normalizeStorefrontTemplateRuntimeComposition\(materialized\)\)/);
   });
 
   it('gives merchants one store-managed settings surface with audited persistence',()=>{
