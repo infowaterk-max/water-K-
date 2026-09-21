@@ -1616,3 +1616,87 @@ A rejected intermediate fix created a second `account.capability-navigation@1` d
 
 No template may own or hardcode a reduced Account IA. Historical/legacy template versions must pass through the same shared Account capability composition before render. Never create a second component definition for a key/version that already exists in the Builder/Digital Commerce registries; fix the composition or binding path instead.
 
+
+
+---
+
+## SKB-P4-032 — Account overview must not duplicate dedicated downloads/documents pages
+
+- status: `implemented`
+- evidence: `human_acceptance + shared_composition_fix + regression_test`
+- area: `storefront/account/information-architecture`
+- risk: `high`
+- automation: `AUTO_FIX`
+
+### Symptom
+
+The Account overview rendered the canonical navigation and then also embedded the full `Letöltéseim` and `Dokumentumaim` bodies below it. This duplicated dedicated account destinations and made the overview excessively long.
+
+### Root cause
+
+Shared Digital Commerce composition treated the generic `account` Page Schema as both the account overview and the dedicated downloads/documents content surface.
+
+### Resolution
+
+The generic template `account` page is now navigation/overview only. `Letöltéseim` and `Dokumentumaim` remain separate canonical account routes and remain visible as first-level account navigation items. Full download/document content is no longer injected into the overview Page Schema.
+
+### Prevention
+
+Do not collapse dedicated account capability routes into the generic account overview just because they share the same customer authority. Navigation parity and content-surface placement are separate contracts.
+
+---
+
+## SKB-P4-033 — Shared Commerce Header requires real mobile navigation mode
+
+- status: `implemented`
+- evidence: `human_acceptance + shared_renderer_fix + regression_test`
+- area: `storefront/system.commerce-header/mobile-navigation`
+- risk: `high`
+- automation: `AUTO_FIX`
+
+### Symptom
+
+On Mobile, the commerce header kept the desktop horizontal navigation row and relied on horizontal clipping/scrolling. The hamburger symbol was only a category link and did not control the full menu.
+
+### Root cause
+
+The shared Commerce Header had responsive spacing but no separate mobile navigation interaction contract.
+
+### Resolution
+
+`system.commerce-header` now renders a real mobile hamburger disclosure containing the same shared `system.navigation` node. Desktop/Tablet keep the horizontal navigation; Mobile uses a vertical menu panel. Menu data is not duplicated.
+
+### Prevention
+
+A primary-navigation responsive mode must change interaction model on Mobile, not merely reduce desktop spacing.
+
+---
+
+## SKB-P4-034 — Playroom footer inherited desktop information density on Mobile
+
+- status: `implemented`
+- evidence: `human_acceptance + template-shell-fix + regression_test`
+- area: `storefront/playroom/footer/mobile-responsive`
+- risk: `medium`
+- automation: `AUTO_FIX`
+
+### Symptom
+
+The Playroom footer collapsed every desktop column into one long left-aligned stack with small link targets, making the footer visually compressed and poorly balanced on Mobile.
+
+### Root cause
+
+The accepted Playroom shell used desktop footer geometry with all footer stacks inheriting `mobile:gridSpan=12` and desktop-sized link typography.
+
+### Resolution
+
+Across every Playroom v19 page:
+- brand remains full width;
+- shop/world/about/social groups use a balanced 2×2 mobile grid;
+- mobile footer links receive larger type and touch height;
+- the social block drops its desktop left border/padding;
+- mobile footer padding is normalized.
+
+### Prevention
+
+Shared template shells must have explicit Mobile footer composition. Desktop column collapse is not sufficient responsive design.
