@@ -106,6 +106,20 @@ const localizeNode=(source:StorefrontComponentNode):StorefrontComponentNode=>({
   ...(source.children?{children:source.children.map(localizeNode)}:{}),
 });
 
+const canonicalShellSource=PLAYROOM_V19_CANONICAL_TEMPLATE_PACKAGE.pages.find(page=>page.pageType==='account');
+if(!canonicalShellSource)throw new Error('PLAYROOM_V20_CANONICAL_SHELL_SOURCE_MISSING');
+const PLAYROOM_V20_CANONICAL_HEADER=localizeNode(clone(canonicalShellSource.sections[0]!));
+const PLAYROOM_V20_CANONICAL_FOOTER=localizeNode(clone(canonicalShellSource.sections[canonicalShellSource.sections.length-1]!));
+
+function applyPlayroomCanonicalShell(sections:readonly StorefrontComponentNode[]):StorefrontComponentNode[]{
+  if(sections.length<2)throw new Error('PLAYROOM_V20_PAGE_SHELL_INCOMPLETE');
+  return[
+    clone(PLAYROOM_V20_CANONICAL_HEADER),
+    ...sections.slice(1,-1).map(clone),
+    clone(PLAYROOM_V20_CANONICAL_FOOTER),
+  ];
+}
+
 const newsletterSection=()=>node({
   id:'playroom-home-newsletter',componentKey:'layout.section',componentVersion:1,
   config:{tone:'background',spacing:'m',width:'full',style:{background:'var(--shoporation-color-background,#020b17)'}},
@@ -178,7 +192,7 @@ function upgradePage(source:StorefrontPageDocument):StorefrontPageDocument{
   const previousAddon=rec(source.metadata?.addonIntegration);
   const previousContexts=Array.isArray(previousAddon.semanticContexts)?previousAddon.semanticContexts.filter((value):value is string=>typeof value==='string'):[];
   const semanticContexts=[...new Set([...STOREFRONT_PAGE_SEMANTIC_CONTEXTS[source.pageType],...previousContexts])];
-  sections=sections.map(localizeNode);
+  sections=applyPlayroomCanonicalShell(sections.map(localizeNode));
   return normalizeStorefrontTemplateRuntimeComposition({
     ...clone(source),templateVersion:PLAYROOM_V20_TEMPLATE_VERSION,sections,
     metadata:{
