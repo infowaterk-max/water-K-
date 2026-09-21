@@ -136,3 +136,88 @@ export function evaluateStorefrontTemplateRouteIntegrity(template:StorefrontInst
   }
   return issues;
 }
+
+
+export function getStorefrontTemplateDemoContent(template:StorefrontInstallableTemplatePackage,slug:string){
+  const normalized=augmentStorefrontTemplateDemoContent(template);
+  return(normalized.demoFixtures??[]).find(fixture=>fixture.entityType==='content'&&fixture.payload.slug===slug)??null;
+}
+
+const previewPageForPath=(pathname:string):string|null=>{
+  if(pathname==='/')return'home';
+  if(pathname==='/webaruhaz')return'catalog';
+  if(pathname.startsWith('/termek/'))return'product';
+  if(pathname==='/kereses')return'search';
+  if(pathname==='/kosar')return'cart';
+  if(pathname==='/penztar')return'checkout';
+  if(pathname==='/fiokom'||pathname.startsWith('/fiokom/')||pathname==='/kedvencek')return'account';
+  if(pathname==='/blog')return'blog-index';
+  if(pathname.startsWith('/blog/'))return'blog-article';
+  if(pathname.startsWith('/oldal/'))return'content';
+  if(pathname==='/gyik')return'faq';
+  if(pathname==='/kapcsolat')return'contact';
+  if(['/aszf','/adatvedelem','/impresszum','/szallitas-es-fizetes'].includes(pathname))return'legal';
+  return null;
+};
+
+function rewritePreviewHref(href:string,input:{templateKey:string;templateVersion:number;viewport:'desktop'|'tablet'|'mobile'}){
+  if(!href.startsWith('/')||href.startsWith('//'))return href;
+  let url:URL;
+  try{url=new URL(href,'https://shoporation.local');}catch{return href;}
+  const page=previewPageForPath(url.pathname);
+  if(!page)return href;
+  const params=new URLSearchParams({
+    template:input.templateKey,
+    version:String(input.templateVersion),
+    page,
+    viewport:input.viewport,
+  });
+  if(url.pathname.startsWith('/oldal/')||url.pathname.startsWith('/blog/')){
+    const slug=url.pathname.split('/').filter(Boolean).at(-1);
+    if(slug)params.set('demoContent',slug);
+  }
+  for(const[key,value]of url.searchParams)params.append(key,value);
+  return`/storefront-template-preview?${params.toString()}`;
+}
+
+export function rewriteStorefrontTemplatePreviewLinks(
+  page:StorefrontPageDocument,
+  input:{templateKey:string;templateVersion:number;viewport:'desktop'|'tablet'|'mobile'},
+):StorefrontPageDocument{
+  const rewriteValue=(value:unknown):unknown=>{
+    if(Array.isArray(value))return value.map(rewriteValue);
+    if(!value||typeof value!=='object')return value;
+    const record=value as Record<string,unknown>,next:Record<string,unknown>={};
+    for(const[key,item]of Object.entries(record)){
+      if(typeof item==='string'&&(key==='href'||key.endsWith('Href')||key==='action'))next[key]=rewritePreviewHref(item,input);
+      else next[key]=rewriteValue(item);
+    }
+    return next;
+  };
+  const rewriteNode=(node:StorefrontComponentNode):StorefrontComponentNode=>({
+    ...structuredClone(node),
+    config:rewriteValue(node.config) as Record<string,unknown>,
+    ...(node.children?{children:node.children.map(rewriteNode)}:{}),
+  });
+  return{...structuredClone(page),sections:page.sections.map(rewriteNode)};
+}
+
+export function applyStorefrontTemplateDemoNotice(page:StorefrontPageDocument,notice=STOREFRONT_DEMO_CONTENT_NOTICE):StorefrontPageDocument{
+  const banner:StorefrontComponentNode={
+    id:'template-demo-content-notice',
+    componentKey:'layout.section',
+    componentVersion:1,
+    config:{tone:'surface',spacing:'s',width:'full',style:{padding:'.75rem 1rem',background:'#fff4d8',border:'1px solid #e0b45f',color:'#5d4212'}},
+    responsive:{desktop:{gridSpan:12},tablet:{gridSpan:12},mobile:{gridSpan:12}},
+    children:[{
+      id:'template-demo-content-notice-text',
+      componentKey:'content.text',
+      componentVersion:1,
+      config:{text:`⚠ ${notice}`,as:'strong',align:'left',tone:'text',style:{fontSize:'.86rem',lineHeight:1.45}},
+    }],
+  };
+  const sections=[...page.sections.map(section=>structuredClone(section))];
+  const headerIndex=sections.findIndex(section=>section.componentKey==='system.header'||section.componentKey==='system.commerce-header');
+  sections.splice(headerIndex>=0?headerIndex+1:0,0,banner);
+  return{...structuredClone(page),sections,metadata:{...(page.metadata??{}),demoContentPreview:true}};
+}
