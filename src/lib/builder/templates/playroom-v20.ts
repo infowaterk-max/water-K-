@@ -122,6 +122,75 @@ function applyPlayroomCanonicalShell(sections:readonly StorefrontComponentNode[]
 
 const playroomContentResponsive={desktop:{gridSpan:12 as const},tablet:{gridSpan:12 as const},mobile:{gridSpan:12 as const}};
 
+function playroomV20AuthPublicSection():StorefrontComponentNode{
+  return node({
+    id:'playroom-account-auth-public',
+    componentKey:'layout.section',
+    componentVersion:1,
+    config:{
+      tone:'background',spacing:'l',width:'full',authPublic:true,
+      style:{
+        base:{background:'radial-gradient(circle at 12% 10%,rgba(54,225,255,.12),transparent 28%),radial-gradient(circle at 86% 20%,rgba(255,93,190,.10),transparent 24%),linear-gradient(180deg,#020b17 0%,#061326 54%,#020b17 100%)',padding:'2rem 1rem 1rem'},
+        mobile:{padding:'1rem .85rem .55rem'},
+      },
+    },
+    responsive:playroomContentResponsive,
+    children:[node({
+      id:'playroom-account-auth-public-container',
+      componentKey:'layout.container',
+      componentVersion:1,
+      config:{width:'content',spacing:'m',style:{base:{maxWidth:'72rem',margin:'0 auto'}}},
+      responsive:playroomContentResponsive,
+      children:[node({
+        id:'playroom-account-auth-public-grid',
+        componentKey:'layout.grid',
+        componentVersion:1,
+        config:{columns:12,gap:'l',align:'stretch'},
+        responsive:playroomContentResponsive,
+        children:[
+          node({
+            id:'playroom-account-auth-public-primary',
+            componentKey:'layout.stack',
+            componentVersion:1,
+            config:{
+              direction:'vertical',gap:'m',align:'stretch',justify:'center',
+              style:{
+                base:{padding:'clamp(1.4rem,4vw,3.25rem)',minHeight:'23rem',background:'linear-gradient(145deg,rgba(27,22,71,.97),rgba(6,26,48,.99))',border:'1px solid rgba(54,225,255,.30)',borderRadius:'.95rem',boxShadow:'0 24px 70px rgba(0,0,0,.32)'},
+                mobile:{padding:'1.2rem',minHeight:'0'},
+              },
+            },
+            responsive:{desktop:{gridSpan:7},tablet:{gridSpan:7},mobile:{gridSpan:12}},
+            children:[
+              node({id:'playroom-account-auth-kicker',componentKey:'content.text',componentVersion:1,config:{text:'JÁTÉKOS FIÓK',as:'strong',align:'left',tone:'text',style:{base:{color:'#55e7ff',fontSize:'.7rem',fontWeight:900,letterSpacing:'.18em'}}}}),
+              node({id:'playroom-account-auth-title',componentKey:'content.heading',componentVersion:1,config:{text:'Lépj vissza a játékba.',level:1,align:'left',tone:'text',style:{base:{fontSize:'clamp(2.35rem,6vw,5.35rem)',lineHeight:.92,letterSpacing:'-.055em',maxWidth:'10ch'},mobile:{fontSize:'2.45rem',lineHeight:.95}}}}),
+              node({id:'playroom-account-auth-copy',componentKey:'content.text',componentVersion:1,config:{text:'Belépés után eléred a rendeléseidet, digitális letöltéseidet, dokumentumaidat és mentett játékaidat.',as:'p',align:'left',tone:'text',style:{base:{color:'#b9cadc',fontSize:'1rem',lineHeight:1.6,maxWidth:'44rem'},mobile:{fontSize:'.94rem'}}}}),
+              node({id:'playroom-account-auth-signal',componentKey:'content.text',componentVersion:1,config:{text:'PLAY · DISCOVER · TOGETHER',as:'strong',align:'left',tone:'text',style:{base:{color:'#b8e34a',fontSize:'.68rem',fontWeight:900,letterSpacing:'.16em'}}}}),
+            ],
+          }),
+          node({
+            id:'playroom-account-auth-public-secondary',
+            componentKey:'layout.stack',
+            componentVersion:1,
+            config:{
+              direction:'vertical',gap:'m',align:'stretch',justify:'center',
+              style:{
+                base:{padding:'clamp(1.25rem,3vw,2.2rem)',background:'linear-gradient(160deg,#0b2947,#07172b)',border:'1px solid rgba(255,93,190,.28)',borderRadius:'.95rem',boxShadow:'0 22px 60px rgba(0,0,0,.28)'},
+                mobile:{padding:'1.15rem'},
+              },
+            },
+            responsive:{desktop:{gridSpan:5},tablet:{gridSpan:5},mobile:{gridSpan:12}},
+            children:[
+              node({id:'playroom-account-auth-center-kicker',componentKey:'content.text',componentVersion:1,config:{text:'FIÓK KÖZPONT',as:'strong',align:'left',tone:'text',style:{base:{color:'#ff63bf',fontSize:'.68rem',fontWeight:900,letterSpacing:'.16em'}}}}),
+              node({id:'playroom-account-auth-center-title',componentKey:'content.heading',componentVersion:1,config:{text:'Minden mentésed egy helyen',level:2,align:'left',tone:'text',style:{base:{fontSize:'1.65rem',lineHeight:1.05}}}}),
+              node({id:'playroom-account-auth-center-copy',componentKey:'content.text',componentVersion:1,config:{text:'Rendelések · letöltések · dokumentumok · kívánságlista',as:'p',align:'left',tone:'text',style:{base:{color:'#d6e3ef',fontSize:'.95rem',lineHeight:1.65}}}}),
+            ],
+          }),
+        ],
+      })],
+    })],
+  });
+}
+
 function playroomV20InformationContentSections():StorefrontComponentNode[]{
   return[
     node({
@@ -300,6 +369,7 @@ function upgradePage(source:StorefrontPageDocument):StorefrontPageDocument{
   if(source.pageType==='content'){
     sections=[clone(source.sections[0]!),...playroomV20InformationContentSections(),clone(source.sections[source.sections.length-1]!)];
   }
+  if(source.pageType==='account'&&!sections.some(item=>item.id==='playroom-account-auth-public'))sections=insertAfterSection(sections,sections[0]?.id??'',playroomV20AuthPublicSection());
   if(source.pageType==='home'&&!sections.some(item=>item.id==='playroom-home-newsletter'))sections=insertBeforeFooter(sections,newsletterSection());
   if(source.pageType==='contact'&&!sections.some(item=>item.id==='playroom-contact-form'))sections=insertBeforeFooter(sections,supportForm());
   if(source.pageType==='product')sections=appendChildToNode(sections,'playroom-product-facts-grid',productDownloadsTile());
