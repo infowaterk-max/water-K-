@@ -12,7 +12,7 @@ export const STOREFRONT_ACCOUNT_NAVIGATION_COMPONENT_DEFINITIONS:readonly Storef
     pageTypes:['account'],
     configurable:['title','items','presentation','style','itemStyle'],
     responsiveMode:'stack',
-    capability:{minPlan:'alap',features:['customers']},
+    capability:{minPlan:'alap',features:[]},
   }),
   bindingSlots:['items'],
   protectedSystem:true,
