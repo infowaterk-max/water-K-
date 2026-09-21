@@ -2,7 +2,8 @@ import {readFileSync} from 'node:fs';
 import {join} from 'node:path';
 import {describe,expect,it} from 'vitest';
 import {STOREFRONT_PAGE_TYPES,STOREFRONT_VIEWPORTS,STOREFRONT_CANONICAL_VIEWPORT_WIDTH_PX} from '@/lib/builder/storefront-foundation';
-import {getStorefrontTemplatePackage} from '@/lib/builder/storefront-template-catalog';
+import {getStorefrontTemplatePackage,STOREFRONT_TEMPLATE_CATALOG} from '@/lib/builder/storefront-template-catalog';
+import {getStorefrontCookieConsentPreset} from '@/lib/builder/storefront-cookie-consent-presets';
 import {
   PLAYROOM_V20_QUALITY_MANIFEST,
   STOREFRONT_TEMPLATE_QUALITY_GATE_VERSION,
@@ -58,6 +59,21 @@ describe('Template Factory Quality Gate v2',()=>{
     expect(runner).toContain("'src/app/storefront-template-preview/'");
     expect(runner).toContain('MOBILE_DESKTOP_NAV_LEAK');
     expect(runner).toContain('SOCIAL_LINK_INTEGRITY');
+    expect(runner).toContain('COOKIE_TEMPLATE_PRESET_REQUIRED');
+    expect(runner).toContain('COOKIE_TEMPLATE_AUTHORITY');
     expect(runner).toContain('GOLDEN_BASELINE_MISSING');
   });
+  it('requires a unique explicit cookie consent preset for every implemented template',()=>{
+    const presetIds=new Set<string>();
+    for(const entry of STOREFRONT_TEMPLATE_CATALOG){
+      const preset=getStorefrontCookieConsentPreset(entry.templateKey);
+      expect(preset,entry.templateKey).toBeTruthy();
+      expect(preset?.templateKey).toBe(entry.templateKey);
+      expect(preset?.presetId).toBeTruthy();
+      expect(presetIds.has(preset!.presetId),entry.templateKey).toBe(false);
+      presetIds.add(preset!.presetId);
+    }
+    expect(presetIds.size).toBe(STOREFRONT_TEMPLATE_CATALOG.length);
+  });
+
 });
