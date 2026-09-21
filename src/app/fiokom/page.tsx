@@ -20,11 +20,12 @@ export default async function AccountPage(){
  if(!user)return <main className="section accountPage storefrontSignedOutAccount"><div className="shell"><AuthForm instanceId={instance?.id??null}/></div></main>;
  if(!instance)return <main className="section accountPage"><div className="shell"><div className="card"><h1>Nincs aktív webshop.</h1><LogoutButton/></div></div></main>;
 
+ const accountDb=createAdminClient();
  const[profileResult,partnerResult,ordersResult,wishlistResult]=await Promise.all([
-  supabase.from('profiles').select('full_name,company_name,tax_number').eq('id',user.id).maybeSingle(),
-  supabase.from('customer_instance_roles').select('role,reseller_approved,reseller_requested_at,approved_at,b2b_account_id').eq('instance_id',instance.id).eq('user_id',user.id).maybeSingle(),
-  supabase.from('orders').select('id,order_number,status,total_gross_huf,created_at,shipping_method,payment_method,tracking_number,invoice_number,invoice_url').eq('instance_id',instance.id).eq('customer_id',user.id).order('created_at',{ascending:false}).limit(50),
-  supabase.from('wishlists').select('id',{count:'exact',head:true}).eq('instance_id',instance.id).eq('user_id',user.id),
+  accountDb.from('profiles').select('full_name,company_name,tax_number').eq('id',user.id).maybeSingle(),
+  accountDb.from('customer_instance_roles').select('role,reseller_approved,reseller_requested_at,approved_at,b2b_account_id').eq('instance_id',instance.id).eq('user_id',user.id).maybeSingle(),
+  accountDb.from('orders').select('id,order_number,status,total_gross_huf,created_at,shipping_method,payment_method,tracking_number,invoice_number,invoice_url').eq('instance_id',instance.id).eq('customer_id',user.id).order('created_at',{ascending:false}).limit(50),
+  accountDb.from('wishlists').select('id',{count:'exact',head:true}).eq('instance_id',instance.id).eq('user_id',user.id),
  ]);
  const profile=profileResult.data,partner=partnerResult.data,orders=ordersResult.data,wishlistCount=wishlistResult.count,accountLoadError=Boolean(profileResult.error||partnerResult.error||ordersResult.error||wishlistResult.error);
  let marketingConsent=false,marketingLoadError=false;
