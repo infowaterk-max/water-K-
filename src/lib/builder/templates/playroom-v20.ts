@@ -110,17 +110,22 @@ const canonicalShellSource=PLAYROOM_V19_CANONICAL_TEMPLATE_PACKAGE.pages.find(pa
 if(!canonicalShellSource)throw new Error('PLAYROOM_V20_CANONICAL_SHELL_SOURCE_MISSING');
 const PLAYROOM_V20_CANONICAL_HEADER=localizeNode(clone(canonicalShellSource.sections[0]!));
 function patchPlayroomSocialLinks(item:StorefrontComponentNode):StorefrontComponentNode{
-  if(item.id==='playroom-footer-social-icons'){
+  if(item.id==='playroom-footer-social'){
     return{
       id:item.id,
-      componentKey:'system.navigation',
+      componentKey:'system.social-links',
       componentVersion:1,
       config:{
+        title:'Kövess minket',
+        copy:'JÁTSSZ\nFEDEZD FEL\nOSZD MEG\nTARTOZZ KÖZÉNK',
         items:[],
         ariaLabel:'Közösségi média',
-        layout:'horizontal',
-        style:{gap:'.8rem',color:'#ffffff',fontSize:'1.05rem',fontWeight:900},
-        styleSlots:{item:{base:{display:'inline-flex',alignItems:'center',justifyContent:'center',minWidth:'2rem',minHeight:'2rem',borderRadius:'.45rem',border:'1px solid rgba(120,218,255,.18)'}}},
+        presentation:'playroom-social',
+        style:item.config.style??{borderLeft:'1px solid rgba(89,139,191,.25)',paddingLeft:'1.1rem'},
+        titleStyle:{fontSize:'.8rem',fontWeight:850,color:'#fff7e8'},
+        copyStyle:{fontSize:'.72rem',letterSpacing:'.23em',lineHeight:1.45,color:'#d36cff'},
+        navigationStyle:{gap:'.55rem'},
+        itemStyle:{color:'#ffffff',fontSize:'1rem',fontWeight:900,border:'1px solid rgba(120,218,255,.22)',background:'rgba(7,25,46,.72)'},
       },
       bindings:{items:{path:'brand.socialLinks',fallback:[]}},
       ...(item.responsive?{responsive:item.responsive}:{}),
