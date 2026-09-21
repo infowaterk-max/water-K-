@@ -132,7 +132,7 @@ export function AuthForm({instanceId}:{instanceId:string|null}){
       </form>}
       {message&&<p className="notice">{message}</p>}
       <style jsx>{`
-        .storefrontAuthSurface{max-width:34rem;margin:2rem 0;padding:clamp(1.15rem,3vw,2rem);background:linear-gradient(145deg,var(--shoporation-color-surface,#fff),var(--shoporation-color-background,#f5f5f5));color:var(--shoporation-color-text,#111827);border:1px solid var(--shoporation-color-border,#d1d5db);border-radius:1.25rem;box-shadow:0 28px 90px rgba(0,0,0,.24)}
+        .storefrontAuthSurface{width:min(100%,34rem);max-width:34rem;margin:2rem auto;padding:clamp(1.15rem,3vw,2rem);background:linear-gradient(145deg,var(--shoporation-color-surface,#fff),var(--shoporation-color-background,#f5f5f5));color:var(--shoporation-color-text,#111827);border:1px solid var(--shoporation-color-border,#d1d5db);border-radius:1.25rem;box-shadow:0 28px 90px rgba(0,0,0,.24)}
         .storefrontAuthSurface :global(.authTabs){display:grid;grid-template-columns:1fr 1fr;gap:.55rem;margin-bottom:1.25rem;padding:.3rem;background:var(--shoporation-color-background,#f5f5f5);border:1px solid var(--shoporation-color-border,#d1d5db);border-radius:.9rem}
         .storefrontAuthSurface :global(.authTabs button),.storefrontAuthSurface :global(.button),.storefrontAuthSurface :global(.btn){min-height:44px;border-radius:.7rem;font:inherit;font-weight:800}
         .storefrontAuthSurface :global(.authTabs button){border:1px solid var(--shoporation-color-border,#d1d5db);background:var(--shoporation-color-surface-muted,#eee);color:var(--shoporation-color-text,#111827);cursor:pointer}
@@ -162,7 +162,7 @@ export function AuthForm({instanceId}:{instanceId:string|null}){
       {message&&<p className="notice">{message}</p>}
     </form>
       <style jsx>{`
-        .storefrontAuthSurface{max-width:34rem;margin:2rem 0;padding:clamp(1.15rem,3vw,2rem);background:linear-gradient(145deg,var(--shoporation-color-surface,#fff),var(--shoporation-color-background,#f5f5f5));color:var(--shoporation-color-text,#111827);border:1px solid var(--shoporation-color-border,#d1d5db);border-radius:1.25rem;box-shadow:0 28px 90px rgba(0,0,0,.24)}
+        .storefrontAuthSurface{width:min(100%,34rem);max-width:34rem;margin:2rem auto;padding:clamp(1.15rem,3vw,2rem);background:linear-gradient(145deg,var(--shoporation-color-surface,#fff),var(--shoporation-color-background,#f5f5f5));color:var(--shoporation-color-text,#111827);border:1px solid var(--shoporation-color-border,#d1d5db);border-radius:1.25rem;box-shadow:0 28px 90px rgba(0,0,0,.24)}
         .storefrontAuthSurface :global(.authTabs){display:grid;grid-template-columns:1fr 1fr;gap:.55rem;margin-bottom:1.25rem;padding:.3rem;background:var(--shoporation-color-background,#f5f5f5);border:1px solid var(--shoporation-color-border,#d1d5db);border-radius:.9rem}
         .storefrontAuthSurface :global(.authTabs button),.storefrontAuthSurface :global(.button),.storefrontAuthSurface :global(.btn){min-height:44px;border-radius:.7rem;font:inherit;font-weight:800}
         .storefrontAuthSurface :global(.authTabs button){border:1px solid var(--shoporation-color-border,#d1d5db);background:var(--shoporation-color-surface-muted,#eee);color:var(--shoporation-color-text,#111827);cursor:pointer}
