@@ -120,7 +120,7 @@ export function AuthForm({instanceId}:{instanceId:string|null}){
   }
 
   if(authFlow){
-    return <div className="card authCard">
+    return <div className="card authCard storefrontAuthSurface" data-storefront-auth-surface="true">
       <h2>{authFlow==='invite'?'Meghívás befejezése':'Új jelszó beállítása'}</h2>
       {flowStatus==='checking'&&<p className="notice">A biztonságos belépési link ellenőrzése…</p>}
       {flowStatus==='invalid'&&<><p className="errorNotice" role="alert">A link nem érvényes vagy lejárt. Kérj új jelszóbeállító e-mailt a bejelentkezési oldalon.</p><button className="btn btnGhost" type="button" onClick={()=>{window.history.replaceState(null,'','/fiokom');setAuthFlow(null);setFlowStatus('idle')}}>Vissza a bejelentkezéshez</button></>}
@@ -131,11 +131,25 @@ export function AuthForm({instanceId}:{instanceId:string|null}){
         <button className="button" type="submit" disabled={busy}>{busy?'Mentés…':'Jelszó beállítása'}</button>
       </form>}
       {message&&<p className="notice">{message}</p>}
+      <style jsx>{`
+        .storefrontAuthSurface{max-width:34rem;margin:2rem 0;padding:clamp(1.15rem,3vw,2rem);background:linear-gradient(145deg,var(--shoporation-color-surface,#fff),var(--shoporation-color-background,#f5f5f5));color:var(--shoporation-color-text,#111827);border:1px solid var(--shoporation-color-border,#d1d5db);border-radius:1.25rem;box-shadow:0 28px 90px rgba(0,0,0,.24)}
+        .storefrontAuthSurface :global(.authTabs){display:grid;grid-template-columns:1fr 1fr;gap:.55rem;margin-bottom:1.25rem;padding:.3rem;background:var(--shoporation-color-background,#f5f5f5);border:1px solid var(--shoporation-color-border,#d1d5db);border-radius:.9rem}
+        .storefrontAuthSurface :global(.authTabs button),.storefrontAuthSurface :global(.button),.storefrontAuthSurface :global(.btn){min-height:44px;border-radius:.7rem;font:inherit;font-weight:800}
+        .storefrontAuthSurface :global(.authTabs button){border:1px solid var(--shoporation-color-border,#d1d5db);background:var(--shoporation-color-surface-muted,#eee);color:var(--shoporation-color-text,#111827);cursor:pointer}
+        .storefrontAuthSurface :global(.checkoutForm){display:grid;gap:1rem}
+        .storefrontAuthSurface :global(label){display:grid;gap:.42rem;color:var(--shoporation-color-text,#111827);font-weight:700}
+        .storefrontAuthSurface :global(input),.storefrontAuthSurface :global(select){width:100%;min-height:48px;padding:.72rem .85rem;border:1px solid var(--shoporation-color-border,#d1d5db);border-radius:.72rem;background:var(--shoporation-color-background,#fff);color:var(--shoporation-color-text,#111827);font:inherit;outline:none}
+        .storefrontAuthSurface :global(input:focus),.storefrontAuthSurface :global(select:focus){border-color:var(--shoporation-color-primary,#2563eb);box-shadow:0 0 0 3px color-mix(in srgb,var(--shoporation-color-primary,#2563eb) 22%,transparent)}
+        .storefrontAuthSurface :global(.button){border:0;background:var(--shoporation-color-primary,#2563eb);color:var(--shoporation-color-primary-contrast,#fff);cursor:pointer;padding:.75rem 1rem}
+        .storefrontAuthSurface :global(.btnGhost){border:1px solid var(--shoporation-color-border,#d1d5db);background:transparent;color:var(--shoporation-color-text,#111827);cursor:pointer}
+        .storefrontAuthSurface :global(.notice){color:var(--shoporation-color-muted-text,#6b7280)}
+        @media(max-width:640px){.storefrontAuthSurface{max-width:none;margin:1rem -.25rem;padding:1rem;border-radius:1rem;min-height:min(72vh,42rem)}.storefrontAuthSurface :global(.authTabs){position:sticky;top:.5rem;z-index:1}}
+      `}</style>
     </div>;
   }
 
   const companyFields=mode==='register'&&accountType!=='customer';
-  return <div className="card authCard">
+  return <div className="card authCard storefrontAuthSurface" data-storefront-auth-surface="true">
     <div className="authTabs"><button type="button" onClick={()=>{setMode('login');setMessage('')}}>Bejelentkezés</button><button type="button" onClick={()=>{setMode('register');setMessage('')}}>Regisztráció</button></div>
     <form action={submit} className="checkoutForm">
       {mode==='register'&&<><label>Fióktípus<select value={accountType} onChange={e=>setAccountType(e.target.value as AccountType)} name="accountType"><option value="customer">Lakossági vásárló</option><option value="company">Céges vásárló</option><option value="reseller">Viszonteladói partner</option></select></label><label>Név / kapcsolattartó<input name="fullName" required minLength={2}/></label></>}
