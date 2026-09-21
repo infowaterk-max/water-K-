@@ -18,7 +18,10 @@ Supported profile keys:
 - Instagram
 - YouTube
 - TikTok
+- X
+- Twitch
 - LinkedIn
+- Pinterest
 
 Do NOT use e-mail Brand Kit social data as storefront authority.
 Do NOT hardcode tenant social URLs inside templates.
@@ -33,7 +36,7 @@ Templates may own only presentation. Functional behavior is shared through:
 The shared primitive:
 - renders semantic external links;
 - supplies accessible labels;
-- uses only validated http/https URLs;
+- uses only validated HTTPS URLs on the selected provider's own domain;
 - opens external destinations safely;
 - returns no output when no valid profile is configured.
 
@@ -44,14 +47,14 @@ Therefore, when a merchant has no social profiles configured, the complete socia
 Merchant mutation requires `store.manage` on the server and is persisted through:
 - `admin_mutate_storefront_social_links_v1`
 
-The database RPC independently checks `can_manage_storefront(instance, actor)`, validates the provider allowlist and URL format, preserves unrelated storefront configuration and writes audit evidence.
+The database RPC independently checks `can_manage_storefront(instance, actor)`, validates the provider allowlist, HTTPS requirement and provider-owned domain, preserves unrelated storefront configuration and writes audit evidence.
 
 No direct browser/table mutation is authoritative.
 
 ## Template acceptance rule
 
 A template MUST NOT:
-- ship decorative characters pretending to be social icons;
+- ship decorative characters pretending to be social icons or ambiguous unlabeled glyphs;
 - use `#` placeholder destinations;
 - keep an empty social section visible;
 - own merchant URLs in template source.
@@ -59,5 +62,7 @@ A template MUST NOT:
 A template MAY:
 - style the shared social component;
 - choose placement, spacing, icon treatment and responsive composition.
+
+Preview/demo data MAY show representative social controls, but those links must also be real HTTPS destinations rather than `#` placeholders. Production remains tenant-owned only.
 
 ONE DEFECT -> ONE SHARED FIX -> REGRESSION TEST -> QUALITY GATE.
