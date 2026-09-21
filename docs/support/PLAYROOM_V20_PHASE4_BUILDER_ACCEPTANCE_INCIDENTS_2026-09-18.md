@@ -1485,3 +1485,45 @@ Resolution:
 - keep merchant mutations RPC-driven rather than granting broad table write privileges.
 
 Staging replay after the grant returned the acceptance case and item successfully as `service_role`.
+
+
+---
+
+## SKB-P4-017 — Public storefront routes are not template visual-acceptance authority
+
+- status: `implemented`
+- evidence: `code_and_acceptance_verified`
+- area: `storefront/template-acceptance/deep-link`
+- risk: `medium`
+- automation: `AUTO_FIX`
+
+### Symptom
+
+During Playroom human acceptance, a direct public route such as `/penztar` rendered the generic/shared storefront checkout shell instead of the currently audited Playroom Page Schema.
+
+### Root cause
+
+The public commerce routes are runtime/tenant surfaces and may use the tenant's currently installed/published storefront or a shared commerce shell. They are **not** deterministic template-visual-acceptance entry points.
+
+The repository already has a dedicated `/visual-fidelity-qa` route that resolves an explicit template package, page type and viewport through the canonical Storefront Runtime.
+
+### Verified resolution
+
+For template visual acceptance, use only explicit QA deep links:
+
+`/visual-fidelity-qa?template=<templateKey>&version=<templateVersion>&page=<pageType>&viewport=<desktop|tablet|mobile>`
+
+For current Playroom acceptance:
+
+- template: `gaming.playroom`
+- merchant-facing current version: `19`
+- page family: explicit canonical page type, e.g. `checkout`
+- viewport: explicit acceptance viewport
+
+### Rejected path
+
+Do not use `/`, `/webaruhaz`, `/termek/...`, `/kosar` or `/penztar` as proof that a specific template Page Schema is visually correct. Those routes are valid functional-commerce surfaces, but they do not deterministically select the template under audit.
+
+### Prevention
+
+Human template acceptance links must always pin **template key + exact version + page type + viewport**. Functional checkout acceptance and template visual acceptance are separate evidence tracks and must not be conflated.
