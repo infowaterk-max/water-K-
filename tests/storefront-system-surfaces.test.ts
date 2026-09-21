@@ -24,6 +24,8 @@ describe('customer-facing system surfaces',()=>{
     expect(playroom).toMatch(/path:'brand\.socialLinks'/);
     expect(runtime).toMatch(/resolveStorefrontSocialLinks/);
     expect(runtime).toMatch(/brand:\{socialLinks\}/);
+    expect(runtime).toMatch(/systemSurfaceComposition:'template-source'/);
+    expect(runtime).toMatch(/footerIndex=sections\.findIndex\(section=>\/footer\/i\.test\(section\.id\)\)/);
   });
 
   it('renders configured social symbols as accessible links',()=>{
