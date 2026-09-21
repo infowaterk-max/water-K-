@@ -10,6 +10,7 @@ import {StorefrontRuntimeRenderer} from '@/components/builder/storefront-runtime
 import type {StorefrontComponentNode} from '@/lib/builder/storefront-runtime';
 import {PLANS} from '@/lib/plans/catalog';
 import {PLAYROOM_V19_CANONICAL_TEMPLATE_PACKAGE} from '@/lib/builder/templates/playroom-v19-canonical';
+import {STOREFRONT_IMPLEMENTED_TEMPLATE_PACKAGES} from '@/lib/builder/storefront-template-catalog';
 
 const flatten=(nodes:readonly StorefrontComponentNode[]):StorefrontComponentNode[]=>nodes.flatMap(node=>[node,...flatten(node.children??[])]);
 const capability={plan:'pro' as const,features:PLANS.pro.features};
@@ -30,6 +31,19 @@ describe('shared storefront account capability navigation',()=>{
     const context=augmentStorefrontDigitalCommercePreviewContext({template:PLAYROOM_V19_CANONICAL_TEMPLATE_PACKAGE,page:account,context:base});
     const items=((context.commerce as any).digitalCommerce.accountCapabilities.items) as Array<{key:string;label:string;href:string}>;
     expect(items.map(item=>item.key)).toEqual(CANONICAL_ACCOUNT_CAPABILITIES.map(item=>item.key));
+  });
+
+  it('normalizes every implemented account page onto the same canonical navigation authority',()=>{
+    for(const template of [...STOREFRONT_IMPLEMENTED_TEMPLATE_PACKAGES,PLAYROOM_V19_CANONICAL_TEMPLATE_PACKAGE]){
+      const account=template.pages.find(page=>page.pageType==='account');
+      if(!account)continue;
+      const normalized=normalizeStorefrontTemplateRuntimeComposition(account);
+      const nodes=flatten(normalized.sections);
+      expect(nodes.filter(node=>node.componentKey==='account.capability-navigation'),template.manifest.templateKey).toHaveLength(1);
+      expect(nodes.some(node=>node.componentKey==='commerce.account-downloads'),template.manifest.templateKey).toBe(false);
+      expect(nodes.some(node=>node.componentKey==='commerce.account-documents'),template.manifest.templateKey).toBe(false);
+      expect(nodes.some(node=>node.componentKey==='commerce.documents-center'),template.manifest.templateKey).toBe(false);
+    }
   });
 
   it('renders the same complete account capability set on desktop, tablet and mobile',()=>{
