@@ -20,17 +20,18 @@ describe('customer-facing system surfaces',()=>{
 
   it('does not ship decorative fake social glyphs as the Playroom footer control',()=>{
     expect(playroom).toMatch(/patchPlayroomSocialLinks/);
-    expect(playroom).toMatch(/componentKey:'system\.navigation'/);
+    expect(playroom).toMatch(/componentKey:'system\.social-links'/);
     expect(playroom).toMatch(/path:'brand\.socialLinks'/);
     expect(runtime).toMatch(/resolveStorefrontSocialLinks/);
-    expect(runtime).toMatch(/brand:\{socialLinks\}/);
+    expect(runtime).toMatch(/socialLinks:resolveStorefrontSocialLinks\(instance\.storefront\.socialLinks\)/);
     expect(runtime).toMatch(/systemSurfaceComposition:'template-source'/);
     expect(runtime).toMatch(/footerIndex=sections\.findIndex\(section=>\/footer\/i\.test\(section\.id\)\)/);
   });
 
-  it('renders configured social symbols as accessible links',()=>{
-    expect(primitives).toMatch(/symbol\?:string;ariaLabel\?:string/);
-    expect(primitives).toMatch(/aria-label=\{item\.ariaLabel\|\|\(item\.symbol\?item\.label:undefined\)\}/);
-    expect(primitives).toMatch(/item\.symbol\?<span aria-hidden="true">/);
+  it('renders configured social symbols as accessible links and hides the whole block when empty',()=>{
+    expect(primitives).toMatch(/function SocialLinksRenderer/);
+    expect(primitives).toMatch(/if\(!items\.length\)return null/);
+    expect(primitives).toMatch(/target="_blank" rel="noopener noreferrer"/);
+    expect(primitives).toMatch(/aria-label=\{item\.ariaLabel\|\|item\.label\}/);
   });
 });
