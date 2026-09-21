@@ -119,3 +119,52 @@ export async function saveCurrentStorefrontTemplateDraftPlan(input:{
     pages:savedPages,
   };
 }
+
+
+export type StorefrontTemplateInstallationSaveResult=StorefrontTemplateDraftSaveResult&{
+  installationMutationScope:'storefront_page_drafts_plus_template_demo_content_drafts';
+  demoContent:{installed:number;refreshed:number;preserved:number;retired:number;mutationScope:'template_demo_content_drafts_only'};
+};
+
+const demoNumber=(record:Record<string,unknown>,key:string)=>{
+  const value=record[key];
+  return typeof value==='number'&&Number.isInteger(value)&&value>=0?value:0;
+};
+
+export async function saveCurrentStorefrontTemplateInstallationPlan(input:{
+  plan:StorefrontTemplateInstallationPlan;
+  operationKey:string;
+}):Promise<StorefrontTemplateInstallationSaveResult>{
+  const pages=await saveCurrentStorefrontTemplateDraftPlan(input);
+  const install=input.plan.demoLifecycle.install.filter(record=>record.entityType==='content');
+  const retire=input.plan.demoLifecycle.retire.filter(record=>record.entityType==='content');
+  const empty={installed:0,refreshed:0,preserved:0,retired:0,mutationScope:'template_demo_content_drafts_only' as const};
+  if(!install.length&&!retire.length)return{...pages,installationMutationScope:'storefront_page_drafts_plus_template_demo_content_drafts',demoContent:empty};
+
+  const[scope,actorUserId]=await Promise.all([requireCurrentStoreContext('store.manage'),requireActor()]);
+  const admin=createAdminClient();
+  const{data,error}=await admin.rpc('save_storefront_template_demo_content_v1',{
+    p_instance_id:scope.instanceId,
+    p_actor_user_id:actorUserId,
+    p_template_key:input.plan.templateKey,
+    p_template_version:input.plan.templateVersion,
+    p_namespace:install[0]?.namespace??input.plan.demoLifecycle.retire[0]?.namespace??'template-demo',
+    p_install:install,
+    p_retire:retire,
+    p_operation_key:input.operationKey,
+  });
+  if(error)throw new Error(`STOREFRONT_TEMPLATE_DEMO_CONTENT_SAVE_FAILED:${error.message}`);
+  const record=asRecord(data,'STOREFRONT_TEMPLATE_DEMO_CONTENT_RESULT_INVALID');
+  if(record.mutationScope!=='template_demo_content_drafts_only')throw new Error('STOREFRONT_TEMPLATE_DEMO_CONTENT_SCOPE_INVALID');
+  return{
+    ...pages,
+    installationMutationScope:'storefront_page_drafts_plus_template_demo_content_drafts',
+    demoContent:{
+      installed:demoNumber(record,'installed'),
+      refreshed:demoNumber(record,'refreshed'),
+      preserved:demoNumber(record,'preserved'),
+      retired:demoNumber(record,'retired'),
+      mutationScope:'template_demo_content_drafts_only',
+    },
+  };
+}
