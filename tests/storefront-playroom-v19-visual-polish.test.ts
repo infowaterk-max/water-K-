@@ -61,6 +61,25 @@ describe('Playroom v19 final visual polish',()=>{
     expect(find(page('contact').sections,'playroom-contact-expectations')?.children).toHaveLength(3);
   });
 
+  it('keeps every Playroom v19 commerce header compact and reachable on mobile',()=>{
+    for(const document of PLAYROOM_V19_CANONICAL_TEMPLATE_PACKAGE.pages){
+      const header=document.sections.find(section=>section.componentKey==='system.commerce-header');
+      expect(header,document.pageType).toBeTruthy();
+      const inner=header?.config.innerStyle as Record<string,Record<string,unknown>>;
+      const brand=header?.config.brandStyle as Record<string,Record<string,unknown>>;
+      const logo=header?.config.logoStyle as Record<string,Record<string,unknown>>;
+      expect(inner.mobile?.padding,document.pageType).toBe('.5rem .8rem .42rem');
+      expect(brand.mobile?.fontSize,document.pageType).toBe('.9rem');
+      expect(logo.mobile?.width,document.pageType).toBe('2.1rem');
+      const navigation=header?.children?.find(child=>child.componentKey==='system.navigation');
+      const navigationStyle=navigation?.config.style as Record<string,Record<string,unknown>>;
+      expect(navigationStyle.mobile?.gap,document.pageType).toBe('.65rem');
+      expect(navigationStyle.mobile?.fontSize,document.pageType).toBe('.68rem');
+      const search=header?.children?.find(child=>child.componentKey==='system.search');
+      expect(search?.config.placeholder,document.pageType).toBe('Keresés játékra, konzolra…');
+    }
+  });
+
   it('keeps the legal reading surface inside the dark Playroom visual language',()=>{
     const reading=find(page('legal').sections,'playroom-legal-reading');
     const style=reading?.config.style as Record<string,unknown>;
