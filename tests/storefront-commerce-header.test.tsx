@@ -93,11 +93,16 @@ describe('shared commerce header',()=>{
     expect(html).toContain('VÁLOGATOTT KÍNÁLAT');
   });
 
-  it('keeps search and navigation present on mobile instead of a non-functional fake hamburger',()=>{
+  it('renders the shared mobile navigation behind a real hamburger disclosure',()=>{
     const html=render('mobile');
     expect(html).toContain('Mit keresel?');
+    expect(html).toContain('data-storefront-mobile-menu="true"');
+    expect(html).toContain('<details');
+    expect(html).toContain('<summary');
+    expect(html).toContain('Mobil navigáció megnyitása');
+    expect(html).toContain('Menü');
     expect(html).toContain('Játékok');
-    expect(html).not.toContain('Mobil navigáció');
+    expect(html).toContain('data-storefront-component="system.navigation"');
   });
 
   it('centers an icon-only search action inside a compact fixed-height template root without child overflow',()=>{
