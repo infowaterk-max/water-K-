@@ -15,6 +15,10 @@ on:
       - 'src/app/responsive-final.css'
       - 'src/components/admin/storefront-visual-builder-v3.tsx'
       - 'src/app/visual-fidelity-qa/**'
+      - 'src/app/admin/beallitasok/megjelenes/**'
+      - 'supabase/migrations/20260921152000_storefront_social_links_settings.sql'
+      - 'src/app/admin/beallitasok/megjelenes/**'
+      - 'supabase/migrations/20260921152000_storefront_social_links_settings.sql'
       - 'src/app/api/visual-fidelity/templates/**'
       - 'src/app/storefront-template-preview/**'
       - 'scripts/template-factory-quality-gate.mjs'
@@ -89,6 +93,7 @@ jobs:
           tests/storefront-template-quality-gate-v2.test.ts
           tests/storefront-auth-surface.test.ts
           tests/storefront-system-surfaces.test.ts
+          tests/storefront-social-settings.test.ts
           tests/storefront-template-preview-runtime.test.ts
           tests/storefront-visual-builder-fidelity-engine.test.ts
           tests/playroom-v20-canonical-shell-content.test.ts
