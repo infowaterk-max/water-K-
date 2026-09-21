@@ -133,3 +133,23 @@
  .storefrontAccountShell [data-storefront-component="layout.container"]{max-width:100%!important}
  .storefrontAccountShell[data-authenticated="false"] .storefrontAuthRouteContent>.section{padding-top:1rem}
 }
+
+
+/* Customer order history: desktop table, mobile semantic cards. */
+.accountOrderMobileList{display:none}
+@media(max-width:720px){
+ .storefrontAccountShell .accountOrderTableDesktop{display:none}
+ .storefrontAccountShell .accountOrderMobileList{display:grid;gap:1rem}
+ .storefrontAccountShell .accountOrderMobileCard{min-width:0;padding:1rem;border:1px solid var(--shoporation-color-border,#d8dce7);border-radius:var(--shoporation-radius-m,.9rem);background:var(--shoporation-color-surface,#fff);color:var(--shoporation-color-text,#17231a)}
+ .storefrontAccountShell .accountOrderMobileHead{display:flex;align-items:flex-start;justify-content:space-between;gap:.75rem}
+ .storefrontAccountShell .accountOrderMobileHead strong{overflow-wrap:anywhere}
+ .storefrontAccountShell .accountOrderMobileCard dl{display:grid;gap:0;margin:1rem 0 0}
+ .storefrontAccountShell .accountOrderMobileCard dl>div{display:grid;grid-template-columns:minmax(7rem,.42fr) minmax(0,1fr);gap:.75rem;padding:.65rem 0;border-top:1px solid var(--shoporation-color-border,#d8dce7)}
+ .storefrontAccountShell .accountOrderMobileCard dt{font-size:.76rem;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:var(--shoporation-color-muted-text,#667085)}
+ .storefrontAccountShell .accountOrderMobileCard dd{margin:0;text-align:right;overflow-wrap:anywhere}
+}
+@media(max-width:430px){
+ .storefrontAccountShell .accountOrderMobileHead{display:grid}
+ .storefrontAccountShell .accountOrderMobileCard dl>div{grid-template-columns:1fr;gap:.25rem}
+ .storefrontAccountShell .accountOrderMobileCard dd{text-align:left}
+}
