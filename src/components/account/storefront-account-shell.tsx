@@ -16,13 +16,17 @@ function slicePage(page:StorefrontPageDocument,sections:StorefrontComponentNode[
 
 export async function StorefrontAccountShell({customerId,fallbackNavigation,children}:{customerId:string|null;fallbackNavigation:ReactNode;children:ReactNode}){
  const runtime=await resolveCurrentStorefrontAccountRuntimePage(customerId);
- if(!runtime)return <div className="storefrontAccountShell"><div className="storefrontAccountWorkspace"><aside className="storefrontAccountSidebar" aria-label="Fiók navigáció">{fallbackNavigation}</aside><div className="storefrontAccountRouteContent">{children}</div></div></div>;
+ if(!runtime)return customerId
+  ?<div className="storefrontAccountShell" data-authenticated="true"><div className="storefrontAccountWorkspace"><aside className="storefrontAccountSidebar" aria-label="Fiók navigáció">{fallbackNavigation}</aside><div className="storefrontAccountRouteContent">{children}</div></div></div>
+  :<div className="storefrontAccountShell" data-authenticated="false"><div className="storefrontAccountRouteContent storefrontAuthRouteContent">{children}</div></div>;
  const userAgent=(await headers()).get('user-agent')??'',viewport=viewportFromUserAgent(userAgent);
  const headerSections=runtime.page.sections.filter(isHeader);
  const navSections=runtime.page.sections.filter(isAccountNav);
  const footerSections=runtime.page.sections.filter(isFooter);
- const publicAuthSections=runtime.page.sections.filter(section=>!isHeader(section)&&!isFooter(section)&&!isAccountNav(section));
- if(!headerSections.length||!footerSections.length)return <div className="storefrontAccountShell"><div className="storefrontAccountWorkspace"><aside className="storefrontAccountSidebar" aria-label="Fiók navigáció">{fallbackNavigation}</aside><div className="storefrontAccountRouteContent">{children}</div></div></div>;
+ const publicAuthSections=runtime.page.sections.filter(section=>(section.config as Record<string,unknown>).authPublic===true);
+ if(!headerSections.length||!footerSections.length)return customerId
+  ?<div className="storefrontAccountShell" data-authenticated="true"><div className="storefrontAccountWorkspace"><aside className="storefrontAccountSidebar" aria-label="Fiók navigáció">{fallbackNavigation}</aside><div className="storefrontAccountRouteContent">{children}</div></div></div>
+  :<div className="storefrontAccountShell" data-authenticated="false"><div className="storefrontAccountRouteContent storefrontAuthRouteContent">{children}</div></div>;
  const vars=resolveStorefrontGlobalStyleCssVariables(runtime.page) as CSSProperties;
  const render=(sections:StorefrontComponentNode[])=><StorefrontResponsiveRuntime page={slicePage(runtime.page,sections)} initialViewport={viewport} bindingContext={runtime.bindingContext} capability={runtime.capability}/>;
  return <div className="storefrontAccountShell" data-storefront-account-shell={runtime.source} data-storefront-template={runtime.page.templateKey} data-authenticated={customerId?'true':'false'} style={{...vars,fontFamily:'var(--shoporation-body-font,Arial,sans-serif)',background:'var(--shoporation-color-background,#fff)',color:'var(--shoporation-color-text,#111827)'}}>
