@@ -31,12 +31,19 @@ async function resolveStorefrontSocialLinks(instanceId:string){
 async function resolveRuntimeCommerceContext(instanceId:string,knownPlan?:StorefrontRuntimeCapabilityContext['plan']){const capability=await getStorefrontRuntimeCapabilityForInstance(instanceId,knownPlan);if(!capability)return null;const enabled=new Set(capability.features),scenePromise=getStorefrontInteractiveSceneCatalogForInstance(instanceId);const[sceneCatalog,existingCommerce,recipeBundle,releaseBundle,socialLinks]=await Promise.all([scenePromise,getStorefrontExistingCommerceBundleForInstance(instanceId,scenePromise),enabled.has('recipeCommerce')?getStorefrontRecipeCommerceBundleForInstance(instanceId):Promise.resolve({recipes:[],options:[],catalog:[]} as const),enabled.has('releaseCommerce')?getStorefrontReleaseCommerceBundleForInstance(instanceId):Promise.resolve({definitions:[],releases:[],options:[],dropProducts:[],releaseStatus:'Nincs aktív release státusz.'} as const),resolveStorefrontSocialLinks(instanceId)]);return{capability,bindingContext:{context:{instanceId},brand:{socialLinks},catalog:{interactiveSceneProducts:enabled.has('interactiveSceneCommerce')?sceneCatalog.products:[],existingCommerceProducts:existingCommerce.catalog,existingCommerceAttributes:existingCommerce.attributes,recipeDefinitions:recipeBundle.recipes,recipeProducts:recipeBundle.catalog,drop:releaseBundle.dropProducts},commerce:{existingEngines:{finders:existingCommerce.finders,composers:existingCommerce.composers,configurators:existingCommerce.configurators},releases:releaseBundle.releases},inventory:{releaseStatus:releaseBundle.releaseStatus}} as Record<string,unknown>};}
 const authPublicSection=(section:StorefrontPageDocument['sections'][number])=>(section.config as Record<string,unknown>).authPublic===true;
 function applyTemplateAuthComposition(page:StorefrontPageDocument):StorefrontPageDocument{
- if(page.pageType!=='account'||page.sections.some(authPublicSection))return page;
+ if(page.pageType!=='account')return page;
  const template=getStorefrontTemplatePackage(page.templateKey,page.templateVersion);
  const preset=template?.pages.find(item=>item.pageType==='account');
- const authSections=preset?.sections.filter(authPublicSection)??[];
- if(!authSections.length||!page.sections.length)return page;
- return{...page,metadata:{...(page.metadata??{}),authCompositionFallback:'template-source'},sections:[page.sections[0]!,...structuredClone(authSections),...page.sections.slice(1)]};
+ if(!preset||!page.sections.length)return page;
+ const authSections=preset.sections.filter(authPublicSection);
+ let sections=[...page.sections];
+ if(authSections.length&&!sections.some(authPublicSection))sections=[sections[0]!,...structuredClone(authSections),...sections.slice(1)];
+ const sourceFooter=preset.sections[preset.sections.length-1];
+ if(sourceFooter&&/footer/i.test(sourceFooter.id)){
+  const footerIndex=sections.findIndex(section=>/footer/i.test(section.id));
+  if(footerIndex>=0)sections=sections.map((section,index)=>index===footerIndex?structuredClone(sourceFooter):section);
+ }
+ return{...page,metadata:{...(page.metadata??{}),authCompositionFallback:'template-source',systemSurfaceComposition:'template-source'},sections};
 }
 function mergeDigitalCommerceContext(bindingContext:Record<string,unknown>,digitalCommerce:Record<string,unknown>|null){if(!digitalCommerce)return bindingContext;const commerce=bindingContext.commerce&&typeof bindingContext.commerce==='object'&&!Array.isArray(bindingContext.commerce)?bindingContext.commerce as Record<string,unknown>:{};return{...bindingContext,commerce:{...commerce,digitalCommerce}};}
 function mergeGrowthContext(bindingContext:Record<string,unknown>,promotions:Readonly<Record<string,unknown>>){const current=bindingContext.offer&&typeof bindingContext.offer==='object'&&!Array.isArray(bindingContext.offer)?bindingContext.offer as Record<string,unknown>:{};return{...bindingContext,offer:{...current,promotions}};}
