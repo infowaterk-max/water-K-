@@ -17,7 +17,7 @@ export default async function AccountPage(){
  const instance=await getCurrentWebshopInstance(),brandName=instance?.brand.name??'Webáruház',configured=Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL&&(process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY||process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY));
  if(!configured)return <main className="section accountPage"><div className="shell"><span className="eyebrow">{brandName} fiók</span><h1 className="sectionTitle">A saját vásárlói központod.</h1><div className="card"><h2>A hitelesítés még nincs konfigurálva.</h2><p className="muted">A publikus webshop ettől függetlenül használható.</p><Link className="btn btnPrimary" href="/webaruhaz">Vásárlás</Link></div></div></main>;
  const supabase=await createClient();const{data:{user}}=await supabase.auth.getUser();
- if(!user)return <main className="section accountPage"><div className="shell"><span className="eyebrow">{brandName} fiók</span><h1 className="sectionTitle">Belépés vagy regisztráció</h1><p className="muted">Belépés után egy helyen követheted a rendeléseidet, számláidat és szállításaidat.</p><AuthForm instanceId={instance?.id??null}/></div></main>;
+ if(!user)return <main className="section accountPage storefrontSignedOutAccount"><div className="shell"><AuthForm instanceId={instance?.id??null}/></div></main>;
  if(!instance)return <main className="section accountPage"><div className="shell"><div className="card"><h1>Nincs aktív webshop.</h1><LogoutButton/></div></div></main>;
 
  const[profileResult,partnerResult,ordersResult,wishlistResult]=await Promise.all([
