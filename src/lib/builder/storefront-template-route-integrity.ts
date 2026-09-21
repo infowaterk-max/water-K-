@@ -208,13 +208,13 @@ export function applyStorefrontTemplateDemoNotice(page:StorefrontPageDocument,no
     id:'template-demo-content-notice',
     componentKey:'layout.section',
     componentVersion:1,
-    config:{tone:'surface',spacing:'s',width:'full',style:{padding:'.75rem 1rem',background:'#fff4d8',border:'1px solid #e0b45f',color:'#5d4212'}},
+    config:{tone:'surface',spacing:'s',width:'full',style:{padding:'1rem 1.1rem',background:'#ffd86b',border:'2px solid #6b4700',borderRadius:'.65rem',color:'#211600',boxShadow:'0 8px 24px rgba(0,0,0,.14)'}},
     responsive:{desktop:{gridSpan:12},tablet:{gridSpan:12},mobile:{gridSpan:12}},
     children:[{
       id:'template-demo-content-notice-text',
       componentKey:'content.text',
       componentVersion:1,
-      config:{text:`⚠ ${notice}`,as:'strong',align:'left',tone:'text',style:{fontSize:'.86rem',lineHeight:1.45}},
+      config:{text:`⚠ MINTA TARTALOM\n${notice}`,as:'strong',align:'left',tone:'text',style:{color:'#211600',fontSize:'.9rem',lineHeight:1.5,fontWeight:850,whiteSpace:'pre-line'}},
     }],
   };
   const sections=[...page.sections.map(section=>structuredClone(section))];
