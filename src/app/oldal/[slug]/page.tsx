@@ -51,8 +51,13 @@ function SystemInfoPage({slug,brand,settings}:{slug:string;brand:string;settings
  }
  return <main className="section contentPage systemInfoPage" data-system-info-page="returns"><div className="shell">
    <span className="eyebrow">{brand} · vásárlási információk</span><h1 className="sectionTitle">Visszaküldés</h1>
-   <p className="lead">A konkrét rendeléshez tartozó visszaküldést bejelentkezés után, a vásárlói fiókban lehet elindítani és követni.</p>
-   <section className="card"><h2>Rendeléshez kapcsolódó ügyintézés</h2><p className="muted">Nyisd meg a visszaküldési központot, válaszd ki az érintett rendelést és kövesd a megjelenő lépéseket.</p><div className="actions"><Link className="btn btnPrimary" href="/fiokom/visszakuldes">Visszaküldési központ</Link><Link className="btn btnGhost" href="/kapcsolat">Kapcsolat</Link></div></section>
+   <p className="lead">A konkrét rendeléshez tartozó visszaküldési vagy visszatérítési kérelmet bejelentkezés után, a vásárlói fiókban lehet elindítani és követni.</p>
+   <div className="systemInfoStack">
+    <section className="featurePanel systemInfoGuide"><span className="eyebrow">Hogyan működik?</span><h2>A visszaküldés mindig egy konkrét rendeléshez kapcsolódik.</h2><div className="cards"><article className="card"><span className="badge">1</span><h3>Rendelés kiválasztása</h3><p className="muted">Jelentkezz be, és válaszd ki azt a lezárt vagy kiszállított rendelést, amelyhez kérelmet szeretnél indítani.</p></article><article className="card"><span className="badge">2</span><h3>Tételek és ok megadása</h3><p className="muted">Jelöld meg a visszaküldendő termékeket és mennyiséget, majd add meg röviden az ügy okát és részleteit.</p></article><article className="card"><span className="badge">3</span><h3>Kérelem elküldése</h3><p className="muted">A beküldött ügyet a webshop ellenőrzi. A kérelem elküldése önmagában nem jelent automatikus pénzvisszatérítést.</p></article></div></section>
+    <section className="card"><span className="eyebrow">Ügykövetés</span><h2>A folyamat állapotát a fiókodban látod.</h2><p className="muted">A visszaküldési központban követheted az ügy állapotát és az esetlegesen rögzített visszatérítési információkat.</p><div className="actions"><Link className="btn btnPrimary" href="/fiokom/visszakuldes">Visszaküldési központ</Link><Link className="btn btnGhost" href="/fiokom/ugyek">Összes ügyem</Link></div></section>
+    <section className="card"><span className="eyebrow">Fontos</span><h2>A részletes feltételeket az ÁSZF tartalmazza.</h2><p className="muted">A jogosultságot és a határidőket mindig az adott rendelésre és vásárlásra érvényes feltételek alapján kell megítélni. Ez az oldal az operatív ügyintézés menetét mutatja.</p><div className="actions"><Link className="btn btnGhost" href="/aszf">ÁSZF megnyitása</Link><Link className="btn btnGhost" href="/kapcsolat">Kapcsolat</Link></div></section>
+   </div>
+   <div className="actions systemInfoActions"><Link className="btn btnPrimary" href="/fiokom/visszakuldes">Visszaküldés indítása</Link><Link className="btn btnGhost" href="/webaruhaz">Vissza a webáruházba</Link></div>
   </div></main>;
 }
 
