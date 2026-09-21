@@ -107,6 +107,7 @@ If yes, update Support Knowledge in the same development cycle.
 - `PLAYROOM_V20_PHASE4_BUILDER_ACCEPTANCE_INCIDENTS_2026-09-18.md` — Playroom v20 Phase 4 human acceptance: tenant-entry, Alap entitlement gate, Preview/staging proof constraints, Visual Builder wrapper fidelity, canonical viewport, zoom/fit, absolute media, grid stretch, dense header and CI/harness lessons.
 
 - `TEMPLATE_ROUTE_INTEGRITY_DEMO_CONTENT_2026-09-21.md` — canonical Template Factory route-integrity + demo-content lifecycle: no dead links, real catalog deep-link consumers, dynamic content fixtures, draft-only CMS materialization, fixture/adopted/retired provenance and staging acceptance proof.
+- `TEMPLATE_FACTORY_QUALITY_GATE_V2_FOUNDATION_CLOSURE_2026-09-21.md` — Quality Gate v2 closure hardening: exact-head golden promotion, full cross-template shared-Runtime policy, Builder/Preview geometry authority and CI self-regression coverage.
 
 ## Core engineering rules
 
@@ -127,3 +128,5 @@ If yes, update Support Knowledge in the same development cycle.
 15. **Digital assets, Product Documents and Order Documents remain separate backend authorities** even if one UI aggregates them.
 16. **Shared launch capabilities belong in shared package/install/runtime contracts**, not manual edits repeated across every template.
 17. **Every template link needs a real destination authority.** Known routes must exist, catalog query parameters must be consumed, and static dynamic-content links must have draft-safe demo fixtures; generated business/service content is never auto-published as truth.
+18. **Shared Storefront/Builder authority changes require cross-template full-matrix proof.** Canary-only coverage is not sufficient when the shared Runtime renderer, Builder geometry authority, Preview authority or Quality Gate infrastructure changes.
+19. **Accepted templates require committed golden baselines.** Promotion must come from clean exact-head 14x3 evidence; candidate-to-accepted remains an explicit human decision.
