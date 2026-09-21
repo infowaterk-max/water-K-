@@ -105,8 +105,9 @@ describe('Storefront Desktop scale / density contract',()=>{
     expect(legacyCartCss).toContain("min-height:48px");
     expect(overview).toContain('className="actions accountPrimaryActions"');
     expect(overview).not.toContain('className="btn btnGhost" href="/fiokom/letoltesek"');
-    expect(surfaces).toContain("flexWrap:mobile?'nowrap':'wrap'");
-    expect(surfaces).toContain("overflowX:mobile?'auto':'visible'");
+    expect(surfaces).toContain("responsive&&mobile");
+    expect(surfaces).toContain("gridTemplateColumns:'1fr'");
+    expect(surfaces).toContain("whiteSpace:mobile?'normal':'nowrap'");
     expect(commerceHeader).toContain("fontSize:viewport==='mobile'?'1rem':'.94rem'");
     expect(commerceHeader).toContain("minHeight:tablet?'3.35rem':'3.65rem'");
     expect(commerceHeaderCss).toContain('font-size: .88rem !important;');
