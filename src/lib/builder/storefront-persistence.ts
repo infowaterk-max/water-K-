@@ -262,6 +262,19 @@ export async function resolveStorefrontPreviewToken(token:string):Promise<Storef
   try{return parseStoredDocument(revision.document);}catch{return null;}
 }
 
+export async function getPreviewStorefrontDraftPage(instanceId:string,pageKey:string):Promise<StorefrontPageDocument|null>{
+  if(process.env.VERCEL_ENV!=='preview'||!PAGE_KEY_PATTERN.test(pageKey))return null;
+  const admin=createAdminClient();
+  const{data:page,error:pageError}=await admin.from('storefront_pages')
+    .select('id,draft_revision_id').eq('instance_id',instanceId).eq('page_key',pageKey).maybeSingle();
+  if(pageError||!page?.draft_revision_id)return null;
+  const{data:revision,error:revisionError}=await admin.from('storefront_page_revisions')
+    .select('document,kind').eq('instance_id',instanceId).eq('page_id',page.id)
+    .eq('id',page.draft_revision_id).maybeSingle();
+  if(revisionError||!revision||revision.kind!=='draft')return null;
+  try{return parseStoredDocument(revision.document);}catch{return null;}
+}
+
 export async function getPublishedStorefrontPage(instanceId:string,pageKey:string):Promise<StorefrontPageDocument|null>{
   if(!PAGE_KEY_PATTERN.test(pageKey))return null;
   const admin=createAdminClient();
