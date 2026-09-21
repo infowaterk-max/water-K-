@@ -148,7 +148,11 @@ export async function saveCurrentStorefrontTemplateInstallationPlan(input:{
     p_actor_user_id:actorUserId,
     p_template_key:input.plan.templateKey,
     p_template_version:input.plan.templateVersion,
-    p_namespace:install[0]?.namespace??input.plan.demoLifecycle.retire[0]?.namespace??'template-demo',
+    p_namespace:(()=>{
+      const value=input.plan.pages[0]?.document.metadata?.demoNamespace;
+      if(typeof value!=='string'||!value)return install[0]?.namespace??'template-demo';
+      return value;
+    })(),
     p_install:install,
     p_retire:retire,
     p_operation_key:input.operationKey,
