@@ -1,5 +1,5 @@
 import type {StorefrontComponentNode,StorefrontPageDocument} from '@/lib/builder/storefront-runtime';
-import {CANONICAL_ACCOUNT_CAPABILITIES} from '@/lib/account/account-capabilities';
+import {composeStorefrontDigitalCommerceCapabilities} from '@/lib/builder/storefront-digital-commerce-composition';
 
 const clone=<T>(value:T):T=>structuredClone(value);
 
@@ -208,33 +208,6 @@ function normalizeCartNode(node:StorefrontComponentNode):StorefrontComponentNode
   };
 }
 
-function containsAccountCapabilityNavigation(nodes:readonly StorefrontComponentNode[]):boolean{
-  for(const node of nodes){
-    if(node.componentKey==='account.capability-navigation')return true;
-    if(containsAccountCapabilityNavigation(node.children??[]))return true;
-  }
-  return false;
-}
-
-function normalizeAccountCapabilityNavigation(document:StorefrontPageDocument):StorefrontPageDocument{
-  if(document.pageType!=='account'||containsAccountCapabilityNavigation(document.sections))return clone(document);
-  const fallback=CANONICAL_ACCOUNT_CAPABILITIES
-    .filter(item=>!item.optional)
-    .map(item=>({key:item.key,label:item.label,href:item.href}));
-  const navigation:StorefrontComponentNode={
-    id:'system-account-capability-navigation',
-    componentKey:'account.capability-navigation',
-    componentVersion:1,
-    config:{title:'Fiókom',items:fallback,presentation:'account-navigation'},
-    bindings:{items:{path:'account.capabilities',fallback}},
-    responsive:{desktop:{gridSpan:12},tablet:{gridSpan:12},mobile:{gridSpan:12}},
-  };
-  const sections=[...document.sections];
-  const headerIndex=sections.findIndex(section=>section.componentKey==='system.header'||section.componentKey==='system.commerce-header');
-  sections.splice(headerIndex>=0?headerIndex+1:0,0,navigation);
-  return{...clone(document),sections,metadata:{...(document.metadata??{}),accountNavigationAuthority:'canonical-capabilities-v1'}};
-}
-
 function normalizeGenericCart(document:StorefrontPageDocument):StorefrontPageDocument{
   const sections=document.sections
     .map(normalizeCartNode)
@@ -304,11 +277,11 @@ function normalizePlayroomCart(document:StorefrontPageDocument):StorefrontPageDo
 export function normalizeStorefrontTemplateRuntimeComposition(document:StorefrontPageDocument):StorefrontPageDocument{
   const playroomV20=document.templateKey==='gaming.playroom'&&document.templateVersion===20;
   const shell=playroomV20?normalizePlayroomV20SharedShell(document):clone(document);
-  const normalized=normalizeAccountCapabilityNavigation(shell);
-  if(playroomV20&&normalized.pageType==='checkout')return normalizePlayroomV20Checkout(normalized);
-  if(normalized.pageType!=='cart')return normalized;
-  if(playroomV20)return normalizePlayroomCart(normalized);
-  return normalizeGenericCart(normalized);
+  const composed=shell.pageType==='account'?composeStorefrontDigitalCommerceCapabilities(shell):shell;
+  if(playroomV20&&composed.pageType==='checkout')return normalizePlayroomV20Checkout(composed);
+  if(composed.pageType!=='cart')return composed;
+  if(playroomV20)return normalizePlayroomCart(composed);
+  return normalizeGenericCart(composed);
 }
 
 export function storefrontCartPresentationViolations(document:StorefrontPageDocument):readonly string[]{
