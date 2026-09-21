@@ -5,7 +5,9 @@ describe('storefront account shell',()=>{
   const shell=read('src/components/account/storefront-account-shell.tsx'),layout=read('src/app/fiokom/layout.tsx');
   expect(layout).toContain('StorefrontAccountShell');
   expect(shell).toContain('resolveCurrentStorefrontAccountRuntimePage');
-  expect(shell).toContain("item.componentKey==='account.capability-navigation'");
+  expect(shell).toContain('data-account-navigation-authority="platform-ia"');
+  expect(shell).toContain('{fallbackNavigation}');
+  expect(shell).not.toContain("item.componentKey==='account.capability-navigation'");
   expect(shell).toContain("item.componentKey==='system.commerce-header'");
   expect(shell).toContain("item.componentKey==='system.footer'");
   expect(shell).toContain('storefrontAccountRouteContent');
