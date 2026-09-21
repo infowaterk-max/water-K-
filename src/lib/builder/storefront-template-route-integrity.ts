@@ -2,7 +2,7 @@ import type {StorefrontComponentNode,StorefrontTemplatePackage} from '@/lib/buil
 import type {StorefrontDemoFixture,StorefrontInstallableTemplatePackage} from '@/lib/builder/storefront-template-installation';
 
 export const STOREFRONT_ROUTE_INTEGRITY_VERSION='shoporation.storefront-route-integrity.v1' as const;
-export const STOREFRONT_DEMO_CONTENT_NOTICE='Minta tartalom – ez az oldal előre generált szöveget tartalmaz. Ellenőrizd és igazítsd a webshopod valós működéséhez publikálás előtt.' as const;
+export const STOREFRONT_DEMO_CONTENT_NOTICE='Minta tartalom – ez az oldal előre generált szöveget tartalmaz, és nem tekinthető a webshop valós működésének vagy feltételeinek. Ellenőrizd és igazítsd a saját működésedhez publikálás előtt.' as const;
 
 export type StorefrontTemplateLink={href:string;label:string;path:string};
 export type StorefrontRouteIntegrityIssue={
