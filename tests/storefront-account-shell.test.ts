@@ -15,7 +15,8 @@ describe('storefront account shell',()=>{
   expect(source).toContain('resolveCurrentStorefrontAccountRuntimePage');
   expect(source).toContain("getCurrentStorefrontPageState('account')");
   expect(source).toContain("getStorefrontDigitalCommerceRuntimeModel(instance.id,request)");
-  expect(source).toContain("return resolveCurrentStorefrontPublishedRuntimePage('account',request)");
+  expect(source).toContain("getPublishedStorefrontPage(instance.id,'account')");
+  expect(source).toContain("const authored=customerId?materialized:applyTemplateAuthComposition(materialized)");
  });
  it('themes legacy account primitives from storefront design tokens inside the shell',()=>{
   const css=read('src/app/account-workflow.css');
