@@ -61,13 +61,18 @@ function CommerceHeaderRenderer({config,children,node,viewport}:StorefrontCompon
   const topStyle:CSSProperties=mobile?{display:'grid',gridTemplateColumns:'minmax(0,1fr) auto',alignItems:'center',gap:'.75rem',minHeight:'3rem'}:{display:'grid',gridTemplateColumns:tablet?'minmax(9rem,.8fr) minmax(15rem,1.4fr) auto':'minmax(11rem,.75fr) minmax(20rem,1.6fr) auto',alignItems:'center',gap:'clamp(1rem,2vw,2rem)',minHeight:tablet?'3.35rem':'3.65rem'};
   const navFrameStyle:CSSProperties={display:'flex',alignItems:'center',gap:denseDesktop?'.5rem':'.75rem',minWidth:0,overflowX:'auto',overflowY:'hidden',overscrollBehaviorX:'contain',paddingTop:mobile?'.25rem':'.5rem',borderTop:'1px solid color-mix(in srgb,var(--shoporation-color-border,#d8dce7) 70%,transparent)',...slotStyle(config.styleSlots,'navigationFrame',viewport),minHeight:mobile?'2.5rem':'2.9rem'};
   const categoryLabel=text(config.categoryTriggerLabel),categorySymbol=text(config.categoryTriggerSymbol,'☰'),categoryHref=safeHref(config.categoryTriggerHref,'/webaruhaz');
-  const categoryTrigger=categoryLabel||text(config.categoryTriggerSymbol)?<a href={categoryHref} aria-label={categoryLabel||'Kategóriák'} style={{display:'inline-flex',alignItems:'center',gap:'.4rem',flex:'0 0 auto',color:'inherit',textDecoration:'none',fontWeight:850,...slotStyle(config.styleSlots,'categoryTrigger',viewport),fontSize:mobile?'.92rem':'.98rem',lineHeight:1.25}}><span aria-hidden="true">{categorySymbol}</span>{categoryLabel&&!mobile?<span>{categoryLabel}</span>:null}</a>:null;
+  const categoryTrigger=categoryLabel||text(config.categoryTriggerSymbol)?<a href={categoryHref} aria-label={categoryLabel||'Kategóriák'} style={{display:'inline-flex',alignItems:'center',gap:'.4rem',flex:'0 0 auto',color:'inherit',textDecoration:'none',fontWeight:850,...slotStyle(config.styleSlots,'categoryTrigger',viewport),fontSize:mobile?'.92rem':'.98rem',lineHeight:1.25}}><span aria-hidden="true">{categorySymbol}</span>{categoryLabel?<span>{categoryLabel}</span>:null}</a>:null;
   const navTagline=text(config.navTagline);
   return <header data-storefront-component="system.commerce-header" data-storefront-protected-system="header" data-presentation={text(config.presentation,'commerce-two-tier')} style={rootStyle}>
     <div style={innerStyle}>
       <div style={{...topStyle,...slotStyle(config.styleSlots,'topRow',viewport)}}>{brand}{!mobile?<div style={{minWidth:0,...slotStyle(config.styleSlots,'searchFrame',viewport)}}>{search}</div>:null}{utilities}</div>
       {mobile?<div style={{minWidth:0,...slotStyle(config.styleSlots,'searchFrame',viewport)}}>{search}</div>:null}
-      <div className={denseDesktop?styles.denseNavigation:undefined} data-navigation-density={denseDesktop?'dense':undefined} style={navFrameStyle}>{categoryTrigger}<div style={{minWidth:0,flex:'1 1 auto'}}>{navigation}</div>{navTagline&&!mobile&&!denseDesktop?<small style={{flex:'0 0 auto',whiteSpace:'nowrap',fontSize:'.58rem',letterSpacing:'.22em',textTransform:'uppercase',opacity:.72,...slotStyle(config.styleSlots,'navTagline',viewport)}}>{navTagline}</small>:null}</div>
+      {mobile
+        ?<details className={styles.mobileMenu} data-storefront-mobile-menu="true">
+          <summary className={styles.mobileMenuSummary} aria-label="Mobil navigáció megnyitása"><span aria-hidden="true">☰</span><span>Menü</span></summary>
+          <div className={styles.mobileMenuPanel}>{categoryTrigger}<div className={styles.mobileMenuNavigation}>{navigation}</div></div>
+        </details>
+        :<div className={denseDesktop?styles.denseNavigation:undefined} data-navigation-density={denseDesktop?'dense':undefined} style={navFrameStyle}>{categoryTrigger}<div style={{minWidth:0,flex:'1 1 auto'}}>{navigation}</div>{navTagline&&!denseDesktop?<small style={{flex:'0 0 auto',whiteSpace:'nowrap',fontSize:'.58rem',letterSpacing:'.22em',textTransform:'uppercase',opacity:.72,...slotStyle(config.styleSlots,'navTagline',viewport)}}>{navTagline}</small>:null}</div>}
     </div>
   </header>;
 }
