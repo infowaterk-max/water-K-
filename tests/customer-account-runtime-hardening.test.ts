@@ -4,6 +4,8 @@ import{describe,expect,it}from'vitest';
 const account=fs.readFileSync('src/app/fiokom/page.tsx','utf8');
 const css=fs.readFileSync('src/app/account-workflow.css','utf8');
 const runtime=fs.readFileSync('src/lib/builder/storefront-runtime-source.ts','utf8');
+const shell=fs.readFileSync('src/components/account/storefront-account-shell.tsx','utf8');
+const subnav=fs.readFileSync('src/components/account/account-subnav.tsx','utf8');
 const migration=fs.readFileSync('supabase/migrations/20260921164500_customer_account_browser_grants.sql','utf8');
 const baseline=fs.readFileSync('supabase/customer-baseline/migrations/0042_customer_account_browser_grants.sql','utf8');
 
@@ -21,6 +23,18 @@ describe('customer account runtime hardening',()=>{
    expect(source).toMatch(/revoke all on table public\.profiles from anon/);
    expect(source).toMatch(/revoke all on table public\.wishlists from anon/);
   }
+ });
+ it('renders exactly one live account navigation authority',()=>{
+  expect(shell).toMatch(/data-account-navigation-authority="platform-ia"/);
+  expect(shell).toMatch(/<aside className="storefrontAccountSidebar" aria-label="Fiók navigáció">\{fallbackNavigation\}<\/aside>/);
+  expect(shell).not.toMatch(/navSections\.length\?render\(navSections\):fallbackNavigation/);
+  expect(subnav).toMatch(/data-account-navigation-source="platform-ia"/);
+ });
+ it('loads overview reads through server-scoped customer and tenant filters',()=>{
+  expect(account).toMatch(/const accountDb=createAdminClient\(\)/);
+  expect(account).toMatch(/accountDb\.from\('profiles'\).*eq\('id',user\.id\)/s);
+  expect(account).toMatch(/accountDb\.from\('orders'\).*eq\('instance_id',instance\.id\).*eq\('customer_id',user\.id\)/s);
+  expect(account).toMatch(/accountDb\.from\('wishlists'\).*eq\('instance_id',instance\.id\).*eq\('user_id',user\.id\)/s);
  });
  it('uses semantic mobile cards instead of a wide customer order table',()=>{
   expect(account).toMatch(/accountOrderTableDesktop/);
