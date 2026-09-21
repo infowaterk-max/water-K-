@@ -12,6 +12,22 @@ on:
       - 'src/lib/navigation/admin-ia.ts'
       - 'src/components/builder/**'
       - 'src/components/auth/auth-form.tsx'
+      - 'src/lib/auth/storefront-return-target.ts'
+      - 'src/lib/account/checkout-account-benefits.ts'
+      - 'src/middleware.ts'
+      - 'src/app/api/orders/claim/**'
+      - 'src/app/rendeles-sikeres/**'
+      - 'src/components/account/post-purchase-account-opportunity.tsx'
+      - 'supabase/migrations/20260921205500_authenticated_guest_order_claim_v1.sql'
+      - 'supabase/customer-baseline/migrations/0043_authenticated_guest_order_claim_v1.sql'
+      - 'src/lib/auth/storefront-return-target.ts'
+      - 'src/lib/account/checkout-account-benefits.ts'
+      - 'src/middleware.ts'
+      - 'src/app/api/orders/claim/**'
+      - 'src/app/rendeles-sikeres/**'
+      - 'src/components/account/post-purchase-account-opportunity.tsx'
+      - 'supabase/migrations/20260921205500_authenticated_guest_order_claim_v1.sql'
+      - 'supabase/customer-baseline/migrations/0043_authenticated_guest_order_claim_v1.sql'
       - 'src/components/auth/storefront-auth-dialog.tsx'
       - 'src/components/auth/storefront-auth-dialog.module.css'
       - 'src/app/api/storefront/auth-context/**'
@@ -139,6 +155,8 @@ jobs:
           tests/storefront-template-quality-gate-v2.test.ts
           tests/storefront-auth-surface.test.ts
           tests/storefront-auth-intent-checkout.test.ts
+          tests/storefront-auth-return-target.test.ts
+          tests/storefront-guest-order-claim.test.ts
           tests/storefront-public-information-routes.test.ts
           tests/storefront-catalog-discovery-route.test.ts
           tests/customer-account-runtime-hardening.test.ts

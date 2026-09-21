@@ -83,10 +83,11 @@ export function AuthForm({instanceId,initialMode='login',onAuthenticated,returnT
     const fullName=String(formData.get('fullName')??'').trim();
     const companyName=String(formData.get('companyName')??'').trim();
     const taxNumber=String(formData.get('taxNumber')??'').trim();
+    const registrationReturn=normalizeStorefrontReturnTarget(returnTo)??safeRequestedNext();
     const result=await supabase.auth.signUp({
       email:normalizedEmail,
       password,
-      options:{data:{
+      options:{emailRedirectTo:registrationReturn?`${window.location.origin}${registrationReturn}`:undefined,data:{
         full_name:fullName,
         company_name:companyName,
         tax_number:taxNumber,

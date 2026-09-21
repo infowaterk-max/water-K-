@@ -1,42 +1,75 @@
 import fs from'node:fs';
 import{describe,expect,it}from'vitest';
 
-const auth=fs.readFileSync('src/components/auth/auth-form.tsx','utf8');
-const dialog=fs.readFileSync('src/components/auth/storefront-auth-dialog.tsx','utf8');
-const header=fs.readFileSync('src/components/builder/storefront-commerce-header.tsx','utf8');
-const checkout=fs.readFileSync('src/components/checkout/checkout-form.tsx','utf8');
-const checkoutPage=fs.readFileSync('src/app/penztar/page.tsx','utf8');
-const accountNav=fs.readFileSync('src/components/account/account-subnav.tsx','utf8');
+const read=(path:string)=>fs.readFileSync(path,'utf8');
+const auth=read('src/components/auth/auth-form.tsx');
+const dialog=read('src/components/auth/storefront-auth-dialog.tsx');
+const middleware=read('src/middleware.ts');
+const header=read('src/components/builder/storefront-commerce-header.tsx');
+const purchase=read('src/components/builder/storefront-purchase-controls-client.tsx');
+const checkout=read('src/components/checkout/checkout-form.tsx');
+const checkoutPage=read('src/app/penztar/page.tsx');
+const benefits=read('src/lib/account/checkout-account-benefits.ts');
+const accountNav=read('src/components/account/account-subnav.tsx');
+const success=read('src/app/rendeles-sikeres/page.tsx');
+const postPurchase=read('src/components/account/post-purchase-account-opportunity.tsx');
 
 describe('storefront auth intent and checkout account opportunity',()=>{
- it('opens account auth as a shared template-aware dialog while keeping direct account fallback',()=>{
+ it('opens account auth as one shared template-aware accessible dialog',()=>{
   expect(dialog).toMatch(/data-storefront-auth-dialog="true"/);
-  expect(dialog).toMatch(/StorefrontAccountAuthTrigger/);
+  expect(dialog).toMatch(/data-template-aware-auth="true"/);
+  expect(dialog).toMatch(/role="dialog"/);
+  expect(dialog).toMatch(/aria-modal="true"/);
+  expect(dialog).toMatch(/aria-labelledby=/);
+  expect(dialog).toMatch(/showModal\(\)/);
+  expect(dialog).toMatch(/onCancel=/);
+  expect(dialog).toMatch(/restoreFocusRef/);
   expect(header).toMatch(/item\.href==='\/fiokom'\?<StorefrontAccountAuthTrigger/);
-  expect(auth).toMatch(/returnTo\?:string\|null/);
-  expect(auth).toMatch(/if\(onAuthenticated\)\{onAuthenticated\(\);return;\}/);
   expect(auth).toMatch(/resetPasswordForEmail/);
   expect(auth).toMatch(/\/fiokom\?auth_flow=recovery/);
  });
- it('preserves caller intent instead of always redirecting login to account',()=>{
+ it('preserves safe caller intent centrally for account deep links and registration confirmation',()=>{
+  expect(auth).toMatch(/normalizeStorefrontReturnTarget\(returnTo\)\?\?safeRequestedNext\(\)/);
+  expect(auth).toMatch(/emailRedirectTo:registrationReturn/);
+  expect(middleware).toMatch(/isProtectedAccountPage/);
+  expect(middleware).toMatch(/customerAccountRedirect/);
+  expect(middleware).toMatch(/storefrontAuthHref\(customerReturnPath\(request\)\)/);
   expect(dialog).toMatch(/returnTo="\/fiokom"/);
-  expect(checkout).toMatch(/onAuthenticated=\{\(\)=>\{setAccountConnected\(true\)/);
-  expect(checkout).not.toMatch(/router\.replace\('\/fiokom'\)/);
  });
- it('offers optional login or registration before order completion without blocking guest checkout',()=>{
+ it('continues wishlist intent after auth instead of forcing account navigation',()=>{
+  expect(purchase).toMatch(/wishlistAuthOpen/);
+  expect(purchase).toMatch(/Belépés a kívánságlistához/);
+  expect(purchase).toMatch(/onAuthenticated=.*requestSubmit/);
+ });
+ it('offers optional auth before completion while keeping guest checkout intact',()=>{
   expect(checkout).toMatch(/data-checkout-account-opportunity="true"/);
   expect(checkout).toMatch(/Mielőtt befejezed/);
   expect(checkout).toMatch(/Bejelentkezés/);
   expect(checkout).toMatch(/Regisztráció/);
   expect(checkout).toMatch(/Folytatás vendégként/);
   expect(checkout).toMatch(/A fiók nem kötelező a rendeléshez/);
-  expect(checkout).toMatch(/loyaltyEnabled\?<li>Hűségpontok/);
-  expect(checkout).toMatch(/containsDigital\?<li>Digitális letöltéseid/);
-  expect(checkoutPage).toMatch(/signedIn=\{access\.signedIn\}/);
-  expect(checkoutPage).toMatch(/loyaltyEnabled=\{Boolean\(loyaltyResult\.data\?\.enabled\)\}/);
+  expect(checkout).toMatch(/onAuthenticated=\{\(\)=>\{setAccountConnected\(true\)/);
+  expect(checkout).not.toMatch(/router\.replace\('\/fiokom'\)/);
  });
- it('keeps one canonical account navigation rail instead of legacy top subnav',()=>{
+ it('renders checkout benefits only from capability flags and current basket capability',()=>{
+  expect(benefits).toMatch(/CheckoutAccountBenefitFlags/);
+  expect(benefits).toMatch(/\.filter\(key=>flags\[key\]\)/);
+  expect(checkout).toMatch(/resolveCheckoutAccountBenefits/);
+  expect(checkout).toMatch(/data-account-benefit=\{benefit\.key\}/);
+  expect(checkoutPage).toMatch(/getFeatureEntitlementDecisions\(instance\.id,\['orders','returns'\]\)/);
+  expect(checkoutPage).toMatch(/loyalty:Boolean\(loyaltyResult\.data\?\.enabled\)/);
+  expect(checkout).not.toMatch(/rendelkezésre álló csomagkövetési adatok/);
+ });
+ it('keeps one canonical account navigation rail instead of legacy horizontal account nav',()=>{
   expect(accountNav).toMatch(/className="accountCapabilityRail"/);
-  expect(accountNav).not.toMatch(/accountSubnav/);
+  expect(accountNav).toMatch(/data-account-navigation-source="platform-ia"/);
+  expect(accountNav).not.toMatch(/className="accountSubnav"/);
+ });
+ it('offers post-purchase account creation and authenticated token-bound claiming',()=>{
+  expect(success).toMatch(/PostPurchaseAccountOpportunity/);
+  expect(success).toMatch(/!order\.customer_id/);
+  expect(postPurchase).toMatch(/Szeretnéd ezt és a következő rendeléseidet egy helyen látni\?/);
+  expect(postPurchase).toMatch(/\/api\/orders\/claim/);
+  expect(postPurchase).toMatch(/confirmationToken/);
  });
 });

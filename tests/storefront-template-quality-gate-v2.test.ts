@@ -52,6 +52,10 @@ describe('Template Factory Quality Gate v2',()=>{
     expect(workflow).not.toContain('head_commit.message');
     expect(workflow).toContain('Run Template Factory 14x3 browser matrix');
     expect(workflow).toContain('workflow_dispatch');
+    expect(workflow).toContain("src/lib/auth/storefront-return-target.ts");
+    expect(workflow).toContain("src/app/api/orders/claim/**");
+    expect(workflow).toContain('tests/storefront-auth-return-target.test.ts');
+    expect(workflow).toContain('tests/storefront-guest-order-claim.test.ts');
     expect(runner).toContain('TEMPLATE_FACTORY_QUALITY_MANIFEST_REQUIRED');
     expect(runner).toContain('LEGACY_TEMPLATE_REACCEPTANCE_PENDING');
     expect(runner).toContain("mode:'full',reason:'shared-runtime-changed'");
