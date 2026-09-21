@@ -12,6 +12,11 @@ on:
       - 'src/lib/navigation/admin-ia.ts'
       - 'src/components/builder/**'
       - 'src/components/auth/auth-form.tsx'
+      - 'src/components/auth/storefront-auth-dialog.tsx'
+      - 'src/components/auth/storefront-auth-dialog.module.css'
+      - 'src/app/api/storefront/auth-context/**'
+      - 'src/app/penztar/**'
+      - 'src/components/checkout/**'
       - 'src/components/analytics/cookie-consent.tsx'
       - 'src/components/account/storefront-account-shell.tsx'
       - 'src/app/fiokom/**'
@@ -53,6 +58,11 @@ on:
       - 'src/lib/navigation/admin-ia.ts'
       - 'src/components/builder/**'
       - 'src/components/auth/auth-form.tsx'
+      - 'src/components/auth/storefront-auth-dialog.tsx'
+      - 'src/components/auth/storefront-auth-dialog.module.css'
+      - 'src/app/api/storefront/auth-context/**'
+      - 'src/app/penztar/**'
+      - 'src/components/checkout/**'
       - 'src/components/analytics/cookie-consent.tsx'
       - 'src/components/account/storefront-account-shell.tsx'
       - 'src/app/fiokom/**'
@@ -128,6 +138,7 @@ jobs:
           npx vitest run
           tests/storefront-template-quality-gate-v2.test.ts
           tests/storefront-auth-surface.test.ts
+          tests/storefront-auth-intent-checkout.test.ts
           tests/storefront-public-information-routes.test.ts
           tests/storefront-catalog-discovery-route.test.ts
           tests/customer-account-runtime-hardening.test.ts
