@@ -61,6 +61,27 @@ describe('Playroom v19 final visual polish',()=>{
     expect(find(page('contact').sections,'playroom-contact-expectations')?.children).toHaveLength(3);
   });
 
+  it('keeps every Playroom v19 footer balanced on mobile',()=>{
+    for(const document of PLAYROOM_V19_CANONICAL_TEMPLATE_PACKAGE.pages){
+      const nodes:any[]=[];
+      const walk=(items:any[])=>items.forEach(item=>{nodes.push(item);walk(item.children??[])});
+      walk(document.sections as any[]);
+      const brand=nodes.find(item=>item.id==='playroom-footer-brand');
+      const shop=nodes.find(item=>item.id==='playroom-footer-shop');
+      const world=nodes.find(item=>item.id==='playroom-footer-world');
+      const about=nodes.find(item=>item.id==='playroom-footer-about');
+      const social=nodes.find(item=>item.id==='playroom-footer-social');
+      expect(brand,document.pageType).toBeTruthy();
+      expect(brand?.responsive?.mobile?.gridSpan,document.pageType).toBe(12);
+      for(const item of [shop,world,about,social])expect(item?.responsive?.mobile?.gridSpan,document.pageType).toBe(6);
+      const footerLinks=nodes.filter(item=>item.componentKey==='content.button'&&String(item.id).startsWith('playroom-footer-'));
+      expect(footerLinks.length,document.pageType).toBeGreaterThan(0);
+      for(const link of footerLinks){
+        expect((link.config.style as any)?.mobile?.fontSize,document.pageType+':'+link.id).toBe('.86rem');
+        expect((link.config.style as any)?.mobile?.minHeight,document.pageType+':'+link.id).toBe('2.25rem');
+      }
+    }
+  });
   it('keeps every Playroom v19 commerce header compact and reachable on mobile',()=>{
     for(const document of PLAYROOM_V19_CANONICAL_TEMPLATE_PACKAGE.pages){
       const header=document.sections.find(section=>section.componentKey==='system.commerce-header');
