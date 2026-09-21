@@ -2,6 +2,26 @@
 -- Merchant-owned social URLs live in webshop_instances.storefront_config.socialLinks.
 -- Mutations are server-only, tenant-scoped, permission checked and audited.
 
+-- Preserve any social profiles that were temporarily stored in the e-mail Brand Kit
+-- before storefront social settings received their own canonical authority.
+update public.webshop_instances as w
+set storefront_config=pg_catalog.jsonb_set(
+  coalesce(w.storefront_config,'{}'::jsonb),
+  '{socialLinks}',
+  b.social_links,
+  true
+),
+updated_at=now()
+from public.email_brand_kits as b
+where b.instance_id=w.id
+  and b.is_default=true
+  and pg_catalog.jsonb_typeof(b.social_links)='object'
+  and b.social_links<>'{}'::jsonb
+  and (
+    w.storefront_config->'socialLinks' is null
+    or w.storefront_config->'socialLinks'='{}'::jsonb
+  );
+
 create or replace function public.admin_mutate_storefront_social_links_v1(
   p_instance_id uuid,
   p_actor uuid,
