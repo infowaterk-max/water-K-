@@ -53,7 +53,7 @@ export async function resolveCurrentStorefrontAccountRuntimePage(customerId:stri
  // not depend on an authenticated pilot session.
  const instance=await getCurrentWebshopInstance();if(!instance)return null;
  const request:StorefrontDigitalCommerceRuntimeRequest|null=customerId?{pageType:'account',customerId}:null;
- const previewDraft=!customerId&&process.env.VERCEL_ENV==='preview'
+ const previewDraft=process.env.VERCEL_ENV==='preview'
   ?await getPreviewStorefrontDraftPage(instance.id,'account')
   :null;
  const acceptanceInstanceId=process.env.VERCEL_ENV==='preview'?await getPilotAcceptanceInstanceId():null;
