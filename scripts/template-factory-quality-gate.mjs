@@ -298,8 +298,15 @@ try{
           await page.emulateMedia({reducedMotion:'reduce'});
           const response=await page.goto(url,{waitUntil:'domcontentloaded',timeout:30000});
           if(!response?.ok())throw new Error(`ROUTE_FAILED:${response?.status()??'no-response'}`);
-          await page.addStyleTag({content:'*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}.cookieBanner,.skipLink{display:none!important}'});
           await page.waitForLoadState('load',{timeout:15000}).catch(()=>undefined);
+          await page.waitForFunction(expected=>document.querySelector('.cookieBanner[data-template-aware-cookie="true"]')?.getAttribute('data-cookie-template-key')===expected,manifest.templateKey,{timeout:2500}).catch(()=>undefined);
+          const cookieDiagnostics=await page.evaluate(expected=>{
+            const banner=document.querySelector('.cookieBanner[data-template-aware-cookie="true"]');
+            if(!banner)return{count:0,templateKey:null,preset:null,layout:null,visible:false};
+            const rect=banner.getBoundingClientRect(),style=getComputedStyle(banner);
+            return{count:1,templateKey:banner.getAttribute('data-cookie-template-key'),preset:banner.getAttribute('data-cookie-preset'),layout:banner.getAttribute('data-cookie-layout'),visible:rect.width>0&&rect.height>0&&style.display!=='none'&&style.visibility!=='hidden',expected};
+          },manifest.templateKey);
+          await page.addStyleTag({content:'*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}.cookieBanner,.skipLink{display:none!important}'});
           await waitForImages(page);
           await page.waitForTimeout(120);
 
@@ -310,6 +317,13 @@ try{
           const caseErrors=[];
           const caseWarnings=[];
 
+          if(cookieDiagnostics.count!==1)caseErrors.push(`COOKIE_SURFACE_CARDINALITY:${cookieDiagnostics.count}`);
+          else{
+            if(cookieDiagnostics.templateKey!==manifest.templateKey)caseErrors.push(`COOKIE_TEMPLATE_AUTHORITY:${cookieDiagnostics.templateKey??'missing'}`);
+            if(!cookieDiagnostics.preset||cookieDiagnostics.preset==='generic-safe-fallback')caseErrors.push('COOKIE_TEMPLATE_PRESET_REQUIRED');
+            if(!cookieDiagnostics.layout)caseErrors.push('COOKIE_TEMPLATE_LAYOUT_REQUIRED');
+            if(!cookieDiagnostics.visible)caseErrors.push('COOKIE_SURFACE_NOT_VISIBLE');
+          }
           if(diagnostics.horizontalOverflowPx>manifest.browser.maxHorizontalOverflowPx)caseErrors.push(`HORIZONTAL_OVERFLOW:${diagnostics.horizontalOverflowPx}`);
           if(diagnostics.protruding.length)caseErrors.push(`UNBOUNDED_PROTRUSION:${diagnostics.protruding.length}`);
           if(diagnostics.brokenImages.length)caseErrors.push(`BROKEN_IMAGES:${diagnostics.brokenImages.length}`);
