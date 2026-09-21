@@ -24,7 +24,7 @@ import {
 } from '@/lib/builder/storefront-template-installation';
 import {validateStorefrontBuilderSchemaStructure} from '@/lib/builder/storefront-builder-schema-policy';
 import {composeStorefrontDigitalCommerceTemplatePackage} from '@/lib/builder/storefront-digital-commerce-composition';
-import {saveCurrentStorefrontTemplateDraftPlan} from '@/lib/builder/storefront-template-persistence';
+import {saveCurrentStorefrontTemplateInstallationPlan} from '@/lib/builder/storefront-template-persistence';
 import {
   applyStorefrontAiModelPlan,
   parseStorefrontAiModelPlan,
