@@ -11,6 +11,7 @@ export type Product={
   discountPercent?: number;
   short:string;
   featured?:boolean;
+  createdAt?:string;
   stock:number;
   weightGrams:number;
   audience:'retail'|'professional';
