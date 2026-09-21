@@ -65,4 +65,19 @@ A template MAY:
 
 Preview/demo data MAY show representative social controls, but those links must also be real HTTPS destinations rather than `#` placeholders. Production remains tenant-owned only.
 
+
+## Responsive style inheritance rule
+
+A shared storefront/footer repair MUST respect the responsive style shape used by the Visual Builder Runtime.
+
+When a node stores visual values as `style: {base:{...}, tablet:{...}, mobile:{...}}`, a runtime normalizer MUST patch the effective `base` style instead of writing only sibling top-level keys such as `style.minHeight`, `style.padding` or `style.fontSize`. Top-level patches can look correct in Page Schema inspection while being ignored by `resolveStorefrontVisualStyle()`, causing Builder/preview/storefront divergence.
+
+Regression evidence for this defect class must verify the rendered Runtime, not only the normalized JSON. For the Playroom footer the accepted desktop evidence includes:
+- footer `min-height: 13.5rem`;
+- footer `padding: 1.75rem 2.35rem 2rem`;
+- navigation font floor `.86rem`;
+- navigation item minimum height `2.1rem`.
+
+Classification: shared invariant / responsive style inheritance. Do not repair this page-by-page or template-page-by-template-page.
+
 ONE DEFECT -> ONE SHARED FIX -> REGRESSION TEST -> QUALITY GATE.
