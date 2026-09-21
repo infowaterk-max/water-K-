@@ -15,7 +15,7 @@ const normalize = (value: string) => value.toLocaleLowerCase('hu-HU').normalize(
 
 export function ShopCatalog({ products, signedIn, resellerApproved }: Props) {
   const params=useSearchParams();
-  const semanticKeys=['category','collection','filter','type','scene','flavor','pantry','ritual','play','genre','platform','c'] as const;
+  const semanticKeys=['category','collection','filter','type','scene','flavor','pantry','ritual','play','genre','platform','c','concern','texture'] as const;
   const semanticTerms=semanticKeys.flatMap(key=>{
     const value=params.get(key)?.trim();
     return value&&!(key==='filter'&&value==='sale')?[normalize(value)]:[];
