@@ -57,6 +57,7 @@ describe('Template Factory Quality Gate v2',()=>{
     expect(runner).toContain("'src/components/admin/storefront-visual-builder-v3.tsx'");
     expect(runner).toContain("'src/app/storefront-template-preview/'");
     expect(runner).toContain('MOBILE_DESKTOP_NAV_LEAK');
+    expect(runner).toContain('SOCIAL_LINK_INTEGRITY');
     expect(runner).toContain('GOLDEN_BASELINE_MISSING');
   });
 });
