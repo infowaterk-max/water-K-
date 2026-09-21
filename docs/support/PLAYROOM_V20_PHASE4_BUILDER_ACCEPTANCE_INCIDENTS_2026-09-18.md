@@ -1529,3 +1529,5 @@ Do not use `/`, `/webaruhaz`, `/termek/...`, `/kosar` or `/penztar` as proof tha
 ### Prevention
 
 Human template acceptance links must always pin **template key + exact version + page type + viewport**. Functional checkout acceptance and template visual acceptance are separate evidence tracks and must not be conflated.
+
+Use the **stable Vercel branch alias** as the human-acceptance host, not the unique per-deployment hostname. The branch alias advances to the latest Preview while preserving one browser origin, so Supabase/Vercel session cookies do not need to be recreated after every redeploy. If authentication is missing, template preview must redirect through login and return to the same preview path instead of throwing a transient error.
