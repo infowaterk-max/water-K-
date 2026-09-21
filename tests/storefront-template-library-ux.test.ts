@@ -87,6 +87,10 @@ describe('storefront template library UX',()=>{
     expect(preview).toContain('createStorefrontTemplatePreviewBindingContext');
     expect(preview).toContain('getStorefrontTemplatePreviewTheme');
     expect(preview).toContain('representative-demo');
+    expect(preview).toContain("query.page??'home'");
+    expect(preview).toContain("candidate.pageType===pageType");
+    expect(preview).toContain('&page=${encodeURIComponent(pageType)}&viewport=');
+    expect(preview).toContain('data-page-type={pageType}');
     expect(preview).not.toContain('installVisualBuilderTemplateAction');
   });
 
