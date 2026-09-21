@@ -109,7 +109,26 @@ const localizeNode=(source:StorefrontComponentNode):StorefrontComponentNode=>({
 const canonicalShellSource=PLAYROOM_V19_CANONICAL_TEMPLATE_PACKAGE.pages.find(page=>page.pageType==='account');
 if(!canonicalShellSource)throw new Error('PLAYROOM_V20_CANONICAL_SHELL_SOURCE_MISSING');
 const PLAYROOM_V20_CANONICAL_HEADER=localizeNode(clone(canonicalShellSource.sections[0]!));
-const PLAYROOM_V20_CANONICAL_FOOTER=localizeNode(clone(canonicalShellSource.sections[canonicalShellSource.sections.length-1]!));
+function patchPlayroomSocialLinks(item:StorefrontComponentNode):StorefrontComponentNode{
+  if(item.id==='playroom-footer-social-icons'){
+    return{
+      id:item.id,
+      componentKey:'system.navigation',
+      componentVersion:1,
+      config:{
+        items:[],
+        ariaLabel:'Közösségi média',
+        layout:'horizontal',
+        style:{gap:'.8rem',color:'#ffffff',fontSize:'1.05rem',fontWeight:900},
+        styleSlots:{item:{base:{display:'inline-flex',alignItems:'center',justifyContent:'center',minWidth:'2rem',minHeight:'2rem',borderRadius:'.45rem',border:'1px solid rgba(120,218,255,.18)'}}},
+      },
+      bindings:{items:{path:'brand.socialLinks',fallback:[]}},
+      ...(item.responsive?{responsive:item.responsive}:{}),
+    };
+  }
+  return{...clone(item),...(item.children?{children:item.children.map(patchPlayroomSocialLinks)}:{})};
+}
+const PLAYROOM_V20_CANONICAL_FOOTER=patchPlayroomSocialLinks(localizeNode(clone(canonicalShellSource.sections[canonicalShellSource.sections.length-1]!)));
 
 function applyPlayroomCanonicalShell(sections:readonly StorefrontComponentNode[]):StorefrontComponentNode[]{
   if(sections.length<2)throw new Error('PLAYROOM_V20_PAGE_SHELL_INCOMPLETE');
