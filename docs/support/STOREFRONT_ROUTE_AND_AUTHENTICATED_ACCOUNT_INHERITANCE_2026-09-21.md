@@ -44,4 +44,22 @@ Before patching:
 - signed-in state losing template inheritance = authenticated storefront-shell invariant.
 - do not solve either defect page-by-page.
 
+## 4. Customer account browser grants
+
+RLS policy existence is not sufficient by itself. Customer-session tables must also expose the minimum table privileges required for those policies to execute.
+
+Required customer browser grants:
+- profiles: SELECT plus UPDATE only on full_name, company_name and tax_number;
+- wishlists: SELECT for owner-scoped account reads.
+
+Anonymous access remains revoked. Write paths that already use server-only/admin authority must not be broadened merely to silence an account-page error.
+
+If the account overview shows a partial-load warning while individual downstream sections still appear populated, inspect table/column grants before assuming the data itself is missing.
+
+## 5. Mobile customer order history
+
+Customer-facing order history must not rely on a desktop-width table on narrow viewports.
+
+Desktop may use the semantic table. Mobile must switch to semantic order cards with the same authoritative order data. Horizontal scrolling is not the accepted primary mobile presentation for the account overview.
+
 ONE DEFECT -> ONE SHARED FIX -> REGRESSION TEST -> QUALITY GATE.
