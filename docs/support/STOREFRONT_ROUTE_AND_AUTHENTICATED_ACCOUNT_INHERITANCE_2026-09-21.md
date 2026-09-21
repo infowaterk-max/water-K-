@@ -138,4 +138,25 @@ Rules:
 Acceptance contract:
 ACTIVE TEMPLATE SHELL + SHARED CATALOG CORE + URL DISCOVERY STATE.
 
+## 11. Pilot acceptance links for protected commerce routes
+
+Pilot storefront commerce routes remain closed to anonymous users by design.
+
+Acceptance links for protected routes such as `/webaruhaz`, checkout and other purchasing surfaces MUST NOT be shared as raw direct URLs when the tenant status is `pilot`.
+
+Use the signed Preview pilot entrypoint:
+`/api/pilot-access/start?instanceId=<tenant>&next=<target>`
+
+The entrypoint:
+- requires an authorized owner/admin storefront actor;
+- mints the short-lived signed pilot acceptance cookie;
+- redirects only to an allowlisted target;
+- does not activate the webshop;
+- preserves the anonymous fail-closed production boundary.
+
+For newest-first catalog acceptance use the explicit allowlisted target `catalog-new`.
+
+Acceptance contract:
+PROTECTED PILOT ROUTE + SIGNED SHORT-LIVED ENTRY + ALLOWLISTED TARGET.
+
 ONE DEFECT -> ONE SHARED FIX -> REGRESSION TEST -> QUALITY GATE.
