@@ -169,6 +169,14 @@ async function browserDiagnostics(page,manifest,viewport){
           }
           continue;
         }
+        if(element instanceof HTMLAnchorElement&&element.getAttribute('data-storefront-component')==='content.button'){
+          const style=getComputedStyle(element);
+          const verticalPadding=(Number.parseFloat(style.paddingTop)||0)+(Number.parseFloat(style.paddingBottom)||0);
+          const border=(Number.parseFloat(style.borderTopWidth)||0)+(Number.parseFloat(style.borderBottomWidth)||0);
+          const background=style.backgroundColor;
+          const visuallyButtonLike=verticalPadding>=12||border>=1||!['rgba(0, 0, 0, 0)','transparent'].includes(background);
+          if(!visuallyButtonLike)continue;
+        }
         const rect=element.getBoundingClientRect();
         const minDimension=Math.min(rect.width,rect.height);
         const entry={tag:element.tagName,component:element.getAttribute('data-storefront-component'),text:(element.textContent??element.getAttribute('aria-label')??'').trim().slice(0,100),width:rect.width,height:rect.height};
