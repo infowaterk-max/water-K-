@@ -91,6 +91,8 @@ describe('storefront template library UX',()=>{
     expect(preview).toContain("candidate.pageType===pageType");
     expect(preview).toContain('&page=${encodeURIComponent(pageType)}&viewport=');
     expect(preview).toContain('data-page-type={pageType}');
+    expect(preview).toContain('requireAdmin(');
+    expect(preview).toContain('/storefront-template-preview?');
     expect(preview).not.toContain('installVisualBuilderTemplateAction');
   });
 
