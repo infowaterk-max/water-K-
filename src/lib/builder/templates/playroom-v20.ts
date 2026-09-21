@@ -120,6 +120,118 @@ function applyPlayroomCanonicalShell(sections:readonly StorefrontComponentNode[]
   ];
 }
 
+const playroomContentResponsive={desktop:{gridSpan:12 as const},tablet:{gridSpan:12 as const},mobile:{gridSpan:12 as const}};
+
+function playroomV20InformationContentSections():StorefrontComponentNode[]{
+  return[
+    node({
+      id:'playroom-content-information-intro',
+      componentKey:'layout.section',
+      componentVersion:1,
+      config:{
+        tone:'background',spacing:'m',width:'full',
+        style:{
+          base:{background:'radial-gradient(circle at 88% 8%,rgba(51,213,255,.08),transparent 25%),#020b17',padding:'1.5rem 1rem 1rem'},
+          mobile:{padding:'1rem .85rem .65rem'},
+        },
+      },
+      responsive:playroomContentResponsive,
+      children:[node({
+        id:'playroom-content-information-intro-container',
+        componentKey:'layout.container',
+        componentVersion:1,
+        config:{width:'content',spacing:'s',style:{base:{maxWidth:'64rem',margin:'0 auto'}}},
+        responsive:playroomContentResponsive,
+        children:[node({
+          id:'playroom-content-information-intro-card',
+          componentKey:'layout.stack',
+          componentVersion:1,
+          config:{
+            direction:'vertical',gap:'s',align:'stretch',justify:'start',
+            style:{
+              base:{padding:'1.35rem 1.4rem',background:'linear-gradient(145deg,rgba(26,20,66,.96),rgba(7,25,46,.99))',border:'1px solid rgba(255,93,190,.24)',borderRadius:'.8rem',boxShadow:'0 14px 34px rgba(0,0,0,.22)'},
+              mobile:{padding:'1rem'},
+            },
+          },
+          responsive:playroomContentResponsive,
+          children:[
+            node({
+              id:'playroom-content-information-eyebrow',
+              componentKey:'content.text',
+              componentVersion:1,
+              config:{text:'INFORMÁCIÓ',as:'strong',align:'left',tone:'text',style:{base:{fontSize:'.68rem',fontWeight:900,letterSpacing:'.16em',color:'#55e7ff'},mobile:{fontSize:'.64rem'}}},
+              responsive:playroomContentResponsive,
+            }),
+            node({
+              id:'playroom-content-information-title',
+              componentKey:'content.heading',
+              componentVersion:1,
+              config:{text:'Tájékoztató',level:1,align:'left',tone:'text',style:{base:{fontSize:'clamp(2rem,4vw,3.7rem)',lineHeight:.98},mobile:{fontSize:'2rem',lineHeight:1.02}}},
+              bindings:{text:{path:'content.page.title',fallback:'Tájékoztató'}},
+              responsive:playroomContentResponsive,
+            }),
+            node({
+              id:'playroom-content-information-summary',
+              componentKey:'content.text',
+              componentVersion:1,
+              config:{text:'A webshop tájékoztató oldala.',as:'p',align:'left',tone:'text',style:{base:{fontSize:'1rem',lineHeight:1.6,color:'#b9cadc',maxWidth:'52rem'},mobile:{fontSize:'.94rem',lineHeight:1.55}}},
+              bindings:{text:{path:'content.page.summary',fallback:'A webshop tájékoztató oldala.'}},
+              responsive:playroomContentResponsive,
+            }),
+          ],
+        })],
+      })],
+    }),
+    node({
+      id:'playroom-content-information-body-section',
+      componentKey:'layout.section',
+      componentVersion:1,
+      config:{
+        tone:'background',spacing:'m',width:'full',
+        style:{base:{background:'#020b17',padding:'1rem 1rem 2rem'},mobile:{padding:'.65rem .85rem 1.35rem'}},
+      },
+      responsive:playroomContentResponsive,
+      children:[node({
+        id:'playroom-content-information-body-container',
+        componentKey:'layout.container',
+        componentVersion:1,
+        config:{width:'content',spacing:'s',style:{base:{maxWidth:'64rem',margin:'0 auto'}}},
+        responsive:playroomContentResponsive,
+        children:[node({
+          id:'playroom-content-information-reading-card',
+          componentKey:'layout.stack',
+          componentVersion:1,
+          config:{
+            direction:'vertical',gap:'s',align:'stretch',justify:'start',
+            style:{
+              base:{padding:'1.5rem 1.6rem',background:'linear-gradient(155deg,#0b2947,#06172b)',border:'1px solid rgba(78,216,255,.28)',borderRadius:'.8rem',boxShadow:'0 14px 34px rgba(0,0,0,.22)',minHeight:'12rem'},
+              mobile:{padding:'1rem',minHeight:'0'},
+            },
+          },
+          responsive:playroomContentResponsive,
+          children:[
+            node({
+              id:'playroom-content-information-body-title',
+              componentKey:'content.heading',
+              componentVersion:1,
+              config:{text:'Részletek',level:2,align:'left',tone:'text',style:{base:{fontSize:'1.45rem',lineHeight:1.15},mobile:{fontSize:'1.25rem'}}},
+              responsive:playroomContentResponsive,
+            }),
+            node({
+              id:'playroom-content-information-body',
+              componentKey:'content.text',
+              componentVersion:1,
+              config:{text:'Itt jelenik meg az oldal tartalma.',as:'p',align:'left',tone:'text',style:{base:{fontSize:'1rem',lineHeight:1.75,color:'#d4e1ee',whiteSpace:'pre-line',overflowWrap:'anywhere'},mobile:{fontSize:'.95rem',lineHeight:1.65}}},
+              bindings:{text:{path:'content.page.body',fallback:'Itt jelenik meg az oldal tartalma.'}},
+              responsive:playroomContentResponsive,
+            }),
+          ],
+        })],
+      })],
+    }),
+  ];
+}
+
 const newsletterSection=()=>node({
   id:'playroom-home-newsletter',componentKey:'layout.section',componentVersion:1,
   config:{tone:'background',spacing:'m',width:'full',style:{background:'var(--shoporation-color-background,#020b17)'}},
@@ -185,6 +297,9 @@ function insertAfterSection(sections:readonly StorefrontComponentNode[],sectionI
 
 function upgradePage(source:StorefrontPageDocument):StorefrontPageDocument{
   let sections=source.sections.map(clone);
+  if(source.pageType==='content'){
+    sections=[clone(source.sections[0]!),...playroomV20InformationContentSections(),clone(source.sections[source.sections.length-1]!)];
+  }
   if(source.pageType==='home'&&!sections.some(item=>item.id==='playroom-home-newsletter'))sections=insertBeforeFooter(sections,newsletterSection());
   if(source.pageType==='contact'&&!sections.some(item=>item.id==='playroom-contact-form'))sections=insertBeforeFooter(sections,supportForm());
   if(source.pageType==='product')sections=appendChildToNode(sections,'playroom-product-facts-grid',productDownloadsTile());
