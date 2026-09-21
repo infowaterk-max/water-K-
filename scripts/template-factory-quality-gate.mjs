@@ -116,6 +116,9 @@ async function browserDiagnostics(page,manifest,viewport){
     const visible=element=>{
       const style=getComputedStyle(element);
       const rect=element.getBoundingClientRect();
+      if(element.getAttribute('aria-hidden')==='true')return false;
+      if(element instanceof HTMLInputElement&&element.type==='hidden')return false;
+      if(rect.right<rootRect.left-100||rect.left>rootRect.right+100||rect.bottom<rootRect.top-100)return false;
       return rect.width>0&&rect.height>0&&style.display!=='none'&&style.visibility!=='hidden'&&style.opacity!=='0';
     };
     const hasOverflowBoundary=element=>{
@@ -151,17 +154,33 @@ async function browserDiagnostics(page,manifest,viewport){
     const touchErrors=[];
     const touchWarnings=[];
     if(input.viewport==='mobile'){
-      const controls=[...root.querySelectorAll('a,button,summary,input,select,textarea,[role="button"]')];
-      for(const element of controls){
-        if(!visible(element))continue;
-        const style=getComputedStyle(element);
-        if(element.tagName==='A'&&style.display==='inline')continue;
+      const hardControls=[...root.querySelectorAll('button,summary,input,select,textarea,[role="button"],a[data-storefront-component="content.button"]')];
+      const header=root.querySelector('[data-storefront-component="system.commerce-header"],[data-storefront-component="system.header"]');
+      if(header)hardControls.push(...header.querySelectorAll('a'));
+      const seenControls=new Set();
+      for(const element of hardControls){
+        if(seenControls.has(element)||!visible(element))continue;
+        seenControls.add(element);
+        if(element instanceof HTMLInputElement&&(element.type==='checkbox'||element.type==='radio')){
+          const label=element.closest('label')||(element.id?root.querySelector(`label[for="${CSS.escape(element.id)}"]`):null);
+          if(label&&visible(label)){
+            const labelRect=label.getBoundingClientRect();
+            if(labelRect.height+1<input.minimumTouchTargetPx)touchWarnings.push({tag:'LABEL',text:(label.textContent??'').trim().slice(0,100),width:labelRect.width,height:labelRect.height,reason:'checkbox-label'});
+          }
+          continue;
+        }
         const rect=element.getBoundingClientRect();
         const minDimension=Math.min(rect.width,rect.height);
-        const entry={tag:element.tagName,text:(element.textContent??element.getAttribute('aria-label')??'').trim().slice(0,100),width:rect.width,height:rect.height};
-        if(rect.height<input.minimumTouchTargetPx||(rect.width<input.minimumTouchTargetPx&&rect.height<input.minimumTouchTargetPx))touchErrors.push(entry);
+        const entry={tag:element.tagName,component:element.getAttribute('data-storefront-component'),text:(element.textContent??element.getAttribute('aria-label')??'').trim().slice(0,100),width:rect.width,height:rect.height};
+        if(rect.height+1<input.minimumTouchTargetPx||(rect.width+1<input.minimumTouchTargetPx&&rect.height+1<input.minimumTouchTargetPx))touchErrors.push(entry);
         else if(minDimension<input.recommendedTouchTargetPx)touchWarnings.push(entry);
         if(touchErrors.length>=20&&touchWarnings.length>=20)break;
+      }
+      for(const element of root.querySelectorAll('a')){
+        if(!visible(element)||seenControls.has(element))continue;
+        const rect=element.getBoundingClientRect();
+        if(rect.height<input.recommendedTouchTargetPx)touchWarnings.push({tag:'A',component:element.getAttribute('data-storefront-component'),text:(element.textContent??'').trim().slice(0,100),width:rect.width,height:rect.height,reason:'text-link-recommended'});
+        if(touchWarnings.length>=40)break;
       }
     }
 
@@ -179,10 +198,12 @@ async function browserDiagnostics(page,manifest,viewport){
       }
     }
 
-    const headers=root.querySelectorAll('[data-storefront-component="system.commerce-header"],[data-storefront-component="system.header"]').length;
+    const headerNodes=[...root.querySelectorAll('[data-storefront-component="system.commerce-header"],[data-storefront-component="system.header"]')].filter(visible);
+    const headers=headerNodes.length;
     const sections=[...root.querySelectorAll('[data-storefront-component="layout.section"]')].filter(visible);
-    const mobileMenus=root.querySelectorAll('[data-storefront-mobile-menu="true"]').length;
-    const mobileNavOutside=[...root.querySelectorAll('[data-storefront-component="system.navigation"]')].filter(element=>!element.closest('[data-storefront-mobile-menu="true"]')).length;
+    const activeHeader=headerNodes[0]??null;
+    const mobileMenus=activeHeader?[...activeHeader.querySelectorAll('[data-storefront-mobile-menu="true"]')].filter(visible).length:0;
+    const mobileNavOutside=activeHeader?[...activeHeader.querySelectorAll('[data-storefront-component="system.navigation"]')].filter(element=>visible(element)&&!element.closest('[data-storefront-mobile-menu="true"]')).length:0;
 
     return{
       rootClientWidth:root.clientWidth,
@@ -303,8 +324,9 @@ try{
         const response=await page.goto(demoUrl,{waitUntil:'domcontentloaded',timeout:30000});
         if(!response?.ok())throw new Error(`DEMO_ROUTE_FAILED:${response?.status()??'no-response'}`);
         await page.waitForLoadState('load',{timeout:15000}).catch(()=>undefined);
-        const warningText=await page.locator('text=MINTA TARTALOM').count();
-        const menuCount=await page.locator('[data-storefront-mobile-menu="true"]').count();
+        const runtimeRoot=page.locator('[data-visual-fidelity-root="runtime"]:visible').first();
+        const warningText=await runtimeRoot.getByText('MINTA TARTALOM',{exact:false}).count();
+        const menuCount=await runtimeRoot.locator('[data-storefront-mobile-menu="true"]:visible').count();
         if(warningText<1)errors.push({case:name,error:'DEMO_WARNING_MISSING'});
         if(menuCount!==1)errors.push({case:name,error:`DEMO_MOBILE_MENU_CARDINALITY:${menuCount}`});
         const pathOut=path.join(outputDir,`${name}.png`);
