@@ -19,6 +19,8 @@ on:
       - 'src/components/content/storefront-content-shell.tsx'
       - 'src/app/oldal/**'
       - 'src/app/gyik/**'
+      - 'src/app/webaruhaz/**'
+      - 'src/components/catalog/**'
       - 'src/app/public-pages-polish.css'
       - 'src/app/v6.css'
       - 'src/app/final-ux-audit.css'
@@ -58,6 +60,8 @@ on:
       - 'src/components/content/storefront-content-shell.tsx'
       - 'src/app/oldal/**'
       - 'src/app/gyik/**'
+      - 'src/app/webaruhaz/**'
+      - 'src/components/catalog/**'
       - 'src/app/public-pages-polish.css'
       - 'src/app/v6.css'
       - 'src/app/final-ux-audit.css'
@@ -125,6 +129,7 @@ jobs:
           tests/storefront-template-quality-gate-v2.test.ts
           tests/storefront-auth-surface.test.ts
           tests/storefront-public-information-routes.test.ts
+          tests/storefront-catalog-discovery-route.test.ts
           tests/customer-account-runtime-hardening.test.ts
           tests/storefront-system-surfaces.test.ts
           tests/storefront-social-settings.test.ts
