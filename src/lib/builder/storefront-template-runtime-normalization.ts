@@ -51,6 +51,13 @@ function footerRemFloor(value:unknown,floor:number):string{
   return Number(match[1])<floor?floorValue:value;
 }
 
+function footerStyleRecord(value:unknown):Record<string,unknown>{return value&&typeof value==='object'&&!Array.isArray(value)?value as Record<string,unknown>:{};}
+function footerStyleValue(style:Record<string,unknown>,key:string){const base=footerStyleRecord(style.base);return base[key]??style[key];}
+function patchFooterStyle(value:unknown,patch:Record<string,unknown>):Record<string,unknown>{
+  const style=footerStyleRecord(value),base=footerStyleRecord(style.base);
+  return Object.keys(base).length?{...style,...patch,base:{...base,...patch}}:{...style,...patch};
+}
+
 function normalizePlayroomV20FooterNode(node:StorefrontComponentNode,isFooterRoot=false):StorefrontComponentNode{
   if(node.id==='playroom-footer-social'&&node.componentKey!=='system.social-links'){
     return{
@@ -75,37 +82,31 @@ function normalizePlayroomV20FooterNode(node:StorefrontComponentNode,isFooterRoo
   }
   const next=clone(node);
   const config={...next.config};
-  if(isFooterRoot){
-    const style=(config.style&&typeof config.style==='object'&&!Array.isArray(config.style)?config.style:{}) as Record<string,unknown>;
-    config.style={...style,padding:'1.75rem 2.35rem 2rem',minHeight:'13.5rem'};
-  }
+  if(isFooterRoot)config.style=patchFooterStyle(config.style,{padding:'1.75rem 2.35rem 2rem',minHeight:'13.5rem'});
   if(node.componentKey==='layout.grid'){
     config.gap='m';
   }
-  if(node.componentKey==='layout.stack'){
-    const style=(config.style&&typeof config.style==='object'&&!Array.isArray(config.style)?config.style:{}) as Record<string,unknown>;
-    config.style={...style,gap:'.7rem'};
-  }
+  if(node.componentKey==='layout.stack')config.style=patchFooterStyle(config.style,{gap:'.7rem'});
   if(node.componentKey==='system.navigation'){
-    const style=(config.style&&typeof config.style==='object'&&!Array.isArray(config.style)?config.style:{}) as Record<string,unknown>;
-    const slots=(config.styleSlots&&typeof config.styleSlots==='object'&&!Array.isArray(config.styleSlots)?config.styleSlots:{}) as Record<string,unknown>;
-    const item=(slots.item&&typeof slots.item==='object'&&!Array.isArray(slots.item)?slots.item:{}) as Record<string,unknown>;
-    const base=(item.base&&typeof item.base==='object'&&!Array.isArray(item.base)?item.base:{}) as Record<string,unknown>;
-    config.style={...style,gap:'.42rem',lineHeight:1.5,fontSize:footerRemFloor(style.fontSize,.86)};
+    const style=footerStyleRecord(config.style);
+    const slots=footerStyleRecord(config.styleSlots);
+    const item=footerStyleRecord(slots.item);
+    const base=footerStyleRecord(item.base);
+    config.style=patchFooterStyle(style,{gap:'.42rem',lineHeight:1.5,fontSize:footerRemFloor(footerStyleValue(style,'fontSize'),.86)});
     config.styleSlots={...slots,item:{...item,base:{...base,minHeight:'2.1rem',display:'flex',alignItems:'center'}}};
   }
   if(node.componentKey==='content.button'){
-    const style=(config.style&&typeof config.style==='object'&&!Array.isArray(config.style)?config.style:{}) as Record<string,unknown>;
-    config.style={...style,fontSize:footerRemFloor(style.fontSize,.86),lineHeight:1.45,minHeight:'2.1rem'};
+    const style=footerStyleRecord(config.style);
+    config.style=patchFooterStyle(style,{fontSize:footerRemFloor(footerStyleValue(style,'fontSize'),.86),lineHeight:1.45,minHeight:'2.1rem'});
   }
   if(node.componentKey==='content.text'){
-    const style=(config.style&&typeof config.style==='object'&&!Array.isArray(config.style)?config.style:{}) as Record<string,unknown>;
+    const style=footerStyleRecord(config.style);
     const floor=config.as==='strong'?.84:.8;
-    config.style={...style,fontSize:footerRemFloor(style.fontSize,floor),lineHeight:style.lineHeight??1.45};
+    config.style=patchFooterStyle(style,{fontSize:footerRemFloor(footerStyleValue(style,'fontSize'),floor),lineHeight:footerStyleValue(style,'lineHeight')??1.45});
   }
   if(node.componentKey==='content.heading'){
-    const style=(config.style&&typeof config.style==='object'&&!Array.isArray(config.style)?config.style:{}) as Record<string,unknown>;
-    config.style={...style,fontSize:footerRemFloor(style.fontSize,1.05),lineHeight:style.lineHeight??1.2};
+    const style=footerStyleRecord(config.style);
+    config.style=patchFooterStyle(style,{fontSize:footerRemFloor(footerStyleValue(style,'fontSize'),1.05),lineHeight:footerStyleValue(style,'lineHeight')??1.2});
   }
   return{
     ...next,
