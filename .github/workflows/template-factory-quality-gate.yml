@@ -1,4 +1,5 @@
 name: Template Factory Quality Gate v2
+# Quality Gate v2 foundation closure authority: exact-head proof required.
 
 on:
   push:
