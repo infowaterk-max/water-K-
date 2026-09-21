@@ -13,6 +13,8 @@ describe('customer-facing system surfaces',()=>{
   it('keeps cookie consent inside the mobile viewport and inherits template tokens',()=>{
     expect(cookie).toMatch(/data-template-aware-cookie="true"/);
     expect(cookie).toMatch(/--shoporation-color-surface/);
+    expect(cookie).toMatch(/querySelectorAll<HTMLElement>\('\[data-storefront-template\]'\)/);
+    expect(cookie).toMatch(/new MutationObserver/);
     expect(v6).toMatch(/background:color-mix\(in srgb,var\(--shoporation-color-surface/);
     expect(finalUx).toMatch(/var\(--shoporation-color-border/);
     expect(responsive).toMatch(/transform:none!important/);
