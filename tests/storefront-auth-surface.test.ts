@@ -9,6 +9,7 @@ const playroom=fs.readFileSync('src/lib/builder/templates/playroom-v20.ts','utf8
 const primitives=fs.readFileSync('src/components/builder/storefront-primitives.tsx','utf8');
 const commerceHeader=fs.readFileSync('src/components/builder/storefront-commerce-header.tsx','utf8');
 const accountCss=fs.readFileSync('src/app/account-workflow.css','utf8');
+const accountNav=fs.readFileSync('src/components/account/account-subnav.tsx','utf8');
 
 describe('template-aware storefront auth surface',()=>{
   it('exposes the shared auth surface and inherits storefront design tokens',()=>{
@@ -42,6 +43,14 @@ describe('template-aware storefront auth surface',()=>{
     expect(commerceHeader).toMatch(/width:'100%',maxWidth:'100%',minWidth:0,boxSizing:'border-box'/);
     expect(accountCss).toMatch(/\.storefrontAccountShell\{width:100%;max-width:100%;min-width:0;/);
     expect(playroom).toMatch(/mobile:\{display:'none',padding:'0'\}/);
+  });
+
+  it('keeps authenticated desktop account navigation as one canonical left rail',()=>{
+    expect(accountNav).toMatch(/className="accountCapabilityRail"/);
+    expect(accountNav).not.toMatch(/className="accountSubnav"/);
+    expect(accountCss).toMatch(/\.storefrontAccountWorkspace\{[^}]*grid-template-columns:minmax\(15rem,17rem\)/);
+    expect(accountCss).toMatch(/\.storefrontAccountSidebar \.accountCapabilityRail\{display:flex;flex-direction:column/);
+    expect(accountCss).not.toMatch(/\.storefrontAccountSidebar \.accountCapabilityRail\{[^}]*flex-direction:row/);
   });
 
   it('resolves anonymous account pages without requesting customer-only commerce data',()=>{
