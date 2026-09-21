@@ -1509,9 +1509,11 @@ The repository already has a dedicated `/visual-fidelity-qa` route that resolves
 
 ### Verified resolution
 
-For template visual acceptance, use only explicit QA deep links:
+For authenticated human template visual acceptance, use explicit template-preview deep links:
 
-`/visual-fidelity-qa?template=<templateKey>&version=<templateVersion>&page=<pageType>&viewport=<desktop|tablet|mobile>`
+`/storefront-template-preview?template=<templateKey>&version=<templateVersion>&page=<pageType>&viewport=<desktop|tablet|mobile>`
+
+The separate `/visual-fidelity-qa` route remains CI/screenshot-harness infrastructure and may be gated by `VISUAL_FIDELITY_QA=1`; it is not the default human acceptance entry point.
 
 For current Playroom acceptance:
 
