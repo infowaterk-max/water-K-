@@ -3,6 +3,7 @@ import type {StorefrontComponentNode,StorefrontPageDocument} from '@/lib/builder
 import {normalizeStorefrontTemplateRuntimeComposition,storefrontCartPresentationViolations} from '@/lib/builder/storefront-template-runtime-normalization';
 import {augmentStorefrontTemplateDemoContent,evaluateStorefrontTemplateRouteIntegrity} from '@/lib/builder/storefront-template-route-integrity';
 import {STOREFRONT_TEMPLATE_QUALITY_MANIFESTS,assertStorefrontTemplateQualityGate} from '@/lib/builder/storefront-template-quality-gate';
+import {assertStorefrontCookieConsentPreset} from '@/lib/builder/storefront-cookie-consent-presets';
 import {ALPINE_LODGE_TEMPLATE_PACKAGE} from '@/lib/builder/templates/alpine-lodge';
 import {BEAUTY_LAB_TEMPLATE_PACKAGE} from '@/lib/builder/templates/beauty-lab-canonical-v2';
 import {CREATOR_STATION_TEMPLATE_PACKAGE} from '@/lib/builder/templates/creator-station';
@@ -147,6 +148,7 @@ const identity=(template:StorefrontInstallableTemplatePackage)=>`${template.mani
 function validateConcreteCatalog(packages:readonly StorefrontInstallableTemplatePackage[],options:{enforceCurrentCartContract:boolean;enforceRouteIntegrity:boolean}){
   const identities=new Set<string>();
   for(const template of packages){
+    if(options.enforceCurrentCartContract)assertStorefrontCookieConsentPreset(template.manifest.templateKey);
     const key=identity(template);
     if(identities.has(key))throw new Error('STOREFRONT_TEMPLATE_CATALOG_DUPLICATE');
     identities.add(key);
