@@ -23,7 +23,7 @@ import {
   updateCurrentStorefrontReusableSymbol,
 } from '@/lib/builder/storefront-reusable-symbol-persistence';
 import {rebaseStorefrontReusableSymbolInstances,type StorefrontGlobalSymbolSlot} from '@/lib/builder/storefront-linked-symbols';
-import {saveCurrentStorefrontTemplateDraftPlan} from '@/lib/builder/storefront-template-persistence';
+import {saveCurrentStorefrontTemplateInstallationPlan} from '@/lib/builder/storefront-template-persistence';
 import {getStorefrontTemplatePackage} from '@/lib/builder/storefront-template-catalog';
 import {planStorefrontTemplateInstallation} from '@/lib/builder/storefront-template-installation';
 import {composeStorefrontDigitalCommerceTemplatePackage} from '@/lib/builder/storefront-digital-commerce-composition';
@@ -135,7 +135,7 @@ export async function installVisualBuilderTemplateAction(input:{templateKey:stri
   for(const page of template.pages)assertStorefrontPerformance(page);
   const[capability,existingPages]=await Promise.all([getCurrentStorefrontBuilderCapability(),listCurrentStorefrontTemplatePlanningPages()]);
   const plan=planStorefrontTemplateInstallation({template,componentRegistry:createStorefrontVisualBuilderComponentRegistry(),capability,existingPages});
-  const result=await saveCurrentStorefrontTemplateDraftPlan({plan,operationKey:input.operationKey});
+  const result=await saveCurrentStorefrontTemplateInstallationPlan({plan,operationKey:input.operationKey});
   refresh();
   return result;
 }
