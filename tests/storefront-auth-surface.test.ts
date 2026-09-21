@@ -20,6 +20,8 @@ describe('template-aware storefront auth surface',()=>{
 
   it('resolves anonymous account pages without requesting customer-only commerce data',()=>{
     expect(source).toMatch(/customerId:string\|null/);
+    expect(source).toMatch(/const instance=await getCurrentWebshopInstance\(\);if\(!instance\)return null;/);
+    expect(source).not.toMatch(/resolveCurrentStorefrontAccountRuntimePage[\s\S]{0,220}requireStorefrontAccess\(\)/);
     expect(source).toMatch(/request\?getStorefrontDigitalCommerceRuntimeModel/);
   });
 });
