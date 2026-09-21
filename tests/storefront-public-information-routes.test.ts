@@ -25,6 +25,10 @@ describe('storefront public information route integrity',()=>{
  it('does not hardcode shipping providers into the public shipping fallback',()=>{
   expect(page).toMatch(/settings\.shippingOptions\.map/);
   expect(page).toMatch(/settings\.freeShippingThreshold/);
+  expect(page).toMatch(/systemInfoStack/);
+  expect(page).toMatch(/Hogyan működik\?/);
+  expect(page).toMatch(/Rendelés után/);
+  expect(css).toMatch(/\.systemInfoPage \.systemInfoStack\{display:grid;gap:/);
   expect(page).not.toMatch(/GLS|Foxpost|MPL|DPD/);
  });
 });
