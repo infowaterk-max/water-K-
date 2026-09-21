@@ -1571,3 +1571,38 @@ Playroom v19 now applies explicit Mobile overrides across every page-family head
 ### Prevention
 
 Template Factory acceptance must inspect shared headers on Mobile even when page-body cards already reflow correctly. Flat `innerStyle` / navigation style objects should be treated as base styles and receive explicit Mobile overrides whenever the desktop composition is dense.
+
+
+---
+
+## SKB-P4-031 — Account navigation is platform IA, not template-local content
+
+- status: `implemented`
+- evidence: `human_acceptance + architecture_fix + regression_test`
+- area: `storefront/account/navigation-parity`
+- risk: `high`
+- automation: `AUTO_FIX`
+
+### Symptom
+
+Playroom Account showed only three template-authored shortcuts (orders, favourites, profile), while the canonical customer account IA exposes a larger capability set including downloads, documents, cases, returns, marketing and conditional B2B/loyalty destinations. The mismatch existed on desktop as well; mobile merely made it more obvious.
+
+### Root cause
+
+Account navigation had been treated as visual preset content inside individual templates. That duplicated platform IA and allowed templates to drift from the real account capability registry.
+
+### Resolution
+
+Account navigation is now a shared protected Storefront Runtime primitive:
+
+- `account.capability-navigation`;
+- canonical authority: `CANONICAL_ACCOUNT_CAPABILITIES`;
+- binding authority: `account.capabilities`;
+- injected portfolio-wide by `normalizeStorefrontTemplateRuntimeComposition()` for every `account` page;
+- rendered from the shared Builder component/renderer registries;
+- Desktop, Tablet and Mobile use the same capability list; only layout changes;
+- template-local quick-access cards may remain as secondary shortcuts but are no longer the navigation authority.
+
+### Prevention
+
+No template may own or hardcode a reduced Account IA. Future account capability changes must update the canonical capability registry/runtime binding once, not each template or viewport separately.
