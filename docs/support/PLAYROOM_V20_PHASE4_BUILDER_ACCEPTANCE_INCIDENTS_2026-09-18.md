@@ -1531,3 +1531,43 @@ Do not use `/`, `/webaruhaz`, `/termek/...`, `/kosar` or `/penztar` as proof tha
 Human template acceptance links must always pin **template key + exact version + page type + viewport**. Functional checkout acceptance and template visual acceptance are separate evidence tracks and must not be conflated.
 
 Use the **stable Vercel branch alias** as the human-acceptance host, not the unique per-deployment hostname. The branch alias advances to the latest Preview while preserving one browser origin, so Supabase/Vercel session cookies do not need to be recreated after every redeploy. If authentication is missing, template preview must redirect through login and return to the same preview path instead of throwing a transient error.
+
+
+---
+
+## SKB-P4-030 — Playroom commerce header inherited desktop density on mobile
+
+- status: `implemented`
+- evidence: `human_acceptance + code_and_test_verified`
+- area: `storefront/system.commerce-header/mobile-responsive-style`
+- risk: `medium`
+- automation: `AUTO_FIX`
+
+### Symptom
+
+Playroom Account mobile preview showed a visually broken header while the account body itself reflowed correctly:
+
+- brand label truncated to `SHOPORAT…`;
+- long search placeholder crowded the field;
+- desktop navigation spacing carried into mobile;
+- the right-most navigation item was visibly cut off.
+
+### Root cause
+
+The Playroom header used flat visual-style objects for `innerStyle`, brand/logo/tagline and navigation style. Flat styles are valid migration-compatible base styles, so they inherit into Mobile unless explicit breakpoint overrides exist.
+
+This meant the desktop horizontal padding and dense navigation gap were still authoritative at the 390px mobile viewport.
+
+### Resolution
+
+Playroom v19 now applies explicit Mobile overrides across every page-family header:
+
+- compact inline padding;
+- smaller mobile brand and logo geometry;
+- shorter mobile-friendly search placeholder;
+- tighter mobile navigation spacing and type size;
+- horizontal navigation remains reachable without forcing desktop spacing into the viewport.
+
+### Prevention
+
+Template Factory acceptance must inspect shared headers on Mobile even when page-body cards already reflow correctly. Flat `innerStyle` / navigation style objects should be treated as base styles and receive explicit Mobile overrides whenever the desktop composition is dense.
