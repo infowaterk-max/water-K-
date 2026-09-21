@@ -156,11 +156,13 @@ describe('Digital Commerce A3 shared Builder integration',()=>{
     expect(findComponent(cart,'commerce.fulfillment-summary')).toBe(true);
     expect(findComponent(checkout,'commerce.fulfillment-summary')).toBe(true);
     expect(findComponent(checkout,'commerce.post-purchase-guidance')).toBe(true);
-    expect(findComponent(account,'commerce.documents-center')).toBe(true);
+    expect(findComponent(account,'account.capability-navigation')).toBe(true);
+    expect(findComponent(account,'commerce.account-downloads')).toBe(false);
+    expect(findComponent(account,'commerce.account-documents')).toBe(false);
+    expect(findComponent(account,'commerce.documents-center')).toBe(false);
     expect(getStorefrontPageSemanticContexts(product)).toEqual(expect.arrayContaining(['product.fulfillment','product.documents']));
     expect(getStorefrontPageSemanticContexts(checkout)).toEqual(expect.arrayContaining(['checkout.fulfillment','checkout.post-purchase']));
     expect(listStorefrontContextualCapabilityOpportunities({document:product,capability}).map(item=>item.key)).toEqual(expect.arrayContaining(['fulfillment','product-documents']));
-    expect(listStorefrontContextualCapabilityOpportunities({document:account,capability}).map(item=>item.key)).toContain('documents-center');
   });
 
   it('guards every concrete template package without fabricating the remaining 42-template target',()=>{
@@ -198,7 +200,7 @@ describe('Digital Commerce A3 shared Builder integration',()=>{
     expect(composed.sections.at(-1)?.id).toBe('wrapped-footer');
   });
 
-  it('removes stale shared post-purchase guidance from account while keeping the document center',()=>{
+  it('keeps account overview navigation-only and removes stale embedded document surfaces',()=>{
     const source=page('account','commerce.documents-center');
     source.sections.push({
       id:'shared-a3-account-digital-commerce',componentKey:'layout.section',componentVersion:1,config:{},
@@ -208,7 +210,10 @@ describe('Digital Commerce A3 shared Builder integration',()=>{
     });
     source.sections.push({id:'account-footer',componentKey:'system.footer',componentVersion:1,config:{}});
     const composed=composeStorefrontDigitalCommerceCapabilities(source);
-    expect(findComponent(composed,'commerce.documents-center')).toBe(true);
+    expect(findComponent(composed,'account.capability-navigation')).toBe(true);
+    expect(findComponent(composed,'commerce.documents-center')).toBe(false);
+    expect(findComponent(composed,'commerce.account-downloads')).toBe(false);
+    expect(findComponent(composed,'commerce.account-documents')).toBe(false);
     expect(findComponent(composed,'commerce.post-purchase-guidance')).toBe(false);
     expect(composed.sections.at(-1)?.id).toBe('account-footer');
   });
