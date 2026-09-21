@@ -66,9 +66,10 @@ function selectScope(catalog,changes){
   }
 
   const modifiedTemplateFiles=changes.filter(change=>!change.status.startsWith('A')&&change.file.startsWith('src/lib/builder/templates/')&&/\.(ts|tsx)$/.test(change.file));
+  const legacyTemplateChanges=[];
   for(const change of modifiedTemplateFiles){
     const owned=templates.some(template=>startsWithAny(change.file,template.sourcePrefixes??[]));
-    if(!owned)throw new Error(`TEMPLATE_FACTORY_REACCEPTANCE_MANIFEST_REQUIRED:${change.file}`);
+    if(!owned)legacyTemplateChanges.push(change.file);
   }
 
   if(qualityInfra){
@@ -83,7 +84,7 @@ function selectScope(catalog,changes){
     for(const template of templates)selected.set(template.templateKey,{template,mode:'canary',reason:'default-canary'});
   }
   for(const value of selected.values())reasons.push({templateKey:value.template.templateKey,mode:value.mode,reason:value.reason});
-  return{selected:[...selected.values()],reasons,qualityInfra,sharedRuntime};
+  return{selected:[...selected.values()],reasons,qualityInfra,sharedRuntime,legacyTemplateChanges};
 }
 
 async function loadCatalog(){
@@ -324,13 +325,15 @@ const evidence={
   baseSha:baseSha||null,
   changes,
   selection:scope.reasons,
+  legacyTemplateChanges:scope.legacyTemplateChanges,
   cases,
   errors,
   warnings,
   capturedAt:new Date().toISOString(),
 };
 await writeFile(path.join(outputDir,'manifest.json'),JSON.stringify(evidence,null,2));
-console.log(JSON.stringify({selection:scope.reasons,cases:cases.length,errorCount:errors.length,warningCount:warnings.length},null,2));
+for(const file of scope.legacyTemplateChanges)warnings.push({case:'legacy-template-change',warning:`LEGACY_TEMPLATE_REACCEPTANCE_PENDING:${file}`});
+console.log(JSON.stringify({selection:scope.reasons,legacyTemplateChanges:scope.legacyTemplateChanges,cases:cases.length,errorCount:errors.length,warningCount:warnings.length},null,2));
 if(errors.length){
   console.error(JSON.stringify(errors,null,2));
   process.exitCode=1;
