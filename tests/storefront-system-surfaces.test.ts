@@ -7,15 +7,19 @@ const finalUx=fs.readFileSync('src/app/final-ux-audit.css','utf8');
 const responsive=fs.readFileSync('src/app/responsive-final.css','utf8');
 const playroom=fs.readFileSync('src/lib/builder/templates/playroom-v20.ts','utf8');
 const runtime=fs.readFileSync('src/lib/builder/storefront-runtime-source.ts','utf8');
+const cookiePresets=fs.readFileSync('src/lib/builder/storefront-cookie-consent-presets.ts','utf8');
 const primitives=fs.readFileSync('src/components/builder/storefront-primitives.tsx','utf8');
 
 describe('customer-facing system surfaces',()=>{
-  it('keeps cookie consent inside the mobile viewport and inherits template tokens',()=>{
+  it('keeps cookie consent inside the mobile viewport and resolves an explicit template-owned preset',()=>{
     expect(cookie).toMatch(/data-template-aware-cookie="true"/);
-    expect(cookie).toMatch(/--shoporation-color-surface/);
-    expect(cookie).toMatch(/querySelectorAll<HTMLElement>\('\[data-storefront-template\]'\)/);
+    expect(cookie).toMatch(/data-cookie-template-key/);
+    expect(cookie).toMatch(/data-cookie-preset/);
+    expect(cookie).toMatch(/getStorefrontCookieConsentPreset/);
+    expect(cookie).toMatch(/querySelectorAll<HTMLElement>\('\[data-storefront-template\],\[data-template-key\]'\)/);
     expect(cookie).toMatch(/new MutationObserver/);
-    expect(v6).toMatch(/background:color-mix\(in srgb,var\(--shoporation-color-surface/);
+    expect(cookiePresets).toMatch(/'gaming\.playroom':p\('gaming\.playroom','playroom-v20-cookie'/);
+    expect(v6).toMatch(/data-cookie-template-key="gaming\.playroom"/);
     expect(finalUx).toMatch(/var\(--shoporation-color-border/);
     expect(responsive).toMatch(/transform:none!important/);
   });
