@@ -41,6 +41,8 @@ Each preset has a unique preset id and owns presentation choices such as:
 
 The active storefront design tokens still override the preset fallbacks. The preset therefore provides a deterministic template-specific composition and a safe template-colored first render.
 
+Every StorefrontRuntime root MUST expose the active template identity through `data-storefront-template` and `data-storefront-template-version`. System overlays must resolve presentation from that identity; they must not guess the template from route names or page-local CSS.
+
 ## Strict catalog gate
 
 Current template packages cannot enter the implemented template catalog without a cookie consent preset.
