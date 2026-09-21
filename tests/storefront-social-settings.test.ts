@@ -12,6 +12,7 @@ const page=fs.readFileSync('src/app/admin/beallitasok/megjelenes/page.tsx','utf8
 const actions=fs.readFileSync('src/app/admin/beallitasok/megjelenes/actions.ts','utf8');
 const migration=fs.readFileSync('supabase/migrations/20260921152000_storefront_social_links_settings.sql','utf8');
 const hardening=fs.readFileSync('supabase/migrations/20260921161000_storefront_social_links_domain_hardening.sql','utf8');
+const supportDoc=fs.readFileSync('docs/support/STOREFRONT_SOCIAL_LINKS_TENANT_AUTHORITY_2026-09-21.md','utf8');
 
 describe('storefront social settings authority',()=>{
   it('stores social profiles as tenant storefront settings, not email brand-kit data',()=>{
@@ -37,6 +38,8 @@ describe('storefront social settings authority',()=>{
     expect(hardening).toMatch(/'facebook','instagram','youtube','tiktok','x','twitch','linkedin','pinterest'/);
     expect(hardening).toMatch(/facebook\\\.com/);
     expect(hardening).toMatch(/twitch\\\.tv/);
+    expect(supportDoc).toMatch(/ONE DEFECT -> ONE SHARED FIX -> REGRESSION TEST -> QUALITY GATE/);
+    expect(supportDoc).toMatch(/provider-owned domain/);
   });
 
   it('keeps template preview social data functional instead of reusing generic hash demo items',()=>{
