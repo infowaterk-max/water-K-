@@ -168,7 +168,7 @@ begin
       and template_demo_namespace=v_item->>'namespace'
       and template_demo_key=v_item->>'entityKey'
       and template_demo_state='fixture';
-    v_retired:=v_retired+found::integer;
+    if found then v_retired:=v_retired+1; end if;
   end loop;
 
   insert into public.admin_audit_log(
