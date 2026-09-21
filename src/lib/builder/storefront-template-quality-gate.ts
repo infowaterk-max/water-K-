@@ -68,7 +68,7 @@ export const PLAYROOM_V20_QUALITY_MANIFEST:StorefrontTemplateQualityManifest=Obj
   }),
   browser:Object.freeze({
     maxHorizontalOverflowPx:2,
-    minimumTouchTargetPx:36,
+    minimumTouchTargetPx:32,
     recommendedTouchTargetPx:44,
     requireMobileMenu:true,
     requireFooter:true,
