@@ -5,7 +5,7 @@ const auth=fs.readFileSync('src/components/auth/auth-form.tsx','utf8');
 const shell=fs.readFileSync('src/components/account/storefront-account-shell.tsx','utf8');
 const source=fs.readFileSync('src/lib/builder/storefront-runtime-source.ts','utf8');
 const accountPage=fs.readFileSync('src/app/fiokom/page.tsx','utf8');
-const playroom=fs.readFileSync('src/lib/builder/templates/playroom.ts','utf8');
+const playroom=fs.readFileSync('src/lib/builder/templates/playroom-v20.ts','utf8');
 
 describe('template-aware storefront auth surface',()=>{
   it('exposes the shared auth surface and inherits storefront design tokens',()=>{
@@ -22,16 +22,22 @@ describe('template-aware storefront auth surface',()=>{
 
   it('requires template-owned signed-out composition instead of generic account chrome',()=>{
     expect(shell).toMatch(/publicAuthSections/);
+    expect(shell).toMatch(/authPublic===true/);
     expect(shell).toMatch(/!customerId&&publicAuthSections\.length\?render\(publicAuthSections\):null/);
+    expect(shell).toMatch(/data-authenticated="false"/);
     expect(accountPage).toMatch(/storefrontSignedOutAccount/);
     expect(accountPage).not.toMatch(/if\(!user\)[^;]+Belépés vagy regisztráció/);
-    expect(playroom).toMatch(/playroom-auth-command-center/);
+    expect(playroom).toMatch(/playroom-account-auth-public/);
+    expect(playroom).toMatch(/authPublic:true/);
     expect(playroom).toMatch(/authComposition:'template-owned-v1'/);
+    expect(playroom).toMatch(/authPreset:'playroom-v20-command-center'/);
   });
 
   it('resolves anonymous account pages without requesting customer-only commerce data',()=>{
     expect(source).toMatch(/customerId:string\|null/);
     expect(source).toMatch(/const instance=await getCurrentWebshopInstance\(\);if\(!instance\)return null;/);
+    expect(source).toMatch(/getPreviewStorefrontDraftPage\(instance\.id,'account'\)/);
+    expect(source).toMatch(/applyTemplateAuthComposition/);
     expect(source).not.toMatch(/resolveCurrentStorefrontAccountRuntimePage[\s\S]{0,220}requireStorefrontAccess\(\)/);
     expect(source).toMatch(/request\?getStorefrontDigitalCommerceRuntimeModel/);
   });
