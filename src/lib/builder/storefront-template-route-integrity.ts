@@ -1,4 +1,4 @@
-import type {StorefrontComponentNode,StorefrontTemplatePackage} from '@/lib/builder/storefront-runtime';
+import type {StorefrontComponentNode,StorefrontPageDocument,StorefrontTemplatePackage} from '@/lib/builder/storefront-runtime';
 import type {StorefrontDemoFixture,StorefrontInstallableTemplatePackage} from '@/lib/builder/storefront-template-installation';
 
 export const STOREFRONT_ROUTE_INTEGRITY_VERSION='shoporation.storefront-route-integrity.v1' as const;
