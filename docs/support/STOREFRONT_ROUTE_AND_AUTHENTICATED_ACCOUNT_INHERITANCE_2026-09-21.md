@@ -62,4 +62,27 @@ Customer-facing order history must not rely on a desktop-width table on narrow v
 
 Desktop may use the semantic table. Mobile must switch to semantic order cards with the same authoritative order data. Horizontal scrolling is not the accepted primary mobile presentation for the account overview.
 
+## 6. Single account navigation authority
+
+The live customer account shell must render exactly one account navigation.
+
+Authority:
+- capability list: `resolveAccountCapabilities()`;
+- live renderer: `AccountSubnav`;
+- template: visual tokens only.
+
+A Page Schema `account.capability-navigation` node may exist for Builder/template composition, but the live account shell must not render it in parallel with `AccountSubnav`. Rendering both creates repeated navigation before, inside or after the account content, especially on mobile.
+
+Acceptance:
+- one `Fiók navigáció` landmark;
+- no repeated Áttekintés / Rendeléseim / Letöltéseim group;
+- mobile uses one compact scrollable navigation row;
+- desktop may present the same authority as a sidebar.
+
+## 7. Public information vertical rhythm
+
+System information pages must use one shared vertical stack contract between cards, feature panels and action groups. Adjacent rounded surfaces must not visually touch or overlap.
+
+The shipping fallback must also remain useful when no carrier is configured: explain checkout selection, final fee visibility and post-order tracking availability without inventing carrier names, delivery times or unsupported promises.
+
 ONE DEFECT -> ONE SHARED FIX -> REGRESSION TEST -> QUALITY GATE.
