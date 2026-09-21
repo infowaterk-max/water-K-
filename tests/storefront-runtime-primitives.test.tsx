@@ -69,6 +69,23 @@ describe('storefront runtime shared primitives',()=>{
     expect(html).toContain('span 12 / span 12');
   });
 
+  it('enforces a shared 24px mobile touch minimum on content buttons',()=>{
+    const page:StorefrontPageDocument=structuredClone(STOREFRONT_NEUTRAL_REFERENCE_PAGE);
+    const button=page.sections.flatMap(section=>section.children??[]).flatMap(node=>node.children??[]).flatMap(node=>node.children??[]).find(node=>node.componentKey==='content.button');
+    if(!button)throw new Error('REFERENCE_BUTTON_MISSING');
+    const html=renderToStaticMarkup(
+      <StorefrontRuntimeRenderer
+        page={page}
+        viewport="mobile"
+        bindingContext={{brand:{name:'Touch Merchant'},navigation:{primary:[]}}}
+        componentRegistry={createStorefrontPrimitiveComponentRegistry()}
+        rendererRegistry={createStorefrontPrimitiveRendererRegistry()}
+        capability={{plan:'alap',features:[]}}
+      />,
+    );
+    expect(html).toContain('min-height:24px');
+  });
+
   it('fails closed when a protected header is given an unapproved child type',()=>{
     const invalid:StorefrontPageDocument=structuredClone(STOREFRONT_NEUTRAL_REFERENCE_PAGE);
     invalid.sections[0].children=[{
