@@ -9,6 +9,7 @@ import type { StorefrontViewport } from '@/lib/builder/storefront-foundation';
 import { getPilotAcceptanceInstanceId } from '@/lib/storefront/pilot-access';
 import { requireStorefrontAccess } from '@/lib/storefront/access';
 import { createAdminClient } from '@/lib/supabase/admin';
+import { getFeatureEntitlementDecisions } from '@/lib/entitlements/access';
 
 function storefrontViewportFromUserAgent(userAgent:string):StorefrontViewport{
   const value=userAgent.toLowerCase();
@@ -20,13 +21,15 @@ function storefrontViewportFromUserAgent(userAgent:string):StorefrontViewport{
 export default async function Checkout(){
   const instance=await requireStorefrontAccess();
   const loyaltyPromise=createAdminClient().from('loyalty_program_settings').select('enabled').eq('instance_id',instance.id).maybeSingle();
-  const[settings,access,runtime,acceptanceInstanceId,userAgent,loyaltyResult]=await Promise.all([
+  const accountBenefitPromise=getFeatureEntitlementDecisions(instance.id,['orders','returns']);
+  const[settings,access,runtime,acceptanceInstanceId,userAgent,loyaltyResult,accountBenefitDecisions]=await Promise.all([
     getCommerceSettings(),
     getCommerceAccess(),
     resolveCurrentStorefrontCheckoutRuntimePage(),
     process.env.VERCEL_ENV==='preview'?getPilotAcceptanceInstanceId():Promise.resolve(null),
     headers().then(value=>value.get('user-agent')??''),
     loyaltyPromise,
+    accountBenefitPromise,
   ]);
   const acceptancePreview=Boolean(instance&&acceptanceInstanceId===instance.id&&process.env.VERCEL_ENV==='preview');
   const form=<>
@@ -40,7 +43,12 @@ export default async function Checkout(){
       acceptancePreview={acceptancePreview}
       instanceId={instance.id}
       signedIn={access.signedIn}
-      loyaltyEnabled={Boolean(loyaltyResult.data?.enabled)}
+      accountBenefitCapabilities={{
+        loyalty:Boolean(loyaltyResult.data?.enabled),
+        orderHistory:accountBenefitDecisions.get('orders')?.enabled===true,
+        returns:accountBenefitDecisions.get('returns')?.enabled===true,
+        digitalDownloads:true,
+      }}
     />
   </>;
   if(runtime)return <StorefrontCheckoutShell runtime={runtime} viewport={storefrontViewportFromUserAgent(userAgent)}>{form}</StorefrontCheckoutShell>;

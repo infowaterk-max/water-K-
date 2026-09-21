@@ -3,19 +3,13 @@
 import { useEffect,useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/browser';
+import { normalizeStorefrontReturnTarget } from '@/lib/auth/storefront-return-target';
 
 export type AuthMode='login'|'register';
 type Mode=AuthMode;
 type AccountType='customer'|'company'|'reseller';
 type AuthFlow='invite'|'recovery';
 type FlowStatus='idle'|'checking'|'ready'|'invalid';
-
-function safeAdminNext(){
-  const requestedNext=new URLSearchParams(window.location.search).get('next');
-  const safeAdmin=requestedNext?.startsWith('/admin')&&!requestedNext.startsWith('//');
-  const safeTemplatePreview=requestedNext?.startsWith('/storefront-template-preview')&&!requestedNext.startsWith('//');
-  return safeAdmin||safeTemplatePreview?requestedNext:null;
-}
 
 export function AuthForm({instanceId,initialMode='login',onAuthenticated,returnTo}:{instanceId:string|null;initialMode?:AuthMode;onAuthenticated?:()=>void;returnTo?:string|null}){
   const router=useRouter();
@@ -26,6 +20,14 @@ export function AuthForm({instanceId,initialMode='login',onAuthenticated,returnT
   const [busy,setBusy]=useState(false);
   const [authFlow,setAuthFlow]=useState<AuthFlow|null>(null);
   const [flowStatus,setFlowStatus]=useState<FlowStatus>('idle');
+
+  function safeRequestedNext(){return typeof window==='undefined'?null:normalizeStorefrontReturnTarget(new URLSearchParams(window.location.search).get('next'));}
+  function finishAuthenticatedIntent(){
+    if(onAuthenticated){onAuthenticated();return;}
+    const target=normalizeStorefrontReturnTarget(returnTo)??safeRequestedNext();
+    if(target){router.replace(target);router.refresh();return;}
+    router.refresh();
+  }
 
   useEffect(()=>{setMode(initialMode)},[initialMode]);
 
@@ -71,10 +73,7 @@ export function AuthForm({instanceId,initialMode='login',onAuthenticated,returnT
       setBusy(false);
       if(result.error){setMessage(result.error.message);return;}
       setMessage('Sikeres bejelentkezés.');
-      if(onAuthenticated){onAuthenticated();return;}
-      const target=returnTo&&returnTo.startsWith('/')&&!returnTo.startsWith('//')?returnTo:safeAdminNext();
-      if(target){router.replace(target);router.refresh();return;}
-      router.refresh();return;
+      finishAuthenticatedIntent();return;
     }
     let registrationInstanceId=instanceId;
     if(!registrationInstanceId){
@@ -97,7 +96,7 @@ export function AuthForm({instanceId,initialMode='login',onAuthenticated,returnT
     });
     setBusy(false);
     if(result.error){setMessage(result.error.message);return;}
-    if(result.data.session&&onAuthenticated){onAuthenticated();return;}
+    if(result.data.session){finishAuthenticatedIntent();return;}
     setMessage(accountType==='reseller'?'Partnerigény elküldve ehhez a webshophoz. A viszonteladói árak admin jóváhagyás után aktiválódnak.':'Regisztráció elküldve. Ellenőrizd az e-mail-fiókodat.');
   }
 
@@ -121,7 +120,7 @@ export function AuthForm({instanceId,initialMode='login',onAuthenticated,returnT
     const{error}=await supabase.auth.updateUser({password});
     setBusy(false);
     if(error){setMessage(error.message);return;}
-    const target=safeAdminNext()??'/fiokom';
+    const target=safeRequestedNext()??'/fiokom';
     window.history.replaceState(null,'','/fiokom');
     setMessage('A jelszó beállítva.');
     router.replace(target);
@@ -166,7 +165,7 @@ export function AuthForm({instanceId,initialMode='login',onAuthenticated,returnT
       <label>Jelszó<input name="password" type="password" minLength={8} required/></label>
       {companyFields&&<><label>Cégnév<input name="companyName" required/></label><label>Adószám<input name="taxNumber" required minLength={5}/></label></>}
       {mode==='register'&&accountType==='reseller'&&<p className="notice">A partnerigény ehhez a webshophoz kötődik. A partnerárak és a csak viszonteladóknak szánt termékek kizárólag jóváhagyás után érhetők el.</p>}
-      <button className="button" type="submit" disabled={busy||(mode==='register'&&!instanceId)}>{busy?'Feldolgozás…':mode==='login'?'Belépés':'Fiók létrehozása'}</button>
+      <button className="button" type="submit" disabled={busy}>{busy?'Feldolgozás…':mode==='login'?'Belépés':'Fiók létrehozása'}</button>
       {mode==='login'&&<button className="btn btnGhost" type="button" disabled={busy} onClick={resetPassword}>Elfelejtett jelszó</button>}
       {message&&<p className="notice">{message}</p>}
     </form>
