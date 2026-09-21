@@ -52,6 +52,27 @@ function footerRemFloor(value:unknown,floor:number):string{
 }
 
 function normalizePlayroomV20FooterNode(node:StorefrontComponentNode,isFooterRoot=false):StorefrontComponentNode{
+  if(node.id==='playroom-footer-social'&&node.componentKey!=='system.social-links'){
+    return{
+      id:node.id,
+      componentKey:'system.social-links',
+      componentVersion:1,
+      config:{
+        title:'Kövess minket',
+        copy:'JÁTSSZ\nFEDEZD FEL\nOSZD MEG\nTARTOZZ KÖZÉNK',
+        items:[],
+        ariaLabel:'Közösségi média',
+        presentation:'playroom-social',
+        style:node.config.style??{borderLeft:'1px solid rgba(89,139,191,.25)',paddingLeft:'1.1rem'},
+        titleStyle:{fontSize:'.8rem',fontWeight:850,color:'#fff7e8'},
+        copyStyle:{fontSize:'.72rem',letterSpacing:'.23em',lineHeight:1.45,color:'#d36cff'},
+        navigationStyle:{gap:'.55rem'},
+        itemStyle:{color:'#ffffff',fontSize:'1rem',fontWeight:900,border:'1px solid rgba(120,218,255,.22)',background:'rgba(7,25,46,.72)'},
+      },
+      bindings:{items:{path:'brand.socialLinks',fallback:[]}},
+      ...(node.responsive?{responsive:clone(node.responsive)}:{}),
+    };
+  }
   const next=clone(node);
   const config={...next.config};
   if(isFooterRoot){
