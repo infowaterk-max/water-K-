@@ -14,12 +14,13 @@ import {augmentStorefrontDigitalCommercePreviewContext} from '@/lib/builder/stor
 import {StorefrontRuntimeRenderer} from '@/components/builder/storefront-runtime-renderer';
 import {createStorefrontVisualBuilderRendererRegistry} from '@/components/builder/storefront-builder-renderer-registry';
 import {createStorefrontVisualBuilderComponentRegistry} from '@/lib/builder/storefront-builder-registry';
-import {STOREFRONT_CANONICAL_VIEWPORT_WIDTH_PX,type StorefrontViewport} from '@/lib/builder/storefront-foundation';
+import {STOREFRONT_CANONICAL_VIEWPORT_WIDTH_PX,STOREFRONT_PAGE_TYPES,type StorefrontBuilderPageType,type StorefrontViewport} from '@/lib/builder/storefront-foundation';
 import styles from './storefront-template-preview.module.css';
 
 export const dynamic='force-dynamic';
-type Props={searchParams:Promise<{template?:string;version?:string;viewport?:string;embed?:string}>};
+type Props={searchParams:Promise<{template?:string;version?:string;page?:string;viewport?:string;embed?:string}>};
 const widths=STOREFRONT_CANONICAL_VIEWPORT_WIDTH_PX;
+const allowedPageTypes=new Set<StorefrontBuilderPageType>(STOREFRONT_PAGE_TYPES);
 
 export default async function StorefrontTemplatePreview({searchParams}:Props){
   await requirePlanFeature('contentMarketing');
@@ -27,10 +28,11 @@ export default async function StorefrontTemplatePreview({searchParams}:Props){
   const query=await searchParams;
   const templateKey=(query.template??'').trim();
   const version=query.version?Number(query.version):undefined;
-  if(!templateKey||version!==undefined&&!Number.isInteger(version))notFound();
+  const pageType=(query.page??'home') as StorefrontBuilderPageType;
+  if(!templateKey||version!==undefined&&!Number.isInteger(version)||!allowedPageTypes.has(pageType))notFound();
   const template=getStorefrontTemplatePackage(templateKey,version);
   if(!template)notFound();
-  const page=template.pages.find(candidate=>candidate.pageType==='home')??template.pages[0];
+  const page=template.pages.find(candidate=>candidate.pageType===pageType);
   if(!page)notFound();
   const viewport:StorefrontViewport=query.viewport==='mobile'?'mobile':query.viewport==='tablet'?'tablet':'desktop';
   const embed=query.embed==='1';
@@ -46,14 +48,14 @@ export default async function StorefrontTemplatePreview({searchParams}:Props){
     rendererRegistry={createStorefrontVisualBuilderRendererRegistry()}
     capability={previewCapability}
   />;
-  if(embed)return <main className={styles.embed} style={theme} data-template-preview="representative-demo" data-template-key={templateKey}>{content}</main>;
-  const href=(next:StorefrontViewport)=>`/storefront-template-preview?template=${encodeURIComponent(templateKey)}&version=${template.manifest.templateVersion}&viewport=${next}`;
+  if(embed)return <main className={styles.embed} style={theme} data-template-preview="representative-demo" data-template-key={templateKey} data-page-type={pageType}>{content}</main>;
+  const href=(next:StorefrontViewport)=>`/storefront-template-preview?template=${encodeURIComponent(templateKey)}&version=${template.manifest.templateVersion}&page=${encodeURIComponent(pageType)}&viewport=${next}`;
   return <main className={styles.page}>
     <header className={styles.bar}>
       <Link href="/admin/tartalom/builder?view=templates">← Vissza a sablonokhoz</Link>
       <div><strong>{templateKey.split('.').at(-1)?.split('-').map(part=>part.charAt(0).toUpperCase()+part.slice(1)).join(' ')}</strong><span>Élő sablon-előnézet · reprezentatív demo tartalom · semmit nem telepít</span></div>
       <nav aria-label="Előnézeti méret"><Link data-active={viewport==='desktop'} href={href('desktop')}>Desktop</Link><Link data-active={viewport==='tablet'} href={href('tablet')}>Tablet</Link><Link data-active={viewport==='mobile'} href={href('mobile')}>Mobil</Link></nav>
     </header>
-    <section className={styles.stage}><div className={styles.viewport} style={{...theme,maxWidth:widths[viewport]}} data-template-preview="representative-demo" data-template-key={templateKey}>{content}</div></section>
+    <section className={styles.stage}><div className={styles.viewport} style={{...theme,maxWidth:widths[viewport]}} data-template-preview="representative-demo" data-template-key={templateKey} data-page-type={pageType}>{content}</div></section>
   </main>;
 }
