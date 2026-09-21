@@ -83,6 +83,7 @@ describe('storefront public information route integrity',()=>{
   expect(faqPage).toMatch(/href="\/oldal\/visszakuldes"/);
   expect(css).toMatch(/Shared FAQ system surface/);
   expect(css).toMatch(/\.storefrontContentShell \.faqPage \.faqGroups\{display:grid;gap:/);
+  expect(css).toMatch(/\.faqItem p\{[^}]*color:var\(--shoporation-color-text/);
  });
 
 });
