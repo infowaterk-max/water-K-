@@ -74,14 +74,14 @@ const fallbackNav=[
 ];
 const header=(prefix:string):StorefrontComponentNode=>node({
   id:`${prefix}-site-header`,componentKey:'system.header',componentVersion:1,
-  config:{brandLabel:'BEAUTY LAB',tagline:'SKIN · BODY · HAIR · WELLNESS',brandHref:'/',tone:'background',sticky:true,presentation:'editorial-lab',utilityItems:[{label:'Keresés',href:'/kereses',symbol:'⌕'},{label:'Fiók',href:'/fiok',symbol:'○'},{label:'Kosár',href:'/kosar',symbol:'□'}]},
+  config:{brandLabel:'BEAUTY LAB',tagline:'SKIN · BODY · HAIR · WELLNESS',brandHref:'/',tone:'background',sticky:true,presentation:'editorial-lab',utilityItems:[{label:'Keresés',href:'/kereses',symbol:'⌕'},{label:'Fiók',href:'/fiokom',symbol:'○'},{label:'Kosár',href:'/kosar',symbol:'□'}]},
   bindings:{brandLabel:{path:'brand.name',fallback:'BEAUTY LAB'},brandHref:{path:'brand.homeHref',fallback:'/'}},
   children:[node({id:`${prefix}-site-nav`,componentKey:'system.navigation',componentVersion:1,config:{ariaLabel:'Fő navigáció',items:fallbackNav,layout:'horizontal',presentation:'editorial-lab'},bindings:{items:{path:'navigation.primary',fallback:fallbackNav}}})],
 });
 const footerFallback=[
   {id:'shop',title:'SHOP',items:[{label:'Újdonságok',href:'/webaruhaz'},{label:'Arcápolás',href:'/webaruhaz'},{label:'Összetevők',href:'/oldal/osszetevok'}]},
-  {id:'care',title:'BEAUTY LAB',items:[{label:'Rutinok',href:'/blog/rutin'},{label:'Journal',href:'/blog'},{label:'Rólunk',href:'/rolunk'}]},
-  {id:'help',title:'SEGÍTSÉG',items:[{label:'GYIK',href:'/gyik'},{label:'Kapcsolat',href:'/kapcsolat'},{label:'Szállítás',href:'/szallitas'}]},
+  {id:'care',title:'BEAUTY LAB',items:[{label:'Rutinok',href:'/blog/rutin'},{label:'Journal',href:'/blog'},{label:'Rólunk',href:'/oldal/rolunk'}]},
+  {id:'help',title:'SEGÍTSÉG',items:[{label:'GYIK',href:'/gyik'},{label:'Kapcsolat',href:'/kapcsolat'},{label:'Szállítás',href:'/oldal/szallitas'}]},
 ];
 const footer=(prefix:string):StorefrontComponentNode=>node({
   id:`${prefix}-footer`,componentKey:'editorial.footer',componentVersion:1,
@@ -116,10 +116,10 @@ const finderOptions=[
   {id:'texture',label:'Textúra',symbol:'≋',href:'#finder-results'},
 ];
 const ingredientItems=[
-  {id:'niacinamide',label:'Niacinamide',href:'/oldal/osszetevok/niacinamide',image:IMG.botanical,imageAlt:'Botanikai részlet',copy:'Sokoldalú összetevő a kiegyensúlyozott formulákban.',meta:'B3'},
-  {id:'hyaluron',label:'Hyaluron',href:'/oldal/osszetevok/hyaluron',image:IMG.serum,imageAlt:'Szérum cseppentő',copy:'Vízkedvelő összetevő könnyű, rétegezhető formulákhoz.',meta:'HA'},
-  {id:'ceramide',label:'Ceramide',href:'/oldal/osszetevok/ceramide',image:IMG.products,imageAlt:'Krémes beauty formula',copy:'Lipidtípus, amely több komfortfókuszú formulában megjelenhet.',meta:'LIPID'},
-  {id:'squalane',label:'Squalane',href:'/oldal/osszetevok/squalane',image:IMG.shelf,imageAlt:'Letisztult kozmetikumok',copy:'Könnyű emolliens, selymes érzetű termékekhez.',meta:'OIL'},
+  {id:'niacinamide',label:'Niacinamide',href:'/oldal/osszetevok-niacinamide',image:IMG.botanical,imageAlt:'Botanikai részlet',copy:'Sokoldalú összetevő a kiegyensúlyozott formulákban.',meta:'B3'},
+  {id:'hyaluron',label:'Hyaluron',href:'/oldal/osszetevok-hyaluron',image:IMG.serum,imageAlt:'Szérum cseppentő',copy:'Vízkedvelő összetevő könnyű, rétegezhető formulákhoz.',meta:'HA'},
+  {id:'ceramide',label:'Ceramide',href:'/oldal/osszetevok-ceramide',image:IMG.products,imageAlt:'Krémes beauty formula',copy:'Lipidtípus, amely több komfortfókuszú formulában megjelenhet.',meta:'LIPID'},
+  {id:'squalane',label:'Squalane',href:'/oldal/osszetevok-squalane',image:IMG.shelf,imageAlt:'Letisztult kozmetikumok',copy:'Könnyű emolliens, selymes érzetű termékekhez.',meta:'OIL'},
 ];
 const textureItems=[
   {id:'gel',label:'GÉL',href:'/webaruhaz?texture=gel',image:IMG.serum,imageAlt:'Könnyű szérum textúra',copy:'Friss, könnyű érzet',ctaLabel:'Felfedezem'},
