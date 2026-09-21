@@ -237,7 +237,7 @@ describe('Playroom v20 functional acceptance',()=>{
     expect(checkoutSearch?.config.style).toMatchObject({height:'2.24rem'});
     expect(normalizer).toContain("padding:'1.75rem 2.35rem 2rem'");
     expect(normalizer).toContain("minHeight:'13.5rem'");
-    expect(normalizer).toContain("fontSize:footerRemFloor(style.fontSize,.86)");
+    expect(normalizer).toContain("fontSize:footerRemFloor(footerStyleValue(style,'fontSize'),.86)");
     expect(normalizer).toContain("minHeight:'2.1rem'");
     const originalFooter=checkoutTemplate.sections.at(-1)!;
     let remapIndex=0;
