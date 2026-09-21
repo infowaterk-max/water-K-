@@ -89,7 +89,8 @@ describe('storefront template library UX',()=>{
     expect(preview).toContain('representative-demo');
     expect(preview).toContain("query.page??'home'");
     expect(preview).toContain("candidate.pageType===pageType");
-    expect(preview).toContain('&page=${encodeURIComponent(pageType)}&viewport=');
+    expect(preview).toContain("params.set('page',pageType)");
+    expect(preview).toContain("params.set('viewport',next)");
     expect(preview).toContain('data-page-type={pageType}');
     expect(preview).toContain('requireAdmin(');
     expect(preview).toContain('/storefront-template-preview?');
