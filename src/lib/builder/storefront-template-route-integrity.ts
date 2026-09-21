@@ -68,7 +68,7 @@ type DemoContentPayload={
 
 const standardPage=(slug:string,title:string,excerpt:string,body:string):DemoContentPayload=>({
   kind:'page',slug,title,excerpt,
-  body:`${STOREFRONT_DEMO_CONTENT_NOTICE}\n\n${body}`,
+  body,
   status:'draft',demo:true,demoNotice:STOREFRONT_DEMO_CONTENT_NOTICE,
 });
 
@@ -86,7 +86,7 @@ function genericContent(slug:string,title:string,kind:'page'|'blog'):DemoContent
   return{
     kind,slug,title:safeTitle,
     excerpt:`Minta tartalom a(z) „${safeTitle}” oldalhoz.`,
-    body:`${STOREFRONT_DEMO_CONTENT_NOTICE}\n\n## ${safeTitle}\nEz a sablon által létrehozott mintaoldal. Cseréld le a szöveget a webshopod valódi, ellenőrzött tartalmára.\n\n## Szerkesztési javaslat\nÍrd le itt az oldal céljához kapcsolódó legfontosabb információkat, majd ellenőrizd a hivatkozásokat és állításokat publikálás előtt.`,
+    body:`## ${safeTitle}\nEz a sablon által létrehozott mintaoldal. Cseréld le a szöveget a webshopod valódi, ellenőrzött tartalmára.\n\n## Szerkesztési javaslat\nÍrd le itt az oldal céljához kapcsolódó legfontosabb információkat, majd ellenőrizd a hivatkozásokat és állításokat publikálás előtt.`,
     status:'draft',demo:true,demoNotice:STOREFRONT_DEMO_CONTENT_NOTICE,
   };
 }
