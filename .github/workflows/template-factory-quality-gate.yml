@@ -69,6 +69,9 @@ jobs:
       - name: Run Template Factory contract regressions
         run: >
           npx vitest run
+          tests/storefront-template-quality-gate-v2.test.ts
+          tests/storefront-template-preview-runtime.test.ts
+          tests/storefront-visual-builder-fidelity-engine.test.ts
           tests/playroom-v20-canonical-shell-content.test.ts
           tests/storefront-template-route-integrity.test.ts
           tests/storefront-template-demo-content-persistence.test.ts
