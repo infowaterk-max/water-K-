@@ -11,7 +11,9 @@ type FlowStatus='idle'|'checking'|'ready'|'invalid';
 
 function safeAdminNext(){
   const requestedNext=new URLSearchParams(window.location.search).get('next');
-  return requestedNext?.startsWith('/admin')&&!requestedNext.startsWith('//')?requestedNext:null;
+  const safeAdmin=requestedNext?.startsWith('/admin')&&!requestedNext.startsWith('//');
+  const safeTemplatePreview=requestedNext?.startsWith('/storefront-template-preview')&&!requestedNext.startsWith('//');
+  return safeAdmin||safeTemplatePreview?requestedNext:null;
 }
 
 export function AuthForm({instanceId}:{instanceId:string|null}){
