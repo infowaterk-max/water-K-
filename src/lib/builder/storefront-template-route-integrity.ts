@@ -35,7 +35,8 @@ function collectFromValue(value:unknown,path:string,labelHint:string,out:Storefr
   const label=cleanLabel(record.label??record.title??record.text,labelHint);
   for(const[key,item]of Object.entries(record)){
     const nextPath=`${path}.${key}`;
-    if(typeof item==='string'&&(key==='href'||key.endsWith('Href')||key==='action')){
+    const navigableAction=typeof item==='string'&&key==='action'&&/^(?:\/|#|https?:\/\/|mailto:|tel:)/i.test(item.trim());
+    if(typeof item==='string'&&(key==='href'||key.endsWith('Href')||navigableAction)){
       const href=item.trim();
       if(href)out.push({href,label:cleanLabel(record.label??record.title??record.text,humanize(href.split('?')[0]!.split('/').filter(Boolean).at(-1)??'Hivatkozás')),path:nextPath});
     }else collectFromValue(item,nextPath,label,out);
