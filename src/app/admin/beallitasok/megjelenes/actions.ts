@@ -7,15 +7,20 @@ import {requireCurrentStoreContext} from '@/lib/instances/scope';
 import {createAdminClient} from '@/lib/supabase/admin';
 
 const target=(state:string)=>`/admin/beallitasok/megjelenes?social=${state}`;
-const providers=['facebook','instagram','youtube','tiktok','linkedin'] as const;
+const providers=['facebook','instagram','youtube','tiktok','x','twitch','linkedin','pinterest'] as const;
+type Provider=typeof providers[number];
+const providerHosts:Record<Provider,readonly string[]>={
+  facebook:['facebook.com'],instagram:['instagram.com'],youtube:['youtube.com'],tiktok:['tiktok.com'],x:['x.com'],twitch:['twitch.tv'],linkedin:['linkedin.com'],pinterest:['pinterest.com'],
+};
+const hostMatches=(host:string,allowed:readonly string[])=>allowed.some(domain=>host===domain||host.endsWith(`.${domain}`));
 
-function normalizeUrl(value:FormDataEntryValue|null){
+function normalizeUrl(provider:Provider,value:FormDataEntryValue|null){
   const raw=String(value??'').trim();
   if(!raw)return null;
   if(raw.length>500)return undefined;
   try{
     const parsed=new URL(raw);
-    if(parsed.protocol!=='https:'&&parsed.protocol!=='http:')return undefined;
+    if(parsed.protocol!=='https:'||!hostMatches(parsed.hostname.toLowerCase(),providerHosts[provider]))return undefined;
     return parsed.toString();
   }catch{return undefined}
 }
@@ -26,7 +31,7 @@ export async function updateStorefrontSocialLinksAction(formData:FormData){
   const scope=await requireCurrentStoreContext('store.manage');
   const socialLinks:Record<string,string>={};
   for(const provider of providers){
-    const value=normalizeUrl(formData.get(provider));
+    const value=normalizeUrl(provider,formData.get(provider));
     if(value===undefined)redirect(target('invalid'));
     if(value)socialLinks[provider]=value;
   }
