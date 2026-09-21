@@ -7,7 +7,7 @@ export const STOREFRONT_DIGITAL_COMMERCE_COMPONENTS_BY_PAGE_TYPE=Object.freeze({
   product:['commerce.downloads-tile','commerce.b2b-quote-cta'],
   cart:[],
   checkout:['commerce.fulfillment-summary','commerce.post-purchase-guidance'],
-  account:['commerce.account-downloads','commerce.account-documents'],
+  account:[],
 } as const);
 
 type SupportedPageType=keyof typeof STOREFRONT_DIGITAL_COMMERCE_COMPONENTS_BY_PAGE_TYPE;
@@ -169,7 +169,7 @@ function isSharedDigitalCommerceSection(item:StorefrontComponentNode):boolean{
 
 function removeStaleAccountSurfaces(sections:readonly StorefrontComponentNode[]):StorefrontComponentNode[]{
   const strip=(nodes:readonly StorefrontComponentNode[]):StorefrontComponentNode[]=>nodes
-    .filter(node=>node.componentKey!=='commerce.post-purchase-guidance'&&node.componentKey!=='commerce.documents-center')
+    .filter(node=>!['commerce.post-purchase-guidance','commerce.documents-center','commerce.account-downloads','commerce.account-documents'].includes(node.componentKey))
     .map(node=>({...clone(node),...(node.children?{children:strip(node.children)}:{})}));
   return strip(sections);
 }
