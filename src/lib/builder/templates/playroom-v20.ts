@@ -353,9 +353,24 @@ const digitalCommerceFixtures=Object.freeze([
   {entityType:'product' as const,entityKey:'a3-downloadable-game',payload:{name:'Orbit Breakers Digital',sku:'PLAY-A3-DIGITAL',fulfillment_type:'digital',fixturePurpose:'downloadable-game'}},
   {entityType:'product' as const,entityKey:'a3-physical-controller',payload:{name:'Neon Pro Controller',sku:'PLAY-A3-PHYSICAL',fulfillment_type:'physical',fixturePurpose:'physical-gaming-product'}},
 ]);
+
+const PLAYROOM_V20_PAGES=PLAYROOM_V19_CANONICAL_TEMPLATE_PACKAGE.pages.map(upgradePage);
+function assertPlayroomV20CanonicalShell(pages:readonly StorefrontPageDocument[]):void{
+  const account=pages.find(page=>page.pageType==='account');
+  if(!account)throw new Error('PLAYROOM_V20_CANONICAL_ACCOUNT_PAGE_MISSING');
+  const headerSignature=JSON.stringify(account.sections[0]);
+  const footerSignature=JSON.stringify(account.sections[account.sections.length-1]);
+  if(account.sections[0]?.componentKey!=='system.commerce-header')throw new Error('PLAYROOM_V20_CANONICAL_HEADER_INVALID');
+  for(const page of pages){
+    if(JSON.stringify(page.sections[0])!==headerSignature)throw new Error(`PLAYROOM_V20_CANONICAL_HEADER_DRIFT:${page.pageType}`);
+    if(JSON.stringify(page.sections[page.sections.length-1])!==footerSignature)throw new Error(`PLAYROOM_V20_CANONICAL_FOOTER_DRIFT:${page.pageType}`);
+  }
+}
+assertPlayroomV20CanonicalShell(PLAYROOM_V20_PAGES);
+
 export const PLAYROOM_V20_TEMPLATE_PACKAGE:StorefrontInstallableTemplatePackage={
   ...PLAYROOM_V19_CANONICAL_TEMPLATE_PACKAGE,
   manifest:{...PLAYROOM_V19_CANONICAL_TEMPLATE_PACKAGE.manifest,templateVersion:PLAYROOM_V20_TEMPLATE_VERSION,requiredFeatures},
-  pages:PLAYROOM_V19_CANONICAL_TEMPLATE_PACKAGE.pages.map(upgradePage),
+  pages:PLAYROOM_V20_PAGES,
   demoFixtures:[...(PLAYROOM_V19_CANONICAL_TEMPLATE_PACKAGE.demoFixtures??[]),...digitalCommerceFixtures],
 };
