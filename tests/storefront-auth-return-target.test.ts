@@ -4,6 +4,7 @@ import{normalizeStorefrontReturnTarget,storefrontAuthHref,storefrontReturnPath}f
 describe('storefront auth return target authority',()=>{
  it('accepts same-origin relative storefront intents including query and hash',()=>{
   expect(normalizeStorefrontReturnTarget('/termek/teszt?variant=1#reviews')).toBe('/termek/teszt?variant=1#reviews');
+  expect(normalizeStorefrontReturnTarget('/webaruhaz?kategoria=jatekok#talalatok')).toBe('/webaruhaz?kategoria=jatekok#talalatok');
   expect(storefrontReturnPath('/fiokom/visszakuldes','?from=order')).toBe('/fiokom/visszakuldes?from=order');
   expect(storefrontAuthHref('/fiokom/visszakuldes')).toBe('/fiokom?next=%2Ffiokom%2Fvisszakuldes');
  });

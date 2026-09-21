@@ -60,6 +60,24 @@ describe('storefront auth intent and checkout account opportunity',()=>{
   expect(checkoutPage).toMatch(/loyalty:Boolean\(loyaltyResult\.data\?\.enabled\)/);
   expect(checkout).not.toMatch(/rendelkezésre álló csomagkövetési adatok/);
  });
+ it('keeps the complete checkout state under the existing checkout authority while auth is open',()=>{
+  expect(checkout).toMatch(/const\{cart,clear,couponCode,setCouponCode\}=useCart\(\)/);
+  expect(checkout).toMatch(/\[shippingCode,setShippingCode\]/);
+  expect(checkout).toMatch(/\[paymentCode,setPaymentCode\]/);
+  expect(checkout).toMatch(/\[parcelPointId,setParcelPointId\]/);
+  expect(checkout).toMatch(/\[sameAddress,setSameAddress\]/);
+  expect(checkout).toMatch(/\[activeStep,setActiveStep\]/);
+  expect(checkout).toMatch(/name="billingPostcode"/);
+  expect(checkout).toMatch(/name="billingCity"/);
+  expect(checkout).toMatch(/name="billingAddress"/);
+  expect(checkout).toMatch(/name="shippingPostcode"/);
+  expect(checkout).toMatch(/name="shippingCity"/);
+  expect(checkout).toMatch(/name="shippingAddress"/);
+  expect(checkout).toMatch(/name="paymentProvider"/);
+  expect(checkout).toMatch(/data-checkout-panel=\{step\}/);
+  expect(checkout).toMatch(/<StorefrontAuthDialog[\s\S]*onAuthenticated=\{\(\)=>\{setAccountConnected\(true\)/);
+  expect(checkout).not.toMatch(/checkoutAuthState|authCheckoutState|router\.replace\('\/fiokom'\)/);
+ });
  it('keeps one canonical account navigation rail instead of legacy horizontal account nav',()=>{
   expect(accountNav).toMatch(/className="accountCapabilityRail"/);
   expect(accountNav).toMatch(/data-account-navigation-source="platform-ia"/);
