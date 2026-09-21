@@ -101,4 +101,23 @@ The public page MUST NOT duplicate the mutation workflow or hardcode legal deadl
 Acceptance contract:
 PUBLIC GUIDANCE + AUTHENTICATED OPERATIONAL WORKFLOW + ASZF AUTHORITY.
 
+## 9. FAQ authority and template inheritance
+
+The public `/gyik` route is a shared storefront system surface and MUST inherit the active template shell and design tokens.
+
+Authority order:
+1. published merchant CMS page with slug `gyik`, when present;
+2. otherwise the shared system FAQ fallback.
+
+The shared fallback may derive current shipping modes, payment modes and free-shipping threshold from `getCommerceSettings()`. It must not hardcode provider names that are not active for the tenant.
+
+The FAQ must remain informational:
+- no mutation or checkout behavior lives inside FAQ;
+- returns hand off to the authenticated return workflow;
+- shipping/payment answers link to their dedicated system pages;
+- merchant-authored CMS content may replace the fallback without losing template inheritance.
+
+Acceptance contract:
+ACTIVE TEMPLATE SHELL + MERCHANT CMS OVERRIDE OR CONTEXTUAL SYSTEM FALLBACK.
+
 ONE DEFECT -> ONE SHARED FIX -> REGRESSION TEST -> QUALITY GATE.
