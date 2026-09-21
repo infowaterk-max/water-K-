@@ -92,6 +92,50 @@ function polishCustomerFacingCopy(item:StorefrontComponentNode):StorefrontCompon
   return{...clone(item),config,...(item.children?{children:item.children.map(polishCustomerFacingCopy)}:{})};
 }
 
+function polishMobileHeader(item:StorefrontComponentNode):StorefrontComponentNode{
+  const children=item.children?.map(polishMobileHeader);
+  if(item.componentKey!=='system.commerce-header')return{...clone(item),...(children?{children}:{})};
+
+  const config=rec(item.config);
+  const inner=rec(config.innerStyle);
+  const brand=rec(config.brandStyle);
+  const tagline=rec(config.taglineStyle);
+  const logo=rec(config.logoStyle);
+  const slots=rec(config.styleSlots);
+  const navFrame=rec(slots.navigationFrame);
+
+  return{
+    ...clone(item),
+    config:{
+      ...config,
+      innerStyle:{
+        base:inner,
+        mobile:{padding:'.5rem .8rem .42rem',gap:'.5rem'},
+      },
+      brandStyle:{
+        base:brand,
+        mobile:{fontSize:'.9rem'},
+      },
+      taglineStyle:{
+        base:tagline,
+        mobile:{fontSize:'.56rem',letterSpacing:'.16em'},
+      },
+      logoStyle:{
+        base:logo,
+        mobile:{width:'2.1rem',height:'2.1rem'},
+      },
+      styleSlots:{
+        ...slots,
+        navigationFrame:{
+          ...navFrame,
+          mobile:{...rec(navFrame.mobile),overflowX:'hidden'},
+        },
+      },
+    },
+    ...(children?{children}:{}),
+  };
+}
+
 function patchHomeMedia(item:StorefrontComponentNode):StorefrontComponentNode{
   const children=item.children?.map(patchHomeMedia);
   if(item.id!=='playroom-hero-art')return{...clone(item),...(children?{children}:{})};
@@ -223,7 +267,7 @@ const ADDON_CONTEXTS:Partial<Record<StorefrontPageDocument['pageType'],readonly 
 };
 const finalize=(source:StorefrontPageDocument):StorefrontPageDocument=>{
   const page=clone(overrides[source.pageType]??source),contexts=ADDON_CONTEXTS[page.pageType]??[];
-  return{...page,sections:page.sections.map(polishCustomerFacingCopy),metadata:{...(page.metadata??{}),addonIntegration:{styleAuthority:'current-storefront-design-system',factoryPreset:'playroom-v19',discoverability:'contextual-plus-central',semanticContexts:[...contexts],localOverridePolicy:'explicit-only-reset-to-inherited'}}};
+  return{...page,sections:page.sections.map(polishCustomerFacingCopy).map(polishMobileHeader),metadata:{...(page.metadata??{}),addonIntegration:{styleAuthority:'current-storefront-design-system',factoryPreset:'playroom-v19',discoverability:'contextual-plus-central',semanticContexts:[...contexts],localOverridePolicy:'explicit-only-reset-to-inherited'}}};
 };
 
 export const PLAYROOM_V19_CANONICAL_TEMPLATE_PACKAGE:StorefrontInstallableTemplatePackage={
