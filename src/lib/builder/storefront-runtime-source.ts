@@ -89,6 +89,23 @@ export async function resolveCurrentStorefrontAccountRuntimePage(customerId:stri
  return{source:'published',instanceId:instance.id,page:failClosedSpecialCommerce(authored,runtime.capability),bindingContext:mergeDigitalCommerceContext(baseContext,digitalCommerce),capability:runtime.capability};
 }
 
+export async function resolveCurrentStorefrontContentRuntimePage():Promise<StorefrontResolvedRuntimePage|null>{
+ const instance=await getCurrentWebshopInstance();if(!instance)return null;
+ const previewDraft=process.env.VERCEL_ENV==='preview'?await getPreviewStorefrontDraftPage(instance.id,'content'):null;
+ const[page,symbols,runtime]=await Promise.all([
+  previewDraft?Promise.resolve(previewDraft):getPublishedStorefrontPage(instance.id,'content'),
+  listStorefrontReusableSymbolsForInstance(instance.id),
+  resolveRuntimeCommerceContext(instance.id,instance.subscriptionPlan),
+ ]);
+ if(!page||!runtime)return null;
+ const materialized=materializeStorefrontReusableSymbols(page,symbols);
+ const composed=composeStorefrontDigitalCommerceCapabilities(normalizeStorefrontTemplateRuntimeComposition(materialized));
+ if(composed.pageType!=='content')return null;
+ const growth=await resolveGrowthContext(instance.id,composed,runtime.capability);
+ const baseContext={...mergeGrowthContext(runtime.bindingContext,growth.promotions),brand:{name:instance.brand.name,tagline:instance.brand.tagline,logoUrl:instance.brand.logoUrl,primaryColor:instance.brand.primaryColor,socialLinks:resolveStorefrontSocialLinks(instance.storefront.socialLinks)},navigation:{primary:[]}};
+ return{source:previewDraft?'preview':'published',instanceId:instance.id,page:failClosedSpecialCommerce(composed,runtime.capability),bindingContext:baseContext,capability:runtime.capability};
+}
+
 export async function resolveCurrentStorefrontCheckoutRuntimePage():Promise<StorefrontResolvedRuntimePage|null>{
  const instance=await requireStorefrontAccess();if(!instance)return null;
  const acceptanceInstanceId=process.env.VERCEL_ENV==='preview'?await getPilotAcceptanceInstanceId():null;
