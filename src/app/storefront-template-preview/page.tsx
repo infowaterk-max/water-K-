@@ -70,7 +70,16 @@ export default async function StorefrontTemplatePreview({searchParams}:Props){
     capability={previewCapability}
   />;
   if(embed)return <main className={styles.embed} style={theme} data-template-preview="representative-demo" data-template-key={templateKey} data-page-type={pageType}>{content}</main>;
-  const href=(next:StorefrontViewport)=>`/storefront-template-preview?template=${encodeURIComponent(templateKey)}&version=${template.manifest.templateVersion}&page=${encodeURIComponent(pageType)}&viewport=${next}`;
+  const href=(next:StorefrontViewport)=>{
+    const params=new URLSearchParams();
+    for(const[key,value]of Object.entries(query))if(typeof value==='string'&&value)params.set(key,value);
+    params.set('template',templateKey);
+    params.set('version',String(template.manifest.templateVersion));
+    params.set('page',pageType);
+    params.set('viewport',next);
+    params.delete('embed');
+    return`/storefront-template-preview?${params.toString()}`;
+  };
   return <main className={styles.page}>
     <header className={styles.bar}>
       <Link href="/admin/tartalom/builder?view=templates">← Vissza a sablonokhoz</Link>
