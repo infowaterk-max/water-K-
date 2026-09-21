@@ -104,6 +104,33 @@ function polishMobileHeader(item:StorefrontComponentNode):StorefrontComponentNod
   const slots=rec(config.styleSlots);
   const navFrame=rec(slots.navigationFrame);
 
+  const mobileChildren=(children??[]).map(child=>{
+    if(child.componentKey==='system.navigation'){
+      const childConfig=rec(child.config),style=rec(childConfig.style);
+      return{
+        ...child,
+        config:{
+          ...childConfig,
+          style:{
+            base:style,
+            mobile:{gap:'.65rem',fontSize:'.68rem',lineHeight:1.25},
+          },
+        },
+      };
+    }
+    if(child.componentKey==='system.search'){
+      const childConfig=rec(child.config);
+      return{
+        ...child,
+        config:{
+          ...childConfig,
+          placeholder:'Keresés játékra, konzolra…',
+        },
+      };
+    }
+    return child;
+  });
+
   return{
     ...clone(item),
     config:{
@@ -128,11 +155,11 @@ function polishMobileHeader(item:StorefrontComponentNode):StorefrontComponentNod
         ...slots,
         navigationFrame:{
           ...navFrame,
-          mobile:{...rec(navFrame.mobile),overflowX:'hidden'},
+          mobile:{...rec(navFrame.mobile),overflowX:'auto',gap:'.45rem'},
         },
       },
     },
-    ...(children?{children}:{}),
+    children:mobileChildren,
   };
 }
 
