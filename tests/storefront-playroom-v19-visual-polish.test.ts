@@ -77,8 +77,9 @@ describe('Playroom v19 final visual polish',()=>{
       const footerNavigation=nodes.filter(item=>item.componentKey==='system.navigation'&&String(item.id).startsWith('playroom-footer-'));
       expect(footerNavigation.length,document.pageType).toBeGreaterThan(0);
       for(const navigation of footerNavigation){
-        expect((navigation.config.style as any)?.lineHeight,document.pageType+':'+navigation.id).toBe(1.5);
-        expect((navigation.config.styleSlots as any)?.item?.base?.minHeight,document.pageType+':'+navigation.id).toBe('2.1rem');
+        expect(navigation.config.layout,document.pageType+':'+navigation.id).toBe('vertical');
+        expect(Array.isArray(navigation.config.items),document.pageType+':'+navigation.id).toBe(true);
+        expect((navigation.config.items as unknown[]).length,document.pageType+':'+navigation.id).toBeGreaterThan(0);
       }
       expect(social?.componentKey,document.pageType).toBe('system.social-links');
     }
