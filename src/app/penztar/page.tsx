@@ -20,6 +20,7 @@ function storefrontViewportFromUserAgent(userAgent:string):StorefrontViewport{
 
 export default async function Checkout(){
   const instance=await requireStorefrontAccess();
+  if(!instance)throw new Error('STOREFRONT_CHECKOUT_INSTANCE_REQUIRED');
   const loyaltyPromise=createAdminClient().from('loyalty_program_settings').select('enabled').eq('instance_id',instance.id).maybeSingle();
   const accountBenefitPromise=getFeatureEntitlementDecisions(instance.id,['orders','returns']);
   const[settings,access,runtime,acceptanceInstanceId,userAgent,loyaltyResult,accountBenefitDecisions]=await Promise.all([
