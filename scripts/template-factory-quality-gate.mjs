@@ -293,7 +293,7 @@ try{
     }
 
     if(manifest.browser.requireMobileMenu){
-      const demoUrl=`${baseUrl}/storefront-template-preview?template=${encodeURIComponent(manifest.templateKey)}&version=${manifest.templateVersion}&page=content&viewport=mobile&demoContent=szallitas`;
+      const demoUrl=`${baseUrl}/visual-fidelity-qa?template=${encodeURIComponent(manifest.templateKey)}&version=${manifest.templateVersion}&page=content&viewport=mobile&demoContent=szallitas`;
       const page=await browser.newPage({viewport:viewportProfiles.mobile,deviceScaleFactor:1});
       const name=`${safeName(manifest.templateKey)}-v${manifest.templateVersion}-demo-szallitas-mobile`;
       try{
