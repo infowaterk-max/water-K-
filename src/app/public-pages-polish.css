@@ -47,3 +47,29 @@
  .storefrontContentShell .faqPage .faqHelpCard .actions{display:grid}
  .storefrontContentShell .faqPage .faqHelpCard .btn{width:100%}
 }
+
+
+/* Shared catalog discovery route inheritance. */
+.storefrontContentShell .shopPage{background:var(--shoporation-color-background,#fff)!important;color:var(--shoporation-color-text,#111827)!important}
+.storefrontContentShell .shopPage .lead,.storefrontContentShell .shopPage .muted{color:var(--shoporation-color-muted-text,#667085)!important}
+.storefrontContentShell .shopPage .catalogToolbar,
+.storefrontContentShell .shopPage .catalogEmpty,
+.storefrontContentShell .shopPage .productCard,
+.storefrontContentShell .shopPage .selectionHelp,
+.storefrontContentShell .shopPage .newsletterSignup{background:var(--shoporation-color-surface,#fff)!important;color:var(--shoporation-color-text,#111827)!important;border-color:var(--shoporation-color-border,#d8dce7)!important;box-shadow:none!important}
+.storefrontContentShell .shopPage .catalogSearch input,
+.storefrontContentShell .shopPage .catalogFilter select{background:var(--shoporation-color-surface-muted,var(--shoporation-color-surface,#fff))!important;color:var(--shoporation-color-text,#111827)!important;border-color:var(--shoporation-color-border,#d8dce7)!important}
+.storefrontContentShell .shopPage .catalogSearch label,
+.storefrontContentShell .shopPage .catalogFilter label,
+.storefrontContentShell .shopPage .productCard h2,
+.storefrontContentShell .shopPage .selectionHelp h2{color:var(--shoporation-color-text,#111827)!important}
+.storefrontContentShell .shopPage .catalogReset,
+.storefrontContentShell .shopPage .textLink,
+.storefrontContentShell .shopPage a:not(.btn){color:var(--shoporation-color-accent,var(--shoporation-color-primary,#5c7cfa))!important}
+.storefrontContentShell .shopPage .shopTrustBar{border-color:var(--shoporation-color-border,#d8dce7)!important;color:var(--shoporation-color-muted-text,#667085)!important}
+@media(max-width:720px){
+ .storefrontContentShell .shopPage .shopIntro{display:grid;gap:.75rem}
+ .storefrontContentShell .shopPage .catalogToolbar{grid-template-columns:1fr!important}
+ .storefrontContentShell .shopPage .shopTrustBar{display:grid;grid-template-columns:1fr 1fr;gap:.5rem}
+ .storefrontContentShell .shopPage .shopCards{grid-template-columns:1fr!important}
+}
