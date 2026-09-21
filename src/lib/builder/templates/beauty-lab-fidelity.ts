@@ -68,8 +68,8 @@ const section=(id:string,children:StorefrontComponentNode[],tone='background',sp
 const fallbackNav=[
   {label:'Újdonságok',href:'/webaruhaz'},
   {label:'Arcápolás',href:'/webaruhaz'},
-  {label:'Összetevők',href:'/osszetevok'},
-  {label:'Rutinok',href:'/journal/rutin'},
+  {label:'Összetevők',href:'/oldal/osszetevok'},
+  {label:'Rutinok',href:'/blog/rutin'},
   {label:'Journal',href:'/blog'},
 ];
 const header=(prefix:string):StorefrontComponentNode=>node({
@@ -79,8 +79,8 @@ const header=(prefix:string):StorefrontComponentNode=>node({
   children:[node({id:`${prefix}-site-nav`,componentKey:'system.navigation',componentVersion:1,config:{ariaLabel:'Fő navigáció',items:fallbackNav,layout:'horizontal',presentation:'editorial-lab'},bindings:{items:{path:'navigation.primary',fallback:fallbackNav}}})],
 });
 const footerFallback=[
-  {id:'shop',title:'SHOP',items:[{label:'Újdonságok',href:'/webaruhaz'},{label:'Arcápolás',href:'/webaruhaz'},{label:'Összetevők',href:'/osszetevok'}]},
-  {id:'care',title:'BEAUTY LAB',items:[{label:'Rutinok',href:'/journal/rutin'},{label:'Journal',href:'/blog'},{label:'Rólunk',href:'/rolunk'}]},
+  {id:'shop',title:'SHOP',items:[{label:'Újdonságok',href:'/webaruhaz'},{label:'Arcápolás',href:'/webaruhaz'},{label:'Összetevők',href:'/oldal/osszetevok'}]},
+  {id:'care',title:'BEAUTY LAB',items:[{label:'Rutinok',href:'/blog/rutin'},{label:'Journal',href:'/blog'},{label:'Rólunk',href:'/rolunk'}]},
   {id:'help',title:'SEGÍTSÉG',items:[{label:'GYIK',href:'/gyik'},{label:'Kapcsolat',href:'/kapcsolat'},{label:'Szállítás',href:'/szallitas'}]},
 ];
 const footer=(prefix:string):StorefrontComponentNode=>node({
@@ -116,10 +116,10 @@ const finderOptions=[
   {id:'texture',label:'Textúra',symbol:'≋',href:'#finder-results'},
 ];
 const ingredientItems=[
-  {id:'niacinamide',label:'Niacinamide',href:'/osszetevok/niacinamide',image:IMG.botanical,imageAlt:'Botanikai részlet',copy:'Sokoldalú összetevő a kiegyensúlyozott formulákban.',meta:'B3'},
-  {id:'hyaluron',label:'Hyaluron',href:'/osszetevok/hyaluron',image:IMG.serum,imageAlt:'Szérum cseppentő',copy:'Vízkedvelő összetevő könnyű, rétegezhető formulákhoz.',meta:'HA'},
-  {id:'ceramide',label:'Ceramide',href:'/osszetevok/ceramide',image:IMG.products,imageAlt:'Krémes beauty formula',copy:'Lipidtípus, amely több komfortfókuszú formulában megjelenhet.',meta:'LIPID'},
-  {id:'squalane',label:'Squalane',href:'/osszetevok/squalane',image:IMG.shelf,imageAlt:'Letisztult kozmetikumok',copy:'Könnyű emolliens, selymes érzetű termékekhez.',meta:'OIL'},
+  {id:'niacinamide',label:'Niacinamide',href:'/oldal/osszetevok/niacinamide',image:IMG.botanical,imageAlt:'Botanikai részlet',copy:'Sokoldalú összetevő a kiegyensúlyozott formulákban.',meta:'B3'},
+  {id:'hyaluron',label:'Hyaluron',href:'/oldal/osszetevok/hyaluron',image:IMG.serum,imageAlt:'Szérum cseppentő',copy:'Vízkedvelő összetevő könnyű, rétegezhető formulákhoz.',meta:'HA'},
+  {id:'ceramide',label:'Ceramide',href:'/oldal/osszetevok/ceramide',image:IMG.products,imageAlt:'Krémes beauty formula',copy:'Lipidtípus, amely több komfortfókuszú formulában megjelenhet.',meta:'LIPID'},
+  {id:'squalane',label:'Squalane',href:'/oldal/osszetevok/squalane',image:IMG.shelf,imageAlt:'Letisztult kozmetikumok',copy:'Könnyű emolliens, selymes érzetű termékekhez.',meta:'OIL'},
 ];
 const textureItems=[
   {id:'gel',label:'GÉL',href:'/webaruhaz?texture=gel',image:IMG.serum,imageAlt:'Könnyű szérum textúra',copy:'Friss, könnyű érzet',ctaLabel:'Felfedezem'},
@@ -143,7 +143,7 @@ const productGrid=(id:string,title:string,path:string,items=productItems):Storef
 
 const routineFeature=node({
   id:'beauty-routine-feature',componentKey:'editorial.split-feature',componentVersion:1,
-  config:{eyebrow:'BUILD YOUR ROUTINE',title:'Három lépés. Egy átlátható rutin.',copy:'Tisztítás, célzott formula, hidratálás. A blokk szerkesztett útmutató; automatizált rutinmotor csak külön E4 funkcióként kerülhet mögé.',image:IMG.routine,imageAlt:'Beauty Lab esti skincare rutin',ctaLabel:'Rutin útmutató',ctaHref:'/journal/rutin',imagePosition:'left',tone:'surface'},
+  config:{eyebrow:'BUILD YOUR ROUTINE',title:'Három lépés. Egy átlátható rutin.',copy:'Tisztítás, célzott formula, hidratálás. A blokk szerkesztett útmutató; automatizált rutinmotor csak külön E4 funkcióként kerülhet mögé.',image:IMG.routine,imageAlt:'Beauty Lab esti skincare rutin',ctaLabel:'Rutin útmutató',ctaHref:'/blog/rutin',imagePosition:'left',tone:'surface'},
   bindings:{
     eyebrow:{path:'content.routineFeature.eyebrow',fallback:'BUILD YOUR ROUTINE'},
     title:{path:'content.routineFeature.title',fallback:'Három lépés. Egy átlátható rutin.'},
@@ -151,12 +151,12 @@ const routineFeature=node({
     image:{path:'content.routineFeature.image',fallback:IMG.routine},
     imageAlt:{path:'content.routineFeature.imageAlt',fallback:'Beauty Lab esti skincare rutin'},
     ctaLabel:{path:'content.routineFeature.ctaLabel',fallback:'Rutin útmutató'},
-    ctaHref:{path:'content.routineFeature.ctaHref',fallback:'/journal/rutin'},
+    ctaHref:{path:'content.routineFeature.ctaHref',fallback:'/blog/rutin'},
   },
 });
 const ingredientStory=node({
   id:'beauty-ingredient-story',componentKey:'editorial.split-feature',componentVersion:1,
-  config:{eyebrow:'INGREDIENT STORY',title:'Egy formula mögött több van, mint egy trend.',copy:'Szerkesztett edukációs tartalom az összetevőkről és textúrákról — diagnózis és orvosi ígéret nélkül.',image:IMG.botanical,imageAlt:'Botanikai összetevő Beauty Lab editorial képen',ctaLabel:'Összetevő-index',ctaHref:'/osszetevok',imagePosition:'right',tone:'background'},
+  config:{eyebrow:'INGREDIENT STORY',title:'Egy formula mögött több van, mint egy trend.',copy:'Szerkesztett edukációs tartalom az összetevőkről és textúrákról — diagnózis és orvosi ígéret nélkül.',image:IMG.botanical,imageAlt:'Botanikai összetevő Beauty Lab editorial képen',ctaLabel:'Összetevő-index',ctaHref:'/oldal/osszetevok',imagePosition:'right',tone:'background'},
   bindings:{
     eyebrow:{path:'content.ingredientStory.eyebrow',fallback:'INGREDIENT STORY'},
     title:{path:'content.ingredientStory.title',fallback:'Egy formula mögött több van, mint egy trend.'},
@@ -164,7 +164,7 @@ const ingredientStory=node({
     image:{path:'content.ingredientStory.image',fallback:IMG.botanical},
     imageAlt:{path:'content.ingredientStory.imageAlt',fallback:'Botanikai összetevő Beauty Lab editorial képen'},
     ctaLabel:{path:'content.ingredientStory.ctaLabel',fallback:'Összetevő-index'},
-    ctaHref:{path:'content.ingredientStory.ctaHref',fallback:'/osszetevok'},
+    ctaHref:{path:'content.ingredientStory.ctaHref',fallback:'/oldal/osszetevok'},
   },
 });
 
