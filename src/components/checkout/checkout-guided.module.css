@@ -84,4 +84,15 @@
 .root :global(.inlineCheck a){color:var(--checkout-primary);font-weight:800;text-underline-offset:.14em}
 
 @media(max-width:900px){.root{grid-template-columns:1fr}.root :global(.checkoutSummary){position:static;order:-1}.stepTitle small{white-space:normal}}
-@media(max-width:620px){.stepHeader{grid-template-columns:2rem minmax(0,1fr) auto;padding:.85rem}.stepNumber{width:2rem;height:2rem}.stepPanel{padding:0 .85rem .85rem}.stepActions{display:grid}.stepActions :global(.btn){width:100%}}
+@media(max-width:620px){.stepHeader{grid-template-columns:2rem minmax(0,1fr) auto;padding:.85rem}.stepNumber{width:2rem;height:2rem}.stepPanel{padding:0 .85rem .85rem}.stepActions{display:grid}.stepActions :global(.btn){width:100%}.accountOpportunityActions{display:grid}.accountOpportunityActions :global(.btn),.guestContinue{width:100%}}
+
+
+.accountOpportunity{display:grid;gap:.8rem;margin:0 0 .95rem;padding:1rem;border:1px solid var(--checkout-border);border-radius:var(--checkout-radius-m);background:color-mix(in srgb,var(--checkout-primary) 7%,var(--checkout-surface));color:var(--checkout-text)}
+.accountOpportunityKicker{font-size:.7rem;font-weight:900;letter-spacing:.14em;text-transform:uppercase;color:var(--checkout-accent)}
+.accountOpportunity h3{margin:0;font-family:var(--shoporation-heading-font,inherit);font-size:1.05rem;color:var(--checkout-heading)}
+.accountOpportunity p{margin:0;color:var(--checkout-muted);line-height:1.55}
+.accountOpportunity ul{margin:0;padding-left:1.15rem;display:grid;gap:.35rem;color:var(--checkout-text)}
+.accountOpportunityActions{display:flex;flex-wrap:wrap;gap:.6rem;align-items:center}
+.accountOpportunityActions :global(.btn){min-height:44px}
+.guestContinue{min-height:44px;padding:.65rem .2rem;border:0;background:transparent;color:var(--checkout-muted);font:inherit;font-weight:800;text-decoration:underline;text-underline-offset:.18em;cursor:pointer}
+.accountConnected{margin:0 0 .95rem;padding:.8rem 1rem;border:1px solid color-mix(in srgb,var(--checkout-primary) 45%,var(--checkout-border));border-radius:var(--checkout-radius-m);background:color-mix(in srgb,var(--checkout-primary) 8%,var(--checkout-surface));color:var(--checkout-text);font-weight:800}
