@@ -10,11 +10,24 @@ export function CookieConsent(){
   const {consent,accept,reject}=useAnalytics();
   const[templateStyle,setTemplateStyle]=useState<CSSProperties|undefined>();
   useEffect(()=>{
-    const source=document.querySelector<HTMLElement>('[data-storefront-template]');
-    if(!source)return;
-    const computed=getComputedStyle(source),vars:Record<string,string>={};
-    for(const name of TEMPLATE_VARS){const value=computed.getPropertyValue(name).trim();if(value)vars[name]=value;}
-    if(Object.keys(vars).length)setTemplateStyle(vars as CSSProperties);
+    let frame=0;
+    const sync=()=>{
+      const sources=[...document.querySelectorAll<HTMLElement>('[data-storefront-template]')];
+      for(const source of sources){
+        const computed=getComputedStyle(source),vars:Record<string,string>={};
+        for(const name of TEMPLATE_VARS){const value=computed.getPropertyValue(name).trim();if(value)vars[name]=value;}
+        if(vars['--shoporation-color-surface']&&vars['--shoporation-color-text']){
+          setTemplateStyle(vars as CSSProperties);
+          return true;
+        }
+      }
+      return false;
+    };
+    if(!sync())frame=requestAnimationFrame(sync);
+    const observer=new MutationObserver(()=>{if(sync())observer.disconnect()});
+    observer.observe(document.documentElement,{childList:true,subtree:true,attributes:true,attributeFilter:['style','data-storefront-template']});
+    const timer=window.setTimeout(()=>{sync();observer.disconnect()},1200);
+    return()=>{if(frame)cancelAnimationFrame(frame);window.clearTimeout(timer);observer.disconnect()};
   },[]);
   if(consent!=='unknown')return null;
   return <div className="cookieBanner" data-template-aware-cookie="true" style={templateStyle} role="dialog" aria-live="polite" aria-label="Analitikai hozzájárulás">
