@@ -56,4 +56,15 @@ describe('storefront public information route integrity',()=>{
   expect(acceptanceFixture).not.toMatch(/kh_card|stripe|simplepay|barion/);
  });
 
+ it('keeps the public returns page informational and hands authenticated work to the real return center',()=>{
+  expect(page).toMatch(/data-system-info-page="returns"/);
+  expect(page).toMatch(/A visszaküldés mindig egy konkrét rendeléshez kapcsolódik/);
+  expect(page).toMatch(/Tételek és ok megadása/);
+  expect(page).toMatch(/nem jelent automatikus pénzvisszatérítést/);
+  expect(page).toMatch(/href="\/fiokom\/visszakuldes">Visszaküldési központ/);
+  expect(page).toMatch(/href="\/fiokom\/ugyek">Összes ügyem/);
+  expect(page).toMatch(/href="\/aszf">ÁSZF megnyitása/);
+  expect(page).not.toMatch(/14 nap|tizennégy nap|30 nap/);
+ });
+
 });
