@@ -20,7 +20,7 @@ const PLATFORM_EXACT_ROUTES=new Set([
   '/rendeles-sikeres','/hamarosan',
 ]);
 const PLATFORM_PREFIX_ROUTES=['/fiokom/','/termek/'] as const;
-const CATALOG_QUERY_KEYS=new Set(['q','audience','stock','sort','sale']);
+const CATALOG_QUERY_KEYS=new Set(['q','audience','stock','sort','sale','category','collection','filter','type','scene','flavor','pantry','ritual','play','genre','platform','c']);
 
 const cleanLabel=(value:unknown,fallback:string)=>{
   const label=typeof value==='string'?value.trim():'';
