@@ -120,4 +120,22 @@ The FAQ must remain informational:
 Acceptance contract:
 ACTIVE TEMPLATE SHELL + MERCHANT CMS OVERRIDE OR CONTEXTUAL SYSTEM FALLBACK.
 
+## 10. Catalog discovery links and template inheritance
+
+Footer or navigation discovery entries such as `Újdonságok` may represent a catalog query state instead of a separate CMS page.
+
+Canonical example:
+- `/webaruhaz?sort=new` = newest-first catalog discovery.
+
+Rules:
+- do not duplicate the catalog into a template-local `/ujdonsagok` content page only to change the heading;
+- the catalog route MUST remain inside the active storefront template shell;
+- URL filter/sort state MUST remain functional;
+- the route may adapt its heading and supporting copy to the query intent;
+- prices, stock, audience and ordering remain shared commerce authority;
+- template ownership is presentation/shell, not duplicated catalog business logic.
+
+Acceptance contract:
+ACTIVE TEMPLATE SHELL + SHARED CATALOG CORE + URL DISCOVERY STATE.
+
 ONE DEFECT -> ONE SHARED FIX -> REGRESSION TEST -> QUALITY GATE.
