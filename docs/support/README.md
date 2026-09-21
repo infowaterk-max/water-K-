@@ -106,6 +106,8 @@ If yes, update Support Knowledge in the same development cycle.
 - `RECENT_ENGINEERING_BACKFILL_2026-09-12_18.md` — backfill of support-relevant lessons between the original baseline and Phase 4: Builder authority/mobile failures, Email Builder stale target, Playroom template-version upgrade failures, stale Storefront-stack release integration, Special Commerce authority/idempotency/Fresh Install rules, AI Builder/Block 24 boundaries, Product Documents security/guest acceptance and Phase 3 shared runtime/composition lessons.
 - `PLAYROOM_V20_PHASE4_BUILDER_ACCEPTANCE_INCIDENTS_2026-09-18.md` — Playroom v20 Phase 4 human acceptance: tenant-entry, Alap entitlement gate, Preview/staging proof constraints, Visual Builder wrapper fidelity, canonical viewport, zoom/fit, absolute media, grid stretch, dense header and CI/harness lessons.
 
+- `TEMPLATE_ROUTE_INTEGRITY_DEMO_CONTENT_2026-09-21.md` — canonical Template Factory route-integrity + demo-content lifecycle: no dead links, real catalog deep-link consumers, dynamic content fixtures, draft-only CMS materialization, fixture/adopted/retired provenance and staging acceptance proof.
+
 ## Core engineering rules
 
 1. **Runtime and Builder must preserve the same Page Schema authority.** A Builder selection wrapper must never silently change CSS Grid, absolute positioning, row stretch or responsive layout semantics.
@@ -124,3 +126,4 @@ If yes, update Support Knowledge in the same development cycle.
 14. **Private document/digital delivery needs negative authorization tests plus real-byte proof.** DB/storage metadata alone is insufficient.
 15. **Digital assets, Product Documents and Order Documents remain separate backend authorities** even if one UI aggregates them.
 16. **Shared launch capabilities belong in shared package/install/runtime contracts**, not manual edits repeated across every template.
+17. **Every template link needs a real destination authority.** Known routes must exist, catalog query parameters must be consumed, and static dynamic-content links must have draft-safe demo fixtures; generated business/service content is never auto-published as truth.
