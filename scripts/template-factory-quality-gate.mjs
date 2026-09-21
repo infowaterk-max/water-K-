@@ -322,7 +322,7 @@ try{
           if(diagnostics.touchErrors.length)caseErrors.push(`TOUCH_TARGET_MINIMUM:${diagnostics.touchErrors.length}`);
           if(diagnostics.touchWarnings.length)caseWarnings.push(`TOUCH_TARGET_RECOMMENDED:${diagnostics.touchWarnings.length}`);
           if(diagnostics.clippingWarnings.length)caseWarnings.push(`TEXT_CLIPPING_REVIEW:${diagnostics.clippingWarnings.length}`);
-          if(diagnostics.socialErrors.length)caseErrors.push(`SOCIAL_LINK_INTEGRITY:${diagnostics.socialErrors.length}`);
+          if(diagnostics.socialErrors.length)caseErrors.push(`SOCIAL_LINK_INTEGRITY:${diagnostics.socialErrors.length}:${JSON.stringify(diagnostics.socialErrors.slice(0,6))}`);
 
           const screenshotPath=path.join(outputDir,`${name}.png`);
           await roots.first().screenshot({path:screenshotPath,animations:'disabled',timeout:25000});
