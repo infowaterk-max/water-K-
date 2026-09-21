@@ -113,7 +113,7 @@ describe('Portfolio-wide cart customer-task contract',()=>{
     expect(storefrontCartPresentationViolations(normalized)).toEqual([]);
   });
 
-  it('does not reinterpret product/account download ownership while normalizing cart presentation',()=>{
+  it('keeps product download ownership and removes stale account document bodies from the generic overview',()=>{
     const product:StorefrontPageDocument={schemaVersion:1,pageKey:'p',pageType:'product',templateKey:'test',templateVersion:1,sections:[{
       id:'downloads',componentKey:'commerce.downloads-tile',componentVersion:1,config:{title:'Letöltések'},
     }]};
@@ -121,6 +121,10 @@ describe('Portfolio-wide cart customer-task contract',()=>{
       id:'library',componentKey:'commerce.documents-center',componentVersion:1,config:{title:'Letöltéseim'},
     }]};
     expect(normalizeStorefrontTemplateRuntimeComposition(product)).toEqual(product);
-    expect(normalizeStorefrontTemplateRuntimeComposition(account)).toEqual(account);
+    const normalizedAccount=normalizeStorefrontTemplateRuntimeComposition(account);
+    const accountNodes=walk(normalizedAccount.sections);
+    expect(accountNodes.some(node=>node.componentKey==='commerce.documents-center')).toBe(false);
+    expect(accountNodes.some(node=>node.componentKey==='account.capability-navigation')).toBe(true);
+    expect(normalizedAccount.metadata?.digitalCommerceCompositionVersion).toBe('shoporation.storefront-digital-commerce-composition.v5');
   });
 });
