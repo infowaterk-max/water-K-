@@ -7,6 +7,8 @@ on:
       - 'src/lib/builder/templates/**'
       - 'src/lib/builder/storefront-**'
       - 'src/components/builder/**'
+      - 'src/components/auth/auth-form.tsx'
+      - 'src/components/account/storefront-account-shell.tsx'
       - 'src/components/admin/storefront-visual-builder-v3.tsx'
       - 'src/app/visual-fidelity-qa/**'
       - 'src/app/api/visual-fidelity/templates/**'
@@ -24,6 +26,8 @@ on:
       - 'src/lib/builder/templates/**'
       - 'src/lib/builder/storefront-**'
       - 'src/components/builder/**'
+      - 'src/components/auth/auth-form.tsx'
+      - 'src/components/account/storefront-account-shell.tsx'
       - 'src/components/admin/storefront-visual-builder-v3.tsx'
       - 'src/app/visual-fidelity-qa/**'
       - 'src/app/api/visual-fidelity/templates/**'
@@ -75,6 +79,7 @@ jobs:
         run: >
           npx vitest run
           tests/storefront-template-quality-gate-v2.test.ts
+          tests/storefront-auth-surface.test.ts
           tests/storefront-template-preview-runtime.test.ts
           tests/storefront-visual-builder-fidelity-engine.test.ts
           tests/playroom-v20-canonical-shell-content.test.ts
