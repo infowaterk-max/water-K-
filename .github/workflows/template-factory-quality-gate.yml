@@ -12,6 +12,8 @@ on:
       - 'src/components/auth/auth-form.tsx'
       - 'src/components/analytics/cookie-consent.tsx'
       - 'src/components/account/storefront-account-shell.tsx'
+      - 'src/app/fiokom/**'
+      - 'src/app/account-workflow.css'
       - 'src/components/content/storefront-content-shell.tsx'
       - 'src/app/oldal/**'
       - 'src/app/public-pages-polish.css'
@@ -27,6 +29,8 @@ on:
       - 'supabase/migrations/20260921161000_storefront_social_links_domain_hardening.sql'
       - 'supabase/customer-baseline/migrations/0040_storefront_social_links_settings.sql'
       - 'supabase/customer-baseline/migrations/0041_storefront_social_links_domain_hardening.sql'
+      - 'supabase/migrations/20260921164500_customer_account_browser_grants.sql'
+      - 'supabase/customer-baseline/migrations/0042_customer_account_browser_grants.sql'
       - 'docs/support/STOREFRONT_SOCIAL_LINKS_TENANT_AUTHORITY_2026-09-21.md'
       - 'scripts/template-factory-quality-gate.mjs'
       - 'scripts/promote-template-golden-baseline.mjs'
@@ -44,6 +48,8 @@ on:
       - 'src/components/auth/auth-form.tsx'
       - 'src/components/analytics/cookie-consent.tsx'
       - 'src/components/account/storefront-account-shell.tsx'
+      - 'src/app/fiokom/**'
+      - 'src/app/account-workflow.css'
       - 'src/components/content/storefront-content-shell.tsx'
       - 'src/app/oldal/**'
       - 'src/app/public-pages-polish.css'
@@ -59,6 +65,8 @@ on:
       - 'supabase/migrations/20260921161000_storefront_social_links_domain_hardening.sql'
       - 'supabase/customer-baseline/migrations/0040_storefront_social_links_settings.sql'
       - 'supabase/customer-baseline/migrations/0041_storefront_social_links_domain_hardening.sql'
+      - 'supabase/migrations/20260921164500_customer_account_browser_grants.sql'
+      - 'supabase/customer-baseline/migrations/0042_customer_account_browser_grants.sql'
       - 'docs/support/STOREFRONT_SOCIAL_LINKS_TENANT_AUTHORITY_2026-09-21.md'
       - 'scripts/template-factory-quality-gate.mjs'
       - 'scripts/promote-template-golden-baseline.mjs'
@@ -111,6 +119,7 @@ jobs:
           tests/storefront-template-quality-gate-v2.test.ts
           tests/storefront-auth-surface.test.ts
           tests/storefront-public-information-routes.test.ts
+          tests/customer-account-runtime-hardening.test.ts
           tests/storefront-system-surfaces.test.ts
           tests/storefront-social-settings.test.ts
           tests/storefront-template-preview-runtime.test.ts
