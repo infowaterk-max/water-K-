@@ -29,6 +29,7 @@ const previewTargets:Record<string,string>={
   sales:'/admin/ertekesites',
   returns:'/admin/visszaru',
   storefront:'/webaruhaz?pilot=acceptance',
+  'catalog-new':'/webaruhaz?sort=new&pilot=acceptance',
 };
 
 export async function GET(request:Request){
