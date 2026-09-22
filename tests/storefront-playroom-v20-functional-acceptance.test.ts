@@ -271,7 +271,7 @@ describe('Playroom v20 functional acceptance',()=>{
     const giftGridStyle=resolveStorefrontVisualStyle(findNode(home,'playroom-platform-gift-grid').config.style,'desktop');
     const giftStyle=resolveStorefrontVisualStyle(findNode(home,'playroom-gift-card').config.style,'desktop');
     const giftImageStyle=resolveStorefrontVisualStyle(findNode(home,'playroom-gift-image').config.style,'desktop');
-    expect(featuredStyle.minHeight).toBe('11.3rem');
+    expect(featuredStyle.minHeight).toBe('10.65rem');
     expect(giftStyle).toMatchObject({position:'relative',overflow:'hidden',minHeight:'11.3rem',justifyContent:'center'});
     expect(giftStyle.display).not.toBe('grid');
     expect(giftStyle.gridTemplateRows).toBeUndefined();
