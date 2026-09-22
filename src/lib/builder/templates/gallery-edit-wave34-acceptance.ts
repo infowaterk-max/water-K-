@@ -1,0 +1,85 @@
+import {STOREFRONT_STORY_VISUAL_COMPONENT_DEPENDENCIES} from '@/lib/builder/storefront-story-visual';
+import {ALPINE_LODGE_VISUAL_DNA} from '@/lib/builder/templates/alpine-lodge';
+import {
+  GALLERY_EDIT_ENGINE_CONTRACT,
+  GALLERY_EDIT_HOME_SECTION_ORDER,
+  GALLERY_EDIT_MARKETING_LAYER_CONTRACT,
+  GALLERY_EDIT_TEMPLATE_KEY,
+  GALLERY_EDIT_TEMPLATE_VERSION,
+  GALLERY_EDIT_VISUAL_DNA,
+} from '@/lib/builder/templates/gallery-edit';
+import {TABLE_GIFT_VISUAL_DNA} from '@/lib/builder/templates/table-gift';
+
+/** Wave 34 re-accepts the inherited Gallery Edit v1 on the current stacked
+ * Builder baseline. It does not create another template or authority engine. */
+export const GALLERY_EDIT_WAVE34_ACCEPTANCE=Object.freeze({
+  wave:34,
+  mode:'current-baseline-reacceptance-and-builder-hardening',
+  templateKey:GALLERY_EDIT_TEMPLATE_KEY,
+  templateVersion:GALLERY_EDIT_TEMPLATE_VERSION,
+  inheritedImplementation:true,
+  portfolio:{
+    category:'home-living-design',
+    galleryEdit:GALLERY_EDIT_VISUAL_DNA.character,
+    galleryJourney:GALLERY_EDIT_VISUAL_DNA.journey,
+    galleryHomeOrder:GALLERY_EDIT_HOME_SECTION_ORDER,
+    previousAlpineLodge:ALPINE_LODGE_VISUAL_DNA.character,
+    nextTableGift:TABLE_GIFT_VISUAL_DNA.character,
+  },
+  visualContract:{
+    character:'contemporary-interior-design-concept-store-meets-gallery',
+    palette:['chalk-off-white','limestone-grey','graphite','single-curatorial-accent'],
+    typography:['editorial-grotesk-or-refined-serif','clean-sans'],
+    imagery:'furniture-lighting-ceramics-textile-and-objects-presented-as-gallery-pieces',
+    spacing:'gallery-scale-airy-precise-with-large-negative-space',
+    imageRule:GALLERY_EDIT_MARKETING_LAYER_CONTRACT.imageRule,
+    exclusions:GALLERY_EDIT_VISUAL_DNA.exclusions,
+  },
+  builderContract:{
+    heroLayers:GALLERY_EDIT_MARKETING_LAYER_CONTRACT.hero,
+    composition:GALLERY_EDIT_MARKETING_LAYER_CONTRACT.composition,
+    registryComposition:STOREFRONT_STORY_VISUAL_COMPONENT_DEPENDENCIES,
+    stableIdentity:'stable-node-ids-and-stable-binding-paths',
+    responsiveModes:['desktop','tablet','mobile'],
+    hierarchy:'Template -> Page Presets -> Section Presets -> Components',
+    pagePresetCount:14,
+    minimumPlan:'alap',
+    demoNamespace:'home-gallery-edit',
+    installation:'draft-only',
+  },
+  commerceAuthority:{
+    engineContract:GALLERY_EDIT_ENGINE_CONTRACT,
+    pricing:'pricing-binding-only',
+    inventory:'inventory-binding-only',
+    variants:'variant-binding-only',
+    reviews:'review-binding-only',
+    structuredFacts:'E7-or-authoritative-product-binding-only-when-supplied',
+    recommendations:'shared-recommendation-binding-only',
+    checkout:'shared-provider-neutral-E13',
+    noFakeDesignerProvenance:true,
+    noFakeMaterialClaim:true,
+    noFakeDimensions:true,
+  },
+  exactHomeOrder:GALLERY_EDIT_HOME_SECTION_ORDER,
+  distinctness:{
+    notAlpineLodge:'not-warm-natural-boutique-lodge-material-and-layer-commerce',
+    notTableGift:'not-occasion-recipient-gifting-first-commerce',
+    ownPosition:'airy-contemporary-gallery-object-room-material-editorial-commerce',
+    separationIncludes:['layout','section-order','rhythm','palette','typography','imagery','negative-space','merchandising-journey'],
+  },
+  nonScope:[
+    'second-gallery-edit-template',
+    'visual-builder-drag-drop-ui',
+    'template-local-layout-engine',
+    'template-local-hero-engine',
+    'template-local-product-discovery-engine',
+    'template-local-structured-product-engine',
+    'template-local-pricing-inventory-review-authority',
+    'designer-provenance-or-material-truth-authority',
+    'payment-provider-change',
+    'sql-migration',
+    'vercel-production-deploy',
+    'supabase-mutation',
+    'main-merge',
+  ],
+} as const);

@@ -1,0 +1,37 @@
+.digitalOfficeSupportAlert{
+  display:grid;
+  grid-template-columns:30px minmax(0,1fr) auto;
+  align-items:center;
+  gap:10px;
+  margin:10px 18px 0;
+  padding:10px 12px;
+  border:1px solid #efd59e;
+  border-radius:11px;
+  background:#fffaf0;
+  color:#514429;
+}
+.digitalOfficeSupportAlert.isUrgent{border-color:#efc3bd;background:#fff5f3;color:#6d3732}
+.digitalOfficeSupportAlert.isUnavailable{border-color:#d9dfdd;background:#f7f9f8;color:#52615e}
+.digitalOfficeSupportAlertIcon{
+  display:grid;
+  place-items:center;
+  width:30px;
+  height:30px;
+  border-radius:9px;
+  background:#f6e8c8;
+  color:#8e6724;
+  font-size:14px;
+  font-weight:900;
+}
+.digitalOfficeSupportAlert.isUrgent .digitalOfficeSupportAlertIcon{background:#f7d9d5;color:#a34138}
+.digitalOfficeSupportAlert.isUnavailable .digitalOfficeSupportAlertIcon{background:#e8eeec;color:#667672}
+.digitalOfficeSupportAlert>span:nth-child(2){display:grid;gap:2px;min-width:0}
+.digitalOfficeSupportAlert strong{font-size:10px;line-height:1.25}
+.digitalOfficeSupportAlert small{font-size:8px;line-height:1.35;color:inherit;opacity:.82;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.digitalOfficeSupportAlert a{font-size:8px;font-weight:850;color:#176f5e;text-decoration:none;white-space:nowrap}
+.digitalOfficeSupportAlert a:hover,.digitalOfficeSupportAlert a:focus-visible{text-decoration:underline}
+@media(max-width:850px){
+  .digitalOfficeSupportAlert{grid-template-columns:30px 1fr;margin:8px 10px 0;padding:10px}
+  .digitalOfficeSupportAlert a{grid-column:2;justify-self:start}
+  .digitalOfficeSupportAlert small{white-space:normal}
+}

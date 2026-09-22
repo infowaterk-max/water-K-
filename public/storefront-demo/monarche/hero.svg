@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 1500" role="img" aria-labelledby="title desc">
+<title id="title">Monarche editorial hero placeholder</title>
+<desc id="desc">Abstract warm stone editorial composition for the neutral Monarche demo package.</desc>
+<rect width="1200" height="1500" fill="#d8d1c7"/>
+<rect x="120" y="150" width="960" height="1200" rx="480" fill="#b9aea2"/>
+<path d="M285 1280C420 980 430 650 600 350c170 300 180 630 315 930H285Z" fill="#2a2928" opacity=".88"/>
+<circle cx="600" cy="330" r="115" fill="#e9e2da"/>
+<rect x="70" y="70" width="1060" height="1360" fill="none" stroke="#f5f1eb" stroke-width="3" opacity=".75"/>
+</svg>

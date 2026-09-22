@@ -1,0 +1,378 @@
+-- Shoperation fresh-install target postflight.
+-- Read-only proof: run after applying the reviewed Shoperation baseline
+-- and the neutral customer-baseline seed, before provisioning any customer data.
+
+do $$
+declare
+  missing text[] := array[]::text[];
+  profile_default text;
+  instance_default text;
+  legacy_checkout_count integer;
+  current_checkout_count integer;
+  current_quote_count integer;
+  public_policy_count integer;
+  customer_rows bigint;
+  helper_count integer;
+  recovery_routine_count integer;
+  bad_helper_count integer;
+  missing_policy_count integer;
+  protected_table text;
+  protected_oid oid;
+  protected_rls boolean;
+  protected_policy_count integer;
+  browser_grant_count integer;
+  service_select_count integer;
+  exposed_no_policy_count integer;
+  auth_profile_trigger_count integer;
+  provisioning_routine_count integer;
+  provisioning_private_routine_count integer;
+  provisioning_trigger_count integer;
+  organization_nullable text;
+begin
+  if to_regclass('public.webshop_instances') is null then missing := array_append(missing, 'public.webshop_instances'); end if;
+  if to_regclass('public.profiles') is null then missing := array_append(missing, 'public.profiles'); end if;
+  if to_regclass('public.products') is null then missing := array_append(missing, 'public.products'); end if;
+  if to_regclass('public.product_variants') is null then missing := array_append(missing, 'public.product_variants'); end if;
+  if to_regclass('public.orders') is null then missing := array_append(missing, 'public.orders'); end if;
+  if to_regclass('public.commerce_provider_catalog') is null then missing := array_append(missing, 'public.commerce_provider_catalog'); end if;
+  if to_regclass('public.webshop_instance_commerce_settings') is null then missing := array_append(missing, 'public.webshop_instance_commerce_settings'); end if;
+  if to_regclass('public.customer_instance_roles') is null then missing := array_append(missing, 'public.customer_instance_roles'); end if;
+  if to_regclass('public.coupon_redemptions') is null then missing := array_append(missing, 'public.coupon_redemptions'); end if;
+  if to_regclass('public.recovery_objectives') is null then missing := array_append(missing, 'public.recovery_objectives'); end if;
+  if to_regclass('public.recovery_evidence') is null then missing := array_append(missing, 'public.recovery_evidence'); end if;
+  if to_regclass('public.recovery_drills') is null then missing := array_append(missing, 'public.recovery_drills'); end if;
+  if to_regclass('public.recovery_findings') is null then missing := array_append(missing, 'public.recovery_findings'); end if;
+  if to_regclass('public.recovery_events') is null then missing := array_append(missing, 'public.recovery_events'); end if;
+  if to_regclass('public.recovery_decisions') is null then missing := array_append(missing, 'public.recovery_decisions'); end if;
+  if to_regclass('public.recovery_runs') is null then missing := array_append(missing, 'public.recovery_runs'); end if;
+
+  select count(*) into auth_profile_trigger_count
+  from pg_trigger t
+  join pg_class c on c.oid=t.tgrelid
+  join pg_namespace n on n.oid=c.relnamespace
+  join pg_proc p on p.oid=t.tgfoid
+  join pg_namespace pn on pn.oid=p.pronamespace
+  where not t.tgisinternal
+    and n.nspname='auth'
+    and c.relname='users'
+    and t.tgname='on_auth_user_created'
+    and pn.nspname='private'
+    and p.proname='handle_new_user';
+
+  if auth_profile_trigger_count <> 1 then
+    raise exception 'Supabase Auth profile bootstrap trigger is missing or ambiguous: %', auth_profile_trigger_count;
+  end if;
+
+  if cardinality(missing) > 0 then
+    raise exception 'Fresh-install baseline is incomplete. Missing release objects: %', array_to_string(missing, ', ');
+  end if;
+
+  select pg_get_expr(d.adbin, d.adrelid)
+    into profile_default
+  from pg_attribute a
+  join pg_class c on c.oid = a.attrelid
+  join pg_namespace n on n.oid = c.relnamespace
+  left join pg_attrdef d on d.adrelid = a.attrelid and d.adnum = a.attnum
+  where n.nspname = 'public' and c.relname = 'profiles' and a.attname = 'subscription_plan' and not a.attisdropped;
+
+  select pg_get_expr(d.adbin, d.adrelid)
+    into instance_default
+  from pg_attribute a
+  join pg_class c on c.oid = a.attrelid
+  join pg_namespace n on n.oid = c.relnamespace
+  left join pg_attrdef d on d.adrelid = a.attrelid and d.adnum = a.attnum
+  where n.nspname = 'public' and c.relname = 'webshop_instances' and a.attname = 'subscription_plan' and not a.attisdropped;
+
+  if profile_default is null or profile_default not ilike '%alap%' then
+    raise exception 'profiles.subscription_plan must fail closed to Alap; current default: %', coalesce(profile_default, '<none>');
+  end if;
+
+  if instance_default is null or instance_default not ilike '%alap%' then
+    raise exception 'webshop_instances.subscription_plan must fail closed to Alap; current default: %', coalesce(instance_default, '<none>');
+  end if;
+
+  select count(*) into legacy_checkout_count
+  from pg_proc p
+  join pg_namespace n on n.oid = p.pronamespace
+  where n.nspname = 'public' and p.proname = 'place_order';
+
+  if legacy_checkout_count <> 0 then
+    raise exception 'Obsolete public.place_order overloads are present: %', legacy_checkout_count;
+  end if;
+
+  select count(*) into current_checkout_count
+  from pg_proc p
+  join pg_namespace n on n.oid = p.pronamespace
+  where n.nspname = 'public' and p.proname = 'place_order_provider_v5_idempotent';
+
+  select count(*) into current_quote_count
+  from pg_proc p
+  join pg_namespace n on n.oid = p.pronamespace
+  where n.nspname = 'public' and p.proname = 'quote_tenant_checkout_v2';
+
+  if current_checkout_count <> 1 then
+    raise exception 'Current V5 atomic checkout RPC is missing or ambiguous: %', current_checkout_count;
+  end if;
+  if current_quote_count <> 1 then
+    raise exception 'Current V2 tenant quote RPC is missing or ambiguous: %', current_quote_count;
+  end if;
+
+  select count(*) into recovery_routine_count
+  from pg_proc p
+  join pg_namespace n on n.oid = p.pronamespace
+  where n.nspname = 'public'
+    and p.proname in (
+      'detect_control_tower_alerts','process_recovery_governance_cycle','record_recovery_evidence',
+      'plan_recovery_drill','start_recovery_drill','complete_recovery_drill',
+      'acknowledge_recovery_finding','record_recovery_decision'
+    );
+
+  if recovery_routine_count <> 8 then
+    raise exception 'Current recovery/control routine set is incomplete: %/8', recovery_routine_count;
+  end if;
+
+  select count(*) into missing_policy_count
+  from (values
+    ('return_cases_store_all'),
+    ('return_case_items_store_all'),
+    ('support_tickets_store_all'),
+    ('support_ticket_messages_store_all'),
+    ('office_threads_store_all'),
+    ('office_messages_store_all'),
+    ('office_tasks_store_all'),
+    ('content_store_read'),
+    ('products_store_read'),
+    ('variants_store_read'),
+    ('orders_customer_or_store_read'),
+    ('order_items_customer_or_store_read'),
+    ('customer_instance_roles_self_select')
+  ) v(policyname)
+  where not exists (
+    select 1 from pg_policies p
+    where p.schemaname = 'public' and p.policyname = v.policyname
+  );
+
+  if missing_policy_count <> 0 then
+    raise exception 'Required tenant RLS policies are missing: %', missing_policy_count;
+  end if;
+
+  select count(*) into helper_count
+  from pg_proc p
+  join pg_namespace n on n.oid = p.pronamespace
+  where n.nspname = 'public'
+    and p.proname in (
+      'is_platform_operator','has_store_role','has_feature_entitlement',
+      'can_read_store','can_manage_catalog','can_manage_orders','can_manage_marketing',
+      'can_manage_support','can_manage_procurement','can_manage_sales',
+      'can_read_loyalty','can_manage_loyalty'
+    );
+
+  if helper_count <> 12 then
+    raise exception 'Permission helper set is incomplete: %/12', helper_count;
+  end if;
+
+  select count(*) into bad_helper_count
+  from pg_proc p
+  join pg_namespace n on n.oid = p.pronamespace
+  where n.nspname = 'public'
+    and p.proname in (
+      'is_platform_operator','has_store_role','has_feature_entitlement',
+      'can_read_store','can_manage_catalog','can_manage_orders','can_manage_marketing',
+      'can_manage_support','can_manage_procurement','can_manage_sales',
+      'can_read_loyalty','can_manage_loyalty'
+    )
+    and (
+      p.prosecdef
+      or has_function_privilege('public', p.oid, 'execute')
+      or has_function_privilege('anon', p.oid, 'execute')
+      or not has_function_privilege('authenticated', p.oid, 'execute')
+      or not has_function_privilege('service_role', p.oid, 'execute')
+    );
+
+  if bad_helper_count <> 0 then
+    raise exception 'Permission helper privilege mismatch: %', bad_helper_count;
+  end if;
+
+  if exists (
+    select 1
+    from pg_proc p
+    join pg_namespace n on n.oid = p.pronamespace
+    where n.nspname = 'public'
+      and p.proname in ('quote_tenant_checkout_v2','place_order_provider_v5_idempotent')
+      and (
+        not p.prosecdef
+        or has_function_privilege('public', p.oid, 'execute')
+        or has_function_privilege('anon', p.oid, 'execute')
+        or has_function_privilege('authenticated', p.oid, 'execute')
+        or not has_function_privilege('service_role', p.oid, 'execute')
+      )
+  ) then
+    raise exception 'Checkout RPC privilege model does not match the hardened release contract';
+  end if;
+
+  select is_nullable into organization_nullable
+  from information_schema.columns
+  where table_schema='public' and table_name='webshop_instances' and column_name='organization_id';
+
+  if organization_nullable is distinct from 'NO' then
+    raise exception 'Fresh-install webshop_instances.organization_id is not fail-closed NOT NULL';
+  end if;
+
+  select count(*) into provisioning_routine_count
+  from pg_proc p join pg_namespace n on n.oid=p.pronamespace
+  where n.nspname='public' and p.proname='provision_webshop_tenant_v1';
+
+  if provisioning_routine_count <> 1 then
+    raise exception 'Atomic tenant provisioning RPC is missing or ambiguous: %', provisioning_routine_count;
+  end if;
+
+  if exists (
+    select 1 from pg_proc p join pg_namespace n on n.oid=p.pronamespace
+    where n.nspname='public' and p.proname='provision_webshop_tenant_v1'
+      and (
+        not p.prosecdef
+        or has_function_privilege('public',p.oid,'execute')
+        or has_function_privilege('anon',p.oid,'execute')
+        or has_function_privilege('authenticated',p.oid,'execute')
+        or not has_function_privilege('service_role',p.oid,'execute')
+      )
+  ) then
+    raise exception 'Atomic tenant provisioning RPC privilege model is invalid';
+  end if;
+
+  select count(*) into provisioning_private_routine_count
+  from pg_proc p join pg_namespace n on n.oid=p.pronamespace
+  where n.nspname='private'
+    and p.proname in ('sync_webshop_plan_entitlements','sync_webshop_plan_entitlements_trigger');
+
+  if provisioning_private_routine_count <> 2 then
+    raise exception 'Tenant plan entitlement sync routines are incomplete: %/2', provisioning_private_routine_count;
+  end if;
+
+  select count(*) into provisioning_trigger_count
+  from pg_trigger t
+  join pg_class c on c.oid=t.tgrelid
+  join pg_namespace n on n.oid=c.relnamespace
+  join pg_proc p on p.oid=t.tgfoid
+  join pg_namespace pn on pn.oid=p.pronamespace
+  where not t.tgisinternal
+    and n.nspname='public' and c.relname='webshop_instances'
+    and t.tgname='webshop_instance_plan_entitlements_sync'
+    and pn.nspname='private' and p.proname='sync_webshop_plan_entitlements_trigger';
+
+  if provisioning_trigger_count <> 1 then
+    raise exception 'Tenant plan entitlement sync trigger is missing or ambiguous: %', provisioning_trigger_count;
+  end if;
+
+  foreach protected_table in array array[
+    'webshop_instances',
+    'webshop_instance_members',
+    'webshop_instance_commerce_settings',
+    'webshop_instance_provider_connections',
+    'commerce_provider_catalog',
+    'platform_operators',
+    'communication_job_events',
+    'inventory_snapshots',
+    'purchase_order_items',
+    'purchase_orders',
+    'suppliers',
+    'recovery_objectives',
+    'recovery_evidence',
+    'recovery_drills',
+    'recovery_findings',
+    'recovery_events',
+    'recovery_decisions',
+    'recovery_runs'
+  ] loop
+    select c.oid, c.relrowsecurity
+      into protected_oid, protected_rls
+    from pg_class c
+    join pg_namespace n on n.oid = c.relnamespace
+    where n.nspname = 'public' and c.relname = protected_table and c.relkind in ('r','p');
+
+    if protected_oid is null then
+      raise exception 'Protected server-only table is missing: public.%', protected_table;
+    end if;
+
+    select count(*) into protected_policy_count from pg_policy where polrelid = protected_oid;
+    if not protected_rls or protected_policy_count <> 0 then
+      raise exception 'Server-only boundary drift on public.%: rls=%, policies=%', protected_table, protected_rls, protected_policy_count;
+    end if;
+
+    select count(*) into browser_grant_count
+    from information_schema.table_privileges
+    where table_schema = 'public'
+      and table_name = protected_table
+      and grantee in ('anon','authenticated','PUBLIC');
+
+    if browser_grant_count <> 0 then
+      raise exception 'Browser-role grants found on server-only table public.%: %', protected_table, browser_grant_count;
+    end if;
+
+    select count(*) into service_select_count
+    from information_schema.table_privileges
+    where table_schema = 'public'
+      and table_name = protected_table
+      and grantee = 'service_role'
+      and privilege_type = 'SELECT';
+
+    if service_select_count = 0 then
+      raise exception 'service_role SELECT is missing on server-only table public.%', protected_table;
+    end if;
+  end loop;
+
+  select count(*) into exposed_no_policy_count
+  from pg_class c
+  join pg_namespace n on n.oid = c.relnamespace
+  where n.nspname = 'public'
+    and c.relkind in ('r','p')
+    and c.relrowsecurity
+    and not exists (select 1 from pg_policy p where p.polrelid = c.oid)
+    and exists (
+      select 1
+      from information_schema.table_privileges tp
+      where tp.table_schema = 'public'
+        and tp.table_name = c.relname
+        and tp.grantee in ('anon','authenticated','PUBLIC')
+    );
+
+  if exposed_no_policy_count <> 0 then
+    raise exception 'Public RLS tables without policies still expose browser-role grants: %', exposed_no_policy_count;
+  end if;
+
+  select count(*) into public_policy_count
+  from pg_policy pol
+  join pg_class c on c.oid = pol.polrelid
+  join pg_namespace n on n.oid = c.relnamespace
+  where n.nspname = 'public';
+
+  if public_policy_count = 0 then
+    raise exception 'Fresh-install baseline has no public RLS policies';
+  end if;
+
+  execute 'select
+      (select count(*) from public.products)
+    + (select count(*) from public.product_variants)
+    + (select count(*) from public.webshop_instances)
+    + (select count(*) from public.orders)
+    + (select count(*) from public.webshop_instance_commerce_settings)
+    + (select count(*) from public.customer_instance_roles)
+    + (select count(*) from public.organizations)
+    + (select count(*) from public.organization_members)
+    + (select count(*) from public.role_bindings)
+    + (select count(*) from public.feature_entitlements)
+    + (select count(*) from public.webshop_sales_channels)
+    + (select count(*) from public.webshop_instance_members)'
+    into customer_rows;
+
+  if customer_rows <> 0 then
+    raise exception 'Fresh-install target contains customer-facing seed data before provisioning: % rows', customer_rows;
+  end if;
+end $$;
+
+select
+  (select count(*) from pg_class c join pg_namespace n on n.oid = c.relnamespace where n.nspname = 'public' and c.relkind in ('r','p')) as public_tables,
+  (select count(*) from pg_proc p join pg_namespace n on n.oid = p.pronamespace where n.nspname = 'public') as public_functions,
+  (select count(*) from pg_policy pol join pg_class c on c.oid = pol.polrelid join pg_namespace n on n.oid = c.relnamespace where n.nspname = 'public') as public_policies,
+  0::bigint as customer_seed_rows,
+  'target-postflight-ok'::text as status;

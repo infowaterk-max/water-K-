@@ -1,0 +1,224 @@
+/* Final mobile interaction model for the Digital Office customer-email workstation. */
+.digitalOfficeMobileController{display:none}
+.officeComposerExtrasToggle{display:none}
+.officeComposerExtras{display:grid;gap:10px}
+
+@media(max-width:850px){
+  .digitalOfficeMobileController{
+    position:sticky;
+    top:66px;
+    z-index:42;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    padding:9px 12px;
+    border-bottom:1px solid var(--workspace-line);
+    background:rgba(255,255,255,.98);
+    backdrop-filter:blur(12px);
+  }
+  .digitalOfficeMobileBack{
+    flex:0 0 auto;
+    color:var(--workspace-accent-strong);
+    text-decoration:none;
+    font-size:12px;
+    font-weight:900;
+  }
+  .digitalOfficeMobileSwitch{
+    display:flex;
+    gap:4px;
+    min-width:0;
+    padding:3px;
+    border:1px solid var(--workspace-line);
+    border-radius:11px;
+    background:#f6f9f8;
+  }
+  .digitalOfficeMobileSwitch button{
+    min-height:34px;
+    padding:0 9px;
+    border:0;
+    border-radius:8px;
+    background:transparent;
+    color:#647571;
+    font-size:10px;
+    font-weight:850;
+  }
+  .digitalOfficeMobileSwitch button[data-active="true"]{
+    background:#fff;
+    color:var(--workspace-accent-strong);
+    box-shadow:0 1px 4px rgba(22,43,39,.08);
+  }
+
+  .digitalOfficeWorkstation{
+    display:block!important;
+    height:auto!important;
+    min-height:0!important;
+    overflow:visible!important;
+    border-top:0!important;
+  }
+  .digitalOfficeWorkstation[data-mobile-view="list"] .digitalOfficeConversationPane,
+  .digitalOfficeWorkstation[data-mobile-view="list"] .digitalOfficeContextPane{
+    display:none!important;
+  }
+  .digitalOfficeWorkstation[data-mobile-view="list"] .digitalOfficeThreadListPane{
+    display:flex!important;
+    width:100%!important;
+    max-height:none!important;
+    min-height:0!important;
+    border-right:0!important;
+  }
+  .digitalOfficeWorkstation[data-mobile-view="list"] .digitalOfficeLocalRail{
+    display:block!important;
+  }
+
+  .digitalOfficeWorkstation[data-mobile-view="conversation"] .digitalOfficeLocalRail,
+  .digitalOfficeWorkstation[data-mobile-view="conversation"] .digitalOfficeThreadListPane,
+  .digitalOfficeWorkstation[data-mobile-view="conversation"] .digitalOfficeContextPane{
+    display:none!important;
+  }
+  .digitalOfficeWorkstation[data-mobile-view="conversation"] .digitalOfficeConversationPane{
+    display:flex!important;
+    width:100%!important;
+    min-height:calc(100dvh - 122px)!important;
+    border:0!important;
+  }
+
+  .digitalOfficeWorkstation[data-mobile-view="context"] .digitalOfficeLocalRail,
+  .digitalOfficeWorkstation[data-mobile-view="context"] .digitalOfficeThreadListPane,
+  .digitalOfficeWorkstation[data-mobile-view="context"] .digitalOfficeConversationPane{
+    display:none!important;
+  }
+  .digitalOfficeWorkstation[data-mobile-view="context"] .digitalOfficeContextPane{
+    display:block!important;
+    width:100%!important;
+    min-height:calc(100dvh - 122px)!important;
+    border:0!important;
+    background:#fff!important;
+  }
+
+  .digitalOfficeLocalRail nav{
+    display:flex!important;
+    flex-direction:row!important;
+    gap:5px!important;
+    padding:8px 10px!important;
+    overflow-x:auto!important;
+    scrollbar-width:none;
+  }
+  .digitalOfficeLocalRail nav::-webkit-scrollbar{display:none}
+  .digitalOfficeLocalRail nav>small,.digitalOfficeLocalRailTitle,.digitalOfficeLocalRailFooter{display:none!important}
+  .digitalOfficeLocalRail nav>a{
+    flex:0 0 auto!important;
+    min-height:36px!important;
+    padding:0 11px!important;
+    font-size:10px!important;
+  }
+
+  .digitalOfficeThreadToolbar{padding:16px 14px 10px!important}
+  .digitalOfficeThreadToolbar strong{font-size:20px!important}
+  .digitalOfficeThreadToolbar small{font-size:12px!important}
+  .digitalOfficeThreadToolbar .btn{min-height:44px!important;padding:0 16px!important;font-size:12px!important}
+  .digitalOfficeThreadSearch{margin:0 14px 10px!important}
+  .digitalOfficeThreadSearch input{height:48px!important;padding:0 44px 0 14px!important;font-size:16px!important}
+  .digitalOfficeThreadSearch button{top:7px!important;right:7px!important;width:34px!important;height:34px!important}
+  .digitalOfficeQuickFilters{padding:0 14px 11px!important;gap:6px!important}
+  .digitalOfficeQuickFilters a{padding:7px 10px!important;font-size:11px!important}
+  .digitalOfficeThreadItem{grid-template-columns:46px minmax(0,1fr)!important;gap:11px!important;padding:14px 13px!important}
+  .digitalOfficeAvatar{width:46px!important;height:46px!important;font-size:12px!important}
+  .digitalOfficeThreadItemBody>span strong,.digitalOfficeThreadItemBody>b{font-size:13px!important}
+  .digitalOfficeThreadItemBody>small{font-size:11px!important;line-height:1.35!important}
+  .digitalOfficeThreadItemBody time{font-size:10px!important}
+  .digitalOfficeThreadItemBody>em i{font-size:9px!important;padding:4px 7px!important}
+  .digitalOfficeUnreadDot{right:12px!important;top:38px!important}
+
+  .digitalOfficeConversationHeader{
+    position:relative!important;
+    top:auto!important;
+    padding:14px!important;
+    gap:10px!important;
+  }
+  .digitalOfficeConversationTitle h1{font-size:19px!important}
+  .digitalOfficeConversationHeader p{font-size:11px!important}
+  .digitalOfficeConversationActions{display:flex!important;flex-direction:row!important;flex-wrap:wrap!important;width:100%!important}
+  .digitalOfficeConversationActions .btn{min-height:36px!important;font-size:10px!important}
+  .digitalOfficeConversationMessages{
+    min-height:0!important;
+    padding:14px 10px 18px!important;
+    background:#f7f9f8!important;
+  }
+  .digitalOfficeMessage{max-width:100%!important;margin-bottom:12px!important}
+  .digitalOfficeMessageCard{max-width:calc(100% - 34px)!important;padding:11px!important}
+  .digitalOfficeMessageCard>header strong{font-size:11px!important}
+  .digitalOfficeMessageCard>header small,.digitalOfficeMessageCard>header time{font-size:9px!important}
+  .digitalOfficeMessageCard h3{font-size:12px!important}
+  .digitalOfficeMessageCard>p{font-size:12px!important;line-height:1.5!important}
+  .digitalOfficeEnvelope{font-size:10px!important}
+
+  .digitalOfficeReplyComposer{
+    padding:11px 12px calc(16px + env(safe-area-inset-bottom))!important;
+    box-shadow:0 -6px 18px rgba(22,43,39,.05)!important;
+  }
+  .digitalOfficeReplyTabs{margin-bottom:9px!important}
+  .digitalOfficeReplyTabs strong{font-size:12px!important}
+  .digitalOfficeReplyTabs span{font-size:10px!important}
+  .digitalOfficeReplyComposer textarea{min-height:110px!important;max-height:240px!important;font-size:16px!important}
+  .officeComposerExtrasToggle{
+    display:inline-flex!important;
+    align-items:center;
+    justify-content:center;
+    width:max-content;
+    min-height:40px;
+    padding:0 12px;
+    border:1px solid var(--workspace-line);
+    border-radius:10px;
+    background:#fff;
+    color:var(--workspace-accent-strong);
+    font-size:11px;
+    font-weight:850;
+  }
+  .officeComposerExtras[data-open="false"]{display:none!important}
+  .officeComposerExtras[data-open="true"]{display:grid!important}
+  .digitalOfficeReplyComposer .splitFeature{grid-template-columns:1fr!important}
+  .digitalOfficeReplyComposer .adminToolbar{display:grid!important;grid-template-columns:1fr 1fr!important;gap:8px!important}
+  .digitalOfficeReplyComposer .adminToolbar .btn{width:100%!important;min-height:46px!important}
+  .digitalOfficeReplyComposer .adminToolbar .muted{grid-column:1/-1;font-size:10px!important}
+
+  .digitalOfficeContextSection{padding:18px 16px!important}
+  .digitalOfficeContextSection>.eyebrow{font-size:9px!important}
+  .digitalOfficeContextSection h2{font-size:18px!important}
+  .digitalOfficeContextSection>p{font-size:12px!important}
+  .digitalOfficeCustomerIdentity{gap:12px!important}
+  .digitalOfficeCustomerIdentity strong{font-size:14px!important}
+  .digitalOfficeCustomerIdentity small{font-size:11px!important}
+  .digitalOfficeContextForm label>span{font-size:11px!important}
+  .digitalOfficeContextForm select{min-height:46px!important;font-size:16px!important}
+  .digitalOfficeContextForm .btn{min-height:44px!important;font-size:12px!important}
+  .digitalOfficeTaskList strong{font-size:12px!important}
+  .digitalOfficeTaskList small{font-size:10px!important}
+
+  .digitalOfficeChatDock{
+    right:12px!important;
+    bottom:calc(12px + env(safe-area-inset-bottom))!important;
+    max-width:calc(100vw - 24px)!important;
+  }
+  .digitalOfficeChatDock[open]{
+    position:fixed!important;
+    inset:72px 8px calc(8px + env(safe-area-inset-bottom)) 8px!important;
+    width:auto!important;
+    height:auto!important;
+    max-width:none!important;
+    z-index:1600!important;
+    border-radius:16px!important;
+    overflow:hidden!important;
+  }
+  .digitalOfficeChatDock[open] .digitalOfficeChatDockLayout{height:100%!important;grid-template-columns:1fr!important}
+  .digitalOfficeChatDock[open] .digitalOfficeChatConversation{min-height:0!important}
+}
+
+@media(max-width:520px){
+  .digitalOfficeMobileController{top:66px;padding-inline:10px}
+  .digitalOfficeMobileSwitch button{padding-inline:7px;font-size:9px}
+  .digitalOfficeThreadItem{grid-template-columns:42px minmax(0,1fr)!important}
+  .digitalOfficeAvatar{width:42px!important;height:42px!important}
+  .digitalOfficeReplyComposer .adminToolbar{grid-template-columns:1fr!important}
+  .digitalOfficeReplyComposer .adminToolbar .muted{grid-column:1}
+}

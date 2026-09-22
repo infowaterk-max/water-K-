@@ -1,0 +1,239 @@
+name: Template Factory Quality Gate v2
+# Quality Gate v2 foundation closure authority: exact-head proof required.
+
+on:
+  push:
+    paths:
+      - 'src/lib/builder/templates/**'
+      - 'src/lib/builder/storefront-**'
+      - 'src/lib/instances/access.ts'
+      - 'src/lib/commerce/settings.ts'
+      - 'supabase/acceptance/**'
+      - 'src/lib/navigation/admin-ia.ts'
+      - 'src/components/builder/**'
+      - 'src/components/auth/auth-form.tsx'
+      - 'src/lib/auth/storefront-return-target.ts'
+      - 'src/lib/account/checkout-account-benefits.ts'
+      - 'src/middleware.ts'
+      - 'src/app/api/orders/claim/**'
+      - 'src/app/rendeles-sikeres/**'
+      - 'src/components/account/post-purchase-account-opportunity.tsx'
+      - 'supabase/migrations/20260921205500_authenticated_guest_order_claim_v1.sql'
+      - 'supabase/customer-baseline/migrations/0043_authenticated_guest_order_claim_v1.sql'
+      - 'src/components/auth/storefront-auth-dialog.tsx'
+      - 'src/components/auth/storefront-auth-dialog.module.css'
+      - 'src/app/api/storefront/auth-context/**'
+      - 'src/app/penztar/**'
+      - 'src/components/checkout/**'
+      - 'src/app/kosar/**'
+      - 'src/components/cart/**'
+      - 'src/lib/account/**'
+      - 'src/app/api/orders/**'
+      - 'src/app/api/account/billing-profile/**'
+      - 'src/app/api/account/b2b/identity/**'
+      - 'src/app/api/admin/b2b/identity-requests/**'
+      - 'src/app/admin/ugyfelek/b2b/**'
+      - 'supabase/migrations/20260922053000_shared_customer_billing_b2b_identity_reverification.sql'
+      - 'supabase/customer-baseline/migrations/0044_shared_customer_billing_b2b_identity_reverification.sql'
+      - 'docs/support/SHARED_CUSTOMER_BILLING_AND_B2B_IDENTITY_AUTHORITY_2026-09-22.md'
+      - 'src/components/analytics/cookie-consent.tsx'
+      - 'src/components/account/storefront-account-shell.tsx'
+      - 'src/app/fiokom/**'
+      - 'src/app/account-workflow.css'
+      - 'src/components/content/storefront-content-shell.tsx'
+      - 'src/app/oldal/**'
+      - 'src/app/gyik/**'
+      - 'src/app/webaruhaz/**'
+      - 'src/components/catalog/**'
+      - 'src/app/public-pages-polish.css'
+      - 'src/app/v6.css'
+      - 'src/app/final-ux-audit.css'
+      - 'src/app/responsive-final.css'
+      - 'src/components/admin/storefront-visual-builder-v3.tsx'
+      - 'src/app/visual-fidelity-qa/**'
+      - 'src/app/admin/beallitasok/megjelenes/**'
+      - 'src/app/api/visual-fidelity/templates/**'
+      - 'src/app/storefront-template-preview/**'
+      - 'supabase/migrations/20260921152000_storefront_social_links_settings.sql'
+      - 'supabase/migrations/20260921161000_storefront_social_links_domain_hardening.sql'
+      - 'supabase/customer-baseline/migrations/0040_storefront_social_links_settings.sql'
+      - 'supabase/customer-baseline/migrations/0041_storefront_social_links_domain_hardening.sql'
+      - 'supabase/migrations/20260921164500_customer_account_browser_grants.sql'
+      - 'supabase/customer-baseline/migrations/0042_customer_account_browser_grants.sql'
+      - 'docs/support/STOREFRONT_SOCIAL_LINKS_TENANT_AUTHORITY_2026-09-21.md'
+      - 'scripts/template-factory-quality-gate.mjs'
+      - 'scripts/promote-template-golden-baseline.mjs'
+      - '.github/workflows/template-golden-baseline-promotion.yml'
+      - 'tests/**storefront**'
+      - 'tests/**playroom**'
+      - '.github/workflows/template-factory-quality-gate.yml'
+  pull_request:
+    paths:
+      - 'src/lib/builder/templates/**'
+      - 'src/lib/builder/storefront-**'
+      - 'src/lib/instances/access.ts'
+      - 'src/lib/commerce/settings.ts'
+      - 'supabase/acceptance/**'
+      - 'src/lib/navigation/admin-ia.ts'
+      - 'src/components/builder/**'
+      - 'src/components/auth/auth-form.tsx'
+      - 'src/lib/auth/storefront-return-target.ts'
+      - 'src/lib/account/checkout-account-benefits.ts'
+      - 'src/middleware.ts'
+      - 'src/app/api/orders/claim/**'
+      - 'src/app/rendeles-sikeres/**'
+      - 'src/components/account/post-purchase-account-opportunity.tsx'
+      - 'supabase/migrations/20260921205500_authenticated_guest_order_claim_v1.sql'
+      - 'supabase/customer-baseline/migrations/0043_authenticated_guest_order_claim_v1.sql'
+      - 'src/components/auth/storefront-auth-dialog.tsx'
+      - 'src/components/auth/storefront-auth-dialog.module.css'
+      - 'src/app/api/storefront/auth-context/**'
+      - 'src/app/penztar/**'
+      - 'src/components/checkout/**'
+      - 'src/app/kosar/**'
+      - 'src/components/cart/**'
+      - 'src/lib/account/**'
+      - 'src/app/api/orders/**'
+      - 'src/app/api/account/billing-profile/**'
+      - 'src/app/api/account/b2b/identity/**'
+      - 'src/app/api/admin/b2b/identity-requests/**'
+      - 'src/app/admin/ugyfelek/b2b/**'
+      - 'supabase/migrations/20260922053000_shared_customer_billing_b2b_identity_reverification.sql'
+      - 'supabase/customer-baseline/migrations/0044_shared_customer_billing_b2b_identity_reverification.sql'
+      - 'docs/support/SHARED_CUSTOMER_BILLING_AND_B2B_IDENTITY_AUTHORITY_2026-09-22.md'
+      - 'src/components/analytics/cookie-consent.tsx'
+      - 'src/components/account/storefront-account-shell.tsx'
+      - 'src/app/fiokom/**'
+      - 'src/app/account-workflow.css'
+      - 'src/components/content/storefront-content-shell.tsx'
+      - 'src/app/oldal/**'
+      - 'src/app/gyik/**'
+      - 'src/app/webaruhaz/**'
+      - 'src/components/catalog/**'
+      - 'src/app/public-pages-polish.css'
+      - 'src/app/v6.css'
+      - 'src/app/final-ux-audit.css'
+      - 'src/app/responsive-final.css'
+      - 'src/components/admin/storefront-visual-builder-v3.tsx'
+      - 'src/app/visual-fidelity-qa/**'
+      - 'src/app/admin/beallitasok/megjelenes/**'
+      - 'src/app/api/visual-fidelity/templates/**'
+      - 'src/app/storefront-template-preview/**'
+      - 'supabase/migrations/20260921152000_storefront_social_links_settings.sql'
+      - 'supabase/migrations/20260921161000_storefront_social_links_domain_hardening.sql'
+      - 'supabase/customer-baseline/migrations/0040_storefront_social_links_settings.sql'
+      - 'supabase/customer-baseline/migrations/0041_storefront_social_links_domain_hardening.sql'
+      - 'supabase/migrations/20260921164500_customer_account_browser_grants.sql'
+      - 'supabase/customer-baseline/migrations/0042_customer_account_browser_grants.sql'
+      - 'docs/support/STOREFRONT_SOCIAL_LINKS_TENANT_AUTHORITY_2026-09-21.md'
+      - 'scripts/template-factory-quality-gate.mjs'
+      - 'scripts/promote-template-golden-baseline.mjs'
+      - '.github/workflows/template-golden-baseline-promotion.yml'
+      - 'tests/**storefront**'
+      - 'tests/**playroom**'
+      - '.github/workflows/template-factory-quality-gate.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: template-factory-quality-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality-gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      VISUAL_FIDELITY_QA: '1'
+      VISUAL_FIDELITY_BASE_URL: http://127.0.0.1:3000
+      NEXT_PUBLIC_SITE_URL: http://127.0.0.1:3000
+      QUALITY_BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
+      TEMPLATE_QUALITY_OUTPUT_DIR: artifacts/template-factory-quality
+    steps:
+      - name: Checkout exact head
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Install locked application dependencies
+        run: npm ci --no-audit --no-fund
+
+      - name: Install pinned QA dependencies without changing lock authority
+        run: npm install --no-save --package-lock=false --ignore-scripts --no-audit --no-fund playwright@1.55.0 pixelmatch@7.1.0 pngjs@7.0.0
+
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Run Template Factory contract regressions
+        run: >
+          npx vitest run
+          tests/storefront-template-quality-gate-v2.test.ts
+          tests/storefront-auth-surface.test.ts
+          tests/storefront-auth-intent-checkout.test.ts
+          tests/storefront-auth-return-target.test.ts
+          tests/storefront-guest-order-claim.test.ts
+          tests/storefront-shared-commerce-account-hardening.test.ts
+          tests/storefront-public-information-routes.test.ts
+          tests/storefront-catalog-discovery-route.test.ts
+          tests/customer-account-runtime-hardening.test.ts
+          tests/storefront-system-surfaces.test.ts
+          tests/storefront-social-settings.test.ts
+          tests/storefront-template-preview-runtime.test.ts
+          tests/storefront-visual-builder-fidelity-engine.test.ts
+          tests/playroom-v20-canonical-shell-content.test.ts
+          tests/storefront-template-route-integrity.test.ts
+          tests/storefront-template-demo-content-persistence.test.ts
+          tests/storefront-account-capability-navigation.test.tsx
+          tests/storefront-commerce-header.test.tsx
+          tests/storefront-runtime-primitives.test.tsx
+          tests/cart-style-quantity-control.test.tsx
+
+      - name: Typecheck exact head
+        run: npm run typecheck
+
+      - name: Build exact-head Runtime
+        run: npm run build
+
+      - name: Start exact-head QA Runtime
+        shell: bash
+        run: |
+          npm run start -- -H 127.0.0.1 -p 3000 > /tmp/template-factory-quality-next.log 2>&1 &
+          echo $! > /tmp/template-factory-quality-next.pid
+          for attempt in $(seq 1 75); do
+            if curl --fail --silent --show-error 'http://127.0.0.1:3000/api/visual-fidelity/templates' > /dev/null; then
+              exit 0
+            fi
+            sleep 2
+          done
+          cat /tmp/template-factory-quality-next.log
+          exit 1
+
+      - name: Run Template Factory 14x3 browser matrix
+        run: node scripts/template-factory-quality-gate.mjs
+
+      - name: Upload Template Factory quality evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: template-factory-quality-${{ github.sha }}
+          path: |
+            artifacts/template-factory-quality/*.png
+            artifacts/template-factory-quality/manifest.json
+          if-no-files-found: warn
+          retention-days: 30
+
+      - name: Upload QA server log on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: template-factory-quality-server-log-${{ github.sha }}
+          path: /tmp/template-factory-quality-next.log
+          if-no-files-found: warn
+          retention-days: 14

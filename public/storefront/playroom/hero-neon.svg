@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 900" role="img" aria-labelledby="title desc">
+<title id="title">Neon gaming hero scene</title><desc id="desc">A stylized midnight gaming room with a glowing controller, portal ring, pedestal, plants and abstract neon symbols.</desc>
+<defs>
+  <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#07081A"/><stop offset=".48" stop-color="#10103A"/><stop offset="1" stop-color="#09071D"/></linearGradient>
+  <linearGradient id="pad" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#0D102F"/><stop offset=".55" stop-color="#171A49"/><stop offset="1" stop-color="#090B22"/></linearGradient>
+  <linearGradient id="rim" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#78E7FF"/><stop offset=".44" stop-color="#5C7CFA"/><stop offset=".76" stop-color="#B35CFF"/><stop offset="1" stop-color="#FF6B5E"/></linearGradient>
+  <radialGradient id="blue"><stop stop-color="#5C7CFA" stop-opacity=".9"/><stop offset="1" stop-color="#5C7CFA" stop-opacity="0"/></radialGradient>
+  <radialGradient id="coral"><stop stop-color="#FF6B5E" stop-opacity=".78"/><stop offset="1" stop-color="#FF6B5E" stop-opacity="0"/></radialGradient>
+  <filter id="glow"><feGaussianBlur stdDeviation="12" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+  <filter id="soft"><feGaussianBlur stdDeviation="34"/></filter>
+</defs>
+<rect width="1200" height="900" rx="48" fill="url(#bg)"/>
+<circle cx="850" cy="350" r="330" fill="url(#blue)" opacity=".35"/><circle cx="340" cy="610" r="260" fill="url(#coral)" opacity=".28"/>
+<g opacity=".22" stroke="#5C7CFA" fill="none"><path d="M35 160H420M55 260H340M890 150h260M955 242h190"/><path d="M100 80v260M1080 95v280"/></g>
+<g opacity=".48"><rect x="90" y="520" width="210" height="250" rx="18" fill="#10112E" stroke="#282B64"/><rect x="920" y="500" width="190" height="270" rx="18" fill="#111130" stroke="#2B2D68"/><path d="M146 520V376h72v144M968 500V338h82v162" fill="#11122F" stroke="#25285F"/></g>
+<ellipse cx="742" cy="412" rx="260" ry="270" fill="none" stroke="#5C7CFA" stroke-width="8" opacity=".75" filter="url(#glow)"/><ellipse cx="742" cy="412" rx="300" ry="310" fill="none" stroke="#78E7FF" stroke-width="2" opacity=".35"/>
+<g transform="translate(358 205)" filter="url(#glow)">
+  <path d="M156 178c62-57 139-82 231-82h118c92 0 169 25 231 82 55 50 97 139 127 253 19 72-56 128-118 85l-116-82H264l-116 82c-62 43-137-13-118-85 30-114 72-203 126-253Z" fill="url(#pad)" stroke="url(#rim)" stroke-width="10"/>
+  <path d="M242 283h112M298 227v112" stroke="#FFF7E8" stroke-width="22" stroke-linecap="round"/>
+  <circle cx="637" cy="245" r="21" fill="#B8E34A"/><circle cx="704" cy="297" r="21" fill="#FF6B5E"/><circle cx="584" cy="306" r="21" fill="#78E7FF"/><circle cx="650" cy="359" r="21" fill="#FFF7E8"/>
+  <circle cx="445" cy="335" r="64" fill="#08091D" stroke="#30367A" stroke-width="8"/><circle cx="445" cy="335" r="30" fill="#1A1D4F"/>
+  <rect x="428" y="206" width="86" height="32" rx="16" fill="#08091D" stroke="#343879" stroke-width="5"/>
+</g>
+<g transform="translate(430 680)"><path d="M90 0h405l65 126H25Z" fill="#090B22" stroke="#333A88" stroke-width="5"/><rect x="110" y="26" width="366" height="72" rx="18" fill="#101744" stroke="#5C7CFA" stroke-width="4"/><path d="M152 62h284" stroke="#78E7FF" stroke-width="7" opacity=".62" filter="url(#glow)"/></g>
+<g fill="none" stroke-linecap="round" filter="url(#glow)"><path d="M330 128l38 38m0-38-38 38" stroke="#B35CFF" stroke-width="9"/><rect x="1010" y="286" width="38" height="38" rx="5" stroke="#FF6B5E" stroke-width="8" transform="rotate(12 1029 305)"/><path d="M1080 610l30-50 30 50Z" stroke="#B8E34A" stroke-width="8"/><circle cx="220" cy="280" r="26" stroke="#78E7FF" stroke-width="8"/></g>
+<g fill="none" stroke="#B8E34A" stroke-width="8" stroke-linecap="round" opacity=".75"><path d="M142 734c-7-93 23-150 70-201M150 630c-49-29-77-67-82-114M171 586c56-32 91-72 104-122"/></g>
+<g fill="none" stroke="#FF6B5E" stroke-width="7" stroke-linecap="round" opacity=".62"><path d="M1055 750c4-74-18-121-55-160M1050 680c41-23 64-55 69-94"/></g>
+<circle cx="210" cy="175" r="90" fill="#5C7CFA" opacity=".13" filter="url(#soft)"/><circle cx="1028" cy="680" r="110" fill="#FF6B5E" opacity=".11" filter="url(#soft)"/>
+</svg>

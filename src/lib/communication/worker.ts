@@ -1,0 +1,161 @@
+import { createAdminClient } from '@/lib/supabase/admin';
+import { getCommunicationProvider, isCommunicationProviderConfigured } from './provider';
+import { getCommunicationTemplate } from './templates';
+import { brandedSubject, getCommunicationIdentityForInstance } from './identity';
+import { officeAttachmentsForJob } from './office-email-attachments';
+
+type ClaimedJob={id:string;instance_id:string;recipient_email:string;purpose:'transactional'|'marketing';template_key:string;payload:Record<string,unknown>;claim_token:string;attempts:number};
+type OfficeThreadReplyRow={id:string;conversation_type:string;mailbox_key:string|null};
+type OfficeRouteReplyRow={reply_token:string};
+type OfficeMailboxReplyRow={inbound_address:string;is_active:boolean};
+type OfficeEnvelope={cc:string[];bcc:string[]};
+export type WorkerSummary={recovered:number;queuedStock:number;queuedRecovery:number;claimed:number;sent:number;failed:number;blocked:number;tenantFailures:number};
+const empty=():WorkerSummary=>({recovered:0,queuedStock:0,queuedRecovery:0,claimed:0,sent:0,failed:0,blocked:0,tenantFailures:0});
+const uuidPattern=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+async function persistFailedClaim(admin:ReturnType<typeof createAdminClient>,instanceId:string,job:ClaimedJob,message:string,retry:boolean){
+  const{data,error}=await admin.rpc('fail_communication_job_v2',{p_instance_id:instanceId,p_id:job.id,p_claim_token:job.claim_token,p_error:message,p_retry:retry});
+  if(error||data!==true)throw error??new Error('COMMUNICATION_FAIL_EVIDENCE_MISSING');
+}
+function add(target:WorkerSummary,value:WorkerSummary){
+  target.recovered+=value.recovered;target.queuedStock+=value.queuedStock;target.queuedRecovery+=value.queuedRecovery;
+  target.claimed+=value.claimed;target.sent+=value.sent;target.failed+=value.failed;target.blocked+=value.blocked;target.tenantFailures+=value.tenantFailures;
+}
+function plusReplyAddress(baseAddress:string,replyToken:string){
+  const normalized=baseAddress.trim().toLowerCase(),at=normalized.lastIndexOf('@');
+  if(at<=0||at===normalized.length-1||!uuidPattern.test(replyToken))throw new Error('OFFICE_REPLY_MAILBOX_INVALID');
+  return `${normalized.slice(0,at)}+${replyToken}@${normalized.slice(at+1)}`;
+}
+function normalizedEnvelopeList(value:unknown,exclude:string[]){
+  if(value===undefined||value===null)return [];
+  if(!Array.isArray(value)||value.length>10)throw new Error('OFFICE_EMAIL_ENVELOPE_INVALID');
+  const result:string[]=[];
+  for(const entry of value){
+    if(typeof entry!=='string')throw new Error('OFFICE_EMAIL_ENVELOPE_INVALID');
+    const email=entry.trim().toLowerCase();
+    if(email.length<5||email.length>320||!email.includes('@')||/[\r\n]/.test(email))throw new Error('OFFICE_EMAIL_ENVELOPE_INVALID');
+    if(exclude.includes(email)||result.includes(email))throw new Error('OFFICE_EMAIL_ENVELOPE_DUPLICATE');
+    result.push(email);
+  }
+  return result;
+}
+function officeEnvelopeForJob(job:ClaimedJob):OfficeEnvelope{
+  if(job.template_key!=='support_reply')return{cc:[],bcc:[]};
+  const primary=job.recipient_email.trim().toLowerCase();
+  const cc=normalizedEnvelopeList(job.payload?.emailCc,[primary]);
+  const bcc=normalizedEnvelopeList(job.payload?.emailBcc,[primary,...cc]);
+  return{cc,bcc};
+}
+function subjectForJob(job:ClaimedJob,templateSubject:string,brandName:string){
+  if(job.template_key==='support_reply'){
+    const manual=typeof job.payload?.emailSubject==='string'?job.payload.emailSubject.trim():'';
+    if(manual)return manual.slice(0,300);
+  }
+  return brandedSubject(templateSubject,brandName);
+}
+async function resolveOfficeReplyTo(admin:ReturnType<typeof createAdminClient>,instanceId:string,job:ClaimedJob){
+  if(job.template_key!=='support_reply')return null;
+  const threadId=typeof job.payload?.officeThreadId==='string'?job.payload.officeThreadId.trim():'';
+  if(!uuidPattern.test(threadId))throw new Error('OFFICE_REPLY_THREAD_REQUIRED');
+  const[{data:thread,error:threadError},{data:route,error:routeError}]=await Promise.all([
+    admin.from('office_threads').select('id,conversation_type,mailbox_key').eq('instance_id',instanceId).eq('id',threadId).maybeSingle(),
+    admin.from('office_thread_email_routes').select('reply_token').eq('instance_id',instanceId).eq('thread_id',threadId).maybeSingle(),
+  ]);
+  if(threadError)throw threadError;if(routeError)throw routeError;
+  const typedThread=(thread??null) as OfficeThreadReplyRow|null,typedRoute=(route??null) as OfficeRouteReplyRow|null;
+  if(!typedThread||typedThread.conversation_type!=='customer'||!typedThread.mailbox_key||!typedRoute?.reply_token)throw new Error('OFFICE_REPLY_MAILBOX_NOT_CONFIGURED');
+  const{data:mailbox,error:mailboxError}=await admin.from('office_mailboxes')
+    .select('inbound_address,is_active')
+    .eq('instance_id',instanceId).eq('mailbox_key',typedThread.mailbox_key).eq('is_active',true).maybeSingle();
+  if(mailboxError)throw mailboxError;
+  const typedMailbox=(mailbox??null) as OfficeMailboxReplyRow|null;
+  if(!typedMailbox?.is_active||!typedMailbox.inbound_address)throw new Error('OFFICE_REPLY_MAILBOX_NOT_CONFIGURED');
+  return plusReplyAddress(typedMailbox.inbound_address,typedRoute.reply_token);
+}
+
+async function runForInstance(instanceId:string,limit:number):Promise<WorkerSummary>{
+  const admin=createAdminClient(),summary=empty();
+  const{data:run,error:runError}=await admin.from('communication_worker_runs').insert({instance_id:instanceId,source:'internal',status:'running'}).select('id').single();
+  if(runError||!run?.id)throw runError??new Error('COMMUNICATION_WORKER_RUN_EVIDENCE_MISSING');
+  try{
+    const{data:recovered,error:recoveryError}=await admin.rpc('recover_stale_communication_jobs_v2',{p_instance_id:instanceId,p_stale_minutes:15});
+    if(recoveryError)throw recoveryError;summary.recovered=Number(recovered??0);
+    const{data:queuedStock,error:stockQueueError}=await admin.rpc('queue_available_stock_notifications_v2',{p_instance_id:instanceId,p_limit:Math.max(1,Math.min(limit*5,200))});
+    if(stockQueueError)throw stockQueueError;summary.queuedStock=Number(queuedStock??0);
+    const{data:queuedRecovery,error:recoveryQueueError}=await admin.rpc('queue_abandoned_checkout_recoveries_v2',{p_instance_id:instanceId,p_limit:Math.max(1,Math.min(limit*5,200)),p_min_age_minutes:60});
+    if(recoveryQueueError)throw recoveryQueueError;summary.queuedRecovery=Number(queuedRecovery??0);
+    if(isCommunicationProviderConfigured()){
+      const[{data,error},identity]=await Promise.all([
+        admin.rpc('claim_communication_jobs_v2',{p_instance_id:instanceId,p_limit:Math.max(1,Math.min(limit,50))}),
+        getCommunicationIdentityForInstance(instanceId),
+      ]);
+      if(error)throw error;
+      const jobs=(data??[]) as ClaimedJob[];summary.claimed=jobs.length;const provider=getCommunicationProvider();
+      for(const job of jobs){
+        try{
+          if(job.instance_id!==instanceId)throw new Error('COMMUNICATION_TENANT_MISMATCH');
+          const template=getCommunicationTemplate(job.template_key);
+          if(!template||template.purpose!==job.purpose){
+            await persistFailedClaim(admin,instanceId,job,'INVALID_TEMPLATE_OR_PURPOSE',false);
+            summary.blocked++;continue;
+          }
+          const envelope=officeEnvelopeForJob(job);
+          const{data:suppressed,error:suppressionError}=await admin.rpc('is_communication_suppressed_v2',{p_instance_id:instanceId,p_email:job.recipient_email});
+          if(suppressionError)throw suppressionError;
+          if(suppressed===true){
+            await persistFailedClaim(admin,instanceId,job,'RECIPIENT_SUPPRESSED_AT_SEND_TIME',false);
+            if(job.template_key==='stock_available')await admin.from('stock_notifications').update({status:'cancelled'}).eq('communication_job_id',job.id).eq('instance_id',instanceId);
+            summary.blocked++;continue;
+          }
+          let secondaryBlocked=false;
+          for(const secondary of [...envelope.cc,...envelope.bcc]){
+            const{data:secondarySuppressed,error:secondaryError}=await admin.rpc('is_communication_suppressed_v2',{p_instance_id:instanceId,p_email:secondary});
+            if(secondaryError)throw secondaryError;
+            if(secondarySuppressed===true){
+              await persistFailedClaim(admin,instanceId,job,'OFFICE_SECONDARY_RECIPIENT_SUPPRESSED_AT_SEND_TIME',false);
+              summary.blocked++;secondaryBlocked=true;break;
+            }
+          }
+          if(secondaryBlocked)continue;
+          if(job.purpose==='marketing'){
+            const{data:allowed,error:consentError}=await admin.rpc('has_marketing_consent_v2',{p_instance_id:instanceId,p_email:job.recipient_email,p_channel:'email'});
+            if(consentError)throw consentError;
+            if(allowed!==true){
+              await persistFailedClaim(admin,instanceId,job,'MARKETING_CONSENT_MISSING_AT_SEND_TIME',false);
+              summary.blocked++;continue;
+            }
+          }
+          const [replyTo,attachments]=await Promise.all([
+            resolveOfficeReplyTo(admin,instanceId,job),
+            officeAttachmentsForJob(admin,instanceId,job.id),
+          ]);
+          const result=await provider.send({to:job.recipient_email,cc:envelope.cc,bcc:envelope.bcc,subject:subjectForJob(job,template.subject,identity.brandName),templateKey:job.template_key,purpose:job.purpose,payload:job.payload??{},identity,replyTo,attachments});
+          const{data:completed,error:completeError}=await admin.rpc('complete_communication_job_v2',{p_instance_id:instanceId,p_id:job.id,p_claim_token:job.claim_token,p_provider_message_id:result.providerMessageId});
+          if(completeError||completed!==true)throw completeError??new Error('COMMUNICATION_CLAIM_LOST');
+          if(job.template_key==='stock_available')await admin.from('stock_notifications').update({status:'sent',sent_at:new Date().toISOString()}).eq('communication_job_id',job.id).eq('instance_id',instanceId);
+          summary.sent++;
+        }catch(error){
+          const message=error instanceof Error?error.message:'UNKNOWN_COMMUNICATION_ERROR',retry=job.attempts<5&&!message.startsWith('OFFICE_');
+          try{await persistFailedClaim(admin,instanceId,job,message,retry);summary.failed++;}
+          catch(persistError){console.error('communication failure evidence missing',{instanceId,jobId:job.id,error:persistError});throw persistError;}
+        }
+      }
+    }
+    if(run?.id)await admin.from('communication_worker_runs').update({status:'success',recovered:summary.recovered,claimed:summary.claimed,sent:summary.sent,failed:summary.failed,blocked:summary.blocked,finished_at:new Date().toISOString()}).eq('id',run.id).eq('instance_id',instanceId);
+    return summary;
+  }catch(error){
+    if(run?.id)await admin.from('communication_worker_runs').update({status:'failed',recovered:summary.recovered,claimed:summary.claimed,sent:summary.sent,failed:summary.failed,blocked:summary.blocked,error_message:error instanceof Error?error.message:'UNKNOWN_WORKER_ERROR',finished_at:new Date().toISOString()}).eq('id',run.id).eq('instance_id',instanceId);
+    throw error;
+  }
+}
+
+export async function runCommunicationWorker(limit=10):Promise<WorkerSummary>{
+  const admin=createAdminClient(),summary=empty();
+  const{data:instances,error}=await admin.from('webshop_instances').select('id').in('status',['pilot','active']).order('created_at',{ascending:true});
+  if(error)throw error;
+  for(const instance of instances??[]){
+    try{add(summary,await runForInstance(instance.id,limit));}
+    catch(error){summary.tenantFailures++;console.error('communication tenant worker failed',{instanceId:instance.id,error});}
+  }
+  if((instances?.length??0)>0&&summary.tenantFailures===(instances?.length??0))throw new Error('COMMUNICATION_WORKER_ALL_TENANTS_FAILED');
+  return summary;
+}

@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 1200" role="img" aria-labelledby="title desc">
+<title id="title">Monarche editorial edit placeholder</title>
+<desc id="desc">Abstract graphite and off-white editorial composition for the neutral Monarche demo package.</desc>
+<rect width="1200" height="1200" fill="#f5f1eb"/>
+<rect x="100" y="100" width="470" height="1000" fill="#171717"/>
+<rect x="630" y="100" width="470" height="1000" fill="#d8d1c7"/>
+<path d="M235 970 420 300l100 670H235Z" fill="#8b7664"/>
+<circle cx="855" cy="400" r="175" fill="#eee8e1"/>
+<path d="M700 960c95-255 205-385 325-510v510H700Z" fill="#625e59"/>
+</svg>

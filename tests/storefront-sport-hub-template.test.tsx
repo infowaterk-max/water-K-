@@ -1,0 +1,260 @@
+import {renderToStaticMarkup} from 'react-dom/server';
+import {describe,expect,it} from 'vitest';
+import {StorefrontRuntimeRenderer} from '@/components/builder/storefront-runtime-renderer';
+import {createStorefrontStoryRendererRegistry} from '@/components/builder/storefront-story';
+import {createStorefrontStoryComponentRegistry} from '@/lib/builder/storefront-story';
+import {PLANS} from '@/lib/plans/catalog';
+import {
+  SPORT_HUB_DESIGN_TOKENS,
+  SPORT_HUB_ENGINE_CONTRACT,
+  SPORT_HUB_HOME_PAGE,
+  SPORT_HUB_HOME_SECTION_ORDER,
+  SPORT_HUB_PRODUCT_PAGE,
+  SPORT_HUB_TEMPLATE_KEY,
+  SPORT_HUB_TEMPLATE_PACKAGE,
+  SPORT_HUB_TEMPLATE_VERSION,
+  SPORT_HUB_VISUAL_DNA,
+} from '@/lib/builder/templates/sport-hub';
+import {
+  evaluateStorefrontTemplateCapabilityGate,
+  planStorefrontTemplateInstallation,
+} from '@/lib/builder/storefront-template-installation';
+import {validateStorefrontPageDocument} from '@/lib/builder/storefront-runtime';
+
+const capability={plan:'alap' as const,features:PLANS.alap.features};
+
+describe('Scale-out Wave 21 Sport Hub',()=>{
+  it('locks a broad multisport identity distinct from Trail & Expedition and Performance Lab',()=>{
+    expect(SPORT_HUB_TEMPLATE_KEY).toBe('sport.sport-hub');
+    expect(SPORT_HUB_TEMPLATE_VERSION).toBe(1);
+    expect(SPORT_HUB_VISUAL_DNA.character).toBe('clean-energetic-multisport-premium-retail');
+    expect(SPORT_HUB_VISUAL_DNA.position).toBe('broad-multisport-commerce-hub');
+    expect(SPORT_HUB_VISUAL_DNA.exclusions).toEqual(
+      expect.arrayContaining([
+        'dark-performance-lab-clone',
+        'expedition-outdoor-clone',
+        'fake-performance-claims',
+        'fake-team-affiliation',
+      ]),
+    );
+    expect(SPORT_HUB_DESIGN_TOKENS['--shoporation-color-background']).toBe('#F7F6F2');
+  });
+
+  it('uses only shared Runtime, Discovery, Structured Product, Story and Checkout engines',()=>{
+    expect(SPORT_HUB_ENGINE_CONTRACT.requiredForFullExperience).toEqual(['E1','E2','E7','E10','E13']);
+    expect(SPORT_HUB_ENGINE_CONTRACT.merchandising.skillLevel).toMatch(/merchant-configured-navigation/);
+    expect(SPORT_HUB_ENGINE_CONTRACT.merchandising.quickBuy).toMatch(/no-new-authority/);
+    expect(SPORT_HUB_ENGINE_CONTRACT.separation.trailExpedition).toMatch(/no-expedition/);
+    expect(SPORT_HUB_ENGINE_CONTRACT.separation.performanceLab).toMatch(/no-dark-data-lab/);
+  });
+
+  it('ships 14 Alap-compatible Page Schema presets through the existing Story registry chain',()=>{
+    const registry=createStorefrontStoryComponentRegistry();
+    const gate=evaluateStorefrontTemplateCapabilityGate({
+      template:SPORT_HUB_TEMPLATE_PACKAGE,
+      componentRegistry:registry,
+      capability,
+    });
+    expect(gate.violations.filter(item=>item.severity==='error')).toEqual([]);
+    expect(gate.ok).toBe(true);
+    expect(SPORT_HUB_TEMPLATE_PACKAGE.pages).toHaveLength(14);
+    expect(new Set(SPORT_HUB_TEMPLATE_PACKAGE.pages.map(page=>page.pageType)).size).toBe(14);
+
+    for(const page of SPORT_HUB_TEMPLATE_PACKAGE.pages){
+      const result=validateStorefrontPageDocument(page,registry,capability);
+      expect(result.ok,`${page.pageType}: ${JSON.stringify(result.violations)}`).toBe(true);
+    }
+  });
+
+  it('locks the Sport Hub Home order',()=>{
+    expect(SPORT_HUB_HOME_PAGE.metadata?.sectionOrder).toEqual(SPORT_HUB_HOME_SECTION_ORDER);
+    expect(SPORT_HUB_HOME_SECTION_ORDER).toEqual([
+      'Sport Hub Hero',
+      'Shop by Sport',
+      'New Season',
+      'Footwear & Apparel',
+      'Equipment Essentials',
+      'Team & Club',
+      'Featured Sport',
+      'Community Stories',
+      'Guides & Advice',
+      'Footer',
+    ]);
+  });
+
+  it('locks the approved activity-first question, six sport entries and skill-level merchandising axis',()=>{
+    expect(SPORT_HUB_HOME_PAGE.metadata?.shoppingEntryQuestion).toBe('Milyen sportot űzöl?');
+    expect(SPORT_HUB_HOME_PAGE.metadata?.sportEntries).toEqual(['futás','kerékpár','fitnesz','túra','úszás','labdajátékok']);
+    expect(SPORT_HUB_HOME_PAGE.metadata?.merchandisingDimensions).toEqual([
+      'sportág/aktivitás',
+      'kezdő/haladó/profi',
+      'szezonális sportok',
+      'felszerelés+ruházat',
+      'gyorsan vásárolható termékek',
+    ]);
+    expect(JSON.stringify(SPORT_HUB_HOME_PAGE)).toContain('Milyen szinten sportolsz?');
+    expect(JSON.stringify(SPORT_HUB_HOME_PAGE)).toContain('Kezdő');
+    expect(JSON.stringify(SPORT_HUB_HOME_PAGE)).toContain('Haladó');
+    expect(JSON.stringify(SPORT_HUB_HOME_PAGE)).toContain('Profi');
+  });
+
+  it('renders activity-first sport discovery, skill routing, commerce and editorial surfaces together',()=>{
+    const bindingContext={
+      brand:{name:'Sport Hub Demo',homeHref:'/',copyright:'© Sport Hub Demo'},
+      navigation:{primary:[],footer:[]},
+      content:{
+        sportLevels:{beginnerHref:'/webaruhaz?level=beginner',advancedHref:'/webaruhaz?level=advanced',proHref:'/webaruhaz?level=pro'},
+        sportHubNewSeason:{title:'New Season'},
+        sportHubFootwearApparel:{title:'Footwear & Apparel'},
+        sportHubEquipment:{title:'Equipment Essentials'},
+        teamClub:{title:'Team & Club'},
+        featuredSport:{title:'Running Focus'},
+        communityStories:[
+          {id:'club',storyType:'journal',title:'Club Run',href:'/blog/club-run',excerpt:'Közösségi futás.'},
+        ],
+        sportGuides:[
+          {id:'size',storyType:'journal',title:'Méretválasztó',href:'/blog/meret',excerpt:'Útmutató.'},
+        ],
+      },
+      collection:{
+        sports:[
+          {id:'run',label:'Futás',href:'/webaruhaz?sport=run'},
+          {id:'cycling',label:'Kerékpár',href:'/webaruhaz?sport=cycling'},
+          {id:'fitness',label:'Fitnesz',href:'/webaruhaz?sport=fitness'},
+          {id:'hiking',label:'Túra',href:'/webaruhaz?sport=hiking'},
+          {id:'swimming',label:'Úszás',href:'/webaruhaz?sport=swimming'},
+          {id:'ball-games',label:'Labdajátékok',href:'/webaruhaz?sport=ball-games'},
+        ],
+      },
+      catalog:{
+        newSeason:[
+          {id:'shoe',name:'Daily Trainer',href:'/termek/daily-trainer',price:'39 900 Ft'},
+        ],
+        footwearApparel:[
+          {id:'layer',name:'Training Layer',href:'/termek/training-layer',price:'19 900 Ft'},
+        ],
+        equipment:[
+          {id:'ball',name:'Training Ball',href:'/termek/training-ball',price:'9 900 Ft'},
+        ],
+      },
+    };
+
+    const html=renderToStaticMarkup(
+      <StorefrontRuntimeRenderer
+        page={SPORT_HUB_HOME_PAGE}
+        viewport="desktop"
+        bindingContext={bindingContext}
+        componentRegistry={createStorefrontStoryComponentRegistry()}
+        rendererRegistry={createStorefrontStoryRendererRegistry()}
+        capability={capability}
+      />,
+    );
+
+    expect(html).toContain('Milyen sportot űzöl?');
+    expect(html).toContain('Milyen szinten sportolsz?');
+    expect(html).toContain('Kezdő');
+    expect(html).toContain('Haladó');
+    expect(html).toContain('Profi');
+    expect(html).toContain('Futás');
+    expect(html).toContain('Kerékpár');
+    expect(html).toContain('Úszás');
+    expect(html).toContain('Labdajátékok');
+    expect(html).toContain('Daily Trainer');
+    expect(html).toContain('Training Layer');
+    expect(html).toContain('Training Ball');
+    expect(html).toContain('Team &amp; Club');
+    expect(html).toContain('Running Focus');
+    expect(html).toContain('Club Run');
+    expect(html).toContain('Méretválasztó');
+  });
+
+  it('renders PDP 7/12 + 5/12 with only supplied structured sport facts',()=>{
+    const context={
+      brand:{name:'Sport Hub Demo',homeHref:'/'},
+      navigation:{primary:[],footer:[]},
+      product:{
+        name:'Daily Trainer',
+        description:'Mindennapi futócipő.',
+        gallery:[{src:'https://example.com/shoe.jpg',alt:'Daily Trainer'}],
+        badges:[],
+        keySpecs:[
+          {specKey:'size',label:'Méret',displayValue:'42',missing:false},
+          {specKey:'upper',label:'Felsőrész',displayValue:'Mesh',missing:false},
+        ],
+        specGroups:[
+          {
+            groupKey:'facts',
+            label:'Termékadatok',
+            rows:[{specKey:'drop',label:'Drop',displayValue:'8 mm',missing:false}],
+          },
+        ],
+      },
+      variant:{optionLabel:'Méret',optionOptions:[{id:'42',label:'42',href:'#42',available:true}]},
+      pricing:{displayPrice:'39 900 Ft',compareAtPrice:''},
+      inventory:{stockLabel:'Raktáron'},
+      commerce:{purchaseLabel:'Kosárba teszem',purchaseHref:'#purchase'},
+      content:{productStory:{title:'Sport Note',copy:'Szerkesztett terméktörténet.'}},
+      recommendations:{products:[]},
+    };
+
+    const desktop=renderToStaticMarkup(
+      <StorefrontRuntimeRenderer
+        page={SPORT_HUB_PRODUCT_PAGE}
+        viewport="desktop"
+        bindingContext={context}
+        componentRegistry={createStorefrontStoryComponentRegistry()}
+        rendererRegistry={createStorefrontStoryRendererRegistry()}
+        capability={capability}
+      />,
+    );
+    const mobile=renderToStaticMarkup(
+      <StorefrontRuntimeRenderer
+        page={SPORT_HUB_PRODUCT_PAGE}
+        viewport="mobile"
+        bindingContext={context}
+        componentRegistry={createStorefrontStoryComponentRegistry()}
+        rendererRegistry={createStorefrontStoryRendererRegistry()}
+        capability={capability}
+      />,
+    );
+
+    expect(desktop).toContain('span 7 / span 7');
+    expect(desktop).toContain('span 5 / span 5');
+    expect(mobile).toContain('span 12 / span 12');
+    expect(desktop).toContain('Mesh');
+    expect(desktop).toContain('8 mm');
+    expect(desktop).toContain('Sport Note');
+  });
+
+  it('keeps install draft-only and demo fixtures free from fabricated sports authority',()=>{
+    const demo=JSON.stringify(SPORT_HUB_TEMPLATE_PACKAGE.demoFixtures??[]);
+    expect(demo).not.toMatch(/performanceGuarantee|officialTeam|eventResult|worldRecord|certifiedAthlete|guaranteed/i);
+    const sportCollections=(SPORT_HUB_TEMPLATE_PACKAGE.demoFixtures??[])
+      .filter(item=>item.entityType==='collection')
+      .map(item=>item.entityKey);
+    expect(sportCollections).toEqual(['running','cycling','fitness','hiking','swimming','ball-games']);
+
+    const plan=planStorefrontTemplateInstallation({
+      template:SPORT_HUB_TEMPLATE_PACKAGE,
+      componentRegistry:createStorefrontStoryComponentRegistry(),
+      capability,
+    });
+    expect(plan.mode).toBe('install');
+    expect(plan.pages).toHaveLength(14);
+    expect(plan.mutationBoundary).toMatchObject({
+      storefrontPageDrafts:true,
+      products:false,
+      variants:false,
+      customers:false,
+      orders:false,
+      b2b:false,
+    });
+    expect(plan.demoLifecycle.install.every(record=>record.namespace==='sport-sport-hub')).toBe(true);
+  });
+
+  it('keeps checkout provider-neutral and E13-authoritative',()=>{
+    const checkout=SPORT_HUB_TEMPLATE_PACKAGE.pages.find(page=>page.pageType==='checkout')!;
+    expect(checkout.metadata?.engineBinding).toBe('E13');
+    expect(JSON.stringify(checkout)).not.toMatch(/K&H|khpos|vpos|payment_secret|merchantId/i);
+  });
+});

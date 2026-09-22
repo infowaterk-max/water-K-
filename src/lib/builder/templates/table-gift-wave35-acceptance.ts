@@ -1,0 +1,82 @@
+import {GALLERY_EDIT_VISUAL_DNA} from '@/lib/builder/templates/gallery-edit';
+import {MARKET_PANTRY_VISUAL_DNA} from '@/lib/builder/templates/market-pantry';
+import {
+  TABLE_GIFT_BUILDER_HARDENING_CONTRACT,
+  TABLE_GIFT_ENGINE_CONTRACT,
+  TABLE_GIFT_HOME_SECTION_ORDER,
+  TABLE_GIFT_TEMPLATE_KEY,
+  TABLE_GIFT_TEMPLATE_VERSION,
+  TABLE_GIFT_VISUAL_DNA,
+} from '@/lib/builder/templates/table-gift';
+
+/** Wave 35 re-accepts the inherited Table & Gift v1 on the current stacked
+ * Builder baseline. It creates no second template, no gifting authority engine,
+ * and does not widen E3/E4/E13 authority. */
+export const TABLE_GIFT_WAVE35_ACCEPTANCE=Object.freeze({
+  wave:35,
+  mode:'current-baseline-reacceptance-and-builder-hardening',
+  templateKey:TABLE_GIFT_TEMPLATE_KEY,
+  templateVersion:TABLE_GIFT_TEMPLATE_VERSION,
+  inheritedImplementation:true,
+  portfolio:{
+    category:'food-gifting',
+    tableGift:TABLE_GIFT_VISUAL_DNA.character,
+    journey:TABLE_GIFT_VISUAL_DNA.journey,
+    previousGalleryEdit:GALLERY_EDIT_VISUAL_DNA.character,
+    foodSiblingMarketPantry:MARKET_PANTRY_VISUAL_DNA.character,
+  },
+  visualContract:{
+    character:'premium-gifting-occasion-table-curated-commerce',
+    palette:['ivory','deep-burgundy','forest-green','champagne','black'],
+    typography:['elegant-editorial-serif','clean-sans'],
+    imagery:'gift-box-ribbon-premium-table-setting-curated-food-drink-packaging-editorial-still-life',
+    spacing:'generous-celebratory-refined',
+    exclusions:TABLE_GIFT_VISUAL_DNA.exclusions,
+  },
+  builderContract:{
+    hardening:TABLE_GIFT_BUILDER_HARDENING_CONTRACT,
+    stableIdentity:'stable-node-ids-and-stable-binding-paths',
+    pagePresetCount:14,
+    minimumPlan:'alap',
+    demoNamespace:'food-table-gift',
+    installation:'draft-only',
+    homeOrder:TABLE_GIFT_HOME_SECTION_ORDER,
+  },
+  commerceAuthority:{
+    engineContract:TABLE_GIFT_ENGINE_CONTRACT,
+    discovery:'E2-only-for-catalog-and-channel-eligibility',
+    guidedFinder:'E3-guidance-and-ranking-only',
+    composer:'E4-real-product-composition-intent-only',
+    pricing:'shared-commerce-binding-only',
+    inventory:'shared-commerce-binding-only',
+    recommendations:'shared-recommendation-binding-only',
+    giftMessage:'presentation-only-no-persistence-authority',
+    corporateGift:'contact-presentation-only-no-b2b-pricing-or-approval-authority',
+    checkout:'shared-provider-neutral-E13',
+  },
+  distinctness:{
+    notGalleryEdit:'not-airy-object-room-material-gallery-curation',
+    notMarketPantry:'not-pantry-market-composer-first-grocery-commerce',
+    ownPosition:'occasion-recipient-gifting-first-guided-and-composed-premium-commerce',
+    separationIncludes:['layout','section-order','journey','palette','typography','imagery','occasion-navigation','gift-composition'],
+  },
+  nonScope:[
+    'second-table-gift-template',
+    'gift-hero-addition',
+    'gift-story-addition',
+    'reviews-home-addition',
+    'E10-required-dependency',
+    'template-local-guided-finder-engine',
+    'template-local-composer-engine',
+    'virtual-bundle-sku-authority',
+    'fixed-gift-price-authority',
+    'gift-message-persistence-authority',
+    'corporate-pricing-or-b2b-authority',
+    'payment-provider-change',
+    'sql-migration',
+    'vercel-production-deploy',
+    'supabase-mutation',
+    'main-merge',
+    'visual-builder-drag-drop-ui',
+  ],
+} as const);

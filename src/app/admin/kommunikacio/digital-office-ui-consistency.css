@@ -1,0 +1,189 @@
+/* Digital Office UI consistency + Messenger chat hardening — 2026-09-10.
+   Presentation-only. Authorization, tenant scope, RLS, capability/entitlement and
+   secure attachment scan/fail-closed contracts remain authoritative and unchanged. */
+
+/* Compact desktop action controls: proportional to the dense Digital Office UI. */
+@media(min-width:851px){
+  .digitalOfficeShell .digitalOfficeThreadToolbar .btn.btnPrimary{
+    min-height:28px!important;height:28px!important;padding:0 9px!important;
+    border-radius:8px!important;font-size:8px!important;line-height:1!important;
+  }
+  .digitalOfficeShell .digitalOfficeContextForm>.btn.btnPrimary{
+    width:max-content!important;min-width:0!important;min-height:28px!important;height:28px!important;
+    padding:0 10px!important;border-radius:8px!important;font-size:8px!important;line-height:1!important;
+  }
+  .digitalOfficeShell .teamChatNewButton{
+    width:28px!important;height:28px!important;min-width:28px!important;min-height:28px!important;
+    border-radius:8px!important;font-size:14px!important;line-height:1!important;
+  }
+  .digitalOfficeShell .teamChatAddParticipant .btn,
+  .digitalOfficeShell .teamChatOwnerTransfer .btn,
+  .digitalOfficeShell .digitalOfficeNewTask .btn{
+    min-height:28px!important;height:28px!important;padding:0 9px!important;border-radius:8px!important;font-size:8px!important;
+  }
+}
+
+/* Replace the visually alien browser file field with a compact Shoperation-styled picker.
+   The native input remains the actual control; only its browser chrome/text is restyled. */
+.digitalOfficeShell input[type="file"]:not(.teamChatFileInput){
+  display:block!important;
+  width:max-content!important;
+  max-width:100%!important;
+  min-height:28px!important;
+  height:28px!important;
+  margin:0!important;
+  padding:0!important;
+  border:0!important;
+  border-radius:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  color:transparent!important;
+  font-size:0!important;
+  line-height:1!important;
+  overflow:hidden!important;
+}
+.digitalOfficeShell input[type="file"]:not(.teamChatFileInput)::file-selector-button{
+  height:28px;
+  margin:0;
+  padding:0 10px;
+  border:1px solid #cfe1dc;
+  border-radius:8px;
+  background:#fff;
+  color:#176f5e;
+  font:800 8px/1 inherit;
+  cursor:pointer;
+}
+.digitalOfficeShell input[type="file"]:not(.teamChatFileInput):hover::file-selector-button{
+  border-color:#9fcfc2;background:#f0f8f5;
+}
+.digitalOfficeShell input[type="file"]:not(.teamChatFileInput):focus-visible{
+  outline:2px solid rgba(15,152,125,.22)!important;outline-offset:2px!important;
+}
+.digitalOfficeShell input[type="file"]:not(.teamChatFileInput):disabled::file-selector-button{
+  cursor:not-allowed;opacity:.55;
+}
+
+/* Keep the previously noted composer utility controls visually compact. */
+.digitalOfficeShell .teamChatComposerTools>header>button{
+  width:22px!important;height:22px!important;min-width:22px!important;min-height:22px!important;
+  flex:0 0 22px!important;padding:0!important;border-radius:7px!important;font-size:12px!important;
+}
+.digitalOfficeShell .teamChatFilePickerButton{
+  min-height:26px!important;height:26px!important;padding:0 8px!important;border-radius:7px!important;font-size:7px!important;
+}
+.digitalOfficeShell .teamChatAttachmentPicker{padding:7px!important;gap:6px!important;border-radius:10px!important}
+
+/* Messenger-style message flow. Every message row spans the full conversation lane,
+   so browser zoom / ultrawide screens do not pull bubbles toward the center. */
+.digitalOfficeShell .teamChatMessages{
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:stretch!important;
+  width:100%!important;
+  min-width:0!important;
+  padding-left:14px!important;
+  padding-right:14px!important;
+}
+.digitalOfficeShell .teamChatMessage{
+  display:flex!important;
+  align-items:flex-end!important;
+  width:100%!important;
+  max-width:none!important;
+  min-width:0!important;
+  gap:7px!important;
+  margin:0 0 8px!important;
+}
+.digitalOfficeShell .teamChatMessage:not(.isMine){justify-content:flex-start!important}
+.digitalOfficeShell .teamChatMessage.isMine{justify-content:flex-end!important}
+.digitalOfficeShell .teamChatMessage.isMine .teamChatMessageAvatar{display:none!important}
+.digitalOfficeShell .teamChatMessage .teamChatMessageBubble{
+  width:fit-content!important;
+  max-width:min(72%,680px)!important;
+  margin:0!important;
+}
+.digitalOfficeShell .teamChatMessage:not(.isMine) .teamChatMessageBubble{
+  margin-right:auto!important;
+  border-radius:13px 13px 13px 4px!important;
+}
+.digitalOfficeShell .teamChatMessage.isMine .teamChatMessageBubble{
+  margin-left:auto!important;
+  border-color:#c7e4dc!important;
+  border-radius:13px 13px 4px 13px!important;
+  background:#e8f6f1!important;
+}
+.digitalOfficeShell .teamChatMessage.isMine .teamChatMessageBubble>header{
+  justify-content:flex-end!important;
+}
+.digitalOfficeShell .teamChatMessage.isMine .teamChatMessageBubble>header strong{display:none!important}
+.digitalOfficeShell .teamChatMessage.isMine + .teamChatMessage.isMine,
+.digitalOfficeShell .teamChatMessage:not(.isMine) + .teamChatMessage:not(.isMine){margin-top:-3px!important}
+
+/* Unified status language: full row/card carries the state, badges remain as labels. */
+.digitalOfficeShell .communicationQueueDesktop tbody tr:has(.adminStatePill[data-status="pending"])>td{
+  background:#fffaf0!important;border-color:#f3e2bd!important;
+}
+.digitalOfficeShell .communicationQueueDesktop tbody tr:has(.adminStatePill[data-status="pending"])>td:first-child{
+  box-shadow:inset 3px 0 #d6a442;
+}
+.digitalOfficeShell .communicationQueueDesktop tbody tr:has(.adminStatePill[data-status="processing"])>td{
+  background:#f3faf8!important;border-color:#dcece7!important;
+}
+.digitalOfficeShell .communicationQueueDesktop tbody tr:has(.adminStatePill[data-status="sent"])>td{
+  background:#f4fbf8!important;border-color:#deeee8!important;
+}
+.digitalOfficeShell .communicationQueueDesktop tbody tr:has(.adminStatePill[data-status="failed"])>td,
+.digitalOfficeShell .communicationQueueDesktop tbody tr:has(.adminStatePill[data-status="blocked"])>td{
+  background:#fff5f3!important;border-color:#f1d1cc!important;
+}
+.digitalOfficeShell .communicationQueueDesktop tbody tr:has(.adminStatePill[data-status="failed"])>td:first-child,
+.digitalOfficeShell .communicationQueueDesktop tbody tr:has(.adminStatePill[data-status="blocked"])>td:first-child{
+  box-shadow:inset 3px 0 #d66a61;
+}
+.digitalOfficeShell .communicationQueueDesktop tbody tr:has(.adminStatePill[data-status="cancelled"])>td{
+  background:#f6f7f7!important;color:#75827f!important;
+}
+.digitalOfficeShell .communicationQueueCard:has(.adminStatePill[data-status="pending"]),
+.digitalOfficeShell .featurePanel .cards>.card:has(.adminStatePill[data-status="pending"]){
+  border-color:#efd59e!important;background:#fffaf0!important;box-shadow:inset 3px 0 #d6a442!important;
+}
+.digitalOfficeShell .communicationQueueCard:has(.adminStatePill[data-status="processing"]){
+  border-color:#d5e9e3!important;background:#f3faf8!important;
+}
+.digitalOfficeShell .communicationQueueCard:has(.adminStatePill[data-status="sent"]){
+  border-color:#d7ebe4!important;background:#f4fbf8!important;
+}
+.digitalOfficeShell .communicationQueueCard:has(.adminStatePill[data-status="failed"]),
+.digitalOfficeShell .communicationQueueCard:has(.adminStatePill[data-status="blocked"]),
+.digitalOfficeShell .featurePanel .cards>.card:has(.adminStatePill[data-status="failed"]),
+.digitalOfficeShell .featurePanel .cards>.card:has(.adminStatePill[data-status="blocked"]){
+  border-color:#efc3bd!important;background:#fff5f3!important;box-shadow:inset 3px 0 #d66a61!important;
+}
+.digitalOfficeShell .communicationQueueCard:has(.adminStatePill[data-status="cancelled"]){
+  border-color:#e2e6e5!important;background:#f6f7f7!important;
+}
+
+/* KPI status cards use the same semantics as their underlying queue. */
+.digitalOfficeShell .adminMetricCards>.card:nth-child(1),
+.digitalOfficeShell .adminMetricCards>.card:nth-child(2){border-color:#efd59e!important;background:#fffaf0!important}
+.digitalOfficeShell .adminMetricCards>.card:nth-child(3){border-color:#d5e9e3!important;background:#f3faf8!important}
+.digitalOfficeShell .adminMetricCards>.card:nth-child(4){border-color:#efc3bd!important;background:#fff5f3!important}
+
+/* Dashboard/focus rows: attention applies to the whole actionable item. */
+.digitalOfficeShell .digitalOfficeFocusItem:has(em[data-tone="warn"]){
+  margin:5px 0!important;padding:8px!important;border:1px solid #efd59e!important;border-radius:9px!important;background:#fffaf0!important;
+}
+.digitalOfficeShell .digitalOfficeFocusItem:has(em[data-tone="danger"]){
+  margin:5px 0!important;padding:8px!important;border:1px solid #efc3bd!important;border-radius:9px!important;background:#fff5f3!important;
+}
+.digitalOfficeShell .digitalOfficeThreadItem:has(i[data-priority="urgent"]){
+  border-left:3px solid #d66a61!important;background:#fff7f5!important;
+}
+
+@media(max-width:850px){
+  /* Touch targets stay comfortably tappable on mobile even though desktop controls are denser. */
+  .digitalOfficeShell .digitalOfficeThreadToolbar .btn.btnPrimary,
+  .digitalOfficeShell .digitalOfficeContextForm>.btn.btnPrimary{min-height:38px!important;height:38px!important}
+  .digitalOfficeShell .teamChatNewButton{width:38px!important;height:38px!important;min-width:38px!important;min-height:38px!important}
+  .digitalOfficeShell .teamChatMessage .teamChatMessageBubble{max-width:86%!important}
+  .digitalOfficeShell .teamChatMessages{padding-left:10px!important;padding-right:10px!important}
+}

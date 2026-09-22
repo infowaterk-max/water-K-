@@ -1,0 +1,33 @@
+-- V14 approval audit hardening.
+create or replace function public.decide_action_proposal(p_proposal_id uuid,p_actor_id uuid,p_decision text,p_note text,p_event_key text)
+returns public.action_proposals language plpgsql security definer set search_path=''
+as $$
+declare p public.action_proposals;pol public.action_policies;v_count integer;v_slot integer;v_from text;begin
+ if p_decision not in ('approved','rejected') then raise exception 'invalid_decision';end if;
+ if nullif(trim(p_event_key),'') is null then raise exception 'event_key_required';end if;
+ perform pg_advisory_xact_lock(hashtextextended('action-proposal:'||p_proposal_id::text,0));
+ select * into p from public.action_proposals where id=p_proposal_id for update;if not found then raise exception 'proposal_not_found';end if;
+ select * into pol from public.action_policies where id=p.policy_id;v_from:=p.status;
+ if p.status<>'simulated' then raise exception 'proposal_not_approvable';end if;
+ if public.action_proposal_is_stale(p.id) then raise exception 'simulation_stale';end if;
+ if p.expires_at<=now() then raise exception 'proposal_expired';end if;
+ if exists(select 1 from public.action_proposal_events where event_key=p_event_key) then return p;end if;
+ if exists(select 1 from public.action_approvals where proposal_id=p.id and approver_id=p_actor_id) then raise exception 'approver_already_decided';end if;
+ if p_decision='rejected' then
+  select case when exists(select 1 from public.action_approvals where proposal_id=p.id and slot=1) then 2 else 1 end into v_slot;
+  insert into public.action_approvals(proposal_id,slot,approver_id,decision,note) values(p.id,v_slot,p_actor_id,'rejected',p_note);
+  update public.action_proposals set status='rejected',rejected_at=now(),updated_at=now() where id=p.id returning * into p;
+  insert into public.action_proposal_events(event_key,proposal_id,event_type,from_status,to_status,actor_id,metadata) values(p_event_key,p.id,'rejected',v_from,'rejected',p_actor_id,jsonb_build_object('note',p_note,'slot',v_slot));return p;
+ end if;
+ if pol.approval_mode='none' then
+  update public.action_proposals set status='approved',approved_at=now(),updated_at=now() where id=p.id returning * into p;
+  insert into public.action_proposal_events(event_key,proposal_id,event_type,from_status,to_status,actor_id,metadata) values(p_event_key,p.id,'approved',v_from,'approved',p_actor_id,jsonb_build_object('approval_mode','none'));return p;
+ end if;
+ select case when exists(select 1 from public.action_approvals where proposal_id=p.id and slot=1) then 2 else 1 end into v_slot;
+ if pol.approval_mode='single' and v_slot<>1 then raise exception 'approval_already_recorded';end if;
+ insert into public.action_approvals(proposal_id,slot,approver_id,decision,note) values(p.id,v_slot,p_actor_id,'approved',p_note);
+ select count(*) into v_count from public.action_approvals where proposal_id=p.id and decision='approved';
+ if pol.approval_mode='single' or (pol.approval_mode='dual' and v_count>=2) then update public.action_proposals set status='approved',approved_at=now(),updated_at=now() where id=p.id returning * into p;end if;
+ insert into public.action_proposal_events(event_key,proposal_id,event_type,from_status,to_status,actor_id,metadata) values(p_event_key,p.id,case when p.status='approved' then 'approved' else 'approval_added' end,v_from,p.status,p_actor_id,jsonb_build_object('approval_slot',v_slot,'approval_mode',pol.approval_mode,'note',p_note));return p;
+end;$$;
+revoke all on function public.decide_action_proposal(uuid,uuid,text,text,text) from public,anon,authenticated;grant execute on function public.decide_action_proposal(uuid,uuid,text,text,text) to service_role;

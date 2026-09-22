@@ -1,0 +1,43 @@
+import 'server-only';
+import { createAdminClient } from '@/lib/supabase/admin';
+import { getCurrentWebshopInstance } from '@/lib/instances/access';
+import { getPilotAcceptanceInstanceId } from '@/lib/storefront/pilot-access';
+import { getCommerceProviders,isProviderCheckoutReady,type FulfillmentKind,type PaymentFlow } from '@/lib/commerce/providers';
+
+export type ShippingOption={code:string;label:string;fee:number;kind:Exclude<FulfillmentKind,null>;adapterKey:string;externalLogistics:boolean};
+export type PaymentOption={code:string;label:string;adapterKey:string;flow:Exclude<PaymentFlow,null>};
+export type CommerceSettings={shippingOptions:ShippingOption[];paymentOptions:PaymentOption[];freeShippingThreshold:number};
+
+const disabledCommerceSettings:CommerceSettings={shippingOptions:[],paymentOptions:[],freeShippingThreshold:0};
+
+export async function getCommerceSettings():Promise<CommerceSettings>{
+ const instance=await getCurrentWebshopInstance();
+ // A sellable Shoperation instance must never inherit the reference shop's carriers,
+ // payment provider or pricing. Checkout stays disabled until an instance is resolved
+ // and its own provider connections are configured.
+ if(!instance)return disabledCommerceSettings;
+ try{
+  const providers=await getCommerceProviders();
+  const connected=providers.filter(isProviderCheckoutReady);
+  const acceptanceInstanceId=process.env.VERCEL_ENV==='preview'?await getPilotAcceptanceInstanceId():null;
+  const acceptancePreview=process.env.VERCEL_ENV==='preview'&&(acceptanceInstanceId===instance.id||instance.storefront.acceptance==='digital-commerce-guest-matrix');
+  const shippingOptions=connected.filter(p=>p.type==='shipping'&&p.fulfillmentKind).map(p=>({code:p.code,label:p.displayLabel||p.name,fee:p.feeHuf??0,kind:p.fulfillmentKind as Exclude<FulfillmentKind,null>,adapterKey:p.adapterKey,externalLogistics:p.adapterKey==='external_logistics_email'}));
+  const paymentOptions=connected.filter(p=>p.type==='payment'&&p.paymentFlow).map(p=>({code:p.code,label:p.displayLabel||p.name,adapterKey:p.adapterKey,flow:p.paymentFlow as Exclude<PaymentFlow,null>}));
+  if(acceptancePreview&&!shippingOptions.length&&!paymentOptions.length)return{
+    shippingOptions:[
+      {code:'pickup',label:'Acceptance · személyes átvétel',fee:0,kind:'pickup',adapterKey:'pickup',externalLogistics:false},
+      {code:'external_logistics',label:'Acceptance · házhozszállítás',fee:1490,kind:'home_delivery',adapterKey:'external_logistics_email',externalLogistics:true},
+      {code:'external_mpl_automata',label:'Acceptance · csomagpont',fee:990,kind:'parcel_point',adapterKey:'external_logistics_email',externalLogistics:true},
+    ],
+    paymentOptions:[
+      {code:'bank_transfer',label:'Acceptance · banki átutalás',adapterKey:'bank_transfer',flow:'bank_transfer'},
+      {code:'cash_on_delivery',label:'Acceptance · utánvét',adapterKey:'cash_on_delivery',flow:'cash_on_delivery'},
+    ],
+    freeShippingThreshold:20000,
+  };
+  const admin=createAdminClient();
+  const{data:instanceSettings,error}=await admin.from('webshop_instance_commerce_settings').select('free_shipping_threshold_huf').eq('instance_id',instance.id).maybeSingle();
+  if(error)throw error;
+  return{shippingOptions,paymentOptions,freeShippingThreshold:Number(instanceSettings?.free_shipping_threshold_huf??0)};
+ }catch{return disabledCommerceSettings}
+}

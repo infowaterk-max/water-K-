@@ -1,0 +1,33 @@
+.workspacePage{min-width:0}
+
+/* Desktop editor shell: the command bar belongs to the workspace flow instead of
+   floating over the canvas. The four workspace columns own their own vertical
+   scrolling, so tools stay reachable without covering editable content. */
+@media(min-width:1121px){
+  .workspacePage{min-height:0;overflow:hidden}
+  .workspacePage>section{min-height:0!important;overflow:hidden}
+  .workspacePage>section>header:first-child{position:static!important;top:auto!important}
+  .workspacePage>section>header:first-child+div+div{
+    height:calc(100dvh - 203px)!important;
+    min-height:560px!important;
+    overflow:hidden!important;
+  }
+  .workspacePage>section>header:first-child+div+div>:nth-child(1),
+  .workspacePage>section>header:first-child+div+div>:nth-child(2),
+  .workspacePage>section>header:first-child+div+div>:nth-child(3),
+  .workspacePage>section>header:first-child+div+div>:nth-child(4){
+    min-height:0!important;
+    height:100%;
+    overflow-y:auto!important;
+    overscroll-behavior:contain;
+    scrollbar-gutter:stable;
+  }
+  .workspacePage>section>header:first-child+div+div>:nth-child(3){
+    overflow-x:hidden!important;
+  }
+}
+
+/* The responsive/mobile editor keeps its existing stacked document flow. */
+@media(max-width:1120px){
+  .workspacePage{overflow:visible}
+}
