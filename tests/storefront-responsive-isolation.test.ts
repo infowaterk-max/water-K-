@@ -4,10 +4,12 @@ import type {StorefrontPageDocument} from '@/lib/builder/storefront-runtime';
 import {resolveStorefrontVisualStyle,resolveStorefrontVisualStyleLegacyCascade} from '@/lib/builder/storefront-visual-style';
 import {setStorefrontNodeStyleSlot,setStorefrontNodeViewportStyle} from '@/lib/builder/storefront-fidelity-builder-operations';
 import {resolveStorefrontStyleSlot} from '@/lib/builder/storefront-fidelity-engine';
+import {PLAYROOM_V20_TEMPLATE_PACKAGE} from '@/lib/builder/templates/playroom-v20';
 import {
   assertStorefrontViewportIsolation,
   collectStorefrontEffectiveVisualState,
   materializeStorefrontPageResponsiveStyles,
+  materializeStorefrontTemplateResponsiveStyles,
   listUnmaterializedStorefrontVisualSurfaces,
   ensureStorefrontResponsiveAuthority,
   hasStorefrontResponsiveAuthorityV2,
@@ -72,6 +74,13 @@ describe('Storefront responsive isolation foundation',()=>{
     expect(card.desktop.minHeight).toBe('6rem');
     expect(card.tablet.minHeight).toBe('5rem');
     expect(card.mobile.minHeight).toBe('4rem');
+  });
+
+  it('never runs legacy cascade materialization over an already-v2 canonical template',()=>{
+    const before=structuredClone(PLAYROOM_V20_TEMPLATE_PACKAGE);
+    const after=materializeStorefrontTemplateResponsiveStyles(before);
+    expect(after).toEqual(before);
+    expect(after).not.toBe(before);
   });
 
   it('protects historical persisted pages at Runtime read without mutating the stored source',()=>{
