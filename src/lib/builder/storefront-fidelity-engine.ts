@@ -94,7 +94,12 @@ export function writeStorefrontFidelityMetadata(document:StorefrontPageDocument,
   };
 }
 
-function inherited<T>(value:Partial<Record<'base'|StorefrontViewport,T>>|undefined,viewport:StorefrontViewport):T|undefined{
+function exactViewportValue<T>(value:Partial<Record<'base'|StorefrontViewport,T>>|undefined,viewport:StorefrontViewport):T|undefined{
+  if(!value)return undefined;
+  return value[viewport]??value.base;
+}
+
+function legacyInheritedViewportValue<T>(value:Partial<Record<'base'|StorefrontViewport,T>>|undefined,viewport:StorefrontViewport):T|undefined{
   if(!value)return undefined;
   if(viewport==='mobile')return value.mobile??value.tablet??value.desktop??value.base;
   if(viewport==='tablet')return value.tablet??value.desktop??value.base;
@@ -116,14 +121,28 @@ function uniqueKnownOrder(order:readonly string[]|undefined,known:readonly strin
 export function resolveStorefrontSectionOrder(document:StorefrontPageDocument,viewport:StorefrontViewport):string[]{
   const known=document.sections.map(section=>section.id);
   const metadata=readStorefrontFidelityMetadata(document);
-  const configured=inherited(metadata?.sectionOrder,viewport);
+  const configured=exactViewportValue(metadata?.sectionOrder,viewport);
+  return uniqueKnownOrder(configured,known);
+}
+
+export function resolveStorefrontSectionOrderLegacyCascade(document:StorefrontPageDocument,viewport:StorefrontViewport):string[]{
+  const known=document.sections.map(section=>section.id);
+  const metadata=readStorefrontFidelityMetadata(document);
+  const configured=legacyInheritedViewportValue(metadata?.sectionOrder,viewport);
   return uniqueKnownOrder(configured,known);
 }
 
 export function resolveStorefrontChildOrder(document:StorefrontPageDocument,parent:StorefrontComponentNode,viewport:StorefrontViewport):string[]{
   const known=(parent.children??[]).map(child=>child.id);
   const metadata=readStorefrontFidelityMetadata(document);
-  const configured=inherited(metadata?.nodeOrder?.[parent.id],viewport);
+  const configured=exactViewportValue(metadata?.nodeOrder?.[parent.id],viewport);
+  return uniqueKnownOrder(configured,known);
+}
+
+export function resolveStorefrontChildOrderLegacyCascade(document:StorefrontPageDocument,parent:StorefrontComponentNode,viewport:StorefrontViewport):string[]{
+  const known=(parent.children??[]).map(child=>child.id);
+  const metadata=readStorefrontFidelityMetadata(document);
+  const configured=legacyInheritedViewportValue(metadata?.nodeOrder?.[parent.id],viewport);
   return uniqueKnownOrder(configured,known);
 }
 
@@ -168,6 +187,12 @@ function sanitizeArtDirectionSource(value:unknown):StorefrontImageArtDirectionSo
 }
 
 export function resolveStorefrontImageArtDirection(value:unknown,viewport:StorefrontViewport):StorefrontImageArtDirectionSource{
+  if(!isRecord(value))return{};
+  const base=sanitizeArtDirectionSource(value.base);
+  return{...base,...sanitizeArtDirectionSource(value[viewport])};
+}
+
+export function resolveStorefrontImageArtDirectionLegacyCascade(value:unknown,viewport:StorefrontViewport):StorefrontImageArtDirectionSource{
   if(!isRecord(value))return{};
   const base=sanitizeArtDirectionSource(value.base);
   const desktop={...base,...sanitizeArtDirectionSource(value.desktop)};
