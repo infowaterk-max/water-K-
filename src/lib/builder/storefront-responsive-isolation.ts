@@ -2,6 +2,7 @@ import type {StorefrontComponentNode,StorefrontPageDocument} from '@/lib/builder
 import type {StorefrontInstallableTemplatePackage} from '@/lib/builder/storefront-template-installation';
 import {
   resolveStorefrontVisualStyle,
+  resolveStorefrontVisualStyleLegacyCascade,
   sanitizeStorefrontVisualStyleSlot,
   type StorefrontVisualStyleConfig,
 } from '@/lib/builder/storefront-visual-style';
@@ -26,9 +27,9 @@ export function materializeStorefrontVisualStyle(value:unknown):StorefrontVisual
   const base=usesSlots?sanitizeStorefrontVisualStyleSlot(value.base):sanitizeStorefrontVisualStyleSlot(value);
   return{
     base,
-    desktop:resolveStorefrontVisualStyle(value,'desktop'),
-    tablet:resolveStorefrontVisualStyle(value,'tablet'),
-    mobile:resolveStorefrontVisualStyle(value,'mobile'),
+    desktop:resolveStorefrontVisualStyleLegacyCascade(value,'desktop'),
+    tablet:resolveStorefrontVisualStyleLegacyCascade(value,'tablet'),
+    mobile:resolveStorefrontVisualStyleLegacyCascade(value,'mobile'),
   };
 }
 
