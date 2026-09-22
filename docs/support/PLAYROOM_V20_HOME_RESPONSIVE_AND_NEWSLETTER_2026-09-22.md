@@ -216,3 +216,28 @@ Regression invariants:
 **SIBLING MERCHANDISING CARDS MUST USE ONE CTA PATTERN.**
 
 **WHEN BALANCING A TWO-COLUMN ROW, PREFER USEFUL CONTENT DENSITY OVER EMPTY HEIGHT FILLER.**
+
+
+## Final desktop density pass — merchandising, gift and pre-newsletter row
+
+True desktop review exposed three issues that mobile “desktop mode” had hidden:
+
+- the paired merchandising blocks did not share one internal vertical rhythm, so media rows and CTAs drifted;
+- the Gift card did not fill the height of its Featured-carousel neighbor;
+- the compatibility/community row above Newsletter was too airy because compatibility content was distributed with `space-between` and community content/media carried oversized desktop minimum heights.
+
+Fix:
+
+- paired merchandising parents use a desktop `header / intro / content / CTA` grid with shared card/media heights;
+- all eight merchandising tile images use the same 4.15rem desktop media height;
+- both CTAs sit in the same final grid row;
+- the Gift column and Gift card stretch to the full Featured-row height;
+- compatibility status content uses compact `flex-start` flow instead of `space-between`;
+- community copy/media desktop minimum height is reduced to 9.25rem with bounded media height;
+- tablet/mobile behavior remains independently responsive.
+
+Regression invariants:
+
+**TRUE DESKTOP ACCEPTANCE MUST BE VERIFIED ON A DESKTOP VIEWPORT; MOBILE BROWSER “DESKTOP SITE” IS NOT A SUBSTITUTE.**
+
+**SIBLING CARDS MUST SHARE MEDIA, CONTENT AND CTA BASELINES WHEN THEY ARE PRESENTED AS A VISUAL PAIR.**
