@@ -18,10 +18,6 @@ import {MODERN_LUXE_TEMPLATE_PACKAGE} from '@/lib/builder/templates/modern-luxe'
 import {MONARCHE_TEMPLATE_PACKAGE} from '@/lib/builder/templates/monarche';
 import {MY_PACK_TEMPLATE_PACKAGE} from '@/lib/builder/templates/my-pack';
 import {PERFORMANCE_LAB_TEMPLATE_PACKAGE} from '@/lib/builder/templates/performance-lab';
-import {PLAYROOM_TEMPLATE_PACKAGE} from '@/lib/builder/templates/playroom';
-import {PLAYROOM_REFERENCE_V2_TEMPLATE_PACKAGE} from '@/lib/builder/templates/playroom-reference-v2';
-import {PLAYROOM_V18_TEMPLATE_PACKAGE} from '@/lib/builder/templates/playroom-v18';
-import {PLAYROOM_V19_CANONICAL_TEMPLATE_PACKAGE} from '@/lib/builder/templates/playroom-v19-canonical';
 import {PLAYROOM_V20_TEMPLATE_PACKAGE} from '@/lib/builder/templates/playroom-v20';
 import {RIG_FORGE_TEMPLATE_PACKAGE} from '@/lib/builder/templates/rig-forge';
 import {RITUAL_HOUSE_TEMPLATE_PACKAGE} from '@/lib/builder/templates/ritual-house';
@@ -134,19 +130,12 @@ export const STOREFRONT_IMPLEMENTED_TEMPLATE_PACKAGES:readonly StorefrontInstall
   TRAIL_EXPEDITION_TEMPLATE_PACKAGE,
 ].map(normalizeImplementedTemplatePackage);
 
-// Historical template packages do not appear as separate cards in Template Library,
-// but remain resolvable by exact version so persisted storefronts stay editable
-// until the merchant applies the latest upgrade.
-const STOREFRONT_LEGACY_RESOLVABLE_TEMPLATE_PACKAGES:readonly StorefrontInstallableTemplatePackage[]=[
-  PLAYROOM_TEMPLATE_PACKAGE,
-  PLAYROOM_REFERENCE_V2_TEMPLATE_PACKAGE,
-  PLAYROOM_V18_TEMPLATE_PACKAGE,
-  PLAYROOM_V19_CANONICAL_TEMPLATE_PACKAGE,
-].map(normalizeLegacyTemplatePackage);
-
+// Historical Playroom packages are source-history only. The active resolver exposes
+// one complete Playroom authority: gaming.playroom@20. When a future v21 becomes
+// canonical, v20 may move to an explicit migration/archive boundary, but versions
+// are never composed together at runtime.
 const STOREFRONT_RESOLVABLE_TEMPLATE_PACKAGES:readonly StorefrontInstallableTemplatePackage[]=[
   ...STOREFRONT_IMPLEMENTED_TEMPLATE_PACKAGES,
-  ...STOREFRONT_LEGACY_RESOLVABLE_TEMPLATE_PACKAGES,
 ];
 
 const identity=(template:StorefrontInstallableTemplatePackage)=>`${template.manifest.templateKey}@${template.manifest.templateVersion}`;
