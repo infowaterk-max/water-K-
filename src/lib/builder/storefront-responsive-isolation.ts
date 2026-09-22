@@ -50,9 +50,20 @@ function materializeConfig(source:StorefrontComponentNode['config']):StorefrontC
 }
 
 
+function stableStyle(value:Record<string,unknown>):string{
+  return JSON.stringify(Object.fromEntries(Object.entries(value).sort(([a],[b])=>a.localeCompare(b))));
+}
+
 function isMaterializedVisualStyle(value:unknown):boolean{
-  if(!isRecord(value))return false;
-  return SLOT_KEYS.every(key=>isRecord(value[key]));
+  if(!isRecord(value)||!SLOT_KEYS.every(key=>isRecord(value[key])))return false;
+  const base=sanitizeStorefrontVisualStyleSlot(value.base);
+  const desktop=sanitizeStorefrontVisualStyleSlot(value.desktop);
+  const tablet=sanitizeStorefrontVisualStyleSlot(value.tablet);
+  const mobile=sanitizeStorefrontVisualStyleSlot(value.mobile);
+  return stableStyle(base)===stableStyle(sanitizeStorefrontVisualStyleSlot(value.base))
+    &&stableStyle(desktop)===stableStyle(resolveStorefrontVisualStyle(value,'desktop'))
+    &&stableStyle(tablet)===stableStyle(resolveStorefrontVisualStyle(value,'tablet'))
+    &&stableStyle(mobile)===stableStyle(resolveStorefrontVisualStyle(value,'mobile'));
 }
 
 export function listUnmaterializedStorefrontVisualSurfaces(page:StorefrontPageDocument):string[]{
