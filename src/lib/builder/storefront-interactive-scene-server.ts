@@ -9,7 +9,7 @@ export type StorefrontInteractiveSceneCatalog={
   options:readonly StorefrontInteractiveSceneProductOption[];
 };
 
-type ProductRow={id:string;slug:string;name:string;active:boolean;audience:string|null};
+type ProductRow={id:string;slug:string;name:string;active:boolean;audience:string|null;template_demo_image_url:string|null};
 type VariantRow={id:string;product_id:string;label:string;gross_price_huf:number;stock_quantity:number;active:boolean;primary_media_id:string|null};
 type MediaRow={id:string;storage_path:string};
 type ChannelRow={product_id:string;visible:boolean;gross_price:number|null;discount_percent:number|null};
@@ -20,7 +20,7 @@ const applyDiscount=(value:number,discount:number|null)=>discount==null?value:Ma
 export async function getStorefrontInteractiveSceneCatalogForInstance(instanceId:string):Promise<StorefrontInteractiveSceneCatalog>{
   const admin=createAdminClient();
   const[productResult,variantResult,channelResult]=await Promise.all([
-    admin.from('products').select('id,slug,name,active,audience').eq('instance_id',instanceId).eq('active',true).order('name').limit(500),
+    admin.from('products').select('id,slug,name,active,audience,template_demo_image_url').eq('instance_id',instanceId).eq('active',true).order('name').limit(500),
     admin.from('product_variants').select('id,product_id,label,gross_price_huf,stock_quantity,active,primary_media_id').eq('instance_id',instanceId).eq('active',true),
     admin.from('product_channel_settings').select('product_id,visible,gross_price,discount_percent').eq('instance_id',instanceId).eq('channel_code','b2c'),
   ]);
@@ -64,7 +64,7 @@ export async function getStorefrontInteractiveSceneCatalogForInstance(instanceId
     const maxPrice=prices.length?Math.max(...prices):null;
     const stockAvailable=visible.some(variant=>variant.stock.available);
     const primaryMediaId=productVariants.find(variant=>variant.active&&variant.primary_media_id)?.primary_media_id??productVariants.find(variant=>variant.primary_media_id)?.primary_media_id??null;
-    const imageUrl=primaryMediaId?mediaUrlById.get(primaryMediaId)??null:null;
+    const imageUrl=primaryMediaId?mediaUrlById.get(primaryMediaId)??product.template_demo_image_url??null:product.template_demo_image_url??null;
     const slug=typeof product.slug==='string'?product.slug.trim():'';
     return{
       productId:product.id,
