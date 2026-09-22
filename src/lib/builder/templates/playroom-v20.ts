@@ -604,6 +604,12 @@ function patchPlayroomHomeResponsive(item:StorefrontComponentNode):StorefrontCom
         tablet:{minHeight:'5.2rem'},
         mobile:{minHeight:'4.8rem',padding:'.5rem .28rem',fontSize:'.68rem'},
       });
+      config=patchStyleSlot(config,'media',{
+        mobile:{aspectRatio:'auto',height:'4.8rem',minHeight:'4.8rem',display:'grid',placeItems:'center',paddingBottom:'.9rem',boxSizing:'border-box'},
+      });
+      config=patchStyleSlot(config,'mediaImage',{
+        mobile:{width:'2rem',height:'2rem',margin:'0',objectFit:'contain'},
+      });
       next={...next,config};
       break;
     case 'playroom-setup':
