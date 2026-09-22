@@ -215,6 +215,22 @@ describe('Playroom v20 functional acceptance',()=>{
     }
     expect(resolveStorefrontVisualStyle(finderSlots.option,'desktop').minHeight).toBe('4rem');
     expect(resolveStorefrontVisualStyle(platformSlots.card,'desktop').minHeight).toBe('5.45rem');
+
+    // Desktop-only Playroom polish must not leak through the platform's
+    // base -> desktop -> tablet -> mobile style inheritance chain.
+    expect(resolveStorefrontVisualStyle(findNode(home,'playroom-hero').config.style,'tablet').minHeight).toBe('13.75rem');
+    expect(resolveStorefrontVisualStyle(findNode(home,'playroom-hero').config.style,'mobile').minHeight).toBe('13.75rem');
+    expect(resolveStorefrontVisualStyle(findNode(home,'playroom-selectors').config.style,'tablet').minHeight).toBe('auto');
+    expect(resolveStorefrontVisualStyle(findNode(home,'playroom-selectors').config.style,'mobile').minHeight).toBe('auto');
+    for(const id of ['playroom-style-card','playroom-platform-card']){
+      expect(resolveStorefrontVisualStyle(findNode(home,id).config.style,'tablet')).toMatchObject({flex:'0 1 auto',minHeight:'auto',padding:'.62rem .68rem',justifyContent:'flex-start'});
+      expect(resolveStorefrontVisualStyle(findNode(home,id).config.style,'mobile')).toMatchObject({flex:'0 1 auto',minHeight:'auto',padding:'.62rem .68rem',justifyContent:'flex-start'});
+    }
+    expect(resolveStorefrontVisualStyle(finderSlots.option,'tablet')).toMatchObject({minHeight:'3.58rem',padding:'.28rem .12rem'});
+    expect(resolveStorefrontVisualStyle(finderSlots.option,'mobile')).toMatchObject({minHeight:'3.58rem',padding:'.28rem .12rem'});
+    expect(resolveStorefrontVisualStyle(platformSlots.card,'tablet').minHeight).toBe('5.2rem');
+    expect(resolveStorefrontVisualStyle(platformSlots.card,'mobile').minHeight).toBe('4.8rem');
+
     expect(findNode(home,'playroom-hero').responsive?.tablet?.gridSpan).toBe(12);
     expect(findNode(home,'playroom-selectors').responsive?.tablet?.gridSpan).toBe(12);
     expect(resolveStorefrontVisualStyle(findNode(home,'playroom-hero-copy').config.style,'mobile').width).toBe('100%');
@@ -232,6 +248,10 @@ describe('Playroom v20 functional acceptance',()=>{
     expect(resolveStorefrontVisualStyle(findNode(home,'playroom-player-two').config.style,'desktop').minHeight).toBe('12.8rem');
     expect(resolveStorefrontVisualStyle(findNode(home,'playroom-upgrade').config.style,'desktop').minHeight).toBe('12.8rem');
     expect(resolveStorefrontVisualStyle(findNode(home,'playroom-upgrade-grid').config.style,'desktop').paddingTop).toBe('.4rem');
+    expect(resolveStorefrontVisualStyle(findNode(home,'playroom-setup').config.style,'tablet').minHeight).toBe('10.2rem');
+    expect(resolveStorefrontVisualStyle(findNode(home,'playroom-setup').config.style,'mobile').minHeight).toBe('10.2rem');
+    expect(resolveStorefrontVisualStyle(findNode(home,'playroom-upgrade-grid').config.style,'tablet').paddingTop).toBe('0');
+    expect(resolveStorefrontVisualStyle(findNode(home,'playroom-upgrade-grid').config.style,'mobile').paddingTop).toBe('0');
     expect(resolveStorefrontVisualStyle(findNode(home,'playroom-player-two-grid').config.style,'desktop').paddingTop).toBeUndefined();
     for(const id of ['playroom-player-two','playroom-upgrade']){
       const style=resolveStorefrontVisualStyle(findNode(home,id).config.style,'desktop');
@@ -287,6 +307,10 @@ describe('Playroom v20 functional acceptance',()=>{
     const giftImageStyle=resolveStorefrontVisualStyle(findNode(home,'playroom-gift-image').config.style,'desktop');
     expect(featuredStyle.minHeight).toBe('12.2rem');
     expect(giftStyle).toMatchObject({position:'relative',overflow:'hidden',minHeight:'19.25rem',justifyContent:'center'});
+    expect(resolveStorefrontVisualStyle(findNode(home,'playroom-featured-games').config.style,'tablet').minHeight).toBe('10.65rem');
+    expect(resolveStorefrontVisualStyle(findNode(home,'playroom-featured-games').config.style,'mobile').minHeight).toBe('10.65rem');
+    expect(resolveStorefrontVisualStyle(findNode(home,'playroom-gift-card').config.style,'tablet').minHeight).toBe('11.3rem');
+    expect(resolveStorefrontVisualStyle(findNode(home,'playroom-gift-card').config.style,'mobile').minHeight).toBe('11.3rem');
     expect(giftStyle.display).not.toBe('grid');
     expect(giftStyle.gridTemplateRows).toBeUndefined();
     expect(platformMatchStyle.display).not.toBe('grid');
@@ -307,6 +331,8 @@ describe('Playroom v20 functional acceptance',()=>{
     expect(findNode(home,'playroom-compatibility-guide-title').config.text).toBe('HOGYAN ELLENŐRIZD?');
     expect(findNode(home,'playroom-compatibility-guide-copy').config.text).toContain('1. Válaszd ki a platformod');
     expect(resolveStorefrontVisualStyle(findNode(home,'playroom-compatibility-card').config.style,'desktop')).toMatchObject({height:'auto',minHeight:'15.5rem',alignContent:'start'});
+    expect(resolveStorefrontVisualStyle(findNode(home,'playroom-compatibility-card').config.style,'tablet')).toMatchObject({height:'auto',minHeight:'11.3rem',alignContent:'start'});
+    expect(resolveStorefrontVisualStyle(findNode(home,'playroom-compatibility-card').config.style,'mobile')).toMatchObject({height:'auto',minHeight:'0',alignContent:'start'});
     expect(resolveStorefrontVisualStyle(findNode(home,'playroom-compatibility-status-wrap').config.style,'desktop')).toMatchObject({height:'auto',justifyContent:'flex-start'});
     expect(resolveStorefrontVisualStyle(findNode(home,'playroom-compatibility-art').config.style,'desktop')).toMatchObject({height:'9rem'});
     expect(resolveStorefrontVisualStyle(findNode(home,'playroom-compatibility-art').config.style,'desktop').minHeight).toBeUndefined();
@@ -325,6 +351,10 @@ describe('Playroom v20 functional acceptance',()=>{
     expect(findNode(home,'playroom-community-art').responsive).toMatchObject({desktop:{gridSpan:6},tablet:{gridSpan:6},mobile:{gridSpan:12}});
     expect(resolveStorefrontVisualStyle(findNode(home,'playroom-community-art').config.style,'desktop')).toMatchObject({position:'static',opacity:1,height:'14.8rem',minHeight:'14.8rem',maxHeight:'14.8rem'});
     expect(resolveStorefrontVisualStyle(findNode(home,'playroom-community-content').config.style,'desktop')).toMatchObject({minHeight:'14.8rem',padding:'.85rem'});
+    expect(resolveStorefrontVisualStyle(findNode(home,'playroom-community-content').config.style,'tablet').minHeight).toBe('11.3rem');
+    expect(resolveStorefrontVisualStyle(findNode(home,'playroom-community-content').config.style,'mobile').minHeight).toBe('11.3rem');
+    expect(resolveStorefrontVisualStyle(findNode(home,'playroom-community-art').config.style,'tablet')).toMatchObject({height:'11.3rem',minHeight:'11.3rem',maxHeight:'11.3rem'});
+    expect(resolveStorefrontVisualStyle(findNode(home,'playroom-community-art').config.style,'mobile')).toMatchObject({height:'11.3rem',minHeight:'9rem',maxHeight:'11.3rem'});
     expect(resolveStorefrontVisualStyle(findNode(home,'playroom-community-stage').config.style,'desktop')).toMatchObject({minHeight:'0'});
     expect(resolveStorefrontVisualStyle(findNode(home,'playroom-community-stage').config.style,'desktop').height).toBeUndefined();
     expect(resolveStorefrontVisualStyle(findNode(home,'playroom-confidence-community-grid').config.style,'desktop').minHeight).toBeUndefined();
