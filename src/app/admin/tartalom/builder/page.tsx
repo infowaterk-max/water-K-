@@ -17,6 +17,7 @@ import {getStorefrontTemplatePreviewTheme} from '@/lib/builder/storefront-templa
 import {augmentStorefrontDigitalCommercePreviewContext} from '@/lib/builder/storefront-digital-commerce-preview';
 import {composeStorefrontDigitalCommerceCapabilities} from '@/lib/builder/storefront-digital-commerce-composition';
 import {normalizeStorefrontTemplateRuntimeComposition} from '@/lib/builder/storefront-template-runtime-normalization';
+import {ensureStorefrontResponsiveAuthority} from '@/lib/builder/storefront-responsive-isolation';
 import {StorefrontVisualBuilderV3} from '@/components/admin/storefront-visual-builder-v3';
 import {StorefrontTemplateLibrary} from '@/components/admin/storefront-template-library';
 
@@ -66,7 +67,7 @@ export default async function VisualBuilderAdmin({searchParams}:Props){
   </section>;
 
   const theme=getStorefrontTemplatePreviewTheme(document.templateKey) as CSSProperties;
-  const editorDocument=composeStorefrontDigitalCommerceCapabilities(normalizeStorefrontTemplateRuntimeComposition(document));
+  const editorDocument=composeStorefrontDigitalCommerceCapabilities(normalizeStorefrontTemplateRuntimeComposition(ensureStorefrontResponsiveAuthority(document)));
   const editorBindingContext=augmentStorefrontDigitalCommercePreviewContext({page:editorDocument,context:bindingContext,acceptanceMode:isPlatformPilotAcceptance});
   return <section className="adminMain" style={theme} data-storefront-builder-theme={document.templateKey}>
     <StorefrontVisualBuilderV3
