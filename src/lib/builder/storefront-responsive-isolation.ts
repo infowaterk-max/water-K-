@@ -5,6 +5,7 @@ import {
   resolveStorefrontVisualStyleLegacyCascade,
   sanitizeStorefrontVisualStyleSlot,
   type StorefrontVisualStyleConfig,
+  type StorefrontVisualStyleSlot,
 } from '@/lib/builder/storefront-visual-style';
 import {STOREFRONT_RESPONSIVE_AUTHORITY_VERSION,type StorefrontViewport} from '@/lib/builder/storefront-foundation';
 import {
@@ -42,8 +43,12 @@ function isVisualStyleCandidate(value:unknown):boolean{
   return Object.keys(sanitizeStorefrontVisualStyleSlot(value)).length>0;
 }
 
-function visualStyleDelta(base:Record<string,unknown>,effective:Record<string,unknown>){
-  return Object.fromEntries(Object.entries(effective).filter(([key,value])=>base[key]!==value));
+function visualStyleDelta(base:StorefrontVisualStyleSlot,effective:StorefrontVisualStyleSlot):StorefrontVisualStyleSlot{
+  const delta:StorefrontVisualStyleSlot={};
+  for(const[key,value]of Object.entries(effective)){
+    if(base[key]!==value)delta[key]=value;
+  }
+  return delta;
 }
 
 export function materializeStorefrontVisualStyle(value:unknown):StorefrontVisualStyleConfig{
