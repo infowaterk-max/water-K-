@@ -76,7 +76,8 @@ describe('Storefront responsive isolation foundation',()=>{
     const card=(hero.config.styleSlots as Record<string,Record<string,Record<string,unknown>>>).card;
     expect(card.desktop.minHeight).toBe('6rem');
     expect(card.tablet.minHeight).toBe('5rem');
-    expect(card.mobile.minHeight).toBe('4rem');
+    expect(card.mobile.minHeight).toBeUndefined();
+    expect(resolveStorefrontVisualStyle(card,'mobile').minHeight).toBe('4rem');
   });
 
   it('never runs legacy cascade materialization over an already-v2 canonical template',()=>{
