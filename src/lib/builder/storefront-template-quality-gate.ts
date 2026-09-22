@@ -5,6 +5,7 @@ import {
   type StorefrontViewport,
 } from '@/lib/builder/storefront-foundation';
 import type {StorefrontInstallableTemplatePackage} from '@/lib/builder/storefront-template-installation';
+import {listUnmaterializedStorefrontVisualSurfaces} from '@/lib/builder/storefront-responsive-isolation';
 
 export const STOREFRONT_TEMPLATE_QUALITY_GATE_VERSION='shoporation.template-factory-quality-gate.v2' as const;
 
@@ -25,6 +26,9 @@ export type StorefrontTemplateQualityManifest={
   };
   content:{
     informationPageRequired:boolean;
+  };
+  responsiveIsolation:{
+    explicitEffectiveStyles:boolean;
   };
   browser:{
     maxHorizontalOverflowPx:number;
@@ -65,6 +69,9 @@ export const PLAYROOM_V20_QUALITY_MANIFEST:StorefrontTemplateQualityManifest=Obj
   }),
   content:Object.freeze({
     informationPageRequired:true,
+  }),
+  responsiveIsolation:Object.freeze({
+    explicitEffectiveStyles:true,
   }),
   browser:Object.freeze({
     maxHorizontalOverflowPx:2,
@@ -133,6 +140,20 @@ export function evaluateStorefrontTemplateQualityGate(input:{
       }
       if(JSON.stringify(page.sections.at(-1)??null)!==footerSignature){
         issues.push(issue('QUALITY_FOOTER_DRIFT',`pages.${page.pageType}.sections[-1]`,'Page forked away from the canonical template footer.',{pageType:page.pageType}));
+      }
+    }
+  }
+
+  if(manifest.responsiveIsolation.explicitEffectiveStyles){
+    for(const page of template.pages){
+      const unmaterialized=listUnmaterializedStorefrontVisualSurfaces(page);
+      if(unmaterialized.length){
+        issues.push(issue(
+          'QUALITY_RESPONSIVE_STYLE_NOT_MATERIALIZED',
+          `pages.${page.pageType}`,
+          'Strict template must persist explicit effective Desktop/Tablet/Mobile visual style authorities.',
+          {pageType:page.pageType,surfaces:unmaterialized.slice(0,25),count:unmaterialized.length},
+        ));
       }
     }
   }
