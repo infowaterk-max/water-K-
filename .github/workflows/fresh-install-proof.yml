@@ -2,6 +2,12 @@ name: Fresh Install proof
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - feature/playroom-v20-functional-acceptance
+    paths:
+      - supabase/customer-baseline/manifest.json
+      - .github/workflows/fresh-install-proof.yml
 
 permissions:
   contents: read
