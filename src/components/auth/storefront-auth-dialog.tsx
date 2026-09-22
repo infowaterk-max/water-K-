@@ -2,7 +2,6 @@
 
 import type{CSSProperties}from'react';
 import{useEffect,useId,useRef,useState}from'react';
-import{useRouter}from'next/navigation';
 import{createClient}from'@/lib/supabase/browser';
 import{AuthForm,type AuthMode}from'@/components/auth/auth-form';
 import styles from'./storefront-auth-dialog.module.css';
@@ -20,11 +19,10 @@ export function StorefrontAuthDialog({open,onClose,instanceId=null,initialMode='
 }
 
 export function StorefrontAccountAuthTrigger({label,symbol,count,showLabel=false,style}:{label:string;symbol:string;count?:string;showLabel?:boolean;style?:CSSProperties}){
- const router=useRouter();
  const[open,setOpen]=useState(false);
  async function activate(){
   const{data:{user}}=await createClient().auth.getUser();
-  if(user){router.push('/fiokom');return}
+  if(user){window.location.assign('/fiokom');return}
   setOpen(true);
  }
  return <>

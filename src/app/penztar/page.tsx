@@ -43,7 +43,7 @@ export default async function Checkout(){
     resolveB2BAccountContext(instance.id,user.id).catch(()=>null),
   ]):[{data:null,error:null},null,null] as const;
   const profile=profileResult.data as{full_name?:string|null;company_name?:string|null;tax_number?:string|null}|null;
-  const initialCustomerType=access.resellerApproved?'reseller':profile?.company_name&&profile?.tax_number?'company':'retail';
+  const initialCustomerType:'reseller'|'company'|'retail'=access.resellerApproved?'reseller':profile?.company_name&&profile?.tax_number?'company':'retail';
   const customerDefaults={name:billingProfile?.billingName||profile?.full_name||'',email:user?.email??'',phone:billingProfile?.phone??'',billingPostcode:billingProfile?.billingPostcode??'',billingCity:billingProfile?.billingCity??'',billingAddress:billingProfile?.billingAddress??'',companyName:b2bContext?.accountName||profile?.company_name||'',taxNumber:b2bContext?.taxNumber||profile?.tax_number||'',customerType:initialCustomerType,businessIdentityLocked:Boolean(b2bContext)};
   const form=<>
     <CheckoutRecoverySaver/>
