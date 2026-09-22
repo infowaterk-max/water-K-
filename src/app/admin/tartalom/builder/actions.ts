@@ -129,14 +129,14 @@ export async function deleteVisualBuilderReusableSymbolAction(input:{symbolId:st
   const result=await deleteCurrentStorefrontReusableSymbol(input);refresh();return result;
 }
 
-export async function installVisualBuilderTemplateAction(input:{templateKey:string;templateVersion?:number;operationKey:string}){
+export async function installVisualBuilderTemplateAction(input:{templateKey:string;templateVersion?:number;operationKey:string;installDemoProducts?:boolean}){
   const sourceTemplate=getStorefrontTemplatePackage(input.templateKey,input.templateVersion);
   if(!sourceTemplate)throw new Error('BUILDER_TEMPLATE_NOT_FOUND');
   const template=composeStorefrontDigitalCommerceTemplatePackage(sourceTemplate);
   for(const page of template.pages)assertStorefrontPerformance(page);
   const[capability,existingPages,currentDemoContent]=await Promise.all([getCurrentStorefrontBuilderCapability(),listCurrentStorefrontTemplatePlanningPages(),listCurrentStorefrontTemplateDemoContent()]);
   const plan=planStorefrontTemplateInstallation({template,componentRegistry:createStorefrontVisualBuilderComponentRegistry(),capability,existingPages,currentDemoContent});
-  const result=await saveCurrentStorefrontTemplateInstallationPlan({plan,operationKey:input.operationKey});
+  const result=await saveCurrentStorefrontTemplateInstallationPlan({plan,operationKey:input.operationKey,installDemoProducts:input.installDemoProducts===true});
   refresh();
   return result;
 }
