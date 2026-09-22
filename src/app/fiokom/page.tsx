@@ -31,7 +31,7 @@ export default async function AccountPage(){
   accountDb.from('wishlists').select('id',{count:'exact',head:true}).eq('instance_id',instance.id).eq('user_id',user.id),
  ]);
  const profile=profileResult.data,partner=partnerResult.data,orders=ordersResult.data,wishlistCount=wishlistResult.count,accountLoadError=Boolean(profileResult.error||partnerResult.error||ordersResult.error||wishlistResult.error);
- const[billingProfile,b2bContext]=await Promise.all([getCustomerBillingProfile(instance.id,user.id).catch(()=>null),resolveB2BAccountContext(instance.id,user.id).catch(()=>null)]);
+ const[billingProfile,b2bContext]=await Promise.all([getCustomerBillingProfile(instance.id,user.id).catch(()=>null),partner?.role==='reseller'?resolveB2BAccountContext(instance.id,user.id).catch(()=>null):Promise.resolve(null)]);
  let marketingConsent=false,marketingLoadError=false;
  try{const admin=createAdminClient();const{data,error}=await admin.from('marketing_consents').select('status').eq('instance_id',instance.id).eq('user_id',user.id).eq('channel','email').order('occurred_at',{ascending:false}).limit(1).maybeSingle();marketingConsent=data?.status==='granted';marketingLoadError=Boolean(error)}catch{marketingLoadError=true}
  let recoveryLoad={model:buildCommerceRecoveryAccountModel({journeys:[],savedCheckouts:[],recentPurchases:[]}),loadError:true};

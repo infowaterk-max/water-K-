@@ -40,11 +40,11 @@ export default async function Checkout(){
   const[profileResult,billingProfile,b2bContext]=user?await Promise.all([
     createAdminClient().from('profiles').select('full_name,company_name,tax_number').eq('id',user.id).maybeSingle(),
     getCustomerBillingProfile(instance.id,user.id).catch(()=>null),
-    resolveB2BAccountContext(instance.id,user.id).catch(()=>null),
+    access.reseller?resolveB2BAccountContext(instance.id,user.id).catch(()=>null):Promise.resolve(null),
   ]):[{data:null,error:null},null,null] as const;
   const profile=profileResult.data as{full_name?:string|null;company_name?:string|null;tax_number?:string|null}|null;
-  const initialCustomerType:'reseller'|'company'|'retail'=access.resellerApproved?'reseller':profile?.company_name&&profile?.tax_number?'company':'retail';
-  const customerDefaults={name:billingProfile?.billingName||profile?.full_name||'',email:user?.email??'',phone:billingProfile?.phone??'',billingPostcode:billingProfile?.billingPostcode??'',billingCity:billingProfile?.billingCity??'',billingAddress:billingProfile?.billingAddress??'',companyName:b2bContext?.accountName||profile?.company_name||'',taxNumber:b2bContext?.taxNumber||profile?.tax_number||'',customerType:initialCustomerType,businessIdentityLocked:Boolean(b2bContext)};
+  const initialCustomerType:'reseller'|'company'|'retail'=access.resellerApproved?'reseller':'retail';
+  const customerDefaults={name:billingProfile?.billingName||profile?.full_name||'',email:user?.email??'',phone:billingProfile?.phone??'',billingPostcode:billingProfile?.billingPostcode??'',billingCity:billingProfile?.billingCity??'',billingAddress:billingProfile?.billingAddress??'',companyName:b2bContext?.accountName||profile?.company_name||'',taxNumber:b2bContext?.taxNumber||profile?.tax_number||'',customerType:initialCustomerType,businessIdentityLocked:Boolean(access.reseller&&b2bContext)};
   const form=<>
     <CheckoutRecoverySaver/>
     <CheckoutForm
