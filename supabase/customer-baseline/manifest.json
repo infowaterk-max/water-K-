@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "status": "snapshot-reviewed",
+  "status": "ready",
   "legacyMigrationReplay": false,
   "sourcePolicy": "schema-snapshot-only",
   "seedFile": "supabase/customer-baseline/seed.sql",
@@ -8,8 +8,8 @@
   "defaultPlan": "alap",
   "snapshotFile": "supabase/customer-baseline/migrations/0001_shoperation_v1_schema.sql",
   "snapshotCommand": "npm run db:customer:snapshot",
-  "freshInstallProofRequired": true,
-  "notes": "The genuine empty-target Fresh Install proof through 0035_order_operational_authenticated_privilege_contract.sql from source commit d2604eca962d313999fda09619f97d28366a6cf3 in CI run 35263231235 (#3772), contract hash 2d20c5182ce3c141c7b359db1a82000ea8ab8bfb5d9372ad19d483a517baa105, remains valid evidence for that previous baseline only. The canonical ordered 0001-0018 Block 24 lineage remains preserved. Merchant/account acceptance exposed an authorization gap: account-visible post-purchase Product Documents were downloadable and discoverable by authenticated non-purchasers. 0036_product_documents_post_purchase_account_authority.sql now requires an eligible paid purchase for account-visible post-purchase discovery and download while preserving public and ordinary account-only semantics. Because the ordered customer baseline changed after the previous proof, this exact acceptance head intentionally re-runs the genuine empty-target Fresh Install replay before acceptance continues. The proof-lineage regression assertions now track the 0035 proven baseline and the 0036 current extension. The disposable Fresh Install target was reset again to the canonical empty preflight state immediately before this final replay. Production remained untouched by this proof run. The ordered customer baseline now also includes 0044_shared_customer_billing_b2b_identity_reverification.sql for tenant-scoped saved billing defaults and audited B2B legal-identity re-verification. No new empty-target Fresh Install PASS is claimed for this extension yet; the baseline remains fail-closed with freshInstallProofRequired=true until exact-head replay evidence exists.",
+  "freshInstallProofRequired": false,
+  "notes": "The canonical ordered Shoperation customer baseline, including 0044_shared_customer_billing_b2b_identity_reverification.sql, has a genuine empty-target Fresh Install proof. GitHub Actions run 35684339297, fresh-install-proof job 106610375774, replayed source commit 68188e5283e07c55aaf074f8956da3fa07204576 on the dedicated Shoperation Fresh Install Supabase target. Target preflight proved 0 public/private relations, functions, sequences and user-defined types, 0 historical migration rows and 0 auth users. The reviewed ordered baseline + Auth bootstrap + neutral seed applied atomically. Target postflight passed with 175 public tables, 342 public functions, 126 public policies and 0 customer seed rows. Proof contract SHA256: 388a7fef90f728258d1ab1b1b4b66cd305aa4439792d0f090fefed85fac3542d. The disposable proof project was paused after PASS and waterk-staging was restored to ACTIVE_HEALTHY; production was untouched.",
   "authBootstrapFile": "supabase/customer-baseline/auth-bootstrap.sql",
-  "proofContractSha256": null
+  "proofContractSha256": "388a7fef90f728258d1ab1b1b4b66cd305aa4439792d0f090fefed85fac3542d"
 }

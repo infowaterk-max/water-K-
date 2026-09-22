@@ -1,6 +1,6 @@
 # Shared Customer Billing & B2B Identity Authority — 2026-09-22
 
-Status: **implemented / code_and_test_verified pending final human acceptance**
+Status: **implemented / code_and_test_verified / fresh_install_proven / pending final human acceptance**
 
 ## Scope
 
@@ -45,3 +45,14 @@ Global Shoperation platform capability. It is **not template-owned**. All curren
 ## Safety / prevention
 
 Never fix these defects with template-local CSS, a second checkout state store, a second billing authority, direct B2B table updates, or per-template business logic. Any future change touching cart/account/checkout shared surfaces must run the full cross-template Quality Gate.
+
+## Fresh Install evidence
+
+- GitHub Actions run: `35684339297`
+- Fresh Install job: `106610375774`
+- Proven source commit: `68188e5283e07c55aaf074f8956da3fa07204576`
+- Empty-target preflight: **PASS** — all public/private object counts, migration rows and auth users were `0`.
+- Ordered customer baseline + Auth bootstrap + neutral seed: **PASS**, applied atomically.
+- Postflight: **PASS** — `175` public tables, `342` public functions, `126` public policies, `0` customer seed rows.
+- Proof contract SHA256: `388a7fef90f728258d1ab1b1b4b66cd305aa4439792d0f090fefed85fac3542d`.
+- Environment rotation closed cleanly: dedicated Fresh Install target paused again; `waterk-staging` restored to `ACTIVE_HEALTHY`; production untouched.
