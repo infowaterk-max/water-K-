@@ -614,12 +614,14 @@ function patchPlayroomHomeResponsive(item:StorefrontComponentNode):StorefrontCom
     case 'playroom-compatibility-card':
       next={...next,config:{...config,style:mergeViewportStyle(config.style,{
         base:{height:'100%',minHeight:'100%',alignContent:'stretch'},
+        desktop:{height:'auto',minHeight:'11.3rem',alignContent:'start'},
         mobile:{height:'auto',minHeight:'0'},
       })}};
       break;
     case 'playroom-compatibility-layout':
       next={...next,config:{...config,style:mergeViewportStyle(config.style,{
         base:{height:'100%',alignItems:'stretch'},
+        desktop:{height:'auto',minHeight:'0',alignItems:'start'},
         mobile:{height:'auto'},
       })}};
       break;
@@ -668,6 +670,7 @@ function patchPlayroomHomeResponsive(item:StorefrontComponentNode):StorefrontCom
       if(!guideExists)children=[...children,guide];
       next={...next,config:{...config,style:mergeViewportStyle(config.style,{
         base:{height:'100%',justifyContent:'space-between',gap:'.45rem'},
+        desktop:{height:'auto',justifyContent:'flex-start',gap:'.52rem'},
         mobile:{height:'auto',justifyContent:'start',gap:'.5rem'},
       })},children};
       break;
@@ -702,7 +705,7 @@ function patchPlayroomHomeResponsive(item:StorefrontComponentNode):StorefrontCom
           id:'playroom-community-content',
           componentKey:'layout.stack',
           componentVersion:1,
-          config:{direction:'vertical',gap:'s',align:'stretch',justify:'center',style:{padding:'.85rem',minHeight:'12rem'}},
+          config:{direction:'vertical',gap:'s',align:'stretch',justify:'center',style:{base:{padding:'.85rem',minHeight:'12rem'},desktop:{minHeight:'11.3rem'}}},
           responsive:{desktop:{gridSpan:6},tablet:{gridSpan:6},mobile:{gridSpan:12}},
           children:[clone(title),clone(copyNode),clone(benefit),clone(buttonNode)],
         });
@@ -710,6 +713,7 @@ function patchPlayroomHomeResponsive(item:StorefrontComponentNode):StorefrontCom
           ...clone(art),
           config:{...rec(art.config),style:mergeViewportStyle(rec(art.config).style,{
             base:{position:'static',inset:'auto',width:'100%',height:'100%',minHeight:'12rem',objectFit:'cover',objectPosition:'center',opacity:1,borderRadius:'.38rem'},
+            desktop:{height:'11.3rem',minHeight:'11.3rem',maxHeight:'11.3rem'},
             mobile:{minHeight:'9rem'},
           })},
           responsive:{desktop:{gridSpan:6},tablet:{gridSpan:6},mobile:{gridSpan:12}},
