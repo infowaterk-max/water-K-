@@ -6,6 +6,7 @@ import {
   assertStorefrontViewportIsolation,
   collectStorefrontEffectiveVisualState,
   materializeStorefrontPageResponsiveStyles,
+  listUnmaterializedStorefrontVisualSurfaces,
 } from '@/lib/builder/storefront-responsive-isolation';
 
 const page=():StorefrontPageDocument=>({
@@ -44,7 +45,9 @@ const page=():StorefrontPageDocument=>({
 describe('Storefront responsive isolation foundation',()=>{
   it('materializes current effective styles into explicit viewport slots without changing rendering semantics',()=>{
     const before=page();
+    expect(listUnmaterializedStorefrontVisualSurfaces(before)).toEqual(expect.arrayContaining(['hero.style','hero.styleSlots.card']));
     const after=materializeStorefrontPageResponsiveStyles(before);
+    expect(listUnmaterializedStorefrontVisualSurfaces(after)).toEqual([]);
     for(const viewport of ['desktop','tablet','mobile'] as const){
       expect(collectStorefrontEffectiveVisualState(after,viewport)).toEqual(collectStorefrontEffectiveVisualState(before,viewport));
     }
