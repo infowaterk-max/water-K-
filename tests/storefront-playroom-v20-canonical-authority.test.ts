@@ -26,6 +26,16 @@ describe('Playroom v20 canonical authority',()=>{
     expect(PLAYROOM_V20_TEMPLATE_PACKAGE.pages).toHaveLength(14);
     expect(source).toContain('playroom-v20-canonical-package.json');
     expect(source).not.toMatch(/playroom-v19|playroom-v18|playroom-reference|upgradePage|desktop-polish|fidelity-v/i);
+    for(const page of PLAYROOM_V20_TEMPLATE_PACKAGE.pages){
+      expect(page.metadata?.canonicalAuthority).toBe('gaming.playroom@20');
+      expect(page.metadata?.canonicalSourcePolicy).toBe('self-contained-complete-package');
+      expect(page.metadata?.responsiveIsolation).toBe('explicit-effective-viewports');
+      expect(page.metadata?.templateLifecycle).toBe('current-canonical-only');
+      expect(page.metadata).not.toHaveProperty('canonicalUpgradeFromTemplateVersion');
+      expect(page.metadata).not.toHaveProperty('homeAcceptedFromVersion');
+      expect(page.metadata).not.toHaveProperty('desktopPolishVersion');
+      expect(page.metadata).not.toHaveProperty('fidelityPolishVersion');
+    }
   });
 
   it('exposes only v20 through the active template resolver',()=>{
