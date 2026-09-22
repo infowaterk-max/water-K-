@@ -1,9 +1,10 @@
 import fs from 'node:fs';
 import {describe,expect,it} from 'vitest';
+import {PLAYROOM_V20_TEMPLATE_PACKAGE} from '@/lib/builder/templates/playroom-v20';
+import type {StorefrontComponentNode} from '@/lib/builder/storefront-runtime';
 
 const instance=fs.readFileSync('src/lib/instances/access.ts','utf8');
 const runtime=fs.readFileSync('src/lib/builder/storefront-runtime-source.ts','utf8');
-const playroom=fs.readFileSync('src/lib/builder/templates/playroom-v20.ts','utf8');
 const primitives=fs.readFileSync('src/components/builder/storefront-primitives.tsx','utf8');
 const normalization=fs.readFileSync('src/lib/builder/storefront-template-runtime-normalization.ts','utf8');
 const previewDemo=fs.readFileSync('src/lib/builder/storefront-template-preview-demo.ts','utf8');
@@ -13,6 +14,21 @@ const actions=fs.readFileSync('src/app/admin/beallitasok/megjelenes/actions.ts',
 const migration=fs.readFileSync('supabase/migrations/20260921152000_storefront_social_links_settings.sql','utf8');
 const hardening=fs.readFileSync('supabase/migrations/20260921161000_storefront_social_links_domain_hardening.sql','utf8');
 const supportDoc=fs.readFileSync('docs/support/STOREFRONT_SOCIAL_LINKS_TENANT_AUTHORITY_2026-09-21.md','utf8');
+
+const findPlayroomNode=(id:string):StorefrontComponentNode=>{
+  const home=PLAYROOM_V20_TEMPLATE_PACKAGE.pages.find(page=>page.pageType==='home')!;
+  const visit=(nodes:readonly StorefrontComponentNode[]):StorefrontComponentNode|null=>{
+    for(const node of nodes){
+      if(node.id===id)return node;
+      const child=visit(node.children??[]);
+      if(child)return child;
+    }
+    return null;
+  };
+  const result=visit(home.sections);
+  if(!result)throw new Error(`PLAYROOM_SOCIAL_TEST_NODE_MISSING:${id}`);
+  return result;
+};
 
 describe('storefront social settings authority',()=>{
   it('stores social profiles as tenant storefront settings, not email brand-kit data',()=>{
@@ -57,8 +73,9 @@ describe('storefront social settings authority',()=>{
     expect(primitiveRegistry).toMatch(/componentKey:'system\.social-links'/);
     expect(primitives).toMatch(/function SocialLinksRenderer/);
     expect(primitives).toMatch(/if\(!items\.length\)return null/);
-    expect(playroom).toMatch(/componentKey:'system\.social-links'/);
-    expect(playroom).toMatch(/path:'brand\.socialLinks'/);
+    const social=findPlayroomNode('playroom-footer-social');
+    expect(social.componentKey).toBe('system.social-links');
+    expect(social.bindings?.items?.path).toBe('brand.socialLinks');
     expect(normalization).toMatch(/node\.id==='playroom-footer-social'/);
     expect(normalization).toMatch(/componentKey:'system\.social-links'/);
   });
