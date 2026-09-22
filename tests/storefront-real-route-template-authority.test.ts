@@ -20,5 +20,10 @@ describe('storefront real-route template authority',()=>{
   ['src/app/blog/page.tsx','blog-index'],
   ['src/app/blog/[slug]/page.tsx','blog-article'],
   ['src/app/gyik/page.tsx','faq'],
+  ['src/app/aszf/page.tsx','legal'],
+  ['src/app/adatvedelem/page.tsx','legal'],
+  ['src/app/impresszum/page.tsx','legal'],
+  ['src/app/szallitas-es-fizetes/page.tsx','legal'],
+  ['src/app/not-found.tsx','not-found'],
  ])('%s selects its own Page Schema authority',(path,pageKey)=>expect(read(path)).toContain(`pageKey="${pageKey}"`));
 });
