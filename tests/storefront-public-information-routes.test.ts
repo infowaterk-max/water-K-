@@ -21,7 +21,10 @@ describe('storefront public information route integrity',()=>{
   expect(page).toMatch(/StorefrontContentShell/);
   expect(shell).toMatch(/resolveCurrentStorefrontContentRuntimePage/);
   expect(shell).toMatch(/data-storefront-template=\{runtime\.page\.templateKey\}/);
-  expect(source).toMatch(/getPreviewStorefrontDraftPage\(instance\.id,'content'\)/);
+  expect(source).toMatch(/resolveCurrentStorefrontPublicStaticRuntimePage\(pageKey:'content'\|'contact'\)/);
+  expect(source).toMatch(/getPreviewStorefrontDraftPage\(instance\.id,pageKey\)/);
+  expect(source).toMatch(/resolveCurrentStorefrontPublicStaticRuntimePage\('content'\)/);
+  expect(source).toMatch(/resolveCurrentStorefrontPublicStaticRuntimePage\('contact'\)/);
   expect(css).toMatch(/\.storefrontContentShell\{/);
   expect(css).toMatch(/--shoporation-color-background/);
  });
