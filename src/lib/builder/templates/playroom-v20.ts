@@ -407,19 +407,19 @@ function patchStyleSlot(config:Record<string,unknown>,slotName:string,overrides:
   const slots=rec(config.styleSlots);
   return{...config,styleSlots:{...slots,[slotName]:mergeViewportStyle(slots[slotName],overrides)}};
 }
-const PLAYROOM_HOME_OPTION_SYMBOLS:Readonly<Record<string,string>>=Object.freeze({
-  solo:'👤',
-  coop:'👥',
-  party:'🎉',
-  racing:'🏁',
-  adventure:'🧭',
-  family:'👨‍👩‍👧',
+const PLAYROOM_HOME_OPTION_ICONS:Readonly<Record<string,string>>=Object.freeze({
+  solo:'/storefront/playroom/icons/play-style-solo.svg',
+  coop:'/storefront/playroom/icons/play-style-coop.svg',
+  party:'/storefront/playroom/icons/play-style-party.svg',
+  racing:'/storefront/playroom/icons/play-style-racing.svg',
+  adventure:'/storefront/playroom/icons/play-style-adventure.svg',
+  family:'/storefront/playroom/icons/play-style-family.svg',
 });
 function patchPlayroomFinderOptions(value:unknown):unknown{
   if(!Array.isArray(value))return value;
   return value.map(item=>{
-    const option=rec(item),id=typeof option.id==='string'?option.id:'';
-    return PLAYROOM_HOME_OPTION_SYMBOLS[id]?{...option,symbol:PLAYROOM_HOME_OPTION_SYMBOLS[id]}:option;
+    const option=rec(item),id=typeof option.id==='string'?option.id:'',icon=PLAYROOM_HOME_OPTION_ICONS[id];
+    return icon?{...option,image:icon,symbol:''}:option;
   });
 }
 function patchResponsiveSpan(nodeValue:StorefrontComponentNode,tablet:1|2|3|4|5|6|7|8|9|10|11|12,mobile:1|2|3|4|5|6|7|8|9|10|11|12=12):StorefrontComponentNode{
@@ -490,7 +490,11 @@ function patchPlayroomHomeResponsive(item:StorefrontComponentNode):StorefrontCom
         tablet:{gridTemplateColumns:'repeat(3,minmax(0,1fr))'},
         mobile:{gridTemplateColumns:'repeat(2,minmax(0,1fr))'},
       });
-      config=patchStyleSlot(config,'optionMedia',{mobile:{fontSize:'1.45rem',lineHeight:1}});
+      config=patchStyleSlot(config,'optionMedia',{
+        base:{width:'2.2rem',height:'2.2rem',objectFit:'contain'},
+        tablet:{width:'2.15rem',height:'2.15rem'},
+        mobile:{width:'2rem',height:'2rem'},
+      });
       const optionsBinding=next.bindings?.options;
       next={
         ...next,
