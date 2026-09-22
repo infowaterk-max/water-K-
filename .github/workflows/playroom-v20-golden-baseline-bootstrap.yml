@@ -1,0 +1,64 @@
+name: Playroom v20 Golden Baseline Bootstrap
+
+on:
+  push:
+    branches:
+      - feature/playroom-v20-functional-acceptance
+    paths:
+      - .github/workflows/playroom-v20-golden-baseline-bootstrap.yml
+
+permissions:
+  actions: read
+  contents: write
+
+jobs:
+  bootstrap:
+    if: github.event.head_commit.message == 'chore: bootstrap Playroom v20 golden baseline'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout closure branch
+        uses: actions/checkout@v4
+        with:
+          ref: feature/playroom-v20-functional-acceptance
+          fetch-depth: 0
+
+      - name: Download exact accepted evidence
+        uses: actions/download-artifact@v4
+        with:
+          name: template-factory-quality-805f94fd2b7f1cd8b02a32fb05e441b7bc988d28
+          path: artifacts/playroom-v20-golden-source
+          run-id: 35782959334
+          github-token: ${{ github.token }}
+
+      - name: Verify immutable evidence authority
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(node -p "JSON.parse(require('fs').readFileSync('artifacts/playroom-v20-golden-source/manifest.json','utf8')).contract")" = "shoporation.template-factory-quality-evidence.v2"
+          test "$(node -p "JSON.parse(require('fs').readFileSync('artifacts/playroom-v20-golden-source/manifest.json','utf8')).sourceCommit")" = "805f94fd2b7f1cd8b02a32fb05e441b7bc988d28"
+          test "$(node -p "JSON.parse(require('fs').readFileSync('artifacts/playroom-v20-golden-source/manifest.json','utf8')).errors.length")" = "0"
+
+      - name: Promote exact 14x3 Playroom matrix
+        run: >
+          node scripts/promote-template-golden-baseline.mjs
+          artifacts/playroom-v20-golden-source
+          gaming.playroom
+          20
+          tests/visual-baselines/gaming.playroom/v20
+
+      - name: Verify exact baseline cardinality
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(find tests/visual-baselines/gaming.playroom/v20 -maxdepth 1 -type f -name '*.png' | wc -l | tr -d ' ')" = "42"
+
+      - name: Commit immutable golden baseline
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add tests/visual-baselines/gaming.playroom/v20
+          git diff --cached --quiet && { echo "No baseline changes to commit."; exit 0; }
+          git commit -m "chore: promote Playroom v20 golden baseline"
+          git push origin HEAD:feature/playroom-v20-functional-acceptance
