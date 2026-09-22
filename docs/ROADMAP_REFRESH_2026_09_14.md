@@ -177,6 +177,8 @@ Product direction:
 - visual category browser with searchable/filterable preview cards for reusable compositions such as Hero, CTA, editorial, product discovery, testimonials, brands, FAQ, newsletter, contact and similar semantic sections;
 - one-click insertion into the current Page Schema working copy, followed by ordinary Visual Builder editing;
 - shared composition presets plus template-aware visual inheritance, with a smaller set of genuinely template-specific signature presets where the design requires it;
+- preset deduplication is structural, not cosmetic: a candidate that differs from an existing preset only by color, typography, radius, spacing, decorative treatment or similarly shallow skinning is **not** a new preset; it becomes a style variant or is rejected as redundant;
+- each category should prefer a bounded set of genuinely different composition families, with optional style variants beneath them, rather than an ever-growing flat list of near-duplicates;
 - merchant **Saved Blocks** remain a separate personal library; factory presets remain source-controlled and quality-gated;
 - the existing 14 Page Presets remain page-level starting points; this library is section/component-level composition reuse and must not replace the page/template hierarchy.
 
