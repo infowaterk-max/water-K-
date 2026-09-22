@@ -142,7 +142,7 @@ describe('Playroom v20 functional acceptance',()=>{
     const serialized=JSON.stringify(contact);
     expect(serialized).not.toContain('BE READY');
     expect(serialized).not.toContain('GENERAL');
-    expect(findNode(contact,'playroom-contact-expect-kicker').config.text).toBe('KÉSZÜLJ ELŐ');
+    expect(findNode(contact,'playroom-contact-expect-kicker').config.text).toBe('KÉSZÜLJ FEL');
     expect(findNode(contact,'playroom-contact-general-kicker').config.text).toBe('ÁLTALÁNOS');
     expect(findNode(contact,'playroom-contact-copy').responsive?.tablet?.gridSpan).toBe(8);
     expect(findNode(contact,'playroom-contact-expectations').responsive?.tablet?.gridSpan).toBe(4);
@@ -152,7 +152,7 @@ describe('Playroom v20 functional acceptance',()=>{
       expect(findNode(contact,id).responsive?.mobile?.gridSpan).toBe(12);
     }
     const tabletMarkup=render(contact,{},'tablet');
-    expect(tabletMarkup).toContain('KÉSZÜLJ ELŐ');
+    expect(tabletMarkup).toContain('KÉSZÜLJ FEL');
     expect(tabletMarkup).toContain('ÁLTALÁNOS');
   });
 
