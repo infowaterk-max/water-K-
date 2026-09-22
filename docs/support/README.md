@@ -138,3 +138,5 @@ If yes, update Support Knowledge in the same development cycle.
 - [Storefront contact Runtime continuity (2026-09-22)](./STOREFRONT_CONTACT_RUNTIME_CONTINUITY_2026-09-22.md)
 
 - [Storefront homepage Preview Runtime continuity (2026-09-22)](./STOREFRONT_HOME_PREVIEW_RUNTIME_CONTINUITY_2026-09-22.md)
+
+- [Playroom v20 homepage responsive polish + shared Newsletter readiness (2026-09-22)](./PLAYROOM_V20_HOME_RESPONSIVE_AND_NEWSLETTER_2026-09-22.md)
