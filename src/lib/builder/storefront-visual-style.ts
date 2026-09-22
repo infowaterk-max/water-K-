@@ -1,6 +1,6 @@
 import type {StorefrontViewport} from '@/lib/builder/storefront-foundation';
 
-export const STOREFRONT_VISUAL_STYLE_VERSION='shoporation.storefront-visual-style.v1' as const;
+export const STOREFRONT_VISUAL_STYLE_VERSION='shoporation.storefront-visual-style.v2' as const;
 
 export type StorefrontVisualStyleValue=string|number;
 export type StorefrontVisualStyleSlot=Record<string,StorefrontVisualStyleValue>;
@@ -50,11 +50,31 @@ export function sanitizeStorefrontVisualStyleSlot(value:unknown):StorefrontVisua
 }
 
 /**
- * Visual style is deliberately allowlisted and breakpoint-aware. Desktop values
- * inherit from base, tablet inherits desktop, and mobile inherits tablet. A flat
- * style object is accepted as a base style for migration/backward convenience.
+ * v2 visual-style authority is viewport-isolated:
+ *
+ *   base + exact viewport
+ *
+ * Desktop never cascades into Tablet/Mobile and Tablet never cascades into
+ * Mobile. This matches the Builder's Desktop / Tablet / Mobile editing model
+ * and makes "desktop-only" edits structurally safe.
+ *
+ * A flat style object is still accepted as a base style for migration/backward
+ * compatibility.
  */
 export function resolveStorefrontVisualStyle(value:unknown,viewport:StorefrontViewport):StorefrontVisualStyleSlot{
+  if(!isRecord(value))return{};
+  const usesSlots=SLOT_KEYS.some(key=>Object.prototype.hasOwnProperty.call(value,key));
+  if(!usesSlots)return sanitizeStorefrontVisualStyleSlot(value);
+  const base=sanitizeStorefrontVisualStyleSlot(value.base);
+  return{...base,...sanitizeStorefrontVisualStyleSlot(value[viewport])};
+}
+
+/**
+ * One-way migration helper for historical template sources authored under the
+ * v1 base -> desktop -> tablet -> mobile cascade. Runtime/Builder code must not
+ * use this resolver.
+ */
+export function resolveStorefrontVisualStyleLegacyCascade(value:unknown,viewport:StorefrontViewport):StorefrontVisualStyleSlot{
   if(!isRecord(value))return{};
   const usesSlots=SLOT_KEYS.some(key=>Object.prototype.hasOwnProperty.call(value,key));
   if(!usesSlots)return sanitizeStorefrontVisualStyleSlot(value);
