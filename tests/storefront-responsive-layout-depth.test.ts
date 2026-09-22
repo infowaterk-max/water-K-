@@ -24,7 +24,7 @@ function findNode(document:StorefrontPageDocument,nodeId:string):StorefrontCompo
 }
 
 describe('Responsive / Layout Depth v1',()=>{
-  it('uses the existing Page Schema/Fidelity authority and reports inherited state',()=>{
+  it('uses the existing Page Schema/Fidelity authority and reports viewport-local/default state',()=>{
     const document=clone(STOREFRONT_NEUTRAL_REFERENCE_PAGE);
     const state=inspectStorefrontResponsiveLayoutDepth(document,'reference-grid-left','mobile');
     expect(state.version).toBe(STOREFRONT_RESPONSIVE_LAYOUT_DEPTH_VERSION);
@@ -34,14 +34,14 @@ describe('Responsive / Layout Depth v1',()=>{
     expect(state.visibility).toEqual({direct:null,effective:false});
   });
 
-  it('supports explicit breakpoint visibility while retaining inheritance semantics',()=>{
+  it('supports explicit breakpoint visibility without sibling-viewport leakage',()=>{
     let document=clone(STOREFRONT_NEUTRAL_REFERENCE_PAGE);
     document=setStorefrontResponsiveVisibility(document,'reference-grid-left','desktop',true);
-    expect(inspectStorefrontResponsiveLayoutDepth(document,'reference-grid-left','mobile').visibility.effective).toBe(true);
+    expect(inspectStorefrontResponsiveLayoutDepth(document,'reference-grid-left','mobile').visibility.effective).toBe(false);
     document=setStorefrontResponsiveVisibility(document,'reference-grid-left','mobile',false);
     expect(inspectStorefrontResponsiveLayoutDepth(document,'reference-grid-left','mobile').visibility).toEqual({direct:false,effective:false});
     document=setStorefrontResponsiveVisibility(document,'reference-grid-left','mobile',null);
-    expect(inspectStorefrontResponsiveLayoutDepth(document,'reference-grid-left','mobile').visibility).toEqual({direct:null,effective:true});
+    expect(inspectStorefrontResponsiveLayoutDepth(document,'reference-grid-left','mobile').visibility).toEqual({direct:null,effective:false});
   });
 
   it('adds structured responsive grid flow without erasing unrelated allowlisted style',()=>{

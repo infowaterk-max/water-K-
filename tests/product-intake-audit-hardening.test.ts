@@ -21,6 +21,12 @@ describe('Product Intake audit hardening',()=>{
   expect(editor).toContain('useShoperationConfirm');expect(editor).toContain('Variánsmátrix újragenerálása');expect(editor).toContain('confirmLabel:\'Újragenerálás\'');expect(editor).toContain('{promptDialog}{confirmDialog}');
   for(const forbidden of['window.alert','window.confirm','window.prompt'])expect(editor).not.toContain(forbidden);
  });
+ test('mobile keeps destructive variant-generation actions reachable',()=>{
+  const css=read('src/app/admin/termekek/feltoltes/product-intake.module.css');
+  expect(css).toContain('.topBar .topActions .secondaryButton{display:none}');
+  expect(css).toContain('.editorPanelHeader .topActions .secondaryButton{display:inline-flex');
+  expect(css).not.toContain('.pageHeading h1{font-size:21px}.topActions .secondaryButton{display:none}');
+ });
  test('hub catalog search is functional rather than a decorative input',()=>{
   const hub=read('src/app/admin/termekek/feltoltes/page.tsx'),search=read('src/components/admin/product-intake-search.tsx');
   expect(hub).toContain('ProductIntakeSearch');expect(hub).toContain('items={products.map');expect(search).toContain('setQuery');expect(search).toContain('includes(normalized)');expect(search).toContain('/admin/termekek/feltoltes/${item.id}');

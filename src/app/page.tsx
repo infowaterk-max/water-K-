@@ -3,10 +3,8 @@ import {headers} from 'next/headers';
 import { formatHuf } from '@/lib/catalog';
 import { getProducts } from '@/lib/catalog-server';
 import { requireStorefrontAccess } from '@/lib/storefront/access';
-import {StorefrontRuntimeRenderer} from '@/components/builder/storefront-runtime-renderer';
-import {createStorefrontVisualBuilderComponentRegistry} from '@/lib/builder/storefront-builder-registry';
-import {createStorefrontVisualBuilderRendererRegistry} from '@/components/builder/storefront-builder-renderer-registry';
-import {resolveCurrentStorefrontPublishedRuntimePage} from '@/lib/builder/storefront-runtime-source';
+import {StorefrontResponsiveRuntime} from '@/components/builder/storefront-responsive-runtime';
+import {resolveCurrentStorefrontHomeRuntimePage} from '@/lib/builder/storefront-runtime-source';
 import type {StorefrontViewport} from '@/lib/builder/storefront-foundation';
 
 function storefrontViewportFromUserAgent(userAgent:string):StorefrontViewport{
@@ -17,18 +15,16 @@ function storefrontViewportFromUserAgent(userAgent:string):StorefrontViewport{
 }
 
 export default async function HomePage(){
- const published=await resolveCurrentStorefrontPublishedRuntimePage('home');
- if(published){
+ const runtime=await resolveCurrentStorefrontHomeRuntimePage();
+ if(runtime){
   const userAgent=(await headers()).get('user-agent')??'';
   const viewport=storefrontViewportFromUserAgent(userAgent);
-  return <main data-storefront-published-runtime="page-schema" data-storefront-page-key="home">
-   <StorefrontRuntimeRenderer
-    page={published.page}
-    viewport={viewport}
-    bindingContext={published.bindingContext}
-    capability={published.capability}
-    componentRegistry={createStorefrontVisualBuilderComponentRegistry()}
-    rendererRegistry={createStorefrontVisualBuilderRendererRegistry()}
+  return <main data-storefront-home-runtime="page-schema" data-storefront-runtime-source={runtime.source} data-storefront-page-key="home">
+   <StorefrontResponsiveRuntime
+    page={runtime.page}
+    initialViewport={viewport}
+    bindingContext={runtime.bindingContext}
+    capability={runtime.capability}
    />
   </main>;
  }

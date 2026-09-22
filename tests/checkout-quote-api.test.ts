@@ -21,8 +21,9 @@ describe('checkout quote API',()=>{
     const s=read('src/app/api/checkout/quote/route.ts');
     expect(s).toContain('subtotal_gross_huf:quote.subtotalGrossHuf');
     expect(s).toContain('discount_gross_huf:quote.discountGrossHuf');
-    expect(s).toContain('shipping_gross_huf:fulfillment.requiresShipping?quote.shippingGrossHuf:0');
-    expect(s).toContain('total_gross_huf:fulfillment.requiresShipping?quote.totalGrossHuf:Math.max(0,quote.subtotalGrossHuf-quote.discountGrossHuf)');
+    expect(s).toContain("mode:z.enum(['cart','checkout'])");
+    expect(s).toContain('shipping_gross_huf:cartMode?0:fulfillment.requiresShipping?quote.shippingGrossHuf:0');
+    expect(s).toContain('total_gross_huf:cartMode?cartTotal:fulfillment.requiresShipping?quote.totalGrossHuf:cartTotal');
     expect(s).toContain('coupon_code:quote.couponCode');
     expect(s).toContain('fulfillment_mode:fulfillment.mode');
     expect(s).toContain('requires_shipping:fulfillment.requiresShipping');

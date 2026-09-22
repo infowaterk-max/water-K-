@@ -18,7 +18,7 @@ import styles from './storefront-visual-builder.module.css';
 
 const viewportLabel=(viewport:StorefrontViewport)=>viewport==='desktop'?'Desktop':viewport==='tablet'?'Tablet':'Mobil';
 const numberOrUndefined=(value:string)=>{const parsed=Number(value);return value.trim()!==''&&Number.isFinite(parsed)?parsed:undefined;};
-const ALIGN_LABELS:Record<StorefrontGridSelfAlignment,string>={auto:'Örökölt',start:'Kezdet',center:'Közép',end:'Vég',stretch:'Nyújtás'};
+const ALIGN_LABELS:Record<StorefrontGridSelfAlignment,string>={auto:'Alapérték',start:'Kezdet',center:'Közép',end:'Vég',stretch:'Nyújtás'};
 
 export function StorefrontFidelityLayoutControls({document,node,viewport,editMode,onApply}:{
   document:StorefrontPageDocument;
@@ -41,7 +41,7 @@ export function StorefrontFidelityLayoutControls({document,node,viewport,editMod
   const applyTracks=()=>{
     const weights=trackDraft.split(',').map(item=>Number(item.trim())).filter(value=>Number.isFinite(value));
     if(!trackDraft.trim()){
-      onApply(setStorefrontCustomGridTracks(document,node.id,viewport,null),`${viewportLabel(viewport)} custom track öröklésre állítva.`);
+      onApply(setStorefrontCustomGridTracks(document,node.id,viewport,null),`${viewportLabel(viewport)} custom track alapértékre állítva.`);
       return;
     }
     if(weights.length!==trackDraft.split(',').length||weights.length<1||weights.length>12||weights.some(weight=>weight<.25||weight>8))return;
@@ -52,22 +52,22 @@ export function StorefrontFidelityLayoutControls({document,node,viewport,editMod
     <strong>{viewportLabel(viewport)} grid és igazítás</strong>
     <p className={styles.emptyHint}>A 12 oszlopos grid ugyanazon Page Schema responsive override-jait használja. Az üres mező örököl; nincs külön mobil DOM vagy második layout engine.</p>
     <div className={styles.metaGrid}>
-      <span><small>Grid override</small><b>{placement.hasOverride?'Egyedi':'Örökölt'}</b></span>
-      {node.componentKey==='layout.grid'?<span><small>Track override</small><b>{tracks.hasOverride?'Egyedi':'Örökölt'}</b></span>:null}
+      <span><small>Grid override</small><b>{placement.hasOverride?'Egyedi':'Alapérték'}</b></span>
+      {node.componentKey==='layout.grid'?<span><small>Track override</small><b>{tracks.hasOverride?'Egyedi':'Alapérték'}</b></span>:null}
     </div>
-    <label className={styles.field}><span>Szélesség / span</span><select value={placement.direct.span??''} onChange={event=>applyPlacement({span:numberOrUndefined(event.target.value)})}><option value="">Örökölt</option>{Array.from({length:12},(_,index)=>index+1).map(value=><option key={value} value={value}>{value} / 12</option>)}</select></label>
-    <label className={styles.field}><span>Responsive order</span><input type="number" min="-20" max="20" step="1" value={placement.direct.order??''} placeholder="Örökölt" onChange={event=>applyPlacement({order:numberOrUndefined(event.target.value)})}/></label>
+    <label className={styles.field}><span>Szélesség / span</span><select value={placement.direct.span??''} onChange={event=>applyPlacement({span:numberOrUndefined(event.target.value)})}><option value="">Alapérték</option>{Array.from({length:12},(_,index)=>index+1).map(value=><option key={value} value={value}>{value} / 12</option>)}</select></label>
+    <label className={styles.field}><span>Responsive order</span><input type="number" min="-20" max="20" step="1" value={placement.direct.order??''} placeholder="Alapérték" onChange={event=>applyPlacement({order:numberOrUndefined(event.target.value)})}/></label>
     <label className={styles.field}><span>Függőleges igazítás</span><select value={placement.direct.alignSelf??'auto'} onChange={event=>applyPlacement({alignSelf:event.target.value as StorefrontGridSelfAlignment})}>{STOREFRONT_GRID_SELF_ALIGNMENTS.map(value=><option key={value} value={value}>{ALIGN_LABELS[value]}</option>)}</select></label>
     <label className={styles.field}><span>Vízszintes igazítás</span><select value={placement.direct.justifySelf??'auto'} onChange={event=>applyPlacement({justifySelf:event.target.value as StorefrontGridSelfAlignment})}>{STOREFRONT_GRID_SELF_ALIGNMENTS.map(value=><option key={value} value={value}>{ALIGN_LABELS[value]}</option>)}</select></label>
     {expert?<>
-      <label className={styles.field}><span>Grid start</span><input type="number" min="1" max="12" step="1" value={placement.direct.start??''} placeholder="Örökölt" onChange={event=>applyPlacement({start:numberOrUndefined(event.target.value)})}/></label>
-      <label className={styles.field}><span>Grid end</span><input type="number" min="2" max="13" step="1" value={placement.direct.end??''} placeholder="Örökölt" onChange={event=>applyPlacement({end:numberOrUndefined(event.target.value)})}/></label>
+      <label className={styles.field}><span>Grid start</span><input type="number" min="1" max="12" step="1" value={placement.direct.start??''} placeholder="Alapérték" onChange={event=>applyPlacement({start:numberOrUndefined(event.target.value)})}/></label>
+      <label className={styles.field}><span>Grid end</span><input type="number" min="2" max="13" step="1" value={placement.direct.end??''} placeholder="Alapérték" onChange={event=>applyPlacement({end:numberOrUndefined(event.target.value)})}/></label>
       {node.componentKey==='layout.grid'?<>
         <label className={styles.field}><span>Custom track súlyok</span><input type="text" value={trackDraft} placeholder="pl. 2, 1, 1" onChange={event=>setTrackDraft(event.target.value)} onBlur={applyTracks}/></label>
         <p className={styles.emptyHint}>1–12 strukturált fr-súly, egyenként 0,25–8 között. A Builder ebből allowlisted `minmax(0, …fr)` trackeket generál; nyers CSS nem írható be.</p>
-        <button type="button" className={styles.addSectionButton} onClick={()=>{setTrackDraft('');onApply(setStorefrontCustomGridTracks(document,node.id,viewport,null),`${viewportLabel(viewport)} custom grid track öröklésre állítva.`);}}>Custom track visszaállítása</button>
+        <button type="button" className={styles.addSectionButton} onClick={()=>{setTrackDraft('');onApply(setStorefrontCustomGridTracks(document,node.id,viewport,null),`${viewportLabel(viewport)} custom grid track alapértékre állítva.`);}}>Custom track visszaállítása</button>
       </>:null}
     </>:null}
-    {placement.hasOverride?<button type="button" className={styles.addSectionButton} onClick={()=>onApply(resetStorefrontResponsiveGridPlacement(document,node.id,viewport),`${viewportLabel(viewport)} grid-elhelyezés öröklésre állítva.`)}>Grid override visszaállítása</button>:null}
+    {placement.hasOverride?<button type="button" className={styles.addSectionButton} onClick={()=>onApply(resetStorefrontResponsiveGridPlacement(document,node.id,viewport),`${viewportLabel(viewport)} grid-elhelyezés alapértékre állítva.`)}>Grid override visszaállítása</button>:null}
   </div>;
 }

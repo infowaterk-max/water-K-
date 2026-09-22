@@ -14,6 +14,7 @@ export type StorefrontTemplateLibraryEntry=StorefrontTemplateCatalogEntry&{
   audience:string;
   highlights:readonly string[];
   previewPageKey:string|null;
+  demoProductCount:number;
   proComparison:StorefrontTemplateProComparison;
 };
 
@@ -99,6 +100,7 @@ export function listStorefrontTemplateLibraryEntries():readonly StorefrontTempla
       audience:categoryProfile.audience,
       highlights:Object.freeze(metadataHighlights.length?metadataHighlights:fallbackHighlights),
       previewPageKey:home?.pageKey??null,
+      demoProductCount:(template?.demoFixtures??[]).filter(item=>item.entityType==='product'&&item.payload.installAsDemoProduct===true).length,
       proComparison:Object.freeze({status:'available' as const,summary:pro.summary,highlights:Object.freeze([...pro.highlights]),optionalAddOns:Object.freeze([...(pro.optionalAddOns??[])])}),
     });
   });

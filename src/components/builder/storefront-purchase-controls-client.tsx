@@ -1,9 +1,12 @@
 'use client';
 
-import {useMemo,useState,type CSSProperties} from 'react';
+import {useMemo,useRef,useState,type CSSProperties} from 'react';
 import {useCart} from '@/components/cart/cart-provider';
 import {useAnalytics} from '@/components/analytics/analytics-provider';
 import {normalizeMinimumQuantity,normalizeOrderMultiple,normalizeQuantity} from '@/lib/commerce/cart-engine';
+import {createClient} from '@/lib/supabase/browser';
+import {StorefrontAuthDialog} from '@/components/auth/storefront-auth-dialog';
+import {AddToCartConfirmation} from '@/components/cart/add-to-cart-confirmation';
 
 type Props={
   productId:string;
@@ -32,7 +35,8 @@ export function StorefrontPurchaseControlsClient({
   const canIdentify=Boolean(productId&&slug&&name&&Number.isFinite(unitPrice)&&unitPrice>=0);
   const purchasable=canIdentify&&maximum>=minimum;
   const initial=purchasable?normalizeQuantity(minimum,maximum,minimum,step):minimum;
-  const[quantity,setQuantity]=useState(initial);
+  const[quantity,setQuantity]=useState(initial),[wishlistAuthOpen,setWishlistAuthOpen]=useState(false),[cartConfirmationOpen,setCartConfirmationOpen]=useState(false);
+  const wishlistFormRef=useRef<HTMLFormElement|null>(null);
   const canWishlist=Boolean(variantId&&slug);
   const decrement=()=>setQuantity(current=>Math.max(minimum,normalizeQuantity(current-step,maximum,minimum,step)||minimum));
   const increment=()=>setQuantity(current=>normalizeQuantity(current+step,maximum,minimum,step)||current);
@@ -44,7 +48,13 @@ export function StorefrontPurchaseControlsClient({
   const purchaseStyle=useMemo<CSSProperties>(()=>({border:'1px solid var(--shoporation-color-primary,#111)',background:'var(--shoporation-color-primary,#111)',color:'var(--shoporation-color-primary-contrast,#fff)',fontWeight:750,fontSize:'.72rem',letterSpacing:'.035em',padding:'.7rem .9rem',cursor:purchasable?'pointer':'default',opacity:1,...styles.purchase}),[purchasable,styles.purchase]);
   const wishlistStyle=useMemo<CSSProperties>(()=>({border:'1px solid var(--shoporation-color-border,#d8d8d8)',background:'var(--shoporation-color-background,#fff)',color:'var(--shoporation-color-text,#111)',fontSize:'1.1rem',padding:0,cursor:canWishlist?'pointer':'default',opacity:1,...styles.wishlist}),[canWishlist,styles.wishlist]);
 
-  return <div data-storefront-commerce="purchase-controls" style={rootStyle}>
+  async function submitWishlist(){
+    const{data:{user}}=await createClient().auth.getUser();
+    if(!user){setWishlistAuthOpen(true);return;}
+    wishlistFormRef.current?.requestSubmit();
+  }
+
+  return <><div data-storefront-commerce="purchase-controls" style={rootStyle}>
     <div aria-label="Mennyiség" style={quantityStyle}>
       <button type="button" aria-label="Mennyiség csökkentése" disabled={!purchasable||quantity<=minimum} onClick={decrement} style={stepStyle}>−</button>
       <output aria-live="polite" style={{display:'grid',placeItems:'center',fontSize:'.75rem',fontWeight:700,...styles.value}}>{quantity}</output>
@@ -54,11 +64,12 @@ export function StorefrontPurchaseControlsClient({
       if(!purchasable)return;
       add({productId,variantId,slug,name,unitPrice,quantity,minimumQuantity:minimum,orderMultiple:step});
       track('add_to_cart',{item_id:variantId??productId,item_name:name,value:unitPrice*quantity,currency,product_id:productId,variant_id:variantId??'',quantity});
+      setCartConfirmationOpen(true);
     }}>{purchaseText}</button>
-    <form action={wishlistActionHref} method="post" style={{display:'contents'}}>
+    <form ref={wishlistFormRef} action={wishlistActionHref} method="post" style={{display:'contents'}}>
       <input type="hidden" name="variantId" value={variantId??''}/>
       <input type="hidden" name="slug" value={slug}/>
-      <button type="submit" disabled={!canWishlist} aria-disabled={!canWishlist} aria-label={wishlistText} title={wishlistText} style={wishlistStyle}>♡</button>
+      <button type="button" disabled={!canWishlist} aria-disabled={!canWishlist} aria-label={wishlistText} title={wishlistText} style={wishlistStyle} onClick={()=>void submitWishlist()}>♡</button>
     </form>
-  </div>;
+  </div><AddToCartConfirmation open={cartConfirmationOpen} productName={name} onClose={()=>setCartConfirmationOpen(false)}/><StorefrontAuthDialog open={wishlistAuthOpen} onClose={()=>setWishlistAuthOpen(false)} initialMode="login" title="Belépés a kívánságlistához" onAuthenticated={()=>{setWishlistAuthOpen(false);queueMicrotask(()=>wishlistFormRef.current?.requestSubmit())}}/></>;
 }

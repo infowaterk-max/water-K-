@@ -355,3 +355,27 @@
 @media(prefers-reduced-motion:reduce){
   .toast{animation:none!important}.canvasNode,.viewportSwitch :global(button),.nodeToolbar :global(button){transition:none!important}
 }
+
+
+/* Cart commerce controls must inherit storefront tokens, not Admin workspace form defaults. */
+.finalShell :global([data-storefront-global-styles-v1] [data-cart-coupon-input="true"]){
+  border-color:var(--shoporation-color-border,#373259)!important;
+  border-radius:var(--shoporation-radius-s,.55rem)!important;
+  background:var(--shoporation-color-surface,#15142c)!important;
+  color:var(--shoporation-color-text,#fff7e8)!important;
+  box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--shoporation-color-border,#373259) 28%,transparent)!important;
+  outline:none!important;
+}
+.finalShell :global([data-storefront-global-styles-v1] [data-cart-coupon-input="true"]::placeholder){
+  color:var(--shoporation-color-muted-text,#b8b4c7)!important;
+  opacity:1!important;
+}
+.finalShell :global([data-storefront-global-styles-v1] [data-cart-coupon-input="true"]:focus){
+  border-color:var(--shoporation-color-primary,#5c7cfa)!important;
+  box-shadow:0 0 0 2px color-mix(in srgb,var(--shoporation-color-primary,#5c7cfa) 28%,transparent)!important;
+}
+.finalShell :global([data-storefront-global-styles-v1] [data-cart-coupon-apply="true"]){
+  border-color:var(--shoporation-color-primary,#5c7cfa)!important;
+  background:var(--shoporation-color-primary,#5c7cfa)!important;
+  color:var(--shoporation-color-primary-contrast,#fff)!important;
+}

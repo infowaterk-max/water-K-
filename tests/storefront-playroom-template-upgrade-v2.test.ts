@@ -14,12 +14,12 @@ describe('Playroom historical reference fidelity v2',()=>{
     expect(PLAYROOM_REFERENCE_V2_TEMPLATE_PACKAGE.pages.every(page=>page.templateVersion===2)).toBe(true);
   });
 
-  it('keeps v2 exactly resolvable while allowing a newer catalog version to become latest',()=>{
+  it('keeps v2 as historical source evidence while only the canonical latest version is actively resolvable',()=>{
     const entry=STOREFRONT_TEMPLATE_CATALOG.find(item=>item.templateKey==='gaming.playroom');
-    expect(entry?.templateVersion).toBeGreaterThan(2);
+    expect(entry?.templateVersion).toBe(20);
     const latest=getStorefrontTemplatePackage('gaming.playroom');
-    expect(latest?.manifest.templateVersion).toBeGreaterThan(2);
-    expect(getStorefrontTemplatePackage('gaming.playroom',2)?.pages[0]?.metadata?.referenceFidelityRelease).toBe('playroom-v2');
+    expect(latest?.manifest.templateVersion).toBe(20);
+    expect(getStorefrontTemplatePackage('gaming.playroom',2)).toBeUndefined();
   });
 
   it('keeps the accepted reference authority on every historical v2 page without creating new commerce authority',()=>{

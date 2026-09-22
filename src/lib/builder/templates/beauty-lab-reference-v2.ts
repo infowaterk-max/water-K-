@@ -96,8 +96,8 @@ function buildHome(base:StorefrontPageDocument){
   const ingredientItems=Array.isArray(ingredient.config.items)?clone(ingredient.config.items) as Record<string,unknown>[]:[];
   const ingredientFallback=[
     ...ingredientItems,
-    ...(ingredientItems[0]?[{...ingredientItems[0],id:'vitamin-c',label:'Vitamin C',href:'/osszetevok/vitamin-c',copy:'Ragyogásfókuszú antioxidáns összetevő.',meta:'C'}]:[]),
-    ...(ingredientItems[1]?[{...ingredientItems[1],id:'peptides',label:'Peptides',href:'/osszetevok/peptides',copy:'Peptid-alapú összetevő a feszességfókuszú formulákhoz.',meta:'PEP'}]:[]),
+    ...(ingredientItems[0]?[{...ingredientItems[0],id:'vitamin-c',label:'Vitamin C',href:'/oldal/osszetevok-vitamin-c',copy:'Ragyogásfókuszú antioxidáns összetevő.',meta:'C'}]:[]),
+    ...(ingredientItems[1]?[{...ingredientItems[1],id:'peptides',label:'Peptides',href:'/oldal/osszetevok-peptides',copy:'Peptid-alapú összetevő a feszességfókuszú formulákhoz.',meta:'PEP'}]:[]),
   ];
   ingredient.config={...ingredient.config,eyebrow:'INGREDIENT INDEX',title:'Ismerd meg az összetevőket',copy:'Tudatos választás. Valódi hatás.',items:ingredientFallback,columns:6};
   setFallback(ingredient,'items','catalog.ingredientIndex',ingredientFallback);

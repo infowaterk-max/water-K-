@@ -7,7 +7,7 @@ import{requireCurrentStoreContext}from'@/lib/instances/scope';
 const schema=z.object({
   sourceVariantId:z.string().uuid().nullable(),
   recommendedVariantId:z.string().uuid(),
-  placement:z.enum(['cart','post_purchase']),
+  placement:z.literal('cart'),
   priority:z.number().int().min(0).max(10000).default(100),
   headline:z.string().trim().max(120).nullable().optional(),
 }).refine(v=>v.sourceVariantId!==v.recommendedVariantId,'A termék nem ajánlhatja saját magát.');

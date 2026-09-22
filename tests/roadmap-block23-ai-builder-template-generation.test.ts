@@ -78,7 +78,7 @@ describe('Roadmap Block 23 AI-assisted Builder / template generation',()=>{
     expect(source).toContain('evaluateStorefrontTemplateCapabilityGate');
     expect(source).toContain('validateStorefrontBuilderSchemaStructure');
     expect(source).toContain('consume_security_rate_limit');
-    expect(source).toContain('saveCurrentStorefrontTemplateDraftPlan');
+    expect(source).toContain('saveCurrentStorefrontTemplateInstallationPlan');
     expect(source).toContain('STOREFRONT_IMPLEMENTED_TEMPLATE_PACKAGES');
     expect(source).not.toContain('input.instanceId');
     expect(source).not.toContain("from('products').update");

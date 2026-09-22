@@ -4,12 +4,20 @@ import { createAdminClient } from '@/lib/supabase/admin';
 import { getCurrentWebshopInstance } from '@/lib/instances/access';
 import { hasStorePermission,hasStoreRoleBindingHistory } from '@/lib/auth/store-rbac';
 
-export async function requireAdmin() {
+function safeLoginReturn(returnTo?:string){
+  if(!returnTo||!returnTo.startsWith('/')||returnTo.startsWith('//'))return null;
+  return returnTo.startsWith('/admin')||returnTo.startsWith('/storefront-template-preview')?returnTo:null;
+}
+
+export async function requireAdmin(returnTo?:string) {
   const hasPublicKey=Boolean(process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY??process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
   if(!process.env.NEXT_PUBLIC_SUPABASE_URL||!hasPublicKey)redirect('/fiokom?reason=admin-config');
   const supabase=await createClient();
   const{data:authData,error}=await supabase.auth.getUser();
-  if(error||!authData.user)redirect('/fiokom?reason=login');
+  if(error||!authData.user){
+    const next=safeLoginReturn(returnTo);
+    redirect(next?`/fiokom?reason=login&next=${encodeURIComponent(next)}`:'/fiokom?reason=login');
+  }
 
   try{
     const admin=createAdminClient();

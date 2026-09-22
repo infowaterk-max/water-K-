@@ -7,6 +7,7 @@ const read = (file: string) => fs.readFileSync(path.join(root, file), 'utf8');
 
 const returnsPage = read('src/app/fiokom/visszakuldes/page.tsx');
 const returnForm = read('src/components/account/return-request-form.tsx');
+const returnCaseCards = read('src/components/account/return-case-cards.tsx');
 const returnsAdmin = read('src/app/admin/visszaru/page.tsx');
 const returnActions = read('src/components/admin/return-case-actions.tsx');
 const casesPage = read('src/app/fiokom/ugyek/page.tsx');
@@ -25,13 +26,39 @@ describe('post-purchase service contracts', () => {
     expect(returnsPage).toMatch(/\.in\('status',\['shipped','completed'\]\)/);
   });
 
+  test('return flow is globally reachable from the account and eligible order detail', () => {
+    const capabilities = read('src/lib/account/account-capabilities.ts');
+    const orderDetail = read('src/app/fiokom/rendeles/[id]/page.tsx');
+    expect(capabilities).toContain("key:'returns',href:'/fiokom/visszakuldes',label:'Visszaküldés'");
+    expect(orderDetail).toContain("['shipped','completed'].includes(order.status)");
+    expect(orderDetail).toContain('href="/fiokom/visszakuldes">Visszaküldés indítása</Link>');
+  });
+
+  test('customer return history restores tenant-safe self-read after strict operational RLS',()=>{const sql=read('supabase/customer-baseline/migrations/0038_return_customer_read_restore.sql');expect(sql).toContain('return_cases_customer_read');expect(sql).toContain('return_case_items_customer_read');expect(sql).toContain('o.instance_id=return_cases.instance_id');expect(sql).toContain('r.instance_id=return_case_items.instance_id');expect(sql).toContain('grant select on table public.return_cases to authenticated');expect(sql).toContain('grant select on table public.return_case_items to authenticated');});
+
   test('return requests are item and quantity based and never promise automatic refunds', () => {
     expect(returnForm).toMatch(/orderItemId:i\.id,quantity:/);
     expect(returnForm).toMatch(/\.filter\(i=>i\.quantity>0\)/);
     expect(returnForm).toMatch(/max=\{i\.quantity\}/);
     expect(returnForm).toMatch(/fetch\('\/api\/account\/returns'/);
     expect(returnForm).toMatch(/nem jelent automatikus pénzvisszatérítést/);
+    expect(returnForm).toContain('accountReturnRequestForm');
+    expect(returnsPage).toContain('<AccountReturnCaseGrid');
+    expect(returnsPage).not.toContain('adminTable');
+    expect(returnCaseCards).toContain('accountReturnCaseTile');
+    expect(returnCaseCards).toContain('<dl className="accountReturnCaseMeta">');
+    expect(returnCaseCards).not.toContain('<table');
+    const css=read('src/app/account-workflow.css');
+    expect(css).toContain('Return history is intentionally rendered as semantic tiles, not adminTable');
+    expect(css).toContain('.accountReturnCaseGrid{display:grid');
+    expect(css).toContain('.accountReturnCaseMeta>div{display:grid');
   });
+
+  test('customer return history uses one shared tile renderer on both return surfaces',()=>{expect(returnsPage).toContain('<AccountReturnCaseGrid');expect(casesPage).toContain('<AccountReturnCaseGrid');expect(returnCaseCards).toContain("Még nincs visszaküldési vagy visszatérítési ügyed.");expect(returnCaseCards).toContain('Visszatérítés');});
+
+  test('return admin avoids fragile PostgREST relation embeds and joins tenant-scoped rows in memory',()=>{expect(returnsAdmin).not.toContain('orders(order_number');expect(returnsAdmin).not.toContain('order_items(product_name');expect(returnsAdmin).toContain("a.from('orders').select('id,order_number,total_gross_huf,status')");expect(returnsAdmin).toContain("a.from('order_items').select('id,product_name,variant_label,quantity,unit_gross_huf')");expect(returnsAdmin).toContain('const orderMap=new Map');expect(returnsAdmin).toContain('const orderItemMap=new Map');expect(returnsAdmin).toContain("serult:'Sérült termék'");});
+
+  test('return admin service role can read the operational queue without broad write grants',()=>{const sql=read('supabase/customer-baseline/migrations/0039_return_admin_service_read_restore.sql');expect(sql).toContain('grant select on table public.return_cases to service_role');expect(sql).toContain('grant select on table public.return_case_items to service_role');expect(sql).not.toContain('grant all');});
 
   test('return administration keeps refund and inventory restock as explicit operations', () => {
     expect(returnsAdmin).toMatch(/A banki pénzmozgás nem automatikus/);

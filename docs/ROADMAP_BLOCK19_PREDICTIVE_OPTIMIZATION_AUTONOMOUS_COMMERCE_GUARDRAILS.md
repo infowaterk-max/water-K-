@@ -89,6 +89,20 @@ Block 19 keeps the existing governance vocabulary rather than introducing a seco
 
 The Block 19 high-risk adapter only creates the existing control alert + `action_proposals` record. Approval, rejection, simulation and governed proposal execution remain owned by the existing action-governance subsystem.
 
+## Quote conversion learning gate
+
+Commercial opportunity probability remains an internal capability, but tenant-facing quote acceptance probability is evidence-gated.
+
+For new tenants, B2B/RFQ probability is **learning-only** and must not be surfaced as a precise merchant KPI from a bootstrap/default percentage. Existing quote, opportunity and offer lifecycle state supplies the evidence stream.
+
+A tenant may expose quote conversion probability only after both:
+- at least 3 months of tenant-specific observation; and
+- at least 30 closed quote outcomes.
+
+If the sample threshold is not met, observation continues through month 6 and beyond. Time alone never activates the metric. A visible estimate must carry provenance/sample-size/confidence metadata and must fail closed back to hidden when evidence quality is insufficient.
+
+This rule prevents probability-weighted revenue from presenting false precision while preserving the underlying capability for later historical or model-based forecasting.
+
 ## Existing authorities reused
 
 Block 19 reuses:

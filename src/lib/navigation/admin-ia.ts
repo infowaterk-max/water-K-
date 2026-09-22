@@ -74,6 +74,7 @@ export const MERCHANT_NAVIGATION:readonly AdminNavSection[]=[
   ]},
   {id:'settings',label:'Beállítások',items:[
     {id:'launch',href:'/admin/indulas',label:'Indítási központ',description:'A webshop indulásához és üzemeltetési készültségéhez tartozó ellenőrzések.',permission:'store.manage',group:'Indítás és konfiguráció'},
+    {id:'storefront-appearance',href:'/admin/beallitasok/megjelenes',label:'Webshop megjelenés',description:'Márka- és közösségi profilok közös storefront beállításai.',permission:'store.manage',group:'Indítás és konfiguráció'},
     {id:'commerce-settings',href:'/admin/beallitasok/fizetes-szallitas',label:'Fizetés, szállítás és számlázás',description:'Kereskedelmi szolgáltatók és üzleti integrációk beállításai.',feature:'commerceIntegrations',permission:'store.manage',group:'Szolgáltatók'},
     {id:'integrations',href:'/admin/integraciok',label:'Integrációk és rendszerállapot',description:'Haladó integrációk állapota és technikai kapcsolatai.',feature:'advancedIntegrations',permission:'integrations.manage',group:'Szolgáltatók'},
     {id:'team',href:'/admin/csapat',label:'Csapat és jogosultságok',description:'Felhasználói szerepkörök és jogosultságok kezelése.',permission:'store.manage',group:'Bizonyíték és hozzáférés'},

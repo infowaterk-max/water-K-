@@ -37,6 +37,7 @@ export type FeatureCode =
   | 'releaseCommerce';
 
 export type PlanDefinition = {code:PlanCode;name:string;description:string;features:readonly FeatureCode[];};
+export type PlanFeatureDenialReason='pro-required'|'feature-disabled';
 
 const ALAP_FEATURES = [
   'catalog','inventory','orders','returns','customers','coupons','basicAnalytics','marketingBasics','contentMarketing','importExport','bulkOperations','wishlists','stockNotifications','productRecommendations','reviews','searchFiltering','commerceIntegrations','support','teamChat','officeCommunication','releaseCommerce',
@@ -56,3 +57,6 @@ export const PLANS: Record<PlanCode, PlanDefinition> = {
 };
 export function isPlanCode(value:unknown):value is PlanCode{return value==='alap'||value==='pro';}
 export function hasPlanFeature(plan:PlanCode,feature:FeatureCode):boolean{return PLANS[plan].features.some(candidate=>candidate===feature);}
+export function getPlanFeatureDenialReason(plan:PlanCode,feature:FeatureCode):PlanFeatureDenialReason{
+  return plan==='alap'&&!hasPlanFeature('alap',feature)&&hasPlanFeature('pro',feature)?'pro-required':'feature-disabled';
+}

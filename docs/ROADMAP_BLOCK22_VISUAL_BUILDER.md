@@ -40,6 +40,26 @@ The existing Page Schema document is the only document the Builder may edit. The
 12. Protected system components cannot be removed or moved outside their manifest/schema contract.
 13. Alap/Pro component availability fails closed through existing capability metadata and server-side entitlement resolution.
 
+## Planned guarded Preset Gallery extension
+
+This is a roadmap extension over the existing Section Preset authority, not a second Builder/runtime. The merchant-facing experience may use a rich visual gallery with category filters, thumbnails, larger previews and one-click insertion, but every inserted block must materialize through the canonical `Template -> Page Presets -> Section Presets -> Components` chain.
+
+Required behavior:
+
+- factory presets are source-controlled, versioned and quality-gated; merchant Saved Blocks remain a separate tenant-owned library;
+- insertion produces ordinary editable Page Schema nodes with fresh identities and keeps the existing draft/preview/publish lifecycle;
+- shared compositions inherit the active template/global design system; template-specific signature presets are allowed only where the visual concept genuinely requires them;
+- no preset may carry its own business authority, renderer, breakpoint engine, persistence model, entitlement model or publication path;
+- preview thumbnails must use a bounded/lightweight strategy and must not cause the Builder library itself to instantiate an unbounded number of live storefront runtimes.
+
+### Preset insertion hard gate
+
+Before a factory preset can be inserted, the resulting working document must pass the same registry/schema/capability validation used by normal Builder mutations **and** the canonical storefront performance contract. A hard structural budget violation must block insertion rather than merely warn.
+
+Factory eligibility additionally requires true Desktop/Tablet/Mobile proof, responsive-isolation proof, accessibility/state checks and runtime performance evidence. Presets may not solve a layout problem with duplicated hidden breakpoint DOM, unbounded layer trees, eager below-fold media, expensive animation, third-party runtime dependencies or arbitrary HTML/JavaScript.
+
+The gallery is therefore a curated composition system, not an unrestricted block marketplace. If a candidate block requires weakening an accepted Page Schema, responsive, security, performance or commerce-authority rule, the block is rejected.
+
 ## Security and mutation boundary
 
 The Builder must reject:

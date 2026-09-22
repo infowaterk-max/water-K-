@@ -113,6 +113,6 @@ describe('Storefront Global Design Tokens / Global Styles v1',()=>{
     expect(persistence).toContain('getCurrentStorefrontGlobalStyleState');
     expect(persistence).toContain('setStorefrontGlobalStyleState(page.document,globalStyles)');
     const ai=read('src/lib/builder/storefront-ai-generator-server.ts');
-    expect(ai).toContain('saveCurrentStorefrontTemplateDraftPlan');
+    expect(ai).toContain('saveCurrentStorefrontTemplateInstallationPlan');
   });
 });

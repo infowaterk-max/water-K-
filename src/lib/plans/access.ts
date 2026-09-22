@@ -3,7 +3,7 @@ import { createClient } from '@/lib/supabase/server';
 import { getCurrentWebshopInstance } from '@/lib/instances/access';
 import { addonCapabilityCode, isCapabilityReleased } from '@/lib/entitlements/catalog';
 import { getFeatureEntitlementDecision, getFeatureEntitlementDecisions } from '@/lib/entitlements/access';
-import { hasPlanFeature, isPlanCode, type FeatureCode, type PlanCode } from './catalog';
+import { getPlanFeatureDenialReason, hasPlanFeature, isPlanCode, type FeatureCode, type PlanCode } from './catalog';
 import { ADDONS, parseAddonList, type AddonCode } from './addons';
 
 export async function getCurrentPlan(): Promise<PlanCode> {
@@ -37,7 +37,7 @@ export async function requirePlanFeature(feature: FeatureCode) {
   if (!isRuntimeFeatureReleased(feature)) redirect(`/admin/csomag?reason=not-released&feature=${encodeURIComponent(feature)}`);
   const plan=await getCurrentPlan();
   if (!(await hasCurrentPlanFeature(feature))) {
-    const reason=plan==='alap'&&hasPlanFeature('pro',feature)?'pro-required':'feature-disabled';
+    const reason=getPlanFeatureDenialReason(plan,feature);
     redirect(`/admin/csomag?reason=${reason}&feature=${encodeURIComponent(feature)}`);
   }
   return plan;

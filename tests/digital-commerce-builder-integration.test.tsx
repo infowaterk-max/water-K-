@@ -55,6 +55,17 @@ describe('Digital Commerce A3 shared Builder integration',()=>{
     expect(bindStorefrontExistingCommerceRuntime(documents).sections[0]!.children![0]!.bindings?.model?.path).toBe('commerce.digitalCommerce.productDocuments');
   });
 
+  it('binds the B2B quote CTA to runtime authority and hides it when the customer is not eligible',()=>{
+    const document=page('product','commerce.b2b-quote-cta');
+    const bound=bindStorefrontExistingCommerceRuntime(document);
+    expect(bound.sections[0]!.children![0]!.bindings?.model?.path).toBe('commerce.digitalCommerce.b2bQuote');
+    const hidden=renderToStaticMarkup(<StorefrontRuntimeRenderer page={document} viewport="desktop" bindingContext={{commerce:{digitalCommerce:{b2bQuote:{state:'ready',eligible:false,href:null}}}}} componentRegistry={createStorefrontVisualBuilderComponentRegistry()} rendererRegistry={createStorefrontVisualBuilderRendererRegistry()} capability={capability}/>);
+    expect(hidden).not.toContain('Ajánlatot kérek');
+    const shown=renderToStaticMarkup(<StorefrontRuntimeRenderer page={document} viewport="desktop" bindingContext={{commerce:{digitalCommerce:{b2bQuote:{state:'ready',eligible:true,href:'/fiokom/ajanlatkeresek?variantId=v1'}}}}} componentRegistry={createStorefrontVisualBuilderComponentRegistry()} rendererRegistry={createStorefrontVisualBuilderRendererRegistry()} capability={capability}/>);
+    expect(shown).toContain('Ajánlatot kérek');
+    expect(shown).toContain('/fiokom/ajanlatkeresek?variantId=v1');
+  });
+
   it('uses the real Builder mutation authority for insert, edit and responsive overrides while protecting runtime model binding',()=>{
     const registry=createStorefrontVisualBuilderComponentRegistry();
     const source=page('product','commerce.product-documents');
@@ -143,13 +154,15 @@ describe('Digital Commerce A3 shared Builder integration',()=>{
     expect(findComponent(product,'commerce.fulfillment-summary')).toBe(true);
     expect(findComponent(product,'commerce.product-documents')).toBe(true);
     expect(findComponent(cart,'commerce.fulfillment-summary')).toBe(true);
-    expect(findComponent(checkout,'commerce.fulfillment-summary')).toBe(true);
-    expect(findComponent(checkout,'commerce.post-purchase-guidance')).toBe(true);
-    expect(findComponent(account,'commerce.documents-center')).toBe(true);
+    expect(findComponent(checkout,'commerce.fulfillment-summary')).toBe(false);
+    expect(findComponent(checkout,'commerce.post-purchase-guidance')).toBe(false);
+    expect(findComponent(account,'account.capability-navigation')).toBe(false);
+    expect(findComponent(account,'commerce.account-downloads')).toBe(false);
+    expect(findComponent(account,'commerce.account-documents')).toBe(false);
+    expect(findComponent(account,'commerce.documents-center')).toBe(false);
     expect(getStorefrontPageSemanticContexts(product)).toEqual(expect.arrayContaining(['product.fulfillment','product.documents']));
     expect(getStorefrontPageSemanticContexts(checkout)).toEqual(expect.arrayContaining(['checkout.fulfillment','checkout.post-purchase']));
     expect(listStorefrontContextualCapabilityOpportunities({document:product,capability}).map(item=>item.key)).toEqual(expect.arrayContaining(['fulfillment','product-documents']));
-    expect(listStorefrontContextualCapabilityOpportunities({document:account,capability}).map(item=>item.key)).toContain('documents-center');
   });
 
   it('guards every concrete template package without fabricating the remaining 42-template target',()=>{
@@ -171,6 +184,37 @@ describe('Digital Commerce A3 shared Builder integration',()=>{
         }
       }
     }
+  });
+
+  it('removes legacy full-width checkout document guidance while preserving the footer boundary',()=>{
+    const source=page('checkout','commerce.fulfillment-summary');
+    source.sections.push({
+      id:'legacy-checkout-digital-commerce',componentKey:'layout.section',componentVersion:1,config:{},
+      children:[{id:'legacy-checkout-post-purchase',componentKey:'commerce.post-purchase-guidance',componentVersion:1,config:{}}],
+    });
+    source.sections.push({id:'wrapped-footer',componentKey:'layout.section',componentVersion:1,config:{},children:[{id:'wrapped-footer-inner',componentKey:'system.footer',componentVersion:1,config:{}}]});
+    const composed=composeStorefrontDigitalCommerceCapabilities(source);
+    expect(findComponent(composed,'commerce.fulfillment-summary')).toBe(false);
+    expect(findComponent(composed,'commerce.post-purchase-guidance')).toBe(false);
+    expect(composed.sections.at(-1)?.id).toBe('wrapped-footer');
+  });
+
+  it('keeps account overview navigation-only and removes stale embedded document surfaces',()=>{
+    const source=page('account','commerce.documents-center');
+    source.sections.push({
+      id:'shared-a3-account-digital-commerce',componentKey:'layout.section',componentVersion:1,config:{},
+      children:[{id:'shared-a3-account-digital-commerce-container',componentKey:'layout.container',componentVersion:1,config:{},children:[
+        {id:'shared-a3-account-digital-commerce-1',componentKey:'commerce.post-purchase-guidance',componentVersion:1,config:{}},
+      ]}],
+    });
+    source.sections.push({id:'account-footer',componentKey:'system.footer',componentVersion:1,config:{}});
+    const composed=composeStorefrontDigitalCommerceCapabilities(source);
+    expect(findComponent(composed,'account.capability-navigation')).toBe(false);
+    expect(findComponent(composed,'commerce.documents-center')).toBe(false);
+    expect(findComponent(composed,'commerce.account-downloads')).toBe(false);
+    expect(findComponent(composed,'commerce.account-documents')).toBe(false);
+    expect(findComponent(composed,'commerce.post-purchase-guidance')).toBe(false);
+    expect(composed.sections.at(-1)?.id).toBe('account-footer');
   });
 
   it('inserts shared capability before the footer once and preserves later merchant removal',()=>{

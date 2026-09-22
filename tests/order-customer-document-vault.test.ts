@@ -33,15 +33,18 @@ describe('Customer / Order Document Vault',()=>{
     expect(sql).toContain('order_document_download_audit');
   });
 
-  test('exposes one customer-facing documents and downloads center without merging backend authorities',()=>{
-    const account=read('src/app/fiokom/letoltesek/page.tsx');
-    const nav=read('src/components/account/account-subnav.tsx');
-    expect(nav).toContain("label:'Dokumentumok és letöltések'");
-    expect(account).toContain('Digitális tartalmak');
-    expect(account).toContain('Rendelési iratok');
-    expect(account).toContain('Számlák, garanciák és egyéb dokumentumok');
-    expect(account).toContain('listAccountDigitalDownloads');
-    expect(account).toContain('listAccountOrderDocuments');
+  test('splits customer downloads and documents without merging backend authorities',()=>{
+    const downloads=read('src/app/fiokom/letoltesek/page.tsx');
+    const documents=read('src/app/fiokom/dokumentumok/page.tsx');
+    const registry=read('src/lib/account/account-capabilities.ts');
+    expect(registry).toContain("label:'Letöltéseim'");
+    expect(registry).toContain("label:'Dokumentumaim'");
+    expect(downloads).toContain('Digitális tartalom');
+    expect(downloads).toContain('listAccountDigitalDownloads');
+    expect(documents).toContain('Rendelési dokumentumok');
+    expect(documents).toContain('Termékdokumentumok');
+    expect(documents).toContain('listAccountOrderDocuments');
+    expect(documents).toContain('listAccountProductDocuments');
   });
 
   test('merchant can manage order-bound documents from the order detail surface',()=>{

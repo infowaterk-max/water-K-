@@ -6,6 +6,7 @@ const root=process.cwd();
 const source=fs.readFileSync(path.join(root,'src/components/admin/storefront-visual-builder-v3.tsx'),'utf8');
 const routeSource=fs.readFileSync(path.join(root,'src/app/admin/tartalom/builder/page.tsx'),'utf8');
 const css=fs.readFileSync(path.join(root,'src/components/admin/storefront-visual-builder-v3.module.css'),'utf8');
+const foundation=fs.readFileSync(path.join(root,'src/lib/builder/storefront-foundation.ts'),'utf8');
 
 describe('Visual Builder v3 product completion',()=>{
   it('routes the authenticated Builder to the completed v3 workspace',()=>{
@@ -28,7 +29,9 @@ describe('Visual Builder v3 product completion',()=>{
     expect(source).toContain('viewport={viewport}');
     expect(source).toContain('setViewport(item.key)');
     expect(source).toContain('StorefrontResponsiveLayoutDepthControls');
-    expect(source).toContain('Desktop → Tablet → Mobil');
+    expect(source).toContain("'Alap + '+item.label");
+    expect(foundation).toContain("responsiveAuthority:'base+exact-viewport'");
+    expect(foundation).toContain('siblingViewportInheritance:false');
   });
 
   it('exposes the complete merchant-facing workspace without developer noise in Normal mode',()=>{

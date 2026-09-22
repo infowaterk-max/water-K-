@@ -7,6 +7,23 @@ import { getPilotAcceptanceInstanceId } from '@/lib/storefront/pilot-access';
 import { hasStorePermission,hasStoreRoleBindingHistory } from '@/lib/auth/store-rbac';
 import {isBusinessPulseStorefrontPaused} from '@/lib/business-pulse/access';
 
+export async function isStorefrontPreviewBrowseAccess(instance:WebshopInstance|null):Promise<boolean>{
+  if(process.env.VERCEL_ENV!=='preview'||!instance||instance.status!=='pilot')return false;
+  try{
+    if(await isBusinessPulseStorefrontPaused(instance.id))return false;
+    const admin=createAdminClient();
+    const{data,error}=await admin.from('storefront_pages').select('id')
+      .eq('instance_id',instance.id).not('draft_revision_id','is',null).limit(1).maybeSingle();
+    return !error&&Boolean(data?.id);
+  }catch{return false}
+}
+
+export async function requireStorefrontBrowseAccess():Promise<WebshopInstance|null>{
+  const instance=await getCurrentWebshopInstance();
+  if(await isStorefrontPreviewBrowseAccess(instance))return instance;
+  return requireStorefrontAccess();
+}
+
 export async function requireStorefrontAccess():Promise<WebshopInstance|null>{
   const instance=await getCurrentWebshopInstance();
   let trialPaused=false;

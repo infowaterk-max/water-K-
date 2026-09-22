@@ -3,6 +3,7 @@ import {
   type StorefrontBuilderPageType,
 } from '@/lib/builder/storefront-foundation';
 import type {FeatureCode,PlanCode} from '@/lib/plans/catalog';
+import {evaluateStorefrontTemplateRouteIntegrity} from '@/lib/builder/storefront-template-route-integrity';
 import {
   StorefrontComponentRegistry,
   StorefrontTemplateRegistry,
@@ -163,6 +164,9 @@ export function evaluateStorefrontTemplateCapabilityGate(input:{
   }
 
   violations.push(...validateDemoFixtures(template));
+  for(const issue of evaluateStorefrontTemplateRouteIntegrity(template)){
+    violations.push(violation(issue.code,issue.path,issue.message,{href:issue.href,label:issue.label}));
+  }
   return{ok:!violations.some(item=>item.severity==='error'),violations};
 }
 
