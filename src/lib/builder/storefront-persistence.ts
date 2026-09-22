@@ -6,7 +6,6 @@ import {requireCurrentStoreContext} from '@/lib/instances/scope';
 import {createAdminClient} from '@/lib/supabase/admin';
 import {createClient} from '@/lib/supabase/server';
 import {replaceStorefrontPageNodesById} from '@/lib/builder/storefront-targeted-page-change';
-import {materializeStorefrontPageResponsiveStyles} from '@/lib/builder/storefront-responsive-isolation';
 
 const OPERATION_KEY_PATTERN=/^[A-Za-z0-9][A-Za-z0-9._:-]{7,127}$/;
 const PAGE_KEY_PATTERN=/^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$/;
@@ -139,19 +138,18 @@ export async function saveCurrentStorefrontPageDraft(input:{
 }):Promise<StorefrontPersistedRevision>{
   assertDocumentIdentity(input.document);
   assertOperationKey(input.operationKey);
-  const document=materializeStorefrontPageResponsiveStyles(input.document);
   const[scope,actorUserId]=await Promise.all([requireCurrentStoreContext('store.manage'),requireActor()]);
   const admin=createAdminClient();
   const{data,error}=await admin.rpc('save_storefront_page_draft_v1',{
     p_instance_id:scope.instanceId,
     p_actor_user_id:actorUserId,
-    p_page_key:document.pageKey,
-    p_page_type:document.pageType,
-    p_schema_version:document.schemaVersion,
-    p_template_key:document.templateKey,
-    p_template_version:document.templateVersion,
-    p_document:document,
-    p_document_sha256:hashStorefrontPageDocument(document),
+    p_page_key:input.document.pageKey,
+    p_page_type:input.document.pageType,
+    p_schema_version:input.document.schemaVersion,
+    p_template_key:input.document.templateKey,
+    p_template_version:input.document.templateVersion,
+    p_document:input.document,
+    p_document_sha256:hashStorefrontPageDocument(input.document),
     p_expected_draft_revision:input.expectedDraftRevision,
     p_operation_key:input.operationKey,
   });
