@@ -28,7 +28,7 @@ This branch implements the Storefront Runtime foundation on top of the already-m
    - unknown component config is preserved and reported as a warning rather than destructively stripped.
 
 4. **Responsive resolution**
-   - desktop -> tablet -> mobile override inheritance;
+   - base + exact Desktop / Tablet / Mobile viewport authority; sibling viewports do not inherit from one another;
    - resolved hidden/grid-span state.
 
 5. **Registry-driven renderer**
