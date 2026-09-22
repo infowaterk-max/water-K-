@@ -1,3 +1,4 @@
+import {readFileSync} from 'node:fs';
 import {describe,expect,it} from 'vitest';
 import type {StorefrontPageDocument} from '@/lib/builder/storefront-runtime';
 import {resolveStorefrontVisualStyle} from '@/lib/builder/storefront-visual-style';
@@ -68,6 +69,15 @@ describe('Storefront responsive isolation foundation',()=>{
     expect(resolveStorefrontVisualStyle(changed.sections[0]!.config.style,'tablet').minHeight).toBe('20rem');
     expect(resolveStorefrontVisualStyle(changed.sections[0]!.config.style,'mobile').minHeight).toBe('20rem');
     expect(()=>assertStorefrontViewportIsolation({before:frozen,after:changed,allowedViewports:['desktop'],label:'desktop-edit'})).not.toThrow();
+  });
+
+  it('is enforced at both template installation and normal draft persistence boundaries',()=>{
+    const catalog=readFileSync('src/lib/builder/storefront-template-catalog.ts','utf8');
+    const persistence=readFileSync('src/lib/builder/storefront-persistence.ts','utf8');
+    expect(catalog).toContain('materializeStorefrontTemplateResponsiveStyles(runtimeNormalized)');
+    expect(persistence).toContain('const document=materializeStorefrontPageResponsiveStyles(input.document)');
+    expect(persistence).toContain('p_document:document');
+    expect(persistence).toContain('hashStorefrontPageDocument(document)');
   });
 
   it('fails closed when a desktop edit leaks into tablet or mobile',()=>{
