@@ -452,3 +452,65 @@ Guard:
 - do not alter Finder 6/3/2 or platform selector responsive behavior;
 - do not reintroduce nested `height:100%` / grid-row stretch chains;
 - staging `/` acceptance is valid only after the persisted tenant draft is refreshed to the exact source package document.
+
+
+## Desktop-only style leakage incident — resolver inheritance guard
+
+A human mobile re-check after the accepted desktop vertical pass exposed a responsive isolation regression.
+
+### Symptom
+
+Desktop composition was correct, but mobile showed oversized / overlapping Home blocks, especially:
+
+- Hero retained desktop vertical weight;
+- game-style and platform selector containers became abnormally tall;
+- selector cards inherited desktop flex filling;
+- Gamer setup inherited the desktop height increase;
+- later Gift / Community blocks were also at risk of inheriting desktop-only floors.
+
+### Root cause
+
+The canonical visual-style resolver intentionally cascades:
+
+`base → desktop → tablet → mobile`.
+
+Therefore a property placed only in `style.desktop` is **not desktop-exclusive**. Tablet inherits the resolved desktop value, and mobile inherits the resolved tablet value unless the property is explicitly overridden downstream.
+
+The desktop vertical pass correctly avoided shared Runtime/Grid changes, but incorrectly assumed that writing `minHeight`, `flex`, `paddingTop` and related properties only under `desktop` isolated them from smaller viewports.
+
+### Recovery
+
+Revision 22 was used as the accepted non-desktop geometry authority. The current Playroom Home keeps the accepted desktop targets while explicitly restoring the previous effective tablet/mobile values for every property changed by the desktop pass.
+
+Key examples:
+
+- Hero: desktop 22rem; tablet/mobile 13.75rem;
+- selector wrapper: desktop 22rem; tablet/mobile min-height reset to auto;
+- selector cards: desktop flex fill; tablet/mobile restored to natural `0 1 auto` flow and original padding;
+- Finder option: desktop 4rem; tablet/mobile 3.58rem;
+- Gamer setup: desktop 12.8rem; tablet/mobile 10.2rem;
+- Gift: desktop 19.25rem; tablet/mobile 11.3rem;
+- Compatibility: desktop 15.5rem; tablet 11.3rem; mobile 0 floor;
+- Community content/media: desktop 14.8rem; tablet/mobile restored to the prior effective dimensions.
+
+Staging recovery evidence:
+
+- Home revision 24 → 25 only;
+- exact persisted hash matched the planned document;
+- other 13 page pointers unchanged;
+- published revisions: 0;
+- orders/products business boundary unchanged.
+
+### Regression invariant
+
+**A DESKTOP SLOT IS NOT A DESKTOP-ONLY GUARANTEE.**
+
+For any Playroom / Template Factory responsive polish:
+
+1. identify every property introduced or changed in the desktop slot;
+2. resolve that property at desktop, tablet and mobile using the canonical resolver;
+3. if tablet/mobile must remain unchanged, explicitly preserve their previously accepted effective value;
+4. add regression assertions against `resolveStorefrontVisualStyle(..., 'tablet'|'mobile')`;
+5. run tablet/mobile visual regression after the true-desktop proof.
+
+Do not change the shared resolver to compensate for a template-level isolation mistake.
