@@ -390,6 +390,160 @@ function insertAfterSection(sections:readonly StorefrontComponentNode[],sectionI
   return result;
 }
 
+
+const VIEWPORT_STYLE_KEYS=['base','desktop','tablet','mobile'] as const;
+function mergeViewportStyle(value:unknown,overrides:Partial<Record<(typeof VIEWPORT_STYLE_KEYS)[number],Record<string,unknown>>>):Record<string,unknown>{
+  const current=rec(value);
+  const slotted=VIEWPORT_STYLE_KEYS.some(key=>Object.prototype.hasOwnProperty.call(current,key));
+  const result:Record<string,unknown>=slotted?clone(current):{base:clone(current)};
+  for(const key of VIEWPORT_STYLE_KEYS){
+    const override=overrides[key];
+    if(!override)continue;
+    result[key]={...rec(result[key]),...override};
+  }
+  return result;
+}
+function patchStyleSlot(config:Record<string,unknown>,slotName:string,overrides:Partial<Record<(typeof VIEWPORT_STYLE_KEYS)[number],Record<string,unknown>>>){
+  const slots=rec(config.styleSlots);
+  return{...config,styleSlots:{...slots,[slotName]:mergeViewportStyle(slots[slotName],overrides)}};
+}
+const PLAYROOM_HOME_OPTION_SYMBOLS:Readonly<Record<string,string>>=Object.freeze({
+  solo:'👤',
+  coop:'👥',
+  party:'🎉',
+  racing:'🏁',
+  adventure:'🧭',
+  family:'👨‍👩‍👧',
+});
+function patchPlayroomFinderOptions(value:unknown):unknown{
+  if(!Array.isArray(value))return value;
+  return value.map(item=>{
+    const option=rec(item),id=typeof option.id==='string'?option.id:'';
+    return PLAYROOM_HOME_OPTION_SYMBOLS[id]?{...option,symbol:PLAYROOM_HOME_OPTION_SYMBOLS[id]}:option;
+  });
+}
+function patchResponsiveSpan(nodeValue:StorefrontComponentNode,tablet:1|2|3|4|5|6|7|8|9|10|11|12,mobile:1|2|3|4|5|6|7|8|9|10|11|12=12):StorefrontComponentNode{
+  return{
+    ...nodeValue,
+    responsive:{
+      ...(nodeValue.responsive??{}),
+      desktop:{...(nodeValue.responsive?.desktop??{}),gridSpan:nodeValue.responsive?.desktop?.gridSpan??12},
+      tablet:{...(nodeValue.responsive?.tablet??{}),gridSpan:tablet},
+      mobile:{...(nodeValue.responsive?.mobile??{}),gridSpan:mobile},
+    },
+  };
+}
+function patchPlayroomHomeResponsive(item:StorefrontComponentNode):StorefrontComponentNode{
+  const children=item.children?.map(patchPlayroomHomeResponsive);
+  let next:StorefrontComponentNode={...clone(item),...(children?{children}:{})};
+  let config=rec(next.config);
+
+  switch(next.id){
+    case 'playroom-hero-copy':
+      next={...next,config:{...config,style:mergeViewportStyle(config.style,{
+        tablet:{width:'100%',minHeight:'13rem',padding:'1rem 1.1rem'},
+        mobile:{width:'100%',minHeight:'0',padding:'1rem .9rem .8rem',background:'linear-gradient(180deg,rgba(2,10,24,.94),rgba(2,10,24,.78) 72%,rgba(2,10,24,.62))'},
+      })}};
+      break;
+    case 'playroom-hero-title':
+      next={...next,config:{...config,style:mergeViewportStyle(config.style,{
+        tablet:{fontSize:'clamp(2.8rem,7vw,4.25rem)',maxWidth:'9ch'},
+        mobile:{fontSize:'clamp(2.45rem,14vw,3.5rem)',maxWidth:'9ch',lineHeight:.9},
+      })}};
+      break;
+    case 'playroom-hero-support':
+      next={...next,config:{...config,style:mergeViewportStyle(config.style,{mobile:{fontSize:'.84rem',lineHeight:1.4,maxWidth:'30ch'}})}};
+      break;
+    case 'playroom-hero-primary':
+      next={...next,config:{...config,style:mergeViewportStyle(config.style,{mobile:{width:'fit-content',maxWidth:'100%',whiteSpace:'normal',fontSize:'.78rem',padding:'.62rem .78rem'}})}};
+      break;
+    case 'playroom-hero-art':
+      next={...next,config:{...config,style:mergeViewportStyle(config.style,{
+        tablet:{objectPosition:'64% center'},
+        mobile:{objectPosition:'68% center',filter:'brightness(.82) saturate(1.06)'},
+      })}};
+      break;
+    case 'playroom-trust-grid':
+      next={...next,config:{...config,style:mergeViewportStyle(config.style,{
+        tablet:{position:'static',left:'auto',right:'auto',bottom:'auto',margin:'.25rem .7rem .7rem'},
+        mobile:{position:'static',left:'auto',right:'auto',bottom:'auto',margin:'0 .7rem .7rem'},
+      })}};
+      break;
+    case 'playroom-trust-shipping':
+    case 'playroom-trust-warranty':
+    case 'playroom-trust-return':
+    case 'playroom-trust-community':
+      next={
+        ...next,
+        responsive:{
+          ...(next.responsive??{}),
+          desktop:{...(next.responsive?.desktop??{}),gridSpan:3},
+          tablet:{...(next.responsive?.tablet??{}),gridSpan:3},
+          mobile:{...(next.responsive?.mobile??{}),gridSpan:6},
+        },
+      };
+      break;
+    case 'playroom-game-finder':{
+      config={...config,options:patchPlayroomFinderOptions(config.options)};
+      config=patchStyleSlot(config,'options',{
+        desktop:{gridTemplateColumns:'repeat(6,minmax(0,1fr))'},
+        tablet:{gridTemplateColumns:'repeat(3,minmax(0,1fr))'},
+        mobile:{gridTemplateColumns:'repeat(2,minmax(0,1fr))'},
+      });
+      config=patchStyleSlot(config,'optionMedia',{mobile:{fontSize:'1.45rem',lineHeight:1}});
+      const bindings=rec(next.bindings),optionsBinding=rec(bindings.options);
+      next={...next,config,bindings:{...bindings,options:{...optionsBinding,fallback:patchPlayroomFinderOptions(optionsBinding.fallback)}} as StorefrontComponentNode['bindings']};
+      break;
+    }
+    case 'playroom-platform-navigation':
+      config=patchStyleSlot(config,'grid',{
+        desktop:{gridTemplateColumns:'repeat(6,minmax(0,1fr))'},
+        tablet:{gridTemplateColumns:'repeat(3,minmax(0,1fr))'},
+        mobile:{gridTemplateColumns:'repeat(2,minmax(0,1fr))'},
+      });
+      config=patchStyleSlot(config,'card',{mobile:{minHeight:'4.8rem',padding:'.5rem .28rem',fontSize:'.68rem'}});
+      next={...next,config};
+      break;
+    case 'playroom-player-two':
+      next=patchResponsiveSpan(next,6,12);
+      next={...next,config:{...config,style:mergeViewportStyle(config.style,{tablet:{minHeight:'0'},mobile:{minHeight:'0'}})}};
+      break;
+    case 'playroom-upgrade':
+      next=patchResponsiveSpan(next,6,12);
+      next={...next,config:{...config,style:mergeViewportStyle(config.style,{tablet:{minHeight:'0'},mobile:{minHeight:'0'}})}};
+      break;
+    case 'playroom-player-controller':
+    case 'playroom-player-headset':
+    case 'playroom-player-family':
+    case 'playroom-player-couch':
+    case 'playroom-upgrade-monitor':
+    case 'playroom-upgrade-audio':
+    case 'playroom-upgrade-light':
+    case 'playroom-upgrade-chair':
+      next=patchResponsiveSpan(next,6,12);
+      break;
+    case 'playroom-player-two-cta':
+      next={...next,config:{...config,label:'Tovább →',ariaLabel:'Többjátékos ajánlatok',style:mergeViewportStyle(config.style,{
+        tablet:{position:'static',right:'auto',top:'auto',width:'fit-content',marginTop:'.25rem',alignSelf:'flex-start'},
+        mobile:{position:'static',right:'auto',top:'auto',width:'fit-content',marginTop:'.25rem',alignSelf:'flex-start',fontSize:'.74rem',padding:'.5rem .7rem'},
+      })}};
+      break;
+    case 'playroom-featured-all':
+      next={...next,config:{...config,label:'Összes újdonság →',ariaLabel:'Összes újdonság megtekintése',style:mergeViewportStyle(config.style,{
+        tablet:{position:'static',right:'auto',top:'auto',width:'fit-content',marginTop:'.2rem',alignSelf:'flex-start'},
+        mobile:{position:'static',right:'auto',top:'auto',width:'fit-content',marginTop:'.2rem',alignSelf:'flex-start',fontSize:'.72rem',padding:'.48rem .65rem'},
+      })}};
+      break;
+    case 'playroom-community-benefit-text':
+      next={...next,config:{...config,style:mergeViewportStyle(config.style,{
+        tablet:{whiteSpace:'normal',lineHeight:1.35},
+        mobile:{whiteSpace:'normal',lineHeight:1.4,fontSize:'.62rem'},
+      })}};
+      break;
+  }
+  return next;
+}
+
 function patchPlayroomContactResponsive(item:StorefrontComponentNode):StorefrontComponentNode{
   const children=item.children?.map(patchPlayroomContactResponsive);
   const next:StorefrontComponentNode={...clone(item),...(children?{children}:{})};
@@ -412,6 +566,7 @@ function patchPlayroomContactResponsive(item:StorefrontComponentNode):Storefront
 
 function upgradePage(source:StorefrontPageDocument):StorefrontPageDocument{
   let sections=source.sections.map(clone);
+  if(source.pageType==='home')sections=sections.map(patchPlayroomHomeResponsive);
   if(source.pageType==='contact')sections=sections.map(patchPlayroomContactResponsive);
   if(source.pageType==='content'){
     sections=[clone(source.sections[0]!),...playroomV20InformationContentSections(),clone(source.sections[source.sections.length-1]!)];
