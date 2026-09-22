@@ -365,3 +365,71 @@ Regression guards:
 **Mobilos „Desktop site” nézet vagy egyetlen viewport nem bizonyítja a desktop kompozíció helyességét.**
 
 Evidence execution contract: the acceptance commit must run the Playroom v20 screenshot workflow so the same exact HEAD is captured at 1440×1000, 1280×800, 768×1024 and 390×844 before human/agent visual sign-off.
+
+
+## Acceptance runtime authority mismatch — persisted draft vs source package
+
+Human review of the staging `/` route exposed a process-level acceptance error after the desktop proportion pass.
+
+### Symptom
+
+The exact-head visual QA package contained the intended Playroom desktop changes, but the linked staging homepage still showed the earlier composition:
+
+- Hero inherited the old `13.75rem` floor instead of the new `18rem` desktop target;
+- selector wrapper had no desktop height target;
+- merchandising still resolved to the old `10.2rem` floor;
+- `playroom-upgrade-grid` had no desktop image-row offset;
+- Featured/Gift still resolved as `7/5`, not `6/6`.
+
+### Root cause
+
+The public preview homepage does **not** render the source-controlled template package directly.
+
+In Vercel preview, `resolveCurrentStorefrontHomeRuntimePage()` resolves `getPreviewStorefrontDraftPage(instance.id,'home')`. Therefore the `/` route renders the immutable draft revision currently referenced by the staging tenant's `storefront_pages.draft_revision_id`.
+
+Updating `playroom-v20.ts` does not and must not silently overwrite that persisted merchant/acceptance draft.
+
+At incident confirmation:
+
+- source package had already advanced with the desktop proportion patch;
+- acceptance tenant `digital-commerce-acceptance-20260918` still pointed to Playroom v20 draft revision 22;
+- that stored Home document still contained the pre-patch desktop values.
+
+### Controlled recovery
+
+Use the existing guarded acceptance refresh authority only:
+
+- preview environment only;
+- exact Playroom acceptance branch only;
+- staging Supabase URL only;
+- fixed pilot acceptance tenant only;
+- fixed authorized actor binding;
+- require 14/14 existing `gaming.playroom@20` drafts;
+- require zero published revisions;
+- preserve the existing global style state;
+- materialize the current canonical Playroom v20 package through the normal template-installation plan;
+- persist with `save_storefront_template_drafts_v1`;
+- verify every revision advances exactly one step;
+- verify every persisted document hash equals the planned exact document;
+- verify product/order business snapshots are byte-for-byte unchanged.
+
+Recovery evidence for this incident:
+
+- 14/14 pages: revision **22 → 23**;
+- exact documents: **true**;
+- all v20: **true**;
+- published count: **0**;
+- mutation scope: **storefront_page_drafts_only**;
+- orders/products boundary: unchanged (**7 orders / 4 products**).
+
+### Regression invariant
+
+**SOURCE-PACKAGE VISUAL QA AND PERSISTED-TENANT HOMEPAGE QA ARE TWO DIFFERENT AUTHORITIES.**
+
+Before giving a merchant/stakeholder a staging homepage link after template-package changes:
+
+1. prove the source package;
+2. prove the target staging tenant draft hash matches the planned package document;
+3. only then use the `/` route for human acceptance.
+
+A green `/visual-fidelity-qa` capture does not prove that the staging `/` route has been refreshed to the same document.
