@@ -179,6 +179,8 @@ jobs:
           tests/storefront-visual-style-capabilities.test.ts
           tests/storefront-fidelity-typography.test.ts
           tests/storefront-visual-builder-fidelity-operations.test.ts
+          tests/storefront-fidelity-layout.test.ts
+          tests/storefront-responsive-layout-depth.test.ts
           tests/visual-builder-workspace-ui.test.ts
           tests/roadmap-catchup-foundation.test.ts
           tests/storefront-runtime-backbone.test.tsx
