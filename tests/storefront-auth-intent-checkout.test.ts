@@ -28,6 +28,16 @@ describe('storefront auth intent and checkout account opportunity',()=>{
   expect(auth).toMatch(/resetPasswordForEmail/);
   expect(auth).toMatch(/\/fiokom\?auth_flow=recovery/);
  });
+ it('keeps auth tab labels on one line across narrow mobile widths',()=>{
+  expect(auth).toContain('grid-template-columns:repeat(2,minmax(0,1fr))');
+  expect(auth).toContain('white-space:nowrap');
+  expect(auth).toContain('font-size:clamp(.78rem,3.35vw,.92rem)');
+  expect(auth).toContain('@media(max-width:360px)');
+  expect(auth).toContain('font-size:.78rem');
+  expect(auth).toMatch(/min-height:44px/);
+  expect(auth).toContain('Bejelentkezés');
+  expect(auth).toContain('Regisztráció');
+ });
  it('preserves safe caller intent centrally for account deep links and registration confirmation',()=>{
   expect(auth).toMatch(/normalizeStorefrontReturnTarget\(returnTo\)\?\?safeRequestedNext\(\)/);
   expect(auth).toMatch(/emailRedirectTo:registrationReturn/);

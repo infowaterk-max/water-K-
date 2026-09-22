@@ -16,6 +16,8 @@ Invite, password recovery and URL/session-bound special flows may remain full-pa
 
 The dialog must use native dialog semantics, modal background blocking, keyboard operation, ESC dismissal, explicit close affordance, focus entry and focus restoration.
 
+Mobile auth tabs are a shared presentation invariant: **AUTH TAB LABELS MUST NEVER WRAP**. `Bejelentkezés` and `Regisztráció` remain two equal-width tabs, keep at least a 44px touch target, use `white-space: nowrap`, and adapt typography/padding before any label is allowed to wrap. The contract is intended to remain safe at 320 / 360 / 390 / 430px viewport widths.
+
 ## 2. Authentication preserves user intent
 
 Canonical invariant:
