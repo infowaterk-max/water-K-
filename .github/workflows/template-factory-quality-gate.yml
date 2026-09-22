@@ -176,6 +176,13 @@ jobs:
           npx vitest run
           tests/storefront-template-quality-gate-v2.test.ts
           tests/storefront-responsive-isolation.test.ts
+          tests/storefront-visual-style-capabilities.test.ts
+          tests/storefront-fidelity-typography.test.ts
+          tests/storefront-visual-builder-fidelity-operations.test.ts
+          tests/visual-builder-workspace-ui.test.ts
+          tests/roadmap-catchup-foundation.test.ts
+          tests/special-commerce-wave6-cross-engine-acceptance.test.ts
+          tests/special-commerce-wave7-template2-adoption.test.ts
           tests/storefront-targeted-page-change.test.ts
           tests/storefront-auth-surface.test.ts
           tests/storefront-auth-intent-checkout.test.ts
