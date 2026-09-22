@@ -5,6 +5,7 @@ import type {StorefrontPageDocument} from '@/lib/builder/storefront-runtime';
 import {requireCurrentStoreContext} from '@/lib/instances/scope';
 import {createAdminClient} from '@/lib/supabase/admin';
 import {createClient} from '@/lib/supabase/server';
+import {replaceStorefrontPageNodesById} from '@/lib/builder/storefront-targeted-page-change';
 
 const OPERATION_KEY_PATTERN=/^[A-Za-z0-9][A-Za-z0-9._:-]{7,127}$/;
 const PAGE_KEY_PATTERN=/^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$/;
@@ -154,6 +155,29 @@ export async function saveCurrentStorefrontPageDraft(input:{
   });
   if(error)throw new Error(`STOREFRONT_DRAFT_SAVE_FAILED:${error.message}`);
   return parseMutationResult(data);
+}
+
+
+export async function saveCurrentStorefrontTargetedPageDraft(input:{
+  sourceDocument:StorefrontPageDocument;
+  nodeIds:readonly string[];
+  expectedDraftRevision:number;
+  operationKey:string;
+}):Promise<StorefrontPersistedRevision>{
+  if(!input.nodeIds.length)throw new Error('STOREFRONT_TARGETED_DRAFT_NODE_IDS_REQUIRED');
+  const state=await getCurrentStorefrontPageState(input.sourceDocument.pageKey);
+  if(!state?.draft)throw new Error('STOREFRONT_TARGETED_DRAFT_CURRENT_STATE_MISSING');
+  if(state.draft.revisionNumber!==input.expectedDraftRevision)throw new Error('STOREFRONT_TARGETED_DRAFT_REVISION_CONFLICT');
+  const document=replaceStorefrontPageNodesById({
+    current:state.draft.document,
+    source:input.sourceDocument,
+    nodeIds:input.nodeIds,
+  });
+  return saveCurrentStorefrontPageDraft({
+    document,
+    expectedDraftRevision:input.expectedDraftRevision,
+    operationKey:input.operationKey,
+  });
 }
 
 export async function publishCurrentStorefrontPage(input:{
