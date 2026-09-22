@@ -71,13 +71,13 @@ describe('Visual Builder final UI fidelity contract',()=>{
     expect(component).toContain('publishVisualBuilderPageAction');
   });
 
-  it('keeps Desktop Tablet Mobile in one Page Schema with one active selector and clear inheritance',()=>{
+  it('keeps Desktop Tablet Mobile in one Page Schema with one active selector and isolated viewport defaults',()=>{
     expect(component).toContain("{key:'desktop',label:'Desktop',width:1200");
     expect(component).toContain("{key:'tablet',label:'Tablet',width:768");
     expect(component).toContain("{key:'mobile',label:'Mobil',width:390");
     expect(component).toContain('aria-pressed={viewport===item.key}');
     expect(component).toContain('Egyedi override');
-    expect(component).toContain("'Örökölt'");
+    expect(component).toContain("'Alapérték'");
     expect(component).toContain('mobil-specifikus módosítások csak ezen a breakpointon érvényesülnek');
   });
 
