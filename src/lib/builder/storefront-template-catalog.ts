@@ -3,6 +3,7 @@ import type {StorefrontComponentNode,StorefrontPageDocument} from '@/lib/builder
 import {normalizeStorefrontTemplateRuntimeComposition,storefrontCartPresentationViolations} from '@/lib/builder/storefront-template-runtime-normalization';
 import {augmentStorefrontTemplateDemoContent,evaluateStorefrontTemplateRouteIntegrity} from '@/lib/builder/storefront-template-route-integrity';
 import {STOREFRONT_TEMPLATE_QUALITY_MANIFESTS,assertStorefrontTemplateQualityGate} from '@/lib/builder/storefront-template-quality-gate';
+import {materializeStorefrontTemplateResponsiveStyles} from '@/lib/builder/storefront-responsive-isolation';
 import {assertStorefrontCookieConsentPreset} from '@/lib/builder/storefront-cookie-consent-presets';
 import {ALPINE_LODGE_TEMPLATE_PACKAGE} from '@/lib/builder/templates/alpine-lodge';
 import {BEAUTY_LAB_TEMPLATE_PACKAGE} from '@/lib/builder/templates/beauty-lab-canonical-v2';
@@ -85,10 +86,15 @@ function normalizeLegacyTemplatePackage(template:StorefrontInstallableTemplatePa
 
 function normalizeImplementedTemplatePackage(template:StorefrontInstallableTemplatePackage):StorefrontInstallableTemplatePackage{
   const legacyNormalized=normalizeLegacyTemplatePackage(template);
-  return augmentStorefrontTemplateDemoContent({
+  const runtimeNormalized=augmentStorefrontTemplateDemoContent({
     ...legacyNormalized,
     pages:legacyNormalized.pages.map(normalizeStorefrontTemplateRuntimeComposition),
   });
+  // Current/future installable templates are persisted with explicit effective
+  // styles for desktop/tablet/mobile. This preserves today's rendering while
+  // making later per-viewport Builder edits genuinely isolated instead of
+  // depending on implicit base -> desktop -> tablet -> mobile inheritance.
+  return materializeStorefrontTemplateResponsiveStyles(runtimeNormalized);
 }
 
 /**
