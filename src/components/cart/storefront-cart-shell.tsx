@@ -21,6 +21,12 @@ function cartThemeStyle(page:StorefrontPageDocument,bodySection:StorefrontCompon
   return{
     ...inherited,
     ...bodyStyle,
+    '--card':'var(--shoporation-color-surface)',
+    '--ink':'var(--shoporation-color-text)',
+    '--muted':'var(--shoporation-color-muted-text)',
+    '--line':'var(--shoporation-color-border)',
+    '--green':'var(--shoporation-color-primary)',
+    '--radius':'var(--shoporation-radius-l)',
     background:typeof bodyStyle.background==='string'?bodyStyle.background:'var(--shoporation-color-background)',
     color:'var(--shoporation-color-text)',
     fontFamily:'var(--shoporation-body-font,Arial,sans-serif)',

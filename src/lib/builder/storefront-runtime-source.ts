@@ -132,4 +132,8 @@ export async function resolveCurrentStorefrontCartRuntimePage():Promise<Storefro
 export async function resolveCurrentStorefrontCheckoutRuntimePage():Promise<StorefrontResolvedRuntimePage|null>{
  return resolveCurrentStorefrontTaskRuntimePage('checkout');
 }
+
+export async function resolveCurrentStorefrontPostPurchaseRuntimePage():Promise<StorefrontResolvedRuntimePage|null>{
+ return resolveCurrentStorefrontTaskRuntimePage('checkout');
+}
 export async function resolveStorefrontPreviewRuntimePage(token:string):Promise<StorefrontResolvedRuntimePage|null>{if(typeof token!=='string'||token.length<32||token.length>256)return null;const[page,instanceId]=await Promise.all([resolveStorefrontPreviewToken(token),resolveStorefrontPreviewInstanceId(token)]);if(!page||!instanceId)return null;const runtime=await resolveRuntimeCommerceContext(instanceId);if(!runtime)return null;const composedPage=composeStorefrontDigitalCommerceCapabilities(normalizeStorefrontTemplateRuntimeComposition(page));const growth=await resolveGrowthContext(instanceId,composedPage,runtime.capability);const previewContext=augmentStorefrontDigitalCommercePreviewContext({page:composedPage,context:mergeGrowthContext(runtime.bindingContext,growth.promotions)});return{source:'preview',instanceId,page:failClosedSpecialCommerce(composedPage,runtime.capability),bindingContext:previewContext,capability:runtime.capability};}
