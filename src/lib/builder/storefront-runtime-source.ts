@@ -3,7 +3,7 @@ import type {StorefrontPageDocument,StorefrontRuntimeCapabilityContext} from '@/
 import {getCurrentStorefrontPageState,getPreviewStorefrontDraftPage,getPublishedStorefrontPage,resolveStorefrontPreviewToken} from '@/lib/builder/storefront-persistence';
 import {listStorefrontReusableSymbolsForInstance} from '@/lib/builder/storefront-reusable-symbol-persistence';
 import {materializeStorefrontReusableSymbols} from '@/lib/builder/storefront-linked-symbols';
-import {requireStorefrontAccess} from '@/lib/storefront/access';
+import {requireStorefrontAccess,requireStorefrontBrowseAccess} from '@/lib/storefront/access';
 import {getCurrentWebshopInstance} from '@/lib/instances/access';
 import {getStorefrontInteractiveSceneCatalogForInstance} from '@/lib/builder/storefront-interactive-scene-server';
 import {getStorefrontExistingCommerceBundleForInstance} from '@/lib/builder/storefront-existing-commerce-server';
@@ -119,7 +119,7 @@ export async function resolveCurrentStorefrontContactRuntimePage():Promise<Store
 }
 
 async function resolveCurrentStorefrontTaskRuntimePage(pageKey:'cart'|'checkout'):Promise<StorefrontResolvedRuntimePage|null>{
- const instance=await requireStorefrontAccess();if(!instance)return null;
+ const instance=await requireStorefrontBrowseAccess();if(!instance)return null;
  const previewDraft=process.env.VERCEL_ENV==='preview'?await getPreviewStorefrontDraftPage(instance.id,pageKey):null;
  const[page,symbols,runtime]=await Promise.all([
   previewDraft?Promise.resolve(previewDraft):getPublishedStorefrontPage(instance.id,pageKey),

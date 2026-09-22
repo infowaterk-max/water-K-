@@ -67,4 +67,33 @@ describe('pilot acceptance guest access',()=>{
     expect(page).toContain("instance?.status==='pilot'");
     expect(page).not.toContain("status:'active'");
   });
+
+  it('separates protected Preview browsing from transactional storefront authority',()=>{
+    const storefrontAccess=read('src/lib/storefront/access.ts');
+    const catalog=read('src/app/webaruhaz/page.tsx');
+    const search=read('src/app/kereses/page.tsx');
+    const productLayout=read('src/app/termek/[slug]/layout.tsx');
+    const cart=read('src/app/kosar/page.tsx');
+    const checkout=read('src/app/penztar/page.tsx');
+    const runtimeSource=read('src/lib/builder/storefront-runtime-source.ts');
+    const orderApi=read('src/app/api/orders/route.ts');
+
+    expect(storefrontAccess).toContain('export async function isStorefrontPreviewBrowseAccess');
+    expect(storefrontAccess).toContain("process.env.VERCEL_ENV!=='preview'");
+    expect(storefrontAccess).toContain(".from('storefront_pages')");
+    expect(storefrontAccess).toContain(".not('draft_revision_id','is',null)");
+    expect(storefrontAccess).toContain('export async function requireStorefrontBrowseAccess');
+    expect(storefrontAccess).toContain('return requireStorefrontAccess()');
+
+    for(const source of[catalog,search,productLayout,cart])expect(source).toContain('requireStorefrontBrowseAccess');
+    expect(runtimeSource).toContain("resolveCurrentStorefrontTaskRuntimePage(pageKey:'cart'|'checkout')");
+    expect(runtimeSource).toContain('const instance=await requireStorefrontBrowseAccess()');
+    expect(checkout).toContain('isStorefrontPreviewBrowseAccess(instance)');
+    expect(checkout).toContain("acceptanceInstanceId===instance.id||previewBrowseAccess");
+
+    expect(orderApi).toContain("instance.status!=='active'");
+    expect(orderApi).not.toContain("['pilot','active'].includes(instance.status)");
+    expect(orderApi).toContain('Pilot vagy Preview webshopból valódi rendelés nem küldhető.');
+  });
+
 });

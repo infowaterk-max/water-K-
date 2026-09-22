@@ -5,10 +5,10 @@ import { NewsletterSignup } from '@/components/marketing/newsletter-signup';
 import { StorefrontContentShell } from '@/components/content/storefront-content-shell';
 import { getProducts } from '@/lib/catalog-server';
 import { getCommerceAccess } from '@/lib/commerce/access';
-import { requireStorefrontAccess } from '@/lib/storefront/access';
+import { requireStorefrontBrowseAccess } from '@/lib/storefront/access';
 
 export default async function Shop({searchParams}:{searchParams:Promise<Record<string,string|string[]|undefined>>}) {
-  const [instance,params]=await Promise.all([requireStorefrontAccess(),searchParams]);
+  const [instance,params]=await Promise.all([requireStorefrontBrowseAccess(),searchParams]);
   const [products, access] = await Promise.all([getProducts(), getCommerceAccess()]);
   const brand=instance?.brand.name??'Webáruház';
   const sort=typeof params.sort==='string'?params.sort:'';

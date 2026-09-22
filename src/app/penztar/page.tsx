@@ -7,7 +7,7 @@ import { getCommerceSettings } from '@/lib/commerce/settings';
 import { resolveCurrentStorefrontCheckoutRuntimePage } from '@/lib/builder/storefront-runtime-source';
 import type { StorefrontViewport } from '@/lib/builder/storefront-foundation';
 import { getPilotAcceptanceInstanceId } from '@/lib/storefront/pilot-access';
-import { requireStorefrontAccess } from '@/lib/storefront/access';
+import {isStorefrontPreviewBrowseAccess,requireStorefrontBrowseAccess} from '@/lib/storefront/access';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { getFeatureEntitlementDecisions } from '@/lib/entitlements/access';
 import { createClient } from '@/lib/supabase/server';
@@ -22,20 +22,21 @@ function storefrontViewportFromUserAgent(userAgent:string):StorefrontViewport{
 }
 
 export default async function Checkout(){
-  const instance=await requireStorefrontAccess();
+  const instance=await requireStorefrontBrowseAccess();
   if(!instance)throw new Error('STOREFRONT_CHECKOUT_INSTANCE_REQUIRED');
   const loyaltyPromise=createAdminClient().from('loyalty_program_settings').select('enabled').eq('instance_id',instance.id).maybeSingle();
   const accountBenefitPromise=getFeatureEntitlementDecisions(instance.id,['orders','returns']);
-  const[settings,access,runtime,acceptanceInstanceId,userAgent,loyaltyResult,accountBenefitDecisions]=await Promise.all([
+  const[settings,access,runtime,acceptanceInstanceId,previewBrowseAccess,userAgent,loyaltyResult,accountBenefitDecisions]=await Promise.all([
     getCommerceSettings(),
     getCommerceAccess(),
     resolveCurrentStorefrontCheckoutRuntimePage(),
     process.env.VERCEL_ENV==='preview'?getPilotAcceptanceInstanceId():Promise.resolve(null),
+    isStorefrontPreviewBrowseAccess(instance),
     headers().then(value=>value.get('user-agent')??''),
     loyaltyPromise,
     accountBenefitPromise,
   ]);
-  const acceptancePreview=Boolean(instance&&acceptanceInstanceId===instance.id&&process.env.VERCEL_ENV==='preview');
+  const acceptancePreview=Boolean(process.env.VERCEL_ENV==='preview'&&(acceptanceInstanceId===instance.id||previewBrowseAccess));
   const session=await createClient(),{data:{user}}=await session.auth.getUser();
   const[profileResult,billingProfile,b2bContext]=user?await Promise.all([
     createAdminClient().from('profiles').select('full_name,company_name,tax_number').eq('id',user.id).maybeSingle(),

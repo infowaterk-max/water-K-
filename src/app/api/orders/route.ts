@@ -31,7 +31,7 @@ export async function POST(request:Request){
   if(idempotencyKey.length<16||idempotencyKey.length>120)return NextResponse.json({error:'Hiányzó vagy érvénytelen rendelési kérésazonosító.'},{status:400});
   let body:unknown;try{body=await request.json()}catch{return NextResponse.json({error:'Érvénytelen JSON kérés.'},{status:400})}
   const parsed=schema.safeParse(body);if(!parsed.success)return NextResponse.json({error:'Hiányos vagy érvénytelen rendelési adatok.'},{status:400});
-  const instance=await getCurrentWebshopInstance();if(!instance||!['pilot','active'].includes(instance.status))return NextResponse.json({error:'Ehhez a kéréshez nem tartozik rendelhető webshop.'},{status:409});
+  const instance=await getCurrentWebshopInstance();if(!instance||instance.status!=='active')return NextResponse.json({error:instance?.status==='pilot'?'Pilot vagy Preview webshopból valódi rendelés nem küldhető.':'Ehhez a kéréshez nem tartozik aktív, rendelhető webshop.'},{status:409});
   const{checkout,items,commerceGroups}=parsed.data,cartItems=items.map(item=>({variant_id:item.productId,quantity:item.quantity}));
   let fulfillment;try{fulfillment=await classifyCheckoutFulfillment(instance.id,cartItems)}catch(error){console.error('checkout fulfillment classification failed',{instanceId:instance.id,error});return NextResponse.json({error:'A kosár teljesítési módja nem ellenőrizhető. Frissítsd a kosarat és próbáld újra.'},{status:409})}
   const commerce=await getCommerceSettings(),shipping=fulfillment.requiresShipping?commerce.shippingOptions.find(option=>option.code===checkout.shippingProvider):null,payment=commerce.paymentOptions.find(option=>option.code===checkout.paymentProvider);
