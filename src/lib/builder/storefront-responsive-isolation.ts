@@ -7,6 +7,18 @@ import {
   type StorefrontVisualStyleConfig,
 } from '@/lib/builder/storefront-visual-style';
 import type {StorefrontViewport} from '@/lib/builder/storefront-foundation';
+import {
+  resolveStorefrontTypographyValueLegacyCascade,
+  sanitizeStorefrontTypographyValue,
+} from '@/lib/builder/storefront-fidelity-typography';
+import {
+  readStorefrontFidelityMetadata,
+  resolveStorefrontChildOrderLegacyCascade,
+  resolveStorefrontImageArtDirectionLegacyCascade,
+  resolveStorefrontSectionOrderLegacyCascade,
+  sanitizeStorefrontImageArtDirectionSource,
+  writeStorefrontFidelityMetadata,
+} from '@/lib/builder/storefront-fidelity-engine';
 
 export const STOREFRONT_RESPONSIVE_ISOLATION_VERSION='shoporation.storefront-responsive-isolation.v1' as const;
 
@@ -45,6 +57,24 @@ function materializeConfig(source:StorefrontComponentNode['config']):StorefrontC
     }
     if((key==='style'||key.endsWith('Style'))&&isVisualStyleCandidate(value)){
       config[key]=materializeStorefrontVisualStyle(value);
+      continue;
+    }
+    if(key==='typography'&&isRecord(value)&&SLOT_KEYS.some(slot=>Object.prototype.hasOwnProperty.call(value,slot))){
+      config[key]={
+        base:sanitizeStorefrontTypographyValue(value.base),
+        desktop:resolveStorefrontTypographyValueLegacyCascade(value,'desktop'),
+        tablet:resolveStorefrontTypographyValueLegacyCascade(value,'tablet'),
+        mobile:resolveStorefrontTypographyValueLegacyCascade(value,'mobile'),
+      };
+      continue;
+    }
+    if(key==='artDirection'&&isRecord(value)&&SLOT_KEYS.some(slot=>Object.prototype.hasOwnProperty.call(value,slot))){
+      config[key]={
+        base:sanitizeStorefrontImageArtDirectionSource(value.base),
+        desktop:resolveStorefrontImageArtDirectionLegacyCascade(value,'desktop'),
+        tablet:resolveStorefrontImageArtDirectionLegacyCascade(value,'tablet'),
+        mobile:resolveStorefrontImageArtDirectionLegacyCascade(value,'mobile'),
+      };
     }
   }
   return config as StorefrontComponentNode['config'];
@@ -102,8 +132,43 @@ export function materializeStorefrontNodeResponsiveStyles(source:StorefrontCompo
   };
 }
 
+function findNodeById(nodes:readonly StorefrontComponentNode[],id:string):StorefrontComponentNode|undefined{
+  for(const node of nodes){
+    if(node.id===id)return node;
+    const child=findNodeById(node.children??[],id);
+    if(child)return child;
+  }
+  return undefined;
+}
+
 export function materializeStorefrontPageResponsiveStyles(source:StorefrontPageDocument):StorefrontPageDocument{
-  return{...clone(source),sections:source.sections.map(materializeStorefrontNodeResponsiveStyles)};
+  let next={...clone(source),sections:source.sections.map(materializeStorefrontNodeResponsiveStyles)};
+  const fidelity=readStorefrontFidelityMetadata(source);
+  if(!fidelity)return next;
+
+  const sectionOrder=fidelity.sectionOrder?{
+    desktop:resolveStorefrontSectionOrderLegacyCascade(source,'desktop'),
+    tablet:resolveStorefrontSectionOrderLegacyCascade(source,'tablet'),
+    mobile:resolveStorefrontSectionOrderLegacyCascade(source,'mobile'),
+  }:undefined;
+
+  const nodeOrder=fidelity.nodeOrder?Object.fromEntries(Object.keys(fidelity.nodeOrder).flatMap(parentId=>{
+    const parent=findNodeById(source.sections,parentId);
+    if(!parent)return[];
+    return[[parentId,{
+      desktop:resolveStorefrontChildOrderLegacyCascade(source,parent,'desktop'),
+      tablet:resolveStorefrontChildOrderLegacyCascade(source,parent,'tablet'),
+      mobile:resolveStorefrontChildOrderLegacyCascade(source,parent,'mobile'),
+    }]];
+  })):undefined;
+
+  next=writeStorefrontFidelityMetadata(next,{
+    ...(fidelity.editMode?{editMode:fidelity.editMode}:{}),
+    ...(sectionOrder?{sectionOrder}:{}),
+    ...(nodeOrder?{nodeOrder}:{}),
+    ...(fidelity.designGuard?{designGuard:clone(fidelity.designGuard)}:{}),
+  });
+  return next;
 }
 
 export function materializeStorefrontTemplateResponsiveStyles(source:StorefrontInstallableTemplatePackage):StorefrontInstallableTemplatePackage{
