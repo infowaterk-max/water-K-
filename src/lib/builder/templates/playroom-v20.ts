@@ -78,7 +78,7 @@ const PLAYROOM_V20_HU_COPY=Object.freeze(new Map<string,string>([
   ['STILL STUCK?','TOVÁBBRA IS KÉRDÉSED VAN?'],
   ['Gaming headset részlet','Játékos fejhallgató részlet'],
   ['PLAYER SUPPORT','ÜGYFÉLSZOLGÁLAT'],
-  ['BE READY','KÉSZÜLJ ELŐ'],
+  ['BE READY','KÉSZÜLJ FEL'],
   ['ORDER HELP','RENDELÉSI SEGÍTSÉG'],
   ['PRODUCT HELP','TERMÉKTÁMOGATÁS'],
   ['GENERAL','ÁLTALÁNOS'],
