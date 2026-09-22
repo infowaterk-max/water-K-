@@ -42,10 +42,33 @@ Classification: **template-local composition defect**, not shared Runtime author
 
 Fix:
 
-- Playroom v20 localization maps `BE READY → KÉSZÜLJ ELŐ` and `GENERAL → ÁLTALÁNOS`;
+- Playroom v20 localization maps `BE READY → KÉSZÜLJ FEL` and `GENERAL → ÁLTALÁNOS`;
 - Playroom v20 contact-only responsive overrides preserve the intended 8/4 hero split and 4/4/4 support-card row on tablet, with 12-column stacking on mobile;
 - the shared grid engine and the already accepted v19 template remain unchanged.
 
 Regression invariant:
 
 **A localized template must not leak untranslated customer-facing preset labels, and contact-specific responsive intent must not be rewritten by a generic helper when it creates orphan cards.**
+
+
+## Human retest follow-up — shared validation feedback
+
+A later human retest exposed a separate shared support-form defect:
+
+- the submit button appeared enabled on an empty or incomplete form;
+- native browser `required` / `minLength` validation blocked the submit event before the shared React submit handler could run;
+- as a result, the Shoperation feedback region never received an error message, so empty, name-only or one-character-message attempts looked like a dead button.
+
+Classification: **shared support interaction defect**.
+
+Fix:
+
+- the shared support form computes readiness from the same minimum contract as the support API: valid e-mail, subject length >= 3, message length >= 10;
+- submit is disabled and visually inactive until the form is ready;
+- the form uses explicit shared validation feedback instead of relying on opaque browser-native blocking;
+- the submit handler validates again before any `/api/support` request;
+- server-side Zod validation and the canonical `create_support_ticket_v2` authority remain unchanged.
+
+Regression invariant:
+
+**A storefront form must never look actionable while its own required contract is knowingly unsatisfied, and client-side validation must produce visible Shoperation feedback rather than silently preventing submission.**
