@@ -28,7 +28,8 @@ describe('shared commerce/account hardening',()=>{
   expect(page).toContain('getCustomerBillingProfile(instance.id,user.id)');
   expect(checkout).toContain('Számlázási adatok mentése a fiókomba');
   expect(checkout).toContain("checkout.saveBillingProfile=saveBillingProfile?'true':'false'");
-  expect(orders.indexOf("finalize_checkout_local_v2")).toBeLessThan(orders.indexOf("upsertCustomerBillingProfile"));
+  expect(orders.indexOf("finalize_checkout_local_v2")).toBeLessThan(orders.indexOf("if(user?.id&&checkout.saveBillingProfile==='true'"));
+  expect(orders).toContain("await upsertCustomerBillingProfile({instanceId:instance.id,userId:user.id");
  });
  it('makes approved B2B legal identity immutable and routes every change through audited merchant re-verification',()=>{
   const sql=read('supabase/migrations/20260922053000_shared_customer_billing_b2b_identity_reverification.sql'),profile=read('src/components/account/profile-form.tsx'),customer=read('src/components/account/b2b-identity-panel.tsx'),admin=read('src/components/admin/b2b-identity-review-control.tsx');
