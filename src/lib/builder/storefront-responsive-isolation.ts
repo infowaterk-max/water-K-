@@ -88,7 +88,6 @@ export function collectStorefrontEffectiveVisualState(page:StorefrontPageDocumen
   return result;
 }
 
-const stable=(value:unknown)=>JSON.stringify(value,Object.keys((value&&typeof value==='object'&&!Array.isArray(value)?value:{}) as Record<string,unknown>).sort());
 
 export function assertStorefrontViewportIsolation(input:{
   before:StorefrontPageDocument;
