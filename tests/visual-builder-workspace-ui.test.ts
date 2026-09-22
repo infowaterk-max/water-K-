@@ -46,9 +46,9 @@ describe('Visual Builder final UI fidelity contract',()=>{
     for(const label of ['Tartalom','Megjelenés','Elrendezés','Haladó'])expect(component).toContain(label);
     expect(component).toContain("editorTab==='responsive'");
     expect(component).toContain("type:'responsive'");
-    expect(component).toContain('Örökölt / 12');
-    expect(component).toContain('Öröklés visszaállítása');
-    expect(component).toContain('Desktop → Tablet → Mobil');
+    expect(component).toContain('Alapértelmezett / 12');
+    expect(component).toContain('Viewport override törlése');
+    expect(component).toContain('Desktop, Tablet és Mobil külön viewport-authority');
   });
 
   it('keeps Presets, Page Templates, Saved Blocks and Fidelity controls on canonical authorities',()=>{
