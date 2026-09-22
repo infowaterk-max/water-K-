@@ -47,25 +47,40 @@ Accepted pattern:
 
 ## 2. Responsive Isolation Contract
 
-The underlying visual-style resolver intentionally resolves:
+The current Runtime/Builder responsive authority is **v2: `base + exact viewport`**.
 
-`base → desktop → tablet → mobile`
+For every viewport-aware visual/composition domain:
 
-That inheritance remains platform behavior.
+- Desktop resolves from `base + desktop`;
+- Tablet resolves from `base + tablet`;
+- Mobile resolves from `base + mobile`;
+- Desktop does not cascade into Tablet or Mobile;
+- Tablet does not cascade into Mobile.
 
-However, current installable templates are now materialized through `materializeStorefrontTemplateResponsiveStyles`, and ordinary Builder draft persistence materializes through `materializeStorefrontPageResponsiveStyles`.
+This rule applies to:
 
-This means canonical/persisted current templates carry explicit effective style authorities for Desktop, Tablet and Mobile.
+- visual `style` and `styleSlots`;
+- `responsive.gridSpan` and `responsive.hidden`;
+- typography;
+- image art direction;
+- responsive section order;
+- responsive child order.
+
+Historical template source packages authored under the old `base → desktop → tablet → mobile` cascade are converted **once** at the template catalog/migration boundary by `materializeStorefrontTemplateResponsiveStyles`. The migration helper resolves the old effective rendering and writes explicit Desktop/Tablet/Mobile authorities so the visual result is preserved before the current Runtime sees the package.
+
+Ordinary Visual Builder draft persistence **does not materialize responsive values again**. Sparse Builder overrides remain sparse. Therefore “reset viewport override” is real: clearing a viewport-specific override falls back to the global/base or component default instead of silently recreating the deleted value during save.
 
 ### Required invariant
 
 A Desktop-only edit must not change effective Tablet or Mobile rendering.
 
-A Tablet-only edit must not change effective Mobile rendering unless explicitly intended.
+A Tablet-only edit must not change Desktop or Mobile rendering.
 
-Use `assertStorefrontViewportIsolation` in transformations/tests whenever a change is declared viewport-specific.
+A Mobile-only edit must not change Desktop or Tablet rendering.
 
-The Template Factory quality manifest requires explicit effective viewport styles. Missing materialization is a quality-gate failure.
+`assertStorefrontViewportIsolation` compares the complete effective viewport state, including style, grid/visibility, typography, art direction, section order and child order.
+
+The Template Factory quality manifest requires complete explicit viewport authorities at the canonical template boundary. Missing materialization is a quality-gate failure.
 
 ## 3. Targeted Page Schema Change Contract
 
