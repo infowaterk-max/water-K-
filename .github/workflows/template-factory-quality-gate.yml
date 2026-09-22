@@ -193,6 +193,7 @@ jobs:
           tests/storefront-real-route-template-authority.test.ts
           tests/storefront-product-route-authority.test.ts
           tests/storefront-preview-demo-content-routing.test.ts
+          tests/storefront-form-wizard-engine.test.ts
           tests/storefront-auth-surface.test.ts
           tests/storefront-auth-intent-checkout.test.ts
           tests/storefront-auth-return-target.test.ts

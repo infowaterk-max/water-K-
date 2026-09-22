@@ -160,6 +160,7 @@ describe('Playroom v20 functional acceptance',()=>{
   it('keeps Contact Form on the canonical ticket authority with validation, dedupe, spam sink and accessible feedback',()=>{
     const route=read('src/app/api/support/route.ts');
     const client=read('src/components/builder/storefront-support-contact-form-client.tsx');
+    const wizard=read('src/components/forms/storefront-form-wizard.tsx');
     const atomic=read('supabase/migrations/20260903185000_support_submission_atomic_v2.sql');
     expect(route).toContain("subject:z.string().trim().min(3).max(180)");
     expect(route).toContain("message:z.string().trim().min(10).max(4000)");
@@ -170,16 +171,16 @@ describe('Playroom v20 functional acceptance',()=>{
     expect(route).toContain("{status:201}");
     expect(atomic).toContain('pg_advisory_xact_lock');
     expect(atomic).toContain('SUPPORT_INITIAL_MESSAGE_EVIDENCE_MISSING');
-    expect(client).toContain("fetch('/api/support'");
-    expect(client).toContain('function validatePayload(payload:SupportPayload)');
-    expect(client).toContain('if(payload.subject.length<3)');
-    expect(client).toContain('if(payload.message.length<10)');
-    expect(client).toContain('<form noValidate');
-    expect(client).toContain('disabled={busy||!formReady}');
-    expect(client).toContain("cursor:busy?'wait':formReady?'pointer':'not-allowed'");
-    expect(client).toContain('support-form-validation-hint');
-    expect(client).toContain("role={feedback.kind==='error'?'alert':'status'}");
-    expect(client).toContain('aria-live="polite"');
+    expect(client).toContain('StorefrontFormWizard');
+    expect(client).toContain('endpoint="/api/support"');
+    for(const field of["name:'name'","name:'email'","name:'orderNumber'","name:'category'","name:'subject'","name:'message'"])expect(client).toContain(field);
+    expect(wizard).toContain('function validateField');
+    expect(wizard).toContain("fetch(endpoint");
+    expect(wizard).toContain('<form ref={formRef} noValidate');
+    expect(wizard).toContain("aria-current={index===stepIndex?'step':undefined}");
+    expect(wizard).toContain('disabled={busy||!ready}');
+    expect(wizard).toContain("role={feedback.kind==='error'?'alert':'status'}");
+    expect(wizard).toContain('aria-live="polite"');
   });
 
   it('keeps Playroom home responsive without template-local fixed-column or overlay regressions',()=>{
