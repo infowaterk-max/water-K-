@@ -1,15 +1,32 @@
 import fs from 'node:fs';
 import {describe,expect,it} from 'vitest';
+import {PLAYROOM_V20_TEMPLATE_PACKAGE} from '@/lib/builder/templates/playroom-v20';
+import {resolveStorefrontVisualStyle} from '@/lib/builder/storefront-visual-style';
+import type {StorefrontComponentNode} from '@/lib/builder/storefront-runtime';
 
 const auth=fs.readFileSync('src/components/auth/auth-form.tsx','utf8');
 const shell=fs.readFileSync('src/components/account/storefront-account-shell.tsx','utf8');
 const source=fs.readFileSync('src/lib/builder/storefront-runtime-source.ts','utf8');
 const accountPage=fs.readFileSync('src/app/fiokom/page.tsx','utf8');
-const playroom=fs.readFileSync('src/lib/builder/templates/playroom-v20.ts','utf8');
 const primitives=fs.readFileSync('src/components/builder/storefront-primitives.tsx','utf8');
 const commerceHeader=fs.readFileSync('src/components/builder/storefront-commerce-header.tsx','utf8');
 const accountCss=fs.readFileSync('src/app/account-workflow.css','utf8');
 const accountNav=fs.readFileSync('src/components/account/account-subnav.tsx','utf8');
+
+const playroomAccount=PLAYROOM_V20_TEMPLATE_PACKAGE.pages.find(page=>page.pageType==='account')!;
+const findPlayroomNode=(id:string):StorefrontComponentNode=>{
+  const visit=(nodes:readonly StorefrontComponentNode[]):StorefrontComponentNode|null=>{
+    for(const node of nodes){
+      if(node.id===id)return node;
+      const child=visit(node.children??[]);
+      if(child)return child;
+    }
+    return null;
+  };
+  const result=visit(playroomAccount.sections);
+  if(!result)throw new Error(`PLAYROOM_AUTH_TEST_NODE_MISSING:${id}`);
+  return result;
+};
 
 describe('template-aware storefront auth surface',()=>{
   it('exposes the shared auth surface and inherits storefront design tokens',()=>{
@@ -32,17 +49,17 @@ describe('template-aware storefront auth surface',()=>{
     expect(shell).toMatch(/data-authenticated="false"/);
     expect(accountPage).toMatch(/storefrontSignedOutAccount/);
     expect(accountPage).not.toMatch(/if\(!user\)[^;]+Belépés vagy regisztráció/);
-    expect(playroom).toMatch(/playroom-account-auth-public/);
-    expect(playroom).toMatch(/authPublic:true/);
-    expect(playroom).toMatch(/authComposition:'template-owned-v1'/);
-    expect(playroom).toMatch(/authPreset:'playroom-v20-command-center'/);
+    expect(findPlayroomNode('playroom-account-auth-public').config.authPublic).toBe(true);
+    expect(playroomAccount.metadata?.authComposition).toBe('template-owned-v1');
+    expect(playroomAccount.metadata?.authPreset).toBe('playroom-v20-command-center');
   });
 
   it('locks mobile width and overflow geometry for signed-out auth',()=>{
     expect(primitives).toMatch(/width:'100%',maxWidth:'100%',minWidth:0,boxSizing:'border-box'/);
     expect(commerceHeader).toMatch(/width:'100%',maxWidth:'100%',minWidth:0,boxSizing:'border-box'/);
     expect(accountCss).toMatch(/\.storefrontAccountShell\{width:100%;max-width:100%;min-width:0;/);
-    expect(playroom).toMatch(/mobile:\{display:'none',padding:'0'\}/);
+    expect(resolveStorefrontVisualStyle(findPlayroomNode('playroom-account-auth-public-secondary').config.style,'mobile'))
+      .toMatchObject({display:'none',padding:'0'});
   });
 
   it('keeps authenticated desktop account navigation as one canonical left rail',()=>{
