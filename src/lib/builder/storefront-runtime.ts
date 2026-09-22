@@ -119,6 +119,12 @@ export function applyStorefrontBindings(node:StorefrontComponentNode,context:Rec
 }
 
 export function resolveStorefrontResponsiveOverride(node:StorefrontComponentNode,viewport:StorefrontViewport):Required<StorefrontResponsiveOverride>{
+  const selected=node.responsive?.[viewport]??{};
+  return{hidden:selected.hidden??false,gridSpan:selected.gridSpan??12};
+}
+
+/** Historical v1 cascade used only to freeze legacy template sources at migration boundaries. */
+export function resolveStorefrontResponsiveOverrideLegacyCascade(node:StorefrontComponentNode,viewport:StorefrontViewport):Required<StorefrontResponsiveOverride>{
   const desktop=node.responsive?.desktop??{};
   const tablet={...desktop,...node.responsive?.tablet};
   const mobile={...tablet,...node.responsive?.mobile};
