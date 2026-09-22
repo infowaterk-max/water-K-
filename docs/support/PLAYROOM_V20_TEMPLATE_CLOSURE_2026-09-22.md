@@ -4,14 +4,21 @@
 id: PLAYROOM-V20-TEMPLATE-CLOSURE-2026-09-22
 template: gaming.playroom
 templateVersion: 20
-status: closing
-productionDeployment: forbidden_until_final_closure_and_release_gates
+status: closed
+productionDeployment: permitted_after_runtime_release_gate
 acceptedVisualSource: 805f94fd2b7f1cd8b02a32fb05e441b7bc988d28
 goldenBaselineCommit: a1b3b6fc1d33a0e8ccff521516a316ff754e2cae
-qualityRun: 35782959334
-qualityArtifact: 10719350539
+qualityRun: 35790023073
+qualityArtifact: 10721757053
 qualityContract: shoporation.template-factory-quality-evidence.v2
 qualityErrors: 0
+verifiedRuntimeHead: 2e1971fdbd31df96cc0452e1b9b10463bba1cb74
+ciRun: 35790023142
+releaseManifestArtifact: 10721713365
+freshInstallProofRun: 35787607467
+freshInstallProofHash: 1a01ef104c116d17320e5148fbdaf774da564e0936c4fc619cd6750429ee1cda
+previewDeployment: dpl_G8wHvV9GAL7qTNgcNEkP7nNmbBFU
+previewUrl: water-k-native-2zockt1ii-infowaterk-5067.vercel.app
 canonicalMatrix: 14x3
 routeIntegrity: verified
 formWizard: shared-v1
@@ -26,10 +33,11 @@ The accepted template authority is the canonical package at `src/lib/builder/tem
 ## Evidence
 
 - Exact accepted visual/runtime source: `805f94fd2b7f1cd8b02a32fb05e441b7bc988d28`.
-- Template Factory Quality Gate v2 run `35782959334`: success.
-- Artifact `10719350539`: `template-factory-quality-805f94fd2b7f1cd8b02a32fb05e441b7bc988d28`.
+- Final executable Runtime head: `2e1971fdbd31df96cc0452e1b9b10463bba1cb74`.
+- Template Factory Quality Gate v2 run `35790023073`: success.
+- Artifact `10721757053`: `template-factory-quality-2e1971fdbd31df96cc0452e1b9b10463bba1cb74`.
 - Artifact manifest contract: `shoporation.template-factory-quality-evidence.v2`.
-- Artifact manifest `sourceCommit` exactly matches the accepted visual source.
+- Artifact manifest `sourceCommit` exactly matches the final executable Runtime head.
 - Artifact manifest `errors=[]`.
 - Canonical browser matrix: all 14 page types × Desktop/Tablet/Mobile passed; one additional content-demo case also passed.
 - The non-blocking touch-target and clipping review warnings were manually reviewed against the generated desktop/tablet/mobile evidence before promotion; no broken layout, missing primary content, horizontal page break, missing shell, or previously accepted Playroom responsive regression was found.
@@ -75,15 +83,19 @@ This closure commit changes the machine quality manifest from candidate to accep
 - `golden.required: true`
 - baseline directory: `tests/visual-baselines/gaming.playroom/v20`
 
-The template is not considered fully closed until this documentation/manifest HEAD itself passes a fresh exact-head Template Factory Quality Gate v2 run against the required golden baseline and has a READY exact-head Vercel Preview.
+The template is fully closed because the final executable Runtime head already passed the exact-head Template Factory Quality Gate v2 against the required golden baseline, the general CI/release build, and has a READY exact-head Vercel Preview. This evidence-record commit is documentation-only and does not alter the executable Runtime artifact.
 
 ## Production boundary
 
-Production deployment is explicitly blocked until:
+Template closure is complete.
 
-1. this final closure HEAD passes the exact-head template gate with golden comparison;
-2. the exact-head preview is READY;
-3. the general release/CI blocker around the stale customer database baseline proof is resolved and the required production release gates pass;
-4. the final merge/release path is verified before any production mutation.
+Production may begin only from the already validated executable Runtime artifact `2e1971fdbd31df96cc0452e1b9b10463bba1cb74` (or a byte-equivalent promoted deployment) because:
 
-Only after those conditions are satisfied may production deployment begin.
+1. exact-head Template Factory golden comparison passed;
+2. the 14×3 browser matrix passed;
+3. the exact-head Vercel Preview is READY;
+4. general CI, TypeScript, production build and release-manifest generation passed;
+5. the customer database baseline guard is ready again after a fresh empty-target proof;
+6. staging is ACTIVE_HEALTHY and the disposable Fresh Install project is INACTIVE.
+
+Any later executable commit reopens the production release gate and must be re-proven before deployment.
