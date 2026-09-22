@@ -363,3 +363,5 @@ Regression guards:
 **Desktop layout módosítás nem fogadható el valódi true-desktop proof nélkül.**
 
 **Mobilos „Desktop site” nézet vagy egyetlen viewport nem bizonyítja a desktop kompozíció helyességét.**
+
+Evidence execution contract: the acceptance commit must run the Playroom v20 screenshot workflow so the same exact HEAD is captured at 1440×1000, 1280×800, 768×1024 and 390×844 before human/agent visual sign-off.
