@@ -1,7 +1,9 @@
 import {readFileSync} from 'node:fs';
 import {describe,expect,it} from 'vitest';
 import type {StorefrontPageDocument} from '@/lib/builder/storefront-runtime';
-import {resolveStorefrontVisualStyle} from '@/lib/builder/storefront-visual-style';
+import {resolveStorefrontVisualStyle,resolveStorefrontVisualStyleLegacyCascade} from '@/lib/builder/storefront-visual-style';
+import {setStorefrontNodeStyleSlot,setStorefrontNodeViewportStyle} from '@/lib/builder/storefront-fidelity-builder-operations';
+import {resolveStorefrontStyleSlot} from '@/lib/builder/storefront-fidelity-engine';
 import {
   assertStorefrontViewportIsolation,
   collectStorefrontEffectiveVisualState,
@@ -43,51 +45,68 @@ const page=():StorefrontPageDocument=>({
 });
 
 describe('Storefront responsive isolation foundation',()=>{
-  it('materializes current effective styles into explicit viewport slots without changing rendering semantics',()=>{
+  it('migrates historical cascading templates into explicit viewport snapshots without visual loss',()=>{
     const before=page();
-    expect(listUnmaterializedStorefrontVisualSurfaces(before)).toEqual(expect.arrayContaining(['hero.style','hero.styleSlots.card']));
+    const sourceStyle=before.sections[0]!.config.style;
+    expect(resolveStorefrontVisualStyleLegacyCascade(sourceStyle,'desktop').minHeight).toBe('20rem');
+    expect(resolveStorefrontVisualStyleLegacyCascade(sourceStyle,'tablet').minHeight).toBe('20rem');
+    expect(resolveStorefrontVisualStyleLegacyCascade(sourceStyle,'mobile').minHeight).toBe('20rem');
+
     const after=materializeStorefrontPageResponsiveStyles(before);
     expect(listUnmaterializedStorefrontVisualSurfaces(after)).toEqual([]);
-    for(const viewport of ['desktop','tablet','mobile'] as const){
-      expect(collectStorefrontEffectiveVisualState(after,viewport)).toEqual(collectStorefrontEffectiveVisualState(before,viewport));
-    }
     const hero=after.sections[0]!;
     const style=hero.config.style as Record<string,Record<string,unknown>>;
     expect(style.desktop.minHeight).toBe('20rem');
     expect(style.tablet.minHeight).toBe('20rem');
     expect(style.mobile.minHeight).toBe('20rem');
+    for(const viewport of ['desktop','tablet','mobile'] as const){
+      expect(resolveStorefrontVisualStyle(hero.config.style,viewport))
+        .toEqual(resolveStorefrontVisualStyleLegacyCascade(sourceStyle,viewport));
+    }
+
     const card=(hero.config.styleSlots as Record<string,Record<string,Record<string,unknown>>>).card;
     expect(card.desktop.minHeight).toBe('6rem');
     expect(card.tablet.minHeight).toBe('5rem');
     expect(card.mobile.minHeight).toBe('4rem');
   });
 
-  it('turns later desktop edits into true desktop-only edits because tablet/mobile are explicit',()=>{
-    const frozen=materializeStorefrontPageResponsiveStyles(page());
-    const changed=structuredClone(frozen);
+  it('makes viewport edits intrinsically isolated under base + exact viewport semantics',()=>{
+    const before=page();
+    const changed=structuredClone(before);
     const style=changed.sections[0]!.config.style as Record<string,Record<string,unknown>>;
     style.desktop={...style.desktop,minHeight:'24rem'};
 
     expect(resolveStorefrontVisualStyle(changed.sections[0]!.config.style,'desktop').minHeight).toBe('24rem');
-    expect(resolveStorefrontVisualStyle(changed.sections[0]!.config.style,'tablet').minHeight).toBe('20rem');
-    expect(resolveStorefrontVisualStyle(changed.sections[0]!.config.style,'mobile').minHeight).toBe('20rem');
-    expect(()=>assertStorefrontViewportIsolation({before:frozen,after:changed,allowedViewports:['desktop'],label:'desktop-edit'})).not.toThrow();
+    expect(resolveStorefrontVisualStyle(changed.sections[0]!.config.style,'tablet').minHeight).toBe('12rem');
+    expect(resolveStorefrontVisualStyle(changed.sections[0]!.config.style,'mobile').minHeight).toBe('12rem');
+    expect(()=>assertStorefrontViewportIsolation({before,after:changed,allowedViewports:['desktop'],label:'desktop-edit'})).not.toThrow();
   });
 
-  it('is enforced at both template installation and normal draft persistence boundaries',()=>{
-    const catalog=readFileSync('src/lib/builder/storefront-template-catalog.ts','utf8');
+  it('preserves Builder reset-to-inherited semantics instead of re-materializing cleared overrides on save',()=>{
+    const frozen=materializeStorefrontPageResponsiveStyles(page());
+    let reset=setStorefrontNodeViewportStyle(frozen,'hero','tablet',{});
+    expect(resolveStorefrontVisualStyle(reset.sections[0]!.config.style,'tablet')).toEqual({minHeight:'12rem',padding:'1rem'});
+
+    reset=setStorefrontNodeStyleSlot(reset,'hero','card','mobile',{});
+    expect(resolveStorefrontStyleSlot(reset.sections[0]!.config.styleSlots,'card','mobile')).toEqual({minHeight:'4rem'});
+
     const persistence=readFileSync('src/lib/builder/storefront-persistence.ts','utf8');
-    expect(catalog).toContain('materializeStorefrontTemplateResponsiveStyles(runtimeNormalized)');
-    expect(persistence).toContain('const document=materializeStorefrontPageResponsiveStyles(input.document)');
-    expect(persistence).toContain('p_document:document');
-    expect(persistence).toContain('hashStorefrontPageDocument(document)');
+    expect(persistence).not.toContain('materializeStorefrontPageResponsiveStyles(input.document)');
+    expect(persistence).toContain('p_document:input.document');
+    expect(persistence).toContain('hashStorefrontPageDocument(input.document)');
   });
 
-  it('fails closed when a desktop edit leaks into tablet or mobile',()=>{
+  it('materializes only at the template migration/catalog boundary',()=>{
+    const catalog=readFileSync('src/lib/builder/storefront-template-catalog.ts','utf8');
+    expect(catalog).toContain('materializeStorefrontTemplateResponsiveStyles(runtimeNormalized)');
+  });
+
+  it('fails closed if a declared desktop-only transformation also mutates tablet',()=>{
     const before=page();
     const after=structuredClone(before);
     const style=after.sections[0]!.config.style as Record<string,Record<string,unknown>>;
     style.desktop={...style.desktop,minHeight:'24rem'};
+    style.tablet={...style.tablet,gap:'9rem'};
     expect(()=>assertStorefrontViewportIsolation({before,after,allowedViewports:['desktop'],label:'leak'}))
       .toThrow(/STOREFRONT_VIEWPORT_ISOLATION_VIOLATION:leak:tablet:hero\.style/);
   });
