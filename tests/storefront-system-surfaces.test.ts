@@ -1,15 +1,31 @@
 import fs from 'node:fs';
 import {describe,expect,it} from 'vitest';
+import {PLAYROOM_V20_TEMPLATE_PACKAGE} from '@/lib/builder/templates/playroom-v20';
+import type {StorefrontComponentNode} from '@/lib/builder/storefront-runtime';
 
 const cookie=fs.readFileSync('src/components/analytics/cookie-consent.tsx','utf8');
 const v6=fs.readFileSync('src/app/v6.css','utf8');
 const finalUx=fs.readFileSync('src/app/final-ux-audit.css','utf8');
 const responsive=fs.readFileSync('src/app/responsive-final.css','utf8');
-const playroom=fs.readFileSync('src/lib/builder/templates/playroom-v20.ts','utf8');
 const runtime=fs.readFileSync('src/lib/builder/storefront-runtime-source.ts','utf8');
 const cookiePresets=fs.readFileSync('src/lib/builder/storefront-cookie-consent-presets.ts','utf8');
 const primitives=fs.readFileSync('src/components/builder/storefront-primitives.tsx','utf8');
 const runtimeRenderer=fs.readFileSync('src/components/builder/storefront-runtime-renderer.tsx','utf8');
+
+const findPlayroomNode=(id:string):StorefrontComponentNode=>{
+  const home=PLAYROOM_V20_TEMPLATE_PACKAGE.pages.find(page=>page.pageType==='home')!;
+  const visit=(nodes:readonly StorefrontComponentNode[]):StorefrontComponentNode|null=>{
+    for(const node of nodes){
+      if(node.id===id)return node;
+      const child=visit(node.children??[]);
+      if(child)return child;
+    }
+    return null;
+  };
+  const result=visit(home.sections);
+  if(!result)throw new Error(`PLAYROOM_SYSTEM_TEST_NODE_MISSING:${id}`);
+  return result;
+};
 
 describe('customer-facing system surfaces',()=>{
   it('keeps cookie consent inside the mobile viewport and resolves an explicit template-owned preset',()=>{
@@ -28,9 +44,10 @@ describe('customer-facing system surfaces',()=>{
   });
 
   it('does not ship decorative fake social glyphs as the Playroom footer control',()=>{
-    expect(playroom).toMatch(/patchPlayroomSocialLinks/);
-    expect(playroom).toMatch(/componentKey:'system\.social-links'/);
-    expect(playroom).toMatch(/path:'brand\.socialLinks'/);
+    const social=findPlayroomNode('playroom-footer-social');
+    expect(social.componentKey).toBe('system.social-links');
+    expect(social.bindings?.items?.path).toBe('brand.socialLinks');
+    expect(JSON.stringify(PLAYROOM_V20_TEMPLATE_PACKAGE)).not.toContain('▶  ◎  ♪  f  ◉');
     expect(runtime).toMatch(/resolveStorefrontSocialLinks/);
     expect(runtime).toMatch(/socialLinks:resolveStorefrontSocialLinks\(instance\.storefront\.socialLinks\)/);
     expect(runtime).toMatch(/systemSurfaceComposition:'template-source'/);
