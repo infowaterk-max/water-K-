@@ -110,3 +110,87 @@ Playroom v20 composition rule:
 Regression invariant:
 
 **Desktop width is not a target by itself. A low-density block should only consume 12 columns when its information hierarchy or interaction genuinely benefits from the width; otherwise prefer a balanced multi-column composition and stack it on mobile.**
+
+
+## Homepage acceptance follow-up — compatibility, community, catalog projection, product rail
+
+### Compatibility teaser
+
+The canonical compatibility engine remains fail-closed: missing evidence is `unknown` and must never be treated as compatible.
+
+The Playroom homepage, however, is a teaser surface rather than the final compatibility decision surface. Showing a bare `Ismeretlen` state there made the shop look only partially configured.
+
+Accepted rule:
+
+- `compatibility.status` supports opt-in `hideWhenUnknown`;
+- Playroom Home enables it;
+- unknown is hidden only on the teaser;
+- PDP/configurator/cart technical surfaces retain the real fail-closed status;
+- decorative platform ticks were removed because they resembled fabricated compatibility evidence;
+- Home now explains the feature briefly and links to `Kompatibilitás ellenőrzése`.
+
+**Invariant:** Never improve demo appearance by inventing positive compatibility evidence.
+
+### Community split composition
+
+The former community block used a full-width text/benefit/CTA overlay over a background image. At compact desktop widths this wasted the left content area and produced an unnecessarily stretched CTA.
+
+Playroom Home now uses:
+
+- left 6/12: concise community copy, short benefit line, `Csatlakozz a közösséghez →`;
+- right 6/12: community image;
+- mobile 12/12 stack;
+- no employment-like `csapatunkhoz` wording.
+
+### Existing-commerce product card projection
+
+A shared binding mismatch was exposed by Playroom Home:
+
+- existing-commerce catalog authority emits `label`, nested `price.display`, nested `stock.statusLabel`, and engine IDs;
+- `commerce.product-grid` previously expected `name`, direct `price`, `stockLabel`, and card IDs;
+- visible result was generic `Termék` cards and missing commerce metadata.
+
+Shared correction:
+
+- the product-card normalizer accepts both canonical card rows and existing-commerce engine rows;
+- identity may derive from product/variant IDs;
+- name falls back to `label`;
+- display price and stock label are projected from their authoritative nested objects;
+- primary product media is read from the canonical `product_media` authority and projected as `imageUrl`;
+- Finder/Configurator engine catalog shape remains unchanged.
+
+**Invariant:** Never use template demo data to mask a shared catalog projection mismatch.
+
+### Playroom demo catalog
+
+Playroom now contains a namespaced 12-game preview catalog for empty/template-preview states, with local demo artwork. It does not write prices, stock, compatibility, reviews, release dates or other commerce authority into merchant product records.
+
+The shipped titles are intentionally fictional demo identities rather than current commercial game titles. This avoids presenting unlicensed cover art, live-market availability, pricing, or platform claims as template-owned truth.
+
+The existing template demo lifecycle remains the authority:
+
+- fixture;
+- adopted;
+- retired;
+- no product/variant/order mutation on template switch.
+
+### Shared opt-in product rail
+
+`commerce.product-grid` gained an opt-in `presentation: 'carousel'` rail:
+
+- desktop/tablet: visible previous/next controls;
+- mobile: native horizontal swipe / scroll-snap;
+- no automatic change to other templates or ordinary product grids.
+
+Playroom `Újdonságok & Kiemelt játékok` opts into this presentation.
+
+### Staging proof
+
+Pilot draft refresh advanced all 14 Page Schema drafts from revision 16 to 17:
+
+- exact documents: true;
+- template version: 20;
+- published page count: 0;
+- mutation scope: storefront page drafts only;
+- orders/products business boundary unchanged.
+
