@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "status": "snapshot-reviewed",
+  "status": "ready",
   "legacyMigrationReplay": false,
   "sourcePolicy": "schema-snapshot-only",
   "seedFile": "supabase/customer-baseline/seed.sql",
@@ -8,8 +8,8 @@
   "defaultPlan": "alap",
   "snapshotFile": "supabase/customer-baseline/migrations/0001_shoperation_v1_schema.sql",
   "snapshotCommand": "npm run db:customer:snapshot",
-  "freshInstallProofRequired": true,
-  "notes": "The canonical Block 24 ordered 0001-0018 lineage remains preserved as the historical launch baseline segment, including 0035_order_operational_authenticated_privilege_contract.sql and the subsequent 0036_product_documents_post_purchase_account_authority.sql closure; later ordered customer-baseline migrations extend it without rewriting that segment. The canonical ordered Shoperation customer baseline, including 0044_shared_customer_billing_b2b_identity_reverification.sql, has a genuine empty-target Fresh Install proof. GitHub Actions run 35684339297, fresh-install-proof job 106610375774, replayed source commit 68188e5283e07c55aaf074f8956da3fa07204576 on the dedicated Shoperation Fresh Install Supabase target. Target preflight proved 0 public/private relations, functions, sequences and user-defined types, 0 historical migration rows and 0 auth users. The reviewed ordered baseline + Auth bootstrap + neutral seed applied atomically. Target postflight passed with 175 public tables, 342 public functions, 126 public policies and 0 customer seed rows. Proof contract SHA256: 388a7fef90f728258d1ab1b1b4b66cd305aa4439792d0f090fefed85fac3542d. Re-proof required after customer-baseline forward migrations through 0045; previous proof remains historical evidence only until a new empty-target Fresh Install proof passes. Production remains untouched.",
+  "freshInstallProofRequired": false,
+  "notes": "The canonical Block 24 ordered 0001-0018 lineage remains preserved as the historical launch baseline segment, including 0035_order_operational_authenticated_privilege_contract.sql and the subsequent 0036_product_documents_post_purchase_account_authority.sql closure; later ordered customer-baseline migrations extend it without rewriting that segment. The canonical ordered Shoperation customer baseline, including 0044_shared_customer_billing_b2b_identity_reverification.sql, has a genuine empty-target Fresh Install proof. GitHub Actions run 35684339297, fresh-install-proof job 106610375774, replayed source commit 68188e5283e07c55aaf074f8956da3fa07204576 on the dedicated Shoperation Fresh Install Supabase target. Target preflight proved 0 public/private relations, functions, sequences and user-defined types, 0 historical migration rows and 0 auth users. The reviewed ordered baseline + Auth bootstrap + neutral seed applied atomically. Target postflight passed with 175 public tables, 342 public functions, 126 public policies and 0 customer seed rows. Proof contract SHA256: 388a7fef90f728258d1ab1b1b4b66cd305aa4439792d0f090fefed85fac3542d. The canonical ordered customer baseline through 0045 now has a fresh empty-target proof. GitHub Actions run 35787607467, job 106948771455, source commit c7507df4c260d6ecd557933ddae214d646bb0d6b. Target preflight proved zero public/private relations, functions, sequences, user-defined types, migration rows and auth users. Target postflight passed with 175 public tables, 344 public functions, 126 public policies and 0 customer seed rows. Proof contract SHA256: 1a01ef104c116d17320e5148fbdaf774da564e0936c4fc619cd6750429ee1cda. Production remained untouched.",
   "authBootstrapFile": "supabase/customer-baseline/auth-bootstrap.sql",
-  "proofContractSha256": null
+  "proofContractSha256": "1a01ef104c116d17320e5148fbdaf774da564e0936c4fc619cd6750429ee1cda"
 }
