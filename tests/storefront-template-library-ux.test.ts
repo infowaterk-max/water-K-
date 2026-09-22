@@ -68,8 +68,8 @@ describe('storefront template library UX',()=>{
     expect(library).toContain('SABLONVÁLTÁS');
     expect(library).toContain('SABLONFRISSÍTÉS');
     expect(library).toContain('A most publikált webshop');
-    expect(library).toContain('Termékek, készlet és árak nem változnak');
-    expect(library).toContain('Rendelések és ügyféladatok nem változnak');
+    expect(library).toContain('Saját termékeket, készletet, rendeléseket és ügyféladatokat nem törlünk');
+    expect(library).toContain('A publikált storefront érintetlen marad');
     expect(library).toContain('A jelenlegi draft oldalak szerkesztéseit a ');
     expect(library).toContain("pendingUpgrade?'sablonfrissítés':'sablonváltás'");
     expect(library).toContain('felülírhatja');

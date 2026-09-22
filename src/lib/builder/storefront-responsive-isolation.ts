@@ -42,15 +42,19 @@ function isVisualStyleCandidate(value:unknown):boolean{
   return Object.keys(sanitizeStorefrontVisualStyleSlot(value)).length>0;
 }
 
+function visualStyleDelta(base:Record<string,unknown>,effective:Record<string,unknown>){
+  return Object.fromEntries(Object.entries(effective).filter(([key,value])=>base[key]!==value));
+}
+
 export function materializeStorefrontVisualStyle(value:unknown):StorefrontVisualStyleConfig{
   if(!isRecord(value))return{};
   const usesSlots=SLOT_KEYS.some(key=>Object.prototype.hasOwnProperty.call(value,key));
   const base=usesSlots?sanitizeStorefrontVisualStyleSlot(value.base):sanitizeStorefrontVisualStyleSlot(value);
   return{
     base,
-    desktop:resolveStorefrontVisualStyleLegacyCascade(value,'desktop'),
-    tablet:resolveStorefrontVisualStyleLegacyCascade(value,'tablet'),
-    mobile:resolveStorefrontVisualStyleLegacyCascade(value,'mobile'),
+    desktop:visualStyleDelta(base,resolveStorefrontVisualStyleLegacyCascade(value,'desktop')),
+    tablet:visualStyleDelta(base,resolveStorefrontVisualStyleLegacyCascade(value,'tablet')),
+    mobile:visualStyleDelta(base,resolveStorefrontVisualStyleLegacyCascade(value,'mobile')),
   };
 }
 
@@ -96,14 +100,9 @@ function stableStyle(value:Record<string,unknown>):string{
 
 function isMaterializedVisualStyle(value:unknown):boolean{
   if(!isRecord(value)||!SLOT_KEYS.every(key=>isRecord(value[key])))return false;
-  const base=sanitizeStorefrontVisualStyleSlot(value.base);
-  const desktop=sanitizeStorefrontVisualStyleSlot(value.desktop);
-  const tablet=sanitizeStorefrontVisualStyleSlot(value.tablet);
-  const mobile=sanitizeStorefrontVisualStyleSlot(value.mobile);
-  return stableStyle(base)===stableStyle(sanitizeStorefrontVisualStyleSlot(value.base))
-    &&stableStyle(desktop)===stableStyle(resolveStorefrontVisualStyle(value,'desktop'))
-    &&stableStyle(tablet)===stableStyle(resolveStorefrontVisualStyle(value,'tablet'))
-    &&stableStyle(mobile)===stableStyle(resolveStorefrontVisualStyle(value,'mobile'));
+  return SLOT_KEYS.every(key=>
+    stableStyle(sanitizeStorefrontVisualStyleSlot(value[key]))===stableStyle(value[key] as Record<string,unknown>)
+  );
 }
 
 export function listUnmaterializedStorefrontVisualSurfaces(page:StorefrontPageDocument):string[]{

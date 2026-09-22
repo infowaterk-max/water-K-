@@ -63,8 +63,11 @@ describe('Storefront responsive isolation foundation',()=>{
     const hero=after.sections[0]!;
     const style=hero.config.style as Record<string,Record<string,unknown>>;
     expect(style.desktop.minHeight).toBe('20rem');
+    expect(style.desktop.padding).toBeUndefined();
     expect(style.tablet.minHeight).toBe('20rem');
+    expect(style.tablet.padding).toBe('.8rem');
     expect(style.mobile.minHeight).toBe('20rem');
+    expect(style.mobile.padding).toBe('.6rem');
     for(const viewport of ['desktop','tablet','mobile'] as const){
       expect(resolveStorefrontVisualStyle(hero.config.style,viewport))
         .toEqual(resolveStorefrontVisualStyleLegacyCascade(sourceStyle,viewport));

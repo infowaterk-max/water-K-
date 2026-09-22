@@ -13,10 +13,12 @@ describe('admin decision reliability closure',()=>{
       'src/app/admin/termekajanlasok/page.tsx',
       'src/app/admin/termekek/tomeges/page.tsx',
       'src/app/admin/termekek/import-export/page.tsx',
-      'src/app/admin/indulas/actions.ts',
     ]){
       expect(read(file)).toContain('getProducts({includeAllChannels:true');
     }
+    const launchAction=read('src/app/admin/indulas/actions.ts');
+    expect(launchAction).toContain('getStorefrontTemplateDemoCatalogStatusForInstance(scope.instanceId)');
+    expect(launchAction).toContain('catalogStatus.realProductCount>0');
   });
 
   test('merchant dashboard does not turn failed reads or missing costs into real business results',()=>{

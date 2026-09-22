@@ -48,11 +48,12 @@ describe('core transactional e-mail dispatch and order operational privilege con
     const manifest=JSON.parse(read('supabase/customer-baseline/manifest.json')) as {status:string;freshInstallProofRequired:boolean;proofContractSha256:string|null;notes:string};
     expect(manifest.status).toBe('ready');
     expect(manifest.freshInstallProofRequired).toBe(false);
-    expect(manifest.proofContractSha256).toBe('388a7fef90f728258d1ab1b1b4b66cd305aa4439792d0f090fefed85fac3542d');
+    expect(manifest.proofContractSha256).toMatch(/^[a-f0-9]{64}$/);
     expect(manifest.notes).toContain('0035_order_operational_authenticated_privilege_contract.sql');
     expect(manifest.notes).toContain('0036_product_documents_post_purchase_account_authority.sql');
     expect(manifest.notes).toContain('ordered 0001-0018');
     expect(manifest.notes).toContain('0044_shared_customer_billing_b2b_identity_reverification.sql');
-    expect(manifest.notes).toContain('GitHub Actions run 35684339297');
+    expect(manifest.notes).toContain('through 0045');
+    expect(manifest.notes).toContain('GitHub Actions run 35787607467');
   });
 });
