@@ -89,7 +89,7 @@ Stable Page Schema node identities, draft/published persistence and tenant scope
 
 ## Responsive, accessibility and security
 
-All adopted components continue to use the common Desktop → Tablet → Mobile inheritance contract. There is no mobile-specific commerce logic.
+All adopted components use the common isolated Desktop / Tablet / Mobile authority contract. A viewport may use shared base defaults, but it never inherits an override from a sibling viewport. There is no mobile-specific commerce authority.
 
 The Wave 6 shared renderers remain responsible for semantic controls, keyboard/focus behavior and live status copy. Wave 7 adds no template-specific interactive renderer. Binding paths remain allowlisted and prototype-pollution segments remain rejected. Interactive Scene retains bounded hotspots and safe-href validation; Release retains server-time/shared-stock authority; Recipe claims and Compatibility remain evidence-only.
 

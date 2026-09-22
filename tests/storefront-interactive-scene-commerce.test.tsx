@@ -92,12 +92,13 @@ describe('Special Commerce Wave 1 — Interactive Scene Commerce',()=>{
     }
   });
 
-  it('uses the published Page Schema homepage first and keeps the legacy storefront only as compatibility fallback',()=>{
+  it('uses the shared Page Schema homepage resolver and keeps the legacy storefront only as compatibility fallback',()=>{
     const home=readFileSync('src/app/page.tsx','utf8');
-    expect(home).toContain("resolveCurrentStorefrontPublishedRuntimePage('home')");
-    expect(home).toContain('data-storefront-published-runtime="page-schema"');
-    expect(home).toContain('bindingContext={published.bindingContext}');
-    expect(home).toContain('capability={published.capability}');
+    expect(home).toContain('resolveCurrentStorefrontHomeRuntimePage()');
+    expect(home).toContain('data-storefront-home-runtime="page-schema"');
+    expect(home).toContain('data-storefront-runtime-source={runtime.source}');
+    expect(home).toContain('bindingContext={runtime.bindingContext}');
+    expect(home).toContain('capability={runtime.capability}');
     expect(home).toContain('data-storefront-legacy-fallback="home"');
   });
 });

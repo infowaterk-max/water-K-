@@ -2,7 +2,7 @@ import {describe,expect,it} from 'vitest';
 import {resolveStorefrontTypography,sanitizeStorefrontTypographyValue} from '@/lib/builder/storefront-fidelity-typography';
 
 describe('Visual Builder fidelity typography',()=>{
-  it('resolves safe responsive typography with inheritance',()=>{
+  it('resolves safe typography from base plus the exact viewport override',()=>{
     const config={
       base:{fontToken:'display',fontWeight:700,lineHeight:.9,letterSpacingEm:-.04,maxWidthCh:14},
       mobile:{fluidSize:{minRem:2.4,maxRem:3.2,preferredVw:11},maxWidthCh:12,preserveLineBreaks:true},
@@ -19,6 +19,15 @@ describe('Visual Builder fidelity typography',()=>{
       maxWidth:'12ch',
       whiteSpace:'pre-line',
     });
+    const isolated={
+      base:{fontWeight:600},
+      desktop:{fontSizeRem:4},
+      tablet:{lineHeight:1.2},
+    };
+    expect(resolveStorefrontTypography(isolated,'desktop')).toMatchObject({fontWeight:600,fontSize:'4rem'});
+    expect(resolveStorefrontTypography(isolated,'tablet')).toMatchObject({fontWeight:600,lineHeight:1.2});
+    expect(resolveStorefrontTypography(isolated,'tablet')).not.toHaveProperty('fontSize');
+    expect(resolveStorefrontTypography(isolated,'mobile')).toEqual({fontWeight:600});
   });
 
   it('clamps expert numeric input to bounded typography ranges',()=>{

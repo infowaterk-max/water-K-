@@ -54,7 +54,7 @@ const expectedMerchantDestinations:Record<string,string>={
   orders:'/admin/rendelesek',returns:'/admin/visszaru',products:'/admin/termekek','product-documents':'/admin/termekek/dokumentumok',recommendations:'/admin/termekajanlasok','import-export':'/admin/termekek/import-export',bulk:'/admin/termekek/tomeges',
   customers:'/admin/ugyfelek',crm:'/admin/ertekesites','customer-value':'/admin/ugyfelertek','follow-up':'/admin/utanakovetes','inventory-analysis':'/admin/keszlet-elemzes',procurement:'/admin/beszerzes',
   'marketing-basics':'/admin/marketing',campaigns:'/admin/kampanyok','email-templates':'/admin/email-sablonok',coupons:'/admin/kuponok',reviews:'/admin/velemenyek',automation:'/admin/automatizalas','team-chat':'/admin/kommunikacio/chat',office:'/admin/kommunikacio',blocklist:'/admin/kommunikacio/tiltolista',support:'/admin/ugyfelszolgalat',content:'/admin/tartalom',
-  launch:'/admin/indulas','commerce-settings':'/admin/beallitasok/fizetes-szallitas',integrations:'/admin/integraciok',team:'/admin/csapat',audit:'/admin/audit',plan:'/admin/csomag',settings:'/admin/beallitasok',pilot:'/admin/pilot-acceptance',
+  launch:'/admin/indulas','storefront-appearance':'/admin/beallitasok/megjelenes','commerce-settings':'/admin/beallitasok/fizetes-szallitas',integrations:'/admin/integraciok',team:'/admin/csapat',audit:'/admin/audit',plan:'/admin/csomag',settings:'/admin/beallitasok',pilot:'/admin/pilot-acceptance',
 };
 
 const expectedPlatformDestinations:Record<string,string>={

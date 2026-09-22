@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import {describe,expect,it} from 'vitest';
-import {createStorefrontGuidedVisualComponentRegistry} from '@/lib/builder/storefront-guided-visual';
+import {createStorefrontVisualBuilderComponentRegistry} from '@/lib/builder/storefront-builder-registry';
 import {getStorefrontTemplatePackage} from '@/lib/builder/storefront-template-catalog';
 import {planStorefrontTemplateInstallation} from '@/lib/builder/storefront-template-installation';
 import {PLANS} from '@/lib/plans/catalog';
@@ -21,7 +21,7 @@ describe('Beauty Lab canonical template upgrade',()=>{
   it('plans persisted Beauty Lab v1 drafts as an explicit draft-only upgrade',()=>{
     const plan=planStorefrontTemplateInstallation({
       template,
-      componentRegistry:createStorefrontGuidedVisualComponentRegistry(),
+      componentRegistry:createStorefrontVisualBuilderComponentRegistry(),
       capability:{plan:'alap',features:PLANS.alap.features},
       existingPages:template.pages.map((page,index)=>({
         pageKey:page.pageKey,

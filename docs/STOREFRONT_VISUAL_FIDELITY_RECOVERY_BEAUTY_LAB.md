@@ -56,7 +56,7 @@ No production/Supabase mutation belongs to this recovery branch.
 | Spacing rhythm | dense hero, narrow white editorial bands | token spacing | Shared capability available | Explicit safe spacing values + breakpoint overrides are supported. |
 | Borders / surfaces | thin borders, near-square cards, pale surfaces | tone/radius tokens | Shared capability available | border/radius/background/shadow are allowlisted schema style. |
 | Image crop / focal point | per-placement focus/crop | objectPosition + renderer defaults | Shared capability available for primitive media | Page Schema controls image object-fit/object-position; specialized commerce media may need shared extension after screenshot evidence. |
-| Desktop / tablet / mobile | composition reflows/repositions and changes type/spacing | only hidden/gridSpan | Shared capability available | Structural hidden/gridSpan stays canonical; visual geometry uses inherited `style.base → desktop → tablet → mobile` overrides. |
+| Desktop / tablet / mobile | composition reflows/repositions and changes type/spacing | only hidden/gridSpan | Shared capability available | Structural hidden/gridSpan and visual geometry use `base + exact viewport` authority; Desktop, Tablet and Mobile overrides are isolated. |
 
 ## 4. Shared capability proof
 
@@ -151,7 +151,7 @@ The approved reference remains the decision authority. Automated screenshot diff
 
 ## 7. Support Knowledge backfill
 
-PR #156 remains historical input, not a safe current branch. The recovery will create a current-main successor after verified recovery facts stabilize. It must preserve the old knowledge and add:
+PR #156 remains historical input, not a safe current branch. A current-development successor now exists under `docs/support/`. Governance is restored in `docs/support/README.md`, and the first current detailed successor is `docs/support/PLAYROOM_V20_PHASE4_BUILDER_ACCEPTANCE_INCIDENTS_2026-09-18.md`. Future fidelity recoveries must preserve the old knowledge and add:
 
 - technically green but visually unacceptable Beauty Lab incident;
 - missing pre-implementation Reference → Builder capability proof;

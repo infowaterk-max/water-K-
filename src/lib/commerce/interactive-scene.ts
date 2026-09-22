@@ -20,6 +20,8 @@ export type InteractiveSceneHotspot={
 export type InteractiveSceneVariantProjection={
   variantId:string;
   label:string;
+  /** Canonical variant-aware storefront PDP route when available. */
+  href?:string;
   eligible:boolean;
   channelVisible:boolean;
   price:{amountMinor:number;currency:string;display:string;source:'shared-pricing-authority'};

@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import { useMemo, useState } from 'react';
 import { AddToCart } from '@/components/catalog/add-to-cart';
 import { formatHuf, type Product } from '@/lib/catalog';
@@ -8,15 +9,26 @@ import { formatHuf, type Product } from '@/lib/catalog';
 type Props = { products: Product[]; signedIn: boolean; resellerApproved: boolean };
 type AudienceFilter = 'all' | 'retail' | 'professional';
 type StockFilter = 'all' | 'in-stock';
-type SortMode = 'recommended' | 'price-asc' | 'price-desc' | 'size-asc';
+type SortMode = 'recommended' | 'new' | 'price-asc' | 'price-desc' | 'size-asc';
 
 const normalize = (value: string) => value.toLocaleLowerCase('hu-HU').normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 
 export function ShopCatalog({ products, signedIn, resellerApproved }: Props) {
-  const [query, setQuery] = useState('');
-  const [audience, setAudience] = useState<AudienceFilter>('all');
-  const [stock, setStock] = useState<StockFilter>('all');
-  const [sort, setSort] = useState<SortMode>('recommended');
+  const params=useSearchParams();
+  const semanticKeys=['category','collection','filter','type','scene','flavor','pantry','ritual','play','genre','platform','c','concern','texture'] as const;
+  const semanticTerms=semanticKeys.flatMap(key=>{
+    const value=params.get(key)?.trim();
+    return value&&!(key==='filter'&&value==='sale')?[normalize(value)]:[];
+  });
+  const initialAudience=params.get('audience')==='retail'||params.get('audience')==='professional'?params.get('audience') as AudienceFilter:'all';
+  const initialStock=params.get('stock')==='in-stock'?'in-stock':'all';
+  const requestedSort=params.get('sort');
+  const initialSort:SortMode=requestedSort==='new'||requestedSort==='price-asc'||requestedSort==='price-desc'||requestedSort==='size-asc'?requestedSort:'recommended';
+  const saleOnly=params.get('sale')==='1'||params.get('filter')==='sale';
+  const [query, setQuery] = useState(()=>params.get('q')?.trim()??'');
+  const [audience, setAudience] = useState<AudienceFilter>(initialAudience);
+  const [stock, setStock] = useState<StockFilter>(initialStock);
+  const [sort, setSort] = useState<SortMode>(initialSort);
 
   const filtered = useMemo(() => {
     const needle = normalize(query.trim());
@@ -24,16 +36,19 @@ export function ShopCatalog({ products, signedIn, resellerApproved }: Props) {
       .filter(product => {
         const haystack = normalize([product.name, product.sku, product.size, product.short, ...product.useCases, ...product.highlights].join(' '));
         return (!needle || haystack.includes(needle)) &&
+          semanticTerms.every(term=>haystack.includes(term)) &&
+          (!saleOnly || Boolean(product.discountPercent&&product.discountPercent>0)) &&
           (audience === 'all' || product.audience === audience) &&
           (stock === 'all' || product.stock > 0);
       })
       .sort((a, b) => {
+        if(sort==='new')return new Date(b.createdAt??0).getTime()-new Date(a.createdAt??0).getTime();
         if (sort === 'price-asc') return a.grossPrice - b.grossPrice;
         if (sort === 'price-desc') return b.grossPrice - a.grossPrice;
         if (sort === 'size-asc') return a.weightGrams - b.weightGrams;
         return Number(Boolean(b.featured)) - Number(Boolean(a.featured)) || a.grossPrice - b.grossPrice;
       });
-  }, [products, query, audience, stock, sort]);
+  }, [products, query, semanticTerms.join('|'), saleOnly, audience, stock, sort]);
 
   const reset = () => { setQuery(''); setAudience('all'); setStock('all'); setSort('recommended'); };
 
@@ -60,7 +75,7 @@ export function ShopCatalog({ products, signedIn, resellerApproved }: Props) {
       <div className="catalogFilter">
         <label htmlFor="shop-sort">Rendezés</label>
         <select id="shop-sort" value={sort} onChange={event => setSort(event.target.value as SortMode)}>
-          <option value="recommended">Ajánlott</option><option value="price-asc">Ár szerint növekvő</option><option value="price-desc">Ár szerint csökkenő</option><option value="size-asc">Kiszerelés szerint</option>
+          <option value="recommended">Ajánlott</option><option value="new">Újdonságok</option><option value="price-asc">Ár szerint növekvő</option><option value="price-desc">Ár szerint csökkenő</option><option value="size-asc">Kiszerelés szerint</option>
         </select>
       </div>
       <div className="catalogResultMeta"><strong>{filtered.length}</strong> találat <button type="button" className="catalogReset" onClick={reset}>Szűrők törlése</button></div>

@@ -72,8 +72,8 @@ export type StorefrontContextualCapabilityDescriptor={
 };
 
 export const STOREFRONT_CONTEXTUAL_CAPABILITIES:readonly StorefrontContextualCapabilityDescriptor[]=Object.freeze([
-  {key:'fulfillment',label:'Fizikai / digitális teljesítés',description:'A valós termék- és kosáradatból származó teljesítési mód és kézbesítési elvárás.',componentKeys:['commerce.fulfillment-summary'],contexts:['product.fulfillment','cart.fulfillment','checkout.fulfillment']},
-  {key:'product-documents',label:'Termékdokumentumok',description:'Termékhez vagy változathoz kapcsolt, külön Product Documents authorityból érkező dokumentumlista.',componentKeys:['commerce.product-documents'],contexts:['product.documents']},
+  {key:'fulfillment',label:'Fizikai / digitális teljesítés',description:'A valós termék- és kosáradatból származó teljesítési mód és kézbesítési elvárás.',componentKeys:['commerce.fulfillment-summary','commerce.downloads-tile'],contexts:['product.fulfillment','cart.fulfillment','checkout.fulfillment']},
+  {key:'product-documents',label:'Termékdokumentumok',description:'Termékhez vagy változathoz kapcsolt, külön Product Documents authorityból érkező dokumentumlista.',componentKeys:['commerce.product-documents','commerce.downloads-tile'],contexts:['product.documents']},
   {key:'documents-center',label:'Dokumentumok és letöltések',description:'Digitális vásárlások és rendelési dokumentumok közös felfedezési felülete, külön backend authoritykkal.',componentKeys:['commerce.documents-center'],contexts:['account.documents']},
   {key:'post-purchase-access',label:'Vásárlás utáni hozzáférés',description:'Fizetés utáni digitális hozzáférés és dokumentumközpont útmutatás a rendelési authority állapotából.',componentKeys:['commerce.post-purchase-guidance'],contexts:['checkout.post-purchase','account.post-purchase']},
   {key:'newsletter',label:'Hírlevél-feliratkozás',description:'Valódi marketing hozzájárulással működő Builder-blokk.',componentKeys:['marketing.newsletter-signup'],contexts:['home.marketing','content.marketing']},

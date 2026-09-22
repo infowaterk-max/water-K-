@@ -1,8 +1,9 @@
 import Link from 'next/link';
+import {StorefrontContentShell} from '@/components/content/storefront-content-shell';
 
-export default function NotFound() {
+export default async function NotFound() {
   return (
-    <main className="section systemStatePage">
+    <StorefrontContentShell pageKey="not-found"><main className="section systemStatePage">
       <div className="shell">
         <section className="card systemStateCard">
           <span className="eyebrow">404</span>
@@ -14,6 +15,6 @@ export default function NotFound() {
           </div>
         </section>
       </div>
-    </main>
+    </main></StorefrontContentShell>
   );
 }

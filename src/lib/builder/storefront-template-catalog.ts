@@ -1,5 +1,10 @@
 import type {StorefrontInstallableTemplatePackage} from '@/lib/builder/storefront-template-installation';
 import type {StorefrontComponentNode,StorefrontPageDocument} from '@/lib/builder/storefront-runtime';
+import {normalizeStorefrontTemplateRuntimeComposition,storefrontCartPresentationViolations} from '@/lib/builder/storefront-template-runtime-normalization';
+import {augmentStorefrontTemplateDemoContent,evaluateStorefrontTemplateRouteIntegrity} from '@/lib/builder/storefront-template-route-integrity';
+import {STOREFRONT_TEMPLATE_QUALITY_MANIFESTS,assertStorefrontTemplateQualityGate} from '@/lib/builder/storefront-template-quality-gate';
+import {materializeStorefrontTemplateResponsiveStyles} from '@/lib/builder/storefront-responsive-isolation';
+import {assertStorefrontCookieConsentPreset} from '@/lib/builder/storefront-cookie-consent-presets';
 import {ALPINE_LODGE_TEMPLATE_PACKAGE} from '@/lib/builder/templates/alpine-lodge';
 import {BEAUTY_LAB_TEMPLATE_PACKAGE} from '@/lib/builder/templates/beauty-lab-canonical-v2';
 import {CREATOR_STATION_TEMPLATE_PACKAGE} from '@/lib/builder/templates/creator-station';
@@ -13,10 +18,6 @@ import {MODERN_LUXE_TEMPLATE_PACKAGE} from '@/lib/builder/templates/modern-luxe'
 import {MONARCHE_TEMPLATE_PACKAGE} from '@/lib/builder/templates/monarche';
 import {MY_PACK_TEMPLATE_PACKAGE} from '@/lib/builder/templates/my-pack';
 import {PERFORMANCE_LAB_TEMPLATE_PACKAGE} from '@/lib/builder/templates/performance-lab';
-import {PLAYROOM_TEMPLATE_PACKAGE} from '@/lib/builder/templates/playroom';
-import {PLAYROOM_REFERENCE_V2_TEMPLATE_PACKAGE} from '@/lib/builder/templates/playroom-reference-v2';
-import {PLAYROOM_V18_TEMPLATE_PACKAGE} from '@/lib/builder/templates/playroom-v18';
-import {PLAYROOM_V19_CANONICAL_TEMPLATE_PACKAGE} from '@/lib/builder/templates/playroom-v19-canonical';
 import {PLAYROOM_V20_TEMPLATE_PACKAGE} from '@/lib/builder/templates/playroom-v20';
 import {RIG_FORGE_TEMPLATE_PACKAGE} from '@/lib/builder/templates/rig-forge';
 import {RITUAL_HOUSE_TEMPLATE_PACKAGE} from '@/lib/builder/templates/ritual-house';
@@ -73,10 +74,23 @@ function normalizeLegacyTemplatePage(page:StorefrontPageDocument):StorefrontPage
 }
 
 function normalizeLegacyTemplatePackage(template:StorefrontInstallableTemplatePackage):StorefrontInstallableTemplatePackage{
-  return{
+  return augmentStorefrontTemplateDemoContent({
     ...template,
     pages:template.pages.map(normalizeLegacyTemplatePage),
-  };
+  });
+}
+
+function normalizeImplementedTemplatePackage(template:StorefrontInstallableTemplatePackage):StorefrontInstallableTemplatePackage{
+  const legacyNormalized=normalizeLegacyTemplatePackage(template);
+  const runtimeNormalized=augmentStorefrontTemplateDemoContent({
+    ...legacyNormalized,
+    pages:legacyNormalized.pages.map(normalizeStorefrontTemplateRuntimeComposition),
+  });
+  // Current/future installable templates are persisted with explicit effective
+  // styles for desktop/tablet/mobile. This preserves today's rendering while
+  // making later per-viewport Builder edits genuinely isolated instead of
+  // depending on implicit base -> desktop -> tablet -> mobile inheritance.
+  return materializeStorefrontTemplateResponsiveStyles(runtimeNormalized);
 }
 
 /**
@@ -114,28 +128,22 @@ export const STOREFRONT_IMPLEMENTED_TEMPLATE_PACKAGES:readonly StorefrontInstall
   TECH_DECK_TEMPLATE_PACKAGE,
   TOOL_DEPOT_TEMPLATE_PACKAGE,
   TRAIL_EXPEDITION_TEMPLATE_PACKAGE,
-].map(normalizeLegacyTemplatePackage);
+].map(normalizeImplementedTemplatePackage);
 
-// Historical template packages do not appear as separate cards in Template Library,
-// but remain resolvable by exact version so persisted storefronts stay editable
-// until the merchant applies the latest upgrade.
-const STOREFRONT_LEGACY_RESOLVABLE_TEMPLATE_PACKAGES:readonly StorefrontInstallableTemplatePackage[]=[
-  PLAYROOM_TEMPLATE_PACKAGE,
-  PLAYROOM_REFERENCE_V2_TEMPLATE_PACKAGE,
-  PLAYROOM_V18_TEMPLATE_PACKAGE,
-  PLAYROOM_V19_CANONICAL_TEMPLATE_PACKAGE,
-].map(normalizeLegacyTemplatePackage);
-
+// Historical Playroom packages are source-history only. The active resolver exposes
+// one complete Playroom authority: gaming.playroom@20. When a future v21 becomes
+// canonical, v20 may move to an explicit migration/archive boundary, but versions
+// are never composed together at runtime.
 const STOREFRONT_RESOLVABLE_TEMPLATE_PACKAGES:readonly StorefrontInstallableTemplatePackage[]=[
   ...STOREFRONT_IMPLEMENTED_TEMPLATE_PACKAGES,
-  ...STOREFRONT_LEGACY_RESOLVABLE_TEMPLATE_PACKAGES,
 ];
 
 const identity=(template:StorefrontInstallableTemplatePackage)=>`${template.manifest.templateKey}@${template.manifest.templateVersion}`;
 
-function validateConcreteCatalog(packages:readonly StorefrontInstallableTemplatePackage[]){
+function validateConcreteCatalog(packages:readonly StorefrontInstallableTemplatePackage[],options:{enforceCurrentCartContract:boolean;enforceRouteIntegrity:boolean}){
   const identities=new Set<string>();
   for(const template of packages){
+    if(options.enforceCurrentCartContract)assertStorefrontCookieConsentPreset(template.manifest.templateKey);
     const key=identity(template);
     if(identities.has(key))throw new Error('STOREFRONT_TEMPLATE_CATALOG_DUPLICATE');
     identities.add(key);
@@ -144,11 +152,31 @@ function validateConcreteCatalog(packages:readonly StorefrontInstallableTemplate
     for(const pageType of template.manifest.pageTypes){
       if(!pageTypes.has(pageType))throw new Error('STOREFRONT_TEMPLATE_CATALOG_PAGE_PRESET_MISSING');
     }
+    if(options.enforceRouteIntegrity){
+      const routeIssues=evaluateStorefrontTemplateRouteIntegrity(template);
+      if(routeIssues.length){
+        const first=routeIssues[0]!;
+        throw new Error(`STOREFRONT_TEMPLATE_ROUTE_INTEGRITY:${template.manifest.templateKey}@${template.manifest.templateVersion}:${first.code}:${first.href}`);
+      }
+    }
+    if(options.enforceCurrentCartContract){
+      for(const page of template.pages){
+        if(page.pageType!=='cart')continue;
+        const violations=storefrontCartPresentationViolations(page);
+        if(violations.length)throw new Error(`STOREFRONT_TEMPLATE_CART_PRESENTATION_CONTRACT:${template.manifest.templateKey}@${template.manifest.templateVersion}:${violations.join(',')}`);
+      }
+    }
   }
 }
 
-validateConcreteCatalog(STOREFRONT_IMPLEMENTED_TEMPLATE_PACKAGES);
-validateConcreteCatalog(STOREFRONT_RESOLVABLE_TEMPLATE_PACKAGES);
+for(const quality of STOREFRONT_TEMPLATE_QUALITY_MANIFESTS){
+  const template=STOREFRONT_IMPLEMENTED_TEMPLATE_PACKAGES.find(item=>item.manifest.templateKey===quality.templateKey);
+  if(!template)throw new Error(`STOREFRONT_TEMPLATE_QUALITY_PACKAGE_MISSING:${quality.templateKey}`);
+  assertStorefrontTemplateQualityGate({template,manifest:quality});
+}
+
+validateConcreteCatalog(STOREFRONT_IMPLEMENTED_TEMPLATE_PACKAGES,{enforceCurrentCartContract:true,enforceRouteIntegrity:true});
+validateConcreteCatalog(STOREFRONT_RESOLVABLE_TEMPLATE_PACKAGES,{enforceCurrentCartContract:false,enforceRouteIntegrity:false});
 
 export type StorefrontTemplateCatalogEntry={
   templateKey:string;

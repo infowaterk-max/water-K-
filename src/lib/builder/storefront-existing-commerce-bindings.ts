@@ -11,8 +11,13 @@ const TARGETS:Readonly<Record<string,BindingTarget>>=Object.freeze({
   'configurator.slot-list':{enginePath:'commerce.existingEngines.configurators',catalog:true},
   'compatibility.status':{enginePath:'commerce.existingEngines.configurators',catalog:true},
   'compatibility.evidence':{enginePath:'commerce.existingEngines.configurators',catalog:true},
+  'commerce.downloads-tile':{catalog:false,modelPath:{product:'commerce.digitalCommerce.productDownloads'}},
   'commerce.fulfillment-summary':{catalog:false,modelPath:{product:'commerce.digitalCommerce.productFulfillment',cart:'commerce.digitalCommerce.cartFulfillment',checkout:'commerce.digitalCommerce.checkoutFulfillment'}},
   'commerce.product-documents':{catalog:false,modelPath:{product:'commerce.digitalCommerce.productDocuments'}},
+  'commerce.b2b-quote-cta':{catalog:false,modelPath:{product:'commerce.digitalCommerce.b2bQuote'}},
+  'account.capability-navigation':{catalog:false,modelPath:{account:'commerce.digitalCommerce.accountCapabilities'}},
+  'commerce.account-downloads':{catalog:false,modelPath:{account:'commerce.digitalCommerce.accountDownloads'}},
+  'commerce.account-documents':{catalog:false,modelPath:{account:'commerce.digitalCommerce.accountDocuments'}},
   'commerce.documents-center':{catalog:false,modelPath:{account:'commerce.digitalCommerce.documentsCenter'}},
   'commerce.post-purchase-guidance':{catalog:false,modelPath:{checkout:'commerce.digitalCommerce.postPurchase',account:'commerce.digitalCommerce.postPurchase'}},
 });

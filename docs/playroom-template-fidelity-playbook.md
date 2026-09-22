@@ -184,7 +184,7 @@ Playroom presets should cover recurring patterns such as:
 - FAQ accordion group;
 - product-story / accessory cross-sell row.
 
-Each preset must preserve independent editable media/text/CTA fields, use shared components, avoid fabricated commerce authority and work within the Builder's responsive inheritance model.
+Each preset must preserve independent editable media/text/CTA fields, use shared components, avoid fabricated commerce authority and work within the Builder's isolated Desktop / Tablet / Mobile authority model.
 
 ## Acceptance gate for each Playroom page
 

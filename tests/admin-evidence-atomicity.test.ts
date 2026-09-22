@@ -5,14 +5,20 @@ import {describe,expect,test} from 'vitest';
 const root=process.cwd(),read=(file:string)=>fs.readFileSync(path.join(root,file),'utf8');
 
 describe('admin evidence atomicity closure',()=>{
-  test('launch opening requires atomic activation evidence',()=>{
+  test('launch opening requires atomic activation evidence and demo cleanup in the same authority',()=>{
     const source=read('src/app/admin/indulas/actions.ts');
-    const sql=read('supabase/migrations/20260903170000_admin_workspace_settings_evidence_atomic_v2.sql');
+    const sql=read('supabase/migrations/20260922140000_storefront_template_demo_catalog_lifecycle_v1.sql');
     expect(source).toContain("admin_activate_webshop_v2");
     expect(source).toContain("evidence.id!==scope.instanceId||evidence.status!=='active'");
+    expect(source).toContain('catalogStatus.realProductCount>0');
     expect(source).not.toContain(".from('webshop_instances').update(");
+    expect(source).not.toContain(".from('products').delete(");
     expect(sql).toContain("where id=p_instance_id and status='pilot'");
+    expect(sql).toContain("raise exception 'WEBSHOP_REAL_PRODUCT_REQUIRED'");
+    expect(sql).toContain("delete from public.products where instance_id=p_instance_id and template_demo_state='fixture'");
+    expect(sql).toContain("'storefront.demo_catalog_removed_on_activation'");
     expect(sql).toContain("'store.activated'");
+    expect(sql).toContain("'demo_products_removed',v_demo_removed");
   });
 
   test('all CMS mutations delegate business state and audit to one database transaction',()=>{

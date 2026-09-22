@@ -5,7 +5,7 @@ import {
 } from '@/lib/builder/storefront-foundation';
 import type {StorefrontRuntimeComponentDefinition} from '@/lib/builder/storefront-runtime';
 
-export const STOREFRONT_DIGITAL_COMMERCE_SURFACES_VERSION='shoporation.storefront-digital-commerce-surfaces.v1' as const;
+export const STOREFRONT_DIGITAL_COMMERCE_SURFACES_VERSION='shoporation.storefront-digital-commerce-surfaces.v5' as const;
 
 const definition=(input:{
   componentKey:string;
@@ -30,6 +30,12 @@ const definition=(input:{
 
 export const STOREFRONT_DIGITAL_COMMERCE_COMPONENT_DEFINITIONS:readonly StorefrontRuntimeComponentDefinition[]=[
   definition({
+    componentKey:'commerce.downloads-tile',
+    pageTypes:['product'],
+    configurable:['eyebrow','title','documentsLabel','digitalLabel','digitalAccountCopy','openLabel','presentation','styleSlots'],
+    features:['catalog'],
+  }),
+  definition({
     componentKey:'commerce.fulfillment-summary',
     pageTypes:['product','cart','checkout'],
     configurable:['title','copy','physicalLabel','digitalLabel','mixedLabel','documentCenterLabel','presentation','styleSlots'],
@@ -40,6 +46,30 @@ export const STOREFRONT_DIGITAL_COMMERCE_COMPONENT_DEFINITIONS:readonly Storefro
     pageTypes:['product'],
     configurable:['eyebrow','title','copy','downloadLabel','emptyLabel','loginLabel','presentation','styleSlots'],
     features:['catalog'],
+  }),
+  definition({
+    componentKey:'commerce.b2b-quote-cta',
+    pageTypes:['product'],
+    configurable:['eyebrow','title','copy','buttonLabel','presentation','styleSlots'],
+    features:['catalog'],
+  }),
+  definition({
+    componentKey:'account.capability-navigation',
+    pageTypes:['account'],
+    configurable:['title','layout','presentation','styleSlots'],
+    features:['orders'],
+  }),
+  definition({
+    componentKey:'commerce.account-downloads',
+    pageTypes:['account'],
+    configurable:['eyebrow','title','copy','emptyLabel','openLabel','presentation','styleSlots'],
+    features:['orders'],
+  }),
+  definition({
+    componentKey:'commerce.account-documents',
+    pageTypes:['account'],
+    configurable:['eyebrow','title','copy','orderTitle','productTitle','emptyLabel','openLabel','presentation','styleSlots'],
+    features:['orders'],
   }),
   definition({
     componentKey:'commerce.documents-center',

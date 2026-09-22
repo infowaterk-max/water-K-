@@ -1,0 +1,85 @@
+.denseNavigation {
+  gap: .4rem !important;
+}
+
+.denseNavigation :global([data-storefront-component="system.navigation"]) {
+  gap: clamp(.55rem, 1vw, 1rem) !important;
+  font-size: .88rem !important;
+  line-height: 1.35 !important;
+}
+
+
+.mobileMenu {
+  position: relative;
+  min-width: 0;
+}
+
+.mobileMenuSummary {
+  min-height: 2.8rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: .55rem;
+  width: 100%;
+  padding: .7rem .9rem;
+  border: 1px solid var(--shoporation-color-border,#d8dce7);
+  border-radius: var(--shoporation-radius-m,.75rem);
+  background: var(--shoporation-color-surface,#fff);
+  color: inherit;
+  font-weight: 850;
+  cursor: pointer;
+  list-style: none;
+  box-sizing: border-box;
+}
+
+.mobileMenuSummary::-webkit-details-marker {
+  display: none;
+}
+
+.mobileMenu[open] .mobileMenuSummary {
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.mobileMenuPanel {
+  display: grid;
+  gap: .35rem;
+  padding: .7rem;
+  border: 1px solid var(--shoporation-color-border,#d8dce7);
+  border-top: 0;
+  border-bottom-left-radius: var(--shoporation-radius-m,.75rem);
+  border-bottom-right-radius: var(--shoporation-radius-m,.75rem);
+  background: var(--shoporation-color-background,#fff);
+  box-shadow: 0 16px 30px rgba(0,0,0,.18);
+}
+
+.mobileMenuPanel > a {
+  min-height: 2.75rem;
+  display: flex !important;
+  align-items: center;
+  padding: .65rem .75rem;
+  border-radius: calc(var(--shoporation-radius-m,.75rem) * .8);
+  background: color-mix(in srgb,var(--shoporation-color-surface,#fff) 88%,transparent);
+}
+
+.mobileMenuNavigation {
+  min-width: 0;
+}
+
+.mobileMenuNavigation :global([data-storefront-component="system.navigation"]) {
+  display: grid !important;
+  grid-template-columns: 1fr !important;
+  align-items: stretch !important;
+  gap: .2rem !important;
+  white-space: normal !important;
+  font-size: .95rem !important;
+}
+
+.mobileMenuNavigation :global([data-storefront-component="system.navigation"] a) {
+  display: flex !important;
+  align-items: center;
+  min-height: 2.8rem;
+  padding: .68rem .75rem;
+  border-radius: calc(var(--shoporation-radius-m,.75rem) * .8);
+  white-space: normal !important;
+}

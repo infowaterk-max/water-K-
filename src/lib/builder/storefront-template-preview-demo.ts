@@ -76,10 +76,16 @@ const CATEGORY_PRODUCTS:Record<string,readonly string[]>={
 const PLAYROOM_PREVIEW_PRODUCTS=Object.freeze([
   {name:'Orbit Breakers',image:'/storefront/playroom/game-orbit.svg',price:22990,badge:'KIEMELT',stockLabel:'Raktáron'},
   {name:'Neon Rally',image:'/storefront/playroom/game-rally.svg',price:19990,badge:'ÚJ',stockLabel:'Raktáron'},
-  {name:'Midnight Quest',image:'/storefront/playroom/game-quest.svg',price:26990,badge:'',stockLabel:'Raktáron'},
-  {name:'Cyber Arena',image:'/storefront/playroom/game-arena.svg',price:23990,badge:'TRENDING',stockLabel:'Raktáron'},
+  {name:'Midnight Quest',image:'/storefront/playroom/game-quest.svg',price:26990,badge:'KALAND',stockLabel:'Raktáron'},
+  {name:'Cyber Arena',image:'/storefront/playroom/game-arena.svg',price:23990,badge:'ARENA',stockLabel:'Raktáron'},
   {name:'Party Rift',image:'/storefront/playroom/game-party.svg',price:14990,badge:'CO-OP',stockLabel:'Raktáron'},
-  {name:'Starforge',image:'/storefront/playroom/game-starforge.svg',price:29990,badge:'LIMITÁLT',stockLabel:'Limitált készlet'},
+  {name:'Starforge',image:'/storefront/playroom/game-starforge.svg',price:29990,badge:'SCI-FI',stockLabel:'Raktáron'},
+  {name:'Turbo Circuit',image:'/storefront/playroom/game-turbo-circuit.svg',price:18990,badge:'VERSENY',stockLabel:'Raktáron'},
+  {name:'Couch Crew',image:'/storefront/playroom/game-couch-crew.svg',price:12990,badge:'PARTY',stockLabel:'Raktáron'},
+  {name:'Mech Tactics',image:'/storefront/playroom/game-mech-tactics.svg',price:24990,badge:'STRATÉGIA',stockLabel:'Raktáron'},
+  {name:'Pixel Picnic',image:'/storefront/playroom/game-pixel-picnic.svg',price:11990,badge:'CSALÁDI',stockLabel:'Raktáron'},
+  {name:'Void Runners',image:'/storefront/playroom/game-void-runners.svg',price:27990,badge:'AKCIÓ',stockLabel:'Raktáron'},
+  {name:'Kingdom Grid',image:'/storefront/playroom/game-kingdom-grid.svg',price:21990,badge:'TAKTIKA',stockLabel:'Raktáron'},
 ]);
 
 const CATEGORY_COLLECTIONS:Record<string,readonly string[]>={
@@ -149,7 +155,8 @@ function fixtureNames(template:StorefrontInstallableTemplatePackage,type:'produc
 
 function demoProducts(template:StorefrontInstallableTemplatePackage,page:StorefrontPageDocument){
   if(template.manifest.templateKey==='gaming.playroom'){
-    return PLAYROOM_PREVIEW_PRODUCTS.slice(0,previewProductLimit(page)).map((product,index)=>({
+    const limit=page.pageType==='home'?12:previewProductLimit(page);
+    return PLAYROOM_PREVIEW_PRODUCTS.slice(0,limit).map((product,index)=>({
       id:`preview-product-${index+1}`,
       name:product.name,
       href:'#preview-demo',
@@ -202,6 +209,17 @@ const demoReviews=()=>[
   {id:'review-3',name:'Dóra',author:'Dóra',rating:4.8,title:'Jól böngészhető',copy:'Reszponzív elrendezés és szerkeszthető blokkok ugyanazon storefront motoron.'},
 ];
 
+const PREVIEW_SOCIAL_LINKS=Object.freeze([
+  {label:'YouTube',href:'https://www.youtube.com/',symbol:'YT',ariaLabel:'YouTube'},
+  {label:'Instagram',href:'https://www.instagram.com/',symbol:'IG',ariaLabel:'Instagram'},
+  {label:'TikTok',href:'https://www.tiktok.com/',symbol:'TT',ariaLabel:'TikTok'},
+  {label:'Facebook',href:'https://www.facebook.com/',symbol:'FB',ariaLabel:'Facebook'},
+  {label:'X',href:'https://x.com/',symbol:'X',ariaLabel:'X'},
+  {label:'Twitch',href:'https://www.twitch.tv/',symbol:'TW',ariaLabel:'Twitch'},
+  {label:'LinkedIn',href:'https://www.linkedin.com/',symbol:'IN',ariaLabel:'LinkedIn'},
+  {label:'Pinterest',href:'https://www.pinterest.com/',symbol:'PI',ariaLabel:'Pinterest'},
+]);
+
 function genericItems(template:StorefrontInstallableTemplatePackage,page:StorefrontPageDocument){
   const collections=demoCollections(template,page);
   return collections.map((item,index)=>({
@@ -224,6 +242,7 @@ function valueForBinding(input:{template:StorefrontInstallableTemplatePackage;pa
 
   if(slot==='products'||key==='commerce.product-grid'||key==='commerce.recommendation-row')return products;
   if(slot==='items'){
+    if(key==='system.social-links')return PREVIEW_SOCIAL_LINKS.map(item=>({...item}));
     if(key==='commerce.collection-navigation')return collections;
     if(key.includes('review'))return demoReviews();
     return items;
@@ -273,7 +292,7 @@ export function createStorefrontTemplatePreviewBindingContext(input:{template:St
   const category=template.manifest.templateKey.split('.')[0]??'shop';
   const label=CATEGORY_LABELS[category]??'Shop';
   const context:Record<string,unknown>={
-    brand:{name:`${label} Demo`,tagline:'Shoperation sablonbemutató',homeHref:'/',copyright:`© ${label} Demo`},
+    brand:{name:`${label} Demo`,tagline:'Shoperation sablonbemutató',homeHref:'/',copyright:`© ${label} Demo`,socialLinks:PREVIEW_SOCIAL_LINKS.map(item=>({...item}))},
     navigation:{
       primary:[{label:'Újdonságok',href:'#preview-demo'},{label:'Kollekciók',href:'#preview-demo'},{label:'Rólunk',href:'#preview-demo'},{label:'Kapcsolat',href:'#preview-demo'}],
       footer:[{id:'shop',title:'Vásárlás',items:[{label:'Újdonságok',href:'#preview-demo'},{label:'Kategóriák',href:'#preview-demo'}]},{id:'help',title:'Segítség',items:[{label:'GYIK',href:'#preview-demo'},{label:'Kapcsolat',href:'#preview-demo'}]}],

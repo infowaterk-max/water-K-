@@ -13,10 +13,12 @@ describe('admin decision reliability closure',()=>{
       'src/app/admin/termekajanlasok/page.tsx',
       'src/app/admin/termekek/tomeges/page.tsx',
       'src/app/admin/termekek/import-export/page.tsx',
-      'src/app/admin/indulas/actions.ts',
     ]){
       expect(read(file)).toContain('getProducts({includeAllChannels:true');
     }
+    const launchAction=read('src/app/admin/indulas/actions.ts');
+    expect(launchAction).toContain('getStorefrontTemplateDemoCatalogStatusForInstance(scope.instanceId)');
+    expect(launchAction).toContain('catalogStatus.realProductCount>0');
   });
 
   test('merchant dashboard does not turn failed reads or missing costs into real business results',()=>{
@@ -62,7 +64,7 @@ describe('admin decision reliability closure',()=>{
     expect(actions).toContain("const canAct=access.mode==='enabled'&&!error");
     expect(actions).toContain("access.mode==='read-only'");
     expect(actions).toContain("proposalError?'—'");
-    expect(returns).toContain('loadError=Boolean(error||itemError)');
+    expect(returns).toContain('loadError=Boolean(error||orderError||itemError||orderItemError)');
     expect(returns).toContain('Adatbetöltés szükséges');
     expect(procurement).toContain('overdue=open.filter');
     expect(procurement).toContain('!loadError&&formVariants.length>0');

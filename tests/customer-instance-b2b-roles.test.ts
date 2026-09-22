@@ -9,7 +9,7 @@ describe('tenant B2B customer and storefront contract',()=>{
   test('registration carries the requested webshop but never approval',()=>{
     const auth=read('src/components/auth/auth-form.tsx');
     expect(auth).toMatch(/instanceId:string\|null/);
-    expect(auth).toMatch(/requested_instance_id:instanceId/);
+    expect(auth).toMatch(/requested_instance_id:registrationInstanceId/);
     const sql=read('supabase/migrations/20260901169000_customer_instance_b2b_roles.sql');
     expect(sql).toMatch(/raw_user_meta_data->>'requested_instance_id'/);
     expect(sql).toMatch(/'customer'::public\.customer_role,false/);
@@ -84,7 +84,7 @@ describe('tenant B2B customer and storefront contract',()=>{
     expect(access).toMatch(/eq\('instance_id',instance\.id\)/);
     expect(access).not.toMatch(/from\('profiles'\)/);
     expect(checkoutPage).toMatch(/resellerApproved=\{access\.resellerApproved\}/);
-    expect(checkoutForm).toMatch(/resellerApproved\?'reseller':'retail'/);
+    expect(checkoutForm).toMatch(/resellerApproved\?'reseller':customerDefaults\.customerType/);
     expect(checkoutForm).not.toMatch(/<option value="reseller">Viszonteladó<\/option>/);
     expect(orderApi).toMatch(/customer_instance_roles/);
     expect(orderApi).toMatch(/checkout\.customerType==='reseller'&&!approvedReseller/);

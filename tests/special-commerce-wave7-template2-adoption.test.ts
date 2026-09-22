@@ -123,11 +123,11 @@ describe('Special Commerce Wave 7 Template 2.0 adoption',()=>{
     expect(read('src/lib/builder/storefront-template-installation.ts')).not.toContain('stock =');
   });
 
-  it('uses the common D/T/M inheritance and explicit compatibility evidence fail-closed contract',()=>{
+  it('uses isolated D/T/M responsive overrides and explicit compatibility evidence fail-closed contract',()=>{
     const node={id:'responsive',componentKey:'commerce.interactive-scene',componentVersion:1,config:{},responsive:{desktop:{gridSpan:10 as const},tablet:{hidden:true},mobile:{gridSpan:6 as const}}};
     expect(resolveStorefrontResponsiveOverride(node,'desktop')).toEqual({hidden:false,gridSpan:10});
-    expect(resolveStorefrontResponsiveOverride(node,'tablet')).toEqual({hidden:true,gridSpan:10});
-    expect(resolveStorefrontResponsiveOverride(node,'mobile')).toEqual({hidden:true,gridSpan:6});
+    expect(resolveStorefrontResponsiveOverride(node,'tablet')).toEqual({hidden:true,gridSpan:12});
+    expect(resolveStorefrontResponsiveOverride(node,'mobile')).toEqual({hidden:false,gridSpan:6});
     expect(COMPATIBILITY_AUTHORITY_CONTRACT.unknownCountsAsCompatible).toBe(false);
     expect(evaluateCompatibility({rules:[],parts:[]})?.status).toBe('unknown');
   });

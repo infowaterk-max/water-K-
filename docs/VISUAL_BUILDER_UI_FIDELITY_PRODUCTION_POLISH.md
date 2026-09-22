@@ -35,7 +35,7 @@ AI Builder remains dark-launched and absent from merchant navigation.
 - canvas-first visual hierarchy, breakpoint context and compact floating element toolbar;
 - merchant-facing inspector presentation and progressive Normal/Advanced disclosure;
 - Smart Quick Settings mapped directly to existing configurable token/alignment keys;
-- explicit responsive inheritance / override cues and `Reset to inherited` through the existing responsive mutation contract;
+- explicit per-viewport override cues and reset-to-base/default through the responsive mutation contract;
 - Publish Readiness presentation expanded into Images, Links/CTA and Required Content views by grouping existing Fidelity accessibility diagnostics rather than creating new scanners;
 - collapsible left panel / inspector controls for constrained viewports;
 - small-viewport drawer behavior, minimum canvas width and toolbar resilience;

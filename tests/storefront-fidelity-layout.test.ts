@@ -31,15 +31,15 @@ describe('Storefront Fidelity responsive layout operations',()=>{
     expect(source.sections[0].children?.[0]?.children?.[0]?.responsive?.tablet).toBeUndefined();
   });
 
-  it('keeps breakpoint inheritance and can reset only the direct viewport override',()=>{
+  it('keeps breakpoint placement isolated and resets only the direct viewport override to defaults',()=>{
     const first=setStorefrontResponsiveGridPlacement(page(),'item','tablet',{span:5,order:2});
     const second=setStorefrontResponsiveGridPlacement(first,'item','mobile',{span:12,order:7});
     expect(inspectStorefrontGridPlacement(second,'item','mobile').hasOverride).toBe(true);
     const reset=resetStorefrontResponsiveGridPlacement(second,'item','mobile');
     const item=reset.sections[0].children?.[0]?.children?.[0];if(!item)throw new Error('ITEM_MISSING');
     expect(inspectStorefrontGridPlacement(reset,'item','mobile').hasOverride).toBe(false);
-    expect(resolveStorefrontResponsiveOverride(item,'mobile').gridSpan).toBe(5);
-    expect(resolveStorefrontVisualStyle(item.config.style,'mobile').order).toBe(2);
+    expect(resolveStorefrontResponsiveOverride(item,'mobile').gridSpan).toBe(12);
+    expect(resolveStorefrontVisualStyle(item.config.style,'mobile').order).toBeUndefined();
   });
 
   it('generates bounded custom tracks without accepting raw CSS',()=>{
