@@ -48,8 +48,9 @@ describe('external logistics e-mail fulfillment',()=>{
     expect(adminOrder).toContain("current.shipping_method==='external_logistics'&&!external");
   });
 
-  it('partner e-mail contains operational order data needed for fulfillment',()=>{
-    for(const token of ['Rendelésszám','Szállítási mód','Címzett','Tételek','SKU','Végösszeg','Csomagpont','Vásárlói megjegyzés']){
+  it('partner e-mail contains only physical fulfillment lines and the operational data needed for delivery',()=>{
+    expect(logistics).toContain(".eq('fulfillment_type','physical')");
+    for(const token of ['Rendelésszám','Szállítási mód','Címzett','Kiszállítandó tételek','SKU','Kiszállítandó termékek','Szállítás','Csomagpont','Vásárlói megjegyzés']){
       expect(logistics).toContain(token);
     }
   });

@@ -5,7 +5,8 @@ import { isPlanCode, type PlanCode } from '@/lib/plans/catalog';
 import { getPilotAcceptanceInstanceId } from '@/lib/storefront/pilot-access';
 import type { StorefrontNavigationConfig } from '@/lib/navigation/storefront-ia';
 
-export type StorefrontConfig={heroEyebrow?:string;heroTitle?:string;heroLead?:string;primaryCtaLabel?:string;secondaryCtaLabel?:string;introEyebrow?:string;introTitle?:string;introLead?:string;finalEyebrow?:string;finalTitle?:string;benefit1Title?:string;benefit1Text?:string;benefit2Title?:string;benefit2Text?:string;benefit3Title?:string;benefit3Text?:string;navigation?:StorefrontNavigationConfig};
+export type StorefrontSocialLinks={facebook?:string;instagram?:string;youtube?:string;tiktok?:string;x?:string;twitch?:string;linkedin?:string;pinterest?:string};
+export type StorefrontConfig={acceptance?:string;date?:string;heroEyebrow?:string;heroTitle?:string;heroLead?:string;primaryCtaLabel?:string;secondaryCtaLabel?:string;introEyebrow?:string;introTitle?:string;introLead?:string;finalEyebrow?:string;finalTitle?:string;benefit1Title?:string;benefit1Text?:string;benefit2Title?:string;benefit2Text?:string;benefit3Title?:string;benefit3Text?:string;navigation?:StorefrontNavigationConfig;socialLinks?:StorefrontSocialLinks};
 export type WebshopInstance={id:string;organizationId:string|null;slug:string;name:string;subscriptionPlan:PlanCode;status:'pilot'|'active'|'suspended'|'archived';brand:{name:string;tagline:string|null;logoUrl:string|null;primaryColor:string|null;supportEmail:string|null;supportPhone:string|null;publicSiteUrl:string|null;emailFromName:string|null};storefront:StorefrontConfig};
 type InstanceRow={id:string;organization_id:string|null;slug:string;name:string;subscription_plan:string;status:WebshopInstance['status'];brand_name:string|null;brand_tagline:string|null;logo_url:string|null;primary_color:string|null;support_email:string|null;support_phone:string|null;public_site_url:string|null;email_from_name:string|null;storefront_config:unknown};
 type BindingRow={organization_id:string;instance_id:string|null;valid_from:string;valid_until:string|null;revoked_at:string|null};
@@ -17,7 +18,29 @@ export async function getCurrentWebshopInstance():Promise<WebshopInstance|null>{
   if(!process.env.NEXT_PUBLIC_SUPABASE_URL)return null;
   let admin:ReturnType<typeof createAdminClient>;try{admin=createAdminClient()}catch{return null}
   const configuredSlug=process.env.WEBSHOP_INSTANCE_SLUG?.trim().toLowerCase();
-  if(configuredSlug){const{data}=await admin.from('webshop_instances').select(SELECT).eq('slug',configuredSlug).in('status',['pilot','active']).maybeSingle();return normalize(data as unknown as InstanceRow|null)}
+  if(configuredSlug){
+    const{data}=await admin.from('webshop_instances').select(SELECT).eq('slug',configuredSlug).in('status',['pilot','active']).maybeSingle();
+    const configured=normalize(data as unknown as InstanceRow|null);
+    if(configured)return configured;
+
+    // Customer-bound production deployments remain fail-closed when their configured
+    // instance cannot be resolved. Preview may point at a staging database whose tenant
+    // slugs intentionally differ. A signed pilot acceptance session may resolve its exact
+    // pilot tenant before auth; otherwise only an authenticated platform operator may
+    // fall back to the normal RBAC resolver.
+    if(process.env.VERCEL_ENV!=='preview')return null;
+    const previewPilotAcceptanceInstanceId=await getPilotAcceptanceInstanceId();
+    if(previewPilotAcceptanceInstanceId){
+      const{data:acceptedData}=await admin.from('webshop_instances').select(SELECT).eq('id',previewPilotAcceptanceInstanceId).eq('status','pilot').maybeSingle();
+      const accepted=normalize(acceptedData as unknown as InstanceRow|null);
+      if(accepted)return accepted;
+    }
+    const previewSupabase=await createClient();
+    const{data:previewAuth}=await previewSupabase.auth.getUser();
+    if(!previewAuth.user)return null;
+    const{data:platformOperator}=await admin.from('platform_operators').select('role').eq('user_id',previewAuth.user.id).in('role',['owner','admin','operator']).maybeSingle();
+    if(!platformOperator)return null;
+  }
 
   const pilotAcceptanceInstanceId=await getPilotAcceptanceInstanceId();
   if(pilotAcceptanceInstanceId){

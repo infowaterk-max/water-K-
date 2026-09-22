@@ -3,6 +3,7 @@ import{createAdminClient}from'@/lib/supabase/admin';
 import{requirePlanFeature}from'@/lib/plans/access';
 import{requireCurrentStorePageContext}from'@/lib/instances/scope';
 import{ProductIntakeEditor,type ProductIntakeInitialData}from'@/components/admin/product-intake-editor';
+import{ProductDocumentManager}from'@/components/admin/product-document-manager';
 import{normalizeMediaPresentationSet,type MediaPresentationContext,type MediaPresentationTransform,type MediaPresentationPreset}from'@/lib/catalog-media-presentation';
 
 export const dynamic='force-dynamic';
@@ -33,5 +34,5 @@ export default async function EditProductIntakePage({params}:{params:Promise<{id
   const mediaPresets:MediaPresentationPreset[]=(presetsResult.data??[]).map(item=>({id:item.id,name:item.name,presentation:normalizeJsonPresentation(item.presentation)}));
   if(!variants.length)notFound();
   const initialData:ProductIntakeInitialData={productId:product.id,updatedAt:product.updated_at,name:product.name,shortDescription:product.short_description??'',description:product.description??'',seoTitle:product.seo_title??'',seoDescription:product.seo_description??'',category,baseSku:variants[0]?.sku.split('-')[0]??'SKU',colors:splitValues(attrs.get('Szín')),sizes:splitValues(attrs.get('Méret')),variants,media,mediaPresets,channels:{b2cVisible:productChannels.get('b2c')!==false,b2bVisible:productChannels.get('b2b')===true,b2cEnabled:globalChannels.get('b2c')!==false,b2bEnabled:globalChannels.get('b2b')===true}};
-  return <ProductIntakeEditor initialData={initialData}/>;
+  return <><ProductIntakeEditor initialData={initialData}/><section className="adminMain" id="termekdokumentumok"><span className="eyebrow">Termék · Dokumentumok</span><h2 className="sectionTitle">Dokumentumok</h2><p className="lead">A használati útmutatót, adatlapot és általános garanciális dokumentumot közvetlenül ehhez a termékhez kösd. Itt állítható a termékoldali megjelenés és a vásárlás utáni automatikus kézbesítés is. A számlát külön a számlázóintegráció kezeli.</p><section className="card"><ProductDocumentManager productId={product.id} variants={variants.map(item=>({id:item.id,label:`${item.label} · ${item.sku}`}))}/></section></section></>;
 }

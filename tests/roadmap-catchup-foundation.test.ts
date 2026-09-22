@@ -29,7 +29,9 @@ describe('Roadmap catch-up foundation gate',()=>{
     expect(STOREFRONT_PAGE_SCHEMA_CONTRACT.dragDropRuntime).toBe(false);
     expect(STOREFRONT_TEMPLATE_MIGRATION_POLICY.destructiveResetForbidden).toBe(true);
     expect(STOREFRONT_DEMO_CONTENT_POLICY.customerData).toBe('forbidden');
-    expect(resolveStorefrontResponsiveValue({desktop:12,tablet:8},'mobile')).toBe(8);
+    expect(STOREFRONT_LAYOUT_GRID_CONTRACT.responsiveAuthority).toBe('base+exact-viewport');
+    expect(STOREFRONT_LAYOUT_GRID_CONTRACT.siblingViewportInheritance).toBe(false);
+    expect(resolveStorefrontResponsiveValue({desktop:12,tablet:8,mobile:6},'mobile')).toBe(6);
     expect(normalizeStorefrontGridSpan(6)).toBe(6);
     expect(normalizeStorefrontGridSpan(99)).toBe(12);
   });

@@ -23,9 +23,10 @@ import {
   updateCurrentStorefrontReusableSymbol,
 } from '@/lib/builder/storefront-reusable-symbol-persistence';
 import {rebaseStorefrontReusableSymbolInstances,type StorefrontGlobalSymbolSlot} from '@/lib/builder/storefront-linked-symbols';
-import {saveCurrentStorefrontTemplateDraftPlan} from '@/lib/builder/storefront-template-persistence';
+import {saveCurrentStorefrontTemplateInstallationPlan} from '@/lib/builder/storefront-template-persistence';
 import {getStorefrontTemplatePackage} from '@/lib/builder/storefront-template-catalog';
 import {planStorefrontTemplateInstallation} from '@/lib/builder/storefront-template-installation';
+import {composeStorefrontDigitalCommerceTemplatePackage} from '@/lib/builder/storefront-digital-commerce-composition';
 import {createStorefrontVisualBuilderComponentRegistry} from '@/lib/builder/storefront-builder-registry';
 import {validateStorefrontBuilderWorkingCopy} from '@/lib/builder/storefront-visual-builder';
 import {validateStorefrontBuilderSchemaStructure} from '@/lib/builder/storefront-builder-schema-policy';
@@ -35,6 +36,7 @@ import {generateCurrentStorefrontWithAi} from '@/lib/builder/storefront-ai-gener
 import {storefrontAiGenerationInputSchema} from '@/lib/builder/storefront-ai-generator';
 import {
   getCurrentStorefrontBuilderCapability,
+  listCurrentStorefrontTemplateDemoContent,
   listCurrentStorefrontTemplatePlanningPages,
 } from '@/lib/builder/storefront-builder-server';
 import {
@@ -127,13 +129,14 @@ export async function deleteVisualBuilderReusableSymbolAction(input:{symbolId:st
   const result=await deleteCurrentStorefrontReusableSymbol(input);refresh();return result;
 }
 
-export async function installVisualBuilderTemplateAction(input:{templateKey:string;templateVersion?:number;operationKey:string}){
-  const template=getStorefrontTemplatePackage(input.templateKey,input.templateVersion);
-  if(!template)throw new Error('BUILDER_TEMPLATE_NOT_FOUND');
+export async function installVisualBuilderTemplateAction(input:{templateKey:string;templateVersion?:number;operationKey:string;installDemoProducts?:boolean}){
+  const sourceTemplate=getStorefrontTemplatePackage(input.templateKey,input.templateVersion);
+  if(!sourceTemplate)throw new Error('BUILDER_TEMPLATE_NOT_FOUND');
+  const template=composeStorefrontDigitalCommerceTemplatePackage(sourceTemplate);
   for(const page of template.pages)assertStorefrontPerformance(page);
-  const[capability,existingPages]=await Promise.all([getCurrentStorefrontBuilderCapability(),listCurrentStorefrontTemplatePlanningPages()]);
-  const plan=planStorefrontTemplateInstallation({template,componentRegistry:createStorefrontVisualBuilderComponentRegistry(),capability,existingPages});
-  const result=await saveCurrentStorefrontTemplateDraftPlan({plan,operationKey:input.operationKey});
+  const[capability,existingPages,currentDemoContent]=await Promise.all([getCurrentStorefrontBuilderCapability(),listCurrentStorefrontTemplatePlanningPages(),listCurrentStorefrontTemplateDemoContent()]);
+  const plan=planStorefrontTemplateInstallation({template,componentRegistry:createStorefrontVisualBuilderComponentRegistry(),capability,existingPages,currentDemoContent});
+  const result=await saveCurrentStorefrontTemplateInstallationPlan({plan,operationKey:input.operationKey,installDemoProducts:input.installDemoProducts===true});
   refresh();
   return result;
 }

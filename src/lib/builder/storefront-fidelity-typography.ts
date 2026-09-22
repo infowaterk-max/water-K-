@@ -71,6 +71,14 @@ function mergedTypography(value:unknown,viewport:StorefrontViewport):StorefrontT
   const hasResponsive=['base','desktop','tablet','mobile'].some(key=>Object.prototype.hasOwnProperty.call(value,key));
   if(!hasResponsive)return sanitizeStorefrontTypographyValue(value);
   const base=sanitizeStorefrontTypographyValue(value.base);
+  return{...base,...sanitizeStorefrontTypographyValue(value[viewport])};
+}
+
+export function resolveStorefrontTypographyValueLegacyCascade(value:unknown,viewport:StorefrontViewport):StorefrontTypographyValue{
+  if(!record(value))return{};
+  const hasResponsive=['base','desktop','tablet','mobile'].some(key=>Object.prototype.hasOwnProperty.call(value,key));
+  if(!hasResponsive)return sanitizeStorefrontTypographyValue(value);
+  const base=sanitizeStorefrontTypographyValue(value.base);
   const desktop={...base,...sanitizeStorefrontTypographyValue(value.desktop)};
   const tablet={...desktop,...sanitizeStorefrontTypographyValue(value.tablet)};
   const mobile={...tablet,...sanitizeStorefrontTypographyValue(value.mobile)};

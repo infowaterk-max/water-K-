@@ -38,8 +38,12 @@ export async function getFeatureEntitlementDecisions(
   if(releasedCodes.length===0)return decisions;
 
   const admin=createAdminClient();
-  const {data:instance}=await admin.from('webshop_instances').select('organization_id').eq('id',instanceId).maybeSingle();
+  const {data:instance,error:instanceError}=await admin.from('webshop_instances').select('organization_id').eq('id',instanceId).maybeSingle();
+  if(instanceError){
+    console.error('entitlement_instance_lookup_failed',{instanceId,capabilityCodes:releasedCodes,errorCode:instanceError.code});
+  }
   if(!instance?.organization_id){
+    console.warn('entitlement_instance_organization_missing',{instanceId,capabilityCodes:releasedCodes});
     for(const capabilityCode of releasedCodes)decisions.set(capabilityCode,null);
     return decisions;
   }
@@ -49,6 +53,7 @@ export async function getFeatureEntitlementDecisions(
     .eq('organization_id',instance.organization_id)
     .in('feature_code',releasedCodes);
   if(error){
+    console.error('entitlement_query_failed',{instanceId,capabilityCodes:releasedCodes,errorCode:error.code});
     for(const capabilityCode of releasedCodes)decisions.set(capabilityCode,null);
     return decisions;
   }
@@ -56,7 +61,11 @@ export async function getFeatureEntitlementDecisions(
   const rows=(data??[]) as EntitlementRow[];
   const now=new Date();
   for(const capabilityCode of releasedCodes){
-    const winner=resolveEntitlementCandidate(rows.filter(row=>row.feature_code===capabilityCode),instanceId,now);
+    const candidates=rows.filter(row=>row.feature_code===capabilityCode);
+    const winner=resolveEntitlementCandidate(candidates,instanceId,now);
+    if(!winner){
+      console.warn('entitlement_candidate_missing',{instanceId,capabilityCode,candidateCount:candidates.length});
+    }
     decisions.set(capabilityCode,winner?{
       enabled:Boolean(winner.enabled),
       source:String(winner.source),

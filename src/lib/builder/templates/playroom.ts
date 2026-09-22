@@ -280,7 +280,25 @@ export const PLAYROOM_CHECKOUT_PAGE=base('playroom.checkout','checkout',[
   section('playroom-checkout-body',[grid('playroom-checkout-grid',[stack('playroom-checkout-guidance',[heading('playroom-checkout-guidance-title','Biztonságos rendelési folyamat',2),copy('playroom-checkout-guidance-copy','A sablon nem tárol és nem talál ki fizetési titkokat vagy szolgáltatói állapotot. A végső rendelés-validáció az E13 feladata.')],responsive(7,7,12),neonPanel),node({id:'playroom-checkout-summary',componentKey:'commerce.checkout-summary',componentVersion:1,config:{lines:[],subtotal:'',shipping:'',total:'',currency:'HUF',secureLabel:'Biztonságos rendelés'},bindings:{lines:{path:'cart.lines',fallback:[]},subtotal:{path:'cart.subtotal',fallback:''},shipping:{path:'cart.shipping',fallback:''},total:{path:'cart.total',fallback:''}},responsive:responsive(5,5,12)})],12,'l')]),footer('playroom-checkout'),
 ],{engineBinding:'E13',visualPreset:'playroom-neon-checkout'});
 
-export const PLAYROOM_ACCOUNT_PAGE=simple('playroom.account','account','Fiókom','Rendelések, mentett elemek és visszatérési pontok a jogosultságok szerint.','ACCOUNT');
+export const PLAYROOM_ACCOUNT_PAGE=base('playroom.account','account',[
+  header('playroom-account'),
+  section('playroom-account-auth-hero',[
+    grid('playroom-account-auth-grid',[
+      stack('playroom-account-auth-copy',[
+        eyebrow('playroom-account-auth-eyebrow','PLAYER PROFILE','#8FDFFF'),
+        heading('playroom-account-auth-title','Lépj vissza a játékba.',1,{maxWidth:'11ch'}),
+        copy('playroom-account-auth-copy-text','Jelentkezz be a rendeléseidhez, letöltéseidhez és mentett játéklistáidhoz. A belépés és regisztráció ugyanazt a biztonságos közös fiókrendszert használja.',{maxWidth:'48ch'}),
+        node({id:'playroom-account-auth-signal',componentKey:'content.text',componentVersion:1,config:{text:'PLAY · DISCOVER · TOGETHER',as:'strong',align:'left',tone:'text',style:{color:'#B8E34A',fontWeight:900,letterSpacing:'.16em',fontSize:'.72rem'}}}),
+      ],responsive(7,7,12),{padding:'clamp(1.25rem,4vw,3.5rem)',minHeight:'24rem',justifyContent:'center',background:'radial-gradient(circle at 18% 12%,rgba(92,124,250,.28),transparent 38%),linear-gradient(145deg,#211F3E 0%,#111025 72%,#0B0A1A 100%)',border:'1px solid rgba(92,124,250,.38)',borderRadius:'1.35rem',boxShadow:'0 30px 90px rgba(0,0,0,.38)'}),
+      stack('playroom-account-auth-status',[
+        eyebrow('playroom-account-auth-status-label','FIÓK KÖZPONT','#FF6B5E'),
+        heading('playroom-account-auth-status-title','Minden mentésed egy helyen',2,{fontSize:'1.65rem'}),
+        copy('playroom-account-auth-status-copy','Rendelések · digitális letöltések · dokumentumok · kívánságlista'),
+      ],responsive(5,5,12),{padding:'clamp(1.25rem,3vw,2.2rem)',justifyContent:'center',background:'linear-gradient(160deg,rgba(21,20,44,.98),rgba(11,10,26,.99))',border:'1px solid rgba(184,227,74,.28)',borderRadius:'1.35rem',boxShadow:'0 24px 70px rgba(0,0,0,.32)'}),
+    ],12,'l')
+  ],'background',{spacing:'l',style:{background:'linear-gradient(180deg,#0B0A1A 0%,#111025 52%,#0B0A1A 100%)'}}),
+  footer('playroom-account'),
+],{visualPreset:'playroom-auth-command-center',authComposition:'template-owned-v1'});
 export const PLAYROOM_CONTENT_PAGE=simple('playroom.content','content','Playroom Guide','Szerkeszthető gaming útmutató és kampánytartalom ugyanabban a neon design systemben.','GUIDE');
 export const PLAYROOM_BLOG_INDEX_PAGE=base('playroom.blog-index','blog-index',[
   header('playroom-blog-index'),pageIntro('playroom-blog-index-head','GUIDES & REVIEWS','Útmutatók','Gaming felfedezés, platform-választás és szerkesztőségi tartalom E10 authority-ből.'),section('playroom-blog-index-body',[node({id:'playroom-blog-index-preview',componentKey:'editorial.journal-preview',componentVersion:1,config:{title:'Friss útmutatók',items:[],columns:3,emptyLabel:'Hamarosan új útmutatók érkeznek.'},bindings:{items:{path:'content.guides.items',fallback:[]}}})]),footer('playroom-blog-index'),

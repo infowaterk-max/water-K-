@@ -5,6 +5,7 @@ import type {StorefrontPageDocument} from '@/lib/builder/storefront-runtime';
 import {requireCurrentStoreContext} from '@/lib/instances/scope';
 import {createAdminClient} from '@/lib/supabase/admin';
 import {createClient} from '@/lib/supabase/server';
+import {replaceStorefrontPageNodesById} from '@/lib/builder/storefront-targeted-page-change';
 
 const OPERATION_KEY_PATTERN=/^[A-Za-z0-9][A-Za-z0-9._:-]{7,127}$/;
 const PAGE_KEY_PATTERN=/^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$/;
@@ -156,6 +157,31 @@ export async function saveCurrentStorefrontPageDraft(input:{
   return parseMutationResult(data);
 }
 
+
+export async function saveCurrentStorefrontTargetedPageDraft(input:{
+  sourceDocument:StorefrontPageDocument;
+  nodeIds:readonly string[];
+  metadataPatch?:Readonly<Record<string,unknown>>;
+  expectedDraftRevision:number;
+  operationKey:string;
+}):Promise<StorefrontPersistedRevision>{
+  if(!input.nodeIds.length)throw new Error('STOREFRONT_TARGETED_DRAFT_NODE_IDS_REQUIRED');
+  const state=await getCurrentStorefrontPageState(input.sourceDocument.pageKey);
+  if(!state?.draft)throw new Error('STOREFRONT_TARGETED_DRAFT_CURRENT_STATE_MISSING');
+  if(state.draft.revisionNumber!==input.expectedDraftRevision)throw new Error('STOREFRONT_TARGETED_DRAFT_REVISION_CONFLICT');
+  const document=replaceStorefrontPageNodesById({
+    current:state.draft.document,
+    source:input.sourceDocument,
+    nodeIds:input.nodeIds,
+    metadataPatch:input.metadataPatch,
+  });
+  return saveCurrentStorefrontPageDraft({
+    document,
+    expectedDraftRevision:input.expectedDraftRevision,
+    operationKey:input.operationKey,
+  });
+}
+
 export async function publishCurrentStorefrontPage(input:{
   pageId:string;
   expectedDraftRevision:number;
@@ -258,6 +284,19 @@ export async function resolveStorefrontPreviewToken(token:string):Promise<Storef
   const{data:revision,error:revisionError}=await admin.from('storefront_page_revisions')
     .select('document,kind').eq('instance_id',session.instance_id).eq('page_id',session.page_id)
     .eq('id',session.revision_id).maybeSingle();
+  if(revisionError||!revision||revision.kind!=='draft')return null;
+  try{return parseStoredDocument(revision.document);}catch{return null;}
+}
+
+export async function getPreviewStorefrontDraftPage(instanceId:string,pageKey:string):Promise<StorefrontPageDocument|null>{
+  if(process.env.VERCEL_ENV!=='preview'||!PAGE_KEY_PATTERN.test(pageKey))return null;
+  const admin=createAdminClient();
+  const{data:page,error:pageError}=await admin.from('storefront_pages')
+    .select('id,draft_revision_id').eq('instance_id',instanceId).eq('page_key',pageKey).maybeSingle();
+  if(pageError||!page?.draft_revision_id)return null;
+  const{data:revision,error:revisionError}=await admin.from('storefront_page_revisions')
+    .select('document,kind').eq('instance_id',instanceId).eq('page_id',page.id)
+    .eq('id',page.draft_revision_id).maybeSingle();
   if(revisionError||!revision||revision.kind!=='draft')return null;
   try{return parseStoredDocument(revision.document);}catch{return null;}
 }

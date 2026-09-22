@@ -4,7 +4,7 @@ import {describe,expect,it} from 'vitest';
 import {StorefrontRuntimeRenderer} from '@/components/builder/storefront-runtime-renderer';
 import {createStorefrontPrimitiveRendererRegistry} from '@/components/builder/storefront-primitives';
 import {createStorefrontPrimitiveComponentRegistry,STOREFRONT_NEUTRAL_REFERENCE_PAGE} from '@/lib/builder/storefront-primitives';
-import {inspectStorefrontVisualStyle,resolveStorefrontVisualStyle} from '@/lib/builder/storefront-visual-style';
+import {inspectStorefrontVisualStyle,resolveStorefrontVisualStyle,resolveStorefrontVisualStyleLegacyCascade} from '@/lib/builder/storefront-visual-style';
 import type {StorefrontComponentNode,StorefrontPageDocument} from '@/lib/builder/storefront-runtime';
 
 const walk=(nodes:StorefrontComponentNode[]):StorefrontComponentNode[]=>nodes.flatMap(node=>[node,...walk(node.children??[])]);
@@ -12,16 +12,31 @@ const page=()=>structuredClone(STOREFRONT_NEUTRAL_REFERENCE_PAGE) as StorefrontP
 const render=(document:StorefrontPageDocument,viewport:'desktop'|'tablet'|'mobile')=>renderToStaticMarkup(createElement(StorefrontRuntimeRenderer,{page:document,viewport,bindingContext:{},componentRegistry:createStorefrontPrimitiveComponentRegistry(),rendererRegistry:createStorefrontPrimitiveRendererRegistry(),capability:{plan:'alap' as const,features:[]}}));
 
 describe('shared Storefront visual style capability',()=>{
-  it('inherits safe visual geometry from base to desktop, tablet and mobile',()=>{
+  it('isolates Desktop, Tablet and Mobile over one shared base authority',()=>{
     const value={
       base:{padding:'1rem',color:'#111111'},
       desktop:{gap:'2rem',gridTemplateColumns:'minmax(0,1.65fr) minmax(14rem,.85fr)'},
       tablet:{gap:'1.5rem'},
       mobile:{padding:'.5rem',gridTemplateColumns:'1fr'},
     };
-    expect(resolveStorefrontVisualStyle(value,'desktop')).toMatchObject({padding:'1rem',gap:'2rem',gridTemplateColumns:'minmax(0,1.65fr) minmax(14rem,.85fr)'});
-    expect(resolveStorefrontVisualStyle(value,'tablet')).toMatchObject({padding:'1rem',gap:'1.5rem',gridTemplateColumns:'minmax(0,1.65fr) minmax(14rem,.85fr)'});
-    expect(resolveStorefrontVisualStyle(value,'mobile')).toMatchObject({padding:'.5rem',gap:'1.5rem',gridTemplateColumns:'1fr'});
+    expect(resolveStorefrontVisualStyle(value,'desktop')).toEqual({padding:'1rem',color:'#111111',gap:'2rem',gridTemplateColumns:'minmax(0,1.65fr) minmax(14rem,.85fr)'});
+    expect(resolveStorefrontVisualStyle(value,'tablet')).toEqual({padding:'1rem',color:'#111111',gap:'1.5rem'});
+    expect(resolveStorefrontVisualStyle(value,'mobile')).toEqual({padding:'.5rem',color:'#111111',gridTemplateColumns:'1fr'});
+  });
+
+  it('keeps the old cascade only as an explicit one-way migration resolver',()=>{
+    const value={
+      base:{padding:'1rem',color:'#111111'},
+      desktop:{gap:'2rem',gridTemplateColumns:'minmax(0,1.65fr) minmax(14rem,.85fr)'},
+      tablet:{gap:'1.5rem'},
+      mobile:{padding:'.5rem',gridTemplateColumns:'1fr'},
+    };
+    expect(resolveStorefrontVisualStyleLegacyCascade(value,'tablet')).toMatchObject({
+      padding:'1rem',color:'#111111',gap:'1.5rem',gridTemplateColumns:'minmax(0,1.65fr) minmax(14rem,.85fr)',
+    });
+    expect(resolveStorefrontVisualStyleLegacyCascade(value,'mobile')).toMatchObject({
+      padding:'.5rem',color:'#111111',gap:'1.5rem',gridTemplateColumns:'1fr',
+    });
   });
 
   it('fails closed for non-allowlisted properties, fixed positioning and CSS URL/expression payloads',()=>{

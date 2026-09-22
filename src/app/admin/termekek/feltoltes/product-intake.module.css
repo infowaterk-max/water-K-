@@ -192,5 +192,9 @@
   .optionGrid,.formGrid,.attributeRow,.metrics{grid-template-columns:1fr}
   .contentSplit,.bottomSplit{display:block}.panel{margin-top:10px}
   .mediaStrip{grid-template-columns:1fr 1fr}.mediaTile,.uploadTile{height:100px}
-  .pageHeading h1{font-size:21px}.topActions .secondaryButton{display:none}
+  .pageHeading h1{font-size:21px}
+  .topBar .topActions .secondaryButton{display:none}
+  .editorPanelHeader{flex-direction:column}
+  .editorPanelHeader .topActions{display:flex;flex-wrap:wrap;width:100%}
+  .editorPanelHeader .topActions .secondaryButton{display:inline-flex;flex:1 1 150px}
 }

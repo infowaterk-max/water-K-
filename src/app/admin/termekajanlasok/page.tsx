@@ -14,7 +14,7 @@ export default async function RecommendationsPage(){
   return <section className="adminMain">
     <span className="eyebrow">Admin · Értékesítésösztönzés</span>
     <h1 className="sectionTitle">Termékajánlások</h1>
-    <p className="lead">Állíts be cross-sell és rendelés utáni ajánlatokat kódmódosítás nélkül. Ha nincs kézi szabály, a webshop biztonságos automatikus ajánlással működik tovább.</p>
+    <p className="lead">Állíts be kosár cross-sell ajánlatokat kódmódosítás nélkül. Az ajánlat még a rendelés véglegesítése előtt segít kapcsolódó terméket választani. Ha nincs kézi szabály, a webshop biztonságos automatikus ajánlással működik tovább.</p>
     {loadError?<div className="errorNotice" role="alert"><strong>A termékek vagy ajánlási szabályok most nem tölthetők be.</strong> Hiányos állapotból ajánlási szabályt nem módosítunk.</div>:<RecommendationManager products={products} rules={rules}/>}
   </section>;
 }

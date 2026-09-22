@@ -10,14 +10,15 @@ const checkoutForm = read('src/components/checkout/checkout-form.tsx');
 const checkoutStyle = read('src/components/checkout/checkout-guided.module.css');
 
 describe('checkout workflow contracts', () => {
-  test('cart and checkout expose the canonical four-step commerce journey', () => {
-    for(const source of [cartPage,checkoutPage]){
-      expect(source).toMatch(/1 · Kosár/);
-      expect(source).toMatch(/2 · Szállítás/);
-      expect(source).toMatch(/3 · Fizetés/);
-      expect(source).toMatch(/4 · Összesítés/);
-    }
+  test('checkout exposes the canonical four-step journey while cart stays customer-task focused', () => {
     expect(cartPage).toMatch(/CartView/);expect(cartPage).toMatch(/ProductRecommendations/);
+    expect(cartPage).not.toMatch(/commerceSteps/);
+    expect(cartPage).not.toMatch(/cartAssurance/);
+    expect(cartPage).not.toMatch(/Valós készlet/);
+    expect(checkoutPage).toMatch(/1 · Kosár/);
+    expect(checkoutPage).toMatch(/2 · Szállítás/);
+    expect(checkoutPage).toMatch(/3 · Fizetés/);
+    expect(checkoutPage).toMatch(/4 · Összesítés/);
     expect(checkoutPage).toMatch(/data-shared-checkout-contract="guided-accordion-v1"/);
   });
   test('checkout keeps recovery and configured commerce settings wired in', () => {
@@ -50,7 +51,7 @@ describe('checkout workflow contracts', () => {
     expect(checkoutStyle).toMatch(/position:sticky/);
   });
   test('checkout validates parcel point and legal acceptance before order creation', () => {
-    expect(checkoutForm).toMatch(/shipping\.kind==='parcel_point'&&!parcelPointId/);expect(checkoutForm).toMatch(/!legalAccepted/);expect(checkoutForm).toMatch(/legalAccepted='true'/);expect(checkoutForm).toMatch(/href="\/aszf"/);expect(checkoutForm).toMatch(/href="\/adatvedelem"/);
+    expect(checkoutForm).toMatch(/requiresShipping&&shipping\?\.kind==='parcel_point'&&!parcelPointId/);expect(checkoutForm).toMatch(/!termsAccepted\|\|!privacyAcknowledged/);expect(checkoutForm).toMatch(/name="termsAccepted"/);expect(checkoutForm).toMatch(/name="privacyAcknowledged"/);expect(checkoutForm).toMatch(/legalAccepted='true'/);expect(checkoutForm).toMatch(/href="\/aszf"/);expect(checkoutForm).toMatch(/href="\/adatvedelem"/);
   });
   test('checkout snapshots the submitted form before awaiting quote refresh', () => {
     const snapshot=checkoutForm.indexOf('const form=e.currentTarget');
@@ -60,6 +61,16 @@ describe('checkout workflow contracts', () => {
     expect(quoteRefresh).toBeGreaterThan(snapshot);
     expect(formData).toBeGreaterThan(quoteRefresh);
     expect(checkoutForm).not.toMatch(/new FormData\(e\.currentTarget\)/);
+  });
+  test('acceptance preview keeps final submit clickable but blocks before any order creation side effect', () => {
+    expect(checkoutForm).toMatch(/type="submit" disabled=\{state==='sending'\|\|quoteLoading\|\|!quote\|\|!termsAccepted\|\|!privacyAcknowledged\|\|!payment\}/);
+    expect(checkoutForm).toMatch(/Acceptance · rendelésleadás tesztelése/);
+    expect(checkoutForm).not.toMatch(/disabled=\{acceptancePreview\|\|/);
+    const guard=checkoutForm.indexOf("if(acceptancePreview){");
+    const orderFetch=checkoutForm.indexOf("fetch('/api/orders'");
+    expect(guard).toBeGreaterThanOrEqual(0);
+    expect(orderFetch).toBeGreaterThan(guard);
+    expect(checkoutForm).toMatch(/Nem jött létre rendelés, nem indult fizetés, számlázás vagy szállítás/);
   });
   test('order creation remains idempotent and server-backed', () => {
     expect(checkoutForm).toMatch(/x-idempotency-key/);expect(checkoutForm).toMatch(/fetch\('\/api\/orders'/);expect(checkoutForm).toMatch(/confirmationToken/);expect(checkoutForm).toMatch(/router\.replace\(`\/rendeles-sikeres\?token=/);
@@ -80,5 +91,20 @@ describe('checkout workflow contracts', () => {
     expect(checkoutForm).toMatch(/variantId/);
     expect(checkoutForm).not.toMatch(/\/api\/coupons\/validate/);
     expect(checkoutForm).not.toMatch(/freeShippingApplies/);
+  });
+  test('guided validation exposes an in-step error instead of relying only on browser validity UI', () => {
+    expect(checkoutForm).toMatch(/control\.validity\.valueMissing/);
+    expect(checkoutForm).toMatch(/kitöltése kötelező/);
+    expect(checkoutForm).toMatch(/control\.setAttribute\('aria-invalid','true'\)/);
+    expect(checkoutForm).toMatch(/control\.focus\(\{preventScroll:true\}\)/);
+    expect(checkoutForm).toMatch(/control\.scrollIntoView\(\{block:'center',behavior:'smooth'\}\)/);
+    expect(checkoutForm).toMatch(/checkoutStepError/);
+    expect(checkoutForm).toMatch(/onInput=\{clearFieldValidationFeedback\}/);
+  });
+
+  test('failed coupon attempts preserve the last valid authoritative quote', () => {
+    expect(checkoutForm).toMatch(/const previousQuote=quote/);
+    expect(checkoutForm).toMatch(/if\(!q\)\{if\(previousQuote\)setQuote\(previousQuote\)/);
+    expect(checkoutForm).toMatch(/Az ellenőrzött kosárösszeg változatlan maradt/);
   });
 });

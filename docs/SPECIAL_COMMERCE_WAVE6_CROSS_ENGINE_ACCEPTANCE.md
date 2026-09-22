@@ -43,7 +43,7 @@ No raw JSON authoring is introduced by Wave 6.
 
 ### One responsive and binding-security model
 
-All accepted engines inherit the same Desktop → Tablet → Mobile responsive override semantics from Page Schema. Binding paths continue to use the allowlisted namespace/path resolver and reject prototype-pollution path segments.
+All accepted engines use the same isolated Desktop / Tablet / Mobile Page Schema authority: base plus the exact active viewport, with no sibling-viewport override inheritance. Binding paths continue to use the allowlisted namespace/path resolver and reject prototype-pollution path segments.
 
 ### No duplicate commerce authority
 

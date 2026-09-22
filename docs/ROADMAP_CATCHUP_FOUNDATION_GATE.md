@@ -13,7 +13,7 @@ Later roadmap decisions promoted a small set of cross-cutting contracts ahead of
    - existing server-side provider secrets, verification and audit behavior remain authoritative.
 
 2. **Builder Compatibility Foundation v1**
-   - shared 12-column layout/grid contract and responsive inheritance;
+   - shared 12-column layout/grid contract with isolated Desktop / Tablet / Mobile viewport authority;
    - semantic storefront design-token keys;
    - stable page-type vocabulary and Page Schema compatibility contract;
    - versioned component manifest contract with Alap/Pro capability metadata;

@@ -21,19 +21,21 @@ describe('storefront template library UX',()=>{
       expect(entry.previewPageKey).toBeTruthy();
       expect(entry.proComparison.summary.length).toBeGreaterThan(20);
       expect(entry.proComparison.highlights.length).toBeGreaterThanOrEqual(3);
-      expect(entry.proComparison.status).toBe(entry.minPlan==='pro'?'available':'planned');
+      expect(entry.proComparison.status).toBe('available');
     }
   });
 
-  it('keeps Pro differentiation functional and explicitly non-deceptive while concrete Pro variants are absent',()=>{
+  it('keeps Pro differentiation functional on the same template family instead of creating a second visual skin',()=>{
     const entries=listStorefrontTemplateLibraryEntries();
     const currentAlap=entries.filter(entry=>entry.minPlan==='alap');
     expect(currentAlap.length).toBeGreaterThan(0);
-    expect(currentAlap.every(entry=>entry.proComparison.status==='planned')).toBe(true);
+    expect(currentAlap.every(entry=>entry.proComparison.status==='available')).toBe(true);
     const source=read('src/components/admin/storefront-template-library.tsx');
     expect(source).toContain('A Pro nem „szebb skin”');
-    expect(source).toContain('Tervezett Pro többlet');
-    expect(source).toContain('A konkrét Pro sablonvariáns még nincs publikálva a katalógusban');
+    expect(source).toContain('Alap + Pro');
+    expect(source).toContain('Pro funkciók ugyanebben a sablonban');
+    expect(source).toContain('tényleges tenant-jogosultság');
+    expect(source).not.toContain('A konkrét Pro sablonvariáns még nincs publikálva a katalógusban');
   });
 
   it('provides category filtering, search, live preview and no merchant-facing AI generator',()=>{
@@ -66,13 +68,14 @@ describe('storefront template library UX',()=>{
     expect(library).toContain('SABLONVÁLTÁS');
     expect(library).toContain('SABLONFRISSÍTÉS');
     expect(library).toContain('A most publikált webshop');
-    expect(library).toContain('Termékek, készlet és árak nem változnak');
-    expect(library).toContain('Rendelések és ügyféladatok nem változnak');
+    expect(library).toContain('Saját termékeket, készletet, rendeléseket és ügyféladatokat nem törlünk');
+    expect(library).toContain('A publikált storefront érintetlen marad');
     expect(library).toContain('A jelenlegi draft oldalak szerkesztéseit a ');
     expect(library).toContain("pendingUpgrade?'sablonfrissítés':'sablonváltás'");
     expect(library).toContain('felülírhatja');
     expect(library).toContain('Igen, váltok erre a sablonra');
     expect(library).toContain('Igen, frissítem a draft sablont');
+    expect(library).not.toContain('Beauty Lab legújabb canonical');
   });
 
   it('renders template live preview through the shared Storefront runtime without installing a draft',()=>{
@@ -84,30 +87,26 @@ describe('storefront template library UX',()=>{
     expect(preview).toContain('createStorefrontTemplatePreviewBindingContext');
     expect(preview).toContain('getStorefrontTemplatePreviewTheme');
     expect(preview).toContain('representative-demo');
+    expect(preview).toContain("query.page??'home'");
+    expect(preview).toContain("candidate.pageType===pageType");
+    expect(preview).toContain("params.set('page',pageType)");
+    expect(preview).toContain("params.set('viewport',next)");
+    expect(preview).toContain('data-page-type={pageType}');
+    expect(preview).toContain('requireAdmin(');
+    expect(preview).toContain('/storefront-template-preview?');
     expect(preview).not.toContain('installVisualBuilderTemplateAction');
   });
 
   it('gives every concrete template its canonical theme and populated allowed preview list bindings',()=>{
     for(const entry of STOREFRONT_TEMPLATE_CATALOG){
       const template=getStorefrontTemplatePackage(entry.templateKey,entry.templateVersion);
-      expect(template).toBeTruthy();
-      if(!template)continue;
+      expect(template).toBeTruthy();if(!template)continue;
       const page=template.pages.find(candidate=>candidate.pageType==='home')??template.pages[0];
-      expect(page).toBeTruthy();
-      if(!page)continue;
+      expect(page).toBeTruthy();if(!page)continue;
       const theme=getStorefrontTemplatePreviewTheme(entry.templateKey);
-      expect(theme['--shoporation-color-background']).toBeTruthy();
-      expect(theme['--shoporation-color-text']).toBeTruthy();
+      expect(theme['--shoporation-color-background']).toBeTruthy();expect(theme['--shoporation-color-text']).toBeTruthy();
       const context=createStorefrontTemplatePreviewBindingContext({template,page});
-      const check=(node:StorefrontComponentNode)=>{
-        for(const[slot,binding]of Object.entries(node.bindings??{})){
-          if(!['products','items','options','reviews'].includes(slot))continue;
-          if(!isAllowedStorefrontBindingPath(binding.path))continue;
-          const value=resolveStorefrontBinding(binding.path,context);
-          if(Array.isArray(binding.fallback)&&binding.fallback.length===0)expect(Array.isArray(value)&&value.length>0,`${entry.templateKey}:${node.componentKey}:${binding.path}`).toBe(true);
-        }
-        for(const child of node.children??[])check(child);
-      };
+      const check=(node:StorefrontComponentNode)=>{for(const[slot,binding]of Object.entries(node.bindings??{})){if(!['products','items','options','reviews'].includes(slot))continue;if(!isAllowedStorefrontBindingPath(binding.path))continue;const value=resolveStorefrontBinding(binding.path,context);if(Array.isArray(binding.fallback)&&binding.fallback.length===0)expect(Array.isArray(value)&&value.length>0,`${entry.templateKey}:${node.componentKey}:${binding.path}`).toBe(true);}for(const child of node.children??[])check(child);};
       for(const node of page.sections)check(node);
     }
   });

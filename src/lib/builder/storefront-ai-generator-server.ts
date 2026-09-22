@@ -13,6 +13,7 @@ import {createStorefrontVisualBuilderComponentRegistry} from '@/lib/builder/stor
 import {
   getCurrentStorefrontBuilderBindingContext,
   getCurrentStorefrontBuilderCapability,
+  listCurrentStorefrontTemplateDemoContent,
   listCurrentStorefrontTemplatePlanningPages,
 } from '@/lib/builder/storefront-builder-server';
 import {
@@ -23,7 +24,8 @@ import {
   planStorefrontTemplateInstallation,
 } from '@/lib/builder/storefront-template-installation';
 import {validateStorefrontBuilderSchemaStructure} from '@/lib/builder/storefront-builder-schema-policy';
-import {saveCurrentStorefrontTemplateDraftPlan} from '@/lib/builder/storefront-template-persistence';
+import {composeStorefrontDigitalCommerceTemplatePackage} from '@/lib/builder/storefront-digital-commerce-composition';
+import {saveCurrentStorefrontTemplateInstallationPlan} from '@/lib/builder/storefront-template-persistence';
 import {
   applyStorefrontAiModelPlan,
   parseStorefrontAiModelPlan,
@@ -77,10 +79,11 @@ export async function generateCurrentStorefrontWithAi(rawInput:StorefrontAiGener
   const input=storefrontAiGenerationInputSchema.parse(rawInput);
   const actor=await getAdminRequestUser('store.manage');
   if(!actor)throw new Error('STOREFRONT_AI_AUTH_REQUIRED');
-  const[scope,capability,existingPages,bindingContext]=await Promise.all([
+  const[scope,capability,existingPages,currentDemoContent,bindingContext]=await Promise.all([
     requireCurrentStoreContext('store.manage'),
     getCurrentStorefrontBuilderCapability(),
     listCurrentStorefrontTemplatePlanningPages(),
+    listCurrentStorefrontTemplateDemoContent(),
     getCurrentStorefrontBuilderBindingContext(),
   ]);
 
@@ -175,12 +178,13 @@ export async function generateCurrentStorefrontWithAi(rawInput:StorefrontAiGener
 
   const allowedTemplateKeys=new Set(eligible.map(template=>template.manifest.templateKey));
   const modelPlan=parseStorefrontAiModelPlan(candidate,allowedTemplateKeys);
-  const template=eligible.find(item=>item.manifest.templateKey===modelPlan.templateKey);
-  if(!template)throw new Error('STOREFRONT_AI_TEMPLATE_NOT_ALLOWED');
-  const installationPlan=planStorefrontTemplateInstallation({template,componentRegistry:registry,capability,existingPages});
+  const sourceTemplate=eligible.find(item=>item.manifest.templateKey===modelPlan.templateKey);
+  if(!sourceTemplate)throw new Error('STOREFRONT_AI_TEMPLATE_NOT_ALLOWED');
+  const template=composeStorefrontDigitalCommerceTemplatePackage(sourceTemplate);
+  const installationPlan=planStorefrontTemplateInstallation({template,componentRegistry:registry,capability,existingPages,currentDemoContent});
   const generatedPlan=applyStorefrontAiModelPlan({plan:installationPlan,modelPlan,registry,capability});
   for(const page of generatedPlan.pages)validateStorefrontBuilderSchemaStructure({document:page.document,registry});
-  const saved=await saveCurrentStorefrontTemplateDraftPlan({plan:generatedPlan,operationKey:input.operationKey});
+  const saved=await saveCurrentStorefrontTemplateInstallationPlan({plan:generatedPlan,operationKey:input.operationKey});
   const home=generatedPlan.pages.find(page=>page.pageType==='home')??generatedPlan.pages[0];
   return{
     ok:true,

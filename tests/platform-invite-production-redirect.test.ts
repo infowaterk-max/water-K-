@@ -43,8 +43,8 @@ describe('platform merchant invite production redirect',()=>{
     expect(form).toContain("redirectTo=`${window.location.origin}/fiokom?auth_flow=recovery`");
     expect(form).toContain("supabase.auth.updateUser({password})");
     expect(form).toContain("authFlow==='invite'?'Meghívás befejezése':'Új jelszó beállítása'");
-    expect(form).toContain("requestedNext?.startsWith('/admin')");
-    expect(form.indexOf("const requestedNext=new URLSearchParams(window.location.search).get('next')")).toBeLessThan(form.indexOf("window.history.replaceState(null,'','/fiokom')"));
+    expect(form).toContain("normalizeStorefrontReturnTarget(new URLSearchParams(window.location.search).get('next'))");
+    expect(form.indexOf("function safeRequestedNext()")).toBeLessThan(form.indexOf("window.history.replaceState(null,'','/fiokom')"));
     expect(form).toContain("errorCode==='otp_expired'");
   });
 });

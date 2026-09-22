@@ -4,6 +4,8 @@ import { join } from 'node:path';
 import { resolveSupabaseServerKey } from '../src/lib/supabase/server-credentials';
 
 const validCronSecret='0123456789abcdef0123456789abcdef';
+const productionSupabaseUrl='https://ewdederyvnwmghlydbno.supabase.co';
+const stagingSupabaseUrl='https://rfuvzgumbardvbvqjxdq.supabase.co';
 
 describe('Supabase server credential scoping', () => {
   it('never lets a staging-only secret shadow production credentials', () => {
@@ -36,6 +38,17 @@ describe('Supabase server credential scoping', () => {
     ).toBe('staging-secret');
   });
 
+  it('treats Vercel preview as authoritative over a conflicting custom deploy environment', () => {
+    expect(
+      resolveSupabaseServerKey({
+        VERCEL_ENV: 'preview',
+        DEPLOY_ENVIRONMENT: 'production',
+        SUPABASE_STAGING_SECRET_KEY: 'staging-secret',
+        SUPABASE_SECRET_KEY: 'production-secret',
+      }),
+    ).toBe('staging-secret');
+  });
+
   it('fails the Vercel production preflight when a staging secret leaks into production scope', () => {
     const result = spawnSync(
       process.execPath,
@@ -47,7 +60,7 @@ describe('Supabase server credential scoping', () => {
           VERCEL: '1',
           VERCEL_ENV: 'production',
           NEXT_PUBLIC_SITE_URL: 'https://shop.example.hu',
-          NEXT_PUBLIC_SUPABASE_URL: 'https://example.supabase.co',
+          NEXT_PUBLIC_SUPABASE_URL: productionSupabaseUrl,
           NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: 'public-key',
           SUPABASE_SECRET_KEY: 'production-secret',
           SUPABASE_STAGING_SECRET_KEY: 'staging-secret',
@@ -72,7 +85,7 @@ describe('Supabase server credential scoping', () => {
           VERCEL: '1',
           VERCEL_ENV: 'production',
           NEXT_PUBLIC_SITE_URL: 'https://water-k-native.vercel.app',
-          NEXT_PUBLIC_SUPABASE_URL: 'https://example.supabase.co',
+          NEXT_PUBLIC_SUPABASE_URL: productionSupabaseUrl,
           NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: 'public-key',
           SUPABASE_SECRET_KEY: 'production-secret',
           CRON_SECRET: validCronSecret,
@@ -81,7 +94,51 @@ describe('Supabase server credential scoping', () => {
     );
 
     expect(result.status).toBe(0);
+    expect(result.stdout).toContain('Vercel production Supabase target: production (ewdederyvnwmghlydbno).');
     expect(result.stdout).toContain('Vercel production environment preflight OK.');
+  });
+
+  it('accepts a preview only when it targets the canonical staging Supabase project', () => {
+    const result = spawnSync(
+      process.execPath,
+      [join(process.cwd(), 'scripts/validate-vercel-deploy-env.mjs')],
+      {
+        encoding: 'utf8',
+        env: {
+          ...process.env,
+          VERCEL: '1',
+          VERCEL_ENV: 'preview',
+          NEXT_PUBLIC_SUPABASE_URL: stagingSupabaseUrl,
+          NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: 'public-key',
+          SUPABASE_STAGING_SECRET_KEY: 'staging-secret',
+        },
+      },
+    );
+
+    expect(result.status).toBe(0);
+    expect(result.stdout).toContain('Vercel preview Supabase target: staging (rfuvzgumbardvbvqjxdq).');
+    expect(result.stdout).toContain('Vercel preview environment preflight OK.');
+  });
+
+  it('fails closed when a preview points at the production Supabase project', () => {
+    const result = spawnSync(
+      process.execPath,
+      [join(process.cwd(), 'scripts/validate-vercel-deploy-env.mjs')],
+      {
+        encoding: 'utf8',
+        env: {
+          ...process.env,
+          VERCEL: '1',
+          VERCEL_ENV: 'preview',
+          NEXT_PUBLIC_SUPABASE_URL: productionSupabaseUrl,
+          NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: 'public-key',
+          SUPABASE_STAGING_SECRET_KEY: 'staging-secret',
+        },
+      },
+    );
+
+    expect(result.status).toBe(1);
+    expect(result.stderr).toContain('preview Supabase target must be rfuvzgumbardvbvqjxdq; got ewdederyvnwmghlydbno');
   });
 
   it('fails the Vercel production preflight when CRON_SECRET is missing', () => {
@@ -96,7 +153,7 @@ describe('Supabase server credential scoping', () => {
           VERCEL: '1',
           VERCEL_ENV: 'production',
           NEXT_PUBLIC_SITE_URL: 'https://water-k-native.vercel.app',
-          NEXT_PUBLIC_SUPABASE_URL: 'https://example.supabase.co',
+          NEXT_PUBLIC_SUPABASE_URL: productionSupabaseUrl,
           NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: 'public-key',
           SUPABASE_SECRET_KEY: 'production-secret',
         },
@@ -119,7 +176,7 @@ describe('Supabase server credential scoping', () => {
           VERCEL: '1',
           VERCEL_ENV: 'production',
           NEXT_PUBLIC_SITE_URL: 'http://localhost:3000',
-          NEXT_PUBLIC_SUPABASE_URL: 'https://example.supabase.co',
+          NEXT_PUBLIC_SUPABASE_URL: productionSupabaseUrl,
           NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: 'public-key',
           SUPABASE_SECRET_KEY: 'production-secret',
           CRON_SECRET: validCronSecret,

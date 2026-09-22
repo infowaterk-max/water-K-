@@ -103,12 +103,13 @@ describe('Playroom v19 full page family + section presets',()=>{
     }
   });
 
-  it('exposes v19 as the single merchant-facing Playroom while preserving v18 exact-version resolution',()=>{
+  it('keeps v19 as source-history evidence but removes it from the active resolver once v20 is canonical',()=>{
     const catalog=STOREFRONT_TEMPLATE_CATALOG.filter(item=>item.templateKey==='gaming.playroom');
     expect(catalog).toHaveLength(1);
-    expect(catalog[0]?.templateVersion).toBe(19);
-    expect(getStorefrontTemplatePackage('gaming.playroom')?.manifest.templateVersion).toBe(19);
-    expect(getStorefrontTemplatePackage('gaming.playroom',18)?.manifest.templateVersion).toBe(18);
-    expect(getStorefrontTemplatePackage('gaming.playroom',19)?.manifest.templateVersion).toBe(19);
+    expect(catalog[0]?.templateVersion).toBe(20);
+    expect(getStorefrontTemplatePackage('gaming.playroom')?.manifest.templateVersion).toBe(20);
+    expect(getStorefrontTemplatePackage('gaming.playroom',18)).toBeUndefined();
+    expect(getStorefrontTemplatePackage('gaming.playroom',19)).toBeUndefined();
+    expect(PLAYROOM_V19_CANONICAL_TEMPLATE_PACKAGE.pages).toHaveLength(14);
   });
 });

@@ -69,7 +69,7 @@ const page=():StorefrontPageDocument=>({
   sections:[{
     id:'hero',componentKey:'storefront.section',componentVersion:1,
     config:{tone:'quiet',futureKey:'preserved'},
-    responsive:{desktop:{gridSpan:12},tablet:{gridSpan:8}},
+    responsive:{desktop:{gridSpan:12},tablet:{gridSpan:8},mobile:{gridSpan:6}},
     children:[{
       id:'hero-title',componentKey:'storefront.heading',componentVersion:1,
       config:{text:'Fallback'},
@@ -98,12 +98,12 @@ describe('Storefront Runtime Backbone Wave 0',()=>{
     expect(hasStorefrontRuntimeCapability(proManifest.capability,{plan:'pro',features:[]})).toBe(true);
   });
 
-  it('resolves bindings and desktop to tablet to mobile responsive inheritance deterministically',()=>{
+  it('resolves bindings and isolated desktop/tablet/mobile responsive authority deterministically',()=>{
     const document=page();
     const heading=document.sections[0].children![0];
     expect(applyStorefrontBindings(heading,{brand:{name:'Shoporation Demo'}}).text).toBe('Shoporation Demo');
     const mobile=resolveStorefrontPageDocument(document,'mobile',{brand:{name:'Shoporation Demo'}});
-    expect(mobile[0].resolved.gridSpan).toBe(8);
+    expect(mobile[0].resolved.gridSpan).toBe(6);
     expect(mobile[0].children[0].config.text).toBe('Shoporation Demo');
   });
 
@@ -152,7 +152,7 @@ describe('Storefront Runtime Backbone Wave 0',()=>{
       .register('storefront.section',1,({node,children})=><section data-span={node.resolved.gridSpan}>{children}</section>)
       .register('storefront.heading',1,({config})=><h1>{String(config.text)}</h1>);
     const html=renderToStaticMarkup(<StorefrontRuntimeRenderer page={page()} viewport="mobile" bindingContext={{brand:{name:'Shoporation Demo'}}} componentRegistry={registry()} rendererRegistry={renderers} capability={{plan:'alap',features:[]}}/>);
-    expect(html).toContain('data-span="8"');
+    expect(html).toContain('data-span="6"');
     expect(html).toContain('<h1>Shoporation Demo</h1>');
   });
 });

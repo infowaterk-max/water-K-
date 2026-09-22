@@ -94,7 +94,12 @@ export function writeStorefrontFidelityMetadata(document:StorefrontPageDocument,
   };
 }
 
-function inherited<T>(value:Partial<Record<'base'|StorefrontViewport,T>>|undefined,viewport:StorefrontViewport):T|undefined{
+function exactViewportValue<T>(value:Partial<Record<'base'|StorefrontViewport,T>>|undefined,viewport:StorefrontViewport):T|undefined{
+  if(!value)return undefined;
+  return value[viewport]??value.base;
+}
+
+function legacyInheritedViewportValue<T>(value:Partial<Record<'base'|StorefrontViewport,T>>|undefined,viewport:StorefrontViewport):T|undefined{
   if(!value)return undefined;
   if(viewport==='mobile')return value.mobile??value.tablet??value.desktop??value.base;
   if(viewport==='tablet')return value.tablet??value.desktop??value.base;
@@ -116,14 +121,28 @@ function uniqueKnownOrder(order:readonly string[]|undefined,known:readonly strin
 export function resolveStorefrontSectionOrder(document:StorefrontPageDocument,viewport:StorefrontViewport):string[]{
   const known=document.sections.map(section=>section.id);
   const metadata=readStorefrontFidelityMetadata(document);
-  const configured=inherited(metadata?.sectionOrder,viewport);
+  const configured=exactViewportValue(metadata?.sectionOrder,viewport);
+  return uniqueKnownOrder(configured,known);
+}
+
+export function resolveStorefrontSectionOrderLegacyCascade(document:StorefrontPageDocument,viewport:StorefrontViewport):string[]{
+  const known=document.sections.map(section=>section.id);
+  const metadata=readStorefrontFidelityMetadata(document);
+  const configured=legacyInheritedViewportValue(metadata?.sectionOrder,viewport);
   return uniqueKnownOrder(configured,known);
 }
 
 export function resolveStorefrontChildOrder(document:StorefrontPageDocument,parent:StorefrontComponentNode,viewport:StorefrontViewport):string[]{
   const known=(parent.children??[]).map(child=>child.id);
   const metadata=readStorefrontFidelityMetadata(document);
-  const configured=inherited(metadata?.nodeOrder?.[parent.id],viewport);
+  const configured=exactViewportValue(metadata?.nodeOrder?.[parent.id],viewport);
+  return uniqueKnownOrder(configured,known);
+}
+
+export function resolveStorefrontChildOrderLegacyCascade(document:StorefrontPageDocument,parent:StorefrontComponentNode,viewport:StorefrontViewport):string[]{
+  const known=(parent.children??[]).map(child=>child.id);
+  const metadata=readStorefrontFidelityMetadata(document);
+  const configured=legacyInheritedViewportValue(metadata?.nodeOrder?.[parent.id],viewport);
   return uniqueKnownOrder(configured,known);
 }
 
@@ -155,7 +174,7 @@ export function resolveStorefrontStyleSlot(value:unknown,slot:string,viewport:St
   return resolveStorefrontVisualStyle(slots[slot],viewport);
 }
 
-function sanitizeArtDirectionSource(value:unknown):StorefrontImageArtDirectionSource{
+export function sanitizeStorefrontImageArtDirectionSource(value:unknown):StorefrontImageArtDirectionSource{
   if(!isRecord(value))return{};
   const result:StorefrontImageArtDirectionSource={};
   if(typeof value.src==='string'&&SAFE_ART_DIRECTION_SRC.test(value.src.trim()))result.src=value.src.trim();
@@ -169,10 +188,16 @@ function sanitizeArtDirectionSource(value:unknown):StorefrontImageArtDirectionSo
 
 export function resolveStorefrontImageArtDirection(value:unknown,viewport:StorefrontViewport):StorefrontImageArtDirectionSource{
   if(!isRecord(value))return{};
-  const base=sanitizeArtDirectionSource(value.base);
-  const desktop={...base,...sanitizeArtDirectionSource(value.desktop)};
-  const tablet={...desktop,...sanitizeArtDirectionSource(value.tablet)};
-  const mobile={...tablet,...sanitizeArtDirectionSource(value.mobile)};
+  const base=sanitizeStorefrontImageArtDirectionSource(value.base);
+  return{...base,...sanitizeStorefrontImageArtDirectionSource(value[viewport])};
+}
+
+export function resolveStorefrontImageArtDirectionLegacyCascade(value:unknown,viewport:StorefrontViewport):StorefrontImageArtDirectionSource{
+  if(!isRecord(value))return{};
+  const base=sanitizeStorefrontImageArtDirectionSource(value.base);
+  const desktop={...base,...sanitizeStorefrontImageArtDirectionSource(value.desktop)};
+  const tablet={...desktop,...sanitizeStorefrontImageArtDirectionSource(value.tablet)};
+  const mobile={...tablet,...sanitizeStorefrontImageArtDirectionSource(value.mobile)};
   return viewport==='desktop'?desktop:viewport==='tablet'?tablet:mobile;
 }
 

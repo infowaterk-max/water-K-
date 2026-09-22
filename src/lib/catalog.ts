@@ -11,6 +11,7 @@ export type Product={
   discountPercent?: number;
   short:string;
   featured?:boolean;
+  createdAt?:string;
   stock:number;
   weightGrams:number;
   audience:'retail'|'professional';
@@ -18,6 +19,7 @@ export type Product={
   highlights:string[];
   minimumQuantity:number;
   orderMultiple:number;
+  fulfillmentType?:'physical'|'digital';
   seoTitle?:string;
   seoDescription?:string;
   imageUrl?:string;

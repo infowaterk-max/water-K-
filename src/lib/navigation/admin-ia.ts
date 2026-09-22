@@ -40,6 +40,7 @@ export const MERCHANT_NAVIGATION:readonly AdminNavSection[]=[
   ]},
   {id:'products',label:'Termékek',items:[
     {id:'products',href:'/admin/termekek',label:'Termékek',description:'Termékek, variánsok, árak, csatornaszabályok és készlet alapadatai.',feature:'catalog',permission:'catalog.manage',group:'Katalóguskezelés'},
+    {id:'product-documents',href:'/admin/termekek/dokumentumok',label:'Termékdokumentumok',description:'Használati útmutatók, adatlapok, mérettáblák és más termékhez vagy variánshoz kötött fájlok.',feature:'catalog',permission:'catalog.manage',group:'Katalóguskezelés'},
     {id:'recommendations',href:'/admin/termekajanlasok',label:'Termékajánlások',description:'Kapcsolódó és ajánlott termékek konfigurációja.',feature:'productRecommendations',permission:'catalog.manage',group:'Katalóguskezelés'},
     {id:'import-export',href:'/admin/termekek/import-export',label:'Import / export',description:'Katalógusadatok ellenőrzött importja és exportja.',feature:'importExport',permission:'catalog.manage',group:'Adatműveletek'},
     {id:'bulk',href:'/admin/termekek/tomeges',label:'Tömeges műveletek',description:'Több termék vagy variáns együttes módosítása.',feature:'bulkOperations',permission:'catalog.manage',group:'Adatműveletek'},
@@ -73,6 +74,7 @@ export const MERCHANT_NAVIGATION:readonly AdminNavSection[]=[
   ]},
   {id:'settings',label:'Beállítások',items:[
     {id:'launch',href:'/admin/indulas',label:'Indítási központ',description:'A webshop indulásához és üzemeltetési készültségéhez tartozó ellenőrzések.',permission:'store.manage',group:'Indítás és konfiguráció'},
+    {id:'storefront-appearance',href:'/admin/beallitasok/megjelenes',label:'Webshop megjelenés',description:'Márka- és közösségi profilok közös storefront beállításai.',permission:'store.manage',group:'Indítás és konfiguráció'},
     {id:'commerce-settings',href:'/admin/beallitasok/fizetes-szallitas',label:'Fizetés, szállítás és számlázás',description:'Kereskedelmi szolgáltatók és üzleti integrációk beállításai.',feature:'commerceIntegrations',permission:'store.manage',group:'Szolgáltatók'},
     {id:'integrations',href:'/admin/integraciok',label:'Integrációk és rendszerállapot',description:'Haladó integrációk állapota és technikai kapcsolatai.',feature:'advancedIntegrations',permission:'integrations.manage',group:'Szolgáltatók'},
     {id:'team',href:'/admin/csapat',label:'Csapat és jogosultságok',description:'Felhasználói szerepkörök és jogosultságok kezelése.',permission:'store.manage',group:'Bizonyíték és hozzáférés'},

@@ -28,7 +28,7 @@ Repository history fixes the Block 21 / Block 22 boundary:
 - the page-type vocabulary (`home`, `catalog`, `product`, `cart`, `checkout`, `account`, `search`, `content`, `blog-index`, `blog-article`, `faq`, `contact`, `legal`, `not-found`);
 - ordered sections and nested versioned component nodes;
 - component configuration, allowlisted binding references and responsive overrides;
-- desktop/tablet/mobile responsive inheritance and the common 12-column grid;
+- isolated desktop/tablet/mobile viewport authority and the common 12-column grid;
 - template/page identity and explicit forward-only schema migration;
 - capability validation against the existing Block 11 plan/feature authority.
 

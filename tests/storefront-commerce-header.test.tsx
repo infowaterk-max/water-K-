@@ -52,11 +52,76 @@ describe('shared commerce header',()=>{
     expect(html).toContain('aria-label="Webshop műveletek"');
   });
 
-  it('keeps search and navigation present on mobile instead of a non-functional fake hamburger',()=>{
+
+  it('compacts dense desktop navigation before the horizontal-scroll fallback is needed',()=>{
+    const dense=structuredClone(page);
+    const header=dense.sections[0];
+    header.config.navTagline='JÁTÉK. KÖZÖSSÉG. ÉLMÉNY.';
+    const navigation=header.children?.find(child=>child.componentKey==='system.navigation');
+    if(!navigation)throw new Error('NAV_NODE_MISSING');
+    navigation.config.items=Array.from({length:9},(_,index)=>({label:`Menüpont ${index+1}`,href:`/menu-${index+1}`}));
+    const html=render('desktop',dense);
+    expect(html).toContain('data-navigation-density="dense"');
+    expect(html).not.toContain('JÁTÉK. KÖZÖSSÉG. ÉLMÉNY.');
+  });
+
+  it('enforces a readable protected-header floor even when a template requests compact desktop chrome',()=>{
+    const compact=structuredClone(page);
+    const header=compact.sections[0];
+    header.config.showUtilityLabels=true;
+    header.config.innerStyle={padding:'.35rem'};
+    header.config.tagline='PLAYROOM';
+    header.config.taglineStyle={fontSize:'.55rem'};
+    const search=header.children?.find(child=>child.componentKey==='system.search');
+    const navigation=header.children?.find(child=>child.componentKey==='system.navigation');
+    if(!search||!navigation)throw new Error('HEADER_CHILD_MISSING');
+    search.config.inputStyle={fontSize:'.62rem'};
+    navigation.config.items=Array.from({length:9},(_,index)=>({label:`Menüpont ${index+1}`,href:`/menu-${index+1}`}));
+    const html=render('desktop',compact);
+    expect(html).toContain('min-height:2.85rem');
+    expect(html).toContain('font-size:.94rem');
+    expect(html).toContain('min-height:3.65rem');
+    expect(html).toContain('font-size:.88rem');
+    expect(html).toContain('font-size:.78rem');
+  });
+
+  it('keeps the optional navigation tagline for sparse desktop commerce headers',()=>{
+    const sparse=structuredClone(page);
+    sparse.sections[0].config.navTagline='VÁLOGATOTT KÍNÁLAT';
+    const html=render('desktop',sparse);
+    expect(html).not.toContain('data-navigation-density="dense"');
+    expect(html).toContain('VÁLOGATOTT KÍNÁLAT');
+  });
+
+  it('renders the shared mobile navigation behind a real hamburger disclosure',()=>{
     const html=render('mobile');
     expect(html).toContain('Mit keresel?');
+    expect(html).toContain('data-storefront-mobile-menu="true"');
+    expect(html).toContain('<details');
+    expect(html).toContain('<summary');
+    expect(html).toContain('Mobil navigáció megnyitása');
+    expect(html).toContain('Menü');
     expect(html).toContain('Játékok');
-    expect(html).not.toContain('Mobil navigáció');
+    expect(html).toContain('data-storefront-component="system.navigation"');
+  });
+
+  it('centers an icon-only search action inside a compact fixed-height template root without child overflow',()=>{
+    const compact=structuredClone(page);
+    const header=compact.sections[0];
+    const search=header.children?.find(child=>child.componentKey==='system.search');
+    if(!search)throw new Error('SEARCH_NODE_MISSING');
+    search.config.buttonLabel='🔍';
+    search.config.style={height:'2.24rem',overflow:'hidden'};
+    search.config.buttonStyle={padding:'.34rem .7rem'};
+    const html=render('desktop',compact);
+    expect(html).toContain('height:2.24rem');
+    expect(html).toContain('min-height:0');
+    expect(html).toContain('height:auto');
+    expect(html).toContain('position:relative');
+    expect(html).toContain('left:50%');
+    expect(html).toContain('top:50%');
+    expect(html).toContain('transform:translate(-50%,-50%)');
+    expect(html).not.toContain('min-height:2.75rem');
   });
 
   it('sanitizes unsafe search actions and query parameter names',()=>{
