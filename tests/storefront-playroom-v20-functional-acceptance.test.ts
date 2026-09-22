@@ -206,6 +206,8 @@ describe('Playroom v20 functional acceptance',()=>{
     expect(resolveStorefrontVisualStyle(platformSlots.grid,'tablet').gridTemplateColumns).toBe('repeat(3,minmax(0,1fr))');
     expect(resolveStorefrontVisualStyle(platformSlots.grid,'mobile').gridTemplateColumns).toBe('repeat(2,minmax(0,1fr))');
 
+    expect(findNode(home,'playroom-hero').responsive?.desktop?.gridSpan).toBe(12);
+    expect(findNode(home,'playroom-selectors').responsive?.desktop?.gridSpan).toBe(12);
     expect(resolveStorefrontVisualStyle(findNode(home,'playroom-hero-copy').config.style,'mobile').width).toBe('100%');
     expect(resolveStorefrontVisualStyle(findNode(home,'playroom-trust-grid').config.style,'mobile').position).toBe('static');
     for(const id of ['playroom-trust-shipping','playroom-trust-warranty','playroom-trust-return','playroom-trust-community']){
@@ -266,8 +268,10 @@ describe('Playroom v20 functional acceptance',()=>{
     expect(findNode(home,'playroom-platform-gift-grid').children?.map(item=>item.id)).toEqual(['playroom-gift-card']);
     expect(findNode(home,'playroom-gift-card').responsive?.desktop?.gridSpan).toBe(12);
     expect(findNode(home,'playroom-gift-card').responsive?.tablet?.gridSpan).toBe(12);
-    expect(resolveStorefrontVisualStyle(findNode(home,'playroom-platform-match').config.style,'desktop')).toMatchObject({height:'100%',minHeight:'100%'});
-    expect(resolveStorefrontVisualStyle(findNode(home,'playroom-gift-card').config.style,'desktop')).toMatchObject({height:'100%',minHeight:'100%',flex:'1 1 auto'});
+    expect(resolveStorefrontVisualStyle(findNode(home,'playroom-platform-match').config.style,'desktop')).toMatchObject({display:'grid',height:'100%',minHeight:'100%'});
+    expect(resolveStorefrontVisualStyle(findNode(home,'playroom-platform-gift-grid').config.style,'desktop')).toMatchObject({height:'100%',minHeight:'100%',alignItems:'stretch'});
+    expect(resolveStorefrontVisualStyle(findNode(home,'playroom-gift-card').config.style,'desktop')).toMatchObject({display:'grid',height:'100%',minHeight:'100%'});
+    expect(resolveStorefrontVisualStyle(findNode(home,'playroom-gift-image').config.style,'desktop')).toMatchObject({height:'100%',minHeight:'8rem',objectFit:'cover'});
   });
 
   it('keeps compatibility teaser fail-closed without exposing an empty unknown state',()=>{
@@ -280,9 +284,9 @@ describe('Playroom v20 functional acceptance',()=>{
     expect(findNode(home,'playroom-compatibility-intro').config.text).toContain('Konkrét állapotot csak valódi termékadat alapján mutatunk.');
     expect(findNode(home,'playroom-compatibility-guide-title').config.text).toBe('HOGYAN ELLENŐRIZD?');
     expect(findNode(home,'playroom-compatibility-guide-copy').config.text).toContain('1. Válaszd ki a platformod');
-    expect(resolveStorefrontVisualStyle(findNode(home,'playroom-compatibility-card').config.style,'desktop').height).toBe('100%');
+    expect(resolveStorefrontVisualStyle(findNode(home,'playroom-compatibility-card').config.style,'desktop')).toMatchObject({height:'100%',minHeight:'14rem'});
     expect(resolveStorefrontVisualStyle(findNode(home,'playroom-compatibility-status-wrap').config.style,'desktop')).toMatchObject({height:'auto',justifyContent:'flex-start'});
-    expect(resolveStorefrontVisualStyle(findNode(home,'playroom-compatibility-art').config.style,'desktop').height).toBe('7.2rem');
+    expect(resolveStorefrontVisualStyle(findNode(home,'playroom-compatibility-art').config.style,'desktop')).toMatchObject({height:'9.25rem',minHeight:'9.25rem'});
     const runtime=read('src/components/builder/storefront-existing-commerce-runtime.tsx');
     const fallback=read('src/components/builder/storefront-configurator.tsx');
     expect(runtime).toContain("hideUnknown=config.hideWhenUnknown===true");
@@ -296,8 +300,10 @@ describe('Playroom v20 functional acceptance',()=>{
     expect(layout.children?.map(item=>item.id)).toEqual(['playroom-community-content','playroom-community-art']);
     expect(findNode(home,'playroom-community-content').responsive).toMatchObject({desktop:{gridSpan:6},tablet:{gridSpan:6},mobile:{gridSpan:12}});
     expect(findNode(home,'playroom-community-art').responsive).toMatchObject({desktop:{gridSpan:6},tablet:{gridSpan:6},mobile:{gridSpan:12}});
-    expect(resolveStorefrontVisualStyle(findNode(home,'playroom-community-art').config.style,'desktop')).toMatchObject({position:'static',opacity:1,minHeight:'9.25rem',maxHeight:'11rem'});
-    expect(resolveStorefrontVisualStyle(findNode(home,'playroom-community-content').config.style,'desktop')).toMatchObject({minHeight:'9.25rem',padding:'.72rem'});
+    expect(resolveStorefrontVisualStyle(findNode(home,'playroom-community-art').config.style,'desktop')).toMatchObject({position:'static',opacity:1,minHeight:'14rem',maxHeight:'14rem'});
+    expect(resolveStorefrontVisualStyle(findNode(home,'playroom-community-content').config.style,'desktop')).toMatchObject({minHeight:'14rem',padding:'.82rem'});
+    expect(resolveStorefrontVisualStyle(findNode(home,'playroom-community-stage').config.style,'desktop')).toMatchObject({minHeight:'14rem',height:'100%'});
+    expect(resolveStorefrontVisualStyle(findNode(home,'playroom-confidence-community-grid').config.style,'desktop').minHeight).toBe('14rem');
     expect(findNode(home,'playroom-community-copy-text').config.text).toBe('Játékesték, tippek és friss közösségi tartalmak egy helyen.');
     expect(findNode(home,'playroom-community-button').config.label).toBe('Csatlakozz a közösséghez →');
   });
