@@ -1,6 +1,6 @@
 'use client';
 
-import type{CSSProperties}from'react';
+import type{CSSProperties,ReactNode}from'react';
 import{useEffect,useId,useRef,useState}from'react';
 import{createClient}from'@/lib/supabase/browser';
 import{AuthForm,type AuthMode}from'@/components/auth/auth-form';
@@ -18,7 +18,7 @@ export function StorefrontAuthDialog({open,onClose,instanceId=null,initialMode='
  </dialog>;
 }
 
-export function StorefrontAccountAuthTrigger({label,symbol,count,showLabel=false,style}:{label:string;symbol:string;count?:string;showLabel?:boolean;style?:CSSProperties}){
+export function StorefrontAccountAuthTrigger({label,symbol,count,showLabel=false,style}:{label:string;symbol:ReactNode;count?:string;showLabel?:boolean;style?:CSSProperties}){
  const[open,setOpen]=useState(false);
  async function activate(){
   const{data:{user}}=await createClient().auth.getUser();
@@ -27,7 +27,7 @@ export function StorefrontAccountAuthTrigger({label,symbol,count,showLabel=false
  }
  return <>
   <button type="button" aria-label={label} title={label} style={style} onClick={activate}>
-   <span aria-hidden="true">{symbol}</span>{showLabel?<span style={{whiteSpace:'nowrap'}}>{label}</span>:null}{count?<small className={styles.count}>{count}</small>:null}
+   <span aria-hidden="true" style={{display:'grid',placeItems:'center'}}>{symbol}</span>{showLabel?<span data-storefront-utility-label="true" style={{whiteSpace:'nowrap'}}>{label}</span>:null}{count?<small className={styles.count}>{count}</small>:null}
   </button>
   <StorefrontAuthDialog open={open} onClose={()=>setOpen(false)} returnTo="/fiokom" title="Belépés a fiókodba"/>
  </>;

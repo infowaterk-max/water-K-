@@ -132,3 +132,5 @@ If yes, update Support Knowledge in the same development cycle.
 17. **Every template link needs a real destination authority.** Known routes must exist, catalog query parameters must be consumed, and static dynamic-content links must have draft-safe demo fixtures; generated business/service content is never auto-published as truth.
 18. **Shared Storefront/Builder authority changes require cross-template full-matrix proof.** Canary-only coverage is not sufficient when the shared Runtime renderer, Builder geometry authority, Preview authority or Quality Gate infrastructure changes.
 19. **Accepted templates require committed golden baselines.** Promotion must come from clean exact-head 14x3 evidence; candidate-to-accepted remains an explicit human decision.
+
+- [Storefront header utility + cart cross-sell presentation hardening (2026-09-22)](./STOREFRONT_HEADER_UTILITY_AND_CART_CROSS_SELL_PRESENTATION_2026-09-22.md)

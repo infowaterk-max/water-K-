@@ -51,6 +51,19 @@ describe('shared commerce/account hardening',()=>{
   expect(composition).toContain('isDeprecatedCheckoutDigitalCommerceSection');
   expect(admin).not.toContain('Rendelés utáni ajánlat');
   expect(api).toContain("placement:z.literal('cart')");
+  expect(recommendations).toContain('data-cart-cross-sell-presentation="template-native"');
+  expect(recommendations).toContain("background:'var(--card,var(--shoporation-color-surface))'");
+  expect(recommendations).toContain('className="btn btnPrimary"');
+ });
+ it('uses canonical unambiguous commerce utility icons consistently across viewports',()=>{
+  const header=read('src/components/builder/storefront-commerce-header.tsx'),auth=read('src/components/auth/storefront-auth-dialog.tsx');
+  expect(header).toContain('data-storefront-utility-icon="favorites"');
+  expect(header).toContain('data-storefront-utility-icon="account"');
+  expect(header).toContain('data-storefront-utility-icon="cart"');
+  expect(header).toContain("canonical=kind!=='custom'");
+  expect(header).toContain("showLabel=showUtilityLabels&&!mobile&&!canonical");
+  expect(auth).toContain('symbol:ReactNode');
+  expect(auth).toContain('aria-label={label}');
  });
  it('stores billing defaults per tenant and user and only after a successful checkout finalization',()=>{
   const sql=read('supabase/migrations/20260922053000_shared_customer_billing_b2b_identity_reverification.sql'),baseline=read('supabase/customer-baseline/migrations/0044_shared_customer_billing_b2b_identity_reverification.sql'),checkout=read('src/components/checkout/checkout-form.tsx'),page=read('src/app/penztar/page.tsx'),orders=read('src/app/api/orders/route.ts');
