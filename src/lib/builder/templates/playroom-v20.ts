@@ -605,12 +605,93 @@ function patchPlayroomHomeResponsive(item:StorefrontComponentNode):StorefrontCom
         mobile:{position:'static',right:'auto',top:'auto',width:'fit-content',marginTop:'.2rem',alignSelf:'flex-start',fontSize:'.72rem',padding:'.48rem .65rem'},
       })}};
       break;
-    case 'playroom-community-benefit-text':
-      next={...next,config:{...config,style:mergeViewportStyle(config.style,{
-        tablet:{whiteSpace:'normal',lineHeight:1.35},
-        mobile:{whiteSpace:'normal',lineHeight:1.4,fontSize:'.62rem'},
+    case 'playroom-platform-match-status':
+      next={...next,config:{...config,hideWhenUnknown:true}};
+      break;
+    case 'playroom-compatibility-platform-list':
+      next={...next,config:{...config,text:'PC · PlayStation · Xbox · Nintendo · Kézikonzol · Mobil',style:mergeViewportStyle(config.style,{
+        base:{whiteSpace:'normal',lineHeight:1.45,color:'#c7d8e8'},
+        mobile:{fontSize:'.68rem'},
       })}};
       break;
+    case 'playroom-compatibility-check':
+      next={...next,config:{...config,label:'Kompatibilitás ellenőrzése →',ariaLabel:'Kompatibilitás ellenőrzése'}};
+      break;
+    case 'playroom-compatibility-status-wrap':{
+      const currentChildren=next.children??[];
+      const introExists=currentChildren.some(child=>child.id==='playroom-compatibility-intro');
+      const intro=node({
+        id:'playroom-compatibility-intro',
+        componentKey:'content.text',
+        componentVersion:1,
+        config:{
+          text:'Ellenőrizd, hogy a választott játék vagy kiegészítő illik-e a platformodhoz. Konkrét állapotot csak valódi termékadat alapján mutatunk.',
+          as:'p',align:'left',tone:'text',
+          style:{margin:'0',fontSize:'.63rem',lineHeight:1.5,color:'#d8e7f4'},
+        },
+      });
+      next={...next,children:introExists?currentChildren:[intro,...currentChildren]};
+      break;
+    }
+    case 'playroom-community-copy-text':
+      next={...next,config:{...config,text:'Játékesték, tippek és friss közösségi tartalmak egy helyen.',style:mergeViewportStyle(config.style,{
+        base:{fontSize:'.68rem',lineHeight:1.5,maxWidth:'32rem'},
+        mobile:{fontSize:'.78rem'},
+      })}};
+      break;
+    case 'playroom-community-benefit-text':
+      next={...next,config:{...config,text:'Játékajánlók · események · közösségi tippek',style:mergeViewportStyle(config.style,{
+        base:{whiteSpace:'normal',lineHeight:1.4,fontSize:'.6rem'},
+        tablet:{whiteSpace:'normal',lineHeight:1.4},
+        mobile:{whiteSpace:'normal',lineHeight:1.45,fontSize:'.68rem'},
+      })}};
+      break;
+    case 'playroom-community-button':
+      next={...next,config:{...config,label:'Csatlakozz a közösséghez →',ariaLabel:'Csatlakozz a Playroom közösséghez',style:mergeViewportStyle(config.style,{
+        base:{width:'fit-content',maxWidth:'100%',padding:'.62rem .85rem'},
+        mobile:{width:'100%',justifyContent:'center'},
+      })}};
+      break;
+    case 'playroom-community-stage':{
+      const title=findPlayroomNode([next],'playroom-community-title');
+      const copyNode=findPlayroomNode([next],'playroom-community-copy-text');
+      const benefit=findPlayroomNode([next],'playroom-community-benefit-text');
+      const buttonNode=findPlayroomNode([next],'playroom-community-button');
+      const art=findPlayroomNode([next],'playroom-community-art');
+      if(title&&copyNode&&benefit&&buttonNode&&art){
+        const content=node({
+          id:'playroom-community-content',
+          componentKey:'layout.stack',
+          componentVersion:1,
+          config:{direction:'vertical',gap:'s',align:'stretch',justify:'center',style:{padding:'.85rem',minHeight:'12rem'}},
+          responsive:{desktop:{gridSpan:6},tablet:{gridSpan:6},mobile:{gridSpan:12}},
+          children:[clone(title),clone(copyNode),clone(benefit),clone(buttonNode)],
+        });
+        const media:StorefrontComponentNode={
+          ...clone(art),
+          config:{...rec(art.config),style:mergeViewportStyle(rec(art.config).style,{
+            base:{position:'static',inset:'auto',width:'100%',height:'100%',minHeight:'12rem',objectFit:'cover',objectPosition:'center',opacity:1,borderRadius:'.38rem'},
+            mobile:{minHeight:'9rem'},
+          })},
+          responsive:{desktop:{gridSpan:6},tablet:{gridSpan:6},mobile:{gridSpan:12}},
+        };
+        next={
+          ...next,
+          config:{...config,style:mergeViewportStyle(config.style,{
+            base:{position:'relative',minHeight:'0',overflow:'hidden',padding:'.35rem',background:'linear-gradient(135deg,#171047,#071b31)'},
+            mobile:{padding:'.3rem'},
+          })},
+          children:[node({
+            id:'playroom-community-layout',
+            componentKey:'layout.grid',
+            componentVersion:1,
+            config:{columns:12,gap:'xs',align:'stretch'},
+            children:[content,media],
+          })],
+        };
+      }
+      break;
+    }
   }
   return next;
 }
