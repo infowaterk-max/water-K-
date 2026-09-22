@@ -49,6 +49,33 @@ function materializeConfig(source:StorefrontComponentNode['config']):StorefrontC
   return config as StorefrontComponentNode['config'];
 }
 
+
+function isMaterializedVisualStyle(value:unknown):boolean{
+  if(!isRecord(value))return false;
+  return SLOT_KEYS.every(key=>isRecord(value[key]));
+}
+
+export function listUnmaterializedStorefrontVisualSurfaces(page:StorefrontPageDocument):string[]{
+  const issues:string[]=[];
+  const visit=(node:StorefrontComponentNode)=>{
+    const config=node.config as Record<string,unknown>;
+    for(const[key,value]of Object.entries(config)){
+      if(key==='styleSlots'&&isRecord(value)){
+        for(const[slot,slotValue]of Object.entries(value)){
+          if(isVisualStyleCandidate(slotValue)&&!isMaterializedVisualStyle(slotValue))issues.push(`${node.id}.styleSlots.${slot}`);
+        }
+        continue;
+      }
+      if((key==='style'||key.endsWith('Style'))&&isVisualStyleCandidate(value)&&!isMaterializedVisualStyle(value)){
+        issues.push(`${node.id}.${key}`);
+      }
+    }
+    for(const child of node.children??[])visit(child);
+  };
+  for(const section of page.sections)visit(section);
+  return issues.sort();
+}
+
 export function materializeStorefrontNodeResponsiveStyles(source:StorefrontComponentNode):StorefrontComponentNode{
   return{
     ...clone(source),
