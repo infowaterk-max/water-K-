@@ -53,6 +53,9 @@ describe('Template Factory Quality Gate v2',()=>{
     expect(workflow).not.toContain('head_commit.message');
     expect(workflow).toContain('Run Template Factory 14x3 browser matrix');
     expect(workflow).toContain('workflow_dispatch');
+    expect(workflow).toContain('QUALITY_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}');
+    expect(workflow).toContain('ref: ${{ github.event.pull_request.head.sha || github.sha }}');
+    expect(runner).toContain('process.env.QUALITY_HEAD_SHA??process.env.GITHUB_SHA');
     expect(workflow).toContain("src/lib/auth/storefront-return-target.ts");
     expect(workflow).toContain("src/app/api/orders/claim/**");
     expect(workflow).toContain('tests/storefront-auth-return-target.test.ts');
