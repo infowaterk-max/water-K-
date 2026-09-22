@@ -194,3 +194,25 @@ Pilot draft refresh advanced all 14 Page Schema drafts from revision 16 to 17:
 - mutation scope: storefront page drafts only;
 - orders/products business boundary unchanged.
 
+
+
+## CTA consistency + compatibility density follow-up
+
+Human desktop review found two final composition inconsistencies:
+
+- the paired merchandising cards used two different CTA patterns: a bottom-left text CTA and a top-right icon-only CTA;
+- after the compatibility/community 6/6 pairing, the compatibility side had less meaningful content and therefore looked visually under-filled beside the community split.
+
+Playroom v20 rule:
+
+- `playroom-player-two-cta` and `playroom-upgrade-cta` now share the same text CTA pattern, placement and sizing across desktop/tablet/mobile;
+- icon-only corner CTA treatment is not used for these sibling merchandising cards;
+- the compatibility card gains a concise “Hogyan ellenőrizd?” guide and a slightly larger media area;
+- height parity is achieved with useful content and stretch behavior, not with empty spacer/min-height filler;
+- Newsletter remains its own conversion section and is not inserted into the compatibility/community row.
+
+Regression invariants:
+
+**SIBLING MERCHANDISING CARDS MUST USE ONE CTA PATTERN.**
+
+**WHEN BALANCING A TWO-COLUMN ROW, PREFER USEFUL CONTENT DENSITY OVER EMPTY HEIGHT FILLER.**
