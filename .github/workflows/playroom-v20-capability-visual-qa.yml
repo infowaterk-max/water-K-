@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - feature/template-capability-consolidation-v20
+      - feature/playroom-v20-functional-acceptance
 
 permissions:
   contents: read
