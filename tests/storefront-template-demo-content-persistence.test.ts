@@ -40,7 +40,9 @@ describe('template demo content persistence safety',()=>{
   it('keeps the low-level page-draft API intact and uses a higher-level installation wrapper',()=>{
     expect(persistence).toContain('saveCurrentStorefrontTemplateDraftPlan');
     expect(persistence).toContain('saveCurrentStorefrontTemplateInstallationPlan');
-    expect(persistence).toContain("installationMutationScope:'storefront_page_drafts_plus_template_demo_content_drafts'");
+    expect(persistence).toContain("installationMutationScope:'storefront_page_drafts_plus_template_demo_content_and_opt_in_products'");
+    expect(persistence).toContain("installDemoProducts?:boolean");
+    expect(persistence).toContain("record.entityType==='product'&&record.payload.installAsDemoProduct===true");
     expect(actions).toContain('saveCurrentStorefrontTemplateInstallationPlan');
   });
 });
