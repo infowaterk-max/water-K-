@@ -13,7 +13,6 @@ permissions:
 
 jobs:
   bootstrap:
-    if: github.event.head_commit.message == 'chore: bootstrap Playroom v20 golden baseline'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout closure branch
@@ -34,9 +33,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          test "$(node -p "JSON.parse(require('fs').readFileSync('artifacts/playroom-v20-golden-source/manifest.json','utf8')).contract")" = "shoporation.template-factory-quality-evidence.v2"
-          test "$(node -p "JSON.parse(require('fs').readFileSync('artifacts/playroom-v20-golden-source/manifest.json','utf8')).sourceCommit")" = "805f94fd2b7f1cd8b02a32fb05e441b7bc988d28"
-          test "$(node -p "JSON.parse(require('fs').readFileSync('artifacts/playroom-v20-golden-source/manifest.json','utf8')).errors.length")" = "0"
+          node -e "const m=JSON.parse(require('fs').readFileSync('artifacts/playroom-v20-golden-source/manifest.json','utf8')); if(m.contract!=='shoporation.template-factory-quality-evidence.v2'||m.sourceCommit!=='805f94fd2b7f1cd8b02a32fb05e441b7bc988d28'||m.errors.length!==0) process.exit(1)"
 
       - name: Promote exact 14x3 Playroom matrix
         run: >
