@@ -174,7 +174,7 @@ export function resolveStorefrontStyleSlot(value:unknown,slot:string,viewport:St
   return resolveStorefrontVisualStyle(slots[slot],viewport);
 }
 
-function sanitizeArtDirectionSource(value:unknown):StorefrontImageArtDirectionSource{
+export function sanitizeStorefrontImageArtDirectionSource(value:unknown):StorefrontImageArtDirectionSource{
   if(!isRecord(value))return{};
   const result:StorefrontImageArtDirectionSource={};
   if(typeof value.src==='string'&&SAFE_ART_DIRECTION_SRC.test(value.src.trim()))result.src=value.src.trim();
@@ -188,16 +188,16 @@ function sanitizeArtDirectionSource(value:unknown):StorefrontImageArtDirectionSo
 
 export function resolveStorefrontImageArtDirection(value:unknown,viewport:StorefrontViewport):StorefrontImageArtDirectionSource{
   if(!isRecord(value))return{};
-  const base=sanitizeArtDirectionSource(value.base);
-  return{...base,...sanitizeArtDirectionSource(value[viewport])};
+  const base=sanitizeStorefrontImageArtDirectionSource(value.base);
+  return{...base,...sanitizeStorefrontImageArtDirectionSource(value[viewport])};
 }
 
 export function resolveStorefrontImageArtDirectionLegacyCascade(value:unknown,viewport:StorefrontViewport):StorefrontImageArtDirectionSource{
   if(!isRecord(value))return{};
-  const base=sanitizeArtDirectionSource(value.base);
-  const desktop={...base,...sanitizeArtDirectionSource(value.desktop)};
-  const tablet={...desktop,...sanitizeArtDirectionSource(value.tablet)};
-  const mobile={...tablet,...sanitizeArtDirectionSource(value.mobile)};
+  const base=sanitizeStorefrontImageArtDirectionSource(value.base);
+  const desktop={...base,...sanitizeStorefrontImageArtDirectionSource(value.desktop)};
+  const tablet={...desktop,...sanitizeStorefrontImageArtDirectionSource(value.tablet)};
+  const mobile={...tablet,...sanitizeStorefrontImageArtDirectionSource(value.mobile)};
   return viewport==='desktop'?desktop:viewport==='tablet'?tablet:mobile;
 }
 
