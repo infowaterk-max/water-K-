@@ -26,8 +26,9 @@ describe('Template Route Integrity + Demo Content Foundation',()=>{
     }
   });
 
-  it('keeps exact historical Playroom v19 resolvable under the same inherited contract',()=>{
-    const template=getStorefrontTemplatePackage('gaming.playroom',19);
+  it('keeps only the current Playroom v20 resolver authority route-integrity clean',()=>{
+    expect(getStorefrontTemplatePackage('gaming.playroom',19)).toBeUndefined();
+    const template=getStorefrontTemplatePackage('gaming.playroom',20);
     expect(template).toBeTruthy();
     expect(evaluateStorefrontTemplateRouteIntegrity(template!)).toEqual([]);
     expect(getStorefrontTemplateDemoContent(template!,'rolunk')).toBeTruthy();
