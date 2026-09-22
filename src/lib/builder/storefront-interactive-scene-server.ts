@@ -10,18 +10,20 @@ export type StorefrontInteractiveSceneCatalog={
 };
 
 type ProductRow={id:string;slug:string;name:string;active:boolean;audience:string|null;template_demo_image_url:string|null};
-type VariantRow={id:string;product_id:string;label:string;gross_price_huf:number;stock_quantity:number;active:boolean;primary_media_id:string|null};
+type VariantRow={id:string;product_id:string;sku:string;label:string;gross_price_huf:number;stock_quantity:number;active:boolean;primary_media_id:string|null};
 type MediaRow={id:string;storage_path:string};
 type ChannelRow={product_id:string;visible:boolean;gross_price:number|null;discount_percent:number|null};
 const formatHuf=(value:number)=>`${new Intl.NumberFormat('hu-HU').format(value)} Ft`;
 const applyDiscount=(value:number,discount:number|null)=>discount==null?value:Math.max(0,Math.round(value*(1-Math.min(100,Math.max(0,discount))/100)));
+const slugify=(value:string)=>value.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'');
+const variantSlug=(productSlug:string,label:string,sku:string)=>{const suffix=slugify(label)||slugify(sku);return suffix?`${productSlug}-${suffix}`:productSlug};
 
 /** Internal tenant-scoped read model. Callers must supply an already-authorized instance id. */
 export async function getStorefrontInteractiveSceneCatalogForInstance(instanceId:string):Promise<StorefrontInteractiveSceneCatalog>{
   const admin=createAdminClient();
   const[productResult,variantResult,channelResult]=await Promise.all([
     admin.from('products').select('id,slug,name,active,audience,template_demo_image_url').eq('instance_id',instanceId).eq('active',true).order('name').limit(500),
-    admin.from('product_variants').select('id,product_id,label,gross_price_huf,stock_quantity,active,primary_media_id').eq('instance_id',instanceId).eq('active',true),
+    admin.from('product_variants').select('id,product_id,sku,label,gross_price_huf,stock_quantity,active,primary_media_id').eq('instance_id',instanceId).eq('active',true),
     admin.from('product_channel_settings').select('product_id,visible,gross_price,discount_percent').eq('instance_id',instanceId).eq('channel_code','b2c'),
   ]);
   if(productResult.error)throw new Error(`INTERACTIVE_SCENE_PRODUCTS_FAILED:${productResult.error.message}`);
@@ -41,6 +43,7 @@ export async function getStorefrontInteractiveSceneCatalogForInstance(instanceId
   for(const row of variants){const list=variantsByProduct.get(row.product_id)??[];list.push(row);variantsByProduct.set(row.product_id,list);}
   const projections:InteractiveSceneProductProjection[]=products.map(product=>{
     const productVariants=variantsByProduct.get(product.id)??[];
+    const productSlug=typeof product.slug==='string'?product.slug.trim():'';
     const channel=channels.get(product.id);
     const channelVisible=channel?channel.visible:product.audience!=='professional';
     const activeVariantCount=productVariants.filter(variant=>variant.active).length;
@@ -49,10 +52,13 @@ export async function getStorefrontInteractiveSceneCatalogForInstance(instanceId
       const base=explicit?Math.max(0,Number(channel?.gross_price)):Math.max(0,Number(variant.gross_price_huf));
       const gross=explicit?base:applyDiscount(base,channel?.discount_percent==null?null:Number(channel.discount_percent));
       const stock=Math.max(0,Number(variant.stock_quantity));
+      const variantLabel=String(variant.label??'').trim()||'Alapértelmezett változat';
+      const href=productSlug?`/termek/${encodeURIComponent(variantSlug(productSlug,variantLabel,String(variant.sku??'')))}`:'#';
       return{
         variantId:variant.id,
-        label:String(variant.label??'').trim()||'Alapértelmezett változat',
-        eligible:Boolean(product.active&&variant.active),
+        label:variantLabel,
+        href,
+        eligible:Boolean(product.active&&variant.active&&href!=='#'),
         channelVisible,
         price:{amountMinor:gross,currency:'HUF',display:formatHuf(gross),source:'shared-pricing-authority'},
         stock:{available:stock>0,statusLabel:stock>0?'Készleten':'Jelenleg nem készleten'},
@@ -65,12 +71,12 @@ export async function getStorefrontInteractiveSceneCatalogForInstance(instanceId
     const stockAvailable=visible.some(variant=>variant.stock.available);
     const primaryMediaId=productVariants.find(variant=>variant.active&&variant.primary_media_id)?.primary_media_id??productVariants.find(variant=>variant.primary_media_id)?.primary_media_id??null;
     const imageUrl=primaryMediaId?mediaUrlById.get(primaryMediaId)??product.template_demo_image_url??null:product.template_demo_image_url??null;
-    const slug=typeof product.slug==='string'?product.slug.trim():'';
+    const href=visible.find(variant=>variant.href&&variant.href!=='#')?.href??(productSlug?`/termek/${encodeURIComponent(productSlug)}`:'#');
     return{
       productId:product.id,
       label:product.name,
-      href:slug?`/termek/${encodeURIComponent(slug)}`:'#',
-      eligible:Boolean(product.active&&visible.length&&slug),
+      href,
+      eligible:Boolean(product.active&&visible.length&&href!=='#'),
       priceDisplay:minPrice===null?null:minPrice===maxPrice?formatHuf(minPrice):`${formatHuf(minPrice)}-tól`,
       stockLabel:visible.length?(stockAvailable?'Készleten':'Jelenleg nem készleten'):null,
       imageUrl,
