@@ -326,3 +326,40 @@ Final desktop-only correction:
 
 **Regression guard:** after a 6/6 composition split, percentage-height descendants must not be assumed safe. True-desktop evidence must verify the actual rendered row height and whitespace before acceptance.
 
+
+
+## True-desktop composition restoration — targeted proportion pass
+
+A later human review confirmed that the forensic recovery correctly removed the destructive stretch/grid chains, but its restored desktop baseline remained visually too flat. This is a **Playroom template proportion issue**, not a shared Runtime/Grid defect.
+
+Root cause and minimal correction:
+
+- the inherited Hero floor had drifted down from the original 18rem composition to 13.75rem while the selector column retained compact v18 tile sizing;
+- the merchandising trio inherited the v18 10.2rem floor, even though the earlier desktop-polish composition had materially more vertical weight;
+- the right-hand `Dobd fel a játékestét` header is intrinsically shorter than `Jöhet a 2. játékos?`, so equal 4.15rem media heights alone do not align the image-row start;
+- the commerce row remained 7/5, leaving `Ajándékot keresel` visibly narrow beside the carousel;
+- Compatibility/Community had been safely recovered to 11.3rem, but that floor was still visually strip-like on true desktop.
+
+Playroom v20 desktop-only rules:
+
+- Hero keeps the accepted **8/4** grid and receives an **18rem** desktop minimum; the selector wrapper receives the same 18rem minimum;
+- the two existing selector stacks use the existing flex-column mechanism with `flex: 1 1 0` and `justify-content: space-between`, so their combined rendered column fills the same desktop grid row as Hero without `height:100%` or a new grid-row chain;
+- Finder remains **6/3/2**; desktop option floor becomes **4rem** and the platform tile floor **5.45rem** while semantic icon dimensions remain unchanged;
+- Gamer setup / Player 2 / Game Night keep the accepted **5/4/3** desktop spans and use a **12.8rem** desktop floor;
+- all eight merchandising media slots remain **4.15rem**; only `playroom-upgrade-grid` receives **0.4rem desktop top padding**, lowering the right-hand image row without enlarging images;
+- sibling merchandising CTAs keep the same existing bottom-aligned flex behavior;
+- Featured/Gift becomes a balanced **6/6 desktop row**, with both visual cards using a **12.2rem** floor; Gift retains its existing landscape/absolute-image treatment rather than reintroducing a height-stretch chain;
+- Compatibility/Community remain **6/6**, with Compatibility at **13rem** desktop minimum and Community content/media at **12.3rem** inside the existing stage; the compatibility media grows only to **7.7rem** desktop;
+- tablet/mobile overrides are not changed by this pass.
+
+Regression guards:
+
+- do not solve Hero/selector parity with nested `height:100%`, `gridTemplateRows` or `gridAutoRows`;
+- do not change the 4.15rem merchandising image authority to fix vertical alignment; align the owning content row instead;
+- do not make Gift tall/narrow by stretching wrapper → grid → card → image; widen the owning desktop grid allocation first;
+- do not change shared Runtime/Grid for a Playroom-owned proportion problem;
+- desktop composition changes require proof at **1440×900 or larger** and **1280×800**, followed by **768px tablet** and **390px mobile** regression checks.
+
+**Desktop layout módosítás nem fogadható el valódi true-desktop proof nélkül.**
+
+**Mobilos „Desktop site” nézet vagy egyetlen viewport nem bizonyítja a desktop kompozíció helyességét.**
