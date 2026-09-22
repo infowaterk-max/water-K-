@@ -182,6 +182,45 @@ describe('Playroom v20 functional acceptance',()=>{
     expect(client).toContain('aria-live="polite"');
   });
 
+  it('keeps Playroom home responsive without template-local fixed-column or overlay regressions',()=>{
+    const home=playroomPage('home');
+    const finder=findNode(home,'playroom-game-finder');
+    const finderOptions=(finder.config.options??[]) as Array<{id?:string;symbol?:string}>;
+    expect(Object.fromEntries(finderOptions.map(item=>[item.id,item.symbol]))).toMatchObject({
+      solo:'👤',coop:'👥',party:'🎉',racing:'🏁',adventure:'🧭',family:'👨‍👩‍👧',
+    });
+    const finderSlots=(finder.config.styleSlots??{}) as Record<string,unknown>;
+    expect(resolveStorefrontVisualStyle(finderSlots.options,'desktop').gridTemplateColumns).toBe('repeat(6,minmax(0,1fr))');
+    expect(resolveStorefrontVisualStyle(finderSlots.options,'tablet').gridTemplateColumns).toBe('repeat(3,minmax(0,1fr))');
+    expect(resolveStorefrontVisualStyle(finderSlots.options,'mobile').gridTemplateColumns).toBe('repeat(2,minmax(0,1fr))');
+
+    const platforms=findNode(home,'playroom-platform-navigation');
+    const platformSlots=(platforms.config.styleSlots??{}) as Record<string,unknown>;
+    expect(resolveStorefrontVisualStyle(platformSlots.grid,'tablet').gridTemplateColumns).toBe('repeat(3,minmax(0,1fr))');
+    expect(resolveStorefrontVisualStyle(platformSlots.grid,'mobile').gridTemplateColumns).toBe('repeat(2,minmax(0,1fr))');
+
+    expect(resolveStorefrontVisualStyle(findNode(home,'playroom-hero-copy').config.style,'mobile').width).toBe('100%');
+    expect(resolveStorefrontVisualStyle(findNode(home,'playroom-trust-grid').config.style,'mobile').position).toBe('static');
+    for(const id of ['playroom-trust-shipping','playroom-trust-warranty','playroom-trust-return','playroom-trust-community']){
+      expect(findNode(home,id).responsive?.mobile?.gridSpan).toBe(6);
+    }
+
+    expect(findNode(home,'playroom-player-two').responsive?.tablet?.gridSpan).toBe(6);
+    expect(findNode(home,'playroom-upgrade').responsive?.tablet?.gridSpan).toBe(6);
+    for(const id of ['playroom-player-controller','playroom-player-headset','playroom-player-family','playroom-player-couch','playroom-upgrade-monitor','playroom-upgrade-audio','playroom-upgrade-light','playroom-upgrade-chair']){
+      expect(findNode(home,id).responsive?.tablet?.gridSpan).toBe(6);
+      expect(findNode(home,id).responsive?.mobile?.gridSpan).toBe(12);
+    }
+
+    const multiplayerCta=findNode(home,'playroom-player-two-cta');
+    expect(multiplayerCta.config.label).toBe('Tovább →');
+    expect(resolveStorefrontVisualStyle(multiplayerCta.config.style,'mobile').position).toBe('static');
+    const featuredCta=findNode(home,'playroom-featured-all');
+    expect(featuredCta.config.label).toBe('Összes újdonság →');
+    expect(resolveStorefrontVisualStyle(featuredCta.config.style,'mobile').position).toBe('static');
+    expect(resolveStorefrontVisualStyle(findNode(home,'playroom-community-benefit-text').config.style,'mobile').whiteSpace).toBe('normal');
+  });
+
   it('makes Newsletter consent tenant-scoped, explicit and idempotent for an already-active subscriber',()=>{
     const route=read('src/app/api/marketing/newsletter/route.ts');
     const client=read('src/components/builder/storefront-newsletter-signup-runtime.tsx');
@@ -195,7 +234,11 @@ describe('Playroom v20 functional acceptance',()=>{
     expect(route).toContain("status:'granted'");
     expect(route).toContain("duplicate:false");
     expect(client).toContain("data-consent-authority=\"marketing_consents\"");
-    expect(client).toContain("if(!consent)");
+    expect(client).toContain('function validatePayload(payload:NewsletterPayload)');
+    expect(client).toContain('<form noValidate');
+    expect(client).toContain('disabled={busy||!formReady}');
+    expect(client).toContain("cursor:busy?'wait':formReady?'pointer':'not-allowed'");
+    expect(client).toContain('A feliratkozáshoz még szükséges:');
     expect(client).toContain("role={feedback.kind==='error'?'alert':'status'}");
   });
 
