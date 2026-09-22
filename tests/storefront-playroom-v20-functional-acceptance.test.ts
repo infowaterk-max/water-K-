@@ -298,19 +298,24 @@ describe('Playroom v20 functional acceptance',()=>{
     expect(scene).toContain('imageUrl,');
   });
 
-  it('ships a replaceable twelve-game Playroom preview catalog without mutating product authority',()=>{
+  it('ships a replaceable twelve-game Playroom preview plus an explicit opt-in demo catalog pack',()=>{
     const preview=read('src/lib/builder/storefront-template-preview-demo.ts');
-    for(const title of ['Orbit Breakers','Neon Rally','Midnight Quest','Cyber Arena','Party Rift','Starforge','Turbo Circuit','Couch Crew','Mech Tactics','Pixel Picnic','Void Runners','Kingdom Grid']){
-      expect(preview).toContain(`name:'${title}'`);
-    }
+    const titles=['Orbit Breakers','Neon Rally','Midnight Quest','Cyber Arena','Party Rift','Starforge','Turbo Circuit','Couch Crew','Mech Tactics','Pixel Picnic','Void Runners','Kingdom Grid'];
+    for(const title of titles)expect(preview).toContain(`name:'${title}'`);
     expect(preview).toContain("const limit=page.pageType==='home'?12:previewProductLimit(page)");
-    const gameFixtures=(PLAYROOM_V20_TEMPLATE_PACKAGE.demoFixtures??[]).filter(item=>item.entityType==='product'&&(item.payload.kind==='game'||item.payload.fixturePurpose==='downloadable-game'));
-    expect(gameFixtures.length).toBeGreaterThanOrEqual(12);
-    for(const fixture of gameFixtures){
-      const payload=JSON.stringify(fixture.payload);
-      expect(payload).not.toMatch(/price|stock|compatible.?true|releaseDate|reviewScore/i);
+    const installable=(PLAYROOM_V20_TEMPLATE_PACKAGE.demoFixtures??[]).filter(item=>item.entityType==='product'&&item.payload.installAsDemoProduct===true);
+    expect(installable).toHaveLength(12);
+    expect(installable.map(item=>item.payload.name)).toEqual(titles);
+    for(const fixture of installable){
+      expect(Number(fixture.payload.grossPriceHuf)).toBeGreaterThan(0);
+      expect(Number(fixture.payload.stockQuantity)).toBeGreaterThan(0);
+      expect(String(fixture.payload.image)).toMatch(/^\/storefront\/playroom\/game-/);
+      expect(String(fixture.payload.shortDescription)).not.toHaveLength(0);
     }
     expect(STOREFRONT_TEMPLATE_SWITCH_DATA_BOUNDARY).toMatchObject({products:false,variants:false,storefrontPageDrafts:true});
+    const persistence=read('src/lib/builder/storefront-template-persistence.ts');
+    expect(persistence).toContain("input.installDemoProducts===true&&productInstall.length>0");
+    expect(persistence).toContain("record.entityType==='product'&&record.payload.installAsDemoProduct===true");
   });
 
   it('makes Newsletter consent tenant-scoped, explicit and idempotent for an already-active subscriber',()=>{
