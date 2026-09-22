@@ -30,6 +30,7 @@ describe('Playroom v20 canonical authority',()=>{
       expect(page.metadata?.canonicalAuthority).toBe('gaming.playroom@20');
       expect(page.metadata?.canonicalSourcePolicy).toBe('self-contained-complete-package');
       expect(page.metadata?.responsiveIsolation).toBe('explicit-effective-viewports');
+      expect(page.metadata?.responsiveAuthorityVersion).toBe('shoporation.storefront-responsive-authority.v2');
       expect(page.metadata?.templateLifecycle).toBe('current-canonical-only');
       expect(page.metadata).not.toHaveProperty('canonicalUpgradeFromTemplateVersion');
       expect(page.metadata).not.toHaveProperty('homeAcceptedFromVersion');
