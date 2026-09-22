@@ -6,7 +6,7 @@ import {
   sanitizeStorefrontVisualStyleSlot,
   type StorefrontVisualStyleConfig,
 } from '@/lib/builder/storefront-visual-style';
-import type {StorefrontViewport} from '@/lib/builder/storefront-foundation';
+import {STOREFRONT_RESPONSIVE_AUTHORITY_VERSION,type StorefrontViewport} from '@/lib/builder/storefront-foundation';
 import {
   resolveStorefrontTypography,
   resolveStorefrontTypographyValueLegacyCascade,
@@ -24,7 +24,12 @@ import {
   writeStorefrontFidelityMetadata,
 } from '@/lib/builder/storefront-fidelity-engine';
 
-export const STOREFRONT_RESPONSIVE_ISOLATION_VERSION='shoporation.storefront-responsive-isolation.v1' as const;
+export const STOREFRONT_RESPONSIVE_ISOLATION_VERSION='shoporation.storefront-responsive-isolation.v2' as const;
+export const STOREFRONT_RESPONSIVE_AUTHORITY_METADATA_KEY='responsiveAuthorityVersion' as const;
+
+export function hasStorefrontResponsiveAuthorityV2(page:StorefrontPageDocument):boolean{
+  return page.metadata?.[STOREFRONT_RESPONSIVE_AUTHORITY_METADATA_KEY]===STOREFRONT_RESPONSIVE_AUTHORITY_VERSION;
+}
 
 const VIEWPORTS:readonly StorefrontViewport[]=['desktop','tablet','mobile'];
 const SLOT_KEYS=['base','desktop','tablet','mobile'] as const;
@@ -168,7 +173,13 @@ function findNodeById(nodes:readonly StorefrontComponentNode[],id:string):Storef
 export function materializeStorefrontPageResponsiveStyles(source:StorefrontPageDocument):StorefrontPageDocument{
   let next={...clone(source),sections:source.sections.map(materializeStorefrontNodeResponsiveStyles)};
   const fidelity=readStorefrontFidelityMetadata(source);
-  if(!fidelity)return next;
+  if(!fidelity)return{
+    ...next,
+    metadata:{
+      ...(next.metadata??{}),
+      [STOREFRONT_RESPONSIVE_AUTHORITY_METADATA_KEY]:STOREFRONT_RESPONSIVE_AUTHORITY_VERSION,
+    },
+  };
 
   const sectionOrder=fidelity.sectionOrder?{
     desktop:resolveStorefrontSectionOrderLegacyCascade(source,'desktop'),
@@ -192,7 +203,13 @@ export function materializeStorefrontPageResponsiveStyles(source:StorefrontPageD
     ...(nodeOrder?{nodeOrder}:{}),
     ...(fidelity.designGuard?{designGuard:clone(fidelity.designGuard)}:{}),
   });
-  return next;
+  return{
+    ...next,
+    metadata:{
+      ...(next.metadata??{}),
+      [STOREFRONT_RESPONSIVE_AUTHORITY_METADATA_KEY]:STOREFRONT_RESPONSIVE_AUTHORITY_VERSION,
+    },
+  };
 }
 
 export function materializeStorefrontTemplateResponsiveStyles(source:StorefrontInstallableTemplatePackage):StorefrontInstallableTemplatePackage{
@@ -249,4 +266,15 @@ export function assertStorefrontViewportIsolation(input:{
       }
     }
   }
+}
+
+
+/**
+ * Runtime compatibility boundary.
+ * Historical persisted Page Schema documents have no v2 authority marker and
+ * are materialized in memory with the legacy cascade before the exact-viewport
+ * Runtime consumes them. Current v2 documents pass through unchanged.
+ */
+export function ensureStorefrontResponsiveAuthority(page:StorefrontPageDocument):StorefrontPageDocument{
+  return hasStorefrontResponsiveAuthorityV2(page)?page:materializeStorefrontPageResponsiveStyles(page);
 }
