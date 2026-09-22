@@ -239,6 +239,80 @@ describe('Playroom v20 functional acceptance',()=>{
     expect(findNode(home,'playroom-gift-card').responsive?.tablet?.gridSpan).toBe(12);
   });
 
+  it('keeps compatibility teaser fail-closed without exposing an empty unknown state',()=>{
+    const home=playroomPage('home');
+    const status=findNode(home,'playroom-platform-match-status');
+    expect(status.bindings?.status?.path).toBe('compatibility.status');
+    expect(status.config.hideWhenUnknown).toBe(true);
+    expect(findNode(home,'playroom-compatibility-platform-list').config.text).toBe('PC · PlayStation · Xbox · Nintendo · Kézikonzol · Mobil');
+    expect(findNode(home,'playroom-compatibility-check').config.label).toBe('Kompatibilitás ellenőrzése →');
+    expect(findNode(home,'playroom-compatibility-intro').config.text).toContain('Konkrét állapotot csak valódi termékadat alapján mutatunk.');
+    const runtime=read('src/components/builder/storefront-existing-commerce-runtime.tsx');
+    const fallback=read('src/components/builder/storefront-configurator.tsx');
+    expect(runtime).toContain("hideUnknown=config.hideWhenUnknown===true");
+    expect(runtime).toContain("if(hideUnknown&&status==='unknown')return null");
+    expect(fallback).toContain("if(config.hideWhenUnknown===true&&status==='unknown')return null");
+  });
+
+  it('uses the unused community half for concise copy and CTA beside the image',()=>{
+    const home=playroomPage('home');
+    const layout=findNode(home,'playroom-community-layout');
+    expect(layout.children?.map(item=>item.id)).toEqual(['playroom-community-content','playroom-community-art']);
+    expect(findNode(home,'playroom-community-content').responsive).toMatchObject({desktop:{gridSpan:6},tablet:{gridSpan:6},mobile:{gridSpan:12}});
+    expect(findNode(home,'playroom-community-art').responsive).toMatchObject({desktop:{gridSpan:6},tablet:{gridSpan:6},mobile:{gridSpan:12}});
+    expect(resolveStorefrontVisualStyle(findNode(home,'playroom-community-art').config.style,'desktop')).toMatchObject({position:'static',opacity:1});
+    expect(findNode(home,'playroom-community-copy-text').config.text).toBe('Játékesték, tippek és friss közösségi tartalmak egy helyen.');
+    expect(findNode(home,'playroom-community-button').config.label).toBe('Csatlakozz a közösséghez →');
+  });
+
+  it('renders existing-commerce catalog rows as real product cards and opts Playroom into the shared product rail',()=>{
+    const home=playroomPage('home');
+    const featured=findNode(home,'playroomFeaturedGames');
+    expect(featured.bindings?.products?.path).toBe('catalog.existingCommerceProducts');
+    expect(featured.config.presentation).toBe('carousel');
+    const html=renderToStaticMarkup(createElement(StorefrontRuntimeRenderer,{
+      page:home,
+      viewport:'desktop',
+      bindingContext:{
+        brand:{name:'Playroom',homeHref:'/'},
+        navigation:{primary:[],footer:[]},
+        catalog:{existingCommerceProducts:[{
+          productId:'product-demo',variantId:'variant-demo',label:'Orbit Test · Alapváltozat',
+          href:'/termek/orbit-test',imageUrl:'/storefront/playroom/game-orbit.svg',
+          eligible:true,channelVisible:true,
+          price:{amountMinor:12990,currency:'HUF',display:'12 990 Ft',source:'shared-pricing-authority'},
+          stock:{available:true,statusLabel:'Készleten'},attributes:{},compatibility:{},
+        }]},
+      },
+      componentRegistry:registry,rendererRegistry,capability:alap,
+    }));
+    expect(html).toContain('Orbit Test · Alapváltozat');
+    expect(html).toContain('12 990 Ft');
+    expect(html).toContain('Készleten');
+    expect(html).toContain('/storefront/playroom/game-orbit.svg');
+    expect(html).toContain('data-storefront-product-rail="true"');
+    expect(html).toContain('aria-label="Előző termékek"');
+    expect(html).not.toContain('>Termék<');
+    const scene=read('src/lib/builder/storefront-interactive-scene-server.ts');
+    expect(scene).toContain("from('product_media').select('id,storage_path')");
+    expect(scene).toContain('imageUrl,');
+  });
+
+  it('ships a replaceable twelve-game Playroom preview catalog without mutating product authority',()=>{
+    const preview=read('src/lib/builder/storefront-template-preview-demo.ts');
+    for(const title of ['Orbit Breakers','Neon Rally','Midnight Quest','Cyber Arena','Party Rift','Starforge','Turbo Circuit','Couch Crew','Mech Tactics','Pixel Picnic','Void Runners','Kingdom Grid']){
+      expect(preview).toContain(`name:'${title}'`);
+    }
+    expect(preview).toContain("const limit=page.pageType==='home'?12:previewProductLimit(page)");
+    const gameFixtures=(PLAYROOM_V20_TEMPLATE_PACKAGE.demoFixtures??[]).filter(item=>item.entityType==='product'&&(item.payload.kind==='game'||item.payload.fixturePurpose==='downloadable-game'));
+    expect(gameFixtures.length).toBeGreaterThanOrEqual(12);
+    for(const fixture of gameFixtures){
+      const payload=JSON.stringify(fixture.payload);
+      expect(payload).not.toMatch(/price|stock|compatible.?true|releaseDate|reviewScore/i);
+    }
+    expect(STOREFRONT_TEMPLATE_SWITCH_DATA_BOUNDARY).toMatchObject({products:false,variants:false,storefrontPageDrafts:true});
+  });
+
   it('makes Newsletter consent tenant-scoped, explicit and idempotent for an already-active subscriber',()=>{
     const route=read('src/app/api/marketing/newsletter/route.ts');
     const client=read('src/components/builder/storefront-newsletter-signup-runtime.tsx');
