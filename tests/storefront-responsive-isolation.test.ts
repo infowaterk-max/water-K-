@@ -107,7 +107,7 @@ describe('Storefront responsive isolation foundation',()=>{
     expect(()=>assertStorefrontViewportIsolation({before,after:changed,allowedViewports:['desktop'],label:'desktop-edit'})).not.toThrow();
   });
 
-  it('preserves Builder reset-to-inherited semantics instead of re-materializing cleared overrides on save',()=>{
+  it('preserves Builder reset-to-base semantics instead of re-materializing cleared overrides on save',()=>{
     const frozen=materializeStorefrontPageResponsiveStyles(page());
     let reset=setStorefrontNodeViewportStyle(frozen,'hero','tablet',{});
     expect(resolveStorefrontVisualStyle(reset.sections[0]!.config.style,'tablet')).toEqual({minHeight:'12rem',padding:'1rem'});
@@ -121,9 +121,13 @@ describe('Storefront responsive isolation foundation',()=>{
     expect(persistence).toContain('hashStorefrontPageDocument(input.document)');
   });
 
-  it('materializes only at the template migration/catalog boundary',()=>{
+  it('materializes old source packages at migration boundaries and protects old persisted reads in memory',()=>{
     const catalog=readFileSync('src/lib/builder/storefront-template-catalog.ts','utf8');
+    const renderer=readFileSync('src/components/builder/storefront-runtime-renderer.tsx','utf8');
+    const builderPage=readFileSync('src/app/admin/tartalom/builder/page.tsx','utf8');
     expect(catalog).toContain('materializeStorefrontTemplateResponsiveStyles(runtimeNormalized)');
+    expect(renderer).toContain('ensureStorefrontResponsiveAuthority(normalizedPage)');
+    expect(builderPage).toContain('ensureStorefrontResponsiveAuthority(document)');
   });
 
   it('fails closed if a declared desktop-only transformation also mutates tablet',()=>{
