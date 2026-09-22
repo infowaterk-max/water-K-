@@ -137,6 +137,25 @@ describe('Playroom v20 functional acceptance',()=>{
     expect(runtimeSource).toContain("resolveCurrentStorefrontPublicStaticRuntimePage('contact')");
   });
 
+  it('keeps Playroom contact copy Hungarian and the contact card groups balanced at tablet width',()=>{
+    const contact=playroomPage('contact');
+    const serialized=JSON.stringify(contact);
+    expect(serialized).not.toContain('BE READY');
+    expect(serialized).not.toContain('GENERAL');
+    expect(findNode(contact,'playroom-contact-expect-kicker').config.text).toBe('KÉSZÜLJ ELŐ');
+    expect(findNode(contact,'playroom-contact-general-kicker').config.text).toBe('ÁLTALÁNOS');
+    expect(findNode(contact,'playroom-contact-copy').responsive?.tablet?.gridSpan).toBe(8);
+    expect(findNode(contact,'playroom-contact-expectations').responsive?.tablet?.gridSpan).toBe(4);
+    for(const id of ['playroom-contact-orders','playroom-contact-product','playroom-contact-general']){
+      expect(findNode(contact,id).responsive?.desktop?.gridSpan).toBe(4);
+      expect(findNode(contact,id).responsive?.tablet?.gridSpan).toBe(4);
+      expect(findNode(contact,id).responsive?.mobile?.gridSpan).toBe(12);
+    }
+    const tabletMarkup=render(contact,{},'tablet');
+    expect(tabletMarkup).toContain('KÉSZÜLJ ELŐ');
+    expect(tabletMarkup).toContain('ÁLTALÁNOS');
+  });
+
   it('keeps Contact Form on the canonical ticket authority with validation, dedupe, spam sink and accessible feedback',()=>{
     const route=read('src/app/api/support/route.ts');
     const client=read('src/components/builder/storefront-support-contact-form-client.tsx');
