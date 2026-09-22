@@ -433,6 +433,69 @@ function patchResponsiveSpan(nodeValue:StorefrontComponentNode,tablet:1|2|3|4|5|
     },
   };
 }
+function findPlayroomNode(items:readonly StorefrontComponentNode[],id:string):StorefrontComponentNode|undefined{
+  for(const item of items){
+    if(item.id===id)return item;
+    const nested=item.children?findPlayroomNode(item.children,id):undefined;
+    if(nested)return nested;
+  }
+  return undefined;
+}
+function removePlayroomNode(item:StorefrontComponentNode,id:string):StorefrontComponentNode|null{
+  if(item.id===id)return null;
+  if(!item.children)return item;
+  const children=item.children.map(child=>removePlayroomNode(child,id)).filter((child):child is StorefrontComponentNode=>Boolean(child));
+  return{...item,children};
+}
+function mapPlayroomNode(item:StorefrontComponentNode,id:string,mapper:(nodeValue:StorefrontComponentNode)=>StorefrontComponentNode):StorefrontComponentNode{
+  if(item.id===id)return mapper(item);
+  if(!item.children)return item;
+  return{...item,children:item.children.map(child=>mapPlayroomNode(child,id,mapper))};
+}
+function playroomHalfWidth(nodeValue:StorefrontComponentNode):StorefrontComponentNode{
+  return{
+    ...nodeValue,
+    responsive:{
+      ...(nodeValue.responsive??{}),
+      desktop:{...(nodeValue.responsive?.desktop??{}),gridSpan:6},
+      tablet:{...(nodeValue.responsive?.tablet??{}),gridSpan:6},
+      mobile:{...(nodeValue.responsive?.mobile??{}),gridSpan:12},
+    },
+  };
+}
+function recomposePlayroomHomeBottom(sections:StorefrontComponentNode[]):StorefrontComponentNode[]{
+  const compatibility=findPlayroomNode(sections,'playroom-compatibility-card');
+  const community=findPlayroomNode(sections,'playroom-community-stage');
+  if(!compatibility||!community)return sections;
+
+  let next=sections
+    .map(section=>removePlayroomNode(section,'playroom-compatibility-card'))
+    .filter((section):section is StorefrontComponentNode=>Boolean(section));
+
+  next=next.map(section=>mapPlayroomNode(section,'playroom-gift-card',gift=>({
+    ...gift,
+    responsive:{
+      ...(gift.responsive??{}),
+      desktop:{...(gift.responsive?.desktop??{}),gridSpan:12},
+      tablet:{...(gift.responsive?.tablet??{}),gridSpan:12},
+      mobile:{...(gift.responsive?.mobile??{}),gridSpan:12},
+    },
+  })));
+
+  const pairedGrid=node({
+    id:'playroom-confidence-community-grid',
+    componentKey:'layout.grid',
+    componentVersion:1,
+    config:{columns:12,gap:'xs',align:'stretch'},
+    children:[playroomHalfWidth(clone(compatibility)),playroomHalfWidth(clone(community))],
+  });
+
+  return next.map(section=>mapPlayroomNode(section,'playroom-play-together-container',container=>({
+    ...container,
+    children:[pairedGrid],
+  })));
+}
+
 function patchPlayroomHomeResponsive(item:StorefrontComponentNode):StorefrontComponentNode{
   const children=item.children?.map(patchPlayroomHomeResponsive);
   let next:StorefrontComponentNode={...clone(item),...(children?{children}:{})};
@@ -574,7 +637,10 @@ function patchPlayroomContactResponsive(item:StorefrontComponentNode):Storefront
 
 function upgradePage(source:StorefrontPageDocument):StorefrontPageDocument{
   let sections=source.sections.map(clone);
-  if(source.pageType==='home')sections=sections.map(patchPlayroomHomeResponsive);
+  if(source.pageType==='home'){
+    sections=sections.map(patchPlayroomHomeResponsive);
+    sections=recomposePlayroomHomeBottom(sections);
+  }
   if(source.pageType==='contact')sections=sections.map(patchPlayroomContactResponsive);
   if(source.pageType==='content'){
     sections=[clone(source.sections[0]!),...playroomV20InformationContentSections(),clone(source.sections[source.sections.length-1]!)];
