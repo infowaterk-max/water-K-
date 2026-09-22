@@ -26,16 +26,24 @@ function directNodeSnapshot(node:StorefrontComponentNode){
     childIds:(node.children??[]).map(child=>child.id),
   };
 }
-function pageSnapshot(page:StorefrontPageDocument){
-  return{
-    schemaVersion:page.schemaVersion,
-    pageKey:page.pageKey,
-    pageType:page.pageType,
-    templateKey:page.templateKey,
-    templateVersion:page.templateVersion,
-    metadata:page.metadata??null,
-    sectionIds:page.sections.map(section=>section.id),
-  };
+const PAGE_FIELDS=['schemaVersion','pageKey','pageType','templateKey','templateVersion'] as const;
+export type StorefrontTargetedPageField=typeof PAGE_FIELDS[number]|'sections';
+const FORBIDDEN_METADATA_KEYS=new Set(['__proto__','prototype','constructor']);
+
+const jsonEqual=(a:unknown,b:unknown)=>JSON.stringify(a)===JSON.stringify(b);
+function changedPageFields(before:StorefrontPageDocument,after:StorefrontPageDocument):StorefrontTargetedPageField[]{
+  const changed:StorefrontTargetedPageField[]=[];
+  for(const field of PAGE_FIELDS)if(!jsonEqual(before[field],after[field]))changed.push(field);
+  if(!jsonEqual(before.sections.map(section=>section.id),after.sections.map(section=>section.id)))changed.push('sections');
+  return changed;
+}
+function changedMetadataKeys(before:StorefrontPageDocument,after:StorefrontPageDocument):string[]{
+  const a=before.metadata??{},b=after.metadata??{};
+  const keys=new Set([...Object.keys(a),...Object.keys(b)]);
+  return [...keys].filter(key=>
+    Object.prototype.hasOwnProperty.call(a,key)!==Object.prototype.hasOwnProperty.call(b,key)
+    ||!jsonEqual(a[key],b[key])
+  ).sort();
 }
 
 export type StorefrontPageChangeDiff={
@@ -43,6 +51,8 @@ export type StorefrontPageChangeDiff={
   insertedNodeIds:string[];
   removedNodeIds:string[];
   pageFieldsChanged:boolean;
+  changedPageFields:StorefrontTargetedPageField[];
+  changedMetadataKeys:string[];
 };
 
 export function diffStorefrontPageDocument(before:StorefrontPageDocument,after:StorefrontPageDocument):StorefrontPageChangeDiff{
@@ -50,11 +60,15 @@ export function diffStorefrontPageDocument(before:StorefrontPageDocument,after:S
   const inserted=[...b.keys()].filter(id=>!a.has(id)).sort();
   const removed=[...a.keys()].filter(id=>!b.has(id)).sort();
   const changed=[...a.keys()].filter(id=>b.has(id)&&JSON.stringify(directNodeSnapshot(a.get(id)!))!==JSON.stringify(directNodeSnapshot(b.get(id)!))).sort();
+  const pageFields=changedPageFields(before,after);
+  const metadataKeys=changedMetadataKeys(before,after);
   return{
     changedNodeIds:changed,
     insertedNodeIds:inserted,
     removedNodeIds:removed,
-    pageFieldsChanged:JSON.stringify(pageSnapshot(before))!==JSON.stringify(pageSnapshot(after)),
+    pageFieldsChanged:pageFields.length>0||metadataKeys.length>0,
+    changedPageFields:pageFields,
+    changedMetadataKeys:metadataKeys,
   };
 }
 
@@ -78,9 +92,21 @@ export function assertStorefrontTargetedPageChange(input:{
   after:StorefrontPageDocument;
   allowedNodeIds:readonly string[];
   allowPageFields?:boolean;
+  allowedPageFields?:readonly StorefrontTargetedPageField[];
+  allowedMetadataKeys?:readonly string[];
 }):StorefrontPageChangeDiff{
   const diff=diffStorefrontPageDocument(input.before,input.after);
-  if(diff.pageFieldsChanged&&!input.allowPageFields)throw new Error('STOREFRONT_TARGETED_CHANGE_PAGE_FIELDS');
+  if(diff.pageFieldsChanged&&!input.allowPageFields){
+    if(!input.allowedPageFields?.length&&!input.allowedMetadataKeys?.length)throw new Error('STOREFRONT_TARGETED_CHANGE_PAGE_FIELDS');
+    const allowedPageFields=new Set(input.allowedPageFields??[]);
+    const allowedMetadataKeys=new Set(input.allowedMetadataKeys??[]);
+    for(const field of diff.changedPageFields){
+      if(!allowedPageFields.has(field))throw new Error(`STOREFRONT_TARGETED_CHANGE_PAGE_FIELD_SCOPE_VIOLATION:${field}`);
+    }
+    for(const key of diff.changedMetadataKeys){
+      if(!allowedMetadataKeys.has(key))throw new Error(`STOREFRONT_TARGETED_CHANGE_METADATA_SCOPE_VIOLATION:${key}`);
+    }
+  }
   const allowed=expandAllowed(input.before,input.after,input.allowedNodeIds);
   for(const id of [...diff.changedNodeIds,...diff.insertedNodeIds,...diff.removedNodeIds]){
     if(!allowed.has(id))throw new Error(`STOREFRONT_TARGETED_CHANGE_SCOPE_VIOLATION:${id}`);
@@ -92,6 +118,7 @@ export function replaceStorefrontPageNodesById(input:{
   current:StorefrontPageDocument;
   source:StorefrontPageDocument;
   nodeIds:readonly string[];
+  metadataPatch?:Readonly<Record<string,unknown>>;
 }):StorefrontPageDocument{
   if(input.current.pageKey!==input.source.pageKey||input.current.pageType!==input.source.pageType){
     throw new Error('STOREFRONT_TARGETED_CHANGE_PAGE_IDENTITY_MISMATCH');
@@ -103,7 +130,23 @@ export function replaceStorefrontPageNodesById(input:{
     if(targets.has(node.id))return clone(sourceMap.get(node.id)!);
     return{...clone(node),...(node.children?{children:node.children.map(visit)}:{})};
   };
-  const after={...clone(input.current),sections:input.current.sections.map(visit)};
-  assertStorefrontTargetedPageChange({before:input.current,after,allowedNodeIds:input.nodeIds});
+  let after:StorefrontPageDocument={...clone(input.current),sections:input.current.sections.map(visit)};
+  const metadataKeys=Object.keys(input.metadataPatch??{});
+  if(metadataKeys.length){
+    const metadata=clone(input.current.metadata??{});
+    for(const key of metadataKeys){
+      if(FORBIDDEN_METADATA_KEYS.has(key))throw new Error(`STOREFRONT_TARGETED_CHANGE_METADATA_KEY_FORBIDDEN:${key}`);
+      const value=input.metadataPatch?.[key];
+      if(value===undefined)delete metadata[key];
+      else metadata[key]=clone(value);
+    }
+    after={...after,metadata:Object.keys(metadata).length?metadata:undefined};
+  }
+  assertStorefrontTargetedPageChange({
+    before:input.current,
+    after,
+    allowedNodeIds:input.nodeIds,
+    allowedMetadataKeys:metadataKeys,
+  });
   return after;
 }

@@ -161,6 +161,7 @@ export async function saveCurrentStorefrontPageDraft(input:{
 export async function saveCurrentStorefrontTargetedPageDraft(input:{
   sourceDocument:StorefrontPageDocument;
   nodeIds:readonly string[];
+  metadataPatch?:Readonly<Record<string,unknown>>;
   expectedDraftRevision:number;
   operationKey:string;
 }):Promise<StorefrontPersistedRevision>{
@@ -172,6 +173,7 @@ export async function saveCurrentStorefrontTargetedPageDraft(input:{
     current:state.draft.document,
     source:input.sourceDocument,
     nodeIds:input.nodeIds,
+    metadataPatch:input.metadataPatch,
   });
   return saveCurrentStorefrontPageDraft({
     document,
