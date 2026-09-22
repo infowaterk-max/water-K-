@@ -514,3 +514,8 @@ For any Playroom / Template Factory responsive polish:
 5. run tablet/mobile visual regression after the true-desktop proof.
 
 Do not change the shared resolver to compensate for a template-level isolation mistake.
+
+
+### Responsive visual proof execution
+
+The recovery must be visually re-proven from the exact current tree at desktop, 768px tablet and 390px mobile after the explicit inheritance resets. This proof is evidence-only; it does not authorize further layout changes.
