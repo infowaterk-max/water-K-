@@ -38,8 +38,11 @@ describe('shared commerce/account hardening',()=>{
  });
  it('keeps cross-sell before order submission and reduces document guidance to compact transactional notices',()=>{
   const cartPage=read('src/app/kosar/page.tsx'),recommendations=read('src/components/catalog/product-recommendations.tsx'),success=read('src/app/rendeles-sikeres/page.tsx'),checkout=read('src/components/checkout/checkout-form.tsx'),composition=read('src/lib/builder/storefront-digital-commerce-composition.ts'),admin=read('src/components/admin/recommendation-manager.tsx'),api=read('src/app/api/admin/recommendations/route.ts');
-  expect(cartPage).toContain('<ProductRecommendations products={products} rules={rules} context="cart"/>');
+  expect(cartPage).toContain('<ProductRecommendations products={products} rules={rules}/>');
   expect(recommendations).toContain("'cart_cross_sell'");
+  expect(recommendations).toContain('data-cart-cross-sell="shared"');
+  expect(recommendations).not.toContain("'post_purchase_offer'");
+  expect(recommendations).not.toContain("'confirmation'");
   expect(success).not.toContain('ProductRecommendations');
   expect(success).not.toContain("getRecommendationRules('post_purchase')");
   expect(success).toContain('data-post-purchase-access-notice="compact"');

@@ -15,7 +15,7 @@ function viewportFromUserAgent(value:string):StorefrontViewport{const v=value.to
 export default async function Cart(){
  await requireStorefrontAccess();
  const[products,rules,commerce,runtime,userAgent]=await Promise.all([getProducts(),getRecommendationRules('cart'),getCommerceSettings(),resolveCurrentStorefrontCartRuntimePage(),headers().then(value=>value.get('user-agent')??'')]);
- const cart=<><CartView freeShippingThreshold={commerce.freeShippingThreshold} products={products.map(product=>({id:product.id,name:product.name,slug:product.slug,grossPrice:product.grossPrice,minimumQuantity:product.minimumQuantity,orderMultiple:product.orderMultiple,fulfillmentType:product.fulfillmentType}))}/><ProductRecommendations products={products} rules={rules} context="cart"/></>;
+ const cart=<><CartView freeShippingThreshold={commerce.freeShippingThreshold} products={products.map(product=>({id:product.id,name:product.name,slug:product.slug,grossPrice:product.grossPrice,minimumQuantity:product.minimumQuantity,orderMultiple:product.orderMultiple,fulfillmentType:product.fulfillmentType}))}/><ProductRecommendations products={products} rules={rules}/></>;
  if(runtime)return <StorefrontCartShell runtime={runtime} viewport={viewportFromUserAgent(userAgent)}>{cart}</StorefrontCartShell>;
  return <main className="section cartShowcase" data-storefront-cart-fallback="legacy"><div className="shell"><div className="commerceMastInner"><div><span className="showcaseKicker">Kosár</span><h1 className="sectionTitle">Már csak néhány lépés.</h1></div><p className="lead">Ellenőrizd a kiválasztott termékeket, mennyiségeket és a kézbesítés típusát, majd folytasd a vezetett pénztárhoz.</p></div>{cart}</div></main>;
 }
