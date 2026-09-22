@@ -56,10 +56,10 @@ describe('Visual Builder Fidelity Engine foundation',()=>{
     expect(readStorefrontFidelityMetadata(next)).toMatchObject({engineVersion:STOREFRONT_FIDELITY_ENGINE_VERSION,editMode:'advanced'});
   });
 
-  it('resolves independent responsive section composition with inheritance and appends unspecified sections safely',()=>{
+  it('resolves section composition independently per viewport and appends unspecified sections safely',()=>{
     const configured=writeStorefrontFidelityMetadata(page(),{sectionOrder:{desktop:['hero','trust','finder'],mobile:['hero','trust','featured']}});
     expect(resolveStorefrontSectionOrder(configured,'desktop')).toEqual(['hero','trust','finder','featured']);
-    expect(resolveStorefrontSectionOrder(configured,'tablet')).toEqual(['hero','trust','finder','featured']);
+    expect(resolveStorefrontSectionOrder(configured,'tablet')).toEqual(['hero','trust','featured','finder']);
     expect(resolveStorefrontSectionOrder(configured,'mobile')).toEqual(['hero','trust','featured','finder']);
     expect(reorderStorefrontSections(configured,'mobile').map(section=>section.id)).toEqual(['hero','trust','featured','finder']);
   });
