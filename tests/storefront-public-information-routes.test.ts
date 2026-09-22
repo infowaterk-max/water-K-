@@ -21,8 +21,9 @@ describe('storefront public information route integrity',()=>{
   expect(page).toMatch(/StorefrontContentShell/);
   expect(shell).toMatch(/resolveCurrentStorefrontContentRuntimePage/);
   expect(shell).toMatch(/data-storefront-template=\{runtime\.page\.templateKey\}/);
-  expect(source).toMatch(/resolveCurrentStorefrontPublicStaticRuntimePage\(pageKey:'content'\|'contact'\)/);
+  expect(source).toMatch(/resolveCurrentStorefrontPublicStaticRuntimePage\(pageKey:'home'\|'content'\|'contact'\)/);
   expect(source).toMatch(/getPreviewStorefrontDraftPage\(instance\.id,pageKey\)/);
+  expect(source).toMatch(/resolveCurrentStorefrontPublicStaticRuntimePage\('home'\)/);
   expect(source).toMatch(/resolveCurrentStorefrontPublicStaticRuntimePage\('content'\)/);
   expect(source).toMatch(/resolveCurrentStorefrontPublicStaticRuntimePage\('contact'\)/);
   expect(css).toMatch(/\.storefrontContentShell\{/);
