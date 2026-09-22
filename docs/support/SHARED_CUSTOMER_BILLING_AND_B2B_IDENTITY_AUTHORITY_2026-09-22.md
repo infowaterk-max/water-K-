@@ -22,6 +22,9 @@ Global Shoperation platform capability. It is **not template-owned**. All curren
 12. Account capability navigation has one runtime authority: the platform IA left rail. Template-local account capability navigation is stripped from runtime composition.
 13. Cart and checkout Preview acceptance must resolve the current tenant draft by explicit instance ID. Store-context/admin-context helpers must not be used as hidden storefront prerequisites.
 14. Add-to-cart acknowledgement is shared behavior and template-aware presentation, with an accessible live status plus Kosár megnyitása / Tovább vásárolok actions.
+15. Add-to-cart acknowledgement placement is responsive by platform contract: desktop/tablet presents it centered in the viewport; mobile presents it as a bottom sheet.
+16. Cart live content must bridge legacy commerce variables to the active template token authority; a template-native shell may not contain generic white-card styling with incompatible text tokens.
+17. Order confirmation / post-purchase surfaces are part of storefront continuity. They must inherit the active template header, footer and design tokens through the shared post-purchase runtime shell.
 
 ## Root causes found in human acceptance
 
@@ -31,6 +34,9 @@ Global Shoperation platform capability. It is **not template-owned**. All curren
 - Product add-to-cart updated cart state without any customer-visible acknowledgement.
 - `profiles` had no tenant-scoped billing address model, so repeat checkout could not safely prefill billing data.
 - B2B company/tax fields existed as ordinary profile inputs even though the organization model already had a stronger approval authority.
+- Human acceptance showed that the cart shell was Playroom-native but its live CartView still inherited generic white-card variables, creating a mixed presentation and low-contrast text.
+- The order-success route rendered the generic confirmation surface outside template Runtime, so the flow visually left Playroom after an otherwise template-native checkout.
+- The shared add-to-cart acknowledgement used a bottom-right desktop placement even though the accepted desktop interaction is a centered viewport confirmation; the bottom-sheet placement is mobile-only.
 
 ## Resolution
 
@@ -41,6 +47,9 @@ Global Shoperation platform capability. It is **not template-owned**. All curren
 - Add B2B identity change request table, direct-mutation DB guard, owner request/cancel RPCs, merchant review RPC and full audit events.
 - Lock B2B company/tax fields in the ordinary profile and expose legal identity changes only through the B2B organization workflow.
 - Extend Template Factory Quality Gate shared-runtime triggers to cart, checkout and account surfaces.
+- Bridge live cart legacy CSS variables to current storefront design tokens inside StorefrontCartShell.
+- Add StorefrontPostPurchaseShell using the checkout presentation authority for canonical template header/footer and design tokens on order-success surfaces.
+- Make AddToCartConfirmation centered on desktop/tablet and bottom-sheet on mobile through the shared component, not per-template CSS.
 
 ## Safety / prevention
 

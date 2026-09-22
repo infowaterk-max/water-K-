@@ -17,8 +17,24 @@ describe('shared commerce/account hardening',()=>{
   expect(confirmation).toContain('Kosár megnyitása');
   expect(confirmation).toContain('Tovább vásárolok');
   expect(confirmation).toContain('aria-live="polite"');
+  expect(confirmation).toContain('left:50%;top:50%');
+  expect(confirmation).toContain('transform:translate(-50%,-50%)');
+  expect(confirmation).toContain('@media(max-width:767px)');
+  expect(confirmation).toContain('top:auto;bottom:.75rem;transform:none');
   expect(runtime).toContain('AddToCartConfirmation');
   expect(legacy).toContain('AddToCartConfirmation');
+ });
+ it('keeps live cart and post-purchase confirmation inside the current template presentation authority',()=>{
+  const source=read('src/lib/builder/storefront-runtime-source.ts'),cartShell=read('src/components/cart/storefront-cart-shell.tsx'),success=read('src/app/rendeles-sikeres/page.tsx'),postPurchase=read('src/components/checkout/storefront-post-purchase-shell.tsx');
+  expect(cartShell).toContain("'--card':'var(--shoporation-color-surface)'");
+  expect(cartShell).toContain("'--ink':'var(--shoporation-color-text)'");
+  expect(cartShell).toContain("'--muted':'var(--shoporation-color-muted-text)'");
+  expect(source).toContain('resolveCurrentStorefrontPostPurchaseRuntimePage');
+  expect(success).toContain('resolveCurrentStorefrontPostPurchaseRuntimePage()');
+  expect(success).toContain('StorefrontPostPurchaseShell');
+  expect(postPurchase).toContain('data-storefront-post-purchase-runtime="template-native"');
+  expect(postPurchase).toContain("'--card':'var(--shoporation-color-surface)'");
+  expect(postPurchase).toContain('data-storefront-template-key');
  });
  it('stores billing defaults per tenant and user and only after a successful checkout finalization',()=>{
   const sql=read('supabase/migrations/20260922053000_shared_customer_billing_b2b_identity_reverification.sql'),baseline=read('supabase/customer-baseline/migrations/0044_shared_customer_billing_b2b_identity_reverification.sql'),checkout=read('src/components/checkout/checkout-form.tsx'),page=read('src/app/penztar/page.tsx'),orders=read('src/app/api/orders/route.ts');
