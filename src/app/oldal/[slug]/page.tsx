@@ -15,6 +15,15 @@ const SYSTEM_INFO:Record<string,{title:string;description:string}>={
   szallitas:{title:'Szállítás',description:'Aktív szállítási módok, díjak és kézbesítési információk.'},
   fizetes:{title:'Fizetés',description:'Aktív fizetési módok és a rendelés fizetési folyamata.'},
   visszakuldes:{title:'Visszaküldés',description:'Visszaküldési tájékoztató és vásárlói ügyintézés.'},
+  rolunk:{title:'Rólunk',description:'A webshop bemutatkozó információinak helye.'},
+  fenntarthatosag:{title:'Fenntarthatóság',description:'A kereskedő által közzétett fenntarthatósági információk helye.'},
+  karrier:{title:'Karrier',description:'A kereskedő által közzétett karrierinformációk helye.'},
+};
+
+const EDITORIAL_INFO:Record<string,{title:string;lead:string;body:string}>={
+ rolunk:{title:'Rólunk',lead:'A webshop bemutatkozó tartalma még nincs közzétéve.',body:'A kereskedő a Tartalom és SEO modulban teheti közzé a saját történetét, csapatát és bemutatkozó információit. Addig ezen az oldalon nem jelenítünk meg kitalált céges állításokat.'},
+ fenntarthatosag:{title:'Fenntarthatóság',lead:'Jelenleg nincs közzétett fenntarthatósági tájékoztató.',body:'Konkrét vállalást, minősítést vagy környezeti állítást csak a kereskedő által jóváhagyott tartalomból jelenítünk meg.'},
+ karrier:{title:'Karrier',lead:'Jelenleg nincs közzétett karrierinformáció.',body:'Nyitott pozíciót vagy jelentkezési lehetőséget csak akkor jelenítünk meg, ha azt a kereskedő ténylegesen közzétette.'},
 };
 
 export async function generateMetadata({params}:{params:Promise<{slug:string}>}):Promise<Metadata>{
@@ -49,7 +58,7 @@ function SystemInfoPage({slug,brand,settings}:{slug:string;brand:string;settings
     <div className="actions systemInfoActions"><Link className="btn btnPrimary" href="/webaruhaz">Vissza a webáruházba</Link><Link className="btn btnGhost" href="/oldal/szallitas">Szállítási információk</Link></div>
   </div></main>;
  }
- return <main className="section contentPage systemInfoPage" data-system-info-page="returns"><div className="shell">
+ if(slug==='visszakuldes')return <main className="section contentPage systemInfoPage" data-system-info-page="returns"><div className="shell">
    <span className="eyebrow">{brand} · vásárlási információk</span><h1 className="sectionTitle">Visszaküldés</h1>
    <p className="lead">A konkrét rendeléshez tartozó visszaküldési vagy visszatérítési kérelmet bejelentkezés után, a vásárlói fiókban lehet elindítani és követni.</p>
    <div className="systemInfoStack">
@@ -59,6 +68,9 @@ function SystemInfoPage({slug,brand,settings}:{slug:string;brand:string;settings
    </div>
    <div className="actions systemInfoActions"><Link className="btn btnPrimary" href="/fiokom/visszakuldes">Visszaküldés indítása</Link><Link className="btn btnGhost" href="/webaruhaz">Vissza a webáruházba</Link></div>
   </div></main>;
+ const editorial=EDITORIAL_INFO[slug];
+ if(!editorial)return null;
+ return <main className="section contentPage systemInfoPage" data-system-info-page={slug}><div className="shell"><span className="eyebrow">{brand} · információ</span><h1 className="sectionTitle">{editorial.title}</h1><p className="lead">{editorial.lead}</p><section className="card"><p className="muted">{editorial.body}</p></section><div className="actions systemInfoActions"><Link className="btn btnPrimary" href="/kapcsolat">Kapcsolat</Link><Link className="btn btnGhost" href="/">Vissza a főoldalra</Link></div></div></main>;
 }
 
 export default async function Page({params}:{params:Promise<{slug:string}>}){

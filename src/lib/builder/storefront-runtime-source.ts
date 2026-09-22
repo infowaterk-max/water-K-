@@ -111,6 +111,67 @@ export async function resolveCurrentStorefrontRouteRuntimePage(pageKey:Storefron
  return resolveCurrentStorefrontPublicStaticRuntimePage(pageKey);
 }
 
+const BLOG_DEMO_SLUG_PATTERN=/^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+function previewDemoArticleFromIndex(page:StorefrontPageDocument,slug:string){
+ const expectedHref=`/blog/${slug}`;
+ let found:{title:string;summary:string;image:string;imageAlt:string}|null=null;
+ const visit=(nodes:readonly StorefrontPageDocument['sections'][number][])=>{
+  for(const node of nodes){
+   for(const binding of Object.values(node.bindings??{})){
+    if(!binding||typeof binding!=='object')continue;
+    const fallback=(binding as{fallback?:unknown}).fallback;
+    if(!Array.isArray(fallback))continue;
+    for(const raw of fallback){
+     if(!raw||typeof raw!=='object'||Array.isArray(raw))continue;
+     const row=raw as Record<string,unknown>;
+     if(row.href!==expectedHref)continue;
+     const title=typeof row.title==='string'?row.title.trim():'';
+     if(!title)continue;
+     found={
+      title,
+      summary:typeof row.excerpt==='string'?row.excerpt.trim():'',
+      image:typeof row.image==='string'?row.image.trim():'',
+      imageAlt:typeof row.imageAlt==='string'?row.imageAlt.trim():title,
+     };
+     return;
+    }
+   }
+   visit(node.children??[]);
+   if(found)return;
+  }
+ };
+ visit(page.sections);
+ return found;
+}
+
+export async function resolveStorefrontPreviewDemoBlogArticleRuntime(slug:string):Promise<StorefrontResolvedRuntimePage|null>{
+ if(process.env.VERCEL_ENV!=='preview'||!BLOG_DEMO_SLUG_PATTERN.test(slug))return null;
+ const instance=await getCurrentWebshopInstance();if(!instance)return null;
+ const index=await getPreviewStorefrontDraftPage(instance.id,'blog-index');if(!index)return null;
+ const demo=previewDemoArticleFromIndex(index,slug);if(!demo)return null;
+ const runtime=await resolveCurrentStorefrontPublicStaticRuntimePage('blog-article');
+ if(!runtime||runtime.source!=='preview')return null;
+ const currentContent=runtime.bindingContext.content&&typeof runtime.bindingContext.content==='object'&&!Array.isArray(runtime.bindingContext.content)
+  ?runtime.bindingContext.content as Record<string,unknown>
+  :{};
+ return{
+  ...runtime,
+  bindingContext:{
+   ...runtime.bindingContext,
+   content:{
+    ...currentContent,
+    article:{
+     title:demo.title,
+     summary:demo.summary,
+     image:demo.image,
+     imageAlt:demo.imageAlt,
+     body:demo.summary,
+    },
+   },
+  },
+ };
+}
+
 export async function resolveCurrentStorefrontHomeRuntimePage():Promise<StorefrontResolvedRuntimePage|null>{
  return resolveCurrentStorefrontPublicStaticRuntimePage('home');
 }

@@ -1,4 +1,8 @@
 import type { Metadata } from 'next';
+import {headers} from 'next/headers';
+import {StorefrontResponsiveRuntime} from '@/components/builder/storefront-responsive-runtime';
+import {resolveStorefrontPreviewDemoBlogArticleRuntime} from '@/lib/builder/storefront-runtime-source';
+import type {StorefrontViewport} from '@/lib/builder/storefront-foundation';
 import { notFound } from 'next/navigation';
 import { getPublicContentBySlug } from '@/lib/content/server';
 import { getCurrentWebshopInstance } from '@/lib/instances/access';
@@ -6,6 +10,7 @@ import { TemplateDemoContentNotice } from '@/components/content/template-demo-co
 import {StorefrontContentShell} from '@/components/content/storefront-content-shell';
 
 export const dynamic='force-dynamic';
+const viewport=(value:string):StorefrontViewport=>/ipad|tablet|kindle|silk/i.test(value)?'tablet':/mobi|iphone|ipod|android/i.test(value)?'mobile':'desktop';
 
 export async function generateMetadata({params}:{params:Promise<{slug:string}>}):Promise<Metadata>{
   const{slug}=await params,item=await getPublicContentBySlug('blog',slug);
@@ -14,7 +19,13 @@ export async function generateMetadata({params}:{params:Promise<{slug:string}>})
 }
 
 export default async function BlogArticle({params}:{params:Promise<{slug:string}>}){
-  const{slug}=await params,item=await getPublicContentBySlug('blog',slug);if(!item)notFound();
+  const{slug}=await params,item=await getPublicContentBySlug('blog',slug);
+  if(!item){
+    const demo=await resolveStorefrontPreviewDemoBlogArticleRuntime(slug);
+    if(!demo)notFound();
+    const initialViewport=viewport((await headers()).get('user-agent')??'');
+    return <main data-storefront-blog-demo-article="page-schema" data-storefront-template={demo.page.templateKey}><StorefrontResponsiveRuntime page={demo.page} initialViewport={initialViewport} bindingContext={demo.bindingContext} capability={demo.capability}/></main>;
+  }
   const instance=await getCurrentWebshopInstance();
   const base=(instance?.brand.publicSiteUrl??process.env.NEXT_PUBLIC_SITE_URL??'http://localhost:3000').replace(/\/$/,'');
   const brandName=instance?.brand.name??'Webáruház';
