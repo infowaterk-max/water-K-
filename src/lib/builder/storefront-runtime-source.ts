@@ -112,36 +112,34 @@ export async function resolveCurrentStorefrontRouteRuntimePage(pageKey:Storefron
 }
 
 const BLOG_DEMO_SLUG_PATTERN=/^[a-z0-9]+(?:-[a-z0-9]+)*$/;
-function previewDemoArticleFromIndex(page:StorefrontPageDocument,slug:string){
- const expectedHref=`/blog/${slug}`;
- let found:{title:string;summary:string;image:string;imageAlt:string}|null=null;
- const visit=(nodes:readonly StorefrontPageDocument['sections'][number][])=>{
-  for(const node of nodes){
-   for(const binding of Object.values(node.bindings??{})){
-    if(!binding||typeof binding!=='object')continue;
-    const fallback=(binding as{fallback?:unknown}).fallback;
-    if(!Array.isArray(fallback))continue;
-    for(const raw of fallback){
-     if(!raw||typeof raw!=='object'||Array.isArray(raw))continue;
-     const row=raw as Record<string,unknown>;
-     if(row.href!==expectedHref)continue;
-     const title=typeof row.title==='string'?row.title.trim():'';
-     if(!title)continue;
-     found={
-      title,
-      summary:typeof row.excerpt==='string'?row.excerpt.trim():'',
-      image:typeof row.image==='string'?row.image.trim():'',
-      imageAlt:typeof row.imageAlt==='string'?row.imageAlt.trim():title,
-     };
-     return;
-    }
+type PreviewDemoArticle={title:string;summary:string;image:string;imageAlt:string};
+function findPreviewDemoArticle(nodes:readonly StorefrontPageDocument['sections'][number][],expectedHref:string):PreviewDemoArticle|null{
+ for(const node of nodes){
+  for(const binding of Object.values(node.bindings??{})){
+   if(!binding||typeof binding!=='object')continue;
+   const fallback=(binding as{fallback?:unknown}).fallback;
+   if(!Array.isArray(fallback))continue;
+   for(const raw of fallback){
+    if(!raw||typeof raw!=='object'||Array.isArray(raw))continue;
+    const row=raw as Record<string,unknown>;
+    if(row.href!==expectedHref)continue;
+    const title=typeof row.title==='string'?row.title.trim():'';
+    if(!title)continue;
+    return{
+     title,
+     summary:typeof row.excerpt==='string'?row.excerpt.trim():'',
+     image:typeof row.image==='string'?row.image.trim():'',
+     imageAlt:typeof row.imageAlt==='string'?row.imageAlt.trim():title,
+    };
    }
-   visit(node.children??[]);
-   if(found)return;
   }
- };
- visit(page.sections);
- return found;
+  const nested=findPreviewDemoArticle(node.children??[],expectedHref);
+  if(nested)return nested;
+ }
+ return null;
+}
+function previewDemoArticleFromIndex(page:StorefrontPageDocument,slug:string):PreviewDemoArticle|null{
+ return findPreviewDemoArticle(page.sections,`/blog/${slug}`);
 }
 
 export async function resolveStorefrontPreviewDemoBlogArticleRuntime(slug:string):Promise<StorefrontResolvedRuntimePage|null>{
