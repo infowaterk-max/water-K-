@@ -168,6 +168,52 @@ Only after A1–A6:
 
 # Phase B — Complete / rebuild the remaining 41 launch-quality templates
 
+## B0 — Guarded Visual Section Library / Preset Gallery
+
+Before the remaining template portfolio is scaled out, productize the existing canonical Section Preset mechanism into a merchant-facing visual library. This is **not** a free-form HTML/page-builder escape hatch and it does not create another renderer, document model or responsive authority.
+
+Product direction:
+
+- visual category browser with searchable/filterable preview cards for reusable compositions such as Hero, CTA, editorial, product discovery, testimonials, brands, FAQ, newsletter, contact and similar semantic sections;
+- one-click insertion into the current Page Schema working copy, followed by ordinary Visual Builder editing;
+- shared composition presets plus template-aware visual inheritance, with a smaller set of genuinely template-specific signature presets where the design requires it;
+- merchant **Saved Blocks** remain a separate personal library; factory presets remain source-controlled and quality-gated;
+- the existing 14 Page Presets remain page-level starting points; this library is section/component-level composition reuse and must not replace the page/template hierarchy.
+
+### Non-negotiable safety boundary
+
+Every factory block must remain inside every already accepted Builder/Template Factory rule:
+
+- only registered Page Schema components/versions and declared parent-child contracts may be materialized;
+- no raw HTML/JavaScript, arbitrary iframe/script/widget injection, hidden duplicate breakpoint DOM or template-local application code;
+- no preset may become product, price, stock, order, payment, shipping, customer, entitlement or other business authority; commerce content stays bound to canonical engines;
+- insertion must generate fresh stable node identities, preserve declared bindings/capability requirements, and pass the same server-side schema/capability validation as any other Builder edit;
+- Desktop/Tablet/Mobile remain one document under the canonical responsive authority; a preset is not accepted if it relies on accidental desktop-to-mobile leakage or separate mobile markup;
+- template design tokens and current-theme inheritance remain authoritative; a shared preset may adapt presentation, but it may not silently rewrite the merchant's global design system;
+- protected/system surfaces and semantic insertion constraints remain protected.
+
+### Structural and performance guard
+
+The existing `STOREFRONT_TEMPLATE_PERFORMANCE_CONTRACT.md` is mandatory for every preset and for the page after insertion. Hard limits are **blocking**, not warnings. In particular, insertion must be refused when the resulting Page Schema would violate hard budgets for section count, total component nodes, tree depth, eager images, visual layers or style declarations.
+
+Preset authoring must additionally obey these rules:
+
+- no section may solve responsive layout by duplicating large hidden subtrees;
+- below-fold media is lazy by default; only genuine LCP candidates may be eager;
+- animation must remain bounded, compositing-first and reduced-motion aware;
+- a preset cannot add a third-party runtime dependency or script merely to reproduce a visual effect;
+- layered compositions must have bounded layer counts and section-local geometry;
+- thumbnails/gallery browsing must not render dozens of live storefront runtimes at once; use lightweight/pre-generated preview assets or another bounded preview strategy;
+- every preset family must be proven at true desktop, tablet and mobile and must pass schema, accessibility, state/data and runtime-performance gates before entering the factory library.
+
+### Acceptance rule
+
+A preset is factory-eligible only after:
+
+`schema/capability validation -> responsive isolation proof -> structural performance budget -> runtime performance evidence -> Desktop/Tablet/Mobile visual proof -> accessibility/state checks -> Template Factory acceptance`.
+
+If a visually attractive block can only pass by weakening a shared guard, raising a hard budget, adding duplicate DOM, or moving business truth into decorative configuration, the block is rejected rather than the platform rule being relaxed.
+
 The launch target is **42 genuinely different, launch-quality visual designs**, not 42 aliases/reskins, not Alap/Pro duplication, and not a count of technically existing packages.
 
 **Accepted launch-quality template families at this checkpoint: 1 — Playroom.**
@@ -260,6 +306,7 @@ All such capabilities must attach to the shared Page Schema/Builder/add-on contr
 3. **Shared storefront/Builder integration** across all templates, with Playroom as the first full acceptance implementation.
 4. **Playroom functional + responsive + accessibility/state/performance closure**.
 5. **Playroom v20 final merge/release**.
-6. **Remaining 41 template families — rebuild/rework/implement to the Playroom launch-quality bar**, reusing the completed shared capability platform.
-7. **Market Ready 1.0 final certification**.
-8. **AI Support / Shoperation Knowledge** and post-launch premium expansion according to business priority.
+6. **Guarded Visual Section Library / Preset Gallery foundation**, using the existing canonical Section Preset engine and hard Template Factory/performance guards.
+7. **Remaining 41 template families — rebuild/rework/implement to the Playroom launch-quality bar**, reusing the completed shared capability platform and contributing only accepted reusable sections to the guarded library.
+8. **Market Ready 1.0 final certification**.
+9. **AI Support / Shoperation Knowledge** and post-launch premium expansion according to business priority.
