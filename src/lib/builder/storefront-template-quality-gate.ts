@@ -56,7 +56,7 @@ export const PLAYROOM_V20_QUALITY_MANIFEST:StorefrontTemplateQualityManifest=Obj
   gateVersion:STOREFRONT_TEMPLATE_QUALITY_GATE_VERSION,
   templateKey:'gaming.playroom',
   minTemplateVersion:20,
-  status:'candidate',
+  status:'accepted',
   sourcePrefixes:Object.freeze([
     'src/lib/builder/templates/playroom-',
   ]),
@@ -81,7 +81,7 @@ export const PLAYROOM_V20_QUALITY_MANIFEST:StorefrontTemplateQualityManifest=Obj
     requireFooter:true,
   }),
   golden:Object.freeze({
-    required:false,
+    required:true,
     baselineDirectory:'tests/visual-baselines/gaming.playroom/v20',
     maxPixelMismatchRatio:.005,
   }),
