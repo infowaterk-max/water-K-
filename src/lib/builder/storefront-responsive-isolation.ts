@@ -1,4 +1,4 @@
-import {resolveStorefrontResponsiveOverrideLegacyCascade,type StorefrontComponentNode,type StorefrontPageDocument} from '@/lib/builder/storefront-runtime';
+import {resolveStorefrontResponsiveOverride,resolveStorefrontResponsiveOverrideLegacyCascade,type StorefrontComponentNode,type StorefrontPageDocument} from '@/lib/builder/storefront-runtime';
 import type {StorefrontInstallableTemplatePackage} from '@/lib/builder/storefront-template-installation';
 import {
   resolveStorefrontVisualStyle,
@@ -8,13 +8,17 @@ import {
 } from '@/lib/builder/storefront-visual-style';
 import type {StorefrontViewport} from '@/lib/builder/storefront-foundation';
 import {
+  resolveStorefrontTypography,
   resolveStorefrontTypographyValueLegacyCascade,
   sanitizeStorefrontTypographyValue,
 } from '@/lib/builder/storefront-fidelity-typography';
 import {
   readStorefrontFidelityMetadata,
+  resolveStorefrontChildOrder,
   resolveStorefrontChildOrderLegacyCascade,
+  resolveStorefrontImageArtDirection,
   resolveStorefrontImageArtDirectionLegacyCascade,
+  resolveStorefrontSectionOrder,
   resolveStorefrontSectionOrderLegacyCascade,
   sanitizeStorefrontImageArtDirectionSource,
   writeStorefrontFidelityMetadata,
@@ -118,6 +122,26 @@ export function listUnmaterializedStorefrontVisualSurfaces(page:StorefrontPageDo
   return issues.sort();
 }
 
+export function listUnmaterializedStorefrontViewportAuthorities(page:StorefrontPageDocument):string[]{
+  const issues=[...listUnmaterializedStorefrontVisualSurfaces(page)];
+  const complete=(value:unknown)=>isRecord(value)&&VIEWPORTS.every(viewport=>isRecord(value[viewport]));
+  const visit=(node:StorefrontComponentNode)=>{
+    if(node.responsive&&!VIEWPORTS.every(viewport=>isRecord(node.responsive?.[viewport])))issues.push(`${node.id}.responsive`);
+    const typography=node.config.typography;
+    if(isRecord(typography)&&SLOT_KEYS.some(slot=>Object.prototype.hasOwnProperty.call(typography,slot))&&!complete(typography))issues.push(`${node.id}.typography`);
+    const artDirection=node.config.artDirection;
+    if(isRecord(artDirection)&&SLOT_KEYS.some(slot=>Object.prototype.hasOwnProperty.call(artDirection,slot))&&!complete(artDirection))issues.push(`${node.id}.artDirection`);
+    for(const child of node.children??[])visit(child);
+  };
+  for(const section of page.sections)visit(section);
+  const fidelity=readStorefrontFidelityMetadata(page);
+  if(fidelity?.sectionOrder&&!VIEWPORTS.every(viewport=>Array.isArray(fidelity.sectionOrder?.[viewport])))issues.push('metadata.fidelity.sectionOrder');
+  for(const[parentId,order]of Object.entries(fidelity?.nodeOrder??{})){
+    if(!VIEWPORTS.every(viewport=>Array.isArray(order[viewport])))issues.push(`metadata.fidelity.nodeOrder.${parentId}`);
+  }
+  return[...new Set(issues)].sort();
+}
+
 export function materializeStorefrontNodeResponsiveStyles(source:StorefrontComponentNode):StorefrontComponentNode{
   const responsive=source.responsive?{
     desktop:resolveStorefrontResponsiveOverrideLegacyCascade(source,'desktop'),
@@ -176,7 +200,9 @@ export function materializeStorefrontTemplateResponsiveStyles(source:StorefrontI
 }
 
 type VisualSurfaceState=Record<string,unknown>;
-function collectNodeState(node:StorefrontComponentNode,viewport:StorefrontViewport,result:VisualSurfaceState){
+function collectNodeState(page:StorefrontPageDocument,node:StorefrontComponentNode,viewport:StorefrontViewport,result:VisualSurfaceState){
+  result[`${node.id}.responsive`]=resolveStorefrontResponsiveOverride(node,viewport);
+  if(node.children?.length)result[`${node.id}.childOrder`]=resolveStorefrontChildOrder(page,node,viewport);
   const config=node.config as Record<string,unknown>;
   for(const[key,value]of Object.entries(config)){
     if(key==='styleSlots'&&isRecord(value)){
@@ -187,14 +213,19 @@ function collectNodeState(node:StorefrontComponentNode,viewport:StorefrontViewpo
     }
     if((key==='style'||key.endsWith('Style'))&&isVisualStyleCandidate(value)){
       result[`${node.id}.${key}`]=resolveStorefrontVisualStyle(value,viewport);
+      continue;
     }
+    if(key==='typography'&&isRecord(value))result[`${node.id}.typography`]=resolveStorefrontTypography(value,viewport);
+    if(key==='artDirection'&&isRecord(value))result[`${node.id}.artDirection`]=resolveStorefrontImageArtDirection(value,viewport);
   }
-  for(const child of node.children??[])collectNodeState(child,viewport,result);
+  for(const child of node.children??[])collectNodeState(page,child,viewport,result);
 }
 
 export function collectStorefrontEffectiveVisualState(page:StorefrontPageDocument,viewport:StorefrontViewport):VisualSurfaceState{
-  const result:VisualSurfaceState={};
-  for(const section of page.sections)collectNodeState(section,viewport,result);
+  const result:VisualSurfaceState={
+    'page.sectionOrder':resolveStorefrontSectionOrder(page,viewport),
+  };
+  for(const section of page.sections)collectNodeState(page,section,viewport,result);
   return result;
 }
 
