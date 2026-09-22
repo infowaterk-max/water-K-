@@ -302,3 +302,27 @@ Regression guards:
 
 **A height-parity javítás csak azon a rétegen történhet, amely ténylegesen létrehozza az eltérést; parent → grid cell → wrapper → card → media/content láncot előbb bizonyítani kell.**
 
+### First true-desktop proof finding: residual confidence-row stretch
+
+The first 1440×1000 and 1280×800 exact-head screenshots proved that Hero/Selectors, merchandising and Gift were recovered, but also exposed one remaining desktop-only problem: Compatibility/Community was still much too tall.
+
+The residual cause was not the outer 6/6 grid. It was the restored legacy percentage-height chain inside the row:
+
+- Compatibility card: `height:100% / minHeight:100%`;
+- Compatibility layout: `height:100%`;
+- status wrap: `height:100% + space-between`;
+- Community media: `height:100%`.
+
+That chain expanded the low-density content after the 6/6 split and recreated the large empty area immediately above Newsletter.
+
+Final desktop-only correction:
+
+- keep the accepted 6/6 parent grid unchanged;
+- Compatibility desktop height returns to natural sizing with the inherited 11.3rem fidelity floor;
+- Compatibility layout and status content resolve to `height:auto`, with compact `flex-start` flow;
+- Community desktop content/media use the same 11.3rem fidelity-derived visual target;
+- Community media is explicitly bounded on desktop instead of inheriting `height:100%`;
+- tablet/mobile overrides are left intact.
+
+**Regression guard:** after a 6/6 composition split, percentage-height descendants must not be assumed safe. True-desktop evidence must verify the actual rendered row height and whitespace before acceptance.
+
