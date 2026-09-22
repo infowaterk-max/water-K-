@@ -433,3 +433,22 @@ Before giving a merchant/stakeholder a staging homepage link after template-pack
 3. only then use the `/` route for human acceptance.
 
 A green `/visual-fidelity-qa` capture does not prove that the staging `/` route has been refreshed to the same document.
+
+
+## Desktop-only vertical composition correction — human re-check #2
+
+Human review of the persisted staging Home revision confirmed that the first proportion pass fixed the Player 2 / Game Night inner media alignment but left three desktop regions visually too flat.
+
+This correction is deliberately **desktop-only**. No tablet/mobile style slot is changed.
+
+Desktop targets:
+- Hero and the selector column: `22rem` minimum on both owning siblings; the two selector cards continue to divide the existing selector column using the already-proven flex mechanism.
+- Gift card: `19.25rem` minimum so the right 6/6 card carries the same visual row weight as the content-driven Featured carousel beside it. The 6/6 width remains unchanged.
+- Compatibility: `15.5rem` minimum; compatibility media `9rem`.
+- Community: content and media `14.8rem`, preserving the existing 6/6 internal split.
+
+Guard:
+- do not compensate these desktop proportions by changing tablet/mobile values;
+- do not alter Finder 6/3/2 or platform selector responsive behavior;
+- do not reintroduce nested `height:100%` / grid-row stretch chains;
+- staging `/` acceptance is valid only after the persisted tenant draft is refreshed to the exact source package document.
