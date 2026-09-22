@@ -226,6 +226,17 @@ describe('Playroom v20 functional acceptance',()=>{
     expect(featuredCta.config.label).toBe('Összes újdonság →');
     expect(resolveStorefrontVisualStyle(featuredCta.config.style,'mobile').position).toBe('static');
     expect(resolveStorefrontVisualStyle(findNode(home,'playroom-community-benefit-text').config.style,'mobile').whiteSpace).toBe('normal');
+
+    const confidenceCommunity=findNode(home,'playroom-confidence-community-grid');
+    expect(confidenceCommunity.children?.map(item=>item.id)).toEqual(['playroom-compatibility-card','playroom-community-stage']);
+    for(const id of ['playroom-compatibility-card','playroom-community-stage']){
+      expect(findNode(home,id).responsive?.desktop?.gridSpan).toBe(6);
+      expect(findNode(home,id).responsive?.tablet?.gridSpan).toBe(6);
+      expect(findNode(home,id).responsive?.mobile?.gridSpan).toBe(12);
+    }
+    expect(findNode(home,'playroom-platform-gift-grid').children?.map(item=>item.id)).toEqual(['playroom-gift-card']);
+    expect(findNode(home,'playroom-gift-card').responsive?.desktop?.gridSpan).toBe(12);
+    expect(findNode(home,'playroom-gift-card').responsive?.tablet?.gridSpan).toBe(12);
   });
 
   it('makes Newsletter consent tenant-scoped, explicit and idempotent for an already-active subscriber',()=>{
