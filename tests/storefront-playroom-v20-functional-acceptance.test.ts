@@ -129,7 +129,8 @@ describe('Playroom v20 functional acceptance',()=>{
     expect(contactRoute).toContain('<StorefrontResponsiveRuntime');
     expect(contactRoute).toContain('data-storefront-contact-runtime="page-schema"');
     expect(contactRoute).toContain('data-storefront-contact-fallback="legacy"');
-    expect(runtimeSource).toContain("resolveCurrentStorefrontPublicStaticRuntimePage(pageKey:'home'|'content'|'contact')");
+    expect(runtimeSource).toContain("resolveCurrentStorefrontPublicStaticRuntimePage(pageKey:StorefrontBuilderPageType)");
+    expect(runtimeSource).toContain('resolveCurrentStorefrontRouteRuntimePage(pageKey:StorefrontBuilderPageType)');
     expect(runtimeSource).toContain("getPreviewStorefrontDraftPage(instance.id,pageKey)");
     expect(runtimeSource).toContain("getPublishedStorefrontPage(instance.id,pageKey)");
     expect(runtimeSource).toContain("page.pageType!==pageKey");

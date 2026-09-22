@@ -19,9 +19,11 @@ describe('storefront public information route integrity',()=>{
  });
  it('wraps public information pages in the active storefront template shell',()=>{
   expect(page).toMatch(/StorefrontContentShell/);
-  expect(shell).toMatch(/resolveCurrentStorefrontContentRuntimePage/);
+  expect(shell).toMatch(/resolveCurrentStorefrontRouteRuntimePage\(pageKey\)/);
+  expect(shell).toMatch(/pageKey\?:StorefrontBuilderPageType/);
   expect(shell).toMatch(/data-storefront-template=\{runtime\.page\.templateKey\}/);
-  expect(source).toMatch(/resolveCurrentStorefrontPublicStaticRuntimePage\(pageKey:'home'\|'content'\|'contact'\)/);
+  expect(source).toMatch(/resolveCurrentStorefrontPublicStaticRuntimePage\(pageKey:StorefrontBuilderPageType\)/);
+  expect(source).toMatch(/resolveCurrentStorefrontRouteRuntimePage\(pageKey:StorefrontBuilderPageType\)/);
   expect(source).toMatch(/getPreviewStorefrontDraftPage\(instance\.id,pageKey\)/);
   expect(source).toMatch(/resolveCurrentStorefrontPublicStaticRuntimePage\('home'\)/);
   expect(source).toMatch(/resolveCurrentStorefrontPublicStaticRuntimePage\('content'\)/);
