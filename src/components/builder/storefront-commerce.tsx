@@ -2,6 +2,7 @@ import type {CSSProperties,ReactNode} from 'react';
 import {StorefrontRendererRegistry,type StorefrontComponentRenderProps} from '@/components/builder/storefront-runtime-renderer';
 import {createStorefrontPrimitiveRendererRegistry} from '@/components/builder/storefront-primitives';
 import {StorefrontContentDisclosure,type StorefrontContentDisclosureTab} from '@/components/builder/storefront-content-disclosure';
+import {StorefrontProductRail} from '@/components/builder/storefront-product-rail-client';
 import type {StorefrontResolvedComponentNode} from '@/lib/builder/storefront-runtime';
 import {sanitizeStorefrontStyleSlots} from '@/lib/builder/storefront-fidelity-engine';
 import {resolveStorefrontVisualStyle} from '@/lib/builder/storefront-visual-style';
@@ -71,8 +72,9 @@ function CollectionHeaderRenderer({config,node,viewport}:StorefrontComponentRend
 }
 
 function ProductGridRenderer({config,node,viewport}:StorefrontComponentRenderProps){
-  const items=products(config.products),requested=Math.max(2,Math.min(6,Math.round(number(config.columns,4)))),columns=responsiveColumns(requested,viewport,2,3),beauty=text(config.presentation)==='beauty-lab';const slot=styles(config,viewport);const mobile=carousel('commerce.product-grid',config,viewport);
-  return <section data-storefront-commerce="product-grid" data-presentation={text(config.presentation)||undefined} style={{...span(node),display:'grid',gap:'1.25rem',...slot('root')}}>{text(config.title)?<h2 style={{margin:0,fontFamily:'var(--shoporation-heading-font,Georgia,serif)',fontWeight:500,fontSize:beauty?'clamp(1.9rem,3vw,2.8rem)':undefined,...slot('title')}}>{text(config.title)}</h2>:null}{items.length?<div data-storefront-mobile-carousel={mobile.active?'true':undefined} style={{display:'grid',gridTemplateColumns:`repeat(${columns},minmax(0,1fr))`,gap:beauty?'clamp(.65rem,1.4vw,1rem)':'1.25rem',...slot('grid'),...mobile.track}}><ProductCards items={items} config={config} viewport={viewport} itemStyle={mobile.item}/></div>:<p style={slot('empty')}>{text(config.emptyLabel,'Jelenleg nincs megjeleníthető termék.')}</p>}</section>;
+  const items=products(config.products),requested=Math.max(2,Math.min(6,Math.round(number(config.columns,4)))),columns=responsiveColumns(requested,viewport,2,3),presentation=text(config.presentation),beauty=presentation==='beauty-lab',rail=presentation==='carousel';const slot=styles(config,viewport);const mobile=carousel('commerce.product-grid',config,viewport);
+  const cards=<ProductCards items={items} config={config} viewport={viewport} itemStyle={rail?{scrollSnapAlign:'start'}:mobile.item}/>;
+  return <section data-storefront-commerce="product-grid" data-presentation={presentation||undefined} style={{...span(node),display:'grid',gap:'1.25rem',...slot('root')}}>{text(config.title)?<h2 style={{margin:0,fontFamily:'var(--shoporation-heading-font,Georgia,serif)',fontWeight:500,fontSize:beauty?'clamp(1.9rem,3vw,2.8rem)':undefined,...slot('title')}}>{text(config.title)}</h2>:null}{items.length?(rail?<StorefrontProductRail viewport={viewport} ariaLabel={text(config.carouselAriaLabel,'Kiemelt termékek lapozása')}>{cards}</StorefrontProductRail>:<div data-storefront-mobile-carousel={mobile.active?'true':undefined} style={{display:'grid',gridTemplateColumns:`repeat(${columns},minmax(0,1fr))`,gap:beauty?'clamp(.65rem,1.4vw,1rem)':'1.25rem',...slot('grid'),...mobile.track}}>{cards}</div>):<p style={slot('empty')}>{text(config.emptyLabel,'Jelenleg nincs megjeleníthető termék.')}</p>}</section>;
 }
 
 function ProductGalleryRenderer({config,node,viewport}:StorefrontComponentRenderProps){
