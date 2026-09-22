@@ -58,7 +58,7 @@ Playroom overrode that shared behavior with template-owned fixed `repeat(6,...)`
 
 - hero copy becomes full-width on narrow breakpoints and the trust strip leaves absolute overlay mode;
 - trust items use 4-up tablet / 2x2 mobile composition;
-- play-style symbols become semantic: solo, co-op, party, racing, adventure, family;
+- play-style placeholder glyphs are replaced by six dedicated Playroom SVG icons: solo player, co-op pair, party group, checkered racing flag, compass, and family;
 - Finder and platform navigation use explicit 6 / 3 / 2 desktop-tablet-mobile grids;
 - multiplayer and upgrade panels use a denser tablet two-column layout with 2x2 internal cards;
 - multiplayer CTA becomes short (`Tovább →`) and non-absolute below desktop;
@@ -78,3 +78,19 @@ The accepted pilot tenant was refreshed through the existing template-installati
 ### Regression invariant
 
 **Do not patch shared responsive engines when one template locally overrides a correct shared responsive contract. Fix the owning template composition, then prove the shared matrix remains green.**
+
+
+## Icon asset rule
+
+Selector icons must remain readable at roughly 32–36 px and must communicate the option without requiring the label. Large scene illustrations must not be shrunk into selector-icon slots.
+
+Current Playroom play-style icon authority:
+
+- `/storefront/playroom/icons/play-style-solo.svg`
+- `/storefront/playroom/icons/play-style-coop.svg`
+- `/storefront/playroom/icons/play-style-party.svg`
+- `/storefront/playroom/icons/play-style-racing.svg`
+- `/storefront/playroom/icons/play-style-adventure.svg`
+- `/storefront/playroom/icons/play-style-family.svg`
+
+The runtime fallback must not silently return to abstract glyphs or emoji for these six canonical Playroom choices.
