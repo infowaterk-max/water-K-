@@ -174,11 +174,15 @@ function removeStaleAccountSurfaces(sections:readonly StorefrontComponentNode[])
   return strip(sections);
 }
 
-function ensureAccountCapabilityNavigation(document:StorefrontPageDocument):void{
-  if(document.pageType!=='account'||hasComponent(document.sections,'account.capability-navigation'))return;
-  const prefix=`shared-${idPart(document.pageKey)}-account-navigation`;
-  const section=node({id:prefix,componentKey:'layout.section',componentVersion:1,config:{tone:'background',spacing:'s',width:'full'},children:[node({id:`${prefix}-container`,componentKey:'layout.container',componentVersion:1,config:{width:'content',spacing:'s'},children:[node({id:`${prefix}-nav`,componentKey:'account.capability-navigation',componentVersion:1,config:{title:'Fiókom',layout:'responsive',presentation:'canonical-account'}})]})]});
-  const header=document.sections.findIndex(isHeaderSection);document.sections.splice(header>=0?header+1:0,0,section);
+function removeTemplateAccountCapabilityNavigation(nodes:readonly StorefrontComponentNode[]):StorefrontComponentNode[]{
+  return nodes.flatMap(item=>{
+    if(item.componentKey==='account.capability-navigation')return[];
+    const children=item.children??[];
+    if(!children.length)return[clone(item)];
+    const nextChildren=removeTemplateAccountCapabilityNavigation(children);
+    if(!nextChildren.length&&['layout.section','layout.container','layout.grid','layout.stack'].includes(item.componentKey))return[];
+    return[{...clone(item),children:nextChildren}];
+  });
 }
 
 function resolveCapabilityInsertIndex(document:StorefrontPageDocument):number{
@@ -220,7 +224,7 @@ export function composeStorefrontDigitalCommerceCapabilities(
   if(!required)return clone(document);
 
   const next=clone(document);
-  if(next.pageType==='account'){next.sections=removeStaleAccountSurfaces(next.sections);ensureAccountCapabilityNavigation(next);}
+  if(next.pageType==='account'){next.sections=removeTemplateAccountCapabilityNavigation(removeStaleAccountSurfaces(next.sections));}
   if(next.pageType==='product'){
     next.sections=next.sections.filter(section=>!isLegacyProductDigitalCommerceSection(section));
     next.sections=embedStandaloneDownloadsIntoFacts(next.sections);

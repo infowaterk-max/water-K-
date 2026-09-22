@@ -106,27 +106,30 @@ export async function resolveCurrentStorefrontContentRuntimePage():Promise<Store
  return{source:previewDraft?'preview':'published',instanceId:instance.id,page:failClosedSpecialCommerce(composed,runtime.capability),bindingContext:baseContext,capability:runtime.capability};
 }
 
-export async function resolveCurrentStorefrontCheckoutRuntimePage():Promise<StorefrontResolvedRuntimePage|null>{
+async function resolveCurrentStorefrontTaskRuntimePage(pageKey:'cart'|'checkout'):Promise<StorefrontResolvedRuntimePage|null>{
  const instance=await requireStorefrontAccess();if(!instance)return null;
- const acceptanceInstanceId=process.env.VERCEL_ENV==='preview'?await getPilotAcceptanceInstanceId():null;
- if(acceptanceInstanceId===instance.id){
-  try{
-   const[state,symbols,runtime]=await Promise.all([
-    getCurrentStorefrontPageState('checkout'),
-    listStorefrontReusableSymbolsForInstance(instance.id),
-    resolveRuntimeCommerceContext(instance.id,instance.subscriptionPlan),
-   ]);
-   const draft=state?.draft?.document;
-   if(draft&&runtime){
-    const materialized=materializeStorefrontReusableSymbols(draft,symbols);
-    const composed=composeStorefrontDigitalCommerceCapabilities(normalizeStorefrontTemplateRuntimeComposition(materialized));
-    const growth=await resolveGrowthContext(instance.id,composed,runtime.capability);
-    const baseContext={...mergeGrowthContext(runtime.bindingContext,growth.promotions),brand:{name:instance.brand.name,tagline:instance.brand.tagline,logoUrl:instance.brand.logoUrl,primaryColor:instance.brand.primaryColor,socialLinks:resolveStorefrontSocialLinks(instance.storefront.socialLinks)},navigation:{primary:[]}};
-    const previewContext=augmentStorefrontDigitalCommercePreviewContext({page:composed,context:baseContext,acceptanceMode:true});
-    return{source:'preview',instanceId:instance.id,page:failClosedSpecialCommerce(composed,runtime.capability),bindingContext:previewContext,capability:runtime.capability};
-   }
-  }catch{}
- }
- return resolveCurrentStorefrontPublishedRuntimePage('checkout');
+ const previewDraft=process.env.VERCEL_ENV==='preview'?await getPreviewStorefrontDraftPage(instance.id,pageKey):null;
+ const[page,symbols,runtime]=await Promise.all([
+  previewDraft?Promise.resolve(previewDraft):getPublishedStorefrontPage(instance.id,pageKey),
+  listStorefrontReusableSymbolsForInstance(instance.id),
+  resolveRuntimeCommerceContext(instance.id,instance.subscriptionPlan),
+ ]);
+ if(!page||!runtime||page.pageType!==pageKey)return null;
+ const materialized=materializeStorefrontReusableSymbols(page,symbols);
+ const composed=composeStorefrontDigitalCommerceCapabilities(normalizeStorefrontTemplateRuntimeComposition(materialized));
+ const growth=await resolveGrowthContext(instance.id,composed,runtime.capability);
+ const baseContext={...mergeGrowthContext(runtime.bindingContext,growth.promotions),brand:{name:instance.brand.name,tagline:instance.brand.tagline,logoUrl:instance.brand.logoUrl,primaryColor:instance.brand.primaryColor,socialLinks:resolveStorefrontSocialLinks(instance.storefront.socialLinks)},navigation:{primary:[]}};
+ const bindingContext=previewDraft
+  ?augmentStorefrontDigitalCommercePreviewContext({page:composed,context:baseContext,acceptanceMode:true})
+  :baseContext;
+ return{source:previewDraft?'preview':'published',instanceId:instance.id,page:failClosedSpecialCommerce(composed,runtime.capability),bindingContext,capability:runtime.capability};
+}
+
+export async function resolveCurrentStorefrontCartRuntimePage():Promise<StorefrontResolvedRuntimePage|null>{
+ return resolveCurrentStorefrontTaskRuntimePage('cart');
+}
+
+export async function resolveCurrentStorefrontCheckoutRuntimePage():Promise<StorefrontResolvedRuntimePage|null>{
+ return resolveCurrentStorefrontTaskRuntimePage('checkout');
 }
 export async function resolveStorefrontPreviewRuntimePage(token:string):Promise<StorefrontResolvedRuntimePage|null>{if(typeof token!=='string'||token.length<32||token.length>256)return null;const[page,instanceId]=await Promise.all([resolveStorefrontPreviewToken(token),resolveStorefrontPreviewInstanceId(token)]);if(!page||!instanceId)return null;const runtime=await resolveRuntimeCommerceContext(instanceId);if(!runtime)return null;const composedPage=composeStorefrontDigitalCommerceCapabilities(normalizeStorefrontTemplateRuntimeComposition(page));const growth=await resolveGrowthContext(instanceId,composedPage,runtime.capability);const previewContext=augmentStorefrontDigitalCommercePreviewContext({page:composedPage,context:mergeGrowthContext(runtime.bindingContext,growth.promotions)});return{source:'preview',instanceId,page:failClosedSpecialCommerce(composedPage,runtime.capability),bindingContext:previewContext,capability:runtime.capability};}
