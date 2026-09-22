@@ -446,7 +446,7 @@ describe('Playroom v20 functional acceptance',()=>{
 
     const builder=read('src/app/admin/tartalom/builder/page.tsx');
     const runtimeSource=read('src/lib/builder/storefront-runtime-source.ts');
-    expect(builder).toContain('composeStorefrontDigitalCommerceCapabilities(normalizeStorefrontTemplateRuntimeComposition(document))');
+    expect(builder).toContain('composeStorefrontDigitalCommerceCapabilities(normalizeStorefrontTemplateRuntimeComposition(ensureStorefrontResponsiveAuthority(document)))');
     expect(runtimeSource).toContain('const composedPage=composeStorefrontDigitalCommerceCapabilities(normalizeStorefrontTemplateRuntimeComposition(page))');
     expect(runtimeSource).toContain('page:failClosedSpecialCommerce(composedPage,runtime.capability)');
   });
