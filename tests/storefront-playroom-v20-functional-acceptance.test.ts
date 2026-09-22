@@ -185,14 +185,21 @@ describe('Playroom v20 functional acceptance',()=>{
   it('keeps Playroom home responsive without template-local fixed-column or overlay regressions',()=>{
     const home=playroomPage('home');
     const finder=findNode(home,'playroom-game-finder');
-    const finderOptions=(finder.config.options??[]) as Array<{id?:string;symbol?:string}>;
-    expect(Object.fromEntries(finderOptions.map(item=>[item.id,item.symbol]))).toMatchObject({
-      solo:'👤',coop:'👥',party:'🎉',racing:'🏁',adventure:'🧭',family:'👨‍👩‍👧',
+    const finderOptions=(finder.config.options??[]) as Array<{id?:string;image?:string;symbol?:string}>;
+    expect(Object.fromEntries(finderOptions.map(item=>[item.id,item.image]))).toMatchObject({
+      solo:'/storefront/playroom/icons/play-style-solo.svg',
+      coop:'/storefront/playroom/icons/play-style-coop.svg',
+      party:'/storefront/playroom/icons/play-style-party.svg',
+      racing:'/storefront/playroom/icons/play-style-racing.svg',
+      adventure:'/storefront/playroom/icons/play-style-adventure.svg',
+      family:'/storefront/playroom/icons/play-style-family.svg',
     });
+    expect(finderOptions.every(item=>item.symbol==='')).toBe(true);
     const finderSlots=(finder.config.styleSlots??{}) as Record<string,unknown>;
     expect(resolveStorefrontVisualStyle(finderSlots.options,'desktop').gridTemplateColumns).toBe('repeat(6,minmax(0,1fr))');
     expect(resolveStorefrontVisualStyle(finderSlots.options,'tablet').gridTemplateColumns).toBe('repeat(3,minmax(0,1fr))');
     expect(resolveStorefrontVisualStyle(finderSlots.options,'mobile').gridTemplateColumns).toBe('repeat(2,minmax(0,1fr))');
+    expect(resolveStorefrontVisualStyle(finderSlots.optionMedia,'mobile')).toMatchObject({width:'2rem',height:'2rem',objectFit:'contain'});
 
     const platforms=findNode(home,'playroom-platform-navigation');
     const platformSlots=(platforms.config.styleSlots??{}) as Record<string,unknown>;
