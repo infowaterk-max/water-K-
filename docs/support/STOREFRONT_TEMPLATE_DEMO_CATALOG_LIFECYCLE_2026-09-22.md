@@ -86,3 +86,28 @@ The preview catalog can show the same visual merchandising without product mutat
 **DEMO FIXTURES MUST NOT MAKE AN OTHERWISE EMPTY STORE LAUNCH-READY.**
 
 **LAUNCH CLEANUP + STORE ACTIVATION + AUDIT EVIDENCE MUST REMAIN ONE DATABASE TRANSACTION.**
+
+
+## Staging schema proof — 2026-09-22
+
+The branch Preview initially failed after application code started selecting the new demo lifecycle columns. Exact-head CI build still passed because the CI environment does not use the live staging schema during the same build path.
+
+Read-only staging inspection confirmed schema drift:
+
+- project: `waterk-staging`;
+- before migration: zero `products.template_demo_*` columns;
+- production project was not touched.
+
+The migration `storefront_template_demo_catalog_lifecycle_v1` was then applied **only to waterk-staging**.
+
+Post-migration proof:
+
+- all five demo lifecycle columns exist;
+- `save_storefront_template_demo_products_v1` exists with the expected argument contract;
+- `admin_activate_webshop_v2(uuid,uuid)` is the current activation authority;
+- migration history contains `storefront_template_demo_catalog_lifecycle_v1`;
+- no production migration/deploy was performed.
+
+Operational lesson:
+
+**When a Preview deployment uses a real staging database, application code and staging schema must advance together. Exact-head source build PASS does not by itself prove that a schema-dependent Vercel Preview can build against an older staging database.**
