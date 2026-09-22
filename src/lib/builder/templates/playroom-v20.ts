@@ -502,6 +502,22 @@ function patchPlayroomHomeResponsive(item:StorefrontComponentNode):StorefrontCom
   let config=rec(next.config);
 
   switch(next.id){
+    case 'playroom-hero':
+      next={...next,config:{...config,style:mergeViewportStyle(config.style,{
+        desktop:{minHeight:'18rem'},
+      })}};
+      break;
+    case 'playroom-selectors':
+      next={...next,config:{...config,style:mergeViewportStyle(config.style,{
+        desktop:{minHeight:'18rem'},
+      })}};
+      break;
+    case 'playroom-style-card':
+    case 'playroom-platform-card':
+      next={...next,config:{...config,style:mergeViewportStyle(config.style,{
+        desktop:{flex:'1 1 0',minHeight:'0',padding:'.78rem .72rem',justifyContent:'space-between'},
+      })}};
+      break;
     case 'playroom-hero-copy':
       next={...next,config:{...config,style:mergeViewportStyle(config.style,{
         tablet:{width:'100%',minHeight:'13rem',padding:'1rem 1.1rem'},
@@ -553,6 +569,9 @@ function patchPlayroomHomeResponsive(item:StorefrontComponentNode):StorefrontCom
         tablet:{gridTemplateColumns:'repeat(3,minmax(0,1fr))'},
         mobile:{gridTemplateColumns:'repeat(2,minmax(0,1fr))'},
       });
+      config=patchStyleSlot(config,'option',{
+        desktop:{minHeight:'4rem',padding:'.4rem .12rem'},
+      });
       config=patchStyleSlot(config,'optionMedia',{
         base:{width:'2.2rem',height:'2.2rem',objectFit:'contain'},
         tablet:{width:'2.15rem',height:'2.15rem'},
@@ -572,13 +591,30 @@ function patchPlayroomHomeResponsive(item:StorefrontComponentNode):StorefrontCom
         tablet:{gridTemplateColumns:'repeat(3,minmax(0,1fr))'},
         mobile:{gridTemplateColumns:'repeat(2,minmax(0,1fr))'},
       });
-      config=patchStyleSlot(config,'card',{mobile:{minHeight:'4.8rem',padding:'.5rem .28rem',fontSize:'.68rem'}});
+      config=patchStyleSlot(config,'card',{
+        desktop:{minHeight:'5.45rem'},
+        mobile:{minHeight:'4.8rem',padding:'.5rem .28rem',fontSize:'.68rem'},
+      });
       next={...next,config};
+      break;
+    case 'playroom-setup':
+      next={...next,config:{...config,style:mergeViewportStyle(config.style,{
+        desktop:{minHeight:'12.8rem'},
+      })}};
       break;
     case 'playroom-player-two':
     case 'playroom-upgrade':
       next=patchResponsiveSpan(next,6,12);
-      next={...next,config:{...config,style:mergeViewportStyle(config.style,{tablet:{minHeight:'0'},mobile:{minHeight:'0'}})}};
+      next={...next,config:{...config,style:mergeViewportStyle(config.style,{
+        desktop:{minHeight:'12.8rem'},
+        tablet:{minHeight:'0'},
+        mobile:{minHeight:'0'},
+      })}};
+      break;
+    case 'playroom-upgrade-grid':
+      next={...next,config:{...config,style:mergeViewportStyle(config.style,{
+        desktop:{paddingTop:'.4rem'},
+      })}};
       break;
     case 'playroom-player-controller':
     case 'playroom-player-headset':
@@ -599,6 +635,32 @@ function patchPlayroomHomeResponsive(item:StorefrontComponentNode):StorefrontCom
         mobile:{position:'static',right:'auto',top:'auto',width:'fit-content',height:'auto',marginTop:'.25rem',alignSelf:'flex-start',fontSize:'.74rem',padding:'.5rem .7rem'},
       })}};
       break;
+    case 'playroom-featured-games':
+      next={
+        ...next,
+        responsive:{
+          ...(next.responsive??{}),
+          desktop:{...(next.responsive?.desktop??{}),gridSpan:6},
+        },
+        config:{...config,style:mergeViewportStyle(config.style,{
+          desktop:{minHeight:'12.2rem'},
+        })},
+      };
+      break;
+    case 'playroom-platform-match':
+      next={
+        ...next,
+        responsive:{
+          ...(next.responsive??{}),
+          desktop:{...(next.responsive?.desktop??{}),gridSpan:6},
+        },
+      };
+      break;
+    case 'playroom-gift-card':
+      next={...next,config:{...config,style:mergeViewportStyle(config.style,{
+        desktop:{minHeight:'12.2rem'},
+      })}};
+      break;
     case 'playroomFeaturedGames':
       next={...next,config:{...config,presentation:'carousel',columns:4}};
       break;
@@ -614,7 +676,7 @@ function patchPlayroomHomeResponsive(item:StorefrontComponentNode):StorefrontCom
     case 'playroom-compatibility-card':
       next={...next,config:{...config,style:mergeViewportStyle(config.style,{
         base:{height:'100%',minHeight:'100%',alignContent:'stretch'},
-        desktop:{height:'auto',minHeight:'11.3rem',alignContent:'start'},
+        desktop:{height:'auto',minHeight:'13rem',alignContent:'start'},
         mobile:{height:'auto',minHeight:'0'},
       })}};
       break;
@@ -628,6 +690,7 @@ function patchPlayroomHomeResponsive(item:StorefrontComponentNode):StorefrontCom
     case 'playroom-compatibility-art':
       next={...next,config:{...config,style:mergeViewportStyle(config.style,{
         base:{height:'7.2rem',objectFit:'cover',objectPosition:'center'},
+        desktop:{height:'7.7rem'},
         tablet:{height:'7rem'},
         mobile:{height:'6.4rem'},
       })}};
@@ -705,7 +768,7 @@ function patchPlayroomHomeResponsive(item:StorefrontComponentNode):StorefrontCom
           id:'playroom-community-content',
           componentKey:'layout.stack',
           componentVersion:1,
-          config:{direction:'vertical',gap:'s',align:'stretch',justify:'center',style:{base:{padding:'.85rem',minHeight:'12rem'},desktop:{minHeight:'11.3rem'}}},
+          config:{direction:'vertical',gap:'s',align:'stretch',justify:'center',style:{base:{padding:'.85rem',minHeight:'12rem'},desktop:{minHeight:'12.3rem'}}},
           responsive:{desktop:{gridSpan:6},tablet:{gridSpan:6},mobile:{gridSpan:12}},
           children:[clone(title),clone(copyNode),clone(benefit),clone(buttonNode)],
         });
@@ -713,7 +776,7 @@ function patchPlayroomHomeResponsive(item:StorefrontComponentNode):StorefrontCom
           ...clone(art),
           config:{...rec(art.config),style:mergeViewportStyle(rec(art.config).style,{
             base:{position:'static',inset:'auto',width:'100%',height:'100%',minHeight:'12rem',objectFit:'cover',objectPosition:'center',opacity:1,borderRadius:'.38rem'},
-            desktop:{height:'11.3rem',minHeight:'11.3rem',maxHeight:'11.3rem'},
+            desktop:{height:'12.3rem',minHeight:'12.3rem',maxHeight:'12.3rem'},
             mobile:{minHeight:'9rem'},
           })},
           responsive:{desktop:{gridSpan:6},tablet:{gridSpan:6},mobile:{gridSpan:12}},
