@@ -9,6 +9,8 @@ import {
   collectStorefrontEffectiveVisualState,
   materializeStorefrontPageResponsiveStyles,
   listUnmaterializedStorefrontVisualSurfaces,
+  ensureStorefrontResponsiveAuthority,
+  hasStorefrontResponsiveAuthorityV2,
 } from '@/lib/builder/storefront-responsive-isolation';
 
 const page=():StorefrontPageDocument=>({
@@ -53,6 +55,8 @@ describe('Storefront responsive isolation foundation',()=>{
     expect(resolveStorefrontVisualStyleLegacyCascade(sourceStyle,'mobile').minHeight).toBe('20rem');
 
     const after=materializeStorefrontPageResponsiveStyles(before);
+    expect(hasStorefrontResponsiveAuthorityV2(before)).toBe(false);
+    expect(hasStorefrontResponsiveAuthorityV2(after)).toBe(true);
     expect(listUnmaterializedStorefrontVisualSurfaces(after)).toEqual([]);
     const hero=after.sections[0]!;
     const style=hero.config.style as Record<string,Record<string,unknown>>;
@@ -68,6 +72,27 @@ describe('Storefront responsive isolation foundation',()=>{
     expect(card.desktop.minHeight).toBe('6rem');
     expect(card.tablet.minHeight).toBe('5rem');
     expect(card.mobile.minHeight).toBe('4rem');
+  });
+
+  it('protects historical persisted pages at Runtime read without mutating the stored source',()=>{
+    const legacy=page();
+    const migrated=ensureStorefrontResponsiveAuthority(legacy);
+    expect(hasStorefrontResponsiveAuthorityV2(legacy)).toBe(false);
+    expect(hasStorefrontResponsiveAuthorityV2(migrated)).toBe(true);
+    for(const viewport of ['desktop','tablet','mobile'] as const){
+      expect(resolveStorefrontVisualStyle(migrated.sections[0]!.config.style,viewport))
+        .toEqual(resolveStorefrontVisualStyleLegacyCascade(legacy.sections[0]!.config.style,viewport));
+    }
+    expect(legacy.metadata?.responsiveAuthorityVersion).toBeUndefined();
+  });
+
+  it('never re-materializes an already-v2 Builder document after a viewport override is cleared',()=>{
+    const current=materializeStorefrontPageResponsiveStyles(page());
+    let edited=setStorefrontNodeViewportStyle(current,'hero','tablet',{});
+    const before=structuredClone(edited);
+    edited=ensureStorefrontResponsiveAuthority(edited);
+    expect(edited).toEqual(before);
+    expect(resolveStorefrontVisualStyle(edited.sections[0]!.config.style,'tablet')).toEqual({minHeight:'12rem',padding:'1rem'});
   });
 
   it('makes viewport edits intrinsically isolated under base + exact viewport semantics',()=>{
