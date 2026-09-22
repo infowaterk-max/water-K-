@@ -263,3 +263,42 @@ Regression invariant:
 **MOBILE BROWSER “DESKTOP SITE” MUST NEVER BE USED AS THE SOLE DESKTOP ACCEPTANCE SURFACE.**
 
 **HEIGHT PARITY MUST BE SOLVED THROUGH THE ACTUAL CHILD LAYOUT CHAIN, NOT BY STRETCHING ONLY AN OUTER WRAPPER.**
+
+## True-desktop forensic recovery — rollback-correction regression
+
+The preceding “True-desktop rollback correction” is retained as incident history, but its full-width/forced-height prescriptions are **superseded** by this recovery. True desktop proof showed that the correction itself introduced a larger visual regression.
+
+Offending changes were isolated to two template-only commits:
+
+- `e5003636…` — added nested desktop `display:grid`, `gridTemplateRows`, `gridAutoRows`, and `height:100%` chains to the paired merchandising cards and began the Gift stretch chain;
+- `c3181b92…` — forced Hero and Selectors from the inherited 8/4 desktop composition to 12/12, deepened the Gift wrapper → grid → card → image stretch chain, and imposed 14rem/13rem Compatibility/Community height contracts.
+
+Why they regressed:
+
+- 12/12 Hero + Selectors discarded the established desktop visual hierarchy and let selector tiles dominate the viewport;
+- the merchandising override duplicated a media-height invariant that already existed in the v18 fidelity layer (all eight images were already 4.15rem), while the new nested grid/height chain changed the card composition;
+- the Gift card already had an accepted landscape treatment in the fidelity layer: relative 11.3rem card plus an absolute right-side image. Replacing that with a four-row grid and a 100%-height image converted it into a tall narrow card;
+- Compatibility/Community parity was imposed at several nested levels at once, so natural content sizing was replaced by a synthetic height contract.
+
+Minimal recovery:
+
+- remove the Playroom v20 12/12 Hero/Selectors override and inherit the established 8/4 true-desktop composition;
+- remove merchandising parent/grid/card forced-height overrides and retain the existing 4.15rem media authority from the fidelity layer;
+- align only the two sibling merchandising CTAs locally with `margin-top:auto` in the existing flex-column stack;
+- remove the Gift stretch/grid overrides and inherit the existing landscape card/image treatment;
+- keep Compatibility/Community 6/6, but remove the 14rem/13rem forced chain and restore the medium pre-regression content sizing;
+- do not modify shared Runtime/Grid.
+
+Regression guards:
+
+- assert Hero 8/4 desktop and 12/12 tablet stacking;
+- assert merchandising 5/4/3 desktop composition, equal 4.15rem media heights, and no forced desktop grid/height chain;
+- assert both merchandising CTAs resolve to the same bottom-aligned flex behavior;
+- assert Featured and Gift retain the shared 11.3rem visual target while Gift remains landscape, without a grid-row stretch contract;
+- assert Compatibility/Community remain 6/6 and no 14rem paired-grid/card/media contract returns;
+- run true-desktop proof before tablet/mobile regression proof.
+
+**A desktop layout módosítás nem tekinthető elfogadottnak true-desktop proof nélkül. Mobilos „Desktop site” nézet vagy egyetlen viewport nem bizonyítja a valódi desktop kompozíció helyességét.**
+
+**A height-parity javítás csak azon a rétegen történhet, amely ténylegesen létrehozza az eltérést; parent → grid cell → wrapper → card → media/content láncot előbb bizonyítani kell.**
+
