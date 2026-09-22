@@ -122,8 +122,9 @@ export async function saveCurrentStorefrontTemplateDraftPlan(input:{
 
 
 export type StorefrontTemplateInstallationSaveResult=StorefrontTemplateDraftSaveResult&{
-  installationMutationScope:'storefront_page_drafts_plus_template_demo_content_drafts';
+  installationMutationScope:'storefront_page_drafts_plus_template_demo_content_and_opt_in_products';
   demoContent:{installed:number;refreshed:number;preserved:number;retired:number;mutationScope:'template_demo_content_drafts_only'};
+  demoProducts:{enabled:boolean;installed:number;refreshed:number;preserved:number;removed:number;mutationScope:'template_demo_products_only'};
 };
 
 const demoNumber=(record:Record<string,unknown>,key:string)=>{
@@ -134,41 +135,80 @@ const demoNumber=(record:Record<string,unknown>,key:string)=>{
 export async function saveCurrentStorefrontTemplateInstallationPlan(input:{
   plan:StorefrontTemplateInstallationPlan;
   operationKey:string;
+  installDemoProducts?:boolean;
 }):Promise<StorefrontTemplateInstallationSaveResult>{
   const pages=await saveCurrentStorefrontTemplateDraftPlan(input);
   const install=input.plan.demoLifecycle.install.filter(record=>record.entityType==='content');
   const retire=input.plan.demoLifecycle.retire.filter(record=>record.entityType==='content');
-  const empty={installed:0,refreshed:0,preserved:0,retired:0,mutationScope:'template_demo_content_drafts_only' as const};
-  if(!install.length&&!retire.length)return{...pages,installationMutationScope:'storefront_page_drafts_plus_template_demo_content_drafts',demoContent:empty};
+  const emptyContent={installed:0,refreshed:0,preserved:0,retired:0,mutationScope:'template_demo_content_drafts_only' as const};
+  let demoContent=emptyContent;
 
-  const[scope,actorUserId]=await Promise.all([requireCurrentStoreContext('store.manage'),requireActor()]);
-  const admin=createAdminClient();
-  const{data,error}=await admin.rpc('save_storefront_template_demo_content_v1',{
-    p_instance_id:scope.instanceId,
-    p_actor_user_id:actorUserId,
-    p_template_key:input.plan.templateKey,
-    p_template_version:input.plan.templateVersion,
-    p_namespace:(()=>{
-      const value=input.plan.pages[0]?.document.metadata?.demoNamespace;
-      if(typeof value!=='string'||!value)return install[0]?.namespace??'template-demo';
-      return value;
-    })(),
-    p_install:install,
-    p_retire:retire,
-    p_operation_key:input.operationKey,
-  });
-  if(error)throw new Error(`STOREFRONT_TEMPLATE_DEMO_CONTENT_SAVE_FAILED:${error.message}`);
-  const record=asRecord(data,'STOREFRONT_TEMPLATE_DEMO_CONTENT_RESULT_INVALID');
-  if(record.mutationScope!=='template_demo_content_drafts_only')throw new Error('STOREFRONT_TEMPLATE_DEMO_CONTENT_SCOPE_INVALID');
-  return{
-    ...pages,
-    installationMutationScope:'storefront_page_drafts_plus_template_demo_content_drafts',
-    demoContent:{
+  if(install.length||retire.length){
+    const[scope,actorUserId]=await Promise.all([requireCurrentStoreContext('store.manage'),requireActor()]);
+    const admin=createAdminClient();
+    const{data,error}=await admin.rpc('save_storefront_template_demo_content_v1',{
+      p_instance_id:scope.instanceId,
+      p_actor_user_id:actorUserId,
+      p_template_key:input.plan.templateKey,
+      p_template_version:input.plan.templateVersion,
+      p_namespace:(()=>{
+        const value=input.plan.pages[0]?.document.metadata?.demoNamespace;
+        if(typeof value!=='string'||!value)return install[0]?.namespace??'template-demo';
+        return value;
+      })(),
+      p_install:install,
+      p_retire:retire,
+      p_operation_key:input.operationKey,
+    });
+    if(error)throw new Error(`STOREFRONT_TEMPLATE_DEMO_CONTENT_SAVE_FAILED:${error.message}`);
+    const record=asRecord(data,'STOREFRONT_TEMPLATE_DEMO_CONTENT_RESULT_INVALID');
+    if(record.mutationScope!=='template_demo_content_drafts_only')throw new Error('STOREFRONT_TEMPLATE_DEMO_CONTENT_SCOPE_INVALID');
+    demoContent={
       installed:demoNumber(record,'installed'),
       refreshed:demoNumber(record,'refreshed'),
       preserved:demoNumber(record,'preserved'),
       retired:demoNumber(record,'retired'),
       mutationScope:'template_demo_content_drafts_only',
+    };
+  }
+
+  const productInstall=input.plan.demoLifecycle.install.filter(record=>
+    record.entityType==='product'&&record.payload.installAsDemoProduct===true
+  );
+  const demoEnabled=input.installDemoProducts===true&&productInstall.length>0;
+  const[scope,actorUserId]=await Promise.all([requireCurrentStoreContext('store.manage'),requireActor()]);
+  const admin=createAdminClient();
+  const namespace=(()=>{
+    const value=input.plan.pages[0]?.document.metadata?.demoNamespace;
+    if(typeof value==='string'&&value)return value;
+    return productInstall[0]?.namespace??input.plan.templateKey;
+  })();
+  const{data:productData,error:productError}=await admin.rpc('save_storefront_template_demo_products_v1',{
+    p_instance_id:scope.instanceId,
+    p_actor:actorUserId,
+    p_template_key:input.plan.templateKey,
+    p_template_version:input.plan.templateVersion,
+    p_namespace:namespace,
+    p_enabled:demoEnabled,
+    p_install:productInstall,
+    p_operation_key:input.operationKey,
+  });
+  if(productError)throw new Error(`STOREFRONT_TEMPLATE_DEMO_PRODUCTS_SAVE_FAILED:${productError.message}`);
+  const productRecord=asRecord(productData,'STOREFRONT_TEMPLATE_DEMO_PRODUCTS_RESULT_INVALID');
+  if(productRecord.mutationScope!=='template_demo_products_only')throw new Error('STOREFRONT_TEMPLATE_DEMO_PRODUCTS_SCOPE_INVALID');
+
+  return{
+    ...pages,
+    installationMutationScope:'storefront_page_drafts_plus_template_demo_content_and_opt_in_products',
+    demoContent,
+    demoProducts:{
+      enabled:productRecord.enabled===true,
+      installed:demoNumber(productRecord,'installed'),
+      refreshed:demoNumber(productRecord,'refreshed'),
+      preserved:demoNumber(productRecord,'preserved'),
+      removed:demoNumber(productRecord,'removed'),
+      mutationScope:'template_demo_products_only',
     },
   };
 }
+
