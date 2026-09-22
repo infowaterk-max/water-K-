@@ -594,9 +594,11 @@ function patchPlayroomHomeResponsive(item:StorefrontComponentNode):StorefrontCom
       next=patchResponsiveSpan(next,6,12);
       break;
     case 'playroom-player-two-cta':
-      next={...next,config:{...config,label:'Tovább →',ariaLabel:'Többjátékos ajánlatok',style:mergeViewportStyle(config.style,{
-        tablet:{position:'static',right:'auto',top:'auto',width:'fit-content',marginTop:'.25rem',alignSelf:'flex-start'},
-        mobile:{position:'static',right:'auto',top:'auto',width:'fit-content',marginTop:'.25rem',alignSelf:'flex-start',fontSize:'.74rem',padding:'.5rem .7rem'},
+    case 'playroom-upgrade-cta':
+      next={...next,config:{...config,label:'Tovább →',ariaLabel:next.id==='playroom-player-two-cta'?'Többjátékos ajánlatok':'Játékest ötletek',style:mergeViewportStyle(config.style,{
+        base:{position:'static',right:'auto',top:'auto',width:'fit-content',height:'auto',marginTop:'.28rem',alignSelf:'flex-start',display:'inline-flex',placeItems:'unset',alignItems:'center',justifyContent:'center',padding:'.42rem .62rem',fontSize:'.52rem',fontWeight:850,background:'rgba(5,23,44,.92)',color:'#f5fbff',border:'1px solid rgba(64,220,255,.38)',borderRadius:'.3rem',boxShadow:'0 7px 20px rgba(0,0,0,.18)'},
+        tablet:{position:'static',right:'auto',top:'auto',width:'fit-content',height:'auto',marginTop:'.25rem',alignSelf:'flex-start'},
+        mobile:{position:'static',right:'auto',top:'auto',width:'fit-content',height:'auto',marginTop:'.25rem',alignSelf:'flex-start',fontSize:'.74rem',padding:'.5rem .7rem'},
       })}};
       break;
     case 'playroomFeaturedGames':
@@ -611,6 +613,25 @@ function patchPlayroomHomeResponsive(item:StorefrontComponentNode):StorefrontCom
     case 'playroom-platform-match-status':
       next={...next,config:{...config,hideWhenUnknown:true}};
       break;
+    case 'playroom-compatibility-card':
+      next={...next,config:{...config,style:mergeViewportStyle(config.style,{
+        base:{height:'100%',minHeight:'100%',alignContent:'stretch'},
+        mobile:{height:'auto',minHeight:'0'},
+      })}};
+      break;
+    case 'playroom-compatibility-layout':
+      next={...next,config:{...config,style:mergeViewportStyle(config.style,{
+        base:{height:'100%',alignItems:'stretch'},
+        mobile:{height:'auto'},
+      })}};
+      break;
+    case 'playroom-compatibility-art':
+      next={...next,config:{...config,style:mergeViewportStyle(config.style,{
+        base:{height:'7.2rem',objectFit:'cover',objectPosition:'center'},
+        tablet:{height:'7rem'},
+        mobile:{height:'6.4rem'},
+      })}};
+      break;
     case 'playroom-compatibility-platform-list':
       next={...next,config:{...config,text:'PC · PlayStation · Xbox · Nintendo · Kézikonzol · Mobil',style:mergeViewportStyle(config.style,{
         base:{whiteSpace:'normal',lineHeight:1.45,color:'#c7d8e8'},
@@ -623,6 +644,7 @@ function patchPlayroomHomeResponsive(item:StorefrontComponentNode):StorefrontCom
     case 'playroom-compatibility-status-wrap':{
       const currentChildren=next.children??[];
       const introExists=currentChildren.some(child=>child.id==='playroom-compatibility-intro');
+      const guideExists=currentChildren.some(child=>child.id==='playroom-compatibility-guide');
       const intro=node({
         id:'playroom-compatibility-intro',
         componentKey:'content.text',
@@ -633,7 +655,23 @@ function patchPlayroomHomeResponsive(item:StorefrontComponentNode):StorefrontCom
           style:{margin:'0',fontSize:'.63rem',lineHeight:1.5,color:'#d8e7f4'},
         },
       });
-      next={...next,children:introExists?currentChildren:[intro,...currentChildren]};
+      const guide=node({
+        id:'playroom-compatibility-guide',
+        componentKey:'layout.stack',
+        componentVersion:1,
+        config:{direction:'vertical',gap:'xs',align:'stretch',justify:'start',style:{padding:'.52rem .6rem',background:'rgba(3,17,35,.42)',border:'1px solid rgba(92,124,250,.22)',borderRadius:'.34rem'}},
+        children:[
+          node({id:'playroom-compatibility-guide-title',componentKey:'content.text',componentVersion:1,config:{text:'HOGYAN ELLENŐRIZD?',as:'strong',align:'left',tone:'text',style:{fontSize:'.53rem',letterSpacing:'.12em',color:'#78e7ff',fontWeight:900}}}),
+          node({id:'playroom-compatibility-guide-copy',componentKey:'content.text',componentVersion:1,config:{text:'1. Válaszd ki a platformod · 2. Nyisd meg a terméket · 3. Nézd meg a kompatibilitási jelzést',as:'p',align:'left',tone:'text',style:{margin:'0',fontSize:'.56rem',lineHeight:1.45,color:'#c7d8e8'}}}),
+        ],
+      });
+      let children=currentChildren;
+      if(!introExists)children=[intro,...children];
+      if(!guideExists)children=[...children,guide];
+      next={...next,config:{...config,style:mergeViewportStyle(config.style,{
+        base:{height:'100%',justifyContent:'space-between',gap:'.45rem'},
+        mobile:{height:'auto',justifyContent:'start',gap:'.5rem'},
+      })},children};
       break;
     }
     case 'playroom-community-copy-text':
