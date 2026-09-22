@@ -241,3 +241,25 @@ Regression invariants:
 **TRUE DESKTOP ACCEPTANCE MUST BE VERIFIED ON A DESKTOP VIEWPORT; MOBILE BROWSER “DESKTOP SITE” IS NOT A SUBSTITUTE.**
 
 **SIBLING CARDS MUST SHARE MEDIA, CONTENT AND CTA BASELINES WHEN THEY ARE PRESENTED AS A VISUAL PAIR.**
+
+
+## True-desktop rollback correction — density pass regression
+
+A real desktop viewport exposed that the previous density pass over-corrected three areas:
+
+- the original 8/4 hero-selector composition became visually cramped on a real monitor even though mobile “desktop site” had looked acceptable;
+- stretching the Gift wrapper with `height:100%` did not make the Gift card fill the Featured row and instead left a large empty area;
+- the compatibility/community pair was compressed too far and became a strip rather than two balanced content blocks.
+
+Correction:
+
+- Hero and selectors are both full-width at desktop/tablet/mobile; the discovery flow is vertically stacked on true desktop.
+- The Gift wrapper, inner grid, card and image all participate in the stretch contract; the card fills its actual commerce-row height.
+- The compatibility/community row keeps the accepted 6/6 split with a medium 14rem desktop target, 13rem tablet target, and natural mobile height.
+- Previously accepted merchandising CTA/media alignment remains unchanged.
+
+Regression invariant:
+
+**MOBILE BROWSER “DESKTOP SITE” MUST NEVER BE USED AS THE SOLE DESKTOP ACCEPTANCE SURFACE.**
+
+**HEIGHT PARITY MUST BE SOLVED THROUGH THE ACTUAL CHILD LAYOUT CHAIN, NOT BY STRETCHING ONLY AN OUTER WRAPPER.**
