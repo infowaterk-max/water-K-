@@ -33,9 +33,10 @@ describe('admin pre-render authorization closure',()=>{
     expect(middleware).toContain("function adminReturnPath(request:NextRequest)");
     expect(middleware).toContain("if(reason==='login')target.searchParams.set('next',next)");
     expect(auth).toContain("normalizeStorefrontReturnTarget(new URLSearchParams(window.location.search).get('next'))");
-    expect(auth).toContain("const target=normalizeStorefrontReturnTarget(returnTo)??safeRequestedNext()");
-    expect(auth).toContain("if(target){router.replace(target);router.refresh();return;}");
-    expect(middleware).toContain("normalizeStorefrontReturnTarget");
+    expect(auth).toContain("navigateAuthenticatedTarget(normalizeStorefrontReturnTarget(returnTo)??safeRequestedNext())");
+    expect(auth).toContain("window.location.replace(target)");
+    expect(middleware).toContain("storefrontReturnPath");
+    expect(middleware).toContain("storefrontAuthHref");
   });
 
   test('database gate is tenant-bound, fail-closed, time-aware and only callable by authenticated users',()=>{

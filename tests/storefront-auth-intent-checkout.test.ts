@@ -31,6 +31,8 @@ describe('storefront auth intent and checkout account opportunity',()=>{
  it('preserves safe caller intent centrally for account deep links and registration confirmation',()=>{
   expect(auth).toMatch(/normalizeStorefrontReturnTarget\(returnTo\)\?\?safeRequestedNext\(\)/);
   expect(auth).toMatch(/emailRedirectTo:registrationReturn/);
+  expect(auth).not.toMatch(/useRouter/);
+  expect(auth).toMatch(/navigateAuthenticatedTarget/);
   expect(middleware).toMatch(/isProtectedAccountPage/);
   expect(middleware).toMatch(/customerAccountRedirect/);
   expect(middleware).toMatch(/storefrontAuthHref\(customerReturnPath\(request\)\)/);

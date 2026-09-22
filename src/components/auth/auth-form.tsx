@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect,useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/browser';
 import { normalizeStorefrontReturnTarget } from '@/lib/auth/storefront-return-target';
 import { isValidHuTaxNumber,normalizeHuTaxNumber } from '@/lib/commerce/hu-tax-number';
@@ -13,7 +12,6 @@ type AuthFlow='invite'|'recovery';
 type FlowStatus='idle'|'checking'|'ready'|'invalid';
 
 export function AuthForm({instanceId,initialMode='login',onAuthenticated,returnTo}:{instanceId:string|null;initialMode?:AuthMode;onAuthenticated?:()=>void;returnTo?:string|null}){
-  const router=useRouter();
   const [mode,setMode]=useState<Mode>(initialMode);
   const [accountType,setAccountType]=useState<AccountType>('customer');
   const [email,setEmail]=useState('');
@@ -23,11 +21,14 @@ export function AuthForm({instanceId,initialMode='login',onAuthenticated,returnT
   const [flowStatus,setFlowStatus]=useState<FlowStatus>('idle');
 
   function safeRequestedNext(){return typeof window==='undefined'?null:normalizeStorefrontReturnTarget(new URLSearchParams(window.location.search).get('next'));}
+  function navigateAuthenticatedTarget(target:string|null){
+    if(typeof window==='undefined')return;
+    if(target){window.location.replace(target);return;}
+    window.location.reload();
+  }
   function finishAuthenticatedIntent(){
     if(onAuthenticated){onAuthenticated();return;}
-    const target=normalizeStorefrontReturnTarget(returnTo)??safeRequestedNext();
-    if(target){router.replace(target);router.refresh();return;}
-    router.refresh();
+    navigateAuthenticatedTarget(normalizeStorefrontReturnTarget(returnTo)??safeRequestedNext());
   }
 
   useEffect(()=>{setMode(initialMode)},[initialMode]);
@@ -127,8 +128,7 @@ export function AuthForm({instanceId,initialMode='login',onAuthenticated,returnT
     const target=safeRequestedNext()??'/fiokom';
     window.history.replaceState(null,'','/fiokom');
     setMessage('A jelszó beállítva.');
-    router.replace(target);
-    router.refresh();
+    window.location.replace(target);
   }
 
   if(authFlow){
