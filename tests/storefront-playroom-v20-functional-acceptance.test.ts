@@ -220,8 +220,12 @@ describe('Playroom v20 functional acceptance',()=>{
     }
 
     const multiplayerCta=findNode(home,'playroom-player-two-cta');
-    expect(multiplayerCta.config.label).toBe('Tovább →');
-    expect(resolveStorefrontVisualStyle(multiplayerCta.config.style,'mobile').position).toBe('static');
+    const upgradeCta=findNode(home,'playroom-upgrade-cta');
+    for(const cta of [multiplayerCta,upgradeCta]){
+      expect(cta.config.label).toBe('Tovább →');
+      expect(resolveStorefrontVisualStyle(cta.config.style,'desktop')).toMatchObject({position:'static',width:'fit-content',height:'auto'});
+      expect(resolveStorefrontVisualStyle(cta.config.style,'mobile').position).toBe('static');
+    }
     const featuredCta=findNode(home,'playroom-featured-all');
     expect(featuredCta.config.label).toBe('Összes újdonság →');
     expect(resolveStorefrontVisualStyle(featuredCta.config.style,'mobile').position).toBe('static');
@@ -247,6 +251,10 @@ describe('Playroom v20 functional acceptance',()=>{
     expect(findNode(home,'playroom-compatibility-platform-list').config.text).toBe('PC · PlayStation · Xbox · Nintendo · Kézikonzol · Mobil');
     expect(findNode(home,'playroom-compatibility-check').config.label).toBe('Kompatibilitás ellenőrzése →');
     expect(findNode(home,'playroom-compatibility-intro').config.text).toContain('Konkrét állapotot csak valódi termékadat alapján mutatunk.');
+    expect(findNode(home,'playroom-compatibility-guide-title').config.text).toBe('HOGYAN ELLENŐRIZD?');
+    expect(findNode(home,'playroom-compatibility-guide-copy').config.text).toContain('1. Válaszd ki a platformod');
+    expect(resolveStorefrontVisualStyle(findNode(home,'playroom-compatibility-card').config.style,'desktop').height).toBe('100%');
+    expect(resolveStorefrontVisualStyle(findNode(home,'playroom-compatibility-art').config.style,'desktop').height).toBe('7.2rem');
     const runtime=read('src/components/builder/storefront-existing-commerce-runtime.tsx');
     const fallback=read('src/components/builder/storefront-configurator.tsx');
     expect(runtime).toContain("hideUnknown=config.hideWhenUnknown===true");
