@@ -205,6 +205,10 @@ describe('Playroom v20 functional acceptance',()=>{
     const platformSlots=(platforms.config.styleSlots??{}) as Record<string,unknown>;
     expect(resolveStorefrontVisualStyle(platformSlots.grid,'tablet').gridTemplateColumns).toBe('repeat(3,minmax(0,1fr))');
     expect(resolveStorefrontVisualStyle(platformSlots.grid,'mobile').gridTemplateColumns).toBe('repeat(2,minmax(0,1fr))');
+    expect(resolveStorefrontVisualStyle(platformSlots.media,'mobile')).toMatchObject({aspectRatio:'auto',height:'4.8rem',minHeight:'4.8rem',display:'grid',placeItems:'center'});
+    expect(resolveStorefrontVisualStyle(platformSlots.mediaImage,'mobile')).toMatchObject({width:'2rem',height:'2rem',margin:'0',objectFit:'contain'});
+    expect(resolveStorefrontVisualStyle(platformSlots.mediaImage,'mobile').width).toBe(resolveStorefrontVisualStyle(finderSlots.optionMedia,'mobile').width);
+    expect(resolveStorefrontVisualStyle(platformSlots.mediaImage,'mobile').height).toBe(resolveStorefrontVisualStyle(finderSlots.optionMedia,'mobile').height);
 
     expect(findNode(home,'playroom-hero').responsive?.desktop?.gridSpan).toBe(8);
     expect(findNode(home,'playroom-selectors').responsive?.desktop?.gridSpan).toBe(4);
