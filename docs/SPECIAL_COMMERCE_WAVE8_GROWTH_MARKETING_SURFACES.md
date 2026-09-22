@@ -12,7 +12,7 @@ Evidence used for the reconstruction:
 - Wave 7 established shared Template 2.0 / Visual Builder adoption and entitlement-safe rendering.
 - Market Ready 1.0 already requires coupons/promotions, newsletter/campaign foundations, abandoned-cart handling, cross-sell/upsell/related products and post-purchase offer support.
 - Existing V8/V9/V11 and roadmap blocks already own campaign lifecycle, consent/suppression, attribution, promotion margin controls, retention/recovery and loyalty/customer-value state.
-- The Builder already owns Page Schema, responsive inheritance, presets and the shared renderer path.
+- The Builder already owns Page Schema, isolated Desktop / Tablet / Mobile viewport authority, presets and the shared renderer path.
 
 Wave 8 therefore reuses those authorities. It does not create parallel campaign, coupon, pricing, recommendation, loyalty or Special Commerce state.
 
