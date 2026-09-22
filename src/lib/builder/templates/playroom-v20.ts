@@ -486,17 +486,7 @@ function recomposePlayroomHomeBottom(sections:StorefrontComponentNode[]):Storefr
     id:'playroom-confidence-community-grid',
     componentKey:'layout.grid',
     componentVersion:1,
-    config:{
-      columns:12,
-      gap:'xs',
-      align:'stretch',
-      style:{
-        base:{alignItems:'stretch'},
-        desktop:{minHeight:'14rem'},
-        tablet:{minHeight:'13rem'},
-        mobile:{minHeight:'0'},
-      },
-    },
+    config:{columns:12,gap:'xs',align:'stretch'},
     children:[playroomHalfWidth(clone(compatibility)),playroomHalfWidth(clone(community))],
   });
 
@@ -512,18 +502,6 @@ function patchPlayroomHomeResponsive(item:StorefrontComponentNode):StorefrontCom
   let config=rec(next.config);
 
   switch(next.id){
-    case 'playroom-hero':
-    case 'playroom-selectors':
-      next={
-        ...next,
-        responsive:{
-          ...(next.responsive??{}),
-          desktop:{...(next.responsive?.desktop??{}),gridSpan:12},
-          tablet:{...(next.responsive?.tablet??{}),gridSpan:12},
-          mobile:{...(next.responsive?.mobile??{}),gridSpan:12},
-        },
-      };
-      break;
     case 'playroom-hero-copy':
       next={...next,config:{...config,style:mergeViewportStyle(config.style,{
         tablet:{width:'100%',minHeight:'13rem',padding:'1rem 1.1rem'},
@@ -600,17 +578,7 @@ function patchPlayroomHomeResponsive(item:StorefrontComponentNode):StorefrontCom
     case 'playroom-player-two':
     case 'playroom-upgrade':
       next=patchResponsiveSpan(next,6,12);
-      next={...next,config:{...config,style:mergeViewportStyle(config.style,{
-        desktop:{display:'grid',gridTemplateRows:'auto auto minmax(0,1fr) auto',height:'100%',alignContent:'stretch',gap:'.34rem'},
-        tablet:{display:'flex',flexDirection:'column',height:'auto',minHeight:'0'},
-        mobile:{display:'flex',flexDirection:'column',height:'auto',minHeight:'0'},
-      })}};
-      break;
-    case 'playroom-player-two-grid':
-    case 'playroom-upgrade-grid':
-      next={...next,config:{...config,style:mergeViewportStyle(config.style,{
-        desktop:{height:'100%',alignItems:'stretch',gridAutoRows:'1fr'},
-      })}};
+      next={...next,config:{...config,style:mergeViewportStyle(config.style,{tablet:{minHeight:'0'},mobile:{minHeight:'0'}})}};
       break;
     case 'playroom-player-controller':
     case 'playroom-player-headset':
@@ -621,27 +589,12 @@ function patchPlayroomHomeResponsive(item:StorefrontComponentNode):StorefrontCom
     case 'playroom-upgrade-light':
     case 'playroom-upgrade-chair':
       next=patchResponsiveSpan(next,6,12);
-      next={...next,config:{...config,style:mergeViewportStyle(config.style,{
-        desktop:{display:'grid',gridTemplateRows:'4.15rem minmax(1.55rem,auto) minmax(1.25rem,1fr)',height:'100%',alignContent:'stretch',gap:'.24rem'},
-      })}};
-      break;
-    case 'playroom-player-controller-image':
-    case 'playroom-player-headset-image':
-    case 'playroom-player-family-image':
-    case 'playroom-player-couch-image':
-    case 'playroom-upgrade-monitor-image':
-    case 'playroom-upgrade-audio-image':
-    case 'playroom-upgrade-light-image':
-    case 'playroom-upgrade-chair-image':
-      next={...next,config:{...config,style:mergeViewportStyle(config.style,{
-        desktop:{width:'100%',height:'4.15rem',minHeight:'4.15rem',maxHeight:'4.15rem',objectFit:'cover'},
-      })}};
       break;
     case 'playroom-player-two-cta':
     case 'playroom-upgrade-cta':
       next={...next,config:{...config,label:'Tovább →',ariaLabel:next.id==='playroom-player-two-cta'?'Többjátékos ajánlatok':'Játékest ötletek',style:mergeViewportStyle(config.style,{
         base:{position:'static',right:'auto',top:'auto',width:'fit-content',height:'auto',marginTop:'.28rem',alignSelf:'flex-start',display:'inline-flex',placeItems:'unset',alignItems:'center',justifyContent:'center',padding:'.42rem .62rem',fontSize:'.52rem',fontWeight:850,background:'rgba(5,23,44,.92)',color:'#f5fbff',border:'1px solid rgba(64,220,255,.38)',borderRadius:'.3rem',boxShadow:'0 7px 20px rgba(0,0,0,.18)'},
-        desktop:{marginTop:'0',alignSelf:'start'},
+        desktop:{marginTop:'auto',alignSelf:'flex-start'},
         tablet:{position:'static',right:'auto',top:'auto',width:'fit-content',height:'auto',marginTop:'.25rem',alignSelf:'flex-start'},
         mobile:{position:'static',right:'auto',top:'auto',width:'fit-content',height:'auto',marginTop:'.25rem',alignSelf:'flex-start',fontSize:'.74rem',padding:'.5rem .7rem'},
       })}};
@@ -658,56 +611,23 @@ function patchPlayroomHomeResponsive(item:StorefrontComponentNode):StorefrontCom
     case 'playroom-platform-match-status':
       next={...next,config:{...config,hideWhenUnknown:true}};
       break;
-    case 'playroom-platform-match':
-      next={...next,config:{...config,style:mergeViewportStyle(config.style,{
-        desktop:{display:'grid',gridTemplateRows:'minmax(0,1fr)',height:'100%',minHeight:'100%',alignItems:'stretch'},
-        tablet:{display:'grid',gridTemplateRows:'minmax(0,1fr)',height:'100%',minHeight:'100%'},
-        mobile:{display:'flex',height:'auto',minHeight:'0'},
-      })}};
-      break;
-    case 'playroom-platform-gift-grid':
-      next={...next,config:{...config,style:mergeViewportStyle(config.style,{
-        desktop:{height:'100%',minHeight:'100%',gridAutoRows:'minmax(0,1fr)',alignItems:'stretch'},
-        tablet:{height:'100%',minHeight:'100%',gridAutoRows:'minmax(0,1fr)',alignItems:'stretch'},
-        mobile:{height:'auto',minHeight:'0'},
-      })}};
-      break;
-    case 'playroom-gift-card':
-      next={...next,config:{...config,style:mergeViewportStyle(config.style,{
-        desktop:{display:'grid',gridTemplateRows:'minmax(8rem,1fr) auto auto auto',height:'100%',minHeight:'100%',alignContent:'stretch',justifyContent:'stretch'},
-        tablet:{display:'grid',gridTemplateRows:'minmax(7rem,1fr) auto auto auto',height:'100%',minHeight:'100%',alignContent:'stretch'},
-        mobile:{display:'flex',height:'auto',minHeight:'0',flex:'initial'},
-      })}};
-      break;
-    case 'playroom-gift-image':
-      next={...next,config:{...config,style:mergeViewportStyle(config.style,{
-        desktop:{width:'100%',height:'100%',minHeight:'8rem',maxHeight:'none',objectFit:'cover'},
-        tablet:{width:'100%',height:'100%',minHeight:'7rem',maxHeight:'none',objectFit:'cover'},
-        mobile:{height:'5.6rem',minHeight:'0'},
-      })}};
-      break;
     case 'playroom-compatibility-card':
       next={...next,config:{...config,style:mergeViewportStyle(config.style,{
         base:{height:'100%',minHeight:'100%',alignContent:'stretch'},
-        desktop:{height:'100%',minHeight:'14rem',alignContent:'stretch'},
-        tablet:{height:'100%',minHeight:'13rem',alignContent:'stretch'},
         mobile:{height:'auto',minHeight:'0'},
       })}};
       break;
     case 'playroom-compatibility-layout':
       next={...next,config:{...config,style:mergeViewportStyle(config.style,{
         base:{height:'100%',alignItems:'stretch'},
-        desktop:{height:'100%',minHeight:'11rem',alignItems:'stretch'},
-        tablet:{height:'100%',minHeight:'10rem',alignItems:'stretch'},
-        mobile:{height:'auto',minHeight:'0'},
+        mobile:{height:'auto'},
       })}};
       break;
     case 'playroom-compatibility-art':
       next={...next,config:{...config,style:mergeViewportStyle(config.style,{
         base:{height:'7.2rem',objectFit:'cover',objectPosition:'center'},
-        desktop:{height:'9.25rem',minHeight:'9.25rem',objectFit:'cover',objectPosition:'center'},
-        tablet:{height:'8.25rem',minHeight:'8.25rem'},
-        mobile:{height:'6.4rem',minHeight:'0'},
+        tablet:{height:'7rem'},
+        mobile:{height:'6.4rem'},
       })}};
       break;
     case 'playroom-compatibility-platform-list':
@@ -747,9 +667,8 @@ function patchPlayroomHomeResponsive(item:StorefrontComponentNode):StorefrontCom
       if(!introExists)children=[intro,...children];
       if(!guideExists)children=[...children,guide];
       next={...next,config:{...config,style:mergeViewportStyle(config.style,{
-        base:{height:'auto',justifyContent:'flex-start',gap:'.52rem'},
-        desktop:{height:'auto',justifyContent:'flex-start',gap:'.52rem'},
-        mobile:{height:'auto',justifyContent:'flex-start',gap:'.5rem'},
+        base:{height:'100%',justifyContent:'space-between',gap:'.45rem'},
+        mobile:{height:'auto',justifyContent:'start',gap:'.5rem'},
       })},children};
       break;
     }
@@ -783,25 +702,23 @@ function patchPlayroomHomeResponsive(item:StorefrontComponentNode):StorefrontCom
           id:'playroom-community-content',
           componentKey:'layout.stack',
           componentVersion:1,
-          config:{direction:'vertical',gap:'s',align:'stretch',justify:'center',style:{base:{padding:'.82rem',minHeight:'14rem'},tablet:{minHeight:'13rem'},mobile:{padding:'.7rem',minHeight:'0'}}},
+          config:{direction:'vertical',gap:'s',align:'stretch',justify:'center',style:{padding:'.85rem',minHeight:'12rem'}},
           responsive:{desktop:{gridSpan:6},tablet:{gridSpan:6},mobile:{gridSpan:12}},
           children:[clone(title),clone(copyNode),clone(benefit),clone(buttonNode)],
         });
         const media:StorefrontComponentNode={
           ...clone(art),
           config:{...rec(art.config),style:mergeViewportStyle(rec(art.config).style,{
-            base:{position:'static',inset:'auto',width:'100%',height:'100%',minHeight:'14rem',maxHeight:'14rem',objectFit:'cover',objectPosition:'center',opacity:1,borderRadius:'.38rem'},
-            tablet:{minHeight:'13rem',maxHeight:'13rem'},
-            mobile:{height:'auto',minHeight:'8.5rem',maxHeight:'none'},
+            base:{position:'static',inset:'auto',width:'100%',height:'100%',minHeight:'12rem',objectFit:'cover',objectPosition:'center',opacity:1,borderRadius:'.38rem'},
+            mobile:{minHeight:'9rem'},
           })},
           responsive:{desktop:{gridSpan:6},tablet:{gridSpan:6},mobile:{gridSpan:12}},
         };
         next={
           ...next,
           config:{...config,style:mergeViewportStyle(config.style,{
-            base:{position:'relative',minHeight:'14rem',height:'100%',overflow:'hidden',padding:'.35rem',background:'linear-gradient(135deg,#171047,#071b31)'},
-            tablet:{minHeight:'13rem'},
-            mobile:{height:'auto',minHeight:'0',padding:'.3rem'},
+            base:{position:'relative',minHeight:'0',overflow:'hidden',padding:'.35rem',background:'linear-gradient(135deg,#171047,#071b31)'},
+            mobile:{padding:'.3rem'},
           })},
           children:[node({
             id:'playroom-community-layout',
