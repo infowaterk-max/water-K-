@@ -96,3 +96,6 @@
 .accountOpportunityActions :global(.btn){min-height:44px}
 .guestContinue{min-height:44px;padding:.65rem .2rem;border:0;background:transparent;color:var(--checkout-muted);font:inherit;font-weight:800;text-decoration:underline;text-underline-offset:.18em;cursor:pointer}
 .accountConnected{margin:0 0 .95rem;padding:.8rem 1rem;border:1px solid color-mix(in srgb,var(--checkout-primary) 45%,var(--checkout-border));border-radius:var(--checkout-radius-m);background:color-mix(in srgb,var(--checkout-primary) 8%,var(--checkout-surface));color:var(--checkout-text);font-weight:800}
+
+.accessNotice{margin:0 0 .85rem;padding:.72rem .85rem;border:1px solid var(--checkout-border);border-radius:var(--checkout-radius-s);background:color-mix(in srgb,var(--checkout-primary) 5%,var(--checkout-surface));color:var(--checkout-muted);font-size:.78rem;line-height:1.5}
+.accessNotice strong{color:var(--checkout-text)}

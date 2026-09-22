@@ -41,6 +41,14 @@ export function StorefrontPostPurchaseShell({runtime,viewport,children}:{runtime
    [data-storefront-post-purchase-content="shared-v1"] .successMark{background:var(--shoporation-color-primary);color:var(--shoporation-color-primary-contrast)}
    [data-storefront-post-purchase-content="shared-v1"] .card{box-shadow:0 18px 50px rgba(0,0,0,.22)}
    [data-storefront-post-purchase-content="shared-v1"] strong{overflow-wrap:anywhere}
+   [data-storefront-post-purchase-content="shared-v1"] .postPurchaseAccessNotice{display:flex;justify-content:space-between;gap:1rem;align-items:center;margin:1rem 0;padding:.75rem .9rem;border:1px solid var(--shoporation-color-border);border-radius:var(--shoporation-radius-s);background:color-mix(in srgb,var(--shoporation-color-primary) 6%,var(--shoporation-color-surface));text-align:left}
+   [data-storefront-post-purchase-content="shared-v1"] .postPurchaseAccessNotice>div:first-child{display:grid;gap:.2rem;min-width:0}
+   [data-storefront-post-purchase-content="shared-v1"] .postPurchaseAccessNotice span{color:var(--shoporation-color-muted-text);font-size:.82rem;line-height:1.5}
+   [data-storefront-post-purchase-content="shared-v1"] .postPurchaseAccessLinks{display:flex;gap:.65rem;align-items:center;flex-wrap:wrap;justify-content:flex-end}
+   [data-storefront-post-purchase-content="shared-v1"] .orderTimeline>div{background:var(--shoporation-color-surface)!important;border:1px solid var(--shoporation-color-border)!important;color:var(--shoporation-color-text)!important}
+   [data-storefront-post-purchase-content="shared-v1"] .orderTimeline span,[data-storefront-post-purchase-content="shared-v1"] .helperText{color:var(--shoporation-color-muted-text)!important}
+   [data-storefront-post-purchase-content="shared-v1"] .btnGhost{background:var(--shoporation-color-surface)!important;color:var(--shoporation-color-text)!important;border-color:var(--shoporation-color-border)!important}
+   @media(max-width:767px){[data-storefront-post-purchase-content="shared-v1"] .postPurchaseAccessNotice{display:grid}[data-storefront-post-purchase-content="shared-v1"] .postPurchaseAccessLinks{justify-content:flex-start}}
   `}</style>
  </div>;
 }

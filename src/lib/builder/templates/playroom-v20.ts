@@ -397,7 +397,6 @@ function upgradePage(source:StorefrontPageDocument):StorefrontPageDocument{
   if(source.pageType==='home'&&!sections.some(item=>item.id==='playroom-home-newsletter'))sections=insertBeforeFooter(sections,newsletterSection());
   if(source.pageType==='contact'&&!sections.some(item=>item.id==='playroom-contact-form'))sections=insertBeforeFooter(sections,supportForm());
   if(source.pageType==='product')sections=appendChildToNode(sections,'playroom-product-facts-grid',productDownloadsTile());
-  if(source.pageType==='checkout'&&!sections.some(item=>item.id==='playroom-checkout-digital-commerce'))sections=insertBeforeFooter(sections,digitalCommerceSection(source.pageType));
   const previousAddon=rec(source.metadata?.addonIntegration);
   const previousContexts=Array.isArray(previousAddon.semanticContexts)?previousAddon.semanticContexts.filter((value):value is string=>typeof value==='string'):[];
   const semanticContexts=[...new Set([...STOREFRONT_PAGE_SEMANTIC_CONTEXTS[source.pageType],...previousContexts])];

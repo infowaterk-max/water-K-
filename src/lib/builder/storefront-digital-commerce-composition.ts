@@ -1,12 +1,12 @@
 import type {StorefrontComponentNode,StorefrontPageDocument} from '@/lib/builder/storefront-runtime';
 import type {StorefrontInstallableTemplatePackage} from '@/lib/builder/storefront-template-installation';
 
-export const STOREFRONT_DIGITAL_COMMERCE_COMPOSITION_VERSION='shoporation.storefront-digital-commerce-composition.v5' as const;
+export const STOREFRONT_DIGITAL_COMMERCE_COMPOSITION_VERSION='shoporation.storefront-digital-commerce-composition.v6' as const;
 
 export const STOREFRONT_DIGITAL_COMMERCE_COMPONENTS_BY_PAGE_TYPE=Object.freeze({
   product:['commerce.downloads-tile','commerce.b2b-quote-cta'],
   cart:[],
-  checkout:['commerce.fulfillment-summary','commerce.post-purchase-guidance'],
+  checkout:[],
   account:[],
 } as const);
 
@@ -22,6 +22,10 @@ function hasComponent(nodes:readonly StorefrontComponentNode[],componentKey:stri
 
 function isDeprecatedCartDigitalCommerceSection(section:StorefrontComponentNode):boolean{
   return section.id.endsWith('-digital-commerce')&&hasComponent([section],'commerce.fulfillment-summary');
+}
+
+function isDeprecatedCheckoutDigitalCommerceSection(section:StorefrontComponentNode):boolean{
+  return hasComponent([section],'commerce.fulfillment-summary')||hasComponent([section],'commerce.post-purchase-guidance');
 }
 
 function isLegacyProductDigitalCommerceSection(section:StorefrontComponentNode):boolean{
@@ -230,6 +234,7 @@ export function composeStorefrontDigitalCommerceCapabilities(
     next.sections=embedStandaloneDownloadsIntoFacts(next.sections);
   }
   if(next.pageType==='cart')next.sections=next.sections.filter(section=>!isDeprecatedCartDigitalCommerceSection(section));
+  if(next.pageType==='checkout')next.sections=next.sections.filter(section=>!isDeprecatedCheckoutDigitalCommerceSection(section));
   if(next.metadata?.digitalCommerceCompositionVersion===STOREFRONT_DIGITAL_COMMERCE_COMPOSITION_VERSION
     &&required.every(componentKey=>hasComponent(next.sections,componentKey)))return next;
   const missing=required.filter(componentKey=>!hasComponent(next.sections,componentKey));
