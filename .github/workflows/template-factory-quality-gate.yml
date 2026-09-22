@@ -175,6 +175,8 @@ jobs:
         run: >
           npx vitest run
           tests/storefront-template-quality-gate-v2.test.ts
+          tests/storefront-responsive-isolation.test.ts
+          tests/storefront-targeted-page-change.test.ts
           tests/storefront-auth-surface.test.ts
           tests/storefront-auth-intent-checkout.test.ts
           tests/storefront-auth-return-target.test.ts
