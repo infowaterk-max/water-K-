@@ -504,12 +504,12 @@ function patchPlayroomHomeResponsive(item:StorefrontComponentNode):StorefrontCom
   switch(next.id){
     case 'playroom-hero':
       next={...next,config:{...config,style:mergeViewportStyle(config.style,{
-        desktop:{minHeight:'18rem'},
+        desktop:{minHeight:'22rem'},
       })}};
       break;
     case 'playroom-selectors':
       next={...next,config:{...config,style:mergeViewportStyle(config.style,{
-        desktop:{minHeight:'18rem'},
+        desktop:{minHeight:'22rem'},
       })}};
       break;
     case 'playroom-style-card':
@@ -658,7 +658,7 @@ function patchPlayroomHomeResponsive(item:StorefrontComponentNode):StorefrontCom
       break;
     case 'playroom-gift-card':
       next={...next,config:{...config,style:mergeViewportStyle(config.style,{
-        desktop:{minHeight:'12.2rem'},
+        desktop:{minHeight:'19.25rem'},
       })}};
       break;
     case 'playroomFeaturedGames':
@@ -676,7 +676,7 @@ function patchPlayroomHomeResponsive(item:StorefrontComponentNode):StorefrontCom
     case 'playroom-compatibility-card':
       next={...next,config:{...config,style:mergeViewportStyle(config.style,{
         base:{height:'100%',minHeight:'100%',alignContent:'stretch'},
-        desktop:{height:'auto',minHeight:'13rem',alignContent:'start'},
+        desktop:{height:'auto',minHeight:'15.5rem',alignContent:'start'},
         mobile:{height:'auto',minHeight:'0'},
       })}};
       break;
@@ -690,7 +690,7 @@ function patchPlayroomHomeResponsive(item:StorefrontComponentNode):StorefrontCom
     case 'playroom-compatibility-art':
       next={...next,config:{...config,style:mergeViewportStyle(config.style,{
         base:{height:'7.2rem',objectFit:'cover',objectPosition:'center'},
-        desktop:{height:'7.7rem'},
+        desktop:{height:'9rem'},
         tablet:{height:'7rem'},
         mobile:{height:'6.4rem'},
       })}};
@@ -768,7 +768,7 @@ function patchPlayroomHomeResponsive(item:StorefrontComponentNode):StorefrontCom
           id:'playroom-community-content',
           componentKey:'layout.stack',
           componentVersion:1,
-          config:{direction:'vertical',gap:'s',align:'stretch',justify:'center',style:{base:{padding:'.85rem',minHeight:'12rem'},desktop:{minHeight:'12.3rem'}}},
+          config:{direction:'vertical',gap:'s',align:'stretch',justify:'center',style:{base:{padding:'.85rem',minHeight:'12rem'},desktop:{minHeight:'14.8rem'}}},
           responsive:{desktop:{gridSpan:6},tablet:{gridSpan:6},mobile:{gridSpan:12}},
           children:[clone(title),clone(copyNode),clone(benefit),clone(buttonNode)],
         });
@@ -776,7 +776,7 @@ function patchPlayroomHomeResponsive(item:StorefrontComponentNode):StorefrontCom
           ...clone(art),
           config:{...rec(art.config),style:mergeViewportStyle(rec(art.config).style,{
             base:{position:'static',inset:'auto',width:'100%',height:'100%',minHeight:'12rem',objectFit:'cover',objectPosition:'center',opacity:1,borderRadius:'.38rem'},
-            desktop:{height:'12.3rem',minHeight:'12.3rem',maxHeight:'12.3rem'},
+            desktop:{height:'14.8rem',minHeight:'14.8rem',maxHeight:'14.8rem'},
             mobile:{minHeight:'9rem'},
           })},
           responsive:{desktop:{gridSpan:6},tablet:{gridSpan:6},mobile:{gridSpan:12}},
