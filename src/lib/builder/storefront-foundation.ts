@@ -11,7 +11,8 @@ export type StorefrontBuilderPageType=typeof STOREFRONT_PAGE_TYPES[number];
 
 export const STOREFRONT_VIEWPORTS=['desktop','tablet','mobile'] as const;
 export type StorefrontViewport=typeof STOREFRONT_VIEWPORTS[number];
-export type StorefrontResponsiveValue<T>={desktop:T;tablet?:T;mobile?:T};
+export const STOREFRONT_RESPONSIVE_AUTHORITY_VERSION='shoporation.storefront-responsive-authority.v2' as const;
+export type StorefrontResponsiveValue<T>={desktop:T;tablet:T;mobile:T};
 
 export const STOREFRONT_BREAKPOINT_CONTRACT={
   mobile:{minWidthPx:0,maxWidthPx:767},
@@ -37,9 +38,7 @@ export function resolveStorefrontViewportForWidth(widthPx:number):StorefrontView
 }
 
 export function resolveStorefrontResponsiveValue<T>(value:StorefrontResponsiveValue<T>,viewport:StorefrontViewport):T{
-  if(viewport==='mobile')return value.mobile??value.tablet??value.desktop;
-  if(viewport==='tablet')return value.tablet??value.desktop;
-  return value.desktop;
+  return value[viewport];
 }
 
 export const STOREFRONT_GRID_SPANS=[1,2,3,4,5,6,7,8,9,10,11,12] as const;
@@ -56,7 +55,8 @@ export const STOREFRONT_LAYOUT_GRID_CONTRACT={
   gutterPx:{desktop:32,tablet:24,mobile:16},
   sectionGapScale:['none','xs','s','m','l','xl','2xl'],
   layoutPresets:['full','wide','content','narrow','split'],
-  responsiveInheritance:'mobile->tablet->desktop',
+  responsiveAuthority:'base+exact-viewport',
+  siblingViewportInheritance:false,
 } as const;
 
 export const STOREFRONT_DESIGN_TOKEN_CONTRACT={
