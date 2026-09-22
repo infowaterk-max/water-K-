@@ -23,7 +23,6 @@ import {setStorefrontNodeStyleSlot} from '@/lib/builder/storefront-fidelity-buil
 import {resolveStorefrontVisualStyle} from '@/lib/builder/storefront-visual-style';
 import {normalizeStorefrontTemplateRuntimeComposition} from '@/lib/builder/storefront-template-runtime-normalization';
 import type {StorefrontComponentNode,StorefrontPageDocument} from '@/lib/builder/storefront-runtime';
-import {PLAYROOM_V19_CANONICAL_TEMPLATE_PACKAGE} from '@/lib/builder/templates/playroom-v19-canonical';
 import {PLAYROOM_V20_TEMPLATE_PACKAGE} from '@/lib/builder/templates/playroom-v20';
 import {STOREFRONT_IMPLEMENTED_TEMPLATE_PACKAGES,STOREFRONT_TEMPLATE_LAUNCH_TARGET} from '@/lib/builder/storefront-template-catalog';
 import {PLANS} from '@/lib/plans/catalog';
@@ -94,7 +93,7 @@ function render(page:StorefrontPageDocument,bindingContext:Record<string,unknown
 
 describe('Playroom v20 functional acceptance',()=>{
   it('plans a real v19 -> v20 upgrade as draft-only while preserving page identities and revisions',()=>{
-    const existingPages=PLAYROOM_V19_CANONICAL_TEMPLATE_PACKAGE.pages.map((page,index)=>({
+    const existingPages=PLAYROOM_V20_TEMPLATE_PACKAGE.pages.map((page,index)=>({
       pageKey:`merchant-${page.pageType}`,
       pageType:page.pageType,
       draftRevision:index+7,
@@ -490,7 +489,6 @@ describe('Playroom v20 functional acceptance',()=>{
     const couponPrivilegeRepair=read('supabase/migrations/20260920072500_coupons_service_role_privilege_repair.sql');
     const checkout=read('src/components/checkout/checkout-form.tsx');
     const checkoutCss=read('src/components/checkout/checkout-guided.module.css');
-    const playroom=read('src/lib/builder/templates/playroom-v20.ts');
     const header=read('src/components/builder/storefront-commerce-header.tsx');
     const normalizer=read('src/lib/builder/storefront-template-runtime-normalization.ts');
     expect(route).toContain('resolveCurrentStorefrontCheckoutRuntimePage');
@@ -516,7 +514,7 @@ describe('Playroom v20 functional acceptance',()=>{
     const checkoutTemplate=playroomPage('checkout');
     const checkoutSearch=collectNodes(checkoutTemplate,node=>node.componentKey==='system.search')[0];
     expect(checkoutSearch).toBeTruthy();
-    expect(checkoutSearch?.config.style).toMatchObject({height:'2.24rem'});
+    expect(resolveStorefrontVisualStyle(checkoutSearch?.config.style,'desktop')).toMatchObject({height:'2.24rem'});
     expect(normalizer).toContain("padding:'1.75rem 2.35rem 2rem'");
     expect(normalizer).toContain("minHeight:'13.5rem'");
     expect(normalizer).toContain("fontSize:footerRemFloor(footerStyleValue(style,'fontSize'),.86)");
@@ -532,11 +530,12 @@ describe('Playroom v20 functional acceptance',()=>{
     const normalizedRemapped=normalizeStorefrontTemplateRuntimeComposition(remapped);
     const footer=normalizedRemapped.sections.at(-1)!;
     expect(footer.id).toBe('global-footer-test');
-    expect(footer.config.style).toMatchObject({padding:'1.75rem 2.35rem 2rem',minHeight:'13.5rem'});
+    expect(resolveStorefrontVisualStyle(footer.config.style,'desktop')).toMatchObject({padding:'1.75rem 2.35rem 2rem',minHeight:'13.5rem'});
     const footerNav=collectNodes(normalizedRemapped,node=>node.componentKey==='system.navigation'&&playroomFooterText(node)).at(-1);
     expect(footerNav).toBeTruthy();
-    expect(footerNav?.config.style).toMatchObject({lineHeight:1.5,gap:'.42rem',fontSize:'.86rem'});
-    expect(footerNav?.config.styleSlots).toMatchObject({item:{base:{minHeight:'2.1rem',display:'flex',alignItems:'center'}}});
+    expect(resolveStorefrontVisualStyle(footerNav?.config.style,'desktop')).toMatchObject({lineHeight:1.5,gap:'.42rem',fontSize:'.86rem'});
+    const footerNavSlots=(footerNav?.config.styleSlots??{}) as Record<string,unknown>;
+    expect(resolveStorefrontVisualStyle(footerNavSlots.item,'desktop')).toMatchObject({minHeight:'2.1rem',display:'flex',alignItems:'center'});
     const footerOnly={...normalizedRemapped,sections:[footer]};
     const renderedFooter=render(footerOnly,{});
     expect(renderedFooter).toContain('min-height:13.5rem');
@@ -546,10 +545,12 @@ describe('Playroom v20 functional acceptance',()=>{
     expect(renderedFooter).toContain('min-height:2.1rem');
     expect(runtimeSource).toContain("getPreviewStorefrontDraftPage(instance.id,pageKey)");
     expect(runtimeSource).toContain('acceptanceMode:true');
-    expect(playroom).toContain("checkoutTheme:{");
-    expect(playroom).toContain("background:'#020b17'");
-    expect(playroom).toContain("fieldLabel:'#dce9f5'");
-    expect(playroom).toContain("placeholder:'#9bb1c6'");
+    const checkoutTheme=(checkoutTemplate.metadata?.checkoutTheme??{}) as Record<string,unknown>;
+    expect(checkoutTheme).toMatchObject({
+      background:'#020b17',
+      fieldLabel:'#dce9f5',
+      placeholder:'#9bb1c6',
+    });
     expect(checkoutCss).toContain('--checkout-heading:var(--shoporation-checkout-heading-color');
     expect(checkoutCss).toContain('--checkout-label:var(--shoporation-checkout-field-label-color');
     expect(checkoutCss).toContain('--checkout-input-text:var(--shoporation-checkout-input-text-color');
