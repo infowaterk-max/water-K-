@@ -214,9 +214,34 @@ describe('Playroom v20 functional acceptance',()=>{
 
     expect(findNode(home,'playroom-player-two').responsive?.tablet?.gridSpan).toBe(6);
     expect(findNode(home,'playroom-upgrade').responsive?.tablet?.gridSpan).toBe(6);
+    for(const id of ['playroom-player-two','playroom-upgrade']){
+      expect(resolveStorefrontVisualStyle(findNode(home,id).config.style,'desktop')).toMatchObject({
+        display:'grid',
+        gridTemplateRows:'auto auto minmax(0,1fr) auto',
+        height:'100%',
+      });
+    }
+    for(const id of ['playroom-player-two-grid','playroom-upgrade-grid']){
+      expect(resolveStorefrontVisualStyle(findNode(home,id).config.style,'desktop')).toMatchObject({
+        height:'100%',
+        alignItems:'stretch',
+      });
+    }
     for(const id of ['playroom-player-controller','playroom-player-headset','playroom-player-family','playroom-player-couch','playroom-upgrade-monitor','playroom-upgrade-audio','playroom-upgrade-light','playroom-upgrade-chair']){
       expect(findNode(home,id).responsive?.tablet?.gridSpan).toBe(6);
       expect(findNode(home,id).responsive?.mobile?.gridSpan).toBe(12);
+      expect(resolveStorefrontVisualStyle(findNode(home,id).config.style,'desktop')).toMatchObject({
+        display:'grid',
+        height:'100%',
+      });
+    }
+    for(const id of ['playroom-player-controller-image','playroom-player-headset-image','playroom-player-family-image','playroom-player-couch-image','playroom-upgrade-monitor-image','playroom-upgrade-audio-image','playroom-upgrade-light-image','playroom-upgrade-chair-image']){
+      expect(resolveStorefrontVisualStyle(findNode(home,id).config.style,'desktop')).toMatchObject({
+        height:'4.15rem',
+        minHeight:'4.15rem',
+        maxHeight:'4.15rem',
+        objectFit:'cover',
+      });
     }
 
     const multiplayerCta=findNode(home,'playroom-player-two-cta');
@@ -241,6 +266,8 @@ describe('Playroom v20 functional acceptance',()=>{
     expect(findNode(home,'playroom-platform-gift-grid').children?.map(item=>item.id)).toEqual(['playroom-gift-card']);
     expect(findNode(home,'playroom-gift-card').responsive?.desktop?.gridSpan).toBe(12);
     expect(findNode(home,'playroom-gift-card').responsive?.tablet?.gridSpan).toBe(12);
+    expect(resolveStorefrontVisualStyle(findNode(home,'playroom-platform-match').config.style,'desktop')).toMatchObject({height:'100%',minHeight:'100%'});
+    expect(resolveStorefrontVisualStyle(findNode(home,'playroom-gift-card').config.style,'desktop')).toMatchObject({height:'100%',minHeight:'100%',flex:'1 1 auto'});
   });
 
   it('keeps compatibility teaser fail-closed without exposing an empty unknown state',()=>{
@@ -254,6 +281,7 @@ describe('Playroom v20 functional acceptance',()=>{
     expect(findNode(home,'playroom-compatibility-guide-title').config.text).toBe('HOGYAN ELLENŐRIZD?');
     expect(findNode(home,'playroom-compatibility-guide-copy').config.text).toContain('1. Válaszd ki a platformod');
     expect(resolveStorefrontVisualStyle(findNode(home,'playroom-compatibility-card').config.style,'desktop').height).toBe('100%');
+    expect(resolveStorefrontVisualStyle(findNode(home,'playroom-compatibility-status-wrap').config.style,'desktop')).toMatchObject({height:'auto',justifyContent:'flex-start'});
     expect(resolveStorefrontVisualStyle(findNode(home,'playroom-compatibility-art').config.style,'desktop').height).toBe('7.2rem');
     const runtime=read('src/components/builder/storefront-existing-commerce-runtime.tsx');
     const fallback=read('src/components/builder/storefront-configurator.tsx');
@@ -268,7 +296,8 @@ describe('Playroom v20 functional acceptance',()=>{
     expect(layout.children?.map(item=>item.id)).toEqual(['playroom-community-content','playroom-community-art']);
     expect(findNode(home,'playroom-community-content').responsive).toMatchObject({desktop:{gridSpan:6},tablet:{gridSpan:6},mobile:{gridSpan:12}});
     expect(findNode(home,'playroom-community-art').responsive).toMatchObject({desktop:{gridSpan:6},tablet:{gridSpan:6},mobile:{gridSpan:12}});
-    expect(resolveStorefrontVisualStyle(findNode(home,'playroom-community-art').config.style,'desktop')).toMatchObject({position:'static',opacity:1});
+    expect(resolveStorefrontVisualStyle(findNode(home,'playroom-community-art').config.style,'desktop')).toMatchObject({position:'static',opacity:1,minHeight:'9.25rem',maxHeight:'11rem'});
+    expect(resolveStorefrontVisualStyle(findNode(home,'playroom-community-content').config.style,'desktop')).toMatchObject({minHeight:'9.25rem',padding:'.72rem'});
     expect(findNode(home,'playroom-community-copy-text').config.text).toBe('Játékesték, tippek és friss közösségi tartalmak egy helyen.');
     expect(findNode(home,'playroom-community-button').config.label).toBe('Csatlakozz a közösséghez →');
   });
