@@ -5,7 +5,7 @@ import {
   type StorefrontViewport,
 } from '@/lib/builder/storefront-foundation';
 import type {StorefrontInstallableTemplatePackage} from '@/lib/builder/storefront-template-installation';
-import {listUnmaterializedStorefrontVisualSurfaces} from '@/lib/builder/storefront-responsive-isolation';
+import {listUnmaterializedStorefrontViewportAuthorities} from '@/lib/builder/storefront-responsive-isolation';
 
 export const STOREFRONT_TEMPLATE_QUALITY_GATE_VERSION='shoporation.template-factory-quality-gate.v2' as const;
 
@@ -146,12 +146,12 @@ export function evaluateStorefrontTemplateQualityGate(input:{
 
   if(manifest.responsiveIsolation.explicitEffectiveStyles){
     for(const page of template.pages){
-      const unmaterialized=listUnmaterializedStorefrontVisualSurfaces(page);
+      const unmaterialized=listUnmaterializedStorefrontViewportAuthorities(page);
       if(unmaterialized.length){
         issues.push(issue(
-          'QUALITY_RESPONSIVE_STYLE_NOT_MATERIALIZED',
+          'QUALITY_RESPONSIVE_AUTHORITY_NOT_MATERIALIZED',
           `pages.${page.pageType}`,
-          'Strict template must persist explicit effective Desktop/Tablet/Mobile visual style authorities.',
+          'Strict template must persist explicit Desktop/Tablet/Mobile authorities for visual style, responsive geometry, typography, art direction and composition order.',
           {pageType:page.pageType,surfaces:unmaterialized.slice(0,25),count:unmaterialized.length},
         ));
       }
