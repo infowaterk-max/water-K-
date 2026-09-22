@@ -4,7 +4,7 @@ import {describe,expect,it} from 'vitest';
 describe('shared Storefront Form Wizard engine',()=>{
   it('owns multi-step validation, navigation, submission and confirmation',()=>{
     const wizard=readFileSync('src/components/forms/storefront-form-wizard.tsx','utf8');
-    expect(wizard).toContain("data-storefront-form-wizard="shared-v1"");
+    expect(wizard).toContain('data-storefront-form-wizard="shared-v1"');
     expect(wizard).toContain('validateFields(form,step.fields)');
     expect(wizard).toContain('setStepIndex(current=>Math.min');
     expect(wizard).toContain('setStepIndex(current=>Math.max');
