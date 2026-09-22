@@ -10,6 +10,9 @@ import { getPilotAcceptanceInstanceId } from '@/lib/storefront/pilot-access';
 import { requireStorefrontAccess } from '@/lib/storefront/access';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { getFeatureEntitlementDecisions } from '@/lib/entitlements/access';
+import { createClient } from '@/lib/supabase/server';
+import { getCustomerBillingProfile } from '@/lib/account/billing-profile';
+import { resolveB2BAccountContext } from '@/lib/commerce/b2b-account';
 
 function storefrontViewportFromUserAgent(userAgent:string):StorefrontViewport{
   const value=userAgent.toLowerCase();
@@ -33,6 +36,15 @@ export default async function Checkout(){
     accountBenefitPromise,
   ]);
   const acceptancePreview=Boolean(instance&&acceptanceInstanceId===instance.id&&process.env.VERCEL_ENV==='preview');
+  const session=await createClient(),{data:{user}}=await session.auth.getUser();
+  const[profileResult,billingProfile,b2bContext]=user?await Promise.all([
+    createAdminClient().from('profiles').select('full_name,company_name,tax_number').eq('id',user.id).maybeSingle(),
+    getCustomerBillingProfile(instance.id,user.id).catch(()=>null),
+    resolveB2BAccountContext(instance.id,user.id).catch(()=>null),
+  ]):[{data:null,error:null},null,null] as const;
+  const profile=profileResult.data as{full_name?:string|null;company_name?:string|null;tax_number?:string|null}|null;
+  const initialCustomerType=access.resellerApproved?'reseller':profile?.company_name&&profile?.tax_number?'company':'retail';
+  const customerDefaults={name:billingProfile?.billingName||profile?.full_name||'',email:user?.email??'',phone:billingProfile?.phone??'',billingPostcode:billingProfile?.billingPostcode??'',billingCity:billingProfile?.billingCity??'',billingAddress:billingProfile?.billingAddress??'',companyName:b2bContext?.accountName||profile?.company_name||'',taxNumber:b2bContext?.taxNumber||profile?.tax_number||'',customerType:initialCustomerType,businessIdentityLocked:Boolean(b2bContext)};
   const form=<>
     <CheckoutRecoverySaver/>
     <CheckoutForm
@@ -44,6 +56,8 @@ export default async function Checkout(){
       acceptancePreview={acceptancePreview}
       instanceId={instance.id}
       signedIn={access.signedIn}
+      customerDefaults={customerDefaults}
+      hasSavedBillingProfile={Boolean(billingProfile)}
       accountBenefitCapabilities={{
         loyalty:Boolean(loyaltyResult.data?.enabled),
         orderHistory:accountBenefitDecisions.get('orders')?.enabled===true,

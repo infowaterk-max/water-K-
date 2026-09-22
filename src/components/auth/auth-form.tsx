@@ -4,6 +4,7 @@ import { useEffect,useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/browser';
 import { normalizeStorefrontReturnTarget } from '@/lib/auth/storefront-return-target';
+import { isValidHuTaxNumber,normalizeHuTaxNumber } from '@/lib/commerce/hu-tax-number';
 
 export type AuthMode='login'|'register';
 type Mode=AuthMode;
@@ -82,7 +83,9 @@ export function AuthForm({instanceId,initialMode='login',onAuthenticated,returnT
     if(!registrationInstanceId){setBusy(false);setMessage('Ehhez a regisztrációhoz nincs aktív webshop.');return;}
     const fullName=String(formData.get('fullName')??'').trim();
     const companyName=String(formData.get('companyName')??'').trim();
-    const taxNumber=String(formData.get('taxNumber')??'').trim();
+    const rawTaxNumber=String(formData.get('taxNumber')??'').trim();
+    const taxNumber=accountType==='customer'?'':normalizeHuTaxNumber(rawTaxNumber);
+    if(accountType!=='customer'&&!isValidHuTaxNumber(taxNumber)){setBusy(false);setMessage('Az adószám formátuma vagy ellenőrzőszáma hibás. Formátum: 12345676-1-12.');return;}
     const registrationReturn=normalizeStorefrontReturnTarget(returnTo)??safeRequestedNext();
     const result=await supabase.auth.signUp({
       email:normalizedEmail,
@@ -98,7 +101,7 @@ export function AuthForm({instanceId,initialMode='login',onAuthenticated,returnT
     setBusy(false);
     if(result.error){setMessage(result.error.message);return;}
     if(result.data.session){finishAuthenticatedIntent();return;}
-    setMessage(accountType==='reseller'?'Partnerigény elküldve ehhez a webshophoz. A viszonteladói árak admin jóváhagyás után aktiválódnak.':'Regisztráció elküldve. Ellenőrizd az e-mail-fiókodat.');
+    setMessage(accountType==='reseller'?'Viszonteladói regisztráció rögzítve. A partnerjogosultság csak kereskedői jóváhagyás után aktiválódhat.':'Regisztráció elküldve. Ellenőrizd az e-mail-fiókodat.');
   }
 
   async function resetPassword(){
