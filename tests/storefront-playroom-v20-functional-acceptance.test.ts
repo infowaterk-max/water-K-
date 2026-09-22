@@ -170,6 +170,13 @@ describe('Playroom v20 functional acceptance',()=>{
     expect(atomic).toContain('pg_advisory_xact_lock');
     expect(atomic).toContain('SUPPORT_INITIAL_MESSAGE_EVIDENCE_MISSING');
     expect(client).toContain("fetch('/api/support'");
+    expect(client).toContain('function validatePayload(payload:SupportPayload)');
+    expect(client).toContain('if(payload.subject.length<3)');
+    expect(client).toContain('if(payload.message.length<10)');
+    expect(client).toContain('<form noValidate');
+    expect(client).toContain('disabled={busy||!formReady}');
+    expect(client).toContain("cursor:busy?'wait':formReady?'pointer':'not-allowed'");
+    expect(client).toContain('support-form-validation-hint');
     expect(client).toContain("role={feedback.kind==='error'?'alert':'status'}");
     expect(client).toContain('aria-live="polite"');
   });
