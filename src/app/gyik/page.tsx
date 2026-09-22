@@ -13,7 +13,7 @@ type FaqGroup={eyebrow:string;title:string;items:FaqItem[]};
 
 export default async function FaqPage(){
  const[instance,commerce,custom]=await Promise.all([getCurrentWebshopInstance(),getCommerceSettings(),getPublicContentBySlug('page','gyik')]);
- if(custom)return <StorefrontContentShell><main className="section contentPage faqPage"><div className="shell"><span className="eyebrow">Segítség</span><h1 className="sectionTitle">{custom.title}</h1>{custom.excerpt&&<p className="lead">{custom.excerpt}</p>}<section className="card"><RichContent body={custom.body}/></section></div></main></StorefrontContentShell>;
+ if(custom)return <StorefrontContentShell pageKey="faq"><main className="section contentPage faqPage"><div className="shell"><span className="eyebrow">Segítség</span><h1 className="sectionTitle">{custom.title}</h1>{custom.excerpt&&<p className="lead">{custom.excerpt}</p>}<section className="card"><RichContent body={custom.body}/></section></div></main></StorefrontContentShell>;
 
  const brandName=instance?.brand.name||instance?.name||'Webshop';
  const shippingLabels=commerce.shippingOptions.map(o=>o.label).join(', ');
@@ -37,7 +37,7 @@ export default async function FaqPage(){
   ]},
  ];
 
- return <StorefrontContentShell><main className="section contentPage faqPage" data-system-info-page="faq"><div className="shell">
+ return <StorefrontContentShell pageKey="faq"><main className="section contentPage faqPage" data-system-info-page="faq"><div className="shell">
   <span className="eyebrow">{brandName} · segítség</span>
   <h1 className="sectionTitle">Gyakori kérdések</h1>
   <p className="lead">A legfontosabb válaszok a vásárlásról, szállításról, fizetésről és fiókos ügyintézésről.</p>

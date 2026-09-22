@@ -1,5 +1,6 @@
 import 'server-only';
 import type {StorefrontPageDocument,StorefrontRuntimeCapabilityContext} from '@/lib/builder/storefront-runtime';
+import type {StorefrontBuilderPageType} from '@/lib/builder/storefront-foundation';
 import {getCurrentStorefrontPageState,getPreviewStorefrontDraftPage,getPublishedStorefrontPage,resolveStorefrontPreviewToken} from '@/lib/builder/storefront-persistence';
 import {listStorefrontReusableSymbolsForInstance} from '@/lib/builder/storefront-reusable-symbol-persistence';
 import {materializeStorefrontReusableSymbols} from '@/lib/builder/storefront-linked-symbols';
@@ -89,7 +90,7 @@ export async function resolveCurrentStorefrontAccountRuntimePage(customerId:stri
  return{source:'published',instanceId:instance.id,page:failClosedSpecialCommerce(authored,runtime.capability),bindingContext:mergeDigitalCommerceContext(baseContext,digitalCommerce),capability:runtime.capability};
 }
 
-async function resolveCurrentStorefrontPublicStaticRuntimePage(pageKey:'home'|'content'|'contact'):Promise<StorefrontResolvedRuntimePage|null>{
+async function resolveCurrentStorefrontPublicStaticRuntimePage(pageKey:StorefrontBuilderPageType):Promise<StorefrontResolvedRuntimePage|null>{
  const instance=await getCurrentWebshopInstance();if(!instance)return null;
  const previewDraft=process.env.VERCEL_ENV==='preview'?await getPreviewStorefrontDraftPage(instance.id,pageKey):null;
  const[page,symbols,runtime]=await Promise.all([
@@ -104,6 +105,10 @@ async function resolveCurrentStorefrontPublicStaticRuntimePage(pageKey:'home'|'c
  const growth=await resolveGrowthContext(instance.id,composed,runtime.capability);
  const baseContext={...mergeGrowthContext(runtime.bindingContext,growth.promotions),brand:{name:instance.brand.name,tagline:instance.brand.tagline,logoUrl:instance.brand.logoUrl,primaryColor:instance.brand.primaryColor,socialLinks:resolveStorefrontSocialLinks(instance.storefront.socialLinks)},navigation:{primary:[]}};
  return{source:previewDraft?'preview':'published',instanceId:instance.id,page:failClosedSpecialCommerce(composed,runtime.capability),bindingContext:baseContext,capability:runtime.capability};
+}
+
+export async function resolveCurrentStorefrontRouteRuntimePage(pageKey:StorefrontBuilderPageType):Promise<StorefrontResolvedRuntimePage|null>{
+ return resolveCurrentStorefrontPublicStaticRuntimePage(pageKey);
 }
 
 export async function resolveCurrentStorefrontHomeRuntimePage():Promise<StorefrontResolvedRuntimePage|null>{
