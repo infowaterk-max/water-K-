@@ -599,6 +599,9 @@ function patchPlayroomHomeResponsive(item:StorefrontComponentNode):StorefrontCom
         mobile:{position:'static',right:'auto',top:'auto',width:'fit-content',marginTop:'.25rem',alignSelf:'flex-start',fontSize:'.74rem',padding:'.5rem .7rem'},
       })}};
       break;
+    case 'playroomFeaturedGames':
+      next={...next,config:{...config,presentation:'carousel',columns:4}};
+      break;
     case 'playroom-featured-all':
       next={...next,config:{...config,label:'Összes újdonság →',ariaLabel:'Összes újdonság megtekintése',style:mergeViewportStyle(config.style,{
         tablet:{position:'static',right:'auto',top:'auto',width:'fit-content',marginTop:'.2rem',alignSelf:'flex-start'},
@@ -780,6 +783,19 @@ const digitalCommerceFixtures=Object.freeze([
   {entityType:'product' as const,entityKey:'a3-downloadable-game',payload:{name:'Orbit Breakers Digital',sku:'PLAY-A3-DIGITAL',fulfillment_type:'digital',fixturePurpose:'downloadable-game'}},
   {entityType:'product' as const,entityKey:'a3-physical-controller',payload:{name:'Neon Pro Controller',sku:'PLAY-A3-PHYSICAL',fulfillment_type:'physical',fixturePurpose:'physical-gaming-product'}},
 ]);
+const playroomGameFixtures=Object.freeze([
+  {entityType:'product' as const,entityKey:'game-neon-rally',payload:{name:'Neon Rally',slug:'neon-rally',kind:'game',demoCategory:'verseny',demo:true}},
+  {entityType:'product' as const,entityKey:'game-midnight-quest',payload:{name:'Midnight Quest',slug:'midnight-quest',kind:'game',demoCategory:'kaland',demo:true}},
+  {entityType:'product' as const,entityKey:'game-cyber-arena',payload:{name:'Cyber Arena',slug:'cyber-arena',kind:'game',demoCategory:'arena',demo:true}},
+  {entityType:'product' as const,entityKey:'game-party-rift',payload:{name:'Party Rift',slug:'party-rift',kind:'game',demoCategory:'kooperativ',demo:true}},
+  {entityType:'product' as const,entityKey:'game-starforge',payload:{name:'Starforge',slug:'starforge',kind:'game',demoCategory:'sci-fi',demo:true}},
+  {entityType:'product' as const,entityKey:'game-turbo-circuit',payload:{name:'Turbo Circuit',slug:'turbo-circuit',kind:'game',demoCategory:'verseny',demo:true}},
+  {entityType:'product' as const,entityKey:'game-couch-crew',payload:{name:'Couch Crew',slug:'couch-crew',kind:'game',demoCategory:'tarsasagi',demo:true}},
+  {entityType:'product' as const,entityKey:'game-mech-tactics',payload:{name:'Mech Tactics',slug:'mech-tactics',kind:'game',demoCategory:'strategia',demo:true}},
+  {entityType:'product' as const,entityKey:'game-pixel-picnic',payload:{name:'Pixel Picnic',slug:'pixel-picnic',kind:'game',demoCategory:'csaladi',demo:true}},
+  {entityType:'product' as const,entityKey:'game-void-runners',payload:{name:'Void Runners',slug:'void-runners',kind:'game',demoCategory:'akcio',demo:true}},
+  {entityType:'product' as const,entityKey:'game-kingdom-grid',payload:{name:'Kingdom Grid',slug:'kingdom-grid',kind:'game',demoCategory:'strategia',demo:true}},
+]);
 
 const PLAYROOM_V20_PAGES=PLAYROOM_V19_CANONICAL_TEMPLATE_PACKAGE.pages.map(upgradePage);
 function assertPlayroomV20CanonicalShell(pages:readonly StorefrontPageDocument[]):void{
@@ -799,5 +815,5 @@ export const PLAYROOM_V20_TEMPLATE_PACKAGE:StorefrontInstallableTemplatePackage=
   ...PLAYROOM_V19_CANONICAL_TEMPLATE_PACKAGE,
   manifest:{...PLAYROOM_V19_CANONICAL_TEMPLATE_PACKAGE.manifest,templateVersion:PLAYROOM_V20_TEMPLATE_VERSION,requiredFeatures},
   pages:PLAYROOM_V20_PAGES,
-  demoFixtures:[...(PLAYROOM_V19_CANONICAL_TEMPLATE_PACKAGE.demoFixtures??[]),...digitalCommerceFixtures],
+  demoFixtures:[...(PLAYROOM_V19_CANONICAL_TEMPLATE_PACKAGE.demoFixtures??[]),...digitalCommerceFixtures,...playroomGameFixtures],
 };
