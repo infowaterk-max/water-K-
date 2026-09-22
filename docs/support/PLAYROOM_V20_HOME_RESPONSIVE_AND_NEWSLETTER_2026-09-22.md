@@ -94,3 +94,19 @@ Current Playroom play-style icon authority:
 - `/storefront/playroom/icons/play-style-family.svg`
 
 The runtime fallback must not silently return to abstract glyphs or emoji for these six canonical Playroom choices.
+
+
+## Desktop density follow-up — compatibility + community
+
+Human desktop review found that low-density informational blocks became visually over-stretched when allowed to consume the full 12-column width.
+
+Playroom v20 composition rule:
+
+- `Újdonságok & Kiemelt játékok` keeps the denser commerce role and pairs with the Gift card as the upper desktop row;
+- `Platform kompatibilitás` and `Játsszatok együtt / Csatlakozz a közösséghez` form a dedicated **6 / 6** desktop and tablet row;
+- mobile returns both blocks to **12 / 12** stacking;
+- existing node IDs and compatibility/community authorities remain unchanged.
+
+Regression invariant:
+
+**Desktop width is not a target by itself. A low-density block should only consume 12 columns when its information hierarchy or interaction genuinely benefits from the width; otherwise prefer a balanced multi-column composition and stack it on mobile.**
