@@ -123,6 +123,20 @@ describe('Playroom v20 functional acceptance',()=>{
     expect(installAction).not.toContain('publishCurrentStorefrontPage');
   });
 
+  it('renders the public contact route through the active template Runtime before any legacy fallback',()=>{
+    const contactRoute=read('src/app/kapcsolat/page.tsx');
+    const runtimeSource=read('src/lib/builder/storefront-runtime-source.ts');
+    expect(contactRoute).toContain('resolveCurrentStorefrontContactRuntimePage()');
+    expect(contactRoute).toContain('<StorefrontResponsiveRuntime');
+    expect(contactRoute).toContain('data-storefront-contact-runtime="page-schema"');
+    expect(contactRoute).toContain('data-storefront-contact-fallback="legacy"');
+    expect(runtimeSource).toContain("resolveCurrentStorefrontPublicStaticRuntimePage(pageKey:'content'|'contact')");
+    expect(runtimeSource).toContain("getPreviewStorefrontDraftPage(instance.id,pageKey)");
+    expect(runtimeSource).toContain("getPublishedStorefrontPage(instance.id,pageKey)");
+    expect(runtimeSource).toContain("page.pageType!==pageKey");
+    expect(runtimeSource).toContain("resolveCurrentStorefrontPublicStaticRuntimePage('contact')");
+  });
+
   it('keeps Contact Form on the canonical ticket authority with validation, dedupe, spam sink and accessible feedback',()=>{
     const route=read('src/app/api/support/route.ts');
     const client=read('src/components/builder/storefront-support-contact-form-client.tsx');
