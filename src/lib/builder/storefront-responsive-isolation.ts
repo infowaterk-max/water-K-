@@ -1,4 +1,4 @@
-import type {StorefrontComponentNode,StorefrontPageDocument} from '@/lib/builder/storefront-runtime';
+import {resolveStorefrontResponsiveOverrideLegacyCascade,type StorefrontComponentNode,type StorefrontPageDocument} from '@/lib/builder/storefront-runtime';
 import type {StorefrontInstallableTemplatePackage} from '@/lib/builder/storefront-template-installation';
 import {
   resolveStorefrontVisualStyle,
@@ -89,9 +89,15 @@ export function listUnmaterializedStorefrontVisualSurfaces(page:StorefrontPageDo
 }
 
 export function materializeStorefrontNodeResponsiveStyles(source:StorefrontComponentNode):StorefrontComponentNode{
+  const responsive=source.responsive?{
+    desktop:resolveStorefrontResponsiveOverrideLegacyCascade(source,'desktop'),
+    tablet:resolveStorefrontResponsiveOverrideLegacyCascade(source,'tablet'),
+    mobile:resolveStorefrontResponsiveOverrideLegacyCascade(source,'mobile'),
+  }:undefined;
   return{
     ...clone(source),
     config:materializeConfig(source.config),
+    ...(responsive?{responsive}:{}),
     ...(source.children?{children:source.children.map(materializeStorefrontNodeResponsiveStyles)}:{}),
   };
 }
