@@ -491,8 +491,12 @@ function patchPlayroomHomeResponsive(item:StorefrontComponentNode):StorefrontCom
         mobile:{gridTemplateColumns:'repeat(2,minmax(0,1fr))'},
       });
       config=patchStyleSlot(config,'optionMedia',{mobile:{fontSize:'1.45rem',lineHeight:1}});
-      const bindings=rec(next.bindings),optionsBinding=rec(bindings.options);
-      next={...next,config,bindings:{...bindings,options:{...optionsBinding,fallback:patchPlayroomFinderOptions(optionsBinding.fallback)}} as StorefrontComponentNode['bindings']};
+      const optionsBinding=next.bindings?.options;
+      next={
+        ...next,
+        config,
+        ...(optionsBinding?{bindings:{...next.bindings,options:{...optionsBinding,fallback:patchPlayroomFinderOptions(optionsBinding.fallback)}}}:{}),
+      };
       break;
     }
     case 'playroom-platform-navigation':
