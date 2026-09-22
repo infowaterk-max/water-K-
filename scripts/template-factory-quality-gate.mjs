@@ -6,7 +6,7 @@ import {chromium} from 'playwright';
 const baseUrl=(process.env.VISUAL_FIDELITY_BASE_URL??'http://127.0.0.1:3000').replace(/\/$/,'');
 const outputDir=process.env.TEMPLATE_QUALITY_OUTPUT_DIR??'artifacts/template-factory-quality';
 const baseSha=(process.env.QUALITY_BASE_SHA??'').trim();
-const headSha=(process.env.GITHUB_SHA??'HEAD').trim()||'HEAD';
+const headSha=(process.env.QUALITY_HEAD_SHA??process.env.GITHUB_SHA??'HEAD').trim()||'HEAD';
 const viewportProfiles=Object.freeze({
   desktop:{width:1200,height:1000},
   tablet:{width:768,height:1024},
@@ -394,7 +394,7 @@ try{
 
 const evidence={
   contract:'shoporation.template-factory-quality-evidence.v2',
-  sourceCommit:process.env.GITHUB_SHA??null,
+  sourceCommit:headSha==='HEAD'?null:headSha,
   baseSha:baseSha||null,
   changes,
   selection:scope.reasons,
