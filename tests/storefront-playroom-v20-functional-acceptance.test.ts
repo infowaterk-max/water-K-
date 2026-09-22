@@ -479,24 +479,16 @@ describe('Playroom v20 functional acceptance',()=>{
     expect(html).not.toContain('Jelenleg nincs kapcsolódó ajánlat.');
   });
 
-  it.each(['physical','digital','mixed'] as const)('renders Playroom checkout fulfillment state %s through the shared runtime',mode=>{
+  it('keeps checkout document/digital guidance compact and owned by the shared transaction runtime',()=>{
     const checkout=playroomPage('checkout');
-    const html=render(checkout,{commerce:{digitalCommerce:{
-      checkoutFulfillment:{
-        state:'ready',mode,requiresShipping:mode!=='digital',
-        copy:`Acceptance ${mode}`,
-        lines:[
-          ...(mode!=='digital'?[{id:'physical',name:'Neon Pro Controller',quantity:1,fulfillmentType:'physical'}]:[]),
-          ...(mode!=='physical'?[{id:'digital',name:'Orbit Breakers Digital',quantity:1,fulfillmentType:'digital'}]:[]),
-        ],
-        documentCenterHref:'/fiokom/letoltesek',
-      },
-      postPurchase:{state:'ready',mode,paymentStatus:'pending',copy:'Fizetés után aktiválódik.',documentCenterHref:'/fiokom/letoltesek'},
-    }}});
-    expect(html).toContain(`data-fulfillment-mode="${mode}"`);
-    expect(html).toContain(`Acceptance ${mode}`);
-    if(mode==='digital')expect(html).not.toContain('Neon Pro Controller');
-    if(mode==='mixed'){expect(html).toContain('Neon Pro Controller');expect(html).toContain('Orbit Breakers Digital');}
+    expect(collectNodes(checkout,node=>node.componentKey==='commerce.fulfillment-summary')).toHaveLength(0);
+    expect(collectNodes(checkout,node=>node.componentKey==='commerce.post-purchase-guidance')).toHaveLength(0);
+    const form=read('src/components/checkout/checkout-form.tsx');
+    expect(form).toContain('data-checkout-access-notice="compact"');
+    expect(form).toContain('Fiókom → Dokumentumaim / Letöltéseim');
+    const composition=read('src/lib/builder/storefront-digital-commerce-composition.ts');
+    expect(composition).toContain("checkout:[]");
+    expect(composition).toContain('isDeprecatedCheckoutDigitalCommerceSection');
   });
 
   it('applies the downloads placement contract across every implemented template and remains future-template generic',()=>{

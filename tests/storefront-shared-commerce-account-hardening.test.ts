@@ -36,6 +36,19 @@ describe('shared commerce/account hardening',()=>{
   expect(postPurchase).toContain("'--card':'var(--shoporation-color-surface)'");
   expect(postPurchase).toContain('data-storefront-template-key');
  });
+ it('keeps cross-sell before order submission and reduces document guidance to compact transactional notices',()=>{
+  const cartPage=read('src/app/kosar/page.tsx'),recommendations=read('src/components/catalog/product-recommendations.tsx'),success=read('src/app/rendeles-sikeres/page.tsx'),checkout=read('src/components/checkout/checkout-form.tsx'),composition=read('src/lib/builder/storefront-digital-commerce-composition.ts'),admin=read('src/components/admin/recommendation-manager.tsx'),api=read('src/app/api/admin/recommendations/route.ts');
+  expect(cartPage).toContain('<ProductRecommendations products={products} rules={rules} context="cart"/>');
+  expect(recommendations).toContain("'cart_cross_sell'");
+  expect(success).not.toContain('ProductRecommendations');
+  expect(success).not.toContain("getRecommendationRules('post_purchase')");
+  expect(success).toContain('data-post-purchase-access-notice="compact"');
+  expect(checkout).toContain('data-checkout-access-notice="compact"');
+  expect(composition).toContain("checkout:[]");
+  expect(composition).toContain('isDeprecatedCheckoutDigitalCommerceSection');
+  expect(admin).not.toContain('Rendelés utáni ajánlat');
+  expect(api).toContain("placement:z.literal('cart')");
+ });
  it('stores billing defaults per tenant and user and only after a successful checkout finalization',()=>{
   const sql=read('supabase/migrations/20260922053000_shared_customer_billing_b2b_identity_reverification.sql'),baseline=read('supabase/customer-baseline/migrations/0044_shared_customer_billing_b2b_identity_reverification.sql'),checkout=read('src/components/checkout/checkout-form.tsx'),page=read('src/app/penztar/page.tsx'),orders=read('src/app/api/orders/route.ts');
   expect(baseline).toBe(sql);

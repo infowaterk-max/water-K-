@@ -154,8 +154,8 @@ describe('Digital Commerce A3 shared Builder integration',()=>{
     expect(findComponent(product,'commerce.fulfillment-summary')).toBe(true);
     expect(findComponent(product,'commerce.product-documents')).toBe(true);
     expect(findComponent(cart,'commerce.fulfillment-summary')).toBe(true);
-    expect(findComponent(checkout,'commerce.fulfillment-summary')).toBe(true);
-    expect(findComponent(checkout,'commerce.post-purchase-guidance')).toBe(true);
+    expect(findComponent(checkout,'commerce.fulfillment-summary')).toBe(false);
+    expect(findComponent(checkout,'commerce.post-purchase-guidance')).toBe(false);
     expect(findComponent(account,'account.capability-navigation')).toBe(false);
     expect(findComponent(account,'commerce.account-downloads')).toBe(false);
     expect(findComponent(account,'commerce.account-documents')).toBe(false);
@@ -186,17 +186,16 @@ describe('Digital Commerce A3 shared Builder integration',()=>{
     }
   });
 
-  it('treats a nested footer surface as the final document boundary',()=>{
+  it('removes legacy full-width checkout document guidance while preserving the footer boundary',()=>{
     const source=page('checkout','commerce.fulfillment-summary');
     source.sections.push({
-      id:'wrapped-footer',componentKey:'layout.section',componentVersion:1,config:{},
-      children:[{id:'wrapped-footer-inner',componentKey:'layout.container',componentVersion:1,config:{}}],
+      id:'legacy-checkout-digital-commerce',componentKey:'layout.section',componentVersion:1,config:{},
+      children:[{id:'legacy-checkout-post-purchase',componentKey:'commerce.post-purchase-guidance',componentVersion:1,config:{}}],
     });
+    source.sections.push({id:'wrapped-footer',componentKey:'layout.section',componentVersion:1,config:{},children:[{id:'wrapped-footer-inner',componentKey:'system.footer',componentVersion:1,config:{}}]});
     const composed=composeStorefrontDigitalCommerceCapabilities(source);
-    const postPurchaseIndex=composed.sections.findIndex(item=>findComponent({ ...composed, sections:[item] } as StorefrontPageDocument,'commerce.post-purchase-guidance'));
-    const footerIndex=composed.sections.findIndex(item=>item.id==='wrapped-footer');
-    expect(postPurchaseIndex).toBeGreaterThanOrEqual(0);
-    expect(postPurchaseIndex).toBeLessThan(footerIndex);
+    expect(findComponent(composed,'commerce.fulfillment-summary')).toBe(false);
+    expect(findComponent(composed,'commerce.post-purchase-guidance')).toBe(false);
     expect(composed.sections.at(-1)?.id).toBe('wrapped-footer');
   });
 

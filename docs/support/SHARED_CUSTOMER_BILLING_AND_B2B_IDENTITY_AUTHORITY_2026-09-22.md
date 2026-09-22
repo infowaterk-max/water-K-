@@ -25,6 +25,9 @@ Global Shoperation platform capability. It is **not template-owned**. All curren
 15. Add-to-cart acknowledgement placement is responsive by platform contract: desktop/tablet presents it centered in the viewport; mobile presents it as a bottom sheet.
 16. Cart live content must bridge legacy commerce variables to the active template token authority; a template-native shell may not contain generic white-card styling with incompatible text tokens.
 17. Order confirmation / post-purchase surfaces are part of storefront continuity. They must inherit the active template header, footer and design tokens through the shared post-purchase runtime shell.
+18. **CROSS-SELL BELONGS BEFORE ORDER SUBMISSION.** The cart is the canonical storefront cross-sell surface; the order-success page must not create a second sale or encourage another shipment immediately after checkout.
+19. Checkout and order-success document guidance is informational, not a primary content block. Use one compact notice pointing to product-page manuals and Fiókom → Dokumentumaim / Letöltéseim; do not auto-inject full-width fulfillment/post-purchase document sections.
+20. Existing historical `post_purchase` recommendation rows may remain readable for compatibility, but new storefront recommendation rules are cart-only and post-purchase rules are not rendered.
 
 ## Root causes found in human acceptance
 
@@ -50,6 +53,9 @@ Global Shoperation platform capability. It is **not template-owned**. All curren
 - Bridge live cart legacy CSS variables to current storefront design tokens inside StorefrontCartShell.
 - Add StorefrontPostPurchaseShell using the checkout presentation authority for canonical template header/footer and design tokens on order-success surfaces.
 - Make AddToCartConfirmation centered on desktop/tablet and bottom-sheet on mobile through the shared component, not per-template CSS.
+- Move the recommendation sales opportunity to the cart only; remove ProductRecommendations from the order-success route and prevent new post-purchase recommendation creation in admin.
+- Advance Digital Commerce composition to v6: checkout no longer auto-injects `commerce.fulfillment-summary` / `commerce.post-purchase-guidance`; stale saved checkout sections are stripped during composition.
+- Replace large checkout/post-purchase document blocks with compact shared notices while keeping product-page public manuals and dedicated account download/document routes authoritative.
 
 ## Safety / prevention
 
