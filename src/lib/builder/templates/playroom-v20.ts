@@ -784,18 +784,19 @@ const digitalCommerceFixtures=Object.freeze([
   {entityType:'product' as const,entityKey:'a3-physical-controller',payload:{name:'Neon Pro Controller',sku:'PLAY-A3-PHYSICAL',fulfillment_type:'physical',fixturePurpose:'physical-gaming-product'}},
 ]);
 const playroomGameFixtures=Object.freeze([
-  {entityType:'product' as const,entityKey:'game-neon-rally',payload:{name:'Neon Rally',slug:'neon-rally',kind:'game',demoCategory:'verseny',demo:true}},
-  {entityType:'product' as const,entityKey:'game-midnight-quest',payload:{name:'Midnight Quest',slug:'midnight-quest',kind:'game',demoCategory:'kaland',demo:true}},
-  {entityType:'product' as const,entityKey:'game-cyber-arena',payload:{name:'Cyber Arena',slug:'cyber-arena',kind:'game',demoCategory:'arena',demo:true}},
-  {entityType:'product' as const,entityKey:'game-party-rift',payload:{name:'Party Rift',slug:'party-rift',kind:'game',demoCategory:'kooperativ',demo:true}},
-  {entityType:'product' as const,entityKey:'game-starforge',payload:{name:'Starforge',slug:'starforge',kind:'game',demoCategory:'sci-fi',demo:true}},
-  {entityType:'product' as const,entityKey:'game-turbo-circuit',payload:{name:'Turbo Circuit',slug:'turbo-circuit',kind:'game',demoCategory:'verseny',demo:true}},
-  {entityType:'product' as const,entityKey:'game-couch-crew',payload:{name:'Couch Crew',slug:'couch-crew',kind:'game',demoCategory:'tarsasagi',demo:true}},
-  {entityType:'product' as const,entityKey:'game-mech-tactics',payload:{name:'Mech Tactics',slug:'mech-tactics',kind:'game',demoCategory:'strategia',demo:true}},
-  {entityType:'product' as const,entityKey:'game-pixel-picnic',payload:{name:'Pixel Picnic',slug:'pixel-picnic',kind:'game',demoCategory:'csaladi',demo:true}},
-  {entityType:'product' as const,entityKey:'game-void-runners',payload:{name:'Void Runners',slug:'void-runners',kind:'game',demoCategory:'akcio',demo:true}},
-  {entityType:'product' as const,entityKey:'game-kingdom-grid',payload:{name:'Kingdom Grid',slug:'kingdom-grid',kind:'game',demoCategory:'strategia',demo:true}},
-]);
+  {entityType:'product' as const,entityKey:'game-orbit-breakers',payload:{name:'Orbit Breakers',slug:'orbit-breakers',kind:'game',demoCategory:'akcio',demo:true,installAsDemoProduct:true,grossPriceHuf:22990,stockQuantity:12,image:'/storefront/playroom/game-orbit.svg',featured:true,shortDescription:'Tempós sci-fi akciójáték kooperatív estékre.'}},
+  {entityType:'product' as const,entityKey:'game-neon-rally',payload:{name:'Neon Rally',slug:'neon-rally',kind:'game',demoCategory:'verseny',demo:true,installAsDemoProduct:true,grossPriceHuf:19990,stockQuantity:12,image:'/storefront/playroom/game-rally.svg',shortDescription:'Neonfényes arcade versenyjáték gyors futamokkal.'}},
+  {entityType:'product' as const,entityKey:'game-midnight-quest',payload:{name:'Midnight Quest',slug:'midnight-quest',kind:'game',demoCategory:'kaland',demo:true,installAsDemoProduct:true,grossPriceHuf:26990,stockQuantity:12,image:'/storefront/playroom/game-quest.svg',shortDescription:'Felfedezésre és történetre épülő kalandjáték.'}},
+  {entityType:'product' as const,entityKey:'game-cyber-arena',payload:{name:'Cyber Arena',slug:'cyber-arena',kind:'game',demoCategory:'arena',demo:true,installAsDemoProduct:true,grossPriceHuf:23990,stockQuantity:12,image:'/storefront/playroom/game-arena.svg',shortDescription:'Gyors arénacsaták futurisztikus környezetben.'}},
+  {entityType:'product' as const,entityKey:'game-party-rift',payload:{name:'Party Rift',slug:'party-rift',kind:'game',demoCategory:'kooperativ',demo:true,installAsDemoProduct:true,grossPriceHuf:14990,stockQuantity:12,image:'/storefront/playroom/game-party.svg',shortDescription:'Közös játékra tervezett könnyed party-cím.'}},
+  {entityType:'product' as const,entityKey:'game-starforge',payload:{name:'Starforge',slug:'starforge',kind:'game',demoCategory:'sci-fi',demo:true,installAsDemoProduct:true,grossPriceHuf:29990,stockQuantity:12,image:'/storefront/playroom/game-starforge.svg',shortDescription:'Űrbéli felfedezés és építkezés egy játékban.'}},
+  {entityType:'product' as const,entityKey:'game-turbo-circuit',payload:{name:'Turbo Circuit',slug:'turbo-circuit',kind:'game',demoCategory:'verseny',demo:true,installAsDemoProduct:true,grossPriceHuf:18990,stockQuantity:12,image:'/storefront/playroom/game-turbo-circuit.svg',shortDescription:'Arcade pályaverseny rövid, intenzív menetekhez.'}},
+  {entityType:'product' as const,entityKey:'game-couch-crew',payload:{name:'Couch Crew',slug:'couch-crew',kind:'game',demoCategory:'tarsasagi',demo:true,installAsDemoProduct:true,grossPriceHuf:12990,stockQuantity:12,image:'/storefront/playroom/game-couch-crew.svg',shortDescription:'Kanapés többjátékos cím baráti estékhez.'}},
+  {entityType:'product' as const,entityKey:'game-mech-tactics',payload:{name:'Mech Tactics',slug:'mech-tactics',kind:'game',demoCategory:'strategia',demo:true,installAsDemoProduct:true,grossPriceHuf:24990,stockQuantity:12,image:'/storefront/playroom/game-mech-tactics.svg',shortDescription:'Körökre osztott taktika gépesített egységekkel.'}},
+  {entityType:'product' as const,entityKey:'game-pixel-picnic',payload:{name:'Pixel Picnic',slug:'pixel-picnic',kind:'game',demoCategory:'csaladi',demo:true,installAsDemoProduct:true,grossPriceHuf:11990,stockQuantity:12,image:'/storefront/playroom/game-pixel-picnic.svg',shortDescription:'Színes, családbarát játék közös kikapcsolódáshoz.'}},
+  {entityType:'product' as const,entityKey:'game-void-runners',payload:{name:'Void Runners',slug:'void-runners',kind:'game',demoCategory:'akcio',demo:true,installAsDemoProduct:true,grossPriceHuf:27990,stockQuantity:12,image:'/storefront/playroom/game-void-runners.svg',shortDescription:'Pörgős sci-fi akció gyors küldetésekkel.'}},
+  {entityType:'product' as const,entityKey:'game-kingdom-grid',payload:{name:'Kingdom Grid',slug:'kingdom-grid',kind:'game',demoCategory:'strategia',demo:true,installAsDemoProduct:true,grossPriceHuf:21990,stockQuantity:12,image:'/storefront/playroom/game-kingdom-grid.svg',shortDescription:'Rácsalapú stratégia építéssel és tervezéssel.'}},
+])
 
 const PLAYROOM_V20_PAGES=PLAYROOM_V19_CANONICAL_TEMPLATE_PACKAGE.pages.map(upgradePage);
 function assertPlayroomV20CanonicalShell(pages:readonly StorefrontPageDocument[]):void{
