@@ -76,10 +76,16 @@ const CATEGORY_PRODUCTS:Record<string,readonly string[]>={
 const PLAYROOM_PREVIEW_PRODUCTS=Object.freeze([
   {name:'Orbit Breakers',image:'/storefront/playroom/game-orbit.svg',price:22990,badge:'KIEMELT',stockLabel:'Raktáron'},
   {name:'Neon Rally',image:'/storefront/playroom/game-rally.svg',price:19990,badge:'ÚJ',stockLabel:'Raktáron'},
-  {name:'Midnight Quest',image:'/storefront/playroom/game-quest.svg',price:26990,badge:'',stockLabel:'Raktáron'},
-  {name:'Cyber Arena',image:'/storefront/playroom/game-arena.svg',price:23990,badge:'TRENDING',stockLabel:'Raktáron'},
+  {name:'Midnight Quest',image:'/storefront/playroom/game-quest.svg',price:26990,badge:'KALAND',stockLabel:'Raktáron'},
+  {name:'Cyber Arena',image:'/storefront/playroom/game-arena.svg',price:23990,badge:'ARENA',stockLabel:'Raktáron'},
   {name:'Party Rift',image:'/storefront/playroom/game-party.svg',price:14990,badge:'CO-OP',stockLabel:'Raktáron'},
-  {name:'Starforge',image:'/storefront/playroom/game-starforge.svg',price:29990,badge:'LIMITÁLT',stockLabel:'Limitált készlet'},
+  {name:'Starforge',image:'/storefront/playroom/game-starforge.svg',price:29990,badge:'SCI-FI',stockLabel:'Raktáron'},
+  {name:'Turbo Circuit',image:'/storefront/playroom/game-turbo-circuit.svg',price:18990,badge:'VERSENY',stockLabel:'Raktáron'},
+  {name:'Couch Crew',image:'/storefront/playroom/game-couch-crew.svg',price:12990,badge:'PARTY',stockLabel:'Raktáron'},
+  {name:'Mech Tactics',image:'/storefront/playroom/game-mech-tactics.svg',price:24990,badge:'STRATÉGIA',stockLabel:'Raktáron'},
+  {name:'Pixel Picnic',image:'/storefront/playroom/game-pixel-picnic.svg',price:11990,badge:'CSALÁDI',stockLabel:'Raktáron'},
+  {name:'Void Runners',image:'/storefront/playroom/game-void-runners.svg',price:27990,badge:'AKCIÓ',stockLabel:'Raktáron'},
+  {name:'Kingdom Grid',image:'/storefront/playroom/game-kingdom-grid.svg',price:21990,badge:'TAKTIKA',stockLabel:'Raktáron'},
 ]);
 
 const CATEGORY_COLLECTIONS:Record<string,readonly string[]>={
@@ -149,7 +155,8 @@ function fixtureNames(template:StorefrontInstallableTemplatePackage,type:'produc
 
 function demoProducts(template:StorefrontInstallableTemplatePackage,page:StorefrontPageDocument){
   if(template.manifest.templateKey==='gaming.playroom'){
-    return PLAYROOM_PREVIEW_PRODUCTS.slice(0,previewProductLimit(page)).map((product,index)=>({
+    const limit=page.pageType==='home'?12:previewProductLimit(page);
+    return PLAYROOM_PREVIEW_PRODUCTS.slice(0,limit).map((product,index)=>({
       id:`preview-product-${index+1}`,
       name:product.name,
       href:'#preview-demo',
