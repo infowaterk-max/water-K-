@@ -78,8 +78,10 @@ const PLAYROOM_V20_HU_COPY=Object.freeze(new Map<string,string>([
   ['STILL STUCK?','TOVÁBBRA IS KÉRDÉSED VAN?'],
   ['Gaming headset részlet','Játékos fejhallgató részlet'],
   ['PLAYER SUPPORT','ÜGYFÉLSZOLGÁLAT'],
+  ['BE READY','KÉSZÜLJ ELŐ'],
   ['ORDER HELP','RENDELÉSI SEGÍTSÉG'],
   ['PRODUCT HELP','TERMÉKTÁMOGATÁS'],
+  ['GENERAL','ÁLTALÁNOS'],
   ['LEGAL / PRIVACY','JOGI / ADATVÉDELMI'],
   ['404 / GAME OVER?','404 / VÉGE A JÁTÉKNAK?'],
 ]));
@@ -388,8 +390,29 @@ function insertAfterSection(sections:readonly StorefrontComponentNode[],sectionI
   return result;
 }
 
+function patchPlayroomContactResponsive(item:StorefrontComponentNode):StorefrontComponentNode{
+  const children=item.children?.map(patchPlayroomContactResponsive);
+  const next:StorefrontComponentNode={...clone(item),...(children?{children}:{})};
+  const contactSpans:Record<string,{desktop:4|8;tablet:4|8;mobile:12}>={
+    'playroom-contact-copy':{desktop:8,tablet:8,mobile:12},
+    'playroom-contact-expectations':{desktop:4,tablet:4,mobile:12},
+    'playroom-contact-orders':{desktop:4,tablet:4,mobile:12},
+    'playroom-contact-product':{desktop:4,tablet:4,mobile:12},
+    'playroom-contact-general':{desktop:4,tablet:4,mobile:12},
+  };
+  const span=contactSpans[next.id];
+  if(span)next.responsive={
+    ...(next.responsive??{}),
+    desktop:{...(next.responsive?.desktop??{}),gridSpan:span.desktop},
+    tablet:{...(next.responsive?.tablet??{}),gridSpan:span.tablet},
+    mobile:{...(next.responsive?.mobile??{}),gridSpan:span.mobile},
+  };
+  return next;
+}
+
 function upgradePage(source:StorefrontPageDocument):StorefrontPageDocument{
   let sections=source.sections.map(clone);
+  if(source.pageType==='contact')sections=sections.map(patchPlayroomContactResponsive);
   if(source.pageType==='content'){
     sections=[clone(source.sections[0]!),...playroomV20InformationContentSections(),clone(source.sections[source.sections.length-1]!)];
   }
