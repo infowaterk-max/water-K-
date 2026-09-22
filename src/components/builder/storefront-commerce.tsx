@@ -39,7 +39,14 @@ const carousel=(componentKey:string,config:Record<string,unknown>,viewport:Store
 };
 
 type CommerceProduct={id:string;name:string;href:string;image:string|null;imageAlt:string;price:unknown;compareAtPrice:unknown;badge:string;stockLabel:string;subtitle:string};
-const products=(value:unknown):CommerceProduct[]=>rows(value).map((row,index)=>({id:text(row.id,`product-${index}`),name:text(row.name,'Termék'),href:safeHref(row.href,'#'),image:safeImage(row.image),imageAlt:text(row.imageAlt,text(row.name,'Termék')),price:row.price,compareAtPrice:row.compareAtPrice,badge:text(row.badge),stockLabel:text(row.stockLabel),subtitle:text(row.subtitle,text(row.description))}));
+const productPrice=(row:Record<string,unknown>)=>{const value=record(row.price);return value?text(value.display):row.price;};
+const productStockLabel=(row:Record<string,unknown>)=>{const value=record(row.stock);return text(row.stockLabel,value?text(value.statusLabel):'');};
+const products=(value:unknown):CommerceProduct[]=>rows(value).map((row,index)=>{
+  const name=text(row.name,text(row.label,'Termék'));
+  const identity=text(row.id,[text(row.productId),text(row.variantId)].filter(Boolean).join(':')||`product-${index}`);
+  const image=safeImage(row.image)??safeImage(row.imageUrl);
+  return{id:identity,name,href:safeHref(row.href,'#'),image,imageAlt:text(row.imageAlt,name),price:productPrice(row),compareAtPrice:row.compareAtPrice,badge:text(row.badge),stockLabel:productStockLabel(row),subtitle:text(row.subtitle,text(row.description))};
+});
 
 function ProductCards({items,config,viewport,itemStyle}:{items:CommerceProduct[];config:Record<string,unknown>;viewport:StorefrontComponentRenderProps['viewport'];itemStyle?:CSSProperties}){
   const presentation=text(config.presentation,'standard');
