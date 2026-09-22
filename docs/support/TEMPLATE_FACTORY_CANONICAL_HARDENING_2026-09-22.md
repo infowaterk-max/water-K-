@@ -82,6 +82,16 @@ A Mobile-only edit must not change Desktop or Tablet rendering.
 
 The Template Factory quality manifest requires complete explicit viewport authorities at the canonical template boundary. Missing materialization is a quality-gate failure.
 
+### Persisted-document compatibility
+
+Responsive authority v2 is marked in Page Schema metadata as `responsiveAuthorityVersion=shoporation.storefront-responsive-authority.v2`.
+
+A persisted page without this marker is treated as historical v1. The shared Runtime calls `ensureStorefrontResponsiveAuthority` and materializes the old cascade **in memory only** before rendering. This preserves existing storefront appearance without requiring an unsafe bulk database rewrite.
+
+The Visual Builder performs the same compatibility conversion when an old page is opened for editing. Once such a document is intentionally saved, the v2 marker and explicit viewport authorities can become its new persisted state.
+
+An already-v2 document is never re-materialized during ordinary save or render. Clearing a viewport override therefore remains a true reset to base/default.
+
 ## 3. Targeted Page Schema Change Contract
 
 Local polish must not regenerate and overwrite an entire persisted page when only specific nodes need to change.
