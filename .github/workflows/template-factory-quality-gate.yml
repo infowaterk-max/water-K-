@@ -188,6 +188,7 @@ jobs:
           tests/storefront-template-preview-runtime.test.ts
           tests/storefront-visual-builder-fidelity-engine.test.ts
           tests/playroom-v20-canonical-shell-content.test.ts
+          tests/storefront-playroom-v20-functional-acceptance.test.ts
           tests/storefront-template-route-integrity.test.ts
           tests/storefront-template-demo-content-persistence.test.ts
           tests/storefront-account-capability-navigation.test.tsx
