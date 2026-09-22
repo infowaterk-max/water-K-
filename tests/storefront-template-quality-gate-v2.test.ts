@@ -56,10 +56,17 @@ describe('Template Factory Quality Gate v2',()=>{
     expect(workflow).toContain("src/app/api/orders/claim/**");
     expect(workflow).toContain('tests/storefront-auth-return-target.test.ts');
     expect(workflow).toContain('tests/storefront-guest-order-claim.test.ts');
+    expect(workflow).toContain('tests/storefront-shared-commerce-account-hardening.test.ts');
+    expect(workflow).toContain("'src/components/cart/**'");
+    expect(workflow).toContain("'src/lib/account/**'");
+    expect(workflow).toContain('20260922053000_shared_customer_billing_b2b_identity_reverification.sql');
     expect(runner).toContain('TEMPLATE_FACTORY_QUALITY_MANIFEST_REQUIRED');
     expect(runner).toContain('LEGACY_TEMPLATE_REACCEPTANCE_PENDING');
     expect(runner).toContain("mode:'full',reason:'shared-runtime-changed'");
     expect(runner).toContain("'src/components/admin/storefront-visual-builder-v3.tsx'");
+    expect(runner).toContain("'src/components/cart/'");
+    expect(runner).toContain("'src/components/checkout/'");
+    expect(runner).toContain("'src/components/account/'");
     expect(runner).toContain("'src/app/storefront-template-preview/'");
     expect(runner).toContain('MOBILE_DESKTOP_NAV_LEAK');
     expect(runner).toContain('SOCIAL_LINK_INTEGRITY');

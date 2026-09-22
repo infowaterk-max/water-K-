@@ -29,6 +29,13 @@ const sharedRuntimePrefixes=[
   'src/components/admin/storefront-visual-builder-v3.tsx',
   'src/app/storefront-template-preview/',
   'src/lib/builder/storefront-',
+  'src/components/cart/',
+  'src/app/kosar/',
+  'src/components/checkout/',
+  'src/app/penztar/',
+  'src/components/account/',
+  'src/app/fiokom/',
+  'src/lib/account/',
 ];
 
 const safeName=value=>value.replace(/[^a-z0-9._-]+/gi,'-').replace(/^-+|-+$/g,'').toLowerCase();

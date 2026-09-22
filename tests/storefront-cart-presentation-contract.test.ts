@@ -124,7 +124,7 @@ describe('Portfolio-wide cart customer-task contract',()=>{
     const normalizedAccount=normalizeStorefrontTemplateRuntimeComposition(account);
     const accountNodes=walk(normalizedAccount.sections);
     expect(accountNodes.some(node=>node.componentKey==='commerce.documents-center')).toBe(false);
-    expect(accountNodes.some(node=>node.componentKey==='account.capability-navigation')).toBe(true);
+    expect(accountNodes.some(node=>node.componentKey==='account.capability-navigation')).toBe(false);
     expect(normalizedAccount.metadata?.digitalCommerceCompositionVersion).toBe('shoporation.storefront-digital-commerce-composition.v5');
   });
 });

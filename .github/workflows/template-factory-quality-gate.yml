@@ -25,6 +25,17 @@ on:
       - 'src/app/api/storefront/auth-context/**'
       - 'src/app/penztar/**'
       - 'src/components/checkout/**'
+      - 'src/app/kosar/**'
+      - 'src/components/cart/**'
+      - 'src/lib/account/**'
+      - 'src/app/api/orders/**'
+      - 'src/app/api/account/billing-profile/**'
+      - 'src/app/api/account/b2b/identity/**'
+      - 'src/app/api/admin/b2b/identity-requests/**'
+      - 'src/app/admin/ugyfelek/b2b/**'
+      - 'supabase/migrations/20260922053000_shared_customer_billing_b2b_identity_reverification.sql'
+      - 'supabase/customer-baseline/migrations/0044_shared_customer_billing_b2b_identity_reverification.sql'
+      - 'docs/support/SHARED_CUSTOMER_BILLING_AND_B2B_IDENTITY_AUTHORITY_2026-09-22.md'
       - 'src/components/analytics/cookie-consent.tsx'
       - 'src/components/account/storefront-account-shell.tsx'
       - 'src/app/fiokom/**'
@@ -79,6 +90,17 @@ on:
       - 'src/app/api/storefront/auth-context/**'
       - 'src/app/penztar/**'
       - 'src/components/checkout/**'
+      - 'src/app/kosar/**'
+      - 'src/components/cart/**'
+      - 'src/lib/account/**'
+      - 'src/app/api/orders/**'
+      - 'src/app/api/account/billing-profile/**'
+      - 'src/app/api/account/b2b/identity/**'
+      - 'src/app/api/admin/b2b/identity-requests/**'
+      - 'src/app/admin/ugyfelek/b2b/**'
+      - 'supabase/migrations/20260922053000_shared_customer_billing_b2b_identity_reverification.sql'
+      - 'supabase/customer-baseline/migrations/0044_shared_customer_billing_b2b_identity_reverification.sql'
+      - 'docs/support/SHARED_CUSTOMER_BILLING_AND_B2B_IDENTITY_AUTHORITY_2026-09-22.md'
       - 'src/components/analytics/cookie-consent.tsx'
       - 'src/components/account/storefront-account-shell.tsx'
       - 'src/app/fiokom/**'
@@ -157,6 +179,7 @@ jobs:
           tests/storefront-auth-intent-checkout.test.ts
           tests/storefront-auth-return-target.test.ts
           tests/storefront-guest-order-claim.test.ts
+          tests/storefront-shared-commerce-account-hardening.test.ts
           tests/storefront-public-information-routes.test.ts
           tests/storefront-catalog-discovery-route.test.ts
           tests/customer-account-runtime-hardening.test.ts

@@ -109,6 +109,7 @@ If yes, update Support Knowledge in the same development cycle.
 - `TEMPLATE_ROUTE_INTEGRITY_DEMO_CONTENT_2026-09-21.md` — canonical Template Factory route-integrity + demo-content lifecycle: no dead links, real catalog deep-link consumers, dynamic content fixtures, draft-only CMS materialization, fixture/adopted/retired provenance and staging acceptance proof.
 - `TEMPLATE_FACTORY_QUALITY_GATE_V2_FOUNDATION_CLOSURE_2026-09-21.md` — Quality Gate v2 closure hardening: exact-head golden promotion, full cross-template shared-Runtime policy, Builder/Preview geometry authority and CI self-regression coverage.
 - `STOREFRONT_AUTH_INTENT_AND_CHECKOUT_ACCOUNT_OPPORTUNITY_2026-09-21.md` — shared customer-auth modal, safe return target authority, one account capability rail, optional checkout auth, capability-driven benefits and authenticated token-bound guest-order claiming.
+- `SHARED_CUSTOMER_BILLING_AND_B2B_IDENTITY_AUTHORITY_2026-09-22.md` — platform-wide saved billing defaults, template-native cart/checkout continuity, shared add-to-cart acknowledgement, one account navigation authority and audited B2B legal-identity re-verification.
 
 ## Core engineering rules
 

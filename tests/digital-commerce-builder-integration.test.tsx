@@ -156,7 +156,7 @@ describe('Digital Commerce A3 shared Builder integration',()=>{
     expect(findComponent(cart,'commerce.fulfillment-summary')).toBe(true);
     expect(findComponent(checkout,'commerce.fulfillment-summary')).toBe(true);
     expect(findComponent(checkout,'commerce.post-purchase-guidance')).toBe(true);
-    expect(findComponent(account,'account.capability-navigation')).toBe(true);
+    expect(findComponent(account,'account.capability-navigation')).toBe(false);
     expect(findComponent(account,'commerce.account-downloads')).toBe(false);
     expect(findComponent(account,'commerce.account-documents')).toBe(false);
     expect(findComponent(account,'commerce.documents-center')).toBe(false);
@@ -210,7 +210,7 @@ describe('Digital Commerce A3 shared Builder integration',()=>{
     });
     source.sections.push({id:'account-footer',componentKey:'system.footer',componentVersion:1,config:{}});
     const composed=composeStorefrontDigitalCommerceCapabilities(source);
-    expect(findComponent(composed,'account.capability-navigation')).toBe(true);
+    expect(findComponent(composed,'account.capability-navigation')).toBe(false);
     expect(findComponent(composed,'commerce.documents-center')).toBe(false);
     expect(findComponent(composed,'commerce.account-downloads')).toBe(false);
     expect(findComponent(composed,'commerce.account-documents')).toBe(false);
