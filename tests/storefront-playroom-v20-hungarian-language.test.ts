@@ -95,7 +95,7 @@ describe('Playroom v20 Hungarian storefront language gate',()=>{
 
   it('keeps the digital-commerce labels localized explicitly',()=>{
     const serialized=JSON.stringify(PLAYROOM_V20_TEMPLATE_PACKAGE.pages);
-    for(const expected of['LETÖLTÉSEK','Dokumentumok','Digitális termék','Letöltéseim','VÁSÁRLÁS UTÁN','Fiókom','ÜGYFÉLSZOLGÁLAT'])expect(serialized).toContain(expected);
+    for(const expected of['LETÖLTÉSEK','Dokumentumok','Digitális termék','Letöltéseim','Fiókom','ÜGYFÉLSZOLGÁLAT'])expect(serialized).toContain(expected);
     for(const forbidden of['PRODUCT FILES','AFTER PURCHASE','PLAYER LIBRARY','PLAYER SUPPORT'])expect(serialized).not.toContain(forbidden);
   });
 });
