@@ -56,7 +56,7 @@ No production/Supabase mutation belongs to this recovery branch.
 | Spacing rhythm | dense hero, narrow white editorial bands | token spacing | Shared capability available | Explicit safe spacing values + breakpoint overrides are supported. |
 | Borders / surfaces | thin borders, near-square cards, pale surfaces | tone/radius tokens | Shared capability available | border/radius/background/shadow are allowlisted schema style. |
 | Image crop / focal point | per-placement focus/crop | objectPosition + renderer defaults | Shared capability available for primitive media | Page Schema controls image object-fit/object-position; specialized commerce media may need shared extension after screenshot evidence. |
-| Desktop / tablet / mobile | composition reflows/repositions and changes type/spacing | only hidden/gridSpan | Shared capability available | Structural hidden/gridSpan stays canonical; visual geometry uses inherited `style.base → desktop → tablet → mobile` overrides. |
+| Desktop / tablet / mobile | composition reflows/repositions and changes type/spacing | only hidden/gridSpan | Shared capability available | Structural hidden/gridSpan and visual geometry use `base + exact viewport` authority; Desktop, Tablet and Mobile overrides are isolated. |
 
 ## 4. Shared capability proof
 
