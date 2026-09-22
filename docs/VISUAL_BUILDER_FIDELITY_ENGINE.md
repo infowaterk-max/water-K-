@@ -14,7 +14,7 @@ Beauty Lab is the canary. The solution must remain one shared Page Schema / Comp
 ## Implemented shared capabilities
 
 - Normal / Advanced / Expert edit-mode contract and Builder controls;
-- responsive section ordering and responsive child ordering with breakpoint inheritance;
+- responsive section ordering and responsive child ordering with isolated Desktop / Tablet / Mobile authority;
 - component style-slot sanitization/resolution and Builder operations;
 - responsive typography, authored line breaks and bounded text geometry;
 - responsive image art direction, crop/focal and aspect-ratio controls;
