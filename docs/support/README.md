@@ -136,3 +136,5 @@ If yes, update Support Knowledge in the same development cycle.
 - [Storefront header utility + cart cross-sell presentation hardening (2026-09-22)](./STOREFRONT_HEADER_UTILITY_AND_CART_CROSS_SELL_PRESENTATION_2026-09-22.md)
 
 - [Storefront contact Runtime continuity (2026-09-22)](./STOREFRONT_CONTACT_RUNTIME_CONTINUITY_2026-09-22.md)
+
+- [Storefront homepage Preview Runtime continuity (2026-09-22)](./STOREFRONT_HOME_PREVIEW_RUNTIME_CONTINUITY_2026-09-22.md)
