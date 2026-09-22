@@ -213,7 +213,10 @@ export function materializeStorefrontPageResponsiveStyles(source:StorefrontPageD
 }
 
 export function materializeStorefrontTemplateResponsiveStyles(source:StorefrontInstallableTemplatePackage):StorefrontInstallableTemplatePackage{
-  return{...clone(source),pages:source.pages.map(materializeStorefrontPageResponsiveStyles)};
+  return{
+    ...clone(source),
+    pages:source.pages.map(page=>hasStorefrontResponsiveAuthorityV2(page)?clone(page):materializeStorefrontPageResponsiveStyles(page)),
+  };
 }
 
 type VisualSurfaceState=Record<string,unknown>;
