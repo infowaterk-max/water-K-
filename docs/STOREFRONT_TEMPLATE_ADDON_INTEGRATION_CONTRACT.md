@@ -46,7 +46,7 @@ Where applicable, an add-on should resolve the current storefront values for:
 - shadows/elevation/glow policy;
 - icon treatment;
 - container width and grid/gap behavior;
-- responsive inheritance and overrides.
+- responsive base values plus isolated Desktop / Tablet / Mobile overrides.
 
 If the merchant changes the template globally, the add-on must follow those changes automatically unless the merchant explicitly created a local add-on override.
 
