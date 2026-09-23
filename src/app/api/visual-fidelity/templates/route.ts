@@ -26,10 +26,11 @@ export async function GET(){
       structural,
     };
   });
-  const factoryCandidates=STOREFRONT_TEMPLATE_FACTORY_RECIPES.map(recipe=>{
+  const factoryCandidates=STOREFRONT_TEMPLATE_FACTORY_RECIPES.flatMap(recipe=>{
     const build=buildRegisteredStorefrontTemplateFactoryCandidate(recipe.templateKey);
+    if(!build.report.technicalReady)return[];
     const technicalIssues=build.report.issues.filter(issue=>issue.code!=='FACTORY_INTERNAL_VISUAL_REVIEW_REQUIRED');
-    return{
+    return[{
       templateKey:recipe.templateKey,
       templateVersion:recipe.templateVersion,
       status:'candidate',
@@ -44,9 +45,9 @@ export async function GET(){
       content:{informationPageRequired:true},
       browser:{maxHorizontalOverflowPx:2,minimumTouchTargetPx:32,recommendedTouchTargetPx:44,requireMobileMenu:true,requireFooter:true},
       golden:{required:false,baselineDirectory:`tests/visual-baselines/${recipe.templateKey}/v${recipe.templateVersion}`,maxPixelMismatchRatio:.005},
-      structural:{ok:build.report.technicalReady,issues:technicalIssues},
+      structural:{ok:true,issues:technicalIssues},
       productOwnerReady:build.report.productOwnerReady,
-    };
+    }];
   });
   return NextResponse.json({
     contract:'shoporation.template-factory-quality-catalog.v1',
