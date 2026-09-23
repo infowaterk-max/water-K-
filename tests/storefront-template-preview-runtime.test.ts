@@ -3,7 +3,7 @@ import {PLANS} from '@/lib/plans/catalog';
 import {STOREFRONT_TEMPLATE_CATALOG,getStorefrontTemplatePackage} from '@/lib/builder/storefront-template-catalog';
 import {createStorefrontVisualBuilderComponentRegistry} from '@/lib/builder/storefront-builder-registry';
 import {validateStorefrontPageDocument} from '@/lib/builder/storefront-runtime';
-import {resolveStorefrontTemplateAccountPreviewRuntimePage} from '@/lib/builder/storefront-runtime-source';
+import {resolveStorefrontTemplateAccountPreviewRuntimePage} from '@/lib/builder/storefront-template-preview-auth';
 
 describe('storefront template preview runtime',()=>{
   it('resolves tenant-free template-aware account auth for every previewable template',()=>{
