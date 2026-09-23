@@ -157,15 +157,22 @@ function demoProducts(template:StorefrontInstallableTemplatePackage,page:Storefr
   if(template.manifest.templateKey==='gaming.playroom'){
     const limit=page.pageType==='home'?12:previewProductLimit(page);
     return PLAYROOM_PREVIEW_PRODUCTS.slice(0,limit).map((product,index)=>({
-      id:`preview-product-${index+1}`,
+      id:`preview-variant-${index+1}`,
+      productId:`preview-product-${index+1}`,
+      variantId:`preview-variant-${index+1}`,
+      slug:`preview-product-${index+1}`,
       name:product.name,
       href:'#preview-demo',
       image:product.image,
       imageAlt:`${product.name} eredeti Playroom játékborító`,
       price:product.price,
+      unitPrice:product.price,
       compareAtPrice:index===1?24990:null,
       badge:product.badge,
       stockLabel:product.stockLabel,
+      availableQuantity:12,
+      minimumQuantity:1,
+      orderMultiple:1,
     }));
   }
   const category=template.manifest.templateKey.split('.')[0]??'tech';
@@ -181,17 +188,27 @@ function demoProducts(template:StorefrontInstallableTemplatePackage,page:Storefr
   const fallback=CATEGORY_PRODUCTS[category]??CATEGORY_PRODUCTS.tech;
   const names=[...new Set([...fixtureProducts.map(item=>item.name),...fallback])].slice(0,previewProductLimit(page));
   const images=collectImageFallbacks(page);
-  return names.map((name,index)=>({
-    id:`preview-product-${index+1}`,
-    name,
-    href:'#preview-demo',
-    image:fixtureProducts.find(item=>item.name===name)?.image??images[index%Math.max(1,images.length)]??null,
-    imageAlt:`${name} bemutató termékkép`,
-    price:12990+index*7000,
-    compareAtPrice:index===1?24990:null,
-    badge:index===0?'Kiemelt':index===2?'Új': '',
-    stockLabel:index===3?'Limitált készlet':'Raktáron',
-  }));
+  return names.map((name,index)=>{
+    const price=12990+index*7000;
+    return{
+      id:`preview-variant-${index+1}`,
+      productId:`preview-product-${index+1}`,
+      variantId:`preview-variant-${index+1}`,
+      slug:`preview-product-${index+1}`,
+      name,
+      href:'#preview-demo',
+      image:fixtureProducts.find(item=>item.name===name)?.image??images[index%Math.max(1,images.length)]??null,
+      imageAlt:`${name} bemutató termékkép`,
+      price,
+      unitPrice:price,
+      compareAtPrice:index===1?24990:null,
+      badge:index===0?'Kiemelt':index===2?'Új': '',
+      stockLabel:index===3?'Limitált készlet':'Raktáron',
+      availableQuantity:index===3?3:12,
+      minimumQuantity:1,
+      orderMultiple:1,
+    };
+  });
 }
 
 function demoCollections(template:StorefrontInstallableTemplatePackage,page:StorefrontPageDocument){
@@ -241,6 +258,15 @@ function genericItems(template:StorefrontInstallableTemplatePackage,page:Storefr
   }));
 }
 
+function demoLootVaultProductKeySpecs(){
+  return[
+    {specKey:'edition',label:'Kiadás',displayValue:'Gyűjtői kiadás',missing:false},
+    {specKey:'format',label:'Formátum',displayValue:'Dobozos',missing:false},
+    {specKey:'condition',label:'Állapot',displayValue:'Új',missing:false},
+    {specKey:'availability',label:'Elérhetőség',displayValue:'Raktáron',missing:false},
+  ];
+}
+
 function valueForBinding(input:{template:StorefrontInstallableTemplatePackage;page:StorefrontPageDocument;node:StorefrontComponentNode;slot:string;fallback:unknown}){
   const{template,page,node,slot,fallback}=input;
   const products=demoProducts(template,page);
@@ -249,9 +275,23 @@ function valueForBinding(input:{template:StorefrontInstallableTemplatePackage;pa
   const key=node.componentKey;
 
   if(slot==='products'||key==='commerce.product-grid'||key==='commerce.recommendation-row')return products;
+  if(key==='commerce.purchase-controls'){
+    const product=products[0];
+    if(slot==='productId')return product?.productId??'preview-product-1';
+    if(slot==='variantId')return product?.variantId??'preview-variant-1';
+    if(slot==='slug')return product?.slug??'preview-product-1';
+    if(slot==='name')return product?.name??'Bemutató termék';
+    if(slot==='unitPrice')return typeof product?.unitPrice==='number'?product.unitPrice:29990;
+    if(slot==='availableQuantity')return typeof product?.availableQuantity==='number'?product.availableQuantity:12;
+    if(slot==='minimumQuantity')return 1;
+    if(slot==='orderMultiple')return 1;
+    if(slot==='purchaseLabel')return'Kosárba';
+    if(slot==='wishlistLabel')return'Kedvencekhez';
+  }
   if(slot==='items'){
     if(key==='system.social-links')return PREVIEW_SOCIAL_LINKS.map(item=>({...item}));
     if(key==='commerce.collection-navigation')return collections;
+    if(key==='commerce.key-specs'&&template.manifest.templateKey==='gaming.loot-vault')return demoLootVaultProductKeySpecs();
     if(key.includes('review'))return demoReviews();
     return items;
   }

@@ -23,8 +23,8 @@ const MEDIA={
   product2:'/storefront-demo/loot-vault-v2/product-statue.webp',
   product3:'/storefront-demo/loot-vault-v2/product-edition.webp',
   product4:'/storefront-demo/loot-vault-v2/product-relic.webp',
-  editorial1:'/storefront-demo/loot-vault-v2/editorial-collector-room.webp',
-  editorial2:'/storefront-demo/loot-vault-v2/editorial-vault-shelf.webp',
+  editorial1:'/storefront-demo/loot-vault-v2/background-archive.webp',
+  editorial2:'/storefront-demo/loot-vault-v2/category-miniatures.webp',
   background:'/storefront-demo/loot-vault-v2/background-archive.webp',
 } as const;
 
@@ -142,7 +142,7 @@ const productCard=(id:string,badgeText:string,title:string,price:string,src:stri
 const commerceProductGrid=(id:string,title:string,path:string,columns=4)=>n({
   id,componentKey:'commerce.product-grid',componentVersion:1,
   config:{
-    title,products:LOOT_VAULT_PRODUCT_FALLBACKS,columns,presentation:'loot-vault',showBadges:true,showCompareAt:true,showCta:true,ctaLabel:'Részletek',imageRatio:'4 / 5',
+    title,products:LOOT_VAULT_PRODUCT_FALLBACKS,columns,presentation:'loot-vault',showBadges:true,showCompareAt:true,showCta:false,showPurchaseActions:true,purchaseLabel:'Kosárba',wishlistLabel:'Kedvencekhez',imageRatio:'4 / 5',
     emptyLabel:'Jelenleg nincs megjeleníthető gyűjtői darab.',currency:'HUF',
     styleSlots:{
       root:{base:{gap:'1rem'}},
@@ -156,7 +156,9 @@ const commerceProductGrid=(id:string,title:string,path:string,columns=4)=>n({
       price:{base:{color:'#e6c28c',fontSize:'1rem',fontWeight:850}},
       comparePrice:{base:{color:'#77746e'}},
       stock:{base:{color:'#9f998f',fontSize:'.7rem'}},
-      cta:{base:{borderRadius:'.38rem',background:'#d7a14d',color:'#151008',fontWeight:900,padding:'.62rem .7rem'}},
+      actions:{base:{marginTop:'.15rem'}},
+      purchaseAction:{base:{borderRadius:'.38rem',background:'#d7a14d',color:'#151008',fontWeight:900,padding:'.62rem .7rem'}},
+      wishlistAction:{base:{borderRadius:'.38rem',borderColor:'rgba(214,162,79,.55)',background:'#121414',color:'#e4c18e'}},
       cardLinkHover:{desktop:{transform:'translateY(-2px)',filter:'brightness(1.05)'}},
       cardLinkFocus:{desktop:{boxShadow:'0 0 0 3px rgba(214,162,79,.45)'}},
     },
@@ -261,7 +263,7 @@ export const LOOT_VAULT_V2_PRODUCT_PAGE=override(LOOT_VAULT_PRODUCT_PAGE,[
         n({id:'loot-v2-product-info',componentKey:'commerce.product-info',componentVersion:1,config:{eyebrow:'Loot Vault',title:'Gyűjtői kiadás',price:'59 990 Ft',compareAtPrice:'',description:'Kurált gyűjtői termék részletes kiadási és készletinformációkkal.',stockLabel:'Raktáron',badges:['Gyűjtői kiadás'],currency:'HUF',presentation:'loot-vault',styleSlots:{root:{base:{gap:'.8rem'}},badges:{base:{gap:'.35rem'}},badge:{base:{borderColor:'rgba(214,162,79,.6)',color:'#e9c990',borderRadius:'999px'}},eyebrow:{base:{color:'#b99b70'}},title:{base:{fontWeight:780,color:'#f3ebdd'}},price:{base:{fontSize:'1.35rem',color:'#e6c28c'}},description:{base:{color:'#b9b1a5',lineHeight:1.65}},stock:{base:{color:'#c6bda9'}}}},bindings:{title:{path:'product.name',fallback:'Gyűjtői kiadás'},price:{path:'pricing.displayPrice',fallback:'59 990 Ft'},compareAtPrice:{path:'pricing.compareAtPrice',fallback:''},description:{path:'product.description',fallback:'Kurált gyűjtői termék részletes kiadási és készletinformációkkal.'},stockLabel:{path:'inventory.stockLabel',fallback:'Raktáron'},badges:{path:'product.badges',fallback:['Gyűjtői kiadás']}}}),
         n({id:'loot-v2-product-option',componentKey:'commerce.option-selector',componentVersion:1,config:{label:'Változat',options:[]},bindings:{label:{path:'variant.optionLabel',fallback:'Változat'},options:{path:'variant.optionOptions',fallback:[]}}}),
         n({id:'loot-v2-product-specs',componentKey:'commerce.key-specs',componentVersion:1,config:{title:'Gyűjtői adatok',items:[],columns:2,missingLabel:'Nincs megadva'},bindings:{items:{path:'product.keySpecs',fallback:[]}}}),
-        button('loot-v2-product-buy','Kosárba teszem','#purchase'),
+        n({id:'loot-v2-product-purchase',componentKey:'commerce.purchase-controls',componentVersion:1,config:{productId:'',variantId:'',slug:'',name:'Gyűjtői kiadás',unitPrice:0,availableQuantity:0,minimumQuantity:1,orderMultiple:1,purchaseLabel:'Kosárba',wishlistLabel:'Kedvencekhez',currency:'HUF',presentation:'loot-vault',styleSlots:{root:{base:{gridTemplateColumns:'5.2rem minmax(0,1fr) 2.9rem',gap:'.45rem'}},quantity:{base:{borderColor:'rgba(214,162,79,.36)',background:'#111314',color:'#f3ebdd'}},purchase:{base:{borderRadius:'.4rem',background:'#d7a14d',borderColor:'#d7a14d',color:'#151008',fontWeight:900}},wishlist:{base:{borderRadius:'.4rem',borderColor:'rgba(214,162,79,.55)',background:'#111314',color:'#e4c18e'}}}},bindings:{productId:{path:'product.id'},variantId:{path:'variant.id'},slug:{path:'product.slug'},name:{path:'product.name',fallback:'Gyűjtői kiadás'},unitPrice:{path:'pricing.unitPrice'},availableQuantity:{path:'inventory.availableQuantity'},minimumQuantity:{path:'inventory.minimumQuantity'},orderMultiple:{path:'inventory.orderMultiple'},purchaseLabel:{path:'commerce.purchaseLabel',fallback:'Kosárba'},wishlistLabel:{path:'commerce.wishlistLabel',fallback:'Kedvencekhez'}}}),
       ],5,{padding:'clamp(1rem,3vw,2rem)',background:'#17191a',border:'1px solid rgba(165,122,69,.26)',borderRadius:'.85rem'}),
     ]),
   ],{background:'#0d0e0f'}),
@@ -392,8 +394,8 @@ export const LOOT_VAULT_V2_MEDIA_ASSETS:readonly StorefrontTemplateFactoryMediaA
   {key:'product-2',state:'ready',role:'product',src:MEDIA.product2,alt:'Fantasy gyűjtői szobor',pageTypes:['home','product'],representative:true,aspectRatio:'4:5'},
   {key:'product-3',state:'ready',role:'product',src:MEDIA.product3,alt:'Dramatikus gyűjtői miniatűr kiadás',pageTypes:['home','product'],representative:true,aspectRatio:'4:5'},
   {key:'product-4',state:'ready',role:'product',src:MEDIA.product4,alt:'Sötét sci-fi gyűjtői relikvia',pageTypes:['home','product'],representative:true,aspectRatio:'4:5'},
-  {key:'editorial-1',state:'ready',role:'editorial',src:MEDIA.editorial1,alt:'Gyűjtői polc figurákkal és művészeti tárgyakkal',pageTypes:['home','blog-index'],representative:true,aspectRatio:'3:2'},
-  {key:'editorial-2',state:'ready',role:'editorial',src:MEDIA.editorial2,alt:'Gazdag popkulturális gyűjtemény',pageTypes:['product','blog-article'],representative:true,aspectRatio:'3:2'},
+  {key:'editorial-1',state:'ready',role:'editorial',src:MEDIA.editorial1,alt:'Sötét gyűjtői archívum polcokkal és kiállított tárgyakkal',pageTypes:['home','blog-index'],representative:true,aspectRatio:'3:2'},
+  {key:'editorial-2',state:'ready',role:'editorial',src:MEDIA.editorial2,alt:'Kurált miniatűr gyűjtemény és relikviák',pageTypes:['product','blog-article'],representative:true,aspectRatio:'3:2'},
   {key:'catalog-background',state:'ready',role:'background',src:MEDIA.background,alt:'Sötét, színes neonfényes enteriőr',pageTypes:['catalog'],representative:true,aspectRatio:'16:9'},
 ]);
 
