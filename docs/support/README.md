@@ -117,6 +117,7 @@ If yes, update Support Knowledge in the same development cycle. Production verif
 - `PLAYROOM_V20_POST_RELEASE_UI_POLISH_2026-09-23.md` — final catalog/contact/cart/account/product polish and topic-first support wizard.
 - `PLAYROOM_V20_PRODUCTION_RELEASE_AND_GOLDEN_RECOVERY_2026-09-23.md` — production release, release-base gate lesson, six accepted golden diffs, controlled baseline recovery and final green main proof.
 - `PRODUCTION_RUNTIME_SCHEMA_PARITY_INCIDENT_2026-09-23.md` — production outage caused by runtime/schema drift, exact Supabase recovery, unchanged business-data snapshot and the new real-database deploy preflight.
+- `PRODUCTION_RELEASE_RISK_BUDGET_2026-09-23.md` — production release-size governance, 5-point risk budget, High-risk isolation and stabilization checkpoint.
 
 ### Shared storefront system surfaces / routes
 
@@ -170,3 +171,8 @@ If yes, update Support Knowledge in the same development cycle. Production verif
 28. **Fresh Install proof and production schema parity are different gates.** Fresh Install validates a new-customer baseline; it does not prove that the existing production database has received every forward migration required by the deployed runtime.
 29. **Production smoke means an anonymous real route, not only READY.** After deployment, exercise the public root/critical routes against production and inspect runtime errors before declaring the release healthy.
 30. **Published Page Schema does not make a pilot storefront public.** Production Page Schema resolution must pass the canonical storefront lifecycle/access gate; Preview may resolve draft state through its separate acceptance authority.
+
+31. **Production release size is a gate, not a preference.** Maximum risk budget is 5 points and maximum substantive subsystem count is 3.
+32. **One High-risk subsystem consumes the whole production release budget.** Database/schema, auth/access, shared launch/runtime, environment/secret, payment/checkout/order and inventory/fulfillment changes must not be mixed with another substantive subsystem in the same release.
+33. **Large development branches are allowed; large production batches are not.** Split production by authority boundary and prove each High-risk exact production HEAD stable before the next slice.
+34. **A release-risk block is resolved by splitting the release, not by weakening classification.** Unknown substantive production code defaults to Medium risk.

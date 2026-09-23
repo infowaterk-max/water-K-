@@ -8,6 +8,7 @@ A V24 a felhős kiadás előtti utolsó technikai kapu. A folyamat nem tesz auto
 
 - `npm ci` vagy lockfile-kompatibilis telepítés
 - `npm audit --omit=dev --audit-level=high`
+- production-bound PR esetén `node scripts/release-risk-budget.mjs`
 - `npm test`
 - `npm run typecheck`
 - `npm run build`
@@ -57,6 +58,8 @@ Valós ügyfélnek, futárnak vagy számlázónak stagingből ne menjen éles me
 
 GO csak akkor:
 
+- release risk budget PASS (maximum 5 pont, maximum 3 érdemi subsystem);
+- High-risk release esetén pontosan 1 érdemi subsystem van a csomagban;
 - CI zöld;
 - release manifest SHA egyezik a deployolt commit SHA-val;
 - environment gate zöld;
@@ -81,3 +84,11 @@ Adatbázis: destruktív automatikus down migration nincs. Hibás forward migrati
 - error rate / latency / observability
 - V18 post-release session
 - szükség esetén V19 recovery governance
+
+## 9. Production release méretkorlát
+
+A production release egységét a `docs/RELEASE_RISK_BUDGET_V1.md` szabályozza.
+
+Nagy fejlesztési branch megengedett, de productionbe a változásokat kockázati szeletekre kell bontani. Database/schema, auth/access, shared launch/runtime, environment/secret, payment/checkout/order és inventory/fulfillment High-risk subsystem; ezek egyenként kitöltik az 5 pontos release budgetet.
+
+High-risk production release után a következő release csak az előző exact production HEAD stabilizációs bizonyítása után mehet tovább: READY + releváns schema compatibility + anonymous smoke + új release-related runtime error hiánya.

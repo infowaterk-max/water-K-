@@ -27,6 +27,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -77,6 +79,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -85,6 +89,21 @@ jobs:
 
       - name: Install locked dependencies
         run: npm ci --no-audit --no-fund
+
+      - name: Production release risk budget
+        env:
+          RELEASE_BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
+          RELEASE_BASE_REF: origin/main
+        run: node scripts/release-risk-budget.mjs
+
+      - name: Upload release risk budget
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-risk-budget
+          path: artifacts/release-risk-budget.json
+          if-no-files-found: warn
+          retention-days: 30
 
       - name: Customer database baseline guard
         run: npm run db:customer:guard
