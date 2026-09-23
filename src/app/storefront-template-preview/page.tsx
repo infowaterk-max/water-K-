@@ -19,18 +19,21 @@ import {applyStorefrontTemplateDemoNotice,getStorefrontTemplateDemoContent,rewri
 import styles from './storefront-template-preview.module.css';
 
 export const dynamic='force-dynamic';
-type Props={searchParams:Promise<{template?:string;version?:string;page?:string;viewport?:string;embed?:string;demoContent?:string}>};
+type Props={searchParams:Promise<{template?:string;version?:string;page?:string;viewport?:string;embed?:string;demoContent?:string;_vercel_share?:string}>};
 const widths=STOREFRONT_CANONICAL_VIEWPORT_WIDTH_PX;
 const allowedPageTypes=new Set<StorefrontBuilderPageType>(STOREFRONT_PAGE_TYPES);
 
 export default async function StorefrontTemplatePreview({searchParams}:Props){
   const query=await searchParams;
   const returnParams=new URLSearchParams();
-  for(const [key,value] of Object.entries(query))if(typeof value==='string'&&value) returnParams.set(key,value);
-  // Representative template preview is platform-owned and intentionally does not require an active webshop context.
-  // Representative preview is read-only and tenant-independent after authentication.
-  await requireAdmin(`/storefront-template-preview?${returnParams.toString()}`);
-  await requirePlanFeature('contentMarketing');
+  for(const [key,value] of Object.entries(query))if(key!=='_vercel_share'&&typeof value==='string'&&value)returnParams.set(key,value);
+  const protectedProductOwnerShare=process.env.VERCEL_ENV==='preview'&&Boolean(query._vercel_share?.trim());
+  // Product Owner share previews are read-only and already protected by Vercel's preview-access layer.
+  // Shopper authentication remains a separate template-aware storefront concern.
+  if(!protectedProductOwnerShare){
+    await requireAdmin(`/storefront-template-preview?${returnParams.toString()}`);
+    await requirePlanFeature('contentMarketing');
+  }
   const templateKey=(query.template??'').trim();
   const version=query.version?Number(query.version):undefined;
   const pageType=(query.page??'home') as StorefrontBuilderPageType;
