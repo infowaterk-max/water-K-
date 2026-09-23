@@ -27,7 +27,7 @@ export type StorefrontTemplateFactoryMediaRole='hero'|'category'|'product'|'edit
 export type StorefrontTemplateFactoryMediaAspectRatio='1:1'|'4:5'|'16:9'|'3:2'|'free';
 export type StorefrontTemplateFactoryMediaAsset={
   key:string;
-  state:'planned'|'ready';
+  state:'planned'|'internal-reference'|'ready';
   role:StorefrontTemplateFactoryMediaRole;
   src:string;
   alt:string;
@@ -115,6 +115,8 @@ export type StorefrontTemplateFactoryBuild={
     inheritedPageTypes:readonly StorefrontBuilderPageType[];
     overriddenPageTypes:readonly StorefrontBuilderPageType[];
     representativeMediaCount:number;
+    technicalRepresentativeMediaCount:number;
+    internalReferenceMediaCount:number;
     plannedMediaCount:number;
     issues:readonly StorefrontTemplateFactoryIssue[];
     technicalReady:boolean;
@@ -216,14 +218,15 @@ function evaluateBuild(input:{
   }
 
   const representative=recipe.media.assets.filter(asset=>asset.representative&&asset.state==='ready');
-  if(representative.length<recipe.media.minimumRepresentativeMedia){
-    issues.push(issue('FACTORY_MEDIA_COVERAGE','media.assets',`Representative media count ${representative.length} is below required minimum ${recipe.media.minimumRepresentativeMedia}.`));
+  const technicalRepresentative=recipe.media.assets.filter(asset=>asset.representative&&asset.state!=='planned');
+  if(technicalRepresentative.length<recipe.media.minimumRepresentativeMedia){
+    issues.push(issue('FACTORY_MEDIA_COVERAGE','media.assets',`Technical representative media count ${technicalRepresentative.length} is below required minimum ${recipe.media.minimumRepresentativeMedia}.`));
   }
   for(const role of recipe.media.requiredRoles){
-    if(!representative.some(asset=>asset.role===role))issues.push(issue('FACTORY_MEDIA_ROLE_MISSING',`media.${role}`,'Required representative media role is missing.'));
+    if(!technicalRepresentative.some(asset=>asset.role===role))issues.push(issue('FACTORY_MEDIA_ROLE_MISSING',`media.${role}`,'Required representative media role is missing.'));
   }
   for(const requirement of recipe.media.requirements??[]){
-    const matching=representative.filter(asset=>asset.role===requirement.role&&(requirement.aspectRatio==='free'||asset.aspectRatio===requirement.aspectRatio));
+    const matching=technicalRepresentative.filter(asset=>asset.role===requirement.role&&(requirement.aspectRatio==='free'||asset.aspectRatio===requirement.aspectRatio));
     if(matching.length<requirement.minCount){
       issues.push(issue(
         'FACTORY_MEDIA_REQUIREMENT_MISSING',
@@ -235,6 +238,7 @@ function evaluateBuild(input:{
   const mediaKeys=new Set<string>();
   for(const[index,asset]of recipe.media.assets.entries()){
     if(asset.state==='ready'&&!asset.src.startsWith('/'))issues.push(issue('FACTORY_READY_MEDIA_NOT_PACKAGE_OWNED',`media.assets[${index}].src`,'Ready template media must be a package-owned local asset so CI can prove the physical file.'));
+    if(asset.state==='internal-reference')issues.push(issue('FACTORY_MEDIA_FINALIZATION_REQUIRED',`media.assets[${index}]`,'Internal reference media may enter internal browser QA but must be replaced by package-owned ready media before Product Owner preview.'));
     if(mediaKeys.has(asset.key))issues.push(issue('FACTORY_MEDIA_KEY_DUPLICATE',`media.assets[${index}].key`,'Media keys must be unique.'));
     mediaKeys.add(asset.key);
     if(!asset.alt.trim())issues.push(issue('FACTORY_MEDIA_ALT_REQUIRED',`media.assets[${index}].alt`,'Representative media requires meaningful alt text.'));
@@ -346,9 +350,11 @@ export function compileStorefrontTemplateFactoryPackage(input:{
       inheritedPageTypes:Object.freeze([...inherited]),
       overriddenPageTypes:Object.freeze([...overridden]),
       representativeMediaCount:recipe.media.assets.filter(asset=>asset.representative&&asset.state==='ready').length,
+      technicalRepresentativeMediaCount:recipe.media.assets.filter(asset=>asset.representative&&asset.state!=='planned').length,
+      internalReferenceMediaCount:recipe.media.assets.filter(asset=>asset.state==='internal-reference').length,
       plannedMediaCount:recipe.media.assets.filter(asset=>asset.state==='planned').length,
       issues:Object.freeze(issues),
-      technicalReady:issues.every(item=>item.severity!=='error'||item.code==='FACTORY_INTERNAL_VISUAL_REVIEW_REQUIRED'),
+      technicalReady:issues.every(item=>item.severity!=='error'||item.code==='FACTORY_INTERNAL_VISUAL_REVIEW_REQUIRED'||item.code==='FACTORY_MEDIA_FINALIZATION_REQUIRED'),
       productOwnerReady:issues.every(item=>item.severity!=='error'),
     },
   };
