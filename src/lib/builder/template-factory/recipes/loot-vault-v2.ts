@@ -55,7 +55,7 @@ export const LOOT_VAULT_V2_FACTORY_RECIPE:StorefrontTemplateFactoryRecipe=Object
   reference:Object.freeze({
     key:'gaming.loot-vault.accepted-reference-2026-09-06',
     approved:true,
-    requiredPageTypes:Object.freeze(['home','catalog','product','blog-index','blog-article']),
+    requiredPageTypes:Object.freeze(['home','catalog','product','blog-index','blog-article'] as const),
   }),
   productOwnerReview:Object.freeze({internalVisualReviewPassed:false}),
 });
