@@ -92,6 +92,7 @@ export type StorefrontTemplateFactoryCategoryFoundation={
   recommendedOwnedPages:readonly StorefrontBuilderPageType[];
   inheritedPages:readonly StorefrontBuilderPageType[];
   brandTokens?:readonly string[];
+  foundationMediaPrefixes?:readonly string[];
   forbiddenLeakTokens?:readonly string[];
 };
 
@@ -128,6 +129,17 @@ function rewriteFoundationBrandTokens<T>(value:T,tokens:readonly string[],displa
     if(token)serialized=serialized.split(token).join(displayName);
   }
   return JSON.parse(serialized) as T;
+}
+
+function neutralizeFoundationMedia<T>(value:T,prefixes:readonly string[]):T{
+  if(!prefixes.length)return value;
+  const visit=(current:unknown):unknown=>{
+    if(typeof current==='string')return prefixes.some(prefix=>current.startsWith(prefix))?'':current;
+    if(Array.isArray(current))return current.map(visit);
+    if(current&&typeof current==='object')return Object.fromEntries(Object.entries(current as Record<string,unknown>).map(([key,child])=>[key,visit(child)]));
+    return current;
+  };
+  return visit(value) as T;
 }
 
 function walk(nodes:readonly StorefrontComponentNode[],visitor:(node:StorefrontComponentNode)=>void):void{
@@ -229,8 +241,9 @@ function evaluateBuild(input:{
   const foundationSlug=slug(foundation.foundationTemplateKey);
   const targetSlug=slug(recipe.templateKey);
   if(foundationSlug!==targetSlug){
-    const leakedMedia=`/storefront/${foundationSlug}/`;
-    if(serialized.includes(leakedMedia))issues.push(issue('FACTORY_FOUNDATION_MEDIA_LEAK','package','Compiled template still references foundation-specific media.'));
+    for(const leakedMedia of foundation.foundationMediaPrefixes??[`/storefront/${foundationSlug}/`]){
+      if(leakedMedia&&serialized.includes(leakedMedia))issues.push(issue('FACTORY_FOUNDATION_MEDIA_LEAK','package',`Compiled template still references foundation-specific media prefix: ${leakedMedia}`));
+    }
     for(const token of foundation.forbiddenLeakTokens??[]){
       if(token&&serialized.includes(token))issues.push(issue('FACTORY_FOUNDATION_BRAND_LEAK','package',`Compiled template still contains foundation-specific token: ${token}`));
     }
@@ -264,6 +277,7 @@ export function compileStorefrontTemplateFactoryPackage(input:{
 
     let page=rewriteIds(source,foundation.foundationTemplateKey,recipe.templateKey);
     page=rewriteFoundationBrandTokens(page,foundation.brandTokens??[],recipe.displayName);
+    page=neutralizeFoundationMedia(page,foundation.foundationMediaPrefixes??[]);
     page.pageKey=`${slug(recipe.templateKey)}-${pageType}`;
     page.templateKey=recipe.templateKey;
     page.templateVersion=recipe.templateVersion;
