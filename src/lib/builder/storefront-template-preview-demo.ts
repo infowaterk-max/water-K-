@@ -299,8 +299,10 @@ export function createStorefrontTemplatePreviewBindingContext(input:{template:St
   const{template,page}=input;
   const category=template.manifest.templateKey.split('.')[0]??'shop';
   const label=CATEGORY_LABELS[category]??'Shop';
+  const templateSlug=template.manifest.templateKey.split('.').at(-1)??label;
+  const templateLabel=templateSlug.split('-').filter(Boolean).map(part=>part.charAt(0).toLocaleUpperCase('hu-HU')+part.slice(1)).join(' ')||label;
   const context:Record<string,unknown>={
-    brand:{name:`${label} Demo`,tagline:'Shoperation sablonbemutató',homeHref:'/',copyright:`© ${label} Demo`,socialLinks:PREVIEW_SOCIAL_LINKS.map(item=>({...item}))},
+    brand:{name:templateLabel,tagline:'Shoperation sablonbemutató',homeHref:'/',copyright:`© ${templateLabel}`,socialLinks:PREVIEW_SOCIAL_LINKS.map(item=>({...item}))},
     navigation:{
       primary:[{label:'Újdonságok',href:'#preview-demo'},{label:'Kollekciók',href:'#preview-demo'},{label:'Rólunk',href:'#preview-demo'},{label:'Kapcsolat',href:'#preview-demo'}],
       footer:[{id:'shop',title:'Vásárlás',items:[{label:'Újdonságok',href:'#preview-demo'},{label:'Kategóriák',href:'#preview-demo'}]},{id:'help',title:'Segítség',items:[{label:'GYIK',href:'#preview-demo'},{label:'Kapcsolat',href:'#preview-demo'}]}],
