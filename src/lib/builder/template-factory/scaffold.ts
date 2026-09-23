@@ -27,6 +27,7 @@ export type StorefrontTemplateFactoryMediaRole='hero'|'category'|'product'|'edit
 export type StorefrontTemplateFactoryMediaAspectRatio='1:1'|'4:5'|'16:9'|'3:2'|'free';
 export type StorefrontTemplateFactoryMediaAsset={
   key:string;
+  state:'planned'|'ready';
   role:StorefrontTemplateFactoryMediaRole;
   src:string;
   alt:string;
@@ -114,6 +115,7 @@ export type StorefrontTemplateFactoryBuild={
     inheritedPageTypes:readonly StorefrontBuilderPageType[];
     overriddenPageTypes:readonly StorefrontBuilderPageType[];
     representativeMediaCount:number;
+    plannedMediaCount:number;
     issues:readonly StorefrontTemplateFactoryIssue[];
     technicalReady:boolean;
     productOwnerReady:boolean;
@@ -213,7 +215,7 @@ function evaluateBuild(input:{
     }
   }
 
-  const representative=recipe.media.assets.filter(asset=>asset.representative);
+  const representative=recipe.media.assets.filter(asset=>asset.representative&&asset.state==='ready');
   if(representative.length<recipe.media.minimumRepresentativeMedia){
     issues.push(issue('FACTORY_MEDIA_COVERAGE','media.assets',`Representative media count ${representative.length} is below required minimum ${recipe.media.minimumRepresentativeMedia}.`));
   }
@@ -232,6 +234,7 @@ function evaluateBuild(input:{
   }
   const mediaKeys=new Set<string>();
   for(const[index,asset]of recipe.media.assets.entries()){
+    if(asset.state==='ready'&&!asset.src.startsWith('/'))issues.push(issue('FACTORY_READY_MEDIA_NOT_PACKAGE_OWNED',`media.assets[${index}].src`,'Ready template media must be a package-owned local asset so CI can prove the physical file.'));
     if(mediaKeys.has(asset.key))issues.push(issue('FACTORY_MEDIA_KEY_DUPLICATE',`media.assets[${index}].key`,'Media keys must be unique.'));
     mediaKeys.add(asset.key);
     if(!asset.alt.trim())issues.push(issue('FACTORY_MEDIA_ALT_REQUIRED',`media.assets[${index}].alt`,'Representative media requires meaningful alt text.'));
@@ -342,7 +345,8 @@ export function compileStorefrontTemplateFactoryPackage(input:{
       template:{templateKey:recipe.templateKey,templateVersion:recipe.templateVersion,category:recipe.category},
       inheritedPageTypes:Object.freeze([...inherited]),
       overriddenPageTypes:Object.freeze([...overridden]),
-      representativeMediaCount:recipe.media.assets.filter(asset=>asset.representative).length,
+      representativeMediaCount:recipe.media.assets.filter(asset=>asset.representative&&asset.state==='ready').length,
+      plannedMediaCount:recipe.media.assets.filter(asset=>asset.state==='planned').length,
       issues:Object.freeze(issues),
       technicalReady:issues.every(item=>item.severity!=='error'||item.code==='FACTORY_INTERNAL_VISUAL_REVIEW_REQUIRED'),
       productOwnerReady:issues.every(item=>item.severity!=='error'),
