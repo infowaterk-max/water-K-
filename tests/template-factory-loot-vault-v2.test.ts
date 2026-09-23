@@ -5,6 +5,7 @@ import {
 } from '@/lib/builder/template-factory/recipe-registry';
 import {getStorefrontTemplateDemoContent} from '@/lib/builder/storefront-template-route-integrity';
 import {createStorefrontTemplatePreviewBindingContext} from '@/lib/builder/storefront-template-preview-demo';
+import {applyAuthoredTemplatePreviewFallbacks} from '@/lib/builder/storefront-template-preview-canonical';
 import type {StorefrontComponentNode} from '@/lib/builder/storefront-runtime';
 import {createStorefrontTemplateFactoryMediaWorkOrder,pendingStorefrontTemplateFactoryMediaWorkOrders} from '@/lib/builder/template-factory/media-production';
 import {LOOT_VAULT_V2_FACTORY_RECIPE} from '@/lib/builder/template-factory/recipes/loot-vault-v2';
@@ -141,7 +142,8 @@ describe('Loot Vault v2 Factory canary recipe',()=>{
     expect(purchase?.bindings).toMatchObject({
       productId:{path:'product.id'},variantId:{path:'variant.id'},slug:{path:'product.slug'},unitPrice:{path:'pricing.unitPrice'},availableQuantity:{path:'inventory.availableQuantity'},
     });
-    const context=createStorefrontTemplatePreviewBindingContext({template:build.package,page:product}) as Record<string,any>;
+    const previewContext=createStorefrontTemplatePreviewBindingContext({template:build.package,page:product}) as Record<string,any>;
+    const context=applyAuthoredTemplatePreviewFallbacks({page:product,context:previewContext}) as Record<string,any>;
     expect(context.product?.id).toBeTruthy();
     expect(context.variant?.id).toBeTruthy();
     expect(context.pricing?.unitPrice).toBeGreaterThan(0);
