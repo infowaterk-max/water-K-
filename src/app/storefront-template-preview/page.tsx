@@ -28,6 +28,7 @@ export default async function StorefrontTemplatePreview({searchParams}:Props){
   const returnParams=new URLSearchParams();
   for(const [key,value] of Object.entries(query))if(typeof value==='string'&&value) returnParams.set(key,value);
   // Representative template preview is platform-owned and intentionally does not require an active webshop context.
+  // Representative preview is read-only and tenant-independent after authentication.
   await requireAdmin(`/storefront-template-preview?${returnParams.toString()}`);
   await requirePlanFeature('contentMarketing');
   const templateKey=(query.template??'').trim();
