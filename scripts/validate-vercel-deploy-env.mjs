@@ -190,14 +190,21 @@ if (problems.length > 0) {
   console.error(
     `Vercel ${environment} deploy blocked: invalid environment configuration: ${problems.join(', ')}`,
   );
-  process.exit(1);
+  // DIAGNOSTIC PR #355 ONLY: distinct non-zero codes remain fail-closed.
+  const diagnosticCode =
+    problems.some(problem => problem.startsWith('preview Supabase target must be')) ? 41 :
+    problems.some(problem => problem === 'NEXT_PUBLIC_SUPABASE_URL') ? 42 :
+    problems.some(problem => problem.includes('NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY')) ? 43 :
+    problems.some(problem => problem.includes('SUPABASE_STAGING_SECRET_KEY|')) ? 44 :
+    45;
+  process.exit(diagnosticCode);
 }
 
 if (process.env.NODE_ENV !== 'test') {
   const serverKey = deploymentServerKey();
   if (!serverKey) {
     console.error(`Vercel ${environment} deploy blocked: DATABASE_SCHEMA_COMPATIBILITY_FAILED: server credential unavailable`);
-    process.exit(1);
+    process.exit(46);
   }
 
   try {
@@ -205,10 +212,20 @@ if (process.env.NODE_ENV !== 'test') {
     await probeRuntimeSchema(process.env.NEXT_PUBLIC_SUPABASE_URL, serverKey, publicKey);
     console.log(`Vercel ${environment} runtime schema compatibility preflight OK (${RUNTIME_SCHEMA_PROBES.length} probes).`);
   } catch (error) {
-    console.error(
-      `Vercel ${environment} deploy blocked: ${error instanceof Error ? error.message : 'DATABASE_SCHEMA_COMPATIBILITY_FAILED'}`,
-    );
-    process.exit(1);
+    const message = error instanceof Error ? error.message : 'DATABASE_SCHEMA_COMPATIBILITY_FAILED';
+    console.error(`Vercel ${environment} deploy blocked: ${message}`);
+    // DIAGNOSTIC PR #355 ONLY: probe-specific non-zero code; all failures remain blocked.
+    const diagnosticCode =
+      message.includes('template demo catalog columns') ? 51 :
+      message.includes('template demo content columns') ? 52 :
+      message.includes('saved customer billing authority') ? 53 :
+      message.includes('B2B identity re-verification authority') ? 54 :
+      message.includes('digital commerce asset authority') ? 55 :
+      message.includes('order document vault authority') ? 56 :
+      message.includes('product document authority') ? 57 :
+      message.includes('B2B RFQ authority') ? 58 :
+      59;
+    process.exit(diagnosticCode);
   }
 }
 
