@@ -1,3 +1,4 @@
+import fs from 'node:fs';
 import {describe,expect,it} from 'vitest';
 import {PLANS} from '@/lib/plans/catalog';
 import {STOREFRONT_TEMPLATE_CATALOG,getStorefrontTemplatePackage} from '@/lib/builder/storefront-template-catalog';
@@ -5,6 +6,13 @@ import {createStorefrontVisualBuilderComponentRegistry} from '@/lib/builder/stor
 import {validateStorefrontPageDocument} from '@/lib/builder/storefront-runtime';
 
 describe('storefront template preview runtime',()=>{
+  it('allows authenticated Product Owner representative preview without an active webshop context',()=>{
+    const page=fs.readFileSync('src/app/storefront-template-preview/page.tsx','utf8');
+    expect(page).toContain('requireAdmin');
+    expect(page).toContain("requirePlanFeature('contentMarketing')");
+    expect(page).not.toContain('requireCurrentStoreContext');
+  });
+
   it('validates every catalog template page with preview capabilities',()=>{
     const registry=createStorefrontVisualBuilderComponentRegistry();
     const capability={plan:'pro' as const,features:[...PLANS.pro.features]};
