@@ -36,6 +36,20 @@ A first attempt put a plain, unmaterialized style object directly on playroom-co
 
 ## Authority preserved
 
-E2 remains catalog/filter authority; inventory remains stock authority; shared cart/checkout remain commerce authority; account navigation remains platform IA authority; production is untouched.
+E2 remains catalog/filter authority; inventory remains stock authority; shared cart/checkout remain commerce authority; account navigation remains platform IA authority.
 
-Validation note: exact-head CI, Template Factory and preview deploy must be green before acceptance.
+During implementation and preview acceptance, production remained untouched. The accepted work was later released through PR #349 and production-stabilized through PR #350.
+
+## Production verification — 2026-09-23
+
+- Runtime release main: `aff3be1c3099fbe0242a92f1eea5c3ab0d56270b`
+- Runtime production deployment: `dpl_3S7z8TXubXptiJ4doF1vLYYMxt4m` — READY
+- Runtime main CI: `35822655691` — SUCCESS
+- First main Template Factory run: `35822655683` — only six accepted catalog/contact GOLDEN_DIFF cases; all structural/runtime/build steps passed.
+- Golden stabilization main: `f4651b9ad46ad48a8c5669450d70f05e1f8325c2`
+- Stabilized production deployment: `dpl_Dd6Nkr1HrPgMiaCLUwx4friJ3oty` — READY
+- Stabilized main CI: `35823850985` — SUCCESS
+- Stabilized Template Factory Quality Gate v2: `35823851004` — SUCCESS including the 14×3 matrix.
+- Fresh Install: SKIPPED because no customer-baseline/schema authority changed.
+
+The production release/golden-baseline incident and prevention rules are recorded in `PLAYROOM_V20_PRODUCTION_RELEASE_AND_GOLDEN_RECOVERY_2026-09-23.md`.

@@ -72,3 +72,35 @@ Fix:
 Regression invariant:
 
 **A storefront form must never look actionable while its own required contract is knowingly unsatisfied, and client-side validation must produce visible Shoperation feedback rather than silently preventing submission.**
+
+
+## Production follow-up — topic-first Dynamic Support Intake Wizard
+
+The shared support form evolved from a generic stepped form into an intent-first intake wizard. This is a **shared storefront capability**, not a Playroom-only interaction.
+
+Canonical flow:
+
+1. first screen: compact issue topics only;
+2. desktop: topic controls + hover/focus explanation panel;
+3. mobile: accordion rows + explicit `Ezt választom` action;
+4. topic selection routes into topic-specific clarification;
+5. only relevant fields are requested;
+6. contact identity is collected later;
+7. branch-only state is cleared when the topic changes;
+8. validation errors are not shown on untouched initial fields.
+
+Examples:
+
+- General information does **not** require an order number.
+- Order, damaged-product and return branches may require order identity.
+- Invoice/shipping/complaint branches may keep order number optional when the issue is not tied to a specific order.
+
+Presentation remains template-owned. Routing, validation, submission and support persistence remain shared.
+
+### Contact canvas follow-up
+
+A dark template may still show white strips if the Page Schema Runtime root is transparent and spacing reveals the app/body fallback. The shared contact Runtime canvas therefore paints the active `--shoporation-color-background` token.
+
+**Invariant: a template-native Page Schema root owns the full visual canvas, including the empty space between child sections.**
+
+Production verification: main `f4651b9ad46ad48a8c5669450d70f05e1f8325c2`, CI `35823850985` SUCCESS, Template Factory `35823851004` SUCCESS.

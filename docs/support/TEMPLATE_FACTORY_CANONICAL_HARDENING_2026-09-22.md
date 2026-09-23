@@ -172,3 +172,31 @@ Do not reopen these without a concrete regression or a new explicitly approved d
 **Fix the factory once; do not repair the same class of defect template by template.**
 
 If a defect can recur across templates, convert the lesson into a shared contract, helper, persistence boundary or quality gate before continuing the 42-template production line.
+
+
+## 8. Production release-base and accepted golden-drift contract — 2026-09-23
+
+Playroom production exposed a gap between **incremental feature-head proof** and **release-base proof**.
+
+A quality run scoped from the latest feature parent may legitimately test fewer changed surfaces than the final release comparison against current main/previous production. Therefore:
+
+- feature-head PASS is necessary but is not the final production release gate;
+- the base-aware PR/release CI + Template Factory runs must finish before merge;
+- main is re-proven after merge;
+- Vercel READY never substitutes for CI/Template Factory PASS.
+
+The same release exposed a circular golden-promotion assumption. Intentional accepted visual changes naturally fail against the old golden baseline, so an already-clean golden comparison cannot be the only route to promoting the new accepted image.
+
+The controlled exception is now:
+
+- explicit `--allow-golden-drift` / workflow opt-in;
+- exact source/evidence identity required;
+- complete canonical 14×3 matrix required;
+- only `GOLDEN_DIFF` or `GOLDEN_BASELINE_MISSING` may be present;
+- every non-golden error remains blocking;
+- only actual drift cases are copied in drift mode;
+- human visual acceptance remains mandatory and external to automation.
+
+This is not a weakening of the Quality Gate. It separates **candidate visual change** from **non-visual/structural failure** while remaining fail-closed for the latter.
+
+Playroom production recovery proof: PR #350 → main `f4651b9ad46ad48a8c5669450d70f05e1f8325c2` → Template Factory run `35823851004` SUCCESS.

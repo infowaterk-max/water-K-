@@ -99,3 +99,20 @@ Production may begin only from the already validated executable Runtime artifact
 6. staging is ACTIVE_HEALTHY and the disposable Fresh Install project is INACTIVE.
 
 Any later executable commit reopens the production release gate and must be re-proven before deployment.
+
+
+## Post-closure production addendum — 2026-09-23
+
+This 2026-09-22 record remains the historical closure of the then-accepted Playroom state. Subsequent human post-release review intentionally changed catalog/contact presentation and the shared support wizard, so those executable changes reopened the release proof boundary without invalidating this historical evidence.
+
+The later production-verified authority is recorded in:
+
+- `PLAYROOM_V20_POST_RELEASE_UI_POLISH_2026-09-23.md`
+- `PLAYROOM_V20_PRODUCTION_RELEASE_AND_GOLDEN_RECOVERY_2026-09-23.md`
+
+Final stabilized production main: `f4651b9ad46ad48a8c5669450d70f05e1f8325c2`.
+Final production deployment: `dpl_Dd6Nkr1HrPgMiaCLUwx4friJ3oty` — READY.
+Final main CI: `35823850985` — SUCCESS.
+Final main Template Factory Quality Gate v2: `35823851004` — SUCCESS.
+
+Do not use the older goldenBaselineCommit in this document as the current catalog/contact baseline after 2026-09-23; use the repository baseline at the stabilized production main instead.
