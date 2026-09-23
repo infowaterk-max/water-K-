@@ -57,6 +57,17 @@ describe('Template Factory Quality Gate v2',()=>{
     expect(serialized).not.toContain('More from the Vault');
     expect(serialized).toContain('/oldal/szallitas');
     expect(getStorefrontTemplateDemoContent(template!,'szallitas')?.payload.slug).toBe('szallitas');
+    for(const page of template!.pages){
+      expect(page.metadata?.shoporationGlobalStyles).toMatchObject({
+        version:'shoporation.storefront-global-styles.v1',
+        tokens:{background:'#0d0e0f',text:'#f3ebdd',accent:'#a57a45'},
+      });
+    }
+    expect(serialized).toContain('Gyűjtői figurák');
+    expect(serialized).toContain('Művészeti albumok');
+    expect(serialized).toContain('Új kiadások');
+    expect(serialized).toContain('Gyűjtői kiegészítők');
+    expect(serialized).not.toContain("title:'Figures'");
 
     for(const page of template!.pages){
       expect(page.sections[0]?.id).toBe('loot-vault-global-header');
