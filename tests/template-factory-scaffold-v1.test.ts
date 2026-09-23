@@ -144,7 +144,9 @@ describe('Template Factory Scaffold v1',()=>{
 
   it('treats internal-reference media as technical proof only, never Product Owner-ready media',()=>{
     const draft=recipe({allPages:true,reviewPassed:true});
-    draft.media={...draft.media,assets:draft.media.assets.map(asset=>({...asset,state:'internal-reference' as const,src:'https://images.example.test/reference.jpg'}))};
+    const referenceSrc='https://images.example.test/reference.jpg';
+    draft.pageOverrides={...draft.pageOverrides,home:setFirstImage(sanitizePage('home'),referenceSrc)};
+    draft.media={...draft.media,assets:draft.media.assets.map(asset=>({...asset,state:'internal-reference' as const,src:referenceSrc}))};
     const build=buildStorefrontTemplateFactoryCandidate(draft);
     expect(build.report.technicalRepresentativeMediaCount).toBe(1);
     expect(build.report.internalReferenceMediaCount).toBe(1);
