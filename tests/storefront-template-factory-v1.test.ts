@@ -31,7 +31,7 @@ const definition:StorefrontFactoryDefinition={
       headingFont:'system-sans',bodyFont:'system-sans',spacingScale:'comfortable',radiusScale:'soft',
     },
   },
-  reference:{referenceKey:'fixture.reference',requiredMediaRoles:['hero','category','product','editorial'],minimumRepresentativeMedia:14,forbidPlaceholderSvg:true},
+  reference:{referenceKey:'fixture.reference',requiredMediaRoles:['hero','category','product','editorial'],mediaRequirements:[{role:'hero',minCount:1,aspectRatio:'16:9'},{role:'category',minCount:4,aspectRatio:'4:5'},{role:'product',minCount:8,aspectRatio:'4:5'},{role:'editorial',minCount:1,aspectRatio:'3:2'}],minimumRepresentativeMedia:14,forbidPlaceholderSvg:true},
   media,
   copy:{
     tagline:'Gaming',
