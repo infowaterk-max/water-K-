@@ -42,12 +42,14 @@ describe('template-aware storefront auth surface',()=>{
     expect(shell).toContain('resolveStorefrontTemplateAccountPreviewRuntimePage');
     expect(shell).toContain('previewTemplate');
     expect(previewLogin).toContain('StorefrontAccountShell');
-    expect(previewLogin).toContain('previewTemplate={{templateKey:template.manifest.templateKey,templateVersion:template.manifest.templateVersion}}');
+    expect(previewLogin).toContain('previewTemplate={{templateKey:template.manifest.templateKey,templateVersion:template.manifest.templateVersion,factoryCandidate}}');
     expect(previewLogin).toContain('allowRegistration={false}');
     expect(previewLogin).not.toContain('getCurrentWebshopInstance');
     expect(previewPage).toContain('/storefront-template-preview-login?');
     expect(previewPage).toContain('redirect(');
     expect(previewPage).toContain('template:template.manifest.templateKey');
+    expect(previewPage).toContain("const factoryCandidate=query.factory==='1'");
+    expect(previewLogin).toContain("const factoryCandidate=query.factory==='1'");
   });
 
   it('keeps signed-out customer auth inside the active storefront template shell',()=>{
