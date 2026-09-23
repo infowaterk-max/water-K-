@@ -171,6 +171,22 @@ jobs:
       - name: Install locked application dependencies
         run: npm ci --no-audit --no-fund
 
+      - name: Prove stacked PR release risk budget
+        if: github.event_name == 'pull_request'
+        env:
+          RELEASE_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          RELEASE_BASE_REF: origin/${{ github.event.pull_request.base.ref }}
+        run: node scripts/release-risk-budget.mjs
+
+      - name: Upload stacked PR release risk budget
+        if: always() && github.event_name == 'pull_request'
+        uses: actions/upload-artifact@v4
+        with:
+          name: stacked-release-risk-budget-${{ github.event.pull_request.head.sha }}
+          path: artifacts/release-risk-budget.json
+          if-no-files-found: error
+          retention-days: 30
+
       - name: Install pinned QA dependencies without changing lock authority
         run: npm install --no-save --package-lock=false --ignore-scripts --no-audit --no-fund playwright@1.55.0 pixelmatch@7.1.0 pngjs@7.0.0
 
