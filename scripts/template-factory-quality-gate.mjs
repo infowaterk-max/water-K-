@@ -18,9 +18,12 @@ const qualityInfrastructurePrefixes=[
   'src/lib/builder/template-factory/scaffold.ts',
   'src/lib/builder/template-factory/category-foundations.ts',
   'src/lib/builder/template-factory/recipe-registry.ts',
+  'src/lib/builder/template-factory/knowledge-registry.ts',
+  'src/lib/builder/template-factory/procedural-memory.ts',
   'src/app/api/visual-fidelity/templates/',
   'src/app/visual-fidelity-qa/',
   'scripts/template-factory-quality-gate.mjs',
+  'scripts/template-factory-product-owner-handoff.mjs',
   'scripts/promote-template-golden-baseline.mjs',
   '.github/workflows/template-factory-quality-gate.yml',
   '.github/workflows/template-golden-baseline-promotion.yml',
@@ -388,13 +391,20 @@ try{
         if(!response?.ok())throw new Error(`DEMO_ROUTE_FAILED:${response?.status()??'no-response'}`);
         await page.waitForLoadState('load',{timeout:15000}).catch(()=>undefined);
         const runtimeRoot=page.locator('[data-visual-fidelity-root="runtime"]:visible').first();
+        await runtimeRoot.waitFor({state:'visible',timeout:10000});
+        const demoWarning=runtimeRoot.getByText('MINTA TARTALOM',{exact:false}).first();
+        await demoWarning.waitFor({state:'visible',timeout:5000}).catch(()=>undefined);
         const warningText=await runtimeRoot.getByText('MINTA TARTALOM',{exact:false}).count();
-        const menuCount=await runtimeRoot.locator('[data-storefront-mobile-menu="true"]:visible').count();
-        if(warningText<1)errors.push({case:name,error:'DEMO_WARNING_MISSING'});
-        if(menuCount!==1)errors.push({case:name,error:`DEMO_MOBILE_MENU_CARDINALITY:${menuCount}`});
+        const mobileMenu=runtimeRoot.locator('[data-storefront-mobile-menu="true"]:visible');
+        await mobileMenu.first().waitFor({state:'visible',timeout:5000}).catch(()=>undefined);
+        const menuCount=await mobileMenu.count();
+        const caseErrors=[];
+        if(warningText<1)caseErrors.push('DEMO_WARNING_MISSING');
+        if(menuCount!==1)caseErrors.push(`DEMO_MOBILE_MENU_CARDINALITY:${menuCount}`);
+        for(const error of caseErrors)errors.push({case:name,error});
         const pathOut=path.join(outputDir,`${name}.png`);
         await page.screenshot({path:pathOut,fullPage:true,animations:'disabled'});
-        cases.push({templateKey:manifest.templateKey,templateVersion:manifest.templateVersion,pageType:'content-demo',viewport:'mobile',url:demoUrl,screenshotPath:pathOut,errors:[],warnings:[]});
+        cases.push({templateKey:manifest.templateKey,templateVersion:manifest.templateVersion,pageType:'content-demo',viewport:'mobile',url:demoUrl,screenshotPath:pathOut,errors:caseErrors,warnings:[]});
       }catch(error){
         errors.push({case:name,error:error instanceof Error?error.message:String(error)});
       }finally{await page.close();}
@@ -404,6 +414,46 @@ try{
   await browser.close();
 }
 
+const acceptanceProofs=scope.selected.map(selected=>{
+  const manifest=selected.template;
+  const templateCases=cases.filter(item=>item.templateKey===manifest.templateKey&&item.templateVersion===manifest.templateVersion);
+  const browserMatrixPassed=templateCases.length>0&&templateCases.every(item=>(item.errors??[]).length===0);
+  const proceduralReplays=manifest.proceduralMemory?.failureReplays??[];
+  const proceduralMemoryPassed=manifest.factoryCandidate
+    ?manifest.proceduralMemory?.preflightOk===true&&proceduralReplays.length>0&&proceduralReplays.every(item=>item.passed===true)
+    :true;
+  const factoryIdentityPinned=!manifest.factoryCandidate||(
+    manifest.provenance?.targetTemplateKey===manifest.templateKey
+    &&manifest.provenance?.targetTemplateVersion===manifest.templateVersion
+    &&templateCases.every(item=>String(item.url??'').includes('factory=1'))
+  );
+  const blockers=[];
+  if(!browserMatrixPassed)blockers.push('BROWSER_MATRIX_NOT_PROVEN');
+  if(!proceduralMemoryPassed)blockers.push('PROCEDURAL_MEMORY_REPLAY_FAILED');
+  if(!factoryIdentityPinned)blockers.push('FACTORY_CANDIDATE_IDENTITY_NOT_PINNED');
+  if(manifest.factoryCandidate)blockers.push('VERCEL_PRODUCT_OWNER_JOURNEY_PROOF_REQUIRED');
+  const maturity=browserMatrixPassed&&proceduralMemoryPassed&&factoryIdentityPinned&&manifest.productOwnerReady===true
+    ?'visually-ready'
+    :browserMatrixPassed&&proceduralMemoryPassed&&factoryIdentityPinned
+      ?'technically-ready'
+      :'compiled';
+  return{
+    contract:'shoporation.template-factory-ci-acceptance-proof.v1',
+    templateKey:manifest.templateKey,
+    templateVersion:manifest.templateVersion,
+    factoryCandidate:Boolean(manifest.factoryCandidate),
+    sourceCommit:headSha==='HEAD'?null:headSha,
+    provenance:manifest.provenance??null,
+    browserMatrixPassed,
+    proceduralMemoryPassed,
+    factoryIdentityPinned,
+    productOwnerReadyByCompiler:manifest.productOwnerReady===true,
+    maturity,
+    handoffReady:false,
+    blockers,
+  };
+});
+
 const evidence={
   contract:'shoporation.template-factory-quality-evidence.v2',
   sourceCommit:headSha==='HEAD'?null:headSha,
@@ -412,6 +462,7 @@ const evidence={
   selection:scope.reasons,
   legacyTemplateChanges:scope.legacyTemplateChanges,
   cases,
+  acceptanceProofs,
   errors,
   warnings,
   capturedAt:new Date().toISOString(),
