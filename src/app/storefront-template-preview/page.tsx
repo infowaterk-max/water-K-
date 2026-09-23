@@ -1,10 +1,11 @@
 import type {CSSProperties} from 'react';
 import Link from 'next/link';
-import {notFound} from 'next/navigation';
+import {notFound,redirect} from 'next/navigation';
 import {requirePlanFeature} from '@/lib/plans/access';
 import {requireAdmin} from '@/lib/auth/require-admin';
 import {PLANS} from '@/lib/plans/catalog';
-import {requireCurrentStoreContext} from '@/lib/instances/scope';
+import {getCurrentStoreContext} from '@/lib/instances/scope';
+import {getPlatformRole} from '@/lib/auth/platform-operator';
 import {getStorefrontTemplatePackage} from '@/lib/builder/storefront-template-catalog';
 import {
   createStorefrontTemplatePreviewBindingContext,
@@ -24,13 +25,22 @@ type Props={searchParams:Promise<{template?:string;version?:string;page?:string;
 const widths=STOREFRONT_CANONICAL_VIEWPORT_WIDTH_PX;
 const allowedPageTypes=new Set<StorefrontBuilderPageType>(STOREFRONT_PAGE_TYPES);
 
+async function requireTemplatePreviewEntry(returnTo:string){
+  await requireAdmin(returnTo);
+  const context=await getCurrentStoreContext();
+  if(context){
+    await requirePlanFeature('contentMarketing');
+    return;
+  }
+  if(process.env.VERCEL_ENV==='preview'&&await getPlatformRole())return;
+  redirect('/admin/hozzaferes-megtagadva?reason=context');
+}
+
 export default async function StorefrontTemplatePreview({searchParams}:Props){
   const query=await searchParams;
   const returnParams=new URLSearchParams();
   for(const [key,value] of Object.entries(query))if(typeof value==='string'&&value) returnParams.set(key,value);
-  await requireAdmin(`/storefront-template-preview?${returnParams.toString()}`);
-  await requirePlanFeature('contentMarketing');
-  await requireCurrentStoreContext('store.manage');
+  await requireTemplatePreviewEntry(`/storefront-template-preview?${returnParams.toString()}`);
   const templateKey=(query.template??'').trim();
   const version=query.version?Number(query.version):undefined;
   const pageType=(query.page??'home') as StorefrontBuilderPageType;
