@@ -13,6 +13,13 @@ describe('shared Storefront Form Wizard engine',()=>{
     expect(wizard).toContain('aria-live="polite"');
   });
 
+  it('does not show required-field errors before the customer interacts with the current step',()=>{
+    const wizard=readFileSync('src/components/forms/storefront-form-wizard.tsx','utf8');
+    expect(wizard).toContain('setReady(Object.keys(next).length===0)');
+    expect(wizard).toContain('setErrors(current=>Object.fromEntries(Object.keys(current).flatMap');
+    expect(wizard).not.toContain('const next=validateFields(form,step.fields);setErrors(next);setReady');
+  });
+
   it('uses topic-first routing with desktop explanation and mobile accordion behavior',()=>{
     const wizard=readFileSync('src/components/forms/storefront-form-wizard.tsx','utf8');
     const client=readFileSync('src/components/builder/storefront-support-contact-form-client.tsx','utf8');

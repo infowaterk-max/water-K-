@@ -105,7 +105,8 @@ export function StorefrontFormWizard({
 
   const refresh=()=>{
     const form=formRef.current;if(!form||!step){setReady(false);return}
-    const next=validateFields(form,step.fields);setErrors(next);setReady(Object.keys(next).length===0);
+    const next=validateFields(form,step.fields);setReady(Object.keys(next).length===0);
+    setErrors(current=>Object.fromEntries(Object.keys(current).flatMap(name=>next[name]?[[name,next[name]]]:[])));
     if(feedback?.kind==='error')setFeedback(null);
   };
 

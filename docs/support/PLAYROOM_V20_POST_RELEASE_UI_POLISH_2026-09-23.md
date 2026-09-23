@@ -18,6 +18,7 @@ This pass closes the remaining Playroom visual defects without reopening commerc
 The contact wizard is a shared storefront capability, not a Playroom-local form. Its UX contract is now topic-first:
 
 - the first screen contains compact topic controls only; it does not request name, e-mail or order number;
+- required-field validation stays silent on initial render; errors are shown only after an attempted step/submit, then clear as the field is corrected;
 - desktop uses a two-column selector: compact topics on the left and a hover/focus explanation panel on the right;
 - mobile uses compact accordion rows with an explicit Ezt választom action, because hover has no mobile equivalent;
 - topic selection immediately routes to a branch-specific clarification step;
