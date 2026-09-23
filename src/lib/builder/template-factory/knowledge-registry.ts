@@ -33,6 +33,7 @@ export const TEMPLATE_FACTORY_AUTHORITY_GRAPH:readonly TemplateFactoryAuthorityR
   {id:'TF-AUTH-007',subject:'demo media and demo content',owner:'template',delegates:['factory'],rule:'Demo assets are presentation fillers, package-owned and non-authoritative; shopper-facing UI copy remains template-owned.'},
   {id:'TF-AUTH-008',subject:'Product Owner handoff proof',owner:'quality-system',delegates:[],rule:'The handed-off URL must identify the same exact-head Factory candidate proven by QA.'},
   {id:'TF-AUTH-009',subject:'browser proof stabilization',owner:'quality-system',delegates:[],rule:'Browser assertions and screenshots must observe the same settled DOM state; streamed UI must be awaited before proof is sampled.'},
+  {id:'TF-AUTH-010',subject:'Product Owner preview authorization context',owner:'platform',delegates:['quality-system'],rule:'Authenticated Factory Product Owner preview authorization is tenant-independent: access may be proven by platform-operator authority or an active owner/admin RBAC binding, but rendering capability comes from the compiled candidate and must not require an active webshop or subscription-plan context.'},
 ]);
 
 export const TEMPLATE_FACTORY_KNOWN_FAILURES:readonly TemplateFactoryKnownFailure[]=Object.freeze([
@@ -112,6 +113,17 @@ export const TEMPLATE_FACTORY_KNOWN_FAILURES:readonly TemplateFactoryKnownFailur
     remediationPolicy:'shared-invariant-preferred',
     invariantIds:['TF-AUTH-009'],
     regressionTests:['tests/template-factory-procedural-memory.test.ts'],
+  },
+  {
+    id:'TF-KF-008',
+    title:'Product Owner preview depends on active tenant or subscription plan after login',
+    symptom:'Template-aware login succeeds, then the preview falls into an active-webshop-context or plan gate instead of rendering the compiled Factory candidate.',
+    rootCause:'The Product Owner preview route reused merchant/storefront authorization that resolves a current tenant and plan even though the candidate preview is tenant-independent.',
+    occurrences:2,
+    automatable:true,
+    remediationPolicy:'shared-root-cause-required',
+    invariantIds:['TF-AUTH-003','TF-AUTH-008','TF-AUTH-010'],
+    regressionTests:['tests/storefront-template-preview-access.test.ts','tests/storefront-auth-surface.test.ts','tests/template-factory-procedural-memory.test.ts'],
   },
 ]);
 
