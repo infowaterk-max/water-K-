@@ -149,6 +149,8 @@ jobs:
       VISUAL_FIDELITY_QA: '1'
       VISUAL_FIDELITY_BASE_URL: http://127.0.0.1:3000
       NEXT_PUBLIC_SITE_URL: http://127.0.0.1:3000
+      NEXT_PUBLIC_SUPABASE_URL: https://rfuvzgumbardvbvqjxdq.supabase.co
+      NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: sb_publishable_M7l-6nP-Xi5gJwdvhE5_Wg_RbPrpTcl
       QUALITY_BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
       QUALITY_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
       TEMPLATE_QUALITY_OUTPUT_DIR: artifacts/template-factory-quality
