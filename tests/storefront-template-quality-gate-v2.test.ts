@@ -59,6 +59,8 @@ describe('Template Factory Quality Gate v2',()=>{
       expect(page.sections[0]?.id).toBe('loot-vault-global-header');
       expect(page.sections[0]?.componentKey).toBe('system.commerce-header');
       expect(page.sections.at(-1)?.id).toBe('loot-vault-global-footer');
+      expect(page.sections.at(-1)?.componentKey).toBe('layout.section');
+      expect(page.sections.at(-1)?.children?.[0]?.componentKey).toBe('editorial.footer');
     }
   });
 
@@ -88,6 +90,8 @@ describe('Template Factory Quality Gate v2',()=>{
     expect(workflow).toContain('Run Template Factory 14x3 browser matrix');
     expect(workflow).toContain('workflow_dispatch');
     expect(workflow).toContain('QUALITY_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}');
+    expect(workflow).toContain('NEXT_PUBLIC_SUPABASE_URL: https://rfuvzgumbardvbvqjxdq.supabase.co');
+    expect(workflow).toContain('NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: sb_publishable_');
     expect(workflow).toContain('ref: ${{ github.event.pull_request.head.sha || github.sha }}');
     expect(runner).toContain('process.env.QUALITY_HEAD_SHA??process.env.GITHUB_SHA');
     expect(workflow).toContain("src/lib/auth/storefront-return-target.ts");
