@@ -23,6 +23,7 @@ describe('shared Storefront Form Wizard engine',()=>{
     expect(wizard).toContain('<details');
     expect(wizard).toContain('Ezt választom');
     expect(wizard).toContain('setStepIndex(1)');
+    expect(wizard).toContain('setSelectedValues({[field.name]:nextValue})');
     expect(client).toContain("kind:'topic'");
     expect(client).toContain("whenTopic:'general'");
     expect(client).toContain("whenTopic:'order'");

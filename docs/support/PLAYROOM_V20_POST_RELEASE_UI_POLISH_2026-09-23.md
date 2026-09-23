@@ -21,6 +21,7 @@ The contact wizard is a shared storefront capability, not a Playroom-local form.
 - desktop uses a two-column selector: compact topics on the left and a hover/focus explanation panel on the right;
 - mobile uses compact accordion rows with an explicit Ezt választom action, because hover has no mobile equivalent;
 - topic selection immediately routes to a branch-specific clarification step;
+- changing the selected topic clears branch-only choice state, so a previous subject cannot leak into a newly selected branch;
 - only relevant fields are requested: for example Általános információ never asks for an order number, while order/product-return branches do;
 - the selected clarification is stored in the canonical support subject, so branch detail is not discarded by the support API;
 - contact details are requested later, after the issue has been classified;

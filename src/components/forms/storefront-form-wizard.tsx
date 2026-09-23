@@ -126,7 +126,8 @@ export function StorefrontFormWizard({
   };
 
   const selectTopic=(field:StorefrontFormWizardField,nextValue:string)=>{
-    choose(field.name,nextValue);
+    setSelectedValues({[field.name]:nextValue});
+    setErrors({});
     setSelectedTopic(nextValue);
     setPreviewTopic(nextValue);
     setFeedback(null);
