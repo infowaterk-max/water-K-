@@ -94,7 +94,7 @@ jobs:
         env:
           RELEASE_BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
           RELEASE_BASE_REF: origin/main
-        run: npm run release:risk
+        run: node scripts/release-risk-budget.mjs
 
       - name: Upload release risk budget
         if: always()
