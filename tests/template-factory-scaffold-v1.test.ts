@@ -141,6 +141,23 @@ describe('Template Factory Scaffold v1',()=>{
     expect(()=>assertStorefrontTemplateFactoryProductOwnerReady(build)).toThrow(/TEMPLATE_FACTORY_PRODUCT_OWNER_NOT_READY/);
   });
 
+
+  it('treats internal-reference media as technical proof only, never Product Owner-ready media',()=>{
+    const draft=recipe({allPages:true,reviewPassed:true});
+    const referenceSrc='https://images.example.test/reference.jpg';
+    draft.media={...draft.media,assets:draft.media.assets.map(asset=>({...asset,state:'internal-reference' as const,referenceSrc}))};
+    const build=buildStorefrontTemplateFactoryCandidate(draft);
+    expect(JSON.stringify(build.package.pages.find(page=>page.pageType==='home'))).toContain(referenceSrc);
+    expect(JSON.stringify(build.package.demoFixtures)).toContain(referenceSrc);
+    expect(build.report.technicalRepresentativeMediaCount).toBe(1);
+    expect(build.report.internalReferenceMediaCount).toBe(1);
+    expect(build.report.representativeMediaCount).toBe(0);
+    expect(build.report.technicalReady).toBe(true);
+    expect(build.report.productOwnerReady).toBe(false);
+    expect(build.report.issues.map(issue=>issue.code)).toContain('FACTORY_MEDIA_FINALIZATION_REQUIRED');
+    expect(()=>assertStorefrontTemplateFactoryProductOwnerReady(build)).toThrow(/FACTORY_MEDIA_FINALIZATION_REQUIRED/);
+  });
+
   it('can become Product Owner-ready only after the recipe owns reference-critical pages, media and internal review',()=>{
     const build=buildStorefrontTemplateFactoryCandidate(recipe({allPages:true,reviewPassed:true}));
     expect(build.report.issues).toEqual([]);

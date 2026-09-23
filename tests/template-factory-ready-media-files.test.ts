@@ -19,10 +19,13 @@ describe('Template Factory ready media physical proof',()=>{
     expect(invalid).toEqual([]);
   });
 
-  it('keeps Loot Vault visual slots planned until the actual files exist',()=>{
+  it('allows Loot Vault internal-reference media for internal QA without treating it as package-owned ready media',()=>{
     const loot=STOREFRONT_TEMPLATE_FACTORY_RECIPES.find(recipe=>recipe.templateKey==='gaming.loot-vault');
     expect(loot).toBeTruthy();
     expect(loot!.media.assets).toHaveLength(14);
-    expect(loot!.media.assets.every(asset=>asset.state==='planned')).toBe(true);
+    expect(loot!.media.assets.every(asset=>asset.state==='internal-reference')).toBe(true);
+    expect(loot!.media.assets.every(asset=>asset.src.startsWith('/storefront-demo/loot-vault-v2/')&&asset.src.endsWith('.webp'))).toBe(true);
+    expect(loot!.media.assets.every(asset=>asset.referenceSrc?.startsWith('https://images.pexels.com/'))).toBe(true);
+    expect(loot!.media.assets.some(asset=>asset.state==='ready')).toBe(false);
   });
 });

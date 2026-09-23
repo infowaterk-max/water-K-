@@ -95,3 +95,13 @@ The browser quality runner discovers registered Factory recipes through the QA-o
 ## Production invariant
 
 The tested package and the eventual accepted package must come from the same recipe/compiler path. Do not create a separate hand-authored Product Owner preview that bypasses the Factory build.
+
+## Media lifecycle: planned → internal-reference → ready
+
+The Factory treats media production as a governed lifecycle rather than a boolean "has image" flag.
+
+- `planned`: the slot and final package path are defined, but there is no visual evidence yet. The candidate must stay out of browser acceptance.
+- `internal-reference`: the final package path remains in `src`, while a separate HTTPS `referenceSrc` may be materialized only into the compiled internal QA candidate. This state is sufficient for internal screenshot/composition proof, but is a hard Product Owner blocker.
+- `ready`: the final `src` is package-owned and physically present under `public/`. Only this state can contribute to Product Owner/merchant-ready media coverage.
+
+An internal reference source must never replace the final asset destination in the media work-order. Promotion from `internal-reference` to `ready` means producing the declared local asset, removing the temporary reference dependency, and passing the physical-file proof. External reference media is therefore disposable QA evidence, not a shipping dependency.

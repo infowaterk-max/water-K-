@@ -27,9 +27,10 @@ export type StorefrontTemplateFactoryMediaRole='hero'|'category'|'product'|'edit
 export type StorefrontTemplateFactoryMediaAspectRatio='1:1'|'4:5'|'16:9'|'3:2'|'free';
 export type StorefrontTemplateFactoryMediaAsset={
   key:string;
-  state:'planned'|'ready';
+  state:'planned'|'internal-reference'|'ready';
   role:StorefrontTemplateFactoryMediaRole;
   src:string;
+  referenceSrc?:string;
   alt:string;
   pageTypes:readonly StorefrontBuilderPageType[];
   representative:boolean;
@@ -115,6 +116,8 @@ export type StorefrontTemplateFactoryBuild={
     inheritedPageTypes:readonly StorefrontBuilderPageType[];
     overriddenPageTypes:readonly StorefrontBuilderPageType[];
     representativeMediaCount:number;
+    technicalRepresentativeMediaCount:number;
+    internalReferenceMediaCount:number;
     plannedMediaCount:number;
     issues:readonly StorefrontTemplateFactoryIssue[];
     technicalReady:boolean;
@@ -139,6 +142,18 @@ function rewriteFoundationMediaRefs<T>(value:T,prefixes:readonly string[],fallba
   if(!prefixes.length||!fallback)return value;
   const visit=(input:unknown):unknown=>{
     if(typeof input==='string'&&prefixes.some(prefix=>input.startsWith(prefix)))return fallback;
+    if(Array.isArray(input))return input.map(visit);
+    if(input&&typeof input==='object')return Object.fromEntries(Object.entries(input as Record<string,unknown>).map(([key,item])=>[key,visit(item)]));
+    return input;
+  };
+  return visit(value) as T;
+}
+
+function rewriteInternalReferenceMediaRefs<T>(value:T,assets:readonly StorefrontTemplateFactoryMediaAsset[]):T{
+  const refs=new Map(assets.filter(asset=>asset.state==='internal-reference'&&asset.referenceSrc).map(asset=>[asset.src,asset.referenceSrc!]));
+  if(!refs.size)return value;
+  const visit=(input:unknown):unknown=>{
+    if(typeof input==='string'&&refs.has(input))return refs.get(input)!;
     if(Array.isArray(input))return input.map(visit);
     if(input&&typeof input==='object')return Object.fromEntries(Object.entries(input as Record<string,unknown>).map(([key,item])=>[key,visit(item)]));
     return input;
@@ -216,14 +231,15 @@ function evaluateBuild(input:{
   }
 
   const representative=recipe.media.assets.filter(asset=>asset.representative&&asset.state==='ready');
-  if(representative.length<recipe.media.minimumRepresentativeMedia){
-    issues.push(issue('FACTORY_MEDIA_COVERAGE','media.assets',`Representative media count ${representative.length} is below required minimum ${recipe.media.minimumRepresentativeMedia}.`));
+  const technicalRepresentative=recipe.media.assets.filter(asset=>asset.representative&&asset.state!=='planned');
+  if(technicalRepresentative.length<recipe.media.minimumRepresentativeMedia){
+    issues.push(issue('FACTORY_MEDIA_COVERAGE','media.assets',`Technical representative media count ${technicalRepresentative.length} is below required minimum ${recipe.media.minimumRepresentativeMedia}.`));
   }
   for(const role of recipe.media.requiredRoles){
-    if(!representative.some(asset=>asset.role===role))issues.push(issue('FACTORY_MEDIA_ROLE_MISSING',`media.${role}`,'Required representative media role is missing.'));
+    if(!technicalRepresentative.some(asset=>asset.role===role))issues.push(issue('FACTORY_MEDIA_ROLE_MISSING',`media.${role}`,'Required representative media role is missing.'));
   }
   for(const requirement of recipe.media.requirements??[]){
-    const matching=representative.filter(asset=>asset.role===requirement.role&&(requirement.aspectRatio==='free'||asset.aspectRatio===requirement.aspectRatio));
+    const matching=technicalRepresentative.filter(asset=>asset.role===requirement.role&&(requirement.aspectRatio==='free'||asset.aspectRatio===requirement.aspectRatio));
     if(matching.length<requirement.minCount){
       issues.push(issue(
         'FACTORY_MEDIA_REQUIREMENT_MISSING',
@@ -235,13 +251,18 @@ function evaluateBuild(input:{
   const mediaKeys=new Set<string>();
   for(const[index,asset]of recipe.media.assets.entries()){
     if(asset.state==='ready'&&!asset.src.startsWith('/'))issues.push(issue('FACTORY_READY_MEDIA_NOT_PACKAGE_OWNED',`media.assets[${index}].src`,'Ready template media must be a package-owned local asset so CI can prove the physical file.'));
+    if(asset.state==='internal-reference'){
+      if(!asset.referenceSrc?.startsWith('https://'))issues.push(issue('FACTORY_INTERNAL_REFERENCE_SOURCE_REQUIRED',`media.assets[${index}].referenceSrc`,'Internal reference media requires an explicit HTTPS reference source for browser QA.'));
+      issues.push(issue('FACTORY_MEDIA_FINALIZATION_REQUIRED',`media.assets[${index}]`,'Internal reference media may enter internal browser QA but must be replaced by package-owned ready media before Product Owner preview.'));
+    }
     if(mediaKeys.has(asset.key))issues.push(issue('FACTORY_MEDIA_KEY_DUPLICATE',`media.assets[${index}].key`,'Media keys must be unique.'));
     mediaKeys.add(asset.key);
     if(!asset.alt.trim())issues.push(issue('FACTORY_MEDIA_ALT_REQUIRED',`media.assets[${index}].alt`,'Representative media requires meaningful alt text.'));
     if(recipe.media.forbidPlaceholderSvg&&/\.svg(?:\?|$)/i.test(asset.src))issues.push(issue('FACTORY_PLACEHOLDER_SVG_FORBIDDEN',`media.assets[${index}].src`,'Product Owner-ready media manifest may not use SVG placeholders.'));
     for(const pageType of asset.pageTypes){
       const page=pageByType.get(pageType);
-      if(!page||!pageContains(page,asset.src))issues.push(issue('FACTORY_MEDIA_NOT_WIRED',`media.assets[${index}].pageTypes.${pageType}`,'Declared media asset is not referenced by the compiled target page.'));
+      const effectiveSrc=asset.state==='internal-reference'&&asset.referenceSrc?asset.referenceSrc:asset.src;
+      if(!page||!pageContains(page,effectiveSrc))issues.push(issue('FACTORY_MEDIA_NOT_WIRED',`media.assets[${index}].pageTypes.${pageType}`,'Declared media asset is not referenced by the compiled target page.'));
     }
   }
 
@@ -289,6 +310,7 @@ export function compileStorefrontTemplateFactoryPackage(input:{
     let page=rewriteIds(source,foundation.foundationTemplateKey,recipe.templateKey);
     page=rewriteFoundationBrandTokens(page,foundation.brandTokens??[],recipe.displayName);
     page=rewriteFoundationMediaRefs(page,foundation.mediaPrefixes??[],recipe.media.inheritedFallbackSrc);
+    page=rewriteInternalReferenceMediaRefs(page,recipe.media.assets);
     if(recipe.shell.headerNode)page.sections[0]=clone(recipe.shell.headerNode);
     if(recipe.shell.footerNode&&page.sections.length)page.sections[page.sections.length-1]=clone(recipe.shell.footerNode);
     page.pageKey=`${slug(recipe.templateKey)}-${pageType}`;
@@ -333,7 +355,7 @@ export function compileStorefrontTemplateFactoryPackage(input:{
       demoContent:{namespace:recipe.demoNamespace,policy:STOREFRONT_DEMO_CONTENT_POLICY},
     },
     pages,
-    demoFixtures:clone(recipe.demoFixtures),
+    demoFixtures:rewriteInternalReferenceMediaRefs(clone(recipe.demoFixtures),recipe.media.assets),
   };
 
   const issues=evaluateBuild({foundation,recipe,pkg,patchMisses,overridden});
@@ -346,9 +368,11 @@ export function compileStorefrontTemplateFactoryPackage(input:{
       inheritedPageTypes:Object.freeze([...inherited]),
       overriddenPageTypes:Object.freeze([...overridden]),
       representativeMediaCount:recipe.media.assets.filter(asset=>asset.representative&&asset.state==='ready').length,
+      technicalRepresentativeMediaCount:recipe.media.assets.filter(asset=>asset.representative&&asset.state!=='planned').length,
+      internalReferenceMediaCount:recipe.media.assets.filter(asset=>asset.state==='internal-reference').length,
       plannedMediaCount:recipe.media.assets.filter(asset=>asset.state==='planned').length,
       issues:Object.freeze(issues),
-      technicalReady:issues.every(item=>item.severity!=='error'||item.code==='FACTORY_INTERNAL_VISUAL_REVIEW_REQUIRED'),
+      technicalReady:issues.every(item=>item.severity!=='error'||item.code==='FACTORY_INTERNAL_VISUAL_REVIEW_REQUIRED'||item.code==='FACTORY_MEDIA_FINALIZATION_REQUIRED'),
       productOwnerReady:issues.every(item=>item.severity!=='error'),
     },
   };
