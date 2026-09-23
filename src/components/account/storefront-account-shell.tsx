@@ -1,7 +1,8 @@
 import type{CSSProperties,ReactNode}from'react';
 import{headers}from'next/headers';
 import{StorefrontResponsiveRuntime}from'@/components/builder/storefront-responsive-runtime';
-import{resolveCurrentStorefrontAccountRuntimePage,resolveStorefrontTemplateAccountPreviewRuntimePage}from'@/lib/builder/storefront-runtime-source';
+import{resolveCurrentStorefrontAccountRuntimePage}from'@/lib/builder/storefront-runtime-source';
+import{resolveStorefrontTemplateAccountPreviewRuntimePage}from'@/lib/builder/storefront-template-preview-auth';
 import{resolveStorefrontGlobalStyleCssVariables}from'@/lib/builder/storefront-global-styles';
 import type{StorefrontComponentNode,StorefrontPageDocument}from'@/lib/builder/storefront-runtime';
 import type{StorefrontViewport}from'@/lib/builder/storefront-foundation';
