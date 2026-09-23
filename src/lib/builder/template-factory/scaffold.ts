@@ -270,6 +270,13 @@ function evaluateBuild(input:{
     if(!input.overridden.includes(pageType))issues.push(issue('FACTORY_REFERENCE_PAGE_NOT_OWNED',`reference.requiredPageTypes.${pageType}`,'Reference-critical page must be explicitly owned by the template recipe, not inherited unchanged from the category foundation.'));
   }
 
+  const accountPage=pageByType.get('account');
+  if(!recipe.pageOverrides?.account){
+    issues.push(issue('FACTORY_ACCOUNT_AUTH_TEMPLATE_OWNERSHIP_REQUIRED','pageOverrides.account','Factory templates must own the account page so signed-out auth presentation cannot leak from the category foundation.'));
+  }else if(accountPage&&!accountPage.sections.some(section=>(section.config as Record<string,unknown>).authPublic===true)){
+    issues.push(issue('FACTORY_ACCOUNT_AUTH_PUBLIC_COMPOSITION_REQUIRED','pageOverrides.account','Template-owned account page must contain an explicit authPublic composition for signed-out authentication.'));
+  }
+
   const serialized=JSON.stringify(pkg);
   const foundationSlug=slug(foundation.foundationTemplateKey);
   const targetSlug=slug(recipe.templateKey);

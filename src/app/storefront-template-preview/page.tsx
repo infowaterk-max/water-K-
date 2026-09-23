@@ -1,11 +1,11 @@
 import type {CSSProperties} from 'react';
 import Link from 'next/link';
-import {notFound} from 'next/navigation';
+import {notFound,redirect} from 'next/navigation';
 import {requirePlanFeature} from '@/lib/plans/access';
 import {requireAdmin} from '@/lib/auth/require-admin';
+import {createClient} from '@/lib/supabase/server';
 import {PLANS} from '@/lib/plans/catalog';
-import {requireCurrentStoreContext} from '@/lib/instances/scope';
-import {getStorefrontTemplatePackage} from '@/lib/builder/storefront-template-catalog';
+import {resolveStorefrontTemplatePreviewPackage} from '@/lib/builder/storefront-template-preview-auth';
 import {
   createStorefrontTemplatePreviewBindingContext,
   getStorefrontTemplatePreviewTheme,
@@ -20,23 +20,40 @@ import {applyStorefrontTemplateDemoNotice,getStorefrontTemplateDemoContent,rewri
 import styles from './storefront-template-preview.module.css';
 
 export const dynamic='force-dynamic';
-type Props={searchParams:Promise<{template?:string;version?:string;page?:string;viewport?:string;embed?:string;demoContent?:string}>};
+type Props={searchParams:Promise<{template?:string;version?:string;page?:string;viewport?:string;embed?:string;demoContent?:string;factory?:string}>};
 const widths=STOREFRONT_CANONICAL_VIEWPORT_WIDTH_PX;
 const allowedPageTypes=new Set<StorefrontBuilderPageType>(STOREFRONT_PAGE_TYPES);
 
 export default async function StorefrontTemplatePreview({searchParams}:Props){
   const query=await searchParams;
-  const returnParams=new URLSearchParams();
-  for(const [key,value] of Object.entries(query))if(typeof value==='string'&&value) returnParams.set(key,value);
-  await requireAdmin(`/storefront-template-preview?${returnParams.toString()}`);
-  await requirePlanFeature('contentMarketing');
-  await requireCurrentStoreContext('store.manage');
   const templateKey=(query.template??'').trim();
   const version=query.version?Number(query.version):undefined;
   const pageType=(query.page??'home') as StorefrontBuilderPageType;
   if(!templateKey||version!==undefined&&!Number.isInteger(version)||!allowedPageTypes.has(pageType))notFound();
-  const template=getStorefrontTemplatePackage(templateKey,version);
+  const factoryCandidate=query.factory==='1';
+  const template=resolveStorefrontTemplatePreviewPackage(templateKey,version,factoryCandidate);
   if(!template)notFound();
+  const returnParams=new URLSearchParams();
+  for(const [key,value] of Object.entries(query))if(typeof value==='string'&&value)returnParams.set(key,value);
+  returnParams.set('template',template.manifest.templateKey);
+  returnParams.set('version',String(template.manifest.templateVersion));
+  returnParams.set('page',pageType);
+  const returnTo=`/storefront-template-preview?${returnParams.toString()}`;
+  const supabase=await createClient();
+  const{data:{user}}=await supabase.auth.getUser();
+  if(!user){
+    const loginParams=new URLSearchParams({
+      template:template.manifest.templateKey,
+      version:String(template.manifest.templateVersion),
+      page:pageType,
+      viewport:query.viewport==='mobile'?'mobile':query.viewport==='tablet'?'tablet':'desktop',
+      next:returnTo,
+      ...(factoryCandidate?{factory:'1'}:{}),
+    });
+    redirect(`/storefront-template-preview-login?${loginParams.toString()}`);
+  }
+  await requireAdmin(returnTo);
+  await requirePlanFeature('contentMarketing');
   const sourcePage=template.pages.find(candidate=>candidate.pageType===pageType);
   if(!sourcePage)notFound();
   const viewport:StorefrontViewport=query.viewport==='mobile'?'mobile':query.viewport==='tablet'?'tablet':'desktop';
@@ -44,7 +61,7 @@ export default async function StorefrontTemplatePreview({searchParams}:Props){
   if(query.demoContent&&!demoFixture)notFound();
   const demoPayload=demoFixture?.payload??null;
   const noticedPage=demoPayload?applyStorefrontTemplateDemoNotice(sourcePage):sourcePage;
-  const page=rewriteStorefrontTemplatePreviewLinks(noticedPage,{templateKey:template.manifest.templateKey,templateVersion:template.manifest.templateVersion,viewport});
+  const page=rewriteStorefrontTemplatePreviewLinks(noticedPage,{templateKey:template.manifest.templateKey,templateVersion:template.manifest.templateVersion,viewport,factoryCandidate});
   const embed=query.embed==='1';
   const baseContext=applyAuthoredTemplatePreviewFallbacks({page,context:createStorefrontTemplatePreviewBindingContext({template,page})});
   if(demoPayload){
