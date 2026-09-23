@@ -5,6 +5,7 @@ on:
   push:
     paths:
       - 'src/lib/builder/templates/**'
+      - 'src/lib/builder/template-factory/**'
       - 'src/lib/builder/storefront-**'
       - 'src/lib/instances/access.ts'
       - 'src/lib/commerce/settings.ts'
@@ -65,11 +66,13 @@ on:
       - 'scripts/promote-template-golden-baseline.mjs'
       - '.github/workflows/template-golden-baseline-promotion.yml'
       - 'tests/**storefront**'
+      - 'tests/**template-factory**'
       - 'tests/**playroom**'
       - '.github/workflows/template-factory-quality-gate.yml'
   pull_request:
     paths:
       - 'src/lib/builder/templates/**'
+      - 'src/lib/builder/template-factory/**'
       - 'src/lib/builder/storefront-**'
       - 'src/lib/instances/access.ts'
       - 'src/lib/commerce/settings.ts'
@@ -130,6 +133,7 @@ on:
       - 'scripts/promote-template-golden-baseline.mjs'
       - '.github/workflows/template-golden-baseline-promotion.yml'
       - 'tests/**storefront**'
+      - 'tests/**template-factory**'
       - 'tests/**playroom**'
       - '.github/workflows/template-factory-quality-gate.yml'
   workflow_dispatch:
@@ -177,6 +181,9 @@ jobs:
         run: >
           npx vitest run
           tests/storefront-template-quality-gate-v2.test.ts
+          tests/template-factory-scaffold-v1.test.ts
+          tests/template-factory-loot-vault-v2.test.ts
+          tests/storefront-template-factory-workflow-coverage.test.ts
           tests/storefront-responsive-isolation.test.ts
           tests/storefront-visual-style-capabilities.test.ts
           tests/storefront-fidelity-typography.test.ts

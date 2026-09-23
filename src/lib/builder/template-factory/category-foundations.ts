@@ -9,6 +9,7 @@ export const GAMING_TEMPLATE_FACTORY_FOUNDATION:StorefrontTemplateFactoryCategor
   package:PLAYROOM_V20_TEMPLATE_PACKAGE,
   recommendedOwnedPages:Object.freeze(['home','catalog','product','blog-index','blog-article'] as const),
   inheritedPages:Object.freeze(STOREFRONT_PAGE_TYPES.filter(page=>!['home','catalog','product','blog-index','blog-article'].includes(page))),
+  brandTokens:Object.freeze(['PLAYROOM','Playroom']),
   forbiddenLeakTokens:Object.freeze(['PLAYROOM','Playroom','/storefront/playroom/']),
 });
 
