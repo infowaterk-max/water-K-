@@ -91,7 +91,7 @@ export async function resolveCurrentStorefrontAccountRuntimePage(customerId:stri
 }
 
 async function resolveCurrentStorefrontPublicStaticRuntimePage(pageKey:StorefrontBuilderPageType):Promise<StorefrontResolvedRuntimePage|null>{
- const instance=await getCurrentWebshopInstance();if(!instance)return null;
+ const instance=process.env.VERCEL_ENV==='preview'?await getCurrentWebshopInstance():await requireStorefrontAccess();if(!instance)return null;
  const previewDraft=process.env.VERCEL_ENV==='preview'?await getPreviewStorefrontDraftPage(instance.id,pageKey):null;
  const[page,symbols,runtime]=await Promise.all([
   previewDraft?Promise.resolve(previewDraft):getPublishedStorefrontPage(instance.id,pageKey),
