@@ -89,9 +89,11 @@ describe('Loot Vault v2 Factory canary recipe',()=>{
       expect(page.metadata?.factoryVisualPack).toBe('loot-vault-v2-reference-pack-v1');
     }
     for(const asset of LOOT_VAULT_V2_FACTORY_RECIPE.media.assets){
+      expect(asset.src.startsWith('/storefront-demo/loot-vault-v2/')).toBe(true);
+      const effectiveSrc=asset.state==='internal-reference'&&asset.referenceSrc?asset.referenceSrc:asset.src;
       for(const pageType of asset.pageTypes){
         const page=build.package.pages.find(item=>item.pageType===pageType)!;
-        expect(JSON.stringify(page)).toContain(asset.src);
+        expect(JSON.stringify(page)).toContain(effectiveSrc);
       }
     }
   });
