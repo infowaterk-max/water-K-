@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import {redirect} from 'next/navigation';
 import { AuthForm } from '@/components/auth/auth-form';
 import { LogoutButton } from '@/components/auth/logout-button';
 import { ProfileForm } from '@/components/account/profile-form';
@@ -15,12 +16,18 @@ import {BillingProfileForm} from '@/components/account/billing-profile-form';
 import {getCustomerBillingProfile} from '@/lib/account/billing-profile';
 import {resolveB2BAccountContext} from '@/lib/commerce/b2b-account';
 import {loadCustomerCommerceRecovery} from '@/lib/commerce/customer-commerce-recovery-server';
+import {normalizeStorefrontReturnTarget} from '@/lib/auth/storefront-return-target';
 
-export default async function AccountPage(){
+export default async function AccountPage({searchParams}:{searchParams:Promise<{reason?:string;next?:string}>}){
+ const query=await searchParams;
  const instance=await getCurrentWebshopInstance(),brandName=instance?.brand.name??'Webáruház',configured=Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL&&(process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY||process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY));
  if(!configured)return <main className="section accountPage"><div className="shell"><span className="eyebrow">{brandName} fiók</span><h1 className="sectionTitle">A saját vásárlói központod.</h1><div className="card"><h2>A hitelesítés még nincs konfigurálva.</h2><p className="muted">A publikus webshop ettől függetlenül használható.</p><Link className="btn btnPrimary" href="/webaruhaz">Vásárlás</Link></div></div></main>;
  const supabase=await createClient();const{data:{user}}=await supabase.auth.getUser();
  if(!user)return <main className="section accountPage storefrontSignedOutAccount"><div className="shell"><AuthForm instanceId={instance?.id??null}/></div></main>;
+ if(query.reason==='login'){
+  const returnTarget=normalizeStorefrontReturnTarget(query.next);
+  if(returnTarget&&!returnTarget.startsWith('/fiokom?reason=login'))redirect(returnTarget);
+ }
  if(!instance)return <main className="section accountPage"><div className="shell"><div className="card"><h1>Nincs aktív webshop.</h1><LogoutButton/></div></div></main>;
 
  const accountDb=createAdminClient();
