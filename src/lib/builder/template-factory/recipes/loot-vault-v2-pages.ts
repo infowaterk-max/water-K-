@@ -1,3 +1,4 @@
+import type {StorefrontGridSpan} from '@/lib/builder/storefront-foundation';
 import type {StorefrontComponentNode,StorefrontPageDocument} from '@/lib/builder/storefront-runtime';
 import type {StorefrontDemoFixture} from '@/lib/builder/storefront-template-installation';
 import type {StorefrontTemplateFactoryMediaAsset} from '@/lib/builder/template-factory/scaffold';
@@ -27,7 +28,7 @@ const MEDIA={
 } as const;
 
 const n=(value:StorefrontComponentNode):StorefrontComponentNode=>value;
-const responsive=(desktop:number,tablet=desktop,mobile=12)=>({desktop:{gridSpan:desktop},tablet:{gridSpan:tablet},mobile:{gridSpan:mobile}});
+const responsive=(desktop:StorefrontGridSpan,tablet:StorefrontGridSpan=desktop,mobile:StorefrontGridSpan=12):StorefrontComponentNode['responsive']=>({desktop:{gridSpan:desktop},tablet:{gridSpan:tablet},mobile:{gridSpan:mobile}});
 
 export const createLootVaultV2ShellHeader=()=>n({
   id:'loot-vault-shell-header',
@@ -103,11 +104,11 @@ const section=(id:string,children:StorefrontComponentNode[],style:Record<string,
   children:[n({id:`${id}-container`,componentKey:'layout.container',componentVersion:1,config:{width:'content',spacing:'m'},children})],
 });
 const grid=(id:string,children:StorefrontComponentNode[],gap='1.2rem')=>n({id,componentKey:'layout.grid',componentVersion:1,config:{columns:12,gap,align:'stretch'},children});
-const stack=(id:string,children:StorefrontComponentNode[],span=12,style:Record<string,unknown>={})=>n({id,componentKey:'layout.stack',componentVersion:1,config:{direction:'vertical',gap:'.8rem',align:'stretch',justify:'start',style},responsive:responsive(span,Math.min(12,span===3?6:span),12),children});
+const stack=(id:string,children:StorefrontComponentNode[],span:StorefrontGridSpan=12,style:Record<string,unknown>={})=>n({id,componentKey:'layout.stack',componentVersion:1,config:{direction:'vertical',gap:'.8rem',align:'stretch',justify:'start',style},responsive:responsive(span,span===3?6:span,12),children});
 const heading=(id:string,value:string,level=2,style:Record<string,unknown>={})=>n({id,componentKey:'content.heading',componentVersion:1,config:{text:value,level,align:'left',tone:'text',typography:{fontToken:'heading',fontWeight:800,lineHeight:level===1?.92:1.02,letterSpacingEm:level===1?-.04:-.02},style:{color:'#f3ebdd',...style}}});
 const text=(id:string,value:string,style:Record<string,unknown>={})=>n({id,componentKey:'content.text',componentVersion:1,config:{text:value,as:'p',align:'left',tone:'text',typography:{fontToken:'body',lineHeight:1.58},style:{color:'#a9a397',...style}}});
 const button=(id:string,label:string,href:string,variant:'primary'|'secondary'='primary')=>n({id,componentKey:'content.button',componentVersion:1,config:{label,href,variant,size:'m',ariaLabel:label,style:{borderRadius:'.35rem',fontWeight:850,letterSpacing:'.02em'}}});
-const image=(id:string,src:string,alt:string,span=12,style:Record<string,unknown>={})=>n({
+const image=(id:string,src:string,alt:string,span:StorefrontGridSpan=12,style:Record<string,unknown>={})=>n({
   id,componentKey:'content.image',componentVersion:1,
   config:{
     src,alt,width:1600,height:1000,fit:'cover',loading:id.includes('hero')?'eager':'lazy',radius:'none',objectPosition:'center center',
