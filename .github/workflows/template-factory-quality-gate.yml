@@ -143,7 +143,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 concurrency:
   group: template-factory-quality-${{ github.ref }}
@@ -213,6 +213,22 @@ jobs:
           path: artifacts/template-factory-finalized-media/**
           if-no-files-found: error
           retention-days: 30
+
+      - name: Commit finalized Loot Vault media to PR branch
+        if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && github.head_ref == 'feature/template-factory-media-finalizer-v1'
+        shell: bash
+        run: |
+          mkdir -p public/storefront-demo/loot-vault-v2
+          cp artifacts/template-factory-finalized-media/public/storefront-demo/loot-vault-v2/*.webp public/storefront-demo/loot-vault-v2/
+          git config user.name 'shoperation-template-factory'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add public/storefront-demo/loot-vault-v2/*.webp
+          if git diff --cached --quiet; then
+            echo 'Finalized media already matches the branch.'
+          else
+            git commit -m 'feat: materialize Loot Vault v2 local media'
+            git push origin HEAD:${GITHUB_HEAD_REF}
+          fi
 
       - name: Run Template Factory contract regressions
         run: >
