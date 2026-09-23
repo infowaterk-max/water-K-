@@ -32,6 +32,7 @@ export const TEMPLATE_FACTORY_AUTHORITY_GRAPH:readonly TemplateFactoryAuthorityR
   {id:'TF-AUTH-006',subject:'responsive authority',owner:'platform',delegates:['template'],rule:'Responsive semantics and stable node identity are shared; template recipes may provide bounded responsive composition.'},
   {id:'TF-AUTH-007',subject:'demo media and demo content',owner:'template',delegates:['factory'],rule:'Demo assets are presentation fillers, package-owned and non-authoritative; shopper-facing UI copy remains template-owned.'},
   {id:'TF-AUTH-008',subject:'Product Owner handoff proof',owner:'quality-system',delegates:[],rule:'The handed-off URL must identify the same exact-head Factory candidate proven by QA.'},
+  {id:'TF-AUTH-009',subject:'browser proof stabilization',owner:'quality-system',delegates:[],rule:'Browser assertions and screenshots must observe the same settled DOM state; streamed UI must be awaited before proof is sampled.'},
 ]);
 
 export const TEMPLATE_FACTORY_KNOWN_FAILURES:readonly TemplateFactoryKnownFailure[]=Object.freeze([
@@ -100,6 +101,17 @@ export const TEMPLATE_FACTORY_KNOWN_FAILURES:readonly TemplateFactoryKnownFailur
     remediationPolicy:'shared-root-cause-required',
     invariantIds:['TF-AUTH-006'],
     regressionTests:['tests/storefront-responsive-isolation.test.ts','tests/template-factory-procedural-memory.test.ts'],
+  },
+  {
+    id:'TF-KF-007',
+    title:'Browser QA samples streamed UI before the proof surface settles',
+    symptom:'The assertion reports missing UI while the screenshot from the same case visibly contains the required surface.',
+    rootCause:'The browser harness sampled a streamed React/Next.js surface before waiting for the asserted state to become visible.',
+    occurrences:1,
+    automatable:true,
+    remediationPolicy:'shared-invariant-preferred',
+    invariantIds:['TF-AUTH-009'],
+    regressionTests:['tests/template-factory-procedural-memory.test.ts'],
   },
 ]);
 
