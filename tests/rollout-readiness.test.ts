@@ -65,4 +65,27 @@ describe('V24 rollout readiness contracts', () => {
     expect(workflow).toContain('Upload release manifest');
     expect(workflow).toContain('npm run release:manifest');
   });
+
+  it('enforces the production release risk budget before the rest of the build gate', () => {
+    const workflow = read('.github/workflows/ci.yml');
+    const policy = JSON.parse(read('deploy/release-risk-policy.json')) as {
+      maxPoints: number;
+      maxSubsystems: number;
+      riskWeights: Record<string, number>;
+    };
+    const riskGate = read('scripts/release-risk-budget.mjs');
+    const manifest = read('scripts/release-manifest.mjs');
+
+    expect(policy.maxPoints).toBe(5);
+    expect(policy.maxSubsystems).toBe(3);
+    expect(policy.riskWeights.high).toBe(5);
+    expect(workflow).toContain('Production release risk budget');
+    expect(workflow).toContain('node scripts/release-risk-budget.mjs');
+    expect(workflow).toContain('release-risk-budget.json');
+    expect(riskGate).toContain('high-risk subsystem');
+    expect(riskGate).toContain('must be isolated from other substantive subsystems');
+    expect(riskGate).toContain('RELEASE_RISK_BUDGET_FAILED');
+    expect(manifest).toContain('releaseRisk');
+    expect(manifest).toContain('policyVersion');
+  });
 });
