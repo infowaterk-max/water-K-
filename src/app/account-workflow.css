@@ -40,7 +40,7 @@
 
 /* Canonical customer-account information architecture.
    Desktop uses a persistent left capability rail; Tablet/Mobile collapse back to a compact top rail. */
-.storefrontAccountWorkspace{width:min(calc(100% - 32px),var(--shoporation-content-max,1200px));margin:0 auto;padding-bottom:clamp(2rem,3vw,3rem);box-sizing:border-box;display:grid;grid-template-columns:minmax(15rem,17rem) minmax(0,1fr);gap:clamp(1.75rem,3vw,2.75rem);align-items:start}
+.storefrontAccountWorkspace{width:min(calc(100% - 32px),var(--shoporation-content-max,1200px));margin:0 auto;display:grid;grid-template-columns:minmax(15rem,17rem) minmax(0,1fr);gap:clamp(1.75rem,3vw,2.75rem);align-items:start}
 .storefrontAccountSidebar{min-width:0;padding-top:clamp(2rem,3vw,3rem)}
 .storefrontAccountSidebar .accountCapabilityRail{display:flex;flex-direction:column;gap:.45rem;min-width:0}
 .storefrontAccountSidebar .accountCapabilityRail .btn{width:100%;justify-content:flex-start;min-height:48px;border-radius:var(--shoporation-radius-m,.75rem);background:var(--shoporation-color-surface,#fff);border-color:var(--shoporation-color-border,#d8dce7);color:var(--shoporation-color-text,#17231a);font-size:.95rem;padding:.7rem .9rem;white-space:normal}
@@ -70,7 +70,7 @@
 .storefrontAccountShell .accountQuoteActions{display:flex;flex-wrap:wrap;gap:.75rem;margin-top:.25rem}
 
 @media(max-width:960px){
- .storefrontAccountWorkspace{grid-template-columns:minmax(0,1fr);gap:1rem}
+ .storefrontAccountWorkspace{grid-template-columns:minmax(0,1fr);gap:0}
  .storefrontAccountSidebar{padding-top:1rem}
  .storefrontAccountSidebar [data-storefront-component="layout.section"]>div{overflow:hidden}
  .storefrontAccountSidebar .accountCapabilityRail{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.45rem}
@@ -153,58 +153,4 @@
  .storefrontAccountShell .accountOrderMobileHead{display:grid}
  .storefrontAccountShell .accountOrderMobileCard dl>div{grid-template-columns:1fr;gap:.25rem}
  .storefrontAccountShell .accountOrderMobileCard dd{text-align:left}
-}
-
-
-/* Playroom v20 final account acceptance - 2026-09-23. */
-.storefrontAccountShell .accountEmptyState{
- display:grid;
- place-items:center;
- gap:.75rem;
- padding:clamp(1.35rem,2.5vw,2rem);
- border:1px solid var(--shoporation-color-border,#373259);
- border-radius:var(--shoporation-radius-m,.75rem);
- background:var(--shoporation-color-surface-muted,var(--shoporation-color-surface,#15142c))!important;
- color:var(--shoporation-color-text,#fff7e8)!important
-}
-.storefrontAccountShell .accountEmptyState .muted{
- color:var(--shoporation-color-muted-text,#b8b4c7)!important
-}
-.storefrontAccountShell .marketingConsentPanel{
- display:grid;
- gap:.9rem
-}
-.storefrontAccountShell .marketingConsentLead{
- margin:0;
- color:var(--shoporation-color-text,#fff7e8)!important;
- font-weight:700;
- line-height:1.6
-}
-.storefrontAccountShell .marketingConsentRow{
- display:grid;
- grid-template-columns:auto minmax(0,1fr);
- align-items:center;
- gap:.8rem;
- margin:0;
- padding:1rem 1.1rem;
- border:1px solid color-mix(in srgb,var(--shoporation-color-primary,#5c7cfa) 42%,var(--shoporation-color-border,#373259));
- border-radius:var(--shoporation-radius-m,.75rem);
- background:var(--shoporation-color-surface-muted,var(--shoporation-color-surface,#15142c));
- color:var(--shoporation-color-text,#fff7e8);
- font-weight:850;
- line-height:1.4
-}
-.storefrontAccountShell .marketingConsentRow input{
- width:1.3rem!important;
- height:1.3rem!important;
- min-height:1.3rem!important;
- padding:0!important;
- margin:0;
- accent-color:var(--shoporation-color-primary,#5c7cfa)
-}
-.storefrontAccountShell .marketingConsentMeta{
- margin:0;
- color:var(--shoporation-color-muted-text,#b8b4c7)!important;
- font-size:.88rem;
- line-height:1.5
 }

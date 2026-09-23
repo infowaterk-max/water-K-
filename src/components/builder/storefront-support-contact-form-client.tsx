@@ -28,7 +28,7 @@ export function StorefrontSupportContactFormClient({config,gridSpan}:{config:Rec
     ]},
   ];
 
-  return <section data-storefront-support="contact-form" data-form-engine="storefront-form-wizard-v1" style={{gridColumn:`span ${gridSpan} / span ${gridSpan}`,padding:'var(--shoporation-space-m,1.5rem)',background:surface,color:'var(--shoporation-color-text,#fff)',border:'1px solid var(--shoporation-color-border,#373259)',borderRadius:'var(--shoporation-radius-m,.75rem)',display:'grid',gap:'var(--shoporation-space-s,1rem)',...authoredStyle}}>
+  return <section data-storefront-support="contact-form" data-form-engine="storefront-form-wizard-v1" style={{gridColumn:`span ${gridSpan} / span ${gridSpan}`,width:'100%',maxWidth:'54rem',margin:'1rem auto 2rem',padding:'var(--shoporation-space-m,1.5rem)',background:surface,color:'var(--shoporation-color-text,#fff)',border:'1px solid var(--shoporation-color-border,#373259)',borderRadius:'var(--shoporation-radius-m,.75rem)',display:'grid',gap:'var(--shoporation-space-s,1rem)',...authoredStyle}}>
     <header style={{display:'grid',gap:'.45rem',maxWidth:'52rem'}}>
       <small style={{letterSpacing:'.14em',textTransform:'uppercase',color:'var(--shoporation-color-accent,#ff6b5e)',fontWeight:900}}>{text(config.eyebrow,'ÍRJ NEKÜNK')}</small>
       <h2 style={{margin:0,fontFamily:'var(--shoporation-heading-font,Arial,sans-serif)',fontSize:'clamp(1.8rem,3vw,2.7rem)',lineHeight:1.05}}>{text(config.title,'Ügyfélszolgálati üzenet')}</h2>
