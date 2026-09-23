@@ -3,6 +3,7 @@ import {STOREFRONT_IMPLEMENTED_TEMPLATE_PACKAGES} from '@/lib/builder/storefront
 import {STOREFRONT_TEMPLATE_QUALITY_MANIFESTS,evaluateStorefrontTemplateQualityGate} from '@/lib/builder/storefront-template-quality-gate';
 import {STOREFRONT_PAGE_TYPES,STOREFRONT_VIEWPORTS} from '@/lib/builder/storefront-foundation';
 import {STOREFRONT_TEMPLATE_FACTORY_RECIPES,buildRegisteredStorefrontTemplateFactoryCandidate} from '@/lib/builder/template-factory/recipe-registry';
+import {evaluateTemplateFactoryPreflight,replayTemplateFactoryKnownFailures} from '@/lib/builder/template-factory/procedural-memory';
 
 export const dynamic='force-dynamic';
 
@@ -30,6 +31,14 @@ export async function GET(){
     const build=buildRegisteredStorefrontTemplateFactoryCandidate(recipe.templateKey);
     if(!build.report.technicalReady)return[];
     const technicalIssues=build.report.issues.filter(issue=>issue.code!=='FACTORY_INTERNAL_VISUAL_REVIEW_REQUIRED');
+    const preflight=evaluateTemplateFactoryPreflight(recipe);
+    const failureReplays=replayTemplateFactoryKnownFailures(build);
+    const replayIssues=failureReplays.filter(item=>!item.passed).map(item=>({
+      code:'FACTORY_KNOWN_FAILURE_REPLAY',
+      path:item.failureId,
+      message:`Known failure replay failed: ${item.failureId}`,
+      severity:'error' as const,
+    }));
     return[{
       templateKey:recipe.templateKey,
       templateVersion:recipe.templateVersion,
@@ -45,8 +54,14 @@ export async function GET(){
       content:{informationPageRequired:true},
       browser:{maxHorizontalOverflowPx:2,minimumTouchTargetPx:32,recommendedTouchTargetPx:44,requireMobileMenu:true,requireFooter:true},
       golden:{required:false,baselineDirectory:`tests/visual-baselines/${recipe.templateKey}/v${recipe.templateVersion}`,maxPixelMismatchRatio:.005},
-      structural:{ok:true,issues:technicalIssues},
+      structural:{ok:preflight.ok&&replayIssues.length===0&&technicalIssues.every(issue=>issue.severity!=='error'),issues:[...technicalIssues,...replayIssues]},
       productOwnerReady:build.report.productOwnerReady,
+      provenance:build.report.provenance,
+      proceduralMemory:{
+        preflightOk:preflight.ok,
+        preflightIssues:preflight.issues,
+        failureReplays,
+      },
     }];
   });
   return NextResponse.json({
