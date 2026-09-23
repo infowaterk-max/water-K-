@@ -82,6 +82,13 @@ describe('Template Factory Quality Gate v2',()=>{
     }
   });
 
+  it('keeps direct-root Story hero and feature copy on the active template text token',()=>{
+    const story=read('src/components/builder/storefront-story.tsx');
+    expect(story.match(/color:'var\(--shoporation-color-text, #171717\)'/g)?.length).toBeGreaterThanOrEqual(2);
+    expect(story).toContain('data-storefront-story="hero"');
+    expect(story).toContain('data-storefront-story="feature"');
+  });
+
   it('keeps Builder v3 and storefront preview on the same Runtime renderer and canonical viewport authority',()=>{
     const builder=read('src/components/admin/storefront-visual-builder-v3.tsx');
     const preview=read('src/app/storefront-template-preview/page.tsx');
