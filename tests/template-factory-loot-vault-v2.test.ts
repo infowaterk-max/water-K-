@@ -4,6 +4,7 @@ import {
   getStorefrontTemplateFactoryRecipe,
 } from '@/lib/builder/template-factory/recipe-registry';
 import {getStorefrontTemplateDemoContent} from '@/lib/builder/storefront-template-route-integrity';
+import {createStorefrontTemplateFactoryMediaWorkOrder,pendingStorefrontTemplateFactoryMediaWorkOrders} from '@/lib/builder/template-factory/media-production';
 import {LOOT_VAULT_V2_FACTORY_RECIPE} from '@/lib/builder/template-factory/recipes/loot-vault-v2';
 
 describe('Loot Vault v2 Factory canary recipe',()=>{
@@ -90,6 +91,19 @@ describe('Loot Vault v2 Factory canary recipe',()=>{
     }
   });
 
+  it('turns the visual recipe into a deterministic 14-item media production work order',()=>{
+    const orders=createStorefrontTemplateFactoryMediaWorkOrder(LOOT_VAULT_V2_FACTORY_RECIPE);
+    expect(orders).toHaveLength(14);
+    expect(pendingStorefrontTemplateFactoryMediaWorkOrders(LOOT_VAULT_V2_FACTORY_RECIPE)).toHaveLength(14);
+    expect(new Set(orders.map(order=>order.assetKey)).size).toBe(14);
+    expect(orders.every(order=>order.referenceKey==='gaming.loot-vault.accepted-reference-2026-09-06')).toBe(true);
+    expect(orders.every(order=>order.outputPath.startsWith('/storefront-demo/loot-vault-v2/')&&order.outputPath.endsWith('.webp'))).toBe(true);
+    expect(orders.every(order=>order.productionBrief.includes('Prémium, kész webshop-minőségű'))).toBe(true);
+    expect(orders.every(order=>order.constraints.some(value=>value.includes('felirat, logó, vízjel')))).toBe(true);
+    expect(orders.find(order=>order.role==='hero')).toMatchObject({aspectRatio:'16:9',state:'planned'});
+    expect(orders.filter(order=>order.role==='category')).toHaveLength(6);
+    expect(orders.filter(order=>order.role==='product')).toHaveLength(4);
+  });
   it('fails closed for an unregistered template instead of fabricating a recipe',()=>{
     expect(getStorefrontTemplateFactoryRecipe('gaming.missing')).toBeNull();
     expect(()=>buildRegisteredStorefrontTemplateFactoryCandidate('gaming.missing')).toThrow('TEMPLATE_FACTORY_RECIPE_MISSING:gaming.missing');
