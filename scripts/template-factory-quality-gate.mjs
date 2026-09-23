@@ -110,17 +110,24 @@ async function loadCatalog(){
 }
 
 async function waitForImages(page){
-  await page.locator('img').evaluateAll(async images=>{
-    await Promise.all(images.map(async image=>{
-      if(image.complete)return;
+  const previousScroll=await page.evaluate(()=>({x:scrollX,y:scrollY}));
+  const images=page.locator('[data-visual-fidelity-root="runtime"]:visible img');
+  const count=await images.count();
+  for(let index=0;index<count;index+=1){
+    const image=images.nth(index);
+    await image.scrollIntoViewIfNeeded().catch(()=>undefined);
+    await image.evaluate(async element=>{
+      if(element.complete)return;
       await new Promise(resolve=>{
         const done=()=>resolve(undefined);
-        image.addEventListener('load',done,{once:true});
-        image.addEventListener('error',done,{once:true});
+        element.addEventListener('load',done,{once:true});
+        element.addEventListener('error',done,{once:true});
         setTimeout(done,3500);
       });
-    }));
-  });
+    }).catch(()=>undefined);
+  }
+  await page.evaluate(position=>scrollTo(position.x,position.y),previousScroll);
+  await page.waitForTimeout(100);
 }
 
 async function browserDiagnostics(page,manifest,viewport){

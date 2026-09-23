@@ -53,20 +53,20 @@ describe('Loot Vault v2 Factory canary recipe',()=>{
     }
   });
 
-  it('enters internal browser QA with reference media while Product Owner readiness stays fail-closed',()=>{
+  it('uses final local media while Product Owner readiness stays closed for the final screenshot review',()=>{
     const build=buildRegisteredStorefrontTemplateFactoryCandidate('gaming.loot-vault');
-    expect(build.report.representativeMediaCount).toBe(0);
+    expect(build.report.representativeMediaCount).toBe(14);
     expect(build.report.technicalRepresentativeMediaCount).toBe(14);
-    expect(build.report.internalReferenceMediaCount).toBe(14);
+    expect(build.report.internalReferenceMediaCount).toBe(0);
     expect(build.report.plannedMediaCount).toBe(0);
     expect(build.report.technicalReady).toBe(true);
     expect(build.report.productOwnerReady).toBe(false);
-    expect(LOOT_VAULT_V2_FACTORY_RECIPE.productOwnerReview.internalVisualReviewPassed).toBe(true);
+    expect(LOOT_VAULT_V2_FACTORY_RECIPE.productOwnerReview.internalVisualReviewPassed).toBe(false);
     const codes=build.report.issues.map(issue=>issue.code);
     expect(codes).toEqual(expect.arrayContaining([
-      'FACTORY_MEDIA_FINALIZATION_REQUIRED',
+      'FACTORY_INTERNAL_VISUAL_REVIEW_REQUIRED',
     ]));
-    expect(codes).not.toContain('FACTORY_INTERNAL_VISUAL_REVIEW_REQUIRED');
+    expect(codes).not.toContain('FACTORY_MEDIA_FINALIZATION_REQUIRED');
     expect(codes).not.toEqual(expect.arrayContaining([
       'FACTORY_MEDIA_COVERAGE',
       'FACTORY_MEDIA_ROLE_MISSING',
@@ -91,10 +91,11 @@ describe('Loot Vault v2 Factory canary recipe',()=>{
     }
     for(const asset of LOOT_VAULT_V2_FACTORY_RECIPE.media.assets){
       expect(asset.src.startsWith('/storefront-demo/loot-vault-v2/')).toBe(true);
-      const effectiveSrc=asset.state==='internal-reference'&&asset.referenceSrc?asset.referenceSrc:asset.src;
+      expect(asset.state).toBe('ready');
+      expect(asset.referenceSrc).toBeUndefined();
       for(const pageType of asset.pageTypes){
         const page=build.package.pages.find(item=>item.pageType===pageType)!;
-        expect(JSON.stringify(page)).toContain(effectiveSrc);
+        expect(JSON.stringify(page)).toContain(asset.src);
       }
     }
   });
@@ -102,14 +103,14 @@ describe('Loot Vault v2 Factory canary recipe',()=>{
   it('turns the visual recipe into a deterministic 14-item media production work order',()=>{
     const orders=createStorefrontTemplateFactoryMediaWorkOrder(LOOT_VAULT_V2_FACTORY_RECIPE);
     expect(orders).toHaveLength(14);
-    expect(pendingStorefrontTemplateFactoryMediaWorkOrders(LOOT_VAULT_V2_FACTORY_RECIPE)).toHaveLength(14);
+    expect(pendingStorefrontTemplateFactoryMediaWorkOrders(LOOT_VAULT_V2_FACTORY_RECIPE)).toHaveLength(0);
     expect(new Set(orders.map(order=>order.assetKey)).size).toBe(14);
     expect(orders.every(order=>order.referenceKey==='gaming.loot-vault.accepted-reference-2026-09-06')).toBe(true);
     expect(orders.every(order=>order.outputPath.startsWith('/storefront-demo/loot-vault-v2/')&&order.outputPath.endsWith('.webp'))).toBe(true);
-    expect(LOOT_VAULT_V2_FACTORY_RECIPE.media.assets.every(asset=>asset.referenceSrc?.startsWith('https://images.pexels.com/'))).toBe(true);
+    expect(LOOT_VAULT_V2_FACTORY_RECIPE.media.assets.every(asset=>asset.state==='ready'&&asset.referenceSrc===undefined)).toBe(true);
     expect(orders.every(order=>order.productionBrief.includes('Prémium, kész webshop-minőségű'))).toBe(true);
     expect(orders.every(order=>order.constraints.some(value=>value.includes('felirat, logó, vízjel')))).toBe(true);
-    expect(orders.find(order=>order.role==='hero')).toMatchObject({aspectRatio:'16:9',state:'internal-reference'});
+    expect(orders.find(order=>order.role==='hero')).toMatchObject({aspectRatio:'16:9',state:'ready'});
     expect(orders.filter(order=>order.role==='category')).toHaveLength(6);
     expect(orders.filter(order=>order.role==='product')).toHaveLength(4);
   });

@@ -80,6 +80,9 @@ describe('Template Factory Quality Gate v2',()=>{
     expect(runner).toContain('COOKIE_TEMPLATE_PRESET_REQUIRED');
     expect(runner).toContain('COOKIE_TEMPLATE_AUTHORITY');
     expect(runner).toContain('GOLDEN_BASELINE_MISSING');
+    expect(runner).toContain('scrollIntoViewIfNeeded');
+    expect(runner).toContain('[data-visual-fidelity-root="runtime"]:visible img');
+    expect(runner).toContain('previousScroll');
   });
   it('requires a unique explicit cookie consent preset for every implemented template',()=>{
     const presetIds=new Set<string>();
