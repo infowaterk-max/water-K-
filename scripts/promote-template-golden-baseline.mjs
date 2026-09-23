@@ -40,12 +40,15 @@ for(const entry of evidenceErrors){
     throw new Error(`GOLDEN_PROMOTION_NON_GOLDEN_EVIDENCE_ERROR:${caseName||'unknown'}:${String(error??'unknown')}`);
   }
 }
-if(allowGoldenDrift&&!evidenceErrors.length){
-  console.warn('GOLDEN_PROMOTION_DRIFT_FLAG_UNUSED');
+if(allowGoldenDrift&&!evidenceErrors.length)throw new Error('GOLDEN_PROMOTION_DRIFT_FLAG_REQUIRES_GOLDEN_ERRORS');
+
+const promotionItems=allowGoldenDrift?selected.filter(item=>(item.errors??[]).some(goldenError)):selected;
+if(allowGoldenDrift&&promotionItems.length!==evidenceErrors.length){
+  throw new Error(`GOLDEN_PROMOTION_DRIFT_CASE_COUNT_MISMATCH:${promotionItems.length}/${evidenceErrors.length}`);
 }
 
 await mkdir(baselineDirectory,{recursive:true});
-for(const item of selected){
+for(const item of promotionItems){
   const source=path.join(evidenceDir,path.basename(item.screenshotPath));
   const target=path.join(baselineDirectory,`${item.pageType}-${item.viewport}.png`);
   await copyFile(source,target);
@@ -54,7 +57,7 @@ console.log(JSON.stringify({
   templateKey,
   templateVersion,
   baselineDirectory,
-  promoted:selected.length,
+  promoted:promotionItems.length,
   sourceCommit:evidence.sourceCommit,
   acceptedGoldenDrift:allowGoldenDrift&&evidenceErrors.length>0,
   goldenDriftCount:evidenceErrors.length,

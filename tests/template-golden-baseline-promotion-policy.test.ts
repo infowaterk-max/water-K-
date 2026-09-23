@@ -8,6 +8,8 @@ describe('Template golden baseline promotion policy',()=>{
   it('keeps intentional golden drift behind an explicit opt-in',()=>{
     expect(script).toContain("process.argv[6]==='--allow-golden-drift'");
     expect(script).toContain("if(errors.length&&!allowGoldenDrift)");
+    expect(script).toContain("const promotionItems=allowGoldenDrift?selected.filter");
+    expect(script).toContain('GOLDEN_PROMOTION_DRIFT_FLAG_REQUIRES_GOLDEN_ERRORS');
     expect(workflow).toContain('allow_accepted_golden_drift:');
     expect(workflow).toContain('extra+=(--allow-golden-drift)');
   });
