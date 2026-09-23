@@ -217,7 +217,7 @@ jobs:
           retention-days: 30
 
       - name: Commit finalized Loot Vault media to PR branch
-        if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && github.head_ref == 'feature/loot-vault-v2-final-media'
+        if: github.event_name == 'pull_request' && github.head_ref == 'feature/loot-vault-v2-final-media'
         shell: bash
         run: |
           mkdir -p public/storefront-demo/loot-vault-v2
