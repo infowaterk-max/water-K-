@@ -102,7 +102,8 @@ describe('Loot Vault v2 Factory canary recipe',()=>{
     expect(pendingStorefrontTemplateFactoryMediaWorkOrders(LOOT_VAULT_V2_FACTORY_RECIPE)).toHaveLength(14);
     expect(new Set(orders.map(order=>order.assetKey)).size).toBe(14);
     expect(orders.every(order=>order.referenceKey==='gaming.loot-vault.accepted-reference-2026-09-06')).toBe(true);
-    expect(orders.every(order=>order.outputPath.startsWith('https://images.pexels.com/'))).toBe(true);
+    expect(orders.every(order=>order.outputPath.startsWith('/storefront-demo/loot-vault-v2/')&&order.outputPath.endsWith('.webp'))).toBe(true);
+    expect(LOOT_VAULT_V2_FACTORY_RECIPE.media.assets.every(asset=>asset.referenceSrc?.startsWith('https://images.pexels.com/'))).toBe(true);
     expect(orders.every(order=>order.productionBrief.includes('Prémium, kész webshop-minőségű'))).toBe(true);
     expect(orders.every(order=>order.constraints.some(value=>value.includes('felirat, logó, vízjel')))).toBe(true);
     expect(orders.find(order=>order.role==='hero')).toMatchObject({aspectRatio:'16:9',state:'internal-reference'});
