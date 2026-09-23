@@ -10,6 +10,12 @@ describe('Loot Vault Template Factory canary',()=>{
       forbidPlaceholderSvg:true,
     });
     expect(LOOT_VAULT_FACTORY_DEFINITION.dna.character).toBe('warm-cinematic-fandom-collector-storefront');
+    expect(LOOT_VAULT_FACTORY_DEFINITION.reference.mediaRequirements).toEqual(expect.arrayContaining([
+      expect.objectContaining({role:'hero',minCount:1,aspectRatio:'16:9'}),
+      expect.objectContaining({role:'category',minCount:6,aspectRatio:'4:5'}),
+      expect.objectContaining({role:'product',minCount:4,aspectRatio:'4:5'}),
+      expect.objectContaining({role:'editorial',minCount:2,aspectRatio:'3:2'}),
+    ]));
   });
 
   it('generates the full 14-page working foundation from the shared factory',()=>{
