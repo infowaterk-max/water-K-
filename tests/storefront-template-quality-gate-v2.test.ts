@@ -5,6 +5,7 @@ import {STOREFRONT_PAGE_TYPES,STOREFRONT_VIEWPORTS,STOREFRONT_CANONICAL_VIEWPORT
 import {getStorefrontTemplatePackage,STOREFRONT_TEMPLATE_CATALOG} from '@/lib/builder/storefront-template-catalog';
 import {getStorefrontCookieConsentPreset} from '@/lib/builder/storefront-cookie-consent-presets';
 import {getStorefrontTemplateDemoContent} from '@/lib/builder/storefront-template-route-integrity';
+import {createStorefrontTemplatePreviewBindingContext} from '@/lib/builder/storefront-template-preview-demo';
 import {
   PLAYROOM_V20_QUALITY_MANIFEST,
   LOOT_VAULT_V1_QUALITY_MANIFEST,
@@ -72,6 +73,10 @@ describe('Template Factory Quality Gate v2',()=>{
     expect(serialized).not.toContain('provider-neutral checkout');
     expect(serialized).not.toContain('Loot Vault collector feature');
     expect(serialized).not.toContain('Vault Journal');
+    const catalogPage=template!.pages.find(page=>page.pageType==='catalog')!;
+    const previewContext=createStorefrontTemplatePreviewBindingContext({template:template!,page:catalogPage});
+    const previewCatalog=previewContext.catalog as {products?:Array<{image?:unknown}>};
+    expect(previewCatalog.products?.slice(0,4).every(product=>typeof product.image==='string'&&product.image.startsWith('/storefront-demo/loot-vault/'))).toBe(true);
 
     for(const page of template!.pages){
       expect(page.sections[0]?.id).toBe('loot-vault-global-header');
