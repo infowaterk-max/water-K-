@@ -11,12 +11,19 @@ export default async function Shop({searchParams}:{searchParams:Promise<Record<s
   const [instance,params]=await Promise.all([requireStorefrontBrowseAccess(),searchParams]);
   const [products, access] = await Promise.all([getProducts(), getCommerceAccess()]);
   const brand=instance?.brand.name??'Webáruház';
-  const sort=typeof params.sort==='string'?params.sort:'';
+  const first=(value:string|string[]|undefined)=>typeof value==='string'?value:Array.isArray(value)?value[0]??'':'';
+  const sort=first(params.sort);
   const newDiscovery=sort==='new';
+  const categoryLabels:Record<string,string>={
+    console:'Konzolok',accessory:'Kiegészítők',merch:'Rajongói termékek',
+    setup:'Játékos felszerelés',gift:'Ajándékötletek',sale:'Akciók',
+  };
+  const semanticValue=first(params.category)||first(params.collection)||first(params.filter);
+  const categoryTitle=categoryLabels[semanticValue]??'';
   const selection=[...products].sort((a,b)=>new Date(b.createdAt??0).getTime()-new Date(a.createdAt??0).getTime()).slice(0,3);
-  const eyebrow=newDiscovery?brand+' · friss kínálat':brand;
-  const title=newDiscovery?'Újdonságok':'Válassz egyszerűen a teljes kínálatból.';
-  const lead=newDiscovery?'A legfrissebben felvitt termékek elöl. Az ár és a készlet mindig az aktuális webshopadatból érkezik.':'Aktuális árak és készlet közvetlenül a webáruházból.';
+  const eyebrow=newDiscovery?brand+' · friss kínálat':categoryTitle?brand+' · kategória':brand;
+  const title=newDiscovery?'Újdonságok':categoryTitle||'Válassz egyszerűen a teljes kínálatból.';
+  const lead=newDiscovery?'A legfrissebben felvitt termékek elöl. Az ár és a készlet mindig az aktuális webshopadatból érkezik.':categoryTitle?`A(z) ${categoryTitle.toLocaleLowerCase('hu-HU')} kínálata ugyanabban az egységes webáruház-nézetben.`:'Aktuális árak és készlet közvetlenül a webáruházból.';
 
   return <StorefrontContentShell pageKey="catalog"><main className="section shopPage" data-storefront-catalog-route={newDiscovery?'new':'catalog'}><div className="shell">
     <Suspense fallback={null}><ReorderLoader products={products.map(product => ({ id: product.id, slug: product.slug, name: product.name, grossPrice: product.grossPrice, sku: product.sku, stock: product.stock, minimumQuantity: product.minimumQuantity, orderMultiple: product.orderMultiple }))}/></Suspense>

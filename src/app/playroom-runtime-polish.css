@@ -1,0 +1,215 @@
+/* Playroom post-release route bridge.
+   Keeps shared commerce/account engines while making their live route surfaces inherit
+   the active Playroom design tokens instead of historical beige/green storefront CSS. */
+
+.storefrontContentShell[data-storefront-template="gaming.playroom"] .storefrontContentRouteContent{
+  background:var(--shoporation-color-background,#0b0a1a);
+  color:var(--shoporation-color-text,#fff7e8);
+}
+.storefrontContentShell[data-storefront-template="gaming.playroom"] .shopPage,
+.storefrontContentShell[data-storefront-template="gaming.playroom"] .productPage{
+  background:var(--shoporation-color-background,#0b0a1a)!important;
+  color:var(--shoporation-color-text,#fff7e8)!important;
+}
+.storefrontContentShell[data-storefront-template="gaming.playroom"] .shopPage .lead,
+.storefrontContentShell[data-storefront-template="gaming.playroom"] .shopPage .muted,
+.storefrontContentShell[data-storefront-template="gaming.playroom"] .productPage .lead,
+.storefrontContentShell[data-storefront-template="gaming.playroom"] .productPage .muted{
+  color:var(--shoporation-color-muted-text,#b8b4c7)!important;
+}
+.storefrontContentShell[data-storefront-template="gaming.playroom"] .shopPage .shopIntro{margin-bottom:1.35rem}
+.storefrontContentShell[data-storefront-template="gaming.playroom"] .shopPage .shopTrustBar{
+  margin-bottom:1.35rem;
+  background:var(--shoporation-color-surface,#15142c)!important;
+  border-color:var(--shoporation-color-border,#373259)!important;
+  color:var(--shoporation-color-text,#fff7e8)!important;
+  box-shadow:none;
+}
+.storefrontContentShell[data-storefront-template="gaming.playroom"] .shopPage .catalogToolbar,
+.storefrontContentShell[data-storefront-template="gaming.playroom"] .shopPage .productCard,
+.storefrontContentShell[data-storefront-template="gaming.playroom"] .shopPage .catalogEmpty{
+  background:var(--shoporation-color-surface,#15142c)!important;
+  border-color:var(--shoporation-color-border,#373259)!important;
+  color:var(--shoporation-color-text,#fff7e8)!important;
+  box-shadow:none!important;
+}
+.storefrontContentShell[data-storefront-template="gaming.playroom"] .shopPage .catalogToolbar input,
+.storefrontContentShell[data-storefront-template="gaming.playroom"] .shopPage .catalogToolbar select{
+  background:var(--shoporation-color-surface-muted,#211f3e)!important;
+  color:var(--shoporation-color-text,#fff7e8)!important;
+  border-color:var(--shoporation-color-border,#373259)!important;
+}
+.storefrontContentShell[data-storefront-template="gaming.playroom"] .shopPage .catalogToolbar label,
+.storefrontContentShell[data-storefront-template="gaming.playroom"] .shopPage .catalogResultMeta{
+  color:var(--shoporation-color-muted-text,#b8b4c7)!important;
+}
+.storefrontContentShell[data-storefront-template="gaming.playroom"] .shopPage .catalogReset{
+  color:var(--shoporation-color-accent-secondary,#5c7cfa)!important;
+}
+.storefrontContentShell[data-storefront-template="gaming.playroom"] .shopPage .shopCards{margin-top:1.35rem}
+.storefrontContentShell[data-storefront-template="gaming.playroom"] .shopPage .productVisual{
+  background:radial-gradient(circle at center,rgba(92,124,250,.18),rgba(21,20,44,.9) 58%,transparent 59%)!important;
+}
+.storefrontContentShell[data-storefront-template="gaming.playroom"] .shopPage .tagRow span,
+.storefrontContentShell[data-storefront-template="gaming.playroom"] .productPage .tagRow span{
+  background:var(--shoporation-color-surface-muted,#211f3e)!important;
+  color:var(--shoporation-color-muted-text,#b8b4c7)!important;
+}
+.storefrontContentShell[data-storefront-template="gaming.playroom"] .shopPage .stockDot{
+  color:#ff5f68!important;
+  font-weight:900;
+}
+.storefrontContentShell[data-storefront-template="gaming.playroom"] .shopPage .stockDot:before{background:#ff5f68!important}
+.storefrontContentShell[data-storefront-template="gaming.playroom"] .shopPage .button,
+.storefrontContentShell[data-storefront-template="gaming.playroom"] .productPage .button{
+  background:var(--shoporation-color-primary,#5c7cfa)!important;
+  color:var(--shoporation-color-primary-contrast,#fff)!important;
+  border:1px solid var(--shoporation-color-primary,#5c7cfa)!important;
+  border-radius:.65rem!important;
+}
+.storefrontContentShell[data-storefront-template="gaming.playroom"] .shopPage .selectionHelp{
+  margin-top:2rem;
+  background:linear-gradient(145deg,#211f3e,#111025)!important;
+  border-color:var(--shoporation-color-border,#373259)!important;
+}
+.storefrontContentShell[data-storefront-template="gaming.playroom"] .shopPage .newsletterPanel{margin-top:2rem}
+
+.storefrontContentShell[data-storefront-template="gaming.playroom"] .productPage .productHero,
+.storefrontContentShell[data-storefront-template="gaming.playroom"] .productPage .card{
+  background:var(--shoporation-color-surface,#15142c)!important;
+  border-color:var(--shoporation-color-border,#373259)!important;
+  color:var(--shoporation-color-text,#fff7e8)!important;
+  box-shadow:none!important;
+}
+.storefrontContentShell[data-storefront-template="gaming.playroom"] .productPage .productStage{
+  background:radial-gradient(circle at 50% 44%,rgba(92,124,250,.18),transparent 44%),linear-gradient(145deg,#15142c,#0b0a1a)!important;
+}
+.storefrontContentShell[data-storefront-template="gaming.playroom"] .productPage .productStage [data-product-media-frame]{
+  background:var(--shoporation-color-surface-muted,#211f3e)!important;
+}
+.storefrontContentShell[data-storefront-template="gaming.playroom"] .productPage .productPriceBlock{
+  border-color:var(--shoporation-color-border,#373259)!important;
+}
+.storefrontContentShell[data-storefront-template="gaming.playroom"] .productPage .productStockCount{
+  color:#ff5f68!important;
+  font-weight:850;
+}
+.storefrontContentShell[data-storefront-template="gaming.playroom"] .productPage .btnGhost{
+  background:transparent!important;
+  color:var(--shoporation-color-text,#fff7e8)!important;
+  border-color:var(--shoporation-color-border,#373259)!important;
+}
+.storefrontContentShell[data-storefront-template="gaming.playroom"] .productPage .selectionHelp{
+  background:linear-gradient(145deg,#211f3e,#111025)!important;
+  border-color:var(--shoporation-color-border,#373259)!important;
+}
+
+/* Live shared cart: explicit breathing room between template navigation, cart body and footer. */
+[data-storefront-cart-runtime="template-native"][data-storefront-template-key="gaming.playroom"] [data-storefront-live-cart="shared-cart-v1"]{
+  padding:2rem 0 2.75rem!important;
+  background:var(--shoporation-color-background,#0b0a1a)!important;
+}
+[data-storefront-cart-runtime="template-native"][data-storefront-template-key="gaming.playroom"] [data-storefront-live-cart="shared-cart-v1"] .card{
+  background:var(--shoporation-color-surface,#15142c)!important;
+  color:var(--shoporation-color-text,#fff7e8)!important;
+  border-color:var(--shoporation-color-border,#373259)!important;
+  box-shadow:none!important;
+}
+[data-storefront-cart-runtime="template-native"][data-storefront-template-key="gaming.playroom"] [data-storefront-live-cart="shared-cart-v1"] .muted{
+  color:var(--shoporation-color-muted-text,#b8b4c7)!important;
+}
+[data-storefront-cart-runtime="template-native"][data-storefront-template-key="gaming.playroom"] [data-storefront-live-cart="shared-cart-v1"] .btnPrimary,
+[data-storefront-cart-runtime="template-native"][data-storefront-template-key="gaming.playroom"] [data-storefront-live-cart="shared-cart-v1"] .button{
+  background:var(--shoporation-color-primary,#5c7cfa)!important;
+  color:#fff!important;
+  border-color:var(--shoporation-color-primary,#5c7cfa)!important;
+}
+
+/* Checkout shared engine remains provider-neutral; only presentation is token-driven. */
+[data-storefront-checkout-runtime="template-native"][data-storefront-template-key="gaming.playroom"] [data-storefront-live-checkout="shared-e13"]{
+  padding:2rem 0 2.75rem!important;
+  background:var(--shoporation-color-background,#0b0a1a)!important;
+  color:var(--shoporation-color-text,#fff7e8)!important;
+}
+[data-storefront-checkout-runtime="template-native"][data-storefront-template-key="gaming.playroom"] .checkout-form,
+[data-storefront-checkout-runtime="template-native"][data-storefront-template-key="gaming.playroom"] .checkoutSummary,
+[data-storefront-checkout-runtime="template-native"][data-storefront-template-key="gaming.playroom"] .formSection,
+[data-storefront-checkout-runtime="template-native"][data-storefront-template-key="gaming.playroom"] .choiceCard,
+[data-storefront-checkout-runtime="template-native"][data-storefront-template-key="gaming.playroom"] .pickupPicker,
+[data-storefront-checkout-runtime="template-native"][data-storefront-template-key="gaming.playroom"] .pickupSelected{
+  background:var(--shoporation-color-surface,#15142c)!important;
+  color:var(--shoporation-color-text,#fff7e8)!important;
+  border-color:var(--shoporation-color-border,#373259)!important;
+  box-shadow:none!important;
+}
+[data-storefront-checkout-runtime="template-native"][data-storefront-template-key="gaming.playroom"] .checkout-form input,
+[data-storefront-checkout-runtime="template-native"][data-storefront-template-key="gaming.playroom"] .checkout-form select,
+[data-storefront-checkout-runtime="template-native"][data-storefront-template-key="gaming.playroom"] .checkout-form textarea{
+  background:var(--shoporation-color-surface-muted,#211f3e)!important;
+  color:var(--shoporation-color-text,#fff7e8)!important;
+  border-color:var(--shoporation-color-border,#373259)!important;
+}
+[data-storefront-checkout-runtime="template-native"][data-storefront-template-key="gaming.playroom"] .checkout-form input::placeholder,
+[data-storefront-checkout-runtime="template-native"][data-storefront-template-key="gaming.playroom"] .checkout-form textarea::placeholder,
+[data-storefront-checkout-runtime="template-native"][data-storefront-template-key="gaming.playroom"] .muted,
+[data-storefront-checkout-runtime="template-native"][data-storefront-template-key="gaming.playroom"] .helperText{
+  color:var(--shoporation-color-muted-text,#b8b4c7)!important;
+}
+[data-storefront-checkout-runtime="template-native"][data-storefront-template-key="gaming.playroom"] .btnPrimary,
+[data-storefront-checkout-runtime="template-native"][data-storefront-template-key="gaming.playroom"] .checkoutSubmit{
+  background:var(--shoporation-color-primary,#5c7cfa)!important;
+  border-color:var(--shoporation-color-primary,#5c7cfa)!important;
+  color:#fff!important;
+}
+
+/* Account routes: preserve the single platform-owned left rail and guarantee body/footer spacing. */
+.storefrontAccountShell[data-storefront-template="gaming.playroom"] .storefrontAccountWorkspace{
+  padding-bottom:2.75rem;
+}
+.storefrontAccountShell[data-storefront-template="gaming.playroom"] .storefrontAccountRouteContent{
+  min-height:18rem;
+  padding-bottom:.5rem;
+}
+.storefrontAccountShell[data-storefront-template="gaming.playroom"] .storefrontAccountRouteContent>.section{
+  padding-bottom:2rem;
+}
+.storefrontAccountShell[data-storefront-template="gaming.playroom"] .consentRow{
+  display:flex;
+  align-items:flex-start;
+  gap:.85rem;
+  margin:1rem 0;
+  padding:1rem 1.05rem;
+  border:1px solid color-mix(in srgb,var(--shoporation-color-primary,#5c7cfa) 55%,var(--shoporation-color-border,#373259));
+  border-radius:var(--shoporation-radius-m,.75rem);
+  background:color-mix(in srgb,var(--shoporation-color-primary,#5c7cfa) 10%,var(--shoporation-color-surface,#15142c));
+  color:var(--shoporation-color-text,#fff7e8);
+  font-weight:850;
+  line-height:1.45;
+}
+.storefrontAccountShell[data-storefront-template="gaming.playroom"] .consentRow input[type="checkbox"]{
+  flex:0 0 auto;
+  width:1.35rem;
+  height:1.35rem;
+  min-height:1.35rem;
+  margin-top:.05rem;
+  accent-color:var(--shoporation-color-primary,#5c7cfa);
+}
+
+@media(max-width:720px){
+  .storefrontContentShell[data-storefront-template="gaming.playroom"] .shopPage .shopIntro{margin-bottom:1rem}
+  .storefrontContentShell[data-storefront-template="gaming.playroom"] .shopPage .shopTrustBar{margin-bottom:1rem}
+  [data-storefront-cart-runtime="template-native"][data-storefront-template-key="gaming.playroom"] [data-storefront-live-cart="shared-cart-v1"],
+  [data-storefront-checkout-runtime="template-native"][data-storefront-template-key="gaming.playroom"] [data-storefront-live-checkout="shared-e13"]{padding:1.25rem 0 2rem!important}
+  .storefrontAccountShell[data-storefront-template="gaming.playroom"] .storefrontAccountWorkspace{padding-bottom:2rem}
+}
+
+.storefrontAccountShell[data-storefront-template="gaming.playroom"] .accountEmptyState{
+  background:var(--shoporation-color-surface,#15142c)!important;
+  color:var(--shoporation-color-text,#fff7e8)!important;
+  border:1px solid var(--shoporation-color-border,#373259)!important;
+}
+.storefrontAccountShell[data-storefront-template="gaming.playroom"] .accountEmptyState h3,
+.storefrontAccountShell[data-storefront-template="gaming.playroom"] .consentRow span{
+  color:var(--shoporation-color-text,#fff7e8)!important;
+  opacity:1;
+}
