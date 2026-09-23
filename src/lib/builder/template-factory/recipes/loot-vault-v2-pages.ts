@@ -11,20 +11,20 @@ import {
 } from '@/lib/builder/templates/loot-vault';
 
 const MEDIA={
-  hero:'https://images.pexels.com/photos/31971487/pexels-photo-31971487.jpeg?auto=compress&cs=tinysrgb&w=1800',
-  universe1:'https://images.pexels.com/photos/7661397/pexels-photo-7661397.jpeg?auto=compress&cs=tinysrgb&w=1200',
-  universe2:'https://images.pexels.com/photos/9337516/pexels-photo-9337516.jpeg?auto=compress&cs=tinysrgb&w=1200',
-  universe3:'https://images.pexels.com/photos/16075337/pexels-photo-16075337.jpeg?auto=compress&cs=tinysrgb&w=1200',
-  universe4:'https://images.pexels.com/photos/13725612/pexels-photo-13725612.jpeg?auto=compress&cs=tinysrgb&w=1200',
-  universe5:'https://images.pexels.com/photos/29901199/pexels-photo-29901199.jpeg?auto=compress&cs=tinysrgb&w=1200',
-  universe6:'https://images.pexels.com/photos/32977036/pexels-photo-32977036.jpeg?auto=compress&cs=tinysrgb&w=1200',
-  product1:'https://images.pexels.com/photos/9337516/pexels-photo-9337516.jpeg?auto=compress&cs=tinysrgb&w=1200',
-  product2:'https://images.pexels.com/photos/20014265/pexels-photo-20014265.jpeg?auto=compress&cs=tinysrgb&w=1200',
-  product3:'https://images.pexels.com/photos/11556378/pexels-photo-11556378.jpeg?auto=compress&cs=tinysrgb&w=1200',
-  product4:'https://images.pexels.com/photos/5795420/pexels-photo-5795420.jpeg?auto=compress&cs=tinysrgb&w=1200',
-  editorial1:'https://images.pexels.com/photos/5795419/pexels-photo-5795419.jpeg?auto=compress&cs=tinysrgb&w=1600',
-  editorial2:'https://images.pexels.com/photos/5795420/pexels-photo-5795420.jpeg?auto=compress&cs=tinysrgb&w=1600',
-  background:'https://images.pexels.com/photos/18335787/pexels-photo-18335787.jpeg?auto=compress&cs=tinysrgb&w=1800',
+  hero:'/storefront-demo/loot-vault-v2/hero-cinematic.webp',
+  universe1:'/storefront-demo/loot-vault-v2/category-galaxy.webp',
+  universe2:'/storefront-demo/loot-vault-v2/category-heroes.webp',
+  universe3:'/storefront-demo/loot-vault-v2/category-anime.webp',
+  universe4:'/storefront-demo/loot-vault-v2/category-fantasy.webp',
+  universe5:'/storefront-demo/loot-vault-v2/category-miniatures.webp',
+  universe6:'/storefront-demo/loot-vault-v2/category-retro.webp',
+  product1:'/storefront-demo/loot-vault-v2/product-figure.webp',
+  product2:'/storefront-demo/loot-vault-v2/product-statue.webp',
+  product3:'/storefront-demo/loot-vault-v2/product-edition.webp',
+  product4:'/storefront-demo/loot-vault-v2/product-relic.webp',
+  editorial1:'/storefront-demo/loot-vault-v2/editorial-collector-room.webp',
+  editorial2:'/storefront-demo/loot-vault-v2/editorial-vault-shelf.webp',
+  background:'/storefront-demo/loot-vault-v2/background-archive.webp',
 } as const;
 
 const n=(value:StorefrontComponentNode):StorefrontComponentNode=>value;
