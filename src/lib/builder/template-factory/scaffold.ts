@@ -111,6 +111,7 @@ export type StorefrontTemplateFactoryBuild={
     overriddenPageTypes:readonly StorefrontBuilderPageType[];
     representativeMediaCount:number;
     issues:readonly StorefrontTemplateFactoryIssue[];
+    technicalReady:boolean;
     productOwnerReady:boolean;
   };
 };
@@ -316,6 +317,7 @@ export function compileStorefrontTemplateFactoryPackage(input:{
       overriddenPageTypes:Object.freeze([...overridden]),
       representativeMediaCount:recipe.media.assets.filter(asset=>asset.representative).length,
       issues:Object.freeze(issues),
+      technicalReady:issues.every(item=>item.severity!=='error'||item.code==='FACTORY_INTERNAL_VISUAL_REVIEW_REQUIRED'),
       productOwnerReady:issues.every(item=>item.severity!=='error'),
     },
   };
