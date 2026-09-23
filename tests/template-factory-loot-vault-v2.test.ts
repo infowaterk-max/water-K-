@@ -3,15 +3,18 @@ import {
   buildRegisteredStorefrontTemplateFactoryCandidate,
   getStorefrontTemplateFactoryRecipe,
 } from '@/lib/builder/template-factory/recipe-registry';
+import {getStorefrontTemplateDemoContent} from '@/lib/builder/storefront-template-route-integrity';
 import {LOOT_VAULT_V2_FACTORY_RECIPE} from '@/lib/builder/template-factory/recipes/loot-vault-v2';
 
 describe('Loot Vault v2 Factory canary recipe',()=>{
-  it('locks the accepted visual reference and the complete media production plan',()=>{
+  it('locks the accepted visual reference and the complete 14-asset production plan',()=>{
     expect(LOOT_VAULT_V2_FACTORY_RECIPE.reference).toMatchObject({
       key:'gaming.loot-vault.accepted-reference-2026-09-06',
       approved:true,
+      requiredPageTypes:['home','catalog','product','blog-index','blog-article'],
     });
     expect(LOOT_VAULT_V2_FACTORY_RECIPE.media.minimumRepresentativeMedia).toBe(14);
+    expect(LOOT_VAULT_V2_FACTORY_RECIPE.media.assets.filter(asset=>asset.representative)).toHaveLength(14);
     expect(LOOT_VAULT_V2_FACTORY_RECIPE.media.requirements).toEqual(expect.arrayContaining([
       expect.objectContaining({role:'hero',minCount:1,aspectRatio:'16:9'}),
       expect.objectContaining({role:'category',minCount:6,aspectRatio:'4:5'}),
@@ -19,37 +22,58 @@ describe('Loot Vault v2 Factory canary recipe',()=>{
       expect.objectContaining({role:'editorial',minCount:2,aspectRatio:'3:2'}),
       expect.objectContaining({role:'background',minCount:1,aspectRatio:'16:9'}),
     ]));
-    expect(LOOT_VAULT_V2_FACTORY_RECIPE.media.requirements?.reduce((sum,item)=>sum+item.minCount,0)).toBe(14);
+    expect(LOOT_VAULT_V2_FACTORY_RECIPE.media.assets.every(asset=>!asset.src.endsWith('.svg'))).toBe(true);
   });
 
-  it('builds the full 14-page technical candidate with one registry call',()=>{
+  it('builds the full 14-page v2 candidate with one registry call while keeping inherited pages',()=>{
     const build=buildRegisteredStorefrontTemplateFactoryCandidate('gaming.loot-vault');
     expect(build.package.pages).toHaveLength(14);
     expect(build.package.pages.every(page=>page.templateKey==='gaming.loot-vault'&&page.templateVersion===2)).toBe(true);
     expect(build.package.manifest.demoContent.namespace).toBe('gaming-loot-vault-v2');
+    expect(build.report.overriddenPageTypes).toEqual(expect.arrayContaining(['home','catalog','product','blog-index','blog-article']));
+    expect(build.report.overriddenPageTypes).toHaveLength(5);
+    expect(build.report.inheritedPageTypes).toHaveLength(9);
+    const account=build.package.pages.find(page=>page.pageType==='account')!;
+    expect(account.metadata?.templateFactory).toMatchObject({ownership:'category-foundation',category:'gaming'});
   });
 
-  it('automatically removes Playroom brand text from inherited pages',()=>{
+  it('uses one Loot Vault-owned shell and removes all Playroom brand/media leakage from every page',()=>{
     const build=buildRegisteredStorefrontTemplateFactoryCandidate('gaming.loot-vault');
+    const header=JSON.stringify(build.package.pages[0]!.sections[0]);
+    const footer=JSON.stringify(build.package.pages[0]!.sections.at(-1));
     for(const page of build.package.pages){
+      expect(JSON.stringify(page.sections[0])).toBe(header);
+      expect(JSON.stringify(page.sections.at(-1))).toBe(footer);
       const serialized=JSON.stringify(page);
       expect(serialized).not.toContain('PLAYROOM');
       expect(serialized).not.toContain('Playroom');
+      expect(serialized).not.toContain('/storefront/playroom/');
+      expect(serialized).toContain('Loot Vault');
     }
   });
 
-  it('stays fail-closed until reference-critical pages, representative media and internal review are complete',()=>{
+  it('is technically complete before visual acceptance but remains Product Owner fail-closed',()=>{
     const build=buildRegisteredStorefrontTemplateFactoryCandidate('gaming.loot-vault');
+    expect(build.report.representativeMediaCount).toBe(14);
+    expect(build.report.technicalReady).toBe(true);
     expect(build.report.productOwnerReady).toBe(false);
-    const codes=build.report.issues.map(issue=>issue.code);
-    expect(codes).toEqual(expect.arrayContaining([
-      'FACTORY_MEDIA_COVERAGE',
-      'FACTORY_MEDIA_ROLE_MISSING',
-      'FACTORY_MEDIA_REQUIREMENT_MISSING',
-      'FACTORY_REFERENCE_PAGE_NOT_OWNED',
-      'FACTORY_FOUNDATION_MEDIA_LEAK',
-      'FACTORY_INTERNAL_VISUAL_REVIEW_REQUIRED',
-    ]));
+    expect(build.report.issues.map(issue=>issue.code)).toEqual(['FACTORY_INTERNAL_VISUAL_REVIEW_REQUIRED']);
+    expect(getStorefrontTemplateDemoContent(build.package,'szallitas')?.payload.slug).toBe('szallitas');
+  });
+
+  it('keeps the five accepted-reference surfaces explicitly template-owned and media-wired',()=>{
+    const build=buildRegisteredStorefrontTemplateFactoryCandidate('gaming.loot-vault');
+    for(const pageType of LOOT_VAULT_V2_FACTORY_RECIPE.reference.requiredPageTypes){
+      expect(build.report.overriddenPageTypes).toContain(pageType);
+      const page=build.package.pages.find(item=>item.pageType===pageType)!;
+      expect(page.metadata?.factoryVisualPack).toBe('loot-vault-v2-reference-pack-v1');
+    }
+    for(const asset of LOOT_VAULT_V2_FACTORY_RECIPE.media.assets){
+      for(const pageType of asset.pageTypes){
+        const page=build.package.pages.find(item=>item.pageType===pageType)!;
+        expect(JSON.stringify(page)).toContain(asset.src);
+      }
+    }
   });
 
   it('fails closed for an unregistered template instead of fabricating a recipe',()=>{
