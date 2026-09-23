@@ -378,6 +378,58 @@ try{
       }
     }
 
+    const authFactoryQuery=manifest.factoryCandidate?'&factory=1':'';
+    for(const authViewport of ['desktop','mobile']){
+      const profile=viewportProfiles[authViewport];
+      const page=await browser.newPage({viewport:profile,deviceScaleFactor:1});
+      const name=`${safeName(manifest.templateKey)}-v${manifest.templateVersion}-auth-dialog-${authViewport}`;
+      const authUrl=`${baseUrl}/visual-fidelity-qa?template=${encodeURIComponent(manifest.templateKey)}&version=${manifest.templateVersion}&page=home&viewport=${authViewport}${authFactoryQuery}`;
+      try{
+        const response=await page.goto(authUrl,{waitUntil:'domcontentloaded',timeout:30000});
+        if(!response?.ok())throw new Error(`AUTH_ROUTE_FAILED:${response?.status()??'no-response'}`);
+        await page.waitForLoadState('load',{timeout:15000}).catch(()=>undefined);
+        await page.addStyleTag({content:'*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}.cookieBanner,.skipLink{display:none!important}'});
+        const root=page.locator('[data-visual-fidelity-root="runtime"]:visible').first();
+        const trigger=root.locator('[data-storefront-account-auth-trigger="true"]').first();
+        const triggerCount=await root.locator('[data-storefront-account-auth-trigger="true"]').count();
+        if(triggerCount!==1)throw new Error(`AUTH_TRIGGER_CARDINALITY:${triggerCount}`);
+        await trigger.click();
+        const panel=page.locator('dialog[open] [data-template-aware-auth="true"]').first();
+        await panel.waitFor({state:'visible',timeout:5000});
+        const diagnostics=await page.evaluate(()=>{
+          const root=document.querySelector('[data-visual-fidelity-root="runtime"]');
+          const panel=document.querySelector('dialog[open] [data-template-aware-auth="true"]');
+          if(!(root instanceof HTMLElement)||!(panel instanceof HTMLElement))return{open:false,mismatches:['missing-root-or-panel']};
+          const rootStyle=getComputedStyle(root),panelStyle=getComputedStyle(panel);
+          const vars=['--shoporation-color-background','--shoporation-color-surface','--shoporation-color-text','--shoporation-color-border','--shoporation-color-primary','--shoporation-color-accent','--shoporation-heading-font'];
+          const mismatches=vars.filter(variable=>rootStyle.getPropertyValue(variable).trim()!==panelStyle.getPropertyValue(variable).trim());
+          const dialog=panel.closest('dialog');
+          const tabs=[...panel.querySelectorAll('.authTabs button')].map(element=>{
+            const rect=element.getBoundingClientRect(),style=getComputedStyle(element);
+            return{text:(element.textContent??'').trim(),width:rect.width,height:rect.height,whiteSpace:style.whiteSpace};
+          });
+          return{open:Boolean(dialog?.open),mismatches,tabs};
+        });
+        const caseErrors=[];
+        if(!diagnostics.open)caseErrors.push('AUTH_DIALOG_NOT_OPEN');
+        if(diagnostics.mismatches.length)caseErrors.push(`AUTH_TEMPLATE_TOKEN_DRIFT:${diagnostics.mismatches.join(',')}`);
+        if(authViewport==='mobile'){
+          for(const tab of diagnostics.tabs??[]){
+            if(tab.whiteSpace!=='nowrap')caseErrors.push(`AUTH_TAB_WRAP_ALLOWED:${tab.text}`);
+            if(tab.height+1<44)caseErrors.push(`AUTH_TAB_TOUCH_TARGET:${tab.text}:${tab.height}`);
+          }
+        }
+        const screenshotPath=path.join(outputDir,`${name}.png`);
+        await page.locator('dialog[open]').screenshot({path:screenshotPath,animations:'disabled',timeout:15000});
+        cases.push({templateKey:manifest.templateKey,templateVersion:manifest.templateVersion,pageType:'auth-dialog',viewport:authViewport,mode:selected.mode,url:authUrl,screenshotPath,diagnostics,errors:caseErrors,warnings:[]});
+        for(const error of caseErrors)errors.push({case:name,error});
+      }catch(error){
+        const message=error instanceof Error?error.message:String(error);
+        errors.push({case:name,error:message});
+        cases.push({templateKey:manifest.templateKey,templateVersion:manifest.templateVersion,pageType:'auth-dialog',viewport:authViewport,mode:selected.mode,url:authUrl,errors:[message],warnings:[]});
+      }finally{await page.close();}
+    }
+
     if(manifest.browser.requireMobileMenu){
       const factoryQuery=manifest.factoryCandidate?'&factory=1':'';
       const demoUrl=`${baseUrl}/visual-fidelity-qa?template=${encodeURIComponent(manifest.templateKey)}&version=${manifest.templateVersion}&page=content&viewport=mobile&demoContent=szallitas${factoryQuery}`;
