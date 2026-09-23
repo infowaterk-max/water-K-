@@ -21,6 +21,11 @@ describe('storefront auth intent and checkout account opportunity',()=>{
   expect(dialog).toMatch(/role="dialog"/);
   expect(dialog).toMatch(/aria-modal="true"/);
   expect(dialog).toMatch(/aria-labelledby=/);
+  expect(dialog).toMatch(/syncStorefrontAuthTheme\(dialog\)/);
+  expect(dialog).toContain("'--shoporation-color-background'");
+  expect(dialog).toContain("'--shoporation-color-accent'");
+  expect(dialog).toContain("'--shoporation-heading-font'");
+  expect(dialog).toMatch(/dialog\.style\.setProperty\(variable,value\)/);
   expect(dialog).toMatch(/showModal\(\)/);
   expect(dialog).toMatch(/onCancel=/);
   expect(dialog).toMatch(/restoreFocusRef/);
