@@ -173,7 +173,7 @@ export const LOOT_VAULT_V2_HOME_PAGE=override(LOOT_VAULT_HOME_PAGE,[
   createLootVaultV2ShellHeader(),
   section('loot-v2-hero',[
     stack('loot-v2-hero-stage',[
-      image('loot-v2-hero-art',MEDIA.hero,'Cinematikus fantasy jelenet gyűjtői Loot Vault hangulattal',12,{position:'absolute',inset:'0',height:'100%',minHeight:'100%',borderRadius:'0',filter:'saturate(1.08) contrast(1.08) brightness(.9)'}),
+      image('loot-v2-hero-art',MEDIA.hero,'Cinematikus fantasy jelenet gyűjtői Loot Vault hangulattal',12,{position:'absolute',inset:'0',height:'100%',minHeight:'100%',borderRadius:'0',filter:'sepia(.24) saturate(1.08) contrast(1.12) brightness(.76)'}),
       stack('loot-v2-hero-copy',[
         badge('loot-v2-hero-kicker','FANDOM · GYŰJTEMÉNY · TÖRTÉNETEK'),
         heading('loot-v2-hero-title','A történetek nem érnek véget.',1,{fontSize:'clamp(2.7rem,6vw,5.8rem)',maxWidth:'9ch',textShadow:'0 8px 34px rgba(0,0,0,.66)'}),
