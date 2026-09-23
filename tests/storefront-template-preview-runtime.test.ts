@@ -3,9 +3,18 @@ import {PLANS} from '@/lib/plans/catalog';
 import {STOREFRONT_TEMPLATE_CATALOG,getStorefrontTemplatePackage} from '@/lib/builder/storefront-template-catalog';
 import {createStorefrontVisualBuilderComponentRegistry} from '@/lib/builder/storefront-builder-registry';
 import {validateStorefrontPageDocument} from '@/lib/builder/storefront-runtime';
-import {resolveStorefrontTemplateAccountPreviewRuntimePage} from '@/lib/builder/storefront-template-preview-auth';
+import {resolveStorefrontTemplateAccountPreviewRuntimePage,resolveStorefrontTemplatePreviewPackage} from '@/lib/builder/storefront-template-preview-auth';
 
 describe('storefront template preview runtime',()=>{
+  it('resolves Product Owner Factory candidate instead of legacy catalog package',()=>{
+    const factory=resolveStorefrontTemplatePreviewPackage('gaming.loot-vault',2,true);
+    expect(factory?.manifest.templateVersion).toBe(2);
+    expect(factory?.pages).toHaveLength(14);
+    expect(factory?.pages.every(page=>page.templateKey==='gaming.loot-vault'&&page.templateVersion===2)).toBe(true);
+    const auth=resolveStorefrontTemplateAccountPreviewRuntimePage('gaming.loot-vault',2,true);
+    expect(auth?.page.templateVersion).toBe(2);
+  });
+
   it('resolves tenant-free template-aware account auth for every previewable template',()=>{
     const failures:string[]=[];
     for(const entry of STOREFRONT_TEMPLATE_CATALOG){
