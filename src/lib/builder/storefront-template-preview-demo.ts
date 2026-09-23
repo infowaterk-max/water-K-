@@ -258,18 +258,12 @@ function genericItems(template:StorefrontInstallableTemplatePackage,page:Storefr
   }));
 }
 
-function demoProductKeySpecs(template:StorefrontInstallableTemplatePackage){
-  if(template.manifest.templateKey==='gaming.loot-vault')return[
+function demoLootVaultProductKeySpecs(){
+  return[
     {specKey:'edition',label:'Kiadás',displayValue:'Gyűjtői kiadás',missing:false},
     {specKey:'format',label:'Formátum',displayValue:'Dobozos',missing:false},
     {specKey:'condition',label:'Állapot',displayValue:'Új',missing:false},
     {specKey:'availability',label:'Elérhetőség',displayValue:'Raktáron',missing:false},
-  ];
-  return[
-    {specKey:'variant',label:'Változat',displayValue:'Standard',missing:false},
-    {specKey:'condition',label:'Állapot',displayValue:'Új',missing:false},
-    {specKey:'availability',label:'Elérhetőség',displayValue:'Raktáron',missing:false},
-    {specKey:'preview',label:'Adatforrás',displayValue:'Bemutató adat',missing:false},
   ];
 }
 
@@ -297,7 +291,7 @@ function valueForBinding(input:{template:StorefrontInstallableTemplatePackage;pa
   if(slot==='items'){
     if(key==='system.social-links')return PREVIEW_SOCIAL_LINKS.map(item=>({...item}));
     if(key==='commerce.collection-navigation')return collections;
-    if(key==='commerce.key-specs')return demoProductKeySpecs(template);
+    if(key==='commerce.key-specs'&&template.manifest.templateKey==='gaming.loot-vault')return demoLootVaultProductKeySpecs();
     if(key.includes('review'))return demoReviews();
     return items;
   }
