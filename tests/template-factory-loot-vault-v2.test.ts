@@ -10,10 +10,6 @@ import type {StorefrontComponentNode} from '@/lib/builder/storefront-runtime';
 import {createStorefrontTemplateFactoryMediaWorkOrder,pendingStorefrontTemplateFactoryMediaWorkOrders} from '@/lib/builder/template-factory/media-production';
 import {LOOT_VAULT_V2_FACTORY_RECIPE} from '@/lib/builder/template-factory/recipes/loot-vault-v2';
 
-const findNode=(nodes:readonly StorefrontComponentNode[],id:string):StorefrontComponentNode|undefined=>{
-  for(const node of nodes){if(node.id===id)return node;const child=findNode(node.children??[],id);if(child)return child;}
-  return undefined;
-};
 const findNodeBy=(nodes:readonly StorefrontComponentNode[],match:(node:StorefrontComponentNode)=>boolean):StorefrontComponentNode|undefined=>{
   for(const node of nodes){if(match(node))return node;const child=findNodeBy(node.children??[],match);if(child)return child;}
   return undefined;
