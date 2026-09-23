@@ -14,6 +14,14 @@ describe('Template Factory registry',()=>{
     expect(candidate.readiness.productOwnerReady).toBe(false);
   });
 
+  it('requires every registered template to declare a reference and explicit media production plan',()=>{
+    for(const definition of STOREFRONT_TEMPLATE_FACTORY_DEFINITIONS){
+      expect(definition.reference.referenceKey.trim().length).toBeGreaterThan(0);
+      expect(definition.reference.mediaRequirements.length).toBeGreaterThan(0);
+      expect(definition.reference.minimumRepresentativeMedia).toBeGreaterThan(0);
+    }
+  });
+
   it('fails closed instead of fabricating an unregistered template',()=>{
     expect(()=>buildStorefrontFactoryCandidate('unknown.template')).toThrow('TEMPLATE_FACTORY_DEFINITION_MISSING:unknown.template');
   });
