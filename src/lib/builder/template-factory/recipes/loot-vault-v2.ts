@@ -2,6 +2,8 @@ import {STOREFRONT_GLOBAL_STYLES_VERSION} from '@/lib/builder/storefront-global-
 import type {FeatureCode} from '@/lib/plans/catalog';
 import type {StorefrontTemplateFactoryRecipe} from '@/lib/builder/template-factory/scaffold';
 import {
+  createLootVaultV2ShellFooter,
+  createLootVaultV2ShellHeader,
   LOOT_VAULT_V2_DEMO_FIXTURES,
   LOOT_VAULT_V2_MEDIA_ASSETS,
   LOOT_VAULT_V2_PAGE_OVERRIDES,
@@ -36,7 +38,11 @@ export const LOOT_VAULT_V2_FACTORY_RECIPE:StorefrontTemplateFactoryRecipe=Object
     }),
   }),
   shell:Object.freeze({
+    headerNode:createLootVaultV2ShellHeader(),
+    footerNode:createLootVaultV2ShellFooter(),
     header:Object.freeze({
+      logoUrl:'',
+      logoAlt:'',
       brandLabel:'Loot Vault',
       tagline:'Fandom. Gyűjtemény. Történetek.',
       categoryTriggerLabel:'Univerzumok',
@@ -47,6 +53,7 @@ export const LOOT_VAULT_V2_FACTORY_RECIPE:StorefrontTemplateFactoryRecipe=Object
   demoFixtures:LOOT_VAULT_V2_DEMO_FIXTURES,
   media:Object.freeze({
     assets:LOOT_VAULT_V2_MEDIA_ASSETS,
+    inheritedFallbackSrc:LOOT_VAULT_V2_MEDIA_ASSETS.find(asset=>asset.role==='background')?.src,
     requiredRoles:Object.freeze(['hero','category','product','editorial','background'] as const),
     requirements:Object.freeze([
       {role:'hero',minCount:1,aspectRatio:'16:9'} as const,
