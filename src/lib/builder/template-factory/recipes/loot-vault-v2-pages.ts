@@ -158,10 +158,10 @@ export const LOOT_VAULT_V2_HOME_PAGE=override(LOOT_VAULT_HOME_PAGE,[
     grid('loot-v2-universe-grid',[
       universeCard('loot-v2-universe-1','Sci-fi legendák','Ikonikus világok és karakterközpontú gyűjtői darabok.',MEDIA.universe1),
       universeCard('loot-v2-universe-2','Fantasy birodalmak','Sötét fantasy, relikviák és prémium kiadások.',MEDIA.universe2),
-      universeCard('loot-v2-universe-3','Anime & manga','Figurák, art bookok és karakteres display darabok.',MEDIA.universe3),
+      universeCard('loot-v2-universe-3','Anime & manga','Figurák, művészeti albumok és karakteres vitrindarabok.',MEDIA.universe3),
       universeCard('loot-v2-universe-4','Képregénykultúra','Hősök, anti-hősök és limitált gyűjtői kiadások.',MEDIA.universe4),
       universeCard('loot-v2-universe-5','Retro gaming','Nosztalgia, ikonikus hardver és vitrindarabok.',MEDIA.universe5),
-      universeCard('loot-v2-universe-6','Dark collection','Komorabb, atmoszférikus collector válogatás.',MEDIA.universe6),
+      universeCard('loot-v2-universe-6','Sötét válogatás','Komorabb, atmoszférikus gyűjtői válogatás.',MEDIA.universe6),
     ],'.8rem'),
   ],{background:'#141616'}),
   section('loot-v2-limited',[
@@ -170,9 +170,9 @@ export const LOOT_VAULT_V2_HOME_PAGE=override(LOOT_VAULT_HOME_PAGE,[
     text('loot-v2-limited-copy','Ritka darabok. Valódi gyűjtőknek. A státuszokat mindig a katalógus valós adatai adják.'),
     grid('loot-v2-product-grid',[
       productCard('loot-v2-product-1','LIMITÁLT','Vault Sentinel prémium figura','89 990 Ft',MEDIA.product1),
-      productCard('loot-v2-product-2','EXKLUZÍV','Mythic Wing collector szobor','129 990 Ft',MEDIA.product2),
-      productCard('loot-v2-product-3','ELŐRENDELÉS','Ancient Warrior kiadás','59 990 Ft',MEDIA.product3),
-      productCard('loot-v2-product-4','ÚJDONSÁG','Collector Archive display','74 990 Ft',MEDIA.product4),
+      productCard('loot-v2-product-2','EXKLUZÍV','Mythic Wing gyűjtői szobor','129 990 Ft',MEDIA.product2),
+      productCard('loot-v2-product-3','ELŐRENDELÉS','Ancient Warrior gyűjtői kiadás','59 990 Ft',MEDIA.product3),
+      productCard('loot-v2-product-4','ÚJDONSÁG','Archívum gyűjtői vitrin','74 990 Ft',MEDIA.product4),
     ],'.9rem'),
   ],{background:'linear-gradient(180deg,#0f1111,#171919)'}),
   section('loot-v2-editorial',[
@@ -230,10 +230,10 @@ export const LOOT_VAULT_V2_CATALOG_PAGE=override(LOOT_VAULT_CATALOG_PAGE,[
 ],{referenceComposition:'accepted-2026-09-06',referenceCritical:true});
 
 const gallery=[
-  {src:MEDIA.product1,alt:'Prémium gyűjtői figura sötét display környezetben'},
-  {src:MEDIA.product2,alt:'Fantasy collector szobor részlet'},
+  {src:MEDIA.product1,alt:'Prémium gyűjtői figura sötét vitrinkörnyezetben'},
+  {src:MEDIA.product2,alt:'Fantasy gyűjtői szobor részlet'},
   {src:MEDIA.product3,alt:'Dramatikus harcos szobor gyűjtői bemutatásban'},
-  {src:MEDIA.product4,alt:'Popkulturális collector display'},
+  {src:MEDIA.product4,alt:'Popkulturális gyűjtői vitrin'},
 ];
 
 export const LOOT_VAULT_V2_PRODUCT_PAGE=override(LOOT_VAULT_PRODUCT_PAGE,[
@@ -243,7 +243,7 @@ export const LOOT_VAULT_V2_PRODUCT_PAGE=override(LOOT_VAULT_PRODUCT_PAGE,[
       n({id:'loot-v2-product-gallery',componentKey:'commerce.product-gallery',componentVersion:1,config:{images:gallery,aspectRatio:'4 / 5',thumbnailPosition:'bottom'},bindings:{images:{path:'product.gallery',fallback:gallery}},responsive:responsive(7,7,12)}),
       stack('loot-v2-product-buybox',[
         badge('loot-v2-product-eyebrow','LOOT VAULT'),
-        n({id:'loot-v2-product-info',componentKey:'commerce.product-info',componentVersion:1,config:{eyebrow:'Loot Vault',title:'Gyűjtői kiadás',price:'59 990 Ft',compareAtPrice:'',description:'Kurált collector termék részletes, strukturált adatokkal.',stockLabel:'Raktáron',badges:['Gyűjtői kiadás'],currency:'HUF'},bindings:{title:{path:'product.name',fallback:'Gyűjtői kiadás'},price:{path:'pricing.displayPrice',fallback:'59 990 Ft'},compareAtPrice:{path:'pricing.compareAtPrice',fallback:''},description:{path:'product.description',fallback:'Kurált collector termék részletes, strukturált adatokkal.'},stockLabel:{path:'inventory.stockLabel',fallback:'Raktáron'},badges:{path:'product.badges',fallback:['Gyűjtői kiadás']}}}),
+        n({id:'loot-v2-product-info',componentKey:'commerce.product-info',componentVersion:1,config:{eyebrow:'Loot Vault',title:'Gyűjtői kiadás',price:'59 990 Ft',compareAtPrice:'',description:'Kurált gyűjtői termék részletes, strukturált adatokkal.',stockLabel:'Raktáron',badges:['Gyűjtői kiadás'],currency:'HUF'},bindings:{title:{path:'product.name',fallback:'Gyűjtői kiadás'},price:{path:'pricing.displayPrice',fallback:'59 990 Ft'},compareAtPrice:{path:'pricing.compareAtPrice',fallback:''},description:{path:'product.description',fallback:'Kurált gyűjtői termék részletes, strukturált adatokkal.'},stockLabel:{path:'inventory.stockLabel',fallback:'Raktáron'},badges:{path:'product.badges',fallback:['Gyűjtői kiadás']}}}),
         n({id:'loot-v2-product-option',componentKey:'commerce.option-selector',componentVersion:1,config:{label:'Változat',options:[]},bindings:{label:{path:'variant.optionLabel',fallback:'Változat'},options:{path:'variant.optionOptions',fallback:[]}}}),
         n({id:'loot-v2-product-specs',componentKey:'commerce.key-specs',componentVersion:1,config:{title:'Gyűjtői adatok',items:[],columns:2,missingLabel:'Nincs megadva'},bindings:{items:{path:'product.keySpecs',fallback:[]}}}),
         button('loot-v2-product-buy','Kosárba teszem','#purchase'),
@@ -252,11 +252,11 @@ export const LOOT_VAULT_V2_PRODUCT_PAGE=override(LOOT_VAULT_PRODUCT_PAGE,[
   ],{background:'#0d0e0f'}),
   section('loot-v2-product-story',[
     grid('loot-v2-product-story-grid',[
-      image('loot-v2-product-story-image',MEDIA.editorial2,'Gyűjtői display több karakterrel és vitrintárggyal',6,{height:'24rem',minHeight:'21rem'}),
+      image('loot-v2-product-story-image',MEDIA.editorial2,'Gyűjtői vitrin több karakterrel és bemutatótárggyal',6,{height:'24rem',minHeight:'21rem'}),
       stack('loot-v2-product-story-copy',[
         badge('loot-v2-product-story-kicker','A KIADÁS MÖGÖTT'),
         heading('loot-v2-product-story-title','A tárgy mögött mindig van egy történet.',2,{fontSize:'clamp(2rem,4vw,3.5rem)'}),
-        text('loot-v2-product-story-text','A ritkaság, számozás és exkluzivitás csak valódi strukturált termékadatból jelenhet meg. A sablon történetet ad, nem hamis scarcityt.'),
+        text('loot-v2-product-story-text','A ritkaság, számozás és exkluzivitás csak valódi strukturált termékadatból jelenhet meg. A sablon történetet ad, nem mesterséges hiányérzetet.'),
         button('loot-v2-product-story-cta','Vault Magazin','/blog','secondary'),
       ],6,{padding:'1rem'}),
     ]),
@@ -290,9 +290,9 @@ export const LOOT_VAULT_V2_BLOG_ARTICLE_PAGE=override(LOOT_VAULT_BLOG_ARTICLE_PA
         badge('loot-v2-article-kicker','VAULT TÖRTÉNET'),
         heading('loot-v2-article-title','Mitől lesz egy tárgy gyűjtői darab?',1,{fontSize:'clamp(2.5rem,5vw,4.6rem)'}),
         text('loot-v2-article-lead','Szerkesztett háttéranyag a tárgy, a kiadás és a közösségi jelentés kapcsolatáról.',{fontSize:'1.05rem'}),
-        text('loot-v2-article-body','A Loot Vault magazin nem gyárt mesterséges ritkaságot. A vizuális történetmesélés mellett az edition, preorder, készlet és ár továbbra is a közös kereskedelmi authorityból érkezik.',{fontSize:'.95rem'}),
+        text('loot-v2-article-body','A Loot Vault magazin nem gyárt mesterséges ritkaságot. A vizuális történetmesélés mellett a kiadás, előrendelés, készlet és ár továbbra is a közös kereskedelmi authorityból érkezik.',{fontSize:'.95rem'}),
       ],6,{padding:'1rem'}),
-      image('loot-v2-article-image',MEDIA.editorial2,'Popkulturális gyűjtemény részletes displayben',6,{height:'30rem',minHeight:'24rem'}),
+      image('loot-v2-article-image',MEDIA.editorial2,'Popkulturális gyűjtemény részletes vitrinben',6,{height:'30rem',minHeight:'24rem'}),
     ]),
   ],{background:'linear-gradient(180deg,#111313,#0d0e0f)'}),
   createLootVaultV2ShellFooter(),
@@ -307,20 +307,20 @@ export const LOOT_VAULT_V2_PAGE_OVERRIDES=Object.freeze({
 });
 
 export const LOOT_VAULT_V2_MEDIA_ASSETS:readonly StorefrontTemplateFactoryMediaAsset[]=Object.freeze([
-  {key:'hero-main',state:'internal-reference',referenceSrc:'https://images.pexels.com/photos/31971487/pexels-photo-31971487.jpeg?auto=compress&cs=tinysrgb&w=1800',role:'hero',src:MEDIA.hero,alt:'Cinematikus fantasy jelenet gyűjtői Loot Vault hangulattal',pageTypes:['home'],representative:true,aspectRatio:'16:9'},
-  {key:'universe-1',state:'internal-reference',referenceSrc:'https://images.pexels.com/photos/7661397/pexels-photo-7661397.jpeg?auto=compress&cs=tinysrgb&w=1200',role:'category',src:MEDIA.universe1,alt:'Gyűjtői figurák polcon',pageTypes:['home'],representative:true,aspectRatio:'4:5'},
-  {key:'universe-2',state:'internal-reference',referenceSrc:'https://images.pexels.com/photos/9337516/pexels-photo-9337516.jpeg?auto=compress&cs=tinysrgb&w=1200',role:'category',src:MEDIA.universe2,alt:'Játék- és figuragyűjtemény',pageTypes:['home'],representative:true,aspectRatio:'4:5'},
-  {key:'universe-3',state:'internal-reference',referenceSrc:'https://images.pexels.com/photos/16075337/pexels-photo-16075337.jpeg?auto=compress&cs=tinysrgb&w=1200',role:'category',src:MEDIA.universe3,alt:'Karakterfigurák gyűjtői displayen',pageTypes:['home'],representative:true,aspectRatio:'4:5'},
-  {key:'universe-4',state:'internal-reference',referenceSrc:'https://images.pexels.com/photos/13725612/pexels-photo-13725612.jpeg?auto=compress&cs=tinysrgb&w=1200',role:'category',src:MEDIA.universe4,alt:'Anime figurák és emléktárgyak',pageTypes:['home'],representative:true,aspectRatio:'4:5'},
-  {key:'universe-5',state:'internal-reference',referenceSrc:'https://images.pexels.com/photos/29901199/pexels-photo-29901199.jpeg?auto=compress&cs=tinysrgb&w=1200',role:'category',src:MEDIA.universe5,alt:'Vintage gyűjtői polc művészeti tárgyakkal',pageTypes:['home'],representative:true,aspectRatio:'4:5'},
-  {key:'universe-6',state:'internal-reference',referenceSrc:'https://images.pexels.com/photos/32977036/pexels-photo-32977036.jpeg?auto=compress&cs=tinysrgb&w=1200',role:'category',src:MEDIA.universe6,alt:'Sötét neonfényes gyűjtői tér',pageTypes:['home'],representative:true,aspectRatio:'4:5'},
-  {key:'product-1',state:'internal-reference',referenceSrc:'https://images.pexels.com/photos/9337516/pexels-photo-9337516.jpeg?auto=compress&cs=tinysrgb&w=1200',role:'product',src:MEDIA.product1,alt:'Prémium gyűjtői figura',pageTypes:['home','product'],representative:true,aspectRatio:'4:5'},
-  {key:'product-2',state:'internal-reference',referenceSrc:'https://images.pexels.com/photos/16075337/pexels-photo-16075337.jpeg?auto=compress&cs=tinysrgb&w=1200',role:'product',src:MEDIA.product2,alt:'Fantasy collector szobor',pageTypes:['home','product'],representative:true,aspectRatio:'4:5'},
-  {key:'product-3',state:'internal-reference',referenceSrc:'https://images.pexels.com/photos/13725612/pexels-photo-13725612.jpeg?auto=compress&cs=tinysrgb&w=1200',role:'product',src:MEDIA.product3,alt:'Dramatikus warrior collector szobor',pageTypes:['home','product'],representative:true,aspectRatio:'4:5'},
-  {key:'product-4',state:'internal-reference',referenceSrc:'https://images.pexels.com/photos/29901199/pexels-photo-29901199.jpeg?auto=compress&cs=tinysrgb&w=1200',role:'product',src:MEDIA.product4,alt:'Popkulturális collector display',pageTypes:['home','product'],representative:true,aspectRatio:'4:5'},
-  {key:'editorial-1',state:'internal-reference',referenceSrc:'https://images.pexels.com/photos/32977036/pexels-photo-32977036.jpeg?auto=compress&cs=tinysrgb&w=1200',role:'editorial',src:MEDIA.editorial1,alt:'Gyűjtői polc figurákkal és művészeti tárgyakkal',pageTypes:['home','blog-index'],representative:true,aspectRatio:'3:2'},
-  {key:'editorial-2',state:'internal-reference',referenceSrc:'https://images.pexels.com/photos/7661397/pexels-photo-7661397.jpeg?auto=compress&cs=tinysrgb&w=1200',role:'editorial',src:MEDIA.editorial2,alt:'Gazdag popkulturális gyűjtemény',pageTypes:['home','blog-article'],representative:true,aspectRatio:'3:2'},
-  {key:'catalog-background',state:'internal-reference',referenceSrc:'https://images.pexels.com/photos/18335787/pexels-photo-18335787.jpeg?auto=compress&cs=tinysrgb&w=1800',role:'background',src:MEDIA.background,alt:'Sötét, színes neonfényes enteriőr',pageTypes:['catalog'],representative:true,aspectRatio:'16:9'},
+  {key:'hero-main',state:'ready',role:'hero',src:MEDIA.hero,alt:'Cinematikus fantasy jelenet gyűjtői Loot Vault hangulattal',pageTypes:['home'],representative:true,aspectRatio:'16:9'},
+  {key:'universe-1',state:'ready',role:'category',src:MEDIA.universe1,alt:'Gyűjtői figurák polcon',pageTypes:['home'],representative:true,aspectRatio:'4:5'},
+  {key:'universe-2',state:'ready',role:'category',src:MEDIA.universe2,alt:'Játék- és figuragyűjtemény',pageTypes:['home'],representative:true,aspectRatio:'4:5'},
+  {key:'universe-3',state:'ready',role:'category',src:MEDIA.universe3,alt:'Karakterfigurák gyűjtői displayen',pageTypes:['home'],representative:true,aspectRatio:'4:5'},
+  {key:'universe-4',state:'ready',role:'category',src:MEDIA.universe4,alt:'Anime figurák és emléktárgyak',pageTypes:['home'],representative:true,aspectRatio:'4:5'},
+  {key:'universe-5',state:'ready',role:'category',src:MEDIA.universe5,alt:'Vintage gyűjtői polc művészeti tárgyakkal',pageTypes:['home'],representative:true,aspectRatio:'4:5'},
+  {key:'universe-6',state:'ready',role:'category',src:MEDIA.universe6,alt:'Sötét neonfényes gyűjtői tér',pageTypes:['home'],representative:true,aspectRatio:'4:5'},
+  {key:'product-1',state:'ready',role:'product',src:MEDIA.product1,alt:'Prémium gyűjtői figura',pageTypes:['home','product'],representative:true,aspectRatio:'4:5'},
+  {key:'product-2',state:'ready',role:'product',src:MEDIA.product2,alt:'Fantasy collector szobor',pageTypes:['home','product'],representative:true,aspectRatio:'4:5'},
+  {key:'product-3',state:'ready',role:'product',src:MEDIA.product3,alt:'Dramatikus harcos gyűjtői szobor',pageTypes:['home','product'],representative:true,aspectRatio:'4:5'},
+  {key:'product-4',state:'ready',role:'product',src:MEDIA.product4,alt:'Popkulturális gyűjtői vitrin',pageTypes:['home','product'],representative:true,aspectRatio:'4:5'},
+  {key:'editorial-1',state:'ready',role:'editorial',src:MEDIA.editorial1,alt:'Gyűjtői polc figurákkal és művészeti tárgyakkal',pageTypes:['home','blog-index'],representative:true,aspectRatio:'3:2'},
+  {key:'editorial-2',state:'ready',role:'editorial',src:MEDIA.editorial2,alt:'Gazdag popkulturális gyűjtemény',pageTypes:['home','blog-article'],representative:true,aspectRatio:'3:2'},
+  {key:'catalog-background',state:'ready',role:'background',src:MEDIA.background,alt:'Sötét, színes neonfényes enteriőr',pageTypes:['catalog'],representative:true,aspectRatio:'16:9'},
 ]);
 
 export const LOOT_VAULT_V2_DEMO_FIXTURES:readonly StorefrontDemoFixture[]=Object.freeze([
@@ -328,8 +328,8 @@ export const LOOT_VAULT_V2_DEMO_FIXTURES:readonly StorefrontDemoFixture[]=Object
   {entityType:'collection',entityKey:'vault-fantasy',payload:{title:'Fantasy birodalmak',handle:'vault-fantasy',demo:true}},
   {entityType:'collection',entityKey:'vault-anime',payload:{title:'Anime & manga',handle:'vault-anime',demo:true}},
   {entityType:'product',entityKey:'vault-sentinel',payload:{name:'Vault Sentinel prémium figura',slug:'vault-sentinel',kind:'collectible-figure',image:MEDIA.product1,demo:true}},
-  {entityType:'product',entityKey:'mythic-wing',payload:{name:'Mythic Wing collector szobor',slug:'mythic-wing',kind:'collector-statue',image:MEDIA.product2,demo:true}},
-  {entityType:'product',entityKey:'ancient-warrior',payload:{name:'Ancient Warrior kiadás',slug:'ancient-warrior',kind:'collector-edition',image:MEDIA.product3,demo:true}},
-  {entityType:'product',entityKey:'collector-archive',payload:{name:'Collector Archive display',slug:'collector-archive',kind:'display-edition',image:MEDIA.product4,demo:true}},
+  {entityType:'product',entityKey:'mythic-wing',payload:{name:'Mythic Wing gyűjtői szobor',slug:'mythic-wing',kind:'collector-statue',image:MEDIA.product2,demo:true}},
+  {entityType:'product',entityKey:'ancient-warrior',payload:{name:'Ancient Warrior gyűjtői kiadás',slug:'ancient-warrior',kind:'collector-edition',image:MEDIA.product3,demo:true}},
+  {entityType:'product',entityKey:'collector-archive',payload:{name:'Archívum gyűjtői vitrin',slug:'collector-archive',kind:'display-edition',image:MEDIA.product4,demo:true}},
   {entityType:'content',entityKey:'vault-magazin',payload:{title:'Vault Magazin',kind:'collector-editorial',demo:true}},
 ]);
