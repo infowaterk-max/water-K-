@@ -10,6 +10,21 @@ import {
 
 const clone=<T>(value:T):T=>structuredClone(value);
 
+function setProductGridPurchaseActions(page:ReturnType<typeof sanitizePage>,enabled:boolean){
+  let count=0;
+  const walk=(nodes:typeof page.sections):void=>{
+    for(const node of nodes){
+      if(node.componentKey==='commerce.product-grid'){
+        node.config={...node.config,showPurchaseActions:enabled};
+        count+=1;
+      }
+      if(node.children?.length)walk(node.children);
+    }
+  };
+  walk(page.sections);
+  return count;
+}
+
 function sanitizePage(pageType:StorefrontBuilderPageType){
   const source=PLAYROOM_V20_TEMPLATE_PACKAGE.pages.find(page=>page.pageType===pageType);
   if(!source)throw new Error(`missing source page ${pageType}`);
@@ -164,5 +179,20 @@ describe('Template Factory Scaffold v1',()=>{
     expect(build.report.technicalReady).toBe(true);
     expect(build.report.productOwnerReady).toBe(true);
     expect(()=>assertStorefrontTemplateFactoryProductOwnerReady(build)).not.toThrow();
+  });
+
+  it('enforces product-card purchase actions only when the recipe explicitly opts reference pages into that commerce contract',()=>{
+    const draft=recipe({allPages:true,reviewPassed:true});
+    draft.commerceReadiness={productCardPurchaseActions:{pageTypes:['home']}};
+    const blocked=buildStorefrontTemplateFactoryCandidate(draft);
+    expect(blocked.report.issues.map(item=>item.code)).toContain('FACTORY_PRODUCT_CARD_PURCHASE_ACTION_REQUIRED');
+    expect(blocked.report.productOwnerReady).toBe(false);
+
+    const home=draft.pageOverrides?.home;
+    if(!home)throw new Error('factory home override missing');
+    expect(setProductGridPurchaseActions(home,true)).toBeGreaterThan(0);
+    const ready=buildStorefrontTemplateFactoryCandidate(draft);
+    expect(ready.report.issues.map(item=>item.code)).not.toContain('FACTORY_PRODUCT_CARD_PURCHASE_ACTION_REQUIRED');
+    expect(ready.report.productOwnerReady).toBe(true);
   });
 });
