@@ -23,8 +23,8 @@ const MEDIA={
   product2:'/storefront-demo/loot-vault-v2/product-statue.webp',
   product3:'/storefront-demo/loot-vault-v2/product-edition.webp',
   product4:'/storefront-demo/loot-vault-v2/product-relic.webp',
-  editorial1:'/storefront-demo/loot-vault-v2/editorial-collector-room.webp',
-  editorial2:'/storefront-demo/loot-vault-v2/editorial-vault-shelf.webp',
+  editorial1:'/storefront-demo/loot-vault-v2/background-archive.webp',
+  editorial2:'/storefront-demo/loot-vault-v2/category-miniatures.webp',
   background:'/storefront-demo/loot-vault-v2/background-archive.webp',
 } as const;
 
@@ -394,8 +394,8 @@ export const LOOT_VAULT_V2_MEDIA_ASSETS:readonly StorefrontTemplateFactoryMediaA
   {key:'product-2',state:'ready',role:'product',src:MEDIA.product2,alt:'Fantasy gyűjtői szobor',pageTypes:['home','product'],representative:true,aspectRatio:'4:5'},
   {key:'product-3',state:'ready',role:'product',src:MEDIA.product3,alt:'Dramatikus gyűjtői miniatűr kiadás',pageTypes:['home','product'],representative:true,aspectRatio:'4:5'},
   {key:'product-4',state:'ready',role:'product',src:MEDIA.product4,alt:'Sötét sci-fi gyűjtői relikvia',pageTypes:['home','product'],representative:true,aspectRatio:'4:5'},
-  {key:'editorial-1',state:'ready',role:'editorial',src:MEDIA.editorial1,alt:'Gyűjtői polc figurákkal és művészeti tárgyakkal',pageTypes:['home','blog-index'],representative:true,aspectRatio:'3:2'},
-  {key:'editorial-2',state:'ready',role:'editorial',src:MEDIA.editorial2,alt:'Gazdag popkulturális gyűjtemény',pageTypes:['product','blog-article'],representative:true,aspectRatio:'3:2'},
+  {key:'editorial-1',state:'ready',role:'editorial',src:MEDIA.editorial1,alt:'Sötét gyűjtői archívum polcokkal és kiállított tárgyakkal',pageTypes:['home','blog-index'],representative:true,aspectRatio:'3:2'},
+  {key:'editorial-2',state:'ready',role:'editorial',src:MEDIA.editorial2,alt:'Kurált miniatűr gyűjtemény és relikviák',pageTypes:['product','blog-article'],representative:true,aspectRatio:'3:2'},
   {key:'catalog-background',state:'ready',role:'background',src:MEDIA.background,alt:'Sötét, színes neonfényes enteriőr',pageTypes:['catalog'],representative:true,aspectRatio:'16:9'},
 ]);
 
