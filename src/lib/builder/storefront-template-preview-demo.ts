@@ -92,7 +92,7 @@ const CATEGORY_COLLECTIONS:Record<string,readonly string[]>={
   beauty:['Rutinok','Újdonságok','Összetevők','Best seller'],
   fashion:['New season','Essentials','Editorial edit','Accessories'],
   food:['Ajándék','Kamra','Szezonális','Válogatások'],
-  gaming:['New releases','Setup','Accessories','Collector'],
+  gaming:['Új megjelenések','Összeállítások','Kiegészítők','Gyűjtői darabok'],
   home:['Living','Dining','Lighting','Objects'],
   industrial:['Szerszámok','Mérés','Műhely','Védelem'],
   jewelry:['New Icons','Fine Edit','Timepieces','Gifts'],
