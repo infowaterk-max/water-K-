@@ -118,6 +118,7 @@ If yes, update Support Knowledge in the same development cycle. Production verif
 - `PLAYROOM_V20_PRODUCTION_RELEASE_AND_GOLDEN_RECOVERY_2026-09-23.md` — production release, release-base gate lesson, six accepted golden diffs, controlled baseline recovery and final green main proof.
 - `PRODUCTION_RUNTIME_SCHEMA_PARITY_INCIDENT_2026-09-23.md` — production outage caused by runtime/schema drift, exact Supabase recovery, unchanged business-data snapshot and the new real-database deploy preflight.
 - `PRODUCTION_RELEASE_RISK_BUDGET_2026-09-23.md` — production release-size governance, 5-point risk budget, High-risk isolation and stabilization checkpoint.
+- `TEMPLATE_FACTORY_SCAFFOLD_V1_2026-09-23.md` — shared Template Factory compiler, category foundation + template recipe + media manifest and Product Owner readiness boundary.
 
 ### Shared storefront system surfaces / routes
 
@@ -176,3 +177,4 @@ If yes, update Support Knowledge in the same development cycle. Production verif
 32. **One High-risk subsystem consumes the whole production release budget.** Database/schema, auth/access, shared launch/runtime, environment/secret, payment/checkout/order and inventory/fulfillment changes must not be mixed with another substantive subsystem in the same release.
 33. **Large development branches are allowed; large production batches are not.** Split production by authority boundary and prove each High-risk exact production HEAD stable before the next slice.
 34. **A release-risk block is resolved by splitting the release, not by weakening classification.** Unknown substantive production code defaults to Medium risk.
+35. **Template Factory technical validity and Product Owner readiness are separate gates.** New templates compile from an accepted category foundation plus a template recipe and media manifest; reference-critical pages, representative media, foundation-leak checks and internal screenshot review must pass before Product Owner preview.
