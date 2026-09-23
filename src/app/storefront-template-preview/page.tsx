@@ -1,8 +1,7 @@
 import type {CSSProperties} from 'react';
 import Link from 'next/link';
 import {notFound,redirect} from 'next/navigation';
-import {requirePlanFeature} from '@/lib/plans/access';
-import {requireAdmin} from '@/lib/auth/require-admin';
+import {requireStorefrontTemplatePreviewAccess} from '@/lib/auth/template-preview-access';
 import {createClient} from '@/lib/supabase/server';
 import {PLANS} from '@/lib/plans/catalog';
 import {resolveStorefrontTemplatePreviewPackage} from '@/lib/builder/storefront-template-preview-auth';
@@ -52,8 +51,7 @@ export default async function StorefrontTemplatePreview({searchParams}:Props){
     });
     redirect(`/storefront-template-preview-login?${loginParams.toString()}`);
   }
-  await requireAdmin(returnTo);
-  await requirePlanFeature('contentMarketing');
+  await requireStorefrontTemplatePreviewAccess(returnTo);
   const sourcePage=template.pages.find(candidate=>candidate.pageType===pageType);
   if(!sourcePage)notFound();
   const viewport:StorefrontViewport=query.viewport==='mobile'?'mobile':query.viewport==='tablet'?'tablet':'desktop';

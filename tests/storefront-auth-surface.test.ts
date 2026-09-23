@@ -50,6 +50,10 @@ describe('template-aware storefront auth surface',()=>{
     expect(previewPage).toContain('template:template.manifest.templateKey');
     expect(previewPage).toContain("const factoryCandidate=query.factory==='1'");
     expect(previewLogin).toContain("const factoryCandidate=query.factory==='1'");
+    expect(previewPage).toContain('requireStorefrontTemplatePreviewAccess(returnTo)');
+    expect(previewPage).not.toContain('requireCurrentStoreContext');
+    expect(previewPage).not.toContain('requirePlanFeature');
+    expect(previewPage).not.toContain('requireAdmin(');
   });
 
   it('keeps signed-out customer auth inside the active storefront template shell',()=>{
