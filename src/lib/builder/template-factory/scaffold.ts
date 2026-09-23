@@ -113,6 +113,15 @@ export type StorefrontTemplateFactoryBuild={
     factoryVersion:typeof STOREFRONT_TEMPLATE_FACTORY_VERSION;
     foundation:{templateKey:string;templateVersion:number;category:string};
     template:{templateKey:string;templateVersion:number;category:string};
+    provenance:{
+      compileSource:'template-factory';
+      recipeIdentity:string;
+      targetTemplateKey:string;
+      targetTemplateVersion:number;
+      foundationTemplateKey:string;
+      foundationTemplateVersion:number;
+      referenceKey:string;
+    };
     inheritedPageTypes:readonly StorefrontBuilderPageType[];
     overriddenPageTypes:readonly StorefrontBuilderPageType[];
     representativeMediaCount:number;
@@ -277,6 +286,19 @@ function evaluateBuild(input:{
     issues.push(issue('FACTORY_ACCOUNT_AUTH_PUBLIC_COMPOSITION_REQUIRED','pageOverrides.account','Template-owned account page must contain an explicit authPublic composition for signed-out authentication.'));
   }
 
+  for(const page of pkg.pages){
+    const meta=page.metadata?.templateFactory;
+    const record=meta&&typeof meta==='object'?meta as Record<string,unknown>:null;
+    if(!record
+      ||record.compileSource!=='template-factory'
+      ||record.recipeIdentity!==`${recipe.templateKey}@${recipe.templateVersion}`
+      ||record.targetTemplateKey!==recipe.templateKey
+      ||record.targetTemplateVersion!==recipe.templateVersion
+    ){
+      issues.push(issue('FACTORY_PROVENANCE_MISMATCH',`pages.${page.pageType}.metadata.templateFactory`,'Every compiled page must carry the exact Factory recipe identity and target template provenance.'));
+    }
+  }
+
   const serialized=JSON.stringify(pkg);
   const foundationSlug=slug(foundation.foundationTemplateKey);
   const targetSlug=slug(recipe.templateKey);
@@ -333,6 +355,10 @@ export function compileStorefrontTemplateFactoryPackage(input:{
         foundationTemplateKey:foundation.foundationTemplateKey,
         foundationTemplateVersion:foundation.foundationTemplateVersion,
         referenceKey:recipe.reference.key,
+        compileSource:'template-factory',
+        recipeIdentity:`${recipe.templateKey}@${recipe.templateVersion}`,
+        targetTemplateKey:recipe.templateKey,
+        targetTemplateVersion:recipe.templateVersion,
         ownership:recipe.pageOverrides?.[pageType]?'template':'category-foundation',
       },
     };
@@ -372,6 +398,15 @@ export function compileStorefrontTemplateFactoryPackage(input:{
       factoryVersion:STOREFRONT_TEMPLATE_FACTORY_VERSION,
       foundation:{templateKey:foundation.foundationTemplateKey,templateVersion:foundation.foundationTemplateVersion,category:foundation.category},
       template:{templateKey:recipe.templateKey,templateVersion:recipe.templateVersion,category:recipe.category},
+      provenance:{
+        compileSource:'template-factory',
+        recipeIdentity:`${recipe.templateKey}@${recipe.templateVersion}`,
+        targetTemplateKey:recipe.templateKey,
+        targetTemplateVersion:recipe.templateVersion,
+        foundationTemplateKey:foundation.foundationTemplateKey,
+        foundationTemplateVersion:foundation.foundationTemplateVersion,
+        referenceKey:recipe.reference.key,
+      },
       inheritedPageTypes:Object.freeze([...inherited]),
       overriddenPageTypes:Object.freeze([...overridden]),
       representativeMediaCount:recipe.media.assets.filter(asset=>asset.representative&&asset.state==='ready').length,
