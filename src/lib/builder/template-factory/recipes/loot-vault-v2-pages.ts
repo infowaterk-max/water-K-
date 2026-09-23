@@ -59,14 +59,14 @@ export const createLootVaultV2ShellHeader=()=>n({
     categoryTriggerHref:'/webaruhaz',
     navTagline:'FANDOM. GYŰJTEMÉNY. TÖRTÉNETEK.',
     style:{background:'rgba(13,14,15,.97)',borderBottom:'1px solid rgba(165,122,69,.34)',boxShadow:'0 18px 48px rgba(0,0,0,.38)'},
-    innerStyle:{maxWidth:'none',padding:'.7rem clamp(1rem,4vw,3.6rem) .45rem',gap:'.5rem'},
-    brandStyle:{fontFamily:'var(--shoporation-heading-font)',fontSize:'1.15rem',fontWeight:800,letterSpacing:'.03em'},
-    taglineStyle:{color:'#bda98d',fontSize:'.62rem',letterSpacing:'.18em',fontWeight:800},
+    innerStyle:{maxWidth:'none',padding:'.78rem clamp(1rem,4vw,3.6rem) .5rem',gap:'.55rem'},
+    brandStyle:{fontFamily:'var(--shoporation-heading-font)',fontSize:'1.42rem',fontWeight:900,letterSpacing:'.025em',color:'#f5e7d0',textShadow:'0 2px 18px rgba(205,145,70,.16)'},
+    taglineStyle:{color:'#c8a872',fontSize:'.64rem',letterSpacing:'.16em',fontWeight:850},
     styleSlots:{
-      topRow:{base:{minHeight:'3rem'}},
+      topRow:{base:{minHeight:'3.35rem'}},
       searchFrame:{base:{maxWidth:'42rem',justifySelf:'center',width:'100%'}},
-      utilityItem:{base:{border:'1px solid rgba(165,122,69,.22)',background:'rgba(255,255,255,.02)',borderRadius:'.85rem'}},
-      navigationFrame:{base:{borderTop:'1px solid rgba(165,122,69,.16)',paddingTop:'.42rem',minHeight:'2rem'}},
+      utilityItem:{base:{border:'1px solid rgba(165,122,69,.28)',background:'linear-gradient(180deg,rgba(255,255,255,.035),rgba(255,255,255,.012))',borderRadius:'.72rem'}},
+      navigationFrame:{base:{borderTop:'1px solid rgba(165,122,69,.18)',paddingTop:'.5rem',minHeight:'2.1rem'}},
       navTagline:{base:{color:'#9a9184'}},
     },
   },
@@ -213,10 +213,10 @@ export const LOOT_VAULT_V2_HOME_PAGE=override(LOOT_VAULT_HOME_PAGE,[
   ],{background:'radial-gradient(circle at 18% 50%,rgba(83,105,93,.18),transparent 34%),#111313'}),
   section('loot-v2-benefits',[
     grid('loot-v2-benefit-grid',[
-      stack('loot-v2-benefit-1',[badge('loot-v2-benefit-1-icon','01'),heading('loot-v2-benefit-1-title','Előrendelési támogatás',3),text('loot-v2-benefit-1-text','Átlátható státuszok és valódi kiadási információk.')],3,{padding:'1rem',border:'1px solid rgba(165,122,69,.24)',borderRadius:'.6rem'}),
-      stack('loot-v2-benefit-2',[badge('loot-v2-benefit-2-icon','02'),heading('loot-v2-benefit-2-title','Ellenőrzött termékadatok',3),text('loot-v2-benefit-2-text','Ritkaság és kiadás csak strukturált katalógusadatból.')],3,{padding:'1rem',border:'1px solid rgba(165,122,69,.24)',borderRadius:'.6rem'}),
-      stack('loot-v2-benefit-3',[badge('loot-v2-benefit-3-icon','03'),heading('loot-v2-benefit-3-title','Biztonságos vásárlás',3),text('loot-v2-benefit-3-text','Átlátható kosár, pénztár és rendelési folyamat.')],3,{padding:'1rem',border:'1px solid rgba(165,122,69,.24)',borderRadius:'.6rem'}),
-      stack('loot-v2-benefit-4',[badge('loot-v2-benefit-4-icon','04'),heading('loot-v2-benefit-4-title','Rajongói felfedezés',3),text('loot-v2-benefit-4-text','Univerzumok és történetek szerencsejátékos mechanika nélkül.')],3,{padding:'1rem',border:'1px solid rgba(165,122,69,.24)',borderRadius:'.6rem'}),
+      stack('loot-v2-benefit-1',[badge('loot-v2-benefit-1-icon','01'),heading('loot-v2-benefit-1-title','Előrendelési támogatás',3),text('loot-v2-benefit-1-text','Átlátható státuszok és valódi kiadási információk.')],3,{padding:'1rem',background:'linear-gradient(180deg,#141616,#101212)',border:'1px solid rgba(165,122,69,.28)',borderRadius:'.6rem',boxShadow:'0 14px 36px rgba(0,0,0,.22)'}),
+      stack('loot-v2-benefit-2',[badge('loot-v2-benefit-2-icon','02'),heading('loot-v2-benefit-2-title','Ellenőrzött termékadatok',3),text('loot-v2-benefit-2-text','Ritkaság és kiadás csak strukturált katalógusadatból.')],3,{padding:'1rem',background:'linear-gradient(180deg,#141616,#101212)',border:'1px solid rgba(165,122,69,.28)',borderRadius:'.6rem',boxShadow:'0 14px 36px rgba(0,0,0,.22)'}),
+      stack('loot-v2-benefit-3',[badge('loot-v2-benefit-3-icon','03'),heading('loot-v2-benefit-3-title','Biztonságos vásárlás',3),text('loot-v2-benefit-3-text','Átlátható kosár, pénztár és rendelési folyamat.')],3,{padding:'1rem',background:'linear-gradient(180deg,#141616,#101212)',border:'1px solid rgba(165,122,69,.28)',borderRadius:'.6rem',boxShadow:'0 14px 36px rgba(0,0,0,.22)'}),
+      stack('loot-v2-benefit-4',[badge('loot-v2-benefit-4-icon','04'),heading('loot-v2-benefit-4-title','Rajongói felfedezés',3),text('loot-v2-benefit-4-text','Univerzumok és történetek szerencsejátékos mechanika nélkül.')],3,{padding:'1rem',background:'linear-gradient(180deg,#141616,#101212)',border:'1px solid rgba(165,122,69,.28)',borderRadius:'.6rem',boxShadow:'0 14px 36px rgba(0,0,0,.22)'}),
     ]),
   ],{background:'#0d0e0f'}),
   createLootVaultV2ShellFooter(),
@@ -278,6 +278,12 @@ export const LOOT_VAULT_V2_PRODUCT_PAGE=override(LOOT_VAULT_PRODUCT_PAGE,[
   createLootVaultV2ShellFooter(),
 ],{referenceComposition:'accepted-2026-09-06',referenceCritical:true});
 
+const lootVaultBlogHighlights=[
+  {id:'loot-v2-blog-highlight-1',title:'A gyűjtőszoba mint személyes univerzum',copy:'Vitrinek, fények és történetek: így lesz a gyűjteményből karakteres tér.',image:MEDIA.editorial1},
+  {id:'loot-v2-blog-highlight-2',title:'Mitől érték egy limitált kiadás?',copy:'Kiadás, állapot és eredet — a látvány mögött mindig valódi termékadat áll.',image:MEDIA.editorial2},
+  {id:'loot-v2-blog-highlight-3',title:'Fantasy, sci-fi és retro egy helyen',copy:'Eltérő világok, közös gyűjtői nyelv és következetes vizuális ritmus.',image:MEDIA.background},
+] as const;
+
 export const LOOT_VAULT_V2_BLOG_INDEX_PAGE=override(LOOT_VAULT_BLOG_INDEX_PAGE,[
   createLootVaultV2ShellHeader(),
   section('loot-v2-blog-hero',[
@@ -290,6 +296,16 @@ export const LOOT_VAULT_V2_BLOG_INDEX_PAGE=override(LOOT_VAULT_BLOG_INDEX_PAGE,[
       image('loot-v2-blog-image',MEDIA.editorial1,'Gyűjtői polc és művészeti tárgyak',7,{height:'24rem',minHeight:'20rem'}),
     ]),
   ],{background:'#111313'}),
+  section('loot-v2-blog-highlights',[
+    badge('loot-v2-blog-highlights-kicker','KIEMELT TÖRTÉNETEK'),
+    heading('loot-v2-blog-highlights-title','Belépő a gyűjtői világokba.',2,{fontSize:'clamp(2rem,4vw,3.4rem)'}),
+    grid('loot-v2-blog-highlights-grid',lootVaultBlogHighlights.map(item=>stack(item.id,[
+      image(`${item.id}-image`,item.image,item.title,12,{height:'15rem',minHeight:'13rem'}),
+      heading(`${item.id}-title`,item.title,3,{fontSize:'1.15rem'}),
+      text(`${item.id}-copy`,item.copy,{fontSize:'.82rem'}),
+      button(`${item.id}-cta`,'Olvasom','/blog','secondary'),
+    ],4,{padding:'.65rem',background:'linear-gradient(180deg,#171919,#101212)',border:'1px solid rgba(165,122,69,.26)',borderRadius:'.72rem',boxShadow:'0 18px 42px rgba(0,0,0,.28)'}))),
+  ],{background:'#0d0e0f'}),
   section('loot-v2-blog-list',[
     n({id:'loot-v2-story-index',componentKey:'story.index',componentVersion:1,config:{eyebrow:'Friss történetek',title:'Vault Magazin',items:[],columns:3,emptyLabel:'Hamarosan új történetek érkeznek.'},bindings:{items:{path:'content.journalItems',fallback:[]}}}),
   ],{background:'#0d0e0f'}),
