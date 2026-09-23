@@ -1,4 +1,5 @@
 import type {StorefrontBuilderPageType} from '@/lib/builder/storefront-foundation';
+import type {StorefrontComponentNode} from '@/lib/builder/storefront-runtime';
 import type {
   StorefrontTemplateFactoryBuild,
   StorefrontTemplateFactoryIssue,
@@ -98,9 +99,9 @@ function accountPage(build:StorefrontTemplateFactoryBuild){
   return build.package.pages.find(page=>page.pageType==='account')??null;
 }
 
-function hasAuthPublic(page:ReturnType<typeof accountPage>){
+function hasAuthPublic(page:StorefrontTemplateFactoryBuild['package']['pages'][number]|null){
   if(!page)return false;
-  const walk=(nodes:typeof page.sections):boolean=>{
+  const walk=(nodes:readonly StorefrontComponentNode[]):boolean=>{
     for(const node of nodes){
       if((node.config as Record<string,unknown>).authPublic===true)return true;
       if(node.children&&walk(node.children))return true;
