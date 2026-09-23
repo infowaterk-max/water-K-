@@ -119,6 +119,7 @@ If yes, update Support Knowledge in the same development cycle. Production verif
 - `PRODUCTION_RUNTIME_SCHEMA_PARITY_INCIDENT_2026-09-23.md` — production outage caused by runtime/schema drift, exact Supabase recovery, unchanged business-data snapshot and the new real-database deploy preflight.
 - `PRODUCTION_RELEASE_RISK_BUDGET_2026-09-23.md` — production release-size governance, 5-point risk budget, High-risk isolation and stabilization checkpoint.
 - `TEMPLATE_FACTORY_SCAFFOLD_V1_2026-09-23.md` — shared Template Factory compiler, category foundation + template recipe + media manifest and Product Owner readiness boundary.
+- `TEMPLATE_FACTORY_IDENTITY_REWRITE_V1_2026-09-23.md` — automatic source→target brand/logo rewrite for structurally inherited Factory pages.
 
 ### Shared storefront system surfaces / routes
 
@@ -178,3 +179,4 @@ If yes, update Support Knowledge in the same development cycle. Production verif
 33. **Large development branches are allowed; large production batches are not.** Split production by authority boundary and prove each High-risk exact production HEAD stable before the next slice.
 34. **A release-risk block is resolved by splitting the release, not by weakening classification.** Unknown substantive production code defaults to Medium risk.
 35. **Template Factory technical validity and Product Owner readiness are separate gates.** New templates compile from an accepted category foundation plus a template recipe and media manifest; reference-critical pages, representative media, foundation-leak checks and internal screenshot review must pass before Product Owner preview.
+36. **Factory inheritance reuses structure, never predecessor brand identity.** Category foundations declare source identity; inherited pages are automatically rewritten to the target template brand/logo before final foundation-leak validation, while reference-critical pages remain explicit template-owned overrides.
