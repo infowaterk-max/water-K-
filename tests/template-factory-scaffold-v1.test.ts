@@ -37,9 +37,8 @@ function setFirstImage(page:ReturnType<typeof sanitizePage>,src:string){
 
 function recipe(input:{allPages:boolean;reviewPassed:boolean}):StorefrontTemplateFactoryRecipe{
   const home=setFirstImage(sanitizePage('home'),'/factory/canary/hero.jpg');
-  const pageOverrides=input.allPages
-    ? Object.fromEntries(STOREFRONT_PAGE_TYPES.map(pageType=>[pageType,pageType==='home'?home:sanitizePage(pageType)]))
-      as Partial<Record<StorefrontBuilderPageType,ReturnType<typeof sanitizePage>>>
+  const pageOverrides:Partial<Record<StorefrontBuilderPageType,ReturnType<typeof sanitizePage>>>=input.allPages
+    ? Object.fromEntries(STOREFRONT_PAGE_TYPES.map(pageType=>[pageType,pageType==='home'?home:sanitizePage(pageType)])) as Partial<Record<StorefrontBuilderPageType,ReturnType<typeof sanitizePage>>>
     : {home};
 
   return{
