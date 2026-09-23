@@ -87,5 +87,5 @@ export function createStorefrontTemplateFactoryMediaWorkOrder(
 }
 
 export function pendingStorefrontTemplateFactoryMediaWorkOrders(recipe:StorefrontTemplateFactoryRecipe){
-  return createStorefrontTemplateFactoryMediaWorkOrder(recipe).filter(order=>order.state==='planned');
+  return createStorefrontTemplateFactoryMediaWorkOrder(recipe).filter(order=>order.state!=='ready');
 }
