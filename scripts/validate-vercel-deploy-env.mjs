@@ -19,6 +19,7 @@ const RUNTIME_SCHEMA_PROBES = Object.freeze([
     label: 'template demo content columns',
     table: 'content_pages',
     columns: ['id','template_demo_namespace','template_demo_key','template_demo_state','template_demo_source_template_key','template_demo_source_template_version'],
+    credential: 'public',
   },
   {
     label: 'saved customer billing authority',
@@ -75,7 +76,7 @@ function deploymentServerKey() {
 
 const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
-async function probeRuntimeSchema(baseUrl, serverKey) {
+async function probeRuntimeSchema(baseUrl, serverKey, publicKey) {
   for (const probe of RUNTIME_SCHEMA_PROBES) {
     const url = new URL(`/rest/v1/${probe.table}`, baseUrl);
     url.searchParams.set('select', probe.columns.join(','));
@@ -84,8 +85,9 @@ async function probeRuntimeSchema(baseUrl, serverKey) {
     let lastFailure = null;
     for (let attempt = 1; attempt <= 3; attempt += 1) {
       try {
-        const headers = {apikey: serverKey, accept: 'application/json'};
-        if (serverKey.startsWith('eyJ')) headers.Authorization = `Bearer ${serverKey}`;
+        const apiKey = probe.credential === 'public' ? publicKey : serverKey;
+        const headers = {apikey: apiKey, accept: 'application/json'};
+        if (apiKey.startsWith('eyJ')) headers.Authorization = `Bearer ${apiKey}`;
         const response = await fetch(url, {
           method: 'GET',
           headers,
@@ -199,7 +201,8 @@ if (process.env.NODE_ENV !== 'test') {
   }
 
   try {
-    await probeRuntimeSchema(process.env.NEXT_PUBLIC_SUPABASE_URL, serverKey);
+    const publicKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    await probeRuntimeSchema(process.env.NEXT_PUBLIC_SUPABASE_URL, serverKey, publicKey);
     console.log(`Vercel ${environment} runtime schema compatibility preflight OK (${RUNTIME_SCHEMA_PROBES.length} probes).`);
   } catch (error) {
     console.error(

@@ -86,7 +86,7 @@ Do not solve that redirect by bypassing access control. Activation/publication i
 
 The Vercel deploy environment validator now contains a runtime-schema compatibility phase.
 
-For real Vercel Preview/Production builds it uses the correct server credential against the configured Supabase target and performs zero-row PostgREST schema probes for current runtime authorities, including:
+For real Vercel Preview/Production builds it uses the correctly scoped credential against the configured Supabase target and performs zero-row PostgREST schema probes for current runtime authorities. Public content-schema probing uses the publishable/anon role because that surface is intentionally public; private/admin authorities use the server credential. Probes include:
 
 - template demo product columns, including `template_demo_image_url`;
 - template demo content provenance columns;
