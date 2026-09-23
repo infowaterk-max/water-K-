@@ -3,11 +3,11 @@ import{AuthForm}from'@/components/auth/auth-form';
 import{StorefrontAccountShell}from'@/components/account/storefront-account-shell';
 import{createClient}from'@/lib/supabase/server';
 import{normalizeStorefrontReturnTarget}from'@/lib/auth/storefront-return-target';
-import{getStorefrontTemplatePackage}from'@/lib/builder/storefront-template-catalog';
+import{resolveStorefrontTemplatePreviewPackage}from'@/lib/builder/storefront-template-preview-auth';
 import{STOREFRONT_PAGE_TYPES,type StorefrontBuilderPageType}from'@/lib/builder/storefront-foundation';
 
 export const dynamic='force-dynamic';
-type Props={searchParams:Promise<{template?:string;version?:string;page?:string;viewport?:string;next?:string}>};
+type Props={searchParams:Promise<{template?:string;version?:string;page?:string;viewport?:string;next?:string;factory?:string}>};
 const allowedPageTypes=new Set<StorefrontBuilderPageType>(STOREFRONT_PAGE_TYPES);
 
 function previewTarget(input:{templateKey:string;templateVersion:number;pageType:StorefrontBuilderPageType;viewport:string;requested?:string}){
@@ -28,7 +28,8 @@ export default async function StorefrontTemplatePreviewLogin({searchParams}:Prop
  const version=query.version?Number(query.version):undefined;
  const pageType=(query.page??'home') as StorefrontBuilderPageType;
  if(!templateKey||version!==undefined&&!Number.isInteger(version)||!allowedPageTypes.has(pageType))notFound();
- const template=getStorefrontTemplatePackage(templateKey,version);
+ const factoryCandidate=query.factory==='1';
+ const template=resolveStorefrontTemplatePreviewPackage(templateKey,version,factoryCandidate);
  if(!template||!template.pages.some(page=>page.pageType==='account'))notFound();
  const target=previewTarget({
   templateKey:template.manifest.templateKey,
@@ -43,7 +44,7 @@ export default async function StorefrontTemplatePreviewLogin({searchParams}:Prop
  return <StorefrontAccountShell
   customerId={null}
   fallbackNavigation={null}
-  previewTemplate={{templateKey:template.manifest.templateKey,templateVersion:template.manifest.templateVersion}}
+  previewTemplate={{templateKey:template.manifest.templateKey,templateVersion:template.manifest.templateVersion,factoryCandidate}}
  >
   <main className="section accountPage storefrontSignedOutAccount" data-template-preview-auth="true">
    <div className="shell">
