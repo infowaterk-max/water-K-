@@ -27,6 +27,7 @@ export type StorefrontTemplateFactoryMediaRole='hero'|'category'|'product'|'edit
 export type StorefrontTemplateFactoryMediaAspectRatio='1:1'|'4:5'|'16:9'|'3:2'|'free';
 export type StorefrontTemplateFactoryMediaAsset={
   key:string;
+  state:'planned'|'ready';
   role:StorefrontTemplateFactoryMediaRole;
   src:string;
   alt:string;
@@ -110,6 +111,7 @@ export type StorefrontTemplateFactoryBuild={
     inheritedPageTypes:readonly StorefrontBuilderPageType[];
     overriddenPageTypes:readonly StorefrontBuilderPageType[];
     representativeMediaCount:number;
+    plannedMediaCount:number;
     issues:readonly StorefrontTemplateFactoryIssue[];
     productOwnerReady:boolean;
   };
@@ -188,7 +190,7 @@ function evaluateBuild(input:{
 
   for(const miss of input.patchMisses)issues.push(issue('FACTORY_PATCH_TARGET_MISSING',miss,'A declared factory patch did not match any node.'));
 
-  const representative=recipe.media.assets.filter(asset=>asset.representative);
+  const representative=recipe.media.assets.filter(asset=>asset.representative&&asset.state==='ready');
   if(representative.length<recipe.media.minimumRepresentativeMedia){
     issues.push(issue('FACTORY_MEDIA_COVERAGE','media.assets',`Representative media count ${representative.length} is below required minimum ${recipe.media.minimumRepresentativeMedia}.`));
   }
@@ -314,7 +316,8 @@ export function compileStorefrontTemplateFactoryPackage(input:{
       template:{templateKey:recipe.templateKey,templateVersion:recipe.templateVersion,category:recipe.category},
       inheritedPageTypes:Object.freeze([...inherited]),
       overriddenPageTypes:Object.freeze([...overridden]),
-      representativeMediaCount:recipe.media.assets.filter(asset=>asset.representative).length,
+      representativeMediaCount:recipe.media.assets.filter(asset=>asset.representative&&asset.state==='ready').length,
+      plannedMediaCount:recipe.media.assets.filter(asset=>asset.state==='planned').length,
       issues:Object.freeze(issues),
       productOwnerReady:issues.every(item=>item.severity!=='error'),
     },
