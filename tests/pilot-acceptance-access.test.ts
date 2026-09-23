@@ -68,6 +68,12 @@ describe('pilot acceptance guest access',()=>{
     expect(page).not.toContain("status:'active'");
   });
 
+  it('keeps published Page Schema static routes behind the production storefront launch gate',()=>{
+    const runtimeSource=read('src/lib/builder/storefront-runtime-source.ts');
+    expect(runtimeSource).toContain("const instance=process.env.VERCEL_ENV==='preview'?await getCurrentWebshopInstance():await requireStorefrontAccess();");
+    expect(runtimeSource).toContain("const previewDraft=process.env.VERCEL_ENV==='preview'?await getPreviewStorefrontDraftPage(instance.id,pageKey):null;");
+  });
+
   it('separates protected Preview browsing from transactional storefront authority',()=>{
     const storefrontAccess=read('src/lib/storefront/access.ts');
     const catalog=read('src/app/webaruhaz/page.tsx');
