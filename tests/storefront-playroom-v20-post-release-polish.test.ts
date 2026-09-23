@@ -18,14 +18,19 @@ describe('Playroom v20 post-release UI polish',()=>{
     expect(copy.config.style.tablet.minHeight).toBe('18rem');
     expect(find(catalog.sections,'playroom-catalog-platform-presets').config.style.base.paddingTop).toBe('.75rem');
   });
-  it('keeps the shared contact wizard present, materialized and desktop-bounded',()=>{
+  it('keeps the shared contact wizard present, materialized, desktop-bounded and topic-first',()=>{
     const form=find(page('contact').sections,'playroom-contact-form');
     expect(form?.componentKey).toBe('support.contact-form');
     expect(form.config.style).toBeUndefined();
     const client=read('src/components/builder/storefront-support-contact-form-client.tsx');
+    const wizard=read('src/components/forms/storefront-form-wizard.tsx');
     expect(client).toContain("maxWidth:'54rem'");
     expect(client).toContain("margin:'1rem auto 2rem'");
     expect(client).toContain('StorefrontFormWizard');
+    expect(client).toContain("kind:'topic'");
+    expect(client).toContain("whenTopic:'general'");
+    expect(wizard).toContain('data-wizard-topic-layout="desktop"');
+    expect(wizard).toContain('data-wizard-topic-layout="mobile"');
   });
   it('hides the misleading Playroom desktop trigger while retaining mobile navigation',()=>{
     for(const current of PLAYROOM_V20_TEMPLATE_PACKAGE.pages){const header=find(current.sections,'playroom-account-header');if(header)expect(header.config.styleSlots.categoryTrigger.desktop.display).toBe('none');}
