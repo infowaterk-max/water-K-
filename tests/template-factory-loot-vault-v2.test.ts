@@ -13,6 +13,10 @@ const findNode=(nodes:readonly StorefrontComponentNode[],id:string):StorefrontCo
   for(const node of nodes){if(node.id===id)return node;const child=findNode(node.children??[],id);if(child)return child;}
   return undefined;
 };
+const findNodeBy=(nodes:readonly StorefrontComponentNode[],match:(node:StorefrontComponentNode)=>boolean):StorefrontComponentNode|undefined=>{
+  for(const node of nodes){if(match(node))return node;const child=findNodeBy(node.children??[],match);if(child)return child;}
+  return undefined;
+};
 
 describe('Loot Vault v2 Factory canary recipe',()=>{
   it('locks the accepted visual reference and the complete 14-asset production plan',()=>{
@@ -129,11 +133,11 @@ describe('Loot Vault v2 Factory canary recipe',()=>{
     const build=buildRegisteredStorefrontTemplateFactoryCandidate('gaming.loot-vault');
     const home=build.package.pages.find(page=>page.pageType==='home')!;
     const product=build.package.pages.find(page=>page.pageType==='product')!;
-    const homeGrid=findNode(home.sections,'loot-v2-product-grid');
-    expect(homeGrid?.componentKey).toBe('commerce.product-grid');
+    const homeGrid=findNodeBy(home.sections,node=>node.componentKey==='commerce.product-grid'&&node.config.presentation==='loot-vault');
+    expect(homeGrid).toBeTruthy();
     expect(homeGrid?.config).toMatchObject({showCta:false,showPurchaseActions:true,purchaseLabel:'Kosárba',wishlistLabel:'Kedvencekhez'});
-    const purchase=findNode(product.sections,'loot-v2-product-purchase');
-    expect(purchase?.componentKey).toBe('commerce.purchase-controls');
+    const purchase=findNodeBy(product.sections,node=>node.componentKey==='commerce.purchase-controls'&&node.config.presentation==='loot-vault');
+    expect(purchase).toBeTruthy();
     expect(purchase?.bindings).toMatchObject({
       productId:{path:'product.id'},variantId:{path:'variant.id'},slug:{path:'product.slug'},unitPrice:{path:'pricing.unitPrice'},availableQuantity:{path:'inventory.availableQuantity'},
     });
