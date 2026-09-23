@@ -81,6 +81,7 @@ export type StorefrontTemplateFactoryCategoryFoundation={
   package:StorefrontInstallableTemplatePackage;
   recommendedOwnedPages:readonly StorefrontBuilderPageType[];
   inheritedPages:readonly StorefrontBuilderPageType[];
+  forbiddenLeakTokens?:readonly string[];
 };
 
 export type StorefrontTemplateFactoryIssue={
@@ -197,6 +198,9 @@ function evaluateBuild(input:{
   if(foundationSlug!==targetSlug){
     const leakedMedia=`/storefront/${foundationSlug}/`;
     if(serialized.includes(leakedMedia))issues.push(issue('FACTORY_FOUNDATION_MEDIA_LEAK','package','Compiled template still references foundation-specific media.'));
+    for(const token of foundation.forbiddenLeakTokens??[]){
+      if(token&&serialized.includes(token))issues.push(issue('FACTORY_FOUNDATION_BRAND_LEAK','package',`Compiled template still contains foundation-specific token: ${token}`));
+    }
   }
 
   if(!recipe.productOwnerReview.internalVisualReviewPassed)issues.push(issue('FACTORY_INTERNAL_VISUAL_REVIEW_REQUIRED','productOwnerReview.internalVisualReviewPassed','Internal reference screenshot review must pass before Product Owner preview.'));
