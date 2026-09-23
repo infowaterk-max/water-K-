@@ -215,7 +215,9 @@ function evaluateBuild(input:{
     if(recipe.media.forbidPlaceholderSvg&&/\.svg(?:\?|$)/i.test(asset.src))issues.push(issue('FACTORY_PLACEHOLDER_SVG_FORBIDDEN',`media.assets[${index}].src`,'Product Owner-ready media manifest may not use SVG placeholders.'));
     for(const pageType of asset.pageTypes){
       const page=pageByType.get(pageType);
-      if(!page||!pageContains(page,asset.src))issues.push(issue('FACTORY_MEDIA_NOT_WIRED',`media.assets[${index}].pageTypes.${pageType}`,'Declared media asset is not referenced by the compiled target page.'));
+      const wiredByPage=Boolean(page&&pageContains(page,asset.src));
+      const wiredByFixture=JSON.stringify(recipe.demoFixtures).includes(asset.src);
+      if(!wiredByPage&&!wiredByFixture)issues.push(issue('FACTORY_MEDIA_NOT_WIRED',`media.assets[${index}].pageTypes.${pageType}`,'Declared media asset is not referenced by the compiled target page or demo fixture authority.'));
     }
   }
 
