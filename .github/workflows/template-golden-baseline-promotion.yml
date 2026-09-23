@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       evidence_run_id:
-        description: Successful Template Factory Quality Gate v2 run ID
+        description: Exact Template Factory Quality Gate v2 evidence run ID
         required: true
         type: string
       source_ref:
@@ -23,6 +23,11 @@ on:
         description: Repository baseline directory
         required: true
         type: string
+      allow_accepted_golden_drift:
+        description: Allow only human-accepted GOLDEN_DIFF / missing-baseline errors; all non-golden failures remain blocking
+        required: true
+        type: boolean
+        default: false
 
 permissions:
   actions: read
@@ -52,12 +57,18 @@ jobs:
           test "$(git rev-parse HEAD)" = "$(node -p "JSON.parse(require('fs').readFileSync('artifacts/promotable-quality-evidence/manifest.json','utf8')).sourceCommit")"
 
       - name: Promote complete 14x3 matrix
-        run: >
-          node scripts/promote-template-golden-baseline.mjs
-          artifacts/promotable-quality-evidence
-          "${{ inputs.template_key }}"
-          "${{ inputs.template_version }}"
-          "${{ inputs.baseline_directory }}"
+        shell: bash
+        run: |
+          extra=()
+          if [[ "${{ inputs.allow_accepted_golden_drift }}" == "true" ]]; then
+            extra+=(--allow-golden-drift)
+          fi
+          node scripts/promote-template-golden-baseline.mjs \
+            artifacts/promotable-quality-evidence \
+            "${{ inputs.template_key }}" \
+            "${{ inputs.template_version }}" \
+            "${{ inputs.baseline_directory }}" \
+            "${extra[@]}"
 
       - name: Upload promotable golden baseline
         uses: actions/upload-artifact@v4
