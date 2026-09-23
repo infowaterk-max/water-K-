@@ -87,8 +87,44 @@ export const PLAYROOM_V20_QUALITY_MANIFEST:StorefrontTemplateQualityManifest=Obj
   }),
 });
 
+export const LOOT_VAULT_V1_QUALITY_MANIFEST:StorefrontTemplateQualityManifest=Object.freeze({
+  gateVersion:STOREFRONT_TEMPLATE_QUALITY_GATE_VERSION,
+  templateKey:'gaming.loot-vault',
+  minTemplateVersion:1,
+  status:'candidate',
+  sourcePrefixes:Object.freeze([
+    'src/lib/builder/templates/loot-vault',
+  ]),
+  pageTypes:Object.freeze([...STOREFRONT_PAGE_TYPES]),
+  viewports:Object.freeze([...STOREFRONT_VIEWPORTS]),
+  shell:Object.freeze({
+    canonical:true,
+    allowedHeaderComponentKeys:Object.freeze(['system.commerce-header']),
+    mobileNavigation:'hamburger',
+  }),
+  content:Object.freeze({
+    informationPageRequired:true,
+  }),
+  responsiveIsolation:Object.freeze({
+    explicitEffectiveStyles:true,
+  }),
+  browser:Object.freeze({
+    maxHorizontalOverflowPx:2,
+    minimumTouchTargetPx:32,
+    recommendedTouchTargetPx:44,
+    requireMobileMenu:true,
+    requireFooter:true,
+  }),
+  golden:Object.freeze({
+    required:false,
+    baselineDirectory:'tests/visual-baselines/gaming.loot-vault/v1',
+    maxPixelMismatchRatio:.005,
+  }),
+});
+
 export const STOREFRONT_TEMPLATE_QUALITY_MANIFESTS:readonly StorefrontTemplateQualityManifest[]=Object.freeze([
   PLAYROOM_V20_QUALITY_MANIFEST,
+  LOOT_VAULT_V1_QUALITY_MANIFEST,
 ]);
 
 export function getStorefrontTemplateQualityManifest(templateKey:string){
