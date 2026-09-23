@@ -1,8 +1,8 @@
 # Shoperation Support Knowledge
 
-Status: **living, versioned knowledge base — current successor**
+Status: **living, versioned knowledge base — production-verified through 2026-09-23**
 
-This directory is the long-term knowledge source for Shoperation Support, Support Intelligence, template-factory diagnostics and future OpenAI-assisted support.
+This directory is the long-term knowledge source for Shoperation Support, Support Intelligence, Template Factory diagnostics and future OpenAI-assisted support.
 
 Historical source: Draft PR #156 established the first governance contract. That branch is historical input only; current development must maintain knowledge on the active canonical development line.
 
@@ -40,7 +40,7 @@ A visually similar historical symptom is a diagnostic shortcut, not permission t
 
 - `AUTO_FIX` — deterministic, low-risk, reversible action with a known success condition.
 - `CONFIRM_FIX` — deterministic diagnosis, but merchant intent is required.
-- `HUMAN_REQUIRED` — sensitive/high-impact/ambiguous change, auth/payment/refund/destructive/cross-tenant concern, or no deterministic verification.
+- `HUMAN_REQUIRED` — sensitive/high-impact/ambiguous change, auth/payment/refund/destructive/cross-tenant concern, visual acceptance/golden promotion, or no deterministic verification.
 - `DIAGNOSE_ONLY` — inspect/explain only.
 
 The language model does not gain arbitrary mutation authority from a knowledge match.
@@ -62,7 +62,7 @@ Before reusing a resolution, validate tenant scope, subsystem/provider, componen
 - Never store secrets, passwords, card data or private credentials here.
 - Tenant-specific business data remains tenant-scoped.
 - Cross-tenant learning must be generalized/anonymized.
-- Never weaken RLS, service-role grants, auth, Preview Protection, immutable audit/revision contracts or payment safety guards just to make an acceptance proof pass.
+- Never weaken RLS, service-role grants, auth, Preview Protection, immutable audit/revision contracts, payment safety guards or Template Factory fail-closed checks just to make acceptance pass.
 - Privileged/support mutations must remain typed, authorized and auditable.
 
 ## Resolution Record template
@@ -97,19 +97,45 @@ Every substantial development, acceptance, release or production task should ask
 
 > Did this reveal anything that would help Support or the Template Factory diagnose, explain, resolve or prevent the same failure?
 
-If yes, update Support Knowledge in the same development cycle.
+If yes, update Support Knowledge in the same development cycle. Production verification may strengthen an earlier acceptance/code record, but historical evidence must not be silently rewritten as if it had always been production-proven.
 
-## Current incident index
+## Current knowledge index
 
-- `DIGITAL_OFFICE_RESPONSIVE_INCIDENT_2026-09-10.md` — preserved Digital Office / Team Chat responsive failure history, rejected global/ratio-based fixes, nested-height root cause and duplicate Desktop-site CSS-owner repair.
-- `RECENT_ENGINEERING_INCIDENTS_2026-09-10_11.md` — migrated historical incident set covering Product Intake route/selector drift, device-preview heuristics, Digital Office performance/layout, Fresh Install dependency gaps, Storefront contract drift, preview 302 evidence, concurrent-main reconciliation and Support/Digital Office authority reuse.
-- `RECENT_ENGINEERING_BACKFILL_2026-09-12_18.md` — backfill of support-relevant lessons between the original baseline and Phase 4: Builder authority/mobile failures, Email Builder stale target, Playroom template-version upgrade failures, stale Storefront-stack release integration, Special Commerce authority/idempotency/Fresh Install rules, AI Builder/Block 24 boundaries, Product Documents security/guest acceptance and Phase 3 shared runtime/composition lessons.
-- `PLAYROOM_V20_PHASE4_BUILDER_ACCEPTANCE_INCIDENTS_2026-09-18.md` — Playroom v20 Phase 4 human acceptance: tenant-entry, Alap entitlement gate, Preview/staging proof constraints, Visual Builder wrapper fidelity, canonical viewport, zoom/fit, absolute media, grid stretch, dense header and CI/harness lessons.
+### Historical engineering / platform incidents
 
-- `TEMPLATE_ROUTE_INTEGRITY_DEMO_CONTENT_2026-09-21.md` — canonical Template Factory route-integrity + demo-content lifecycle: no dead links, real catalog deep-link consumers, dynamic content fixtures, draft-only CMS materialization, fixture/adopted/retired provenance and staging acceptance proof.
-- `TEMPLATE_FACTORY_QUALITY_GATE_V2_FOUNDATION_CLOSURE_2026-09-21.md` — Quality Gate v2 closure hardening: exact-head golden promotion, full cross-template shared-Runtime policy, Builder/Preview geometry authority and CI self-regression coverage.
-- `STOREFRONT_AUTH_INTENT_AND_CHECKOUT_ACCOUNT_OPPORTUNITY_2026-09-21.md` — shared customer-auth modal, safe return target authority, one account capability rail, optional checkout auth, capability-driven benefits and authenticated token-bound guest-order claiming.
-- `SHARED_CUSTOMER_BILLING_AND_B2B_IDENTITY_AUTHORITY_2026-09-22.md` — platform-wide saved billing defaults, template-native cart/checkout continuity, shared add-to-cart acknowledgement, one account navigation authority and audited B2B legal-identity re-verification.
+- `DIGITAL_OFFICE_RESPONSIVE_INCIDENT_2026-09-10.md` — Digital Office / Team Chat responsive failure history, rejected global fixes, nested-height root cause and CSS-owner repair.
+- `RECENT_ENGINEERING_INCIDENTS_2026-09-10_11.md` — Product Intake route/selector drift, preview heuristics, Digital Office, Fresh Install gaps, Storefront contract drift and support authority reuse.
+- `RECENT_ENGINEERING_BACKFILL_2026-09-12_18.md` — Builder/mobile failures, stale targets, Playroom upgrade paths, Special Commerce, Product Documents and shared Runtime/composition lessons.
+
+### Playroom / Template Factory acceptance and production
+
+- `PLAYROOM_V20_PHASE4_BUILDER_ACCEPTANCE_INCIDENTS_2026-09-18.md` — Phase 4 human Builder acceptance and geometry/viewport lessons.
+- `TEMPLATE_FACTORY_QUALITY_GATE_V2_FOUNDATION_CLOSURE_2026-09-21.md` — Quality Gate v2 foundation and exact-head evidence rules.
+- `TEMPLATE_FACTORY_CANONICAL_HARDENING_2026-09-22.md` — current-only canonical package, responsive isolation v2, targeted Page Schema mutation and production workflow.
+- `PLAYROOM_V20_HOME_RESPONSIVE_AND_NEWSLETTER_2026-09-22.md` — Home responsive polish, Newsletter readiness, shared product projection and Playroom composition rules.
+- `PLAYROOM_V20_TEMPLATE_CLOSURE_2026-09-22.md` — historical pre-production Playroom v20 closure evidence.
+- `PLAYROOM_V20_POST_RELEASE_UI_POLISH_2026-09-23.md` — final catalog/contact/cart/account/product polish and topic-first support wizard.
+- `PLAYROOM_V20_PRODUCTION_RELEASE_AND_GOLDEN_RECOVERY_2026-09-23.md` — production release, release-base gate lesson, six accepted golden diffs, controlled baseline recovery and final green main proof.
+
+### Shared storefront system surfaces / routes
+
+- `TEMPLATE_ROUTE_INTEGRITY_DEMO_CONTENT_2026-09-21.md` — route integrity, deep-link consumers and draft-safe demo fixtures.
+- `STOREFRONT_ACCEPTANCE_COMMERCE_FIXTURE_RULE_2026-09-21.md` — acceptance commerce fixture authority.
+- `STOREFRONT_SYSTEM_SURFACE_TEMPLATE_INHERITANCE_RULE_2026-09-21.md` — shared system surfaces inherit active template presentation.
+- `STOREFRONT_ROUTE_AND_AUTHENTICATED_ACCOUNT_INHERITANCE_2026-09-21.md` — public routes and authenticated account shell inheritance.
+- `STOREFRONT_COOKIE_CONSENT_TEMPLATE_COMPOSITION_RULE_2026-09-21.md` — shared consent behavior with template-aware composition.
+- `STOREFRONT_SOCIAL_LINKS_TENANT_AUTHORITY_2026-09-21.md` — tenant social-link authority.
+- `STOREFRONT_CONTACT_RUNTIME_CONTINUITY_2026-09-22.md` — contact Page Schema continuity, support-form authority, validation and topic-first follow-up.
+- `STOREFRONT_HOME_PREVIEW_RUNTIME_CONTINUITY_2026-09-22.md` — Home Preview Runtime continuity.
+- `STOREFRONT_HEADER_UTILITY_AND_CART_CROSS_SELL_PRESENTATION_2026-09-22.md` — header utility and cart cross-sell presentation hardening.
+- `STOREFRONT_TEMPLATE_DEMO_CATALOG_LIFECYCLE_2026-09-22.md` — Template Demo Catalog lifecycle and provenance.
+
+### Authentication / account / commerce authority
+
+- `STOREFRONT_AUTH_SURFACE_SHARED_TEMPLATE_AWARE_2026-09-21.md` — shared auth surface, template-aware presentation.
+- `STOREFRONT_AUTH_TEMPLATE_COMPOSITION_RULE_2026-09-21.md` — auth template composition boundary.
+- `STOREFRONT_AUTH_INTENT_AND_CHECKOUT_ACCOUNT_OPPORTUNITY_2026-09-21.md` — auth intent preservation, optional checkout auth and guest-order claim.
+- `SHARED_CUSTOMER_BILLING_AND_B2B_IDENTITY_AUTHORITY_2026-09-22.md` — billing defaults, B2B verified identity, cart/checkout/account continuity and post-purchase rules.
 
 ## Core engineering rules
 
@@ -131,14 +157,11 @@ If yes, update Support Knowledge in the same development cycle.
 16. **Shared launch capabilities belong in shared package/install/runtime contracts**, not manual edits repeated across every template.
 17. **Every template link needs a real destination authority.** Known routes must exist, catalog query parameters must be consumed, and static dynamic-content links must have draft-safe demo fixtures; generated business/service content is never auto-published as truth.
 18. **Shared Storefront/Builder authority changes require cross-template full-matrix proof.** Canary-only coverage is not sufficient when the shared Runtime renderer, Builder geometry authority, Preview authority or Quality Gate infrastructure changes.
-19. **Accepted templates require committed golden baselines.** Promotion must come from clean exact-head 14x3 evidence; candidate-to-accepted remains an explicit human decision.
-
-- [Storefront header utility + cart cross-sell presentation hardening (2026-09-22)](./STOREFRONT_HEADER_UTILITY_AND_CART_CROSS_SELL_PRESENTATION_2026-09-22.md)
-
-- [Storefront contact Runtime continuity (2026-09-22)](./STOREFRONT_CONTACT_RUNTIME_CONTINUITY_2026-09-22.md)
-
-- [Storefront homepage Preview Runtime continuity (2026-09-22)](./STOREFRONT_HOME_PREVIEW_RUNTIME_CONTINUITY_2026-09-22.md)
-
-- [Playroom v20 homepage responsive polish + shared Newsletter readiness (2026-09-22)](./PLAYROOM_V20_HOME_RESPONSIVE_AND_NEWSLETTER_2026-09-22.md)
-
-- [Storefront Template Demo Catalog Lifecycle (2026-09-22)](./STOREFRONT_TEMPLATE_DEMO_CATALOG_LIFECYCLE_2026-09-22.md)
+19. **Accepted templates require committed golden baselines and explicit human visual acceptance.** Normal promotion uses clean exact-head 14×3 evidence. An explicit accepted-golden-drift recovery may promote only golden-only failures from a complete exact-source matrix; all non-golden failures remain blocking, and only drifted cases are updated.
+20. **The production release gate is base-aware.** A green feature-parent run is not a substitute for a completed PR/release comparison against current main.
+21. **Do not merge while the base-aware production PR gate is still running.** Mergeability plus earlier feature PASS is insufficient release evidence.
+22. **Vercel READY is deployment evidence, not quality-gate evidence.** A READY production deployment does not override failed CI, Template Factory or golden comparison.
+23. **Page Schema roots must paint the active template canvas.** Transparent section gaps must not expose the application/body fallback background.
+24. **Shared support intake is intent-first.** Topic selection precedes irrelevant identity/order fields; desktop and mobile may use different interaction patterns while preserving one semantic flow.
+25. **Validation must not punish untouched fields.** Initial render stays quiet; errors appear after an attempted step/submit and clear as the input is corrected.
+26. **When a release exposes a new failure class, convert it into Knowledge and a prevention contract before continuing the template production line.**
