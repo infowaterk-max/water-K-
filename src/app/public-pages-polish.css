@@ -73,3 +73,26 @@
  .storefrontContentShell .shopPage .shopTrustBar{display:grid;grid-template-columns:1fr 1fr;gap:.5rem}
  .storefrontContentShell .shopPage .shopCards{grid-template-columns:1fr!important}
 }
+
+
+/* Playroom v20 final catalog acceptance - 2026-09-23. */
+.storefrontContentShell .shopPage[data-storefront-catalog-route="new"] .selectionHelp + .newsletterPanel{
+ margin-top:clamp(1.25rem,2.6vw,2rem)
+}
+.storefrontContentShell .shopPage .newsletterPanel{
+ background:var(--shoporation-color-surface,#fff)!important;
+ color:var(--shoporation-color-text,#111827)!important;
+ border-color:var(--shoporation-color-border,#d8dce7)!important;
+ box-shadow:none!important
+}
+.storefrontContentShell .shopPage .shopActions .button{
+ background:var(--shoporation-color-primary,#5c7cfa)!important;
+ color:var(--shoporation-color-primary-contrast,#fff)!important;
+ box-shadow:none!important
+}
+.storefrontContentShell .shopPage .stockDot{
+ color:var(--shoporation-color-danger,var(--shoporation-color-accent,#ff6b5e))!important
+}
+.storefrontContentShell .shopPage .stockDot:before{
+ background:var(--shoporation-color-danger,var(--shoporation-color-accent,#ff6b5e))!important
+}
