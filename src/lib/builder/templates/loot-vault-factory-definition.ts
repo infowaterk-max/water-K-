@@ -40,6 +40,13 @@ export const LOOT_VAULT_FACTORY_DEFINITION:StorefrontFactoryDefinition=Object.fr
   reference:Object.freeze({
     referenceKey:'gaming.loot-vault.accepted-reference-2026-09-06',
     requiredMediaRoles:Object.freeze(['hero','category','product','editorial'] as const),
+    mediaRequirements:Object.freeze([
+      {role:'hero',minCount:1,aspectRatio:'16:9'},
+      {role:'category',minCount:6,aspectRatio:'4:5'},
+      {role:'product',minCount:4,aspectRatio:'4:5'},
+      {role:'editorial',minCount:2,aspectRatio:'3:2'},
+      {role:'background',minCount:1,aspectRatio:'16:9'},
+    ] as const),
     minimumRepresentativeMedia:14,
     forbidPlaceholderSvg:true,
   }),
