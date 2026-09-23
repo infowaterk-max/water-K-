@@ -6,6 +6,7 @@ import {
   LOOT_VAULT_HOME_PAGE,
   LOOT_VAULT_CATALOG_PAGE,
   LOOT_VAULT_PRODUCT_PAGE,
+  LOOT_VAULT_ACCOUNT_PAGE,
   LOOT_VAULT_BLOG_INDEX_PAGE,
   LOOT_VAULT_BLOG_ARTICLE_PAGE,
 } from '@/lib/builder/templates/loot-vault';
@@ -278,6 +279,48 @@ export const LOOT_VAULT_V2_PRODUCT_PAGE=override(LOOT_VAULT_PRODUCT_PAGE,[
   createLootVaultV2ShellFooter(),
 ],{referenceComposition:'accepted-2026-09-06',referenceCritical:true});
 
+export const LOOT_VAULT_V2_ACCOUNT_PAGE=override(LOOT_VAULT_ACCOUNT_PAGE,[
+  createLootVaultV2ShellHeader(),
+  n({
+    id:'loot-v2-account-auth-public',
+    componentKey:'layout.section',
+    componentVersion:1,
+    config:{
+      authPublic:true,
+      tone:'background',
+      spacing:'l',
+      width:'full',
+      style:{
+        background:'radial-gradient(circle at 78% 22%,rgba(165,122,69,.18),transparent 32%),linear-gradient(180deg,#111313,#0d0e0f)',
+        borderBottom:'1px solid rgba(165,122,69,.18)',
+      },
+    },
+    children:[n({
+      id:'loot-v2-account-auth-container',
+      componentKey:'layout.container',
+      componentVersion:1,
+      config:{width:'content',spacing:'m'},
+      children:[grid('loot-v2-account-auth-grid',[
+        stack('loot-v2-account-auth-copy',[
+          badge('loot-v2-account-auth-kicker','VAULT ACCESS'),
+          heading('loot-v2-account-auth-title','Lépj be a saját gyűjtői teredbe.',1,{fontSize:'clamp(2.15rem,5vw,4.4rem)',maxWidth:'11ch'}),
+          text('loot-v2-account-auth-text','Rendelések, kívánságlista, letöltések és gyűjtői fiókadatok egy sötét, letisztult Vault felületen.',{fontSize:'1rem',maxWidth:'34rem'}),
+        ],7,{padding:'clamp(.4rem,2vw,1.2rem) 0'}),
+        stack('loot-v2-account-auth-note',[
+          badge('loot-v2-account-auth-note-kicker','BIZTONSÁGOS BELÉPÉS'),
+          heading('loot-v2-account-auth-note-title','A hozzáférés shared. A megjelenés Loot Vault.',3,{fontSize:'1.15rem'}),
+          text('loot-v2-account-auth-note-text','A hitelesítés közös platformlogikát használ, a vizuális környezet viszont ennek a sablonnak a saját designrendszerét követi.',{fontSize:'.85rem'}),
+        ],5,{padding:'1rem',background:'linear-gradient(180deg,rgba(32,35,34,.92),rgba(17,19,19,.96))',border:'1px solid rgba(165,122,69,.34)',borderRadius:'.75rem',boxShadow:'0 18px 46px rgba(0,0,0,.3)'}),
+      ],'1rem')],
+    })],
+  }),
+  createLootVaultV2ShellFooter(),
+],{
+  authComposition:'template-owned-v1',
+  authPreset:'loot-vault-v2-vault-access',
+  systemSurfaceComposition:'template-owned',
+});
+
 const lootVaultBlogHighlights=[
   {id:'loot-v2-blog-highlight-1',title:'A gyűjtőszoba mint személyes univerzum',copy:'Vitrinek, fények és történetek: így lesz a gyűjteményből karakteres tér.',image:MEDIA.editorial1},
   {id:'loot-v2-blog-highlight-2',title:'Mitől érték egy limitált kiadás?',copy:'Kiadás, állapot és eredet — a látvány mögött mindig valódi termékadat áll.',image:MEDIA.editorial2},
@@ -332,6 +375,7 @@ export const LOOT_VAULT_V2_PAGE_OVERRIDES=Object.freeze({
   home:LOOT_VAULT_V2_HOME_PAGE,
   catalog:LOOT_VAULT_V2_CATALOG_PAGE,
   product:LOOT_VAULT_V2_PRODUCT_PAGE,
+  account:LOOT_VAULT_V2_ACCOUNT_PAGE,
   'blog-index':LOOT_VAULT_V2_BLOG_INDEX_PAGE,
   'blog-article':LOOT_VAULT_V2_BLOG_ARTICLE_PAGE,
 });
