@@ -15,6 +15,9 @@ const viewportProfiles=Object.freeze({
 const canaryPageTypes=new Set(['home','product','account','content','legal','not-found']);
 const qualityInfrastructurePrefixes=[
   'src/lib/builder/storefront-template-quality-gate.ts',
+  'src/lib/builder/template-factory/scaffold.ts',
+  'src/lib/builder/template-factory/category-foundations.ts',
+  'src/lib/builder/template-factory/recipe-registry.ts',
   'src/app/api/visual-fidelity/templates/',
   'src/app/visual-fidelity-qa/',
   'scripts/template-factory-quality-gate.mjs',
@@ -300,7 +303,8 @@ try{
         const profile=viewportProfiles[viewport];
         const page=await browser.newPage({viewport:profile,deviceScaleFactor:1});
         const name=`${safeName(manifest.templateKey)}-v${manifest.templateVersion}-${pageType}-${viewport}`;
-        const url=`${baseUrl}/visual-fidelity-qa?template=${encodeURIComponent(manifest.templateKey)}&version=${manifest.templateVersion}&page=${encodeURIComponent(pageType)}&viewport=${viewport}`;
+        const factoryQuery=manifest.factoryCandidate?'&factory=1':'';
+        const url=`${baseUrl}/visual-fidelity-qa?template=${encodeURIComponent(manifest.templateKey)}&version=${manifest.templateVersion}&page=${encodeURIComponent(pageType)}&viewport=${viewport}${factoryQuery}`;
         try{
           await page.emulateMedia({reducedMotion:'reduce'});
           const response=await page.goto(url,{waitUntil:'domcontentloaded',timeout:30000});
@@ -368,7 +372,8 @@ try{
     }
 
     if(manifest.browser.requireMobileMenu){
-      const demoUrl=`${baseUrl}/visual-fidelity-qa?template=${encodeURIComponent(manifest.templateKey)}&version=${manifest.templateVersion}&page=content&viewport=mobile&demoContent=szallitas`;
+      const factoryQuery=manifest.factoryCandidate?'&factory=1':'';
+      const demoUrl=`${baseUrl}/visual-fidelity-qa?template=${encodeURIComponent(manifest.templateKey)}&version=${manifest.templateVersion}&page=content&viewport=mobile&demoContent=szallitas${factoryQuery}`;
       const page=await browser.newPage({viewport:viewportProfiles.mobile,deviceScaleFactor:1});
       const name=`${safeName(manifest.templateKey)}-v${manifest.templateVersion}-demo-szallitas-mobile`;
       try{
