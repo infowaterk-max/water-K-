@@ -307,20 +307,20 @@ export const LOOT_VAULT_V2_PAGE_OVERRIDES=Object.freeze({
 });
 
 export const LOOT_VAULT_V2_MEDIA_ASSETS:readonly StorefrontTemplateFactoryMediaAsset[]=Object.freeze([
-  {key:'hero-main',state:'internal-reference',referenceSrc:'https://images.pexels.com/photos/31971487/pexels-photo-31971487.jpeg?auto=compress&cs=tinysrgb&w=1800',role:'hero',src:MEDIA.hero,alt:'Cinematikus fantasy jelenet gyűjtői Loot Vault hangulattal',pageTypes:['home'],representative:true,aspectRatio:'16:9'},
-  {key:'universe-1',state:'internal-reference',referenceSrc:'https://images.pexels.com/photos/7661397/pexels-photo-7661397.jpeg?auto=compress&cs=tinysrgb&w=1200',role:'category',src:MEDIA.universe1,alt:'Gyűjtői figurák polcon',pageTypes:['home'],representative:true,aspectRatio:'4:5'},
-  {key:'universe-2',state:'internal-reference',referenceSrc:'https://images.pexels.com/photos/9337516/pexels-photo-9337516.jpeg?auto=compress&cs=tinysrgb&w=1200',role:'category',src:MEDIA.universe2,alt:'Játék- és figuragyűjtemény',pageTypes:['home'],representative:true,aspectRatio:'4:5'},
-  {key:'universe-3',state:'internal-reference',referenceSrc:'https://images.pexels.com/photos/16075337/pexels-photo-16075337.jpeg?auto=compress&cs=tinysrgb&w=1200',role:'category',src:MEDIA.universe3,alt:'Karakterfigurák gyűjtői displayen',pageTypes:['home'],representative:true,aspectRatio:'4:5'},
-  {key:'universe-4',state:'internal-reference',referenceSrc:'https://images.pexels.com/photos/13725612/pexels-photo-13725612.jpeg?auto=compress&cs=tinysrgb&w=1200',role:'category',src:MEDIA.universe4,alt:'Anime figurák és emléktárgyak',pageTypes:['home'],representative:true,aspectRatio:'4:5'},
-  {key:'universe-5',state:'internal-reference',referenceSrc:'https://images.pexels.com/photos/29901199/pexels-photo-29901199.jpeg?auto=compress&cs=tinysrgb&w=1200',role:'category',src:MEDIA.universe5,alt:'Vintage gyűjtői polc művészeti tárgyakkal',pageTypes:['home'],representative:true,aspectRatio:'4:5'},
-  {key:'universe-6',state:'internal-reference',referenceSrc:'https://images.pexels.com/photos/32977036/pexels-photo-32977036.jpeg?auto=compress&cs=tinysrgb&w=1200',role:'category',src:MEDIA.universe6,alt:'Sötét neonfényes gyűjtői tér',pageTypes:['home'],representative:true,aspectRatio:'4:5'},
-  {key:'product-1',state:'internal-reference',referenceSrc:'https://images.pexels.com/photos/9337516/pexels-photo-9337516.jpeg?auto=compress&cs=tinysrgb&w=1200',role:'product',src:MEDIA.product1,alt:'Prémium gyűjtői figura',pageTypes:['home','product'],representative:true,aspectRatio:'4:5'},
-  {key:'product-2',state:'internal-reference',referenceSrc:'https://images.pexels.com/photos/16075337/pexels-photo-16075337.jpeg?auto=compress&cs=tinysrgb&w=1200',role:'product',src:MEDIA.product2,alt:'Fantasy collector szobor',pageTypes:['home','product'],representative:true,aspectRatio:'4:5'},
-  {key:'product-3',state:'internal-reference',referenceSrc:'https://images.pexels.com/photos/13725612/pexels-photo-13725612.jpeg?auto=compress&cs=tinysrgb&w=1200',role:'product',src:MEDIA.product3,alt:'Dramatikus warrior collector szobor',pageTypes:['home','product'],representative:true,aspectRatio:'4:5'},
-  {key:'product-4',state:'internal-reference',referenceSrc:'https://images.pexels.com/photos/29901199/pexels-photo-29901199.jpeg?auto=compress&cs=tinysrgb&w=1200',role:'product',src:MEDIA.product4,alt:'Popkulturális collector display',pageTypes:['home','product'],representative:true,aspectRatio:'4:5'},
-  {key:'editorial-1',state:'internal-reference',referenceSrc:'https://images.pexels.com/photos/32977036/pexels-photo-32977036.jpeg?auto=compress&cs=tinysrgb&w=1200',role:'editorial',src:MEDIA.editorial1,alt:'Gyűjtői polc figurákkal és művészeti tárgyakkal',pageTypes:['home','blog-index'],representative:true,aspectRatio:'3:2'},
-  {key:'editorial-2',state:'internal-reference',referenceSrc:'https://images.pexels.com/photos/7661397/pexels-photo-7661397.jpeg?auto=compress&cs=tinysrgb&w=1200',role:'editorial',src:MEDIA.editorial2,alt:'Gazdag popkulturális gyűjtemény',pageTypes:['home','blog-article'],representative:true,aspectRatio:'3:2'},
-  {key:'catalog-background',state:'internal-reference',referenceSrc:'https://images.pexels.com/photos/18335787/pexels-photo-18335787.jpeg?auto=compress&cs=tinysrgb&w=1800',role:'background',src:MEDIA.background,alt:'Sötét, színes neonfényes enteriőr',pageTypes:['catalog'],representative:true,aspectRatio:'16:9'},
+  {key:'hero-main',state:'ready',role:'hero',src:MEDIA.hero,alt:'Cinematikus fantasy jelenet gyűjtői Loot Vault hangulattal',pageTypes:['home'],representative:true,aspectRatio:'16:9'},
+  {key:'universe-1',state:'ready',role:'category',src:MEDIA.universe1,alt:'Gyűjtői figurák polcon',pageTypes:['home'],representative:true,aspectRatio:'4:5'},
+  {key:'universe-2',state:'ready',role:'category',src:MEDIA.universe2,alt:'Játék- és figuragyűjtemény',pageTypes:['home'],representative:true,aspectRatio:'4:5'},
+  {key:'universe-3',state:'ready',role:'category',src:MEDIA.universe3,alt:'Karakterfigurák gyűjtői displayen',pageTypes:['home'],representative:true,aspectRatio:'4:5'},
+  {key:'universe-4',state:'ready',role:'category',src:MEDIA.universe4,alt:'Anime figurák és emléktárgyak',pageTypes:['home'],representative:true,aspectRatio:'4:5'},
+  {key:'universe-5',state:'ready',role:'category',src:MEDIA.universe5,alt:'Vintage gyűjtői polc művészeti tárgyakkal',pageTypes:['home'],representative:true,aspectRatio:'4:5'},
+  {key:'universe-6',state:'ready',role:'category',src:MEDIA.universe6,alt:'Sötét neonfényes gyűjtői tér',pageTypes:['home'],representative:true,aspectRatio:'4:5'},
+  {key:'product-1',state:'ready',role:'product',src:MEDIA.product1,alt:'Prémium gyűjtői figura',pageTypes:['home','product'],representative:true,aspectRatio:'4:5'},
+  {key:'product-2',state:'ready',role:'product',src:MEDIA.product2,alt:'Fantasy collector szobor',pageTypes:['home','product'],representative:true,aspectRatio:'4:5'},
+  {key:'product-3',state:'ready',role:'product',src:MEDIA.product3,alt:'Dramatikus warrior collector szobor',pageTypes:['home','product'],representative:true,aspectRatio:'4:5'},
+  {key:'product-4',state:'ready',role:'product',src:MEDIA.product4,alt:'Popkulturális collector display',pageTypes:['home','product'],representative:true,aspectRatio:'4:5'},
+  {key:'editorial-1',state:'ready',role:'editorial',src:MEDIA.editorial1,alt:'Gyűjtői polc figurákkal és művészeti tárgyakkal',pageTypes:['home','blog-index'],representative:true,aspectRatio:'3:2'},
+  {key:'editorial-2',state:'ready',role:'editorial',src:MEDIA.editorial2,alt:'Gazdag popkulturális gyűjtemény',pageTypes:['home','blog-article'],representative:true,aspectRatio:'3:2'},
+  {key:'catalog-background',state:'ready',role:'background',src:MEDIA.background,alt:'Sötét, színes neonfényes enteriőr',pageTypes:['catalog'],representative:true,aspectRatio:'16:9'},
 ]);
 
 export const LOOT_VAULT_V2_DEMO_FIXTURES:readonly StorefrontDemoFixture[]=Object.freeze([
