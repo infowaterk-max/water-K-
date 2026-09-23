@@ -1,4 +1,5 @@
 import {STOREFRONT_GLOBAL_STYLES_VERSION} from '@/lib/builder/storefront-global-styles';
+import type {FeatureCode} from '@/lib/plans/catalog';
 import type {StorefrontTemplateFactoryRecipe} from '@/lib/builder/template-factory/scaffold';
 
 export const LOOT_VAULT_V2_FACTORY_RECIPE:StorefrontTemplateFactoryRecipe=Object.freeze({
@@ -7,7 +8,7 @@ export const LOOT_VAULT_V2_FACTORY_RECIPE:StorefrontTemplateFactoryRecipe=Object
   displayName:'Loot Vault',
   templateVersion:2,
   minPlan:'alap',
-  requiredFeatures:Object.freeze(['catalog','inventory','orders','contentMarketing','productRecommendations','searchFiltering','commerceIntegrations']),
+  requiredFeatures:Object.freeze(['catalog','inventory','orders','contentMarketing','productRecommendations','searchFiltering','commerceIntegrations'] satisfies FeatureCode[]),
   demoNamespace:'gaming-loot-vault-v2',
   globalStyles:Object.freeze({
     version:STOREFRONT_GLOBAL_STYLES_VERSION,
