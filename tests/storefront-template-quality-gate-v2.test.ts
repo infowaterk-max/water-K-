@@ -67,7 +67,11 @@ describe('Template Factory Quality Gate v2',()=>{
     expect(serialized).toContain('Művészeti albumok');
     expect(serialized).toContain('Új kiadások');
     expect(serialized).toContain('Gyűjtői kiegészítők');
-    expect(serialized).not.toContain("title:'Figures'");
+    expect(serialized).not.toContain('"title":"Figures"');
+    expect(serialized).not.toContain('Universe, formátum');
+    expect(serialized).not.toContain('provider-neutral checkout');
+    expect(serialized).not.toContain('Loot Vault collector feature');
+    expect(serialized).not.toContain('Vault Journal');
 
     for(const page of template!.pages){
       expect(page.sections[0]?.id).toBe('loot-vault-global-header');
