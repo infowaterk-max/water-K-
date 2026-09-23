@@ -14,6 +14,20 @@ Normal storefront login and registration launched from interactive storefront UI
 
 Invite, password recovery and URL/session-bound special flows may remain full-page fallbacks.
 
+### Product Owner preview access is not shopper authentication
+
+The representative Product Owner template preview is a read-only platform review surface. A Vercel-protected preview share must open the requested template directly and must not route the reviewer through the customer `/fiokom` login surface.
+
+Canonical separation:
+
+- Product Owner preview access = preview/deployment protection;
+- merchant/platform admin authentication = admin authority;
+- shopper account authentication inside a rendered storefront = shared `StorefrontAuthDialog` with the active template design tokens.
+
+Never use the customer account page as the access gateway for a Product Owner template share. This conflates platform review identity with shopper identity and destroys template-owned auth presentation before the template is rendered.
+
+Template Factory browser QA must actively open the canonical account auth trigger for each selected template and prove that the dialog opens in-place, inherits the template CSS token set and preserves the shared mobile no-wrap/touch-target auth invariants.
+
 The dialog must use native dialog semantics, modal background blocking, keyboard operation, ESC dismissal, explicit close affordance, focus entry and focus restoration.
 
 Mobile auth tabs are a shared presentation invariant: **AUTH TAB LABELS MUST NEVER WRAP**. `Bejelentkezés` and `Regisztráció` remain two equal-width tabs, keep at least a 44px touch target, use `white-space: nowrap`, and adapt typography/padding before any label is allowed to wrap. The contract is intended to remain safe at 320 / 360 / 390 / 430px viewport widths.

@@ -79,6 +79,9 @@ describe('Template Factory Quality Gate v2',()=>{
     expect(runner).toContain('SOCIAL_LINK_INTEGRITY');
     expect(runner).toContain('COOKIE_TEMPLATE_PRESET_REQUIRED');
     expect(runner).toContain('COOKIE_TEMPLATE_AUTHORITY');
+    expect(runner).toContain('[data-storefront-account-auth-trigger="true"]');
+    expect(runner).toContain('AUTH_TEMPLATE_TOKEN_DRIFT');
+    expect(runner).toContain("pageType:'auth-dialog'");
     expect(runner).toContain('GOLDEN_BASELINE_MISSING');
     expect(runner).toContain('scrollIntoViewIfNeeded');
     expect(runner).toContain('[data-visual-fidelity-root="runtime"]:visible img');
