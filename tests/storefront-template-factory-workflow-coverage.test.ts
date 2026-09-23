@@ -11,6 +11,14 @@ describe('Template Factory workflow source coverage',()=>{
     expect(workflow.match(/tests\/\*\*template-factory\*\*/g)?.length).toBeGreaterThanOrEqual(2);
   });
 
+  it('proves stacked PR release risk against the actual PR base SHA',()=>{
+    const workflow=read('.github/workflows/template-factory-quality-gate.yml');
+    expect(workflow).toContain("if: github.event_name == 'pull_request'");
+    expect(workflow).toContain('RELEASE_BASE_SHA: ${{ github.event.pull_request.base.sha }}');
+    expect(workflow).toContain('node scripts/release-risk-budget.mjs');
+    expect(workflow).toContain('stacked-release-risk-budget-${{ github.event.pull_request.head.sha }}');
+  });
+
   it('renders registered Factory candidates through the internal QA path without catalog registration',()=>{
     const qaRoute=read('src/app/visual-fidelity-qa/page.tsx');
     const qaCatalog=read('src/app/api/visual-fidelity/templates/route.ts');
