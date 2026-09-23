@@ -190,3 +190,12 @@ Before declaring a future template release complete:
 10. only then mark the release production-verified and refresh Shoperation Knowledge.
 
 A Vercel **READY** deployment does not override a failed quality gate.
+
+
+## Runtime/schema parity incident addendum
+
+The production release evidence above was incomplete as an end-to-end statement: the production Vercel artifact was READY, but the live production Supabase schema had not been advanced with the forward migrations required by that runtime. The public root therefore failed on missing `products.template_demo_image_url`.
+
+The schema was subsequently reconciled to current canonical migrations with unchanged business-data counts/statuses. This incident supersedes any interpretation of Vercel READY + code CI as sufficient production-health proof.
+
+See `PRODUCTION_RUNTIME_SCHEMA_PARITY_INCIDENT_2026-09-23.md` for exact root cause, recovery and the new fail-closed Vercel runtime-schema preflight.

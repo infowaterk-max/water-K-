@@ -116,6 +116,7 @@ If yes, update Support Knowledge in the same development cycle. Production verif
 - `PLAYROOM_V20_TEMPLATE_CLOSURE_2026-09-22.md` — historical pre-production Playroom v20 closure evidence.
 - `PLAYROOM_V20_POST_RELEASE_UI_POLISH_2026-09-23.md` — final catalog/contact/cart/account/product polish and topic-first support wizard.
 - `PLAYROOM_V20_PRODUCTION_RELEASE_AND_GOLDEN_RECOVERY_2026-09-23.md` — production release, release-base gate lesson, six accepted golden diffs, controlled baseline recovery and final green main proof.
+- `PRODUCTION_RUNTIME_SCHEMA_PARITY_INCIDENT_2026-09-23.md` — production outage caused by runtime/schema drift, exact Supabase recovery, unchanged business-data snapshot and the new real-database deploy preflight.
 
 ### Shared storefront system surfaces / routes
 
@@ -165,3 +166,6 @@ If yes, update Support Knowledge in the same development cycle. Production verif
 24. **Shared support intake is intent-first.** Topic selection precedes irrelevant identity/order fields; desktop and mobile may use different interaction patterns while preserving one semantic flow.
 25. **Validation must not punish untouched fields.** Initial render stays quiet; errors appear after an attempted step/submit and clear as the input is corrected.
 26. **When a release exposes a new failure class, convert it into Knowledge and a prevention contract before continuing the template production line.**
+27. **Production runtime code and production database schema are one release unit.** A Vercel production build must probe the real target database for runtime-required tables/columns and fail before deployment when schema compatibility is missing.
+28. **Fresh Install proof and production schema parity are different gates.** Fresh Install validates a new-customer baseline; it does not prove that the existing production database has received every forward migration required by the deployed runtime.
+29. **Production smoke means an anonymous real route, not only READY.** After deployment, exercise the public root/critical routes against production and inspect runtime errors before declaring the release healthy.
