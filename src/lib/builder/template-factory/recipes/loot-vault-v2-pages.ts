@@ -29,7 +29,7 @@ const MEDIA={
 const n=(value:StorefrontComponentNode):StorefrontComponentNode=>value;
 const responsive=(desktop:number,tablet=desktop,mobile=12)=>({desktop:{gridSpan:desktop},tablet:{gridSpan:tablet},mobile:{gridSpan:mobile}});
 
-const header=()=>n({
+export const createLootVaultV2ShellHeader=()=>n({
   id:'loot-vault-shell-header',
   componentKey:'system.commerce-header',
   componentVersion:1,
@@ -76,7 +76,7 @@ const header=()=>n({
   ],
 });
 
-const footer=()=>n({
+export const createLootVaultV2ShellFooter=()=>n({
   id:'loot-vault-shell-footer',
   componentKey:'layout.section',
   componentVersion:1,
@@ -139,7 +139,7 @@ const override=(source:StorefrontPageDocument,sections:StorefrontComponentNode[]
 });
 
 export const LOOT_VAULT_V2_HOME_PAGE=override(LOOT_VAULT_HOME_PAGE,[
-  header(),
+  createLootVaultV2ShellHeader(),
   section('loot-v2-hero',[
     grid('loot-v2-hero-grid',[
       stack('loot-v2-hero-copy',[
@@ -204,11 +204,11 @@ export const LOOT_VAULT_V2_HOME_PAGE=override(LOOT_VAULT_HOME_PAGE,[
       stack('loot-v2-benefit-4',[badge('loot-v2-benefit-4-icon','04'),heading('loot-v2-benefit-4-title','Rajongói felfedezés',3),text('loot-v2-benefit-4-text','Univerzumok és történetek szerencsejátékos mechanika nélkül.')],3,{padding:'1rem',border:'1px solid rgba(165,122,69,.24)',borderRadius:'.6rem'}),
     ]),
   ],{background:'#0d0e0f'}),
-  footer(),
+  createLootVaultV2ShellFooter(),
 ],{referenceComposition:'accepted-2026-09-06',referenceCritical:true});
 
 export const LOOT_VAULT_V2_CATALOG_PAGE=override(LOOT_VAULT_CATALOG_PAGE,[
-  header(),
+  createLootVaultV2ShellHeader(),
   section('loot-v2-catalog-hero',[
     grid('loot-v2-catalog-hero-grid',[
       stack('loot-v2-catalog-copy',[
@@ -225,7 +225,7 @@ export const LOOT_VAULT_V2_CATALOG_PAGE=override(LOOT_VAULT_CATALOG_PAGE,[
       n({id:'loot-v2-catalog-products',componentKey:'commerce.product-grid',componentVersion:1,config:{title:'Gyűjtői válogatás',products:[],columns:3,presentation:'editorial',showBadges:true,showCompareAt:true,imageRatio:'4 / 5',emptyLabel:'Jelenleg nincs megjeleníthető termék.',currency:'HUF'},bindings:{products:{path:'catalog.products',fallback:[]}},responsive:responsive(9,8,12)}),
     ]),
   ],{background:'#0d0e0f'}),
-  footer(),
+  createLootVaultV2ShellFooter(),
 ],{referenceComposition:'accepted-2026-09-06',referenceCritical:true});
 
 const gallery=[
@@ -236,7 +236,7 @@ const gallery=[
 ];
 
 export const LOOT_VAULT_V2_PRODUCT_PAGE=override(LOOT_VAULT_PRODUCT_PAGE,[
-  header(),
+  createLootVaultV2ShellHeader(),
   section('loot-v2-product-main',[
     grid('loot-v2-product-layout',[
       n({id:'loot-v2-product-gallery',componentKey:'commerce.product-gallery',componentVersion:1,config:{images:gallery,aspectRatio:'4 / 5',thumbnailPosition:'bottom'},bindings:{images:{path:'product.gallery',fallback:gallery}},responsive:responsive(7,7,12)}),
@@ -260,11 +260,11 @@ export const LOOT_VAULT_V2_PRODUCT_PAGE=override(LOOT_VAULT_PRODUCT_PAGE,[
       ],6,{padding:'1rem'}),
     ]),
   ],{background:'#151717'}),
-  footer(),
+  createLootVaultV2ShellFooter(),
 ],{referenceComposition:'accepted-2026-09-06',referenceCritical:true});
 
 export const LOOT_VAULT_V2_BLOG_INDEX_PAGE=override(LOOT_VAULT_BLOG_INDEX_PAGE,[
-  header(),
+  createLootVaultV2ShellHeader(),
   section('loot-v2-blog-hero',[
     grid('loot-v2-blog-grid',[
       stack('loot-v2-blog-copy',[
@@ -278,11 +278,11 @@ export const LOOT_VAULT_V2_BLOG_INDEX_PAGE=override(LOOT_VAULT_BLOG_INDEX_PAGE,[
   section('loot-v2-blog-list',[
     n({id:'loot-v2-story-index',componentKey:'story.index',componentVersion:1,config:{eyebrow:'Friss történetek',title:'Vault Magazin',items:[],columns:3,emptyLabel:'Hamarosan új történetek érkeznek.'},bindings:{items:{path:'content.journalItems',fallback:[]}}}),
   ],{background:'#0d0e0f'}),
-  footer(),
+  createLootVaultV2ShellFooter(),
 ],{referenceComposition:'accepted-2026-09-06',referenceCritical:true});
 
 export const LOOT_VAULT_V2_BLOG_ARTICLE_PAGE=override(LOOT_VAULT_BLOG_ARTICLE_PAGE,[
-  header(),
+  createLootVaultV2ShellHeader(),
   section('loot-v2-article',[
     grid('loot-v2-article-grid',[
       stack('loot-v2-article-copy',[
@@ -294,7 +294,7 @@ export const LOOT_VAULT_V2_BLOG_ARTICLE_PAGE=override(LOOT_VAULT_BLOG_ARTICLE_PA
       image('loot-v2-article-image',MEDIA.editorial2,'Popkulturális gyűjtemény részletes displayben',6,{height:'30rem',minHeight:'24rem'}),
     ]),
   ],{background:'linear-gradient(180deg,#111313,#0d0e0f)'}),
-  footer(),
+  createLootVaultV2ShellFooter(),
 ],{referenceComposition:'accepted-2026-09-06',referenceCritical:true});
 
 export const LOOT_VAULT_V2_PAGE_OVERRIDES=Object.freeze({
