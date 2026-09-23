@@ -122,3 +122,35 @@ Production code and its required production schema are **one release unit**.
 ## Advisors
 
 Supabase advisors were reviewed after recovery. They contain existing informational/warning items (including service-role/internal RLS-without-policy patterns, unused indexes, two multiple-permissive return policies and duplicate catalog indexes). This incident record does not reclassify those broad pre-existing findings as caused by the migration recovery, and it does not claim a zero-advisory state.
+
+## Final Page Schema publication and production access-gate follow-up
+
+After the schema-parity recovery, the already human-accepted Playroom v20 Page Schemas were deliberately synchronized into the production tenant through the canonical Storefront draft/publish RPC authority. All 14 storefront Page Schema records now have a `gaming.playroom@20` published revision matching the accepted draft hash.
+
+This publication did **not** activate the webshop. Water-K remains `pilot / pro`.
+
+A second production boundary defect was then found: the shared public-static Page Schema Runtime resolver used `getCurrentWebshopInstance()` directly. That was appropriate for Preview draft acceptance, but in production it could resolve a published Page Schema without first passing the canonical pilot/active storefront access gate.
+
+Resolution:
+
+- Preview keeps `getCurrentWebshopInstance()` so exact draft acceptance remains possible.
+- Production public-static Page Schema resolution now uses `requireStorefrontAccess()`.
+- The contract is regression-tested in `tests/pilot-acceptance-access.test.ts`.
+- No tenant activation, auth weakening or anonymous pilot bypass was introduced.
+
+Production proof after the fix:
+
+- remediation PR: **#353**;
+- exact PR head: `c4654499bfc4860fdee711596d42237b818db649`;
+- PR CI: **SUCCESS**;
+- PR Template Factory Quality Gate v2: **SUCCESS**;
+- merged main: `ae238fbcf9f4ddc5c514662ca3a1105222f81e7c`;
+- main CI: **SUCCESS**;
+- main Template Factory Quality Gate v2: **SUCCESS**;
+- production deployment: `dpl_E3cwy8XXFrLZfFuWLcUmifzw9Kxt` — **READY**;
+- anonymous production `/`, `/webaruhaz`, `/kosar` and `/kapcsolat` resolve through the pilot launch boundary to `/hamarosan` rather than leaking the pilot storefront or throwing the generic transient-error surface;
+- no production runtime errors were reported in the post-deploy verification window.
+
+Canonical rule:
+
+**Published Page Schema is content state, not public-access authority.** Production route resolution must still pass the storefront lifecycle/access gate. Preview draft authority and production anonymous-browse authority must never be conflated.
