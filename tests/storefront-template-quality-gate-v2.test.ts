@@ -94,6 +94,16 @@ describe('Template Factory Quality Gate v2',()=>{
     expect(story).toContain('data-storefront-story="feature"');
   });
 
+  it('keeps unfinished technical candidates out of Product Owner preview',()=>{
+    const quality=read('src/lib/builder/storefront-template-quality-gate.ts');
+    const preview=read('src/app/storefront-template-preview/page.tsx');
+    expect(quality).toContain("referenceKey:'gaming.loot-vault.accepted-reference-2026-09-06'");
+    expect(quality).toContain('minimumRepresentativeMedia:14');
+    expect(quality).toContain('forbidPlaceholderSvg:true');
+    expect(preview).toContain('qualityManifest.productOwnerReview.ready');
+    expect(preview).toContain('Ez a sablon még nincs vizuális elfogadásra kész.');
+  });
+
   it('keeps direct template preview fail-closed for merchants while allowing authenticated platform Preview review without tenant context',()=>{
     const preview=read('src/app/storefront-template-preview/page.tsx');
     expect(preview).toContain('getCurrentStoreContext');
