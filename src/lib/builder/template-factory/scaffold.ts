@@ -242,6 +242,7 @@ export function compileStorefrontTemplateFactoryPackage(input:{
     const headerCount=applyPatch(page,{match:{componentKey:'system.commerce-header'},config:recipe.shell.header});
     if(headerCount!==1)patchMisses.push(`pages.${pageType}.shell.header`);
     for(const[index,patch]of[...(recipe.shell.patches??[]),...(recipe.nodePatches??[])].entries()){
+      if(patch.pageTypes&&!patch.pageTypes.includes(pageType))continue;
       const count=applyPatch(page,patch);
       if(count===0)patchMisses.push(`pages.${pageType}.patch[${index}]`);
     }
