@@ -7,7 +7,7 @@ export const GAMING_TEMPLATE_FACTORY_FOUNDATION:StorefrontTemplateFactoryCategor
   foundationTemplateKey:'gaming.playroom',
   foundationTemplateVersion:PLAYROOM_V20_TEMPLATE_VERSION,
   package:PLAYROOM_V20_TEMPLATE_PACKAGE,
-  recommendedOwnedPages:Object.freeze(['home','catalog','product','blog-index','blog-article']),
+  recommendedOwnedPages:Object.freeze(['home','catalog','product','blog-index','blog-article'] as const),
   inheritedPages:Object.freeze(STOREFRONT_PAGE_TYPES.filter(page=>!['home','catalog','product','blog-index','blog-article'].includes(page))),
   forbiddenLeakTokens:Object.freeze(['PLAYROOM','Playroom','/storefront/playroom/']),
 });
