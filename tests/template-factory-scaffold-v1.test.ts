@@ -81,7 +81,7 @@ function recipe(input:{allPages:boolean;reviewPassed:boolean}):StorefrontTemplat
     ],
     media:{
       assets:[
-        {key:'hero',role:'hero',src:'/factory/canary/hero.jpg',alt:'Factory Canary hero',pageTypes:['home'],representative:true,aspectRatio:'16:9'},
+        {key:'hero',state:'ready',role:'hero',src:'/factory/canary/hero.jpg',alt:'Factory Canary hero',pageTypes:['home'],representative:true,aspectRatio:'16:9'},
       ],
       requiredRoles:['hero'],
       requirements:[{role:'hero',minCount:1,aspectRatio:'16:9'}],
