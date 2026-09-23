@@ -65,6 +65,7 @@ on:
       - 'scripts/template-factory-quality-gate.mjs'
       - 'scripts/template-factory-finalize-media.py'
       - 'docs/template-factory-media/**'
+      - 'public/storefront-demo/**'
       - 'scripts/promote-template-golden-baseline.mjs'
       - '.github/workflows/template-golden-baseline-promotion.yml'
       - 'tests/**storefront**'
@@ -134,6 +135,7 @@ on:
       - 'scripts/template-factory-quality-gate.mjs'
       - 'scripts/template-factory-finalize-media.py'
       - 'docs/template-factory-media/**'
+      - 'public/storefront-demo/**'
       - 'scripts/promote-template-golden-baseline.mjs'
       - '.github/workflows/template-golden-baseline-promotion.yml'
       - 'tests/**storefront**'
@@ -215,7 +217,7 @@ jobs:
           retention-days: 30
 
       - name: Commit finalized Loot Vault media to PR branch
-        if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && github.head_ref == 'feature/loot-vault-v2-final-media'
+        if: github.event_name == 'pull_request' && github.head_ref == 'feature/loot-vault-v2-final-media'
         shell: bash
         run: |
           mkdir -p public/storefront-demo/loot-vault-v2
