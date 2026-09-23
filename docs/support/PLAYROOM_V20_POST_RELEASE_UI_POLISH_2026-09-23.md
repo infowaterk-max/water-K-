@@ -20,3 +20,5 @@ A first attempt put a plain, unmaterialized `style` object directly on `playroom
 ## Authority preserved
 
 E2 remains catalog/filter authority; inventory remains stock authority; shared cart/checkout remain commerce authority; account navigation remains platform IA authority; production is untouched.
+
+Validation note: exact-head CI, Template Factory and preview deploy must be green before acceptance.
