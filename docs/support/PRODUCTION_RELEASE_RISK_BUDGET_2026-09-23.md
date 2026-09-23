@@ -51,3 +51,5 @@ Risk: **high**
 ## Preview revalidation
 
 A fresh exact-head Preview deployment is required after Preview environment credential repair. This release-evidence commit intentionally retriggers Vercel so the environment fix is proven by a new deployment rather than inferred from configuration alone.
+
+Preview credential was replaced with the dedicated staging `Vercel Preview` secret key. This commit retriggers exact-head Preview validation so the credential repair is proven by deployment evidence.
