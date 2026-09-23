@@ -12,9 +12,9 @@
       "aspectRatio": "16:9",
       "outputPath": "public/storefront-demo/loot-vault-v2/hero-cinematic.webp",
       "outputWidth": 1800,
-      "focalX": 0.55,
-      "focalY": 0.48,
-      "referenceSrc": "https://images.pexels.com/photos/31971487/pexels-photo-31971487.jpeg?auto=compress&cs=tinysrgb&w=1800"
+      "focalX": 0.58,
+      "focalY": 0.24,
+      "referenceSrc": "https://images.pexels.com/photos/19249701/pexels-photo-19249701.jpeg?auto=compress&cs=tinysrgb&w=1800"
     },
     {
       "key": "universe-1",
@@ -23,7 +23,7 @@
       "aspectRatio": "4:5",
       "outputPath": "public/storefront-demo/loot-vault-v2/category-galaxy.webp",
       "outputWidth": 1000,
-      "referenceSrc": "https://images.pexels.com/photos/7661397/pexels-photo-7661397.jpeg?auto=compress&cs=tinysrgb&w=1200"
+      "referenceSrc": "https://images.pexels.com/photos/5795420/pexels-photo-5795420.jpeg?auto=compress&cs=tinysrgb&w=1200"
     },
     {
       "key": "universe-2",
@@ -32,7 +32,7 @@
       "aspectRatio": "4:5",
       "outputPath": "public/storefront-demo/loot-vault-v2/category-heroes.webp",
       "outputWidth": 1000,
-      "referenceSrc": "https://images.pexels.com/photos/9337516/pexels-photo-9337516.jpeg?auto=compress&cs=tinysrgb&w=1200"
+      "referenceSrc": "https://images.pexels.com/photos/31863260/pexels-photo-31863260.jpeg?auto=compress&cs=tinysrgb&w=1200"
     },
     {
       "key": "universe-3",
@@ -51,7 +51,7 @@
       "outputPath": "public/storefront-demo/loot-vault-v2/category-fantasy.webp",
       "outputWidth": 1000,
       "focalX": 0.55,
-      "referenceSrc": "https://images.pexels.com/photos/13725612/pexels-photo-13725612.jpeg?auto=compress&cs=tinysrgb&w=1200"
+      "referenceSrc": "https://images.pexels.com/photos/5795416/pexels-photo-5795416.jpeg?auto=compress&cs=tinysrgb&w=1200"
     },
     {
       "key": "universe-5",
@@ -60,7 +60,7 @@
       "aspectRatio": "4:5",
       "outputPath": "public/storefront-demo/loot-vault-v2/category-miniatures.webp",
       "outputWidth": 1000,
-      "referenceSrc": "https://images.pexels.com/photos/29901199/pexels-photo-29901199.jpeg?auto=compress&cs=tinysrgb&w=1200"
+      "referenceSrc": "https://images.pexels.com/photos/31201941/pexels-photo-31201941.jpeg?auto=compress&cs=tinysrgb&w=1200"
     },
     {
       "key": "universe-6",
@@ -69,7 +69,9 @@
       "aspectRatio": "4:5",
       "outputPath": "public/storefront-demo/loot-vault-v2/category-retro.webp",
       "outputWidth": 1000,
-      "referenceSrc": "https://images.pexels.com/photos/32977036/pexels-photo-32977036.jpeg?auto=compress&cs=tinysrgb&w=1200"
+      "referenceSrc": "https://images.pexels.com/photos/9307809/pexels-photo-9307809.jpeg?auto=compress&cs=tinysrgb&w=1200",
+      "focalX": 0.5,
+      "focalY": 0.5
     },
     {
       "key": "product-1",
@@ -78,8 +80,9 @@
       "aspectRatio": "4:5",
       "outputPath": "public/storefront-demo/loot-vault-v2/product-figure.webp",
       "outputWidth": 1200,
-      "focalX": 0.4,
-      "referenceSrc": "https://images.pexels.com/photos/9337516/pexels-photo-9337516.jpeg?auto=compress&cs=tinysrgb&w=1200"
+      "focalX": 0.5,
+      "referenceSrc": "https://images.pexels.com/photos/9367709/pexels-photo-9367709.jpeg?auto=compress&cs=tinysrgb&w=1200",
+      "focalY": 0.5
     },
     {
       "key": "product-2",
@@ -89,7 +92,7 @@
       "outputPath": "public/storefront-demo/loot-vault-v2/product-statue.webp",
       "outputWidth": 1200,
       "focalX": 0.55,
-      "referenceSrc": "https://images.pexels.com/photos/16075337/pexels-photo-16075337.jpeg?auto=compress&cs=tinysrgb&w=1200"
+      "referenceSrc": "https://images.pexels.com/photos/29191753/pexels-photo-29191753.jpeg?auto=compress&cs=tinysrgb&w=1200"
     },
     {
       "key": "product-3",
@@ -99,7 +102,7 @@
       "outputPath": "public/storefront-demo/loot-vault-v2/product-edition.webp",
       "outputWidth": 1200,
       "focalX": 0.55,
-      "referenceSrc": "https://images.pexels.com/photos/13725612/pexels-photo-13725612.jpeg?auto=compress&cs=tinysrgb&w=1200"
+      "referenceSrc": "https://images.pexels.com/photos/32551745/pexels-photo-32551745.jpeg?auto=compress&cs=tinysrgb&w=1200"
     },
     {
       "key": "product-4",
@@ -109,7 +112,7 @@
       "outputPath": "public/storefront-demo/loot-vault-v2/product-relic.webp",
       "outputWidth": 1200,
       "focalX": 0.45,
-      "referenceSrc": "https://images.pexels.com/photos/29901199/pexels-photo-29901199.jpeg?auto=compress&cs=tinysrgb&w=1200"
+      "referenceSrc": "https://images.pexels.com/photos/12247441/pexels-photo-12247441.jpeg?auto=compress&cs=tinysrgb&w=1200"
     },
     {
       "key": "editorial-1",
@@ -118,7 +121,9 @@
       "aspectRatio": "3:2",
       "outputPath": "public/storefront-demo/loot-vault-v2/editorial-collector-room.webp",
       "outputWidth": 1600,
-      "referenceSrc": "https://images.pexels.com/photos/32977036/pexels-photo-32977036.jpeg?auto=compress&cs=tinysrgb&w=1200"
+      "referenceSrc": "https://images.pexels.com/photos/5795428/pexels-photo-5795428.jpeg?auto=compress&cs=tinysrgb&w=1600",
+      "focalX": 0.5,
+      "focalY": 0.5
     },
     {
       "key": "editorial-2",
@@ -127,7 +132,9 @@
       "aspectRatio": "3:2",
       "outputPath": "public/storefront-demo/loot-vault-v2/editorial-vault-shelf.webp",
       "outputWidth": 1600,
-      "referenceSrc": "https://images.pexels.com/photos/7661397/pexels-photo-7661397.jpeg?auto=compress&cs=tinysrgb&w=1200"
+      "referenceSrc": "https://images.pexels.com/photos/9307814/pexels-photo-9307814.jpeg?auto=compress&cs=tinysrgb&w=1600",
+      "focalX": 0.5,
+      "focalY": 0.5
     },
     {
       "key": "catalog-background",
@@ -136,7 +143,9 @@
       "aspectRatio": "16:9",
       "outputPath": "public/storefront-demo/loot-vault-v2/background-archive.webp",
       "outputWidth": 1800,
-      "referenceSrc": "https://images.pexels.com/photos/18335787/pexels-photo-18335787.jpeg?auto=compress&cs=tinysrgb&w=1800"
+      "referenceSrc": "https://images.pexels.com/photos/4061668/pexels-photo-4061668.jpeg?auto=compress&cs=tinysrgb&w=1800",
+      "focalX": 0.5,
+      "focalY": 0.5
     }
   ]
 }
