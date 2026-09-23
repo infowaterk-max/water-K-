@@ -24,7 +24,8 @@ describe('Template Factory ready media physical proof',()=>{
     expect(loot).toBeTruthy();
     expect(loot!.media.assets).toHaveLength(14);
     expect(loot!.media.assets.every(asset=>asset.state==='internal-reference')).toBe(true);
-    expect(loot!.media.assets.every(asset=>asset.src.startsWith('https://images.pexels.com/'))).toBe(true);
+    expect(loot!.media.assets.every(asset=>asset.src.startsWith('/storefront-demo/loot-vault-v2/')&&asset.src.endsWith('.webp'))).toBe(true);
+    expect(loot!.media.assets.every(asset=>asset.referenceSrc?.startsWith('https://images.pexels.com/'))).toBe(true);
     expect(loot!.media.assets.some(asset=>asset.state==='ready')).toBe(false);
   });
 });
