@@ -6,7 +6,7 @@ import {
 import {getStorefrontTemplateDemoContent} from '@/lib/builder/storefront-template-route-integrity';
 import {createStorefrontTemplatePreviewBindingContext} from '@/lib/builder/storefront-template-preview-demo';
 import {applyAuthoredTemplatePreviewFallbacks} from '@/lib/builder/storefront-template-preview-canonical';
-import type {StorefrontComponentNode} from '@/lib/builder/storefront-runtime';
+import {resolveStorefrontBinding,type StorefrontComponentNode} from '@/lib/builder/storefront-runtime';
 import {createStorefrontTemplateFactoryMediaWorkOrder,pendingStorefrontTemplateFactoryMediaWorkOrders} from '@/lib/builder/template-factory/media-production';
 import {LOOT_VAULT_V2_FACTORY_RECIPE} from '@/lib/builder/template-factory/recipes/loot-vault-v2';
 
@@ -133,6 +133,18 @@ describe('Loot Vault v2 Factory canary recipe',()=>{
     const homeGrid=findNodeBy(home.sections,node=>node.componentKey==='commerce.product-grid'&&node.config.presentation==='loot-vault');
     expect(homeGrid).toBeTruthy();
     expect(homeGrid?.config).toMatchObject({showCta:false,showPurchaseActions:true,purchaseLabel:'Kosárba',wishlistLabel:'Kedvencekhez'});
+    const homePreview=createStorefrontTemplatePreviewBindingContext({template:build.package,page:home});
+    const homeContext=applyAuthoredTemplatePreviewFallbacks({page:home,context:homePreview});
+    const homeProducts=resolveStorefrontBinding(homeGrid!.bindings!.products!.path,homeContext) as Record<string,unknown>[];
+    expect(homeProducts[0]).toMatchObject({
+      productId:'preview-vault-sentinel',
+      variantId:'preview-vault-sentinel-variant',
+      slug:'preview-vault-sentinel',
+      unitPrice:89990,
+      availableQuantity:12,
+      minimumQuantity:1,
+      orderMultiple:1,
+    });
     const purchase=findNodeBy(product.sections,node=>node.componentKey==='commerce.purchase-controls'&&node.config.presentation==='loot-vault');
     expect(purchase).toBeTruthy();
     expect(purchase?.bindings).toMatchObject({
