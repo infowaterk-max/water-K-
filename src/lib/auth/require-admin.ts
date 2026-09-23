@@ -9,21 +9,6 @@ function safeLoginReturn(returnTo?:string){
   return returnTo.startsWith('/admin')||returnTo.startsWith('/storefront-template-preview')?returnTo:null;
 }
 
-function previewLoginHref(next:string){
-  if(!next.startsWith('/storefront-template-preview'))return null;
-  try{
-    const parsed=new URL(next,'https://shoporation.invalid');
-    const template=parsed.searchParams.get('template')??'';
-    const version=parsed.searchParams.get('version')??'';
-    const page=parsed.searchParams.get('page')??'home';
-    const viewport=parsed.searchParams.get('viewport')??'desktop';
-    if(!template)return null;
-    const params=new URLSearchParams({template,page,viewport,next});
-    if(version)params.set('version',version);
-    return `/storefront-template-preview-login?${params.toString()}`;
-  }catch{return null}
-}
-
 export async function requireAdmin(returnTo?:string) {
   const hasPublicKey=Boolean(process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY??process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
   if(!process.env.NEXT_PUBLIC_SUPABASE_URL||!hasPublicKey)redirect('/fiokom?reason=admin-config');
@@ -31,8 +16,7 @@ export async function requireAdmin(returnTo?:string) {
   const{data:authData,error}=await supabase.auth.getUser();
   if(error||!authData.user){
     const next=safeLoginReturn(returnTo);
-    const previewLogin=next?previewLoginHref(next):null;
-    redirect(previewLogin??(next?`/fiokom?reason=login&next=${encodeURIComponent(next)}`:'/fiokom?reason=login'));
+    redirect(next?`/fiokom?reason=login&next=${encodeURIComponent(next)}`:'/fiokom?reason=login');
   }
 
   try{
