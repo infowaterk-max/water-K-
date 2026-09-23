@@ -46,8 +46,16 @@ export type StorefrontTemplateFactoryNodePatch={
   bindings?:Readonly<Record<string,{path:string;fallback?:unknown}>>;
 };
 
+export type StorefrontTemplateFactoryIdentity={
+  brandLabel:string;
+  brandLabelUpper:string;
+  tagline:string;
+  logoUrl:string;
+  logoAlt:string;
+};
+
 export type StorefrontTemplateFactoryShellRecipe={
-  header:Readonly<Record<string,unknown>>;
+  header?:Readonly<Record<string,unknown>>;
   patches?:readonly StorefrontTemplateFactoryNodePatch[];
 };
 
@@ -64,6 +72,7 @@ export type StorefrontTemplateFactoryRecipe={
   minPlan:PlanCode;
   requiredFeatures:readonly FeatureCode[];
   demoNamespace:string;
+  identity:StorefrontTemplateFactoryIdentity;
   globalStyles:StorefrontGlobalStyleState;
   shell:StorefrontTemplateFactoryShellRecipe;
   pageOverrides?:Partial<Record<StorefrontBuilderPageType,StorefrontPageDocument>>;
@@ -81,6 +90,7 @@ export type StorefrontTemplateFactoryCategoryFoundation={
   package:StorefrontInstallableTemplatePackage;
   recommendedOwnedPages:readonly StorefrontBuilderPageType[];
   inheritedPages:readonly StorefrontBuilderPageType[];
+  foundationIdentity:{brandLabel:string;brandLabelUpper:string;logoUrl:string};
   forbiddenLeakTokens?:readonly string[];
 };
 
@@ -108,6 +118,21 @@ export type StorefrontTemplateFactoryBuild={
 const issue=(code:string,path:string,message:string,severity:'error'|'warning'='error'):StorefrontTemplateFactoryIssue=>({code,path,message,severity});
 const slug=(value:string)=>value.split('.').at(-1)?.replace(/[^a-z0-9-]+/g,'-')||'template';
 const clone=<T>(value:T):T=>structuredClone(value);
+
+function rewriteFoundationIdentity<T>(value:T,foundation:StorefrontTemplateFactoryCategoryFoundation['foundationIdentity'],target:StorefrontTemplateFactoryIdentity):T{
+  const rewrite=(input:unknown):unknown=>{
+    if(typeof input==='string'){
+      if(input===foundation.logoUrl)return target.logoUrl;
+      return input
+        .replaceAll(foundation.brandLabelUpper,target.brandLabelUpper)
+        .replaceAll(foundation.brandLabel,target.brandLabel);
+    }
+    if(Array.isArray(input))return input.map(rewrite);
+    if(input&&typeof input==='object')return Object.fromEntries(Object.entries(input as Record<string,unknown>).map(([key,item])=>[key,rewrite(item)]));
+    return input;
+  };
+  return rewrite(clone(value)) as T;
+}
 
 function walk(nodes:readonly StorefrontComponentNode[],visitor:(node:StorefrontComponentNode)=>void):void{
   for(const node of nodes){
@@ -225,11 +250,13 @@ export function compileStorefrontTemplateFactoryPackage(input:{
   const inherited:StorefrontBuilderPageType[]=[];
   const patchMisses:string[]=[];
   const pages=STOREFRONT_PAGE_TYPES.map(pageType=>{
-    const source=recipe.pageOverrides?.[pageType]??foundation.package.pages.find(page=>page.pageType===pageType);
+    const override=recipe.pageOverrides?.[pageType];
+    const source=override??foundation.package.pages.find(page=>page.pageType===pageType);
     if(!source)throw new Error(`TEMPLATE_FACTORY_FOUNDATION_PAGE_MISSING:${pageType}`);
-    if(recipe.pageOverrides?.[pageType])overridden.push(pageType);else inherited.push(pageType);
+    if(override)overridden.push(pageType);else inherited.push(pageType);
 
-    let page=rewriteIds(source,foundation.foundationTemplateKey,recipe.templateKey);
+    const identitySource=override?source:rewriteFoundationIdentity(source,foundation.foundationIdentity,recipe.identity);
+    let page=rewriteIds(identitySource,foundation.foundationTemplateKey,recipe.templateKey);
     page.pageKey=`${slug(recipe.templateKey)}-${pageType}`;
     page.templateKey=recipe.templateKey;
     page.templateVersion=recipe.templateVersion;
@@ -247,7 +274,7 @@ export function compileStorefrontTemplateFactoryPackage(input:{
       },
     };
 
-    const headerCount=applyPatch(page,{match:{componentKey:'system.commerce-header'},config:recipe.shell.header});
+    const headerCount=applyPatch(page,{match:{componentKey:'system.commerce-header'},config:{...(recipe.shell.header??{}),brandLabel:recipe.identity.brandLabel,tagline:recipe.identity.tagline,logoUrl:recipe.identity.logoUrl,logoAlt:recipe.identity.logoAlt}});
     if(headerCount!==1)patchMisses.push(`pages.${pageType}.shell.header`);
     for(const[index,patch]of[...(recipe.shell.patches??[]),...(recipe.nodePatches??[])].entries()){
       if(patch.pageTypes&&!patch.pageTypes.includes(pageType))continue;
