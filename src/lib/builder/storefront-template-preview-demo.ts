@@ -169,15 +169,23 @@ function demoProducts(template:StorefrontInstallableTemplatePackage,page:Storefr
     }));
   }
   const category=template.manifest.templateKey.split('.')[0]??'tech';
-  const fixture=fixtureNames(template,'product');
+  const fixtureProducts=(template.demoFixtures??[])
+    .filter(item=>item.entityType==='product')
+    .map(item=>{
+      const rawName=item.payload.name??item.payload.title??item.payload.label;
+      const name=typeof rawName==='string'&&rawName.trim()?rawName.trim():item.entityKey.split(/[._-]/).map(part=>part.charAt(0).toUpperCase()+part.slice(1)).join(' ');
+      const rawImage=item.payload.image??item.payload.imageUrl??item.payload.src;
+      const image=typeof rawImage==='string'&&(rawImage.startsWith('/')||rawImage.startsWith('https://'))?rawImage:null;
+      return{name,image};
+    });
   const fallback=CATEGORY_PRODUCTS[category]??CATEGORY_PRODUCTS.tech;
-  const names=[...new Set([...fixture,...fallback])].slice(0,previewProductLimit(page));
+  const names=[...new Set([...fixtureProducts.map(item=>item.name),...fallback])].slice(0,previewProductLimit(page));
   const images=collectImageFallbacks(page);
   return names.map((name,index)=>({
     id:`preview-product-${index+1}`,
     name,
     href:'#preview-demo',
-    image:images[index%Math.max(1,images.length)]??null,
+    image:fixtureProducts.find(item=>item.name===name)?.image??images[index%Math.max(1,images.length)]??null,
     imageAlt:`${name} bemutató termékkép`,
     price:12990+index*7000,
     compareAtPrice:index===1?24990:null,
