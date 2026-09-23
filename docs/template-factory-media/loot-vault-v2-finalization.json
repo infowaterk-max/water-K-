@@ -138,5 +138,8 @@
       "outputWidth": 1800,
       "referenceSrc": "https://images.pexels.com/photos/18335787/pexels-photo-18335787.jpeg?auto=compress&cs=tinysrgb&w=1800"
     }
-  ]
+  ],
+  "materializedCommit": "24eda709ff3fb0f65afbf33f8f7ffaf365eaf440",
+  "materializedAssetCount": 14,
+  "materializedState": "package-owned-local-webp"
 }
