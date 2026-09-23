@@ -19,6 +19,7 @@ describe('Loot Vault v2 Factory canary recipe',()=>{
       expect.objectContaining({role:'editorial',minCount:2,aspectRatio:'3:2'}),
       expect.objectContaining({role:'background',minCount:1,aspectRatio:'16:9'}),
     ]));
+    expect(LOOT_VAULT_V2_FACTORY_RECIPE.media.requirements?.reduce((sum,item)=>sum+item.minCount,0)).toBe(14);
   });
 
   it('builds the full 14-page technical candidate with one registry call',()=>{
