@@ -1,0 +1,146 @@
+{
+  "version": 1,
+  "name": "Shoperation Production Release Risk Budget",
+  "maxPoints": 5,
+  "maxSubsystems": 3,
+  "riskWeights": {
+    "low": 1,
+    "medium": 2,
+    "high": 5
+  },
+  "neutralPatterns": [
+    "docs/**",
+    "tests/**",
+    "artifacts/**",
+    "**/*.md",
+    "**/*.snap",
+    ".gitignore"
+  ],
+  "subsystems": [
+    {
+      "name": "database-schema",
+      "risk": "high",
+      "patterns": [
+        "supabase/**/*.sql",
+        "supabase/migrations/**",
+        "supabase/customer-baseline/**"
+      ]
+    },
+    {
+      "name": "auth-access-authority",
+      "risk": "high",
+      "patterns": [
+        "src/lib/auth/**",
+        "src/middleware.ts",
+        "src/app/api/auth/**"
+      ]
+    },
+    {
+      "name": "storefront-launch-runtime",
+      "risk": "high",
+      "patterns": [
+        "src/lib/builder/storefront-runtime-source.ts",
+        "src/lib/storefront/access/**",
+        "src/lib/storefront/launch/**"
+      ]
+    },
+    {
+      "name": "environment-secret-contract",
+      "risk": "high",
+      "patterns": [
+        "scripts/validate-vercel-deploy-env.mjs",
+        "deploy/env.schema.json"
+      ]
+    },
+    {
+      "name": "payment-checkout-order-authority",
+      "risk": "high",
+      "patterns": [
+        "src/lib/payment/**",
+        "src/lib/payments/**",
+        "src/lib/orders/**",
+        "src/app/api/payment/**",
+        "src/app/api/payments/**",
+        "src/app/api/checkout/**"
+      ]
+    },
+    {
+      "name": "inventory-fulfillment-authority",
+      "risk": "high",
+      "patterns": [
+        "src/lib/inventory/**",
+        "src/lib/shipping/**",
+        "src/lib/fulfillment/**",
+        "src/app/api/inventory/**",
+        "src/app/api/shipping/**",
+        "src/app/api/fulfillment/**"
+      ]
+    },
+    {
+      "name": "builder-template-system",
+      "risk": "medium",
+      "patterns": [
+        "src/lib/builder/**",
+        "src/app/admin/builder/**",
+        "src/components/builder/**"
+      ]
+    },
+    {
+      "name": "admin-operations",
+      "risk": "medium",
+      "patterns": [
+        "src/app/admin/**",
+        "src/components/admin/**",
+        "src/lib/admin/**"
+      ]
+    },
+    {
+      "name": "customer-account",
+      "risk": "medium",
+      "patterns": [
+        "src/app/fiokom/**",
+        "src/lib/customer/**",
+        "src/components/account/**"
+      ]
+    },
+    {
+      "name": "shared-storefront",
+      "risk": "medium",
+      "patterns": [
+        "src/lib/storefront/**",
+        "src/components/storefront/**"
+      ]
+    },
+    {
+      "name": "release-infrastructure",
+      "risk": "medium",
+      "patterns": [
+        ".github/workflows/**",
+        "scripts/release-*.mjs",
+        "scripts/smoke.mjs"
+      ]
+    },
+    {
+      "name": "dependency-contract",
+      "risk": "medium",
+      "patterns": [
+        "package.json",
+        "package-lock.json"
+      ]
+    },
+    {
+      "name": "storefront-ui",
+      "risk": "low",
+      "patterns": [
+        "src/app/**",
+        "src/components/**",
+        "src/styles/**",
+        "**/*.css"
+      ]
+    }
+  ],
+  "fallback": {
+    "subsystem": "unclassified-change",
+    "risk": "medium"
+  }
+}
