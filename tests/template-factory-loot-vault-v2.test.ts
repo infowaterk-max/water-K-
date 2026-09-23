@@ -4,8 +4,15 @@ import {
   getStorefrontTemplateFactoryRecipe,
 } from '@/lib/builder/template-factory/recipe-registry';
 import {getStorefrontTemplateDemoContent} from '@/lib/builder/storefront-template-route-integrity';
+import {createStorefrontTemplatePreviewBindingContext} from '@/lib/builder/storefront-template-preview-demo';
+import type {StorefrontComponentNode} from '@/lib/builder/storefront-runtime';
 import {createStorefrontTemplateFactoryMediaWorkOrder,pendingStorefrontTemplateFactoryMediaWorkOrders} from '@/lib/builder/template-factory/media-production';
 import {LOOT_VAULT_V2_FACTORY_RECIPE} from '@/lib/builder/template-factory/recipes/loot-vault-v2';
+
+const findNode=(nodes:readonly StorefrontComponentNode[],id:string):StorefrontComponentNode|undefined=>{
+  for(const node of nodes){if(node.id===id)return node;const child=findNode(node.children??[],id);if(child)return child;}
+  return undefined;
+};
 
 describe('Loot Vault v2 Factory canary recipe',()=>{
   it('locks the accepted visual reference and the complete 14-asset production plan',()=>{
@@ -118,6 +125,30 @@ describe('Loot Vault v2 Factory canary recipe',()=>{
     expect(orders.filter(order=>order.role==='category')).toHaveLength(6);
     expect(orders.filter(order=>order.role==='product')).toHaveLength(4);
   });
+  it('uses real shared purchase authority on cards and PDP while preview facts never degrade to dash placeholders',()=>{
+    const build=buildRegisteredStorefrontTemplateFactoryCandidate('gaming.loot-vault');
+    const home=build.package.pages.find(page=>page.pageType==='home')!;
+    const product=build.package.pages.find(page=>page.pageType==='product')!;
+    const homeGrid=findNode(home.sections,'loot-v2-product-grid');
+    expect(homeGrid?.componentKey).toBe('commerce.product-grid');
+    expect(homeGrid?.config).toMatchObject({showCta:false,showPurchaseActions:true,purchaseLabel:'Kosárba',wishlistLabel:'Kedvencekhez'});
+    const purchase=findNode(product.sections,'loot-v2-product-purchase');
+    expect(purchase?.componentKey).toBe('commerce.purchase-controls');
+    expect(purchase?.bindings).toMatchObject({
+      productId:{path:'product.id'},variantId:{path:'variant.id'},slug:{path:'product.slug'},unitPrice:{path:'pricing.unitPrice'},availableQuantity:{path:'inventory.availableQuantity'},
+    });
+    const context=createStorefrontTemplatePreviewBindingContext({template:build.package,page:product}) as Record<string,any>;
+    expect(context.product?.id).toBeTruthy();
+    expect(context.variant?.id).toBeTruthy();
+    expect(context.pricing?.unitPrice).toBeGreaterThan(0);
+    expect(context.inventory?.availableQuantity).toBeGreaterThan(0);
+    expect(context.product?.keySpecs).toEqual(expect.arrayContaining([
+      expect.objectContaining({label:'Kiadás',displayValue:'Gyűjtői kiadás',missing:false}),
+      expect.objectContaining({label:'Elérhetőség',displayValue:'Raktáron',missing:false}),
+    ]));
+    expect(context.product?.keySpecs.every((item:Record<string,unknown>)=>item.displayValue&&item.displayValue!=='—')).toBe(true);
+  });
+
   it('fails closed for an unregistered template instead of fabricating a recipe',()=>{
     expect(getStorefrontTemplateFactoryRecipe('gaming.missing')).toBeNull();
     expect(()=>buildRegisteredStorefrontTemplateFactoryCandidate('gaming.missing')).toThrow('TEMPLATE_FACTORY_RECIPE_MISSING:gaming.missing');
