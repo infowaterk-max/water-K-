@@ -42,6 +42,12 @@ export type StorefrontTemplateQualityManifest={
     baselineDirectory:string;
     maxPixelMismatchRatio:number;
   };
+  productOwnerReview:{
+    ready:boolean;
+    referenceKey:string;
+    minimumRepresentativeMedia:number;
+    forbidPlaceholderSvg:boolean;
+  };
 };
 
 export type StorefrontTemplateQualityIssue={
@@ -85,6 +91,12 @@ export const PLAYROOM_V20_QUALITY_MANIFEST:StorefrontTemplateQualityManifest=Obj
     baselineDirectory:'tests/visual-baselines/gaming.playroom/v20',
     maxPixelMismatchRatio:.005,
   }),
+  productOwnerReview:Object.freeze({
+    ready:true,
+    referenceKey:'gaming.playroom.accepted-reference-v20',
+    minimumRepresentativeMedia:12,
+    forbidPlaceholderSvg:false,
+  }),
 });
 
 export const LOOT_VAULT_V1_QUALITY_MANIFEST:StorefrontTemplateQualityManifest=Object.freeze({
@@ -119,6 +131,12 @@ export const LOOT_VAULT_V1_QUALITY_MANIFEST:StorefrontTemplateQualityManifest=Ob
     required:false,
     baselineDirectory:'tests/visual-baselines/gaming.loot-vault/v1',
     maxPixelMismatchRatio:.005,
+  }),
+  productOwnerReview:Object.freeze({
+    ready:false,
+    referenceKey:'gaming.loot-vault.accepted-reference-2026-09-06',
+    minimumRepresentativeMedia:14,
+    forbidPlaceholderSvg:true,
   }),
 });
 
