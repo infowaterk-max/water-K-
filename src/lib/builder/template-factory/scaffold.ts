@@ -42,6 +42,7 @@ export type StorefrontTemplateFactoryMediaRequirement={
 export type StorefrontTemplateFactoryMediaManifest={
   assets:readonly StorefrontTemplateFactoryMediaAsset[];
   requiredRoles:readonly StorefrontTemplateFactoryMediaRole[];
+  inheritedFallbackSrc?:string;
   requirements?:readonly StorefrontTemplateFactoryMediaRequirement[];
   minimumRepresentativeMedia:number;
   forbidPlaceholderSvg:boolean;
@@ -56,6 +57,8 @@ export type StorefrontTemplateFactoryNodePatch={
 
 export type StorefrontTemplateFactoryShellRecipe={
   header:Readonly<Record<string,unknown>>;
+  headerNode?:StorefrontComponentNode;
+  footerNode?:StorefrontComponentNode;
   patches?:readonly StorefrontTemplateFactoryNodePatch[];
 };
 
@@ -91,6 +94,7 @@ export type StorefrontTemplateFactoryCategoryFoundation={
   recommendedOwnedPages:readonly StorefrontBuilderPageType[];
   inheritedPages:readonly StorefrontBuilderPageType[];
   brandTokens?:readonly string[];
+  mediaPrefixes?:readonly string[];
   forbiddenLeakTokens?:readonly string[];
 };
 
@@ -127,6 +131,17 @@ function rewriteFoundationBrandTokens<T>(value:T,tokens:readonly string[],displa
     if(token)serialized=serialized.split(token).join(displayName);
   }
   return JSON.parse(serialized) as T;
+}
+
+function rewriteFoundationMediaRefs<T>(value:T,prefixes:readonly string[],fallback:string|undefined):T{
+  if(!prefixes.length||!fallback)return value;
+  const visit=(input:unknown):unknown=>{
+    if(typeof input==='string'&&prefixes.some(prefix=>input.startsWith(prefix)))return fallback;
+    if(Array.isArray(input))return input.map(visit);
+    if(input&&typeof input==='object')return Object.fromEntries(Object.entries(input as Record<string,unknown>).map(([key,item])=>[key,visit(item)]));
+    return input;
+  };
+  return visit(value) as T;
 }
 
 function walk(nodes:readonly StorefrontComponentNode[],visitor:(node:StorefrontComponentNode)=>void):void{
@@ -188,6 +203,15 @@ function evaluateBuild(input:{
   if(pkg.pages.length!==STOREFRONT_PAGE_TYPES.length)issues.push(issue('FACTORY_PAGE_CARDINALITY','pages','Factory output must contain exactly 14 canonical pages.'));
 
   for(const miss of input.patchMisses)issues.push(issue('FACTORY_PATCH_TARGET_MISSING',miss,'A declared factory patch did not match any node.'));
+
+  if(recipe.shell.headerNode&&recipe.shell.footerNode&&pkg.pages.length){
+    const headerSignature=JSON.stringify(pkg.pages[0]?.sections[0]??null);
+    const footerSignature=JSON.stringify(pkg.pages[0]?.sections.at(-1)??null);
+    for(const page of pkg.pages){
+      if(JSON.stringify(page.sections[0]??null)!==headerSignature)issues.push(issue('FACTORY_CANONICAL_HEADER_DRIFT',`pages.${page.pageType}.sections[0]`,'Factory output must use one template-owned canonical header across every page.'));
+      if(JSON.stringify(page.sections.at(-1)??null)!==footerSignature)issues.push(issue('FACTORY_CANONICAL_FOOTER_DRIFT',`pages.${page.pageType}.sections[-1]`,'Factory output must use one template-owned canonical footer across every page.'));
+    }
+  }
 
   const representative=recipe.media.assets.filter(asset=>asset.representative);
   if(representative.length<recipe.media.minimumRepresentativeMedia){
@@ -261,6 +285,9 @@ export function compileStorefrontTemplateFactoryPackage(input:{
 
     let page=rewriteIds(source,foundation.foundationTemplateKey,recipe.templateKey);
     page=rewriteFoundationBrandTokens(page,foundation.brandTokens??[],recipe.displayName);
+    page=rewriteFoundationMediaRefs(page,foundation.mediaPrefixes??[],recipe.media.inheritedFallbackSrc);
+    if(recipe.shell.headerNode)page.sections[0]=clone(recipe.shell.headerNode);
+    if(recipe.shell.footerNode&&page.sections.length)page.sections[page.sections.length-1]=clone(recipe.shell.footerNode);
     page.pageKey=`${slug(recipe.templateKey)}-${pageType}`;
     page.templateKey=recipe.templateKey;
     page.templateVersion=recipe.templateVersion;
