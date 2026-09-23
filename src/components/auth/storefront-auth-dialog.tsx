@@ -21,6 +21,8 @@ export function StorefrontAuthDialog({open,onClose,instanceId=null,initialMode='
 export function StorefrontAccountAuthTrigger({label,symbol,count,showLabel=false,style}:{label:string;symbol:ReactNode;count?:string;showLabel?:boolean;style?:CSSProperties}){
  const[open,setOpen]=useState(false);
  async function activate(){
+  const representativePreview=window.location.pathname==='/storefront-template-preview'||window.location.pathname==='/visual-fidelity-qa';
+  if(representativePreview){setOpen(true);return}
   const{data:{user}}=await createClient().auth.getUser();
   if(user){window.location.assign('/fiokom');return}
   setOpen(true);
