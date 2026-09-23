@@ -25,6 +25,7 @@ describe('storefront auth intent and checkout account opportunity',()=>{
   expect(dialog).toMatch(/onCancel=/);
   expect(dialog).toMatch(/restoreFocusRef/);
   expect(header).toMatch(/item\.href==='\/fiokom'\?<StorefrontAccountAuthTrigger/);
+  expect(dialog).toContain('data-storefront-account-auth-trigger="true"');
   expect(auth).toMatch(/resetPasswordForEmail/);
   expect(auth).toMatch(/\/fiokom\?auth_flow=recovery/);
  });
