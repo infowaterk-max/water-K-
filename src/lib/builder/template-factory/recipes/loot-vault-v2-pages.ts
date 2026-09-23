@@ -11,20 +11,20 @@ import {
 } from '@/lib/builder/templates/loot-vault';
 
 const MEDIA={
-  hero:'https://images.unsplash.com/photo-1773216344148-45afea590cf6?auto=format&fit=crop&w=1800&h=1013&q=82',
-  universe1:'https://images.unsplash.com/photo-1631677640766-7f7e94505c30?auto=format&fit=crop&w=900&h=1125&q=82',
-  universe2:'https://images.unsplash.com/photo-1753012102477-8bbf9c025ee6?auto=format&fit=crop&w=900&h=1125&q=82',
-  universe3:'https://images.unsplash.com/photo-1695624774880-f025d0ef57c7?auto=format&fit=crop&w=900&h=1125&q=82',
-  universe4:'https://images.unsplash.com/photo-1777730039398-830cddd1cf15?auto=format&fit=crop&w=900&h=1125&q=82',
-  universe5:'https://images.unsplash.com/photo-1750742680191-9abbeab00aba?auto=format&fit=crop&w=900&h=1125&q=82',
-  universe6:'https://images.unsplash.com/photo-1674925533868-82aa61d2abee?auto=format&fit=crop&w=900&h=1125&q=82',
-  product1:'https://images.unsplash.com/photo-1600060063061-64e2c3f8caba?auto=format&fit=crop&w=900&h=1125&q=84',
-  product2:'https://images.unsplash.com/photo-1761026379965-63f991b94c57?auto=format&fit=crop&w=900&h=1125&q=84',
-  product3:'https://images.unsplash.com/photo-1769221909918-8d40bf8c2459?auto=format&fit=crop&w=900&h=1125&q=84',
-  product4:'https://images.unsplash.com/photo-1762089423685-60f5cef02cda?auto=format&fit=crop&w=900&h=1125&q=84',
-  editorial1:'https://images.unsplash.com/photo-1750742680191-9abbeab00aba?auto=format&fit=crop&w=1500&h=1000&q=84',
-  editorial2:'https://images.unsplash.com/photo-1762089423685-60f5cef02cda?auto=format&fit=crop&w=1500&h=1000&q=84',
-  background:'https://images.unsplash.com/photo-1704186286706-e14487c3b995?auto=format&fit=crop&w=1800&h=1013&q=82',
+  hero:'/storefront-demo/loot-vault-v2/hero-cinematic.webp',
+  universe1:'/storefront-demo/loot-vault-v2/category-galaxy.webp',
+  universe2:'/storefront-demo/loot-vault-v2/category-heroes.webp',
+  universe3:'/storefront-demo/loot-vault-v2/category-anime.webp',
+  universe4:'/storefront-demo/loot-vault-v2/category-fantasy.webp',
+  universe5:'/storefront-demo/loot-vault-v2/category-miniatures.webp',
+  universe6:'/storefront-demo/loot-vault-v2/category-retro.webp',
+  product1:'/storefront-demo/loot-vault-v2/product-figure.webp',
+  product2:'/storefront-demo/loot-vault-v2/product-statue.webp',
+  product3:'/storefront-demo/loot-vault-v2/product-edition.webp',
+  product4:'/storefront-demo/loot-vault-v2/product-relic.webp',
+  editorial1:'/storefront-demo/loot-vault-v2/editorial-collector-room.webp',
+  editorial2:'/storefront-demo/loot-vault-v2/editorial-vault-shelf.webp',
+  background:'/storefront-demo/loot-vault-v2/background-archive.webp',
 } as const;
 
 const n=(value:StorefrontComponentNode):StorefrontComponentNode=>value;
@@ -307,20 +307,20 @@ export const LOOT_VAULT_V2_PAGE_OVERRIDES=Object.freeze({
 });
 
 export const LOOT_VAULT_V2_MEDIA_ASSETS:readonly StorefrontTemplateFactoryMediaAsset[]=Object.freeze([
-  {key:'hero-main',role:'hero',src:MEDIA.hero,alt:'Cinematikus fantasy jelenet gyűjtői Loot Vault hangulattal',pageTypes:['home'],representative:true,aspectRatio:'16:9'},
-  {key:'universe-1',role:'category',src:MEDIA.universe1,alt:'Gyűjtői figurák polcon',pageTypes:['home'],representative:true,aspectRatio:'4:5'},
-  {key:'universe-2',role:'category',src:MEDIA.universe2,alt:'Játék- és figuragyűjtemény',pageTypes:['home'],representative:true,aspectRatio:'4:5'},
-  {key:'universe-3',role:'category',src:MEDIA.universe3,alt:'Karakterfigurák gyűjtői displayen',pageTypes:['home'],representative:true,aspectRatio:'4:5'},
-  {key:'universe-4',role:'category',src:MEDIA.universe4,alt:'Anime figurák és emléktárgyak',pageTypes:['home'],representative:true,aspectRatio:'4:5'},
-  {key:'universe-5',role:'category',src:MEDIA.universe5,alt:'Vintage gyűjtői polc művészeti tárgyakkal',pageTypes:['home'],representative:true,aspectRatio:'4:5'},
-  {key:'universe-6',role:'category',src:MEDIA.universe6,alt:'Sötét neonfényes gyűjtői tér',pageTypes:['home'],representative:true,aspectRatio:'4:5'},
-  {key:'product-1',role:'product',src:MEDIA.product1,alt:'Prémium gyűjtői figura',pageTypes:['home','product'],representative:true,aspectRatio:'4:5'},
-  {key:'product-2',role:'product',src:MEDIA.product2,alt:'Fantasy collector szobor',pageTypes:['home','product'],representative:true,aspectRatio:'4:5'},
-  {key:'product-3',role:'product',src:MEDIA.product3,alt:'Dramatikus warrior collector szobor',pageTypes:['home','product'],representative:true,aspectRatio:'4:5'},
-  {key:'product-4',role:'product',src:MEDIA.product4,alt:'Popkulturális collector display',pageTypes:['home','product'],representative:true,aspectRatio:'4:5'},
-  {key:'editorial-1',role:'editorial',src:MEDIA.editorial1,alt:'Gyűjtői polc figurákkal és művészeti tárgyakkal',pageTypes:['home','blog-index'],representative:true,aspectRatio:'3:2'},
-  {key:'editorial-2',role:'editorial',src:MEDIA.editorial2,alt:'Gazdag popkulturális gyűjtemény',pageTypes:['home','blog-article'],representative:true,aspectRatio:'3:2'},
-  {key:'catalog-background',role:'background',src:MEDIA.background,alt:'Sötét, színes neonfényes enteriőr',pageTypes:['catalog'],representative:true,aspectRatio:'16:9'},
+  {key:'hero-main',state:'planned',role:'hero',src:MEDIA.hero,alt:'Cinematikus fantasy jelenet gyűjtői Loot Vault hangulattal',pageTypes:['home'],representative:true,aspectRatio:'16:9'},
+  {key:'universe-1',state:'planned',role:'category',src:MEDIA.universe1,alt:'Gyűjtői figurák polcon',pageTypes:['home'],representative:true,aspectRatio:'4:5'},
+  {key:'universe-2',state:'planned',role:'category',src:MEDIA.universe2,alt:'Játék- és figuragyűjtemény',pageTypes:['home'],representative:true,aspectRatio:'4:5'},
+  {key:'universe-3',state:'planned',role:'category',src:MEDIA.universe3,alt:'Karakterfigurák gyűjtői displayen',pageTypes:['home'],representative:true,aspectRatio:'4:5'},
+  {key:'universe-4',state:'planned',role:'category',src:MEDIA.universe4,alt:'Anime figurák és emléktárgyak',pageTypes:['home'],representative:true,aspectRatio:'4:5'},
+  {key:'universe-5',state:'planned',role:'category',src:MEDIA.universe5,alt:'Vintage gyűjtői polc művészeti tárgyakkal',pageTypes:['home'],representative:true,aspectRatio:'4:5'},
+  {key:'universe-6',state:'planned',role:'category',src:MEDIA.universe6,alt:'Sötét neonfényes gyűjtői tér',pageTypes:['home'],representative:true,aspectRatio:'4:5'},
+  {key:'product-1',state:'planned',role:'product',src:MEDIA.product1,alt:'Prémium gyűjtői figura',pageTypes:['home','product'],representative:true,aspectRatio:'4:5'},
+  {key:'product-2',state:'planned',role:'product',src:MEDIA.product2,alt:'Fantasy collector szobor',pageTypes:['home','product'],representative:true,aspectRatio:'4:5'},
+  {key:'product-3',state:'planned',role:'product',src:MEDIA.product3,alt:'Dramatikus warrior collector szobor',pageTypes:['home','product'],representative:true,aspectRatio:'4:5'},
+  {key:'product-4',state:'planned',role:'product',src:MEDIA.product4,alt:'Popkulturális collector display',pageTypes:['home','product'],representative:true,aspectRatio:'4:5'},
+  {key:'editorial-1',state:'planned',role:'editorial',src:MEDIA.editorial1,alt:'Gyűjtői polc figurákkal és művészeti tárgyakkal',pageTypes:['home','blog-index'],representative:true,aspectRatio:'3:2'},
+  {key:'editorial-2',state:'planned',role:'editorial',src:MEDIA.editorial2,alt:'Gazdag popkulturális gyűjtemény',pageTypes:['home','blog-article'],representative:true,aspectRatio:'3:2'},
+  {key:'catalog-background',state:'planned',role:'background',src:MEDIA.background,alt:'Sötét, színes neonfényes enteriőr',pageTypes:['catalog'],representative:true,aspectRatio:'16:9'},
 ]);
 
 export const LOOT_VAULT_V2_DEMO_FIXTURES:readonly StorefrontDemoFixture[]=Object.freeze([
