@@ -1,3 +1,4 @@
+import fs from 'node:fs';
 import {describe,expect,it} from 'vitest';
 import {PLANS} from '@/lib/plans/catalog';
 import {STOREFRONT_TEMPLATE_CATALOG,getStorefrontTemplatePackage} from '@/lib/builder/storefront-template-catalog';
@@ -7,6 +8,16 @@ import {resolveStorefrontTemplateAccountPreviewRuntimePage,resolveStorefrontTemp
 import {createStorefrontTemplatePreviewBindingContext} from '@/lib/builder/storefront-template-preview-demo';
 
 describe('storefront template preview runtime',()=>{
+  it('stamps Product Owner preview with exact Factory provenance fields',()=>{
+    const source=fs.readFileSync('src/app/storefront-template-preview/page.tsx','utf8');
+    expect(source).toContain('data-template-version={template.manifest.templateVersion}');
+    expect(source).toContain("data-factory-candidate={factoryCandidate?'true':'false'}");
+    expect(source).toContain('data-template-recipe={recipeIdentity}');
+    expect(source).toContain('data-compile-source={compileSource}');
+    expect(source).toContain('data-foundation-template={foundationTemplate}');
+    expect(source).toContain('data-source-commit={sourceCommit}');
+  });
+
   it('resolves Product Owner Factory candidate instead of legacy catalog package',()=>{
     const factory=resolveStorefrontTemplatePreviewPackage('gaming.loot-vault',2,true);
     expect(factory?.manifest.templateVersion).toBe(2);
