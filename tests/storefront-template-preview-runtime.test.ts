@@ -4,6 +4,7 @@ import {STOREFRONT_TEMPLATE_CATALOG,getStorefrontTemplatePackage} from '@/lib/bu
 import {createStorefrontVisualBuilderComponentRegistry} from '@/lib/builder/storefront-builder-registry';
 import {validateStorefrontPageDocument} from '@/lib/builder/storefront-runtime';
 import {resolveStorefrontTemplateAccountPreviewRuntimePage,resolveStorefrontTemplatePreviewPackage} from '@/lib/builder/storefront-template-preview-auth';
+import {createStorefrontTemplatePreviewBindingContext} from '@/lib/builder/storefront-template-preview-demo';
 
 describe('storefront template preview runtime',()=>{
   it('resolves Product Owner Factory candidate instead of legacy catalog package',()=>{
@@ -11,6 +12,9 @@ describe('storefront template preview runtime',()=>{
     expect(factory?.manifest.templateVersion).toBe(2);
     expect(factory?.pages).toHaveLength(14);
     expect(factory?.pages.every(page=>page.templateKey==='gaming.loot-vault'&&page.templateVersion===2)).toBe(true);
+    const home=factory?.pages.find(page=>page.pageType==='home');
+    const context=factory&&home?createStorefrontTemplatePreviewBindingContext({template:factory,page:home}):null;
+    expect((context?.brand as {name?:string}|undefined)?.name).toBe('Loot Vault');
     const auth=resolveStorefrontTemplateAccountPreviewRuntimePage('gaming.loot-vault',2,true);
     expect(auth?.page.templateVersion).toBe(2);
   });
