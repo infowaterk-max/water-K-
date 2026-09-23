@@ -4,7 +4,6 @@ import {notFound} from 'next/navigation';
 import {requirePlanFeature} from '@/lib/plans/access';
 import {requireAdmin} from '@/lib/auth/require-admin';
 import {PLANS} from '@/lib/plans/catalog';
-import {requireCurrentStoreContext} from '@/lib/instances/scope';
 import {getStorefrontTemplatePackage} from '@/lib/builder/storefront-template-catalog';
 import {
   createStorefrontTemplatePreviewBindingContext,
@@ -30,7 +29,6 @@ export default async function StorefrontTemplatePreview({searchParams}:Props){
   for(const [key,value] of Object.entries(query))if(typeof value==='string'&&value) returnParams.set(key,value);
   await requireAdmin(`/storefront-template-preview?${returnParams.toString()}`);
   await requirePlanFeature('contentMarketing');
-  await requireCurrentStoreContext('store.manage');
   const templateKey=(query.template??'').trim();
   const version=query.version?Number(query.version):undefined;
   const pageType=(query.page??'home') as StorefrontBuilderPageType;
