@@ -15,6 +15,13 @@ import {
 } from '@/lib/builder/template-factory/procedural-memory';
 
 describe('Template Factory procedural memory',()=>{
+  it('keeps browser proof assertions synchronized with streamed screenshot state',()=>{
+    const harness=fs.readFileSync('scripts/template-factory-quality-gate.mjs','utf8');
+    expect(harness).toContain("await runtimeRoot.waitFor({state:'visible',timeout:10000})");
+    expect(harness).toContain("await demoWarning.waitFor({state:'visible',timeout:5000})");
+    expect(harness).toContain("errors:caseErrors");
+  });
+
   it('keeps every known failure bound to a real invariant and regression test',()=>{
     const authorityIds=new Set(TEMPLATE_FACTORY_AUTHORITY_GRAPH.map(item=>item.id));
     expect(new Set(TEMPLATE_FACTORY_KNOWN_FAILURES.map(item=>item.id)).size).toBe(TEMPLATE_FACTORY_KNOWN_FAILURES.length);
