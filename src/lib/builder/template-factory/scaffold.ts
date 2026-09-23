@@ -119,6 +119,7 @@ function rewriteIds(page:StorefrontPageDocument,foundationKey:string,targetKey:s
   const source=slug(foundationKey),target=slug(targetKey);
   const next=clone(page);
   walk(next.sections,node=>{
+    if(node.id.startsWith(`${target}-`))return;
     const stripped=node.id.startsWith(`${source}-`)?node.id.slice(source.length+1):node.id;
     const candidate=`${target}-${stripped}`;
     node.id=candidate.length<=128?candidate:`${target}-${stripped.slice(Math.max(0,stripped.length-(127-target.length)))}`;
@@ -212,6 +213,9 @@ export function compileStorefrontTemplateFactoryPackage(input:{
     throw new Error('TEMPLATE_FACTORY_FOUNDATION_IDENTITY_INVALID');
   }
   if(foundation.package.pages.length!==STOREFRONT_PAGE_TYPES.length)throw new Error('TEMPLATE_FACTORY_FOUNDATION_PAGE_COVERAGE_INVALID');
+  const ownedSet=new Set(foundation.recommendedOwnedPages),inheritedSet=new Set(foundation.inheritedPages);
+  if(foundation.recommendedOwnedPages.some(page=>inheritedSet.has(page)))throw new Error('TEMPLATE_FACTORY_FOUNDATION_PAGE_PARTITION_OVERLAP');
+  if(STOREFRONT_PAGE_TYPES.some(page=>!ownedSet.has(page)&&!inheritedSet.has(page)))throw new Error('TEMPLATE_FACTORY_FOUNDATION_PAGE_PARTITION_INCOMPLETE');
 
   const overridden:StorefrontBuilderPageType[]=[];
   const inherited:StorefrontBuilderPageType[]=[];
