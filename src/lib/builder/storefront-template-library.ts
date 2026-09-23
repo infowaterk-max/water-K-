@@ -1,4 +1,5 @@
 import {STOREFRONT_TEMPLATE_CATALOG,getStorefrontTemplatePackage,type StorefrontTemplateCatalogEntry} from '@/lib/builder/storefront-template-catalog';
+import {getStorefrontTemplateQualityManifest} from '@/lib/builder/storefront-template-quality-gate';
 
 export type StorefrontTemplateProComparison={
   status:'available';
@@ -16,6 +17,7 @@ export type StorefrontTemplateLibraryEntry=StorefrontTemplateCatalogEntry&{
   previewPageKey:string|null;
   demoProductCount:number;
   proComparison:StorefrontTemplateProComparison;
+  productOwnerPreviewReady:boolean;
 };
 
 type MerchandisingProfile={description:string;audience:string};
@@ -92,6 +94,8 @@ export function listStorefrontTemplateLibraryEntries():readonly StorefrontTempla
     const pro=PRO_PROFILES[category]??{summary:'Ugyanez a sablon Pro csomagban a közös motor fejlettebb üzleti képességeit is használhatja.',highlights:['fejlettebb merchandising','személyre szabás és automatizálás','Pro csomaghoz kötött üzleti képességek']};
     const metadataHighlights=strings(home?.metadata?.sectionOrder).slice(0,4);
     const fallbackHighlights=(home?.sections??[]).slice(0,4).map(section=>humanize(section.componentKey));
+    const qualityManifest=getStorefrontTemplateQualityManifest(entry.templateKey);
+    const productOwnerPreviewReady=qualityManifest?qualityManifest.productOwnerReview.ready:true;
     return Object.freeze({
       ...entry,
       displayName:humanize(entry.templateKey),
@@ -102,6 +106,7 @@ export function listStorefrontTemplateLibraryEntries():readonly StorefrontTempla
       previewPageKey:home?.pageKey??null,
       demoProductCount:(template?.demoFixtures??[]).filter(item=>item.entityType==='product'&&item.payload.installAsDemoProduct===true).length,
       proComparison:Object.freeze({status:'available' as const,summary:pro.summary,highlights:Object.freeze([...pro.highlights]),optionalAddOns:Object.freeze([...(pro.optionalAddOns??[])])}),
+      productOwnerPreviewReady,
     });
   });
 }
