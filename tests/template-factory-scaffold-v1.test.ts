@@ -127,6 +127,7 @@ describe('Template Factory Scaffold v1',()=>{
 
   it('auto-rebrands inherited foundation copy but still fails closed on foundation media, reference ownership and visual review',()=>{
     const build=buildStorefrontTemplateFactoryCandidate(recipe({allPages:false,reviewPassed:false}));
+    expect(build.report.technicalReady).toBe(false);
     expect(build.report.productOwnerReady).toBe(false);
     expect(build.report.inheritedPageTypes.length).toBe(13);
     const account=build.package.pages.find(page=>page.pageType==='account')!;
@@ -143,6 +144,7 @@ describe('Template Factory Scaffold v1',()=>{
   it('can become Product Owner-ready only after the recipe owns reference-critical pages, media and internal review',()=>{
     const build=buildStorefrontTemplateFactoryCandidate(recipe({allPages:true,reviewPassed:true}));
     expect(build.report.issues).toEqual([]);
+    expect(build.report.technicalReady).toBe(true);
     expect(build.report.productOwnerReady).toBe(true);
     expect(()=>assertStorefrontTemplateFactoryProductOwnerReady(build)).not.toThrow();
   });
