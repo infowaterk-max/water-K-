@@ -94,6 +94,16 @@ describe('Template Factory Quality Gate v2',()=>{
     expect(story).toContain('data-storefront-story="feature"');
   });
 
+  it('keeps direct template preview fail-closed for merchants while allowing authenticated platform Preview review without tenant context',()=>{
+    const preview=read('src/app/storefront-template-preview/page.tsx');
+    expect(preview).toContain('getCurrentStoreContext');
+    expect(preview).toContain("process.env.VERCEL_ENV==='preview'");
+    expect(preview).toContain('await getPlatformRole()');
+    expect(preview).toContain("await requirePlanFeature('contentMarketing')");
+    expect(preview).toContain("redirect('/admin/hozzaferes-megtagadva?reason=context')");
+    expect(preview).not.toContain("requireCurrentStoreContext('store.manage')");
+  });
+
   it('keeps Builder v3 and storefront preview on the same Runtime renderer and canonical viewport authority',()=>{
     const builder=read('src/components/admin/storefront-visual-builder-v3.tsx');
     const preview=read('src/app/storefront-template-preview/page.tsx');
