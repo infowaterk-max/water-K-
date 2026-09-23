@@ -22,9 +22,15 @@ export type StorefrontFactoryMediaAsset={
   alt:string;
 };
 
+export type StorefrontFactoryMediaRequirement={
+  role:StorefrontFactoryMediaAsset['role'];
+  minCount:number;
+  aspectRatio:'1:1'|'4:5'|'16:9'|'3:2'|'free';
+};
 export type StorefrontFactoryReferenceContract={
   referenceKey:string;
   requiredMediaRoles:readonly StorefrontFactoryMediaAsset['role'][];
+  mediaRequirements:readonly StorefrontFactoryMediaRequirement[];
   minimumRepresentativeMedia:number;
   forbidPlaceholderSvg:boolean;
 };
@@ -175,12 +181,16 @@ export function evaluateStorefrontFactoryReadiness(definition:StorefrontFactoryD
   const reasons:string[]=[];
   const roles=new Set(definition.media.map(item=>item.role));
   for(const role of definition.reference.requiredMediaRoles)if(!roles.has(role))reasons.push(`missing-media-role:${role}`);
+  for(const requirement of definition.reference.mediaRequirements){
+    const count=definition.media.filter(item=>item.role===requirement.role).length;
+    if(count<requirement.minCount)reasons.push(`media-count:${requirement.role}:${count}/${requirement.minCount}`);
+  }
   if(definition.media.length<definition.reference.minimumRepresentativeMedia)reasons.push('representative-media-count');
   if(definition.reference.forbidPlaceholderSvg&&definition.media.some(item=>/placeholder|wireframe|geometric/i.test(item.id)||/placeholder/i.test(item.src)))reasons.push('placeholder-media');
   if(!definition.reference.referenceKey.trim())reasons.push('reference-key');
   const technicalScaffoldComplete=STOREFRONT_PAGE_TYPES.length===14;
   const referenceContractComplete=Boolean(definition.reference.referenceKey&&definition.reference.requiredMediaRoles.length);
-  const representativeMediaComplete=!reasons.some(item=>item.startsWith('missing-media-role:')||item==='representative-media-count'||item==='placeholder-media');
+  const representativeMediaComplete=!reasons.some(item=>item.startsWith('missing-media-role:')||item.startsWith('media-count:')||item==='representative-media-count'||item==='placeholder-media');
   return{
     technicalScaffoldComplete,
     referenceContractComplete,
