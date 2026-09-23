@@ -126,10 +126,9 @@ const image=(id:string,src:string,alt:string,span:StorefrontGridSpan=12,style:Re
 const badge=(id:string,value:string)=>n({id,componentKey:'content.text',componentVersion:1,config:{text:value,as:'strong',align:'left',tone:'text',style:{display:'inline-flex',width:'fit-content',padding:'.28rem .48rem',border:'1px solid rgba(183,138,80,.62)',borderRadius:'999px',color:'#e3c89d',fontSize:'.63rem',fontWeight:850,letterSpacing:'.09em',textTransform:'uppercase'}}});
 
 const universeCard=(id:string,title:string,copy:string,src:string)=>stack(id,[
-  image(`${id}-image`,src,title,12,{height:'13.5rem',minHeight:'13.5rem'}),
-  heading(`${id}-title`,title,3,{fontSize:'1.08rem'}),
-  text(`${id}-copy`,copy,{fontSize:'.76rem'}),
-],2,{padding:'.55rem',background:'linear-gradient(180deg,#17191a,#111314)',border:'1px solid rgba(165,122,69,.24)',borderRadius:'.75rem',boxShadow:'0 18px 34px rgba(0,0,0,.24)'});
+  image(`${id}-image`,src,`${title} — ${copy}`,12,{height:'10rem',minHeight:'10rem'}),
+  heading(`${id}-title`,title,3,{fontSize:'.95rem'}),
+],2,{padding:'.48rem',background:'linear-gradient(180deg,#17191a,#111314)',border:'1px solid rgba(165,122,69,.3)',borderRadius:'.68rem',boxShadow:'0 16px 30px rgba(0,0,0,.28)'});
 
 const productCard=(id:string,badgeText:string,title:string,price:string,src:string)=>stack(id,[
   badge(`${id}-badge`,badgeText),
@@ -198,7 +197,7 @@ export const LOOT_VAULT_V2_HOME_PAGE=override(LOOT_VAULT_HOME_PAGE,[
   section('loot-v2-limited',[
     badge('loot-v2-limited-kicker','VÁLOGATOTT DARABOK'),
     heading('loot-v2-limited-title','Limitált kiadások & exkluzív válogatás',2,{fontSize:'clamp(2rem,4vw,3.4rem)'}),
-    text('loot-v2-limited-copy','Ritka darabok. Valódi gyűjtőknek. A státuszokat mindig a katalógus valós adatai adják.'),
+    text('loot-v2-limited-copy','Ritka darabok. Valódi gyűjtőknek. A státuszok mindig a valós készlet- és kiadási adatokból érkeznek.'),
     commerceProductGrid('loot-v2-product-grid','', 'catalog.featured',4),
   ],{background:'linear-gradient(180deg,#0f1111,#171919)'}),
   section('loot-v2-editorial',[
@@ -212,22 +211,11 @@ export const LOOT_VAULT_V2_HOME_PAGE=override(LOOT_VAULT_HOME_PAGE,[
       image('loot-v2-editorial-image',MEDIA.editorial1,'Gyűjtői polc figurákkal és művészeti tárgyakkal',7,{height:'29rem',minHeight:'24rem'}),
     ]),
   ],{background:'radial-gradient(circle at 18% 50%,rgba(83,105,93,.18),transparent 34%),#111313'}),
-  section('loot-v2-story',[
-    grid('loot-v2-story-grid',[
-      image('loot-v2-story-image',MEDIA.editorial2,'Gazdag popkulturális gyűjtemény vitrinszerű elrendezésben',6,{height:'25rem',minHeight:'22rem'}),
-      stack('loot-v2-story-copy',[
-        badge('loot-v2-story-kicker','VAULT MAGAZIN'),
-        heading('loot-v2-story-title','Tárgyak, kiadások, történetek.',2,{fontSize:'clamp(2rem,4vw,3.6rem)'}),
-        text('loot-v2-story-text','Szerkesztett háttéranyagok a gyűjtői kultúráról — mesterséges ritkaság és hamis sürgetés nélkül.'),
-        button('loot-v2-story-cta','Olvasd a Vault Magazint','/blog','secondary'),
-      ],6,{padding:'clamp(1rem,3vw,2.2rem)'}),
-    ]),
-  ],{background:'#171919'}),
   section('loot-v2-benefits',[
     grid('loot-v2-benefit-grid',[
       stack('loot-v2-benefit-1',[badge('loot-v2-benefit-1-icon','01'),heading('loot-v2-benefit-1-title','Előrendelési támogatás',3),text('loot-v2-benefit-1-text','Átlátható státuszok és valódi kiadási információk.')],3,{padding:'1rem',border:'1px solid rgba(165,122,69,.24)',borderRadius:'.6rem'}),
       stack('loot-v2-benefit-2',[badge('loot-v2-benefit-2-icon','02'),heading('loot-v2-benefit-2-title','Ellenőrzött termékadatok',3),text('loot-v2-benefit-2-text','Ritkaság és kiadás csak strukturált katalógusadatból.')],3,{padding:'1rem',border:'1px solid rgba(165,122,69,.24)',borderRadius:'.6rem'}),
-      stack('loot-v2-benefit-3',[badge('loot-v2-benefit-3-icon','03'),heading('loot-v2-benefit-3-title','Biztonságos vásárlás',3),text('loot-v2-benefit-3-text','A közös Shoperation checkout és rendelési authority.')],3,{padding:'1rem',border:'1px solid rgba(165,122,69,.24)',borderRadius:'.6rem'}),
+      stack('loot-v2-benefit-3',[badge('loot-v2-benefit-3-icon','03'),heading('loot-v2-benefit-3-title','Biztonságos vásárlás',3),text('loot-v2-benefit-3-text','Átlátható kosár, pénztár és rendelési folyamat.')],3,{padding:'1rem',border:'1px solid rgba(165,122,69,.24)',borderRadius:'.6rem'}),
       stack('loot-v2-benefit-4',[badge('loot-v2-benefit-4-icon','04'),heading('loot-v2-benefit-4-title','Rajongói felfedezés',3),text('loot-v2-benefit-4-text','Univerzumok és történetek szerencsejátékos mechanika nélkül.')],3,{padding:'1rem',border:'1px solid rgba(165,122,69,.24)',borderRadius:'.6rem'}),
     ]),
   ],{background:'#0d0e0f'}),
@@ -241,7 +229,7 @@ export const LOOT_VAULT_V2_CATALOG_PAGE=override(LOOT_VAULT_CATALOG_PAGE,[
       stack('loot-v2-catalog-copy',[
         badge('loot-v2-catalog-kicker','LOOT VAULT KATALÓGUS'),
         heading('loot-v2-catalog-title','Találd meg a következő vitrindarabot.',1,{fontSize:'clamp(2.7rem,6vw,5.2rem)',maxWidth:'11ch'}),
-        text('loot-v2-catalog-text','Szűrj univerzum, formátum és strukturált gyűjtői adatok szerint.'),
+        text('loot-v2-catalog-text','Szűrj univerzum, formátum és gyűjtői jellemzők szerint.'),
       ],5,{padding:'1rem 0'}),
       image('loot-v2-catalog-background',MEDIA.background,'Sötét, neonfényes gyűjtői tér',7,{height:'21rem',minHeight:'18rem'}),
     ]),
@@ -269,7 +257,7 @@ export const LOOT_VAULT_V2_PRODUCT_PAGE=override(LOOT_VAULT_PRODUCT_PAGE,[
       n({id:'loot-v2-product-gallery',componentKey:'commerce.product-gallery',componentVersion:1,config:{images:gallery,aspectRatio:'4 / 5',thumbnailPosition:'bottom',presentation:'editorial-thumbnails',styleSlots:{root:{base:{gap:'.7rem'}},main:{base:{border:'1px solid rgba(183,138,80,.4)',borderRadius:'.75rem',background:'#0b0c0d',boxShadow:'0 28px 70px rgba(0,0,0,.38)'}},mainImage:{base:{filter:'saturate(1.03) contrast(1.04)'}},thumbnail:{base:{borderRadius:'.42rem',borderColor:'rgba(183,138,80,.28)',background:'#111314'}},thumbnailActive:{base:{boxShadow:'0 0 0 2px rgba(214,162,79,.56)'}},thumbnailHover:{desktop:{transform:'translateY(-2px)',filter:'brightness(1.08)'}},thumbnailFocus:{desktop:{boxShadow:'0 0 0 3px rgba(214,162,79,.42)'}}}},bindings:{images:{path:'product.gallery',fallback:gallery}},responsive:responsive(7,7,12)}),
       stack('loot-v2-product-buybox',[
         badge('loot-v2-product-eyebrow','LOOT VAULT'),
-        n({id:'loot-v2-product-info',componentKey:'commerce.product-info',componentVersion:1,config:{eyebrow:'Loot Vault',title:'Gyűjtői kiadás',price:'59 990 Ft',compareAtPrice:'',description:'Kurált gyűjtői termék részletes, strukturált adatokkal.',stockLabel:'Raktáron',badges:['Gyűjtői kiadás'],currency:'HUF',presentation:'loot-vault',styleSlots:{root:{base:{gap:'.8rem'}},badges:{base:{gap:'.35rem'}},badge:{base:{borderColor:'rgba(214,162,79,.6)',color:'#e9c990',borderRadius:'999px'}},eyebrow:{base:{color:'#b99b70'}},title:{base:{fontWeight:780,color:'#f3ebdd'}},price:{base:{fontSize:'1.35rem',color:'#e6c28c'}},description:{base:{color:'#b9b1a5',lineHeight:1.65}},stock:{base:{color:'#c6bda9'}}}},bindings:{title:{path:'product.name',fallback:'Gyűjtői kiadás'},price:{path:'pricing.displayPrice',fallback:'59 990 Ft'},compareAtPrice:{path:'pricing.compareAtPrice',fallback:''},description:{path:'product.description',fallback:'Kurált gyűjtői termék részletes, strukturált adatokkal.'},stockLabel:{path:'inventory.stockLabel',fallback:'Raktáron'},badges:{path:'product.badges',fallback:['Gyűjtői kiadás']}}}),
+        n({id:'loot-v2-product-info',componentKey:'commerce.product-info',componentVersion:1,config:{eyebrow:'Loot Vault',title:'Gyűjtői kiadás',price:'59 990 Ft',compareAtPrice:'',description:'Kurált gyűjtői termék részletes kiadási és készletinformációkkal.',stockLabel:'Raktáron',badges:['Gyűjtői kiadás'],currency:'HUF',presentation:'loot-vault',styleSlots:{root:{base:{gap:'.8rem'}},badges:{base:{gap:'.35rem'}},badge:{base:{borderColor:'rgba(214,162,79,.6)',color:'#e9c990',borderRadius:'999px'}},eyebrow:{base:{color:'#b99b70'}},title:{base:{fontWeight:780,color:'#f3ebdd'}},price:{base:{fontSize:'1.35rem',color:'#e6c28c'}},description:{base:{color:'#b9b1a5',lineHeight:1.65}},stock:{base:{color:'#c6bda9'}}}},bindings:{title:{path:'product.name',fallback:'Gyűjtői kiadás'},price:{path:'pricing.displayPrice',fallback:'59 990 Ft'},compareAtPrice:{path:'pricing.compareAtPrice',fallback:''},description:{path:'product.description',fallback:'Kurált gyűjtői termék részletes kiadási és készletinformációkkal.'},stockLabel:{path:'inventory.stockLabel',fallback:'Raktáron'},badges:{path:'product.badges',fallback:['Gyűjtői kiadás']}}}),
         n({id:'loot-v2-product-option',componentKey:'commerce.option-selector',componentVersion:1,config:{label:'Változat',options:[]},bindings:{label:{path:'variant.optionLabel',fallback:'Változat'},options:{path:'variant.optionOptions',fallback:[]}}}),
         n({id:'loot-v2-product-specs',componentKey:'commerce.key-specs',componentVersion:1,config:{title:'Gyűjtői adatok',items:[],columns:2,missingLabel:'Nincs megadva'},bindings:{items:{path:'product.keySpecs',fallback:[]}}}),
         button('loot-v2-product-buy','Kosárba teszem','#purchase'),
@@ -282,7 +270,7 @@ export const LOOT_VAULT_V2_PRODUCT_PAGE=override(LOOT_VAULT_PRODUCT_PAGE,[
       stack('loot-v2-product-story-copy',[
         badge('loot-v2-product-story-kicker','A KIADÁS MÖGÖTT'),
         heading('loot-v2-product-story-title','A tárgy mögött mindig van egy történet.',2,{fontSize:'clamp(2rem,4vw,3.5rem)'}),
-        text('loot-v2-product-story-text','A ritkaság, számozás és exkluzivitás csak valódi strukturált termékadatból jelenhet meg. A sablon történetet ad, nem mesterséges hiányérzetet.'),
+        text('loot-v2-product-story-text','A ritkaság, számozás és exkluzivitás csak ellenőrzött termékadatként jelenik meg. A tárgy történetet kap, mesterséges sürgetést nem.'),
         button('loot-v2-product-story-cta','Vault Magazin','/blog','secondary'),
       ],6,{padding:'1rem'}),
     ]),
@@ -316,7 +304,7 @@ export const LOOT_VAULT_V2_BLOG_ARTICLE_PAGE=override(LOOT_VAULT_BLOG_ARTICLE_PA
         badge('loot-v2-article-kicker','VAULT TÖRTÉNET'),
         heading('loot-v2-article-title','Mitől lesz egy tárgy gyűjtői darab?',1,{fontSize:'clamp(2.5rem,5vw,4.6rem)'}),
         text('loot-v2-article-lead','Szerkesztett háttéranyag a tárgy, a kiadás és a közösségi jelentés kapcsolatáról.',{fontSize:'1.05rem'}),
-        text('loot-v2-article-body','A Loot Vault magazin nem gyárt mesterséges ritkaságot. A vizuális történetmesélés mellett a kiadás, előrendelés, készlet és ár továbbra is a közös kereskedelmi authorityból érkezik.',{fontSize:'.95rem'}),
+        text('loot-v2-article-body','A Loot Vault magazin nem gyárt mesterséges ritkaságot. A kiadás, előrendelés, készlet és ár mindig a webshop valós adataiból érkezik.',{fontSize:'.95rem'}),
       ],6,{padding:'1rem'}),
       image('loot-v2-article-image',MEDIA.editorial2,'Popkulturális gyűjtemény részletes vitrinben',6,{height:'30rem',minHeight:'24rem'}),
     ]),
