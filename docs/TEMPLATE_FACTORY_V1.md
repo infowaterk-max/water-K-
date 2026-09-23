@@ -76,3 +76,9 @@ A factory package may be used internally for machine QA while `productOwnerReady
 10. acceptance and golden snapshot.
 
 The intended outcome is a near-finished first review, not a wireframe review.
+
+## Exact-head stabilization checkpoint
+
+The v1 foundation now includes the executable 14-page composer, Gaming category recipe, one-call registry, Loot Vault canary definition, per-role media production requirements, Product Owner readiness boundary, and Template Library preview suppression for unfinished candidates.
+
+This checkpoint exists only to bind the final CI / Template Factory / Preview evidence to one stable exact head. No further implementation change should be added until that proof completes.
