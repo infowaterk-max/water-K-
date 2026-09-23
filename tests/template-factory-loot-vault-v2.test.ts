@@ -31,11 +31,15 @@ describe('Loot Vault v2 Factory canary recipe',()=>{
     expect(build.package.pages).toHaveLength(14);
     expect(build.package.pages.every(page=>page.templateKey==='gaming.loot-vault'&&page.templateVersion===2)).toBe(true);
     expect(build.package.manifest.demoContent.namespace).toBe('gaming-loot-vault-v2');
-    expect(build.report.overriddenPageTypes).toEqual(expect.arrayContaining(['home','catalog','product','blog-index','blog-article']));
-    expect(build.report.overriddenPageTypes).toHaveLength(5);
-    expect(build.report.inheritedPageTypes).toHaveLength(9);
+    expect(build.report.overriddenPageTypes).toEqual(expect.arrayContaining(['home','catalog','product','account','blog-index','blog-article']));
+    expect(build.report.overriddenPageTypes).toHaveLength(6);
+    expect(build.report.inheritedPageTypes).toHaveLength(8);
     const account=build.package.pages.find(page=>page.pageType==='account')!;
-    expect(account.metadata?.templateFactory).toMatchObject({ownership:'category-foundation',category:'gaming'});
+    expect(account.metadata?.templateFactory).toMatchObject({ownership:'template',category:'gaming'});
+    expect(account.metadata).toMatchObject({authComposition:'template-owned-v1',authPreset:'loot-vault-v2-vault-access'});
+    expect(account.sections.some(section=>(section.config as Record<string,unknown>).authPublic===true)).toBe(true);
+    expect(JSON.stringify(account)).not.toContain('FIÓK KÖZPONT');
+    expect(JSON.stringify(account)).not.toContain('#ff63bf');
   });
 
   it('uses one Loot Vault-owned shell and removes all Playroom brand/media leakage from every page',()=>{
@@ -76,6 +80,8 @@ describe('Loot Vault v2 Factory canary recipe',()=>{
       'FACTORY_FOUNDATION_BRAND_LEAK',
       'FACTORY_CANONICAL_HEADER_DRIFT',
       'FACTORY_CANONICAL_FOOTER_DRIFT',
+      'FACTORY_ACCOUNT_AUTH_TEMPLATE_OWNERSHIP_REQUIRED',
+      'FACTORY_ACCOUNT_AUTH_PUBLIC_COMPOSITION_REQUIRED',
     ]));
     expect(getStorefrontTemplateDemoContent(build.package,'szallitas')?.payload.slug).toBe('szallitas');
   });
