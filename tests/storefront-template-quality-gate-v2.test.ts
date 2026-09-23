@@ -6,6 +6,7 @@ import {getStorefrontTemplatePackage,STOREFRONT_TEMPLATE_CATALOG} from '@/lib/bu
 import {getStorefrontCookieConsentPreset} from '@/lib/builder/storefront-cookie-consent-presets';
 import {
   PLAYROOM_V20_QUALITY_MANIFEST,
+  LOOT_VAULT_V1_QUALITY_MANIFEST,
   STOREFRONT_TEMPLATE_QUALITY_GATE_VERSION,
   evaluateStorefrontTemplateQualityGate,
 } from '@/lib/builder/storefront-template-quality-gate';
@@ -29,6 +30,36 @@ describe('Template Factory Quality Gate v2',()=>{
     expect(template).toBeTruthy();
     const result=evaluateStorefrontTemplateQualityGate({template:template!,manifest:PLAYROOM_V20_QUALITY_MANIFEST});
     expect(result).toEqual({ok:true,issues:[]});
+  });
+
+  it('puts Loot Vault v1 through the same strict candidate quality contract',()=>{
+    const template=getStorefrontTemplatePackage('gaming.loot-vault',1);
+    expect(template).toBeTruthy();
+    expect(LOOT_VAULT_V1_QUALITY_MANIFEST.gateVersion).toBe(STOREFRONT_TEMPLATE_QUALITY_GATE_VERSION);
+    expect(LOOT_VAULT_V1_QUALITY_MANIFEST.status).toBe('candidate');
+    expect(LOOT_VAULT_V1_QUALITY_MANIFEST.pageTypes).toEqual(STOREFRONT_PAGE_TYPES);
+    expect(LOOT_VAULT_V1_QUALITY_MANIFEST.viewports).toEqual(STOREFRONT_VIEWPORTS);
+    expect(LOOT_VAULT_V1_QUALITY_MANIFEST.shell.allowedHeaderComponentKeys).toEqual(['system.commerce-header']);
+    expect(LOOT_VAULT_V1_QUALITY_MANIFEST.browser.requireMobileMenu).toBe(true);
+    expect(LOOT_VAULT_V1_QUALITY_MANIFEST.golden.required).toBe(false);
+    const result=evaluateStorefrontTemplateQualityGate({template:template!,manifest:LOOT_VAULT_V1_QUALITY_MANIFEST});
+    expect(result).toEqual({ok:true,issues:[]});
+
+    const serialized=JSON.stringify(template);
+    expect(serialized).toContain('content.page.title');
+    expect(serialized).toContain('content.page.summary');
+    expect(serialized).toContain('content.page.body');
+    expect(serialized).toContain('whiteSpace');
+    expect(serialized).toContain('pre-line');
+    expect(serialized).not.toContain('Enter the vault.');
+    expect(serialized).not.toContain('Open the Vault');
+    expect(serialized).not.toContain('More from the Vault');
+
+    for(const page of template!.pages){
+      expect(page.sections[0]?.id).toBe('loot-vault-global-header');
+      expect(page.sections[0]?.componentKey).toBe('system.commerce-header');
+      expect(page.sections.at(-1)?.id).toBe('loot-vault-global-footer');
+    }
   });
 
   it('keeps Builder v3 and storefront preview on the same Runtime renderer and canonical viewport authority',()=>{
