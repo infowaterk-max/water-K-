@@ -18,6 +18,11 @@ describe('Playroom v20 post-release UI polish',()=>{
     expect(copy.config.style.tablet.minHeight).toBe('18rem');
     expect(find(catalog.sections,'playroom-catalog-platform-presets').config.style.base.paddingTop).toBe('.75rem');
   });
+  it('paints the full shared contact runtime canvas with active template tokens',()=>{
+    const css=read('src/app/public-pages-polish.css');
+    expect(css).toContain('main[data-storefront-contact-runtime="page-schema"]>[data-storefront-global-styles-v1]');
+    expect(css).toContain('background:var(--shoporation-color-background,#fff)');
+  });
   it('keeps the shared contact wizard present, materialized, desktop-bounded and topic-first',()=>{
     const form=find(page('contact').sections,'playroom-contact-form');
     expect(form?.componentKey).toBe('support.contact-form');

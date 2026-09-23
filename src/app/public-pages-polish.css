@@ -73,3 +73,11 @@
  .storefrontContentShell .shopPage .shopTrustBar{display:grid;grid-template-columns:1fr 1fr;gap:.5rem}
  .storefrontContentShell .shopPage .shopCards{grid-template-columns:1fr!important}
 }
+
+/* Page Schema contact routes must paint the full runtime canvas with the active template tokens.
+   This prevents transparent spacing/margins between top-level contact sections from exposing the app body background. */
+main[data-storefront-contact-runtime="page-schema"]>[data-storefront-global-styles-v1]{
+  min-height:100vh;
+  background:var(--shoporation-color-background,#fff);
+  color:var(--shoporation-color-text,#111827);
+}
