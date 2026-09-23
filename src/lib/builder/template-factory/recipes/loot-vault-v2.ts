@@ -70,5 +70,10 @@ export const LOOT_VAULT_V2_FACTORY_RECIPE:StorefrontTemplateFactoryRecipe=Object
     approved:true,
     requiredPageTypes:Object.freeze(['home','catalog','product','blog-index','blog-article'] as const),
   }),
+  commerceReadiness:Object.freeze({
+    productCardPurchaseActions:Object.freeze({
+      pageTypes:Object.freeze(['home','catalog'] as const),
+    }),
+  }),
   productOwnerReview:Object.freeze({internalVisualReviewPassed:true}),
 });

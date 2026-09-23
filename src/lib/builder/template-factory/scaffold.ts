@@ -70,6 +70,12 @@ export type StorefrontTemplateFactoryVisualReference={
   requiredPageTypes:readonly StorefrontBuilderPageType[];
 };
 
+export type StorefrontTemplateFactoryCommerceReadiness={
+  productCardPurchaseActions?:{
+    pageTypes:readonly StorefrontBuilderPageType[];
+  };
+};
+
 export type StorefrontTemplateFactoryRecipe={
   category:string;
   templateKey:string;
@@ -85,6 +91,7 @@ export type StorefrontTemplateFactoryRecipe={
   demoFixtures:readonly StorefrontDemoFixture[];
   media:StorefrontTemplateFactoryMediaManifest;
   reference:StorefrontTemplateFactoryVisualReference;
+  commerceReadiness?:StorefrontTemplateFactoryCommerceReadiness;
   productOwnerReview:{internalVisualReviewPassed:boolean};
 };
 
@@ -277,6 +284,30 @@ function evaluateBuild(input:{
 
   for(const pageType of recipe.reference.requiredPageTypes){
     if(!input.overridden.includes(pageType))issues.push(issue('FACTORY_REFERENCE_PAGE_NOT_OWNED',`reference.requiredPageTypes.${pageType}`,'Reference-critical page must be explicitly owned by the template recipe, not inherited unchanged from the category foundation.'));
+  }
+
+  for(const pageType of recipe.commerceReadiness?.productCardPurchaseActions?.pageTypes??[]){
+    const page=pageByType.get(pageType);
+    if(!page)continue;
+    const grids:StorefrontComponentNode[]=[];
+    walk(page.sections,node=>{if(node.componentKey==='commerce.product-grid')grids.push(node);});
+    if(!grids.length){
+      issues.push(issue(
+        'FACTORY_PRODUCT_CARD_GRID_REQUIRED',
+        `commerceReadiness.productCardPurchaseActions.${pageType}`,
+        'This reference requires purchasable product cards, but the compiled page has no commerce.product-grid surface.',
+      ));
+      continue;
+    }
+    for(const grid of grids){
+      if(grid.config.showPurchaseActions!==true){
+        issues.push(issue(
+          'FACTORY_PRODUCT_CARD_PURCHASE_ACTION_REQUIRED',
+          `pages.${pageType}.${grid.id}`,
+          'This Factory recipe requires product cards to expose the shared cart and wishlist purchase surface instead of a details-only card.',
+        ));
+      }
+    }
   }
 
   const accountPage=pageByType.get('account');
