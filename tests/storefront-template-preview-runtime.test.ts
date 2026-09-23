@@ -6,11 +6,15 @@ import {createStorefrontVisualBuilderComponentRegistry} from '@/lib/builder/stor
 import {validateStorefrontPageDocument} from '@/lib/builder/storefront-runtime';
 
 describe('storefront template preview runtime',()=>{
-  it('allows authenticated Product Owner representative preview without an active webshop context',()=>{
+  it('separates protected Product Owner preview share access from shopper authentication',()=>{
     const page=fs.readFileSync('src/app/storefront-template-preview/page.tsx','utf8');
+    expect(page).toContain("process.env.VERCEL_ENV==='preview'");
+    expect(page).toContain("query._vercel_share?.trim()");
+    expect(page).toContain('if(!protectedProductOwnerShare)');
     expect(page).toContain('requireAdmin');
     expect(page).toContain("requirePlanFeature('contentMarketing')");
     expect(page).not.toContain('requireCurrentStoreContext');
+    expect(page).not.toContain("key!=='_vercel_share'&&typeof value==='string'&&value)returnParams.set(key,value);\n  await requireAdmin");
   });
 
   it('validates every catalog template page with preview capabilities',()=>{
