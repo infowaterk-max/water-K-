@@ -120,6 +120,7 @@ If yes, update Support Knowledge in the same development cycle. Production verif
 - `PRODUCTION_RELEASE_RISK_BUDGET_2026-09-23.md` — production release-size governance, 5-point risk budget, High-risk isolation and stabilization checkpoint.
 - `TEMPLATE_FACTORY_SCAFFOLD_V1_2026-09-23.md` — shared Template Factory compiler, category foundation + template recipe + media manifest and Product Owner readiness boundary.
 - `../TEMPLATE_FACTORY_SCAFFOLD_HARDENING_V1.md` — automatic foundation brand neutralization, per-role media production plan, recipe registry and Factory workflow path coverage.
+- `TEMPLATE_FACTORY_PROCEDURAL_MEMORY_2026-09-23.md` — executable Known Failure Registry, Authority Graph, preflight, failure replay, provenance, maturity and Product Owner handoff proof model.
 
 ### Shared storefront system surfaces / routes
 
@@ -182,3 +183,6 @@ If yes, update Support Knowledge in the same development cycle. Production verif
 36. **The Template Factory gate must watch Template Factory sources themselves.** Changes under `src/lib/builder/template-factory/**`, Factory recipes/registries and `tests/**template-factory**` must trigger the exact-head Template Factory quality workflow; path filters may never exclude the authority they are intended to validate.
 37. **Foundation reuse must end at the authority boundary.** Factory-compiled templates may inherit proven page bodies, but the compiler must automatically neutralize Foundation brand/media and apply one target-template canonical shell. Reference-critical pages remain template-owned overrides, and the exact Factory output—not a parallel hand-built preview—is the artifact that advances through internal QA and Product Owner acceptance.
 38. **Internal reference media must never become a shipping dependency.** Keep the final package-owned path in `src`, put temporary internal-QA imagery only in `referenceSrc`, and allow it to satisfy browser/composition proof only. Product Owner readiness requires every representative asset to be `ready` and physically present in the package.
+39. **A repeated defect becomes executable procedural memory.** Record the failure class, root cause and authority invariant, then replay it against every registered Factory candidate. A second occurrence requires a shared-root-cause repair; a template-local patch alone is not closure.
+40. **Internal QA and Product Owner preview must resolve the same compiled Factory identity.** Template key, template version, recipe identity and Factory-candidate state must survive preview navigation and auth boundaries; legacy-catalog fallback is release-blocking.
+41. **Product Owner handoff is a separate post-deployment gate.** Green CI, browser matrix and Vercel READY are necessary but insufficient. The exact handed-off URL must prove template-aware auth, preserved return target, authenticated return and final provenance before it may be marked handoff-ready.
