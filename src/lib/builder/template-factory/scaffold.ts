@@ -24,6 +24,7 @@ import {
 export const STOREFRONT_TEMPLATE_FACTORY_VERSION='shoporation.template-factory-scaffold.v1' as const;
 
 export type StorefrontTemplateFactoryMediaRole='hero'|'category'|'product'|'editorial'|'background'|'decorative';
+export type StorefrontTemplateFactoryMediaAspectRatio='1:1'|'4:5'|'16:9'|'3:2'|'free';
 export type StorefrontTemplateFactoryMediaAsset={
   key:string;
   role:StorefrontTemplateFactoryMediaRole;
@@ -31,10 +32,17 @@ export type StorefrontTemplateFactoryMediaAsset={
   alt:string;
   pageTypes:readonly StorefrontBuilderPageType[];
   representative:boolean;
+  aspectRatio?:StorefrontTemplateFactoryMediaAspectRatio;
+};
+export type StorefrontTemplateFactoryMediaRequirement={
+  role:StorefrontTemplateFactoryMediaRole;
+  minCount:number;
+  aspectRatio:StorefrontTemplateFactoryMediaAspectRatio;
 };
 export type StorefrontTemplateFactoryMediaManifest={
   assets:readonly StorefrontTemplateFactoryMediaAsset[];
   requiredRoles:readonly StorefrontTemplateFactoryMediaRole[];
+  requirements?:readonly StorefrontTemplateFactoryMediaRequirement[];
   minimumRepresentativeMedia:number;
   forbidPlaceholderSvg:boolean;
 };
@@ -60,6 +68,7 @@ export type StorefrontTemplateFactoryVisualReference={
 export type StorefrontTemplateFactoryRecipe={
   category:string;
   templateKey:string;
+  displayName:string;
   templateVersion:number;
   minPlan:PlanCode;
   requiredFeatures:readonly FeatureCode[];
@@ -81,6 +90,7 @@ export type StorefrontTemplateFactoryCategoryFoundation={
   package:StorefrontInstallableTemplatePackage;
   recommendedOwnedPages:readonly StorefrontBuilderPageType[];
   inheritedPages:readonly StorefrontBuilderPageType[];
+  brandTokens?:readonly string[];
   forbiddenLeakTokens?:readonly string[];
 };
 
@@ -108,6 +118,15 @@ export type StorefrontTemplateFactoryBuild={
 const issue=(code:string,path:string,message:string,severity:'error'|'warning'='error'):StorefrontTemplateFactoryIssue=>({code,path,message,severity});
 const slug=(value:string)=>value.split('.').at(-1)?.replace(/[^a-z0-9-]+/g,'-')||'template';
 const clone=<T>(value:T):T=>structuredClone(value);
+
+function rewriteFoundationBrandTokens<T>(value:T,tokens:readonly string[],displayName:string):T{
+  if(!tokens.length)return value;
+  let serialized=JSON.stringify(value);
+  for(const token of tokens){
+    if(token)serialized=serialized.split(token).join(displayName);
+  }
+  return JSON.parse(serialized) as T;
+}
 
 function walk(nodes:readonly StorefrontComponentNode[],visitor:(node:StorefrontComponentNode)=>void):void{
   for(const node of nodes){
@@ -176,6 +195,16 @@ function evaluateBuild(input:{
   for(const role of recipe.media.requiredRoles){
     if(!representative.some(asset=>asset.role===role))issues.push(issue('FACTORY_MEDIA_ROLE_MISSING',`media.${role}`,'Required representative media role is missing.'));
   }
+  for(const requirement of recipe.media.requirements??[]){
+    const matching=representative.filter(asset=>asset.role===requirement.role&&(requirement.aspectRatio==='free'||asset.aspectRatio===requirement.aspectRatio));
+    if(matching.length<requirement.minCount){
+      issues.push(issue(
+        'FACTORY_MEDIA_REQUIREMENT_MISSING',
+        `media.requirements.${requirement.role}`,
+        `Representative media role ${requirement.role} needs at least ${requirement.minCount} asset(s) with ${requirement.aspectRatio} aspect ratio; found ${matching.length}.`,
+      ));
+    }
+  }
   const mediaKeys=new Set<string>();
   for(const[index,asset]of recipe.media.assets.entries()){
     if(mediaKeys.has(asset.key))issues.push(issue('FACTORY_MEDIA_KEY_DUPLICATE',`media.assets[${index}].key`,'Media keys must be unique.'));
@@ -230,6 +259,7 @@ export function compileStorefrontTemplateFactoryPackage(input:{
     if(recipe.pageOverrides?.[pageType])overridden.push(pageType);else inherited.push(pageType);
 
     let page=rewriteIds(source,foundation.foundationTemplateKey,recipe.templateKey);
+    page=rewriteFoundationBrandTokens(page,foundation.brandTokens??[],recipe.displayName);
     page.pageKey=`${slug(recipe.templateKey)}-${pageType}`;
     page.templateKey=recipe.templateKey;
     page.templateVersion=recipe.templateVersion;
