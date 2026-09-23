@@ -117,7 +117,8 @@
       "patterns": [
         ".github/workflows/**",
         "scripts/release-*.mjs",
-        "scripts/smoke.mjs"
+        "scripts/smoke.mjs",
+        "deploy/release-risk-policy.json"
       ]
     },
     {
