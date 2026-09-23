@@ -183,6 +183,7 @@ jobs:
           tests/storefront-template-quality-gate-v2.test.ts
           tests/template-factory-scaffold-v1.test.ts
           tests/template-factory-loot-vault-v2.test.ts
+          tests/template-factory-ready-media-files.test.ts
           tests/storefront-template-factory-workflow-coverage.test.ts
           tests/storefront-responsive-isolation.test.ts
           tests/storefront-visual-style-capabilities.test.ts
