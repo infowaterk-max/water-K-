@@ -15,7 +15,8 @@
     "db:customer:review": "node scripts/review-customer-baseline-snapshot.mjs",
     "market-ready:gate": "node scripts/block24-market-ready-gate.mjs",
     "smoke": "node scripts/smoke.mjs",
-    "release:manifest": "node scripts/release-manifest.mjs"
+    "release:manifest": "node scripts/release-manifest.mjs",
+    "release:risk": "node scripts/release-risk-budget.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "0.6.1",
