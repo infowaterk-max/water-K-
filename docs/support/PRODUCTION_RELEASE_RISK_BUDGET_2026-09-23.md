@@ -47,3 +47,7 @@ The release manifest must bind the risk decision and subsystem list into release
 Automation: **HUMAN_REQUIRED**
 
 Risk: **high**
+
+## Preview revalidation
+
+A fresh exact-head Preview deployment is required after Preview environment credential repair. This release-evidence commit intentionally retriggers Vercel so the environment fix is proven by a new deployment rather than inferred from configuration alone.
