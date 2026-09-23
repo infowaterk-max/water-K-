@@ -7,6 +7,7 @@ import {PLANS} from '@/lib/plans/catalog';
 import {getCurrentStoreContext} from '@/lib/instances/scope';
 import {getPlatformRole} from '@/lib/auth/platform-operator';
 import {getStorefrontTemplatePackage} from '@/lib/builder/storefront-template-catalog';
+import {getStorefrontTemplateQualityManifest} from '@/lib/builder/storefront-template-quality-gate';
 import {
   createStorefrontTemplatePreviewBindingContext,
   getStorefrontTemplatePreviewTheme,
@@ -47,6 +48,18 @@ export default async function StorefrontTemplatePreview({searchParams}:Props){
   if(!templateKey||version!==undefined&&!Number.isInteger(version)||!allowedPageTypes.has(pageType))notFound();
   const template=getStorefrontTemplatePackage(templateKey,version);
   if(!template)notFound();
+  const qualityManifest=getStorefrontTemplateQualityManifest(template.manifest.templateKey);
+  if(qualityManifest&&!qualityManifest.productOwnerReview.ready){
+    return <main className={styles.page}>
+      <section className={styles.stage}><div className={styles.viewport} style={{maxWidth:760}}>
+        <section style={{padding:'3rem',border:'1px solid #d7d7d7',borderRadius:'1.5rem',background:'#fff'}}>
+          <span style={{fontSize:'.78rem',fontWeight:800,letterSpacing:'.12em',textTransform:'uppercase'}}>Product Owner preview</span>
+          <h1 style={{fontSize:'clamp(2rem,5vw,4rem)',margin:'.8rem 0 1rem'}}>Ez a sablon még nincs vizuális elfogadásra kész.</h1>
+          <p style={{fontSize:'1.05rem',lineHeight:1.65,color:'#555'}}>A technikai Template Factory ellenőrzések futhatnak, de Product Owner előnézet csak a referenciahű vizuális réteg, reprezentatív képek és belső screenshot-review után nyílik meg.</p>
+        </section>
+      </div></section>
+    </main>;
+  }
   const sourcePage=template.pages.find(candidate=>candidate.pageType===pageType);
   if(!sourcePage)notFound();
   const viewport:StorefrontViewport=query.viewport==='mobile'?'mobile':query.viewport==='tablet'?'tablet':'desktop';
