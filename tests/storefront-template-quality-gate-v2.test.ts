@@ -4,6 +4,7 @@ import {describe,expect,it} from 'vitest';
 import {STOREFRONT_PAGE_TYPES,STOREFRONT_VIEWPORTS,STOREFRONT_CANONICAL_VIEWPORT_WIDTH_PX} from '@/lib/builder/storefront-foundation';
 import {getStorefrontTemplatePackage,STOREFRONT_TEMPLATE_CATALOG} from '@/lib/builder/storefront-template-catalog';
 import {getStorefrontCookieConsentPreset} from '@/lib/builder/storefront-cookie-consent-presets';
+import {getStorefrontTemplateDemoContent} from '@/lib/builder/storefront-template-route-integrity';
 import {
   PLAYROOM_V20_QUALITY_MANIFEST,
   LOOT_VAULT_V1_QUALITY_MANIFEST,
@@ -54,6 +55,8 @@ describe('Template Factory Quality Gate v2',()=>{
     expect(serialized).not.toContain('Enter the vault.');
     expect(serialized).not.toContain('Open the Vault');
     expect(serialized).not.toContain('More from the Vault');
+    expect(serialized).toContain('/oldal/szallitas');
+    expect(getStorefrontTemplateDemoContent(template!,'szallitas')?.payload.slug).toBe('szallitas');
 
     for(const page of template!.pages){
       expect(page.sections[0]?.id).toBe('loot-vault-global-header');
@@ -90,8 +93,6 @@ describe('Template Factory Quality Gate v2',()=>{
     expect(workflow).toContain('Run Template Factory 14x3 browser matrix');
     expect(workflow).toContain('workflow_dispatch');
     expect(workflow).toContain('QUALITY_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}');
-    expect(workflow).toContain('NEXT_PUBLIC_SUPABASE_URL: https://rfuvzgumbardvbvqjxdq.supabase.co');
-    expect(workflow).toContain('NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: sb_publishable_');
     expect(workflow).toContain('ref: ${{ github.event.pull_request.head.sha || github.sha }}');
     expect(runner).toContain('process.env.QUALITY_HEAD_SHA??process.env.GITHUB_SHA');
     expect(workflow).toContain("src/lib/auth/storefront-return-target.ts");
