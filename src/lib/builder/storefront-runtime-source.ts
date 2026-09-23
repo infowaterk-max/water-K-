@@ -19,6 +19,8 @@ import {composeStorefrontDigitalCommerceCapabilities} from '@/lib/builder/storef
 import {normalizeStorefrontTemplateRuntimeComposition} from '@/lib/builder/storefront-template-runtime-normalization';
 import {getStorefrontDigitalCommerceRuntimeModel,type StorefrontDigitalCommerceRuntimeRequest} from '@/lib/builder/storefront-digital-commerce-server';
 import {getStorefrontTemplatePackage} from '@/lib/builder/storefront-template-catalog';
+import {createStorefrontTemplatePreviewBindingContext} from '@/lib/builder/storefront-template-preview-demo';
+import {PLANS} from '@/lib/plans/catalog';
 const PAGE_KEY_PATTERN=/^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$/;
 export type StorefrontResolvedRuntimePage={source:'published'|'preview';instanceId:string;page:StorefrontPageDocument;bindingContext:Record<string,unknown>;capability:StorefrontRuntimeCapabilityContext;};
 function failClosedSpecialCommerce(page:StorefrontPageDocument,capability:StorefrontRuntimeCapabilityContext):StorefrontPageDocument{const enabledFeatures=new Set(capability.features);const allowed=(componentKey:string)=>{if(componentKey==='commerce.interactive-scene')return enabledFeatures.has('interactiveSceneCommerce');if(componentKey==='commerce.recipe')return enabledFeatures.has('recipeCommerce');if(componentKey==='commerce.release')return enabledFeatures.has('releaseCommerce');return true;};const prune=(nodes:StorefrontPageDocument['sections']):StorefrontPageDocument['sections']=>nodes.filter(node=>allowed(node.componentKey)).map(node=>({...node,...(node.children?{children:prune(node.children)}:{})}));return{...page,sections:prune(page.sections)};}
@@ -48,6 +50,19 @@ function mergeDigitalCommerceContext(bindingContext:Record<string,unknown>,digit
 function mergeGrowthContext(bindingContext:Record<string,unknown>,promotions:Readonly<Record<string,unknown>>){const current=bindingContext.offer&&typeof bindingContext.offer==='object'&&!Array.isArray(bindingContext.offer)?bindingContext.offer as Record<string,unknown>:{};return{...bindingContext,offer:{...current,promotions}};}
 async function resolveGrowthContext(instanceId:string,page:StorefrontPageDocument,capability:StorefrontRuntimeCapabilityContext){if(!new Set(capability.features).has('coupons'))return{promotions:Object.freeze({})};return getStorefrontGrowthMarketingBundleForInstance(instanceId,page);}
 export async function resolveCurrentStorefrontPublishedRuntimePage(pageKey:string,digitalCommerceRequest?:StorefrontDigitalCommerceRuntimeRequest):Promise<StorefrontResolvedRuntimePage|null>{if(!PAGE_KEY_PATTERN.test(pageKey))return null;const instance=await requireStorefrontAccess();if(!instance)return null;const[page,symbols,runtime]=await Promise.all([getPublishedStorefrontPage(instance.id,pageKey),listStorefrontReusableSymbolsForInstance(instance.id),resolveRuntimeCommerceContext(instance.id,instance.subscriptionPlan)]);if(!page||!runtime)return null;const materialized=materializeStorefrontReusableSymbols(page,symbols);const composed=composeStorefrontDigitalCommerceCapabilities(normalizeStorefrontTemplateRuntimeComposition(materialized));if(digitalCommerceRequest&&digitalCommerceRequest.pageType!==composed.pageType)return null;const[growth,digitalCommerce]=await Promise.all([resolveGrowthContext(instance.id,composed,runtime.capability),digitalCommerceRequest?getStorefrontDigitalCommerceRuntimeModel(instance.id,digitalCommerceRequest):Promise.resolve(null)]);const baseContext={...mergeGrowthContext(runtime.bindingContext,growth.promotions),brand:{name:instance.brand.name,tagline:instance.brand.tagline,logoUrl:instance.brand.logoUrl,primaryColor:instance.brand.primaryColor,socialLinks:resolveStorefrontSocialLinks(instance.storefront.socialLinks)},navigation:{primary:[]}};return{source:'published',instanceId:instance.id,page:failClosedSpecialCommerce(composed,runtime.capability),bindingContext:mergeDigitalCommerceContext(baseContext,digitalCommerce),capability:runtime.capability};}
+export function resolveStorefrontTemplateAccountPreviewRuntimePage(templateKey:string,templateVersion?:number):StorefrontResolvedRuntimePage|null{
+ const template=getStorefrontTemplatePackage(templateKey,templateVersion);
+ if(!template)return null;
+ const sourcePage=template.pages.find(page=>page.pageType==='account');
+ if(!sourcePage)return null;
+ const authored=applyTemplateAuthComposition(structuredClone(sourcePage));
+ const composed=composeStorefrontDigitalCommerceCapabilities(normalizeStorefrontTemplateRuntimeComposition(authored));
+ if(composed.pageType!=='account')return null;
+ const capability={plan:'pro' as const,features:[...PLANS.pro.features]};
+ const bindingContext=createStorefrontTemplatePreviewBindingContext({template,page:composed});
+ return{source:'preview',instanceId:`template-preview:${template.manifest.templateKey}`,page:failClosedSpecialCommerce(composed,capability),bindingContext,capability};
+}
+
 export async function resolveCurrentStorefrontAccountRuntimePage(customerId:string|null):Promise<StorefrontResolvedRuntimePage|null>{
  // Customer auth is public presentation. Preview may read the exact pilot account
  // draft without granting catalog/checkout/admin access, so visual acceptance does
