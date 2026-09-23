@@ -61,11 +61,12 @@ describe('Loot Vault v2 Factory canary recipe',()=>{
     expect(build.report.plannedMediaCount).toBe(0);
     expect(build.report.technicalReady).toBe(true);
     expect(build.report.productOwnerReady).toBe(false);
+    expect(LOOT_VAULT_V2_FACTORY_RECIPE.productOwnerReview.internalVisualReviewPassed).toBe(true);
     const codes=build.report.issues.map(issue=>issue.code);
     expect(codes).toEqual(expect.arrayContaining([
       'FACTORY_MEDIA_FINALIZATION_REQUIRED',
-      'FACTORY_INTERNAL_VISUAL_REVIEW_REQUIRED',
     ]));
+    expect(codes).not.toContain('FACTORY_INTERNAL_VISUAL_REVIEW_REQUIRED');
     expect(codes).not.toEqual(expect.arrayContaining([
       'FACTORY_MEDIA_COVERAGE',
       'FACTORY_MEDIA_ROLE_MISSING',
