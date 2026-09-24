@@ -10,7 +10,8 @@
     "quality/knowledge/evidence-ledger.v1.json",
     "scripts/lib/shoperation-architecture-health.mjs",
     "docs/architecture/ARCHITECTURE_DRIFT_CONFIDENCE.md",
-    "tests/architecture-health.test.ts"
+    "tests/architecture-health.test.ts",
+    "tests/capability-roadmap-evidence.test.ts"
   ],
   "expectedSubsystems": [],
   "expectedDomains": [
