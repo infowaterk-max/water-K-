@@ -6,10 +6,19 @@ import {
   LOOT_VAULT_HOME_PAGE,
   LOOT_VAULT_CATALOG_PAGE,
   LOOT_VAULT_PRODUCT_PAGE,
+  LOOT_VAULT_CART_PAGE,
+  LOOT_VAULT_CHECKOUT_PAGE,
   LOOT_VAULT_ACCOUNT_PAGE,
+  LOOT_VAULT_SEARCH_PAGE,
+  LOOT_VAULT_CONTENT_PAGE,
   LOOT_VAULT_BLOG_INDEX_PAGE,
   LOOT_VAULT_BLOG_ARTICLE_PAGE,
+  LOOT_VAULT_FAQ_PAGE,
+  LOOT_VAULT_CONTACT_PAGE,
+  LOOT_VAULT_LEGAL_PAGE,
+  LOOT_VAULT_NOT_FOUND_PAGE,
 } from '@/lib/builder/templates/loot-vault';
+import {CANONICAL_ACCOUNT_CAPABILITIES} from '@/lib/account/account-capabilities';
 
 const MEDIA={
   hero:'/storefront-demo/loot-vault-v2/hero-cinematic.webp',
@@ -96,8 +105,10 @@ export const createLootVaultV2ShellFooter=()=>n({
     config:{
       brandLabel:'Loot Vault',
       columns:[
-        {id:'vault',title:'Vault',items:[{label:'Gyűjtemények',href:'/webaruhaz'},{label:'Előrendelések',href:'/webaruhaz?filter=preorder'},{label:'Szállítás',href:'/oldal/szallitas'}]},
-        {id:'journal',title:'Felfedezés',items:[{label:'Vault Magazin',href:'/blog'},{label:'GYIK',href:'/gyik'},{label:'Kapcsolat',href:'/kapcsolat'}]},
+        {id:'vault',title:'Vault',items:[{label:'Webáruház',href:'/webaruhaz'},{label:'Kedvencek',href:'/kedvencek'},{label:'Kosár',href:'/kosar'},{label:'Pénztár',href:'/penztar'}]},
+        {id:'journal',title:'Felfedezés',items:[{label:'Vault Magazin',href:'/blog'},{label:'Rólunk',href:'/oldal/rolunk'},{label:'GYIK',href:'/gyik'},{label:'Kapcsolat',href:'/kapcsolat'}]},
+        {id:'service',title:'Vásárlási információk',items:[{label:'Szállítás és fizetés',href:'/szallitas-es-fizetes'},{label:'Visszaküldés',href:'/oldal/visszakuldes'},{label:'Fiókom',href:'/fiokom'}]},
+        {id:'legal',title:'Jogi információk',items:[{label:'ÁSZF',href:'/aszf'},{label:'Adatvédelem',href:'/adatvedelem'},{label:'Impresszum',href:'/impresszum'}]},
       ],
       copyright:'© Loot Vault',
       tone:'primary',
@@ -316,6 +327,23 @@ export const LOOT_VAULT_V2_ACCOUNT_PAGE=override(LOOT_VAULT_ACCOUNT_PAGE,[
       ],'1rem')],
     })],
   }),
+  section('loot-v2-account-demo',[
+    badge('loot-v2-account-demo-kicker','FIÓKOM · PLATFORM DEMÓ'),
+    heading('loot-v2-account-demo-title','Minden vásárlói funkció egy helyen.',2,{fontSize:'clamp(2rem,4vw,3.4rem)'}),
+    text('loot-v2-account-demo-copy','A belépés után ugyanebben a Loot Vault vizuális rendszerben érhetők el a rendeléseid, letöltéseid, dokumentumaid, kedvenceid, ügyeid és fiókadataid.'),
+    n({id:'loot-v2-account-capability-navigation',componentKey:'system.navigation',componentVersion:1,config:{
+      ariaLabel:'Fiók funkciók',
+      layout:'horizontal',
+      presentation:'account-capability-demo',
+      items:CANONICAL_ACCOUNT_CAPABILITIES.filter(item=>!item.optional).map(item=>({label:item.label,href:item.href})),
+      style:{gap:'.55rem',fontSize:'.72rem',fontWeight:760,color:'#f3ebdd',flexWrap:'wrap'},
+    }}),
+    grid('loot-v2-account-capability-cards',[
+      stack('loot-v2-account-card-orders',[badge('loot-v2-account-card-orders-kicker','RENDELÉSEK'),heading('loot-v2-account-card-orders-title','Rendeléseim',3),text('loot-v2-account-card-orders-copy','Aktív és korábbi rendelések, állapotok, követés és dokumentumok.'),button('loot-v2-account-card-orders-cta','Rendeléseim','/fiokom#rendelesek','secondary')],4,{padding:'1rem',background:'#17191a',border:'1px solid rgba(165,122,69,.28)',borderRadius:'.7rem'}),
+      stack('loot-v2-account-card-downloads',[badge('loot-v2-account-card-downloads-kicker','DIGITÁLIS'),heading('loot-v2-account-card-downloads-title','Letöltéseim',3),text('loot-v2-account-card-downloads-copy','Vásárlás után elérhető digitális tartalmak és fájlok.'),button('loot-v2-account-card-downloads-cta','Letöltéseim','/fiokom/letoltesek','secondary')],4,{padding:'1rem',background:'#17191a',border:'1px solid rgba(165,122,69,.28)',borderRadius:'.7rem'}),
+      stack('loot-v2-account-card-wishlist',[badge('loot-v2-account-card-wishlist-kicker','MENTETT'),heading('loot-v2-account-card-wishlist-title','Kívánságlista',3),text('loot-v2-account-card-wishlist-copy','Mentett termékek és gyors visszatérés a kiválasztott gyűjtői darabokhoz.'),button('loot-v2-account-card-wishlist-cta','Kívánságlista','/fiokom/kivansaglista','secondary')],4,{padding:'1rem',background:'#17191a',border:'1px solid rgba(165,122,69,.28)',borderRadius:'.7rem'}),
+    ],'.8rem'),
+  ],{background:'#0d0e0f'}),
   createLootVaultV2ShellFooter(),
 ],{
   authComposition:'template-owned-v1',
@@ -377,9 +405,17 @@ export const LOOT_VAULT_V2_PAGE_OVERRIDES=Object.freeze({
   home:LOOT_VAULT_V2_HOME_PAGE,
   catalog:LOOT_VAULT_V2_CATALOG_PAGE,
   product:LOOT_VAULT_V2_PRODUCT_PAGE,
+  cart:LOOT_VAULT_CART_PAGE,
+  checkout:LOOT_VAULT_CHECKOUT_PAGE,
   account:LOOT_VAULT_V2_ACCOUNT_PAGE,
+  search:LOOT_VAULT_SEARCH_PAGE,
+  content:LOOT_VAULT_CONTENT_PAGE,
   'blog-index':LOOT_VAULT_V2_BLOG_INDEX_PAGE,
   'blog-article':LOOT_VAULT_V2_BLOG_ARTICLE_PAGE,
+  faq:LOOT_VAULT_FAQ_PAGE,
+  contact:LOOT_VAULT_CONTACT_PAGE,
+  legal:LOOT_VAULT_LEGAL_PAGE,
+  'not-found':LOOT_VAULT_NOT_FOUND_PAGE,
 });
 
 export const LOOT_VAULT_V2_MEDIA_ASSETS:readonly StorefrontTemplateFactoryMediaAsset[]=Object.freeze([
@@ -408,4 +444,8 @@ export const LOOT_VAULT_V2_DEMO_FIXTURES:readonly StorefrontDemoFixture[]=Object
   {entityType:'product',entityKey:'ancient-warrior',payload:{name:'Ancient Warrior gyűjtői kiadás',slug:'ancient-warrior',kind:'collector-edition',image:MEDIA.product3,demo:true}},
   {entityType:'product',entityKey:'collector-archive',payload:{name:'Archívum gyűjtői relikvia',slug:'collector-archive',kind:'display-edition',image:MEDIA.product4,demo:true}},
   {entityType:'content',entityKey:'vault-magazin',payload:{title:'Vault Magazin',kind:'collector-editorial',demo:true}},
+  {entityType:'content',entityKey:'page-rolunk',payload:{kind:'page',slug:'rolunk',title:'Rólunk',excerpt:'A Loot Vault a gyűjtői kultúra, a hiteles termékadat és a prémium kereskedelmi élmény találkozása.',body:'A Loot Vault bemutatója megmutatja, hogyan épülhet fel egy történetközpontú gyűjtői webshop a Shoperation közös commerce motorjaira. A vizuális rendszer sablonspecifikus, az ár-, készlet-, rendelési és fizetési authority közös platformlogika.',status:'draft',demo:true,showroomReady:true}},
+  {entityType:'content',entityKey:'page-szallitas',payload:{kind:'page',slug:'szallitas',title:'Szállítás',excerpt:'Átlátható szállítási lehetőségek a pénztár közös szolgáltatói beállításaival.',body:'A bemutató a Shoperation szállítási capability helyét és vásárlói útját demonstrálja. A tényleges futár, díj és határidő mindig a kereskedő aktív konfigurációjából érkezik.',status:'draft',demo:true,showroomReady:true}},
+  {entityType:'content',entityKey:'page-fizetes',payload:{kind:'page',slug:'fizetes',title:'Fizetés',excerpt:'A fizetési lehetőségek a közös E13 checkout authority részei.',body:'A sablon a fizetési folyamat vizuális helyét és kapcsolatát mutatja. A tényleges szolgáltató és tranzakciós állapot nem template-local adat.',status:'draft',demo:true,showroomReady:true}},
+  {entityType:'content',entityKey:'page-visszakuldes',payload:{kind:'page',slug:'visszakuldes',title:'Visszaküldés',excerpt:'A vásárlás utáni ügyintézés a Fiókom canonical felületeihez kapcsolódik.',body:'A visszaküldési folyamat a rendeléshez kötött közös platformképességet demonstrálja, a sablon csak a saját vizuális nyelvén prezentálja.',status:'draft',demo:true,showroomReady:true}},
 ]);
