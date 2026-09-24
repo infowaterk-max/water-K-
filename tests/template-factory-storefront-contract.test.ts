@@ -11,7 +11,11 @@ import {CANONICAL_ACCOUNT_CAPABILITIES} from '@/lib/account/account-capabilities
 import type {StorefrontComponentNode} from '@/lib/builder/storefront-runtime';
 
 const findNode=(nodes:readonly StorefrontComponentNode[],id:string):StorefrontComponentNode|undefined=>{
-  for(const node of nodes){if(node.id===id)return node;const nested=findNode(node.children??[],id);if(nested)return nested;}
+  for(const node of nodes){
+    if(node.id===id||node.id.endsWith(`-${id}`))return node;
+    const nested=findNode(node.children??[],id);
+    if(nested)return nested;
+  }
   return undefined;
 };
 
