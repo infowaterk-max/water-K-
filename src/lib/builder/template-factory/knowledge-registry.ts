@@ -39,6 +39,7 @@ export const TEMPLATE_FACTORY_AUTHORITY_GRAPH:readonly TemplateFactoryAuthorityR
   {id:'TF-AUTH-013',subject:'Product Owner proof source-commit normalization',owner:'quality-system',delegates:[],rule:'Exact-head Product Owner proof must normalize the source commit from the PR head SHA for pull_request runs and from github.sha for push runs; merge-ref SHAs are never accepted as candidate provenance.'},
   {id:'TF-AUTH-014',subject:'visible Product Owner auth interaction target',owner:'quality-system',delegates:['template'],rule:'Automated Product Owner authentication must interact only with the single visible active auth control set; hidden responsive duplicates are non-interactive evidence and ambiguous visible targets fail closed.'},
   {id:'TF-AUTH-015',subject:'Product Owner failure evidence persistence',owner:'quality-system',delegates:[],rule:'After handoff preflight starts, expected and unexpected journey failures must persist a machine-readable proof artifact; a browser interaction exception may fail the gate but may not erase the failure evidence.'},
+  {id:'TF-AUTH-016',subject:'protected Vercel preview CI access',owner:'quality-system',delegates:['platform'],rule:'Exact-head Product Owner proof against a protected Vercel preview must authenticate the CI runner at the Vercel perimeter through a trusted automation mechanism before application authentication; deployment protection must not be disabled or mistaken for a Shoperation surface.'},
 ]);
 
 export const TEMPLATE_FACTORY_KNOWN_FAILURES:readonly TemplateFactoryKnownFailure[]=Object.freeze([
@@ -183,6 +184,17 @@ export const TEMPLATE_FACTORY_KNOWN_FAILURES:readonly TemplateFactoryKnownFailur
     automatable:true,
     remediationPolicy:'shared-invariant-preferred',
     invariantIds:['TF-AUTH-008','TF-AUTH-015'],
+    regressionTests:['tests/template-factory-procedural-memory.test.ts'],
+  },
+  {
+    id:'TF-KF-014',
+    title:'Protected Vercel preview is mistaken for the Shoperation preview route',
+    symptom:'The browser remains on the requested preview pathname but never reaches template-aware login or Factory provenance because Vercel Deployment Protection intercepted the request before the app.',
+    rootCause:'The Product Owner verifier authenticated only at the Shoperation layer and did not present a trusted CI identity to the protected Vercel deployment.',
+    occurrences:1,
+    automatable:true,
+    remediationPolicy:'shared-invariant-preferred',
+    invariantIds:['TF-AUTH-008','TF-AUTH-016'],
     regressionTests:['tests/template-factory-procedural-memory.test.ts'],
   },
 ]);
