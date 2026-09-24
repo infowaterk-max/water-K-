@@ -1,28 +1,42 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-9FD06980",
-  "task": "Close Incident Center regression and repair API TypeScript syntax failure under the current incident-intelligence guard scope.",
+  "taskId": "DEV-19199EE0",
+  "task": "Activate Shoperation Development Guard execution in CI workflows and engineering agent protocol.",
   "status": "ready-for-implementation",
-  "guardDigest": "0779c57d",
+  "guardDigest": "19199ee0",
   "plannedFilePatterns": [
+    ".github/workflows/ci.yml",
+    ".github/workflows/shoperation-knowledge-full-replay.yml",
+    ".github/workflows/template-factory-quality-gate.yml",
+    "AGENTS.md",
+    "docs/support/QUALITY_GUARD_LESSONS_2026-09-24.md",
+    "docs/support/TEMPLATE_FACTORY_PROCEDURAL_MEMORY_2026-09-23.md",
     "quality/development/active-plan.json",
-    "deploy/release-risk-policy.json",
-    "tests/release-risk-navigation-classification.test.ts",
-    "tests/admin-link-integrity.test.ts",
-    "src/app/api/platform/incidents/[id]/repair/route.ts",
+    "quality/knowledge/codebase-atlas-policy.v1.json",
+    "quality/knowledge/knowledge-scope-policy.v1.json",
+    "quality/knowledge/support-history-policy.v1.json",
+    "scripts/lib/shoperation-codebase-atlas-runtime.mjs",
     "scripts/lib/shoperation-development-runtime.mjs",
-    "scripts/shoperation-plan-before-code.mjs",
+    "scripts/shoperation-codebase-atlas.mjs",
+    "scripts/shoperation-development-guard.mjs",
+    "scripts/shoperation-failure-intake.mjs",
+    "scripts/shoperation-incremental-replay.mjs",
     "scripts/shoperation-knowledge-preflight.mjs",
-    "scripts/shoperation-edit-time-guard.mjs",
-    "tests/shoperation-development-guard.test.ts"
+    "scripts/shoperation-support-history-backfill.mjs",
+    "scripts/template-factory-product-owner-handoff.mjs",
+    "src/lib/quality-system/failure-intake.ts",
+    "tests/shoperation-development-guard.test.ts",
+    "tests/shoperation-historical-support-backfill.test.ts",
+    "tests/shoperation-quality-knowledge.test.ts",
+    "tests/sql-migration-syntax-guard.test.ts"
   ],
   "expectedSubsystems": [
-    "incident-intelligence",
-    "quality-knowledge-system",
-    "release-infrastructure",
-    "storefront-ui"
+    "release-infrastructure"
   ],
   "expectedKnownFailureIds": [
+    "SQ-KF-013",
+    "SQ-KF-014",
+    "SQ-KF-022",
     "SQ-KF-001",
     "SQ-KF-002",
     "SQ-KF-003",
@@ -35,8 +49,6 @@
     "SQ-KF-010",
     "SQ-KF-011",
     "SQ-KF-012",
-    "SQ-KF-013",
-    "SQ-KF-014",
     "SQ-KF-015",
     "SQ-KF-016",
     "SQ-KF-017",
@@ -44,7 +56,6 @@
     "SQ-KF-019",
     "SQ-KF-020",
     "SQ-KF-021",
-    "SQ-KF-022",
     "SQ-KF-023",
     "SQ-KF-024",
     "TF-KF-001",
@@ -73,19 +84,13 @@
     "TF-KF-024"
   ],
   "acknowledgedNegativeKnowledgeIds": [
-    "SQ-NK-001",
     "SQ-NK-002",
     "SQ-NK-003",
     "SQ-NK-005",
-    "SQ-NK-008",
     "SQ-NK-010",
-    "SQ-NK-011",
-    "SQ-NK-012",
-    "SQ-NK-013",
-    "SQ-NK-014",
-    "SQ-NK-015"
+    "SQ-NK-012"
   ],
   "exceptions": [],
-  "notes": "Incident Center closure plus guard transaction-boundary hardening. Development scope is pinned to the active change-set base SHA so plan, knowledge preflight and edit-time guard evaluate the same cumulative change instead of the latest push only. Full replay is intentional because guard infrastructure changes. No release, self-healing or production authority is relaxed. Regression coverage now locks the shared base authority and proves plan-only or metadata commits cannot collapse the cumulative active change-set.",
-  "changeBaseSha": "d2039ac11145f56293d23bdb704ba39abd564ba3"
+  "notes": "Final activation release transaction after prerequisite auth and Template Factory procedural-memory slices were independently proven and merged. Enables Plan Before Code, Edit-Time Guard, Incremental Replay, Codebase Atlas, Support History, exact-head Product Owner proof and deterministic Failure Intake. No Release Risk Budget rule or threshold is relaxed.",
+  "changeBaseSha": "162d559c7768f83778301cba4a4ef366d9a7643a"
 }
