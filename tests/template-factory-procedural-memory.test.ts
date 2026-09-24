@@ -92,6 +92,8 @@ describe('Template Factory procedural memory',()=>{
     const workflow=fs.readFileSync('.github/workflows/template-factory-quality-gate.yml','utf8');
     expect(workflow).toContain("github.ref_name == 'feature/template-factory-vercel-automation-bypass'");
     expect(workflow).toContain("github.head_ref == 'feature/template-factory-vercel-automation-bypass'");
+    expect(workflow).toContain("github.ref_name == 'feature/template-factory-storefront-contract-hardening'");
+    expect(workflow).toContain("github.head_ref == 'feature/template-factory-storefront-contract-hardening'");
     expect(TEMPLATE_FACTORY_AUTHORITY_GRAPH.some(item=>item.id==='TF-AUTH-017')).toBe(true);
     expect(TEMPLATE_FACTORY_KNOWN_FAILURES.some(item=>item.id==='TF-KF-015')).toBe(true);
   });
@@ -166,6 +168,12 @@ describe('Template Factory procedural memory',()=>{
       returnTargetPreserved:true,
       deploymentReady:true,
       handedOffUrlMatchesProvenance:true,
+      navigationCompletenessPassed:true,
+      routeConvergencePassed:true,
+      presentationContinuityPassed:true,
+      accountSurfacePassed:true,
+      engineDemoIntegrationPassed:true,
+      placeholderContentPassed:true,
     };
     const ready=createTemplateFactoryAcceptanceProof({build,referenceKey:recipe.reference.key,journey:baseJourney});
     expect(ready.maturity.stage).toBe('product-owner-ready');
