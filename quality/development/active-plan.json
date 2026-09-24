@@ -5,7 +5,9 @@
   "status": "ready-for-implementation",
   "guardDigest": "13146a82",
   "plannedFilePatterns": [
-    "quality/development/active-plan.json"
+    "quality/development/active-plan.json",
+    "supabase/migrations/20260924103000_incident_intelligence_foundation_v1.sql",
+    "tests/incident-intelligence-schema.test.ts"
   ],
   "expectedSubsystems": [
     "database-schema"
@@ -24,5 +26,5 @@
     "SQ-NK-012"
   ],
   "exceptions": [],
-  "notes": "Planning-only database wave. Implementation follows after Plan Before Code PASS."
+  "notes": "Database implementation wave. High-risk schema change is isolated as the only production subsystem in this commit; tests are neutral."
 }
