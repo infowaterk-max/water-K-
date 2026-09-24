@@ -8,7 +8,9 @@ describe('Template Factory procedural memory',()=>{
   it('keeps streamed browser proof and handoff assertions bound to settled visible state',()=>{
     const harness=fs.readFileSync('scripts/template-factory-quality-gate.mjs','utf8');
     const handoff=fs.readFileSync('scripts/template-factory-product-owner-handoff.mjs','utf8');
-    expect(harness).toContain("await runtimeRoot.waitFor({state:'visible',timeout:10000})");
+    expect(harness).toContain("await page.waitForLoadState('load',{timeout:15000})");
+    expect(harness).toContain("await page.waitForFunction(expected=>document.querySelector('.cookieBanner[data-template-aware-cookie=\"true\"]')?.getAttribute('data-cookie-template-key')===expected");
+    expect(harness).toContain("await page.waitForTimeout(120)");
     expect(harness).toContain("errors:caseErrors");
     expect(handoff).toContain("waitForURL(url=>url.pathname==='/storefront-template-preview-login',{timeout:10000})");
     expect(handoff).toContain("await shell.waitFor({state:'visible',timeout:10000})");
