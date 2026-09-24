@@ -27,7 +27,11 @@
     "tests/shoperation-historical-support-backfill.test.ts",
     "tests/sql-migration-syntax-guard.test.ts",
     "src/lib/quality-system/failure-intake.ts",
-    "src/lib/builder/template-factory/procedural-memory.ts"
+    "src/lib/builder/template-factory/procedural-memory.ts",
+    ".github/workflows/shoperation-knowledge-full-replay.yml",
+    "scripts/template-factory-product-owner-handoff.mjs",
+    "tests/storefront-template-preview-access.test.ts",
+    "tests/template-factory-storefront-contract.test.ts"
   ],
   "expectedSubsystems": [
     "release-infrastructure"
@@ -90,6 +94,6 @@
     "SQ-NK-012"
   ],
   "exceptions": [],
-  "notes": "Activation release transaction: enable the already-merged Development Guard core in CI and engineering-agent workflows, including deterministic failure intake and the complete Codebase Atlas / Support History runtime dependency closure. No Release Risk Budget rule or threshold is relaxed.",
+  "notes": "Activation release transaction: enable the already-merged Development Guard core in CI and engineering-agent workflows, including deterministic failure intake, periodic full replay, exact-head Product Owner proof wiring, and current-main-compatible regression authorities. No Release Risk Budget rule or threshold is relaxed.",
   "changeBaseSha": "6d5455a2c89bdc7945e39726ca6edfd837244eaa"
 }
