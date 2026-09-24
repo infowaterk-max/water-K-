@@ -319,7 +319,7 @@ jobs:
           retention-days: 30
 
       - name: Resolve exact-head Vercel preview for Product Owner proof
-        if: (github.event_name == 'push' && startsWith(github.ref_name, 'feature/template-factory-product-owner-')) || (github.event_name == 'pull_request' && startsWith(github.head_ref, 'feature/template-factory-product-owner-'))
+        if: (github.event_name == 'push' && (startsWith(github.ref_name, 'feature/template-factory-product-owner-') || github.ref_name == 'feature/template-factory-vercel-automation-bypass')) || (github.event_name == 'pull_request' && (startsWith(github.head_ref, 'feature/template-factory-product-owner-') || github.head_ref == 'feature/template-factory-vercel-automation-bypass'))
         id: product-owner-preview
         uses: actions/github-script@v7
         with:
@@ -362,7 +362,7 @@ jobs:
             core.setFailed('EXACT_HEAD_VERCEL_PREVIEW_NOT_READY');
 
       - name: Prove exact-head Product Owner login journey
-        if: (github.event_name == 'push' && startsWith(github.ref_name, 'feature/template-factory-product-owner-')) || (github.event_name == 'pull_request' && startsWith(github.head_ref, 'feature/template-factory-product-owner-'))
+        if: (github.event_name == 'push' && (startsWith(github.ref_name, 'feature/template-factory-product-owner-') || github.ref_name == 'feature/template-factory-vercel-automation-bypass')) || (github.event_name == 'pull_request' && (startsWith(github.head_ref, 'feature/template-factory-product-owner-') || github.head_ref == 'feature/template-factory-vercel-automation-bypass'))
         env:
           PRODUCT_OWNER_PREVIEW_URL: "${{ steps.product-owner-preview.outputs.base-url }}/storefront-template-preview?template=gaming.loot-vault&version=2&page=home&viewport=desktop&factory=1"
           PRODUCT_OWNER_TEMPLATE_KEY: gaming.loot-vault
@@ -370,12 +370,13 @@ jobs:
           PRODUCT_OWNER_SOURCE_COMMIT: ${{ github.event.pull_request.head.sha || github.sha }}
           PRODUCT_OWNER_TEST_EMAIL: ${{ secrets.PRODUCT_OWNER_TEST_EMAIL }}
           PRODUCT_OWNER_TEST_PASSWORD: ${{ secrets.PRODUCT_OWNER_TEST_PASSWORD }}
+          VERCEL_AUTOMATION_BYPASS_SECRET: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
           TEMPLATE_QUALITY_MANIFEST: artifacts/template-factory-quality/manifest.json
           TEMPLATE_HANDOFF_OUTPUT_DIR: artifacts/template-factory-handoff
         run: node scripts/template-factory-product-owner-handoff.mjs
 
       - name: Upload Product Owner journey proof
-        if: always() && (github.event_name == 'push' && startsWith(github.ref_name, 'feature/template-factory-product-owner-')) || (github.event_name == 'pull_request' && startsWith(github.head_ref, 'feature/template-factory-product-owner-'))
+        if: always() && (github.event_name == 'push' && (startsWith(github.ref_name, 'feature/template-factory-product-owner-') || github.ref_name == 'feature/template-factory-vercel-automation-bypass')) || (github.event_name == 'pull_request' && (startsWith(github.head_ref, 'feature/template-factory-product-owner-') || github.head_ref == 'feature/template-factory-vercel-automation-bypass'))
         uses: actions/upload-artifact@v4
         with:
           name: template-factory-handoff-${{ github.event.pull_request.head.sha || github.sha }}
