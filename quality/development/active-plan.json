@@ -1,9 +1,9 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-22323BE1",
+  "taskId": "DEV-97471570",
   "task": "Add incident-intelligence scope classification to Quality Knowledge and release risk policy.",
   "status": "ready-for-implementation",
-  "guardDigest": "22323be1",
+  "guardDigest": "97471570",
   "plannedFilePatterns": [
     "quality/development/active-plan.json"
   ],
@@ -22,7 +22,16 @@
     "SQ-KF-018",
     "SQ-KF-020",
     "SQ-KF-021",
-    "SQ-KF-022"
+    "SQ-KF-022",
+    "TF-KF-001",
+    "TF-KF-005",
+    "TF-KF-007",
+    "TF-KF-009",
+    "TF-KF-010",
+    "TF-KF-011",
+    "TF-KF-013",
+    "TF-KF-014",
+    "TF-KF-015"
   ],
   "acknowledgedNegativeKnowledgeIds": [
     "SQ-NK-002",
@@ -33,5 +42,5 @@
     "SQ-NK-012"
   ],
   "exceptions": [],
-  "notes": "Planning-only governance wave. Policy implementation follows after Plan Before Code PASS."
+  "notes": "Planning-only governance wave. Corrected after Plan Before Code proved release-infrastructure also activates the Template Factory release-evidence failure set."
 }
