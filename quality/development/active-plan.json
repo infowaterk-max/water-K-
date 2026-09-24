@@ -13,7 +13,8 @@
     "scripts/lib/shoperation-development-runtime.mjs",
     "scripts/shoperation-plan-before-code.mjs",
     "scripts/shoperation-knowledge-preflight.mjs",
-    "scripts/shoperation-edit-time-guard.mjs"
+    "scripts/shoperation-edit-time-guard.mjs",
+    "tests/shoperation-development-guard.test.ts"
   ],
   "expectedSubsystems": [
     "incident-intelligence",
@@ -85,6 +86,6 @@
     "SQ-NK-015"
   ],
   "exceptions": [],
-  "notes": "Incident Center closure plus guard transaction-boundary hardening. Development scope is pinned to the active change-set base SHA so plan, knowledge preflight and edit-time guard evaluate the same cumulative change instead of the latest push only. Full replay is intentional because guard infrastructure changes. No release, self-healing or production authority is relaxed.",
+  "notes": "Incident Center closure plus guard transaction-boundary hardening. Development scope is pinned to the active change-set base SHA so plan, knowledge preflight and edit-time guard evaluate the same cumulative change instead of the latest push only. Full replay is intentional because guard infrastructure changes. No release, self-healing or production authority is relaxed. Regression coverage now locks the shared base authority and proves plan-only or metadata commits cannot collapse the cumulative active change-set.",
   "changeBaseSha": "d2039ac11145f56293d23bdb704ba39abd564ba3"
 }
