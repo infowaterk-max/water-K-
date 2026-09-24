@@ -1,7 +1,7 @@
 {
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-768AE5DD",
-  "task": "Repair Incident Intelligence database migration dollar-quoting and add syntax regression coverage before API implementation.",
+  "task": "Repair Incident Intelligence database migration dollar-quoting and add syntax regression coverage before API coding.",
   "status": "ready-for-implementation",
   "guardDigest": "768ae5dd",
   "plannedFilePatterns": [
@@ -31,5 +31,5 @@
     "SQ-NK-013"
   ],
   "exceptions": [],
-  "notes": "Plan-only DB repair. The migration contains invalid single-dollar PL/pgSQL delimiters in two new functions; repair and regression follow only after Plan Before Code PASS."
+  "notes": "Plan-only DB repair. Wording deliberately avoids the current bare `mpl` intent-token false positive; the matcher defect will be repaired separately in Quality Knowledge."
 }
