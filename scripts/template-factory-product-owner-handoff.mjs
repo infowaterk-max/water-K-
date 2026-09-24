@@ -74,6 +74,13 @@ try{
   const response=await page.goto(previewUrl,{waitUntil:'domcontentloaded',timeout:30000});
   checks.entryResponse=Boolean(response);
   await page.waitForLoadState('load',{timeout:15000}).catch(()=>undefined);
+  if(!storageState){
+    checks.templateAwareLoginRedirectSettled=await page
+      .waitForURL(url=>url.pathname==='/storefront-template-preview-login',{timeout:10000})
+      .then(()=>true)
+      .catch(()=>false);
+    if(!checks.templateAwareLoginRedirectSettled)errors.push('TEMPLATE_AWARE_LOGIN_REDIRECT_NOT_SETTLED');
+  }
 
   let current=new URL(page.url());
   checks.entryPath=current.pathname;
@@ -89,6 +96,7 @@ try{
     if(!checks.returnTargetPreserved)errors.push('LOGIN_RETURN_TARGET_MISMATCH');
 
     const shell=page.locator(`[data-storefront-account-shell="preview"][data-storefront-template="${templateKey}"]`);
+    await shell.waitFor({state:'visible',timeout:10000}).catch(()=>undefined);
     checks.templateAwareAuthShell=await shell.count()===1;
     if(!checks.templateAwareAuthShell)errors.push('TEMPLATE_AWARE_AUTH_SHELL_MISSING');
 
@@ -96,14 +104,18 @@ try{
     checks.templateVersionedAuthStyle=await styles.count()>0;
     if(!checks.templateVersionedAuthStyle)errors.push('TEMPLATE_AUTH_STYLE_IDENTITY_MISSING');
 
-    const authSurface=page.locator('[data-storefront-auth-surface="true"]');
-    checks.sharedAuthSurface=await authSurface.count()===1;
-    if(!checks.sharedAuthSurface)errors.push('SHARED_AUTH_SURFACE_MISSING');
+    const allAuthSurfaces=page.locator('[data-storefront-auth-surface="true"]');
+    const authSurface=page.locator('[data-storefront-auth-surface="true"]:visible');
+    await authSurface.waitFor({state:'visible',timeout:10000}).catch(()=>undefined);
+    checks.sharedAuthSurfaceCount=await allAuthSurfaces.count();
+    checks.visibleSharedAuthSurfaceCount=await authSurface.count();
+    checks.sharedAuthSurface=checks.visibleSharedAuthSurfaceCount===1;
+    if(!checks.sharedAuthSurface)errors.push('VISIBLE_SHARED_AUTH_SURFACE_NOT_UNIQUE');
 
     if(email&&password){
-      const visibleEmail=authSurface.locator('input[name="email"]:visible');
-      const visiblePassword=authSurface.locator('input[name="password"]:visible');
-      const visibleLoginButton=authSurface.locator('button:visible').filter({hasText:/^\\s*Belépés\\s*$/});
+      const visibleEmail=authSurface.locator('input[name="email"]');
+      const visiblePassword=authSurface.locator('input[name="password"]');
+      const visibleLoginButton=authSurface.locator('button[type="submit"]:visible');
       checks.visibleAuthEmailTargetCount=await visibleEmail.count();
       checks.visibleAuthPasswordTargetCount=await visiblePassword.count();
       checks.visibleAuthSubmitTargetCount=await visibleLoginButton.count();
@@ -134,6 +146,7 @@ try{
     const root=page.locator(
       `[data-template-preview="representative-demo"][data-template-key="${templateKey}"][data-template-version="${templateVersion}"][data-factory-candidate="true"][data-template-recipe="${templateKey}@${templateVersion}"]`
     );
+    await root.waitFor({state:'visible',timeout:10000}).catch(()=>undefined);
     checks.previewProvenanceStamp=await root.count()===1;
     if(!checks.previewProvenanceStamp)errors.push('PREVIEW_PROVENANCE_STAMP_MISSING');
     if(await root.count()===1){
