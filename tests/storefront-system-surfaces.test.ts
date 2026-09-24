@@ -4,6 +4,7 @@ import {PLAYROOM_V20_TEMPLATE_PACKAGE} from '@/lib/builder/templates/playroom-v2
 import type {StorefrontComponentNode} from '@/lib/builder/storefront-runtime';
 
 const cookie=fs.readFileSync('src/components/analytics/cookie-consent.tsx','utf8');
+const systemTheme=fs.readFileSync('src/components/storefront/storefront-system-surface-theme.ts','utf8');
 const v6=fs.readFileSync('src/app/v6.css','utf8');
 const finalUx=fs.readFileSync('src/app/final-ux-audit.css','utf8');
 const responsive=fs.readFileSync('src/app/responsive-final.css','utf8');
@@ -33,8 +34,9 @@ describe('customer-facing system surfaces',()=>{
     expect(cookie).toMatch(/data-cookie-template-key/);
     expect(cookie).toMatch(/data-cookie-preset/);
     expect(cookie).toMatch(/getStorefrontCookieConsentPreset/);
-    expect(cookie).toMatch(/querySelectorAll<HTMLElement>\('\[data-storefront-template\],\[data-template-key\]'\)/);
-    expect(cookie).toMatch(/new MutationObserver/);
+    expect(cookie).toMatch(/useStorefrontSystemSurfaceTheme/);
+    expect(systemTheme).toMatch(/querySelectorAll<HTMLElement>\('\[data-storefront-template\],\[data-template-key\]'\)/);
+    expect(systemTheme).toMatch(/new MutationObserver/);
     expect(cookiePresets).toMatch(/'gaming\.playroom':p\('gaming\.playroom','playroom-v20-cookie'/);
     expect(runtimeRenderer).toMatch(/data-storefront-template=\{runtimePage\.templateKey\}/);
     expect(runtimeRenderer).toMatch(/data-storefront-template-version=\{runtimePage\.templateVersion\}/);

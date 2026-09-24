@@ -68,5 +68,5 @@
     "SQ-NK-013"
   ],
   "exceptions": [],
-  "notes": "Plan-only UI wave. Customer reporting is one shared template-aware Storefront System Surface; merchant reporting reuses canonical ShoperationDialog and the same Incident Intelligence API. No second support, incident or styling authority."
+  "notes": "Implemented customer and merchant reporting UI after Plan Before Code PASS. Customer reporter is one shared template-aware Storefront System Surface; merchant reporter reuses ShoperationDialog. Both post only to existing Incident Intelligence APIs and capture bounded route/viewport evidence."
 }
