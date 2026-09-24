@@ -38,10 +38,10 @@ const MEDIA={
 } as const;
 
 const LOOT_VAULT_PRODUCT_FALLBACKS=Object.freeze([
-  {id:'vault-sentinel',name:'Vault Sentinel prémium figura',href:'/webaruhaz',image:MEDIA.product1,imageAlt:'Vault Sentinel prémium gyűjtői figura',price:89990,badge:'LIMITÁLT',stockLabel:'Raktáron'},
-  {id:'mythic-wing',name:'Mythic Wing gyűjtői szobor',href:'/webaruhaz',image:MEDIA.product2,imageAlt:'Mythic Wing fantasy gyűjtői szobor',price:129990,badge:'EXKLUZÍV',stockLabel:'Raktáron'},
-  {id:'ancient-warrior',name:'Ancient Warrior gyűjtői kiadás',href:'/webaruhaz',image:MEDIA.product3,imageAlt:'Ancient Warrior gyűjtői kiadás',price:59990,badge:'ELŐRENDELÉS',stockLabel:'Előrendelhető'},
-  {id:'archive-relic',name:'Archívum gyűjtői relikvia',href:'/webaruhaz',image:MEDIA.product4,imageAlt:'Sötét sci-fi gyűjtői relikvia',price:74990,badge:'ÚJDONSÁG',stockLabel:'Raktáron'},
+  {id:'vault-sentinel',name:'Vault Sentinel prémium figura',href:'/termek/vault-sentinel',image:MEDIA.product1,imageAlt:'Vault Sentinel prémium gyűjtői figura',price:89990,badge:'LIMITÁLT',stockLabel:'Raktáron'},
+  {id:'mythic-wing',name:'Mythic Wing gyűjtői szobor',href:'/termek/mythic-wing',image:MEDIA.product2,imageAlt:'Mythic Wing fantasy gyűjtői szobor',price:129990,badge:'EXKLUZÍV',stockLabel:'Raktáron'},
+  {id:'ancient-warrior',name:'Ancient Warrior gyűjtői kiadás',href:'/termek/ancient-warrior',image:MEDIA.product3,imageAlt:'Ancient Warrior gyűjtői kiadás',price:59990,badge:'ELŐRENDELÉS',stockLabel:'Előrendelhető'},
+  {id:'archive-relic',name:'Archívum gyűjtői relikvia',href:'/termek/collector-archive',image:MEDIA.product4,imageAlt:'Sötét sci-fi gyűjtői relikvia',price:74990,badge:'ÚJDONSÁG',stockLabel:'Raktáron'},
 ]);
 
 const n=(value:StorefrontComponentNode):StorefrontComponentNode=>value;
@@ -352,9 +352,9 @@ export const LOOT_VAULT_V2_ACCOUNT_PAGE=override(LOOT_VAULT_ACCOUNT_PAGE,[
 });
 
 const lootVaultBlogHighlights=[
-  {id:'loot-v2-blog-highlight-1',title:'A gyűjtőszoba mint személyes univerzum',copy:'Vitrinek, fények és történetek: így lesz a gyűjteményből karakteres tér.',image:MEDIA.editorial1},
-  {id:'loot-v2-blog-highlight-2',title:'Mitől érték egy limitált kiadás?',copy:'Kiadás, állapot és eredet — a látvány mögött mindig valódi termékadat áll.',image:MEDIA.editorial2},
-  {id:'loot-v2-blog-highlight-3',title:'Fantasy, sci-fi és retro egy helyen',copy:'Eltérő világok, közös gyűjtői nyelv és következetes vizuális ritmus.',image:MEDIA.background},
+  {id:'loot-v2-blog-highlight-1',slug:'gyujtoszoba-mint-szemelyes-univerzum',title:'A gyűjtőszoba mint személyes univerzum',copy:'Vitrinek, fények és történetek: így lesz a gyűjteményből karakteres tér.',image:MEDIA.editorial1},
+  {id:'loot-v2-blog-highlight-2',slug:'mitol-ertek-egy-limitalt-kiadas',title:'Mitől érték egy limitált kiadás?',copy:'Kiadás, állapot és eredet — a látvány mögött mindig valódi termékadat áll.',image:MEDIA.editorial2},
+  {id:'loot-v2-blog-highlight-3',slug:'fantasy-scifi-retro-egy-helyen',title:'Fantasy, sci-fi és retro egy helyen',copy:'Eltérő világok, közös gyűjtői nyelv és következetes vizuális ritmus.',image:MEDIA.background},
 ] as const;
 
 export const LOOT_VAULT_V2_BLOG_INDEX_PAGE=override(LOOT_VAULT_BLOG_INDEX_PAGE,[
@@ -376,7 +376,7 @@ export const LOOT_VAULT_V2_BLOG_INDEX_PAGE=override(LOOT_VAULT_BLOG_INDEX_PAGE,[
       image(`${item.id}-image`,item.image,item.title,12,{height:'15rem',minHeight:'13rem'}),
       heading(`${item.id}-title`,item.title,3,{fontSize:'1.15rem'}),
       text(`${item.id}-copy`,item.copy,{fontSize:'.82rem'}),
-      button(`${item.id}-cta`,'Olvasom','/blog','secondary'),
+      button(`${item.id}-cta`,'Olvasom',`/blog/${item.slug}`,'secondary'),
     ],4,{padding:'.65rem',background:'linear-gradient(180deg,#171919,#101212)',border:'1px solid rgba(165,122,69,.26)',borderRadius:'.72rem',boxShadow:'0 18px 42px rgba(0,0,0,.28)'}))),
   ],{background:'#0d0e0f'}),
   section('loot-v2-blog-list',[
@@ -448,4 +448,7 @@ export const LOOT_VAULT_V2_DEMO_FIXTURES:readonly StorefrontDemoFixture[]=Object
   {entityType:'content',entityKey:'page-szallitas',payload:{kind:'page',slug:'szallitas',title:'Szállítás',excerpt:'Átlátható szállítási lehetőségek a pénztár közös szolgáltatói beállításaival.',body:'A bemutató a Shoperation szállítási capability helyét és vásárlói útját demonstrálja. A tényleges futár, díj és határidő mindig a kereskedő aktív konfigurációjából érkezik.',status:'draft',demo:true,showroomReady:true}},
   {entityType:'content',entityKey:'page-fizetes',payload:{kind:'page',slug:'fizetes',title:'Fizetés',excerpt:'A fizetési lehetőségek a közös E13 checkout authority részei.',body:'A sablon a fizetési folyamat vizuális helyét és kapcsolatát mutatja. A tényleges szolgáltató és tranzakciós állapot nem template-local adat.',status:'draft',demo:true,showroomReady:true}},
   {entityType:'content',entityKey:'page-visszakuldes',payload:{kind:'page',slug:'visszakuldes',title:'Visszaküldés',excerpt:'A vásárlás utáni ügyintézés a Fiókom canonical felületeihez kapcsolódik.',body:'A visszaküldési folyamat a rendeléshez kötött közös platformképességet demonstrálja, a sablon csak a saját vizuális nyelvén prezentálja.',status:'draft',demo:true,showroomReady:true}},
+  {entityType:'content',entityKey:'blog-gyujtoszoba-mint-szemelyes-univerzum',payload:{kind:'blog',slug:'gyujtoszoba-mint-szemelyes-univerzum',title:'A gyűjtőszoba mint személyes univerzum',excerpt:'Vitrinek, fények és történetek: így lesz a gyűjteményből karakteres tér.',body:'A gyűjtemény bemutatása nem csak terméklista. A történet, az elrendezés és a hiteles termékadat együtt adja a prémium rajongói élményt.',status:'draft',demo:true,showroomReady:true}},
+  {entityType:'content',entityKey:'blog-mitol-ertek-egy-limitalt-kiadas',payload:{kind:'blog',slug:'mitol-ertek-egy-limitalt-kiadas',title:'Mitől érték egy limitált kiadás?',excerpt:'Kiadás, állapot és eredet — a látvány mögött mindig valódi termékadat áll.',body:'A Loot Vault csak strukturált katalógusadatból mutat ritkaságot, kiadást vagy előrendelési állapotot; a sablon nem talál ki scarcity állítást.',status:'draft',demo:true,showroomReady:true}},
+  {entityType:'content',entityKey:'blog-fantasy-scifi-retro-egy-helyen',payload:{kind:'blog',slug:'fantasy-scifi-retro-egy-helyen',title:'Fantasy, sci-fi és retro egy helyen',excerpt:'Eltérő világok, közös gyűjtői nyelv és következetes vizuális ritmus.',body:'A Product Discovery és Editorial engine együtt teszi lehetővé, hogy több gyűjtői univerzum egy közös, mégis szerkesztett storefrontban jelenjen meg.',status:'draft',demo:true,showroomReady:true}},
 ]);
