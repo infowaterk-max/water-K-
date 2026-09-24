@@ -1,3 +1,5 @@
+export const INCIDENT_BROWSER_EVIDENCE_CONTRACT='shoporation.incident-browser-evidence.v1' as const;
+
 export type IncidentViewportEvidence={width:number;height:number};
 
 export function captureIncidentViewportEvidence():IncidentViewportEvidence|undefined{

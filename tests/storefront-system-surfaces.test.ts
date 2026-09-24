@@ -31,6 +31,7 @@ const findPlayroomNode=(id:string):StorefrontComponentNode=>{
 describe('customer-facing system surfaces',()=>{
   it('keeps cookie consent inside the mobile viewport and resolves an explicit template-owned preset',()=>{
     expect(cookie).toMatch(/data-template-aware-cookie="true"/);
+    expect(cookie).toMatch(/data-system-surface-theme="shared"/);
     expect(cookie).toMatch(/data-cookie-template-key/);
     expect(cookie).toMatch(/data-cookie-preset/);
     expect(cookie).toMatch(/getStorefrontCookieConsentPreset/);

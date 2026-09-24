@@ -34,6 +34,7 @@ export function CookieConsent(){
   return <div
     className="cookieBanner"
     data-template-aware-cookie="true"
+    data-system-surface-theme="shared"
     data-cookie-template-key={resolved?.templateKey??'generic'}
     data-cookie-preset={preset?.presetId??'generic-safe-fallback'}
     data-cookie-layout={preset?.layout??'split'}

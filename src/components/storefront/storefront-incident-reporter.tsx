@@ -3,7 +3,7 @@
 import{useEffect,useId,useRef,useState,type FormEvent}from'react';
 import{usePathname}from'next/navigation';
 import{useStorefrontSystemSurfaceTheme}from'@/components/storefront/storefront-system-surface-theme';
-import{captureIncidentViewportEvidence}from'@/lib/incidents/browser-evidence';
+import{INCIDENT_BROWSER_EVIDENCE_CONTRACT,captureIncidentViewportEvidence}from'@/lib/incidents/browser-evidence';
 import styles from'./storefront-incident-reporter.module.css';
 
 const BLOCKED_PREFIXES=['/admin','/storefront-preview','/storefront-template-preview','/visual-fidelity-qa','/login','/auth'] as const;
@@ -67,7 +67,7 @@ export function StorefrontIncidentReporter(){
   finally{setBusy(false)}
  }
  const invalid=!email.trim()||title.trim().length<3||description.trim().length<10;
- return <div className={styles.root} style={theme?.style} data-template-aware-incident="true" data-incident-template-key={theme?.templateKey??'generic'}>
+ return <div className={styles.root} style={theme?.style} data-template-aware-incident="true" data-incident-template-key={theme?.templateKey??'generic'} data-incident-evidence-contract={INCIDENT_BROWSER_EVIDENCE_CONTRACT}>
   <button type="button" className={styles.trigger} aria-haspopup="dialog" onClick={begin}>Hibát találtam</button>
   <dialog ref={dialogRef} className={styles.dialog} aria-labelledby={titleId} aria-describedby={descriptionId} onCancel={event=>{event.preventDefault();close()}} onClose={()=>setOpen(false)}>
    <form className={styles.panel} onSubmit={submit}>
