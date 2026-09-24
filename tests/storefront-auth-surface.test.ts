@@ -56,6 +56,17 @@ describe('template-aware storefront auth surface',()=>{
     expect(previewPage).not.toContain('requireAdmin(');
   });
 
+  it('keeps Factory preview login tenant-independent and preserves the exact candidate return target',()=>{
+    expect(previewLogin).toContain("const factoryCandidate=query.factory==='1'");
+    expect(previewLogin).toContain("if(requested?.startsWith('/storefront-template-preview?'))return requested");
+    expect(previewLogin).toContain('returnTo={target}');
+    expect(previewLogin).toContain('allowRegistration={false}');
+    expect(previewLogin).not.toContain('getCurrentWebshopInstance');
+    expect(previewLogin).not.toContain('requireCurrentStoreContext');
+    expect(previewLogin).not.toContain('requirePlanFeature');
+    expect(previewLogin).not.toContain('requireAdmin(');
+  });
+
   it('keeps signed-out customer auth inside the active storefront template shell',()=>{
     expect(shell).toMatch(/resolveCurrentStorefrontAccountRuntimePage\(customerId\)/);
     expect(shell).not.toMatch(/if\(!customerId\)return <>{children}<\/>/);
