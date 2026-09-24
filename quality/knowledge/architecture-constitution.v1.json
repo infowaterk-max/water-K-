@@ -1,0 +1,170 @@
+{
+  "contract": "shoporation.architecture-constitution.v1",
+  "version": 1,
+  "status": "canonical",
+  "authorityOrder": [
+    "architecture-constitution",
+    "global-foundation",
+    "domain-foundation",
+    "capability-contract",
+    "implementation",
+    "evidence"
+  ],
+  "amendmentPolicy": {
+    "requiresVersionBump": true,
+    "requiresRegressionProof": true,
+    "requiresExplicitSupersession": true,
+    "forbidsSilentOverride": true
+  },
+  "principles": [
+    {
+      "id": "ARCH-001",
+      "title": "Single canonical authority",
+      "rule": "Every behavior, state transition and shared capability must have one named canonical owner. Parallel authorities for the same responsibility are forbidden.",
+      "enforcement": [
+        "authority ownership",
+        "duplicate authority regression",
+        "clean replacement"
+      ]
+    },
+    {
+      "id": "ARCH-002",
+      "title": "Context before capability",
+      "rule": "Tenant, actor, environment and operating context must be resolved before capability, route, mutation or policy selection. Null or ambiguous context fails closed.",
+      "enforcement": [
+        "tenant-aware guards",
+        "role-aware access",
+        "environment binding"
+      ]
+    },
+    {
+      "id": "ARCH-003",
+      "title": "Truth has an explicit owner",
+      "rule": "Commerce truth, identity truth, release truth and compatibility truth are server-owned or authority-owned. Presentation layers may display truth but may not invent or override it.",
+      "enforcement": [
+        "server recalculation",
+        "canonical persistence",
+        "read-only presentation contracts"
+      ]
+    },
+    {
+      "id": "ARCH-004",
+      "title": "Development and release are separate transactions",
+      "rule": "A coherent Development Transaction may span multiple subsystems, but production changes are assembled and proven as explicit Release Transactions with closed dependency scope.",
+      "enforcement": [
+        "development plan",
+        "release risk budget",
+        "exact-head proof"
+      ]
+    },
+    {
+      "id": "ARCH-005",
+      "title": "Dependency closure before release",
+      "rule": "A Release Transaction must include every runtime, policy, schema, knowledge and regression dependency required for the selected change-set. Missing closure blocks release.",
+      "enforcement": [
+        "change impact",
+        "dependency graph",
+        "schema compatibility",
+        "regression authority"
+      ]
+    },
+    {
+      "id": "ARCH-006",
+      "title": "Fail closed on authority failure",
+      "rule": "Authentication, authorization, payment, schema compatibility, release provenance and critical configuration failures must default to denial or safe non-action.",
+      "enforcement": [
+        "fail-closed guards",
+        "explicit error states",
+        "no permissive fallback"
+      ]
+    },
+    {
+      "id": "ARCH-007",
+      "title": "Adapters isolate external providers",
+      "rule": "External providers are connected through stable platform contracts. Core business logic may not depend directly on provider-specific transport or payload semantics.",
+      "enforcement": [
+        "adapter interfaces",
+        "provider isolation",
+        "contract tests"
+      ]
+    },
+    {
+      "id": "ARCH-008",
+      "title": "State transitions are explicit",
+      "rule": "Source, persisted state, runtime materialization and production state are distinct authorities. Every required transition between them must be named and provable.",
+      "enforcement": [
+        "materialization proof",
+        "deployment provenance",
+        "migration proof"
+      ]
+    },
+    {
+      "id": "ARCH-009",
+      "title": "Evidence does not become truth by implication",
+      "rule": "CI green, preview readiness, screenshots, fixtures and historical documents are evidence only. They do not replace runtime, schema, identity or production authority.",
+      "enforcement": [
+        "evidence provenance",
+        "exact-head binding",
+        "live verification"
+      ]
+    },
+    {
+      "id": "ARCH-010",
+      "title": "Known failures become prevention",
+      "rule": "Every recurring or material defect must be converted into durable knowledge, regression authority, policy, or deterministic detection so the same failure class moves earlier in the lifecycle.",
+      "enforcement": [
+        "failure intake",
+        "known failure registry",
+        "incremental replay"
+      ]
+    },
+    {
+      "id": "ARCH-011",
+      "title": "Clean replacement",
+      "rule": "When an authority is superseded, obsolete implementations, routes, tests and documentation must be removed or explicitly time-bounded as compatibility layers.",
+      "enforcement": [
+        "dead code audit",
+        "supersession record",
+        "compatibility expiry"
+      ]
+    },
+    {
+      "id": "ARCH-012",
+      "title": "Machine identity is stable",
+      "rule": "Machine-consumed authorities, domains, failures and contracts require stable identifiers independent of mutable display names or human labels.",
+      "enforcement": [
+        "stable IDs",
+        "versioned contracts",
+        "alias-only human labels"
+      ]
+    },
+    {
+      "id": "ARCH-013",
+      "title": "Architecture is queryable",
+      "rule": "The system architecture must be represented in machine-readable form so ownership, dependencies, surfaces and impact can be resolved deterministically.",
+      "enforcement": [
+        "domain registry",
+        "authority graph",
+        "Atlas integration"
+      ]
+    },
+    {
+      "id": "ARCH-014",
+      "title": "Autonomy remains governed",
+      "rule": "Automation and future AI may diagnose, propose and execute only within explicit policy, authority and evidence boundaries. Direct code or production mutation is never inferred from model confidence alone.",
+      "enforcement": [
+        "proposal-first code repair",
+        "runbook allowlists",
+        "human or deterministic approval gates"
+      ]
+    }
+  ],
+  "supersession": {
+    "rule": "Existing architecture documents remain supporting evidence unless explicitly registered as canonical domain authority.",
+    "legacyReferences": [
+      "docs/NATIVE-ARCHITECTURE.md",
+      "docs/WEBSHOP_INSTANCE_ARCHITECTURE.md",
+      "docs/DEVELOPMENT.md"
+    ]
+  }
+}
