@@ -65,5 +65,5 @@
     "SQ-NK-013"
   ],
   "exceptions": [],
-  "notes": "Runtime/API implementation after Plan Before Code PASS. Customer reports reuse the atomic Support+Incident RPC; merchant reports require canonical store RBAC; deterministic triage matches Known Failure signatures; code repair remains proposal-only."
+  "notes": "Runtime/API implementation complete on prior commit. This neutral follow-up exists only to obtain exact-head CI evidence for the full Incident Intelligence API tree after the initial push failed to dispatch a CI run."
 }
