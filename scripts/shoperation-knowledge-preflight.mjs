@@ -1,6 +1,7 @@
 import {execFileSync} from 'node:child_process';
 import {existsSync,mkdirSync,readFileSync,readdirSync,writeFileSync} from 'node:fs';
 import path from 'node:path';
+import {resolveDevelopmentBase} from './lib/shoperation-development-runtime.mjs';
 const readJson=file=>JSON.parse(readFileSync(file,'utf8'));
 execFileSync(process.execPath,['scripts/shoperation-support-history-backfill.mjs','--check'],{stdio:'inherit',env:process.env});
 execFileSync(process.execPath,['scripts/shoperation-codebase-atlas.mjs','--check'],{stdio:'inherit',env:process.env});
@@ -12,7 +13,7 @@ const neutral=riskPolicy.neutralPatterns.map(globToRegExp),matchers=riskPolicy.s
 const knowledgePrefixes=scopePolicy.knowledgeInfrastructurePrefixes;
 const dependencies=scopePolicy.dependencies;
 const git=args=>execFileSync('git',args,{encoding:'utf8'}).trim();
-const base=(()=>{const explicit=developmentPlan.changeBaseSha?.trim()||process.env.QUALITY_BASE_SHA?.trim()||process.env.RELEASE_BASE_SHA?.trim();if(explicit&&!/^0+$/.test(explicit)){try{git(['cat-file','-e',`${explicit}^{commit}`]);return explicit;}catch{}}for(const candidate of ['origin/main','main','HEAD^']){try{git(['cat-file','-e',`${candidate}^{commit}`]);return candidate;}catch{}}return null;})();
+const base=resolveDevelopmentBase({changeBaseSha:developmentPlan.changeBaseSha});
 const head=(process.env.QUALITY_HEAD_SHA??process.env.GITHUB_SHA??'HEAD').trim()||'HEAD';
 let changedFiles=[];if(base){try{changedFiles=git(['diff','--name-only','--diff-filter=ACMR',base,head]).split(/\r?\n/).filter(Boolean);}catch{}}
 const direct=new Set(),unresolvedFiles=[];let knowledgeInfrastructureChanged=false;
