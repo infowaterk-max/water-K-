@@ -3,7 +3,7 @@
   "taskId": "DEV-19199EE0",
   "task": "Activate Shoperation Development Guard execution in CI workflows and engineering agent protocol.",
   "status": "ready-for-implementation",
-  "guardDigest": "19199ee0",
+  "guardDigest": "3ae467be",
   "plannedFilePatterns": [
     ".github/workflows/ci.yml",
     ".github/workflows/template-factory-quality-gate.yml",
@@ -36,7 +36,10 @@
     "src/app/storefront-template-preview/page.tsx"
   ],
   "expectedSubsystems": [
-    "release-infrastructure"
+    "release-infrastructure",
+    "auth-access-authority",
+    "customer-account",
+    "storefront-ui"
   ],
   "expectedKnownFailureIds": [
     "SQ-KF-013",
@@ -89,9 +92,12 @@
     "TF-KF-024"
   ],
   "acknowledgedNegativeKnowledgeIds": [
+    "SQ-NK-001",
     "SQ-NK-002",
     "SQ-NK-003",
     "SQ-NK-005",
+    "SQ-NK-006",
+    "SQ-NK-008",
     "SQ-NK-010",
     "SQ-NK-012"
   ],
