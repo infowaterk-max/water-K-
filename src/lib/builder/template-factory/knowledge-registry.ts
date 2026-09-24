@@ -1,4 +1,4 @@
-export const TEMPLATE_FACTORY_KNOWLEDGE_VERSION='shoporation.template-factory-knowledge.v1' as const;
+export const TEMPLATE_FACTORY_KNOWLEDGE_VERSION='shoporation.template-factory-knowledge.v2' as const;
 
 export type TemplateFactoryRemediationPolicy='shared-root-cause-required'|'shared-invariant-preferred';
 export type TemplateFactoryAuthorityOwner='platform'|'factory'|'category-foundation'|'template'|'quality-system';
