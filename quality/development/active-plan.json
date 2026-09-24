@@ -1,75 +1,28 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-B11F397A",
-  "task": "Build Shoperation Codebase Atlas v1 and inject current repository ownership and impact into the Development Guard.",
+  "taskId": "DEV-13146A82",
+  "task": "Build the database schema for the Shoperation incident ledger, immutable audit trail, repair requests and bounded self-healing runs.",
   "status": "ready-for-implementation",
-  "guardDigest": "b11f397a",
+  "guardDigest": "13146a82",
   "plannedFilePatterns": [
-    "quality/knowledge/codebase-atlas-policy.v1.json",
-    "quality/development/active-plan.json",
-    "scripts/lib/shoperation-codebase-atlas-runtime.mjs",
-    "scripts/shoperation-codebase-atlas.mjs",
-    "scripts/shoperation-development-guard.mjs",
-    "scripts/shoperation-knowledge-preflight.mjs",
-    "tests/shoperation-codebase-atlas.test.ts",
-    "docs/support/README.md"
+    "quality/development/active-plan.json"
   ],
   "expectedSubsystems": [
-    "quality-knowledge-system"
+    "database-schema"
   ],
   "expectedKnownFailureIds": [
-    "SQ-KF-001",
-    "SQ-KF-002",
-    "SQ-KF-003",
-    "SQ-KF-004",
-    "SQ-KF-005",
     "SQ-KF-006",
-    "SQ-KF-007",
-    "SQ-KF-008",
     "SQ-KF-009",
     "SQ-KF-010",
-    "SQ-KF-011",
-    "SQ-KF-012",
     "SQ-KF-013",
     "SQ-KF-014",
-    "SQ-KF-015",
-    "SQ-KF-016",
-    "SQ-KF-017",
     "SQ-KF-018",
-    "SQ-KF-019",
-    "SQ-KF-020",
-    "SQ-KF-021",
-    "SQ-KF-022",
-    "TF-KF-001",
-    "TF-KF-002",
-    "TF-KF-003",
-    "TF-KF-004",
-    "TF-KF-005",
-    "TF-KF-006",
-    "TF-KF-007",
-    "TF-KF-008",
-    "TF-KF-009",
-    "TF-KF-010",
-    "TF-KF-011",
-    "TF-KF-012",
-    "TF-KF-013",
-    "TF-KF-014",
-    "TF-KF-015",
-    "TF-KF-016",
-    "TF-KF-017",
-    "TF-KF-018",
-    "TF-KF-019",
-    "TF-KF-020",
-    "TF-KF-021",
-    "TF-KF-022",
-    "TF-KF-023",
-    "TF-KF-024"
+    "SQ-KF-022"
   ],
   "acknowledgedNegativeKnowledgeIds": [
-    "SQ-NK-010",
-    "SQ-NK-011",
+    "SQ-NK-005",
     "SQ-NK-012"
   ],
   "exceptions": [],
-  "notes": "Knowledge infrastructure changes force full Known Failure replay. This implementation follows the planning commit whose Plan Before Code gate passed."
+  "notes": "Planning-only database wave. Implementation follows after Plan Before Code PASS."
 }
