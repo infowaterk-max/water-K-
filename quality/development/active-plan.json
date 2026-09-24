@@ -69,5 +69,5 @@
     "SQ-NK-013"
   ],
   "exceptions": [],
-  "notes": "UI guard repair plan: viewport size is audit evidence only. Move browser measurement into one shared Incident Intelligence evidence helper with no layout, breakpoint or rendering decisions; both reporters consume that helper. No DEV-REVIEW-002 exception."
+  "notes": "Repair implemented after Edit-Time Guard block: viewport size is captured only by shared read-only Incident Intelligence browser evidence authority; storefront/admin UI no longer read browser width directly. Cookie Consent duplicate preset declaration removed. No guard exception added."
 }

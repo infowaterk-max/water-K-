@@ -3,6 +3,7 @@
 import{useEffect,useId,useRef,useState,type FormEvent}from'react';
 import{usePathname}from'next/navigation';
 import{useStorefrontSystemSurfaceTheme}from'@/components/storefront/storefront-system-surface-theme';
+import{captureIncidentViewportEvidence}from'@/lib/incidents/browser-evidence';
 import styles from'./storefront-incident-reporter.module.css';
 
 const BLOCKED_PREFIXES=['/admin','/storefront-preview','/storefront-template-preview','/visual-fidelity-qa','/login','/auth'] as const;
@@ -39,7 +40,7 @@ export function StorefrontIncidentReporter(){
   if(busy||result)return;
   setBusy(true);setError('');
   try{
-   const viewport=typeof window==='undefined'?undefined:{width:window.innerWidth,height:window.innerHeight};
+   const viewport=captureIncidentViewportEvidence();
    const response=await fetch('/api/incidents/customer',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify({
     email:email.trim(),
     orderNumber:orderNumber.trim(),

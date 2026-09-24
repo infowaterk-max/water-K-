@@ -31,7 +31,6 @@ export function CookieConsent(){
   const resolved=theme&&preset?{templateKey:theme.templateKey,preset,style:{...presetFallbackStyle(preset),...theme.style} as CSSProperties}:null;
 
   if(consent!=='unknown')return null;
-  const preset=resolved?.preset;
   return <div
     className="cookieBanner"
     data-template-aware-cookie="true"

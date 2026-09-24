@@ -3,6 +3,7 @@
 import{useState}from'react';
 import{usePathname}from'next/navigation';
 import{ShoperationDialog}from'@/components/admin/shoperation-dialog';
+import{captureIncidentViewportEvidence}from'@/lib/incidents/browser-evidence';
 import styles from'./merchant-incident-reporter.module.css';
 
 const CATEGORIES=[
@@ -43,7 +44,7 @@ export function MerchantIncidentReporter(){
   if(busy||title.trim().length<3||description.trim().length<10)return;
   setBusy(true);setError('');
   try{
-   const viewport=typeof window==='undefined'?undefined:{width:window.innerWidth,height:window.innerHeight};
+   const viewport=captureIncidentViewportEvidence();
    const response=await fetch('/api/incidents/merchant',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify({
     title:title.trim(),
     description:description.trim(),
