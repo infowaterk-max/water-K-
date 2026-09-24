@@ -327,13 +327,14 @@ try{
 
     const engineChecks={};
     let engineRoot=await visitCandidate('catalog','engine-e2');
-    engineChecks.E2=await engineRoot.locator('[data-storefront-component="commerce.catalog-facets"]').count()>0
-      &&await engineRoot.locator('[data-storefront-component="commerce.product-grid"]').count()>0;
+    engineChecks.E2=await engineRoot.locator('[data-storefront-structured="catalog-facets"]').count()>0
+      &&await engineRoot.locator('[data-storefront-commerce="product-grid"]').count()>0;
     engineRoot=await visitCandidate('product','engine-e7-e13-product');
-    engineChecks.E7=await engineRoot.locator('[data-storefront-component="commerce.key-specs"],[data-storefront-component="commerce.specification-groups"]').count()>0;
+    engineChecks.E7=await engineRoot.locator('[data-storefront-structured="key-specs"],[data-storefront-structured="specification-groups"]').count()>0;
     const productPurchaseVisible=await engineRoot.locator('[data-storefront-commerce="purchase-controls"]').count()>0;
     engineRoot=await visitCandidate('blog-index','engine-e10');
-    engineChecks.E10=await engineRoot.locator('[data-storefront-component="story.index"]').count()>0;
+    engineChecks.E10=await engineRoot.locator('[data-storefront-story="index"]').count()>0
+      &&await engineRoot.locator('[data-storefront-story="feature"]').count()>0;
     engineRoot=await visitCandidate('cart','engine-e13-cart');
     const cartVisible=await engineRoot.locator('[data-storefront-commerce="cart-summary"]').count()>0;
     engineRoot=await visitCandidate('checkout','engine-e13-checkout');
