@@ -5,14 +5,14 @@ const readJson=file=>JSON.parse(readFileSync(file,'utf8'));
 execFileSync(process.execPath,['scripts/shoperation-support-history-backfill.mjs','--check'],{stdio:'inherit',env:process.env});
 execFileSync(process.execPath,['scripts/shoperation-codebase-atlas.mjs','--check'],{stdio:'inherit',env:process.env});
 const codebaseAtlas=readJson('artifacts/shoperation-atlas/codebase-atlas.json');
-const knowledge=readJson('quality/knowledge/shoperation-quality-knowledge.v1.json'),ledger=readJson('quality/knowledge/failure-intake-ledger.v1.json'),riskPolicy=readJson('deploy/release-risk-policy.json'),scopePolicy=readJson('quality/knowledge/knowledge-scope-policy.v1.json'),developmentGuardPolicy=readJson('quality/knowledge/development-guard-policy.v1.json'),historicalBackfill=readJson('artifacts/shoperation-quality/support-history-backfill.json');
+const developmentPlan=readJson('quality/development/active-plan.json'),knowledge=readJson('quality/knowledge/shoperation-quality-knowledge.v1.json'),ledger=readJson('quality/knowledge/failure-intake-ledger.v1.json'),riskPolicy=readJson('deploy/release-risk-policy.json'),scopePolicy=readJson('quality/knowledge/knowledge-scope-policy.v1.json'),developmentGuardPolicy=readJson('quality/knowledge/development-guard-policy.v1.json'),historicalBackfill=readJson('artifacts/shoperation-quality/support-history-backfill.json');
 const forceFull=process.env.SHOPERATION_KNOWLEDGE_FORCE_FULL==='1';
 function globToRegExp(glob){let out='^';for(let i=0;i<glob.length;i+=1){const ch=glob[i];if(ch==='*'){const next=glob[i+1];if(next==='*'){i+=1;if(glob[i+1]==='/'){i+=1;out+='(?:.*/)?';}else out+='.*';}else out+='[^/]*';}else if(ch==='?')out+='[^/]';else if('\\.^$+{}()|[]'.includes(ch))out+=`\\${ch}`;else out+=ch;}return new RegExp(`${out}$`);}
 const neutral=riskPolicy.neutralPatterns.map(globToRegExp),matchers=riskPolicy.subsystems.map(item=>({...item,matchers:item.patterns.map(globToRegExp)}));
 const knowledgePrefixes=scopePolicy.knowledgeInfrastructurePrefixes;
 const dependencies=scopePolicy.dependencies;
 const git=args=>execFileSync('git',args,{encoding:'utf8'}).trim();
-const base=(()=>{const explicit=process.env.QUALITY_BASE_SHA?.trim()||process.env.RELEASE_BASE_SHA?.trim();if(explicit&&!/^0+$/.test(explicit)){try{git(['cat-file','-e',`${explicit}^{commit}`]);return explicit;}catch{}}for(const candidate of ['origin/main','main','HEAD^']){try{git(['cat-file','-e',`${candidate}^{commit}`]);return candidate;}catch{}}return null;})();
+const base=(()=>{const explicit=developmentPlan.changeBaseSha?.trim()||process.env.QUALITY_BASE_SHA?.trim()||process.env.RELEASE_BASE_SHA?.trim();if(explicit&&!/^0+$/.test(explicit)){try{git(['cat-file','-e',`${explicit}^{commit}`]);return explicit;}catch{}}for(const candidate of ['origin/main','main','HEAD^']){try{git(['cat-file','-e',`${candidate}^{commit}`]);return candidate;}catch{}}return null;})();
 const head=(process.env.QUALITY_HEAD_SHA??process.env.GITHUB_SHA??'HEAD').trim()||'HEAD';
 let changedFiles=[];if(base){try{changedFiles=git(['diff','--name-only','--diff-filter=ACMR',base,head]).split(/\r?\n/).filter(Boolean);}catch{}}
 const direct=new Set(),unresolvedFiles=[];let knowledgeInfrastructureChanged=false;
