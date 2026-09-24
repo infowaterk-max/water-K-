@@ -14,7 +14,8 @@
     "scripts/shoperation-incremental-replay.mjs",
     "scripts/lib/shoperation-",
     "scripts/shoperation-codebase-atlas.mjs",
-    "scripts/shoperation-support-history-backfill.mjs"
+    "scripts/shoperation-support-history-backfill.mjs",
+    "scripts/template-factory-product-owner-handoff.mjs"
   ],
   "dependencies": {
     "builder-template-system": [
