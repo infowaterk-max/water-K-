@@ -71,9 +71,9 @@ export function resolveDevelopmentScope({files=[],task='',forceFull=false}){
   const activeFailureIds=[...new Set([...knowledge.globalBaselineFailureIds,...globalIds,...tfIds])];
   return {directSubsystems:[...direct].sort(),intentSubsystems:[...intentSubsystems].sort(),impactedSubsystems:[...impacted].sort(),knowledgeInfrastructureChanged,fullReplay,unresolvedFiles,activeFailureIds};
 }
-export function getChangedFiles(){
+export function getChangedFiles({baseSha=null}={}){
   const git=args=>execFileSync('git',args,{encoding:'utf8'}).trim();
-  const explicit=process.env.DEVELOPMENT_BASE_SHA?.trim();
+  const explicit=String(baseSha??process.env.DEVELOPMENT_BASE_SHA??'').trim();
   let base=null;
   if(explicit&&!/^0+$/.test(explicit)){try{git(['cat-file','-e',`${explicit}^{commit}`]);base=explicit;}catch{}}
   if(!base)for(const candidate of ['HEAD^','origin/main','main']){try{git(['cat-file','-e',`${candidate}^{commit}`]);base=candidate;break;}catch{}}
