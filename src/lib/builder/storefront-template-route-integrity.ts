@@ -185,6 +185,23 @@ function rewritePreviewHref(href:string,input:{templateKey:string;templateVersio
   return`/storefront-template-preview?${params.toString()}`;
 }
 
+export function rewriteStorefrontTemplatePreviewBindingContext(
+  context:Record<string,unknown>,
+  input:{templateKey:string;templateVersion:number;viewport:'desktop'|'tablet'|'mobile';factoryCandidate?:boolean},
+):Record<string,unknown>{
+  const rewriteValue=(value:unknown,key:string|null=null):unknown=>{
+    if(Array.isArray(value))return value.map(item=>rewriteValue(item,null));
+    if(!value||typeof value!=='object'){
+      if(typeof value==='string'&&key&&(key==='href'||key.endsWith('Href')||key==='action'))return rewritePreviewHref(value,input);
+      return value;
+    }
+    const next:Record<string,unknown>={};
+    for(const[prop,item]of Object.entries(value as Record<string,unknown>))next[prop]=rewriteValue(item,prop);
+    return next;
+  };
+  return rewriteValue(structuredClone(context)) as Record<string,unknown>;
+}
+
 export function rewriteStorefrontTemplatePreviewLinks(
   page:StorefrontPageDocument,
   input:{templateKey:string;templateVersion:number;viewport:'desktop'|'tablet'|'mobile';factoryCandidate?:boolean},
