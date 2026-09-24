@@ -34,14 +34,15 @@ describe('Loot Vault v2 Factory canary recipe',()=>{
     expect(LOOT_VAULT_V2_FACTORY_RECIPE.media.assets.every(asset=>!asset.src.endsWith('.svg'))).toBe(true);
   });
 
-  it('builds the full 14-page v2 candidate with one registry call while keeping inherited pages',()=>{
+  it('builds the full 14-page v2 candidate with explicit template ownership',()=>{
     const build=buildRegisteredStorefrontTemplateFactoryCandidate('gaming.loot-vault');
     expect(build.package.pages).toHaveLength(14);
     expect(build.package.pages.every(page=>page.templateKey==='gaming.loot-vault'&&page.templateVersion===2)).toBe(true);
     expect(build.package.manifest.demoContent.namespace).toBe('gaming-loot-vault-v2');
-    expect(build.report.overriddenPageTypes).toEqual(expect.arrayContaining(['home','catalog','product','account','blog-index','blog-article']));
-    expect(build.report.overriddenPageTypes).toHaveLength(6);
-    expect(build.report.inheritedPageTypes).toHaveLength(8);
+    expect(build.report.overriddenPageTypes).toEqual(expect.arrayContaining(['home','catalog','product','cart','checkout','account','search','content','blog-index','blog-article','faq','contact','legal','not-found']));
+    expect(build.report.overriddenPageTypes).toHaveLength(14);
+    expect(build.report.inheritedPageTypes).toEqual([]);
+    expect(build.report.showroomEvidence.every(row=>row.entrypointPresent&&row.presentationAuthority==='gaming.loot-vault@2')).toBe(true);
     const account=build.package.pages.find(page=>page.pageType==='account')!;
     expect(account.metadata?.templateFactory).toMatchObject({ownership:'template',category:'gaming'});
     expect(account.metadata).toMatchObject({authComposition:'template-owned-v1',authPreset:'loot-vault-v2-vault-access'});
