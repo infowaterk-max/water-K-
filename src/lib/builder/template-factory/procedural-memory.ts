@@ -1,4 +1,4 @@
-import type {StorefrontBuilderPageType} from '@/lib/builder/storefront-foundation';
+import {STOREFRONT_PAGE_TYPES,type StorefrontBuilderPageType} from '@/lib/builder/storefront-foundation';
 import type {StorefrontComponentNode} from '@/lib/builder/storefront-runtime';
 import type {
   StorefrontTemplateFactoryBuild,
@@ -11,7 +11,7 @@ import {
   TEMPLATE_FACTORY_KNOWLEDGE_VERSION,
 } from '@/lib/builder/template-factory/knowledge-registry';
 
-export const TEMPLATE_FACTORY_PROCEDURAL_MEMORY_VERSION='shoporation.template-factory-procedural-memory.v1' as const;
+export const TEMPLATE_FACTORY_PROCEDURAL_MEMORY_VERSION='shoporation.template-factory-procedural-memory.v2' as const;
 
 export type TemplateFactoryMaturityStage=
   |'scaffold'
@@ -43,10 +43,16 @@ export type TemplateFactoryJourneyProof={
   returnTargetPreserved:boolean;
   deploymentReady:boolean;
   handedOffUrlMatchesProvenance:boolean;
+  navigationCompletenessPassed:boolean;
+  routeConvergencePassed:boolean;
+  presentationContinuityPassed:boolean;
+  accountSurfacePassed:boolean;
+  engineDemoIntegrationPassed:boolean;
+  placeholderContentPassed:boolean;
 };
 
 export type TemplateFactoryAcceptanceProof={
-  contract:'shoporation.template-factory-acceptance-proof.v1';
+  contract:'shoporation.template-factory-acceptance-proof.v2';
   knowledgeVersion:typeof TEMPLATE_FACTORY_KNOWLEDGE_VERSION;
   proceduralMemoryVersion:typeof TEMPLATE_FACTORY_PROCEDURAL_MEMORY_VERSION;
   provenance:{
@@ -75,6 +81,9 @@ export function evaluateTemplateFactoryPreflight(recipe:StorefrontTemplateFactor
   if(!recipe.shell.headerNode)issues.push(preflightIssue('TF_PREFLIGHT_TEMPLATE_HEADER_REQUIRED','shell.headerNode','Factory recipes must provide a template-owned canonical header.'));
   if(!recipe.shell.footerNode)issues.push(preflightIssue('TF_PREFLIGHT_TEMPLATE_FOOTER_REQUIRED','shell.footerNode','Factory recipes must provide a template-owned canonical footer.'));
   if(!recipe.pageOverrides?.account)issues.push(preflightIssue('TF_PREFLIGHT_ACCOUNT_OWNERSHIP_REQUIRED','pageOverrides.account','Account/auth presentation is template-owned and may not be inherited from the category foundation.'));
+  for(const pageType of STOREFRONT_PAGE_TYPES){
+    if(!recipe.pageOverrides?.[pageType])issues.push(preflightIssue('TF_PREFLIGHT_COMPLETE_STOREFRONT_OWNERSHIP_REQUIRED',`pageOverrides.${pageType}`,'Every canonical shopper Page Schema must be template-owned before a Factory candidate can enter Product Owner acceptance.'));
+  }
   for(const pageType of recipe.reference.requiredPageTypes){
     if(!recipe.pageOverrides?.[pageType])issues.push(preflightIssue('TF_PREFLIGHT_REFERENCE_PAGE_OWNERSHIP_REQUIRED',`pageOverrides.${pageType}`,'Reference-critical pages must be explicitly owned before implementation proceeds.'));
   }
@@ -139,6 +148,15 @@ export function replayTemplateFactoryKnownFailures(build:StorefrontTemplateFacto
     {failureId:'TF-KF-004',passed:noFoundationLeak&&shellStable,evidence:[`foundationLeak=${noFoundationLeak?'none':'detected'}`,`shell=${shellStable?'stable':'drift'}`]},
     {failureId:'TF-KF-005',passed:identityOk&&provenanceOk,evidence:[`candidateIdentity=${identityOk?'pass':'fail'}`,`provenance=${provenanceOk?'pass':'fail'}`]},
     {failureId:'TF-KF-006',passed:responsiveStaticOk,evidence:[`pageCoverage=${responsiveStaticOk?'pass':'fail'}`]},
+    {failureId:'TF-KF-016',passed:build.report.inheritedPageTypes.length===0&&!codes.has('SHOWROOM_NAVIGATION_INCOMPLETE'),evidence:[`inheritedPages=${build.report.inheritedPageTypes.length}`,`navigation=${codes.has('SHOWROOM_NAVIGATION_INCOMPLETE')?'fail':'pass'}`]},
+    {failureId:'TF-KF-017',passed:!codes.has('SHOWROOM_ROUTE_PRESENTATION_UNMAPPED'),evidence:[`routeConvergence=${codes.has('SHOWROOM_ROUTE_PRESENTATION_UNMAPPED')?'fail':'pass'}`]},
+    {failureId:'TF-KF-018',passed:!codes.has('SHOWROOM_PRESENTATION_AUTHORITY_MISMATCH')&&noFoundationLeak,evidence:[`presentation=${codes.has('SHOWROOM_PRESENTATION_AUTHORITY_MISMATCH')?'fail':'pass'}`,`foundationLeak=${noFoundationLeak?'none':'detected'}`]},
+    {failureId:'TF-KF-019',passed:!codes.has('SHOWROOM_ROUTE_PRESENTATION_UNMAPPED')&&!codes.has('SHOWROOM_PRESENTATION_AUTHORITY_MISMATCH'),evidence:[`businessRoute=${codes.has('SHOWROOM_ROUTE_PRESENTATION_UNMAPPED')?'fail':'pass'}`,`presentation=${codes.has('SHOWROOM_PRESENTATION_AUTHORITY_MISMATCH')?'fail':'pass'}`]},
+    {failureId:'TF-KF-020',passed:!codes.has('SHOWROOM_ACCOUNT_NAVIGATION_EMPTY')&&!codes.has('SHOWROOM_ACCOUNT_SURFACE_MISSING'),evidence:[`accountNavigation=${codes.has('SHOWROOM_ACCOUNT_NAVIGATION_EMPTY')?'empty':'present'}`,`accountSurfaces=${codes.has('SHOWROOM_ACCOUNT_SURFACE_MISSING')?'incomplete':'complete'}`]},
+    {failureId:'TF-KF-021',passed:!codes.has('SHOWROOM_ENGINE_DEMO_MISSING'),evidence:[`engineDemo=${codes.has('SHOWROOM_ENGINE_DEMO_MISSING')?'fail':'pass'}`]},
+    {failureId:'TF-KF-022',passed:!codes.has('SHOWROOM_ENGINE_DEMO_MISSING')&&!codes.has('SHOWROOM_PAGE_EMPTY'),evidence:[`capabilityDemo=${codes.has('SHOWROOM_ENGINE_DEMO_MISSING')||codes.has('SHOWROOM_PAGE_EMPTY')?'fail':'pass'}`]},
+    {failureId:'TF-KF-023',passed:!codes.has('SHOWROOM_ROUTE_PRESENTATION_UNMAPPED')&&!codes.has('SHOWROOM_NAVIGATION_INCOMPLETE')&&!codes.has('SHOWROOM_PRESENTATION_AUTHORITY_MISMATCH'),evidence:[`journeyIdentity=${codes.has('SHOWROOM_ROUTE_PRESENTATION_UNMAPPED')||codes.has('SHOWROOM_NAVIGATION_INCOMPLETE')||codes.has('SHOWROOM_PRESENTATION_AUTHORITY_MISMATCH')?'fragmented':'continuous'}`]},
+    {failureId:'TF-KF-024',passed:!codes.has('SHOWROOM_PLACEHOLDER_CONTENT'),evidence:[`placeholderContent=${codes.has('SHOWROOM_PLACEHOLDER_CONTENT')?'detected':'clean'}`]},
   ];
   return Object.freeze(results);
 }
@@ -157,7 +175,13 @@ const journeyPassed=(journey:TemplateFactoryJourneyProof)=>journey.exactHeadBuil
   &&journey.templateAwareAuthPassed
   &&journey.returnTargetPreserved
   &&journey.deploymentReady
-  &&journey.handedOffUrlMatchesProvenance;
+  &&journey.handedOffUrlMatchesProvenance
+  &&journey.navigationCompletenessPassed
+  &&journey.routeConvergencePassed
+  &&journey.presentationContinuityPassed
+  &&journey.accountSurfacePassed
+  &&journey.engineDemoIntegrationPassed
+  &&journey.placeholderContentPassed;
 
 export function createTemplateFactoryAcceptanceProof(input:{
   build:StorefrontTemplateFactoryBuild;
@@ -177,7 +201,7 @@ export function createTemplateFactoryAcceptanceProof(input:{
   const blockers=[...buildBlockers,...replayFailures];
   if(staticStage==='visually-ready'&&!journeyOk)blockers.push('PRODUCT_OWNER_JOURNEY_NOT_PROVEN');
   return{
-    contract:'shoporation.template-factory-acceptance-proof.v1',
+    contract:'shoporation.template-factory-acceptance-proof.v2',
     knowledgeVersion:TEMPLATE_FACTORY_KNOWLEDGE_VERSION,
     proceduralMemoryVersion:TEMPLATE_FACTORY_PROCEDURAL_MEMORY_VERSION,
     provenance:{
@@ -207,8 +231,8 @@ export function assertTemplateFactoryProceduralMemory(build:StorefrontTemplateFa
   if(failed)throw new Error(`TEMPLATE_FACTORY_KNOWN_FAILURE_REPLAY:${failed.failureId}`);
 }
 
-export function requiredTemplateFactoryOwnedPages(recipe:StorefrontTemplateFactoryRecipe):readonly StorefrontBuilderPageType[]{
-  return Object.freeze([...new Set<StorefrontBuilderPageType>(['account',...recipe.reference.requiredPageTypes])]);
+export function requiredTemplateFactoryOwnedPages(_recipe:StorefrontTemplateFactoryRecipe):readonly StorefrontBuilderPageType[]{
+  return Object.freeze([...STOREFRONT_PAGE_TYPES]);
 }
 
 export function isRecurringFailureSharedFixRequired(failureId:string){
