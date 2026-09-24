@@ -1,5 +1,5 @@
-import globalKnowledgeJson from '../../../../quality/knowledge/shoperation-quality-knowledge.v1.json';
-import intakeLedgerJson from '../../../../quality/knowledge/failure-intake-ledger.v1.json';
+import globalKnowledgeJson from '../../../quality/knowledge/shoperation-quality-knowledge.v1.json';
+import intakeLedgerJson from '../../../quality/knowledge/failure-intake-ledger.v1.json';
 import {TEMPLATE_FACTORY_AUTHORITY_GRAPH,TEMPLATE_FACTORY_KNOWN_FAILURES} from '@/lib/builder/template-factory/knowledge-registry';
 
 export const SHOPERATION_QUALITY_KNOWLEDGE_VERSION='shoporation.quality-knowledge.v1' as const;

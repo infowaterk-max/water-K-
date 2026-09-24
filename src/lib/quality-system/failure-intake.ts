@@ -1,5 +1,5 @@
-import signaturesJson from '../../../../quality/knowledge/failure-signatures.v1.json';
-import ledgerJson from '../../../../quality/knowledge/failure-intake-ledger.v1.json';
+import signaturesJson from '../../../quality/knowledge/failure-signatures.v1.json';
+import ledgerJson from '../../../quality/knowledge/failure-intake-ledger.v1.json';
 import {getShoperationKnownFailure} from '@/lib/quality-system/shoperation-knowledge';
 
 export type ShoperationFailureClassification='matched-known-failure'|'candidate-new-failure'|'template-specific'|'duplicate'|'rejected'|'needs-review';
