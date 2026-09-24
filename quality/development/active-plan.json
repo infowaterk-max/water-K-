@@ -1,41 +1,55 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-954518E4",
-  "task": "Build admin Platform Incident Center for incident triage and repair proposal review.",
+  "taskId": "DEV-9FD06980",
+  "task": "Correct release infrastructure subsystem classification for admin navigation authority.",
   "status": "ready-for-implementation",
-  "guardDigest": "954518e4",
+  "guardDigest": "9fd06980",
   "plannedFilePatterns": [
     "quality/development/active-plan.json",
-    "src/lib/navigation/admin-ia.ts",
-    "src/app/admin/platform/incidents/layout.tsx",
-    "src/app/admin/platform/incidents/page.tsx",
-    "src/components/admin/platform-incident-center.tsx",
-    "src/app/api/platform/incidents/[id]/repair/route.ts",
-    "src/lib/incidents/service.ts",
-    "tests/incident-intelligence-platform-center.test.ts"
+    "deploy/release-risk-policy.json",
+    "tests/release-risk-navigation-classification.test.ts"
   ],
   "expectedSubsystems": [
     "admin-operations",
-    "incident-intelligence"
+    "release-infrastructure"
   ],
   "expectedKnownFailureIds": [
     "SQ-KF-001",
     "SQ-KF-002",
+    "SQ-KF-003",
+    "SQ-KF-004",
+    "SQ-KF-006",
+    "SQ-KF-008",
+    "SQ-KF-009",
     "SQ-KF-011",
     "SQ-KF-012",
     "SQ-KF-013",
     "SQ-KF-014",
     "SQ-KF-016",
     "SQ-KF-017",
-    "SQ-KF-022"
+    "SQ-KF-018",
+    "SQ-KF-020",
+    "SQ-KF-022",
+    "TF-KF-001",
+    "TF-KF-005",
+    "TF-KF-007",
+    "TF-KF-009",
+    "TF-KF-010",
+    "TF-KF-011",
+    "TF-KF-013",
+    "TF-KF-014",
+    "TF-KF-015"
   ],
   "acknowledgedNegativeKnowledgeIds": [
     "SQ-NK-001",
+    "SQ-NK-002",
+    "SQ-NK-003",
+    "SQ-NK-005",
     "SQ-NK-006",
     "SQ-NK-008",
-    "SQ-NK-012",
-    "SQ-NK-013"
+    "SQ-NK-010",
+    "SQ-NK-012"
   ],
   "exceptions": [],
-  "notes": "Platform Incident Center implemented after Plan Before Code PASS. Platform-only queue reuses canonical APIs, manual triage is audit-backed, and repair controls create proposal-mode run evidence only; code repair remains branch/PR-only and never direct production mutation."
+  "notes": "Plan-only policy repair. Canonical admin navigation files must classify as admin-operations rather than unresolved scope. No risk-budget limits are relaxed."
 }
