@@ -1,5 +1,5 @@
 import { execFileSync } from 'node:child_process';
-import { readFileSync, mkdirSync, writeFileSync } from 'node:fs';
+import { existsSync, readFileSync, mkdirSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 
 const policyPath = path.resolve('deploy/release-risk-policy.json');
@@ -109,6 +109,34 @@ const scoredSubsystems = [...new Map(
 const score = scoredSubsystems.reduce((sum, item) => sum + item.points, 0);
 const highRisk = scoredSubsystems.filter((item) => item.risk === 'high');
 const violations = [];
+const head = git(['rev-parse', 'HEAD']);
+const changeImpactPath = path.resolve('artifacts/shoperation-quality/change-impact.json');
+let changeImpact = null;
+if (existsSync(changeImpactPath)) {
+  try {
+    changeImpact = JSON.parse(readFileSync(changeImpactPath, 'utf8'));
+  } catch {
+    violations.push('Atlas change-impact evidence is unreadable');
+  }
+} else {
+  violations.push('Atlas change-impact evidence unavailable');
+}
+if (changeImpact) {
+  if (changeImpact.contract !== 'shoporation.change-impact.v1') {
+    violations.push(`Atlas change-impact contract invalid: ${changeImpact.contract ?? 'missing'}`);
+  }
+  if (changeImpact.decision !== 'PASS') {
+    violations.push('Atlas change-impact decision is not PASS');
+  }
+  if (changeImpact.sourceCommit && changeImpact.sourceCommit !== head) {
+    violations.push(`Atlas change-impact source SHA ${changeImpact.sourceCommit} does not match release HEAD ${head}`);
+  }
+  const expectedImpactFiles = changedFiles.filter((file) => file !== 'quality/development/active-plan.json').sort();
+  const evidencedImpactFiles = [...(changeImpact.changedFiles ?? [])].sort();
+  if (JSON.stringify(expectedImpactFiles) !== JSON.stringify(evidencedImpactFiles)) {
+    violations.push('Atlas change-impact file set does not match the release diff');
+  }
+}
 
 if (score > policy.maxPoints) {
   violations.push(`risk score ${score} exceeds maximum ${policy.maxPoints}`);
@@ -132,13 +160,25 @@ const report = {
   policyVersion: policy.version,
   base,
   mergeBase,
-  head: git(['rev-parse', 'HEAD']),
+  head,
   score,
   maxPoints: policy.maxPoints,
   subsystemCount: scoredSubsystems.length,
   maxSubsystems: policy.maxSubsystems,
   subsystems: scoredSubsystems,
   changedFiles: classified,
+  atlasClosure: changeImpact ? {
+    contract: changeImpact.contract,
+    sourceCommit: changeImpact.sourceCommit ?? null,
+    directDomains: changeImpact.directDomains ?? [],
+    directAuthorities: changeImpact.directAuthorities ?? [],
+    domains: changeImpact.closure?.domains ?? [],
+    authorities: changeImpact.closure?.authorities ?? [],
+    truthKeys: changeImpact.closure?.truthKeys ?? [],
+    evidenceObligations: changeImpact.closure?.evidenceObligations ?? [],
+    knownFailureIds: changeImpact.closure?.knownFailureIds ?? [],
+    regressionTests: changeImpact.closure?.regressionTests ?? [],
+  } : null,
   decision: violations.length === 0 ? 'PASS' : 'BLOCK',
   violations,
 };
