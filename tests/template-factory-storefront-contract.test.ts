@@ -36,6 +36,32 @@ describe('Template Factory complete storefront contract',()=>{
     expect(serialized).toContain('Kívánságlista');
   });
 
+  it('keeps the Loot Vault contact page functional while adding a coded location and company-information split',()=>{
+    const build=buildRegisteredStorefrontTemplateFactoryCandidate('gaming.loot-vault');
+    const contact=build.package.pages.find(page=>page.pageType==='contact')!;
+    const serialized=JSON.stringify(contact);
+    expect(serialized).toContain('loot-v2-contact-location-grid');
+    expect(serialized).toContain('loot-v2-contact-map-stage');
+    expect(serialized).toContain('1054 Budapest, Arany Kocka utca 12.');
+    expect(serialized).toContain('Loot Vault Collectibles Kft.');
+    expect(serialized).toContain('+36 30 555 0187');
+    expect(serialized).toContain('ugyfelszolgalat@lootvault.hu');
+    expect(serialized).toContain('support.contact-form');
+    expect(serialized).not.toContain('<iframe');
+    const mapCard=contact.sections
+      .flatMap(section=>section.children??[])
+      .flatMap(node=>node.children??[])
+      .find(node=>node.id==='loot-v2-contact-map-card');
+    const companyCard=contact.sections
+      .flatMap(section=>section.children??[])
+      .flatMap(node=>node.children??[])
+      .find(node=>node.id==='loot-v2-contact-company-card');
+    expect(mapCard?.responsive?.desktop?.gridSpan).toBe(7);
+    expect(mapCard?.responsive?.mobile?.gridSpan).toBe(12);
+    expect(companyCard?.responsive?.desktop?.gridSpan).toBe(5);
+    expect(companyCard?.responsive?.mobile?.gridSpan).toBe(12);
+  });
+
   it('demonstrates E1 E2 E7 E10 and E13 through actual shared storefront components',()=>{
     const build=buildRegisteredStorefrontTemplateFactoryCandidate('gaming.loot-vault');
     const serialized=JSON.stringify(build.package);
