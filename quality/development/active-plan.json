@@ -65,5 +65,5 @@
     "SQ-NK-013"
   ],
   "exceptions": [],
-  "notes": "Runtime/API implementation complete on prior commit. This neutral follow-up exists only to obtain exact-head CI evidence for the full Incident Intelligence API tree after the initial push failed to dispatch a CI run."
+  "notes": "Runtime/API implementation complete. TypeScript narrowed the heterogeneous runbook registry too aggressively; normalized the selected entry to the shared IncidentRunbook contract without changing runtime policy."
 }

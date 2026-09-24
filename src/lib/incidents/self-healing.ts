@@ -20,8 +20,9 @@ export const INCIDENT_RUNBOOKS=Object.freeze({
 export type IncidentRunbookKey=keyof typeof INCIDENT_RUNBOOKS;
 
 export function resolveSelfHealingPolicy(input:{runbookKey:string;requestedMode:SelfHealingMode;routePath?:string|null}){
-  const runbook=INCIDENT_RUNBOOKS[input.runbookKey as IncidentRunbookKey];
-  if(!runbook)throw new Error('INCIDENT_RUNBOOK_UNKNOWN');
+  const selected=INCIDENT_RUNBOOKS[input.runbookKey as IncidentRunbookKey];
+  if(!selected)throw new Error('INCIDENT_RUNBOOK_UNKNOWN');
+  const runbook:IncidentRunbook=selected;
   if(!runbook.allowedModes.includes(input.requestedMode))throw new Error('INCIDENT_RUNBOOK_MODE_FORBIDDEN');
   if(input.requestedMode==='auto'&&(!runbook.autoAllowed||runbook.risk!=='low'||runbook.repairKind==='code_pr'))throw new Error('INCIDENT_AUTO_HEAL_FORBIDDEN');
   if(runbook.requiresRoutePath&&(!input.routePath||!/^\/[^?#]*$/.test(input.routePath)))throw new Error('INCIDENT_RUNBOOK_ROUTE_REQUIRED');
