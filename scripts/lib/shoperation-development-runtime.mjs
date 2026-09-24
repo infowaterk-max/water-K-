@@ -55,7 +55,7 @@ export function getAllFailures(){
 export function resolveDevelopmentScope({files=[],task='',forceFull=false}){
   const direct=new Set(),unresolvedFiles=[],intentSubsystems=new Set();let knowledgeInfrastructureChanged=false;
   for(const file of files){
-    if(scopePolicy.knowledgeInfrastructurePrefixes.some(prefix=>file.startsWith(prefix)))knowledgeInfrastructureChanged=true;
+    if(scopePolicy.knowledgeInfrastructurePrefixes.some(prefix=>file.startsWith(prefix))){knowledgeInfrastructureChanged=true;continue;}
     if(isNeutralFile(file))continue;
     const hits=subsystemMatchers.filter(item=>item.matchers.some(matcher=>matcher.test(file)));
     if(!hits.length)unresolvedFiles.push(file);
