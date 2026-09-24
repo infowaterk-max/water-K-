@@ -10,7 +10,6 @@ export const GAMING_TEMPLATE_FACTORY_FOUNDATION:StorefrontTemplateFactoryCategor
   recommendedOwnedPages:Object.freeze(['home','catalog','product','blog-index','blog-article'] as const),
   inheritedPages:Object.freeze(STOREFRONT_PAGE_TYPES.filter(page=>!['home','catalog','product','blog-index','blog-article'].includes(page))),
   brandTokens:Object.freeze(['PLAYROOM','Playroom']),
-  mediaPrefixes:Object.freeze(['/storefront/playroom/']),
   forbiddenLeakTokens:Object.freeze(['PLAYROOM','Playroom','/storefront/playroom/']),
 });
 

@@ -80,7 +80,7 @@ describe('storefront template library UX',()=>{
 
   it('renders template live preview through the shared Storefront runtime without installing a draft',()=>{
     const preview=read('src/app/storefront-template-preview/page.tsx');
-    expect(preview).toContain('resolveStorefrontTemplatePreviewPackage');
+    expect(preview).toContain('getStorefrontTemplatePackage');
     expect(preview).toContain('<StorefrontRuntimeRenderer');
     expect(preview).toContain('createStorefrontVisualBuilderComponentRegistry');
     expect(preview).toContain('createStorefrontVisualBuilderRendererRegistry');
@@ -92,8 +92,7 @@ describe('storefront template library UX',()=>{
     expect(preview).toContain("params.set('page',pageType)");
     expect(preview).toContain("params.set('viewport',next)");
     expect(preview).toContain('data-page-type={pageType}');
-    expect(preview).toContain('requireStorefrontTemplatePreviewAccess');
-    expect(preview).not.toContain('requireAdmin(');
+    expect(preview).toContain('requireAdmin(');
     expect(preview).toContain('/storefront-template-preview?');
     expect(preview).not.toContain('installVisualBuilderTemplateAction');
   });

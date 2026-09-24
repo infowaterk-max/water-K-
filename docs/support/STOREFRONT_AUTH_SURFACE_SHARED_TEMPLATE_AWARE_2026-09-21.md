@@ -22,17 +22,3 @@ This change is presentation/composition only. It does not replace Supabase authe
 
 ## Playroom acceptance
 Playroom is the reference implementation for human visual acceptance. Its signed-out account entry must use the Playroom header/footer and Playroom design tokens. The old generic beige storefront login is not an accepted Playroom state.
-
-
-## Template Factory preview extension — 2026-09-23
-The original shared auth invariant covered active/published storefront runtime only. Template Factory Product Owner preview is tenant-independent, so routing preview authentication through `/fiokom` lost the candidate template identity and could fall back to the active storefront or generic auth surface.
-
-Canonical extension:
-1. Product Owner preview authentication carries `templateKey/templateVersion` explicitly.
-2. `StorefrontAccountShell` can resolve the requested template account runtime directly from the template package without an active webshop instance.
-3. The preview login route uses the same shared `AuthForm` behavior inside that template-owned account composition.
-4. Preview authentication is login-only; it must not offer customer registration.
-5. `requireAdmin` routes `/storefront-template-preview` authentication to the template-aware preview login entry, never to generic `/fiokom`.
-6. Regression authority must cover the full template catalog, not only Playroom or an installed tenant.
-
-This is a shared Factory/runtime invariant. A future template-specific auth mismatch is a release-blocking shared regression, not a local polish item.

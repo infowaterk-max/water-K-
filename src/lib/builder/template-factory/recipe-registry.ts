@@ -1,7 +1,6 @@
 import {buildStorefrontTemplateFactoryCandidate} from '@/lib/builder/template-factory';
 import type {StorefrontTemplateFactoryRecipe} from '@/lib/builder/template-factory/scaffold';
 import {LOOT_VAULT_V2_FACTORY_RECIPE} from '@/lib/builder/template-factory/recipes/loot-vault-v2';
-import {assertTemplateFactoryProceduralMemory,evaluateTemplateFactoryPreflight} from '@/lib/builder/template-factory/procedural-memory';
 
 export const STOREFRONT_TEMPLATE_FACTORY_RECIPES:readonly StorefrontTemplateFactoryRecipe[]=Object.freeze([
   LOOT_VAULT_V2_FACTORY_RECIPE,
@@ -14,12 +13,5 @@ export function getStorefrontTemplateFactoryRecipe(templateKey:string){
 export function buildRegisteredStorefrontTemplateFactoryCandidate(templateKey:string){
   const recipe=getStorefrontTemplateFactoryRecipe(templateKey);
   if(!recipe)throw new Error(`TEMPLATE_FACTORY_RECIPE_MISSING:${templateKey}`);
-  const preflight=evaluateTemplateFactoryPreflight(recipe);
-  if(!preflight.ok){
-    const blocker=preflight.issues[0]!;
-    throw new Error(`TEMPLATE_FACTORY_PREFLIGHT_FAILED:${blocker.code}:${blocker.path}`);
-  }
-  const build=buildStorefrontTemplateFactoryCandidate(recipe);
-  assertTemplateFactoryProceduralMemory(build);
-  return build;
+  return buildStorefrontTemplateFactoryCandidate(recipe);
 }

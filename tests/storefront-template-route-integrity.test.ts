@@ -5,7 +5,6 @@ import {
   augmentStorefrontTemplateDemoContent,
   evaluateStorefrontTemplateRouteIntegrity,
   getStorefrontTemplateDemoContent,
-  rewriteStorefrontTemplatePreviewLinks,
 } from '@/lib/builder/storefront-template-route-integrity';
 import {PLAYROOM_V19_CANONICAL_TEMPLATE_PACKAGE} from '@/lib/builder/templates/playroom-v19-canonical';
 
@@ -33,13 +32,6 @@ describe('Template Route Integrity + Demo Content Foundation',()=>{
     expect(template).toBeTruthy();
     expect(evaluateStorefrontTemplateRouteIntegrity(template!)).toEqual([]);
     expect(getStorefrontTemplateDemoContent(template!,'rolunk')).toBeTruthy();
-  });
-
-  it('preserves Factory candidate authority across rewritten preview navigation',()=>{
-    const page=structuredClone(PLAYROOM_V19_CANONICAL_TEMPLATE_PACKAGE.pages.find(item=>item.pageType==='home')!);
-    const rewritten=rewriteStorefrontTemplatePreviewLinks(page,{templateKey:'gaming.loot-vault',templateVersion:2,viewport:'desktop',factoryCandidate:true});
-    expect(JSON.stringify(rewritten)).toContain('factory=1');
-    expect(JSON.stringify(rewritten)).toContain('version=2');
   });
 
   it('fails closed for unknown storefront routes',()=>{

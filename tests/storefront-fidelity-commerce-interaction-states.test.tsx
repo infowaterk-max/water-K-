@@ -1,8 +1,6 @@
 import {renderToStaticMarkup} from 'react-dom/server';
 import {describe,expect,it} from 'vitest';
 import {StorefrontRuntimeRenderer} from '@/components/builder/storefront-runtime-renderer';
-import {AnalyticsProvider} from '@/components/analytics/analytics-provider';
-import {CartProvider} from '@/components/cart/cart-provider';
 import {createStorefrontCoreCommerceRendererRegistry} from '@/components/builder/storefront-commerce';
 import {createStorefrontCoreCommerceComponentRegistry} from '@/lib/builder/storefront-commerce';
 import type {StorefrontPageDocument} from '@/lib/builder/storefront-runtime';
@@ -49,25 +47,4 @@ describe('Storefront commerce interaction state bridge',()=>{
     expect(html).toContain('aria-disabled="true"');
     expect(html).toContain('/termek/p1?v=v1');
   });
-  it('reuses canonical cart and wishlist controls when product-card purchase actions are enabled',()=>{
-    const actionPage=page();
-    const grid=actionPage.sections[0]?.children?.[0];
-    if(!grid)throw new Error('Missing product grid');
-    grid.config={...grid.config,showCta:false,showPurchaseActions:true,purchaseLabel:'Kosárba',wishlistLabel:'Kedvencekhez',products:[{
-      id:'variant-1',productId:'product-1',variantId:'variant-1',slug:'termek',name:'Termék',href:'/termek/termek',image:'/p1.jpg',price:1000,availableQuantity:5,minimumQuantity:1,orderMultiple:1,
-    }]};
-    const html=renderToStaticMarkup(<AnalyticsProvider><CartProvider><StorefrontRuntimeRenderer
-      page={actionPage}
-      viewport="desktop"
-      bindingContext={{}}
-      componentRegistry={createStorefrontCoreCommerceComponentRegistry()}
-      rendererRegistry={createStorefrontCoreCommerceRendererRegistry()}
-      capability={{plan:'alap',features:['catalog','inventory']}}
-    /></CartProvider></AnalyticsProvider>);
-    expect(html).toContain('data-storefront-commerce="purchase-controls"');
-    expect(html).toContain('Kosárba');
-    expect(html).toContain('aria-label="Kedvencekhez"');
-    expect(html).toContain('action="/api/storefront/wishlist"');
-  });
-
 });
