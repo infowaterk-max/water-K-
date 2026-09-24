@@ -31,5 +31,5 @@
     "SQ-NK-013"
   ],
   "exceptions": [],
-  "notes": "Plan-only DB repair. Wording deliberately avoids the current bare `mpl` intent-token false positive; the matcher defect will be repaired separately in Quality Knowledge."
+  "notes": "DB repair implemented after Plan Before Code PASS. Added explicit regression for valid PL/pgSQL dollar quoting in the two incident RPCs that previously produced a false-green static test result."
 }

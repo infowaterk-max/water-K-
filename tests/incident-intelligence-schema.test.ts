@@ -25,6 +25,16 @@ describe('Incident Intelligence database foundation v1',()=>{
     expect(sql).toContain('after insert or update on public.platform_repair_requests');
     expect(sql).toContain('after insert or update on public.platform_self_healing_runs');
   });
+  it('uses valid PL/pgSQL dollar quoting for every new incident RPC',()=>{
+    for(const fn of['triage_platform_incident_v2','create_customer_incident_report_v1']){
+      const start=sql.indexOf(`create or replace function public.${fn}`);
+      expect(start,fn).toBeGreaterThanOrEqual(0);
+      const tail=sql.slice(start,start+6500);
+      expect(tail,fn).toContain('as $');
+      expect(tail,fn).toContain('$;');
+      expect(tail,fn).not.toContain('as $\\ndeclare');
+    }
+  });
   it('keeps incident mutation behind service-role RPC authority',()=>{
     for(const fn of['create_platform_incident_v1','create_customer_incident_report_v1','triage_platform_incident_v1','create_incident_repair_request_v1','create_self_healing_run_v1']){
       expect(sql).toContain(`grant execute on function public.${fn}`);
