@@ -26,7 +26,7 @@ describe('Factory Product Owner preview access authority',()=>{
 
   it('fails closed when auth configuration, user identity, admin client or authority lookup fails',()=>{
     expect(access).toContain("redirect('/fiokom?reason=admin-config')");
-    expect(access).toContain("redirect('/fiokom?reason=login&next=");
+    expect(access).toContain('redirect(`/fiokom?reason=login&next=');
     expect(access).toContain("catch{redirect('/fiokom?reason=forbidden')}");
     expect(access).toContain("if(bindingError)redirect('/fiokom?reason=forbidden')");
     expect(access.trim().endsWith("redirect('/fiokom?reason=forbidden');\n}")).toBe(true);
