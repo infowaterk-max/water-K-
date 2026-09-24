@@ -71,13 +71,25 @@ function resolveBase() {
   throw new Error('RELEASE_RISK_BASE_UNAVAILABLE');
 }
 
+function resolveHead() {
+  const explicit = process.env.RELEASE_HEAD_SHA?.trim();
+  if (explicit && !/^0+$/.test(explicit)) {
+    try {
+      git(['cat-file', '-e', `${explicit}^{commit}`]);
+      return explicit;
+    } catch {}
+  }
+  return git(['rev-parse', 'HEAD']);
+}
+
 const base = resolveBase();
+const releaseHead = resolveHead();
 let mergeBase = base;
 try {
-  mergeBase = git(['merge-base', 'HEAD', base]);
+  mergeBase = git(['merge-base', releaseHead, base]);
 } catch {}
 
-const diff = git(['diff', '--name-only', '--diff-filter=ACMR', `${mergeBase}..HEAD`]);
+const diff = git(['diff', '--name-only', '--diff-filter=ACMR', `${mergeBase}..${releaseHead}`]);
 const changedFiles = diff ? diff.split('\n').filter(Boolean) : [];
 
 const classified = [];
@@ -109,7 +121,7 @@ const scoredSubsystems = [...new Map(
 const score = scoredSubsystems.reduce((sum, item) => sum + item.points, 0);
 const highRisk = scoredSubsystems.filter((item) => item.risk === 'high');
 const violations = [];
-const head = git(['rev-parse', 'HEAD']);
+const head = releaseHead;
 const changeImpactPath = path.resolve('artifacts/shoperation-quality/change-impact.json');
 let changeImpact = null;
 if (existsSync(changeImpactPath)) {
