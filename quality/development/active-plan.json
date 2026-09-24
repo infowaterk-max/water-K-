@@ -65,11 +65,7 @@
     "TF-KF-024"
   ],
   "acknowledgedNegativeKnowledgeIds": [
-    "SQ-NK-010",
-    "SQ-NK-011",
-    "SQ-NK-012",
-    "SQ-NK-014",
-    "SQ-NK-015"
+    "SQ-NK-012"
   ],
   "exceptions": [],
   "notes": "Second System Soul transaction. Expands the already-canonical domain registry into enforceable Domain Foundations, including explicit dependency contracts. No runtime commerce behavior, database schema, production workflow, or Release Risk Budget threshold changes.",
