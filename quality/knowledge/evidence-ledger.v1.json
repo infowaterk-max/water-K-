@@ -1,0 +1,106 @@
+{
+  "contract": "shoporation.evidence-ledger.v1",
+  "version": 1,
+  "appendOnly": true,
+  "evidenceTypes": [
+    "implementation",
+    "contract",
+    "test",
+    "ci",
+    "acceptance",
+    "deployment",
+    "runtime"
+  ],
+  "records": [
+    {
+      "id": "EVD-ARCH-CONSTITUTION-MAIN",
+      "capabilityId": "CAP-ARCH-CONSTITUTION",
+      "stateProved": "production",
+      "sourceSha": "e718363abde18553ce8f5c4a9a31b28bca4b57b4",
+      "evidence": [
+        "tests/architecture-constitution.test.ts",
+        "CI",
+        "Template Factory Quality Gate v2",
+        "production deployment"
+      ],
+      "recordedAt": "2026-09-24"
+    },
+    {
+      "id": "EVD-DOMAIN-FOUNDATIONS-MAIN",
+      "capabilityId": "CAP-DOMAIN-FOUNDATIONS",
+      "stateProved": "production",
+      "sourceSha": "8353e172dd9d377948687be3fc343fdeb12fda4c",
+      "evidence": [
+        "tests/domain-foundations.test.ts",
+        "CI",
+        "Template Factory Quality Gate v2",
+        "production deployment"
+      ],
+      "recordedAt": "2026-09-24"
+    },
+    {
+      "id": "EVD-ATLAS2-MAIN",
+      "capabilityId": "CAP-ATLAS-SELF-KNOWLEDGE",
+      "stateProved": "production",
+      "sourceSha": "84fbecdcc8261a460d3829be2ab82f0e384b15b4",
+      "evidence": [
+        "tests/shoperation-codebase-atlas-v2.test.ts",
+        "CI",
+        "Template Factory Quality Gate v2",
+        "production deployment"
+      ],
+      "recordedAt": "2026-09-24"
+    },
+    {
+      "id": "EVD-CHANGE-IMPACT-MAIN",
+      "capabilityId": "CAP-CHANGE-IMPACT-RELEASE-CLOSURE",
+      "stateProved": "production",
+      "sourceSha": "ab43b33addecbc2e2d3563c6497fba53647c8bc6",
+      "evidence": [
+        "tests/shoperation-change-impact-atlas.test.ts",
+        "CI",
+        "Template Factory Quality Gate v2",
+        "production deployment"
+      ],
+      "recordedAt": "2026-09-24"
+    },
+    {
+      "id": "EVD-DEVELOPMENT-GUARD-MAIN",
+      "capabilityId": "CAP-DEVELOPMENT-KNOWLEDGE-GUARD",
+      "stateProved": "production",
+      "sourceSha": "84fbecdcc8261a460d3829be2ab82f0e384b15b4",
+      "evidence": [
+        "tests/shoperation-development-guard.test.ts",
+        "Knowledge Before Build",
+        "Plan Before Code",
+        "Incremental Known Failure Replay"
+      ],
+      "recordedAt": "2026-09-24"
+    },
+    {
+      "id": "EVD-INCIDENT-INTELLIGENCE-MAIN",
+      "capabilityId": "CAP-INCIDENT-INTELLIGENCE",
+      "stateProved": "production",
+      "sourceSha": "e265eedb4d04ec1537c6516408295c5f76a701ac",
+      "evidence": [
+        "tests/incident-intelligence-api-contract.test.ts",
+        "tests/incident-intelligence-platform-center.test.ts",
+        "tests/incident-intelligence-triage.test.ts",
+        "production schema/RPC verification"
+      ],
+      "recordedAt": "2026-09-24"
+    },
+    {
+      "id": "EVD-TEMPLATE-PROCEDURAL-MEMORY-MAIN",
+      "capabilityId": "CAP-TEMPLATE-FACTORY-PROCEDURAL-MEMORY",
+      "stateProved": "production",
+      "sourceSha": "162d559c7768f83778301cba4a4ef366d9a7643a",
+      "evidence": [
+        "Template Factory Quality Gate v2",
+        "Known Failure Registry",
+        "Incremental Known Failure Replay"
+      ],
+      "recordedAt": "2026-09-24"
+    }
+  ]
+}
