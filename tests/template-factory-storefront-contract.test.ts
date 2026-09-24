@@ -8,6 +8,12 @@ import {
 } from '@/lib/builder/storefront-template-route-integrity';
 import {STOREFRONT_PAGE_TYPES} from '@/lib/builder/storefront-foundation';
 import {CANONICAL_ACCOUNT_CAPABILITIES} from '@/lib/account/account-capabilities';
+import type {StorefrontComponentNode} from '@/lib/builder/storefront-runtime';
+
+const findNode=(nodes:readonly StorefrontComponentNode[],id:string):StorefrontComponentNode|undefined=>{
+  for(const node of nodes){if(node.id===id)return node;const nested=findNode(node.children??[],id);if(nested)return nested;}
+  return undefined;
+};
 
 describe('Template Factory complete storefront contract',()=>{
   it('requires the complete canonical page and navigation showroom instead of isolated renders',()=>{
@@ -48,14 +54,8 @@ describe('Template Factory complete storefront contract',()=>{
     expect(serialized).toContain('ugyfelszolgalat@lootvault.hu');
     expect(serialized).toContain('support.contact-form');
     expect(serialized).not.toContain('<iframe');
-    const mapCard=contact.sections
-      .flatMap(section=>section.children??[])
-      .flatMap(node=>node.children??[])
-      .find(node=>node.id==='loot-v2-contact-map-card');
-    const companyCard=contact.sections
-      .flatMap(section=>section.children??[])
-      .flatMap(node=>node.children??[])
-      .find(node=>node.id==='loot-v2-contact-company-card');
+    const mapCard=findNode(contact.sections,'loot-v2-contact-map-card');
+    const companyCard=findNode(contact.sections,'loot-v2-contact-company-card');
     expect(mapCard?.responsive?.desktop?.gridSpan).toBe(7);
     expect(mapCard?.responsive?.mobile?.gridSpan).toBe(12);
     expect(companyCard?.responsive?.desktop?.gridSpan).toBe(5);
