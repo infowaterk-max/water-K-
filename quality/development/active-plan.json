@@ -20,7 +20,14 @@
     "scripts/shoperation-support-history-backfill.mjs",
     "tests/shoperation-development-guard.test.ts",
     "docs/support/TEMPLATE_FACTORY_PROCEDURAL_MEMORY_2026-09-23.md",
-    "docs/support/QUALITY_GUARD_LESSONS_2026-09-24.md"
+    "docs/support/QUALITY_GUARD_LESSONS_2026-09-24.md",
+    "scripts/shoperation-knowledge-preflight.mjs",
+    "tests/shoperation-quality-knowledge.test.ts",
+    "tests/template-factory-procedural-memory.test.ts",
+    "tests/shoperation-historical-support-backfill.test.ts",
+    "tests/sql-migration-syntax-guard.test.ts",
+    "src/lib/quality-system/failure-intake.ts",
+    "src/lib/builder/template-factory/procedural-memory.ts"
   ],
   "expectedSubsystems": [
     "release-infrastructure"
