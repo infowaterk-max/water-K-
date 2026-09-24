@@ -1,27 +1,28 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-64891F1B",
-  "task": "Build Incident Intelligence customer and merchant API intake, deterministic ownership triage and bounded self-healing service.",
+  "taskId": "DEV-13146A82",
+  "task": "Harden Incident Intelligence database audit actor attribution and authoritative merchant RBAC membership.",
   "status": "ready-for-implementation",
-  "guardDigest": "64891f1b",
+  "guardDigest": "13146a82",
   "plannedFilePatterns": [
     "quality/development/active-plan.json"
   ],
   "expectedSubsystems": [
-    "incident-intelligence"
+    "database-schema"
   ],
   "expectedKnownFailureIds": [
-    "SQ-KF-001",
-    "SQ-KF-011",
+    "SQ-KF-006",
+    "SQ-KF-009",
+    "SQ-KF-010",
     "SQ-KF-013",
     "SQ-KF-014",
-    "SQ-KF-017",
+    "SQ-KF-018",
     "SQ-KF-022"
   ],
   "acknowledgedNegativeKnowledgeIds": [
-    "SQ-NK-012",
-    "SQ-NK-013"
+    "SQ-NK-005",
+    "SQ-NK-012"
   ],
   "exceptions": [],
-  "notes": "Planning-only Incident Intelligence runtime/API wave. Implementation follows after Plan Before Code PASS."
+  "notes": "Planning-only DB hardening wave discovered before runtime API implementation."
 }
