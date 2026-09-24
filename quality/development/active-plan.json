@@ -17,7 +17,8 @@
     "src/components/admin/merchant-incident-reporter.module.css",
     "tests/incident-intelligence-storefront-ui.test.ts",
     "tests/incident-intelligence-merchant-ui.test.ts",
-    "tests/storefront-system-surfaces.test.ts"
+    "tests/storefront-system-surfaces.test.ts",
+    "src/lib/incidents/browser-evidence.ts"
   ],
   "expectedSubsystems": [
     "admin-operations",
@@ -68,5 +69,5 @@
     "SQ-NK-013"
   ],
   "exceptions": [],
-  "notes": "Implemented customer and merchant reporting UI after Plan Before Code PASS. Customer reporter is one shared template-aware Storefront System Surface; merchant reporter reuses ShoperationDialog. Both post only to existing Incident Intelligence APIs and capture bounded route/viewport evidence."
+  "notes": "UI guard repair plan: viewport size is audit evidence only. Move browser measurement into one shared Incident Intelligence evidence helper with no layout, breakpoint or rendering decisions; both reporters consume that helper. No DEV-REVIEW-002 exception."
 }
