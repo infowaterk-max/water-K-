@@ -15,7 +15,7 @@
       ]
     },
     {
-      "pattern": "shipping|szállítás|dpd|gls|foxpost|mpl|fulfillment|carrier|futár",
+      "pattern": "shipping|szállítás|dpd|gls|foxpost|\\bmpl\\b|fulfillment|carrier|futár",
       "subsystems": [
         "inventory-fulfillment-authority"
       ]
@@ -139,6 +139,13 @@
     ],
     "SQ-NK-013": [
       "incident-intelligence"
+    ],
+    "SQ-NK-014": [
+      "database-schema",
+      "quality-knowledge-system"
+    ],
+    "SQ-NK-015": [
+      "quality-knowledge-system"
     ]
   },
   "directives": {
@@ -604,6 +611,28 @@
       "requiredBeforeEdit": [
         "Read TF-KF-024 in src/lib/builder/template-factory/knowledge-registry.ts",
         "Keep regression authority available: tests/template-factory-storefront-contract.test.ts, tests/template-factory-procedural-memory.test.ts"
+      ]
+    },
+    "SQ-KF-023": {
+      "preventiveDirective": "Validate syntax-sensitive database constructs before trusting marker-based regression evidence. PL/pgSQL body delimiters must be valid and covered by the shared SQL migration syntax guard.",
+      "forbiddenApproaches": [
+        "treating function/grant marker presence as proof that a migration parses",
+        "adding a new PL/pgSQL body without syntax-sensitive delimiter regression"
+      ],
+      "requiredBeforeEdit": [
+        "Review invariant authority: SQ-AUTH-019, SQ-AUTH-004, SQ-AUTH-007",
+        "Keep regression authority available: tests/sql-migration-syntax-guard.test.ts, tests/incident-intelligence-schema.test.ts"
+      ]
+    },
+    "SQ-KF-024": {
+      "preventiveDirective": "Keep development intent matching semantically bounded. Provider acronyms and other short tokens must use explicit lexical boundaries and have positive/negative regression examples.",
+      "forbiddenApproaches": [
+        "unbounded short regex alternatives such as mpl inside intent matching",
+        "accepting expanded guard scope without checking which intent token caused it"
+      ],
+      "requiredBeforeEdit": [
+        "Review invariant authority: SQ-AUTH-020, SQ-AUTH-009, SQ-AUTH-007",
+        "Keep regression authority available: tests/shoperation-development-guard.test.ts"
       ]
     }
   },

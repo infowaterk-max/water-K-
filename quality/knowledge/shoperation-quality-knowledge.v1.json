@@ -97,6 +97,16 @@
       "id": "SQ-AUTH-018",
       "subject": "bounded autonomous repair authority",
       "rule": "Autonomous repair may directly mutate state only through an explicitly allowlisted, rollbackable, low-risk runbook. AI-generated or code-changing repair must remain proposal/branch/PR evidence until the normal quality and release authorities approve it."
+    },
+    {
+      "id": "SQ-AUTH-019",
+      "subject": "syntax-sensitive database migration proof",
+      "rule": "Database migration acceptance must validate syntax-sensitive constructs, not only marker presence. PL/pgSQL dollar-quoted bodies must use a valid $$ or $tag$ delimiter and receive an executable regression guard before the migration is trusted."
+    },
+    {
+      "id": "SQ-AUTH-020",
+      "subject": "semantically bounded development intent matching",
+      "rule": "Development intent matchers must not let short provider or protocol tokens activate unrelated subsystems by substring. Short tokens require explicit lexical boundaries and regression examples for both positive and negative matches."
     }
   ],
   "globalBaselineFailureIds": [
@@ -752,6 +762,62 @@
         "mode": "always",
         "subsystems": []
       }
+    },
+    {
+      "id": "SQ-KF-023",
+      "title": "Marker-based migration test passes syntactically invalid PL/pgSQL",
+      "symptom": "Schema tests are green because expected function names, grants and markers exist, but the migration itself contains an invalid PL/pgSQL dollar-quote delimiter and would fail when applied.",
+      "rootCause": "The regression asserted textual markers without validating the syntax-sensitive delimiter contract.",
+      "occurrences": 1,
+      "automatable": true,
+      "remediationPolicy": "shared-invariant-preferred",
+      "lifecycle": "active",
+      "invariantIds": [
+        "SQ-AUTH-019",
+        "SQ-AUTH-004",
+        "SQ-AUTH-007"
+      ],
+      "regressionTests": [
+        "tests/sql-migration-syntax-guard.test.ts",
+        "tests/incident-intelligence-schema.test.ts"
+      ],
+      "sourceRecords": [
+        "docs/support/QUALITY_GUARD_LESSONS_2026-09-24.md"
+      ],
+      "applicability": {
+        "mode": "subsystem",
+        "subsystems": [
+          "database-schema",
+          "quality-knowledge-system"
+        ]
+      }
+    },
+    {
+      "id": "SQ-KF-024",
+      "title": "Short intent token activates an unrelated development subsystem",
+      "symptom": "Plan Before Code activates shipping/payment/account guards for a task that never touches those domains because a short intent token matches inside an unrelated word.",
+      "rootCause": "A provider acronym in the intent matcher was used as an unbounded regex alternative, so `mpl` matched the substring inside `implementation`.",
+      "occurrences": 1,
+      "automatable": true,
+      "remediationPolicy": "shared-invariant-preferred",
+      "lifecycle": "active",
+      "invariantIds": [
+        "SQ-AUTH-020",
+        "SQ-AUTH-009",
+        "SQ-AUTH-007"
+      ],
+      "regressionTests": [
+        "tests/shoperation-development-guard.test.ts"
+      ],
+      "sourceRecords": [
+        "docs/support/QUALITY_GUARD_LESSONS_2026-09-24.md"
+      ],
+      "applicability": {
+        "mode": "subsystem",
+        "subsystems": [
+          "quality-knowledge-system"
+        ]
+      }
     }
   ],
   "templateFactoryFailureApplicability": {
@@ -951,6 +1017,20 @@
       "rule": "Do not let AI or self-healing code write an unreviewed code repair directly to production. Code repair must become a repair proposal/branch/PR and pass the normal Development Guard, CI, release and rollback evidence path.",
       "sourceRecords": [
         "docs/support/README.md"
+      ]
+    },
+    {
+      "id": "SQ-NK-014",
+      "rule": "Do not treat string-marker assertions as syntax proof for database migrations. A migration can contain all expected function names and grants while still being invalid SQL.",
+      "sourceRecords": [
+        "docs/support/QUALITY_GUARD_LESSONS_2026-09-24.md"
+      ]
+    },
+    {
+      "id": "SQ-NK-015",
+      "rule": "Do not use an unbounded short token such as mpl inside development-intent regular expressions; it can match unrelated words such as implementation and expand the guard scope incorrectly.",
+      "sourceRecords": [
+        "docs/support/QUALITY_GUARD_LESSONS_2026-09-24.md"
       ]
     }
   ]
