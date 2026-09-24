@@ -7,7 +7,7 @@ const generate=()=>{
   return JSON.parse(readFileSync('artifacts/shoperation-atlas/codebase-atlas.json','utf8')) as {
     summary:{indexedNodes:number;routeNodes:number;importEdges:number;exportedSymbols:number;literalKeys:number};
     nodes:{path:string;imports:string[];exports:string[];literalKeys:string[];subsystems:string[];route?:{path:string;kind:string}|null}[];
-    literalIndex:Record<string,string[]>;exportIndex:Record<string,string[]>;reverseImports:Record<string,string[]>;
+    literalIndex:Record<string,string[]>;exportIndex:Record<string,string[]>;referenceIndex:Record<string,string[]>;reverseImports:Record<string,string[]>;
   };
 };
 describe('Shoperation Codebase Atlas v1',()=>{
@@ -25,6 +25,7 @@ describe('Shoperation Codebase Atlas v1',()=>{
       'src/components/builder/storefront-support.tsx',
     ]));
     expect(atlas.exportIndex['StorefrontFormWizard']).toContain('src/components/forms/storefront-form-wizard.tsx');
+    expect(atlas.referenceIndex['create_support_ticket_v2']).toEqual(expect.arrayContaining(['src/app/api/support/route.ts','supabase/migrations/20260903185000_support_submission_atomic_v2.sql']));
   });
   it('links source files to consumers and tests through reverse imports',()=>{
     const atlas=generate();

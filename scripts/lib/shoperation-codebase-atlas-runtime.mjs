@@ -38,6 +38,14 @@ function extractExports(source){
   for(const m of source.matchAll(/\bexport\s*\{([^}]+)\}/g))for(const part of m[1].split(',')){const name=part.trim().split(/\s+as\s+/i).at(-1)?.trim();if(name&&/^[A-Za-z_$][\w$]*$/.test(name))names.add(name);}
   return [...names].sort();
 }
+function extractReferenceTerms(source){
+  const terms=new Set();
+  for(const m of source.matchAll(/\b[A-Za-z_][A-Za-z0-9_$]{3,}\b/g)){
+    const value=m[0];
+    if(value.includes('_')||/[a-z][A-Z]/.test(value)||/^[A-Z][A-Za-z0-9_$]+$/.test(value))terms.add(value);
+  }
+  return [...terms].sort();
+}
 function extractLiteralKeys(source){
   const keys=new Set();
   for(const m of source.matchAll(/componentKey\s*:\s*['"]([^'"]+)['"]/g))keys.add(m[1]);
@@ -69,7 +77,7 @@ export function buildCodebaseAtlas(){
       path:file,extension:ext,kind:route?'route':file.startsWith('tests/')?'test':file.startsWith('supabase/')?'database':sourceExtensions.has(ext)?'code':'supporting',
       route,subsystems:classifySubsystems(file),surfaces:classifySurfaces(file),
       imports:[...new Set(resolvedImports)].sort(),externalImports:[...new Set(externalImports)].sort(),
-      exports:sourceExtensions.has(ext)?extractExports(text):[],literalKeys:text?extractLiteralKeys(text):[],
+      exports:sourceExtensions.has(ext)?extractExports(text):[],literalKeys:text?extractLiteralKeys(text):[],referenceTerms:text?extractReferenceTerms(text):[],
     });
   }
   const byPath=new Map(nodes.map(node=>[node.path,node])),reverse={};
@@ -80,13 +88,15 @@ export function buildCodebaseAtlas(){
   for(const key of Object.keys(literalIndex))literalIndex[key]=[...new Set(literalIndex[key])].sort();
   const exportIndex={};for(const node of nodes)for(const symbol of node.exports){(exportIndex[symbol]??=[]).push(node.path);}
   for(const key of Object.keys(exportIndex))exportIndex[key]=[...new Set(exportIndex[key])].sort();
+  const referenceIndex={};for(const node of nodes)for(const term of node.referenceTerms){(referenceIndex[term]??=[]).push(node.path);}
+  for(const key of Object.keys(referenceIndex))referenceIndex[key]=[...new Set(referenceIndex[key])].sort();
   const subsystemCounts={};for(const node of nodes)for(const subsystem of node.subsystems)subsystemCounts[subsystem]=(subsystemCounts[subsystem]??0)+1;
   const duplicateRoutes=Object.entries(routes.reduce((acc,item)=>{const key=`${item.kind}:${item.path}`;(acc[key]??=[]).push(item.file);return acc;},{})).filter(([,value])=>value.length>1).map(([routeKey,files])=>({routeKey,files}));
   const allFailures=getAllFailures();
   return {
     contract:'shoporation.codebase-atlas.v1',generatedAt:new Date().toISOString(),
-    summary:{trackedFiles:files.length,indexedNodes:nodes.length,codeNodes:nodes.filter(n=>n.kind==='code').length,testNodes:nodes.filter(n=>n.kind==='test').length,routeNodes:routes.length,importEdges:nodes.reduce((n,x)=>n+x.imports.length,0),exportedSymbols:Object.keys(exportIndex).length,literalKeys:Object.keys(literalIndex).length,unresolvedInternalImports:unresolvedInternalImports.length,duplicateRoutes:duplicateRoutes.length,subsystemCounts},
-    nodes,routes,reverseImports:reverse,literalIndex,exportIndex,unresolvedInternalImports,duplicateRoutes,
+    summary:{trackedFiles:files.length,indexedNodes:nodes.length,codeNodes:nodes.filter(n=>n.kind==='code').length,testNodes:nodes.filter(n=>n.kind==='test').length,routeNodes:routes.length,importEdges:nodes.reduce((n,x)=>n+x.imports.length,0),exportedSymbols:Object.keys(exportIndex).length,literalKeys:Object.keys(literalIndex).length,referenceTerms:Object.keys(referenceIndex).length,unresolvedInternalImports:unresolvedInternalImports.length,duplicateRoutes:duplicateRoutes.length,subsystemCounts},
+    nodes,routes,reverseImports:reverse,literalIndex,exportIndex,referenceIndex,unresolvedInternalImports,duplicateRoutes,
     knownFailureIndex:Object.fromEntries(allFailures.map(f=>[f.id,{title:f.title,provider:f.provider,applicability:f.applicability,regressionTests:f.regressionTests}])),
   };
 }
@@ -115,7 +125,7 @@ export function impactForAtlasPattern(atlas,pattern){
   return {pattern,matchedFiles:start,matchCount:matches.length||exact.length,subsystems,surfaces,componentKeys,exports,...impact,knownFailureIds:[...new Set(failureIds)].sort()};
 }
 export function lookupAtlasTerm(atlas,term){
-  const files=new Set([...(atlas.literalIndex[term]??[]),...(atlas.exportIndex[term]??[])]);
+  const files=new Set([...(atlas.literalIndex[term]??[]),...(atlas.exportIndex[term]??[]),...(atlas.referenceIndex[term]??[])]);
   for(const node of atlas.nodes)if(node.path.includes(term))files.add(node.path);
   return {term,files:[...files].sort()};
 }
