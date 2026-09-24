@@ -32,6 +32,19 @@ describe('Template Factory procedural memory',()=>{
     expect(TEMPLATE_FACTORY_KNOWN_FAILURES.some(item=>item.id==='TF-KF-009')).toBe(true);
   });
 
+  it('keeps Product Owner handoff executable from protected CI against the exact deployment',()=>{
+    const workflow=fs.readFileSync('.github/workflows/template-factory-quality-gate.yml','utf8');
+    expect(workflow).toContain('github.rest.repos.listDeployments');
+    expect(workflow).toContain('github.rest.repos.listDeploymentStatuses');
+    expect(workflow).toContain('PRODUCT_OWNER_SOURCE_COMMIT: ${{ github.sha }}');
+    expect(workflow).toContain('PRODUCT_OWNER_TEST_EMAIL: ${{ secrets.PRODUCT_OWNER_TEST_EMAIL }}');
+    expect(workflow).toContain('PRODUCT_OWNER_TEST_PASSWORD: ${{ secrets.PRODUCT_OWNER_TEST_PASSWORD }}');
+    expect(workflow).toContain('node scripts/template-factory-product-owner-handoff.mjs');
+    expect(workflow).toContain('template-factory-handoff-${{ github.sha }}');
+    expect(TEMPLATE_FACTORY_AUTHORITY_GRAPH.some(item=>item.id==='TF-AUTH-012')).toBe(true);
+    expect(TEMPLATE_FACTORY_KNOWN_FAILURES.some(item=>item.id==='TF-KF-010')).toBe(true);
+  });
+
   it('keeps every known failure bound to a real invariant and regression test',()=>{
     const authorityIds=new Set(TEMPLATE_FACTORY_AUTHORITY_GRAPH.map(item=>item.id));
     expect(new Set(TEMPLATE_FACTORY_KNOWN_FAILURES.map(item=>item.id)).size).toBe(TEMPLATE_FACTORY_KNOWN_FAILURES.length);
