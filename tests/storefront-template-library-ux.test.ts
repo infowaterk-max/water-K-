@@ -92,7 +92,9 @@ describe('storefront template library UX',()=>{
     expect(preview).toContain("params.set('page',pageType)");
     expect(preview).toContain("params.set('viewport',next)");
     expect(preview).toContain('data-page-type={pageType}');
-    expect(preview).toContain('requireAdmin(');
+    expect(preview).toContain('requireStorefrontTemplatePreviewAccess(');
+    expect(preview).not.toContain('requireCurrentStoreContext(');
+    expect(preview).not.toContain("requirePlanFeature('contentMarketing')");
     expect(preview).toContain('/storefront-template-preview?');
     expect(preview).not.toContain('installVisualBuilderTemplateAction');
   });
