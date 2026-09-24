@@ -446,7 +446,7 @@ create or replace function public.triage_platform_incident_v2(
 language plpgsql
 security definer
 set search_path=''
-as $
+as $$
 declare v_row public.platform_incidents;
 begin
   if p_ownership not in('merchant','platform','shared','undetermined') then raise exception 'INCIDENT_OWNERSHIP_INVALID'; end if;
@@ -472,7 +472,7 @@ begin
   if v_row.id is null then raise exception 'INCIDENT_NOT_FOUND'; end if;
   return jsonb_build_object('id',v_row.id,'incidentNumber',v_row.incident_number,'status',v_row.status,'ownership',v_row.ownership,'severity',v_row.severity,'actorKind',p_actor_kind);
 end;
-$;
+$$;
 revoke all on function public.triage_platform_incident_v2(uuid,text,text,text,text,text,text,jsonb,text,uuid) from public,anon,authenticated;
 grant execute on function public.triage_platform_incident_v2(uuid,text,text,text,text,text,text,jsonb,text,uuid) to service_role;
 
@@ -552,7 +552,7 @@ create or replace function public.create_customer_incident_report_v1(
 language plpgsql
 security definer
 set search_path=''
-as $
+as $$
 declare
   v_ticket jsonb;
   v_ticket_id uuid;
@@ -598,7 +598,7 @@ begin
     'duplicate',coalesce((v_ticket->>'duplicate')::boolean,false)
   );
 end;
-$;
+$$;
 revoke all on function public.create_customer_incident_report_v1(uuid,uuid,text,text,text,text,text,text,text,text,text,text,text,text,text,jsonb,jsonb) from public,anon,authenticated;
 grant execute on function public.create_customer_incident_report_v1(uuid,uuid,text,text,text,text,text,text,text,text,text,text,text,text,text,jsonb,jsonb) to service_role;
 

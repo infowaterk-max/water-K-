@@ -29,8 +29,8 @@ describe('Shoperation historical Support Knowledge backfill',()=>{
 
   it('promotes the newly generalized historical root causes into complete global Known Failures',()=>{
     const report=runBackfill();
-    const promoted=['SQ-KF-015','SQ-KF-016','SQ-KF-017','SQ-KF-018','SQ-KF-019','SQ-KF-020','SQ-KF-021'];
-    expect(report.promotions.map(item=>item.id)).toEqual(expect.arrayContaining(promoted));
+    const promoted=(JSON.parse(readFileSync('quality/knowledge/support-history-policy.v1.json','utf8')) as {promotedFailureIds:string[]}).promotedFailureIds;
+    expect(report.promotions.map(item=>item.id).sort()).toEqual([...promoted].sort());
     expect(report.summary.promotedGlobalFailureCount).toBe(promoted.length);
     for(const id of promoted){
       const failure=SHOPERATION_KNOWN_FAILURES.find(item=>item.id===id);

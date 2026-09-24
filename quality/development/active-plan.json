@@ -35,5 +35,5 @@
     "SQ-NK-015"
   ],
   "exceptions": [],
-  "notes": "Plan-only repair wave after Incremental Replay exposed four malformed PL/pgSQL delimiter lines and a stale promoted-failure count assertion."
+  "notes": "Repair implemented after Plan Before Code PASS: fixed all four malformed PL/pgSQL delimiter lines and made historical promotion regression derive from support-history-policy authority."
 }
