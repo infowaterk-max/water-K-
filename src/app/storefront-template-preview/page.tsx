@@ -15,7 +15,7 @@ import {StorefrontRuntimeRenderer} from '@/components/builder/storefront-runtime
 import {createStorefrontVisualBuilderRendererRegistry} from '@/components/builder/storefront-builder-renderer-registry';
 import {createStorefrontVisualBuilderComponentRegistry} from '@/lib/builder/storefront-builder-registry';
 import {STOREFRONT_CANONICAL_VIEWPORT_WIDTH_PX,STOREFRONT_PAGE_TYPES,type StorefrontBuilderPageType,type StorefrontViewport} from '@/lib/builder/storefront-foundation';
-import {applyStorefrontTemplateDemoNotice,getStorefrontTemplateDemoContent,rewriteStorefrontTemplatePreviewLinks} from '@/lib/builder/storefront-template-route-integrity';
+import {applyStorefrontTemplateDemoNotice,getStorefrontTemplateDemoContent,isStorefrontShowroomReadyDemoContent,rewriteStorefrontTemplatePreviewLinks} from '@/lib/builder/storefront-template-route-integrity';
 import styles from './storefront-template-preview.module.css';
 
 export const dynamic='force-dynamic';
@@ -58,7 +58,7 @@ export default async function StorefrontTemplatePreview({searchParams}:Props){
   const demoFixture=query.demoContent?getStorefrontTemplateDemoContent(template,query.demoContent):null;
   if(query.demoContent&&!demoFixture)notFound();
   const demoPayload=demoFixture?.payload??null;
-  const noticedPage=demoPayload?applyStorefrontTemplateDemoNotice(sourcePage):sourcePage;
+  const noticedPage=demoPayload&&!isStorefrontShowroomReadyDemoContent(demoFixture)?applyStorefrontTemplateDemoNotice(sourcePage):sourcePage;
   const page=rewriteStorefrontTemplatePreviewLinks(noticedPage,{templateKey:template.manifest.templateKey,templateVersion:template.manifest.templateVersion,viewport,factoryCandidate});
   const embed=query.embed==='1';
   const baseContext=applyAuthoredTemplatePreviewFallbacks({page,context:createStorefrontTemplatePreviewBindingContext({template,page})});
