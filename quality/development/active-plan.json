@@ -1,18 +1,19 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-DOMAIN-FOUNDATIONS-V1",
-  "task": "Define Shoperation Domain Foundations v1 with explicit truth ownership, boundaries, invariants, dependency contracts and machine-queryable domain authority.",
+  "taskId": "DEV-ATLAS-2-SYSTEM-SELF-KNOWLEDGE",
+  "task": "Build Shoperation Atlas 2.0 System Self-Knowledge by enriching the codebase graph with canonical domains, authorities, truth ownership, impact closure, evidence obligations and Known Failure data.",
   "status": "ready-for-implementation",
-  "guardDigest": "8a690bdc",
+  "guardDigest": "771d632e",
   "plannedFilePatterns": [
-    "quality/knowledge/domain-foundations.v1.json",
-    "docs/architecture/DOMAIN_FOUNDATIONS.md",
-    "src/lib/quality-system/domain-foundations.ts",
-    "tests/domain-foundations.test.ts"
+    "quality/knowledge/codebase-atlas-policy.v2.json",
+    "quality/knowledge/codebase-atlas-policy.v1.json",
+    "scripts/lib/shoperation-codebase-atlas-runtime.mjs",
+    "scripts/shoperation-codebase-atlas.mjs",
+    "docs/architecture/SYSTEM_SELF_KNOWLEDGE_ATLAS_V2.md",
+    "tests/shoperation-codebase-atlas-v2.test.ts"
   ],
   "expectedSubsystems": [
-    "quality-knowledge-system",
-    "dependency-contract"
+    "quality-knowledge-system"
   ],
   "expectedKnownFailureIds": [
     "SQ-KF-013",
@@ -65,9 +66,13 @@
     "TF-KF-024"
   ],
   "acknowledgedNegativeKnowledgeIds": [
-    "SQ-NK-012"
+    "SQ-NK-010",
+    "SQ-NK-011",
+    "SQ-NK-012",
+    "SQ-NK-014",
+    "SQ-NK-015"
   ],
   "exceptions": [],
-  "notes": "Second System Soul transaction. Expands the already-canonical domain registry into enforceable Domain Foundations, including explicit dependency contracts. No runtime commerce behavior, database schema, production workflow, or Release Risk Budget threshold changes.",
-  "changeBaseSha": "e718363abde18553ce8f5c4a9a31b28bca4b57b4"
+  "notes": "Third System Soul transaction. Atlas 2.0 becomes the single Codebase Atlas policy/runtime authority, binding repository structure to Constitution and Domain Foundations for deterministic System Self-Knowledge. The v1 policy is superseded and removed. No commerce runtime, database schema, deployment workflow or Release Risk Budget threshold changes.",
+  "changeBaseSha": "8353e172dd9d377948687be3fc343fdeb12fda4c"
 }

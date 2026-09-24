@@ -1,6 +1,12 @@
 {
-  "contract": "shoporation.codebase-atlas-policy.v1",
-  "version": 1,
+  "contract": "shoporation.codebase-atlas-policy.v2",
+  "version": 2,
+  "architectureContracts": {
+    "constitution": "shoporation.architecture-constitution.v1",
+    "domains": "shoporation.domain-foundations.v1"
+  },
+  "domainAuthoritySource": "quality/knowledge/domain-foundations.v1.json",
+  "constitutionSource": "quality/knowledge/architecture-constitution.v1.json",
   "textExtensions": [
     ".ts",
     ".tsx",
@@ -113,5 +119,15 @@
     }
   ],
   "maxImpactTraversal": 300,
-  "maxImpactResults": 40
+  "maxImpactResults": 40,
+  "selfKnowledge": {
+    "mapDomainsFromCanonicalPaths": true,
+    "exposeAuthorityOwners": true,
+    "exposeTruthOwnership": true,
+    "includeDomainDependencyClosure": true,
+    "includeBoundaryRules": true,
+    "includeEvidenceObligations": true,
+    "includeKnownFailureRegressionAuthority": true,
+    "includeReverseConsumers": true
+  }
 }
