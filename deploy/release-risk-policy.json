@@ -14,7 +14,8 @@
     "artifacts/**",
     "**/*.md",
     "**/*.snap",
-    ".gitignore"
+    ".gitignore",
+    "quality/development/**"
   ],
   "subsystems": [
     {
@@ -85,7 +86,8 @@
         "scripts/shoperation-*.mjs",
         "scripts/template-factory-quality-gate.mjs",
         "src/lib/builder/template-factory/knowledge-registry.ts",
-        "src/lib/builder/template-factory/procedural-memory.ts"
+        "src/lib/builder/template-factory/procedural-memory.ts",
+        "scripts/lib/shoperation-*.mjs"
       ]
     },
     {

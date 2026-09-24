@@ -1,5 +1,6 @@
 import globalKnowledgeJson from '../../../quality/knowledge/shoperation-quality-knowledge.v1.json';
 import intakeLedgerJson from '../../../quality/knowledge/failure-intake-ledger.v1.json';
+import developmentGuardPolicyJson from '../../../quality/knowledge/development-guard-policy.v1.json';
 import {TEMPLATE_FACTORY_AUTHORITY_GRAPH,TEMPLATE_FACTORY_KNOWN_FAILURES} from '@/lib/builder/template-factory/knowledge-registry';
 
 export const SHOPERATION_QUALITY_KNOWLEDGE_VERSION='shoporation.quality-knowledge.v1' as const;
@@ -12,6 +13,7 @@ type GlobalKnowledgeShape={contract:string;version:number;authorityRules:readonl
 type IntakeLedgerShape={contract:string;records:readonly {candidateId:string;classificationStatus:string;disposition?:string|null}[];};
 const GLOBAL_KNOWLEDGE=globalKnowledgeJson as unknown as GlobalKnowledgeShape;
 const INTAKE_LEDGER=intakeLedgerJson as unknown as IntakeLedgerShape;
+const DEVELOPMENT_GUARD_POLICY=developmentGuardPolicyJson as unknown as {directives:Readonly<Record<string,{preventiveDirective:string;forbiddenApproaches:readonly string[];requiredBeforeEdit:readonly string[]}>>};
 
 export const SHOPERATION_GLOBAL_AUTHORITY_GRAPH=Object.freeze([...GLOBAL_KNOWLEDGE.authorityRules]);
 export const SHOPERATION_NEGATIVE_KNOWLEDGE=Object.freeze([...GLOBAL_KNOWLEDGE.negativeKnowledge]);
@@ -35,7 +37,10 @@ export function evaluateShoperationKnowledgeIntegrity(){
     for(const invariantId of failure.invariantIds)if(!authorityIds.has(invariantId))issues.push({code:'SQ_KNOWLEDGE_DANGLING_INVARIANT',path:`${failure.id}.${invariantId}`,message:'Failure references an unknown invariant.'});
     if(failure.applicability.mode==='subsystem'&&!failure.applicability.subsystems.length)issues.push({code:'SQ_KNOWLEDGE_APPLICABILITY_REQUIRED',path:failure.id,message:'Subsystem-scoped failures need at least one applicable subsystem.'});
     if(failure.occurrences>=2&&failure.remediationPolicy!=='shared-root-cause-required')issues.push({code:'SQ_KNOWLEDGE_RECURRING_SHARED_FIX_REQUIRED',path:failure.id,message:'Recurring failures require shared-root-cause remediation.'});
+    const directive=DEVELOPMENT_GUARD_POLICY.directives[failure.id];
+    if(!directive?.preventiveDirective||!directive.forbiddenApproaches?.length||!directive.requiredBeforeEdit?.length)issues.push({code:'SQ_KNOWLEDGE_DEVELOPMENT_DIRECTIVE_REQUIRED',path:failure.id,message:'Every active Known Failure must have a development-time preventive directive, forbidden approach and before-edit requirement.'});
   }
+  for(const id of Object.keys(DEVELOPMENT_GUARD_POLICY.directives))if(!failureIds.has(id))issues.push({code:'SQ_KNOWLEDGE_DANGLING_DEVELOPMENT_DIRECTIVE',path:id,message:'Development Guard directive references an unknown Known Failure.'});
   for(const id of SHOPERATION_GLOBAL_BASELINE_FAILURE_IDS)if(!failureIds.has(id))issues.push({code:'SQ_KNOWLEDGE_DANGLING_BASELINE_FAILURE',path:id,message:'Global baseline references an unknown failure.'});
   for(const rule of SHOPERATION_NEGATIVE_KNOWLEDGE)if(!rule.sourceRecords.length)issues.push({code:'SQ_NEGATIVE_KNOWLEDGE_SOURCE_REQUIRED',path:rule.id,message:'Negative knowledge must retain its evidence source.'});
   const unresolved=INTAKE_LEDGER.records.filter(item=>['candidate-new-failure','needs-review'].includes(item.classificationStatus)&&!item.disposition);

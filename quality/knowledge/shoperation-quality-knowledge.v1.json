@@ -87,11 +87,17 @@
       "id": "SQ-AUTH-016",
       "subject": "unique canonical knowledge identity",
       "rule": "Every Support Knowledge record must have a unique canonical identity even when a historical human-readable source ID was accidentally reused."
+    },
+    {
+      "id": "SQ-AUTH-017",
+      "subject": "preventive knowledge injection before implementation",
+      "rule": "Every active Known Failure applicable to a change must be injected into the development guard before implementation, with a preventive directive, forbidden approaches and regression authority available before the first code edit."
     }
   ],
   "globalBaselineFailureIds": [
     "SQ-KF-013",
-    "SQ-KF-014"
+    "SQ-KF-014",
+    "SQ-KF-022"
   ],
   "knownFailures": [
     {
@@ -713,6 +719,31 @@
           "quality-knowledge-system"
         ]
       }
+    },
+    {
+      "id": "SQ-KF-022",
+      "title": "Known failure protection is deferred until final validation",
+      "symptom": "A previously learned defect is reintroduced during implementation and is discovered only by the final Quality Gate or CI.",
+      "rootCause": "Relevant Known Failure knowledge was available in the registry but was not injected into the implementation plan and edit loop before code changes were made.",
+      "occurrences": 1,
+      "automatable": true,
+      "remediationPolicy": "shared-invariant-preferred",
+      "lifecycle": "active",
+      "invariantIds": [
+        "SQ-AUTH-002",
+        "SQ-AUTH-009",
+        "SQ-AUTH-017"
+      ],
+      "regressionTests": [
+        "tests/shoperation-development-guard.test.ts"
+      ],
+      "sourceRecords": [
+        "docs/support/README.md"
+      ],
+      "applicability": {
+        "mode": "always",
+        "subsystems": []
+      }
     }
   ],
   "templateFactoryFailureApplicability": {
@@ -898,6 +929,13 @@
       "rule": "Do not use a human-readable Support Knowledge ID as the canonical machine identity when historical records may reuse that ID; retain source ID but key records by file plus occurrence.",
       "sourceRecords": [
         "docs/support/PLAYROOM_V20_PHASE4_BUILDER_ACCEPTANCE_INCIDENTS_2026-09-18.md"
+      ]
+    },
+    {
+      "id": "SQ-NK-012",
+      "rule": "Do not wait for final CI or Product Owner acceptance to consult Known Failures; load the applicable failure set and preventive directives before the first implementation edit.",
+      "sourceRecords": [
+        "docs/support/README.md"
       ]
     }
   ]

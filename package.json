@@ -15,7 +15,11 @@
     "db:customer:review": "node scripts/review-customer-baseline-snapshot.mjs",
     "market-ready:gate": "node scripts/block24-market-ready-gate.mjs",
     "smoke": "node scripts/smoke.mjs",
-    "release:manifest": "node scripts/release-manifest.mjs"
+    "release:manifest": "node scripts/release-manifest.mjs",
+    "dev:guard": "node scripts/shoperation-development-guard.mjs",
+    "dev:plan": "node scripts/shoperation-plan-before-code.mjs --check",
+    "dev:edit-guard": "node scripts/shoperation-edit-time-guard.mjs --check",
+    "dev:replay": "node scripts/shoperation-incremental-replay.mjs --check"
   },
   "dependencies": {
     "@supabase/ssr": "0.6.1",

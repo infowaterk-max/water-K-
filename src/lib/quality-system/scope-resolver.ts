@@ -1,10 +1,12 @@
 import releaseRiskPolicyJson from '../../../deploy/release-risk-policy.json';
+import scopePolicyJson from '../../../quality/knowledge/knowledge-scope-policy.v1.json';
 import {SHOPERATION_GLOBAL_BASELINE_FAILURE_IDS,SHOPERATION_KNOWN_FAILURES,type ShoperationKnownFailure} from '@/lib/quality-system/shoperation-knowledge';
 
 type ReleaseRiskPolicy={neutralPatterns:readonly string[];subsystems:readonly {name:string;patterns:readonly string[]}[];fallback:{subsystem:string;risk:string};};
 const policy=releaseRiskPolicyJson as unknown as ReleaseRiskPolicy;
-const knowledgeInfrastructurePrefixes=['src/lib/quality-system/','quality/knowledge/','docs/support/','src/lib/builder/template-factory/knowledge-registry.ts','src/lib/builder/template-factory/procedural-memory.ts','scripts/shoperation-knowledge-','scripts/shoperation-failure-intake.mjs'];
-const dependencies:Readonly<Record<string,readonly string[]>>=Object.freeze({'builder-template-system':['shared-storefront'],'storefront-launch-runtime':['auth-access-authority','shared-storefront'],'auth-access-authority':['customer-account'],'payment-checkout-order-authority':['customer-account'],'inventory-fulfillment-authority':['payment-checkout-order-authority']});
+const scopePolicy=scopePolicyJson as unknown as {knowledgeInfrastructurePrefixes:readonly string[];dependencies:Readonly<Record<string,readonly string[]>>};
+const knowledgeInfrastructurePrefixes=scopePolicy.knowledgeInfrastructurePrefixes;
+const dependencies=scopePolicy.dependencies;
 function globToRegExp(glob:string){let out='^';for(let i=0;i<glob.length;i+=1){const ch=glob[i]!;if(ch==='*'){const next=glob[i+1];if(next==='*'){i+=1;if(glob[i+1]==='/'){i+=1;out+='(?:.*/)?';}else out+='.*';}else out+='[^/]*';}else if(ch==='?')out+='[^/]';else if('\\.^$+{}()|[]'.includes(ch))out+=`\\${ch}`;else out+=ch;}return new RegExp(`${out}$`);}
 const neutralMatchers=policy.neutralPatterns.map(globToRegExp);
 const subsystemMatchers=policy.subsystems.map(item=>({...item,matchers:item.patterns.map(globToRegExp)}));

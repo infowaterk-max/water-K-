@@ -196,6 +196,18 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: node scripts/shoperation-knowledge-preflight.mjs
 
+      - name: Plan Before Code Gate
+        id: development-plan
+        run: node scripts/shoperation-plan-before-code.mjs --check
+
+      - name: Edit-Time Known Failure Guard
+        id: edit-time-guard
+        run: node scripts/shoperation-edit-time-guard.mjs --check
+
+      - name: Incremental Known Failure Replay
+        id: incremental-replay
+        run: node scripts/shoperation-incremental-replay.mjs --check
+
       - name: Upload Shoperation knowledge evidence
         if: always()
         uses: actions/upload-artifact@v4

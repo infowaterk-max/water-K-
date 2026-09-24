@@ -225,3 +225,18 @@ There is no silent fallback for a new explicit incident. An unmatched record bec
 Historical human-readable IDs are preserved for retrieval, but the canonical machine identity is `source-file + source-id + occurrence`. This is required because older Playroom records contain reused IDs. No incident is discarded because of that collision.
 
 The backfill may promote a historical pattern into the global Known Failure registry only when the full learned chain exists: symptom → root cause → invariant → regression authority → applicability/replay.
+
+
+## Development-Time Known Failure Guard
+
+Known Failure knowledge is an implementation input, not only a final validation input.
+
+Before the first implementation edit, the engineering agent must generate and read the scoped Development Guard. The manifest contains the applicable Known Failures, authority invariants, preventive directives, forbidden approaches, negative knowledge and regression authority.
+
+A tracked `quality/development/active-plan.json` binds the task to the expected subsystem and Known Failure scope. CI recalculates the actual scope from the current development batch. If the diff activates another subsystem or additional Known Failures, Plan Before Code blocks until the plan is regenerated and reviewed.
+
+The Edit-Time Known Failure Guard scans added code for strong signatures of already-rejected implementation approaches. Blocking signatures must be removed. Review signatures require an explicit, reasoned plan exception.
+
+Incremental Replay executes the regression authority of the active Known Failure set after coherent edit batches. The final full Quality Gate remains mandatory.
+
+Canonical rule: **Known failure prevention must happen before and during implementation, not only after implementation.**

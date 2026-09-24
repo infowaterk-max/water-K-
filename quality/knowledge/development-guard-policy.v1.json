@@ -1,0 +1,703 @@
+{
+  "contract": "shoporation.development-guard-policy.v1",
+  "generalRules": [
+    "No implementation edit may start before the active Development Guard manifest has been generated and read.",
+    "The Plan Before Code gate must pass before editing tracked implementation files.",
+    "If the actual diff expands into a new subsystem or activates additional Known Failures, stop and regenerate/review the plan.",
+    "After each coherent edit batch, run the Edit-Time Guard and Incremental Replay before continuing.",
+    "Final CI/Quality Gate remains mandatory; development-time prevention does not replace final proof."
+  ],
+  "intentMatchers": [
+    {
+      "pattern": "shipping|szállítás|dpd|gls|foxpost|mpl|fulfillment|carrier|futár",
+      "subsystems": [
+        "inventory-fulfillment-authority"
+      ]
+    },
+    {
+      "pattern": "checkout|payment|fizetés|k&h|order|rendelés",
+      "subsystems": [
+        "payment-checkout-order-authority"
+      ]
+    },
+    {
+      "pattern": "auth|login|bejelent|account|fiók",
+      "subsystems": [
+        "auth-access-authority",
+        "customer-account"
+      ]
+    },
+    {
+      "pattern": "builder|template|sablon|visual",
+      "subsystems": [
+        "builder-template-system",
+        "shared-storefront"
+      ]
+    },
+    {
+      "pattern": "admin|digital office|digitális iroda",
+      "subsystems": [
+        "admin-operations"
+      ]
+    },
+    {
+      "pattern": "database|schema|migration|supabase|adatbázis",
+      "subsystems": [
+        "database-schema"
+      ]
+    },
+    {
+      "pattern": "deploy|release|vercel|production|élesítés",
+      "subsystems": [
+        "release-infrastructure"
+      ]
+    },
+    {
+      "pattern": "storefront|webshop|catalog|katalógus|product|termék",
+      "subsystems": [
+        "shared-storefront",
+        "storefront-ui"
+      ]
+    },
+    {
+      "pattern": "quality|knowledge|support knowledge|procedural memory|failure intake",
+      "subsystems": [
+        "quality-knowledge-system"
+      ]
+    },
+    {
+      "pattern": "dependency|package|csomagfüggőség",
+      "subsystems": [
+        "dependency-contract"
+      ]
+    }
+  ],
+  "negativeKnowledgeApplicability": {
+    "SQ-NK-001": [
+      "builder-template-system",
+      "admin-operations",
+      "shared-storefront",
+      "storefront-ui"
+    ],
+    "SQ-NK-002": [
+      "release-infrastructure",
+      "builder-template-system",
+      "shared-storefront"
+    ],
+    "SQ-NK-003": [
+      "release-infrastructure",
+      "builder-template-system"
+    ],
+    "SQ-NK-004": [
+      "builder-template-system",
+      "shared-storefront"
+    ],
+    "SQ-NK-005": [
+      "database-schema",
+      "release-infrastructure",
+      "storefront-launch-runtime"
+    ],
+    "SQ-NK-006": [
+      "customer-account",
+      "shared-storefront",
+      "builder-template-system",
+      "admin-operations"
+    ],
+    "SQ-NK-007": [
+      "builder-template-system",
+      "shared-storefront",
+      "storefront-launch-runtime"
+    ],
+    "SQ-NK-008": [
+      "builder-template-system",
+      "admin-operations",
+      "shared-storefront",
+      "storefront-ui"
+    ],
+    "SQ-NK-009": [
+      "payment-checkout-order-authority",
+      "inventory-fulfillment-authority",
+      "shared-storefront",
+      "builder-template-system"
+    ],
+    "SQ-NK-010": [
+      "release-infrastructure",
+      "builder-template-system",
+      "quality-knowledge-system"
+    ],
+    "SQ-NK-011": [
+      "quality-knowledge-system"
+    ],
+    "SQ-NK-012": [
+      "*"
+    ]
+  },
+  "directives": {
+    "SQ-KF-001": {
+      "preventiveDirective": "Identify the canonical owner before changing behavior. Extend or repair that owner; do not introduce a local controller, renderer, engine or workflow that duplicates it.",
+      "forbiddenApproaches": [
+        "parallel controller/engine/workflow for an existing shared capability",
+        "template-local or module-local patch that becomes a second authority"
+      ],
+      "requiredBeforeEdit": [
+        "Review invariant authority: SQ-AUTH-001, SQ-AUTH-007",
+        "Keep regression authority available: tests/shoperation-quality-knowledge.test.ts"
+      ]
+    },
+    "SQ-KF-002": {
+      "preventiveDirective": "Resolve the accepted navigation/entrypoint authority before changing route targets. Preserve existing accepted entrypoints unless the task explicitly supersedes them.",
+      "forbiddenApproaches": [
+        "changing a route target from a screenshot symptom alone",
+        "adding a second route path for the same capability"
+      ],
+      "requiredBeforeEdit": [
+        "Review invariant authority: SQ-AUTH-005, SQ-AUTH-007",
+        "Keep regression authority available: tests/navigation-workflows.test.ts, tests/block4-ia-navigation-reporting.test.ts"
+      ]
+    },
+    "SQ-KF-003": {
+      "preventiveDirective": "Separate deployment/protection reachability from application health. Require application/runtime evidence before treating a preview as valid.",
+      "forbiddenApproaches": [
+        "treating Vercel READY/302/protection UI as application proof"
+      ],
+      "requiredBeforeEdit": [
+        "Review invariant authority: SQ-AUTH-004, SQ-AUTH-007",
+        "Keep regression authority available: tests/rollout-readiness.test.ts, tests/template-factory-procedural-memory.test.ts"
+      ]
+    },
+    "SQ-KF-004": {
+      "preventiveDirective": "When a test fails, inspect the evidence path before changing runtime contracts. Repair the harness when the harness is wrong.",
+      "forbiddenApproaches": [
+        "weakening runtime safety to satisfy a defective acceptance harness"
+      ],
+      "requiredBeforeEdit": [
+        "Review invariant authority: SQ-AUTH-004, SQ-AUTH-006, SQ-AUTH-007",
+        "Keep regression authority available: tests/shoperation-quality-knowledge.test.ts, tests/template-factory-procedural-memory.test.ts"
+      ]
+    },
+    "SQ-KF-005": {
+      "preventiveDirective": "Preserve a separate human/live acceptance requirement for visual and interactive surfaces; automated green is necessary but not sufficient.",
+      "forbiddenApproaches": [
+        "declaring visual acceptance from CI alone"
+      ],
+      "requiredBeforeEdit": [
+        "Review invariant authority: SQ-AUTH-004, SQ-AUTH-007",
+        "Keep regression authority available: tests/storefront-template-quality-gate-v2.test.ts, tests/shoperation-quality-knowledge.test.ts"
+      ]
+    },
+    "SQ-KF-006": {
+      "preventiveDirective": "Treat runtime code and required production schema as one release unit. Prove target schema compatibility before runtime deployment.",
+      "forbiddenApproaches": [
+        "deploying runtime that assumes unapplied production migrations"
+      ],
+      "requiredBeforeEdit": [
+        "Review invariant authority: SQ-AUTH-003, SQ-AUTH-007",
+        "Keep regression authority available: tests/rollout-readiness.test.ts, tests/customer-baseline-proof-contract.test.ts"
+      ]
+    },
+    "SQ-KF-007": {
+      "preventiveDirective": "Keep content publication separate from storefront access authorization. Resolve lifecycle/access authority before exposing a published page.",
+      "forbiddenApproaches": [
+        "equating published content with public storefront access"
+      ],
+      "requiredBeforeEdit": [
+        "Review invariant authority: SQ-AUTH-001, SQ-AUTH-007",
+        "Keep regression authority available: tests/pilot-acceptance-access.test.ts"
+      ]
+    },
+    "SQ-KF-008": {
+      "preventiveDirective": "Reconcile against the current release base before release proof. Do not reuse stale feature-head evidence as current production evidence.",
+      "forbiddenApproaches": [
+        "deploying a stale stacked branch over a newer main"
+      ],
+      "requiredBeforeEdit": [
+        "Review invariant authority: SQ-AUTH-004, SQ-AUTH-007",
+        "Keep regression authority available: tests/rollout-readiness.test.ts"
+      ]
+    },
+    "SQ-KF-009": {
+      "preventiveDirective": "Keep fresh-install evidence and existing-production schema parity as separate proofs.",
+      "forbiddenApproaches": [
+        "treating Fresh Install PASS as proof that the live database is current"
+      ],
+      "requiredBeforeEdit": [
+        "Review invariant authority: SQ-AUTH-003, SQ-AUTH-004",
+        "Keep regression authority available: tests/customer-baseline-proof-contract.test.ts, tests/rollout-readiness.test.ts"
+      ]
+    },
+    "SQ-KF-010": {
+      "preventiveDirective": "Provision and verify all acceptance fixtures explicitly. Do not depend on hidden mutable environment state.",
+      "forbiddenApproaches": [
+        "assuming named coupons/providers/products already exist in the target environment"
+      ],
+      "requiredBeforeEdit": [
+        "Review invariant authority: SQ-AUTH-006, SQ-AUTH-007",
+        "Keep regression authority available: tests/storefront-playroom-v20-functional-acceptance.test.ts"
+      ]
+    },
+    "SQ-KF-011": {
+      "preventiveDirective": "Compose the canonical shared capability into the surface; never duplicate account, commerce, support or platform behavior locally.",
+      "forbiddenApproaches": [
+        "second account/auth/commerce/support implementation inside a template or module"
+      ],
+      "requiredBeforeEdit": [
+        "Review invariant authority: SQ-AUTH-001, SQ-AUTH-007",
+        "Keep regression authority available: tests/storefront-account-capability-navigation.test.tsx, tests/shoperation-quality-knowledge.test.ts"
+      ]
+    },
+    "SQ-KF-012": {
+      "preventiveDirective": "Design mobile interaction as its own responsive composition where required; do not merely shrink desktop density.",
+      "forbiddenApproaches": [
+        "desktop interaction compressed into mobile without interaction-mode change"
+      ],
+      "requiredBeforeEdit": [
+        "Review invariant authority: SQ-AUTH-001, SQ-AUTH-007",
+        "Keep regression authority available: tests/storefront-responsive-isolation.test.ts, tests/admin-mobile-desktop-compat.test.ts"
+      ]
+    },
+    "SQ-KF-013": {
+      "preventiveDirective": "Prove that the guard selector activated every relevant failure class. A green result is invalid if applicability selection is incomplete.",
+      "forbiddenApproaches": [
+        "accepting PASS without guard-selection evidence"
+      ],
+      "requiredBeforeEdit": [
+        "Review invariant authority: SQ-AUTH-002, SQ-AUTH-009",
+        "Keep regression authority available: tests/shoperation-quality-knowledge.test.ts"
+      ]
+    },
+    "SQ-KF-014": {
+      "preventiveDirective": "Persist unknown/review-required failure intake until explicit disposition; never allow a transient CI artifact to be the sole record.",
+      "forbiddenApproaches": [
+        "silently dropping unresolved failure intake between cycles"
+      ],
+      "requiredBeforeEdit": [
+        "Review invariant authority: SQ-AUTH-010, SQ-AUTH-007",
+        "Keep regression authority available: tests/shoperation-quality-knowledge.test.ts"
+      ]
+    },
+    "SQ-KF-015": {
+      "preventiveDirective": "Name the authoritative state transition explicitly: source, persisted draft/package and runtime are separate. Prove the intended materialization step.",
+      "forbiddenApproaches": [
+        "assuming source edits automatically update persisted or live state"
+      ],
+      "requiredBeforeEdit": [
+        "Review invariant authority: SQ-AUTH-011, SQ-AUTH-007",
+        "Keep regression authority available: tests/storefront-template-persistence.test.ts, tests/storefront-runtime-persistence.test.ts, tests/storefront-preview-demo-content-routing.test.ts"
+      ]
+    },
+    "SQ-KF-016": {
+      "preventiveDirective": "Use one canonical responsive/workspace authority. Base layout decisions on the product viewport/workspace contract, not host-device heuristics or compensating zoom.",
+      "forbiddenApproaches": [
+        "navigator.userAgent as responsive authority",
+        "fixed zoom/scale as a substitute for layout ownership"
+      ],
+      "requiredBeforeEdit": [
+        "Review invariant authority: SQ-AUTH-012, SQ-AUTH-007",
+        "Keep regression authority available: tests/visual-builder-mobile-isolation.test.ts, tests/admin-mobile-desktop-compat.test.ts, tests/storefront-responsive-isolation.test.ts"
+      ]
+    },
+    "SQ-KF-017": {
+      "preventiveDirective": "Resolve tenant and operating context before capability, route or mutation selection; fail closed on null or ambiguity.",
+      "forbiddenApproaches": [
+        "first-tenant fallback",
+        "null-to-default tenant selection"
+      ],
+      "requiredBeforeEdit": [
+        "Review invariant authority: SQ-AUTH-013, SQ-AUTH-007",
+        "Keep regression authority available: tests/platform-owner-zero-tenant-hotfix.test.ts, tests/operational-tenant-isolation.test.ts, tests/pilot-acceptance-access.test.ts"
+      ]
+    },
+    "SQ-KF-018": {
+      "preventiveDirective": "Encode every required migration/grant/symbol as part of the target environment baseline and prove it before runtime use.",
+      "forbiddenApproaches": [
+        "assuming staging/production has a dependency because source or another environment has it"
+      ],
+      "requiredBeforeEdit": [
+        "Review invariant authority: SQ-AUTH-003, SQ-AUTH-007",
+        "Keep regression authority available: tests/customer-baseline-proof-contract.test.ts, tests/digital-commerce-customer-baseline-parity.test.ts, tests/customer-baseline-target-postflight.test.ts"
+      ]
+    },
+    "SQ-KF-019": {
+      "preventiveDirective": "Keep price, stock, order identity, release and compatibility truth server-owned. Presentation may display, never invent or override.",
+      "forbiddenApproaches": [
+        "client clock/template copy/demo state used as commerce truth"
+      ],
+      "requiredBeforeEdit": [
+        "Review invariant authority: SQ-AUTH-014, SQ-AUTH-007",
+        "Keep regression authority available: tests/commerce-pricing.test.ts, tests/core-checkout-quote.test.ts, tests/order-lifecycle-contracts.test.ts"
+      ]
+    },
+    "SQ-KF-020": {
+      "preventiveDirective": "Keep evidence promotion independently reachable. The command that promotes accepted evidence may not require that same new evidence to already be accepted.",
+      "forbiddenApproaches": [
+        "circular golden/evidence promotion gate"
+      ],
+      "requiredBeforeEdit": [
+        "Review invariant authority: SQ-AUTH-015, SQ-AUTH-004, SQ-AUTH-007",
+        "Keep regression authority available: tests/template-golden-baseline-promotion-policy.test.ts, tests/rollout-readiness.test.ts"
+      ]
+    },
+    "SQ-KF-021": {
+      "preventiveDirective": "Use canonical machine identity for Support Knowledge records; retain human IDs only as retrieval aliases.",
+      "forbiddenApproaches": [
+        "using a reused human-readable SKB ID as the sole machine key"
+      ],
+      "requiredBeforeEdit": [
+        "Review invariant authority: SQ-AUTH-016, SQ-AUTH-010, SQ-AUTH-007",
+        "Keep regression authority available: tests/shoperation-historical-support-backfill.test.ts"
+      ]
+    },
+    "SQ-KF-022": {
+      "preventiveDirective": "Load and read the active Development Guard before the first code edit, then run Edit-Time Guard and Incremental Replay after each coherent change batch.",
+      "forbiddenApproaches": [
+        "coding first and consulting Known Failures only when CI fails"
+      ],
+      "requiredBeforeEdit": [
+        "Review invariant authority: SQ-AUTH-002, SQ-AUTH-009, SQ-AUTH-017",
+        "Keep regression authority available: tests/shoperation-development-guard.test.ts"
+      ]
+    },
+    "TF-KF-001": {
+      "preventiveDirective": "Prevent \"Legacy package rendered instead of Factory candidate\" before implementation. Preserve TF-AUTH-003, TF-AUTH-008 and do not recreate the recorded root cause: QA and Product Owner preview resolve different package authorities or lose factory/version identity.",
+      "forbiddenApproaches": [
+        "Do not recreate this Template Factory root cause: QA and Product Owner preview resolve different package authorities or lose factory/version identity."
+      ],
+      "requiredBeforeEdit": [
+        "Read TF-KF-001 in src/lib/builder/template-factory/knowledge-registry.ts",
+        "Keep regression authority available: tests/storefront-template-preview-runtime.test.ts, tests/template-factory-procedural-memory.test.ts"
+      ]
+    },
+    "TF-KF-002": {
+      "preventiveDirective": "Prevent \"Template-aware authentication falls back to generic storefront auth\" before implementation. Preserve TF-AUTH-001, TF-AUTH-002, TF-AUTH-003 and do not recreate the recorded root cause: Template identity is not carried across the preview-auth boundary.",
+      "forbiddenApproaches": [
+        "Do not recreate this Template Factory root cause: Template identity is not carried across the preview-auth boundary."
+      ],
+      "requiredBeforeEdit": [
+        "Read TF-KF-002 in src/lib/builder/template-factory/knowledge-registry.ts",
+        "Keep regression authority available: tests/storefront-auth-surface.test.ts, tests/template-factory-procedural-memory.test.ts"
+      ]
+    },
+    "TF-KF-003": {
+      "preventiveDirective": "Prevent \"Category-foundation auth composition leaks into a new template\" before implementation. Preserve TF-AUTH-002 and do not recreate the recorded root cause: The account page was inherited even though signed-out auth presentation is template-owned.",
+      "forbiddenApproaches": [
+        "Do not recreate this Template Factory root cause: The account page was inherited even though signed-out auth presentation is template-owned."
+      ],
+      "requiredBeforeEdit": [
+        "Read TF-KF-003 in src/lib/builder/template-factory/knowledge-registry.ts",
+        "Keep regression authority available: tests/template-factory-loot-vault-v2.test.ts, tests/template-factory-procedural-memory.test.ts"
+      ]
+    },
+    "TF-KF-004": {
+      "preventiveDirective": "Prevent \"Foundation brand or media leak\" before implementation. Preserve TF-AUTH-004, TF-AUTH-007 and do not recreate the recorded root cause: Inherited content was not neutralized or an inherited page bypassed recipe ownership rules.",
+      "forbiddenApproaches": [
+        "Do not recreate this Template Factory root cause: Inherited content was not neutralized or an inherited page bypassed recipe ownership rules."
+      ],
+      "requiredBeforeEdit": [
+        "Read TF-KF-004 in src/lib/builder/template-factory/knowledge-registry.ts",
+        "Keep regression authority available: tests/template-factory-scaffold-v1.test.ts, tests/template-factory-procedural-memory.test.ts"
+      ]
+    },
+    "TF-KF-005": {
+      "preventiveDirective": "Prevent \"Green technical gate does not prove the Product Owner path\" before implementation. Preserve TF-AUTH-003, TF-AUTH-008 and do not recreate the recorded root cause: The quality system proved an internal route but did not bind the handoff artifact to the same candidate identity.",
+      "forbiddenApproaches": [
+        "Do not recreate this Template Factory root cause: The quality system proved an internal route but did not bind the handoff artifact to the same candidate identity."
+      ],
+      "requiredBeforeEdit": [
+        "Read TF-KF-005 in src/lib/builder/template-factory/knowledge-registry.ts",
+        "Keep regression authority available: tests/storefront-template-preview-runtime.test.ts, tests/template-factory-procedural-memory.test.ts"
+      ]
+    },
+    "TF-KF-006": {
+      "preventiveDirective": "Prevent \"Responsive defect repeats on later templates\" before implementation. Preserve TF-AUTH-006 and do not recreate the recorded root cause: A prior template-specific correction was not promoted into shared responsive or browser-matrix authority.",
+      "forbiddenApproaches": [
+        "Do not recreate this Template Factory root cause: A prior template-specific correction was not promoted into shared responsive or browser-matrix authority."
+      ],
+      "requiredBeforeEdit": [
+        "Read TF-KF-006 in src/lib/builder/template-factory/knowledge-registry.ts",
+        "Keep regression authority available: tests/storefront-responsive-isolation.test.ts, tests/template-factory-procedural-memory.test.ts"
+      ]
+    },
+    "TF-KF-007": {
+      "preventiveDirective": "Prevent \"Browser proof samples streamed route or UI before the proof surface settles\" before implementation. Preserve TF-AUTH-009 and do not recreate the recorded root cause: The browser harness sampled a streamed React/Next.js route or DOM surface before waiting for the asserted navigation and visible state to settle.",
+      "forbiddenApproaches": [
+        "Do not recreate this Template Factory root cause: The browser harness sampled a streamed React/Next.js route or DOM surface before waiting for the asserted navigation and visible state to settle."
+      ],
+      "requiredBeforeEdit": [
+        "Read TF-KF-007 in src/lib/builder/template-factory/knowledge-registry.ts",
+        "Keep regression authority available: tests/template-factory-procedural-memory.test.ts"
+      ]
+    },
+    "TF-KF-008": {
+      "preventiveDirective": "Prevent \"Product Owner preview depends on active tenant or subscription plan after login\" before implementation. Preserve TF-AUTH-003, TF-AUTH-008, TF-AUTH-010 and do not recreate the recorded root cause: The Product Owner preview route reused merchant/storefront authorization that resolves a current tenant and plan even though the candidate preview is tenant-independent.",
+      "forbiddenApproaches": [
+        "Do not recreate this Template Factory root cause: The Product Owner preview route reused merchant/storefront authorization that resolves a current tenant and plan even though the candidate preview is tenant-independent."
+      ],
+      "requiredBeforeEdit": [
+        "Read TF-KF-008 in src/lib/builder/template-factory/knowledge-registry.ts",
+        "Keep regression authority available: tests/storefront-template-preview-access.test.ts, tests/storefront-auth-surface.test.ts, tests/template-factory-procedural-memory.test.ts"
+      ]
+    },
+    "TF-KF-009": {
+      "preventiveDirective": "Prevent \"Factory canary subset mislabeled as full browser matrix\" before implementation. Preserve TF-AUTH-008, TF-AUTH-011 and do not recreate the recorded root cause: Acceptance evaluated only the cases that happened to run instead of proving complete canonical page-by-viewport coverage, while fallback scope allowed Factory candidates to remain canary-only.",
+      "forbiddenApproaches": [
+        "Do not recreate this Template Factory root cause: Acceptance evaluated only the cases that happened to run instead of proving complete canonical page-by-viewport coverage, while fallback scope allowed Factory candidates to remain canary-only."
+      ],
+      "requiredBeforeEdit": [
+        "Read TF-KF-009 in src/lib/builder/template-factory/knowledge-registry.ts",
+        "Keep regression authority available: tests/template-factory-procedural-memory.test.ts"
+      ]
+    },
+    "TF-KF-010": {
+      "preventiveDirective": "Prevent \"Product Owner handoff verifier exists but is orphaned from CI\" before implementation. Preserve TF-AUTH-008, TF-AUTH-012 and do not recreate the recorded root cause: The proof script was implemented as a local capability but never wired to an exact-head deployment resolver, protected authentication secrets and persisted CI evidence.",
+      "forbiddenApproaches": [
+        "Do not recreate this Template Factory root cause: The proof script was implemented as a local capability but never wired to an exact-head deployment resolver, protected authentication secrets and persisted CI evidence."
+      ],
+      "requiredBeforeEdit": [
+        "Read TF-KF-010 in src/lib/builder/template-factory/knowledge-registry.ts",
+        "Keep regression authority available: tests/template-factory-procedural-memory.test.ts"
+      ]
+    },
+    "TF-KF-011": {
+      "preventiveDirective": "Prevent \"Product Owner PR proof binds to merge-ref SHA instead of branch HEAD\" before implementation. Preserve TF-AUTH-008, TF-AUTH-013 and do not recreate the recorded root cause: The journey workflow used github.sha/context.sha uniformly across push and pull_request events instead of normalizing to pull_request.head.sha for PR execution.",
+      "forbiddenApproaches": [
+        "Do not recreate this Template Factory root cause: The journey workflow used github.sha/context.sha uniformly across push and pull_request events instead of normalizing to pull_request.head.sha for PR execution."
+      ],
+      "requiredBeforeEdit": [
+        "Read TF-KF-011 in src/lib/builder/template-factory/knowledge-registry.ts",
+        "Keep regression authority available: tests/template-factory-procedural-memory.test.ts"
+      ]
+    },
+    "TF-KF-012": {
+      "preventiveDirective": "Prevent \"Responsive duplicate auth controls break strict Product Owner locator\" before implementation. Preserve TF-AUTH-009, TF-AUTH-014 and do not recreate the recorded root cause: The verifier selected auth controls from all semantic auth surfaces instead of first constraining authority to the single visible active surface and then locating structural controls within it.",
+      "forbiddenApproaches": [
+        "Do not recreate this Template Factory root cause: The verifier selected auth controls from all semantic auth surfaces instead of first constraining authority to the single visible active surface and then locating structural controls within it."
+      ],
+      "requiredBeforeEdit": [
+        "Read TF-KF-012 in src/lib/builder/template-factory/knowledge-registry.ts",
+        "Keep regression authority available: tests/template-factory-procedural-memory.test.ts"
+      ]
+    },
+    "TF-KF-013": {
+      "preventiveDirective": "Prevent \"Unexpected journey exception exits before handoff proof is persisted\" before implementation. Preserve TF-AUTH-008, TF-AUTH-015 and do not recreate the recorded root cause: Proof serialization lived inside the happy-path try block instead of after guarded browser cleanup.",
+      "forbiddenApproaches": [
+        "Do not recreate this Template Factory root cause: Proof serialization lived inside the happy-path try block instead of after guarded browser cleanup."
+      ],
+      "requiredBeforeEdit": [
+        "Read TF-KF-013 in src/lib/builder/template-factory/knowledge-registry.ts",
+        "Keep regression authority available: tests/template-factory-procedural-memory.test.ts"
+      ]
+    },
+    "TF-KF-014": {
+      "preventiveDirective": "Prevent \"Vercel Deployment Protection is mistaken for Shoperation preview output\" before implementation. Preserve TF-AUTH-008, TF-AUTH-016 and do not recreate the recorded root cause: The CI browser reached a protected Vercel deployment without the dedicated automation bypass header, so application routing and authentication never executed.",
+      "forbiddenApproaches": [
+        "Do not recreate this Template Factory root cause: The CI browser reached a protected Vercel deployment without the dedicated automation bypass header, so application routing and authentication never executed."
+      ],
+      "requiredBeforeEdit": [
+        "Read TF-KF-014 in src/lib/builder/template-factory/knowledge-registry.ts",
+        "Keep regression authority available: tests/template-factory-procedural-memory.test.ts"
+      ]
+    },
+    "TF-KF-015": {
+      "preventiveDirective": "Prevent \"Stacked Product Owner proof leaf is excluded by its own secret allowlist\" before implementation. Preserve TF-AUTH-012, TF-AUTH-017 and do not recreate the recorded root cause: Secret exposure was narrowed with a branch-name predicate that covered an ancestor proof branch but not the active stacked leaf carrying the final bypass wiring.",
+      "forbiddenApproaches": [
+        "Do not recreate this Template Factory root cause: Secret exposure was narrowed with a branch-name predicate that covered an ancestor proof branch but not the active stacked leaf carrying the final bypass wiring."
+      ],
+      "requiredBeforeEdit": [
+        "Read TF-KF-015 in src/lib/builder/template-factory/knowledge-registry.ts",
+        "Keep regression authority available: tests/template-factory-procedural-memory.test.ts"
+      ]
+    },
+    "TF-KF-016": {
+      "preventiveDirective": "Prevent \"Declared Page Schema exists but is not Product Owner navigable\" before implementation. Preserve TF-AUTH-018 and do not recreate the recorded root cause: Page-count acceptance was treated as storefront completeness without a canonical navigation and reachability inventory.",
+      "forbiddenApproaches": [
+        "Do not recreate this Template Factory root cause: Page-count acceptance was treated as storefront completeness without a canonical navigation and reachability inventory."
+      ],
+      "requiredBeforeEdit": [
+        "Read TF-KF-016 in src/lib/builder/template-factory/knowledge-registry.ts",
+        "Keep regression authority available: tests/template-factory-storefront-contract.test.ts, tests/template-factory-procedural-memory.test.ts"
+      ]
+    },
+    "TF-KF-017": {
+      "preventiveDirective": "Prevent \"Shopper entrypoints resolve to fragmented route authorities\" before implementation. Preserve TF-AUTH-019 and do not recreate the recorded root cause: Journey proof validated individual pages but not multi-entry convergence.",
+      "forbiddenApproaches": [
+        "Do not recreate this Template Factory root cause: Journey proof validated individual pages but not multi-entry convergence."
+      ],
+      "requiredBeforeEdit": [
+        "Read TF-KF-017 in src/lib/builder/template-factory/knowledge-registry.ts",
+        "Keep regression authority available: tests/template-factory-storefront-contract.test.ts, tests/template-factory-procedural-memory.test.ts"
+      ]
+    },
+    "TF-KF-018": {
+      "preventiveDirective": "Prevent \"Functional route leaks legacy or foreign-template presentation\" before implementation. Preserve TF-AUTH-020 and do not recreate the recorded root cause: Shared route behavior was not bound to the active template presentation authority.",
+      "forbiddenApproaches": [
+        "Do not recreate this Template Factory root cause: Shared route behavior was not bound to the active template presentation authority."
+      ],
+      "requiredBeforeEdit": [
+        "Read TF-KF-018 in src/lib/builder/template-factory/knowledge-registry.ts",
+        "Keep regression authority available: tests/template-factory-storefront-contract.test.ts, tests/template-factory-procedural-memory.test.ts"
+      ]
+    },
+    "TF-KF-019": {
+      "preventiveDirective": "Prevent \"Pretty demo page is disconnected from the real business route\" before implementation. Preserve TF-AUTH-019, TF-AUTH-020 and do not recreate the recorded root cause: Demo presentation and canonical business-route authority were accepted independently.",
+      "forbiddenApproaches": [
+        "Do not recreate this Template Factory root cause: Demo presentation and canonical business-route authority were accepted independently."
+      ],
+      "requiredBeforeEdit": [
+        "Read TF-KF-019 in src/lib/builder/template-factory/knowledge-registry.ts",
+        "Keep regression authority available: tests/template-factory-storefront-contract.test.ts, tests/template-factory-procedural-memory.test.ts"
+      ]
+    },
+    "TF-KF-020": {
+      "preventiveDirective": "Prevent \"Authenticated account route is technically valid but functionally empty\" before implementation. Preserve TF-AUTH-021 and do not recreate the recorded root cause: Authentication proof was used as a proxy for complete account UX.",
+      "forbiddenApproaches": [
+        "Do not recreate this Template Factory root cause: Authentication proof was used as a proxy for complete account UX."
+      ],
+      "requiredBeforeEdit": [
+        "Read TF-KF-020 in src/lib/builder/template-factory/knowledge-registry.ts",
+        "Keep regression authority available: tests/template-factory-storefront-contract.test.ts, tests/template-factory-procedural-memory.test.ts"
+      ]
+    },
+    "TF-KF-021": {
+      "preventiveDirective": "Prevent \"Shared engine exists but has no visible demo integration\" before implementation. Preserve TF-AUTH-022 and do not recreate the recorded root cause: Engine registration was accepted without observable storefront components and reachable demo flows.",
+      "forbiddenApproaches": [
+        "Do not recreate this Template Factory root cause: Engine registration was accepted without observable storefront components and reachable demo flows."
+      ],
+      "requiredBeforeEdit": [
+        "Read TF-KF-021 in src/lib/builder/template-factory/knowledge-registry.ts",
+        "Keep regression authority available: tests/template-factory-storefront-contract.test.ts, tests/template-factory-procedural-memory.test.ts"
+      ]
+    },
+    "TF-KF-022": {
+      "preventiveDirective": "Prevent \"Template claims platform capability without demonstrating it\" before implementation. Preserve TF-AUTH-018, TF-AUTH-022 and do not recreate the recorded root cause: Capability declaration and demo evidence were not contractually coupled.",
+      "forbiddenApproaches": [
+        "Do not recreate this Template Factory root cause: Capability declaration and demo evidence were not contractually coupled."
+      ],
+      "requiredBeforeEdit": [
+        "Read TF-KF-022 in src/lib/builder/template-factory/knowledge-registry.ts",
+        "Keep regression authority available: tests/template-factory-storefront-contract.test.ts, tests/template-factory-procedural-memory.test.ts"
+      ]
+    },
+    "TF-KF-023": {
+      "preventiveDirective": "Prevent \"Visual browser matrix passes while storefront journey identity is fragmented\" before implementation. Preserve TF-AUTH-019, TF-AUTH-024 and do not recreate the recorded root cause: The 14×3 matrix measured isolated render quality rather than end-to-end storefront identity continuity.",
+      "forbiddenApproaches": [
+        "Do not recreate this Template Factory root cause: The 14×3 matrix measured isolated render quality rather than end-to-end storefront identity continuity."
+      ],
+      "requiredBeforeEdit": [
+        "Read TF-KF-023 in src/lib/builder/template-factory/knowledge-registry.ts",
+        "Keep regression authority available: tests/template-factory-storefront-contract.test.ts, tests/template-factory-procedural-memory.test.ts"
+      ]
+    },
+    "TF-KF-024": {
+      "preventiveDirective": "Prevent \"Placeholder or fallback content reaches Product Owner handoff\" before implementation. Preserve TF-AUTH-023, TF-AUTH-024 and do not recreate the recorded root cause: Demo-data presence was accepted without Product Owner showroom-quality validation.",
+      "forbiddenApproaches": [
+        "Do not recreate this Template Factory root cause: Demo-data presence was accepted without Product Owner showroom-quality validation."
+      ],
+      "requiredBeforeEdit": [
+        "Read TF-KF-024 in src/lib/builder/template-factory/knowledge-registry.ts",
+        "Keep regression authority available: tests/template-factory-storefront-contract.test.ts, tests/template-factory-procedural-memory.test.ts"
+      ]
+    }
+  },
+  "editRules": [
+    {
+      "id": "DEV-BLOCK-001",
+      "severity": "block",
+      "title": "Browser-native dialog introduced into product workflow",
+      "filePatterns": [
+        "src/**"
+      ],
+      "pattern": "\\b(?:alert|confirm|prompt)\\s*\\(",
+      "failureIds": [
+        "SQ-KF-001"
+      ],
+      "message": "Use Shoperation UI/modal authority instead of browser-native dialogs."
+    },
+    {
+      "id": "DEV-BLOCK-002",
+      "severity": "block",
+      "title": "First-tenant fallback introduced",
+      "filePatterns": [
+        "src/**"
+      ],
+      "pattern": "\\b(?:tenants|webshops|stores)\\s*\\[\\s*0\\s*\\]",
+      "failureIds": [
+        "SQ-KF-017"
+      ],
+      "message": "Resolve tenant/context explicitly; do not select the first tenant as fallback."
+    },
+    {
+      "id": "DEV-BLOCK-003",
+      "severity": "block",
+      "title": "Host user-agent introduced as responsive authority",
+      "filePatterns": [
+        "src/app/**",
+        "src/components/**",
+        "src/lib/builder/**"
+      ],
+      "pattern": "navigator\\.(?:userAgent|userAgentData)",
+      "failureIds": [
+        "SQ-KF-016"
+      ],
+      "message": "Responsive authority must come from the canonical viewport/workspace contract."
+    },
+    {
+      "id": "DEV-REVIEW-001",
+      "severity": "review",
+      "title": "Fixed zoom/scale compensation added",
+      "filePatterns": [
+        "src/**",
+        "**/*.css"
+      ],
+      "pattern": "(?:\\bzoom\\s*:|transform\\s*:\\s*scale\\s*\\()",
+      "failureIds": [
+        "SQ-KF-016"
+      ],
+      "message": "Known failed approach: fixed zoom/scale may hide ownership/scroll geometry defects. Explicit exception required."
+    },
+    {
+      "id": "DEV-REVIEW-002",
+      "severity": "review",
+      "title": "Width heuristic added directly in UI code",
+      "filePatterns": [
+        "src/app/**",
+        "src/components/**",
+        "src/lib/builder/**"
+      ],
+      "pattern": "(?:window\\.innerWidth|document\\.documentElement\\.clientWidth)",
+      "failureIds": [
+        "SQ-KF-016"
+      ],
+      "message": "Confirm this is measurement input to the canonical responsive authority, not a second responsive controller."
+    },
+    {
+      "id": "DEV-REVIEW-003",
+      "severity": "review",
+      "title": "Direct database mutation added in UI surface",
+      "filePatterns": [
+        "src/app/**",
+        "src/components/**"
+      ],
+      "pattern": "\\.from\\([^\\n]*\\)\\.(?:insert|update|delete|upsert)\\s*\\(",
+      "failureIds": [
+        "SQ-KF-001",
+        "SQ-KF-017"
+      ],
+      "message": "Confirm the mutation uses the canonical governed authority and tenant boundary; explicit exception required."
+    },
+    {
+      "id": "DEV-REVIEW-004",
+      "severity": "review",
+      "title": "Hard-coded business route added inside Template Factory authority",
+      "filePatterns": [
+        "src/lib/builder/template-factory/**"
+      ],
+      "pattern": "['\"]\\/(?:fiokom|checkout|kosar|cart|account)(?:[\\/?'\"])",
+      "failureIds": [
+        "TF-KF-017",
+        "TF-KF-019",
+        "TF-KF-020"
+      ],
+      "message": "Confirm route convergence and shared business-route authority; explicit exception required."
+    }
+  ]
+}
