@@ -15,11 +15,19 @@ import {
 } from '@/lib/builder/template-factory/procedural-memory';
 
 describe('Template Factory procedural memory',()=>{
-  it('keeps browser proof assertions synchronized with streamed screenshot state',()=>{
+  it('keeps browser proof assertions synchronized with streamed route and DOM state',()=>{
     const harness=fs.readFileSync('scripts/template-factory-quality-gate.mjs','utf8');
+    const handoff=fs.readFileSync('scripts/template-factory-product-owner-handoff.mjs','utf8');
     expect(harness).toContain("await runtimeRoot.waitFor({state:'visible',timeout:10000})");
     expect(harness).toContain("await demoWarning.waitFor({state:'visible',timeout:5000})");
     expect(harness).toContain("errors:caseErrors");
+    expect(handoff).toContain("waitForURL(url=>url.pathname==='/storefront-template-preview-login',{timeout:10000})");
+    expect(handoff).toContain("await shell.waitFor({state:'visible',timeout:10000})");
+    expect(handoff).toContain("await authSurface.waitFor({state:'visible',timeout:10000})");
+    expect(handoff).toContain("await root.waitFor({state:'visible',timeout:10000})");
+    const streamedFailure=TEMPLATE_FACTORY_KNOWN_FAILURES.find(item=>item.id==='TF-KF-007');
+    expect(streamedFailure?.occurrences).toBeGreaterThanOrEqual(2);
+    expect(streamedFailure?.remediationPolicy).toBe('shared-root-cause-required');
   });
 
   it('never lets a Factory canary subset satisfy full browser-matrix acceptance',()=>{
