@@ -137,6 +137,17 @@ const image=(id:string,src:string,alt:string,span:StorefrontGridSpan=12,style:Re
 });
 const badge=(id:string,value:string)=>n({id,componentKey:'content.text',componentVersion:1,config:{text:value,as:'strong',align:'left',tone:'text',style:{display:'inline-flex',width:'fit-content',padding:'.28rem .48rem',border:'1px solid rgba(183,138,80,.62)',borderRadius:'999px',color:'#e3c89d',fontSize:'.63rem',fontWeight:850,letterSpacing:'.09em',textTransform:'uppercase'}}});
 
+const boundHeading=(id:string,path:string,fallback:string,level=1,style:Record<string,unknown>={})=>n({
+  id,componentKey:'content.heading',componentVersion:1,
+  config:{text:fallback,level,align:'left',tone:'text',typography:{fontToken:'heading',fontWeight:800,lineHeight:level===1?.94:1.05,letterSpacingEm:level===1?-.035:-.02},style:{color:'#f3ebdd',...style}},
+  bindings:{text:{path,fallback}},
+});
+const boundText=(id:string,path:string,fallback:string,style:Record<string,unknown>={})=>n({
+  id,componentKey:'content.text',componentVersion:1,
+  config:{text:fallback,as:'p',align:'left',tone:'text',typography:{fontToken:'body',lineHeight:1.68},style:{color:'#b9b1a5',whiteSpace:'pre-line',...style}},
+  bindings:{text:{path,fallback}},
+});
+
 const universeCard=(id:string,title:string,copy:string,src:string)=>stack(id,[
   image(`${id}-image`,src,`${title} — ${copy}`,12,{height:'10rem',minHeight:'10rem'}),
   heading(`${id}-title`,title,3,{fontSize:'.95rem'}),
@@ -404,17 +415,6 @@ export const LOOT_VAULT_V2_BLOG_ARTICLE_PAGE=override(LOOT_VAULT_BLOG_ARTICLE_PA
   createLootVaultV2ShellFooter(),
 ],{referenceComposition:'accepted-2026-09-06',referenceCritical:true});
 
-
-const boundHeading=(id:string,path:string,fallback:string,level=1,style:Record<string,unknown>={})=>n({
-  id,componentKey:'content.heading',componentVersion:1,
-  config:{text:fallback,level,align:'left',tone:'text',typography:{fontToken:'heading',fontWeight:800,lineHeight:level===1?.94:1.05,letterSpacingEm:level===1?-.035:-.02},style:{color:'#f3ebdd',...style}},
-  bindings:{text:{path,fallback}},
-});
-const boundText=(id:string,path:string,fallback:string,style:Record<string,unknown>={})=>n({
-  id,componentKey:'content.text',componentVersion:1,
-  config:{text:fallback,as:'p',align:'left',tone:'text',typography:{fontToken:'body',lineHeight:1.68},style:{color:'#b9b1a5',whiteSpace:'pre-line',...style}},
-  bindings:{text:{path,fallback}},
-});
 
 export const LOOT_VAULT_V2_CART_PAGE=override(LOOT_VAULT_CART_PAGE,[
   createLootVaultV2ShellHeader(),
