@@ -1,30 +1,37 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-13146A82",
-  "task": "Build the database schema for the Shoperation incident ledger, immutable audit trail, repair requests and bounded self-healing runs.",
+  "taskId": "DEV-22323BE1",
+  "task": "Add incident-intelligence scope classification to Quality Knowledge and release risk policy.",
   "status": "ready-for-implementation",
-  "guardDigest": "13146a82",
+  "guardDigest": "22323be1",
   "plannedFilePatterns": [
-    "quality/development/active-plan.json",
-    "supabase/migrations/20260924103000_incident_intelligence_foundation_v1.sql",
-    "tests/incident-intelligence-schema.test.ts"
+    "quality/development/active-plan.json"
   ],
   "expectedSubsystems": [
-    "database-schema"
+    "quality-knowledge-system",
+    "release-infrastructure"
   ],
   "expectedKnownFailureIds": [
+    "SQ-KF-003",
+    "SQ-KF-004",
     "SQ-KF-006",
+    "SQ-KF-008",
     "SQ-KF-009",
-    "SQ-KF-010",
     "SQ-KF-013",
     "SQ-KF-014",
     "SQ-KF-018",
+    "SQ-KF-020",
+    "SQ-KF-021",
     "SQ-KF-022"
   ],
   "acknowledgedNegativeKnowledgeIds": [
+    "SQ-NK-002",
+    "SQ-NK-003",
     "SQ-NK-005",
+    "SQ-NK-010",
+    "SQ-NK-011",
     "SQ-NK-012"
   ],
   "exceptions": [],
-  "notes": "Database implementation wave. High-risk schema change is isolated as the only production subsystem in this commit; tests are neutral."
+  "notes": "Planning-only governance wave. Policy implementation follows after Plan Before Code PASS."
 }
