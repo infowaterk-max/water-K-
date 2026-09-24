@@ -1,6 +1,7 @@
 'use client';
 
 import {useMemo,useRef,useState,type CSSProperties} from 'react';
+import {usePathname,useRouter,useSearchParams} from 'next/navigation';
 import {useCart} from '@/components/cart/cart-provider';
 import {useAnalytics} from '@/components/analytics/analytics-provider';
 import {normalizeMinimumQuantity,normalizeOrderMultiple,normalizeQuantity} from '@/lib/commerce/cart-engine';
@@ -29,6 +30,18 @@ export function StorefrontPurchaseControlsClient({
 }:Props){
   const{add}=useCart();
   const{track}=useAnalytics();
+  const pathname=usePathname();
+  const searchParams=useSearchParams();
+  const router=useRouter();
+  const factoryPreview=pathname==='/storefront-template-preview'&&searchParams.get('factory')==='1';
+  const previewAccountHref=useMemo(()=>{
+    if(!factoryPreview)return null;
+    const params=new URLSearchParams(searchParams.toString());
+    params.set('page','account');
+    params.delete('demoContent');
+    params.delete('embed');
+    return `/storefront-template-preview?${params.toString()}`;
+  },[factoryPreview,searchParams]);
   const step=normalizeOrderMultiple(orderMultiple);
   const minimum=normalizeMinimumQuantity(minimumQuantity,step);
   const maximum=Math.max(0,Math.floor(availableQuantity));
@@ -49,6 +62,7 @@ export function StorefrontPurchaseControlsClient({
   const wishlistStyle=useMemo<CSSProperties>(()=>({border:'1px solid var(--shoporation-color-border,#d8d8d8)',background:'var(--shoporation-color-background,#fff)',color:'var(--shoporation-color-text,#111)',fontSize:'1.1rem',padding:0,cursor:canWishlist?'pointer':'default',opacity:1,...styles.wishlist}),[canWishlist,styles.wishlist]);
 
   async function submitWishlist(){
+    if(previewAccountHref){router.push(previewAccountHref);return;}
     const{data:{user}}=await createClient().auth.getUser();
     if(!user){setWishlistAuthOpen(true);return;}
     wishlistFormRef.current?.requestSubmit();
