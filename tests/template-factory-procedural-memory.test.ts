@@ -25,6 +25,10 @@ describe('Template Factory procedural memory',()=>{
     expect(handoff).toContain("await shell.waitFor({state:'visible',timeout:10000})");
     expect(handoff).toContain("await authSurface.waitFor({state:'visible',timeout:10000})");
     expect(handoff).toContain("await root.first().waitFor({state:'visible',timeout:30000})");
+    expect(handoff).toContain("const allRoots=page.locator('[data-template-preview=\"representative-demo\"]')");
+    expect(handoff).toContain("const root=page.locator('[data-template-preview=\"representative-demo\"]:visible')");
+    expect(handoff).toContain('checks.visiblePreviewRootCount=await root.count()');
+
     expect(handoff).toContain("PREVIEW_TEMPLATE_KEY_MISMATCH");
     expect(handoff).toContain("PREVIEW_TEMPLATE_VERSION_MISMATCH");
     expect(handoff).toContain("PREVIEW_FACTORY_CANDIDATE_MISMATCH");
