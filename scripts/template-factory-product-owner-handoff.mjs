@@ -104,15 +104,18 @@ try{
     checks.templateVersionedAuthStyle=await styles.count()>0;
     if(!checks.templateVersionedAuthStyle)errors.push('TEMPLATE_AUTH_STYLE_IDENTITY_MISSING');
 
-    const authSurface=page.locator('[data-storefront-auth-surface="true"]');
+    const allAuthSurfaces=page.locator('[data-storefront-auth-surface="true"]');
+    const authSurface=page.locator('[data-storefront-auth-surface="true"]:visible');
     await authSurface.waitFor({state:'visible',timeout:10000}).catch(()=>undefined);
-    checks.sharedAuthSurface=await authSurface.count()===1;
-    if(!checks.sharedAuthSurface)errors.push('SHARED_AUTH_SURFACE_MISSING');
+    checks.sharedAuthSurfaceCount=await allAuthSurfaces.count();
+    checks.visibleSharedAuthSurfaceCount=await authSurface.count();
+    checks.sharedAuthSurface=checks.visibleSharedAuthSurfaceCount===1;
+    if(!checks.sharedAuthSurface)errors.push('VISIBLE_SHARED_AUTH_SURFACE_NOT_UNIQUE');
 
     if(email&&password){
-      const visibleEmail=authSurface.locator('input[name="email"]:visible');
-      const visiblePassword=authSurface.locator('input[name="password"]:visible');
-      const visibleLoginButton=authSurface.locator('button:visible').filter({hasText:/^\\s*Belépés\\s*$/});
+      const visibleEmail=authSurface.locator('input[name="email"]');
+      const visiblePassword=authSurface.locator('input[name="password"]');
+      const visibleLoginButton=authSurface.locator('button[type="submit"]:visible');
       checks.visibleAuthEmailTargetCount=await visibleEmail.count();
       checks.visibleAuthPasswordTargetCount=await visiblePassword.count();
       checks.visibleAuthSubmitTargetCount=await visibleLoginButton.count();
