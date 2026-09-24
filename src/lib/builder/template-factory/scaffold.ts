@@ -20,6 +20,11 @@ import {
   setStorefrontGlobalStyleState,
   type StorefrontGlobalStyleState,
 } from '@/lib/builder/storefront-global-styles';
+import {
+  createStorefrontTemplateShowroomEvidence,
+  evaluateStorefrontTemplateShowroomContract,
+  type StorefrontShowroomEvidenceRow,
+} from '@/lib/builder/storefront-template-route-integrity';
 
 export const STOREFRONT_TEMPLATE_FACTORY_VERSION='shoporation.template-factory-scaffold.v1' as const;
 
@@ -135,6 +140,7 @@ export type StorefrontTemplateFactoryBuild={
     technicalRepresentativeMediaCount:number;
     internalReferenceMediaCount:number;
     plannedMediaCount:number;
+    showroomEvidence:readonly StorefrontShowroomEvidenceRow[];
     issues:readonly StorefrontTemplateFactoryIssue[];
     technicalReady:boolean;
     productOwnerReady:boolean;
@@ -234,6 +240,10 @@ function evaluateBuild(input:{
     else if(page.templateKey!==recipe.templateKey||page.templateVersion!==recipe.templateVersion)issues.push(issue('FACTORY_PAGE_IDENTITY_MISMATCH',`pages.${pageType}`,'Compiled page identity does not match the target template.'));
   }
   if(pkg.pages.length!==STOREFRONT_PAGE_TYPES.length)issues.push(issue('FACTORY_PAGE_CARDINALITY','pages','Factory output must contain exactly 14 canonical pages.'));
+
+  for(const showroom of evaluateStorefrontTemplateShowroomContract(pkg)){
+    issues.push(issue(showroom.code,showroom.path,showroom.message,showroom.severity));
+  }
 
   for(const miss of input.patchMisses)issues.push(issue('FACTORY_PATCH_TARGET_MISSING',miss,'A declared factory patch did not match any node.'));
 
@@ -444,6 +454,7 @@ export function compileStorefrontTemplateFactoryPackage(input:{
       technicalRepresentativeMediaCount:recipe.media.assets.filter(asset=>asset.representative&&asset.state!=='planned').length,
       internalReferenceMediaCount:recipe.media.assets.filter(asset=>asset.state==='internal-reference').length,
       plannedMediaCount:recipe.media.assets.filter(asset=>asset.state==='planned').length,
+      showroomEvidence:createStorefrontTemplateShowroomEvidence(pkg),
       issues:Object.freeze(issues),
       technicalReady:issues.every(item=>item.severity!=='error'||item.code==='FACTORY_INTERNAL_VISUAL_REVIEW_REQUIRED'||item.code==='FACTORY_MEDIA_FINALIZATION_REQUIRED'),
       productOwnerReady:issues.every(item=>item.severity!=='error'),
