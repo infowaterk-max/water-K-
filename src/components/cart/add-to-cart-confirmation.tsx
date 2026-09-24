@@ -1,11 +1,21 @@
 'use client';
 import Link from 'next/link';
+import {usePathname,useSearchParams} from 'next/navigation';
 
 export function AddToCartConfirmation({open,productName,onClose}:{open:boolean;productName:string;onClose:()=>void}){
+ const pathname=usePathname();
+ const searchParams=useSearchParams();
+ const cartHref=pathname==='/storefront-template-preview'?(()=>{
+  const params=new URLSearchParams(searchParams.toString());
+  params.set('page','cart');
+  params.delete('demoContent');
+  params.delete('embed');
+  return `/storefront-template-preview?${params.toString()}`;
+ })():'/kosar';
  if(!open)return null;
  return <aside className="storefrontCartConfirmation" role="status" aria-live="polite" aria-atomic="true" data-storefront-cart-confirmation="shared-v1">
   <div className="storefrontCartConfirmationHead"><div><strong>A termék a kosárba került.</strong><span>{productName}</span></div><button type="button" onClick={onClose} aria-label="Kosárértesítés bezárása">×</button></div>
-  <div className="storefrontCartConfirmationActions"><Link href="/kosar" className="storefrontCartConfirmationPrimary">Kosár megnyitása</Link><button type="button" onClick={onClose}>Tovább vásárolok</button></div>
+  <div className="storefrontCartConfirmationActions"><Link href={cartHref} className="storefrontCartConfirmationPrimary">Kosár megnyitása</Link><button type="button" onClick={onClose}>Tovább vásárolok</button></div>
   <style jsx>{`
     .storefrontCartConfirmation{position:fixed;left:50%;top:50%;right:auto;bottom:auto;transform:translate(-50%,-50%);z-index:1200;width:min(32rem,calc(100vw - 2rem));padding:1rem;background:var(--shoporation-color-surface,#fff);color:var(--shoporation-color-text,#111827);border:1px solid var(--shoporation-color-border,#d1d5db);border-radius:var(--shoporation-radius-m,.9rem);box-shadow:0 22px 70px rgba(0,0,0,.32)}
     .storefrontCartConfirmationHead{display:flex;gap:1rem;align-items:flex-start;justify-content:space-between}.storefrontCartConfirmationHead div{display:grid;gap:.2rem}.storefrontCartConfirmationHead strong{font-size:1rem}.storefrontCartConfirmationHead span{font-size:.82rem;color:var(--shoporation-color-muted-text,#6b7280)}

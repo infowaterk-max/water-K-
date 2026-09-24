@@ -120,6 +120,7 @@ If yes, update Support Knowledge in the same development cycle. Production verif
 - `PRODUCTION_RELEASE_RISK_BUDGET_2026-09-23.md` — production release-size governance, 5-point risk budget, High-risk isolation and stabilization checkpoint.
 - `TEMPLATE_FACTORY_SCAFFOLD_V1_2026-09-23.md` — shared Template Factory compiler, category foundation + template recipe + media manifest and Product Owner readiness boundary.
 - `../TEMPLATE_FACTORY_SCAFFOLD_HARDENING_V1.md` — automatic foundation brand neutralization, per-role media production plan, recipe registry and Factory workflow path coverage.
+- `TEMPLATE_FACTORY_PROCEDURAL_MEMORY_2026-09-23.md` — executable Known Failure Registry, Authority Graph, preflight, failure replay, provenance, maturity and Product Owner handoff proof model.
 
 ### Shared storefront system surfaces / routes
 
@@ -180,3 +181,78 @@ If yes, update Support Knowledge in the same development cycle. Production verif
 34. **A release-risk block is resolved by splitting the release, not by weakening classification.** Unknown substantive production code defaults to Medium risk.
 35. **Template Factory technical validity and Product Owner readiness are separate gates.** New templates compile from an accepted category foundation plus a template recipe and media manifest; reference-critical pages, representative media, foundation-leak checks and internal screenshot review must pass before Product Owner preview.
 36. **The Template Factory gate must watch Template Factory sources themselves.** Changes under `src/lib/builder/template-factory/**`, Factory recipes/registries and `tests/**template-factory**` must trigger the exact-head Template Factory quality workflow; path filters may never exclude the authority they are intended to validate.
+37. **Foundation reuse must end at the authority boundary.** Factory-compiled templates may inherit proven page bodies, but the compiler must automatically neutralize Foundation brand/media and apply one target-template canonical shell. Reference-critical pages remain template-owned overrides, and the exact Factory output—not a parallel hand-built preview—is the artifact that advances through internal QA and Product Owner acceptance.
+38. **Internal reference media must never become a shipping dependency.** Keep the final package-owned path in `src`, put temporary internal-QA imagery only in `referenceSrc`, and allow it to satisfy browser/composition proof only. Product Owner readiness requires every representative asset to be `ready` and physically present in the package.
+39. **A repeated defect becomes executable procedural memory.** Record the failure class, root cause and authority invariant, then replay it against every registered Factory candidate. A second occurrence requires a shared-root-cause repair; a template-local patch alone is not closure.
+40. **Internal QA and Product Owner preview must resolve the same compiled Factory identity.** Template key, template version, recipe identity and Factory-candidate state must survive preview navigation and auth boundaries; legacy-catalog fallback is release-blocking.
+41. **Product Owner handoff is a separate post-deployment gate.** Green CI, browser matrix and Vercel READY are necessary but insufficient. The exact handed-off URL must prove template-aware auth, preserved return target, authenticated return and final provenance before it may be marked handoff-ready.
+42. **Factory Product Owner preview authorization is tenant-independent.** Authentication and authorization remain fail-closed, but the preview route must never require an active webshop, current-store resolver or merchant subscription-plan gate. Platform-operator authority or an active owner/admin RBAC binding authorizes access; the compiled Factory candidate provides preview capabilities.
+
+
+## Global Quality Knowledge / Procedural Memory v1
+
+The Support Knowledge corpus is the historical evidence layer of a wider Shoperation quality system. The shared machine-readable layer lives under `quality/knowledge/` and is consumed by `src/lib/quality-system/**`.
+
+Canonical execution rule: **global knowledge, scoped execution**.
+
+The system may know every verified Shoperation failure without replaying every domain-specific guard for every change. The Knowledge Scope Resolver derives the active guard set from changed files, subsystem ownership and bounded cross-subsystem dependencies. Every selection records why a failure class ran or why it was skipped. A green result is invalid when the relevant guard was omitted.
+
+Knowledge-infrastructure changes force a full Known Failure selection. A scheduled full-system replay provides a backstop against scope-resolver blind spots without turning every ordinary feature commit into a complete platform replay.
+
+Unknown and review-required failure intake is written as machine-readable evidence and persisted as a deduplicated engineering intake until explicit disposition. Candidate intake never promotes itself into a Known Failure class.
+
+Negative knowledge is first-class: disproven workarounds and unsafe repair paths remain recorded so a later engineer or agent cannot silently repeat them.
+
+
+## Historical Support Knowledge backfill
+
+The historical corpus is not treated as passive documentation.
+
+Every Markdown document under `docs/support/` must be registered in `quality/knowledge/support-history-policy.v1.json`. Every explicit historical `SKB-*` or `INC-*` incident must resolve to one explicit disposition:
+
+- `matched-known-failure`;
+- `new-global-failure`;
+- `subsystem-specific`;
+- `duplicate`;
+- or `rejected`.
+
+There is no silent fallback for a new explicit incident. An unmatched record becomes `needs-review` and blocks Knowledge Before Build until it receives a deliberate disposition.
+
+`scripts/shoperation-support-history-backfill.mjs --check` produces the machine-readable historical report at:
+
+`artifacts/shoperation-quality/support-history-backfill.json`
+
+Historical human-readable IDs are preserved for retrieval, but the canonical machine identity is `source-file + source-id + occurrence`. This is required because older Playroom records contain reused IDs. No incident is discarded because of that collision.
+
+The backfill may promote a historical pattern into the global Known Failure registry only when the full learned chain exists: symptom → root cause → invariant → regression authority → applicability/replay.
+
+
+## Development-Time Known Failure Guard
+
+Known Failure knowledge is an implementation input, not only a final validation input.
+
+Before the first implementation edit, the engineering agent must generate and read the scoped Development Guard. The manifest contains the applicable Known Failures, authority invariants, preventive directives, forbidden approaches, negative knowledge and regression authority.
+
+A tracked `quality/development/active-plan.json` binds the task to the expected subsystem and Known Failure scope. CI recalculates the actual scope from the current development batch. If the diff activates another subsystem or additional Known Failures, Plan Before Code blocks until the plan is regenerated and reviewed.
+
+The Edit-Time Known Failure Guard scans added code for strong signatures of already-rejected implementation approaches. Blocking signatures must be removed. Review signatures require an explicit, reasoned plan exception.
+
+Incremental Replay executes the regression authority of the active Known Failure set after coherent edit batches. The final full Quality Gate remains mandatory.
+
+Canonical rule: **Known failure prevention must happen before and during implementation, not only after implementation.**
+
+
+## Shoperation Codebase Atlas v1
+
+The Quality Knowledge system now has a generated engineering map of the repository.
+
+`scripts/shoperation-codebase-atlas.mjs --check` rebuilds a machine-readable graph from the current Git-tracked repository and writes:
+
+- `artifacts/shoperation-atlas/codebase-atlas.json`;
+- `artifacts/shoperation-atlas/codebase-atlas.md`.
+
+The Atlas records file/subsystem/surface ownership, application routes, import edges, reverse consumers, exported symbols and shared Storefront component/literal keys. Impact traversal can walk from a planned file toward consuming routes and regression tests.
+
+The Development Guard consumes the Atlas before implementation and includes an **Atlas impact** section for every planned path. This turns historical problems such as “which layer actually owns the Contact form background?” into an authority lookup instead of blind search.
+
+The Atlas is generated from the current repository rather than manually memorized, so it changes with the codebase and cannot silently become an old architectural snapshot.

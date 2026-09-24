@@ -1,5 +1,7 @@
 import type {StorefrontComponentNode,StorefrontPageDocument,StorefrontTemplatePackage} from '@/lib/builder/storefront-runtime';
 import type {StorefrontDemoFixture,StorefrontInstallableTemplatePackage} from '@/lib/builder/storefront-template-installation';
+import {STOREFRONT_PAGE_SCHEMA_VERSION,STOREFRONT_PAGE_TYPES,type StorefrontBuilderPageType} from '@/lib/builder/storefront-foundation';
+import {CANONICAL_ACCOUNT_CAPABILITIES} from '@/lib/account/account-capabilities';
 
 export const STOREFRONT_ROUTE_INTEGRITY_VERSION='shoporation.storefront-route-integrity.v1' as const;
 export const STOREFRONT_DEMO_CONTENT_NOTICE='Minta tartalom – ez az oldal előre generált szöveget tartalmaz, és nem tekinthető a webshop valós működésének vagy feltételeinek. Ellenőrizd és igazítsd a saját működésedhez publikálás előtt.' as const;
@@ -65,6 +67,7 @@ type DemoContentPayload={
   status:'draft';
   demo:boolean;
   demoNotice:string;
+  showroomReady?:boolean;
 };
 
 const standardPage=(slug:string,title:string,excerpt:string,body:string):DemoContentPayload=>({
@@ -161,7 +164,7 @@ const previewPageForPath=(pathname:string):string|null=>{
   return null;
 };
 
-function rewritePreviewHref(href:string,input:{templateKey:string;templateVersion:number;viewport:'desktop'|'tablet'|'mobile'}){
+function rewritePreviewHref(href:string,input:{templateKey:string;templateVersion:number;viewport:'desktop'|'tablet'|'mobile';factoryCandidate?:boolean}){
   if(!href.startsWith('/')||href.startsWith('//'))return href;
   let url:URL;
   try{url=new URL(href,'https://shoporation.local');}catch{return href;}
@@ -173,6 +176,7 @@ function rewritePreviewHref(href:string,input:{templateKey:string;templateVersio
     page,
     viewport:input.viewport,
   });
+  if(input.factoryCandidate)params.set('factory','1');
   if(url.pathname.startsWith('/oldal/')||url.pathname.startsWith('/blog/')){
     const slug=url.pathname.split('/').filter(Boolean).at(-1);
     if(slug)params.set('demoContent',slug);
@@ -181,9 +185,26 @@ function rewritePreviewHref(href:string,input:{templateKey:string;templateVersio
   return`/storefront-template-preview?${params.toString()}`;
 }
 
+export function rewriteStorefrontTemplatePreviewBindingContext(
+  context:Record<string,unknown>,
+  input:{templateKey:string;templateVersion:number;viewport:'desktop'|'tablet'|'mobile';factoryCandidate?:boolean},
+):Record<string,unknown>{
+  const rewriteValue=(value:unknown,key:string|null=null):unknown=>{
+    if(Array.isArray(value))return value.map(item=>rewriteValue(item,null));
+    if(!value||typeof value!=='object'){
+      if(typeof value==='string'&&key&&(key==='href'||key.endsWith('Href')||key==='action'))return rewritePreviewHref(value,input);
+      return value;
+    }
+    const next:Record<string,unknown>={};
+    for(const[prop,item]of Object.entries(value as Record<string,unknown>))next[prop]=rewriteValue(item,prop);
+    return next;
+  };
+  return rewriteValue(structuredClone(context)) as Record<string,unknown>;
+}
+
 export function rewriteStorefrontTemplatePreviewLinks(
   page:StorefrontPageDocument,
-  input:{templateKey:string;templateVersion:number;viewport:'desktop'|'tablet'|'mobile'},
+  input:{templateKey:string;templateVersion:number;viewport:'desktop'|'tablet'|'mobile';factoryCandidate?:boolean},
 ):StorefrontPageDocument{
   const rewriteValue=(value:unknown):unknown=>{
     if(Array.isArray(value))return value.map(rewriteValue);
@@ -221,4 +242,176 @@ export function applyStorefrontTemplateDemoNotice(page:StorefrontPageDocument,no
   const headerIndex=sections.findIndex(section=>section.componentKey==='system.header'||section.componentKey==='system.commerce-header');
   sections.splice(headerIndex>=0?headerIndex+1:0,0,banner);
   return{...structuredClone(page),sections,metadata:{...(page.metadata??{}),demoContentPreview:true}};
+}
+
+
+export type StorefrontShowroomReachability='shell-navigation'|'shopper-journey'|'system-route';
+export type StorefrontShowroomEngine='E1'|'E2'|'E7'|'E10'|'E13';
+export type StorefrontShowroomSurface={
+  id:string;
+  label:string;
+  route:string;
+  pageType:StorefrontBuilderPageType;
+  reachability:StorefrontShowroomReachability;
+  navigationRequired:boolean;
+  engines:readonly StorefrontShowroomEngine[];
+};
+export type StorefrontShowroomEvidenceRow={
+  surfaceId:string;
+  label:string;
+  route:string;
+  pageType:StorefrontBuilderPageType;
+  pageKey:string|null;
+  schemaVersion:number|null;
+  presentationAuthority:string|null;
+  engines:readonly StorefrontShowroomEngine[];
+  reachability:StorefrontShowroomReachability;
+  navigationPresent:boolean;
+  entrypointPresent:boolean;
+};
+export type StorefrontShowroomContractIssue={
+  code:
+    |'SHOWROOM_PAGE_SCHEMA_MISSING'
+    |'SHOWROOM_PAGE_SCHEMA_VERSION_MISMATCH'
+    |'SHOWROOM_PAGE_EMPTY'
+    |'SHOWROOM_NAVIGATION_INCOMPLETE'
+    |'SHOWROOM_PRESENTATION_AUTHORITY_MISMATCH'
+    |'SHOWROOM_ACCOUNT_NAVIGATION_EMPTY'
+    |'SHOWROOM_ACCOUNT_SURFACE_MISSING'
+    |'SHOWROOM_ENGINE_DEMO_MISSING'
+    |'SHOWROOM_PLACEHOLDER_CONTENT'
+    |'SHOWROOM_ROUTE_PRESENTATION_UNMAPPED';
+  path:string;
+  message:string;
+  severity:'error';
+};
+
+export const STOREFRONT_TEMPLATE_SHOWROOM_SURFACES:readonly StorefrontShowroomSurface[]=Object.freeze([
+  {id:'home',label:'Kezdőlap',route:'/',pageType:'home',reachability:'system-route',navigationRequired:false,engines:['E1']},
+  {id:'catalog',label:'Webáruház',route:'/webaruhaz',pageType:'catalog',reachability:'shell-navigation',navigationRequired:true,engines:['E1','E2']},
+  {id:'product',label:'Termékoldal',route:'/termek/:slug',pageType:'product',reachability:'shopper-journey',navigationRequired:false,engines:['E1','E2','E7','E10','E13']},
+  {id:'search',label:'Keresés',route:'/kereses',pageType:'search',reachability:'shopper-journey',navigationRequired:false,engines:['E1','E2']},
+  {id:'cart',label:'Kosár',route:'/kosar',pageType:'cart',reachability:'shell-navigation',navigationRequired:true,engines:['E1','E13']},
+  {id:'checkout',label:'Pénztár',route:'/penztar',pageType:'checkout',reachability:'shell-navigation',navigationRequired:true,engines:['E1','E13']},
+  {id:'account',label:'Fiókom',route:'/fiokom',pageType:'account',reachability:'shell-navigation',navigationRequired:true,engines:['E1']},
+  {id:'wishlist',label:'Kedvencek',route:'/kedvencek',pageType:'account',reachability:'shell-navigation',navigationRequired:true,engines:['E1']},
+  {id:'downloads',label:'Letöltéseim',route:'/fiokom/letoltesek',pageType:'account',reachability:'shopper-journey',navigationRequired:false,engines:['E1']},
+  {id:'about',label:'Rólunk',route:'/oldal/rolunk',pageType:'content',reachability:'shell-navigation',navigationRequired:true,engines:['E1','E10']},
+  {id:'shipping-payment',label:'Szállítás és fizetés',route:'/szallitas-es-fizetes',pageType:'legal',reachability:'shell-navigation',navigationRequired:true,engines:['E1','E13']},
+  {id:'returns',label:'Visszaküldés',route:'/oldal/visszakuldes',pageType:'content',reachability:'shell-navigation',navigationRequired:true,engines:['E1']},
+  {id:'faq',label:'GYIK',route:'/gyik',pageType:'faq',reachability:'shell-navigation',navigationRequired:true,engines:['E1']},
+  {id:'contact',label:'Kapcsolat',route:'/kapcsolat',pageType:'contact',reachability:'shell-navigation',navigationRequired:true,engines:['E1']},
+  {id:'blog',label:'Magazin',route:'/blog',pageType:'blog-index',reachability:'shell-navigation',navigationRequired:true,engines:['E1','E10']},
+  {id:'blog-article',label:'Magazin cikk',route:'/blog/:slug',pageType:'blog-article',reachability:'shopper-journey',navigationRequired:false,engines:['E1','E10']},
+  {id:'terms',label:'ÁSZF',route:'/aszf',pageType:'legal',reachability:'shell-navigation',navigationRequired:true,engines:['E1']},
+  {id:'privacy',label:'Adatvédelem',route:'/adatvedelem',pageType:'legal',reachability:'shell-navigation',navigationRequired:true,engines:['E1']},
+  {id:'imprint',label:'Impresszum',route:'/impresszum',pageType:'legal',reachability:'shell-navigation',navigationRequired:true,engines:['E1']},
+  {id:'not-found',label:'404',route:'/__not-found__',pageType:'not-found',reachability:'system-route',navigationRequired:false,engines:['E1']},
+]);
+
+const showroomIssue=(code:StorefrontShowroomContractIssue['code'],path:string,message:string):StorefrontShowroomContractIssue=>({code,path,message,severity:'error'});
+const pathnameFor=(href:string)=>{try{return new URL(href,'https://shoporation.local').pathname}catch{return href.split(/[?#]/)[0]??href}};
+const routeMatches=(href:string,route:string)=>{
+  const pathname=pathnameFor(href);
+  if(route.includes('/:slug'))return pathname.startsWith(route.slice(0,route.indexOf(':slug')));
+  return pathname===route;
+};
+function listStorefrontTemplateShellLinks(template:StorefrontTemplatePackage):StorefrontTemplateLink[]{
+  const out:StorefrontTemplateLink[]=[];
+  for(const[pageIndex,page]of template.pages.entries()){
+    const shell=[page.sections[0],page.sections.at(-1)].filter((value):value is StorefrontComponentNode=>Boolean(value));
+    shell.forEach((node,index)=>collectFromValue(node.config,`pages[${pageIndex}].shell[${index}].config`,node.id,out));
+    const walk=(nodes:readonly StorefrontComponentNode[],base:string)=>{
+      nodes.forEach((node,index)=>{
+        collectFromValue(node.config,`${base}[${index}].config`,node.id,out);
+        if(node.children?.length)walk(node.children,`${base}[${index}].children`);
+      });
+    };
+    walk(shell,`pages[${pageIndex}].shell`);
+  }
+  const seen=new Set<string>();
+  return out.filter(item=>{const key=`${item.href}|${item.label}`;if(seen.has(key))return false;seen.add(key);return true;});
+}
+const walkComponents=(nodes:readonly StorefrontComponentNode[],out:Set<string>)=>{for(const node of nodes){out.add(node.componentKey);if(node.children?.length)walkComponents(node.children,out)}};
+const engineDemoStatus=(template:StorefrontInstallableTemplatePackage)=>{
+  const components=new Set<string>();
+  for(const page of template.pages)walkComponents(page.sections,components);
+  return new Map<StorefrontShowroomEngine,boolean>([
+    ['E1',STOREFRONT_PAGE_TYPES.every(pageType=>template.pages.some(page=>page.pageType===pageType&&page.schemaVersion===STOREFRONT_PAGE_SCHEMA_VERSION))],
+    ['E2',components.has('commerce.product-grid')&&components.has('commerce.catalog-facets')&&components.has('system.search')],
+    ['E7',components.has('commerce.key-specs')||components.has('commerce.specification-groups')],
+    ['E10',components.has('story.index')&&(components.has('story.feature')||components.has('story.hero'))],
+    ['E13',components.has('commerce.purchase-controls')&&components.has('commerce.cart-summary')&&components.has('commerce.checkout-summary')],
+  ]);
+};
+const requiredAccountHrefs=CANONICAL_ACCOUNT_CAPABILITIES.filter(item=>!item.optional).map(item=>item.href);
+function accountDemoNavigationHrefs(template:StorefrontInstallableTemplatePackage){
+  const page=template.pages.find(item=>item.pageType==='account');
+  if(!page)return[] as string[];
+  // Keep extraction typed and deterministic without coupling the gate to renderer internals.
+  const links:StorefrontTemplateLink[]=[];
+  const visitLinks=(nodes:readonly StorefrontComponentNode[])=>{
+    for(const node of nodes){
+      if(node.componentKey==='system.navigation'&&(node.config as Record<string,unknown>).presentation==='account-capability-demo')collectFromValue(node.config,'account.demoNavigation',node.id,links);
+      if(node.children?.length)visitLinks(node.children);
+    }
+  };
+  visitLinks(page.sections);
+  return links.map(item=>item.href);
+}
+
+export function createStorefrontTemplateShowroomEvidence(template:StorefrontInstallableTemplatePackage):readonly StorefrontShowroomEvidenceRow[]{
+  const shellLinks=listStorefrontTemplateShellLinks(template);
+  const allLinks=listStorefrontTemplateLinks(template);
+  return STOREFRONT_TEMPLATE_SHOWROOM_SURFACES.map(surface=>{
+    const page=template.pages.find(item=>item.pageType===surface.pageType)??null;
+    const meta=page?.metadata?.templateFactory&&typeof page.metadata.templateFactory==='object'
+      ?page.metadata.templateFactory as Record<string,unknown>
+      :null;
+    const targetKey=typeof meta?.targetTemplateKey==='string'?meta.targetTemplateKey:page?.templateKey??null;
+    const targetVersion=typeof meta?.targetTemplateVersion==='number'?meta.targetTemplateVersion:page?.templateVersion??null;
+    return{
+      surfaceId:surface.id,
+      label:surface.label,
+      route:surface.route,
+      pageType:surface.pageType,
+      pageKey:page?.pageKey??null,
+      schemaVersion:page?.schemaVersion??null,
+      presentationAuthority:targetKey&&targetVersion?`${targetKey}@${targetVersion}`:null,
+      engines:surface.engines,
+      reachability:surface.reachability,
+      navigationPresent:!surface.navigationRequired||shellLinks.some(link=>routeMatches(link.href,surface.route)),
+      entrypointPresent:surface.reachability==='system-route'||(surface.reachability==='shell-navigation'
+        ?shellLinks.some(link=>routeMatches(link.href,surface.route))
+        :allLinks.some(link=>routeMatches(link.href,surface.route))),
+    };
+  });
+}
+
+export function evaluateStorefrontTemplateShowroomContract(template:StorefrontInstallableTemplatePackage):StorefrontShowroomContractIssue[]{
+  const issues:StorefrontShowroomContractIssue[]=[];
+  const pageByType=new Map(template.pages.map(page=>[page.pageType,page] as const));
+  const evidence=createStorefrontTemplateShowroomEvidence(template);
+  for(const row of evidence){
+    const page=pageByType.get(row.pageType);
+    if(!page){issues.push(showroomIssue('SHOWROOM_PAGE_SCHEMA_MISSING',`surfaces.${row.surfaceId}`,`A(z) ${row.label} felülethez nincs canonical Page Schema.`));continue}
+    if(page.schemaVersion!==STOREFRONT_PAGE_SCHEMA_VERSION)issues.push(showroomIssue('SHOWROOM_PAGE_SCHEMA_VERSION_MISMATCH',`pages.${row.pageType}.schemaVersion`,'A showroom csak az aktuális canonical Page Schema authorityt használhatja.'));
+    if(page.sections.length<3)issues.push(showroomIssue('SHOWROOM_PAGE_EMPTY',`pages.${row.pageType}.sections`,`A(z) ${row.label} Page Schema nem lehet üres shell vagy placeholder.`));
+    if(page.templateKey!==template.manifest.templateKey||page.templateVersion!==template.manifest.templateVersion)issues.push(showroomIssue('SHOWROOM_PRESENTATION_AUTHORITY_MISMATCH',`pages.${row.pageType}`,'A shopper route Page Schema identityje eltér a kiválasztott template presentation authoritytől.'));
+    if(row.navigationPresent===false)issues.push(showroomIssue('SHOWROOM_NAVIGATION_INCOMPLETE',`navigation.${row.surfaceId}`,`A kötelező „${row.label}” shopper surface nem érhető el a template shell navigációjából.`));
+    if(row.entrypointPresent===false)issues.push(showroomIssue('SHOWROOM_ROUTE_PRESENTATION_UNMAPPED',`journeys.${row.surfaceId}`,`A(z) ${row.label} canonical shopper journeyhez nincs tényleges template entrypoint.`));
+    if(previewPageForPath(pathnameFor(row.route).replace(':slug','demo'))!==row.pageType&&row.route!=='/__not-found__')issues.push(showroomIssue('SHOWROOM_ROUTE_PRESENTATION_UNMAPPED',`routes.${row.route}`,'A canonical route nincs ugyanahhoz a Page Schema/presentation authorityhez kötve a preview route registryben.'));
+  }
+  const accountHrefs=accountDemoNavigationHrefs(template);
+  if(accountHrefs.length===0)issues.push(showroomIssue('SHOWROOM_ACCOUNT_NAVIGATION_EMPTY','pages.account','Az account demo nem tartalmaz canonical account capability navigációt.'));
+  for(const href of requiredAccountHrefs)if(!accountHrefs.includes(href))issues.push(showroomIssue('SHOWROOM_ACCOUNT_SURFACE_MISSING',`pages.account.${href}`,'A kötelező account capability hiányzik a template demóból.'));
+  const engines=engineDemoStatus(template);
+  for(const engine of ['E1','E2','E7','E10','E13'] as const)if(engines.get(engine)!==true)issues.push(showroomIssue('SHOWROOM_ENGINE_DEMO_MISSING',`engines.${engine}`,`A(z) ${engine} shared engine nincs felismerhető, interaktív storefront-demóval reprezentálva.`));
+  const serialized=JSON.stringify(template);
+  for(const token of ['Minta tartalom','A kínálat feltöltés alatt áll','Ez a sablon által létrehozott mintaoldal'])if(serialized.includes(token))issues.push(showroomIssue('SHOWROOM_PLACEHOLDER_CONTENT','demoContent',`Product Owner-ready template nem tartalmazhat placeholder/fallback szöveget: ${token}`));
+  return issues;
+}
+
+export function isStorefrontShowroomReadyDemoContent(fixture:StorefrontDemoFixture|null|undefined):boolean{
+  return fixture?.payload?.showroomReady===true;
 }

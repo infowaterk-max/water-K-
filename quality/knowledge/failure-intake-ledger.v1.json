@@ -1,0 +1,29 @@
+{
+  "contract": "shoporation.failure-intake-ledger.v1",
+  "records": [
+    {
+      "candidateId": "SQ-CAND-ED34726C2433",
+      "sourceCommit": "8cf781e3f4ed175fc3c801481e012b216155b3ae",
+      "rawErrorCode": "DEVELOPMENT_PLAN_FAILED",
+      "classificationStatus": "matched-known-failure",
+      "knownFailureId": "SQ-KF-013",
+      "disposition": "Matched SQ-KF-013. The plan omitted guard scope that became relevant when release/quality authority changed; the gate correctly blocked and the plan was regenerated."
+    },
+    {
+      "candidateId": "SQ-CAND-306873FDDFBA",
+      "sourceCommit": "f865573656b29e6b2c7334cc0952220a87d17ed6",
+      "rawErrorCode": "DEVELOPMENT_PLAN_FAILED",
+      "classificationStatus": "matched-known-failure",
+      "knownFailureId": "SQ-KF-013",
+      "disposition": "Matched SQ-KF-013. The newly activated incident intent scope changed the applicable failure set; the plan was corrected before implementation."
+    },
+    {
+      "candidateId": "SQ-CAND-3B0C3878E76D",
+      "sourceCommit": "d7331822441d8a2ac8b38148e43d1972fba49e41",
+      "rawErrorCode": "TEST_FAILED",
+      "classificationStatus": "matched-known-failure",
+      "knownFailureId": "SQ-KF-004",
+      "disposition": "Matched SQ-KF-004. The runtime contract was valid; the assertion lowercased SQL and then searched for camelCase output. The harness assertion was repaired without weakening runtime behavior."
+    }
+  ]
+}

@@ -3,6 +3,7 @@ import {StorefrontRendererRegistry,type StorefrontComponentRenderProps} from '@/
 import {createStorefrontPrimitiveRendererRegistry} from '@/components/builder/storefront-primitives';
 import {StorefrontContentDisclosure,type StorefrontContentDisclosureTab} from '@/components/builder/storefront-content-disclosure';
 import {StorefrontProductRail} from '@/components/builder/storefront-product-rail-client';
+import {StorefrontPurchaseControlsClient} from '@/components/builder/storefront-purchase-controls-client';
 import type {StorefrontResolvedComponentNode} from '@/lib/builder/storefront-runtime';
 import {sanitizeStorefrontStyleSlots} from '@/lib/builder/storefront-fidelity-engine';
 import {resolveStorefrontVisualStyle} from '@/lib/builder/storefront-visual-style';
@@ -39,25 +40,48 @@ const carousel=(componentKey:string,config:Record<string,unknown>,viewport:Store
   };
 };
 
-type CommerceProduct={id:string;name:string;href:string;image:string|null;imageAlt:string;price:unknown;compareAtPrice:unknown;badge:string;stockLabel:string;subtitle:string};
+type CommerceProduct={id:string;name:string;href:string;image:string|null;imageAlt:string;price:unknown;compareAtPrice:unknown;badge:string;stockLabel:string;subtitle:string;productId:string;variantId:string|null;slug:string;unitPrice:number|null;availableQuantity:number;minimumQuantity:number;orderMultiple:number};
 const productPrice=(row:Record<string,unknown>)=>{const value=record(row.price);return value?text(value.display):row.price;};
 const productStockLabel=(row:Record<string,unknown>)=>{const value=record(row.stock);return text(row.stockLabel,value?text(value.statusLabel):'');};
 const products=(value:unknown):CommerceProduct[]=>rows(value).map((row,index)=>{
   const name=text(row.name,text(row.label,'Termék'));
   const identity=text(row.id,[text(row.productId),text(row.variantId)].filter(Boolean).join(':')||`product-${index}`);
   const image=safeImage(row.image)??safeImage(row.imageUrl);
-  return{id:identity,name,href:safeHref(row.href,'#'),image,imageAlt:text(row.imageAlt,name),price:productPrice(row),compareAtPrice:row.compareAtPrice,badge:text(row.badge),stockLabel:productStockLabel(row),subtitle:text(row.subtitle,text(row.description))};
+  const href=safeHref(row.href,'#');
+  const hrefSlug=href.startsWith('/termek/')?href.split(/[?#]/)[0]!.slice('/termek/'.length):'';
+  const rawUnitPrice=typeof row.unitPrice==='number'?row.unitPrice:typeof row.grossPrice==='number'?row.grossPrice:typeof row.price==='number'?row.price:null;
+  const stockRecord=record(row.stock);
+  const availableQuantity=number(row.availableQuantity,number(row.stock,stockRecord?number(stockRecord.availableQuantity,number(stockRecord.quantity,0)):0));
+  return{id:identity,name,href,image,imageAlt:text(row.imageAlt,name),price:productPrice(row),compareAtPrice:row.compareAtPrice,badge:text(row.badge),stockLabel:productStockLabel(row),subtitle:text(row.subtitle,text(row.description)),productId:text(row.productId,identity),variantId:text(row.variantId)||null,slug:text(row.slug,hrefSlug),unitPrice:rawUnitPrice,availableQuantity,minimumQuantity:Math.max(1,Math.round(number(row.minimumQuantity,1))),orderMultiple:Math.max(1,Math.round(number(row.orderMultiple,1)))};
 });
 
 function ProductCards({items,config,viewport,itemStyle}:{items:CommerceProduct[];config:Record<string,unknown>;viewport:StorefrontComponentRenderProps['viewport'];itemStyle?:CSSProperties}){
   const presentation=text(config.presentation,'standard');
   const beauty=presentation==='beauty-lab'||presentation==='recommendation-beauty';
-  const showBadges=bool(config.showBadges,true),showCompare=bool(config.showCompareAt,true),showCta=bool(config.showCta,false);
+  const showBadges=bool(config.showBadges,true),showCompare=bool(config.showCompareAt,true),showCta=bool(config.showCta,false),showPurchaseActions=bool(config.showPurchaseActions,false);
   const slot=styles(config,viewport);
   return <>{items.map(product=><article key={product.id} data-storefront-commerce-card={presentation} style={{display:'flex',flexDirection:'column',gap:beauty?'.55rem':'.75rem',minWidth:0,...slot('card'),...(itemStyle??{})}}>
     <a href={product.href} style={{color:'inherit',textDecoration:'none',...slot('mediaLink')}}><div style={{position:'relative',aspectRatio:text(config.imageRatio,beauty?'4 / 5':'4 / 5'),background:'var(--shoporation-color-surface-muted,#ece8df)',overflow:'hidden',...slot('media')}}>{product.image?<img src={product.image} alt={product.imageAlt} loading="lazy" style={{display:'block',width:'100%',height:'100%',objectFit:'cover',...slot('image')}}/>:null}{showBadges&&product.badge?<span style={{position:'absolute',top:'.5rem',left:'.5rem',padding:'.24rem .45rem',background:beauty?'var(--shoporation-color-accent,#a6aa92)':'var(--shoporation-color-background,#fff)',fontSize:'.61rem',fontWeight:700,letterSpacing:'.055em',textTransform:'uppercase',...slot('badge')}}>{product.badge}</span>:null}</div></a>
     <div style={{display:'grid',gap:'.2rem',...slot('body')}}><a href={product.href} style={{color:'inherit',textDecoration:'none',fontFamily:beauty?'var(--shoporation-heading-font,Georgia,serif)':undefined,fontWeight:beauty?500:650,fontSize:beauty?'1.02rem':undefined,...slot('name')}}>{product.name}</a>{beauty&&product.subtitle?<small style={{color:'var(--shoporation-color-muted-text,#666)',lineHeight:1.35,...slot('subtitle')}}>{product.subtitle}</small>:null}<div style={{display:'flex',alignItems:'baseline',gap:'.45rem',flexWrap:'wrap',...slot('priceRow')}}><strong style={slot('price')}>{money(product.price,config.currency)}</strong>{showCompare&&product.compareAtPrice?<small style={{color:'var(--shoporation-color-muted-text,#666)',textDecoration:'line-through',...slot('comparePrice')}}>{money(product.compareAtPrice,config.currency)}</small>:null}</div>{!beauty&&product.stockLabel?<small style={slot('stock')}>{product.stockLabel}</small>:null}</div>
-    {showCta?<a href={product.href} style={{marginTop:'auto',display:'inline-flex',justifyContent:'center',padding:'.62rem .75rem',background:'var(--shoporation-color-primary,#111)',color:'var(--shoporation-color-primary-contrast,#fff)',textDecoration:'none',fontSize:'.72rem',fontWeight:700,textTransform:beauty?'uppercase':undefined,letterSpacing:beauty?'.04em':undefined,...slot('cta')}}>{text(config.ctaLabel,'Kosárba')}</a>:null}
+    {showPurchaseActions&&product.unitPrice!==null&&product.productId&&product.slug?<StorefrontPurchaseControlsClient
+      productId={product.productId}
+      variantId={product.variantId}
+      slug={product.slug}
+      name={product.name}
+      unitPrice={product.unitPrice}
+      availableQuantity={product.availableQuantity}
+      minimumQuantity={product.minimumQuantity}
+      orderMultiple={product.orderMultiple}
+      purchaseLabel={text(config.purchaseLabel,'Kosárba')}
+      wishlistLabel={text(config.wishlistLabel,'Kedvencekhez')}
+      currency={text(config.currency,'HUF')}
+      styles={{
+        root:{marginTop:'auto',gridTemplateColumns:'minmax(0,1fr) 2.9rem',gap:'.45rem',...slot('actions')},
+        quantity:{display:'none'},
+        purchase:{minHeight:'2.65rem',...slot('purchaseAction')},
+        wishlist:{minHeight:'2.65rem',...slot('wishlistAction')},
+      }}
+    />:showCta?<a href={product.href} style={{marginTop:'auto',display:'inline-flex',justifyContent:'center',padding:'.62rem .75rem',background:'var(--shoporation-color-primary,#111)',color:'var(--shoporation-color-primary-contrast,#fff)',textDecoration:'none',fontSize:'.72rem',fontWeight:700,textTransform:beauty?'uppercase':undefined,letterSpacing:beauty?'.04em':undefined,...slot('cta')}}>{text(config.ctaLabel,'Kosárba')}</a>:null}
   </article>)}</>;
 }
 

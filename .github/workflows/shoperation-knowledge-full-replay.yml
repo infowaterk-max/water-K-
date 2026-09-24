@@ -1,0 +1,85 @@
+name: Shoperation Knowledge Full Replay
+on:
+  schedule:
+    - cron: '17 2 * * 1'
+  workflow_dispatch:
+permissions:
+  contents: read
+  issues: write
+jobs:
+  full-knowledge-replay:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      SHOPERATION_KNOWLEDGE_FORCE_FULL: '1'
+      QUALITY_HEAD_SHA: ${{ github.sha }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Install locked dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Knowledge Before Build — full replay
+        id: knowledge
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: node scripts/shoperation-knowledge-preflight.mjs
+      - name: Full regression suite
+        id: tests
+        run: npm test
+      - name: TypeScript check
+        id: typecheck
+        run: npm run typecheck
+      - name: Upload knowledge evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: shoperation-knowledge-full-replay-${{ github.sha }}
+          path: artifacts/shoperation-quality/**
+          if-no-files-found: warn
+          retention-days: 90
+      - name: Create full-replay failure intake
+        if: always()
+        shell: bash
+        env:
+          KNOWLEDGE_OUTCOME: ${{ steps.knowledge.outcome }}
+          TEST_OUTCOME: ${{ steps.tests.outcome }}
+          TYPECHECK_OUTCOME: ${{ steps.typecheck.outcome }}
+          SHOPERATION_SOURCE_COMMIT: ${{ github.sha }}
+          SHOPERATION_FAILURE_SOURCE: periodic-full-replay
+        run: |
+          codes=""
+          [ "$KNOWLEDGE_OUTCOME" != "failure" ] || codes="${codes}KNOWLEDGE_PREFLIGHT_FAILED;"
+          [ "$TEST_OUTCOME" != "failure" ] || codes="${codes}TEST_FAILED;"
+          [ "$TYPECHECK_OUTCOME" != "failure" ] || codes="${codes}TYPECHECK_FAILED;"
+          SHOPERATION_GENERIC_FAILURES="$codes" node scripts/shoperation-failure-intake.mjs
+      - name: Upload full-replay failure intake
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: shoperation-failure-intake-${{ github.sha }}
+          path: artifacts/shoperation-failure-intake/**
+          if-no-files-found: warn
+          retention-days: 90
+      - name: Persist unresolved failure intake
+        if: always()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs=require('fs');
+            const file='artifacts/shoperation-failure-intake/failure-intake.json';
+            if(!fs.existsSync(file))return;
+            const report=JSON.parse(fs.readFileSync(file,'utf8'));
+            const unresolved=(report.records||[]).filter(r=>['candidate-new-failure','needs-review'].includes(r.classificationStatus));
+            if(!unresolved.length)return;
+            const open=await github.paginate(github.rest.issues.listForRepo,{...context.repo,state:'open',per_page:100});
+            for(const record of unresolved){
+              const marker=`<!-- shoperation-failure-intake:${record.candidateId} -->`;
+              if(open.some(issue=>(issue.body||'').includes(marker)))continue;
+              await github.rest.issues.create({...context.repo,title:`[Quality intake] ${record.candidateId}: ${record.rawErrorCode}`,body:`${marker}\n\nContract: \`shoporation.failure-intake.v1\`\n\nSource commit: \`${record.sourceCommit||'unknown'}\`\n\nSource: \`${record.failureSource}\`\n\nClassification: \`${record.classificationStatus}\`\n\nSymptom: ${record.symptom}\n\nThis issue remains open until the failure is matched, promoted, scoped, deduplicated or rejected with an explicit disposition.`});
+            }

@@ -12,6 +12,8 @@ const primitives=fs.readFileSync('src/components/builder/storefront-primitives.t
 const commerceHeader=fs.readFileSync('src/components/builder/storefront-commerce-header.tsx','utf8');
 const accountCss=fs.readFileSync('src/app/account-workflow.css','utf8');
 const accountNav=fs.readFileSync('src/components/account/account-subnav.tsx','utf8');
+const previewLogin=fs.readFileSync('src/app/storefront-template-preview-login/page.tsx','utf8');
+const previewPage=fs.readFileSync('src/app/storefront-template-preview/page.tsx','utf8');
 
 const playroomAccount=PLAYROOM_V20_TEMPLATE_PACKAGE.pages.find(page=>page.pageType==='account')!;
 const findPlayroomNode=(id:string):StorefrontComponentNode=>{
@@ -34,6 +36,35 @@ describe('template-aware storefront auth surface',()=>{
     expect(auth).toMatch(/--shoporation-color-primary/);
     expect(auth).toMatch(/min-height:44px/);
     expect(auth).toMatch(/width:min\(100%,34rem\);max-width:34rem;margin:2rem auto/);
+  });
+
+  it('keeps Factory Product Owner auth template-aware without an active tenant',()=>{
+    expect(shell).toContain('resolveStorefrontTemplateAccountPreviewRuntimePage');
+    expect(shell).toContain('previewTemplate');
+    expect(previewLogin).toContain('StorefrontAccountShell');
+    expect(previewLogin).toContain('previewTemplate={{templateKey:template.manifest.templateKey,templateVersion:template.manifest.templateVersion,factoryCandidate}}');
+    expect(previewLogin).toContain('allowRegistration={false}');
+    expect(previewLogin).not.toContain('getCurrentWebshopInstance');
+    expect(previewPage).toContain('/storefront-template-preview-login?');
+    expect(previewPage).toContain('redirect(');
+    expect(previewPage).toContain('template:template.manifest.templateKey');
+    expect(previewPage).toContain("const factoryCandidate=query.factory==='1'");
+    expect(previewLogin).toContain("const factoryCandidate=query.factory==='1'");
+    expect(previewPage).toContain('requireStorefrontTemplatePreviewAccess(returnTo)');
+    expect(previewPage).not.toContain('requireCurrentStoreContext');
+    expect(previewPage).not.toContain('requirePlanFeature');
+    expect(previewPage).not.toContain('requireAdmin(');
+  });
+
+  it('keeps Factory preview login tenant-independent and preserves the exact candidate return target',()=>{
+    expect(previewLogin).toContain("const factoryCandidate=query.factory==='1'");
+    expect(previewLogin).toContain("if(requested?.startsWith('/storefront-template-preview?'))return requested");
+    expect(previewLogin).toContain('returnTo={target}');
+    expect(previewLogin).toContain('allowRegistration={false}');
+    expect(previewLogin).not.toContain('getCurrentWebshopInstance');
+    expect(previewLogin).not.toContain('requireCurrentStoreContext');
+    expect(previewLogin).not.toContain('requirePlanFeature');
+    expect(previewLogin).not.toContain('requireAdmin(');
   });
 
   it('keeps signed-out customer auth inside the active storefront template shell',()=>{
