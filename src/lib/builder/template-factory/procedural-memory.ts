@@ -81,9 +81,8 @@ export function evaluateTemplateFactoryPreflight(recipe:StorefrontTemplateFactor
   const issues:TemplateFactoryPreflightIssue[]=[];
   const globalKnowledge=evaluateShoperationKnowledgeIntegrity();
   for(const knowledgeIssue of globalKnowledge.issues)issues.push(preflightIssue('TF_PREFLIGHT_GLOBAL_KNOWLEDGE_INVALID',`globalKnowledge.${knowledgeIssue.path}`,`${knowledgeIssue.code}: ${knowledgeIssue.message}`));
-  if(!recipe.shell.headerNode)issues.push(preflightIssue('TF_PREFLIGHT_TEMPLATE_HEADER_REQUIRED','shell.headerNode','Factory recipes must provide a template-owned canonical header.'));
-  if(!recipe.shell.footerNode)issues.push(preflightIssue('TF_PREFLIGHT_TEMPLATE_FOOTER_REQUIRED','shell.footerNode','Factory recipes must provide a template-owned canonical footer.'));
-  if(!recipe.pageOverrides?.account)issues.push(preflightIssue('TF_PREFLIGHT_ACCOUNT_OWNERSHIP_REQUIRED','pageOverrides.account','Account/auth presentation is template-owned and may not be inherited from the category foundation.'));
+  if(!recipe.shell.header||Object.keys(recipe.shell.header).length===0)issues.push(preflightIssue('TF_PREFLIGHT_TEMPLATE_HEADER_REQUIRED','shell.header','Factory recipes must provide a template-owned canonical header configuration.'));
+    if(!recipe.pageOverrides?.account)issues.push(preflightIssue('TF_PREFLIGHT_ACCOUNT_OWNERSHIP_REQUIRED','pageOverrides.account','Account/auth presentation is template-owned and may not be inherited from the category foundation.'));
   for(const pageType of STOREFRONT_PAGE_TYPES){
     if(!recipe.pageOverrides?.[pageType])issues.push(preflightIssue('TF_PREFLIGHT_COMPLETE_STOREFRONT_OWNERSHIP_REQUIRED',`pageOverrides.${pageType}`,'Every canonical shopper Page Schema must be template-owned before a Factory candidate can enter Product Owner acceptance.'));
   }
