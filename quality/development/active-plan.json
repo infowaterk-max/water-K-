@@ -69,5 +69,5 @@
     "SQ-NK-013"
   ],
   "exceptions": [],
-  "notes": "Customer reporter isolated release proof: substantive diff intentionally covers exactly incident-intelligence + shared-storefront + storefront-ui (5/5 risk points, 3/3 subsystems). Browser evidence has a machine contract and customer/cookie surfaces declare one shared theme authority. Merchant reporter remains staged and unmounted."
+  "notes": "Merchant reporter isolated activation release: only AdminLayout activation plus its regression change. Customer reporter was already proven in a separate 5/5, 3/3 release-risk unit. Merchant activation remains platform-excluded and requires store.read."
 }
