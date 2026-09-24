@@ -14,7 +14,7 @@ import {createStorefrontVisualBuilderRendererRegistry} from '@/components/builde
 import {createStorefrontVisualBuilderComponentRegistry} from '@/lib/builder/storefront-builder-registry';
 import {STOREFRONT_TEMPLATE_PERFORMANCE_BUDGET,STOREFRONT_PERFORMANCE_CONTRACT_VERSION} from '@/lib/builder/storefront-performance-contract';
 import {STOREFRONT_PAGE_TYPES,type StorefrontBuilderPageType,type StorefrontViewport} from '@/lib/builder/storefront-foundation';
-import {applyStorefrontTemplateDemoNotice,getStorefrontTemplateDemoContent,isStorefrontShowroomReadyDemoContent} from '@/lib/builder/storefront-template-route-integrity';
+import {applyStorefrontTemplateDemoNotice,getStorefrontTemplateDemoContent,isStorefrontShowroomReadyDemoContent,rewriteStorefrontTemplatePreviewBindingContext} from '@/lib/builder/storefront-template-route-integrity';
 
 export const dynamic='force-dynamic';
 
@@ -58,7 +58,10 @@ export default async function VisualFidelityQaPage({searchParams}:Props){
     const body=typeof demoPayload.body==='string'?demoPayload.body:'';
     baseContext.content={...content,page:{title,summary,body},article:{title,excerpt:summary,summary,body,image:'',imageAlt:''}};
   }
-  const bindingContext=augmentStorefrontDigitalCommercePreviewContext({template,page,context:baseContext});
+  const bindingContext=rewriteStorefrontTemplatePreviewBindingContext(
+    augmentStorefrontDigitalCommercePreviewContext({template,page,context:baseContext}),
+    {templateKey:template.manifest.templateKey,templateVersion:template.manifest.templateVersion,viewport,factoryCandidate},
+  );
   const theme=getStorefrontTemplatePreviewTheme(template.manifest.templateKey) as CSSProperties;
   const capability={plan:'pro' as const,features:[...PLANS.pro.features]};
   return <main
