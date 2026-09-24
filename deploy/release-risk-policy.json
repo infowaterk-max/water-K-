@@ -14,21 +14,9 @@
     "artifacts/**",
     "**/*.md",
     "**/*.snap",
-    ".gitignore",
-    "quality/development/**",
-    "quality/knowledge/**"
+    ".gitignore"
   ],
   "subsystems": [
-    {
-      "name": "incident-intelligence",
-      "risk": "medium",
-      "patterns": [
-        "src/lib/incidents/**",
-        "src/app/admin/platform/incidents/**",
-        "src/app/api/platform/incidents/**",
-        "src/components/admin/platform-incident-center.tsx"
-      ]
-    },
     {
       "name": "database-schema",
       "risk": "high",
