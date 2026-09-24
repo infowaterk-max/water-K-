@@ -1,6 +1,6 @@
 import {mkdirSync,readFileSync,writeFileSync} from 'node:fs';
 import {getChangedFiles,globToRegExp,guardPolicy,knowledge,resolveDevelopmentScope,stableDigest} from './lib/shoperation-development-runtime.mjs';
-const plan=JSON.parse(readFileSync('quality/development/active-plan.json','utf8')),diff=getChangedFiles(),changedFiles=diff.files.filter(file=>file!=='quality/development/active-plan.json'),issues=[];
+const plan=JSON.parse(readFileSync('quality/development/active-plan.json','utf8')),diff=getChangedFiles({baseSha:plan.changeBaseSha}),changedFiles=diff.files.filter(file=>file!=='quality/development/active-plan.json'),issues=[];
 if(plan.contract!=='shoporation.development-plan.v1')issues.push({code:'DEV_PLAN_CONTRACT_INVALID'});
 if(plan.status!=='ready-for-implementation')issues.push({code:'DEV_PLAN_NOT_READY'});
 if(!plan.task?.trim())issues.push({code:'DEV_PLAN_TASK_REQUIRED'});
