@@ -14,8 +14,7 @@
     "artifacts/**",
     "**/*.md",
     "**/*.snap",
-    ".gitignore",
-    "quality/development/**"
+    ".gitignore"
   ],
   "subsystems": [
     {
@@ -78,29 +77,6 @@
       ]
     },
     {
-      "name": "incident-intelligence",
-      "risk": "medium",
-      "patterns": [
-        "src/lib/incidents/**",
-        "src/app/api/incidents/**",
-        "src/app/api/platform/incidents/**",
-        "src/app/api/internal/incidents/**"
-      ]
-    },
-    {
-      "name": "quality-knowledge-system",
-      "risk": "medium",
-      "patterns": [
-        "src/lib/quality-system/**",
-        "quality/knowledge/**",
-        "scripts/shoperation-*.mjs",
-        "scripts/template-factory-quality-gate.mjs",
-        "src/lib/builder/template-factory/knowledge-registry.ts",
-        "src/lib/builder/template-factory/procedural-memory.ts",
-        "scripts/lib/shoperation-*.mjs"
-      ]
-    },
-    {
       "name": "builder-template-system",
       "risk": "medium",
       "patterns": [
@@ -115,9 +91,7 @@
       "patterns": [
         "src/app/admin/**",
         "src/components/admin/**",
-        "src/lib/admin/**",
-        "src/lib/navigation/admin-ia.ts",
-        "src/lib/navigation/entitlement-navigation.ts"
+        "src/lib/admin/**"
       ]
     },
     {

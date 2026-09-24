@@ -11,7 +11,7 @@ type AccountType='customer'|'company'|'reseller';
 type AuthFlow='invite'|'recovery';
 type FlowStatus='idle'|'checking'|'ready'|'invalid';
 
-export function AuthForm({instanceId,initialMode='login',onAuthenticated,returnTo,allowRegistration=true}:{instanceId:string|null;initialMode?:AuthMode;onAuthenticated?:()=>void;returnTo?:string|null;allowRegistration?:boolean}){
+export function AuthForm({instanceId,initialMode='login',onAuthenticated,returnTo}:{instanceId:string|null;initialMode?:AuthMode;onAuthenticated?:()=>void;returnTo?:string|null}){
   const [mode,setMode]=useState<Mode>(initialMode);
   const [accountType,setAccountType]=useState<AccountType>('customer');
   const [email,setEmail]=useState('');
@@ -162,7 +162,7 @@ export function AuthForm({instanceId,initialMode='login',onAuthenticated,returnT
 
   const companyFields=mode==='register'&&accountType!=='customer';
   return <div className="card authCard storefrontAuthSurface" data-storefront-auth-surface="true">
-    {allowRegistration?<div className="authTabs"><button type="button" onClick={()=>{setMode('login');setMessage('')}}>Bejelentkezés</button><button type="button" onClick={()=>{setMode('register');setMessage('')}}>Regisztráció</button></div>:null}
+    <div className="authTabs"><button type="button" onClick={()=>{setMode('login');setMessage('')}}>Bejelentkezés</button><button type="button" onClick={()=>{setMode('register');setMessage('')}}>Regisztráció</button></div>
     <form action={submit} className="checkoutForm">
       {mode==='register'&&<><label>Fióktípus<select value={accountType} onChange={e=>setAccountType(e.target.value as AccountType)} name="accountType"><option value="customer">Lakossági vásárló</option><option value="company">Céges vásárló</option><option value="reseller">Viszonteladói partner</option></select></label><label>Név / kapcsolattartó<input name="fullName" required minLength={2}/></label></>}
       <label>E-mail<input name="email" type="email" required value={email} onChange={e=>setEmail(e.target.value)}/></label>

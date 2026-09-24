@@ -58,7 +58,7 @@ const expectedMerchantDestinations:Record<string,string>={
 };
 
 const expectedPlatformDestinations:Record<string,string>={
-  'platform-stores':'/admin/platform/webaruhazak','platform-home':'/admin/platform','platform-actions':'/admin/intezkedesek','platform-safeguards':'/admin/biztositekok','platform-releases':'/admin/kiadasok','platform-rollout':'/admin/rollout','platform-postcheck':'/admin/utoellenorzes','platform-recovery':'/admin/helyreallitas','platform-incidents':'/admin/platform/incidents','platform-observability':'/admin/megfigyeles','platform-operations':'/admin/muveletek','platform-log':'/admin/naplo',
+  'platform-stores':'/admin/platform/webaruhazak','platform-home':'/admin/platform','platform-actions':'/admin/intezkedesek','platform-safeguards':'/admin/biztositekok','platform-releases':'/admin/kiadasok','platform-rollout':'/admin/rollout','platform-postcheck':'/admin/utoellenorzes','platform-recovery':'/admin/helyreallitas','platform-observability':'/admin/megfigyeles','platform-operations':'/admin/muveletek','platform-log':'/admin/naplo',
 };
 
 describe('admin link integrity',()=>{

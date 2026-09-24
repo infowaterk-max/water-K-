@@ -15,19 +15,9 @@ const viewportProfiles=Object.freeze({
 const canaryPageTypes=new Set(['home','product','account','content','legal','not-found']);
 const qualityInfrastructurePrefixes=[
   'src/lib/builder/storefront-template-quality-gate.ts',
-  'src/lib/builder/template-factory/scaffold.ts',
-  'src/lib/builder/template-factory/category-foundations.ts',
-  'src/lib/builder/template-factory/recipe-registry.ts',
-  'src/lib/builder/template-factory/knowledge-registry.ts',
-  'src/lib/builder/template-factory/procedural-memory.ts',
-  'src/lib/quality-system/',
-  'quality/knowledge/',
-  'scripts/shoperation-knowledge-preflight.mjs',
-  'scripts/shoperation-failure-intake.mjs',
   'src/app/api/visual-fidelity/templates/',
   'src/app/visual-fidelity-qa/',
   'scripts/template-factory-quality-gate.mjs',
-  'scripts/template-factory-product-owner-handoff.mjs',
   'scripts/promote-template-golden-baseline.mjs',
   '.github/workflows/template-factory-quality-gate.yml',
   '.github/workflows/template-golden-baseline-promotion.yml',
@@ -102,11 +92,7 @@ function selectScope(catalog,changes){
   }
 
   if(!selected.size){
-    for(const template of templates){
-      const mode=template.factoryCandidate?'full':'canary';
-      const reason=template.factoryCandidate?'factory-exact-head-full':'default-canary';
-      selected.set(template.templateKey,{template,mode,reason});
-    }
+    for(const template of templates)selected.set(template.templateKey,{template,mode:'canary',reason:'default-canary'});
   }
   for(const value of selected.values())reasons.push({templateKey:value.template.templateKey,mode:value.mode,reason:value.reason});
   return{selected:[...selected.values()],reasons,qualityInfra,sharedRuntime,legacyTemplateChanges};
@@ -121,24 +107,17 @@ async function loadCatalog(){
 }
 
 async function waitForImages(page){
-  const previousScroll=await page.evaluate(()=>({x:scrollX,y:scrollY}));
-  const images=page.locator('[data-visual-fidelity-root="runtime"]:visible img');
-  const count=await images.count();
-  for(let index=0;index<count;index+=1){
-    const image=images.nth(index);
-    await image.scrollIntoViewIfNeeded().catch(()=>undefined);
-    await image.evaluate(async element=>{
-      if(element.complete)return;
+  await page.locator('img').evaluateAll(async images=>{
+    await Promise.all(images.map(async image=>{
+      if(image.complete)return;
       await new Promise(resolve=>{
         const done=()=>resolve(undefined);
-        element.addEventListener('load',done,{once:true});
-        element.addEventListener('error',done,{once:true});
+        image.addEventListener('load',done,{once:true});
+        image.addEventListener('error',done,{once:true});
         setTimeout(done,3500);
       });
-    }).catch(()=>undefined);
-  }
-  await page.evaluate(position=>scrollTo(position.x,position.y),previousScroll);
-  await page.waitForTimeout(100);
+    }));
+  });
 }
 
 async function browserDiagnostics(page,manifest,viewport){
@@ -321,8 +300,7 @@ try{
         const profile=viewportProfiles[viewport];
         const page=await browser.newPage({viewport:profile,deviceScaleFactor:1});
         const name=`${safeName(manifest.templateKey)}-v${manifest.templateVersion}-${pageType}-${viewport}`;
-        const factoryQuery=manifest.factoryCandidate?'&factory=1':'';
-        const url=`${baseUrl}/visual-fidelity-qa?template=${encodeURIComponent(manifest.templateKey)}&version=${manifest.templateVersion}&page=${encodeURIComponent(pageType)}&viewport=${viewport}${factoryQuery}`;
+        const url=`${baseUrl}/visual-fidelity-qa?template=${encodeURIComponent(manifest.templateKey)}&version=${manifest.templateVersion}&page=${encodeURIComponent(pageType)}&viewport=${viewport}`;
         try{
           await page.emulateMedia({reducedMotion:'reduce'});
           const response=await page.goto(url,{waitUntil:'domcontentloaded',timeout:30000});
@@ -390,8 +368,7 @@ try{
     }
 
     if(manifest.browser.requireMobileMenu){
-      const factoryQuery=manifest.factoryCandidate?'&factory=1':'';
-      const demoUrl=`${baseUrl}/visual-fidelity-qa?template=${encodeURIComponent(manifest.templateKey)}&version=${manifest.templateVersion}&page=content&viewport=mobile&demoContent=szallitas${factoryQuery}`;
+      const demoUrl=`${baseUrl}/visual-fidelity-qa?template=${encodeURIComponent(manifest.templateKey)}&version=${manifest.templateVersion}&page=content&viewport=mobile&demoContent=szallitas`;
       const page=await browser.newPage({viewport:viewportProfiles.mobile,deviceScaleFactor:1});
       const name=`${safeName(manifest.templateKey)}-v${manifest.templateVersion}-demo-szallitas-mobile`;
       try{
@@ -399,21 +376,13 @@ try{
         if(!response?.ok())throw new Error(`DEMO_ROUTE_FAILED:${response?.status()??'no-response'}`);
         await page.waitForLoadState('load',{timeout:15000}).catch(()=>undefined);
         const runtimeRoot=page.locator('[data-visual-fidelity-root="runtime"]:visible').first();
-        await runtimeRoot.waitFor({state:'visible',timeout:10000});
-        const demoWarning=runtimeRoot.getByText('MINTA TARTALOM',{exact:false}).first();
-        await demoWarning.waitFor({state:'visible',timeout:5000}).catch(()=>undefined);
         const warningText=await runtimeRoot.getByText('MINTA TARTALOM',{exact:false}).count();
-        const mobileMenu=runtimeRoot.locator('[data-storefront-mobile-menu="true"]:visible');
-        await mobileMenu.first().waitFor({state:'visible',timeout:5000}).catch(()=>undefined);
-        const menuCount=await mobileMenu.count();
-        const caseErrors=[];
-        if(manifest.factoryCandidate&&warningText>0)caseErrors.push('FACTORY_SHOWROOM_PLACEHOLDER_WARNING_PRESENT');
-        if(!manifest.factoryCandidate&&warningText<1)caseErrors.push('DEMO_WARNING_MISSING');
-        if(menuCount!==1)caseErrors.push(`DEMO_MOBILE_MENU_CARDINALITY:${menuCount}`);
-        for(const error of caseErrors)errors.push({case:name,error});
+        const menuCount=await runtimeRoot.locator('[data-storefront-mobile-menu="true"]:visible').count();
+        if(warningText<1)errors.push({case:name,error:'DEMO_WARNING_MISSING'});
+        if(menuCount!==1)errors.push({case:name,error:`DEMO_MOBILE_MENU_CARDINALITY:${menuCount}`});
         const pathOut=path.join(outputDir,`${name}.png`);
         await page.screenshot({path:pathOut,fullPage:true,animations:'disabled'});
-        cases.push({templateKey:manifest.templateKey,templateVersion:manifest.templateVersion,pageType:'content-demo',viewport:'mobile',url:demoUrl,screenshotPath:pathOut,errors:caseErrors,warnings:[]});
+        cases.push({templateKey:manifest.templateKey,templateVersion:manifest.templateVersion,pageType:'content-demo',viewport:'mobile',url:demoUrl,screenshotPath:pathOut,errors:[],warnings:[]});
       }catch(error){
         errors.push({case:name,error:error instanceof Error?error.message:String(error)});
       }finally{await page.close();}
@@ -423,61 +392,6 @@ try{
   await browser.close();
 }
 
-const acceptanceProofs=scope.selected.map(selected=>{
-  const manifest=selected.template;
-  const templateCases=cases.filter(item=>item.templateKey===manifest.templateKey&&item.templateVersion===manifest.templateVersion);
-  const expectedMatrixKeys=new Set(manifest.pageTypes.flatMap(pageType=>manifest.viewports.map(viewport=>`${pageType}:${viewport}`)));
-  const matrixCases=templateCases.filter(item=>expectedMatrixKeys.has(`${item.pageType}:${item.viewport}`));
-  const observedMatrixKeys=new Set(matrixCases.map(item=>`${item.pageType}:${item.viewport}`));
-  const fullBrowserMatrixComplete=observedMatrixKeys.size===expectedMatrixKeys.size&&[...expectedMatrixKeys].every(key=>observedMatrixKeys.has(key));
-  const browserMatrixPassed=fullBrowserMatrixComplete&&matrixCases.every(item=>(item.errors??[]).length===0);
-  const proceduralReplays=manifest.proceduralMemory?.failureReplays??[];
-  const proceduralMemoryPassed=manifest.factoryCandidate
-    ?manifest.proceduralMemory?.preflightOk===true&&proceduralReplays.length>0&&proceduralReplays.every(item=>item.passed===true)
-    :true;
-  const factoryIdentityPinned=!manifest.factoryCandidate||(
-    manifest.provenance?.targetTemplateKey===manifest.templateKey
-    &&manifest.provenance?.targetTemplateVersion===manifest.templateVersion
-    &&templateCases.every(item=>String(item.url??'').includes('factory=1'))
-  );
-  const showroomEvidence=manifest.showroomEvidence??[];
-  const showroomContractPassed=!manifest.factoryCandidate||(
-    showroomEvidence.length>0
-    &&showroomEvidence.every(row=>Boolean(row.pageKey)&&row.schemaVersion===1&&Boolean(row.presentationAuthority)&&row.entrypointPresent===true&&row.navigationPresent===true)
-  );
-  const blockers=[];
-  if(!browserMatrixPassed)blockers.push('BROWSER_MATRIX_NOT_PROVEN');
-  if(!proceduralMemoryPassed)blockers.push('PROCEDURAL_MEMORY_REPLAY_FAILED');
-  if(!factoryIdentityPinned)blockers.push('FACTORY_CANDIDATE_IDENTITY_NOT_PINNED');
-  if(!showroomContractPassed)blockers.push('FACTORY_SHOWROOM_CONTRACT_NOT_PROVEN');
-  if(manifest.factoryCandidate)blockers.push('VERCEL_PRODUCT_OWNER_JOURNEY_PROOF_REQUIRED');
-  const maturity=browserMatrixPassed&&proceduralMemoryPassed&&factoryIdentityPinned&&showroomContractPassed&&manifest.productOwnerReady===true
-    ?'visually-ready'
-    :browserMatrixPassed&&proceduralMemoryPassed&&factoryIdentityPinned&&showroomContractPassed
-      ?'technically-ready'
-      :'compiled';
-  return{
-    contract:'shoporation.template-factory-ci-acceptance-proof.v1',
-    templateKey:manifest.templateKey,
-    templateVersion:manifest.templateVersion,
-    factoryCandidate:Boolean(manifest.factoryCandidate),
-    sourceCommit:headSha==='HEAD'?null:headSha,
-    provenance:manifest.provenance??null,
-    browserMatrixPassed,
-    browserMatrixComplete:fullBrowserMatrixComplete,
-    browserMatrixCaseCount:observedMatrixKeys.size,
-    browserMatrixExpectedCaseCount:expectedMatrixKeys.size,
-    proceduralMemoryPassed,
-    factoryIdentityPinned,
-    showroomContractPassed,
-    showroomEvidence,
-    productOwnerReadyByCompiler:manifest.productOwnerReady===true,
-    maturity,
-    handoffReady:false,
-    blockers,
-  };
-});
-
 const evidence={
   contract:'shoporation.template-factory-quality-evidence.v2',
   sourceCommit:headSha==='HEAD'?null:headSha,
@@ -486,7 +400,6 @@ const evidence={
   selection:scope.reasons,
   legacyTemplateChanges:scope.legacyTemplateChanges,
   cases,
-  acceptanceProofs,
   errors,
   warnings,
   capturedAt:new Date().toISOString(),

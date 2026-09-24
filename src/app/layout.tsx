@@ -2,7 +2,6 @@ import type { Metadata } from 'next';
 import { CartProvider } from '@/components/cart/cart-provider';
 import { AnalyticsProvider } from '@/components/analytics/analytics-provider';
 import { CookieConsent } from '@/components/analytics/cookie-consent';
-import{StorefrontIncidentReporter}from'@/components/storefront/storefront-incident-reporter';
 import { getCurrentWebshopInstance } from '@/lib/instances/access';
 import './globals.css';
 import './store-v2.css';
@@ -47,5 +46,5 @@ export default async function RootLayout({children}:{children:React.ReactNode}){
   const instance=await getCurrentWebshopInstance();
   const brand=instance?.brand??fallbackBrand;
   const accent=brand.primaryColor?({['--tenant-primary' as string]:brand.primaryColor} as React.CSSProperties):undefined;
-  return <html lang="hu" style={accent}><body><AnalyticsProvider><CartProvider><a className="skipLink" href="#main-content">Ugrás a tartalomhoz</a><div id="main-content" tabIndex={-1}>{children}</div><CookieConsent/><StorefrontIncidentReporter/></CartProvider></AnalyticsProvider></body></html>;
+  return <html lang="hu" style={accent}><body><AnalyticsProvider><CartProvider><a className="skipLink" href="#main-content">Ugrás a tartalomhoz</a><div id="main-content" tabIndex={-1}>{children}</div><CookieConsent/></CartProvider></AnalyticsProvider></body></html>;
 }

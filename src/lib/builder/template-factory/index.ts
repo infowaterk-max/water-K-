@@ -14,5 +14,3 @@ export function buildStorefrontTemplateFactoryCandidate(recipe:StorefrontTemplat
 
 export * from '@/lib/builder/template-factory/scaffold';
 export * from '@/lib/builder/template-factory/category-foundations';
-
-export * from '@/lib/builder/template-factory/media-production';
