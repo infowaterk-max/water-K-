@@ -1,0 +1,236 @@
+{
+  "contract": "shoporation.capability-registry.v1",
+  "version": 1,
+  "authority": "architecture-constitution",
+  "status": "canonical",
+  "capabilityContract": {
+    "requiredFields": [
+      "id",
+      "name",
+      "domainIds",
+      "canonicalAuthority",
+      "purpose",
+      "implementation",
+      "contracts",
+      "permissions",
+      "tests",
+      "dependsOn"
+    ],
+    "identityRule": "Capability IDs are stable machine identities and must not be reused for a different responsibility.",
+    "authorityRule": "Every capability has exactly one canonical authority. UI, tests and evidence may prove capability behavior but cannot become its authority."
+  },
+  "capabilities": [
+    {
+      "id": "CAP-ARCH-CONSTITUTION",
+      "name": "Architecture Constitution",
+      "domainIds": [
+        "DOMAIN-QUALITY"
+      ],
+      "canonicalAuthority": "architecture-constitution",
+      "purpose": "Define the highest-level immutable architecture principles and authority ordering for Shoperation.",
+      "implementation": [
+        "quality/knowledge/architecture-constitution.v1.json",
+        "src/lib/quality-system/architecture-constitution.ts"
+      ],
+      "contracts": [
+        "shoporation.architecture-constitution.v1"
+      ],
+      "api": [],
+      "database": [],
+      "ui": [],
+      "permissions": [],
+      "tests": [
+        "tests/architecture-constitution.test.ts"
+      ],
+      "dependsOn": []
+    },
+    {
+      "id": "CAP-DOMAIN-FOUNDATIONS",
+      "name": "Domain Foundations",
+      "domainIds": [
+        "DOMAIN-QUALITY"
+      ],
+      "canonicalAuthority": "quality-knowledge-system",
+      "purpose": "Define domain truth ownership, responsibilities, negative boundaries, dependencies and evidence obligations.",
+      "implementation": [
+        "quality/knowledge/domain-foundations.v1.json",
+        "src/lib/quality-system/domain-foundations.ts"
+      ],
+      "contracts": [
+        "shoporation.domain-foundations.v1"
+      ],
+      "api": [],
+      "database": [],
+      "ui": [],
+      "permissions": [],
+      "tests": [
+        "tests/domain-foundations.test.ts"
+      ],
+      "dependsOn": [
+        "CAP-ARCH-CONSTITUTION"
+      ]
+    },
+    {
+      "id": "CAP-ATLAS-SELF-KNOWLEDGE",
+      "name": "Atlas 2.0 System Self-Knowledge",
+      "domainIds": [
+        "DOMAIN-QUALITY"
+      ],
+      "canonicalAuthority": "quality-knowledge-system",
+      "purpose": "Map repository files, surfaces, domains, authorities, truth ownership, dependencies, failures and tests into a deterministic system graph.",
+      "implementation": [
+        "quality/knowledge/codebase-atlas-policy.v2.json",
+        "scripts/lib/shoperation-codebase-atlas-runtime.mjs",
+        "scripts/shoperation-codebase-atlas.mjs"
+      ],
+      "contracts": [
+        "shoporation.codebase-atlas-policy.v2",
+        "shoporation.codebase-atlas.v2"
+      ],
+      "api": [],
+      "database": [],
+      "ui": [],
+      "permissions": [],
+      "tests": [
+        "tests/shoperation-codebase-atlas-v2.test.ts"
+      ],
+      "dependsOn": [
+        "CAP-ARCH-CONSTITUTION",
+        "CAP-DOMAIN-FOUNDATIONS"
+      ]
+    },
+    {
+      "id": "CAP-CHANGE-IMPACT-RELEASE-CLOSURE",
+      "name": "Change Impact & Release Closure",
+      "domainIds": [
+        "DOMAIN-QUALITY",
+        "DOMAIN-RELEASE"
+      ],
+      "canonicalAuthority": "release-infrastructure",
+      "purpose": "Project exact-head architecture impact into development planning and release closure without creating a parallel gate authority.",
+      "implementation": [
+        "scripts/shoperation-knowledge-preflight.mjs",
+        "scripts/shoperation-plan-before-code.mjs",
+        "scripts/release-risk-budget.mjs",
+        ".github/workflows/ci.yml"
+      ],
+      "contracts": [
+        "shoporation.change-impact.v1",
+        "shoporation.plan-before-code-gate.v1"
+      ],
+      "api": [],
+      "database": [],
+      "ui": [],
+      "permissions": [],
+      "tests": [
+        "tests/shoperation-change-impact-atlas.test.ts",
+        "tests/rollout-readiness.test.ts"
+      ],
+      "dependsOn": [
+        "CAP-ATLAS-SELF-KNOWLEDGE"
+      ]
+    },
+    {
+      "id": "CAP-DEVELOPMENT-KNOWLEDGE-GUARD",
+      "name": "Development-Time Knowledge Guard",
+      "domainIds": [
+        "DOMAIN-QUALITY"
+      ],
+      "canonicalAuthority": "quality-knowledge-system",
+      "purpose": "Load relevant known failures before implementation and enforce plan, edit-time prevention and incremental replay across the active Development Transaction.",
+      "implementation": [
+        "scripts/shoperation-knowledge-preflight.mjs",
+        "scripts/shoperation-plan-before-code.mjs",
+        "scripts/shoperation-edit-time-guard.mjs",
+        "scripts/shoperation-incremental-replay.mjs"
+      ],
+      "contracts": [
+        "shoporation.quality-knowledge-preflight.v1",
+        "shoporation.development-plan.v1",
+        "shoporation.edit-time-known-failure-guard.v1",
+        "shoporation.incremental-known-failure-replay.v1"
+      ],
+      "api": [],
+      "database": [],
+      "ui": [],
+      "permissions": [],
+      "tests": [
+        "tests/shoperation-development-guard.test.ts"
+      ],
+      "dependsOn": [
+        "CAP-ATLAS-SELF-KNOWLEDGE"
+      ]
+    },
+    {
+      "id": "CAP-INCIDENT-INTELLIGENCE",
+      "name": "Incident Intelligence",
+      "domainIds": [
+        "DOMAIN-INCIDENT",
+        "DOMAIN-QUALITY"
+      ],
+      "canonicalAuthority": "incident-intelligence",
+      "purpose": "Accept customer and merchant incidents, triage ownership, connect evidence and known failures, and govern bounded repair decisions.",
+      "implementation": [
+        "src/lib/incidents/**",
+        "src/app/api/incidents/**",
+        "src/app/api/platform/incidents/**",
+        "src/app/admin/platform/incidents/**"
+      ],
+      "contracts": [
+        "incident contracts and platform incident APIs"
+      ],
+      "api": [
+        "/api/incidents/customer",
+        "/api/incidents/merchant",
+        "/api/platform/incidents",
+        "/api/platform/incidents/:id/triage"
+      ],
+      "database": [
+        "platform_incidents",
+        "platform_incident_events"
+      ],
+      "ui": [
+        "/admin/platform/incidents"
+      ],
+      "permissions": [
+        "platform operator incident access"
+      ],
+      "tests": [
+        "tests/incident-intelligence-api-contract.test.ts",
+        "tests/incident-intelligence-platform-center.test.ts",
+        "tests/incident-intelligence-triage.test.ts"
+      ],
+      "dependsOn": [
+        "CAP-DEVELOPMENT-KNOWLEDGE-GUARD",
+        "CAP-ATLAS-SELF-KNOWLEDGE"
+      ]
+    },
+    {
+      "id": "CAP-TEMPLATE-FACTORY-PROCEDURAL-MEMORY",
+      "name": "Template Factory Procedural Memory",
+      "domainIds": [
+        "DOMAIN-BUILDER",
+        "DOMAIN-QUALITY"
+      ],
+      "canonicalAuthority": "builder-template-system",
+      "purpose": "Convert recurring template/storefront defects into named failure classes, invariants and regression authority before later template work.",
+      "implementation": [
+        "src/lib/builder/template-factory/knowledge-registry.ts",
+        "src/lib/builder/template-factory/procedural-memory.ts"
+      ],
+      "contracts": [
+        "Template Factory Known Failure Registry"
+      ],
+      "api": [],
+      "database": [],
+      "ui": [],
+      "permissions": [],
+      "tests": [
+        "tests/shoperation-development-guard.test.ts"
+      ],
+      "dependsOn": [
+        "CAP-DEVELOPMENT-KNOWLEDGE-GUARD"
+      ]
+    }
+  ]
+}
