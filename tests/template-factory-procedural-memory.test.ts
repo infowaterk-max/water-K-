@@ -40,6 +40,7 @@ describe('Template Factory procedural memory',()=>{
     expect(workflow).toContain('PRODUCT_OWNER_SOURCE_COMMIT: ${{ github.event.pull_request.head.sha || github.sha }}');
     expect(workflow).toContain('PRODUCT_OWNER_TEST_EMAIL: ${{ secrets.PRODUCT_OWNER_TEST_EMAIL }}');
     expect(workflow).toContain('PRODUCT_OWNER_TEST_PASSWORD: ${{ secrets.PRODUCT_OWNER_TEST_PASSWORD }}');
+    expect(workflow).toContain('VERCEL_AUTOMATION_BYPASS_SECRET: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}');
     expect(workflow).toContain('node scripts/template-factory-product-owner-handoff.mjs');
     expect(workflow).toContain('template-factory-handoff-${{ github.event.pull_request.head.sha || github.sha }}');
     expect(workflow).toContain("github.event_name == 'pull_request'");
