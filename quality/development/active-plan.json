@@ -11,7 +11,8 @@
     "quality/knowledge/failure-intake-ledger.v1.json",
     "tests/shoperation-development-guard.test.ts",
     "tests/sql-migration-syntax-guard.test.ts",
-    "docs/support/QUALITY_GUARD_LESSONS_2026-09-24.md"
+    "docs/support/QUALITY_GUARD_LESSONS_2026-09-24.md",
+    "quality/knowledge/support-history-policy.v1.json"
   ],
   "expectedSubsystems": [
     "quality-knowledge-system"
@@ -74,5 +75,5 @@
     "SQ-NK-015"
   ],
   "exceptions": [],
-  "notes": "Promoted SQ-KF-023 and SQ-KF-024 after Plan Before Code PASS; fixed the MPL short-token matcher, added SQL syntax-sensitive regression, and durably disposed three prior intake candidates."
+  "notes": "Promoted SQ-KF-023/SQ-KF-024 and registered the new Support Knowledge document + incident dispositions so historical backfill remains fully classified."
 }

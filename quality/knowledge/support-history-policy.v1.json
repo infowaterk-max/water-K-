@@ -12,7 +12,9 @@
     "SQ-KF-018",
     "SQ-KF-019",
     "SQ-KF-020",
-    "SQ-KF-021"
+    "SQ-KF-021",
+    "SQ-KF-023",
+    "SQ-KF-024"
   ],
   "documentRules": [
     {
@@ -255,6 +257,14 @@
         "builder-template-system",
         "shared-storefront"
       ]
+    },
+    {
+      "file": "QUALITY_GUARD_LESSONS_2026-09-24.md",
+      "recordType": "incident-corpus",
+      "subsystems": [
+        "quality-knowledge-system",
+        "database-schema"
+      ]
     }
   ],
   "incidentRules": [
@@ -474,6 +484,29 @@
       ],
       "reason": "Concrete post-release storefront UX/visual defect retained at subsystem scope.",
       "file": "PLAYROOM_V20_PRODUCTION_RELEASE_AND_GOLDEN_RECOVERY_2026-09-23.md"
+    },
+    {
+      "file": "QUALITY_GUARD_LESSONS_2026-09-24.md",
+      "sourceIdPattern": "^SKB-QG-001$",
+      "titlePattern": "Marker-based schema proof can be false green",
+      "disposition": "new-global-failure",
+      "knownFailureId": "SQ-KF-023",
+      "subsystems": [
+        "database-schema",
+        "quality-knowledge-system"
+      ],
+      "reason": "Marker-only schema regression evidence passed while the PL/pgSQL delimiter was syntactically invalid."
+    },
+    {
+      "file": "QUALITY_GUARD_LESSONS_2026-09-24.md",
+      "sourceIdPattern": "^SKB-QG-002$",
+      "titlePattern": "Short intent token caused scope explosion",
+      "disposition": "new-global-failure",
+      "knownFailureId": "SQ-KF-024",
+      "subsystems": [
+        "quality-knowledge-system"
+      ],
+      "reason": "An unbounded short provider token matched an unrelated word and activated false subsystem scope."
     }
   ]
 }
