@@ -95,14 +95,17 @@ try{
     if(!checks.returnTargetPreserved)errors.push('LOGIN_RETURN_TARGET_MISMATCH');
 
     const shell=page.locator(`[data-storefront-account-shell="preview"][data-storefront-template="${templateKey}"]`);
+    await shell.first().waitFor({state:'attached',timeout:10000}).catch(()=>undefined);
     checks.templateAwareAuthShell=await shell.count()===1;
     if(!checks.templateAwareAuthShell)errors.push('TEMPLATE_AWARE_AUTH_SHELL_MISSING');
 
     const styles=page.locator(`[data-storefront-global-styles-v1="true"][data-storefront-template="${templateKey}"][data-storefront-template-version="${templateVersion}"]`);
+    await styles.first().waitFor({state:'attached',timeout:10000}).catch(()=>undefined);
     checks.templateVersionedAuthStyle=await styles.count()>0;
     if(!checks.templateVersionedAuthStyle)errors.push('TEMPLATE_AUTH_STYLE_IDENTITY_MISSING');
 
     const authSurface=page.locator('[data-storefront-auth-surface="true"]');
+    await authSurface.first().waitFor({state:'visible',timeout:10000}).catch(()=>undefined);
     checks.sharedAuthSurface=await authSurface.count()===1;
     if(!checks.sharedAuthSurface)errors.push('SHARED_AUTH_SURFACE_MISSING');
 
