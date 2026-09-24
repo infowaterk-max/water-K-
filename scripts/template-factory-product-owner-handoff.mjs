@@ -74,6 +74,12 @@ try{
   await page.waitForLoadState('load',{timeout:15000}).catch(()=>undefined);
   checks.entryTitle=await page.title().catch(()=>null);
   if(checks.entryStatus!==null&&checks.entryStatus>=400)errors.push(`ENTRY_HTTP_STATUS_${checks.entryStatus}`);
+  await page.waitForFunction(
+    () => location.pathname==='/storefront-template-preview-login'
+      || Boolean(document.querySelector('[data-template-preview="representative-demo"]')),
+    {timeout:10000},
+  ).catch(()=>undefined);
+  checks.entrySettledPath=new URL(page.url()).pathname;
 
   let current=new URL(page.url());
   checks.entryPath=current.pathname;
@@ -134,6 +140,7 @@ try{
     const root=page.locator(
       `[data-template-preview="representative-demo"][data-template-key="${templateKey}"][data-template-version="${templateVersion}"][data-factory-candidate="true"][data-template-recipe="${templateKey}@${templateVersion}"]`
     );
+    await root.first().waitFor({state:'attached',timeout:10000}).catch(()=>undefined);
     checks.previewProvenanceStamp=await root.count()===1;
     if(!checks.previewProvenanceStamp)errors.push('PREVIEW_PROVENANCE_STAMP_MISSING');
     if(await root.count()===1){
