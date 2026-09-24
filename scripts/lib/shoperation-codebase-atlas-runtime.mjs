@@ -80,17 +80,17 @@ export function buildCodebaseAtlas(){
       exports:sourceExtensions.has(ext)?extractExports(text):[],literalKeys:text?extractLiteralKeys(text):[],referenceTerms:text?extractReferenceTerms(text):[],
     });
   }
-  const byPath=new Map(nodes.map(node=>[node.path,node])),reverse={};
+  const byPath=new Map(nodes.map(node=>[node.path,node])),reverse=Object.create(null);
   for(const node of nodes)for(const target of node.imports){(reverse[target]??=[]).push(node.path);}
   for(const key of Object.keys(reverse))reverse[key]=[...new Set(reverse[key])].sort();
   const routes=nodes.filter(node=>node.route).map(node=>({file:node.path,...node.route}));
-  const literalIndex={};for(const node of nodes)for(const key of node.literalKeys){(literalIndex[key]??=[]).push(node.path);}
+  const literalIndex=Object.create(null);for(const node of nodes)for(const key of node.literalKeys){(literalIndex[key]??=[]).push(node.path);}
   for(const key of Object.keys(literalIndex))literalIndex[key]=[...new Set(literalIndex[key])].sort();
-  const exportIndex={};for(const node of nodes)for(const symbol of node.exports){(exportIndex[symbol]??=[]).push(node.path);}
+  const exportIndex=Object.create(null);for(const node of nodes)for(const symbol of node.exports){(exportIndex[symbol]??=[]).push(node.path);}
   for(const key of Object.keys(exportIndex))exportIndex[key]=[...new Set(exportIndex[key])].sort();
-  const referenceIndex={};for(const node of nodes)for(const term of node.referenceTerms){(referenceIndex[term]??=[]).push(node.path);}
+  const referenceIndex=Object.create(null);for(const node of nodes)for(const term of node.referenceTerms){(referenceIndex[term]??=[]).push(node.path);}
   for(const key of Object.keys(referenceIndex))referenceIndex[key]=[...new Set(referenceIndex[key])].sort();
-  const subsystemCounts={};for(const node of nodes)for(const subsystem of node.subsystems)subsystemCounts[subsystem]=(subsystemCounts[subsystem]??0)+1;
+  const subsystemCounts=Object.create(null);for(const node of nodes)for(const subsystem of node.subsystems)subsystemCounts[subsystem]=(subsystemCounts[subsystem]??0)+1;
   const duplicateRoutes=Object.entries(routes.reduce((acc,item)=>{const key=`${item.kind}:${item.path}`;(acc[key]??=[]).push(item.file);return acc;},{})).filter(([,value])=>value.length>1).map(([routeKey,files])=>({routeKey,files}));
   const allFailures=getAllFailures();
   return {
