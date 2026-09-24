@@ -1,20 +1,18 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-771D632E",
-  "task": "Establish the Shoperation Architecture Constitution and Global Foundation as canonical quality knowledge and machine-readable architecture authority.",
+  "taskId": "DEV-DOMAIN-FOUNDATIONS-V1",
+  "task": "Define Shoperation Domain Foundations v1 with explicit truth ownership, boundaries, invariants, dependency contracts and machine-queryable domain authority.",
   "status": "ready-for-implementation",
-  "guardDigest": "771d632e",
+  "guardDigest": "8a690bdc",
   "plannedFilePatterns": [
-    "quality/knowledge/architecture-constitution.v1.json",
     "quality/knowledge/domain-foundations.v1.json",
-    "quality/knowledge/knowledge-scope-policy.v1.json",
-    "docs/architecture/ARCHITECTURE_CONSTITUTION.md",
-    "docs/architecture/GLOBAL_FOUNDATION.md",
-    "src/lib/quality-system/architecture-constitution.ts",
-    "tests/architecture-constitution.test.ts"
+    "docs/architecture/DOMAIN_FOUNDATIONS.md",
+    "src/lib/quality-system/domain-foundations.ts",
+    "tests/domain-foundations.test.ts"
   ],
   "expectedSubsystems": [
-    "quality-knowledge-system"
+    "quality-knowledge-system",
+    "dependency-contract"
   ],
   "expectedKnownFailureIds": [
     "SQ-KF-013",
@@ -67,13 +65,9 @@
     "TF-KF-024"
   ],
   "acknowledgedNegativeKnowledgeIds": [
-    "SQ-NK-010",
-    "SQ-NK-011",
-    "SQ-NK-012",
-    "SQ-NK-014",
-    "SQ-NK-015"
+    "SQ-NK-012"
   ],
   "exceptions": [],
-  "notes": "First System Soul transaction. Establishes a canonical architecture hierarchy and global invariants before Domain Foundations and Atlas 2.0. Existing architecture documents remain evidence/reference unless explicitly promoted; no runtime commerce behavior or release-risk threshold changes are included.",
-  "changeBaseSha": "e265eedb4d04ec1537c6516408295c5f76a701ac"
+  "notes": "Second System Soul transaction. Expands the already-canonical domain registry into enforceable Domain Foundations, including explicit dependency contracts. No runtime commerce behavior, database schema, production workflow, or Release Risk Budget threshold changes.",
+  "changeBaseSha": "e718363abde18553ce8f5c4a9a31b28bca4b57b4"
 }
