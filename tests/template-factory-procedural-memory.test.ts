@@ -72,6 +72,12 @@ describe('Template Factory procedural memory',()=>{
     expect(handoff).toContain('VISIBLE_AUTH_PASSWORD_TARGET_NOT_UNIQUE');
     expect(handoff).toContain('VISIBLE_AUTH_SUBMIT_TARGET_NOT_UNIQUE');
     expect(handoff).toContain('VISIBLE_SHARED_AUTH_SURFACE_NOT_UNIQUE');
+    expect(handoff).toContain('[data-storefront-structured="catalog-facets"]');
+    expect(handoff).toContain('[data-storefront-commerce="product-grid"]');
+    expect(handoff).toContain('[data-storefront-structured="key-specs"],[data-storefront-structured="specification-groups"]');
+    expect(handoff).toContain('[data-storefront-story="index"]');
+    expect(handoff).toContain('[data-storefront-story="feature"]');
+
     expect(handoff).toContain('JOURNEY_EXCEPTION:');
     expect(handoff.indexOf('}catch(error){')).toBeLessThan(handoff.indexOf('const proof={'));
     expect(TEMPLATE_FACTORY_AUTHORITY_GRAPH.some(item=>item.id==='TF-AUTH-014')).toBe(true);
