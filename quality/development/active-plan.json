@@ -31,7 +31,9 @@
     ".github/workflows/shoperation-knowledge-full-replay.yml",
     "scripts/template-factory-product-owner-handoff.mjs",
     "tests/storefront-template-preview-access.test.ts",
-    "tests/template-factory-storefront-contract.test.ts"
+    "tests/template-factory-storefront-contract.test.ts",
+    "src/lib/auth/template-preview-access.ts",
+    "src/app/storefront-template-preview/page.tsx"
   ],
   "expectedSubsystems": [
     "release-infrastructure"
