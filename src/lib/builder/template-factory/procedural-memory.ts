@@ -169,7 +169,7 @@ export function replayTemplateFactoryKnownFailures(build:StorefrontTemplateFacto
 function buildStaticStage(build:StorefrontTemplateFactoryBuild):TemplateFactoryMaturityStage{
   const pageCoverage=build.package.pages.length===14;
   if(!pageCoverage)return'scaffold';
-  if(!build.report.technicalReady)return'compiled';
+  if(build.report.issues.some(item=>item.severity==='error'))return'compiled';
   if(!build.report.productOwnerReady)return'technically-ready';
   return'visually-ready';
 }
