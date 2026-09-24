@@ -1,25 +1,16 @@
-# Capability Registry + Living Roadmap + Evidence Ledger
+# Capability Registry, Living Roadmap és Evidence Ledger
 
-Ez a három registry egyetlen bizonyítási láncot alkot.
+Ez a három registry együtt adja a Shoperation következő machine-readable foundation rétegét.
 
-**Capability Registry** rögzíti, hogy a Shoperation ténylegesen milyen képességekkel rendelkezik, mely domain-ekhez tartoznak, ki a canonical authority, mely implementációk/contractok/API-k/DB/UI/permission/testek tartoznak hozzájuk, és milyen más capabilitykre támaszkodnak.
+**Capability Registry**: megmondja, milyen stabil platformképességek léteznek, mely domain és authority birtokolja őket, milyen dependency-k és bizonyítékok tartoznak hozzájuk.
 
-**Living Roadmap** nem kézi százaléklista. A capability állapotát a következő lifecycle szerint kezeli:
+**Living Roadmap**: az elfogadott fejlesztési irány gépi authority-ja. Egy elem csak explicit evidence hivatkozással lehet `done`.
 
-`planned → in-development → implemented-unverified → verified → accepted → production`
+**Evidence Ledger**: bizonyítékokat tart nyilván, de nem válik runtime truth-tá. Minden verified evidence konkrét source SHA-hoz és állításokhoz kötött.
 
-Egy capability csak akkor léphet előre, ha az Evidence Ledger megfelelő bizonyítékot tartalmaz.
+A három réteg célja:
+`capability → roadmap intent → implementation → evidence → verified maturity`
 
-**Evidence Ledger** a bizonyítási lánc append-only nyilvántartása:
+A Constitution továbbra is magasabb authority. A Domain Foundations adja a truth ownershipot. A Capability Registry ezeket capability szintre vetíti. A Living Roadmap nem írhatja felül a runtime vagy domain truth-ot, az Evidence Ledger pedig csak bizonyít.
 
-`capability → implementation → contract → test → CI → acceptance → deployment/runtime`
-
-Az Evidence Ledger nem authority. Azt bizonyítja, amit a canonical authority állít; nem írhatja át.
-
-## Kapcsolat az Atlas 2.0-val
-
-A következő self-knowledge leképezés alapja:
-
-`file → domain → authority → capability → implementation/contract → evidence → roadmap state`
-
-A capability-regiszter nem duplikálja a Domain Foundations truth ownershipot. A domain azt mondja meg, **ki birtokolja az igazságot**; a capability azt mondja meg, **milyen képesség épül erre az authority-ra és mivel bizonyítható**.
+Ez lesz a következő drift/confidence réteg egyik bemenete: ha egy capability-ről azt állítjuk, hogy kész/operational, a rendszer össze tudja vetni a deklarációt az evidence állapotával.
