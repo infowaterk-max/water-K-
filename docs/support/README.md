@@ -240,3 +240,19 @@ The Edit-Time Known Failure Guard scans added code for strong signatures of alre
 Incremental Replay executes the regression authority of the active Known Failure set after coherent edit batches. The final full Quality Gate remains mandatory.
 
 Canonical rule: **Known failure prevention must happen before and during implementation, not only after implementation.**
+
+
+## Shoperation Codebase Atlas v1
+
+The Quality Knowledge system now has a generated engineering map of the repository.
+
+`scripts/shoperation-codebase-atlas.mjs --check` rebuilds a machine-readable graph from the current Git-tracked repository and writes:
+
+- `artifacts/shoperation-atlas/codebase-atlas.json`;
+- `artifacts/shoperation-atlas/codebase-atlas.md`.
+
+The Atlas records file/subsystem/surface ownership, application routes, import edges, reverse consumers, exported symbols and shared Storefront component/literal keys. Impact traversal can walk from a planned file toward consuming routes and regression tests.
+
+The Development Guard consumes the Atlas before implementation and includes an **Atlas impact** section for every planned path. This turns historical problems such as “which layer actually owns the Contact form background?” into an authority lookup instead of blind search.
+
+The Atlas is generated from the current repository rather than manually memorized, so it changes with the codebase and cannot silently become an old architectural snapshot.
