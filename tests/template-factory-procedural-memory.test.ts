@@ -76,6 +76,14 @@ describe('Template Factory procedural memory',()=>{
     expect(TEMPLATE_FACTORY_KNOWN_FAILURES.some(item=>item.id==='TF-KF-014')).toBe(true);
   });
 
+  it('keeps the active Vercel bypass proof leaf inside the protected journey allowlist',()=>{
+    const workflow=fs.readFileSync('.github/workflows/template-factory-quality-gate.yml','utf8');
+    expect(workflow).toContain("github.ref_name == 'feature/template-factory-vercel-automation-bypass'");
+    expect(workflow).toContain("github.head_ref == 'feature/template-factory-vercel-automation-bypass'");
+    expect(TEMPLATE_FACTORY_AUTHORITY_GRAPH.some(item=>item.id==='TF-AUTH-017')).toBe(true);
+    expect(TEMPLATE_FACTORY_KNOWN_FAILURES.some(item=>item.id==='TF-KF-015')).toBe(true);
+  });
+
   it('keeps every known failure bound to a real invariant and regression test',()=>{
     const authorityIds=new Set(TEMPLATE_FACTORY_AUTHORITY_GRAPH.map(item=>item.id));
     expect(new Set(TEMPLATE_FACTORY_KNOWN_FAILURES.map(item=>item.id)).size).toBe(TEMPLATE_FACTORY_KNOWN_FAILURES.length);
