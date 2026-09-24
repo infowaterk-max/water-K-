@@ -71,12 +71,17 @@ export function resolveDevelopmentScope({files=[],task='',forceFull=false}){
   const activeFailureIds=[...new Set([...knowledge.globalBaselineFailureIds,...globalIds,...tfIds])];
   return {directSubsystems:[...direct].sort(),intentSubsystems:[...intentSubsystems].sort(),impactedSubsystems:[...impacted].sort(),knowledgeInfrastructureChanged,fullReplay,unresolvedFiles,activeFailureIds};
 }
+export function resolveDevelopmentBase({changeBaseSha=null}={}){
+  const git=args=>execFileSync('git',args,{encoding:'utf8'}).trim();
+  const candidates=[changeBaseSha,process.env.DEVELOPMENT_BASE_SHA,process.env.QUALITY_BASE_SHA,process.env.RELEASE_BASE_SHA].map(value=>String(value??'').trim()).filter(Boolean);
+  for(const explicit of candidates)if(!/^0+$/.test(explicit)){try{git(['cat-file','-e',`${explicit}^{commit}`]);return explicit;}catch{}}
+  for(const candidate of ['origin/main','main','HEAD^']){try{git(['cat-file','-e',`${candidate}^{commit}`]);return candidate;}catch{}}
+  return null;
+}
 export function getChangedFiles({baseSha=null}={}){
   const git=args=>execFileSync('git',args,{encoding:'utf8'}).trim();
   const explicit=String(baseSha??process.env.DEVELOPMENT_BASE_SHA??'').trim();
-  let base=null;
-  if(explicit&&!/^0+$/.test(explicit)){try{git(['cat-file','-e',`${explicit}^{commit}`]);base=explicit;}catch{}}
-  if(!base)for(const candidate of ['HEAD^','origin/main','main']){try{git(['cat-file','-e',`${candidate}^{commit}`]);base=candidate;break;}catch{}}
+  const base=resolveDevelopmentBase({changeBaseSha:explicit});
   const head=(process.env.DEVELOPMENT_HEAD_SHA??process.env.GITHUB_SHA??'HEAD').trim()||'HEAD';
   if(!base)return {base:null,head,files:[]};
   const output=git(['diff','--name-only','--diff-filter=ACMR',base,head]);
