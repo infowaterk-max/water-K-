@@ -8,7 +8,6 @@
     "quality/knowledge/guard-registry.v1.json",
     "quality/knowledge/living-roadmap.v1.json",
     "quality/knowledge/evidence-ledger.v1.json",
-    "src/lib/quality-system/architecture-health.ts",
     "scripts/lib/shoperation-architecture-health.mjs",
     "docs/architecture/ARCHITECTURE_DRIFT_CONFIDENCE.md",
     "tests/architecture-health.test.ts"
