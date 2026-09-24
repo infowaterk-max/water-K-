@@ -28,7 +28,7 @@
       ]
     },
     {
-      "pattern": "auth|login|bejelentkez|account|fiók",
+      "pattern": "\\bauth\\b|authentication|authorization|login|bejelentkez|account|fiók",
       "subsystems": [
         "auth-access-authority",
         "customer-account"
