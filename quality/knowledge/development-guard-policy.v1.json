@@ -5,7 +5,8 @@
     "The Plan Before Code gate must pass before editing tracked implementation files.",
     "If the actual diff expands into a new subsystem or activates additional Known Failures, stop and regenerate/review the plan.",
     "After each coherent edit batch, run the Edit-Time Guard and Incremental Replay before continuing.",
-    "Final CI/Quality Gate remains mandatory; development-time prevention does not replace final proof."
+    "Final CI/Quality Gate remains mandatory; development-time prevention does not replace final proof.",
+    "Every short or broad intent matcher must keep at least one positive target example and one lexically similar non-target example in regression coverage."
   ],
   "intentMatchers": [
     {

@@ -75,5 +75,5 @@
     "SQ-NK-015"
   ],
   "exceptions": [],
-  "notes": "Matcher root-cause repair implemented. Because Quality Knowledge infrastructure changed, Plan Before Code intentionally upgrades this wave to full 48/48 Known Failure replay; subsystem and negative-knowledge scope remain unchanged."
+  "notes": "Full-replay proof commit for recurring SQ-KF-024: matcher root fix plus a shared Development Guard rule requiring positive and lexically similar negative intent examples. Quality Knowledge diff intentionally activates 48/48 replay."
 }
