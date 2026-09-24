@@ -15,7 +15,7 @@ const dependencies=scopePolicy.dependencies;
 const git=args=>execFileSync('git',args,{encoding:'utf8'}).trim();
 const base=resolveDevelopmentBase({changeBaseSha:developmentPlan.changeBaseSha});
 const head=(process.env.QUALITY_HEAD_SHA??process.env.GITHUB_SHA??'HEAD').trim()||'HEAD';
-let changedFiles=[];if(base){try{changedFiles=git(['diff','--name-only','--diff-filter=ACMR',base,head]).split(/\r?\n/).filter(Boolean);}catch{}}
+let changedFiles=[];if(base){try{changedFiles=git(['diff','--name-only','--diff-filter=ACMR',base,head]).split(/\r?\n/).filter(Boolean).filter(file=>file!=='quality/development/active-plan.json');}catch{}}
 const direct=new Set(),unresolvedFiles=[];let knowledgeInfrastructureChanged=false;
 for(const file of changedFiles){if(knowledgePrefixes.some(prefix=>file.startsWith(prefix))){knowledgeInfrastructureChanged=true;continue;}if(neutral.some(matcher=>matcher.test(file)))continue;const hits=matchers.filter(item=>item.matchers.some(matcher=>matcher.test(file)));if(!hits.length)unresolvedFiles.push(file);for(const hit of hits)direct.add(hit.name);}
 const impacted=new Set(direct),queue=[...direct];while(queue.length){const current=queue.shift();for(const dependency of dependencies[current]??[])if(!impacted.has(dependency)){impacted.add(dependency);queue.push(dependency);}}
