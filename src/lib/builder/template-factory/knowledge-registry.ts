@@ -40,6 +40,7 @@ export const TEMPLATE_FACTORY_AUTHORITY_GRAPH:readonly TemplateFactoryAuthorityR
   {id:'TF-AUTH-014',subject:'visible Product Owner auth interaction target',owner:'quality-system',delegates:['template'],rule:'Automated Product Owner authentication must interact only with the single visible active auth control set; hidden responsive duplicates are non-interactive evidence and ambiguous visible targets fail closed.'},
   {id:'TF-AUTH-015',subject:'Product Owner failure evidence persistence',owner:'quality-system',delegates:[],rule:'After handoff preflight starts, expected and unexpected journey failures must persist a machine-readable proof artifact; a browser interaction exception may fail the gate but may not erase the failure evidence.'},
   {id:'TF-AUTH-016',subject:'Vercel protected-preview automation boundary',owner:'quality-system',delegates:['platform'],rule:'Automated Product Owner proof against a protected Vercel preview must cross Deployment Protection with the dedicated automation bypass secret and must never treat a Vercel protection surface as Shoperation application output.'},
+  {id:'TF-AUTH-017',subject:'active Product Owner proof-stack execution coverage',owner:'quality-system',delegates:[],rule:'A protected Product Owner proof workflow must execute on every explicitly approved active leaf branch in its stacked proof chain; branch allowlists may narrow secret exposure but may not silently skip the current proof leaf.'},
 ]);
 
 export const TEMPLATE_FACTORY_KNOWN_FAILURES:readonly TemplateFactoryKnownFailure[]=Object.freeze([
@@ -195,6 +196,17 @@ export const TEMPLATE_FACTORY_KNOWN_FAILURES:readonly TemplateFactoryKnownFailur
     automatable:true,
     remediationPolicy:'shared-invariant-preferred',
     invariantIds:['TF-AUTH-008','TF-AUTH-016'],
+    regressionTests:['tests/template-factory-procedural-memory.test.ts'],
+  },
+  {
+    id:'TF-KF-015',
+    title:'Stacked Product Owner proof leaf is excluded by its own secret allowlist',
+    symptom:'All technical gates pass but the deployment resolver, login journey and handoff artifact steps are skipped because the active stacked child branch no longer matches the proof branch condition.',
+    rootCause:'Secret exposure was narrowed with a branch-name predicate that covered an ancestor proof branch but not the active stacked leaf carrying the final bypass wiring.',
+    occurrences:1,
+    automatable:true,
+    remediationPolicy:'shared-invariant-preferred',
+    invariantIds:['TF-AUTH-012','TF-AUTH-017'],
     regressionTests:['tests/template-factory-procedural-memory.test.ts'],
   },
 ]);
