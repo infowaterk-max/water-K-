@@ -60,6 +60,15 @@ describe('Template Factory complete storefront contract',()=>{
     expect(purchase).toContain('router.push(previewAccountHref)');
   });
 
+  it('keeps showroom-ready demo-content semantics identical in live preview and visual QA',()=>{
+    const preview=fs.readFileSync('src/app/storefront-template-preview/page.tsx','utf8');
+    const visualQa=fs.readFileSync('src/app/visual-fidelity-qa/page.tsx','utf8');
+    for(const source of [preview,visualQa]){
+      expect(source).toContain('isStorefrontShowroomReadyDemoContent');
+      expect(source).toContain('demoPayload&&!isStorefrontShowroomReadyDemoContent(demoFixture)?applyStorefrontTemplateDemoNotice(sourcePage):sourcePage');
+    }
+  });
+
   it('rejects placeholder and generic fallback content from Product Owner readiness',()=>{
     const build=buildRegisteredStorefrontTemplateFactoryCandidate('gaming.loot-vault');
     const serialized=JSON.stringify(build.package);
