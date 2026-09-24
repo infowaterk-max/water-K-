@@ -12,6 +12,22 @@ describe('Shoperation Development-Time Known Failure Guard',()=>{
   it('does not let auth match authority',()=>{const auth=policy.intentMatchers.find(item=>item.subsystems.includes('auth-access-authority'));expect(auth).toBeTruthy();const matcher=new RegExp(auth!.pattern,'i');expect(matcher.test('shared Incident Intelligence authority')).toBe(false);expect(matcher.test('auth flow')).toBe(true);expect(matcher.test('authentication flow')).toBe(true);expect(matcher.test('authorization rule')).toBe(true);});
   it('uses one canonical dependency graph for TypeScript and Node development tooling',()=>{expect(scopePolicy.dependencies['inventory-fulfillment-authority']).toContain('payment-checkout-order-authority');expect(scopePolicy.dependencies['payment-checkout-order-authority']).toContain('customer-account');expect(scopePolicy.knowledgeInfrastructurePrefixes).toContain('quality/knowledge/');});
   it('has edit-time prevention for the strongest known unsafe implementation patterns',()=>{const blockIds=policy.editRules.filter(rule=>rule.severity==='block').map(rule=>rule.id);expect(blockIds).toEqual(expect.arrayContaining(['DEV-BLOCK-001','DEV-BLOCK-002','DEV-BLOCK-003']));expect(policy.editRules.some(rule=>rule.failureIds.includes('SQ-KF-016'))).toBe(true);expect(policy.editRules.some(rule=>rule.failureIds.includes('SQ-KF-017'))).toBe(true);});
+  it('pins plan, knowledge preflight and edit-time guard to one change transaction authority',()=>{
+    const runtime=readFileSync('scripts/lib/shoperation-development-runtime.mjs','utf8'),plan=readFileSync('scripts/shoperation-plan-before-code.mjs','utf8'),preflight=readFileSync('scripts/shoperation-knowledge-preflight.mjs','utf8'),edit=readFileSync('scripts/shoperation-edit-time-guard.mjs','utf8');
+    expect(runtime).toContain('export function resolveDevelopmentBase');
+    expect(plan).toContain('getChangedFiles({baseSha:plan.changeBaseSha})');
+    expect(edit).toContain('getChangedFiles({baseSha:plan.changeBaseSha})');
+    expect(preflight).toContain("import {resolveDevelopmentBase} from './lib/shoperation-development-runtime.mjs'");
+    expect(preflight).toContain('resolveDevelopmentBase({changeBaseSha:developmentPlan.changeBaseSha})');
+    expect(preflight).not.toContain("developmentPlan.changeBaseSha?.trim()||process.env.QUALITY_BASE_SHA");
+  });
+  it('prevents plan-only or metadata commits from shrinking the active development transaction',()=>{
+    const runtime=readFileSync('scripts/lib/shoperation-development-runtime.mjs','utf8'),plan=readFileSync('scripts/shoperation-plan-before-code.mjs','utf8');
+    expect(runtime).toContain("git(['diff','--name-only','--diff-filter=ACMR',base,head])");
+    expect(runtime).toContain('const base=resolveDevelopmentBase({changeBaseSha:explicit})');
+    expect(plan).toContain("diff.files.filter(file=>file!=='quality/development/active-plan.json')");
+    expect(plan).not.toContain("getChangedFiles()");
+  });
   it('wires plan, edit-time and incremental guards into both general CI and Template Factory CI',()=>{for(const file of ['.github/workflows/ci.yml','.github/workflows/template-factory-quality-gate.yml']){const workflow=readFileSync(file,'utf8');expect(workflow).toContain('Plan Before Code Gate');expect(workflow).toContain('Edit-Time Known Failure Guard');expect(workflow).toContain('Incremental Known Failure Replay');expect(workflow).toContain('shoperation-plan-before-code.mjs --check');expect(workflow).toContain('shoperation-edit-time-guard.mjs --check');expect(workflow).toContain('shoperation-incremental-replay.mjs --check');expect(workflow).toContain('INCREMENTAL_OUTCOME');expect(workflow).toContain('INCREMENTAL_REPLAY_FAILED');expect(workflow).toContain('Upload Development Guard evidence');}});
   it('makes the preventive protocol repository-level instructions for coding agents',()=>{const agents=readFileSync('AGENTS.md','utf8');expect(agents).toContain('BEFORE THE FIRST IMPLEMENTATION EDIT');expect(agents).toContain('development-guard.md');expect(agents).toContain('Plan Before Code');expect(agents).toContain('shoperation-incremental-replay.mjs --check');});
 });
