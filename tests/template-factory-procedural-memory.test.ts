@@ -22,6 +22,16 @@ describe('Template Factory procedural memory',()=>{
     expect(harness).toContain("errors:caseErrors");
   });
 
+  it('never lets a Factory canary subset satisfy full browser-matrix acceptance',()=>{
+    const harness=fs.readFileSync('scripts/template-factory-quality-gate.mjs','utf8');
+    expect(harness).toContain("const mode=template.factoryCandidate?'full':'canary'");
+    expect(harness).toContain("const fullBrowserMatrixComplete=");
+    expect(harness).toContain("browserMatrixComplete:fullBrowserMatrixComplete");
+    expect(harness).toContain("browserMatrixExpectedCaseCount:expectedMatrixKeys.size");
+    expect(TEMPLATE_FACTORY_AUTHORITY_GRAPH.some(item=>item.id==='TF-AUTH-011')).toBe(true);
+    expect(TEMPLATE_FACTORY_KNOWN_FAILURES.some(item=>item.id==='TF-KF-009')).toBe(true);
+  });
+
   it('keeps every known failure bound to a real invariant and regression test',()=>{
     const authorityIds=new Set(TEMPLATE_FACTORY_AUTHORITY_GRAPH.map(item=>item.id));
     expect(new Set(TEMPLATE_FACTORY_KNOWN_FAILURES.map(item=>item.id)).size).toBe(TEMPLATE_FACTORY_KNOWN_FAILURES.length);

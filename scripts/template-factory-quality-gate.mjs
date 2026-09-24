@@ -98,7 +98,11 @@ function selectScope(catalog,changes){
   }
 
   if(!selected.size){
-    for(const template of templates)selected.set(template.templateKey,{template,mode:'canary',reason:'default-canary'});
+    for(const template of templates){
+      const mode=template.factoryCandidate?'full':'canary';
+      const reason=template.factoryCandidate?'factory-exact-head-full':'default-canary';
+      selected.set(template.templateKey,{template,mode,reason});
+    }
   }
   for(const value of selected.values())reasons.push({templateKey:value.template.templateKey,mode:value.mode,reason:value.reason});
   return{selected:[...selected.values()],reasons,qualityInfra,sharedRuntime,legacyTemplateChanges};
@@ -417,7 +421,11 @@ try{
 const acceptanceProofs=scope.selected.map(selected=>{
   const manifest=selected.template;
   const templateCases=cases.filter(item=>item.templateKey===manifest.templateKey&&item.templateVersion===manifest.templateVersion);
-  const browserMatrixPassed=templateCases.length>0&&templateCases.every(item=>(item.errors??[]).length===0);
+  const expectedMatrixKeys=new Set(manifest.pageTypes.flatMap(pageType=>manifest.viewports.map(viewport=>`${pageType}:${viewport}`)));
+  const matrixCases=templateCases.filter(item=>expectedMatrixKeys.has(`${item.pageType}:${item.viewport}`));
+  const observedMatrixKeys=new Set(matrixCases.map(item=>`${item.pageType}:${item.viewport}`));
+  const fullBrowserMatrixComplete=observedMatrixKeys.size===expectedMatrixKeys.size&&[...expectedMatrixKeys].every(key=>observedMatrixKeys.has(key));
+  const browserMatrixPassed=fullBrowserMatrixComplete&&matrixCases.every(item=>(item.errors??[]).length===0);
   const proceduralReplays=manifest.proceduralMemory?.failureReplays??[];
   const proceduralMemoryPassed=manifest.factoryCandidate
     ?manifest.proceduralMemory?.preflightOk===true&&proceduralReplays.length>0&&proceduralReplays.every(item=>item.passed===true)
@@ -445,6 +453,9 @@ const acceptanceProofs=scope.selected.map(selected=>{
     sourceCommit:headSha==='HEAD'?null:headSha,
     provenance:manifest.provenance??null,
     browserMatrixPassed,
+    browserMatrixComplete:fullBrowserMatrixComplete,
+    browserMatrixCaseCount:observedMatrixKeys.size,
+    browserMatrixExpectedCaseCount:expectedMatrixKeys.size,
     proceduralMemoryPassed,
     factoryIdentityPinned,
     productOwnerReadyByCompiler:manifest.productOwnerReady===true,
