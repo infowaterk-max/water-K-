@@ -187,3 +187,18 @@ If yes, update Support Knowledge in the same development cycle. Production verif
 40. **Internal QA and Product Owner preview must resolve the same compiled Factory identity.** Template key, template version, recipe identity and Factory-candidate state must survive preview navigation and auth boundaries; legacy-catalog fallback is release-blocking.
 41. **Product Owner handoff is a separate post-deployment gate.** Green CI, browser matrix and Vercel READY are necessary but insufficient. The exact handed-off URL must prove template-aware auth, preserved return target, authenticated return and final provenance before it may be marked handoff-ready.
 42. **Factory Product Owner preview authorization is tenant-independent.** Authentication and authorization remain fail-closed, but the preview route must never require an active webshop, current-store resolver or merchant subscription-plan gate. Platform-operator authority or an active owner/admin RBAC binding authorizes access; the compiled Factory candidate provides preview capabilities.
+
+
+## Global Quality Knowledge / Procedural Memory v1
+
+The Support Knowledge corpus is the historical evidence layer of a wider Shoperation quality system. The shared machine-readable layer lives under `quality/knowledge/` and is consumed by `src/lib/quality-system/**`.
+
+Canonical execution rule: **global knowledge, scoped execution**.
+
+The system may know every verified Shoperation failure without replaying every domain-specific guard for every change. The Knowledge Scope Resolver derives the active guard set from changed files, subsystem ownership and bounded cross-subsystem dependencies. Every selection records why a failure class ran or why it was skipped. A green result is invalid when the relevant guard was omitted.
+
+Knowledge-infrastructure changes force a full Known Failure selection. A scheduled full-system replay provides a backstop against scope-resolver blind spots without turning every ordinary feature commit into a complete platform replay.
+
+Unknown and review-required failure intake is written as machine-readable evidence and persisted as a deduplicated engineering intake until explicit disposition. Candidate intake never promotes itself into a Known Failure class.
+
+Negative knowledge is first-class: disproven workarounds and unsafe repair paths remain recorded so a later engineer or agent cannot silently repeat them.

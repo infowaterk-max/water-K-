@@ -77,6 +77,18 @@
       ]
     },
     {
+      "name": "quality-knowledge-system",
+      "risk": "medium",
+      "patterns": [
+        "src/lib/quality-system/**",
+        "quality/knowledge/**",
+        "scripts/shoperation-*.mjs",
+        "scripts/template-factory-quality-gate.mjs",
+        "src/lib/builder/template-factory/knowledge-registry.ts",
+        "src/lib/builder/template-factory/procedural-memory.ts"
+      ]
+    },
+    {
       "name": "builder-template-system",
       "risk": "medium",
       "patterns": [

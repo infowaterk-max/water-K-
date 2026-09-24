@@ -1,0 +1,619 @@
+{
+  "contract": "shoporation.quality-knowledge.v1",
+  "version": 1,
+  "lifecycleStates": [
+    "candidate",
+    "active",
+    "superseded",
+    "deprecated"
+  ],
+  "authorityRules": [
+    {
+      "id": "SQ-AUTH-001",
+      "subject": "single canonical authority",
+      "rule": "A local defect may not be repaired by creating a parallel controller, renderer, workflow or business authority when a canonical shared owner already exists."
+    },
+    {
+      "id": "SQ-AUTH-002",
+      "subject": "scope selection evidence",
+      "rule": "A green quality decision is valid only when the system proves that the relevant guard set was selected for the actual changed subsystem and authority surface."
+    },
+    {
+      "id": "SQ-AUTH-003",
+      "subject": "production runtime and schema parity",
+      "rule": "Production runtime code and the database schema it requires form one release unit and must be compatibility-proven before deployment."
+    },
+    {
+      "id": "SQ-AUTH-004",
+      "subject": "deployment versus application health",
+      "rule": "Deployment readiness, protected-preview reachability and CI completion are distinct from application-runtime and Product Owner acceptance evidence."
+    },
+    {
+      "id": "SQ-AUTH-005",
+      "subject": "accepted entrypoint continuity",
+      "rule": "Previously accepted navigation and capability entrypoints remain product authority until deliberately superseded; refactors may not silently redirect them."
+    },
+    {
+      "id": "SQ-AUTH-006",
+      "subject": "contextual knowledge reuse",
+      "rule": "Historical fixes are diagnostic evidence only until subsystem, provider, version, tenant and current authority compatibility are verified."
+    },
+    {
+      "id": "SQ-AUTH-007",
+      "subject": "failure learning closure",
+      "rule": "A generalizable repeated defect is closed only after root cause, invariant, regression authority and replay/applicability are all recorded."
+    },
+    {
+      "id": "SQ-AUTH-008",
+      "subject": "negative knowledge preservation",
+      "rule": "Disproven or unsafe repair paths remain recorded so later engineering work does not reintroduce a known failed approach."
+    },
+    {
+      "id": "SQ-AUTH-009",
+      "subject": "scoped replay with full-system backstop",
+      "rule": "Normal development replays only applicable guards, while a periodic full-system replay checks for cross-subsystem blind spots and scope resolver drift."
+    },
+    {
+      "id": "SQ-AUTH-010",
+      "subject": "durable failure intake disposition",
+      "rule": "Unknown or review-required failure intake must remain visible until explicitly matched, promoted, scoped, deduplicated or rejected."
+    }
+  ],
+  "globalBaselineFailureIds": [
+    "SQ-KF-013",
+    "SQ-KF-014"
+  ],
+  "knownFailures": [
+    {
+      "id": "SQ-KF-001",
+      "title": "Local defect patched by introducing a parallel authority",
+      "symptom": "A local UI or workflow defect is fixed by adding another controller, renderer, shell or capability authority beside an existing canonical owner.",
+      "rootCause": "The repair targeted the visible symptom instead of the shared ownership boundary.",
+      "occurrences": 3,
+      "automatable": true,
+      "remediationPolicy": "shared-root-cause-required",
+      "lifecycle": "active",
+      "invariantIds": [
+        "SQ-AUTH-001",
+        "SQ-AUTH-007"
+      ],
+      "regressionTests": [
+        "tests/shoperation-quality-knowledge.test.ts"
+      ],
+      "sourceRecords": [
+        "docs/support/RECENT_ENGINEERING_INCIDENTS_2026-09-10_11.md",
+        "docs/support/RECENT_ENGINEERING_BACKFILL_2026-09-12_18.md"
+      ],
+      "applicability": {
+        "mode": "subsystem",
+        "subsystems": [
+          "builder-template-system",
+          "admin-operations",
+          "customer-account",
+          "shared-storefront",
+          "storefront-ui"
+        ]
+      }
+    },
+    {
+      "id": "SQ-KF-002",
+      "title": "Accepted navigation or entrypoint contract drifts during refactor",
+      "symptom": "The capability still exists but an accepted sidebar, mobile, CTA or shopper entrypoint starts leading somewhere else.",
+      "rootCause": "Navigation was changed without preserving the accepted product entrypoint contract.",
+      "occurrences": 2,
+      "automatable": true,
+      "remediationPolicy": "shared-root-cause-required",
+      "lifecycle": "active",
+      "invariantIds": [
+        "SQ-AUTH-005",
+        "SQ-AUTH-007"
+      ],
+      "regressionTests": [
+        "tests/navigation-workflows.test.ts",
+        "tests/block4-ia-navigation-reporting.test.ts"
+      ],
+      "sourceRecords": [
+        "docs/support/RECENT_ENGINEERING_INCIDENTS_2026-09-10_11.md"
+      ],
+      "applicability": {
+        "mode": "subsystem",
+        "subsystems": [
+          "admin-operations",
+          "customer-account",
+          "shared-storefront",
+          "storefront-ui"
+        ]
+      }
+    },
+    {
+      "id": "SQ-KF-003",
+      "title": "Protected preview or deployment readiness mistaken for application health",
+      "symptom": "A READY deployment, redirect or protection surface is treated as proof that the Shoperation application route itself works.",
+      "rootCause": "Infrastructure reachability and application/runtime evidence were conflated.",
+      "occurrences": 2,
+      "automatable": true,
+      "remediationPolicy": "shared-root-cause-required",
+      "lifecycle": "active",
+      "invariantIds": [
+        "SQ-AUTH-004",
+        "SQ-AUTH-007"
+      ],
+      "regressionTests": [
+        "tests/rollout-readiness.test.ts",
+        "tests/template-factory-procedural-memory.test.ts"
+      ],
+      "sourceRecords": [
+        "docs/support/PLAYROOM_V20_PHASE4_BUILDER_ACCEPTANCE_INCIDENTS_2026-09-18.md"
+      ],
+      "applicability": {
+        "mode": "subsystem",
+        "subsystems": [
+          "release-infrastructure",
+          "environment-secret-contract",
+          "builder-template-system"
+        ]
+      }
+    },
+    {
+      "id": "SQ-KF-004",
+      "title": "CI or acceptance harness defect misdiagnosed as runtime defect",
+      "symptom": "Runtime safety or shared contracts are weakened to make a failing test or acceptance harness pass.",
+      "rootCause": "The failing evidence path was not separated from the product authority it was supposed to observe.",
+      "occurrences": 2,
+      "automatable": true,
+      "remediationPolicy": "shared-root-cause-required",
+      "lifecycle": "active",
+      "invariantIds": [
+        "SQ-AUTH-004",
+        "SQ-AUTH-006",
+        "SQ-AUTH-007"
+      ],
+      "regressionTests": [
+        "tests/shoperation-quality-knowledge.test.ts",
+        "tests/template-factory-procedural-memory.test.ts"
+      ],
+      "sourceRecords": [
+        "docs/support/PLAYROOM_V20_PHASE4_BUILDER_ACCEPTANCE_INCIDENTS_2026-09-18.md"
+      ],
+      "applicability": {
+        "mode": "subsystem",
+        "subsystems": [
+          "release-infrastructure",
+          "builder-template-system",
+          "shared-storefront"
+        ]
+      }
+    },
+    {
+      "id": "SQ-KF-005",
+      "title": "Green automated gate used as a substitute for Product Owner or live visual proof",
+      "symptom": "Automated checks pass while the actual interactive or visual surface remains unacceptable.",
+      "rootCause": "Technical validity and human acceptance were collapsed into one evidence class.",
+      "occurrences": 2,
+      "automatable": true,
+      "remediationPolicy": "shared-root-cause-required",
+      "lifecycle": "active",
+      "invariantIds": [
+        "SQ-AUTH-004",
+        "SQ-AUTH-007"
+      ],
+      "regressionTests": [
+        "tests/storefront-template-quality-gate-v2.test.ts",
+        "tests/shoperation-quality-knowledge.test.ts"
+      ],
+      "sourceRecords": [
+        "docs/support/PLAYROOM_V20_PHASE4_BUILDER_ACCEPTANCE_INCIDENTS_2026-09-18.md"
+      ],
+      "applicability": {
+        "mode": "subsystem",
+        "subsystems": [
+          "builder-template-system",
+          "shared-storefront",
+          "storefront-ui"
+        ]
+      }
+    },
+    {
+      "id": "SQ-KF-006",
+      "title": "Runtime deploy advances ahead of required production schema",
+      "symptom": "Production code queries a table or column that exists in source/staging but is absent from the live database.",
+      "rootCause": "Runtime deployment and production forward migrations were treated as separate completion evidence.",
+      "occurrences": 1,
+      "automatable": true,
+      "remediationPolicy": "shared-invariant-preferred",
+      "lifecycle": "active",
+      "invariantIds": [
+        "SQ-AUTH-003",
+        "SQ-AUTH-007"
+      ],
+      "regressionTests": [
+        "tests/rollout-readiness.test.ts",
+        "tests/customer-baseline-proof-contract.test.ts"
+      ],
+      "sourceRecords": [
+        "docs/support/PRODUCTION_RUNTIME_SCHEMA_PARITY_INCIDENT_2026-09-23.md"
+      ],
+      "applicability": {
+        "mode": "subsystem",
+        "subsystems": [
+          "database-schema",
+          "storefront-launch-runtime",
+          "release-infrastructure",
+          "environment-secret-contract"
+        ]
+      }
+    },
+    {
+      "id": "SQ-KF-007",
+      "title": "Published content state bypasses storefront access authority",
+      "symptom": "Published Page Schema or content becomes anonymously reachable even though the webshop lifecycle state still forbids public access.",
+      "rootCause": "Content publication was incorrectly treated as public-access authorization.",
+      "occurrences": 1,
+      "automatable": true,
+      "remediationPolicy": "shared-invariant-preferred",
+      "lifecycle": "active",
+      "invariantIds": [
+        "SQ-AUTH-001",
+        "SQ-AUTH-007"
+      ],
+      "regressionTests": [
+        "tests/pilot-acceptance-access.test.ts"
+      ],
+      "sourceRecords": [
+        "docs/support/PRODUCTION_RUNTIME_SCHEMA_PARITY_INCIDENT_2026-09-23.md"
+      ],
+      "applicability": {
+        "mode": "subsystem",
+        "subsystems": [
+          "auth-access-authority",
+          "storefront-launch-runtime",
+          "shared-storefront"
+        ]
+      }
+    },
+    {
+      "id": "SQ-KF-008",
+      "title": "Stale stacked development branch treated as production release tree",
+      "symptom": "A previously green feature parent is merged or released even though current main contains newer relevant changes.",
+      "rootCause": "Feature-head evidence was used instead of current-base release evidence.",
+      "occurrences": 2,
+      "automatable": true,
+      "remediationPolicy": "shared-root-cause-required",
+      "lifecycle": "active",
+      "invariantIds": [
+        "SQ-AUTH-004",
+        "SQ-AUTH-007"
+      ],
+      "regressionTests": [
+        "tests/rollout-readiness.test.ts"
+      ],
+      "sourceRecords": [
+        "docs/support/RECENT_ENGINEERING_BACKFILL_2026-09-12_18.md",
+        "docs/support/PLAYROOM_V20_PRODUCTION_RELEASE_AND_GOLDEN_RECOVERY_2026-09-23.md"
+      ],
+      "applicability": {
+        "mode": "subsystem",
+        "subsystems": [
+          "release-infrastructure"
+        ]
+      }
+    },
+    {
+      "id": "SQ-KF-009",
+      "title": "Fresh Install proof used as production schema-parity proof",
+      "symptom": "A fresh-customer baseline passes and is incorrectly interpreted as evidence that the existing production database is current.",
+      "rootCause": "Two different database evidence scopes were conflated.",
+      "occurrences": 1,
+      "automatable": true,
+      "remediationPolicy": "shared-invariant-preferred",
+      "lifecycle": "active",
+      "invariantIds": [
+        "SQ-AUTH-003",
+        "SQ-AUTH-004"
+      ],
+      "regressionTests": [
+        "tests/customer-baseline-proof-contract.test.ts",
+        "tests/rollout-readiness.test.ts"
+      ],
+      "sourceRecords": [
+        "docs/support/PRODUCTION_RUNTIME_SCHEMA_PARITY_INCIDENT_2026-09-23.md"
+      ],
+      "applicability": {
+        "mode": "subsystem",
+        "subsystems": [
+          "database-schema",
+          "release-infrastructure"
+        ]
+      }
+    },
+    {
+      "id": "SQ-KF-010",
+      "title": "Acceptance fixture relies on hidden environment state",
+      "symptom": "A named coupon, provider, product or commerce object is assumed to exist instead of being provisioned and verified by the acceptance fixture.",
+      "rootCause": "Acceptance depended on mutable external state not owned by the test contract.",
+      "occurrences": 2,
+      "automatable": true,
+      "remediationPolicy": "shared-root-cause-required",
+      "lifecycle": "active",
+      "invariantIds": [
+        "SQ-AUTH-006",
+        "SQ-AUTH-007"
+      ],
+      "regressionTests": [
+        "tests/storefront-playroom-v20-functional-acceptance.test.ts"
+      ],
+      "sourceRecords": [
+        "docs/support/PLAYROOM_V20_PHASE4_BUILDER_ACCEPTANCE_INCIDENTS_2026-09-18.md",
+        "docs/support/STOREFRONT_ACCEPTANCE_COMMERCE_FIXTURE_RULE_2026-09-21.md"
+      ],
+      "applicability": {
+        "mode": "subsystem",
+        "subsystems": [
+          "payment-checkout-order-authority",
+          "inventory-fulfillment-authority",
+          "database-schema",
+          "shared-storefront"
+        ]
+      }
+    },
+    {
+      "id": "SQ-KF-011",
+      "title": "Shared capability duplicated instead of composing the canonical authority",
+      "symptom": "A module or template creates a second definition for an account, commerce, support or platform capability that already exists.",
+      "rootCause": "Presentation/composition repair crossed the authority boundary and duplicated platform behavior.",
+      "occurrences": 2,
+      "automatable": true,
+      "remediationPolicy": "shared-root-cause-required",
+      "lifecycle": "active",
+      "invariantIds": [
+        "SQ-AUTH-001",
+        "SQ-AUTH-007"
+      ],
+      "regressionTests": [
+        "tests/storefront-account-capability-navigation.test.tsx",
+        "tests/shoperation-quality-knowledge.test.ts"
+      ],
+      "sourceRecords": [
+        "docs/support/PLAYROOM_V20_PHASE4_BUILDER_ACCEPTANCE_INCIDENTS_2026-09-18.md"
+      ],
+      "applicability": {
+        "mode": "subsystem",
+        "subsystems": [
+          "customer-account",
+          "shared-storefront",
+          "builder-template-system",
+          "admin-operations"
+        ]
+      }
+    },
+    {
+      "id": "SQ-KF-012",
+      "title": "Desktop interaction model merely shrunk for mobile",
+      "symptom": "Dense desktop navigation, footer or workspace geometry is compressed or clipped instead of receiving a mobile interaction/composition model.",
+      "rootCause": "Responsive work changed dimensions without changing the interaction authority required by the smaller viewport.",
+      "occurrences": 3,
+      "automatable": true,
+      "remediationPolicy": "shared-root-cause-required",
+      "lifecycle": "active",
+      "invariantIds": [
+        "SQ-AUTH-001",
+        "SQ-AUTH-007"
+      ],
+      "regressionTests": [
+        "tests/storefront-responsive-isolation.test.ts",
+        "tests/admin-mobile-desktop-compat.test.ts"
+      ],
+      "sourceRecords": [
+        "docs/support/DIGITAL_OFFICE_RESPONSIVE_INCIDENT_2026-09-10.md",
+        "docs/support/PLAYROOM_V20_PHASE4_BUILDER_ACCEPTANCE_INCIDENTS_2026-09-18.md"
+      ],
+      "applicability": {
+        "mode": "subsystem",
+        "subsystems": [
+          "storefront-ui",
+          "shared-storefront",
+          "builder-template-system",
+          "admin-operations"
+        ]
+      }
+    },
+    {
+      "id": "SQ-KF-013",
+      "title": "Relevant guard omitted and a false-green result is produced",
+      "symptom": "The selected test/replay set is green because a relevant failure class was never activated for the changed authority.",
+      "rootCause": "Guard selection itself was not treated as evidence-bearing quality logic.",
+      "occurrences": 1,
+      "automatable": true,
+      "remediationPolicy": "shared-invariant-preferred",
+      "lifecycle": "active",
+      "invariantIds": [
+        "SQ-AUTH-002",
+        "SQ-AUTH-009"
+      ],
+      "regressionTests": [
+        "tests/shoperation-quality-knowledge.test.ts"
+      ],
+      "sourceRecords": [
+        "docs/support/README.md"
+      ],
+      "applicability": {
+        "mode": "always",
+        "subsystems": []
+      }
+    },
+    {
+      "id": "SQ-KF-014",
+      "title": "Unresolved failure intake silently disappears between development cycles",
+      "symptom": "An unknown or review-required failure is visible in one CI run but is absent from the next engineering preflight without disposition.",
+      "rootCause": "Failure evidence was transient and had no durable intake/disposition authority.",
+      "occurrences": 1,
+      "automatable": true,
+      "remediationPolicy": "shared-invariant-preferred",
+      "lifecycle": "active",
+      "invariantIds": [
+        "SQ-AUTH-010",
+        "SQ-AUTH-007"
+      ],
+      "regressionTests": [
+        "tests/shoperation-quality-knowledge.test.ts"
+      ],
+      "sourceRecords": [
+        "docs/support/README.md"
+      ],
+      "applicability": {
+        "mode": "always",
+        "subsystems": []
+      }
+    }
+  ],
+  "templateFactoryFailureApplicability": {
+    "TF-KF-001": [
+      "builder-template-system",
+      "shared-storefront",
+      "release-infrastructure"
+    ],
+    "TF-KF-002": [
+      "builder-template-system",
+      "auth-access-authority",
+      "customer-account",
+      "shared-storefront"
+    ],
+    "TF-KF-003": [
+      "builder-template-system"
+    ],
+    "TF-KF-004": [
+      "builder-template-system",
+      "shared-storefront"
+    ],
+    "TF-KF-005": [
+      "builder-template-system",
+      "release-infrastructure"
+    ],
+    "TF-KF-006": [
+      "builder-template-system",
+      "shared-storefront",
+      "storefront-ui"
+    ],
+    "TF-KF-007": [
+      "builder-template-system",
+      "release-infrastructure"
+    ],
+    "TF-KF-008": [
+      "builder-template-system",
+      "auth-access-authority",
+      "customer-account"
+    ],
+    "TF-KF-009": [
+      "builder-template-system",
+      "release-infrastructure"
+    ],
+    "TF-KF-010": [
+      "builder-template-system",
+      "release-infrastructure"
+    ],
+    "TF-KF-011": [
+      "builder-template-system",
+      "release-infrastructure"
+    ],
+    "TF-KF-012": [
+      "builder-template-system",
+      "auth-access-authority",
+      "customer-account",
+      "shared-storefront"
+    ],
+    "TF-KF-013": [
+      "builder-template-system",
+      "release-infrastructure"
+    ],
+    "TF-KF-014": [
+      "builder-template-system",
+      "environment-secret-contract",
+      "release-infrastructure"
+    ],
+    "TF-KF-015": [
+      "builder-template-system",
+      "release-infrastructure"
+    ],
+    "TF-KF-016": [
+      "builder-template-system",
+      "shared-storefront"
+    ],
+    "TF-KF-017": [
+      "builder-template-system",
+      "shared-storefront"
+    ],
+    "TF-KF-018": [
+      "builder-template-system",
+      "shared-storefront"
+    ],
+    "TF-KF-019": [
+      "builder-template-system",
+      "shared-storefront"
+    ],
+    "TF-KF-020": [
+      "builder-template-system",
+      "customer-account",
+      "shared-storefront"
+    ],
+    "TF-KF-021": [
+      "builder-template-system",
+      "shared-storefront"
+    ],
+    "TF-KF-022": [
+      "builder-template-system",
+      "shared-storefront"
+    ],
+    "TF-KF-023": [
+      "builder-template-system",
+      "shared-storefront"
+    ],
+    "TF-KF-024": [
+      "builder-template-system",
+      "shared-storefront"
+    ]
+  },
+  "negativeKnowledge": [
+    {
+      "id": "SQ-NK-001",
+      "rule": "Do not add a global shell/layout override to repair one module until the shared shell is independently proven broken.",
+      "sourceRecords": [
+        "docs/support/RECENT_ENGINEERING_INCIDENTS_2026-09-10_11.md"
+      ]
+    },
+    {
+      "id": "SQ-NK-002",
+      "rule": "Do not weaken runtime safety because an acceptance test or CI harness is wrong.",
+      "sourceRecords": [
+        "docs/support/PLAYROOM_V20_PHASE4_BUILDER_ACCEPTANCE_INCIDENTS_2026-09-18.md"
+      ]
+    },
+    {
+      "id": "SQ-NK-003",
+      "rule": "Do not treat Vercel READY or a protection redirect as Shoperation runtime health.",
+      "sourceRecords": [
+        "docs/support/PLAYROOM_V20_PHASE4_BUILDER_ACCEPTANCE_INCIDENTS_2026-09-18.md"
+      ]
+    },
+    {
+      "id": "SQ-NK-004",
+      "rule": "Do not fix a recurring shared defect with a template-local patch only.",
+      "sourceRecords": [
+        "docs/support/TEMPLATE_FACTORY_PROCEDURAL_MEMORY_2026-09-23.md"
+      ]
+    },
+    {
+      "id": "SQ-NK-005",
+      "rule": "Do not infer production schema parity from Fresh Install or compile success.",
+      "sourceRecords": [
+        "docs/support/PRODUCTION_RUNTIME_SCHEMA_PARITY_INCIDENT_2026-09-23.md"
+      ]
+    },
+    {
+      "id": "SQ-NK-006",
+      "rule": "Do not create a second component/capability authority when the canonical shared primitive already exists.",
+      "sourceRecords": [
+        "docs/support/PLAYROOM_V20_PHASE4_BUILDER_ACCEPTANCE_INCIDENTS_2026-09-18.md"
+      ]
+    }
+  ]
+}

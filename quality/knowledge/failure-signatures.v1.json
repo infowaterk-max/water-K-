@@ -1,0 +1,103 @@
+{
+  "contract": "shoporation.failure-signatures.v1",
+  "rules": [
+    {
+      "match": "exact",
+      "pattern": "SHOWROOM_ENGINE_DEMO_MISSING",
+      "failureId": "TF-KF-021"
+    },
+    {
+      "match": "exact",
+      "pattern": "SHOWROOM_ROUTE_PRESENTATION_UNMAPPED",
+      "failureId": "TF-KF-017"
+    },
+    {
+      "match": "exact",
+      "pattern": "SHOWROOM_PRESENTATION_AUTHORITY_MISMATCH",
+      "failureId": "TF-KF-018"
+    },
+    {
+      "match": "prefix",
+      "pattern": "SHOWROOM_PLACEHOLDER_CONTENT",
+      "failureId": "TF-KF-024"
+    },
+    {
+      "match": "exact",
+      "pattern": "SHOWROOM_ACCOUNT_NAVIGATION_EMPTY",
+      "failureId": "TF-KF-020"
+    },
+    {
+      "match": "exact",
+      "pattern": "SHOWROOM_ACCOUNT_SURFACE_MISSING",
+      "failureId": "TF-KF-020"
+    },
+    {
+      "match": "prefix",
+      "pattern": "HORIZONTAL_OVERFLOW",
+      "failureId": "TF-KF-006"
+    },
+    {
+      "match": "prefix",
+      "pattern": "UNBOUNDED_PROTRUSION",
+      "failureId": "TF-KF-006"
+    },
+    {
+      "match": "prefix",
+      "pattern": "MOBILE_DESKTOP_NAV_LEAK",
+      "failureId": "SQ-KF-012"
+    },
+    {
+      "match": "exact",
+      "pattern": "DATABASE_SCHEMA_COMPATIBILITY_FAILED",
+      "failureId": "SQ-KF-006"
+    },
+    {
+      "match": "prefix",
+      "pattern": "EXACT_HEAD_VERCEL_DEPLOYMENT_",
+      "failureId": "TF-KF-005"
+    },
+    {
+      "match": "exact",
+      "pattern": "EXACT_HEAD_VERCEL_PREVIEW_NOT_READY",
+      "failureId": "TF-KF-010"
+    },
+    {
+      "match": "exact",
+      "pattern": "VERCEL_AUTOMATION_BYPASS_SECRET_REQUIRED",
+      "failureId": "TF-KF-014"
+    },
+    {
+      "match": "prefix",
+      "pattern": "PREVIEW_",
+      "failureId": "TF-KF-001"
+    },
+    {
+      "match": "prefix",
+      "pattern": "ROUTE_CONVERGENCE_",
+      "failureId": "TF-KF-017"
+    },
+    {
+      "match": "exact",
+      "pattern": "CANONICAL_ACCOUNT_SURFACES_NOT_PROVEN",
+      "failureId": "TF-KF-020"
+    },
+    {
+      "match": "exact",
+      "pattern": "SHARED_ENGINE_DEMO_INTEGRATION_NOT_PROVEN",
+      "failureId": "TF-KF-021"
+    },
+    {
+      "match": "exact",
+      "pattern": "PLACEHOLDER_CONTENT_CLEANUP_NOT_PROVEN",
+      "failureId": "TF-KF-024"
+    }
+  ],
+  "genericCodes": [
+    "BUILD_FAILED",
+    "TYPECHECK_FAILED",
+    "TEST_FAILED",
+    "QUALITY_GATE_FAILED",
+    "KNOWLEDGE_PREFLIGHT_FAILED",
+    "RELEASE_RISK_BUDGET_FAILED"
+  ]
+}

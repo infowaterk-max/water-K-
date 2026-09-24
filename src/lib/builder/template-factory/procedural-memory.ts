@@ -10,6 +10,7 @@ import {
   TEMPLATE_FACTORY_KNOWN_FAILURES,
   TEMPLATE_FACTORY_KNOWLEDGE_VERSION,
 } from '@/lib/builder/template-factory/knowledge-registry';
+import {evaluateShoperationKnowledgeIntegrity,SHOPERATION_QUALITY_KNOWLEDGE_VERSION} from '@/lib/quality-system/shoperation-knowledge';
 
 export const TEMPLATE_FACTORY_PROCEDURAL_MEMORY_VERSION='shoporation.template-factory-procedural-memory.v2' as const;
 
@@ -78,6 +79,8 @@ const preflightIssue=(code:string,path:string,message:string):TemplateFactoryPre
 
 export function evaluateTemplateFactoryPreflight(recipe:StorefrontTemplateFactoryRecipe){
   const issues:TemplateFactoryPreflightIssue[]=[];
+  const globalKnowledge=evaluateShoperationKnowledgeIntegrity();
+  for(const knowledgeIssue of globalKnowledge.issues)issues.push(preflightIssue('TF_PREFLIGHT_GLOBAL_KNOWLEDGE_INVALID',`globalKnowledge.${knowledgeIssue.path}`,`${knowledgeIssue.code}: ${knowledgeIssue.message}`));
   if(!recipe.shell.headerNode)issues.push(preflightIssue('TF_PREFLIGHT_TEMPLATE_HEADER_REQUIRED','shell.headerNode','Factory recipes must provide a template-owned canonical header.'));
   if(!recipe.shell.footerNode)issues.push(preflightIssue('TF_PREFLIGHT_TEMPLATE_FOOTER_REQUIRED','shell.footerNode','Factory recipes must provide a template-owned canonical footer.'));
   if(!recipe.pageOverrides?.account)issues.push(preflightIssue('TF_PREFLIGHT_ACCOUNT_OWNERSHIP_REQUIRED','pageOverrides.account','Account/auth presentation is template-owned and may not be inherited from the category foundation.'));
@@ -95,6 +98,9 @@ export function evaluateTemplateFactoryPreflight(recipe:StorefrontTemplateFactor
     templateVersion:recipe.templateVersion,
     knownFailureIds:TEMPLATE_FACTORY_KNOWN_FAILURES.map(item=>item.id),
     authorityRuleIds:TEMPLATE_FACTORY_AUTHORITY_GRAPH.map(item=>item.id),
+    globalKnowledgeVersion:SHOPERATION_QUALITY_KNOWLEDGE_VERSION,
+    globalKnownFailureIds:globalKnowledge.knownFailureIds,
+    unresolvedFailureIntake:globalKnowledge.unresolvedCandidates,
     issues:Object.freeze(issues),
     ok:issues.length===0,
   };
