@@ -14,7 +14,7 @@ import {createStorefrontVisualBuilderRendererRegistry} from '@/components/builde
 import {createStorefrontVisualBuilderComponentRegistry} from '@/lib/builder/storefront-builder-registry';
 import {STOREFRONT_TEMPLATE_PERFORMANCE_BUDGET,STOREFRONT_PERFORMANCE_CONTRACT_VERSION} from '@/lib/builder/storefront-performance-contract';
 import {STOREFRONT_PAGE_TYPES,type StorefrontBuilderPageType,type StorefrontViewport} from '@/lib/builder/storefront-foundation';
-import {applyStorefrontTemplateDemoNotice,getStorefrontTemplateDemoContent} from '@/lib/builder/storefront-template-route-integrity';
+import {applyStorefrontTemplateDemoNotice,getStorefrontTemplateDemoContent,isStorefrontShowroomReadyDemoContent} from '@/lib/builder/storefront-template-route-integrity';
 
 export const dynamic='force-dynamic';
 
@@ -49,7 +49,7 @@ export default async function VisualFidelityQaPage({searchParams}:Props){
   const demoFixture=query.demoContent?getStorefrontTemplateDemoContent(template,query.demoContent):null;
   if(query.demoContent&&!demoFixture)notFound();
   const demoPayload=demoFixture?.payload??null;
-  const page=demoPayload?applyStorefrontTemplateDemoNotice(sourcePage):sourcePage;
+  const page=demoPayload&&!isStorefrontShowroomReadyDemoContent(demoFixture)?applyStorefrontTemplateDemoNotice(sourcePage):sourcePage;
   const baseContext=applyAuthoredTemplatePreviewFallbacks({page,context:createStorefrontTemplatePreviewBindingContext({template,page})});
   if(demoPayload){
     const content=baseContext.content&&typeof baseContext.content==='object'&&!Array.isArray(baseContext.content)?baseContext.content as Record<string,unknown>:{};
