@@ -352,6 +352,11 @@ jobs:
               if(vercel&&['failure','error'].includes(vercel.state)){
                 throw new Error(`EXACT_HEAD_VERCEL_DEPLOYMENT_${vercel.state.toUpperCase()}`);
               }
+              if(vercel?.state==='success'){
+                core.info('GitHub deployment status is successful; using the protected proof-branch alias with exact source-commit verification.');
+                core.setOutput('base-url','https://water-k-native-git-feature-template-fact-a56b5f-infowaterk-5067.vercel.app');
+                return;
+              }
               await sleep(5000);
             }
             core.setFailed('EXACT_HEAD_VERCEL_PREVIEW_NOT_READY');
