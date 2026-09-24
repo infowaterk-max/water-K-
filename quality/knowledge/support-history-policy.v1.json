@@ -1,0 +1,512 @@
+{
+  "contract": "shoporation.support-history-policy.v1",
+  "sourceDirectory": "docs/support",
+  "explicitIncidentPrefixes": [
+    "SKB-",
+    "INC-"
+  ],
+  "promotedFailureIds": [
+    "SQ-KF-015",
+    "SQ-KF-016",
+    "SQ-KF-017",
+    "SQ-KF-018",
+    "SQ-KF-019",
+    "SQ-KF-020",
+    "SQ-KF-021",
+    "SQ-KF-023",
+    "SQ-KF-024"
+  ],
+  "documentRules": [
+    {
+      "file": "DIGITAL_OFFICE_RESPONSIVE_INCIDENT_2026-09-10.md",
+      "recordType": "incident-corpus",
+      "subsystems": [
+        "admin-operations",
+        "storefront-ui"
+      ]
+    },
+    {
+      "file": "PLAYROOM_V20_HOME_RESPONSIVE_AND_NEWSLETTER_2026-09-22.md",
+      "recordType": "incident-corpus",
+      "subsystems": [
+        "builder-template-system",
+        "shared-storefront",
+        "storefront-ui"
+      ]
+    },
+    {
+      "file": "PLAYROOM_V20_PHASE4_BUILDER_ACCEPTANCE_INCIDENTS_2026-09-18.md",
+      "recordType": "incident-corpus",
+      "subsystems": [
+        "builder-template-system",
+        "shared-storefront",
+        "customer-account",
+        "payment-checkout-order-authority"
+      ]
+    },
+    {
+      "file": "PLAYROOM_V20_POST_RELEASE_UI_POLISH_2026-09-23.md",
+      "recordType": "incident-corpus",
+      "subsystems": [
+        "shared-storefront",
+        "storefront-ui"
+      ]
+    },
+    {
+      "file": "PLAYROOM_V20_PRODUCTION_RELEASE_AND_GOLDEN_RECOVERY_2026-09-23.md",
+      "recordType": "incident-corpus",
+      "subsystems": [
+        "release-infrastructure",
+        "builder-template-system",
+        "shared-storefront"
+      ]
+    },
+    {
+      "file": "PLAYROOM_V20_TEMPLATE_CLOSURE_2026-09-22.md",
+      "recordType": "closure-evidence",
+      "subsystems": [
+        "builder-template-system",
+        "shared-storefront"
+      ]
+    },
+    {
+      "file": "PRODUCTION_RELEASE_RISK_BUDGET_2026-09-23.md",
+      "recordType": "governance-rule",
+      "subsystems": [
+        "release-infrastructure"
+      ]
+    },
+    {
+      "file": "PRODUCTION_RUNTIME_SCHEMA_PARITY_INCIDENT_2026-09-23.md",
+      "recordType": "incident-corpus",
+      "subsystems": [
+        "database-schema",
+        "storefront-launch-runtime",
+        "release-infrastructure"
+      ]
+    },
+    {
+      "file": "README.md",
+      "recordType": "knowledge-index",
+      "subsystems": [
+        "quality-knowledge-system"
+      ]
+    },
+    {
+      "file": "RECENT_ENGINEERING_BACKFILL_2026-09-12_18.md",
+      "recordType": "incident-corpus",
+      "subsystems": [
+        "quality-knowledge-system",
+        "builder-template-system",
+        "release-infrastructure",
+        "shared-storefront"
+      ]
+    },
+    {
+      "file": "RECENT_ENGINEERING_INCIDENTS_2026-09-10_11.md",
+      "recordType": "incident-corpus",
+      "subsystems": [
+        "quality-knowledge-system",
+        "admin-operations",
+        "builder-template-system",
+        "release-infrastructure"
+      ]
+    },
+    {
+      "file": "SHARED_CUSTOMER_BILLING_AND_B2B_IDENTITY_AUTHORITY_2026-09-22.md",
+      "recordType": "authority-rule",
+      "subsystems": [
+        "customer-account",
+        "payment-checkout-order-authority"
+      ]
+    },
+    {
+      "file": "STOREFRONT_ACCEPTANCE_COMMERCE_FIXTURE_RULE_2026-09-21.md",
+      "recordType": "authority-rule",
+      "subsystems": [
+        "payment-checkout-order-authority",
+        "shared-storefront"
+      ]
+    },
+    {
+      "file": "STOREFRONT_AUTH_INTENT_AND_CHECKOUT_ACCOUNT_OPPORTUNITY_2026-09-21.md",
+      "recordType": "authority-rule",
+      "subsystems": [
+        "auth-access-authority",
+        "customer-account",
+        "payment-checkout-order-authority"
+      ]
+    },
+    {
+      "file": "STOREFRONT_AUTH_SURFACE_SHARED_TEMPLATE_AWARE_2026-09-21.md",
+      "recordType": "authority-rule",
+      "subsystems": [
+        "auth-access-authority",
+        "customer-account",
+        "builder-template-system"
+      ]
+    },
+    {
+      "file": "STOREFRONT_AUTH_TEMPLATE_COMPOSITION_RULE_2026-09-21.md",
+      "recordType": "authority-rule",
+      "subsystems": [
+        "auth-access-authority",
+        "builder-template-system",
+        "shared-storefront"
+      ]
+    },
+    {
+      "file": "STOREFRONT_CONTACT_RUNTIME_CONTINUITY_2026-09-22.md",
+      "recordType": "incident-corpus",
+      "subsystems": [
+        "shared-storefront",
+        "storefront-ui"
+      ]
+    },
+    {
+      "file": "STOREFRONT_COOKIE_CONSENT_TEMPLATE_COMPOSITION_RULE_2026-09-21.md",
+      "recordType": "authority-rule",
+      "subsystems": [
+        "builder-template-system",
+        "shared-storefront"
+      ]
+    },
+    {
+      "file": "STOREFRONT_HEADER_UTILITY_AND_CART_CROSS_SELL_PRESENTATION_2026-09-22.md",
+      "recordType": "incident-corpus",
+      "subsystems": [
+        "shared-storefront",
+        "storefront-ui"
+      ]
+    },
+    {
+      "file": "STOREFRONT_HOME_PREVIEW_RUNTIME_CONTINUITY_2026-09-22.md",
+      "recordType": "incident-corpus",
+      "subsystems": [
+        "builder-template-system",
+        "shared-storefront"
+      ]
+    },
+    {
+      "file": "STOREFRONT_ROUTE_AND_AUTHENTICATED_ACCOUNT_INHERITANCE_2026-09-21.md",
+      "recordType": "authority-rule",
+      "subsystems": [
+        "auth-access-authority",
+        "customer-account",
+        "shared-storefront"
+      ]
+    },
+    {
+      "file": "STOREFRONT_SOCIAL_LINKS_TENANT_AUTHORITY_2026-09-21.md",
+      "recordType": "authority-rule",
+      "subsystems": [
+        "shared-storefront"
+      ]
+    },
+    {
+      "file": "STOREFRONT_SYSTEM_SURFACE_TEMPLATE_INHERITANCE_RULE_2026-09-21.md",
+      "recordType": "authority-rule",
+      "subsystems": [
+        "builder-template-system",
+        "shared-storefront"
+      ]
+    },
+    {
+      "file": "STOREFRONT_TEMPLATE_DEMO_CATALOG_LIFECYCLE_2026-09-22.md",
+      "recordType": "authority-rule",
+      "subsystems": [
+        "builder-template-system",
+        "shared-storefront"
+      ]
+    },
+    {
+      "file": "TEMPLATE_FACTORY_CANONICAL_HARDENING_2026-09-22.md",
+      "recordType": "factory-rule",
+      "subsystems": [
+        "builder-template-system",
+        "quality-knowledge-system"
+      ]
+    },
+    {
+      "file": "TEMPLATE_FACTORY_PROCEDURAL_MEMORY_2026-09-23.md",
+      "recordType": "factory-rule",
+      "subsystems": [
+        "builder-template-system",
+        "quality-knowledge-system"
+      ]
+    },
+    {
+      "file": "TEMPLATE_FACTORY_QUALITY_GATE_V2_FOUNDATION_CLOSURE_2026-09-21.md",
+      "recordType": "closure-evidence",
+      "subsystems": [
+        "builder-template-system",
+        "quality-knowledge-system"
+      ]
+    },
+    {
+      "file": "TEMPLATE_FACTORY_SCAFFOLD_V1_2026-09-23.md",
+      "recordType": "factory-rule",
+      "subsystems": [
+        "builder-template-system"
+      ]
+    },
+    {
+      "file": "TEMPLATE_ROUTE_INTEGRITY_DEMO_CONTENT_2026-09-21.md",
+      "recordType": "authority-rule",
+      "subsystems": [
+        "builder-template-system",
+        "shared-storefront"
+      ]
+    },
+    {
+      "file": "QUALITY_GUARD_LESSONS_2026-09-24.md",
+      "recordType": "incident-corpus",
+      "subsystems": [
+        "quality-knowledge-system",
+        "database-schema"
+      ]
+    }
+  ],
+  "incidentRules": [
+    {
+      "titlePattern": "Platform-owner session could not resolve a unique tenant|Guest storefront tenant resolver returned null",
+      "disposition": "new-global-failure",
+      "knownFailureId": "SQ-KF-017",
+      "subsystems": [
+        "auth-access-authority",
+        "admin-operations",
+        "shared-storefront"
+      ],
+      "reason": "Historical tenant/context failures share one fail-closed context-resolution root cause."
+    },
+    {
+      "titlePattern": "Alap tenant was redirected to Csomagkezelés before Builder capability rendering|Superseded Builder route must not be reintroduced|Product Intake Sidebar opened the wrong/old landing",
+      "disposition": "matched-known-failure",
+      "knownFailureId": "SQ-KF-002",
+      "subsystems": [
+        "admin-operations",
+        "builder-template-system"
+      ],
+      "reason": "Accepted entrypoint or navigation authority drift."
+    },
+    {
+      "titlePattern": "Acceptance deep-link template page key did not match persisted page key|Playroom source visuals changed but persisted v1 storefront did not|Internal Playroom evolution reached v18 but installable package remained v2|Recurrent Storefront legacy drift against current shared contracts",
+      "disposition": "new-global-failure",
+      "knownFailureId": "SQ-KF-015",
+      "subsystems": [
+        "builder-template-system",
+        "shared-storefront"
+      ],
+      "reason": "Source/persisted/runtime state authority drift."
+    },
+    {
+      "titlePattern": "Protected Preview / staging proof cleanup collided with hardened database contracts|Vercel Preview Protection redirect is not runtime HTTP evidence|Vercel Deployment Protection produced preview `/api/health` HTTP 302",
+      "disposition": "matched-known-failure",
+      "knownFailureId": "SQ-KF-003",
+      "subsystems": [
+        "release-infrastructure",
+        "builder-template-system"
+      ],
+      "reason": "Infrastructure/protection evidence was confused with application health."
+    },
+    {
+      "titlePattern": "CI failures caused by acceptance-test defects must not be misdiagnosed as runtime failures|Green contract-first gate means no speculative template change|Acceptance preview disabled the final submit control and made fail-closed proof impossible",
+      "disposition": "matched-known-failure",
+      "knownFailureId": "SQ-KF-004",
+      "subsystems": [
+        "release-infrastructure",
+        "builder-template-system"
+      ],
+      "reason": "Acceptance harness evidence must be separated from runtime authority."
+    },
+    {
+      "titlePattern": "Automated acceptance was green before live Builder fidelity was actually proven|Authenticated visual acceptance remained open despite green technical gates",
+      "disposition": "matched-known-failure",
+      "knownFailureId": "SQ-KF-005",
+      "subsystems": [
+        "builder-template-system",
+        "shared-storefront"
+      ],
+      "reason": "Technical green did not prove live/human acceptance."
+    },
+    {
+      "titlePattern": "Template-native checkout crashed because staging missed reusable-symbol migrations|Product Documents staging failed because canonical catalog grants were missing|Genuine Fresh Install exposed a hidden baseline dependency gap|Schema-changing Special Commerce waves had Fresh Install SKIPPED",
+      "disposition": "new-global-failure",
+      "knownFailureId": "SQ-KF-018",
+      "subsystems": [
+        "database-schema",
+        "release-infrastructure"
+      ],
+      "reason": "A target environment/baseline omitted a required runtime dependency or proof."
+    },
+    {
+      "titlePattern": "Acceptance mixed cart bypassed shared CartProvider state and checkout stayed at 0 Ft|CSS-only Visual Builder candidate created parallel UI authority|Visual Builder mobile fixes duplicated the canonical route controller|Special Commerce must reuse existing engines rather than proliferate engines|Product Intake must extend canonical catalog authority, not create a second onboarding engine|Support inbox belongs inside Digital Office without a second ticket engine",
+      "disposition": "matched-known-failure",
+      "knownFailureId": "SQ-KF-001",
+      "subsystems": [
+        "builder-template-system",
+        "admin-operations",
+        "shared-storefront"
+      ],
+      "reason": "Visible defect was repaired or reproduced through a parallel authority instead of the canonical shared owner."
+    },
+    {
+      "titlePattern": "Acceptance coupon fixture was missing and failed coupon quote erased the last valid total",
+      "disposition": "matched-known-failure",
+      "knownFailureId": "SQ-KF-010",
+      "subsystems": [
+        "payment-checkout-order-authority"
+      ],
+      "reason": "Acceptance relied on hidden/missing configured state."
+    },
+    {
+      "titlePattern": "Account post-purchase block was redundant and shared capability insertion could land below a wrapped footer|B2B RFQ quantity control diverged from the canonical cart interaction|Customer return initiation must be a canonical Account capability|Account navigation is platform IA, not template-local content|Account overview must not duplicate dedicated downloads/documents pages|Phase 3 Builder/runtime omitted shared Digital Commerce models|Shared capability composition must be installed centrally, not manually in 41 templates",
+      "disposition": "matched-known-failure",
+      "knownFailureId": "SQ-KF-011",
+      "subsystems": [
+        "customer-account",
+        "shared-storefront",
+        "builder-template-system"
+      ],
+      "reason": "Shared platform capability was duplicated, omitted or locally redefined."
+    },
+    {
+      "titlePattern": "Width-only mobile detection still failed on physical phones|Device preview controls disappeared due host-device heuristic|Digital Office bottom/height defect was repeatedly misattributed|Storefront desktop scale/density contract drift made 75% browser zoom look “normal”",
+      "disposition": "new-global-failure",
+      "knownFailureId": "SQ-KF-016",
+      "subsystems": [
+        "builder-template-system",
+        "admin-operations",
+        "storefront-ui"
+      ],
+      "reason": "Responsive state had multiple or heuristic authorities."
+    },
+    {
+      "titlePattern": "Playroom commerce header inherited desktop density on mobile|Shared Commerce Header requires real mobile navigation mode|Playroom footer inherited desktop information density on Mobile",
+      "disposition": "matched-known-failure",
+      "knownFailureId": "SQ-KF-012",
+      "subsystems": [
+        "shared-storefront",
+        "storefront-ui"
+      ],
+      "reason": "Desktop interaction/density model was merely compressed into mobile."
+    },
+    {
+      "titlePattern": "Stale Storefront Wave 76 branch was unsafe as a production release tree|Concurrent main advancement requires controlled reconciliation|Release-base proof must finish before merge",
+      "disposition": "matched-known-failure",
+      "knownFailureId": "SQ-KF-008",
+      "subsystems": [
+        "release-infrastructure"
+      ],
+      "reason": "Stale feature/base evidence was used as release evidence."
+    },
+    {
+      "titlePattern": "Special Commerce anti-fake boundaries",
+      "disposition": "new-global-failure",
+      "knownFailureId": "SQ-KF-019",
+      "subsystems": [
+        "payment-checkout-order-authority",
+        "inventory-fulfillment-authority",
+        "shared-storefront"
+      ],
+      "reason": "Presentation/guidance may not invent server-owned commerce truth."
+    },
+    {
+      "titlePattern": "Accepted golden drift needs a non-circular promotion path",
+      "disposition": "new-global-failure",
+      "knownFailureId": "SQ-KF-020",
+      "subsystems": [
+        "release-infrastructure",
+        "builder-template-system"
+      ],
+      "reason": "Baseline promotion depended circularly on the baseline already being accepted."
+    },
+    {
+      "titlePattern": "Public storefront routes are not template visual-acceptance authority",
+      "disposition": "matched-known-failure",
+      "knownFailureId": "TF-KF-018",
+      "subsystems": [
+        "builder-template-system",
+        "shared-storefront"
+      ],
+      "reason": "Real route presentation authority differed from the candidate template acceptance authority."
+    },
+    {
+      "titlePattern": "Surface Reduction / Dead Code audit after Market Ready",
+      "disposition": "rejected",
+      "knownFailureId": null,
+      "subsystems": [
+        "release-infrastructure"
+      ],
+      "reason": "Retained product/engineering lesson, not a historical failure class."
+    },
+    {
+      "titlePattern": "Builder selection wrapper collapsed CSS Grid spans to one track|Dense Commerce Header activated horizontal-scroll fallback at Desktop 1200px|Builder said .Desktop 1200px. but physically rendered in a much narrower frame|Transform/CSS zoom attempts did not reliably solve scroll geometry|Fixed 60% minimum still overflowed with both Builder side panels open|Absolute media disappeared in Builder but rendered in direct Preview|Grid row stretch stopped at Builder wrapper instead of the runtime block|Hungarian template contained English customer-facing labels|Live checkout rendered with light fallback theme; search icon and footer lost Playroom fidelity|Dark checkout inherited panel colors but not readable field-label hierarchy|Search action optical centering and checkout summary secondary-text contrast escaped shared semantic styling|Checkout field theming missed nested textarea and browser autofill; legal links relied on uncontrolled wrapping|Guided checkout blocked invalid fields without visible in-app validation feedback|Protected commerce header became technically complete but visually unreadable at Desktop density|Playroom footer typography fell below the 1920×1080 / 100% readability baseline",
+      "disposition": "subsystem-specific",
+      "knownFailureId": null,
+      "subsystems": [
+        "builder-template-system",
+        "shared-storefront",
+        "storefront-ui"
+      ],
+      "reason": "Concrete Builder/storefront presentation defect retained as domain knowledge; not promoted to a global invariant.",
+      "file": "PLAYROOM_V20_PHASE4_BUILDER_ACCEPTANCE_INCIDENTS_2026-09-18.md"
+    },
+    {
+      "titlePattern": "Email Builder mobile Dynamic Data inserted into stale target|Grouped checkout must preserve idempotency identity|AI Builder must generate bounded Page Schema, never source code or implicit publication|Block 24 separated engineering release from public password-auth launch readiness|Post-purchase Product Documents existed, but account authorization was incomplete|Full guest digital delivery requires real storage and hash-only tokens|Digital assets, Product Documents and Order Documents must not share lifecycle semantics",
+      "disposition": "subsystem-specific",
+      "knownFailureId": null,
+      "subsystems": [
+        "builder-template-system",
+        "customer-account",
+        "payment-checkout-order-authority"
+      ],
+      "reason": "Domain-specific authority/security lesson retained without over-generalizing into a global failure class.",
+      "file": "RECENT_ENGINEERING_BACKFILL_2026-09-12_18.md"
+    },
+    {
+      "titlePattern": "Product Intake Sidebar skin regressions from unstable selectors|Digital Office request waterfall caused slow/blank navigation",
+      "disposition": "subsystem-specific",
+      "knownFailureId": null,
+      "subsystems": [
+        "admin-operations"
+      ],
+      "reason": "Concrete admin/Digital Office implementation defect retained at subsystem scope.",
+      "file": "RECENT_ENGINEERING_INCIDENTS_2026-09-10_11.md"
+    },
+    {
+      "titlePattern": "Dynamic Support Intake Wizard is topic-first|Page Schema contact canvas must paint the template background|Playroom post-release visual defects",
+      "disposition": "subsystem-specific",
+      "knownFailureId": null,
+      "subsystems": [
+        "shared-storefront",
+        "storefront-ui"
+      ],
+      "reason": "Concrete post-release storefront UX/visual defect retained at subsystem scope.",
+      "file": "PLAYROOM_V20_PRODUCTION_RELEASE_AND_GOLDEN_RECOVERY_2026-09-23.md"
+    },
+    {
+      "file": "QUALITY_GUARD_LESSONS_2026-09-24.md",
+      "sourceIdPattern": "^SKB-QG-001$",
+      "titlePattern": "Marker-based schema proof can be false green",
+      "disposition": "new-global-failure",
+      "knownFailureId": "SQ-KF-023",
+      "subsystems": [
+        "database-schema",
+        "quality-knowledge-system"
+      ],
+      "reason": "Marker-only schema regression evidence passed while the PL/pgSQL delimiter was syntactically invalid."
+    },
+    {
+      "file": "QUALITY_GUARD_LESSONS_2026-09-24.md",
+      "sourceIdPattern": "^SKB-QG-002$",
+      "titlePattern": "Short intent token caused scope explosion",
+      "disposition": "new-global-failure",
+      "knownFailureId": "SQ-KF-024",
+      "subsystems": [
+        "quality-knowledge-system"
+      ],
+      "reason": "An unbounded short provider token matched an unrelated word and activated false subsystem scope."
+    }
+  ]
+}
