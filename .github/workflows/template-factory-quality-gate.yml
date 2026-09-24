@@ -6,6 +6,9 @@ on:
     paths:
       - 'src/lib/builder/templates/**'
       - 'src/lib/builder/template-factory/**'
+      - 'src/lib/quality-system/**'
+      - 'quality/knowledge/**'
+      - 'scripts/shoperation-*.mjs'
       - 'src/lib/builder/storefront-**'
       - 'src/lib/instances/access.ts'
       - 'src/lib/commerce/settings.ts'
@@ -73,6 +76,9 @@ on:
     paths:
       - 'src/lib/builder/templates/**'
       - 'src/lib/builder/template-factory/**'
+      - 'src/lib/quality-system/**'
+      - 'quality/knowledge/**'
+      - 'scripts/shoperation-*.mjs'
       - 'src/lib/builder/storefront-**'
       - 'src/lib/instances/access.ts'
       - 'src/lib/commerce/settings.ts'
@@ -140,6 +146,7 @@ on:
 
 permissions:
   contents: read
+  issues: write
 
 concurrency:
   group: template-factory-quality-${{ github.ref }}
@@ -170,6 +177,44 @@ jobs:
 
       - name: Install locked application dependencies
         run: npm ci --no-audit --no-fund
+
+      - name: Knowledge Before Build preflight
+        id: knowledge
+        env:
+          QUALITY_BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
+          QUALITY_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: node scripts/shoperation-knowledge-preflight.mjs
+
+      - name: Plan Before Code Gate
+        id: development-plan
+        run: node scripts/shoperation-plan-before-code.mjs --check
+
+      - name: Edit-Time Known Failure Guard
+        id: edit-time-guard
+        run: node scripts/shoperation-edit-time-guard.mjs --check
+
+      - name: Incremental Known Failure Replay
+        id: incremental-replay
+        run: node scripts/shoperation-incremental-replay.mjs --check
+
+      - name: Upload Development Guard evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: shoperation-development-guard-${{ github.event.pull_request.head.sha || github.sha }}
+          path: artifacts/shoperation-development-guard/**
+          if-no-files-found: warn
+          retention-days: 30
+
+      - name: Upload Shoperation knowledge evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: shoperation-quality-knowledge-${{ github.event.pull_request.head.sha || github.sha }}
+          path: artifacts/shoperation-quality/**
+          if-no-files-found: warn
+          retention-days: 30
 
       - name: Install pinned QA dependencies without changing lock authority
         run: npm install --no-save --package-lock=false --ignore-scripts --no-audit --no-fund playwright@1.55.0 pixelmatch@7.1.0 pngjs@7.0.0
@@ -224,9 +269,11 @@ jobs:
           tests/cart-style-quantity-control.test.tsx
 
       - name: Typecheck exact head
+        id: typecheck
         run: npm run typecheck
 
       - name: Build exact-head Runtime
+        id: runtime-build
         run: npm run build
 
       - name: Start exact-head QA Runtime
@@ -244,6 +291,7 @@ jobs:
           exit 1
 
       - name: Run Template Factory 14x3 browser matrix
+        id: browser-matrix
         run: node scripts/template-factory-quality-gate.mjs
 
       - name: Upload Template Factory quality evidence
@@ -256,6 +304,61 @@ jobs:
             artifacts/template-factory-quality/manifest.json
           if-no-files-found: warn
           retention-days: 30
+
+
+      - name: Create Template Factory failure intake
+        if: always()
+        shell: bash
+        env:
+          KNOWLEDGE_OUTCOME: ${{ steps.knowledge.outcome }}
+          DEVELOPMENT_PLAN_OUTCOME: ${{ steps.development-plan.outcome }}
+          EDIT_GUARD_OUTCOME: ${{ steps.edit-time-guard.outcome }}
+          INCREMENTAL_OUTCOME: ${{ steps.incremental-replay.outcome }}
+          TYPECHECK_OUTCOME: ${{ steps.typecheck.outcome }}
+          BUILD_OUTCOME: ${{ steps.runtime-build.outcome }}
+          MATRIX_OUTCOME: ${{ steps.browser-matrix.outcome }}
+          SHOPERATION_SOURCE_COMMIT: ${{ github.event.pull_request.head.sha || github.sha }}
+          SHOPERATION_FAILURE_SOURCE: template-factory
+          SHOPERATION_TEMPLATE_KEY: gaming.loot-vault
+          SHOPERATION_TEMPLATE_VERSION: '2'
+          SHOPERATION_TEMPLATE_QUALITY_MANIFEST: artifacts/template-factory-quality/manifest.json
+        run: |
+          codes=""
+          [ "$KNOWLEDGE_OUTCOME" != "failure" ] || codes="${codes}KNOWLEDGE_PREFLIGHT_FAILED;"
+          [ "$DEVELOPMENT_PLAN_OUTCOME" != "failure" ] || codes="${codes}DEVELOPMENT_PLAN_FAILED;"
+          [ "$EDIT_GUARD_OUTCOME" != "failure" ] || codes="${codes}EDIT_TIME_GUARD_FAILED;"
+          [ "$INCREMENTAL_OUTCOME" != "failure" ] || codes="${codes}INCREMENTAL_REPLAY_FAILED;"
+          [ "$TYPECHECK_OUTCOME" != "failure" ] || codes="${codes}TYPECHECK_FAILED;"
+          [ "$BUILD_OUTCOME" != "failure" ] || codes="${codes}BUILD_FAILED;"
+          [ "$MATRIX_OUTCOME" != "failure" ] || codes="${codes}QUALITY_GATE_FAILED;"
+          SHOPERATION_GENERIC_FAILURES="$codes" node scripts/shoperation-failure-intake.mjs
+
+      - name: Upload Template Factory failure intake
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: template-factory-failure-intake-${{ github.event.pull_request.head.sha || github.sha }}
+          path: artifacts/shoperation-failure-intake/**
+          if-no-files-found: warn
+          retention-days: 90
+
+      - name: Persist unresolved failure intake
+        if: always() && github.event_name == 'push'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs=require('fs');
+            const file='artifacts/shoperation-failure-intake/failure-intake.json';
+            if(!fs.existsSync(file))return;
+            const report=JSON.parse(fs.readFileSync(file,'utf8'));
+            const unresolved=(report.records||[]).filter(r=>['candidate-new-failure','needs-review'].includes(r.classificationStatus));
+            if(!unresolved.length)return;
+            const open=await github.paginate(github.rest.issues.listForRepo,{...context.repo,state:'open',per_page:100});
+            for(const record of unresolved){
+              const marker=`<!-- shoperation-failure-intake:${record.candidateId} -->`;
+              if(open.some(issue=>(issue.body||'').includes(marker)))continue;
+              await github.rest.issues.create({...context.repo,title:`[Quality intake] ${record.candidateId}: ${record.rawErrorCode}`,body:`${marker}\n\nContract: \`shoporation.failure-intake.v1\`\n\nSource commit: \`${record.sourceCommit||'unknown'}\`\n\nSource: \`${record.failureSource}\`\n\nClassification: \`${record.classificationStatus}\`\n\nSymptom: ${record.symptom}\n\nThis issue remains open until the failure is matched, promoted, scoped, deduplicated or rejected with an explicit disposition.`});
+            }
 
       - name: Upload QA server log on failure
         if: failure()
