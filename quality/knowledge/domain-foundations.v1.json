@@ -1,0 +1,239 @@
+{
+  "contract": "shoporation.domain-foundations.v1",
+  "version": 1,
+  "status": "foundation-registry",
+  "globalPrinciples": [
+    "ARCH-001",
+    "ARCH-002",
+    "ARCH-003",
+    "ARCH-004",
+    "ARCH-005",
+    "ARCH-006",
+    "ARCH-008",
+    "ARCH-009",
+    "ARCH-011",
+    "ARCH-012",
+    "ARCH-013"
+  ],
+  "domains": [
+    {
+      "id": "DOMAIN-IDENTITY",
+      "name": "Identity & Access",
+      "owner": "auth-access-authority",
+      "dependsOn": [],
+      "principles": [
+        "ARCH-002",
+        "ARCH-006",
+        "ARCH-012"
+      ],
+      "canonicalPaths": [
+        "src/lib/auth/**",
+        "src/app/api/auth/**"
+      ]
+    },
+    {
+      "id": "DOMAIN-TENANCY",
+      "name": "Tenant & Operating Context",
+      "owner": "tenant-context-authority",
+      "dependsOn": [
+        "DOMAIN-IDENTITY"
+      ],
+      "principles": [
+        "ARCH-002",
+        "ARCH-006",
+        "ARCH-013"
+      ],
+      "canonicalPaths": [
+        "src/lib/instances/**",
+        "src/lib/auth/store-rbac.ts"
+      ]
+    },
+    {
+      "id": "DOMAIN-COMMERCE",
+      "name": "Commerce Core",
+      "owner": "commerce-core-authority",
+      "dependsOn": [
+        "DOMAIN-IDENTITY",
+        "DOMAIN-TENANCY"
+      ],
+      "principles": [
+        "ARCH-003",
+        "ARCH-006",
+        "ARCH-008"
+      ],
+      "canonicalPaths": [
+        "src/lib/commerce/**",
+        "src/app/api/checkout/**",
+        "src/app/api/orders/**"
+      ]
+    },
+    {
+      "id": "DOMAIN-CATALOG",
+      "name": "Catalog & Inventory",
+      "owner": "catalog-inventory-authority",
+      "dependsOn": [
+        "DOMAIN-TENANCY"
+      ],
+      "principles": [
+        "ARCH-003",
+        "ARCH-008"
+      ],
+      "canonicalPaths": [
+        "src/lib/catalog/**",
+        "src/lib/inventory/**"
+      ]
+    },
+    {
+      "id": "DOMAIN-STOREFRONT",
+      "name": "Storefront Runtime & Presentation",
+      "owner": "shared-storefront",
+      "dependsOn": [
+        "DOMAIN-COMMERCE",
+        "DOMAIN-CATALOG",
+        "DOMAIN-IDENTITY"
+      ],
+      "principles": [
+        "ARCH-001",
+        "ARCH-003",
+        "ARCH-008",
+        "ARCH-011"
+      ],
+      "canonicalPaths": [
+        "src/lib/storefront/**",
+        "src/components/storefront/**",
+        "src/lib/builder/storefront-**"
+      ]
+    },
+    {
+      "id": "DOMAIN-BUILDER",
+      "name": "Builder & Template System",
+      "owner": "builder-template-system",
+      "dependsOn": [
+        "DOMAIN-STOREFRONT"
+      ],
+      "principles": [
+        "ARCH-001",
+        "ARCH-008",
+        "ARCH-011",
+        "ARCH-013"
+      ],
+      "canonicalPaths": [
+        "src/lib/builder/**",
+        "src/components/builder/**"
+      ]
+    },
+    {
+      "id": "DOMAIN-INTEGRATIONS",
+      "name": "External Integrations",
+      "owner": "integration-adapter-authority",
+      "dependsOn": [
+        "DOMAIN-COMMERCE"
+      ],
+      "principles": [
+        "ARCH-006",
+        "ARCH-007",
+        "ARCH-008"
+      ],
+      "canonicalPaths": [
+        "src/lib/integrations/**",
+        "src/app/api/integrations/**"
+      ]
+    },
+    {
+      "id": "DOMAIN-ADMIN",
+      "name": "Merchant & Platform Operations",
+      "owner": "admin-operations",
+      "dependsOn": [
+        "DOMAIN-IDENTITY",
+        "DOMAIN-TENANCY"
+      ],
+      "principles": [
+        "ARCH-001",
+        "ARCH-002",
+        "ARCH-006"
+      ],
+      "canonicalPaths": [
+        "src/app/admin/**",
+        "src/components/admin/**"
+      ]
+    },
+    {
+      "id": "DOMAIN-DATA",
+      "name": "Database, Schema & Persistence",
+      "owner": "database-schema",
+      "dependsOn": [
+        "DOMAIN-TENANCY"
+      ],
+      "principles": [
+        "ARCH-003",
+        "ARCH-005",
+        "ARCH-006",
+        "ARCH-008"
+      ],
+      "canonicalPaths": [
+        "supabase/**"
+      ]
+    },
+    {
+      "id": "DOMAIN-QUALITY",
+      "name": "Quality Knowledge & Engineering Controls",
+      "owner": "quality-knowledge-system",
+      "dependsOn": [],
+      "principles": [
+        "ARCH-004",
+        "ARCH-005",
+        "ARCH-009",
+        "ARCH-010",
+        "ARCH-012",
+        "ARCH-013"
+      ],
+      "canonicalPaths": [
+        "quality/**",
+        "scripts/shoperation-**",
+        "src/lib/quality-system/**"
+      ]
+    },
+    {
+      "id": "DOMAIN-INCIDENT",
+      "name": "Incident Intelligence & Recovery",
+      "owner": "incident-intelligence",
+      "dependsOn": [
+        "DOMAIN-QUALITY",
+        "DOMAIN-IDENTITY",
+        "DOMAIN-TENANCY"
+      ],
+      "principles": [
+        "ARCH-006",
+        "ARCH-009",
+        "ARCH-010",
+        "ARCH-014"
+      ],
+      "canonicalPaths": [
+        "src/lib/incidents/**",
+        "src/app/api/incidents/**",
+        "src/app/api/platform/incidents/**"
+      ]
+    },
+    {
+      "id": "DOMAIN-RELEASE",
+      "name": "Release & Production Lifecycle",
+      "owner": "release-infrastructure",
+      "dependsOn": [
+        "DOMAIN-QUALITY",
+        "DOMAIN-DATA"
+      ],
+      "principles": [
+        "ARCH-004",
+        "ARCH-005",
+        "ARCH-006",
+        "ARCH-008",
+        "ARCH-009"
+      ],
+      "canonicalPaths": [
+        ".github/workflows/**",
+        "deploy/**",
+        "scripts/release-**"
+      ]
+    }
+  ]
+}
