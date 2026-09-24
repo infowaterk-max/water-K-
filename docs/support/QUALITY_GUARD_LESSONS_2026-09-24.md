@@ -14,13 +14,13 @@ This record promotes two defects discovered while building Shoperation Incident 
 
 ## SKB-QG-002 — Short intent token caused scope explosion
 
-**Symptom:** a database/incident plan unexpectedly activated shipping, payment and customer-account guards.
+**Symptom:** a database/incident plan unexpectedly activated shipping/payment/customer-account guards; later a hibabejelentő UI plan incorrectly activated auth/customer-account guards.
 
-**Root cause:** the shipping intent regex contained the bare alternative `mpl`, which matched the substring inside the word `implementation`.
+**Root cause:** intent matching used semantically over-broad tokens: bare `mpl` matched `implementation`, and bare `bejelent` matched `hibabejelentő` even though only `bejelentkez...` should mean authentication.
 
-**Verified resolution:** bound the MPL provider acronym with lexical word boundaries and add positive/negative matcher regression examples.
+**Verified resolution:** bound the MPL provider acronym with lexical word boundaries, narrow Hungarian auth intent to `bejelentkez`, and add positive/negative matcher regression examples for both cases.
 
-**Prevention:** Quality Knowledge work activates SQ-KF-024 / SQ-AUTH-020. Short provider or protocol tokens must be lexically bounded.
+**Prevention:** Quality Knowledge work activates SQ-KF-024 / SQ-AUTH-020. Short tokens and broad action stems must be lexically/semantically bounded; recurring scope-overreach now requires a shared root-cause fix.
 
 ## Intake dispositions
 

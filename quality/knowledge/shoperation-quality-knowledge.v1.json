@@ -795,11 +795,11 @@
     {
       "id": "SQ-KF-024",
       "title": "Short intent token activates an unrelated development subsystem",
-      "symptom": "Plan Before Code activates shipping/payment/account guards for a task that never touches those domains because a short intent token matches inside an unrelated word.",
-      "rootCause": "A provider acronym in the intent matcher was used as an unbounded regex alternative, so `mpl` matched the substring inside `implementation`.",
-      "occurrences": 1,
+      "symptom": "Plan Before Code activates unrelated subsystem guards because a short or semantically over-broad intent token matches inside a different word or workflow phrase.",
+      "rootCause": "Intent matching used unbounded or over-broad lexical alternatives (`mpl`, `bejelent`) instead of provider/action-specific boundaries (`\\bmpl\\b`, `bejelentkez`).",
+      "occurrences": 2,
       "automatable": true,
-      "remediationPolicy": "shared-invariant-preferred",
+      "remediationPolicy": "shared-root-cause-required",
       "lifecycle": "active",
       "invariantIds": [
         "SQ-AUTH-020",

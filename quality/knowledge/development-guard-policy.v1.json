@@ -27,7 +27,7 @@
       ]
     },
     {
-      "pattern": "auth|login|bejelent|account|fiók",
+      "pattern": "auth|login|bejelentkez|account|fiók",
       "subsystems": [
         "auth-access-authority",
         "customer-account"

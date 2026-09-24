@@ -43,5 +43,5 @@
     "SQ-NK-015"
   ],
   "exceptions": [],
-  "notes": "Plan-only recurrence repair for SQ-KF-024. The auth intent token `bejelent` matched `hibabejelentő`; root matcher must be narrowed before returning to the UI wave."
+  "notes": "Implemented recurring SQ-KF-024 root-cause repair after Plan Before Code PASS: auth intent now matches `bejelentkez` rather than broad `bejelent`; recurrence count is 2 and remediation is shared-root-cause-required."
 }
