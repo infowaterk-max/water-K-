@@ -1,0 +1,117 @@
+{
+  "contract": "shoporation.codebase-atlas-policy.v1",
+  "version": 1,
+  "textExtensions": [
+    ".ts",
+    ".tsx",
+    ".js",
+    ".jsx",
+    ".mjs",
+    ".cjs",
+    ".json",
+    ".css",
+    ".scss",
+    ".sql",
+    ".md",
+    ".yml",
+    ".yaml"
+  ],
+  "sourceExtensions": [
+    ".ts",
+    ".tsx",
+    ".js",
+    ".jsx",
+    ".mjs",
+    ".cjs"
+  ],
+  "excludedPrefixes": [
+    "node_modules/",
+    "artifacts/",
+    ".next/",
+    "coverage/"
+  ],
+  "surfaceRules": [
+    {
+      "id": "platform-admin",
+      "patterns": [
+        "src/app/admin/platform/**",
+        "src/lib/auth/platform-operator.ts"
+      ],
+      "label": "Platform administration"
+    },
+    {
+      "id": "merchant-admin",
+      "patterns": [
+        "src/app/admin/**",
+        "src/components/admin/**"
+      ],
+      "label": "Merchant administration"
+    },
+    {
+      "id": "customer-account",
+      "patterns": [
+        "src/app/fiokom/**",
+        "src/components/account/**",
+        "src/lib/customer/**"
+      ],
+      "label": "Customer account"
+    },
+    {
+      "id": "storefront-runtime",
+      "patterns": [
+        "src/components/builder/storefront-**",
+        "src/lib/builder/storefront-**",
+        "src/components/storefront/**",
+        "src/lib/storefront/**"
+      ],
+      "label": "Storefront runtime / presentation"
+    },
+    {
+      "id": "public-api",
+      "patterns": [
+        "src/app/api/**"
+      ],
+      "label": "Public/server API"
+    },
+    {
+      "id": "database",
+      "patterns": [
+        "supabase/**"
+      ],
+      "label": "Database / RPC / RLS"
+    },
+    {
+      "id": "quality-system",
+      "patterns": [
+        "quality/**",
+        "scripts/shoperation-**",
+        "scripts/lib/shoperation-**"
+      ],
+      "label": "Quality knowledge / engineering controls"
+    }
+  ],
+  "criticalLookups": [
+    {
+      "term": "support.contact-form",
+      "requiredFiles": [
+        "src/lib/builder/storefront-support.ts",
+        "src/components/builder/storefront-support.tsx"
+      ]
+    },
+    {
+      "term": "StorefrontFormWizard",
+      "requiredFiles": [
+        "src/components/forms/storefront-form-wizard.tsx"
+      ]
+    },
+    {
+      "term": "create_support_ticket_v2",
+      "requiredFiles": [
+        "src/app/api/support/route.ts",
+        "supabase/migrations/20260903185000_support_submission_atomic_v2.sql"
+      ]
+    }
+  ],
+  "maxImpactTraversal": 300,
+  "maxImpactResults": 40
+}
