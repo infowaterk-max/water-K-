@@ -1,13 +1,14 @@
 {
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-9FD06980",
-  "task": "Correct release infrastructure subsystem classification for admin navigation authority.",
+  "task": "Complete Incident Center navigation regression closure after adding the canonical platform-incidents destination.",
   "status": "ready-for-implementation",
   "guardDigest": "9fd06980",
   "plannedFilePatterns": [
     "quality/development/active-plan.json",
     "deploy/release-risk-policy.json",
-    "tests/release-risk-navigation-classification.test.ts"
+    "tests/release-risk-navigation-classification.test.ts",
+    "tests/admin-link-integrity.test.ts"
   ],
   "expectedSubsystems": [
     "admin-operations",
@@ -51,5 +52,5 @@
     "SQ-NK-012"
   ],
   "exceptions": [],
-  "notes": "Policy repair implemented after Plan Before Code PASS. Canonical admin navigation and entitlement navigation now classify as admin-operations; storefront navigation remains outside that subsystem. Risk limits unchanged."
+  "notes": "Policy repair and Incident Center navigation regression closure. Canonical platform navigation now includes platform-incidents and admin-link-integrity must pin the same destination. No risk-budget limits are relaxed."
 }
