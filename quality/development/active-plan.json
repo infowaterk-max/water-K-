@@ -1,28 +1,23 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-ATLAS-CHANGE-IMPACT-RELEASE-CLOSURE",
-  "task": "Integrate Atlas 2.0 System Self-Knowledge into Plan Before Code, Knowledge Preflight and Release Risk Budget so every development and release transaction carries deterministic domain, authority, truth, evidence, Known Failure and regression closure.",
+  "taskId": "DEV-CAPABILITY-ROADMAP-EVIDENCE-FOUNDATION",
+  "task": "Establish the canonical Capability Registry, Living Roadmap and Evidence Ledger as the machine-readable capability and proof foundation for Shoperation.",
   "status": "ready-for-implementation",
-  "guardDigest": "d0031b70",
+  "guardDigest": "17c8ef7c",
   "plannedFilePatterns": [
-    "scripts/shoperation-knowledge-preflight.mjs",
-    "scripts/shoperation-plan-before-code.mjs",
-    "scripts/release-risk-budget.mjs",
-    "tests/shoperation-change-impact-atlas.test.ts",
-    "docs/architecture/CHANGE_IMPACT_RELEASE_CLOSURE.md",
-    ".github/workflows/ci.yml"
+    "quality/knowledge/capability-registry.v1.json",
+    "quality/knowledge/living-roadmap.v1.json",
+    "quality/knowledge/evidence-ledger.v1.json",
+    "src/lib/quality-system/capability-evidence.ts",
+    "docs/architecture/CAPABILITY_ROADMAP_EVIDENCE.md",
+    "tests/capability-roadmap-evidence.test.ts"
   ],
-  "expectedSubsystems": [
-    "quality-knowledge-system",
-    "release-infrastructure"
-  ],
+  "expectedSubsystems": [],
   "expectedDomains": [
-    "DOMAIN-QUALITY",
-    "DOMAIN-RELEASE"
+    "DOMAIN-QUALITY"
   ],
   "expectedAuthorities": [
-    "quality-knowledge-system",
-    "release-infrastructure"
+    "quality-knowledge-system"
   ],
   "expectedKnownFailureIds": [
     "SQ-KF-013",
@@ -75,16 +70,9 @@
     "TF-KF-024"
   ],
   "acknowledgedNegativeKnowledgeIds": [
-    "SQ-NK-002",
-    "SQ-NK-003",
-    "SQ-NK-005",
-    "SQ-NK-010",
-    "SQ-NK-011",
-    "SQ-NK-012",
-    "SQ-NK-014",
-    "SQ-NK-015"
+    "SQ-NK-012"
   ],
   "exceptions": [],
-  "notes": "Fourth System Soul transaction. Atlas 2.0 becomes active prevention input for existing Plan Before Code, Knowledge Preflight and Release Risk Budget authorities. Exact PR-head provenance is carried into Release Risk Budget. No new standalone gate, no risk threshold changes and no commerce runtime/schema behavior changes.",
-  "changeBaseSha": "84fbecdcc8261a460d3829be2ab82f0e384b15b4"
+  "notes": "Fifth System Soul transaction. Adds the accepted Capability Registry, Living Roadmap and Evidence Ledger as one coherent proof chain. Evidence remains evidence, never truth. No commerce runtime, schema, deployment workflow or risk-threshold changes.",
+  "changeBaseSha": "ab43b33addecbc2e2d3563c6497fba53647c8bc6"
 }

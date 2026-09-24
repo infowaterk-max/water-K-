@@ -1,0 +1,63 @@
+{
+  "contract": "shoporation.evidence-ledger.v1",
+  "version": 1,
+  "status": "canonical",
+  "evidence": [
+    {
+      "id": "EVID-SYSTEM-SOUL-CONSTITUTION",
+      "subjectType": "roadmap",
+      "subjectId": "SYSTEM-SOUL",
+      "evidenceType": "merge-and-production-proof",
+      "sourceSha": "e718363abde18553ce8f5c4a9a31b28bca4b57b4",
+      "state": "verified",
+      "assertions": [
+        "Architecture Constitution merged to main",
+        "post-merge CI PASS",
+        "production deployment READY"
+      ],
+      "expiresAt": null
+    },
+    {
+      "id": "EVID-DOMAIN-FOUNDATIONS",
+      "subjectType": "roadmap",
+      "subjectId": "DOMAIN-FOUNDATIONS",
+      "evidenceType": "merge-and-production-proof",
+      "sourceSha": "8353e172dd9d377948687be3fc343fdeb12fda4c",
+      "state": "verified",
+      "assertions": [
+        "Domain Foundations v1 merged to main",
+        "post-merge CI PASS",
+        "production deployment READY"
+      ],
+      "expiresAt": null
+    },
+    {
+      "id": "EVID-ATLAS-2",
+      "subjectType": "roadmap",
+      "subjectId": "SYSTEM-SELF-KNOWLEDGE",
+      "evidenceType": "merge-and-production-proof",
+      "sourceSha": "84fbecdcc8261a460d3829be2ab82f0e384b15b4",
+      "state": "verified",
+      "assertions": [
+        "Atlas 2.0 merged to main",
+        "Atlas validation PASS",
+        "production deployment READY"
+      ],
+      "expiresAt": null
+    },
+    {
+      "id": "EVID-CHANGE-IMPACT",
+      "subjectType": "roadmap",
+      "subjectId": "CHANGE-IMPACT-CLOSURE",
+      "evidenceType": "merge-and-production-proof",
+      "sourceSha": "ab43b33addecbc2e2d3563c6497fba53647c8bc6",
+      "state": "verified",
+      "assertions": [
+        "Atlas Change Impact wired into existing authorities",
+        "Release Risk Budget exact-head provenance enforced",
+        "main post-merge proof PASS"
+      ],
+      "expiresAt": null
+    }
+  ]
+}

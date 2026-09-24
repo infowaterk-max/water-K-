@@ -1,0 +1,281 @@
+{
+  "contract": "shoporation.capability-registry.v1",
+  "version": 1,
+  "status": "canonical",
+  "capabilities": [
+    {
+      "id": "CAP-AUTH",
+      "name": "Customer & Staff Authentication",
+      "domain": "DOMAIN-IDENTITY",
+      "authority": "auth-access-authority",
+      "maturity": "operational",
+      "surfaces": [
+        "customer-auth",
+        "staff-auth"
+      ],
+      "dependencies": [
+        "DOMAIN-TENANCY"
+      ],
+      "evidence": [
+        "auth contract tests",
+        "role/permission regression"
+      ],
+      "roadmapRefs": [
+        "MR1-WORKFORCE-IDENTITY"
+      ]
+    },
+    {
+      "id": "CAP-TENANT",
+      "name": "Tenant Context & Isolation",
+      "domain": "DOMAIN-TENANCY",
+      "authority": "tenant-context-authority",
+      "maturity": "operational",
+      "surfaces": [
+        "tenant-resolution",
+        "instance-membership"
+      ],
+      "dependencies": [
+        "DOMAIN-IDENTITY"
+      ],
+      "evidence": [
+        "tenant isolation regression",
+        "membership authorization proof"
+      ],
+      "roadmapRefs": [
+        "MR1-MULTITENANT-FOUNDATION"
+      ]
+    },
+    {
+      "id": "CAP-COMMERCE",
+      "name": "Checkout & Order Core",
+      "domain": "DOMAIN-COMMERCE",
+      "authority": "commerce-core-authority",
+      "maturity": "operational",
+      "surfaces": [
+        "checkout",
+        "orders"
+      ],
+      "dependencies": [
+        "DOMAIN-IDENTITY",
+        "DOMAIN-TENANCY",
+        "DOMAIN-CATALOG"
+      ],
+      "evidence": [
+        "pricing regression",
+        "order lifecycle tests"
+      ],
+      "roadmapRefs": [
+        "CORE-ENGINE-2"
+      ]
+    },
+    {
+      "id": "CAP-CATALOG",
+      "name": "Catalog & Inventory",
+      "domain": "DOMAIN-CATALOG",
+      "authority": "catalog-inventory-authority",
+      "maturity": "operational",
+      "surfaces": [
+        "catalog",
+        "inventory"
+      ],
+      "dependencies": [
+        "DOMAIN-TENANCY"
+      ],
+      "evidence": [
+        "variant identity regression",
+        "stock consistency proof"
+      ],
+      "roadmapRefs": [
+        "MR1-INVENTORY-OPS"
+      ]
+    },
+    {
+      "id": "CAP-STOREFRONT",
+      "name": "Shared Storefront Runtime",
+      "domain": "DOMAIN-STOREFRONT",
+      "authority": "shared-storefront",
+      "maturity": "operational",
+      "surfaces": [
+        "storefront-runtime",
+        "template-runtime"
+      ],
+      "dependencies": [
+        "DOMAIN-COMMERCE",
+        "DOMAIN-CATALOG",
+        "DOMAIN-IDENTITY"
+      ],
+      "evidence": [
+        "route convergence",
+        "responsive isolation",
+        "browser evidence"
+      ],
+      "roadmapRefs": [
+        "STORE-FRONT-RUNTIME"
+      ]
+    },
+    {
+      "id": "CAP-BUILDER",
+      "name": "Visual Builder & Template Factory",
+      "domain": "DOMAIN-BUILDER",
+      "authority": "builder-template-system",
+      "maturity": "hardening",
+      "surfaces": [
+        "builder",
+        "template-factory"
+      ],
+      "dependencies": [
+        "DOMAIN-STOREFRONT"
+      ],
+      "evidence": [
+        "schema validation",
+        "materialization proof",
+        "Known Failure replay"
+      ],
+      "roadmapRefs": [
+        "TEMPLATE-PRODUCTION-SYSTEM"
+      ]
+    },
+    {
+      "id": "CAP-INTEGRATIONS",
+      "name": "Provider Integration Layer",
+      "domain": "DOMAIN-INTEGRATIONS",
+      "authority": "integration-adapter-authority",
+      "maturity": "hardening",
+      "surfaces": [
+        "payment",
+        "shipping",
+        "invoice"
+      ],
+      "dependencies": [
+        "DOMAIN-COMMERCE",
+        "DOMAIN-TENANCY"
+      ],
+      "evidence": [
+        "adapter contracts",
+        "signature tests",
+        "sandbox self-test"
+      ],
+      "roadmapRefs": [
+        "PAYMENT-HUB-1",
+        "SHIPPING-FOUNDATION",
+        "INVOICE-FOUNDATION"
+      ]
+    },
+    {
+      "id": "CAP-ADMIN",
+      "name": "Merchant & Platform Operations",
+      "domain": "DOMAIN-ADMIN",
+      "authority": "admin-operations",
+      "maturity": "hardening",
+      "surfaces": [
+        "merchant-admin",
+        "platform-admin"
+      ],
+      "dependencies": [
+        "DOMAIN-IDENTITY",
+        "DOMAIN-TENANCY",
+        "DOMAIN-COMMERCE"
+      ],
+      "evidence": [
+        "role-aware navigation",
+        "admin mutation authority tests"
+      ],
+      "roadmapRefs": [
+        "ADMIN-IA-V3"
+      ]
+    },
+    {
+      "id": "CAP-QUALITY",
+      "name": "Quality Knowledge & Development Guard",
+      "domain": "DOMAIN-QUALITY",
+      "authority": "quality-knowledge-system",
+      "maturity": "operational",
+      "surfaces": [
+        "development-guard",
+        "known-failure",
+        "change-impact"
+      ],
+      "dependencies": [],
+      "evidence": [
+        "guard selection",
+        "Known Failure replay",
+        "failure intake"
+      ],
+      "roadmapRefs": [
+        "SYSTEM-SOUL"
+      ]
+    },
+    {
+      "id": "CAP-INCIDENT",
+      "name": "Incident Intelligence & Recovery",
+      "domain": "DOMAIN-INCIDENT",
+      "authority": "incident-intelligence",
+      "maturity": "foundation",
+      "surfaces": [
+        "incident-intake",
+        "triage",
+        "repair"
+      ],
+      "dependencies": [
+        "DOMAIN-QUALITY",
+        "DOMAIN-IDENTITY",
+        "DOMAIN-TENANCY"
+      ],
+      "evidence": [
+        "triage regression",
+        "repair-policy tests",
+        "audit trail"
+      ],
+      "roadmapRefs": [
+        "INCIDENT-INTELLIGENCE"
+      ]
+    },
+    {
+      "id": "CAP-RELEASE",
+      "name": "Release & Production Lifecycle",
+      "domain": "DOMAIN-RELEASE",
+      "authority": "release-infrastructure",
+      "maturity": "operational",
+      "surfaces": [
+        "release-transaction",
+        "risk-budget",
+        "production-proof"
+      ],
+      "dependencies": [
+        "DOMAIN-QUALITY",
+        "DOMAIN-DATA"
+      ],
+      "evidence": [
+        "release manifest",
+        "deployment SHA match",
+        "production smoke"
+      ],
+      "roadmapRefs": [
+        "RELEASE-TRANSACTION"
+      ]
+    },
+    {
+      "id": "CAP-ATLAS",
+      "name": "Atlas 2.0 System Self-Knowledge",
+      "domain": "DOMAIN-QUALITY",
+      "authority": "quality-knowledge-system",
+      "maturity": "operational",
+      "surfaces": [
+        "atlas",
+        "change-impact",
+        "release-closure"
+      ],
+      "dependencies": [
+        "DOMAIN-QUALITY",
+        "DOMAIN-RELEASE"
+      ],
+      "evidence": [
+        "Atlas validation",
+        "exact-head change-impact evidence"
+      ],
+      "roadmapRefs": [
+        "SYSTEM-SELF-KNOWLEDGE"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,114 @@
+{
+  "contract": "shoporation.living-roadmap.v1",
+  "version": 1,
+  "status": "canonical",
+  "principles": {
+    "sourceOfTruth": "This registry is the machine-readable roadmap authority for accepted platform work.",
+    "noSilentCompletion": true,
+    "completionRequiresEvidence": true
+  },
+  "items": [
+    {
+      "id": "SYSTEM-SOUL",
+      "title": "Architecture Constitution + Global Foundation",
+      "status": "done",
+      "phase": "foundation",
+      "capabilities": [
+        "CAP-QUALITY",
+        "CAP-ATLAS"
+      ],
+      "evidenceRefs": [
+        "EVID-SYSTEM-SOUL-CONSTITUTION"
+      ]
+    },
+    {
+      "id": "DOMAIN-FOUNDATIONS",
+      "title": "Domain Foundations v1",
+      "status": "done",
+      "phase": "foundation",
+      "capabilities": [
+        "CAP-QUALITY",
+        "CAP-ATLAS"
+      ],
+      "evidenceRefs": [
+        "EVID-DOMAIN-FOUNDATIONS"
+      ]
+    },
+    {
+      "id": "SYSTEM-SELF-KNOWLEDGE",
+      "title": "Atlas 2.0 System Self-Knowledge",
+      "status": "done",
+      "phase": "foundation",
+      "capabilities": [
+        "CAP-ATLAS"
+      ],
+      "evidenceRefs": [
+        "EVID-ATLAS-2"
+      ]
+    },
+    {
+      "id": "CHANGE-IMPACT-CLOSURE",
+      "title": "Atlas Change Impact + Release Closure",
+      "status": "done",
+      "phase": "foundation",
+      "capabilities": [
+        "CAP-ATLAS",
+        "CAP-RELEASE"
+      ],
+      "evidenceRefs": [
+        "EVID-CHANGE-IMPACT"
+      ]
+    },
+    {
+      "id": "CAPABILITY-EVIDENCE",
+      "title": "Capability Registry + Evidence Ledger",
+      "status": "in-progress",
+      "phase": "foundation",
+      "capabilities": [
+        "CAP-QUALITY"
+      ],
+      "evidenceRefs": []
+    },
+    {
+      "id": "DRIFT-CONFIDENCE",
+      "title": "Architecture Drift + Confidence Model",
+      "status": "planned",
+      "phase": "foundation",
+      "capabilities": [
+        "CAP-ATLAS",
+        "CAP-QUALITY"
+      ],
+      "evidenceRefs": []
+    },
+    {
+      "id": "DEEP-ATLAS-SCAN",
+      "title": "Daily Deep Atlas Scan",
+      "status": "planned",
+      "phase": "foundation",
+      "capabilities": [
+        "CAP-ATLAS"
+      ],
+      "evidenceRefs": []
+    },
+    {
+      "id": "TEMPLATE-PRODUCTION-SYSTEM",
+      "title": "Template Production System / Factory",
+      "status": "in-progress",
+      "phase": "storefront",
+      "capabilities": [
+        "CAP-BUILDER"
+      ],
+      "evidenceRefs": []
+    },
+    {
+      "id": "INCIDENT-INTELLIGENCE",
+      "title": "Incident Intelligence + Governed Recovery",
+      "status": "foundation",
+      "phase": "operations",
+      "capabilities": [
+        "CAP-INCIDENT"
+      ],
+      "evidenceRefs": []
+    }
+  ]
+}
