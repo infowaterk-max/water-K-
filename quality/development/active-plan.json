@@ -1,69 +1,27 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-1E5A6FE6",
-  "task": "Build Incident Intelligence storefront customer and merchant API intake, deterministic ownership triage, platform queue/triage endpoints, Known Failure matching, and bounded self-healing policy.",
+  "taskId": "DEV-722F4C4A",
+  "task": "Update Quality Knowledge for syntax-marker false green and short-token intent matcher overreach.",
   "status": "ready-for-implementation",
-  "guardDigest": "1e5a6fe6",
+  "guardDigest": "722f4c4a",
   "plannedFilePatterns": [
-    "quality/development/active-plan.json",
-    "src/lib/incidents/contracts.ts",
-    "src/lib/incidents/triage.ts",
-    "src/lib/incidents/service.ts",
-    "src/lib/incidents/self-healing.ts",
-    "src/app/api/incidents/customer/route.ts",
-    "src/app/api/incidents/merchant/route.ts",
-    "src/app/api/platform/incidents/route.ts",
-    "src/app/api/platform/incidents/[id]/triage/route.ts",
-    "tests/incident-intelligence-triage.test.ts",
-    "tests/incident-intelligence-api-contract.test.ts"
+    "quality/development/active-plan.json"
   ],
   "expectedSubsystems": [
-    "incident-intelligence",
-    "shared-storefront",
-    "storefront-ui"
+    "quality-knowledge-system"
   ],
   "expectedKnownFailureIds": [
-    "SQ-KF-001",
-    "SQ-KF-002",
-    "SQ-KF-004",
-    "SQ-KF-005",
-    "SQ-KF-007",
-    "SQ-KF-010",
-    "SQ-KF-011",
-    "SQ-KF-012",
     "SQ-KF-013",
     "SQ-KF-014",
-    "SQ-KF-015",
-    "SQ-KF-016",
-    "SQ-KF-017",
-    "SQ-KF-019",
-    "SQ-KF-022",
-    "TF-KF-001",
-    "TF-KF-002",
-    "TF-KF-004",
-    "TF-KF-006",
-    "TF-KF-012",
-    "TF-KF-016",
-    "TF-KF-017",
-    "TF-KF-018",
-    "TF-KF-019",
-    "TF-KF-020",
-    "TF-KF-021",
-    "TF-KF-022",
-    "TF-KF-023",
-    "TF-KF-024"
+    "SQ-KF-020",
+    "SQ-KF-021",
+    "SQ-KF-022"
   ],
   "acknowledgedNegativeKnowledgeIds": [
-    "SQ-NK-001",
-    "SQ-NK-002",
-    "SQ-NK-004",
-    "SQ-NK-006",
-    "SQ-NK-007",
-    "SQ-NK-008",
-    "SQ-NK-009",
-    "SQ-NK-012",
-    "SQ-NK-013"
+    "SQ-NK-010",
+    "SQ-NK-011",
+    "SQ-NK-012"
   ],
   "exceptions": [],
-  "notes": "Runtime/API implementation complete. TypeScript narrowed the heterogeneous runbook registry too aggressively; normalized the selected entry to the shared IncidentRunbook contract without changing runtime policy."
+  "notes": "Plan-only knowledge promotion wave. No runtime behavior changes before Plan Before Code PASS."
 }
