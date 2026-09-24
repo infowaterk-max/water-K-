@@ -1,63 +1,51 @@
-import capabilityRegistry from '../../../quality/knowledge/capability-registry.v1.json';
-import livingRoadmap from '../../../quality/knowledge/living-roadmap.v1.json';
-import evidenceLedger from '../../../quality/knowledge/evidence-ledger.v1.json';
-import domainRegistry from '../../../quality/knowledge/domain-foundations.v1.json';
+import capabilitiesJson from '../../../quality/knowledge/capability-registry.v1.json';
+import roadmapJson from '../../../quality/knowledge/living-roadmap.v1.json';
+import evidenceJson from '../../../quality/knowledge/evidence-ledger.v1.json';
+import domainsJson from '../../../quality/knowledge/domain-foundations.v1.json';
 
-export const CAPABILITY_REGISTRY=capabilityRegistry;
-export const LIVING_ROADMAP=livingRoadmap;
-export const EVIDENCE_LEDGER=evidenceLedger;
-
-const lifecycleIndex=new Map(livingRoadmap.lifecycle.map((state,index)=>[state,index]));
+export const CAPABILITY_REGISTRY=capabilitiesJson;
+export const LIVING_ROADMAP=roadmapJson;
+export const EVIDENCE_LEDGER=evidenceJson;
 
 export function validateCapabilityEvidenceFoundation(){
   const issues:string[]=[];
-  const domainIds=new Set(domainRegistry.domains.map(domain=>domain.id));
-  const capabilityIds=capabilityRegistry.capabilities.map(capability=>capability.id);
-  const capabilitySet=new Set(capabilityIds);
-  if(new Set(capabilityIds).size!==capabilityIds.length)issues.push('CAPABILITY_ID_DUPLICATE');
-
-  for(const capability of capabilityRegistry.capabilities){
-    if(!capability.canonicalAuthority.trim())issues.push(`CAPABILITY_AUTHORITY_REQUIRED:${capability.id}`);
-    for(const domainId of capability.domainIds)if(!domainIds.has(domainId))issues.push(`CAPABILITY_DOMAIN_UNKNOWN:${capability.id}:${domainId}`);
-    for(const dependency of capability.dependsOn)if(!capabilitySet.has(dependency))issues.push(`CAPABILITY_DEPENDENCY_UNKNOWN:${capability.id}:${dependency}`);
-    if(!capability.implementation.length)issues.push(`CAPABILITY_IMPLEMENTATION_REQUIRED:${capability.id}`);
-    if(!capability.tests.length)issues.push(`CAPABILITY_TEST_REQUIRED:${capability.id}`);
+  const domainIds=new Set(domainsJson.domains.map(item=>item.id));
+  const authorityByDomain=new Map(domainsJson.domains.map(item=>[item.id,item.owner]));
+  const capabilityIds=new Set<string>();
+  for(const capability of capabilitiesJson.capabilities){
+    if(capabilityIds.has(capability.id))issues.push(`CAPABILITY_ID_DUPLICATE:${capability.id}`);
+    capabilityIds.add(capability.id);
+    if(!domainIds.has(capability.domain))issues.push(`CAPABILITY_DOMAIN_UNKNOWN:${capability.id}:${capability.domain}`);
+    const expectedAuthority=authorityByDomain.get(capability.domain);
+    if(expectedAuthority&&capability.authority!==expectedAuthority)issues.push(`CAPABILITY_AUTHORITY_MISMATCH:${capability.id}:${capability.authority}:${expectedAuthority}`);
+    if(!capability.evidence.length)issues.push(`CAPABILITY_EVIDENCE_REQUIRED:${capability.id}`);
   }
 
-  const evidenceIds=evidenceLedger.records.map(record=>record.id);
-  if(new Set(evidenceIds).size!==evidenceIds.length)issues.push('EVIDENCE_ID_DUPLICATE');
-  const evidenceSet=new Set(evidenceIds);
-  const evidenceById=new Map(evidenceLedger.records.map(record=>[record.id,record]));
-
-  for(const record of evidenceLedger.records){
-    if(!capabilitySet.has(record.capabilityId))issues.push(`EVIDENCE_CAPABILITY_UNKNOWN:${record.id}`);
-    if(!lifecycleIndex.has(record.stateProved))issues.push(`EVIDENCE_STATE_UNKNOWN:${record.id}`);
-    if(!record.sourceSha.trim())issues.push(`EVIDENCE_SOURCE_SHA_REQUIRED:${record.id}`);
-    if(!record.evidence.length)issues.push(`EVIDENCE_PROOF_REQUIRED:${record.id}`);
+  const evidenceIds=new Set<string>();
+  for(const item of evidenceJson.evidence){
+    if(evidenceIds.has(item.id))issues.push(`EVIDENCE_ID_DUPLICATE:${item.id}`);
+    evidenceIds.add(item.id);
+    if(item.state==='verified'&&!item.sourceSha)issues.push(`VERIFIED_EVIDENCE_SHA_REQUIRED:${item.id}`);
+    if(item.state==='verified'&&!item.assertions.length)issues.push(`VERIFIED_EVIDENCE_ASSERTION_REQUIRED:${item.id}`);
   }
 
-  for(const entry of livingRoadmap.capabilities){
-    if(!capabilitySet.has(entry.capabilityId))issues.push(`ROADMAP_CAPABILITY_UNKNOWN:${entry.capabilityId}`);
-    if(!lifecycleIndex.has(entry.state))issues.push(`ROADMAP_STATE_UNKNOWN:${entry.capabilityId}`);
-    for(const id of entry.evidenceIds){
-      if(!evidenceSet.has(id)){issues.push(`ROADMAP_EVIDENCE_UNKNOWN:${entry.capabilityId}:${id}`);continue;}
-      const evidence=evidenceById.get(id);
-      if(evidence?.capabilityId!==entry.capabilityId)issues.push(`ROADMAP_EVIDENCE_CAPABILITY_MISMATCH:${entry.capabilityId}:${id}`);
-      if((lifecycleIndex.get(evidence?.stateProved??'')??-1)<(lifecycleIndex.get(entry.state)??0))issues.push(`ROADMAP_STATE_UNPROVEN:${entry.capabilityId}:${id}`);
-    }
+  const roadmapIds=new Set<string>();
+  for(const item of roadmapJson.items){
+    if(roadmapIds.has(item.id))issues.push(`ROADMAP_ID_DUPLICATE:${item.id}`);
+    roadmapIds.add(item.id);
+    for(const capability of item.capabilities)if(!capabilityIds.has(capability))issues.push(`ROADMAP_CAPABILITY_UNKNOWN:${item.id}:${capability}`);
+    for(const evidenceRef of item.evidenceRefs)if(!evidenceIds.has(evidenceRef))issues.push(`ROADMAP_EVIDENCE_UNKNOWN:${item.id}:${evidenceRef}`);
+    if(item.status==='done'&&roadmapJson.principles.completionRequiresEvidence&&!item.evidenceRefs.length)issues.push(`ROADMAP_DONE_WITHOUT_EVIDENCE:${item.id}`);
   }
-
-  return {ok:issues.length===0,issues,capabilityCount:capabilityRegistry.capabilities.length,evidenceCount:evidenceLedger.records.length};
+  return {ok:issues.length===0,issues,capabilityCount:capabilitiesJson.capabilities.length,roadmapCount:roadmapJson.items.length,evidenceCount:evidenceJson.evidence.length};
 }
 
 export function capabilityById(id:string){
-  return CAPABILITY_REGISTRY.capabilities.find(capability=>capability.id===id)??null;
+  return CAPABILITY_REGISTRY.capabilities.find(item=>item.id===id)??null;
 }
-
-export function capabilityRoadmapState(id:string){
-  return LIVING_ROADMAP.capabilities.find(entry=>entry.capabilityId===id)??null;
+export function roadmapItem(id:string){
+  return LIVING_ROADMAP.items.find(item=>item.id===id)??null;
 }
-
-export function capabilityEvidence(id:string){
-  return EVIDENCE_LEDGER.records.filter(record=>record.capabilityId===id);
+export function evidenceForSubject(subjectId:string){
+  return EVIDENCE_LEDGER.evidence.filter(item=>item.subjectId===subjectId);
 }
