@@ -1,0 +1,65 @@
+{
+  "contract": "shoporation.living-roadmap.v1",
+  "version": 1,
+  "authority": "capability-registry",
+  "lifecycle": [
+    "planned",
+    "in-development",
+    "implemented-unverified",
+    "verified",
+    "accepted",
+    "production"
+  ],
+  "transitionRule": "A capability may only advance when the Evidence Ledger contains evidence sufficient for the target state. Evidence does not change capability authority.",
+  "capabilities": [
+    {
+      "capabilityId": "CAP-ARCH-CONSTITUTION",
+      "state": "production",
+      "evidenceIds": [
+        "EVD-ARCH-CONSTITUTION-MAIN"
+      ]
+    },
+    {
+      "capabilityId": "CAP-DOMAIN-FOUNDATIONS",
+      "state": "production",
+      "evidenceIds": [
+        "EVD-DOMAIN-FOUNDATIONS-MAIN"
+      ]
+    },
+    {
+      "capabilityId": "CAP-ATLAS-SELF-KNOWLEDGE",
+      "state": "production",
+      "evidenceIds": [
+        "EVD-ATLAS2-MAIN"
+      ]
+    },
+    {
+      "capabilityId": "CAP-CHANGE-IMPACT-RELEASE-CLOSURE",
+      "state": "production",
+      "evidenceIds": [
+        "EVD-CHANGE-IMPACT-MAIN"
+      ]
+    },
+    {
+      "capabilityId": "CAP-DEVELOPMENT-KNOWLEDGE-GUARD",
+      "state": "production",
+      "evidenceIds": [
+        "EVD-DEVELOPMENT-GUARD-MAIN"
+      ]
+    },
+    {
+      "capabilityId": "CAP-INCIDENT-INTELLIGENCE",
+      "state": "production",
+      "evidenceIds": [
+        "EVD-INCIDENT-INTELLIGENCE-MAIN"
+      ]
+    },
+    {
+      "capabilityId": "CAP-TEMPLATE-FACTORY-PROCEDURAL-MEMORY",
+      "state": "production",
+      "evidenceIds": [
+        "EVD-TEMPLATE-PROCEDURAL-MEMORY-MAIN"
+      ]
+    }
+  ]
+}
