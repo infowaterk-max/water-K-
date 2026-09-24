@@ -175,7 +175,7 @@ describe('Template Factory Scaffold v1',()=>{
       'SHOWROOM_ACCOUNT_NAVIGATION_EMPTY',
       'SHOWROOM_ENGINE_DEMO_MISSING',
     ]));
-    expect(()=>assertStorefrontTemplateFactoryProductOwnerReady(build)).toThrow(/FACTORY_MEDIA_FINALIZATION_REQUIRED/);
+    expect(()=>assertStorefrontTemplateFactoryProductOwnerReady(build)).toThrow(/TEMPLATE_FACTORY_PRODUCT_OWNER_NOT_READY/);
   });
 
   it('does not treat complete Page Schema ownership, media and visual review as a substitute for a complete showroom journey',()=>{
