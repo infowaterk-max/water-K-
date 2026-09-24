@@ -138,6 +138,7 @@ jobs:
         id: release-risk
         env:
           RELEASE_BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
+          RELEASE_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
           RELEASE_BASE_REF: origin/main
         run: node scripts/release-risk-budget.mjs
 

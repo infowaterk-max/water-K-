@@ -1,19 +1,28 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-ATLAS-2-SYSTEM-SELF-KNOWLEDGE",
-  "task": "Build Shoperation Atlas 2.0 System Self-Knowledge by enriching the codebase graph with canonical domains, authorities, truth ownership, impact closure, evidence obligations and Known Failure data.",
+  "taskId": "DEV-ATLAS-CHANGE-IMPACT-RELEASE-CLOSURE",
+  "task": "Integrate Atlas 2.0 System Self-Knowledge into Plan Before Code, Knowledge Preflight and Release Risk Budget so every development and release transaction carries deterministic domain, authority, truth, evidence, Known Failure and regression closure.",
   "status": "ready-for-implementation",
-  "guardDigest": "771d632e",
+  "guardDigest": "d0031b70",
   "plannedFilePatterns": [
-    "quality/knowledge/codebase-atlas-policy.v2.json",
-    "quality/knowledge/codebase-atlas-policy.v1.json",
-    "scripts/lib/shoperation-codebase-atlas-runtime.mjs",
-    "scripts/shoperation-codebase-atlas.mjs",
-    "docs/architecture/SYSTEM_SELF_KNOWLEDGE_ATLAS_V2.md",
-    "tests/shoperation-codebase-atlas-v2.test.ts"
+    "scripts/shoperation-knowledge-preflight.mjs",
+    "scripts/shoperation-plan-before-code.mjs",
+    "scripts/release-risk-budget.mjs",
+    "tests/shoperation-change-impact-atlas.test.ts",
+    "docs/architecture/CHANGE_IMPACT_RELEASE_CLOSURE.md",
+    ".github/workflows/ci.yml"
   ],
   "expectedSubsystems": [
-    "quality-knowledge-system"
+    "quality-knowledge-system",
+    "release-infrastructure"
+  ],
+  "expectedDomains": [
+    "DOMAIN-QUALITY",
+    "DOMAIN-RELEASE"
+  ],
+  "expectedAuthorities": [
+    "quality-knowledge-system",
+    "release-infrastructure"
   ],
   "expectedKnownFailureIds": [
     "SQ-KF-013",
@@ -66,6 +75,9 @@
     "TF-KF-024"
   ],
   "acknowledgedNegativeKnowledgeIds": [
+    "SQ-NK-002",
+    "SQ-NK-003",
+    "SQ-NK-005",
     "SQ-NK-010",
     "SQ-NK-011",
     "SQ-NK-012",
@@ -73,6 +85,6 @@
     "SQ-NK-015"
   ],
   "exceptions": [],
-  "notes": "Third System Soul transaction. Atlas 2.0 becomes the single Codebase Atlas policy/runtime authority, binding repository structure to Constitution and Domain Foundations for deterministic System Self-Knowledge. The v1 policy is superseded and removed. No commerce runtime, database schema, deployment workflow or Release Risk Budget threshold changes.",
-  "changeBaseSha": "8353e172dd9d377948687be3fc343fdeb12fda4c"
+  "notes": "Fourth System Soul transaction. Atlas 2.0 becomes active prevention input for existing Plan Before Code, Knowledge Preflight and Release Risk Budget authorities. Exact PR-head provenance is carried into Release Risk Budget. No new standalone gate, no risk threshold changes and no commerce runtime/schema behavior changes.",
+  "changeBaseSha": "84fbecdcc8261a460d3829be2ab82f0e384b15b4"
 }
