@@ -5,7 +5,9 @@
   "status": "ready-for-implementation",
   "guardDigest": "b31a6a67",
   "plannedFilePatterns": [
-    "quality/development/active-plan.json"
+    "quality/development/active-plan.json",
+    "supabase/migrations/20260924103000_incident_intelligence_foundation_v1.sql",
+    "tests/incident-intelligence-schema.test.ts"
   ],
   "expectedSubsystems": [
     "auth-access-authority",
@@ -38,5 +40,5 @@
     "SQ-NK-013"
   ],
   "exceptions": [],
-  "notes": "Planning-only DB hardening wave. Scope expanded deliberately because authoritative merchant RBAC makes auth/customer-account and Incident Intelligence guards relevant in addition to database schema."
+  "notes": "DB hardening implementation: merchant authority accepts active role_bindings or legacy membership; triage v2 records system/platform/AI actor exactly."
 }

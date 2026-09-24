@@ -36,9 +36,19 @@ describe('Incident Intelligence database foundation v1',()=>{
     expect(sql).toContain("check(mode<>'auto' or (risk='low' and auto_allowed))");
     expect(sql).toContain("check(not(repair_kind='code_pr' and auto_apply))");
   });
-  it('requires merchant reports to prove tenant membership',()=>{
+  it('requires merchant reports to prove authoritative active RBAC or legacy membership',()=>{
     expect(sql).toContain("p_source='merchant'");
+    expect(sql).toContain('from public.role_bindings r');
+    expect(sql).toContain('r.revoked_at is null');
+    expect(sql).toContain('r.valid_from<=now()');
     expect(sql).toContain('public.webshop_instance_members');
     expect(sql).toContain('incident_merchant_membership_required');
+  });
+  it('attributes deterministic/AI triage to the real system actor instead of a fake platform user',()=>{
+    expect(sql).toContain('triage_platform_incident_v2');
+    expect(sql).toContain("p_actor_kind not in('system','platform','ai')");
+    expect(sql).toContain("set_config('app.incident_actor_kind',p_actor_kind,true)");
+    expect(sql).toContain("'actorKind',p_actor_kind");
+    expect(sql).toContain('grant execute on function public.triage_platform_incident_v2');
   });
 });

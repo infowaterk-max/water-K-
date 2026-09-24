@@ -332,7 +332,19 @@ begin
   if p_source='customer' and p_support_ticket_id is null then raise exception 'INCIDENT_CUSTOMER_SUPPORT_TICKET_REQUIRED'; end if;
   if p_source='merchant' then
     if p_instance_id is null or p_reporter_user_id is null then raise exception 'INCIDENT_MERCHANT_CONTEXT_REQUIRED'; end if;
-    if not exists(select 1 from public.webshop_instance_members m where m.instance_id=p_instance_id and m.user_id=p_reporter_user_id) then
+    if not exists(
+      select 1
+      from public.role_bindings r
+      join public.webshop_instances w on w.id=p_instance_id
+      where r.user_id=p_reporter_user_id
+        and r.revoked_at is null
+        and r.valid_from<=now()
+        and (r.valid_until is null or r.valid_until>now())
+        and (r.instance_id=p_instance_id or (r.instance_id is null and r.organization_id=w.organization_id))
+    ) and not exists(
+      select 1 from public.webshop_instance_members m
+      where m.instance_id=p_instance_id and m.user_id=p_reporter_user_id
+    ) then
       raise exception 'INCIDENT_MERCHANT_MEMBERSHIP_REQUIRED';
     end if;
   end if;
@@ -417,6 +429,52 @@ end;
 $$;
 revoke all on function public.triage_platform_incident_v1(uuid,text,text,text,text,text,text,jsonb,uuid) from public,anon,authenticated;
 grant execute on function public.triage_platform_incident_v1(uuid,text,text,text,text,text,text,jsonb,uuid) to service_role;
+
+
+create or replace function public.triage_platform_incident_v2(
+  p_incident_id uuid,
+  p_ownership text,
+  p_reason_code text,
+  p_status text,
+  p_severity text,
+  p_known_failure_id text,
+  p_triage_confidence text,
+  p_atlas_context jsonb,
+  p_actor_kind text,
+  p_actor_user_id uuid
+) returns jsonb
+language plpgsql
+security definer
+set search_path=''
+as $
+declare v_row public.platform_incidents;
+begin
+  if p_ownership not in('merchant','platform','shared','undetermined') then raise exception 'INCIDENT_OWNERSHIP_INVALID'; end if;
+  if p_status not in('triaged','merchant_action','platform_investigation','auto_healing','repair_proposed','resolved','rejected') then raise exception 'INCIDENT_TRIAGE_STATUS_INVALID'; end if;
+  if p_severity not in('low','normal','high','critical') then raise exception 'INCIDENT_SEVERITY_INVALID'; end if;
+  if p_triage_confidence not in('low','medium','high','deterministic') then raise exception 'INCIDENT_TRIAGE_CONFIDENCE_INVALID'; end if;
+  if p_actor_kind not in('system','platform','ai') then raise exception 'INCIDENT_TRIAGE_ACTOR_INVALID'; end if;
+  perform set_config('app.incident_actor_kind',p_actor_kind,true);
+  perform set_config('app.incident_actor_user_id',coalesce(p_actor_user_id::text,''),true);
+  update public.platform_incidents
+  set ownership=p_ownership,
+      ownership_reason_code=nullif(trim(coalesce(p_reason_code,'')),''),
+      status=p_status,
+      severity=p_severity,
+      known_failure_id=nullif(trim(coalesce(p_known_failure_id,'')),''),
+      triage_confidence=p_triage_confidence,
+      atlas_context=private.incident_redact_json_v1(coalesce(p_atlas_context,'{}'::jsonb)),
+      triaged_at=coalesce(triaged_at,now()),
+      resolved_at=case when p_status='resolved' then coalesce(resolved_at,now()) else resolved_at end,
+      updated_at=now()
+  where id=p_incident_id
+  returning * into v_row;
+  if v_row.id is null then raise exception 'INCIDENT_NOT_FOUND'; end if;
+  return jsonb_build_object('id',v_row.id,'incidentNumber',v_row.incident_number,'status',v_row.status,'ownership',v_row.ownership,'severity',v_row.severity,'actorKind',p_actor_kind);
+end;
+$;
+revoke all on function public.triage_platform_incident_v2(uuid,text,text,text,text,text,text,jsonb,text,uuid) from public,anon,authenticated;
+grant execute on function public.triage_platform_incident_v2(uuid,text,text,text,text,text,text,jsonb,text,uuid) to service_role;
 
 create or replace function public.create_incident_repair_request_v1(
   p_incident_id uuid,
