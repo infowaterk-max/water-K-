@@ -49,6 +49,32 @@ describe('Template Factory procedural memory',()=>{
     expect(TEMPLATE_FACTORY_KNOWN_FAILURES.some(item=>item.id==='TF-KF-011')).toBe(true);
   });
 
+  it('uses one visible auth target and persists proof on unexpected journey failures',()=>{
+    const handoff=fs.readFileSync('scripts/template-factory-product-owner-handoff.mjs','utf8');
+    expect(handoff).toContain('input[name="email"]:visible');
+    expect(handoff).toContain('input[name="password"]:visible');
+    expect(handoff).toContain("authSurface.locator('button:visible')");
+    expect(handoff).toContain('VISIBLE_AUTH_EMAIL_TARGET_NOT_UNIQUE');
+    expect(handoff).toContain('VISIBLE_AUTH_PASSWORD_TARGET_NOT_UNIQUE');
+    expect(handoff).toContain('VISIBLE_AUTH_SUBMIT_TARGET_NOT_UNIQUE');
+    expect(handoff).toContain('JOURNEY_EXCEPTION:');
+    expect(handoff.indexOf('}catch(error){')).toBeLessThan(handoff.indexOf('const proof={'));
+    expect(TEMPLATE_FACTORY_AUTHORITY_GRAPH.some(item=>item.id==='TF-AUTH-014')).toBe(true);
+    expect(TEMPLATE_FACTORY_AUTHORITY_GRAPH.some(item=>item.id==='TF-AUTH-015')).toBe(true);
+    expect(TEMPLATE_FACTORY_KNOWN_FAILURES.some(item=>item.id==='TF-KF-012')).toBe(true);
+    expect(TEMPLATE_FACTORY_KNOWN_FAILURES.some(item=>item.id==='TF-KF-013')).toBe(true);
+  });
+
+  it('crosses protected Vercel previews only through the dedicated automation bypass',()=>{
+    const handoff=fs.readFileSync('scripts/template-factory-product-owner-handoff.mjs','utf8');
+    expect(handoff).toContain("process.env.VERCEL_AUTOMATION_BYPASS_SECRET");
+    expect(handoff).toContain("'x-vercel-protection-bypass':vercelAutomationBypassSecret");
+    expect(handoff).toContain("'x-vercel-set-bypass-cookie':'true'");
+    expect(handoff).toContain('VERCEL_AUTOMATION_BYPASS_SECRET_REQUIRED');
+    expect(TEMPLATE_FACTORY_AUTHORITY_GRAPH.some(item=>item.id==='TF-AUTH-016')).toBe(true);
+    expect(TEMPLATE_FACTORY_KNOWN_FAILURES.some(item=>item.id==='TF-KF-014')).toBe(true);
+  });
+
   it('keeps every known failure bound to a real invariant and regression test',()=>{
     const authorityIds=new Set(TEMPLATE_FACTORY_AUTHORITY_GRAPH.map(item=>item.id));
     expect(new Set(TEMPLATE_FACTORY_KNOWN_FAILURES.map(item=>item.id)).size).toBe(TEMPLATE_FACTORY_KNOWN_FAILURES.length);

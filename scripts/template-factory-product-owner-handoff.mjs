@@ -9,6 +9,7 @@ const sourceCommit=(process.env.PRODUCT_OWNER_SOURCE_COMMIT??'').trim()||null;
 const email=(process.env.PRODUCT_OWNER_TEST_EMAIL??'').trim();
 const password=process.env.PRODUCT_OWNER_TEST_PASSWORD??'';
 const storageState=(process.env.PRODUCT_OWNER_STORAGE_STATE??'').trim();
+const vercelAutomationBypassSecret=(process.env.VERCEL_AUTOMATION_BYPASS_SECRET??'').trim();
 const qualityManifestPath=(process.env.TEMPLATE_QUALITY_MANIFEST??'artifacts/template-factory-quality/manifest.json').trim();
 const outputDir=(process.env.TEMPLATE_HANDOFF_OUTPUT_DIR??'artifacts/template-factory-handoff').trim();
 
@@ -56,10 +57,19 @@ if(await exists(qualityManifestPath)){
   errors.push('TECHNICAL_ACCEPTANCE_MANIFEST_MISSING');
 }
 
-const browser=await chromium.launch({headless:true});
+let browser;
 let context;
 try{
-  context=await browser.newContext(storageState&&await exists(storageState)?{storageState}:{});
+  browser=await chromium.launch({headless:true});
+  context=await browser.newContext({
+    ...(storageState&&await exists(storageState)?{storageState}:{}),
+    ...(vercelAutomationBypassSecret?{extraHTTPHeaders:{
+      'x-vercel-protection-bypass':vercelAutomationBypassSecret,
+      'x-vercel-set-bypass-cookie':'true',
+    }}:{}),
+  });
+  checks.vercelAutomationBypassConfigured=Boolean(vercelAutomationBypassSecret);
+  if(!checks.vercelAutomationBypassConfigured)errors.push('VERCEL_AUTOMATION_BYPASS_SECRET_REQUIRED');
   const page=await context.newPage();
   const response=await page.goto(previewUrl,{waitUntil:'domcontentloaded',timeout:30000});
   checks.entryResponse=Boolean(response);
@@ -91,12 +101,23 @@ try{
     if(!checks.sharedAuthSurface)errors.push('SHARED_AUTH_SURFACE_MISSING');
 
     if(email&&password){
-      await authSurface.locator('input[name="email"]').fill(email);
-      await authSurface.locator('input[name="password"]').fill(password);
-      await Promise.all([
-        page.waitForURL(url=>url.pathname==='/storefront-template-preview',{timeout:30000}),
-        authSurface.getByRole('button',{name:'Belépés'}).click(),
-      ]).catch(error=>errors.push(`AUTHENTICATED_RETURN_FAILED:${error instanceof Error?error.message:String(error)}`));
+      const visibleEmail=authSurface.locator('input[name="email"]:visible');
+      const visiblePassword=authSurface.locator('input[name="password"]:visible');
+      const visibleLoginButton=authSurface.locator('button:visible').filter({hasText:/^\\s*Belépés\\s*$/});
+      checks.visibleAuthEmailTargetCount=await visibleEmail.count();
+      checks.visibleAuthPasswordTargetCount=await visiblePassword.count();
+      checks.visibleAuthSubmitTargetCount=await visibleLoginButton.count();
+      if(checks.visibleAuthEmailTargetCount!==1)errors.push('VISIBLE_AUTH_EMAIL_TARGET_NOT_UNIQUE');
+      if(checks.visibleAuthPasswordTargetCount!==1)errors.push('VISIBLE_AUTH_PASSWORD_TARGET_NOT_UNIQUE');
+      if(checks.visibleAuthSubmitTargetCount!==1)errors.push('VISIBLE_AUTH_SUBMIT_TARGET_NOT_UNIQUE');
+      if(checks.visibleAuthEmailTargetCount===1&&checks.visibleAuthPasswordTargetCount===1&&checks.visibleAuthSubmitTargetCount===1){
+        await visibleEmail.fill(email);
+        await visiblePassword.fill(password);
+        await Promise.all([
+          page.waitForURL(url=>url.pathname==='/storefront-template-preview',{timeout:30000}),
+          visibleLoginButton.click(),
+        ]).catch(error=>errors.push(`AUTHENTICATED_RETURN_FAILED:${error instanceof Error?error.message:String(error)}`));
+      }
     }else if(!storageState){
       errors.push('PRODUCT_OWNER_AUTH_CREDENTIALS_OR_STORAGE_STATE_REQUIRED');
     }
@@ -131,23 +152,29 @@ try{
     }
   }
 
-  const proof={
-    contract:'shoporation.template-factory-product-owner-handoff.v1',
-    templateKey,
-    templateVersion,
-    sourceCommit,
-    previewUrl:cleanUrl(previewUrl),
-    checks,
-    errors,
-    maturity:errors.length===0?'product-owner-ready':'visually-ready',
-    handoffReady:errors.length===0,
-    accepted:false,
-    verifiedAt:new Date().toISOString(),
-  };
-  await writeFile(path.join(outputDir,'proof.json'),JSON.stringify(proof,null,2));
-  console.log(JSON.stringify(proof,null,2));
-  if(errors.length)process.exitCode=1;
+}catch(error){
+  const message=error instanceof Error?error.message:String(error);
+  errors.push(`JOURNEY_EXCEPTION:${message}`);
+  checks.journeyException=message;
 }finally{
   await context?.close().catch(()=>undefined);
-  await browser.close();
+  await browser?.close().catch(()=>undefined);
 }
+
+const proof={
+  contract:'shoporation.template-factory-product-owner-handoff.v1',
+  templateKey,
+  templateVersion,
+  sourceCommit,
+  previewUrl:cleanUrl(previewUrl),
+  checks,
+  errors,
+  maturity:errors.length===0?'product-owner-ready':'visually-ready',
+  handoffReady:errors.length===0,
+  accepted:false,
+  verifiedAt:new Date().toISOString(),
+};
+await writeFile(path.join(outputDir,'proof.json'),JSON.stringify(proof,null,2));
+console.log(JSON.stringify(proof,null,2));
+if(errors.length)process.exitCode=1;
+
