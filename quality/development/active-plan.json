@@ -69,5 +69,5 @@
     "SQ-NK-013"
   ],
   "exceptions": [],
-  "notes": "Repair implemented after Edit-Time Guard block: viewport size is captured only by shared read-only Incident Intelligence browser evidence authority; storefront/admin UI no longer read browser width directly. Cookie Consent duplicate preset declaration removed. No guard exception added."
+  "notes": "Release-risk staging: merchant reporter component/API remain implemented but are intentionally not mounted in AdminLayout. Customer storefront reporter is proven first; merchant admin activation follows as a separate admin-only release unit."
 }
