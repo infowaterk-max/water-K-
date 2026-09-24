@@ -51,5 +51,5 @@
     "SQ-NK-012"
   ],
   "exceptions": [],
-  "notes": "Plan-only policy repair. Canonical admin navigation files must classify as admin-operations rather than unresolved scope. No risk-budget limits are relaxed."
+  "notes": "Policy repair implemented after Plan Before Code PASS. Canonical admin navigation and entitlement navigation now classify as admin-operations; storefront navigation remains outside that subsystem. Risk limits unchanged."
 }
