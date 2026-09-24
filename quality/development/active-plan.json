@@ -1,14 +1,15 @@
 {
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-9FD06980",
-  "task": "Complete Incident Center navigation regression closure after adding the canonical platform-incidents destination.",
+  "task": "Close Incident Center regression and repair API TypeScript syntax failure under the current incident-intelligence guard scope.",
   "status": "ready-for-implementation",
   "guardDigest": "64891f1b",
   "plannedFilePatterns": [
     "quality/development/active-plan.json",
     "deploy/release-risk-policy.json",
     "tests/release-risk-navigation-classification.test.ts",
-    "tests/admin-link-integrity.test.ts"
+    "tests/admin-link-integrity.test.ts",
+    "src/app/api/platform/incidents/[id]/repair/route.ts"
   ],
   "expectedSubsystems": [
     "admin-operations",
@@ -28,5 +29,5 @@
     "SQ-NK-013"
   ],
   "exceptions": [],
-  "notes": "Incident Center navigation regression closure aligned to current Knowledge preflight. Canonical platform navigation includes platform-incidents; admin-link-integrity pins the same destination. No guard, risk budget, or production control is relaxed."
+  "notes": "Incident Center closure includes canonical platform navigation regression and the repair API route syntax defect exposed by full CI. No guard, risk budget, self-healing authority, or production control is relaxed."
 }
