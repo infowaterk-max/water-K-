@@ -24,7 +24,11 @@ describe('Template Factory procedural memory',()=>{
     expect(handoff).toContain("waitForURL(url=>url.pathname==='/storefront-template-preview-login',{timeout:10000})");
     expect(handoff).toContain("await shell.waitFor({state:'visible',timeout:10000})");
     expect(handoff).toContain("await authSurface.waitFor({state:'visible',timeout:10000})");
-    expect(handoff).toContain("await root.waitFor({state:'visible',timeout:10000})");
+    expect(handoff).toContain("await root.first().waitFor({state:'visible',timeout:30000})");
+    expect(handoff).toContain("PREVIEW_TEMPLATE_KEY_MISMATCH");
+    expect(handoff).toContain("PREVIEW_TEMPLATE_VERSION_MISMATCH");
+    expect(handoff).toContain("PREVIEW_FACTORY_CANDIDATE_MISMATCH");
+    expect(handoff).toContain("PREVIEW_RECIPE_IDENTITY_MISMATCH");
     const streamedFailure=TEMPLATE_FACTORY_KNOWN_FAILURES.find(item=>item.id==='TF-KF-007');
     expect(streamedFailure?.occurrences).toBeGreaterThanOrEqual(2);
     expect(streamedFailure?.remediationPolicy).toBe('shared-root-cause-required');
