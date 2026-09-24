@@ -94,6 +94,7 @@ export const PLATFORM_NAVIGATION:readonly ResolvedAdminNavItem[]=[
   {id:'platform-rollout',href:'/admin/rollout',label:'Rollout központ',description:'Fokozatos kiadási és rollout folyamatok.'},
   {id:'platform-postcheck',href:'/admin/utoellenorzes',label:'Utóellenőrzés',description:'Release utáni ellenőrzések és bizonyítékok.'},
   {id:'platform-recovery',href:'/admin/helyreallitas',label:'Helyreállítás',description:'Helyreállítási és visszaállítási műveletek.'},
+  {id:'platform-incidents',href:'/admin/platform/incidents',label:'Incidensközpont',description:'Vásárlói, kereskedői és rendszereredetű technikai incidensek triage-a és javítási javaslatai.'},
   {id:'platform-observability',href:'/admin/megfigyeles',label:'Megfigyelés',description:'Platform megfigyelhetőség és működési jelek.'},
   {id:'platform-operations',href:'/admin/muveletek',label:'Platform műveletek',description:'Platformszintű operációs műveletek.'},
   {id:'platform-log',href:'/admin/naplo',label:'Platform napló',description:'Platformszintű esemény- és műveleti napló.'},

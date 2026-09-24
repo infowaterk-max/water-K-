@@ -1,15 +1,15 @@
 'use client';
 
-import{useCallback,useEffect,useId,useRef,useState}from'react';
+import{useCallback,useEffect,useId,useRef,useState,type ReactNode}from'react';
 
 type DialogInput={label:string;value:string;onChange:(value:string)=>void;type?:'text'|'number';placeholder?:string;min?:number;step?:number};
-type Props={open:boolean;eyebrow?:string;title:string;description?:string;input?:DialogInput;confirmLabel?:string;cancelLabel?:string;busy?:boolean;danger?:boolean;confirmDisabled?:boolean;onConfirm:()=>void;onClose:()=>void};
+type Props={open:boolean;eyebrow?:string;title:string;description?:string;input?:DialogInput;children?:ReactNode;confirmLabel?:string;cancelLabel?:string;busy?:boolean;danger?:boolean;confirmDisabled?:boolean;onConfirm:()=>void;onClose:()=>void};
 export type ShoperationConfirmRequest={eyebrow?:string;title:string;description?:string;confirmLabel?:string;cancelLabel?:string;danger?:boolean};
 export type ShoperationPromptRequest=ShoperationConfirmRequest&{label:string;initialValue?:string;placeholder?:string;type?:'text'|'number';min?:number;step?:number;required?:boolean};
 
 const focusableSelector='button:not([disabled]),[href],input:not([disabled]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])';
 
-export function ShoperationDialog({open,eyebrow='Shoperation',title,description,input,confirmLabel='Megerősítés',cancelLabel='Mégse',busy=false,danger=false,confirmDisabled=false,onConfirm,onClose}:Props){
+export function ShoperationDialog({open,eyebrow='Shoperation',title,description,input,children,confirmLabel='Megerősítés',cancelLabel='Mégse',busy=false,danger=false,confirmDisabled=false,onConfirm,onClose}:Props){
  const titleId=useId(),descriptionId=useId(),dialogRef=useRef<HTMLElement>(null),inputRef=useRef<HTMLInputElement>(null),confirmRef=useRef<HTMLButtonElement>(null),closeRef=useRef<HTMLButtonElement>(null),previousFocus=useRef<HTMLElement|null>(null);
  useEffect(()=>{
   if(!open)return;
@@ -26,7 +26,7 @@ export function ShoperationDialog({open,eyebrow='Shoperation',title,description,
    else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first.focus()}
   };
   document.addEventListener('keydown',handler);
-  const timer=window.setTimeout(()=>{if(input)inputRef.current?.focus();else confirmRef.current?.focus()??closeRef.current?.focus()},0);
+  const timer=window.setTimeout(()=>{const firstField=input?inputRef.current:dialogRef.current?.querySelector<HTMLElement>('input:not([disabled]),select:not([disabled]),textarea:not([disabled])');(firstField??confirmRef.current??closeRef.current)?.focus()},0);
   return()=>{
    window.clearTimeout(timer);
    document.removeEventListener('keydown',handler);
@@ -47,6 +47,7 @@ export function ShoperationDialog({open,eyebrow='Shoperation',title,description,
    <div className="adminModalBody">
     {description&&<p id={descriptionId}>{description}</p>}
     {input&&<label className="adminModalField"><span>{input.label}</span><input ref={inputRef} type={input.type??'text'} value={input.value} placeholder={input.placeholder} min={input.min} step={input.step} disabled={busy} onChange={event=>input.onChange(event.target.value)} onKeyDown={event=>{if(event.key==='Enter'&&!confirmDisabled&&!busy)onConfirm()}}/></label>}
+    {children}
    </div>
    <footer className="adminModalFooter">
     <button className="btn btnGhost" type="button" disabled={busy} onClick={onClose}>{cancelLabel}</button>
