@@ -34,6 +34,7 @@ export const TEMPLATE_FACTORY_AUTHORITY_GRAPH:readonly TemplateFactoryAuthorityR
   {id:'TF-AUTH-008',subject:'Product Owner handoff proof',owner:'quality-system',delegates:[],rule:'The handed-off URL must identify the same exact-head Factory candidate proven by QA.'},
   {id:'TF-AUTH-009',subject:'browser proof stabilization',owner:'quality-system',delegates:[],rule:'Browser assertions and screenshots must observe the same settled DOM state; streamed UI must be awaited before proof is sampled.'},
   {id:'TF-AUTH-010',subject:'Product Owner preview authorization context',owner:'platform',delegates:['quality-system'],rule:'Authenticated Factory Product Owner preview authorization is tenant-independent: access may be proven by platform-operator authority or an active owner/admin RBAC binding, but rendering capability comes from the compiled candidate and must not require an active webshop or subscription-plan context.'},
+  {id:'TF-AUTH-011',subject:'exact-head Factory browser acceptance coverage',owner:'quality-system',delegates:[],rule:'A Factory candidate may claim browserMatrixPassed only after every canonical page type has passed every canonical viewport on the exact source commit; a canary subset is diagnostic evidence only and can never satisfy full-matrix acceptance.'},
 ]);
 
 export const TEMPLATE_FACTORY_KNOWN_FAILURES:readonly TemplateFactoryKnownFailure[]=Object.freeze([
@@ -124,6 +125,17 @@ export const TEMPLATE_FACTORY_KNOWN_FAILURES:readonly TemplateFactoryKnownFailur
     remediationPolicy:'shared-root-cause-required',
     invariantIds:['TF-AUTH-003','TF-AUTH-008','TF-AUTH-010'],
     regressionTests:['tests/storefront-template-preview-access.test.ts','tests/storefront-auth-surface.test.ts','tests/template-factory-procedural-memory.test.ts'],
+  },
+  {
+    id:'TF-KF-009',
+    title:'Factory canary subset mislabeled as full browser matrix',
+    symptom:'An exact-head Factory quality run exercises only the canary page subset but still emits browserMatrixPassed=true and can appear ready for handoff.',
+    rootCause:'Acceptance evaluated only the cases that happened to run instead of proving complete canonical page-by-viewport coverage, while fallback scope allowed Factory candidates to remain canary-only.',
+    occurrences:1,
+    automatable:true,
+    remediationPolicy:'shared-invariant-preferred',
+    invariantIds:['TF-AUTH-008','TF-AUTH-011'],
+    regressionTests:['tests/template-factory-procedural-memory.test.ts'],
   },
 ]);
 
