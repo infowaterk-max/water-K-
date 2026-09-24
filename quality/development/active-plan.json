@@ -37,5 +37,5 @@
     "SQ-NK-013"
   ],
   "exceptions": [],
-  "notes": "Plan-only Platform Incident Center wave. UI is platform-operator only, reuses canonical Incident Intelligence APIs and Shoperation admin UI, and exposes repair proposal creation only; no automatic production/code mutation."
+  "notes": "Platform Incident Center implemented after Plan Before Code PASS. Platform-only queue reuses canonical APIs, manual triage is audit-backed, and repair controls create proposal-mode run evidence only; code repair remains branch/PR-only and never direct production mutation."
 }

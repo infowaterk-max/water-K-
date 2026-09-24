@@ -200,3 +200,21 @@ export async function registerSelfHealingPlan(input:{incidentId:string;runbookKe
   if(error)throw new IncidentServiceError('INCIDENT_HEALING_RUN_FAILED',500,'Az öngyógyító folyamat nem indítható.');
   return{repairRequestId,run:data,policy};
 }
+
+
+export async function createPlatformRepairProposal(incidentId:string,runbookKey:string,actorId:string){
+  const admin=createAdminClient();
+  const{data,error}=await admin.from('platform_incidents').select('id,status,route_path').eq('id',incidentId).maybeSingle();
+  if(error)throw new IncidentServiceError('INCIDENT_REPAIR_CONTEXT_FAILED',500,'Az incidens javítási környezete nem olvasható.');
+  if(!data)throw new IncidentServiceError('INCIDENT_NOT_FOUND',404,'Az incidens nem található.');
+  if(['resolved','closed','rejected'].includes(String(data.status)))throw new IncidentServiceError('INCIDENT_REPAIR_STATE_FORBIDDEN',409,'Lezárt vagy megoldott incidenshez nem indítható új javítási javaslat.');
+  return registerSelfHealingPlan({
+    incidentId,
+    runbookKey,
+    requestedMode:'propose',
+    routePath:typeof data.route_path==='string'?data.route_path:null,
+    createdByKind:'platform',
+    createdByUserId:actorId,
+    evidence:{source:'platform-incident-center',requestedMode:'propose',statusBefore:data.status},
+  });
+}
