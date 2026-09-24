@@ -3,7 +3,7 @@
   "taskId": "DEV-9FD06980",
   "task": "Complete Incident Center navigation regression closure after adding the canonical platform-incidents destination.",
   "status": "ready-for-implementation",
-  "guardDigest": "9fd06980",
+  "guardDigest": "64891f1b",
   "plannedFilePatterns": [
     "quality/development/active-plan.json",
     "deploy/release-risk-policy.json",
@@ -12,45 +12,21 @@
   ],
   "expectedSubsystems": [
     "admin-operations",
+    "incident-intelligence",
     "release-infrastructure"
   ],
   "expectedKnownFailureIds": [
     "SQ-KF-001",
-    "SQ-KF-002",
-    "SQ-KF-003",
-    "SQ-KF-004",
-    "SQ-KF-006",
-    "SQ-KF-008",
-    "SQ-KF-009",
     "SQ-KF-011",
-    "SQ-KF-012",
     "SQ-KF-013",
     "SQ-KF-014",
-    "SQ-KF-016",
     "SQ-KF-017",
-    "SQ-KF-018",
-    "SQ-KF-020",
-    "SQ-KF-022",
-    "TF-KF-001",
-    "TF-KF-005",
-    "TF-KF-007",
-    "TF-KF-009",
-    "TF-KF-010",
-    "TF-KF-011",
-    "TF-KF-013",
-    "TF-KF-014",
-    "TF-KF-015"
+    "SQ-KF-022"
   ],
   "acknowledgedNegativeKnowledgeIds": [
-    "SQ-NK-001",
-    "SQ-NK-002",
-    "SQ-NK-003",
-    "SQ-NK-005",
-    "SQ-NK-006",
-    "SQ-NK-008",
-    "SQ-NK-010",
-    "SQ-NK-012"
+    "SQ-NK-012",
+    "SQ-NK-013"
   ],
   "exceptions": [],
-  "notes": "Policy repair and Incident Center navigation regression closure. Canonical platform navigation now includes platform-incidents and admin-link-integrity must pin the same destination. No risk-budget limits are relaxed."
+  "notes": "Incident Center navigation regression closure aligned to current Knowledge preflight. Canonical platform navigation includes platform-incidents; admin-link-integrity pins the same destination. No guard, risk budget, or production control is relaxed."
 }
