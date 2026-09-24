@@ -250,6 +250,7 @@ export type StorefrontShowroomEvidenceRow={
   engines:readonly StorefrontShowroomEngine[];
   reachability:StorefrontShowroomReachability;
   navigationPresent:boolean;
+  entrypointPresent:boolean;
 };
 export type StorefrontShowroomContractIssue={
   code:
@@ -330,15 +331,6 @@ const requiredAccountHrefs=CANONICAL_ACCOUNT_CAPABILITIES.filter(item=>!item.opt
 function accountDemoNavigationHrefs(template:StorefrontInstallableTemplatePackage){
   const page=template.pages.find(item=>item.pageType==='account');
   if(!page)return[] as string[];
-  const hrefs:string[]=[];
-  const visit=(nodes:readonly StorefrontComponentNode[])=>{
-    for(const node of nodes){
-      if(node.componentKey==='system.navigation'&&(node.config as Record<string,unknown>).presentation==='account-capability-demo'){
-        collectFromValue(node.config,'account.demoNavigation',node.id,hrefs as unknown as StorefrontTemplateLink[]);
-      }
-      if(node.children?.length)visit(node.children);
-    }
-  };
   // Keep extraction typed and deterministic without coupling the gate to renderer internals.
   const links:StorefrontTemplateLink[]=[];
   const visitLinks=(nodes:readonly StorefrontComponentNode[])=>{
@@ -353,6 +345,7 @@ function accountDemoNavigationHrefs(template:StorefrontInstallableTemplatePackag
 
 export function createStorefrontTemplateShowroomEvidence(template:StorefrontInstallableTemplatePackage):readonly StorefrontShowroomEvidenceRow[]{
   const shellLinks=listStorefrontTemplateShellLinks(template);
+  const allLinks=listStorefrontTemplateLinks(template);
   return STOREFRONT_TEMPLATE_SHOWROOM_SURFACES.map(surface=>{
     const page=template.pages.find(item=>item.pageType===surface.pageType)??null;
     const meta=page?.metadata?.templateFactory&&typeof page.metadata.templateFactory==='object'
@@ -371,6 +364,9 @@ export function createStorefrontTemplateShowroomEvidence(template:StorefrontInst
       engines:surface.engines,
       reachability:surface.reachability,
       navigationPresent:!surface.navigationRequired||shellLinks.some(link=>routeMatches(link.href,surface.route)),
+      entrypointPresent:surface.reachability==='system-route'||(surface.reachability==='shell-navigation'
+        ?shellLinks.some(link=>routeMatches(link.href,surface.route))
+        :allLinks.some(link=>routeMatches(link.href,surface.route))),
     };
   });
 }
@@ -386,6 +382,7 @@ export function evaluateStorefrontTemplateShowroomContract(template:StorefrontIn
     if(page.sections.length<3)issues.push(showroomIssue('SHOWROOM_PAGE_EMPTY',`pages.${row.pageType}.sections`,`A(z) ${row.label} Page Schema nem lehet üres shell vagy placeholder.`));
     if(page.templateKey!==template.manifest.templateKey||page.templateVersion!==template.manifest.templateVersion)issues.push(showroomIssue('SHOWROOM_PRESENTATION_AUTHORITY_MISMATCH',`pages.${row.pageType}`,'A shopper route Page Schema identityje eltér a kiválasztott template presentation authoritytől.'));
     if(row.navigationPresent===false)issues.push(showroomIssue('SHOWROOM_NAVIGATION_INCOMPLETE',`navigation.${row.surfaceId}`,`A kötelező „${row.label}” shopper surface nem érhető el a template shell navigációjából.`));
+    if(row.entrypointPresent===false)issues.push(showroomIssue('SHOWROOM_ROUTE_PRESENTATION_UNMAPPED',`journeys.${row.surfaceId}`,`A(z) ${row.label} canonical shopper journeyhez nincs tényleges template entrypoint.`));
     if(previewPageForPath(pathnameFor(row.route).replace(':slug','demo'))!==row.pageType&&row.route!=='/__not-found__')issues.push(showroomIssue('SHOWROOM_ROUTE_PRESENTATION_UNMAPPED',`routes.${row.route}`,'A canonical route nincs ugyanahhoz a Page Schema/presentation authorityhez kötve a preview route registryben.'));
   }
   const accountHrefs=accountDemoNavigationHrefs(template);
