@@ -1,33 +1,17 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-FE7961D4",
-  "task": "Add Development-Time Known Failure Guard, Plan Before Code, Edit-Time Guard and Incremental Replay to the global Shoperation Quality Knowledge system.",
+  "taskId": "DEV-60304D6E",
+  "task": "Harden Development Guard regression wording, persist Development Guard evidence, and route Plan/Edit/Incremental failures into Failure Intake.",
   "status": "ready-for-implementation",
-  "guardDigest": "fe7961d4",
+  "guardDigest": "60304d6e",
   "plannedFilePatterns": [
-    "AGENTS.md",
-    ".github/copilot-instructions.md",
     ".github/workflows/ci.yml",
     ".github/workflows/template-factory-quality-gate.yml",
-    "deploy/release-risk-policy.json",
-    "package.json",
-    "quality/knowledge/shoperation-quality-knowledge.v1.json",
-    "quality/knowledge/development-guard-policy.v1.json",
-    "quality/knowledge/knowledge-scope-policy.v1.json",
+    "quality/knowledge/failure-signatures.v1.json",
     "quality/development/active-plan.json",
-    "scripts/lib/shoperation-development-runtime.mjs",
-    "scripts/shoperation-development-guard.mjs",
-    "scripts/shoperation-plan-before-code.mjs",
-    "scripts/shoperation-edit-time-guard.mjs",
-    "scripts/shoperation-incremental-replay.mjs",
-    "scripts/shoperation-knowledge-preflight.mjs",
-    "src/lib/quality-system/shoperation-knowledge.ts",
-    "src/lib/quality-system/scope-resolver.ts",
-    "tests/shoperation-development-guard.test.ts",
-    "docs/support/README.md"
+    "tests/shoperation-development-guard.test.ts"
   ],
   "expectedSubsystems": [
-    "dependency-contract",
     "quality-knowledge-system",
     "release-infrastructure"
   ],
@@ -88,5 +72,5 @@
     "SQ-NK-012"
   ],
   "exceptions": [],
-  "notes": "This task changes the Quality Knowledge authority itself, therefore full Known Failure activation is intentional."
+  "notes": "Quality Knowledge files are touched, so full Known Failure activation is intentional. This repair closes the self-test failure and the newly discovered failure-intake wiring gap."
 }

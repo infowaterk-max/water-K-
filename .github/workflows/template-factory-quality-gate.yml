@@ -208,6 +208,15 @@ jobs:
         id: incremental-replay
         run: node scripts/shoperation-incremental-replay.mjs --check
 
+      - name: Upload Development Guard evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: shoperation-development-guard-${{ github.event.pull_request.head.sha || github.sha }}
+          path: artifacts/shoperation-development-guard/**
+          if-no-files-found: warn
+          retention-days: 30
+
       - name: Upload Shoperation knowledge evidence
         if: always()
         uses: actions/upload-artifact@v4
@@ -431,6 +440,9 @@ jobs:
         shell: bash
         env:
           KNOWLEDGE_OUTCOME: ${{ steps.knowledge.outcome }}
+          DEVELOPMENT_PLAN_OUTCOME: ${{ steps.development-plan.outcome }}
+          EDIT_GUARD_OUTCOME: ${{ steps.edit-time-guard.outcome }}
+          INCREMENTAL_OUTCOME: ${{ steps.incremental-replay.outcome }}
           TYPECHECK_OUTCOME: ${{ steps.typecheck.outcome }}
           BUILD_OUTCOME: ${{ steps.runtime-build.outcome }}
           MATRIX_OUTCOME: ${{ steps.browser-matrix.outcome }}
@@ -444,6 +456,9 @@ jobs:
         run: |
           codes=""
           [ "$KNOWLEDGE_OUTCOME" != "failure" ] || codes="${codes}KNOWLEDGE_PREFLIGHT_FAILED;"
+          [ "$DEVELOPMENT_PLAN_OUTCOME" != "failure" ] || codes="${codes}DEVELOPMENT_PLAN_FAILED;"
+          [ "$EDIT_GUARD_OUTCOME" != "failure" ] || codes="${codes}EDIT_TIME_GUARD_FAILED;"
+          [ "$INCREMENTAL_OUTCOME" != "failure" ] || codes="${codes}INCREMENTAL_REPLAY_FAILED;"
           [ "$TYPECHECK_OUTCOME" != "failure" ] || codes="${codes}TYPECHECK_FAILED;"
           [ "$BUILD_OUTCOME" != "failure" ] || codes="${codes}BUILD_FAILED;"
           [ "$MATRIX_OUTCOME" != "failure" ] || codes="${codes}QUALITY_GATE_FAILED;"
