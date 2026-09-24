@@ -48,7 +48,7 @@ describe('Incident Intelligence database foundation v1',()=>{
     expect(sql).toContain('triage_platform_incident_v2');
     expect(sql).toContain("p_actor_kind not in('system','platform','ai')");
     expect(sql).toContain("set_config('app.incident_actor_kind',p_actor_kind,true)");
-    expect(sql).toContain("'actorKind',p_actor_kind");
+    expect(sql).toContain("'actorkind',p_actor_kind");
     expect(sql).toContain('grant execute on function public.triage_platform_incident_v2');
   });
 });

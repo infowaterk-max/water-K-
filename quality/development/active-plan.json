@@ -5,7 +5,8 @@
   "status": "ready-for-implementation",
   "guardDigest": "64891f1b",
   "plannedFilePatterns": [
-    "quality/development/active-plan.json"
+    "quality/development/active-plan.json",
+    "tests/incident-intelligence-schema.test.ts"
   ],
   "expectedSubsystems": [
     "incident-intelligence"
@@ -23,5 +24,5 @@
     "SQ-NK-013"
   ],
   "exceptions": [],
-  "notes": "Planning-only runtime/API wave after DB audit and RBAC hardening."
+  "notes": "Minimal repair of the schema regression assertion before Incident Intelligence API implementation. No runtime authority change."
 }
