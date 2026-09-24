@@ -188,6 +188,9 @@ jobs:
 
       - name: Plan Before Code Gate
         id: development-plan
+        env:
+          DEVELOPMENT_BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
+          DEVELOPMENT_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
         run: node scripts/shoperation-plan-before-code.mjs --check
 
       - name: Edit-Time Known Failure Guard
