@@ -14,7 +14,7 @@ export async function POST(request:Request,{params}:{params:Promise<{id:string}>
   if(!actor)return NextResponse.json({error:'Nincs platform jogosultság.'},{status:403,headers:{'Cache-Control':'no-store'}});
   const{id}=await params;
   if(!z.string().uuid().safeParse(id).success)return NextResponse.json({error:'Érvénytelen incidensazonosító.'},{status:400,headers:{'Cache-Control':'no-store'}});
-  let raw:unknown;try{raw=await request.json()}catch{return NextResponse.json({error:'Érvénytelen kérés.'},{status:400,headers:{'Cache-Control':'no-store'})}
+  let raw:unknown;try{raw=await request.json()}catch{return NextResponse.json({error:'Érvénytelen kérés.'},{status:400,headers:{'Cache-Control':'no-store'}})}
   const parsed=repairSchema.safeParse(raw);
   if(!parsed.success)return NextResponse.json({error:'Érvénytelen javítási javaslat.'},{status:400,headers:{'Cache-Control':'no-store'}});
   try{
