@@ -1,65 +1,114 @@
 {
   "contract": "shoporation.living-roadmap.v1",
   "version": 1,
-  "authority": "capability-registry",
-  "lifecycle": [
-    "planned",
-    "in-development",
-    "implemented-unverified",
-    "verified",
-    "accepted",
-    "production"
-  ],
-  "transitionRule": "A capability may only advance when the Evidence Ledger contains evidence sufficient for the target state. Evidence does not change capability authority.",
-  "capabilities": [
+  "status": "canonical",
+  "principles": {
+    "sourceOfTruth": "This registry is the machine-readable roadmap authority for accepted platform work.",
+    "noSilentCompletion": true,
+    "completionRequiresEvidence": true
+  },
+  "items": [
     {
-      "capabilityId": "CAP-ARCH-CONSTITUTION",
-      "state": "production",
-      "evidenceIds": [
-        "EVD-ARCH-CONSTITUTION-MAIN"
+      "id": "SYSTEM-SOUL",
+      "title": "Architecture Constitution + Global Foundation",
+      "status": "done",
+      "phase": "foundation",
+      "capabilities": [
+        "CAP-QUALITY",
+        "CAP-ATLAS"
+      ],
+      "evidenceRefs": [
+        "EVID-SYSTEM-SOUL-CONSTITUTION"
       ]
     },
     {
-      "capabilityId": "CAP-DOMAIN-FOUNDATIONS",
-      "state": "production",
-      "evidenceIds": [
-        "EVD-DOMAIN-FOUNDATIONS-MAIN"
+      "id": "DOMAIN-FOUNDATIONS",
+      "title": "Domain Foundations v1",
+      "status": "done",
+      "phase": "foundation",
+      "capabilities": [
+        "CAP-QUALITY",
+        "CAP-ATLAS"
+      ],
+      "evidenceRefs": [
+        "EVID-DOMAIN-FOUNDATIONS"
       ]
     },
     {
-      "capabilityId": "CAP-ATLAS-SELF-KNOWLEDGE",
-      "state": "production",
-      "evidenceIds": [
-        "EVD-ATLAS2-MAIN"
+      "id": "SYSTEM-SELF-KNOWLEDGE",
+      "title": "Atlas 2.0 System Self-Knowledge",
+      "status": "done",
+      "phase": "foundation",
+      "capabilities": [
+        "CAP-ATLAS"
+      ],
+      "evidenceRefs": [
+        "EVID-ATLAS-2"
       ]
     },
     {
-      "capabilityId": "CAP-CHANGE-IMPACT-RELEASE-CLOSURE",
-      "state": "production",
-      "evidenceIds": [
-        "EVD-CHANGE-IMPACT-MAIN"
+      "id": "CHANGE-IMPACT-CLOSURE",
+      "title": "Atlas Change Impact + Release Closure",
+      "status": "done",
+      "phase": "foundation",
+      "capabilities": [
+        "CAP-ATLAS",
+        "CAP-RELEASE"
+      ],
+      "evidenceRefs": [
+        "EVID-CHANGE-IMPACT"
       ]
     },
     {
-      "capabilityId": "CAP-DEVELOPMENT-KNOWLEDGE-GUARD",
-      "state": "production",
-      "evidenceIds": [
-        "EVD-DEVELOPMENT-GUARD-MAIN"
-      ]
+      "id": "CAPABILITY-EVIDENCE",
+      "title": "Capability Registry + Evidence Ledger",
+      "status": "in-progress",
+      "phase": "foundation",
+      "capabilities": [
+        "CAP-QUALITY"
+      ],
+      "evidenceRefs": []
     },
     {
-      "capabilityId": "CAP-INCIDENT-INTELLIGENCE",
-      "state": "production",
-      "evidenceIds": [
-        "EVD-INCIDENT-INTELLIGENCE-MAIN"
-      ]
+      "id": "DRIFT-CONFIDENCE",
+      "title": "Architecture Drift + Confidence Model",
+      "status": "planned",
+      "phase": "foundation",
+      "capabilities": [
+        "CAP-ATLAS",
+        "CAP-QUALITY"
+      ],
+      "evidenceRefs": []
     },
     {
-      "capabilityId": "CAP-TEMPLATE-FACTORY-PROCEDURAL-MEMORY",
-      "state": "production",
-      "evidenceIds": [
-        "EVD-TEMPLATE-PROCEDURAL-MEMORY-MAIN"
-      ]
+      "id": "DEEP-ATLAS-SCAN",
+      "title": "Daily Deep Atlas Scan",
+      "status": "planned",
+      "phase": "foundation",
+      "capabilities": [
+        "CAP-ATLAS"
+      ],
+      "evidenceRefs": []
+    },
+    {
+      "id": "TEMPLATE-PRODUCTION-SYSTEM",
+      "title": "Template Production System / Factory",
+      "status": "in-progress",
+      "phase": "storefront",
+      "capabilities": [
+        "CAP-BUILDER"
+      ],
+      "evidenceRefs": []
+    },
+    {
+      "id": "INCIDENT-INTELLIGENCE",
+      "title": "Incident Intelligence + Governed Recovery",
+      "status": "foundation",
+      "phase": "operations",
+      "capabilities": [
+        "CAP-INCIDENT"
+      ],
+      "evidenceRefs": []
     }
   ]
 }
