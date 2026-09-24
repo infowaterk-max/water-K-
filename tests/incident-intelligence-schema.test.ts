@@ -6,6 +6,9 @@ describe('Incident Intelligence database foundation v1',()=>{
     expect(sql).toContain("p_source='customer' and p_support_ticket_id is null");
     expect(sql).toContain("'support_ticket'");
     expect(sql).not.toContain('create table if not exists public.customer_bug_tickets');
+    expect(sql).toContain('create_customer_incident_report_v1');
+    expect(sql).toContain('v_ticket:=public.create_support_ticket_v2');
+    expect(sql).toContain('v_incident:=public.create_platform_incident_v1');
   });
   it('preserves who, when, tenant, route, component and correlation context without raw IP storage',()=>{
     for(const field of['instance_id','reporter_user_id','reporter_role','correlation_id','route_path','surface_key','component_key','app_version','environment','created_at'])expect(sql).toContain(field);
@@ -23,7 +26,7 @@ describe('Incident Intelligence database foundation v1',()=>{
     expect(sql).toContain('after insert or update on public.platform_self_healing_runs');
   });
   it('keeps incident mutation behind service-role RPC authority',()=>{
-    for(const fn of['create_platform_incident_v1','triage_platform_incident_v1','create_incident_repair_request_v1','create_self_healing_run_v1']){
+    for(const fn of['create_platform_incident_v1','create_customer_incident_report_v1','triage_platform_incident_v1','create_incident_repair_request_v1','create_self_healing_run_v1']){
       expect(sql).toContain(`grant execute on function public.${fn}`);
     }
     expect(sql).toContain('revoke all on public.platform_incidents,public.platform_incident_events');

@@ -471,6 +471,79 @@ $$;
 revoke all on function public.create_self_healing_run_v1(uuid,uuid,text,text,text,boolean,jsonb) from public,anon,authenticated;
 grant execute on function public.create_self_healing_run_v1(uuid,uuid,text,text,text,boolean,jsonb) to service_role;
 
+
+create or replace function public.create_customer_incident_report_v1(
+  p_instance_id uuid,
+  p_user_id uuid,
+  p_email text,
+  p_name text,
+  p_order_number text,
+  p_title text,
+  p_description text,
+  p_incident_category text,
+  p_severity text,
+  p_correlation_id text,
+  p_route_path text,
+  p_surface_key text,
+  p_component_key text,
+  p_app_version text,
+  p_environment text,
+  p_context jsonb default '{}'::jsonb,
+  p_evidence jsonb default '{}'::jsonb
+) returns jsonb
+language plpgsql
+security definer
+set search_path=''
+as $
+declare
+  v_ticket jsonb;
+  v_ticket_id uuid;
+  v_incident jsonb;
+  v_existing record;
+begin
+  -- Reuse the canonical Support authority. Any later incident failure rolls this call back too.
+  v_ticket:=public.create_support_ticket_v2(
+    p_instance_id,p_user_id,p_email,p_name,p_order_number,'other',
+    '[Hibabejelentés] '||left(trim(p_title),150),p_description
+  );
+  v_ticket_id:=nullif(v_ticket->>'id','')::uuid;
+  if v_ticket_id is null then raise exception 'INCIDENT_SUPPORT_TICKET_EVIDENCE_MISSING'; end if;
+
+  select i.id,i.incident_number into v_existing
+  from public.platform_incidents i
+  where i.support_ticket_id=v_ticket_id and i.source='customer'
+  order by i.created_at desc
+  limit 1;
+  if found then
+    return jsonb_build_object(
+      'incidentId',v_existing.id,
+      'incidentNumber',v_existing.incident_number,
+      'supportTicketId',v_ticket_id,
+      'supportTicketNumber',v_ticket->>'ticketNumber',
+      'duplicate',true
+    );
+  end if;
+
+  v_incident:=public.create_platform_incident_v1(
+    p_instance_id,v_ticket_id,'customer',p_user_id,
+    case when p_user_id is null then 'anonymous' else 'customer' end,
+    p_title,p_description,p_incident_category,p_severity,p_correlation_id,p_route_path,
+    p_surface_key,p_component_key,p_app_version,p_environment,p_context,p_evidence
+  );
+  if nullif(v_incident->>'id','') is null then raise exception 'INCIDENT_CREATE_EVIDENCE_MISSING'; end if;
+
+  return jsonb_build_object(
+    'incidentId',v_incident->>'id',
+    'incidentNumber',v_incident->>'incidentNumber',
+    'supportTicketId',v_ticket_id,
+    'supportTicketNumber',v_ticket->>'ticketNumber',
+    'duplicate',coalesce((v_ticket->>'duplicate')::boolean,false)
+  );
+end;
+$;
+revoke all on function public.create_customer_incident_report_v1(uuid,uuid,text,text,text,text,text,text,text,text,text,text,text,text,text,jsonb,jsonb) from public,anon,authenticated;
+grant execute on function public.create_customer_incident_report_v1(uuid,uuid,text,text,text,text,text,text,text,text,text,text,text,text,text,jsonb,jsonb) to service_role;
+
 alter table public.platform_incidents enable row level security;
 alter table public.platform_incident_events enable row level security;
 alter table public.platform_incident_links enable row level security;
