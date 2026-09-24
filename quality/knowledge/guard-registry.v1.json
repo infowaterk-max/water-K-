@@ -1,0 +1,133 @@
+{
+  "contract": "shoporation.guard-registry.v1",
+  "version": 1,
+  "status": "canonical",
+  "principles": {
+    "oneBlockingResponsibilityOneOwner": true,
+    "additiveGuardsRequireDistinctResponsibility": true,
+    "evidenceMustNameProducer": true,
+    "informationalSignalsMustNotMasqueradeAsBlockingAuthorities": true
+  },
+  "guards": [
+    {
+      "id": "GUARD-KNOWLEDGE-PREFLIGHT",
+      "name": "Knowledge Before Build",
+      "authority": "quality-knowledge-system",
+      "lifecycle": "development",
+      "blocking": true,
+      "responsibilityKey": "knowledge-integrity-and-change-impact",
+      "producer": "scripts/shoperation-knowledge-preflight.mjs",
+      "evidence": "artifacts/shoperation-quality/knowledge-preflight.json"
+    },
+    {
+      "id": "GUARD-PLAN-BEFORE-CODE",
+      "name": "Plan Before Code",
+      "authority": "quality-knowledge-system",
+      "lifecycle": "development",
+      "blocking": true,
+      "responsibilityKey": "declared-change-scope",
+      "producer": "scripts/shoperation-plan-before-code.mjs",
+      "evidence": "artifacts/shoperation-development-guard/plan-before-code.json"
+    },
+    {
+      "id": "GUARD-EDIT-TIME",
+      "name": "Edit-Time Known Failure Guard",
+      "authority": "quality-knowledge-system",
+      "lifecycle": "development",
+      "blocking": true,
+      "responsibilityKey": "known-failure-edit-selection",
+      "producer": "scripts/shoperation-edit-time-guard.mjs",
+      "evidence": "artifacts/shoperation-development-guard/edit-time-guard.json"
+    },
+    {
+      "id": "GUARD-INCREMENTAL-REPLAY",
+      "name": "Incremental Known Failure Replay",
+      "authority": "quality-knowledge-system",
+      "lifecycle": "development",
+      "blocking": true,
+      "responsibilityKey": "known-failure-regression-replay",
+      "producer": "scripts/shoperation-incremental-replay.mjs",
+      "evidence": "artifacts/shoperation-development-guard/incremental-replay.json"
+    },
+    {
+      "id": "GUARD-RELEASE-RISK",
+      "name": "Release Risk Budget",
+      "authority": "release-infrastructure",
+      "lifecycle": "release",
+      "blocking": true,
+      "responsibilityKey": "release-coherence-risk-budget",
+      "producer": "scripts/release-risk-budget.mjs",
+      "evidence": "artifacts/release-risk-budget.json"
+    },
+    {
+      "id": "GUARD-CUSTOMER-BASELINE",
+      "name": "Customer Database Baseline",
+      "authority": "database-schema",
+      "lifecycle": "release",
+      "blocking": true,
+      "responsibilityKey": "customer-schema-baseline",
+      "producer": "scripts/customer-baseline-guard.mjs",
+      "evidence": "artifacts/customer-baseline/**"
+    },
+    {
+      "id": "GUARD-MARKET-READY",
+      "name": "Block 24 Market Ready Contract",
+      "authority": "release-infrastructure",
+      "lifecycle": "release",
+      "blocking": true,
+      "responsibilityKey": "market-ready-contract",
+      "producer": "scripts/block24-market-ready-contract.mjs",
+      "evidence": "artifacts/block24-market-ready/**"
+    },
+    {
+      "id": "GUARD-QUALITY-TESTS",
+      "name": "Quality Test Suite",
+      "authority": "quality-knowledge-system",
+      "lifecycle": "release",
+      "blocking": true,
+      "responsibilityKey": "automated-regression-suite",
+      "producer": "npm test",
+      "evidence": "test-result"
+    },
+    {
+      "id": "GUARD-TYPECHECK",
+      "name": "TypeScript Check",
+      "authority": "release-infrastructure",
+      "lifecycle": "release",
+      "blocking": true,
+      "responsibilityKey": "static-type-contract",
+      "producer": "tsc --noEmit",
+      "evidence": "workflow-step"
+    },
+    {
+      "id": "GUARD-PRODUCTION-BUILD",
+      "name": "Production Build",
+      "authority": "release-infrastructure",
+      "lifecycle": "release",
+      "blocking": true,
+      "responsibilityKey": "production-buildability",
+      "producer": "next build",
+      "evidence": "workflow-step"
+    },
+    {
+      "id": "GUARD-TEMPLATE-FACTORY",
+      "name": "Template Factory Quality Gate v2",
+      "authority": "builder-template-system",
+      "lifecycle": "template-acceptance",
+      "blocking": true,
+      "responsibilityKey": "template-factory-browser-contract",
+      "producer": ".github/workflows/template-factory-quality-gate.yml",
+      "evidence": "artifacts/template-factory-quality/**"
+    },
+    {
+      "id": "SIGNAL-ARCHITECTURE-CONFIDENCE",
+      "name": "Architecture Confidence",
+      "authority": "quality-knowledge-system",
+      "lifecycle": "observation",
+      "blocking": false,
+      "responsibilityKey": "architecture-confidence-signal",
+      "producer": "scripts/lib/shoperation-architecture-health.mjs",
+      "evidence": "artifacts/shoperation-architecture/architecture-health.json"
+    }
+  ]
+}
