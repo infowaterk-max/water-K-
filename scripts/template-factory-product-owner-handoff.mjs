@@ -29,6 +29,27 @@ const exactIdentity=url=>{
     &&Number(parsed.searchParams.get('version'))===templateVersion
     &&parsed.searchParams.get('factory')==='1';
 };
+const previewFor=(pageType,extra={})=>{
+  const parsed=new URL(previewUrl);
+  parsed.searchParams.set('template',templateKey);
+  parsed.searchParams.set('version',String(templateVersion));
+  parsed.searchParams.set('factory','1');
+  parsed.searchParams.set('viewport','desktop');
+  parsed.searchParams.set('page',pageType);
+  parsed.searchParams.delete('demoContent');
+  parsed.searchParams.delete('embed');
+  for(const[key,value]of Object.entries(extra)){
+    if(value===null||value===undefined||value==='')parsed.searchParams.delete(key);
+    else parsed.searchParams.set(key,String(value));
+  }
+  return parsed.toString();
+};
+const candidatePageIdentity=(url,pageType)=>{
+  const parsed=new URL(url);
+  return parsed.pathname==='/storefront-template-preview'
+    &&exactIdentity(parsed.toString())
+    &&parsed.searchParams.get('page')===pageType;
+};
 
 const requested=new URL(previewUrl);
 if(requested.pathname!=='/storefront-template-preview'||!exactIdentity(previewUrl)){
@@ -48,9 +69,16 @@ if(await exists(qualityManifestPath)){
     checks.browserMatrixPassed=acceptance.browserMatrixPassed===true;
     checks.proceduralMemoryPassed=acceptance.proceduralMemoryPassed===true;
     checks.factoryIdentityPinned=acceptance.factoryIdentityPinned===true;
+    checks.showroomContractPassed=acceptance.showroomContractPassed===true;
+    checks.showroomEvidence=Array.isArray(acceptance.showroomEvidence)?acceptance.showroomEvidence:[];
+    checks.navigationCompletenessPassed=checks.showroomContractPassed
+      &&checks.showroomEvidence.length>0
+      &&checks.showroomEvidence.filter(row=>row.reachability==='shell-navigation').every(row=>row.navigationPresent===true&&row.entrypointPresent===true);
     if(!checks.browserMatrixPassed)errors.push('BROWSER_MATRIX_NOT_PROVEN');
     if(!checks.proceduralMemoryPassed)errors.push('PROCEDURAL_MEMORY_NOT_PROVEN');
     if(!checks.factoryIdentityPinned)errors.push('FACTORY_IDENTITY_NOT_PINNED');
+    if(!checks.showroomContractPassed)errors.push('FACTORY_SHOWROOM_CONTRACT_NOT_PROVEN');
+    if(!checks.navigationCompletenessPassed)errors.push('TEMPLATE_NAVIGATION_COMPLETENESS_NOT_PROVEN');
     if(sourceCommit&&acceptance.sourceCommit!==sourceCommit)errors.push('SOURCE_COMMIT_MISMATCH');
   }
 }else{
@@ -163,6 +191,146 @@ try{
       if(sourceCommit&&provenance.sourceCommit!==sourceCommit)errors.push('PREVIEW_SOURCE_COMMIT_MISMATCH');
       await root.first().screenshot({path:path.join(outputDir,'product-owner-preview.png'),animations:'disabled',timeout:25000});
     }
+
+    const rootFor=pageType=>page.locator(
+      `[data-template-preview="representative-demo"][data-template-key="${templateKey}"][data-template-version="${templateVersion}"][data-factory-candidate="true"][data-template-recipe="${templateKey}@${templateVersion}"][data-page-type="${pageType}"]`
+    ).first();
+    const assertCandidatePage=async(pageType,label)=>{
+      await page.waitForURL(url=>candidatePageIdentity(url.toString(),pageType),{timeout:15000});
+      const candidateRoot=rootFor(pageType);
+      await candidateRoot.waitFor({state:'visible',timeout:10000});
+      const count=await candidateRoot.count();
+      if(count!==1)throw new Error(`CANDIDATE_PRESENTATION_ROOT_CARDINALITY:${label}:${count}`);
+      const provenance=await candidateRoot.evaluate(element=>({
+        compileSource:element.getAttribute('data-compile-source'),
+        sourceCommit:element.getAttribute('data-source-commit'),
+      }));
+      if(provenance.compileSource!=='template-factory')throw new Error(`CANDIDATE_PRESENTATION_AUTHORITY_MISMATCH:${label}`);
+      if(sourceCommit&&provenance.sourceCommit!==sourceCommit)throw new Error(`CANDIDATE_ROUTE_SOURCE_COMMIT_MISMATCH:${label}`);
+      return candidateRoot;
+    };
+    const visitCandidate=async(pageType,label,extra={})=>{
+      const response=await page.goto(previewFor(pageType,extra),{waitUntil:'domcontentloaded',timeout:30000});
+      if(!response)throw new Error(`CANDIDATE_ROUTE_NO_RESPONSE:${label}`);
+      await page.waitForLoadState('load',{timeout:15000}).catch(()=>undefined);
+      return assertCandidatePage(pageType,label);
+    };
+    const clickCandidate=async(locator,pageType,label)=>{
+      try{
+        await locator.waitFor({state:'visible',timeout:10000});
+        await Promise.all([
+          page.waitForURL(url=>candidatePageIdentity(url.toString(),pageType),{timeout:15000}),
+          locator.click(),
+        ]);
+        await assertCandidatePage(pageType,label);
+        return true;
+      }catch(error){
+        const message=error instanceof Error?error.message:String(error);
+        errors.push(`ROUTE_CONVERGENCE_${label.toUpperCase().replace(/[^A-Z0-9]+/g,'_')}:${message}`);
+        return false;
+      }
+    };
+
+    const evidencePageTypes=[...new Set((checks.showroomEvidence??[]).map(row=>row.pageType).filter(Boolean))];
+    checks.presentationContinuityPassed=evidencePageTypes.length>0;
+    checks.placeholderContentPassed=evidencePageTypes.length>0;
+    const placeholderTokens=['Minta tartalom','A kínálat feltöltés alatt áll','Ez a sablon által létrehozott mintaoldal'];
+    for(const pageType of evidencePageTypes){
+      try{
+        const candidateRoot=await visitCandidate(pageType,`inventory-${pageType}`);
+        const text=(await candidateRoot.innerText()).replace(/\s+/g,' ');
+        if(placeholderTokens.some(token=>text.includes(token))){
+          checks.placeholderContentPassed=false;
+          errors.push(`FACTORY_PLACEHOLDER_CONTENT_VISIBLE:${pageType}`);
+        }
+      }catch(error){
+        checks.presentationContinuityPassed=false;
+        const message=error instanceof Error?error.message:String(error);
+        errors.push(`PRESENTATION_CONTINUITY_${String(pageType).toUpperCase().replace(/[^A-Z0-9]+/g,'_')}:${message}`);
+      }
+    }
+
+    const convergence={};
+    let homeRoot=await visitCandidate('home','home-route-convergence');
+    convergence.headerCart=await clickCandidate(homeRoot.getByRole('link',{name:'Kosár',exact:true}).first(),'cart','header-cart');
+
+    homeRoot=await visitCandidate('home','home-account-convergence');
+    convergence.headerAccount=await clickCandidate(homeRoot.getByRole('link',{name:'Fiókom',exact:true}).first(),'account','header-account');
+
+    homeRoot=await visitCandidate('home','home-wishlist-convergence');
+    convergence.headerWishlist=await clickCandidate(homeRoot.getByRole('link',{name:'Kedvenceim',exact:true}).first(),'account','header-wishlist');
+
+    homeRoot=await visitCandidate('home','home-product-convergence');
+    convergence.productCard=await clickCandidate(homeRoot.locator('[data-storefront-commerce-card="loot-vault"] a').first(),'product','product-card');
+
+    homeRoot=await visitCandidate('home','home-add-to-cart-convergence');
+    const homePurchase=homeRoot.getByRole('button',{name:'Kosárba',exact:true}).first();
+    try{
+      await homePurchase.waitFor({state:'visible',timeout:10000});
+      await homePurchase.click();
+      const confirmation=page.locator('[data-storefront-cart-confirmation="shared-v1"]:visible');
+      await confirmation.waitFor({state:'visible',timeout:10000});
+      convergence.homeAddToCart=await clickCandidate(confirmation.getByRole('link',{name:'Kosár megnyitása',exact:true}),'cart','home-add-to-cart-open-cart');
+    }catch(error){
+      convergence.homeAddToCart=false;
+      errors.push(`ROUTE_CONVERGENCE_HOME_ADD_TO_CART:${error instanceof Error?error.message:String(error)}`);
+    }
+
+    let productRoot=await visitCandidate('product','pdp-add-to-cart-convergence');
+    const pdpPurchase=productRoot.getByRole('button',{name:'Kosárba',exact:true}).first();
+    try{
+      await pdpPurchase.waitFor({state:'visible',timeout:10000});
+      await pdpPurchase.click();
+      const confirmation=page.locator('[data-storefront-cart-confirmation="shared-v1"]:visible');
+      await confirmation.waitFor({state:'visible',timeout:10000});
+      convergence.pdpAddToCart=await clickCandidate(confirmation.getByRole('link',{name:'Kosár megnyitása',exact:true}),'cart','pdp-add-to-cart-open-cart');
+    }catch(error){
+      convergence.pdpAddToCart=false;
+      errors.push(`ROUTE_CONVERGENCE_PDP_ADD_TO_CART:${error instanceof Error?error.message:String(error)}`);
+    }
+
+    const cartRoot=await visitCandidate('cart','cart-checkout-convergence');
+    convergence.cartCheckout=await clickCandidate(cartRoot.getByRole('link',{name:'Tovább a pénztárhoz',exact:true}).first(),'checkout','cart-checkout');
+
+    homeRoot=await visitCandidate('home','home-about-convergence');
+    convergence.about=await clickCandidate(homeRoot.getByRole('link',{name:'Rólunk',exact:true}).first(),'content','footer-about');
+
+    homeRoot=await visitCandidate('home','home-contact-convergence');
+    convergence.contact=await clickCandidate(homeRoot.getByRole('link',{name:'Kapcsolat',exact:true}).first(),'contact','footer-contact');
+
+    homeRoot=await visitCandidate('home','home-shipping-convergence');
+    convergence.shipping=await clickCandidate(homeRoot.getByRole('link',{name:'Szállítás és fizetés',exact:true}).first(),'legal','footer-shipping-payment');
+
+    checks.routeConvergence=convergence;
+    checks.routeConvergencePassed=Object.values(convergence).length>=9&&Object.values(convergence).every(Boolean);
+    if(!checks.routeConvergencePassed)errors.push('MULTI_ENTRY_ROUTE_CONVERGENCE_NOT_PROVEN');
+
+    const accountRoot=await visitCandidate('account','account-capability-proof');
+    const accountLabels=['Rendeléseim','Letöltéseim','Dokumentumaim','Kívánságlista','Ügyeim','Visszaküldés','Fiókadatok','Marketing beállítások'];
+    checks.accountSurfacePassed=(await Promise.all(accountLabels.map(async label=>accountRoot.getByRole('link',{name:label,exact:true}).count()))).every(count=>count>0);
+    if(!checks.accountSurfacePassed)errors.push('CANONICAL_ACCOUNT_SURFACES_NOT_PROVEN');
+
+    const engineChecks={};
+    let engineRoot=await visitCandidate('catalog','engine-e2');
+    engineChecks.E2=await engineRoot.locator('[data-storefront-component="commerce.catalog-facets"]').count()>0
+      &&await engineRoot.locator('[data-storefront-component="commerce.product-grid"]').count()>0;
+    engineRoot=await visitCandidate('product','engine-e7-e13-product');
+    engineChecks.E7=await engineRoot.locator('[data-storefront-component="commerce.key-specs"],[data-storefront-component="commerce.specification-groups"]').count()>0;
+    const productPurchaseVisible=await engineRoot.locator('[data-storefront-commerce="purchase-controls"]').count()>0;
+    engineRoot=await visitCandidate('blog-index','engine-e10');
+    engineChecks.E10=await engineRoot.locator('[data-storefront-component="story.index"]').count()>0;
+    engineRoot=await visitCandidate('cart','engine-e13-cart');
+    const cartVisible=await engineRoot.locator('[data-storefront-commerce="cart-summary"]').count()>0;
+    engineRoot=await visitCandidate('checkout','engine-e13-checkout');
+    const checkoutVisible=await engineRoot.locator('[data-storefront-commerce="checkout-summary"]').count()>0;
+    engineChecks.E13=productPurchaseVisible&&cartVisible&&checkoutVisible;
+    engineChecks.E1=checks.presentationContinuityPassed===true;
+    checks.engineDemoIntegration=engineChecks;
+    checks.engineDemoIntegrationPassed=Object.values(engineChecks).every(Boolean);
+    if(!checks.engineDemoIntegrationPassed)errors.push('SHARED_ENGINE_DEMO_INTEGRATION_NOT_PROVEN');
+
+    if(!checks.placeholderContentPassed)errors.push('PLACEHOLDER_CONTENT_CLEANUP_NOT_PROVEN');
+    if(!checks.presentationContinuityPassed)errors.push('TEMPLATE_PRESENTATION_CONTINUITY_NOT_PROVEN');
   }
 
 }catch(error){
@@ -175,7 +343,7 @@ try{
 }
 
 const proof={
-  contract:'shoporation.template-factory-product-owner-handoff.v1',
+  contract:'shoporation.template-factory-product-owner-handoff.v2',
   templateKey,
   templateVersion,
   sourceCommit,
