@@ -9,6 +9,7 @@ const sourceCommit=(process.env.PRODUCT_OWNER_SOURCE_COMMIT??'').trim()||null;
 const email=(process.env.PRODUCT_OWNER_TEST_EMAIL??'').trim();
 const password=process.env.PRODUCT_OWNER_TEST_PASSWORD??'';
 const storageState=(process.env.PRODUCT_OWNER_STORAGE_STATE??'').trim();
+const vercelTrustedOidcToken=(process.env.VERCEL_TRUSTED_OIDC_TOKEN??'').trim();
 const qualityManifestPath=(process.env.TEMPLATE_QUALITY_MANIFEST??'artifacts/template-factory-quality/manifest.json').trim();
 const outputDir=(process.env.TEMPLATE_HANDOFF_OUTPUT_DIR??'artifacts/template-factory-handoff').trim();
 
@@ -60,11 +61,19 @@ let browser;
 let context;
 try{
   browser=await chromium.launch({headless:true});
-  context=await browser.newContext(storageState&&await exists(storageState)?{storageState}:{});
+  const contextOptions=storageState&&await exists(storageState)?{storageState}:{};
+  if(vercelTrustedOidcToken){
+    contextOptions.extraHTTPHeaders={'x-vercel-trusted-oidc-idp-token':vercelTrustedOidcToken};
+  }
+  checks.vercelTrustedOidcPresented=Boolean(vercelTrustedOidcToken);
+  context=await browser.newContext(contextOptions);
   const page=await context.newPage();
   const response=await page.goto(previewUrl,{waitUntil:'domcontentloaded',timeout:30000});
   checks.entryResponse=Boolean(response);
+  checks.entryStatus=response?.status()??null;
   await page.waitForLoadState('load',{timeout:15000}).catch(()=>undefined);
+  checks.entryTitle=await page.title().catch(()=>null);
+  if(checks.entryStatus!==null&&checks.entryStatus>=400)errors.push(`ENTRY_HTTP_STATUS_${checks.entryStatus}`);
 
   let current=new URL(page.url());
   checks.entryPath=current.pathname;
