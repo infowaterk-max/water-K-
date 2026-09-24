@@ -610,6 +610,69 @@ export const LOOT_VAULT_V2_CONTACT_PAGE=override(LOOT_VAULT_CONTACT_PAGE,[
       ],5,{padding:'1rem',background:'#17191a',border:'1px solid rgba(165,122,69,.3)',borderRadius:'.72rem'}),
     ]),
   ],{background:'radial-gradient(circle at 78% 18%,rgba(165,122,69,.14),transparent 30%),#0d0e0f'}),
+  section('loot-v2-contact-location',[
+    grid('loot-v2-contact-location-grid',[
+      stack('loot-v2-contact-map-card',[
+        badge('loot-v2-contact-map-kicker','ÜZLETÜNK HELYE'),
+        heading('loot-v2-contact-map-title','Találj meg minket a Vaultban.',2,{fontSize:'clamp(1.8rem,3.5vw,2.8rem)'}),
+        text('loot-v2-contact-map-copy','Minta bemutatóhely egy fiktív címmel; a blokk a Builderben a kereskedő saját adataira szerkeszthető.',{fontSize:'.86rem'}),
+        stack('loot-v2-contact-map-stage',[
+          text('loot-v2-contact-map-street-1','Arany Kocka utca',{position:'absolute',top:'21%',left:'9%',fontSize:'.68rem',color:'#7f817e',transform:'rotate(-7deg)',letterSpacing:'.03em'}),
+          text('loot-v2-contact-map-street-2','Vault köz',{position:'absolute',top:'58%',left:'13%',fontSize:'.68rem',color:'#777b78',transform:'rotate(8deg)',letterSpacing:'.03em'}),
+          text('loot-v2-contact-map-street-3','Relikvia sétány',{position:'absolute',top:'34%',right:'7%',fontSize:'.68rem',color:'#7f817e',transform:'rotate(62deg)',letterSpacing:'.03em'}),
+          text('loot-v2-contact-map-street-4','Gyűjtők tere',{position:'absolute',bottom:'12%',right:'22%',fontSize:'.68rem',color:'#777b78',transform:'rotate(-10deg)',letterSpacing:'.03em'}),
+          text('loot-v2-contact-map-pin','●',{position:'absolute',top:'42%',left:'52%',fontSize:'2.25rem',lineHeight:1,color:'#e3ad5b',textShadow:'0 0 0 7px rgba(227,173,91,.13),0 10px 24px rgba(0,0,0,.55)',transform:'translate(-50%,-50%)'}),
+          stack('loot-v2-contact-map-address',[
+            badge('loot-v2-contact-map-address-kicker','LOOT VAULT'),
+            heading('loot-v2-contact-map-address-title','1054 Budapest',3,{fontSize:'1rem'}),
+            text('loot-v2-contact-map-address-copy','Arany Kocka utca 12.',{fontSize:'.78rem',color:'#d1c4b0'}),
+          ],12,{position:'absolute',left:'7%',bottom:'7%',width:'min(78%,22rem)',padding:'.85rem',background:'rgba(13,14,15,.94)',border:'1px solid rgba(214,163,91,.56)',borderRadius:'.62rem',boxShadow:'0 16px 34px rgba(0,0,0,.46)',backdropFilter:'blur(8px)'}),
+        ],12,{
+          position:'relative',
+          minHeight:'24rem',
+          overflow:'hidden',
+          border:'1px solid rgba(165,122,69,.34)',
+          borderRadius:'.72rem',
+          background:[
+            'radial-gradient(circle at 52% 42%,rgba(222,164,83,.14) 0 2%,transparent 3%)',
+            'linear-gradient(8deg,transparent 0 22%,rgba(101,111,108,.24) 22% 24%,transparent 24% 58%,rgba(101,111,108,.18) 58% 60%,transparent 60%)',
+            'linear-gradient(63deg,transparent 0 15%,rgba(99,107,105,.19) 15% 17%,transparent 17% 47%,rgba(99,107,105,.2) 47% 49%,transparent 49% 76%,rgba(99,107,105,.16) 76% 78%,transparent 78%)',
+            'repeating-linear-gradient(0deg,rgba(255,255,255,.018) 0 1px,transparent 1px 33px)',
+            'repeating-linear-gradient(90deg,rgba(255,255,255,.015) 0 1px,transparent 1px 42px)',
+            'linear-gradient(145deg,#1d2221,#121616 58%,#0d1010)',
+          ].join(','),
+          boxShadow:'inset 0 0 60px rgba(0,0,0,.44),0 22px 50px rgba(0,0,0,.3)',
+        }),
+      ],7,{padding:'1rem',background:'linear-gradient(180deg,#17191a,#111313)',border:'1px solid rgba(165,122,69,.3)',borderRadius:'.8rem'}),
+
+      stack('loot-v2-contact-company-card',[
+        badge('loot-v2-contact-company-kicker','ELÉRHETŐSÉGEINK'),
+        heading('loot-v2-contact-company-title','Loot Vault Collectibles Kft.',2,{fontSize:'clamp(1.7rem,3vw,2.45rem)'}),
+        text('loot-v2-contact-company-intro','A mintaadatok a sablon működését demonstrálják; telepítés után a kereskedő saját kapcsolati adatai kerülnek ide.',{fontSize:'.84rem'}),
+        stack('loot-v2-contact-company-address',[
+          badge('loot-v2-contact-company-address-label','CÍM'),
+          text('loot-v2-contact-company-address-value','1054 Budapest, Arany Kocka utca 12.',{fontSize:'.92rem',color:'#eee1cf'}),
+        ],12,{padding:'.8rem 0',borderBottom:'1px solid rgba(165,122,69,.18)'}),
+        stack('loot-v2-contact-company-phone',[
+          badge('loot-v2-contact-company-phone-label','TELEFON'),
+          text('loot-v2-contact-company-phone-value','+36 30 555 0187',{fontSize:'.92rem',color:'#eee1cf'}),
+        ],12,{padding:'.8rem 0',borderBottom:'1px solid rgba(165,122,69,.18)'}),
+        stack('loot-v2-contact-company-email',[
+          badge('loot-v2-contact-company-email-label','E-MAIL'),
+          text('loot-v2-contact-company-email-value','ugyfelszolgalat@lootvault.hu',{fontSize:'.92rem',color:'#eee1cf',overflowWrap:'anywhere'}),
+        ],12,{padding:'.8rem 0',borderBottom:'1px solid rgba(165,122,69,.18)'}),
+        stack('loot-v2-contact-company-hours',[
+          badge('loot-v2-contact-company-hours-label','NYITVATARTÁS'),
+          text('loot-v2-contact-company-hours-value','H–P: 10:00–18:00',{fontSize:'.92rem',color:'#eee1cf'}),
+        ],12,{padding:'.8rem 0',borderBottom:'1px solid rgba(165,122,69,.18)'}),
+        stack('loot-v2-contact-company-pickup',[
+          badge('loot-v2-contact-company-pickup-label','SZEMÉLYES ÁTVÉTEL'),
+          text('loot-v2-contact-company-pickup-value','Személyes átvétel előzetes egyeztetéssel lehetséges.',{fontSize:'.88rem',color:'#c9bdac'}),
+        ],12,{padding:'.8rem 0 0'}),
+      ],5,{padding:'clamp(1.1rem,3vw,1.7rem)',background:'radial-gradient(circle at 100% 0%,rgba(165,122,69,.11),transparent 36%),linear-gradient(180deg,#17191a,#111313)',border:'1px solid rgba(165,122,69,.3)',borderRadius:'.8rem',boxShadow:'0 22px 50px rgba(0,0,0,.3)'}),
+    ]),
+  ],{background:'#111313'}),
+
   section('loot-v2-contact-form-section',[
     n({id:'loot-v2-contact-form',componentKey:'support.contact-form',componentVersion:1,config:{
       eyebrow:'KAPCSOLAT',
