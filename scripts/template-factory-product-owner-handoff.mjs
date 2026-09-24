@@ -9,6 +9,7 @@ const sourceCommit=(process.env.PRODUCT_OWNER_SOURCE_COMMIT??'').trim()||null;
 const email=(process.env.PRODUCT_OWNER_TEST_EMAIL??'').trim();
 const password=process.env.PRODUCT_OWNER_TEST_PASSWORD??'';
 const storageState=(process.env.PRODUCT_OWNER_STORAGE_STATE??'').trim();
+const vercelAutomationBypassSecret=(process.env.VERCEL_AUTOMATION_BYPASS_SECRET??'').trim();
 const qualityManifestPath=(process.env.TEMPLATE_QUALITY_MANIFEST??'artifacts/template-factory-quality/manifest.json').trim();
 const outputDir=(process.env.TEMPLATE_HANDOFF_OUTPUT_DIR??'artifacts/template-factory-handoff').trim();
 
@@ -60,7 +61,15 @@ let browser;
 let context;
 try{
   browser=await chromium.launch({headless:true});
-  context=await browser.newContext(storageState&&await exists(storageState)?{storageState}:{});
+  context=await browser.newContext({
+    ...(storageState&&await exists(storageState)?{storageState}:{}),
+    ...(vercelAutomationBypassSecret?{extraHTTPHeaders:{
+      'x-vercel-protection-bypass':vercelAutomationBypassSecret,
+      'x-vercel-set-bypass-cookie':'true',
+    }}:{}),
+  });
+  checks.vercelAutomationBypassConfigured=Boolean(vercelAutomationBypassSecret);
+  if(!checks.vercelAutomationBypassConfigured)errors.push('VERCEL_AUTOMATION_BYPASS_SECRET_REQUIRED');
   const page=await context.newPage();
   const response=await page.goto(previewUrl,{waitUntil:'domcontentloaded',timeout:30000});
   checks.entryResponse=Boolean(response);
