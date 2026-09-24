@@ -66,6 +66,15 @@ describe('Template Factory complete storefront contract',()=>{
     expect(companyCard?.responsive?.mobile?.gridSpan).toBe(12);
   });
 
+  it('uses the shared E10 story.feature authority legally on the magazine index',()=>{
+    const story=fs.readFileSync('src/lib/builder/storefront-story.ts','utf8');
+    expect(story).toContain("componentKey:'story.feature',pageTypes:['home','content','product','blog-index','blog-article']");
+    const build=buildRegisteredStorefrontTemplateFactoryCandidate('gaming.loot-vault');
+    const blog=build.package.pages.find(page=>page.pageType==='blog-index')!;
+    expect(JSON.stringify(blog)).toContain('story.feature');
+    expect(JSON.stringify(blog)).toContain('story.index');
+  });
+
   it('demonstrates E1 E2 E7 E10 and E13 through actual shared storefront components',()=>{
     const build=buildRegisteredStorefrontTemplateFactoryCandidate('gaming.loot-vault');
     const serialized=JSON.stringify(build.package);
