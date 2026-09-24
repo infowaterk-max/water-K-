@@ -92,6 +92,11 @@
       "id": "SQ-AUTH-017",
       "subject": "preventive knowledge injection before implementation",
       "rule": "Every active Known Failure applicable to a change must be injected into the development guard before implementation, with a preventive directive, forbidden approaches and regression authority available before the first code edit."
+    },
+    {
+      "id": "SQ-AUTH-018",
+      "subject": "bounded autonomous repair authority",
+      "rule": "Autonomous repair may directly mutate state only through an explicitly allowlisted, rollbackable, low-risk runbook. AI-generated or code-changing repair must remain proposal/branch/PR evidence until the normal quality and release authorities approve it."
     }
   ],
   "globalBaselineFailureIds": [
@@ -127,7 +132,8 @@
           "admin-operations",
           "customer-account",
           "shared-storefront",
-          "storefront-ui"
+          "storefront-ui",
+          "incident-intelligence"
         ]
       }
     },
@@ -418,7 +424,8 @@
           "customer-account",
           "shared-storefront",
           "builder-template-system",
-          "admin-operations"
+          "admin-operations",
+          "incident-intelligence"
         ]
       }
     },
@@ -595,7 +602,8 @@
           "auth-access-authority",
           "admin-operations",
           "customer-account",
-          "shared-storefront"
+          "shared-storefront",
+          "incident-intelligence"
         ]
       }
     },
@@ -934,6 +942,13 @@
     {
       "id": "SQ-NK-012",
       "rule": "Do not wait for final CI or Product Owner acceptance to consult Known Failures; load the applicable failure set and preventive directives before the first implementation edit.",
+      "sourceRecords": [
+        "docs/support/README.md"
+      ]
+    },
+    {
+      "id": "SQ-NK-013",
+      "rule": "Do not let AI or self-healing code write an unreviewed code repair directly to production. Code repair must become a repair proposal/branch/PR and pass the normal Development Guard, CI, release and rollback evidence path.",
       "sourceRecords": [
         "docs/support/README.md"
       ]

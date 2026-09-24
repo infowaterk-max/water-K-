@@ -78,6 +78,15 @@
       ]
     },
     {
+      "name": "incident-intelligence",
+      "risk": "medium",
+      "patterns": [
+        "src/lib/incidents/**",
+        "src/app/api/incidents/**",
+        "src/app/api/platform/incidents/**"
+      ]
+    },
+    {
       "name": "quality-knowledge-system",
       "risk": "medium",
       "patterns": [

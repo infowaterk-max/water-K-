@@ -9,6 +9,12 @@
   ],
   "intentMatchers": [
     {
+      "pattern": "incident|hibabejelent|hiba bejelent|bug report|self-healing|self healing|öngyógy|triage",
+      "subsystems": [
+        "incident-intelligence"
+      ]
+    },
+    {
       "pattern": "shipping|szállítás|dpd|gls|foxpost|mpl|fulfillment|carrier|futár",
       "subsystems": [
         "inventory-fulfillment-authority"
@@ -130,6 +136,9 @@
     ],
     "SQ-NK-012": [
       "*"
+    ],
+    "SQ-NK-013": [
+      "incident-intelligence"
     ]
   },
   "directives": {
