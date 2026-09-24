@@ -157,7 +157,7 @@ describe('Template Factory Scaffold v1',()=>{
   });
 
 
-  it('treats internal-reference media as technical proof only, never Product Owner-ready media',()=>{
+  it('treats internal-reference media as technical media proof but never bypasses showroom acceptance',()=>{
     const draft=recipe({allPages:true,reviewPassed:true});
     const referenceSrc='https://images.example.test/reference.jpg';
     draft.media={...draft.media,assets:draft.media.assets.map(asset=>({...asset,state:'internal-reference' as const,referenceSrc}))};
@@ -167,18 +167,29 @@ describe('Template Factory Scaffold v1',()=>{
     expect(build.report.technicalRepresentativeMediaCount).toBe(1);
     expect(build.report.internalReferenceMediaCount).toBe(1);
     expect(build.report.representativeMediaCount).toBe(0);
-    expect(build.report.technicalReady).toBe(true);
+    expect(build.report.technicalReady).toBe(false);
     expect(build.report.productOwnerReady).toBe(false);
-    expect(build.report.issues.map(issue=>issue.code)).toContain('FACTORY_MEDIA_FINALIZATION_REQUIRED');
+    expect(build.report.issues.map(issue=>issue.code)).toEqual(expect.arrayContaining([
+      'FACTORY_MEDIA_FINALIZATION_REQUIRED',
+      'SHOWROOM_NAVIGATION_INCOMPLETE',
+      'SHOWROOM_ACCOUNT_NAVIGATION_EMPTY',
+      'SHOWROOM_ENGINE_DEMO_MISSING',
+    ]));
     expect(()=>assertStorefrontTemplateFactoryProductOwnerReady(build)).toThrow(/FACTORY_MEDIA_FINALIZATION_REQUIRED/);
   });
 
-  it('can become Product Owner-ready only after the recipe owns reference-critical pages, media and internal review',()=>{
+  it('does not treat complete Page Schema ownership, media and visual review as a substitute for a complete showroom journey',()=>{
     const build=buildStorefrontTemplateFactoryCandidate(recipe({allPages:true,reviewPassed:true}));
-    expect(build.report.issues).toEqual([]);
-    expect(build.report.technicalReady).toBe(true);
-    expect(build.report.productOwnerReady).toBe(true);
-    expect(()=>assertStorefrontTemplateFactoryProductOwnerReady(build)).not.toThrow();
+    const codes=build.report.issues.map(issue=>issue.code);
+    expect(codes).toEqual(expect.arrayContaining([
+      'SHOWROOM_NAVIGATION_INCOMPLETE',
+      'SHOWROOM_ROUTE_PRESENTATION_UNMAPPED',
+      'SHOWROOM_ACCOUNT_NAVIGATION_EMPTY',
+      'SHOWROOM_ENGINE_DEMO_MISSING',
+    ]));
+    expect(build.report.technicalReady).toBe(false);
+    expect(build.report.productOwnerReady).toBe(false);
+    expect(()=>assertStorefrontTemplateFactoryProductOwnerReady(build)).toThrow(/TEMPLATE_FACTORY_PRODUCT_OWNER_NOT_READY/);
   });
 
   it('enforces product-card purchase actions only when the recipe explicitly opts reference pages into that commerce contract',()=>{
@@ -193,6 +204,7 @@ describe('Template Factory Scaffold v1',()=>{
     expect(setProductGridPurchaseActions(home,true)).toBeGreaterThan(0);
     const ready=buildStorefrontTemplateFactoryCandidate(draft);
     expect(ready.report.issues.map(item=>item.code)).not.toContain('FACTORY_PRODUCT_CARD_PURCHASE_ACTION_REQUIRED');
-    expect(ready.report.productOwnerReady).toBe(true);
+    expect(ready.report.issues.map(item=>item.code)).toContain('SHOWROOM_NAVIGATION_INCOMPLETE');
+    expect(ready.report.productOwnerReady).toBe(false);
   });
 });
