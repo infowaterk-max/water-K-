@@ -342,6 +342,9 @@ export const LOOT_VAULT_V2_ACCOUNT_PAGE=override(LOOT_VAULT_ACCOUNT_PAGE,[
       stack('loot-v2-account-card-orders',[badge('loot-v2-account-card-orders-kicker','RENDELÉSEK'),heading('loot-v2-account-card-orders-title','Rendeléseim',3),text('loot-v2-account-card-orders-copy','Aktív és korábbi rendelések, állapotok, követés és dokumentumok.'),button('loot-v2-account-card-orders-cta','Rendeléseim','/fiokom#rendelesek','secondary')],4,{padding:'1rem',background:'#17191a',border:'1px solid rgba(165,122,69,.28)',borderRadius:'.7rem'}),
       stack('loot-v2-account-card-downloads',[badge('loot-v2-account-card-downloads-kicker','DIGITÁLIS'),heading('loot-v2-account-card-downloads-title','Letöltéseim',3),text('loot-v2-account-card-downloads-copy','Vásárlás után elérhető digitális tartalmak és fájlok.'),button('loot-v2-account-card-downloads-cta','Letöltéseim','/fiokom/letoltesek','secondary')],4,{padding:'1rem',background:'#17191a',border:'1px solid rgba(165,122,69,.28)',borderRadius:'.7rem'}),
       stack('loot-v2-account-card-wishlist',[badge('loot-v2-account-card-wishlist-kicker','MENTETT'),heading('loot-v2-account-card-wishlist-title','Kívánságlista',3),text('loot-v2-account-card-wishlist-copy','Mentett termékek és gyors visszatérés a kiválasztott gyűjtői darabokhoz.'),button('loot-v2-account-card-wishlist-cta','Kívánságlista','/fiokom/kivansaglista','secondary')],4,{padding:'1rem',background:'#17191a',border:'1px solid rgba(165,122,69,.28)',borderRadius:'.7rem'}),
+      stack('loot-v2-account-card-documents',[badge('loot-v2-account-card-documents-kicker','DOKUMENTUMOK'),heading('loot-v2-account-card-documents-title','Dokumentumaim',3),text('loot-v2-account-card-documents-copy','Rendelési dokumentumok, számlák és termékhez kapcsolódó fájlok.'),button('loot-v2-account-card-documents-cta','Dokumentumaim','/fiokom/dokumentumok','secondary')],4,{padding:'1rem',background:'#17191a',border:'1px solid rgba(165,122,69,.28)',borderRadius:'.7rem'}),
+      stack('loot-v2-account-card-cases',[badge('loot-v2-account-card-cases-kicker','ÜGYINTÉZÉS'),heading('loot-v2-account-card-cases-title','Ügyeim és visszaküldés',3),text('loot-v2-account-card-cases-copy','Követhető ügyfélszolgálati és visszaküldési folyamatok rendeléshez kötve.'),button('loot-v2-account-card-cases-cta','Ügyeim','/fiokom/ugyek','secondary')],4,{padding:'1rem',background:'#17191a',border:'1px solid rgba(165,122,69,.28)',borderRadius:'.7rem'}),
+      stack('loot-v2-account-card-profile',[badge('loot-v2-account-card-profile-kicker','PROFIL'),heading('loot-v2-account-card-profile-title','Fiókadatok',3),text('loot-v2-account-card-profile-copy','Profil-, számlázási és kommunikációs beállítások a canonical account felületen.'),button('loot-v2-account-card-profile-cta','Fiókadatok','/fiokom#fiokadatok','secondary')],4,{padding:'1rem',background:'#17191a',border:'1px solid rgba(165,122,69,.28)',borderRadius:'.7rem'}),
     ],'.8rem'),
   ],{background:'#0d0e0f'}),
   createLootVaultV2ShellFooter(),
@@ -391,9 +394,9 @@ export const LOOT_VAULT_V2_BLOG_ARTICLE_PAGE=override(LOOT_VAULT_BLOG_ARTICLE_PA
     grid('loot-v2-article-grid',[
       stack('loot-v2-article-copy',[
         badge('loot-v2-article-kicker','VAULT TÖRTÉNET'),
-        heading('loot-v2-article-title','Mitől lesz egy tárgy gyűjtői darab?',1,{fontSize:'clamp(2.5rem,5vw,4.6rem)'}),
-        text('loot-v2-article-lead','Szerkesztett háttéranyag a tárgy, a kiadás és a közösségi jelentés kapcsolatáról.',{fontSize:'1.05rem'}),
-        text('loot-v2-article-body','A Loot Vault magazin nem gyárt mesterséges ritkaságot. A kiadás, előrendelés, készlet és ár mindig a webshop valós adataiból érkezik.',{fontSize:'.95rem'}),
+        boundHeading('loot-v2-article-title','content.article.title','Mitől lesz egy tárgy gyűjtői darab?',1,{fontSize:'clamp(2.5rem,5vw,4.6rem)'}),
+        boundText('loot-v2-article-lead','content.article.summary','Szerkesztett háttéranyag a tárgy, a kiadás és a közösségi jelentés kapcsolatáról.',{fontSize:'1.05rem'}),
+        boundText('loot-v2-article-body','content.article.body','A Loot Vault magazin nem gyárt mesterséges ritkaságot. A kiadás, előrendelés, készlet és ár mindig a webshop valós adataiból érkezik.',{fontSize:'.95rem'}),
       ],6,{padding:'1rem'}),
       image('loot-v2-article-image',MEDIA.editorial2,'Popkulturális gyűjtemény részletes vitrinben',6,{height:'30rem',minHeight:'24rem'}),
     ]),
@@ -401,21 +404,298 @@ export const LOOT_VAULT_V2_BLOG_ARTICLE_PAGE=override(LOOT_VAULT_BLOG_ARTICLE_PA
   createLootVaultV2ShellFooter(),
 ],{referenceComposition:'accepted-2026-09-06',referenceCritical:true});
 
+
+const boundHeading=(id:string,path:string,fallback:string,level=1,style:Record<string,unknown>={})=>n({
+  id,componentKey:'content.heading',componentVersion:1,
+  config:{text:fallback,level,align:'left',tone:'text',typography:{fontToken:'heading',fontWeight:800,lineHeight:level===1?.94:1.05,letterSpacingEm:level===1?-.035:-.02},style:{color:'#f3ebdd',...style}},
+  bindings:{text:{path,fallback}},
+});
+const boundText=(id:string,path:string,fallback:string,style:Record<string,unknown>={})=>n({
+  id,componentKey:'content.text',componentVersion:1,
+  config:{text:fallback,as:'p',align:'left',tone:'text',typography:{fontToken:'body',lineHeight:1.68},style:{color:'#b9b1a5',whiteSpace:'pre-line',...style}},
+  bindings:{text:{path,fallback}},
+});
+
+export const LOOT_VAULT_V2_CART_PAGE=override(LOOT_VAULT_CART_PAGE,[
+  createLootVaultV2ShellHeader(),
+  section('loot-v2-cart-intro',[
+    grid('loot-v2-cart-intro-grid',[
+      stack('loot-v2-cart-intro-copy',[
+        badge('loot-v2-cart-kicker','VAULT KOSÁR'),
+        heading('loot-v2-cart-title','A kiválasztott darabok, egy helyen.',1,{fontSize:'clamp(2.4rem,5vw,4.5rem)',maxWidth:'12ch'}),
+        text('loot-v2-cart-copy','Módosíts mennyiséget, használd a kuponodat, vagy folytasd a pénztárhoz. A kosár működését a közös commerce authority kezeli.'),
+      ],8,{padding:'clamp(.5rem,2vw,1.25rem) 0'}),
+      stack('loot-v2-cart-note',[
+        badge('loot-v2-cart-note-kicker','RENDELÉSI ÚTVONAL'),
+        heading('loot-v2-cart-note-title','Kosár → Pénztár → Visszaigazolás',3,{fontSize:'1.15rem'}),
+        text('loot-v2-cart-note-copy','Ugyanez a folyamat működik minden belépési pontból: termékkártyáról, PDP-ről és a kosár ikonból is.',{fontSize:'.84rem'}),
+      ],4,{padding:'1rem',background:'#17191a',border:'1px solid rgba(165,122,69,.32)',borderRadius:'.72rem'}),
+    ]),
+  ],{background:'radial-gradient(circle at 82% 12%,rgba(165,122,69,.12),transparent 30%),#0d0e0f'}),
+  section('loot-v2-cart-live',[
+    n({id:'loot-v2-cart-summary',componentKey:'commerce.cart-summary',componentVersion:1,config:{
+      lines:[],subtotal:'',discount:0,total:'',currency:'HUF',checkoutHref:'/penztar',checkoutLabel:'Tovább a pénztárhoz',
+      emptyLabel:'A kosarad jelenleg üres.',emptyCtaLabel:'Fedezd fel a Vaultot',emptyCtaHref:'/webaruhaz',
+      showQuantityControls:true,showRemoveControl:true,showCouponEntry:true,couponLabel:'Van kuponkódod?',couponPlaceholder:'Kuponkód',couponApplyLabel:'Alkalmazás',
+      styleSlots:{
+        root:{base:{padding:'clamp(1rem,2vw,1.5rem)',background:'#151717',border:'1px solid rgba(165,122,69,.3)',borderRadius:'.8rem'}},
+        title:{base:{color:'#f3ebdd'}},line:{base:{borderColor:'rgba(165,122,69,.2)'}},summary:{base:{background:'#111313',padding:'1rem',border:'1px solid rgba(165,122,69,.22)',borderRadius:'.65rem'}},
+        checkout:{base:{borderRadius:'.42rem',background:'#d7a14d',color:'#151008',fontWeight:900}},
+      },
+    },bindings:{lines:{path:'cart.lines',fallback:[]},subtotal:{path:'cart.subtotal',fallback:''},discount:{path:'cart.discount',fallback:0},total:{path:'cart.total',fallback:''},couponCode:{path:'cart.couponCode',fallback:''}}}),
+  ],{background:'#0d0e0f'}),
+  section('loot-v2-cart-assurance',[
+    grid('loot-v2-cart-assurance-grid',[
+      stack('loot-v2-cart-assurance-1',[badge('loot-v2-cart-assurance-1-kicker','01'),heading('loot-v2-cart-assurance-1-title','Átlátható kosár',3),text('loot-v2-cart-assurance-1-copy','Mennyiség, kupon és végösszeg ugyanabban a közös kosárfolyamatban.')],4,{padding:'1rem',background:'#151717',border:'1px solid rgba(165,122,69,.22)',borderRadius:'.65rem'}),
+      stack('loot-v2-cart-assurance-2',[badge('loot-v2-cart-assurance-2-kicker','02'),heading('loot-v2-cart-assurance-2-title','Biztonságos pénztár',3),text('loot-v2-cart-assurance-2-copy','A szállítási és fizetési lehetőségek a közös E13 pénztárban jelennek meg.')],4,{padding:'1rem',background:'#151717',border:'1px solid rgba(165,122,69,.22)',borderRadius:'.65rem'}),
+      stack('loot-v2-cart-assurance-3',[badge('loot-v2-cart-assurance-3-kicker','03'),heading('loot-v2-cart-assurance-3-title','Fiókos folytatás',3),text('loot-v2-cart-assurance-3-copy','A rendelés, dokumentumok és letöltések később a Fiókom felületein követhetők.')],4,{padding:'1rem',background:'#151717',border:'1px solid rgba(165,122,69,.22)',borderRadius:'.65rem'}),
+    ]),
+  ],{background:'#111313'}),
+  createLootVaultV2ShellFooter(),
+],{engineBinding:'E13',routePresentation:'template-native-shared-cart'});
+
+export const LOOT_VAULT_V2_CHECKOUT_PAGE=override(LOOT_VAULT_CHECKOUT_PAGE,[
+  createLootVaultV2ShellHeader(),
+  section('loot-v2-checkout-intro',[
+    grid('loot-v2-checkout-intro-grid',[
+      stack('loot-v2-checkout-copy',[
+        badge('loot-v2-checkout-kicker','BIZTONSÁGOS PÉNZTÁR'),
+        heading('loot-v2-checkout-title','Véglegesítsd a rendelést, lépésről lépésre.',1,{fontSize:'clamp(2.35rem,5vw,4.4rem)',maxWidth:'13ch'}),
+        text('loot-v2-checkout-copy-text','Szállítás, fizetés és összesítés ugyanabban a provider-neutral E13 folyamatban. A Loot Vault a vizuális nyelvet adja, nem másolja a tranzakciós logikát.'),
+      ],8,{padding:'clamp(.5rem,2vw,1.25rem) 0'}),
+      stack('loot-v2-checkout-status',[
+        badge('loot-v2-checkout-status-kicker','4 LÉPÉSES FOLYAMAT'),
+        heading('loot-v2-checkout-status-title','Kosár · Szállítás · Fizetés · Összesítés',3,{fontSize:'1.12rem'}),
+        text('loot-v2-checkout-status-copy','A tényleges fizetési és szállítási módokat mindig az aktív webshop-konfiguráció szolgáltatja.',{fontSize:'.84rem'}),
+      ],4,{padding:'1rem',background:'linear-gradient(180deg,#1a1c1c,#111313)',border:'1px solid rgba(165,122,69,.34)',borderRadius:'.72rem'}),
+    ]),
+  ],{background:'radial-gradient(circle at 78% 18%,rgba(165,122,69,.14),transparent 30%),#0d0e0f'}),
+  section('loot-v2-checkout-live',[
+    n({id:'loot-v2-checkout-summary',componentKey:'commerce.checkout-summary',componentVersion:1,config:{
+      lines:[],subtotal:'',shipping:'',total:'',currency:'HUF',secureLabel:'Biztonságos rendelés · közös E13 checkout',
+      styleSlots:{
+        root:{base:{background:'#151717',border:'1px solid rgba(165,122,69,.3)',borderRadius:'.8rem',boxShadow:'0 22px 50px rgba(0,0,0,.3)'}},
+        title:{base:{color:'#f3ebdd'}},row:{base:{color:'#c6bba9'}},totalRow:{base:{color:'#e6c28c',fontSize:'1.05rem'}},secure:{base:{color:'#9f998f'}},
+      },
+    },bindings:{lines:{path:'cart.lines',fallback:[]},subtotal:{path:'cart.subtotal',fallback:''},shipping:{path:'cart.shipping',fallback:''},total:{path:'cart.total',fallback:''}}}),
+  ],{background:'#0d0e0f'}),
+  section('loot-v2-checkout-benefits',[
+    grid('loot-v2-checkout-benefits-grid',[
+      stack('loot-v2-checkout-benefit-1',[badge('loot-v2-checkout-benefit-1-kicker','SZÁLLÍTÁS'),heading('loot-v2-checkout-benefit-1-title','Csak elérhető módok',3),text('loot-v2-checkout-benefit-1-copy','A cím és a rendelés paraméterei alapján a pénztár az aktív szállítási lehetőségeket mutatja.')],4,{padding:'1rem',background:'#151717',border:'1px solid rgba(165,122,69,.22)',borderRadius:'.65rem'}),
+      stack('loot-v2-checkout-benefit-2',[badge('loot-v2-checkout-benefit-2-kicker','FIZETÉS'),heading('loot-v2-checkout-benefit-2-title','Provider-neutral authority',3),text('loot-v2-checkout-benefit-2-copy','A sablon nem tartalmaz fizetési motort; a közös checkout szolgáltatói adapterei maradnak az authority.')],4,{padding:'1rem',background:'#151717',border:'1px solid rgba(165,122,69,.22)',borderRadius:'.65rem'}),
+      stack('loot-v2-checkout-benefit-3',[badge('loot-v2-checkout-benefit-3-kicker','FIÓK'),heading('loot-v2-checkout-benefit-3-title','Rendelés után is folytatódik',3),text('loot-v2-checkout-benefit-3-copy','Rendeléskövetés, dokumentumok és digitális letöltések a vásárlói fiók canonical felületein.')],4,{padding:'1rem',background:'#151717',border:'1px solid rgba(165,122,69,.22)',borderRadius:'.65rem'}),
+    ]),
+  ],{background:'#111313'}),
+  createLootVaultV2ShellFooter(),
+],{engineBinding:'E13',checkoutPresentation:'shared-guided-checkout',routePresentation:'template-native-shared-checkout'});
+
+export const LOOT_VAULT_V2_SEARCH_PAGE=override(LOOT_VAULT_SEARCH_PAGE,[
+  createLootVaultV2ShellHeader(),
+  section('loot-v2-search-intro',[
+    grid('loot-v2-search-intro-grid',[
+      stack('loot-v2-search-copy',[
+        badge('loot-v2-search-kicker','VAULT SEARCH'),
+        heading('loot-v2-search-title','Találd meg a keresett világot vagy darabot.',1,{fontSize:'clamp(2.4rem,5vw,4.5rem)',maxWidth:'13ch'}),
+        text('loot-v2-search-copy-text','A közös Product Discovery authority keresési eredményei ugyanabban a Loot Vault kártyarendszerben jelennek meg.'),
+      ],7,{padding:'1rem 0'}),
+      image('loot-v2-search-image',MEDIA.background,'Sötét gyűjtői archívum keresési háttérként',5,{height:'17rem',minHeight:'15rem'}),
+    ]),
+  ],{background:'#111313'}),
+  section('loot-v2-search-results',[
+    commerceProductGrid('loot-v2-search-products','Keresési találatok','search.results',4),
+  ],{background:'#0d0e0f'}),
+  section('loot-v2-search-help',[
+    grid('loot-v2-search-help-grid',[
+      stack('loot-v2-search-help-1',[badge('loot-v2-search-help-1-kicker','SZŰRÉS'),heading('loot-v2-search-help-1-title','Univerzum és formátum',3),text('loot-v2-search-help-1-copy','A keresés és katalógus ugyanarra a Product Discovery authorityre épül.')],4,{padding:'1rem',background:'#151717',border:'1px solid rgba(165,122,69,.22)',borderRadius:'.65rem'}),
+      stack('loot-v2-search-help-2',[badge('loot-v2-search-help-2-kicker','TERMÉKADAT'),heading('loot-v2-search-help-2-title','Valódi készlet és ár',3),text('loot-v2-search-help-2-copy','A találati kártyák nem template-local termékadatot használnak.')],4,{padding:'1rem',background:'#151717',border:'1px solid rgba(165,122,69,.22)',borderRadius:'.65rem'}),
+      stack('loot-v2-search-help-3',[badge('loot-v2-search-help-3-kicker','KEDVENCEK'),heading('loot-v2-search-help-3-title','Mentsd el későbbre',3),text('loot-v2-search-help-3-copy','A kívánságlista ugyanahhoz a canonical account authorityhez kapcsolódik.')],4,{padding:'1rem',background:'#151717',border:'1px solid rgba(165,122,69,.22)',borderRadius:'.65rem'}),
+    ]),
+  ],{background:'#111313'}),
+  createLootVaultV2ShellFooter(),
+],{engineBinding:'E2+E7',routePresentation:'loot-vault-v2-discovery'});
+
+export const LOOT_VAULT_V2_CONTENT_PAGE=override(LOOT_VAULT_CONTENT_PAGE,[
+  createLootVaultV2ShellHeader(),
+  section('loot-v2-content-hero',[
+    grid('loot-v2-content-hero-grid',[
+      stack('loot-v2-content-copy',[
+        badge('loot-v2-content-kicker','LOOT VAULT · INFORMÁCIÓ'),
+        boundHeading('loot-v2-content-title','content.page.title','Rólunk',1,{fontSize:'clamp(2.5rem,5vw,4.7rem)',maxWidth:'12ch'}),
+        boundText('loot-v2-content-summary','content.page.summary','A gyűjtői kultúra, a hiteles termékadat és a prémium kereskedelmi élmény találkozása.',{fontSize:'1.03rem',maxWidth:'42rem'}),
+      ],6,{padding:'clamp(1rem,3vw,2rem) 0'}),
+      image('loot-v2-content-image',MEDIA.editorial1,'Kurált Loot Vault archívum',6,{height:'24rem',minHeight:'20rem'}),
+    ]),
+  ],{background:'linear-gradient(180deg,#111313,#0d0e0f)'}),
+  section('loot-v2-content-body',[
+    grid('loot-v2-content-body-grid',[
+      stack('loot-v2-content-article',[
+        badge('loot-v2-content-article-kicker','TÖRTÉNET ÉS INFORMÁCIÓ'),
+        boundText('loot-v2-content-body-copy','content.page.body','A Loot Vault a Shoperation közös commerce motorjaira épülő, történetközpontú gyűjtői storefront bemutatója.',{fontSize:'1rem'}),
+      ],8,{padding:'clamp(1.1rem,3vw,2rem)',background:'#151717',border:'1px solid rgba(165,122,69,.26)',borderRadius:'.78rem'}),
+      stack('loot-v2-content-links',[
+        badge('loot-v2-content-links-kicker','HASZNOS OLDALAK'),
+        heading('loot-v2-content-links-title','Folytasd innen.',3,{fontSize:'1.2rem'}),
+        button('loot-v2-content-links-shop','Webáruház','/webaruhaz','secondary'),
+        button('loot-v2-content-links-shipping','Szállítás és fizetés','/szallitas-es-fizetes','secondary'),
+        button('loot-v2-content-links-contact','Kapcsolat','/kapcsolat','secondary'),
+      ],4,{padding:'1rem',background:'#111313',border:'1px solid rgba(165,122,69,.26)',borderRadius:'.78rem'}),
+    ]),
+  ],{background:'#0d0e0f'}),
+  section('loot-v2-content-values',[
+    grid('loot-v2-content-values-grid',[
+      stack('loot-v2-content-value-1',[badge('loot-v2-content-value-1-kicker','01'),heading('loot-v2-content-value-1-title','Valódi termékadat',3),text('loot-v2-content-value-1-copy','Kiadás, készlet, ár és elérhetőség közös strukturált authorityból érkezik.')],4,{padding:'1rem',background:'#151717',border:'1px solid rgba(165,122,69,.22)',borderRadius:'.65rem'}),
+      stack('loot-v2-content-value-2',[badge('loot-v2-content-value-2-kicker','02'),heading('loot-v2-content-value-2-title','Történetközpontú bemutatás',3),text('loot-v2-content-value-2-copy','Az Editorial engine a termék mögötti világot is megmutatja, mesterséges scarcity nélkül.')],4,{padding:'1rem',background:'#151717',border:'1px solid rgba(165,122,69,.22)',borderRadius:'.65rem'}),
+      stack('loot-v2-content-value-3',[badge('loot-v2-content-value-3-kicker','03'),heading('loot-v2-content-value-3-title','Közös commerce folyamat',3),text('loot-v2-content-value-3-copy','Kosár, checkout, account és support platform-authority marad, Loot Vault presentationnel.')],4,{padding:'1rem',background:'#151717',border:'1px solid rgba(165,122,69,.22)',borderRadius:'.65rem'}),
+    ]),
+  ],{background:'#111313'}),
+  createLootVaultV2ShellFooter(),
+],{contentRole:'dynamic-information-page',engineBinding:'E1+E10',dynamicBindingAuthority:'content.page'});
+
+export const LOOT_VAULT_V2_FAQ_PAGE=override(LOOT_VAULT_FAQ_PAGE,[
+  createLootVaultV2ShellHeader(),
+  section('loot-v2-faq-hero',[
+    badge('loot-v2-faq-kicker','SEGÍTSÉG · GYAKORI KÉRDÉSEK'),
+    heading('loot-v2-faq-title','A legfontosabb válaszok egy helyen.',1,{fontSize:'clamp(2.4rem,5vw,4.4rem)',maxWidth:'13ch'}),
+    text('loot-v2-faq-copy','Rendelés, előrendelés, szállítás, fizetés és vásárlás utáni ügyintézés a Loot Vault vizuális rendszerében.'),
+  ],{background:'radial-gradient(circle at 80% 10%,rgba(165,122,69,.14),transparent 28%),#0d0e0f'}),
+  section('loot-v2-faq-groups',[
+    grid('loot-v2-faq-grid',[
+      stack('loot-v2-faq-order',[
+        badge('loot-v2-faq-order-kicker','RENDELÉS'),
+        heading('loot-v2-faq-order-title','Hogyan működik a vásárlás?',3),
+        text('loot-v2-faq-order-copy','Tedd kosárba a terméket, ellenőrizd a mennyiséget, majd haladj tovább a vezetett pénztárhoz.'),
+        button('loot-v2-faq-order-cta','Kosár megnyitása','/kosar','secondary'),
+      ],4,{padding:'1.1rem',background:'#151717',border:'1px solid rgba(165,122,69,.28)',borderRadius:'.72rem'}),
+      stack('loot-v2-faq-shipping',[
+        badge('loot-v2-faq-shipping-kicker','SZÁLLÍTÁS ÉS FIZETÉS'),
+        heading('loot-v2-faq-shipping-title','Milyen lehetőségek érhetők el?',3),
+        text('loot-v2-faq-shipping-copy','A pénztár kizárólag az adott webshophoz ténylegesen aktivált szolgáltatói módokat kínálja.'),
+        button('loot-v2-faq-shipping-cta','Szállítás és fizetés','/szallitas-es-fizetes','secondary'),
+      ],4,{padding:'1.1rem',background:'#151717',border:'1px solid rgba(165,122,69,.28)',borderRadius:'.72rem'}),
+      stack('loot-v2-faq-account',[
+        badge('loot-v2-faq-account-kicker','FIÓK ÉS ÜGYINTÉZÉS'),
+        heading('loot-v2-faq-account-title','Hol követhetem a rendelést?',3),
+        text('loot-v2-faq-account-copy','A Fiókom alatt elérhetők a rendelések, dokumentumok, letöltések, ügyek és visszaküldési folyamatok.'),
+        button('loot-v2-faq-account-cta','Fiókom','/fiokom','secondary'),
+      ],4,{padding:'1.1rem',background:'#151717',border:'1px solid rgba(165,122,69,.28)',borderRadius:'.72rem'}),
+    ]),
+  ],{background:'#0d0e0f'}),
+  section('loot-v2-faq-help',[
+    grid('loot-v2-faq-help-grid',[
+      stack('loot-v2-faq-help-copy',[
+        badge('loot-v2-faq-help-kicker','NEM TALÁLTAD A VÁLASZT?'),
+        heading('loot-v2-faq-help-title','Indíts valódi ügyfélszolgálati megkeresést.',2,{fontSize:'clamp(1.9rem,4vw,3.2rem)'}),
+        text('loot-v2-faq-help-copy-text','A Kapcsolat oldalon a shared support authority követhető ügyet hoz létre.'),
+      ],8,{padding:'1rem'}),
+      stack('loot-v2-faq-help-action',[button('loot-v2-faq-help-cta','Kapcsolat','/kapcsolat')],4,{justifyContent:'center',padding:'1rem'}),
+    ]),
+  ],{background:'#111313'}),
+  createLootVaultV2ShellFooter(),
+],{contentRole:'support-faq',routePresentation:'loot-vault-v2-support'});
+
+export const LOOT_VAULT_V2_CONTACT_PAGE=override(LOOT_VAULT_CONTACT_PAGE,[
+  createLootVaultV2ShellHeader(),
+  section('loot-v2-contact-hero',[
+    grid('loot-v2-contact-hero-grid',[
+      stack('loot-v2-contact-copy',[
+        badge('loot-v2-contact-kicker','LOOT VAULT · ÜGYFÉLSZOLGÁLAT'),
+        heading('loot-v2-contact-title','Segítünk a rendelés előtt és után is.',1,{fontSize:'clamp(2.4rem,5vw,4.4rem)',maxWidth:'13ch'}),
+        text('loot-v2-contact-copy-text','Termékválasztás, rendelés, számla, szállítás vagy visszaküldés esetén a közös support authority kezeli a megkeresést.'),
+      ],7,{padding:'1rem 0'}),
+      stack('loot-v2-contact-shortcuts',[
+        badge('loot-v2-contact-shortcuts-kicker','GYORS ÚTVONALAK'),
+        button('loot-v2-contact-orders','Rendeléseim','/fiokom#rendelesek','secondary'),
+        button('loot-v2-contact-returns','Visszaküldés','/fiokom/visszakuldes','secondary'),
+        button('loot-v2-contact-faq','GYIK','/gyik','secondary'),
+      ],5,{padding:'1rem',background:'#17191a',border:'1px solid rgba(165,122,69,.3)',borderRadius:'.72rem'}),
+    ]),
+  ],{background:'radial-gradient(circle at 78% 18%,rgba(165,122,69,.14),transparent 30%),#0d0e0f'}),
+  section('loot-v2-contact-form-section',[
+    n({id:'loot-v2-contact-form',componentKey:'support.contact-form',componentVersion:1,config:{
+      eyebrow:'KAPCSOLAT',
+      title:'Írj nekünk.',
+      copy:'Válaszd ki a témát, add meg az elérhetőségedet és írd le röviden, miben segíthetünk.',
+      nameLabel:'Név',emailLabel:'E-mail',orderNumberLabel:'Rendelési szám',categoryLabel:'Téma',subjectLabel:'Tárgy',messageLabel:'Üzenet',
+      buttonLabel:'Üzenet elküldése',successLead:'Köszönjük, a megkeresésed rögzítettük.',
+      tone:'surface',
+    }}),
+  ],{background:'#0d0e0f'}),
+  section('loot-v2-contact-assurance',[
+    grid('loot-v2-contact-assurance-grid',[
+      stack('loot-v2-contact-assurance-1',[badge('loot-v2-contact-assurance-1-kicker','RENDELÉS'),heading('loot-v2-contact-assurance-1-title','Add meg a rendelési számot',3),text('loot-v2-contact-assurance-1-copy','Így a support folyamat gyorsabban azonosíthatja a kapcsolódó vásárlást.')],4,{padding:'1rem',background:'#151717',border:'1px solid rgba(165,122,69,.22)',borderRadius:'.65rem'}),
+      stack('loot-v2-contact-assurance-2',[badge('loot-v2-contact-assurance-2-kicker','KÖVETHETŐ'),heading('loot-v2-contact-assurance-2-title','Valódi support ticket',3),text('loot-v2-contact-assurance-2-copy','Az űrlap nem díszlet: a közös platform support endpointját használja.')],4,{padding:'1rem',background:'#151717',border:'1px solid rgba(165,122,69,.22)',borderRadius:'.65rem'}),
+      stack('loot-v2-contact-assurance-3',[badge('loot-v2-contact-assurance-3-kicker','ÖNKISZOLGÁLÁS'),heading('loot-v2-contact-assurance-3-title','Fiók és GYIK',3),text('loot-v2-contact-assurance-3-copy','Rendeléskövetéshez, dokumentumokhoz és visszaküldéshez a canonical fiókfelületek is elérhetők.')],4,{padding:'1rem',background:'#151717',border:'1px solid rgba(165,122,69,.22)',borderRadius:'.65rem'}),
+    ]),
+  ],{background:'#111313'}),
+  createLootVaultV2ShellFooter(),
+],{engineBinding:'shared-support',routePresentation:'loot-vault-v2-support'});
+
+export const LOOT_VAULT_V2_LEGAL_PAGE=override(LOOT_VAULT_LEGAL_PAGE,[
+  createLootVaultV2ShellHeader(),
+  section('loot-v2-legal-hero',[
+    badge('loot-v2-legal-kicker','JOGI ÉS VÁSÁRLÁSI INFORMÁCIÓK'),
+    heading('loot-v2-legal-title','Átlátható információk a vásárlás minden pontján.',1,{fontSize:'clamp(2.35rem,5vw,4.3rem)',maxWidth:'14ch'}),
+    text('loot-v2-legal-copy','A kereskedő saját jogi dokumentumai és a platform aktív szállítási/fizetési információi ugyanabban a Loot Vault presentationben érhetők el.'),
+  ],{background:'radial-gradient(circle at 82% 12%,rgba(165,122,69,.14),transparent 30%),#0d0e0f'}),
+  section('loot-v2-legal-links',[
+    grid('loot-v2-legal-links-grid',[
+      stack('loot-v2-legal-terms',[badge('loot-v2-legal-terms-kicker','SZERZŐDÉSI FELTÉTELEK'),heading('loot-v2-legal-terms-title','ÁSZF',3),text('loot-v2-legal-terms-copy','Rendelési, teljesítési és szerződéses feltételek a kereskedő jóváhagyott tartalmából.'),button('loot-v2-legal-terms-cta','ÁSZF megnyitása','/aszf','secondary')],4,{padding:'1.1rem',background:'#151717',border:'1px solid rgba(165,122,69,.28)',borderRadius:'.72rem'}),
+      stack('loot-v2-legal-privacy',[badge('loot-v2-legal-privacy-kicker','ADATKEZELÉS'),heading('loot-v2-legal-privacy-title','Adatvédelem',3),text('loot-v2-legal-privacy-copy','A tényleges adatkezelési és adatfeldolgozói információk a közzétett tájékoztatóból érkeznek.'),button('loot-v2-legal-privacy-cta','Adatvédelem','/adatvedelem','secondary')],4,{padding:'1.1rem',background:'#151717',border:'1px solid rgba(165,122,69,.28)',borderRadius:'.72rem'}),
+      stack('loot-v2-legal-imprint',[badge('loot-v2-legal-imprint-kicker','ÜZEMELTETŐ'),heading('loot-v2-legal-imprint-title','Impresszum',3),text('loot-v2-legal-imprint-copy','A webshop üzemeltetőjének közzétett adatai külön jogi felületen jelennek meg.'),button('loot-v2-legal-imprint-cta','Impresszum','/impresszum','secondary')],4,{padding:'1.1rem',background:'#151717',border:'1px solid rgba(165,122,69,.28)',borderRadius:'.72rem'}),
+    ]),
+  ],{background:'#0d0e0f'}),
+  section('loot-v2-legal-commerce',[
+    grid('loot-v2-legal-commerce-grid',[
+      stack('loot-v2-legal-commerce-copy',[
+        badge('loot-v2-legal-commerce-kicker','VÁSÁRLÁSI INFORMÁCIÓ'),
+        heading('loot-v2-legal-commerce-title','Szállítás és fizetés',2,{fontSize:'clamp(1.9rem,4vw,3.2rem)'}),
+        text('loot-v2-legal-commerce-copy-text','Az aktív szolgáltatói lehetőségeket és a rendelési folyamatot külön információs oldal mutatja.'),
+      ],8,{padding:'1rem'}),
+      stack('loot-v2-legal-commerce-action',[button('loot-v2-legal-commerce-cta','Szállítás és fizetés','/szallitas-es-fizetes')],4,{justifyContent:'center',padding:'1rem'}),
+    ]),
+  ],{background:'#111313'}),
+  createLootVaultV2ShellFooter(),
+],{contentRole:'legal-information-hub',routePresentation:'loot-vault-v2-legal'});
+
+export const LOOT_VAULT_V2_NOT_FOUND_PAGE=override(LOOT_VAULT_NOT_FOUND_PAGE,[
+  createLootVaultV2ShellHeader(),
+  section('loot-v2-not-found',[
+    grid('loot-v2-not-found-grid',[
+      stack('loot-v2-not-found-copy',[
+        badge('loot-v2-not-found-kicker','404 · ELTŰNT A VAULTBAN'),
+        heading('loot-v2-not-found-title','Ez az oldal nincs a gyűjteményben.',1,{fontSize:'clamp(2.6rem,6vw,5rem)',maxWidth:'11ch'}),
+        text('loot-v2-not-found-copy-text','A keresett útvonal nem található. Térj vissza a főoldalra, keress rá egy termékre, vagy folytasd a katalógusban.'),
+        button('loot-v2-not-found-home','Vissza a főoldalra','/'),
+        button('loot-v2-not-found-shop','Webáruház','/webaruhaz','secondary'),
+      ],7,{padding:'clamp(1rem,4vw,3rem) 0'}),
+      image('loot-v2-not-found-image',MEDIA.background,'Sötét Loot Vault archívum',5,{height:'25rem',minHeight:'20rem',filter:'saturate(.65) contrast(1.08) brightness(.68)'}),
+    ]),
+  ],{background:'radial-gradient(circle at 75% 25%,rgba(165,122,69,.14),transparent 32%),#0d0e0f'}),
+  section('loot-v2-not-found-links',[
+    grid('loot-v2-not-found-links-grid',[
+      stack('loot-v2-not-found-link-1',[badge('loot-v2-not-found-link-1-kicker','KERESÉS'),heading('loot-v2-not-found-link-1-title','Keresés',3),button('loot-v2-not-found-link-1-cta','Keresés a Vaultban','/kereses','secondary')],4,{padding:'1rem',background:'#151717',border:'1px solid rgba(165,122,69,.22)',borderRadius:'.65rem'}),
+      stack('loot-v2-not-found-link-2',[badge('loot-v2-not-found-link-2-kicker','MAGAZIN'),heading('loot-v2-not-found-link-2-title','Történetek',3),button('loot-v2-not-found-link-2-cta','Vault Magazin','/blog','secondary')],4,{padding:'1rem',background:'#151717',border:'1px solid rgba(165,122,69,.22)',borderRadius:'.65rem'}),
+      stack('loot-v2-not-found-link-3',[badge('loot-v2-not-found-link-3-kicker','SEGÍTSÉG'),heading('loot-v2-not-found-link-3-title','Kapcsolat',3),button('loot-v2-not-found-link-3-cta','Ügyfélszolgálat','/kapcsolat','secondary')],4,{padding:'1rem',background:'#151717',border:'1px solid rgba(165,122,69,.22)',borderRadius:'.65rem'}),
+    ]),
+  ],{background:'#111313'}),
+  createLootVaultV2ShellFooter(),
+],{contentRole:'not-found-navigation-hub',routePresentation:'loot-vault-v2-system'});
+
 export const LOOT_VAULT_V2_PAGE_OVERRIDES=Object.freeze({
   home:LOOT_VAULT_V2_HOME_PAGE,
   catalog:LOOT_VAULT_V2_CATALOG_PAGE,
   product:LOOT_VAULT_V2_PRODUCT_PAGE,
-  cart:LOOT_VAULT_CART_PAGE,
-  checkout:LOOT_VAULT_CHECKOUT_PAGE,
+  cart:LOOT_VAULT_V2_CART_PAGE,
+  checkout:LOOT_VAULT_V2_CHECKOUT_PAGE,
   account:LOOT_VAULT_V2_ACCOUNT_PAGE,
-  search:LOOT_VAULT_SEARCH_PAGE,
-  content:LOOT_VAULT_CONTENT_PAGE,
+  search:LOOT_VAULT_V2_SEARCH_PAGE,
+  content:LOOT_VAULT_V2_CONTENT_PAGE,
   'blog-index':LOOT_VAULT_V2_BLOG_INDEX_PAGE,
   'blog-article':LOOT_VAULT_V2_BLOG_ARTICLE_PAGE,
-  faq:LOOT_VAULT_FAQ_PAGE,
-  contact:LOOT_VAULT_CONTACT_PAGE,
-  legal:LOOT_VAULT_LEGAL_PAGE,
-  'not-found':LOOT_VAULT_NOT_FOUND_PAGE,
+  faq:LOOT_VAULT_V2_FAQ_PAGE,
+  contact:LOOT_VAULT_V2_CONTACT_PAGE,
+  legal:LOOT_VAULT_V2_LEGAL_PAGE,
+  'not-found':LOOT_VAULT_V2_NOT_FOUND_PAGE,
 });
 
 export const LOOT_VAULT_V2_MEDIA_ASSETS:readonly StorefrontTemplateFactoryMediaAsset[]=Object.freeze([
@@ -448,6 +728,9 @@ export const LOOT_VAULT_V2_DEMO_FIXTURES:readonly StorefrontDemoFixture[]=Object
   {entityType:'content',entityKey:'page-szallitas',payload:{kind:'page',slug:'szallitas',title:'Szállítás',excerpt:'Átlátható szállítási lehetőségek a pénztár közös szolgáltatói beállításaival.',body:'A bemutató a Shoperation szállítási capability helyét és vásárlói útját demonstrálja. A tényleges futár, díj és határidő mindig a kereskedő aktív konfigurációjából érkezik.',status:'draft',demo:true,showroomReady:true}},
   {entityType:'content',entityKey:'page-fizetes',payload:{kind:'page',slug:'fizetes',title:'Fizetés',excerpt:'A fizetési lehetőségek a közös E13 checkout authority részei.',body:'A sablon a fizetési folyamat vizuális helyét és kapcsolatát mutatja. A tényleges szolgáltató és tranzakciós állapot nem template-local adat.',status:'draft',demo:true,showroomReady:true}},
   {entityType:'content',entityKey:'page-visszakuldes',payload:{kind:'page',slug:'visszakuldes',title:'Visszaküldés',excerpt:'A vásárlás utáni ügyintézés a Fiókom canonical felületeihez kapcsolódik.',body:'A visszaküldési folyamat a rendeléshez kötött közös platformképességet demonstrálja, a sablon csak a saját vizuális nyelvén prezentálja.',status:'draft',demo:true,showroomReady:true}},
+  {entityType:'content',entityKey:'page-aszf',payload:{kind:'page',slug:'aszf',title:'Általános Szerződési Feltételek',excerpt:'A demo jogi felület a dokumentumstruktúrát mutatja, nem helyettesíti a kereskedő jogilag ellenőrzött ÁSZF-jét.',body:'A Loot Vault showroom az ÁSZF dokumentum megjelenési helyét demonstrálja. Éles kereskedői használat előtt a saját, jogilag ellenőrzött feltételeket kell közzétenni. A rendelés, szállítás és fizetés tényleges lehetőségeit a közös platformbeállítások szolgáltatják.',status:'draft',demo:true,showroomReady:true}},
+  {entityType:'content',entityKey:'page-adatvedelem',payload:{kind:'page',slug:'adatvedelem',title:'Adatkezelési tájékoztató',excerpt:'A demo az adatkezelési dokumentum storefront helyét és vizuális prezentációját mutatja.',body:'Az éles webshop adatkezelési tájékoztatója a kereskedő saját adatkezelési gyakorlatát és tényleges adatfeldolgozóit tartalmazza. A Loot Vault showroom nem állít kitalált jogi tényeket.',status:'draft',demo:true,showroomReady:true}},
+  {entityType:'content',entityKey:'page-impresszum',payload:{kind:'page',slug:'impresszum',title:'Impresszum',excerpt:'A webshop üzemeltetői adatainak canonical jogi felülete.',body:'A showroom a közzétett üzemeltetői adatok helyét és megjelenését demonstrálja. Éles használatban kizárólag a kereskedő tényleges cég- és kapcsolati adatai jelenhetnek meg.',status:'draft',demo:true,showroomReady:true}},
   {entityType:'content',entityKey:'blog-gyujtoszoba-mint-szemelyes-univerzum',payload:{kind:'blog',slug:'gyujtoszoba-mint-szemelyes-univerzum',title:'A gyűjtőszoba mint személyes univerzum',excerpt:'Vitrinek, fények és történetek: így lesz a gyűjteményből karakteres tér.',body:'A gyűjtemény bemutatása nem csak terméklista. A történet, az elrendezés és a hiteles termékadat együtt adja a prémium rajongói élményt.',status:'draft',demo:true,showroomReady:true}},
   {entityType:'content',entityKey:'blog-mitol-ertek-egy-limitalt-kiadas',payload:{kind:'blog',slug:'mitol-ertek-egy-limitalt-kiadas',title:'Mitől érték egy limitált kiadás?',excerpt:'Kiadás, állapot és eredet — a látvány mögött mindig valódi termékadat áll.',body:'A Loot Vault csak strukturált katalógusadatból mutat ritkaságot, kiadást vagy előrendelési állapotot; a sablon nem talál ki scarcity állítást.',status:'draft',demo:true,showroomReady:true}},
   {entityType:'content',entityKey:'blog-fantasy-scifi-retro-egy-helyen',payload:{kind:'blog',slug:'fantasy-scifi-retro-egy-helyen',title:'Fantasy, sci-fi és retro egy helyen',excerpt:'Eltérő világok, közös gyűjtői nyelv és következetes vizuális ritmus.',body:'A Product Discovery és Editorial engine együtt teszi lehetővé, hogy több gyűjtői univerzum egy közös, mégis szerkesztett storefrontban jelenjen meg.',status:'draft',demo:true,showroomReady:true}},
