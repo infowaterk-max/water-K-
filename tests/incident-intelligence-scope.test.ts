@@ -6,7 +6,7 @@ describe('Incident Intelligence scope authority',()=>{
   it('classifies incident runtime and APIs as one bounded subsystem',()=>{
     const subsystem=release.subsystems.find(x=>x.name==='incident-intelligence');
     expect(subsystem).toMatchObject({risk:'medium'});
-    expect(subsystem?.patterns).toEqual(expect.arrayContaining(['src/lib/incidents/**','src/app/api/incidents/**','src/app/api/platform/incidents/**']));
+    expect(subsystem?.patterns).toEqual(expect.arrayContaining(['src/lib/incidents/**','src/app/api/incidents/**','src/app/api/platform/incidents/**','src/app/api/internal/incidents/**']));
   });
   it('loads incident-specific Development Guard intent',()=>{
     const matcher=guard.intentMatchers.find(x=>x.subsystems.includes('incident-intelligence'));

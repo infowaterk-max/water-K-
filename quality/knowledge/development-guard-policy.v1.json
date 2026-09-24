@@ -9,7 +9,7 @@
   ],
   "intentMatchers": [
     {
-      "pattern": "incident|hibabejelent|hiba bejelent|bug report|self-healing|self healing|öngyógy|triage",
+      "pattern": "incident|hibabejelent|hiba bejelent|bug report|self-healing|self healing|öngyógy|triage|repair request|javítási kérés|observability incident",
       "subsystems": [
         "incident-intelligence"
       ]

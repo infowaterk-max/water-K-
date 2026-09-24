@@ -1,17 +1,17 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-60304D6E",
+  "taskId": "DEV-FAF6B823",
   "task": "Add incident-intelligence scope classification to Quality Knowledge and release risk policy.",
   "status": "ready-for-implementation",
-  "guardDigest": "60304d6e",
+  "guardDigest": "faf6b823",
   "plannedFilePatterns": [
     "deploy/release-risk-policy.json",
     "quality/knowledge/development-guard-policy.v1.json",
-    "quality/knowledge/shoperation-quality-knowledge.v1.json",
     "quality/development/active-plan.json",
     "tests/incident-intelligence-scope.test.ts"
   ],
   "expectedSubsystems": [
+    "incident-intelligence",
     "quality-knowledge-system",
     "release-infrastructure"
   ],
@@ -69,8 +69,9 @@
     "SQ-NK-005",
     "SQ-NK-010",
     "SQ-NK-011",
-    "SQ-NK-012"
+    "SQ-NK-012",
+    "SQ-NK-013"
   ],
   "exceptions": [],
-  "notes": "Policy implementation wave. Quality Knowledge changes intentionally force the complete Known Failure replay; incident-intelligence becomes a first-class scoped subsystem for later runtime/API waves."
+  "notes": "Scope correction: the newly active incident intent matcher is itself part of this task, so incident-intelligence must be included alongside Quality Knowledge and release infrastructure."
 }

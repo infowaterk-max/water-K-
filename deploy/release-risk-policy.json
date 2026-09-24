@@ -83,7 +83,8 @@
       "patterns": [
         "src/lib/incidents/**",
         "src/app/api/incidents/**",
-        "src/app/api/platform/incidents/**"
+        "src/app/api/platform/incidents/**",
+        "src/app/api/internal/incidents/**"
       ]
     },
     {
