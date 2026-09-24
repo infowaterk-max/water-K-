@@ -1,7 +1,8 @@
 {
   "contract": "shoporation.domain-foundations.v1",
   "version": 1,
-  "status": "foundation-registry",
+  "status": "canonical",
+  "constitutionContract": "shoporation.architecture-constitution.v1",
   "globalPrinciples": [
     "ARCH-001",
     "ARCH-002",
@@ -15,12 +16,56 @@
     "ARCH-012",
     "ARCH-013"
   ],
+  "domainContract": {
+    "requiredFields": [
+      "id",
+      "name",
+      "owner",
+      "purpose",
+      "truthOwnership",
+      "responsibilities",
+      "doesNotOwn",
+      "dependsOn",
+      "boundaryRules",
+      "principles",
+      "canonicalPaths",
+      "evidenceObligations"
+    ],
+    "truthOwnershipRule": "A truth key may have exactly one canonical domain owner.",
+    "dependencyRule": "Dependencies must reference registered domains and the graph must remain acyclic.",
+    "boundaryRule": "Cross-domain calls must consume a declared authority/contract rather than reaching into another domain's private implementation."
+  },
   "domains": [
     {
       "id": "DOMAIN-IDENTITY",
       "name": "Identity & Access",
       "owner": "auth-access-authority",
+      "purpose": "Authenticate human/system actors and decide access from canonical identity and role authority.",
+      "truthOwnership": [
+        "identity.actor",
+        "identity.session",
+        "identity.role",
+        "identity.authentication-state",
+        "identity.authorization-decision"
+      ],
+      "responsibilities": [
+        "authentication",
+        "session validation",
+        "role and operator identity",
+        "authorization primitives"
+      ],
+      "doesNotOwn": [
+        "tenant selection",
+        "commerce state",
+        "storefront presentation",
+        "business workflow state"
+      ],
       "dependsOn": [],
+      "boundaryRules": [
+        "Authorization decisions must derive from server-owned identity/role authority.",
+        "Identity may expose actor and authorization context, but may not silently select a tenant.",
+        "Client-editable metadata is never an authorization authority."
+      ],
       "principles": [
         "ARCH-002",
         "ARCH-006",
@@ -29,14 +74,43 @@
       "canonicalPaths": [
         "src/lib/auth/**",
         "src/app/api/auth/**"
+      ],
+      "evidenceObligations": [
+        "auth contract tests",
+        "role/permission regression",
+        "fail-closed unauthenticated/unauthorized proof"
       ]
     },
     {
       "id": "DOMAIN-TENANCY",
       "name": "Tenant & Operating Context",
       "owner": "tenant-context-authority",
+      "purpose": "Resolve the active webshop/tenant and operating context before tenant-scoped capability selection.",
+      "truthOwnership": [
+        "context.tenant",
+        "context.instance",
+        "context.membership",
+        "context.operating-scope"
+      ],
+      "responsibilities": [
+        "tenant resolution",
+        "instance membership",
+        "tenant isolation context",
+        "operating-context validation"
+      ],
+      "doesNotOwn": [
+        "actor authentication",
+        "commerce truth",
+        "UI navigation",
+        "provider transport"
+      ],
       "dependsOn": [
         "DOMAIN-IDENTITY"
+      ],
+      "boundaryRules": [
+        "Tenant context must be explicit; first-tenant/null-to-default fallback is forbidden.",
+        "Cross-tenant access requires platform authority and an explicit target tenant.",
+        "Tenant context must be resolved before tenant-scoped mutation or capability selection."
       ],
       "principles": [
         "ARCH-002",
@@ -46,15 +120,48 @@
       "canonicalPaths": [
         "src/lib/instances/**",
         "src/lib/auth/store-rbac.ts"
+      ],
+      "evidenceObligations": [
+        "tenant isolation regression",
+        "zero/multi-tenant ambiguity proof",
+        "membership authorization proof"
       ]
     },
     {
       "id": "DOMAIN-COMMERCE",
       "name": "Commerce Core",
       "owner": "commerce-core-authority",
+      "purpose": "Own canonical transactional commerce decisions from quote through order lifecycle.",
+      "truthOwnership": [
+        "commerce.price",
+        "commerce.cart",
+        "commerce.checkout-quote",
+        "commerce.order",
+        "commerce.payment-state",
+        "commerce.order-lifecycle"
+      ],
+      "responsibilities": [
+        "server-side price calculation",
+        "checkout validation",
+        "order creation",
+        "order state transitions",
+        "payment/order coupling"
+      ],
+      "doesNotOwn": [
+        "catalog editorial presentation",
+        "inventory physical location model",
+        "provider-specific payment transport",
+        "customer authentication"
+      ],
       "dependsOn": [
         "DOMAIN-IDENTITY",
-        "DOMAIN-TENANCY"
+        "DOMAIN-TENANCY",
+        "DOMAIN-CATALOG"
+      ],
+      "boundaryRules": [
+        "Client-submitted prices and totals are untrusted and must be recalculated from canonical data.",
+        "Order and payment state transitions must be explicit and idempotency-aware.",
+        "Provider-specific payment behavior must enter through integration contracts."
       ],
       "principles": [
         "ARCH-003",
@@ -65,14 +172,45 @@
         "src/lib/commerce/**",
         "src/app/api/checkout/**",
         "src/app/api/orders/**"
+      ],
+      "evidenceObligations": [
+        "pricing regression",
+        "checkout/order lifecycle contract tests",
+        "payment reconciliation proof"
       ]
     },
     {
       "id": "DOMAIN-CATALOG",
       "name": "Catalog & Inventory",
       "owner": "catalog-inventory-authority",
+      "purpose": "Own sellable product identity, variants, availability and inventory truth.",
+      "truthOwnership": [
+        "catalog.product",
+        "catalog.variant",
+        "catalog.sellability",
+        "inventory.stock",
+        "inventory.reservation",
+        "inventory.location"
+      ],
+      "responsibilities": [
+        "product/variant canonical data",
+        "stock and reservation truth",
+        "availability calculation",
+        "warehouse/location inventory"
+      ],
+      "doesNotOwn": [
+        "checkout totals",
+        "storefront layout",
+        "shipping provider transport",
+        "content-page composition"
+      ],
       "dependsOn": [
         "DOMAIN-TENANCY"
+      ],
+      "boundaryRules": [
+        "Presentation may display stock/product data but may not invent availability.",
+        "Inventory mutations must be tenant-scoped and transactionally consistent.",
+        "Commerce consumes catalog/inventory truth through stable contracts."
       ],
       "principles": [
         "ARCH-003",
@@ -81,16 +219,45 @@
       "canonicalPaths": [
         "src/lib/catalog/**",
         "src/lib/inventory/**"
+      ],
+      "evidenceObligations": [
+        "variant identity regression",
+        "stock/reservation consistency proof",
+        "tenant inventory isolation tests"
       ]
     },
     {
       "id": "DOMAIN-STOREFRONT",
       "name": "Storefront Runtime & Presentation",
       "owner": "shared-storefront",
+      "purpose": "Render shopper-facing experiences by composing canonical platform capabilities without becoming a second business authority.",
+      "truthOwnership": [
+        "storefront.presentation-state",
+        "storefront.navigation-composition",
+        "storefront.template-runtime-identity"
+      ],
+      "responsibilities": [
+        "shopper presentation",
+        "responsive composition",
+        "route-level capability composition",
+        "template-aware presentation"
+      ],
+      "doesNotOwn": [
+        "authentication truth",
+        "price/order truth",
+        "inventory truth",
+        "database schema",
+        "builder authoring state"
+      ],
       "dependsOn": [
         "DOMAIN-COMMERCE",
         "DOMAIN-CATALOG",
         "DOMAIN-IDENTITY"
+      ],
+      "boundaryRules": [
+        "Storefront consumes shared capabilities; it may not duplicate auth/account/commerce/support engines.",
+        "Responsive behavior follows canonical viewport/workspace authority rather than host heuristics.",
+        "Template presentation may vary while business capability authority remains shared."
       ],
       "principles": [
         "ARCH-001",
@@ -102,14 +269,45 @@
         "src/lib/storefront/**",
         "src/components/storefront/**",
         "src/lib/builder/storefront-**"
+      ],
+      "evidenceObligations": [
+        "responsive isolation proof",
+        "route convergence tests",
+        "template continuity/browser evidence"
       ]
     },
     {
       "id": "DOMAIN-BUILDER",
       "name": "Builder & Template System",
       "owner": "builder-template-system",
+      "purpose": "Own authored page/template structures and deterministic materialization into storefront runtime inputs.",
+      "truthOwnership": [
+        "builder.page-schema",
+        "builder.template-package",
+        "builder.preset",
+        "builder.draft-state",
+        "builder.materialization"
+      ],
+      "responsibilities": [
+        "page schema",
+        "template/preset composition",
+        "visual authoring",
+        "draft persistence",
+        "runtime materialization contract"
+      ],
+      "doesNotOwn": [
+        "commerce behavior",
+        "customer identity",
+        "live inventory",
+        "provider integrations"
+      ],
       "dependsOn": [
         "DOMAIN-STOREFRONT"
+      ],
+      "boundaryRules": [
+        "Builder output must conform to canonical Page Schema and shared Runtime contracts.",
+        "Source preset, persisted draft/package and runtime materialization are distinct states.",
+        "Blocks/presets may not introduce second authorities for shared capabilities."
       ],
       "principles": [
         "ARCH-001",
@@ -120,14 +318,43 @@
       "canonicalPaths": [
         "src/lib/builder/**",
         "src/components/builder/**"
+      ],
+      "evidenceObligations": [
+        "schema validation",
+        "persistence/materialization proof",
+        "Template Factory known-failure replay"
       ]
     },
     {
       "id": "DOMAIN-INTEGRATIONS",
       "name": "External Integrations",
       "owner": "integration-adapter-authority",
+      "purpose": "Isolate external providers behind stable Shoperation contracts and fail-safe transport boundaries.",
+      "truthOwnership": [
+        "integration.provider-capability",
+        "integration.transport-result",
+        "integration.provider-configuration"
+      ],
+      "responsibilities": [
+        "provider adapters",
+        "request/response normalization",
+        "webhook/callback verification",
+        "provider health"
+      ],
+      "doesNotOwn": [
+        "commerce policy",
+        "order truth",
+        "inventory truth",
+        "tenant identity"
+      ],
       "dependsOn": [
-        "DOMAIN-COMMERCE"
+        "DOMAIN-COMMERCE",
+        "DOMAIN-TENANCY"
+      ],
+      "boundaryRules": [
+        "Core business logic must not depend on provider-specific payloads.",
+        "Callbacks/webhooks require authenticity verification and fail closed on invalid proof.",
+        "Provider outage/invalid response must not silently fabricate successful business state."
       ],
       "principles": [
         "ARCH-006",
@@ -137,15 +364,44 @@
       "canonicalPaths": [
         "src/lib/integrations/**",
         "src/app/api/integrations/**"
+      ],
+      "evidenceObligations": [
+        "adapter contract tests",
+        "signature/authenticity tests",
+        "sandbox/self-test evidence"
       ]
     },
     {
       "id": "DOMAIN-ADMIN",
       "name": "Merchant & Platform Operations",
       "owner": "admin-operations",
+      "purpose": "Compose governed operational capabilities for merchants and platform operators.",
+      "truthOwnership": [
+        "admin.navigation-state",
+        "admin.operational-view",
+        "admin.task-orchestration"
+      ],
+      "responsibilities": [
+        "merchant/platform admin surfaces",
+        "operational workflows",
+        "permission-aware navigation",
+        "exception-first operations"
+      ],
+      "doesNotOwn": [
+        "authentication truth",
+        "tenant truth",
+        "commerce truth",
+        "schema truth"
+      ],
       "dependsOn": [
         "DOMAIN-IDENTITY",
-        "DOMAIN-TENANCY"
+        "DOMAIN-TENANCY",
+        "DOMAIN-COMMERCE"
+      ],
+      "boundaryRules": [
+        "Admin UI must call canonical domain authorities rather than mutate domain state ad hoc.",
+        "Platform and merchant scope must remain explicit and permission-aware.",
+        "Operational summaries are projections, not replacement sources of truth."
       ],
       "principles": [
         "ARCH-001",
@@ -155,14 +411,45 @@
       "canonicalPaths": [
         "src/app/admin/**",
         "src/components/admin/**"
+      ],
+      "evidenceObligations": [
+        "role-aware navigation regression",
+        "admin mutation authority tests",
+        "platform/merchant isolation proof"
       ]
     },
     {
       "id": "DOMAIN-DATA",
       "name": "Database, Schema & Persistence",
       "owner": "database-schema",
+      "purpose": "Own durable schema, transactional persistence contracts, grants and row-level isolation guarantees.",
+      "truthOwnership": [
+        "data.schema",
+        "data.persistence",
+        "data.rls",
+        "data.rpc",
+        "data.migration-state"
+      ],
+      "responsibilities": [
+        "schema/migrations",
+        "RLS",
+        "RPC contracts",
+        "transactional persistence",
+        "database grants/indexes"
+      ],
+      "doesNotOwn": [
+        "business presentation",
+        "provider transport",
+        "release approval",
+        "UI state"
+      ],
       "dependsOn": [
         "DOMAIN-TENANCY"
+      ],
+      "boundaryRules": [
+        "Runtime assumptions about schema must be proven against target environment baseline.",
+        "RLS is mandatory for public tenant-bearing data surfaces.",
+        "Migration syntax, grants and callable symbols are part of the production contract."
       ],
       "principles": [
         "ARCH-003",
@@ -172,13 +459,45 @@
       ],
       "canonicalPaths": [
         "supabase/**"
+      ],
+      "evidenceObligations": [
+        "migration syntax proof",
+        "fresh-install proof",
+        "existing-production parity/postflight",
+        "RLS regression"
       ]
     },
     {
       "id": "DOMAIN-QUALITY",
       "name": "Quality Knowledge & Engineering Controls",
       "owner": "quality-knowledge-system",
+      "purpose": "Turn architecture, known failures and development/release evidence into deterministic prevention and proof.",
+      "truthOwnership": [
+        "quality.known-failure",
+        "quality.negative-knowledge",
+        "quality.development-plan",
+        "quality.guard-selection",
+        "quality.regression-authority"
+      ],
+      "responsibilities": [
+        "Known Failure registry",
+        "development guards",
+        "failure intake",
+        "impact/scope resolution",
+        "architecture knowledge",
+        "regression authority"
+      ],
+      "doesNotOwn": [
+        "business runtime state",
+        "production deployment state",
+        "tenant identity"
+      ],
       "dependsOn": [],
+      "boundaryRules": [
+        "Quality evidence must be bound to exact source/release identity.",
+        "Unknown or review-required failure intake persists until explicit disposition.",
+        "Quality controls may block invalid change but may not redefine domain truth to make tests pass."
+      ],
       "principles": [
         "ARCH-004",
         "ARCH-005",
@@ -191,16 +510,47 @@
         "quality/**",
         "scripts/shoperation-**",
         "src/lib/quality-system/**"
+      ],
+      "evidenceObligations": [
+        "guard-selection proof",
+        "Known Failure replay",
+        "failure-intake persistence",
+        "architecture validation"
       ]
     },
     {
       "id": "DOMAIN-INCIDENT",
       "name": "Incident Intelligence & Recovery",
       "owner": "incident-intelligence",
+      "purpose": "Normalize incidents, triage responsibility, correlate evidence and govern safe repair/self-healing decisions.",
+      "truthOwnership": [
+        "incident.record",
+        "incident.triage",
+        "incident.ownership",
+        "incident.repair-decision",
+        "incident.recovery-evidence"
+      ],
+      "responsibilities": [
+        "incident intake",
+        "triage",
+        "ownership routing",
+        "repair proposal/runbook selection",
+        "recovery evidence"
+      ],
+      "doesNotOwn": [
+        "domain business truth",
+        "arbitrary code mutation authority",
+        "release approval"
+      ],
       "dependsOn": [
         "DOMAIN-QUALITY",
         "DOMAIN-IDENTITY",
         "DOMAIN-TENANCY"
+      ],
+      "boundaryRules": [
+        "Incident diagnosis may reference domain evidence but must not become a competing domain authority.",
+        "Automated repair requires explicit allowlisted procedure, preconditions and post-verification.",
+        "Code-changing self-heal defaults to proposal-first unless a deterministic runbook explicitly authorizes execution."
       ],
       "principles": [
         "ARCH-006",
@@ -212,15 +562,46 @@
         "src/lib/incidents/**",
         "src/app/api/incidents/**",
         "src/app/api/platform/incidents/**"
+      ],
+      "evidenceObligations": [
+        "triage regression",
+        "repair-policy tests",
+        "post-repair verification",
+        "incident audit trail"
       ]
     },
     {
       "id": "DOMAIN-RELEASE",
       "name": "Release & Production Lifecycle",
       "owner": "release-infrastructure",
+      "purpose": "Assemble dependency-closed release transactions and prove exact production provenance.",
+      "truthOwnership": [
+        "release.transaction",
+        "release.risk-budget",
+        "release.provenance",
+        "release.deployment-state",
+        "release.production-verification"
+      ],
+      "responsibilities": [
+        "release assembly",
+        "risk budget",
+        "CI/release manifests",
+        "deployment provenance",
+        "post-merge/production verification"
+      ],
+      "doesNotOwn": [
+        "development intent",
+        "business truth",
+        "schema content itself"
+      ],
       "dependsOn": [
         "DOMAIN-QUALITY",
         "DOMAIN-DATA"
+      ],
+      "boundaryRules": [
+        "Development branch history is not automatically a valid Release Transaction.",
+        "Production requires exact-head/main provenance and target-environment proof.",
+        "Preview/staging readiness must never be labeled production."
       ],
       "principles": [
         "ARCH-004",
@@ -233,6 +614,13 @@
         ".github/workflows/**",
         "deploy/**",
         "scripts/release-**"
+      ],
+      "evidenceObligations": [
+        "Release Risk Budget",
+        "security/quality/type/build proof",
+        "release manifest",
+        "deployment SHA match",
+        "production smoke/runtime check"
       ]
     }
   ]
