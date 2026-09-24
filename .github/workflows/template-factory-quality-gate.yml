@@ -148,6 +148,8 @@ on:
 
 permissions:
   contents: write
+  deployments: read
+  statuses: read
 
 concurrency:
   group: template-factory-quality-${{ github.ref }}
@@ -313,6 +315,71 @@ jobs:
           path: |
             artifacts/template-factory-quality/*.png
             artifacts/template-factory-quality/manifest.json
+          if-no-files-found: warn
+          retention-days: 30
+
+      - name: Resolve exact-head Vercel preview for Product Owner proof
+        if: (github.event_name == 'push' && startsWith(github.ref_name, 'feature/template-factory-product-owner-')) || (github.event_name == 'pull_request' && startsWith(github.head_ref, 'feature/template-factory-product-owner-'))
+        id: product-owner-preview
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const sleep=(ms)=>new Promise(resolve=>setTimeout(resolve,ms));
+            const {owner,repo}=context.repo;
+            const sha=context.payload.pull_request?.head?.sha??context.sha;
+            for(let attempt=0;attempt<90;attempt+=1){
+              const deployments=await github.paginate(
+                github.rest.repos.listDeployments,
+                {owner,repo,sha,per_page:100},
+              );
+              for(const deployment of deployments){
+                const statuses=await github.paginate(
+                  github.rest.repos.listDeploymentStatuses,
+                  {owner,repo,deployment_id:deployment.id,per_page:100},
+                );
+                const ready=statuses.find(status=>{
+                  if(status.state!=='success'||!status.environment_url)return false;
+                  try{return new URL(status.environment_url).hostname.endsWith('.vercel.app')}catch{return false}
+                });
+                if(ready){
+                  core.info(`Exact-head Vercel preview ready for ${sha}.`);
+                  core.setOutput('base-url',new URL(ready.environment_url).origin);
+                  return;
+                }
+              }
+              const combined=await github.rest.repos.getCombinedStatusForRef({owner,repo,ref:sha});
+              const vercel=combined.data.statuses.find(status=>status.context==='Vercel');
+              if(vercel&&['failure','error'].includes(vercel.state)){
+                throw new Error(`EXACT_HEAD_VERCEL_DEPLOYMENT_${vercel.state.toUpperCase()}`);
+              }
+              if(vercel?.state==='success'){
+                core.info('GitHub deployment status is successful; using the protected proof-branch alias with exact source-commit verification.');
+                core.setOutput('base-url','https://water-k-native-git-feature-template-fact-a56b5f-infowaterk-5067.vercel.app');
+                return;
+              }
+              await sleep(5000);
+            }
+            core.setFailed('EXACT_HEAD_VERCEL_PREVIEW_NOT_READY');
+
+      - name: Prove exact-head Product Owner login journey
+        if: (github.event_name == 'push' && startsWith(github.ref_name, 'feature/template-factory-product-owner-')) || (github.event_name == 'pull_request' && startsWith(github.head_ref, 'feature/template-factory-product-owner-'))
+        env:
+          PRODUCT_OWNER_PREVIEW_URL: "${{ steps.product-owner-preview.outputs.base-url }}/storefront-template-preview?template=gaming.loot-vault&version=2&page=home&viewport=desktop&factory=1"
+          PRODUCT_OWNER_TEMPLATE_KEY: gaming.loot-vault
+          PRODUCT_OWNER_TEMPLATE_VERSION: '2'
+          PRODUCT_OWNER_SOURCE_COMMIT: ${{ github.event.pull_request.head.sha || github.sha }}
+          PRODUCT_OWNER_TEST_EMAIL: ${{ secrets.PRODUCT_OWNER_TEST_EMAIL }}
+          PRODUCT_OWNER_TEST_PASSWORD: ${{ secrets.PRODUCT_OWNER_TEST_PASSWORD }}
+          TEMPLATE_QUALITY_MANIFEST: artifacts/template-factory-quality/manifest.json
+          TEMPLATE_HANDOFF_OUTPUT_DIR: artifacts/template-factory-handoff
+        run: node scripts/template-factory-product-owner-handoff.mjs
+
+      - name: Upload Product Owner journey proof
+        if: always() && (github.event_name == 'push' && startsWith(github.ref_name, 'feature/template-factory-product-owner-')) || (github.event_name == 'pull_request' && startsWith(github.head_ref, 'feature/template-factory-product-owner-'))
+        uses: actions/upload-artifact@v4
+        with:
+          name: template-factory-handoff-${{ github.event.pull_request.head.sha || github.sha }}
+          path: artifacts/template-factory-handoff/**
           if-no-files-found: warn
           retention-days: 30
 

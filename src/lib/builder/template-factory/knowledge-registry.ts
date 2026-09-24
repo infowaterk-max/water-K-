@@ -35,6 +35,8 @@ export const TEMPLATE_FACTORY_AUTHORITY_GRAPH:readonly TemplateFactoryAuthorityR
   {id:'TF-AUTH-009',subject:'browser proof stabilization',owner:'quality-system',delegates:[],rule:'Browser assertions and screenshots must observe the same settled DOM state; streamed UI must be awaited before proof is sampled.'},
   {id:'TF-AUTH-010',subject:'Product Owner preview authorization context',owner:'platform',delegates:['quality-system'],rule:'Authenticated Factory Product Owner preview authorization is tenant-independent: access may be proven by platform-operator authority or an active owner/admin RBAC binding, but rendering capability comes from the compiled candidate and must not require an active webshop or subscription-plan context.'},
   {id:'TF-AUTH-011',subject:'exact-head Factory browser acceptance coverage',owner:'quality-system',delegates:[],rule:'A Factory candidate may claim browserMatrixPassed only after every canonical page type has passed every canonical viewport on the exact source commit; a canary subset is diagnostic evidence only and can never satisfy full-matrix acceptance.'},
+  {id:'TF-AUTH-012',subject:'executable Product Owner journey proof',owner:'quality-system',delegates:[],rule:'Product Owner handoff is proven only by an executable CI path that resolves the exact-head deployed preview, consumes protected authentication material without exposing it, runs the journey verifier, and persists the resulting proof artifact; the existence of a handoff script alone is never proof.'},
+  {id:'TF-AUTH-013',subject:'Product Owner proof source-commit normalization',owner:'quality-system',delegates:[],rule:'Exact-head Product Owner proof must normalize the source commit from the PR head SHA for pull_request runs and from github.sha for push runs; merge-ref SHAs are never accepted as candidate provenance.'},
 ]);
 
 export const TEMPLATE_FACTORY_KNOWN_FAILURES:readonly TemplateFactoryKnownFailure[]=Object.freeze([
@@ -135,6 +137,28 @@ export const TEMPLATE_FACTORY_KNOWN_FAILURES:readonly TemplateFactoryKnownFailur
     automatable:true,
     remediationPolicy:'shared-invariant-preferred',
     invariantIds:['TF-AUTH-008','TF-AUTH-011'],
+    regressionTests:['tests/template-factory-procedural-memory.test.ts'],
+  },
+  {
+    id:'TF-KF-010',
+    title:'Product Owner handoff verifier exists but is orphaned from CI',
+    symptom:'The repository contains a Product Owner journey verifier, yet no protected exact-head workflow actually executes it, so the final handoff gate can remain permanently unproven.',
+    rootCause:'The proof script was implemented as a local capability but never wired to an exact-head deployment resolver, protected authentication secrets and persisted CI evidence.',
+    occurrences:1,
+    automatable:true,
+    remediationPolicy:'shared-invariant-preferred',
+    invariantIds:['TF-AUTH-008','TF-AUTH-012'],
+    regressionTests:['tests/template-factory-procedural-memory.test.ts'],
+  },
+  {
+    id:'TF-KF-011',
+    title:'Product Owner PR proof binds to merge-ref SHA instead of branch HEAD',
+    symptom:'A pull_request workflow can pass technical CI while the deployment resolver and DOM provenance check look for the synthetic merge SHA rather than the Factory candidate branch HEAD.',
+    rootCause:'The journey workflow used github.sha/context.sha uniformly across push and pull_request events instead of normalizing to pull_request.head.sha for PR execution.',
+    occurrences:1,
+    automatable:true,
+    remediationPolicy:'shared-invariant-preferred',
+    invariantIds:['TF-AUTH-008','TF-AUTH-013'],
     regressionTests:['tests/template-factory-procedural-memory.test.ts'],
   },
 ]);
