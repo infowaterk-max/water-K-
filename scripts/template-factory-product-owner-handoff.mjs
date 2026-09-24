@@ -173,12 +173,14 @@ try{
   if(!checks.finalIdentity)errors.push('FINAL_PREVIEW_IDENTITY_MISMATCH');
 
   if(checks.finalIdentity){
-    const root=page.locator('[data-template-preview="representative-demo"]');
+    const allRoots=page.locator('[data-template-preview="representative-demo"]');
+    const root=page.locator('[data-template-preview="representative-demo"]:visible');
     await root.first().waitFor({state:'visible',timeout:30000}).catch(()=>undefined);
-    checks.previewRootCount=await root.count();
-    checks.previewProvenanceStamp=checks.previewRootCount===1;
+    checks.previewRootCount=await allRoots.count();
+    checks.visiblePreviewRootCount=await root.count();
+    checks.previewProvenanceStamp=checks.visiblePreviewRootCount===1;
     if(!checks.previewProvenanceStamp)errors.push('PREVIEW_PROVENANCE_STAMP_MISSING');
-    if(checks.previewRootCount===1){
+    if(checks.visiblePreviewRootCount===1){
       const provenance=await root.first().evaluate(element=>({
         templateKey:element.getAttribute('data-template-key'),
         templateVersion:element.getAttribute('data-template-version'),
