@@ -57,6 +57,36 @@
       "id": "SQ-AUTH-010",
       "subject": "durable failure intake disposition",
       "rule": "Unknown or review-required failure intake must remain visible until explicitly matched, promoted, scoped, deduplicated or rejected."
+    },
+    {
+      "id": "SQ-AUTH-011",
+      "subject": "source persisted and runtime state authority",
+      "rule": "Source templates, persisted documents and runtime state are distinct authorities; a change is complete only when the intended authoritative state transition is explicit and proven."
+    },
+    {
+      "id": "SQ-AUTH-012",
+      "subject": "single responsive mode authority",
+      "rule": "Responsive mode and workspace geometry must have one canonical authority; host-device heuristics, duplicate CSS ownership or presentation zoom may not silently redefine product layout state."
+    },
+    {
+      "id": "SQ-AUTH-013",
+      "subject": "explicit tenant and operating context",
+      "rule": "Tenant and operating context must resolve explicitly and fail closed before protected capabilities, mutations or merchant/customer presentation are selected."
+    },
+    {
+      "id": "SQ-AUTH-014",
+      "subject": "server-owned commerce truth",
+      "rule": "Price, stock, release state, compatibility, order identity and other business truth must come from server-authoritative commerce contracts rather than template copy, client clocks or presentation fixtures."
+    },
+    {
+      "id": "SQ-AUTH-015",
+      "subject": "non-circular evidence promotion",
+      "rule": "An evidence or baseline promotion path must be independently reachable; acceptance may not require the already-promoted artifact as a prerequisite for promoting that same artifact."
+    },
+    {
+      "id": "SQ-AUTH-016",
+      "subject": "unique canonical knowledge identity",
+      "rule": "Every Support Knowledge record must have a unique canonical identity even when a historical human-readable source ID was accidentally reused."
     }
   ],
   "globalBaselineFailureIds": [
@@ -464,6 +494,225 @@
         "mode": "always",
         "subsystems": []
       }
+    },
+    {
+      "id": "SQ-KF-015",
+      "title": "Source, persisted state and runtime authority drift apart",
+      "symptom": "A source template or feature is changed, but the persisted document, installed package, draft or live runtime still serves a different accepted state.",
+      "rootCause": "Source code, persisted state and runtime materialization were treated as if changing one automatically changed the others.",
+      "occurrences": 4,
+      "automatable": true,
+      "remediationPolicy": "shared-root-cause-required",
+      "lifecycle": "active",
+      "invariantIds": [
+        "SQ-AUTH-011",
+        "SQ-AUTH-007"
+      ],
+      "regressionTests": [
+        "tests/storefront-template-persistence.test.ts",
+        "tests/storefront-runtime-persistence.test.ts",
+        "tests/storefront-preview-demo-content-routing.test.ts"
+      ],
+      "sourceRecords": [
+        "docs/support/RECENT_ENGINEERING_BACKFILL_2026-09-12_18.md",
+        "docs/support/RECENT_ENGINEERING_INCIDENTS_2026-09-10_11.md",
+        "docs/support/PLAYROOM_V20_HOME_RESPONSIVE_AND_NEWSLETTER_2026-09-22.md"
+      ],
+      "applicability": {
+        "mode": "subsystem",
+        "subsystems": [
+          "builder-template-system",
+          "shared-storefront",
+          "storefront-launch-runtime"
+        ]
+      }
+    },
+    {
+      "id": "SQ-KF-016",
+      "title": "Responsive state has multiple or heuristic authorities",
+      "symptom": "Desktop/mobile/editor behavior changes according to host-device heuristics, duplicate CSS owners, workspace width assumptions or presentation zoom instead of one measured responsive contract.",
+      "rootCause": "Responsive mode ownership was distributed across unrelated layout layers or inferred from the host device rather than the product viewport/workspace authority.",
+      "occurrences": 6,
+      "automatable": true,
+      "remediationPolicy": "shared-root-cause-required",
+      "lifecycle": "active",
+      "invariantIds": [
+        "SQ-AUTH-012",
+        "SQ-AUTH-007"
+      ],
+      "regressionTests": [
+        "tests/visual-builder-mobile-isolation.test.ts",
+        "tests/admin-mobile-desktop-compat.test.ts",
+        "tests/storefront-responsive-isolation.test.ts"
+      ],
+      "sourceRecords": [
+        "docs/support/DIGITAL_OFFICE_RESPONSIVE_INCIDENT_2026-09-10.md",
+        "docs/support/RECENT_ENGINEERING_BACKFILL_2026-09-12_18.md",
+        "docs/support/RECENT_ENGINEERING_INCIDENTS_2026-09-10_11.md",
+        "docs/support/PLAYROOM_V20_PHASE4_BUILDER_ACCEPTANCE_INCIDENTS_2026-09-18.md"
+      ],
+      "applicability": {
+        "mode": "subsystem",
+        "subsystems": [
+          "builder-template-system",
+          "admin-operations",
+          "shared-storefront",
+          "storefront-ui"
+        ]
+      }
+    },
+    {
+      "id": "SQ-KF-017",
+      "title": "Tenant or operating context is ambiguous before capability resolution",
+      "symptom": "A platform-owner, merchant or guest flow cannot determine the correct tenant/context, or resolves null/ambiguous state before capability and route selection.",
+      "rootCause": "Tenant/context resolution was deferred until after UI or capability decisions instead of being a canonical fail-closed prerequisite.",
+      "occurrences": 2,
+      "automatable": true,
+      "remediationPolicy": "shared-root-cause-required",
+      "lifecycle": "active",
+      "invariantIds": [
+        "SQ-AUTH-013",
+        "SQ-AUTH-007"
+      ],
+      "regressionTests": [
+        "tests/platform-owner-zero-tenant-hotfix.test.ts",
+        "tests/operational-tenant-isolation.test.ts",
+        "tests/pilot-acceptance-access.test.ts"
+      ],
+      "sourceRecords": [
+        "docs/support/PLAYROOM_V20_PHASE4_BUILDER_ACCEPTANCE_INCIDENTS_2026-09-18.md",
+        "docs/support/RECENT_ENGINEERING_BACKFILL_2026-09-12_18.md"
+      ],
+      "applicability": {
+        "mode": "subsystem",
+        "subsystems": [
+          "auth-access-authority",
+          "admin-operations",
+          "customer-account",
+          "shared-storefront"
+        ]
+      }
+    },
+    {
+      "id": "SQ-KF-018",
+      "title": "Environment baseline omits a required runtime dependency",
+      "symptom": "A target environment is missing a migration, grant, reusable symbol or baseline dependency required by code that otherwise passed source-level checks.",
+      "rootCause": "The runtime dependency was not encoded and replayed as part of the authoritative environment/baseline contract.",
+      "occurrences": 4,
+      "automatable": true,
+      "remediationPolicy": "shared-root-cause-required",
+      "lifecycle": "active",
+      "invariantIds": [
+        "SQ-AUTH-003",
+        "SQ-AUTH-007"
+      ],
+      "regressionTests": [
+        "tests/customer-baseline-proof-contract.test.ts",
+        "tests/digital-commerce-customer-baseline-parity.test.ts",
+        "tests/customer-baseline-target-postflight.test.ts"
+      ],
+      "sourceRecords": [
+        "docs/support/RECENT_ENGINEERING_BACKFILL_2026-09-12_18.md",
+        "docs/support/RECENT_ENGINEERING_INCIDENTS_2026-09-10_11.md",
+        "docs/support/PLAYROOM_V20_PHASE4_BUILDER_ACCEPTANCE_INCIDENTS_2026-09-18.md"
+      ],
+      "applicability": {
+        "mode": "subsystem",
+        "subsystems": [
+          "database-schema",
+          "release-infrastructure",
+          "storefront-launch-runtime",
+          "environment-secret-contract"
+        ]
+      }
+    },
+    {
+      "id": "SQ-KF-019",
+      "title": "Presentation or client claims cross the server-truth boundary",
+      "symptom": "Template text, client time, demo state or merchant-entered claims are treated as authoritative price, stock, release, compatibility or order truth.",
+      "rootCause": "Presentation and guidance layers were allowed to invent or override server-owned commerce facts.",
+      "occurrences": 2,
+      "automatable": true,
+      "remediationPolicy": "shared-root-cause-required",
+      "lifecycle": "active",
+      "invariantIds": [
+        "SQ-AUTH-014",
+        "SQ-AUTH-007"
+      ],
+      "regressionTests": [
+        "tests/commerce-pricing.test.ts",
+        "tests/core-checkout-quote.test.ts",
+        "tests/order-lifecycle-contracts.test.ts"
+      ],
+      "sourceRecords": [
+        "docs/support/RECENT_ENGINEERING_BACKFILL_2026-09-12_18.md"
+      ],
+      "applicability": {
+        "mode": "subsystem",
+        "subsystems": [
+          "payment-checkout-order-authority",
+          "inventory-fulfillment-authority",
+          "shared-storefront",
+          "builder-template-system"
+        ]
+      }
+    },
+    {
+      "id": "SQ-KF-020",
+      "title": "Evidence promotion path is circular",
+      "symptom": "An accepted baseline or evidence artifact cannot be promoted because the promotion command first requires the already-updated evidence to pass.",
+      "rootCause": "The acceptance gate and the evidence-promotion authority depend on each other instead of having an independent reviewed promotion path.",
+      "occurrences": 1,
+      "automatable": true,
+      "remediationPolicy": "shared-invariant-preferred",
+      "lifecycle": "active",
+      "invariantIds": [
+        "SQ-AUTH-015",
+        "SQ-AUTH-004",
+        "SQ-AUTH-007"
+      ],
+      "regressionTests": [
+        "tests/template-golden-baseline-promotion-policy.test.ts",
+        "tests/rollout-readiness.test.ts"
+      ],
+      "sourceRecords": [
+        "docs/support/PLAYROOM_V20_PRODUCTION_RELEASE_AND_GOLDEN_RECOVERY_2026-09-23.md"
+      ],
+      "applicability": {
+        "mode": "subsystem",
+        "subsystems": [
+          "release-infrastructure",
+          "builder-template-system",
+          "quality-knowledge-system"
+        ]
+      }
+    },
+    {
+      "id": "SQ-KF-021",
+      "title": "Historical Support Knowledge record identity collides",
+      "symptom": "Two different historical incidents reuse the same human-readable Support Knowledge ID, making automated retrieval or disposition ambiguous.",
+      "rootCause": "Manual incident numbering had no globally unique canonical record identity.",
+      "occurrences": 2,
+      "automatable": true,
+      "remediationPolicy": "shared-root-cause-required",
+      "lifecycle": "active",
+      "invariantIds": [
+        "SQ-AUTH-016",
+        "SQ-AUTH-010",
+        "SQ-AUTH-007"
+      ],
+      "regressionTests": [
+        "tests/shoperation-historical-support-backfill.test.ts"
+      ],
+      "sourceRecords": [
+        "docs/support/PLAYROOM_V20_PHASE4_BUILDER_ACCEPTANCE_INCIDENTS_2026-09-18.md"
+      ],
+      "applicability": {
+        "mode": "subsystem",
+        "subsystems": [
+          "quality-knowledge-system"
+        ]
+      }
     }
   ],
   "templateFactoryFailureApplicability": {
@@ -611,6 +860,42 @@
     {
       "id": "SQ-NK-006",
       "rule": "Do not create a second component/capability authority when the canonical shared primitive already exists.",
+      "sourceRecords": [
+        "docs/support/PLAYROOM_V20_PHASE4_BUILDER_ACCEPTANCE_INCIDENTS_2026-09-18.md"
+      ]
+    },
+    {
+      "id": "SQ-NK-007",
+      "rule": "Do not assume a source template edit changes an already persisted draft, installed package or live Page Schema; prove the intended state transition explicitly.",
+      "sourceRecords": [
+        "docs/support/RECENT_ENGINEERING_BACKFILL_2026-09-12_18.md"
+      ]
+    },
+    {
+      "id": "SQ-NK-008",
+      "rule": "Do not use host-device heuristics, fixed zoom or duplicate CSS ownership as responsive authority when a canonical viewport/workspace contract exists.",
+      "sourceRecords": [
+        "docs/support/DIGITAL_OFFICE_RESPONSIVE_INCIDENT_2026-09-10.md",
+        "docs/support/PLAYROOM_V20_PHASE4_BUILDER_ACCEPTANCE_INCIDENTS_2026-09-18.md"
+      ]
+    },
+    {
+      "id": "SQ-NK-009",
+      "rule": "Do not treat template copy, client time or demo data as authoritative commerce truth for price, stock, release, compatibility or order state.",
+      "sourceRecords": [
+        "docs/support/RECENT_ENGINEERING_BACKFILL_2026-09-12_18.md"
+      ]
+    },
+    {
+      "id": "SQ-NK-010",
+      "rule": "Do not design an evidence promotion command that requires the already-promoted baseline or evidence to be green before promotion can occur.",
+      "sourceRecords": [
+        "docs/support/PLAYROOM_V20_PRODUCTION_RELEASE_AND_GOLDEN_RECOVERY_2026-09-23.md"
+      ]
+    },
+    {
+      "id": "SQ-NK-011",
+      "rule": "Do not use a human-readable Support Knowledge ID as the canonical machine identity when historical records may reuse that ID; retain source ID but key records by file plus occurrence.",
       "sourceRecords": [
         "docs/support/PLAYROOM_V20_PHASE4_BUILDER_ACCEPTANCE_INCIDENTS_2026-09-18.md"
       ]

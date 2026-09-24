@@ -202,3 +202,26 @@ Knowledge-infrastructure changes force a full Known Failure selection. A schedul
 Unknown and review-required failure intake is written as machine-readable evidence and persisted as a deduplicated engineering intake until explicit disposition. Candidate intake never promotes itself into a Known Failure class.
 
 Negative knowledge is first-class: disproven workarounds and unsafe repair paths remain recorded so a later engineer or agent cannot silently repeat them.
+
+
+## Historical Support Knowledge backfill
+
+The historical corpus is not treated as passive documentation.
+
+Every Markdown document under `docs/support/` must be registered in `quality/knowledge/support-history-policy.v1.json`. Every explicit historical `SKB-*` or `INC-*` incident must resolve to one explicit disposition:
+
+- `matched-known-failure`;
+- `new-global-failure`;
+- `subsystem-specific`;
+- `duplicate`;
+- or `rejected`.
+
+There is no silent fallback for a new explicit incident. An unmatched record becomes `needs-review` and blocks Knowledge Before Build until it receives a deliberate disposition.
+
+`scripts/shoperation-support-history-backfill.mjs --check` produces the machine-readable historical report at:
+
+`artifacts/shoperation-quality/support-history-backfill.json`
+
+Historical human-readable IDs are preserved for retrieval, but the canonical machine identity is `source-file + source-id + occurrence`. This is required because older Playroom records contain reused IDs. No incident is discarded because of that collision.
+
+The backfill may promote a historical pattern into the global Known Failure registry only when the full learned chain exists: symptom → root cause → invariant → regression authority → applicability/replay.
