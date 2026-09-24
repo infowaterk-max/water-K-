@@ -4,6 +4,7 @@ import {buildRegisteredStorefrontTemplateFactoryCandidate} from '@/lib/builder/t
 import {
   createStorefrontTemplateShowroomEvidence,
   evaluateStorefrontTemplateShowroomContract,
+  rewriteStorefrontTemplatePreviewBindingContext,
   STOREFRONT_TEMPLATE_SHOWROOM_SURFACES,
 } from '@/lib/builder/storefront-template-route-integrity';
 import {STOREFRONT_PAGE_TYPES} from '@/lib/builder/storefront-foundation';
@@ -86,6 +87,24 @@ describe('Template Factory complete storefront contract',()=>{
     expect(serialized).toContain('commerce.cart-summary');
     expect(serialized).toContain('commerce.checkout-summary');
     expect(build.report.showroomEvidence.flatMap(row=>row.engines)).toEqual(expect.arrayContaining(['E1','E2','E7','E10','E13']));
+  });
+
+  it('rewrites dynamic commerce binding hrefs into the same Factory preview authority',()=>{
+    const rewritten=rewriteStorefrontTemplatePreviewBindingContext({
+      catalog:{featured:[{name:'Vault Sentinel',href:'/termek/vault-sentinel'}]},
+      navigation:{primary:[{label:'Kapcsolat',href:'/kapcsolat'}]},
+      external:{href:'https://example.com/'},
+    },{
+      templateKey:'gaming.loot-vault',
+      templateVersion:2,
+      viewport:'desktop',
+      factoryCandidate:true,
+    });
+    const serialized=JSON.stringify(rewritten);
+    expect(serialized).toContain('/storefront-template-preview?template=gaming.loot-vault&version=2&page=product&viewport=desktop&factory=1');
+    expect(serialized).toContain('/storefront-template-preview?template=gaming.loot-vault&version=2&page=contact&viewport=desktop&factory=1');
+    expect(serialized).toContain('https://example.com/');
+    expect(serialized).not.toContain('"/termek/vault-sentinel"');
   });
 
   it('keeps shared purchase and wishlist follow-up routes inside Factory preview authority',()=>{
