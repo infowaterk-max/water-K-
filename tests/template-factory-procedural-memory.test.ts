@@ -65,6 +65,28 @@ describe('Template Factory procedural memory',()=>{
     expect(TEMPLATE_FACTORY_KNOWN_FAILURES.some(item=>item.id==='TF-KF-013')).toBe(true);
   });
 
+  it('authenticates protected Vercel previews through trusted GitHub OIDC before app auth',()=>{
+    const workflow=fs.readFileSync('.github/workflows/template-factory-quality-gate.yml','utf8');
+    const handoff=fs.readFileSync('scripts/template-factory-product-owner-handoff.mjs','utf8');
+    expect(workflow).toContain('id-token: write');
+    expect(workflow).toContain('const token=await core.getIDToken();');
+    expect(workflow).toContain('VERCEL_TRUSTED_OIDC_TOKEN: ${{ steps.product-owner-oidc.outputs.token }}');
+    expect(handoff).toContain("'x-vercel-trusted-oidc-idp-token':vercelTrustedOidcToken");
+    expect(handoff).toContain('checks.entryStatus=response?.status()??null');
+    expect(TEMPLATE_FACTORY_AUTHORITY_GRAPH.some(item=>item.id==='TF-AUTH-016')).toBe(true);
+    expect(TEMPLATE_FACTORY_KNOWN_FAILURES.some(item=>item.id==='TF-KF-014')).toBe(true);
+  });
+
+  it('waits for streamed preview redirect or Factory provenance before sampling the journey',()=>{
+    const handoff=fs.readFileSync('scripts/template-factory-product-owner-handoff.mjs','utf8');
+    expect(handoff).toContain("location.pathname==='/storefront-template-preview-login'");
+    expect(handoff).toContain("document.querySelector('[data-template-preview=\"representative-demo\"]')");
+    expect(handoff).toContain('checks.entrySettledPath=new URL(page.url()).pathname');
+    expect(handoff).toContain("root.first().waitFor({state:'attached',timeout:10000})");
+    expect(TEMPLATE_FACTORY_AUTHORITY_GRAPH.some(item=>item.id==='TF-AUTH-017')).toBe(true);
+    expect(TEMPLATE_FACTORY_KNOWN_FAILURES.some(item=>item.id==='TF-KF-015')).toBe(true);
+  });
+
   it('keeps every known failure bound to a real invariant and regression test',()=>{
     const authorityIds=new Set(TEMPLATE_FACTORY_AUTHORITY_GRAPH.map(item=>item.id));
     expect(new Set(TEMPLATE_FACTORY_KNOWN_FAILURES.map(item=>item.id)).size).toBe(TEMPLATE_FACTORY_KNOWN_FAILURES.length);

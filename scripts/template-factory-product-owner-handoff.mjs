@@ -9,6 +9,7 @@ const sourceCommit=(process.env.PRODUCT_OWNER_SOURCE_COMMIT??'').trim()||null;
 const email=(process.env.PRODUCT_OWNER_TEST_EMAIL??'').trim();
 const password=process.env.PRODUCT_OWNER_TEST_PASSWORD??'';
 const storageState=(process.env.PRODUCT_OWNER_STORAGE_STATE??'').trim();
+const vercelTrustedOidcToken=(process.env.VERCEL_TRUSTED_OIDC_TOKEN??'').trim();
 const qualityManifestPath=(process.env.TEMPLATE_QUALITY_MANIFEST??'artifacts/template-factory-quality/manifest.json').trim();
 const outputDir=(process.env.TEMPLATE_HANDOFF_OUTPUT_DIR??'artifacts/template-factory-handoff').trim();
 
@@ -60,11 +61,25 @@ let browser;
 let context;
 try{
   browser=await chromium.launch({headless:true});
-  context=await browser.newContext(storageState&&await exists(storageState)?{storageState}:{});
+  const contextOptions=storageState&&await exists(storageState)?{storageState}:{};
+  if(vercelTrustedOidcToken){
+    contextOptions.extraHTTPHeaders={'x-vercel-trusted-oidc-idp-token':vercelTrustedOidcToken};
+  }
+  checks.vercelTrustedOidcPresented=Boolean(vercelTrustedOidcToken);
+  context=await browser.newContext(contextOptions);
   const page=await context.newPage();
   const response=await page.goto(previewUrl,{waitUntil:'domcontentloaded',timeout:30000});
   checks.entryResponse=Boolean(response);
+  checks.entryStatus=response?.status()??null;
   await page.waitForLoadState('load',{timeout:15000}).catch(()=>undefined);
+  checks.entryTitle=await page.title().catch(()=>null);
+  if(checks.entryStatus!==null&&checks.entryStatus>=400)errors.push(`ENTRY_HTTP_STATUS_${checks.entryStatus}`);
+  await page.waitForFunction(
+    () => location.pathname==='/storefront-template-preview-login'
+      || Boolean(document.querySelector('[data-template-preview="representative-demo"]')),
+    {timeout:10000},
+  ).catch(()=>undefined);
+  checks.entrySettledPath=new URL(page.url()).pathname;
 
   let current=new URL(page.url());
   checks.entryPath=current.pathname;
@@ -80,14 +95,17 @@ try{
     if(!checks.returnTargetPreserved)errors.push('LOGIN_RETURN_TARGET_MISMATCH');
 
     const shell=page.locator(`[data-storefront-account-shell="preview"][data-storefront-template="${templateKey}"]`);
+    await shell.first().waitFor({state:'attached',timeout:10000}).catch(()=>undefined);
     checks.templateAwareAuthShell=await shell.count()===1;
     if(!checks.templateAwareAuthShell)errors.push('TEMPLATE_AWARE_AUTH_SHELL_MISSING');
 
     const styles=page.locator(`[data-storefront-global-styles-v1="true"][data-storefront-template="${templateKey}"][data-storefront-template-version="${templateVersion}"]`);
+    await styles.first().waitFor({state:'attached',timeout:10000}).catch(()=>undefined);
     checks.templateVersionedAuthStyle=await styles.count()>0;
     if(!checks.templateVersionedAuthStyle)errors.push('TEMPLATE_AUTH_STYLE_IDENTITY_MISSING');
 
     const authSurface=page.locator('[data-storefront-auth-surface="true"]');
+    await authSurface.first().waitFor({state:'visible',timeout:10000}).catch(()=>undefined);
     checks.sharedAuthSurface=await authSurface.count()===1;
     if(!checks.sharedAuthSurface)errors.push('SHARED_AUTH_SURFACE_MISSING');
 
@@ -125,6 +143,7 @@ try{
     const root=page.locator(
       `[data-template-preview="representative-demo"][data-template-key="${templateKey}"][data-template-version="${templateVersion}"][data-factory-candidate="true"][data-template-recipe="${templateKey}@${templateVersion}"]`
     );
+    await root.first().waitFor({state:'attached',timeout:10000}).catch(()=>undefined);
     checks.previewProvenanceStamp=await root.count()===1;
     if(!checks.previewProvenanceStamp)errors.push('PREVIEW_PROVENANCE_STAMP_MISSING');
     if(await root.count()===1){
