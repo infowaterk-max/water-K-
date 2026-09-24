@@ -242,6 +242,7 @@ jobs:
           tests/storefront-template-quality-gate-v2.test.ts
           tests/template-factory-scaffold-v1.test.ts
           tests/template-factory-procedural-memory.test.ts
+          tests/template-factory-storefront-contract.test.ts
           tests/template-factory-loot-vault-v2.test.ts
           tests/template-factory-ready-media-files.test.ts
           tests/storefront-template-factory-workflow-coverage.test.ts
@@ -319,7 +320,7 @@ jobs:
           retention-days: 30
 
       - name: Resolve exact-head Vercel preview for Product Owner proof
-        if: (github.event_name == 'push' && (startsWith(github.ref_name, 'feature/template-factory-product-owner-') || github.ref_name == 'feature/template-factory-vercel-automation-bypass')) || (github.event_name == 'pull_request' && (startsWith(github.head_ref, 'feature/template-factory-product-owner-') || github.head_ref == 'feature/template-factory-vercel-automation-bypass'))
+        if: (github.event_name == 'push' && (startsWith(github.ref_name, 'feature/template-factory-product-owner-') || github.ref_name == 'feature/template-factory-vercel-automation-bypass' || github.ref_name == 'feature/template-factory-storefront-contract-hardening')) || (github.event_name == 'pull_request' && (startsWith(github.head_ref, 'feature/template-factory-product-owner-') || github.head_ref == 'feature/template-factory-vercel-automation-bypass' || github.head_ref == 'feature/template-factory-storefront-contract-hardening'))
         id: product-owner-preview
         uses: actions/github-script@v7
         with:
@@ -362,7 +363,7 @@ jobs:
             core.setFailed('EXACT_HEAD_VERCEL_PREVIEW_NOT_READY');
 
       - name: Prove exact-head Product Owner login journey
-        if: (github.event_name == 'push' && (startsWith(github.ref_name, 'feature/template-factory-product-owner-') || github.ref_name == 'feature/template-factory-vercel-automation-bypass')) || (github.event_name == 'pull_request' && (startsWith(github.head_ref, 'feature/template-factory-product-owner-') || github.head_ref == 'feature/template-factory-vercel-automation-bypass'))
+        if: (github.event_name == 'push' && (startsWith(github.ref_name, 'feature/template-factory-product-owner-') || github.ref_name == 'feature/template-factory-vercel-automation-bypass' || github.ref_name == 'feature/template-factory-storefront-contract-hardening')) || (github.event_name == 'pull_request' && (startsWith(github.head_ref, 'feature/template-factory-product-owner-') || github.head_ref == 'feature/template-factory-vercel-automation-bypass' || github.head_ref == 'feature/template-factory-storefront-contract-hardening'))
         env:
           PRODUCT_OWNER_PREVIEW_URL: "${{ steps.product-owner-preview.outputs.base-url }}/storefront-template-preview?template=gaming.loot-vault&version=2&page=home&viewport=desktop&factory=1"
           PRODUCT_OWNER_TEMPLATE_KEY: gaming.loot-vault
@@ -376,7 +377,7 @@ jobs:
         run: node scripts/template-factory-product-owner-handoff.mjs
 
       - name: Upload Product Owner journey proof
-        if: always() && (github.event_name == 'push' && (startsWith(github.ref_name, 'feature/template-factory-product-owner-') || github.ref_name == 'feature/template-factory-vercel-automation-bypass')) || (github.event_name == 'pull_request' && (startsWith(github.head_ref, 'feature/template-factory-product-owner-') || github.head_ref == 'feature/template-factory-vercel-automation-bypass'))
+        if: always() && (github.event_name == 'push' && (startsWith(github.ref_name, 'feature/template-factory-product-owner-') || github.ref_name == 'feature/template-factory-vercel-automation-bypass' || github.ref_name == 'feature/template-factory-storefront-contract-hardening')) || (github.event_name == 'pull_request' && (startsWith(github.head_ref, 'feature/template-factory-product-owner-') || github.head_ref == 'feature/template-factory-vercel-automation-bypass' || github.head_ref == 'feature/template-factory-storefront-contract-hardening'))
         uses: actions/upload-artifact@v4
         with:
           name: template-factory-handoff-${{ github.event.pull_request.head.sha || github.sha }}
