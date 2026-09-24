@@ -157,6 +157,8 @@ try{
           page.waitForURL(url=>url.pathname==='/storefront-template-preview',{timeout:30000}),
           visibleLoginButton.click(),
         ]).catch(error=>errors.push(`AUTHENTICATED_RETURN_FAILED:${error instanceof Error?error.message:String(error)}`));
+        await page.waitForLoadState('domcontentloaded',{timeout:15000}).catch(()=>undefined);
+        await page.waitForLoadState('load',{timeout:15000}).catch(()=>undefined);
       }
     }else if(!storageState){
       errors.push('PRODUCT_OWNER_AUTH_CREDENTIALS_OR_STORAGE_STATE_REQUIRED');
@@ -171,21 +173,34 @@ try{
   if(!checks.finalIdentity)errors.push('FINAL_PREVIEW_IDENTITY_MISMATCH');
 
   if(checks.finalIdentity){
-    const root=page.locator(
-      `[data-template-preview="representative-demo"][data-template-key="${templateKey}"][data-template-version="${templateVersion}"][data-factory-candidate="true"][data-template-recipe="${templateKey}@${templateVersion}"]`
-    );
-    await root.waitFor({state:'visible',timeout:10000}).catch(()=>undefined);
-    checks.previewProvenanceStamp=await root.count()===1;
+    const root=page.locator('[data-template-preview="representative-demo"]');
+    await root.first().waitFor({state:'visible',timeout:30000}).catch(()=>undefined);
+    checks.previewRootCount=await root.count();
+    checks.previewProvenanceStamp=checks.previewRootCount===1;
     if(!checks.previewProvenanceStamp)errors.push('PREVIEW_PROVENANCE_STAMP_MISSING');
-    if(await root.count()===1){
+    if(checks.previewRootCount===1){
       const provenance=await root.first().evaluate(element=>({
+        templateKey:element.getAttribute('data-template-key'),
+        templateVersion:element.getAttribute('data-template-version'),
+        factoryCandidate:element.getAttribute('data-factory-candidate'),
+        templateRecipe:element.getAttribute('data-template-recipe'),
         compileSource:element.getAttribute('data-compile-source'),
         foundationTemplate:element.getAttribute('data-foundation-template'),
         sourceCommit:element.getAttribute('data-source-commit'),
+        pageType:element.getAttribute('data-page-type'),
       }));
+      checks.previewTemplateKey=provenance.templateKey;
+      checks.previewTemplateVersion=provenance.templateVersion;
+      checks.previewFactoryCandidate=provenance.factoryCandidate;
+      checks.previewTemplateRecipe=provenance.templateRecipe;
       checks.compileSource=provenance.compileSource;
       checks.foundationTemplate=provenance.foundationTemplate;
       checks.previewSourceCommit=provenance.sourceCommit;
+      checks.previewPageType=provenance.pageType;
+      if(provenance.templateKey!==templateKey)errors.push('PREVIEW_TEMPLATE_KEY_MISMATCH');
+      if(Number(provenance.templateVersion)!==templateVersion)errors.push('PREVIEW_TEMPLATE_VERSION_MISMATCH');
+      if(provenance.factoryCandidate!=='true')errors.push('PREVIEW_FACTORY_CANDIDATE_MISMATCH');
+      if(provenance.templateRecipe!==`${templateKey}@${templateVersion}`)errors.push('PREVIEW_RECIPE_IDENTITY_MISMATCH');
       if(provenance.compileSource!=='template-factory')errors.push('PREVIEW_COMPILE_SOURCE_MISMATCH');
       if(!provenance.foundationTemplate||provenance.foundationTemplate==='none')errors.push('PREVIEW_FOUNDATION_PROVENANCE_MISSING');
       if(sourceCommit&&provenance.sourceCommit!==sourceCommit)errors.push('PREVIEW_SOURCE_COMMIT_MISMATCH');
