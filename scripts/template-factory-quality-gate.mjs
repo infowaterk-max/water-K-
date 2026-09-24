@@ -403,7 +403,8 @@ try{
         await mobileMenu.first().waitFor({state:'visible',timeout:5000}).catch(()=>undefined);
         const menuCount=await mobileMenu.count();
         const caseErrors=[];
-        if(warningText<1)caseErrors.push('DEMO_WARNING_MISSING');
+        if(manifest.factoryCandidate&&warningText>0)caseErrors.push('FACTORY_SHOWROOM_PLACEHOLDER_WARNING_PRESENT');
+        if(!manifest.factoryCandidate&&warningText<1)caseErrors.push('DEMO_WARNING_MISSING');
         if(menuCount!==1)caseErrors.push(`DEMO_MOBILE_MENU_CARDINALITY:${menuCount}`);
         for(const error of caseErrors)errors.push({case:name,error});
         const pathOut=path.join(outputDir,`${name}.png`);
@@ -435,14 +436,20 @@ const acceptanceProofs=scope.selected.map(selected=>{
     &&manifest.provenance?.targetTemplateVersion===manifest.templateVersion
     &&templateCases.every(item=>String(item.url??'').includes('factory=1'))
   );
+  const showroomEvidence=manifest.showroomEvidence??[];
+  const showroomContractPassed=!manifest.factoryCandidate||(
+    showroomEvidence.length>0
+    &&showroomEvidence.every(row=>Boolean(row.pageKey)&&row.schemaVersion===1&&Boolean(row.presentationAuthority)&&row.entrypointPresent===true&&row.navigationPresent===true)
+  );
   const blockers=[];
   if(!browserMatrixPassed)blockers.push('BROWSER_MATRIX_NOT_PROVEN');
   if(!proceduralMemoryPassed)blockers.push('PROCEDURAL_MEMORY_REPLAY_FAILED');
   if(!factoryIdentityPinned)blockers.push('FACTORY_CANDIDATE_IDENTITY_NOT_PINNED');
+  if(!showroomContractPassed)blockers.push('FACTORY_SHOWROOM_CONTRACT_NOT_PROVEN');
   if(manifest.factoryCandidate)blockers.push('VERCEL_PRODUCT_OWNER_JOURNEY_PROOF_REQUIRED');
-  const maturity=browserMatrixPassed&&proceduralMemoryPassed&&factoryIdentityPinned&&manifest.productOwnerReady===true
+  const maturity=browserMatrixPassed&&proceduralMemoryPassed&&factoryIdentityPinned&&showroomContractPassed&&manifest.productOwnerReady===true
     ?'visually-ready'
-    :browserMatrixPassed&&proceduralMemoryPassed&&factoryIdentityPinned
+    :browserMatrixPassed&&proceduralMemoryPassed&&factoryIdentityPinned&&showroomContractPassed
       ?'technically-ready'
       :'compiled';
   return{
@@ -458,6 +465,8 @@ const acceptanceProofs=scope.selected.map(selected=>{
     browserMatrixExpectedCaseCount:expectedMatrixKeys.size,
     proceduralMemoryPassed,
     factoryIdentityPinned,
+    showroomContractPassed,
+    showroomEvidence,
     productOwnerReadyByCompiler:manifest.productOwnerReady===true,
     maturity,
     handoffReady:false,
