@@ -79,7 +79,12 @@
     "SQ-NK-010",
     "SQ-NK-012"
   ],
-  "exceptions": [],
-  "notes": "Diagnostic-only exact-head extraction. Never merge this branch or PR. It temporarily restores only the proven Loot Vault v2 recipe/pages on top of current main and prints build.package as base64 chunks from the normal test runner. No production activation, no acceptance status change, no Release Risk Budget change. Exact-head plan closure corrected from gate evidence: DOMAIN-BUILDER / builder-template-system with dependency-contract subsystem; guard digest 9565cf97.",
+  "exceptions": [
+    {
+      "ruleId": "DEV-REVIEW-004",
+      "reason": "Diagnostic extraction only. Reviewed all flagged href literals: they converge on existing shared storefront routes (/fiokom, /kosar, /webaruhaz, /kedvencek, /penztar, /szallitas-es-fizetes, /oldal/visszakuldes, /fiokom/letoltesek, /fiokom/kivansaglista, /fiokom/dokumentumok, /fiokom/ugyek, /fiokom/visszakuldes). No new business-route authority is introduced."
+    }
+  ],
+  "notes": "Diagnostic-only exact-head extraction. Never merge this branch or PR. It temporarily restores only the proven Loot Vault v2 recipe/pages on top of current main and prints build.package as base64 chunks from the normal test runner. No production activation, no acceptance status change, no Release Risk Budget change. Exact-head plan closure corrected from gate evidence: DOMAIN-BUILDER / builder-template-system with dependency-contract subsystem; guard digest 9565cf97. DEV-REVIEW-004 explicitly reviewed: all flagged route literals map to existing shared storefront routes; exception acknowledges review and does not create or bypass route authority.",
   "changeBaseSha": "9cea1f51ac51b85ea3fc59b5d641da62fb193227"
 }
