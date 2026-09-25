@@ -3,7 +3,7 @@
   "taskId": "DEV-TEMPLATE-FACTORY-PRODUCT-OWNER-HANDOFF",
   "task": "Generalize Template Factory acceptance proof and Product Owner exact-head handoff so candidate targeting is derived from evidence instead of hard-coded template or branch names.",
   "status": "ready-for-implementation",
-  "guardDigest": "4ee320c4",
+  "guardDigest": "50a43c16",
   "plannedFilePatterns": [
     ".github/workflows/template-factory-quality-gate.yml",
     "scripts/template-factory-quality-gate.mjs",
@@ -11,18 +11,14 @@
     "quality/development/active-plan.json"
   ],
   "expectedSubsystems": [
-    "builder-template-system",
-    "quality-knowledge-system",
-    "release-infrastructure"
+    "release-infrastructure",
+    "shared-storefront",
+    "storefront-ui"
   ],
   "expectedDomains": [
-    "DOMAIN-BUILDER",
-    "DOMAIN-QUALITY",
     "DOMAIN-RELEASE"
   ],
   "expectedAuthorities": [
-    "builder-template-system",
-    "quality-knowledge-system",
     "release-infrastructure"
   ],
   "expectedKnownFailureIds": [
@@ -31,7 +27,10 @@
     "SQ-KF-003",
     "SQ-KF-004",
     "SQ-KF-005",
+    "SQ-KF-006",
     "SQ-KF-007",
+    "SQ-KF-008",
+    "SQ-KF-009",
     "SQ-KF-010",
     "SQ-KF-011",
     "SQ-KF-012",
@@ -40,9 +39,13 @@
     "SQ-KF-015",
     "SQ-KF-016",
     "SQ-KF-017",
+    "SQ-KF-018",
     "SQ-KF-019",
     "SQ-KF-020",
+    "SQ-KF-021",
     "SQ-KF-022",
+    "SQ-KF-023",
+    "SQ-KF-024",
     "TF-KF-001",
     "TF-KF-002",
     "TF-KF-003",
@@ -81,6 +84,6 @@
     "SQ-NK-012"
   ],
   "exceptions": [],
-  "notes": "Dependency-closed generic Product Owner handoff transaction extracted from superseded PR #439. Adds CI acceptanceProofs, evidence-derived candidate target selection and exact-head Vercel Product Owner proof without hard-coded Loot Vault keys or branch aliases. No Loot Vault v2 Page Schema/media/candidate package, no accepted manifest, no production catalog activation, and no Release Risk Budget threshold or weight changes.",
+  "notes": "Dependency-closed generic Product Owner handoff transaction extracted from superseded PR #439. Adds CI acceptanceProofs, evidence-derived candidate target selection and exact-head Vercel Product Owner proof without hard-coded Loot Vault keys or branch aliases. No Loot Vault v2 Page Schema/media/candidate package, no accepted manifest, no production catalog activation, and no Release Risk Budget threshold or weight changes. Plan scope aligned from exact-head gate evidence: this transaction is governed by DOMAIN-RELEASE / release-infrastructure and touches shared-storefront + storefront-ui execution surfaces; full SQ/TF Known Failure replay remains required.",
   "changeBaseSha": "08b43a7faba29cd1ba89e3306d44ed4676cb025d"
 }
