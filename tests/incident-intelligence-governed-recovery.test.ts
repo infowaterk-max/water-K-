@@ -75,12 +75,14 @@ describe('Incident Intelligence governed recovery boundary',()=>{
     const release=JSON.parse(read('deploy/release-risk-policy.json')) as {
       maxPoints:number;
       maxSubsystems:number;
-      neutralPatterns:string[];\n      subsystems:Array<{name:string;risk:string;patterns:string[]}>;
+      neutralPatterns:string[];
+      subsystems:Array<{name:string;risk:string;patterns:string[]}>;
     };
     const incident=release.subsystems.find(item=>item.name==='incident-intelligence');
     expect(incident).toBeTruthy();
     expect(incident?.risk).toBe('medium');
-    expect(incident?.patterns).toContain('src/lib/incidents/**');\n    expect(release.neutralPatterns).toContain('quality/development/**');
+    expect(incident?.patterns).toContain('src/lib/incidents/**');
+    expect(release.neutralPatterns).toContain('quality/development/**');
     expect(release.maxPoints).toBe(5);
     expect(release.maxSubsystems).toBe(3);
   });
