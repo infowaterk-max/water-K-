@@ -23,6 +23,8 @@ import {
 import {
   createStorefrontTemplateShowroomEvidence,
   evaluateStorefrontTemplateShowroomContract,
+  STOREFRONT_REQUIRED_ACCOUNT_CAPABILITY_ROUTES,
+  STOREFRONT_REQUIRED_MOBILE_NAVIGATION_ROUTES,
   type StorefrontShowroomEvidenceRow,
 } from '@/lib/builder/storefront-template-route-integrity';
 
@@ -352,7 +354,7 @@ function evaluateBuild(input:{
   }
 
   if(recipe.productOwnerReview.internalVisualReviewPassed){
-    const requiredMobileRoutes=['/','/webaruhaz','/blog','/oldal/rolunk','/gyik','/kapcsolat','/szallitas-es-fizetes','/oldal/visszakuldes','/kedvencek','/fiokom','/aszf','/adatvedelem','/impresszum'];
+    const requiredMobileRoutes=STOREFRONT_REQUIRED_MOBILE_NAVIGATION_ROUTES;
     for(const page of pkg.pages){
       let header:StorefrontComponentNode|undefined;
       walk(page.sections,node=>{if(!header&&node.componentKey==='system.commerce-header')header=node;});
@@ -384,8 +386,7 @@ function evaluateBuild(input:{
           if(item&&typeof item==='object'&&!Array.isArray(item)&&typeof (item as Record<string,unknown>).href==='string')navRoutes.push((item as Record<string,unknown>).href as string);
         }
       });
-      const requiredAccount=['/fiokom','/fiokom#rendelesek','/fiokom/letoltesek','/fiokom/dokumentumok','/fiokom/kivansaglista','/fiokom/ugyek','/fiokom/visszakuldes','/fiokom#fiokadatok'];
-      const missing=requiredAccount.filter(route=>!navRoutes.includes(route));
+      const missing=STOREFRONT_REQUIRED_ACCOUNT_CAPABILITY_ROUTES.filter(route=>!navRoutes.includes(route));
       if(missing.length)issues.push(issue('FACTORY_ACCOUNT_CAPABILITY_NAVIGATION_INCOMPLETE','pages.account','Product Owner-ready Account must expose the shared capability set compactly; missing: '+missing.join(', ')+'.'));
     }
 
