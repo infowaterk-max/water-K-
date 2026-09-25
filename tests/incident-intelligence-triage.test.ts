@@ -21,9 +21,9 @@ describe('Incident Intelligence deterministic triage',()=>{
     expect(triageIncident({source:'system',category:'ui',errorCode:'HORIZONTAL_OVERFLOW:contact'})).toMatchObject({ownership:'platform',knownFailureId:'TF-KF-006',confidence:'deterministic',reasonCode:'KNOWN_FAILURE_MATCH'});
   });
   it('never auto-applies code repairs and only auto-allows an explicit low-risk runbook',()=>{
-    expect(()=>resolveSelfHealingPolicy({runbookKey:'code.repair.pr',requestedMode:'auto'})).toThrow(/MODE_FORBIDDEN|AUTO_HEAL_FORBIDDEN/);
-    const cache=resolveSelfHealingPolicy({runbookKey:'storefront.cache.revalidate',requestedMode:'auto',routePath:'/kapcsolat'});
+    expect(()=>resolveSelfHealingPolicy({runbookKey:'code.repair.pr',requestedMode:'auto',actorKind:'system'})).toThrow(/MODE_FORBIDDEN|AUTO_HEAL_FORBIDDEN/);
+    const cache=resolveSelfHealingPolicy({runbookKey:'storefront.cache.revalidate',requestedMode:'auto',actorKind:'system',routePath:'/kapcsolat'});
     expect(cache).toMatchObject({risk:'low',autoAllowed:true,autoApply:true,repairKind:'runbook'});
-    expect(()=>resolveSelfHealingPolicy({runbookKey:'storefront.cache.revalidate',requestedMode:'auto',routePath:'https://example.com'})).toThrow('INCIDENT_RUNBOOK_ROUTE_REQUIRED');
+    expect(()=>resolveSelfHealingPolicy({runbookKey:'storefront.cache.revalidate',requestedMode:'auto',actorKind:'system',routePath:'https://example.com'})).toThrow('INCIDENT_RUNBOOK_ROUTE_REQUIRED');
   });
 });
