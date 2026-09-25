@@ -1,24 +1,26 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-LOOT-VAULT-V2-MEDIA-ASSETS",
-  "task": "Restore the 14 proven Loot Vault v2 package-owned WebP media assets as an inert media-only release transaction before canonical candidate package recovery.",
+  "taskId": "DEV-TEMPLATE-AUTHORITY-VERSION-AWARE-CLOSURE",
+  "task": "Make Template Single Source Authority evaluate legacy reachability from each canonical package entrypoint instead of globally correlating independent template versions that share a slug.",
   "status": "ready-for-implementation",
-  "guardDigest": "b3ae0662",
+  "guardDigest": "f9221966",
   "plannedFilePatterns": [
-    "public/storefront-demo/loot-vault-v2/**",
+    "scripts/lib/shoperation-architecture-health.mjs",
+    "tests/architecture-health.test.ts",
+    "quality/knowledge/domain-foundations.v1.json",
     "quality/development/active-plan.json"
   ],
   "expectedSubsystems": [
     "builder-template-system",
     "dependency-contract",
-    "release-infrastructure",
+    "quality-knowledge-system",
     "shared-storefront"
   ],
   "expectedDomains": [
-    "DOMAIN-BUILDER"
+    "DOMAIN-QUALITY"
   ],
   "expectedAuthorities": [
-    "builder-template-system"
+    "quality-knowledge-system"
   ],
   "expectedKnownFailureIds": [
     "SQ-KF-001",
@@ -41,7 +43,10 @@
     "SQ-KF-018",
     "SQ-KF-019",
     "SQ-KF-020",
+    "SQ-KF-021",
     "SQ-KF-022",
+    "SQ-KF-023",
+    "SQ-KF-024",
     "TF-KF-001",
     "TF-KF-002",
     "TF-KF-003",
@@ -72,7 +77,6 @@
     "SQ-NK-002",
     "SQ-NK-003",
     "SQ-NK-004",
-    "SQ-NK-005",
     "SQ-NK-006",
     "SQ-NK-007",
     "SQ-NK-008",
@@ -81,6 +85,6 @@
     "SQ-NK-012"
   ],
   "exceptions": [],
-  "notes": "Media-only inert recovery transaction. Restores exactly the 14 WebP blobs proven on superseded PR #439. No runtime imports, no template package activation, no accepted manifest, no production catalog registration, no Release Risk Budget threshold or weight changes. These files are intentionally unused until the following canonical gaming.loot-vault@2 package transaction. Exact-head Plan gate evidence confirms DOMAIN-BUILDER / builder-template-system authority with builder-template-system, dependency-contract and shared-storefront subsystem closure. Known Failure and Negative Knowledge projections plus guard digest aligned to that exact scope. Final scope correction from gate projection: release-infrastructure is part of subsystem closure and SQ-NK-005 is required by the exact negative-knowledge projection.",
-  "changeBaseSha": "9cea1f51ac51b85ea3fc59b5d641da62fb193227"
+  "notes": "Dependency-closed Architecture Health correction exposed by inert gaming.loot-vault@2 package materialization. Preserve all existing blockers for canonical deep imports and package-local legacy/acceptance/fidelity/polish dependencies, but stop treating an independently runtime-reachable different version such as gaming.loot-vault@1 as an implicit dependency of gaming.loot-vault@2. No template package/runtime/catalog changes and no Release Risk Budget threshold/weight changes. Plan aligned to exact-head projection: no Atlas domain/authority ownership is assigned to these support files; subsystem closure includes dependency-contract and shared-storefront; SQ-KF-021/023/024 are replayed, SQ-NK-005 is not applicable, guard digest f9221966. Final Plan Before Code alignment from exact-head evidence: ownership is DOMAIN-BUILDER + DOMAIN-QUALITY under builder-template-system + quality-knowledge-system; dependency-contract/shared-storefront are not part of this transaction's subsystem closure; SQ-KF-021/023/024 and SQ-NK-005 are outside the exact replay projection; guard digest b3ae0662. Classification gap closed: Architecture Health script/test are canonical DOMAIN-QUALITY sources. Builder/template impact remains represented through subsystem closure, not duplicate file authority. The gate exposed an existing Atlas classification gap: Architecture Health lives under scripts/lib and was not covered by DOMAIN-QUALITY canonicalPaths. This transaction also classifies that exact quality authority path under the existing DOMAIN-QUALITY owner; no new domain/authority is introduced. Final exact-head correction: SQ-NK-005 is applicable after Architecture Health is classified under DOMAIN-QUALITY. Verified on exact head after DOMAIN-QUALITY classification: SQ-NK-005 remains outside the projected negative-knowledge set and is removed. Final gate semantics confirmed from the branch file and exact-head output: SQ-NK-005 is not required for this Quality-domain transaction and is removed.",
+  "changeBaseSha": "6c5590b08e153f9df3896d8c1521f367d4220b46"
 }

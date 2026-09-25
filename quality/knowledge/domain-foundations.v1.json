@@ -515,7 +515,9 @@
       "canonicalPaths": [
         "quality/**",
         "scripts/shoperation-**",
-        "src/lib/quality-system/**"
+        "src/lib/quality-system/**",
+        "scripts/lib/shoperation-architecture-health.mjs",
+        "tests/architecture-health.test.ts"
       ],
       "evidenceObligations": [
         "guard-selection proof",
