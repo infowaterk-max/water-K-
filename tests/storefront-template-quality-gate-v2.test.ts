@@ -9,6 +9,7 @@ import {
   STOREFRONT_TEMPLATE_QUALITY_GATE_VERSION,
   evaluateStorefrontTemplateQualityGate,
 } from '@/lib/builder/storefront-template-quality-gate';
+import {STOREFRONT_TEMPLATE_QUALITY_CANDIDATES} from '@/lib/builder/storefront-template-quality-candidates';
 
 const read=(path:string)=>readFileSync(join(process.cwd(),path),'utf8');
 
@@ -108,6 +109,18 @@ describe('Template Factory Quality Gate v2',()=>{
     expect(runner).toContain('COOKIE_TEMPLATE_PRESET_REQUIRED');
     expect(runner).toContain('COOKIE_TEMPLATE_AUTHORITY');
     expect(runner).toContain('GOLDEN_BASELINE_MISSING');
+    expect(runner).toContain("manifest.qualityCandidate?'&qualityCandidate=1'");
+  });
+
+  it('keeps canonical quality candidates QA-only and distinct from production catalog or Factory recipe candidates',()=>{
+    const route=read('src/app/api/visual-fidelity/templates/route.ts');
+    const qa=read('src/app/visual-fidelity-qa/page.tsx');
+    expect(STOREFRONT_TEMPLATE_QUALITY_CANDIDATES).toEqual([]);
+    expect(route).toContain('STOREFRONT_TEMPLATE_QUALITY_CANDIDATES.map');
+    expect(route).toContain('qualityCandidate:true');
+    expect(qa).toContain("query.qualityCandidate==='1'");
+    expect(qa).toContain('resolveStorefrontTemplateQualityCandidate');
+    expect(qa).toContain('if(factoryCandidate&&qualityCandidate)notFound()');
   });
   it('requires a unique explicit cookie consent preset for every implemented template',()=>{
     const presetIds=new Set<string>();
