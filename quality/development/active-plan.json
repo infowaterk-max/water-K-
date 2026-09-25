@@ -9,7 +9,8 @@
     "quality/knowledge/evidence-ledger.v1.json",
     "tests/capability-roadmap-evidence.test.ts",
     "quality/knowledge/development-guard-policy.v1.json",
-    "tests/shoperation-development-guard.test.ts"
+    "tests/shoperation-development-guard.test.ts",
+    "tests/deep-atlas-scan.test.ts"
   ],
   "expectedSubsystems": [
     "quality-knowledge-system",
