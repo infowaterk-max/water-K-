@@ -77,6 +77,17 @@
       ]
     },
     {
+      "name": "incident-intelligence",
+      "risk": "medium",
+      "patterns": [
+        "src/lib/incidents/**",
+        "src/app/api/incidents/**",
+        "src/app/api/platform/incidents/**",
+        "src/app/admin/platform/incidents/**",
+        "src/components/admin/platform-incident-center.tsx"
+      ]
+    },
+    {
       "name": "builder-template-system",
       "risk": "medium",
       "patterns": [
