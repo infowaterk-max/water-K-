@@ -59,6 +59,7 @@ export const PLAYROOM_V20_QUALITY_MANIFEST:StorefrontTemplateQualityManifest=Obj
   status:'accepted',
   sourcePrefixes:Object.freeze([
     'src/lib/builder/templates/playroom-',
+    'src/lib/builder/templates/gaming/playroom/v20/',
   ]),
   pageTypes:Object.freeze([...STOREFRONT_PAGE_TYPES]),
   viewports:Object.freeze([...STOREFRONT_VIEWPORTS]),
