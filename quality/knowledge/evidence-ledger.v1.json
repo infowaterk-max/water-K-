@@ -73,6 +73,21 @@
         "production deployment READY and reachable"
       ],
       "expiresAt": null
+    },
+    {
+      "id": "EVID-DRIFT-CONFIDENCE",
+      "subjectType": "roadmap",
+      "subjectId": "DRIFT-CONFIDENCE",
+      "evidenceType": "merge-and-production-proof",
+      "sourceSha": "ecd04d160f77057e3dbc1d8676ff80df8404a39d",
+      "state": "verified",
+      "assertions": [
+        "Architecture Drift detection and capability confidence model merged to main",
+        "Guard Registry rationalization merged with unique blocking responsibilities",
+        "post-merge CI PASS and Template Factory Quality Gate PASS",
+        "production deployment READY"
+      ],
+      "expiresAt": null
     }
   ]
 }
