@@ -15,6 +15,9 @@ const read=(path:string)=>readFileSync(join(process.cwd(),path),'utf8');
 describe('Template Factory Quality Gate v2',()=>{
   it('locks the strict Playroom acceptance matrix to all canonical pages and viewports',()=>{
     expect(PLAYROOM_V20_QUALITY_MANIFEST.gateVersion).toBe(STOREFRONT_TEMPLATE_QUALITY_GATE_VERSION);
+    expect(STOREFRONT_PAGE_TYPES).toHaveLength(14);
+    expect(STOREFRONT_VIEWPORTS).toHaveLength(3);
+    expect(STOREFRONT_PAGE_TYPES.length*STOREFRONT_VIEWPORTS.length).toBe(42);
     expect(PLAYROOM_V20_QUALITY_MANIFEST.pageTypes).toEqual(STOREFRONT_PAGE_TYPES);
     expect(PLAYROOM_V20_QUALITY_MANIFEST.viewports).toEqual(STOREFRONT_VIEWPORTS);
     expect(PLAYROOM_V20_QUALITY_MANIFEST.responsiveIsolation.explicitEffectiveStyles).toBe(true);
@@ -42,6 +45,21 @@ describe('Template Factory Quality Gate v2',()=>{
     expect(STOREFRONT_CANONICAL_VIEWPORT_WIDTH_PX).toEqual({desktop:1200,tablet:768,mobile:390});
   });
 
+  it('rejects partial page or viewport manifests as non-acceptance even when the underlying template is complete',()=>{
+    const template=getStorefrontTemplatePackage('gaming.playroom',20)!;
+    const partial={
+      ...PLAYROOM_V20_QUALITY_MANIFEST,
+      pageTypes:STOREFRONT_PAGE_TYPES.slice(0,6),
+      viewports:['desktop','mobile'] as const,
+    };
+    const result=evaluateStorefrontTemplateQualityGate({template,manifest:partial});
+    expect(result.ok).toBe(false);
+    expect(result.issues).toEqual(expect.arrayContaining([
+      expect.objectContaining({code:'QUALITY_CANONICAL_PAGE_MATRIX_REQUIRED'}),
+      expect.objectContaining({code:'QUALITY_CANONICAL_VIEWPORT_MATRIX_REQUIRED'}),
+    ]));
+  });
+
   it('requires accepted templates to promote a golden baseline instead of silently remaining candidate evidence',()=>{
     const template=getStorefrontTemplatePackage('gaming.playroom',20)!;
     const accepted={...PLAYROOM_V20_QUALITY_MANIFEST,status:'accepted' as const,golden:{...PLAYROOM_V20_QUALITY_MANIFEST.golden,required:false}};
@@ -54,8 +72,11 @@ describe('Template Factory Quality Gate v2',()=>{
     const workflow=read('.github/workflows/template-factory-quality-gate.yml');
     const runner=read('scripts/template-factory-quality-gate.mjs');
     expect(workflow).not.toContain('head_commit.message');
-    expect(workflow).toContain('Run Template Factory 14x3 browser matrix');
+    expect(workflow).toContain('Run scoped Template Factory browser proof (acceptance requires 14x3)');
     expect(workflow).toContain('workflow_dispatch');
+    expect(workflow).not.toContain("'quality/knowledge/**'");
+    expect(workflow).not.toContain("'src/lib/quality-system/**'");
+    expect(workflow).not.toContain("'scripts/shoperation-*.mjs'");
     expect(workflow).toContain('QUALITY_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}');
     expect(workflow).toContain('ref: ${{ github.event.pull_request.head.sha || github.sha }}');
     expect(runner).toContain('process.env.QUALITY_HEAD_SHA??process.env.GITHUB_SHA');
@@ -69,7 +90,9 @@ describe('Template Factory Quality Gate v2',()=>{
     expect(workflow).toContain('20260922053000_shared_customer_billing_b2b_identity_reverification.sql');
     expect(runner).toContain('TEMPLATE_FACTORY_QUALITY_MANIFEST_REQUIRED');
     expect(runner).toContain('LEGACY_TEMPLATE_REACCEPTANCE_PENDING');
+    expect(runner).toContain("mode:'full',reason:'template-source-changed'");
     expect(runner).toContain("mode:'full',reason:'shared-runtime-changed'");
+    expect(runner).toContain("mode:'canary',reason:'default-canary'");
     expect(runner).toContain("'src/components/admin/storefront-visual-builder-v3.tsx'");
     expect(runner).toContain("'src/components/cart/'");
     expect(runner).toContain("'src/components/checkout/'");
