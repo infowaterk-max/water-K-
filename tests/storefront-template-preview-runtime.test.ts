@@ -8,7 +8,7 @@ import {resolveStorefrontTemplateAccountPreviewRuntimePage,resolveStorefrontTemp
 
 describe('storefront template preview runtime',()=>{
   it('keeps showroom-ready demo content visibly marked outside Factory candidate proof',()=>{
-    const source=readFileSync('src/app/storefront-template-preview/page.tsx','utf8');
+    const source=fs.readFileSync('src/app/storefront-template-preview/page.tsx','utf8');
     expect(source).toContain("const demoNoticeRequired=Boolean(demoPayload)&&(!factoryCandidate||!isStorefrontShowroomReadyDemoContent(demoFixture))");
     expect(source).toContain('demoNoticeRequired?applyStorefrontTemplateDemoNotice(sourcePage):sourcePage');
   });
