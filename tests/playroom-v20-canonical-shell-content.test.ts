@@ -44,23 +44,71 @@ describe('Playroom v20 canonical shell and content contract',()=>{
     }
   });
 
-  it('keeps the accepted Playroom Contact composition and shared topic-first wizard',()=>{
+  it('keeps the accepted Playroom Contact composition on a continuous dark canvas with the shared topic-first wizard',()=>{
     const page=PLAYROOM_V20_TEMPLATE_PACKAGE.pages.find(item=>item.pageType==='contact')!;
     const nodes=walk(page.sections);
     expect(nodes.some(node=>node.id==='playroom-contact-options-preset')).toBe(true);
     expect(nodes.some(node=>node.componentKey==='support.contact-form')).toBe(true);
-    expect(nodes.some(node=>node.id==='playroom-contact-form-surface')).toBe(false);
-    expect(nodes.some(node=>node.componentKey==='support.location-map')).toBe(false);
+    const surface=nodes.find(node=>node.id==='playroom-contact-form-surface');
+    expect(surface).toBeTruthy();
+    expect(JSON.stringify(surface?.config.style)).toContain('#020b17');
+    const sharedForm=nodes.find(node=>node.id==='playroom-contact-form');
+    expect(sharedForm?.componentKey).toBe('support.contact-form');
+    expect(sharedForm?.config.style).toBeUndefined();
   });
 
-  it('preserves the accepted Playroom account navigation cards instead of importing another template IA',()=>{
+  it('preserves the accepted Playroom account card language while exposing the complete customer workspace',()=>{
     const page=PLAYROOM_V20_TEMPLATE_PACKAGE.pages.find(item=>item.pageType==='account')!;
     const nodes=walk(page.sections);
     expect(nodes.some(node=>node.id==='playroom-account-navigation-presets')).toBe(true);
-    expect(nodes.some(node=>node.id==='playroom-account-orders')).toBe(true);
-    expect(nodes.some(node=>node.id==='playroom-account-favorites')).toBe(true);
-    expect(nodes.some(node=>node.id==='playroom-account-profile')).toBe(true);
+    for(const id of ['orders','favorites','profile','downloads','documents','cases','returns','marketing','loyalty']){
+      expect(nodes.some(node=>node.id===`playroom-account-${id}`),id).toBe(true);
+    }
     expect(nodes.some(node=>node.id==='playroom-account-capability-navigation')).toBe(false);
+    const hrefs=nodes.filter(node=>node.componentKey==='content.button').map(node=>String(node.config.href??''));
+    for(const href of ['/fiokom#rendelesek','/fiokom/kivansaglista','/fiokom/letoltesek','/fiokom/dokumentumok','/fiokom/ugyek','/fiokom/visszakuldes','/fiokom#fiokadatok','/fiokom#marketing','/fiokom/huseg']){
+      expect(hrefs).toContain(href);
+    }
+  });
+
+  it('locks the three PO-observed shell regressions before reacceptance',()=>{
+    for(const page of PLAYROOM_V20_TEMPLATE_PACKAGE.pages){
+      const header=walk(page.sections).find(node=>node.componentKey==='system.commerce-header');
+      const cart=((header?.config.utilityItems??[]) as {label?:string;href?:string;symbol?:string}[]).find(item=>item.href==='/kosar');
+      expect(cart?.label,page.pageType).toBe('Kosár');
+      expect(cart?.symbol,page.pageType).toBe('🛒');
+    }
+    const home=PLAYROOM_V20_TEMPLATE_PACKAGE.pages.find(item=>item.pageType==='home')!;
+    const featured=walk(home.sections).find(node=>node.id==='playroomFeaturedGames');
+    expect((featured?.config.styleSlots as any).card.mobile.minWidth).toBe('15rem');
+    const catalog=PLAYROOM_V20_TEMPLATE_PACKAGE.pages.find(item=>item.pageType==='catalog')!;
+    const grid=walk(catalog.sections).find(node=>node.id==='playroomCatalogGrid');
+    expect(grid?.config.ctaAction).toBe('add-to-cart');
+    expect(grid?.config.ctaLabel).toBe('Kosárba');
+    expect((grid?.config.styleSlots as any).grid.mobile.gridTemplateColumns).toBe('1fr');
+  });
+
+  it('ships a connected Playroom product–collection–editorial world instead of isolated demo prose',()=>{
+    const fixtures=PLAYROOM_V20_TEMPLATE_PACKAGE.demoFixtures??[];
+    const products=fixtures.filter(item=>item.entityType==='product'&&item.payload.installAsDemoProduct===true);
+    const collections=fixtures.filter(item=>item.entityType==='collection');
+    const editorial=fixtures.filter(item=>item.entityType==='content'&&item.payload.showroomReady===true);
+    expect(products.length).toBeGreaterThanOrEqual(12);
+    expect(collections.length).toBeGreaterThanOrEqual(6);
+    expect(editorial.length).toBeGreaterThanOrEqual(12);
+    for(const product of products){
+      expect(Array.isArray(product.payload.relatedProducts),product.entityKey).toBe(true);
+      expect(Array.isArray(product.payload.relatedContent),product.entityKey).toBe(true);
+      expect((product.payload.relatedProducts as unknown[]).length,product.entityKey).toBeGreaterThan(0);
+      expect((product.payload.relatedContent as unknown[]).length,product.entityKey).toBeGreaterThan(0);
+    }
+    for(const collection of collections){
+      expect(Array.isArray(collection.payload.products),collection.entityKey).toBe(true);
+      expect(Array.isArray(collection.payload.relatedContent),collection.entityKey).toBe(true);
+    }
+    const blog=PLAYROOM_V20_TEMPLATE_PACKAGE.pages.find(item=>item.pageType==='blog-index')!;
+    const preview=walk(blog.sections).find(node=>node.id==='playroom-blog-index-preview');
+    expect((preview?.config.items as unknown[]).length).toBeGreaterThanOrEqual(8);
   });
 
   it('ships meaningful showroom-ready Playroom editorial content instead of generic placeholder copy',()=>{
