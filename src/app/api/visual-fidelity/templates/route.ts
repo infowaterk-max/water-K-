@@ -29,7 +29,7 @@ export async function GET(){
   });
   const factoryCandidates=STOREFRONT_TEMPLATE_FACTORY_RECIPES.flatMap(recipe=>{
     const build=buildRegisteredStorefrontTemplateFactoryCandidate(recipe.templateKey);
-    if(!build.report.technicalReady)return[];
+    if(!build.report.productOwnerReady)return[];
     const technicalIssues=build.report.issues.filter(issue=>issue.code!=='FACTORY_INTERNAL_VISUAL_REVIEW_REQUIRED');
     const preflight=evaluateTemplateFactoryPreflight(recipe);
     const failureReplays=replayTemplateFactoryKnownFailures(build);
@@ -56,8 +56,6 @@ export async function GET(){
       golden:{required:false,baselineDirectory:`tests/visual-baselines/${recipe.templateKey}/v${recipe.templateVersion}`,maxPixelMismatchRatio:.005},
       structural:{ok:preflight.ok&&replayIssues.length===0&&technicalIssues.every(issue=>issue.severity!=='error'),issues:[...technicalIssues,...replayIssues]},
       productOwnerReady:build.report.productOwnerReady,
-      showroomEvidence:build.report.showroomEvidence,
-      provenance:build.report.provenance,
       proceduralMemory:{
         preflightOk:preflight.ok,
         preflightIssues:preflight.issues,
