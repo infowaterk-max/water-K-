@@ -71,6 +71,7 @@ describe('Template Factory Quality Gate v2',()=>{
   it('keeps the browser runner and CI workflow mandatory rather than commit-message gated',()=>{
     const workflow=read('.github/workflows/template-factory-quality-gate.yml');
     const runner=read('scripts/template-factory-quality-gate.mjs');
+    const knowledgeScope=read('quality/knowledge/knowledge-scope-policy.v1.json');
     expect(workflow).not.toContain('head_commit.message');
     expect(workflow).toContain('Run scoped Template Factory browser proof (acceptance requires 14x3)');
     expect(workflow).toContain('workflow_dispatch');
@@ -88,8 +89,10 @@ describe('Template Factory Quality Gate v2',()=>{
     expect(workflow).toContain("'src/components/cart/**'");
     expect(workflow).toContain("'src/lib/account/**'");
     expect(workflow).toContain('20260922053000_shared_customer_billing_b2b_identity_reverification.sql');
-    expect(runner).toContain('TEMPLATE_FACTORY_QUALITY_MANIFEST_REQUIRED');
-    expect(runner).toContain('LEGACY_TEMPLATE_REACCEPTANCE_PENDING');
+    expect((runner.match(/TEMPLATE_FACTORY_QUALITY_MANIFEST_REQUIRED/g)??[])).toHaveLength(2);
+    expect(runner).toContain('const modifiedTemplateFiles=');
+    expect(runner).not.toContain('LEGACY_TEMPLATE_REACCEPTANCE_PENDING');
+    expect(knowledgeScope).toContain('"scripts/template-factory-quality-gate.mjs"');
     expect(runner).toContain("mode:'full',reason:'template-source-changed'");
     expect(runner).toContain("mode:'full',reason:'shared-runtime-changed'");
     expect(runner).toContain("mode:'canary',reason:'default-canary'");
