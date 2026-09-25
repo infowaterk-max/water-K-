@@ -56,7 +56,7 @@ describe('Playroom v20 launch capability consolidation',()=>{
     expect(bundle.templateVersion).toBe(20);
     expect(bundle.pagePresets).toHaveLength(14);
     expect(bundle.sectionPresets.some(item=>item.nodeId==='playroom-home-newsletter')).toBe(true);
-    expect(bundle.sectionPresets.some(item=>item.nodeId==='playroom-contact-form')).toBe(true);
+    expect(bundle.sectionPresets.some(item=>item.nodeId==='playroom-contact-form-surface')).toBe(true);
   });
 
   it('discovers contextual Pro capabilities from real manifests and keeps them locked on Alap',()=>{
