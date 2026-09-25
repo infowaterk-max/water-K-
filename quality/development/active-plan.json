@@ -1,32 +1,27 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-LOOT-VAULT-V2-CANONICAL-PACKAGE-MAIN",
-  "task": "Materialize gaming.loot-vault@2 as one canonical 14-page package and register it as a QA-only quality candidate on current main, without production catalog activation or acceptance.",
+  "taskId": "DEV-LOOT-VAULT-V2-FACTORY-CANONICAL-WIRING",
+  "task": "Wire the registered gaming.loot-vault@2 Factory recipe to the single canonical v2 package authority so Factory preview compiles that exact 14-page candidate with complete ready media, without accepted or production catalog activation.",
   "status": "ready-for-implementation",
-  "guardDigest": "a22523c0",
+  "guardDigest": "f8efa1a3",
   "plannedFilePatterns": [
-    "src/lib/builder/templates/gaming/loot-vault/v2/**",
-    "src/lib/builder/storefront-template-quality-candidates.ts",
-    "tests/loot-vault-v2-canonical-package.test.ts",
+    "src/lib/builder/template-factory/recipes/loot-vault-v2.ts",
+    "tests/template-factory-loot-vault-v2.test.ts",
     "quality/development/active-plan.json",
-    "tests/storefront-template-quality-gate-v2.test.ts",
-    "scripts/template-factory-quality-gate.mjs"
+    "src/lib/builder/templates/gaming/loot-vault/v2/canonical-package.json"
   ],
   "expectedSubsystems": [
     "builder-template-system",
     "storefront-ui",
     "dependency-contract",
     "release-infrastructure",
-    "shared-storefront",
-    "quality-knowledge-system"
+    "shared-storefront"
   ],
   "expectedDomains": [
-    "DOMAIN-BUILDER",
-    "DOMAIN-STOREFRONT"
+    "DOMAIN-BUILDER"
   ],
   "expectedAuthorities": [
-    "builder-template-system",
-    "shared-storefront"
+    "builder-template-system"
   ],
   "expectedKnownFailureIds": [
     "SQ-KF-001",
@@ -49,10 +44,7 @@
     "SQ-KF-018",
     "SQ-KF-019",
     "SQ-KF-020",
-    "SQ-KF-021",
     "SQ-KF-022",
-    "SQ-KF-023",
-    "SQ-KF-024",
     "TF-KF-001",
     "TF-KF-002",
     "TF-KF-003",
@@ -89,12 +81,9 @@
     "SQ-NK-008",
     "SQ-NK-009",
     "SQ-NK-010",
-    "SQ-NK-011",
-    "SQ-NK-012",
-    "SQ-NK-014",
-    "SQ-NK-015"
+    "SQ-NK-012"
   ],
   "exceptions": [],
-  "notes": "B1 package-only recovery on current main after media-only PR #456. Adds the deterministic 14-page gaming.loot-vault@2 canonical snapshot extracted from the proven #439 candidate, one public package index and a focused regression. The 14 WebP assets are already proven and present on main from #456 and are not changed here. No recipe/runtime root wiring, no accepted Quality Manifest, no production template-catalog registration, no acceptance or Product Owner status change, and no Release Risk Budget threshold/weight changes. Exact-head Plan gate confirms all declared scope projections; only the guard digest changed on current main and is aligned to b3ae0662. Gate semantics rechecked against the branch file: exact-head computed guard digest is f8efa1a3; no other scope projection differs. Rebased package-only transaction onto main after #458 version-aware Template Single Source Authority production proof; package content is unchanged. Rebased onto #459 main. Adds only a QA-only candidate quality registration so the canonical package can satisfy ownership and full browser proof. This is not an accepted manifest and does not activate the production template catalog. Exact-head Plan projection after QA-only candidate registration adds quality-knowledge-system, SQ-KF-021/023/024, SQ-NK-011/014/015 and guard digest a22523c0. No release threshold, acceptance, or production authority changes. The generic QA-candidate regression is updated from an initial empty-registry assertion to lifecycle invariants that permit registered candidates while still requiring candidate status and non-required golden evidence. Browser proof found two independent fail-closed issues: Loot Vault v2 blog-index used story.feature outside its shared Story page-type contract, so the snapshot now uses story.index there; QA-only qualityCandidate demo fixtures are aligned with Factory-candidate no-placeholder-warning semantics in the generic browser runner. No Runtime registry, accepted status, production catalog, or release threshold is loosened.",
-  "changeBaseSha": "d3d05c2519f08649126cf9298ef9df36e41a6ee1"
+  "notes": "Dependency-closed Factory/runtime recovery wiring after #457. The recipe imports only the public canonical gaming/loot-vault/v2 entrypoint; it does not restore the old loot-vault-v2-pages.ts authority. All 14 Page Schema overrides, canonical shell and demo fixtures derive from the canonical package. Factory-only media role metadata is restored for the 14 already-proven package-owned WebP assets; commerce readiness and the previously proven #439 internal pre-Product-Owner review state are restored. The regression requires Factory output to deep-equal the canonical v2 package, requires productOwnerReady/technicalReady, and proves factory=1 resolves v2 while production catalog v2 remains absent. No accepted Quality Manifest, production catalog activation, Runtime registry loosening, or Release Risk Budget threshold/weight change. Exact-head Plan projection confirms this wiring transaction is DOMAIN-BUILDER / builder-template-system only; quality-infrastructure-only SQ-KF-021/023/024 and SQ-NK-011/014/015 do not apply. Guard digest f8efa1a3. Incremental replay exposed a genuine E10 contract gap in the canonical v2 blog article: engineBinding declared E10 but the page had no shared story.hero/story.feature surface. The canonical package now uses story.hero plus a separate body section; the Factory recipe still derives from that single package authority. The gate is not relaxed.",
+  "changeBaseSha": "44b2bc5a3bf9a8e1068b63a6f0d759139f8e571d"
 }
