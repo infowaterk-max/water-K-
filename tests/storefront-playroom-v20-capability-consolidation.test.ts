@@ -6,7 +6,7 @@ import {createStorefrontPresetBundle} from '@/lib/builder/storefront-presets';
 import {getStorefrontTemplatePackage,STOREFRONT_TEMPLATE_CATALOG} from '@/lib/builder/storefront-template-catalog';
 import {listStorefrontContextualCapabilityOpportunities} from '@/lib/builder/storefront-template-capability-discovery';
 import {validateStorefrontPageDocument} from '@/lib/builder/storefront-runtime';
-import {PLAYROOM_V20_TEMPLATE_PACKAGE,PLAYROOM_V20_TEMPLATE_VERSION} from '@/lib/builder/templates/playroom-v20';
+import {PLAYROOM_V20_TEMPLATE_PACKAGE,PLAYROOM_V20_TEMPLATE_VERSION} from '@/lib/builder/templates/gaming/playroom/v20';
 import {PLANS} from '@/lib/plans/catalog';
 
 const read=(path:string)=>readFileSync(resolve(process.cwd(),path),'utf8');
