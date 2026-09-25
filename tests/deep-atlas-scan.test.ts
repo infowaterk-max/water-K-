@@ -45,13 +45,13 @@ describe('Daily Deep Atlas Scan',()=>{
     expect(ci).toContain("if: github.event_name == 'pull_request' || github.ref_name == 'main'");
   });
 
-  it('records Drift Confidence as proven while keeping Deep Atlas incomplete until its own merge proof exists',()=>{
+  it('records Drift Confidence and Deep Atlas as proven after their merge proof exists',()=>{
     const roadmap=JSON.parse(read('quality/knowledge/living-roadmap.v1.json')) as {items:Array<{id:string;status:string;evidenceRefs:string[]}>};
     const drift=roadmap.items.find(item=>item.id==='DRIFT-CONFIDENCE');
     const deep=roadmap.items.find(item=>item.id==='DEEP-ATLAS-SCAN');
     expect(drift?.status).toBe('done');
     expect(drift?.evidenceRefs).toContain('EVID-DRIFT-CONFIDENCE');
-    expect(deep?.status).toBe('in-progress');
-    expect(deep?.evidenceRefs).toEqual([]);
+    expect(deep?.status).toBe('done');
+    expect(deep?.evidenceRefs).toContain('EVID-DEEP-ATLAS-SCAN');
   });
 });
