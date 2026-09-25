@@ -6,6 +6,13 @@ import {CANONICAL_ACCOUNT_CAPABILITIES} from '@/lib/account/account-capabilities
 export const STOREFRONT_ROUTE_INTEGRITY_VERSION='shoporation.storefront-route-integrity.v1' as const;
 export const STOREFRONT_DEMO_CONTENT_NOTICE='Minta tartalom – ez az oldal előre generált szöveget tartalmaz, és nem tekinthető a webshop valós működésének vagy feltételeinek. Ellenőrizd és igazítsd a saját működésedhez publikálás előtt.' as const;
 
+export const STOREFRONT_REQUIRED_MOBILE_NAVIGATION_ROUTES=Object.freeze([
+  '/','/webaruhaz','/blog','/oldal/rolunk','/gyik','/kapcsolat','/szallitas-es-fizetes','/oldal/visszakuldes','/kedvencek','/fiokom','/aszf','/adatvedelem','/impresszum',
+] as const);
+export const STOREFRONT_REQUIRED_ACCOUNT_CAPABILITY_ROUTES=Object.freeze(
+  CANONICAL_ACCOUNT_CAPABILITIES.filter(item=>!item.optional).map(item=>item.href),
+);
+
 export type StorefrontTemplateLink={href:string;label:string;path:string};
 export type StorefrontRouteIntegrityIssue={
   code:'DEMO_CONTENT_TARGET_MISSING'|'STORE_ROUTE_UNKNOWN'|'CATALOG_QUERY_UNSUPPORTED';
