@@ -60,7 +60,7 @@
       ]
     },
     {
-      "pattern": "storefront|webshop|catalog|katalógus|product|termék",
+      "pattern": "storefront|webshop|catalog|katalógus|\\bproduct\\b|termék",
       "subsystems": [
         "shared-storefront",
         "storefront-ui"
