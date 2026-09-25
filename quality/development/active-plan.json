@@ -18,7 +18,9 @@
     "tests/storefront-template-preview-runtime.test.ts",
     "tests/storefront-template-factory-workflow-coverage.test.ts",
     "docs/template-factory-media/loot-vault-v2-finalization.json",
-    "public/storefront-demo/loot-vault-v2/**"
+    "public/storefront-demo/loot-vault-v2/**",
+    "src/lib/builder/template-factory/category-foundations.ts",
+    "scripts/template-factory-quality-gate.mjs"
   ],
   "expectedSubsystems": [
     "builder-template-system",
@@ -99,6 +101,6 @@
     "SQ-NK-012"
   ],
   "exceptions": [],
-  "notes": "Clean recovery from current main. Do not merge the old stacked branch. Restore only proven Loot Vault v2 candidate assets/pages and the generic candidate QA/preview contract they require. Preserve current 14x3 acceptance semantics and 14-page owner showroom navigation. Loot Vault remains candidate-only: no accepted quality manifest and no production template-catalog registration. Generalize Product Owner proof away from hard-coded Loot Vault/branch names so future templates reuse the same authority.",
+  "notes": "Clean recovery from current main. Do not merge the old stacked branch. Restore only proven Loot Vault v2 candidate assets/pages and the generic candidate QA/preview contract they require. Preserve current 14x3 acceptance semantics and 14-page owner showroom navigation. Loot Vault remains candidate-only: no accepted quality manifest and no production template-catalog registration. Generalize Product Owner proof away from hard-coded Loot Vault/branch names so future templates reuse the same authority. The recovery also restores candidate acceptance-proof generation in the existing runner and category-foundation media neutralization.",
   "changeBaseSha": "036a624e04e64c08c4f9f9865a52f1a55a1942b1"
 }
