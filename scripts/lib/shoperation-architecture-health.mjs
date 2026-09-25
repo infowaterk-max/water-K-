@@ -113,11 +113,12 @@ function evaluateTemplateSingleSourceAuthority(){
     for(const dependency of graph.get(file)??[])if(!reachable.has(dependency))queue.push(dependency);
   }
   for(const file of reachable){
-    if(/\/templates\/.*(?:wave\d+-acceptance|fidelity|polish).*\.ts$/.test(file)){
-      hardDrift.push({code:'TEMPLATE_ACCEPTANCE_OR_POLISH_RUNTIME_REACHABLE',file});
-    }
     for(const pkg of packages){
       const flatPrefix='src/lib/builder/templates/'+pkg.slug;
+      const belongsToManagedTemplate=file.startsWith(flatPrefix)||file.startsWith(pkg.packageDir+'/');
+      if(belongsToManagedTemplate&&/(?:wave\d+-acceptance|fidelity|polish).*\.ts$/.test(file)){
+        hardDrift.push({code:'TEMPLATE_ACCEPTANCE_OR_POLISH_RUNTIME_REACHABLE',identity:pkg.identity,file,entrypoint:pkg.entrypoint});
+      }
       if(file.startsWith(flatPrefix)&&!file.startsWith(pkg.packageDir+'/')){
         hardDrift.push({code:'TEMPLATE_LEGACY_RUNTIME_REACHABLE',identity:pkg.identity,file,entrypoint:pkg.entrypoint});
       }
