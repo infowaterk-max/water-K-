@@ -269,7 +269,8 @@
         "src/lib/storefront/**",
         "src/components/storefront/**",
         "src/lib/builder/storefront-**",
-        "src/app/storefront-template-preview/**"
+        "src/app/storefront-template-preview/**",
+        "src/app/storefront-template-preview-login/**"
       ],
       "evidenceObligations": [
         "responsive isolation proof",
