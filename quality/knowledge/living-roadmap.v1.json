@@ -62,17 +62,19 @@
     {
       "id": "CAPABILITY-EVIDENCE",
       "title": "Capability Registry + Evidence Ledger",
-      "status": "in-progress",
+      "status": "done",
       "phase": "foundation",
       "capabilities": [
         "CAP-QUALITY"
       ],
-      "evidenceRefs": []
+      "evidenceRefs": [
+        "EVID-CAPABILITY-EVIDENCE"
+      ]
     },
     {
       "id": "DRIFT-CONFIDENCE",
       "title": "Architecture Drift + Confidence Model",
-      "status": "planned",
+      "status": "in-progress",
       "phase": "foundation",
       "capabilities": [
         "CAP-ATLAS",

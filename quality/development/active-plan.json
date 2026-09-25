@@ -1,15 +1,16 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-CAPABILITY-ROADMAP-EVIDENCE-FOUNDATION",
-  "task": "Establish the canonical Capability Registry, Living Roadmap and Evidence Ledger as the machine-readable capability and proof foundation for Shoperation.",
+  "taskId": "DEV-ARCHITECTURE-DRIFT-CONFIDENCE",
+  "task": "Establish Architecture Drift, Confidence and Guard Rationalization using the canonical Capability Registry, Living Roadmap, Evidence Ledger, Domain Foundations and Atlas 2.0.",
   "status": "ready-for-implementation",
   "guardDigest": "17c8ef7c",
   "plannedFilePatterns": [
-    "quality/knowledge/capability-registry.v1.json",
+    "quality/knowledge/guard-registry.v1.json",
     "quality/knowledge/living-roadmap.v1.json",
     "quality/knowledge/evidence-ledger.v1.json",
-    "src/lib/quality-system/capability-evidence.ts",
-    "docs/architecture/CAPABILITY_ROADMAP_EVIDENCE.md",
+    "scripts/lib/shoperation-architecture-health.mjs",
+    "docs/architecture/ARCHITECTURE_DRIFT_CONFIDENCE.md",
+    "tests/architecture-health.test.ts",
     "tests/capability-roadmap-evidence.test.ts"
   ],
   "expectedSubsystems": [],
@@ -73,6 +74,6 @@
     "SQ-NK-012"
   ],
   "exceptions": [],
-  "notes": "Fifth System Soul transaction. Adds the accepted Capability Registry, Living Roadmap and Evidence Ledger as one coherent proof chain. Evidence remains evidence, never truth. No commerce runtime, schema, deployment workflow or risk-threshold changes.",
-  "changeBaseSha": "ab43b33addecbc2e2d3563c6497fba53647c8bc6"
+  "notes": "Sixth System Soul transaction. Adds deterministic architecture drift detection, evidence-backed confidence and a canonical registry of existing guards so overlapping responsibilities are detected instead of adding new gates. No commerce runtime/schema behavior, deployment threshold or Release Risk Budget threshold changes.",
+  "changeBaseSha": "4f9bb54f92b23d59613b0b3769594089b26b67be"
 }

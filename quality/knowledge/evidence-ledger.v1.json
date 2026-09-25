@@ -58,6 +58,21 @@
         "main post-merge proof PASS"
       ],
       "expiresAt": null
+    },
+    {
+      "id": "EVID-CAPABILITY-EVIDENCE",
+      "subjectType": "roadmap",
+      "subjectId": "CAPABILITY-EVIDENCE",
+      "evidenceType": "merge-and-production-proof",
+      "sourceSha": "4f9bb54f92b23d59613b0b3769594089b26b67be",
+      "state": "verified",
+      "assertions": [
+        "Capability Registry, Living Roadmap and Evidence Ledger merged to main",
+        "post-merge CI PASS",
+        "Template Factory Quality Gate PASS",
+        "production deployment READY and reachable"
+      ],
+      "expiresAt": null
     }
   ]
 }
