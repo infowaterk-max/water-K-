@@ -132,7 +132,8 @@
         "scripts/release-*.mjs",
         "scripts/smoke.mjs",
         "deploy/release-risk-policy.json",
-        "next.config.ts"
+        "next.config.ts",
+        "quality/knowledge/domain-foundations.v1.json"
       ]
     },
     {
