@@ -128,6 +128,16 @@
       "responsibilityKey": "architecture-confidence-signal",
       "producer": "scripts/lib/shoperation-architecture-health.mjs",
       "evidence": "artifacts/shoperation-architecture/architecture-health.json"
+    },
+    {
+      "id": "SIGNAL-DEEP-ATLAS-SCAN",
+      "name": "Daily Deep Atlas Scan",
+      "authority": "quality-knowledge-system",
+      "lifecycle": "observation",
+      "blocking": false,
+      "responsibilityKey": "scheduled-system-self-knowledge-observation",
+      "producer": "scripts/shoperation-knowledge-deep-atlas-scan.mjs",
+      "evidence": "artifacts/shoperation-deep-atlas/deep-atlas-scan.json"
     }
   ]
 }
