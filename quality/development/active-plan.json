@@ -1,32 +1,26 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-DAILY-DEEP-ATLAS-SCAN",
-  "task": "Implement the Shoperation quality knowledge Daily Deep Atlas Scan as a scheduled non-duplicative System Self-Knowledge observation layer, complete the Architecture Drift/Confidence evidence closure, and eliminate branch-creation Release Risk false positives without weakening main or pull-request release proof.",
+  "taskId": "DEV-DEEP-ATLAS-EVIDENCE-CLOSURE",
+  "task": "Fix the Shoperation quality knowledge intent-matching false positive in production terminology, then close the Daily Deep Atlas evidence state on exact merged-main proof.",
   "status": "ready-for-implementation",
   "guardDigest": "d0031b70",
   "plannedFilePatterns": [
-    ".github/workflows/ci.yml",
-    ".github/workflows/shoperation-deep-atlas-scan.yml",
-    "scripts/shoperation-knowledge-deep-atlas-scan.mjs",
-    "quality/knowledge/deep-atlas-scan-policy.v1.json",
-    "quality/knowledge/guard-registry.v1.json",
     "quality/knowledge/living-roadmap.v1.json",
     "quality/knowledge/evidence-ledger.v1.json",
-    "docs/architecture/DEEP_ATLAS_SCAN.md",
-    "tests/deep-atlas-scan.test.ts",
-    "tests/capability-roadmap-evidence.test.ts"
+    "tests/capability-roadmap-evidence.test.ts",
+    "quality/knowledge/development-guard-policy.v1.json",
+    "tests/shoperation-development-guard.test.ts",
+    "tests/deep-atlas-scan.test.ts"
   ],
   "expectedSubsystems": [
     "quality-knowledge-system",
     "release-infrastructure"
   ],
   "expectedDomains": [
-    "DOMAIN-QUALITY",
-    "DOMAIN-RELEASE"
+    "DOMAIN-QUALITY"
   ],
   "expectedAuthorities": [
-    "quality-knowledge-system",
-    "release-infrastructure"
+    "quality-knowledge-system"
   ],
   "expectedKnownFailureIds": [
     "SQ-KF-001",
@@ -89,6 +83,6 @@
     "SQ-NK-015"
   ],
   "exceptions": [],
-  "notes": "Seventh System Soul transaction. Adds a daily observational Deep Atlas Scan using existing Atlas 2.0 and Architecture Health authorities, records Drift/Confidence completion evidence once post-merge proof is verified, and removes release-risk noise from feature-branch push/creation runs while preserving pull-request and main release proof. No risk thresholds, commerce runtime, schema or production truth are changed.",
-  "changeBaseSha": "ecd04d160f77057e3dbc1d8676ff80df8404a39d"
+  "notes": "Evidence closure plus root-cause repair of a lexical Development Guard false positive: production terminology must not activate storefront/product scope. No gate is weakened; exact token matching is tightened and regression-locked.",
+  "changeBaseSha": "7a8a5a862e771cd3eec60b971d5d48a32d361c93"
 }

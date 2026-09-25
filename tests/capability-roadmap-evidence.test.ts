@@ -34,7 +34,7 @@ describe('Capability Registry + Living Roadmap + Evidence Ledger',()=>{
 
   it('keeps future work visible instead of silently marking it complete',()=>{
     expect(roadmapItem('DRIFT-CONFIDENCE')?.status).toBe('done');
-    expect(roadmapItem('DEEP-ATLAS-SCAN')?.status).toBe('in-progress');
+    expect(roadmapItem('DEEP-ATLAS-SCAN')?.status).toBe('done');
     expect(roadmapItem('TEMPLATE-PRODUCTION-SYSTEM')?.status).toBe('in-progress');
   });
 });
