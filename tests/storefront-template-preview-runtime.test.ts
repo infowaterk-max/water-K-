@@ -4,7 +4,7 @@ import {PLANS} from '@/lib/plans/catalog';
 import {STOREFRONT_TEMPLATE_CATALOG,getStorefrontTemplatePackage} from '@/lib/builder/storefront-template-catalog';
 import {createStorefrontVisualBuilderComponentRegistry} from '@/lib/builder/storefront-builder-registry';
 import {validateStorefrontPageDocument} from '@/lib/builder/storefront-runtime';
-import {resolveStorefrontTemplatePreviewPackage} from '@/lib/builder/storefront-template-preview-auth';
+import {resolveStorefrontTemplateAccountPreviewRuntimePage,resolveStorefrontTemplatePreviewPackage} from '@/lib/builder/storefront-template-preview-auth';
 
 describe('storefront template preview runtime',()=>{
   it('keeps accepted catalog resolution unchanged while factory resolution is explicit and fail-closed',()=>{
@@ -24,6 +24,33 @@ describe('storefront template preview runtime',()=>{
     expect(fidelity).toContain("const factoryCandidate=query.factory==='1'");
     expect(fidelity).toContain('buildRegisteredStorefrontTemplateFactoryCandidate(templateKey)');
   });
+  it('uses a template-aware login route and stamps exact preview provenance without duplicating auth authority',()=>{
+    const preview=fs.readFileSync('src/app/storefront-template-preview/page.tsx','utf8');
+    const login=fs.readFileSync('src/app/storefront-template-preview-login/page.tsx','utf8');
+    const shell=fs.readFileSync('src/components/account/storefront-account-shell.tsx','utf8');
+    expect(preview).toContain("redirect(\`/storefront-template-preview-login?");
+    expect(preview).toContain('data-template-recipe={recipeIdentity}');
+    expect(preview).toContain('data-compile-source={compileSource}');
+    expect(preview).toContain('data-foundation-template={foundationTemplate}');
+    expect(preview).toContain('data-source-commit={sourceCommit}');
+    expect(login).toContain("import{AuthForm}from'@/components/auth/auth-form'");
+    expect(login).toContain('previewTemplate={{templateKey:template.manifest.templateKey');
+    expect(login).toContain("if(input.factoryCandidate)params.set('factory','1')");
+    expect(shell).toContain('resolveStorefrontTemplateAccountPreviewRuntimePage');
+    expect(shell).toContain('data-storefront-account-shell={runtime.source}');
+  });
+
+  it('resolves tenant-free template-aware account presentation for every accepted previewable template',()=>{
+    const failures:string[]=[];
+    for(const entry of STOREFRONT_TEMPLATE_CATALOG){
+      const template=getStorefrontTemplatePackage(entry.templateKey,entry.templateVersion);
+      if(!template?.pages.some(page=>page.pageType==='account'))continue;
+      const runtime=resolveStorefrontTemplateAccountPreviewRuntimePage(entry.templateKey,entry.templateVersion,false);
+      if(!runtime||runtime.source!=='preview'||runtime.page.pageType!=='account'||runtime.page.templateKey!==entry.templateKey)failures.push(entry.templateKey);
+    }
+    expect(failures).toEqual([]);
+  });
+
   it('validates every catalog template page with preview capabilities',()=>{
     const registry=createStorefrontVisualBuilderComponentRegistry();
     const capability={plan:'pro' as const,features:[...PLANS.pro.features]};

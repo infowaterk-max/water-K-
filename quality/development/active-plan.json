@@ -1,27 +1,28 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-TEMPLATE-FACTORY-PRODUCT-OWNER-HANDOFF",
-  "task": "Generalize Template Factory acceptance proof and Product Owner exact-head handoff so candidate targeting is derived from evidence instead of hard-coded template or branch names.",
+  "taskId": "DEV-TEMPLATE-PREVIEW-AUTH-HANDOFF",
+  "task": "Add template-aware, tenant-free authentication entry for Product Owner template previews and stamp preview provenance without changing shared authentication authority.",
   "status": "ready-for-implementation",
-  "guardDigest": "50a43c16",
+  "guardDigest": "7628c63b",
   "plannedFilePatterns": [
-    ".github/workflows/template-factory-quality-gate.yml",
-    "scripts/template-factory-quality-gate.mjs",
-    "tests/storefront-template-factory-workflow-coverage.test.ts",
-    "quality/development/active-plan.json",
-    "tests/storefront-template-quality-gate-v2.test.ts"
+    "src/app/storefront-template-preview-login/page.tsx",
+    "src/app/storefront-template-preview/page.tsx",
+    "src/components/account/storefront-account-shell.tsx",
+    "tests/storefront-template-preview-runtime.test.ts",
+    "quality/development/active-plan.json"
   ],
   "expectedSubsystems": [
+    "auth-access-authority",
     "builder-template-system",
-    "release-infrastructure",
+    "customer-account",
     "shared-storefront",
     "storefront-ui"
   ],
   "expectedDomains": [
-    "DOMAIN-RELEASE"
+    "DOMAIN-STOREFRONT"
   ],
   "expectedAuthorities": [
-    "release-infrastructure"
+    "shared-storefront"
   ],
   "expectedKnownFailureIds": [
     "SQ-KF-001",
@@ -29,10 +30,7 @@
     "SQ-KF-003",
     "SQ-KF-004",
     "SQ-KF-005",
-    "SQ-KF-006",
     "SQ-KF-007",
-    "SQ-KF-008",
-    "SQ-KF-009",
     "SQ-KF-010",
     "SQ-KF-011",
     "SQ-KF-012",
@@ -41,13 +39,9 @@
     "SQ-KF-015",
     "SQ-KF-016",
     "SQ-KF-017",
-    "SQ-KF-018",
     "SQ-KF-019",
     "SQ-KF-020",
-    "SQ-KF-021",
     "SQ-KF-022",
-    "SQ-KF-023",
-    "SQ-KF-024",
     "TF-KF-001",
     "TF-KF-002",
     "TF-KF-003",
@@ -78,7 +72,6 @@
     "SQ-NK-002",
     "SQ-NK-003",
     "SQ-NK-004",
-    "SQ-NK-005",
     "SQ-NK-006",
     "SQ-NK-007",
     "SQ-NK-008",
@@ -87,6 +80,6 @@
     "SQ-NK-012"
   ],
   "exceptions": [],
-  "notes": "Dependency-closed generic Product Owner handoff transaction extracted from superseded PR #439. Adds CI acceptanceProofs, evidence-derived candidate target selection and exact-head Vercel Product Owner proof without hard-coded Loot Vault keys or branch aliases. No Loot Vault v2 Page Schema/media/candidate package, no accepted manifest, no production catalog activation, and no Release Risk Budget threshold or weight changes. Plan scope aligned from exact-head gate evidence: this transaction is governed by DOMAIN-RELEASE / release-infrastructure and touches shared-storefront + storefront-ui execution surfaces; full SQ/TF Known Failure replay remains required. Final plan correction: builder-template-system is also in the exact-head subsystem closure and SQ-NK-005 is required by the negative-knowledge projection. Known Failure replay exposed a stale regression assertion that assumed every default run is canary; the regression test is updated to require canary for accepted templates and exact-head full mode for Factory candidates.",
-  "changeBaseSha": "08b43a7faba29cd1ba89e3306d44ed4676cb025d"
+  "notes": "Dependency-closed generic preview-auth transaction extracted from superseded PR #439. Adds a template-aware preview login route using the existing shared AuthForm/Supabase authority, allows StorefrontAccountShell to render template-owned account presentation without tenant context, redirects unauthenticated template preview to that route, and stamps exact Factory provenance on preview roots. No Loot Vault v2 package/media/Page Schema, no accepted manifest, no production catalog activation, no auth-engine duplication, and no Release Risk Budget threshold/weight changes. Exact-head Atlas/Knowledge scope adds auth-access-authority, builder-template-system and customer-account subsystem closure; Known Failure/Negative Knowledge replay and digest aligned without changing any gate. Plan gate semantics verified in source: SQ-NK-005 is not applicable to this exact subsystem closure and is removed from acknowledged negative knowledge; digest remains the gate-computed 7628c63b.",
+  "changeBaseSha": "02de48be961916b682b292460e73b621d90c1fa8"
 }
