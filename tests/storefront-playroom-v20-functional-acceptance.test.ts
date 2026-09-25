@@ -893,7 +893,7 @@ describe('Playroom v20 functional acceptance',()=>{
     const fixtures=PLAYROOM_V20_TEMPLATE_PACKAGE.demoFixtures??[];
     expect(fixtures.some(item=>item.entityKey==='a3-downloadable-game'&&item.payload.fulfillment_type==='digital')).toBe(true);
     expect(fixtures.some(item=>item.entityKey==='a3-physical-controller'&&item.payload.fulfillment_type==='physical')).toBe(true);
-    const source=read('src/lib/builder/templates/playroom-v20.ts');
+    const source=read('src/lib/builder/templates/gaming/playroom/v20/index.ts');
     expect(source).not.toMatch(/createSignedUrl|digital_entitlements|place_order_provider|payment_secret|shipping_provider/i);
     for(const page of PLAYROOM_V20_TEMPLATE_PACKAGE.pages)expect(page.metadata?.digitalCommerceFactoryAcceptance).toEqual(['downloadable-game','physical-gaming-product','mixed-basket']);
   });
