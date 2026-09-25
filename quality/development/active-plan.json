@@ -7,8 +7,8 @@
   "plannedFilePatterns": [
     "scripts/lib/shoperation-architecture-health.mjs",
     "tests/architecture-health.test.ts",
-    "quality/development/active-plan.json",
-    "quality/knowledge/domain-foundations.v1.json"
+    "quality/knowledge/domain-foundations.v1.json",
+    "quality/development/active-plan.json"
   ],
   "expectedSubsystems": [
     "builder-template-system",
@@ -86,6 +86,6 @@
     "SQ-NK-012"
   ],
   "exceptions": [],
-  "notes": "Dependency-closed Architecture Health correction exposed by inert gaming.loot-vault@2 package materialization. Preserve all existing blockers for canonical deep imports and package-local legacy/acceptance/fidelity/polish dependencies, but stop treating an independently runtime-reachable different version such as gaming.loot-vault@1 as an implicit dependency of gaming.loot-vault@2. No template package/runtime/catalog changes and no Release Risk Budget threshold/weight changes. Plan aligned to exact-head projection: no Atlas domain/authority ownership is assigned to these support files; subsystem closure includes dependency-contract and shared-storefront; SQ-KF-021/023/024 are replayed, SQ-NK-005 is not applicable, guard digest f9221966. Final Plan Before Code alignment from exact-head evidence: ownership is DOMAIN-BUILDER + DOMAIN-QUALITY under builder-template-system + quality-knowledge-system; dependency-contract/shared-storefront are not part of this transaction's subsystem closure; SQ-KF-021/023/024 and SQ-NK-005 are outside the exact replay projection; guard digest b3ae0662. Classification gap closed: Architecture Health script/test are canonical DOMAIN-QUALITY sources. Builder/template impact remains represented through subsystem closure, not duplicate file authority.",
+  "notes": "Dependency-closed Architecture Health correction exposed by inert gaming.loot-vault@2 package materialization. Preserve all existing blockers for canonical deep imports and package-local legacy/acceptance/fidelity/polish dependencies, but stop treating an independently runtime-reachable different version such as gaming.loot-vault@1 as an implicit dependency of gaming.loot-vault@2. No template package/runtime/catalog changes and no Release Risk Budget threshold/weight changes. Plan aligned to exact-head projection: no Atlas domain/authority ownership is assigned to these support files; subsystem closure includes dependency-contract and shared-storefront; SQ-KF-021/023/024 are replayed, SQ-NK-005 is not applicable, guard digest f9221966. Final Plan Before Code alignment from exact-head evidence: ownership is DOMAIN-BUILDER + DOMAIN-QUALITY under builder-template-system + quality-knowledge-system; dependency-contract/shared-storefront are not part of this transaction's subsystem closure; SQ-KF-021/023/024 and SQ-NK-005 are outside the exact replay projection; guard digest b3ae0662. Classification gap closed: Architecture Health script/test are canonical DOMAIN-QUALITY sources. Builder/template impact remains represented through subsystem closure, not duplicate file authority. The gate exposed an existing Atlas classification gap: Architecture Health lives under scripts/lib and was not covered by DOMAIN-QUALITY canonicalPaths. This transaction also classifies that exact quality authority path under the existing DOMAIN-QUALITY owner; no new domain/authority is introduced.",
   "changeBaseSha": "6c5590b08e153f9df3896d8c1521f367d4220b46"
 }
