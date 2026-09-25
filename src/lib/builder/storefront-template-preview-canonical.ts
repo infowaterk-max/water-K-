@@ -15,6 +15,38 @@ function setPath(target:Record<string,unknown>,path:string,value:unknown){
   cursor[parts.at(-1)!]=clone(value);
 }
 
+function getPath(target:Record<string,unknown>,path:string):unknown{
+  let current:unknown=target;
+  for(const part of path.split('.')){
+    if(!isRecord(current)||!Object.prototype.hasOwnProperty.call(current,part))return undefined;
+    current=current[part];
+  }
+  return current;
+}
+
+function mergePreviewProductActionAuthority(authored:unknown[],preview:unknown):unknown[]{
+  const previewRows=Array.isArray(preview)?preview:[];
+  return authored.map((value,index)=>{
+    if(!isRecord(value))return clone(value);
+    const current=isRecord(previewRows[index])?previewRows[index]:{};
+    const rawIdentity=typeof value.id==='string'&&value.id.trim()?value.id.trim():`product-${index+1}`;
+    const unitPrice=typeof value.price==='number'&&Number.isFinite(value.price)?value.price:
+      typeof current.unitPrice==='number'&&Number.isFinite(current.unitPrice)?current.unitPrice:0;
+    const availableQuantity=typeof current.availableQuantity==='number'&&Number.isFinite(current.availableQuantity)?Math.max(0,Math.floor(current.availableQuantity)):12;
+    return{
+      ...clone(value),
+      productId:`preview-${rawIdentity}`,
+      variantId:`preview-${rawIdentity}-variant`,
+      slug:`preview-${rawIdentity}`,
+      unitPrice,
+      availableQuantity,
+      minimumQuantity:1,
+      orderMultiple:1,
+    };
+  });
+}
+
+
 function shouldPreferAuthoredFallback(fallback:unknown){
   if(fallback===undefined)return false;
   if(Array.isArray(fallback))return fallback.length>0;
@@ -23,9 +55,19 @@ function shouldPreferAuthoredFallback(fallback:unknown){
 }
 
 function visit(node:StorefrontComponentNode,context:Record<string,unknown>){
-  for(const binding of Object.values(node.bindings??{})){
+  for(const[slot,binding]of Object.entries(node.bindings??{})){
     if(!Object.prototype.hasOwnProperty.call(binding,'fallback'))continue;
     if(!shouldPreferAuthoredFallback(binding.fallback))continue;
+    if(
+      slot==='products'
+      &&node.componentKey==='commerce.product-grid'
+      &&node.config.showPurchaseActions===true
+      &&Array.isArray(binding.fallback)
+      &&binding.fallback.length>0
+    ){
+      setPath(context,binding.path,mergePreviewProductActionAuthority(binding.fallback,getPath(context,binding.path)));
+      continue;
+    }
     setPath(context,binding.path,binding.fallback);
   }
   for(const child of node.children??[])visit(child,context);

@@ -488,7 +488,6 @@ const evidence={
   capturedAt:new Date().toISOString(),
 };
 await writeFile(path.join(outputDir,'manifest.json'),JSON.stringify(evidence,null,2));
-for(const file of scope.legacyTemplateChanges)warnings.push({case:'legacy-template-change',warning:`LEGACY_TEMPLATE_REACCEPTANCE_PENDING:${file}`});
 console.log(JSON.stringify({selection:scope.reasons,legacyTemplateChanges:scope.legacyTemplateChanges,cases:cases.length,errorCount:errors.length,warningCount:warnings.length},null,2));
 if(errors.length){
   console.error(JSON.stringify(errors,null,2));
