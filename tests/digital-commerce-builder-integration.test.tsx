@@ -14,7 +14,7 @@ import {getStorefrontPageSemanticContexts} from '@/lib/builder/storefront-templa
 import {validateStorefrontPageDocument,type StorefrontPageDocument} from '@/lib/builder/storefront-runtime';
 import {STOREFRONT_IMPLEMENTED_TEMPLATE_PACKAGES,STOREFRONT_TEMPLATE_LAUNCH_TARGET,STOREFRONT_TEMPLATE_PORTFOLIO_STATUS} from '@/lib/builder/storefront-template-catalog';
 import {PLANS} from '@/lib/plans/catalog';
-import {PLAYROOM_V20_TEMPLATE_PACKAGE} from '@/lib/builder/templates/playroom-v20';
+import {PLAYROOM_V20_TEMPLATE_PACKAGE} from '@/lib/builder/templates/gaming/playroom/v20';
 
 const A3_KEYS=['commerce.fulfillment-summary','commerce.product-documents','commerce.documents-center','commerce.post-purchase-guidance'] as const;
 const capability={plan:'alap' as const,features:PLANS.alap.features};
