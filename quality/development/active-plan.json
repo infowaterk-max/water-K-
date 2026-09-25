@@ -1,14 +1,13 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-TEMPLATE-PREVIEW-AUTH-HANDOFF",
-  "task": "Add template-aware, tenant-free authentication entry for Product Owner template previews and stamp preview provenance without changing shared authentication authority.",
+  "taskId": "DIAG-LOOT-VAULT-V2-CANONICAL-EXTRACT",
+  "task": "Materialize the proven Loot Vault v2 Factory build as deterministic canonical package JSON for a fresh-main candidate recovery branch; diagnostic only, never merge.",
   "status": "ready-for-implementation",
   "guardDigest": "7628c63b",
   "plannedFilePatterns": [
-    "src/app/storefront-template-preview-login/page.tsx",
-    "src/app/storefront-template-preview/page.tsx",
-    "src/components/account/storefront-account-shell.tsx",
-    "tests/storefront-template-preview-runtime.test.ts",
+    "src/lib/builder/template-factory/recipes/loot-vault-v2.ts",
+    "src/lib/builder/template-factory/recipes/loot-vault-v2-pages.ts",
+    "tests/diag-loot-vault-v2-canonical-extract.test.ts",
     "quality/development/active-plan.json"
   ],
   "expectedSubsystems": [
@@ -19,9 +18,11 @@
     "storefront-ui"
   ],
   "expectedDomains": [
+    "DOMAIN-BUILDER",
     "DOMAIN-STOREFRONT"
   ],
   "expectedAuthorities": [
+    "builder-template-system",
     "shared-storefront"
   ],
   "expectedKnownFailureIds": [
@@ -80,6 +81,6 @@
     "SQ-NK-012"
   ],
   "exceptions": [],
-  "notes": "Dependency-closed generic preview-auth transaction extracted from superseded PR #439. Adds a template-aware preview login route using the existing shared AuthForm/Supabase authority, allows StorefrontAccountShell to render template-owned account presentation without tenant context, redirects unauthenticated template preview to that route, and stamps exact Factory provenance on preview roots. No Loot Vault v2 package/media/Page Schema, no accepted manifest, no production catalog activation, no auth-engine duplication, and no Release Risk Budget threshold/weight changes. Exact-head Atlas/Knowledge scope adds auth-access-authority, builder-template-system and customer-account subsystem closure; Known Failure/Negative Knowledge replay and digest aligned without changing any gate. Plan gate semantics verified in source: SQ-NK-005 is not applicable to this exact subsystem closure and is removed from acknowledged negative knowledge; digest remains the gate-computed 7628c63b.",
-  "changeBaseSha": "02de48be961916b682b292460e73b621d90c1fa8"
+  "notes": "Diagnostic-only exact-head extraction. Never merge this branch or PR. It temporarily restores only the proven Loot Vault v2 recipe/pages on top of current main and prints build.package as base64 chunks from the normal test runner. No production activation, no acceptance status change, no Release Risk Budget change.",
+  "changeBaseSha": "9cea1f51ac51b85ea3fc59b5d641da62fb193227"
 }
