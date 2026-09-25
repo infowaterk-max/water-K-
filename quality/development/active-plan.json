@@ -26,7 +26,8 @@
     "dependency-contract",
     "release-infrastructure",
     "quality-knowledge-system",
-    "auth-access-authority"
+    "auth-access-authority",
+    "quality-infrastructure"
   ],
   "expectedDomains": [
     "DOMAIN-BUILDER",
@@ -104,6 +105,6 @@
     "SQ-NK-012"
   ],
   "exceptions": [],
-  "notes": "Product Owner feedback hardening. A template is not complete merely because 14 routes render. Required: shopper-visible navigation coverage in header/mobile/footer, page-specific information content, a real shared support wizard plus location/contact block, compact shared account capability navigation, and canonical recognizable commerce affordances. Preserve one-template/one-canonical-package authority, shared cart/checkout/account/auth/search/runtime/Page Schema authority, QA-only Loot Vault v2 status, and all existing release-risk thresholds. Fix causes, never gates. CSP for the shared Google Maps embed is a release/runtime boundary, so next.config.ts is explicitly classified under DOMAIN-RELEASE instead of remaining Atlas-unresolved. Release policy only gains next.config.ts path classification under the existing medium-risk release-infrastructure subsystem; no threshold, risk class, weight, or bypass changes. CSP frame-src is intentionally narrowed to Google Maps embed hosts for the required Contact map surface; next.config.ts is therefore explicitly within DOMAIN-RELEASE/release-infrastructure scope. Knowledge-infrastructure scope intentionally requires the full 48 Known Failure replay on this transaction; digest pinned to the exact gate projection.",
+  "notes": "Product Owner feedback hardening. A template is not complete merely because 14 routes render. Required: shopper-visible navigation coverage in header/mobile/footer, page-specific information content, a real shared support wizard plus location/contact block, compact shared account capability navigation, and canonical recognizable commerce affordances. Preserve one-template/one-canonical-package authority, shared cart/checkout/account/auth/search/runtime/Page Schema authority, QA-only Loot Vault v2 status, and all existing release-risk thresholds. Fix causes, never gates. CSP for the shared Google Maps embed is a release/runtime boundary, so next.config.ts is explicitly classified under DOMAIN-RELEASE instead of remaining Atlas-unresolved. Release policy only gains next.config.ts path classification under the existing medium-risk release-infrastructure subsystem; no threshold, risk class, weight, or bypass changes. CSP frame-src is intentionally narrowed to Google Maps embed hosts for the required Contact map surface; next.config.ts is therefore explicitly within DOMAIN-RELEASE/release-infrastructure scope. Knowledge-infrastructure scope intentionally requires the full 48 Known Failure replay on this transaction; digest pinned to the exact gate projection. Atlas scope correction: root next.config.ts is a canonical Release-domain file; canonical path matching is normalized to **/next.config.ts so root-level config is classified fail-closed rather than unresolved.",
   "changeBaseSha": "4609721295d6c764f1c1f15c072a4c38db141bd6"
 }
