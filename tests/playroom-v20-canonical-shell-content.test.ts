@@ -51,6 +51,9 @@ describe('Playroom v20 canonical shell and content contract',()=>{
     const nodes=walk(page.sections);
     expect(nodes.some(node=>node.componentKey==='support.location-map')).toBe(true);
     expect(nodes.some(node=>node.componentKey==='support.contact-form')).toBe(true);
+    const formSurface=nodes.find(node=>node.id==='playroom-contact-form-surface');
+    expect(formSurface).toBeTruthy();
+    expect(JSON.stringify(formSurface?.config.style)).toContain('#020b17');
     const serialized=JSON.stringify(page);
     for(const token of ['Cím:','Telefon:','E-mail:','Nyitvatartás:'])expect(serialized).toContain(token);
     expect(page.metadata?.contactCompleteness).toEqual({
@@ -60,19 +63,45 @@ describe('Playroom v20 canonical shell and content contract',()=>{
     });
   });
 
-  it('keeps Account capability-complete in a compact navigation instead of the old card directory',()=>{
+  it('keeps the accepted Playroom mobile account UX while exposing the full canonical capability set off-mobile',()=>{
     const page=PLAYROOM_V20_TEMPLATE_PACKAGE.pages.find(item=>item.pageType==='account')!;
     const nodes=walk(page.sections);
     const nav=nodes.find(node=>node.id==='playroom-account-capability-navigation');
     expect(nav).toBeTruthy();
+    expect(nav?.config.presentation).toBe('account-capability-demo');
     const hrefs=((nav?.config.items??[]) as {href:string}[]).map(item=>item.href);
     for(const href of STOREFRONT_REQUIRED_ACCOUNT_CAPABILITY_ROUTES)expect(hrefs).toContain(href);
-    expect(nodes.some(node=>['playroom-account-orders','playroom-account-favorites','playroom-account-profile'].includes(node.id))).toBe(false);
+    const acceptedMobile=nodes.find(node=>node.id==='playroom-account-navigation-presets-mobile');
+    expect(acceptedMobile).toBeTruthy();
+    expect((acceptedMobile?.config.style as Record<string,Record<string,unknown>>).desktop?.display).toBe('none');
+    expect((acceptedMobile?.config.style as Record<string,Record<string,unknown>>).tablet?.display).toBe('none');
+    expect((acceptedMobile?.config.style as Record<string,Record<string,unknown>>).mobile?.display).toBe('block');
+    expect(nodes.some(node=>node.id==='playroom-account-orders')).toBe(true);
+    expect(nodes.some(node=>node.id==='playroom-account-favorites')).toBe(true);
+    expect(nodes.some(node=>node.id==='playroom-account-profile')).toBe(true);
+    const capabilitySection=nodes.find(node=>node.id==='playroom-account-capabilities');
+    expect((capabilitySection?.config.style as Record<string,Record<string,unknown>>).mobile?.display).toBe('none');
     expect(page.metadata?.accountCompleteness).toEqual({
       navigationAuthority:'shared-account-capabilities',
-      presentation:'compact-template-owned',
+      presentation:'accepted-playroom-mobile-plus-desktop-capabilities',
       longTileDirectory:false,
     });
+  });
+
+  it('ships meaningful showroom-ready Playroom editorial content instead of generic placeholder copy',()=>{
+    const guide=getStorefrontTemplateDemoContent(PLAYROOM_V20_TEMPLATE_PACKAGE,'platform-guide');
+    expect(guide?.payload.showroomReady).toBe(true);
+    expect(String(guide?.payload.title)).toBe('Melyik platform illik hozzád?');
+    expect(String(guide?.payload.excerpt).length).toBeGreaterThan(70);
+    expect(String(guide?.payload.body).length).toBeGreaterThan(500);
+    expect(String(guide?.payload.body)).toContain('Konzol');
+    expect(String(guide?.payload.body)).toContain('PC');
+    for(const slug of ['rolunk','fenntarthatosag','karrier','szallitas','fizetes','visszakuldes']){
+      const fixture=getStorefrontTemplateDemoContent(PLAYROOM_V20_TEMPLATE_PACKAGE,slug);
+      expect(fixture?.payload.showroomReady,slug).toBe(true);
+      expect(String(fixture?.payload.excerpt??'').length,slug).toBeGreaterThan(45);
+      expect(String(fixture?.payload.body??'').length,slug).toBeGreaterThan(180);
+    }
   });
 
   it('materializes distinct legal and informational demo content instead of title-swapped placeholders',()=>{
