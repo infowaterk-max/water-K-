@@ -110,12 +110,15 @@ describe('Template Factory Quality Gate v2',()=>{
     expect(runner).toContain('COOKIE_TEMPLATE_AUTHORITY');
     expect(runner).toContain('GOLDEN_BASELINE_MISSING');
     expect(runner).toContain("manifest.qualityCandidate?'&qualityCandidate=1'");
+    expect(runner).toContain('manifest.factoryCandidate||manifest.qualityCandidate');
+    expect(runner).toContain('CANDIDATE_SHOWROOM_PLACEHOLDER_WARNING_PRESENT');
   });
 
   it('keeps canonical quality candidates QA-only and distinct from production catalog or Factory recipe candidates',()=>{
     const route=read('src/app/api/visual-fidelity/templates/route.ts');
     const qa=read('src/app/visual-fidelity-qa/page.tsx');
-    expect(STOREFRONT_TEMPLATE_QUALITY_CANDIDATES).toEqual([]);
+    expect(STOREFRONT_TEMPLATE_QUALITY_CANDIDATES.every(item=>item.manifest.status==='candidate')).toBe(true);
+    expect(STOREFRONT_TEMPLATE_QUALITY_CANDIDATES.every(item=>item.manifest.golden.required===false)).toBe(true);
     expect(route).toContain('STOREFRONT_TEMPLATE_QUALITY_CANDIDATES.map');
     expect(route).toContain('qualityCandidate:true');
     expect(qa).toContain("query.qualityCandidate==='1'");
