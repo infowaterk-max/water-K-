@@ -391,7 +391,7 @@ function evaluateBuild(input:{
     }
 
     const requiredInfoSlugs=['aszf','adatvedelem','impresszum','szallitas','fizetes','visszakuldes'];
-    const infoFixtures=pkg.demoFixtures.filter(item=>{
+    const infoFixtures=(pkg.demoFixtures??[]).filter(item=>{
       if(item.entityType!=='content'||!item.payload||typeof item.payload!=='object'||Array.isArray(item.payload))return false;
       return requiredInfoSlugs.includes(String((item.payload as Record<string,unknown>).slug??''));
     });
