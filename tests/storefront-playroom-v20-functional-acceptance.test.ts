@@ -405,6 +405,17 @@ describe('Playroom v20 functional acceptance',()=>{
     const titles=['Orbit Breakers','Neon Rally','Midnight Quest','Cyber Arena','Party Rift','Starforge','Turbo Circuit','Couch Crew','Mech Tactics','Pixel Picnic','Void Runners','Kingdom Grid'];
     for(const title of titles)expect(preview).toContain(`name:'${title}'`);
     expect(preview).toContain("const limit=page.pageType==='home'?12:previewProductLimit(page)");
+    expect(preview).toContain("href:\`/termek/\${product.slug}\`");
+    expect(preview).toContain("unitPrice:product.price");
+    expect(preview).toContain("availableQuantity:12");
+    expect(preview).not.toContain("name:product.name,\\n      href:'#preview-demo'");
+    const commerce=read('src/components/builder/storefront-commerce.tsx');
+    const quickAdd=read('src/components/builder/storefront-product-card-add-to-cart-client.tsx');
+    expect(commerce).toContain("text(config.ctaAction)==='add-to-cart'");
+    expect(commerce).toContain('StorefrontProductCardAddToCartClient');
+    expect(quickAdd).toContain('data-storefront-product-card-add-to-cart="true"');
+    expect(quickAdd).toContain("add({productId,variantId,slug,name,unitPrice,quantity");
+    expect(quickAdd).toContain("track('add_to_cart'");
     const installable=(PLAYROOM_V20_TEMPLATE_PACKAGE.demoFixtures??[]).filter(item=>item.entityType==='product'&&item.payload.installAsDemoProduct===true);
     expect(installable).toHaveLength(12);
     expect(installable.map(item=>item.payload.name)).toEqual(titles);
