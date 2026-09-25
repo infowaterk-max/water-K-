@@ -13,7 +13,8 @@
     "src/lib/builder/template-factory/category-foundations.ts",
     "tests/**",
     "docs/architecture/TEMPLATE_SOURCE_AUTHORITY_AUDIT_2026-09-25.md",
-    "src/lib/builder/storefront-template-preview-demo.ts"
+    "src/lib/builder/storefront-template-preview-demo.ts",
+    "src/lib/builder/storefront-template-quality-gate.ts"
   ],
   "expectedSubsystems": [
     "builder-template-system",
@@ -91,6 +92,6 @@
     "SQ-NK-012"
   ],
   "exceptions": [],
-  "notes": "No new parallel architecture registry. Architecture Health remains the blocking authority. Playroom v20 becomes a package directory with one public index entrypoint; internal snapshot is implementation detail. Runtime/build roots must not reach Playroom v18/v19/reference/fidelity/polish/acceptance chains. Tests may retain explicit historical baselines only where documented. No Loot Vault v2 candidate changes in this transaction. Release Risk Budget thresholds and weights remain unchanged. Audit found preview theme still imported Playroom v1 tokens; this transaction therefore derives Playroom v20 preview CSS variables from the canonical v20 Page Schema global-style metadata and removes the v1 runtime/preview dependency.",
+  "notes": "No new parallel architecture registry. Architecture Health remains the blocking authority. Playroom v20 becomes a package directory with one public index entrypoint; internal snapshot is implementation detail. Runtime/build roots must not reach Playroom v18/v19/reference/fidelity/polish/acceptance chains. Tests may retain explicit historical baselines only where documented. No Loot Vault v2 candidate changes in this transaction. Release Risk Budget thresholds and weights remain unchanged. Audit found preview theme still imported Playroom v1 tokens; this transaction therefore derives Playroom v20 preview CSS variables from the canonical v20 Page Schema global-style metadata and removes the v1 runtime/preview dependency. Existing accepted Playroom v20 Quality Manifest remains accepted; only its sourcePrefixes ownership mapping is extended to the new canonical package path so source consolidation does not fabricate a new acceptance event.",
   "changeBaseSha": "85fd159fc99336e4504b4449287e6c506ec26ce8"
 }
