@@ -3,7 +3,7 @@
   "taskId": "DEV-LOOT-VAULT-V2-FACTORY-CANONICAL-WIRING",
   "task": "Wire the registered gaming.loot-vault@2 Factory recipe to the single canonical v2 package authority so Factory preview compiles that exact 14-page candidate with complete ready media, without accepted or production catalog activation.",
   "status": "ready-for-implementation",
-  "guardDigest": "a22523c0",
+  "guardDigest": "f8efa1a3",
   "plannedFilePatterns": [
     "src/lib/builder/template-factory/recipes/loot-vault-v2.ts",
     "tests/template-factory-loot-vault-v2.test.ts",
@@ -17,12 +17,10 @@
     "shared-storefront"
   ],
   "expectedDomains": [
-    "DOMAIN-BUILDER",
-    "DOMAIN-STOREFRONT"
+    "DOMAIN-BUILDER"
   ],
   "expectedAuthorities": [
-    "builder-template-system",
-    "shared-storefront"
+    "builder-template-system"
   ],
   "expectedKnownFailureIds": [
     "SQ-KF-001",
@@ -45,10 +43,7 @@
     "SQ-KF-018",
     "SQ-KF-019",
     "SQ-KF-020",
-    "SQ-KF-021",
     "SQ-KF-022",
-    "SQ-KF-023",
-    "SQ-KF-024",
     "TF-KF-001",
     "TF-KF-002",
     "TF-KF-003",
@@ -85,12 +80,9 @@
     "SQ-NK-008",
     "SQ-NK-009",
     "SQ-NK-010",
-    "SQ-NK-011",
-    "SQ-NK-012",
-    "SQ-NK-014",
-    "SQ-NK-015"
+    "SQ-NK-012"
   ],
   "exceptions": [],
-  "notes": "Dependency-closed Factory/runtime recovery wiring after #457. The recipe imports only the public canonical gaming/loot-vault/v2 entrypoint; it does not restore the old loot-vault-v2-pages.ts authority. All 14 Page Schema overrides, canonical shell and demo fixtures derive from the canonical package. Factory-only media role metadata is restored for the 14 already-proven package-owned WebP assets; commerce readiness and the previously proven #439 internal pre-Product-Owner review state are restored. The regression requires Factory output to deep-equal the canonical v2 package, requires productOwnerReady/technicalReady, and proves factory=1 resolves v2 while production catalog v2 remains absent. No accepted Quality Manifest, production catalog activation, Runtime registry loosening, or Release Risk Budget threshold/weight change.",
+  "notes": "Dependency-closed Factory/runtime recovery wiring after #457. The recipe imports only the public canonical gaming/loot-vault/v2 entrypoint; it does not restore the old loot-vault-v2-pages.ts authority. All 14 Page Schema overrides, canonical shell and demo fixtures derive from the canonical package. Factory-only media role metadata is restored for the 14 already-proven package-owned WebP assets; commerce readiness and the previously proven #439 internal pre-Product-Owner review state are restored. The regression requires Factory output to deep-equal the canonical v2 package, requires productOwnerReady/technicalReady, and proves factory=1 resolves v2 while production catalog v2 remains absent. No accepted Quality Manifest, production catalog activation, Runtime registry loosening, or Release Risk Budget threshold/weight change. Exact-head Plan projection confirms this wiring transaction is DOMAIN-BUILDER / builder-template-system only; quality-infrastructure-only SQ-KF-021/023/024 and SQ-NK-011/014/015 do not apply. Guard digest f8efa1a3.",
   "changeBaseSha": "44b2bc5a3bf9a8e1068b63a6f0d759139f8e571d"
 }
