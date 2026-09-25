@@ -1,29 +1,39 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-TEMPLATE-OWNER-SHOWROOM-CANONICAL-NAV",
-  "task": "Make the authenticated template-owner showroom main navigation expose exactly all 14 canonical storefront pages while leaving the template's real shopper navigation and footer unchanged.",
+  "taskId": "DEV-LOOT-VAULT-V2-CLEAN-RECOVERY",
+  "task": "Recover Loot Vault v2 as a complete protected Template Factory candidate on current main, restore candidate QA/preview infrastructure generically, and keep production acceptance fail-closed.",
   "status": "ready-for-implementation",
-  "guardDigest": "0f3719e9",
+  "guardDigest": "5e7149a4",
   "plannedFilePatterns": [
+    "src/lib/builder/template-factory/scaffold.ts",
+    "src/lib/builder/template-factory/recipes/loot-vault-v2.ts",
+    "src/lib/builder/template-factory/recipes/loot-vault-v2-pages.ts",
     "src/lib/builder/storefront-template-route-integrity.ts",
+    "src/lib/builder/storefront-template-preview-auth.ts",
     "src/app/storefront-template-preview/page.tsx",
-    "src/lib/builder/template-factory/knowledge-registry.ts",
-    "tests/template-factory-storefront-contract.test.ts",
-    "quality/knowledge/domain-foundations.v1.json"
+    "src/app/storefront-template-preview-login/page.tsx",
+    "src/app/api/visual-fidelity/templates/route.ts",
+    ".github/workflows/template-factory-quality-gate.yml",
+    "tests/template-factory-loot-vault-v2.test.ts",
+    "tests/storefront-template-preview-runtime.test.ts",
+    "tests/storefront-template-factory-workflow-coverage.test.ts",
+    "docs/template-factory-media/loot-vault-v2-finalization.json",
+    "public/storefront-demo/loot-vault-v2/**"
   ],
   "expectedSubsystems": [
     "builder-template-system",
+    "release-infrastructure",
     "shared-storefront",
     "storefront-ui"
   ],
   "expectedDomains": [
     "DOMAIN-BUILDER",
-    "DOMAIN-QUALITY",
+    "DOMAIN-RELEASE",
     "DOMAIN-STOREFRONT"
   ],
   "expectedAuthorities": [
     "builder-template-system",
-    "quality-knowledge-system",
+    "release-infrastructure",
     "shared-storefront"
   ],
   "expectedKnownFailureIds": [
@@ -89,6 +99,6 @@
     "SQ-NK-012"
   ],
   "exceptions": [],
-  "notes": "Extends existing TF-AUTH-018 / TF-KF-016 only. In authenticated human/template-factory preview, replace only the header main navigation with exactly the 14 canonical Page Schema destinations. Preserve the actual shopper-facing template navigation in source and preserve the footer unchanged. Embedded library thumbnails remain untouched. No new renderer, Page Schema, navigation authority or gate. The change also closes a pre-existing Atlas gap by classifying src/app/storefront-template-preview/** under DOMAIN-STOREFRONT; the guard remains strict.",
-  "changeBaseSha": "93f3f57f9904c68a9c82c763078e60a5a3ddc04e"
+  "notes": "Clean recovery from current main. Do not merge the old stacked branch. Restore only proven Loot Vault v2 candidate assets/pages and the generic candidate QA/preview contract they require. Preserve current 14x3 acceptance semantics and 14-page owner showroom navigation. Loot Vault remains candidate-only: no accepted quality manifest and no production template-catalog registration. Generalize Product Owner proof away from hard-coded Loot Vault/branch names so future templates reuse the same authority.",
+  "changeBaseSha": "036a624e04e64c08c4f9f9865a52f1a55a1942b1"
 }
