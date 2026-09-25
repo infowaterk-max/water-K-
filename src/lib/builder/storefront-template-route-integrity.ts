@@ -511,6 +511,38 @@ export function evaluateStorefrontTemplateShowroomContract(template:StorefrontIn
   return issues;
 }
 
+export type StorefrontDemoContentRole='title'|'summary'|'body'|'sectionTitle'|'eyebrow'|'image'|'imageAlt'|'readingTime'|'category';
+
+export function applyStorefrontTemplateDemoContent(
+  page:StorefrontPageDocument,
+  payload:Record<string,unknown>,
+):StorefrontPageDocument{
+  const valueFor=(role:StorefrontDemoContentRole):unknown=>{
+    if(role==='summary')return payload.excerpt??payload.summary;
+    if(role==='sectionTitle')return payload.sectionTitle;
+    if(role==='imageAlt')return payload.imageAlt??payload.title;
+    if(role==='readingTime')return payload.readingTime;
+    if(role==='category')return payload.category??payload.kind;
+    return payload[role];
+  };
+  const visit=(node:StorefrontComponentNode):StorefrontComponentNode=>{
+    const next=structuredClone(node);
+    const rawRole=next.config.demoContentRole;
+    if(typeof rawRole==='string'){
+      const role=rawRole as StorefrontDemoContentRole;
+      const value=valueFor(role);
+      if(typeof value==='string'&&value.trim()){
+        if(role==='image')next.config.src=value;
+        else if(role==='imageAlt')next.config.alt=value;
+        else next.config.text=value;
+      }
+    }
+    if(next.children?.length)next.children=next.children.map(visit);
+    return next;
+  };
+  return{...structuredClone(page),sections:page.sections.map(visit),metadata:{...(page.metadata??{}),demoContentBound:true}};
+}
+
 export function isStorefrontShowroomReadyDemoContent(fixture:StorefrontDemoFixture|null|undefined):boolean{
   return fixture?.payload?.showroomReady===true;
 }
