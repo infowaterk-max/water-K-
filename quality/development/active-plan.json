@@ -8,7 +8,8 @@
     "src/lib/builder/template-factory/recipes/loot-vault-v2.ts",
     "src/lib/builder/template-factory/recipes/loot-vault-v2-pages.ts",
     "tests/diag-loot-vault-v2-canonical-extract.test.ts",
-    "quality/development/active-plan.json"
+    "quality/development/active-plan.json",
+    "tests/template-factory-loot-vault-v2.test.ts"
   ],
   "expectedSubsystems": [
     "auth-access-authority",
@@ -85,6 +86,6 @@
       "reason": "Diagnostic extraction only. Reviewed all flagged href literals: they converge on existing shared storefront routes (/fiokom, /kosar, /webaruhaz, /kedvencek, /penztar, /szallitas-es-fizetes, /oldal/visszakuldes, /fiokom/letoltesek, /fiokom/kivansaglista, /fiokom/dokumentumok, /fiokom/ugyek, /fiokom/visszakuldes). No new business-route authority is introduced."
     }
   ],
-  "notes": "Diagnostic-only exact-head extraction. Never merge this branch or PR. It temporarily restores only the proven Loot Vault v2 recipe/pages on top of current main and prints build.package as base64 chunks from the normal test runner. No production activation, no acceptance status change, no Release Risk Budget change. Exact-head plan closure corrected from gate evidence: DOMAIN-BUILDER / builder-template-system with dependency-contract subsystem; guard digest 9565cf97. DEV-REVIEW-004 explicitly reviewed: all flagged route literals map to existing shared storefront routes; exception acknowledges review and does not create or bypass route authority.",
+  "notes": "Diagnostic-only exact-head extraction. Never merge this branch or PR. It temporarily restores only the proven Loot Vault v2 recipe/pages on top of current main and prints build.package as base64 chunks from the normal test runner. No production activation, no acceptance status change, no Release Risk Budget change. Exact-head plan closure corrected from gate evidence: DOMAIN-BUILDER / builder-template-system with dependency-contract subsystem; guard digest 9565cf97. DEV-REVIEW-004 explicitly reviewed: all flagged route literals map to existing shared storefront routes; exception acknowledges review and does not create or bypass route authority. Diagnostic-only: temporarily aligns the Loot Vault v2 regression test with the proven #439 candidate so Incremental Replay can reach the dump test. This branch remains never-merge.",
   "changeBaseSha": "9cea1f51ac51b85ea3fc59b5d641da62fb193227"
 }
