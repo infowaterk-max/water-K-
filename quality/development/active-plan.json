@@ -11,6 +11,7 @@
   "expectedSubsystems": [
     "builder-template-system",
     "dependency-contract",
+    "release-infrastructure",
     "shared-storefront"
   ],
   "expectedDomains": [
@@ -71,6 +72,7 @@
     "SQ-NK-002",
     "SQ-NK-003",
     "SQ-NK-004",
+    "SQ-NK-005",
     "SQ-NK-006",
     "SQ-NK-007",
     "SQ-NK-008",
@@ -79,6 +81,6 @@
     "SQ-NK-012"
   ],
   "exceptions": [],
-  "notes": "Media-only inert recovery transaction. Restores exactly the 14 WebP blobs proven on superseded PR #439. No runtime imports, no template package activation, no accepted manifest, no production catalog registration, no Release Risk Budget threshold or weight changes. These files are intentionally unused until the following canonical gaming.loot-vault@2 package transaction. Exact-head Plan gate evidence confirms DOMAIN-BUILDER / builder-template-system authority with builder-template-system, dependency-contract and shared-storefront subsystem closure. Known Failure and Negative Knowledge projections plus guard digest aligned to that exact scope.",
+  "notes": "Media-only inert recovery transaction. Restores exactly the 14 WebP blobs proven on superseded PR #439. No runtime imports, no template package activation, no accepted manifest, no production catalog registration, no Release Risk Budget threshold or weight changes. These files are intentionally unused until the following canonical gaming.loot-vault@2 package transaction. Exact-head Plan gate evidence confirms DOMAIN-BUILDER / builder-template-system authority with builder-template-system, dependency-contract and shared-storefront subsystem closure. Known Failure and Negative Knowledge projections plus guard digest aligned to that exact scope. Final scope correction from gate projection: release-infrastructure is part of subsystem closure and SQ-NK-005 is required by the exact negative-knowledge projection.",
   "changeBaseSha": "9cea1f51ac51b85ea3fc59b5d641da62fb193227"
 }
