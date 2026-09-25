@@ -29,6 +29,8 @@ describe('Loot Vault v2 Factory canonical wiring',()=>{
     expect(build.package.pages.map(page=>page.pageType)).toEqual(STOREFRONT_PAGE_TYPES);
     expect(build.report.inheritedPageTypes).toEqual([]);
     expect(build.report.overriddenPageTypes).toEqual(STOREFRONT_PAGE_TYPES);
+    const article=build.package.pages.find(page=>page.pageType==='blog-article');
+    expect(JSON.stringify(article)).toContain('"componentKey":"story.hero"');
   });
 
   it('is Product Owner preview-ready without implying acceptance or production catalog activation',()=>{
