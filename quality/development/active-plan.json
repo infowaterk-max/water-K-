@@ -1,33 +1,25 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-TEMPLATE-FACTORY-ACCEPTANCE-SCOPE-14X3",
-  "task": "Make Template Factory execution scope-aware while requiring every merchant-facing template acceptance to prove all 14 canonical pages across Desktop, Tablet and Mobile.",
+  "taskId": "DEV-TEMPLATE-REACCEPTANCE-MANIFEST-REQUIRED",
+  "task": "Require every modified merchant-facing legacy template to enter the canonical Template Factory quality-manifest path before it can pass re-acceptance.",
   "status": "ready-for-implementation",
-  "guardDigest": "deda6a74",
+  "guardDigest": "b00cf3c4",
   "plannedFilePatterns": [
-    ".github/workflows/template-factory-quality-gate.yml",
-    "src/lib/builder/storefront-template-quality-gate.ts",
+    "quality/knowledge/knowledge-scope-policy.v1.json",
+    "scripts/template-factory-quality-gate.mjs",
     "tests/storefront-template-quality-gate-v2.test.ts"
   ],
   "expectedSubsystems": [
     "builder-template-system",
-    "release-infrastructure",
     "shared-storefront"
   ],
   "expectedDomains": [
-    "DOMAIN-BUILDER",
-    "DOMAIN-RELEASE",
-    "DOMAIN-STOREFRONT"
+    "DOMAIN-QUALITY"
   ],
   "expectedAuthorities": [
-    "builder-template-system",
-    "release-infrastructure",
-    "shared-storefront"
+    "quality-knowledge-system"
   ],
   "expectedKnownFailureIds": [
-    "SQ-KF-013",
-    "SQ-KF-014",
-    "SQ-KF-022",
     "SQ-KF-001",
     "SQ-KF-002",
     "SQ-KF-003",
@@ -40,12 +32,18 @@
     "SQ-KF-010",
     "SQ-KF-011",
     "SQ-KF-012",
+    "SQ-KF-013",
+    "SQ-KF-014",
     "SQ-KF-015",
     "SQ-KF-016",
     "SQ-KF-017",
     "SQ-KF-018",
     "SQ-KF-019",
     "SQ-KF-020",
+    "SQ-KF-021",
+    "SQ-KF-022",
+    "SQ-KF-023",
+    "SQ-KF-024",
     "TF-KF-001",
     "TF-KF-002",
     "TF-KF-003",
@@ -76,7 +74,6 @@
     "SQ-NK-002",
     "SQ-NK-003",
     "SQ-NK-004",
-    "SQ-NK-005",
     "SQ-NK-006",
     "SQ-NK-007",
     "SQ-NK-008",
@@ -85,6 +82,6 @@
     "SQ-NK-012"
   ],
   "exceptions": [],
-  "notes": "Refines the existing Template Factory Quality Gate v2 only. Knowledge/roadmap-only changes should be handled by normal CI/Architecture Health rather than launching browser QA. A canary remains a regression signal only; it can never constitute template acceptance. Merchant-facing template acceptance requires exactly all canonical page types and all canonical viewports, i.e. 14x3 = 42 browser cases per template. No new gate or parallel authority.",
-  "changeBaseSha": "0ee7825a94f85bfd63712edb990524dea8940f4f"
+  "notes": "Closes the legacy-template reacceptance bypass. Added or modified merchant-facing template source must be owned by a Template Factory quality manifest. Candidate manifests still require the complete canonical 14 pages x 3 viewports browser matrix; accepted manifests additionally require golden evidence. Also classifies the existing Template Factory quality runner as quality knowledge infrastructure so its own changes receive full Known Failure replay. No new gate.",
+  "changeBaseSha": "df8f5431db49546f00bb47c96d5607297ef935c0"
 }
