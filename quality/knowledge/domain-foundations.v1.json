@@ -269,7 +269,10 @@
         "src/lib/storefront/**",
         "src/components/storefront/**",
         "src/lib/builder/storefront-**",
-        "src/app/storefront-template-preview/**"
+        "src/app/storefront-template-preview/**",
+        "src/app/storefront-template-preview-login/**",
+        "src/app/visual-fidelity-qa/**",
+        "src/components/account/storefront-account-shell.tsx"
       ],
       "evidenceObligations": [
         "responsive isolation proof",
@@ -318,7 +321,9 @@
       ],
       "canonicalPaths": [
         "src/lib/builder/**",
-        "src/components/builder/**"
+        "src/components/builder/**",
+        "public/storefront-demo/**",
+        "src/app/api/visual-fidelity/templates/**"
       ],
       "evidenceObligations": [
         "schema validation",

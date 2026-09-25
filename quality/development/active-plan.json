@@ -1,29 +1,55 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-TEMPLATE-OWNER-SHOWROOM-CANONICAL-NAV",
-  "task": "Make the authenticated template-owner showroom main navigation expose exactly all 14 canonical storefront pages while leaving the template's real shopper navigation and footer unchanged.",
+  "taskId": "DEV-LOOT-VAULT-V2-CLEAN-RECOVERY",
+  "task": "Recover Loot Vault v2 as a complete protected Template Factory candidate on current main, restore candidate QA/preview infrastructure generically, and keep production acceptance fail-closed.",
   "status": "ready-for-implementation",
-  "guardDigest": "0f3719e9",
+  "guardDigest": "bcd5c4e2",
   "plannedFilePatterns": [
+    "src/lib/builder/template-factory/scaffold.ts",
+    "src/lib/builder/template-factory/recipes/loot-vault-v2.ts",
+    "src/lib/builder/template-factory/recipes/loot-vault-v2-pages.ts",
     "src/lib/builder/storefront-template-route-integrity.ts",
+    "src/lib/builder/storefront-template-preview-auth.ts",
     "src/app/storefront-template-preview/page.tsx",
-    "src/lib/builder/template-factory/knowledge-registry.ts",
-    "tests/template-factory-storefront-contract.test.ts",
-    "quality/knowledge/domain-foundations.v1.json"
+    "src/app/storefront-template-preview-login/page.tsx",
+    "src/app/api/visual-fidelity/templates/route.ts",
+    ".github/workflows/template-factory-quality-gate.yml",
+    "tests/template-factory-loot-vault-v2.test.ts",
+    "tests/storefront-template-preview-runtime.test.ts",
+    "tests/storefront-template-factory-workflow-coverage.test.ts",
+    "docs/template-factory-media/loot-vault-v2-finalization.json",
+    "public/storefront-demo/loot-vault-v2/**",
+    "src/lib/builder/template-factory/category-foundations.ts",
+    "scripts/template-factory-quality-gate.mjs",
+    "src/app/visual-fidelity-qa/page.tsx",
+    "src/components/account/storefront-account-shell.tsx",
+    "quality/knowledge/domain-foundations.v1.json",
+    "deploy/release-risk-policy.json",
+    "tests/shoperation-development-guard.test.ts",
+    "src/lib/builder/template-factory/media-production.ts",
+    "src/lib/builder/template-factory/index.ts",
+    "src/lib/builder/storefront-template-preview-demo.ts",
+    "src/lib/builder/storefront-template-preview-canonical.ts",
+    "tests/template-factory-scaffold-v1.test.ts",
+    "tests/storefront-template-quality-gate-v2.test.ts"
   ],
   "expectedSubsystems": [
     "builder-template-system",
+    "customer-account",
+    "release-infrastructure",
     "shared-storefront",
     "storefront-ui"
   ],
   "expectedDomains": [
     "DOMAIN-BUILDER",
     "DOMAIN-QUALITY",
+    "DOMAIN-RELEASE",
     "DOMAIN-STOREFRONT"
   ],
   "expectedAuthorities": [
     "builder-template-system",
     "quality-knowledge-system",
+    "release-infrastructure",
     "shared-storefront"
   ],
   "expectedKnownFailureIds": [
@@ -81,6 +107,7 @@
     "SQ-NK-002",
     "SQ-NK-003",
     "SQ-NK-004",
+    "SQ-NK-005",
     "SQ-NK-006",
     "SQ-NK-007",
     "SQ-NK-008",
@@ -88,7 +115,17 @@
     "SQ-NK-010",
     "SQ-NK-012"
   ],
-  "exceptions": [],
-  "notes": "Extends existing TF-AUTH-018 / TF-KF-016 only. In authenticated human/template-factory preview, replace only the header main navigation with exactly the 14 canonical Page Schema destinations. Preserve the actual shopper-facing template navigation in source and preserve the footer unchanged. Embedded library thumbnails remain untouched. No new renderer, Page Schema, navigation authority or gate. The change also closes a pre-existing Atlas gap by classifying src/app/storefront-template-preview/** under DOMAIN-STOREFRONT; the guard remains strict.",
-  "changeBaseSha": "93f3f57f9904c68a9c82c763078e60a5a3ddc04e"
+  "exceptions": [
+    {
+      "ruleId": "DEV-REVIEW-004",
+      "reason": "Loot Vault v2 contains presentation-only links to canonical shared storefront/account routes; it does not implement route/business authority locally.",
+      "evidence": [
+        "tests/template-factory-loot-vault-v2.test.ts verifies evaluateStorefrontTemplateRouteIntegrity(build.package) is empty",
+        "Factory showroom evidence requires every shell-navigation surface to have navigationPresent=true and entrypointPresent=true",
+        "Product Owner handoff independently proves multi-entry route convergence on the exact candidate"
+      ]
+    }
+  ],
+  "notes": "Clean recovery from current main. Do not merge the old stacked branch. Restore only proven Loot Vault v2 candidate assets/pages and the generic candidate QA/preview contract they require. Preserve current 14x3 acceptance semantics and 14-page owner showroom navigation. Loot Vault remains candidate-only: no accepted quality manifest and no production template-catalog registration. Generalize Product Owner proof away from hard-coded Loot Vault/branch names so future templates reuse the same authority. The recovery also restores candidate acceptance-proof generation in the existing runner and category-foundation media neutralization. Visual Fidelity QA must resolve factory=1 through the Factory registry so browser evidence cannot silently test the catalog package. StorefrontAccountShell receives the previously proven additive previewTemplate mode only; normal customer account resolution remains unchanged. The dedicated preview-login route is classified under DOMAIN-STOREFRONT in the canonical domain foundation. Atlas classification now explicitly maps package-owned storefront demo media and Factory QA/catalog surfaces; customer-account is included because the shared account shell gains preview-only composition. Release Risk Policy classification only: public/storefront-demo/** maps to builder-template-system; no risk threshold, score, gate, or budget is relaxed. DEV-REVIEW-004 is explicitly reviewed, not suppressed: all flagged /kosar and /fiokom-family hrefs are canonical shared routes and now have a dedicated route-integrity regression. Incremental replay proved the historical candidate also depends on the media-production authority, candidate-aware preview demo/canonical fallbacks, and the matching scaffold regression contract; these are recovered as one dependency-closed Factory transaction. Quality-gate regression is updated to encode the intended distinction: accepted templates may default-canary, but Factory candidates default to full exact-head browser proof.",
+  "changeBaseSha": "036a624e04e64c08c4f9f9865a52f1a55a1942b1"
 }

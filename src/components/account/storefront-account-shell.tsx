@@ -2,6 +2,7 @@ import type{CSSProperties,ReactNode}from'react';
 import{headers}from'next/headers';
 import{StorefrontResponsiveRuntime}from'@/components/builder/storefront-responsive-runtime';
 import{resolveCurrentStorefrontAccountRuntimePage}from'@/lib/builder/storefront-runtime-source';
+import{resolveStorefrontTemplateAccountPreviewRuntimePage}from'@/lib/builder/storefront-template-preview-auth';
 import{resolveStorefrontGlobalStyleCssVariables}from'@/lib/builder/storefront-global-styles';
 import type{StorefrontComponentNode,StorefrontPageDocument}from'@/lib/builder/storefront-runtime';
 import type{StorefrontViewport}from'@/lib/builder/storefront-foundation';
@@ -13,8 +14,10 @@ const isFooter=(node:StorefrontComponentNode)=>contains(node,item=>item.componen
 function viewportFromUserAgent(value:string):StorefrontViewport{const v=value.toLowerCase();if(/ipad|tablet|kindle|silk/.test(v))return'tablet';if(/mobi|iphone|ipod|android/.test(v))return'mobile';return'desktop'}
 function slicePage(page:StorefrontPageDocument,sections:StorefrontComponentNode[]):StorefrontPageDocument{return{...page,sections}}
 
-export async function StorefrontAccountShell({customerId,fallbackNavigation,children}:{customerId:string|null;fallbackNavigation:ReactNode;children:ReactNode}){
- const runtime=await resolveCurrentStorefrontAccountRuntimePage(customerId);
+export async function StorefrontAccountShell({customerId,fallbackNavigation,children,previewTemplate}:{customerId:string|null;fallbackNavigation:ReactNode;children:ReactNode;previewTemplate?:{templateKey:string;templateVersion?:number;factoryCandidate?:boolean}|null}){
+ const runtime=previewTemplate
+  ?resolveStorefrontTemplateAccountPreviewRuntimePage(previewTemplate.templateKey,previewTemplate.templateVersion,previewTemplate.factoryCandidate===true)
+  :await resolveCurrentStorefrontAccountRuntimePage(customerId);
  if(!runtime)return customerId
   ?<div className="storefrontAccountShell" data-authenticated="true"><div className="storefrontAccountWorkspace"><aside className="storefrontAccountSidebar" aria-label="Fiók navigáció">{fallbackNavigation}</aside><div className="storefrontAccountRouteContent">{children}</div></div></div>
   :<div className="storefrontAccountShell" data-authenticated="false"><div className="storefrontAccountRouteContent storefrontAuthRouteContent">{children}</div></div>;
