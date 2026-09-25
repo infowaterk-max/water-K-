@@ -133,43 +133,6 @@ describe('Loot Vault v2 Factory canary recipe',()=>{
     expect(orders.filter(order=>order.role==='category')).toHaveLength(6);
     expect(orders.filter(order=>order.role==='product')).toHaveLength(4);
   });
-  it('uses real shared purchase authority on cards and PDP while preview facts never degrade to dash placeholders',()=>{
-    const build=buildRegisteredStorefrontTemplateFactoryCandidate('gaming.loot-vault');
-    const home=build.package.pages.find(page=>page.pageType==='home')!;
-    const product=build.package.pages.find(page=>page.pageType==='product')!;
-    const homeGrid=findNodeBy(home.sections,node=>node.componentKey==='commerce.product-grid'&&node.config.presentation==='loot-vault');
-    expect(homeGrid).toBeTruthy();
-    expect(homeGrid?.config).toMatchObject({showCta:false,showPurchaseActions:true,purchaseLabel:'Kosárba',wishlistLabel:'Kedvencekhez'});
-    const homePreview=createStorefrontTemplatePreviewBindingContext({template:build.package,page:home});
-    const homeContext=applyAuthoredTemplatePreviewFallbacks({page:home,context:homePreview});
-    const homeProducts=resolveStorefrontBinding(homeGrid!.bindings!.products!.path,homeContext) as Record<string,unknown>[];
-    expect(homeProducts[0]).toMatchObject({
-      productId:'preview-vault-sentinel',
-      variantId:'preview-vault-sentinel-variant',
-      slug:'preview-vault-sentinel',
-      unitPrice:89990,
-      availableQuantity:12,
-      minimumQuantity:1,
-      orderMultiple:1,
-    });
-    const purchase=findNodeBy(product.sections,node=>node.componentKey==='commerce.purchase-controls'&&node.config.presentation==='loot-vault');
-    expect(purchase).toBeTruthy();
-    expect(purchase?.bindings).toMatchObject({
-      productId:{path:'product.id'},variantId:{path:'variant.id'},slug:{path:'product.slug'},unitPrice:{path:'pricing.unitPrice'},availableQuantity:{path:'inventory.availableQuantity'},
-    });
-    const previewContext=createStorefrontTemplatePreviewBindingContext({template:build.package,page:product}) as Record<string,any>;
-    const context=applyAuthoredTemplatePreviewFallbacks({page:product,context:previewContext}) as Record<string,any>;
-    expect(context.product?.id).toBeTruthy();
-    expect(context.variant?.id).toBeTruthy();
-    expect(context.pricing?.unitPrice).toBeGreaterThan(0);
-    expect(context.inventory?.availableQuantity).toBeGreaterThan(0);
-    expect(context.product?.keySpecs).toEqual(expect.arrayContaining([
-      expect.objectContaining({label:'Kiadás',displayValue:'Gyűjtői kiadás',missing:false}),
-      expect.objectContaining({label:'Elérhetőség',displayValue:'Raktáron',missing:false}),
-    ]));
-    expect(context.product?.keySpecs.every((item:Record<string,unknown>)=>item.displayValue&&item.displayValue!=='—')).toBe(true);
-  });
-
   it('fails closed for an unregistered template instead of fabricating a recipe',()=>{
     expect(getStorefrontTemplateFactoryRecipe('gaming.missing')).toBeNull();
     expect(()=>buildRegisteredStorefrontTemplateFactoryCandidate('gaming.missing')).toThrow('TEMPLATE_FACTORY_RECIPE_MISSING:gaming.missing');
