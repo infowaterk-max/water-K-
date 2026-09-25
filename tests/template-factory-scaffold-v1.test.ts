@@ -81,7 +81,7 @@ function recipe(input:{allPages:boolean;reviewPassed:boolean}):StorefrontTemplat
     ],
     media:{
       assets:[
-        {key:'hero',role:'hero',src:'/factory/canary/hero.jpg',alt:'Factory Canary hero',pageTypes:['home'],representative:true,aspectRatio:'16:9'},
+        {key:'hero',state:'ready',role:'hero',src:'/factory/canary/hero.jpg',alt:'Factory Canary hero',pageTypes:['home'],representative:true,aspectRatio:'16:9'},
       ],
       requiredRoles:['hero'],
       requirements:[{role:'hero',minCount:1,aspectRatio:'16:9'}],
@@ -125,18 +125,21 @@ describe('Template Factory Scaffold v1',()=>{
     }
   });
 
-  it('auto-rebrands inherited foundation copy but still fails closed on foundation media, reference ownership and visual review',()=>{
+  it('auto-neutralizes inherited foundation brand and media while still failing closed on reference ownership and visual review',()=>{
     const build=buildStorefrontTemplateFactoryCandidate(recipe({allPages:false,reviewPassed:false}));
     expect(build.report.productOwnerReady).toBe(false);
     expect(build.report.inheritedPageTypes.length).toBe(13);
     const account=build.package.pages.find(page=>page.pageType==='account')!;
     expect(JSON.stringify(account)).not.toContain('PLAYROOM');
     expect(JSON.stringify(account)).not.toContain('Playroom');
-    expect(build.report.issues.map(item=>item.code)).toEqual(expect.arrayContaining([
+    expect(JSON.stringify(account)).not.toContain('/storefront/playroom/');
+    expect(JSON.stringify(account)).not.toContain('/playroom/');
+    const codes=build.report.issues.map(item=>item.code);
+    expect(codes).toEqual(expect.arrayContaining([
       'FACTORY_REFERENCE_PAGE_NOT_OWNED',
-      'FACTORY_FOUNDATION_MEDIA_LEAK',
       'FACTORY_INTERNAL_VISUAL_REVIEW_REQUIRED',
     ]));
+    expect(codes).not.toContain('FACTORY_FOUNDATION_MEDIA_LEAK');
     expect(()=>assertStorefrontTemplateFactoryProductOwnerReady(build)).toThrow(/TEMPLATE_FACTORY_PRODUCT_OWNER_NOT_READY/);
   });
 

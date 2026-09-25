@@ -27,6 +27,7 @@ export type StorefrontTemplateFactoryMediaRole='hero'|'category'|'product'|'edit
 export type StorefrontTemplateFactoryMediaAspectRatio='1:1'|'4:5'|'16:9'|'3:2'|'free';
 export type StorefrontTemplateFactoryMediaAsset={
   key:string;
+  state:'planned'|'ready';
   role:StorefrontTemplateFactoryMediaRole;
   src:string;
   alt:string;
@@ -91,6 +92,7 @@ export type StorefrontTemplateFactoryCategoryFoundation={
   recommendedOwnedPages:readonly StorefrontBuilderPageType[];
   inheritedPages:readonly StorefrontBuilderPageType[];
   brandTokens?:readonly string[];
+  foundationMediaPrefixes?:readonly string[];
   forbiddenLeakTokens?:readonly string[];
 };
 
@@ -110,6 +112,7 @@ export type StorefrontTemplateFactoryBuild={
     inheritedPageTypes:readonly StorefrontBuilderPageType[];
     overriddenPageTypes:readonly StorefrontBuilderPageType[];
     representativeMediaCount:number;
+    plannedMediaCount:number;
     issues:readonly StorefrontTemplateFactoryIssue[];
     productOwnerReady:boolean;
   };
@@ -126,6 +129,17 @@ function rewriteFoundationBrandTokens<T>(value:T,tokens:readonly string[],displa
     if(token)serialized=serialized.split(token).join(displayName);
   }
   return JSON.parse(serialized) as T;
+}
+
+function neutralizeFoundationMedia<T>(value:T,prefixes:readonly string[]):T{
+  if(!prefixes.length)return value;
+  const visit=(current:unknown):unknown=>{
+    if(typeof current==='string')return prefixes.some(prefix=>current.startsWith(prefix))?'':current;
+    if(Array.isArray(current))return current.map(visit);
+    if(current&&typeof current==='object')return Object.fromEntries(Object.entries(current as Record<string,unknown>).map(([key,child])=>[key,visit(child)]));
+    return current;
+  };
+  return visit(value) as T;
 }
 
 function walk(nodes:readonly StorefrontComponentNode[],visitor:(node:StorefrontComponentNode)=>void):void{
@@ -188,7 +202,7 @@ function evaluateBuild(input:{
 
   for(const miss of input.patchMisses)issues.push(issue('FACTORY_PATCH_TARGET_MISSING',miss,'A declared factory patch did not match any node.'));
 
-  const representative=recipe.media.assets.filter(asset=>asset.representative);
+  const representative=recipe.media.assets.filter(asset=>asset.representative&&asset.state==='ready');
   if(representative.length<recipe.media.minimumRepresentativeMedia){
     issues.push(issue('FACTORY_MEDIA_COVERAGE','media.assets',`Representative media count ${representative.length} is below required minimum ${recipe.media.minimumRepresentativeMedia}.`));
   }
@@ -213,7 +227,9 @@ function evaluateBuild(input:{
     if(recipe.media.forbidPlaceholderSvg&&/\.svg(?:\?|$)/i.test(asset.src))issues.push(issue('FACTORY_PLACEHOLDER_SVG_FORBIDDEN',`media.assets[${index}].src`,'Product Owner-ready media manifest may not use SVG placeholders.'));
     for(const pageType of asset.pageTypes){
       const page=pageByType.get(pageType);
-      if(!page||!pageContains(page,asset.src))issues.push(issue('FACTORY_MEDIA_NOT_WIRED',`media.assets[${index}].pageTypes.${pageType}`,'Declared media asset is not referenced by the compiled target page.'));
+      const wiredByPage=Boolean(page&&pageContains(page,asset.src));
+      const wiredByFixture=JSON.stringify(recipe.demoFixtures).includes(asset.src);
+      if(!wiredByPage&&!wiredByFixture)issues.push(issue('FACTORY_MEDIA_NOT_WIRED',`media.assets[${index}].pageTypes.${pageType}`,'Declared media asset is not referenced by the compiled target page or demo fixture authority.'));
     }
   }
 
@@ -225,8 +241,9 @@ function evaluateBuild(input:{
   const foundationSlug=slug(foundation.foundationTemplateKey);
   const targetSlug=slug(recipe.templateKey);
   if(foundationSlug!==targetSlug){
-    const leakedMedia=`/storefront/${foundationSlug}/`;
-    if(serialized.includes(leakedMedia))issues.push(issue('FACTORY_FOUNDATION_MEDIA_LEAK','package','Compiled template still references foundation-specific media.'));
+    for(const leakedMedia of foundation.foundationMediaPrefixes??[`/storefront/${foundationSlug}/`]){
+      if(leakedMedia&&serialized.includes(leakedMedia))issues.push(issue('FACTORY_FOUNDATION_MEDIA_LEAK','package',`Compiled template still references foundation-specific media prefix: ${leakedMedia}`));
+    }
     for(const token of foundation.forbiddenLeakTokens??[]){
       if(token&&serialized.includes(token))issues.push(issue('FACTORY_FOUNDATION_BRAND_LEAK','package',`Compiled template still contains foundation-specific token: ${token}`));
     }
@@ -260,6 +277,7 @@ export function compileStorefrontTemplateFactoryPackage(input:{
 
     let page=rewriteIds(source,foundation.foundationTemplateKey,recipe.templateKey);
     page=rewriteFoundationBrandTokens(page,foundation.brandTokens??[],recipe.displayName);
+    page=neutralizeFoundationMedia(page,foundation.foundationMediaPrefixes??[]);
     page.pageKey=`${slug(recipe.templateKey)}-${pageType}`;
     page.templateKey=recipe.templateKey;
     page.templateVersion=recipe.templateVersion;
@@ -314,7 +332,8 @@ export function compileStorefrontTemplateFactoryPackage(input:{
       template:{templateKey:recipe.templateKey,templateVersion:recipe.templateVersion,category:recipe.category},
       inheritedPageTypes:Object.freeze([...inherited]),
       overriddenPageTypes:Object.freeze([...overridden]),
-      representativeMediaCount:recipe.media.assets.filter(asset=>asset.representative).length,
+      representativeMediaCount:recipe.media.assets.filter(asset=>asset.representative&&asset.state==='ready').length,
+      plannedMediaCount:recipe.media.assets.filter(asset=>asset.state==='planned').length,
       issues:Object.freeze(issues),
       productOwnerReady:issues.every(item=>item.severity!=='error'),
     },
