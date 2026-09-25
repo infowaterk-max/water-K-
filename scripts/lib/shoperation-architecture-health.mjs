@@ -55,6 +55,33 @@ function buildSourceImportGraph(){
   }
   return{files,graph};
 }
+
+export function collectReachableSourceFiles(graph,seeds){
+  const reachable=new Set(),queue=[...seeds];
+  while(queue.length){
+    const file=queue.shift();
+    if(!file||reachable.has(file))continue;
+    reachable.add(file);
+    for(const dependency of graph.get(file)??[])if(!reachable.has(dependency))queue.push(dependency);
+  }
+  return reachable;
+}
+
+export function evaluateCanonicalPackageDependencyClosure(pkg,graph){
+  const hardDrift=[];
+  const reachable=collectReachableSourceFiles(graph,[pkg.entrypoint]);
+  const flatPrefix='src/lib/builder/templates/'+pkg.slug;
+  for(const file of reachable){
+    const belongsToManagedTemplate=file.startsWith(flatPrefix)||file.startsWith(pkg.packageDir+'/');
+    if(belongsToManagedTemplate&&/(?:wave\d+-acceptance|fidelity|polish).*\.ts$/.test(file)){
+      hardDrift.push({code:'TEMPLATE_ACCEPTANCE_OR_POLISH_RUNTIME_REACHABLE',identity:pkg.identity,file,entrypoint:pkg.entrypoint});
+    }
+    if(file.startsWith(flatPrefix)&&!file.startsWith(pkg.packageDir+'/')){
+      hardDrift.push({code:'TEMPLATE_LEGACY_RUNTIME_REACHABLE',identity:pkg.identity,file,entrypoint:pkg.entrypoint});
+    }
+  }
+  return{reachable,hardDrift};
+}
 function evaluateTemplateSingleSourceAuthority(){
   const hardDrift=[],packages=[];
   const templateFiles=listTrackedFiles('src/lib/builder/templates');
@@ -105,24 +132,10 @@ function evaluateTemplateSingleSourceAuthority(){
     'src/lib/builder/storefront-template-preview-demo.ts',
     'src/lib/builder/storefront-template-preview-auth.ts',
   ].filter(root=>graph.has(root));
-  const reachable=new Set(),queue=[...roots];
-  while(queue.length){
-    const file=queue.shift();
-    if(reachable.has(file))continue;
-    reachable.add(file);
-    for(const dependency of graph.get(file)??[])if(!reachable.has(dependency))queue.push(dependency);
-  }
-  for(const file of reachable){
-    for(const pkg of packages){
-      const flatPrefix='src/lib/builder/templates/'+pkg.slug;
-      const belongsToManagedTemplate=file.startsWith(flatPrefix)||file.startsWith(pkg.packageDir+'/');
-      if(belongsToManagedTemplate&&/(?:wave\d+-acceptance|fidelity|polish).*\.ts$/.test(file)){
-        hardDrift.push({code:'TEMPLATE_ACCEPTANCE_OR_POLISH_RUNTIME_REACHABLE',identity:pkg.identity,file,entrypoint:pkg.entrypoint});
-      }
-      if(file.startsWith(flatPrefix)&&!file.startsWith(pkg.packageDir+'/')){
-        hardDrift.push({code:'TEMPLATE_LEGACY_RUNTIME_REACHABLE',identity:pkg.identity,file,entrypoint:pkg.entrypoint});
-      }
-    }
+  const reachable=collectReachableSourceFiles(graph,roots);
+  for(const pkg of packages){
+    const closure=evaluateCanonicalPackageDependencyClosure(pkg,graph);
+    hardDrift.push(...closure.hardDrift);
   }
   return{
     contract:'shoporation.template-single-source-authority.v1',
