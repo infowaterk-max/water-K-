@@ -3,7 +3,7 @@ import {
   buildRegisteredStorefrontTemplateFactoryCandidate,
   getStorefrontTemplateFactoryRecipe,
 } from '@/lib/builder/template-factory/recipe-registry';
-import {getStorefrontTemplateDemoContent} from '@/lib/builder/storefront-template-route-integrity';
+import {evaluateStorefrontTemplateRouteIntegrity,getStorefrontTemplateDemoContent} from '@/lib/builder/storefront-template-route-integrity';
 import {createStorefrontTemplatePreviewBindingContext} from '@/lib/builder/storefront-template-preview-demo';
 import {applyAuthoredTemplatePreviewFallbacks} from '@/lib/builder/storefront-template-preview-canonical';
 import {resolveStorefrontBinding,type StorefrontComponentNode} from '@/lib/builder/storefront-runtime';
@@ -49,6 +49,12 @@ describe('Loot Vault v2 Factory canary recipe',()=>{
     expect(account.sections.some(section=>(section.config as Record<string,unknown>).authPublic===true)).toBe(true);
     expect(JSON.stringify(account)).not.toContain('FIÓK KÖZPONT');
     expect(JSON.stringify(account)).not.toContain('#ff63bf');
+  });
+
+  it('keeps every hard-coded shopper link on canonical shared storefront routes',()=>{
+    const build=buildRegisteredStorefrontTemplateFactoryCandidate('gaming.loot-vault');
+    expect(evaluateStorefrontTemplateRouteIntegrity(build.package)).toEqual([]);
+    expect(build.report.showroomEvidence.filter(row=>row.reachability==='shell-navigation').every(row=>row.navigationPresent&&row.entrypointPresent)).toBe(true);
   });
 
   it('uses one Loot Vault-owned shell and removes all Playroom brand/media leakage from every page',()=>{
