@@ -61,7 +61,7 @@ export const LOOT_VAULT_V2_FACTORY_RECIPE:StorefrontTemplateFactoryRecipe=Object
   shell:Object.freeze({
     headerNode:structuredClone(canonicalHeader) as StorefrontComponentNode,
     footerNode:structuredClone(canonicalFooter) as StorefrontComponentNode,
-    header:Object.freeze({}),
+    header:Object.freeze(structuredClone(canonicalHeader.config)),
   }),
   pageOverrides:CANONICAL_PAGE_OVERRIDES,
   demoFixtures:Object.freeze(structuredClone(LOOT_VAULT_V2_TEMPLATE_PACKAGE.demoFixtures??[])),
