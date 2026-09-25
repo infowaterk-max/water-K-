@@ -18,10 +18,12 @@
   ],
   "expectedDomains": [
     "DOMAIN-BUILDER",
+    "DOMAIN-QUALITY",
     "DOMAIN-STOREFRONT"
   ],
   "expectedAuthorities": [
     "builder-template-system",
+    "quality-knowledge-system",
     "shared-storefront"
   ],
   "expectedKnownFailureIds": [
