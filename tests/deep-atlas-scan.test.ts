@@ -51,7 +51,7 @@ describe('Daily Deep Atlas Scan',()=>{
     const deep=roadmap.items.find(item=>item.id==='DEEP-ATLAS-SCAN');
     expect(drift?.status).toBe('done');
     expect(drift?.evidenceRefs).toContain('EVID-DRIFT-CONFIDENCE');
-    expect(deep?.status).toBe('in-progress');
-    expect(deep?.evidenceRefs).toEqual([]);
+    expect(deep?.status).toBe('done');
+    expect(deep?.evidenceRefs).toContain('EVID-DEEP-ATLAS-SCAN');
   });
 });
