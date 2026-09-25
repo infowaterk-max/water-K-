@@ -74,18 +74,20 @@
     {
       "id": "DRIFT-CONFIDENCE",
       "title": "Architecture Drift + Confidence Model",
-      "status": "in-progress",
+      "status": "done",
       "phase": "foundation",
       "capabilities": [
         "CAP-ATLAS",
         "CAP-QUALITY"
       ],
-      "evidenceRefs": []
+      "evidenceRefs": [
+        "EVID-DRIFT-CONFIDENCE"
+      ]
     },
     {
       "id": "DEEP-ATLAS-SCAN",
       "title": "Daily Deep Atlas Scan",
-      "status": "planned",
+      "status": "in-progress",
       "phase": "foundation",
       "capabilities": [
         "CAP-ATLAS"
