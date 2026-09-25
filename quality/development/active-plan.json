@@ -13,7 +13,8 @@
     "quality/knowledge/living-roadmap.v1.json",
     "quality/knowledge/evidence-ledger.v1.json",
     "docs/architecture/DEEP_ATLAS_SCAN.md",
-    "tests/deep-atlas-scan.test.ts"
+    "tests/deep-atlas-scan.test.ts",
+    "tests/capability-roadmap-evidence.test.ts"
   ],
   "expectedSubsystems": [
     "quality-knowledge-system",
