@@ -1,14 +1,13 @@
 name: Template Factory Quality Gate v2
-# Quality Gate v2 foundation closure authority: exact-head proof required.
+# Quality Gate v2 authority: exact-head proof required.
+# Generic roadmap/knowledge-only changes remain under normal CI/Architecture Health.
+# Template acceptance is always the complete canonical 14 pages x 3 viewports matrix; canary runs are regression signals only.
 
 on:
   push:
     paths:
       - 'src/lib/builder/templates/**'
       - 'src/lib/builder/template-factory/**'
-      - 'src/lib/quality-system/**'
-      - 'quality/knowledge/**'
-      - 'scripts/shoperation-*.mjs'
       - 'src/lib/builder/storefront-**'
       - 'src/lib/instances/access.ts'
       - 'src/lib/commerce/settings.ts'
@@ -76,9 +75,6 @@ on:
     paths:
       - 'src/lib/builder/templates/**'
       - 'src/lib/builder/template-factory/**'
-      - 'src/lib/quality-system/**'
-      - 'quality/knowledge/**'
-      - 'scripts/shoperation-*.mjs'
       - 'src/lib/builder/storefront-**'
       - 'src/lib/instances/access.ts'
       - 'src/lib/commerce/settings.ts'
@@ -295,7 +291,7 @@ jobs:
           cat /tmp/template-factory-quality-next.log
           exit 1
 
-      - name: Run Template Factory 14x3 browser matrix
+      - name: Run scoped Template Factory browser proof (acceptance requires 14x3)
         id: browser-matrix
         run: node scripts/template-factory-quality-gate.mjs
 

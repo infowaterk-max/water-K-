@@ -98,6 +98,9 @@ export function getStorefrontTemplateQualityManifest(templateKey:string){
 const issue=(code:string,path:string,message:string,metadata?:Record<string,unknown>):StorefrontTemplateQualityIssue=>({
   code,path,message,severity:'error',metadata,
 });
+const exactCanonicalSequence=<T extends string>(actual:readonly T[],canonical:readonly T[])=>(
+  actual.length===canonical.length&&actual.every((value,index)=>value===canonical[index])
+);
 
 export function evaluateStorefrontTemplateQualityGate(input:{
   template:StorefrontInstallableTemplatePackage;
@@ -112,8 +115,24 @@ export function evaluateStorefrontTemplateQualityGate(input:{
   if(template.manifest.templateVersion<manifest.minTemplateVersion){
     issues.push(issue('QUALITY_TEMPLATE_VERSION_TOO_OLD','manifest.templateVersion','Template version is older than the quality manifest contract.',{minimum:manifest.minTemplateVersion,current:template.manifest.templateVersion}));
   }
+  if(!exactCanonicalSequence(manifest.pageTypes,STOREFRONT_PAGE_TYPES)){
+    issues.push(issue(
+      'QUALITY_CANONICAL_PAGE_MATRIX_REQUIRED',
+      'quality.pageTypes',
+      'Merchant-facing Template Factory acceptance must declare every canonical storefront page exactly once.',
+      {required:[...STOREFRONT_PAGE_TYPES],current:[...manifest.pageTypes],requiredCount:STOREFRONT_PAGE_TYPES.length},
+    ));
+  }
+  if(!exactCanonicalSequence(manifest.viewports,STOREFRONT_VIEWPORTS)){
+    issues.push(issue(
+      'QUALITY_CANONICAL_VIEWPORT_MATRIX_REQUIRED',
+      'quality.viewports',
+      'Merchant-facing Template Factory acceptance must declare Desktop, Tablet and Mobile canonical viewports.',
+      {required:[...STOREFRONT_VIEWPORTS],current:[...manifest.viewports],requiredCount:STOREFRONT_VIEWPORTS.length},
+    ));
+  }
 
-  const expected=new Set(manifest.pageTypes);
+  const expected=new Set(STOREFRONT_PAGE_TYPES);
   const actual=new Map<StorefrontBuilderPageType,number>();
   for(const page of template.pages)actual.set(page.pageType,(actual.get(page.pageType)??0)+1);
   for(const pageType of expected){

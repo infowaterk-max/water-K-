@@ -1,22 +1,33 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-LIVING-ROADMAP-RECONCILIATION",
-  "task": "Reconcile accepted roadmap decisions into the canonical Living Roadmap and enforce registry reference integrity.",
+  "taskId": "DEV-TEMPLATE-FACTORY-ACCEPTANCE-SCOPE-14X3",
+  "task": "Make Template Factory execution scope-aware while requiring every merchant-facing template acceptance to prove all 14 canonical pages across Desktop, Tablet and Mobile.",
   "status": "ready-for-implementation",
-  "guardDigest": "17c8ef7c",
+  "guardDigest": "deda6a74",
   "plannedFilePatterns": [
-    "quality/knowledge/living-roadmap.v1.json",
-    "scripts/lib/shoperation-architecture-health.mjs",
-    "tests/architecture-health.test.ts"
+    ".github/workflows/template-factory-quality-gate.yml",
+    "src/lib/builder/storefront-template-quality-gate.ts",
+    "tests/storefront-template-quality-gate-v2.test.ts"
   ],
-  "expectedSubsystems": [],
+  "expectedSubsystems": [
+    "builder-template-system",
+    "release-infrastructure",
+    "shared-storefront"
+  ],
   "expectedDomains": [
-    "DOMAIN-QUALITY"
+    "DOMAIN-BUILDER",
+    "DOMAIN-RELEASE",
+    "DOMAIN-STOREFRONT"
   ],
   "expectedAuthorities": [
-    "quality-knowledge-system"
+    "builder-template-system",
+    "release-infrastructure",
+    "shared-storefront"
   ],
   "expectedKnownFailureIds": [
+    "SQ-KF-013",
+    "SQ-KF-014",
+    "SQ-KF-022",
     "SQ-KF-001",
     "SQ-KF-002",
     "SQ-KF-003",
@@ -29,18 +40,12 @@
     "SQ-KF-010",
     "SQ-KF-011",
     "SQ-KF-012",
-    "SQ-KF-013",
-    "SQ-KF-014",
     "SQ-KF-015",
     "SQ-KF-016",
     "SQ-KF-017",
     "SQ-KF-018",
     "SQ-KF-019",
     "SQ-KF-020",
-    "SQ-KF-021",
-    "SQ-KF-022",
-    "SQ-KF-023",
-    "SQ-KF-024",
     "TF-KF-001",
     "TF-KF-002",
     "TF-KF-003",
@@ -67,9 +72,19 @@
     "TF-KF-024"
   ],
   "acknowledgedNegativeKnowledgeIds": [
+    "SQ-NK-001",
+    "SQ-NK-002",
+    "SQ-NK-003",
+    "SQ-NK-004",
+    "SQ-NK-005",
+    "SQ-NK-006",
+    "SQ-NK-007",
+    "SQ-NK-008",
+    "SQ-NK-009",
+    "SQ-NK-010",
     "SQ-NK-012"
   ],
   "exceptions": [],
-  "notes": "Content reconciliation only. Expand the existing Living Roadmap authority with accepted current, Market Ready, post-launch and parked work; preserve evidence-backed completion semantics; extend the existing Architecture Health authority to reject dangling roadmap references. No runtime/schema behavior, no new subsystem, no new gate and no Release Risk Budget threshold change.",
-  "changeBaseSha": "69a3aac96359c2cfda168ecc67306c0698ad9adc"
+  "notes": "Refines the existing Template Factory Quality Gate v2 only. Knowledge/roadmap-only changes should be handled by normal CI/Architecture Health rather than launching browser QA. A canary remains a regression signal only; it can never constitute template acceptance. Merchant-facing template acceptance requires exactly all canonical page types and all canonical viewports, i.e. 14x3 = 42 browser cases per template. No new gate or parallel authority.",
+  "changeBaseSha": "0ee7825a94f85bfd63712edb990524dea8940f4f"
 }
