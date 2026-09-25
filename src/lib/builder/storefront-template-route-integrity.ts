@@ -1,3 +1,4 @@
+import {STOREFRONT_PAGE_TYPES,type StorefrontBuilderPageType} from '@/lib/builder/storefront-foundation';
 import type {StorefrontComponentNode,StorefrontPageDocument,StorefrontTemplatePackage} from '@/lib/builder/storefront-runtime';
 import type {StorefrontDemoFixture,StorefrontInstallableTemplatePackage} from '@/lib/builder/storefront-template-installation';
 
@@ -179,6 +180,86 @@ function rewritePreviewHref(href:string,input:{templateKey:string;templateVersio
   }
   for(const[key,value]of url.searchParams)params.append(key,value);
   return`/storefront-template-preview?${params.toString()}`;
+}
+
+export const STOREFRONT_TEMPLATE_OWNER_SHOWROOM_PAGE_LABELS:Readonly<Record<StorefrontBuilderPageType,string>>=Object.freeze({
+  home:'Főoldal',
+  catalog:'Katalógus',
+  product:'Termékoldal',
+  cart:'Kosár',
+  checkout:'Pénztár',
+  account:'Fiókom',
+  search:'Keresés',
+  content:'Tartalmi oldal',
+  'blog-index':'Blog',
+  'blog-article':'Blogbejegyzés',
+  faq:'GYIK',
+  contact:'Kapcsolat',
+  legal:'Jogi oldal',
+  'not-found':'404 oldal',
+});
+
+type StorefrontTemplateOwnerShowroomInput={
+  templateKey:string;
+  templateVersion:number;
+  viewport:'desktop'|'tablet'|'mobile';
+  factory?:boolean;
+};
+
+const ownerShowroomHref=(pageType:StorefrontBuilderPageType,input:StorefrontTemplateOwnerShowroomInput)=>{
+  const params=new URLSearchParams({
+    template:input.templateKey,
+    version:String(input.templateVersion),
+    page:pageType,
+    viewport:input.viewport,
+  });
+  if(input.factory)params.set('factory','1');
+  return`/storefront-template-preview?${params.toString()}`;
+};
+
+export function getStorefrontTemplateOwnerShowroomNavigationItems(input:StorefrontTemplateOwnerShowroomInput){
+  return STOREFRONT_PAGE_TYPES.map(pageType=>({
+    label:STOREFRONT_TEMPLATE_OWNER_SHOWROOM_PAGE_LABELS[pageType],
+    href:ownerShowroomHref(pageType,input),
+  }));
+}
+
+export function applyStorefrontTemplateOwnerShowroomNavigation(
+  page:StorefrontPageDocument,
+  input:StorefrontTemplateOwnerShowroomInput,
+):StorefrontPageDocument{
+  const next=structuredClone(page);
+  const header=next.sections.find(section=>section.componentKey==='system.header'||section.componentKey==='system.commerce-header');
+  if(!header)return next;
+  const items=getStorefrontTemplateOwnerShowroomNavigationItems(input);
+  let replaced=false;
+  const replace=(nodes:StorefrontComponentNode[]):StorefrontComponentNode[]=>nodes.map(node=>{
+    if(!replaced&&node.componentKey==='system.navigation'){
+      replaced=true;
+      const style=node.config.style&&typeof node.config.style==='object'&&!Array.isArray(node.config.style)?node.config.style as Record<string,unknown>:{};
+      return{
+        ...node,
+        config:{
+          ...node.config,
+          ariaLabel:'Sablonoldalak',
+          layout:'horizontal',
+          items,
+          style:{...style,flexWrap:'wrap',rowGap:'.45rem',columnGap:'1rem'},
+        },
+      };
+    }
+    return node.children?.length?{...node,children:replace([...node.children])}:node;
+  });
+  header.children=replace([...(header.children??[])]);
+  if(!replaced){
+    header.children.push({
+      id:`${header.id}-owner-showroom-navigation`,
+      componentKey:'system.navigation',
+      componentVersion:1,
+      config:{ariaLabel:'Sablonoldalak',layout:'horizontal',items,style:{flexWrap:'wrap',rowGap:'.45rem',columnGap:'1rem'}},
+    });
+  }
+  return next;
 }
 
 export function rewriteStorefrontTemplatePreviewLinks(
