@@ -1,26 +1,34 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-TEMPLATE-FACTORY-SCOPE-CLASSIFICATION",
-  "task": "Classify Template Factory candidate surfaces in the canonical architecture and release risk policy without changing runtime template behavior.",
+  "taskId": "DEV-TEMPLATE-FACTORY-GENERIC-CANDIDATE-PREVIEW",
+  "task": "Provide generic Template Factory candidate preview and QA resolution, showroom evidence, and preview-only shell composition while leaving catalog lifecycle unchanged.",
   "status": "ready-for-implementation",
-  "guardDigest": "c5b0a4bb",
+  "guardDigest": "a56c7d96",
   "plannedFilePatterns": [
-    "quality/knowledge/domain-foundations.v1.json",
-    "deploy/release-risk-policy.json",
-    "tests/shoperation-development-guard.test.ts"
+    "src/lib/builder/storefront-template-preview-auth.ts",
+    "src/app/storefront-template-preview/page.tsx",
+    "src/app/storefront-template-preview-login/page.tsx",
+    "src/app/api/visual-fidelity/templates/route.ts",
+    "src/app/visual-fidelity-qa/page.tsx",
+    "src/components/account/storefront-account-shell.tsx",
+    "src/lib/builder/storefront-template-route-integrity.ts",
+    "src/lib/builder/template-factory/scaffold.ts",
+    "tests/template-factory-scaffold-v1.test.ts",
+    "tests/template-factory-candidate-preview-infrastructure.test.ts"
   ],
   "expectedSubsystems": [
     "builder-template-system",
-    "release-infrastructure",
-    "shared-storefront"
+    "customer-account",
+    "shared-storefront",
+    "storefront-ui"
   ],
   "expectedDomains": [
-    "DOMAIN-QUALITY",
-    "DOMAIN-RELEASE"
+    "DOMAIN-BUILDER",
+    "DOMAIN-STOREFRONT"
   ],
   "expectedAuthorities": [
-    "quality-knowledge-system",
-    "release-infrastructure"
+    "builder-template-system",
+    "shared-storefront"
   ],
   "expectedKnownFailureIds": [
     "SQ-KF-001",
@@ -28,10 +36,7 @@
     "SQ-KF-003",
     "SQ-KF-004",
     "SQ-KF-005",
-    "SQ-KF-006",
     "SQ-KF-007",
-    "SQ-KF-008",
-    "SQ-KF-009",
     "SQ-KF-010",
     "SQ-KF-011",
     "SQ-KF-012",
@@ -40,13 +45,9 @@
     "SQ-KF-015",
     "SQ-KF-016",
     "SQ-KF-017",
-    "SQ-KF-018",
     "SQ-KF-019",
     "SQ-KF-020",
-    "SQ-KF-021",
     "SQ-KF-022",
-    "SQ-KF-023",
-    "SQ-KF-024",
     "TF-KF-001",
     "TF-KF-002",
     "TF-KF-003",
@@ -77,7 +78,6 @@
     "SQ-NK-002",
     "SQ-NK-003",
     "SQ-NK-004",
-    "SQ-NK-005",
     "SQ-NK-006",
     "SQ-NK-007",
     "SQ-NK-008",
@@ -86,6 +86,6 @@
     "SQ-NK-012"
   ],
   "exceptions": [],
-  "notes": "Foundation-only release transaction. Adds canonical Atlas/domain classification for Factory preview/visual-fidelity/account-shell surfaces and classifies source-controlled storefront demo media under builder-template-system for Release Risk Budget accounting. No risk threshold, weight, maximum, runtime template package, acceptance state or production catalog behavior is changed.",
-  "changeBaseSha": "036a624e04e64c08c4f9f9865a52f1a55a1942b1"
+  "notes": "Generic infrastructure shard extracted from #439. No Loot Vault v2 Page Schema, media, Factory recipe, accepted Quality Manifest, or production catalog registration is included. Candidate preview remains protected and candidate-only; normal catalog lifecycle remains the canonical accepted-template authority.",
+  "changeBaseSha": "2c13d97534cedfa9c6217497f639059e555f9ac2"
 }
