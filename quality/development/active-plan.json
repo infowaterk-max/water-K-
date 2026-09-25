@@ -22,7 +22,8 @@
     "src/lib/builder/template-factory/category-foundations.ts",
     "scripts/template-factory-quality-gate.mjs",
     "src/app/visual-fidelity-qa/page.tsx",
-    "src/components/account/storefront-account-shell.tsx"
+    "src/components/account/storefront-account-shell.tsx",
+    "quality/knowledge/domain-foundations.v1.json"
   ],
   "expectedSubsystems": [
     "builder-template-system",
@@ -32,11 +33,13 @@
   ],
   "expectedDomains": [
     "DOMAIN-BUILDER",
+    "DOMAIN-QUALITY",
     "DOMAIN-RELEASE",
     "DOMAIN-STOREFRONT"
   ],
   "expectedAuthorities": [
     "builder-template-system",
+    "quality-knowledge-system",
     "release-infrastructure",
     "shared-storefront"
   ],
@@ -103,6 +106,6 @@
     "SQ-NK-012"
   ],
   "exceptions": [],
-  "notes": "Clean recovery from current main. Do not merge the old stacked branch. Restore only proven Loot Vault v2 candidate assets/pages and the generic candidate QA/preview contract they require. Preserve current 14x3 acceptance semantics and 14-page owner showroom navigation. Loot Vault remains candidate-only: no accepted quality manifest and no production template-catalog registration. Generalize Product Owner proof away from hard-coded Loot Vault/branch names so future templates reuse the same authority. The recovery also restores candidate acceptance-proof generation in the existing runner and category-foundation media neutralization. Visual Fidelity QA must resolve factory=1 through the Factory registry so browser evidence cannot silently test the catalog package. StorefrontAccountShell receives the previously proven additive previewTemplate mode only; normal customer account resolution remains unchanged.",
+  "notes": "Clean recovery from current main. Do not merge the old stacked branch. Restore only proven Loot Vault v2 candidate assets/pages and the generic candidate QA/preview contract they require. Preserve current 14x3 acceptance semantics and 14-page owner showroom navigation. Loot Vault remains candidate-only: no accepted quality manifest and no production template-catalog registration. Generalize Product Owner proof away from hard-coded Loot Vault/branch names so future templates reuse the same authority. The recovery also restores candidate acceptance-proof generation in the existing runner and category-foundation media neutralization. Visual Fidelity QA must resolve factory=1 through the Factory registry so browser evidence cannot silently test the catalog package. StorefrontAccountShell receives the previously proven additive previewTemplate mode only; normal customer account resolution remains unchanged. The dedicated preview-login route is classified under DOMAIN-STOREFRONT in the canonical domain foundation.",
   "changeBaseSha": "036a624e04e64c08c4f9f9865a52f1a55a1942b1"
 }
