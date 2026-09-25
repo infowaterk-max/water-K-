@@ -5,7 +5,21 @@
   "principles": {
     "sourceOfTruth": "This registry is the machine-readable roadmap authority for accepted platform work.",
     "noSilentCompletion": true,
-    "completionRequiresEvidence": true
+    "completionRequiresEvidence": true,
+    "acceptedDecisionCoverageRequired": true,
+    "postLaunchAndParkedWorkRemainVisible": true,
+    "laterAcceptedDecisionSupersedesOlderNarrativeOrdering": true,
+    "statusSemantics": {
+      "done": "Evidence-backed closed work.",
+      "operational": "Implemented and in use; may still need later maturity/certification work.",
+      "hardening": "Implemented substantially, with explicit remaining hardening or acceptance work.",
+      "in-progress": "Current active development stream.",
+      "accepted": "Product decision accepted but implementation/evidence status is not yet closed.",
+      "planned": "Committed future work in the stated target window.",
+      "post-launch": "Committed work after Market Ready 1.0.",
+      "parked": "Intentionally deferred; retained so it cannot disappear from the roadmap.",
+      "foundation": "Only the bounded foundation is complete; broader capability remains open."
+    }
   },
   "items": [
     {
@@ -19,7 +33,10 @@
       ],
       "evidenceRefs": [
         "EVID-SYSTEM-SOUL-CONSTITUTION"
-      ]
+      ],
+      "order": 10,
+      "targetWindow": "foundation",
+      "priority": "P0"
     },
     {
       "id": "DOMAIN-FOUNDATIONS",
@@ -32,7 +49,10 @@
       ],
       "evidenceRefs": [
         "EVID-DOMAIN-FOUNDATIONS"
-      ]
+      ],
+      "order": 20,
+      "targetWindow": "foundation",
+      "priority": "P0"
     },
     {
       "id": "SYSTEM-SELF-KNOWLEDGE",
@@ -44,7 +64,10 @@
       ],
       "evidenceRefs": [
         "EVID-ATLAS-2"
-      ]
+      ],
+      "order": 30,
+      "targetWindow": "foundation",
+      "priority": "P0"
     },
     {
       "id": "CHANGE-IMPACT-CLOSURE",
@@ -57,7 +80,10 @@
       ],
       "evidenceRefs": [
         "EVID-CHANGE-IMPACT"
-      ]
+      ],
+      "order": 40,
+      "targetWindow": "foundation",
+      "priority": "P0"
     },
     {
       "id": "CAPABILITY-EVIDENCE",
@@ -69,7 +95,10 @@
       ],
       "evidenceRefs": [
         "EVID-CAPABILITY-EVIDENCE"
-      ]
+      ],
+      "order": 50,
+      "targetWindow": "foundation",
+      "priority": "P0"
     },
     {
       "id": "DRIFT-CONFIDENCE",
@@ -82,7 +111,10 @@
       ],
       "evidenceRefs": [
         "EVID-DRIFT-CONFIDENCE"
-      ]
+      ],
+      "order": 60,
+      "targetWindow": "foundation",
+      "priority": "P0"
     },
     {
       "id": "DEEP-ATLAS-SCAN",
@@ -94,7 +126,149 @@
       ],
       "evidenceRefs": [
         "EVID-DEEP-ATLAS-SCAN"
-      ]
+      ],
+      "order": 70,
+      "targetWindow": "foundation",
+      "priority": "P0"
+    },
+    {
+      "id": "RELEASE-TRANSACTION",
+      "title": "Release Transaction + Risk Budget + Production Proof",
+      "status": "operational",
+      "phase": "foundation",
+      "order": 80,
+      "targetWindow": "continuous",
+      "priority": "P0",
+      "capabilities": [
+        "CAP-RELEASE"
+      ],
+      "scope": [
+        "exact-head release manifest and risk budget",
+        "main/production SHA proof",
+        "production smoke/reachability and rollback evidence"
+      ],
+      "evidenceRefs": []
+    },
+    {
+      "id": "CORE-ENGINE-2",
+      "title": "Core Engine 2.0 Commerce Baseline",
+      "status": "operational",
+      "phase": "core",
+      "order": 100,
+      "targetWindow": "continuous",
+      "priority": "P0",
+      "capabilities": [
+        "CAP-COMMERCE",
+        "CAP-CATALOG",
+        "CAP-TENANT"
+      ],
+      "scope": [
+        "customer baseline and tenant-safe commerce core",
+        "order/customer identity and operational guardrails",
+        "variant, bulk/CSV, campaign snapshot and admin audit authorities"
+      ],
+      "evidenceRefs": []
+    },
+    {
+      "id": "MR1-MULTITENANT-FOUNDATION",
+      "title": "Multi-tenant Context, Isolation and Platform-owner Tenant Access",
+      "status": "operational",
+      "phase": "core",
+      "order": 110,
+      "targetWindow": "market-ready-1.0",
+      "priority": "P0",
+      "capabilities": [
+        "CAP-TENANT",
+        "CAP-AUTH",
+        "CAP-ADMIN"
+      ],
+      "scope": [
+        "tenant-aware authorization and navigation",
+        "platform-owner supported tenant selection/opening",
+        "RLS/RBAC and membership isolation proof",
+        "neutral non-Water-K pilot acceptance"
+      ],
+      "evidenceRefs": []
+    },
+    {
+      "id": "STORE-FRONT-RUNTIME",
+      "title": "Shared Storefront Runtime + Page Schema Authority",
+      "status": "operational",
+      "phase": "storefront",
+      "order": 120,
+      "targetWindow": "continuous",
+      "priority": "P0",
+      "capabilities": [
+        "CAP-STOREFRONT",
+        "CAP-BUILDER"
+      ],
+      "scope": [
+        "one canonical Page Schema",
+        "one StorefrontRuntimeRenderer authority",
+        "draft/preview/publish/rollback lifecycle",
+        "Desktop/Tablet/Mobile responsive authority"
+      ],
+      "evidenceRefs": []
+    },
+    {
+      "id": "DIGITAL-COMMERCE-DOCUMENTS",
+      "title": "Digital Commerce + Product Documents + Customer/Order Documents",
+      "status": "operational",
+      "phase": "storefront",
+      "order": 130,
+      "targetWindow": "market-ready-1.0",
+      "priority": "P0",
+      "capabilities": [
+        "CAP-COMMERCE",
+        "CAP-CATALOG",
+        "CAP-STOREFRONT"
+      ],
+      "scope": [
+        "secure paid digital fulfillment and entitlement",
+        "public/protected product documents",
+        "private post-purchase order/customer documents",
+        "shared storefront and account integration without collapsing authorities"
+      ],
+      "evidenceRefs": []
+    },
+    {
+      "id": "VISUAL-BUILDER",
+      "title": "Visual Builder Canonical Capability Stack",
+      "status": "hardening",
+      "phase": "storefront",
+      "order": 140,
+      "targetWindow": "before-market-ready",
+      "priority": "P0",
+      "capabilities": [
+        "CAP-BUILDER",
+        "CAP-STOREFRONT"
+      ],
+      "scope": [
+        "Saved Blocks, Linked Symbols/Global Layout, Variants, Presets, Global Styles, Page Templates, Responsive/Layout Depth",
+        "shared Runtime parity",
+        "bounded template-aware editing without a second renderer or Page Schema"
+      ],
+      "evidenceRefs": []
+    },
+    {
+      "id": "SPECIAL-COMMERCE",
+      "title": "Shared Special Commerce / Add-on Engines",
+      "status": "hardening",
+      "phase": "storefront",
+      "order": 150,
+      "targetWindow": "before-market-ready",
+      "priority": "P1",
+      "capabilities": [
+        "CAP-STOREFRONT",
+        "CAP-COMMERCE",
+        "CAP-BUILDER"
+      ],
+      "scope": [
+        "shared Product Discovery, Guided Finder, Composer, Configurator, Compatibility and Compare/Spec engines",
+        "launch add-ons must be first-customer ready unless explicitly deferred",
+        "template-local business engines are forbidden"
+      ],
+      "evidenceRefs": []
     },
     {
       "id": "TEMPLATE-PRODUCTION-SYSTEM",
@@ -103,6 +277,766 @@
       "phase": "storefront",
       "capabilities": [
         "CAP-BUILDER"
+      ],
+      "evidenceRefs": [],
+      "order": 200,
+      "targetWindow": "now",
+      "priority": "P0",
+      "dependsOn": [
+        "VISUAL-BUILDER",
+        "STORE-FRONT-RUNTIME"
+      ],
+      "scope": [
+        "Template DNA Manifest and archetype registry",
+        "template-specific presets and signature sections",
+        "Page Recipes and canonical materialization",
+        "Known Failure replay and procedural knowledge",
+        "exact-head quality/browser/Builder-editability gates"
+      ]
+    },
+    {
+      "id": "TEMPLATE-PORTFOLIO-42",
+      "title": "42 Distinct Launch-quality Template Portfolio",
+      "status": "planned",
+      "phase": "storefront",
+      "order": 210,
+      "targetWindow": "before-market-ready",
+      "priority": "P0",
+      "capabilities": [
+        "CAP-BUILDER",
+        "CAP-STOREFRONT"
+      ],
+      "dependsOn": [
+        "TEMPLATE-PRODUCTION-SYSTEM"
+      ],
+      "scope": [
+        "42 genuinely distinct design systems, not reskins",
+        "all canonical page types",
+        "Desktop/Tablet/Mobile acceptance",
+        "shared commerce capability integration",
+        "Product Owner visual acceptance where human judgment is required"
+      ],
+      "evidenceRefs": []
+    },
+    {
+      "id": "GUARDED-VISUAL-SECTION-LIBRARY",
+      "title": "Guarded Visual Section Library / Preset Gallery",
+      "status": "planned",
+      "phase": "storefront",
+      "order": 220,
+      "targetWindow": "after-template-portfolio-before-market-ready",
+      "priority": "P1",
+      "capabilities": [
+        "CAP-BUILDER",
+        "CAP-STOREFRONT"
+      ],
+      "dependsOn": [
+        "TEMPLATE-PORTFOLIO-42"
+      ],
+      "scope": [
+        "visual gallery of reusable bounded section/component compositions",
+        "Template -> Page Presets -> Section Presets -> Components hierarchy",
+        "source-controlled factory presets; tenant-owned Saved Blocks remain separate",
+        "no raw HTML/JS, second renderer, duplicate breakpoint DOM or business authority",
+        "performance, responsive, schema and accessibility guards remain blocking"
+      ],
+      "notes": "Latest accepted sequencing: build the reusable block/preset library after the template portfolio is accepted, so accepted templates provide the source material and quality bar.",
+      "evidenceRefs": []
+    },
+    {
+      "id": "MR1-WORKFORCE-IDENTITY",
+      "title": "Workforce Identity & Admin Authentication",
+      "status": "planned",
+      "phase": "market-ready",
+      "order": 300,
+      "targetWindow": "market-ready-1.0",
+      "priority": "P0",
+      "capabilities": [
+        "CAP-AUTH",
+        "CAP-TENANT",
+        "CAP-ADMIN"
+      ],
+      "scope": [
+        "separate staff/admin login entrypoint and dedicated admin login page",
+        "role- and tenant-aware staff authentication",
+        "MFA/2FA policy consideration",
+        "profile dropdown logout",
+        "platform-owner tenant selection without storefront login dependency"
+      ],
+      "evidenceRefs": []
+    },
+    {
+      "id": "ADMIN-IA-V3",
+      "title": "Admin IA v3 + Navigation/Attention States",
+      "status": "hardening",
+      "phase": "market-ready",
+      "order": 310,
+      "targetWindow": "market-ready-1.0",
+      "priority": "P0",
+      "capabilities": [
+        "CAP-ADMIN",
+        "CAP-AUTH"
+      ],
+      "scope": [
+        "merchant/platform-admin separation and role-aware navigation",
+        "red critical and yellow warning tile states",
+        "clickable permission-aware breadcrumbs through canonical route authority",
+        "no duplicate navigation controller"
+      ],
+      "evidenceRefs": []
+    },
+    {
+      "id": "NAVIGATION-ASSISTANT-V1",
+      "title": "Navigation Assistant v1",
+      "status": "accepted",
+      "phase": "market-ready",
+      "order": 320,
+      "targetWindow": "market-ready-1.0",
+      "priority": "P1",
+      "capabilities": [
+        "CAP-ADMIN",
+        "CAP-AUTH"
+      ],
+      "scope": [
+        "AI-free Route Registry",
+        "function dictionary and synonyms",
+        "fuzzy intent search",
+        "permission context",
+        "safe deeplink/navigation action"
+      ],
+      "evidenceRefs": []
+    },
+    {
+      "id": "GUIDED-LAUNCH-PRELAUNCH",
+      "title": "Guided Launch + Pre-Launch Validation",
+      "status": "accepted",
+      "phase": "market-ready",
+      "order": 330,
+      "targetWindow": "market-ready-1.0",
+      "priority": "P0",
+      "capabilities": [
+        "CAP-ADMIN",
+        "CAP-QUALITY",
+        "CAP-RELEASE"
+      ],
+      "scope": [
+        "default onboarding for every new Shoperation store, not trial-only",
+        "resumable guided launch",
+        "pre-launch validation bound to canonical readiness authorities",
+        "Shoperation Knowledge integration without creating a second launch gate"
+      ],
+      "evidenceRefs": []
+    },
+    {
+      "id": "PRODUCT-OPERATIONS",
+      "title": "Product Operations: Wizard, List, Quick Edit and CSV",
+      "status": "planned",
+      "phase": "market-ready",
+      "order": 340,
+      "targetWindow": "market-ready-1.0",
+      "priority": "P1",
+      "capabilities": [
+        "CAP-CATALOG",
+        "CAP-ADMIN"
+      ],
+      "scope": [
+        "multi-step Product Wizard with fast first-pass data entry",
+        "separate Products list and quick edit",
+        "detailed product editor",
+        "CSV import/export round-trip through canonical catalog authority"
+      ],
+      "evidenceRefs": []
+    },
+    {
+      "id": "MR1-INVENTORY-OPS",
+      "title": "Inventory Operations + Multi-location Foundation",
+      "status": "planned",
+      "phase": "market-ready",
+      "order": 350,
+      "targetWindow": "market-ready-1.0",
+      "priority": "P1",
+      "capabilities": [
+        "CAP-CATALOG",
+        "CAP-ADMIN"
+      ],
+      "scope": [
+        "inventory operations baseline",
+        "multi-warehouse / InventoryLocation model",
+        "per-location stock visibility",
+        "postcode-based nearby warehouse/store selection where applicable",
+        "low-stock operational warnings",
+        "deeper WMS remains post-launch"
+      ],
+      "evidenceRefs": []
+    },
+    {
+      "id": "SHIPPING-FOUNDATION",
+      "title": "Shipping / Fulfillment Foundation",
+      "status": "planned",
+      "phase": "market-ready",
+      "order": 360,
+      "targetWindow": "market-ready-1.0",
+      "priority": "P0",
+      "capabilities": [
+        "CAP-INTEGRATIONS",
+        "CAP-COMMERCE",
+        "CAP-CATALOG"
+      ],
+      "scope": [
+        "provider-agnostic Shipping/Fulfillment contract and first production adapters",
+        "shipping recommendation from customer address plus product weight/dimensions/volume",
+        "product logistics model: unit/box quantity, net/gross weight, dimensions, volume and carrier compatibility",
+        "admin critical warning for bad address/shipping/API state",
+        "no carrier-specific commerce authority"
+      ],
+      "evidenceRefs": []
+    },
+    {
+      "id": "INVOICE-FOUNDATION",
+      "title": "Invoice Integration Foundation + Számlázz.hu Hardening",
+      "status": "planned",
+      "phase": "market-ready",
+      "order": 370,
+      "targetWindow": "market-ready-1.0",
+      "priority": "P0",
+      "capabilities": [
+        "CAP-INTEGRATIONS",
+        "CAP-COMMERCE"
+      ],
+      "scope": [
+        "provider-agnostic invoice integration contract",
+        "Számlázz.hu production hardening",
+        "invoice lifecycle/audit and failure handling",
+        "no home-grown tax authority in Market Ready 1.0"
+      ],
+      "evidenceRefs": []
+    },
+    {
+      "id": "MR1-COMMERCE-OPERATIONS",
+      "title": "Commerce Operations Maturity",
+      "status": "planned",
+      "phase": "market-ready",
+      "order": 380,
+      "targetWindow": "market-ready-1.0",
+      "priority": "P1",
+      "capabilities": [
+        "CAP-COMMERCE",
+        "CAP-CATALOG",
+        "CAP-ADMIN",
+        "CAP-INTEGRATIONS"
+      ],
+      "scope": [
+        "Promotion Engine foundation",
+        "SEO foundation",
+        "customer/catalog bulk operations and safe import/export",
+        "merchant operational maturity",
+        "integration/extension event foundation",
+        "inventory and fulfillment exception handling"
+      ],
+      "evidenceRefs": []
+    },
+    {
+      "id": "DIGITAL-OFFICE-WORKFORCE",
+      "title": "Digital Office Workforce & Sales Operations",
+      "status": "planned",
+      "phase": "market-ready",
+      "order": 390,
+      "targetWindow": "market-ready-1.0",
+      "priority": "P1",
+      "capabilities": [
+        "CAP-ADMIN",
+        "CAP-AUTH",
+        "CAP-COMMERCE"
+      ],
+      "scope": [
+        "employee profile: name, role, email, phone",
+        "leave request approval and timed substitute delegation",
+        "away status reflected in permissions",
+        "Sales quote creation with SKU/product insertion and accepted quote -> order path",
+        "shared communication/email templates for marketing, order, shipping and error contexts"
+      ],
+      "evidenceRefs": []
+    },
+    {
+      "id": "EMAIL-BUILDER-MARKETING",
+      "title": "Email Builder / Marketing Operations",
+      "status": "hardening",
+      "phase": "market-ready",
+      "order": 400,
+      "targetWindow": "market-ready-1.0",
+      "priority": "P1",
+      "capabilities": [
+        "CAP-ADMIN",
+        "CAP-INTEGRATIONS"
+      ],
+      "scope": [
+        "shared email/template authority",
+        "campaign/newsletter operational maturity",
+        "dynamic handoff without a parallel communication engine"
+      ],
+      "evidenceRefs": []
+    },
+    {
+      "id": "MIGRATION-ASSISTANT",
+      "title": "Migration Assistant",
+      "status": "hardening",
+      "phase": "market-ready",
+      "order": 410,
+      "targetWindow": "market-ready-1.0",
+      "priority": "P1",
+      "capabilities": [
+        "CAP-ADMIN",
+        "CAP-CATALOG",
+        "CAP-TENANT"
+      ],
+      "scope": [
+        "guided source connection and mapping",
+        "dry-run/preview",
+        "checkpoint/resume",
+        "validation and non-destructive rollback",
+        "provider-specific migration adapters over shared import authorities"
+      ],
+      "evidenceRefs": []
+    },
+    {
+      "id": "CONTROLLED-INTEGRATION-FRAMEWORK",
+      "title": "Controlled Integration Framework",
+      "status": "planned",
+      "phase": "market-ready",
+      "order": 420,
+      "targetWindow": "market-ready-1.0",
+      "priority": "P0",
+      "capabilities": [
+        "CAP-INTEGRATIONS",
+        "CAP-AUTH",
+        "CAP-TENANT"
+      ],
+      "scope": [
+        "walled-garden/curated integration direction, not an open Shopify-style app store",
+        "scoped API/permission contracts",
+        "sandbox and review/certification boundary",
+        "event foundation for safe extensions"
+      ],
+      "evidenceRefs": []
+    },
+    {
+      "id": "SANDBOX-TEST-MODE",
+      "title": "Sandbox / Test Mode + Integration Self-test",
+      "status": "planned",
+      "phase": "market-ready",
+      "order": 430,
+      "targetWindow": "market-ready-1.0",
+      "priority": "P0",
+      "capabilities": [
+        "CAP-INTEGRATIONS",
+        "CAP-RELEASE",
+        "CAP-ADMIN"
+      ],
+      "scope": [
+        "merchant-safe sandbox/test mode",
+        "payment self-test",
+        "shipping self-test",
+        "invoice self-test",
+        "fail-closed readiness evidence before live activation"
+      ],
+      "evidenceRefs": []
+    },
+    {
+      "id": "SCALE-COST-ARCHITECTURE",
+      "title": "Scale Architecture + Cost Architecture",
+      "status": "planned",
+      "phase": "market-ready",
+      "order": 440,
+      "targetWindow": "market-ready-1.0",
+      "priority": "P0",
+      "capabilities": [
+        "CAP-RELEASE",
+        "CAP-TENANT",
+        "CAP-INTEGRATIONS"
+      ],
+      "scope": [
+        "retain Vercel + Supabase baseline",
+        "cache/CDN, queues, search and read-replica strategy when justified",
+        "cost per tenant/order, database, egress, storage, search and queue observability",
+        "load/scale decisions tied to measured evidence"
+      ],
+      "evidenceRefs": []
+    },
+    {
+      "id": "B2B-MATURITY",
+      "title": "B2B Maturity Review",
+      "status": "hardening",
+      "phase": "market-ready",
+      "order": 450,
+      "targetWindow": "market-ready-1.0",
+      "priority": "P0",
+      "capabilities": [
+        "CAP-AUTH",
+        "CAP-TENANT",
+        "CAP-COMMERCE",
+        "CAP-ADMIN"
+      ],
+      "scope": [
+        "organization ownership and role governance",
+        "tenant-safe B2B identity and approval",
+        "pricing/order context and audit",
+        "launch review of remaining B2B gaps"
+      ],
+      "evidenceRefs": []
+    },
+    {
+      "id": "AI-BUILDER-DARK-LAUNCH",
+      "title": "AI Builder Production-ready Dark Launch",
+      "status": "planned",
+      "phase": "market-ready",
+      "order": 460,
+      "targetWindow": "market-ready-1.0-hidden",
+      "priority": "P1",
+      "capabilities": [
+        "CAP-BUILDER",
+        "CAP-QUALITY",
+        "CAP-AUTH"
+      ],
+      "scope": [
+        "production-ready before 1.0 but hidden/disabled at public launch",
+        "canonical Page Schema/Runtime only",
+        "permission/safety limits",
+        "public activation only after controlled readiness, approximately first 20-50 customers"
+      ],
+      "evidenceRefs": []
+    },
+    {
+      "id": "MARKET-READY-1-0",
+      "title": "Market Ready 1.0 Certification",
+      "status": "planned",
+      "phase": "market-ready",
+      "order": 490,
+      "targetWindow": "market-ready-1.0",
+      "priority": "P0",
+      "capabilities": [
+        "CAP-RELEASE",
+        "CAP-QUALITY",
+        "CAP-AUTH",
+        "CAP-TENANT",
+        "CAP-COMMERCE",
+        "CAP-INTEGRATIONS",
+        "CAP-ADMIN"
+      ],
+      "dependsOn": [
+        "TEMPLATE-PORTFOLIO-42",
+        "GUARDED-VISUAL-SECTION-LIBRARY",
+        "MR1-WORKFORCE-IDENTITY",
+        "SHIPPING-FOUNDATION",
+        "INVOICE-FOUNDATION",
+        "SANDBOX-TEST-MODE",
+        "SCALE-COST-ARCHITECTURE"
+      ],
+      "scope": [
+        "privacy/GDPR and data lifecycle compliance",
+        "performance/load/scale, chaos and soak validation",
+        "independent security validation",
+        "backup/disaster recovery and observability",
+        "merchant pilots and neutral tenant proof",
+        "B2B maturity and operational maturity review",
+        "production evidence/release proof and rollback",
+        "Controlled Integration Framework certification",
+        "AI Builder launch-safety verification"
+      ],
+      "evidenceRefs": []
+    },
+    {
+      "id": "AI-SAFETY-SECURITY",
+      "title": "AI Safety / Security Boundary",
+      "status": "planned",
+      "phase": "ai",
+      "order": 500,
+      "targetWindow": "before-ai-production",
+      "priority": "P0",
+      "capabilities": [
+        "CAP-QUALITY",
+        "CAP-AUTH",
+        "CAP-TENANT",
+        "CAP-INCIDENT"
+      ],
+      "scope": [
+        "prompt/data boundary and tenant privacy",
+        "tool/action permission limits",
+        "proposal/approval boundary for impactful actions",
+        "AI cannot override canonical authorities"
+      ],
+      "evidenceRefs": []
+    },
+    {
+      "id": "AI-SUPPORT-KNOWLEDGE",
+      "title": "AI Support over Shoperation Knowledge",
+      "status": "planned",
+      "phase": "ai",
+      "order": 510,
+      "targetWindow": "post-market-ready",
+      "priority": "P1",
+      "capabilities": [
+        "CAP-QUALITY",
+        "CAP-INCIDENT",
+        "CAP-AUTH",
+        "CAP-TENANT"
+      ],
+      "dependsOn": [
+        "MARKET-READY-1-0",
+        "AI-SAFETY-SECURITY"
+      ],
+      "scope": [
+        "permissioned tenant-context support assistant",
+        "known symptom/root-cause/failed-fix avoidance",
+        "confidence/evidence and escalation",
+        "no autonomous commerce mutation"
+      ],
+      "evidenceRefs": []
+    },
+    {
+      "id": "SURFACE-REDUCTION",
+      "title": "Surface Reduction / Dead Code & Route Audit",
+      "status": "post-launch",
+      "phase": "post-market-ready",
+      "order": 520,
+      "targetWindow": "immediately-after-market-ready-1.0",
+      "priority": "P0",
+      "capabilities": [
+        "CAP-RELEASE",
+        "CAP-QUALITY",
+        "CAP-ADMIN"
+      ],
+      "dependsOn": [
+        "MARKET-READY-1-0"
+      ],
+      "scope": [
+        "inventory routes/pages/endpoints/legacy flags",
+        "reachability/auth/RBAC/RLS review",
+        "remove or demonstrably disable unused surfaces",
+        "regression proof after attack-surface reduction"
+      ],
+      "evidenceRefs": []
+    },
+    {
+      "id": "DYNAMIC-FAQ",
+      "title": "Dynamic FAQ / Customer Question Intelligence",
+      "status": "post-launch",
+      "phase": "post-launch",
+      "order": 600,
+      "targetWindow": "post-launch",
+      "priority": "P2",
+      "capabilities": [
+        "CAP-QUALITY",
+        "CAP-ADMIN"
+      ],
+      "scope": [
+        "observe recurring support questions",
+        "suggest FAQ candidates with human publication approval",
+        "store/category/product/shipping/payment context",
+        "monthly frequent-question summary"
+      ],
+      "evidenceRefs": []
+    },
+    {
+      "id": "ATTENTION-SYSTEM",
+      "title": "Observation Layer / Attention System",
+      "status": "post-launch",
+      "phase": "post-launch",
+      "order": 610,
+      "targetWindow": "post-launch",
+      "priority": "P2",
+      "capabilities": [
+        "CAP-INCIDENT",
+        "CAP-ADMIN",
+        "CAP-QUALITY"
+      ],
+      "scope": [
+        "exception-first Operational Inbox",
+        "anomaly detection",
+        "governed self-healing integrations through existing Incident authority",
+        "daily five-minute operational summary",
+        "admin what-changed feed",
+        "Visual KPI Board"
+      ],
+      "notes": "Extends existing Incident/Admin authorities; code-changing repair remains proposal-first and governed.",
+      "evidenceRefs": []
+    },
+    {
+      "id": "PAYMENT-HUB-1",
+      "title": "Pay 1.0 — Provider-agnostic Payment Hub",
+      "status": "post-launch",
+      "phase": "post-launch",
+      "order": 620,
+      "targetWindow": "post-launch",
+      "priority": "P1",
+      "capabilities": [
+        "CAP-INTEGRATIONS",
+        "CAP-COMMERCE"
+      ],
+      "dependsOn": [
+        "MARKET-READY-1-0"
+      ],
+      "scope": [
+        "PaymentProvider contract",
+        "authorization/capture/refund/failure state model",
+        "webhooks and idempotency",
+        "transaction admin and reconciliation/audit",
+        "current K&H integration becomes an adapter"
+      ],
+      "evidenceRefs": []
+    },
+    {
+      "id": "SHOPERATION-PAY-2",
+      "title": "Pay 2.0 — Shoperation Pay",
+      "status": "post-launch",
+      "phase": "post-launch",
+      "order": 630,
+      "targetWindow": "post-launch-premium",
+      "priority": "P3",
+      "capabilities": [
+        "CAP-INTEGRATIONS",
+        "CAP-COMMERCE"
+      ],
+      "dependsOn": [
+        "PAYMENT-HUB-1"
+      ],
+      "scope": [
+        "premium payment expansion after Payment Hub",
+        "not a Market Ready 1.0 blocker"
+      ],
+      "evidenceRefs": []
+    },
+    {
+      "id": "POSTLAUNCH-ADAPTER-ECOSYSTEM",
+      "title": "Post-launch Provider / Adapter Ecosystem",
+      "status": "post-launch",
+      "phase": "post-launch",
+      "order": 640,
+      "targetWindow": "post-launch",
+      "priority": "P2",
+      "capabilities": [
+        "CAP-INTEGRATIONS",
+        "CAP-ADMIN"
+      ],
+      "dependsOn": [
+        "CONTROLLED-INTEGRATION-FRAMEWORK"
+      ],
+      "scope": [
+        "broader shipping carrier catalog",
+        "Billingo and ERP/invoice adapters",
+        "deeper WMS connectors",
+        "Klaviyo/Brevo/ActiveCampaign class marketing connectors",
+        "SMS/push adapters",
+        "Certified Partner API/Marketplace only under controlled review",
+        "no uncontrolled open app-store model"
+      ],
+      "evidenceRefs": []
+    },
+    {
+      "id": "POSTLAUNCH-COMMERCE-EXPANSION",
+      "title": "Post-launch Commerce Growth Capabilities",
+      "status": "post-launch",
+      "phase": "post-launch",
+      "order": 650,
+      "targetWindow": "post-launch",
+      "priority": "P2",
+      "capabilities": [
+        "CAP-COMMERCE",
+        "CAP-CATALOG",
+        "CAP-ADMIN"
+      ],
+      "scope": [
+        "loyalty/points",
+        "gift cards",
+        "advanced upsell/post-purchase offers",
+        "affiliate/referral",
+        "subscriptions where justified",
+        "deeper personalization/customer-value capabilities"
+      ],
+      "evidenceRefs": []
+    },
+    {
+      "id": "PREMIUM-VISUAL-COMMERCE",
+      "title": "Premium Visual Commerce Expansion",
+      "status": "post-launch",
+      "phase": "post-launch",
+      "order": 660,
+      "targetWindow": "post-launch",
+      "priority": "P3",
+      "capabilities": [
+        "CAP-STOREFRONT",
+        "CAP-BUILDER"
+      ],
+      "scope": [
+        "advanced 3D",
+        "AR",
+        "exploded product views",
+        "additional premium visual-commerce add-ons"
+      ],
+      "evidenceRefs": []
+    },
+    {
+      "id": "SHOPOPERATION-MARKET",
+      "title": "Shoperation Market Platform",
+      "status": "post-launch",
+      "phase": "strategic",
+      "order": 700,
+      "targetWindow": "post-launch-after-payment-hub",
+      "priority": "P3",
+      "capabilities": [
+        "CAP-COMMERCE",
+        "CAP-CATALOG",
+        "CAP-INTEGRATIONS",
+        "CAP-TENANT"
+      ],
+      "dependsOn": [
+        "PAYMENT-HUB-1"
+      ],
+      "scope": [
+        "true marketplace with on-platform ordering, not only an external-link aggregator",
+        "shared catalog/search/filter across Shoperation stores",
+        "staged evolution toward multi-vendor cart, payout/refund/reconciliation",
+        "commission hypothesis around 1-1.5% remains a business hypothesis, not code authority"
+      ],
+      "evidenceRefs": []
+    },
+    {
+      "id": "SHOPERATION-INVOICE",
+      "title": "Shoperation Invoice",
+      "status": "parked",
+      "phase": "strategic",
+      "order": 710,
+      "targetWindow": "later",
+      "priority": "P3",
+      "capabilities": [
+        "CAP-INTEGRATIONS",
+        "CAP-COMMERCE"
+      ],
+      "dependsOn": [
+        "INVOICE-FOUNDATION"
+      ],
+      "scope": [
+        "possible future first-party invoicing product",
+        "separate maturity/tax-compliance project",
+        "not a Market Ready 1.0 blocker"
+      ],
+      "evidenceRefs": []
+    },
+    {
+      "id": "WEBSITE-BUILDER",
+      "title": "Standalone Website Builder",
+      "status": "parked",
+      "phase": "strategic",
+      "order": 800,
+      "targetWindow": "after-shoperation",
+      "priority": "P3",
+      "capabilities": [
+        "CAP-BUILDER",
+        "CAP-STOREFRONT"
+      ],
+      "scope": [
+        "separate future website-builder product",
+        "reuse proven Shoperation Page Schema/Runtime/Builder capabilities where appropriate",
+        "do not distract from Shoperation Market Ready work"
       ],
       "evidenceRefs": []
     },
@@ -116,6 +1050,14 @@
       ],
       "evidenceRefs": [
         "EVID-INCIDENT-GOVERNED-RECOVERY"
+      ],
+      "order": 900,
+      "targetWindow": "continuous",
+      "priority": "P1",
+      "scope": [
+        "deterministic triage and recovery evidence",
+        "auto execution only for explicit low-risk allowlisted runbooks under system actor authority",
+        "platform/AI code-changing repair remains proposal-first"
       ]
     }
   ]
