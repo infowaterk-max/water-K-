@@ -12,7 +12,9 @@
     "tests/**template-factory**",
     "tests/**storefront**",
     "quality/development/active-plan.json",
-    "docs/support/**"
+    "docs/support/**",
+    "next.config.ts",
+    "quality/knowledge/domain-foundations.v1.json"
   ],
   "expectedSubsystems": [
     "builder-template-system",
@@ -20,15 +22,21 @@
     "customer-account",
     "support-contact",
     "storefront-ui",
-    "dependency-contract"
+    "dependency-contract",
+    "release-infrastructure",
+    "quality-knowledge-system"
   ],
   "expectedDomains": [
     "DOMAIN-BUILDER",
-    "DOMAIN-STOREFRONT"
+    "DOMAIN-STOREFRONT",
+    "DOMAIN-RELEASE",
+    "DOMAIN-QUALITY"
   ],
   "expectedAuthorities": [
     "builder-template-system",
-    "shared-storefront"
+    "shared-storefront",
+    "release-infrastructure",
+    "quality-knowledge-system"
   ],
   "expectedKnownFailureIds": [
     "SQ-KF-001",
@@ -91,6 +99,6 @@
     "SQ-NK-012"
   ],
   "exceptions": [],
-  "notes": "Product Owner feedback hardening. A template is not complete merely because 14 routes render. Required: shopper-visible navigation coverage in header/mobile/footer, page-specific information content, a real shared support wizard plus location/contact block, compact shared account capability navigation, and canonical recognizable commerce affordances. Preserve one-template/one-canonical-package authority, shared cart/checkout/account/auth/search/runtime/Page Schema authority, QA-only Loot Vault v2 status, and all existing release-risk thresholds. Fix causes, never gates.",
+  "notes": "Product Owner feedback hardening. A template is not complete merely because 14 routes render. Required: shopper-visible navigation coverage in header/mobile/footer, page-specific information content, a real shared support wizard plus location/contact block, compact shared account capability navigation, and canonical recognizable commerce affordances. Preserve one-template/one-canonical-package authority, shared cart/checkout/account/auth/search/runtime/Page Schema authority, QA-only Loot Vault v2 status, and all existing release-risk thresholds. Fix causes, never gates. CSP for the shared Google Maps embed is a release/runtime boundary, so next.config.ts is explicitly classified under DOMAIN-RELEASE instead of remaining Atlas-unresolved.",
   "changeBaseSha": "4609721295d6c764f1c1f15c072a4c38db141bd6"
 }
