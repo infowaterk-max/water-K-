@@ -109,7 +109,17 @@
     "SQ-NK-010",
     "SQ-NK-012"
   ],
-  "exceptions": [],
-  "notes": "Clean recovery from current main. Do not merge the old stacked branch. Restore only proven Loot Vault v2 candidate assets/pages and the generic candidate QA/preview contract they require. Preserve current 14x3 acceptance semantics and 14-page owner showroom navigation. Loot Vault remains candidate-only: no accepted quality manifest and no production template-catalog registration. Generalize Product Owner proof away from hard-coded Loot Vault/branch names so future templates reuse the same authority. The recovery also restores candidate acceptance-proof generation in the existing runner and category-foundation media neutralization. Visual Fidelity QA must resolve factory=1 through the Factory registry so browser evidence cannot silently test the catalog package. StorefrontAccountShell receives the previously proven additive previewTemplate mode only; normal customer account resolution remains unchanged. The dedicated preview-login route is classified under DOMAIN-STOREFRONT in the canonical domain foundation. Atlas classification now explicitly maps package-owned storefront demo media and Factory QA/catalog surfaces; customer-account is included because the shared account shell gains preview-only composition. Release Risk Policy classification only: public/storefront-demo/** maps to builder-template-system; no risk threshold, score, gate, or budget is relaxed.",
+  "exceptions": [
+    {
+      "ruleId": "DEV-REVIEW-004",
+      "reason": "Loot Vault v2 contains presentation-only links to canonical shared storefront/account routes; it does not implement route/business authority locally.",
+      "evidence": [
+        "tests/template-factory-loot-vault-v2.test.ts verifies evaluateStorefrontTemplateRouteIntegrity(build.package) is empty",
+        "Factory showroom evidence requires every shell-navigation surface to have navigationPresent=true and entrypointPresent=true",
+        "Product Owner handoff independently proves multi-entry route convergence on the exact candidate"
+      ]
+    }
+  ],
+  "notes": "Clean recovery from current main. Do not merge the old stacked branch. Restore only proven Loot Vault v2 candidate assets/pages and the generic candidate QA/preview contract they require. Preserve current 14x3 acceptance semantics and 14-page owner showroom navigation. Loot Vault remains candidate-only: no accepted quality manifest and no production template-catalog registration. Generalize Product Owner proof away from hard-coded Loot Vault/branch names so future templates reuse the same authority. The recovery also restores candidate acceptance-proof generation in the existing runner and category-foundation media neutralization. Visual Fidelity QA must resolve factory=1 through the Factory registry so browser evidence cannot silently test the catalog package. StorefrontAccountShell receives the previously proven additive previewTemplate mode only; normal customer account resolution remains unchanged. The dedicated preview-login route is classified under DOMAIN-STOREFRONT in the canonical domain foundation. Atlas classification now explicitly maps package-owned storefront demo media and Factory QA/catalog surfaces; customer-account is included because the shared account shell gains preview-only composition. Release Risk Policy classification only: public/storefront-demo/** maps to builder-template-system; no risk threshold, score, gate, or budget is relaxed. DEV-REVIEW-004 is explicitly reviewed, not suppressed: all flagged /kosar and /fiokom-family hrefs are canonical shared routes and now have a dedicated route-integrity regression.",
   "changeBaseSha": "036a624e04e64c08c4f9f9865a52f1a55a1942b1"
 }
