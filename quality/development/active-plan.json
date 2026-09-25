@@ -3,7 +3,7 @@
   "taskId": "DEV-TEMPLATE-SINGLE-SOURCE-AUTHORITY",
   "task": "Consolidate Playroom v20 behind one canonical template package entrypoint and extend existing Architecture Health with deterministic Template Single Source Authority reachability/deep-import invariants.",
   "status": "ready-for-implementation",
-  "guardDigest": "bcd5c4e2",
+  "guardDigest": "f9221966",
   "plannedFilePatterns": [
     "scripts/lib/shoperation-architecture-health.mjs",
     "src/lib/builder/templates/gaming/playroom/v20/**",
@@ -17,15 +17,16 @@
   ],
   "expectedSubsystems": [
     "builder-template-system",
+    "dependency-contract",
     "shared-storefront"
   ],
   "expectedDomains": [
     "DOMAIN-BUILDER",
-    "DOMAIN-QUALITY"
+    "DOMAIN-STOREFRONT"
   ],
   "expectedAuthorities": [
     "builder-template-system",
-    "quality-knowledge-system"
+    "shared-storefront"
   ],
   "expectedKnownFailureIds": [
     "SQ-KF-001",
@@ -82,17 +83,12 @@
     "SQ-NK-002",
     "SQ-NK-003",
     "SQ-NK-004",
-    "SQ-NK-005",
     "SQ-NK-006",
     "SQ-NK-007",
     "SQ-NK-008",
     "SQ-NK-009",
     "SQ-NK-010",
-    "SQ-NK-011",
-    "SQ-NK-012",
-    "SQ-NK-013",
-    "SQ-NK-014",
-    "SQ-NK-015"
+    "SQ-NK-012"
   ],
   "exceptions": [],
   "notes": "No new parallel architecture registry. Architecture Health remains the blocking authority. Playroom v20 becomes a package directory with one public index entrypoint; internal snapshot is implementation detail. Runtime/build roots must not reach Playroom v18/v19/reference/fidelity/polish/acceptance chains. Tests may retain explicit historical baselines only where documented. No Loot Vault v2 candidate changes in this transaction. Release Risk Budget thresholds and weights remain unchanged. Audit found preview theme still imported Playroom v1 tokens; this transaction therefore derives Playroom v20 preview CSS variables from the canonical v20 Page Schema global-style metadata and removes the v1 runtime/preview dependency.",
