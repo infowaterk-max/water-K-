@@ -32,6 +32,7 @@ export function resolveSelfHealingPolicy(input:{runbookKey:string;requestedMode:
 
   const autoActorAllowed=Boolean(runbook.autoActorKinds?.includes(input.actorKind));
   if(input.requestedMode==='auto'){
+    if(runbook.repairKind==='code_pr')throw new Error('INCIDENT_AUTO_HEAL_FORBIDDEN');
     if(!runbook.autoAllowed||runbook.risk!=='low'||runbook.repairKind!=='runbook')throw new Error('INCIDENT_AUTO_HEAL_FORBIDDEN');
     if(!autoActorAllowed)throw new Error('INCIDENT_AUTO_HEAL_ACTOR_FORBIDDEN');
   }
