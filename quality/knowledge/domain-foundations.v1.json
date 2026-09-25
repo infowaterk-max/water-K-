@@ -268,7 +268,8 @@
       "canonicalPaths": [
         "src/lib/storefront/**",
         "src/components/storefront/**",
-        "src/lib/builder/storefront-**"
+        "src/lib/builder/storefront-**",
+        "src/app/storefront-template-preview/**"
       ],
       "evidenceObligations": [
         "responsive isolation proof",
