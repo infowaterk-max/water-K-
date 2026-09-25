@@ -193,7 +193,10 @@ function rewritePreviewHref(href:string,input:{templateKey:string;templateVersio
     viewport:input.viewport,
   });
   if(input.factoryCandidate)params.set('factory','1');
-  if(url.pathname.startsWith('/oldal/')||url.pathname.startsWith('/blog/')){
+  if(url.pathname.startsWith('/termek/')){
+    const slug=url.pathname.split('/').filter(Boolean).at(-1);
+    if(slug)params.set('demoProduct',slug);
+  }else if(url.pathname.startsWith('/oldal/')||url.pathname.startsWith('/blog/')){
     const slug=url.pathname.split('/').filter(Boolean).at(-1);
     if(slug)params.set('demoContent',slug);
   }else{
