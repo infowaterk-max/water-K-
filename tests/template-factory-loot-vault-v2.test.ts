@@ -45,7 +45,7 @@ describe('Loot Vault v2 Factory canonical wiring',()=>{
     const preview=resolveStorefrontTemplatePreviewPackage('gaming.loot-vault',2,true);
     expect(preview).toEqual(LOOT_VAULT_V2_TEMPLATE_PACKAGE);
 
-    expect(getStorefrontTemplatePackage('gaming.loot-vault',2)).toBeNull();
+    expect(getStorefrontTemplatePackage('gaming.loot-vault',2)).toBeUndefined();
     expect(getStorefrontTemplatePackage('gaming.loot-vault',1)?.manifest.templateVersion).toBe(1);
   });
 
