@@ -72,7 +72,6 @@
     "SQ-NK-002",
     "SQ-NK-003",
     "SQ-NK-004",
-    "SQ-NK-005",
     "SQ-NK-006",
     "SQ-NK-007",
     "SQ-NK-008",
@@ -81,6 +80,6 @@
     "SQ-NK-012"
   ],
   "exceptions": [],
-  "notes": "Dependency-closed generic preview-auth transaction extracted from superseded PR #439. Adds a template-aware preview login route using the existing shared AuthForm/Supabase authority, allows StorefrontAccountShell to render template-owned account presentation without tenant context, redirects unauthenticated template preview to that route, and stamps exact Factory provenance on preview roots. No Loot Vault v2 package/media/Page Schema, no accepted manifest, no production catalog activation, no auth-engine duplication, and no Release Risk Budget threshold/weight changes. Exact-head Atlas/Knowledge scope adds auth-access-authority, builder-template-system and customer-account subsystem closure; Known Failure/Negative Knowledge replay and digest aligned without changing any gate.",
+  "notes": "Dependency-closed generic preview-auth transaction extracted from superseded PR #439. Adds a template-aware preview login route using the existing shared AuthForm/Supabase authority, allows StorefrontAccountShell to render template-owned account presentation without tenant context, redirects unauthenticated template preview to that route, and stamps exact Factory provenance on preview roots. No Loot Vault v2 package/media/Page Schema, no accepted manifest, no production catalog activation, no auth-engine duplication, and no Release Risk Budget threshold/weight changes. Exact-head Atlas/Knowledge scope adds auth-access-authority, builder-template-system and customer-account subsystem closure; Known Failure/Negative Knowledge replay and digest aligned without changing any gate. Plan gate semantics verified in source: SQ-NK-005 is not applicable to this exact subsystem closure and is removed from acknowledged negative knowledge; digest remains the gate-computed 7628c63b.",
   "changeBaseSha": "02de48be961916b682b292460e73b621d90c1fa8"
 }
