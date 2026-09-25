@@ -1,29 +1,19 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-INCIDENT-GOVERNED-RECOVERY-BOUNDARY",
-  "task": "Harden Incident Intelligence governed recovery so deterministic auto-heal eligibility is restricted to explicit low-risk allowlisted runbooks and system actor authority, while AI and platform callers remain proposal-first and release classification becomes explicit.",
+  "taskId": "DEV-INCIDENT-GOVERNED-RECOVERY-EVIDENCE",
+  "task": "Record exact-main production evidence for the Incident Intelligence governed recovery boundary without declaring the broader Incident Intelligence roadmap complete.",
   "status": "ready-for-implementation",
-  "guardDigest": "17d71729",
+  "guardDigest": "17c8ef7c",
   "plannedFilePatterns": [
-    "deploy/release-risk-policy.json",
-    "src/lib/incidents/self-healing.ts",
-    "src/lib/incidents/service.ts",
-    "tests/incident-intelligence-triage.test.ts",
-    "tests/incident-intelligence-platform-center.test.ts",
-    "tests/incident-intelligence-governed-recovery.test.ts",
-    "docs/architecture/INCIDENT_GOVERNED_RECOVERY.md"
+    "quality/knowledge/living-roadmap.v1.json",
+    "quality/knowledge/evidence-ledger.v1.json"
   ],
-  "expectedSubsystems": [
-    "incident-intelligence",
-    "release-infrastructure"
-  ],
+  "expectedSubsystems": [],
   "expectedDomains": [
-    "DOMAIN-INCIDENT",
-    "DOMAIN-RELEASE"
+    "DOMAIN-QUALITY"
   ],
   "expectedAuthorities": [
-    "incident-intelligence",
-    "release-infrastructure"
+    "quality-knowledge-system"
   ],
   "expectedKnownFailureIds": [
     "SQ-KF-001",
@@ -76,14 +66,9 @@
     "TF-KF-024"
   ],
   "acknowledgedNegativeKnowledgeIds": [
-    "SQ-NK-002",
-    "SQ-NK-003",
-    "SQ-NK-005",
-    "SQ-NK-010",
-    "SQ-NK-012",
-    "SQ-NK-013"
+    "SQ-NK-012"
   ],
   "exceptions": [],
-  "notes": "Final accepted pre-template System Soul hardening. Architecture documentation makes this a knowledge-infrastructure change, so the full Known Failure replay is intentionally required. Auto-heal means eligibility only for an explicit deterministic low-risk runbook under system actor authority; platform and AI remain proposal-first. Release Risk Budget thresholds remain unchanged.",
-  "changeBaseSha": "d1dd324265c13e5bb42e0d405485dbc64c6f6fb9"
+  "notes": "Evidence-only closure. INCIDENT-INTELLIGENCE remains at foundation maturity; only the governed recovery boundary is recorded as verified. No runtime, schema, workflow, guard or release-risk behavior changes.",
+  "changeBaseSha": "81308ea75819eb989a55153c15030f8072656f1e"
 }
