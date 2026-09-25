@@ -3,7 +3,7 @@ import Link from 'next/link';
 import {notFound} from 'next/navigation';
 import {requireStorefrontTemplatePreviewAccess} from '@/lib/auth/template-preview-access';
 import {PLANS} from '@/lib/plans/catalog';
-import {getStorefrontTemplatePackage} from '@/lib/builder/storefront-template-catalog';
+import {resolveStorefrontTemplatePreviewPackage} from '@/lib/builder/storefront-template-preview-auth';
 import {
   createStorefrontTemplatePreviewBindingContext,
   getStorefrontTemplatePreviewTheme,
@@ -14,7 +14,7 @@ import {StorefrontRuntimeRenderer} from '@/components/builder/storefront-runtime
 import {createStorefrontVisualBuilderRendererRegistry} from '@/components/builder/storefront-builder-renderer-registry';
 import {createStorefrontVisualBuilderComponentRegistry} from '@/lib/builder/storefront-builder-registry';
 import {STOREFRONT_CANONICAL_VIEWPORT_WIDTH_PX,STOREFRONT_PAGE_TYPES,type StorefrontBuilderPageType,type StorefrontViewport} from '@/lib/builder/storefront-foundation';
-import {applyStorefrontTemplateDemoNotice,applyStorefrontTemplateOwnerShowroomNavigation,getStorefrontTemplateDemoContent,rewriteStorefrontTemplatePreviewLinks} from '@/lib/builder/storefront-template-route-integrity';
+import {applyStorefrontTemplateDemoNotice,applyStorefrontTemplateOwnerShowroomNavigation,getStorefrontTemplateDemoContent,isStorefrontShowroomReadyDemoContent,rewriteStorefrontTemplatePreviewBindingContext,rewriteStorefrontTemplatePreviewLinks} from '@/lib/builder/storefront-template-route-integrity';
 import styles from './storefront-template-preview.module.css';
 
 export const dynamic='force-dynamic';
@@ -31,7 +31,8 @@ export default async function StorefrontTemplatePreview({searchParams}:Props){
   const version=query.version?Number(query.version):undefined;
   const pageType=(query.page??'home') as StorefrontBuilderPageType;
   if(!templateKey||version!==undefined&&!Number.isInteger(version)||!allowedPageTypes.has(pageType))notFound();
-  const template=getStorefrontTemplatePackage(templateKey,version);
+  const factoryCandidate=query.factory==='1';
+  const template=resolveStorefrontTemplatePreviewPackage(templateKey,version,factoryCandidate);
   if(!template)notFound();
   const sourcePage=template.pages.find(candidate=>candidate.pageType===pageType);
   if(!sourcePage)notFound();
@@ -40,13 +41,13 @@ export default async function StorefrontTemplatePreview({searchParams}:Props){
   if(query.demoContent&&!demoFixture)notFound();
   const demoPayload=demoFixture?.payload??null;
   const embed=query.embed==='1';
-  const noticedPage=demoPayload?applyStorefrontTemplateDemoNotice(sourcePage):sourcePage;
-  const routedPage=rewriteStorefrontTemplatePreviewLinks(noticedPage,{templateKey:template.manifest.templateKey,templateVersion:template.manifest.templateVersion,viewport});
+  const noticedPage=demoPayload&&!isStorefrontShowroomReadyDemoContent(demoFixture)?applyStorefrontTemplateDemoNotice(sourcePage):sourcePage;
+  const routedPage=rewriteStorefrontTemplatePreviewLinks(noticedPage,{templateKey:template.manifest.templateKey,templateVersion:template.manifest.templateVersion,viewport,factoryCandidate});
   const page=embed?routedPage:applyStorefrontTemplateOwnerShowroomNavigation(routedPage,{
     templateKey:template.manifest.templateKey,
     templateVersion:template.manifest.templateVersion,
     viewport,
-    factory:query.factory==='1',
+    factory:factoryCandidate,
   });
   const baseContext=applyAuthoredTemplatePreviewFallbacks({page,context:createStorefrontTemplatePreviewBindingContext({template,page})});
   if(demoPayload){
@@ -60,7 +61,10 @@ export default async function StorefrontTemplatePreview({searchParams}:Props){
       article:{title,excerpt:summary,summary,body,image:'',imageAlt:''},
     };
   }
-  const bindingContext=augmentStorefrontDigitalCommercePreviewContext({template,page,context:baseContext});
+  const bindingContext=rewriteStorefrontTemplatePreviewBindingContext(
+    augmentStorefrontDigitalCommercePreviewContext({template,page,context:baseContext}),
+    {templateKey:template.manifest.templateKey,templateVersion:template.manifest.templateVersion,viewport,factoryCandidate},
+  );
   const theme=getStorefrontTemplatePreviewTheme(template.manifest.templateKey) as CSSProperties;
   const previewCapability={plan:'pro' as const,features:[...PLANS.pro.features]};
   const content=<StorefrontRuntimeRenderer
@@ -71,7 +75,7 @@ export default async function StorefrontTemplatePreview({searchParams}:Props){
     rendererRegistry={createStorefrontVisualBuilderRendererRegistry()}
     capability={previewCapability}
   />;
-  if(embed)return <main className={styles.embed} style={theme} data-template-preview="representative-demo" data-template-key={templateKey} data-page-type={pageType}>{content}</main>;
+  if(embed)return <main className={styles.embed} style={theme} data-template-preview="representative-demo" data-template-key={templateKey} data-template-version={template.manifest.templateVersion} data-factory-candidate={factoryCandidate?'true':'false'} data-page-type={pageType}>{content}</main>;
   const href=(next:StorefrontViewport)=>{
     const params=new URLSearchParams();
     for(const[key,value]of Object.entries(query))if(typeof value==='string'&&value)params.set(key,value);
