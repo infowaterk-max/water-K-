@@ -3,7 +3,7 @@
   "taskId": "DEV-TEMPLATE-QUALITY-CANDIDATE-REGISTRY",
   "task": "Add a generic QA-only canonical candidate package registry so candidate quality manifests can own src/lib/builder/templates sources and run full browser proof without production catalog activation or Factory runtime wiring.",
   "status": "ready-for-implementation",
-  "guardDigest": "f9221966",
+  "guardDigest": "a22523c0",
   "plannedFilePatterns": [
     "src/lib/builder/storefront-template-quality-candidates.ts",
     "src/app/api/visual-fidelity/templates/route.ts",
@@ -14,6 +14,7 @@
   ],
   "expectedSubsystems": [
     "builder-template-system",
+    "dependency-contract",
     "quality-knowledge-system",
     "release-infrastructure",
     "shared-storefront",
@@ -21,14 +22,10 @@
   ],
   "expectedDomains": [
     "DOMAIN-BUILDER",
-    "DOMAIN-QUALITY",
-    "DOMAIN-RELEASE",
     "DOMAIN-STOREFRONT"
   ],
   "expectedAuthorities": [
     "builder-template-system",
-    "quality-knowledge-system",
-    "release-infrastructure",
     "shared-storefront"
   ],
   "expectedKnownFailureIds": [
@@ -86,14 +83,18 @@
     "SQ-NK-002",
     "SQ-NK-003",
     "SQ-NK-004",
+    "SQ-NK-005",
     "SQ-NK-006",
     "SQ-NK-007",
     "SQ-NK-008",
     "SQ-NK-009",
     "SQ-NK-010",
-    "SQ-NK-012"
+    "SQ-NK-011",
+    "SQ-NK-012",
+    "SQ-NK-014",
+    "SQ-NK-015"
   ],
   "exceptions": [],
-  "notes": "Generic infrastructure only. Introduces an empty QA-only candidate package registry and teaches Visual Fidelity catalog/browser routing to distinguish qualityCandidate from accepted catalog and Factory recipe candidates. No concrete template candidate is registered, no accepted manifest is added, no production catalog/runtime activation occurs, and Release Risk Budget thresholds/weights are unchanged.",
+  "notes": "Generic infrastructure only. Introduces an empty QA-only candidate package registry and teaches Visual Fidelity catalog/browser routing to distinguish qualityCandidate from accepted catalog and Factory recipe candidates. No concrete template candidate is registered, no accepted manifest is added, no production catalog/runtime activation occurs, and Release Risk Budget thresholds/weights are unchanged. Exact-head Plan evidence aligns ownership to DOMAIN-BUILDER + DOMAIN-STOREFRONT under builder-template-system + shared-storefront; dependency-contract joins subsystem closure; negative-knowledge projection and guard digest are updated without changing any gate.",
   "changeBaseSha": "f26376185fd6bb7b743acafdda871fb865983815"
 }
