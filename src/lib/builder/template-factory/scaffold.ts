@@ -351,6 +351,55 @@ function evaluateBuild(input:{
     }
   }
 
+  if(recipe.productOwnerReview.internalVisualReviewPassed){
+    const requiredMobileRoutes=['/','/webaruhaz','/blog','/oldal/rolunk','/gyik','/kapcsolat','/szallitas-es-fizetes','/oldal/visszakuldes','/kedvencek','/fiokom','/aszf','/adatvedelem','/impresszum'];
+    for(const page of pkg.pages){
+      let header:StorefrontComponentNode|undefined;
+      walk(page.sections,node=>{if(!header&&node.componentKey==='system.commerce-header')header=node;});
+      const menu=Array.isArray(header?.config.mobileMenuItems)?header!.config.mobileMenuItems as unknown[]:[];
+      const hrefs=menu.flatMap(item=>item&&typeof item==='object'&&!Array.isArray(item)&&typeof (item as Record<string,unknown>).href==='string'?[(item as Record<string,unknown>).href as string]:[]);
+      const missing=requiredMobileRoutes.filter(route=>!hrefs.includes(route));
+      if(missing.length)issues.push(issue('FACTORY_MOBILE_NAVIGATION_INCOMPLETE',`pages.${page.pageType}.header.mobileMenuItems`,`Product Owner-ready shopper mobile navigation is missing: ${missing.join(', ')}.`));
+    }
+
+    const contact=pageByType.get('contact');
+    if(contact){
+      const keys:string[]=[];
+      walk(contact.sections,node=>keys.push(node.componentKey));
+      if(!keys.includes('support.contact-form'))issues.push(issue('FACTORY_CONTACT_WIZARD_REQUIRED','pages.contact','Product Owner-ready Contact must render the shared support.contact-form wizard.'));
+      if(!keys.includes('support.location-map'))issues.push(issue('FACTORY_CONTACT_MAP_REQUIRED','pages.contact','Product Owner-ready Contact must render a shared embedded location map beside merchant contact information.'));
+      const contactText=JSON.stringify(contact).toLowerCase();
+      for(const token of ['telefon','e-mail','nyitvatart','cím']){
+        if(!contactText.includes(token))issues.push(issue('FACTORY_CONTACT_DETAILS_INCOMPLETE',`pages.contact.${token}`,`Product Owner-ready Contact must visibly include merchant ${token} information.`));
+      }
+    }
+
+    const account=pageByType.get('account');
+    if(account){
+      const navRoutes:string[]=[];
+      walk(account.sections,node=>{
+        if(node.componentKey!=='system.navigation')return;
+        const items=Array.isArray(node.config.items)?node.config.items:[];
+        for(const item of items){
+          if(item&&typeof item==='object'&&!Array.isArray(item)&&typeof (item as Record<string,unknown>).href==='string')navRoutes.push((item as Record<string,unknown>).href as string);
+        }
+      });
+      const requiredAccount=['/fiokom','/fiokom#rendelesek','/fiokom/letoltesek','/fiokom/dokumentumok','/fiokom/kivansaglista','/fiokom/ugyek','/fiokom/visszakuldes','/fiokom#fiokadatok'];
+      const missing=requiredAccount.filter(route=>!navRoutes.includes(route));
+      if(missing.length)issues.push(issue('FACTORY_ACCOUNT_CAPABILITY_NAVIGATION_INCOMPLETE','pages.account','Product Owner-ready Account must expose the shared capability set compactly; missing: '+missing.join(', ')+'.'));
+    }
+
+    const requiredInfoSlugs=['aszf','adatvedelem','impresszum','szallitas','fizetes','visszakuldes'];
+    const infoFixtures=pkg.demoFixtures.filter(item=>{
+      if(item.entityType!=='content'||!item.payload||typeof item.payload!=='object'||Array.isArray(item.payload))return false;
+      return requiredInfoSlugs.includes(String((item.payload as Record<string,unknown>).slug??''));
+    });
+    const bodies=infoFixtures.map(item=>String((item.payload as Record<string,unknown>).body??'').trim()).filter(Boolean);
+    if(infoFixtures.length!==requiredInfoSlugs.length||bodies.some(body=>body.length<80)||new Set(bodies).size!==bodies.length){
+      issues.push(issue('FACTORY_INFORMATION_CONTENT_INCOMPLETE','demoFixtures.content','Product Owner-ready informational/legal pages need page-specific non-placeholder demo content; title-swapped duplicate bodies are forbidden.'));
+    }
+  }
+
   if(!recipe.productOwnerReview.internalVisualReviewPassed)issues.push(issue('FACTORY_INTERNAL_VISUAL_REVIEW_REQUIRED','productOwnerReview.internalVisualReviewPassed','Internal reference screenshot review must pass before Product Owner preview.'));
 
   return issues;
