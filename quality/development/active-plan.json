@@ -1,15 +1,20 @@
 {
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-DEEP-ATLAS-EVIDENCE-CLOSURE",
-  "task": "Close the Daily Deep Atlas Scan roadmap state with exact merged-main production evidence and align its regression expectation.",
+  "task": "Fix the Shoperation quality knowledge intent-matching false positive in production terminology, then close the Daily Deep Atlas evidence state on exact merged-main proof.",
   "status": "ready-for-implementation",
-  "guardDigest": "17c8ef7c",
+  "guardDigest": "d0031b70",
   "plannedFilePatterns": [
     "quality/knowledge/living-roadmap.v1.json",
     "quality/knowledge/evidence-ledger.v1.json",
-    "tests/capability-roadmap-evidence.test.ts"
+    "tests/capability-roadmap-evidence.test.ts",
+    "quality/knowledge/development-guard-policy.v1.json",
+    "tests/shoperation-development-guard.test.ts"
   ],
-  "expectedSubsystems": [],
+  "expectedSubsystems": [
+    "quality-knowledge-system",
+    "release-infrastructure"
+  ],
   "expectedDomains": [
     "DOMAIN-QUALITY"
   ],
@@ -67,9 +72,16 @@
     "TF-KF-024"
   ],
   "acknowledgedNegativeKnowledgeIds": [
-    "SQ-NK-012"
+    "SQ-NK-002",
+    "SQ-NK-003",
+    "SQ-NK-005",
+    "SQ-NK-010",
+    "SQ-NK-011",
+    "SQ-NK-012",
+    "SQ-NK-014",
+    "SQ-NK-015"
   ],
   "exceptions": [],
-  "notes": "Evidence-only closure of the seventh System Soul transaction after exact-main CI, Template Factory and production deployment proof. No runtime, schema, workflow, guard threshold or release-risk behavior changes.",
+  "notes": "Evidence closure plus root-cause repair of a lexical Development Guard false positive: production terminology must not activate storefront/product scope. No gate is weakened; exact token matching is tightened and regression-locked.",
   "changeBaseSha": "7a8a5a862e771cd3eec60b971d5d48a32d361c93"
 }
