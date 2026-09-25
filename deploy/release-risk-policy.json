@@ -14,7 +14,8 @@
     "artifacts/**",
     "**/*.md",
     "**/*.snap",
-    ".gitignore"
+    ".gitignore",
+    "quality/development/**"
   ],
   "subsystems": [
     {
