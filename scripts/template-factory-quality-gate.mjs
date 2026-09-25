@@ -317,8 +317,8 @@ try{
         const profile=viewportProfiles[viewport];
         const page=await browser.newPage({viewport:profile,deviceScaleFactor:1});
         const name=`${safeName(manifest.templateKey)}-v${manifest.templateVersion}-${pageType}-${viewport}`;
-        const factoryQuery=manifest.factoryCandidate?'&factory=1':'';
-        const url=`${baseUrl}/visual-fidelity-qa?template=${encodeURIComponent(manifest.templateKey)}&version=${manifest.templateVersion}&page=${encodeURIComponent(pageType)}&viewport=${viewport}${factoryQuery}`;
+        const candidateQuery=manifest.factoryCandidate?'&factory=1':manifest.qualityCandidate?'&qualityCandidate=1':'';
+        const url=`${baseUrl}/visual-fidelity-qa?template=${encodeURIComponent(manifest.templateKey)}&version=${manifest.templateVersion}&page=${encodeURIComponent(pageType)}&viewport=${viewport}${candidateQuery}`;
         try{
           await page.emulateMedia({reducedMotion:'reduce'});
           const response=await page.goto(url,{waitUntil:'domcontentloaded',timeout:30000});
@@ -386,8 +386,8 @@ try{
     }
 
     if(manifest.browser.requireMobileMenu){
-      const factoryQuery=manifest.factoryCandidate?'&factory=1':'';
-      const demoUrl=`${baseUrl}/visual-fidelity-qa?template=${encodeURIComponent(manifest.templateKey)}&version=${manifest.templateVersion}&page=content&viewport=mobile&demoContent=szallitas${factoryQuery}`;
+      const candidateQuery=manifest.factoryCandidate?'&factory=1':manifest.qualityCandidate?'&qualityCandidate=1':'';
+      const demoUrl=`${baseUrl}/visual-fidelity-qa?template=${encodeURIComponent(manifest.templateKey)}&version=${manifest.templateVersion}&page=content&viewport=mobile&demoContent=szallitas${candidateQuery}`;
       const page=await browser.newPage({viewport:viewportProfiles.mobile,deviceScaleFactor:1});
       const name=`${safeName(manifest.templateKey)}-v${manifest.templateVersion}-demo-szallitas-mobile`;
       try{

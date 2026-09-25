@@ -3,6 +3,7 @@ import {notFound} from 'next/navigation';
 import {PLANS} from '@/lib/plans/catalog';
 import {getStorefrontTemplatePackage} from '@/lib/builder/storefront-template-catalog';
 import {buildRegisteredStorefrontTemplateFactoryCandidate} from '@/lib/builder/template-factory/recipe-registry';
+import {resolveStorefrontTemplateQualityCandidate} from '@/lib/builder/storefront-template-quality-candidates';
 import {
   createStorefrontTemplatePreviewBindingContext,
   getStorefrontTemplatePreviewTheme,
@@ -18,7 +19,7 @@ import {applyStorefrontTemplateDemoNotice,getStorefrontTemplateDemoContent,isSto
 
 export const dynamic='force-dynamic';
 
-type Props={searchParams:Promise<{template?:string;version?:string;page?:string;viewport?:string;demoContent?:string;factory?:string}>};
+type Props={searchParams:Promise<{template?:string;version?:string;page?:string;viewport?:string;demoContent?:string;factory?:string;qualityCandidate?:string}>};
 // The route is gated by VISUAL_FIDELITY_QA=1, so it can safely render the full
 // canonical storefront page family for exact-head screenshot acceptance.
 const ALLOWED_PAGE_TYPES=new Set<StorefrontBuilderPageType>(STOREFRONT_PAGE_TYPES);
@@ -31,8 +32,14 @@ export default async function VisualFidelityQaPage({searchParams}:Props){
   const pageType=(query.page??'home') as StorefrontBuilderPageType;
   if(!templateKey||version!==undefined&&!Number.isInteger(version)||!ALLOWED_PAGE_TYPES.has(pageType))notFound();
   const factoryCandidate=query.factory==='1';
+  const qualityCandidate=query.qualityCandidate==='1';
+  if(factoryCandidate&&qualityCandidate)notFound();
   let template;
-  if(factoryCandidate){
+  if(qualityCandidate){
+    const registration=resolveStorefrontTemplateQualityCandidate(templateKey,version);
+    if(!registration)notFound();
+    template=registration.template;
+  }else if(factoryCandidate){
     try{
       const build=buildRegisteredStorefrontTemplateFactoryCandidate(templateKey);
       if(!build.report.productOwnerReady)notFound();
@@ -68,6 +75,7 @@ export default async function VisualFidelityQaPage({searchParams}:Props){
     data-visual-fidelity-root="runtime"
     data-template-key={templateKey}
     data-factory-candidate={factoryCandidate?'true':'false'}
+    data-quality-candidate={qualityCandidate?'true':'false'}
     data-page-type={pageType}
     data-viewport={viewport}
     data-performance-contract={STOREFRONT_PERFORMANCE_CONTRACT_VERSION}
