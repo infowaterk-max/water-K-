@@ -1,0 +1,90 @@
+name: Shoperation Deep Atlas Scan
+
+on:
+  schedule:
+    - cron: '37 3 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  deep-atlas-scan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Install locked dependencies
+        run: npm ci --no-audit --no-fund
+
+      - name: Daily Deep Atlas Scan
+        id: scan
+        continue-on-error: true
+        run: node scripts/shoperation-knowledge-deep-atlas-scan.mjs --check
+
+      - name: Upload Deep Atlas evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: shoperation-deep-atlas-${{ github.sha }}
+          path: |
+            artifacts/shoperation-deep-atlas/**
+            artifacts/shoperation-atlas/**
+            artifacts/shoperation-architecture/**
+          if-no-files-found: warn
+          retention-days: 90
+
+      - name: Open or update architecture drift issue
+        if: steps.scan.outcome == 'failure'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs=require('fs');
+            const marker='<!-- shoperation-deep-atlas-scan -->';
+            const title='[Architecture drift] Daily Deep Atlas Scan requires attention';
+            const file='artifacts/shoperation-deep-atlas/deep-atlas-scan.json';
+            const report=fs.existsSync(file)?JSON.parse(fs.readFileSync(file,'utf8')):null;
+            const hard=(report?.hardFindings||[]).slice(0,20);
+            const body=`${marker}
+            
+            Source commit: \`${context.sha}\`
+            
+            Decision: **${report?.decision||'BLOCK'}**
+            
+            Hard findings:
+            ${hard.length?hard.map(item=>`- \`${item.code||item.source}\`: ${JSON.stringify(item)}`).join('\n'):'- Deep Atlas Scan failed before producing findings.'}
+            
+            Inspect the workflow artifact before changing runtime behavior. This issue is closed automatically when the scheduled scan recovers.`;
+            const open=await github.paginate(github.rest.issues.listForRepo,{...context.repo,state:'open',per_page:100});
+            const existing=open.find(issue=>(issue.body||'').includes(marker));
+            if(existing){
+              await github.rest.issues.update({...context.repo,issue_number:existing.number,title,body});
+            }else{
+              await github.rest.issues.create({...context.repo,title,body});
+            }
+
+      - name: Close recovered architecture drift issue
+        if: steps.scan.outcome == 'success'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const marker='<!-- shoperation-deep-atlas-scan -->';
+            const open=await github.paginate(github.rest.issues.listForRepo,{...context.repo,state:'open',per_page:100});
+            for(const issue of open.filter(issue=>(issue.body||'').includes(marker))){
+              await github.rest.issues.createComment({...context.repo,issue_number:issue.number,body:`Deep Atlas Scan recovered on \`${context.sha}\`. Closing automatically.`});
+              await github.rest.issues.update({...context.repo,issue_number:issue.number,state:'closed'});
+            }
+
+      - name: Fail workflow on hard architecture drift
+        if: steps.scan.outcome == 'failure'
+        run: exit 1

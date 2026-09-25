@@ -1,29 +1,34 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-ARCHITECTURE-DRIFT-CONFIDENCE",
-  "task": "Establish Architecture Drift, Confidence and Guard Rationalization using the canonical Capability Registry, Living Roadmap, Evidence Ledger, Domain Foundations and Atlas 2.0.",
+  "taskId": "DEV-DAILY-DEEP-ATLAS-SCAN",
+  "task": "Implement the Shoperation quality knowledge Daily Deep Atlas Scan as a scheduled non-duplicative System Self-Knowledge observation layer, complete the Architecture Drift/Confidence evidence closure, and eliminate branch-creation Release Risk false positives without weakening main or pull-request release proof.",
   "status": "ready-for-implementation",
-  "guardDigest": "17c8ef7c",
+  "guardDigest": "d0031b70",
   "plannedFilePatterns": [
+    ".github/workflows/ci.yml",
+    ".github/workflows/shoperation-deep-atlas-scan.yml",
+    "scripts/shoperation-knowledge-deep-atlas-scan.mjs",
+    "quality/knowledge/deep-atlas-scan-policy.v1.json",
     "quality/knowledge/guard-registry.v1.json",
     "quality/knowledge/living-roadmap.v1.json",
     "quality/knowledge/evidence-ledger.v1.json",
-    "scripts/lib/shoperation-architecture-health.mjs",
-    "docs/architecture/ARCHITECTURE_DRIFT_CONFIDENCE.md",
-    "tests/architecture-health.test.ts",
+    "docs/architecture/DEEP_ATLAS_SCAN.md",
+    "tests/deep-atlas-scan.test.ts",
     "tests/capability-roadmap-evidence.test.ts"
   ],
-  "expectedSubsystems": [],
+  "expectedSubsystems": [
+    "quality-knowledge-system",
+    "release-infrastructure"
+  ],
   "expectedDomains": [
-    "DOMAIN-QUALITY"
+    "DOMAIN-QUALITY",
+    "DOMAIN-RELEASE"
   ],
   "expectedAuthorities": [
-    "quality-knowledge-system"
+    "quality-knowledge-system",
+    "release-infrastructure"
   ],
   "expectedKnownFailureIds": [
-    "SQ-KF-013",
-    "SQ-KF-014",
-    "SQ-KF-022",
     "SQ-KF-001",
     "SQ-KF-002",
     "SQ-KF-003",
@@ -36,6 +41,8 @@
     "SQ-KF-010",
     "SQ-KF-011",
     "SQ-KF-012",
+    "SQ-KF-013",
+    "SQ-KF-014",
     "SQ-KF-015",
     "SQ-KF-016",
     "SQ-KF-017",
@@ -43,6 +50,7 @@
     "SQ-KF-019",
     "SQ-KF-020",
     "SQ-KF-021",
+    "SQ-KF-022",
     "SQ-KF-023",
     "SQ-KF-024",
     "TF-KF-001",
@@ -71,9 +79,16 @@
     "TF-KF-024"
   ],
   "acknowledgedNegativeKnowledgeIds": [
-    "SQ-NK-012"
+    "SQ-NK-002",
+    "SQ-NK-003",
+    "SQ-NK-005",
+    "SQ-NK-010",
+    "SQ-NK-011",
+    "SQ-NK-012",
+    "SQ-NK-014",
+    "SQ-NK-015"
   ],
   "exceptions": [],
-  "notes": "Sixth System Soul transaction. Adds deterministic architecture drift detection, evidence-backed confidence and a canonical registry of existing guards so overlapping responsibilities are detected instead of adding new gates. No commerce runtime/schema behavior, deployment threshold or Release Risk Budget threshold changes.",
-  "changeBaseSha": "4f9bb54f92b23d59613b0b3769594089b26b67be"
+  "notes": "Seventh System Soul transaction. Adds a daily observational Deep Atlas Scan using existing Atlas 2.0 and Architecture Health authorities, records Drift/Confidence completion evidence once post-merge proof is verified, and removes release-risk noise from feature-branch push/creation runs while preserving pull-request and main release proof. No risk thresholds, commerce runtime, schema or production truth are changed.",
+  "changeBaseSha": "ecd04d160f77057e3dbc1d8676ff80df8404a39d"
 }

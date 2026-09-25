@@ -1,0 +1,33 @@
+{
+  "contract": "shoporation.deep-atlas-scan-policy.v1",
+  "version": 1,
+  "status": "canonical",
+  "schedule": {
+    "cadence": "daily",
+    "cron": "37 3 * * *"
+  },
+  "behavior": {
+    "blockingScope": "scheduled-scan-only",
+    "ciGate": false,
+    "pullRequestGate": false,
+    "hardFailureSources": [
+      "atlas-validation",
+      "architecture-hard-drift"
+    ],
+    "warningSources": [
+      "architecture-warning",
+      "unresolved-internal-imports",
+      "duplicate-routes",
+      "zero-domain-coverage",
+      "low-capability-confidence"
+    ],
+    "warningThresholds": {
+      "capabilityConfidenceBelow": 50
+    }
+  },
+  "issueLifecycle": {
+    "marker": "<!-- shoperation-deep-atlas-scan -->",
+    "title": "[Architecture drift] Daily Deep Atlas Scan requires attention",
+    "closeWhenRecovered": true
+  }
+}
