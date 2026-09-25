@@ -1,24 +1,16 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-TEMPLATE-SINGLE-SOURCE-AUTHORITY",
-  "task": "Consolidate Playroom v20 behind one canonical template package entrypoint and extend existing Architecture Health with deterministic Template Single Source Authority reachability/deep-import invariants.",
+  "taskId": "DEV-TEMPLATE-FACTORY-READINESS-CONTRACT",
+  "task": "Harden the generic Template Factory scaffold with deterministic provenance, showroom evidence, media maturity and technical/Product Owner readiness semantics without adding Loot Vault-specific candidate content.",
   "status": "ready-for-implementation",
   "guardDigest": "f9221966",
   "plannedFilePatterns": [
-    "scripts/lib/shoperation-architecture-health.mjs",
-    "src/lib/builder/templates/gaming/playroom/v20/**",
-    "src/lib/builder/templates/playroom-v20.ts",
-    "src/lib/builder/templates/playroom-v20-canonical-package.json",
-    "src/lib/builder/storefront-template-catalog.ts",
-    "src/lib/builder/template-factory/category-foundations.ts",
-    "tests/**",
-    "docs/architecture/TEMPLATE_SOURCE_AUTHORITY_AUDIT_2026-09-25.md",
-    "src/lib/builder/storefront-template-preview-demo.ts",
-    "src/lib/builder/storefront-template-quality-gate.ts"
+    "src/lib/builder/template-factory/scaffold.ts",
+    "tests/template-factory-scaffold-v1.test.ts",
+    "quality/development/active-plan.json"
   ],
   "expectedSubsystems": [
     "builder-template-system",
-    "dependency-contract",
     "shared-storefront"
   ],
   "expectedDomains": [
@@ -92,6 +84,6 @@
     "SQ-NK-012"
   ],
   "exceptions": [],
-  "notes": "No new parallel architecture registry. Architecture Health remains the blocking authority. Playroom v20 becomes a package directory with one public index entrypoint; internal snapshot is implementation detail. Runtime/build roots must not reach Playroom v18/v19/reference/fidelity/polish/acceptance chains. Tests may retain explicit historical baselines only where documented. No Loot Vault v2 candidate changes in this transaction. Release Risk Budget thresholds and weights remain unchanged. Audit found preview theme still imported Playroom v1 tokens; this transaction therefore derives Playroom v20 preview CSS variables from the canonical v20 Page Schema global-style metadata and removes the v1 runtime/preview dependency. Existing accepted Playroom v20 Quality Manifest remains accepted; only its sourcePrefixes ownership mapping is extended to the new canonical package path so source consolidation does not fabricate a new acceptance event.",
-  "changeBaseSha": "85fd159fc99336e4504b4449287e6c506ec26ce8"
+  "notes": "Dependency-closed generic Factory scaffold transaction extracted from superseded PR #439. Adds provenance, showroom-contract evaluation, media maturity states and technicalReady vs productOwnerReady semantics. No Loot Vault v2 Page Schema/media/candidate package, no accepted manifest, no production catalog activation, no Release Risk Budget threshold or weight changes. Playroom v20 remains consumed only through its canonical package entrypoint.",
+  "changeBaseSha": "ca09fc2c14e2bfce6303d9de1f405d7a61c3626c"
 }
