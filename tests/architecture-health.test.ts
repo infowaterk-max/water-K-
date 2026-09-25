@@ -31,4 +31,25 @@ describe('Architecture Drift + Confidence + Guard Rationalization',()=>{
     const workflow=readFileSync('.github/workflows/ci.yml','utf8');
     expect(workflow).not.toContain('Architecture Confidence Gate');
   });
+
+  it('keeps accepted roadmap references and sequencing canonical',()=>{
+    const capabilities=JSON.parse(readFileSync('quality/knowledge/capability-registry.v1.json','utf8')) as {capabilities:Array<{id:string;roadmapRefs?:string[]}>};
+    const roadmap=JSON.parse(readFileSync('quality/knowledge/living-roadmap.v1.json','utf8')) as {items:Array<{id:string;status:string;order?:number;targetWindow?:string;dependsOn?:string[]}>};
+    const ids=new Set(roadmap.items.map(item=>item.id));
+    for(const capability of capabilities.capabilities){
+      for(const ref of capability.roadmapRefs??[])expect(ids.has(ref),`${capability.id} missing roadmap ref ${ref}`).toBe(true);
+    }
+    for(const item of roadmap.items){
+      for(const dependency of item.dependsOn??[])expect(ids.has(dependency),`${item.id} missing dependency ${dependency}`).toBe(true);
+    }
+    const byId=new Map(roadmap.items.map(item=>[item.id,item]));
+    expect(byId.get('TEMPLATE-PRODUCTION-SYSTEM')?.status).toBe('in-progress');
+    expect(byId.get('TEMPLATE-PORTFOLIO-42')?.order).toBeLessThan(byId.get('GUARDED-VISUAL-SECTION-LIBRARY')?.order??0);
+    expect(byId.get('GUARDED-VISUAL-SECTION-LIBRARY')?.order).toBeLessThan(byId.get('MARKET-READY-1-0')?.order??0);
+    expect(byId.get('SANDBOX-TEST-MODE')?.targetWindow).toBe('market-ready-1.0');
+    expect(byId.get('PAYMENT-HUB-1')?.targetWindow).toBe('post-launch');
+    expect(byId.get('SURFACE-REDUCTION')?.targetWindow).toBe('immediately-after-market-ready-1.0');
+    expect(byId.get('WEBSITE-BUILDER')?.status).toBe('parked');
+  });
+
 });
