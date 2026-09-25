@@ -1,4 +1,5 @@
 import type {StorefrontInstallableTemplatePackage} from '@/lib/builder/storefront-template-installation';
+import {resolveStorefrontGlobalStyleCssVariables} from '@/lib/builder/storefront-global-styles';
 import snapshot from '@/lib/builder/templates/gaming/playroom/v20/canonical-package.json';
 
 export const PLAYROOM_V20_TEMPLATE_VERSION=20 as const;
@@ -21,3 +22,6 @@ if(canonical.pages.some(page=>page.templateKey!=='gaming.playroom'||page.templat
 }
 
 export const PLAYROOM_V20_TEMPLATE_PACKAGE:StorefrontInstallableTemplatePackage=canonical;
+const themeSource=canonical.pages.find(page=>page.pageType==='home')??canonical.pages[0];
+if(!themeSource)throw new Error('PLAYROOM_V20_THEME_SOURCE_MISSING');
+export const PLAYROOM_V20_DESIGN_TOKENS=Object.freeze(resolveStorefrontGlobalStyleCssVariables(themeSource));
