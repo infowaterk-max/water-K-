@@ -10,6 +10,21 @@ import {
 
 const clone=<T>(value:T):T=>structuredClone(value);
 
+function setProductGridPurchaseActions(page:ReturnType<typeof sanitizePage>,enabled:boolean){
+  let count=0;
+  const walk=(nodes:typeof page.sections):void=>{
+    for(const node of nodes){
+      if(node.componentKey==='commerce.product-grid'){
+        node.config={...node.config,showPurchaseActions:enabled};
+        count+=1;
+      }
+      if(node.children?.length)walk(node.children);
+    }
+  };
+  walk(page.sections);
+  return count;
+}
+
 function sanitizePage(pageType:StorefrontBuilderPageType){
   const source=PLAYROOM_V20_TEMPLATE_PACKAGE.pages.find(page=>page.pageType===pageType);
   if(!source)throw new Error(`missing source page ${pageType}`);
@@ -81,7 +96,7 @@ function recipe(input:{allPages:boolean;reviewPassed:boolean}):StorefrontTemplat
     ],
     media:{
       assets:[
-        {key:'hero',role:'hero',src:'/factory/canary/hero.jpg',alt:'Factory Canary hero',pageTypes:['home'],representative:true,aspectRatio:'16:9'},
+        {key:'hero',state:'ready',role:'hero',src:'/factory/canary/hero.jpg',alt:'Factory Canary hero',pageTypes:['home'],representative:true,aspectRatio:'16:9'},
       ],
       requiredRoles:['hero'],
       requirements:[{role:'hero',minCount:1,aspectRatio:'16:9'}],
@@ -127,6 +142,7 @@ describe('Template Factory Scaffold v1',()=>{
 
   it('auto-rebrands inherited foundation copy but still fails closed on foundation media, reference ownership and visual review',()=>{
     const build=buildStorefrontTemplateFactoryCandidate(recipe({allPages:false,reviewPassed:false}));
+    expect(build.report.technicalReady).toBe(false);
     expect(build.report.productOwnerReady).toBe(false);
     expect(build.report.inheritedPageTypes.length).toBe(13);
     const account=build.package.pages.find(page=>page.pageType==='account')!;
@@ -140,10 +156,55 @@ describe('Template Factory Scaffold v1',()=>{
     expect(()=>assertStorefrontTemplateFactoryProductOwnerReady(build)).toThrow(/TEMPLATE_FACTORY_PRODUCT_OWNER_NOT_READY/);
   });
 
-  it('can become Product Owner-ready only after the recipe owns reference-critical pages, media and internal review',()=>{
+
+  it('treats internal-reference media as technical media proof but never bypasses showroom acceptance',()=>{
+    const draft=recipe({allPages:true,reviewPassed:true});
+    const referenceSrc='https://images.example.test/reference.jpg';
+    draft.media={...draft.media,assets:draft.media.assets.map(asset=>({...asset,state:'internal-reference' as const,referenceSrc}))};
+    const build=buildStorefrontTemplateFactoryCandidate(draft);
+    expect(JSON.stringify(build.package.pages.find(page=>page.pageType==='home'))).toContain(referenceSrc);
+    expect(JSON.stringify(build.package.demoFixtures)).toContain(referenceSrc);
+    expect(build.report.technicalRepresentativeMediaCount).toBe(1);
+    expect(build.report.internalReferenceMediaCount).toBe(1);
+    expect(build.report.representativeMediaCount).toBe(0);
+    expect(build.report.technicalReady).toBe(false);
+    expect(build.report.productOwnerReady).toBe(false);
+    expect(build.report.issues.map(issue=>issue.code)).toEqual(expect.arrayContaining([
+      'FACTORY_MEDIA_FINALIZATION_REQUIRED',
+      'SHOWROOM_NAVIGATION_INCOMPLETE',
+      'SHOWROOM_ACCOUNT_NAVIGATION_EMPTY',
+      'SHOWROOM_ENGINE_DEMO_MISSING',
+    ]));
+    expect(()=>assertStorefrontTemplateFactoryProductOwnerReady(build)).toThrow(/TEMPLATE_FACTORY_PRODUCT_OWNER_NOT_READY/);
+  });
+
+  it('does not treat complete Page Schema ownership, media and visual review as a substitute for a complete showroom journey',()=>{
     const build=buildStorefrontTemplateFactoryCandidate(recipe({allPages:true,reviewPassed:true}));
-    expect(build.report.issues).toEqual([]);
-    expect(build.report.productOwnerReady).toBe(true);
-    expect(()=>assertStorefrontTemplateFactoryProductOwnerReady(build)).not.toThrow();
+    const codes=build.report.issues.map(issue=>issue.code);
+    expect(codes).toEqual(expect.arrayContaining([
+      'SHOWROOM_NAVIGATION_INCOMPLETE',
+      'SHOWROOM_ROUTE_PRESENTATION_UNMAPPED',
+      'SHOWROOM_ACCOUNT_NAVIGATION_EMPTY',
+      'SHOWROOM_ENGINE_DEMO_MISSING',
+    ]));
+    expect(build.report.technicalReady).toBe(false);
+    expect(build.report.productOwnerReady).toBe(false);
+    expect(()=>assertStorefrontTemplateFactoryProductOwnerReady(build)).toThrow(/TEMPLATE_FACTORY_PRODUCT_OWNER_NOT_READY/);
+  });
+
+  it('enforces product-card purchase actions only when the recipe explicitly opts reference pages into that commerce contract',()=>{
+    const draft=recipe({allPages:true,reviewPassed:true});
+    draft.commerceReadiness={productCardPurchaseActions:{pageTypes:['home']}};
+    const blocked=buildStorefrontTemplateFactoryCandidate(draft);
+    expect(blocked.report.issues.map(item=>item.code)).toContain('FACTORY_PRODUCT_CARD_PURCHASE_ACTION_REQUIRED');
+    expect(blocked.report.productOwnerReady).toBe(false);
+
+    const home=draft.pageOverrides?.home;
+    if(!home)throw new Error('factory home override missing');
+    expect(setProductGridPurchaseActions(home,true)).toBeGreaterThan(0);
+    const ready=buildStorefrontTemplateFactoryCandidate(draft);
+    expect(ready.report.issues.map(item=>item.code)).not.toContain('FACTORY_PRODUCT_CARD_PURCHASE_ACTION_REQUIRED');
+    expect(ready.report.issues.map(item=>item.code)).toContain('SHOWROOM_NAVIGATION_INCOMPLETE');
+    expect(ready.report.productOwnerReady).toBe(false);
   });
 });
