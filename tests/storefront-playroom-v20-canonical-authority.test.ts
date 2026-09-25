@@ -5,7 +5,7 @@ import {getStorefrontTemplatePackage,STOREFRONT_TEMPLATE_CATALOG} from '@/lib/bu
 import {resolveStorefrontVisualStyle} from '@/lib/builder/storefront-visual-style';
 import type {StorefrontComponentNode} from '@/lib/builder/storefront-runtime';
 
-const source=readFileSync('src/lib/builder/templates/playroom-v20.ts','utf8');
+const source=readFileSync('src/lib/builder/templates/gaming/playroom/v20/index.ts','utf8');
 const catalogSource=readFileSync('src/lib/builder/storefront-template-catalog.ts','utf8');
 
 function find(nodes:readonly StorefrontComponentNode[],id:string):StorefrontComponentNode{
@@ -24,7 +24,7 @@ describe('Playroom v20 canonical authority',()=>{
     expect(PLAYROOM_V20_TEMPLATE_PACKAGE.manifest.templateKey).toBe('gaming.playroom');
     expect(PLAYROOM_V20_TEMPLATE_PACKAGE.manifest.templateVersion).toBe(20);
     expect(PLAYROOM_V20_TEMPLATE_PACKAGE.pages).toHaveLength(14);
-    expect(source).toContain('playroom-v20-canonical-package.json');
+    expect(source).toContain('gaming/playroom/v20/canonical-package.json');
     expect(source).not.toMatch(/playroom-v19|playroom-v18|playroom-reference|upgradePage|desktop-polish|fidelity-v/i);
     for(const page of PLAYROOM_V20_TEMPLATE_PACKAGE.pages){
       expect(page.metadata?.canonicalAuthority).toBe('gaming.playroom@20');
