@@ -622,7 +622,7 @@
         ".github/workflows/**",
         "deploy/**",
         "scripts/release-**",
-        "next.config.ts"
+        "**/next.config.ts"
       ],
       "evidenceObligations": [
         "Release Risk Budget",
