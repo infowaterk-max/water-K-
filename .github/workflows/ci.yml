@@ -135,6 +135,7 @@ jobs:
           retention-days: 30
 
       - name: Production release risk budget
+        if: github.event_name == 'pull_request' || github.ref_name == 'main'
         id: release-risk
         env:
           RELEASE_BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
