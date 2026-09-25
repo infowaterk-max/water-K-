@@ -3,7 +3,7 @@
   "taskId": "DEV-TEMPLATE-FACTORY-ACCEPTANCE-SCOPE-14X3",
   "task": "Make Template Factory execution scope-aware while requiring every merchant-facing template acceptance to prove all 14 canonical pages across Desktop, Tablet and Mobile.",
   "status": "ready-for-implementation",
-  "guardDigest": "493d8e0c",
+  "guardDigest": "deda6a74",
   "plannedFilePatterns": [
     ".github/workflows/template-factory-quality-gate.yml",
     "src/lib/builder/storefront-template-quality-gate.ts",
@@ -16,11 +16,13 @@
   ],
   "expectedDomains": [
     "DOMAIN-BUILDER",
-    "DOMAIN-RELEASE"
+    "DOMAIN-RELEASE",
+    "DOMAIN-STOREFRONT"
   ],
   "expectedAuthorities": [
     "builder-template-system",
-    "release-infrastructure"
+    "release-infrastructure",
+    "shared-storefront"
   ],
   "expectedKnownFailureIds": [
     "SQ-KF-013",
