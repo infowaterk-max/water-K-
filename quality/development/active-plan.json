@@ -1,24 +1,29 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-TEMPLATE-FACTORY-READINESS-CONTRACT",
-  "task": "Harden the generic Template Factory scaffold with deterministic provenance, showroom evidence, media maturity and technical/Product Owner readiness semantics without adding Loot Vault-specific candidate content.",
+  "taskId": "DEV-TEMPLATE-FACTORY-PRODUCT-OWNER-HANDOFF",
+  "task": "Generalize Template Factory acceptance proof and Product Owner exact-head handoff so candidate targeting is derived from evidence instead of hard-coded template or branch names.",
   "status": "ready-for-implementation",
   "guardDigest": "4ee320c4",
   "plannedFilePatterns": [
-    "src/lib/builder/template-factory/scaffold.ts",
-    "tests/template-factory-scaffold-v1.test.ts",
+    ".github/workflows/template-factory-quality-gate.yml",
+    "scripts/template-factory-quality-gate.mjs",
+    "tests/storefront-template-factory-workflow-coverage.test.ts",
     "quality/development/active-plan.json"
   ],
   "expectedSubsystems": [
     "builder-template-system",
-    "shared-storefront",
-    "storefront-ui"
+    "quality-knowledge-system",
+    "release-infrastructure"
   ],
   "expectedDomains": [
-    "DOMAIN-BUILDER"
+    "DOMAIN-BUILDER",
+    "DOMAIN-QUALITY",
+    "DOMAIN-RELEASE"
   ],
   "expectedAuthorities": [
-    "builder-template-system"
+    "builder-template-system",
+    "quality-knowledge-system",
+    "release-infrastructure"
   ],
   "expectedKnownFailureIds": [
     "SQ-KF-001",
@@ -76,6 +81,6 @@
     "SQ-NK-012"
   ],
   "exceptions": [],
-  "notes": "Dependency-closed generic Factory scaffold transaction extracted from superseded PR #439. Adds provenance, showroom-contract evaluation, media maturity states and technicalReady vs productOwnerReady semantics. No Loot Vault v2 Page Schema/media/candidate package, no accepted manifest, no production catalog activation, no Release Risk Budget threshold or weight changes. Playroom v20 remains consumed only through its canonical package entrypoint. Plan scope corrected from gate evidence: actual closure is DOMAIN-BUILDER / builder-template-system, with storefront-ui subsystem impact; Known Failure replay list and guard digest match exact-head Atlas/Knowledge projection.",
-  "changeBaseSha": "ca09fc2c14e2bfce6303d9de1f405d7a61c3626c"
+  "notes": "Dependency-closed generic Product Owner handoff transaction extracted from superseded PR #439. Adds CI acceptanceProofs, evidence-derived candidate target selection and exact-head Vercel Product Owner proof without hard-coded Loot Vault keys or branch aliases. No Loot Vault v2 Page Schema/media/candidate package, no accepted manifest, no production catalog activation, and no Release Risk Budget threshold or weight changes.",
+  "changeBaseSha": "08b43a7faba29cd1ba89e3306d44ed4676cb025d"
 }
