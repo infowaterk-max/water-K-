@@ -7,7 +7,8 @@
   "plannedFilePatterns": [
     "src/lib/builder/template-factory/recipes/loot-vault-v2.ts",
     "tests/template-factory-loot-vault-v2.test.ts",
-    "quality/development/active-plan.json"
+    "quality/development/active-plan.json",
+    "src/lib/builder/templates/gaming/loot-vault/v2/canonical-package.json"
   ],
   "expectedSubsystems": [
     "builder-template-system",
@@ -83,6 +84,6 @@
     "SQ-NK-012"
   ],
   "exceptions": [],
-  "notes": "Dependency-closed Factory/runtime recovery wiring after #457. The recipe imports only the public canonical gaming/loot-vault/v2 entrypoint; it does not restore the old loot-vault-v2-pages.ts authority. All 14 Page Schema overrides, canonical shell and demo fixtures derive from the canonical package. Factory-only media role metadata is restored for the 14 already-proven package-owned WebP assets; commerce readiness and the previously proven #439 internal pre-Product-Owner review state are restored. The regression requires Factory output to deep-equal the canonical v2 package, requires productOwnerReady/technicalReady, and proves factory=1 resolves v2 while production catalog v2 remains absent. No accepted Quality Manifest, production catalog activation, Runtime registry loosening, or Release Risk Budget threshold/weight change. Exact-head Plan projection confirms this wiring transaction is DOMAIN-BUILDER / builder-template-system only; quality-infrastructure-only SQ-KF-021/023/024 and SQ-NK-011/014/015 do not apply. Guard digest f8efa1a3.",
+  "notes": "Dependency-closed Factory/runtime recovery wiring after #457. The recipe imports only the public canonical gaming/loot-vault/v2 entrypoint; it does not restore the old loot-vault-v2-pages.ts authority. All 14 Page Schema overrides, canonical shell and demo fixtures derive from the canonical package. Factory-only media role metadata is restored for the 14 already-proven package-owned WebP assets; commerce readiness and the previously proven #439 internal pre-Product-Owner review state are restored. The regression requires Factory output to deep-equal the canonical v2 package, requires productOwnerReady/technicalReady, and proves factory=1 resolves v2 while production catalog v2 remains absent. No accepted Quality Manifest, production catalog activation, Runtime registry loosening, or Release Risk Budget threshold/weight change. Exact-head Plan projection confirms this wiring transaction is DOMAIN-BUILDER / builder-template-system only; quality-infrastructure-only SQ-KF-021/023/024 and SQ-NK-011/014/015 do not apply. Guard digest f8efa1a3. Incremental replay exposed a genuine E10 contract gap in the canonical v2 blog article: engineBinding declared E10 but the page had no shared story.hero/story.feature surface. The canonical package now uses story.hero plus a separate body section; the Factory recipe still derives from that single package authority. The gate is not relaxed.",
   "changeBaseSha": "44b2bc5a3bf9a8e1068b63a6f0d759139f8e571d"
 }
