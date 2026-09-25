@@ -1,7 +1,7 @@
 import {readFileSync} from 'node:fs';
 import {resolve} from 'node:path';
 import {describe,expect,it} from 'vitest';
-import {PLAYROOM_V20_TEMPLATE_PACKAGE} from '@/lib/builder/templates/playroom-v20';
+import {PLAYROOM_V20_TEMPLATE_PACKAGE} from '@/lib/builder/templates/gaming/playroom/v20';
 
 const read=(path:string)=>readFileSync(resolve(process.cwd(),path),'utf8');
 const page=(type:typeof PLAYROOM_V20_TEMPLATE_PACKAGE.pages[number]['pageType'])=>PLAYROOM_V20_TEMPLATE_PACKAGE.pages.find(candidate=>candidate.pageType===type)!;
