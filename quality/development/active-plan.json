@@ -11,6 +11,7 @@
     "quality/development/active-plan.json"
   ],
   "expectedSubsystems": [
+    "builder-template-system",
     "release-infrastructure",
     "shared-storefront",
     "storefront-ui"
@@ -76,6 +77,7 @@
     "SQ-NK-002",
     "SQ-NK-003",
     "SQ-NK-004",
+    "SQ-NK-005",
     "SQ-NK-006",
     "SQ-NK-007",
     "SQ-NK-008",
@@ -84,6 +86,6 @@
     "SQ-NK-012"
   ],
   "exceptions": [],
-  "notes": "Dependency-closed generic Product Owner handoff transaction extracted from superseded PR #439. Adds CI acceptanceProofs, evidence-derived candidate target selection and exact-head Vercel Product Owner proof without hard-coded Loot Vault keys or branch aliases. No Loot Vault v2 Page Schema/media/candidate package, no accepted manifest, no production catalog activation, and no Release Risk Budget threshold or weight changes. Plan scope aligned from exact-head gate evidence: this transaction is governed by DOMAIN-RELEASE / release-infrastructure and touches shared-storefront + storefront-ui execution surfaces; full SQ/TF Known Failure replay remains required.",
+  "notes": "Dependency-closed generic Product Owner handoff transaction extracted from superseded PR #439. Adds CI acceptanceProofs, evidence-derived candidate target selection and exact-head Vercel Product Owner proof without hard-coded Loot Vault keys or branch aliases. No Loot Vault v2 Page Schema/media/candidate package, no accepted manifest, no production catalog activation, and no Release Risk Budget threshold or weight changes. Plan scope aligned from exact-head gate evidence: this transaction is governed by DOMAIN-RELEASE / release-infrastructure and touches shared-storefront + storefront-ui execution surfaces; full SQ/TF Known Failure replay remains required. Final plan correction: builder-template-system is also in the exact-head subsystem closure and SQ-NK-005 is required by the negative-knowledge projection.",
   "changeBaseSha": "08b43a7faba29cd1ba89e3306d44ed4676cb025d"
 }
