@@ -8,7 +8,8 @@
     "src/lib/builder/templates/gaming/playroom/v20/canonical-package.json",
     "tests/**playroom**",
     "tests/**template**",
-    "quality/development/active-plan.json"
+    "quality/development/active-plan.json",
+    "src/lib/builder/storefront-template-route-integrity.ts"
   ],
   "expectedSubsystems": [
     "builder-template-system",
@@ -89,6 +90,6 @@
     "SQ-NK-012"
   ],
   "exceptions": [],
-  "notes": "Backport the completeness standard proven on Loot Vault v2 to Playroom v20. Preserve accepted Playroom visual direction and all shared cart/checkout/account/auth/search/runtime authorities. This is not a redesign. Product Owner completeness requires full mobile navigation, footer legal/information reachability, recognizable cart affordance, Contact location/company details + shared wizard, compact account capability navigation, and distinct page-specific demo information content. No release-risk threshold or gate changes.",
+  "notes": "Backport the completeness standard proven on Loot Vault v2 to Playroom v20. Preserve accepted Playroom visual direction and all shared cart/checkout/account/auth/search/runtime authorities. This is not a redesign. Product Owner completeness requires full mobile navigation, footer legal/information reachability, recognizable cart affordance, Contact location/company details + shared wizard, compact account capability navigation, and distinct page-specific demo information content. No release-risk threshold or gate changes. Shared preview route identity is part of this fix: exact legal routes must carry distinct demoContent identity instead of collapsing to one generic legal preset.",
   "changeBaseSha": "c1f3d4178407d0c484f18874707313d849d4593c"
 }
