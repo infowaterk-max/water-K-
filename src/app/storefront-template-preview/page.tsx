@@ -59,7 +59,8 @@ export default async function StorefrontTemplatePreview({searchParams}:Props){
   if(query.demoContent&&!demoFixture)notFound();
   const demoPayload=demoFixture?.payload??null;
   const embed=query.embed==='1';
-  const noticedPage=demoPayload&&!isStorefrontShowroomReadyDemoContent(demoFixture)?applyStorefrontTemplateDemoNotice(sourcePage):sourcePage;
+  const demoNoticeRequired=Boolean(demoPayload)&&(!factoryCandidate||!isStorefrontShowroomReadyDemoContent(demoFixture));
+  const noticedPage=demoNoticeRequired?applyStorefrontTemplateDemoNotice(sourcePage):sourcePage;
   const routedPage=rewriteStorefrontTemplatePreviewLinks(noticedPage,{templateKey:template.manifest.templateKey,templateVersion:template.manifest.templateVersion,viewport,factoryCandidate});
   const page=embed?routedPage:applyStorefrontTemplateOwnerShowroomNavigation(routedPage,{
     templateKey:template.manifest.templateKey,
