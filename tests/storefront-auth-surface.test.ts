@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 import {describe,expect,it} from 'vitest';
-import {PLAYROOM_V20_TEMPLATE_PACKAGE} from '@/lib/builder/templates/playroom-v20';
+import {PLAYROOM_V20_TEMPLATE_PACKAGE} from '@/lib/builder/templates/gaming/playroom/v20';
 import {resolveStorefrontVisualStyle} from '@/lib/builder/storefront-visual-style';
 import type {StorefrontComponentNode} from '@/lib/builder/storefront-runtime';
 

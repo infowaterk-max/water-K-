@@ -1,5 +1,5 @@
 import {describe,expect,it} from 'vitest';
-import {PLAYROOM_V20_TEMPLATE_PACKAGE} from '@/lib/builder/templates/playroom-v20';
+import {PLAYROOM_V20_TEMPLATE_PACKAGE} from '@/lib/builder/templates/gaming/playroom/v20';
 import {applyStorefrontTemplateDemoNotice,STOREFRONT_DEMO_CONTENT_NOTICE} from '@/lib/builder/storefront-template-route-integrity';
 
 const account=PLAYROOM_V20_TEMPLATE_PACKAGE.pages.find(page=>page.pageType==='account')!;

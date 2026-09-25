@@ -14,7 +14,7 @@ import {MODERN_LUXE_DESIGN_TOKENS} from '@/lib/builder/templates/modern-luxe';
 import {MONARCHE_DESIGN_TOKENS} from '@/lib/builder/templates/monarche';
 import {MY_PACK_DESIGN_TOKENS} from '@/lib/builder/templates/my-pack';
 import {PERFORMANCE_LAB_DESIGN_TOKENS} from '@/lib/builder/templates/performance-lab';
-import {PLAYROOM_DESIGN_TOKENS} from '@/lib/builder/templates/playroom';
+import {PLAYROOM_V20_DESIGN_TOKENS} from '@/lib/builder/templates/gaming/playroom/v20';
 import {RIG_FORGE_DESIGN_TOKENS} from '@/lib/builder/templates/rig-forge';
 import {RITUAL_HOUSE_DESIGN_TOKENS} from '@/lib/builder/templates/ritual-house';
 import {SPEC_LAB_DESIGN_TOKENS} from '@/lib/builder/templates/spec-lab';
@@ -42,7 +42,7 @@ const PREVIEW_THEME_BY_TEMPLATE:Record<string,Readonly<Record<string,string>>>=O
   'fashion.monarche':MONARCHE_DESIGN_TOKENS,
   'pet.my-pack':MY_PACK_DESIGN_TOKENS,
   'sport.performance-lab':PERFORMANCE_LAB_DESIGN_TOKENS,
-  'gaming.playroom':PLAYROOM_DESIGN_TOKENS,
+  'gaming.playroom':PLAYROOM_V20_DESIGN_TOKENS,
   'gaming.rig-forge':RIG_FORGE_DESIGN_TOKENS,
   'beauty.ritual-house':RITUAL_HOUSE_DESIGN_TOKENS,
   'tech.spec-lab':SPEC_LAB_DESIGN_TOKENS,

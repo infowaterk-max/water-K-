@@ -16,6 +16,7 @@ describe('Architecture Drift + Confidence + Guard Rationalization',()=>{
       contract:string;decision:string;hardDrift:unknown[];warnings:unknown[];
       confidence:{average:number;capabilities:Array<{capabilityId:string;score:number;level:string}>};
       guards:{blocking:number;blockingResponsibilityCount:number};
+      templateAuthority:{contract:string;decision:string;packages:Array<{identity:string;entrypoint:string}>;hardDrift:unknown[]};
     };
     expect(report.contract).toBe('shoporation.architecture-health.v1');
     expect(report.decision).toBe('PASS');
@@ -23,6 +24,13 @@ describe('Architecture Drift + Confidence + Guard Rationalization',()=>{
     expect(report.confidence.capabilities.length).toBeGreaterThanOrEqual(10);
     expect(report.confidence.average).toBeGreaterThan(0);
     expect(report.guards.blocking).toBe(report.guards.blockingResponsibilityCount);
+    expect(report.templateAuthority.contract).toBe('shoporation.template-single-source-authority.v1');
+    expect(report.templateAuthority.decision).toBe('PASS');
+    expect(report.templateAuthority.hardDrift).toEqual([]);
+    expect(report.templateAuthority.packages).toContainEqual(expect.objectContaining({
+      identity:'gaming.playroom@20',
+      entrypoint:'src/lib/builder/templates/gaming/playroom/v20/index.ts',
+    }));
   });
 
   it('keeps confidence informational and does not create another CI gate authority',()=>{

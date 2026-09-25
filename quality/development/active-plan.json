@@ -1,22 +1,25 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-TEMPLATE-FACTORY-CANDIDATE-RESOLVER",
-  "task": "Add generic Template Factory candidate resolution to Product Owner preview and Visual Fidelity QA while preserving catalog/runtime acceptance boundaries.",
+  "taskId": "DEV-TEMPLATE-SINGLE-SOURCE-AUTHORITY",
+  "task": "Consolidate Playroom v20 behind one canonical template package entrypoint and extend existing Architecture Health with deterministic Template Single Source Authority reachability/deep-import invariants.",
   "status": "ready-for-implementation",
-  "guardDigest": "4ee320c4",
+  "guardDigest": "f9221966",
   "plannedFilePatterns": [
-    "src/lib/builder/storefront-template-preview-auth.ts",
-    "src/lib/builder/storefront-template-route-integrity.ts",
-    "src/app/storefront-template-preview/page.tsx",
-    "src/app/api/visual-fidelity/templates/route.ts",
-    "src/app/visual-fidelity-qa/page.tsx",
-    "tests/storefront-template-preview-runtime.test.ts",
-    "tests/storefront-template-library-ux.test.ts"
+    "scripts/lib/shoperation-architecture-health.mjs",
+    "src/lib/builder/templates/gaming/playroom/v20/**",
+    "src/lib/builder/templates/playroom-v20.ts",
+    "src/lib/builder/templates/playroom-v20-canonical-package.json",
+    "src/lib/builder/storefront-template-catalog.ts",
+    "src/lib/builder/template-factory/category-foundations.ts",
+    "tests/**",
+    "docs/architecture/TEMPLATE_SOURCE_AUTHORITY_AUDIT_2026-09-25.md",
+    "src/lib/builder/storefront-template-preview-demo.ts",
+    "src/lib/builder/storefront-template-quality-gate.ts"
   ],
   "expectedSubsystems": [
     "builder-template-system",
-    "shared-storefront",
-    "storefront-ui"
+    "dependency-contract",
+    "shared-storefront"
   ],
   "expectedDomains": [
     "DOMAIN-BUILDER",
@@ -32,7 +35,10 @@
     "SQ-KF-003",
     "SQ-KF-004",
     "SQ-KF-005",
+    "SQ-KF-006",
     "SQ-KF-007",
+    "SQ-KF-008",
+    "SQ-KF-009",
     "SQ-KF-010",
     "SQ-KF-011",
     "SQ-KF-012",
@@ -41,9 +47,13 @@
     "SQ-KF-015",
     "SQ-KF-016",
     "SQ-KF-017",
+    "SQ-KF-018",
     "SQ-KF-019",
     "SQ-KF-020",
+    "SQ-KF-021",
     "SQ-KF-022",
+    "SQ-KF-023",
+    "SQ-KF-024",
     "TF-KF-001",
     "TF-KF-002",
     "TF-KF-003",
@@ -82,6 +92,6 @@
     "SQ-NK-012"
   ],
   "exceptions": [],
-  "notes": "Dependency-closed generic Factory candidate resolver transaction. No Loot Vault-specific Page Schema/media/package changes. Candidate resolution remains separate from accepted catalog packages; Visual Fidelity factory=1 resolves through the Factory registry, and Product Owner preview preserves candidate query state across canonical shopper routes. No customer auth/account shell mutation in this transaction.",
-  "changeBaseSha": "2c13d97534cedfa9c6217497f639059e555f9ac2"
+  "notes": "No new parallel architecture registry. Architecture Health remains the blocking authority. Playroom v20 becomes a package directory with one public index entrypoint; internal snapshot is implementation detail. Runtime/build roots must not reach Playroom v18/v19/reference/fidelity/polish/acceptance chains. Tests may retain explicit historical baselines only where documented. No Loot Vault v2 candidate changes in this transaction. Release Risk Budget thresholds and weights remain unchanged. Audit found preview theme still imported Playroom v1 tokens; this transaction therefore derives Playroom v20 preview CSS variables from the canonical v20 Page Schema global-style metadata and removes the v1 runtime/preview dependency. Existing accepted Playroom v20 Quality Manifest remains accepted; only its sourcePrefixes ownership mapping is extended to the new canonical package path so source consolidation does not fabricate a new acceptance event.",
+  "changeBaseSha": "85fd159fc99336e4504b4449287e6c506ec26ce8"
 }

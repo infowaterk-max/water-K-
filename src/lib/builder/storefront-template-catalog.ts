@@ -18,7 +18,7 @@ import {MODERN_LUXE_TEMPLATE_PACKAGE} from '@/lib/builder/templates/modern-luxe'
 import {MONARCHE_TEMPLATE_PACKAGE} from '@/lib/builder/templates/monarche';
 import {MY_PACK_TEMPLATE_PACKAGE} from '@/lib/builder/templates/my-pack';
 import {PERFORMANCE_LAB_TEMPLATE_PACKAGE} from '@/lib/builder/templates/performance-lab';
-import {PLAYROOM_V20_TEMPLATE_PACKAGE} from '@/lib/builder/templates/playroom-v20';
+import {PLAYROOM_V20_TEMPLATE_PACKAGE} from '@/lib/builder/templates/gaming/playroom/v20';
 import {RIG_FORGE_TEMPLATE_PACKAGE} from '@/lib/builder/templates/rig-forge';
 import {RITUAL_HOUSE_TEMPLATE_PACKAGE} from '@/lib/builder/templates/ritual-house';
 import {SPEC_LAB_TEMPLATE_PACKAGE} from '@/lib/builder/templates/spec-lab';

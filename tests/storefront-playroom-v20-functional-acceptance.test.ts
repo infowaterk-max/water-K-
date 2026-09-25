@@ -23,7 +23,7 @@ import {setStorefrontNodeStyleSlot} from '@/lib/builder/storefront-fidelity-buil
 import {resolveStorefrontVisualStyle} from '@/lib/builder/storefront-visual-style';
 import {normalizeStorefrontTemplateRuntimeComposition} from '@/lib/builder/storefront-template-runtime-normalization';
 import type {StorefrontComponentNode,StorefrontPageDocument} from '@/lib/builder/storefront-runtime';
-import {PLAYROOM_V20_TEMPLATE_PACKAGE} from '@/lib/builder/templates/playroom-v20';
+import {PLAYROOM_V20_TEMPLATE_PACKAGE} from '@/lib/builder/templates/gaming/playroom/v20';
 import {STOREFRONT_IMPLEMENTED_TEMPLATE_PACKAGES,STOREFRONT_TEMPLATE_LAUNCH_TARGET} from '@/lib/builder/storefront-template-catalog';
 import {PLANS} from '@/lib/plans/catalog';
 
@@ -893,7 +893,7 @@ describe('Playroom v20 functional acceptance',()=>{
     const fixtures=PLAYROOM_V20_TEMPLATE_PACKAGE.demoFixtures??[];
     expect(fixtures.some(item=>item.entityKey==='a3-downloadable-game'&&item.payload.fulfillment_type==='digital')).toBe(true);
     expect(fixtures.some(item=>item.entityKey==='a3-physical-controller'&&item.payload.fulfillment_type==='physical')).toBe(true);
-    const source=read('src/lib/builder/templates/playroom-v20.ts');
+    const source=read('src/lib/builder/templates/gaming/playroom/v20/index.ts');
     expect(source).not.toMatch(/createSignedUrl|digital_entitlements|place_order_provider|payment_secret|shipping_provider/i);
     for(const page of PLAYROOM_V20_TEMPLATE_PACKAGE.pages)expect(page.metadata?.digitalCommerceFactoryAcceptance).toEqual(['downloadable-game','physical-gaming-product','mixed-basket']);
   });

@@ -1,5 +1,5 @@
 import {STOREFRONT_PAGE_TYPES} from '@/lib/builder/storefront-foundation';
-import {PLAYROOM_V20_TEMPLATE_PACKAGE,PLAYROOM_V20_TEMPLATE_VERSION} from '@/lib/builder/templates/playroom-v20';
+import {PLAYROOM_V20_TEMPLATE_PACKAGE,PLAYROOM_V20_TEMPLATE_VERSION} from '@/lib/builder/templates/gaming/playroom/v20';
 import type {StorefrontTemplateFactoryCategoryFoundation} from '@/lib/builder/template-factory/scaffold';
 
 export const GAMING_TEMPLATE_FACTORY_FOUNDATION:StorefrontTemplateFactoryCategoryFoundation=Object.freeze({
