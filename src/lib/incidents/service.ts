@@ -169,7 +169,7 @@ export async function applyManualIncidentTriage(incidentId:string,input:ManualIn
 }
 
 export async function registerSelfHealingPlan(input:{incidentId:string;runbookKey:string;requestedMode:SelfHealingMode;routePath?:string|null;createdByKind:'platform'|'system'|'ai';createdByUserId?:string|null;evidence?:Record<string,unknown>}){
-  const policy=resolveSelfHealingPolicy({runbookKey:input.runbookKey,requestedMode:input.requestedMode,routePath:input.routePath});
+  const policy=resolveSelfHealingPolicy({runbookKey:input.runbookKey,requestedMode:input.requestedMode,actorKind:input.createdByKind,routePath:input.routePath});
   const admin=createAdminClient();
   let repairRequestId:string|null=null;
   if(policy.mode!=='observe'){
@@ -216,5 +216,22 @@ export async function createPlatformRepairProposal(incidentId:string,runbookKey:
     createdByKind:'platform',
     createdByUserId:actorId,
     evidence:{source:'platform-incident-center',requestedMode:'propose',statusBefore:data.status},
+  });
+}
+
+
+export async function registerDeterministicSystemHealingPlan(input:{incidentId:string;runbookKey:string;routePath?:string|null;evidence?:Record<string,unknown>}){
+  return registerSelfHealingPlan({
+    incidentId:input.incidentId,
+    runbookKey:input.runbookKey,
+    requestedMode:'auto',
+    routePath:input.routePath,
+    createdByKind:'system',
+    evidence:{
+      ...(input.evidence??{}),
+      source:'deterministic-system-runbook',
+      executionSemantics:'eligibility-not-completion',
+      completionEvidenceRequired:true,
+    },
   });
 }
