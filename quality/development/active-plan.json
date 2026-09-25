@@ -1,24 +1,27 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-TEMPLATE-REACCEPTANCE-MANIFEST-REQUIRED",
-  "task": "Require every modified merchant-facing legacy template to enter the canonical Template Factory quality-manifest path before it can pass re-acceptance.",
+  "taskId": "DEV-TEMPLATE-OWNER-SHOWROOM-CANONICAL-NAV",
+  "task": "Make the authenticated template-owner showroom main navigation expose exactly all 14 canonical storefront pages while leaving the template's real shopper navigation and footer unchanged.",
   "status": "ready-for-implementation",
-  "guardDigest": "fdeb5ac4",
+  "guardDigest": "0f3719e9",
   "plannedFilePatterns": [
-    "quality/knowledge/knowledge-scope-policy.v1.json",
-    "scripts/template-factory-quality-gate.mjs",
-    "tests/storefront-template-quality-gate-v2.test.ts"
+    "src/lib/builder/storefront-template-route-integrity.ts",
+    "src/app/storefront-template-preview/page.tsx",
+    "src/lib/builder/template-factory/knowledge-registry.ts",
+    "tests/template-factory-storefront-contract.test.ts"
   ],
   "expectedSubsystems": [
     "builder-template-system",
-    "quality-knowledge-system",
-    "shared-storefront"
+    "shared-storefront",
+    "storefront-ui"
   ],
   "expectedDomains": [
-    "DOMAIN-QUALITY"
+    "DOMAIN-BUILDER",
+    "DOMAIN-STOREFRONT"
   ],
   "expectedAuthorities": [
-    "quality-knowledge-system"
+    "builder-template-system",
+    "shared-storefront"
   ],
   "expectedKnownFailureIds": [
     "SQ-KF-001",
@@ -80,12 +83,9 @@
     "SQ-NK-008",
     "SQ-NK-009",
     "SQ-NK-010",
-    "SQ-NK-011",
-    "SQ-NK-012",
-    "SQ-NK-014",
-    "SQ-NK-015"
+    "SQ-NK-012"
   ],
   "exceptions": [],
-  "notes": "Closes the legacy-template reacceptance bypass. Added or modified merchant-facing template source must be owned by a Template Factory quality manifest. Candidate manifests still require the complete canonical 14 pages x 3 viewports browser matrix; accepted manifests additionally require golden evidence. Also classifies the existing Template Factory quality runner as quality knowledge infrastructure so its own changes receive full Known Failure replay. No new gate.",
-  "changeBaseSha": "df8f5431db49546f00bb47c96d5607297ef935c0"
+  "notes": "Extends existing TF-AUTH-018 / TF-KF-016 only. In authenticated human/template-factory preview, replace only the header main navigation with exactly the 14 canonical Page Schema destinations. Preserve the actual shopper-facing template navigation in source and preserve the footer unchanged. Embedded library thumbnails remain untouched. No new renderer, Page Schema, navigation authority or gate.",
+  "changeBaseSha": "93f3f57f9904c68a9c82c763078e60a5a3ddc04e"
 }
