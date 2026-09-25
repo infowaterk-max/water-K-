@@ -1,24 +1,21 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-TEMPLATE-QUALITY-CANDIDATE-REGISTRY",
-  "task": "Add a generic QA-only canonical candidate package registry so candidate quality manifests can own src/lib/builder/templates sources and run full browser proof without production catalog activation or Factory runtime wiring.",
+  "taskId": "DEV-LOOT-VAULT-V2-CANONICAL-PACKAGE-MAIN",
+  "task": "Materialize gaming.loot-vault@2 as one canonical 14-page package and register it as a QA-only quality candidate on current main, without production catalog activation or acceptance.",
   "status": "ready-for-implementation",
-  "guardDigest": "a22523c0",
+  "guardDigest": "f8efa1a3",
   "plannedFilePatterns": [
+    "src/lib/builder/templates/gaming/loot-vault/v2/**",
     "src/lib/builder/storefront-template-quality-candidates.ts",
-    "src/app/api/visual-fidelity/templates/route.ts",
-    "src/app/visual-fidelity-qa/page.tsx",
-    "scripts/template-factory-quality-gate.mjs",
-    "tests/storefront-template-quality-gate-v2.test.ts",
+    "tests/loot-vault-v2-canonical-package.test.ts",
     "quality/development/active-plan.json"
   ],
   "expectedSubsystems": [
     "builder-template-system",
+    "storefront-ui",
     "dependency-contract",
-    "quality-knowledge-system",
     "release-infrastructure",
-    "shared-storefront",
-    "storefront-ui"
+    "shared-storefront"
   ],
   "expectedDomains": [
     "DOMAIN-BUILDER",
@@ -49,10 +46,7 @@
     "SQ-KF-018",
     "SQ-KF-019",
     "SQ-KF-020",
-    "SQ-KF-021",
     "SQ-KF-022",
-    "SQ-KF-023",
-    "SQ-KF-024",
     "TF-KF-001",
     "TF-KF-002",
     "TF-KF-003",
@@ -89,12 +83,9 @@
     "SQ-NK-008",
     "SQ-NK-009",
     "SQ-NK-010",
-    "SQ-NK-011",
-    "SQ-NK-012",
-    "SQ-NK-014",
-    "SQ-NK-015"
+    "SQ-NK-012"
   ],
   "exceptions": [],
-  "notes": "Generic infrastructure only. Introduces an empty QA-only candidate package registry and teaches Visual Fidelity catalog/browser routing to distinguish qualityCandidate from accepted catalog and Factory recipe candidates. No concrete template candidate is registered, no accepted manifest is added, no production catalog/runtime activation occurs, and Release Risk Budget thresholds/weights are unchanged. Exact-head Plan evidence aligns ownership to DOMAIN-BUILDER + DOMAIN-STOREFRONT under builder-template-system + shared-storefront; dependency-contract joins subsystem closure; negative-knowledge projection and guard digest are updated without changing any gate.",
-  "changeBaseSha": "f26376185fd6bb7b743acafdda871fb865983815"
+  "notes": "B1 package-only recovery on current main after media-only PR #456. Adds the deterministic 14-page gaming.loot-vault@2 canonical snapshot extracted from the proven #439 candidate, one public package index and a focused regression. The 14 WebP assets are already proven and present on main from #456 and are not changed here. No recipe/runtime root wiring, no accepted Quality Manifest, no production template-catalog registration, no acceptance or Product Owner status change, and no Release Risk Budget threshold/weight changes. Exact-head Plan gate confirms all declared scope projections; only the guard digest changed on current main and is aligned to b3ae0662. Gate semantics rechecked against the branch file: exact-head computed guard digest is f8efa1a3; no other scope projection differs. Rebased package-only transaction onto main after #458 version-aware Template Single Source Authority production proof; package content is unchanged. Rebased onto #459 main. Adds only a QA-only candidate quality registration so the canonical package can satisfy ownership and full browser proof. This is not an accepted manifest and does not activate the production template catalog.",
+  "changeBaseSha": "d3d05c2519f08649126cf9298ef9df36e41a6ee1"
 }
