@@ -3,7 +3,7 @@
   "taskId": "DIAG-LOOT-VAULT-V2-CANONICAL-EXTRACT",
   "task": "Materialize the proven Loot Vault v2 Factory build as deterministic canonical package JSON for a fresh-main candidate recovery branch; diagnostic only, never merge.",
   "status": "ready-for-implementation",
-  "guardDigest": "7628c63b",
+  "guardDigest": "9565cf97",
   "plannedFilePatterns": [
     "src/lib/builder/template-factory/recipes/loot-vault-v2.ts",
     "src/lib/builder/template-factory/recipes/loot-vault-v2-pages.ts",
@@ -15,15 +15,14 @@
     "builder-template-system",
     "customer-account",
     "shared-storefront",
-    "storefront-ui"
+    "storefront-ui",
+    "dependency-contract"
   ],
   "expectedDomains": [
-    "DOMAIN-BUILDER",
-    "DOMAIN-STOREFRONT"
+    "DOMAIN-BUILDER"
   ],
   "expectedAuthorities": [
-    "builder-template-system",
-    "shared-storefront"
+    "builder-template-system"
   ],
   "expectedKnownFailureIds": [
     "SQ-KF-001",
@@ -81,6 +80,6 @@
     "SQ-NK-012"
   ],
   "exceptions": [],
-  "notes": "Diagnostic-only exact-head extraction. Never merge this branch or PR. It temporarily restores only the proven Loot Vault v2 recipe/pages on top of current main and prints build.package as base64 chunks from the normal test runner. No production activation, no acceptance status change, no Release Risk Budget change.",
+  "notes": "Diagnostic-only exact-head extraction. Never merge this branch or PR. It temporarily restores only the proven Loot Vault v2 recipe/pages on top of current main and prints build.package as base64 chunks from the normal test runner. No production activation, no acceptance status change, no Release Risk Budget change. Exact-head plan closure corrected from gate evidence: DOMAIN-BUILDER / builder-template-system with dependency-contract subsystem; guard digest 9565cf97.",
   "changeBaseSha": "9cea1f51ac51b85ea3fc59b5d641da62fb193227"
 }
