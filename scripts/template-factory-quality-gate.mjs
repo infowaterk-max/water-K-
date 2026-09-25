@@ -403,8 +403,9 @@ try{
         await mobileMenu.first().waitFor({state:'visible',timeout:5000}).catch(()=>undefined);
         const menuCount=await mobileMenu.count();
         const caseErrors=[];
-        if(manifest.factoryCandidate&&warningText>0)caseErrors.push('FACTORY_SHOWROOM_PLACEHOLDER_WARNING_PRESENT');
-        if(!manifest.factoryCandidate&&warningText<1)caseErrors.push('DEMO_WARNING_MISSING');
+        const candidate=manifest.factoryCandidate||manifest.qualityCandidate;
+        if(candidate&&warningText>0)caseErrors.push('CANDIDATE_SHOWROOM_PLACEHOLDER_WARNING_PRESENT');
+        if(!candidate&&warningText<1)caseErrors.push('DEMO_WARNING_MISSING');
         if(menuCount!==1)caseErrors.push(`DEMO_MOBILE_MENU_CARDINALITY:${menuCount}`);
         for(const error of caseErrors)errors.push({case:name,error});
         const pathOut=path.join(outputDir,`${name}.png`);
