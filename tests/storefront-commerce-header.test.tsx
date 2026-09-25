@@ -93,6 +93,21 @@ describe('shared commerce header',()=>{
     expect(html).toContain('VÁLOGATOTT KÍNÁLAT');
   });
 
+  it('preserves recognizable utility icon semantics after preview route rewriting changes hrefs',()=>{
+    const rewritten=structuredClone(page);
+    const header=rewritten.sections[0];
+    header.config.utilityItems=[
+      {label:'Kedvenceim',href:'/storefront-template-preview?template=gaming.playroom&version=20&page=account&viewport=mobile',symbol:'♡'},
+      {label:'Fiókom',href:'/storefront-template-preview?template=gaming.playroom&version=20&page=account&viewport=mobile',symbol:'♙'},
+      {label:'Kosár',href:'/storefront-template-preview?template=gaming.playroom&version=20&page=cart&viewport=mobile',symbol:'⌑'},
+    ];
+    const html=render('mobile',rewritten);
+    expect(html).toContain('data-storefront-utility-icon="favorites"');
+    expect(html).toContain('data-storefront-utility-icon="account"');
+    expect(html).toContain('data-storefront-utility-icon="cart"');
+    expect(html).not.toContain('data-storefront-utility-icon="custom">⌑');
+  });
+
   it('renders the shared mobile navigation behind a real hamburger disclosure',()=>{
     const html=render('mobile');
     expect(html).toContain('Mit keresel?');
