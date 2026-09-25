@@ -110,6 +110,8 @@ describe('Template Factory Quality Gate v2',()=>{
     expect(runner).toContain('COOKIE_TEMPLATE_AUTHORITY');
     expect(runner).toContain('GOLDEN_BASELINE_MISSING');
     expect(runner).toContain("manifest.qualityCandidate?'&qualityCandidate=1'");
+    expect(runner).toContain('manifest.factoryCandidate||manifest.qualityCandidate');
+    expect(runner).toContain('CANDIDATE_SHOWROOM_PLACEHOLDER_WARNING_PRESENT');
   });
 
   it('keeps canonical quality candidates QA-only and distinct from production catalog or Factory recipe candidates',()=>{
