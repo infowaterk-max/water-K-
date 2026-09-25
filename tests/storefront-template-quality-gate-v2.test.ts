@@ -22,6 +22,7 @@ describe('Template Factory Quality Gate v2',()=>{
     expect(PLAYROOM_V20_QUALITY_MANIFEST.viewports).toEqual(STOREFRONT_VIEWPORTS);
     expect(PLAYROOM_V20_QUALITY_MANIFEST.responsiveIsolation.explicitEffectiveStyles).toBe(true);
     expect(PLAYROOM_V20_QUALITY_MANIFEST.sourcePrefixes).toContain('src/lib/builder/templates/playroom-');
+    expect(PLAYROOM_V20_QUALITY_MANIFEST.sourcePrefixes).toContain('src/lib/builder/templates/gaming/playroom/v20/');
     expect(PLAYROOM_V20_QUALITY_MANIFEST.status).toBe('accepted');
     expect(PLAYROOM_V20_QUALITY_MANIFEST.golden.required).toBe(true);
     expect(PLAYROOM_V20_QUALITY_MANIFEST.golden.baselineDirectory).toBe('tests/visual-baselines/gaming.playroom/v20');
