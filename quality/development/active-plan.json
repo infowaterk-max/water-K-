@@ -3,22 +3,23 @@
   "taskId": "DEV-TEMPLATE-AUTHORITY-VERSION-AWARE-CLOSURE",
   "task": "Make Template Single Source Authority evaluate legacy reachability from each canonical package entrypoint instead of globally correlating independent template versions that share a slug.",
   "status": "ready-for-implementation",
-  "guardDigest": "b3ae0662",
+  "guardDigest": "f9221966",
   "plannedFilePatterns": [
     "scripts/lib/shoperation-architecture-health.mjs",
     "tests/architecture-health.test.ts",
-    "quality/development/active-plan.json"
+    "quality/development/active-plan.json",
+    "quality/knowledge/domain-foundations.v1.json"
   ],
   "expectedSubsystems": [
     "builder-template-system",
-    "quality-knowledge-system"
+    "dependency-contract",
+    "quality-knowledge-system",
+    "shared-storefront"
   ],
   "expectedDomains": [
-    "DOMAIN-BUILDER",
     "DOMAIN-QUALITY"
   ],
   "expectedAuthorities": [
-    "builder-template-system",
     "quality-knowledge-system"
   ],
   "expectedKnownFailureIds": [
@@ -42,7 +43,10 @@
     "SQ-KF-018",
     "SQ-KF-019",
     "SQ-KF-020",
+    "SQ-KF-021",
     "SQ-KF-022",
+    "SQ-KF-023",
+    "SQ-KF-024",
     "TF-KF-001",
     "TF-KF-002",
     "TF-KF-003",
@@ -73,6 +77,7 @@
     "SQ-NK-002",
     "SQ-NK-003",
     "SQ-NK-004",
+    "SQ-NK-005",
     "SQ-NK-006",
     "SQ-NK-007",
     "SQ-NK-008",
@@ -81,6 +86,6 @@
     "SQ-NK-012"
   ],
   "exceptions": [],
-  "notes": "Dependency-closed Architecture Health correction exposed by inert gaming.loot-vault@2 package materialization. Preserve all existing blockers for canonical deep imports and package-local legacy/acceptance/fidelity/polish dependencies, but stop treating an independently runtime-reachable different version such as gaming.loot-vault@1 as an implicit dependency of gaming.loot-vault@2. No template package/runtime/catalog changes and no Release Risk Budget threshold/weight changes. Plan aligned to exact-head projection: no Atlas domain/authority ownership is assigned to these support files; subsystem closure includes dependency-contract and shared-storefront; SQ-KF-021/023/024 are replayed, SQ-NK-005 is not applicable, guard digest f9221966. Final Plan Before Code alignment from exact-head evidence: ownership is DOMAIN-BUILDER + DOMAIN-QUALITY under builder-template-system + quality-knowledge-system; dependency-contract/shared-storefront are not part of this transaction's subsystem closure; SQ-KF-021/023/024 and SQ-NK-005 are outside the exact replay projection; guard digest b3ae0662.",
+  "notes": "Dependency-closed Architecture Health correction exposed by inert gaming.loot-vault@2 package materialization. Preserve all existing blockers for canonical deep imports and package-local legacy/acceptance/fidelity/polish dependencies, but stop treating an independently runtime-reachable different version such as gaming.loot-vault@1 as an implicit dependency of gaming.loot-vault@2. No template package/runtime/catalog changes and no Release Risk Budget threshold/weight changes. Plan aligned to exact-head projection: no Atlas domain/authority ownership is assigned to these support files; subsystem closure includes dependency-contract and shared-storefront; SQ-KF-021/023/024 are replayed, SQ-NK-005 is not applicable, guard digest f9221966. Final Plan Before Code alignment from exact-head evidence: ownership is DOMAIN-BUILDER + DOMAIN-QUALITY under builder-template-system + quality-knowledge-system; dependency-contract/shared-storefront are not part of this transaction's subsystem closure; SQ-KF-021/023/024 and SQ-NK-005 are outside the exact replay projection; guard digest b3ae0662. Classification gap closed: Architecture Health script/test are canonical DOMAIN-QUALITY sources. Builder/template impact remains represented through subsystem closure, not duplicate file authority.",
   "changeBaseSha": "6c5590b08e153f9df3896d8c1521f367d4220b46"
 }
