@@ -103,6 +103,23 @@
         "production deployment READY on the same main SHA"
       ],
       "expiresAt": null
+    },
+    {
+      "id": "EVID-INCIDENT-GOVERNED-RECOVERY",
+      "subjectType": "roadmap",
+      "subjectId": "INCIDENT-INTELLIGENCE",
+      "evidenceType": "merge-and-production-proof",
+      "sourceSha": "81308ea75819eb989a55153c15030f8072656f1e",
+      "state": "verified",
+      "assertions": [
+        "Governed recovery boundary merged to main",
+        "deterministic auto-heal restricted to explicit low-risk runbooks under system actor authority",
+        "platform and AI callers remain proposal-first",
+        "post-merge CI PASS",
+        "production deployment READY and reachable on the same main SHA",
+        "no runtime errors observed after deployment"
+      ],
+      "expiresAt": null
     }
   ]
 }

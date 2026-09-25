@@ -114,7 +114,9 @@
       "capabilities": [
         "CAP-INCIDENT"
       ],
-      "evidenceRefs": []
+      "evidenceRefs": [
+        "EVID-INCIDENT-GOVERNED-RECOVERY"
+      ]
     }
   ]
 }
