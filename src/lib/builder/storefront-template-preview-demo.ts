@@ -153,23 +153,43 @@ function fixtureNames(template:StorefrontInstallableTemplatePackage,type:'produc
     });
 }
 
+type PreviewDemoProduct={
+  id:string;
+  productId?:string;
+  variantId?:string|null;
+  slug?:string;
+  name:string;
+  href:string;
+  image:string|null;
+  imageAlt:string;
+  price:unknown;
+  unitPrice?:number;
+  compareAtPrice:unknown;
+  badge:string;
+  stockLabel:string;
+  availableQuantity?:number;
+  minimumQuantity?:number;
+  orderMultiple?:number;
+};
+
 const playroomFixtureProducts=(template:StorefrontInstallableTemplatePackage)=>(
   (template.demoFixtures??[])
     .filter(item=>item.entityType==='product'&&item.payload.installAsDemoProduct===true)
     .map(item=>item.payload)
 );
 
-function demoProducts(template:StorefrontInstallableTemplatePackage,page:StorefrontPageDocument,selectedSlug?:string){
+function demoProducts(template:StorefrontInstallableTemplatePackage,page:StorefrontPageDocument,selectedSlug?:string):PreviewDemoProduct[]{
   if(template.manifest.templateKey==='gaming.playroom'){
     const fixtures=playroomFixtureProducts(template);
-    const source=(fixtures.length?fixtures:PLAYROOM_PREVIEW_PRODUCTS).map((product,index)=>{
-      const slug=typeof product.slug==='string'&&product.slug?product.slug:`playroom-product-${index+1}`;
-      const name=typeof product.name==='string'&&product.name?product.name:`Playroom játék ${index+1}`;
-      const image=typeof product.image==='string'?product.image:null;
-      const price=typeof product.grossPriceHuf==='number'?product.grossPriceHuf:typeof product.price==='number'?product.price:12990+index*2000;
-      const stock=typeof product.stockQuantity==='number'?Math.max(0,Math.round(product.stockQuantity)):12;
-      const category=typeof product.demoCategory==='string'?product.demoCategory:'JÁTÉK';
-      const badge=product.featured===true?'KIEMELT':category.toLocaleUpperCase('hu-HU');
+    const source:PreviewDemoProduct[]=(fixtures.length?fixtures:PLAYROOM_PREVIEW_PRODUCTS).map((product,index)=>{
+      const row=product as Record<string,unknown>;
+      const slug=typeof row.slug==='string'&&row.slug?row.slug:`playroom-product-${index+1}`;
+      const name=typeof row.name==='string'&&row.name?row.name:`Playroom játék ${index+1}`;
+      const image=typeof row.image==='string'?row.image:null;
+      const price=typeof row.grossPriceHuf==='number'?row.grossPriceHuf:typeof row.price==='number'?row.price:12990+index*2000;
+      const stock=typeof row.stockQuantity==='number'?Math.max(0,Math.round(row.stockQuantity)):12;
+      const category=typeof row.demoCategory==='string'?row.demoCategory:'JÁTÉK';
+      const badge=row.featured===true?'KIEMELT':category.toLocaleUpperCase('hu-HU');
       return{
         id:`preview-product-${slug}`,
         productId:`preview-product-${slug}`,
