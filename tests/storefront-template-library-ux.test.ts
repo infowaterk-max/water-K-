@@ -80,7 +80,7 @@ describe('storefront template library UX',()=>{
 
   it('renders template live preview through the shared Storefront runtime without installing a draft',()=>{
     const preview=read('src/app/storefront-template-preview/page.tsx');
-    expect(preview).toContain('getStorefrontTemplatePackage');
+    expect(preview).toContain('resolveStorefrontTemplatePreviewPackage');
     expect(preview).toContain('<StorefrontRuntimeRenderer');
     expect(preview).toContain('createStorefrontVisualBuilderComponentRegistry');
     expect(preview).toContain('createStorefrontVisualBuilderRendererRegistry');

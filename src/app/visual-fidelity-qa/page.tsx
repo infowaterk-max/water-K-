@@ -2,6 +2,7 @@ import type {CSSProperties} from 'react';
 import {notFound} from 'next/navigation';
 import {PLANS} from '@/lib/plans/catalog';
 import {getStorefrontTemplatePackage} from '@/lib/builder/storefront-template-catalog';
+import {buildRegisteredStorefrontTemplateFactoryCandidate} from '@/lib/builder/template-factory/recipe-registry';
 import {
   createStorefrontTemplatePreviewBindingContext,
   getStorefrontTemplatePreviewTheme,
@@ -13,11 +14,11 @@ import {createStorefrontVisualBuilderRendererRegistry} from '@/components/builde
 import {createStorefrontVisualBuilderComponentRegistry} from '@/lib/builder/storefront-builder-registry';
 import {STOREFRONT_TEMPLATE_PERFORMANCE_BUDGET,STOREFRONT_PERFORMANCE_CONTRACT_VERSION} from '@/lib/builder/storefront-performance-contract';
 import {STOREFRONT_PAGE_TYPES,type StorefrontBuilderPageType,type StorefrontViewport} from '@/lib/builder/storefront-foundation';
-import {applyStorefrontTemplateDemoNotice,getStorefrontTemplateDemoContent} from '@/lib/builder/storefront-template-route-integrity';
+import {applyStorefrontTemplateDemoNotice,getStorefrontTemplateDemoContent,isStorefrontShowroomReadyDemoContent,rewriteStorefrontTemplatePreviewBindingContext} from '@/lib/builder/storefront-template-route-integrity';
 
 export const dynamic='force-dynamic';
 
-type Props={searchParams:Promise<{template?:string;version?:string;page?:string;viewport?:string;demoContent?:string}>};
+type Props={searchParams:Promise<{template?:string;version?:string;page?:string;viewport?:string;demoContent?:string;factory?:string}>};
 // The route is gated by VISUAL_FIDELITY_QA=1, so it can safely render the full
 // canonical storefront page family for exact-head screenshot acceptance.
 const ALLOWED_PAGE_TYPES=new Set<StorefrontBuilderPageType>(STOREFRONT_PAGE_TYPES);
@@ -29,15 +30,26 @@ export default async function VisualFidelityQaPage({searchParams}:Props){
   const version=query.version?Number(query.version):undefined;
   const pageType=(query.page??'home') as StorefrontBuilderPageType;
   if(!templateKey||version!==undefined&&!Number.isInteger(version)||!ALLOWED_PAGE_TYPES.has(pageType))notFound();
-  const template=getStorefrontTemplatePackage(templateKey,version);
-  if(!template)notFound();
+  const factoryCandidate=query.factory==='1';
+  let template;
+  if(factoryCandidate){
+    try{
+      const build=buildRegisteredStorefrontTemplateFactoryCandidate(templateKey);
+      if(!build.report.productOwnerReady)notFound();
+      template=build.package;
+      if(version!==undefined&&template.manifest.templateVersion!==version)notFound();
+    }catch{notFound();}
+  }else{
+    template=getStorefrontTemplatePackage(templateKey,version);
+    if(!template)notFound();
+  }
   const sourcePage=template.pages.find(candidate=>candidate.pageType===pageType);
   if(!sourcePage)notFound();
   const viewport:StorefrontViewport=query.viewport==='mobile'?'mobile':query.viewport==='tablet'?'tablet':'desktop';
   const demoFixture=query.demoContent?getStorefrontTemplateDemoContent(template,query.demoContent):null;
   if(query.demoContent&&!demoFixture)notFound();
   const demoPayload=demoFixture?.payload??null;
-  const page=demoPayload?applyStorefrontTemplateDemoNotice(sourcePage):sourcePage;
+  const page=demoPayload&&!isStorefrontShowroomReadyDemoContent(demoFixture)?applyStorefrontTemplateDemoNotice(sourcePage):sourcePage;
   const baseContext=applyAuthoredTemplatePreviewFallbacks({page,context:createStorefrontTemplatePreviewBindingContext({template,page})});
   if(demoPayload){
     const content=baseContext.content&&typeof baseContext.content==='object'&&!Array.isArray(baseContext.content)?baseContext.content as Record<string,unknown>:{};
@@ -46,12 +58,16 @@ export default async function VisualFidelityQaPage({searchParams}:Props){
     const body=typeof demoPayload.body==='string'?demoPayload.body:'';
     baseContext.content={...content,page:{title,summary,body},article:{title,excerpt:summary,summary,body,image:'',imageAlt:''}};
   }
-  const bindingContext=augmentStorefrontDigitalCommercePreviewContext({template,page,context:baseContext});
+  const bindingContext=rewriteStorefrontTemplatePreviewBindingContext(
+    augmentStorefrontDigitalCommercePreviewContext({template,page,context:baseContext}),
+    {templateKey:template.manifest.templateKey,templateVersion:template.manifest.templateVersion,viewport,factoryCandidate},
+  );
   const theme=getStorefrontTemplatePreviewTheme(template.manifest.templateKey) as CSSProperties;
   const capability={plan:'pro' as const,features:[...PLANS.pro.features]};
   return <main
     data-visual-fidelity-root="runtime"
     data-template-key={templateKey}
+    data-factory-candidate={factoryCandidate?'true':'false'}
     data-page-type={pageType}
     data-viewport={viewport}
     data-performance-contract={STOREFRONT_PERFORMANCE_CONTRACT_VERSION}
