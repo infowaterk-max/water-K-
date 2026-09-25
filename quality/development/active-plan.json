@@ -3,7 +3,7 @@
   "taskId": "DEV-PLAYROOM-V20-PRODUCT-COMPLETENESS",
   "task": "Retrofit Playroom v20 to the current Shoperation Product Owner completeness standard without redesigning its accepted visual language: complete shopper navigation, contact map/company details plus existing shared wizard, compact shared account capability navigation, recognizable cart icon, and page-specific informational/legal demo content.",
   "status": "ready-for-implementation",
-  "guardDigest": "250a7959",
+  "guardDigest": "7628c63b",
   "plannedFilePatterns": [
     "src/lib/builder/templates/gaming/playroom/v20/canonical-package.json",
     "tests/**playroom**",
@@ -16,7 +16,8 @@
     "shared-storefront",
     "customer-account",
     "support-contact",
-    "storefront-ui"
+    "storefront-ui",
+    "auth-access-authority"
   ],
   "expectedDomains": [
     "DOMAIN-BUILDER",
@@ -32,10 +33,7 @@
     "SQ-KF-003",
     "SQ-KF-004",
     "SQ-KF-005",
-    "SQ-KF-006",
     "SQ-KF-007",
-    "SQ-KF-008",
-    "SQ-KF-009",
     "SQ-KF-010",
     "SQ-KF-011",
     "SQ-KF-012",
@@ -44,13 +42,9 @@
     "SQ-KF-015",
     "SQ-KF-016",
     "SQ-KF-017",
-    "SQ-KF-018",
     "SQ-KF-019",
     "SQ-KF-020",
-    "SQ-KF-021",
     "SQ-KF-022",
-    "SQ-KF-023",
-    "SQ-KF-024",
     "TF-KF-001",
     "TF-KF-002",
     "TF-KF-003",
@@ -81,7 +75,6 @@
     "SQ-NK-002",
     "SQ-NK-003",
     "SQ-NK-004",
-    "SQ-NK-005",
     "SQ-NK-006",
     "SQ-NK-007",
     "SQ-NK-008",
@@ -90,6 +83,6 @@
     "SQ-NK-012"
   ],
   "exceptions": [],
-  "notes": "Backport the completeness standard proven on Loot Vault v2 to Playroom v20. Preserve accepted Playroom visual direction and all shared cart/checkout/account/auth/search/runtime authorities. This is not a redesign. Product Owner completeness requires full mobile navigation, footer legal/information reachability, recognizable cart affordance, Contact location/company details + shared wizard, compact account capability navigation, and distinct page-specific demo information content. No release-risk threshold or gate changes. Shared preview route identity is part of this fix: exact legal routes must carry distinct demoContent identity instead of collapsing to one generic legal preset.",
+  "notes": "Backport the completeness standard proven on Loot Vault v2 to Playroom v20. Preserve accepted Playroom visual direction and all shared cart/checkout/account/auth/search/runtime authorities. This is not a redesign. Product Owner completeness requires full mobile navigation, footer legal/information reachability, recognizable cart affordance, Contact location/company details + shared wizard, compact account capability navigation, and distinct page-specific demo information content. No release-risk threshold or gate changes. Shared preview route identity is part of this fix: exact legal routes must carry distinct demoContent identity instead of collapsing to one generic legal preset. Guard scope pinned to the exact Playroom/shared-preview impact reported by Plan Before Code: 41 Known Failures, auth-access review applicability, and the exact negative-knowledge set.",
   "changeBaseSha": "c1f3d4178407d0c484f18874707313d849d4593c"
 }
