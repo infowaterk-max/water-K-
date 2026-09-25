@@ -17,7 +17,8 @@
     "src/components/builder/storefront-primitives.tsx",
     "tests/storefront-commerce-fidelity-slots.test.tsx",
     "tests/storefront-template-preview-demo.test.ts",
-    "tests/storefront-system-surfaces.test.ts"
+    "tests/storefront-system-surfaces.test.ts",
+    "tests/storefront-social-settings.test.ts"
   ],
   "expectedSubsystems": [
     "builder-template-system",
