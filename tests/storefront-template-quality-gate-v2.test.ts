@@ -96,7 +96,8 @@ describe('Template Factory Quality Gate v2',()=>{
     expect(knowledgeScope).toContain('"scripts/template-factory-quality-gate.mjs"');
     expect(runner).toContain("mode:'full',reason:'template-source-changed'");
     expect(runner).toContain("mode:'full',reason:'shared-runtime-changed'");
-    expect(runner).toContain("mode:'canary',reason:'default-canary'");
+    expect(runner).toContain("const mode=template.factoryCandidate?'full':'canary'");
+    expect(runner).toContain("const reason=template.factoryCandidate?'factory-exact-head-full':'default-canary'");
     expect(runner).toContain("'src/components/admin/storefront-visual-builder-v3.tsx'");
     expect(runner).toContain("'src/components/cart/'");
     expect(runner).toContain("'src/components/checkout/'");

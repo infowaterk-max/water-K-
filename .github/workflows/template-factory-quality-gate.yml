@@ -295,6 +295,39 @@ jobs:
         id: browser-matrix
         run: node scripts/template-factory-quality-gate.mjs
 
+      - name: Resolve Product Owner candidate target
+        id: product-owner-target
+        if: github.event_name == 'pull_request' && steps.browser-matrix.outcome == 'success'
+        shell: bash
+        run: |
+          node <<'NODE'
+          const fs=require('fs');
+          const manifest=JSON.parse(fs.readFileSync('artifacts/template-factory-quality/manifest.json','utf8'));
+          const targets=(manifest.acceptanceProofs??[]).filter(item=>
+            item.factoryCandidate===true
+            &&item.productOwnerReadyByCompiler===true
+            &&item.browserMatrixPassed===true
+            &&item.proceduralMemoryPassed===true
+            &&item.factoryIdentityPinned===true
+            &&item.showroomContractPassed===true
+            &&item.maturity==='visually-ready'
+          );
+          if(targets.length>1){
+            console.error('FACTORY_PRODUCT_OWNER_TARGET_AMBIGUOUS:'+targets.map(item=>item.templateKey+'@'+item.templateVersion).join(','));
+            process.exit(1);
+          }
+          const out=process.env.GITHUB_OUTPUT;
+          if(!targets.length){
+            fs.appendFileSync(out,'ready=false\n');
+            process.exit(0);
+          }
+          const target=targets[0];
+          fs.appendFileSync(out,'ready=true\n');
+          fs.appendFileSync(out,'template_key='+target.templateKey+'\n');
+          fs.appendFileSync(out,'template_version='+target.templateVersion+'\n');
+          console.log('Product Owner candidate target:',target.templateKey+'@'+target.templateVersion);
+          NODE
+
       - name: Upload Template Factory quality evidence
         if: always()
         uses: actions/upload-artifact@v4
@@ -308,7 +341,7 @@ jobs:
 
 
       - name: Resolve exact-head Vercel preview for Product Owner proof
-        if: (github.event_name == 'push' && (startsWith(github.ref_name, 'feature/template-factory-product-owner-') || github.ref_name == 'feature/template-factory-vercel-automation-bypass' || github.ref_name == 'feature/template-factory-storefront-contract-hardening')) || (github.event_name == 'pull_request' && (startsWith(github.head_ref, 'feature/template-factory-product-owner-') || github.head_ref == 'feature/template-factory-vercel-automation-bypass' || github.head_ref == 'feature/template-factory-storefront-contract-hardening'))
+        if: github.event_name == 'pull_request' && steps.product-owner-target.outputs.ready == 'true'
         id: product-owner-preview
         uses: actions/github-script@v7
         with:
@@ -342,9 +375,7 @@ jobs:
                 throw new Error(`EXACT_HEAD_VERCEL_DEPLOYMENT_${vercel.state.toUpperCase()}`);
               }
               if(vercel?.state==='success'){
-                core.info('GitHub deployment status is successful; using the protected proof-branch alias with exact source-commit verification.');
-                core.setOutput('base-url','https://water-k-native-git-feature-template-fact-a56b5f-infowaterk-5067.vercel.app');
-                return;
+                core.info('GitHub deployment status is successful; waiting for the exact deployment environment URL instead of using a branch-specific alias.');
               }
               await sleep(5000);
             }
@@ -352,11 +383,11 @@ jobs:
 
       - name: Prove exact-head Product Owner login journey
         id: product-owner-handoff
-        if: (github.event_name == 'push' && (startsWith(github.ref_name, 'feature/template-factory-product-owner-') || github.ref_name == 'feature/template-factory-vercel-automation-bypass' || github.ref_name == 'feature/template-factory-storefront-contract-hardening')) || (github.event_name == 'pull_request' && (startsWith(github.head_ref, 'feature/template-factory-product-owner-') || github.head_ref == 'feature/template-factory-vercel-automation-bypass' || github.head_ref == 'feature/template-factory-storefront-contract-hardening'))
+        if: github.event_name == 'pull_request' && steps.product-owner-target.outputs.ready == 'true'
         env:
-          PRODUCT_OWNER_PREVIEW_URL: "${{ steps.product-owner-preview.outputs.base-url }}/storefront-template-preview?template=gaming.loot-vault&version=2&page=home&viewport=desktop&factory=1"
-          PRODUCT_OWNER_TEMPLATE_KEY: gaming.loot-vault
-          PRODUCT_OWNER_TEMPLATE_VERSION: '2'
+          PRODUCT_OWNER_PREVIEW_URL: "${{ steps.product-owner-preview.outputs.base-url }}/storefront-template-preview?template=${{ steps.product-owner-target.outputs.template_key }}&version=${{ steps.product-owner-target.outputs.template_version }}&page=home&viewport=desktop&factory=1"
+          PRODUCT_OWNER_TEMPLATE_KEY: "${{ steps.product-owner-target.outputs.template_key }}"
+          PRODUCT_OWNER_TEMPLATE_VERSION: "${{ steps.product-owner-target.outputs.template_version }}"
           PRODUCT_OWNER_SOURCE_COMMIT: ${{ github.event.pull_request.head.sha || github.sha }}
           PRODUCT_OWNER_TEST_EMAIL: ${{ secrets.PRODUCT_OWNER_TEST_EMAIL }}
           PRODUCT_OWNER_TEST_PASSWORD: ${{ secrets.PRODUCT_OWNER_TEST_PASSWORD }}
@@ -366,7 +397,7 @@ jobs:
         run: node scripts/template-factory-product-owner-handoff.mjs
 
       - name: Upload Product Owner journey proof
-        if: always() && (github.event_name == 'push' && (startsWith(github.ref_name, 'feature/template-factory-product-owner-') || github.ref_name == 'feature/template-factory-vercel-automation-bypass' || github.ref_name == 'feature/template-factory-storefront-contract-hardening')) || (github.event_name == 'pull_request' && (startsWith(github.head_ref, 'feature/template-factory-product-owner-') || github.head_ref == 'feature/template-factory-vercel-automation-bypass' || github.head_ref == 'feature/template-factory-storefront-contract-hardening'))
+        if: always() && github.event_name == 'pull_request' && steps.product-owner-target.outputs.ready == 'true'
         uses: actions/upload-artifact@v4
         with:
           name: template-factory-handoff-${{ github.event.pull_request.head.sha || github.sha }}
@@ -387,8 +418,8 @@ jobs:
           MATRIX_OUTCOME: ${{ steps.browser-matrix.outcome }}
           SHOPERATION_SOURCE_COMMIT: ${{ github.event.pull_request.head.sha || github.sha }}
           SHOPERATION_FAILURE_SOURCE: template-factory
-          SHOPERATION_TEMPLATE_KEY: gaming.loot-vault
-          SHOPERATION_TEMPLATE_VERSION: '2'
+          SHOPERATION_TEMPLATE_KEY: "${{ steps.product-owner-target.outputs.template_key || '' }}"
+          SHOPERATION_TEMPLATE_VERSION: "${{ steps.product-owner-target.outputs.template_version || '' }}"
           SHOPERATION_TEMPLATE_QUALITY_MANIFEST: artifacts/template-factory-quality/manifest.json
         run: |
           codes=""
