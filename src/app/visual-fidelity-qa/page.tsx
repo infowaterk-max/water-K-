@@ -35,7 +35,7 @@ export default async function VisualFidelityQaPage({searchParams}:Props){
   if(factoryCandidate){
     try{
       const build=buildRegisteredStorefrontTemplateFactoryCandidate(templateKey);
-      if(!build.report.technicalReady)notFound();
+      if(!build.report.productOwnerReady)notFound();
       template=build.package;
       if(version!==undefined&&template.manifest.templateVersion!==version)notFound();
     }catch{notFound();}
