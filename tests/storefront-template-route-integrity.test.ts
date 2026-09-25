@@ -53,6 +53,26 @@ describe('Template Route Integrity + Demo Content Foundation',()=>{
     expect(getStorefrontTemplateDemoContent(template,'impresszum')?.payload.title).toBe('Impresszum');
   });
 
+  it('preserves exact Playroom product identity when shopper links enter the Product Owner preview',()=>{
+    const template=getStorefrontTemplatePackage('gaming.playroom',20)!;
+    const catalog=template.pages.find(page=>page.pageType==='catalog')!;
+    const enriched=structuredClone(catalog);
+    enriched.sections.push({
+      id:'orbit-product-link',
+      componentKey:'content.button',
+      componentVersion:1,
+      config:{label:'Orbit Breakers',href:'/termek/orbit-breakers',variant:'secondary',size:'m',ariaLabel:'Orbit Breakers'},
+    });
+    const rewritten=rewriteStorefrontTemplatePreviewLinks(enriched,{
+      templateKey:template.manifest.templateKey,
+      templateVersion:template.manifest.templateVersion,
+      viewport:'mobile',
+    });
+    const serialized=JSON.stringify(rewritten);
+    expect(serialized).toContain('page=product');
+    expect(serialized).toContain('demoProduct=orbit-breakers');
+  });
+
   it('fails closed for unknown storefront routes',()=>{
     const broken=structuredClone(PLAYROOM_V19_CANONICAL_TEMPLATE_PACKAGE);
     broken.pages[0]!.sections.push({id:'dead-link',componentKey:'content.button',componentVersion:1,config:{label:'Dead',href:'/nem-letezo-utvonal',variant:'secondary',size:'m',ariaLabel:'Dead'}});
