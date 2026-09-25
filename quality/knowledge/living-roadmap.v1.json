@@ -87,12 +87,14 @@
     {
       "id": "DEEP-ATLAS-SCAN",
       "title": "Daily Deep Atlas Scan",
-      "status": "in-progress",
+      "status": "done",
       "phase": "foundation",
       "capabilities": [
         "CAP-ATLAS"
       ],
-      "evidenceRefs": []
+      "evidenceRefs": [
+        "EVID-DEEP-ATLAS-SCAN"
+      ]
     },
     {
       "id": "TEMPLATE-PRODUCTION-SYSTEM",
