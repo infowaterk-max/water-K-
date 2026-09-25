@@ -88,6 +88,23 @@
         "production deployment READY"
       ],
       "expiresAt": null
+    },
+    {
+      "id": "EVID-DEEP-ATLAS-SCAN",
+      "subjectType": "roadmap",
+      "subjectId": "DEEP-ATLAS-SCAN",
+      "evidenceType": "merge-and-production-proof",
+      "sourceSha": "7a8a5a862e771cd3eec60b971d5d48a32d361c93",
+      "state": "verified",
+      "assertions": [
+        "Daily Deep Atlas Scan merged to main",
+        "post-merge CI PASS and Template Factory Quality Gate PASS",
+        "production deployment READY on exact main SHA",
+        "production endpoint reachable with HTTP 200",
+        "no recent Vercel runtime errors",
+        "feature-branch push Release Risk noise removed without weakening pull-request or main proof"
+      ],
+      "expiresAt": null
     }
   ]
 }
