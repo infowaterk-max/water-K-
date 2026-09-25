@@ -15,6 +15,7 @@
     "scripts/lib/shoperation-",
     "scripts/shoperation-codebase-atlas.mjs",
     "scripts/shoperation-support-history-backfill.mjs",
+    "scripts/template-factory-quality-gate.mjs",
     "scripts/template-factory-product-owner-handoff.mjs",
     "docs/architecture/"
   ],
