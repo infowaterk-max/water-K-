@@ -47,6 +47,14 @@ const utilityItems=(value:unknown):UtilityItem[]=>Array.isArray(value)?value.fla
   return[{label,href,symbol,count}];
 }):[];
 
+type MobileMenuItem={label:string;href:string};
+const mobileMenuItems=(value:unknown):MobileMenuItem[]=>Array.isArray(value)?value.flatMap((item,index)=>{
+  if(!item||typeof item!=='object'||Array.isArray(item))return[];
+  const row=item as Record<string,unknown>;
+  const label=text(row.label,`Menüpont ${index+1}`).trim(),href=safeHref(row.href,'');
+  return label&&href?[{label,href}]:[];
+}):[];
+
 function SearchRenderer({config,node,viewport}:StorefrontComponentRenderProps){
   const action=safeHref(config.action,'/kereses'),queryParam=safeQueryParam(config.queryParam),presentation=text(config.presentation,'commerce');
   const buttonLabel=text(config.buttonLabel,'Keresés').trim();
@@ -59,7 +67,7 @@ function SearchRenderer({config,node,viewport}:StorefrontComponentRenderProps){
 }
 
 function CommerceHeaderRenderer({config,children,node,viewport}:StorefrontComponentRenderProps){
-  const sticky=bool(config.sticky,true),mobile=viewport==='mobile',tablet=viewport==='tablet',utility=utilityItems(config.utilityItems),rendered=Children.toArray(children);
+  const sticky=bool(config.sticky,true),mobile=viewport==='mobile',tablet=viewport==='tablet',utility=utilityItems(config.utilityItems),fullMobileMenu=mobileMenuItems(config.mobileMenuItems),rendered=Children.toArray(children);
   const showUtilityLabels=bool(config.showUtilityLabels,false);
   const navigationItemCount=node.children
     .filter(child=>child.componentKey==='system.navigation')
@@ -85,7 +93,7 @@ function CommerceHeaderRenderer({config,children,node,viewport}:StorefrontCompon
       {mobile
         ?<details className={styles.mobileMenu} data-storefront-mobile-menu="true">
           <summary className={styles.mobileMenuSummary} aria-label="Mobil navigáció megnyitása"><span aria-hidden="true">☰</span><span>Menü</span></summary>
-          <div className={styles.mobileMenuPanel}>{categoryTrigger}<div className={styles.mobileMenuNavigation}>{navigation}</div></div>
+          <div className={styles.mobileMenuPanel}>{categoryTrigger}<div className={styles.mobileMenuNavigation}>{fullMobileMenu.length?<nav aria-label="Teljes mobil navigáció" data-storefront-mobile-menu-complete="true" style={{display:'grid',gap:'.2rem'}}>{fullMobileMenu.map(item=><a key={`${item.href}:${item.label}`} href={item.href} style={{color:'inherit',textDecoration:'none',padding:'.68rem .2rem',minHeight:'2.75rem',display:'flex',alignItems:'center',borderBottom:'1px solid color-mix(in srgb,var(--shoporation-color-border,#d8dce7) 55%,transparent)',fontWeight:760}}>{item.label}</a>)}</nav>:navigation}</div></div>
         </details>
         :<div className={denseDesktop?styles.denseNavigation:undefined} data-navigation-density={denseDesktop?'dense':undefined} style={navFrameStyle}>{categoryTrigger}<div style={{minWidth:0,flex:'1 1 auto'}}>{navigation}</div>{navTagline&&!denseDesktop?<small style={{flex:'0 0 auto',whiteSpace:'nowrap',fontSize:'.58rem',letterSpacing:'.22em',textTransform:'uppercase',opacity:.72,...slotStyle(config.styleSlots,'navTagline',viewport)}}>{navTagline}</small>:null}</div>}
     </div>
