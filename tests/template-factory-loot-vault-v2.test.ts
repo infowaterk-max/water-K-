@@ -11,6 +11,10 @@ import {LOOT_VAULT_V2_TEMPLATE_PACKAGE} from '@/lib/builder/templates/gaming/loo
 import {resolveStorefrontTemplatePreviewPackage} from '@/lib/builder/storefront-template-preview-auth';
 import {getStorefrontTemplatePackage} from '@/lib/builder/storefront-template-catalog';
 import {STOREFRONT_PAGE_TYPES} from '@/lib/builder/storefront-foundation';
+import type {StorefrontComponentNode} from '@/lib/builder/storefront-runtime';
+import {STOREFRONT_SUPPORT_COMPONENT_DEFINITIONS} from '@/lib/builder/storefront-support';
+
+const walk=(nodes:readonly StorefrontComponentNode[]):StorefrontComponentNode[]=>nodes.flatMap(node=>[node,...walk(node.children??[])]);
 
 describe('Loot Vault v2 Factory canonical wiring',()=>{
   it('keeps Factory media metadata complete and package-owned',()=>{
@@ -47,6 +51,61 @@ describe('Loot Vault v2 Factory canonical wiring',()=>{
 
     expect(getStorefrontTemplatePackage('gaming.loot-vault',2)).toBeUndefined();
     expect(getStorefrontTemplatePackage('gaming.loot-vault',1)?.manifest.templateVersion).toBe(1);
+  });
+
+  it('requires complete shopper navigation in preview, especially on mobile',()=>{
+    const build=buildRegisteredStorefrontTemplateFactoryCandidate('gaming.loot-vault');
+    const required=['/','/webaruhaz','/blog','/oldal/rolunk','/gyik','/kapcsolat','/szallitas-es-fizetes','/oldal/visszakuldes','/kedvencek','/fiokom','/aszf','/adatvedelem','/impresszum'];
+    for(const page of build.package.pages){
+      const nodes=walk(page.sections);
+      const header=nodes.find(node=>node.componentKey==='system.commerce-header');
+      expect(header, page.pageType).toBeTruthy();
+      const menu=(header?.config.mobileMenuItems??[]) as {label?:string;href?:string}[];
+      expect(menu.map(item=>item.href), page.pageType).toEqual(required);
+      const footer=nodes.find(node=>node.componentKey==='editorial.footer');
+      const footerRoutes=((footer?.config.columns??[]) as {items?:{href?:string}[]}[]).flatMap(column=>column.items??[]).map(item=>item.href);
+      for(const href of ['/webaruhaz','/blog','/oldal/rolunk','/gyik','/kapcsolat','/szallitas-es-fizetes','/oldal/visszakuldes','/fiokom','/aszf','/adatvedelem','/impresszum'])expect(footerRoutes).toContain(href);
+    }
+  });
+
+  it('keeps Contact functionally complete with real location map plus the shared topic-first wizard',()=>{
+    const page=LOOT_VAULT_V2_TEMPLATE_PACKAGE.pages.find(item=>item.pageType==='contact');
+    expect(page).toBeTruthy();
+    const nodes=walk(page!.sections);
+    expect(nodes.some(node=>node.componentKey==='support.location-map')).toBe(true);
+    expect(nodes.some(node=>node.componentKey==='support.contact-form')).toBe(true);
+    const map=nodes.find(node=>node.componentKey==='support.location-map');
+    expect(String(map?.config.embedUrl)).toMatch(/^https:\/\/www\.google\.com\/maps/);
+    expect(page?.metadata?.contactCompleteness).toEqual({
+      companyDetails:true,
+      embeddedMap:'shared-support-location-map-v1',
+      formWizard:'storefront-form-wizard-v1',
+    });
+    expect(STOREFRONT_SUPPORT_COMPONENT_DEFINITIONS.map(item=>item.manifest.componentKey)).toContain('support.location-map');
+  });
+
+  it('keeps Account capability-complete but compact instead of rendering a long tile directory',()=>{
+    const page=LOOT_VAULT_V2_TEMPLATE_PACKAGE.pages.find(item=>item.pageType==='account');
+    const nodes=walk(page!.sections);
+    const nav=nodes.find(node=>node.id==='loot-vault-loot-v2-account-capability-navigation');
+    expect((nav?.config.items as unknown[])).toHaveLength(9);
+    expect(nodes.some(node=>node.id==='loot-vault-loot-v2-account-capability-cards')).toBe(false);
+    expect(JSON.stringify(page)).not.toContain('loot-vault-loot-v2-account-card-');
+    expect(page?.metadata?.accountCompleteness).toEqual({
+      navigationAuthority:'shared-account-capabilities',
+      presentation:'compact-template-owned',
+      longTileDirectory:false,
+    });
+  });
+
+  it('keeps legal and information fixture content page-specific instead of title-swapped duplicates',()=>{
+    const fixtures=LOOT_VAULT_V2_TEMPLATE_PACKAGE.demoFixtures??[];
+    const legalSlugs=['aszf','adatvedelem','impresszum','szallitas','fizetes','visszakuldes'];
+    const content=fixtures.filter(item=>item.entityType==='content'&&legalSlugs.includes(String((item.payload as Record<string,unknown>).slug)));
+    expect(content).toHaveLength(legalSlugs.length);
+    const bodies=content.map(item=>String((item.payload as Record<string,unknown>).body??'').trim());
+    expect(bodies.every(body=>body.length>80)).toBe(true);
+    expect(new Set(bodies).size).toBe(bodies.length);
   });
 
   it('keeps all 14 pages free from Playroom presentation leakage',()=>{

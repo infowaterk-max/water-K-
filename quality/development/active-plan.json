@@ -1,27 +1,45 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-LOOT-VAULT-V2-FACTORY-CANONICAL-WIRING",
-  "task": "Wire the registered gaming.loot-vault@2 Factory recipe to the single canonical v2 package authority so Factory preview compiles that exact 14-page candidate with complete ready media, without accepted or production catalog activation.",
+  "taskId": "DEV-TEMPLATE-COMPLETENESS-HARDENING-LOOT-VAULT-V2",
+  "task": "Harden Product Owner template completeness so Loot Vault v2 and future Factory candidates cannot be considered ready with incomplete navigation, contact/location surfaces, account capability presentation, duplicated informational content, or noncanonical cart affordances.",
   "status": "ready-for-implementation",
-  "guardDigest": "f8efa1a3",
+  "guardDigest": "250a7959",
   "plannedFilePatterns": [
-    "src/lib/builder/template-factory/recipes/loot-vault-v2.ts",
-    "tests/template-factory-loot-vault-v2.test.ts",
+    "src/lib/builder/templates/gaming/loot-vault/v2/canonical-package.json",
+    "src/lib/builder/template-factory/**",
+    "src/components/builder/**",
+    "src/lib/builder/storefront-*.ts",
+    "tests/**template-factory**",
+    "tests/**storefront**",
     "quality/development/active-plan.json",
-    "src/lib/builder/templates/gaming/loot-vault/v2/canonical-package.json"
+    "docs/support/**",
+    "next.config.ts",
+    "quality/knowledge/domain-foundations.v1.json",
+    "deploy/release-risk-policy.json"
   ],
   "expectedSubsystems": [
     "builder-template-system",
+    "shared-storefront",
+    "customer-account",
+    "support-contact",
     "storefront-ui",
     "dependency-contract",
     "release-infrastructure",
-    "shared-storefront"
+    "quality-knowledge-system",
+    "auth-access-authority",
+    "quality-infrastructure"
   ],
   "expectedDomains": [
-    "DOMAIN-BUILDER"
+    "DOMAIN-BUILDER",
+    "DOMAIN-STOREFRONT",
+    "DOMAIN-RELEASE",
+    "DOMAIN-QUALITY"
   ],
   "expectedAuthorities": [
-    "builder-template-system"
+    "builder-template-system",
+    "shared-storefront",
+    "release-infrastructure",
+    "quality-knowledge-system"
   ],
   "expectedKnownFailureIds": [
     "SQ-KF-001",
@@ -44,7 +62,10 @@
     "SQ-KF-018",
     "SQ-KF-019",
     "SQ-KF-020",
+    "SQ-KF-021",
     "SQ-KF-022",
+    "SQ-KF-023",
+    "SQ-KF-024",
     "TF-KF-001",
     "TF-KF-002",
     "TF-KF-003",
@@ -83,7 +104,12 @@
     "SQ-NK-010",
     "SQ-NK-012"
   ],
-  "exceptions": [],
-  "notes": "Dependency-closed Factory/runtime recovery wiring after #457. The recipe imports only the public canonical gaming/loot-vault/v2 entrypoint; it does not restore the old loot-vault-v2-pages.ts authority. All 14 Page Schema overrides, canonical shell and demo fixtures derive from the canonical package. Factory-only media role metadata is restored for the 14 already-proven package-owned WebP assets; commerce readiness and the previously proven #439 internal pre-Product-Owner review state are restored. The regression requires Factory output to deep-equal the canonical v2 package, requires productOwnerReady/technicalReady, and proves factory=1 resolves v2 while production catalog v2 remains absent. No accepted Quality Manifest, production catalog activation, Runtime registry loosening, or Release Risk Budget threshold/weight change. Exact-head Plan projection confirms this wiring transaction is DOMAIN-BUILDER / builder-template-system only; quality-infrastructure-only SQ-KF-021/023/024 and SQ-NK-011/014/015 do not apply. Guard digest f8efa1a3. Incremental replay exposed a genuine E10 contract gap in the canonical v2 blog article: engineBinding declared E10 but the page had no shared story.hero/story.feature surface. The canonical package now uses story.hero plus a separate body section; the Factory recipe still derives from that single package authority. The gate is not relaxed.",
-  "changeBaseSha": "44b2bc5a3bf9a8e1068b63a6f0d759139f8e571d"
+  "exceptions": [
+    {
+      "ruleId": "DEV-REVIEW-004",
+      "reason": "The added /fiokom routes are not new business-route authorities. They are fail-closed assertions in Template Factory readiness that verify the candidate exposes the already-canonical shared customer-account routes. No route handler, redirect authority, account engine, or storefront business behavior is introduced in the Factory."
+    }
+  ],
+  "notes": "Product Owner feedback hardening. A template is not complete merely because 14 routes render. Required: shopper-visible navigation coverage in header/mobile/footer, page-specific information content, a real shared support wizard plus location/contact block, compact shared account capability navigation, and canonical recognizable commerce affordances. Preserve one-template/one-canonical-package authority, shared cart/checkout/account/auth/search/runtime/Page Schema authority, QA-only Loot Vault v2 status, and all existing release-risk thresholds. Fix causes, never gates. CSP for the shared Google Maps embed is a release/runtime boundary, so next.config.ts is explicitly classified under DOMAIN-RELEASE instead of remaining Atlas-unresolved. Release policy only gains next.config.ts path classification under the existing medium-risk release-infrastructure subsystem; no threshold, risk class, weight, or bypass changes. CSP frame-src is intentionally narrowed to Google Maps embed hosts for the required Contact map surface; next.config.ts is therefore explicitly within DOMAIN-RELEASE/release-infrastructure scope. Knowledge-infrastructure scope intentionally requires the full 48 Known Failure replay on this transaction; digest pinned to the exact gate projection. Atlas scope correction: root next.config.ts is a canonical Release-domain file; canonical path matching is normalized to **/next.config.ts so root-level config is classified fail-closed rather than unresolved.",
+  "changeBaseSha": "4609721295d6c764f1c1f15c072a4c38db141bd6"
 }

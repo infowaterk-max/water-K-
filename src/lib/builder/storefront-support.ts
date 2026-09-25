@@ -15,4 +15,16 @@ export const STOREFRONT_SUPPORT_COMPONENT_DEFINITIONS:readonly StorefrontRuntime
     capability:{minPlan:'alap',features:['support']},
   }),
   bindingSlots:[],
+},{
+  manifest:defineStorefrontBuilderComponent({
+    foundationVersion:STOREFRONT_BUILDER_FOUNDATION_VERSION,
+    componentKey:'support.location-map',
+    componentVersion:1,
+    schemaSlot:'sections',
+    pageTypes:['contact','content'],
+    configurable:['title','address','embedUrl','linkUrl','linkLabel','height','tone','style'],
+    responsiveMode:'grid',
+    capability:{minPlan:'alap',features:[]},
+  }),
+  bindingSlots:['title','address','embedUrl','linkUrl'],
 }] as const;

@@ -621,7 +621,8 @@
       "canonicalPaths": [
         ".github/workflows/**",
         "deploy/**",
-        "scripts/release-**"
+        "scripts/release-**",
+        "**/next.config.ts"
       ],
       "evidenceObligations": [
         "Release Risk Budget",

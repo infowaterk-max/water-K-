@@ -131,7 +131,9 @@
         ".github/workflows/**",
         "scripts/release-*.mjs",
         "scripts/smoke.mjs",
-        "deploy/release-risk-policy.json"
+        "deploy/release-risk-policy.json",
+        "next.config.ts",
+        "quality/knowledge/domain-foundations.v1.json"
       ]
     },
     {

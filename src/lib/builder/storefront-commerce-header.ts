@@ -19,7 +19,7 @@ export const STOREFRONT_COMMERCE_HEADER_COMPONENT_DEFINITIONS:readonly Storefron
       pageTypes:ALL_PAGE_TYPES,
       configurable:[
         'brandLabel','brandHref','logoUrl','logoAlt','tagline','utilityItems','tone','sticky','presentation',
-        'showUtilityLabels','categoryTriggerLabel','categoryTriggerHref','categoryTriggerSymbol','navTagline',
+        'showUtilityLabels','categoryTriggerLabel','categoryTriggerHref','categoryTriggerSymbol','navTagline','mobileMenuItems',
         'style','styleSlots','innerStyle','brandStyle','taglineStyle','utilityStyle','logoStyle',
       ],
       responsiveMode:'primary-navigation',
