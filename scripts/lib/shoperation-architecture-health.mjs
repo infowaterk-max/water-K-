@@ -35,6 +35,7 @@ export function buildArchitectureHealth(){
     const domain=domainById.get(item.domain);
     if(!domain)hardDrift.push({code:'CAPABILITY_DOMAIN_UNKNOWN',capabilityId:item.id,domain:item.domain});
     else if(domain.owner!==item.authority)hardDrift.push({code:'CAPABILITY_AUTHORITY_DRIFT',capabilityId:item.id,declared:item.authority,canonical:domain.owner});
+    for(const ref of item.roadmapRefs??[])if(!roadmapById.has(ref))hardDrift.push({code:'CAPABILITY_ROADMAP_REF_UNKNOWN',capabilityId:item.id,roadmapRef:ref});
   }
 
   const blockingResponsibilities=new Map();
@@ -57,7 +58,10 @@ export function buildArchitectureHealth(){
     if(item.expiresAt&&new Date(item.expiresAt).getTime()<Date.now())warnings.push({code:'EVIDENCE_EXPIRED',evidenceId:item.id,expiresAt:item.expiresAt});
   }
 
+  const roadmapIds=new Set();
   for(const item of roadmap.items){
+    if(roadmapIds.has(item.id))hardDrift.push({code:'ROADMAP_ID_DUPLICATE',roadmapId:item.id});
+    roadmapIds.add(item.id);
     const refs=item.evidenceRefs??[];
     const missing=refs.filter(ref=>!evidenceById.has(ref));
     for(const ref of missing)hardDrift.push({code:'ROADMAP_EVIDENCE_MISSING',roadmapId:item.id,evidenceRef:ref});
@@ -66,6 +70,7 @@ export function buildArchitectureHealth(){
       if(!verified.length)hardDrift.push({code:'ROADMAP_DONE_WITHOUT_VERIFIED_EVIDENCE',roadmapId:item.id});
     }
     for(const capability of item.capabilities??[])if(!capabilityIds.has(capability))hardDrift.push({code:'ROADMAP_CAPABILITY_UNKNOWN',roadmapId:item.id,capabilityId:capability});
+    for(const dependency of item.dependsOn??[])if(!roadmapById.has(dependency))hardDrift.push({code:'ROADMAP_DEPENDENCY_UNKNOWN',roadmapId:item.id,dependency});
   }
 
   const atlas=buildCodebaseAtlas();

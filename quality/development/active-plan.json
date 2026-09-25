@@ -1,17 +1,15 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-INCIDENT-GOVERNED-RECOVERY-EVIDENCE",
-  "task": "Record exact-main production evidence for the Incident Intelligence governed recovery boundary without declaring the broader Incident Intelligence roadmap complete.",
+  "taskId": "DEV-LIVING-ROADMAP-RECONCILIATION",
+  "task": "Reconcile accepted roadmap decisions into the canonical Living Roadmap and enforce registry reference integrity.",
   "status": "ready-for-implementation",
-  "guardDigest": "17d71729",
+  "guardDigest": "17c8ef7c",
   "plannedFilePatterns": [
     "quality/knowledge/living-roadmap.v1.json",
-    "quality/knowledge/evidence-ledger.v1.json"
+    "scripts/lib/shoperation-architecture-health.mjs",
+    "tests/architecture-health.test.ts"
   ],
-  "expectedSubsystems": [
-    "incident-intelligence",
-    "release-infrastructure"
-  ],
+  "expectedSubsystems": [],
   "expectedDomains": [
     "DOMAIN-QUALITY"
   ],
@@ -69,14 +67,9 @@
     "TF-KF-024"
   ],
   "acknowledgedNegativeKnowledgeIds": [
-    "SQ-NK-002",
-    "SQ-NK-003",
-    "SQ-NK-005",
-    "SQ-NK-010",
-    "SQ-NK-012",
-    "SQ-NK-013"
+    "SQ-NK-012"
   ],
   "exceptions": [],
-  "notes": "Evidence-only closure. Task intent remains bound to Incident Intelligence and release provenance, while the changed authority files remain quality knowledge. INCIDENT-INTELLIGENCE stays at foundation maturity; only the governed recovery boundary is recorded as verified. No runtime, schema, workflow, guard or release-risk behavior changes.",
-  "changeBaseSha": "81308ea75819eb989a55153c15030f8072656f1e"
+  "notes": "Content reconciliation only. Expand the existing Living Roadmap authority with accepted current, Market Ready, post-launch and parked work; preserve evidence-backed completion semantics; extend the existing Architecture Health authority to reject dangling roadmap references. No runtime/schema behavior, no new subsystem, no new gate and no Release Risk Budget threshold change.",
+  "changeBaseSha": "69a3aac96359c2cfda168ecc67306c0698ad9adc"
 }
