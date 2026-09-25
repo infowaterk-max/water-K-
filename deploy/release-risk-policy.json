@@ -94,7 +94,8 @@
       "patterns": [
         "src/lib/builder/**",
         "src/app/admin/builder/**",
-        "src/components/builder/**"
+        "src/components/builder/**",
+        "public/storefront-demo/**"
       ]
     },
     {
