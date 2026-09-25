@@ -3,7 +3,7 @@
   "taskId": "DEV-TEMPLATE-REACCEPTANCE-MANIFEST-REQUIRED",
   "task": "Require every modified merchant-facing legacy template to enter the canonical Template Factory quality-manifest path before it can pass re-acceptance.",
   "status": "ready-for-implementation",
-  "guardDigest": "b00cf3c4",
+  "guardDigest": "fdeb5ac4",
   "plannedFilePatterns": [
     "quality/knowledge/knowledge-scope-policy.v1.json",
     "scripts/template-factory-quality-gate.mjs",
@@ -11,6 +11,7 @@
   ],
   "expectedSubsystems": [
     "builder-template-system",
+    "quality-knowledge-system",
     "shared-storefront"
   ],
   "expectedDomains": [
@@ -79,7 +80,10 @@
     "SQ-NK-008",
     "SQ-NK-009",
     "SQ-NK-010",
-    "SQ-NK-012"
+    "SQ-NK-011",
+    "SQ-NK-012",
+    "SQ-NK-014",
+    "SQ-NK-015"
   ],
   "exceptions": [],
   "notes": "Closes the legacy-template reacceptance bypass. Added or modified merchant-facing template source must be owned by a Template Factory quality manifest. Candidate manifests still require the complete canonical 14 pages x 3 viewports browser matrix; accepted manifests additionally require golden evidence. Also classifies the existing Template Factory quality runner as quality knowledge infrastructure so its own changes receive full Known Failure replay. No new gate.",
