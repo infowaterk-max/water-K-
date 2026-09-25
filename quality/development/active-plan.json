@@ -8,7 +8,8 @@
     "src/lib/builder/storefront-template-route-integrity.ts",
     "src/app/storefront-template-preview/page.tsx",
     "src/lib/builder/template-factory/knowledge-registry.ts",
-    "tests/template-factory-storefront-contract.test.ts"
+    "tests/template-factory-storefront-contract.test.ts",
+    "quality/knowledge/domain-foundations.v1.json"
   ],
   "expectedSubsystems": [
     "builder-template-system",
@@ -86,6 +87,6 @@
     "SQ-NK-012"
   ],
   "exceptions": [],
-  "notes": "Extends existing TF-AUTH-018 / TF-KF-016 only. In authenticated human/template-factory preview, replace only the header main navigation with exactly the 14 canonical Page Schema destinations. Preserve the actual shopper-facing template navigation in source and preserve the footer unchanged. Embedded library thumbnails remain untouched. No new renderer, Page Schema, navigation authority or gate.",
+  "notes": "Extends existing TF-AUTH-018 / TF-KF-016 only. In authenticated human/template-factory preview, replace only the header main navigation with exactly the 14 canonical Page Schema destinations. Preserve the actual shopper-facing template navigation in source and preserve the footer unchanged. Embedded library thumbnails remain untouched. No new renderer, Page Schema, navigation authority or gate. The change also closes a pre-existing Atlas gap by classifying src/app/storefront-template-preview/** under DOMAIN-STOREFRONT; the guard remains strict.",
   "changeBaseSha": "93f3f57f9904c68a9c82c763078e60a5a3ddc04e"
 }
