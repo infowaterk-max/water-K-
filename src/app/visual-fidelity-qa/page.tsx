@@ -56,7 +56,8 @@ export default async function VisualFidelityQaPage({searchParams}:Props){
   const demoFixture=query.demoContent?getStorefrontTemplateDemoContent(template,query.demoContent):null;
   if(query.demoContent&&!demoFixture)notFound();
   const demoPayload=demoFixture?.payload??null;
-  const page=demoPayload&&!isStorefrontShowroomReadyDemoContent(demoFixture)?applyStorefrontTemplateDemoNotice(sourcePage):sourcePage;
+  const demoNoticeRequired=Boolean(demoPayload)&&(!factoryCandidate||!isStorefrontShowroomReadyDemoContent(demoFixture));
+  const page=demoNoticeRequired?applyStorefrontTemplateDemoNotice(sourcePage):sourcePage;
   const baseContext=applyAuthoredTemplatePreviewFallbacks({page,context:createStorefrontTemplatePreviewBindingContext({template,page})});
   if(demoPayload){
     const content=baseContext.content&&typeof baseContext.content==='object'&&!Array.isArray(baseContext.content)?baseContext.content as Record<string,unknown>:{};
