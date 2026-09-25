@@ -1,6 +1,7 @@
 import {NextResponse} from 'next/server';
 import {STOREFRONT_IMPLEMENTED_TEMPLATE_PACKAGES} from '@/lib/builder/storefront-template-catalog';
 import {STOREFRONT_TEMPLATE_QUALITY_MANIFESTS,evaluateStorefrontTemplateQualityGate} from '@/lib/builder/storefront-template-quality-gate';
+import {STOREFRONT_TEMPLATE_QUALITY_CANDIDATES} from '@/lib/builder/storefront-template-quality-candidates';
 import {STOREFRONT_PAGE_TYPES,STOREFRONT_VIEWPORTS} from '@/lib/builder/storefront-foundation';
 import {STOREFRONT_TEMPLATE_FACTORY_RECIPES,buildRegisteredStorefrontTemplateFactoryCandidate} from '@/lib/builder/template-factory/recipe-registry';
 import {evaluateTemplateFactoryPreflight,replayTemplateFactoryKnownFailures} from '@/lib/builder/template-factory/procedural-memory';
@@ -17,6 +18,23 @@ export async function GET(){
       templateKey:template.manifest.templateKey,
       templateVersion:template.manifest.templateVersion,
       status:manifest.status,
+      sourcePrefixes:[...manifest.sourcePrefixes],
+      pageTypes:[...manifest.pageTypes],
+      viewports:[...manifest.viewports],
+      shell:manifest.shell,
+      content:manifest.content,
+      browser:manifest.browser,
+      golden:manifest.golden,
+      structural,
+    };
+  });
+  const qualityCandidates=STOREFRONT_TEMPLATE_QUALITY_CANDIDATES.map(({template,manifest})=>{
+    const structural=evaluateStorefrontTemplateQualityGate({template,manifest});
+    return{
+      templateKey:template.manifest.templateKey,
+      templateVersion:template.manifest.templateVersion,
+      status:manifest.status,
+      qualityCandidate:true,
       sourcePrefixes:[...manifest.sourcePrefixes],
       pageTypes:[...manifest.pageTypes],
       viewports:[...manifest.viewports],
@@ -65,6 +83,6 @@ export async function GET(){
   });
   return NextResponse.json({
     contract:'shoporation.template-factory-quality-catalog.v1',
-    templates:[...templates,...factoryCandidates],
+    templates:[...templates,...qualityCandidates,...factoryCandidates],
   });
 }
