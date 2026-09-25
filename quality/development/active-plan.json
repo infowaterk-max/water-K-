@@ -1,88 +1,63 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-DEEP-ATLAS-EVIDENCE-CLOSURE",
-  "task": "Fix the Shoperation quality knowledge intent-matching false positive in production terminology, then close the Daily Deep Atlas evidence state on exact merged-main proof.",
+  "taskId": "DEV-INCIDENT-GOVERNED-RECOVERY-BOUNDARY",
+  "task": "Harden Incident Intelligence governed recovery so deterministic auto-heal eligibility is restricted to explicit low-risk allowlisted runbooks and system actor authority, while AI and platform callers remain proposal-first and release classification becomes explicit.",
   "status": "ready-for-implementation",
-  "guardDigest": "d0031b70",
+  "guardDigest": "26eb7fe2",
   "plannedFilePatterns": [
-    "quality/knowledge/living-roadmap.v1.json",
-    "quality/knowledge/evidence-ledger.v1.json",
-    "tests/capability-roadmap-evidence.test.ts",
-    "quality/knowledge/development-guard-policy.v1.json",
-    "tests/shoperation-development-guard.test.ts",
-    "tests/deep-atlas-scan.test.ts"
+    "deploy/release-risk-policy.json",
+    "src/lib/incidents/self-healing.ts",
+    "src/lib/incidents/service.ts",
+    "tests/incident-intelligence-triage.test.ts",
+    "tests/incident-intelligence-platform-center.test.ts",
+    "tests/incident-intelligence-governed-recovery.test.ts",
+    "docs/architecture/INCIDENT_GOVERNED_RECOVERY.md"
   ],
   "expectedSubsystems": [
-    "quality-knowledge-system",
+    "incident-intelligence",
     "release-infrastructure"
   ],
   "expectedDomains": [
-    "DOMAIN-QUALITY"
+    "DOMAIN-INCIDENT",
+    "DOMAIN-RELEASE"
   ],
   "expectedAuthorities": [
-    "quality-knowledge-system"
+    "incident-intelligence",
+    "release-infrastructure"
   ],
   "expectedKnownFailureIds": [
     "SQ-KF-001",
-    "SQ-KF-002",
     "SQ-KF-003",
     "SQ-KF-004",
-    "SQ-KF-005",
     "SQ-KF-006",
-    "SQ-KF-007",
     "SQ-KF-008",
     "SQ-KF-009",
-    "SQ-KF-010",
     "SQ-KF-011",
-    "SQ-KF-012",
     "SQ-KF-013",
     "SQ-KF-014",
-    "SQ-KF-015",
-    "SQ-KF-016",
     "SQ-KF-017",
     "SQ-KF-018",
-    "SQ-KF-019",
     "SQ-KF-020",
-    "SQ-KF-021",
     "SQ-KF-022",
-    "SQ-KF-023",
-    "SQ-KF-024",
     "TF-KF-001",
-    "TF-KF-002",
-    "TF-KF-003",
-    "TF-KF-004",
     "TF-KF-005",
-    "TF-KF-006",
     "TF-KF-007",
-    "TF-KF-008",
     "TF-KF-009",
     "TF-KF-010",
     "TF-KF-011",
-    "TF-KF-012",
     "TF-KF-013",
     "TF-KF-014",
-    "TF-KF-015",
-    "TF-KF-016",
-    "TF-KF-017",
-    "TF-KF-018",
-    "TF-KF-019",
-    "TF-KF-020",
-    "TF-KF-021",
-    "TF-KF-022",
-    "TF-KF-023",
-    "TF-KF-024"
+    "TF-KF-015"
   ],
   "acknowledgedNegativeKnowledgeIds": [
     "SQ-NK-002",
     "SQ-NK-003",
     "SQ-NK-005",
     "SQ-NK-010",
-    "SQ-NK-011",
     "SQ-NK-012",
-    "SQ-NK-014",
-    "SQ-NK-015"
+    "SQ-NK-013"
   ],
   "exceptions": [],
-  "notes": "Evidence closure plus root-cause repair of a lexical Development Guard false positive: production terminology must not activate storefront/product scope. No gate is weakened; exact token matching is tightened and regression-locked.",
-  "changeBaseSha": "7a8a5a862e771cd3eec60b971d5d48a32d361c93"
+  "notes": "Final accepted pre-template System Soul hardening. This does not create an AI Control Layer or direct code mutation. Auto-heal means eligibility only for an explicit deterministic low-risk runbook under system actor authority; platform and AI remain proposal-first. Release Risk Budget thresholds remain unchanged.",
+  "changeBaseSha": "d1dd324265c13e5bb42e0d405485dbc64c6f6fb9"
 }
