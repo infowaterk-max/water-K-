@@ -1,30 +1,24 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-TEMPLATE-OWNER-SHOWROOM-CANONICAL-NAV",
-  "task": "Make the authenticated template-owner showroom main navigation expose exactly all 14 canonical storefront pages while leaving the template's real shopper navigation and footer unchanged.",
+  "taskId": "DEV-TEMPLATE-FACTORY-SCOPE-CLASSIFICATION",
+  "task": "Classify Template Factory candidate surfaces in the canonical architecture and release risk policy without changing runtime template behavior.",
   "status": "ready-for-implementation",
-  "guardDigest": "0f3719e9",
+  "guardDigest": "c5b0a4bb",
   "plannedFilePatterns": [
-    "src/lib/builder/storefront-template-route-integrity.ts",
-    "src/app/storefront-template-preview/page.tsx",
-    "src/lib/builder/template-factory/knowledge-registry.ts",
-    "tests/template-factory-storefront-contract.test.ts",
-    "quality/knowledge/domain-foundations.v1.json"
+    "quality/knowledge/domain-foundations.v1.json",
+    "deploy/release-risk-policy.json",
+    "tests/shoperation-development-guard.test.ts"
   ],
   "expectedSubsystems": [
     "builder-template-system",
-    "shared-storefront",
-    "storefront-ui"
+    "release-infrastructure",
+    "shared-storefront"
   ],
   "expectedDomains": [
-    "DOMAIN-BUILDER",
-    "DOMAIN-QUALITY",
-    "DOMAIN-STOREFRONT"
+    "DOMAIN-RELEASE"
   ],
   "expectedAuthorities": [
-    "builder-template-system",
-    "quality-knowledge-system",
-    "shared-storefront"
+    "release-infrastructure"
   ],
   "expectedKnownFailureIds": [
     "SQ-KF-001",
@@ -81,6 +75,7 @@
     "SQ-NK-002",
     "SQ-NK-003",
     "SQ-NK-004",
+    "SQ-NK-005",
     "SQ-NK-006",
     "SQ-NK-007",
     "SQ-NK-008",
@@ -89,6 +84,6 @@
     "SQ-NK-012"
   ],
   "exceptions": [],
-  "notes": "Extends existing TF-AUTH-018 / TF-KF-016 only. In authenticated human/template-factory preview, replace only the header main navigation with exactly the 14 canonical Page Schema destinations. Preserve the actual shopper-facing template navigation in source and preserve the footer unchanged. Embedded library thumbnails remain untouched. No new renderer, Page Schema, navigation authority or gate. The change also closes a pre-existing Atlas gap by classifying src/app/storefront-template-preview/** under DOMAIN-STOREFRONT; the guard remains strict.",
-  "changeBaseSha": "93f3f57f9904c68a9c82c763078e60a5a3ddc04e"
+  "notes": "Foundation-only release transaction. Adds canonical Atlas/domain classification for Factory preview/visual-fidelity/account-shell surfaces and classifies source-controlled storefront demo media under builder-template-system for Release Risk Budget accounting. No risk threshold, weight, maximum, runtime template package, acceptance state or production catalog behavior is changed.",
+  "changeBaseSha": "036a624e04e64c08c4f9f9865a52f1a55a1942b1"
 }
