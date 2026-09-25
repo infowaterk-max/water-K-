@@ -33,6 +33,23 @@ describe('Architecture Drift + Confidence + Guard Rationalization',()=>{
     }));
   });
 
+  it('keeps canonical legacy blocking package-local so independent template versions can coexist',()=>{
+    const probe=[
+      "import {evaluateCanonicalPackageDependencyClosure} from './scripts/lib/shoperation-architecture-health.mjs';",
+      "const pkg={identity:'gaming.loot-vault@2',slug:'loot-vault',entrypoint:'src/lib/builder/templates/gaming/loot-vault/v2/index.ts',packageDir:'src/lib/builder/templates/gaming/loot-vault/v2'};",
+      "const legacy='src/lib/builder/templates/loot-vault.ts';",
+      "const clean=new Map([[pkg.entrypoint,[]],['src/lib/builder/storefront-template-catalog.ts',[legacy]]]);",
+      "const contaminated=new Map([[pkg.entrypoint,[legacy]],[legacy,[]]]);",
+      "console.log('PROBE:'+JSON.stringify({clean:evaluateCanonicalPackageDependencyClosure(pkg,clean).hardDrift,contaminated:evaluateCanonicalPackageDependencyClosure(pkg,contaminated).hardDrift}));",
+    ].join('');
+    const output=execFileSync('node',['--input-type=module','-e',probe],{encoding:'utf8'});
+    const line=output.split(/\r?\n/).find(value=>value.startsWith('PROBE:'));
+    expect(line).toBeTruthy();
+    const result=JSON.parse(line!.slice('PROBE:'.length)) as {clean:unknown[];contaminated:Array<{code:string}>};
+    expect(result.clean).toEqual([]);
+    expect(result.contaminated).toContainEqual(expect.objectContaining({code:'TEMPLATE_LEGACY_RUNTIME_REACHABLE'}));
+  });
+
   it('keeps confidence informational and does not create another CI gate authority',()=>{
     const registry=JSON.parse(readFileSync('quality/knowledge/guard-registry.v1.json','utf8')) as {guards:Array<{id:string;blocking:boolean}>};
     expect(registry.guards.find(item=>item.id==='SIGNAL-ARCHITECTURE-CONFIDENCE')?.blocking).toBe(false);
