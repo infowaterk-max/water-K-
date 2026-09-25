@@ -1,7 +1,7 @@
 {
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-PLAYROOM-V20-PRODUCT-COMPLETENESS",
-  "task": "Retrofit Playroom v20 to the current Shoperation Product Owner completeness standard without redesigning its accepted visual language: complete shopper navigation, contact map/company details plus existing shared wizard, compact shared account capability navigation, recognizable cart icon, and page-specific informational/legal demo content.",
+  "task": "Repair the Playroom v20 completeness reacceptance after Product Owner review: preserve the previously accepted mobile account UX, eliminate spacing/background regressions, make catalog product cards perform real shopper actions, render recognizable social icons, and replace placeholder-like demo copy with rich gaming storefront demo content while retaining all shared authorities.",
   "status": "ready-for-implementation",
   "guardDigest": "7628c63b",
   "plannedFilePatterns": [
@@ -9,7 +9,15 @@
     "tests/**playroom**",
     "tests/**template**",
     "quality/development/active-plan.json",
-    "src/lib/builder/storefront-template-route-integrity.ts"
+    "src/lib/builder/storefront-template-route-integrity.ts",
+    "src/lib/builder/storefront-template-preview-demo.ts",
+    "src/lib/builder/storefront-commerce.ts",
+    "src/components/builder/storefront-commerce.tsx",
+    "src/components/builder/storefront-product-card-add-to-cart-client.tsx",
+    "src/components/builder/storefront-primitives.tsx",
+    "tests/storefront-commerce-fidelity-slots.test.tsx",
+    "tests/storefront-template-preview-demo.test.ts",
+    "tests/storefront-system-surfaces.test.ts"
   ],
   "expectedSubsystems": [
     "builder-template-system",
@@ -17,7 +25,9 @@
     "customer-account",
     "support-contact",
     "storefront-ui",
-    "auth-access-authority"
+    "auth-access-authority",
+    "catalog-commerce",
+    "cart-engine"
   ],
   "expectedDomains": [
     "DOMAIN-BUILDER",
@@ -83,6 +93,6 @@
     "SQ-NK-012"
   ],
   "exceptions": [],
-  "notes": "Backport the completeness standard proven on Loot Vault v2 to Playroom v20. Preserve accepted Playroom visual direction and all shared cart/checkout/account/auth/search/runtime authorities. This is not a redesign. Product Owner completeness requires full mobile navigation, footer legal/information reachability, recognizable cart affordance, Contact location/company details + shared wizard, compact account capability navigation, and distinct page-specific demo information content. No release-risk threshold or gate changes. Shared preview route identity is part of this fix: exact legal routes must carry distinct demoContent identity instead of collapsing to one generic legal preset. Guard scope pinned to the exact Playroom/shared-preview impact reported by Plan Before Code: 41 Known Failures, auth-access review applicability, and the exact negative-knowledge set.",
+  "notes": "Backport the completeness standard proven on Loot Vault v2 to Playroom v20. Preserve accepted Playroom visual direction and all shared cart/checkout/account/auth/search/runtime authorities. This is not a redesign. Product Owner completeness requires full mobile navigation, footer legal/information reachability, recognizable cart affordance, Contact location/company details + shared wizard, compact account capability navigation, and distinct page-specific demo information content. No release-risk threshold or gate changes. Shared preview route identity is part of this fix: exact legal routes must carry distinct demoContent identity instead of collapsing to one generic legal preset. Guard scope pinned to the exact Playroom/shared-preview impact reported by Plan Before Code: 41 Known Failures, auth-access review applicability, and the exact negative-knowledge set. Product Owner rejected the first reacceptance preview. Do not update golden baselines. Restore the previously accepted Playroom mobile account navigation rather than importing Loot Vault's compact-chip direction. Contact wizard must remain on template background. Catalog preview products must have real product routes and quick-add behavior. Social links must use recognizable icons. Demo content must be specific, plausible gaming editorial/commerce copy rather than generic placeholder prose. Golden baseline may only be regenerated after explicit Product Owner acceptance.",
   "changeBaseSha": "c1f3d4178407d0c484f18874707313d849d4593c"
 }
