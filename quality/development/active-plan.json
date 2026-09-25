@@ -10,7 +10,8 @@
     "src/app/storefront-template-preview/page.tsx",
     "src/app/api/visual-fidelity/templates/route.ts",
     "src/app/visual-fidelity-qa/page.tsx",
-    "tests/storefront-template-preview-runtime.test.ts"
+    "tests/storefront-template-preview-runtime.test.ts",
+    "tests/storefront-template-library-ux.test.ts"
   ],
   "expectedSubsystems": [
     "builder-template-system",
