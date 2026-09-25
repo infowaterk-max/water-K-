@@ -3,12 +3,15 @@
   "taskId": "DEV-INCIDENT-GOVERNED-RECOVERY-EVIDENCE",
   "task": "Record exact-main production evidence for the Incident Intelligence governed recovery boundary without declaring the broader Incident Intelligence roadmap complete.",
   "status": "ready-for-implementation",
-  "guardDigest": "17c8ef7c",
+  "guardDigest": "17d71729",
   "plannedFilePatterns": [
     "quality/knowledge/living-roadmap.v1.json",
     "quality/knowledge/evidence-ledger.v1.json"
   ],
-  "expectedSubsystems": [],
+  "expectedSubsystems": [
+    "incident-intelligence",
+    "release-infrastructure"
+  ],
   "expectedDomains": [
     "DOMAIN-QUALITY"
   ],
@@ -66,9 +69,14 @@
     "TF-KF-024"
   ],
   "acknowledgedNegativeKnowledgeIds": [
-    "SQ-NK-012"
+    "SQ-NK-002",
+    "SQ-NK-003",
+    "SQ-NK-005",
+    "SQ-NK-010",
+    "SQ-NK-012",
+    "SQ-NK-013"
   ],
   "exceptions": [],
-  "notes": "Evidence-only closure. INCIDENT-INTELLIGENCE remains at foundation maturity; only the governed recovery boundary is recorded as verified. No runtime, schema, workflow, guard or release-risk behavior changes.",
+  "notes": "Evidence-only closure. Task intent remains bound to Incident Intelligence and release provenance, while the changed authority files remain quality knowledge. INCIDENT-INTELLIGENCE stays at foundation maturity; only the governed recovery boundary is recorded as verified. No runtime, schema, workflow, guard or release-risk behavior changes.",
   "changeBaseSha": "81308ea75819eb989a55153c15030f8072656f1e"
 }
