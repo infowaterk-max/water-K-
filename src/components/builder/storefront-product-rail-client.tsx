@@ -60,8 +60,8 @@ export function StorefrontProductRail({
   return <div data-storefront-product-rail="true" data-mobile-item-width={mobile?mobileItemWidth:undefined} data-mobile-single-item={singleMobile?'true':undefined} style={{display:'grid',gap:'.7rem',minWidth:0}}>
     {controls?<div aria-label={ariaLabel} data-storefront-product-rail-controls={mobile?'mobile':'desktop'} style={{display:'flex',justifyContent:'flex-end',alignItems:'center',gap:'.5rem'}}>
       {singleMobile&&items.length>1?<small aria-live="polite" style={{marginRight:'auto',fontVariantNumeric:'tabular-nums',opacity:.78}}>{activeIndex+1} / {items.length}</small>:null}
-      <button type="button" aria-label="Előző termék" onClick={()=>move(-1)} style={buttonStyle}>←</button>
-      <button type="button" aria-label="Következő termék" onClick={()=>move(1)} style={buttonStyle}>→</button>
+      <button type="button" aria-label={singleMobile?'Előző termék':'Előző termékek'} onClick={()=>move(-1)} style={buttonStyle}>←</button>
+      <button type="button" aria-label={singleMobile?'Következő termék':'Következő termékek'} onClick={()=>move(1)} style={buttonStyle}>→</button>
     </div>:null}
     <div ref={track} data-storefront-product-rail-track="true" onTouchStart={onTouchStart} onTouchEnd={onTouchEnd} style={singleMobile?{
       display:'block',overflow:'hidden',touchAction:'pan-y',minWidth:0,maxWidth:'100%',
