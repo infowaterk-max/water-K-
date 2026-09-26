@@ -372,19 +372,28 @@ describe('Playroom v20 functional acceptance',()=>{
     const featured=findNode(home,'playroomFeaturedGames');
     expect(featured.bindings?.products?.path).toBe('catalog.existingCommerceProducts');
     expect(featured.config.presentation).toBe('carousel');
+    expect(featured.config.mobileItemWidth).toBe('100%');
+    expect(featured.config.showMobileControls).toBe(true);
+    const previewProducts=[{
+      productId:'product-demo',variantId:'variant-demo',label:'Orbit Test · Alapváltozat',
+      href:'/termek/orbit-test',imageUrl:'/storefront/playroom/game-orbit.svg',
+      eligible:true,channelVisible:true,
+      price:{amountMinor:12990,currency:'HUF',display:'12 990 Ft',source:'shared-pricing-authority'},
+      stock:{available:true,statusLabel:'Készleten'},attributes:{},compatibility:{},
+    },{
+      productId:'product-demo-2',variantId:'variant-demo-2',label:'Neon Test · Alapváltozat',
+      href:'/termek/neon-test',imageUrl:'/storefront/playroom/game-rally.svg',
+      eligible:true,channelVisible:true,
+      price:{amountMinor:14990,currency:'HUF',display:'14 990 Ft',source:'shared-pricing-authority'},
+      stock:{available:true,statusLabel:'Készleten'},attributes:{},compatibility:{},
+    }];
     const html=renderToStaticMarkup(createElement(StorefrontRuntimeRenderer,{
       page:home,
       viewport:'desktop',
       bindingContext:{
         brand:{name:'Playroom',homeHref:'/'},
         navigation:{primary:[],footer:[]},
-        catalog:{existingCommerceProducts:[{
-          productId:'product-demo',variantId:'variant-demo',label:'Orbit Test · Alapváltozat',
-          href:'/termek/orbit-test',imageUrl:'/storefront/playroom/game-orbit.svg',
-          eligible:true,channelVisible:true,
-          price:{amountMinor:12990,currency:'HUF',display:'12 990 Ft',source:'shared-pricing-authority'},
-          stock:{available:true,statusLabel:'Készleten'},attributes:{},compatibility:{},
-        }]},
+        catalog:{existingCommerceProducts:previewProducts},
       },
       componentRegistry:registry,rendererRegistry,capability:alap,
     }));
@@ -395,6 +404,20 @@ describe('Playroom v20 functional acceptance',()=>{
     expect(html).toContain('data-storefront-product-rail="true"');
     expect(html).toContain('aria-label="Előző termékek"');
     expect(html).not.toContain('>Termék<');
+    const mobileHtml=renderToStaticMarkup(createElement(StorefrontRuntimeRenderer,{
+      page:home,
+      viewport:'mobile',
+      bindingContext:{brand:{name:'Playroom',homeHref:'/'},navigation:{primary:[],footer:[]},catalog:{existingCommerceProducts:previewProducts}},
+      componentRegistry:registry,rendererRegistry,capability:alap,
+    }));
+    expect(mobileHtml).toContain('data-mobile-item-width="100%"');
+    expect(mobileHtml).toContain('data-storefront-product-rail-controls="mobile"');
+    expect(mobileHtml).toContain('data-storefront-product-rail-item="true"');
+    expect(mobileHtml).toContain('flex:0 0 100%');
+    expect(mobileHtml).toContain('scroll-snap-stop:always');
+    expect(mobileHtml).toContain('touch-action:pan-x');
+    expect(mobileHtml).toContain('aria-label="Előző termékek"');
+    expect(mobileHtml).toContain('aria-label="Következő termékek"');
     const scene=read('src/lib/builder/storefront-interactive-scene-server.ts');
     expect(scene).toContain("from('product_media').select('id,storage_path')");
     expect(scene).toContain('imageUrl,');
