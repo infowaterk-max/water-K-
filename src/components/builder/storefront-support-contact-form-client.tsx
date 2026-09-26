@@ -20,7 +20,7 @@ export function StorefrontSupportContactFormClient({config,gridSpan}:{config:Rec
         {value:'product-issue',label:'Hibás / sérült terméket kaptam',description:'Sérült, hibás, hiányos vagy eltérő termék, illetve garanciális probléma.',nextHint:'A következő lépésben az érintett rendelést és a probléma típusát kérjük.'},
         {value:'return',label:'Visszaküldés / visszatérítés',description:'Elállás, termékvisszaküldés, csere vagy egy már elindított visszatérítés állapota.',nextHint:'A következő lépésben az érintett rendelést és a kérést pontosítjuk.'},
         {value:'invoice',label:'Számlázási kérdés',description:'Hiányzó számla, hibás számlaadat, számlázási adatok vagy más számlázással kapcsolatos kérdés.',nextHint:'Ha konkrét rendeléshez kapcsolódik, a rendelés számát is megadhatod.'},
-        {value:'complaint',label:'Panaszt szeretnék tenni',description:'Rendeléssel, termékkel, szállítással vagy ügyfélszolgálattal kapcsolatos panasz.',nextHint:'A következő lépésben kiválaszthatod a panasz területét.'},
+        {value:'complaint',label:'Hibajelentés',description:'Webshop-, rendelési folyamat-, termékoldal- vagy más működési hiba jelzése.',nextHint:'A következő lépésben megadhatod, hol és milyen hibát tapasztaltál.'},
         {value:'other',label:'Egyéb',description:'Ha egyik felsorolt kategória sem írja le jól az ügyedet, itt saját tárgyat adhatsz meg.',nextHint:'A következő lépésben röviden megnevezheted az ügyet.'},
       ]},
     ]},
@@ -87,15 +87,15 @@ export function StorefrontSupportContactFormClient({config,gridSpan}:{config:Rec
         {value:'Egyéb számlázási kérdés',label:'Egyéb számlázási kérdés'},
       ]},
     ]},
-    {id:'complaint-detail',title:'Pontosítás',copy:'Melyik területhez kapcsolódik a panasz?',whenTopic:'complaint',fields:[
+    {id:'complaint-detail',title:'Pontosítás',copy:'Melyik területen tapasztaltad a hibát?',whenTopic:'complaint',fields:[
       {name:'category',label:'Kategória',kind:'hidden',defaultValue:'other'},
       {name:'orderNumber',label:text(config.orderNumberLabel,'Rendelésszám'),kind:'text',maxLength:80,placeholder:'Ha van érintett rendelés'},
-      {name:'subject',label:'Panasz területe',kind:'choice',required:true,options:[
-        {value:'Rendeléssel kapcsolatos panasz',label:'Rendeléssel kapcsolatos panasz'},
-        {value:'Termékkel kapcsolatos panasz',label:'Termékkel kapcsolatos panasz'},
-        {value:'Szállítással kapcsolatos panasz',label:'Szállítással kapcsolatos panasz'},
-        {value:'Ügyfélszolgálati panasz',label:'Ügyfélszolgálati panasz'},
-        {value:'Egyéb panasz',label:'Egyéb panasz'},
+      {name:'subject',label:'Hiba területe',kind:'choice',required:true,options:[
+        {value:'Webshop működési hiba',label:'Webshop működési hiba'},
+        {value:'Rendelési folyamat hibája',label:'Rendelési folyamat hibája'},
+        {value:'Termékoldal / termékadat hiba',label:'Termékoldal / termékadat hiba'},
+        {value:'Szállítási információ hibája',label:'Szállítási információ hibája'},
+        {value:'Egyéb hiba',label:'Egyéb hiba'},
       ]},
     ]},
     {id:'other-detail',title:'Pontosítás',copy:'Nevezd meg röviden, milyen ügyben írsz.',whenTopic:'other',fields:[

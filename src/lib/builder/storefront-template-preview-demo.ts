@@ -345,7 +345,7 @@ export function createStorefrontTemplatePreviewBindingContext(input:{template:St
     :template.manifest.templateKey==='gaming.playroom'?playroomFixtureProducts(template)[0]:undefined;
   const selectedPreview=previewProducts[0];
   const context:Record<string,unknown>={
-    brand:{name:template.manifest.templateKey==='gaming.playroom'?'Playroom':`${label} Demo`,tagline:template.manifest.templateKey==='gaming.playroom'?'Játék · Közösség · Élmény':'Shoperation sablonbemutató',homeHref:'/',copyright:`© ${label} Demo`,socialLinks:PREVIEW_SOCIAL_LINKS.map(item=>({...item}))},
+    brand:{name:template.manifest.templateKey==='gaming.playroom'?'Playroom':`${label} Demo`,tagline:template.manifest.templateKey==='gaming.playroom'?'Játék · Közösség · Élmény':'Shoperation sablonbemutató',homeHref:'/',copyright:`© ${label} Demo`,socialLinks:PREVIEW_SOCIAL_LINKS.map(item=>({...item})),supportEmail:template.manifest.templateKey==='gaming.playroom'?'hello@playroom.example':'hello@example.com',supportPhone:'+36 1 555 0100',contactAddress:'Budapest, Magyarország · bemutató cím',mapEmbedUrl:'https://www.google.com/maps?q=Budapest%2C%20Hungary&output=embed',mapLinkUrl:'https://www.google.com/maps/search/?api=1&query=Budapest%2C%20Hungary'},
     navigation:{
       primary:[{label:'Újdonságok',href:'/webaruhaz?sort=new'},{label:'Játékok',href:'/webaruhaz'},{label:'Playroom Magazin',href:'/blog'},{label:'Rólunk',href:'/oldal/rolunk'},{label:'Kapcsolat',href:'/kapcsolat'}],
       footer:[{id:'shop',title:'Vásárlás',items:[{label:'Újdonságok',href:'/webaruhaz?sort=new'},{label:'Kategóriák',href:'/webaruhaz'}]},{id:'help',title:'Segítség',items:[{label:'GYIK',href:'/gyik'},{label:'Kapcsolat',href:'/kapcsolat'}]}],
@@ -358,6 +358,24 @@ export function createStorefrontTemplatePreviewBindingContext(input:{template:St
     reviews:{summary:{rating:4.9,count:128,label:'128 játékos értékelése'},items:demoReviews()},
     inventory:{stockLabel:selectedPreview?.stockLabel??'Raktáron'},
   };
+  if(template.manifest.templateKey==='gaming.playroom'&&page.pageType==='cart'){
+    const cartProducts=previewProducts.slice(0,4);
+    const lines=cartProducts.map(item=>({
+      id:'cart-'+item.id,
+      name:item.name,
+      variantLabel:item.badge||'Playroom',
+      quantity:1,
+      unitPrice:typeof item.unitPrice==='number'?item.unitPrice:typeof item.price==='number'?item.price:0,
+      lineTotal:typeof item.unitPrice==='number'?item.unitPrice:typeof item.price==='number'?item.price:0,
+      image:item.image,
+      imageAlt:item.imageAlt,
+      slug:item.slug,
+      productId:item.productId,
+      variantId:item.variantId,
+    }));
+    const subtotal=lines.reduce((sum,line)=>sum+line.lineTotal,0);
+    context.cart={lines,subtotal,total:subtotal,currency:'HUF'};
+  }
   if(selectedFixture&&selectedPreview){
     const platforms=Array.isArray(selectedFixture.platforms)?selectedFixture.platforms.filter(item=>typeof item==='string') as string[]:[];
     const features=Array.isArray(selectedFixture.features)?selectedFixture.features.filter(item=>typeof item==='string') as string[]:[];

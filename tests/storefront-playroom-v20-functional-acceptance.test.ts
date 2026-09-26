@@ -868,22 +868,20 @@ describe('Playroom v20 functional acceptance',()=>{
     expect(migrated.sections.some(section=>section.id==='playroom-product-digital-commerce')).toBe(false);
     expect(migratedFacts.children?.map(item=>item.id)).toEqual([
       'playroom-product-facts-specs',
-      'playroom-product-facts-compatibility',
       'playroom-product-downloads',
     ]);
   });
 
-  it('keeps public documents as the third Product Facts tile while purchased digital files stay in Fiókom → Letöltéseim',()=>{
+  it('keeps public documents beside concise Product Facts while purchased digital files stay in Fiókom → Letöltéseim',()=>{
     const product=playroomPage('product');
     const factsGrid=findNode(product,'playroom-product-facts-grid');
     expect(factsGrid.children?.map(item=>item.id)).toEqual([
       'playroom-product-facts-specs',
-      'playroom-product-facts-compatibility',
       'playroom-product-downloads',
     ]);
-    expect(factsGrid.children?.map(item=>item.responsive?.desktop?.gridSpan)).toEqual([4,4,4]);
-    expect(factsGrid.children?.map(item=>item.responsive?.tablet?.gridSpan)).toEqual([4,4,4]);
-    expect(factsGrid.children?.map(item=>item.responsive?.mobile?.gridSpan)).toEqual([12,12,12]);
+    expect(factsGrid.children?.map(item=>item.responsive?.desktop?.gridSpan)).toEqual([6,6]);
+    expect(factsGrid.children?.map(item=>item.responsive?.tablet?.gridSpan)).toEqual([6,6]);
+    expect(factsGrid.children?.map(item=>item.responsive?.mobile?.gridSpan)).toEqual([12,12]);
     expect(product.sections.some(section=>section.id==='playroom-product-digital-commerce')).toBe(false);
 
     const withDownloads=render(product,{commerce:{digitalCommerce:{
