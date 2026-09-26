@@ -73,6 +73,13 @@ describe('storefront social settings authority',()=>{
     expect(primitiveRegistry).toMatch(/componentKey:'system\.social-links'/);
     expect(primitives).toMatch(/function SocialLinksRenderer/);
     expect(primitives).toMatch(/if\(!items\.length\)return null/);
+    expect(primitives).toMatch(/function SocialPlatformIcon/);
+    expect(primitives).toMatch(/key\.includes\('youtube'\)/);
+    expect(primitives).toMatch(/key\.includes\('instagram'\)/);
+    expect(primitives).toMatch(/key\.includes\('tiktok'\)/);
+    expect(primitives).toMatch(/key\.includes\('facebook'\)/);
+    expect(primitives).toMatch(/key\.includes\('twitch'\)/);
+    expect(primitives).toMatch(/<SocialPlatformIcon label=\{item\.label\}\/>/);
     const social=findPlayroomNode('playroom-footer-social');
     expect(social.componentKey).toBe('system.social-links');
     expect(social.bindings?.items?.path).toBe('brand.socialLinks');

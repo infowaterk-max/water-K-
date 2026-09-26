@@ -5,6 +5,7 @@ import {
   augmentStorefrontTemplateDemoContent,
   evaluateStorefrontTemplateRouteIntegrity,
   getStorefrontTemplateDemoContent,
+  rewriteStorefrontTemplatePreviewLinks,
 } from '@/lib/builder/storefront-template-route-integrity';
 import {PLAYROOM_V19_CANONICAL_TEMPLATE_PACKAGE} from '@/lib/builder/templates/playroom-v19-canonical';
 
@@ -32,6 +33,44 @@ describe('Template Route Integrity + Demo Content Foundation',()=>{
     expect(template).toBeTruthy();
     expect(evaluateStorefrontTemplateRouteIntegrity(template!)).toEqual([]);
     expect(getStorefrontTemplateDemoContent(template!,'rolunk')).toBeTruthy();
+  });
+
+  it('preserves exact legal document identity when links are rewritten into Product Owner preview',()=>{
+    const template=getStorefrontTemplatePackage('gaming.playroom',20)!;
+    const home=template.pages.find(page=>page.pageType==='home')!;
+    const rewritten=rewriteStorefrontTemplatePreviewLinks(home,{
+      templateKey:template.manifest.templateKey,
+      templateVersion:template.manifest.templateVersion,
+      viewport:'desktop',
+    });
+    const serialized=JSON.stringify(rewritten);
+    expect(serialized).toContain('page=legal');
+    expect(serialized).toContain('demoContent=aszf');
+    expect(serialized).toContain('demoContent=adatvedelem');
+    expect(serialized).toContain('demoContent=impresszum');
+    expect(getStorefrontTemplateDemoContent(template,'aszf')?.payload.title).toBe('Általános Szerződési Feltételek');
+    expect(getStorefrontTemplateDemoContent(template,'adatvedelem')?.payload.title).toBe('Adatkezelési tájékoztató');
+    expect(getStorefrontTemplateDemoContent(template,'impresszum')?.payload.title).toBe('Impresszum');
+  });
+
+  it('preserves exact Playroom product identity when shopper links enter the Product Owner preview',()=>{
+    const template=getStorefrontTemplatePackage('gaming.playroom',20)!;
+    const catalog=template.pages.find(page=>page.pageType==='catalog')!;
+    const enriched=structuredClone(catalog);
+    enriched.sections.push({
+      id:'orbit-product-link',
+      componentKey:'content.button',
+      componentVersion:1,
+      config:{label:'Orbit Breakers',href:'/termek/orbit-breakers',variant:'secondary',size:'m',ariaLabel:'Orbit Breakers'},
+    });
+    const rewritten=rewriteStorefrontTemplatePreviewLinks(enriched,{
+      templateKey:template.manifest.templateKey,
+      templateVersion:template.manifest.templateVersion,
+      viewport:'mobile',
+    });
+    const serialized=JSON.stringify(rewritten);
+    expect(serialized).toContain('page=product');
+    expect(serialized).toContain('demoProduct=orbit-breakers');
   });
 
   it('fails closed for unknown storefront routes',()=>{

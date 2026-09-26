@@ -3,6 +3,7 @@ import {StorefrontRendererRegistry,type StorefrontComponentRenderProps} from '@/
 import {createStorefrontPrimitiveRendererRegistry} from '@/components/builder/storefront-primitives';
 import {StorefrontContentDisclosure,type StorefrontContentDisclosureTab} from '@/components/builder/storefront-content-disclosure';
 import {StorefrontProductRail} from '@/components/builder/storefront-product-rail-client';
+import {StorefrontProductCardAddToCartClient} from '@/components/builder/storefront-product-card-add-to-cart-client';
 import type {StorefrontResolvedComponentNode} from '@/lib/builder/storefront-runtime';
 import {sanitizeStorefrontStyleSlots} from '@/lib/builder/storefront-fidelity-engine';
 import {resolveStorefrontVisualStyle} from '@/lib/builder/storefront-visual-style';
@@ -39,14 +40,27 @@ const carousel=(componentKey:string,config:Record<string,unknown>,viewport:Store
   };
 };
 
-type CommerceProduct={id:string;name:string;href:string;image:string|null;imageAlt:string;price:unknown;compareAtPrice:unknown;badge:string;stockLabel:string;subtitle:string};
+type CommerceProduct={id:string;productId:string;variantId:string|null;slug:string;name:string;href:string;image:string|null;imageAlt:string;price:unknown;unitPrice:number|null;compareAtPrice:unknown;badge:string;stockLabel:string;subtitle:string;availableQuantity:number;minimumQuantity:number;orderMultiple:number};
 const productPrice=(row:Record<string,unknown>)=>{const value=record(row.price);return value?text(value.display):row.price;};
 const productStockLabel=(row:Record<string,unknown>)=>{const value=record(row.stock);return text(row.stockLabel,value?text(value.statusLabel):'');};
 const products=(value:unknown):CommerceProduct[]=>rows(value).map((row,index)=>{
   const name=text(row.name,text(row.label,'Termék'));
   const identity=text(row.id,[text(row.productId),text(row.variantId)].filter(Boolean).join(':')||`product-${index}`);
+  const productId=text(row.productId,identity);
+  const variantId=text(row.variantId)||null;
+  const slug=text(row.slug);
   const image=safeImage(row.image)??safeImage(row.imageUrl);
-  return{id:identity,name,href:safeHref(row.href,'#'),image,imageAlt:text(row.imageAlt,name),price:productPrice(row),compareAtPrice:row.compareAtPrice,badge:text(row.badge),stockLabel:productStockLabel(row),subtitle:text(row.subtitle,text(row.description))};
+  const rawUnitPrice=typeof row.unitPrice==='number'?row.unitPrice:typeof row.price==='number'?row.price:null;
+  return{
+    id:identity,productId,variantId,slug,name,
+    href:safeHref(row.href,slug?`/termek/${slug}`:'#'),
+    image,imageAlt:text(row.imageAlt,name),price:productPrice(row),unitPrice:rawUnitPrice,
+    compareAtPrice:row.compareAtPrice,badge:text(row.badge),stockLabel:productStockLabel(row),
+    subtitle:text(row.subtitle,text(row.description)),
+    availableQuantity:Math.max(0,number(row.availableQuantity,number(row.stockQuantity,0))),
+    minimumQuantity:Math.max(1,Math.round(number(row.minimumQuantity,1))),
+    orderMultiple:Math.max(1,Math.round(number(row.orderMultiple,1))),
+  };
 });
 
 function ProductCards({items,config,viewport,itemStyle}:{items:CommerceProduct[];config:Record<string,unknown>;viewport:StorefrontComponentRenderProps['viewport'];itemStyle?:CSSProperties}){
@@ -57,7 +71,7 @@ function ProductCards({items,config,viewport,itemStyle}:{items:CommerceProduct[]
   return <>{items.map(product=><article key={product.id} data-storefront-commerce-card={presentation} style={{display:'flex',flexDirection:'column',gap:beauty?'.55rem':'.75rem',minWidth:0,...slot('card'),...(itemStyle??{})}}>
     <a href={product.href} style={{color:'inherit',textDecoration:'none',...slot('mediaLink')}}><div style={{position:'relative',aspectRatio:text(config.imageRatio,beauty?'4 / 5':'4 / 5'),background:'var(--shoporation-color-surface-muted,#ece8df)',overflow:'hidden',...slot('media')}}>{product.image?<img src={product.image} alt={product.imageAlt} loading="lazy" style={{display:'block',width:'100%',height:'100%',objectFit:'cover',...slot('image')}}/>:null}{showBadges&&product.badge?<span style={{position:'absolute',top:'.5rem',left:'.5rem',padding:'.24rem .45rem',background:beauty?'var(--shoporation-color-accent,#a6aa92)':'var(--shoporation-color-background,#fff)',fontSize:'.61rem',fontWeight:700,letterSpacing:'.055em',textTransform:'uppercase',...slot('badge')}}>{product.badge}</span>:null}</div></a>
     <div style={{display:'grid',gap:'.2rem',...slot('body')}}><a href={product.href} style={{color:'inherit',textDecoration:'none',fontFamily:beauty?'var(--shoporation-heading-font,Georgia,serif)':undefined,fontWeight:beauty?500:650,fontSize:beauty?'1.02rem':undefined,...slot('name')}}>{product.name}</a>{beauty&&product.subtitle?<small style={{color:'var(--shoporation-color-muted-text,#666)',lineHeight:1.35,...slot('subtitle')}}>{product.subtitle}</small>:null}<div style={{display:'flex',alignItems:'baseline',gap:'.45rem',flexWrap:'wrap',...slot('priceRow')}}><strong style={slot('price')}>{money(product.price,config.currency)}</strong>{showCompare&&product.compareAtPrice?<small style={{color:'var(--shoporation-color-muted-text,#666)',textDecoration:'line-through',...slot('comparePrice')}}>{money(product.compareAtPrice,config.currency)}</small>:null}</div>{!beauty&&product.stockLabel?<small style={slot('stock')}>{product.stockLabel}</small>:null}</div>
-    {showCta?<a href={product.href} style={{marginTop:'auto',display:'inline-flex',justifyContent:'center',padding:'.62rem .75rem',background:'var(--shoporation-color-primary,#111)',color:'var(--shoporation-color-primary-contrast,#fff)',textDecoration:'none',fontSize:'.72rem',fontWeight:700,textTransform:beauty?'uppercase':undefined,letterSpacing:beauty?'.04em':undefined,...slot('cta')}}>{text(config.ctaLabel,'Kosárba')}</a>:null}
+    {showCta?(text(config.ctaAction)==='add-to-cart'&&product.unitPrice!==null&&product.slug?<StorefrontProductCardAddToCartClient productId={product.productId} variantId={product.variantId} slug={product.slug} name={product.name} unitPrice={product.unitPrice} availableQuantity={product.availableQuantity} minimumQuantity={product.minimumQuantity} orderMultiple={product.orderMultiple} currency={text(config.currency,'HUF')} label={text(config.ctaLabel,'Kosárba')} style={{textTransform:beauty?'uppercase':undefined,letterSpacing:beauty?'.04em':undefined,...slot('cta')}}/>:<a href={product.href} style={{marginTop:'auto',display:'inline-flex',justifyContent:'center',padding:'.62rem .75rem',background:'var(--shoporation-color-primary,#111)',color:'var(--shoporation-color-primary-contrast,#fff)',textDecoration:'none',fontSize:'.72rem',fontWeight:700,textTransform:beauty?'uppercase':undefined,letterSpacing:beauty?'.04em':undefined,...slot('cta')}}>{text(config.ctaLabel,'Részletek')}</a>):null}
   </article>)}</>;
 }
 
@@ -73,8 +87,9 @@ function CollectionHeaderRenderer({config,node,viewport}:StorefrontComponentRend
 
 function ProductGridRenderer({config,node,viewport}:StorefrontComponentRenderProps){
   const items=products(config.products),requested=Math.max(2,Math.min(6,Math.round(number(config.columns,4)))),columns=responsiveColumns(requested,viewport,2,3),presentation=text(config.presentation),beauty=presentation==='beauty-lab',rail=presentation==='carousel';const slot=styles(config,viewport);const mobile=carousel('commerce.product-grid',config,viewport);
-  const cards=<ProductCards items={items} config={config} viewport={viewport} itemStyle={rail?{scrollSnapAlign:'start'}:mobile.item}/>;
-  return <section data-storefront-commerce="product-grid" data-presentation={presentation||undefined} style={{...span(node),display:'grid',gap:'1.25rem',...slot('root')}}>{text(config.title)?<h2 style={{margin:0,fontFamily:'var(--shoporation-heading-font,Georgia,serif)',fontWeight:500,fontSize:beauty?'clamp(1.9rem,3vw,2.8rem)':undefined,...slot('title')}}>{text(config.title)}</h2>:null}{items.length?(rail?<StorefrontProductRail viewport={viewport} ariaLabel={text(config.carouselAriaLabel,'Kiemelt termékek lapozása')}>{cards}</StorefrontProductRail>:<div data-storefront-mobile-carousel={mobile.active?'true':undefined} style={{display:'grid',gridTemplateColumns:`repeat(${columns},minmax(0,1fr))`,gap:beauty?'clamp(.65rem,1.4vw,1rem)':'1.25rem',...slot('grid'),...mobile.track}}>{cards}</div>):<p style={slot('empty')}>{text(config.emptyLabel,'Jelenleg nincs megjeleníthető termék.')}</p>}</section>;
+  const cards=<ProductCards items={items} config={config} viewport={viewport} itemStyle={mobile.item}/>;
+  const railCards=items.map(product=><ProductCards key={product.id} items={[product]} config={config} viewport={viewport}/>);
+  return <section data-storefront-commerce="product-grid" data-presentation={presentation||undefined} style={{...span(node),display:'grid',gap:'1.25rem',...slot('root')}}>{text(config.title)?<h2 style={{margin:0,fontFamily:'var(--shoporation-heading-font,Georgia,serif)',fontWeight:500,fontSize:beauty?'clamp(1.9rem,3vw,2.8rem)':undefined,...slot('title')}}>{text(config.title)}</h2>:null}{items.length?(rail?<StorefrontProductRail viewport={viewport} ariaLabel={text(config.carouselAriaLabel,'Kiemelt termékek lapozása')} mobileItemWidth={text(config.mobileItemWidth,'82%')} showMobileControls={bool(config.showMobileControls,false)} mobileSingleItem={bool(config.mobileSingleItem,false)} tabletItemsPerView={number(config.tabletItemsPerView,0)||undefined} desktopItemsPerView={number(config.desktopItemsPerView,0)||undefined}>{railCards}</StorefrontProductRail>:<div data-storefront-mobile-carousel={mobile.active?'true':undefined} style={{display:'grid',gridTemplateColumns:`repeat(${columns},minmax(0,1fr))`,gap:beauty?'clamp(.65rem,1.4vw,1rem)':'1.25rem',...slot('grid'),...mobile.track}}>{cards}</div>):<p style={slot('empty')}>{text(config.emptyLabel,'Jelenleg nincs megjeleníthető termék.')}</p>}</section>;
 }
 
 function ProductGalleryRenderer({config,node,viewport}:StorefrontComponentRenderProps){

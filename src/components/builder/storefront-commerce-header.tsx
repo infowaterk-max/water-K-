@@ -27,9 +27,10 @@ function SearchIcon(){
 type UtilityItem={label:string;href:string;symbol:string;count:string};
 type UtilityKind='favorites'|'account'|'cart'|'custom';
 const utilityKind=(item:UtilityItem):UtilityKind=>{
-  if(item.href==='/kedvencek'||item.href==='/fiokom/kivansaglista')return'favorites';
-  if(item.href==='/fiokom')return'account';
-  if(item.href==='/kosar')return'cart';
+  const label=item.label.trim().toLocaleLowerCase('hu-HU');
+  if(item.href==='/kedvencek'||item.href==='/fiokom/kivansaglista'||label==='kedvenceim'||label==='kívánságlista')return'favorites';
+  if(item.href==='/fiokom'||label==='fiókom'||label==='bejelentkezés')return'account';
+  if(item.href==='/kosar'||label==='kosár')return'cart';
   return'custom';
 };
 function UtilityIcon({kind,symbol}:{kind:UtilityKind;symbol:string}){

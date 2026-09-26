@@ -74,18 +74,18 @@ const CATEGORY_PRODUCTS:Record<string,readonly string[]>={
 };
 
 const PLAYROOM_PREVIEW_PRODUCTS=Object.freeze([
-  {name:'Orbit Breakers',image:'/storefront/playroom/game-orbit.svg',price:22990,badge:'KIEMELT',stockLabel:'Raktáron'},
-  {name:'Neon Rally',image:'/storefront/playroom/game-rally.svg',price:19990,badge:'ÚJ',stockLabel:'Raktáron'},
-  {name:'Midnight Quest',image:'/storefront/playroom/game-quest.svg',price:26990,badge:'KALAND',stockLabel:'Raktáron'},
-  {name:'Cyber Arena',image:'/storefront/playroom/game-arena.svg',price:23990,badge:'ARENA',stockLabel:'Raktáron'},
-  {name:'Party Rift',image:'/storefront/playroom/game-party.svg',price:14990,badge:'CO-OP',stockLabel:'Raktáron'},
-  {name:'Starforge',image:'/storefront/playroom/game-starforge.svg',price:29990,badge:'SCI-FI',stockLabel:'Raktáron'},
-  {name:'Turbo Circuit',image:'/storefront/playroom/game-turbo-circuit.svg',price:18990,badge:'VERSENY',stockLabel:'Raktáron'},
-  {name:'Couch Crew',image:'/storefront/playroom/game-couch-crew.svg',price:12990,badge:'PARTY',stockLabel:'Raktáron'},
-  {name:'Mech Tactics',image:'/storefront/playroom/game-mech-tactics.svg',price:24990,badge:'STRATÉGIA',stockLabel:'Raktáron'},
-  {name:'Pixel Picnic',image:'/storefront/playroom/game-pixel-picnic.svg',price:11990,badge:'CSALÁDI',stockLabel:'Raktáron'},
-  {name:'Void Runners',image:'/storefront/playroom/game-void-runners.svg',price:27990,badge:'AKCIÓ',stockLabel:'Raktáron'},
-  {name:'Kingdom Grid',image:'/storefront/playroom/game-kingdom-grid.svg',price:21990,badge:'TAKTIKA',stockLabel:'Raktáron'},
+  {slug:'orbit-breakers',name:'Orbit Breakers',image:'/storefront/playroom/game-orbit.svg',price:22990,badge:'KIEMELT',stockLabel:'Raktáron'},
+  {slug:'neon-rally',name:'Neon Rally',image:'/storefront/playroom/game-rally.svg',price:19990,badge:'ÚJ',stockLabel:'Raktáron'},
+  {slug:'midnight-quest',name:'Midnight Quest',image:'/storefront/playroom/game-quest.svg',price:26990,badge:'KALAND',stockLabel:'Raktáron'},
+  {slug:'cyber-arena',name:'Cyber Arena',image:'/storefront/playroom/game-arena.svg',price:23990,badge:'ARENA',stockLabel:'Raktáron'},
+  {slug:'party-rift',name:'Party Rift',image:'/storefront/playroom/game-party.svg',price:14990,badge:'CO-OP',stockLabel:'Raktáron'},
+  {slug:'starforge',name:'Starforge',image:'/storefront/playroom/game-starforge.svg',price:29990,badge:'SCI-FI',stockLabel:'Raktáron'},
+  {slug:'turbo-circuit',name:'Turbo Circuit',image:'/storefront/playroom/game-turbo-circuit.svg',price:18990,badge:'VERSENY',stockLabel:'Raktáron'},
+  {slug:'couch-crew',name:'Couch Crew',image:'/storefront/playroom/game-couch-crew.svg',price:12990,badge:'PARTY',stockLabel:'Raktáron'},
+  {slug:'mech-tactics',name:'Mech Tactics',image:'/storefront/playroom/game-mech-tactics.svg',price:24990,badge:'STRATÉGIA',stockLabel:'Raktáron'},
+  {slug:'pixel-picnic',name:'Pixel Picnic',image:'/storefront/playroom/game-pixel-picnic.svg',price:11990,badge:'CSALÁDI',stockLabel:'Raktáron'},
+  {slug:'void-runners',name:'Void Runners',image:'/storefront/playroom/game-void-runners.svg',price:27990,badge:'AKCIÓ',stockLabel:'Raktáron'},
+  {slug:'kingdom-grid',name:'Kingdom Grid',image:'/storefront/playroom/game-kingdom-grid.svg',price:21990,badge:'TAKTIKA',stockLabel:'Raktáron'},
 ]);
 
 const CATEGORY_COLLECTIONS:Record<string,readonly string[]>={
@@ -153,20 +153,68 @@ function fixtureNames(template:StorefrontInstallableTemplatePackage,type:'produc
     });
 }
 
-function demoProducts(template:StorefrontInstallableTemplatePackage,page:StorefrontPageDocument){
+type PreviewDemoProduct={
+  id:string;
+  productId?:string;
+  variantId?:string|null;
+  slug?:string;
+  name:string;
+  href:string;
+  image:string|null;
+  imageAlt:string;
+  price:unknown;
+  unitPrice?:number;
+  compareAtPrice:unknown;
+  badge:string;
+  stockLabel:string;
+  availableQuantity?:number;
+  minimumQuantity?:number;
+  orderMultiple?:number;
+};
+
+const playroomFixtureProducts=(template:StorefrontInstallableTemplatePackage)=>(
+  (template.demoFixtures??[])
+    .filter(item=>item.entityType==='product'&&item.payload.installAsDemoProduct===true)
+    .map(item=>item.payload)
+);
+
+function demoProducts(template:StorefrontInstallableTemplatePackage,page:StorefrontPageDocument,selectedSlug?:string):PreviewDemoProduct[]{
   if(template.manifest.templateKey==='gaming.playroom'){
+    const fixtures=playroomFixtureProducts(template);
+    const source:PreviewDemoProduct[]=(fixtures.length?fixtures:PLAYROOM_PREVIEW_PRODUCTS).map((product,index)=>{
+      const row=product as Record<string,unknown>;
+      const slug=typeof row.slug==='string'&&row.slug?row.slug:`playroom-product-${index+1}`;
+      const name=typeof row.name==='string'&&row.name?row.name:`Playroom játék ${index+1}`;
+      const image=typeof row.image==='string'?row.image:null;
+      const price=typeof row.grossPriceHuf==='number'?row.grossPriceHuf:typeof row.price==='number'?row.price:12990+index*2000;
+      const stock=typeof row.stockQuantity==='number'?Math.max(0,Math.round(row.stockQuantity)):12;
+      const category=typeof row.demoCategory==='string'?row.demoCategory:'JÁTÉK';
+      const badge=row.featured===true?'KIEMELT':category.toLocaleUpperCase('hu-HU');
+      return{
+        id:`preview-product-${slug}`,
+        productId:`preview-product-${slug}`,
+        variantId:null,
+        slug,
+        name,
+        href:`/termek/${slug}`,
+        image,
+        imageAlt:`${name} Playroom játékborító`,
+        price,
+        unitPrice:price,
+        compareAtPrice:slug==='neon-rally'?24990:null,
+        badge,
+        stockLabel:stock>0?'Raktáron':'Elfogyott',
+        availableQuantity:stock,
+        minimumQuantity:1,
+        orderMultiple:1,
+      };
+    });
+    if(selectedSlug){
+      const selected=source.find(item=>item.slug===selectedSlug);
+      if(selected)return[selected,...source.filter(item=>item.slug!==selectedSlug)].slice(0,page.pageType==='home'?12:previewProductLimit(page));
+    }
     const limit=page.pageType==='home'?12:previewProductLimit(page);
-    return PLAYROOM_PREVIEW_PRODUCTS.slice(0,limit).map((product,index)=>({
-      id:`preview-product-${index+1}`,
-      name:product.name,
-      href:'#preview-demo',
-      image:product.image,
-      imageAlt:`${product.name} eredeti Playroom játékborító`,
-      price:product.price,
-      compareAtPrice:index===1?24990:null,
-      badge:product.badge,
-      stockLabel:product.stockLabel,
-    }));
+    return source.slice(0,limit);
   }
   const category=template.manifest.templateKey.split('.')[0]??'tech';
   const fixture=fixtureNames(template,'product');
@@ -287,21 +335,54 @@ export function getStorefrontTemplatePreviewTheme(templateKey:string):Readonly<R
   });
 }
 
-export function createStorefrontTemplatePreviewBindingContext(input:{template:StorefrontInstallableTemplatePackage;page:StorefrontPageDocument}):Record<string,unknown>{
+export function createStorefrontTemplatePreviewBindingContext(input:{template:StorefrontInstallableTemplatePackage;page:StorefrontPageDocument;demoProductSlug?:string}):Record<string,unknown>{
   const{template,page}=input;
   const category=template.manifest.templateKey.split('.')[0]??'shop';
   const label=CATEGORY_LABELS[category]??'Shop';
+  const previewProducts=demoProducts(template,page,input.demoProductSlug);
+  const selectedFixture=template.manifest.templateKey==='gaming.playroom'&&input.demoProductSlug
+    ?playroomFixtureProducts(template).find(item=>item.slug===input.demoProductSlug)
+    :template.manifest.templateKey==='gaming.playroom'?playroomFixtureProducts(template)[0]:undefined;
+  const selectedPreview=previewProducts[0];
   const context:Record<string,unknown>={
-    brand:{name:`${label} Demo`,tagline:'Shoperation sablonbemutató',homeHref:'/',copyright:`© ${label} Demo`,socialLinks:PREVIEW_SOCIAL_LINKS.map(item=>({...item}))},
+    brand:{name:template.manifest.templateKey==='gaming.playroom'?'Playroom':`${label} Demo`,tagline:template.manifest.templateKey==='gaming.playroom'?'Játék · Közösség · Élmény':'Shoperation sablonbemutató',homeHref:'/',copyright:`© ${label} Demo`,socialLinks:PREVIEW_SOCIAL_LINKS.map(item=>({...item}))},
     navigation:{
-      primary:[{label:'Újdonságok',href:'#preview-demo'},{label:'Kollekciók',href:'#preview-demo'},{label:'Rólunk',href:'#preview-demo'},{label:'Kapcsolat',href:'#preview-demo'}],
-      footer:[{id:'shop',title:'Vásárlás',items:[{label:'Újdonságok',href:'#preview-demo'},{label:'Kategóriák',href:'#preview-demo'}]},{id:'help',title:'Segítség',items:[{label:'GYIK',href:'#preview-demo'},{label:'Kapcsolat',href:'#preview-demo'}]}],
+      primary:[{label:'Újdonságok',href:'/webaruhaz?sort=new'},{label:'Játékok',href:'/webaruhaz'},{label:'Playroom Magazin',href:'/blog'},{label:'Rólunk',href:'/oldal/rolunk'},{label:'Kapcsolat',href:'/kapcsolat'}],
+      footer:[{id:'shop',title:'Vásárlás',items:[{label:'Újdonságok',href:'/webaruhaz?sort=new'},{label:'Kategóriák',href:'/webaruhaz'}]},{id:'help',title:'Segítség',items:[{label:'GYIK',href:'/gyik'},{label:'Kapcsolat',href:'/kapcsolat'}]}],
     },
-    catalog:{featured:demoProducts(template,page),newProducts:demoProducts(template,page),collections:demoCollections(template,page)},
-    recommendations:{featured:demoProducts(template,page)},
-    reviews:{summary:{rating:4.9,count:128},items:demoReviews()},
-    inventory:{stockLabel:'Raktáron'},
+    catalog:{featured:previewProducts,newProducts:previewProducts,collections:demoCollections(template,page)},
+    recommendations:{
+      featured:previewProducts,
+      products:input.demoProductSlug?previewProducts.filter(item=>item.slug!==input.demoProductSlug).slice(0,4):previewProducts.slice(0,4),
+    },
+    reviews:{summary:{rating:4.9,count:128,label:'128 játékos értékelése'},items:demoReviews()},
+    inventory:{stockLabel:selectedPreview?.stockLabel??'Raktáron'},
   };
+  if(selectedFixture&&selectedPreview){
+    const platforms=Array.isArray(selectedFixture.platforms)?selectedFixture.platforms.filter(item=>typeof item==='string') as string[]:[];
+    const features=Array.isArray(selectedFixture.features)?selectedFixture.features.filter(item=>typeof item==='string') as string[]:[];
+    context.product={
+      name:selectedPreview.name,
+      description:typeof selectedFixture.longDescription==='string'?selectedFixture.longDescription:typeof selectedFixture.shortDescription==='string'?selectedFixture.shortDescription:'',
+      gallery:selectedPreview.image?[{src:selectedPreview.image,alt:selectedPreview.imageAlt}]:[],
+      badges:[typeof selectedFixture.genre==='string'?selectedFixture.genre:'Playroom',selectedPreview.badge].filter(Boolean),
+      keySpecs:[
+        {specKey:'platform',label:'Platform',displayValue:platforms.join(' · ')||'Több platform'},
+        {specKey:'players',label:'Játékosok',displayValue:typeof selectedFixture.players==='string'?selectedFixture.players:'—'},
+        {specKey:'session',label:'Játékidő',displayValue:typeof selectedFixture.session==='string'?selectedFixture.session:'—'},
+        {specKey:'age',label:'Korhatár',displayValue:typeof selectedFixture.age==='string'?selectedFixture.age:'—'},
+      ],
+      features,
+    };
+    context.pricing={displayPrice:selectedPreview.price,compareAtPrice:selectedPreview.compareAtPrice};
+    context.variant={
+      optionLabel:'Platform',
+      optionOptions:platforms.map((platform,index)=>({id:`platform-${index+1}`,label:platform,value:platform,available:true,selected:index===0})),
+    };
+    context.compatibility={productEvidence:platforms.map(platform=>({label:platform,status:'compatible',evidence:'Támogatott platform a Playroom demo termékadatában.'}))};
+    context.commerce={purchaseLabel:'Kosárba teszem',purchaseHref:'#purchase'};
+    context.content={playroomProductRecommendations:{title:`Ha ${selectedPreview.name} tetszik, ezeket is nézd meg`}};
+  }
   for(const node of page.sections)enrichNodeBindings({template,page,node,context});
   return context;
 }

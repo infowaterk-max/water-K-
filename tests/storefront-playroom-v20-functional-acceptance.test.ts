@@ -372,19 +372,31 @@ describe('Playroom v20 functional acceptance',()=>{
     const featured=findNode(home,'playroomFeaturedGames');
     expect(featured.bindings?.products?.path).toBe('catalog.existingCommerceProducts');
     expect(featured.config.presentation).toBe('carousel');
+    expect(featured.config.mobileItemWidth).toBe('100%');
+    expect(featured.config.tabletItemsPerView).toBe(2);
+    expect(featured.config.desktopItemsPerView).toBe(2);
+    expect(featured.config.showMobileControls).toBe(true);
+    expect(featured.config.mobileSingleItem).toBe(true);
+    const previewProducts=[{
+      productId:'product-demo',variantId:'variant-demo',label:'Orbit Test · Alapváltozat',
+      href:'/termek/orbit-test',imageUrl:'/storefront/playroom/game-orbit.svg',
+      eligible:true,channelVisible:true,
+      price:{amountMinor:12990,currency:'HUF',display:'12 990 Ft',source:'shared-pricing-authority'},
+      stock:{available:true,statusLabel:'Készleten'},attributes:{},compatibility:{},
+    },{
+      productId:'product-demo-2',variantId:'variant-demo-2',label:'Neon Test · Alapváltozat',
+      href:'/termek/neon-test',imageUrl:'/storefront/playroom/game-rally.svg',
+      eligible:true,channelVisible:true,
+      price:{amountMinor:14990,currency:'HUF',display:'14 990 Ft',source:'shared-pricing-authority'},
+      stock:{available:true,statusLabel:'Készleten'},attributes:{},compatibility:{},
+    }];
     const html=renderToStaticMarkup(createElement(StorefrontRuntimeRenderer,{
       page:home,
       viewport:'desktop',
       bindingContext:{
         brand:{name:'Playroom',homeHref:'/'},
         navigation:{primary:[],footer:[]},
-        catalog:{existingCommerceProducts:[{
-          productId:'product-demo',variantId:'variant-demo',label:'Orbit Test · Alapváltozat',
-          href:'/termek/orbit-test',imageUrl:'/storefront/playroom/game-orbit.svg',
-          eligible:true,channelVisible:true,
-          price:{amountMinor:12990,currency:'HUF',display:'12 990 Ft',source:'shared-pricing-authority'},
-          stock:{available:true,statusLabel:'Készleten'},attributes:{},compatibility:{},
-        }]},
+        catalog:{existingCommerceProducts:previewProducts},
       },
       componentRegistry:registry,rendererRegistry,capability:alap,
     }));
@@ -393,8 +405,37 @@ describe('Playroom v20 functional acceptance',()=>{
     expect(html).toContain('Készleten');
     expect(html).toContain('/storefront/playroom/game-orbit.svg');
     expect(html).toContain('data-storefront-product-rail="true"');
+    expect(html).toContain('data-items-per-view="2"');
     expect(html).toContain('aria-label="Előző termékek"');
     expect(html).not.toContain('>Termék<');
+    const tabletHtml=renderToStaticMarkup(createElement(StorefrontRuntimeRenderer,{
+      page:home,
+      viewport:'tablet',
+      bindingContext:{brand:{name:'Playroom',homeHref:'/'},navigation:{primary:[],footer:[]},catalog:{existingCommerceProducts:previewProducts}},
+      componentRegistry:registry,rendererRegistry,capability:alap,
+    }));
+    expect(tabletHtml).toContain('data-items-per-view="2"');
+    const mobileHtml=renderToStaticMarkup(createElement(StorefrontRuntimeRenderer,{
+      page:home,
+      viewport:'mobile',
+      bindingContext:{brand:{name:'Playroom',homeHref:'/'},navigation:{primary:[],footer:[]},catalog:{existingCommerceProducts:previewProducts}},
+      componentRegistry:registry,rendererRegistry,capability:alap,
+    }));
+    expect(mobileHtml).toContain('data-mobile-item-width="100%"');
+    expect(mobileHtml).toContain('data-mobile-single-item="true"');
+    expect(mobileHtml).toContain('data-items-per-view="1"');
+    expect(mobileHtml).toContain('data-storefront-product-rail-controls="mobile"');
+    expect(mobileHtml.match(/data-storefront-product-rail-item="true"/g)).toHaveLength(2);
+    expect(mobileHtml).toContain('data-active-index="0"');
+    expect(mobileHtml).toContain('overflow-x:auto');
+    expect(mobileHtml).toContain('scroll-snap-type:x mandatory');
+    expect(mobileHtml).toContain('touch-action:pan-x');
+    expect(mobileHtml).not.toContain('touch-action:pan-y');
+    expect(mobileHtml).toContain('Orbit Test · Alapváltozat');
+    expect(mobileHtml).toContain('Neon Test · Alapváltozat');
+    expect(mobileHtml).toContain('aria-label="Előző termék"');
+    expect(mobileHtml).toContain('aria-label="Következő termék"');
+    expect(mobileHtml).toContain('1 / 2');
     const scene=read('src/lib/builder/storefront-interactive-scene-server.ts');
     expect(scene).toContain("from('product_media').select('id,storage_path')");
     expect(scene).toContain('imageUrl,');
@@ -405,6 +446,19 @@ describe('Playroom v20 functional acceptance',()=>{
     const titles=['Orbit Breakers','Neon Rally','Midnight Quest','Cyber Arena','Party Rift','Starforge','Turbo Circuit','Couch Crew','Mech Tactics','Pixel Picnic','Void Runners','Kingdom Grid'];
     for(const title of titles)expect(preview).toContain(`name:'${title}'`);
     expect(preview).toContain("const limit=page.pageType==='home'?12:previewProductLimit(page)");
+    expect(preview).toContain("href:\`/termek/\${slug}\`");
+    expect(preview).toContain("unitPrice:price");
+    expect(preview).toContain("availableQuantity:stock");
+    expect(preview).toContain("playroomFixtureProducts(template)");
+    expect(preview).toContain("selectedSlug");
+    expect(preview).not.toContain("name:product.name,\\n      href:'#preview-demo'");
+    const commerce=read('src/components/builder/storefront-commerce.tsx');
+    const quickAdd=read('src/components/builder/storefront-product-card-add-to-cart-client.tsx');
+    expect(commerce).toContain("text(config.ctaAction)==='add-to-cart'");
+    expect(commerce).toContain('StorefrontProductCardAddToCartClient');
+    expect(quickAdd).toContain('data-storefront-product-card-add-to-cart="true"');
+    expect(quickAdd).toContain("add({productId,variantId,slug,name,unitPrice,quantity");
+    expect(quickAdd).toContain("track('add_to_cart'");
     const installable=(PLAYROOM_V20_TEMPLATE_PACKAGE.demoFixtures??[]).filter(item=>item.entityType==='product'&&item.payload.installAsDemoProduct===true);
     expect(installable).toHaveLength(12);
     expect(installable.map(item=>item.payload.name)).toEqual(titles);

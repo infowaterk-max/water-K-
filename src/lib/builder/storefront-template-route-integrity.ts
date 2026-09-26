@@ -90,6 +90,10 @@ const STANDARD_DEMO_PAGES:Readonly<Record<string,DemoContentPayload>>=Object.fre
   rolunk:standardPage('rolunk','Rólunk','Mintaoldal a vállalkozás, márka és webshop bemutatásához.','Kik vagyunk?\nMutasd be röviden a vállalkozást, a márka történetét és azt, milyen értéket adtok a vásárlóknak.\n\nMiért minket?\nIde kerülhetnek a valós szolgáltatási előnyök, szakmai tapasztalatok és ügyfélígéretek.'),
   fenntarthatosag:standardPage('fenntarthatosag','Fenntarthatóság','Mintaoldal a bizonyítható fenntarthatósági vállalások bemutatásához.','Amit ténylegesen teszünk\nCsak ellenőrizhető, dokumentálható környezeti vagy társadalmi vállalásokat tüntess fel.\n\nCsomagolás és működés\nÍrd le a valós csomagolási, szállítási vagy beszerzési gyakorlatot.'),
   karrier:standardPage('karrier','Karrier','Mintaoldal álláslehetőségek és jelentkezési információk számára.','Csatlakozz hozzánk\nMutasd be a vállalkozást mint munkahelyet és az aktuális lehetőségeket.\n\nJelentkezés\nAdd meg a valódi jelentkezési csatornát és az adatkezelési tájékoztatásra mutató hivatkozást.'),
+  aszf:standardPage('aszf','Általános Szerződési Feltételek','Minta jogi oldal a saját, ellenőrzött ÁSZF helyének és szerkezetének bemutatásához.','Általános Szerződési Feltételek\nEz a demo csak a dokumentum helyét és megjelenését mutatja. Éles használat előtt a kereskedő saját, jogilag ellenőrzött ÁSZF-jét kell közzétenni.\n\nRendelés, szállítás és fizetés\nA tényleges kereskedelmi feltételeket az aktív webshopbeállítások és a közzétett jogi dokumentum együtt határozza meg.'),
+  adatvedelem:standardPage('adatvedelem','Adatkezelési tájékoztató','Minta adatvédelmi oldal a saját adatkezelési dokumentum helyének bemutatásához.','Adatkezelési tájékoztató\nAz éles webshop dokumentumának a kereskedő tényleges adatkezelési gyakorlatát, céljait, jogalapjait és adatfeldolgozóit kell tartalmaznia.\n\nDemo figyelmeztetés\nEz a mintaszöveg nem állít kitalált adatkezelési tényeket és nem helyettesít jogi ellenőrzést.'),
+  impresszum:standardPage('impresszum','Impresszum','Minta impresszum az üzemeltetői és kapcsolati adatok storefront helyének bemutatásához.','Impresszum\nÉles használatban itt kizárólag a webshop tényleges üzemeltetői adatai jelenhetnek meg: cégnév, székhely, elérhetőségek és a szükséges nyilvántartási adatok.\n\nDemo figyelmeztetés\nA jelenlegi tartalom kizárólag a sablon tartalmi szerkezetét demonstrálja.'),
+  'szallitas-es-fizetes':standardPage('szallitas-es-fizetes','Szállítás és fizetés','Minta összefoglaló a webshop aktív szállítási és fizetési lehetőségeinek bemutatásához.','Szállítás és fizetés\nA ténylegesen választható módokat a webshop aktív szolgáltatói konfigurációja adja.\n\nDemo figyelmeztetés\nA sablon itt csak a tájékoztatás helyét és vizuális szerkezetét mutatja; díjakat és szolgáltatókat nem talál ki.'),
 });
 
 function genericContent(slug:string,title:string,kind:'page'|'blog'):DemoContentPayload{
@@ -116,6 +120,11 @@ export function augmentStorefrontTemplateDemoContent(template:StorefrontInstalla
     let kind:'page'|'blog'|null=null,slug='';
     if(link.href.startsWith('/oldal/')){kind='page';slug=link.href.split(/[?#]/)[0]!.slice('/oldal/'.length);}
     else if(link.href.startsWith('/blog/')){kind='blog';slug=link.href.split(/[?#]/)[0]!.slice('/blog/'.length);}
+    else{
+      const pathname=link.href.split(/[?#]/)[0]!;
+      const exactSlug=pathname.startsWith('/')?pathname.slice(1):pathname;
+      if(STANDARD_DEMO_PAGES[exactSlug]){kind='page';slug=exactSlug;}
+    }
     if(!kind||!slug||existing.has(slug))continue;
     const payload=kind==='page'?(STANDARD_DEMO_PAGES[slug]??genericContent(slug,link.label,'page')):genericContent(slug,link.label,'blog');
     fixtures.push({entityType:'content',entityKey:`${kind}-${slug}`,payload});
@@ -184,9 +193,15 @@ function rewritePreviewHref(href:string,input:{templateKey:string;templateVersio
     viewport:input.viewport,
   });
   if(input.factoryCandidate)params.set('factory','1');
-  if(url.pathname.startsWith('/oldal/')||url.pathname.startsWith('/blog/')){
+  if(url.pathname.startsWith('/termek/')){
+    const slug=url.pathname.split('/').filter(Boolean).at(-1);
+    if(slug)params.set('demoProduct',slug);
+  }else if(url.pathname.startsWith('/oldal/')||url.pathname.startsWith('/blog/')){
     const slug=url.pathname.split('/').filter(Boolean).at(-1);
     if(slug)params.set('demoContent',slug);
+  }else{
+    const exactSlug=url.pathname.startsWith('/')?url.pathname.slice(1):url.pathname;
+    if(STANDARD_DEMO_PAGES[exactSlug])params.set('demoContent',exactSlug);
   }
   for(const[key,value]of url.searchParams)params.append(key,value);
   return`/storefront-template-preview?${params.toString()}`;
@@ -497,6 +512,38 @@ export function evaluateStorefrontTemplateShowroomContract(template:StorefrontIn
   const serialized=JSON.stringify(template);
   for(const token of ['Minta tartalom','A kínálat feltöltés alatt áll','Ez a sablon által létrehozott mintaoldal'])if(serialized.includes(token))issues.push(showroomIssue('SHOWROOM_PLACEHOLDER_CONTENT','demoContent',`Product Owner-ready template nem tartalmazhat placeholder/fallback szöveget: ${token}`));
   return issues;
+}
+
+export type StorefrontDemoContentRole='title'|'summary'|'body'|'sectionTitle'|'eyebrow'|'image'|'imageAlt'|'readingTime'|'category';
+
+export function applyStorefrontTemplateDemoContent(
+  page:StorefrontPageDocument,
+  payload:Record<string,unknown>,
+):StorefrontPageDocument{
+  const valueFor=(role:StorefrontDemoContentRole):unknown=>{
+    if(role==='summary')return payload.excerpt??payload.summary;
+    if(role==='sectionTitle')return payload.sectionTitle;
+    if(role==='imageAlt')return payload.imageAlt??payload.title;
+    if(role==='readingTime')return payload.readingTime;
+    if(role==='category')return payload.category??payload.kind;
+    return payload[role];
+  };
+  const visit=(node:StorefrontComponentNode):StorefrontComponentNode=>{
+    const next=structuredClone(node);
+    const rawRole=next.config.demoContentRole;
+    if(typeof rawRole==='string'){
+      const role=rawRole as StorefrontDemoContentRole;
+      const value=valueFor(role);
+      if(typeof value==='string'&&value.trim()){
+        if(role==='image')next.config.src=value;
+        else if(role==='imageAlt')next.config.alt=value;
+        else next.config.text=value;
+      }
+    }
+    if(next.children?.length)next.children=next.children.map(visit);
+    return next;
+  };
+  return{...structuredClone(page),sections:page.sections.map(visit),metadata:{...(page.metadata??{}),demoContentBound:true}};
 }
 
 export function isStorefrontShowroomReadyDemoContent(fixture:StorefrontDemoFixture|null|undefined):boolean{

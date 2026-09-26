@@ -15,11 +15,11 @@ import {StorefrontRuntimeRenderer} from '@/components/builder/storefront-runtime
 import {createStorefrontVisualBuilderRendererRegistry} from '@/components/builder/storefront-builder-renderer-registry';
 import {createStorefrontVisualBuilderComponentRegistry} from '@/lib/builder/storefront-builder-registry';
 import {STOREFRONT_CANONICAL_VIEWPORT_WIDTH_PX,STOREFRONT_PAGE_TYPES,type StorefrontBuilderPageType,type StorefrontViewport} from '@/lib/builder/storefront-foundation';
-import {applyStorefrontTemplateDemoNotice,applyStorefrontTemplateOwnerShowroomNavigation,getStorefrontTemplateDemoContent,isStorefrontShowroomReadyDemoContent,rewriteStorefrontTemplatePreviewBindingContext,rewriteStorefrontTemplatePreviewLinks} from '@/lib/builder/storefront-template-route-integrity';
+import {applyStorefrontTemplateDemoContent,applyStorefrontTemplateDemoNotice,applyStorefrontTemplateOwnerShowroomNavigation,getStorefrontTemplateDemoContent,isStorefrontShowroomReadyDemoContent,rewriteStorefrontTemplatePreviewBindingContext,rewriteStorefrontTemplatePreviewLinks} from '@/lib/builder/storefront-template-route-integrity';
 import styles from './storefront-template-preview.module.css';
 
 export const dynamic='force-dynamic';
-type Props={searchParams:Promise<{template?:string;version?:string;page?:string;viewport?:string;embed?:string;demoContent?:string;factory?:string}>};
+type Props={searchParams:Promise<{template?:string;version?:string;page?:string;viewport?:string;embed?:string;demoContent?:string;demoProduct?:string;factory?:string}>};
 const widths=STOREFRONT_CANONICAL_VIEWPORT_WIDTH_PX;
 const allowedPageTypes=new Set<StorefrontBuilderPageType>(STOREFRONT_PAGE_TYPES);
 
@@ -59,7 +59,9 @@ export default async function StorefrontTemplatePreview({searchParams}:Props){
   if(query.demoContent&&!demoFixture)notFound();
   const demoPayload=demoFixture?.payload??null;
   const embed=query.embed==='1';
-  const noticedPage=demoPayload&&!isStorefrontShowroomReadyDemoContent(demoFixture)?applyStorefrontTemplateDemoNotice(sourcePage):sourcePage;
+  const contentBoundPage=demoPayload?applyStorefrontTemplateDemoContent(sourcePage,demoPayload):sourcePage;
+  const demoNoticeRequired=Boolean(demoPayload)&&(!factoryCandidate||!isStorefrontShowroomReadyDemoContent(demoFixture));
+  const noticedPage=demoNoticeRequired?applyStorefrontTemplateDemoNotice(contentBoundPage):contentBoundPage;
   const routedPage=rewriteStorefrontTemplatePreviewLinks(noticedPage,{templateKey:template.manifest.templateKey,templateVersion:template.manifest.templateVersion,viewport,factoryCandidate});
   const page=embed?routedPage:applyStorefrontTemplateOwnerShowroomNavigation(routedPage,{
     templateKey:template.manifest.templateKey,
@@ -67,7 +69,7 @@ export default async function StorefrontTemplatePreview({searchParams}:Props){
     viewport,
     factory:factoryCandidate,
   });
-  const baseContext=applyAuthoredTemplatePreviewFallbacks({page,context:createStorefrontTemplatePreviewBindingContext({template,page})});
+  const baseContext=applyAuthoredTemplatePreviewFallbacks({page,context:createStorefrontTemplatePreviewBindingContext({template,page,demoProductSlug:query.demoProduct})});
   if(demoPayload){
     const content=baseContext.content&&typeof baseContext.content==='object'&&!Array.isArray(baseContext.content)?baseContext.content as Record<string,unknown>:{};
     const title=typeof demoPayload.title==='string'?demoPayload.title:'Minta tartalom';
