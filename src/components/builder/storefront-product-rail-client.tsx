@@ -1,6 +1,6 @@
 'use client';
 
-import {Children,useRef,useState,type CSSProperties,type ReactNode} from 'react';
+import {Children,useRef,useState,type CSSProperties,type ReactNode,type TouchEvent} from 'react';
 
 type Viewport='desktop'|'tablet'|'mobile';
 
@@ -35,11 +35,11 @@ export function StorefrontProductRail({
     if(!element)return;
     element.scrollBy({left:direction*Math.max(1,element.clientWidth),behavior:'smooth'});
   };
-  const onTouchStart=(event:React.TouchEvent<HTMLDivElement>)=>{
+  const onTouchStart=(event:TouchEvent<HTMLDivElement>)=>{
     if(!singleMobile)return;
     touchStartX.current=event.touches[0]?.clientX??null;
   };
-  const onTouchEnd=(event:React.TouchEvent<HTMLDivElement>)=>{
+  const onTouchEnd=(event:TouchEvent<HTMLDivElement>)=>{
     if(!singleMobile||touchStartX.current===null)return;
     const end=event.changedTouches[0]?.clientX;
     const start=touchStartX.current;
