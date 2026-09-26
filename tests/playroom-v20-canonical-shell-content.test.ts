@@ -80,7 +80,9 @@ describe('Playroom v20 canonical shell and content contract',()=>{
     }
     const home=PLAYROOM_V20_TEMPLATE_PACKAGE.pages.find(item=>item.pageType==='home')!;
     const featured=walk(home.sections).find(node=>node.id==='playroomFeaturedGames');
-    expect((featured?.config.styleSlots as any).card.mobile.minWidth).toBe('15rem');
+    expect(featured?.config.mobileItemWidth).toBe('100%');
+    expect(featured?.config.showMobileControls).toBe(true);
+    expect((featured?.config.styleSlots as any).card.mobile).toMatchObject({minWidth:0,width:'100%'});
     const catalog=PLAYROOM_V20_TEMPLATE_PACKAGE.pages.find(item=>item.pageType==='catalog')!;
     const grid=walk(catalog.sections).find(node=>node.id==='playroomCatalogGrid');
     expect(grid?.config.ctaAction).toBe('add-to-cart');
