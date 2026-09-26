@@ -374,6 +374,7 @@ describe('Playroom v20 functional acceptance',()=>{
     expect(featured.config.presentation).toBe('carousel');
     expect(featured.config.mobileItemWidth).toBe('100%');
     expect(featured.config.showMobileControls).toBe(true);
+    expect(featured.config.mobileSingleItem).toBe(true);
     const previewProducts=[{
       productId:'product-demo',variantId:'variant-demo',label:'Orbit Test · Alapváltozat',
       href:'/termek/orbit-test',imageUrl:'/storefront/playroom/game-orbit.svg',
@@ -411,13 +412,14 @@ describe('Playroom v20 functional acceptance',()=>{
       componentRegistry:registry,rendererRegistry,capability:alap,
     }));
     expect(mobileHtml).toContain('data-mobile-item-width="100%"');
+    expect(mobileHtml).toContain('data-mobile-single-item="true"');
     expect(mobileHtml).toContain('data-storefront-product-rail-controls="mobile"');
     expect(mobileHtml).toContain('data-storefront-product-rail-item="true"');
-    expect(mobileHtml).toContain('flex:0 0 100%');
-    expect(mobileHtml).toContain('scroll-snap-stop:always');
-    expect(mobileHtml).toContain('touch-action:pan-x');
-    expect(mobileHtml).toContain('aria-label="Előző termékek"');
-    expect(mobileHtml).toContain('aria-label="Következő termékek"');
+    expect(mobileHtml).toContain('data-active-index="0"');
+    expect(mobileHtml).toContain('touch-action:pan-y');
+    expect(mobileHtml).toContain('aria-label="Előző termék"');
+    expect(mobileHtml).toContain('aria-label="Következő termék"');
+    expect(mobileHtml).toContain('1 / 2');
     const scene=read('src/lib/builder/storefront-interactive-scene-server.ts');
     expect(scene).toContain("from('product_media').select('id,storage_path')");
     expect(scene).toContain('imageUrl,');
