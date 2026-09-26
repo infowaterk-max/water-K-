@@ -373,6 +373,8 @@ describe('Playroom v20 functional acceptance',()=>{
     expect(featured.bindings?.products?.path).toBe('catalog.existingCommerceProducts');
     expect(featured.config.presentation).toBe('carousel');
     expect(featured.config.mobileItemWidth).toBe('100%');
+    expect(featured.config.tabletItemsPerView).toBe(2);
+    expect(featured.config.desktopItemsPerView).toBe(2);
     expect(featured.config.showMobileControls).toBe(true);
     expect(featured.config.mobileSingleItem).toBe(true);
     const previewProducts=[{
@@ -403,8 +405,16 @@ describe('Playroom v20 functional acceptance',()=>{
     expect(html).toContain('Készleten');
     expect(html).toContain('/storefront/playroom/game-orbit.svg');
     expect(html).toContain('data-storefront-product-rail="true"');
+    expect(html).toContain('data-items-per-view="2"');
     expect(html).toContain('aria-label="Előző termékek"');
     expect(html).not.toContain('>Termék<');
+    const tabletHtml=renderToStaticMarkup(createElement(StorefrontRuntimeRenderer,{
+      page:home,
+      viewport:'tablet',
+      bindingContext:{brand:{name:'Playroom',homeHref:'/'},navigation:{primary:[],footer:[]},catalog:{existingCommerceProducts:previewProducts}},
+      componentRegistry:registry,rendererRegistry,capability:alap,
+    }));
+    expect(tabletHtml).toContain('data-items-per-view="2"');
     const mobileHtml=renderToStaticMarkup(createElement(StorefrontRuntimeRenderer,{
       page:home,
       viewport:'mobile',
@@ -413,10 +423,16 @@ describe('Playroom v20 functional acceptance',()=>{
     }));
     expect(mobileHtml).toContain('data-mobile-item-width="100%"');
     expect(mobileHtml).toContain('data-mobile-single-item="true"');
+    expect(mobileHtml).toContain('data-items-per-view="1"');
     expect(mobileHtml).toContain('data-storefront-product-rail-controls="mobile"');
-    expect(mobileHtml).toContain('data-storefront-product-rail-item="true"');
+    expect(mobileHtml.match(/data-storefront-product-rail-item="true"/g)).toHaveLength(2);
     expect(mobileHtml).toContain('data-active-index="0"');
-    expect(mobileHtml).toContain('touch-action:pan-y');
+    expect(mobileHtml).toContain('overflow-x:auto');
+    expect(mobileHtml).toContain('scroll-snap-type:x mandatory');
+    expect(mobileHtml).toContain('touch-action:pan-x');
+    expect(mobileHtml).not.toContain('touch-action:pan-y');
+    expect(mobileHtml).toContain('Orbit Test · Alapváltozat');
+    expect(mobileHtml).toContain('Neon Test · Alapváltozat');
     expect(mobileHtml).toContain('aria-label="Előző termék"');
     expect(mobileHtml).toContain('aria-label="Következő termék"');
     expect(mobileHtml).toContain('1 / 2');
