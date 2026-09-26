@@ -47,7 +47,9 @@ describe('Playroom v20 canonical shell and content contract',()=>{
   it('keeps the accepted Playroom Contact composition on a continuous dark canvas with the shared topic-first wizard',()=>{
     const page=PLAYROOM_V20_TEMPLATE_PACKAGE.pages.find(item=>item.pageType==='contact')!;
     const nodes=walk(page.sections);
-    expect(nodes.some(node=>node.id==='playroom-contact-options-preset')).toBe(true);
+    expect(nodes.some(node=>node.id==='playroom-contact-options-preset')).toBe(false);
+    expect(nodes.some(node=>node.id==='playroom-contact-company')).toBe(true);
+    expect(nodes.some(node=>node.id==='playroom-contact-map'&&node.componentKey==='support.location-map')).toBe(true);
     expect(nodes.some(node=>node.componentKey==='support.contact-form')).toBe(true);
     const surface=nodes.find(node=>node.id==='playroom-contact-form-surface');
     expect(surface).toBeTruthy();
@@ -87,7 +89,7 @@ describe('Playroom v20 canonical shell and content contract',()=>{
     const grid=walk(catalog.sections).find(node=>node.id==='playroomCatalogGrid');
     expect(grid?.config.ctaAction).toBe('add-to-cart');
     expect(grid?.config.ctaLabel).toBe('Kosárba');
-    expect((grid?.config.styleSlots as any).grid.mobile.gridTemplateColumns).toBe('1fr');
+    expect((grid?.config.styleSlots as any).grid.mobile.gridTemplateColumns).toBe('repeat(2,minmax(0,1fr))');
   });
 
   it('ships a connected Playroom product–collection–editorial world instead of isolated demo prose',()=>{
