@@ -138,23 +138,25 @@ describe('Playroom v20 functional acceptance',()=>{
     expect(runtimeSource).toContain("resolveCurrentStorefrontPublicStaticRuntimePage('contact')");
   });
 
-  it('keeps Playroom contact copy Hungarian and the contact card groups balanced at tablet width',()=>{
+  it('keeps Playroom contact Hungarian and replaces redundant routing cards with company/map information',()=>{
     const contact=playroomPage('contact');
     const serialized=JSON.stringify(contact);
     expect(serialized).not.toContain('BE READY');
     expect(serialized).not.toContain('GENERAL');
     expect(findNode(contact,'playroom-contact-expect-kicker').config.text).toBe('KÉSZÜLJ FEL');
-    expect(findNode(contact,'playroom-contact-general-kicker').config.text).toBe('ÁLTALÁNOS');
     expect(findNode(contact,'playroom-contact-copy').responsive?.tablet?.gridSpan).toBe(8);
     expect(findNode(contact,'playroom-contact-expectations').responsive?.tablet?.gridSpan).toBe(4);
-    for(const id of ['playroom-contact-orders','playroom-contact-product','playroom-contact-general']){
-      expect(findNode(contact,id).responsive?.desktop?.gridSpan).toBe(4);
-      expect(findNode(contact,id).responsive?.tablet?.gridSpan).toBe(4);
-      expect(findNode(contact,id).responsive?.mobile?.gridSpan).toBe(12);
-    }
-    const tabletMarkup=render(contact,{},'tablet');
+    for(const id of ['playroom-contact-orders','playroom-contact-product','playroom-contact-general'])expect(()=>findNode(contact,id)).toThrow();
+    expect(findNode(contact,'playroom-contact-company').responsive?.desktop?.gridSpan).toBe(5);
+    expect(findNode(contact,'playroom-contact-company').responsive?.mobile?.gridSpan).toBe(12);
+    expect(findNode(contact,'playroom-contact-map').componentKey).toBe('support.location-map');
+    expect(findNode(contact,'playroom-contact-map').responsive?.desktop?.gridSpan).toBe(7);
+    expect(findNode(contact,'playroom-contact-map').responsive?.mobile?.gridSpan).toBe(12);
+    const tabletMarkup=render(contact,{brand:{name:'Playroom',contactAddress:'Budapest',supportPhone:'+36 1 555 0100',supportEmail:'hello@playroom.example',mapEmbedUrl:'https://www.google.com/maps?q=Budapest&output=embed',mapLinkUrl:'https://www.google.com/maps/search/?api=1&query=Budapest'}},'tablet');
     expect(tabletMarkup).toContain('KÉSZÜLJ FEL');
-    expect(tabletMarkup).toContain('ÁLTALÁNOS');
+    expect(tabletMarkup).toContain('Cégadatok');
+    expect(tabletMarkup).toContain('Budapest');
+    expect(tabletMarkup).toContain('data-storefront-support="location-map"');
   });
 
   it('keeps Contact Form on the canonical ticket authority with validation, dedupe, spam sink and accessible feedback',()=>{
