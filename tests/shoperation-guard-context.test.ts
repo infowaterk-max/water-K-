@@ -16,6 +16,8 @@ describe('shared cross-gate context',()=>{
     expect(byId.get('GUARD-PLAN-BEFORE-CODE').consumesEvidenceFrom).toEqual(expect.arrayContaining(['GUARD-INSTRUCTION-COMPLIANCE','GUARD-KNOWLEDGE-PREFLIGHT']));
     expect(byId.get('GUARD-EDIT-TIME').consumesEvidenceFrom).toEqual(expect.arrayContaining(['GUARD-INSTRUCTION-COMPLIANCE','GUARD-KNOWLEDGE-PREFLIGHT','GUARD-PLAN-BEFORE-CODE']));
     expect(byId.get('GUARD-INCREMENTAL-REPLAY').consumesEvidenceFrom).toEqual(expect.arrayContaining(['GUARD-INSTRUCTION-COMPLIANCE','GUARD-KNOWLEDGE-PREFLIGHT','GUARD-PLAN-BEFORE-CODE','GUARD-EDIT-TIME']));
+    expect(byId.get('GUARD-RELEASE-RISK').consumesEvidenceFrom).toEqual(expect.arrayContaining(['GUARD-INSTRUCTION-COMPLIANCE','GUARD-KNOWLEDGE-PREFLIGHT','GUARD-PLAN-BEFORE-CODE','GUARD-EDIT-TIME','GUARD-INCREMENTAL-REPLAY']));
+    expect(read('scripts/release-risk-budget.mjs')).toContain("predecessorIssues('GUARD-RELEASE-RISK')");
   });
 
   it('builds one context containing global, domain and Template Factory authorities',()=>{
