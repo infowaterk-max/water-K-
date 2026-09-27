@@ -48,7 +48,8 @@ export function buildGuardContext(){
   const plan=readJson('quality/development/active-plan.json');
   const ledger=readJsonIfExists('quality/development/instruction-ledger.v1.json');
   return {
-    contract:'shoporation.guard-context.v1',
+    contract:'shoporation.guard-context.v2',
+    controlPlane:{profile:process.env.SHOPERATION_CONTROL_PLANE_PROFILE??null,runId:process.env.SHOPERATION_CONTROL_PLANE_RUN_ID??null,activeGuards:(process.env.SHOPERATION_CONTROL_PLANE_ACTIVE_GUARDS??'').split(',').filter(Boolean)},
     taskId:plan.taskId??null,
     guardRegistryContract:registry.contract,
     principles:registry.principles,
@@ -84,10 +85,13 @@ export function buildGuardContext(){
 
 export function predecessorIssues(guardId){
   const registry=guardRegistry();
+  const activeIds=new Set((process.env.SHOPERATION_CONTROL_PLANE_ACTIVE_GUARDS??'').split(',').map(value=>value.trim()).filter(Boolean));
+  const scoped=activeIds.size>0;
   const guard=(registry.guards??[]).find(item=>item.id===guardId);
   if(!guard)return[{code:'GUARD_CONTEXT_GUARD_NOT_REGISTERED',guardId}];
   const issues=[];
   for(const dependencyId of guard.consumesEvidenceFrom??[]){
+    if(scoped&&!activeIds.has(dependencyId))continue;
     const dependency=(registry.guards??[]).find(item=>item.id===dependencyId);
     if(!dependency){
       issues.push({code:'GUARD_CONTEXT_DEPENDENCY_NOT_REGISTERED',guardId,dependencyId});
