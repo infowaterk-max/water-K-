@@ -271,13 +271,13 @@ jobs:
         if: steps.control-plane.outcome == 'success'
         id: typecheck
         continue-on-error: true
-        run: npm run typecheck
+        run: node scripts/shoperation-specialist-runner.mjs --guard GUARD-TYPECHECK -- npm run typecheck
 
       - name: Build exact-head Runtime
         if: steps.control-plane.outcome == 'success'
         id: runtime-build
         continue-on-error: true
-        run: npm run build
+        run: node scripts/shoperation-specialist-runner.mjs --guard GUARD-PRODUCTION-BUILD -- npm run build
 
       - name: Start exact-head QA Runtime
         if: steps.control-plane.outcome == 'success' && steps.template-contracts.outcome == 'success' && steps.typecheck.outcome == 'success' && steps.runtime-build.outcome == 'success'
@@ -303,7 +303,7 @@ jobs:
         run: node scripts/template-factory-quality-gate.mjs
 
       - name: Shoperation Control Plane final Template Factory reconciliation
-        if: steps.control-plane.outcome == 'success'
+        if: always() && steps.control-plane.outcome == 'success'
         id: control-plane-final
         env:
           SHOPERATION_EXTERNAL_GUARD_RESULTS: >-
