@@ -831,10 +831,10 @@
       "id": "SQ-KF-025",
       "title": "Product Owner instruction marked complete without requirement-level proof",
       "symptom": "Code changes and broad gates are green, but one or more explicitly requested Product Owner behaviors are missing, only partially implemented, or contradicted by the actual handoff surface.",
-      "rootCause": "Completion was evaluated from changed files or generic test success instead of replaying the original instruction list against requirement-specific evidence.",
-      "occurrences": 1,
+      "rootCause": "Completion was evaluated from local changed-file or node-presence evidence without cross-reading shared authority rules and prior gate evidence, allowing requirement proof to contradict the platform authority it was meant to preserve.",
+      "occurrences": 2,
       "automatable": true,
-      "remediationPolicy": "shared-invariant-preferred",
+      "remediationPolicy": "shared-root-cause-required",
       "lifecycle": "active",
       "invariantIds": [
         "SQ-AUTH-021",
@@ -842,7 +842,8 @@
         "SQ-AUTH-007"
       ],
       "regressionTests": [
-        "tests/product-owner-instruction-compliance.test.ts"
+        "tests/product-owner-instruction-compliance.test.ts",
+        "tests/shoperation-guard-context.test.ts"
       ],
       "sourceRecords": [
         "docs/support/PRODUCT_OWNER_INSTRUCTION_COMPLIANCE_2026-09-27.md"
