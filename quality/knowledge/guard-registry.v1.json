@@ -20,6 +20,16 @@
       "evidence": "artifacts/shoperation-quality/knowledge-preflight.json"
     },
     {
+      "id": "GUARD-INSTRUCTION-COMPLIANCE",
+      "name": "Product Owner Instruction Compliance",
+      "authority": "quality-knowledge-system",
+      "lifecycle": "development",
+      "blocking": true,
+      "responsibilityKey": "instruction-to-evidence-closure",
+      "producer": "scripts/shoperation-instruction-compliance.mjs",
+      "evidence": "artifacts/shoperation-development-guard/instruction-compliance.json"
+    },
+    {
       "id": "GUARD-PLAN-BEFORE-CODE",
       "name": "Plan Before Code",
       "authority": "quality-knowledge-system",
