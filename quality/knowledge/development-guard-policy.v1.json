@@ -653,7 +653,8 @@
         "Review invariant authority: SQ-AUTH-021, SQ-AUTH-004, SQ-AUTH-007",
         "Update quality/development/instruction-ledger.v1.json before implementation",
         "Keep regression authority available: tests/product-owner-instruction-compliance.test.ts",
-        "Read artifacts/shoperation-development-guard/guard-context.json and preserve cross-gate authority consistency"
+        "Read artifacts/shoperation-development-guard/guard-context.json and preserve cross-gate authority consistency",
+        "Respect SQ-AUTH-022: specialist guards report evidence; only the Control Plane may own final PASS/BLOCK orchestration"
       ]
     }
   },
