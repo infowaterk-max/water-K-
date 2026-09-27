@@ -113,7 +113,19 @@
       "blocking": true,
       "responsibilityKey": "release-coherence-risk-budget",
       "producer": "scripts/release-risk-budget.mjs",
-      "evidence": "artifacts/release-risk-budget.json"
+      "evidence": "artifacts/release-risk-budget.json",
+      "consumesEvidenceFrom": [
+        "GUARD-INSTRUCTION-COMPLIANCE",
+        "GUARD-KNOWLEDGE-PREFLIGHT",
+        "GUARD-PLAN-BEFORE-CODE",
+        "GUARD-EDIT-TIME",
+        "GUARD-INCREMENTAL-REPLAY"
+      ],
+      "authoritySources": [
+        "artifacts/shoperation-development-guard/guard-context.json",
+        "artifacts/shoperation-quality/change-impact.json",
+        "deploy/release-risk-policy.json"
+      ]
     },
     {
       "id": "GUARD-CUSTOMER-BASELINE",
