@@ -37,10 +37,21 @@ describe('Product Owner instruction compliance',()=>{
     expect(checkoutResolved.cart.total).toBeGreaterThan(0);
   });
 
+  it('cross-checks protected checkout instructions against shared authority instead of template-node presence',()=>{
+    const ledger=JSON.parse(readFileSync('quality/development/instruction-ledger.v1.json','utf8'));
+    const checkout=ledger.instructions.find((item:any)=>item.id==='PO-2026-09-27-CHECKOUT-TASK-FIRST');
+    expect(checkout.authorityRuleIds).toContain('TF-AUTH-005');
+    expect(checkout.checks.filter((check:any)=>check.kind==='authority-source-contains').length).toBeGreaterThanOrEqual(4);
+    expect(checkout.checks.some((check:any)=>check.kind==='template-node-present'&&/form-preview|field-|shipping-methods/i.test(check.nodeId??''))).toBe(false);
+  });
+
   it('records this failure class as a global Known Failure with instruction-to-evidence authority',()=>{
     const knowledge=JSON.parse(readFileSync('quality/knowledge/shoperation-quality-knowledge.v1.json','utf8'));
     expect(knowledge.authorityRules.some((item:any)=>item.id==='SQ-AUTH-021')).toBe(true);
     expect(knowledge.knownFailures.some((item:any)=>item.id==='SQ-KF-025')).toBe(true);
     expect(knowledge.globalBaselineFailureIds).toContain('SQ-KF-025');
+    const failure=knowledge.knownFailures.find((item:any)=>item.id==='SQ-KF-025');
+    expect(failure.occurrences).toBeGreaterThanOrEqual(2);
+    expect(failure.remediationPolicy).toBe('shared-root-cause-required');
   });
 });
