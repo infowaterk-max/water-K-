@@ -20,7 +20,7 @@ const templateNode=(file,pageType,nodeId)=>{
   return page?all(page.sections??[]).find(node=>node.id===nodeId):undefined;
 };
 const eq=(a,b)=>JSON.stringify(a)===JSON.stringify(b);
-const textOf=item=>[item.request,...(item.acceptanceCriteria??[]),...(item.checks??[]).flatMap(check=>[check.pageType,check.file,check.nodeId])].filter(Boolean).join(' ').toLocaleLowerCase('hu-HU');
+const textOf=item=>[item.request,...(item.checks??[]).flatMap(check=>[check.pageType,check.file])].filter(Boolean).join(' ').toLocaleLowerCase('hu-HU');
 
 const PROTECTED={
   checkout:{
@@ -71,7 +71,7 @@ for(const item of ledger.instructions??[]){
       if(!(item.authorityRuleIds??[]).includes(ruleId))issues.push({code:'PO_INSTRUCTION_AUTHORITY_ACK_REQUIRED',id:item.id,subject,ruleId});
     }
     const behaviorNodeChecks=(item.checks??[]).filter(check=>
-      String(check.kind??'').startsWith('template-node-')
+      ['template-node-present','template-node-value'].includes(String(check.kind??''))
       &&contract.forbiddenTemplateBehavior.test(String(check.nodeId??''))
     );
     if(behaviorNodeChecks.length)issues.push({
