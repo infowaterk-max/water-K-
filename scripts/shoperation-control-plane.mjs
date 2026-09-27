@@ -1,5 +1,6 @@
 import {execFileSync} from 'node:child_process';
 import {existsSync,mkdirSync,readFileSync,writeFileSync} from 'node:fs';
+import {emitInstantGuardFailure} from './lib/shoperation-control-plane-reporter.mjs';
 
 const readJson=file=>JSON.parse(readFileSync(file,'utf8'));
 const registry=readJson('quality/knowledge/guard-registry.v1.json');
@@ -68,6 +69,12 @@ if(reconcile){
         decision='BLOCK';
       }
     }
+    const specialistPath=`${reportDir}/specialist-${guardId.toLowerCase()}.json`;
+    const specialistEvidence=existsSync(specialistPath)?readJson(specialistPath):null;
+    if(specialistEvidence&&specialistEvidence.decision!==decision){
+      contradictions.push({code:'CONTROL_PLANE_SPECIALIST_EVIDENCE_CONTRADICTION',guardId,stepDecision:decision,specialistDecision:specialistEvidence.decision});
+      decision='BLOCK';
+    }
     const evidence={
       contract:'shoporation.control-plane.external-evidence.v1',
       guardId,
@@ -76,17 +83,22 @@ if(reconcile){
       authority:guard.authority,
       rawOutcome:raw||null,
       dependencyBlocks,
+      diagnostics:specialistEvidence?.diagnostics??[],
+      specialistEvidencePath:specialistEvidence?specialistPath:null,
       decision,
       taskId:plan.taskId,
       sourceHead,
     };
     const evidencePath=`${reportDir}/external-${guardId.toLowerCase()}.json`;
     writeFileSync(evidencePath,JSON.stringify(evidence,null,2)+'\n');
-    const row={guardId,name:guard.name,responsibilityKey:guard.responsibilityKey,authority:guard.authority,decision,exitCode:null,evidencePath,evidenceDecision:decision,taskId:plan.taskId,evidenceHead:sourceHead,external:true,rawOutcome:raw,dependencyBlocks};
+    const row={guardId,name:guard.name,responsibilityKey:guard.responsibilityKey,authority:guard.authority,decision,exitCode:specialistEvidence?.exitCode??null,evidencePath,evidenceDecision:decision,taskId:plan.taskId,evidenceHead:sourceHead,external:true,rawOutcome:raw,dependencyBlocks,diagnostics:evidence.diagnostics};
     const index=outcomes.findIndex(item=>item.guardId===guardId);
     if(index>=0)outcomes[index]=row;else outcomes.push(row);
     outcomeMap.set(guardId,row);
-    if(raw!=='success')contradictions.push({code:'CONTROL_PLANE_EXTERNAL_SPECIALIST_NOT_PASS',guardId,rawOutcome:raw});
+    if(raw!=='success'){
+      contradictions.push({code:'CONTROL_PLANE_EXTERNAL_SPECIALIST_NOT_PASS',guardId,rawOutcome:raw});
+      if(!specialistEvidence)emitInstantGuardFailure({guard,evidence,stage:'external-reconciliation'});
+    }
     for(const dependency of dependencyBlocks)contradictions.push({code:'CONTROL_PLANE_EXTERNAL_PREDECESSOR_NOT_PASS',guardId,...dependency});
   }
 
@@ -176,8 +188,12 @@ if(reconcile){
     if(sourceHead&&evidenceHead&&evidenceHead!=='HEAD'&&evidenceHead!==sourceHead)contradictions.push({code:'CONTROL_PLANE_HEAD_DRIFT',guardId,expected:sourceHead,actual:evidenceHead});
 
     const decision=exitCode===0&&(!evidencePath||evidenceDecision==='PASS')?'PASS':'BLOCK';
-    outcomes.push({guardId,name:guard.name,responsibilityKey:guard.responsibilityKey,authority:guard.authority,decision,exitCode,evidencePath,evidenceDecision,taskId,evidenceHead,processError});
-    if(decision!=='PASS')break;
+    const row={guardId,name:guard.name,responsibilityKey:guard.responsibilityKey,authority:guard.authority,decision,exitCode,evidencePath,evidenceDecision,taskId,evidenceHead,processError};
+    outcomes.push(row);
+    if(decision!=='PASS'){
+      emitInstantGuardFailure({guard,evidence,processError,stage:'managed'});
+      break;
+    }
   }
 
   let authoritySummary=null;
