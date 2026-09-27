@@ -1748,3 +1748,43 @@ A READY deployment root, Vercel inspector URL, redirect page or protection page 
 ### Knowledge rule
 
 Every genuinely new defect class must enter failure intake / Known Failure knowledge. A recurrence must not create a duplicate failure ID: increment the existing occurrence, attach the new evidence, and strengthen prevention/regression coverage when the previous control proved bypassable.
+
+
+---
+
+## SKB-P4-036 — Static checkout replica passed while shared E13 remained elsewhere
+
+- status: `implemented`
+- evidence: `human_rejection + authority_conflict + cross_guard_repair`
+- area: `template-factory/checkout/product-owner-proof`
+- risk: `high`
+- automation: `SHARED_CONTEXT_REQUIRED`
+- known failure: `TF-KF-019`
+- related global failure: `SQ-KF-025`
+
+### Symptom
+
+The Playroom Product Owner preview displayed checkout-like fields and shipping/payment steps, but the fields were static `content.text` / `layout.*` nodes and could not be edited. The real shared E13 `CheckoutForm` still existed on the canonical `/penztar` route.
+
+### Root cause
+
+Two independent green proofs contradicted an older authority rule:
+
+- Instruction Compliance accepted template-node presence as proof that checkout behavior had been implemented;
+- Product Owner handoff accepted `commerce.checkout-summary` presence as E13 evidence;
+- neither proof consumed `TF-AUTH-005`, which already states that cart/checkout/account behavior is platform-owned and templates own presentation only.
+
+The result was a presentation replica being accepted while the real business route remained separate.
+
+### Resolution
+
+- `TF-KF-019` and `SQ-KF-025` are marked recurring and require shared-root-cause remediation;
+- development guards now share one guard context/evidence bus;
+- later guards must consume prior blocking evidence;
+- Instruction Compliance cross-reads global, domain and Template Factory authority;
+- protected checkout/cart/account behavior may not be proven only by template-node presence;
+- checkout proof must preserve and cite the shared E13 route/runtime authority.
+
+### Prevention
+
+Do not add another independent gate for this class. Existing gates must exchange evidence and authority context. A later PASS is invalid if it contradicts an earlier authority rule or blocking-gate result.
