@@ -66,7 +66,7 @@ describe('V24 rollout readiness contracts', () => {
     expect(workflow).toContain('npm run release:manifest');
   });
 
-  it('enforces the production release risk budget before the rest of the build gate', () => {
+  it('keeps the production release risk budget as an independent Control Plane release specialist', () => {
     const workflow = read('.github/workflows/ci.yml');
     const policy = JSON.parse(read('deploy/release-risk-policy.json')) as {
       maxPoints: number;
@@ -84,8 +84,10 @@ describe('V24 rollout readiness contracts', () => {
     expect(workflow).toContain('Shoperation Control Plane');
     expect(workflow).toContain('scripts/shoperation-control-plane.mjs');
     expect(workflow).toContain('release-risk-budget.json');
-    expect(releaseGuard?.execution?.mode).toBe('control-plane-managed');
-    expect(releaseGuard?.execution?.args).toContain('scripts/release-risk-budget.mjs');
+    expect(releaseGuard?.execution?.mode).toBe('external-specialist');
+    expect(workflow).toContain('shoperation-specialist-runner.mjs --guard GUARD-RELEASE-RISK');
+    expect(workflow).toContain('"GUARD-RELEASE-RISK"');
+    expect(workflow).toContain('Shoperation Control Plane final reconciliation');
     expect(riskGate).toContain('high-risk subsystem');
     expect(riskGate).toContain('must be isolated from other substantive subsystems');
     expect(riskGate).toContain('RELEASE_RISK_BUDGET_FAILED');
