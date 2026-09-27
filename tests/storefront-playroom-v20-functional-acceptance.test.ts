@@ -881,8 +881,8 @@ describe('Playroom v20 functional acceptance',()=>{
       'playroom-product-facts-specs',
       'playroom-product-downloads',
     ]);
-    expect(factsGrid.children?.map(item=>item.responsive?.desktop?.gridSpan)).toEqual([6,6]);
-    expect(factsGrid.children?.map(item=>item.responsive?.tablet?.gridSpan)).toEqual([6,6]);
+    expect(factsGrid.children?.map(item=>item.responsive?.desktop?.gridSpan)).toEqual([12,6]);
+    expect(factsGrid.children?.map(item=>item.responsive?.tablet?.gridSpan)).toEqual([12,6]);
     expect(factsGrid.children?.map(item=>item.responsive?.mobile?.gridSpan)).toEqual([12,12]);
     expect(product.sections.some(section=>section.id==='playroom-product-digital-commerce')).toBe(false);
 
