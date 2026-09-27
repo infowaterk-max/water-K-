@@ -197,16 +197,9 @@
         "deploy/release-risk-policy.json"
       ],
       "execution": {
-        "mode": "control-plane-managed",
-        "command": "node",
-        "args": [
-          "scripts/release-risk-budget.mjs"
-        ],
-        "profiles": [
-          "pr",
-          "post-merge"
-        ]
-      }
+        "mode": "external-specialist"
+      },
+      "controlPlaneEvidence": "artifacts/shoperation-control-plane/external-guard-release-risk.json"
     },
     {
       "id": "GUARD-CUSTOMER-BASELINE",
