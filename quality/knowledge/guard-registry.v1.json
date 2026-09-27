@@ -1,6 +1,6 @@
 {
-  "contract": "shoporation.guard-registry.v1",
-  "version": 1,
+  "contract": "shoporation.guard-registry.v2",
+  "version": 2,
   "status": "canonical",
   "principles": {
     "oneBlockingResponsibilityOneOwner": true,
@@ -9,7 +9,10 @@
     "informationalSignalsMustNotMasqueradeAsBlockingAuthorities": true,
     "crossGuardContextRequired": true,
     "laterGuardsMustConsumePriorBlockingEvidence": true,
-    "authorityRulesOverrideLocalEvidenceShape": true
+    "authorityRulesOverrideLocalEvidenceShape": true,
+    "singleControlPlaneOwnsBlockingOrder": true,
+    "specialistGuardsMustNotSelfOrchestratePeers": true,
+    "finalDecisionBelongsToControlPlane": true
   },
   "guards": [
     {
@@ -29,7 +32,19 @@
         "src/lib/builder/template-factory/knowledge-registry.ts",
         "quality/knowledge/domain-foundations.v1.json",
         "artifacts/shoperation-development-guard/instruction-compliance.json"
-      ]
+      ],
+      "execution": {
+        "mode": "control-plane-managed",
+        "command": "node",
+        "args": [
+          "scripts/shoperation-knowledge-preflight.mjs"
+        ],
+        "profiles": [
+          "pr",
+          "template-pr",
+          "post-merge"
+        ]
+      }
     },
     {
       "id": "GUARD-INSTRUCTION-COMPLIANCE",
@@ -46,7 +61,20 @@
         "src/lib/builder/template-factory/knowledge-registry.ts",
         "quality/knowledge/domain-foundations.v1.json",
         "quality/development/active-plan.json"
-      ]
+      ],
+      "execution": {
+        "mode": "control-plane-managed",
+        "command": "node",
+        "args": [
+          "scripts/shoperation-instruction-compliance.mjs",
+          "--check"
+        ],
+        "profiles": [
+          "pr",
+          "template-pr",
+          "post-merge"
+        ]
+      }
     },
     {
       "id": "GUARD-PLAN-BEFORE-CODE",
@@ -64,7 +92,19 @@
       "authoritySources": [
         "artifacts/shoperation-development-guard/guard-context.json",
         "artifacts/shoperation-quality/knowledge-preflight.json"
-      ]
+      ],
+      "execution": {
+        "mode": "control-plane-managed",
+        "command": "node",
+        "args": [
+          "scripts/shoperation-plan-before-code.mjs",
+          "--check"
+        ],
+        "profiles": [
+          "pr",
+          "template-pr"
+        ]
+      }
     },
     {
       "id": "GUARD-EDIT-TIME",
@@ -83,7 +123,19 @@
       "authoritySources": [
         "artifacts/shoperation-development-guard/guard-context.json",
         "quality/knowledge/development-guard-policy.v1.json"
-      ]
+      ],
+      "execution": {
+        "mode": "control-plane-managed",
+        "command": "node",
+        "args": [
+          "scripts/shoperation-edit-time-guard.mjs",
+          "--check"
+        ],
+        "profiles": [
+          "pr",
+          "template-pr"
+        ]
+      }
     },
     {
       "id": "GUARD-INCREMENTAL-REPLAY",
@@ -103,7 +155,20 @@
       "authoritySources": [
         "artifacts/shoperation-development-guard/guard-context.json",
         "artifacts/shoperation-quality/knowledge-preflight.json"
-      ]
+      ],
+      "execution": {
+        "mode": "control-plane-managed",
+        "command": "node",
+        "args": [
+          "scripts/shoperation-incremental-replay.mjs",
+          "--check"
+        ],
+        "profiles": [
+          "pr",
+          "template-pr",
+          "post-merge"
+        ]
+      }
     },
     {
       "id": "GUARD-RELEASE-RISK",
@@ -125,7 +190,18 @@
         "artifacts/shoperation-development-guard/guard-context.json",
         "artifacts/shoperation-quality/change-impact.json",
         "deploy/release-risk-policy.json"
-      ]
+      ],
+      "execution": {
+        "mode": "control-plane-managed",
+        "command": "node",
+        "args": [
+          "scripts/release-risk-budget.mjs"
+        ],
+        "profiles": [
+          "pr",
+          "post-merge"
+        ]
+      }
     },
     {
       "id": "GUARD-CUSTOMER-BASELINE",
@@ -135,7 +211,10 @@
       "blocking": true,
       "responsibilityKey": "customer-schema-baseline",
       "producer": "scripts/customer-baseline-guard.mjs",
-      "evidence": "artifacts/customer-baseline/**"
+      "evidence": "artifacts/customer-baseline/**",
+      "execution": {
+        "mode": "external-specialist"
+      }
     },
     {
       "id": "GUARD-MARKET-READY",
@@ -145,7 +224,10 @@
       "blocking": true,
       "responsibilityKey": "market-ready-contract",
       "producer": "scripts/block24-market-ready-contract.mjs",
-      "evidence": "artifacts/block24-market-ready/**"
+      "evidence": "artifacts/block24-market-ready/**",
+      "execution": {
+        "mode": "external-specialist"
+      }
     },
     {
       "id": "GUARD-QUALITY-TESTS",
@@ -155,7 +237,10 @@
       "blocking": true,
       "responsibilityKey": "automated-regression-suite",
       "producer": "npm test",
-      "evidence": "test-result"
+      "evidence": "test-result",
+      "execution": {
+        "mode": "external-specialist"
+      }
     },
     {
       "id": "GUARD-TYPECHECK",
@@ -165,7 +250,10 @@
       "blocking": true,
       "responsibilityKey": "static-type-contract",
       "producer": "tsc --noEmit",
-      "evidence": "workflow-step"
+      "evidence": "workflow-step",
+      "execution": {
+        "mode": "external-specialist"
+      }
     },
     {
       "id": "GUARD-PRODUCTION-BUILD",
@@ -175,7 +263,10 @@
       "blocking": true,
       "responsibilityKey": "production-buildability",
       "producer": "next build",
-      "evidence": "workflow-step"
+      "evidence": "workflow-step",
+      "execution": {
+        "mode": "external-specialist"
+      }
     },
     {
       "id": "GUARD-TEMPLATE-FACTORY",
@@ -185,7 +276,10 @@
       "blocking": true,
       "responsibilityKey": "template-factory-browser-contract",
       "producer": ".github/workflows/template-factory-quality-gate.yml",
-      "evidence": "artifacts/template-factory-quality/**"
+      "evidence": "artifacts/template-factory-quality/**",
+      "execution": {
+        "mode": "external-specialist"
+      }
     },
     {
       "id": "SIGNAL-ARCHITECTURE-CONFIDENCE",
@@ -195,7 +289,10 @@
       "blocking": false,
       "responsibilityKey": "architecture-confidence-signal",
       "producer": "scripts/lib/shoperation-architecture-health.mjs",
-      "evidence": "artifacts/shoperation-architecture/architecture-health.json"
+      "evidence": "artifacts/shoperation-architecture/architecture-health.json",
+      "execution": {
+        "mode": "external-specialist"
+      }
     },
     {
       "id": "SIGNAL-DEEP-ATLAS-SCAN",
@@ -205,7 +302,10 @@
       "blocking": false,
       "responsibilityKey": "scheduled-system-self-knowledge-observation",
       "producer": "scripts/shoperation-knowledge-deep-atlas-scan.mjs",
-      "evidence": "artifacts/shoperation-deep-atlas/deep-atlas-scan.json"
+      "evidence": "artifacts/shoperation-deep-atlas/deep-atlas-scan.json",
+      "execution": {
+        "mode": "external-specialist"
+      }
     }
   ]
 }
