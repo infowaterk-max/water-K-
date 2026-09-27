@@ -6,7 +6,8 @@
     "If the actual diff expands into a new subsystem or activates additional Known Failures, stop and regenerate/review the plan.",
     "After each coherent edit batch, run the Edit-Time Guard and Incremental Replay before continuing.",
     "Final CI/Quality Gate remains mandatory; development-time prevention does not replace final proof.",
-    "Every short or broad intent matcher must keep at least one positive target example and one lexically similar non-target example in regression coverage."
+    "Every short or broad intent matcher must keep at least one positive target example and one lexically similar non-target example in regression coverage.",
+    "Every accepted Product Owner/user instruction must be recorded in the active instruction ledger with acceptance criteria and evidence before implementation may be handed off."
   ],
   "intentMatchers": [
     {
@@ -636,6 +637,19 @@
       "requiredBeforeEdit": [
         "Review invariant authority: SQ-AUTH-020, SQ-AUTH-009, SQ-AUTH-007",
         "Keep regression authority available: tests/shoperation-development-guard.test.ts"
+      ]
+    },
+    "SQ-KF-025": {
+      "preventiveDirective": "Before declaring a Product Owner task complete, replay every accepted instruction from the active instruction ledger and require each item to have concrete acceptance criteria, machine-verifiable implementation evidence and an existing regression test.",
+      "forbiddenApproaches": [
+        "declaring a request complete because code changed or CI is broadly green without checking the original instruction",
+        "marking an instruction implemented when only its heading, label or partial visual shell exists",
+        "silently deferring part of an accepted instruction without explicit Product Owner approval"
+      ],
+      "requiredBeforeEdit": [
+        "Review invariant authority: SQ-AUTH-021, SQ-AUTH-004, SQ-AUTH-007",
+        "Update quality/development/instruction-ledger.v1.json before implementation",
+        "Keep regression authority available: tests/product-owner-instruction-compliance.test.ts"
       ]
     }
   },
