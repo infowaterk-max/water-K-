@@ -16,6 +16,29 @@ const reportDir='artifacts/shoperation-control-plane';
 const reportPath=`${reportDir}/control-plane.json`;
 const exactEvidencePath=value=>typeof value==='string'&&!value.includes('*')&&!value.includes('{')&&!value.includes('[')?value:null;
 const sourceHead=(process.env.DEVELOPMENT_HEAD_SHA??process.env.QUALITY_HEAD_SHA??process.env.RELEASE_HEAD_SHA??process.env.GITHUB_SHA??'').trim()||null;
+const atPath=(value,path)=>String(path??'').split('.').filter(Boolean).reduce((current,key)=>current?.[key],value);
+function diagnosticSourceRows(guard){
+  const rows=[];
+  for(const source of guard.diagnosticSources??[]){
+    if(!source.file||!existsSync(source.file))continue;
+    try{
+      const data=readJson(source.file);
+      const items=atPath(data,source.arrayPath);
+      if(!Array.isArray(items))continue;
+      for(const item of items){
+        const raw=typeof item==='string'?item:String(item?.[source.codeField]??item?.code??item?.error??'');
+        if(!raw)continue;
+        const code=raw.includes(':')?raw.split(':')[0]:raw;
+        const context=(source.contextFields??[]).map(field=>item?.[field]).filter(Boolean);
+        rows.push({code,message:context.length?raw+' · '+context.join(' · '):raw,sourceFile:source.file});
+      }
+    }catch{}
+  }
+  if(rows.length&&rows.every(item=>item.code==='GOLDEN_DIFF'||item.code==='GOLDEN_BASELINE_MISSING')){
+    return [{code:'GOLDEN_DIFF',message:rows.length+' golden-only visual differences. Human visual acceptance is required before baseline promotion.',count:rows.length,sourceFile:rows[0].sourceFile}];
+  }
+  return rows.slice(0,20);
+}
 
 function writeReport(report){
   mkdirSync(reportDir,{recursive:true});
@@ -83,7 +106,7 @@ if(reconcile){
       authority:guard.authority,
       rawOutcome:raw||null,
       dependencyBlocks,
-      diagnostics:specialistEvidence?.diagnostics??[],
+      diagnostics:[...(specialistEvidence?.diagnostics??[]),...diagnosticSourceRows(guard)],
       specialistEvidencePath:specialistEvidence?specialistPath:null,
       decision,
       taskId:plan.taskId,
