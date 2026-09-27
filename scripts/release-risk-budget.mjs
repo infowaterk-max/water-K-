@@ -1,6 +1,7 @@
 import { execFileSync } from 'node:child_process';
 import { existsSync, readFileSync, mkdirSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
+import {predecessorIssues,publishGuardContext} from './lib/shoperation-guard-context.mjs';
 
 const policyPath = path.resolve('deploy/release-risk-policy.json');
 const policy = JSON.parse(readFileSync(policyPath, 'utf8'));
@@ -120,7 +121,8 @@ const scoredSubsystems = [...new Map(
 
 const score = scoredSubsystems.reduce((sum, item) => sum + item.points, 0);
 const highRisk = scoredSubsystems.filter((item) => item.risk === 'high');
-const violations = [];
+const contextIssues=predecessorIssues('GUARD-RELEASE-RISK');
+const violations = contextIssues.map(issue=>`prior guard evidence invalid: ${issue.code}:${issue.dependencyId??''}`);
 const head = releaseHead;
 const changeImpactPath = path.resolve('artifacts/shoperation-quality/change-impact.json');
 let changeImpact = null;
@@ -192,11 +194,13 @@ const report = {
     regressionTests: changeImpact.closure?.regressionTests ?? [],
   } : null,
   decision: violations.length === 0 ? 'PASS' : 'BLOCK',
+  contextIssues,
   violations,
 };
 
 mkdirSync('artifacts', { recursive: true });
 writeFileSync('artifacts/release-risk-budget.json', `${JSON.stringify(report, null, 2)}\n`, 'utf8');
+publishGuardContext('GUARD-RELEASE-RISK',report);
 
 console.log(`Release risk budget: ${report.decision} — ${score}/${policy.maxPoints} points, ${scoredSubsystems.length}/${policy.maxSubsystems} subsystems.`);
 for (const subsystem of scoredSubsystems) {
