@@ -40,3 +40,25 @@ For every Product Owner/user-directed development batch:
 6. do not silently defer an accepted item;
 7. run the instruction compliance guard before handoff;
 8. Product Owner visual acceptance remains separate and cannot be replaced by this automated guard.
+
+
+## Control Plane consolidation
+
+The first compliance implementation was still too local: Instruction Compliance, Knowledge, Plan, Edit-Time, Replay and Release Risk could each produce a correct local answer without one runtime authority owning the whole dependency graph.
+
+The corrected architecture is:
+
+`Instruction Ledger + Knowledge + Authority Graph + prior evidence -> Shoperation Control Plane -> specialist guards -> final reconciliation -> handoff/release`.
+
+Rules:
+
+- specialist guards do not orchestrate sibling guards;
+- the Control Plane topologically orders blocking guards from the canonical guard registry;
+- every later specialist consumes the same shared context and predecessor evidence;
+- process exit status and written evidence must agree;
+- task identity and exact-head identity must agree across evidence;
+- typecheck, build, database baseline and browser proof may remain separate executors, but their outcomes are reconciled back into the final Control Plane report;
+- Product Owner handoff requires `stage=final` and `decision=PASS`;
+- `SQ-AUTH-022` is the global authority: specialists report evidence; the Control Plane owns the final quality decision.
+
+This consolidation replaces manual sibling-gate orchestration; it is not an additional independent gate.
