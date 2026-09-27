@@ -308,6 +308,8 @@ jobs:
         env:
           SHOPERATION_EXTERNAL_GUARD_RESULTS: >-
             {"GUARD-TYPECHECK":"${{ steps.typecheck.outcome }}","GUARD-PRODUCTION-BUILD":"${{ steps.runtime-build.outcome }}","GUARD-TEMPLATE-FACTORY":"${{ (steps.template-contracts.outcome == 'success' && steps.qa-runtime.outcome == 'success' && steps.browser-matrix.outcome == 'success') && 'success' || 'failure' }}"}
+          QUALITY_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+          DEVELOPMENT_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
           SHOPERATION_SOURCE_COMMIT: ${{ github.event.pull_request.head.sha || github.sha }}
         run: node scripts/shoperation-control-plane.mjs --reconcile-external --check
 
