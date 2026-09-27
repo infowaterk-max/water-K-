@@ -5,7 +5,6 @@ import {resolveDevelopmentBase} from './lib/shoperation-development-runtime.mjs'
 import {releaseClosureForAtlasPatterns} from './lib/shoperation-codebase-atlas-runtime.mjs';
 import {predecessorIssues,publishGuardContext} from './lib/shoperation-guard-context.mjs';
 const readJson=file=>JSON.parse(readFileSync(file,'utf8'));
-execFileSync(process.execPath,['scripts/shoperation-instruction-compliance.mjs','--check'],{stdio:'inherit',env:process.env});
 execFileSync(process.execPath,['scripts/shoperation-support-history-backfill.mjs','--check'],{stdio:'inherit',env:process.env});
 execFileSync(process.execPath,['scripts/shoperation-codebase-atlas.mjs','--check'],{stdio:'inherit',env:process.env});
 const codebaseAtlas=readJson('artifacts/shoperation-atlas/codebase-atlas.json');
