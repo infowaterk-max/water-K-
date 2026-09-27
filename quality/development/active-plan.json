@@ -65,7 +65,8 @@
     "scripts/shoperation-control-plane.mjs",
     ".github/workflows/ci.yml",
     ".github/workflows/template-factory-quality-gate.yml",
-    "tests/shoperation-control-plane.test.ts"
+    "tests/shoperation-control-plane.test.ts",
+    "scripts/shoperation-failure-intake.mjs"
   ],
   "expectedSubsystems": [
     "auth-access-authority",
