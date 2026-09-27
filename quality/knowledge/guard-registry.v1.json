@@ -197,7 +197,11 @@
         "deploy/release-risk-policy.json"
       ],
       "execution": {
-        "mode": "external-specialist"
+        "mode": "external-specialist",
+        "profiles": [
+          "pr",
+          "post-merge"
+        ]
       },
       "controlPlaneEvidence": "artifacts/shoperation-control-plane/external-guard-release-risk.json"
     },
