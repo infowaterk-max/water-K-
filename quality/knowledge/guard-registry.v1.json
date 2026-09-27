@@ -321,7 +321,19 @@
       "authoritySources": [
         "artifacts/shoperation-control-plane/control-plane.json"
       ],
-      "controlPlaneEvidence": "artifacts/shoperation-control-plane/external-guard-template-factory.json"
+      "controlPlaneEvidence": "artifacts/shoperation-control-plane/external-guard-template-factory.json",
+      "diagnosticSources": [
+        {
+          "file": "artifacts/template-factory-quality/manifest.json",
+          "arrayPath": "errors",
+          "codeField": "error",
+          "contextFields": [
+            "case",
+            "pageType",
+            "viewport"
+          ]
+        }
+      ]
     },
     {
       "id": "SIGNAL-ARCHITECTURE-CONFIDENCE",
