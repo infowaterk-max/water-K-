@@ -60,7 +60,8 @@
     "src/lib/builder/template-factory/knowledge-registry.ts",
     "tests/shoperation-guard-context.test.ts",
     "scripts/template-factory-product-owner-handoff.mjs",
-    "tests/template-factory-procedural-memory.test.ts"
+    "tests/template-factory-procedural-memory.test.ts",
+    "scripts/release-risk-budget.mjs"
   ],
   "expectedSubsystems": [
     "auth-access-authority",
