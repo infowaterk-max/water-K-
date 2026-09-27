@@ -68,7 +68,11 @@ if(reconcile){
   const outcomes=[...(prior.outcomes??[])];
   let externalResults={};
   try{externalResults=JSON.parse(process.env.SHOPERATION_EXTERNAL_GUARD_RESULTS??'{}')}catch{throw new Error('CONTROL_PLANE_EXTERNAL_RESULTS_INVALID_JSON')}
-  const externalIds=Object.keys(externalResults);
+  const externalIds=Object.keys(externalResults).filter(guardId=>{
+    const guard=byId.get(guardId);
+    const profiles=guard?.execution?.profiles??[];
+    return !profiles.length||profiles.includes(prior.profile);
+  });
   if(!externalIds.length)throw new Error('CONTROL_PLANE_EXTERNAL_RESULTS_REQUIRED');
   const outcomeMap=new Map(outcomes.map(item=>[item.guardId,item]));
 
