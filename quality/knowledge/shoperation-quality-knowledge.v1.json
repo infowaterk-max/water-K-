@@ -112,6 +112,11 @@
       "id": "SQ-AUTH-021",
       "subject": "instruction-to-evidence closure",
       "rule": "Every explicit Product Owner or user instruction accepted for implementation must have a durable instruction identity, concrete acceptance criteria, machine-verifiable implementation evidence and regression authority before the task may be reported complete."
+    },
+    {
+      "id": "SQ-AUTH-022",
+      "subject": "quality-control-plane-orchestration",
+      "rule": "Blocking quality specialists may produce evidence, but they may not independently authorize handoff or release. The Shoperation Control Plane owns dependency ordering, cross-authority consistency and the final PASS/BLOCK decision."
     }
   ],
   "globalBaselineFailureIds": [
@@ -839,7 +844,8 @@
       "invariantIds": [
         "SQ-AUTH-021",
         "SQ-AUTH-004",
-        "SQ-AUTH-007"
+        "SQ-AUTH-007",
+        "SQ-AUTH-022"
       ],
       "regressionTests": [
         "tests/product-owner-instruction-compliance.test.ts",
