@@ -18,7 +18,8 @@
     "scripts/template-factory-quality-gate.mjs",
     "scripts/template-factory-product-owner-handoff.mjs",
     "docs/architecture/",
-    "scripts/shoperation-instruction-compliance.mjs"
+    "scripts/shoperation-instruction-compliance.mjs",
+    "scripts/lib/shoperation-guard-context.mjs"
   ],
   "dependencies": {
     "builder-template-system": [
