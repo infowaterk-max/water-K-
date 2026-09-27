@@ -20,7 +20,9 @@
     "docs/architecture/",
     "scripts/shoperation-instruction-compliance.mjs",
     "scripts/lib/shoperation-guard-context.mjs",
-    "scripts/shoperation-control-plane.mjs"
+    "scripts/shoperation-control-plane.mjs",
+    "scripts/lib/shoperation-control-plane-reporter.mjs",
+    "scripts/shoperation-specialist-runner.mjs"
   ],
   "dependencies": {
     "builder-template-system": [
