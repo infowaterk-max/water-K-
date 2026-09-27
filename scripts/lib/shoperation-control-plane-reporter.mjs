@@ -73,14 +73,14 @@ export function collectGuardDiagnostics({guardId,evidence,processError,rawOutput
     values.push(...evidence.changeImpact.unresolvedDomainFiles.map(file=>({code:'SQ_ATLAS_DOMAIN_SCOPE_UNRESOLVED',file,message:'Atlas domain scope unresolved: '+file})));
   }
   if(processError)values.push({code:guardId+'_PROCESS_FAILED',message:processError});
-  const text=String(rawOutput??'').replace(/\\x1b\\[[0-9;]*m/g,'');
+  const text=String(rawOutput??'').replace(/\x1b\[[0-9;]*m/g,'');
   let lastVitestFile=null;
-  for(const line of text.split(/\\r?\\n/)){
-    const ts=line.match(/^(.+?)\\((\\d+),(\\d+)\\):\\s+error\\s+(TS\\d+):\\s+(.+)$/);
+  for(const line of text.split(/\r?\n/)){
+    const ts=line.match(/^(.+?)\((\d+),(\d+)\):\s+error\s+(TS\d+):\s+(.+)$/);
     if(ts)values.push({code:ts[4],file:ts[1],line:Number(ts[2]),column:Number(ts[3]),message:ts[5]});
-    const fail=line.match(/FAIL\\s+([^\\s]+)(?:\\s+>\\s+(.+))?/);
+    const fail=line.match(/FAIL\s+([^\s]+)(?:\s+>\s+(.+))?/);
     if(fail){lastVitestFile=fail[1];values.push({code:'VITEST_TEST_FAILED',file:fail[1],message:fail[2]??('Regression test failed: '+fail[1])});}
-    const assertion=line.match(/AssertionError[^:]*:\\s*(.+)$/);
+    const assertion=line.match(/AssertionError[^:]*:\s*(.+)$/);
     if(assertion)values.push({code:'VITEST_ASSERTION_FAILED',file:lastVitestFile,message:assertion[1]});
     const build=line.match(/(?:Type error|Module not found|Failed to compile|Build error)[: ]+(.+)/i);
     if(build)values.push({code:'BUILD_DIAGNOSTIC',message:build[1]});
