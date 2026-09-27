@@ -219,6 +219,9 @@ jobs:
         run: npx playwright install --with-deps chromium
 
       - name: Run Template Factory contract regressions
+        if: steps.control-plane.outcome == 'success'
+        id: template-contracts
+        continue-on-error: true
         run: >
           npx vitest run
           tests/storefront-template-quality-gate-v2.test.ts
@@ -265,14 +268,21 @@ jobs:
           tests/cart-style-quantity-control.test.tsx
 
       - name: Typecheck exact head
+        if: steps.control-plane.outcome == 'success'
         id: typecheck
+        continue-on-error: true
         run: npm run typecheck
 
       - name: Build exact-head Runtime
+        if: steps.control-plane.outcome == 'success'
         id: runtime-build
+        continue-on-error: true
         run: npm run build
 
       - name: Start exact-head QA Runtime
+        if: steps.control-plane.outcome == 'success' && steps.template-contracts.outcome == 'success' && steps.typecheck.outcome == 'success' && steps.runtime-build.outcome == 'success'
+        id: qa-runtime
+        continue-on-error: true
         shell: bash
         run: |
           npm run start -- -H 127.0.0.1 -p 3000 > /tmp/template-factory-quality-next.log 2>&1 &
@@ -287,12 +297,32 @@ jobs:
           exit 1
 
       - name: Run scoped Template Factory browser proof (acceptance requires 14x3)
+        if: steps.qa-runtime.outcome == 'success'
         id: browser-matrix
+        continue-on-error: true
         run: node scripts/template-factory-quality-gate.mjs
+
+      - name: Shoperation Control Plane final Template Factory reconciliation
+        if: steps.control-plane.outcome == 'success'
+        id: control-plane-final
+        env:
+          SHOPERATION_EXTERNAL_GUARD_RESULTS: >-
+            {"GUARD-TYPECHECK":"${{ steps.typecheck.outcome }}","GUARD-PRODUCTION-BUILD":"${{ steps.runtime-build.outcome }}","GUARD-TEMPLATE-FACTORY":"${{ (steps.template-contracts.outcome == 'success' && steps.qa-runtime.outcome == 'success' && steps.browser-matrix.outcome == 'success') && 'success' || 'failure' }}"}
+          SHOPERATION_SOURCE_COMMIT: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: node scripts/shoperation-control-plane.mjs --reconcile-external --check
+
+      - name: Upload final Shoperation Control Plane evidence
+        if: always() && steps.control-plane.outcome == 'success'
+        uses: actions/upload-artifact@v4
+        with:
+          name: shoperation-control-plane-final-${{ github.event.pull_request.head.sha || github.sha }}
+          path: artifacts/shoperation-control-plane/**
+          if-no-files-found: warn
+          retention-days: 30
 
       - name: Resolve Product Owner candidate target
         id: product-owner-target
-        if: github.event_name == 'pull_request' && steps.browser-matrix.outcome == 'success'
+        if: github.event_name == 'pull_request' && steps.control-plane-final.outcome == 'success'
         shell: bash
         run: |
           node <<'NODE'
@@ -405,10 +435,8 @@ jobs:
         shell: bash
         env:
           CONTROL_PLANE_OUTCOME: ${{ steps.control-plane.outcome }}
+          CONTROL_PLANE_FINAL_OUTCOME: ${{ steps.control-plane-final.outcome }}
           SHOPERATION_CONTROL_PLANE_REPORT: artifacts/shoperation-control-plane/control-plane.json
-          TYPECHECK_OUTCOME: ${{ steps.typecheck.outcome }}
-          BUILD_OUTCOME: ${{ steps.runtime-build.outcome }}
-          MATRIX_OUTCOME: ${{ steps.browser-matrix.outcome }}
           SHOPERATION_SOURCE_COMMIT: ${{ github.event.pull_request.head.sha || github.sha }}
           SHOPERATION_FAILURE_SOURCE: template-factory
           SHOPERATION_TEMPLATE_KEY: "${{ steps.product-owner-target.outputs.template_key || '' }}"
@@ -417,9 +445,7 @@ jobs:
         run: |
           codes=""
           [ "$CONTROL_PLANE_OUTCOME" != "failure" ] || codes="${codes}CONTROL_PLANE_FAILED;"
-          [ "$TYPECHECK_OUTCOME" != "failure" ] || codes="${codes}TYPECHECK_FAILED;"
-          [ "$BUILD_OUTCOME" != "failure" ] || codes="${codes}BUILD_FAILED;"
-          [ "$MATRIX_OUTCOME" != "failure" ] || codes="${codes}QUALITY_GATE_FAILED;"
+          [ "$CONTROL_PLANE_FINAL_OUTCOME" != "failure" ] || codes="${codes}CONTROL_PLANE_FAILED;"
           SHOPERATION_GENERIC_FAILURES="$codes" node scripts/shoperation-failure-intake.mjs
 
       - name: Upload Template Factory failure intake
