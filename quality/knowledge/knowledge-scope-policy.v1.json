@@ -19,7 +19,8 @@
     "scripts/template-factory-product-owner-handoff.mjs",
     "docs/architecture/",
     "scripts/shoperation-instruction-compliance.mjs",
-    "scripts/lib/shoperation-guard-context.mjs"
+    "scripts/lib/shoperation-guard-context.mjs",
+    "scripts/shoperation-control-plane.mjs"
   ],
   "dependencies": {
     "builder-template-system": [
