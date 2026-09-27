@@ -543,6 +543,19 @@
         "shared-storefront"
       ],
       "reason": "The requested behavior was only partially implemented and no instruction-to-evidence guard existed before handoff."
+    },
+    {
+      "file": "PLAYROOM_V20_PHASE4_BUILDER_ACCEPTANCE_INCIDENTS_2026-09-18.md",
+      "sourceIdPattern": "^SKB-P4-036$",
+      "titlePattern": "Static checkout replica passed while shared E13 remained elsewhere",
+      "disposition": "matched-known-failure",
+      "knownFailureId": "TF-KF-019",
+      "subsystems": [
+        "builder-template-system",
+        "shared-storefront",
+        "quality-knowledge-system"
+      ],
+      "reason": "The preview and real checkout route were accepted independently; this is the second occurrence of TF-KF-019 and also strengthens SQ-KF-025."
     }
   ]
 }
