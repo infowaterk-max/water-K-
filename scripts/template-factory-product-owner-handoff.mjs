@@ -60,6 +60,23 @@ await mkdir(outputDir,{recursive:true});
 const errors=[];
 const checks={};
 let technicalProof=null;
+const guardContextPath='artifacts/shoperation-development-guard/guard-context.json';
+if(await exists(guardContextPath)){
+  const guardContext=JSON.parse(await readFile(guardContextPath,'utf8'));
+  checks.crossGuardContextFound=true;
+  const requiredGuardIds=['GUARD-INSTRUCTION-COMPLIANCE','GUARD-KNOWLEDGE-PREFLIGHT','GUARD-PLAN-BEFORE-CODE','GUARD-EDIT-TIME','GUARD-INCREMENTAL-REPLAY'];
+  checks.crossGuardEvidence={};
+  for(const guardId of requiredGuardIds){
+    const evidence=(guardContext.evidence??[]).find(item=>item.id===guardId);
+    checks.crossGuardEvidence[guardId]={available:evidence?.available===true,decision:evidence?.decision??null};
+    if(!evidence?.available||evidence.decision!=='PASS')errors.push(`CROSS_GUARD_EVIDENCE_NOT_PASS:${guardId}`);
+  }
+  checks.sharedCommerceAuthorityPresent=(guardContext.authorities?.templateFactory??[]).some(rule=>rule.id==='TF-AUTH-005'&&rule.owner==='platform');
+  if(!checks.sharedCommerceAuthorityPresent)errors.push('SHARED_COMMERCE_AUTHORITY_CONTEXT_MISSING');
+}else{
+  checks.crossGuardContextFound=false;
+  errors.push('CROSS_GUARD_CONTEXT_MISSING');
+}
 if(await exists(qualityManifestPath)){
   technicalProof=JSON.parse(await readFile(qualityManifestPath,'utf8'));
   const acceptance=(technicalProof.acceptanceProofs??[]).find(item=>item.templateKey===templateKey&&item.templateVersion===templateVersion);
