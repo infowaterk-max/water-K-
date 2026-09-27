@@ -7,14 +7,16 @@ These instructions apply to every coding agent working in this repository.
 Do not start coding from memory alone.
 
 1. Identify the task and the concrete files you expect to touch.
-2. Run:
+2. Record every explicit Product Owner/user instruction accepted for implementation in `quality/development/instruction-ledger.v1.json`. Each item must have acceptance criteria, machine-verifiable evidence checks and regression authority. Do not silently omit or defer a requested subtask.
+3. Run:
    `node scripts/shoperation-development-guard.mjs --task "<task>" --files "<file1;file2;...>" --write-plan --check`
-3. Read the complete `artifacts/shoperation-development-guard/development-guard.md`.
-4. Review every active Known Failure, preventive directive, forbidden approach, negative-knowledge rule and required regression authority.
-5. Set `quality/development/active-plan.json` to `status: "ready-for-implementation"` only after that review.
-6. Run:
+4. Read the complete `artifacts/shoperation-development-guard/development-guard.md`.
+5. Review every active Known Failure, preventive directive, forbidden approach, negative-knowledge rule and required regression authority.
+6. Set `quality/development/active-plan.json` to `status: "ready-for-implementation"` only after that review.
+7. Run:
+   `node scripts/shoperation-instruction-compliance.mjs --check`
    `node scripts/shoperation-plan-before-code.mjs --check`
-7. **Do not make the first implementation edit until Plan Before Code is PASS.**
+8. **Do not make the first implementation edit until Plan Before Code is PASS.**
 
 If scope is unresolved, add or repair subsystem classification first. Do not continue with baseline-only protection for an unclassified product change.
 
@@ -39,5 +41,7 @@ A `review` edit-time finding requires an explicit exception in `quality/developm
 - Do not wait for final CI to discover a Known Failure that could have been prevented during implementation.
 
 ## BEFORE HANDOFF
+
+Before saying a Product Owner/user request is complete, run `node scripts/shoperation-instruction-compliance.mjs --check`. A changed file, green generic test suite or visually plausible heading is not requirement-level proof. Every ledger item must PASS first.
 
 Final full CI and Quality Gate are still mandatory. Development-time guards reduce repeated errors; they do not replace typecheck, build, browser or journey proof, production/schema checks or Product Owner acceptance.
