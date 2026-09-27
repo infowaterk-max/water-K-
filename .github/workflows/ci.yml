@@ -200,6 +200,15 @@ jobs:
           SHOPERATION_SOURCE_COMMIT: ${{ github.event.pull_request.head.sha || github.sha }}
         run: node scripts/shoperation-control-plane.mjs --reconcile-external --check
 
+      - name: Upload final Shoperation Control Plane evidence
+        if: always() && steps.control-plane.outcome == 'success'
+        uses: actions/upload-artifact@v4
+        with:
+          name: shoperation-control-plane-final-${{ github.event.pull_request.head.sha || github.sha }}
+          path: artifacts/shoperation-control-plane/**
+          if-no-files-found: warn
+          retention-days: 30
+
       - name: Generate release manifest
         if: steps.control-plane-final.outcome == 'success'
         env:
