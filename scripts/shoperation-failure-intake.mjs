@@ -2,8 +2,12 @@ import {createHash} from 'node:crypto';
 import {existsSync,mkdirSync,readFileSync,writeFileSync} from 'node:fs';
 const signatures=JSON.parse(readFileSync('quality/knowledge/failure-signatures.v1.json','utf8')),knowledge=JSON.parse(readFileSync('quality/knowledge/shoperation-quality-knowledge.v1.json','utf8'));
 const outputDir=process.env.SHOPERATION_FAILURE_INTAKE_OUTPUT_DIR??'artifacts/shoperation-failure-intake',sourceCommit=(process.env.SHOPERATION_SOURCE_COMMIT??process.env.GITHUB_SHA??'').trim()||null,failureSource=(process.env.SHOPERATION_FAILURE_SOURCE??'ci').trim(),templateKey=(process.env.SHOPERATION_TEMPLATE_KEY??'').trim()||null,templateVersionRaw=(process.env.SHOPERATION_TEMPLATE_VERSION??'').trim(),templateVersion=templateVersionRaw?Number(templateVersionRaw):null,foundationTemplate=(process.env.SHOPERATION_FOUNDATION_TEMPLATE??'').trim()||null,inputs=[];
-for(const code of (process.env.SHOPERATION_GENERIC_FAILURES??'').split(';').map(x=>x.trim()).filter(Boolean))inputs.push({code,symptom:`${failureSource} reported ${code}`,evidence:[`source=${failureSource}`]});
 const controlPlanePath=(process.env.SHOPERATION_CONTROL_PLANE_REPORT??'artifacts/shoperation-control-plane/control-plane.json').trim();
+const hasControlPlaneReport=existsSync(controlPlanePath);
+for(const code of (process.env.SHOPERATION_GENERIC_FAILURES??'').split(';').map(x=>x.trim()).filter(Boolean)){
+  if(code==='CONTROL_PLANE_FAILED'&&hasControlPlaneReport)continue;
+  inputs.push({code,symptom:`${failureSource} reported ${code}`,evidence:[`source=${failureSource}`]});
+}
 if(existsSync(controlPlanePath)){
   try{
     const controlPlane=JSON.parse(readFileSync(controlPlanePath,'utf8'));
