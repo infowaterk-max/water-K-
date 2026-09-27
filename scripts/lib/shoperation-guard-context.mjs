@@ -19,7 +19,7 @@ function parseTemplateFactoryAuthorities(){
 }
 
 function exactEvidencePath(value){
-  return typeof value==='string'&&!/[\*{[]/.test(value)?value:null;
+  return typeof value==='string'&&!value.includes('*')&&!value.includes('{')&&!value.includes('[')?value:null;
 }
 
 function evidenceSnapshot(){
