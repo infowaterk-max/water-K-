@@ -132,6 +132,17 @@ jobs:
           if-no-files-found: warn
           retention-days: 30
 
+      - name: Production release risk budget
+        if: steps.control-plane.outcome == 'success'
+        id: release-risk
+        continue-on-error: true
+        env:
+          RELEASE_BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
+          RELEASE_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+          RELEASE_BASE_REF: origin/main
+          SHOPERATION_SOURCE_COMMIT: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: node scripts/shoperation-specialist-runner.mjs --guard GUARD-RELEASE-RISK -- node scripts/release-risk-budget.mjs
+
       - name: Upload release risk budget
         if: always()
         uses: actions/upload-artifact@v4
@@ -145,13 +156,13 @@ jobs:
         if: steps.control-plane.outcome == 'success'
         id: customer-baseline
         continue-on-error: true
-        run: npm run db:customer:guard
+        run: node scripts/shoperation-specialist-runner.mjs --guard GUARD-CUSTOMER-BASELINE -- npm run db:customer:guard
 
       - name: Block 24 market-ready contract
         if: steps.control-plane.outcome == 'success'
         id: market-ready
         continue-on-error: true
-        run: npm run market-ready:gate
+        run: node scripts/shoperation-specialist-runner.mjs --guard GUARD-MARKET-READY -- npm run market-ready:gate
 
       - name: Upload Block 24 market-ready contract
         uses: actions/upload-artifact@v4
@@ -168,7 +179,7 @@ jobs:
         if: steps.control-plane.outcome == 'success'
         id: quality-tests
         continue-on-error: true
-        run: npm test
+        run: node scripts/shoperation-specialist-runner.mjs --guard GUARD-QUALITY-TESTS -- npm test
 
       - name: Upload quality test results
         if: always()
@@ -183,20 +194,20 @@ jobs:
         if: steps.control-plane.outcome == 'success'
         id: typecheck
         continue-on-error: true
-        run: npm run typecheck
+        run: node scripts/shoperation-specialist-runner.mjs --guard GUARD-TYPECHECK -- npm run typecheck
 
       - name: Production build
         if: steps.control-plane.outcome == 'success'
         id: production-build
         continue-on-error: true
-        run: npm run build
+        run: node scripts/shoperation-specialist-runner.mjs --guard GUARD-PRODUCTION-BUILD -- npm run build
 
       - name: Shoperation Control Plane final reconciliation
-        if: steps.control-plane.outcome == 'success'
+        if: always() && steps.control-plane.outcome == 'success'
         id: control-plane-final
         env:
           SHOPERATION_EXTERNAL_GUARD_RESULTS: >-
-            {"GUARD-CUSTOMER-BASELINE":"${{ steps.customer-baseline.outcome }}","GUARD-MARKET-READY":"${{ steps.market-ready.outcome }}","GUARD-QUALITY-TESTS":"${{ steps.quality-tests.outcome }}","GUARD-TYPECHECK":"${{ steps.typecheck.outcome }}","GUARD-PRODUCTION-BUILD":"${{ steps.production-build.outcome }}"}
+            {"GUARD-RELEASE-RISK":"${{ steps.release-risk.outcome }}","GUARD-CUSTOMER-BASELINE":"${{ steps.customer-baseline.outcome }}","GUARD-MARKET-READY":"${{ steps.market-ready.outcome }}","GUARD-QUALITY-TESTS":"${{ steps.quality-tests.outcome }}","GUARD-TYPECHECK":"${{ steps.typecheck.outcome }}","GUARD-PRODUCTION-BUILD":"${{ steps.production-build.outcome }}"}
           QUALITY_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
           DEVELOPMENT_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
           SHOPERATION_SOURCE_COMMIT: ${{ github.event.pull_request.head.sha || github.sha }}
