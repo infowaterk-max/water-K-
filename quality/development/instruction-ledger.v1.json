@@ -6,37 +6,77 @@
   "status": "implementation-proven",
   "instructions": [
     {
-      "id": "PO-2026-09-27-PRODUCT-DESCRIPTION",
-      "request": "A gamer termékoldalon ne legyen használati útmutató; legyen tényleges, rövid termékismertető, amely nem talál ki történetet, hanem a játék műfaját ismerteti.",
+      "id": "PO-2026-09-27-BLOG-FILLER-REMOVAL",
+      "request": "A Blogbejegyzés és a Blog főoldal aljáról is kerüljenek ki a csak helykitöltésként megjelenő generikus ajánlócsempék.",
       "state": "implemented",
       "acceptanceCriteria": [
-        "A Product previewban a TERMÉKISMERTETŐ cím alatt nem üres, műfaj-alapú leírás jelenik meg.",
-        "Az üres authored fallback nem írhatja felül a product.description preview értékét.",
-        "Playroom játékhoz nem fabrikálunk használati útmutatót."
+        "Blog indexen nincs generikus topic-preset töltelékblokk.",
+        "Blogcikk alján nincs generikus aside/related blokk."
+      ],
+      "checks": [
+        {
+          "kind": "template-node-absent",
+          "file": "src/lib/builder/templates/gaming/playroom/v20/canonical-package.json",
+          "pageType": "blog-index",
+          "nodeId": "playroom-blog-index-topic-presets"
+        },
+        {
+          "kind": "template-node-absent",
+          "file": "src/lib/builder/templates/gaming/playroom/v20/canonical-package.json",
+          "pageType": "blog-article",
+          "nodeId": "playroom-blog-article-aside"
+        },
+        {
+          "kind": "template-node-absent",
+          "file": "src/lib/builder/templates/gaming/playroom/v20/canonical-package.json",
+          "pageType": "blog-article",
+          "nodeId": "playroom-blog-article-related"
+        }
+      ],
+      "regressionTests": [
+        "tests/storefront-playroom-v20-po-page-batch.test.ts",
+        "tests/product-owner-instruction-compliance.test.ts"
+      ]
+    },
+    {
+      "id": "PO-2026-09-27-CART-FROZEN",
+      "request": "A Kosár oldal pipa; maradjon elfogadva, ne nyissuk újra a mostani javításokkal.",
+      "state": "accepted-frozen",
+      "acceptanceCriteria": [
+        "A PO által elfogadott Kosár direkt kosárba ajánlása megmarad.",
+        "A mostani Product/Checkout/Search javítások nem írják át a Cart oldalt."
       ],
       "checks": [
         {
           "kind": "template-node-value",
           "file": "src/lib/builder/templates/gaming/playroom/v20/canonical-package.json",
-          "pageType": "product",
-          "nodeId": "playroom-product-info",
-          "path": "bindings.description.path",
-          "equals": "product.description"
-        },
+          "pageType": "cart",
+          "nodeId": "playroom-cart-recommendations",
+          "path": "config.ctaAction",
+          "equals": "add-to-cart"
+        }
+      ],
+      "regressionTests": [
+        "tests/storefront-playroom-v20-po-page-batch.test.ts",
+        "tests/product-owner-instruction-compliance.test.ts"
+      ]
+    },
+    {
+      "id": "PO-2026-09-27-CATALOG-PLATFORM-2X3",
+      "request": "Mobil Katalógusban a hat platform ne egy sorba zsúfolva jelenjen meg, hanem két sorban, 3×2 elrendezésben, olvasható feliratokkal.",
+      "state": "implemented",
+      "acceptanceCriteria": [
+        "Mobilon a platformrács három oszlopos, így hat elem két sorban jelenik meg.",
+        "Desktop/tablet elrendezés nem változik emiatt."
+      ],
+      "checks": [
         {
-          "kind": "file-contains",
-          "file": "src/lib/builder/storefront-template-preview-canonical.ts",
-          "value": "if(typeof fallback==='string')return fallback.trim().length>0"
-        },
-        {
-          "kind": "file-contains",
-          "file": "src/lib/builder/storefront-template-preview-demo.ts",
-          "value": "A kooperatív játékokban a játékosok közös célért dolgoznak."
-        },
-        {
-          "kind": "file-contains",
-          "file": "src/lib/builder/storefront-digital-commerce-preview.ts",
-          "value": "mode:'physical',documents:[]"
+          "kind": "template-node-value",
+          "file": "src/lib/builder/templates/gaming/playroom/v20/canonical-package.json",
+          "pageType": "catalog",
+          "nodeId": "playroom-catalog-platform-navigation",
+          "path": "config.styleSlots.grid.mobile.gridTemplateColumns",
+          "equals": "repeat(3,minmax(0,1fr))"
         }
       ],
       "regressionTests": [
@@ -98,6 +138,37 @@
       ]
     },
     {
+      "id": "PO-2026-09-27-DUPLICATE-SHIPPING-PAYMENT-REMOVAL",
+      "request": "A duplikált Szállítás és fizetés oldal törlendő, mert külön Szállítás és külön Fizetés oldal már létezik.",
+      "state": "implemented",
+      "acceptanceCriteria": [
+        "A Playroom csomag nem tartalmaz /szallitas-es-fizetes navigációs vagy demo-content hivatkozást.",
+        "A külön Szállítás és Fizetés oldalak megmaradnak."
+      ],
+      "checks": [
+        {
+          "kind": "file-not-contains",
+          "file": "src/lib/builder/templates/gaming/playroom/v20/canonical-package.json",
+          "value": "/szallitas-es-fizetes"
+        },
+        {
+          "kind": "file-contains",
+          "file": "src/lib/builder/templates/gaming/playroom/v20/canonical-package.json",
+          "value": "/oldal/szallitas"
+        },
+        {
+          "kind": "file-contains",
+          "file": "src/lib/builder/templates/gaming/playroom/v20/canonical-package.json",
+          "value": "/oldal/fizetes"
+        }
+      ],
+      "regressionTests": [
+        "tests/playroom-v20-canonical-shell-content.test.ts",
+        "tests/storefront-playroom-v20-po-page-batch.test.ts",
+        "tests/product-owner-instruction-compliance.test.ts"
+      ]
+    },
+    {
       "id": "PO-2026-09-27-INSTRUCTION-COMPLIANCE-GATE",
       "request": "Legyen olyan ellenőrzés, amely nyilvántartja, milyen utasításokat kaptál, és ellenőrzi, hogy ténylegesen megcsináltad-e mindet.",
       "state": "implemented",
@@ -128,6 +199,111 @@
         }
       ],
       "regressionTests": [
+        "tests/product-owner-instruction-compliance.test.ts"
+      ]
+    },
+    {
+      "id": "PO-2026-09-27-LEGAL-READING-REMOVAL",
+      "request": "ÁSZF, adatvédelem, impresszum és minden jogi oldalon törölni kell a READING / Nyugodt felület csempét.",
+      "state": "implemented",
+      "acceptanceCriteria": [
+        "A shared legal Page Schema nem tartalmaz playroom-legal-reading-note csempét.",
+        "A jogi oldal közvetlenül a valódi jogi tartalomra fókuszál."
+      ],
+      "checks": [
+        {
+          "kind": "template-node-absent",
+          "file": "src/lib/builder/templates/gaming/playroom/v20/canonical-package.json",
+          "pageType": "legal",
+          "nodeId": "playroom-legal-reading-note"
+        }
+      ],
+      "regressionTests": [
+        "tests/storefront-playroom-v20-po-page-batch.test.ts",
+        "tests/product-owner-instruction-compliance.test.ts"
+      ]
+    },
+    {
+      "id": "PO-2026-09-27-PRODUCT-DESCRIPTION",
+      "request": "A gamer termékoldalon ne legyen használati útmutató; legyen tényleges, rövid termékismertető, amely nem talál ki történetet, hanem a játék műfaját ismerteti.",
+      "state": "implemented",
+      "acceptanceCriteria": [
+        "A Product previewban a TERMÉKISMERTETŐ cím alatt nem üres, műfaj-alapú leírás jelenik meg.",
+        "Az üres authored fallback nem írhatja felül a product.description preview értékét.",
+        "Playroom játékhoz nem fabrikálunk használati útmutatót."
+      ],
+      "checks": [
+        {
+          "kind": "template-node-value",
+          "file": "src/lib/builder/templates/gaming/playroom/v20/canonical-package.json",
+          "pageType": "product",
+          "nodeId": "playroom-product-info",
+          "path": "bindings.description.path",
+          "equals": "product.description"
+        },
+        {
+          "kind": "file-contains",
+          "file": "src/lib/builder/storefront-template-preview-canonical.ts",
+          "value": "if(typeof fallback==='string')return fallback.trim().length>0"
+        },
+        {
+          "kind": "file-contains",
+          "file": "src/lib/builder/storefront-template-preview-demo.ts",
+          "value": "A kooperatív játékokban a játékosok közös célért dolgoznak."
+        },
+        {
+          "kind": "file-contains",
+          "file": "src/lib/builder/storefront-digital-commerce-preview.ts",
+          "value": "mode:'physical',documents:[]"
+        }
+      ],
+      "regressionTests": [
+        "tests/storefront-playroom-v20-po-page-batch.test.ts",
+        "tests/product-owner-instruction-compliance.test.ts"
+      ]
+    },
+    {
+      "id": "PO-2026-09-27-SEARCH-INTELLIGENCE",
+      "request": "A Keresés oldal legyen találat-központú, szükség esetén szűrhető, és kapjon nem-AI intelligens keresést: javaslatok, szinonimák/platformnevek és elírás-tűrés.",
+      "state": "implemented",
+      "acceptanceCriteria": [
+        "A kereső nem csak pontos részszövegre talál.",
+        "Ismeri a tipikus platform/gamer szinonimákat.",
+        "Egy karakteres elírást és szomszédos betűcserét tolerál.",
+        "Gépeléshez autocomplete javaslatokat ad.",
+        "A Playroom Search oldalon a nagy statikus töltelékcsempék nincsenek jelen."
+      ],
+      "checks": [
+        {
+          "kind": "file-exists",
+          "file": "src/lib/storefront/search-intelligence.ts"
+        },
+        {
+          "kind": "file-contains",
+          "file": "src/components/catalog/shop-catalog.tsx",
+          "value": "smartStorefrontSearchMatch"
+        },
+        {
+          "kind": "file-contains",
+          "file": "src/components/catalog/shop-catalog.tsx",
+          "value": "shop-search-suggestions"
+        },
+        {
+          "kind": "template-node-absent",
+          "file": "src/lib/builder/templates/gaming/playroom/v20/canonical-package.json",
+          "pageType": "search",
+          "nodeId": "playroom-search-shortcuts"
+        },
+        {
+          "kind": "template-node-present",
+          "file": "src/lib/builder/templates/gaming/playroom/v20/canonical-package.json",
+          "pageType": "search",
+          "nodeId": "playroom-search-quick-chips"
+        }
+      ],
+      "regressionTests": [
+        "tests/storefront-search-intelligence.test.ts",
+        "tests/storefront-playroom-v20-po-page-batch.test.ts",
         "tests/product-owner-instruction-compliance.test.ts"
       ]
     }
