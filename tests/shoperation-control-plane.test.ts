@@ -27,6 +27,16 @@ describe('Shoperation Control Plane',()=>{
     }
   });
 
+  it('establishes one global authority for final quality decisions',()=>{
+    const knowledge=json('quality/knowledge/shoperation-quality-knowledge.v1.json');
+    const authority=knowledge.authorityRules.find((item:any)=>item.id==='SQ-AUTH-022');
+    expect(authority?.subject).toBe('quality-control-plane-orchestration');
+    expect(authority?.rule).toContain('Control Plane');
+    expect(authority?.rule).toContain('final PASS/BLOCK decision');
+    const failure=knowledge.knownFailures.find((item:any)=>item.id==='SQ-KF-025');
+    expect(failure.invariantIds).toContain('SQ-AUTH-022');
+  });
+
   it('prevents specialist modules from secretly re-orchestrating sibling gates',()=>{
     const preflight=read('scripts/shoperation-knowledge-preflight.mjs');
     expect(preflight).not.toContain("scripts/shoperation-instruction-compliance.mjs");
