@@ -42,7 +42,8 @@
         "profiles": [
           "pr",
           "template-pr",
-          "post-merge"
+          "post-merge",
+          "branch"
         ]
       }
     },
@@ -72,7 +73,8 @@
         "profiles": [
           "pr",
           "template-pr",
-          "post-merge"
+          "post-merge",
+          "branch"
         ]
       }
     },
@@ -166,7 +168,8 @@
         "profiles": [
           "pr",
           "template-pr",
-          "post-merge"
+          "post-merge",
+          "branch"
         ]
       }
     },
