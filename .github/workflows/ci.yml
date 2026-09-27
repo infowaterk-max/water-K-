@@ -142,9 +142,15 @@ jobs:
           retention-days: 30
 
       - name: Customer database baseline guard
+        if: steps.control-plane.outcome == 'success'
+        id: customer-baseline
+        continue-on-error: true
         run: npm run db:customer:guard
 
       - name: Block 24 market-ready contract
+        if: steps.control-plane.outcome == 'success'
+        id: market-ready
+        continue-on-error: true
         run: npm run market-ready:gate
 
       - name: Upload Block 24 market-ready contract
@@ -159,7 +165,9 @@ jobs:
         run: mkdir -p artifacts
 
       - name: Quality tests
+        if: steps.control-plane.outcome == 'success'
         id: quality-tests
+        continue-on-error: true
         run: npm test
 
       - name: Upload quality test results
@@ -172,19 +180,34 @@ jobs:
           retention-days: 14
 
       - name: TypeScript check
+        if: steps.control-plane.outcome == 'success'
         id: typecheck
+        continue-on-error: true
         run: npm run typecheck
 
       - name: Production build
+        if: steps.control-plane.outcome == 'success'
         id: production-build
+        continue-on-error: true
         run: npm run build
 
+      - name: Shoperation Control Plane final reconciliation
+        if: steps.control-plane.outcome == 'success'
+        id: control-plane-final
+        env:
+          SHOPERATION_EXTERNAL_GUARD_RESULTS: >-
+            {"GUARD-CUSTOMER-BASELINE":"${{ steps.customer-baseline.outcome }}","GUARD-MARKET-READY":"${{ steps.market-ready.outcome }}","GUARD-QUALITY-TESTS":"${{ steps.quality-tests.outcome }}","GUARD-TYPECHECK":"${{ steps.typecheck.outcome }}","GUARD-PRODUCTION-BUILD":"${{ steps.production-build.outcome }}"}
+          SHOPERATION_SOURCE_COMMIT: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: node scripts/shoperation-control-plane.mjs --reconcile-external --check
+
       - name: Generate release manifest
+        if: steps.control-plane-final.outcome == 'success'
         env:
           DEPLOY_ENVIRONMENT: ci
         run: npm run release:manifest
 
       - name: Upload release manifest
+        if: steps.control-plane-final.outcome == 'success'
         uses: actions/upload-artifact@v4
         with:
           name: release-manifest
@@ -197,18 +220,14 @@ jobs:
         shell: bash
         env:
           CONTROL_PLANE_OUTCOME: ${{ steps.control-plane.outcome }}
+          CONTROL_PLANE_FINAL_OUTCOME: ${{ steps.control-plane-final.outcome }}
           SHOPERATION_CONTROL_PLANE_REPORT: artifacts/shoperation-control-plane/control-plane.json
-          QUALITY_OUTCOME: ${{ steps.quality-tests.outcome }}
-          TYPECHECK_OUTCOME: ${{ steps.typecheck.outcome }}
-          BUILD_OUTCOME: ${{ steps.production-build.outcome }}
           SHOPERATION_SOURCE_COMMIT: ${{ github.event.pull_request.head.sha || github.sha }}
           SHOPERATION_FAILURE_SOURCE: ci
         run: |
           codes=""
           [ "$CONTROL_PLANE_OUTCOME" != "failure" ] || codes="${codes}CONTROL_PLANE_FAILED;"
-          [ "$QUALITY_OUTCOME" != "failure" ] || codes="${codes}TEST_FAILED;"
-          [ "$TYPECHECK_OUTCOME" != "failure" ] || codes="${codes}TYPECHECK_FAILED;"
-          [ "$BUILD_OUTCOME" != "failure" ] || codes="${codes}BUILD_FAILED;"
+          [ "$CONTROL_PLANE_FINAL_OUTCOME" != "failure" ] || codes="${codes}CONTROL_PLANE_FAILED;"
           SHOPERATION_GENERIC_FAILURES="$codes" node scripts/shoperation-failure-intake.mjs
 
       - name: Upload Shoperation failure intake
