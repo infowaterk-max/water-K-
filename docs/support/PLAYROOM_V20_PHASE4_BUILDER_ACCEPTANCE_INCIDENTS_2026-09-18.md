@@ -1700,3 +1700,51 @@ Across every Playroom v19 page:
 ### Prevention
 
 Shared template shells must have explicit Mobile footer composition. Desktop column collapse is not sufficient responsive design.
+
+
+---
+
+## SKB-P4-035 — Product Owner preview handoff must never use the bare deployment root
+
+- status: `implemented`
+- evidence: `human_report + known_failure_recurrence + regression_contract`
+- area: `template-factory/product-owner-handoff/preview-url-identity`
+- risk: `high`
+- automation: `AUTO_FIX`
+- known failure: `SQ-KF-003`
+- occurrence: `3`
+
+### Symptom
+
+After the Playroom v20 second Product Owner repair batch was complete, a temporary Vercel share link was generated from the READY deployment root and handed to the Product Owner. Opening that URL showed the storefront lifecycle gate ("Ez a webshop még nem nyitott meg.") instead of the intended Playroom template preview.
+
+### Root cause
+
+The repository already had the correct prevention mechanism in `scripts/template-factory-product-owner-handoff.mjs`: Product Owner preview identity must resolve to `/storefront-template-preview` with exact template/version identity and final provenance proof. The failure occurred because manual link delivery bypassed that canonical handoff path and used the deployment root directly.
+
+This is therefore **not a new failure class**. It is a recurrence of `SQ-KF-003` and must strengthen the existing Known Failure rather than create a duplicate record.
+
+### Resolution
+
+- `SQ-KF-003` occurrence count is incremented;
+- the Known Failure symptom/root-cause text now explicitly covers bare deployment-root handoff;
+- the prevention directive explicitly forbids handing a bare Vercel root to the Product Owner as a template preview;
+- `tests/storefront-template-preview-runtime.test.ts` now locks the handoff script's preview-path and exact-identity rejection contract;
+- human handoff must generate/share the URL from the complete canonical preview deep link, not from the deployment hostname alone.
+
+### Prevention
+
+A Product Owner preview URL is valid only when all of the following are true:
+
+1. the host belongs to the exact deployment/source identity under review;
+2. the pathname is `/storefront-template-preview`;
+3. template key and exact template version are pinned;
+4. page type and viewport are explicit for the reviewed surface;
+5. Factory candidate handoff also pins `factory=1`;
+6. the rendered preview exposes the expected provenance stamp/source commit.
+
+A READY deployment root, Vercel inspector URL, redirect page or protection page is never sufficient handoff evidence.
+
+### Knowledge rule
+
+Every genuinely new defect class must enter failure intake / Known Failure knowledge. A recurrence must not create a duplicate failure ID: increment the existing occurrence, attach the new evidence, and strengthen prevention/regression coverage when the previous control proved bypassable.

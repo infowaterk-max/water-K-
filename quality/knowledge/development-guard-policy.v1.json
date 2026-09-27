@@ -173,13 +173,15 @@
       ]
     },
     "SQ-KF-003": {
-      "preventiveDirective": "Separate deployment/protection reachability from application health. Require application/runtime evidence before treating a preview as valid.",
+      "preventiveDirective": "Separate deployment/protection reachability from application health. Never hand off a bare deployment root as a Product Owner preview. Require the canonical /storefront-template-preview route with exact template/version/page/viewport identity, then verify the rendered preview provenance before treating the link as valid.",
       "forbiddenApproaches": [
-        "treating Vercel READY/302/protection UI as application proof"
+        "treating Vercel READY/302/protection UI as application proof",
+        "handing a bare Vercel deployment root to the Product Owner as a template preview link"
       ],
       "requiredBeforeEdit": [
         "Review invariant authority: SQ-AUTH-004, SQ-AUTH-007",
-        "Keep regression authority available: tests/rollout-readiness.test.ts, tests/template-factory-procedural-memory.test.ts"
+        "Keep regression authority available: tests/rollout-readiness.test.ts, tests/template-factory-procedural-memory.test.ts",
+        "Keep Product Owner preview-route regression authority available: tests/storefront-template-preview-runtime.test.ts"
       ]
     },
     "SQ-KF-004": {

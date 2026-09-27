@@ -180,9 +180,9 @@
     {
       "id": "SQ-KF-003",
       "title": "Protected preview or deployment readiness mistaken for application health",
-      "symptom": "A READY deployment, redirect or protection surface is treated as proof that the Shoperation application route itself works.",
-      "rootCause": "Infrastructure reachability and application/runtime evidence were conflated.",
-      "occurrences": 2,
+      "symptom": "A READY deployment, redirect, protection surface or bare deployment-root URL is treated or handed to a Product Owner as proof that the intended Shoperation preview route itself works.",
+      "rootCause": "Infrastructure reachability and application-route identity were conflated, or the canonical Product Owner handoff verifier was bypassed during manual link delivery.",
+      "occurrences": 3,
       "automatable": true,
       "remediationPolicy": "shared-root-cause-required",
       "lifecycle": "active",
@@ -192,7 +192,8 @@
       ],
       "regressionTests": [
         "tests/rollout-readiness.test.ts",
-        "tests/template-factory-procedural-memory.test.ts"
+        "tests/template-factory-procedural-memory.test.ts",
+        "tests/storefront-template-preview-runtime.test.ts"
       ],
       "sourceRecords": [
         "docs/support/PLAYROOM_V20_PHASE4_BUILDER_ACCEPTANCE_INCIDENTS_2026-09-18.md"
@@ -202,7 +203,8 @@
         "subsystems": [
           "release-infrastructure",
           "environment-secret-contract",
-          "builder-template-system"
+          "builder-template-system",
+          "shared-storefront"
         ]
       }
     },
