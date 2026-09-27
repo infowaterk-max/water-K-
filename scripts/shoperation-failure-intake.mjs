@@ -3,6 +3,28 @@ import {existsSync,mkdirSync,readFileSync,writeFileSync} from 'node:fs';
 const signatures=JSON.parse(readFileSync('quality/knowledge/failure-signatures.v1.json','utf8')),knowledge=JSON.parse(readFileSync('quality/knowledge/shoperation-quality-knowledge.v1.json','utf8'));
 const outputDir=process.env.SHOPERATION_FAILURE_INTAKE_OUTPUT_DIR??'artifacts/shoperation-failure-intake',sourceCommit=(process.env.SHOPERATION_SOURCE_COMMIT??process.env.GITHUB_SHA??'').trim()||null,failureSource=(process.env.SHOPERATION_FAILURE_SOURCE??'ci').trim(),templateKey=(process.env.SHOPERATION_TEMPLATE_KEY??'').trim()||null,templateVersionRaw=(process.env.SHOPERATION_TEMPLATE_VERSION??'').trim(),templateVersion=templateVersionRaw?Number(templateVersionRaw):null,foundationTemplate=(process.env.SHOPERATION_FOUNDATION_TEMPLATE??'').trim()||null,inputs=[];
 for(const code of (process.env.SHOPERATION_GENERIC_FAILURES??'').split(';').map(x=>x.trim()).filter(Boolean))inputs.push({code,symptom:`${failureSource} reported ${code}`,evidence:[`source=${failureSource}`]});
+const controlPlanePath=(process.env.SHOPERATION_CONTROL_PLANE_REPORT??'artifacts/shoperation-control-plane/control-plane.json').trim();
+if(existsSync(controlPlanePath)){
+  try{
+    const controlPlane=JSON.parse(readFileSync(controlPlanePath,'utf8'));
+    if(controlPlane.decision==='BLOCK'){
+      const blockedId=controlPlane.blockedGuardId??null;
+      const codeByGuard={
+        'GUARD-INSTRUCTION-COMPLIANCE':'PRODUCT_OWNER_INSTRUCTION_COMPLIANCE_FAILED',
+        'GUARD-KNOWLEDGE-PREFLIGHT':'KNOWLEDGE_PREFLIGHT_FAILED',
+        'GUARD-PLAN-BEFORE-CODE':'DEVELOPMENT_PLAN_FAILED',
+        'GUARD-EDIT-TIME':'EDIT_TIME_GUARD_FAILED',
+        'GUARD-INCREMENTAL-REPLAY':'INCREMENTAL_REPLAY_FAILED',
+        'GUARD-RELEASE-RISK':'RELEASE_RISK_BUDGET_FAILED',
+      };
+      const code=codeByGuard[blockedId]??'CONTROL_PLANE_FAILED';
+      inputs.push({code,symptom:`Control Plane blocked at ${blockedId??'unknown'}`,evidence:[`artifact=${controlPlanePath}`,`profile=${controlPlane.profile??'unknown'}`]});
+      for(const contradiction of controlPlane.contradictions??[]){
+        inputs.push({code:'CONTROL_PLANE_FAILED',symptom:`Control Plane contradiction: ${contradiction.code??'unknown'}`,evidence:[`artifact=${controlPlanePath}`,`guard=${contradiction.guardId??'unknown'}`]});
+      }
+    }
+  }catch{}
+}
 const collectManifest=file=>{if(!file||!existsSync(file))return;try{const data=JSON.parse(readFileSync(file,'utf8'));for(const item of data.errors??[]){const raw=String(item.error??item.code??item);inputs.push({code:raw.split(':')[0],symptom:raw,evidence:[`case=${item.case??'unknown'}`,`artifact=${file}`]});}}catch{}};
 collectManifest(process.env.SHOPERATION_TEMPLATE_QUALITY_MANIFEST);
 const proofPath=process.env.SHOPERATION_HANDOFF_PROOF;if(proofPath&&existsSync(proofPath)){try{const data=JSON.parse(readFileSync(proofPath,'utf8'));for(const rawValue of data.errors??[]){const raw=String(rawValue);inputs.push({code:raw.split(':')[0],symptom:raw,evidence:[`artifact=${proofPath}`]});}}catch{}}
