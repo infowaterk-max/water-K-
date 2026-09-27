@@ -5,20 +5,19 @@ import { useSearchParams } from 'next/navigation';
 import { useMemo, useState } from 'react';
 import { AddToCart } from '@/components/catalog/add-to-cart';
 import { formatHuf, type Product } from '@/lib/catalog';
+import {normalizeStorefrontSearch,smartStorefrontSearchMatch,storefrontSearchSuggestions} from '@/lib/storefront/search-intelligence';
 
 type Props = { products: Product[]; signedIn: boolean; resellerApproved: boolean };
 type AudienceFilter = 'all' | 'retail' | 'professional';
 type StockFilter = 'all' | 'in-stock';
 type SortMode = 'recommended' | 'new' | 'price-asc' | 'price-desc' | 'size-asc';
 
-const normalize = (value: string) => value.toLocaleLowerCase('hu-HU').normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-
 export function ShopCatalog({ products, signedIn, resellerApproved }: Props) {
   const params=useSearchParams();
   const semanticKeys=['category','collection','filter','type','scene','flavor','pantry','ritual','play','genre','platform','c','concern','texture'] as const;
   const semanticTerms=semanticKeys.flatMap(key=>{
     const value=params.get(key)?.trim();
-    return value&&!(key==='filter'&&value==='sale')?[normalize(value)]:[];
+    return value&&!(key==='filter'&&value==='sale')?[normalizeStorefrontSearch(value)]:[];
   });
   const initialAudience=params.get('audience')==='retail'||params.get('audience')==='professional'?params.get('audience') as AudienceFilter:'all';
   const initialStock=params.get('stock')==='in-stock'?'in-stock':'all';
@@ -29,13 +28,15 @@ export function ShopCatalog({ products, signedIn, resellerApproved }: Props) {
   const [audience, setAudience] = useState<AudienceFilter>(initialAudience);
   const [stock, setStock] = useState<StockFilter>(initialStock);
   const [sort, setSort] = useState<SortMode>(initialSort);
+  const searchSuggestions=useMemo(()=>storefrontSearchSuggestions(products.flatMap(product=>[product.name,product.sku,...product.useCases,...product.highlights]),24),[products]);
 
   const filtered = useMemo(() => {
-    const needle = normalize(query.trim());
+    const needle = normalizeStorefrontSearch(query.trim());
     return products
       .filter(product => {
-        const haystack = normalize([product.name, product.sku, product.size, product.short, ...product.useCases, ...product.highlights].join(' '));
-        return (!needle || haystack.includes(needle)) &&
+        const searchValues=[product.name,product.sku,product.size,product.short,...product.useCases,...product.highlights];
+        const haystack=normalizeStorefrontSearch(searchValues.join(' '));
+        return (!needle || smartStorefrontSearchMatch(needle,searchValues)) &&
           semanticTerms.every(term=>haystack.includes(term)) &&
           (!saleOnly || Boolean(product.discountPercent&&product.discountPercent>0)) &&
           (audience === 'all' || product.audience === audience) &&
@@ -58,7 +59,7 @@ export function ShopCatalog({ products, signedIn, resellerApproved }: Props) {
     <section className="catalogToolbar" aria-label="Termékkereső és szűrők">
       <div className="catalogSearch">
         <label htmlFor="shop-search">Keresés</label>
-        <input id="shop-search" type="search" value={query} onChange={event => setQuery(event.target.value)} placeholder="Termék, felhasználás, cikkszám…" autoComplete="off" />
+        <input id="shop-search" type="search" list="shop-search-suggestions" value={query} onChange={event => setQuery(event.target.value)} placeholder="Termék, platform, kategória, cikkszám…" autoComplete="off" /><datalist id="shop-search-suggestions">{searchSuggestions.map(value=><option key={value} value={value}/>)}</datalist>
       </div>
       <div className="catalogFilter">
         <label htmlFor="shop-audience">Vásárlói kör</label>
