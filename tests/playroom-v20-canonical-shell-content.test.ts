@@ -40,7 +40,8 @@ describe('Playroom v20 canonical shell and content contract',()=>{
       expect(nodes.some(node=>node.id==='playroom-account-nav')).toBe(true);
       const footerHrefs=nodes.filter(node=>node.id.startsWith('playroom-footer-')&&node.componentKey==='system.navigation')
         .flatMap(node=>((node.config.items??[]) as {href?:string}[]).map(item=>item.href));
-      for(const href of ['/aszf','/adatvedelem','/impresszum','/szallitas-es-fizetes','/kapcsolat','/gyik'])expect(footerHrefs).toContain(href);
+      for(const href of ['/aszf','/adatvedelem','/impresszum','/oldal/szallitas','/oldal/fizetes','/kapcsolat','/gyik'])expect(footerHrefs).toContain(href);
+      expect(footerHrefs).not.toContain('/szallitas-es-fizetes');
     }
   });
 
@@ -144,7 +145,7 @@ describe('Playroom v20 canonical shell and content contract',()=>{
   });
 
   it('materializes distinct legal and informational demo content instead of title-swapped placeholders',()=>{
-    const slugs=['aszf','adatvedelem','impresszum','szallitas-es-fizetes','szallitas','fizetes','visszakuldes'];
+    const slugs=['aszf','adatvedelem','impresszum','szallitas','fizetes','visszakuldes'];
     const bodies=slugs.map(slug=>{
       const fixture=getStorefrontTemplateDemoContent(PLAYROOM_V20_TEMPLATE_PACKAGE,slug);
       expect(fixture,slug).toBeTruthy();
