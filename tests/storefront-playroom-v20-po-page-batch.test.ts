@@ -97,4 +97,20 @@ describe('Playroom v20 Product Owner page batch',()=>{
     expect(find('cart','playroom-cart-recommendations').config.ctaAction).toBe('add-to-cart');
   });
 
+  it('proves the Product description survives authored fallback resolution and makes Checkout task-first',()=>{
+    const productInfo=find('product','playroom-product-info');
+    expect(productInfo.bindings.description.path).toBe('product.description');
+    expect(productInfo.config.styleSlots.description.base.fontSize).toBe('.86rem');
+    const checkoutIds=ids('checkout');
+    expect(checkoutIds).not.toContain('playroom-checkout-runtime-contract');
+    expect(checkoutIds).not.toContain('playroom-checkout-trustline');
+    expect(checkoutIds).toContain('playroom-checkout-form-preview');
+    expect(checkoutIds).toContain('playroom-checkout-field-name');
+    expect(checkoutIds).toContain('playroom-checkout-shipping-methods');
+    expect(find('checkout','playroom-checkout-summary-shell').config.style.base.background).toBe('transparent');
+    expect(find('checkout','playroom-checkout-summary').config.styleSlots.root.base.padding).toBe('.9rem');
+    const previewCanonical=fs.readFileSync('src/lib/builder/storefront-template-preview-canonical.ts','utf8');
+    expect(previewCanonical).toContain("if(typeof fallback==='string')return fallback.trim().length>0");
+  });
+
 });

@@ -16,7 +16,8 @@ function setPath(target:Record<string,unknown>,path:string,value:unknown){
 }
 
 function shouldPreferAuthoredFallback(fallback:unknown){
-  if(fallback===undefined)return false;
+  if(fallback===undefined||fallback===null)return false;
+  if(typeof fallback==='string')return fallback.trim().length>0;
   if(Array.isArray(fallback))return fallback.length>0;
   if(isRecord(fallback))return Object.keys(fallback).length>0;
   return true;
