@@ -17,7 +17,8 @@
     "scripts/shoperation-support-history-backfill.mjs",
     "scripts/template-factory-quality-gate.mjs",
     "scripts/template-factory-product-owner-handoff.mjs",
-    "docs/architecture/"
+    "docs/architecture/",
+    "scripts/shoperation-instruction-compliance.mjs"
   ],
   "dependencies": {
     "builder-template-system": [
