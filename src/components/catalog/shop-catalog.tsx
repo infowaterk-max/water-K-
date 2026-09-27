@@ -13,6 +13,53 @@ type SortMode = 'recommended' | 'new' | 'price-asc' | 'price-desc' | 'size-asc';
 
 const normalize = (value: string) => value.toLocaleLowerCase('hu-HU').normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 
+const SEARCH_ALIAS_GROUPS=[
+  ['playstation','ps','ps4','ps5'],
+  ['xbox','xboxone','seriesx','seriess'],
+  ['nintendo','switch','nintendoswitch'],
+  ['pc','szamitogep','computer'],
+  ['kontroller','controller','gamepad'],
+  ['fejhallgato','headset','audio'],
+  ['verseny','racing','race'],
+  ['kaland','adventure'],
+  ['kooperativ','coop','co-op'],
+  ['arcade','arkad'],
+] as const;
+
+const aliases=new Map<string,readonly string[]>();
+for(const group of SEARCH_ALIAS_GROUPS){
+  const normalized=group.map(normalize);
+  for(const token of normalized)aliases.set(token,normalized);
+}
+const withinOneEdit=(a:string,b:string)=>{
+  if(a===b)return true;
+  if(Math.abs(a.length-b.length)>1)return false;
+  let i=0,j=0,edits=0;
+  while(i<a.length&&j<b.length){
+    if(a[i]===b[j]){i++;j++;continue}
+    edits++;
+    if(edits>1)return false;
+    if(a.length>b.length)i++;
+    else if(b.length>a.length)j++;
+    else{i++;j++}
+  }
+  if(i<a.length||j<b.length)edits++;
+  return edits<=1;
+};
+const smartSearchMatch=(query:string,haystack:string)=>{
+  const needle=normalize(query.trim());
+  if(!needle)return true;
+  const words=normalize(haystack).split(/[^a-z0-9]+/).filter(Boolean);
+  const full=words.join(' ');
+  return needle.split(/\s+/).filter(Boolean).every(token=>{
+    const candidates=aliases.get(token)??[token];
+    return candidates.some(candidate=>
+      full.includes(candidate)||
+      words.some(word=>word.startsWith(candidate)||candidate.startsWith(word)||(candidate.length>=4&&word.length>=4&&withinOneEdit(candidate,word)))
+    );
+  });
+};
+
 export function ShopCatalog({ products, signedIn, resellerApproved }: Props) {
   const params=useSearchParams();
   const semanticKeys=['category','collection','filter','type','scene','flavor','pantry','ritual','play','genre','platform','c','concern','texture'] as const;
@@ -29,13 +76,14 @@ export function ShopCatalog({ products, signedIn, resellerApproved }: Props) {
   const [audience, setAudience] = useState<AudienceFilter>(initialAudience);
   const [stock, setStock] = useState<StockFilter>(initialStock);
   const [sort, setSort] = useState<SortMode>(initialSort);
+  const searchSuggestions=useMemo(()=>[...new Set(products.flatMap(product=>[product.name,...product.useCases,...product.highlights]))].filter(Boolean).slice(0,24),[products]);
 
   const filtered = useMemo(() => {
     const needle = normalize(query.trim());
     return products
       .filter(product => {
         const haystack = normalize([product.name, product.sku, product.size, product.short, ...product.useCases, ...product.highlights].join(' '));
-        return (!needle || haystack.includes(needle)) &&
+        return (!needle || smartSearchMatch(needle,haystack)) &&
           semanticTerms.every(term=>haystack.includes(term)) &&
           (!saleOnly || Boolean(product.discountPercent&&product.discountPercent>0)) &&
           (audience === 'all' || product.audience === audience) &&
@@ -58,7 +106,7 @@ export function ShopCatalog({ products, signedIn, resellerApproved }: Props) {
     <section className="catalogToolbar" aria-label="Termékkereső és szűrők">
       <div className="catalogSearch">
         <label htmlFor="shop-search">Keresés</label>
-        <input id="shop-search" type="search" value={query} onChange={event => setQuery(event.target.value)} placeholder="Termék, felhasználás, cikkszám…" autoComplete="off" />
+        <><input id="shop-search" type="search" list="shop-search-suggestions" value={query} onChange={event => setQuery(event.target.value)} placeholder="Játék, platform, kategória, kontroller…" autoComplete="off" /><datalist id="shop-search-suggestions">{searchSuggestions.map(value=><option key={value} value={value}/>)}</datalist></>
       </div>
       <div className="catalogFilter">
         <label htmlFor="shop-audience">Vásárlói kör</label>

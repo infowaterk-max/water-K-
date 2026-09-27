@@ -52,5 +52,43 @@ describe('Playroom v20 Product Owner page batch',()=>{
     const wizard=fs.readFileSync('src/components/builder/storefront-support-contact-form-client.tsx','utf8');
     expect(wizard).toContain("label:'Hibajelentés'");
     expect(wizard).not.toContain("label:'Panaszt szeretnék tenni'");
+  });  it('locks the second PO pass without reopening accepted Home or Cart',()=>{
+    const catalogPlatform=find('catalog','playroom-catalog-platform-navigation');
+    expect(catalogPlatform.config.styleSlots.grid.mobile.gridTemplateColumns).toBe('repeat(3,minmax(0,1fr))');
+
+    expect(find('product','playroom-product-info').config.eyebrow).toBe('TERMÉKISMERTETŐ');
+    const digitalPreview=fs.readFileSync('src/lib/builder/storefront-digital-commerce-preview.ts','utf8');
+    expect(digitalPreview).toContain("input.template?.manifest.templateKey==='gaming.playroom'");
+    expect(digitalPreview).toContain("mode:'physical',documents:[]");
+
+    const checkoutIds=ids('checkout');
+    expect(checkoutIds).not.toContain('playroom-checkout-intro-note');
+    expect(checkoutIds).not.toContain('playroom-checkout-runtime-points');
+    expect(checkoutIds).toContain('playroom-checkout-progress-line');
+    const preview=fs.readFileSync('src/lib/builder/storefront-template-preview-demo.ts','utf8');
+    expect(preview).toContain("page.pageType==='cart'||page.pageType==='checkout'");
+
+    expect(ids('search')).not.toContain('playroom-search-shortcuts');
+    expect(ids('search')).not.toContain('playroom-search-hero-shortcuts');
+    expect(ids('search')).toContain('playroom-search-quick-chips');
+    expect(find('search','playroom-search-facets').config.mobilePresentation).toBe('dropdown');
+    expect(find('search','playroomSearchResults').config.styleSlots.grid.mobile.gridTemplateColumns).toBe('repeat(2,minmax(0,1fr))');
+    const searchSource=fs.readFileSync('src/components/catalog/shop-catalog.tsx','utf8');
+    expect(searchSource).toContain('SEARCH_ALIAS_GROUPS');
+    expect(searchSource).toContain('withinOneEdit');
+    expect(searchSource).toContain('shop-search-suggestions');
+
+    expect(ids('blog-index')).not.toContain('playroom-blog-index-topic-presets');
+    expect(ids('blog-article')).not.toContain('playroom-blog-article-aside');
+    expect(ids('blog-article')).not.toContain('playroom-blog-article-related');
+
+    expect(ids('legal')).not.toContain('playroom-legal-reading-note');
+    const serialized=JSON.stringify(PLAYROOM_V20_TEMPLATE_PACKAGE);
+    expect(serialized).not.toContain('/szallitas-es-fizetes');
+    expect((PLAYROOM_V20_TEMPLATE_PACKAGE.demoFixtures??[]).some(item=>item.entityType==='content'&&item.payload.slug==='szallitas-es-fizetes')).toBe(false);
+
+    expect(find('home','playroomFeaturedGames').config.mobileSingleItem).toBe(true);
+    expect(find('cart','playroom-cart-recommendations').config.ctaAction).toBe('add-to-cart');
   });
+
 });

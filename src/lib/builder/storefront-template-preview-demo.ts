@@ -358,7 +358,7 @@ export function createStorefrontTemplatePreviewBindingContext(input:{template:St
     reviews:{summary:{rating:4.9,count:128,label:'128 játékos értékelése'},items:demoReviews()},
     inventory:{stockLabel:selectedPreview?.stockLabel??'Raktáron'},
   };
-  if(template.manifest.templateKey==='gaming.playroom'&&page.pageType==='cart'){
+  if(template.manifest.templateKey==='gaming.playroom'&&(page.pageType==='cart'||page.pageType==='checkout')){
     const cartProducts=previewProducts.slice(0,4);
     const lines=cartProducts.map(item=>({
       id:'cart-'+item.id,
@@ -374,14 +374,22 @@ export function createStorefrontTemplatePreviewBindingContext(input:{template:St
       variantId:item.variantId,
     }));
     const subtotal=lines.reduce((sum,line)=>sum+line.lineTotal,0);
-    context.cart={lines,subtotal,total:subtotal,currency:'HUF'};
+    context.cart={lines,subtotal,shipping:0,total:subtotal,currency:'HUF'};
   }
   if(selectedFixture&&selectedPreview){
     const platforms=Array.isArray(selectedFixture.platforms)?selectedFixture.platforms.filter(item=>typeof item==='string') as string[]:[];
     const features=Array.isArray(selectedFixture.features)?selectedFixture.features.filter(item=>typeof item==='string') as string[]:[];
     context.product={
       name:selectedPreview.name,
-      description:typeof selectedFixture.longDescription==='string'?selectedFixture.longDescription:typeof selectedFixture.shortDescription==='string'?selectedFixture.shortDescription:'',
+      description:(()=>{
+        const genre=typeof selectedFixture.genre==='string'?selectedFixture.genre:'';
+        const normalized=genre.toLocaleLowerCase('hu-HU');
+        if(normalized.includes('arcade')&&normalized.includes('verseny'))return'Az arcade versenyjátékok a gyors, könnyen tanulható irányításra és a rövid, pörgős futamokra épülnek. A hangsúly az azonnali játékélményen van, nem a valósághű szimuláción.';
+        if(normalized.includes('kooperat'))return'A kooperatív játékokban a játékosok közös célért dolgoznak. A műfaj lényege az együttműködés, a feladatok megosztása és egymás segítése.';
+        if(normalized.includes('narrat')||normalized.includes('kaland'))return'A narratív kalandjátékok középpontjában a történet, a felfedezés és a játékos döntései állnak. Általában nyugodtabb tempójú, történetközpontú játékélményt kínálnak.';
+        if(normalized.includes('arena')||normalized.includes('kompetit'))return'A kompetitív arénajátékok rövid, egymás elleni vagy csapatalapú mérkőzésekre épülnek. A gyors reakció, a pályaismeret és a gyakorlással fejlődő játéktudás a műfaj alapja.';
+        return genre?`A(z) ${genre} műfaj a játékmenet jellegét írja le. A platform, játékosszám, játékidő és korhatár segít eldönteni, hogy illik-e a keresett játékhelyzethez.`:'A termékismertető a játék műfaját és használati jellegét foglalja össze.';
+      })(),
       gallery:selectedPreview.image?[{src:selectedPreview.image,alt:selectedPreview.imageAlt}]:[],
       badges:[typeof selectedFixture.genre==='string'?selectedFixture.genre:'Playroom',selectedPreview.badge].filter(Boolean),
       keySpecs:[
