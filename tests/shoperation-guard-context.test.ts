@@ -42,6 +42,15 @@ describe('shared cross-gate context',()=>{
     expect(read('src/components/checkout/storefront-checkout-shell.tsx')).toContain('data-storefront-live-checkout="shared-e13"');
   });
 
+  it('forces Product Owner handoff to consume the same cross-gate evidence bus',()=>{
+    const handoff=read('scripts/template-factory-product-owner-handoff.mjs');
+    expect(handoff).toContain("artifacts/shoperation-development-guard/guard-context.json");
+    expect(handoff).toContain("GUARD-INSTRUCTION-COMPLIANCE");
+    expect(handoff).toContain("GUARD-INCREMENTAL-REPLAY");
+    expect(handoff).toContain("CROSS_GUARD_EVIDENCE_NOT_PASS");
+    expect(handoff).toContain("SHARED_COMMERCE_AUTHORITY_CONTEXT_MISSING");
+  });
+
   it('records the checkout regression as recurrence, not a new disconnected failure class',()=>{
     const knowledge=json('quality/knowledge/shoperation-quality-knowledge.v1.json');
     const globalFailure=knowledge.knownFailures.find((item:any)=>item.id==='SQ-KF-025');
