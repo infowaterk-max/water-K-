@@ -67,7 +67,8 @@
     ".github/workflows/template-factory-quality-gate.yml",
     "tests/shoperation-control-plane.test.ts",
     "scripts/shoperation-failure-intake.mjs",
-    "quality/knowledge/failure-signatures.v1.json"
+    "quality/knowledge/failure-signatures.v1.json",
+    "tests/shoperation-development-guard.test.ts"
   ],
   "expectedSubsystems": [
     "auth-access-authority",
