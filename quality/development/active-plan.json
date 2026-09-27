@@ -68,7 +68,10 @@
     "tests/shoperation-control-plane.test.ts",
     "scripts/shoperation-failure-intake.mjs",
     "quality/knowledge/failure-signatures.v1.json",
-    "tests/shoperation-development-guard.test.ts"
+    "tests/shoperation-development-guard.test.ts",
+    "tests/rollout-readiness.test.ts",
+    "tests/shoperation-quality-knowledge.test.ts",
+    ".github/workflows/shoperation-knowledge-full-replay.yml"
   ],
   "expectedSubsystems": [
     "auth-access-authority",
