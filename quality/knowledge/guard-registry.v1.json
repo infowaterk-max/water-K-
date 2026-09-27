@@ -6,7 +6,10 @@
     "oneBlockingResponsibilityOneOwner": true,
     "additiveGuardsRequireDistinctResponsibility": true,
     "evidenceMustNameProducer": true,
-    "informationalSignalsMustNotMasqueradeAsBlockingAuthorities": true
+    "informationalSignalsMustNotMasqueradeAsBlockingAuthorities": true,
+    "crossGuardContextRequired": true,
+    "laterGuardsMustConsumePriorBlockingEvidence": true,
+    "authorityRulesOverrideLocalEvidenceShape": true
   },
   "guards": [
     {
@@ -17,7 +20,16 @@
       "blocking": true,
       "responsibilityKey": "knowledge-integrity-and-change-impact",
       "producer": "scripts/shoperation-knowledge-preflight.mjs",
-      "evidence": "artifacts/shoperation-quality/knowledge-preflight.json"
+      "evidence": "artifacts/shoperation-quality/knowledge-preflight.json",
+      "consumesEvidenceFrom": [
+        "GUARD-INSTRUCTION-COMPLIANCE"
+      ],
+      "authoritySources": [
+        "quality/knowledge/shoperation-quality-knowledge.v1.json",
+        "src/lib/builder/template-factory/knowledge-registry.ts",
+        "quality/knowledge/domain-foundations.v1.json",
+        "artifacts/shoperation-development-guard/instruction-compliance.json"
+      ]
     },
     {
       "id": "GUARD-INSTRUCTION-COMPLIANCE",
@@ -27,7 +39,14 @@
       "blocking": true,
       "responsibilityKey": "instruction-to-evidence-closure",
       "producer": "scripts/shoperation-instruction-compliance.mjs",
-      "evidence": "artifacts/shoperation-development-guard/instruction-compliance.json"
+      "evidence": "artifacts/shoperation-development-guard/instruction-compliance.json",
+      "consumesEvidenceFrom": [],
+      "authoritySources": [
+        "quality/knowledge/shoperation-quality-knowledge.v1.json",
+        "src/lib/builder/template-factory/knowledge-registry.ts",
+        "quality/knowledge/domain-foundations.v1.json",
+        "quality/development/active-plan.json"
+      ]
     },
     {
       "id": "GUARD-PLAN-BEFORE-CODE",
@@ -37,7 +56,15 @@
       "blocking": true,
       "responsibilityKey": "declared-change-scope",
       "producer": "scripts/shoperation-plan-before-code.mjs",
-      "evidence": "artifacts/shoperation-development-guard/plan-before-code.json"
+      "evidence": "artifacts/shoperation-development-guard/plan-before-code.json",
+      "consumesEvidenceFrom": [
+        "GUARD-INSTRUCTION-COMPLIANCE",
+        "GUARD-KNOWLEDGE-PREFLIGHT"
+      ],
+      "authoritySources": [
+        "artifacts/shoperation-development-guard/guard-context.json",
+        "artifacts/shoperation-quality/knowledge-preflight.json"
+      ]
     },
     {
       "id": "GUARD-EDIT-TIME",
@@ -47,7 +74,16 @@
       "blocking": true,
       "responsibilityKey": "known-failure-edit-selection",
       "producer": "scripts/shoperation-edit-time-guard.mjs",
-      "evidence": "artifacts/shoperation-development-guard/edit-time-guard.json"
+      "evidence": "artifacts/shoperation-development-guard/edit-time-guard.json",
+      "consumesEvidenceFrom": [
+        "GUARD-INSTRUCTION-COMPLIANCE",
+        "GUARD-KNOWLEDGE-PREFLIGHT",
+        "GUARD-PLAN-BEFORE-CODE"
+      ],
+      "authoritySources": [
+        "artifacts/shoperation-development-guard/guard-context.json",
+        "quality/knowledge/development-guard-policy.v1.json"
+      ]
     },
     {
       "id": "GUARD-INCREMENTAL-REPLAY",
@@ -57,7 +93,17 @@
       "blocking": true,
       "responsibilityKey": "known-failure-regression-replay",
       "producer": "scripts/shoperation-incremental-replay.mjs",
-      "evidence": "artifacts/shoperation-development-guard/incremental-replay.json"
+      "evidence": "artifacts/shoperation-development-guard/incremental-replay.json",
+      "consumesEvidenceFrom": [
+        "GUARD-INSTRUCTION-COMPLIANCE",
+        "GUARD-KNOWLEDGE-PREFLIGHT",
+        "GUARD-PLAN-BEFORE-CODE",
+        "GUARD-EDIT-TIME"
+      ],
+      "authoritySources": [
+        "artifacts/shoperation-development-guard/guard-context.json",
+        "artifacts/shoperation-quality/knowledge-preflight.json"
+      ]
     },
     {
       "id": "GUARD-RELEASE-RISK",
