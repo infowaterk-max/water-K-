@@ -16,6 +16,12 @@ if(existsSync(controlPlanePath)){
         'GUARD-EDIT-TIME':'EDIT_TIME_GUARD_FAILED',
         'GUARD-INCREMENTAL-REPLAY':'INCREMENTAL_REPLAY_FAILED',
         'GUARD-RELEASE-RISK':'RELEASE_RISK_BUDGET_FAILED',
+        'GUARD-CUSTOMER-BASELINE':'DATABASE_SCHEMA_COMPATIBILITY_FAILED',
+        'GUARD-MARKET-READY':'MARKET_READY_CONTRACT_FAILED',
+        'GUARD-QUALITY-TESTS':'TEST_FAILED',
+        'GUARD-TYPECHECK':'TYPECHECK_FAILED',
+        'GUARD-PRODUCTION-BUILD':'BUILD_FAILED',
+        'GUARD-TEMPLATE-FACTORY':'QUALITY_GATE_FAILED',
       };
       const code=codeByGuard[blockedId]??'CONTROL_PLANE_FAILED';
       inputs.push({code,symptom:`Control Plane blocked at ${blockedId??'unknown'}`,evidence:[`artifact=${controlPlanePath}`,`profile=${controlPlane.profile??'unknown'}`]});
