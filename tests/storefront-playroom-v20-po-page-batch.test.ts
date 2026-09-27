@@ -102,15 +102,20 @@ describe('Playroom v20 Product Owner page batch',()=>{
     expect(productInfo.bindings.description.path).toBe('product.description');
     expect(productInfo.config.styleSlots.description.base.fontSize).toBe('.86rem');
     const checkoutIds=ids('checkout');
-    expect(checkoutIds).not.toContain('playroom-checkout-runtime-contract');
+    expect(checkoutIds).toContain('playroom-checkout-runtime-contract');
     expect(checkoutIds).not.toContain('playroom-checkout-trustline');
-    expect(checkoutIds).toContain('playroom-checkout-form-preview');
-    expect(checkoutIds).toContain('playroom-checkout-field-name');
-    expect(checkoutIds).toContain('playroom-checkout-shipping-methods');
+    expect(checkoutIds).not.toContain('playroom-checkout-form-preview');
+    expect(checkoutIds).not.toContain('playroom-checkout-field-name');
+    expect(checkoutIds).not.toContain('playroom-checkout-shipping-methods');
     expect(find('checkout','playroom-checkout-summary-shell').config.style.base.background).toBe('transparent');
     expect(find('checkout','playroom-checkout-summary').config.styleSlots.root.base.padding).toBe('.9rem');
     const previewCanonical=fs.readFileSync('src/lib/builder/storefront-template-preview-canonical.ts','utf8');
     expect(previewCanonical).toContain("if(typeof fallback==='string')return fallback.trim().length>0");
+    const checkoutRoute=fs.readFileSync('src/app/penztar/page.tsx','utf8');
+    const checkoutShell=fs.readFileSync('src/components/checkout/storefront-checkout-shell.tsx','utf8');
+    expect(checkoutRoute).toContain('<CheckoutForm');
+    expect(checkoutRoute).toContain('<StorefrontCheckoutShell');
+    expect(checkoutShell).toContain('data-storefront-live-checkout="shared-e13"');
   });
 
 });
