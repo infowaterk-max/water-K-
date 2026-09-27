@@ -24,6 +24,12 @@ const exitCode=await new Promise((resolve,reject)=>{
   child.on('close',code=>resolve(code??1));
 });
 const rawOutput=stdout+'\n'+stderr;
+const exactEvidencePath=typeof guard.evidence==='string'&&!guard.evidence.includes('*')&&!guard.evidence.includes('{')&&!guard.evidence.includes('[')?guard.evidence:null;
+let upstreamEvidence=null;
+if(exactEvidencePath){
+  try{upstreamEvidence=JSON.parse(readFileSync(exactEvidencePath,'utf8'))}catch{}
+}
+const diagnostics=collectGuardDiagnostics({guardId,evidence:upstreamEvidence,processError:null,rawOutput});
 const evidence={
   contract:'shoporation.external-specialist-evidence.v1',
   guardId,
@@ -33,13 +39,14 @@ const evidence={
   command:[command,...commandArgs],
   exitCode,
   decision:exitCode===0?'PASS':'BLOCK',
-  diagnostics:collectGuardDiagnostics({guardId,evidence:null,processError:null,rawOutput}),
+  diagnostics,
+  upstreamEvidencePath:upstreamEvidence?exactEvidencePath:null,
   taskId:JSON.parse(readFileSync('quality/development/active-plan.json','utf8')).taskId,
   sourceHead:(process.env.SHOPERATION_SOURCE_COMMIT??process.env.GITHUB_SHA??'').trim()||null,
 };
 mkdirSync('artifacts/shoperation-control-plane',{recursive:true});
 const path='artifacts/shoperation-control-plane/specialist-'+guardId.toLowerCase()+'.json';
 writeFileSync(path,JSON.stringify(evidence,null,2)+'\n');
-if(exitCode!==0)emitInstantGuardFailure({guard,evidence,rawOutput,stage:'external-specialist'});
+if(exitCode!==0)emitInstantGuardFailure({guard,evidence:upstreamEvidence?{...upstreamEvidence,diagnostics}:evidence,rawOutput,stage:'external-specialist'});
 else console.log('Shoperation specialist PASS: '+guardId+' — '+guard.name);
 process.exit(exitCode);
