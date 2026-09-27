@@ -257,7 +257,8 @@
       "boundaryRules": [
         "Storefront consumes shared capabilities; it may not duplicate auth/account/commerce/support engines.",
         "Responsive behavior follows canonical viewport/workspace authority rather than host heuristics.",
-        "Template presentation may vary while business capability authority remains shared."
+        "Template presentation may vary while business capability authority remains shared.",
+        "Shopper search/filter presentation belongs to shared storefront; it may consume catalog truth but may not redefine product, price, stock or sellability truth."
       ],
       "principles": [
         "ARCH-001",
@@ -272,7 +273,9 @@
         "src/app/storefront-template-preview/**",
         "src/app/storefront-template-preview-login/**",
         "src/app/visual-fidelity-qa/**",
-        "src/components/account/storefront-account-shell.tsx"
+        "src/components/account/storefront-account-shell.tsx",
+        "src/components/catalog/**",
+        "src/app/kereses/**"
       ],
       "evidenceObligations": [
         "responsive isolation proof",
