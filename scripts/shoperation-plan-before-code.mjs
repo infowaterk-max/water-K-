@@ -1,7 +1,8 @@
 import {mkdirSync,readFileSync,writeFileSync} from 'node:fs';
 import {getChangedFiles,globToRegExp,guardPolicy,isNeutralFile,knowledge,resolveDevelopmentScope,scopePolicy,stableDigest} from './lib/shoperation-development-runtime.mjs';
 import {buildCodebaseAtlas,validateCodebaseAtlas} from './lib/shoperation-codebase-atlas-runtime.mjs';
-const plan=JSON.parse(readFileSync('quality/development/active-plan.json','utf8')),diff=getChangedFiles({baseSha:plan.changeBaseSha}),changedFiles=diff.files.filter(file=>file!=='quality/development/active-plan.json'),issues=[];
+import {predecessorIssues,publishGuardContext} from './lib/shoperation-guard-context.mjs';
+const plan=JSON.parse(readFileSync('quality/development/active-plan.json','utf8')),diff=getChangedFiles({baseSha:plan.changeBaseSha}),changedFiles=diff.files.filter(file=>file!=='quality/development/active-plan.json'),issues=[...predecessorIssues('GUARD-PLAN-BEFORE-CODE')];
 if(plan.contract!=='shoporation.development-plan.v1')issues.push({code:'DEV_PLAN_CONTRACT_INVALID'});
 if(plan.status!=='ready-for-implementation')issues.push({code:'DEV_PLAN_NOT_READY'});
 if(!plan.task?.trim())issues.push({code:'DEV_PLAN_TASK_REQUIRED'});
@@ -32,5 +33,5 @@ for(const exception of plan.exceptions??[])if(!exception.ruleId||!exception.reas
 const digest=stableDigest({failureIds,subsystems:[...scope.impactedSubsystems].sort(),negativeKnowledgeIds:negative});
 if(plan.guardDigest!==digest)issues.push({code:'DEV_PLAN_GUARD_DIGEST_DRIFT',expected:plan.guardDigest,actual:digest});
 const report={contract:'shoporation.plan-before-code-gate.v1',taskId:plan.taskId??null,base:diff.base,head:diff.head,changedFiles,scope,architectureImpact:{directDomains,directAuthorities,unresolvedFiles:architectureUnresolvedFiles,atlasContract:atlas.contract},guardDigest:digest,issues,decision:issues.length?'BLOCK':'PASS'};
-mkdirSync('artifacts/shoperation-development-guard',{recursive:true});writeFileSync('artifacts/shoperation-development-guard/plan-before-code.json',JSON.stringify(report,null,2)+'\n');
+mkdirSync('artifacts/shoperation-development-guard',{recursive:true});writeFileSync('artifacts/shoperation-development-guard/plan-before-code.json',JSON.stringify(report,null,2)+'\n');publishGuardContext('GUARD-PLAN-BEFORE-CODE',report);
 console.log(`Plan Before Code: ${report.decision}; changedFiles=${changedFiles.length}; failures=${failureIds.length}.`);for(const issue of issues)console.error(JSON.stringify(issue));if(report.decision!=='PASS'&&process.argv.includes('--check'))process.exit(1);
