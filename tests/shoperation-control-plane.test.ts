@@ -18,8 +18,8 @@ describe('Shoperation Control Plane',()=>{
       'GUARD-PLAN-BEFORE-CODE',
       'GUARD-EDIT-TIME',
       'GUARD-INCREMENTAL-REPLAY',
-      'GUARD-RELEASE-RISK',
     ]));
+    expect(registry.guards.find((guard:any)=>guard.id==='GUARD-RELEASE-RISK')?.execution?.mode).toBe('external-specialist');
     for(const guard of managed){
       expect(guard.execution.command).toBe('node');
       expect(Array.isArray(guard.execution.args)).toBe(true);
@@ -73,6 +73,23 @@ describe('Shoperation Control Plane',()=>{
     expect(factory).toContain('Shoperation Control Plane final Template Factory reconciliation');
     expect(factory).toContain('"GUARD-TEMPLATE-FACTORY"');
     expect(factory).toContain("steps.control-plane-final.outcome == 'success'");
+  });
+
+  it('reports a blocking specialist immediately instead of requiring log archaeology',()=>{
+    const reporter=read('scripts/lib/shoperation-control-plane-reporter.mjs');
+    const runner=read('scripts/shoperation-specialist-runner.mjs');
+    expect(reporter).toContain('SHOPERATION CONTROL PLANE');
+    expect(reporter).toContain('KNOWN FAILURE:');
+    expect(reporter).toContain('JAVÍTÁS:');
+    expect(reporter).toContain('::error ');
+    expect(reporter).toContain('GITHUB_STEP_SUMMARY');
+    expect(runner).toContain('emitInstantGuardFailure');
+    expect(runner).toContain('external-specialist-evidence.v1');
+
+    const ci=read('.github/workflows/ci.yml');
+    expect(ci).toContain('shoperation-specialist-runner.mjs --guard GUARD-RELEASE-RISK');
+    expect(ci).toContain('shoperation-specialist-runner.mjs --guard GUARD-TYPECHECK');
+    expect(ci).toContain('"GUARD-RELEASE-RISK"');
   });
 
   it('requires Product Owner handoff to consume the final Control Plane verdict',()=>{
