@@ -107,12 +107,18 @@
       "id": "SQ-AUTH-020",
       "subject": "semantically bounded development intent matching",
       "rule": "Development intent matchers must not let short provider or protocol tokens activate unrelated subsystems by substring. Short tokens require explicit lexical boundaries and regression examples for both positive and negative matches."
+    },
+    {
+      "id": "SQ-AUTH-021",
+      "subject": "instruction-to-evidence closure",
+      "rule": "Every explicit Product Owner or user instruction accepted for implementation must have a durable instruction identity, concrete acceptance criteria, machine-verifiable implementation evidence and regression authority before the task may be reported complete."
     }
   ],
   "globalBaselineFailureIds": [
     "SQ-KF-013",
     "SQ-KF-014",
-    "SQ-KF-022"
+    "SQ-KF-022",
+    "SQ-KF-025"
   ],
   "knownFailures": [
     {
@@ -819,6 +825,31 @@
         "subsystems": [
           "quality-knowledge-system"
         ]
+      }
+    },
+    {
+      "id": "SQ-KF-025",
+      "title": "Product Owner instruction marked complete without requirement-level proof",
+      "symptom": "Code changes and broad gates are green, but one or more explicitly requested Product Owner behaviors are missing, only partially implemented, or contradicted by the actual handoff surface.",
+      "rootCause": "Completion was evaluated from changed files or generic test success instead of replaying the original instruction list against requirement-specific evidence.",
+      "occurrences": 1,
+      "automatable": true,
+      "remediationPolicy": "shared-invariant-preferred",
+      "lifecycle": "active",
+      "invariantIds": [
+        "SQ-AUTH-021",
+        "SQ-AUTH-004",
+        "SQ-AUTH-007"
+      ],
+      "regressionTests": [
+        "tests/product-owner-instruction-compliance.test.ts"
+      ],
+      "sourceRecords": [
+        "docs/support/PRODUCT_OWNER_INSTRUCTION_COMPLIANCE_2026-09-27.md"
+      ],
+      "applicability": {
+        "mode": "always",
+        "subsystems": []
       }
     }
   ],
