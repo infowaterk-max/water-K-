@@ -200,36 +200,59 @@
     },
     {
       "id": "PO-2026-09-27-INSTRUCTION-COMPLIANCE-GATE",
-      "request": "Legyen olyan ellenőrzés, amely nyilvántartja, milyen utasításokat kaptál, és ellenőrzi, hogy ténylegesen megcsináltad-e mindet.",
+      "request": "Legyen egységes ellenőrzési ökoszisztéma, amely nyilvántartja az utasításokat, authority-kat és korábbi gate-eredményeket, és egyetlen központi Control Plane-en keresztül dönti el, hogy a feladat ténylegesen elkészült-e.",
       "state": "implemented",
       "acceptanceCriteria": [
         "Minden aktív utasításnak saját azonosítója, elfogadási feltétele, gépi ellenőrzése és regressziós tesztje van.",
-        "Pending/in-progress utasítás vagy hibás bizonyíték blokkolja a gate-et.",
-        "A Knowledge Before Build automatikusan futtatja az Instruction Compliance Gate-et."
+        "A gate-ek nem orchestrálhatják egymást önállóan; a futási sorrendet a központi Control Plane határozza meg.",
+        "A későbbi specialisták olvassák a közös authority/evidence contextet és az előző blocking eredményeket.",
+        "A workflow-k egyetlen Control Plane belépési pontot használnak a core gate-lánchoz.",
+        "A typecheck/build/browser és más külső specialisták eredménye visszakerül a Control Plane final reconciliationbe."
       ],
       "checks": [
         {
           "kind": "file-exists",
-          "file": "scripts/shoperation-instruction-compliance.mjs"
+          "file": "scripts/shoperation-control-plane.mjs"
         },
         {
           "kind": "file-contains",
+          "file": "quality/knowledge/guard-registry.v1.json",
+          "value": "singleControlPlaneOwnsBlockingOrder"
+        },
+        {
+          "kind": "file-contains",
+          "file": "quality/knowledge/guard-registry.v1.json",
+          "value": "finalDecisionBelongsToControlPlane"
+        },
+        {
+          "kind": "file-not-contains",
           "file": "scripts/shoperation-knowledge-preflight.mjs",
           "value": "scripts/shoperation-instruction-compliance.mjs"
         },
         {
           "kind": "file-contains",
           "file": "AGENTS.md",
-          "value": "shoperation-instruction-compliance.mjs --check"
+          "value": "shoperation-control-plane.mjs --profile pr --through GUARD-INCREMENTAL-REPLAY --check"
         },
         {
           "kind": "file-contains",
-          "file": "quality/knowledge/guard-registry.v1.json",
-          "value": "GUARD-INSTRUCTION-COMPLIANCE"
+          "file": ".github/workflows/ci.yml",
+          "value": "name: Shoperation Control Plane"
+        },
+        {
+          "kind": "file-contains",
+          "file": ".github/workflows/template-factory-quality-gate.yml",
+          "value": "Shoperation Control Plane final Template Factory reconciliation"
+        },
+        {
+          "kind": "file-exists",
+          "file": "tests/shoperation-control-plane.test.ts"
         }
       ],
       "regressionTests": [
-        "tests/product-owner-instruction-compliance.test.ts"
+        "tests/product-owner-instruction-compliance.test.ts",
+        "tests/shoperation-control-plane.test.ts",
+        "tests/shoperation-guard-context.test.ts"
       ]
     },
     {
