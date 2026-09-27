@@ -507,6 +507,19 @@
         "quality-knowledge-system"
       ],
       "reason": "An unbounded short provider token matched an unrelated word and activated false subsystem scope."
+    },
+    {
+      "file": "PLAYROOM_V20_PHASE4_BUILDER_ACCEPTANCE_INCIDENTS_2026-09-18.md",
+      "sourceIdPattern": "^SKB-P4-035$",
+      "titlePattern": "Product Owner preview handoff must never use the bare deployment root",
+      "disposition": "matched-known-failure",
+      "knownFailureId": "SQ-KF-003",
+      "subsystems": [
+        "release-infrastructure",
+        "builder-template-system",
+        "shared-storefront"
+      ],
+      "reason": "The canonical preview identity rule already existed; this incident is a recurrence caused by bypassing the Product Owner handoff verifier and handing off a bare deployment root."
     }
   ]
 }
