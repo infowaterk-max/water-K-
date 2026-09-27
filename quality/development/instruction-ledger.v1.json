@@ -1,0 +1,135 @@
+{
+  "contract": "shoporation.instruction-compliance.v1",
+  "version": 1,
+  "taskId": "DEV-PLAYROOM-V20-PO-SECOND-PASS",
+  "source": "product-owner",
+  "status": "implementation-proven",
+  "instructions": [
+    {
+      "id": "PO-2026-09-27-PRODUCT-DESCRIPTION",
+      "request": "A gamer termékoldalon ne legyen használati útmutató; legyen tényleges, rövid termékismertető, amely nem talál ki történetet, hanem a játék műfaját ismerteti.",
+      "state": "implemented",
+      "acceptanceCriteria": [
+        "A Product previewban a TERMÉKISMERTETŐ cím alatt nem üres, műfaj-alapú leírás jelenik meg.",
+        "Az üres authored fallback nem írhatja felül a product.description preview értékét.",
+        "Playroom játékhoz nem fabrikálunk használati útmutatót."
+      ],
+      "checks": [
+        {
+          "kind": "template-node-value",
+          "file": "src/lib/builder/templates/gaming/playroom/v20/canonical-package.json",
+          "pageType": "product",
+          "nodeId": "playroom-product-info",
+          "path": "bindings.description.path",
+          "equals": "product.description"
+        },
+        {
+          "kind": "file-contains",
+          "file": "src/lib/builder/storefront-template-preview-canonical.ts",
+          "value": "if(typeof fallback==='string')return fallback.trim().length>0"
+        },
+        {
+          "kind": "file-contains",
+          "file": "src/lib/builder/storefront-template-preview-demo.ts",
+          "value": "A kooperatív játékokban a játékosok közös célért dolgoznak."
+        },
+        {
+          "kind": "file-contains",
+          "file": "src/lib/builder/storefront-digital-commerce-preview.ts",
+          "value": "mode:'physical',documents:[]"
+        }
+      ],
+      "regressionTests": [
+        "tests/storefront-playroom-v20-po-page-batch.test.ts",
+        "tests/product-owner-instruction-compliance.test.ts"
+      ]
+    },
+    {
+      "id": "PO-2026-09-27-CHECKOUT-TASK-FIRST",
+      "request": "A Pénztár ne legyen nagy biztonság/fizetés magyarázó blokkokból álló oldal; a rendelés befejezése legyen fókuszban, a bizalmi információ maradjon kompakt.",
+      "state": "implemented",
+      "acceptanceCriteria": [
+        "A nagy 'Egy aktív lépés. Nulla zaj.' magyarázó blokk eltűnik.",
+        "A preview tényleges pénztár-szerkezetet mutat: szállítási adatok, szállítási mód, továbblépés, fizetés és összesítés.",
+        "A rendelésösszegzés valós preview termékneveket és nem üres összegeket kap; a biztonsági szöveg kicsi marad."
+      ],
+      "checks": [
+        {
+          "kind": "template-node-absent",
+          "file": "src/lib/builder/templates/gaming/playroom/v20/canonical-package.json",
+          "pageType": "checkout",
+          "nodeId": "playroom-checkout-runtime-contract"
+        },
+        {
+          "kind": "template-node-present",
+          "file": "src/lib/builder/templates/gaming/playroom/v20/canonical-package.json",
+          "pageType": "checkout",
+          "nodeId": "playroom-checkout-form-preview"
+        },
+        {
+          "kind": "template-node-present",
+          "file": "src/lib/builder/templates/gaming/playroom/v20/canonical-package.json",
+          "pageType": "checkout",
+          "nodeId": "playroom-checkout-field-name"
+        },
+        {
+          "kind": "template-node-present",
+          "file": "src/lib/builder/templates/gaming/playroom/v20/canonical-package.json",
+          "pageType": "checkout",
+          "nodeId": "playroom-checkout-shipping-methods"
+        },
+        {
+          "kind": "template-node-value",
+          "file": "src/lib/builder/templates/gaming/playroom/v20/canonical-package.json",
+          "pageType": "checkout",
+          "nodeId": "playroom-checkout-summary-shell",
+          "path": "config.style.base.background",
+          "equals": "transparent"
+        },
+        {
+          "kind": "file-contains",
+          "file": "src/lib/builder/storefront-template-preview-canonical.ts",
+          "value": "if(typeof fallback==='string')return fallback.trim().length>0"
+        }
+      ],
+      "regressionTests": [
+        "tests/storefront-playroom-v20-po-page-batch.test.ts",
+        "tests/product-owner-instruction-compliance.test.ts"
+      ]
+    },
+    {
+      "id": "PO-2026-09-27-INSTRUCTION-COMPLIANCE-GATE",
+      "request": "Legyen olyan ellenőrzés, amely nyilvántartja, milyen utasításokat kaptál, és ellenőrzi, hogy ténylegesen megcsináltad-e mindet.",
+      "state": "implemented",
+      "acceptanceCriteria": [
+        "Minden aktív utasításnak saját azonosítója, elfogadási feltétele, gépi ellenőrzése és regressziós tesztje van.",
+        "Pending/in-progress utasítás vagy hibás bizonyíték blokkolja a gate-et.",
+        "A Knowledge Before Build automatikusan futtatja az Instruction Compliance Gate-et."
+      ],
+      "checks": [
+        {
+          "kind": "file-exists",
+          "file": "scripts/shoperation-instruction-compliance.mjs"
+        },
+        {
+          "kind": "file-contains",
+          "file": "scripts/shoperation-knowledge-preflight.mjs",
+          "value": "scripts/shoperation-instruction-compliance.mjs"
+        },
+        {
+          "kind": "file-contains",
+          "file": "AGENTS.md",
+          "value": "shoperation-instruction-compliance.mjs --check"
+        },
+        {
+          "kind": "file-contains",
+          "file": "quality/knowledge/guard-registry.v1.json",
+          "value": "GUARD-INSTRUCTION-COMPLIANCE"
+        }
+      ],
+      "regressionTests": [
+        "tests/product-owner-instruction-compliance.test.ts"
+      ]
+    }
+  ]
+}
