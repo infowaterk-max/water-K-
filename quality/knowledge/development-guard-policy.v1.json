@@ -558,13 +558,15 @@
       ]
     },
     "TF-KF-019": {
-      "preventiveDirective": "Prevent \"Pretty demo page is disconnected from the real business route\" before implementation. Preserve TF-AUTH-019, TF-AUTH-020 and do not recreate the recorded root cause: Demo presentation and canonical business-route authority were accepted independently.",
+      "preventiveDirective": "Keep demo presentation and canonical business-route authority coupled. Any Product Owner proof for cart/checkout/account behavior must consume TF-AUTH-005 plus prior gate evidence and must demonstrate the real shared route/runtime rather than a presentation replica.",
       "forbiddenApproaches": [
-        "Do not recreate this Template Factory root cause: Demo presentation and canonical business-route authority were accepted independently."
+        "Do not recreate this Template Factory root cause: Demo presentation and canonical business-route authority were accepted independently.",
+        "using a styled Page Schema checkout replica as functional acceptance evidence for the shared E13 checkout"
       ],
       "requiredBeforeEdit": [
         "Read TF-KF-019 in src/lib/builder/template-factory/knowledge-registry.ts",
-        "Keep regression authority available: tests/template-factory-storefront-contract.test.ts, tests/template-factory-procedural-memory.test.ts"
+        "Keep regression authority available: tests/template-factory-storefront-contract.test.ts, tests/template-factory-procedural-memory.test.ts",
+        "Require cross-gate guard-context evidence for shared commerce behavior"
       ]
     },
     "TF-KF-020": {
@@ -640,16 +642,18 @@
       ]
     },
     "SQ-KF-025": {
-      "preventiveDirective": "Before declaring a Product Owner task complete, replay every accepted instruction from the active instruction ledger and require each item to have concrete acceptance criteria, machine-verifiable implementation evidence and an existing regression test.",
+      "preventiveDirective": "Before declaring a Product Owner task complete, replay every accepted instruction against the shared guard context. Requirement evidence must agree with global/domain/Template Factory authority rules and prior blocking-gate evidence; protected behavior cannot be proven by presentation-node presence alone.",
       "forbiddenApproaches": [
         "declaring a request complete because code changed or CI is broadly green without checking the original instruction",
         "marking an instruction implemented when only its heading, label or partial visual shell exists",
-        "silently deferring part of an accepted instruction without explicit Product Owner approval"
+        "silently deferring part of an accepted instruction without explicit Product Owner approval",
+        "accepting template-node presence as proof of shared checkout/cart/account behavior without shared-authority continuity evidence"
       ],
       "requiredBeforeEdit": [
         "Review invariant authority: SQ-AUTH-021, SQ-AUTH-004, SQ-AUTH-007",
         "Update quality/development/instruction-ledger.v1.json before implementation",
-        "Keep regression authority available: tests/product-owner-instruction-compliance.test.ts"
+        "Keep regression authority available: tests/product-owner-instruction-compliance.test.ts",
+        "Read artifacts/shoperation-development-guard/guard-context.json and preserve cross-gate authority consistency"
       ]
     }
   },
