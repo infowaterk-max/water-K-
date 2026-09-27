@@ -11,7 +11,7 @@ describe('shared cross-gate context',()=>{
     expect(registry.principles.crossGuardContextRequired).toBe(true);
     expect(registry.principles.laterGuardsMustConsumePriorBlockingEvidence).toBe(true);
     expect(registry.principles.authorityRulesOverrideLocalEvidenceShape).toBe(true);
-    const byId=new Map(registry.guards.map((item:any)=>[item.id,item]));
+    const byId=new Map<string,any>(registry.guards.map((item:any)=>[item.id,item]));
     expect(byId.get('GUARD-KNOWLEDGE-PREFLIGHT').consumesEvidenceFrom).toContain('GUARD-INSTRUCTION-COMPLIANCE');
     expect(byId.get('GUARD-PLAN-BEFORE-CODE').consumesEvidenceFrom).toEqual(expect.arrayContaining(['GUARD-INSTRUCTION-COMPLIANCE','GUARD-KNOWLEDGE-PREFLIGHT']));
     expect(byId.get('GUARD-EDIT-TIME').consumesEvidenceFrom).toEqual(expect.arrayContaining(['GUARD-INSTRUCTION-COMPLIANCE','GUARD-KNOWLEDGE-PREFLIGHT','GUARD-PLAN-BEFORE-CODE']));
