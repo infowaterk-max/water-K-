@@ -73,10 +73,16 @@ describe('Playroom v20 Product Owner page batch',()=>{
     expect(ids('search')).toContain('playroom-search-quick-chips');
     expect(find('search','playroom-search-facets').config.mobilePresentation).toBe('dropdown');
     expect(find('search','playroomSearchResults').config.styleSlots.grid.mobile.gridTemplateColumns).toBe('repeat(2,minmax(0,1fr))');
-    const searchSource=fs.readFileSync('src/components/catalog/shop-catalog.tsx','utf8');
-    expect(searchSource).toContain('SEARCH_ALIAS_GROUPS');
-    expect(searchSource).toContain('withinOneEdit');
-    expect(searchSource).toContain('shop-search-suggestions');
+    const quickSearch=find('search','playroom-search-quick-chips');
+    expect(quickSearch.componentKey).toBe('system.navigation');
+    expect(quickSearch.config.items.map((item:any)=>item.href)).toEqual(expect.arrayContaining([
+      '/kereses?q=játék',
+      '/kereses?q=kiegészítő',
+      '/kereses?q=pc',
+      '/kereses?q=playstation',
+      '/kereses?q=xbox',
+      '/kereses?q=nintendo',
+    ]));
 
     expect(ids('blog-index')).not.toContain('playroom-blog-index-topic-presets');
     expect(ids('blog-article')).not.toContain('playroom-blog-article-aside');
