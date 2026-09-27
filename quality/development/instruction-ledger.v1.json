@@ -59,6 +59,9 @@
       "regressionTests": [
         "tests/storefront-playroom-v20-po-page-batch.test.ts",
         "tests/product-owner-instruction-compliance.test.ts"
+      ],
+      "authorityRuleIds": [
+        "TF-AUTH-005"
       ]
     },
     {
@@ -90,24 +93,19 @@
       "state": "implemented",
       "acceptanceCriteria": [
         "A nagy 'Egy aktív lépés. Nulla zaj.' magyarázó blokk eltűnik.",
-        "A preview tényleges pénztár-szerkezetet mutat: szállítási adatok, szállítási mód, továbblépés, fizetés és összesítés.",
-        "A rendelésösszegzés valós preview termékneveket és nem üres összegeket kap; a biztonsági szöveg kicsi marad."
+        "A template preview nem fabrikál kitölthetőnek látszó mezőket vagy saját checkout viselkedést.",
+        "A valódi /penztar útvonal a shared CheckoutForm + StorefrontCheckoutShell + E13 authorityt használja.",
+        "A rendelésösszegzés valós preview termékneveket és nem üres összegeket kap; a biztonsági szöveg kompakt marad."
       ],
       "checks": [
         {
           "kind": "template-node-absent",
           "file": "src/lib/builder/templates/gaming/playroom/v20/canonical-package.json",
           "pageType": "checkout",
-          "nodeId": "playroom-checkout-runtime-contract"
-        },
-        {
-          "kind": "template-node-present",
-          "file": "src/lib/builder/templates/gaming/playroom/v20/canonical-package.json",
-          "pageType": "checkout",
           "nodeId": "playroom-checkout-form-preview"
         },
         {
-          "kind": "template-node-present",
+          "kind": "template-node-absent",
           "file": "src/lib/builder/templates/gaming/playroom/v20/canonical-package.json",
           "pageType": "checkout",
           "nodeId": "playroom-checkout-field-name"
@@ -116,7 +114,7 @@
           "kind": "template-node-present",
           "file": "src/lib/builder/templates/gaming/playroom/v20/canonical-package.json",
           "pageType": "checkout",
-          "nodeId": "playroom-checkout-shipping-methods"
+          "nodeId": "playroom-checkout-runtime-contract"
         },
         {
           "kind": "template-node-value",
@@ -127,6 +125,30 @@
           "equals": "transparent"
         },
         {
+          "kind": "authority-source-contains",
+          "authorityRuleId": "TF-AUTH-005",
+          "file": "src/app/penztar/page.tsx",
+          "value": "<CheckoutForm"
+        },
+        {
+          "kind": "authority-source-contains",
+          "authorityRuleId": "TF-AUTH-005",
+          "file": "src/app/penztar/page.tsx",
+          "value": "<StorefrontCheckoutShell"
+        },
+        {
+          "kind": "authority-source-contains",
+          "authorityRuleId": "TF-AUTH-005",
+          "file": "src/components/checkout/storefront-checkout-shell.tsx",
+          "value": "data-storefront-live-checkout=\"shared-e13\""
+        },
+        {
+          "kind": "authority-source-contains",
+          "authorityRuleId": "TF-AUTH-005",
+          "file": "src/components/checkout/checkout-form.tsx",
+          "value": "data-checkout-ux=\"guided-accordion\""
+        },
+        {
           "kind": "file-contains",
           "file": "src/lib/builder/storefront-template-preview-canonical.ts",
           "value": "if(typeof fallback==='string')return fallback.trim().length>0"
@@ -134,7 +156,15 @@
       ],
       "regressionTests": [
         "tests/storefront-playroom-v20-po-page-batch.test.ts",
-        "tests/product-owner-instruction-compliance.test.ts"
+        "tests/product-owner-instruction-compliance.test.ts",
+        "tests/storefront-playroom-v20-functional-acceptance.test.ts",
+        "tests/checkout-workflow-contracts.test.ts",
+        "tests/shoperation-guard-context.test.ts"
+      ],
+      "authorityRuleIds": [
+        "TF-AUTH-005",
+        "TF-AUTH-019",
+        "TF-AUTH-020"
       ]
     },
     {
