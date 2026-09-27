@@ -24,11 +24,12 @@ describe('shared cross-gate context',()=>{
     execFileSync(process.execPath,['scripts/shoperation-instruction-compliance.mjs','--check'],{stdio:'pipe'});
     expect(existsSync('artifacts/shoperation-development-guard/guard-context.json')).toBe(true);
     const context=json('artifacts/shoperation-development-guard/guard-context.json');
-    expect(context.contract).toBe('shoporation.guard-context.v1');
+    expect(context.contract).toBe('shoporation.guard-context.v2');
     expect(context.authorities.templateFactory.some((rule:any)=>rule.id==='TF-AUTH-005'&&rule.owner==='platform')).toBe(true);
     expect(context.authorities.global.some((rule:any)=>rule.id==='SQ-AUTH-021')).toBe(true);
     expect(context.currentGuard.id).toBe('GUARD-INSTRUCTION-COMPLIANCE');
     expect(context.currentGuard.decision).toBe('PASS');
+    expect(context.controlPlane).toBeDefined();
   });
 
   it('requires checkout instruction proof to preserve shared E13 authority rather than a template-local replica',()=>{
