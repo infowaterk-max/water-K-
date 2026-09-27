@@ -92,6 +92,17 @@ describe('Shoperation Control Plane',()=>{
     expect(ci).toContain('"GUARD-RELEASE-RISK"');
   });
 
+  it('pulls registered specialist diagnostics into the central failure report',()=>{
+    const registry=json('quality/knowledge/guard-registry.v1.json');
+    const factory=registry.guards.find((guard:any)=>guard.id==='GUARD-TEMPLATE-FACTORY');
+    expect(factory?.diagnosticSources).toEqual(expect.arrayContaining([
+      expect.objectContaining({file:'artifacts/template-factory-quality/manifest.json',arrayPath:'errors'})
+    ]));
+    const control=read('scripts/shoperation-control-plane.mjs');
+    expect(control).toContain('diagnosticSourceRows');
+    expect(control).toContain('golden-only visual differences');
+  });
+
   it('requires Product Owner handoff to consume the final Control Plane verdict',()=>{
     const handoff=read('scripts/template-factory-product-owner-handoff.mjs');
     expect(handoff).toContain('CONTROL_PLANE_FINAL_STAGE_MISSING');
