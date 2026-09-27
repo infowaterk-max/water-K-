@@ -848,8 +848,12 @@
         "docs/support/PRODUCT_OWNER_INSTRUCTION_COMPLIANCE_2026-09-27.md"
       ],
       "applicability": {
-        "mode": "always",
-        "subsystems": []
+        "mode": "subsystem",
+        "subsystems": [
+          "quality-knowledge-system",
+          "builder-template-system",
+          "shared-storefront"
+        ]
       }
     }
   ],
