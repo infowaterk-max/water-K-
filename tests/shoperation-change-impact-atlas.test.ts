@@ -22,9 +22,13 @@ describe('Atlas 2.0 Change Impact / Release Closure integration',()=>{
     expect(planGate).toContain('DEV_PLAN_AUTHORITY_SCOPE_DRIFT');
     expect(planGate).toContain('architectureImpact');
     const workflow=read('.github/workflows/ci.yml');
-    expect(workflow).toContain('Knowledge Before Build preflight');
-    expect(workflow).toContain('Plan Before Code Gate');
+    expect(workflow).toContain('Shoperation Control Plane');
+    expect(workflow).toContain('scripts/shoperation-control-plane.mjs');
+    expect(workflow).not.toContain('Knowledge Before Build preflight');
+    expect(workflow).not.toContain('Plan Before Code Gate');
     expect(workflow).not.toContain('Atlas Change Impact Gate');
+    const controlPlane=read('scripts/shoperation-control-plane.mjs');
+    expect(controlPlane).toContain('control-plane-managed');
   });
 
   it('requires exact-head Atlas closure evidence without relaxing the Release Risk Budget',()=>{
