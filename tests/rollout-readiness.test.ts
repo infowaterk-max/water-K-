@@ -79,9 +79,13 @@ describe('V24 rollout readiness contracts', () => {
     expect(policy.maxPoints).toBe(5);
     expect(policy.maxSubsystems).toBe(3);
     expect(policy.riskWeights.high).toBe(5);
-    expect(workflow).toContain('Production release risk budget');
-    expect(workflow).toContain('node scripts/release-risk-budget.mjs');
+    const registry=JSON.parse(read('quality/knowledge/guard-registry.v1.json')) as {guards:{id:string;execution?:{mode:string;args?:string[]}}[]};
+    const releaseGuard=registry.guards.find(item=>item.id==='GUARD-RELEASE-RISK');
+    expect(workflow).toContain('Shoperation Control Plane');
+    expect(workflow).toContain('scripts/shoperation-control-plane.mjs');
     expect(workflow).toContain('release-risk-budget.json');
+    expect(releaseGuard?.execution?.mode).toBe('control-plane-managed');
+    expect(releaseGuard?.execution?.args).toContain('scripts/release-risk-budget.mjs');
     expect(riskGate).toContain('high-risk subsystem');
     expect(riskGate).toContain('must be isolated from other substantive subsystems');
     expect(riskGate).toContain('RELEASE_RISK_BUDGET_FAILED');
