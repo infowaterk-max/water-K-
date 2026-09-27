@@ -81,6 +81,27 @@ for(const item of ledger.instructions??[]){
       ruleIds:contract.ruleIds,
       nodeIds:behaviorNodeChecks.map(check=>check.nodeId),
     });
+    if(subject==='checkout'){
+      const checkoutTemplateFiles=[...new Set((item.checks??[])
+        .filter(check=>check.pageType==='checkout'&&typeof check.file==='string'&&check.file.endsWith('.json'))
+        .map(check=>check.file))];
+      for(const file of checkoutTemplateFiles){
+        if(!existsSync(file))continue;
+        const pkg=readJson(file);
+        const checkoutPage=(pkg.pages??[]).find(page=>page.pageType==='checkout');
+        const suspicious=checkoutPage?all(checkoutPage.sections??[]).filter(node=>
+          /form-preview|field-|shipping-methods|payment-collapsed|summary-collapsed/i.test(String(node.id??''))
+          &&/^(content|layout)\./.test(String(node.componentKey??''))
+        ):[];
+        if(suspicious.length)issues.push({
+          code:'PO_PROTECTED_BEHAVIOR_DUPLICATED_IN_TEMPLATE',
+          id:item.id,
+          subject,
+          ruleIds:contract.ruleIds,
+          nodes:suspicious.map(node=>({id:node.id,componentKey:node.componentKey})),
+        });
+      }
+    }
     for(const required of contract.runtimeEvidence){
       const hasAuthorityEvidence=(item.checks??[]).some(check=>
         check.kind==='authority-source-contains'
