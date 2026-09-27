@@ -217,7 +217,14 @@
       "evidence": "artifacts/customer-baseline/**",
       "execution": {
         "mode": "external-specialist"
-      }
+      },
+      "consumesEvidenceFrom": [
+        "GUARD-INCREMENTAL-REPLAY"
+      ],
+      "authoritySources": [
+        "artifacts/shoperation-control-plane/control-plane.json"
+      ],
+      "controlPlaneEvidence": "artifacts/shoperation-control-plane/external-guard-customer-baseline.json"
     },
     {
       "id": "GUARD-MARKET-READY",
@@ -230,7 +237,14 @@
       "evidence": "artifacts/block24-market-ready/**",
       "execution": {
         "mode": "external-specialist"
-      }
+      },
+      "consumesEvidenceFrom": [
+        "GUARD-INCREMENTAL-REPLAY"
+      ],
+      "authoritySources": [
+        "artifacts/shoperation-control-plane/control-plane.json"
+      ],
+      "controlPlaneEvidence": "artifacts/shoperation-control-plane/external-guard-market-ready.json"
     },
     {
       "id": "GUARD-QUALITY-TESTS",
@@ -243,7 +257,14 @@
       "evidence": "test-result",
       "execution": {
         "mode": "external-specialist"
-      }
+      },
+      "consumesEvidenceFrom": [
+        "GUARD-INCREMENTAL-REPLAY"
+      ],
+      "authoritySources": [
+        "artifacts/shoperation-control-plane/control-plane.json"
+      ],
+      "controlPlaneEvidence": "artifacts/shoperation-control-plane/external-guard-quality-tests.json"
     },
     {
       "id": "GUARD-TYPECHECK",
@@ -256,7 +277,14 @@
       "evidence": "workflow-step",
       "execution": {
         "mode": "external-specialist"
-      }
+      },
+      "consumesEvidenceFrom": [
+        "GUARD-INCREMENTAL-REPLAY"
+      ],
+      "authoritySources": [
+        "artifacts/shoperation-control-plane/control-plane.json"
+      ],
+      "controlPlaneEvidence": "artifacts/shoperation-control-plane/external-guard-typecheck.json"
     },
     {
       "id": "GUARD-PRODUCTION-BUILD",
@@ -269,7 +297,14 @@
       "evidence": "workflow-step",
       "execution": {
         "mode": "external-specialist"
-      }
+      },
+      "consumesEvidenceFrom": [
+        "GUARD-TYPECHECK"
+      ],
+      "authoritySources": [
+        "artifacts/shoperation-control-plane/control-plane.json"
+      ],
+      "controlPlaneEvidence": "artifacts/shoperation-control-plane/external-guard-production-build.json"
     },
     {
       "id": "GUARD-TEMPLATE-FACTORY",
@@ -282,7 +317,16 @@
       "evidence": "artifacts/template-factory-quality/**",
       "execution": {
         "mode": "external-specialist"
-      }
+      },
+      "consumesEvidenceFrom": [
+        "GUARD-INCREMENTAL-REPLAY",
+        "GUARD-TYPECHECK",
+        "GUARD-PRODUCTION-BUILD"
+      ],
+      "authoritySources": [
+        "artifacts/shoperation-control-plane/control-plane.json"
+      ],
+      "controlPlaneEvidence": "artifacts/shoperation-control-plane/external-guard-template-factory.json"
     },
     {
       "id": "SIGNAL-ARCHITECTURE-CONFIDENCE",
