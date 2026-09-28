@@ -6,6 +6,11 @@ import {
 } from '@/lib/builder/storefront-foundation';
 import type {StorefrontInstallableTemplatePackage} from '@/lib/builder/storefront-template-installation';
 import type {FeatureCode,PlanCode} from '@/lib/plans/catalog';
+import {
+  evaluateStorefrontTemplateProductionContracts,
+  type StorefrontTemplateProductionContractDeclaration,
+  type StorefrontTemplateProductionContractsResult,
+} from '@/lib/builder/template-factory/production-contracts';
 
 export const STOREFRONT_TEMPLATE_GENERATOR_BLUEPRINT_VERSION='shoporation.template-generator-blueprint.v0.1' as const;
 export const STOREFRONT_TEMPLATE_GENERATOR_READINESS_VERSION='shoporation.template-generator-readiness.v0.1' as const;
@@ -32,6 +37,7 @@ export type StorefrontTemplateGeneratorBlueprint={
     builder:'visual-builder-page-schema';
     responsive:'canonical-responsive-authority';
   };
+  productionContracts:StorefrontTemplateProductionContractDeclaration;
   generator:{
     implementation:'deferred';
     target:'template-compiler';
@@ -50,6 +56,7 @@ export type StorefrontTemplateGeneratorReadinessResult={
   declared:boolean;
   ready:boolean;
   blueprintIdentity:string|null;
+  productionContracts:StorefrontTemplateProductionContractsResult;
   issues:readonly StorefrontTemplateGeneratorReadinessIssue[];
 };
 
@@ -60,6 +67,7 @@ type GeneratorRecipeProjection={
   templateVersion:number;
   minPlan:PlanCode;
   requiredFeatures:readonly FeatureCode[];
+  reference:{key:string;approved:boolean;requiredPageTypes:readonly StorefrontBuilderPageType[]};
   pageOverrides?:Partial<Record<StorefrontBuilderPageType,unknown>>;
 };
 
@@ -72,8 +80,14 @@ export function evaluateStorefrontTemplateGeneratorReadiness(input:{
   blueprint?:StorefrontTemplateGeneratorBlueprint;
   recipe:GeneratorRecipeProjection;
   package:StorefrontInstallableTemplatePackage;
+  productionContracts?:StorefrontTemplateProductionContractsResult;
 }):StorefrontTemplateGeneratorReadinessResult{
   const{blueprint,recipe}=input,pkg=input.package;
+  const productionContracts=input.productionContracts??evaluateStorefrontTemplateProductionContracts({
+    declaration:blueprint?.productionContracts,
+    recipe,
+    package:pkg,
+  });
   const issues:StorefrontTemplateGeneratorReadinessIssue[]=[];
   if(!blueprint){
     issues.push(failure('GENERATOR_BLUEPRINT_REQUIRED','blueprint','Generator readiness requires an explicit versioned Template Blueprint.'));
@@ -82,6 +96,7 @@ export function evaluateStorefrontTemplateGeneratorReadiness(input:{
       declared:false,
       ready:false,
       blueprintIdentity:null,
+      productionContracts,
       issues:Object.freeze(issues),
     };
   }
@@ -100,6 +115,8 @@ export function evaluateStorefrontTemplateGeneratorReadiness(input:{
   for(const[key,value]of Object.entries(expectedAuthorities)){
     if(blueprint.authorities[key as keyof typeof expectedAuthorities]!==value)issues.push(failure('GENERATOR_AUTHORITY_DRIFT',`blueprint.authorities.${key}`,`Generator-ready templates must retain the canonical authority: ${value}.`));
   }
+  if(!productionContracts.declared)issues.push(failure('GENERATOR_PRODUCTION_CONTRACTS_REQUIRED','blueprint.productionContracts','Generator-ready templates require explicit production contracts for visual authority and template file ownership.'));
+  for(const contractIssue of productionContracts.issues)issues.push(failure(contractIssue.code,`blueprint.productionContracts.${contractIssue.path}`,contractIssue.message));
 
   const identityChecks=[
     ['category',blueprint.template.category,recipe.category],
@@ -133,6 +150,7 @@ export function evaluateStorefrontTemplateGeneratorReadiness(input:{
     declared:true,
     ready:issues.length===0,
     blueprintIdentity:identity,
+    productionContracts,
     issues:Object.freeze(issues),
   };
 }

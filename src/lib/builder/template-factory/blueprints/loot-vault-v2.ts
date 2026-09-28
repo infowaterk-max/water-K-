@@ -3,6 +3,10 @@ import {
   STOREFRONT_TEMPLATE_GENERATOR_BLUEPRINT_VERSION,
   type StorefrontTemplateGeneratorBlueprint,
 } from '@/lib/builder/template-factory/generator-readiness';
+import {
+  STOREFRONT_TEMPLATE_FILE_OWNERSHIP_CONTRACT_VERSION,
+  STOREFRONT_TEMPLATE_VISUAL_AUTHORITY_VERSION,
+} from '@/lib/builder/template-factory/production-contracts';
 
 export const LOOT_VAULT_V2_GENERATOR_BLUEPRINT:StorefrontTemplateGeneratorBlueprint=Object.freeze({
   contract:STOREFRONT_TEMPLATE_GENERATOR_BLUEPRINT_VERSION,
@@ -25,6 +29,25 @@ export const LOOT_VAULT_V2_GENERATOR_BLUEPRINT:StorefrontTemplateGeneratorBluepr
     runtime:'shared-storefront-runtime',
     builder:'visual-builder-page-schema',
     responsive:'canonical-responsive-authority',
+  }),
+  productionContracts:Object.freeze({
+    visualAuthority:Object.freeze({
+      contract:STOREFRONT_TEMPLATE_VISUAL_AUTHORITY_VERSION,
+      referenceKey:'gaming.loot-vault.accepted-reference-2026-09-06',
+      state:'accepted-reference',
+      requiredPageTypes:Object.freeze(['home','catalog','product','blog-index','blog-article'] as const),
+      designChangePolicy:'product-owner-reapproval-required',
+    }),
+    fileOwnership:Object.freeze({
+      contract:STOREFRONT_TEMPLATE_FILE_OWNERSHIP_CONTRACT_VERSION,
+      templateOwnedRoots:Object.freeze([
+        'src/lib/builder/template-factory/blueprints/loot-vault-v2.ts',
+        'src/lib/builder/template-factory/recipes/loot-vault-v2.ts',
+        'src/lib/builder/templates/gaming/loot-vault/v2/',
+        'public/storefront-demo/loot-vault-v2/',
+      ] as const),
+      sharedAuthorityPolicy:'canonical-extension-review',
+    }),
   }),
   generator:Object.freeze({
     implementation:'deferred',

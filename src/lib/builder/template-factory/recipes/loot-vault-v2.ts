@@ -81,9 +81,9 @@ export const LOOT_VAULT_V2_FACTORY_RECIPE:StorefrontTemplateFactoryRecipe=Object
     forbidPlaceholderSvg:true,
   }),
   reference:Object.freeze({
-    key:'gaming.loot-vault.accepted-reference-2026-09-06',
+    key:LOOT_VAULT_V2_GENERATOR_BLUEPRINT.productionContracts.visualAuthority.referenceKey,
     approved:true,
-    requiredPageTypes:Object.freeze(['home','catalog','product','blog-index','blog-article'] as const),
+    requiredPageTypes:LOOT_VAULT_V2_GENERATOR_BLUEPRINT.productionContracts.visualAuthority.requiredPageTypes,
   }),
   commerceReadiness:Object.freeze({
     productCardPurchaseActions:Object.freeze({
