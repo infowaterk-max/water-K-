@@ -160,7 +160,7 @@ describe('Loot Vault v2 Factory canonical wiring',()=>{
 
     const {nodes:checkoutNodes}=byType('checkout');
     const checkoutSummary=checkoutNodes.find(node=>node.componentKey==='commerce.checkout-summary');
-    expect(checkoutSummary?.config.presentation).toBe('loot-vault-cinematic');
+    expect(checkoutSummary?.config.presentation).toBe('cinematic-commerce');
 
     for(const page of LOOT_VAULT_V2_TEMPLATE_PACKAGE.pages){
       const nodes=walk(page.sections);
