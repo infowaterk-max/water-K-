@@ -30,23 +30,16 @@ jobs:
           SHOPERATION_CONTROL_PLANE_PROFILE: full-replay
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: node scripts/shoperation-control-plane.mjs --profile full-replay --check
-      - name: Full regression suite
-        if: steps.control-plane.outcome == 'success'
-        id: tests
-        continue-on-error: true
-        run: npm test
-      - name: TypeScript check
-        if: steps.control-plane.outcome == 'success'
-        id: typecheck
-        continue-on-error: true
-        run: npm run typecheck
-      - name: Shoperation Control Plane final full-replay reconciliation
+      - name: Shoperation Control Plane external specialists + final full-replay reconciliation
         if: steps.control-plane.outcome == 'success'
         id: control-plane-final
         env:
-          SHOPERATION_EXTERNAL_GUARD_RESULTS: >-
-            {"GUARD-QUALITY-TESTS":"${{ steps.tests.outcome }}","GUARD-TYPECHECK":"${{ steps.typecheck.outcome }}"}
-        run: node scripts/shoperation-control-plane.mjs --reconcile-external --check
+          SHOPERATION_CONTROL_PLANE_PROFILE: full-replay
+          QUALITY_HEAD_SHA: ${{ github.sha }}
+          DEVELOPMENT_HEAD_SHA: ${{ github.sha }}
+          SHOPERATION_SOURCE_COMMIT: ${{ github.sha }}
+        run: node scripts/shoperation-control-plane.mjs --profile full-replay --run-external --check
+
       - name: Upload knowledge evidence
         if: always()
         uses: actions/upload-artifact@v4
