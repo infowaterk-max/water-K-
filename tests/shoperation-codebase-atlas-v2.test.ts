@@ -5,13 +5,16 @@ import {describe,expect,it} from 'vitest';
 describe('Shoperation Codebase Atlas 2.0 / System Self-Knowledge',()=>{
   it('uses one Atlas v2 policy and no parallel v1 policy authority',()=>{
     const runtime=readFileSync('scripts/lib/shoperation-codebase-atlas-runtime.mjs','utf8');
-    const policy=JSON.parse(readFileSync('quality/knowledge/codebase-atlas-policy.v2.json','utf8')) as {contract:string;version:number;architectureContracts:{constitution:string;domains:string};selfKnowledge:Record<string,boolean>};
+    const policy=JSON.parse(readFileSync('quality/knowledge/codebase-atlas-policy.v2.json','utf8')) as {contract:string;version:number;architectureContracts:{constitution:string;domains:string};selfKnowledge:Record<string,boolean>;changeObligationRules:Array<{id:string;kind:string;mutationPolicy:string}>};
     expect(policy.contract).toBe('shoporation.codebase-atlas-policy.v2');
     expect(policy.version).toBe(2);
     expect(runtime).toContain("readFileSync('quality/knowledge/codebase-atlas-policy.v2.json'");
     expect(runtime).not.toContain('codebase-atlas-policy.v1.json');
     expect(policy.selfKnowledge.mapDomainsFromCanonicalPaths).toBe(true);
     expect(policy.selfKnowledge.exposeTruthOwnership).toBe(true);
+    expect(policy.selfKnowledge.includeChangeObligations).toBe(true);
+    expect(policy.selfKnowledge.includeDocumentationReferences).toBe(true);
+    expect(policy.changeObligationRules.map(item=>item.id)).toEqual(expect.arrayContaining(['ATLAS-OBL-001','ATLAS-OBL-005','ATLAS-OBL-006']));
   });
 
   it('builds a valid v2 atlas bound to Constitution and Domain Foundations',()=>{
@@ -22,6 +25,8 @@ describe('Shoperation Codebase Atlas 2.0 / System Self-Knowledge',()=>{
       nodes:Array<{path:string;domains:string[];authorities:string[];truthKeys:string[]}>;
       domainIndexDefinition:Record<string,{owner:string;dependsOn:string[]}>;
       truthOwnerIndex:Record<string,{domainId:string;owner:string}>;
+      fileReferenceIndex:Record<string,string[]>;
+      summary:{fileReferenceEdges:number};
     };
     expect(atlas.contract).toBe('shoporation.codebase-atlas.v2');
     expect(atlas.architecture.constitutionContract).toBe('shoporation.architecture-constitution.v1');
@@ -31,6 +36,8 @@ describe('Shoperation Codebase Atlas 2.0 / System Self-Knowledge',()=>{
     expect(atlas.truthOwnerIndex['commerce.order']).toEqual({domainId:'DOMAIN-COMMERCE',owner:'commerce-core-authority'});
     expect(atlas.domainIndexDefinition['DOMAIN-RELEASE']?.owner).toBe('release-infrastructure');
     expect(atlas.nodes.some(node=>node.domains.length>0&&node.authorities.length>0)).toBe(true);
+    expect(atlas.summary.fileReferenceEdges).toBeGreaterThan(0);
+    expect(atlas.fileReferenceIndex).toBeDefined();
   });
 
   it('exposes deterministic architecture impact and release-closure projections',()=>{
@@ -41,6 +48,9 @@ describe('Shoperation Codebase Atlas 2.0 / System Self-Knowledge',()=>{
     expect(runtime).toContain('domainDependencyClosure');
     expect(runtime).toContain('evidenceObligations');
     expect(runtime).toContain('regressionTests');
+    expect(runtime).toContain("contract:'shoporation.ab-change-plan.v1'");
+    expect(runtime).toContain('changeObligationsForAtlasPatterns');
+    expect(runtime).toContain('documentationReferences');
     expect(cli).toContain('--closure-file');
   });
 });
