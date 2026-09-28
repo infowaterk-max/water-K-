@@ -20,7 +20,8 @@
     "quality/knowledge/domain-foundations.v1.json",
     ".github/workflows/fresh-install-proof.yml",
     "tests/customer-baseline-proof-contract.test.ts",
-    "docs/support/**"
+    "docs/support/**",
+    "quality/knowledge/support-history-policy.v1.json"
   ],
   "expectedSubsystems": [
     "release-infrastructure"
