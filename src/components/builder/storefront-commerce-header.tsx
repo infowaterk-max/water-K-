@@ -86,6 +86,28 @@ function CommerceHeaderRenderer({config,children,node,viewport}:StorefrontCompon
   const categoryLabel=text(config.categoryTriggerLabel),categorySymbol=text(config.categoryTriggerSymbol,'☰'),categoryHref=safeHref(config.categoryTriggerHref,'/webaruhaz');
   const categoryTrigger=categoryLabel||text(config.categoryTriggerSymbol)?<a href={categoryHref} aria-label={categoryLabel||'Kategóriák'} style={{display:'inline-flex',alignItems:'center',gap:'.4rem',flex:'0 0 auto',color:'inherit',textDecoration:'none',fontWeight:850,...slotStyle(config.styleSlots,'categoryTrigger',viewport),fontSize:mobile?'.92rem':'.98rem',lineHeight:1.25}}><span aria-hidden="true">{categorySymbol}</span>{categoryLabel?<span>{categoryLabel}</span>:null}</a>:null;
   const navTagline=text(config.navTagline);
+  const compactSingleRow=text(config.presentation)==='compact-single-row';
+  if(compactSingleRow&&!mobile){
+    const compactInnerStyle:CSSProperties={
+      ...innerStyle,
+      gridTemplateColumns:tablet?'minmax(9rem,.75fr) minmax(0,1.6fr) auto':'minmax(11rem,.7fr) minmax(0,1.7fr) auto',
+      alignItems:'center',
+      gap:tablet?'.8rem':'clamp(.9rem,1.7vw,1.6rem)',
+      paddingBlock:tablet?'.72rem':'.68rem',
+      minHeight:tablet?'3.8rem':'4rem',
+      ...slotStyle(config.styleSlots,'compactInner',viewport)
+    };
+    return <header data-storefront-component="system.commerce-header" data-storefront-protected-system="header" data-presentation="compact-single-row" style={rootStyle}>
+      <div style={compactInnerStyle}>
+        <div style={{minWidth:0,...slotStyle(config.styleSlots,'compactBrandFrame',viewport)}}>{brand}</div>
+        <div style={{display:'flex',alignItems:'center',justifyContent:'center',minWidth:0,overflowX:'auto',overflowY:'hidden',overscrollBehaviorX:'contain',...slotStyle(config.styleSlots,'compactNavigationFrame',viewport)}}>{navigation}</div>
+        <div style={{display:'flex',alignItems:'center',justifyContent:'flex-end',gap:tablet?'.45rem':'.6rem',minWidth:0,...slotStyle(config.styleSlots,'compactActions',viewport)}}>
+          {search.length?<div style={{width:tablet?'9.5rem':'12rem',minWidth:0,...slotStyle(config.styleSlots,'compactSearchFrame',viewport)}}>{search}</div>:null}
+          {utilities}
+        </div>
+      </div>
+    </header>;
+  }
   return <header data-storefront-component="system.commerce-header" data-storefront-protected-system="header" data-presentation={text(config.presentation,'commerce-two-tier')} style={rootStyle}>
     <div style={innerStyle}>
       <div style={{...topStyle,...slotStyle(config.styleSlots,'topRow',viewport)}}>{brand}{!mobile?<div style={{minWidth:0,...slotStyle(config.styleSlots,'searchFrame',viewport)}}>{search}</div>:null}{utilities}</div>
