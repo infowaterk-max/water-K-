@@ -40,6 +40,14 @@ describe('Shoperation Codebase Atlas 2.0 / System Self-Knowledge',()=>{
     expect(atlas.fileReferenceIndex).toBeDefined();
   });
 
+  it('classifies golden promotion tooling under the release authority',()=>{
+    execFileSync('node',['scripts/shoperation-codebase-atlas.mjs','--check'],{encoding:'utf8'});
+    const atlas=JSON.parse(readFileSync('artifacts/shoperation-atlas/codebase-atlas.json','utf8')) as {nodes:Array<{path:string;domains:string[];authorities:string[]}>};
+    const promotion=atlas.nodes.find(node=>node.path==='scripts/promote-template-golden-baseline.mjs');
+    expect(promotion?.domains).toContain('DOMAIN-RELEASE');
+    expect(promotion?.authorities).toContain('release-infrastructure');
+  });
+
   it('exposes deterministic architecture impact and release-closure projections',()=>{
     const runtime=readFileSync('scripts/lib/shoperation-codebase-atlas-runtime.mjs','utf8');
     const cli=readFileSync('scripts/shoperation-codebase-atlas.mjs','utf8');

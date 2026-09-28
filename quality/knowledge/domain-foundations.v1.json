@@ -630,7 +630,8 @@
         ".github/workflows/**",
         "deploy/**",
         "scripts/release-**",
-        "**/next.config.ts"
+        "**/next.config.ts",
+        "scripts/promote-template-golden-baseline.mjs"
       ],
       "evidenceObligations": [
         "Release Risk Budget",

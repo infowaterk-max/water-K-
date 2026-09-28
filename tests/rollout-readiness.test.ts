@@ -66,6 +66,12 @@ describe('V24 rollout readiness contracts', () => {
     expect(workflow).toContain('npm run release:manifest');
   });
 
+  it('classifies golden promotion write-back as release infrastructure', () => {
+    const policy = JSON.parse(read('deploy/release-risk-policy.json')) as {subsystems:Array<{name:string;patterns:string[]}>};
+    const release = policy.subsystems.find(item=>item.name==='release-infrastructure');
+    expect(release?.patterns).toContain('scripts/promote-template-golden-baseline.mjs');
+  });
+
   it('keeps the production release risk budget as an independent Control Plane release specialist', () => {
     const workflow = read('.github/workflows/ci.yml');
     const policy = JSON.parse(read('deploy/release-risk-policy.json')) as {
