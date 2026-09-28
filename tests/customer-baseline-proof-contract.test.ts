@@ -31,6 +31,39 @@ describe('Shoperation Fresh Install proof contract lifecycle',()=>{
     ]) expect(script).toContain(required);
   });
 
+  it('keeps both Fresh Install entrypoints on the same structured proof and failure-reporting contract',()=>{
+    const workflows=[
+      read('.github/workflows/ci.yml'),
+      read('.github/workflows/fresh-install-proof.yml'),
+    ];
+    for(const workflow of workflows){
+      for(const marker of[
+        'id: fresh-secret',
+        'id: fresh-baseline',
+        'id: fresh-preflight',
+        'id: fresh-apply',
+        'id: fresh-postflight',
+        'id: fresh-contract-hash',
+        'id: fresh-proof-record',
+        "contract:'shoporation.fresh-install-proof.v2'",
+        "contract:'shoporation.fresh-install-failure.v1'",
+        'sourceCommit:process.env.GITHUB_SHA',
+        'SHOPERATION_FAILURE_SOURCE: fresh-install',
+        'FRESH_INSTALL_FAILED=artifacts/fresh-install-proof/failure.json',
+        'fresh-install-failure-intake-${{ github.sha }}',
+      ])expect(workflow).toContain(marker);
+      for(const code of[
+        'FRESH_INSTALL_SECRET_REQUIRED',
+        'FRESH_INSTALL_BASELINE_LIFECYCLE_FAILED',
+        'FRESH_INSTALL_TARGET_PREFLIGHT_FAILED',
+        'FRESH_INSTALL_MIGRATION_APPLY_FAILED',
+        'FRESH_INSTALL_TARGET_POSTFLIGHT_FAILED',
+        'FRESH_INSTALL_CONTRACT_HASH_FAILED',
+        'FRESH_INSTALL_PROOF_RECORD_FAILED',
+      ])expect(workflow).toContain(code);
+    }
+  });
+
   it('rejects contamination in both public and private application schemas before a Fresh Install proof',()=>{
     const preflight=read('supabase/customer-baseline/target-preflight.sql');
     for(const required of[
