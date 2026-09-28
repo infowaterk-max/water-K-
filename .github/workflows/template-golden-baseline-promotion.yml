@@ -1,6 +1,9 @@
 name: Template Golden Baseline Promotion
 
 on:
+  push:
+    branches:
+      - fix/playroom-v20-product-completeness
   workflow_dispatch:
     inputs:
       evidence_run_id:
@@ -55,6 +58,7 @@ permissions:
 
 jobs:
   promote:
+    if: ${{ github.event_name == 'workflow_dispatch' }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout exact acceptance source
@@ -147,3 +151,87 @@ jobs:
           path: ${{ inputs.baseline_directory }}/*.png
           if-no-files-found: error
           retention-days: 30
+
+  promote_checkout_exact_head_once:
+    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/fix/playroom-v20-product-completeness' && contains(github.event.head_commit.message, '[checkout-golden-promotion]') }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout exact promotion head
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 2
+
+      - name: Verify checkout-only Product Owner approval
+        shell: bash
+        run: |
+          node <<'NODE'
+          const fs=require('fs');
+          const plan=JSON.parse(fs.readFileSync('quality/development/active-plan.json','utf8'));
+          const approval=(plan.changeObligationApprovals??[]).find(item=>
+            item.obligationId==='ATLAS-OBL-005'
+            &&item.approvedBy==='product-owner'
+            &&String(item.evidence??'').trim()
+            &&/checkout-only|checkout/i.test(String(item.evidence??''))
+          );
+          if(!approval)throw new Error('CHECKOUT_GOLDEN_PO_APPROVAL_REQUIRED');
+          NODE
+
+      - name: Wait for exact-head Template Factory evidence
+        id: evidence
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          for attempt in $(seq 1 80); do
+            payload="$(gh api "repos/$GITHUB_REPOSITORY/actions/runs?head_sha=$GITHUB_SHA&event=pull_request&per_page=100")"
+            run_id="$(jq -r --arg sha "$GITHUB_SHA" '.workflow_runs | map(select(.head_sha==$sha and .name=="Template Factory Quality Gate v2")) | sort_by(.created_at) | last | .id // empty' <<<"$payload")"
+            status="$(jq -r --arg sha "$GITHUB_SHA" '.workflow_runs | map(select(.head_sha==$sha and .name=="Template Factory Quality Gate v2")) | sort_by(.created_at) | last | .status // empty' <<<"$payload")"
+            if [[ -n "$run_id" && "$status" == "completed" ]]; then
+              echo "run_id=$run_id" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+            sleep 15
+          done
+          echo "Exact-head Template Factory evidence did not complete in time" >&2
+          exit 1
+
+      - name: Download exact-head quality evidence
+        uses: actions/download-artifact@v4
+        with:
+          pattern: template-factory-quality-${{ github.sha }}
+          path: artifacts/promotable-quality-evidence
+          merge-multiple: true
+          run-id: ${{ steps.evidence.outputs.run_id }}
+          github-token: ${{ github.token }}
+
+      - name: Verify evidence source and unchanged remote head
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          evidence_sha="$(node -p "JSON.parse(require('fs').readFileSync('artifacts/promotable-quality-evidence/manifest.json','utf8')).sourceCommit")"
+          test "$evidence_sha" = "$GITHUB_SHA"
+          remote_head="$(git ls-remote origin "refs/heads/$GITHUB_REF_NAME" | cut -f1)"
+          test "$remote_head" = "$GITHUB_SHA"
+
+      - name: Promote approved checkout golden scope
+        shell: bash
+        run: |
+          node scripts/promote-template-golden-baseline.mjs             artifacts/promotable-quality-evidence             "gaming.playroom"             "20"             "tests/visual-baselines/gaming.playroom/v20"             --allow-golden-drift             --page-types=checkout             --viewports=desktop,tablet,mobile
+
+      - name: Validate checkout-only mutation
+        shell: bash
+        run: |
+          printf '%s\n'             tests/visual-baselines/gaming.playroom/v20/checkout-desktop.png             tests/visual-baselines/gaming.playroom/v20/checkout-mobile.png             tests/visual-baselines/gaming.playroom/v20/checkout-tablet.png | sort > /tmp/expected.txt
+          git diff --name-only -- tests/visual-baselines/gaming.playroom/v20 | sort > /tmp/actual.txt
+          diff -u /tmp/expected.txt /tmp/actual.txt
+
+      - name: Commit approved checkout golden scope
+        shell: bash
+        run: |
+          git add --             tests/visual-baselines/gaming.playroom/v20/checkout-desktop.png             tests/visual-baselines/gaming.playroom/v20/checkout-tablet.png             tests/visual-baselines/gaming.playroom/v20/checkout-mobile.png
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "Golden: accept Playroom checkout viewport baselines"
+          git push origin "HEAD:refs/heads/$GITHUB_REF_NAME"
