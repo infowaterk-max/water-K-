@@ -85,6 +85,7 @@ function collectDiagnosticArtifact(spec){
   };
 
   for(const item of data.issues??[])push(item);
+  for(const item of data.integrityIssues??[])push(item,gateCode??'KNOWLEDGE_PREFLIGHT_FAILED');
   for(const item of data.violations??[])push(item,gateCode??'RELEASE_RISK_BUDGET_FAILED');
   for(const item of data.errors??[])push(item);
 
