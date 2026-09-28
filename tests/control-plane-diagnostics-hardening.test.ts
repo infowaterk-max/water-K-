@@ -125,4 +125,43 @@ describe('Control Plane diagnostics and exact-head hardening',()=>{
     expect(factory).toContain('TEST_FAILED=artifacts/test-results.json');
     expect(factory).toContain('failureFingerprint');
   });
+  it('classifies Control Plane changes explicitly without relaxing the Release Risk Budget',()=>{
+    const policy=JSON.parse(read('deploy/release-risk-policy.json')) as {
+      maxPoints:number;
+      maxSubsystems:number;
+      riskWeights:Record<string,number>;
+      subsystems:{name:string;risk:string;patterns:string[]}[];
+    };
+    const quality=policy.subsystems.find(item=>item.name==='quality-infrastructure');
+    expect(quality).toBeTruthy();
+    expect(quality?.risk).toBe('medium');
+    expect(quality?.patterns).toContain('scripts/shoperation-*.mjs');
+    expect(quality?.patterns).toContain('scripts/lib/shoperation-*.mjs');
+    expect(policy.riskWeights.medium).toBe(2);
+    expect(policy.maxPoints).toBe(5);
+    expect(policy.maxSubsystems).toBe(3);
+  });
+
+  it('persists exact-head Fresh Install and Cloud Smoke proof through existing authorities',()=>{
+    const ci=read('.github/workflows/ci.yml');
+    expect(ci).toContain("contract:'shoporation.fresh-install-proof.v2'");
+    expect(ci).toContain('sourceCommit:process.env.GITHUB_SHA');
+    expect(ci).toContain('fresh-install-proof-${{ github.sha }}');
+    expect(ci).toContain('productionTouched:false');
+
+    const smoke=read('scripts/smoke.mjs');
+    expect(smoke).toContain("contract:'shoporation.cloud-smoke-proof.v2'");
+    expect(smoke).toContain('CLOUD_SMOKE_SHA_MISMATCH');
+    expect(smoke).toContain('CLOUD_SMOKE_CONTENT_TYPE_MISMATCH');
+    expect(smoke).toContain('artifacts/cloud-smoke');
+    expect(smoke).toContain('sourceCommit:expectedSha||null');
+
+    const workflow=read('.github/workflows/cloud-smoke.yml');
+    expect(workflow).toContain('SMOKE_ATTEMPT="$attempt"');
+    expect(workflow).toContain('Upload Cloud Smoke exact-head evidence');
+    expect(workflow).toContain('SHOPERATION_FAILURE_SOURCE: cloud-smoke');
+    expect(workflow).toContain('CLOUD_SMOKE_FAILED=artifacts/cloud-smoke/smoke.json');
+    expect(workflow).toContain('cloud-smoke-failure-intake-${{ inputs.environment }}-${{ github.sha }}');
+  });
+
 });
