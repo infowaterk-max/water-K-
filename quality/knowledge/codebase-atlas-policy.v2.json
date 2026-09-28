@@ -128,6 +128,103 @@
     "includeBoundaryRules": true,
     "includeEvidenceObligations": true,
     "includeKnownFailureRegressionAuthority": true,
-    "includeReverseConsumers": true
-  }
+    "includeReverseConsumers": true,
+    "includeChangeObligations": true,
+    "includeDocumentationReferences": true
+  },
+  "changeObligationRules": [
+    {
+      "id": "ATLAS-OBL-001",
+      "name": "Reverse consumer revalidation",
+      "sourcePatterns": [
+        "**"
+      ],
+      "kind": "revalidate-consumers",
+      "timing": "before-handoff",
+      "targetSource": "atlas.reverseImports",
+      "mutationPolicy": "review-and-update-if-contract-changed",
+      "reason": "A changed authority or component can invalidate downstream consumers even when those consumer files are not direct edit targets."
+    },
+    {
+      "id": "ATLAS-OBL-002",
+      "name": "Regression authority revalidation",
+      "sourcePatterns": [
+        "**"
+      ],
+      "kind": "revalidate-regression-tests",
+      "timing": "before-handoff",
+      "targetSource": "atlas.discoveredTests",
+      "mutationPolicy": "review-and-update-if-expected-contract-changed",
+      "reason": "Tests that consume the changed source must be identified during planning rather than discovered after implementation."
+    },
+    {
+      "id": "ATLAS-OBL-003",
+      "name": "Documentation and description reference review",
+      "sourcePatterns": [
+        "**"
+      ],
+      "kind": "review-documentation-references",
+      "timing": "same-change-if-description-became-stale",
+      "targetSource": "atlas.fileReferenceIndex",
+      "mutationPolicy": "review-required-update-if-stale",
+      "reason": "Repository descriptions and architecture/support notes that explicitly reference a changed file must be reviewed with the source change."
+    },
+    {
+      "id": "ATLAS-OBL-004",
+      "name": "Template browser evidence regeneration",
+      "sourcePatterns": [
+        "src/lib/builder/templates/**",
+        "src/lib/builder/storefront-**",
+        "src/components/builder/storefront-**",
+        "src/app/storefront-template-preview/**",
+        "src/app/visual-fidelity-qa/**"
+      ],
+      "kind": "regenerate-derived-evidence",
+      "timing": "same-change-before-handoff",
+      "targetPatterns": [
+        "artifacts/template-factory-quality/manifest.json",
+        "artifacts/template-factory-quality/*.png"
+      ],
+      "mutationPolicy": "generated-evidence-only",
+      "reason": "Template/runtime presentation changes require fresh exact-head browser proof."
+    },
+    {
+      "id": "ATLAS-OBL-005",
+      "name": "Template golden baseline lifecycle",
+      "sourcePatterns": [
+        "src/lib/builder/templates/**",
+        "src/lib/builder/storefront-**",
+        "src/components/builder/storefront-**",
+        "src/app/storefront-template-preview/**",
+        "src/app/visual-fidelity-qa/**"
+      ],
+      "kind": "deferred-golden-baseline-promotion",
+      "timing": "after-explicit-product-owner-visual-acceptance",
+      "targetPatterns": [
+        "tests/visual-baselines/**"
+      ],
+      "mutationPolicy": "forbidden-before-explicit-product-owner-acceptance",
+      "reason": "Golden differences are expected evidence of a visual change; baselines may be promoted only after explicit Product Owner visual acceptance."
+    },
+    {
+      "id": "ATLAS-OBL-006",
+      "name": "Quality contract documentation sync",
+      "sourcePatterns": [
+        "quality/knowledge/**",
+        "scripts/shoperation-**",
+        "scripts/lib/shoperation-**",
+        "scripts/template-factory-**",
+        ".github/workflows/**"
+      ],
+      "kind": "review-quality-contract-documentation",
+      "timing": "same-change-if-contract-changed",
+      "targetPatterns": [
+        "docs/architecture/**",
+        "docs/support/**",
+        "AGENTS.md"
+      ],
+      "mutationPolicy": "review-required-update-if-stale",
+      "reason": "Changes to planning, authority, orchestration or quality contracts must not leave repository operating instructions describing the previous contract."
+    }
+  ]
 }
