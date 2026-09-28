@@ -108,6 +108,17 @@ describe('shared commerce header',()=>{
     expect(html).not.toContain('data-storefront-utility-icon="custom">⌑');
   });
 
+  it('uses compact disclosure navigation on tablet without changing the desktop header mode',()=>{
+    const tablet=render('tablet');
+    expect(tablet).toContain('data-storefront-compact-menu="true"');
+    expect(tablet).toContain('data-storefront-tablet-menu="true"');
+    expect(tablet).toContain('<details');
+    expect(tablet).toContain('Navigáció megnyitása');
+    expect(tablet).not.toContain('data-storefront-mobile-menu="true"');
+    const desktop=render('desktop');
+    expect(desktop).not.toContain('data-storefront-compact-menu="true"');
+  });
+
   it('renders the shared mobile navigation behind a real hamburger disclosure',()=>{
     const html=render('mobile');
     expect(html).toContain('Mit keresel?');

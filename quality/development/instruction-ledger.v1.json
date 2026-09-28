@@ -583,7 +583,7 @@
     {
       "id": "PO-2026-09-28-PLAYROOM-TABLET-ROOT-CAUSE",
       "request": "A Playroom v20 auditban feltárt Tablet root cause célzott javítása: a hibásan 12 fölé futó canonical tablet grid-spans rendezése és a shared commerce header tablet navigációjának kompakt módra váltása. Desktop és Mobil vizuális/composition authority maradjon változatlan; ne legyen általános redesign, golden promotion vagy más template módosítás.",
-      "state": "planned",
+      "state": "implemented",
       "acceptanceCriteria": [
         "A shared commerce header Tablet nézetben kompakt disclosure navigációt használ, nem a teljes desktop navigációs sort zsúfolja be.",
         "A Playroom érintett Tablet grid-sorai 12 oszlopra zárnak.",
@@ -638,13 +638,13 @@
           "pageType": "search",
           "nodeId": "playroom-search-results-shell",
           "path": "responsive.tablet.gridSpan",
-          "equals": 9
+          "equals": 8
         },
         {
           "kind": "template-node-value",
           "file": "src/lib/builder/templates/gaming/playroom/v20/canonical-package.json",
-          "pageType": "account",
-          "nodeId": "playroom-account-status",
+          "pageType": "catalog",
+          "nodeId": "playroom-footer-shop",
           "path": "responsive.tablet.gridSpan",
           "equals": 4
         }

@@ -8,6 +8,13 @@ import {applyAuthoredTemplatePreviewFallbacks} from '@/lib/builder/storefront-te
 const page=(type:string)=>PLAYROOM_V20_TEMPLATE_PACKAGE.pages.find(item=>item.pageType===type)!;
 
 describe('Product Owner instruction compliance',()=>{
+  it('permits planned instruction evidence only during the explicit Plan Before Code transaction',()=>{
+    const source=readFileSync('scripts/shoperation-instruction-compliance.mjs','utf8');
+    expect(source).toContain("SHOPERATION_CONTROL_PLANE_THROUGH==='GUARD-PLAN-BEFORE-CODE'");
+    expect(source).toContain("planningOnly&&item.state==='planned'");
+    expect(source).toContain("deferred:'planning-only'");
+  });
+
   it('blocks handoff unless the active instruction ledger evidence is satisfied',()=>{
     expect(()=>execFileSync(process.execPath,['scripts/shoperation-instruction-compliance.mjs','--check'],{stdio:'pipe'})).not.toThrow();
     const ledger=JSON.parse(readFileSync('quality/development/instruction-ledger.v1.json','utf8'));

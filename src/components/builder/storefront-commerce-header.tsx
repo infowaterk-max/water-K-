@@ -68,7 +68,7 @@ function SearchRenderer({config,node,viewport}:StorefrontComponentRenderProps){
 }
 
 function CommerceHeaderRenderer({config,children,node,viewport}:StorefrontComponentRenderProps){
-  const sticky=bool(config.sticky,true),mobile=viewport==='mobile',tablet=viewport==='tablet',utility=utilityItems(config.utilityItems),fullMobileMenu=mobileMenuItems(config.mobileMenuItems),rendered=Children.toArray(children);
+  const sticky=bool(config.sticky,true),mobile=viewport==='mobile',tablet=viewport==='tablet',compactNavigation=mobile||tablet,utility=utilityItems(config.utilityItems),fullMobileMenu=mobileMenuItems(config.mobileMenuItems),rendered=Children.toArray(children);
   const showUtilityLabels=bool(config.showUtilityLabels,false);
   const navigationItemCount=node.children
     .filter(child=>child.componentKey==='system.navigation')
@@ -91,9 +91,9 @@ function CommerceHeaderRenderer({config,children,node,viewport}:StorefrontCompon
     <div style={innerStyle}>
       <div style={{...topStyle,...slotStyle(config.styleSlots,'topRow',viewport)}}>{brand}{!mobile?<div style={{minWidth:0,...slotStyle(config.styleSlots,'searchFrame',viewport)}}>{search}</div>:null}{utilities}</div>
       {mobile?<div style={{minWidth:0,...slotStyle(config.styleSlots,'searchFrame',viewport)}}>{search}</div>:null}
-      {mobile
-        ?<details className={styles.mobileMenu} data-storefront-mobile-menu="true">
-          <summary className={styles.mobileMenuSummary} aria-label="Mobil navigáció megnyitása"><span aria-hidden="true">☰</span><span>Menü</span></summary>
+      {compactNavigation
+        ?<details className={styles.mobileMenu} data-storefront-compact-menu="true" data-storefront-mobile-menu={mobile?'true':undefined} data-storefront-tablet-menu={tablet?'true':undefined}>
+          <summary className={styles.mobileMenuSummary} aria-label={mobile?'Mobil navigáció megnyitása':'Navigáció megnyitása'}><span aria-hidden="true">☰</span><span>Menü</span></summary>
           <div className={styles.mobileMenuPanel}>{categoryTrigger}<div className={styles.mobileMenuNavigation}>{fullMobileMenu.length?<nav aria-label="Teljes mobil navigáció" data-storefront-mobile-menu-complete="true" style={{display:'grid',gap:'.2rem'}}>{fullMobileMenu.map(item=><a key={`${item.href}:${item.label}`} href={item.href} style={{color:'inherit',textDecoration:'none',padding:'.68rem .2rem',minHeight:'2.75rem',display:'flex',alignItems:'center',borderBottom:'1px solid color-mix(in srgb,var(--shoporation-color-border,#d8dce7) 55%,transparent)',fontWeight:760}}>{item.label}</a>)}</nav>:navigation}</div></div>
         </details>
         :<div className={denseDesktop?styles.denseNavigation:undefined} data-navigation-density={denseDesktop?'dense':undefined} style={navFrameStyle}>{categoryTrigger}<div style={{minWidth:0,flex:'1 1 auto'}}>{navigation}</div>{navTagline&&!denseDesktop?<small style={{flex:'0 0 auto',whiteSpace:'nowrap',fontSize:'.58rem',letterSpacing:'.22em',textTransform:'uppercase',opacity:.72,...slotStyle(config.styleSlots,'navTagline',viewport)}}>{navTagline}</small>:null}</div>}

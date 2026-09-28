@@ -6,6 +6,7 @@ const readJson=file=>JSON.parse(readFileSync(file,'utf8'));
 const plan=readJson('quality/development/active-plan.json');
 const ledger=readJson('quality/development/instruction-ledger.v1.json');
 const issues=[...predecessorIssues(GUARD_ID)];
+const planningOnly=process.env.SHOPERATION_CONTROL_PLANE_THROUGH==='GUARD-PLAN-BEFORE-CODE';
 const rows=[];
 const read=file=>readFileSync(file,'utf8');
 const at=(value,path)=>String(path??'').split('.').filter(Boolean).reduce((current,key)=>{
@@ -27,7 +28,8 @@ if(!Array.isArray(ledger.instructions)||!ledger.instructions.length)issues.push(
 for(const item of ledger.instructions??[]){
   const row={id:item.id,state:item.state,checks:[],regressionTests:item.regressionTests??[],authorityConflictContracts:[],authorityRuleIds:item.authorityRuleIds??[]};
   if(!item.id||!String(item.request??'').trim())issues.push({code:'PO_INSTRUCTION_ID_OR_REQUEST_MISSING',id:item.id??null});
-  if(item.state!=='implemented'&&item.state!=='accepted-frozen')issues.push({code:'PO_INSTRUCTION_NOT_IMPLEMENTED',id:item.id,state:item.state});
+  const plannedDuringPlanning=planningOnly&&item.state==='planned';
+  if(item.state!=='implemented'&&item.state!=='accepted-frozen'&&!plannedDuringPlanning)issues.push({code:'PO_INSTRUCTION_NOT_IMPLEMENTED',id:item.id,state:item.state});
   if(!Array.isArray(item.acceptanceCriteria)||!item.acceptanceCriteria.length)issues.push({code:'PO_INSTRUCTION_ACCEPTANCE_CRITERIA_MISSING',id:item.id});
   if(!Array.isArray(item.checks)||!item.checks.length)issues.push({code:'PO_INSTRUCTION_EVIDENCE_CHECK_MISSING',id:item.id});
   if(!Array.isArray(item.regressionTests)||!item.regressionTests.length)issues.push({code:'PO_INSTRUCTION_REGRESSION_MISSING',id:item.id});
@@ -38,6 +40,7 @@ for(const item of ledger.instructions??[]){
   issues.push(...authorityConflicts.issues);
 
   for(const check of item.checks??[]){
+    if(plannedDuringPlanning){row.checks.push({kind:check.kind,file:check.file,nodeId:check.nodeId??null,path:check.path??null,authorityRuleId:check.authorityRuleId??null,passed:null,deferred:'planning-only'});continue;}
     let passed=false,actual=null;
     try{
       if(check.kind==='file-exists'){
@@ -83,7 +86,7 @@ for(const item of ledger.instructions??[]){
   rows.push(row);
 }
 
-const report={contract:'shoporation.instruction-compliance-report.v2',guardId:GUARD_ID,taskId:plan.taskId,instructionCount:ledger.instructions?.length??0,rows,issues,decision:issues.length?'BLOCK':'PASS'};
+const report={contract:'shoporation.instruction-compliance-report.v2',guardId:GUARD_ID,taskId:plan.taskId,planningOnly,instructionCount:ledger.instructions?.length??0,rows,issues,decision:issues.length?'BLOCK':'PASS'};
 mkdirSync('artifacts/shoperation-development-guard',{recursive:true});
 writeFileSync('artifacts/shoperation-development-guard/instruction-compliance.json',JSON.stringify(report,null,2)+'\n');
 publishGuardContext(GUARD_ID,report);

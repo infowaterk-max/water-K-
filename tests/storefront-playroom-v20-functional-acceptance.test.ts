@@ -122,6 +122,37 @@ describe('Playroom v20 functional acceptance',()=>{
     expect(installAction).not.toContain('publishCurrentStorefrontPage');
   });
 
+  it('closes Playroom tablet grid rows without changing desktop or mobile authority',()=>{
+    const expectRow=(pageType:StorefrontPageDocument['pageType'],gridId:string,desktop:number[],tablet:number[],mobile:number[])=>{
+      const grid=findNode(playroomPage(pageType),gridId);
+      const children=grid.children??[];
+      expect(children.map(child=>child.responsive?.desktop?.gridSpan??12),gridId+' desktop').toEqual(desktop);
+      expect(children.map(child=>child.responsive?.tablet?.gridSpan??12),gridId+' tablet').toEqual(tablet);
+      expect(children.map(child=>child.responsive?.mobile?.gridSpan??12),gridId+' mobile').toEqual(mobile);
+    };
+    expectRow('catalog','playroom-catalog-hero-grid',[5,7],[5,7],[12,12]);
+    expectRow('catalog','playroom-catalog-hero-signals',[4,4,4],[4,4,4],[12,12,12]);
+    expectRow('catalog','playroom-catalog-products-layout',[3,9],[4,8],[12,12]);
+    expectRow('catalog','playroom-catalog-discovery-grid',[4,4,4],[4,4,4],[12,12,12]);
+    expectRow('product','playroom-product-grid',[7,5],[7,5],[12,12]);
+    expectRow('search','playroom-search-layout',[3,9],[4,8],[12,12]);
+    expectRow('account','playroom-account-hero-grid',[8,4],[8,4],[12,12]);
+    expectRow('account','playroom-account-navigation-grid',[4,4,4,4,4,4,4,4,4],[4,4,4,6,6,6,6,6,6],[12,12,12,12,12,12,12,12,12]);
+    expectRow('blog-index','playroom-blog-index-feature-grid',[8,4],[8,4],[12,12]);
+    expectRow('blog-index','playroom-blog-index-feature-signals',[4,4,4],[4,4,4],[12,12,12]);
+    expectRow('blog-article','playroom-blog-article-hero-grid',[7,5],[7,5],[12,12]);
+    expectRow('blog-article','playroom-blog-article-meta',[4,4,4],[4,4,4],[12,12,12]);
+    expectRow('faq','playroom-faq-hero-grid',[8,4],[8,4],[12,12]);
+    expectRow('faq','playroom-faq-help-grid',[8,4],[8,4],[12,12]);
+    for(const page of PLAYROOM_V20_TEMPLATE_PACKAGE.pages){
+      const footer=findNode(structuredClone(page),'playroom-footer-grid');
+      const children=footer.children??[];
+      expect(children.map(child=>child.responsive?.desktop?.gridSpan??12),page.pageType+' footer desktop').toEqual([2,2,2,2,4]);
+      expect(children.map(child=>child.responsive?.tablet?.gridSpan??12),page.pageType+' footer tablet').toEqual([12,4,4,4,12]);
+      expect(children.map(child=>child.responsive?.mobile?.gridSpan??12),page.pageType+' footer mobile').toEqual([12,6,6,6,6]);
+    }
+  });
+
   it('renders the public contact route through the active template Runtime before any legacy fallback',()=>{
     const contactRoute=read('src/app/kapcsolat/page.tsx');
     const runtimeSource=read('src/lib/builder/storefront-runtime-source.ts');
