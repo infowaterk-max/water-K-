@@ -74,8 +74,8 @@ const CATEGORY_PRODUCTS:Record<string,readonly string[]>={
 };
 
 const LOOT_VAULT_PREVIEW_PRODUCTS=Object.freeze([
-  {name:'Vault Sentinel figura',image:'/storefront-demo/loot-vault-v2/product-figure.webp',imagePosition:'44% center',imageFilter:'saturate(.92) contrast(1.14) brightness(.84)',price:89990,badge:'LIMITÁLT',stockLabel:'Raktáron'},
-  {name:'Mythic Warden szobor',image:'/storefront-demo/loot-vault-v2/hero-cinematic.webp',imagePosition:'72% center',imageFilter:'saturate(.84) contrast(1.18) brightness(.72)',price:129990,badge:'EXKLUZÍV',stockLabel:'Raktáron'},
+  {name:'Vault Sentinel figura',image:'/storefront-demo/loot-vault-v2/product-figure.webp',imagePosition:'44% center',imageFilter:'saturate(.92) contrast(1.14) brightness(.84)',price:89990,badge:'FIGURA',stockLabel:'Raktáron'},
+  {name:'Mythic Warden szobor',image:'/storefront-demo/loot-vault-v2/hero-cinematic.webp',imagePosition:'72% center',imageFilter:'saturate(.84) contrast(1.18) brightness(.72)',price:129990,badge:'SZOBOR',stockLabel:'Raktáron'},
   {name:'Neon Controller Collector Edition',image:'/storefront-demo/loot-vault-v2/editorial-collector-room.webp',imagePosition:'52% center',imageFilter:'saturate(.95) contrast(1.12) brightness(.82)',price:59990,badge:'GYŰJTŐI',stockLabel:'Raktáron'},
   {name:'Vault Visor sci-fi relikvia',image:'/storefront-demo/loot-vault-v2/editorial-vault-shelf.webp',imagePosition:'54% center',imageFilter:'saturate(.9) contrast(1.16) brightness(.78)',price:74990,badge:'VAULT PICK',stockLabel:'Raktáron'},
   {name:'Obsidian Ranger figura',image:'/storefront-demo/loot-vault-v2/category-heroes.webp',imagePosition:'62% center',imageFilter:'saturate(.82) contrast(1.18) brightness(.72)',price:84990,badge:'ÚJDONSÁG',stockLabel:'Raktáron'},

@@ -199,6 +199,27 @@ describe('Loot Vault v2 Factory canonical wiring',()=>{
     expect(new Set(productImages.map(hash)).size).toBe(4);
   });
 
+  it('uses a generic shared cinematic commerce capability and does not fabricate scarcity status in product fallbacks',()=>{
+    const packageSource=JSON.stringify(LOOT_VAULT_V2_TEMPLATE_PACKAGE);
+    expect(packageSource).toContain('cinematic-commerce');
+    expect(packageSource).not.toContain('loot-vault-cinematic');
+
+    const productClaims=LOOT_VAULT_V2_TEMPLATE_PACKAGE.pages.flatMap(page=>walk(page.sections)).flatMap(node=>{
+      const products=(node.config.products??[]) as Array<Record<string,unknown>>;
+      const bindings=(node.bindings?.products as {fallback?:Array<Record<string,unknown>>}|undefined)?.fallback??[];
+      return [...products,...bindings].flatMap(product=>[String(product.badge??''),String(product.stockLabel??'')]);
+    }).join('\n');
+    expect(productClaims).not.toMatch(/(?:LIMITÁLT|EXKLUZÍV|ELŐRENDELÉS|Előrendelhető)/i);
+
+    const sharedCommerce=readFileSync('src/components/builder/storefront-commerce.tsx','utf8');
+    expect(sharedCommerce).toContain('cinematic-commerce');
+    expect(sharedCommerce).not.toContain('loot-vault-cinematic');
+    const previewCommerce=readFileSync('src/lib/builder/storefront-digital-commerce-preview.ts','utf8');
+    expect(previewCommerce).not.toMatch(/(?:Limited Edition|Vault Exclusive|lootVaultAcceptanceCartLines)/);
+    const previewDemo=readFileSync('src/lib/builder/storefront-template-preview-demo.ts','utf8');
+    expect(previewDemo).not.toMatch(/badge:'(?:LIMITÁLT|EXKLUZÍV)'/);
+  });
+
   it('keeps customer-facing demo copy free from internal platform vocabulary',()=>{
     const fixtures=LOOT_VAULT_V2_TEMPLATE_PACKAGE.demoFixtures??[];
     const customerCopy=fixtures.flatMap(item=>{
