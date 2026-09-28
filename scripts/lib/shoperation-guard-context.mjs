@@ -53,6 +53,8 @@ export function buildGuardContext(){
     taskId:plan.taskId??null,
     guardRegistryContract:registry.contract,
     principles:registry.principles,
+    intelligencePolicy:registry.intelligencePolicy??null,
+    authorityConflictContracts:registry.authorityConflictContracts??[],
     authorities:{
       global:knowledge.authorityRules??[],
       templateFactory:parseTemplateFactoryAuthorities(),
@@ -113,6 +115,117 @@ export function predecessorIssues(guardId){
 export function authorityRule(ruleId){
   const context=buildGuardContext();
   return [...context.authorities.global,...context.authorities.templateFactory].find(item=>item.id===ruleId)??null;
+}
+
+const flattenNodes=(nodes,out=[])=>{for(const node of nodes??[]){out.push(node);flattenNodes(node.children??[],out)}return out;};
+const instructionText=item=>[
+  item?.request,
+  ...(item?.acceptanceCriteria??[]),
+  ...(item?.checks??[]).flatMap(check=>[check?.pageType,check?.file,check?.nodeId,check?.path,check?.value]),
+].filter(Boolean).join(' ').toLocaleLowerCase('hu-HU');
+
+function checkedTemplateNode(check){
+  if(!check?.file||!check?.pageType||!check?.nodeId||!String(check.file).endsWith('.json')||!existsSync(check.file))return null;
+  try{
+    const pkg=readJson(check.file);
+    const page=(pkg.pages??[]).find(item=>item.pageType===check.pageType);
+    return page?flattenNodes(page.sections??[]).find(node=>node.id===check.nodeId)??null:null;
+  }catch{return null}
+}
+
+export function authorityConflictIssues(instruction){
+  const context=buildGuardContext();
+  const issues=[];
+  const matchedContracts=[];
+  const sourceText=instructionText(instruction);
+  const rules=[...context.authorities.global,...context.authorities.templateFactory];
+  for(const contract of context.authorityConflictContracts??[]){
+    let matcher=null;
+    try{matcher=new RegExp(contract.instructionPattern,'i')}catch{
+      issues.push({code:'CONTROL_PLANE_AUTHORITY_CONTRACT_PATTERN_INVALID',contractId:contract.id});
+      continue;
+    }
+    if(!matcher.test(sourceText))continue;
+    matchedContracts.push(contract.id);
+    const rule=rules.find(item=>item.id===contract.authorityRuleId)??null;
+    if(!rule){
+      issues.push({code:'CONTROL_PLANE_AUTHORITY_RULE_MISSING',contractId:contract.id,authorityRuleIds:[contract.authorityRuleId]});
+      continue;
+    }
+    if(!(instruction.authorityRuleIds??[]).includes(contract.authorityRuleId)){
+      issues.push({
+        code:'CONTROL_PLANE_AUTHORITY_ACK_REQUIRED',
+        contractId:contract.id,
+        instructionId:instruction.id??null,
+        authorityRuleIds:[contract.authorityRuleId],
+        message:'Instruction touches '+rule.subject+' but does not acknowledge canonical authority '+contract.authorityRuleId+'.',
+      });
+    }
+
+    const forbidden=contract.forbiddenTemplateEvidence;
+    if(forbidden){
+      const nodeMatcher=new RegExp(forbidden.nodePattern,'i');
+      const componentMatcher=new RegExp(forbidden.componentKeyPattern,'i');
+      const conflicts=[];
+      for(const check of instruction.checks??[]){
+        if(!['template-node-present','template-node-value'].includes(String(check.kind??'')))continue;
+        if(forbidden.pageType&&check.pageType!==forbidden.pageType)continue;
+        const node=checkedTemplateNode(check);
+        if(node&&nodeMatcher.test(String(node.id??''))&&componentMatcher.test(String(node.componentKey??''))){
+          conflicts.push({file:check.file,pageType:check.pageType,nodeId:node.id,componentKey:node.componentKey});
+        }
+      }
+      const files=[...new Set((instruction.checks??[]).filter(check=>
+        typeof check.file==='string'&&check.file.endsWith('.json')&&(!forbidden.pageType||check.pageType===forbidden.pageType)
+      ).map(check=>check.file))];
+      for(const file of files){
+        if(!existsSync(file))continue;
+        try{
+          const pkg=readJson(file);
+          for(const page of pkg.pages??[]){
+            if(forbidden.pageType&&page.pageType!==forbidden.pageType)continue;
+            for(const node of flattenNodes(page.sections??[])){
+              if(nodeMatcher.test(String(node.id??''))&&componentMatcher.test(String(node.componentKey??''))){
+                conflicts.push({file,pageType:page.pageType,nodeId:node.id,componentKey:node.componentKey});
+              }
+            }
+          }
+        }catch{}
+      }
+      if(conflicts.length){
+        const unique=[...new Map(conflicts.map(item=>[[item.file,item.pageType,item.nodeId].join('|'),item])).values()];
+        issues.push({
+          code:'CONTROL_PLANE_AUTHORITY_CONFLICT',
+          contractId:contract.id,
+          instructionId:instruction.id??null,
+          authorityRuleIds:[contract.authorityRuleId],
+          conflicts:unique,
+          file:unique[0]?.file??null,
+          message:'Template-local evidence attempts to own behavior reserved for '+rule.owner+' authority.',
+        });
+      }
+    }
+
+    for(const required of contract.requiredAuthorityEvidence??[]){
+      const found=(instruction.checks??[]).some(check=>
+        check.kind===required.kind
+        &&check.file===required.file
+        &&check.value===required.value
+        &&check.authorityRuleId===contract.authorityRuleId
+      );
+      if(!found){
+        issues.push({
+          code:'CONTROL_PLANE_AUTHORITY_CONTINUITY_EVIDENCE_REQUIRED',
+          contractId:contract.id,
+          instructionId:instruction.id??null,
+          authorityRuleIds:[contract.authorityRuleId],
+          required,
+          message:'Shared behavior authority continuity evidence is missing for '+rule.subject+'.',
+        });
+      }
+    }
+  }
+  return {matchedContracts,issues};
 }
 
 export function publishGuardContext(guardId,report){
