@@ -138,6 +138,16 @@
       "responsibilityKey": "scheduled-system-self-knowledge-observation",
       "producer": "scripts/shoperation-knowledge-deep-atlas-scan.mjs",
       "evidence": "artifacts/shoperation-deep-atlas/deep-atlas-scan.json"
+    },
+    {
+      "id": "SIGNAL-SENTINEL",
+      "name": "Shoperation Sentinel",
+      "authority": "quality-knowledge-system",
+      "lifecycle": "observation",
+      "blocking": false,
+      "responsibilityKey": "scheduled-quality-trend-observation",
+      "producer": "scripts/shoperation-sentinel-scan.mjs",
+      "evidence": "artifacts/shoperation-sentinel/sentinel-report.json"
     }
   ]
 }

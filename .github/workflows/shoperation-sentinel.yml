@@ -1,0 +1,115 @@
+name: Shoperation Sentinel
+
+on:
+  schedule:
+    - cron: '17 4 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+  issues: write
+
+jobs:
+  sentinel:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Collect observation snapshot
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs=require('fs');
+            const cutoff=Date.now()-30*24*60*60*1000;
+            const workflowRuns=[];
+            for(let page=1;page<=5;page+=1){
+              const response=await github.rest.actions.listWorkflowRunsForRepo({...context.repo,per_page:100,page});
+              const batch=response.data.workflow_runs||[];
+              for(const run of batch){
+                const created=Date.parse(run.created_at);
+                if(Number.isFinite(created)&&created>=cutoff)workflowRuns.push({id:String(run.id),name:run.name,conclusion:run.conclusion,status:run.status,event:run.event,headBranch:run.head_branch,createdAt:run.created_at,updatedAt:run.updated_at,headSha:run.head_sha});
+              }
+              if(batch.length<100||batch.some(run=>Date.parse(run.created_at)<cutoff))break;
+            }
+            const issueRows=await github.paginate(github.rest.issues.listForRepo,{...context.repo,state:'open',per_page:100});
+            const openIssues=issueRows.filter(issue=>!issue.pull_request).map(issue=>({number:issue.number,title:issue.title,body:issue.body||'',updatedAt:issue.updated_at,pullRequest:false}));
+            const snapshot={contract:'shoporation.sentinel-source-snapshot.v1',repository:`${context.repo.owner}/${context.repo.repo}`,sourceCommit:context.sha,collectedAt:new Date().toISOString(),workflowRuns,openIssues};
+            fs.mkdirSync('artifacts/shoperation-sentinel',{recursive:true});
+            fs.writeFileSync('artifacts/shoperation-sentinel/source-snapshot.json',JSON.stringify(snapshot,null,2)+'\n');
+
+      - name: Sentinel Deep Scan
+        id: sentinel
+        run: node scripts/shoperation-sentinel-scan.mjs
+
+      - name: Publish Sentinel summary
+        if: always()
+        shell: bash
+        run: |
+          if [ -f artifacts/shoperation-sentinel/sentinel-report.md ]; then cat artifacts/shoperation-sentinel/sentinel-report.md >> "$GITHUB_STEP_SUMMARY"; fi
+
+      - name: Upload Sentinel evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: shoperation-sentinel-${{ github.sha }}
+          path: artifacts/shoperation-sentinel/**
+          if-no-files-found: error
+          retention-days: 90
+
+      - name: Sync Sentinel attention issue
+        if: steps.sentinel.outcome == 'success'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs=require('fs');
+            const marker='<!-- shoperation-sentinel -->';
+            const file='artifacts/shoperation-sentinel/sentinel-report.json';
+            const report=JSON.parse(fs.readFileSync(file,'utf8'));
+            const recent=await github.rest.issues.listForRepo({...context.repo,state:'all',sort:'updated',direction:'desc',per_page:100});
+            const existing=(recent.data||[]).find(issue=>!issue.pull_request&&(issue.body||'').includes(marker));
+            if(report.status==='HEALTHY'){
+              if(existing&&existing.state==='open'){
+                await github.rest.issues.createComment({...context.repo,issue_number:existing.number,body:`Sentinel recovered to HEALTHY on \`${context.sha}\`. Closing automatically.`});
+                await github.rest.issues.update({...context.repo,issue_number:existing.number,state:'closed'});
+              }
+              return;
+            }
+            const title=report.status==='ACTION_REQUIRED'?'[Sentinel] System improvement action required':'[Sentinel] System pattern requires review';
+            const body=`${marker}
+            <!-- shoperation-sentinel-state:${report.status} -->
+
+            Source commit: \`${context.sha}\`
+
+            Status: **${report.status}**
+
+            Generated: \`${report.generatedAt}\`
+
+            Main/scheduled 24h failures: **${report.windows.system.last24h.failures}/${report.windows.system.last24h.runs}**
+
+            Main/scheduled 7d failures: **${report.windows.system.last7d.failures}/${report.windows.system.last7d.runs}**
+
+            Main/scheduled 30d failures: **${report.windows.system.last30d.failures}/${report.windows.system.last30d.runs}**
+
+            Open Failure Intake fingerprints: **${report.openEvidence.fingerprints.length}**
+
+            Deep Atlas attention issues: **${report.openEvidence.deepAtlasAttentionIssues}**
+
+            Signals:
+            ${report.signals.length?report.signals.map(s=>`- \`${s.code}\`: ${s.reason}`).join('\n'):'- none'}
+
+            Recommendations:
+            ${report.recommendations.length?report.recommendations.map(x=>`- ${x}`).join('\n'):'- none'}
+
+            Sentinel is observation-only. It cannot modify code or override an existing authority.`;
+            if(existing)await github.rest.issues.update({...context.repo,issue_number:existing.number,title,body,state:'open'});
+            else await github.rest.issues.create({...context.repo,title,body});
