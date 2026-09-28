@@ -40,9 +40,13 @@ describe('Daily Deep Atlas Scan',()=>{
     expect(registry.guards.filter(item=>item.blocking&&item.responsibilityKey===scan?.responsibilityKey)).toHaveLength(0);
   });
 
-  it('does not run production release proof on feature-branch push noise',()=>{
+  it('does not run Release Risk proof on feature-branch push noise',()=>{
     const ci=read('.github/workflows/ci.yml');
-    expect(ci).toContain("if: github.event_name == 'pull_request' || github.ref_name == 'main'");
+    const registry=JSON.parse(read('quality/knowledge/guard-registry.v1.json')) as {guards:Array<{id:string;execution?:{profiles?:string[]}}>} ;
+    const release=registry.guards.find(item=>item.id==='GUARD-RELEASE-RISK');
+    expect(ci).toContain("github.event_name == 'pull_request' && 'pr' || (github.ref_name == 'main' && 'post-merge' || 'branch')");
+    expect(release?.execution?.profiles).toEqual(expect.arrayContaining(['pr','post-merge']));
+    expect(release?.execution?.profiles).not.toContain('branch');
   });
 
   it('records Drift Confidence and Deep Atlas as proven after their merge proof exists',()=>{
