@@ -458,7 +458,8 @@
         "A Plan Before Code blokkol, ha az A/B obligation scope nincs előre rögzítve vagy új obligation jelenik meg a tényleges diffben.",
         "A protected golden baseline fájlok módosítása explicit Product Owner approval nélkül blokkol.",
         "A Knowledge change-impact artifact ugyanazt az A/B tervet továbbviszi release evidence-ként.",
-        "Nincs új gate; az owner a meglévő Atlas + Plan Before Code + Knowledge specialist."
+        "Nincs új gate; az owner a meglévő Atlas + Plan Before Code + Knowledge specialist.",
+        "A B-listából a Development Guard külön plannedCompanionFilePatterns edit-scope-ot képez, így az előre felismert következményfájl módosítása nem utólagos scope-meglepetés."
       ],
       "checks": [
         {
@@ -485,6 +486,11 @@
           "kind": "file-contains",
           "file": "scripts/shoperation-knowledge-preflight.mjs",
           "value": "changeObligationsForAtlasPatterns"
+        },
+        {
+          "kind": "file-contains",
+          "file": "scripts/shoperation-development-guard.mjs",
+          "value": "plannedCompanionFilePatterns"
         }
       ],
       "regressionTests": [
