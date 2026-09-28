@@ -421,7 +421,8 @@
       ],
       "reporting": {
         "goldenOnlyClassification": "AWAITING_PRODUCT_OWNER_ACCEPTANCE",
-        "goldenOnlyAction": "Product Owner visual acceptance required; do not promote goldens."
+        "goldenOnlyAction": "Product Owner visual acceptance required; do not promote goldens.",
+        "goldenOnlyObligationId": "ATLAS-OBL-005"
       }
     },
     {
