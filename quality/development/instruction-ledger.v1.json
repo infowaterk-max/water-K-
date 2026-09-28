@@ -447,6 +447,51 @@
         "SQ-AUTH-022",
         "TF-AUTH-005"
       ]
+    },
+    {
+      "id": "PO-2026-09-28-AB-CHANGE-PLAN",
+      "request": "Tervezéskor ne csak az A közvetlenül szerkesztendő fájlokat keressük ki, hanem a B következményfájlokat és lifecycle-kötelezettségeket is: régi leírások/dokumentáció, reverse consumer, regressziós teszt, generated evidence, golden baseline és más függő artefaktok. A golden diff ne utólag derüljön ki hiányos tervként; a terv előre mondja meg, hogy új browser proof kell, de golden promotion csak explicit Product Owner vizuális elfogadás után lehetséges.",
+      "state": "implemented",
+      "acceptanceCriteria": [
+        "A Development Guard tervezéskor A/B Change Plan-t készít.",
+        "A jelenti a direct edit setet; B felsorolja a reverse consumereket, felfedezett teszteket, repository leírás/referencia fájlokat és policy lifecycle-kötelezettségeket.",
+        "A Plan Before Code blokkol, ha az A/B obligation scope nincs előre rögzítve vagy új obligation jelenik meg a tényleges diffben.",
+        "A protected golden baseline fájlok módosítása explicit Product Owner approval nélkül blokkol.",
+        "A Knowledge change-impact artifact ugyanazt az A/B tervet továbbviszi release evidence-ként.",
+        "Nincs új gate; az owner a meglévő Atlas + Plan Before Code + Knowledge specialist."
+      ],
+      "checks": [
+        {
+          "kind": "file-contains",
+          "file": "quality/knowledge/codebase-atlas-policy.v2.json",
+          "value": "ATLAS-OBL-005"
+        },
+        {
+          "kind": "file-contains",
+          "file": "scripts/lib/shoperation-codebase-atlas-runtime.mjs",
+          "value": "shoporation.ab-change-plan.v1"
+        },
+        {
+          "kind": "file-contains",
+          "file": "scripts/shoperation-development-guard.mjs",
+          "value": "## A/B Change Plan"
+        },
+        {
+          "kind": "file-contains",
+          "file": "scripts/shoperation-plan-before-code.mjs",
+          "value": "DEV_PLAN_CHANGE_OBLIGATIONS_REQUIRED"
+        },
+        {
+          "kind": "file-contains",
+          "file": "scripts/shoperation-knowledge-preflight.mjs",
+          "value": "changeObligationsForAtlasPatterns"
+        }
+      ],
+      "regressionTests": [
+        "tests/shoperation-codebase-atlas-v2.test.ts",
+        "tests/shoperation-development-guard.test.ts",
+        "tests/shoperation-change-impact-atlas.test.ts"
+      ]
     }
   ]
 }
