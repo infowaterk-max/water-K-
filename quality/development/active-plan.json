@@ -3,7 +3,7 @@
   "taskId": "DEV-CONTROL-PLANE-DIAGNOSTICS-EXACT-HEAD-HARDENING",
   "task": "Harden existing Control Plane diagnostics, exact-head release evidence, Cloud Smoke proof, Fresh Install proof parity, and risk classification.",
   "status": "ready-for-implementation",
-  "guardDigest": "d0031b70",
+  "guardDigest": "19199ee0",
   "plannedFilePatterns": [
     "scripts/shoperation-plan-before-code.mjs",
     "scripts/shoperation-failure-intake.mjs",
@@ -23,7 +23,6 @@
     "docs/support/**"
   ],
   "expectedSubsystems": [
-    "quality-knowledge-system",
     "release-infrastructure"
   ],
   "expectedDomains": [
@@ -89,12 +88,9 @@
     "SQ-NK-003",
     "SQ-NK-005",
     "SQ-NK-010",
-    "SQ-NK-011",
-    "SQ-NK-012",
-    "SQ-NK-014",
-    "SQ-NK-015"
+    "SQ-NK-012"
   ],
   "exceptions": [],
-  "notes": "Control Plane-only hardening. Preserve existing authorities. Align the two existing Fresh Install entrypoints to one evidence/failure-reporting contract without creating a third proof system; keep Cloud Smoke exact-head evidence, KBB reason localization, canonical smoke DOMAIN-RELEASE mapping, and explicit quality-infrastructure Risk Budget classification. No threshold/weight relaxation and no product/runtime/schema/auth redesign.",
+  "notes": "Control Plane-only hardening. Canonical scope projection now resolves direct subsystem impact to release-infrastructure while knowledge-infrastructure changes trigger full 48/48 Known Failure replay through knowledgeInfrastructureChanged. Preserve existing authorities; align Fresh Install entrypoints, Cloud Smoke evidence, KBB reason localization, canonical smoke DOMAIN-RELEASE mapping, and explicit quality-infrastructure Risk Budget classification. No threshold/weight relaxation and no product/runtime/schema/auth redesign.",
   "changeBaseSha": "c1f3d4178407d0c484f18874707313d849d4593c"
 }
