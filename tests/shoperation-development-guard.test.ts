@@ -37,4 +37,18 @@ describe('Shoperation Development-Time Known Failure Guard',()=>{
   });
   it('wires development-time prevention through one Control Plane instead of sibling workflow gates',()=>{for(const file of ['.github/workflows/ci.yml','.github/workflows/template-factory-quality-gate.yml']){const workflow=readFileSync(file,'utf8');expect(workflow).toContain('Shoperation Control Plane');expect(workflow).toContain('shoperation-control-plane.mjs');expect(workflow).not.toContain('run: node scripts/shoperation-plan-before-code.mjs --check');expect(workflow).not.toContain('run: node scripts/shoperation-edit-time-guard.mjs --check');expect(workflow).not.toContain('run: node scripts/shoperation-incremental-replay.mjs --check');expect(workflow).toContain('Upload Development Guard evidence');expect(workflow).toContain('Upload Shoperation Control Plane evidence');}});
   it('makes the preventive protocol repository-level instructions for coding agents',()=>{const agents=readFileSync('AGENTS.md','utf8');expect(agents).toContain('BEFORE THE FIRST IMPLEMENTATION EDIT');expect(agents).toContain('development-guard.md');expect(agents).toContain('Control Plane');expect(agents).toContain('shoperation-control-plane.mjs --profile pr --through GUARD-INCREMENTAL-REPLAY --check');expect(agents).not.toContain('run `node scripts/shoperation-edit-time-guard.mjs --check`');});
+  it('plans A direct edits and B companion obligations before coding starts',()=>{
+    const guard=readFileSync('scripts/shoperation-development-guard.mjs','utf8');
+    const plan=readFileSync('scripts/shoperation-plan-before-code.mjs','utf8');
+    expect(guard).toContain('changeObligationsForAtlasPatterns');
+    expect(guard).toContain('## A/B Change Plan');
+    expect(guard).toContain('expectedChangeObligationIds');
+    expect(plan).toContain('plannedChangePlan');
+    expect(plan).toContain('actualChangePlan');
+    expect(plan).toContain('DEV_PLAN_PROTECTED_COMPANION_CHANGED_WITHOUT_PO_APPROVAL');
+    const active=JSON.parse(readFileSync('quality/development/active-plan.json','utf8')) as {expectedChangeObligationIds:string[];changeObligationApprovals:unknown[]};
+    expect(active.expectedChangeObligationIds).toEqual(expect.arrayContaining(['ATLAS-OBL-001','ATLAS-OBL-005','ATLAS-OBL-006']));
+    expect(active.changeObligationApprovals).toEqual([]);
+  });
+
 });
