@@ -6,7 +6,9 @@ const signatures=JSON.parse(readFileSync('quality/knowledge/failure-signatures.v
 const knowledge=JSON.parse(readFileSync('quality/knowledge/shoperation-quality-knowledge.v1.json','utf8'));
 
 const outputDir=process.env.SHOPERATION_FAILURE_INTAKE_OUTPUT_DIR??'artifacts/shoperation-failure-intake';
+const repository=(process.env.SHOPERATION_REPOSITORY??process.env.GITHUB_REPOSITORY??'').trim()||null;
 const sourceCommit=(process.env.SHOPERATION_SOURCE_COMMIT??process.env.GITHUB_SHA??'').trim()||null;
+const sourceRef=(process.env.SHOPERATION_SOURCE_REF??process.env.GITHUB_HEAD_REF??process.env.GITHUB_REF_NAME??process.env.VERCEL_GIT_COMMIT_REF??'').trim()||null;
 const failureSource=(process.env.SHOPERATION_FAILURE_SOURCE??'ci').trim();
 const environment=(process.env.SHOPERATION_ENVIRONMENT??process.env.DEPLOY_ENVIRONMENT??process.env.VERCEL_ENV??'').trim()||null;
 const ciRunId=(process.env.SHOPERATION_CI_RUN_ID??process.env.GITHUB_RUN_ID??'').trim()||null;
@@ -165,7 +167,9 @@ for(const item of inputs){
     contract:'shoporation.failure-intake.v2',
     candidateId,
     failureFingerprint,
+    repository,
     sourceCommit,
+    sourceRef,
     environment,
     ciRunId,
     ciWorkflow,
@@ -196,7 +200,9 @@ for(const item of inputs){
 mkdirSync(outputDir,{recursive:true});
 const report={
   contract:'shoporation.failure-intake-batch.v2',
+  repository,
   sourceCommit,
+  sourceRef,
   environment,
   ciRunId,
   ciWorkflow,
@@ -210,7 +216,9 @@ writeFileSync(`${outputDir}/failure-intake.md`,[
   '# Shoperation failure intake',
   '',
   `Source: ${failureSource}`,
+  `Repository: ${repository??'unknown'}`,
   `Commit: ${sourceCommit??'unknown'}`,
+  `Ref: ${sourceRef??'unknown'}`,
   `Environment: ${environment??'unknown'}`,
   `CI run: ${ciRunId??'unknown'}`,
   '',
