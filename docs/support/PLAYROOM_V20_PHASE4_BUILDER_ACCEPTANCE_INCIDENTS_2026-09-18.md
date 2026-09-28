@@ -1788,3 +1788,35 @@ The result was a presentation replica being accepted while the real business rou
 ### Prevention
 
 Do not add another independent gate for this class. Existing gates must exchange evidence and authority context. A later PASS is invalid if it contradicts an earlier authority rule or blocking-gate result.
+
+
+## 2026-09-28 — Tablet row-budget root cause
+
+**Incident class:** responsive composition drift on an isolated viewport.
+
+The Playroom v20 audit showed a repeatable Tablet-only failure pattern while Desktop and Mobile remained visually coherent:
+
+- sibling spans in a logical 12-column composition were independently enlarged for Tablet;
+- examples included `6 + 8`, `4 + 10`, `9 + 5` and `5 + 5 + 5`;
+- CSS Grid therefore wrapped children unexpectedly and left large unused horizontal bands;
+- the shared commerce header also kept the dense desktop navigation model at 768px instead of switching to a compact disclosure;
+- the footer used full-width Tablet spans for every column, producing an unnecessarily long one-column footer.
+
+**Root cause:** viewport-isolated responsive values were individually valid but the *composition* was not revalidated as a row. Legacy Playroom source also contains a historical `desktop span + 1` Tablet heuristic, which is diagnostic evidence only and must not be copied into new canonical packages without row-level validation.
+
+**Canonical repair on gaming.playroom@20:**
+
+- normalize the affected Tablet logical rows to deliberate 12-column compositions;
+- use compact shared-header disclosure on Tablet;
+- use Tablet footer composition `12 / 4-4-4 / 12`;
+- preserve Desktop and Mobile authority unchanged;
+- do not edit golden baselines as part of the repair.
+
+**Proof:**
+
+- `tests/storefront-playroom-v20-functional-acceptance.test.ts` locks the affected Tablet row compositions and explicitly checks unchanged Desktop/Mobile spans;
+- `tests/storefront-commerce-header.test.tsx` locks Tablet compact navigation and Desktop continuity;
+- exact-head visual comparison showed 13/14 Playroom pages pixel-identical on Desktop and Mobile before/after the Tablet repair; Contact differed only inside the external Google Maps iframe region;
+- Known Failure: `SQ-KF-026`.
+
+**Do not repeat:** do not infer Tablet spans by mechanically incrementing Desktop spans. Validate the intended row composition, not only each node's individual 1–12 span validity.

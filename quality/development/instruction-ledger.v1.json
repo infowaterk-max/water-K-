@@ -590,7 +590,8 @@
         "A Playroom Tablet footer tömör: brand 12, shop/world/about 4-4-4, social 12.",
         "Desktop és Mobile responsive gridSpan értékek változatlanok maradnak.",
         "Home elfogadott Desktop/Mobile composition nem változik.",
-        "Golden baseline nem módosul."
+        "Golden baseline nem módosul.",
+        "A Tablet row-budget hibaosztály durable Known Failure-ként bekerül a Shoperation Knowledge rendszerbe."
       ],
       "checks": [
         {
@@ -647,13 +648,19 @@
           "nodeId": "playroom-footer-shop",
           "path": "responsive.tablet.gridSpan",
           "equals": 4
+        },
+        {
+          "kind": "file-contains",
+          "file": "quality/knowledge/shoperation-quality-knowledge.v1.json",
+          "value": "SQ-KF-026"
         }
       ],
       "regressionTests": [
         "tests/storefront-commerce-header.test.tsx",
         "tests/storefront-playroom-v20-functional-acceptance.test.ts",
         "tests/product-owner-instruction-compliance.test.ts",
-        "tests/storefront-playroom-v20-post-release-polish.test.ts"
+        "tests/storefront-playroom-v20-post-release-polish.test.ts",
+        "tests/shoperation-quality-knowledge.test.ts"
       ]
     }
   ]

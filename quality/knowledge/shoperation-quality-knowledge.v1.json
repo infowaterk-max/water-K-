@@ -862,6 +862,37 @@
           "shared-storefront"
         ]
       }
+    },
+    {
+      "id": "SQ-KF-026",
+      "title": "Responsive grid siblings exceed the intended viewport column budget",
+      "symptom": "A Tablet or other isolated viewport renders narrow left-aligned content, unexpected wrapping or large empty bands even though the same composition is balanced on Desktop and Mobile.",
+      "rootCause": "Sibling grid spans were authored or heuristically derived independently for the viewport (for example desktop span plus one) without validating the intended row composition against the canonical 12-column grid.",
+      "occurrences": 1,
+      "automatable": true,
+      "remediationPolicy": "shared-invariant-preferred",
+      "lifecycle": "active",
+      "invariantIds": [
+        "SQ-AUTH-012",
+        "SQ-AUTH-007",
+        "SQ-AUTH-017"
+      ],
+      "regressionTests": [
+        "tests/storefront-playroom-v20-functional-acceptance.test.ts",
+        "tests/storefront-commerce-header.test.tsx",
+        "tests/shoperation-quality-knowledge.test.ts"
+      ],
+      "sourceRecords": [
+        "docs/support/PLAYROOM_V20_PHASE4_BUILDER_ACCEPTANCE_INCIDENTS_2026-09-18.md"
+      ],
+      "applicability": {
+        "mode": "subsystem",
+        "subsystems": [
+          "builder-template-system",
+          "shared-storefront",
+          "storefront-ui"
+        ]
+      }
     }
   ],
   "templateFactoryFailureApplicability": {
