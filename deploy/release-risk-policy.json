@@ -37,6 +37,13 @@
       ]
     },
     {
+      "name": "tenant-context-authority",
+      "risk": "high",
+      "patterns": [
+        "src/lib/instances/**"
+      ]
+    },
+    {
       "name": "storefront-launch-runtime",
       "risk": "high",
       "patterns": [
