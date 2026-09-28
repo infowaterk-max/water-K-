@@ -15,7 +15,7 @@ type SentinelIssueSnapshot={
   recommendations:string[];
 };
 
-export type SentinelHealthSnapshot=SentinelIssueSnapshot&{
+export type SentinelHealthSnapshot=Omit<SentinelIssueSnapshot,'status'>&{
   status:SentinelSurfaceStatus;
   latestRunId:number|null;
   latestRunConclusion:string|null;
