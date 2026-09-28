@@ -12,6 +12,8 @@ import {
 import {LOOT_VAULT_V2_TEMPLATE_PACKAGE} from '@/lib/builder/templates/gaming/loot-vault/v2';
 import {resolveStorefrontTemplatePreviewPackage} from '@/lib/builder/storefront-template-preview-auth';
 import {getStorefrontTemplatePackage} from '@/lib/builder/storefront-template-catalog';
+import {augmentStorefrontDigitalCommercePreviewContext} from '@/lib/builder/storefront-digital-commerce-preview';
+import {createStorefrontTemplatePreviewBindingContext} from '@/lib/builder/storefront-template-preview-demo';
 import {STOREFRONT_PAGE_TYPES} from '@/lib/builder/storefront-foundation';
 import type {StorefrontComponentNode} from '@/lib/builder/storefront-runtime';
 import {STOREFRONT_SUPPORT_COMPONENT_DEFINITIONS} from '@/lib/builder/storefront-support';
@@ -65,6 +67,23 @@ describe('Loot Vault v2 Factory canonical wiring',()=>{
 
     expect(getStorefrontTemplatePackage('gaming.loot-vault',2)).toBeUndefined();
     expect(getStorefrontTemplatePackage('gaming.loot-vault',1)?.manifest.templateVersion).toBe(1);
+  });
+
+  it('feeds Loot Vault-specific cart and checkout lines into ordinary template preview proof without requiring acceptance mode',()=>{
+    for(const pageType of ['cart','checkout'] as const){
+      const page=LOOT_VAULT_V2_TEMPLATE_PACKAGE.pages.find(item=>item.pageType===pageType)!;
+      const base=createStorefrontTemplatePreviewBindingContext({template:LOOT_VAULT_V2_TEMPLATE_PACKAGE,page});
+      const preview=augmentStorefrontDigitalCommercePreviewContext({template:LOOT_VAULT_V2_TEMPLATE_PACKAGE,page,context:base});
+      const lines=((preview.cart as {lines?:Array<{name?:string;image?:string}>}|undefined)?.lines??[]);
+      expect(lines.map(line=>line.name)).toEqual([
+        'Vault Sentinel prémium figura',
+        'Mythic Warden gyűjtői szobor',
+        'Neon Controller Collector Edition',
+        'Vault Visor sci-fi relikvia',
+      ]);
+      expect(new Set(lines.map(line=>line.image)).size).toBe(4);
+      expect(lines.every(line=>String(line.image??'').startsWith('/storefront-demo/loot-vault-v2/'))).toBe(true);
+    }
   });
 
   it('requires complete shopper navigation in preview, especially on mobile',()=>{

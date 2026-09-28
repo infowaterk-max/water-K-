@@ -54,10 +54,10 @@ export function augmentStorefrontDigitalCommercePreviewContext(input:{
   }
   if(input.page.pageType==='cart'){
     digitalCommerce.cartFulfillment={state:'ready',mode:'mixed',copy:'A kosár digitális és fizikai tételt is tartalmaz.',lines:mixedLines,documentCenterHref:'/fiokom/letoltesek'};
-    if(input.acceptanceMode)next.cart={lines:previewCartLines,subtotal:previewCartSubtotal,total:previewCartSubtotal,shipping:0,currency:'HUF'};
+    if(input.acceptanceMode||isLootVault)next.cart={lines:previewCartLines,subtotal:previewCartSubtotal,total:previewCartSubtotal,shipping:0,currency:'HUF'};
   }
   if(input.page.pageType==='checkout'){
-    if(input.acceptanceMode)next.cart={lines:previewCartLines,subtotal:previewCartSubtotal,total:previewCartSubtotal,shipping:0,currency:'HUF'};
+    if(input.acceptanceMode||isLootVault)next.cart={lines:previewCartLines,subtotal:previewCartSubtotal,total:previewCartSubtotal,shipping:0,currency:'HUF'};
     digitalCommerce.checkoutFulfillment={state:'ready',mode:'mixed',copy:'A fizikai tétel kézbesítést kap, a digitális tartalom az igazolt fizetés után válik letölthetővé.',lines:mixedLines,documentCenterHref:'/fiokom/letoltesek'};
     digitalCommerce.postPurchase={state:'ready',mode:'mixed',paymentStatus:'pending',copy:'A digitális hozzáférés a fizetés hitelesítése után aktiválódik.',documentCenterHref:'/fiokom/letoltesek'};
   }
