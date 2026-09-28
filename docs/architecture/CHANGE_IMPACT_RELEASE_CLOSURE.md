@@ -57,3 +57,21 @@ A Risk Budget riport a pontszám mellett eltárolja az Atlas closure domain-, au
 ## Határ
 
 Az Atlas továbbra sem hoz üzleti döntést. A Constitution és Domain Foundations az authority; az Atlas ezek alapján számít impactot és closure-t. A Release Risk Budget a production release kockázati specialistája és policy-authorityja, de nem birtokolhatja a teljes rendszer végső döntését: azt a Control Plane reconciliálja a többi evidence-szel.
+
+## A/B Change Plan — közvetlen módosítás + következménykötelezettség
+
+Az Atlas Change Impact a tervezési fázisban két külön halmazt képez:
+
+- **A — direct change set:** azok a fájlok/patternök, amelyeket a feladat közvetlenül módosít.
+- **B — dependent change obligations:** azok a fogyasztók, regressziós tesztek, repository-leírások/dokumentumok, generált evidence-ek és lifecycle-védett artefaktok, amelyek az A változás miatt elavulhatnak vagy új bizonyítást igényelnek.
+
+A B lista nem jelenti azt, hogy minden fájlt automatikusan át kell írni. Az obligation saját lifecycle-t kap: `review/update-if-stale`, `revalidate`, `regenerate-derived-evidence` vagy `deferred/approval-protected`.
+
+Kiemelt példa a Template Factory golden baseline. Template/runtime vizuális változáskor az Atlas már a tervezéskor jelzi:
+
+1. exact-head browser proofot újra kell generálni;
+2. a golden eltérés önmagában nem runtime/type/build regresszió;
+3. a `tests/visual-baselines/**` baseline módosítása **tilos**, amíg nincs explicit Product Owner vizuális elfogadás;
+4. elfogadás után a golden promotion külön lifecycle-lépés.
+
+Így a golden diff nem „utólag előkerülő meglepetés”, hanem előre ismert B-kötelezettség.
