@@ -28,8 +28,13 @@ type GithubRunsResponse={workflow_runs?:GithubWorkflowRun[]};
 type GithubIssue={body:string|null;title:string;state:string;updated_at:string;pull_request?:unknown};
 type GithubIssuesResponse=GithubIssue[];
 
-const repo=process.env.SHOPERATION_SENTINEL_GITHUB_REPOSITORY||'infowaterk-max/water-K-';
-const apiBase=`https://api.github.com/repos/${repo}`;
+const repository=()=>{
+  const explicit=process.env.SHOPERATION_SENTINEL_GITHUB_REPOSITORY?.trim();
+  if(explicit)return explicit;
+  const owner=process.env.VERCEL_GIT_REPO_OWNER?.trim(),slug=process.env.VERCEL_GIT_REPO_SLUG?.trim();
+  if(owner&&slug)return `${owner}/${slug}`;
+  throw new Error('SENTINEL_REPOSITORY_IDENTITY_UNAVAILABLE');
+};
 
 const empty=(status:SentinelSurfaceStatus,message:string,run?:GithubWorkflowRun|null):SentinelHealthSnapshot=>({
   status,
@@ -93,7 +98,7 @@ export function parseSentinelIssueBody(body:string):SentinelIssueSnapshot|null{
 }
 
 async function githubJson<T>(path:string):Promise<T>{
-  const response=await fetch(`${apiBase}${path}`,{
+  const response=await fetch(`https://api.github.com/repos/${repository()}${path}`,{
     headers:{accept:'application/vnd.github+json','user-agent':'shoperation-sentinel-health'},
     next:{revalidate:300},
   });
