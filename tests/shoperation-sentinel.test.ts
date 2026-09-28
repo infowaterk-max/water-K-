@@ -46,8 +46,8 @@ describe('Shoperation Sentinel',()=>{
 
   it('stays HEALTHY when recent evidence is clean',()=>{
     const{result,report}=run(base({workflowRuns:[
-      {id:'1',name:'CI',conclusion:'success',createdAt:'2026-09-28T08:00:00.000Z'},
-      {id:'2',name:'Template Factory Quality Gate v2',conclusion:'success',createdAt:'2026-09-27T08:00:00.000Z'},
+      {id:'1',name:'CI',event:'push',headBranch:'main',conclusion:'success',createdAt:'2026-09-28T08:00:00.000Z'},
+      {id:'2',name:'Template Factory Quality Gate v2',event:'push',headBranch:'main',conclusion:'success',createdAt:'2026-09-27T08:00:00.000Z'},
     ]}));
     expect(result.status).toBe(0);
     expect(report.status).toBe('HEALTHY');
@@ -63,12 +63,21 @@ describe('Shoperation Sentinel',()=>{
     expect(report.authority).toBe(false);
   });
 
-  it('raises ACTION_REQUIRED only from repeated or authoritative evidence',()=>{
-    const workflowRuns=[1,2,3].map(i=>({id:String(i),name:'CI',conclusion:'failure',createdAt:`2026-09-2${8-i}T09:00:00.000Z`}));
+  it('raises ACTION_REQUIRED from repeated main evidence',()=>{
+    const workflowRuns=[1,2,3].map(i=>({id:String(i),name:'CI',event:'push',headBranch:'main',conclusion:'failure',createdAt:`2026-09-2${8-i}T09:00:00.000Z`}));
     const{report}=run(base({workflowRuns}));
     expect(report.status).toBe('ACTION_REQUIRED');
     expect(report.repeatedWorkflows[0].workflow).toBe('CI');
-    expect(report.signals.some((x:{code:string})=>x.code==='SENTINEL_REPEATED_WORKFLOW_FAILURE')).toBe(true);
+    expect(report.signals.some((x:{code:string})=>x.code==='SENTINEL_REPEATED_MAIN_WORKFLOW_FAILURE')).toBe(true);
+  });
+
+  it('does not turn iterative PR failures into ACTION_REQUIRED by themselves',()=>{
+    const workflowRuns=[1,2,3,4,5].map(i=>({id:String(i),name:'CI',event:'pull_request',headBranch:`feature/test-${i}`,conclusion:'failure',createdAt:`2026-09-2${8-i}T09:00:00.000Z`}));
+    const{report}=run(base({workflowRuns}));
+    expect(report.status).toBe('REVIEW');
+    expect(report.repeatedWorkflows).toEqual([]);
+    expect(report.signals.some((x:{code:string})=>x.code==='SENTINEL_DEVELOPMENT_FRICTION_TREND')).toBe(true);
+    expect(report.signals.some((x:{severity:string})=>x.severity==='action')).toBe(false);
   });
 
   it('treats an open Deep Atlas hard finding as ACTION_REQUIRED',()=>{

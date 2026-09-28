@@ -18,7 +18,14 @@
     "deepAtlasAttention": true,
     "excludeWorkflowNames": [
       "Shoperation Sentinel"
-    ]
+    ],
+    "actionEligibleEvents": [
+      "push",
+      "schedule",
+      "workflow_dispatch"
+    ],
+    "actionEligibleBranch": "main",
+    "developmentEvent": "pull_request"
   },
   "failureConclusions": [
     "failure",
@@ -27,9 +34,10 @@
     "action_required"
   ],
   "thresholds": {
-    "reviewFailures7d": 2,
-    "actionFailures24h": 3,
-    "actionSameWorkflowFailures7d": 3
+    "reviewMainFailures7d": 2,
+    "reviewDevelopmentFailures7d": 5,
+    "actionMainFailures24h": 3,
+    "actionSameWorkflowMainFailures7d": 3
   },
   "behavior": {
     "authority": false,

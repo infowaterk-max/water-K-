@@ -37,7 +37,7 @@ jobs:
               const batch=response.data.workflow_runs||[];
               for(const run of batch){
                 const created=Date.parse(run.created_at);
-                if(Number.isFinite(created)&&created>=cutoff)workflowRuns.push({id:String(run.id),name:run.name,conclusion:run.conclusion,status:run.status,event:run.event,createdAt:run.created_at,updatedAt:run.updated_at,headSha:run.head_sha});
+                if(Number.isFinite(created)&&created>=cutoff)workflowRuns.push({id:String(run.id),name:run.name,conclusion:run.conclusion,status:run.status,event:run.event,headBranch:run.head_branch,createdAt:run.created_at,updatedAt:run.updated_at,headSha:run.head_sha});
               }
               if(batch.length<100||batch.some(run=>Date.parse(run.created_at)<cutoff))break;
             }
@@ -94,11 +94,11 @@ jobs:
 
             Generated: \`${report.generatedAt}\`
 
-            24h failures: **${report.windows.last24h.failures}/${report.windows.last24h.runs}**
+            Main/scheduled 24h failures: **${report.windows.system.last24h.failures}/${report.windows.system.last24h.runs}**
 
-            7d failures: **${report.windows.last7d.failures}/${report.windows.last7d.runs}**
+            Main/scheduled 7d failures: **${report.windows.system.last7d.failures}/${report.windows.system.last7d.runs}**
 
-            30d failures: **${report.windows.last30d.failures}/${report.windows.last30d.runs}**
+            Main/scheduled 30d failures: **${report.windows.system.last30d.failures}/${report.windows.system.last30d.runs}**
 
             Open Failure Intake fingerprints: **${report.openEvidence.fingerprints.length}**
 
