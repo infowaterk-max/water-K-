@@ -1,38 +1,27 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-CONTROL-PLANE-DIAGNOSTICS-EXACT-HEAD-HARDENING",
-  "task": "Harden existing Control Plane diagnostics, exact-head release evidence, Cloud Smoke proof, Fresh Install proof parity, and risk classification.",
+  "taskId": "DEV-TEMPLATE-GENERATOR-READINESS-FOUNDATION",
+  "task": "Add generator-readiness blueprint metadata and fail-closed consistency checks to the existing Template Factory.",
   "status": "ready-for-implementation",
-  "guardDigest": "19199ee0",
+  "guardDigest": "1755dcf5",
   "plannedFilePatterns": [
-    "scripts/shoperation-plan-before-code.mjs",
-    "scripts/shoperation-failure-intake.mjs",
-    "scripts/release-manifest.mjs",
-    ".github/workflows/ci.yml",
-    ".github/workflows/template-factory-quality-gate.yml",
-    "tests/shoperation-development-guard.test.ts",
-    "tests/control-plane-diagnostics-hardening.test.ts",
-    "tests/rollout-readiness.test.ts",
-    "quality/development/active-plan.json",
-    ".github/workflows/cloud-smoke.yml",
-    "scripts/smoke.mjs",
-    "deploy/release-risk-policy.json",
-    "quality/knowledge/domain-foundations.v1.json",
-    ".github/workflows/fresh-install-proof.yml",
-    "tests/customer-baseline-proof-contract.test.ts",
-    "docs/support/**",
-    "quality/knowledge/support-history-policy.v1.json"
+    "src/lib/builder/template-factory/scaffold.ts",
+    "src/lib/builder/template-factory/generator-readiness.ts",
+    "src/lib/builder/template-factory/blueprints/loot-vault-v2.ts",
+    "src/lib/builder/template-factory/recipes/loot-vault-v2.ts",
+    "tests/template-factory-generator-readiness.test.ts",
+    "tests/template-factory-loot-vault-v2.test.ts",
+    "quality/development/active-plan.json"
   ],
   "expectedSubsystems": [
-    "release-infrastructure"
+    "builder-template-system",
+    "shared-storefront"
   ],
   "expectedDomains": [
-    "DOMAIN-QUALITY",
-    "DOMAIN-RELEASE"
+    "DOMAIN-BUILDER"
   ],
   "expectedAuthorities": [
-    "quality-knowledge-system",
-    "release-infrastructure"
+    "builder-template-system"
   ],
   "expectedKnownFailureIds": [
     "SQ-KF-001",
@@ -40,10 +29,7 @@
     "SQ-KF-003",
     "SQ-KF-004",
     "SQ-KF-005",
-    "SQ-KF-006",
     "SQ-KF-007",
-    "SQ-KF-008",
-    "SQ-KF-009",
     "SQ-KF-010",
     "SQ-KF-011",
     "SQ-KF-012",
@@ -52,13 +38,9 @@
     "SQ-KF-015",
     "SQ-KF-016",
     "SQ-KF-017",
-    "SQ-KF-018",
     "SQ-KF-019",
     "SQ-KF-020",
-    "SQ-KF-021",
     "SQ-KF-022",
-    "SQ-KF-023",
-    "SQ-KF-024",
     "TF-KF-001",
     "TF-KF-002",
     "TF-KF-003",
@@ -85,13 +67,18 @@
     "TF-KF-024"
   ],
   "acknowledgedNegativeKnowledgeIds": [
+    "SQ-NK-001",
     "SQ-NK-002",
     "SQ-NK-003",
-    "SQ-NK-005",
+    "SQ-NK-004",
+    "SQ-NK-006",
+    "SQ-NK-007",
+    "SQ-NK-008",
+    "SQ-NK-009",
     "SQ-NK-010",
     "SQ-NK-012"
   ],
   "exceptions": [],
-  "notes": "Control Plane-only hardening. Canonical scope projection now resolves direct subsystem impact to release-infrastructure while knowledge-infrastructure changes trigger full 48/48 Known Failure replay through knowledgeInfrastructureChanged. Preserve existing authorities; align Fresh Install entrypoints, Cloud Smoke evidence, KBB reason localization, canonical smoke DOMAIN-RELEASE mapping, and explicit quality-infrastructure Risk Budget classification. No threshold/weight relaxation and no product/runtime/schema/auth redesign.",
-  "changeBaseSha": "c1f3d4178407d0c484f18874707313d849d4593c"
+  "notes": "Foundation-only transaction. Generator-readiness is metadata plus validation inside the existing Factory build contract. No separate generator implementation is introduced. The first adopted blueprint is Loot Vault v2. The change must preserve the canonical 14-page set, canonical three-viewport authority, shared component ownership, Builder editability, and recipe/package identity. Product Owner acceptance remains a separate existing gate.",
+  "changeBaseSha": "3359276b61b491ed7fd32c05f0058ad1c80d97b8"
 }

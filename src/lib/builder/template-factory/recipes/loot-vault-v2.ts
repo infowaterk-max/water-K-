@@ -1,7 +1,7 @@
 import {getStorefrontGlobalStyleState} from '@/lib/builder/storefront-global-styles';
 import type {StorefrontComponentNode,StorefrontPageDocument} from '@/lib/builder/storefront-runtime';
 import type {StorefrontBuilderPageType} from '@/lib/builder/storefront-foundation';
-import type {FeatureCode} from '@/lib/plans/catalog';
+import {LOOT_VAULT_V2_GENERATOR_BLUEPRINT} from '@/lib/builder/template-factory/blueprints/loot-vault-v2';
 import type {StorefrontTemplateFactoryMediaAsset,StorefrontTemplateFactoryRecipe} from '@/lib/builder/template-factory/scaffold';
 import {LOOT_VAULT_V2_TEMPLATE_PACKAGE} from '@/lib/builder/templates/gaming/loot-vault/v2';
 
@@ -50,12 +50,13 @@ export const LOOT_VAULT_V2_FACTORY_MEDIA_ASSETS:readonly StorefrontTemplateFacto
 ]);
 
 export const LOOT_VAULT_V2_FACTORY_RECIPE:StorefrontTemplateFactoryRecipe=Object.freeze({
-  category:'gaming',
-  templateKey:'gaming.loot-vault',
-  displayName:'Loot Vault',
-  templateVersion:2,
-  minPlan:'alap',
-  requiredFeatures:Object.freeze(['catalog','inventory','orders','contentMarketing','productRecommendations','searchFiltering','commerceIntegrations'] satisfies FeatureCode[]),
+  blueprint:LOOT_VAULT_V2_GENERATOR_BLUEPRINT,
+  category:LOOT_VAULT_V2_GENERATOR_BLUEPRINT.template.category,
+  templateKey:LOOT_VAULT_V2_GENERATOR_BLUEPRINT.template.templateKey,
+  displayName:LOOT_VAULT_V2_GENERATOR_BLUEPRINT.template.displayName,
+  templateVersion:LOOT_VAULT_V2_GENERATOR_BLUEPRINT.template.templateVersion,
+  minPlan:LOOT_VAULT_V2_GENERATOR_BLUEPRINT.template.minPlan,
+  requiredFeatures:LOOT_VAULT_V2_GENERATOR_BLUEPRINT.template.requiredFeatures,
   demoNamespace:'gaming-loot-vault-v2',
   globalStyles:Object.freeze(getStorefrontGlobalStyleState(canonicalHome)),
   shell:Object.freeze({
