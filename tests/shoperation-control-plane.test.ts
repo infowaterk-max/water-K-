@@ -143,6 +143,8 @@ describe('Shoperation Control Plane',()=>{
     expect(compliance).not.toContain('const PROTECTED=');
   });
 
+  it('carries B closure into managed and final reconciliation',()=>{const control=read('scripts/shoperation-control-plane.mjs'),sync=read('scripts/lib/shoperation-ab-implementation-sync.mjs');expect(control).toContain('reconcileChangeObligationClosure');expect(control).toContain('changeObligationClosure');expect(sync).toContain("status:outcome.decision==='PASS'?'REGENERATED':'BLOCKED'");expect(sync).toContain("status==='DEFERRED_WITH_APPROVAL'");});
+
   it('requires Product Owner handoff to consume the final Control Plane verdict',()=>{
     const handoff=read('scripts/template-factory-product-owner-handoff.mjs');
     expect(handoff).toContain('CONTROL_PLANE_FINAL_STAGE_MISSING');

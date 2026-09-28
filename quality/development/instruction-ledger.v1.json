@@ -498,6 +498,43 @@
         "tests/shoperation-development-guard.test.ts",
         "tests/shoperation-change-impact-atlas.test.ts"
       ]
+    },
+    {
+      "id": "PO-2026-09-28-IMPLEMENTATION-SYNC-B-CLOSURE",
+      "request": "Az A/B Change Plan ne csak előre jelezze a következményfájlokat: amikor az A kód módosul, a B consumer/test/dokumentáció szinkront ugyanabban az implementation menetben kötelezően le kell zárni még quality gate előtt. A végső Control Plane riport mutassa a B lifecycle lezárását; generated evidence specialist-owned, golden pedig Product Owner approval-protected marad.",
+      "state": "implemented",
+      "acceptanceCriteria": [
+        "A planning-only Plan Before Code nem blokkol az implementáció előtti UNRESOLVED B miatt.",
+        "Implementáció után Incremental Replay és external quality előtt a Plan Before Code blokkol minden unresolved pre-gate B obligationre.",
+        "Pre-gate B csak UPDATED + diff evidence vagy REVALIDATED_NO_CHANGE + konkrét note státusszal zárható.",
+        "Generated evidence specialist-owned; golden Product Owner approval-protected.",
+        "Nem jön létre új gate."
+      ],
+      "checks": [
+        {
+          "kind": "file-exists",
+          "file": "scripts/lib/shoperation-ab-implementation-sync.mjs"
+        },
+        {
+          "kind": "file-contains",
+          "file": "scripts/shoperation-plan-before-code.mjs",
+          "value": "DEV_PLAN_B_SYNC_UNRESOLVED"
+        },
+        {
+          "kind": "file-contains",
+          "file": "scripts/shoperation-control-plane.mjs",
+          "value": "changeObligationClosure"
+        },
+        {
+          "kind": "file-contains",
+          "file": "AGENTS.md",
+          "value": "B IMPLEMENTATION SYNC"
+        }
+      ],
+      "regressionTests": [
+        "tests/shoperation-development-guard.test.ts",
+        "tests/shoperation-control-plane.test.ts"
+      ]
     }
   ]
 }

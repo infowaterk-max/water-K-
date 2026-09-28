@@ -75,3 +75,16 @@ Kiemelt példa a Template Factory golden baseline. Template/runtime vizuális v�
 4. elfogadás után a golden promotion külön lifecycle-lépés.
 
 Így a golden diff nem „utólag előkerülő meglepetés”, hanem előre ismert B-kötelezettség.
+
+
+## Implementation Sync és B Closure
+
+Az A/B terv végrehajtási szerződés is. A planning-only Control Plane futásban a pre-gate B még lehet `UNRESOLVED`; implementáció után viszont Plan Before Code nem enged Incremental Replayhez vagy külső quality specialistához, amíg minden pre-gate B nincs lezárva.
+
+- `UPDATED`: a függő artefakt módosult, és az `evidenceFiles` a jelenlegi diff része.
+- `REVALIDATED_NO_CHANGE`: felülvizsgáltuk, nem igényel módosítást, konkrét note-tal.
+- `PENDING_SPECIALIST`: generált evidence; a registryben megnevezett specialist után `REGENERATED` vagy `BLOCKED` lesz.
+- `AWAITING_PRODUCT_OWNER_ACCEPTANCE`: emberi authority-védett lifecycle, például golden promotion.
+- `DEFERRED_WITH_APPROVAL`: csak explicit Product Owner approval evidence mellett zárt.
+
+A végső Control Plane report `changeObligationClosure` mezője külön mutatja a `preGateReady` és `finalReady` állapotot.

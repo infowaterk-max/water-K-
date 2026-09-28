@@ -16,7 +16,8 @@
     "externalExecutionPlanBelongsToControlPlane": true,
     "authorityConflictDetectionIsGlobal": true,
     "deterministicControlPlanePrecedesAi": true,
-    "humanAuthorityCannotBeOverridden": true
+    "humanAuthorityCannotBeOverridden": true,
+    "preGateImplementationSyncRequired": true
   },
   "guards": [
     {
@@ -91,7 +92,7 @@
       "authority": "quality-knowledge-system",
       "lifecycle": "development",
       "blocking": true,
-      "responsibilityKey": "declared-change-scope",
+      "responsibilityKey": "declared-change-scope-and-pre-gate-b-sync",
       "producer": "scripts/shoperation-plan-before-code.mjs",
       "evidence": "artifacts/shoperation-development-guard/plan-before-code.json",
       "consumesEvidenceFrom": [

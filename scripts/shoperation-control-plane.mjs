@@ -2,6 +2,7 @@ import {execFileSync} from 'node:child_process';
 import {existsSync,mkdirSync,readFileSync,writeFileSync} from 'node:fs';
 import {emitInstantGuardFailure} from './lib/shoperation-control-plane-reporter.mjs';
 import {runExternalSpecialists} from './lib/shoperation-external-orchestrator.mjs';
+import {reconcileChangeObligationClosure} from './lib/shoperation-ab-implementation-sync.mjs';
 
 const readJson=file=>JSON.parse(readFileSync(file,'utf8'));
 const registry=readJson('quality/knowledge/guard-registry.v1.json');
@@ -151,7 +152,8 @@ if(runExternal){
 
   const requiredIds=[...(prior.selectedGuards??[]),...externalIds];
   const result=finalDecision(outcomes,contradictions,requiredIds);
-  const report={...prior,stage:'final',finishedAt:new Date().toISOString(),externalGuardIds:externalIds,outcomes,contradictions,blockedGuardId:result.blocked?.guardId??prior.blockedGuardId??null,missingSelected:result.missing,decision:prior.decision==='PASS'&&result.decision==='PASS'?'PASS':'BLOCK'};
+  const changeObligationClosure=reconcileChangeObligationClosure(prior.changeObligationClosure??{contract:'shoporation.b-implementation-closure.v1',items:[],preGateReady:true,finalReady:true},outcomes);
+  const report={...prior,stage:'final',finishedAt:new Date().toISOString(),externalGuardIds:externalIds,outcomes,contradictions,blockedGuardId:result.blocked?.guardId??prior.blockedGuardId??null,missingSelected:result.missing,changeObligationClosure,decision:prior.decision==='PASS'&&result.decision==='PASS'?'PASS':'BLOCK'};
   writeReport(report);
   console.log(`Shoperation Control Plane final reconciliation: ${report.decision}; external=${externalIds.length}; blocked=${report.blockedGuardId??'none'}; contradictions=${contradictions.length}.`);
   if(check&&report.decision!=='PASS')process.exit(1);
@@ -206,7 +208,7 @@ if(runExternal){
 
     let exitCode=0,processError=null;
     try{
-      execFileSync(execution.command,execution.args??[],{stdio:'inherit',env:{...process.env,SHOPERATION_CONTROL_PLANE_ACTIVE_GUARDS:activeList,SHOPERATION_CONTROL_PLANE_PROFILE:profile,SHOPERATION_CONTROL_PLANE_RUN_ID:runId,SHOPERATION_CONTROL_PLANE_GUARD:guardId}});
+      execFileSync(execution.command,execution.args??[],{stdio:'inherit',env:{...process.env,SHOPERATION_CONTROL_PLANE_ACTIVE_GUARDS:activeList,SHOPERATION_CONTROL_PLANE_PROFILE:profile,SHOPERATION_CONTROL_PLANE_RUN_ID:runId,SHOPERATION_CONTROL_PLANE_GUARD:guardId,SHOPERATION_CONTROL_PLANE_THROUGH:through??''}});
     }catch(error){
       exitCode=typeof error?.status==='number'?error.status:1;
       processError=error instanceof Error?error.message:String(error);
@@ -237,7 +239,9 @@ if(runExternal){
     }catch{}
   }
   const result=finalDecision(outcomes,contradictions,order);
-  const report={contract:'shoporation.control-plane.v1',profile,runId,stage:'managed',taskId:plan.taskId,sourceHead,startedAt,finishedAt:new Date().toISOString(),selectedGuards:order,authoritySummary,outcomes,contradictions,blockedGuardId:result.blocked?.guardId??null,missingSelected:result.missing,decision:result.decision};
+  let changeObligationClosure={contract:'shoporation.b-implementation-closure.v1',items:[],preGateReady:true,finalReady:true};
+  if(existsSync('artifacts/shoperation-development-guard/plan-before-code.json')){try{changeObligationClosure=readJson('artifacts/shoperation-development-guard/plan-before-code.json').implementationClosure??changeObligationClosure;}catch{}}
+  const report={contract:'shoporation.control-plane.v1',profile,runId,stage:'managed',taskId:plan.taskId,sourceHead,startedAt,finishedAt:new Date().toISOString(),selectedGuards:order,authoritySummary,outcomes,contradictions,changeObligationClosure,blockedGuardId:result.blocked?.guardId??null,missingSelected:result.missing,decision:result.decision};
   writeReport(report);
   console.log(`Shoperation Control Plane: ${report.decision}; profile=${profile}; guards=${outcomes.length}/${order.length}; blocked=${report.blockedGuardId??'none'}; contradictions=${contradictions.length}.`);
   if(check&&report.decision!=='PASS')process.exit(1);

@@ -143,7 +143,8 @@
       "timing": "before-handoff",
       "targetSource": "atlas.reverseImports",
       "mutationPolicy": "review-and-update-if-contract-changed",
-      "reason": "A changed authority or component can invalidate downstream consumers even when those consumer files are not direct edit targets."
+      "reason": "A changed authority or component can invalidate downstream consumers even when those consumer files are not direct edit targets.",
+      "closurePhase": "pre-gate"
     },
     {
       "id": "ATLAS-OBL-002",
@@ -155,7 +156,8 @@
       "timing": "before-handoff",
       "targetSource": "atlas.discoveredTests",
       "mutationPolicy": "review-and-update-if-expected-contract-changed",
-      "reason": "Tests that consume the changed source must be identified during planning rather than discovered after implementation."
+      "reason": "Tests that consume the changed source must be identified during planning rather than discovered after implementation.",
+      "closurePhase": "pre-gate"
     },
     {
       "id": "ATLAS-OBL-003",
@@ -167,7 +169,8 @@
       "timing": "same-change-if-description-became-stale",
       "targetSource": "atlas.fileReferenceIndex",
       "mutationPolicy": "review-required-update-if-stale",
-      "reason": "Repository descriptions and architecture/support notes that explicitly reference a changed file must be reviewed with the source change."
+      "reason": "Repository descriptions and architecture/support notes that explicitly reference a changed file must be reviewed with the source change.",
+      "closurePhase": "pre-gate"
     },
     {
       "id": "ATLAS-OBL-004",
@@ -186,7 +189,9 @@
         "artifacts/template-factory-quality/*.png"
       ],
       "mutationPolicy": "generated-evidence-only",
-      "reason": "Template/runtime presentation changes require fresh exact-head browser proof."
+      "reason": "Template/runtime presentation changes require fresh exact-head browser proof.",
+      "closurePhase": "specialist",
+      "closureEvidenceGuardId": "GUARD-TEMPLATE-FACTORY"
     },
     {
       "id": "ATLAS-OBL-005",
@@ -205,7 +210,8 @@
         "tests/visual-baselines/**"
       ],
       "mutationPolicy": "forbidden-before-explicit-product-owner-acceptance",
-      "reason": "Golden differences are expected evidence of a visual change; baselines may be promoted only after explicit Product Owner visual acceptance."
+      "reason": "Golden differences are expected evidence of a visual change; baselines may be promoted only after explicit Product Owner visual acceptance.",
+      "closurePhase": "human-approval"
     },
     {
       "id": "ATLAS-OBL-006",
@@ -225,7 +231,8 @@
         "AGENTS.md"
       ],
       "mutationPolicy": "review-required-update-if-stale",
-      "reason": "Changes to planning, authority, orchestration or quality contracts must not leave repository operating instructions describing the previous contract."
+      "reason": "Changes to planning, authority, orchestration or quality contracts must not leave repository operating instructions describing the previous contract.",
+      "closurePhase": "pre-gate"
     }
   ]
 }

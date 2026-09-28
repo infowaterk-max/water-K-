@@ -150,6 +150,8 @@ export function changeObligationsForAtlasPatterns(atlas,patterns){
     targetSource:rule.targetSource??null,
     targetPatterns:rule.targetPatterns??[],
     mutationPolicy:rule.mutationPolicy,
+    closurePhase:rule.closurePhase??null,
+    closureEvidenceGuardId:rule.closureEvidenceGuardId??null,
     reason:rule.reason,
   }));
   return {
