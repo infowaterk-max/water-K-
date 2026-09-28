@@ -191,6 +191,7 @@ jobs:
         run: npm run build
 
       - name: Generate release manifest
+        id: release-manifest
         env:
           DEPLOY_ENVIRONMENT: ci
           RELEASE_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
@@ -217,6 +218,7 @@ jobs:
           QUALITY_OUTCOME: ${{ steps.quality-tests.outcome }}
           TYPECHECK_OUTCOME: ${{ steps.typecheck.outcome }}
           BUILD_OUTCOME: ${{ steps.production-build.outcome }}
+          MANIFEST_OUTCOME: ${{ steps.release-manifest.outcome }}
           SHOPERATION_SOURCE_COMMIT: ${{ github.event.pull_request.head.sha || github.sha }}
           SHOPERATION_FAILURE_SOURCE: ci
           SHOPERATION_ENVIRONMENT: ci
@@ -228,7 +230,8 @@ jobs:
             EDIT_TIME_GUARD_FAILED=artifacts/shoperation-development-guard/edit-time-guard.json;
             INCREMENTAL_REPLAY_FAILED=artifacts/shoperation-development-guard/incremental-replay.json;
             RELEASE_RISK_BUDGET_FAILED=artifacts/release-risk-budget.json;
-            TEST_FAILED=artifacts/test-results.json
+            TEST_FAILED=artifacts/test-results.json;
+            RELEASE_MANIFEST_FAILED=artifacts/release-manifest-diagnostic.json
         run: |
           codes=""
           [ "$KNOWLEDGE_OUTCOME" != "failure" ] || codes="${codes}KNOWLEDGE_PREFLIGHT_FAILED;"
@@ -239,6 +242,7 @@ jobs:
           [ "$QUALITY_OUTCOME" != "failure" ] || codes="${codes}TEST_FAILED;"
           [ "$TYPECHECK_OUTCOME" != "failure" ] || codes="${codes}TYPECHECK_FAILED;"
           [ "$BUILD_OUTCOME" != "failure" ] || codes="${codes}BUILD_FAILED;"
+          [ "$MANIFEST_OUTCOME" != "failure" ] || codes="${codes}RELEASE_MANIFEST_FAILED;"
           SHOPERATION_GENERIC_FAILURES="$codes" node scripts/shoperation-failure-intake.mjs
 
       - name: Upload Shoperation failure intake
