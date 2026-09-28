@@ -38,9 +38,10 @@ export function augmentStorefrontDigitalCommercePreviewContext(input:{
     {id:'preview-product-manual',title:'Fizikai bemutatótermék – használati útmutató',description:'Termékhez kapcsolódó dokumentum, külön Product Documents authorityból.',meta:'Fizikai bemutatótermék · PDF',status:'available',href:'/storefront-template-preview?previewProductDocument=1'},
   ]};
   if(input.page.pageType==='product'){
-    digitalCommerce.productFulfillment={state:'ready',mode:'digital',copy:'Digitális termék: nincs fizikai szállítás, a hozzáférés az igazolt fizetés után aktiválódik.',documentCenterHref:'/fiokom/letoltesek'};
-    digitalCommerce.productDocuments=productDocuments;
-    digitalCommerce.productDownloads={state:'ready',mode:'digital',documents:productDocuments.documents,accountDownloadsHref:'/fiokom/letoltesek'};
+    const playroomGame=input.template?.manifest.templateKey==='gaming.playroom';
+    digitalCommerce.productFulfillment={state:'ready',mode:playroomGame?'physical':'digital',copy:playroomGame?'A termékhez csak releváns, tényleges dokumentum jelenjen meg.':'Digitális termék: nincs fizikai szállítás, a hozzáférés az igazolt fizetés után aktiválódik.',documentCenterHref:'/fiokom/letoltesek'};
+    digitalCommerce.productDocuments=playroomGame?{state:'ready',documents:[]}:productDocuments;
+    digitalCommerce.productDownloads=playroomGame?{state:'ready',mode:'physical',documents:[]}: {state:'ready',mode:'digital',documents:productDocuments.documents,accountDownloadsHref:'/fiokom/letoltesek'};
     digitalCommerce.b2bQuote={state:'ready',eligible:true,href:'/fiokom/ajanlatkeresek?variantId=preview-variant'};
   }
   if(input.page.pageType==='cart'){

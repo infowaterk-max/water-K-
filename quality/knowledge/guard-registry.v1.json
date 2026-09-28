@@ -1,12 +1,26 @@
 {
-  "contract": "shoporation.guard-registry.v1",
-  "version": 1,
+  "contract": "shoporation.guard-registry.v2",
+  "version": 2,
   "status": "canonical",
   "principles": {
     "oneBlockingResponsibilityOneOwner": true,
     "additiveGuardsRequireDistinctResponsibility": true,
     "evidenceMustNameProducer": true,
-    "informationalSignalsMustNotMasqueradeAsBlockingAuthorities": true
+    "informationalSignalsMustNotMasqueradeAsBlockingAuthorities": true,
+    "crossGuardContextRequired": true,
+    "laterGuardsMustConsumePriorBlockingEvidence": true,
+    "authorityRulesOverrideLocalEvidenceShape": true,
+    "singleControlPlaneOwnsBlockingOrder": true,
+    "specialistGuardsMustNotSelfOrchestratePeers": true,
+    "finalDecisionBelongsToControlPlane": true,
+    "externalExecutionPlanBelongsToControlPlane": true,
+    "authorityConflictDetectionIsGlobal": true,
+    "deterministicControlPlanePrecedesAi": true,
+    "humanAuthorityCannotBeOverridden": true,
+    "preGateImplementationSyncRequired": true,
+    "authorityPrecedenceFollowsConstitution": true,
+    "lowerAuthorityMayRefineButNotOverride": true,
+    "capabilityContractsMustDeclareHigherAuthorityBindings": true
   },
   "guards": [
     {
@@ -17,7 +31,63 @@
       "blocking": true,
       "responsibilityKey": "knowledge-integrity-and-change-impact",
       "producer": "scripts/shoperation-knowledge-preflight.mjs",
-      "evidence": "artifacts/shoperation-quality/knowledge-preflight.json"
+      "evidence": "artifacts/shoperation-quality/knowledge-preflight.json",
+      "consumesEvidenceFrom": [
+        "GUARD-INSTRUCTION-COMPLIANCE"
+      ],
+      "authoritySources": [
+        "quality/knowledge/shoperation-quality-knowledge.v1.json",
+        "src/lib/builder/template-factory/knowledge-registry.ts",
+        "quality/knowledge/domain-foundations.v1.json",
+        "artifacts/shoperation-development-guard/instruction-compliance.json"
+      ],
+      "execution": {
+        "mode": "control-plane-managed",
+        "command": "node",
+        "args": [
+          "scripts/shoperation-knowledge-preflight.mjs"
+        ],
+        "profiles": [
+          "pr",
+          "template-pr",
+          "post-merge",
+          "branch",
+          "full-replay",
+          "template-branch"
+        ]
+      }
+    },
+    {
+      "id": "GUARD-INSTRUCTION-COMPLIANCE",
+      "name": "Product Owner Instruction Compliance",
+      "authority": "quality-knowledge-system",
+      "lifecycle": "development",
+      "blocking": true,
+      "responsibilityKey": "instruction-to-evidence-closure",
+      "producer": "scripts/shoperation-instruction-compliance.mjs",
+      "evidence": "artifacts/shoperation-development-guard/instruction-compliance.json",
+      "consumesEvidenceFrom": [],
+      "authoritySources": [
+        "quality/knowledge/shoperation-quality-knowledge.v1.json",
+        "src/lib/builder/template-factory/knowledge-registry.ts",
+        "quality/knowledge/domain-foundations.v1.json",
+        "quality/development/active-plan.json"
+      ],
+      "execution": {
+        "mode": "control-plane-managed",
+        "command": "node",
+        "args": [
+          "scripts/shoperation-instruction-compliance.mjs",
+          "--check"
+        ],
+        "profiles": [
+          "pr",
+          "template-pr",
+          "post-merge",
+          "branch",
+          "template-branch"
+        ]
+      }
     },
     {
       "id": "GUARD-PLAN-BEFORE-CODE",
@@ -25,9 +95,30 @@
       "authority": "quality-knowledge-system",
       "lifecycle": "development",
       "blocking": true,
-      "responsibilityKey": "declared-change-scope",
+      "responsibilityKey": "declared-change-scope-and-pre-gate-b-sync",
       "producer": "scripts/shoperation-plan-before-code.mjs",
-      "evidence": "artifacts/shoperation-development-guard/plan-before-code.json"
+      "evidence": "artifacts/shoperation-development-guard/plan-before-code.json",
+      "consumesEvidenceFrom": [
+        "GUARD-INSTRUCTION-COMPLIANCE",
+        "GUARD-KNOWLEDGE-PREFLIGHT"
+      ],
+      "authoritySources": [
+        "artifacts/shoperation-development-guard/guard-context.json",
+        "artifacts/shoperation-quality/knowledge-preflight.json"
+      ],
+      "execution": {
+        "mode": "control-plane-managed",
+        "command": "node",
+        "args": [
+          "scripts/shoperation-plan-before-code.mjs",
+          "--check"
+        ],
+        "profiles": [
+          "pr",
+          "template-pr",
+          "template-branch"
+        ]
+      }
     },
     {
       "id": "GUARD-EDIT-TIME",
@@ -37,7 +128,29 @@
       "blocking": true,
       "responsibilityKey": "known-failure-edit-selection",
       "producer": "scripts/shoperation-edit-time-guard.mjs",
-      "evidence": "artifacts/shoperation-development-guard/edit-time-guard.json"
+      "evidence": "artifacts/shoperation-development-guard/edit-time-guard.json",
+      "consumesEvidenceFrom": [
+        "GUARD-INSTRUCTION-COMPLIANCE",
+        "GUARD-KNOWLEDGE-PREFLIGHT",
+        "GUARD-PLAN-BEFORE-CODE"
+      ],
+      "authoritySources": [
+        "artifacts/shoperation-development-guard/guard-context.json",
+        "quality/knowledge/development-guard-policy.v1.json"
+      ],
+      "execution": {
+        "mode": "control-plane-managed",
+        "command": "node",
+        "args": [
+          "scripts/shoperation-edit-time-guard.mjs",
+          "--check"
+        ],
+        "profiles": [
+          "pr",
+          "template-pr",
+          "template-branch"
+        ]
+      }
     },
     {
       "id": "GUARD-INCREMENTAL-REPLAY",
@@ -47,7 +160,33 @@
       "blocking": true,
       "responsibilityKey": "known-failure-regression-replay",
       "producer": "scripts/shoperation-incremental-replay.mjs",
-      "evidence": "artifacts/shoperation-development-guard/incremental-replay.json"
+      "evidence": "artifacts/shoperation-development-guard/incremental-replay.json",
+      "consumesEvidenceFrom": [
+        "GUARD-INSTRUCTION-COMPLIANCE",
+        "GUARD-KNOWLEDGE-PREFLIGHT",
+        "GUARD-PLAN-BEFORE-CODE",
+        "GUARD-EDIT-TIME"
+      ],
+      "authoritySources": [
+        "artifacts/shoperation-development-guard/guard-context.json",
+        "artifacts/shoperation-quality/knowledge-preflight.json"
+      ],
+      "execution": {
+        "mode": "control-plane-managed",
+        "command": "node",
+        "args": [
+          "scripts/shoperation-incremental-replay.mjs",
+          "--check"
+        ],
+        "profiles": [
+          "pr",
+          "template-pr",
+          "post-merge",
+          "branch",
+          "full-replay",
+          "template-branch"
+        ]
+      }
     },
     {
       "id": "GUARD-RELEASE-RISK",
@@ -57,7 +196,36 @@
       "blocking": true,
       "responsibilityKey": "release-coherence-risk-budget",
       "producer": "scripts/release-risk-budget.mjs",
-      "evidence": "artifacts/release-risk-budget.json"
+      "evidence": "artifacts/release-risk-budget.json",
+      "consumesEvidenceFrom": [
+        "GUARD-INSTRUCTION-COMPLIANCE",
+        "GUARD-KNOWLEDGE-PREFLIGHT",
+        "GUARD-PLAN-BEFORE-CODE",
+        "GUARD-EDIT-TIME",
+        "GUARD-INCREMENTAL-REPLAY"
+      ],
+      "authoritySources": [
+        "artifacts/shoperation-development-guard/guard-context.json",
+        "artifacts/shoperation-quality/change-impact.json",
+        "deploy/release-risk-policy.json"
+      ],
+      "execution": {
+        "mode": "external-specialist",
+        "profiles": [
+          "pr",
+          "post-merge"
+        ],
+        "command": "node",
+        "args": [
+          "scripts/release-risk-budget.mjs"
+        ]
+      },
+      "controlPlaneEvidence": "artifacts/shoperation-control-plane/external-guard-release-risk.json",
+      "reporting": {
+        "violationCode": "RELEASE_RISK_BUDGET_FAILED",
+        "classification": "POLICY_BLOCK",
+        "action": "Reduce the release scope; do not raise the configured risk thresholds."
+      }
     },
     {
       "id": "GUARD-CUSTOMER-BASELINE",
@@ -67,7 +235,27 @@
       "blocking": true,
       "responsibilityKey": "customer-schema-baseline",
       "producer": "scripts/customer-baseline-guard.mjs",
-      "evidence": "artifacts/customer-baseline/**"
+      "evidence": "artifacts/customer-baseline/**",
+      "execution": {
+        "mode": "external-specialist",
+        "profiles": [
+          "pr",
+          "post-merge",
+          "branch"
+        ],
+        "command": "npm",
+        "args": [
+          "run",
+          "db:customer:guard"
+        ]
+      },
+      "consumesEvidenceFrom": [
+        "GUARD-INCREMENTAL-REPLAY"
+      ],
+      "authoritySources": [
+        "artifacts/shoperation-control-plane/control-plane.json"
+      ],
+      "controlPlaneEvidence": "artifacts/shoperation-control-plane/external-guard-customer-baseline.json"
     },
     {
       "id": "GUARD-MARKET-READY",
@@ -77,7 +265,27 @@
       "blocking": true,
       "responsibilityKey": "market-ready-contract",
       "producer": "scripts/block24-market-ready-contract.mjs",
-      "evidence": "artifacts/block24-market-ready/**"
+      "evidence": "artifacts/block24-market-ready/**",
+      "execution": {
+        "mode": "external-specialist",
+        "profiles": [
+          "pr",
+          "post-merge",
+          "branch"
+        ],
+        "command": "npm",
+        "args": [
+          "run",
+          "market-ready:gate"
+        ]
+      },
+      "consumesEvidenceFrom": [
+        "GUARD-INCREMENTAL-REPLAY"
+      ],
+      "authoritySources": [
+        "artifacts/shoperation-control-plane/control-plane.json"
+      ],
+      "controlPlaneEvidence": "artifacts/shoperation-control-plane/external-guard-market-ready.json"
     },
     {
       "id": "GUARD-QUALITY-TESTS",
@@ -87,7 +295,27 @@
       "blocking": true,
       "responsibilityKey": "automated-regression-suite",
       "producer": "npm test",
-      "evidence": "test-result"
+      "evidence": "test-result",
+      "execution": {
+        "mode": "external-specialist",
+        "profiles": [
+          "pr",
+          "post-merge",
+          "branch",
+          "full-replay"
+        ],
+        "command": "npm",
+        "args": [
+          "test"
+        ]
+      },
+      "consumesEvidenceFrom": [
+        "GUARD-INCREMENTAL-REPLAY"
+      ],
+      "authoritySources": [
+        "artifacts/shoperation-control-plane/control-plane.json"
+      ],
+      "controlPlaneEvidence": "artifacts/shoperation-control-plane/external-guard-quality-tests.json"
     },
     {
       "id": "GUARD-TYPECHECK",
@@ -97,7 +325,30 @@
       "blocking": true,
       "responsibilityKey": "static-type-contract",
       "producer": "tsc --noEmit",
-      "evidence": "workflow-step"
+      "evidence": "workflow-step",
+      "execution": {
+        "mode": "external-specialist",
+        "profiles": [
+          "pr",
+          "post-merge",
+          "branch",
+          "full-replay",
+          "template-pr",
+          "template-branch"
+        ],
+        "command": "npm",
+        "args": [
+          "run",
+          "typecheck"
+        ]
+      },
+      "consumesEvidenceFrom": [
+        "GUARD-INCREMENTAL-REPLAY"
+      ],
+      "authoritySources": [
+        "artifacts/shoperation-control-plane/control-plane.json"
+      ],
+      "controlPlaneEvidence": "artifacts/shoperation-control-plane/external-guard-typecheck.json"
     },
     {
       "id": "GUARD-PRODUCTION-BUILD",
@@ -107,7 +358,29 @@
       "blocking": true,
       "responsibilityKey": "production-buildability",
       "producer": "next build",
-      "evidence": "workflow-step"
+      "evidence": "workflow-step",
+      "execution": {
+        "mode": "external-specialist",
+        "profiles": [
+          "pr",
+          "post-merge",
+          "branch",
+          "template-pr",
+          "template-branch"
+        ],
+        "command": "npm",
+        "args": [
+          "run",
+          "build"
+        ]
+      },
+      "consumesEvidenceFrom": [
+        "GUARD-TYPECHECK"
+      ],
+      "authoritySources": [
+        "artifacts/shoperation-control-plane/control-plane.json"
+      ],
+      "controlPlaneEvidence": "artifacts/shoperation-control-plane/external-guard-production-build.json"
     },
     {
       "id": "GUARD-TEMPLATE-FACTORY",
@@ -117,7 +390,44 @@
       "blocking": true,
       "responsibilityKey": "template-factory-browser-contract",
       "producer": ".github/workflows/template-factory-quality-gate.yml",
-      "evidence": "artifacts/template-factory-quality/**"
+      "evidence": "artifacts/template-factory-quality/**",
+      "execution": {
+        "mode": "external-specialist",
+        "profiles": [
+          "template-pr",
+          "template-branch"
+        ],
+        "command": "node",
+        "args": [
+          "scripts/template-factory-external-specialist.mjs"
+        ]
+      },
+      "consumesEvidenceFrom": [
+        "GUARD-INCREMENTAL-REPLAY",
+        "GUARD-TYPECHECK",
+        "GUARD-PRODUCTION-BUILD"
+      ],
+      "authoritySources": [
+        "artifacts/shoperation-control-plane/control-plane.json"
+      ],
+      "controlPlaneEvidence": "artifacts/shoperation-control-plane/external-guard-template-factory.json",
+      "diagnosticSources": [
+        {
+          "file": "artifacts/template-factory-quality/manifest.json",
+          "arrayPath": "errors",
+          "codeField": "error",
+          "contextFields": [
+            "case",
+            "pageType",
+            "viewport"
+          ]
+        }
+      ],
+      "reporting": {
+        "goldenOnlyClassification": "AWAITING_PRODUCT_OWNER_ACCEPTANCE",
+        "goldenOnlyAction": "Product Owner visual acceptance required; do not promote goldens.",
+        "goldenOnlyObligationId": "ATLAS-OBL-005"
+      }
     },
     {
       "id": "SIGNAL-ARCHITECTURE-CONFIDENCE",
@@ -127,7 +437,10 @@
       "blocking": false,
       "responsibilityKey": "architecture-confidence-signal",
       "producer": "scripts/lib/shoperation-architecture-health.mjs",
-      "evidence": "artifacts/shoperation-architecture/architecture-health.json"
+      "evidence": "artifacts/shoperation-architecture/architecture-health.json",
+      "execution": {
+        "mode": "external-specialist"
+      }
     },
     {
       "id": "SIGNAL-DEEP-ATLAS-SCAN",
@@ -137,7 +450,89 @@
       "blocking": false,
       "responsibilityKey": "scheduled-system-self-knowledge-observation",
       "producer": "scripts/shoperation-knowledge-deep-atlas-scan.mjs",
-      "evidence": "artifacts/shoperation-deep-atlas/deep-atlas-scan.json"
+      "evidence": "artifacts/shoperation-deep-atlas/deep-atlas-scan.json",
+      "execution": {
+        "mode": "external-specialist"
+      }
+    }
+  ],
+  "intelligencePolicy": {
+    "mode": "deterministic-control-plane-first",
+    "aiLayerStatus": "not-enabled-until-deterministic-consistency",
+    "advisoryRepairSuggestionsAllowed": true,
+    "selfHealing": {
+      "allowed": "pre-authorized-low-risk-reversible-only",
+      "explicitAuthorityRequiredFor": [
+        "production",
+        "migration",
+        "security",
+        "payment",
+        "auth",
+        "destructive"
+      ],
+      "productOwnerDecisionOverrideAllowed": false
+    }
+  },
+  "authorityConflictContracts": [
+    {
+      "id": "AUTH-CONFLICT-TF-AUTH-005-CHECKOUT",
+      "authorityRuleId": "TF-AUTH-005",
+      "owner": "platform",
+      "delegatedOwner": "template",
+      "instructionPattern": "\\bcheckout\\b|p[eé]nzt[aá]r|pageType.?checkout|/penztar|components/checkout",
+      "forbiddenTemplateEvidence": {
+        "pageType": "checkout",
+        "nodePattern": "form-preview|field-|shipping-methods|payment-collapsed|summary-collapsed",
+        "componentKeyPattern": "^(content|layout)\\."
+      },
+      "requiredAuthorityEvidence": [
+        {
+          "kind": "authority-source-contains",
+          "file": "src/app/penztar/page.tsx",
+          "value": "<CheckoutForm"
+        },
+        {
+          "kind": "authority-source-contains",
+          "file": "src/app/penztar/page.tsx",
+          "value": "<StorefrontCheckoutShell"
+        },
+        {
+          "kind": "authority-source-contains",
+          "file": "src/components/checkout/storefront-checkout-shell.tsx",
+          "value": "data-storefront-live-checkout=\"shared-e13\""
+        },
+        {
+          "kind": "authority-source-contains",
+          "file": "src/components/checkout/checkout-form.tsx",
+          "value": "data-checkout-ux=\"guided-accordion\""
+        }
+      ]
+    },
+    {
+      "id": "AUTH-CONFLICT-TF-AUTH-005-CART",
+      "authorityRuleId": "TF-AUTH-005",
+      "owner": "platform",
+      "delegatedOwner": "template",
+      "instructionPattern": "\\bcart\\b|kos[aá]r|pageType.?cart|components/cart",
+      "forbiddenTemplateEvidence": {
+        "pageType": "cart",
+        "nodePattern": "quantity|remove|coupon|submit|stepper|add-to-cart",
+        "componentKeyPattern": "^(content|layout)\\."
+      },
+      "requiredAuthorityEvidence": []
+    },
+    {
+      "id": "AUTH-CONFLICT-TF-AUTH-005-ACCOUNT",
+      "authorityRuleId": "TF-AUTH-005",
+      "owner": "platform",
+      "delegatedOwner": "template",
+      "instructionPattern": "\\baccount\\b|fi[oó]k|pageType.?account|components/account",
+      "forbiddenTemplateEvidence": {
+        "pageType": "account",
+        "nodePattern": "login|logout|profile|order|return|download",
+        "componentKeyPattern": "^(content|layout)\\."
+      },
+      "requiredAuthorityEvidence": []
     }
   ]
 }

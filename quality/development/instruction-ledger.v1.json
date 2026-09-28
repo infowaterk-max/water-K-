@@ -1,0 +1,843 @@
+{
+  "contract": "shoporation.instruction-compliance.v1",
+  "version": 1,
+  "taskId": "DEV-PLAYROOM-V20-PO-SECOND-PASS",
+  "source": "product-owner",
+  "status": "implementation-proven",
+  "instructions": [
+    {
+      "id": "PO-2026-09-27-BLOG-FILLER-REMOVAL",
+      "request": "A Blogbejegyzés és a Blog főoldal aljáról is kerüljenek ki a csak helykitöltésként megjelenő generikus ajánlócsempék.",
+      "state": "implemented",
+      "acceptanceCriteria": [
+        "Blog indexen nincs generikus topic-preset töltelékblokk.",
+        "Blogcikk alján nincs generikus aside/related blokk."
+      ],
+      "checks": [
+        {
+          "kind": "template-node-absent",
+          "file": "src/lib/builder/templates/gaming/playroom/v20/canonical-package.json",
+          "pageType": "blog-index",
+          "nodeId": "playroom-blog-index-topic-presets"
+        },
+        {
+          "kind": "template-node-absent",
+          "file": "src/lib/builder/templates/gaming/playroom/v20/canonical-package.json",
+          "pageType": "blog-article",
+          "nodeId": "playroom-blog-article-aside"
+        },
+        {
+          "kind": "template-node-absent",
+          "file": "src/lib/builder/templates/gaming/playroom/v20/canonical-package.json",
+          "pageType": "blog-article",
+          "nodeId": "playroom-blog-article-related"
+        }
+      ],
+      "regressionTests": [
+        "tests/storefront-playroom-v20-po-page-batch.test.ts",
+        "tests/product-owner-instruction-compliance.test.ts"
+      ]
+    },
+    {
+      "id": "PO-2026-09-27-CART-FROZEN",
+      "request": "A Kosár oldal pipa; maradjon elfogadva, ne nyissuk újra a mostani javításokkal.",
+      "state": "accepted-frozen",
+      "acceptanceCriteria": [
+        "A PO által elfogadott Kosár direkt kosárba ajánlása megmarad.",
+        "A mostani Product/Checkout/Search javítások nem írják át a Cart oldalt."
+      ],
+      "checks": [
+        {
+          "kind": "template-node-value",
+          "file": "src/lib/builder/templates/gaming/playroom/v20/canonical-package.json",
+          "pageType": "cart",
+          "nodeId": "playroom-cart-recommendations",
+          "path": "config.ctaAction",
+          "equals": "add-to-cart"
+        }
+      ],
+      "regressionTests": [
+        "tests/storefront-playroom-v20-po-page-batch.test.ts",
+        "tests/product-owner-instruction-compliance.test.ts"
+      ],
+      "authorityRuleIds": [
+        "TF-AUTH-005"
+      ]
+    },
+    {
+      "id": "PO-2026-09-27-CATALOG-PLATFORM-2X3",
+      "request": "Mobil Katalógusban a hat platform ne egy sorba zsúfolva jelenjen meg, hanem két sorban, 3×2 elrendezésben, olvasható feliratokkal.",
+      "state": "implemented",
+      "acceptanceCriteria": [
+        "Mobilon a platformrács három oszlopos, így hat elem két sorban jelenik meg.",
+        "Desktop/tablet elrendezés nem változik emiatt."
+      ],
+      "checks": [
+        {
+          "kind": "template-node-value",
+          "file": "src/lib/builder/templates/gaming/playroom/v20/canonical-package.json",
+          "pageType": "catalog",
+          "nodeId": "playroom-catalog-platform-navigation",
+          "path": "config.styleSlots.grid.mobile.gridTemplateColumns",
+          "equals": "repeat(3,minmax(0,1fr))"
+        }
+      ],
+      "regressionTests": [
+        "tests/storefront-playroom-v20-po-page-batch.test.ts",
+        "tests/product-owner-instruction-compliance.test.ts"
+      ]
+    },
+    {
+      "id": "PO-2026-09-27-CHECKOUT-TASK-FIRST",
+      "request": "A Pénztár ne legyen nagy biztonság/fizetés magyarázó blokkokból álló oldal; a rendelés befejezése legyen fókuszban, a bizalmi információ maradjon kompakt.",
+      "state": "implemented",
+      "acceptanceCriteria": [
+        "A nagy 'Egy aktív lépés. Nulla zaj.' magyarázó blokk eltűnik.",
+        "A template preview nem fabrikál kitölthetőnek látszó mezőket vagy saját checkout viselkedést.",
+        "A valódi /penztar útvonal a shared CheckoutForm + StorefrontCheckoutShell + E13 authorityt használja.",
+        "A rendelésösszegzés valós preview termékneveket és nem üres összegeket kap; a biztonsági szöveg kompakt marad."
+      ],
+      "checks": [
+        {
+          "kind": "template-node-absent",
+          "file": "src/lib/builder/templates/gaming/playroom/v20/canonical-package.json",
+          "pageType": "checkout",
+          "nodeId": "playroom-checkout-form-preview"
+        },
+        {
+          "kind": "template-node-absent",
+          "file": "src/lib/builder/templates/gaming/playroom/v20/canonical-package.json",
+          "pageType": "checkout",
+          "nodeId": "playroom-checkout-field-name"
+        },
+        {
+          "kind": "template-node-present",
+          "file": "src/lib/builder/templates/gaming/playroom/v20/canonical-package.json",
+          "pageType": "checkout",
+          "nodeId": "playroom-checkout-runtime-contract"
+        },
+        {
+          "kind": "template-node-value",
+          "file": "src/lib/builder/templates/gaming/playroom/v20/canonical-package.json",
+          "pageType": "checkout",
+          "nodeId": "playroom-checkout-summary-shell",
+          "path": "config.style.base.background",
+          "equals": "transparent"
+        },
+        {
+          "kind": "authority-source-contains",
+          "authorityRuleId": "TF-AUTH-005",
+          "file": "src/app/penztar/page.tsx",
+          "value": "<CheckoutForm"
+        },
+        {
+          "kind": "authority-source-contains",
+          "authorityRuleId": "TF-AUTH-005",
+          "file": "src/app/penztar/page.tsx",
+          "value": "<StorefrontCheckoutShell"
+        },
+        {
+          "kind": "authority-source-contains",
+          "authorityRuleId": "TF-AUTH-005",
+          "file": "src/components/checkout/storefront-checkout-shell.tsx",
+          "value": "data-storefront-live-checkout=\"shared-e13\""
+        },
+        {
+          "kind": "authority-source-contains",
+          "authorityRuleId": "TF-AUTH-005",
+          "file": "src/components/checkout/checkout-form.tsx",
+          "value": "data-checkout-ux=\"guided-accordion\""
+        },
+        {
+          "kind": "file-contains",
+          "file": "src/lib/builder/storefront-template-preview-canonical.ts",
+          "value": "if(typeof fallback==='string')return fallback.trim().length>0"
+        }
+      ],
+      "regressionTests": [
+        "tests/storefront-playroom-v20-po-page-batch.test.ts",
+        "tests/product-owner-instruction-compliance.test.ts",
+        "tests/storefront-playroom-v20-functional-acceptance.test.ts",
+        "tests/checkout-workflow-contracts.test.ts",
+        "tests/shoperation-guard-context.test.ts"
+      ],
+      "authorityRuleIds": [
+        "TF-AUTH-005",
+        "TF-AUTH-019",
+        "TF-AUTH-020"
+      ]
+    },
+    {
+      "id": "PO-2026-09-27-DUPLICATE-SHIPPING-PAYMENT-REMOVAL",
+      "request": "A duplikált Szállítás és fizetés oldal törlendő, mert külön Szállítás és külön Fizetés oldal már létezik.",
+      "state": "implemented",
+      "acceptanceCriteria": [
+        "A Playroom csomag nem tartalmaz /szallitas-es-fizetes navigációs vagy demo-content hivatkozást.",
+        "A külön Szállítás és Fizetés oldalak megmaradnak."
+      ],
+      "checks": [
+        {
+          "kind": "file-not-contains",
+          "file": "src/lib/builder/templates/gaming/playroom/v20/canonical-package.json",
+          "value": "/szallitas-es-fizetes"
+        },
+        {
+          "kind": "file-contains",
+          "file": "src/lib/builder/templates/gaming/playroom/v20/canonical-package.json",
+          "value": "/oldal/szallitas"
+        },
+        {
+          "kind": "file-contains",
+          "file": "src/lib/builder/templates/gaming/playroom/v20/canonical-package.json",
+          "value": "/oldal/fizetes"
+        }
+      ],
+      "regressionTests": [
+        "tests/playroom-v20-canonical-shell-content.test.ts",
+        "tests/storefront-playroom-v20-po-page-batch.test.ts",
+        "tests/product-owner-instruction-compliance.test.ts"
+      ]
+    },
+    {
+      "id": "PO-2026-09-27-INSTRUCTION-COMPLIANCE-GATE",
+      "request": "Legyen egységes ellenőrzési ökoszisztéma, amely nyilvántartja az utasításokat, authority-kat és korábbi gate-eredményeket, és egyetlen központi Control Plane-en keresztül dönti el, hogy a feladat ténylegesen elkészült-e.",
+      "state": "implemented",
+      "acceptanceCriteria": [
+        "Minden aktív utasításnak saját azonosítója, elfogadási feltétele, gépi ellenőrzése és regressziós tesztje van.",
+        "A gate-ek nem orchestrálhatják egymást önállóan; a futási sorrendet a központi Control Plane határozza meg.",
+        "A későbbi specialisták olvassák a közös authority/evidence contextet és az előző blocking eredményeket.",
+        "A workflow-k egyetlen Control Plane belépési pontot használnak a core gate-lánchoz.",
+        "A typecheck/build/browser és más külső specialisták eredménye visszakerül a Control Plane final reconciliationbe."
+      ],
+      "checks": [
+        {
+          "kind": "file-exists",
+          "file": "scripts/shoperation-control-plane.mjs"
+        },
+        {
+          "kind": "file-contains",
+          "file": "quality/knowledge/guard-registry.v1.json",
+          "value": "singleControlPlaneOwnsBlockingOrder"
+        },
+        {
+          "kind": "file-contains",
+          "file": "quality/knowledge/guard-registry.v1.json",
+          "value": "finalDecisionBelongsToControlPlane"
+        },
+        {
+          "kind": "file-not-contains",
+          "file": "scripts/shoperation-knowledge-preflight.mjs",
+          "value": "scripts/shoperation-instruction-compliance.mjs"
+        },
+        {
+          "kind": "file-contains",
+          "file": "AGENTS.md",
+          "value": "shoperation-control-plane.mjs --profile pr --through GUARD-INCREMENTAL-REPLAY --check"
+        },
+        {
+          "kind": "file-contains",
+          "file": ".github/workflows/ci.yml",
+          "value": "name: Shoperation Control Plane"
+        },
+        {
+          "kind": "file-contains",
+          "file": ".github/workflows/template-factory-quality-gate.yml",
+          "value": "--run-external --check"
+        },
+        {
+          "kind": "file-exists",
+          "file": "tests/shoperation-control-plane.test.ts"
+        }
+      ],
+      "regressionTests": [
+        "tests/product-owner-instruction-compliance.test.ts",
+        "tests/shoperation-control-plane.test.ts",
+        "tests/shoperation-guard-context.test.ts"
+      ]
+    },
+    {
+      "id": "PO-2026-09-27-LEGAL-READING-REMOVAL",
+      "request": "ÁSZF, adatvédelem, impresszum és minden jogi oldalon törölni kell a READING / Nyugodt felület csempét.",
+      "state": "implemented",
+      "acceptanceCriteria": [
+        "A shared legal Page Schema nem tartalmaz playroom-legal-reading-note csempét.",
+        "A jogi oldal közvetlenül a valódi jogi tartalomra fókuszál."
+      ],
+      "checks": [
+        {
+          "kind": "template-node-absent",
+          "file": "src/lib/builder/templates/gaming/playroom/v20/canonical-package.json",
+          "pageType": "legal",
+          "nodeId": "playroom-legal-reading-note"
+        }
+      ],
+      "regressionTests": [
+        "tests/storefront-playroom-v20-po-page-batch.test.ts",
+        "tests/product-owner-instruction-compliance.test.ts"
+      ]
+    },
+    {
+      "id": "PO-2026-09-27-PRODUCT-DESCRIPTION",
+      "request": "A gamer termékoldalon ne legyen használati útmutató; legyen tényleges, rövid termékismertető, amely nem talál ki történetet, hanem a játék műfaját ismerteti.",
+      "state": "implemented",
+      "acceptanceCriteria": [
+        "A Product previewban a TERMÉKISMERTETŐ cím alatt nem üres, műfaj-alapú leírás jelenik meg.",
+        "Az üres authored fallback nem írhatja felül a product.description preview értékét.",
+        "Playroom játékhoz nem fabrikálunk használati útmutatót."
+      ],
+      "checks": [
+        {
+          "kind": "template-node-value",
+          "file": "src/lib/builder/templates/gaming/playroom/v20/canonical-package.json",
+          "pageType": "product",
+          "nodeId": "playroom-product-info",
+          "path": "bindings.description.path",
+          "equals": "product.description"
+        },
+        {
+          "kind": "file-contains",
+          "file": "src/lib/builder/storefront-template-preview-canonical.ts",
+          "value": "if(typeof fallback==='string')return fallback.trim().length>0"
+        },
+        {
+          "kind": "file-contains",
+          "file": "src/lib/builder/storefront-template-preview-demo.ts",
+          "value": "A kooperatív játékokban a játékosok közös célért dolgoznak."
+        },
+        {
+          "kind": "file-contains",
+          "file": "src/lib/builder/storefront-digital-commerce-preview.ts",
+          "value": "mode:'physical',documents:[]"
+        }
+      ],
+      "regressionTests": [
+        "tests/storefront-playroom-v20-po-page-batch.test.ts",
+        "tests/product-owner-instruction-compliance.test.ts"
+      ]
+    },
+    {
+      "id": "PO-2026-09-27-SEARCH-INTELLIGENCE",
+      "request": "A Keresés oldal legyen találat-központú, szükség esetén szűrhető, és kapjon nem-AI intelligens keresést: javaslatok, szinonimák/platformnevek és elírás-tűrés.",
+      "state": "implemented",
+      "acceptanceCriteria": [
+        "A kereső nem csak pontos részszövegre talál.",
+        "Ismeri a tipikus platform/gamer szinonimákat.",
+        "Egy karakteres elírást és szomszédos betűcserét tolerál.",
+        "Gépeléshez autocomplete javaslatokat ad.",
+        "A Playroom Search oldalon a nagy statikus töltelékcsempék nincsenek jelen."
+      ],
+      "checks": [
+        {
+          "kind": "file-exists",
+          "file": "src/lib/storefront/search-intelligence.ts"
+        },
+        {
+          "kind": "file-contains",
+          "file": "src/components/catalog/shop-catalog.tsx",
+          "value": "smartStorefrontSearchMatch"
+        },
+        {
+          "kind": "file-contains",
+          "file": "src/components/catalog/shop-catalog.tsx",
+          "value": "shop-search-suggestions"
+        },
+        {
+          "kind": "template-node-absent",
+          "file": "src/lib/builder/templates/gaming/playroom/v20/canonical-package.json",
+          "pageType": "search",
+          "nodeId": "playroom-search-shortcuts"
+        },
+        {
+          "kind": "template-node-present",
+          "file": "src/lib/builder/templates/gaming/playroom/v20/canonical-package.json",
+          "pageType": "search",
+          "nodeId": "playroom-search-quick-chips"
+        }
+      ],
+      "regressionTests": [
+        "tests/storefront-search-intelligence.test.ts",
+        "tests/storefront-playroom-v20-po-page-batch.test.ts",
+        "tests/product-owner-instruction-compliance.test.ts"
+      ]
+    },
+    {
+      "id": "PO-2026-09-28-CONTROL-PLANE-CONSOLIDATION",
+      "request": "Fejezd be a Shoperation központi Control Plane / Cyber Mind konszolidációját: ne maradjon legacy sibling orchestration; egyetlen dependency graph legyen; az authority-conflict detection legyen általános; minden BLOCK azonnal közölje a konkrét okokat; a VIKI-jellegű döntési réteg maradjon determinisztikus és emberi/PO authority alatt; a checkout továbbra is a shared E13 engine legyen.",
+      "state": "implemented",
+      "acceptanceCriteria": [
+        "A managed és external specialisták dependency sorrendjét kizárólag a guard registry graphja határozza meg; a workflow felsorolás nem válhat második authorityvá.",
+        "Az authority-conflict ellenőrzés közös policy/evaluatorból működik és a TF-AUTH-005 checkout/cart/account ownershipot nem lokális checkout gate-ként kezeli.",
+        "A specialist runner dependency evidence nélkül vagy BLOCK predecessor mellett nem futtatja a specialistát.",
+        "A Control Plane azonnali riportja több konkrét okot, hibakódot, ismert authority/failure mappinget, érintett kontextust és következő lépést közöl, valamint megkülönbözteti a regressziót az approval-required golden difftől.",
+        "A /penztar valódi útvonala CheckoutForm + StorefrontCheckoutShell + shared E13 continuityt tart fenn; template csak presentationt birtokol.",
+        "Release Risk threshold és golden baseline nem változik."
+      ],
+      "checks": [
+        {
+          "kind": "file-contains",
+          "file": "quality/knowledge/guard-registry.v1.json",
+          "value": "authorityConflictDetectionIsGlobal"
+        },
+        {
+          "kind": "file-contains",
+          "file": "scripts/shoperation-control-plane.mjs",
+          "value": "topoSort"
+        },
+        {
+          "kind": "file-contains",
+          "file": "scripts/shoperation-specialist-runner.mjs",
+          "value": "CONTROL_PLANE_SPECIALIST_PREDECESSOR_NOT_PASS"
+        },
+        {
+          "kind": "file-contains",
+          "file": "scripts/lib/shoperation-control-plane-reporter.mjs",
+          "value": "REASON "
+        },
+        {
+          "kind": "file-contains",
+          "file": ".github/workflows/shoperation-knowledge-full-replay.yml",
+          "value": "--run-external --check"
+        },
+        {
+          "kind": "authority-source-contains",
+          "authorityRuleId": "TF-AUTH-005",
+          "file": "src/app/penztar/page.tsx",
+          "value": "<CheckoutForm"
+        },
+        {
+          "kind": "authority-source-contains",
+          "authorityRuleId": "TF-AUTH-005",
+          "file": "src/app/penztar/page.tsx",
+          "value": "<StorefrontCheckoutShell"
+        },
+        {
+          "kind": "authority-source-contains",
+          "authorityRuleId": "TF-AUTH-005",
+          "file": "src/components/checkout/storefront-checkout-shell.tsx",
+          "value": "data-storefront-live-checkout=\"shared-e13\""
+        },
+        {
+          "kind": "authority-source-contains",
+          "authorityRuleId": "TF-AUTH-005",
+          "file": "src/components/checkout/checkout-form.tsx",
+          "value": "data-checkout-ux=\"guided-accordion\""
+        },
+        {
+          "kind": "file-exists",
+          "file": "scripts/lib/shoperation-external-orchestrator.mjs"
+        },
+        {
+          "kind": "file-contains",
+          "file": ".github/workflows/ci.yml",
+          "value": "--run-external --check"
+        },
+        {
+          "kind": "file-contains",
+          "file": ".github/workflows/template-factory-quality-gate.yml",
+          "value": "--run-external --check"
+        }
+      ],
+      "regressionTests": [
+        "tests/shoperation-control-plane.test.ts",
+        "tests/shoperation-guard-context.test.ts",
+        "tests/checkout-workflow-contracts.test.ts",
+        "tests/product-owner-instruction-compliance.test.ts"
+      ],
+      "authorityRuleIds": [
+        "SQ-AUTH-022",
+        "TF-AUTH-005"
+      ]
+    },
+    {
+      "id": "PO-2026-09-28-AB-CHANGE-PLAN",
+      "request": "Tervezéskor ne csak az A közvetlenül szerkesztendő fájlokat keressük ki, hanem a B következményfájlokat és lifecycle-kötelezettségeket is: régi leírások/dokumentáció, reverse consumer, regressziós teszt, generated evidence, golden baseline és más függő artefaktok. A golden diff ne utólag derüljön ki hiányos tervként; a terv előre mondja meg, hogy új browser proof kell, de golden promotion csak explicit Product Owner vizuális elfogadás után lehetséges.",
+      "state": "implemented",
+      "acceptanceCriteria": [
+        "A Development Guard tervezéskor A/B Change Plan-t készít.",
+        "A jelenti a direct edit setet; B felsorolja a reverse consumereket, felfedezett teszteket, repository leírás/referencia fájlokat és policy lifecycle-kötelezettségeket.",
+        "A Plan Before Code blokkol, ha az A/B obligation scope nincs előre rögzítve vagy új obligation jelenik meg a tényleges diffben.",
+        "A protected golden baseline fájlok módosítása explicit Product Owner approval nélkül blokkol.",
+        "A Knowledge change-impact artifact ugyanazt az A/B tervet továbbviszi release evidence-ként.",
+        "Nincs új gate; az owner a meglévő Atlas + Plan Before Code + Knowledge specialist.",
+        "A B-listából a Development Guard külön plannedCompanionFilePatterns edit-scope-ot képez, így az előre felismert következményfájl módosítása nem utólagos scope-meglepetés."
+      ],
+      "checks": [
+        {
+          "kind": "file-contains",
+          "file": "quality/knowledge/codebase-atlas-policy.v2.json",
+          "value": "ATLAS-OBL-005"
+        },
+        {
+          "kind": "file-contains",
+          "file": "scripts/lib/shoperation-codebase-atlas-runtime.mjs",
+          "value": "shoporation.ab-change-plan.v1"
+        },
+        {
+          "kind": "file-contains",
+          "file": "scripts/shoperation-development-guard.mjs",
+          "value": "## A/B Change Plan"
+        },
+        {
+          "kind": "file-contains",
+          "file": "scripts/shoperation-plan-before-code.mjs",
+          "value": "DEV_PLAN_CHANGE_OBLIGATIONS_REQUIRED"
+        },
+        {
+          "kind": "file-contains",
+          "file": "scripts/shoperation-knowledge-preflight.mjs",
+          "value": "changeObligationsForAtlasPatterns"
+        },
+        {
+          "kind": "file-contains",
+          "file": "scripts/shoperation-development-guard.mjs",
+          "value": "plannedCompanionFilePatterns"
+        }
+      ],
+      "regressionTests": [
+        "tests/shoperation-codebase-atlas-v2.test.ts",
+        "tests/shoperation-development-guard.test.ts",
+        "tests/shoperation-change-impact-atlas.test.ts"
+      ]
+    },
+    {
+      "id": "PO-2026-09-28-IMPLEMENTATION-SYNC-B-CLOSURE",
+      "request": "Az A/B Change Plan ne csak előre jelezze a következményfájlokat: amikor az A kód módosul, a B consumer/test/dokumentáció szinkront ugyanabban az implementation menetben kötelezően le kell zárni még quality gate előtt. A végső Control Plane riport mutassa a B lifecycle lezárását; generated evidence specialist-owned, golden pedig Product Owner approval-protected marad.",
+      "state": "implemented",
+      "acceptanceCriteria": [
+        "A planning-only Plan Before Code nem blokkol az implementáció előtti UNRESOLVED B miatt.",
+        "Implementáció után Incremental Replay és external quality előtt a Plan Before Code blokkol minden unresolved pre-gate B obligationre.",
+        "Pre-gate B csak UPDATED + diff evidence vagy REVALIDATED_NO_CHANGE + konkrét note státusszal zárható.",
+        "Generated evidence specialist-owned; golden Product Owner approval-protected.",
+        "Nem jön létre új gate."
+      ],
+      "checks": [
+        {
+          "kind": "file-exists",
+          "file": "scripts/lib/shoperation-ab-implementation-sync.mjs"
+        },
+        {
+          "kind": "file-contains",
+          "file": "scripts/lib/shoperation-ab-implementation-sync.mjs",
+          "value": "DEV_PLAN_B_SYNC_UNRESOLVED"
+        },
+        {
+          "kind": "file-contains",
+          "file": "scripts/shoperation-control-plane.mjs",
+          "value": "changeObligationClosure"
+        },
+        {
+          "kind": "file-contains",
+          "file": "AGENTS.md",
+          "value": "B IMPLEMENTATION SYNC"
+        }
+      ],
+      "regressionTests": [
+        "tests/shoperation-development-guard.test.ts",
+        "tests/shoperation-control-plane.test.ts"
+      ]
+    },
+    {
+      "id": "PO-2026-09-28-AUTHORITY-HIERARCHY-CLOSURE",
+      "request": "Lezárás előtt ellenőrizd és rendezd a Shoperation központi agya és az alá épült ökoszisztéma authority-hierarchiáját, hogy két szabály ne tudjon egymással pingpongozni. Szükség esetén fokozd le, emeld fel vagy konszolidáld a rétegeket, de ne hozz létre új párhuzamos döntési rendszert.",
+      "state": "implemented",
+      "acceptanceCriteria": [
+        "Architecture Constitution marad a legfelső authority, alatta global/domain foundation, majd capability contract.",
+        "Template Factory authority explicit capability-contract, nem a globális/domain authority társa.",
+        "Template Factory authority egyetlen canonical machine-readable forrásból érkezik; nincs TypeScript regex source scraping.",
+        "Mind a 24 TF-AUTH szabály eljut a Guard Contextbe, beleértve TF-AUTH-018-at.",
+        "Minden capability rule deklarál higher authority és domain bindinget; scope specialization explicit boundaryt igényel.",
+        "Hierarchy hiba ugyanabban az Instruction Compliance/Control Plane láncban blokkol; nincs új gate."
+      ],
+      "checks": [
+        {
+          "kind": "file-exists",
+          "file": "quality/knowledge/template-factory-authority.v1.json"
+        },
+        {
+          "kind": "file-contains",
+          "file": "scripts/lib/shoperation-guard-context.mjs",
+          "value": "authorityHierarchyIssues"
+        },
+        {
+          "kind": "file-contains",
+          "file": "scripts/lib/shoperation-guard-context.mjs",
+          "value": "quality/knowledge/template-factory-authority.v1.json"
+        },
+        {
+          "kind": "file-contains",
+          "file": "quality/knowledge/guard-registry.v1.json",
+          "value": "lowerAuthorityMayRefineButNotOverride"
+        },
+        {
+          "kind": "file-contains",
+          "file": "tests/shoperation-guard-context.test.ts",
+          "value": "TF-AUTH-018"
+        }
+      ],
+      "regressionTests": [
+        "tests/shoperation-guard-context.test.ts",
+        "tests/architecture-constitution.test.ts",
+        "tests/shoperation-control-plane.test.ts"
+      ]
+    },
+    {
+      "id": "PO-2026-09-28-PLAYROOM-TABLET-ROOT-CAUSE",
+      "request": "A Playroom v20 auditban feltárt Tablet root cause célzott javítása: a hibásan 12 fölé futó canonical tablet grid-spans rendezése és a shared commerce header tablet navigációjának kompakt módra váltása. Desktop és Mobil vizuális/composition authority maradjon változatlan; ne legyen általános redesign, golden promotion vagy más template módosítás.",
+      "state": "implemented",
+      "acceptanceCriteria": [
+        "A shared commerce header Tablet nézetben kompakt disclosure navigációt használ, nem a teljes desktop navigációs sort zsúfolja be.",
+        "A Playroom érintett Tablet grid-sorai 12 oszlopra zárnak.",
+        "A Playroom Tablet footer tömör: brand 12, shop/world/about 4-4-4, social 12.",
+        "Desktop és Mobile responsive gridSpan értékek változatlanok maradnak.",
+        "Home elfogadott Desktop/Mobile composition nem változik.",
+        "Golden baseline nem módosul.",
+        "A Tablet row-budget hibaosztály durable Known Failure-ként bekerül a Shoperation Knowledge rendszerbe."
+      ],
+      "checks": [
+        {
+          "kind": "file-contains",
+          "file": "src/components/builder/storefront-commerce-header.tsx",
+          "value": "compactNavigation"
+        },
+        {
+          "kind": "file-contains",
+          "file": "tests/storefront-commerce-header.test.tsx",
+          "value": "uses compact disclosure navigation on tablet"
+        },
+        {
+          "kind": "file-contains",
+          "file": "tests/storefront-playroom-v20-functional-acceptance.test.ts",
+          "value": "closes Playroom tablet grid rows without changing desktop or mobile authority"
+        },
+        {
+          "kind": "template-node-value",
+          "file": "src/lib/builder/templates/gaming/playroom/v20/canonical-package.json",
+          "pageType": "catalog",
+          "nodeId": "playroom-catalog-hero-copy",
+          "path": "responsive.tablet.gridSpan",
+          "equals": 5
+        },
+        {
+          "kind": "template-node-value",
+          "file": "src/lib/builder/templates/gaming/playroom/v20/canonical-package.json",
+          "pageType": "catalog",
+          "nodeId": "playroom-catalog-hero-media",
+          "path": "responsive.tablet.gridSpan",
+          "equals": 7
+        },
+        {
+          "kind": "template-node-value",
+          "file": "src/lib/builder/templates/gaming/playroom/v20/canonical-package.json",
+          "pageType": "product",
+          "nodeId": "playroom-product-buybox",
+          "path": "responsive.tablet.gridSpan",
+          "equals": 5
+        },
+        {
+          "kind": "template-node-value",
+          "file": "src/lib/builder/templates/gaming/playroom/v20/canonical-package.json",
+          "pageType": "search",
+          "nodeId": "playroom-search-results-shell",
+          "path": "responsive.tablet.gridSpan",
+          "equals": 8
+        },
+        {
+          "kind": "template-node-value",
+          "file": "src/lib/builder/templates/gaming/playroom/v20/canonical-package.json",
+          "pageType": "catalog",
+          "nodeId": "playroom-footer-shop",
+          "path": "responsive.tablet.gridSpan",
+          "equals": 4
+        },
+        {
+          "kind": "file-contains",
+          "file": "quality/knowledge/shoperation-quality-knowledge.v1.json",
+          "value": "SQ-KF-026"
+        },
+        {
+          "kind": "file-contains",
+          "file": "quality/knowledge/development-guard-policy.v1.json",
+          "value": "SQ-KF-026"
+        }
+      ],
+      "regressionTests": [
+        "tests/storefront-commerce-header.test.tsx",
+        "tests/storefront-playroom-v20-functional-acceptance.test.ts",
+        "tests/product-owner-instruction-compliance.test.ts",
+        "tests/storefront-playroom-v20-post-release-polish.test.ts",
+        "tests/shoperation-quality-knowledge.test.ts",
+        "tests/shoperation-development-guard.test.ts"
+      ]
+    },
+    {
+      "id": "PO-2026-09-28-CHECKOUT-VISUAL-GOLDEN-CLOSEOUT",
+      "request": "A Playroom v20 pénztár vizuális lezárása: ellenőrizd és javítsd a még látható Tablet header brand truncation hibát, majd kizárólag a checkout Desktop/Tablet/Mobile jelenlegi elfogadott renderjeit emeld golden baseline-ná. Más oldal goldenje ne változzon.",
+      "state": "implemented",
+      "acceptanceCriteria": [
+        "Tablet checkout headerben a SHOPORATION márkanév teljesen olvasható, ellipsis nélkül.",
+        "Checkout Desktop és Mobile megjelenés a header-fix miatt nem regresszál.",
+        "A checkout mindhárom viewportja browser diagnostics szempontból tiszta.",
+        "Csak checkout-desktop.png, checkout-tablet.png és checkout-mobile.png golden módosul.",
+        "A golden promotion explicit Product Owner approvalra támaszkodik, nem általános 42-képes elfogadás.",
+        "Template Factory újrafutás után a checkout három GOLDEN_DIFF blokkja megszűnik.",
+        "A temporális checkout golden promotion trigger nem marad a végső workflow authorityban; a canonical promotion dispatch-only állapotba tér vissza."
+      ],
+      "checks": [
+        {
+          "kind": "file-contains",
+          "file": "src/lib/builder/storefront-template-runtime-normalization.ts",
+          "value": "playroomTabletHeaderColumns"
+        },
+        {
+          "kind": "file-contains",
+          "file": "tests/storefront-playroom-v20-functional-acceptance.test.ts",
+          "value": "preserves the full brand label on tablet"
+        },
+        {
+          "kind": "file-exists",
+          "file": "tests/visual-baselines/gaming.playroom/v20/checkout-desktop.png"
+        },
+        {
+          "kind": "file-exists",
+          "file": "tests/visual-baselines/gaming.playroom/v20/checkout-tablet.png"
+        },
+        {
+          "kind": "file-exists",
+          "file": "tests/visual-baselines/gaming.playroom/v20/checkout-mobile.png"
+        },
+        {
+          "kind": "authority-source-contains",
+          "authorityRuleId": "TF-AUTH-005",
+          "file": "src/app/penztar/page.tsx",
+          "value": "<CheckoutForm"
+        },
+        {
+          "kind": "authority-source-contains",
+          "authorityRuleId": "TF-AUTH-005",
+          "file": "src/app/penztar/page.tsx",
+          "value": "<StorefrontCheckoutShell"
+        },
+        {
+          "kind": "authority-source-contains",
+          "authorityRuleId": "TF-AUTH-005",
+          "file": "src/components/checkout/storefront-checkout-shell.tsx",
+          "value": "data-storefront-live-checkout=\"shared-e13\""
+        },
+        {
+          "kind": "authority-source-contains",
+          "authorityRuleId": "TF-AUTH-005",
+          "file": "src/components/checkout/checkout-form.tsx",
+          "value": "data-checkout-ux=\"guided-accordion\""
+        },
+        {
+          "kind": "file-contains",
+          "file": "scripts/promote-template-golden-baseline.mjs",
+          "value": "--page-types="
+        },
+        {
+          "kind": "file-contains",
+          "file": ".github/workflows/template-golden-baseline-promotion.yml",
+          "value": "commit_promoted_baseline"
+        },
+        {
+          "kind": "file-not-contains",
+          "file": ".github/workflows/template-golden-baseline-promotion.yml",
+          "value": "promote_checkout_exact_head_once"
+        }
+      ],
+      "regressionTests": [
+        "tests/storefront-commerce-header.test.tsx",
+        "tests/storefront-playroom-v20-functional-acceptance.test.ts",
+        "tests/storefront-template-quality-gate-v2.test.ts",
+        "tests/template-golden-baseline-promotion-policy.test.ts"
+      ],
+      "authorityRuleIds": [
+        "TF-AUTH-005",
+        "TF-AUTH-008",
+        "TF-AUTH-018"
+      ]
+    },
+    {
+      "id": "PO-2026-09-28-PLAYROOM-PREVIEW-DIRECT-ACCESS",
+      "request": "A Playroom exact-head Vercel preview ne a 'webshop még nem nyitott meg' /hamarosan képernyőre essen vissza. Ha a preview működéséhez külön aktiválás kell, rendezzük úgy, hogy a Product Owner ténylegesen meg tudja nyitni a webshopot és a pénztárt fölösleges üzemeltetői belépési kör nélkül.",
+      "state": "implemented",
+      "acceptanceCriteria": [
+        "Vercel Preview környezetben a stagingben egyetlen, draft gaming.playroom oldalakkal rendelkező pilot tenant automatikusan feloldható Product Owner böngészéshez.",
+        "A fallback kizárólag Preview környezetben működik; production unresolved tenant továbbra is fail-closed.",
+        "Ha nincs pontosan egy Playroom pilot jelölt, a resolver nem választ tenantet.",
+        "Az explicit aláírt pilot acceptance session elsőbbséget élvez az automatikus preview fallbackkel szemben.",
+        "A pilot tenant státusza nem változik active-ra, és Preview/pilot környezetből valódi rendelés továbbra sem küldhető.",
+        "Az exact-head preview /webaruhaz és /penztar útvonala üzemeltetői belépés nélkül elérhető, ha az egyetlen Playroom pilot feloldható."
+      ],
+      "checks": [
+        {
+          "kind": "file-contains",
+          "file": "src/lib/instances/access.ts",
+          "value": "resolveUniquePreviewPlayroomPilot"
+        },
+        {
+          "kind": "file-contains",
+          "file": "src/lib/instances/access.ts",
+          "value": "if(candidateIds.length!==1)return null"
+        },
+        {
+          "kind": "file-contains",
+          "file": "src/lib/instances/access.ts",
+          "value": "process.env.VERCEL_ENV!=='preview'"
+        },
+        {
+          "kind": "file-contains",
+          "file": "src/app/api/orders/route.ts",
+          "value": "instance.status!=='active'"
+        },
+        {
+          "kind": "file-contains",
+          "file": "tests/pilot-acceptance-access.test.ts",
+          "value": "opens anonymous Preview browsing only for one unambiguous Playroom pilot"
+        },
+        {
+          "kind": "file-contains",
+          "file": "tests/release-cross-cutting-contracts.test.ts",
+          "value": "Preview allows only one unambiguous Playroom pilot"
+        },
+        {
+          "kind": "authority-source-contains",
+          "authorityRuleId": "TF-AUTH-005",
+          "file": "src/app/penztar/page.tsx",
+          "value": "<CheckoutForm"
+        },
+        {
+          "kind": "authority-source-contains",
+          "authorityRuleId": "TF-AUTH-005",
+          "file": "src/app/penztar/page.tsx",
+          "value": "<StorefrontCheckoutShell"
+        },
+        {
+          "kind": "authority-source-contains",
+          "authorityRuleId": "TF-AUTH-005",
+          "file": "src/components/checkout/storefront-checkout-shell.tsx",
+          "value": "data-storefront-live-checkout=\"shared-e13\""
+        },
+        {
+          "kind": "authority-source-contains",
+          "authorityRuleId": "TF-AUTH-005",
+          "file": "src/components/checkout/checkout-form.tsx",
+          "value": "data-checkout-ux=\"guided-accordion\""
+        }
+      ],
+      "regressionTests": [
+        "tests/pilot-acceptance-access.test.ts",
+        "tests/release-cross-cutting-contracts.test.ts",
+        "tests/rollout-readiness.test.ts",
+        "tests/shoperation-development-guard.test.ts",
+        "tests/product-owner-instruction-compliance.test.ts"
+      ],
+      "authorityRuleIds": [
+        "SQ-AUTH-013",
+        "SQ-AUTH-004",
+        "SQ-AUTH-007",
+        "TF-AUTH-005"
+      ]
+    }
+  ]
+}

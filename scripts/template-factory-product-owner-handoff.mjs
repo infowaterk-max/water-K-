@@ -60,6 +60,43 @@ await mkdir(outputDir,{recursive:true});
 const errors=[];
 const checks={};
 let technicalProof=null;
+const controlPlanePath=(process.env.SHOPERATION_CONTROL_PLANE_REPORT??'artifacts/shoperation-control-plane/control-plane.json').trim();
+if(await exists(controlPlanePath)){
+  const controlPlane=JSON.parse(await readFile(controlPlanePath,'utf8'));
+  checks.controlPlaneFinalStage=controlPlane.stage==='final';
+  checks.controlPlaneDecision=controlPlane.decision;
+  checks.controlPlaneTaskId=controlPlane.taskId??null;
+  checks.controlPlaneSourceHead=controlPlane.sourceHead??null;
+  if(!checks.controlPlaneFinalStage)errors.push('CONTROL_PLANE_FINAL_STAGE_MISSING');
+  if(checks.controlPlaneDecision!=='PASS')errors.push('CONTROL_PLANE_NOT_PASS');
+  if(sourceCommit&&checks.controlPlaneSourceHead&&checks.controlPlaneSourceHead!==sourceCommit)errors.push('CONTROL_PLANE_SOURCE_COMMIT_MISMATCH');
+  const outcomeById=new Map((controlPlane.outcomes??[]).map(item=>[item.guardId,item]));
+  checks.controlPlaneSpecialists={};
+  for(const guardId of ['GUARD-INSTRUCTION-COMPLIANCE','GUARD-KNOWLEDGE-PREFLIGHT','GUARD-PLAN-BEFORE-CODE','GUARD-EDIT-TIME','GUARD-INCREMENTAL-REPLAY','GUARD-TYPECHECK','GUARD-PRODUCTION-BUILD','GUARD-TEMPLATE-FACTORY']){
+    const outcome=outcomeById.get(guardId);
+    checks.controlPlaneSpecialists[guardId]=outcome?.decision??null;
+    if(outcome?.decision!=='PASS')errors.push(`CONTROL_PLANE_SPECIALIST_NOT_PASS:${guardId}`);
+  }
+}else{
+  errors.push('CONTROL_PLANE_REPORT_MISSING');
+}
+const guardContextPath='artifacts/shoperation-development-guard/guard-context.json';
+if(await exists(guardContextPath)){
+  const guardContext=JSON.parse(await readFile(guardContextPath,'utf8'));
+  checks.crossGuardContextFound=true;
+  const requiredGuardIds=['GUARD-INSTRUCTION-COMPLIANCE','GUARD-KNOWLEDGE-PREFLIGHT','GUARD-PLAN-BEFORE-CODE','GUARD-EDIT-TIME','GUARD-INCREMENTAL-REPLAY'];
+  checks.crossGuardEvidence={};
+  for(const guardId of requiredGuardIds){
+    const evidence=(guardContext.evidence??[]).find(item=>item.id===guardId);
+    checks.crossGuardEvidence[guardId]={available:evidence?.available===true,decision:evidence?.decision??null};
+    if(!evidence?.available||evidence.decision!=='PASS')errors.push(`CROSS_GUARD_EVIDENCE_NOT_PASS:${guardId}`);
+  }
+  checks.sharedCommerceAuthorityPresent=(guardContext.authorities?.templateFactory??[]).some(rule=>rule.id==='TF-AUTH-005'&&rule.owner==='platform');
+  if(!checks.sharedCommerceAuthorityPresent)errors.push('SHARED_COMMERCE_AUTHORITY_CONTEXT_MISSING');
+}else{
+  checks.crossGuardContextFound=false;
+  errors.push('CROSS_GUARD_CONTEXT_MISSING');
+}
 if(await exists(qualityManifestPath)){
   technicalProof=JSON.parse(await readFile(qualityManifestPath,'utf8'));
   const acceptance=(technicalProof.acceptanceProofs??[]).find(item=>item.templateKey===templateKey&&item.templateVersion===templateVersion);

@@ -1,3 +1,4 @@
+import templateFactoryAuthority from '../../../../quality/knowledge/template-factory-authority.v1.json';
 export const TEMPLATE_FACTORY_KNOWLEDGE_VERSION='shoporation.template-factory-knowledge.v2' as const;
 
 export type TemplateFactoryRemediationPolicy='shared-root-cause-required'|'shared-invariant-preferred';
@@ -23,32 +24,7 @@ export type TemplateFactoryAuthorityRule={
   rule:string;
 };
 
-export const TEMPLATE_FACTORY_AUTHORITY_GRAPH:readonly TemplateFactoryAuthorityRule[]=Object.freeze([
-  {id:'TF-AUTH-001',subject:'authentication behavior',owner:'platform',delegates:[],rule:'Credentials, session, password recovery and authorization remain shared platform authority.'},
-  {id:'TF-AUTH-002',subject:'signed-out auth presentation',owner:'template',delegates:[],rule:'Every Factory recipe owns its account/auth public composition; category-foundation presentation may not leak.'},
-  {id:'TF-AUTH-003',subject:'Factory candidate package resolution',owner:'factory',delegates:[],rule:'Internal QA and Product Owner preview must resolve the same compiled Factory candidate identity.'},
-  {id:'TF-AUTH-004',subject:'header and footer composition',owner:'template',delegates:[],rule:'One canonical template-owned shell is compiled across all 14 pages.'},
-  {id:'TF-AUTH-005',subject:'commerce behavior',owner:'platform',delegates:['template'],rule:'Cart, checkout, account and binding behavior stay shared; templates own composition and visual presentation only.'},
-  {id:'TF-AUTH-006',subject:'responsive authority',owner:'platform',delegates:['template'],rule:'Responsive semantics and stable node identity are shared; template recipes may provide bounded responsive composition.'},
-  {id:'TF-AUTH-007',subject:'demo media and demo content',owner:'template',delegates:['factory'],rule:'Demo assets are presentation fillers, package-owned and non-authoritative; shopper-facing UI copy remains template-owned.'},
-  {id:'TF-AUTH-008',subject:'Product Owner handoff proof',owner:'quality-system',delegates:[],rule:'The handed-off URL must identify the same exact-head Factory candidate proven by QA.'},
-  {id:'TF-AUTH-009',subject:'browser proof stabilization',owner:'quality-system',delegates:[],rule:'Browser assertions and screenshots must observe the same settled DOM state; streamed UI must be awaited before proof is sampled.'},
-  {id:'TF-AUTH-010',subject:'Product Owner preview authorization context',owner:'platform',delegates:['quality-system'],rule:'Authenticated Factory Product Owner preview authorization is tenant-independent: access may be proven by platform-operator authority or an active owner/admin RBAC binding, but rendering capability comes from the compiled candidate and must not require an active webshop or subscription-plan context.'},
-  {id:'TF-AUTH-011',subject:'exact-head Factory browser acceptance coverage',owner:'quality-system',delegates:[],rule:'A Factory candidate may claim browserMatrixPassed only after every canonical page type has passed every canonical viewport on the exact source commit; a canary subset is diagnostic evidence only and can never satisfy full-matrix acceptance.'},
-  {id:'TF-AUTH-012',subject:'executable Product Owner journey proof',owner:'quality-system',delegates:[],rule:'Product Owner handoff is proven only by an executable CI path that resolves the exact-head deployed preview, consumes protected authentication material without exposing it, runs the journey verifier, and persists the resulting proof artifact; the existence of a handoff script alone is never proof.'},
-  {id:'TF-AUTH-013',subject:'Product Owner proof source-commit normalization',owner:'quality-system',delegates:[],rule:'Exact-head Product Owner proof must normalize the source commit from the PR head SHA for pull_request runs and from github.sha for push runs; merge-ref SHAs are never accepted as candidate provenance.'},
-  {id:'TF-AUTH-014',subject:'visible Product Owner auth interaction target',owner:'quality-system',delegates:['template'],rule:'Automated Product Owner authentication must interact only with the single visible active auth control set; hidden responsive duplicates are non-interactive evidence and ambiguous visible targets fail closed.'},
-  {id:'TF-AUTH-015',subject:'Product Owner failure evidence persistence',owner:'quality-system',delegates:[],rule:'After handoff preflight starts, expected and unexpected journey failures must persist a machine-readable proof artifact; a browser interaction exception may fail the gate but may not erase the failure evidence.'},
-  {id:'TF-AUTH-016',subject:'Vercel protected-preview automation boundary',owner:'quality-system',delegates:['platform'],rule:'Automated Product Owner proof against a protected Vercel preview must cross Deployment Protection with the dedicated automation bypass secret and must never treat a Vercel protection surface as Shoperation application output.'},
-  {id:'TF-AUTH-017',subject:'active Product Owner proof-stack execution coverage',owner:'quality-system',delegates:[],rule:'A protected Product Owner proof workflow must execute on every explicitly approved active leaf branch in its stacked proof chain; branch allowlists may narrow secret exposure but may not silently skip the current proof leaf.'},
-  {id:'TF-AUTH-018',subject:'complete storefront showroom inventory',owner:'quality-system',delegates:['factory','template'],rule:'A Factory candidate must own and demonstrate every canonical shopper-facing Page Schema. In authenticated owner/showroom preview the header main navigation must expose exactly the 14 canonical Page Schema destinations directly; no grouped substitute or extra destination may replace them. This owner-only navigation must not mutate the template\'s real shopper navigation or footer. A rendered 14-page matrix alone is not completeness proof.'},
-  {id:'TF-AUTH-019',subject:'shopper route identity convergence',owner:'platform',delegates:['quality-system','template'],rule:'Every entrypoint for the same shopper capability must converge on one canonical route authority and preserve the same template-aware presentation authority.'},
-  {id:'TF-AUTH-020',subject:'template presentation continuity',owner:'template',delegates:['platform'],rule:'Shared business logic may remain platform-owned, but no functional shopper route may fall back to legacy, generic, category-foundation or another template presentation.'},
-  {id:'TF-AUTH-021',subject:'authenticated account showroom completeness',owner:'platform',delegates:['template','quality-system'],rule:'A Product Owner-ready account demo must expose non-empty canonical account navigation and the required account capability surfaces; proving login alone is insufficient.'},
-  {id:'TF-AUTH-022',subject:'shared engine demo integration',owner:'platform',delegates:['template','quality-system'],rule:'Required shared engines must be visibly demonstrated through real storefront components, demo data and reachable interactions; registry or manifest presence alone is not acceptance evidence.'},
-  {id:'TF-AUTH-023',subject:'showroom demo content quality',owner:'template',delegates:['factory'],rule:'Product Owner-ready demos may use curated demo data but may not rely on instructional placeholders, generic fallbacks, empty shells or inherited foreign-template content.'},
-  {id:'TF-AUTH-024',subject:'Product Owner readiness beyond render matrix',owner:'quality-system',delegates:[],rule:'Product Owner readiness requires complete showroom inventory, route convergence, presentation continuity, account completeness and engine-demo proof in addition to the full browser matrix.'},
-]);
+export const TEMPLATE_FACTORY_AUTHORITY_GRAPH=Object.freeze(templateFactoryAuthority.rules) as unknown as readonly TemplateFactoryAuthorityRule[];
 
 export const TEMPLATE_FACTORY_KNOWN_FAILURES:readonly TemplateFactoryKnownFailure[]=Object.freeze([
   {
@@ -247,10 +223,10 @@ export const TEMPLATE_FACTORY_KNOWN_FAILURES:readonly TemplateFactoryKnownFailur
     id:'TF-KF-019',
     title:'Pretty demo page is disconnected from the real business route',
     symptom:'The preview contains a styled cart, checkout or content page, while the actual shopper action uses a different surface.',
-    rootCause:'Demo presentation and canonical business-route authority were accepted independently.',
-    occurrences:1,automatable:true,remediationPolicy:'shared-invariant-preferred',
-    invariantIds:['TF-AUTH-019','TF-AUTH-020'],
-    regressionTests:['tests/template-factory-storefront-contract.test.ts','tests/template-factory-procedural-memory.test.ts'],
+    rootCause:'Demo presentation and canonical business-route authority were accepted independently, or a local proof accepted a presentation replica without consuming shared behavior authority.',
+    occurrences:2,automatable:true,remediationPolicy:'shared-root-cause-required',
+    invariantIds:['TF-AUTH-019','TF-AUTH-020','TF-AUTH-005'],
+    regressionTests:['tests/template-factory-storefront-contract.test.ts','tests/template-factory-procedural-memory.test.ts','tests/shoperation-guard-context.test.ts'],
   },
   {
     id:'TF-KF-020',

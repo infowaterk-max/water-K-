@@ -1,6 +1,5 @@
 'use client';
 
-import Link from 'next/link';
 import {useEffect,useRef} from 'react';
 import {useCart} from '@/components/cart/cart-provider';
 
@@ -32,18 +31,24 @@ export function CheckoutAcceptanceSeeder({items}:{items:AcceptanceCartItem[]}){
     item.quantity===seed.quantity
   ));
 
+  const open=(href:'/penztar'|'/kosar')=>{
+    if(!ready)return;
+    window.location.assign(href);
+  };
+
   return <section className="card">
     <span className="badge">Preview-only mixed cart</span>
     <h2>Interaktív pénztár teszt</h2>
     <p className="muted">A tesztkosár 1 fizikai és 1 digitális acceptance terméket tartalmaz. Nem hoz létre rendelést, amíg a pénztár végleges küldését nem indítod el.</p>
     <div className="actions">
-      <Link
+      <button
         className="btn btnPrimary"
-        href={ready?'/penztar':'#'}
+        type="button"
+        disabled={!ready}
         aria-disabled={!ready}
-        onClick={event=>{if(!ready)event.preventDefault()}}
-      >{ready?'Pénztár megnyitása':'Tesztkosár előkészítése…'}</Link>
-      <Link className="btn btnGhost" href={ready?'/kosar':'#'} aria-disabled={!ready} onClick={event=>{if(!ready)event.preventDefault()}}>Kosár megnyitása</Link>
+        onClick={()=>open('/penztar')}
+      >{ready?'Pénztár megnyitása':'Tesztkosár előkészítése…'}</button>
+      <button className="btn btnGhost" type="button" disabled={!ready} aria-disabled={!ready} onClick={()=>open('/kosar')}>Kosár megnyitása</button>
     </div>
   </section>;
 }

@@ -49,15 +49,28 @@ describe('pilot acceptance guest access',()=>{
     expect(storefrontAccess).not.toContain("searchParams.get('pilot')");
   });
 
-  it('resolves the signed pilot tenant before preview auth fallback when the configured slug is absent from staging',()=>{
+  it('resolves signed pilot access before the bounded preview fallback and preview auth',()=>{
     const source=read('src/lib/instances/access.ts');
     const previewGuard=source.indexOf("if(process.env.VERCEL_ENV!=='preview')return null;");
     const acceptanceResolver=source.indexOf('const previewPilotAcceptanceInstanceId=await getPilotAcceptanceInstanceId();');
+    const playroomResolver=source.indexOf('const previewPlayroom=await resolveUniquePreviewPlayroomPilot(admin);',acceptanceResolver);
     const previewAuth=source.indexOf('const previewSupabase=await createClient();');
     expect(previewGuard).toBeGreaterThan(-1);
     expect(acceptanceResolver).toBeGreaterThan(previewGuard);
-    expect(previewAuth).toBeGreaterThan(acceptanceResolver);
+    expect(playroomResolver).toBeGreaterThan(acceptanceResolver);
+    expect(previewAuth).toBeGreaterThan(playroomResolver);
     expect(source).toContain(".eq('id',previewPilotAcceptanceInstanceId).eq('status','pilot')");
+  });
+
+  it('opens anonymous Preview browsing only for one unambiguous Playroom pilot and stays fail-closed on ambiguity',()=>{
+    const source=read('src/lib/instances/access.ts');
+    expect(source).toContain('async function resolveUniquePreviewPlayroomPilot');
+    expect(source).toContain("process.env.VERCEL_ENV!=='preview'");
+    expect(source).toContain(".from('storefront_pages')");
+    expect(source).toContain(".from('storefront_page_revisions')");
+    expect(source).toContain(".eq('template_key','gaming.playroom')");
+    expect(source).toContain('if(candidateIds.length!==1)return null');
+    expect(source).toContain(".eq('status','pilot')");
   });
 
   it('provides explicit merchant start and end controls without activating the webshop',()=>{

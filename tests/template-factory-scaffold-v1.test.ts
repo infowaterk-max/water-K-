@@ -172,8 +172,8 @@ describe('Template Factory Scaffold v1',()=>{
     expect(build.report.issues.map(issue=>issue.code)).toEqual(expect.arrayContaining([
       'FACTORY_MEDIA_FINALIZATION_REQUIRED',
       'SHOWROOM_NAVIGATION_INCOMPLETE',
-      'SHOWROOM_ACCOUNT_NAVIGATION_EMPTY',
       'SHOWROOM_ENGINE_DEMO_MISSING',
+      'FACTORY_INFORMATION_CONTENT_INCOMPLETE',
     ]));
     expect(()=>assertStorefrontTemplateFactoryProductOwnerReady(build)).toThrow(/TEMPLATE_FACTORY_PRODUCT_OWNER_NOT_READY/);
   });
@@ -184,8 +184,8 @@ describe('Template Factory Scaffold v1',()=>{
     expect(codes).toEqual(expect.arrayContaining([
       'SHOWROOM_NAVIGATION_INCOMPLETE',
       'SHOWROOM_ROUTE_PRESENTATION_UNMAPPED',
-      'SHOWROOM_ACCOUNT_NAVIGATION_EMPTY',
       'SHOWROOM_ENGINE_DEMO_MISSING',
+      'FACTORY_INFORMATION_CONTENT_INCOMPLETE',
     ]));
     expect(build.report.technicalReady).toBe(false);
     expect(build.report.productOwnerReady).toBe(false);

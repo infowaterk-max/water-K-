@@ -39,7 +39,10 @@ describe('Playroom v20 post-release UI polish',()=>{
   });
   it('hides the misleading Playroom desktop trigger while retaining mobile navigation',()=>{
     for(const current of PLAYROOM_V20_TEMPLATE_PACKAGE.pages){const header=find(current.sections,'playroom-account-header');if(header)expect(header.config.styleSlots.categoryTrigger.desktop.display).toBe('none');}
-    expect(read('src/components/builder/storefront-commerce-header.tsx')).toContain('data-storefront-mobile-menu="true"');
+    const headerSource=read('src/components/builder/storefront-commerce-header.tsx');
+    expect(headerSource).toContain('data-storefront-compact-menu="true"');
+    expect(headerSource).toContain("data-storefront-mobile-menu={mobile?'true':undefined}");
+    expect(headerSource).toContain("data-storefront-tablet-menu={tablet?'true':undefined}");
   });
   it('uses Playroom purchase and inventory colors on canonical and live commerce surfaces',()=>{
     const product=page('product');

@@ -90,6 +90,11 @@
       "match": "exact",
       "pattern": "PLACEHOLDER_CONTENT_CLEANUP_NOT_PROVEN",
       "failureId": "TF-KF-024"
+    },
+    {
+      "match": "exact",
+      "pattern": "PRODUCT_OWNER_INSTRUCTION_COMPLIANCE_FAILED",
+      "failureId": "SQ-KF-025"
     }
   ],
   "genericCodes": [
@@ -101,6 +106,9 @@
     "RELEASE_RISK_BUDGET_FAILED",
     "DEVELOPMENT_PLAN_FAILED",
     "EDIT_TIME_GUARD_FAILED",
-    "INCREMENTAL_REPLAY_FAILED"
+    "INCREMENTAL_REPLAY_FAILED",
+    "CONTROL_PLANE_FAILED",
+    "PRODUCT_OWNER_INSTRUCTION_COMPLIANCE_FAILED",
+    "MARKET_READY_CONTRACT_FAILED"
   ]
 }

@@ -7,6 +7,22 @@ import {validateStorefrontPageDocument} from '@/lib/builder/storefront-runtime';
 import {resolveStorefrontTemplateAccountPreviewRuntimePage,resolveStorefrontTemplatePreviewPackage} from '@/lib/builder/storefront-template-preview-auth';
 
 describe('storefront template preview runtime',()=>{
+  it('keeps showroom-ready demo content visibly marked outside Factory candidate proof',()=>{
+    const source=fs.readFileSync('src/app/storefront-template-preview/page.tsx','utf8');
+    expect(source).toContain("const demoNoticeRequired=Boolean(demoPayload)&&(!factoryCandidate||!isStorefrontShowroomReadyDemoContent(demoFixture))");
+    expect(source).toContain('demoNoticeRequired?applyStorefrontTemplateDemoNotice(contentBoundPage):contentBoundPage');
+  });
+
+
+
+  it('rejects bare deployment roots for Product Owner handoff and requires exact preview-route identity',()=>{
+    const handoff=fs.readFileSync('scripts/template-factory-product-owner-handoff.mjs','utf8');
+    expect(handoff).toContain("requested.pathname!=='/storefront-template-preview'||!exactIdentity(previewUrl)");
+    expect(handoff).toContain("throw new Error('PRODUCT_OWNER_PREVIEW_IDENTITY_INVALID')");
+    expect(handoff).toContain("current.pathname==='/storefront-template-preview'&&exactIdentity(current.toString())");
+    expect(handoff).toContain("if(!checks.finalIdentity)errors.push('FINAL_PREVIEW_IDENTITY_MISMATCH')");
+  });
+
   it('keeps accepted catalog resolution unchanged while factory resolution is explicit and fail-closed',()=>{
     const entry=STOREFRONT_TEMPLATE_CATALOG[0]!;
     const accepted=getStorefrontTemplatePackage(entry.templateKey,entry.templateVersion);

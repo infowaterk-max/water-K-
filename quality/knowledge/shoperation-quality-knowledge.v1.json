@@ -107,12 +107,23 @@
       "id": "SQ-AUTH-020",
       "subject": "semantically bounded development intent matching",
       "rule": "Development intent matchers must not let short provider or protocol tokens activate unrelated subsystems by substring. Short tokens require explicit lexical boundaries and regression examples for both positive and negative matches."
+    },
+    {
+      "id": "SQ-AUTH-021",
+      "subject": "instruction-to-evidence closure",
+      "rule": "Every explicit Product Owner or user instruction accepted for implementation must have a durable instruction identity, concrete acceptance criteria, machine-verifiable implementation evidence and regression authority before the task may be reported complete."
+    },
+    {
+      "id": "SQ-AUTH-022",
+      "subject": "quality-control-plane-orchestration",
+      "rule": "Blocking quality specialists may produce evidence, but they may not independently authorize handoff or release. The Shoperation Control Plane owns dependency ordering, cross-authority consistency and the final PASS/BLOCK decision."
     }
   ],
   "globalBaselineFailureIds": [
     "SQ-KF-013",
     "SQ-KF-014",
-    "SQ-KF-022"
+    "SQ-KF-022",
+    "SQ-KF-025"
   ],
   "knownFailures": [
     {
@@ -180,9 +191,9 @@
     {
       "id": "SQ-KF-003",
       "title": "Protected preview or deployment readiness mistaken for application health",
-      "symptom": "A READY deployment, redirect or protection surface is treated as proof that the Shoperation application route itself works.",
-      "rootCause": "Infrastructure reachability and application/runtime evidence were conflated.",
-      "occurrences": 2,
+      "symptom": "A READY deployment, redirect, protection surface or bare deployment-root URL is treated or handed to a Product Owner as proof that the intended Shoperation preview route itself works.",
+      "rootCause": "Infrastructure reachability and application-route identity were conflated, or the canonical Product Owner handoff verifier was bypassed during manual link delivery.",
+      "occurrences": 3,
       "automatable": true,
       "remediationPolicy": "shared-root-cause-required",
       "lifecycle": "active",
@@ -192,7 +203,8 @@
       ],
       "regressionTests": [
         "tests/rollout-readiness.test.ts",
-        "tests/template-factory-procedural-memory.test.ts"
+        "tests/template-factory-procedural-memory.test.ts",
+        "tests/storefront-template-preview-runtime.test.ts"
       ],
       "sourceRecords": [
         "docs/support/PLAYROOM_V20_PHASE4_BUILDER_ACCEPTANCE_INCIDENTS_2026-09-18.md"
@@ -202,7 +214,8 @@
         "subsystems": [
           "release-infrastructure",
           "environment-secret-contract",
-          "builder-template-system"
+          "builder-template-system",
+          "shared-storefront"
         ]
       }
     },
@@ -816,6 +829,68 @@
         "mode": "subsystem",
         "subsystems": [
           "quality-knowledge-system"
+        ]
+      }
+    },
+    {
+      "id": "SQ-KF-025",
+      "title": "Product Owner instruction marked complete without requirement-level proof",
+      "symptom": "Code changes and broad gates are green, but one or more explicitly requested Product Owner behaviors are missing, only partially implemented, or contradicted by the actual handoff surface.",
+      "rootCause": "Completion was evaluated from local changed-file or node-presence evidence without cross-reading shared authority rules and prior gate evidence, allowing requirement proof to contradict the platform authority it was meant to preserve.",
+      "occurrences": 2,
+      "automatable": true,
+      "remediationPolicy": "shared-root-cause-required",
+      "lifecycle": "active",
+      "invariantIds": [
+        "SQ-AUTH-021",
+        "SQ-AUTH-004",
+        "SQ-AUTH-007",
+        "SQ-AUTH-022"
+      ],
+      "regressionTests": [
+        "tests/product-owner-instruction-compliance.test.ts",
+        "tests/shoperation-guard-context.test.ts"
+      ],
+      "sourceRecords": [
+        "docs/support/PRODUCT_OWNER_INSTRUCTION_COMPLIANCE_2026-09-27.md"
+      ],
+      "applicability": {
+        "mode": "subsystem",
+        "subsystems": [
+          "quality-knowledge-system",
+          "builder-template-system",
+          "shared-storefront"
+        ]
+      }
+    },
+    {
+      "id": "SQ-KF-026",
+      "title": "Responsive grid siblings exceed the intended viewport column budget",
+      "symptom": "A Tablet or other isolated viewport renders narrow left-aligned content, unexpected wrapping or large empty bands even though the same composition is balanced on Desktop and Mobile.",
+      "rootCause": "Sibling grid spans were authored or heuristically derived independently for the viewport (for example desktop span plus one) without validating the intended row composition against the canonical 12-column grid.",
+      "occurrences": 1,
+      "automatable": true,
+      "remediationPolicy": "shared-invariant-preferred",
+      "lifecycle": "active",
+      "invariantIds": [
+        "SQ-AUTH-012",
+        "SQ-AUTH-007",
+        "SQ-AUTH-017"
+      ],
+      "regressionTests": [
+        "tests/storefront-playroom-v20-functional-acceptance.test.ts",
+        "tests/storefront-commerce-header.test.tsx",
+        "tests/shoperation-quality-knowledge.test.ts"
+      ],
+      "sourceRecords": [
+        "docs/support/PLAYROOM_V20_PHASE4_BUILDER_ACCEPTANCE_INCIDENTS_2026-09-18.md"
+      ],
+      "applicability": {
+        "mode": "subsystem",
+        "subsystems": [
+          "builder-template-system",
+          "shared-storefront",
+          "storefront-ui"
         ]
       }
     }

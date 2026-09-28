@@ -122,6 +122,53 @@ describe('Playroom v20 functional acceptance',()=>{
     expect(installAction).not.toContain('publishCurrentStorefrontPage');
   });
 
+  it('closes Playroom tablet grid rows without changing desktop or mobile authority',()=>{
+    const expectRow=(pageType:StorefrontPageDocument['pageType'],gridId:string,desktop:number[],tablet:number[],mobile:number[])=>{
+      const grid=findNode(playroomPage(pageType),gridId);
+      const children=grid.children??[];
+      expect(children.map(child=>child.responsive?.desktop?.gridSpan??12),gridId+' desktop').toEqual(desktop);
+      expect(children.map(child=>child.responsive?.tablet?.gridSpan??12),gridId+' tablet').toEqual(tablet);
+      expect(children.map(child=>child.responsive?.mobile?.gridSpan??12),gridId+' mobile').toEqual(mobile);
+    };
+    expectRow('catalog','playroom-catalog-hero-grid',[5,7],[5,7],[12,12]);
+    expectRow('catalog','playroom-catalog-hero-signals',[4,4,4],[4,4,4],[12,12,12]);
+    expectRow('catalog','playroom-catalog-products-layout',[3,9],[4,8],[12,12]);
+    expectRow('catalog','playroom-catalog-discovery-grid',[4,4,4],[4,4,4],[12,12,12]);
+    expectRow('product','playroom-product-grid',[7,5],[7,5],[12,12]);
+    expectRow('search','playroom-search-layout',[3,9],[4,8],[12,12]);
+    expectRow('account','playroom-account-hero-grid',[8,4],[8,4],[12,12]);
+    expectRow('account','playroom-account-navigation-grid',[4,4,4,4,4,4,4,4,4],[4,4,4,6,6,6,6,6,6],[12,12,12,12,12,12,12,12,12]);
+    expectRow('blog-index','playroom-blog-index-feature-grid',[8,4],[8,4],[12,12]);
+    expectRow('blog-index','playroom-blog-index-feature-signals',[4,4,4],[4,4,4],[12,12,12]);
+    expectRow('blog-article','playroom-blog-article-hero-grid',[7,5],[7,5],[12,12]);
+    expectRow('blog-article','playroom-blog-article-meta',[4,4,4],[4,4,4],[12,12,12]);
+    expectRow('faq','playroom-faq-hero-grid',[8,4],[8,4],[12,12]);
+    expectRow('faq','playroom-faq-help-grid',[8,4],[8,4],[12,12]);
+    for(const page of PLAYROOM_V20_TEMPLATE_PACKAGE.pages){
+      const footer=findNode(structuredClone(page),'playroom-footer-grid');
+      const children=footer.children??[];
+      expect(children.map(child=>child.responsive?.desktop?.gridSpan??12),page.pageType+' footer desktop').toEqual([2,2,2,2,4]);
+      expect(children.map(child=>child.responsive?.tablet?.gridSpan??12),page.pageType+' footer tablet').toEqual([12,4,4,4,12]);
+      expect(children.map(child=>child.responsive?.mobile?.gridSpan??12),page.pageType+' footer mobile').toEqual([12,6,6,6,6]);
+    }
+  });
+
+  it('preserves the full brand label on tablet without changing Desktop or Mobile header authority',()=>{
+    const checkout=playroomPage('checkout');
+    const header=collectNodes(checkout,node=>node.componentKey==='system.commerce-header')[0];
+    expect(header).toBeTruthy();
+    const topRow=(header?.config.styleSlots as Record<string,any>)?.topRow;
+    expect(topRow?.tablet?.gridTemplateColumns).toBe('minmax(11rem,.95fr) minmax(13rem,1.25fr) auto');
+    expect(topRow?.tablet?.gap).toBe('.75rem');
+    expect(topRow?.desktop?.gridTemplateColumns).toBeUndefined();
+    expect(topRow?.mobile?.gridTemplateColumns).toBeUndefined();
+    const normalized=normalizeStorefrontTemplateRuntimeComposition(checkout);
+    const normalizedHeader=collectNodes(normalized,node=>node.componentKey==='system.commerce-header')[0];
+    const normalizedTopRow=(normalizedHeader?.config.styleSlots as Record<string,any>)?.topRow;
+    expect(normalizedTopRow?.tablet?.gridTemplateColumns).toBe('minmax(11rem,.95fr) minmax(13rem,1.25fr) auto');
+    expect(normalizedTopRow?.tablet?.gap).toBe('.75rem');
+  });
+
   it('renders the public contact route through the active template Runtime before any legacy fallback',()=>{
     const contactRoute=read('src/app/kapcsolat/page.tsx');
     const runtimeSource=read('src/lib/builder/storefront-runtime-source.ts');
@@ -138,23 +185,25 @@ describe('Playroom v20 functional acceptance',()=>{
     expect(runtimeSource).toContain("resolveCurrentStorefrontPublicStaticRuntimePage('contact')");
   });
 
-  it('keeps Playroom contact copy Hungarian and the contact card groups balanced at tablet width',()=>{
+  it('keeps Playroom contact Hungarian and replaces redundant routing cards with company/map information',()=>{
     const contact=playroomPage('contact');
     const serialized=JSON.stringify(contact);
     expect(serialized).not.toContain('BE READY');
     expect(serialized).not.toContain('GENERAL');
     expect(findNode(contact,'playroom-contact-expect-kicker').config.text).toBe('KÉSZÜLJ FEL');
-    expect(findNode(contact,'playroom-contact-general-kicker').config.text).toBe('ÁLTALÁNOS');
     expect(findNode(contact,'playroom-contact-copy').responsive?.tablet?.gridSpan).toBe(8);
     expect(findNode(contact,'playroom-contact-expectations').responsive?.tablet?.gridSpan).toBe(4);
-    for(const id of ['playroom-contact-orders','playroom-contact-product','playroom-contact-general']){
-      expect(findNode(contact,id).responsive?.desktop?.gridSpan).toBe(4);
-      expect(findNode(contact,id).responsive?.tablet?.gridSpan).toBe(4);
-      expect(findNode(contact,id).responsive?.mobile?.gridSpan).toBe(12);
-    }
-    const tabletMarkup=render(contact,{},'tablet');
+    for(const id of ['playroom-contact-orders','playroom-contact-product','playroom-contact-general'])expect(()=>findNode(contact,id)).toThrow();
+    expect(findNode(contact,'playroom-contact-company').responsive?.desktop?.gridSpan).toBe(5);
+    expect(findNode(contact,'playroom-contact-company').responsive?.mobile?.gridSpan).toBe(12);
+    expect(findNode(contact,'playroom-contact-map').componentKey).toBe('support.location-map');
+    expect(findNode(contact,'playroom-contact-map').responsive?.desktop?.gridSpan).toBe(7);
+    expect(findNode(contact,'playroom-contact-map').responsive?.mobile?.gridSpan).toBe(12);
+    const tabletMarkup=render(contact,{brand:{name:'Playroom',contactAddress:'Budapest',supportPhone:'+36 1 555 0100',supportEmail:'hello@playroom.example',mapEmbedUrl:'https://www.google.com/maps?q=Budapest&output=embed',mapLinkUrl:'https://www.google.com/maps/search/?api=1&query=Budapest'}},'tablet');
     expect(tabletMarkup).toContain('KÉSZÜLJ FEL');
-    expect(tabletMarkup).toContain('ÁLTALÁNOS');
+    expect(tabletMarkup).toContain('Cégadatok');
+    expect(tabletMarkup).toContain('Budapest');
+    expect(tabletMarkup).toContain('data-storefront-support="location-map"');
   });
 
   it('keeps Contact Form on the canonical ticket authority with validation, dedupe, spam sink and accessible feedback',()=>{
@@ -372,19 +421,31 @@ describe('Playroom v20 functional acceptance',()=>{
     const featured=findNode(home,'playroomFeaturedGames');
     expect(featured.bindings?.products?.path).toBe('catalog.existingCommerceProducts');
     expect(featured.config.presentation).toBe('carousel');
+    expect(featured.config.mobileItemWidth).toBe('100%');
+    expect(featured.config.tabletItemsPerView).toBe(2);
+    expect(featured.config.desktopItemsPerView).toBe(2);
+    expect(featured.config.showMobileControls).toBe(true);
+    expect(featured.config.mobileSingleItem).toBe(true);
+    const previewProducts=[{
+      productId:'product-demo',variantId:'variant-demo',label:'Orbit Test · Alapváltozat',
+      href:'/termek/orbit-test',imageUrl:'/storefront/playroom/game-orbit.svg',
+      eligible:true,channelVisible:true,
+      price:{amountMinor:12990,currency:'HUF',display:'12 990 Ft',source:'shared-pricing-authority'},
+      stock:{available:true,statusLabel:'Készleten'},attributes:{},compatibility:{},
+    },{
+      productId:'product-demo-2',variantId:'variant-demo-2',label:'Neon Test · Alapváltozat',
+      href:'/termek/neon-test',imageUrl:'/storefront/playroom/game-rally.svg',
+      eligible:true,channelVisible:true,
+      price:{amountMinor:14990,currency:'HUF',display:'14 990 Ft',source:'shared-pricing-authority'},
+      stock:{available:true,statusLabel:'Készleten'},attributes:{},compatibility:{},
+    }];
     const html=renderToStaticMarkup(createElement(StorefrontRuntimeRenderer,{
       page:home,
       viewport:'desktop',
       bindingContext:{
         brand:{name:'Playroom',homeHref:'/'},
         navigation:{primary:[],footer:[]},
-        catalog:{existingCommerceProducts:[{
-          productId:'product-demo',variantId:'variant-demo',label:'Orbit Test · Alapváltozat',
-          href:'/termek/orbit-test',imageUrl:'/storefront/playroom/game-orbit.svg',
-          eligible:true,channelVisible:true,
-          price:{amountMinor:12990,currency:'HUF',display:'12 990 Ft',source:'shared-pricing-authority'},
-          stock:{available:true,statusLabel:'Készleten'},attributes:{},compatibility:{},
-        }]},
+        catalog:{existingCommerceProducts:previewProducts},
       },
       componentRegistry:registry,rendererRegistry,capability:alap,
     }));
@@ -393,8 +454,37 @@ describe('Playroom v20 functional acceptance',()=>{
     expect(html).toContain('Készleten');
     expect(html).toContain('/storefront/playroom/game-orbit.svg');
     expect(html).toContain('data-storefront-product-rail="true"');
+    expect(html).toContain('data-items-per-view="2"');
     expect(html).toContain('aria-label="Előző termékek"');
     expect(html).not.toContain('>Termék<');
+    const tabletHtml=renderToStaticMarkup(createElement(StorefrontRuntimeRenderer,{
+      page:home,
+      viewport:'tablet',
+      bindingContext:{brand:{name:'Playroom',homeHref:'/'},navigation:{primary:[],footer:[]},catalog:{existingCommerceProducts:previewProducts}},
+      componentRegistry:registry,rendererRegistry,capability:alap,
+    }));
+    expect(tabletHtml).toContain('data-items-per-view="2"');
+    const mobileHtml=renderToStaticMarkup(createElement(StorefrontRuntimeRenderer,{
+      page:home,
+      viewport:'mobile',
+      bindingContext:{brand:{name:'Playroom',homeHref:'/'},navigation:{primary:[],footer:[]},catalog:{existingCommerceProducts:previewProducts}},
+      componentRegistry:registry,rendererRegistry,capability:alap,
+    }));
+    expect(mobileHtml).toContain('data-mobile-item-width="100%"');
+    expect(mobileHtml).toContain('data-mobile-single-item="true"');
+    expect(mobileHtml).toContain('data-items-per-view="1"');
+    expect(mobileHtml).toContain('data-storefront-product-rail-controls="mobile"');
+    expect(mobileHtml.match(/data-storefront-product-rail-item="true"/g)).toHaveLength(2);
+    expect(mobileHtml).toContain('data-active-index="0"');
+    expect(mobileHtml).toContain('overflow-x:auto');
+    expect(mobileHtml).toContain('scroll-snap-type:x mandatory');
+    expect(mobileHtml).toContain('touch-action:pan-x');
+    expect(mobileHtml).not.toContain('touch-action:pan-y');
+    expect(mobileHtml).toContain('Orbit Test · Alapváltozat');
+    expect(mobileHtml).toContain('Neon Test · Alapváltozat');
+    expect(mobileHtml).toContain('aria-label="Előző termék"');
+    expect(mobileHtml).toContain('aria-label="Következő termék"');
+    expect(mobileHtml).toContain('1 / 2');
     const scene=read('src/lib/builder/storefront-interactive-scene-server.ts');
     expect(scene).toContain("from('product_media').select('id,storage_path')");
     expect(scene).toContain('imageUrl,');
@@ -405,6 +495,19 @@ describe('Playroom v20 functional acceptance',()=>{
     const titles=['Orbit Breakers','Neon Rally','Midnight Quest','Cyber Arena','Party Rift','Starforge','Turbo Circuit','Couch Crew','Mech Tactics','Pixel Picnic','Void Runners','Kingdom Grid'];
     for(const title of titles)expect(preview).toContain(`name:'${title}'`);
     expect(preview).toContain("const limit=page.pageType==='home'?12:previewProductLimit(page)");
+    expect(preview).toContain("href:\`/termek/\${slug}\`");
+    expect(preview).toContain("unitPrice:price");
+    expect(preview).toContain("availableQuantity:stock");
+    expect(preview).toContain("playroomFixtureProducts(template)");
+    expect(preview).toContain("selectedSlug");
+    expect(preview).not.toContain("name:product.name,\\n      href:'#preview-demo'");
+    const commerce=read('src/components/builder/storefront-commerce.tsx');
+    const quickAdd=read('src/components/builder/storefront-product-card-add-to-cart-client.tsx');
+    expect(commerce).toContain("text(config.ctaAction)==='add-to-cart'");
+    expect(commerce).toContain('StorefrontProductCardAddToCartClient');
+    expect(quickAdd).toContain('data-storefront-product-card-add-to-cart="true"');
+    expect(quickAdd).toContain("add({productId,variantId,slug,name,unitPrice,quantity");
+    expect(quickAdd).toContain("track('add_to_cart'");
     const installable=(PLAYROOM_V20_TEMPLATE_PACKAGE.demoFixtures??[]).filter(item=>item.entityType==='product'&&item.payload.installAsDemoProduct===true);
     expect(installable).toHaveLength(12);
     expect(installable.map(item=>item.payload.name)).toEqual(titles);
@@ -478,7 +581,9 @@ describe('Playroom v20 functional acceptance',()=>{
     expect(seeder).toContain("const ready=hydrated&&");
     expect(seeder).toContain("replace(items)");
     expect(seeder).toContain("setCouponCode('')");
-    expect(seeder).toContain("href={ready?'/penztar':'#'}");
+    expect(seeder).toContain("window.location.assign(href)");
+    expect(seeder).toContain("onClick={()=>open('/penztar')}");
+    expect(seeder).toContain("disabled={!ready}");
     expect(seeder).not.toContain("localStorage.setItem('shoperation-cart-v4'");
   });
 
@@ -814,22 +919,20 @@ describe('Playroom v20 functional acceptance',()=>{
     expect(migrated.sections.some(section=>section.id==='playroom-product-digital-commerce')).toBe(false);
     expect(migratedFacts.children?.map(item=>item.id)).toEqual([
       'playroom-product-facts-specs',
-      'playroom-product-facts-compatibility',
       'playroom-product-downloads',
     ]);
   });
 
-  it('keeps public documents as the third Product Facts tile while purchased digital files stay in Fiókom → Letöltéseim',()=>{
+  it('keeps public documents beside concise Product Facts while purchased digital files stay in Fiókom → Letöltéseim',()=>{
     const product=playroomPage('product');
     const factsGrid=findNode(product,'playroom-product-facts-grid');
     expect(factsGrid.children?.map(item=>item.id)).toEqual([
       'playroom-product-facts-specs',
-      'playroom-product-facts-compatibility',
       'playroom-product-downloads',
     ]);
-    expect(factsGrid.children?.map(item=>item.responsive?.desktop?.gridSpan)).toEqual([4,4,4]);
-    expect(factsGrid.children?.map(item=>item.responsive?.tablet?.gridSpan)).toEqual([4,4,4]);
-    expect(factsGrid.children?.map(item=>item.responsive?.mobile?.gridSpan)).toEqual([12,12,12]);
+    expect(factsGrid.children?.map(item=>item.responsive?.desktop?.gridSpan)).toEqual([12,6]);
+    expect(factsGrid.children?.map(item=>item.responsive?.tablet?.gridSpan)).toEqual([12,6]);
+    expect(factsGrid.children?.map(item=>item.responsive?.mobile?.gridSpan)).toEqual([12,12]);
     expect(product.sections.some(section=>section.id==='playroom-product-digital-commerce')).toBe(false);
 
     const withDownloads=render(product,{commerce:{digitalCommerce:{

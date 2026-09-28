@@ -8,7 +8,7 @@ on:
         required: true
         type: string
       source_ref:
-        description: Exact source ref whose evidence is being promoted
+        description: Exact source branch/ref whose evidence is being promoted
         required: true
         type: string
       template_key:
@@ -23,15 +23,35 @@ on:
         description: Repository baseline directory
         required: true
         type: string
+      page_types:
+        description: all or comma-separated canonical page types
+        required: true
+        type: string
+        default: all
+      viewports:
+        description: all or comma-separated canonical viewports
+        required: true
+        type: string
+        default: all
       allow_accepted_golden_drift:
-        description: Allow only human-accepted GOLDEN_DIFF / missing-baseline errors; all non-golden failures remain blocking
+        description: Allow only human-accepted GOLDEN_DIFF / missing-baseline errors inside the selected scope
         required: true
         type: boolean
         default: false
+      commit_promoted_baseline:
+        description: Commit the scoped promoted baseline back to target_branch
+        required: true
+        type: boolean
+        default: false
+      target_branch:
+        description: Existing branch to update when commit_promoted_baseline is true
+        required: false
+        type: string
+        default: ''
 
 permissions:
   actions: read
-  contents: read
+  contents: write
 
 jobs:
   promote:
@@ -41,6 +61,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           ref: ${{ inputs.source_ref }}
+          fetch-depth: 1
 
       - name: Download exact quality evidence
         uses: actions/download-artifact@v4
@@ -56,7 +77,7 @@ jobs:
         run: |
           test "$(git rev-parse HEAD)" = "$(node -p "JSON.parse(require('fs').readFileSync('artifacts/promotable-quality-evidence/manifest.json','utf8')).sourceCommit")"
 
-      - name: Promote complete 14x3 matrix
+      - name: Promote selected golden scope
         shell: bash
         run: |
           extra=()
@@ -68,7 +89,56 @@ jobs:
             "${{ inputs.template_key }}" \
             "${{ inputs.template_version }}" \
             "${{ inputs.baseline_directory }}" \
-            "${extra[@]}"
+            "${extra[@]}" \
+            "--page-types=${{ inputs.page_types }}" \
+            "--viewports=${{ inputs.viewports }}"
+
+      - name: Validate scoped repository mutation
+        if: ${{ inputs.commit_promoted_baseline }}
+        env:
+          BASELINE_DIRECTORY: ${{ inputs.baseline_directory }}
+          PAGE_TYPES: ${{ inputs.page_types }}
+          VIEWPORTS: ${{ inputs.viewports }}
+          TARGET_BRANCH: ${{ inputs.target_branch }}
+        shell: bash
+        run: |
+          test -n "$TARGET_BRANCH"
+          remote_head="$(git ls-remote origin "refs/heads/$TARGET_BRANCH" | cut -f1)"
+          test -n "$remote_head"
+          test "$remote_head" = "$(git rev-parse HEAD)"
+          node <<'NODE' > /tmp/expected-golden-paths.txt
+          const pageTypesAll=['home','catalog','product','cart','checkout','account','search','content','blog-index','blog-article','faq','contact','legal','not-found'];
+          const viewportsAll=['desktop','tablet','mobile'];
+          const parse=(raw,all)=>raw==='all'?all:raw.split(',').map(x=>x.trim()).filter(Boolean);
+          for(const page of parse(process.env.PAGE_TYPES,pageTypesAll)){
+            for(const viewport of parse(process.env.VIEWPORTS,viewportsAll)){
+              console.log(`${process.env.BASELINE_DIRECTORY}/${page}-${viewport}.png`);
+            }
+          }
+          NODE
+          git diff --name-only -- "$BASELINE_DIRECTORY" | sort > /tmp/actual-golden-paths.txt
+          test -s /tmp/actual-golden-paths.txt
+          if comm -23 /tmp/actual-golden-paths.txt <(sort /tmp/expected-golden-paths.txt) | grep -q .; then
+            echo "Unexpected golden mutation outside selected scope" >&2
+            comm -23 /tmp/actual-golden-paths.txt <(sort /tmp/expected-golden-paths.txt) >&2
+            exit 1
+          fi
+
+      - name: Commit scoped golden baseline
+        if: ${{ inputs.commit_promoted_baseline }}
+        env:
+          BASELINE_DIRECTORY: ${{ inputs.baseline_directory }}
+          TARGET_BRANCH: ${{ inputs.target_branch }}
+        shell: bash
+        run: |
+          while IFS= read -r file; do
+            git add -- "$file"
+          done < /tmp/expected-golden-paths.txt
+          test -n "$(git diff --cached --name-only)"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "Golden: promote scoped ${{ inputs.template_key }} baseline"
+          git push origin "HEAD:refs/heads/$TARGET_BRANCH"
 
       - name: Upload promotable golden baseline
         uses: actions/upload-artifact@v4

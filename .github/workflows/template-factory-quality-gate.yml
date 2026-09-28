@@ -174,30 +174,16 @@ jobs:
       - name: Install locked application dependencies
         run: npm ci --no-audit --no-fund
 
-      - name: Knowledge Before Build preflight
-        id: knowledge
+      - name: Shoperation Control Plane
+        id: control-plane
         env:
+          SHOPERATION_CONTROL_PLANE_PROFILE: ${{ github.event_name == 'pull_request' && 'template-pr' || 'template-branch' }}
           QUALITY_BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
           QUALITY_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: node scripts/shoperation-knowledge-preflight.mjs
-
-      - name: Plan Before Code Gate
-        if: github.event_name == 'pull_request'
-        id: development-plan
-        env:
           DEVELOPMENT_BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
           DEVELOPMENT_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
-        run: node scripts/shoperation-plan-before-code.mjs --check
-
-      - name: Edit-Time Known Failure Guard
-        if: github.event_name == 'pull_request'
-        id: edit-time-guard
-        run: node scripts/shoperation-edit-time-guard.mjs --check
-
-      - name: Incremental Known Failure Replay
-        id: incremental-replay
-        run: node scripts/shoperation-incremental-replay.mjs --check
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: node scripts/shoperation-control-plane.mjs --profile "$SHOPERATION_CONTROL_PLANE_PROFILE" --check
 
       - name: Upload Development Guard evidence
         if: always()
@@ -205,6 +191,15 @@ jobs:
         with:
           name: shoperation-development-guard-${{ github.event.pull_request.head.sha || github.sha }}
           path: artifacts/shoperation-development-guard/**
+          if-no-files-found: warn
+          retention-days: 30
+
+      - name: Upload Shoperation Control Plane evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: shoperation-control-plane-${{ github.event.pull_request.head.sha || github.sha }}
+          path: artifacts/shoperation-control-plane/**
           if-no-files-found: warn
           retention-days: 30
 
@@ -223,81 +218,28 @@ jobs:
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
 
-      - name: Run Template Factory contract regressions
-        run: >
-          npx vitest run
-          tests/storefront-template-quality-gate-v2.test.ts
-          tests/template-factory-scaffold-v1.test.ts
-          tests/template-factory-loot-vault-v2.test.ts
-          tests/storefront-template-factory-workflow-coverage.test.ts
-          tests/storefront-responsive-isolation.test.ts
-          tests/storefront-visual-style-capabilities.test.ts
-          tests/storefront-fidelity-typography.test.ts
-          tests/storefront-visual-builder-fidelity-operations.test.ts
-          tests/storefront-fidelity-layout.test.ts
-          tests/storefront-responsive-layout-depth.test.ts
-          tests/visual-builder-workspace-ui.test.ts
-          tests/roadmap-catchup-foundation.test.ts
-          tests/storefront-runtime-backbone.test.tsx
-          tests/special-commerce-wave6-cross-engine-acceptance.test.ts
-          tests/special-commerce-wave7-template2-adoption.test.ts
-          tests/storefront-targeted-page-change.test.ts
-          tests/pilot-acceptance-access.test.ts
-          tests/storefront-real-route-template-authority.test.ts
-          tests/storefront-product-route-authority.test.ts
-          tests/storefront-preview-demo-content-routing.test.ts
-          tests/storefront-form-wizard-engine.test.ts
-          tests/storefront-auth-surface.test.ts
-          tests/storefront-auth-intent-checkout.test.ts
-          tests/storefront-auth-return-target.test.ts
-          tests/storefront-guest-order-claim.test.ts
-          tests/storefront-shared-commerce-account-hardening.test.ts
-          tests/storefront-public-information-routes.test.ts
-          tests/storefront-catalog-discovery-route.test.ts
-          tests/customer-account-runtime-hardening.test.ts
-          tests/storefront-system-surfaces.test.ts
-          tests/storefront-social-settings.test.ts
-          tests/storefront-template-preview-runtime.test.ts
-          tests/storefront-visual-builder-fidelity-engine.test.ts
-          tests/playroom-v20-canonical-shell-content.test.ts
-          tests/storefront-playroom-v20-canonical-authority.test.ts
-          tests/storefront-playroom-v20-functional-acceptance.test.ts
-          tests/storefront-template-route-integrity.test.ts
-          tests/storefront-template-demo-content-persistence.test.ts
-          tests/storefront-account-capability-navigation.test.tsx
-          tests/storefront-commerce-header.test.tsx
-          tests/storefront-runtime-primitives.test.tsx
-          tests/cart-style-quantity-control.test.tsx
+      - name: Shoperation Control Plane external specialists + final Template Factory reconciliation
+        if: steps.control-plane.outcome == 'success'
+        id: control-plane-final
+        env:
+          SHOPERATION_CONTROL_PLANE_PROFILE: ${{ github.event_name == 'pull_request' && 'template-pr' || 'template-branch' }}
+          QUALITY_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+          DEVELOPMENT_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+          SHOPERATION_SOURCE_COMMIT: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: node scripts/shoperation-control-plane.mjs --profile "$SHOPERATION_CONTROL_PLANE_PROFILE" --run-external --check
 
-      - name: Typecheck exact head
-        id: typecheck
-        run: npm run typecheck
-
-      - name: Build exact-head Runtime
-        id: runtime-build
-        run: npm run build
-
-      - name: Start exact-head QA Runtime
-        shell: bash
-        run: |
-          npm run start -- -H 127.0.0.1 -p 3000 > /tmp/template-factory-quality-next.log 2>&1 &
-          echo $! > /tmp/template-factory-quality-next.pid
-          for attempt in $(seq 1 75); do
-            if curl --fail --silent --show-error 'http://127.0.0.1:3000/api/visual-fidelity/templates' > /dev/null; then
-              exit 0
-            fi
-            sleep 2
-          done
-          cat /tmp/template-factory-quality-next.log
-          exit 1
-
-      - name: Run scoped Template Factory browser proof (acceptance requires 14x3)
-        id: browser-matrix
-        run: node scripts/template-factory-quality-gate.mjs
+      - name: Upload final Shoperation Control Plane evidence
+        if: always() && steps.control-plane.outcome == 'success'
+        uses: actions/upload-artifact@v4
+        with:
+          name: shoperation-control-plane-final-${{ github.event.pull_request.head.sha || github.sha }}
+          path: artifacts/shoperation-control-plane/**
+          if-no-files-found: warn
+          retention-days: 30
 
       - name: Resolve Product Owner candidate target
         id: product-owner-target
-        if: github.event_name == 'pull_request' && steps.browser-matrix.outcome == 'success'
+        if: github.event_name == 'pull_request' && steps.control-plane-final.outcome == 'success'
         shell: bash
         run: |
           node <<'NODE'
@@ -409,13 +351,9 @@ jobs:
         if: always()
         shell: bash
         env:
-          KNOWLEDGE_OUTCOME: ${{ steps.knowledge.outcome }}
-          DEVELOPMENT_PLAN_OUTCOME: ${{ steps.development-plan.outcome }}
-          EDIT_GUARD_OUTCOME: ${{ steps.edit-time-guard.outcome }}
-          INCREMENTAL_OUTCOME: ${{ steps.incremental-replay.outcome }}
-          TYPECHECK_OUTCOME: ${{ steps.typecheck.outcome }}
-          BUILD_OUTCOME: ${{ steps.runtime-build.outcome }}
-          MATRIX_OUTCOME: ${{ steps.browser-matrix.outcome }}
+          CONTROL_PLANE_OUTCOME: ${{ steps.control-plane.outcome }}
+          CONTROL_PLANE_FINAL_OUTCOME: ${{ steps.control-plane-final.outcome }}
+          SHOPERATION_CONTROL_PLANE_REPORT: artifacts/shoperation-control-plane/control-plane.json
           SHOPERATION_SOURCE_COMMIT: ${{ github.event.pull_request.head.sha || github.sha }}
           SHOPERATION_FAILURE_SOURCE: template-factory
           SHOPERATION_TEMPLATE_KEY: "${{ steps.product-owner-target.outputs.template_key || '' }}"
@@ -423,13 +361,8 @@ jobs:
           SHOPERATION_TEMPLATE_QUALITY_MANIFEST: artifacts/template-factory-quality/manifest.json
         run: |
           codes=""
-          [ "$KNOWLEDGE_OUTCOME" != "failure" ] || codes="${codes}KNOWLEDGE_PREFLIGHT_FAILED;"
-          [ "$DEVELOPMENT_PLAN_OUTCOME" != "failure" ] || codes="${codes}DEVELOPMENT_PLAN_FAILED;"
-          [ "$EDIT_GUARD_OUTCOME" != "failure" ] || codes="${codes}EDIT_TIME_GUARD_FAILED;"
-          [ "$INCREMENTAL_OUTCOME" != "failure" ] || codes="${codes}INCREMENTAL_REPLAY_FAILED;"
-          [ "$TYPECHECK_OUTCOME" != "failure" ] || codes="${codes}TYPECHECK_FAILED;"
-          [ "$BUILD_OUTCOME" != "failure" ] || codes="${codes}BUILD_FAILED;"
-          [ "$MATRIX_OUTCOME" != "failure" ] || codes="${codes}QUALITY_GATE_FAILED;"
+          [ "$CONTROL_PLANE_OUTCOME" != "failure" ] || codes="${codes}CONTROL_PLANE_FAILED;"
+          [ "$CONTROL_PLANE_FINAL_OUTCOME" != "failure" ] || codes="${codes}CONTROL_PLANE_FAILED;"
           SHOPERATION_GENERIC_FAILURES="$codes" node scripts/shoperation-failure-intake.mjs
 
       - name: Upload Template Factory failure intake

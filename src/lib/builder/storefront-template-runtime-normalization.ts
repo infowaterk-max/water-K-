@@ -115,8 +115,19 @@ function normalizePlayroomV20FooterNode(node:StorefrontComponentNode,isFooterRoo
   };
 }
 
+const playroomTabletHeaderColumns='minmax(11rem,.95fr) minmax(13rem,1.25fr) auto';
+
+function normalizePlayroomV20HeaderNode(node:StorefrontComponentNode):StorefrontComponentNode{
+  const next=clone(node),children=next.children?.map(normalizePlayroomV20HeaderNode);
+  if(node.componentKey!=='system.commerce-header')return{...next,...(children?{children}:{})};
+  const config={...next.config};
+  const styleSlots=footerStyleRecord(config.styleSlots),topRow=footerStyleRecord(styleSlots.topRow),tablet=footerStyleRecord(topRow.tablet);
+  config.styleSlots={...styleSlots,topRow:{...topRow,tablet:{...tablet,gridTemplateColumns:playroomTabletHeaderColumns,gap:'.75rem'}}};
+  return{...next,config,...(children?{children}:{})};
+}
+
 function normalizePlayroomV20SharedShell(document:StorefrontPageDocument):StorefrontPageDocument{
-  const sections=document.sections.map(section=>isPlayroomFooterSection(section)?normalizePlayroomV20FooterNode(section,true):clone(section));
+  const sections=document.sections.map(section=>isPlayroomFooterSection(section)?normalizePlayroomV20FooterNode(section,true):normalizePlayroomV20HeaderNode(section));
   return{...clone(document),sections};
 }
 

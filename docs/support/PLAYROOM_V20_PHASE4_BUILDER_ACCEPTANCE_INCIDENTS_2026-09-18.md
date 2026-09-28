@@ -1700,3 +1700,123 @@ Across every Playroom v19 page:
 ### Prevention
 
 Shared template shells must have explicit Mobile footer composition. Desktop column collapse is not sufficient responsive design.
+
+
+---
+
+## SKB-P4-035 — Product Owner preview handoff must never use the bare deployment root
+
+- status: `implemented`
+- evidence: `human_report + known_failure_recurrence + regression_contract`
+- area: `template-factory/product-owner-handoff/preview-url-identity`
+- risk: `high`
+- automation: `AUTO_FIX`
+- known failure: `SQ-KF-003`
+- occurrence: `3`
+
+### Symptom
+
+After the Playroom v20 second Product Owner repair batch was complete, a temporary Vercel share link was generated from the READY deployment root and handed to the Product Owner. Opening that URL showed the storefront lifecycle gate ("Ez a webshop még nem nyitott meg.") instead of the intended Playroom template preview.
+
+### Root cause
+
+The repository already had the correct prevention mechanism in `scripts/template-factory-product-owner-handoff.mjs`: Product Owner preview identity must resolve to `/storefront-template-preview` with exact template/version identity and final provenance proof. The failure occurred because manual link delivery bypassed that canonical handoff path and used the deployment root directly.
+
+This is therefore **not a new failure class**. It is a recurrence of `SQ-KF-003` and must strengthen the existing Known Failure rather than create a duplicate record.
+
+### Resolution
+
+- `SQ-KF-003` occurrence count is incremented;
+- the Known Failure symptom/root-cause text now explicitly covers bare deployment-root handoff;
+- the prevention directive explicitly forbids handing a bare Vercel root to the Product Owner as a template preview;
+- `tests/storefront-template-preview-runtime.test.ts` now locks the handoff script's preview-path and exact-identity rejection contract;
+- human handoff must generate/share the URL from the complete canonical preview deep link, not from the deployment hostname alone.
+
+### Prevention
+
+A Product Owner preview URL is valid only when all of the following are true:
+
+1. the host belongs to the exact deployment/source identity under review;
+2. the pathname is `/storefront-template-preview`;
+3. template key and exact template version are pinned;
+4. page type and viewport are explicit for the reviewed surface;
+5. Factory candidate handoff also pins `factory=1`;
+6. the rendered preview exposes the expected provenance stamp/source commit.
+
+A READY deployment root, Vercel inspector URL, redirect page or protection page is never sufficient handoff evidence.
+
+### Knowledge rule
+
+Every genuinely new defect class must enter failure intake / Known Failure knowledge. A recurrence must not create a duplicate failure ID: increment the existing occurrence, attach the new evidence, and strengthen prevention/regression coverage when the previous control proved bypassable.
+
+
+---
+
+## SKB-P4-036 — Static checkout replica passed while shared E13 remained elsewhere
+
+- status: `implemented`
+- evidence: `human_rejection + authority_conflict + cross_guard_repair`
+- area: `template-factory/checkout/product-owner-proof`
+- risk: `high`
+- automation: `SHARED_CONTEXT_REQUIRED`
+- known failure: `TF-KF-019`
+- related global failure: `SQ-KF-025`
+
+### Symptom
+
+The Playroom Product Owner preview displayed checkout-like fields and shipping/payment steps, but the fields were static `content.text` / `layout.*` nodes and could not be edited. The real shared E13 `CheckoutForm` still existed on the canonical `/penztar` route.
+
+### Root cause
+
+Two independent green proofs contradicted an older authority rule:
+
+- Instruction Compliance accepted template-node presence as proof that checkout behavior had been implemented;
+- Product Owner handoff accepted `commerce.checkout-summary` presence as E13 evidence;
+- neither proof consumed `TF-AUTH-005`, which already states that cart/checkout/account behavior is platform-owned and templates own presentation only.
+
+The result was a presentation replica being accepted while the real business route remained separate.
+
+### Resolution
+
+- `TF-KF-019` and `SQ-KF-025` are marked recurring and require shared-root-cause remediation;
+- development guards now share one guard context/evidence bus;
+- later guards must consume prior blocking evidence;
+- Instruction Compliance cross-reads global, domain and Template Factory authority;
+- protected checkout/cart/account behavior may not be proven only by template-node presence;
+- checkout proof must preserve and cite the shared E13 route/runtime authority.
+
+### Prevention
+
+Do not add another independent gate for this class. Existing gates must exchange evidence and authority context. A later PASS is invalid if it contradicts an earlier authority rule or blocking-gate result.
+
+
+## 2026-09-28 — Tablet row-budget root cause
+
+**Incident class:** responsive composition drift on an isolated viewport.
+
+The Playroom v20 audit showed a repeatable Tablet-only failure pattern while Desktop and Mobile remained visually coherent:
+
+- sibling spans in a logical 12-column composition were independently enlarged for Tablet;
+- examples included `6 + 8`, `4 + 10`, `9 + 5` and `5 + 5 + 5`;
+- CSS Grid therefore wrapped children unexpectedly and left large unused horizontal bands;
+- the shared commerce header also kept the dense desktop navigation model at 768px instead of switching to a compact disclosure;
+- the footer used full-width Tablet spans for every column, producing an unnecessarily long one-column footer.
+
+**Root cause:** viewport-isolated responsive values were individually valid but the *composition* was not revalidated as a row. Legacy Playroom source also contains a historical `desktop span + 1` Tablet heuristic, which is diagnostic evidence only and must not be copied into new canonical packages without row-level validation.
+
+**Canonical repair on gaming.playroom@20:**
+
+- normalize the affected Tablet logical rows to deliberate 12-column compositions;
+- use compact shared-header disclosure on Tablet;
+- use Tablet footer composition `12 / 4-4-4 / 12`;
+- preserve Desktop and Mobile authority unchanged;
+- do not edit golden baselines as part of the repair.
+
+**Proof:**
+
+- `tests/storefront-playroom-v20-functional-acceptance.test.ts` locks the affected Tablet row compositions and explicitly checks unchanged Desktop/Mobile spans;
+- `tests/storefront-commerce-header.test.tsx` locks Tablet compact navigation and Desktop continuity;
+- exact-head visual comparison showed 13/14 Playroom pages pixel-identical on Desktop and Mobile before/after the Tablet repair; Contact differed only inside the external Google Maps iframe region;
+- Known Failure: `SQ-KF-026`.
+
+**Do not repeat:** do not infer Tablet spans by mechanically incrementing Desktop spans. Validate the intended row composition, not only each node's individual 1–12 span validity.

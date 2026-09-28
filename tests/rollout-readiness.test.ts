@@ -66,7 +66,20 @@ describe('V24 rollout readiness contracts', () => {
     expect(workflow).toContain('npm run release:manifest');
   });
 
-  it('enforces the production release risk budget before the rest of the build gate', () => {
+  it('classifies golden promotion write-back as release infrastructure', () => {
+    const policy = JSON.parse(read('deploy/release-risk-policy.json')) as {subsystems:Array<{name:string;patterns:string[]}>};
+    const release = policy.subsystems.find(item=>item.name==='release-infrastructure');
+    expect(release?.patterns).toContain('scripts/promote-template-golden-baseline.mjs');
+  });
+
+  it('classifies canonical tenant resolution as high-risk tenant context authority', () => {
+    const policy = JSON.parse(read('deploy/release-risk-policy.json')) as {subsystems:Array<{name:string;risk:string;patterns:string[]}>};
+    const tenancy = policy.subsystems.find(item=>item.name==='tenant-context-authority');
+    expect(tenancy?.risk).toBe('high');
+    expect(tenancy?.patterns).toContain('src/lib/instances/**');
+  });
+
+  it('keeps the production release risk budget as an independent Control Plane release specialist', () => {
     const workflow = read('.github/workflows/ci.yml');
     const policy = JSON.parse(read('deploy/release-risk-policy.json')) as {
       maxPoints: number;
@@ -79,9 +92,17 @@ describe('V24 rollout readiness contracts', () => {
     expect(policy.maxPoints).toBe(5);
     expect(policy.maxSubsystems).toBe(3);
     expect(policy.riskWeights.high).toBe(5);
-    expect(workflow).toContain('Production release risk budget');
-    expect(workflow).toContain('node scripts/release-risk-budget.mjs');
+    const registry=JSON.parse(read('quality/knowledge/guard-registry.v1.json')) as {guards:{id:string;execution?:{mode:string;command?:string;args?:string[]}}[]};
+    const releaseGuard=registry.guards.find(item=>item.id==='GUARD-RELEASE-RISK');
+    expect(workflow).toContain('Shoperation Control Plane');
+    expect(workflow).toContain('scripts/shoperation-control-plane.mjs');
     expect(workflow).toContain('release-risk-budget.json');
+    expect(releaseGuard?.execution?.mode).toBe('external-specialist');
+    expect(releaseGuard?.execution?.command).toBe('node');
+    expect(releaseGuard?.execution?.args).toContain('scripts/release-risk-budget.mjs');
+    expect(workflow).toContain('--run-external --check');
+    expect(workflow).not.toContain('shoperation-specialist-runner.mjs --guard GUARD-RELEASE-RISK');
+    expect(read('scripts/lib/shoperation-external-orchestrator.mjs')).toContain('topoSort(selectedIds)');
     expect(riskGate).toContain('high-risk subsystem');
     expect(riskGate).toContain('must be isolated from other substantive subsystems');
     expect(riskGate).toContain('RELEASE_RISK_BUDGET_FAILED');

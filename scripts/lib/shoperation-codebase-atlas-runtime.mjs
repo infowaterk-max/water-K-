@@ -10,6 +10,7 @@ const textExtensions=new Set(policy.textExtensions),sourceExtensions=new Set(pol
 const surfaceMatchers=policy.surfaceRules.map(rule=>({...rule,matchers:rule.patterns.map(globToRegExp)}));
 const subsystemMatchers=releasePolicy.subsystems.map(item=>({...item,matchers:item.patterns.map(globToRegExp)}));
 const domainMatchers=domainRegistry.domains.map(domain=>({...domain,matchers:domain.canonicalPaths.map(pattern=>({pattern,matcher:globToRegExp(pattern)}))}));
+const obligationMatchers=(policy.changeObligationRules??[]).map(rule=>({...rule,matchers:(rule.sourcePatterns??[]).map(globToRegExp)}));
 
 const normalize=value=>value.replaceAll('\\','/');
 const trackedFiles=()=>execFileSync('git',['ls-files'],{encoding:'utf8'}).split(/\r?\n/).map(normalize).filter(Boolean).filter(file=>!policy.excludedPrefixes.some(prefix=>file.startsWith(prefix)));
@@ -48,6 +49,14 @@ function extractReferenceTerms(source){
   const terms=new Set();
   for(const m of source.matchAll(/\b[A-Za-z_][A-Za-z0-9_$]{3,}\b/g)){const value=m[0];if(value.includes('_')||/[a-z][A-Z]/.test(value)||/^[A-Z][A-Za-z0-9_$]+$/.test(value))terms.add(value);}
   return [...terms].sort();
+}
+function extractFileReferences(source,fileSet){
+  const refs=new Set();
+  for(const m of source.matchAll(/(?:^|[\s'"\x60(])((?:src|tests|quality|docs|scripts|supabase|public|deploy|\.github)\/[A-Za-z0-9_@.+\-\/\[\]*]+)/gm)){
+    const value=normalize(m[1].replace(/[),.;:]+$/,''));
+    if(fileSet.has(value))refs.add(value);
+  }
+  return [...refs].sort();
 }
 function extractLiteralKeys(source){
   const keys=new Set();
@@ -92,12 +101,13 @@ export function buildCodebaseAtlas(){
       route,subsystems:classifySubsystems(file),surfaces:classifySurfaces(file),domains,authorities:domainAuthorities(domains),truthKeys:domainTruthKeys(domains),
       imports:[...new Set(resolvedImports)].sort(),externalImports:[...new Set(externalImports)].sort(),
       exports:sourceExtensions.has(ext)?extractExports(source):[],literalKeys:source?extractLiteralKeys(source):[],referenceTerms:source?extractReferenceTerms(source):[],
+      fileReferences:source?extractFileReferences(source,fileSet):[],
     });
   }
   const reverse=Object.create(null);for(const node of nodes)for(const target of node.imports){(reverse[target]??=[]).push(node.path);}for(const key of Object.keys(reverse))reverse[key]=[...new Set(reverse[key])].sort();
   const routes=nodes.filter(node=>node.route).map(node=>({file:node.path,...node.route}));
   const makeIndex=(selector)=>{const index=Object.create(null);for(const node of nodes)for(const key of selector(node)){(index[key]??=[]).push(node.path);}for(const key of Object.keys(index))index[key]=[...new Set(index[key])].sort();return index;};
-  const literalIndex=makeIndex(node=>node.literalKeys),exportIndex=makeIndex(node=>node.exports),referenceIndex=makeIndex(node=>node.referenceTerms),domainIndex=makeIndex(node=>node.domains),authorityIndex=makeIndex(node=>node.authorities),truthIndex=makeIndex(node=>node.truthKeys);
+  const literalIndex=makeIndex(node=>node.literalKeys),exportIndex=makeIndex(node=>node.exports),referenceIndex=makeIndex(node=>node.referenceTerms),fileReferenceIndex=makeIndex(node=>node.fileReferences??[]),domainIndex=makeIndex(node=>node.domains),authorityIndex=makeIndex(node=>node.authorities),truthIndex=makeIndex(node=>node.truthKeys);
   const subsystemCounts=Object.create(null);for(const node of nodes)for(const subsystem of node.subsystems)subsystemCounts[subsystem]=(subsystemCounts[subsystem]??0)+1;
   const domainCounts=Object.fromEntries(domainRegistry.domains.map(domain=>[domain.id,domainIndex[domain.id]?.length??0]));
   const duplicateRoutes=Object.entries(routes.reduce((acc,item)=>{const key=`${item.kind}:${item.path}`;(acc[key]??=[]).push(item.file);return acc;},{})).filter(([,value])=>value.length>1).map(([routeKey,files])=>({routeKey,files}));
@@ -106,8 +116,8 @@ export function buildCodebaseAtlas(){
   return {
     contract:'shoporation.codebase-atlas.v2',generatedAt:new Date().toISOString(),
     architecture:{constitutionContract:constitution.contract,domainContract:domainRegistry.contract,authorityOrder:constitution.authorityOrder,domainCount:domainRegistry.domains.length,truthOwnerCount:Object.keys(truthOwnerIndex).length},
-    summary:{trackedFiles:files.length,indexedNodes:nodes.length,codeNodes:nodes.filter(n=>n.kind==='code').length,testNodes:nodes.filter(n=>n.kind==='test').length,routeNodes:routes.length,importEdges:nodes.reduce((n,x)=>n+x.imports.length,0),exportedSymbols:Object.keys(exportIndex).length,literalKeys:Object.keys(literalIndex).length,referenceTerms:Object.keys(referenceIndex).length,unresolvedInternalImports:unresolvedInternalImports.length,duplicateRoutes:duplicateRoutes.length,subsystemCounts,domainCounts},
-    nodes,routes,reverseImports:reverse,literalIndex,exportIndex,referenceIndex,domainIndex,authorityIndex,truthIndex,truthOwnerIndex,unresolvedInternalImports,duplicateRoutes,
+    summary:{trackedFiles:files.length,indexedNodes:nodes.length,codeNodes:nodes.filter(n=>n.kind==='code').length,testNodes:nodes.filter(n=>n.kind==='test').length,routeNodes:routes.length,importEdges:nodes.reduce((n,x)=>n+x.imports.length,0),fileReferenceEdges:nodes.reduce((n,x)=>n+(x.fileReferences?.length??0),0),exportedSymbols:Object.keys(exportIndex).length,literalKeys:Object.keys(literalIndex).length,referenceTerms:Object.keys(referenceIndex).length,unresolvedInternalImports:unresolvedInternalImports.length,duplicateRoutes:duplicateRoutes.length,subsystemCounts,domainCounts},
+    nodes,routes,reverseImports:reverse,literalIndex,exportIndex,referenceIndex,fileReferenceIndex,domainIndex,authorityIndex,truthIndex,truthOwnerIndex,unresolvedInternalImports,duplicateRoutes,
     domainIndexDefinition:Object.fromEntries(domainRegistry.domains.map(domain=>[domain.id,{name:domain.name,owner:domain.owner,dependsOn:domain.dependsOn,truthOwnership:domain.truthOwnership,boundaryRules:domain.boundaryRules,evidenceObligations:domain.evidenceObligations}])),
     knownFailureIndex:Object.fromEntries(allFailures.map(f=>[f.id,{title:f.title,provider:f.provider,applicability:f.applicability,regressionTests:f.regressionTests}])),
   };
@@ -125,12 +135,47 @@ export function impactForAtlasPattern(atlas,pattern){
   const failureIds=getAllFailures().filter(f=>f.applicability.mode==='always'||f.applicability.subsystems.some(s=>subsystems.includes(s))).map(f=>f.id);
   return {contract:'shoporation.atlas-impact.v2',pattern,matchedFiles:start,matchCount:matches.length||exact.length,subsystems,surfaces,componentKeys,exports,...architecture,...impact,knownFailureIds:[...new Set(failureIds)].sort()};
 }
+export function changeObligationsForAtlasPatterns(atlas,patterns){
+  const impacts=patterns.map(pattern=>impactForAtlasPattern(atlas,pattern));
+  const matchedFiles=[...new Set(impacts.flatMap(item=>item.matchedFiles))].sort();
+  const consumerFiles=[...new Set(impacts.flatMap(item=>item.consumers))].sort();
+  const discoveredTests=[...new Set(impacts.flatMap(item=>item.tests))].sort();
+  const referenceFiles=[...new Set(matchedFiles.flatMap(file=>atlas.fileReferenceIndex?.[file]??[]).filter(file=>!matchedFiles.includes(file)))].sort();
+  const documentationReferences=referenceFiles.filter(file=>file==='AGENTS.md'||file.startsWith('docs/')||file.endsWith('.md'));
+  const policyObligations=obligationMatchers.filter(rule=>matchedFiles.some(file=>rule.matchers.some(matcher=>matcher.test(file)))).map(rule=>({
+    id:rule.id,
+    name:rule.name,
+    kind:rule.kind,
+    timing:rule.timing,
+    targetSource:rule.targetSource??null,
+    targetPatterns:rule.targetPatterns??[],
+    mutationPolicy:rule.mutationPolicy,
+    closurePhase:rule.closurePhase??null,
+    closureEvidenceGuardId:rule.closureEvidenceGuardId??null,
+    reason:rule.reason,
+  }));
+  return {
+    contract:'shoporation.ab-change-plan.v1',
+    A:{role:'direct-change-set',patterns,matchedFiles},
+    B:{
+      role:'dependent-change-obligations',
+      consumerFiles,
+      discoveredTests,
+      referenceFiles,
+      documentationReferences,
+      policyObligations,
+    },
+  };
+}
+
 export function releaseClosureForAtlasPatterns(atlas,patterns){
   const impacts=patterns.map(pattern=>impactForAtlasPattern(atlas,pattern)),knownFailureIds=[...new Set(impacts.flatMap(x=>x.knownFailureIds))].sort();
   const regressionTests=[...new Set(knownFailureIds.flatMap(id=>atlas.knownFailureIndex[id]?.regressionTests??[]))].sort();
+  const changePlan=changeObligationsForAtlasPatterns(atlas,patterns);
   return {
     contract:'shoporation.atlas-release-closure.v2',
     patterns,
+    changePlan,
     matchedFiles:[...new Set(impacts.flatMap(x=>x.matchedFiles))].sort(),
     consumers:[...new Set(impacts.flatMap(x=>x.consumers))].sort(),
     routes:[...new Map(impacts.flatMap(x=>x.routes).map(r=>[`${r.kind}:${r.path}`,r])).values()],
@@ -156,6 +201,11 @@ export function validateCodebaseAtlas(atlas){
   if(atlas.contract!=='shoporation.codebase-atlas.v2')issues.push({code:'ATLAS_CONTRACT_INVALID'});
   if(constitution.contract!==policy.architectureContracts.constitution)issues.push({code:'ATLAS_CONSTITUTION_CONTRACT_MISMATCH'});
   if(domainRegistry.contract!==policy.architectureContracts.domains)issues.push({code:'ATLAS_DOMAIN_CONTRACT_MISMATCH'});
+  const obligationIds=(policy.changeObligationRules??[]).map(rule=>rule.id);
+  if(new Set(obligationIds).size!==obligationIds.length)issues.push({code:'ATLAS_CHANGE_OBLIGATION_ID_DUPLICATE'});
+  for(const rule of policy.changeObligationRules??[]){
+    if(!rule.id||!(rule.sourcePatterns??[]).length||!rule.kind||!rule.timing||!rule.mutationPolicy)issues.push({code:'ATLAS_CHANGE_OBLIGATION_RULE_INVALID',ruleId:rule.id??null});
+  }
   for(const check of policy.criticalLookups){const found=new Set(lookupAtlasTerm(atlas,check.term).files);for(const required of check.requiredFiles)if(!found.has(required))issues.push({code:'ATLAS_CRITICAL_LOOKUP_MISSING',term:check.term,file:required});}
   if(!atlas.nodes.length)issues.push({code:'ATLAS_EMPTY'});
   const truthKeys=domainRegistry.domains.flatMap(domain=>domain.truthOwnership),uniqueTruth=new Set(truthKeys);

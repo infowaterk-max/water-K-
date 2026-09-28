@@ -14,7 +14,8 @@
     "SQ-KF-020",
     "SQ-KF-021",
     "SQ-KF-023",
-    "SQ-KF-024"
+    "SQ-KF-024",
+    "SQ-KF-025"
   ],
   "documentRules": [
     {
@@ -265,6 +266,15 @@
         "quality-knowledge-system",
         "database-schema"
       ]
+    },
+    {
+      "file": "PRODUCT_OWNER_INSTRUCTION_COMPLIANCE_2026-09-27.md",
+      "recordType": "incident-corpus",
+      "subsystems": [
+        "quality-knowledge-system",
+        "builder-template-system",
+        "shared-storefront"
+      ]
     }
   ],
   "incidentRules": [
@@ -507,6 +517,45 @@
         "quality-knowledge-system"
       ],
       "reason": "An unbounded short provider token matched an unrelated word and activated false subsystem scope."
+    },
+    {
+      "file": "PLAYROOM_V20_PHASE4_BUILDER_ACCEPTANCE_INCIDENTS_2026-09-18.md",
+      "sourceIdPattern": "^SKB-P4-035$",
+      "titlePattern": "Product Owner preview handoff must never use the bare deployment root",
+      "disposition": "matched-known-failure",
+      "knownFailureId": "SQ-KF-003",
+      "subsystems": [
+        "release-infrastructure",
+        "builder-template-system",
+        "shared-storefront"
+      ],
+      "reason": "The canonical preview identity rule already existed; this incident is a recurrence caused by bypassing the Product Owner handoff verifier and handing off a bare deployment root."
+    },
+    {
+      "file": "PRODUCT_OWNER_INSTRUCTION_COMPLIANCE_2026-09-27.md",
+      "sourceIdPattern": "^SKB-PO-001$",
+      "titlePattern": "Product Owner instruction was marked complete without requirement-level proof",
+      "disposition": "new-global-failure",
+      "knownFailureId": "SQ-KF-025",
+      "subsystems": [
+        "quality-knowledge-system",
+        "builder-template-system",
+        "shared-storefront"
+      ],
+      "reason": "The requested behavior was only partially implemented and no instruction-to-evidence guard existed before handoff."
+    },
+    {
+      "file": "PLAYROOM_V20_PHASE4_BUILDER_ACCEPTANCE_INCIDENTS_2026-09-18.md",
+      "sourceIdPattern": "^SKB-P4-036$",
+      "titlePattern": "Static checkout replica passed while shared E13 remained elsewhere",
+      "disposition": "matched-known-failure",
+      "knownFailureId": "TF-KF-019",
+      "subsystems": [
+        "builder-template-system",
+        "shared-storefront",
+        "quality-knowledge-system"
+      ],
+      "reason": "The preview and real checkout route were accepted independently; this is the second occurrence of TF-KF-019 and also strengthens SQ-KF-025."
     }
   ]
 }

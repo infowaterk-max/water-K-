@@ -257,7 +257,8 @@
       "boundaryRules": [
         "Storefront consumes shared capabilities; it may not duplicate auth/account/commerce/support engines.",
         "Responsive behavior follows canonical viewport/workspace authority rather than host heuristics.",
-        "Template presentation may vary while business capability authority remains shared."
+        "Template presentation may vary while business capability authority remains shared.",
+        "Shopper search/filter presentation belongs to shared storefront; it may consume catalog truth but may not redefine product, price, stock or sellability truth."
       ],
       "principles": [
         "ARCH-001",
@@ -272,7 +273,9 @@
         "src/app/storefront-template-preview/**",
         "src/app/storefront-template-preview-login/**",
         "src/app/visual-fidelity-qa/**",
-        "src/components/account/storefront-account-shell.tsx"
+        "src/components/account/storefront-account-shell.tsx",
+        "src/components/catalog/**",
+        "src/app/kereses/**"
       ],
       "evidenceObligations": [
         "responsive isolation proof",
@@ -483,7 +486,8 @@
         "quality.negative-knowledge",
         "quality.development-plan",
         "quality.guard-selection",
-        "quality.regression-authority"
+        "quality.regression-authority",
+        "quality.change-obligation"
       ],
       "responsibilities": [
         "Known Failure registry",
@@ -491,7 +495,8 @@
         "failure intake",
         "impact/scope resolution",
         "architecture knowledge",
-        "regression authority"
+        "regression authority",
+        "A/B change obligation projection"
       ],
       "doesNotOwn": [
         "business runtime state",
@@ -502,7 +507,8 @@
       "boundaryRules": [
         "Quality evidence must be bound to exact source/release identity.",
         "Unknown or review-required failure intake persists until explicit disposition.",
-        "Quality controls may block invalid change but may not redefine domain truth to make tests pass."
+        "Quality controls may block invalid change but may not redefine domain truth to make tests pass.",
+        "Planning must distinguish direct edit targets from dependent companion obligations; generated evidence, descriptions, regression consumers and protected baselines may not be discovered only after implementation."
       ],
       "principles": [
         "ARCH-004",
@@ -517,7 +523,9 @@
         "scripts/shoperation-**",
         "src/lib/quality-system/**",
         "scripts/lib/shoperation-architecture-health.mjs",
-        "tests/architecture-health.test.ts"
+        "tests/architecture-health.test.ts",
+        "scripts/template-factory-external-specialist.mjs",
+        "scripts/template-factory-**"
       ],
       "evidenceObligations": [
         "guard-selection proof",
@@ -622,7 +630,8 @@
         ".github/workflows/**",
         "deploy/**",
         "scripts/release-**",
-        "**/next.config.ts"
+        "**/next.config.ts",
+        "scripts/promote-template-golden-baseline.mjs"
       ],
       "evidenceObligations": [
         "Release Risk Budget",

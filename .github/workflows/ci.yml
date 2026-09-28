@@ -91,30 +91,19 @@ jobs:
       - name: Install locked dependencies
         run: npm ci --no-audit --no-fund
 
-      - name: Knowledge Before Build preflight
-        id: knowledge
+      - name: Shoperation Control Plane
+        id: control-plane
         env:
+          SHOPERATION_CONTROL_PLANE_PROFILE: ${{ github.event_name == 'pull_request' && 'pr' || (github.ref_name == 'main' && 'post-merge' || 'branch') }}
           QUALITY_BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
           QUALITY_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: node scripts/shoperation-knowledge-preflight.mjs
-
-      - name: Plan Before Code Gate
-        if: github.event_name == 'pull_request'
-        id: development-plan
-        env:
           DEVELOPMENT_BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
           DEVELOPMENT_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
-        run: node scripts/shoperation-plan-before-code.mjs --check
-
-      - name: Edit-Time Known Failure Guard
-        if: github.event_name == 'pull_request'
-        id: edit-time-guard
-        run: node scripts/shoperation-edit-time-guard.mjs --check
-
-      - name: Incremental Known Failure Replay
-        id: incremental-replay
-        run: node scripts/shoperation-incremental-replay.mjs --check
+          RELEASE_BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
+          RELEASE_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+          RELEASE_BASE_REF: origin/main
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: node scripts/shoperation-control-plane.mjs --profile "$SHOPERATION_CONTROL_PLANE_PROFILE" --check
 
       - name: Upload Development Guard evidence
         if: always()
@@ -122,6 +111,15 @@ jobs:
         with:
           name: shoperation-development-guard-${{ github.event.pull_request.head.sha || github.sha }}
           path: artifacts/shoperation-development-guard/**
+          if-no-files-found: warn
+          retention-days: 30
+
+      - name: Upload Shoperation Control Plane evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: shoperation-control-plane-${{ github.event.pull_request.head.sha || github.sha }}
+          path: artifacts/shoperation-control-plane/**
           if-no-files-found: warn
           retention-days: 30
 
@@ -134,14 +132,18 @@ jobs:
           if-no-files-found: warn
           retention-days: 30
 
-      - name: Production release risk budget
-        if: github.event_name == 'pull_request' || github.ref_name == 'main'
-        id: release-risk
+      - name: Shoperation Control Plane external specialists + final reconciliation
+        if: steps.control-plane.outcome == 'success'
+        id: control-plane-final
         env:
+          SHOPERATION_CONTROL_PLANE_PROFILE: ${{ github.event_name == 'pull_request' && 'pr' || (github.ref_name == 'main' && 'post-merge' || 'branch') }}
           RELEASE_BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
           RELEASE_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
           RELEASE_BASE_REF: origin/main
-        run: node scripts/release-risk-budget.mjs
+          QUALITY_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+          DEVELOPMENT_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+          SHOPERATION_SOURCE_COMMIT: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: node scripts/shoperation-control-plane.mjs --profile "$SHOPERATION_CONTROL_PLANE_PROFILE" --run-external --check
 
       - name: Upload release risk budget
         if: always()
@@ -152,26 +154,14 @@ jobs:
           if-no-files-found: warn
           retention-days: 30
 
-      - name: Customer database baseline guard
-        run: npm run db:customer:guard
-
-      - name: Block 24 market-ready contract
-        run: npm run market-ready:gate
-
       - name: Upload Block 24 market-ready contract
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: block24-market-ready-contract
           path: artifacts/block24-market-ready-contract.json
-          if-no-files-found: error
+          if-no-files-found: warn
           retention-days: 30
-
-      - name: Prepare quality artifacts
-        run: mkdir -p artifacts
-
-      - name: Quality tests
-        id: quality-tests
-        run: npm test
 
       - name: Upload quality test results
         if: always()
@@ -182,20 +172,23 @@ jobs:
           if-no-files-found: warn
           retention-days: 14
 
-      - name: TypeScript check
-        id: typecheck
-        run: npm run typecheck
-
-      - name: Production build
-        id: production-build
-        run: npm run build
+      - name: Upload final Shoperation Control Plane evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: shoperation-control-plane-final-${{ github.event.pull_request.head.sha || github.sha }}
+          path: artifacts/shoperation-control-plane/**
+          if-no-files-found: warn
+          retention-days: 30
 
       - name: Generate release manifest
+        if: steps.control-plane-final.outcome == 'success'
         env:
           DEPLOY_ENVIRONMENT: ci
         run: npm run release:manifest
 
       - name: Upload release manifest
+        if: steps.control-plane-final.outcome == 'success'
         uses: actions/upload-artifact@v4
         with:
           name: release-manifest
@@ -207,26 +200,15 @@ jobs:
         if: always()
         shell: bash
         env:
-          KNOWLEDGE_OUTCOME: ${{ steps.knowledge.outcome }}
-          DEVELOPMENT_PLAN_OUTCOME: ${{ steps.development-plan.outcome }}
-          EDIT_GUARD_OUTCOME: ${{ steps.edit-time-guard.outcome }}
-          INCREMENTAL_OUTCOME: ${{ steps.incremental-replay.outcome }}
-          RISK_OUTCOME: ${{ steps.release-risk.outcome }}
-          QUALITY_OUTCOME: ${{ steps.quality-tests.outcome }}
-          TYPECHECK_OUTCOME: ${{ steps.typecheck.outcome }}
-          BUILD_OUTCOME: ${{ steps.production-build.outcome }}
+          CONTROL_PLANE_OUTCOME: ${{ steps.control-plane.outcome }}
+          CONTROL_PLANE_FINAL_OUTCOME: ${{ steps.control-plane-final.outcome }}
+          SHOPERATION_CONTROL_PLANE_REPORT: artifacts/shoperation-control-plane/control-plane.json
           SHOPERATION_SOURCE_COMMIT: ${{ github.event.pull_request.head.sha || github.sha }}
           SHOPERATION_FAILURE_SOURCE: ci
         run: |
           codes=""
-          [ "$KNOWLEDGE_OUTCOME" != "failure" ] || codes="${codes}KNOWLEDGE_PREFLIGHT_FAILED;"
-          [ "$DEVELOPMENT_PLAN_OUTCOME" != "failure" ] || codes="${codes}DEVELOPMENT_PLAN_FAILED;"
-          [ "$EDIT_GUARD_OUTCOME" != "failure" ] || codes="${codes}EDIT_TIME_GUARD_FAILED;"
-          [ "$INCREMENTAL_OUTCOME" != "failure" ] || codes="${codes}INCREMENTAL_REPLAY_FAILED;"
-          [ "$RISK_OUTCOME" != "failure" ] || codes="${codes}RELEASE_RISK_BUDGET_FAILED;"
-          [ "$QUALITY_OUTCOME" != "failure" ] || codes="${codes}TEST_FAILED;"
-          [ "$TYPECHECK_OUTCOME" != "failure" ] || codes="${codes}TYPECHECK_FAILED;"
-          [ "$BUILD_OUTCOME" != "failure" ] || codes="${codes}BUILD_FAILED;"
+          [ "$CONTROL_PLANE_OUTCOME" != "failure" ] || codes="${codes}CONTROL_PLANE_FAILED;"
+          [ "$CONTROL_PLANE_FINAL_OUTCOME" != "failure" ] || codes="${codes}CONTROL_PLANE_FAILED;"
           SHOPERATION_GENERIC_FAILURES="$codes" node scripts/shoperation-failure-intake.mjs
 
       - name: Upload Shoperation failure intake

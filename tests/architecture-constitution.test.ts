@@ -29,6 +29,14 @@ describe('Shoperation Architecture Constitution',()=>{
     expect(scope.knowledgeInfrastructurePrefixes).toContain('docs/architecture/');
   });
 
+  it('keeps capability contracts subordinate to global and domain authority',()=>{
+    const capability=JSON.parse(fs.readFileSync('quality/knowledge/template-factory-authority.v1.json','utf8'));
+    expect(capability.authorityLevel).toBe('capability-contract');
+    expect(capability.precedencePolicy.forbidsSilentOverride).toBe(true);
+    expect(capability.rules).toHaveLength(24);
+    expect(capability.rules.every((rule:any)=>rule.higherAuthorityRuleIds.length>0&&rule.domainIds.length>0)).toBe(true);
+  });
+
   it('retains prior architecture documents as references, not silent competing authorities',()=>{
     expect(ARCHITECTURE_CONSTITUTION.supersession.legacyReferences).toEqual(expect.arrayContaining([
       'docs/NATIVE-ARCHITECTURE.md','docs/WEBSHOP_INSTANCE_ARCHITECTURE.md','docs/DEVELOPMENT.md',
