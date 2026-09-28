@@ -67,6 +67,37 @@ describe('Control Plane diagnostics and exact-head hardening',()=>{
     expect(first.records.some((record:{rawErrorCode:string})=>record.rawErrorCode==='DEVELOPMENT_PLAN_FAILED')).toBe(false);
   });
 
+  it('localizes Knowledge Before Build integrity failures from the evidence artifact',()=>{
+    const root=process.cwd();
+    const script=resolve(root,'scripts/shoperation-failure-intake.mjs');
+    const temp=mkdtempSync(join(tmpdir(),'shoperation-knowledge-intake-'));
+    const diagnostic=join(temp,'knowledge-preflight.json');
+    writeFileSync(diagnostic,JSON.stringify({
+      contract:'shoporation.quality-knowledge-preflight.v1',
+      decision:'BLOCK',
+      integrityIssues:[{code:'SQ_ATLAS_DOMAIN_SCOPE_UNRESOLVED',file:'scripts/smoke.mjs'}],
+    }));
+    const result=spawnSync(process.execPath,[script],{
+      cwd:root,
+      encoding:'utf8',
+      env:{
+        ...process.env,
+        SHOPERATION_FAILURE_INTAKE_OUTPUT_DIR:join(temp,'out'),
+        SHOPERATION_SOURCE_COMMIT:'cccccccc',
+        SHOPERATION_FAILURE_SOURCE:'ci',
+        SHOPERATION_DIAGNOSTIC_ARTIFACTS:`KNOWLEDGE_PREFLIGHT_FAILED=${diagnostic}`,
+        SHOPERATION_GENERIC_FAILURES:'KNOWLEDGE_PREFLIGHT_FAILED',
+      },
+    });
+    expect(result.status,result.stderr||result.stdout).toBe(0);
+    const report=JSON.parse(readFileSync(join(temp,'out','failure-intake.json'),'utf8'));
+    expect(report.records).toHaveLength(1);
+    expect(report.records[0].rawErrorCode).toBe('SQ_ATLAS_DOMAIN_SCOPE_UNRESOLVED');
+    expect(report.records[0].file).toBe('scripts/smoke.mjs');
+    expect(report.records[0].gateCode).toBe('KNOWLEDGE_PREFLIGHT_FAILED');
+    expect(report.records.some((record:{rawErrorCode:string})=>record.rawErrorCode==='KNOWLEDGE_PREFLIGHT_FAILED')).toBe(false);
+  });
+
   it('rejects stale risk evidence and binds matching risk evidence into the release manifest',()=>{
     const script=resolve(process.cwd(),'scripts/release-manifest.mjs');
     const temp=mkdtempSync(join(tmpdir(),'shoperation-release-'));
@@ -155,6 +186,9 @@ describe('Control Plane diagnostics and exact-head hardening',()=>{
     expect(smoke).toContain('CLOUD_SMOKE_CONTENT_TYPE_MISMATCH');
     expect(smoke).toContain('artifacts/cloud-smoke');
     expect(smoke).toContain('sourceCommit:expectedSha||null');
+
+    const domains=JSON.parse(read('quality/knowledge/domain-foundations.v1.json')) as {domains:{id:string;canonicalPaths:string[]}[]};
+    expect(domains.domains.find(item=>item.id==='DOMAIN-RELEASE')?.canonicalPaths).toContain('scripts/smoke.mjs');
 
     const workflow=read('.github/workflows/cloud-smoke.yml');
     expect(workflow).toContain('SMOKE_ATTEMPT="$attempt"');
