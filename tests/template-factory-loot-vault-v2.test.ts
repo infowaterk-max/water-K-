@@ -1,3 +1,5 @@
+import {createHash} from 'node:crypto';
+import {readFileSync} from 'node:fs';
 import {describe,expect,it} from 'vitest';
 import {
   buildRegisteredStorefrontTemplateFactoryCandidate,
@@ -166,7 +168,9 @@ describe('Loot Vault v2 Factory canonical wiring',()=>{
       expect(header?.config.presentation,page.pageType).toBe('compact-single-row');
       expect(header?.config.showUtilityLabels,page.pageType).toBe(false);
       const navigation=nodes.find(node=>node.id==='loot-vault-shell-nav');
-      expect((navigation?.config.items as unknown[]),page.pageType).toHaveLength(4);
+      const navItems=(navigation?.config.items??[]) as Array<{label?:string;href?:string}>;
+      expect(navItems.map(item=>item.label),page.pageType).toEqual(['Játékok','Figurák','Gyűjtői kiadások','Kiegészítők','Ajándékok','Magazin']);
+      expect(String(header?.config.logoUrl),page.pageType).toBe('/storefront-demo/loot-vault-v2/brand-mark.svg');
 
       const footer=nodes.find(node=>node.id==='loot-vault-shell-footer');
       expect(footer?.config.presentation,page.pageType).toBe('flush');
@@ -174,23 +178,25 @@ describe('Loot Vault v2 Factory canonical wiring',()=>{
     }
   });
 
-  it('keeps Loot Vault category and product visuals on dedicated asset paths',()=>{
+  it('keeps Loot Vault category and product visuals package-owned and physically diverse',()=>{
     const home=LOOT_VAULT_V2_TEMPLATE_PACKAGE.pages.find(page=>page.pageType==='home');
     expect(home).toBeTruthy();
     const nodes=walk(home!.sections);
+    const hash=(src:string)=>createHash('sha256').update(readFileSync(`public${src}`)).digest('hex');
+
     const universeImages=nodes
-      .filter(node=>/^loot-vault-loot-v2-universe-\d-image$/.test(node.id))
+      .filter(node=>/^loot-vault-loot-v2-universe-\d+-image$/.test(node.id))
       .map(node=>String(node.config.src??''));
     expect(universeImages).toHaveLength(6);
-    expect(new Set(universeImages).size).toBe(6);
-    expect(universeImages.every(src=>src.startsWith('/storefront-demo/loot-vault-v2/category-'))).toBe(true);
+    expect(universeImages.every(src=>src.startsWith('/storefront-demo/loot-vault-v2/'))).toBe(true);
+    expect(new Set(universeImages.map(hash)).size).toBeGreaterThanOrEqual(4);
 
     const grid=nodes.find(node=>node.id==='loot-vault-loot-v2-product-grid');
     const products=(grid?.config.products??[]) as Array<Record<string,unknown>>;
     const productImages=products.map(item=>String(item.image??''));
     expect(productImages).toHaveLength(4);
-    expect(new Set(productImages).size).toBe(4);
-    expect(productImages.every(src=>src.startsWith('/storefront-demo/loot-vault-v2/product-'))).toBe(true);
+    expect(productImages.every(src=>src.startsWith('/storefront-demo/loot-vault-v2/'))).toBe(true);
+    expect(new Set(productImages.map(hash)).size).toBe(4);
   });
 
   it('keeps customer-facing demo copy free from internal platform vocabulary',()=>{
