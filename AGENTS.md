@@ -10,9 +10,9 @@ Do not start coding from memory alone.
 2. Record every explicit Product Owner/user instruction accepted for implementation in `quality/development/instruction-ledger.v1.json`. Each item must have acceptance criteria, machine-verifiable evidence checks and regression authority. Do not silently omit or defer a requested subtask.
 3. Run:
    `node scripts/shoperation-development-guard.mjs --task "<task>" --files "<file1;file2;...>" --write-plan --check`
-4. Read the complete `artifacts/shoperation-development-guard/development-guard.md`.
+4. Read the complete `artifacts/shoperation-development-guard/development-guard.md`, including the **A/B Change Plan**. `A` is the direct edit set. `B` contains reverse consumers, regression tests, repository descriptions/references, generated evidence and lifecycle-protected companion artifacts that the change may invalidate.
 5. Review every active Known Failure, preventive directive, forbidden approach, negative-knowledge rule and required regression authority.
-6. Set `quality/development/active-plan.json` to `status: "ready-for-implementation"` only after that review.
+6. Confirm every active B obligation in `quality/development/active-plan.json` before setting `status: "ready-for-implementation"`. Do not silently omit a companion file because it is not a direct code edit. A golden-baseline obligation is deferred evidence: do not modify/promote the baseline before explicit Product Owner visual acceptance.
 7. Run the central Control Plane through planning:
    `node scripts/shoperation-control-plane.mjs --profile pr --through GUARD-PLAN-BEFORE-CODE --check`
 8. **Do not make the first implementation edit until the Control Plane reports PASS through Plan Before Code.**
@@ -27,7 +27,7 @@ After every coherent edit batch, before continuing to a new area, run one centra
 
 Do not manually orchestrate Knowledge, Plan, Edit-Time or Replay as independent sibling gates. They are specialist modules owned and ordered by the Control Plane.
 
-If the diff expands into another subsystem, activates additional Known Failures, or changes the guard digest, stop. Regenerate and review the Development Guard and update the plan before continuing.
+If the diff expands into another subsystem, activates additional Known Failures, changes the guard digest, or activates a new B companion obligation, stop. Regenerate and review the Development Guard and update the plan before continuing.
 
 A `review` edit-time finding requires an explicit exception in `quality/development/active-plan.json` with the rule ID and a concrete reason. A `block` finding must be repaired and is not exceptable by plan metadata.
 
