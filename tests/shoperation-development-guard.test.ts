@@ -12,6 +12,16 @@ describe('Shoperation Development-Time Known Failure Guard',()=>{
     expect(scope.unresolvedFiles).toEqual([]);
   });
   it('requires a preventive directive for every global and Template Factory Known Failure',()=>{const integrity=evaluateShoperationKnowledgeIntegrity();expect(integrity.ok,JSON.stringify(integrity.issues)).toBe(true);const ids=SHOPERATION_KNOWN_FAILURES.map(item=>item.id);expect(Object.keys(policy.directives).sort()).toEqual([...ids].sort());for(const id of ids){const directive=policy.directives[id];expect(directive.preventiveDirective.length,id).toBeGreaterThan(20);expect(directive.forbiddenApproaches.length,id).toBeGreaterThan(0);expect(directive.requiredBeforeEdit.length,id).toBeGreaterThan(0);}});
+  it('prevents the responsive row-budget failure before implementation',()=>{
+    const directive=policy.directives['SQ-KF-026'];
+    expect(directive).toBeTruthy();
+    expect(directive.preventiveDirective).toContain('12-column');
+    expect(directive.forbiddenApproaches.some(item=>/Desktop span plus one/i.test(item))).toBe(true);
+    expect(directive.forbiddenApproaches.some(item=>/Desktop or Mobile authority/i.test(item))).toBe(true);
+    expect(directive.requiredBeforeEdit.some(item=>/Desktop, Tablet and Mobile gridSpan/i.test(item))).toBe(true);
+    expect(directive.requiredBeforeEdit.some(item=>/12-column row budget/i.test(item))).toBe(true);
+  });
+
   it('keeps the preventive-development failure in the always-on global baseline',()=>{const k=JSON.parse(readFileSync('quality/knowledge/shoperation-quality-knowledge.v1.json','utf8')) as {globalBaselineFailureIds:string[]};expect(k.globalBaselineFailureIds).toContain('SQ-KF-022');const shipping=resolveShoperationKnowledgeScope({changedFiles:['src/lib/shipping/dpd-provider.ts']});expect(shipping.activeFailureIds).toContain('SQ-KF-022');expect(shipping.activeFailureIds).not.toContain('TF-KF-003');});
   it('does not let product intent match production terminology',()=>{const storefront=policy.intentMatchers.find(item=>item.subsystems.includes('storefront-ui'));expect(storefront).toBeTruthy();const matcher=new RegExp(storefront!.pattern,'i');expect(matcher.test('production evidence closure')).toBe(false);expect(matcher.test('product page')).toBe(true);expect(matcher.test('termék oldal')).toBe(true);});
   it('bounds short provider tokens so unrelated words cannot expand development scope',()=>{const shipping=policy.intentMatchers.find(item=>item.subsystems.includes('inventory-fulfillment-authority'));expect(shipping).toBeTruthy();const matcher=new RegExp(shipping!.pattern,'i');expect(matcher.test('implementation details')).toBe(false);expect(matcher.test('MPL carrier integration')).toBe(true);});

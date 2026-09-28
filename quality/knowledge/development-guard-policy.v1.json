@@ -656,6 +656,20 @@
         "Read artifacts/shoperation-development-guard/guard-context.json and preserve cross-gate authority consistency",
         "Respect SQ-AUTH-022: specialist guards report evidence; only the Control Plane may own final PASS/BLOCK orchestration"
       ]
+    },
+    "SQ-KF-026": {
+      "preventiveDirective": "For viewport-specific grid work, validate the intended sibling row composition against the canonical 12-column budget before editing. Tablet spans must be deliberate responsive composition values, not mechanically derived from Desktop.",
+      "forbiddenApproaches": [
+        "mechanically deriving Tablet gridSpan as Desktop span plus one or any other per-node heuristic without validating the sibling row",
+        "accepting individually valid 1–12 gridSpan values as sufficient when their intended sibling row overflows the 12-column composition",
+        "repairing a Tablet-only wrap or empty-band defect by changing Desktop or Mobile authority without evidence that those viewports are also incorrect"
+      ],
+      "requiredBeforeEdit": [
+        "List the logical grid row siblings and their Desktop, Tablet and Mobile gridSpan values before changing responsive composition",
+        "Confirm the intended Tablet grouping fits the canonical 12-column row budget or that any wrap is explicitly intentional",
+        "Keep responsive regression authority available: tests/storefront-playroom-v20-functional-acceptance.test.ts, tests/storefront-commerce-header.test.tsx",
+        "Preserve unaffected viewport authority with explicit Desktop/Mobile assertions or equivalent visual proof"
+      ]
     }
   },
   "editRules": [

@@ -653,6 +653,11 @@
           "kind": "file-contains",
           "file": "quality/knowledge/shoperation-quality-knowledge.v1.json",
           "value": "SQ-KF-026"
+        },
+        {
+          "kind": "file-contains",
+          "file": "quality/knowledge/development-guard-policy.v1.json",
+          "value": "SQ-KF-026"
         }
       ],
       "regressionTests": [
@@ -660,7 +665,8 @@
         "tests/storefront-playroom-v20-functional-acceptance.test.ts",
         "tests/product-owner-instruction-compliance.test.ts",
         "tests/storefront-playroom-v20-post-release-polish.test.ts",
-        "tests/shoperation-quality-knowledge.test.ts"
+        "tests/shoperation-quality-knowledge.test.ts",
+        "tests/shoperation-development-guard.test.ts"
       ]
     }
   ]
