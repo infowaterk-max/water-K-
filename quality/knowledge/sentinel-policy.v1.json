@@ -1,0 +1,47 @@
+{
+  "contract": "shoporation.sentinel-policy.v1",
+  "version": 1,
+  "status": "canonical",
+  "schedule": {
+    "cadence": "daily",
+    "cron": "17 4 * * *"
+  },
+  "windows": {
+    "dailyHours": 24,
+    "trendDays": 7,
+    "historyDays": 30,
+    "comparisonDays": 7
+  },
+  "sources": {
+    "workflowRuns": true,
+    "failureIntakeIssues": true,
+    "deepAtlasAttention": true,
+    "excludeWorkflowNames": [
+      "Shoperation Sentinel"
+    ]
+  },
+  "failureConclusions": [
+    "failure",
+    "timed_out",
+    "startup_failure",
+    "action_required"
+  ],
+  "thresholds": {
+    "reviewFailures7d": 2,
+    "actionFailures24h": 3,
+    "actionSameWorkflowFailures7d": 3
+  },
+  "behavior": {
+    "authority": false,
+    "blocking": false,
+    "healthySilent": true,
+    "autoMutationAllowed": false,
+    "recommendationsProposalOnly": true,
+    "unknownStateFailsOpenForRuntimeAndVisibleForOperator": true
+  },
+  "statusModel": {
+    "HEALTHY": "No evidence-backed intervention is currently indicated.",
+    "REVIEW": "A pattern deserves review, but evidence is not yet strong enough for a control change.",
+    "ACTION_REQUIRED": "Existing evidence shows a repeated or authoritative control problem that needs human-governed action."
+  }
+}

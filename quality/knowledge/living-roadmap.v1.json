@@ -132,6 +132,31 @@
       "priority": "P0"
     },
     {
+      "id": "SHOPERATION-SENTINEL",
+      "title": "Shoperation Sentinel — Continuous System Observation & Improvement Intelligence",
+      "status": "in-progress",
+      "phase": "foundation",
+      "order": 75,
+      "targetWindow": "foundation-hardening",
+      "priority": "P0",
+      "capabilities": [
+        "CAP-QUALITY",
+        "CAP-ATLAS"
+      ],
+      "scope": [
+        "automatic daily Sentinel Deep Scan",
+        "24-hour, 7-day and 30-day failure trend observation",
+        "correlation of workflow failures, Failure Intake fingerprints and Deep Atlas attention state",
+        "deterministic improvement proposals backed by evidence",
+        "HEALTHY / REVIEW / ACTION_REQUIRED status model",
+        "healthy state stays silent; review/action state is persisted for operator visibility",
+        "no blocking authority and no autonomous code mutation",
+        "platform System Health surface delivered as a separate isolated transaction"
+      ],
+      "notes": "Sentinel observes existing authorities and evidence. It does not replace Atlas, Knowledge Before Build, Control Plane, Failure Intake, Release Risk Budget or Incident authority. Code-changing repair remains proposal-first and human-governed.",
+      "evidenceRefs": []
+    },
+    {
       "id": "RELEASE-TRANSACTION",
       "title": "Release Transaction + Risk Budget + Production Proof",
       "status": "operational",
