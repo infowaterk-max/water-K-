@@ -126,6 +126,8 @@ describe('Shoperation Control Plane',()=>{
     const factory=registry.guards.find((guard:any)=>guard.id==='GUARD-TEMPLATE-FACTORY');
     expect(factory.reporting.goldenOnlyClassification).toBe('AWAITING_PRODUCT_OWNER_ACCEPTANCE');
     expect(factory.reporting.goldenOnlyAction).toContain('do not promote goldens');
+    expect(factory.reporting.goldenOnlyObligationId).toBe('ATLAS-OBL-005');
+    expect(reporter).toContain('PLANNED B OBLIGATION');
   });
 
   it('uses one global authority-conflict mechanism without adding a checkout-specific gate',()=>{
