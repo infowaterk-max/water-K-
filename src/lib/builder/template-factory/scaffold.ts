@@ -17,6 +17,11 @@ import type {
   StorefrontPageDocument,
 } from '@/lib/builder/storefront-runtime';
 import {
+  evaluateStorefrontTemplateGeneratorReadiness,
+  type StorefrontTemplateGeneratorBlueprint,
+  type StorefrontTemplateGeneratorReadinessResult,
+} from '@/lib/builder/template-factory/generator-readiness';
+import {
   setStorefrontGlobalStyleState,
   type StorefrontGlobalStyleState,
 } from '@/lib/builder/storefront-global-styles';
@@ -84,6 +89,7 @@ export type StorefrontTemplateFactoryCommerceReadiness={
 };
 
 export type StorefrontTemplateFactoryRecipe={
+  blueprint?:StorefrontTemplateGeneratorBlueprint;
   category:string;
   templateKey:string;
   displayName:string;
@@ -143,6 +149,7 @@ export type StorefrontTemplateFactoryBuild={
     internalReferenceMediaCount:number;
     plannedMediaCount:number;
     showroomEvidence:readonly StorefrontShowroomEvidenceRow[];
+    generatorReadiness:StorefrontTemplateGeneratorReadinessResult;
     issues:readonly StorefrontTemplateFactoryIssue[];
     technicalReady:boolean;
     productOwnerReady:boolean;
@@ -482,7 +489,13 @@ export function compileStorefrontTemplateFactoryPackage(input:{
     demoFixtures:rewriteInternalReferenceMediaRefs(clone(recipe.demoFixtures),recipe.media.assets),
   };
 
+  const generatorReadiness=evaluateStorefrontTemplateGeneratorReadiness({
+    blueprint:recipe.blueprint,
+    recipe,
+    package:pkg,
+  });
   const issues=evaluateBuild({foundation,recipe,pkg,patchMisses,overridden});
+  if(recipe.blueprint)issues.push(...generatorReadiness.issues);
   return{
     package:pkg,
     report:{
@@ -505,6 +518,7 @@ export function compileStorefrontTemplateFactoryPackage(input:{
       internalReferenceMediaCount:recipe.media.assets.filter(asset=>asset.state==='internal-reference').length,
       plannedMediaCount:recipe.media.assets.filter(asset=>asset.state==='planned').length,
       showroomEvidence:createStorefrontTemplateShowroomEvidence(pkg),
+      generatorReadiness,
       issues:Object.freeze(issues),
       technicalReady:issues.every(item=>item.severity!=='error'||item.code==='FACTORY_INTERNAL_VISUAL_REVIEW_REQUIRED'||item.code==='FACTORY_MEDIA_FINALIZATION_REQUIRED'),
       productOwnerReady:issues.every(item=>item.severity!=='error'),
