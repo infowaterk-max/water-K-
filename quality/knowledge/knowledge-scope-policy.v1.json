@@ -23,7 +23,8 @@
     "scripts/lib/shoperation-guard-context.mjs",
     "scripts/shoperation-control-plane.mjs",
     "scripts/lib/shoperation-control-plane-reporter.mjs",
-    "scripts/shoperation-specialist-runner.mjs"
+    "scripts/shoperation-specialist-runner.mjs",
+    "scripts/template-factory-"
   ],
   "dependencies": {
     "builder-template-system": [
