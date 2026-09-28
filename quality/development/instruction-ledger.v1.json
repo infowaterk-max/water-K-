@@ -386,7 +386,7 @@
         {
           "kind": "file-contains",
           "file": "scripts/shoperation-specialist-runner.mjs",
-          "value": "SPECIALIST_DEPENDENCY_NOT_PASS"
+          "value": "CONTROL_PLANE_SPECIALIST_PREDECESSOR_NOT_PASS"
         },
         {
           "kind": "file-contains",
@@ -396,7 +396,7 @@
         {
           "kind": "file-contains",
           "file": ".github/workflows/shoperation-knowledge-full-replay.yml",
-          "value": "shoperation-specialist-runner.mjs --guard GUARD-QUALITY-TESTS"
+          "value": "--run-external --check"
         },
         {
           "kind": "authority-source-contains",
@@ -425,6 +425,16 @@
         {
           "kind": "file-exists",
           "file": "scripts/lib/shoperation-external-orchestrator.mjs"
+        },
+        {
+          "kind": "file-contains",
+          "file": ".github/workflows/ci.yml",
+          "value": "--run-external --check"
+        },
+        {
+          "kind": "file-contains",
+          "file": ".github/workflows/template-factory-quality-gate.yml",
+          "value": "--run-external --check"
         }
       ],
       "regressionTests": [
