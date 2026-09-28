@@ -30,6 +30,26 @@ describe('shared cross-gate context',()=>{
     expect(context.currentGuard.id).toBe('GUARD-INSTRUCTION-COMPLIANCE');
     expect(context.currentGuard.decision).toBe('PASS');
     expect(context.controlPlane).toBeDefined();
+    expect(context.intelligencePolicy.mode).toBe('deterministic-control-plane-first');
+    expect(context.authorityConflictContracts.some((item:any)=>item.authorityRuleId==='TF-AUTH-005')).toBe(true);
+  });
+
+  it('uses one global authority-conflict mechanism instead of a checkout-specific gate',()=>{
+    const registry=json('quality/knowledge/guard-registry.v1.json');
+    expect(registry.principles.authorityConflictDetectionIsGlobal).toBe(true);
+    expect(registry.authorityConflictContracts.some((item:any)=>item.id==='AUTH-CONFLICT-TF-AUTH-005-CHECKOUT')).toBe(true);
+    expect(registry.guards.some((guard:any)=>/checkout/i.test(guard.id))).toBe(false);
+    const compliance=read('scripts/shoperation-instruction-compliance.mjs');
+    expect(compliance).toContain('authorityConflictIssues');
+    expect(compliance).not.toContain('const PROTECTED=');
+  });
+
+  it('returns external specialist results to the same shared evidence bus',()=>{
+    const contextRuntime=read('scripts/lib/shoperation-guard-context.mjs');
+    const runner=read('scripts/shoperation-specialist-runner.mjs');
+    expect(contextRuntime).toContain('specialistEvidencePath');
+    expect(contextRuntime).toContain("guard?.execution?.mode==='external-specialist'");
+    expect(runner).toContain('publishGuardContext(guardId,evidence)');
   });
 
   it('requires checkout instruction proof to preserve shared E13 authority rather than a template-local replica',()=>{
