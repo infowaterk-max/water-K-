@@ -80,7 +80,7 @@ function collectDiagnosticArtifact(spec){
       route:item?.route??null,
       endpoint:item?.endpoint??null,
       contract:item?.contract??data.contract??null,
-      evidence:[`artifact=${file}`,item?.failureId?`failureId=${item.failureId}`:'',item?.case?`case=${item.case}`:''],
+      evidence:[`artifact=${file}`,...(Array.isArray(item?.evidence)?item.evidence:[]),item?.failureId?`failureId=${item.failureId}`:'',item?.case?`case=${item.case}`:''],
     });
   };
 
