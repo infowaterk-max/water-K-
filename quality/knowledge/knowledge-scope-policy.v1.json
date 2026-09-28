@@ -17,6 +17,7 @@
     "scripts/shoperation-support-history-backfill.mjs",
     "scripts/template-factory-quality-gate.mjs",
     "scripts/template-factory-product-owner-handoff.mjs",
+    "scripts/template-factory-external-specialist.mjs",
     "docs/architecture/",
     "scripts/shoperation-instruction-compliance.mjs",
     "scripts/lib/shoperation-guard-context.mjs",
