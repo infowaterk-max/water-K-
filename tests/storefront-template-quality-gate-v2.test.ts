@@ -90,9 +90,9 @@ describe('Template Factory Quality Gate v2',()=>{
     expect(runner).toContain('process.env.QUALITY_HEAD_SHA??process.env.GITHUB_SHA');
     expect(workflow).toContain("src/lib/auth/storefront-return-target.ts");
     expect(workflow).toContain("src/app/api/orders/claim/**");
-    expect(workflow).toContain('tests/storefront-auth-return-target.test.ts');
-    expect(workflow).toContain('tests/storefront-guest-order-claim.test.ts');
-    expect(workflow).toContain('tests/storefront-shared-commerce-account-hardening.test.ts');
+    expect(specialist).toContain('tests/storefront-auth-return-target.test.ts');
+    expect(specialist).toContain('tests/storefront-guest-order-claim.test.ts');
+    expect(specialist).toContain('tests/storefront-shared-commerce-account-hardening.test.ts');
     expect(workflow).toContain("'src/components/cart/**'");
     expect(workflow).toContain("'src/lib/account/**'");
     expect(workflow).toContain('20260922053000_shared_customer_billing_b2b_identity_reverification.sql');
