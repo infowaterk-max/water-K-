@@ -1,7 +1,7 @@
 {
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-CONTROL-PLANE-DIAGNOSTICS-EXACT-HEAD-HARDENING",
-  "task": "Harden existing failure intake diagnostics, pre-code scope projection, release evidence provenance, Cloud Smoke evidence, and Control Plane risk classification.",
+  "task": "Harden existing Control Plane diagnostics, exact-head release evidence, Cloud Smoke proof, Fresh Install proof parity, and risk classification.",
   "status": "ready-for-implementation",
   "guardDigest": "d0031b70",
   "plannedFilePatterns": [
@@ -17,7 +17,10 @@
     ".github/workflows/cloud-smoke.yml",
     "scripts/smoke.mjs",
     "deploy/release-risk-policy.json",
-    "quality/knowledge/domain-foundations.v1.json"
+    "quality/knowledge/domain-foundations.v1.json",
+    ".github/workflows/fresh-install-proof.yml",
+    "tests/customer-baseline-proof-contract.test.ts",
+    "docs/support/**"
   ],
   "expectedSubsystems": [
     "quality-knowledge-system",
@@ -92,6 +95,6 @@
     "SQ-NK-015"
   ],
   "exceptions": [],
-  "notes": "Control Plane-only hardening. Preserve existing authorities. Repair the proven Atlas/Release mismatch by registering scripts/smoke.mjs under canonical DOMAIN-RELEASE, extend Failure Intake v2 to consume Knowledge Before Build integrityIssues, add structured Cloud Smoke evidence/failure intake, and explicitly classify Control Plane scripts in Release Risk Budget at unchanged medium weight. No threshold/weight relaxation and no product/runtime/schema/auth redesign.",
+  "notes": "Control Plane-only hardening. Preserve existing authorities. Align the two existing Fresh Install entrypoints to one evidence/failure-reporting contract without creating a third proof system; keep Cloud Smoke exact-head evidence, KBB reason localization, canonical smoke DOMAIN-RELEASE mapping, and explicit quality-infrastructure Risk Budget classification. No threshold/weight relaxation and no product/runtime/schema/auth redesign.",
   "changeBaseSha": "c1f3d4178407d0c484f18874707313d849d4593c"
 }
