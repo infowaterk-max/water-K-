@@ -18,6 +18,7 @@ const templateFailureTitles=tfTitles();
 
 const clean=value=>String(value??'').replace(/[\r\n\t]+/g,' ').replace(/\s+/g,' ').trim();
 const escapeAnnotation=value=>clean(value).replace(/%/g,'%25').replace(/\r/g,'%0D').replace(/\n/g,'%0A').replace(/:/g,'%3A').replace(/,/g,'%2C');
+const atPath=(value,path)=>String(path??'').split('.').filter(Boolean).reduce((current,key)=>current?.[key],value);
 
 function signatureFailureId(code){
   const raw=String(code??'');
@@ -46,7 +47,7 @@ function issueFrom(value,guardId){
   if(!value||typeof value!=='object')return null;
   const code=value.code??value.error??value.ruleId??guardId+'_BLOCK';
   const failureId=value.failureId??value.knownFailureId??signatureFailureId(code)??null;
-  const authorityIds=[...(value.authorityRuleIds??[]),...(value.ruleId&&String(value.ruleId).includes('AUTH')?[value.ruleId]:[])];
+  const authorityIds=[...(value.authorityRuleIds??[]),...(value.ruleIds??[]),...(value.ruleId&&String(value.ruleId).includes('AUTH')?[value.ruleId]:[])];
   const message=clean(
     value.message??value.symptom??value.error??value.reason??value.title??
     [value.code,value.file,value.nodeId,value.dependencyId].filter(Boolean).join(' · ')
@@ -59,16 +60,49 @@ function issueFrom(value,guardId){
     column:Number.isFinite(Number(value.column??value.col))?Number(value.column??value.col):null,
     failureId,
     authorityRuleIds:authorityIds,
+    classification:value.classification??null,
+    action:value.action??null,
     ...failureMeta(failureId),
   };
 }
 
-export function collectGuardDiagnostics({guardId,evidence,processError,rawOutput}){
+export function collectGuardDiagnostics({guardId,guard=null,evidence,processError,rawOutput}){
   const values=[];
-  for(const key of ['issues','integrityIssues','violations','blockingFindings','contextIssues','errors','diagnostics']){
+  for(const key of ['issues','integrityIssues','blockingFindings','contextIssues','errors','diagnostics']){
     const current=evidence?.[key];
     if(Array.isArray(current))values.push(...current);
   }
+  if(Array.isArray(evidence?.violations)){
+    for(const violation of evidence.violations){
+      values.push(typeof violation==='string'
+        ?{code:guard?.reporting?.violationCode??guardId+'_VIOLATION',message:violation,classification:guard?.reporting?.classification??null,action:guard?.reporting?.action??null}
+        :violation);
+    }
+  }
+  const registered=[];
+  for(const source of guard?.diagnosticSources??[]){
+    if(!source.file||!existsSync(source.file))continue;
+    try{
+      const data=readJson(source.file);
+      const items=atPath(data,source.arrayPath);
+      if(!Array.isArray(items))continue;
+      for(const item of items){
+        const raw=typeof item==='string'?item:String(item?.[source.codeField]??item?.code??item?.error??'');
+        if(!raw)continue;
+        const code=raw.includes(':')?raw.split(':')[0]:raw;
+        const context=(source.contextFields??[]).map(field=>item?.[field]).filter(Boolean);
+        registered.push({code,message:context.length?raw+' · '+context.join(' · '):raw,file:item?.file??null});
+      }
+    }catch{}
+  }
+  if(registered.length&&registered.every(item=>item.code==='GOLDEN_DIFF'||item.code==='GOLDEN_BASELINE_MISSING')){
+    values.push({
+      code:'GOLDEN_DIFF',
+      message:registered.length+' golden-only visual differences. No runtime/type/build regression detected by this specialist.',
+      classification:guard?.reporting?.goldenOnlyClassification??'AWAITING_HUMAN_ACCEPTANCE',
+      action:guard?.reporting?.goldenOnlyAction??'Human visual acceptance required before baseline promotion.',
+    });
+  }else values.push(...registered);
   if(evidence?.changeImpact?.unresolvedDomainFiles?.length){
     values.push(...evidence.changeImpact.unresolvedDomainFiles.map(file=>({code:'SQ_ATLAS_DOMAIN_SCOPE_UNRESOLVED',file,message:'Atlas domain scope unresolved: '+file})));
   }
@@ -84,6 +118,8 @@ export function collectGuardDiagnostics({guardId,evidence,processError,rawOutput
     if(assertion)values.push({code:'VITEST_ASSERTION_FAILED',file:lastVitestFile,message:assertion[1]});
     const build=line.match(/(?:Type error|Module not found|Failed to compile|Build error)[: ]+(.+)/i);
     if(build)values.push({code:'BUILD_DIAGNOSTIC',message:build[1]});
+    const structured=line.match(/^([A-Z][A-Z0-9_-]{5,}):\s*(.+)$/);
+    if(structured)values.push({code:structured[1],message:structured[2]});
   }
   if(!values.length&&evidence?.decision==='BLOCK')values.push({code:guardId+'_BLOCK',message:guardId+' blocked without structured issue details.'});
   const seen=new Set();
@@ -106,6 +142,8 @@ function markdownReport({guard,diagnostics,stage='managed'}){
     if(item.file)lines.push('  - Hely: '+item.file+(item.line?':'+item.line:''));
     if(item.authorityRuleIds?.length)lines.push('  - Authority: '+item.authorityRuleIds.join(', '));
     if(item.failureId)lines.push('  - Known Failure: '+item.failureId+(item.title?' — '+item.title:''));
+    if(item.classification)lines.push('  - Besorolás: '+item.classification);
+    if(item.action)lines.push('  - Következő lépés: '+item.action);
     if(item.remediation)lines.push('  - Javítási irány: '+item.remediation);
   }
   return lines.join('\n')+'\n';
@@ -118,11 +156,13 @@ export function emitInstantGuardFailure({guard,evidence=null,processError=null,r
     '',
     '════════════════ SHOPERATION CONTROL PLANE ════════════════',
     'BLOCK: '+guard.id+' — '+(guard.name??''),
-    'OK: '+(first?.message??(guard.name??guard.id)+' blocked.'),
   ];
+  for(const [index,item] of diagnostics.slice(0,4).entries())banner.push('REASON '+(index+1)+' ['+item.code+']: '+item.message);
+  if(first?.classification)banner.push('CLASSIFICATION: '+first.classification);
   if(first?.failureId)banner.push('KNOWN FAILURE: '+first.failureId+(first.title?' — '+first.title:''));
   if(first?.authorityRuleIds?.length)banner.push('AUTHORITY: '+first.authorityRuleIds.join(', '));
   if(first?.file)banner.push('HELY: '+first.file+(first.line?':'+first.line:'')+(first.column?':'+first.column:''));
+  if(first?.action)banner.push('ACTION: '+first.action);
   if(first?.remediation)banner.push('JAVÍTÁS: '+first.remediation);
   banner.push('═══════════════════════════════════════════════════════════','');
   console.error(banner.join('\n'));
