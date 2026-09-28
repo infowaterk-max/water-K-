@@ -125,6 +125,16 @@
       ]
     },
     {
+      "name": "quality-infrastructure",
+      "risk": "medium",
+      "patterns": [
+        "scripts/shoperation-*.mjs",
+        "scripts/lib/shoperation-*.mjs",
+        "src/lib/quality-system/**",
+        "quality/knowledge/**"
+      ]
+    },
+    {
       "name": "release-infrastructure",
       "risk": "medium",
       "patterns": [
