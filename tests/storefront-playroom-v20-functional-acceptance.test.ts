@@ -581,7 +581,9 @@ describe('Playroom v20 functional acceptance',()=>{
     expect(seeder).toContain("const ready=hydrated&&");
     expect(seeder).toContain("replace(items)");
     expect(seeder).toContain("setCouponCode('')");
-    expect(seeder).toContain("href={ready?'/penztar':'#'}");
+    expect(seeder).toContain("window.location.assign(href)");
+    expect(seeder).toContain("onClick={()=>open('/penztar')}");
+    expect(seeder).toContain("disabled={!ready}");
     expect(seeder).not.toContain("localStorage.setItem('shoperation-cart-v4'");
   });
 
