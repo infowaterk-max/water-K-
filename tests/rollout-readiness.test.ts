@@ -80,7 +80,7 @@ describe('V24 rollout readiness contracts', () => {
     expect(policy.maxPoints).toBe(5);
     expect(policy.maxSubsystems).toBe(3);
     expect(policy.riskWeights.high).toBe(5);
-    const registry=JSON.parse(read('quality/knowledge/guard-registry.v1.json')) as {guards:{id:string;execution?:{mode:string;args?:string[]}}[]};
+    const registry=JSON.parse(read('quality/knowledge/guard-registry.v1.json')) as {guards:{id:string;execution?:{mode:string;command?:string;args?:string[]}}[]};
     const releaseGuard=registry.guards.find(item=>item.id==='GUARD-RELEASE-RISK');
     expect(workflow).toContain('Shoperation Control Plane');
     expect(workflow).toContain('scripts/shoperation-control-plane.mjs');
