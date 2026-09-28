@@ -48,7 +48,8 @@
           "template-pr",
           "post-merge",
           "branch",
-          "full-replay"
+          "full-replay",
+          "template-branch"
         ]
       }
     },
@@ -79,7 +80,8 @@
           "pr",
           "template-pr",
           "post-merge",
-          "branch"
+          "branch",
+          "template-branch"
         ]
       }
     },
@@ -109,7 +111,8 @@
         ],
         "profiles": [
           "pr",
-          "template-pr"
+          "template-pr",
+          "template-branch"
         ]
       }
     },
@@ -140,7 +143,8 @@
         ],
         "profiles": [
           "pr",
-          "template-pr"
+          "template-pr",
+          "template-branch"
         ]
       }
     },
@@ -175,7 +179,8 @@
           "template-pr",
           "post-merge",
           "branch",
-          "full-replay"
+          "full-replay",
+          "template-branch"
         ]
       }
     },
