@@ -668,6 +668,53 @@
         "tests/shoperation-quality-knowledge.test.ts",
         "tests/shoperation-development-guard.test.ts"
       ]
+    },
+    {
+      "id": "PO-2026-09-28-CHECKOUT-VISUAL-GOLDEN-CLOSEOUT",
+      "request": "A Playroom v20 pénztár vizuális lezárása: ellenőrizd és javítsd a még látható Tablet header brand truncation hibát, majd kizárólag a checkout Desktop/Tablet/Mobile jelenlegi elfogadott renderjeit emeld golden baseline-ná. Más oldal goldenje ne változzon.",
+      "state": "planned",
+      "acceptanceCriteria": [
+        "Tablet checkout headerben a SHOPORATION márkanév teljesen olvasható, ellipsis nélkül.",
+        "Checkout Desktop és Mobile megjelenés a header-fix miatt nem regresszál.",
+        "A checkout mindhárom viewportja browser diagnostics szempontból tiszta.",
+        "Csak checkout-desktop.png, checkout-tablet.png és checkout-mobile.png golden módosul.",
+        "A golden promotion explicit Product Owner approvalra támaszkodik, nem általános 42-képes elfogadás.",
+        "Template Factory újrafutás után a checkout három GOLDEN_DIFF blokkja megszűnik."
+      ],
+      "checks": [
+        {
+          "kind": "file-contains",
+          "file": "src/components/builder/storefront-commerce-header.tsx",
+          "value": "minmax(10.75rem,1fr)"
+        },
+        {
+          "kind": "file-contains",
+          "file": "tests/storefront-commerce-header.test.tsx",
+          "value": "preserves the full brand label on tablet"
+        },
+        {
+          "kind": "file-exists",
+          "file": "tests/visual-baselines/gaming.playroom/v20/checkout-desktop.png"
+        },
+        {
+          "kind": "file-exists",
+          "file": "tests/visual-baselines/gaming.playroom/v20/checkout-tablet.png"
+        },
+        {
+          "kind": "file-exists",
+          "file": "tests/visual-baselines/gaming.playroom/v20/checkout-mobile.png"
+        }
+      ],
+      "regressionTests": [
+        "tests/storefront-commerce-header.test.tsx",
+        "tests/storefront-playroom-v20-functional-acceptance.test.ts",
+        "tests/storefront-template-quality-gate-v2.test.ts"
+      ],
+      "authorityRuleIds": [
+        "TF-AUTH-005",
+        "TF-AUTH-008",
+        "TF-AUTH-018"
+      ]
     }
   ]
 }
