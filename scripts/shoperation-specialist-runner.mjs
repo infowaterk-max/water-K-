@@ -1,6 +1,7 @@
 import {spawn} from 'node:child_process';
 import {mkdirSync,readFileSync,writeFileSync} from 'node:fs';
 import {emitInstantGuardFailure,collectGuardDiagnostics} from './lib/shoperation-control-plane-reporter.mjs';
+import {publishGuardContext} from './lib/shoperation-guard-context.mjs';
 
 const registry=JSON.parse(readFileSync('quality/knowledge/guard-registry.v1.json','utf8'));
 const args=process.argv.slice(2);
@@ -77,6 +78,7 @@ const evidence={
 mkdirSync('artifacts/shoperation-control-plane',{recursive:true});
 const path='artifacts/shoperation-control-plane/specialist-'+guardId.toLowerCase()+'.json';
 writeFileSync(path,JSON.stringify(evidence,null,2)+'\n');
+publishGuardContext(guardId,evidence);
 if(exitCode!==0)emitInstantGuardFailure({guard,evidence:upstreamEvidence?{...upstreamEvidence,diagnostics,dependencyBlocks}:evidence,rawOutput,stage:'external-specialist'});
 else console.log('Shoperation specialist PASS: '+guardId+' — '+guard.name);
 process.exit(exitCode);
