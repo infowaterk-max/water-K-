@@ -799,6 +799,30 @@
           "kind": "file-contains",
           "file": "tests/release-cross-cutting-contracts.test.ts",
           "value": "Preview allows only one unambiguous Playroom pilot"
+        },
+        {
+          "kind": "authority-source-contains",
+          "authorityRuleId": "TF-AUTH-005",
+          "file": "src/app/penztar/page.tsx",
+          "value": "<CheckoutForm"
+        },
+        {
+          "kind": "authority-source-contains",
+          "authorityRuleId": "TF-AUTH-005",
+          "file": "src/app/penztar/page.tsx",
+          "value": "<StorefrontCheckoutShell"
+        },
+        {
+          "kind": "authority-source-contains",
+          "authorityRuleId": "TF-AUTH-005",
+          "file": "src/components/checkout/storefront-checkout-shell.tsx",
+          "value": "data-storefront-live-checkout=\"shared-e13\""
+        },
+        {
+          "kind": "authority-source-contains",
+          "authorityRuleId": "TF-AUTH-005",
+          "file": "src/components/checkout/checkout-form.tsx",
+          "value": "data-checkout-ux=\"guided-accordion\""
         }
       ],
       "regressionTests": [
@@ -811,7 +835,8 @@
       "authorityRuleIds": [
         "SQ-AUTH-013",
         "SQ-AUTH-004",
-        "SQ-AUTH-007"
+        "SQ-AUTH-007",
+        "TF-AUTH-005"
       ]
     }
   ]
