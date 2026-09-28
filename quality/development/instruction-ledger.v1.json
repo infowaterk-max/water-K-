@@ -756,6 +756,63 @@
         "TF-AUTH-008",
         "TF-AUTH-018"
       ]
+    },
+    {
+      "id": "PO-2026-09-28-PLAYROOM-PREVIEW-DIRECT-ACCESS",
+      "request": "A Playroom exact-head Vercel preview ne a 'webshop még nem nyitott meg' /hamarosan képernyőre essen vissza. Ha a preview működéséhez külön aktiválás kell, rendezzük úgy, hogy a Product Owner ténylegesen meg tudja nyitni a webshopot és a pénztárt fölösleges üzemeltetői belépési kör nélkül.",
+      "state": "implemented",
+      "acceptanceCriteria": [
+        "Vercel Preview környezetben a stagingben egyetlen, draft gaming.playroom oldalakkal rendelkező pilot tenant automatikusan feloldható Product Owner böngészéshez.",
+        "A fallback kizárólag Preview környezetben működik; production unresolved tenant továbbra is fail-closed.",
+        "Ha nincs pontosan egy Playroom pilot jelölt, a resolver nem választ tenantet.",
+        "Az explicit aláírt pilot acceptance session elsőbbséget élvez az automatikus preview fallbackkel szemben.",
+        "A pilot tenant státusza nem változik active-ra, és Preview/pilot környezetből valódi rendelés továbbra sem küldhető.",
+        "Az exact-head preview /webaruhaz és /penztar útvonala üzemeltetői belépés nélkül elérhető, ha az egyetlen Playroom pilot feloldható."
+      ],
+      "checks": [
+        {
+          "kind": "file-contains",
+          "file": "src/lib/instances/access.ts",
+          "value": "resolveUniquePreviewPlayroomPilot"
+        },
+        {
+          "kind": "file-contains",
+          "file": "src/lib/instances/access.ts",
+          "value": "if(candidateIds.length!==1)return null"
+        },
+        {
+          "kind": "file-contains",
+          "file": "src/lib/instances/access.ts",
+          "value": "process.env.VERCEL_ENV!=='preview'"
+        },
+        {
+          "kind": "file-contains",
+          "file": "src/app/api/orders/route.ts",
+          "value": "instance.status!=='active'"
+        },
+        {
+          "kind": "file-contains",
+          "file": "tests/pilot-acceptance-access.test.ts",
+          "value": "opens anonymous Preview browsing only for one unambiguous Playroom pilot"
+        },
+        {
+          "kind": "file-contains",
+          "file": "tests/release-cross-cutting-contracts.test.ts",
+          "value": "Preview allows only one unambiguous Playroom pilot"
+        }
+      ],
+      "regressionTests": [
+        "tests/pilot-acceptance-access.test.ts",
+        "tests/release-cross-cutting-contracts.test.ts",
+        "tests/rollout-readiness.test.ts",
+        "tests/shoperation-development-guard.test.ts",
+        "tests/product-owner-instruction-compliance.test.ts"
+      ],
+      "authorityRuleIds": [
+        "SQ-AUTH-013",
+        "SQ-AUTH-004",
+        "SQ-AUTH-007"
+      ]
     }
   ]
 }
