@@ -111,6 +111,9 @@ if(runExternal){
     let decision=raw==='success'?'PASS':'BLOCK';
     const dependencyBlocks=[];
     for(const dependencyId of guard.consumesEvidenceFrom??[]){
+      const dependencyGuard=byId.get(dependencyId);
+      const dependencyProfiles=dependencyGuard?.execution?.profiles??[];
+      if(dependencyProfiles.length&&!dependencyProfiles.includes(prior.profile))continue;
       const dependency=outcomeMap.get(dependencyId);
       if(!dependency||dependency.decision!=='PASS'){
         dependencyBlocks.push({dependencyId,decision:dependency?.decision??null});
