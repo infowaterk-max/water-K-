@@ -1,5 +1,5 @@
 import {existsSync,mkdirSync,readFileSync,writeFileSync} from 'node:fs';
-import {authorityRule,predecessorIssues,publishGuardContext} from './lib/shoperation-guard-context.mjs';
+import {authorityConflictIssues,authorityRule,predecessorIssues,publishGuardContext} from './lib/shoperation-guard-context.mjs';
 
 const GUARD_ID='GUARD-INSTRUCTION-COMPLIANCE';
 const readJson=file=>JSON.parse(readFileSync(file,'utf8'));
@@ -20,40 +20,12 @@ const templateNode=(file,pageType,nodeId)=>{
   return page?all(page.sections??[]).find(node=>node.id===nodeId):undefined;
 };
 const eq=(a,b)=>JSON.stringify(a)===JSON.stringify(b);
-const textOf=item=>[item.request,...(item.checks??[]).flatMap(check=>[check.pageType,check.file])].filter(Boolean).join(' ').toLocaleLowerCase('hu-HU');
-
-const PROTECTED={
-  checkout:{
-    ruleIds:['TF-AUTH-005'],
-    detect:/\bcheckout\b|p[eé]nzt[aá]r|pageType.?checkout|\/penztar|components\/checkout/i,
-    runtimeEvidence:[
-      {file:'src/app/penztar/page.tsx',value:'<CheckoutForm'},
-      {file:'src/app/penztar/page.tsx',value:'<StorefrontCheckoutShell'},
-      {file:'src/components/checkout/storefront-checkout-shell.tsx',value:'data-storefront-live-checkout="shared-e13"'},
-      {file:'src/components/checkout/checkout-form.tsx',value:'data-checkout-ux="guided-accordion"'},
-    ],
-    forbiddenTemplateBehavior:/form|field|input|shipping|payment|submit|step|accordion/i,
-  },
-  cart:{
-    ruleIds:['TF-AUTH-005'],
-    detect:/\bcart\b|kos[aá]r|pageType.?cart|components\/cart/i,
-    runtimeEvidence:[],
-    forbiddenTemplateBehavior:/quantity|remove|coupon|submit|stepper|add-to-cart/i,
-  },
-  account:{
-    ruleIds:['TF-AUTH-005'],
-    detect:/\baccount\b|fi[oó]k|pageType.?account|components\/account/i,
-    runtimeEvidence:[],
-    forbiddenTemplateBehavior:/login|logout|profile|order|return|download/i,
-  },
-};
-
 if(ledger.contract!=='shoporation.instruction-compliance.v1')issues.push({code:'PO_INSTRUCTION_LEDGER_CONTRACT_INVALID'});
 if(ledger.taskId!==plan.taskId)issues.push({code:'PO_INSTRUCTION_TASK_MISMATCH',expected:plan.taskId,actual:ledger.taskId});
 if(!Array.isArray(ledger.instructions)||!ledger.instructions.length)issues.push({code:'PO_INSTRUCTION_LEDGER_EMPTY'});
 
 for(const item of ledger.instructions??[]){
-  const row={id:item.id,state:item.state,checks:[],regressionTests:item.regressionTests??[],protectedSubjects:[],authorityRuleIds:item.authorityRuleIds??[]};
+  const row={id:item.id,state:item.state,checks:[],regressionTests:item.regressionTests??[],authorityConflictContracts:[],authorityRuleIds:item.authorityRuleIds??[]};
   if(!item.id||!String(item.request??'').trim())issues.push({code:'PO_INSTRUCTION_ID_OR_REQUEST_MISSING',id:item.id??null});
   if(item.state!=='implemented'&&item.state!=='accepted-frozen')issues.push({code:'PO_INSTRUCTION_NOT_IMPLEMENTED',id:item.id,state:item.state});
   if(!Array.isArray(item.acceptanceCriteria)||!item.acceptanceCriteria.length)issues.push({code:'PO_INSTRUCTION_ACCEPTANCE_CRITERIA_MISSING',id:item.id});
@@ -61,63 +33,9 @@ for(const item of ledger.instructions??[]){
   if(!Array.isArray(item.regressionTests)||!item.regressionTests.length)issues.push({code:'PO_INSTRUCTION_REGRESSION_MISSING',id:item.id});
   for(const test of item.regressionTests??[])if(!existsSync(test))issues.push({code:'PO_INSTRUCTION_REGRESSION_FILE_MISSING',id:item.id,file:test});
 
-  const sourceText=textOf(item);
-  for(const [subject,contract] of Object.entries(PROTECTED)){
-    if(!contract.detect.test(sourceText))continue;
-    row.protectedSubjects.push(subject);
-    for(const ruleId of contract.ruleIds){
-      const rule=authorityRule(ruleId);
-      if(!rule)issues.push({code:'PO_INSTRUCTION_AUTHORITY_RULE_MISSING',id:item.id,subject,ruleId});
-      if(!(item.authorityRuleIds??[]).includes(ruleId))issues.push({code:'PO_INSTRUCTION_AUTHORITY_ACK_REQUIRED',id:item.id,subject,ruleId});
-    }
-    const behaviorNodeChecks=(item.checks??[]).filter(check=>
-      ['template-node-present','template-node-value'].includes(String(check.kind??''))
-      &&contract.forbiddenTemplateBehavior.test(String(check.nodeId??''))
-    );
-    if(behaviorNodeChecks.length)issues.push({
-      code:'PO_PROTECTED_BEHAVIOR_PROVEN_BY_TEMPLATE_NODE',
-      id:item.id,
-      subject,
-      ruleIds:contract.ruleIds,
-      nodeIds:behaviorNodeChecks.map(check=>check.nodeId),
-    });
-    if(subject==='checkout'){
-      const checkoutTemplateFiles=[...new Set((item.checks??[])
-        .filter(check=>check.pageType==='checkout'&&typeof check.file==='string'&&check.file.endsWith('.json'))
-        .map(check=>check.file))];
-      for(const file of checkoutTemplateFiles){
-        if(!existsSync(file))continue;
-        const pkg=readJson(file);
-        const checkoutPage=(pkg.pages??[]).find(page=>page.pageType==='checkout');
-        const suspicious=checkoutPage?all(checkoutPage.sections??[]).filter(node=>
-          /form-preview|field-|shipping-methods|payment-collapsed|summary-collapsed/i.test(String(node.id??''))
-          &&/^(content|layout)\./.test(String(node.componentKey??''))
-        ):[];
-        if(suspicious.length)issues.push({
-          code:'PO_PROTECTED_BEHAVIOR_DUPLICATED_IN_TEMPLATE',
-          id:item.id,
-          subject,
-          ruleIds:contract.ruleIds,
-          nodes:suspicious.map(node=>({id:node.id,componentKey:node.componentKey})),
-        });
-      }
-    }
-    for(const required of contract.runtimeEvidence){
-      const hasAuthorityEvidence=(item.checks??[]).some(check=>
-        check.kind==='authority-source-contains'
-        &&check.file===required.file
-        &&check.value===required.value
-        &&contract.ruleIds.includes(check.authorityRuleId)
-      );
-      if(!hasAuthorityEvidence)issues.push({
-        code:'PO_INSTRUCTION_SHARED_AUTHORITY_EVIDENCE_REQUIRED',
-        id:item.id,
-        subject,
-        required,
-        ruleIds:contract.ruleIds,
-      });
-    }
-  }
+  const authorityConflicts=authorityConflictIssues(item);
+  row.authorityConflictContracts=authorityConflicts.matchedContracts;
+  issues.push(...authorityConflicts.issues);
 
   for(const check of item.checks??[]){
     let passed=false,actual=null;
