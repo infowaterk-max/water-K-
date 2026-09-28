@@ -22,11 +22,21 @@ function exactEvidencePath(value){
   return typeof value==='string'&&!value.includes('*')&&!value.includes('{')&&!value.includes('[')?value:null;
 }
 
+const specialistEvidencePath=guardId=>'artifacts/shoperation-control-plane/specialist-'+String(guardId).toLowerCase()+'.json';
+
+function evidenceForGuard(guard){
+  if(guard?.execution?.mode==='external-specialist'){
+    const file=specialistEvidencePath(guard.id);
+    return {file,evidence:readJsonIfExists(file)};
+  }
+  const file=exactEvidencePath(guard?.evidence);
+  return {file,evidence:file?readJsonIfExists(file):null};
+}
+
 function evidenceSnapshot(){
   const guards=guardRegistry().guards??[];
   return guards.map(guard=>{
-    const file=exactEvidencePath(guard.evidence);
-    const evidence=file?readJsonIfExists(file):null;
+    const {file,evidence}=evidenceForGuard(guard);
     return {
       id:guard.id,
       responsibilityKey:guard.responsibilityKey,
@@ -36,7 +46,7 @@ function evidenceSnapshot(){
       available:Boolean(evidence),
       decision:evidence?.decision??null,
       taskId:evidence?.taskId??null,
-      head:evidence?.head??evidence?.sourceCommit??null,
+      head:evidence?.head??evidence?.sourceHead??evidence?.sourceCommit??null,
     };
   });
 }
@@ -93,14 +103,13 @@ export function predecessorIssues(guardId){
   if(!guard)return[{code:'GUARD_CONTEXT_GUARD_NOT_REGISTERED',guardId}];
   const issues=[];
   for(const dependencyId of guard.consumesEvidenceFrom??[]){
-    if(scoped&&!activeIds.has(dependencyId))continue;
     const dependency=(registry.guards??[]).find(item=>item.id===dependencyId);
+    if(scoped&&dependency?.execution?.mode==='control-plane-managed'&&!activeIds.has(dependencyId))continue;
     if(!dependency){
       issues.push({code:'GUARD_CONTEXT_DEPENDENCY_NOT_REGISTERED',guardId,dependencyId});
       continue;
     }
-    const evidencePath=exactEvidencePath(dependency.evidence);
-    const evidence=evidencePath?readJsonIfExists(evidencePath):null;
+    const {file:evidencePath,evidence}=evidenceForGuard(dependency);
     if(!evidence){
       issues.push({code:'GUARD_CONTEXT_DEPENDENCY_EVIDENCE_MISSING',guardId,dependencyId,evidencePath});
       continue;
