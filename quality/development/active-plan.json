@@ -1,45 +1,29 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-TEMPLATE-COMPLETENESS-HARDENING-LOOT-VAULT-V2",
-  "task": "Harden Product Owner template completeness so Loot Vault v2 and future Factory candidates cannot be considered ready with incomplete navigation, contact/location surfaces, account capability presentation, duplicated informational content, or noncanonical cart affordances.",
+  "taskId": "DEV-CONTROL-PLANE-DIAGNOSTICS-EXACT-HEAD-HARDENING",
+  "task": "Harden existing quality failure intake diagnostics and exact-head release evidence binding without changing product or runtime contracts.",
   "status": "ready-for-implementation",
-  "guardDigest": "250a7959",
+  "guardDigest": "d0031b70",
   "plannedFilePatterns": [
-    "src/lib/builder/templates/gaming/loot-vault/v2/canonical-package.json",
-    "src/lib/builder/template-factory/**",
-    "src/components/builder/**",
-    "src/lib/builder/storefront-*.ts",
-    "tests/**template-factory**",
-    "tests/**storefront**",
-    "quality/development/active-plan.json",
-    "docs/support/**",
-    "next.config.ts",
-    "quality/knowledge/domain-foundations.v1.json",
-    "deploy/release-risk-policy.json"
+    "scripts/shoperation-failure-intake.mjs",
+    "scripts/release-manifest.mjs",
+    ".github/workflows/ci.yml",
+    ".github/workflows/template-factory-quality-gate.yml",
+    "tests/control-plane-diagnostics-hardening.test.ts",
+    "tests/rollout-readiness.test.ts",
+    "quality/development/active-plan.json"
   ],
   "expectedSubsystems": [
-    "builder-template-system",
-    "shared-storefront",
-    "customer-account",
-    "support-contact",
-    "storefront-ui",
-    "dependency-contract",
-    "release-infrastructure",
     "quality-knowledge-system",
-    "auth-access-authority",
-    "quality-infrastructure"
+    "release-infrastructure"
   ],
   "expectedDomains": [
-    "DOMAIN-BUILDER",
-    "DOMAIN-STOREFRONT",
-    "DOMAIN-RELEASE",
-    "DOMAIN-QUALITY"
+    "DOMAIN-QUALITY",
+    "DOMAIN-RELEASE"
   ],
   "expectedAuthorities": [
-    "builder-template-system",
-    "shared-storefront",
-    "release-infrastructure",
-    "quality-knowledge-system"
+    "quality-knowledge-system",
+    "release-infrastructure"
   ],
   "expectedKnownFailureIds": [
     "SQ-KF-001",
@@ -92,24 +76,16 @@
     "TF-KF-024"
   ],
   "acknowledgedNegativeKnowledgeIds": [
-    "SQ-NK-001",
     "SQ-NK-002",
     "SQ-NK-003",
-    "SQ-NK-004",
     "SQ-NK-005",
-    "SQ-NK-006",
-    "SQ-NK-007",
-    "SQ-NK-008",
-    "SQ-NK-009",
     "SQ-NK-010",
-    "SQ-NK-012"
+    "SQ-NK-011",
+    "SQ-NK-012",
+    "SQ-NK-014",
+    "SQ-NK-015"
   ],
-  "exceptions": [
-    {
-      "ruleId": "DEV-REVIEW-004",
-      "reason": "The added /fiokom routes are not new business-route authorities. They are fail-closed assertions in Template Factory readiness that verify the candidate exposes the already-canonical shared customer-account routes. No route handler, redirect authority, account engine, or storefront business behavior is introduced in the Factory."
-    }
-  ],
-  "notes": "Product Owner feedback hardening. A template is not complete merely because 14 routes render. Required: shopper-visible navigation coverage in header/mobile/footer, page-specific information content, a real shared support wizard plus location/contact block, compact shared account capability navigation, and canonical recognizable commerce affordances. Preserve one-template/one-canonical-package authority, shared cart/checkout/account/auth/search/runtime/Page Schema authority, QA-only Loot Vault v2 status, and all existing release-risk thresholds. Fix causes, never gates. CSP for the shared Google Maps embed is a release/runtime boundary, so next.config.ts is explicitly classified under DOMAIN-RELEASE instead of remaining Atlas-unresolved. Release policy only gains next.config.ts path classification under the existing medium-risk release-infrastructure subsystem; no threshold, risk class, weight, or bypass changes. CSP frame-src is intentionally narrowed to Google Maps embed hosts for the required Contact map surface; next.config.ts is therefore explicitly within DOMAIN-RELEASE/release-infrastructure scope. Knowledge-infrastructure scope intentionally requires the full 48 Known Failure replay on this transaction; digest pinned to the exact gate projection. Atlas scope correction: root next.config.ts is a canonical Release-domain file; canonical path matching is normalized to **/next.config.ts so root-level config is classified fail-closed rather than unresolved.",
-  "changeBaseSha": "4609721295d6c764f1c1f15c072a4c38db141bd6"
+  "exceptions": [],
+  "notes": "Control Plane-only hardening. Reuse existing Failure Intake, Knowledge Before Build, Atlas Change Impact, Release Risk Budget and Release Manifest authorities. Add structured diagnostic ingestion and stable failure fingerprinting to the existing failure intake; bind release-risk evidence fail-closed to the manifest exact SHA. No storefront, Builder, Template Runtime, Page Schema, database, auth redesign or roadmap-order change.",
+  "changeBaseSha": "c1f3d4178407d0c484f18874707313d849d4593c"
 }
