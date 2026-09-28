@@ -5,7 +5,6 @@ export const GUARD_CONTEXT_PATH='artifacts/shoperation-development-guard/guard-c
 const readJson=file=>JSON.parse(readFileSync(file,'utf8'));
 const readJsonIfExists=file=>existsSync(file)?readJson(file):null;
 const guardRegistry=()=>readJson('quality/knowledge/guard-registry.v1.json');
-const authorityConflictPolicy=()=>readJson('quality/knowledge/authority-conflict-policy.v1.json');
 
 function parseTemplateFactoryAuthorities(){
   const source=readFileSync('src/lib/builder/template-factory/knowledge-registry.ts','utf8');
@@ -22,9 +21,6 @@ function parseTemplateFactoryAuthorities(){
 function exactEvidencePath(value){
   return typeof value==='string'&&!value.includes('*')&&!value.includes('{')&&!value.includes('[')?value:null;
 }
-
-const allNodes=(nodes,out=[])=>{for(const node of nodes??[]){out.push(node);allNodes(node.children??[],out)}return out;};
-const instructionText=instruction=>[instruction?.request,...(instruction?.checks??[]).flatMap(check=>[check?.pageType,check?.file,check?.nodeId,check?.path])].filter(Boolean).join(' ').toLocaleLowerCase('hu-HU');
 
 function evidenceSnapshot(){
   const guards=guardRegistry().guards??[];
@@ -69,7 +65,6 @@ export function buildGuardContext(){
         boundaryRules:item.boundaryRules??[],
       })),
     },
-    authorityConflictPolicies:authorityConflictPolicy().policies??[],
     knowledge:{
       knownFailureIds:(knowledge.knownFailures??[]).map(item=>item.id),
       globalBaselineFailureIds:knowledge.globalBaselineFailureIds??[],
@@ -88,64 +83,6 @@ export function buildGuardContext(){
     })),
     evidence:evidenceSnapshot(),
   };
-}
-
-export function evaluateAuthorityConflicts(instruction){
-  const context=buildGuardContext();
-  const sourceText=instructionText(instruction);
-  const checks=instruction?.checks??[];
-  const issues=[];
-  const matches=[];
-  const authorities=[...context.authorities.global,...context.authorities.templateFactory];
-  for(const policy of context.authorityConflictPolicies??[]){
-    const authority=authorities.find(item=>item.id===policy.authorityRuleId)??null;
-    for(const subject of policy.subjects??[]){
-      let detector=null;
-      try{detector=new RegExp(subject.detectPattern,'i')}catch{
-        issues.push({code:'AUTHORITY_CONFLICT_POLICY_PATTERN_INVALID',policyId:policy.id,authorityRuleIds:[policy.authorityRuleId],subject:subject.subject});
-        continue;
-      }
-      if(!detector.test(sourceText))continue;
-      matches.push({policyId:policy.id,authorityRuleId:policy.authorityRuleId,subject:subject.subject,owner:policy.owner,delegatedOwner:policy.delegatedOwner});
-      if(!authority){
-        issues.push({code:'AUTHORITY_CONFLICT_RULE_MISSING',policyId:policy.id,subject:subject.subject,authorityRuleIds:[policy.authorityRuleId]});
-        continue;
-      }
-      if(!(instruction?.authorityRuleIds??[]).includes(policy.authorityRuleId))issues.push({
-        code:'AUTHORITY_CONFLICT_ACK_REQUIRED',policyId:policy.id,subject:subject.subject,authorityRuleIds:[policy.authorityRuleId],message:'Instruction touches protected '+subject.subject+' behavior without acknowledging canonical authority '+policy.authorityRuleId+'.'
-      });
-      if(subject.forbiddenTemplateCheckPattern){
-        const pattern=new RegExp(subject.forbiddenTemplateCheckPattern,'i');
-        const behaviorChecks=checks.filter(check=>['template-node-present','template-node-value'].includes(String(check?.kind??''))&&pattern.test(String(check?.nodeId??'')));
-        if(behaviorChecks.length)issues.push({
-          code:'AUTHORITY_CONFLICT_TEMPLATE_BEHAVIOR_EVIDENCE',policyId:policy.id,subject:subject.subject,authorityRuleIds:[policy.authorityRuleId],nodeIds:behaviorChecks.map(check=>check.nodeId),message:'Template-local node evidence is attempting to prove platform-owned '+subject.subject+' behavior.'
-        });
-      }
-      for(const required of subject.canonicalEvidence??[]){
-        const present=checks.some(check=>check.kind==='authority-source-contains'&&check.authorityRuleId===policy.authorityRuleId&&check.file===required.file&&check.value===required.value);
-        if(!present)issues.push({
-          code:'AUTHORITY_CONFLICT_CONTINUITY_EVIDENCE_REQUIRED',policyId:policy.id,subject:subject.subject,authorityRuleIds:[policy.authorityRuleId],required,message:'Protected '+subject.subject+' behavior requires canonical shared-authority continuity evidence.'
-        });
-      }
-      if(subject.pageType&&subject.forbiddenTemplateNodePattern){
-        const nodePattern=new RegExp(subject.forbiddenTemplateNodePattern,'i');
-        const componentPattern=subject.forbiddenTemplateComponentPattern?new RegExp(subject.forbiddenTemplateComponentPattern,'i'):null;
-        const files=[...new Set(checks.filter(check=>check.pageType===subject.pageType&&typeof check.file==='string'&&check.file.endsWith('.json')).map(check=>check.file))];
-        for(const file of files){
-          if(!existsSync(file))continue;
-          try{
-            const pkg=readJson(file);
-            const page=(pkg.pages??[]).find(item=>item.pageType===subject.pageType);
-            const suspicious=page?allNodes(page.sections??[]).filter(node=>nodePattern.test(String(node.id??''))&&(!componentPattern||componentPattern.test(String(node.componentKey??'')))):[];
-            if(suspicious.length)issues.push({
-              code:'AUTHORITY_CONFLICT_TEMPLATE_BEHAVIOR_DUPLICATE',policyId:policy.id,subject:subject.subject,authorityRuleIds:[policy.authorityRuleId],file,nodes:suspicious.map(node=>({id:node.id,componentKey:node.componentKey})),message:'Template contains behavior-shaped nodes that duplicate platform-owned '+subject.subject+' authority.'
-            });
-          }catch(error){issues.push({code:'AUTHORITY_CONFLICT_TEMPLATE_INSPECTION_FAILED',policyId:policy.id,subject:subject.subject,authorityRuleIds:[policy.authorityRuleId],file,message:error instanceof Error?error.message:String(error)});}
-        }
-      }
-    }
-  }
-  return {matches,issues};
 }
 
 export function predecessorIssues(guardId){
