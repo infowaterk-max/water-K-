@@ -42,6 +42,9 @@
     ],
     "inventory-fulfillment-authority": [
       "payment-checkout-order-authority"
+    ],
+    "tenant-context-authority": [
+      "auth-access-authority"
     ]
   }
 }
