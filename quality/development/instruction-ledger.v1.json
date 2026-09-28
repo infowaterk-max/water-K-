@@ -679,7 +679,8 @@
         "A checkout mindhárom viewportja browser diagnostics szempontból tiszta.",
         "Csak checkout-desktop.png, checkout-tablet.png és checkout-mobile.png golden módosul.",
         "A golden promotion explicit Product Owner approvalra támaszkodik, nem általános 42-képes elfogadás.",
-        "Template Factory újrafutás után a checkout három GOLDEN_DIFF blokkja megszűnik."
+        "Template Factory újrafutás után a checkout három GOLDEN_DIFF blokkja megszűnik.",
+        "A temporális checkout golden promotion trigger nem marad a végső workflow authorityban; a canonical promotion dispatch-only állapotba tér vissza."
       ],
       "checks": [
         {
@@ -737,6 +738,11 @@
           "kind": "file-contains",
           "file": ".github/workflows/template-golden-baseline-promotion.yml",
           "value": "commit_promoted_baseline"
+        },
+        {
+          "kind": "file-not-contains",
+          "file": ".github/workflows/template-golden-baseline-promotion.yml",
+          "value": "promote_checkout_exact_head_once"
         }
       ],
       "regressionTests": [
