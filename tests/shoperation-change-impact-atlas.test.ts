@@ -24,6 +24,7 @@ describe('Atlas 2.0 Change Impact / Release Closure integration',()=>{
     expect(planGate).toContain('DEV_PLAN_AUTHORITY_SCOPE_DRIFT');
     expect(planGate).toContain('architectureImpact');
     expect(planGate).toContain('DEV_PLAN_CHANGE_OBLIGATIONS_REQUIRED');
+    expect(planGate).toContain('DEV_PLAN_COMPANION_FILE_SET_REQUIRED');
     expect(planGate).toContain('DEV_PLAN_CHANGE_OBLIGATION_SCOPE_DRIFT');
     expect(planGate).toContain('DEV_PLAN_UNPLANNED_CHANGE_OBLIGATION');
     expect(planGate).toContain('DEV_PLAN_PROTECTED_COMPANION_CHANGED_WITHOUT_PO_APPROVAL');
