@@ -6,16 +6,32 @@ const readJson=file=>JSON.parse(readFileSync(file,'utf8'));
 const readJsonIfExists=file=>existsSync(file)?readJson(file):null;
 const guardRegistry=()=>readJson('quality/knowledge/guard-registry.v1.json');
 
-function parseTemplateFactoryAuthorities(){
-  const source=readFileSync('src/lib/builder/template-factory/knowledge-registry.ts','utf8');
-  return [...source.matchAll(/\{id:'(TF-AUTH-\d+)',subject:'([^']*)',owner:'([^']*)',delegates:\[([^\]]*)\],rule:'([^']*)'\}/g)]
-    .map(match=>({
-      id:match[1],
-      subject:match[2],
-      owner:match[3],
-      delegates:[...match[4].matchAll(/'([^']+)'/g)].map(item=>item[1]),
-      rule:match[5],
-    }));
+const templateFactoryAuthority=()=>readJson('quality/knowledge/template-factory-authority.v1.json');
+
+export function authorityHierarchyIssues(){
+  const constitution=readJson('quality/knowledge/architecture-constitution.v1.json');
+  const knowledge=readJson('quality/knowledge/shoperation-quality-knowledge.v1.json');
+  const domains=readJson('quality/knowledge/domain-foundations.v1.json');
+  const capability=templateFactoryAuthority();
+  const issues=[];
+  const expectedOrder=['architecture-constitution','global-foundation','domain-foundation','capability-contract','implementation','evidence'];
+  if(JSON.stringify(constitution.authorityOrder)!==JSON.stringify(expectedOrder))issues.push({code:'AUTHORITY_HIERARCHY_ORDER_INVALID',actual:constitution.authorityOrder});
+  if(capability.contract!=='shoporation.template-factory-authority.v1'||capability.authorityLevel!=='capability-contract'||capability.status!=='canonical')issues.push({code:'AUTHORITY_CAPABILITY_CONTRACT_INVALID'});
+  if(!capability.precedencePolicy?.forbidsSilentOverride||!capability.precedencePolicy?.requiresHigherAuthorityBindings||!capability.precedencePolicy?.requiresDomainBindings)issues.push({code:'AUTHORITY_CAPABILITY_PRECEDENCE_POLICY_WEAK'});
+  const globalIds=new Set((knowledge.authorityRules??[]).map(item=>item.id));
+  const domainIds=new Set((domains.domains??[]).map(item=>item.id));
+  const seen=new Set();
+  for(const rule of capability.rules??[]){
+    if(seen.has(rule.id)||globalIds.has(rule.id))issues.push({code:'AUTHORITY_RULE_ID_COLLISION',ruleId:rule.id});
+    seen.add(rule.id);
+    if(!Array.isArray(rule.higherAuthorityRuleIds)||!rule.higherAuthorityRuleIds.length)issues.push({code:'AUTHORITY_HIGHER_BINDING_REQUIRED',ruleId:rule.id});
+    for(const id of rule.higherAuthorityRuleIds??[])if(!globalIds.has(id))issues.push({code:'AUTHORITY_HIGHER_BINDING_UNKNOWN',ruleId:rule.id,higherAuthorityRuleId:id});
+    if(!Array.isArray(rule.domainIds)||!rule.domainIds.length)issues.push({code:'AUTHORITY_DOMAIN_BINDING_REQUIRED',ruleId:rule.id});
+    for(const id of rule.domainIds??[])if(!domainIds.has(id))issues.push({code:'AUTHORITY_DOMAIN_BINDING_UNKNOWN',ruleId:rule.id,domainId:id});
+    if(!['refine','scope-specialization'].includes(rule.precedenceMode))issues.push({code:'AUTHORITY_PRECEDENCE_MODE_INVALID',ruleId:rule.id,precedenceMode:rule.precedenceMode??null});
+    if(rule.precedenceMode==='scope-specialization'&&!String(rule.scopeBoundary??'').trim())issues.push({code:'AUTHORITY_SCOPE_BOUNDARY_REQUIRED',ruleId:rule.id});
+  }
+  return issues;
 }
 
 function exactEvidencePath(value){
@@ -55,6 +71,8 @@ export function buildGuardContext(){
   const registry=guardRegistry();
   const knowledge=readJson('quality/knowledge/shoperation-quality-knowledge.v1.json');
   const domains=readJson('quality/knowledge/domain-foundations.v1.json');
+  const capabilityAuthority=templateFactoryAuthority();
+  const hierarchyIssues=authorityHierarchyIssues();
   const plan=readJson('quality/development/active-plan.json');
   const ledger=readJsonIfExists('quality/development/instruction-ledger.v1.json');
   return {
@@ -65,9 +83,10 @@ export function buildGuardContext(){
     principles:registry.principles,
     intelligencePolicy:registry.intelligencePolicy??null,
     authorityConflictContracts:registry.authorityConflictContracts??[],
+    authorityHierarchy:{order:readJson('quality/knowledge/architecture-constitution.v1.json').authorityOrder,capabilityContract:capabilityAuthority.contract,issues:hierarchyIssues},
     authorities:{
       global:knowledge.authorityRules??[],
-      templateFactory:parseTemplateFactoryAuthorities(),
+      templateFactory:capabilityAuthority.rules??[],
       domains:(domains.domains??[]).map(item=>({
         id:item.id,
         owner:item.owner,
@@ -143,7 +162,7 @@ function checkedTemplateNode(check){
 
 export function authorityConflictIssues(instruction){
   const context=buildGuardContext();
-  const issues=[];
+  const issues=[...authorityHierarchyIssues()];
   const matchedContracts=[];
   const sourceText=instructionText(instruction);
   const rules=[...context.authorities.global,...context.authorities.templateFactory];

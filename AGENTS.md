@@ -41,6 +41,8 @@ A `review` edit-time finding requires an explicit exception in `quality/developm
 
 ## AUTHORITY RULES
 
+Authority precedence is fixed: **Architecture Constitution → global foundation → domain foundation → capability contract → implementation → evidence**. Lower layers may refine higher authority but may never silently override it. A scoped specialization must be declared in its canonical capability contract with an explicit boundary. Control Plane, Atlas and gates are executors/observers/evidence producers; they are not competing product authorities.
+
 - Extend canonical authorities; do not create parallel engines, controllers or routes to fix local symptoms.
 - Shared root cause beats template or module-local compensation.
 - Do not weaken runtime, tenant, schema, auth or security contracts to make tests pass.

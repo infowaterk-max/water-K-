@@ -26,12 +26,31 @@ describe('shared cross-gate context',()=>{
     const context=json('artifacts/shoperation-development-guard/guard-context.json');
     expect(context.contract).toBe('shoporation.guard-context.v2');
     expect(context.authorities.templateFactory.some((rule:any)=>rule.id==='TF-AUTH-005'&&rule.owner==='platform')).toBe(true);
+    expect(context.authorities.templateFactory.some((rule:any)=>rule.id==='TF-AUTH-018')).toBe(true);
+    expect(context.authorities.templateFactory).toHaveLength(24);
+    expect(context.authorityHierarchy.issues).toEqual([]);
     expect(context.authorities.global.some((rule:any)=>rule.id==='SQ-AUTH-021')).toBe(true);
     expect(context.currentGuard.id).toBe('GUARD-INSTRUCTION-COMPLIANCE');
     expect(context.currentGuard.decision).toBe('PASS');
     expect(context.controlPlane).toBeDefined();
     expect(context.intelligencePolicy.mode).toBe('deterministic-control-plane-first');
     expect(context.authorityConflictContracts.some((item:any)=>item.authorityRuleId==='TF-AUTH-005')).toBe(true);
+  });
+
+  it('uses one canonical capability authority source and constitutional precedence',()=>{
+    const authority=json('quality/knowledge/template-factory-authority.v1.json');
+    const contextRuntime=read('scripts/lib/shoperation-guard-context.mjs');
+    const registry=json('quality/knowledge/guard-registry.v1.json');
+    expect(authority.authorityLevel).toBe('capability-contract');
+    expect(authority.rules).toHaveLength(24);
+    expect(authority.rules.find((rule:any)=>rule.id==='TF-AUTH-018')).toBeTruthy();
+    expect(authority.rules.find((rule:any)=>rule.id==='TF-AUTH-010').precedenceMode).toBe('scope-specialization');
+    expect(authority.rules.find((rule:any)=>rule.id==='TF-AUTH-010').scopeBoundary.length).toBeGreaterThan(40);
+    expect(authority.rules.every((rule:any)=>rule.higherAuthorityRuleIds.length>0&&rule.domainIds.length>0)).toBe(true);
+    expect(contextRuntime).not.toContain('parseTemplateFactoryAuthorities');
+    expect(contextRuntime).toContain('authorityHierarchyIssues');
+    expect(registry.principles.authorityPrecedenceFollowsConstitution).toBe(true);
+    expect(registry.principles.lowerAuthorityMayRefineButNotOverride).toBe(true);
   });
 
   it('uses one global authority-conflict mechanism instead of a checkout-specific gate',()=>{

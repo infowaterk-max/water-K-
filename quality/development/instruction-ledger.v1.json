@@ -535,6 +535,50 @@
         "tests/shoperation-development-guard.test.ts",
         "tests/shoperation-control-plane.test.ts"
       ]
+    },
+    {
+      "id": "PO-2026-09-28-AUTHORITY-HIERARCHY-CLOSURE",
+      "request": "Lezárás előtt ellenőrizd és rendezd a Shoperation központi agya és az alá épült ökoszisztéma authority-hierarchiáját, hogy két szabály ne tudjon egymással pingpongozni. Szükség esetén fokozd le, emeld fel vagy konszolidáld a rétegeket, de ne hozz létre új párhuzamos döntési rendszert.",
+      "state": "implemented",
+      "acceptanceCriteria": [
+        "Architecture Constitution marad a legfelső authority, alatta global/domain foundation, majd capability contract.",
+        "Template Factory authority explicit capability-contract, nem a globális/domain authority társa.",
+        "Template Factory authority egyetlen canonical machine-readable forrásból érkezik; nincs TypeScript regex source scraping.",
+        "Mind a 24 TF-AUTH szabály eljut a Guard Contextbe, beleértve TF-AUTH-018-at.",
+        "Minden capability rule deklarál higher authority és domain bindinget; scope specialization explicit boundaryt igényel.",
+        "Hierarchy hiba ugyanabban az Instruction Compliance/Control Plane láncban blokkol; nincs új gate."
+      ],
+      "checks": [
+        {
+          "kind": "file-exists",
+          "file": "quality/knowledge/template-factory-authority.v1.json"
+        },
+        {
+          "kind": "file-contains",
+          "file": "scripts/lib/shoperation-guard-context.mjs",
+          "value": "authorityHierarchyIssues"
+        },
+        {
+          "kind": "file-contains",
+          "file": "scripts/lib/shoperation-guard-context.mjs",
+          "value": "quality/knowledge/template-factory-authority.v1.json"
+        },
+        {
+          "kind": "file-contains",
+          "file": "quality/knowledge/guard-registry.v1.json",
+          "value": "lowerAuthorityMayRefineButNotOverride"
+        },
+        {
+          "kind": "file-contains",
+          "file": "tests/shoperation-guard-context.test.ts",
+          "value": "TF-AUTH-018"
+        }
+      ],
+      "regressionTests": [
+        "tests/shoperation-guard-context.test.ts",
+        "tests/architecture-constitution.test.ts",
+        "tests/shoperation-control-plane.test.ts"
+      ]
     }
   ]
 }

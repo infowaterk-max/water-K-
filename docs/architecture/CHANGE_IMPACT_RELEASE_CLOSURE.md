@@ -88,3 +88,12 @@ Az A/B terv végrehajtási szerződés is. A planning-only Control Plane futásb
 - `DEFERRED_WITH_APPROVAL`: csak explicit Product Owner approval evidence mellett zárt.
 
 A végső Control Plane report `changeObligationClosure` mezője külön mutatja a `preGateReady` és `finalReady` állapotot.
+
+
+## Authority hierarchy closure — no-ping-pong rule
+
+A végleges parancsnoki sorrend: **Architecture Constitution → global foundation → domain foundation → capability contract → implementation → evidence**. A Control Plane a sorrendet végrehajtja és reconciliálja, az Atlas impactot számol, a specialisták evidence-et termelnek; egyik sem emelkedhet a product/domain authority fölé.
+
+A Template Factory authority ezért explicit `capability-contract` szint. A 24 `TF-AUTH-*` szabály egyetlen canonical machine-readable forrásban él: `quality/knowledge/template-factory-authority.v1.json`. A TypeScript knowledge registry és a Guard Context ugyanebből fogyaszt; megszűnt a forráskód regexes újraértelmezése, amely korábban a `TF-AUTH-018` szabályt ki is hagyta.
+
+Minden capability rule megnevezi a fölötte álló `SQ-AUTH-*` szabályokat és a releváns domain-eket. Alapesetben csak `refine` engedélyezett. Szűkebb scope specializálásához `scope-specialization` és explicit `scopeBoundary` szükséges. Így az alsóbb szabály nem adhat ellentétes utasítást a felsőbbnek.
