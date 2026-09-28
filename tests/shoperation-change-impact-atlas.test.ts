@@ -31,6 +31,18 @@ describe('Atlas 2.0 Change Impact / Release Closure integration',()=>{
     expect(controlPlane).toContain('control-plane-managed');
   });
 
+  it('classifies Control Plane-owned Template Factory proof scripts under Quality authority',()=>{
+    const domains=JSON.parse(read('quality/knowledge/domain-foundations.v1.json')) as {domains:Array<{id:string;canonicalPaths:string[]}>};
+    const quality=domains.domains.find(item=>item.id==='DOMAIN-QUALITY');
+    expect(quality?.canonicalPaths).toContain('scripts/template-factory-**');
+    const scope=JSON.parse(read('quality/knowledge/knowledge-scope-policy.v1.json')) as {knowledgeInfrastructurePrefixes:string[]};
+    expect(scope.knowledgeInfrastructurePrefixes).toContain('scripts/template-factory-');
+    const plan=JSON.parse(read('quality/development/active-plan.json')) as {plannedFilePatterns:string[];expectedDomains:string[];expectedAuthorities:string[]};
+    expect(plan.plannedFilePatterns).toContain('scripts/template-factory-external-specialist.mjs');
+    expect(plan.expectedDomains).toContain('DOMAIN-QUALITY');
+    expect(plan.expectedAuthorities).toContain('quality-knowledge-system');
+  });
+
   it('requires exact-head Atlas closure evidence without relaxing the Release Risk Budget',()=>{
     const risk=read('scripts/release-risk-budget.mjs');
     const policy=JSON.parse(read('deploy/release-risk-policy.json')) as {maxPoints:number;maxSubsystems:number;riskWeights:{high:number}};
