@@ -1,6 +1,6 @@
 import {getStorefrontGlobalStyleState} from '@/lib/builder/storefront-global-styles';
 import type {StorefrontComponentNode,StorefrontPageDocument} from '@/lib/builder/storefront-runtime';
-import type {StorefrontBuilderPageType} from '@/lib/builder/storefront-foundation';
+import {STOREFRONT_PAGE_TYPES,type StorefrontBuilderPageType} from '@/lib/builder/storefront-foundation';
 import {LOOT_VAULT_V2_GENERATOR_BLUEPRINT} from '@/lib/builder/template-factory/blueprints/loot-vault-v2';
 import type {StorefrontTemplateFactoryMediaAsset,StorefrontTemplateFactoryRecipe} from '@/lib/builder/template-factory/scaffold';
 import {LOOT_VAULT_V2_TEMPLATE_PACKAGE} from '@/lib/builder/templates/gaming/loot-vault/v2';
@@ -44,7 +44,7 @@ export const LOOT_VAULT_V2_FACTORY_MEDIA_ASSETS:readonly StorefrontTemplateFacto
   {key:'product-2',state:'ready',role:'product',src:MEDIA.product2,alt:'Fantasy gyűjtői szobor',pageTypes:['home','product'],representative:true,aspectRatio:'4:5'},
   {key:'product-3',state:'ready',role:'product',src:MEDIA.product3,alt:'Dramatikus gyűjtői miniatűr kiadás',pageTypes:['home','product'],representative:true,aspectRatio:'4:5'},
   {key:'product-4',state:'ready',role:'product',src:MEDIA.product4,alt:'Sötét sci-fi gyűjtői relikvia',pageTypes:['home','product'],representative:true,aspectRatio:'4:5'},
-  {key:'editorial-1',state:'ready',role:'editorial',src:MEDIA.editorial1,alt:'Sötét gyűjtői archívum polcokkal és kiállított tárgyakkal',pageTypes:['home','blog-index'],representative:true,aspectRatio:'3:2'},
+  {key:'editorial-1',state:'ready',role:'editorial',src:MEDIA.editorial1,alt:'Sötét gyűjtői archívum polcokkal és kiállított tárgyakkal',pageTypes:['blog-index'],representative:true,aspectRatio:'3:2'},
   {key:'editorial-2',state:'ready',role:'editorial',src:MEDIA.editorial2,alt:'Kurált miniatűr gyűjtemény és relikviák',pageTypes:['product','blog-article'],representative:true,aspectRatio:'3:2'},
   {key:'catalog-background',state:'ready',role:'background',src:MEDIA.background,alt:'Sötét, színes neonfényes enteriőr',pageTypes:['catalog'],representative:true,aspectRatio:'16:9'},
 ]);
@@ -81,16 +81,16 @@ export const LOOT_VAULT_V2_FACTORY_RECIPE:StorefrontTemplateFactoryRecipe=Object
     forbidPlaceholderSvg:true,
   }),
   reference:Object.freeze({
-    key:'gaming.loot-vault.accepted-reference-2026-09-06',
+    key:'gaming.loot-vault.visual-first-approved-2026-09-28',
     approved:true,
-    requiredPageTypes:Object.freeze(['home','catalog','product','blog-index','blog-article'] as const),
+    requiredPageTypes:Object.freeze([...STOREFRONT_PAGE_TYPES]),
   }),
   commerceReadiness:Object.freeze({
     productCardPurchaseActions:Object.freeze({
       pageTypes:Object.freeze(['home','catalog'] as const),
     }),
   }),
-  // Recovered from the previously proven #439 candidate. This is the internal
-  // pre-Product-Owner review state only; it is not template acceptance.
+  // Product Owner approved the complete Visual First direction on 2026-09-28.
+  // The package remains a candidate until implementation fidelity proof passes.
   productOwnerReview:Object.freeze({internalVisualReviewPassed:true}),
 });

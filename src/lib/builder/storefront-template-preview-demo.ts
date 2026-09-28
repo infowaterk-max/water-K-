@@ -73,6 +73,24 @@ const CATEGORY_PRODUCTS:Record<string,readonly string[]>={
   tech:['Studio One','Creator Pro','Core Device','Desk Dock'],
 };
 
+const LOOT_VAULT_PREVIEW_PRODUCTS=Object.freeze([
+  {name:'Vault Sentinel figura',image:'/storefront-demo/loot-vault-v2/product-figure.webp',imagePosition:'44% center',imageFilter:'saturate(.92) contrast(1.14) brightness(.84)',price:89990,badge:'LIMITÁLT',stockLabel:'Raktáron'},
+  {name:'Mythic Wing szobor',image:'/storefront-demo/loot-vault-v2/product-statue.webp',imagePosition:'58% center',imageFilter:'saturate(.72) contrast(1.22) brightness(.72) hue-rotate(18deg)',price:129990,badge:'EXKLUZÍV',stockLabel:'Raktáron'},
+  {name:'Ancient Warrior kiadás',image:'/storefront-demo/loot-vault-v2/product-edition.webp',imagePosition:'66% center',imageFilter:'saturate(.88) contrast(1.18) brightness(.78) sepia(.14)',price:59990,badge:'GYŰJTŐI',stockLabel:'Raktáron'},
+  {name:'Archive Relic',image:'/storefront-demo/loot-vault-v2/product-relic.webp',imagePosition:'36% center',imageFilter:'saturate(.58) contrast(1.24) brightness(.70) hue-rotate(210deg)',price:74990,badge:'VAULT PICK',stockLabel:'Raktáron'},
+  {name:'Obsidian Ranger figura',image:'/storefront-demo/loot-vault-v2/category-heroes.webp',imagePosition:'62% center',imageFilter:'saturate(.82) contrast(1.18) brightness(.72)',price:84990,badge:'ÚJDONSÁG',stockLabel:'Raktáron'},
+  {name:'Celestial Guardian szobor',image:'/storefront-demo/loot-vault-v2/category-fantasy.webp',imagePosition:'48% center',imageFilter:'saturate(.76) contrast(1.2) brightness(.74) sepia(.18)',price:139990,badge:'KIEMELT',stockLabel:'Raktáron'},
+]);
+
+const LOOT_VAULT_PREVIEW_COLLECTIONS=Object.freeze([
+  'Fantasy',
+  'Sci-fi',
+  'Anime',
+  'Gaming',
+  'Film & sorozat',
+  'Képregény',
+]);
+
 const PLAYROOM_PREVIEW_PRODUCTS=Object.freeze([
   {name:'Orbit Breakers',image:'/storefront/playroom/game-orbit.svg',price:22990,badge:'KIEMELT',stockLabel:'Raktáron'},
   {name:'Neon Rally',image:'/storefront/playroom/game-rally.svg',price:19990,badge:'ÚJ',stockLabel:'Raktáron'},
@@ -154,6 +172,22 @@ function fixtureNames(template:StorefrontInstallableTemplatePackage,type:'produc
 }
 
 function demoProducts(template:StorefrontInstallableTemplatePackage,page:StorefrontPageDocument){
+  if(template.manifest.templateKey==='gaming.loot-vault'){
+    const limit=page.pageType==='catalog'?6:previewProductLimit(page);
+    return LOOT_VAULT_PREVIEW_PRODUCTS.slice(0,limit).map((product,index)=>({
+      id:`loot-vault-preview-product-${index+1}`,
+      name:product.name,
+      href:'#preview-demo',
+      image:product.image,
+      imageAlt:`${product.name} Loot Vault bemutató termékkép`,
+      imagePosition:product.imagePosition,
+      imageFilter:product.imageFilter,
+      price:product.price,
+      compareAtPrice:null,
+      badge:product.badge,
+      stockLabel:product.stockLabel,
+    }));
+  }
   if(template.manifest.templateKey==='gaming.playroom'){
     const limit=page.pageType==='home'?12:previewProductLimit(page);
     return PLAYROOM_PREVIEW_PRODUCTS.slice(0,limit).map((product,index)=>({
@@ -187,6 +221,18 @@ function demoProducts(template:StorefrontInstallableTemplatePackage,page:Storefr
 }
 
 function demoCollections(template:StorefrontInstallableTemplatePackage,page:StorefrontPageDocument){
+  if(template.manifest.templateKey==='gaming.loot-vault'){
+    const images=collectImageFallbacks(page);
+    return LOOT_VAULT_PREVIEW_COLLECTIONS.slice(0,4).map((label,index)=>({
+      id:`loot-vault-preview-collection-${index+1}`,
+      label,
+      title:label,
+      href:'#preview-demo',
+      image:images[index%Math.max(1,images.length)]??null,
+      imageAlt:`${label} Loot Vault univerzum`,
+      copy:'Kurált gyűjtői válogatás a Loot Vault bemutató tartalmában.',
+    }));
+  }
   const category=template.manifest.templateKey.split('.')[0]??'tech';
   const fixture=fixtureNames(template,'collection');
   const fallback=CATEGORY_COLLECTIONS[category]??CATEGORY_COLLECTIONS.tech;
@@ -242,14 +288,35 @@ function valueForBinding(input:{template:StorefrontInstallableTemplatePackage;pa
 
   if(slot==='products'||key==='commerce.product-grid'||key==='commerce.recommendation-row')return products;
   if(slot==='items'){
+    if(template.manifest.templateKey==='gaming.loot-vault'&&key==='commerce.key-specs')return[
+      {specKey:'format',label:'Formátum',displayValue:'Gyűjtői figura',missing:false},
+      {specKey:'edition',label:'Kiadás',displayValue:'Collector Edition',missing:false},
+      {specKey:'display',label:'Bemutatás',displayValue:'Díszdobozos',missing:false},
+      {specKey:'category',label:'Univerzum',displayValue:'Fantasy',missing:false},
+    ];
     if(key==='system.social-links')return PREVIEW_SOCIAL_LINKS.map(item=>({...item}));
     if(key==='commerce.collection-navigation')return collections;
     if(key.includes('review'))return demoReviews();
     return items;
   }
   if(slot==='reviews')return demoReviews();
-  if(slot==='options')return items.map((item,index)=>({id:item.id,label:item.label,value:item.value,href:'#preview-demo',available:true,selected:index===0,swatch:index===0?'#1f1f1f':index===1?'#d9c1aa':'#8ea69b'}));
-  if(slot==='images')return collectImageFallbacks(page).slice(0,4).map((src,index)=>({src,alt:`Bemutató kép ${index+1}`}));
+  if(slot==='options'){
+    if(template.manifest.templateKey==='gaming.loot-vault')return[
+      {id:'collector',label:'Collector Edition',value:'collector',href:'#preview-demo',available:true,selected:true},
+      {id:'deluxe',label:'Deluxe Edition',value:'deluxe',href:'#preview-demo',available:true,selected:false},
+      {id:'standard',label:'Standard Edition',value:'standard',href:'#preview-demo',available:true,selected:false},
+    ];
+    return items.map((item,index)=>({id:item.id,label:item.label,value:item.value,href:'#preview-demo',available:true,selected:index===0,swatch:index===0?'#1f1f1f':index===1?'#d9c1aa':'#8ea69b'}));
+  }
+  if(slot==='images'){
+    if(template.manifest.templateKey==='gaming.loot-vault')return[
+      {src:'/storefront-demo/loot-vault-v2/product-figure.webp',alt:'Vault Sentinel gyűjtői figura'},
+      {src:'/storefront-demo/loot-vault-v2/editorial-vault-shelf.webp',alt:'Sci-fi gyűjtői kiadás részlete'},
+      {src:'/storefront-demo/loot-vault-v2/hero-cinematic.webp',alt:'A gyűjtői világ filmes hangulatképe'},
+      {src:'/storefront-demo/loot-vault-v2/editorial-collector-room.webp',alt:'Gaming relikvia részlete'},
+    ];
+    return collectImageFallbacks(page).slice(0,4).map((src,index)=>({src,alt:`Bemutató kép ${index+1}`}));
+  }
   if(slot==='rating')return 4.9;
   if(slot==='count')return 128;
   if(slot==='stockLabel')return'Raktáron';
