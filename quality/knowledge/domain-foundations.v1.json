@@ -520,7 +520,8 @@
         "scripts/shoperation-**",
         "src/lib/quality-system/**",
         "scripts/lib/shoperation-architecture-health.mjs",
-        "tests/architecture-health.test.ts"
+        "tests/architecture-health.test.ts",
+        "scripts/template-factory-external-specialist.mjs"
       ],
       "evidenceObligations": [
         "guard-selection proof",
