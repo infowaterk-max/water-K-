@@ -727,12 +727,23 @@
           "authorityRuleId": "TF-AUTH-005",
           "file": "src/components/checkout/checkout-form.tsx",
           "value": "data-checkout-ux=\"guided-accordion\""
+        },
+        {
+          "kind": "file-contains",
+          "file": "scripts/promote-template-golden-baseline.mjs",
+          "value": "--page-types="
+        },
+        {
+          "kind": "file-contains",
+          "file": ".github/workflows/template-golden-baseline-promotion.yml",
+          "value": "commit_promoted_baseline"
         }
       ],
       "regressionTests": [
         "tests/storefront-commerce-header.test.tsx",
         "tests/storefront-playroom-v20-functional-acceptance.test.ts",
-        "tests/storefront-template-quality-gate-v2.test.ts"
+        "tests/storefront-template-quality-gate-v2.test.ts",
+        "tests/template-golden-baseline-promotion-policy.test.ts"
       ],
       "authorityRuleIds": [
         "TF-AUTH-005",
