@@ -51,6 +51,7 @@ describe('Shoperation Fresh Install proof contract lifecycle',()=>{
         'SHOPERATION_FAILURE_SOURCE: fresh-install',
         'FRESH_INSTALL_FAILED=artifacts/fresh-install-proof/failure.json',
         'fresh-install-failure-intake-${{ github.sha }}',
+        'Persist unresolved Fresh Install failure intake',
       ])expect(workflow).toContain(marker);
       for(const code of[
         'FRESH_INSTALL_SECRET_REQUIRED',
