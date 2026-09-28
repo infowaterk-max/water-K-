@@ -16,7 +16,8 @@
     "quality/development/active-plan.json",
     ".github/workflows/cloud-smoke.yml",
     "scripts/smoke.mjs",
-    "deploy/release-risk-policy.json"
+    "deploy/release-risk-policy.json",
+    "quality/knowledge/domain-foundations.v1.json"
   ],
   "expectedSubsystems": [
     "quality-knowledge-system",
@@ -91,6 +92,6 @@
     "SQ-NK-015"
   ],
   "exceptions": [],
-  "notes": "Control Plane-only hardening. Preserve existing Plan Before Code, Failure Intake, Knowledge Before Build, Atlas Change Impact, Release Risk Budget, Release Manifest, Fresh Install proof and Cloud Smoke authorities. Add structured Cloud Smoke evidence/failure intake and explicitly classify Shoperation Control Plane scripts inside the existing Release Risk Budget at the existing medium weight. No threshold/weight relaxation. No storefront, Builder, Template Runtime, Page Schema, database, auth redesign or roadmap-order change.",
+  "notes": "Control Plane-only hardening. Preserve existing authorities. Repair the proven Atlas/Release mismatch by registering scripts/smoke.mjs under canonical DOMAIN-RELEASE, extend Failure Intake v2 to consume Knowledge Before Build integrityIssues, add structured Cloud Smoke evidence/failure intake, and explicitly classify Control Plane scripts in Release Risk Budget at unchanged medium weight. No threshold/weight relaxation and no product/runtime/schema/auth redesign.",
   "changeBaseSha": "c1f3d4178407d0c484f18874707313d849d4593c"
 }
