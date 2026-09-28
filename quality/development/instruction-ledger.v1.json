@@ -652,7 +652,8 @@
       "regressionTests": [
         "tests/storefront-commerce-header.test.tsx",
         "tests/storefront-playroom-v20-functional-acceptance.test.ts",
-        "tests/product-owner-instruction-compliance.test.ts"
+        "tests/product-owner-instruction-compliance.test.ts",
+        "tests/storefront-playroom-v20-post-release-polish.test.ts"
       ]
     }
   ]
