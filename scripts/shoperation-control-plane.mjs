@@ -1,6 +1,7 @@
 import {execFileSync} from 'node:child_process';
 import {existsSync,mkdirSync,readFileSync,writeFileSync} from 'node:fs';
 import {emitInstantGuardFailure} from './lib/shoperation-control-plane-reporter.mjs';
+import {runExternalSpecialists} from './lib/shoperation-external-orchestrator.mjs';
 
 const readJson=file=>JSON.parse(readFileSync(file,'utf8'));
 const registry=readJson('quality/knowledge/guard-registry.v1.json');
@@ -11,7 +12,8 @@ const arg=name=>{const i=args.indexOf(name);return i>=0?args[i+1]:null};
 const profile=arg('--profile')||process.env.SHOPERATION_CONTROL_PLANE_PROFILE||(process.env.GITHUB_EVENT_NAME==='pull_request'?'pr':'branch');
 const through=arg('--through')||process.env.SHOPERATION_CONTROL_PLANE_THROUGH||null;
 const check=args.includes('--check');
-const reconcile=args.includes('--reconcile-external');
+const runExternal=args.includes('--run-external');
+const reconcile=args.includes('--reconcile-external')||runExternal;
 const reportDir='artifacts/shoperation-control-plane';
 const reportPath=`${reportDir}/control-plane.json`;
 const exactEvidencePath=value=>typeof value==='string'&&!value.includes('*')&&!value.includes('{')&&!value.includes('[')?value:null;
@@ -61,19 +63,41 @@ function finalDecision(outcomes,contradictions,requiredIds){
   return {decision:!blocked&&!missing.length&&!contradictions.length?'PASS':'BLOCK',blocked,missing};
 }
 
+function topoSort(ids){
+  const order=[],visiting=new Set(),visited=new Set();
+  const visit=id=>{
+    if(visited.has(id))return;
+    if(visiting.has(id))throw new Error(`CONTROL_PLANE_DEPENDENCY_CYCLE:${id}`);
+    visiting.add(id);
+    const guard=byId.get(id);
+    if(!guard)throw new Error(`CONTROL_PLANE_UNKNOWN_GUARD:${id}`);
+    for(const dependency of guard.consumesEvidenceFrom??[])if(ids.has(dependency))visit(dependency);
+    visiting.delete(id);visited.add(id);order.push(id);
+  };
+  for(const id of ids)visit(id);
+  return order;
+}
+
+topoSort(new Set((registry.guards??[]).filter(guard=>guard.blocking===true).map(guard=>guard.id)));
+
 if(reconcile){
   if(!existsSync(reportPath))throw new Error('CONTROL_PLANE_MANAGED_REPORT_MISSING');
   const prior=readJson(reportPath);
   const contradictions=[...(prior.contradictions??[])];
   const outcomes=[...(prior.outcomes??[])];
   let externalResults={};
-  try{externalResults=JSON.parse(process.env.SHOPERATION_EXTERNAL_GUARD_RESULTS??'{}')}catch{throw new Error('CONTROL_PLANE_EXTERNAL_RESULTS_INVALID_JSON')}
-  const externalIds=Object.keys(externalResults).filter(guardId=>{
+  if(runExternal){
+    externalResults=runExternalSpecialists({profile:prior.profile}).results;
+  }else{
+    try{externalResults=JSON.parse(process.env.SHOPERATION_EXTERNAL_GUARD_RESULTS??'{}')}catch{throw new Error('CONTROL_PLANE_EXTERNAL_RESULTS_INVALID_JSON')}
+  }
+  const requestedExternalIds=Object.keys(externalResults).filter(guardId=>{
     const guard=byId.get(guardId);
     const profiles=guard?.execution?.profiles??[];
     return !profiles.length||profiles.includes(prior.profile);
   });
-  if(!externalIds.length)throw new Error('CONTROL_PLANE_EXTERNAL_RESULTS_REQUIRED');
+  if(!requestedExternalIds.length)throw new Error('CONTROL_PLANE_EXTERNAL_RESULTS_REQUIRED');
+  const externalIds=topoSort(new Set(requestedExternalIds));
   const outcomeMap=new Map(outcomes.map(item=>[item.guardId,item]));
 
   for(const guardId of externalIds){
@@ -155,20 +179,6 @@ if(reconcile){
   }
   const selectedIds=through?dependencyClosure(through):new Set(managedIds);
   if(through&&!selectedIds.has(through))throw new Error(`CONTROL_PLANE_THROUGH_NOT_MANAGED_IN_PROFILE:${through}:${profile}`);
-
-  function topoSort(ids){
-    const order=[],visiting=new Set(),visited=new Set();
-    const visit=id=>{
-      if(visited.has(id))return;
-      if(visiting.has(id))throw new Error(`CONTROL_PLANE_DEPENDENCY_CYCLE:${id}`);
-      visiting.add(id);
-      const guard=byId.get(id);
-      for(const dependency of guard?.consumesEvidenceFrom??[])if(ids.has(dependency))visit(dependency);
-      visiting.delete(id);visited.add(id);order.push(id);
-    };
-    for(const id of ids)visit(id);
-    return order;
-  }
 
   const order=topoSort(selectedIds);
   const activeList=order.join(',');
