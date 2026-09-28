@@ -20,46 +20,71 @@ const atlasValidation=validateCodebaseAtlas(atlas);
 const atlasNodes=new Map(atlas.nodes.map(node=>[node.path,node]));
 if(!atlasValidation.ok)issues.push({code:'DEV_PLAN_ATLAS_INVALID',issues:atlasValidation.issues});
 
-const preCodeProjection=changedFiles.length===0;
-const projectedFiles=preCodeProjection
-  ? atlas.nodes.map(node=>node.path).filter(file=>file!=='quality/development/active-plan.json'&&planMatchers.some(m=>m.test(file))).sort()
-  : [];
-const scopeFiles=preCodeProjection?projectedFiles:changedFiles;
+const projectedFiles=atlas.nodes
+  .map(node=>node.path)
+  .filter(file=>file!=='quality/development/active-plan.json'&&planMatchers.some(m=>m.test(file)))
+  .sort();
+if(!projectedFiles.length)issues.push({code:'DEV_PLAN_PROJECTION_EMPTY',plannedFilePatterns:plan.plannedFilePatterns});
 
-if(preCodeProjection&&!projectedFiles.length)issues.push({code:'DEV_PLAN_PROJECTION_EMPTY',plannedFilePatterns:plan.plannedFilePatterns});
+const actualScope=resolveDevelopmentScope({files:changedFiles,task:plan.task});
+const projectedScope=resolveDevelopmentScope({files:projectedFiles,task:plan.task});
+const expectedFailures=[...(plan.expectedKnownFailureIds??[])].sort();
+const projectedFailures=[...projectedScope.activeFailureIds].sort();
 
-const scope=resolveDevelopmentScope({files:scopeFiles,task:plan.task});
-const failureIds=[...scope.activeFailureIds].sort();
-const expected=[...(plan.expectedKnownFailureIds??[])].sort();
-
-const directDomains=[...new Set(scopeFiles.flatMap(file=>atlasNodes.get(file)?.domains??[]))].sort();
-const directAuthorities=[...new Set(directDomains.map(id=>atlas.domainIndexDefinition?.[id]?.owner).filter(Boolean))].sort();
-const architectureUnresolvedFiles=scopeFiles.filter(file=>{
+const domainsFor=files=>[...new Set(files.flatMap(file=>atlasNodes.get(file)?.domains??[]))].sort();
+const authoritiesFor=domains=>[...new Set(domains.map(id=>atlas.domainIndexDefinition?.[id]?.owner).filter(Boolean))].sort();
+const unresolvedFor=files=>files.filter(file=>{
   if(scopePolicy.knowledgeInfrastructurePrefixes.some(prefix=>file.startsWith(prefix))||isNeutralFile(file))return false;
   return !(atlasNodes.get(file)?.domains?.length);
 });
-if(architectureUnresolvedFiles.length)issues.push({code:'DEV_PLAN_ARCHITECTURE_SCOPE_UNRESOLVED',files:architectureUnresolvedFiles});
+
+const actualDomains=domainsFor(changedFiles);
+const actualAuthorities=authoritiesFor(actualDomains);
+const projectedDomains=domainsFor(projectedFiles);
+const projectedAuthorities=authoritiesFor(projectedDomains);
+const actualUnresolved=unresolvedFor(changedFiles);
+const projectedUnresolved=unresolvedFor(projectedFiles);
+
+if(actualUnresolved.length)issues.push({code:'DEV_PLAN_ARCHITECTURE_SCOPE_UNRESOLVED',files:actualUnresolved,mode:'actual-diff'});
+if(projectedUnresolved.length)issues.push({code:'DEV_PLAN_ARCHITECTURE_SCOPE_UNRESOLVED',files:projectedUnresolved,mode:'planned-projection'});
 
 const expectedDomains=[...(plan.expectedDomains??[])].sort();
 const expectedAuthorities=[...(plan.expectedAuthorities??[])].sort();
 if(!expectedDomains.length)issues.push({code:'DEV_PLAN_EXPECTED_DOMAINS_REQUIRED'});
 if(!expectedAuthorities.length)issues.push({code:'DEV_PLAN_EXPECTED_AUTHORITIES_REQUIRED'});
-if(JSON.stringify(directDomains)!==JSON.stringify(expectedDomains))issues.push({code:'DEV_PLAN_DOMAIN_SCOPE_DRIFT',expected:expectedDomains,actual:directDomains,mode:preCodeProjection?'planned-projection':'actual-diff'});
-if(JSON.stringify(directAuthorities)!==JSON.stringify(expectedAuthorities))issues.push({code:'DEV_PLAN_AUTHORITY_SCOPE_DRIFT',expected:expectedAuthorities,actual:directAuthorities,mode:preCodeProjection?'planned-projection':'actual-diff'});
-if(JSON.stringify(failureIds)!==JSON.stringify(expected))issues.push({code:'DEV_PLAN_FAILURE_SCOPE_DRIFT',expected,actual:failureIds,mode:preCodeProjection?'planned-projection':'actual-diff'});
-for(const subsystem of scope.impactedSubsystems)if(!(plan.expectedSubsystems??[]).includes(subsystem))issues.push({code:'DEV_PLAN_SUBSYSTEM_SCOPE_DRIFT',subsystem});
-if(scope.unresolvedFiles.length)issues.push({code:'DEV_PLAN_UNRESOLVED_SCOPE',files:scope.unresolvedFiles});
 
-const negative=knowledge.negativeKnowledge.filter(item=>{
+if(JSON.stringify(projectedDomains)!==JSON.stringify(expectedDomains))issues.push({code:'DEV_PLAN_DOMAIN_SCOPE_DRIFT',expected:expectedDomains,actual:projectedDomains,mode:'planned-projection'});
+if(JSON.stringify(projectedAuthorities)!==JSON.stringify(expectedAuthorities))issues.push({code:'DEV_PLAN_AUTHORITY_SCOPE_DRIFT',expected:expectedAuthorities,actual:projectedAuthorities,mode:'planned-projection'});
+if(JSON.stringify(projectedFailures)!==JSON.stringify(expectedFailures))issues.push({code:'DEV_PLAN_FAILURE_SCOPE_DRIFT',expected:expectedFailures,actual:projectedFailures,mode:'planned-projection'});
+
+const outside=(actual,expected)=>actual.filter(value=>!expected.includes(value));
+const outsideDomains=outside(actualDomains,expectedDomains);
+const outsideAuthorities=outside(actualAuthorities,expectedAuthorities);
+const outsideFailures=outside([...actualScope.activeFailureIds].sort(),expectedFailures);
+if(outsideDomains.length)issues.push({code:'DEV_PLAN_DOMAIN_SCOPE_EXPANDED',outside:outsideDomains,expected:expectedDomains,actual:actualDomains});
+if(outsideAuthorities.length)issues.push({code:'DEV_PLAN_AUTHORITY_SCOPE_EXPANDED',outside:outsideAuthorities,expected:expectedAuthorities,actual:actualAuthorities});
+if(outsideFailures.length)issues.push({code:'DEV_PLAN_FAILURE_SCOPE_EXPANDED',outside:outsideFailures});
+
+const expectedSubsystems=[...(plan.expectedSubsystems??[])].sort();
+const projectedSubsystems=[...projectedScope.impactedSubsystems].sort();
+if(JSON.stringify(projectedSubsystems)!==JSON.stringify(expectedSubsystems))issues.push({code:'DEV_PLAN_SUBSYSTEM_SCOPE_DRIFT',expected:expectedSubsystems,actual:projectedSubsystems,mode:'planned-projection'});
+const outsideSubsystems=outside([...actualScope.impactedSubsystems].sort(),expectedSubsystems);
+if(outsideSubsystems.length)issues.push({code:'DEV_PLAN_SUBSYSTEM_SCOPE_EXPANDED',outside:outsideSubsystems});
+
+if(actualScope.unresolvedFiles.length)issues.push({code:'DEV_PLAN_UNRESOLVED_SCOPE',files:actualScope.unresolvedFiles,mode:'actual-diff'});
+if(projectedScope.unresolvedFiles.length)issues.push({code:'DEV_PLAN_UNRESOLVED_SCOPE',files:projectedScope.unresolvedFiles,mode:'planned-projection'});
+
+const negativeFor=scope=>knowledge.negativeKnowledge.filter(item=>{
   const applicable=guardPolicy.negativeKnowledgeApplicability[item.id]??[];
   return applicable.includes('*')||applicable.some(s=>scope.impactedSubsystems.includes(s));
 }).map(x=>x.id).sort();
+const projectedNegative=negativeFor(projectedScope);
 const acknowledged=[...(plan.acknowledgedNegativeKnowledgeIds??[])].sort();
-if(JSON.stringify(negative)!==JSON.stringify(acknowledged))issues.push({code:'DEV_PLAN_NEGATIVE_KNOWLEDGE_DRIFT',expected:negative,actual:acknowledged});
+if(JSON.stringify(projectedNegative)!==JSON.stringify(acknowledged))issues.push({code:'DEV_PLAN_NEGATIVE_KNOWLEDGE_DRIFT',expected:projectedNegative,actual:acknowledged});
 
 for(const exception of plan.exceptions??[])if(!exception.ruleId||!exception.reason?.trim())issues.push({code:'DEV_PLAN_EXCEPTION_INVALID',exception});
 
-const digest=stableDigest({failureIds,subsystems:[...scope.impactedSubsystems].sort(),negativeKnowledgeIds:negative});
+const digest=stableDigest({failureIds:projectedFailures,subsystems:projectedSubsystems,negativeKnowledgeIds:projectedNegative});
 if(plan.guardDigest!==digest)issues.push({code:'DEV_PLAN_GUARD_DIGEST_DRIFT',expected:plan.guardDigest,actual:digest});
 
 const report={
@@ -67,18 +92,22 @@ const report={
   taskId:plan.taskId??null,
   base:diff.base,
   head:diff.head,
-  evaluationMode:preCodeProjection?'planned-projection':'actual-diff',
+  evaluationMode:changedFiles.length?'actual-diff-with-plan-envelope':'planned-projection',
   changedFiles,
   projectedFiles,
-  scopeFiles,
-  scope,
-  architectureImpact:{directDomains,directAuthorities,unresolvedFiles:architectureUnresolvedFiles,atlasContract:atlas.contract},
+  actualScope,
+  projectedScope,
+  architectureImpact:{
+    actual:{directDomains:actualDomains,directAuthorities:actualAuthorities,unresolvedFiles:actualUnresolved},
+    projected:{directDomains:projectedDomains,directAuthorities:projectedAuthorities,unresolvedFiles:projectedUnresolved},
+    atlasContract:atlas.contract,
+  },
   guardDigest:digest,
   issues,
   decision:issues.length?'BLOCK':'PASS',
 };
 mkdirSync('artifacts/shoperation-development-guard',{recursive:true});
 writeFileSync('artifacts/shoperation-development-guard/plan-before-code.json',JSON.stringify(report,null,2)+'\n');
-console.log(`Plan Before Code: ${report.decision}; mode=${report.evaluationMode}; changedFiles=${changedFiles.length}; scopeFiles=${scopeFiles.length}; failures=${failureIds.length}.`);
+console.log(`Plan Before Code: ${report.decision}; mode=${report.evaluationMode}; changedFiles=${changedFiles.length}; projectedFiles=${projectedFiles.length}; failures=${projectedFailures.length}.`);
 for(const issue of issues)console.error(JSON.stringify(issue));
 if(report.decision!=='PASS'&&process.argv.includes('--check'))process.exit(1);
