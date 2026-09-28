@@ -27,9 +27,10 @@ export function augmentStorefrontDigitalCommercePreviewContext(input:{
   ];
   const lootVaultAcceptanceCartLines=[
     {id:'vault-sentinel',name:'Vault Sentinel prémium figura',variantLabel:'Collector Edition',quantity:1,lineTotal:89990,fulfillmentType:'physical',image:'/storefront-demo/loot-vault-v2/product-figure.webp',imageAlt:'Vault Sentinel prémium figura'},
-    {id:'mythic-wing',name:'Mythic Wing gyűjtői szobor',variantLabel:'Limited Edition',quantity:1,lineTotal:129990,fulfillmentType:'physical',image:'/storefront-demo/loot-vault-v2/product-statue.webp',imageAlt:'Mythic Wing gyűjtői szobor'},
-    {id:'archive-relic',name:'Archívum gyűjtői relikvia',variantLabel:'Vault Exclusive',quantity:1,lineTotal:74990,fulfillmentType:'physical',image:'/storefront-demo/loot-vault-v2/product-relic.webp',imageAlt:'Archívum gyűjtői relikvia'},
+    {id:'mythic-warden',name:'Mythic Warden gyűjtői szobor',variantLabel:'Limited Edition',quantity:1,lineTotal:129990,fulfillmentType:'physical',image:'/storefront-demo/loot-vault-v2/hero-cinematic.webp',imageAlt:'Mythic Warden gyűjtői szobor'},
+    {id:'vault-visor',name:'Vault Visor sci-fi relikvia',variantLabel:'Vault Exclusive',quantity:1,lineTotal:74990,fulfillmentType:'physical',image:'/storefront-demo/loot-vault-v2/editorial-vault-shelf.webp',imageAlt:'Vault Visor sci-fi relikvia'},
   ];
+  lootVaultAcceptanceCartLines.splice(2,0,{id:'neon-controller',name:'Neon Controller Collector Edition',variantLabel:'Collector Edition',quantity:1,lineTotal:59990,fulfillmentType:'physical',image:'/storefront-demo/loot-vault-v2/editorial-collector-room.webp',imageAlt:'Neon Controller Collector Edition'});
   const isLootVault=input.template?.manifest.templateKey==='gaming.loot-vault';
   const previewCartLines=isLootVault?lootVaultAcceptanceCartLines:acceptanceCartLines;
   const previewCartSubtotal=previewCartLines.reduce((sum,line)=>sum+line.lineTotal,0);
