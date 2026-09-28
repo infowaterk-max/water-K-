@@ -4,11 +4,13 @@ Az Atlas 2.0 most már nem csak lekérdezhető System Self-Knowledge index, hane
 
 ## Egyetlen folyamat, nem új gate-réteg
 
-A megoldás nem vezet be új, párhuzamos quality gate-et. Az Atlas 2.0 három már létező authority-t erősít:
+A megoldás nem vezet be új, párhuzamos quality gate-et. Az Atlas 2.0 a központi **Shoperation Control Plane** contextjét és három meglévő specialistát erősít:
 
-1. **Plan Before Code** – a tervezett subsystem scope mellett domain- és authority-scope-ot is rögzít.
-2. **Knowledge Before Build** – minden változásra determinisztikus Change Impact artifactot készít.
-3. **Release Risk Budget** – csak exact-head Atlas Change Impact bizonyítékkal fogad el release-t.
+1. **Plan Before Code specialist** – a tervezett subsystem scope mellett domain- és authority-scope-ot is rögzít.
+2. **Knowledge Before Build specialist** – minden változásra determinisztikus Change Impact artifactot készít.
+3. **Release Risk Budget specialist** – csak exact-head Atlas Change Impact bizonyítékkal adhat PASS evidence-et.
+
+A specialisták nem sibling döntéshozók. A futási/dependency sorrend canonical forrása a `quality/knowledge/guard-registry.v1.json`; a végső PASS/BLOCK kizárólag a Control Plane-é. Az external specialistákat is a Control Plane indítja registry-parancsból, topologikusan, majd ugyanabba a final reconciliationbe húzza vissza az eredményt.
 
 ## Change Impact contract
 
@@ -36,7 +38,7 @@ A Development Plan két új explicit mezőt használ:
 - `expectedDomains`
 - `expectedAuthorities`
 
-A gate blokkol, ha a tényleges diff Atlas 2.0 projekciója eltér a tervezett domain/authority scope-tól. Ez azt jelenti, hogy egy váratlan architecture-határátlépés már implementáció/release előtt láthatóvá válik.
+A Plan Before Code specialist BLOCK evidence-et ad, ha a tényleges diff Atlas 2.0 projekciója eltér a tervezett domain/authority scope-tól; a Control Plane ezt a közös dependency graph részeként értékeli. Ez azt jelenti, hogy egy váratlan architecture-határátlépés már implementáció/release előtt láthatóvá válik.
 
 ## Release Closure
 
@@ -54,4 +56,4 @@ A Risk Budget riport a pontszám mellett eltárolja az Atlas closure domain-, au
 
 ## Határ
 
-Az Atlas továbbra sem hoz üzleti döntést. A Constitution és Domain Foundations az authority; az Atlas ezek alapján számít impactot és closure-t. A Release Risk Budget továbbra is a production release kockázati authority-ja.
+Az Atlas továbbra sem hoz üzleti döntést. A Constitution és Domain Foundations az authority; az Atlas ezek alapján számít impactot és closure-t. A Release Risk Budget a production release kockázati specialistája és policy-authorityja, de nem birtokolhatja a teljes rendszer végső döntését: azt a Control Plane reconciliálja a többi evidence-szel.
