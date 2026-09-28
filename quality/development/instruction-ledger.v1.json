@@ -517,7 +517,7 @@
         },
         {
           "kind": "file-contains",
-          "file": "scripts/shoperation-plan-before-code.mjs",
+          "file": "scripts/lib/shoperation-ab-implementation-sync.mjs",
           "value": "DEV_PLAN_B_SYNC_UNRESOLVED"
         },
         {
