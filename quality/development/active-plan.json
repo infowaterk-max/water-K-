@@ -1,14 +1,17 @@
 {
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-TEMPLATE-GENERATOR-READINESS-FOUNDATION",
-  "task": "Add a generator-readiness blueprint contract to the existing Template Factory so future template generation can be automated without creating a parallel template, runtime, Builder, Page Schema, responsive, commerce, auth, or release authority.",
+  "task": "Add generator-readiness blueprint metadata and fail-closed consistency checks to the existing Template Factory.",
   "status": "ready-for-implementation",
   "guardDigest": "1755dcf5",
   "plannedFilePatterns": [
-    "src/lib/builder/template-factory/**",
-    "tests/**template-factory**",
-    "quality/development/active-plan.json",
-    "docs/support/**"
+    "src/lib/builder/template-factory/scaffold.ts",
+    "src/lib/builder/template-factory/generator-readiness.ts",
+    "src/lib/builder/template-factory/blueprints/loot-vault-v2.ts",
+    "src/lib/builder/template-factory/recipes/loot-vault-v2.ts",
+    "tests/template-factory-generator-readiness.test.ts",
+    "tests/template-factory-loot-vault-v2.test.ts",
+    "quality/development/active-plan.json"
   ],
   "expectedSubsystems": [
     "builder-template-system",
@@ -76,6 +79,6 @@
     "SQ-NK-012"
   ],
   "exceptions": [],
-  "notes": "Foundation-only transaction. Extend the existing Template Factory; do not create a generator runtime yet. Blueprint v0.1 is descriptive, source-controlled metadata. Generator-readiness evaluation must fail closed when blueprint identity, canonical 14-page coverage, canonical Desktop/Tablet/Mobile responsive authority, shared component/runtime ownership, Builder editability, or recipe/package capability identity drifts. No live catalog activation, no Product Owner acceptance shortcut, no golden promotion, no database change, no release-policy weakening, and no template-local commerce/auth/runtime engine. Existing Visual First -> Product Owner Approval -> Implementation remains authoritative.",
+  "notes": "Foundation-only transaction. Generator-readiness is metadata plus validation inside the existing Factory build contract. No separate generator implementation is introduced. The first adopted blueprint is Loot Vault v2. The change must preserve the canonical 14-page set, canonical three-viewport authority, shared component ownership, Builder editability, and recipe/package identity. Product Owner acceptance remains a separate existing gate.",
   "changeBaseSha": "3359276b61b491ed7fd32c05f0058ad1c80d97b8"
 }
