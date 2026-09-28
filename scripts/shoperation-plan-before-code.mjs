@@ -7,8 +7,9 @@ if(plan.contract!=='shoporation.development-plan.v1')issues.push({code:'DEV_PLAN
 if(plan.status!=='ready-for-implementation')issues.push({code:'DEV_PLAN_NOT_READY'});
 if(!plan.task?.trim())issues.push({code:'DEV_PLAN_TASK_REQUIRED'});
 if(!Array.isArray(plan.plannedFilePatterns)||!plan.plannedFilePatterns.length)issues.push({code:'DEV_PLAN_FILES_REQUIRED'});
-const planMatchers=(plan.plannedFilePatterns??[]).map(globToRegExp);
-for(const file of changedFiles)if(!planMatchers.some(m=>m.test(file)))issues.push({code:'DEV_PLAN_UNPLANNED_FILE',file});
+const planMatchers=(plan.plannedFilePatterns??[]).map(globToRegExp),companionMatchers=(plan.plannedCompanionFilePatterns??[]).map(globToRegExp);
+if(!Array.isArray(plan.plannedCompanionFilePatterns))issues.push({code:'DEV_PLAN_COMPANION_FILE_SET_REQUIRED'});
+for(const file of changedFiles)if(!planMatchers.some(m=>m.test(file))&&!companionMatchers.some(m=>m.test(file)))issues.push({code:'DEV_PLAN_UNPLANNED_FILE',file});
 const scope=resolveDevelopmentScope({files:changedFiles,task:plan.task}),failureIds=[...scope.activeFailureIds].sort(),expected=[...(plan.expectedKnownFailureIds??[])].sort();
 const atlas=buildCodebaseAtlas(),atlasValidation=validateCodebaseAtlas(atlas),atlasNodes=new Map(atlas.nodes.map(node=>[node.path,node]));
 const plannedChangePlan=changeObligationsForAtlasPatterns(atlas,plan.plannedFilePatterns??[]),actualChangePlan=changeObligationsForAtlasPatterns(atlas,changedFiles);
