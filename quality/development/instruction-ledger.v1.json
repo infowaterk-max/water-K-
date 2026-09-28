@@ -579,6 +579,81 @@
         "tests/architecture-constitution.test.ts",
         "tests/shoperation-control-plane.test.ts"
       ]
+    },
+    {
+      "id": "PO-2026-09-28-PLAYROOM-TABLET-ROOT-CAUSE",
+      "request": "A Playroom v20 auditban feltárt Tablet root cause célzott javítása: a hibásan 12 fölé futó canonical tablet grid-spans rendezése és a shared commerce header tablet navigációjának kompakt módra váltása. Desktop és Mobil vizuális/composition authority maradjon változatlan; ne legyen általános redesign, golden promotion vagy más template módosítás.",
+      "state": "planned",
+      "acceptanceCriteria": [
+        "A shared commerce header Tablet nézetben kompakt disclosure navigációt használ, nem a teljes desktop navigációs sort zsúfolja be.",
+        "A Playroom érintett Tablet grid-sorai 12 oszlopra zárnak.",
+        "A Playroom Tablet footer tömör: brand 12, shop/world/about 4-4-4, social 12.",
+        "Desktop és Mobile responsive gridSpan értékek változatlanok maradnak.",
+        "Home elfogadott Desktop/Mobile composition nem változik.",
+        "Golden baseline nem módosul."
+      ],
+      "checks": [
+        {
+          "kind": "file-contains",
+          "file": "src/components/builder/storefront-commerce-header.tsx",
+          "value": "compactNavigation"
+        },
+        {
+          "kind": "file-contains",
+          "file": "tests/storefront-commerce-header.test.tsx",
+          "value": "uses compact disclosure navigation on tablet"
+        },
+        {
+          "kind": "file-contains",
+          "file": "tests/storefront-playroom-v20-functional-acceptance.test.ts",
+          "value": "closes Playroom tablet grid rows without changing desktop or mobile authority"
+        },
+        {
+          "kind": "template-node-value",
+          "file": "src/lib/builder/templates/gaming/playroom/v20/canonical-package.json",
+          "pageType": "catalog",
+          "nodeId": "playroom-catalog-hero-copy",
+          "path": "responsive.tablet.gridSpan",
+          "equals": 5
+        },
+        {
+          "kind": "template-node-value",
+          "file": "src/lib/builder/templates/gaming/playroom/v20/canonical-package.json",
+          "pageType": "catalog",
+          "nodeId": "playroom-catalog-hero-media",
+          "path": "responsive.tablet.gridSpan",
+          "equals": 7
+        },
+        {
+          "kind": "template-node-value",
+          "file": "src/lib/builder/templates/gaming/playroom/v20/canonical-package.json",
+          "pageType": "product",
+          "nodeId": "playroom-product-buybox",
+          "path": "responsive.tablet.gridSpan",
+          "equals": 5
+        },
+        {
+          "kind": "template-node-value",
+          "file": "src/lib/builder/templates/gaming/playroom/v20/canonical-package.json",
+          "pageType": "search",
+          "nodeId": "playroom-search-results-shell",
+          "path": "responsive.tablet.gridSpan",
+          "equals": 9
+        },
+        {
+          "kind": "template-node-value",
+          "file": "src/lib/builder/templates/gaming/playroom/v20/canonical-package.json",
+          "pageType": "account",
+          "nodeId": "playroom-account-status",
+          "path": "responsive.tablet.gridSpan",
+          "equals": 4
+        }
+      ],
+      "regressionTests": [
+        "tests/storefront-commerce-header.test.tsx",
+        "tests/storefront-playroom-v20-functional-acceptance.test.ts",
+        "tests/product-owner-instruction-compliance.test.ts"
+      ]
     }
   ]
 }
