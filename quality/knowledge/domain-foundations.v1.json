@@ -486,7 +486,8 @@
         "quality.negative-knowledge",
         "quality.development-plan",
         "quality.guard-selection",
-        "quality.regression-authority"
+        "quality.regression-authority",
+        "quality.change-obligation"
       ],
       "responsibilities": [
         "Known Failure registry",
@@ -494,7 +495,8 @@
         "failure intake",
         "impact/scope resolution",
         "architecture knowledge",
-        "regression authority"
+        "regression authority",
+        "A/B change obligation projection"
       ],
       "doesNotOwn": [
         "business runtime state",
@@ -505,7 +507,8 @@
       "boundaryRules": [
         "Quality evidence must be bound to exact source/release identity.",
         "Unknown or review-required failure intake persists until explicit disposition.",
-        "Quality controls may block invalid change but may not redefine domain truth to make tests pass."
+        "Quality controls may block invalid change but may not redefine domain truth to make tests pass.",
+        "Planning must distinguish direct edit targets from dependent companion obligations; generated evidence, descriptions, regression consumers and protected baselines may not be discovered only after implementation."
       ],
       "principles": [
         "ARCH-004",
