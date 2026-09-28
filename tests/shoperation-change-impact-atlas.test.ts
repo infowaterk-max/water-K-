@@ -68,6 +68,7 @@ describe('Atlas 2.0 Change Impact / Release Closure integration',()=>{
     expect(golden?.timing).toBe('after-explicit-product-owner-visual-acceptance');
     expect(golden?.mutationPolicy).toBe('forbidden-before-explicit-product-owner-acceptance');
     expect(golden?.targetPatterns).toContain('tests/visual-baselines/**');
+    expect((golden as any)?.sourcePatterns).toContain('tests/visual-baselines/**');
     const guard=read('scripts/shoperation-development-guard.mjs');
     expect(guard).toContain('## A/B Change Plan');
     expect(guard).toContain('expectedChangeObligationIds');
