@@ -359,6 +359,79 @@
         "tests/storefront-playroom-v20-po-page-batch.test.ts",
         "tests/product-owner-instruction-compliance.test.ts"
       ]
+    },
+    {
+      "id": "PO-2026-09-28-CONTROL-PLANE-CONSOLIDATION",
+      "request": "Fejezd be a Shoperation központi Control Plane / Cyber Mind konszolidációját: ne maradjon legacy sibling orchestration; egyetlen dependency graph legyen; az authority-conflict detection legyen általános; minden BLOCK azonnal közölje a konkrét okokat; a VIKI-jellegű döntési réteg maradjon determinisztikus és emberi/PO authority alatt; a checkout továbbra is a shared E13 engine legyen.",
+      "state": "implemented",
+      "acceptanceCriteria": [
+        "A managed és external specialisták dependency sorrendjét kizárólag a guard registry graphja határozza meg; a workflow felsorolás nem válhat második authorityvá.",
+        "Az authority-conflict ellenőrzés közös policy/evaluatorból működik és a TF-AUTH-005 checkout/cart/account ownershipot nem lokális checkout gate-ként kezeli.",
+        "A specialist runner dependency evidence nélkül vagy BLOCK predecessor mellett nem futtatja a specialistát.",
+        "A Control Plane azonnali riportja több konkrét okot, hibakódot, ismert authority/failure mappinget, érintett kontextust és következő lépést közöl, valamint megkülönbözteti a regressziót az approval-required golden difftől.",
+        "A /penztar valódi útvonala CheckoutForm + StorefrontCheckoutShell + shared E13 continuityt tart fenn; template csak presentationt birtokol.",
+        "Release Risk threshold és golden baseline nem változik."
+      ],
+      "checks": [
+        {
+          "kind": "file-exists",
+          "file": "quality/knowledge/authority-conflict-policy.v1.json"
+        },
+        {
+          "kind": "file-contains",
+          "file": "scripts/shoperation-control-plane.mjs",
+          "value": "topoSort"
+        },
+        {
+          "kind": "file-contains",
+          "file": "scripts/shoperation-specialist-runner.mjs",
+          "value": "SPECIALIST_DEPENDENCY_NOT_PASS"
+        },
+        {
+          "kind": "file-contains",
+          "file": "scripts/lib/shoperation-control-plane-reporter.mjs",
+          "value": "REASON "
+        },
+        {
+          "kind": "file-contains",
+          "file": ".github/workflows/shoperation-knowledge-full-replay.yml",
+          "value": "shoperation-specialist-runner.mjs --guard GUARD-QUALITY-TESTS"
+        },
+        {
+          "kind": "authority-source-contains",
+          "authorityRuleId": "TF-AUTH-005",
+          "file": "src/app/penztar/page.tsx",
+          "value": "<CheckoutForm"
+        },
+        {
+          "kind": "authority-source-contains",
+          "authorityRuleId": "TF-AUTH-005",
+          "file": "src/app/penztar/page.tsx",
+          "value": "<StorefrontCheckoutShell"
+        },
+        {
+          "kind": "authority-source-contains",
+          "authorityRuleId": "TF-AUTH-005",
+          "file": "src/components/checkout/storefront-checkout-shell.tsx",
+          "value": "data-storefront-live-checkout=\"shared-e13\""
+        },
+        {
+          "kind": "authority-source-contains",
+          "authorityRuleId": "TF-AUTH-005",
+          "file": "src/components/checkout/checkout-form.tsx",
+          "value": "data-checkout-ux=\"guided-accordion\""
+        }
+      ],
+      "regressionTests": [
+        "tests/shoperation-control-plane.test.ts",
+        "tests/shoperation-guard-context.test.ts",
+        "tests/checkout-workflow-contracts.test.ts",
+        "tests/product-owner-instruction-compliance.test.ts"
+      ],
+      "authorityRuleIds": [
+        "SQ-AUTH-022",
+        "TF-AUTH-005"
+      ]
     }
   ]
 }
