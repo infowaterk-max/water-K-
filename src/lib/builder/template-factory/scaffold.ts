@@ -149,6 +149,7 @@ export type StorefrontTemplateFactoryBuild={
     internalReferenceMediaCount:number;
     plannedMediaCount:number;
     showroomEvidence:readonly StorefrontShowroomEvidenceRow[];
+    productionContracts:StorefrontTemplateGeneratorReadinessResult['productionContracts'];
     generatorReadiness:StorefrontTemplateGeneratorReadinessResult;
     issues:readonly StorefrontTemplateFactoryIssue[];
     technicalReady:boolean;
@@ -494,6 +495,7 @@ export function compileStorefrontTemplateFactoryPackage(input:{
     recipe,
     package:pkg,
   });
+  const productionContracts=generatorReadiness.productionContracts;
   const issues=evaluateBuild({foundation,recipe,pkg,patchMisses,overridden});
   if(recipe.blueprint)issues.push(...generatorReadiness.issues);
   return{
@@ -518,6 +520,7 @@ export function compileStorefrontTemplateFactoryPackage(input:{
       internalReferenceMediaCount:recipe.media.assets.filter(asset=>asset.state==='internal-reference').length,
       plannedMediaCount:recipe.media.assets.filter(asset=>asset.state==='planned').length,
       showroomEvidence:createStorefrontTemplateShowroomEvidence(pkg),
+      productionContracts,
       generatorReadiness,
       issues:Object.freeze(issues),
       technicalReady:issues.every(item=>item.severity!=='error'||item.code==='FACTORY_INTERNAL_VISUAL_REVIEW_REQUIRED'||item.code==='FACTORY_MEDIA_FINALIZATION_REQUIRED'),
