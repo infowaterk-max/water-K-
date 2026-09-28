@@ -11,6 +11,10 @@ describe('Shoperation Control Plane',()=>{
     expect(registry.principles.singleControlPlaneOwnsBlockingOrder).toBe(true);
     expect(registry.principles.specialistGuardsMustNotSelfOrchestratePeers).toBe(true);
     expect(registry.principles.finalDecisionBelongsToControlPlane).toBe(true);
+    expect(registry.principles.externalExecutionPlanBelongsToControlPlane).toBe(true);
+    expect(registry.principles.authorityConflictDetectionIsGlobal).toBe(true);
+    expect(registry.principles.deterministicControlPlanePrecedesAi).toBe(true);
+    expect(registry.principles.humanAuthorityCannotBeOverridden).toBe(true);
     const managed=registry.guards.filter((guard:any)=>guard.execution?.mode==='control-plane-managed');
     expect(managed.map((guard:any)=>guard.id)).toEqual(expect.arrayContaining([
       'GUARD-INSTRUCTION-COMPLIANCE',
@@ -46,6 +50,9 @@ describe('Shoperation Control Plane',()=>{
     expect(control).toContain('CONTROL_PLANE_TASK_ID_DRIFT');
     expect(control).toContain('CONTROL_PLANE_HEAD_DRIFT');
     expect(control).toContain('--reconcile-external');
+    expect(control).toContain('--run-external');
+    expect(control).toContain('runExternalSpecialists');
+    expect(control).toContain('topoSort(new Set((registry.guards');
   });
 
   it('makes both workflows invoke the Control Plane instead of manually sequencing core gates',()=>{
@@ -60,19 +67,23 @@ describe('Shoperation Control Plane',()=>{
     }
   });
 
-  it('reconciles external specialists back into the same final decision',()=>{
-    const ci=read('.github/workflows/ci.yml');
-    expect(ci).toContain('Shoperation Control Plane final reconciliation');
-    expect(ci).toContain('"GUARD-CUSTOMER-BASELINE"');
-    expect(ci).toContain('"GUARD-MARKET-READY"');
-    expect(ci).toContain('"GUARD-QUALITY-TESTS"');
-    expect(ci).toContain('"GUARD-TYPECHECK"');
-    expect(ci).toContain('"GUARD-PRODUCTION-BUILD"');
-
-    const factory=read('.github/workflows/template-factory-quality-gate.yml');
-    expect(factory).toContain('Shoperation Control Plane final Template Factory reconciliation');
-    expect(factory).toContain('"GUARD-TEMPLATE-FACTORY"');
-    expect(factory).toContain("steps.control-plane-final.outcome == 'success'");
+  it('derives external specialist execution from the registry graph rather than workflow sibling order',()=>{
+    const registry=json('quality/knowledge/guard-registry.v1.json');
+    const orchestrator=read('scripts/lib/shoperation-external-orchestrator.mjs');
+    expect(orchestrator).toContain('topoSort(selectedIds)');
+    expect(orchestrator).toContain("scripts/shoperation-specialist-runner.mjs");
+    for(const id of ['GUARD-RELEASE-RISK','GUARD-CUSTOMER-BASELINE','GUARD-MARKET-READY','GUARD-QUALITY-TESTS','GUARD-TYPECHECK','GUARD-PRODUCTION-BUILD','GUARD-TEMPLATE-FACTORY']){
+      const guard=registry.guards.find((item:any)=>item.id===id);
+      expect(guard?.execution?.mode,id).toBe('external-specialist');
+      expect(guard?.execution?.command,id).toBeTruthy();
+      expect(Array.isArray(guard?.execution?.args),id).toBe(true);
+    }
+    for(const file of ['.github/workflows/ci.yml','.github/workflows/template-factory-quality-gate.yml','.github/workflows/shoperation-knowledge-full-replay.yml']){
+      const workflow=read(file);
+      expect(workflow).toContain('--run-external --check');
+      expect(workflow).not.toContain('SHOPERATION_EXTERNAL_GUARD_RESULTS');
+      expect(workflow).not.toContain('shoperation-specialist-runner.mjs --guard');
+    }
   });
 
   it('reports a blocking specialist immediately instead of requiring log archaeology',()=>{
@@ -87,9 +98,11 @@ describe('Shoperation Control Plane',()=>{
     expect(runner).toContain('external-specialist-evidence.v1');
 
     const ci=read('.github/workflows/ci.yml');
-    expect(ci).toContain('shoperation-specialist-runner.mjs --guard GUARD-RELEASE-RISK');
-    expect(ci).toContain('shoperation-specialist-runner.mjs --guard GUARD-TYPECHECK');
-    expect(ci).toContain('"GUARD-RELEASE-RISK"');
+    expect(ci).toContain('--run-external --check');
+    expect(ci).not.toContain('shoperation-specialist-runner.mjs --guard');
+    expect(reporter).toContain('REASON ');
+    expect(reporter).toContain('CLASSIFICATION:');
+    expect(reporter).toContain('ACTION:');
   });
 
   it('pulls registered specialist diagnostics into the central failure report',()=>{
