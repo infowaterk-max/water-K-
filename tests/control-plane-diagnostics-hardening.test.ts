@@ -130,6 +130,15 @@ describe('Control Plane diagnostics and exact-head hardening',()=>{
     const stale=spawnSync(process.execPath,[script],{cwd:temp,encoding:'utf8',env});
     expect(stale.status).not.toBe(0);
     expect(`${stale.stderr}\n${stale.stdout}`).toContain('RELEASE_MANIFEST_STALE_RISK_EVIDENCE');
+    const diagnostic=JSON.parse(readFileSync(join(temp,'artifacts','release-manifest-diagnostic.json'),'utf8'));
+    expect(diagnostic.contract).toBe('shoporation.release-manifest-diagnostic.v1');
+    expect(diagnostic.sourceCommit).toBe('aaaaaaaa');
+    expect(diagnostic.errors[0]).toMatchObject({
+      code:'RELEASE_MANIFEST_STALE_RISK_EVIDENCE',
+      expected:'aaaaaaaa',
+      actual:'bbbbbbbb',
+      status:'FAIL',
+    });
 
     writeFileSync(riskFile,JSON.stringify({...baseRisk,head:'aaaaaaaa',atlasClosure:{sourceCommit:'aaaaaaaa'}}));
     const exact=spawnSync(process.execPath,[script],{cwd:temp,encoding:'utf8',env});
@@ -149,6 +158,9 @@ describe('Control Plane diagnostics and exact-head hardening',()=>{
     expect(ci).toContain('SHOPERATION_DIAGNOSTIC_ARTIFACTS');
     expect(ci).toContain('RELEASE_RISK_BUDGET_FAILED=artifacts/release-risk-budget.json');
     expect(ci).toContain('failureFingerprint');
+    expect(ci).toContain('id: release-manifest');
+    expect(ci).toContain('MANIFEST_OUTCOME: ${{ steps.release-manifest.outcome }}');
+    expect(ci).toContain('RELEASE_MANIFEST_FAILED=artifacts/release-manifest-diagnostic.json');
 
     const factory=read('.github/workflows/template-factory-quality-gate.yml');
     expect(factory).toContain('id: contract-regressions');
