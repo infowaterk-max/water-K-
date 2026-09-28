@@ -85,19 +85,27 @@ if(reconcile){
   const prior=readJson(reportPath);
   const contradictions=[...(prior.contradictions??[])];
   const outcomes=[...(prior.outcomes??[])];
+  const expectedExternal=(registry.guards??[]).filter(guard=>{
+    const profiles=guard?.execution?.profiles??[];
+    return guard.blocking===true&&guard.execution?.mode==='external-specialist'&&profiles.includes(prior.profile);
+  });
+  if(!expectedExternal.length)throw new Error('CONTROL_PLANE_PROFILE_HAS_NO_EXTERNAL_SPECIALISTS:'+prior.profile);
+  const expectedExternalIds=new Set(expectedExternal.map(guard=>guard.id));
   let externalResults={};
   if(runExternal){
     externalResults=runExternalSpecialists({profile:prior.profile}).results;
   }else{
-    try{externalResults=JSON.parse(process.env.SHOPERATION_EXTERNAL_GUARD_RESULTS??'{}')}catch{throw new Error('CONTROL_PLANE_EXTERNAL_RESULTS_INVALID_JSON')}
+    for(const guard of expectedExternal){
+      const specialistPath=`${reportDir}/specialist-${guard.id.toLowerCase()}.json`;
+      if(!existsSync(specialistPath)){externalResults[guard.id]='missing';continue;}
+      const evidence=readJson(specialistPath);
+      externalResults[guard.id]=evidence.decision==='PASS'?'success':'failure';
+    }
   }
-  const requestedExternalIds=Object.keys(externalResults).filter(guardId=>{
-    const guard=byId.get(guardId);
-    const profiles=guard?.execution?.profiles??[];
-    return !profiles.length||profiles.includes(prior.profile);
-  });
-  if(!requestedExternalIds.length)throw new Error('CONTROL_PLANE_EXTERNAL_RESULTS_REQUIRED');
-  const externalIds=topoSort(new Set(requestedExternalIds));
+  const suppliedIds=Object.keys(externalResults);
+  const unexpected=suppliedIds.filter(id=>!expectedExternalIds.has(id));
+  if(unexpected.length)contradictions.push(...unexpected.map(guardId=>({code:'CONTROL_PLANE_EXTERNAL_GUARD_NOT_EXPECTED_FOR_PROFILE',guardId,profile:prior.profile})));
+  const externalIds=topoSort(expectedExternalIds);
   const outcomeMap=new Map(outcomes.map(item=>[item.guardId,item]));
 
   for(const guardId of externalIds){
@@ -146,11 +154,7 @@ if(reconcile){
     const index=outcomes.findIndex(item=>item.guardId===guardId);
     if(index>=0)outcomes[index]=row;else outcomes.push(row);
     outcomeMap.set(guardId,row);
-    if(raw!=='success'){
-      contradictions.push({code:'CONTROL_PLANE_EXTERNAL_SPECIALIST_NOT_PASS',guardId,rawOutcome:raw});
-      if(!specialistEvidence)emitInstantGuardFailure({guard,evidence,stage:'external-reconciliation'});
-    }
-    for(const dependency of dependencyBlocks)contradictions.push({code:'CONTROL_PLANE_EXTERNAL_PREDECESSOR_NOT_PASS',guardId,...dependency});
+    if(raw!=='success'&&!specialistEvidence)emitInstantGuardFailure({guard,evidence,stage:'external-reconciliation'});
   }
 
   const requiredIds=[...(prior.selectedGuards??[]),...externalIds];
