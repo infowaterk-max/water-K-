@@ -250,7 +250,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: shoperation-failure-intake-${{ github.event.pull_request.head.sha || github.sha }}
-          path: artifacts/shoperation-failure-intake/**
+          path: |
+            artifacts/shoperation-failure-intake/**
+            artifacts/release-manifest-diagnostic.json
           if-no-files-found: warn
           retention-days: 90
 
@@ -465,3 +467,22 @@ jobs:
           path: artifacts/shoperation-failure-intake/**
           if-no-files-found: error
           retention-days: 90
+
+      - name: Persist unresolved Fresh Install failure intake
+        if: always() && steps.fresh-failure.outputs.has_failure == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs=require('fs');
+            const file='artifacts/shoperation-failure-intake/failure-intake.json';
+            if(!fs.existsSync(file))return;
+            const report=JSON.parse(fs.readFileSync(file,'utf8'));
+            const unresolved=(report.records||[]).filter(r=>['candidate-new-failure','needs-review'].includes(r.classificationStatus));
+            if(!unresolved.length)return;
+            const open=await github.paginate(github.rest.issues.listForRepo,{...context.repo,state:'open',per_page:100});
+            for(const record of unresolved){
+              const identity=record.failureFingerprint||record.candidateId;
+              const marker=`<!-- shoperation-failure-intake:${identity} -->`;
+              if(open.some(issue=>(issue.body||'').includes(marker)))continue;
+              await github.rest.issues.create({...context.repo,title:`[Quality intake] ${identity}: ${record.rawErrorCode}`,body:`${marker}\n\nContract: \`shoporation.failure-intake.v2\`\n\nFingerprint: \`${record.failureFingerprint||'unknown'}\`\n\nSource commit: \`${record.sourceCommit||'unknown'}\`\n\nCI run: \`${record.ciRunId||'unknown'}\`\n\nSource: \`${record.failureSource}\`\n\nGate: \`${record.gate||record.gateCode||'unknown'}\`\n\nClassification: \`${record.classificationStatus}\`\n\nReason: ${record.reason||record.symptom}\n\nLocation: ${record.file||record.route||record.endpoint||'not localized'}\n\nThis issue remains open until the failure is matched, promoted, scoped, deduplicated or rejected with an explicit disposition.`});
+            }
