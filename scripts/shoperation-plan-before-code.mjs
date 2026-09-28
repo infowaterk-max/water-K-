@@ -1,6 +1,6 @@
 import {mkdirSync,readFileSync,writeFileSync} from 'node:fs';
 import {getChangedFiles,globToRegExp,guardPolicy,isNeutralFile,knowledge,resolveDevelopmentScope,scopePolicy,stableDigest} from './lib/shoperation-development-runtime.mjs';
-import {buildCodebaseAtlas,validateCodebaseAtlas} from './lib/shoperation-codebase-atlas-runtime.mjs';
+import {buildCodebaseAtlas,changeObligationsForAtlasPatterns,validateCodebaseAtlas} from './lib/shoperation-codebase-atlas-runtime.mjs';
 import {predecessorIssues,publishGuardContext} from './lib/shoperation-guard-context.mjs';
 const plan=JSON.parse(readFileSync('quality/development/active-plan.json','utf8')),diff=getChangedFiles({baseSha:plan.changeBaseSha}),changedFiles=diff.files.filter(file=>file!=='quality/development/active-plan.json'),issues=[...predecessorIssues('GUARD-PLAN-BEFORE-CODE')];
 if(plan.contract!=='shoporation.development-plan.v1')issues.push({code:'DEV_PLAN_CONTRACT_INVALID'});
@@ -11,7 +11,22 @@ const planMatchers=(plan.plannedFilePatterns??[]).map(globToRegExp);
 for(const file of changedFiles)if(!planMatchers.some(m=>m.test(file)))issues.push({code:'DEV_PLAN_UNPLANNED_FILE',file});
 const scope=resolveDevelopmentScope({files:changedFiles,task:plan.task}),failureIds=[...scope.activeFailureIds].sort(),expected=[...(plan.expectedKnownFailureIds??[])].sort();
 const atlas=buildCodebaseAtlas(),atlasValidation=validateCodebaseAtlas(atlas),atlasNodes=new Map(atlas.nodes.map(node=>[node.path,node]));
+const plannedChangePlan=changeObligationsForAtlasPatterns(atlas,plan.plannedFilePatterns??[]),actualChangePlan=changeObligationsForAtlasPatterns(atlas,changedFiles);
 if(!atlasValidation.ok)issues.push({code:'DEV_PLAN_ATLAS_INVALID',issues:atlasValidation.issues});
+const plannedObligationIds=plannedChangePlan.B.policyObligations.map(item=>item.id).sort();
+const actualObligationIds=actualChangePlan.B.policyObligations.map(item=>item.id).sort();
+const expectedObligationIds=[...(plan.expectedChangeObligationIds??[])].sort();
+if(!expectedObligationIds.length)issues.push({code:'DEV_PLAN_CHANGE_OBLIGATIONS_REQUIRED'});
+if(JSON.stringify(plannedObligationIds)!==JSON.stringify(expectedObligationIds))issues.push({code:'DEV_PLAN_CHANGE_OBLIGATION_SCOPE_DRIFT',expected:expectedObligationIds,actual:plannedObligationIds});
+for(const obligationId of actualObligationIds)if(!expectedObligationIds.includes(obligationId))issues.push({code:'DEV_PLAN_UNPLANNED_CHANGE_OBLIGATION',obligationId});
+const obligationApprovals=plan.changeObligationApprovals??[];
+for(const obligation of actualChangePlan.B.policyObligations.filter(item=>item.mutationPolicy==='forbidden-before-explicit-product-owner-acceptance')){
+  const targetMatchers=(obligation.targetPatterns??[]).map(globToRegExp);
+  const changedProtected=changedFiles.filter(file=>targetMatchers.some(matcher=>matcher.test(file)));
+  if(changedProtected.length&&!obligationApprovals.some(item=>item.obligationId===obligation.id&&item.approvedBy==='product-owner'&&item.evidence?.trim())){
+    issues.push({code:'DEV_PLAN_PROTECTED_COMPANION_CHANGED_WITHOUT_PO_APPROVAL',obligationId:obligation.id,files:changedProtected});
+  }
+}
 const directDomains=[...new Set(changedFiles.flatMap(file=>atlasNodes.get(file)?.domains??[]))].sort();
 const directAuthorities=[...new Set(directDomains.map(id=>atlas.domainIndexDefinition?.[id]?.owner).filter(Boolean))].sort();
 const architectureUnresolvedFiles=changedFiles.filter(file=>{
@@ -32,6 +47,6 @@ if(JSON.stringify(negative)!==JSON.stringify(acknowledged))issues.push({code:'DE
 for(const exception of plan.exceptions??[])if(!exception.ruleId||!exception.reason?.trim())issues.push({code:'DEV_PLAN_EXCEPTION_INVALID',exception});
 const digest=stableDigest({failureIds,subsystems:[...scope.impactedSubsystems].sort(),negativeKnowledgeIds:negative});
 if(plan.guardDigest!==digest)issues.push({code:'DEV_PLAN_GUARD_DIGEST_DRIFT',expected:plan.guardDigest,actual:digest});
-const report={contract:'shoporation.plan-before-code-gate.v1',taskId:plan.taskId??null,base:diff.base,head:diff.head,changedFiles,scope,architectureImpact:{directDomains,directAuthorities,unresolvedFiles:architectureUnresolvedFiles,atlasContract:atlas.contract},guardDigest:digest,issues,decision:issues.length?'BLOCK':'PASS'};
+const report={contract:'shoporation.plan-before-code-gate.v1',taskId:plan.taskId??null,base:diff.base,head:diff.head,changedFiles,scope,architectureImpact:{directDomains,directAuthorities,unresolvedFiles:architectureUnresolvedFiles,atlasContract:atlas.contract},changePlan:{planned:plannedChangePlan,actual:actualChangePlan},guardDigest:digest,issues,decision:issues.length?'BLOCK':'PASS'};
 mkdirSync('artifacts/shoperation-development-guard',{recursive:true});writeFileSync('artifacts/shoperation-development-guard/plan-before-code.json',JSON.stringify(report,null,2)+'\n');publishGuardContext('GUARD-PLAN-BEFORE-CODE',report);
 console.log(`Plan Before Code: ${report.decision}; changedFiles=${changedFiles.length}; failures=${failureIds.length}.`);for(const issue of issues)console.error(JSON.stringify(issue));if(report.decision!=='PASS'&&process.argv.includes('--check'))process.exit(1);
