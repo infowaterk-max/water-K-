@@ -43,12 +43,14 @@ describe('Shoperation Development-Time Known Failure Guard',()=>{
     expect(guard).toContain('changeObligationsForAtlasPatterns');
     expect(guard).toContain('## A/B Change Plan');
     expect(guard).toContain('expectedChangeObligationIds');
+    expect(guard).toContain('plannedCompanionFilePatterns');
     expect(plan).toContain('plannedChangePlan');
     expect(plan).toContain('actualChangePlan');
     expect(plan).toContain('DEV_PLAN_PROTECTED_COMPANION_CHANGED_WITHOUT_PO_APPROVAL');
-    const active=JSON.parse(readFileSync('quality/development/active-plan.json','utf8')) as {expectedChangeObligationIds:string[];changeObligationApprovals:unknown[]};
+    const active=JSON.parse(readFileSync('quality/development/active-plan.json','utf8')) as {expectedChangeObligationIds:string[];changeObligationApprovals:unknown[];plannedCompanionFilePatterns:string[]};
     expect(active.expectedChangeObligationIds).toEqual(expect.arrayContaining(['ATLAS-OBL-001','ATLAS-OBL-005','ATLAS-OBL-006']));
     expect(active.changeObligationApprovals).toEqual([]);
+    expect(Array.isArray(active.plannedCompanionFilePatterns)).toBe(true);
   });
 
 });
