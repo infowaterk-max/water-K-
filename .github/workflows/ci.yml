@@ -132,16 +132,18 @@ jobs:
           if-no-files-found: warn
           retention-days: 30
 
-      - name: Production release risk budget
-        if: steps.control-plane.outcome == 'success' && (github.event_name == 'pull_request' || github.ref_name == 'main')
-        id: release-risk
-        continue-on-error: true
+      - name: Shoperation Control Plane external specialists + final reconciliation
+        if: steps.control-plane.outcome == 'success'
+        id: control-plane-final
         env:
+          SHOPERATION_CONTROL_PLANE_PROFILE: ${{ github.event_name == 'pull_request' && 'pr' || (github.ref_name == 'main' && 'post-merge' || 'branch') }}
           RELEASE_BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
           RELEASE_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
           RELEASE_BASE_REF: origin/main
+          QUALITY_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+          DEVELOPMENT_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
           SHOPERATION_SOURCE_COMMIT: ${{ github.event.pull_request.head.sha || github.sha }}
-        run: node scripts/shoperation-specialist-runner.mjs --guard GUARD-RELEASE-RISK -- node scripts/release-risk-budget.mjs
+        run: node scripts/shoperation-control-plane.mjs --profile "$SHOPERATION_CONTROL_PLANE_PROFILE" --run-external --check
 
       - name: Upload release risk budget
         if: always()
@@ -152,34 +154,14 @@ jobs:
           if-no-files-found: warn
           retention-days: 30
 
-      - name: Customer database baseline guard
-        if: steps.control-plane.outcome == 'success'
-        id: customer-baseline
-        continue-on-error: true
-        run: node scripts/shoperation-specialist-runner.mjs --guard GUARD-CUSTOMER-BASELINE -- npm run db:customer:guard
-
-      - name: Block 24 market-ready contract
-        if: steps.control-plane.outcome == 'success'
-        id: market-ready
-        continue-on-error: true
-        run: node scripts/shoperation-specialist-runner.mjs --guard GUARD-MARKET-READY -- npm run market-ready:gate
-
       - name: Upload Block 24 market-ready contract
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: block24-market-ready-contract
           path: artifacts/block24-market-ready-contract.json
-          if-no-files-found: error
+          if-no-files-found: warn
           retention-days: 30
-
-      - name: Prepare quality artifacts
-        run: mkdir -p artifacts
-
-      - name: Quality tests
-        if: steps.control-plane.outcome == 'success'
-        id: quality-tests
-        continue-on-error: true
-        run: node scripts/shoperation-specialist-runner.mjs --guard GUARD-QUALITY-TESTS -- npm test
 
       - name: Upload quality test results
         if: always()
@@ -190,31 +172,8 @@ jobs:
           if-no-files-found: warn
           retention-days: 14
 
-      - name: TypeScript check
-        if: steps.control-plane.outcome == 'success'
-        id: typecheck
-        continue-on-error: true
-        run: node scripts/shoperation-specialist-runner.mjs --guard GUARD-TYPECHECK -- npm run typecheck
-
-      - name: Production build
-        if: steps.control-plane.outcome == 'success'
-        id: production-build
-        continue-on-error: true
-        run: node scripts/shoperation-specialist-runner.mjs --guard GUARD-PRODUCTION-BUILD -- npm run build
-
-      - name: Shoperation Control Plane final reconciliation
-        if: always() && steps.control-plane.outcome == 'success'
-        id: control-plane-final
-        env:
-          SHOPERATION_EXTERNAL_GUARD_RESULTS: >-
-            {"GUARD-RELEASE-RISK":"${{ steps.release-risk.outcome }}","GUARD-CUSTOMER-BASELINE":"${{ steps.customer-baseline.outcome }}","GUARD-MARKET-READY":"${{ steps.market-ready.outcome }}","GUARD-QUALITY-TESTS":"${{ steps.quality-tests.outcome }}","GUARD-TYPECHECK":"${{ steps.typecheck.outcome }}","GUARD-PRODUCTION-BUILD":"${{ steps.production-build.outcome }}"}
-          QUALITY_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
-          DEVELOPMENT_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
-          SHOPERATION_SOURCE_COMMIT: ${{ github.event.pull_request.head.sha || github.sha }}
-        run: node scripts/shoperation-control-plane.mjs --reconcile-external --check
-
       - name: Upload final Shoperation Control Plane evidence
-        if: always() && steps.control-plane.outcome == 'success'
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: shoperation-control-plane-final-${{ github.event.pull_request.head.sha || github.sha }}
