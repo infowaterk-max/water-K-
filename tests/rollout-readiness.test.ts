@@ -34,6 +34,7 @@ describe('V24 rollout readiness contracts', () => {
 
   it('ships a deterministic release manifest generator', () => {
     const manifest = read('scripts/release-manifest.mjs');
+    const externalOrchestrator = read('scripts/lib/shoperation-external-orchestrator.mjs');
     expect(manifest).toContain('GITHUB_SHA');
     expect(manifest).toContain('VERCEL_GIT_COMMIT_SHA');
     expect(manifest).toContain("createHash('sha256')");
