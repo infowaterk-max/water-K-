@@ -25,7 +25,7 @@ Two failures combined:
 - empty-string authored fallbacks no longer erase populated preview context;
 - Playroom Checkout preview is task-first: compact heading/progress, visible shipping-data structure, shipping choice, collapsed payment/summary steps and compact order summary;
 - a canonical instruction ledger records each accepted instruction with acceptance criteria, evidence checks and regression authority;
-- `scripts/shoperation-instruction-compliance.mjs --check` blocks handoff when an instruction is pending, lacks evidence, references a missing regression test, or its evidence check no longer matches the repository;
+- the Instruction Compliance specialist blocks its Control Plane evidence when an instruction is pending, lacks evidence, references a missing regression test, or its evidence check no longer matches the repository; it is executed by the Control Plane, not as a sibling workflow authority;
 - a “done” claim must not be made until the instruction compliance guard passes.
 
 ### Prevention
@@ -38,7 +38,7 @@ For every Product Owner/user-directed development batch:
 4. attach machine-verifiable evidence checks;
 5. attach at least one regression test;
 6. do not silently defer an accepted item;
-7. run the instruction compliance guard before handoff;
+7. run the central Control Plane through the required dependency stage so the Instruction Compliance specialist is evaluated in the same transaction;
 8. Product Owner visual acceptance remains separate and cannot be replaced by this automated guard.
 
 
