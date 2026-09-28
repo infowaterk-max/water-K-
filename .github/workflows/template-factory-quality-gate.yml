@@ -177,7 +177,7 @@ jobs:
       - name: Shoperation Control Plane
         id: control-plane
         env:
-          SHOPERATION_CONTROL_PLANE_PROFILE: ${{ github.event_name == 'pull_request' && 'template-pr' || 'branch' }}
+          SHOPERATION_CONTROL_PLANE_PROFILE: ${{ github.event_name == 'pull_request' && 'template-pr' || 'template-branch' }}
           QUALITY_BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
           QUALITY_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
           DEVELOPMENT_BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
@@ -218,100 +218,15 @@ jobs:
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
 
-      - name: Run Template Factory contract regressions
+      - name: Shoperation Control Plane external specialists + final Template Factory reconciliation
         if: steps.control-plane.outcome == 'success'
-        id: template-contracts
-        continue-on-error: true
-        run: >
-          npx vitest run
-          tests/storefront-template-quality-gate-v2.test.ts
-          tests/template-factory-scaffold-v1.test.ts
-          tests/template-factory-loot-vault-v2.test.ts
-          tests/storefront-template-factory-workflow-coverage.test.ts
-          tests/storefront-responsive-isolation.test.ts
-          tests/storefront-visual-style-capabilities.test.ts
-          tests/storefront-fidelity-typography.test.ts
-          tests/storefront-visual-builder-fidelity-operations.test.ts
-          tests/storefront-fidelity-layout.test.ts
-          tests/storefront-responsive-layout-depth.test.ts
-          tests/visual-builder-workspace-ui.test.ts
-          tests/roadmap-catchup-foundation.test.ts
-          tests/storefront-runtime-backbone.test.tsx
-          tests/special-commerce-wave6-cross-engine-acceptance.test.ts
-          tests/special-commerce-wave7-template2-adoption.test.ts
-          tests/storefront-targeted-page-change.test.ts
-          tests/pilot-acceptance-access.test.ts
-          tests/storefront-real-route-template-authority.test.ts
-          tests/storefront-product-route-authority.test.ts
-          tests/storefront-preview-demo-content-routing.test.ts
-          tests/storefront-form-wizard-engine.test.ts
-          tests/storefront-auth-surface.test.ts
-          tests/storefront-auth-intent-checkout.test.ts
-          tests/storefront-auth-return-target.test.ts
-          tests/storefront-guest-order-claim.test.ts
-          tests/storefront-shared-commerce-account-hardening.test.ts
-          tests/storefront-public-information-routes.test.ts
-          tests/storefront-catalog-discovery-route.test.ts
-          tests/customer-account-runtime-hardening.test.ts
-          tests/storefront-system-surfaces.test.ts
-          tests/storefront-social-settings.test.ts
-          tests/storefront-template-preview-runtime.test.ts
-          tests/storefront-visual-builder-fidelity-engine.test.ts
-          tests/playroom-v20-canonical-shell-content.test.ts
-          tests/storefront-playroom-v20-canonical-authority.test.ts
-          tests/storefront-playroom-v20-functional-acceptance.test.ts
-          tests/storefront-template-route-integrity.test.ts
-          tests/storefront-template-demo-content-persistence.test.ts
-          tests/storefront-account-capability-navigation.test.tsx
-          tests/storefront-commerce-header.test.tsx
-          tests/storefront-runtime-primitives.test.tsx
-          tests/cart-style-quantity-control.test.tsx
-
-      - name: Typecheck exact head
-        if: steps.control-plane.outcome == 'success'
-        id: typecheck
-        continue-on-error: true
-        run: node scripts/shoperation-specialist-runner.mjs --guard GUARD-TYPECHECK -- npm run typecheck
-
-      - name: Build exact-head Runtime
-        if: steps.control-plane.outcome == 'success'
-        id: runtime-build
-        continue-on-error: true
-        run: node scripts/shoperation-specialist-runner.mjs --guard GUARD-PRODUCTION-BUILD -- npm run build
-
-      - name: Start exact-head QA Runtime
-        if: steps.control-plane.outcome == 'success' && steps.template-contracts.outcome == 'success' && steps.typecheck.outcome == 'success' && steps.runtime-build.outcome == 'success'
-        id: qa-runtime
-        continue-on-error: true
-        shell: bash
-        run: |
-          npm run start -- -H 127.0.0.1 -p 3000 > /tmp/template-factory-quality-next.log 2>&1 &
-          echo $! > /tmp/template-factory-quality-next.pid
-          for attempt in $(seq 1 75); do
-            if curl --fail --silent --show-error 'http://127.0.0.1:3000/api/visual-fidelity/templates' > /dev/null; then
-              exit 0
-            fi
-            sleep 2
-          done
-          cat /tmp/template-factory-quality-next.log
-          exit 1
-
-      - name: Run scoped Template Factory browser proof (acceptance requires 14x3)
-        if: steps.qa-runtime.outcome == 'success'
-        id: browser-matrix
-        continue-on-error: true
-        run: node scripts/template-factory-quality-gate.mjs
-
-      - name: Shoperation Control Plane final Template Factory reconciliation
-        if: always() && steps.control-plane.outcome == 'success'
         id: control-plane-final
         env:
-          SHOPERATION_EXTERNAL_GUARD_RESULTS: >-
-            {"GUARD-TYPECHECK":"${{ steps.typecheck.outcome }}","GUARD-PRODUCTION-BUILD":"${{ steps.runtime-build.outcome }}","GUARD-TEMPLATE-FACTORY":"${{ (steps.template-contracts.outcome == 'success' && steps.qa-runtime.outcome == 'success' && steps.browser-matrix.outcome == 'success') && 'success' || 'failure' }}"}
+          SHOPERATION_CONTROL_PLANE_PROFILE: ${{ github.event_name == 'pull_request' && 'template-pr' || 'template-branch' }}
           QUALITY_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
           DEVELOPMENT_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
           SHOPERATION_SOURCE_COMMIT: ${{ github.event.pull_request.head.sha || github.sha }}
-        run: node scripts/shoperation-control-plane.mjs --reconcile-external --check
+        run: node scripts/shoperation-control-plane.mjs --profile "$SHOPERATION_CONTROL_PLANE_PROFILE" --run-external --check
 
       - name: Upload final Shoperation Control Plane evidence
         if: always() && steps.control-plane.outcome == 'success'
