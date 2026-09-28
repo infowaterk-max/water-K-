@@ -71,6 +71,7 @@ function issueFrom(value,guardId){
     viewport:value.viewport??null,
     route:value.route??null,
     case:value.case??null,
+    obligationId:value.obligationId??null,
     ...failureMeta(failureId),
   };
 }
@@ -110,6 +111,7 @@ export function collectGuardDiagnostics({guardId,guard=null,evidence,processErro
       message:registered.length+' golden-only visual differences. No runtime/type/build regression detected by this specialist.',
       classification:guard?.reporting?.goldenOnlyClassification??'AWAITING_HUMAN_ACCEPTANCE',
       action:guard?.reporting?.goldenOnlyAction??'Human visual acceptance required before baseline promotion.',
+      obligationId:guard?.reporting?.goldenOnlyObligationId??null,
       affected:registered.slice(0,6).map(item=>item.context?.join(' · ')||item.message),
     });
   }else values.push(...registered);
@@ -155,6 +157,7 @@ function markdownReport({guard,diagnostics,stage='managed'}){
     if(item.authorityRuleIds?.length)lines.push('  - Authority: '+item.authorityRuleIds.join(', '));
     if(item.failureId)lines.push('  - Known Failure: '+item.failureId+(item.title?' — '+item.title:''));
     if(item.classification)lines.push('  - Besorolás: '+item.classification);
+    if(item.obligationId)lines.push('  - Előre tervezett B-kötelezettség: '+item.obligationId);
     if(item.action)lines.push('  - Következő lépés: '+item.action);
     if(item.remediation)lines.push('  - Javítási irány: '+item.remediation);
   }
@@ -171,6 +174,7 @@ export function emitInstantGuardFailure({guard,evidence=null,processError=null,r
   ];
   for(const [index,item] of diagnostics.slice(0,4).entries())banner.push('REASON '+(index+1)+' ['+item.code+']: '+item.message);
   if(first?.classification)banner.push('CLASSIFICATION: '+first.classification);
+  if(first?.obligationId)banner.push('PLANNED B OBLIGATION: '+first.obligationId);
   if(first?.failureId)banner.push('KNOWN FAILURE: '+first.failureId+(first.title?' — '+first.title:''));
   if(first?.authorityRuleIds?.length)banner.push('AUTHORITY: '+first.authorityRuleIds.join(', '));
   if(first?.file)banner.push('HELY: '+first.file+(first.line?':'+first.line:'')+(first.column?':'+first.column:''));
