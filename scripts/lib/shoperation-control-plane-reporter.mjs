@@ -52,6 +52,10 @@ function issueFrom(value,guardId){
     value.message??value.symptom??value.error??value.reason??value.title??
     [value.code,value.file,value.nodeId,value.dependencyId].filter(Boolean).join(' · ')
   )||clean(code);
+  const inferredClassification=
+    /^TS\d+$|^VITEST_|^BUILD_/.test(String(code))?'REGRESSION':
+    /AUTHORITY_CONFLICT|AUTHORITY_ACK|AUTHORITY_CONTINUITY/.test(String(code))?'AUTHORITY_CONFLICT':
+    null;
   return {
     code:String(code),
     message,
@@ -60,8 +64,13 @@ function issueFrom(value,guardId){
     column:Number.isFinite(Number(value.column??value.col))?Number(value.column??value.col):null,
     failureId,
     authorityRuleIds:authorityIds,
-    classification:value.classification??null,
+    classification:value.classification??inferredClassification,
     action:value.action??null,
+    affected:Array.isArray(value.affected)?value.affected:[],
+    pageType:value.pageType??null,
+    viewport:value.viewport??null,
+    route:value.route??null,
+    case:value.case??null,
     ...failureMeta(failureId),
   };
 }
@@ -91,7 +100,7 @@ export function collectGuardDiagnostics({guardId,guard=null,evidence,processErro
         if(!raw)continue;
         const code=raw.includes(':')?raw.split(':')[0]:raw;
         const context=(source.contextFields??[]).map(field=>item?.[field]).filter(Boolean);
-        registered.push({code,message:context.length?raw+' · '+context.join(' · '):raw,file:item?.file??null});
+        registered.push({code,message:context.length?raw+' · '+context.join(' · '):raw,file:item?.file??null,pageType:item?.pageType??null,viewport:item?.viewport??null,route:item?.route??null,case:item?.case??null,context});
       }
     }catch{}
   }
@@ -101,6 +110,7 @@ export function collectGuardDiagnostics({guardId,guard=null,evidence,processErro
       message:registered.length+' golden-only visual differences. No runtime/type/build regression detected by this specialist.',
       classification:guard?.reporting?.goldenOnlyClassification??'AWAITING_HUMAN_ACCEPTANCE',
       action:guard?.reporting?.goldenOnlyAction??'Human visual acceptance required before baseline promotion.',
+      affected:registered.slice(0,6).map(item=>item.context?.join(' · ')||item.message),
     });
   }else values.push(...registered);
   if(evidence?.changeImpact?.unresolvedDomainFiles?.length){
@@ -140,6 +150,8 @@ function markdownReport({guard,diagnostics,stage='managed'}){
   for(const item of diagnostics){
     lines.push('','- **'+item.code+'** — '+item.message);
     if(item.file)lines.push('  - Hely: '+item.file+(item.line?':'+item.line:''));
+    if(item.pageType||item.viewport||item.route||item.case)lines.push('  - Kontextus: '+[item.case,item.route,item.pageType,item.viewport].filter(Boolean).join(' · '));
+    if(item.affected?.length)lines.push('  - Érintett minták: '+item.affected.join('; '));
     if(item.authorityRuleIds?.length)lines.push('  - Authority: '+item.authorityRuleIds.join(', '));
     if(item.failureId)lines.push('  - Known Failure: '+item.failureId+(item.title?' — '+item.title:''));
     if(item.classification)lines.push('  - Besorolás: '+item.classification);
@@ -162,6 +174,8 @@ export function emitInstantGuardFailure({guard,evidence=null,processError=null,r
   if(first?.failureId)banner.push('KNOWN FAILURE: '+first.failureId+(first.title?' — '+first.title:''));
   if(first?.authorityRuleIds?.length)banner.push('AUTHORITY: '+first.authorityRuleIds.join(', '));
   if(first?.file)banner.push('HELY: '+first.file+(first.line?':'+first.line:'')+(first.column?':'+first.column:''));
+  if(first?.pageType||first?.viewport||first?.route||first?.case)banner.push('KONTEXTUS: '+[first.case,first.route,first.pageType,first.viewport].filter(Boolean).join(' · '));
+  if(first?.affected?.length)banner.push('ÉRINTETT: '+first.affected.join('; '));
   if(first?.action)banner.push('ACTION: '+first.action);
   if(first?.remediation)banner.push('JAVÍTÁS: '+first.remediation);
   banner.push('═══════════════════════════════════════════════════════════','');
