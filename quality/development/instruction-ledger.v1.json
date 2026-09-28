@@ -242,7 +242,7 @@
         {
           "kind": "file-contains",
           "file": ".github/workflows/template-factory-quality-gate.yml",
-          "value": "Shoperation Control Plane final Template Factory reconciliation"
+          "value": "--run-external --check"
         },
         {
           "kind": "file-exists",
