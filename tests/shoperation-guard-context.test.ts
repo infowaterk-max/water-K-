@@ -45,6 +45,25 @@ describe('shared cross-gate context',()=>{
     expect(read('src/components/checkout/storefront-checkout-shell.tsx')).toContain('data-storefront-live-checkout="shared-e13"');
   });
 
+  it('detects authority conflicts through one global evaluator instead of checkout-specific gate logic',()=>{
+    const registry=json('quality/knowledge/guard-registry.v1.json');
+    expect(registry.principles.authorityConflictDetectionIsGlobal).toBe(true);
+    expect(registry.authorityConflictContracts.map((item:any)=>item.authorityRuleId)).toEqual(expect.arrayContaining(['TF-AUTH-005']));
+    expect(registry.authorityConflictContracts.map((item:any)=>item.id)).toEqual(expect.arrayContaining([
+      'AUTH-CONFLICT-TF-AUTH-005-CHECKOUT',
+      'AUTH-CONFLICT-TF-AUTH-005-CART',
+      'AUTH-CONFLICT-TF-AUTH-005-ACCOUNT',
+    ]));
+    const compliance=read('scripts/shoperation-instruction-compliance.mjs');
+    const context=read('scripts/lib/shoperation-guard-context.mjs');
+    expect(compliance).toContain('authorityConflictIssues(item)');
+    expect(compliance).not.toContain('const PROTECTED=');
+    expect(context).toContain('export function authorityConflictIssues');
+    expect(context).toContain('CONTROL_PLANE_AUTHORITY_CONFLICT');
+    const checkout=registry.authorityConflictContracts.find((item:any)=>item.id==='AUTH-CONFLICT-TF-AUTH-005-CHECKOUT');
+    expect(checkout.requiredAuthorityEvidence).toHaveLength(4);
+  });
+
   it('forces Product Owner handoff to consume the same cross-gate evidence bus',()=>{
     const handoff=read('scripts/template-factory-product-owner-handoff.mjs');
     expect(handoff).toContain("artifacts/shoperation-development-guard/guard-context.json");
