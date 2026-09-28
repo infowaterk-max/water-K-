@@ -129,7 +129,8 @@ export function authorityRule(ruleId){
 const flattenNodes=(nodes,out=[])=>{for(const node of nodes??[]){out.push(node);flattenNodes(node.children??[],out)}return out;};
 const instructionText=item=>[
   item?.request,
-  ...(item?.checks??[]).flatMap(check=>[check?.pageType,check?.file,check?.nodeId,check?.path,check?.value]),
+  ...(item?.acceptanceCriteria??[]),
+  ...(item?.checks??[]).flatMap(check=>[check?.pageType,check?.nodeId,check?.path]),
 ].filter(Boolean).join(' ').toLocaleLowerCase('hu-HU');
 
 function checkedTemplateNode(check){
