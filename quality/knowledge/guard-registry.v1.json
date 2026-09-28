@@ -12,7 +12,11 @@
     "authorityRulesOverrideLocalEvidenceShape": true,
     "singleControlPlaneOwnsBlockingOrder": true,
     "specialistGuardsMustNotSelfOrchestratePeers": true,
-    "finalDecisionBelongsToControlPlane": true
+    "finalDecisionBelongsToControlPlane": true,
+    "externalExecutionPlanBelongsToControlPlane": true,
+    "authorityConflictDetectionIsGlobal": true,
+    "deterministicControlPlanePrecedesAi": true,
+    "humanAuthorityCannotBeOverridden": true
   },
   "guards": [
     {
@@ -201,9 +205,18 @@
         "profiles": [
           "pr",
           "post-merge"
+        ],
+        "command": "node",
+        "args": [
+          "scripts/release-risk-budget.mjs"
         ]
       },
-      "controlPlaneEvidence": "artifacts/shoperation-control-plane/external-guard-release-risk.json"
+      "controlPlaneEvidence": "artifacts/shoperation-control-plane/external-guard-release-risk.json",
+      "reporting": {
+        "violationCode": "RELEASE_RISK_BUDGET_FAILED",
+        "classification": "POLICY_BLOCK",
+        "action": "Reduce the release scope; do not raise the configured risk thresholds."
+      }
     },
     {
       "id": "GUARD-CUSTOMER-BASELINE",
@@ -215,7 +228,17 @@
       "producer": "scripts/customer-baseline-guard.mjs",
       "evidence": "artifacts/customer-baseline/**",
       "execution": {
-        "mode": "external-specialist"
+        "mode": "external-specialist",
+        "profiles": [
+          "pr",
+          "post-merge",
+          "branch"
+        ],
+        "command": "npm",
+        "args": [
+          "run",
+          "db:customer:guard"
+        ]
       },
       "consumesEvidenceFrom": [
         "GUARD-INCREMENTAL-REPLAY"
@@ -235,7 +258,17 @@
       "producer": "scripts/block24-market-ready-contract.mjs",
       "evidence": "artifacts/block24-market-ready/**",
       "execution": {
-        "mode": "external-specialist"
+        "mode": "external-specialist",
+        "profiles": [
+          "pr",
+          "post-merge",
+          "branch"
+        ],
+        "command": "npm",
+        "args": [
+          "run",
+          "market-ready:gate"
+        ]
       },
       "consumesEvidenceFrom": [
         "GUARD-INCREMENTAL-REPLAY"
@@ -255,7 +288,17 @@
       "producer": "npm test",
       "evidence": "test-result",
       "execution": {
-        "mode": "external-specialist"
+        "mode": "external-specialist",
+        "profiles": [
+          "pr",
+          "post-merge",
+          "branch",
+          "full-replay"
+        ],
+        "command": "npm",
+        "args": [
+          "test"
+        ]
       },
       "consumesEvidenceFrom": [
         "GUARD-INCREMENTAL-REPLAY"
@@ -275,7 +318,20 @@
       "producer": "tsc --noEmit",
       "evidence": "workflow-step",
       "execution": {
-        "mode": "external-specialist"
+        "mode": "external-specialist",
+        "profiles": [
+          "pr",
+          "post-merge",
+          "branch",
+          "full-replay",
+          "template-pr",
+          "template-branch"
+        ],
+        "command": "npm",
+        "args": [
+          "run",
+          "typecheck"
+        ]
       },
       "consumesEvidenceFrom": [
         "GUARD-INCREMENTAL-REPLAY"
@@ -295,7 +351,19 @@
       "producer": "next build",
       "evidence": "workflow-step",
       "execution": {
-        "mode": "external-specialist"
+        "mode": "external-specialist",
+        "profiles": [
+          "pr",
+          "post-merge",
+          "branch",
+          "template-pr",
+          "template-branch"
+        ],
+        "command": "npm",
+        "args": [
+          "run",
+          "build"
+        ]
       },
       "consumesEvidenceFrom": [
         "GUARD-TYPECHECK"
@@ -315,7 +383,15 @@
       "producer": ".github/workflows/template-factory-quality-gate.yml",
       "evidence": "artifacts/template-factory-quality/**",
       "execution": {
-        "mode": "external-specialist"
+        "mode": "external-specialist",
+        "profiles": [
+          "template-pr",
+          "template-branch"
+        ],
+        "command": "node",
+        "args": [
+          "scripts/template-factory-external-specialist.mjs"
+        ]
       },
       "consumesEvidenceFrom": [
         "GUARD-INCREMENTAL-REPLAY",
@@ -337,7 +413,11 @@
             "viewport"
           ]
         }
-      ]
+      ],
+      "reporting": {
+        "goldenOnlyClassification": "AWAITING_PRODUCT_OWNER_ACCEPTANCE",
+        "goldenOnlyAction": "Product Owner visual acceptance required; do not promote goldens."
+      }
     },
     {
       "id": "SIGNAL-ARCHITECTURE-CONFIDENCE",
@@ -364,6 +444,85 @@
       "execution": {
         "mode": "external-specialist"
       }
+    }
+  ],
+  "intelligencePolicy": {
+    "mode": "deterministic-control-plane-first",
+    "aiLayerStatus": "not-enabled-until-deterministic-consistency",
+    "advisoryRepairSuggestionsAllowed": true,
+    "selfHealing": {
+      "allowed": "pre-authorized-low-risk-reversible-only",
+      "explicitAuthorityRequiredFor": [
+        "production",
+        "migration",
+        "security",
+        "payment",
+        "auth",
+        "destructive"
+      ],
+      "productOwnerDecisionOverrideAllowed": false
+    }
+  },
+  "authorityConflictContracts": [
+    {
+      "id": "AUTH-CONFLICT-TF-AUTH-005-CHECKOUT",
+      "authorityRuleId": "TF-AUTH-005",
+      "owner": "platform",
+      "delegatedOwner": "template",
+      "instructionPattern": "\\bcheckout\\b|p[eé]nzt[aá]r|pageType.?checkout|/penztar|components/checkout",
+      "forbiddenTemplateEvidence": {
+        "pageType": "checkout",
+        "nodePattern": "form-preview|field-|shipping-methods|payment-collapsed|summary-collapsed",
+        "componentKeyPattern": "^(content|layout)\\."
+      },
+      "requiredAuthorityEvidence": [
+        {
+          "kind": "authority-source-contains",
+          "file": "src/app/penztar/page.tsx",
+          "value": "<CheckoutForm"
+        },
+        {
+          "kind": "authority-source-contains",
+          "file": "src/app/penztar/page.tsx",
+          "value": "<StorefrontCheckoutShell"
+        },
+        {
+          "kind": "authority-source-contains",
+          "file": "src/components/checkout/storefront-checkout-shell.tsx",
+          "value": "data-storefront-live-checkout=\"shared-e13\""
+        },
+        {
+          "kind": "authority-source-contains",
+          "file": "src/components/checkout/checkout-form.tsx",
+          "value": "data-checkout-ux=\"guided-accordion\""
+        }
+      ]
+    },
+    {
+      "id": "AUTH-CONFLICT-TF-AUTH-005-CART",
+      "authorityRuleId": "TF-AUTH-005",
+      "owner": "platform",
+      "delegatedOwner": "template",
+      "instructionPattern": "\\bcart\\b|kos[aá]r|pageType.?cart|components/cart",
+      "forbiddenTemplateEvidence": {
+        "pageType": "cart",
+        "nodePattern": "quantity|remove|coupon|submit|stepper|add-to-cart",
+        "componentKeyPattern": "^(content|layout)\\."
+      },
+      "requiredAuthorityEvidence": []
+    },
+    {
+      "id": "AUTH-CONFLICT-TF-AUTH-005-ACCOUNT",
+      "authorityRuleId": "TF-AUTH-005",
+      "owner": "platform",
+      "delegatedOwner": "template",
+      "instructionPattern": "\\baccount\\b|fi[oó]k|pageType.?account|components/account",
+      "forbiddenTemplateEvidence": {
+        "pageType": "account",
+        "nodePattern": "login|logout|profile|order|return|download",
+        "componentKeyPattern": "^(content|layout)\\."
+      },
+      "requiredAuthorityEvidence": []
     }
   ]
 }
