@@ -18,9 +18,9 @@ const CANONICAL_PAGE_OVERRIDES=Object.freeze(Object.fromEntries(
 const MEDIA={
   hero:'/storefront-demo/loot-vault-v2/hero-cinematic.webp',
   universe1:'/storefront-demo/loot-vault-v2/category-galaxy.webp',
-  universe2:'/storefront-demo/loot-vault-v2/category-heroes.webp',
+  universe2:'/storefront-demo/loot-vault-v2/editorial-vault-shelf.webp',
   universe3:'/storefront-demo/loot-vault-v2/category-anime.webp',
-  universe4:'/storefront-demo/loot-vault-v2/category-fantasy.webp',
+  universe4:'/storefront-demo/loot-vault-v2/editorial-collector-room.webp',
   universe5:'/storefront-demo/loot-vault-v2/category-miniatures.webp',
   universe6:'/storefront-demo/loot-vault-v2/category-retro.webp',
   product1:'/storefront-demo/loot-vault-v2/product-figure.webp',
@@ -35,9 +35,9 @@ const MEDIA={
 export const LOOT_VAULT_V2_FACTORY_MEDIA_ASSETS:readonly StorefrontTemplateFactoryMediaAsset[]=Object.freeze([
   {key:'hero-main',state:'ready',role:'hero',src:MEDIA.hero,alt:'Cinematikus fantasy jelenet gyűjtői Loot Vault hangulattal',pageTypes:['home'],representative:true,aspectRatio:'16:9'},
   {key:'universe-1',state:'ready',role:'category',src:MEDIA.universe1,alt:'Gyűjtői figurák polcon',pageTypes:['home'],representative:true,aspectRatio:'4:5'},
-  {key:'universe-2',state:'ready',role:'category',src:MEDIA.universe2,alt:'Játék- és figuragyűjtemény',pageTypes:['home'],representative:true,aspectRatio:'4:5'},
+  {key:'universe-2',state:'ready',role:'category',src:MEDIA.universe2,alt:'Sci-fi gyűjtői világ futurisztikus felszereléssel',pageTypes:['home'],representative:true,aspectRatio:'4:5'},
   {key:'universe-3',state:'ready',role:'category',src:MEDIA.universe3,alt:'Karakterfigurák gyűjtői displayen',pageTypes:['home'],representative:true,aspectRatio:'4:5'},
-  {key:'universe-4',state:'ready',role:'category',src:MEDIA.universe4,alt:'Anime figurák és emléktárgyak',pageTypes:['home'],representative:true,aspectRatio:'4:5'},
+  {key:'universe-4',state:'ready',role:'category',src:MEDIA.universe4,alt:'Gaming univerzum prémium kontroller részlettel',pageTypes:['home'],representative:true,aspectRatio:'4:5'},
   {key:'universe-5',state:'ready',role:'category',src:MEDIA.universe5,alt:'Vintage gyűjtői polc művészeti tárgyakkal',pageTypes:['home'],representative:true,aspectRatio:'4:5'},
   {key:'universe-6',state:'ready',role:'category',src:MEDIA.universe6,alt:'Sötét neonfényes gyűjtői tér',pageTypes:['home'],representative:true,aspectRatio:'4:5'},
   {key:'product-1',state:'ready',role:'product',src:MEDIA.product1,alt:'Prémium gyűjtői figura',pageTypes:['home','product'],representative:true,aspectRatio:'4:5'},
