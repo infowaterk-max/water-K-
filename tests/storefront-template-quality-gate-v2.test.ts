@@ -73,9 +73,14 @@ describe('Template Factory Quality Gate v2',()=>{
   it('keeps the browser runner and CI workflow mandatory rather than commit-message gated',()=>{
     const workflow=read('.github/workflows/template-factory-quality-gate.yml');
     const runner=read('scripts/template-factory-quality-gate.mjs');
+    const specialist=read('scripts/template-factory-external-specialist.mjs');
     const knowledgeScope=read('quality/knowledge/knowledge-scope-policy.v1.json');
     expect(workflow).not.toContain('head_commit.message');
-    expect(workflow).toContain('Run scoped Template Factory browser proof (acceptance requires 14x3)');
+    expect(workflow).toContain('Shoperation Control Plane external specialists + final Template Factory reconciliation');
+    expect(workflow).toContain('--run-external --check');
+    expect(workflow).not.toContain('Run scoped Template Factory browser proof (acceptance requires 14x3)');
+    expect(specialist).toContain("scripts/template-factory-quality-gate.mjs");
+    expect(specialist).toContain("tests/storefront-template-quality-gate-v2.test.ts");
     expect(workflow).toContain('workflow_dispatch');
     expect(workflow).not.toContain("'quality/knowledge/**'");
     expect(workflow).not.toContain("'src/lib/quality-system/**'");
