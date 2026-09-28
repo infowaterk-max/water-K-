@@ -42,7 +42,9 @@ describe('Control Plane diagnostics and exact-head hardening',()=>{
         env:{
           ...process.env,
           SHOPERATION_FAILURE_INTAKE_OUTPUT_DIR:output,
+          SHOPERATION_REPOSITORY:'infowaterk-max/water-K-',
           SHOPERATION_SOURCE_COMMIT:commit,
+          SHOPERATION_SOURCE_REF:'feature/control-plane',
           SHOPERATION_FAILURE_SOURCE:source,
           SHOPERATION_CI_RUN_ID:'12345',
           SHOPERATION_DIAGNOSTIC_ARTIFACTS:`DEVELOPMENT_PLAN_FAILED=${diagnostic}`,
@@ -63,6 +65,10 @@ describe('Control Plane diagnostics and exact-head hardening',()=>{
     expect(first.records[0].file).toBe('scripts/example.mjs');
     expect(first.records[0].expected).toBe('["DOMAIN-QUALITY"]');
     expect(first.records[0].actual).toBe('[]');
+    expect(first.repository).toBe('infowaterk-max/water-K-');
+    expect(first.sourceRef).toBe('feature/control-plane');
+    expect(first.records[0].repository).toBe('infowaterk-max/water-K-');
+    expect(first.records[0].sourceRef).toBe('feature/control-plane');
     expect(first.records[0].ciRunId).toBe('12345');
     expect(first.records.some((record:{rawErrorCode:string})=>record.rawErrorCode==='DEVELOPMENT_PLAN_FAILED')).toBe(false);
   });
@@ -208,6 +214,8 @@ describe('Control Plane diagnostics and exact-head hardening',()=>{
     expect(workflow).toContain('SHOPERATION_FAILURE_SOURCE: cloud-smoke');
     expect(workflow).toContain('CLOUD_SMOKE_FAILED=artifacts/cloud-smoke/smoke.json');
     expect(workflow).toContain('cloud-smoke-failure-intake-${{ inputs.environment }}-${{ github.sha }}');
+    expect(workflow).toContain('issues: write');
+    expect(workflow).toContain('Persist unresolved Cloud Smoke failure intake');
   });
 
 });
