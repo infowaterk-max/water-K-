@@ -14,6 +14,35 @@ const SELECT='id,organization_id,slug,name,subscription_plan,status,brand_name,b
 const normalizeConfig=(value:unknown):StorefrontConfig=>value&&typeof value==='object'&&!Array.isArray(value)?value as StorefrontConfig:{};
 const normalize=(row:InstanceRow|null):WebshopInstance|null=>row&&isPlanCode(row.subscription_plan)?{id:row.id,organizationId:row.organization_id,slug:row.slug,name:row.name,subscriptionPlan:row.subscription_plan,status:row.status,brand:{name:row.brand_name?.trim()||row.name,tagline:row.brand_tagline,logoUrl:row.logo_url,primaryColor:row.primary_color,supportEmail:row.support_email,supportPhone:row.support_phone,publicSiteUrl:row.public_site_url,emailFromName:row.email_from_name},storefront:normalizeConfig(row.storefront_config)}:null;
 
+async function resolveUniquePreviewPlayroomPilot(admin:ReturnType<typeof createAdminClient>):Promise<WebshopInstance|null>{
+  if(process.env.VERCEL_ENV!=='preview')return null;
+  const{data:pages,error:pageError}=await admin.from('storefront_pages')
+    .select('instance_id,draft_revision_id')
+    .not('draft_revision_id','is',null);
+  if(pageError||!pages?.length)return null;
+
+  const revisionIds=[...new Set(pages.map(page=>page.draft_revision_id).filter((id):id is string=>typeof id==='string'))];
+  if(!revisionIds.length)return null;
+  const{data:revisions,error:revisionError}=await admin.from('storefront_page_revisions')
+    .select('id')
+    .in('id',revisionIds)
+    .eq('template_key','gaming.playroom');
+  if(revisionError||!revisions?.length)return null;
+
+  const playroomRevisionIds=new Set(revisions.map(revision=>revision.id));
+  const candidateIds=[...new Set(pages
+    .filter(page=>typeof page.instance_id==='string'&&typeof page.draft_revision_id==='string'&&playroomRevisionIds.has(page.draft_revision_id))
+    .map(page=>page.instance_id as string))];
+  if(candidateIds.length!==1)return null;
+
+  const{data,error}=await admin.from('webshop_instances').select(SELECT)
+    .eq('id',candidateIds[0])
+    .eq('status','pilot')
+    .maybeSingle();
+  if(error)return null;
+  return normalize(data as unknown as InstanceRow|null);
+}
+
 export async function getCurrentWebshopInstance():Promise<WebshopInstance|null>{
   if(!process.env.NEXT_PUBLIC_SUPABASE_URL)return null;
   let admin:ReturnType<typeof createAdminClient>;try{admin=createAdminClient()}catch{return null}
@@ -35,11 +64,19 @@ export async function getCurrentWebshopInstance():Promise<WebshopInstance|null>{
       const accepted=normalize(acceptedData as unknown as InstanceRow|null);
       if(accepted)return accepted;
     }
+    const previewPlayroom=await resolveUniquePreviewPlayroomPilot(admin);
+    if(previewPlayroom)return previewPlayroom;
+
     const previewSupabase=await createClient();
     const{data:previewAuth}=await previewSupabase.auth.getUser();
     if(!previewAuth.user)return null;
     const{data:platformOperator}=await admin.from('platform_operators').select('role').eq('user_id',previewAuth.user.id).in('role',['owner','admin','operator']).maybeSingle();
     if(!platformOperator)return null;
+  }
+
+  if(process.env.VERCEL_ENV==='preview'){
+    const previewPlayroom=await resolveUniquePreviewPlayroomPilot(admin);
+    if(previewPlayroom)return previewPlayroom;
   }
 
   const pilotAcceptanceInstanceId=await getPilotAcceptanceInstanceId();
