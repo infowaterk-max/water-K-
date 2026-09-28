@@ -224,6 +224,7 @@ jobs:
         run: npx playwright install --with-deps chromium
 
       - name: Run Template Factory contract regressions
+        id: contract-regressions
         run: >
           npx vitest run
           tests/storefront-template-quality-gate-v2.test.ts
@@ -413,11 +414,21 @@ jobs:
           DEVELOPMENT_PLAN_OUTCOME: ${{ steps.development-plan.outcome }}
           EDIT_GUARD_OUTCOME: ${{ steps.edit-time-guard.outcome }}
           INCREMENTAL_OUTCOME: ${{ steps.incremental-replay.outcome }}
+          CONTRACT_OUTCOME: ${{ steps.contract-regressions.outcome }}
           TYPECHECK_OUTCOME: ${{ steps.typecheck.outcome }}
           BUILD_OUTCOME: ${{ steps.runtime-build.outcome }}
           MATRIX_OUTCOME: ${{ steps.browser-matrix.outcome }}
           SHOPERATION_SOURCE_COMMIT: ${{ github.event.pull_request.head.sha || github.sha }}
           SHOPERATION_FAILURE_SOURCE: template-factory
+          SHOPERATION_ENVIRONMENT: ci
+          SHOPERATION_CI_RUN_ID: ${{ github.run_id }}
+          SHOPERATION_CI_WORKFLOW: ${{ github.workflow }}
+          SHOPERATION_DIAGNOSTIC_ARTIFACTS: >-
+            KNOWLEDGE_PREFLIGHT_FAILED=artifacts/shoperation-quality/knowledge-preflight.json;
+            DEVELOPMENT_PLAN_FAILED=artifacts/shoperation-development-guard/plan-before-code.json;
+            EDIT_TIME_GUARD_FAILED=artifacts/shoperation-development-guard/edit-time-guard.json;
+            INCREMENTAL_REPLAY_FAILED=artifacts/shoperation-development-guard/incremental-replay.json;
+            TEST_FAILED=artifacts/test-results.json
           SHOPERATION_TEMPLATE_KEY: "${{ steps.product-owner-target.outputs.template_key || '' }}"
           SHOPERATION_TEMPLATE_VERSION: "${{ steps.product-owner-target.outputs.template_version || '' }}"
           SHOPERATION_TEMPLATE_QUALITY_MANIFEST: artifacts/template-factory-quality/manifest.json
@@ -427,6 +438,7 @@ jobs:
           [ "$DEVELOPMENT_PLAN_OUTCOME" != "failure" ] || codes="${codes}DEVELOPMENT_PLAN_FAILED;"
           [ "$EDIT_GUARD_OUTCOME" != "failure" ] || codes="${codes}EDIT_TIME_GUARD_FAILED;"
           [ "$INCREMENTAL_OUTCOME" != "failure" ] || codes="${codes}INCREMENTAL_REPLAY_FAILED;"
+          [ "$CONTRACT_OUTCOME" != "failure" ] || codes="${codes}TEST_FAILED;"
           [ "$TYPECHECK_OUTCOME" != "failure" ] || codes="${codes}TYPECHECK_FAILED;"
           [ "$BUILD_OUTCOME" != "failure" ] || codes="${codes}BUILD_FAILED;"
           [ "$MATRIX_OUTCOME" != "failure" ] || codes="${codes}QUALITY_GATE_FAILED;"
@@ -454,9 +466,10 @@ jobs:
             if(!unresolved.length)return;
             const open=await github.paginate(github.rest.issues.listForRepo,{...context.repo,state:'open',per_page:100});
             for(const record of unresolved){
-              const marker=`<!-- shoperation-failure-intake:${record.candidateId} -->`;
+              const identity=record.failureFingerprint||record.candidateId;
+              const marker=`<!-- shoperation-failure-intake:${identity} -->`;
               if(open.some(issue=>(issue.body||'').includes(marker)))continue;
-              await github.rest.issues.create({...context.repo,title:`[Quality intake] ${record.candidateId}: ${record.rawErrorCode}`,body:`${marker}\n\nContract: \`shoporation.failure-intake.v1\`\n\nSource commit: \`${record.sourceCommit||'unknown'}\`\n\nSource: \`${record.failureSource}\`\n\nClassification: \`${record.classificationStatus}\`\n\nSymptom: ${record.symptom}\n\nThis issue remains open until the failure is matched, promoted, scoped, deduplicated or rejected with an explicit disposition.`});
+              await github.rest.issues.create({...context.repo,title:`[Quality intake] ${identity}: ${record.rawErrorCode}`,body:`${marker}\n\nContract: \`shoporation.failure-intake.v2\`\n\nFingerprint: \`${record.failureFingerprint||'unknown'}\`\n\nSource commit: \`${record.sourceCommit||'unknown'}\`\n\nCI run: \`${record.ciRunId||'unknown'}\`\n\nSource: \`${record.failureSource}\`\n\nGate: \`${record.gate||record.gateCode||'unknown'}\`\n\nClassification: \`${record.classificationStatus}\`\n\nReason: ${record.reason||record.symptom}\n\nLocation: ${record.file||record.route||record.endpoint||'not localized'}\n\nThis issue remains open until the failure is matched, promoted, scoped, deduplicated or rejected with an explicit disposition.`});
             }
 
       - name: Upload QA server log on failure

@@ -19,6 +19,7 @@ on:
 
 permissions:
   contents: read
+  issues: write
 
 jobs:
   smoke:
@@ -34,6 +35,7 @@ jobs:
           node-version: 24
 
       - name: Validate automation bypass secret
+        id: bypass-secret
         env:
           VERCEL_AUTOMATION_BYPASS_SECRET: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
         run: |
@@ -43,6 +45,7 @@ jobs:
           fi
 
       - name: Run V24 protected cloud smoke
+        id: cloud-smoke
         env:
           SMOKE_BASE_URL: ${{ inputs.base_url }}
           SMOKE_EXPECTED_SHA: ${{ github.sha }}
@@ -50,7 +53,7 @@ jobs:
           DEPLOY_ENVIRONMENT: ${{ inputs.environment }}
         run: |
           for attempt in $(seq 1 20); do
-            if node scripts/smoke.mjs; then
+            if SMOKE_ATTEMPT="$attempt" node scripts/smoke.mjs; then
               exit 0
             fi
             if [ "$attempt" -eq 20 ]; then
@@ -59,3 +62,58 @@ jobs:
             fi
             sleep 15
           done
+
+      - name: Upload Cloud Smoke exact-head evidence
+        if: always() && steps.cloud-smoke.outcome != 'skipped'
+        uses: actions/upload-artifact@v4
+        with:
+          name: cloud-smoke-${{ inputs.environment }}-${{ github.sha }}
+          path: artifacts/cloud-smoke/smoke.json
+          if-no-files-found: error
+          retention-days: 90
+
+      - name: Create Cloud Smoke failure intake
+        if: always() && (steps.bypass-secret.outcome == 'failure' || steps.cloud-smoke.outcome == 'failure')
+        env:
+          SHOPERATION_SOURCE_COMMIT: ${{ github.sha }}
+          SHOPERATION_FAILURE_SOURCE: cloud-smoke
+          SHOPERATION_ENVIRONMENT: ${{ inputs.environment }}
+          SHOPERATION_CI_RUN_ID: ${{ github.run_id }}
+          SHOPERATION_CI_WORKFLOW: ${{ github.workflow }}
+          SHOPERATION_DIAGNOSTIC_ARTIFACTS: CLOUD_SMOKE_FAILED=artifacts/cloud-smoke/smoke.json
+          BYPASS_OUTCOME: ${{ steps.bypass-secret.outcome }}
+          SMOKE_OUTCOME: ${{ steps.cloud-smoke.outcome }}
+        shell: bash
+        run: |
+          codes=""
+          [ "$BYPASS_OUTCOME" != "failure" ] || codes="${codes}CLOUD_SMOKE_SECRET_REQUIRED;"
+          [ "$SMOKE_OUTCOME" != "failure" ] || codes="${codes}CLOUD_SMOKE_FAILED;"
+          SHOPERATION_GENERIC_FAILURES="$codes" node scripts/shoperation-failure-intake.mjs
+
+      - name: Upload Cloud Smoke failure intake
+        if: always() && (steps.bypass-secret.outcome == 'failure' || steps.cloud-smoke.outcome == 'failure')
+        uses: actions/upload-artifact@v4
+        with:
+          name: cloud-smoke-failure-intake-${{ inputs.environment }}-${{ github.sha }}
+          path: artifacts/shoperation-failure-intake/**
+          if-no-files-found: error
+          retention-days: 90
+
+      - name: Persist unresolved Cloud Smoke failure intake
+        if: always() && (steps.bypass-secret.outcome == 'failure' || steps.cloud-smoke.outcome == 'failure')
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs=require('fs');
+            const file='artifacts/shoperation-failure-intake/failure-intake.json';
+            if(!fs.existsSync(file))return;
+            const report=JSON.parse(fs.readFileSync(file,'utf8'));
+            const unresolved=(report.records||[]).filter(r=>['candidate-new-failure','needs-review'].includes(r.classificationStatus));
+            if(!unresolved.length)return;
+            const open=await github.paginate(github.rest.issues.listForRepo,{...context.repo,state:'open',per_page:100});
+            for(const record of unresolved){
+              const identity=record.failureFingerprint||record.candidateId;
+              const marker=`<!-- shoperation-failure-intake:${identity} -->`;
+              if(open.some(issue=>(issue.body||'').includes(marker)))continue;
+              await github.rest.issues.create({...context.repo,title:`[Quality intake] ${identity}: ${record.rawErrorCode}`,body:`${marker}\n\nContract: \`shoporation.failure-intake.v2\`\n\nFingerprint: \`${record.failureFingerprint||'unknown'}\`\n\nSource commit: \`${record.sourceCommit||'unknown'}\`\n\nCI run: \`${record.ciRunId||'unknown'}\`\n\nSource: \`${record.failureSource}\`\n\nGate: \`${record.gate||record.gateCode||'unknown'}\`\n\nClassification: \`${record.classificationStatus}\`\n\nReason: ${record.reason||record.symptom}\n\nLocation: ${record.file||record.route||record.endpoint||'not localized'}\n\nThis issue remains open until the failure is matched, promoted, scoped, deduplicated or rejected with an explicit disposition.`});
+            }

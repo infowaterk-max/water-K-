@@ -5,6 +5,7 @@ on:
 
 permissions:
   contents: read
+  issues: write
 
 env:
   SHOPERATION_FRESH_INSTALL_DB_URL: ${{ secrets.SHOPERATION_FRESH_INSTALL_DB_URL }}
@@ -19,6 +20,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Verify Fresh Install secret
+        id: fresh-secret
         shell: bash
         run: |
           if [ -z "$SHOPERATION_FRESH_INSTALL_DB_URL" ]; then
@@ -27,6 +29,7 @@ jobs:
           fi
 
       - name: Verify reviewed baseline lifecycle
+        id: fresh-baseline
         shell: bash
         run: |
           node -e "const m=require('./supabase/customer-baseline/manifest.json'); if(m.status!=='snapshot-reviewed'||m.freshInstallProofRequired!==true){throw new Error('baseline must be snapshot-reviewed and still require Fresh Install proof')}"
@@ -34,10 +37,12 @@ jobs:
           test -s supabase/customer-baseline/migrations/0002_block7_b2b_account_ownership.sql
 
       - name: Fresh target preflight
+        id: fresh-preflight
         shell: bash
         run: psql "$SHOPERATION_FRESH_INSTALL_DB_URL" -X -v ON_ERROR_STOP=1 -f supabase/customer-baseline/target-preflight.sql
 
       - name: Apply reviewed baseline atomically
+        id: fresh-apply
         shell: bash
         run: |
           {
@@ -49,16 +54,61 @@ jobs:
           } | psql "$SHOPERATION_FRESH_INSTALL_DB_URL" -X -v ON_ERROR_STOP=1
 
       - name: Fresh target postflight
+        id: fresh-postflight
         shell: bash
         run: psql "$SHOPERATION_FRESH_INSTALL_DB_URL" -X -v ON_ERROR_STOP=1 -f supabase/customer-baseline/target-postflight.sql
 
       - name: Compute proof contract hash
+        id: fresh-contract-hash
         shell: bash
         run: |
-          echo "Proof contract SHA256:"
-          node scripts/customer-baseline-contract-hash.mjs
+          hash="$(node scripts/customer-baseline-contract-hash.mjs)"
+          echo "Proof contract SHA256: $hash"
+          echo "value=$hash" >> "$GITHUB_OUTPUT"
 
-      - name: Record proof summary
+      - name: Record structured Fresh Install proof
+        id: fresh-proof-record
+        env:
+          PROOF_CONTRACT_SHA256: ${{ steps.fresh-contract-hash.outputs.value }}
+        shell: bash
+        run: |
+          mkdir -p artifacts/fresh-install-proof
+          node <<'NODE'
+          const fs=require('fs');
+          const path=require('path');
+          const manifest=JSON.parse(fs.readFileSync('supabase/customer-baseline/manifest.json','utf8'));
+          const migrationFiles=fs.readdirSync(manifest.baselineMigrationDirectory)
+            .filter(name=>name.endsWith('.sql'))
+            .sort()
+            .map(name=>path.posix.join(manifest.baselineMigrationDirectory,name));
+          const proof={
+            contract:'shoporation.fresh-install-proof.v2',
+            repository:process.env.GITHUB_REPOSITORY,
+            sourceCommit:process.env.GITHUB_SHA,
+            ciRunId:process.env.GITHUB_RUN_ID,
+            ciWorkflow:process.env.GITHUB_WORKFLOW,
+            environment:'fresh-install-disposable',
+            generatedAt:new Date().toISOString(),
+            baselineStatus:manifest.status,
+            freshInstallProofRequired:manifest.freshInstallProofRequired,
+            proofContractSha256:process.env.PROOF_CONTRACT_SHA256,
+            migrationFiles,
+            authBootstrapFile:manifest.authBootstrapFile,
+            seedFile:manifest.seedFile,
+            checks:{
+              targetPreflight:'PASS',
+              orderedMigrations:'PASS',
+              authBootstrap:'PASS',
+              neutralSeed:'PASS',
+              targetPostflight:'PASS',
+            },
+            productionTouched:false,
+            decision:'PASS',
+          };
+          fs.writeFileSync('artifacts/fresh-install-proof/proof.json',JSON.stringify(proof,null,2)+'\n');
+          NODE
+
+      - name: Record Fresh Install proof summary
         shell: bash
         run: |
           {
@@ -72,3 +122,101 @@ jobs:
             echo '- Production: untouched by this workflow'
             echo "- Source commit: $GITHUB_SHA"
           } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Record Fresh Install failure diagnostic
+        id: fresh-failure
+        if: always()
+        env:
+          SECRET_OUTCOME: ${{ steps.fresh-secret.outcome }}
+          BASELINE_OUTCOME: ${{ steps.fresh-baseline.outcome }}
+          PREFLIGHT_OUTCOME: ${{ steps.fresh-preflight.outcome }}
+          APPLY_OUTCOME: ${{ steps.fresh-apply.outcome }}
+          POSTFLIGHT_OUTCOME: ${{ steps.fresh-postflight.outcome }}
+          HASH_OUTCOME: ${{ steps.fresh-contract-hash.outcome }}
+          PROOF_OUTCOME: ${{ steps.fresh-proof-record.outcome }}
+        shell: bash
+        run: |
+          mkdir -p artifacts/fresh-install-proof
+          node <<'NODE'
+          const fs=require('fs');
+          const map=[
+            ['FRESH_INSTALL_SECRET_REQUIRED','Verify Fresh Install secret',process.env.SECRET_OUTCOME,'configured disposable DB secret'],
+            ['FRESH_INSTALL_BASELINE_LIFECYCLE_FAILED','Verify reviewed baseline lifecycle',process.env.BASELINE_OUTCOME,'snapshot-reviewed baseline requiring proof'],
+            ['FRESH_INSTALL_TARGET_PREFLIGHT_FAILED','Fresh target preflight',process.env.PREFLIGHT_OUTCOME,'clean disposable target'],
+            ['FRESH_INSTALL_MIGRATION_APPLY_FAILED','Apply reviewed baseline atomically',process.env.APPLY_OUTCOME,'ordered baseline applies atomically'],
+            ['FRESH_INSTALL_TARGET_POSTFLIGHT_FAILED','Fresh target postflight',process.env.POSTFLIGHT_OUTCOME,'final schema and privilege contract passes'],
+            ['FRESH_INSTALL_CONTRACT_HASH_FAILED','Compute proof contract hash',process.env.HASH_OUTCOME,'proof contract hash generated'],
+            ['FRESH_INSTALL_PROOF_RECORD_FAILED','Record structured Fresh Install proof',process.env.PROOF_OUTCOME,'exact-head proof artifact written'],
+          ];
+          const errors=map.filter(([, ,outcome])=>outcome==='failure').map(([code,step,actual,expected])=>({
+            code,
+            reason:`${step} failed`,
+            expected,
+            actual,
+            evidence:[`step=${step}`],
+            status:'FAIL',
+          }));
+          fs.appendFileSync(process.env.GITHUB_OUTPUT,`has_failure=${errors.length?'true':'false'}\n`);
+          if(!errors.length)process.exit(0);
+          const report={
+            contract:'shoporation.fresh-install-failure.v1',
+            repository:process.env.GITHUB_REPOSITORY,
+            sourceCommit:process.env.GITHUB_SHA,
+            ciRunId:process.env.GITHUB_RUN_ID,
+            ciWorkflow:process.env.GITHUB_WORKFLOW,
+            environment:'fresh-install-disposable',
+            generatedAt:new Date().toISOString(),
+            errors,
+            decision:'FAIL',
+          };
+          fs.writeFileSync('artifacts/fresh-install-proof/failure.json',JSON.stringify(report,null,2)+'\n');
+          NODE
+
+      - name: Upload exact-head Fresh Install evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fresh-install-proof-${{ github.sha }}
+          path: artifacts/fresh-install-proof/**
+          if-no-files-found: error
+          retention-days: 90
+
+      - name: Create Fresh Install failure intake
+        if: always() && steps.fresh-failure.outputs.has_failure == 'true'
+        env:
+          SHOPERATION_SOURCE_COMMIT: ${{ github.sha }}
+          SHOPERATION_FAILURE_SOURCE: fresh-install
+          SHOPERATION_ENVIRONMENT: fresh-install-disposable
+          SHOPERATION_CI_RUN_ID: ${{ github.run_id }}
+          SHOPERATION_CI_WORKFLOW: ${{ github.workflow }}
+          SHOPERATION_DIAGNOSTIC_ARTIFACTS: FRESH_INSTALL_FAILED=artifacts/fresh-install-proof/failure.json
+          SHOPERATION_GENERIC_FAILURES: FRESH_INSTALL_FAILED
+        run: node scripts/shoperation-failure-intake.mjs
+
+      - name: Upload Fresh Install failure intake
+        if: always() && steps.fresh-failure.outputs.has_failure == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: fresh-install-failure-intake-${{ github.sha }}
+          path: artifacts/shoperation-failure-intake/**
+          if-no-files-found: error
+          retention-days: 90
+
+      - name: Persist unresolved Fresh Install failure intake
+        if: always() && steps.fresh-failure.outputs.has_failure == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs=require('fs');
+            const file='artifacts/shoperation-failure-intake/failure-intake.json';
+            if(!fs.existsSync(file))return;
+            const report=JSON.parse(fs.readFileSync(file,'utf8'));
+            const unresolved=(report.records||[]).filter(r=>['candidate-new-failure','needs-review'].includes(r.classificationStatus));
+            if(!unresolved.length)return;
+            const open=await github.paginate(github.rest.issues.listForRepo,{...context.repo,state:'open',per_page:100});
+            for(const record of unresolved){
+              const identity=record.failureFingerprint||record.candidateId;
+              const marker=`<!-- shoperation-failure-intake:${identity} -->`;
+              if(open.some(issue=>(issue.body||'').includes(marker)))continue;
+              await github.rest.issues.create({...context.repo,title:`[Quality intake] ${identity}: ${record.rawErrorCode}`,body:`${marker}\n\nContract: \`shoporation.failure-intake.v2\`\n\nFingerprint: \`${record.failureFingerprint||'unknown'}\`\n\nSource commit: \`${record.sourceCommit||'unknown'}\`\n\nCI run: \`${record.ciRunId||'unknown'}\`\n\nSource: \`${record.failureSource}\`\n\nGate: \`${record.gate||record.gateCode||'unknown'}\`\n\nClassification: \`${record.classificationStatus}\`\n\nReason: ${record.reason||record.symptom}\n\nLocation: ${record.file||record.route||record.endpoint||'not localized'}\n\nThis issue remains open until the failure is matched, promoted, scoped, deduplicated or rejected with an explicit disposition.`});
+            }

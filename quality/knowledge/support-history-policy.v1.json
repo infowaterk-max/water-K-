@@ -265,6 +265,14 @@
         "quality-knowledge-system",
         "database-schema"
       ]
+    },
+    {
+      "file": "CONTROL_PLANE_DIAGNOSTICS_HARDENING_2026-09-28.md",
+      "recordType": "closure-evidence",
+      "subsystems": [
+        "quality-knowledge-system",
+        "release-infrastructure"
+      ]
     }
   ],
   "incidentRules": [
