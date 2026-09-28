@@ -1,6 +1,6 @@
 import {getStorefrontGlobalStyleState} from '@/lib/builder/storefront-global-styles';
 import type {StorefrontComponentNode,StorefrontPageDocument} from '@/lib/builder/storefront-runtime';
-import {STOREFRONT_PAGE_TYPES,type StorefrontBuilderPageType} from '@/lib/builder/storefront-foundation';
+import type {StorefrontBuilderPageType} from '@/lib/builder/storefront-foundation';
 import {LOOT_VAULT_V2_GENERATOR_BLUEPRINT} from '@/lib/builder/template-factory/blueprints/loot-vault-v2';
 import type {StorefrontTemplateFactoryMediaAsset,StorefrontTemplateFactoryRecipe} from '@/lib/builder/template-factory/scaffold';
 import {LOOT_VAULT_V2_TEMPLATE_PACKAGE} from '@/lib/builder/templates/gaming/loot-vault/v2';
@@ -81,9 +81,9 @@ export const LOOT_VAULT_V2_FACTORY_RECIPE:StorefrontTemplateFactoryRecipe=Object
     forbidPlaceholderSvg:true,
   }),
   reference:Object.freeze({
-    key:'gaming.loot-vault.visual-first-approved-2026-09-28',
+    key:LOOT_VAULT_V2_GENERATOR_BLUEPRINT.productionContracts.visualAuthority.referenceKey,
     approved:true,
-    requiredPageTypes:Object.freeze([...STOREFRONT_PAGE_TYPES]),
+    requiredPageTypes:LOOT_VAULT_V2_GENERATOR_BLUEPRINT.productionContracts.visualAuthority.requiredPageTypes,
   }),
   commerceReadiness:Object.freeze({
     productCardPurchaseActions:Object.freeze({
