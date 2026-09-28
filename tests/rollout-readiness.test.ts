@@ -85,9 +85,11 @@ describe('V24 rollout readiness contracts', () => {
     expect(workflow).toContain('scripts/shoperation-control-plane.mjs');
     expect(workflow).toContain('release-risk-budget.json');
     expect(releaseGuard?.execution?.mode).toBe('external-specialist');
-    expect(workflow).toContain('shoperation-specialist-runner.mjs --guard GUARD-RELEASE-RISK');
-    expect(workflow).toContain('"GUARD-RELEASE-RISK"');
-    expect(workflow).toContain('Shoperation Control Plane final reconciliation');
+    expect(releaseGuard?.execution?.command).toBe('node');
+    expect(releaseGuard?.execution?.args).toContain('scripts/release-risk-budget.mjs');
+    expect(workflow).toContain('--run-external --check');
+    expect(workflow).not.toContain('shoperation-specialist-runner.mjs --guard GUARD-RELEASE-RISK');
+    expect(read('scripts/lib/shoperation-external-orchestrator.mjs')).toContain('topoSort(selectedIds)');
     expect(riskGate).toContain('high-risk subsystem');
     expect(riskGate).toContain('must be isolated from other substantive subsystems');
     expect(riskGate).toContain('RELEASE_RISK_BUDGET_FAILED');
