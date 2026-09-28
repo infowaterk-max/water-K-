@@ -72,11 +72,11 @@ The blocking gate itself correctly knew the reason. The information loss happene
 
 **FIX**
 
-The existing Failure Intake was upgraded in place to v2. It now ingests structured artifacts, including `issues`, `integrityIssues`, `violations`, `errors` and failed Vitest assertions, preserving gate, reason, expected, actual, file/route/endpoint, commit, environment, CI run and evidence.
+The existing Failure Intake was upgraded in place to v2. It now ingests structured artifacts, including `issues`, `integrityIssues`, `violations`, `errors` and failed Vitest assertions, preserving gate, reason, expected, actual, file/route/endpoint, repository, ref, commit, environment, CI run and evidence.
 
 **NEW PREVENTION**
 
-When structured detail exists, the generic fallback code is suppressed. Failure Intake now generates a source-independent stable `failureFingerprint` from failure class + location, while run/source/commit remain event provenance rather than fingerprint inputs.
+When structured detail exists, the generic fallback code is suppressed. Failure Intake now generates a source-independent stable `failureFingerprint` from failure class + location, while repository/ref/run/source/commit remain event provenance rather than fingerprint inputs. Unresolved `candidate-new-failure` / `needs-review` records from CI, Cloud Smoke and Fresh Install are persisted through the existing fingerprint-deduplicated GitHub Issue disposition mechanism; a transient artifact is no longer the sole record.
 
 **REGRESSION PROOF**
 
@@ -114,7 +114,7 @@ Release Manifest now fails closed when:
 
 It also binds repository, exact SHA, ref, environment, CI run/workflow and a hash of the consumed Risk Budget evidence.
 
-A failed manifest generation now writes `artifacts/release-manifest-diagnostic.json` with structured code/reason/expected/actual evidence, and CI routes the release-manifest step outcome into Failure Intake v2.
+A failed manifest generation now writes `artifacts/release-manifest-diagnostic.json` with structured code/reason/expected/actual evidence, CI routes the release-manifest step outcome into Failure Intake v2, and the original diagnostic is retained with the failure-intake artifact.
 
 **NEW PREVENTION**
 
@@ -188,7 +188,7 @@ The runtime check itself was correct; evidence persistence and diagnostic normal
 
 **FIX**
 
-The existing smoke script now writes `shoporation.cloud-smoke-proof.v2` with route-level status, HTTP/content type, latency, expected/actual version, exact source commit, environment, run/workflow and structured errors. The existing manual Cloud Smoke workflow uploads the proof and routes final failures into Failure Intake v2.
+The existing smoke script now writes `shoporation.cloud-smoke-proof.v2` with route-level status, HTTP/content type, latency, expected/actual version, exact source commit, environment, run/workflow and structured errors. The existing manual Cloud Smoke workflow uploads the proof, routes final failures into Failure Intake v2, and persists unresolved fingerprints through the existing Issue disposition path.
 
 **NEW PREVENTION**
 
@@ -220,7 +220,7 @@ Existing baseline tests proved that both workflows applied the ordered migration
 
 **FIX**
 
-Both existing entrypoints now use the same step identities, `shoporation.fresh-install-proof.v2` success evidence, `shoporation.fresh-install-failure.v1` failure diagnostic, exact source SHA/run/workflow fields and Failure Intake v2 handoff.
+Both existing entrypoints now use the same step identities, `shoporation.fresh-install-proof.v2` success evidence, `shoporation.fresh-install-failure.v1` failure diagnostic, exact repository/ref/SHA/run/workflow provenance, Failure Intake v2 handoff and persistent unresolved-fingerprint disposition.
 
 No SQL migration, customer baseline or database authority was changed.
 
