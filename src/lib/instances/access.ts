@@ -74,16 +74,16 @@ export async function getCurrentWebshopInstance():Promise<WebshopInstance|null>{
     if(!platformOperator)return null;
   }
 
-  if(process.env.VERCEL_ENV==='preview'){
-    const previewPlayroom=await resolveUniquePreviewPlayroomPilot(admin);
-    if(previewPlayroom)return previewPlayroom;
-  }
-
   const pilotAcceptanceInstanceId=await getPilotAcceptanceInstanceId();
   if(pilotAcceptanceInstanceId){
     const{data}=await admin.from('webshop_instances').select(SELECT).eq('id',pilotAcceptanceInstanceId).eq('status','pilot').maybeSingle();
     const accepted=normalize(data as unknown as InstanceRow|null);
     if(accepted)return accepted;
+  }
+
+  if(process.env.VERCEL_ENV==='preview'){
+    const previewPlayroom=await resolveUniquePreviewPlayroomPilot(admin);
+    if(previewPlayroom)return previewPlayroom;
   }
 
   const supabase=await createClient();
