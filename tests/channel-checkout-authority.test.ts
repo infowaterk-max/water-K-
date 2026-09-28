@@ -65,11 +65,21 @@ describe('B2C/B2B channel checkout authority',()=>{
     expect(form).toContain('total_gross_huf');
   });
 
-  test('core-engine batch branch is covered by the release CI',()=>{
+  test('core-engine batch branch is covered by the centrally orchestrated release CI',()=>{
     const ci=read('.github/workflows/ci.yml');
+    const registry=JSON.parse(read('quality/knowledge/guard-registry.v1.json')) as {guards:Array<{id:string;execution?:{profiles?:string[];command?:string;args?:string[]}}>} ;
+    const byId=new Map(registry.guards.map(guard=>[guard.id,guard]));
     expect(ci).toContain('- core-engine-2-batch');
-    expect(ci).toContain('npm test');
-    expect(ci).toContain('npm run typecheck');
-    expect(ci).toContain('npm run build');
+    expect(ci).toContain('shoperation-control-plane.mjs');
+    expect(ci).toContain('--run-external');
+    expect(ci).not.toContain('run: npm test');
+    expect(ci).not.toContain('run: npm run typecheck');
+    expect(ci).not.toContain('run: npm run build');
+    expect(byId.get('GUARD-QUALITY-TESTS')?.execution).toMatchObject({command:'npm',args:['test']});
+    expect(byId.get('GUARD-TYPECHECK')?.execution).toMatchObject({command:'npm',args:['run','typecheck']});
+    expect(byId.get('GUARD-PRODUCTION-BUILD')?.execution).toMatchObject({command:'npm',args:['run','build']});
+    expect(byId.get('GUARD-QUALITY-TESTS')?.execution?.profiles).toContain('branch');
+    expect(byId.get('GUARD-TYPECHECK')?.execution?.profiles).toContain('branch');
+    expect(byId.get('GUARD-PRODUCTION-BUILD')?.execution?.profiles).toContain('branch');
   });
 });
