@@ -196,7 +196,8 @@
         "src/lib/builder/storefront-**",
         "src/components/builder/storefront-**",
         "src/app/storefront-template-preview/**",
-        "src/app/visual-fidelity-qa/**"
+        "src/app/visual-fidelity-qa/**",
+        "tests/visual-baselines/**"
       ],
       "kind": "deferred-golden-baseline-promotion",
       "timing": "after-explicit-product-owner-visual-acceptance",
