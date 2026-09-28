@@ -72,6 +72,13 @@ describe('V24 rollout readiness contracts', () => {
     expect(release?.patterns).toContain('scripts/promote-template-golden-baseline.mjs');
   });
 
+  it('classifies canonical tenant resolution as high-risk tenant context authority', () => {
+    const policy = JSON.parse(read('deploy/release-risk-policy.json')) as {subsystems:Array<{name:string;risk:string;patterns:string[]}>};
+    const tenancy = policy.subsystems.find(item=>item.name==='tenant-context-authority');
+    expect(tenancy?.risk).toBe('high');
+    expect(tenancy?.patterns).toContain('src/lib/instances/**');
+  });
+
   it('keeps the production release risk budget as an independent Control Plane release specialist', () => {
     const workflow = read('.github/workflows/ci.yml');
     const policy = JSON.parse(read('deploy/release-risk-policy.json')) as {
