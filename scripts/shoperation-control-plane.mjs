@@ -13,7 +13,6 @@ const profile=arg('--profile')||process.env.SHOPERATION_CONTROL_PLANE_PROFILE||(
 const through=arg('--through')||process.env.SHOPERATION_CONTROL_PLANE_THROUGH||null;
 const check=args.includes('--check');
 const runExternal=args.includes('--run-external');
-const reconcile=args.includes('--reconcile-external')||runExternal;
 const reportDir='artifacts/shoperation-control-plane';
 const reportPath=`${reportDir}/control-plane.json`;
 const exactEvidencePath=value=>typeof value==='string'&&!value.includes('*')&&!value.includes('{')&&!value.includes('[')?value:null;
@@ -80,7 +79,7 @@ function topoSort(ids){
 
 topoSort(new Set((registry.guards??[]).filter(guard=>guard.blocking===true).map(guard=>guard.id)));
 
-if(reconcile){
+if(runExternal){
   if(!existsSync(reportPath))throw new Error('CONTROL_PLANE_MANAGED_REPORT_MISSING');
   const prior=readJson(reportPath);
   const contradictions=[...(prior.contradictions??[])];
@@ -91,17 +90,7 @@ if(reconcile){
   });
   if(!expectedExternal.length)throw new Error('CONTROL_PLANE_PROFILE_HAS_NO_EXTERNAL_SPECIALISTS:'+prior.profile);
   const expectedExternalIds=new Set(expectedExternal.map(guard=>guard.id));
-  let externalResults={};
-  if(runExternal){
-    externalResults=runExternalSpecialists({profile:prior.profile}).results;
-  }else{
-    for(const guard of expectedExternal){
-      const specialistPath=`${reportDir}/specialist-${guard.id.toLowerCase()}.json`;
-      if(!existsSync(specialistPath)){externalResults[guard.id]='missing';continue;}
-      const evidence=readJson(specialistPath);
-      externalResults[guard.id]=evidence.decision==='PASS'?'success':'failure';
-    }
-  }
+  const externalResults=runExternalSpecialists({profile:prior.profile}).results;
   const suppliedIds=Object.keys(externalResults);
   const unexpected=suppliedIds.filter(id=>!expectedExternalIds.has(id));
   if(unexpected.length)contradictions.push(...unexpected.map(guardId=>({code:'CONTROL_PLANE_EXTERNAL_GUARD_NOT_EXPECTED_FOR_PROFILE',guardId,profile:prior.profile})));
