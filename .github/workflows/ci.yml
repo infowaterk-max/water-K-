@@ -193,6 +193,8 @@ jobs:
       - name: Generate release manifest
         env:
           DEPLOY_ENVIRONMENT: ci
+          RELEASE_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+          RELEASE_REF_NAME: ${{ github.event.pull_request.head.ref || github.ref_name }}
         run: npm run release:manifest
 
       - name: Upload release manifest
@@ -217,6 +219,16 @@ jobs:
           BUILD_OUTCOME: ${{ steps.production-build.outcome }}
           SHOPERATION_SOURCE_COMMIT: ${{ github.event.pull_request.head.sha || github.sha }}
           SHOPERATION_FAILURE_SOURCE: ci
+          SHOPERATION_ENVIRONMENT: ci
+          SHOPERATION_CI_RUN_ID: ${{ github.run_id }}
+          SHOPERATION_CI_WORKFLOW: ${{ github.workflow }}
+          SHOPERATION_DIAGNOSTIC_ARTIFACTS: >-
+            KNOWLEDGE_PREFLIGHT_FAILED=artifacts/shoperation-quality/knowledge-preflight.json;
+            DEVELOPMENT_PLAN_FAILED=artifacts/shoperation-development-guard/plan-before-code.json;
+            EDIT_TIME_GUARD_FAILED=artifacts/shoperation-development-guard/edit-time-guard.json;
+            INCREMENTAL_REPLAY_FAILED=artifacts/shoperation-development-guard/incremental-replay.json;
+            RELEASE_RISK_BUDGET_FAILED=artifacts/release-risk-budget.json;
+            TEST_FAILED=artifacts/test-results.json
         run: |
           codes=""
           [ "$KNOWLEDGE_OUTCOME" != "failure" ] || codes="${codes}KNOWLEDGE_PREFLIGHT_FAILED;"
@@ -251,9 +263,10 @@ jobs:
             if(!unresolved.length)return;
             const open=await github.paginate(github.rest.issues.listForRepo,{...context.repo,state:'open',per_page:100});
             for(const record of unresolved){
-              const marker=`<!-- shoperation-failure-intake:${record.candidateId} -->`;
+              const identity=record.failureFingerprint||record.candidateId;
+              const marker=`<!-- shoperation-failure-intake:${identity} -->`;
               if(open.some(issue=>(issue.body||'').includes(marker)))continue;
-              await github.rest.issues.create({...context.repo,title:`[Quality intake] ${record.candidateId}: ${record.rawErrorCode}`,body:`${marker}\n\nContract: \`shoporation.failure-intake.v1\`\n\nSource commit: \`${record.sourceCommit||'unknown'}\`\n\nSource: \`${record.failureSource}\`\n\nClassification: \`${record.classificationStatus}\`\n\nSymptom: ${record.symptom}\n\nThis issue remains open until the failure is matched, promoted, scoped, deduplicated or rejected with an explicit disposition.`});
+              await github.rest.issues.create({...context.repo,title:`[Quality intake] ${identity}: ${record.rawErrorCode}`,body:`${marker}\n\nContract: \`shoporation.failure-intake.v2\`\n\nFingerprint: \`${record.failureFingerprint||'unknown'}\`\n\nSource commit: \`${record.sourceCommit||'unknown'}\`\n\nCI run: \`${record.ciRunId||'unknown'}\`\n\nSource: \`${record.failureSource}\`\n\nGate: \`${record.gate||record.gateCode||'unknown'}\`\n\nClassification: \`${record.classificationStatus}\`\n\nReason: ${record.reason||record.symptom}\n\nLocation: ${record.file||record.route||record.endpoint||'not localized'}\n\nThis issue remains open until the failure is matched, promoted, scoped, deduplicated or rejected with an explicit disposition.`});
             }
 
   fresh-install-proof:
