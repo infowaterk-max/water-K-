@@ -374,8 +374,9 @@
       ],
       "checks": [
         {
-          "kind": "file-exists",
-          "file": "quality/knowledge/authority-conflict-policy.v1.json"
+          "kind": "file-contains",
+          "file": "quality/knowledge/guard-registry.v1.json",
+          "value": "authorityConflictDetectionIsGlobal"
         },
         {
           "kind": "file-contains",
@@ -420,6 +421,10 @@
           "authorityRuleId": "TF-AUTH-005",
           "file": "src/components/checkout/checkout-form.tsx",
           "value": "data-checkout-ux=\"guided-accordion\""
+        },
+        {
+          "kind": "file-exists",
+          "file": "scripts/lib/shoperation-external-orchestrator.mjs"
         }
       ],
       "regressionTests": [
