@@ -76,8 +76,9 @@
     "scripts/shoperation-specialist-runner.mjs",
     "tests/shoperation-change-impact-atlas.test.ts",
     "tests/deep-atlas-scan.test.ts",
-    "quality/knowledge/authority-conflict-policy.v1.json",
-    "docs/architecture/CHANGE_IMPACT_RELEASE_CLOSURE.md"
+    "docs/architecture/CHANGE_IMPACT_RELEASE_CLOSURE.md",
+    "scripts/lib/shoperation-external-orchestrator.mjs",
+    "scripts/template-factory-external-specialist.mjs"
   ],
   "expectedSubsystems": [
     "auth-access-authority",
