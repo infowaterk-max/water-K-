@@ -703,6 +703,30 @@
         {
           "kind": "file-exists",
           "file": "tests/visual-baselines/gaming.playroom/v20/checkout-mobile.png"
+        },
+        {
+          "kind": "authority-source-contains",
+          "authorityRuleId": "TF-AUTH-005",
+          "file": "src/app/penztar/page.tsx",
+          "value": "<CheckoutForm"
+        },
+        {
+          "kind": "authority-source-contains",
+          "authorityRuleId": "TF-AUTH-005",
+          "file": "src/app/penztar/page.tsx",
+          "value": "<StorefrontCheckoutShell"
+        },
+        {
+          "kind": "authority-source-contains",
+          "authorityRuleId": "TF-AUTH-005",
+          "file": "src/components/checkout/storefront-checkout-shell.tsx",
+          "value": "data-storefront-live-checkout=\"shared-e13\""
+        },
+        {
+          "kind": "authority-source-contains",
+          "authorityRuleId": "TF-AUTH-005",
+          "file": "src/components/checkout/checkout-form.tsx",
+          "value": "data-checkout-ux=\"guided-accordion\""
         }
       ],
       "regressionTests": [
