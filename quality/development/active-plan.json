@@ -1,14 +1,16 @@
 {
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-CONTROL-PLANE-DIAGNOSTICS-EXACT-HEAD-HARDENING",
-  "task": "Harden existing quality failure intake diagnostics and exact-head release evidence binding without changing product or runtime contracts.",
+  "task": "Harden existing failure intake diagnostics, pre-code scope projection, and release evidence provenance.",
   "status": "ready-for-implementation",
   "guardDigest": "d0031b70",
   "plannedFilePatterns": [
+    "scripts/shoperation-plan-before-code.mjs",
     "scripts/shoperation-failure-intake.mjs",
     "scripts/release-manifest.mjs",
     ".github/workflows/ci.yml",
     ".github/workflows/template-factory-quality-gate.yml",
+    "tests/shoperation-development-guard.test.ts",
     "tests/control-plane-diagnostics-hardening.test.ts",
     "tests/rollout-readiness.test.ts",
     "quality/development/active-plan.json"
@@ -86,6 +88,6 @@
     "SQ-NK-015"
   ],
   "exceptions": [],
-  "notes": "Control Plane-only hardening. Reuse existing Failure Intake, Knowledge Before Build, Atlas Change Impact, Release Risk Budget and Release Manifest authorities. Add structured diagnostic ingestion and stable failure fingerprinting to the existing failure intake; bind release-risk evidence fail-closed to the manifest exact SHA. No storefront, Builder, Template Runtime, Page Schema, database, auth redesign or roadmap-order change.",
+  "notes": "Control Plane-only hardening. First repair the existing Plan Before Code gate so a plan-only transaction is validated from planned file projections while any substantive diff remains actual-diff authoritative. Then reuse existing Failure Intake, Knowledge Before Build, Atlas Change Impact, Release Risk Budget and Release Manifest authorities for structured diagnostics, stable fingerprints and fail-closed exact-head evidence binding. No storefront, Builder, Template Runtime, Page Schema, database, auth redesign or roadmap-order change.",
   "changeBaseSha": "c1f3d4178407d0c484f18874707313d849d4593c"
 }
