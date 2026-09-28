@@ -672,7 +672,7 @@
     {
       "id": "PO-2026-09-28-CHECKOUT-VISUAL-GOLDEN-CLOSEOUT",
       "request": "A Playroom v20 pénztár vizuális lezárása: ellenőrizd és javítsd a még látható Tablet header brand truncation hibát, majd kizárólag a checkout Desktop/Tablet/Mobile jelenlegi elfogadott renderjeit emeld golden baseline-ná. Más oldal goldenje ne változzon.",
-      "state": "planned",
+      "state": "implemented",
       "acceptanceCriteria": [
         "Tablet checkout headerben a SHOPORATION márkanév teljesen olvasható, ellipsis nélkül.",
         "Checkout Desktop és Mobile megjelenés a header-fix miatt nem regresszál.",
@@ -684,12 +684,12 @@
       "checks": [
         {
           "kind": "file-contains",
-          "file": "src/components/builder/storefront-commerce-header.tsx",
-          "value": "minmax(10.75rem,1fr)"
+          "file": "src/lib/builder/storefront-template-runtime-normalization.ts",
+          "value": "playroomTabletHeaderColumns"
         },
         {
           "kind": "file-contains",
-          "file": "tests/storefront-commerce-header.test.tsx",
+          "file": "tests/storefront-playroom-v20-functional-acceptance.test.ts",
           "value": "preserves the full brand label on tablet"
         },
         {
@@ -714,38 +714,6 @@
         "TF-AUTH-005",
         "TF-AUTH-008",
         "TF-AUTH-018"
-      ]
-    },
-    {
-      "id": "PO-2026-09-28-CHECKOUT-VISUAL-GOLDEN-CLOSURE",
-      "request": "A Playroom v20 pénztár vizuális lezárása: a jelenlegi checkout Desktop/Tablet/Mobil render ellenőrzése, a Tablet fejléc márkanév-vágásának javítása, majd kizárólag a három checkout golden baseline frissítése a Product Owner kérésére. Más oldal goldene ne változzon.",
-      "state": "planned",
-      "acceptanceCriteria": [
-        "A Checkout Tablet fejlécben a SHOPORATION márkanév teljesen látható, nem ellipszissel vágott.",
-        "A javítás Playroom v20 presentation-only marad; shared E13 checkout authority és üzleti logika nem változik.",
-        "Desktop és Mobile checkout kompozíció nem regresszál.",
-        "A három checkout viewport render vizuálisan ellenőrzött a promotion előtt.",
-        "Csak checkout-desktop.png, checkout-tablet.png és checkout-mobile.png golden baseline módosul; a többi Playroom golden változatlan marad."
-      ],
-      "checks": [
-        {
-          "kind": "file-contains",
-          "file": "src/lib/builder/storefront-template-runtime-normalization.ts",
-          "value": "playroomTabletHeaderColumns"
-        },
-        {
-          "kind": "file-contains",
-          "file": "tests/storefront-playroom-v20-functional-acceptance.test.ts",
-          "value": "keeps the Playroom Tablet checkout brand fully allocated without changing Desktop or Mobile header authority"
-        }
-      ],
-      "regressionTests": [
-        "tests/storefront-playroom-v20-functional-acceptance.test.ts",
-        "tests/storefront-commerce-header.test.tsx"
-      ],
-      "authorityRuleIds": [
-        "TF-AUTH-005",
-        "SQ-AUTH-012"
       ]
     }
   ]

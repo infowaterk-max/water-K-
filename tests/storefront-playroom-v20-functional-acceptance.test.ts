@@ -153,6 +153,22 @@ describe('Playroom v20 functional acceptance',()=>{
     }
   });
 
+  it('preserves the full brand label on tablet without changing Desktop or Mobile header authority',()=>{
+    const checkout=playroomPage('checkout');
+    const header=collectNodes(checkout,node=>node.componentKey==='system.commerce-header')[0];
+    expect(header).toBeTruthy();
+    const topRow=(header?.config.styleSlots as Record<string,any>)?.topRow;
+    expect(topRow?.tablet?.gridTemplateColumns).toBe('minmax(11rem,.95fr) minmax(13rem,1.25fr) auto');
+    expect(topRow?.tablet?.gap).toBe('.75rem');
+    expect(topRow?.desktop?.gridTemplateColumns).toBeUndefined();
+    expect(topRow?.mobile?.gridTemplateColumns).toBeUndefined();
+    const normalized=normalizeStorefrontTemplateRuntimeComposition(checkout);
+    const normalizedHeader=collectNodes(normalized,node=>node.componentKey==='system.commerce-header')[0];
+    const normalizedTopRow=(normalizedHeader?.config.styleSlots as Record<string,any>)?.topRow;
+    expect(normalizedTopRow?.tablet?.gridTemplateColumns).toBe('minmax(11rem,.95fr) minmax(13rem,1.25fr) auto');
+    expect(normalizedTopRow?.tablet?.gap).toBe('.75rem');
+  });
+
   it('renders the public contact route through the active template Runtime before any legacy fallback',()=>{
     const contactRoute=read('src/app/kapcsolat/page.tsx');
     const runtimeSource=read('src/lib/builder/storefront-runtime-source.ts');

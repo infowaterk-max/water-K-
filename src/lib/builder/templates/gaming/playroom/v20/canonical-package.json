@@ -260,7 +260,10 @@
                   "minHeight": "2.62rem"
                 },
                 "desktop": {},
-                "tablet": {},
+                "tablet": {
+                  "gridTemplateColumns": "minmax(11rem,.95fr) minmax(13rem,1.25fr) auto",
+                  "gap": ".75rem"
+                },
                 "mobile": {}
               },
               "searchFrame": {
@@ -5377,7 +5380,10 @@
                   "minHeight": "2.62rem"
                 },
                 "desktop": {},
-                "tablet": {},
+                "tablet": {
+                  "gridTemplateColumns": "minmax(11rem,.95fr) minmax(13rem,1.25fr) auto",
+                  "gap": ".75rem"
+                },
                 "mobile": {}
               },
               "searchFrame": {
@@ -7798,7 +7804,10 @@
                   "minHeight": "2.62rem"
                 },
                 "desktop": {},
-                "tablet": {},
+                "tablet": {
+                  "gridTemplateColumns": "minmax(11rem,.95fr) minmax(13rem,1.25fr) auto",
+                  "gap": ".75rem"
+                },
                 "mobile": {}
               },
               "searchFrame": {
@@ -9252,7 +9261,10 @@
                   "minHeight": "2.62rem"
                 },
                 "desktop": {},
-                "tablet": {},
+                "tablet": {
+                  "gridTemplateColumns": "minmax(11rem,.95fr) minmax(13rem,1.25fr) auto",
+                  "gap": ".75rem"
+                },
                 "mobile": {}
               },
               "searchFrame": {
@@ -10682,7 +10694,10 @@
                   "minHeight": "2.62rem"
                 },
                 "desktop": {},
-                "tablet": {},
+                "tablet": {
+                  "gridTemplateColumns": "minmax(11rem,.95fr) minmax(13rem,1.25fr) auto",
+                  "gap": ".75rem"
+                },
                 "mobile": {}
               },
               "searchFrame": {
@@ -11996,7 +12011,10 @@
                   "minHeight": "2.62rem"
                 },
                 "desktop": {},
-                "tablet": {},
+                "tablet": {
+                  "gridTemplateColumns": "minmax(11rem,.95fr) minmax(13rem,1.25fr) auto",
+                  "gap": ".75rem"
+                },
                 "mobile": {}
               },
               "searchFrame": {
@@ -13493,7 +13511,10 @@
                   "minHeight": "2.62rem"
                 },
                 "desktop": {},
-                "tablet": {},
+                "tablet": {
+                  "gridTemplateColumns": "minmax(11rem,.95fr) minmax(13rem,1.25fr) auto",
+                  "gap": ".75rem"
+                },
                 "mobile": {}
               },
               "searchFrame": {
@@ -16271,7 +16292,10 @@
                   "minHeight": "2.62rem"
                 },
                 "desktop": {},
-                "tablet": {},
+                "tablet": {
+                  "gridTemplateColumns": "minmax(11rem,.95fr) minmax(13rem,1.25fr) auto",
+                  "gap": ".75rem"
+                },
                 "mobile": {}
               },
               "searchFrame": {
@@ -17632,7 +17656,10 @@
                   "minHeight": "2.62rem"
                 },
                 "desktop": {},
-                "tablet": {},
+                "tablet": {
+                  "gridTemplateColumns": "minmax(11rem,.95fr) minmax(13rem,1.25fr) auto",
+                  "gap": ".75rem"
+                },
                 "mobile": {}
               },
               "searchFrame": {
@@ -19285,7 +19312,10 @@
                   "minHeight": "2.62rem"
                 },
                 "desktop": {},
-                "tablet": {},
+                "tablet": {
+                  "gridTemplateColumns": "minmax(11rem,.95fr) minmax(13rem,1.25fr) auto",
+                  "gap": ".75rem"
+                },
                 "mobile": {}
               },
               "searchFrame": {
@@ -20968,7 +20998,10 @@
                   "minHeight": "2.62rem"
                 },
                 "desktop": {},
-                "tablet": {},
+                "tablet": {
+                  "gridTemplateColumns": "minmax(11rem,.95fr) minmax(13rem,1.25fr) auto",
+                  "gap": ".75rem"
+                },
                 "mobile": {}
               },
               "searchFrame": {
@@ -22558,7 +22591,10 @@
                   "minHeight": "2.62rem"
                 },
                 "desktop": {},
-                "tablet": {},
+                "tablet": {
+                  "gridTemplateColumns": "minmax(11rem,.95fr) minmax(13rem,1.25fr) auto",
+                  "gap": ".75rem"
+                },
                 "mobile": {}
               },
               "searchFrame": {
@@ -24044,7 +24080,10 @@
                   "minHeight": "2.62rem"
                 },
                 "desktop": {},
-                "tablet": {},
+                "tablet": {
+                  "gridTemplateColumns": "minmax(11rem,.95fr) minmax(13rem,1.25fr) auto",
+                  "gap": ".75rem"
+                },
                 "mobile": {}
               },
               "searchFrame": {
@@ -25285,7 +25324,10 @@
                   "minHeight": "2.62rem"
                 },
                 "desktop": {},
-                "tablet": {},
+                "tablet": {
+                  "gridTemplateColumns": "minmax(11rem,.95fr) minmax(13rem,1.25fr) auto",
+                  "gap": ".75rem"
+                },
                 "mobile": {}
               },
               "searchFrame": {
