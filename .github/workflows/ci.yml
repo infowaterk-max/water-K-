@@ -314,10 +314,61 @@ jobs:
         run: psql "$SHOPERATION_FRESH_INSTALL_DB_URL" -X -v ON_ERROR_STOP=1 -f supabase/customer-baseline/target-postflight.sql
 
       - name: Compute proof contract hash
+        id: fresh-contract-hash
         shell: bash
         run: |
-          echo "Proof contract SHA256:"
-          node scripts/customer-baseline-contract-hash.mjs
+          hash="$(node scripts/customer-baseline-contract-hash.mjs)"
+          echo "Proof contract SHA256: $hash"
+          echo "value=$hash" >> "$GITHUB_OUTPUT"
+
+      - name: Record structured Fresh Install proof
+        env:
+          PROOF_CONTRACT_SHA256: ${{ steps.fresh-contract-hash.outputs.value }}
+        shell: bash
+        run: |
+          mkdir -p artifacts/fresh-install-proof
+          node <<'NODE'
+          const fs=require('fs');
+          const path=require('path');
+          const manifest=JSON.parse(fs.readFileSync('supabase/customer-baseline/manifest.json','utf8'));
+          const migrationFiles=fs.readdirSync(manifest.baselineMigrationDirectory)
+            .filter(name=>name.endsWith('.sql'))
+            .sort()
+            .map(name=>path.posix.join(manifest.baselineMigrationDirectory,name));
+          const proof={
+            contract:'shoporation.fresh-install-proof.v2',
+            repository:process.env.GITHUB_REPOSITORY,
+            sourceCommit:process.env.GITHUB_SHA,
+            ciRunId:process.env.GITHUB_RUN_ID,
+            ciWorkflow:process.env.GITHUB_WORKFLOW,
+            environment:'fresh-install-disposable',
+            generatedAt:new Date().toISOString(),
+            baselineStatus:manifest.status,
+            freshInstallProofRequired:manifest.freshInstallProofRequired,
+            proofContractSha256:process.env.PROOF_CONTRACT_SHA256,
+            migrationFiles,
+            authBootstrapFile:manifest.authBootstrapFile,
+            seedFile:manifest.seedFile,
+            checks:{
+              targetPreflight:'PASS',
+              orderedMigrations:'PASS',
+              authBootstrap:'PASS',
+              neutralSeed:'PASS',
+              targetPostflight:'PASS',
+            },
+            productionTouched:false,
+            decision:'PASS',
+          };
+          fs.writeFileSync('artifacts/fresh-install-proof/proof.json',JSON.stringify(proof,null,2)+'\n');
+          NODE
+
+      - name: Upload exact-head Fresh Install proof
+        uses: actions/upload-artifact@v4
+        with:
+          name: fresh-install-proof-${{ github.sha }}
+          path: artifacts/fresh-install-proof/proof.json
+          if-no-files-found: error
+          retention-days: 90
 
       - name: Record proof summary
         shell: bash
