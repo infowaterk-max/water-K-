@@ -1,7 +1,7 @@
 {
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-CONTROL-PLANE-DIAGNOSTICS-EXACT-HEAD-HARDENING",
-  "task": "Harden existing failure intake diagnostics, pre-code scope projection, and release evidence provenance.",
+  "task": "Harden existing failure intake diagnostics, pre-code scope projection, release evidence provenance, Cloud Smoke evidence, and Control Plane risk classification.",
   "status": "ready-for-implementation",
   "guardDigest": "d0031b70",
   "plannedFilePatterns": [
@@ -13,7 +13,10 @@
     "tests/shoperation-development-guard.test.ts",
     "tests/control-plane-diagnostics-hardening.test.ts",
     "tests/rollout-readiness.test.ts",
-    "quality/development/active-plan.json"
+    "quality/development/active-plan.json",
+    ".github/workflows/cloud-smoke.yml",
+    "scripts/smoke.mjs",
+    "deploy/release-risk-policy.json"
   ],
   "expectedSubsystems": [
     "quality-knowledge-system",
@@ -88,6 +91,6 @@
     "SQ-NK-015"
   ],
   "exceptions": [],
-  "notes": "Control Plane-only hardening. First repair the existing Plan Before Code gate so a plan-only transaction is validated from planned file projections while any substantive diff remains actual-diff authoritative. Then reuse existing Failure Intake, Knowledge Before Build, Atlas Change Impact, Release Risk Budget and Release Manifest authorities for structured diagnostics, stable fingerprints and fail-closed exact-head evidence binding. No storefront, Builder, Template Runtime, Page Schema, database, auth redesign or roadmap-order change.",
+  "notes": "Control Plane-only hardening. Preserve existing Plan Before Code, Failure Intake, Knowledge Before Build, Atlas Change Impact, Release Risk Budget, Release Manifest, Fresh Install proof and Cloud Smoke authorities. Add structured Cloud Smoke evidence/failure intake and explicitly classify Shoperation Control Plane scripts inside the existing Release Risk Budget at the existing medium weight. No threshold/weight relaxation. No storefront, Builder, Template Runtime, Page Schema, database, auth redesign or roadmap-order change.",
   "changeBaseSha": "c1f3d4178407d0c484f18874707313d849d4593c"
 }
