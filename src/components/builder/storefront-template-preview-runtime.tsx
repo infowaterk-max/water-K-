@@ -123,6 +123,11 @@ export function StorefrontTemplatePreviewRuntime({page,viewport,bindingContext,c
       window.location.assign(routes.cart);
       return;
     }
+    if(url.pathname==='/penztar'){
+      event.preventDefault();
+      window.location.assign(routes.checkout);
+      return;
+    }
     if(interactionBasePath&&url.pathname==='/storefront-template-preview'){
       event.preventDefault();
       const params=new URLSearchParams(url.search);
