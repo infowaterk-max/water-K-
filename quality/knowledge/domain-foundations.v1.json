@@ -131,21 +131,26 @@
       "id": "DOMAIN-COMMERCE",
       "name": "Commerce Core",
       "owner": "commerce-core-authority",
-      "purpose": "Own canonical transactional commerce decisions from quote through order lifecycle.",
+      "purpose": "Own canonical transactional commerce decisions and shared deterministic commerce decision/read-model contracts without allowing presentation or client state to become business truth.",
       "truthOwnership": [
         "commerce.price",
         "commerce.cart",
         "commerce.checkout-quote",
         "commerce.order",
         "commerce.payment-state",
-        "commerce.order-lifecycle"
+        "commerce.order-lifecycle",
+        "commerce.discovery-read-model",
+        "commerce.structured-product-read-model",
+        "commerce.decision-support-contract"
       ],
       "responsibilities": [
         "server-side price calculation",
         "checkout validation",
         "order creation",
         "order state transitions",
-        "payment/order coupling"
+        "payment/order coupling",
+        "deterministic product discovery and structured comparison read models",
+        "non-authoritative decision-support intents that require server revalidation before mutation"
       ],
       "doesNotOwn": [
         "catalog editorial presentation",
@@ -162,6 +167,7 @@
         "Client-submitted prices and totals are untrusted and must be recalculated from canonical data.",
         "Order and payment state transitions must be explicit and idempotency-aware.",
         "Provider-specific payment behavior must enter through integration contracts.",
+        "Deterministic discovery, comparison, configurator and composer engines may emit read models or intents, but they may not mutate price, inventory, cart, customer or order authority directly.",
         "Cart and Checkout behavior, state, validation, totals, shipping/payment selection and fail-closed order submission are platform Commerce authority; templates may supply bounded visual tokens only."
       ],
       "principles": [
@@ -228,6 +234,57 @@
         "variant identity regression",
         "stock/reservation consistency proof",
         "tenant inventory isolation tests"
+      ]
+    },
+    {
+      "id": "DOMAIN-CONTENT",
+      "name": "Content & Editorial",
+      "owner": "content-authority",
+      "purpose": "Own tenant-scoped CMS/editorial content lifecycle and validated story/provenance read models. Storefront and templates consume this authority but may not invent or override editorial truth.",
+      "truthOwnership": [
+        "content.document",
+        "content.publication-state",
+        "content.story",
+        "content.taxonomy",
+        "content.provenance-validation"
+      ],
+      "responsibilities": [
+        "tenant-scoped content retrieval",
+        "draft/published/archived lifecycle semantics",
+        "editorial story validation and read models",
+        "safe content link/markup validation",
+        "provenance relation validation"
+      ],
+      "doesNotOwn": [
+        "product/catalog facts",
+        "price/order/payment truth",
+        "storefront layout",
+        "builder page schema",
+        "tenant identity"
+      ],
+      "dependsOn": [
+        "DOMAIN-TENANCY"
+      ],
+      "boundaryRules": [
+        "Storefront and templates may render content authority outputs but may not become a second editorial persistence or provenance authority.",
+        "Unverified provenance relations and unsafe arbitrary markup or URLs fail closed rather than being presented as validated editorial truth.",
+        "Template switching may change page drafts/presentation but may not mutate canonical story/content documents by implication."
+      ],
+      "principles": [
+        "ARCH-001",
+        "ARCH-003",
+        "ARCH-006",
+        "ARCH-008",
+        "ARCH-013"
+      ],
+      "canonicalPaths": [
+        "src/lib/content/**"
+      ],
+      "evidenceObligations": [
+        "content lifecycle regression",
+        "story validation/read-model proof",
+        "provenance fail-closed regression",
+        "safe URL/markup validation"
       ]
     },
     {
