@@ -282,6 +282,133 @@ async function browserDiagnostics(page,manifest,viewport){
   });
 }
 
+async function proveFactoryCommerceInteraction(browser,manifest){
+  if(!manifest.factoryCandidate)return{required:false,passed:true,status:'not-applicable'};
+  const requiredPages=['product','cart','checkout'];
+  if(!requiredPages.every(pageType=>manifest.pageTypes.includes(pageType)))return{required:false,passed:true,status:'not-applicable'};
+  const page=await browser.newPage({viewport:viewportProfiles.desktop,deviceScaleFactor:1});
+  const result={required:true,passed:false,checks:{},errors:[]};
+  const previewFor=(pageType,extra={})=>{
+    const params=new URLSearchParams({template:manifest.templateKey,version:String(manifest.templateVersion),page:pageType,viewport:'desktop',factory:'1',embed:'1'});
+    for(const[key,value]of Object.entries(extra))if(value!==undefined&&value!==null&&String(value))params.set(key,String(value));
+    return baseUrl+'/storefront-template-preview?'+params.toString();
+  };
+  const rootFor=pageType=>page.locator('[data-template-preview="representative-demo"][data-template-key="'+manifest.templateKey+'"][data-template-version="'+manifest.templateVersion+'"][data-factory-candidate="true"][data-page-type="'+pageType+'"]' ).first();
+  const visit=async(pageType,extra={})=>{
+    const response=await page.goto(previewFor(pageType,extra),{waitUntil:'domcontentloaded',timeout:30000});
+    if(!response?.ok())throw new Error('COMMERCE_ROUTE_FAILED:'+pageType+':'+(response?.status()??'no-response'));
+    await page.waitForLoadState('load',{timeout:15000}).catch(()=>undefined);
+    const root=rootFor(pageType);
+    await root.waitFor({state:'visible',timeout:10000});
+    return root;
+  };
+  try{
+    let cartRoot=await visit('cart');
+    await cartRoot.locator('[data-storefront-preview-cart="empty"]').waitFor({state:'visible',timeout:10000});
+    result.checks.emptyState=true;
+
+    let productRoot=await visit('product');
+    const optionLinks=productRoot.locator('[data-storefront-structured="option-selector"] a');
+    const optionCount=await optionLinks.count();
+    if(optionCount>1){
+      const before=(await productRoot.locator('[data-storefront-commerce="product-info"]').first().innerText()).replace(/\s+/g,' ').trim();
+      const target=optionLinks.nth(optionCount-1);
+      const label=(await target.innerText()).trim();
+      const href=await target.getAttribute('href');
+      const variant=href?new URL(href,page.url()).searchParams.get('variant'):null;
+      await Promise.all([
+        page.waitForURL(url=>url.pathname==='/storefront-template-preview'&&url.searchParams.get('page')==='product'&&(!variant||url.searchParams.get('variant')===variant),{timeout:15000}),
+        target.click(),
+      ]);
+      productRoot=rootFor('product');
+      await productRoot.waitFor({state:'visible',timeout:10000});
+      const selected=productRoot.locator('[data-storefront-structured="option-selector"] a[aria-current="true"]').first();
+      const after=(await productRoot.locator('[data-storefront-commerce="product-info"]').first().innerText()).replace(/\s+/g,' ').trim();
+      result.checks.variantSelection=await selected.count()===1&&(await selected.innerText()).trim()===label&&before!==after;
+    }else result.checks.variantSelection='not-applicable';
+
+    const purchase=productRoot.getByRole('button',{name:/Kosárba/}).first();
+    await purchase.waitFor({state:'visible',timeout:10000});
+    if(await purchase.isDisabled())throw new Error('COMMERCE_PURCHASE_DISABLED');
+    await purchase.click();
+    const confirmation=page.locator('[data-storefront-cart-confirmation="shared-v1"]:visible');
+    await confirmation.waitFor({state:'visible',timeout:10000});
+    result.checks.addToCartAcknowledgement=await confirmation.getByRole('button',{name:'Tovább vásárolok',exact:true}).count()===1
+      &&await confirmation.getByRole('link',{name:'Kosár megnyitása',exact:true}).count()===1;
+    await Promise.all([
+      page.waitForURL(url=>url.pathname==='/storefront-template-preview'&&url.searchParams.get('page')==='cart',{timeout:15000}),
+      confirmation.getByRole('link',{name:'Kosár megnyitása',exact:true}).click(),
+    ]);
+
+    cartRoot=rootFor('cart');
+    await cartRoot.locator('[data-storefront-preview-cart="interactive"]').waitFor({state:'visible',timeout:10000});
+    let quantity=cartRoot.locator('[data-storefront-preview-cart-quantity]').first();
+    const initial=(await quantity.innerText()).trim();
+    await cartRoot.getByRole('button',{name:'Mennyiség növelése',exact:true}).first().click();
+    await page.waitForFunction(()=>document.querySelector('[data-storefront-preview-cart-quantity]')?.textContent?.trim()==='2 db',{timeout:5000});
+    quantity=cartRoot.locator('[data-storefront-preview-cart-quantity]').first();
+    const increased=(await quantity.innerText()).trim();
+    await cartRoot.getByRole('button',{name:'Mennyiség csökkentése',exact:true}).first().click();
+    await page.waitForFunction(()=>document.querySelector('[data-storefront-preview-cart-quantity]')?.textContent?.trim()==='1 db',{timeout:5000});
+    quantity=cartRoot.locator('[data-storefront-preview-cart-quantity]').first();
+    const decreased=(await quantity.innerText()).trim();
+    result.checks.quantityMutation=initial==='1 db'&&increased==='2 db'&&decreased==='1 db';
+
+    await cartRoot.getByRole('button',{name:'Tétel törlése',exact:true}).first().click();
+    await cartRoot.locator('[data-storefront-preview-cart="empty"]').waitFor({state:'visible',timeout:5000});
+    result.checks.removeAndEmptyState=true;
+
+    productRoot=await visit('product');
+    const repurchase=productRoot.getByRole('button',{name:/Kosárba/}).first();
+    await repurchase.click();
+    const confirmation2=page.locator('[data-storefront-cart-confirmation="shared-v1"]:visible');
+    await confirmation2.waitFor({state:'visible',timeout:10000});
+    await Promise.all([
+      page.waitForURL(url=>url.pathname==='/storefront-template-preview'&&url.searchParams.get('page')==='cart',{timeout:15000}),
+      confirmation2.getByRole('link',{name:'Kosár megnyitása',exact:true}).click(),
+    ]);
+    cartRoot=rootFor('cart');
+    await cartRoot.locator('[data-storefront-preview-cart="interactive"]').waitFor({state:'visible',timeout:10000});
+    await Promise.all([
+      page.waitForURL(url=>url.pathname==='/storefront-template-preview'&&url.searchParams.get('page')==='checkout',{timeout:15000}),
+      cartRoot.getByRole('link',{name:'Tovább a pénztárhoz',exact:true}).click(),
+    ]);
+
+    const checkoutRoot=rootFor('checkout');
+    await checkoutRoot.locator('[data-storefront-preview-checkout="interactive-fail-closed"]').waitFor({state:'visible',timeout:10000});
+    const beforeShipping=(await checkoutRoot.locator('[data-storefront-preview-shipping-cost]').innerText()).trim();
+    const beforeTotal=(await checkoutRoot.locator('[data-storefront-preview-grand-total]').innerText()).trim();
+    const parcel=checkoutRoot.getByRole('radio',{name:'Csomagpont',exact:true});
+    await parcel.check();
+    const afterShipping=(await checkoutRoot.locator('[data-storefront-preview-shipping-cost]').innerText()).trim();
+    const afterTotal=(await checkoutRoot.locator('[data-storefront-preview-grand-total]').innerText()).trim();
+    result.checks.shippingRecalculation=await parcel.isChecked()&&beforeShipping!==afterShipping&&beforeTotal!==afterTotal;
+
+    const transfer=checkoutRoot.getByRole('radio',{name:'Banki átutalás',exact:true});
+    await transfer.check();
+    result.checks.paymentSelection=await transfer.isChecked();
+
+    await checkoutRoot.locator('[data-storefront-preview-order-submit="true"]').click();
+    const blocked=checkoutRoot.locator('[data-storefront-preview-order-blocked="true"]');
+    await blocked.waitFor({state:'visible',timeout:5000});
+    result.checks.orderSubmissionFailClosed=(await blocked.innerText()).includes('Előnézeti módban rendelés nem adható le');
+
+    result.passed=result.checks.emptyState===true
+      &&(result.checks.variantSelection===true||result.checks.variantSelection==='not-applicable')
+      &&result.checks.addToCartAcknowledgement===true
+      &&result.checks.quantityMutation===true
+      &&result.checks.removeAndEmptyState===true
+      &&result.checks.shippingRecalculation===true
+      &&result.checks.paymentSelection===true
+      &&result.checks.orderSubmissionFailClosed===true;
+    if(!result.passed)result.errors.push('COMMERCE_INTERACTION_INCOMPLETE');
+  }catch(error){
+    result.errors.push(error instanceof Error?error.message:String(error));
+  }finally{
+    await page.close();
+  }
+  return result;
+}
 async function compareGolden({actualPath,baselinePath,diffPath,threshold}){
   if(!await exists(baselinePath))return{status:'missing',mismatchRatio:null};
   const[{PNG},{default:pixelmatch}]=await Promise.all([import('pngjs'),import('pixelmatch')]);
@@ -416,6 +543,11 @@ try{
       }finally{await page.close();}
     }
   }
+  for(const selected of scope.selected){
+    const proof=await proveFactoryCommerceInteraction(browser,selected.template);
+    selected.commerceInteraction=proof;
+    if(proof.required&&!proof.passed)errors.push({case:safeName(selected.template.templateKey)+'-commerce-interaction',error:'FACTORY_COMMERCE_INTERACTION_NOT_PROVEN:'+(proof.errors.join('|')||'unknown')});
+  }
 }finally{
   await browser.close();
 }
@@ -432,6 +564,8 @@ const acceptanceProofs=scope.selected.map(selected=>{
   const proceduralMemoryPassed=manifest.factoryCandidate
     ?manifest.proceduralMemory?.preflightOk===true&&proceduralReplays.length>0&&proceduralReplays.every(item=>item.passed===true)
     :true;
+  const commerceInteraction=selected.commerceInteraction??{required:false,passed:true,status:'not-applicable'};
+  const commerceInteractionPassed=!manifest.factoryCandidate||commerceInteraction.passed===true;
   const factoryIdentityPinned=!manifest.factoryCandidate||(
     manifest.provenance?.targetTemplateKey===manifest.templateKey
     &&manifest.provenance?.targetTemplateVersion===manifest.templateVersion
@@ -447,8 +581,9 @@ const acceptanceProofs=scope.selected.map(selected=>{
   if(!proceduralMemoryPassed)blockers.push('PROCEDURAL_MEMORY_REPLAY_FAILED');
   if(!factoryIdentityPinned)blockers.push('FACTORY_CANDIDATE_IDENTITY_NOT_PINNED');
   if(!showroomContractPassed)blockers.push('FACTORY_SHOWROOM_CONTRACT_NOT_PROVEN');
+  if(!commerceInteractionPassed)blockers.push('FACTORY_COMMERCE_INTERACTION_NOT_PROVEN');
   if(manifest.factoryCandidate)blockers.push('VERCEL_PRODUCT_OWNER_JOURNEY_PROOF_REQUIRED');
-  const maturity=browserMatrixPassed&&proceduralMemoryPassed&&factoryIdentityPinned&&showroomContractPassed&&manifest.productOwnerReady===true
+  const maturity=browserMatrixPassed&&proceduralMemoryPassed&&factoryIdentityPinned&&showroomContractPassed&&commerceInteractionPassed&&manifest.productOwnerReady===true
     ?'visually-ready'
     :browserMatrixPassed&&proceduralMemoryPassed&&factoryIdentityPinned&&showroomContractPassed
       ?'technically-ready'
@@ -468,6 +603,8 @@ const acceptanceProofs=scope.selected.map(selected=>{
     factoryIdentityPinned,
     showroomContractPassed,
     showroomEvidence,
+    commerceInteractionPassed,
+    commerceInteraction,
     productOwnerReadyByCompiler:manifest.productOwnerReady===true,
     maturity,
     handoffReady:false,

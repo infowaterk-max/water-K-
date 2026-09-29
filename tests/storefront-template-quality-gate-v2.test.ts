@@ -36,6 +36,15 @@ describe('Template Factory Quality Gate v2',()=>{
     expect(result).toEqual({ok:true,issues:[]});
   });
 
+  it('requires interactive commerce proof in the exact-head Factory browser gate instead of screenshot presence alone',()=>{
+    const gate=read('scripts/template-factory-quality-gate.mjs');
+    expect(gate).toContain('proveFactoryCommerceInteraction');
+    expect(gate).toContain('FACTORY_COMMERCE_INTERACTION_NOT_PROVEN');
+    expect(gate).toContain('data-storefront-preview-order-blocked');
+    expect(gate).toContain('data-storefront-preview-cart-quantity');
+    expect(gate).toContain('commerceInteractionPassed');
+  });
+
   it('keeps Builder v3 and storefront preview on the same Runtime renderer and canonical viewport authority',()=>{
     const builder=read('src/components/admin/storefront-visual-builder-v3.tsx');
     const previewPage=read('src/app/storefront-template-preview/page.tsx');
