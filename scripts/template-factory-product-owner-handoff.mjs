@@ -755,7 +755,10 @@ try{
     convergence.contact=await clickCandidate(homeRoot.getByRole('link',{name:'Kapcsolat',exact:true}).first(),'contact','footer-contact');
 
     homeRoot=await visitCandidate('home','home-shipping-convergence');
-    convergence.shipping=await clickCandidate(homeRoot.getByRole('link',{name:'Szállítás és fizetés',exact:true}).first(),'legal','footer-shipping-payment');
+    convergence.shipping=await clickCandidate(homeRoot.getByRole('link',{name:'Szállítás',exact:true}).first(),'legal','footer-shipping');
+
+    homeRoot=await visitCandidate('home','home-payment-convergence');
+    convergence.payment=await clickCandidate(homeRoot.getByRole('link',{name:'Fizetés',exact:true}).first(),'legal','footer-payment');
 
     checks.routeConvergence=convergence;
     checks.routeConvergencePassed=Object.values(convergence).length>=9&&Object.values(convergence).every(value=>value===true||value==='variant-selection-required');
