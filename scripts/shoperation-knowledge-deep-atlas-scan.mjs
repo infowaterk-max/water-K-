@@ -12,10 +12,12 @@ const atlasValidation=validateCodebaseAtlas(atlas);
 writeCodebaseAtlasArtifacts(atlas);
 
 let architectureExecutionFailed=false;
+let architectureExecutionError=null;
 try{
   execFileSync(process.execPath,['scripts/lib/shoperation-architecture-health.mjs','--check'],{stdio:'inherit',env:process.env});
-}catch{
+}catch(error){
   architectureExecutionFailed=true;
+  architectureExecutionError=error instanceof Error?error.message:String(error);
 }
 const healthPath='artifacts/shoperation-architecture/architecture-health.json';
 const health=existsSync(healthPath)?readJson(healthPath):null;
@@ -23,7 +25,7 @@ const health=existsSync(healthPath)?readJson(healthPath):null;
 const hardFindings=[];
 for(const issue of atlasValidation.issues??[])hardFindings.push({source:'atlas-validation',...issue});
 for(const issue of health?.hardDrift??[])hardFindings.push({source:'architecture-hard-drift',...issue});
-if(architectureExecutionFailed&&!(health?.hardDrift?.length))hardFindings.push({source:'architecture-hard-drift',code:'ARCHITECTURE_HEALTH_EXECUTION_FAILED'});
+if(architectureExecutionFailed&&!(health?.hardDrift?.length))hardFindings.push({source:'architecture-hard-drift',code:'ARCHITECTURE_HEALTH_EXECUTION_FAILED',reason:architectureExecutionError??'architecture health execution failed'});
 if(!health)hardFindings.push({source:'architecture-hard-drift',code:'ARCHITECTURE_HEALTH_ARTIFACT_MISSING'});
 if(policy.contract!=='shoporation.deep-atlas-scan-policy.v1')hardFindings.push({source:'atlas-validation',code:'DEEP_ATLAS_POLICY_CONTRACT_INVALID'});
 
@@ -56,6 +58,15 @@ const roadmapSummary=roadmap.items.reduce((acc,item)=>{
   acc[item.status]=(acc[item.status]??0)+1;
   return acc;
 },{});
+const diagnostics=hardFindings.map(item=>({
+  code:item.code??'DEEP_ATLAS_HARD_FINDING',
+  reason:item.reason??item.message??JSON.stringify(item),
+  expected:'no hard architecture drift',
+  actual:item,
+  file:item.file??(Array.isArray(item.files)?item.files[0]:null)??null,
+  contract:'shoporation.deep-atlas-scan.v1',
+  evidence:[`source=${item.source??'deep-atlas'}`],
+}));
 const report={
   contract:'shoporation.deep-atlas-scan.v1',
   generatedAt:new Date().toISOString(),
@@ -75,6 +86,7 @@ const report={
   }:null,
   roadmapSummary,
   hardFindings,
+  diagnostics,
   warnings
 };
 
