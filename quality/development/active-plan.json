@@ -10,7 +10,9 @@
     "quality/knowledge/knowledge-scope-policy.v1.json",
     "tests/shoperation-development-guard.test.ts",
     "tests/engine-authority-scope-classification.test.ts",
-    "quality/development/active-plan.json"
+    "quality/development/active-plan.json",
+    "tests/domain-foundations.test.ts",
+    "tests/shoperation-codebase-atlas-v2.test.ts"
   ],
   "expectedSubsystems": [
     "release-infrastructure"
@@ -82,6 +84,6 @@
     "SQ-NK-012"
   ],
   "exceptions": [],
-  "notes": "Architecture-classification-only transaction. Add a canonical content domain and explicit medium-risk subsystem mappings for deterministic non-transactional engine files. Do not modify engine implementations, checkout/order/payment behavior, risk weights, maxPoints or maxSubsystems. Explicitly prove checkout-quote remains outside the read-model subsystem.",
+  "notes": "Architecture-classification-only transaction. Add a canonical content domain and explicit medium-risk subsystem mappings for deterministic non-transactional engine files. Do not modify engine implementations, checkout/order/payment behavior, risk weights, maxPoints or maxSubsystems. Explicitly prove checkout-quote remains outside the read-model subsystem. Scope expanded only to the two regression-authority tests whose fixed domain-count assertion must reflect the new canonical DOMAIN-CONTENT registration.",
   "changeBaseSha": "d5255e0f57760cd3fc430f983b79f657b2968a98"
 }
