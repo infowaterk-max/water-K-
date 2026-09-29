@@ -27,6 +27,7 @@ function cartThemeStyle(page:StorefrontPageDocument,bodySection:StorefrontCompon
     '--line':'var(--shoporation-color-border)',
     '--green':'var(--shoporation-color-primary)',
     '--radius':'var(--shoporation-radius-l)',
+    '--shoporation-commerce-button-radius':'10px',
     background:typeof bodyStyle.background==='string'?bodyStyle.background:'var(--shoporation-color-background)',
     color:'var(--shoporation-color-text)',
     fontFamily:'var(--shoporation-body-font,Arial,sans-serif)',
