@@ -7,7 +7,7 @@ describe('storefront shopper content sanity',()=>{
     expect(normalizeStorefrontShopperText('Első\\n\\nMásodik\\térték')).toBe("Első\n\nMásodik érték");
   });
 
-  it.each(['undefined','null','[object Object]','{"broken":"serialized"}','{{ unresolved }}'])('does not render serialization garbage or unresolved placeholders: %s',value=>{
+  it.each(['undefined','null','[object Object]','{"broken":"serialized"}','{{ unresolved }}','[CÉGNÉV]'])('does not render serialization garbage or unresolved placeholders: %s',value=>{
     expect(normalizeStorefrontShopperText(value,'')).toBe('');
   });
 
