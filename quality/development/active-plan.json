@@ -1,25 +1,28 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-TEMPLATE-ENGINE-FUNCTIONAL-PROOF-RUNNER",
-  "task": "Add an isolated browser proof mode to the existing Template Factory Product Owner runner and wire it into the Factory workflow before Product Owner handoff.",
+  "taskId": "DEV-ENGINE-AUTHORITY-SCOPE-CLASSIFICATION",
+  "task": "Close architecture and development-scope gaps for shared deterministic commerce read-model engines and editorial content authority without weakening transactional commerce risk classification.",
   "status": "ready-for-implementation",
-  "guardDigest": "8a9bf46e",
+  "guardDigest": "540e4ce8",
   "plannedFilePatterns": [
-    ".github/workflows/template-factory-quality-gate.yml",
-    "scripts/template-factory-product-owner-handoff.mjs",
-    "tests/template-factory-engine-functional-proof-runner.test.ts",
-    "quality/development/active-plan.json"
+    "deploy/release-risk-policy.json",
+    "quality/knowledge/domain-foundations.v1.json",
+    "quality/knowledge/knowledge-scope-policy.v1.json",
+    "tests/shoperation-development-guard.test.ts",
+    "tests/engine-authority-scope-classification.test.ts",
+    "quality/development/active-plan.json",
+    "tests/domain-foundations.test.ts",
+    "tests/shoperation-codebase-atlas-v2.test.ts"
   ],
   "expectedSubsystems": [
-    "builder-template-system",
-    "release-infrastructure",
-    "shared-storefront",
-    "storefront-ui"
+    "release-infrastructure"
   ],
   "expectedDomains": [
+    "DOMAIN-QUALITY",
     "DOMAIN-RELEASE"
   ],
   "expectedAuthorities": [
+    "quality-knowledge-system",
     "release-infrastructure"
   ],
   "expectedKnownFailureIds": [
@@ -74,19 +77,13 @@
     "TF-KF-025"
   ],
   "acknowledgedNegativeKnowledgeIds": [
-    "SQ-NK-001",
     "SQ-NK-002",
     "SQ-NK-003",
-    "SQ-NK-004",
     "SQ-NK-005",
-    "SQ-NK-006",
-    "SQ-NK-007",
-    "SQ-NK-008",
-    "SQ-NK-009",
     "SQ-NK-010",
     "SQ-NK-012"
   ],
   "exceptions": [],
-  "notes": "Quality-orchestration-only transaction. Reuse the merged deterministic E13 proof entry and existing Product Owner browser runtime. Do not change checkout, quote, order, payment, fixture, tenant-resolution, auth token or storefront business behavior. Reconciled onto canonical main after #519; changeBaseSha now excludes already-merged engine-proof knowledge/procedural files from this runner transaction.",
-  "changeBaseSha": "d7a029eadddf4d698c4794716bfafbeb13a1200e"
+  "notes": "Architecture-classification-only transaction. Add a canonical content domain and explicit medium-risk subsystem mappings for deterministic non-transactional engine files. Do not modify engine implementations, checkout/order/payment behavior, risk weights, maxPoints or maxSubsystems. Explicitly prove checkout-quote remains outside the read-model subsystem. Scope expanded only to the two regression-authority tests whose fixed domain-count assertion must reflect the new canonical DOMAIN-CONTENT registration.",
+  "changeBaseSha": "d5255e0f57760cd3fc430f983b79f657b2968a98"
 }

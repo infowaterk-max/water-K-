@@ -6,7 +6,7 @@ describe('Shoperation Domain Foundations v1',()=>{
     const result=validateDomainFoundations();
     expect(result.ok).toBe(true);
     expect(result.issues).toEqual([]);
-    expect(result.domainCount).toBe(12);
+    expect(result.domainCount).toBe(13);
     expect(result.truthOwnerCount).toBeGreaterThan(30);
   });
 
@@ -17,12 +17,15 @@ describe('Shoperation Domain Foundations v1',()=>{
     expect(domainForTruth('inventory.stock')?.id).toBe('DOMAIN-CATALOG');
     expect(domainForTruth('data.migration-state')?.id).toBe('DOMAIN-DATA');
     expect(domainForTruth('release.deployment-state')?.id).toBe('DOMAIN-RELEASE');
+    expect(domainForTruth('content.story')?.id).toBe('DOMAIN-CONTENT');
+    expect(domainForTruth('content.provenance-validation')?.id).toBe('DOMAIN-CONTENT');
   });
 
   it('keeps cross-domain ownership boundaries explicit',()=>{
     expect(getDomainFoundation('DOMAIN-STOREFRONT')?.doesNotOwn).toEqual(expect.arrayContaining(['authentication truth','price/order truth','inventory truth']));
     expect(getDomainFoundation('DOMAIN-INCIDENT')?.doesNotOwn).toContain('arbitrary code mutation authority');
     expect(getDomainFoundation('DOMAIN-INTEGRATIONS')?.doesNotOwn).toContain('commerce policy');
+    expect(getDomainFoundation('DOMAIN-CONTENT')?.doesNotOwn).toEqual(expect.arrayContaining(['product/catalog facts','price/order/payment truth','storefront layout','builder page schema']));
   });
 
   it('exposes deterministic dependency closure for later Change Impact / Atlas 2.0',()=>{
