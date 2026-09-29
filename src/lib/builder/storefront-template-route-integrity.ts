@@ -29,6 +29,12 @@ const PLATFORM_EXACT_ROUTES=new Set([
   '/rendeles-sikeres','/hamarosan','/kereses','/kedvencek',
 ]);
 const PLATFORM_PREFIX_ROUTES=['/fiokom/','/termek/'] as const;
+const LEGAL_DEMO_ROUTE_SLUGS:Readonly<Record<string,string>>=Object.freeze({
+  '/aszf':'aszf',
+  '/adatvedelem':'adatvedelem',
+  '/impresszum':'impresszum',
+  '/szallitas-es-fizetes':'szallitas-es-fizetes',
+});
 const CATALOG_QUERY_KEYS=new Set(['q','audience','stock','sort','sale','category','collection','filter','type','scene','flavor','pantry','ritual','play','genre','platform','c','concern','texture']);
 
 const cleanLabel=(value:unknown,fallback:string)=>{
@@ -82,6 +88,133 @@ const standardPage=(slug:string,title:string,excerpt:string,body:string):DemoCon
   body,
   status:'draft',demo:true,demoNotice:STOREFRONT_DEMO_CONTENT_NOTICE,
 });
+const showroomPage=(slug:string,title:string,excerpt:string,body:string):DemoContentPayload=>({
+  ...standardPage(slug,title,excerpt,body),
+  showroomReady:true,
+});
+
+const LEGAL_STARTER_PAGES:Readonly<Record<string,DemoContentPayload>>=Object.freeze({
+  aszf:showroomPage('aszf','Általános Szerződési Feltételek','Szerkesztési alap a webshop saját ÁSZF dokumentumához. A közzététel előtt a kereskedő működéséhez és az alkalmazandó joghoz kell igazítani.',`ÁLTALÁNOS SZERZŐDÉSI FELTÉTELEK
+
+1. A SZOLGÁLTATÓ ADATAI
+Cégnév: [CÉGNÉV]
+Székhely: [SZÉKHELY]
+Nyilvántartási / cégjegyzékszám: [NYILVÁNTARTÁSI SZÁM]
+Adószám: [ADÓSZÁM]
+Kapcsolattartási e-mail: [E-MAIL]
+Weboldal: [WEBOLDAL]
+
+2. A WEBSHOP ÉS A SZERZŐDÉS TÁRGYA
+Írd le, milyen termékeket vagy digitális tartalmakat értékesít a webshop, kik vásárolhatnak, és mikor jön létre a szerződés.
+
+3. RENDELÉS MENETE
+Mutasd be a termékválasztás, kosár, adatmegadás, ellenőrzés és rendelés-visszaigazolás valós folyamatát, valamint az adatbeviteli hibák javítását.
+
+4. ÁRAK ÉS FIZETÉS
+Rögzítsd az árak pénznem- és adókezelését, valamint kizárólag a ténylegesen aktív fizetési módok lényeges feltételeit.
+
+5. SZÁLLÍTÁS ÉS TELJESÍTÉS
+Hivatkozz az aktuális szállítási módokra, díjakra, átvételi lehetőségekre és a teljesítés valós szabályaira.
+
+6. ELÁLLÁS ÉS VISSZAKÜLDÉS
+Írd le az alkalmazandó elállási, visszaküldési és visszatérítési folyamatot, az esetleges kivételeket és az ügyintézési csatornákat.
+
+7. KELLÉKSZAVATOSSÁG, TERMÉKSZAVATOSSÁG ÉS JÓTÁLLÁS
+Csak a webshop termékeire és a kereskedő helyzetére ténylegesen alkalmazandó szabályokat hagyd meg, szükség esetén szakértői ellenőrzés után.
+
+8. PANASZKEZELÉS ÉS ÜGYFÉLSZOLGÁLAT
+Kapcsolat: [ÜGYFÉLSZOLGÁLATI E-MAIL]
+Postacím: [PANASZKEZELÉSI CÍM]
+Írd le a panaszok benyújtásának és kezelésének valós menetét.
+
+9. ADATKEZELÉS
+A személyes adatok kezelésének részleteit a külön Adatkezelési tájékoztató tartalmazza.
+
+10. ZÁRÓ RENDELKEZÉSEK
+Hatálybalépés: [DÁTUM]
+Verzió: [VERZIÓ]
+Ez a dokumentum szerkesztési alap. Közzététel előtt a vállalkozás tényleges működéséhez és az alkalmazandó joghoz kell igazítani.`),
+  adatvedelem:showroomPage('adatvedelem','Adatkezelési tájékoztató','Szerkesztési alap a webshop adatkezelési tájékoztatójához, külön adatkezelői, cél-, jogalap-, megőrzési és érintetti jogi fejezetekkel.',`ADATKEZELÉSI TÁJÉKOZTATÓ
+
+1. AZ ADATKEZELŐ
+Adatkezelő neve: [CÉGNÉV]
+Székhely: [SZÉKHELY]
+E-mail: [ADATVÉDELMI E-MAIL]
+Adószám / nyilvántartási szám: [AZONOSÍTÓ]
+
+2. ADATKEZELÉSI CÉLOK
+Sorold fel külön a tényleges adatkezeléseket: fiók, rendelés, számlázás, szállítás, ügyfélszolgálat, visszaküldés, hírlevél és biztonsági naplózás.
+
+3. JOGALAPOK
+Minden célhoz rendeld hozzá a ténylegesen alkalmazott jogalapot; ne használj automatikus általános jogalapot ellenőrzés nélkül.
+
+4. KEZELT ADATOK KATEGÓRIÁI
+Célonként sorold fel a szükséges adatokat: név, e-mail, telefon, számlázási/szállítási adatok, rendelési előzmények és technikai naplóadatok.
+
+5. ADATFELDOLGOZÓK ÉS CÍMZETTEK
+Tüntesd fel a tényleges tárhely-, fizetési, számlázási, szállítási, e-mail- és analitikai partnereket: [SZOLGÁLTATÓ / CÉL / ADATKÖR].
+
+6. MEGŐRZÉSI IDŐK
+Minden célhoz add meg a vállalkozásra ténylegesen alkalmazandó megőrzési időt vagy annak meghatározási szempontját.
+
+7. AZ ÉRINTETTEK JOGAI
+Mutasd be a hozzáférési, helyesbítési, törlési, korlátozási, tiltakozási és adathordozhatósági lehetőségeket és gyakorlásuk módját.
+
+8. SÜTIK ÉS ANALITIKA
+Sorold fel a ténylegesen használt sütik és mérési szolgáltatások kategóriáit, célját és a hozzájárulás kezelését.
+
+9. ADATBIZTONSÁG
+Röviden ismertesd a releváns szervezési és technikai védelmi intézkedéseket biztonsági titkok közzététele nélkül.
+
+10. KAPCSOLAT ÉS JOGORVOSLAT
+Adatvédelmi kapcsolat: [ADATVÉDELMI E-MAIL]
+Felügyeleti hatóság / jogorvoslati információ: [ELLENŐRZÖTT ADAT]
+
+Hatály: [DÁTUM]
+Verzió: [VERZIÓ]
+Ez a dokumentum szerkesztési alap, és közzététel előtt a webshop tényleges adatkezeléseihez kell igazítani.`),
+  impresszum:showroomPage('impresszum','Impresszum','Az üzemeltető és a tárhelyszolgáltató legfontosabb közzétételi adatainak tömör, különálló szerkesztési alapja.',`IMPRESSZUM
+
+A WEBSHOP ÜZEMELTETŐJE
+Cégnév / név: [CÉGNÉV]
+Székhely / lakcím: [SZÉKHELY]
+Levelezési cím: [LEVELEZÉSI CÍM]
+Nyilvántartási / cégjegyzékszám: [NYILVÁNTARTÁSI SZÁM]
+Nyilvántartó szerv: [NYILVÁNTARTÓ SZERV]
+Adószám: [ADÓSZÁM]
+Képviselő: [KÉPVISELŐ]
+E-mail: [E-MAIL]
+Telefonszám: [TELEFON]
+
+TÁRHELYSZOLGÁLTATÓ
+Szolgáltató neve: [TÁRHELYSZOLGÁLTATÓ]
+Székhely: [TÁRHELYSZOLGÁLTATÓ CÍME]
+Elérhetőség: [TÁRHELYSZOLGÁLTATÓ ELÉRHETŐSÉGE]
+Weboldal: [TÁRHELYSZOLGÁLTATÓ WEBOLDALA]
+
+KAPCSOLAT
+Ügyfélszolgálati e-mail: [ÜGYFÉLSZOLGÁLATI E-MAIL]
+Ügyfélszolgálati cím / nyitvatartás: [ADAT]
+
+Utolsó frissítés: [DÁTUM]
+Ellenőrizd, hogy minden kötelező üzemeltetői adat a vállalkozás aktuális nyilvántartási adataival egyezzen.`),
+  'szallitas-es-fizetes':showroomPage('szallitas-es-fizetes','Szállítás és fizetés','A webshop tényleges szállítási, átvételi és fizetési lehetőségeinek vásárlóbarát összefoglalója.',`SZÁLLÍTÁSI LEHETŐSÉGEK
+Sorold fel kizárólag az aktív futár-, csomagpont-, automata- és személyes átvételi módokat. Minden opciónál add meg a valós díjat és releváns korlátozásokat.
+
+INGYENES SZÁLLÍTÁS
+Ha van ingyenes szállítási küszöb vagy más feltétel, itt jelenjen meg a tényleges szabály: [FELTÉTEL].
+
+FIZETÉSI MÓDOK
+Sorold fel kizárólag az aktív fizetési módokat, és jelezd a kapcsolódó díjakat vagy korlátozásokat.
+
+RENDELÉS FELDOLGOZÁSA
+Írd le, hogyan kap visszaigazolást a vásárló, mikor indul a teljesítés, és hol követheti a rendelését.
+
+KÉRDÉSED VAN?
+A Kapcsolat oldalon vagy a Fiókom megfelelő ügyintézési felületén indíthatsz megkeresést.
+
+Utolsó frissítés: [DÁTUM]`),
+});
 
 const STANDARD_DEMO_PAGES:Readonly<Record<string,DemoContentPayload>>=Object.freeze({
   szallitas:standardPage('szallitas','Szállítás','Mintaoldal a webshop szállítási lehetőségeinek bemutatásához.','Szállítási lehetőségek\nItt sorold fel a ténylegesen elérhető futár-, csomagpont- és személyes átvételi módokat.\n\nDíjak és határidők\nA valós szállítási díjakat, ingyenes szállítási küszöböt és várható kézbesítési időt a saját szerződéseid alapján add meg.'),
@@ -116,8 +249,13 @@ export function augmentStorefrontTemplateDemoContent(template:StorefrontInstalla
     let kind:'page'|'blog'|null=null,slug='';
     if(link.href.startsWith('/oldal/')){kind='page';slug=link.href.split(/[?#]/)[0]!.slice('/oldal/'.length);}
     else if(link.href.startsWith('/blog/')){kind='blog';slug=link.href.split(/[?#]/)[0]!.slice('/blog/'.length);}
+    else{
+      const pathname=link.href.split(/[?#]/)[0]??'';
+      const legalSlug=LEGAL_DEMO_ROUTE_SLUGS[pathname];
+      if(legalSlug){kind='page';slug=legalSlug;}
+    }
     if(!kind||!slug||existing.has(slug))continue;
-    const payload=kind==='page'?(STANDARD_DEMO_PAGES[slug]??genericContent(slug,link.label,'page')):genericContent(slug,link.label,'blog');
+    const payload=kind==='page'?(LEGAL_STARTER_PAGES[slug]??STANDARD_DEMO_PAGES[slug]??genericContent(slug,link.label,'page')):genericContent(slug,link.label,'blog');
     fixtures.push({entityType:'content',entityKey:`${kind}-${slug}`,payload});
     existing.add(slug);
   }
@@ -194,10 +332,7 @@ function rewritePreviewHref(href:string,input:{templateKey:string;templateVersio
     const slug=url.pathname.split('/').filter(Boolean).at(-1);
     if(slug)params.set('demoContent',slug);
   }
-  const legalDemoContent:Readonly<Record<string,string>>={
-    '/aszf':'aszf','/adatvedelem':'adatvedelem','/impresszum':'impresszum','/szallitas-es-fizetes':'szallitas-es-fizetes',
-  };
-  const legalSlug=legalDemoContent[url.pathname];
+  const legalSlug=LEGAL_DEMO_ROUTE_SLUGS[url.pathname];
   if(legalSlug)params.set('demoContent',legalSlug);
   for(const[key,value]of url.searchParams)params.append(key,value);
   return`/storefront-template-preview?${params.toString()}`;
