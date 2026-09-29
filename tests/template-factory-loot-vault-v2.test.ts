@@ -191,7 +191,8 @@ describe('Loot Vault v2 Factory canonical wiring',()=>{
     expect(renderer).toContain('data-storefront-utility-icon="account"');
     expect(renderer).toContain('data-storefront-utility-icon="cart"');
     expect(renderer).toContain("if(item.kind!=='custom')return item.kind");
-    expect(renderer).toContain("kind==='account'&&item.href==='/fiokom'");
+    expect(renderer).toContain("return kind==='account'?<StorefrontAccountAuthTrigger");
+    expect(renderer).not.toContain("kind==='account'&&item.href==='/fiokom'");
     expect(renderer).toContain("if(item.kind!=='custom')return item.kind");
   });
 
