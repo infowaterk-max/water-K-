@@ -1,31 +1,26 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-TEMPLATE-ENGINE-FUNCTIONAL-PROOF-CONTRACT",
-  "task": "Add a generic Template Factory engine functional proof authority and known-failure blocker so visible engine integration cannot satisfy Product Owner readiness without shared behavior proof.",
+  "taskId": "DEV-TEMPLATE-ENGINE-FUNCTIONAL-PROOF-RUNNER",
+  "task": "Add an isolated browser proof mode to the existing Template Factory Product Owner runner and wire it into the Factory workflow before Product Owner handoff.",
   "status": "ready-for-implementation",
-  "guardDigest": "94082bf1",
+  "guardDigest": "8a9bf46e",
   "plannedFilePatterns": [
-    "src/lib/builder/template-factory/knowledge-registry.ts",
-    "src/lib/builder/template-factory/procedural-memory.ts",
-    "quality/knowledge/shoperation-quality-knowledge.v1.json",
-    "quality/knowledge/development-guard-policy.v1.json",
-    "quality/knowledge/failure-signatures.v1.json",
-    "tests/template-factory-procedural-memory.test.ts",
-    "tests/template-factory-engine-functional-proof.test.ts",
+    ".github/workflows/template-factory-quality-gate.yml",
+    "scripts/template-factory-product-owner-handoff.mjs",
+    "tests/template-factory-engine-functional-proof-runner.test.ts",
     "quality/development/active-plan.json"
   ],
   "expectedSubsystems": [
     "builder-template-system",
+    "release-infrastructure",
     "shared-storefront",
     "storefront-ui"
   ],
   "expectedDomains": [
-    "DOMAIN-BUILDER",
-    "DOMAIN-QUALITY"
+    "DOMAIN-RELEASE"
   ],
   "expectedAuthorities": [
-    "builder-template-system",
-    "quality-knowledge-system"
+    "release-infrastructure"
   ],
   "expectedKnownFailureIds": [
     "SQ-KF-001",
@@ -83,6 +78,7 @@
     "SQ-NK-002",
     "SQ-NK-003",
     "SQ-NK-004",
+    "SQ-NK-005",
     "SQ-NK-006",
     "SQ-NK-007",
     "SQ-NK-008",
@@ -91,6 +87,6 @@
     "SQ-NK-012"
   ],
   "exceptions": [],
-  "notes": "Knowledge/procedural layer only. Add TF-AUTH-025 and TF-KF-025 as a generic shared-engine behavior requirement, with E13 as the first concrete proof producer. Do not modify checkout/order/payment/runtime or workflow orchestration in this transaction.",
-  "changeBaseSha": "73b7bab15816ab1c417dfa61f2b244f77427da78"
+  "notes": "Quality-orchestration-only transaction. Reuse the merged deterministic E13 proof entry and existing Product Owner browser runtime. Do not change checkout, quote, order, payment, fixture, tenant-resolution, auth token or storefront business behavior. Reconciled onto canonical main after #519; changeBaseSha now excludes already-merged engine-proof knowledge/procedural files from this runner transaction.",
+  "changeBaseSha": "d7a029eadddf4d698c4794716bfafbeb13a1200e"
 }
