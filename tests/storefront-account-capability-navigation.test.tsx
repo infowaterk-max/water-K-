@@ -18,8 +18,9 @@ describe('shared storefront account capability navigation',()=>{
   const account=PLAYROOM_V19_CANONICAL_TEMPLATE_PACKAGE.pages.find(page=>page.pageType==='account')!;
   const normalized=normalizeStorefrontTemplateRuntimeComposition(account);
   expect(flatten(normalized.sections).filter(node=>node.componentKey==='account.capability-navigation')).toHaveLength(0);
-  const shell=read('src/components/account/storefront-account-shell.tsx'),rail=read('src/components/account/account-subnav.tsx');
-  expect(shell).toContain('data-account-navigation-authority="platform-ia"');
+  const shell=read('src/components/account/storefront-account-shell.tsx'),workspace=read('src/components/account/storefront-account-workspace.tsx'),rail=read('src/components/account/account-subnav.tsx');
+  expect(shell).toContain('StorefrontAccountWorkspace');
+  expect(workspace).toContain('data-account-navigation-authority="platform-ia"');
   expect(rail).toContain('data-account-navigation-source="platform-ia"');
   expect(rail).toContain('className="accountCapabilityRail"');
  });
