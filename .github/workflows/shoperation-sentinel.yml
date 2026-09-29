@@ -26,10 +26,12 @@ jobs:
           node-version: 24
 
       - name: Collect observation snapshot
+        id: snapshot
         uses: actions/github-script@v7
         with:
           script: |
             const fs=require('fs');
+            try{
             const cutoff=Date.now()-30*24*60*60*1000;
             const workflowRuns=[];
             for(let page=1;page<=5;page+=1){
@@ -46,10 +48,29 @@ jobs:
             const snapshot={contract:'shoporation.sentinel-source-snapshot.v1',repository:`${context.repo.owner}/${context.repo.repo}`,sourceCommit:context.sha,collectedAt:new Date().toISOString(),workflowRuns,openIssues};
             fs.mkdirSync('artifacts/shoperation-sentinel',{recursive:true});
             fs.writeFileSync('artifacts/shoperation-sentinel/source-snapshot.json',JSON.stringify(snapshot,null,2)+'\n');
+            }catch(error){
+              const message=error instanceof Error?error.message:String(error);
+              fs.mkdirSync('artifacts/shoperation-sentinel',{recursive:true});
+              fs.writeFileSync('artifacts/shoperation-sentinel/source-failure.json',JSON.stringify({
+                contract:'shoporation.sentinel-source-failure.v1',
+                decision:'FAIL',
+                sourceCommit:context.sha,
+                errors:[{code:'SENTINEL_SOURCE_COLLECTION_FAILED',reason:message,expected:'30-day workflow and issue observation snapshot collected',actual:message}]
+              },null,2)+'\n');
+              core.setFailed('SENTINEL_SOURCE_COLLECTION_FAILED');
+            }
 
       - name: Sentinel Deep Scan
         id: sentinel
-        run: node scripts/shoperation-sentinel-scan.mjs
+        if: steps.snapshot.outcome == 'success'
+        env:
+          SHOPERATION_DIAGNOSTIC_CODE: SENTINEL_SCAN_EXECUTION_FAILED
+          SHOPERATION_DIAGNOSTIC_GATE: sentinel
+          SHOPERATION_DIAGNOSTIC_EXPECTED: Sentinel Deep Scan completes and emits report
+          SHOPERATION_DIAGNOSTIC_OUTPUT: artifacts/shoperation-sentinel/scan-diagnostic.json
+          SHOPERATION_SOURCE_COMMIT: ${{ github.sha }}
+          SHOPERATION_ENVIRONMENT: scheduled-quality
+        run: node scripts/shoperation-command-diagnostic.mjs -- node scripts/shoperation-sentinel-scan.mjs
 
       - name: Publish Sentinel summary
         if: always()
@@ -63,6 +84,40 @@ jobs:
         with:
           name: shoperation-sentinel-${{ github.sha }}
           path: artifacts/shoperation-sentinel/**
+          if-no-files-found: error
+          retention-days: 90
+
+      - name: Create Sentinel execution failure intake
+        if: always() && (steps.snapshot.outcome == 'failure' || steps.sentinel.outcome == 'failure')
+        shell: bash
+        env:
+          SNAPSHOT_OUTCOME: ${{ steps.snapshot.outcome }}
+          SCAN_OUTCOME: ${{ steps.sentinel.outcome }}
+          SHOPERATION_SOURCE_COMMIT: ${{ github.sha }}
+          SHOPERATION_FAILURE_SOURCE: sentinel
+          SHOPERATION_ENVIRONMENT: scheduled-quality
+          SHOPERATION_CI_RUN_ID: ${{ github.run_id }}
+          SHOPERATION_CI_WORKFLOW: ${{ github.workflow }}
+        run: |
+          codes=""
+          specs=""
+          if [ "$SNAPSHOT_OUTCOME" = "failure" ]; then
+            codes="${codes}SENTINEL_SOURCE_COLLECTION_FAILED;"
+            specs="SENTINEL_SOURCE_COLLECTION_FAILED=artifacts/shoperation-sentinel/source-failure.json"
+          fi
+          if [ "$SCAN_OUTCOME" = "failure" ]; then
+            codes="${codes}SENTINEL_SCAN_EXECUTION_FAILED;"
+            if [ -n "$specs" ]; then specs="${specs};"; fi
+            specs="${specs}SENTINEL_SCAN_EXECUTION_FAILED=artifacts/shoperation-sentinel/scan-diagnostic.json"
+          fi
+          SHOPERATION_DIAGNOSTIC_ARTIFACTS="$specs" SHOPERATION_GENERIC_FAILURES="$codes" node scripts/shoperation-failure-intake.mjs
+
+      - name: Upload Sentinel execution failure intake
+        if: always() && (steps.snapshot.outcome == 'failure' || steps.sentinel.outcome == 'failure')
+        uses: actions/upload-artifact@v4
+        with:
+          name: shoperation-sentinel-failure-intake-${{ github.sha }}
+          path: artifacts/shoperation-failure-intake/**
           if-no-files-found: error
           retention-days: 90
 
