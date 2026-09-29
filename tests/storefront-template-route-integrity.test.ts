@@ -19,6 +19,26 @@ describe('Template Route Integrity + Demo Content Foundation',()=>{
     expect(String(shipping?.payload.body)).not.toContain(STOREFRONT_DEMO_CONTENT_NOTICE);
   });
 
+  it('provides distinct showroom-ready starter documents for terms, privacy and imprint',()=>{
+    const template=augmentStorefrontTemplateDemoContent(PLAYROOM_V19_CANONICAL_TEMPLATE_PACKAGE);
+    const terms=getStorefrontTemplateDemoContent(template,'aszf');
+    const privacy=getStorefrontTemplateDemoContent(template,'adatvedelem');
+    const imprint=getStorefrontTemplateDemoContent(template,'impresszum');
+    const shipping=getStorefrontTemplateDemoContent(template,'szallitas-es-fizetes');
+    for(const fixture of [terms,privacy,imprint,shipping]){
+      expect(fixture).toBeTruthy();
+      expect(fixture?.payload.showroomReady).toBe(true);
+      expect(String(fixture?.payload.body??'').length).toBeGreaterThan(400);
+    }
+    expect(terms?.payload.title).toBe('Általános Szerződési Feltételek');
+    expect(privacy?.payload.title).toBe('Adatkezelési tájékoztató');
+    expect(imprint?.payload.title).toBe('Impresszum');
+    expect(String(terms?.payload.body)).toContain('[CÉGNÉV]');
+    expect(String(privacy?.payload.body)).toContain('ADATFELDOLGOZÓK');
+    expect(String(imprint?.payload.body)).toContain('TÁRHELYSZOLGÁLTATÓ');
+    expect(new Set([terms?.payload.body,privacy?.payload.body,imprint?.payload.body]).size).toBe(3);
+  });
+
   it('keeps all implemented catalog packages route-integrity clean after shared augmentation',()=>{
     for(const template of STOREFRONT_IMPLEMENTED_TEMPLATE_PACKAGES){
       const issues=evaluateStorefrontTemplateRouteIntegrity(template);

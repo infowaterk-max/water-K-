@@ -7,10 +7,12 @@ import {resolveStorefrontTemplateQualityCandidate} from '@/lib/builder/storefron
 import {
   createStorefrontTemplatePreviewBindingContext,
   getStorefrontTemplatePreviewTheme,
+  restoreStorefrontTemplatePreviewProductCommerceContext,
 } from '@/lib/builder/storefront-template-preview-demo';
 import {applyAuthoredTemplatePreviewFallbacks} from '@/lib/builder/storefront-template-preview-canonical';
 import {augmentStorefrontDigitalCommercePreviewContext} from '@/lib/builder/storefront-digital-commerce-preview';
 import {StorefrontRuntimeRenderer} from '@/components/builder/storefront-runtime-renderer';
+import {StorefrontTemplatePreviewRuntime} from '@/components/builder/storefront-template-preview-runtime';
 import {createStorefrontVisualBuilderRendererRegistry} from '@/components/builder/storefront-builder-renderer-registry';
 import {createStorefrontVisualBuilderComponentRegistry} from '@/lib/builder/storefront-builder-registry';
 import {STOREFRONT_TEMPLATE_PERFORMANCE_BUDGET,STOREFRONT_PERFORMANCE_CONTRACT_VERSION} from '@/lib/builder/storefront-performance-contract';
@@ -19,7 +21,7 @@ import {applyStorefrontTemplateDemoNotice,getStorefrontTemplateDemoContent,isSto
 
 export const dynamic='force-dynamic';
 
-type Props={searchParams:Promise<{template?:string;version?:string;page?:string;viewport?:string;demoContent?:string;factory?:string;qualityCandidate?:string}>};
+type Props={searchParams:Promise<{template?:string;version?:string;page?:string;viewport?:string;demoContent?:string;factory?:string;qualityCandidate?:string;commerceProof?:string;variant?:string}>};
 // The route is gated by VISUAL_FIDELITY_QA=1, so it can safely render the full
 // canonical storefront page family for exact-head screenshot acceptance.
 const ALLOWED_PAGE_TYPES=new Set<StorefrontBuilderPageType>(STOREFRONT_PAGE_TYPES);
@@ -33,6 +35,7 @@ export default async function VisualFidelityQaPage({searchParams}:Props){
   if(!templateKey||version!==undefined&&!Number.isInteger(version)||!ALLOWED_PAGE_TYPES.has(pageType))notFound();
   const factoryCandidate=query.factory==='1';
   const qualityCandidate=query.qualityCandidate==='1';
+  const commerceProof=factoryCandidate&&query.commerceProof==='1';
   if(factoryCandidate&&qualityCandidate)notFound();
   let template;
   if(qualityCandidate){
@@ -57,7 +60,9 @@ export default async function VisualFidelityQaPage({searchParams}:Props){
   if(query.demoContent&&!demoFixture)notFound();
   const demoPayload=demoFixture?.payload??null;
   const page=demoPayload&&!isStorefrontShowroomReadyDemoContent(demoFixture)?applyStorefrontTemplateDemoNotice(sourcePage):sourcePage;
-  const baseContext=applyAuthoredTemplatePreviewFallbacks({page,context:createStorefrontTemplatePreviewBindingContext({template,page})});
+  const interactiveContext=createStorefrontTemplatePreviewBindingContext({template,page,selectedVariantId:commerceProof?query.variant:undefined});
+  const authoredContext=applyAuthoredTemplatePreviewFallbacks({page,context:interactiveContext});
+  const baseContext=commerceProof?restoreStorefrontTemplatePreviewProductCommerceContext({pageType:page.pageType,authoredContext,interactiveContext}):authoredContext;
   if(demoPayload){
     const content=baseContext.content&&typeof baseContext.content==='object'&&!Array.isArray(baseContext.content)?baseContext.content as Record<string,unknown>:{};
     const title=typeof demoPayload.title==='string'?demoPayload.title:'Minta tartalom';
@@ -71,24 +76,45 @@ export default async function VisualFidelityQaPage({searchParams}:Props){
   );
   const theme=getStorefrontTemplatePreviewTheme(template.manifest.templateKey) as CSSProperties;
   const capability={plan:'pro' as const,features:[...PLANS.pro.features]};
+  const qaRoute=(nextPage:StorefrontBuilderPageType)=>{
+    const params=new URLSearchParams({
+      template:template.manifest.templateKey,
+      version:String(template.manifest.templateVersion),
+      page:nextPage,
+      viewport,
+      factory:'1',
+      commerceProof:'1',
+    });
+    return`/visual-fidelity-qa?${params.toString()}`;
+  };
+  const runtime=commerceProof?<StorefrontTemplatePreviewRuntime
+    page={page}
+    viewport={viewport}
+    bindingContext={bindingContext}
+    capability={capability}
+    routes={{catalog:qaRoute('catalog'),cart:qaRoute('cart'),checkout:qaRoute('checkout'),account:qaRoute('account')}}
+    interactionBasePath="/visual-fidelity-qa"
+  />:<StorefrontRuntimeRenderer
+    page={page}
+    viewport={viewport}
+    bindingContext={bindingContext}
+    componentRegistry={createStorefrontVisualBuilderComponentRegistry()}
+    rendererRegistry={createStorefrontVisualBuilderRendererRegistry()}
+    capability={capability}
+  />;
   return <main
     data-visual-fidelity-root="runtime"
     data-template-key={templateKey}
+    data-template-version={template.manifest.templateVersion}
     data-factory-candidate={factoryCandidate?'true':'false'}
     data-quality-candidate={qualityCandidate?'true':'false'}
     data-page-type={pageType}
     data-viewport={viewport}
+    data-commerce-proof={commerceProof?'true':'false'}
     data-performance-contract={STOREFRONT_PERFORMANCE_CONTRACT_VERSION}
     data-runtime-performance-budget={JSON.stringify(STOREFRONT_TEMPLATE_PERFORMANCE_BUDGET.runtime)}
     style={{...theme,width:'100%',maxWidth:'none',minHeight:'100vh',margin:0,padding:0,overflow:'hidden',background:'var(--shoporation-color-background,#fff)'}}
   >
-    <StorefrontRuntimeRenderer
-      page={page}
-      viewport={viewport}
-      bindingContext={bindingContext}
-      componentRegistry={createStorefrontVisualBuilderComponentRegistry()}
-      rendererRegistry={createStorefrontVisualBuilderRendererRegistry()}
-      capability={capability}
-    />
+    {runtime}
   </main>;
 }

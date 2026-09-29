@@ -24,6 +24,16 @@ describe('Template Generator Readiness v0.1',()=>{
     expect(()=>assertStorefrontTemplateGeneratorReady(build.report.generatorReadiness)).not.toThrow();
   });
 
+  it('keeps the Loot Vault recipe identity and capability list sourced from the canonical blueprint',()=>{
+    expect(LOOT_VAULT_V2_FACTORY_RECIPE.blueprint).toBe(LOOT_VAULT_V2_GENERATOR_BLUEPRINT);
+    expect(LOOT_VAULT_V2_FACTORY_RECIPE.category).toBe(LOOT_VAULT_V2_GENERATOR_BLUEPRINT.template.category);
+    expect(LOOT_VAULT_V2_FACTORY_RECIPE.templateKey).toBe(LOOT_VAULT_V2_GENERATOR_BLUEPRINT.template.templateKey);
+    expect(LOOT_VAULT_V2_FACTORY_RECIPE.displayName).toBe(LOOT_VAULT_V2_GENERATOR_BLUEPRINT.template.displayName);
+    expect(LOOT_VAULT_V2_FACTORY_RECIPE.templateVersion).toBe(LOOT_VAULT_V2_GENERATOR_BLUEPRINT.template.templateVersion);
+    expect(LOOT_VAULT_V2_FACTORY_RECIPE.minPlan).toBe(LOOT_VAULT_V2_GENERATOR_BLUEPRINT.template.minPlan);
+    expect(LOOT_VAULT_V2_FACTORY_RECIPE.requiredFeatures).toBe(LOOT_VAULT_V2_GENERATOR_BLUEPRINT.template.requiredFeatures);
+  });
+
   it('fails closed when canonical viewport authority drifts',()=>{
     const build=buildRegisteredStorefrontTemplateFactoryCandidate('gaming.loot-vault');
     const drift=structuredClone(LOOT_VAULT_V2_GENERATOR_BLUEPRINT) as StorefrontTemplateGeneratorBlueprint;

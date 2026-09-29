@@ -1,4 +1,5 @@
 import type {StorefrontComponentNode,StorefrontPageDocument} from '@/lib/builder/storefront-runtime';
+import type {StorefrontBuilderPageType} from '@/lib/builder/storefront-foundation';
 import type {StorefrontInstallableTemplatePackage} from '@/lib/builder/storefront-template-installation';
 
 import {ALPINE_LODGE_DESIGN_TOKENS} from '@/lib/builder/templates/alpine-lodge';
@@ -72,6 +73,37 @@ const CATEGORY_PRODUCTS:Record<string,readonly string[]>={
   sport:['Performance Shoe','Training Layer','Recovery Kit','Club Essential'],
   tech:['Studio One','Creator Pro','Core Device','Desk Dock'],
 };
+
+const LOOT_VAULT_PREVIEW_PRODUCTS=Object.freeze([
+  {name:'Vault Sentinel figura',slug:'vault-sentinel',image:'/storefront-demo/loot-vault-v2/product-figure.webp',imagePosition:'44% center',imageFilter:'saturate(.92) contrast(1.14) brightness(.84)',price:89990,badge:'FIGURA',stockLabel:'Raktáron'},
+  {name:'Mythic Warden szobor',slug:'mythic-warden',image:'/storefront-demo/loot-vault-v2/hero-cinematic.webp',imagePosition:'72% center',imageFilter:'saturate(.84) contrast(1.18) brightness(.72)',price:129990,badge:'SZOBOR',stockLabel:'Raktáron'},
+  {name:'Neon Controller Collector Edition',slug:'neon-controller-collector',image:'/storefront-demo/loot-vault-v2/editorial-collector-room.webp',imagePosition:'52% center',imageFilter:'saturate(.95) contrast(1.12) brightness(.82)',price:59990,badge:'GYŰJTŐI',stockLabel:'Raktáron'},
+  {name:'Vault Visor sci-fi relikvia',slug:'vault-visor',image:'/storefront-demo/loot-vault-v2/editorial-vault-shelf.webp',imagePosition:'54% center',imageFilter:'saturate(.9) contrast(1.16) brightness(.78)',price:74990,badge:'VAULT PICK',stockLabel:'Raktáron'},
+  {name:'Obsidian Ranger figura',slug:'obsidian-ranger',image:'/storefront-demo/loot-vault-v2/product-figure.webp',imagePosition:'46% center',imageFilter:'saturate(.82) contrast(1.18) brightness(.72)',price:84990,badge:'ÚJDONSÁG',stockLabel:'Raktáron'},
+  {name:'Celestial Guardian szobor',slug:'celestial-guardian',image:'/storefront-demo/loot-vault-v2/editorial-vault-shelf.webp',imagePosition:'56% center',imageFilter:'saturate(.76) contrast(1.2) brightness(.74) sepia(.18)',price:139990,badge:'KIEMELT',stockLabel:'Raktáron'},
+]);
+
+const LOOT_VAULT_PREVIEW_VARIANTS=Object.freeze([
+  {id:'collector',label:'Collector Edition',price:89990,stock:8},
+  {id:'deluxe',label:'Deluxe Edition',price:74990,stock:14},
+  {id:'standard',label:'Standard Edition',price:59990,stock:26},
+]);
+
+const LOOT_VAULT_PREVIEW_COLLECTIONS=Object.freeze([
+  'Fantasy',
+  'Sci-fi',
+  'Anime',
+  'Gaming',
+  'Film & sorozat',
+  'Képregény',
+]);
+
+const LOOT_VAULT_PREVIEW_COLLECTION_IMAGES=Object.freeze([
+  '/storefront-demo/loot-vault-v2/product-figure.webp',
+  '/storefront-demo/loot-vault-v2/editorial-vault-shelf.webp',
+  '/storefront-demo/loot-vault-v2/category-anime.webp',
+  '/storefront-demo/loot-vault-v2/editorial-collector-room.webp',
+]);
 
 const PLAYROOM_PREVIEW_PRODUCTS=Object.freeze([
   {name:'Orbit Breakers',image:'/storefront/playroom/game-orbit.svg',price:22990,badge:'KIEMELT',stockLabel:'Raktáron'},
@@ -154,6 +186,22 @@ function fixtureNames(template:StorefrontInstallableTemplatePackage,type:'produc
 }
 
 function demoProducts(template:StorefrontInstallableTemplatePackage,page:StorefrontPageDocument){
+  if(template.manifest.templateKey==='gaming.loot-vault'){
+    const limit=page.pageType==='catalog'?6:previewProductLimit(page);
+    return LOOT_VAULT_PREVIEW_PRODUCTS.slice(0,limit).map((product,index)=>({
+      id:`loot-vault-preview-product-${index+1}`,
+      name:product.name,
+      href:`/termek/${product.slug}`,
+      image:product.image,
+      imageAlt:`${product.name} Loot Vault bemutató termékkép`,
+      imagePosition:product.imagePosition,
+      imageFilter:product.imageFilter,
+      price:product.price,
+      compareAtPrice:null,
+      badge:product.badge,
+      stockLabel:product.stockLabel,
+    }));
+  }
   if(template.manifest.templateKey==='gaming.playroom'){
     const limit=page.pageType==='home'?12:previewProductLimit(page);
     return PLAYROOM_PREVIEW_PRODUCTS.slice(0,limit).map((product,index)=>({
@@ -187,6 +235,17 @@ function demoProducts(template:StorefrontInstallableTemplatePackage,page:Storefr
 }
 
 function demoCollections(template:StorefrontInstallableTemplatePackage,page:StorefrontPageDocument){
+  if(template.manifest.templateKey==='gaming.loot-vault'){
+    return LOOT_VAULT_PREVIEW_COLLECTIONS.slice(0,4).map((label,index)=>({
+      id:`loot-vault-preview-collection-${index+1}`,
+      label,
+      title:label,
+      href:'#preview-demo',
+      image:LOOT_VAULT_PREVIEW_COLLECTION_IMAGES[index%LOOT_VAULT_PREVIEW_COLLECTION_IMAGES.length],
+      imageAlt:`${label} Loot Vault univerzum`,
+      copy:'Kurált gyűjtői válogatás a Loot Vault bemutató tartalmában.',
+    }));
+  }
   const category=template.manifest.templateKey.split('.')[0]??'tech';
   const fixture=fixtureNames(template,'collection');
   const fallback=CATEGORY_COLLECTIONS[category]??CATEGORY_COLLECTIONS.tech;
@@ -242,14 +301,35 @@ function valueForBinding(input:{template:StorefrontInstallableTemplatePackage;pa
 
   if(slot==='products'||key==='commerce.product-grid'||key==='commerce.recommendation-row')return products;
   if(slot==='items'){
+    if(template.manifest.templateKey==='gaming.loot-vault'&&key==='commerce.key-specs')return[
+      {specKey:'format',label:'Formátum',displayValue:'Gyűjtői figura',missing:false},
+      {specKey:'edition',label:'Kiadás',displayValue:'Collector Edition',missing:false},
+      {specKey:'display',label:'Bemutatás',displayValue:'Díszdobozos',missing:false},
+      {specKey:'category',label:'Univerzum',displayValue:'Fantasy',missing:false},
+    ];
     if(key==='system.social-links')return PREVIEW_SOCIAL_LINKS.map(item=>({...item}));
     if(key==='commerce.collection-navigation')return collections;
     if(key.includes('review'))return demoReviews();
     return items;
   }
   if(slot==='reviews')return demoReviews();
-  if(slot==='options')return items.map((item,index)=>({id:item.id,label:item.label,value:item.value,href:'#preview-demo',available:true,selected:index===0,swatch:index===0?'#1f1f1f':index===1?'#d9c1aa':'#8ea69b'}));
-  if(slot==='images')return collectImageFallbacks(page).slice(0,4).map((src,index)=>({src,alt:`Bemutató kép ${index+1}`}));
+  if(slot==='options'){
+    if(template.manifest.templateKey==='gaming.loot-vault')return[
+      {id:'collector',label:'Collector Edition',value:'collector',href:'#preview-demo',available:true,selected:true},
+      {id:'deluxe',label:'Deluxe Edition',value:'deluxe',href:'#preview-demo',available:true,selected:false},
+      {id:'standard',label:'Standard Edition',value:'standard',href:'#preview-demo',available:true,selected:false},
+    ];
+    return items.map((item,index)=>({id:item.id,label:item.label,value:item.value,href:'#preview-demo',available:true,selected:index===0,swatch:index===0?'#1f1f1f':index===1?'#d9c1aa':'#8ea69b'}));
+  }
+  if(slot==='images'){
+    if(template.manifest.templateKey==='gaming.loot-vault')return[
+      {src:'/storefront-demo/loot-vault-v2/product-figure.webp',alt:'Vault Sentinel gyűjtői figura'},
+      {src:'/storefront-demo/loot-vault-v2/editorial-vault-shelf.webp',alt:'Sci-fi gyűjtői kiadás részlete'},
+      {src:'/storefront-demo/loot-vault-v2/hero-cinematic.webp',alt:'A gyűjtői világ filmes hangulatképe'},
+      {src:'/storefront-demo/loot-vault-v2/editorial-collector-room.webp',alt:'Gaming relikvia részlete'},
+    ];
+    return collectImageFallbacks(page).slice(0,4).map((src,index)=>({src,alt:`Bemutató kép ${index+1}`}));
+  }
   if(slot==='rating')return 4.9;
   if(slot==='count')return 128;
   if(slot==='stockLabel')return'Raktáron';
@@ -287,7 +367,18 @@ export function getStorefrontTemplatePreviewTheme(templateKey:string):Readonly<R
   });
 }
 
-export function createStorefrontTemplatePreviewBindingContext(input:{template:StorefrontInstallableTemplatePackage;page:StorefrontPageDocument}):Record<string,unknown>{
+const INTERACTIVE_PRODUCT_COMMERCE_KEYS=['product','variant','pricing','inventory','commerce'] as const;
+export function restoreStorefrontTemplatePreviewProductCommerceContext(input:{pageType:StorefrontBuilderPageType;authoredContext:Record<string,unknown>;interactiveContext:Record<string,unknown>}):Record<string,unknown>{
+  if(input.pageType!=='product')return input.authoredContext;
+  const next=structuredClone(input.authoredContext);
+  for(const key of INTERACTIVE_PRODUCT_COMMERCE_KEYS){
+    const value=input.interactiveContext[key];
+    if(value&&typeof value==='object'&&!Array.isArray(value))next[key]=structuredClone(value);
+  }
+  return next;
+}
+
+export function createStorefrontTemplatePreviewBindingContext(input:{template:StorefrontInstallableTemplatePackage;page:StorefrontPageDocument;selectedVariantId?:string}):Record<string,unknown>{
   const{template,page}=input;
   const category=template.manifest.templateKey.split('.')[0]??'shop';
   const label=CATEGORY_LABELS[category]??'Shop';
@@ -303,5 +394,32 @@ export function createStorefrontTemplatePreviewBindingContext(input:{template:St
     inventory:{stockLabel:'Raktáron'},
   };
   for(const node of page.sections)enrichNodeBindings({template,page,node,context});
+  if(page.pageType==='product'&&template.manifest.templateKey==='gaming.loot-vault'){
+    const selected=LOOT_VAULT_PREVIEW_VARIANTS.find(item=>item.id===input.selectedVariantId)??LOOT_VAULT_PREVIEW_VARIANTS[0]!;
+    const slug='vault-sentinel-preview';
+    const existingProduct=isRecord(context.product)?context.product:{};
+    const existingPricing=isRecord(context.pricing)?context.pricing:{};
+    const existingInventory=isRecord(context.inventory)?context.inventory:{};
+    const existingCommerce=isRecord(context.commerce)?context.commerce:{};
+    context.product={
+      ...existingProduct,
+      id:'loot-vault-preview-vault-sentinel',
+      slug,
+      name:'Vault Sentinel prémium figura',
+      description:'A Vault Sentinel egy részletgazdag, díszdobozos gyűjtői figura, amelyet vitrines bemutatásra és tematikus kollekciókba terveztünk. A különböző kiadások eltérő csomagolást és kiegészítőket szemléltetnek; a kiválasztott változat ára és készlete azonnal frissül. Ez bemutató termékleírás, amelyet az éles webshopban a kereskedő saját, valós termékadata vált fel.',
+      badges:['Gyűjtői kiadás'],
+    };
+    context.variant={
+      id:selected.id,
+      optionLabel:'Kiadás',
+      optionOptions:LOOT_VAULT_PREVIEW_VARIANTS.map(item=>({
+        id:item.id,label:item.label,value:item.id,available:item.stock>0,selected:item.id===selected.id,
+        href:`/termek/${slug}?variant=${encodeURIComponent(item.id)}`,
+      })),
+    };
+    context.pricing={...existingPricing,displayPrice:selected.price,compareAtPrice:'',unitPrice:selected.price};
+    context.inventory={...existingInventory,stockLabel:selected.stock>0?`Raktáron · ${selected.stock} db`:'Elfogyott',availableQuantity:selected.stock,minimumQuantity:1,orderMultiple:1};
+    context.commerce={...existingCommerce,purchaseLabel:'Kosárba teszem',wishlistLabel:'Kedvencekhez'};
+  }
   return context;
 }

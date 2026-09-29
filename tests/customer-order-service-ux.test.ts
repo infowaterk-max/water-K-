@@ -19,12 +19,15 @@ describe('customer order service UX',()=>{
     expect(page).toContain('<AccountReturnCaseGrid');expect(page).not.toContain('adminTable');expect(page).toContain('loadError&&<div className="errorNotice"');
   });
 
-  test('confirmation and buying information use customer-facing wording',()=>{
+  test('confirmation and buying information use customer-facing wording on separate Shipping and Payment pages',()=>{
     const confirmation=read('src/app/rendeles-sikeres/page.tsx');
-    const info=read('src/app/szallitas-es-fizetes/page.tsx');
+    const shipping=read('src/app/szallitas/page.tsx');
+    const payment=read('src/app/fizetes/page.tsx');
+    const legacy=read('src/app/szallitas-es-fizetes/page.tsx');
     expect(confirmation).toContain('orderStatusLabel(order.status)');
-    expect(info).toContain('A véglegesítés előtt újra ellenőrizzük');
-    expect(info).not.toContain('A szerver újraellenőrzi');
-    expect(info).not.toContain('integrációs feladatokat');
+    expect(shipping).toContain('Szállítási módok és díjak');
+    expect(payment).toContain('Aktív fizetési módok');
+    expect(shipping+payment).not.toContain('integrációs feladatokat');
+    expect(legacy).toContain("permanentRedirect('/szallitas')");
   });
 });

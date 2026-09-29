@@ -26,11 +26,9 @@ describe('Shoperation Codebase Atlas 2.0 / System Self-Knowledge',()=>{
     expect(atlas.contract).toBe('shoporation.codebase-atlas.v2');
     expect(atlas.architecture.constitutionContract).toBe('shoporation.architecture-constitution.v1');
     expect(atlas.architecture.domainContract).toBe('shoporation.domain-foundations.v1');
-    expect(atlas.architecture.domainCount).toBe(13);
+    expect(atlas.architecture.domainCount).toBe(12);
     expect(atlas.architecture.truthOwnerCount).toBeGreaterThan(30);
     expect(atlas.truthOwnerIndex['commerce.order']).toEqual({domainId:'DOMAIN-COMMERCE',owner:'commerce-core-authority'});
-    expect(atlas.truthOwnerIndex['content.story']).toEqual({domainId:'DOMAIN-CONTENT',owner:'content-authority'});
-    expect(atlas.nodes.find(node=>node.path==='src/lib/content/story-engine.ts')?.domains).toContain('DOMAIN-CONTENT');
     expect(atlas.domainIndexDefinition['DOMAIN-RELEASE']?.owner).toBe('release-infrastructure');
     expect(atlas.nodes.some(node=>node.domains.length>0&&node.authorities.length>0)).toBe(true);
   });

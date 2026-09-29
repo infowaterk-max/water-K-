@@ -80,10 +80,13 @@ describe('storefront template library UX',()=>{
 
   it('renders template live preview through the shared Storefront runtime without installing a draft',()=>{
     const preview=read('src/app/storefront-template-preview/page.tsx');
+    const runtime=read('src/components/builder/storefront-template-preview-runtime.tsx');
     expect(preview).toContain('resolveStorefrontTemplatePreviewPackage');
-    expect(preview).toContain('<StorefrontRuntimeRenderer');
-    expect(preview).toContain('createStorefrontVisualBuilderComponentRegistry');
-    expect(preview).toContain('createStorefrontVisualBuilderRendererRegistry');
+    expect(preview).toContain('<StorefrontTemplatePreviewRuntime');
+    expect(runtime).toContain('<StorefrontRuntimeRenderer');
+    expect(runtime).toContain('createStorefrontVisualBuilderComponentRegistry');
+    expect(runtime).toContain('createStorefrontVisualBuilderRendererRegistry');
+    expect(runtime).not.toContain('new StorefrontRendererRegistry');
     expect(preview).toContain('createStorefrontTemplatePreviewBindingContext');
     expect(preview).toContain('getStorefrontTemplatePreviewTheme');
     expect(preview).toContain('representative-demo');

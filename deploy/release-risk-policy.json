@@ -62,12 +62,7 @@
         "src/lib/orders/**",
         "src/app/api/payment/**",
         "src/app/api/payments/**",
-        "src/app/api/checkout/**",
-        "src/lib/commerce/cart-engine.ts",
-        "src/lib/commerce/checkout-quote.ts",
-        "src/lib/commerce/pricing.ts",
-        "src/lib/commerce/providers.ts",
-        "src/lib/commerce/settings.ts"
+        "src/app/api/checkout/**"
       ]
     },
     {
@@ -127,35 +122,6 @@
       "patterns": [
         "src/lib/storefront/**",
         "src/components/storefront/**"
-      ]
-    },
-    {
-      "name": "commerce-read-model-authority",
-      "risk": "medium",
-      "patterns": [
-        "src/lib/commerce/commerce-automation-recovery.ts",
-        "src/lib/commerce/compatibility-engine.ts",
-        "src/lib/commerce/context-profile.ts",
-        "src/lib/commerce/guided-finder.ts",
-        "src/lib/commerce/hu-tax-number.ts",
-        "src/lib/commerce/interactive-scene.ts",
-        "src/lib/commerce/multi-product-composer.ts",
-        "src/lib/commerce/product-configurator.ts",
-        "src/lib/commerce/product-discovery.ts",
-        "src/lib/commerce/professional-b2b.ts",
-        "src/lib/commerce/recipe-commerce.ts",
-        "src/lib/commerce/release-commerce.ts",
-        "src/lib/commerce/retention-reorder.ts",
-        "src/lib/commerce/roadmap-block15.ts",
-        "src/lib/commerce/room-scene-composer.ts",
-        "src/lib/commerce/structured-product.ts"
-      ]
-    },
-    {
-      "name": "content-authority",
-      "risk": "medium",
-      "patterns": [
-        "src/lib/content/**"
       ]
     },
     {

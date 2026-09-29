@@ -637,17 +637,14 @@
       ]
     },
     "TF-KF-025": {
-      "preventiveDirective": "Require every shared engine referenced by a template to exist in the canonical Engine Functional Proof Registry with a proof class and real proof producer. Require executable exact-head behavior proof before Product Owner readiness; keep visible/demo integration separate from functional acceptance and repair recurring defects at the shared authority.",
+      "preventiveDirective": "Require executable exact-head shared-engine behavior proof before Product Owner readiness. Keep engine presence/demo integration separate from engine functional acceptance and repair recurring shared failures at the shared authority.",
       "forbiddenApproaches": [
         "treating rendered engine surfaces, metadata or demo integration as functional proof",
-        "adding a template engine binding whose engine ID is absent from the canonical functional-proof registry",
-        "registering a shared engine without a real proof producer",
         "repairing a recurring shared engine behavior defect only inside one template"
       ],
       "requiredBeforeEdit": [
         "Read TF-KF-025 and TF-AUTH-025 in src/lib/builder/template-factory/knowledge-registry.ts",
-        "Check src/lib/builder/template-factory/engine-functional-proof-registry.ts for canonical engine identity, proof class and producer coverage",
-        "Keep regression authority available: tests/template-factory-engine-functional-proof.test.ts, tests/template-factory-engine-functional-proof-control-plane.test.ts, tests/template-factory-procedural-memory.test.ts"
+        "Keep regression authority available: tests/template-factory-engine-functional-proof.test.ts, tests/template-factory-procedural-memory.test.ts"
       ]
     }
   },

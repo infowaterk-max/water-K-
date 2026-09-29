@@ -927,8 +927,6 @@
     ],
     "TF-KF-025": [
       "builder-template-system",
-      "commerce-read-model-authority",
-      "content-authority",
       "payment-checkout-order-authority",
       "shared-storefront"
     ]

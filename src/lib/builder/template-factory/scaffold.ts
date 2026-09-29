@@ -1,3 +1,4 @@
+import {inspectStorefrontShopperContent} from '@/lib/builder/storefront-content-sanity';
 import {
   STOREFRONT_BUILDER_FOUNDATION_VERSION,
   STOREFRONT_DEMO_CONTENT_POLICY,
@@ -241,6 +242,10 @@ function evaluateBuild(input:{
   const issues:StorefrontTemplateFactoryIssue[]=[];
   const pageByType=new Map(pkg.pages.map(page=>[page.pageType,page] as const));
 
+  for(const contentIssue of inspectStorefrontShopperContent(pkg)){
+    issues.push(issue('FACTORY_SHOPPER_CONTENT_SANITY_BLOCK',contentIssue.path,`Shopper-visible content sanity failed: ${contentIssue.code}.`));
+  }
+
   if(recipe.category!==foundation.category)issues.push(issue('FACTORY_CATEGORY_MISMATCH','recipe.category','Template recipe category does not match the selected category foundation.'));
   if(!recipe.templateKey.startsWith(`${recipe.category}.`))issues.push(issue('FACTORY_TEMPLATE_KEY_CATEGORY_MISMATCH','recipe.templateKey','Template key must be namespaced by its category.'));
 
@@ -386,16 +391,20 @@ function evaluateBuild(input:{
 
     const account=pageByType.get('account');
     if(account){
-      const navRoutes:string[]=[];
+      const completeness=account.metadata?.accountCompleteness&&typeof account.metadata.accountCompleteness==='object'
+        ?account.metadata.accountCompleteness as Record<string,unknown>
+        :null;
+      const sharedAuthority=completeness?.navigationAuthority==='shared-account-capabilities';
+      let localCapabilityNavigation=false;
       walk(account.sections,node=>{
-        if(node.componentKey!=='system.navigation')return;
-        const items=Array.isArray(node.config.items)?node.config.items:[];
-        for(const item of items){
-          if(item&&typeof item==='object'&&!Array.isArray(item)&&typeof (item as Record<string,unknown>).href==='string')navRoutes.push((item as Record<string,unknown>).href as string);
-        }
+        if(node.componentKey==='system.navigation'&&node.config.presentation==='account-capability-demo')localCapabilityNavigation=true;
       });
-      const missing=STOREFRONT_REQUIRED_ACCOUNT_CAPABILITY_ROUTES.filter(route=>!navRoutes.includes(route));
-      if(missing.length)issues.push(issue('FACTORY_ACCOUNT_CAPABILITY_NAVIGATION_INCOMPLETE','pages.account','Product Owner-ready Account must expose the shared capability set compactly; missing: '+missing.join(', ')+'.'));
+      if(!sharedAuthority){
+        issues.push(issue('FACTORY_ACCOUNT_CAPABILITY_NAVIGATION_INCOMPLETE','pages.account.metadata.accountCompleteness.navigationAuthority','Product Owner-ready Account must bind to the canonical shared account capability authority.'));
+      }
+      if(sharedAuthority&&localCapabilityNavigation){
+        issues.push(issue('FACTORY_ACCOUNT_CAPABILITY_NAVIGATION_DUPLICATE','pages.account','Shared account capability authority may not coexist with a template-local Fiókom navigation surface.'));
+      }
     }
 
     const requiredInfoSlugs=['aszf','adatvedelem','impresszum','szallitas','fizetes','visszakuldes'];
