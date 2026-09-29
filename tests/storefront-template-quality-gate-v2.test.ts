@@ -43,6 +43,12 @@ describe('Template Factory Quality Gate v2',()=>{
     expect(gate).toContain('data-storefront-preview-order-blocked');
     expect(gate).toContain('data-storefront-preview-cart-quantity');
     expect(gate).toContain('commerceInteractionPassed');
+    expect(gate).toContain('selectedState');
+    expect(gate).toContain('priceUpdate');
+    expect(gate).toContain('stockUpdate');
+    expect(gate).toContain('totalConsistency');
+    expect(gate).toContain('productionCommerceMutationRequestAttempted');
+    expect(gate).toContain("page.route('**/api/**'");
   });
 
   it('keeps Builder v3 and storefront preview on the same Runtime renderer and canonical viewport authority',()=>{
@@ -76,6 +82,8 @@ describe('Template Factory Quality Gate v2',()=>{
   it('requires Product Owner handoff to prove the interactive preview commerce journey fail-closed',()=>{
     const handoff=read('scripts/template-factory-product-owner-handoff.mjs');
     const previewRuntime=read('src/components/builder/storefront-template-preview-runtime.tsx');
+    const commerceRenderer=read('src/components/builder/storefront-commerce.tsx');
+    const previewDemo=read('src/lib/builder/storefront-template-preview-demo.ts');
     expect(handoff).toContain('COMMERCE_INTERACTION_NOT_PROVEN');
     expect(handoff).toContain('commerceInteractionPassed');
     expect(handoff).toContain("name:'Mennyiség növelése'");
@@ -83,10 +91,28 @@ describe('Template Factory Quality Gate v2',()=>{
     expect(handoff).toContain("getByRole('radio',{name:/Csomagpont/}).first()");
     expect(handoff).toContain("name:'Banki átutalás'");
     expect(handoff).toContain('data-storefront-preview-order-blocked');
+    expect(handoff).toContain('selectedState');
+    expect(handoff).toContain('priceUpdate');
+    expect(handoff).toContain('stockUpdate');
+    expect(handoff).toContain('quantityIncrease');
+    expect(handoff).toContain('quantityDecrease');
+    expect(handoff).toContain('reAddItem');
+    expect(handoff).toContain('checkoutEntry');
+    expect(handoff).toContain('shippingSelection');
+    expect(handoff).toContain('totalRecalculation');
+    expect(handoff).toContain('totalConsistency');
+    expect(handoff).toContain('realOrderRequestAttempted');
+    expect(handoff).toContain('realPaymentRequestAttempted');
+    expect(handoff).toContain('productionCommerceMutationRequestAttempted');
+    expect(handoff).toContain("page.route('**/api/**'");
     expect(previewRuntime).toContain('data-storefront-commerce="cart-summary"');
     expect(previewRuntime).toContain('data-storefront-commerce="checkout-summary"');
     expect(previewRuntime).toContain('data-storefront-preview-cart-quantity');
     expect(previewRuntime).toContain('data-storefront-preview-grand-total');
+    expect(previewRuntime).toContain('data-storefront-preview-subtotal');
+    expect(commerceRenderer).toContain('data-storefront-product-price="true"');
+    expect(commerceRenderer).toContain('data-storefront-product-stock="true"');
+    expect(previewDemo).toContain('Raktáron · ${selected.stock} db');
     expect(previewRuntime).toContain('Előnézeti módban rendelés nem adható le');
   });
 

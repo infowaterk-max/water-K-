@@ -51,6 +51,23 @@ const candidatePageIdentity=(url,pageType)=>{
     &&parsed.searchParams.get('page')===pageType;
 };
 
+function commerceMoneyDigits(value){
+  const digits=String(value??'').replace(/[^0-9]/g,'');
+  if(!digits)return null;
+  const parsed=Number(digits);
+  return Number.isFinite(parsed)?parsed:null;
+}
+function classifyProductionCommerceMutation(request){
+  const method=request.method().toUpperCase();
+  if(!['POST','PUT','PATCH','DELETE'].includes(method))return null;
+  let pathname='';
+  try{pathname=new URL(request.url()).pathname.toLowerCase()}catch{return null}
+  if(/^\/api\/(?:admin\/)?orders(?:\/|$)/.test(pathname))return'order';
+  if(/^\/api\/payments(?:\/|$)/.test(pathname))return'payment';
+  if(/(?:fulfillment|fulfilment|invoice|order-documents|product-documents\/order)/.test(pathname))return'commerce-side-effect';
+  return null;
+}
+
 const requested=new URL(previewUrl);
 if(requested.pathname!=='/storefront-template-preview'||!exactIdentity(previewUrl)){
   throw new Error('PRODUCT_OWNER_PREVIEW_IDENTITY_INVALID');
@@ -99,6 +116,16 @@ try{
   checks.vercelAutomationBypassConfigured=Boolean(vercelAutomationBypassSecret);
   if(!checks.vercelAutomationBypassConfigured)errors.push('VERCEL_AUTOMATION_BYPASS_SECRET_REQUIRED');
   const page=await context.newPage();
+  const forbiddenCommerceMutations=[];
+  await page.route('**/api/**',async route=>{
+    const request=route.request(),kind=classifyProductionCommerceMutation(request);
+    if(kind){
+      forbiddenCommerceMutations.push({kind,method:request.method(),url:request.url()});
+      await route.abort('blockedbyclient');
+      return;
+    }
+    await route.continue();
+  });
   const response=await page.goto(previewUrl,{waitUntil:'domcontentloaded',timeout:30000});
   checks.entryResponse=Boolean(response);
   await page.waitForLoadState('load',{timeout:15000}).catch(()=>undefined);
@@ -289,7 +316,8 @@ try{
       let selectedVariant=null;
       if(optionCount>1){
         const productInfo=commerceProductRoot.locator('[data-storefront-commerce="product-info"]').first();
-        const beforeInfo=(await productInfo.innerText()).replace(/\s+/g,' ').trim();
+        const beforePrice=(await productInfo.locator('[data-storefront-product-price="true"]').innerText()).trim();
+        const beforeStock=(await productInfo.locator('[data-storefront-product-stock="true"]').innerText()).trim();
         const target=optionLinks.nth(optionCount-1);
         const targetLabel=(await target.innerText()).trim();
         const targetHref=await target.getAttribute('href');
@@ -300,12 +328,18 @@ try{
         ]);
         commerceProductRoot=await assertCandidatePage('product','commerce-variant-selected');
         const selectedOption=commerceProductRoot.locator('[data-storefront-structured="option-selector"] a[aria-current="true"]').first();
-        const afterInfo=(await commerceProductRoot.locator('[data-storefront-commerce="product-info"]').first().innerText()).replace(/\s+/g,' ').trim();
-        commerceInteraction.variantSelection=await selectedOption.count()===1
-          &&(await selectedOption.innerText()).trim()===targetLabel
-          &&beforeInfo!==afterInfo;
+        const afterInfo=commerceProductRoot.locator('[data-storefront-commerce="product-info"]').first();
+        const afterPrice=(await afterInfo.locator('[data-storefront-product-price="true"]').innerText()).trim();
+        const afterStock=(await afterInfo.locator('[data-storefront-product-stock="true"]').innerText()).trim();
+        commerceInteraction.selectedState=await selectedOption.count()===1&&(await selectedOption.innerText()).trim()===targetLabel;
+        commerceInteraction.priceUpdate=beforePrice!==afterPrice;
+        commerceInteraction.stockUpdate=beforeStock!==afterStock;
+        commerceInteraction.variantSelection=commerceInteraction.selectedState===true;
       }else{
         commerceInteraction.variantSelection='not-applicable';
+        commerceInteraction.selectedState='not-applicable';
+        commerceInteraction.priceUpdate='not-applicable';
+        commerceInteraction.stockUpdate='not-applicable';
       }
 
       const purchaseButton=commerceProductRoot.getByRole('button',{name:/Kosárba/}).first();
@@ -326,10 +360,15 @@ try{
       const increasedQuantity=(await quantity.innerText()).trim();
       await commerceCartRoot.getByRole('button',{name:'Mennyiség csökkentése',exact:true}).first().click();
       await page.waitForFunction(()=>document.querySelector('[data-storefront-preview-cart-quantity]')?.textContent?.trim()==='1 db',{timeout:5000});
-      commerceInteraction.quantityMutation=initialQuantity==='1 db'&&increasedQuantity==='2 db';
+      const decreasedQuantity=(await quantity.innerText()).trim();
+      commerceInteraction.quantityIncrease=initialQuantity==='1 db'&&increasedQuantity==='2 db';
+      commerceInteraction.quantityDecrease=decreasedQuantity==='1 db';
+      commerceInteraction.quantityMutation=commerceInteraction.quantityIncrease===true&&commerceInteraction.quantityDecrease===true;
 
       await commerceCartRoot.getByRole('button',{name:'Tétel törlése',exact:true}).first().click();
       await commerceCartRoot.locator('[data-storefront-preview-cart="empty"]').waitFor({state:'visible',timeout:10000});
+      commerceInteraction.removeItem=true;
+      commerceInteraction.emptyStateAfterRemove=true;
       commerceInteraction.removeAndEmptyState=true;
 
       commerceProductRoot=await visitCandidate('product','commerce-readd',selectedVariant?{variant:selectedVariant}:{});
@@ -339,17 +378,25 @@ try{
       await clickCandidate(readdConfirmation.getByRole('link',{name:'Kosár megnyitása',exact:true}),'cart','commerce-readd-cart');
       commerceCartRoot=rootFor('cart');
       await commerceCartRoot.locator('[data-storefront-preview-cart="interactive"]').waitFor({state:'visible',timeout:10000});
-      await clickCandidate(commerceCartRoot.getByRole('link',{name:'Tovább a pénztárhoz',exact:true}).first(),'checkout','commerce-checkout');
+      commerceInteraction.reAddItem=(await commerceCartRoot.locator('[data-storefront-preview-cart-quantity]').first().innerText()).trim()==='1 db';
+      commerceInteraction.checkoutEntry=await clickCandidate(commerceCartRoot.getByRole('link',{name:'Tovább a pénztárhoz',exact:true}).first(),'checkout','commerce-checkout');
 
       const checkoutRoot=rootFor('checkout');
       await checkoutRoot.locator('[data-storefront-preview-checkout="interactive-fail-closed"]').waitFor({state:'visible',timeout:10000});
+      const subtotal=(await checkoutRoot.locator('[data-storefront-preview-subtotal]').innerText()).trim();
       const beforeShipping=(await checkoutRoot.locator('[data-storefront-preview-shipping-cost]').innerText()).trim();
       const beforeGrandTotal=(await checkoutRoot.locator('[data-storefront-preview-grand-total]').innerText()).trim();
       const parcel=checkoutRoot.getByRole('radio',{name:/Csomagpont/}).first();
       await parcel.check();
       const afterShipping=(await checkoutRoot.locator('[data-storefront-preview-shipping-cost]').innerText()).trim();
       const afterGrandTotal=(await checkoutRoot.locator('[data-storefront-preview-grand-total]').innerText()).trim();
-      commerceInteraction.shippingRecalculation=await parcel.isChecked()&&beforeShipping!==afterShipping&&beforeGrandTotal!==afterGrandTotal;
+      commerceInteraction.shippingSelection=await parcel.isChecked();
+      commerceInteraction.totalRecalculation=beforeShipping!==afterShipping&&beforeGrandTotal!==afterGrandTotal;
+      commerceInteraction.shippingRecalculation=commerceInteraction.shippingSelection===true&&commerceInteraction.totalRecalculation===true;
+      const subtotalValue=commerceMoneyDigits(subtotal),beforeShippingValue=commerceMoneyDigits(beforeShipping),beforeTotalValue=commerceMoneyDigits(beforeGrandTotal),afterShippingValue=commerceMoneyDigits(afterShipping),afterTotalValue=commerceMoneyDigits(afterGrandTotal);
+      commerceInteraction.totalConsistency=[subtotalValue,beforeShippingValue,beforeTotalValue,afterShippingValue,afterTotalValue].every(value=>value!==null)
+        &&subtotalValue+beforeShippingValue===beforeTotalValue
+        &&subtotalValue+afterShippingValue===afterTotalValue;
 
       const transfer=checkoutRoot.getByRole('radio',{name:'Banki átutalás',exact:true});
       await transfer.check();
@@ -358,21 +405,41 @@ try{
       await checkoutRoot.locator('[data-storefront-preview-order-submit="true"]').click();
       const blocked=checkoutRoot.locator('[data-storefront-preview-order-blocked="true"]');
       await blocked.waitFor({state:'visible',timeout:5000});
+      await page.waitForTimeout(150);
       commerceInteraction.orderSubmissionFailClosed=(await blocked.innerText()).includes('Előnézeti módban rendelés nem adható le');
+      commerceInteraction.realOrderRequestAttempted=forbiddenCommerceMutations.some(item=>item.kind==='order');
+      commerceInteraction.realPaymentRequestAttempted=forbiddenCommerceMutations.some(item=>item.kind==='payment');
+      commerceInteraction.productionCommerceMutationRequestAttempted=forbiddenCommerceMutations.length>0;
     }catch(error){
       commerceInteraction.exception=error instanceof Error?error.message:String(error);
     }
     checks.commerceInteraction=commerceInteraction;
+    const provenOrNotApplicable=value=>value===true||value==='not-applicable';
     checks.commerceInteractionPassed=commerceInteraction.emptyState===true
-      &&(commerceInteraction.variantSelection===true||commerceInteraction.variantSelection==='not-applicable')
+      &&provenOrNotApplicable(commerceInteraction.variantSelection)
+      &&provenOrNotApplicable(commerceInteraction.selectedState)
+      &&provenOrNotApplicable(commerceInteraction.priceUpdate)
+      &&provenOrNotApplicable(commerceInteraction.stockUpdate)
       &&commerceInteraction.addToCartAcknowledgement===true
+      &&commerceInteraction.quantityIncrease===true
+      &&commerceInteraction.quantityDecrease===true
       &&commerceInteraction.quantityMutation===true
+      &&commerceInteraction.removeItem===true
+      &&commerceInteraction.emptyStateAfterRemove===true
       &&commerceInteraction.removeAndEmptyState===true
+      &&commerceInteraction.reAddItem===true
+      &&commerceInteraction.checkoutEntry===true
+      &&commerceInteraction.shippingSelection===true
       &&commerceInteraction.shippingRecalculation===true
+      &&commerceInteraction.totalRecalculation===true
+      &&commerceInteraction.totalConsistency===true
       &&commerceInteraction.paymentSelection===true
-      &&commerceInteraction.orderSubmissionFailClosed===true;
+      &&commerceInteraction.orderSubmissionFailClosed===true
+      &&commerceInteraction.realOrderRequestAttempted===false
+      &&commerceInteraction.realPaymentRequestAttempted===false
+      &&commerceInteraction.productionCommerceMutationRequestAttempted===false;
+    if(forbiddenCommerceMutations.length)errors.push('PRODUCTION_COMMERCE_MUTATION_ATTEMPTED:'+forbiddenCommerceMutations.map(item=>item.kind+':'+item.method+':'+item.url).join(','));
     if(!checks.commerceInteractionPassed)errors.push('COMMERCE_INTERACTION_NOT_PROVEN');
-
     const convergence={};
     let homeRoot=await visitCandidate('home','home-route-convergence');
     convergence.headerCart=await clickCandidate(homeRoot.getByRole('link',{name:'Kosár',exact:true}).first(),'cart','header-cart');

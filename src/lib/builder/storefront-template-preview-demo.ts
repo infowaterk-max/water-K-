@@ -418,7 +418,7 @@ export function createStorefrontTemplatePreviewBindingContext(input:{template:St
       })),
     };
     context.pricing={...existingPricing,displayPrice:selected.price,compareAtPrice:'',unitPrice:selected.price};
-    context.inventory={...existingInventory,stockLabel:selected.stock>0?'Raktáron':'Elfogyott',availableQuantity:selected.stock,minimumQuantity:1,orderMultiple:1};
+    context.inventory={...existingInventory,stockLabel:selected.stock>0?`Raktáron · ${selected.stock} db`:'Elfogyott',availableQuantity:selected.stock,minimumQuantity:1,orderMultiple:1};
     context.commerce={...existingCommerce,purchaseLabel:'Kosárba teszem',wishlistLabel:'Kedvencekhez'};
   }
   return context;
