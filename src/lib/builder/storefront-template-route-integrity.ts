@@ -188,6 +188,11 @@ function rewritePreviewHref(href:string,input:{templateKey:string;templateVersio
     const slug=url.pathname.split('/').filter(Boolean).at(-1);
     if(slug)params.set('demoContent',slug);
   }
+  const legalDemoContent:Readonly<Record<string,string>>={
+    '/aszf':'aszf','/adatvedelem':'adatvedelem','/impresszum':'impresszum','/szallitas-es-fizetes':'szallitas-es-fizetes',
+  };
+  const legalSlug=legalDemoContent[url.pathname];
+  if(legalSlug)params.set('demoContent',legalSlug);
   for(const[key,value]of url.searchParams)params.append(key,value);
   return`/storefront-template-preview?${params.toString()}`;
 }

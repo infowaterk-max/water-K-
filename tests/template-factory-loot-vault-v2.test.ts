@@ -453,4 +453,35 @@ describe('Loot Vault v2 Factory canonical wiring',()=>{
     expect(getStorefrontTemplateFactoryRecipe('gaming.missing')).toBeNull();
     expect(()=>buildRegisteredStorefrontTemplateFactoryCandidate('gaming.missing')).toThrow('TEMPLATE_FACTORY_RECIPE_MISSING:gaming.missing');
   });
+
+  it('implements the accepted mobile PO content cleanup without repeating generic filler',()=>{
+    const page=(type:string)=>LOOT_VAULT_V2_TEMPLATE_PACKAGE.pages.find(item=>item.pageType===type)!;
+    const content=JSON.stringify(page('content'));
+    expect(content).not.toContain('Valódi termékadat');
+    expect(content).not.toContain('Történetközpontú bemutatás');
+    expect(content).not.toContain('Egységes vásárlási folyamat');
+    const faq=JSON.stringify(page('faq'));
+    expect(faq).toContain('content.accordion');
+    expect(faq).toContain('Mi van, ha nem találom a választ?');
+    const contact=JSON.stringify(page('contact'));
+    expect(contact).not.toContain('Követhető ügyfélszolgálati ügy');
+    expect(contact).toContain('support.contact-form');
+    const legal=JSON.stringify(page('legal'));
+    expect(legal).toContain('content.page.body');
+    expect(legal).not.toContain('loot-vault-loot-v2-legal-links');
+  });
+
+  it('keeps mobile catalog headings inside the viewport and exposes shopper CTAs on Home and Catalog cards',()=>{
+    const catalog=LOOT_VAULT_V2_TEMPLATE_PACKAGE.pages.find(item=>item.pageType==='catalog')!;
+    const home=LOOT_VAULT_V2_TEMPLATE_PACKAGE.pages.find(item=>item.pageType==='home')!;
+    const catalogTitle=walk(catalog.sections).find(node=>node.id==='loot-vault-loot-v2-catalog-title')!;
+    expect((catalogTitle.config.style as any).mobile.maxWidth).toBe('100%');
+    const catalogGrid=walk(catalog.sections).find(node=>node.id==='loot-vault-loot-v2-catalog-products')!;
+    const homeGrid=walk(home.sections).find(node=>node.id==='loot-vault-loot-v2-product-grid')!;
+    expect(catalogGrid.config.showCta).toBe(true);
+    expect(homeGrid.config.showCta).toBe(true);
+    const universe=walk(home.sections).find(node=>node.id==='loot-vault-loot-v2-universe-grid')!;
+    expect((universe.config.style as any).mobile.gridTemplateColumns).toBe('repeat(2,minmax(0,1fr))');
+    expect((universe.config.style as any).mobile.overflowX).toBe('visible');
+  });
 });
