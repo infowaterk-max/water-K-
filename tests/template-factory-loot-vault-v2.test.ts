@@ -565,6 +565,9 @@ describe('Loot Vault v2 Factory canonical wiring',()=>{
     expect(preview).not.toContain('function PreviewCartSummary');
     expect(preview).not.toContain('function PreviewCheckoutSummary');
     expect(checkout).toContain("setError('Acceptance proof: a rendelés leadási kísérletét a rendszer blokkolta.')");
+    const refreshQuote=checkout.slice(checkout.indexOf('async function refreshQuote'),checkout.indexOf('useEffect(()=>{const t=setTimeout'));
+    expect(refreshQuote).toContain("fetch('/api/checkout/quote'");
+    expect(refreshQuote).not.toContain('if(acceptancePreview)');
     expect(checkout.indexOf("if(acceptancePreview)")).toBeLessThan(checkout.indexOf("fetch('/api/orders'"));
   });
 
