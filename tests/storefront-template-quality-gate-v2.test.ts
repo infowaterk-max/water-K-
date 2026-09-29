@@ -117,6 +117,8 @@ describe('Template Factory Quality Gate v2',()=>{
     expect(previewRuntime).toContain('data-storefront-commerce-shell="checkout-v1"');
     expect(previewRuntime).toContain('<CartView freeShippingThreshold={20000} products={products}/>');
     expect(previewRuntime).toContain('<CheckoutForm');
+    expect(previewRuntime).toContain("if(url.pathname==='/penztar')");
+    expect(previewRuntime).toContain('window.location.assign(routes.checkout)');
     expect(checkout).toContain("data-storefront-preview-order-submit={acceptancePreview?'true':undefined}");
     expect(checkout).toContain('data-storefront-preview-order-blocked="true"');
     expect(commerceRenderer).toContain('data-storefront-product-price="true"');
@@ -190,6 +192,12 @@ describe('Template Factory Quality Gate v2',()=>{
     expect(runner).toContain("manifest.qualityCandidate?'&qualityCandidate=1'");
     expect(runner).toContain('manifest.factoryCandidate||manifest.qualityCandidate');
     expect(runner).toContain('CANDIDATE_SHOWROOM_PLACEHOLDER_WARNING_PRESENT');
+    expect(runner).toContain('DEMO_SHOWROOM_READINESS_MISSING');
+    expect(runner).toContain('CANDIDATE_DEMO_NOT_SHOWROOM_READY');
+    expect(runner).toContain('SHOWROOM_READY_DEMO_WARNING_PRESENT');
+    const qa=read('src/app/visual-fidelity-qa/page.tsx');
+    expect(qa).toContain('demoShowroomReady=isStorefrontShowroomReadyDemoContent(demoFixture)');
+    expect(qa).toContain('data-demo-showroom-ready');
   });
 
   it('keeps canonical quality candidates QA-only and distinct from production catalog or Factory recipe candidates',()=>{
