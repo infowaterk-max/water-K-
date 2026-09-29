@@ -1,5 +1,7 @@
 import type{CSSProperties,ReactNode}from'react';
 import{headers}from'next/headers';
+import{AccountSubnav}from'@/components/account/account-subnav';
+import{resolveTemplateAccountCapabilityOptIns,type AccountCapabilityContext}from'@/lib/account/account-capabilities';
 import{StorefrontResponsiveRuntime}from'@/components/builder/storefront-responsive-runtime';
 import{resolveCurrentStorefrontAccountRuntimePage}from'@/lib/builder/storefront-runtime-source';
 import{resolveStorefrontTemplateAccountPreviewRuntimePage}from'@/lib/builder/storefront-template-preview-auth';
@@ -14,19 +16,22 @@ const isFooter=(node:StorefrontComponentNode)=>contains(node,item=>item.componen
 function viewportFromUserAgent(value:string):StorefrontViewport{const v=value.toLowerCase();if(/ipad|tablet|kindle|silk/.test(v))return'tablet';if(/mobi|iphone|ipod|android/.test(v))return'mobile';return'desktop'}
 function slicePage(page:StorefrontPageDocument,sections:StorefrontComponentNode[]):StorefrontPageDocument{return{...page,sections}}
 
-export async function StorefrontAccountShell({customerId,fallbackNavigation,children,previewTemplate}:{customerId:string|null;fallbackNavigation:ReactNode;children:ReactNode;previewTemplate?:{templateKey:string;templateVersion?:number;factoryCandidate?:boolean}|null}){
+export async function StorefrontAccountShell({customerId,fallbackNavigation,children,previewTemplate,accountNavigationContext}:{customerId:string|null;fallbackNavigation:ReactNode;children:ReactNode;previewTemplate?:{templateKey:string;templateVersion?:number;factoryCandidate?:boolean}|null;accountNavigationContext?:Pick<AccountCapabilityContext,'showLoyalty'|'showB2BOrganization'|'showB2BQuotes'>}){
  const runtime=previewTemplate
   ?resolveStorefrontTemplateAccountPreviewRuntimePage(previewTemplate.templateKey,previewTemplate.templateVersion,previewTemplate.factoryCandidate===true)
   :await resolveCurrentStorefrontAccountRuntimePage(customerId);
+ const navigationFor=(page?:StorefrontPageDocument|null)=>accountNavigationContext
+  ?<AccountSubnav {...accountNavigationContext} templateCapabilities={resolveTemplateAccountCapabilityOptIns(page?.metadata)}/>
+  :fallbackNavigation;
  if(!runtime)return customerId
-  ?<div className="storefrontAccountShell" data-authenticated="true"><div className="storefrontAccountWorkspace"><aside className="storefrontAccountSidebar" aria-label="Fiók navigáció">{fallbackNavigation}</aside><div className="storefrontAccountRouteContent">{children}</div></div></div>
+  ?<div className="storefrontAccountShell" data-authenticated="true"><div className="storefrontAccountWorkspace"><aside className="storefrontAccountSidebar" aria-label="Fiók navigáció">{navigationFor()}</aside><div className="storefrontAccountRouteContent">{children}</div></div></div>
   :<div className="storefrontAccountShell" data-authenticated="false"><div className="storefrontAccountRouteContent storefrontAuthRouteContent">{children}</div></div>;
  const userAgent=(await headers()).get('user-agent')??'',viewport=viewportFromUserAgent(userAgent);
  const headerSections=runtime.page.sections.filter(isHeader);
  const footerSections=runtime.page.sections.filter(isFooter);
  const publicAuthSections=runtime.page.sections.filter(section=>(section.config as Record<string,unknown>).authPublic===true);
  if(!headerSections.length||!footerSections.length)return customerId
-  ?<div className="storefrontAccountShell" data-authenticated="true"><div className="storefrontAccountWorkspace"><aside className="storefrontAccountSidebar" aria-label="Fiók navigáció">{fallbackNavigation}</aside><div className="storefrontAccountRouteContent">{children}</div></div></div>
+  ?<div className="storefrontAccountShell" data-authenticated="true"><div className="storefrontAccountWorkspace"><aside className="storefrontAccountSidebar" aria-label="Fiók navigáció">{navigationFor()}</aside><div className="storefrontAccountRouteContent">{children}</div></div></div>
   :<div className="storefrontAccountShell" data-authenticated="false"><div className="storefrontAccountRouteContent storefrontAuthRouteContent">{children}</div></div>;
  const vars=resolveStorefrontGlobalStyleCssVariables(runtime.page) as CSSProperties;
  const render=(sections:StorefrontComponentNode[])=><StorefrontResponsiveRuntime page={slicePage(runtime.page,sections)} initialViewport={viewport} bindingContext={runtime.bindingContext} capability={runtime.capability}/>;
@@ -34,7 +39,7 @@ export async function StorefrontAccountShell({customerId,fallbackNavigation,chil
    {render(headerSections)}
    {!customerId&&publicAuthSections.length?render(publicAuthSections):null}
    {customerId?<div className="storefrontAccountWorkspace" data-account-navigation-authority="platform-ia">
-     <aside className="storefrontAccountSidebar" aria-label="Fiók navigáció">{fallbackNavigation}</aside>
+     <aside className="storefrontAccountSidebar" aria-label="Fiók navigáció">{navigationFor(runtime.page)}</aside>
      <div className="storefrontAccountRouteContent">{children}</div>
    </div>:<div className="storefrontAccountRouteContent storefrontAuthRouteContent">{children}</div>}
    {render(footerSections)}
