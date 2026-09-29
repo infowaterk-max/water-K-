@@ -47,10 +47,9 @@ describe('Template Factory Quality Gate v2',()=>{
     expect(gate).toContain('priceUpdate');
     expect(gate).toContain('stockUpdate');
     expect(gate).toContain('totalConsistency');
-    expect(gate).toContain('shippingQuoteRefresh');
-    expect(gate).toContain('waitForResponse');
-    expect(gate).toContain("shippingProvider==='preview-parcel'");
-    expect(gate).toContain('authoritativeQuote.shipping_gross_huf');
+    expect(gate).toContain('representativeQuoteSource');
+    expect(gate).toContain('data-checkout-quote-source="representative-preview"');
+    expect(gate).not.toContain('shippingQuoteRefresh');
     expect(gate).toContain("getByPlaceholder('Írd be a választott automata vagy átvételi pont nevét / címét')");
     expect(gate).toContain("name:'Tovább a fizetéshez'");
     expect(gate).toContain("name:'Tovább az összesítéshez'");
@@ -134,6 +133,8 @@ describe('Template Factory Quality Gate v2',()=>{
     expect(previewRuntime).toContain('<CartView freeShippingThreshold={20000} products={products}/>');
     expect(previewRuntime).toContain('<CheckoutForm');
     expect(previewRuntime).toContain('representativePreviewQuote');
+    expect(gate).toContain('representativeQuoteSource');
+    expect(handoff).toContain('representativeQuoteSource');
     expect(checkout).toContain('representativePreviewQuote=false');
     expect(checkout).toContain('if(representativePreviewQuote)');
     expect(checkout).toContain("fetch('/api/checkout/quote'");
