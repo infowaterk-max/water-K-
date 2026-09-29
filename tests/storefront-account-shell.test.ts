@@ -6,7 +6,9 @@ describe('storefront account shell',()=>{
   expect(layout).toContain('StorefrontAccountShell');
   expect(shell).toContain('resolveCurrentStorefrontAccountRuntimePage');
   expect(shell).toContain('data-account-navigation-authority="platform-ia"');
-  expect(shell).toContain('{fallbackNavigation}');
+  expect(layout).toContain('accountNavigationContext={{showLoyalty,showB2BOrganization,showB2BQuotes}}');
+  expect(shell).toContain('resolveTemplateAccountCapabilityOptIns(page?.metadata)');
+  expect(shell).toContain('navigationFor(runtime.page)');
   expect(shell).not.toContain("item.componentKey==='account.capability-navigation'");
   expect(shell).toContain("item.componentKey==='system.commerce-header'");
   expect(shell).toContain("item.componentKey==='system.footer'");
@@ -19,6 +21,8 @@ describe('storefront account shell',()=>{
   expect(source).toContain("getStorefrontDigitalCommerceRuntimeModel(instance.id,request)");
   expect(source).toContain("getPublishedStorefrontPage(instance.id,'account')");
   expect(source).toContain("const authored=customerId?materialized:applyTemplateAuthComposition(materialized)");
+  expect(source).toContain("templateCapabilities:resolveTemplateAccountCapabilityOptIns(composed.metadata)");
+  expect(source).toContain("templateCapabilities:resolveTemplateAccountCapabilityOptIns(authored.metadata)");
  });
  it('themes legacy account primitives from storefront design tokens inside the shell',()=>{
   const css=read('src/app/account-workflow.css');
