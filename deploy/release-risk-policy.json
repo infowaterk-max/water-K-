@@ -62,7 +62,8 @@
         "src/lib/orders/**",
         "src/app/api/payment/**",
         "src/app/api/payments/**",
-        "src/app/api/checkout/**"
+        "src/app/api/checkout/**",
+        "src/lib/commerce/**"
       ]
     },
     {
@@ -121,7 +122,9 @@
       "risk": "medium",
       "patterns": [
         "src/lib/storefront/**",
-        "src/components/storefront/**"
+        "src/components/storefront/**",
+        "src/app/storefront-template-preview/**",
+        "src/app/storefront-template-preview-login/**"
       ]
     },
     {
