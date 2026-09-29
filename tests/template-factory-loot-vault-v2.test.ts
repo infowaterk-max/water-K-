@@ -161,19 +161,17 @@ describe('Loot Vault v2 Factory canonical wiring',()=>{
     expect(STOREFRONT_SUPPORT_COMPONENT_DEFINITIONS.map(item=>item.manifest.componentKey)).toContain('support.location-map');
   });
 
-  it('keeps Account capability-complete but compact instead of rendering a long tile directory',()=>{
-    const page=LOOT_VAULT_V2_TEMPLATE_PACKAGE.pages.find(item=>item.pageType==='account');
-    const nodes=walk(page!.sections);
-    const nav=nodes.find(node=>node.id==='loot-vault-loot-v2-account-capability-navigation');
-    expect((nav?.config.items as unknown[])).toHaveLength(10);
-    expect((nav?.config.items as Array<{href?:string}>).map(item=>item.href)).toContain('/fiokom/gyujtemenyem');
-    expect(nodes.some(node=>node.id==='loot-vault-loot-v2-account-capability-cards')).toBe(false);
-    expect(JSON.stringify(page)).not.toContain('loot-vault-loot-v2-account-card-');
-    expect(page?.metadata?.accountCompleteness).toEqual({
+  it('keeps Account capability-complete through shared platform IA without a duplicate template-local Fiókom menu',()=>{
+    const page=LOOT_VAULT_V2_TEMPLATE_PACKAGE.pages.find(item=>item.pageType==='account')!;
+    const nodes=walk(page.sections);
+    expect(nodes.some(node=>node.id==='loot-vault-loot-v2-account-capability-navigation')).toBe(false);
+    expect(nodes.some(node=>node.componentKey==='system.navigation'&&node.config.presentation==='account-capability-demo')).toBe(false);
+    expect(page.metadata?.accountCompleteness).toEqual({
       navigationAuthority:'shared-account-capabilities',
       presentation:'compact-template-owned',
       longTileDirectory:false,
     });
+    expect(CANONICAL_ACCOUNT_CAPABILITIES.map(item=>item.href)).toContain('/fiokom/gyujtemenyem');
   });
 
   it('keeps Favorites, Account and Cart utility icons canonical and identical across all Loot Vault pages',()=>{
