@@ -434,18 +434,26 @@ async function proveFactoryCommerceInteraction(browser,manifest){
     const beforeShipping=(await checkoutRoot.locator('[data-storefront-preview-shipping-cost]').innerText()).trim();
     const beforeTotal=(await checkoutRoot.locator('[data-storefront-preview-grand-total]').innerText()).trim();
     const parcel=checkoutRoot.getByRole('radio',{name:/Csomagpont/});
+    const refreshedQuote=page.waitForResponse(response=>{
+      if(response.status()!==200||new URL(response.url()).pathname!=='/api/checkout/quote')return false;
+      try{return response.request().postDataJSON()?.shippingProvider==='preview-parcel'}catch{return false}
+    },{timeout:10000});
     await checkoutRoot.locator('label.choiceCard').filter({hasText:/Csomagpont/}).first().click();
-    await page.waitForFunction(()=>document.querySelector('input[name="shippingProvider"]:checked')!==null,{timeout:5000}).catch(error=>{throw new Error('COMMERCE_SHIPPING_SELECTION_TIMEOUT:'+String(error))});
-    await page.waitForFunction(({beforeShipping,beforeTotal})=>{
-      const shipping=document.querySelector('[data-storefront-preview-shipping-cost]')?.textContent?.trim();
-      const total=document.querySelector('[data-storefront-preview-grand-total]')?.textContent?.trim();
-      return Boolean(shipping&&total&&shipping!==beforeShipping&&total!==beforeTotal);
-    },{beforeShipping,beforeTotal},{timeout:5000}).catch(error=>{throw new Error('COMMERCE_TOTAL_RECALCULATION_TIMEOUT:'+String(error))});
+    const quoteResponse=await refreshedQuote.catch(error=>{throw new Error('COMMERCE_SHIPPING_QUOTE_TIMEOUT:'+String(error))});
+    const authoritativeQuote=await quoteResponse.json();
+    await page.waitForFunction(({shipping,total})=>{
+      const digits=value=>{const parsed=Number(String(value??'').replace(/[^\d-]/g,''));return Number.isFinite(parsed)?parsed:null};
+      const shippingText=document.querySelector('[data-storefront-preview-shipping-cost]')?.textContent?.trim();
+      const totalText=document.querySelector('[data-storefront-preview-grand-total]')?.textContent?.trim();
+      return digits(shippingText)===shipping&&digits(totalText)===total;
+    },{shipping:Number(authoritativeQuote.shipping_gross_huf),total:Number(authoritativeQuote.total_gross_huf)},{timeout:5000}).catch(error=>{throw new Error('COMMERCE_QUOTE_UI_SYNC_TIMEOUT:'+String(error))});
     const afterShipping=(await checkoutRoot.locator('[data-storefront-preview-shipping-cost]').innerText()).trim();
     const afterTotal=(await checkoutRoot.locator('[data-storefront-preview-grand-total]').innerText()).trim();
     result.checks.shippingSelection=await parcel.isChecked();
-    result.checks.totalRecalculation=beforeShipping!==afterShipping&&beforeTotal!==afterTotal;
-    result.checks.shippingRecalculation=result.checks.shippingSelection===true&&result.checks.totalRecalculation===true;
+    result.checks.shippingQuoteRefresh=quoteResponse.ok();
+    result.checks.totalRecalculation=commerceMoneyDigits(afterShipping)===Number(authoritativeQuote.shipping_gross_huf)
+      &&commerceMoneyDigits(afterTotal)===Number(authoritativeQuote.total_gross_huf);
+    result.checks.shippingRecalculation=result.checks.shippingSelection===true&&result.checks.shippingQuoteRefresh===true&&result.checks.totalRecalculation===true;
     const subtotalValue=commerceMoneyDigits(subtotal),beforeShippingValue=commerceMoneyDigits(beforeShipping),beforeTotalValue=commerceMoneyDigits(beforeTotal),afterShippingValue=commerceMoneyDigits(afterShipping),afterTotalValue=commerceMoneyDigits(afterTotal);
     result.checks.totalConsistency=[subtotalValue,beforeShippingValue,beforeTotalValue,afterShippingValue,afterTotalValue].every(value=>value!==null)
       &&subtotalValue+beforeShippingValue===beforeTotalValue
@@ -495,6 +503,7 @@ async function proveFactoryCommerceInteraction(browser,manifest){
       &&result.checks.reAddItem===true
       &&result.checks.checkoutEntry===true
       &&result.checks.shippingSelection===true
+      &&result.checks.shippingQuoteRefresh===true
       &&result.checks.shippingRecalculation===true
       &&result.checks.totalRecalculation===true
       &&result.checks.totalConsistency===true
