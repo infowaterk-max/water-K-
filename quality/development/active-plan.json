@@ -3,7 +3,7 @@
   "taskId": "DEV-TEMPLATE-ENGINE-FUNCTIONAL-PROOF",
   "task": "Require exact-head shared engine functional proof before Template Factory Product Owner readiness, with E13 checkout as the first implementation.",
   "status": "ready-for-implementation",
-  "guardDigest": "PENDING",
+  "guardDigest": "c9488ea2",
   "plannedFilePatterns": [
     ".github/workflows/template-factory-quality-gate.yml",
     "scripts/template-factory-product-owner-handoff.mjs",
@@ -32,14 +32,18 @@
   "expectedDomains": [
     "DOMAIN-ADMIN",
     "DOMAIN-BUILDER",
+    "DOMAIN-COMMERCE",
     "DOMAIN-QUALITY",
-    "DOMAIN-RELEASE"
+    "DOMAIN-RELEASE",
+    "DOMAIN-STOREFRONT"
   ],
   "expectedAuthorities": [
     "admin-operations",
     "builder-template-system",
+    "commerce-core-authority",
     "quality-knowledge-system",
-    "release-infrastructure"
+    "release-infrastructure",
+    "shared-storefront"
   ],
   "expectedKnownFailureIds": [
     "SQ-KF-001",
