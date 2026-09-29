@@ -38,6 +38,11 @@ describe('storefront template preview runtime',()=>{
     expect(login).toContain("if(input.factoryCandidate)params.set('factory','1')");
     expect(shell).toContain('resolveStorefrontTemplateAccountPreviewRuntimePage');
     expect(shell).toContain('data-storefront-account-shell={runtime.source}');
+    const previewRuntime=fs.readFileSync('src/components/builder/storefront-template-preview-runtime.tsx','utf8');
+    expect(previewRuntime).toContain('StorefrontAccountWorkspace');
+    expect(previewRuntime).toContain('<AccountSubnav showLoyalty showB2BOrganization showB2BQuotes');
+    expect(previewRuntime).toContain('splitStorefrontAccountTemplateSections(page)');
+    expect(previewRuntime).toContain('resolveAccountCapabilityPreviewView(url.toString())');
   });
 
   it('resolves tenant-free template-aware account presentation for every accepted previewable template',()=>{
