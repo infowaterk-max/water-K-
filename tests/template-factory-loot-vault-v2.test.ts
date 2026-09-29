@@ -131,6 +131,21 @@ describe('Loot Vault v2 Factory canonical wiring',()=>{
     });
   });
 
+  it('uses the shared tablet navigation disclosure on all 14 Loot Vault pages without creating a template-specific header branch',()=>{
+    for(const page of LOOT_VAULT_V2_TEMPLATE_PACKAGE.pages){
+      const header=walk(page.sections).find(node=>node.componentKey==='system.commerce-header')!;
+      expect(header.config.collapseNavigationAtTablet,page.pageType).toBe(true);
+      expect(header.config.presentation,page.pageType).toBe('compact-single-row');
+      expect(Array.isArray(header.config.mobileMenuItems)&&header.config.mobileMenuItems.length>=6,page.pageType).toBe(true);
+    }
+    const renderer=readFileSync('src/components/builder/storefront-commerce-header.tsx','utf8');
+    expect(renderer).toContain('collapseNavigationAtTablet');
+    expect(renderer).toContain('data-storefront-tablet-menu="true"');
+    expect(renderer).not.toContain('gaming.loot-vault');
+    const definition=readFileSync('src/lib/builder/storefront-commerce-header.ts','utf8');
+    expect(definition).toContain("'collapseNavigationAtTablet'");
+  });
+
   it('anchors universe labels to their cards and keeps mobile header controls touch-safe',()=>{
     const home=LOOT_VAULT_V2_TEMPLATE_PACKAGE.pages.find(item=>item.pageType==='home')!;
     const nodes=walk(home.sections);

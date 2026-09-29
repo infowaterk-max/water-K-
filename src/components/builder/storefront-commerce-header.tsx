@@ -87,6 +87,30 @@ function CommerceHeaderRenderer({config,children,node,viewport}:StorefrontCompon
   const categoryTrigger=categoryLabel||text(config.categoryTriggerSymbol)?<a href={categoryHref} aria-label={categoryLabel||'Kategóriák'} style={{display:'inline-flex',alignItems:'center',gap:'.4rem',flex:'0 0 auto',color:'inherit',textDecoration:'none',fontWeight:850,...slotStyle(config.styleSlots,'categoryTrigger',viewport),fontSize:mobile?'.92rem':'.98rem',lineHeight:1.25}}><span aria-hidden="true">{categorySymbol}</span>{categoryLabel?<span>{categoryLabel}</span>:null}</a>:null;
   const navTagline=text(config.navTagline);
   const compactSingleRow=text(config.presentation)==='compact-single-row';
+  const tabletNavigationDisclosure=compactSingleRow&&tablet&&bool(config.collapseNavigationAtTablet,false);
+  if(tabletNavigationDisclosure){
+    const tabletInnerStyle:CSSProperties={
+      ...innerStyle,
+      gridTemplateColumns:'minmax(0,1fr)',
+      gap:'.6rem',
+      paddingBlock:'.62rem',
+      minHeight:'auto',
+      ...slotStyle(config.styleSlots,'compactInner',viewport)
+    };
+    return <header data-storefront-component="system.commerce-header" data-storefront-protected-system="header" data-presentation="compact-single-row" data-tablet-navigation="disclosure" style={rootStyle}>
+      <div style={tabletInnerStyle}>
+        <div style={{display:'grid',gridTemplateColumns:'minmax(0,1fr) auto',alignItems:'center',gap:'.75rem',minWidth:0}}>
+          <div style={{minWidth:0,...slotStyle(config.styleSlots,'compactBrandFrame',viewport)}}>{brand}</div>
+          <div style={{display:'flex',alignItems:'center',justifyContent:'flex-end',gap:'.45rem',minWidth:0,...slotStyle(config.styleSlots,'compactActions',viewport)}}>{utilities}</div>
+        </div>
+        {search.length?<div style={{minWidth:0,...slotStyle(config.styleSlots,'compactSearchFrame',viewport),width:'100%'}}>{search}</div>:null}
+        <details className={styles.mobileMenu} data-storefront-tablet-menu="true">
+          <summary className={styles.mobileMenuSummary} aria-label="Navigáció megnyitása"><span aria-hidden="true">☰</span><span>Menü</span></summary>
+          <div className={styles.mobileMenuPanel}>{categoryTrigger}<div className={styles.mobileMenuNavigation}>{fullMobileMenu.length?<nav aria-label="Teljes navigáció" data-storefront-tablet-menu-complete="true" style={{display:'grid',gap:'.2rem'}}>{fullMobileMenu.map(item=><a key={`${item.href}:${item.label}`} href={item.href} style={{color:'inherit',textDecoration:'none',padding:'.68rem .2rem',minHeight:'2.75rem',display:'flex',alignItems:'center',borderBottom:'1px solid color-mix(in srgb,var(--shoporation-color-border,#d8dce7) 55%,transparent)',fontWeight:760}}>{item.label}</a>)}</nav>:navigation}</div></div>
+        </details>
+      </div>
+    </header>;
+  }
   if(compactSingleRow&&!mobile){
     const compactInnerStyle:CSSProperties={
       ...innerStyle,
