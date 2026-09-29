@@ -40,6 +40,6 @@ describe('shared storefront account capability navigation',()=>{
   }
  });
  it('keeps the complete capability set in the shared rail resolver',()=>{
-  expect(CANONICAL_ACCOUNT_CAPABILITIES.map(item=>item.key)).toEqual(expect.arrayContaining(['overview','orders','downloads','documents','wishlist','cases','returns','profile','marketing']));
+  expect(CANONICAL_ACCOUNT_CAPABILITIES.map(item=>item.key)).toEqual(expect.arrayContaining(['overview','orders','downloads','documents','wishlist','collection','cases','returns','profile','marketing']));
  });
 });
