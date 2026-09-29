@@ -90,6 +90,11 @@
       "match": "exact",
       "pattern": "PLACEHOLDER_CONTENT_CLEANUP_NOT_PROVEN",
       "failureId": "TF-KF-024"
+    },
+    {
+      "match": "prefix",
+      "pattern": "ENGINE_FUNCTIONAL_PROOF_",
+      "failureId": "TF-KF-025"
     }
   ],
   "genericCodes": [
