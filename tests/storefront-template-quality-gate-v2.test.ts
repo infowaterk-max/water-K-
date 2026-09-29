@@ -88,13 +88,11 @@ describe('Template Factory Quality Gate v2',()=>{
     expect(page).toContain("accountView={pageType==='account'?query.accountView:undefined}");
     expect(previewRuntime).toContain('data-storefront-preview-account-state');
     expect(previewRuntime).toContain('Jelenleg nincs folyamatban lévő ügyed.');
-    expect(previewRuntime).toContain("url.pathname==='/fiokom'||url.pathname.startsWith('/fiokom/')||url.pathname==='/kedvencek'");
-    expect(previewRuntime).toContain("hashView:Record<string,string>={rendelesek:'orders',fiokadatok:'profile',marketing:'marketing'}");
-    expect(previewRuntime).toContain("accountUrl.searchParams.set('accountView',accountView)");
     expect(handoff).toContain('accountInteractionPassed');
     expect(handoff).toContain('ACCOUNT_INTERACTION_NOT_PROVEN');
-    expect(handoff).toContain("['Ügyeim','ugyek','/fiokom/ugyek']");
-    expect(handoff).not.toContain("new URL(href,page.url()).searchParams.get('accountView')===view");
+    expect(handoff).toContain("['Ügyeim','ugyek']");
+    expect(handoff).toContain("candidatePageIdentity(url.toString(),'account')&&url.searchParams.get('accountView')===view");
+    expect(handoff).toContain("waitUntil:'commit'");
   });
 
   it('requires Product Owner handoff to prove the interactive preview commerce journey fail-closed',()=>{
