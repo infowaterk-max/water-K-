@@ -12,10 +12,11 @@ const storageState=(process.env.PRODUCT_OWNER_STORAGE_STATE??'').trim();
 const vercelAutomationBypassSecret=(process.env.VERCEL_AUTOMATION_BYPASS_SECRET??'').trim();
 const qualityManifestPath=(process.env.TEMPLATE_QUALITY_MANIFEST??'artifacts/template-factory-quality/manifest.json').trim();
 const outputDir=(process.env.TEMPLATE_HANDOFF_OUTPUT_DIR??'artifacts/template-factory-handoff').trim();
+const engineFunctionalOnly=['1','true'].includes((process.env.PRODUCT_OWNER_ENGINE_FUNCTIONAL_ONLY??'').trim().toLowerCase());
 
 if(!previewUrl)throw new Error('PRODUCT_OWNER_PREVIEW_URL_REQUIRED');
-if(!templateKey)throw new Error('PRODUCT_OWNER_TEMPLATE_KEY_REQUIRED');
-if(!Number.isInteger(templateVersion)||templateVersion<1)throw new Error('PRODUCT_OWNER_TEMPLATE_VERSION_REQUIRED');
+if(!engineFunctionalOnly&&!templateKey)throw new Error('PRODUCT_OWNER_TEMPLATE_KEY_REQUIRED');
+if(!engineFunctionalOnly&&(!Number.isInteger(templateVersion)||templateVersion<1))throw new Error('PRODUCT_OWNER_TEMPLATE_VERSION_REQUIRED');
 
 const exists=async file=>{try{await access(file);return true}catch{return false}};
 const cleanUrl=value=>{
@@ -51,8 +52,200 @@ const candidatePageIdentity=(url,pageType)=>{
     &&parsed.searchParams.get('page')===pageType;
 };
 
+
+async function authenticatePlatformOperator(page){
+  const origin=new URL(previewUrl).origin;
+  if(storageState&&await exists(storageState)){
+    const response=await page.goto(new URL('/admin/platform',origin).toString(),{waitUntil:'domcontentloaded',timeout:30000});
+    if(response&&new URL(page.url()).pathname==='/admin/platform')return true;
+  }
+  if(!email||!password)throw new Error('ENGINE_FUNCTIONAL_PLATFORM_CREDENTIALS_REQUIRED');
+  const response=await page.goto(new URL('/platform',origin).toString(),{waitUntil:'domcontentloaded',timeout:30000});
+  if(!response)throw new Error('ENGINE_FUNCTIONAL_PLATFORM_LOGIN_NO_RESPONSE');
+  await page.waitForLoadState('load',{timeout:15000}).catch(()=>undefined);
+  const emailInput=page.locator('input[name="email"]:visible').first();
+  const passwordInput=page.locator('input[name="password"]:visible').first();
+  const submit=page.getByRole('button',{name:'Belépés a Shoperationbe',exact:true});
+  await emailInput.waitFor({state:'visible',timeout:10000});
+  await passwordInput.waitFor({state:'visible',timeout:10000});
+  await emailInput.fill(email);
+  await passwordInput.fill(password);
+  await Promise.all([
+    page.waitForURL(url=>url.pathname==='/admin/platform',{timeout:30000}),
+    submit.click(),
+  ]);
+  return true;
+}
+
+async function proveSharedE13FunctionalEngine(page){
+  const origin=new URL(previewUrl).origin;
+  const proof={
+    contract:'shoporation.shared-engine-functional-proof.v1',
+    engine:'E13',
+    platformAuthenticated:false,
+    acceptanceEntry:false,
+    acceptanceInstanceId:null,
+    acceptanceSeeder:false,
+    sharedRuntime:false,
+    quoteStatus:null,
+    quotePositive:false,
+    mixedFixture:false,
+    shippingOptionCount:0,
+    shippingStep:false,
+    paymentOptionCount:0,
+    paymentStep:false,
+    summaryStep:false,
+    submitEnabled:false,
+    failClosed:false,
+    sideEffectRequests:[],
+    error:null,
+    passed:false,
+  };
+  const sideEffects=[];
+  const observe=request=>{
+    try{
+      const url=new URL(request.url());
+      const method=request.method();
+      const blocked=method==='POST'&&[
+        '/api/orders',
+        '/api/payment',
+        '/api/payments',
+        '/api/invoice',
+        '/api/invoices',
+        '/api/shipping',
+      ].some(prefix=>url.pathname===prefix||url.pathname.startsWith(prefix+'/'));
+      if(blocked)sideEffects.push(`${method} ${url.pathname}`);
+    }catch{}
+  };
+  page.on('request',observe);
+  try{
+    proof.platformAuthenticated=await authenticatePlatformOperator(page);
+    const entryResponse=await page.goto(new URL('/storefront-template-preview/engine-proof/checkout',origin).toString(),{waitUntil:'domcontentloaded',timeout:30000});
+    if(!entryResponse)throw new Error('ENGINE_ACCEPTANCE_ENTRY_NO_RESPONSE');
+    await page.waitForLoadState('load',{timeout:15000}).catch(()=>undefined);
+    const entryRoot=page.locator('[data-engine-functional-proof="E13"]');
+    await entryRoot.waitFor({state:'visible',timeout:15000});
+    const entryAlert=entryRoot.getByRole('alert');
+    if(await entryAlert.count())throw new Error(`ENGINE_ACCEPTANCE_TARGET_FAILED:${(await entryAlert.first().innerText()).replace(/\s+/g,' ').slice(0,400)}`);
+    proof.acceptanceEntry=true;
+    proof.acceptanceInstanceId=await entryRoot.getAttribute('data-acceptance-instance-id');
+    if(!proof.acceptanceInstanceId)throw new Error('ENGINE_ACCEPTANCE_INSTANCE_ID_MISSING');
+
+    const start=page.getByRole('button',{name:'E13 checkout proof indítása',exact:true});
+    await start.waitFor({state:'visible',timeout:10000});
+    await Promise.all([
+      page.waitForURL(url=>/^\/admin\/platform\/acceptance\/[0-9a-f-]+\/checkout$/i.test(url.pathname),{timeout:30000}),
+      start.click(),
+    ]);
+
+    const checkoutLink=page.getByRole('link',{name:'Pénztár megnyitása',exact:true});
+    await checkoutLink.waitFor({state:'visible',timeout:20000});
+    proof.acceptanceSeeder=true;
+    const quotePromise=page.waitForResponse(response=>{
+      try{
+        const url=new URL(response.url());
+        return url.pathname==='/api/checkout/quote'&&response.request().method()==='POST'&&response.status()===200;
+      }catch{return false}
+    },{timeout:25000});
+    await Promise.all([
+      page.waitForURL(url=>url.pathname==='/penztar',{timeout:20000}),
+      checkoutLink.click(),
+    ]);
+
+    const checkoutRoot=page.locator('[data-checkout-acceptance="preview"]');
+    await checkoutRoot.waitFor({state:'visible',timeout:15000});
+    proof.sharedRuntime=await page.locator('[data-storefront-live-checkout="shared-e13"]').count()>0;
+    if(!proof.sharedRuntime)throw new Error('ENGINE_SHARED_E13_RUNTIME_MISSING');
+
+    const quoteResponse=await quotePromise;
+    proof.quoteStatus=quoteResponse.status();
+    const quote=await quoteResponse.json().catch(()=>null);
+    proof.quotePositive=Boolean(quote?.ok===true&&Number(quote?.total_gross_huf)>0);
+    proof.mixedFixture=Boolean(Number(quote?.physical_lines)>0&&Number(quote?.digital_lines)>0&&quote?.fulfillment_mode==='mixed');
+    if(!proof.quotePositive)throw new Error('ENGINE_AUTHORITATIVE_QUOTE_NOT_POSITIVE');
+    if(!proof.mixedFixture)throw new Error('ENGINE_MIXED_ACCEPTANCE_FIXTURE_NOT_PROVEN');
+
+    const customerType=page.locator('select[name="customerType"]:visible').first();
+    if(await customerType.count())await customerType.selectOption('retail');
+    const values={
+      name:'Acceptance Vásárló',
+      email:'acceptance@example.invalid',
+      phone:'+3612345678',
+      billingPostcode:'2760',
+      billingCity:'Nagykáta',
+      billingAddress:'Acceptance utca 1.',
+    };
+    for(const[name,value]of Object.entries(values)){
+      const input=page.locator(`input[name="${name}"]:visible`).first();
+      if(await input.count())await input.fill(value);
+    }
+
+    const shippingRadios=page.locator('input[name="shippingProvider"]:visible:not(:disabled)');
+    proof.shippingOptionCount=await shippingRadios.count();
+    if(proof.shippingOptionCount<1)throw new Error('ENGINE_ACCEPTANCE_SHIPPING_OPTION_MISSING');
+    let shippingAdvanced=false;
+    for(let index=0;index<proof.shippingOptionCount&&!shippingAdvanced;index+=1){
+      const radio=shippingRadios.nth(index);
+      if(!(await radio.isChecked()))await radio.check().catch(()=>undefined);
+      const parcelText=page.locator('input[placeholder*="átvételi pont"]:visible').first();
+      if(await parcelText.count())await parcelText.fill('Acceptance automata');
+      await page.getByRole('button',{name:'Tovább a fizetéshez',exact:true}).click();
+      shippingAdvanced=await page.locator('[data-checkout-panel="payment"]:visible').waitFor({state:'visible',timeout:2500}).then(()=>true).catch(()=>false);
+    }
+    if(!shippingAdvanced)throw new Error('ENGINE_ACCEPTANCE_SHIPPING_STEP_BLOCKED');
+    proof.shippingStep=true;
+
+    const paymentRadios=page.locator('input[name="paymentProvider"]:visible:not(:disabled)');
+    proof.paymentOptionCount=await paymentRadios.count();
+    if(proof.paymentOptionCount<1)throw new Error('ENGINE_ACCEPTANCE_PAYMENT_OPTION_MISSING');
+    const checkedPayment=page.locator('input[name="paymentProvider"]:visible:checked');
+    if(await checkedPayment.count()===0)await paymentRadios.first().check();
+    await page.getByRole('button',{name:'Tovább az összesítéshez',exact:true}).click();
+    await page.locator('[data-checkout-panel="summary"]:visible').waitFor({state:'visible',timeout:10000});
+    proof.paymentStep=true;
+    proof.summaryStep=true;
+
+    const guest=page.getByRole('button',{name:'Folytatás vendégként',exact:true});
+    if(await guest.count()&&await guest.isVisible())await guest.click();
+    await page.locator('input[name="termsAccepted"]').check();
+    await page.locator('input[name="privacyAcknowledged"]').check();
+
+    const submit=page.getByRole('button',{name:'Acceptance · rendelésleadás tesztelése',exact:true});
+    await submit.waitFor({state:'visible',timeout:10000});
+    proof.submitEnabled=await submit.isEnabled();
+    if(!proof.submitEnabled)throw new Error('ENGINE_ACCEPTANCE_SUBMIT_DISABLED');
+    await submit.click();
+    const blocked=page.getByRole('alert').filter({hasText:'Acceptance proof: a rendelés leadási kísérletét a rendszer blokkolta.'});
+    await blocked.waitFor({state:'visible',timeout:10000});
+    proof.failClosed=true;
+    proof.sideEffectRequests=[...sideEffects];
+    proof.passed=proof.platformAuthenticated
+      &&proof.acceptanceEntry
+      &&proof.acceptanceSeeder
+      &&proof.sharedRuntime
+      &&proof.quoteStatus===200
+      &&proof.quotePositive
+      &&proof.mixedFixture
+      &&proof.shippingStep
+      &&proof.paymentStep
+      &&proof.summaryStep
+      &&proof.paymentOptionCount>0
+      &&proof.submitEnabled
+      &&proof.failClosed
+      &&proof.sideEffectRequests.length===0;
+  }catch(error){
+    proof.error=error instanceof Error?error.message:String(error);
+    proof.sideEffectRequests=[...sideEffects];
+  }finally{
+    page.off('request',observe);
+  }
+  return proof;
+}
+
 const requested=new URL(previewUrl);
-if(requested.pathname!=='/storefront-template-preview'||!exactIdentity(previewUrl)){
+if(engineFunctionalOnly){
+  if(requested.pathname!=='/platform')throw new Error('ENGINE_FUNCTIONAL_PREVIEW_ENTRY_INVALID');
+}else if(requested.pathname!=='/storefront-template-preview'||!exactIdentity(previewUrl)){
   throw new Error('PRODUCT_OWNER_PREVIEW_IDENTITY_INVALID');
 }
 
@@ -60,7 +253,7 @@ await mkdir(outputDir,{recursive:true});
 const errors=[];
 const checks={};
 let technicalProof=null;
-if(await exists(qualityManifestPath)){
+if(!engineFunctionalOnly&&await exists(qualityManifestPath)){
   technicalProof=JSON.parse(await readFile(qualityManifestPath,'utf8'));
   const acceptance=(technicalProof.acceptanceProofs??[]).find(item=>item.templateKey===templateKey&&item.templateVersion===templateVersion);
   checks.technicalAcceptanceProofFound=Boolean(acceptance);
@@ -81,7 +274,7 @@ if(await exists(qualityManifestPath)){
     if(!checks.navigationCompletenessPassed)errors.push('TEMPLATE_NAVIGATION_COMPLETENESS_NOT_PROVEN');
     if(sourceCommit&&acceptance.sourceCommit!==sourceCommit)errors.push('SOURCE_COMMIT_MISMATCH');
   }
-}else{
+}else if(!engineFunctionalOnly){
   errors.push('TECHNICAL_ACCEPTANCE_MANIFEST_MISSING');
 }
 
@@ -99,6 +292,12 @@ try{
   checks.vercelAutomationBypassConfigured=Boolean(vercelAutomationBypassSecret);
   if(!checks.vercelAutomationBypassConfigured)errors.push('VERCEL_AUTOMATION_BYPASS_SECRET_REQUIRED');
   const page=await context.newPage();
+  if(engineFunctionalOnly){
+    const engineProof=await proveSharedE13FunctionalEngine(page);
+    checks.engineFunctionalProof={E13:engineProof};
+    checks.engineFunctionalProofPassed=engineProof.passed===true;
+    if(!checks.engineFunctionalProofPassed)errors.push(`ENGINE_FUNCTIONAL_PROOF_E13_NOT_PROVEN:${engineProof.error??'functional proof incomplete'}`);
+  }else{
   const response=await page.goto(previewUrl,{waitUntil:'domcontentloaded',timeout:30000});
   checks.entryResponse=Boolean(response);
   await page.waitForLoadState('load',{timeout:15000}).catch(()=>undefined);
@@ -351,6 +550,7 @@ try{
     if(!checks.placeholderContentPassed)errors.push('PLACEHOLDER_CONTENT_CLEANUP_NOT_PROVEN');
     if(!checks.presentationContinuityPassed)errors.push('TEMPLATE_PRESENTATION_CONTINUITY_NOT_PROVEN');
   }
+  }
 
 }catch(error){
   const message=error instanceof Error?error.message:String(error);
@@ -364,14 +564,26 @@ try{
 const diagnosticRoute=cleanUrl(previewUrl);
 const diagnostics=errors.map(rawValue=>{
   const raw=String(rawValue),code=raw.split(':')[0],detail=raw.includes(':')?raw.slice(raw.indexOf(':')+1):raw;
-  const base={code,reason:raw,route:diagnosticRoute,contract:'shoporation.template-factory-product-owner-handoff.v2',expected:'Product Owner journey check PASS',actual:detail,evidence:[`template=${templateKey}@${templateVersion}`]};
+  const base={code,reason:raw,route:diagnosticRoute,contract:engineFunctionalOnly?'shoporation.shared-engine-functional-proof.v1':'shoporation.template-factory-product-owner-handoff.v2',expected:engineFunctionalOnly?'Shared engine functional proof PASS':'Product Owner journey check PASS',actual:detail,evidence:engineFunctionalOnly?[`engine=E13`,`sourceCommit=${sourceCommit??'unknown'}`]:[`template=${templateKey}@${templateVersion}`]};
   if(code==='TEMPLATE_AWARE_AUTH_SHELL_MISSING')return{...base,contract:'template-aware-auth-shell',expected:'exactly one template-aware preview auth shell',actual:`count=${checks.templateAwareAuthShellCount??0}`};
   if(code==='TEMPLATE_AUTH_STYLE_IDENTITY_MISSING')return{...base,contract:'template-versioned-auth-style',expected:'template/version-aware auth style marker present',actual:'marker missing'};
   if(code==='VISIBLE_SHARED_AUTH_SURFACE_NOT_UNIQUE')return{...base,contract:'visible-auth-surface',expected:'exactly one visible shared auth surface',actual:`count=${checks.visibleAuthSurfaceCount??'unknown'}`};
   if(code==='SOURCE_COMMIT_MISMATCH'||code==='PREVIEW_SOURCE_COMMIT_MISMATCH')return{...base,contract:'exact-head-provenance',expected:sourceCommit??'exact source commit',actual:raw};
+  if(code==='ENGINE_FUNCTIONAL_PROOF_E13_NOT_PROVEN')return{...base,contract:'shoporation.shared-engine-functional-proof.v1',expected:'E13 real /penztar journey PASS with authoritative quote and fail-closed submit',actual:detail};
   return base;
 });
-const proof={
+const proof=engineFunctionalOnly?{
+  contract:'shoporation.shared-engine-functional-proof.v1',
+  engine:'E13',
+  sourceCommit,
+  previewUrl:cleanUrl(previewUrl),
+  checks,
+  errors,
+  diagnostics,
+  passed:errors.length===0&&checks.engineFunctionalProofPassed===true,
+  maturity:errors.length===0?'engine-functional-proven':'engine-functional-blocked',
+  verifiedAt:new Date().toISOString(),
+}:{
   contract:'shoporation.template-factory-product-owner-handoff.v2',
   templateKey,
   templateVersion,
