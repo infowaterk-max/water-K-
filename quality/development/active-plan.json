@@ -3,7 +3,7 @@
   "taskId": "DEV-E13-FUNCTIONAL-PROOF-ENTRY",
   "task": "Add a deterministic preview-only E13 functional proof entry that resolves exactly one marked checkout acceptance tenant and delegates signed session creation to the existing platform pilot acceptance action.",
   "status": "ready-for-implementation",
-  "guardDigest": "PENDING",
+  "guardDigest": "f8c4b0f9",
   "plannedFilePatterns": [
     "src/app/storefront-template-preview/page.tsx",
     "src/app/storefront-template-preview/engine-proof/checkout/page.tsx",
@@ -13,41 +13,38 @@
   "expectedSubsystems": [
     "customer-account",
     "payment-checkout-order-authority",
-    "shared-storefront",
     "storefront-ui"
   ],
   "expectedDomains": [
-    "DOMAIN-COMMERCE",
     "DOMAIN-STOREFRONT"
   ],
   "expectedAuthorities": [
-    "commerce-core-authority",
     "shared-storefront"
   ],
   "expectedKnownFailureIds": [
     "SQ-KF-001",
     "SQ-KF-002",
+    "SQ-KF-005",
     "SQ-KF-010",
     "SQ-KF-011",
+    "SQ-KF-012",
     "SQ-KF-013",
     "SQ-KF-014",
+    "SQ-KF-016",
     "SQ-KF-017",
     "SQ-KF-019",
     "SQ-KF-022",
     "TF-KF-002",
+    "TF-KF-006",
     "TF-KF-008",
     "TF-KF-012",
     "TF-KF-020"
   ],
   "acknowledgedNegativeKnowledgeIds": [
     "SQ-NK-001",
-    "SQ-NK-002",
-    "SQ-NK-003",
-    "SQ-NK-004",
     "SQ-NK-006",
-    "SQ-NK-007",
     "SQ-NK-008",
-    "SQ-NK-010",
+    "SQ-NK-009",
     "SQ-NK-012"
   ],
   "exceptions": [],
