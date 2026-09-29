@@ -71,10 +71,15 @@ async function authenticatePlatformOperator(page){
   await passwordInput.waitFor({state:'visible',timeout:10000});
   await emailInput.fill(email);
   await passwordInput.fill(password);
-  await Promise.all([
-    page.waitForURL(url=>url.pathname==='/admin/platform',{timeout:30000}),
-    submit.click(),
-  ]);
+  await submit.click();
+  const navigated=await page.waitForURL(url=>url.pathname==='/admin/platform',{waitUntil:'commit',timeout:30000}).then(()=>true).catch(()=>false);
+  if(!navigated){
+    const message=await page.locator('.notice,[role="alert"]').filter({visible:true}).last().innerText().catch(()=>null);
+    throw new Error(`ENGINE_FUNCTIONAL_PLATFORM_LOGIN_FAILED:path=${new URL(page.url()).pathname};message=${(message??'no diagnostic').replace(/\\s+/g,' ').slice(0,240)}`);
+  }
+  await page.waitForTimeout(350);
+  const settled=new URL(page.url());
+  if(settled.pathname!=='/admin/platform')throw new Error(`ENGINE_FUNCTIONAL_PLATFORM_ROLE_REQUIRED:path=${settled.pathname};reason=${settled.searchParams.get('reason')??'redirected'}`);
   return true;
 }
 
