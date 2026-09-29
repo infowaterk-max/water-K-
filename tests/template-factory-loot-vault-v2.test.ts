@@ -534,6 +534,9 @@ describe('Loot Vault v2 Factory canonical wiring',()=>{
     const home=LOOT_VAULT_V2_TEMPLATE_PACKAGE.pages.find(item=>item.pageType==='home')!;
     const catalogTitle=walk(catalog.sections).find(node=>node.id==='loot-vault-loot-v2-catalog-title')!;
     expect((catalogTitle.config.style as any).mobile.maxWidth).toBe('100%');
+    expect((catalogTitle.config.style as any).mobile.lineHeight).toBeGreaterThanOrEqual(1);
+    expect((catalogTitle.config.style as any).mobile.wordBreak).toBe('normal');
+    expect((catalogTitle.config.style as any).mobile.overflowWrap).toBe('normal');
     const catalogGrid=walk(catalog.sections).find(node=>node.id==='loot-vault-loot-v2-catalog-products')!;
     const homeGrid=walk(home.sections).find(node=>node.id==='loot-vault-loot-v2-product-grid')!;
     expect(catalogGrid.config.showCta).toBe(true);
