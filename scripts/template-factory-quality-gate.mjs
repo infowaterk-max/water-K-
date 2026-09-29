@@ -289,11 +289,11 @@ async function proveFactoryCommerceInteraction(browser,manifest){
   const page=await browser.newPage({viewport:viewportProfiles.desktop,deviceScaleFactor:1});
   const result={required:true,passed:false,checks:{},errors:[]};
   const previewFor=(pageType,extra={})=>{
-    const params=new URLSearchParams({template:manifest.templateKey,version:String(manifest.templateVersion),page:pageType,viewport:'desktop',factory:'1',embed:'1'});
+    const params=new URLSearchParams({template:manifest.templateKey,version:String(manifest.templateVersion),page:pageType,viewport:'desktop',factory:'1',commerceProof:'1'});
     for(const[key,value]of Object.entries(extra))if(value!==undefined&&value!==null&&String(value))params.set(key,String(value));
-    return baseUrl+'/storefront-template-preview?'+params.toString();
+    return baseUrl+'/visual-fidelity-qa?'+params.toString();
   };
-  const rootFor=pageType=>page.locator('[data-template-preview="representative-demo"][data-template-key="'+manifest.templateKey+'"][data-template-version="'+manifest.templateVersion+'"][data-factory-candidate="true"][data-page-type="'+pageType+'"]' ).first();
+  const rootFor=pageType=>page.locator('[data-visual-fidelity-root="runtime"][data-template-key="'+manifest.templateKey+'"][data-template-version="'+manifest.templateVersion+'"][data-factory-candidate="true"][data-page-type="'+pageType+'"][data-commerce-proof="true"]').first();
   const visit=async(pageType,extra={})=>{
     const response=await page.goto(previewFor(pageType,extra),{waitUntil:'domcontentloaded',timeout:30000});
     if(!response?.ok())throw new Error('COMMERCE_ROUTE_FAILED:'+pageType+':'+(response?.status()??'no-response'));
@@ -317,7 +317,7 @@ async function proveFactoryCommerceInteraction(browser,manifest){
       const href=await target.getAttribute('href');
       const variant=href?new URL(href,page.url()).searchParams.get('variant'):null;
       await Promise.all([
-        page.waitForURL(url=>url.pathname==='/storefront-template-preview'&&url.searchParams.get('page')==='product'&&(!variant||url.searchParams.get('variant')===variant),{timeout:15000}),
+        page.waitForURL(url=>url.pathname==='/visual-fidelity-qa'&&url.searchParams.get('page')==='product'&&(!variant||url.searchParams.get('variant')===variant),{timeout:15000}),
         target.click(),
       ]);
       productRoot=rootFor('product');
@@ -336,7 +336,7 @@ async function proveFactoryCommerceInteraction(browser,manifest){
     result.checks.addToCartAcknowledgement=await confirmation.getByRole('button',{name:'Tovább vásárolok',exact:true}).count()===1
       &&await confirmation.getByRole('link',{name:'Kosár megnyitása',exact:true}).count()===1;
     await Promise.all([
-      page.waitForURL(url=>url.pathname==='/storefront-template-preview'&&url.searchParams.get('page')==='cart',{timeout:15000}),
+      page.waitForURL(url=>url.pathname==='/visual-fidelity-qa'&&url.searchParams.get('page')==='cart',{timeout:15000}),
       confirmation.getByRole('link',{name:'Kosár megnyitása',exact:true}).click(),
     ]);
 
@@ -364,13 +364,13 @@ async function proveFactoryCommerceInteraction(browser,manifest){
     const confirmation2=page.locator('[data-storefront-cart-confirmation="shared-v1"]:visible');
     await confirmation2.waitFor({state:'visible',timeout:10000});
     await Promise.all([
-      page.waitForURL(url=>url.pathname==='/storefront-template-preview'&&url.searchParams.get('page')==='cart',{timeout:15000}),
+      page.waitForURL(url=>url.pathname==='/visual-fidelity-qa'&&url.searchParams.get('page')==='cart',{timeout:15000}),
       confirmation2.getByRole('link',{name:'Kosár megnyitása',exact:true}).click(),
     ]);
     cartRoot=rootFor('cart');
     await cartRoot.locator('[data-storefront-preview-cart="interactive"]').waitFor({state:'visible',timeout:10000});
     await Promise.all([
-      page.waitForURL(url=>url.pathname==='/storefront-template-preview'&&url.searchParams.get('page')==='checkout',{timeout:15000}),
+      page.waitForURL(url=>url.pathname==='/visual-fidelity-qa'&&url.searchParams.get('page')==='checkout',{timeout:15000}),
       cartRoot.getByRole('link',{name:'Tovább a pénztárhoz',exact:true}).click(),
     ]);
 

@@ -91,7 +91,7 @@ function PreviewAccountCapabilityState({view,viewport}:{view:string;viewport:Sto
   </section>;
 }
 
-export function StorefrontTemplatePreviewRuntime({page,viewport,bindingContext,capability,routes,accountView}:{page:StorefrontPageDocument;viewport:StorefrontViewport;bindingContext:Record<string,unknown>;capability?:StorefrontRuntimeCapabilityContext;routes:Routes;accountView?:string}){
+export function StorefrontTemplatePreviewRuntime({page,viewport,bindingContext,capability,routes,accountView,interactionBasePath}:{page:StorefrontPageDocument;viewport:StorefrontViewport;bindingContext:Record<string,unknown>;capability?:StorefrontRuntimeCapabilityContext;routes:Routes;accountView?:string;interactionBasePath?:string}){
   const componentRegistry=createStorefrontVisualBuilderComponentRegistry();
   const rendererRegistry=createStorefrontVisualBuilderRendererRegistry();
   const decorateNode=(node:StorefrontResolvedComponentNode,rendered:ReactNode)=>{
@@ -117,6 +117,13 @@ export function StorefrontTemplatePreviewRuntime({page,viewport,bindingContext,c
     if(url.pathname==='/kosar'){
       event.preventDefault();
       window.location.assign(routes.cart);
+      return;
+    }
+    if(interactionBasePath&&url.pathname==='/storefront-template-preview'){
+      event.preventDefault();
+      const params=new URLSearchParams(url.search);
+      params.set('commerceProof','1');
+      window.location.assign(`${interactionBasePath}?${params.toString()}`);
     }
   };
   return <div data-storefront-template-preview-runtime="interactive-commerce-v1" onClickCapture={interceptPreviewRoute} style={{display:'contents'}}>
