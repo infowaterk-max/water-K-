@@ -101,10 +101,7 @@
     "SQ-NK-008",
     "SQ-NK-009",
     "SQ-NK-010",
-    "SQ-NK-012",
-    "SQ-NK-013",
-    "SQ-NK-014",
-    "SQ-NK-015"
+    "SQ-NK-012"
   ],
   "exceptions": [],
   "notes": "Extend existing Template Factory and pilot acceptance authorities only. Separate engine presence/integration proof from shared engine behavior proof. Reuse the existing signed pilot acceptance session, mixed-cart acceptance fixture, real /penztar route and fail-closed acceptance submit. Do not create a second checkout engine, mock quote authority, template-local checkout behavior, or live order side effect. Scope expansion reviewed: checkout behavioral proof legitimately crosses admin acceptance, payment/checkout/order, storefront UI and release-quality orchestration; this is intentional evidence wiring, not new business authority.",
