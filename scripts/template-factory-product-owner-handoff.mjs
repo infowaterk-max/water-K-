@@ -267,6 +267,112 @@ try{
       }
     }
 
+    const commerceInteraction={};
+    try{
+      let commerceCartRoot=await visitCandidate('cart','commerce-empty-baseline');
+      const removeExisting=async()=>{
+        for(let attempt=0;attempt<12;attempt+=1){
+          const removeButtons=commerceCartRoot.getByRole('button',{name:'Tétel törlése',exact:true});
+          if(await removeButtons.count()===0)break;
+          await removeButtons.first().click();
+          await page.waitForTimeout(80);
+          commerceCartRoot=rootFor('cart');
+        }
+      };
+      await removeExisting();
+      await commerceCartRoot.locator('[data-storefront-preview-cart="empty"]').waitFor({state:'visible',timeout:10000});
+      commerceInteraction.emptyState=true;
+
+      let commerceProductRoot=await visitCandidate('product','commerce-variant-selection');
+      const optionLinks=commerceProductRoot.locator('[data-storefront-structured="option-selector"] a');
+      const optionCount=await optionLinks.count();
+      let selectedVariant=null;
+      if(optionCount>1){
+        const productInfo=commerceProductRoot.locator('[data-storefront-commerce="product-info"]').first();
+        const beforeInfo=(await productInfo.innerText()).replace(/\s+/g,' ').trim();
+        const target=optionLinks.nth(optionCount-1);
+        const targetLabel=(await target.innerText()).trim();
+        const targetHref=await target.getAttribute('href');
+        selectedVariant=targetHref?new URL(targetHref,page.url()).searchParams.get('variant'):null;
+        await Promise.all([
+          page.waitForURL(url=>candidatePageIdentity(url.toString(),'product')&&(!selectedVariant||url.searchParams.get('variant')===selectedVariant),{timeout:15000}),
+          target.click(),
+        ]);
+        commerceProductRoot=await assertCandidatePage('product','commerce-variant-selected');
+        const selectedOption=commerceProductRoot.locator('[data-storefront-structured="option-selector"] a[aria-current="true"]').first();
+        const afterInfo=(await commerceProductRoot.locator('[data-storefront-commerce="product-info"]').first().innerText()).replace(/\s+/g,' ').trim();
+        commerceInteraction.variantSelection=await selectedOption.count()===1
+          &&(await selectedOption.innerText()).trim()===targetLabel
+          &&beforeInfo!==afterInfo;
+      }else{
+        commerceInteraction.variantSelection='not-applicable';
+      }
+
+      const purchaseButton=commerceProductRoot.getByRole('button',{name:/Kosárba/}).first();
+      await purchaseButton.waitFor({state:'visible',timeout:10000});
+      await purchaseButton.click();
+      const confirmation=page.locator('[data-storefront-cart-confirmation="shared-v1"]:visible');
+      await confirmation.waitFor({state:'visible',timeout:10000});
+      commerceInteraction.addToCartAcknowledgement=await confirmation.getByRole('button',{name:'Tovább vásárolok',exact:true}).count()===1
+        &&await confirmation.getByRole('link',{name:'Kosár megnyitása',exact:true}).count()===1;
+      await clickCandidate(confirmation.getByRole('link',{name:'Kosár megnyitása',exact:true}),'cart','commerce-add-to-cart');
+
+      commerceCartRoot=rootFor('cart');
+      await commerceCartRoot.locator('[data-storefront-preview-cart="interactive"]').waitFor({state:'visible',timeout:10000});
+      const quantity=commerceCartRoot.locator('[data-storefront-preview-cart-quantity]').first();
+      const initialQuantity=(await quantity.innerText()).trim();
+      await commerceCartRoot.getByRole('button',{name:'Mennyiség növelése',exact:true}).first().click();
+      await page.waitForFunction(()=>document.querySelector('[data-storefront-preview-cart-quantity]')?.textContent?.trim()==='2 db',{timeout:5000});
+      const increasedQuantity=(await quantity.innerText()).trim();
+      await commerceCartRoot.getByRole('button',{name:'Mennyiség csökkentése',exact:true}).first().click();
+      await page.waitForFunction(()=>document.querySelector('[data-storefront-preview-cart-quantity]')?.textContent?.trim()==='1 db',{timeout:5000});
+      commerceInteraction.quantityMutation=initialQuantity==='1 db'&&increasedQuantity==='2 db';
+
+      await commerceCartRoot.getByRole('button',{name:'Tétel törlése',exact:true}).first().click();
+      await commerceCartRoot.locator('[data-storefront-preview-cart="empty"]').waitFor({state:'visible',timeout:10000});
+      commerceInteraction.removeAndEmptyState=true;
+
+      commerceProductRoot=await visitCandidate('product','commerce-readd',selectedVariant?{variant:selectedVariant}:{});
+      await commerceProductRoot.getByRole('button',{name:/Kosárba/}).first().click();
+      const readdConfirmation=page.locator('[data-storefront-cart-confirmation="shared-v1"]:visible');
+      await readdConfirmation.waitFor({state:'visible',timeout:10000});
+      await clickCandidate(readdConfirmation.getByRole('link',{name:'Kosár megnyitása',exact:true}),'cart','commerce-readd-cart');
+      commerceCartRoot=rootFor('cart');
+      await commerceCartRoot.locator('[data-storefront-preview-cart="interactive"]').waitFor({state:'visible',timeout:10000});
+      await clickCandidate(commerceCartRoot.getByRole('link',{name:'Tovább a pénztárhoz',exact:true}).first(),'checkout','commerce-checkout');
+
+      const checkoutRoot=rootFor('checkout');
+      await checkoutRoot.locator('[data-storefront-preview-checkout="interactive-fail-closed"]').waitFor({state:'visible',timeout:10000});
+      const beforeShipping=(await checkoutRoot.locator('[data-storefront-preview-shipping-cost]').innerText()).trim();
+      const beforeGrandTotal=(await checkoutRoot.locator('[data-storefront-preview-grand-total]').innerText()).trim();
+      const parcel=checkoutRoot.getByRole('radio',{name:'Csomagpont',exact:true});
+      await parcel.check();
+      const afterShipping=(await checkoutRoot.locator('[data-storefront-preview-shipping-cost]').innerText()).trim();
+      const afterGrandTotal=(await checkoutRoot.locator('[data-storefront-preview-grand-total]').innerText()).trim();
+      commerceInteraction.shippingRecalculation=await parcel.isChecked()&&beforeShipping!==afterShipping&&beforeGrandTotal!==afterGrandTotal;
+
+      const transfer=checkoutRoot.getByRole('radio',{name:'Banki átutalás',exact:true});
+      await transfer.check();
+      commerceInteraction.paymentSelection=await transfer.isChecked();
+
+      await checkoutRoot.locator('[data-storefront-preview-order-submit="true"]').click();
+      const blocked=checkoutRoot.locator('[data-storefront-preview-order-blocked="true"]');
+      await blocked.waitFor({state:'visible',timeout:5000});
+      commerceInteraction.orderSubmissionFailClosed=(await blocked.innerText()).includes('Előnézeti módban rendelés nem adható le');
+    }catch(error){
+      commerceInteraction.exception=error instanceof Error?error.message:String(error);
+    }
+    checks.commerceInteraction=commerceInteraction;
+    checks.commerceInteractionPassed=commerceInteraction.emptyState===true
+      &&(commerceInteraction.variantSelection===true||commerceInteraction.variantSelection==='not-applicable')
+      &&commerceInteraction.addToCartAcknowledgement===true
+      &&commerceInteraction.quantityMutation===true
+      &&commerceInteraction.removeAndEmptyState===true
+      &&commerceInteraction.shippingRecalculation===true
+      &&commerceInteraction.paymentSelection===true
+      &&commerceInteraction.orderSubmissionFailClosed===true;
+    if(!checks.commerceInteractionPassed)errors.push('COMMERCE_INTERACTION_NOT_PROVEN');
+
     const convergence={};
     let homeRoot=await visitCandidate('home','home-route-convergence');
     convergence.headerCart=await clickCandidate(homeRoot.getByRole('link',{name:'Kosár',exact:true}).first(),'cart','header-cart');
@@ -281,7 +387,7 @@ try{
     convergence.productCard=await clickCandidate(homeRoot.locator('[data-storefront-commerce-card="loot-vault"] a').first(),'product','product-card');
 
     homeRoot=await visitCandidate('home','home-add-to-cart-convergence');
-    const homePurchase=homeRoot.getByRole('button',{name:'Kosárba',exact:true}).first();
+    const homePurchase=homeRoot.getByRole('button',{name:/Kosárba/}).first();
     try{
       await homePurchase.waitFor({state:'visible',timeout:10000});
       await homePurchase.click();
@@ -294,7 +400,7 @@ try{
     }
 
     let productRoot=await visitCandidate('product','pdp-add-to-cart-convergence');
-    const pdpPurchase=productRoot.getByRole('button',{name:'Kosárba',exact:true}).first();
+    const pdpPurchase=productRoot.getByRole('button',{name:/Kosárba/}).first();
     try{
       await pdpPurchase.waitFor({state:'visible',timeout:10000});
       await pdpPurchase.click();

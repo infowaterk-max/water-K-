@@ -51,6 +51,23 @@ describe('Template Factory Quality Gate v2',()=>{
     expect(STOREFRONT_CANONICAL_VIEWPORT_WIDTH_PX).toEqual({desktop:1200,tablet:768,mobile:390});
   });
 
+  it('requires Product Owner handoff to prove the interactive preview commerce journey fail-closed',()=>{
+    const handoff=read('scripts/template-factory-product-owner-handoff.mjs');
+    const previewRuntime=read('src/components/builder/storefront-template-preview-runtime.tsx');
+    expect(handoff).toContain('COMMERCE_INTERACTION_NOT_PROVEN');
+    expect(handoff).toContain('commerceInteractionPassed');
+    expect(handoff).toContain("name:'Mennyiség növelése'");
+    expect(handoff).toContain("name:'Tétel törlése'");
+    expect(handoff).toContain("name:'Csomagpont'");
+    expect(handoff).toContain("name:'Banki átutalás'");
+    expect(handoff).toContain('data-storefront-preview-order-blocked');
+    expect(previewRuntime).toContain('data-storefront-commerce="cart-summary"');
+    expect(previewRuntime).toContain('data-storefront-commerce="checkout-summary"');
+    expect(previewRuntime).toContain('data-storefront-preview-cart-quantity');
+    expect(previewRuntime).toContain('data-storefront-preview-grand-total');
+    expect(previewRuntime).toContain('Előnézeti módban rendelés nem adható le');
+  });
+
   it('rejects partial page or viewport manifests as non-acceptance even when the underlying template is complete',()=>{
     const template=getStorefrontTemplatePackage('gaming.playroom',20)!;
     const partial={
