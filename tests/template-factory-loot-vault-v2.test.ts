@@ -296,17 +296,16 @@ describe('Loot Vault v2 Factory canonical wiring',()=>{
     }));
     expect(new Set(uses)).toEqual(new Set([
       'loot-vault-loot-v2-universe-1-image',
-      'loot-vault-loot-v2-universe-6-image',
       'loot-vault-loot-v2-product-grid',
     ]));
 
     const home=LOOT_VAULT_V2_TEMPLATE_PACKAGE.pages.find(page=>page.pageType==='home')!;
     const nodes=walk(home.sections);
-    for(const id of ['loot-vault-loot-v2-universe-1-image','loot-vault-loot-v2-universe-6-image']){
-      const media=nodes.find(node=>node.id===id)!;
-      expect((media.config.style as any)?.base?.transform).toBe('scale(1.28)');
-      expect((media.config.style as any)?.base?.objectPosition).toBe('78% 40%');
-    }
+    const croppedCinematic=nodes.find(node=>node.id==='loot-vault-loot-v2-universe-1-image')!;
+    expect((croppedCinematic.config.style as any)?.base?.transform).toBe('scale(1.28)');
+    expect((croppedCinematic.config.style as any)?.base?.objectPosition).toBe('78% 40%');
+    const cleanUniverseSix=nodes.find(node=>node.id==='loot-vault-loot-v2-universe-6-image')!;
+    expect(cleanUniverseSix.config.src).toBe('/storefront-demo/loot-vault-v2/product-figure.webp');
     const grid=nodes.find(node=>node.id==='loot-vault-loot-v2-product-grid')!;
     expect((grid.config.styleSlots as any)?.image?.base?.transform).toBe('scale(1.16)');
   });
