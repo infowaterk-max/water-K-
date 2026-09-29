@@ -98,12 +98,12 @@ const LEGAL_STARTER_PAGES:Readonly<Record<string,DemoContentPayload>>=Object.fre
   aszf:showroomPage('aszf','Általános Szerződési Feltételek','Szerkesztési alap a webshop saját ÁSZF dokumentumához. A közzététel előtt a kereskedő működéséhez és az alkalmazandó joghoz kell igazítani.',`ÁLTALÁNOS SZERZŐDÉSI FELTÉTELEK
 
 1. A SZOLGÁLTATÓ ADATAI
-Cégnév: [CÉGNÉV]
-Székhely: [SZÉKHELY]
-Nyilvántartási / cégjegyzékszám: [NYILVÁNTARTÁSI SZÁM]
-Adószám: [ADÓSZÁM]
-Kapcsolattartási e-mail: [E-MAIL]
-Weboldal: [WEBOLDAL]
+Cégnév: Kitöltendő kereskedői adat: cégnév
+Székhely: Kitöltendő kereskedői adat: székhely
+Nyilvántartási / cégjegyzékszám: Kitöltendő kereskedői adat: nyilvántartási vagy cégjegyzékszám
+Adószám: Kitöltendő kereskedői adat: adószám
+Kapcsolattartási e-mail: Kitöltendő kereskedői adat: e-mail
+Weboldal: Kitöltendő kereskedői adat: weboldal
 
 2. A WEBSHOP ÉS A SZERZŐDÉS TÁRGYA
 Írd le, milyen termékeket vagy digitális tartalmakat értékesít a webshop, kik vásárolhatnak, és mikor jön létre a szerződés.
@@ -124,24 +124,24 @@ Hivatkozz az aktuális szállítási módokra, díjakra, átvételi lehetősége
 Csak a webshop termékeire és a kereskedő helyzetére ténylegesen alkalmazandó szabályokat hagyd meg, szükség esetén szakértői ellenőrzés után.
 
 8. PANASZKEZELÉS ÉS ÜGYFÉLSZOLGÁLAT
-Kapcsolat: [ÜGYFÉLSZOLGÁLATI E-MAIL]
-Postacím: [PANASZKEZELÉSI CÍM]
+Kapcsolat: Kitöltendő kereskedői adat: ügyfélszolgálati e-mail
+Postacím: Kitöltendő kereskedői adat: panaszkezelési cím
 Írd le a panaszok benyújtásának és kezelésének valós menetét.
 
 9. ADATKEZELÉS
 A személyes adatok kezelésének részleteit a külön Adatkezelési tájékoztató tartalmazza.
 
 10. ZÁRÓ RENDELKEZÉSEK
-Hatálybalépés: [DÁTUM]
-Verzió: [VERZIÓ]
+Hatálybalépés: Kitöltendő adat: dátum
+Verzió: Kitöltendő adat: dokumentumverzió
 Ez a dokumentum szerkesztési alap. Közzététel előtt a vállalkozás tényleges működéséhez és az alkalmazandó joghoz kell igazítani.`),
   adatvedelem:showroomPage('adatvedelem','Adatkezelési tájékoztató','Szerkesztési alap a webshop adatkezelési tájékoztatójához, külön adatkezelői, cél-, jogalap-, megőrzési és érintetti jogi fejezetekkel.',`ADATKEZELÉSI TÁJÉKOZTATÓ
 
 1. AZ ADATKEZELŐ
-Adatkezelő neve: [CÉGNÉV]
-Székhely: [SZÉKHELY]
-E-mail: [ADATVÉDELMI E-MAIL]
-Adószám / nyilvántartási szám: [AZONOSÍTÓ]
+Adatkezelő neve: Kitöltendő kereskedői adat: cégnév
+Székhely: Kitöltendő kereskedői adat: székhely
+E-mail: Kitöltendő kereskedői adat: adatvédelmi e-mail
+Adószám / nyilvántartási szám: Kitöltendő kereskedői adat: azonosító
 
 2. ADATKEZELÉSI CÉLOK
 Sorold fel külön a tényleges adatkezeléseket: fiók, rendelés, számlázás, szállítás, ügyfélszolgálat, visszaküldés, hírlevél és biztonsági naplózás.
@@ -153,7 +153,7 @@ Minden célhoz rendeld hozzá a ténylegesen alkalmazott jogalapot; ne használj
 Célonként sorold fel a szükséges adatokat: név, e-mail, telefon, számlázási/szállítási adatok, rendelési előzmények és technikai naplóadatok.
 
 5. ADATFELDOLGOZÓK ÉS CÍMZETTEK
-Tüntesd fel a tényleges tárhely-, fizetési, számlázási, szállítási, e-mail- és analitikai partnereket: [SZOLGÁLTATÓ / CÉL / ADATKÖR].
+Tüntesd fel a tényleges tárhely-, fizetési, számlázási, szállítási, e-mail- és analitikai partnereket: Kitöltendő adat: szolgáltató, cél és adatköre.
 
 6. MEGŐRZÉSI IDŐK
 Minden célhoz add meg a vállalkozásra ténylegesen alkalmazandó megőrzési időt vagy annak meghatározási szempontját.
@@ -168,36 +168,36 @@ Sorold fel a ténylegesen használt sütik és mérési szolgáltatások kategó
 Röviden ismertesd a releváns szervezési és technikai védelmi intézkedéseket biztonsági titkok közzététele nélkül.
 
 10. KAPCSOLAT ÉS JOGORVOSLAT
-Adatvédelmi kapcsolat: [ADATVÉDELMI E-MAIL]
-Felügyeleti hatóság / jogorvoslati információ: [ELLENŐRZÖTT ADAT]
+Adatvédelmi kapcsolat: Kitöltendő kereskedői adat: adatvédelmi e-mail
+Felügyeleti hatóság / jogorvoslati információ: Kitöltendő, ellenőrzött jogorvoslati adat
 
-Hatály: [DÁTUM]
-Verzió: [VERZIÓ]
+Hatály: Kitöltendő adat: dátum
+Verzió: Kitöltendő adat: dokumentumverzió
 Ez a dokumentum szerkesztési alap, és közzététel előtt a webshop tényleges adatkezeléseihez kell igazítani.`),
   impresszum:showroomPage('impresszum','Impresszum','Az üzemeltető és a tárhelyszolgáltató legfontosabb közzétételi adatainak tömör, különálló szerkesztési alapja.',`IMPRESSZUM
 
 A WEBSHOP ÜZEMELTETŐJE
-Cégnév / név: [CÉGNÉV]
-Székhely / lakcím: [SZÉKHELY]
-Levelezési cím: [LEVELEZÉSI CÍM]
-Nyilvántartási / cégjegyzékszám: [NYILVÁNTARTÁSI SZÁM]
-Nyilvántartó szerv: [NYILVÁNTARTÓ SZERV]
-Adószám: [ADÓSZÁM]
-Képviselő: [KÉPVISELŐ]
-E-mail: [E-MAIL]
-Telefonszám: [TELEFON]
+Cégnév / név: Kitöltendő kereskedői adat: cégnév
+Székhely / lakcím: Kitöltendő kereskedői adat: székhely
+Levelezési cím: Kitöltendő kereskedői adat: levelezési cím
+Nyilvántartási / cégjegyzékszám: Kitöltendő kereskedői adat: nyilvántartási vagy cégjegyzékszám
+Nyilvántartó szerv: Kitöltendő kereskedői adat: nyilvántartó szerv
+Adószám: Kitöltendő kereskedői adat: adószám
+Képviselő: Kitöltendő kereskedői adat: képviselő
+E-mail: Kitöltendő kereskedői adat: e-mail
+Telefonszám: Kitöltendő kereskedői adat: telefonszám
 
 TÁRHELYSZOLGÁLTATÓ
-Szolgáltató neve: [TÁRHELYSZOLGÁLTATÓ]
-Székhely: [TÁRHELYSZOLGÁLTATÓ CÍME]
-Elérhetőség: [TÁRHELYSZOLGÁLTATÓ ELÉRHETŐSÉGE]
-Weboldal: [TÁRHELYSZOLGÁLTATÓ WEBOLDALA]
+Szolgáltató neve: Kitöltendő adat: tárhelyszolgáltató neve
+Székhely: Kitöltendő adat: tárhelyszolgáltató címe
+Elérhetőség: Kitöltendő adat: tárhelyszolgáltató elérhetősége
+Weboldal: Kitöltendő adat: tárhelyszolgáltató weboldala
 
 KAPCSOLAT
-Ügyfélszolgálati e-mail: [ÜGYFÉLSZOLGÁLATI E-MAIL]
-Ügyfélszolgálati cím / nyitvatartás: [ADAT]
+Ügyfélszolgálati e-mail: Kitöltendő kereskedői adat: ügyfélszolgálati e-mail
+Ügyfélszolgálati cím / nyitvatartás: Kitöltendő kereskedői adat
 
-Utolsó frissítés: [DÁTUM]
+Utolsó frissítés: Kitöltendő adat: dátum
 Ellenőrizd, hogy minden kötelező üzemeltetői adat a vállalkozás aktuális nyilvántartási adataival egyezzen.`),
 
 });
