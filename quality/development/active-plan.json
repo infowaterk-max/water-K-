@@ -3,7 +3,7 @@
   "taskId": "DEV-ENGINE-AUTHORITY-SCOPE-CLASSIFICATION",
   "task": "Close architecture and development-scope gaps for shared deterministic commerce read-model engines and editorial content authority without weakening transactional commerce risk classification.",
   "status": "ready-for-implementation",
-  "guardDigest": "PENDING",
+  "guardDigest": "540e4ce8",
   "plannedFilePatterns": [
     "deploy/release-risk-policy.json",
     "quality/knowledge/domain-foundations.v1.json",
@@ -16,9 +16,11 @@
     "release-infrastructure"
   ],
   "expectedDomains": [
+    "DOMAIN-QUALITY",
     "DOMAIN-RELEASE"
   ],
   "expectedAuthorities": [
+    "quality-knowledge-system",
     "release-infrastructure"
   ],
   "expectedKnownFailureIds": [
@@ -73,15 +75,9 @@
     "TF-KF-025"
   ],
   "acknowledgedNegativeKnowledgeIds": [
-    "SQ-NK-001",
     "SQ-NK-002",
     "SQ-NK-003",
-    "SQ-NK-004",
     "SQ-NK-005",
-    "SQ-NK-006",
-    "SQ-NK-007",
-    "SQ-NK-008",
-    "SQ-NK-009",
     "SQ-NK-010",
     "SQ-NK-012"
   ],
