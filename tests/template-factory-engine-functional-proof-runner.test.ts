@@ -18,6 +18,9 @@ describe('Template Factory shared engine functional proof runner',()=>{
     expect(runner).toContain("proof.sideEffectRequests.length===0");
     expect(runner).toContain("waitUntil:'commit'");
     expect(runner).toContain("ENGINE_FUNCTIONAL_PLATFORM_ROLE_REQUIRED");
+    expect(runner).toContain("dismissCookieConsent(page)");
+    expect(runner).toContain("name:'Csak szükséges'");
+    expect(runner).not.toContain("force:true");
     expect(runner).not.toContain("createPilotAcceptanceToken");
   });
 

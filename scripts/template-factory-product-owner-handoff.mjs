@@ -54,16 +54,28 @@ const candidatePageIdentity=(url,pageType)=>{
 };
 
 
+async function dismissCookieConsent(page){
+  const dialog=page.locator('[data-template-aware-cookie="true"][role="dialog"]:visible');
+  if(!(await dialog.count()))return false;
+  const necessary=dialog.getByRole('button',{name:'Csak szükséges',exact:true});
+  await necessary.waitFor({state:'visible',timeout:5000});
+  await necessary.click();
+  await dialog.waitFor({state:'hidden',timeout:5000}).catch(()=>undefined);
+  return true;
+}
+
 async function authenticatePlatformOperator(page){
   const origin=new URL(previewUrl).origin;
   if(storageState&&await exists(storageState)){
     const response=await page.goto(new URL('/admin/platform',origin).toString(),{waitUntil:'domcontentloaded',timeout:30000});
+    await dismissCookieConsent(page);
     if(response&&new URL(page.url()).pathname==='/admin/platform')return true;
   }
   if(!email||!password)throw new Error('ENGINE_FUNCTIONAL_PLATFORM_CREDENTIALS_REQUIRED');
   const response=await page.goto(new URL('/platform',origin).toString(),{waitUntil:'domcontentloaded',timeout:30000});
   if(!response)throw new Error('ENGINE_FUNCTIONAL_PLATFORM_LOGIN_NO_RESPONSE');
   await page.waitForLoadState('load',{timeout:15000}).catch(()=>undefined);
+  await dismissCookieConsent(page);
   const emailInput=page.locator('input[name="email"]:visible').first();
   const passwordInput=page.locator('input[name="password"]:visible').first();
   const submit=page.getByRole('button',{name:'Belépés a Shoperationbe',exact:true});
