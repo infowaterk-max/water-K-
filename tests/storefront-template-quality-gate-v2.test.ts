@@ -94,6 +94,7 @@ describe('Template Factory Quality Gate v2',()=>{
     const commerceRenderer=read('src/components/builder/storefront-commerce.tsx');
     const previewDemo=read('src/lib/builder/storefront-template-preview-demo.ts');
     const checkout=read('src/components/checkout/checkout-form.tsx');
+    const checkoutPage=read('src/app/penztar/page.tsx');
     expect(handoff).toContain('COMMERCE_INTERACTION_NOT_PROVEN');
     expect(handoff).toContain('commerceInteractionPassed');
     expect(handoff).toContain('templateAwareAuthContentReady');
@@ -116,13 +117,13 @@ describe('Template Factory Quality Gate v2',()=>{
     expect(handoff).toContain('reAddItem');
     expect(handoff).toContain('checkoutEntry');
     expect(handoff).toContain('shippingSelection');
-    expect(handoff).toContain('shippingQuoteRefresh');
+    expect(handoff).toContain('representativeQuoteSource');
     expect(handoff).toContain('totalRecalculation');
     expect(handoff).toContain('totalConsistency');
     expect(handoff).toContain("name:'Tovább a fizetéshez'");
     expect(handoff).toContain("name:'Tovább az összesítéshez'");
     expect(handoff).toContain('legalConsent');
-    expect(handoff).toContain("shippingProvider==='preview-parcel'");
+    expect(handoff).toContain('data-checkout-quote-source="representative-preview"');
     expect(handoff).toContain('Acceptance proof: a rendelés leadási kísérletét a rendszer blokkolta.');
     expect(handoff).toContain('realOrderRequestAttempted');
     expect(handoff).toContain('realPaymentRequestAttempted');
@@ -132,6 +133,12 @@ describe('Template Factory Quality Gate v2',()=>{
     expect(previewRuntime).toContain('data-storefront-commerce-shell="checkout-v1"');
     expect(previewRuntime).toContain('<CartView freeShippingThreshold={20000} products={products}/>');
     expect(previewRuntime).toContain('<CheckoutForm');
+    expect(previewRuntime).toContain('representativePreviewQuote');
+    expect(checkout).toContain('representativePreviewQuote=false');
+    expect(checkout).toContain('if(representativePreviewQuote)');
+    expect(checkout).toContain("fetch('/api/checkout/quote'");
+    expect(checkout).toContain("data-checkout-quote-source={representativePreviewQuote?'representative-preview':'authoritative-server'}");
+    expect(checkoutPage).not.toContain('representativePreviewQuote');
     expect(previewRuntime).toContain("if(url.pathname==='/penztar')");
     expect(previewRuntime).toContain('window.location.assign(routes.checkout)');
     expect(checkout).toContain("data-storefront-preview-order-submit={acceptancePreview?'true':undefined}");
