@@ -3,6 +3,7 @@ import {describe,expect,it} from 'vitest';
 import {
   FAST_ENGINE_FUNCTIONAL_PROOF_CONTRACT,
   SHARED_E13_FUNCTIONAL_PROOF_CONTRACT,
+  SHARED_STOREFRONT_ENGINE_IDS,
   STOREFRONT_ENGINE_FUNCTIONAL_PROOF_REGISTRY,
   getStorefrontEngineFunctionalProofDefinition,
   validateStorefrontEngineFunctionalProofRegistry,
@@ -60,7 +61,7 @@ describe('Template Factory fast engine functional proof registry',()=>{
   it('registers one proof class per shared engine and keeps E13 on the existing browser journey',()=>{
     const validation=validateStorefrontEngineFunctionalProofRegistry();
     expect(validation.ok,validation.issues.join(',')).toBe(true);
-    expect(STOREFRONT_ENGINE_FUNCTIONAL_PROOF_REGISTRY.map(item=>item.engineId)).toEqual(['E2','E7','E10','E13']);
+    expect(STOREFRONT_ENGINE_FUNCTIONAL_PROOF_REGISTRY.map(item=>item.engineId)).toEqual(SHARED_STOREFRONT_ENGINE_IDS);
 
     expect(getStorefrontEngineFunctionalProofDefinition('E2')).toMatchObject({
       authorityVersion:PRODUCT_DISCOVERY_ENGINE_VERSION,

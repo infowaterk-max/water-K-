@@ -1,34 +1,32 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-ENGINE-FUNCTIONAL-PROOF-REGISTRY",
-  "task": "Add a canonical Engine Functional Proof Registry and fast deterministic runtime proofs for E2 Product Discovery, E7 Compare & Spec, and E10 Editorial Story while preserving E13 as the browser-journey proof class.",
+  "taskId": "DEV-CONTROL-PLANE-ENGINE-PROOF-CLOSURE",
+  "task": "Make the shared Storefront Engine Functional Proof Registry a fail-closed Control Plane authority: every shared engine referenced by templates must be registered, every registered engine must declare a proof class and real proof producer, and TF-KF-025 acceptance/preflight must fail if registry coverage is incomplete.",
   "status": "ready-for-implementation",
-  "guardDigest": "9ce759f3",
+  "guardDigest": "94082bf1",
   "plannedFilePatterns": [
-    "src/lib/builder/template-factory/scaffold.ts",
-    "src/lib/commerce/product-discovery.ts",
-    "src/lib/commerce/structured-product.ts",
-    "src/lib/content/story-engine.ts",
     "src/lib/builder/template-factory/engine-functional-proof-registry.ts",
-    "tests/template-factory-fast-engine-functional-proof.test.ts",
-    "quality/development/active-plan.json"
+    "src/lib/builder/template-factory/procedural-memory.ts",
+    "src/lib/builder/template-factory/knowledge-registry.ts",
+    "quality/knowledge/shoperation-quality-knowledge.v1.json",
+    "quality/knowledge/development-guard-policy.v1.json",
+    "tests/template-factory-engine-functional-proof-control-plane.test.ts",
+    "tests/template-factory-engine-functional-proof.test.ts",
+    "quality/development/active-plan.json",
+    "tests/template-factory-fast-engine-functional-proof.test.ts"
   ],
   "expectedSubsystems": [
     "builder-template-system",
-    "commerce-read-model-authority",
-    "content-authority",
     "shared-storefront",
     "storefront-ui"
   ],
   "expectedDomains": [
     "DOMAIN-BUILDER",
-    "DOMAIN-COMMERCE",
-    "DOMAIN-CONTENT"
+    "DOMAIN-QUALITY"
   ],
   "expectedAuthorities": [
     "builder-template-system",
-    "commerce-core-authority",
-    "content-authority"
+    "quality-knowledge-system"
   ],
   "expectedKnownFailureIds": [
     "SQ-KF-001",
@@ -36,7 +34,10 @@
     "SQ-KF-003",
     "SQ-KF-004",
     "SQ-KF-005",
+    "SQ-KF-006",
     "SQ-KF-007",
+    "SQ-KF-008",
+    "SQ-KF-009",
     "SQ-KF-010",
     "SQ-KF-011",
     "SQ-KF-012",
@@ -45,9 +46,13 @@
     "SQ-KF-015",
     "SQ-KF-016",
     "SQ-KF-017",
+    "SQ-KF-018",
     "SQ-KF-019",
     "SQ-KF-020",
+    "SQ-KF-021",
     "SQ-KF-022",
+    "SQ-KF-023",
+    "SQ-KF-024",
     "TF-KF-001",
     "TF-KF-002",
     "TF-KF-003",
@@ -87,6 +92,6 @@
     "SQ-NK-012"
   ],
   "exceptions": [],
-  "notes": "Rebased onto canonical main after #528. Projection anchors are existing canonical files only; they are listed to let Plan Before Code classify the new registry and proof test. Do not edit E2/E7/E10 engine implementations or scaffold.ts in this batch. E13 remains browser-journey proof and checkout high-risk authority. The scaffold anchor is intentionally non-knowledge-infrastructure so projection does not force an unrelated full replay.",
-  "changeBaseSha": "ebc4ff91e93519e5a58a2fbb9726c96660209f32"
+  "notes": "Final closure for the Engine Functional Proof work. Do not change engine business logic, checkout/order/payment behavior, template visuals, Vercel/Supabase runtime state, or add new browser journeys. Existing engine-specific tests remain proof producers; E13 remains the dedicated browser-journey proof. E12 is not an active shared engine and must fail if referenced without explicit future registration. Scope expanded only to update the pre-existing fast-proof regression whose registry-cardinality assertion still encodes the former four-engine registry. Functional E2/E7/E10 proof behavior remains unchanged. Scope expanded only to update the pre-existing fast engine registry regression, whose fixed four-engine cardinality assertion is intentionally superseded by the complete shared-engine registry.",
+  "changeBaseSha": "9be3a20bd5b12998bc955e95721769410e8490e8"
 }
