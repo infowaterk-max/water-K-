@@ -1,7 +1,7 @@
 import type {StorefrontComponentNode,StorefrontPageDocument,StorefrontTemplatePackage} from '@/lib/builder/storefront-runtime';
 import type {StorefrontDemoFixture,StorefrontInstallableTemplatePackage} from '@/lib/builder/storefront-template-installation';
 import {STOREFRONT_PAGE_SCHEMA_VERSION,STOREFRONT_PAGE_TYPES,type StorefrontBuilderPageType} from '@/lib/builder/storefront-foundation';
-import {CANONICAL_ACCOUNT_CAPABILITIES} from '@/lib/account/account-capabilities';
+import {CANONICAL_ACCOUNT_CAPABILITIES,resolveAccountCapabilityPreviewView} from '@/lib/account/account-capabilities';
 
 export const STOREFRONT_ROUTE_INTEGRITY_VERSION='shoporation.storefront-route-integrity.v1' as const;
 export const STOREFRONT_DEMO_CONTENT_NOTICE='Minta tartalom – ez az oldal előre generált szöveget tartalmaz, és nem tekinthető a webshop valós működésének vagy feltételeinek. Ellenőrizd és igazítsd a saját működésedhez publikálás előtt.' as const;
@@ -344,9 +344,7 @@ function rewritePreviewHref(href:string,input:{templateKey:string;templateVersio
   });
   if(input.factoryCandidate)params.set('factory','1');
   if(page==='account'){
-    const hashView:Record<string,string>={rendelesek:'orders',fiokadatok:'profile',marketing:'marketing'};
-    const nested=url.pathname.startsWith('/fiokom/')?url.pathname.slice('/fiokom/'.length):'';
-    const accountView=url.pathname==='/kedvencek'?'wishlist':nested||hashView[url.hash.replace(/^#/,'')]||'';
+    const accountView=resolveAccountCapabilityPreviewView(url.toString());
     if(accountView)params.set('accountView',accountView);
   }
   if(url.pathname.startsWith('/oldal/')||url.pathname.startsWith('/blog/')){
