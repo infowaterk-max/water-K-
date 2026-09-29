@@ -80,7 +80,7 @@ describe('Template Factory Quality Gate v2',()=>{
     expect(handoff).toContain('commerceInteractionPassed');
     expect(handoff).toContain("name:'Mennyiség növelése'");
     expect(handoff).toContain("name:'Tétel törlése'");
-    expect(handoff).toContain("name:'Csomagpont'");
+    expect(handoff).toContain("getByRole('radio',{name:/Csomagpont/}).first()");
     expect(handoff).toContain("name:'Banki átutalás'");
     expect(handoff).toContain('data-storefront-preview-order-blocked');
     expect(previewRuntime).toContain('data-storefront-commerce="cart-summary"');
