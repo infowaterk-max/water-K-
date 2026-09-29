@@ -36,24 +36,19 @@ describe('Template Factory Quality Gate v2',()=>{
     expect(result).toEqual({ok:true,issues:[]});
   });
 
-  it('keeps interactive commerce proof in the protected Product Owner handoff instead of duplicating the 14x3 browser matrix',()=>{
+  it('requires interactive commerce proof in the exact-head Factory browser gate instead of screenshot presence alone',()=>{
     const gate=read('scripts/template-factory-quality-gate.mjs');
-    const handoff=read('scripts/template-factory-product-owner-handoff.mjs');
-    expect(gate).not.toContain('proveFactoryCommerceInteraction');
-    expect(gate).not.toContain('FACTORY_COMMERCE_INTERACTION_NOT_PROVEN');
-    expect(handoff).toContain('commerceInteractionPassed');
-    expect(handoff).toContain('selectedState');
-    expect(handoff).toContain('priceUpdate');
-    expect(handoff).toContain('stockUpdate');
-    expect(handoff).toContain('quantityIncrease');
-    expect(handoff).toContain('quantityDecrease');
-    expect(handoff).toContain('reAddItem');
-    expect(handoff).toContain('checkoutEntry');
-    expect(handoff).toContain('shippingSelection');
-    expect(handoff).toContain('totalConsistency');
-    expect(handoff).toContain('orderSubmissionFailClosed');
-    expect(handoff).toContain('productionCommerceMutationRequestAttempted');
-    expect(handoff).toContain("page.route('**/api/**'");
+    expect(gate).toContain('proveFactoryCommerceInteraction');
+    expect(gate).toContain('FACTORY_COMMERCE_INTERACTION_NOT_PROVEN');
+    expect(gate).toContain('data-storefront-preview-order-blocked');
+    expect(gate).toContain('data-storefront-preview-cart-quantity');
+    expect(gate).toContain('commerceInteractionPassed');
+    expect(gate).toContain('selectedState');
+    expect(gate).toContain('priceUpdate');
+    expect(gate).toContain('stockUpdate');
+    expect(gate).toContain('totalConsistency');
+    expect(gate).toContain('productionCommerceMutationRequestAttempted');
+    expect(gate).toContain("page.route('**/api/**'");
   });
 
   it('keeps Builder v3 and storefront preview on the same Runtime renderer and canonical viewport authority',()=>{
