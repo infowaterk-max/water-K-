@@ -150,9 +150,18 @@ try{
     checks.returnTargetPreserved=Boolean(next&&exactIdentity(new URL(next,current.origin).toString()));
     if(!checks.returnTargetPreserved)errors.push('LOGIN_RETURN_TARGET_MISMATCH');
 
-    const shell=page.locator(`[data-storefront-account-shell="preview"][data-storefront-template="${templateKey}"]`);
-    await shell.waitFor({state:'visible',timeout:10000}).catch(()=>undefined);
-    checks.templateAwareAuthShell=await shell.count()===1;
+    const streamedAuthSurface=page.locator('main[data-template-preview-auth="true"] [data-storefront-auth-surface="true"]:visible');
+    await streamedAuthSurface.waitFor({state:'visible',timeout:15000}).catch(()=>undefined);
+    checks.templateAwareAuthContentReady=await streamedAuthSurface.count()===1;
+    if(!checks.templateAwareAuthContentReady)errors.push('TEMPLATE_AWARE_AUTH_CONTENT_NOT_READY');
+
+    const shellSelector=`[data-storefront-account-shell="preview"][data-storefront-template="${templateKey}"]`;
+    const allShells=page.locator(shellSelector);
+    const visibleShell=page.locator(shellSelector+':visible');
+    await visibleShell.waitFor({state:'visible',timeout:10000}).catch(()=>undefined);
+    checks.templateAwareAuthShellCount=await allShells.count();
+    checks.visibleTemplateAwareAuthShellCount=await visibleShell.count();
+    checks.templateAwareAuthShell=checks.templateAwareAuthShellCount===1&&checks.visibleTemplateAwareAuthShellCount===1;
     if(!checks.templateAwareAuthShell)errors.push('TEMPLATE_AWARE_AUTH_SHELL_MISSING');
 
     const styles=page.locator(`[data-storefront-global-styles-v1="true"][data-storefront-template="${templateKey}"][data-storefront-template-version="${templateVersion}"]`);

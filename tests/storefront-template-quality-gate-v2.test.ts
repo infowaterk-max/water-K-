@@ -86,6 +86,10 @@ describe('Template Factory Quality Gate v2',()=>{
     const previewDemo=read('src/lib/builder/storefront-template-preview-demo.ts');
     expect(handoff).toContain('COMMERCE_INTERACTION_NOT_PROVEN');
     expect(handoff).toContain('commerceInteractionPassed');
+    expect(handoff).toContain('templateAwareAuthContentReady');
+    expect(handoff).toContain('templateAwareAuthShellCount');
+    expect(handoff).toContain('visibleTemplateAwareAuthShellCount');
+    expect(handoff).toContain('main[data-template-preview-auth="true"] [data-storefront-auth-surface="true"]:visible');
     expect(handoff).toContain("name:'Mennyiség növelése'");
     expect(handoff).toContain("name:'Tétel törlése'");
     expect(handoff).toContain("getByRole('radio',{name:/Csomagpont/}).first()");
