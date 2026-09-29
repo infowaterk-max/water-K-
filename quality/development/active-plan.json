@@ -3,7 +3,7 @@
   "taskId": "DEV-CONTROL-PLANE-ENGINE-PROOF-CLOSURE",
   "task": "Make the shared Storefront Engine Functional Proof Registry a fail-closed Control Plane authority: every shared engine referenced by templates must be registered, every registered engine must declare a proof class and real proof producer, and TF-KF-025 acceptance/preflight must fail if registry coverage is incomplete.",
   "status": "ready-for-implementation",
-  "guardDigest": "PENDING",
+  "guardDigest": "94082bf1",
   "plannedFilePatterns": [
     "src/lib/builder/template-factory/engine-functional-proof-registry.ts",
     "src/lib/builder/template-factory/procedural-memory.ts",
@@ -16,7 +16,6 @@
   ],
   "expectedSubsystems": [
     "builder-template-system",
-    "quality-infrastructure",
     "shared-storefront",
     "storefront-ui"
   ],
