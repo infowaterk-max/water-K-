@@ -430,6 +430,12 @@ async function proveFactoryCommerceInteraction(browser,manifest){
 
     const checkoutRoot=rootFor('checkout');
     await checkoutRoot.locator('[data-storefront-preview-checkout="interactive-fail-closed"]').waitFor({state:'visible',timeout:10000});
+    await page.waitForFunction(()=>{
+      const digits=value=>{const parsed=Number(String(value??'').replace(/[^\d-]/g,''));return Number.isFinite(parsed)?parsed:null};
+      const subtotal=digits(document.querySelector('[data-storefront-preview-subtotal]')?.textContent);
+      const total=digits(document.querySelector('[data-storefront-preview-grand-total]')?.textContent);
+      return subtotal!==null&&subtotal>0&&total!==null&&total>=subtotal;
+    },undefined,{timeout:5000}).catch(error=>{throw new Error('COMMERCE_INITIAL_QUOTE_TIMEOUT:'+String(error))});
     const subtotal=(await checkoutRoot.locator('[data-storefront-preview-subtotal]').innerText()).trim();
     const beforeShipping=(await checkoutRoot.locator('[data-storefront-preview-shipping-cost]').innerText()).trim();
     const beforeTotal=(await checkoutRoot.locator('[data-storefront-preview-grand-total]').innerText()).trim();
@@ -456,14 +462,14 @@ async function proveFactoryCommerceInteraction(browser,manifest){
     const transfer=checkoutRoot.getByRole('radio',{name:/Banki átutalás/});
     await transfer.waitFor({state:'visible',timeout:5000});
     await checkoutRoot.locator('label.choiceCard').filter({hasText:/Banki átutalás/}).first().click();
-    await page.waitForFunction(()=>document.querySelector('input[name="paymentProvider"]:checked')!==null,{timeout:5000}).catch(error=>{throw new Error('COMMERCE_PAYMENT_SELECTION_TIMEOUT:'+String(error))});
+    await page.waitForFunction(()=>document.querySelector('input[name="paymentProvider"]:checked')!==null,undefined,{timeout:5000}).catch(error=>{throw new Error('COMMERCE_PAYMENT_SELECTION_TIMEOUT:'+String(error))});
     result.checks.paymentSelection=await transfer.isChecked();
     await checkoutRoot.getByRole('button',{name:'Tovább az összesítéshez',exact:true}).click();
 
     const terms=checkoutRoot.getByRole('checkbox',{name:/Elolvastam és elfogadom/});
     const privacy=checkoutRoot.getByRole('checkbox',{name:/Tudomásul vettem/});
-    await checkoutRoot.locator('label.inlineCheck').filter({hasText:/Elolvastam és elfogadom/}).first().click();
-    await checkoutRoot.locator('label.inlineCheck').filter({hasText:/Tudomásul vettem/}).first().click();
+    await terms.check();
+    await privacy.check();
     result.checks.legalConsent=await terms.isChecked()&&await privacy.isChecked();
 
     const submit=checkoutRoot.locator('[data-storefront-preview-order-submit="true"]:not([disabled])').first();
