@@ -160,8 +160,8 @@ describe('Loot Vault v2 Factory canonical wiring',()=>{
     const catalogProducts=walk(catalog!.sections).find(node=>node.id==='loot-vault-loot-v2-catalog-products');
     const products=(catalogProducts?.config.products??[]) as Array<Record<string,unknown>>;
     expect(products).toHaveLength(6);
-    const productImages=products.map(item=>String(item.image??''));
-    expect(new Set(productImages).size).toBeGreaterThanOrEqual(5);
+    const productVisuals=products.map(item=>`${String(item.image??'')}|${String(item.imagePosition??'')}|${String(item.imageScale??1)}`);
+    expect(new Set(productVisuals).size).toBe(6);
   });
 
   it('locks the cinematic responsive shell details that define the approved Loot Vault direction',()=>{
@@ -297,6 +297,9 @@ describe('Loot Vault v2 Factory canonical wiring',()=>{
     expect(new Set(uses)).toEqual(new Set([
       'loot-vault-loot-v2-universe-1-image',
       'loot-vault-loot-v2-product-grid',
+      'loot-vault-loot-v2-catalog-products',
+      'loot-vault-loot-v2-product-recommendations',
+      'loot-vault-loot-v2-cart-recommendations',
     ]));
 
     const home=LOOT_VAULT_V2_TEMPLATE_PACKAGE.pages.find(page=>page.pageType==='home')!;
@@ -308,6 +311,27 @@ describe('Loot Vault v2 Factory canonical wiring',()=>{
     expect(cleanUniverseSix.config.src).toBe('/storefront-demo/loot-vault-v2/product-figure.webp');
     const grid=nodes.find(node=>node.id==='loot-vault-loot-v2-product-grid')!;
     expect((grid.config.styleSlots as any)?.image?.base?.transform).toBe('scale(1.16)');
+
+    const allowedCommerceNodes=new Set([
+      'loot-vault-loot-v2-product-grid',
+      'loot-vault-loot-v2-catalog-products',
+      'loot-vault-loot-v2-product-recommendations',
+      'loot-vault-loot-v2-cart-recommendations',
+    ]);
+    for(const page of LOOT_VAULT_V2_TEMPLATE_PACKAGE.pages){
+      for(const node of walk(page.sections)){
+        if(!allowedCommerceNodes.has(node.id))continue;
+        const groups=[
+          ...(Array.isArray(node.config.products)?[node.config.products as Array<Record<string,unknown>>]:[]),
+          ...(Array.isArray((node.bindings?.products as any)?.fallback)?[(node.bindings?.products as any).fallback as Array<Record<string,unknown>>]:[]),
+        ];
+        for(const product of groups.flat().filter(product=>String(product.image??'').includes('hero-cinematic.webp'))){
+          expect(Number(product.imageScale??1)).toBeGreaterThanOrEqual(1.2);
+          const x=Number.parseInt(String(product.imagePosition??'0').split('%')[0]??'0',10);
+          expect(x).toBeGreaterThanOrEqual(70);
+        }
+      }
+    }
   });
 
   it('uses the shared bounded imageScale capability to keep repeated source media visually distinct without template-specific renderer branches',()=>{
