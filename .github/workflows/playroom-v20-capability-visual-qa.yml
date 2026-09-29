@@ -36,8 +36,17 @@ jobs:
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
       - name: Build exact-head Runtime
-        run: npm run build
+        id: build
+        env:
+          SHOPERATION_DIAGNOSTIC_CODE: BUILD_FAILED
+          SHOPERATION_DIAGNOSTIC_GATE: playroom-v20-build
+          SHOPERATION_DIAGNOSTIC_EXPECTED: exact-head visual QA build PASS
+          SHOPERATION_DIAGNOSTIC_OUTPUT: artifacts/shoperation-command-diagnostics/playroom-v20-build.json
+          SHOPERATION_SOURCE_COMMIT: ${{ github.sha }}
+          SHOPERATION_ENVIRONMENT: visual-qa
+        run: node scripts/shoperation-command-diagnostic.mjs -- npm run build
       - name: Start exact-head Runtime
+        id: runtime
         shell: bash
         run: |
           npm run start -- -H 127.0.0.1 -p 3000 > /tmp/playroom-v20-next.log 2>&1 &
@@ -48,9 +57,63 @@ jobs:
             sleep 2
           done
           cat /tmp/playroom-v20-next.log
+          mkdir -p artifacts/shoperation-command-diagnostics
+          node <<'NODE'
+          const fs=require('fs');
+          const raw=fs.existsSync('/tmp/playroom-v20-next.log')?fs.readFileSync('/tmp/playroom-v20-next.log','utf8'):'';
+          const tail=raw.split(/\r?\n/).filter(Boolean).slice(-12).join(' | ').slice(0,1800);
+          fs.writeFileSync('artifacts/shoperation-command-diagnostics/playroom-v20-runtime.json',JSON.stringify({
+            contract:'shoporation.command-diagnostic.v1',
+            gateId:'playroom-v20-runtime',
+            decision:'FAIL',
+            errors:[{code:'VISUAL_RUNTIME_START_FAILED',reason:tail||'Visual QA runtime did not become ready before timeout',expected:'exact-head visual QA runtime becomes ready',actual:tail||'readiness timeout',evidence:['log=/tmp/playroom-v20-next.log']}]
+          },null,2)+'\n');
+          NODE
           exit 1
       - name: Capture all Playroom v20 desktop pages
-        run: node scripts/capture-playroom-v20-page-family.mjs
+        id: capture
+        env:
+          SHOPERATION_DIAGNOSTIC_CODE: VISUAL_CAPTURE_FAILED
+          SHOPERATION_DIAGNOSTIC_GATE: playroom-v20-capture
+          SHOPERATION_DIAGNOSTIC_EXPECTED: visual evidence capture PASS
+          SHOPERATION_DIAGNOSTIC_OUTPUT: artifacts/shoperation-command-diagnostics/playroom-v20-capture.json
+          SHOPERATION_SOURCE_COMMIT: ${{ github.sha }}
+          SHOPERATION_ENVIRONMENT: visual-qa
+        run: node scripts/shoperation-command-diagnostic.mjs -- node scripts/capture-playroom-v20-page-family.mjs
+
+      - name: Create visual QA failure intake
+        if: always() && (steps.build.outcome == 'failure' || steps.runtime.outcome == 'failure' || steps.capture.outcome == 'failure')
+        shell: bash
+        env:
+          BUILD_OUTCOME: ${{ steps.build.outcome }}
+          RUNTIME_OUTCOME: ${{ steps.runtime.outcome }}
+          CAPTURE_OUTCOME: ${{ steps.capture.outcome }}
+          SHOPERATION_SOURCE_COMMIT: ${{ github.sha }}
+          SHOPERATION_FAILURE_SOURCE: playroom-v20-visual-qa
+          SHOPERATION_ENVIRONMENT: visual-qa
+          SHOPERATION_CI_RUN_ID: ${{ github.run_id }}
+          SHOPERATION_CI_WORKFLOW: ${{ github.workflow }}
+          SHOPERATION_DIAGNOSTIC_ARTIFACTS: >-
+            BUILD_FAILED=artifacts/shoperation-command-diagnostics/playroom-v20-build.json;
+            VISUAL_RUNTIME_START_FAILED=artifacts/shoperation-command-diagnostics/playroom-v20-runtime.json;
+            VISUAL_CAPTURE_FAILED=artifacts/shoperation-command-diagnostics/playroom-v20-capture.json
+        run: |
+          codes=""
+          [ "$BUILD_OUTCOME" != "failure" ] || codes="${codes}BUILD_FAILED;"
+          [ "$RUNTIME_OUTCOME" != "failure" ] || codes="${codes}VISUAL_RUNTIME_START_FAILED;"
+          [ "$CAPTURE_OUTCOME" != "failure" ] || codes="${codes}VISUAL_CAPTURE_FAILED;"
+          SHOPERATION_GENERIC_FAILURES="$codes" node scripts/shoperation-failure-intake.mjs
+
+      - name: Upload visual QA failure intake
+        if: always() && (steps.build.outcome == 'failure' || steps.runtime.outcome == 'failure' || steps.capture.outcome == 'failure')
+        uses: actions/upload-artifact@v4
+        with:
+          name: playroom-v20-failure-intake-${{ github.sha }}
+          path: |
+            artifacts/shoperation-failure-intake/**
+            artifacts/shoperation-command-diagnostics/**
+          if-no-files-found: error
+          retention-days: 90
       - name: Upload Playroom v20 evidence
         if: always()
         uses: actions/upload-artifact@v4
