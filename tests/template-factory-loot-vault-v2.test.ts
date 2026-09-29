@@ -589,6 +589,10 @@ describe('Loot Vault v2 Factory canonical wiring',()=>{
     expect(slugs).toContain('szallitas');
     expect(slugs).toContain('fizetes');
     expect(slugs).not.toContain('szallitas-es-fizetes');
+    const handoff=readFileSync('scripts/template-factory-product-owner-handoff.mjs','utf8');
+    expect(handoff).toContain("name:'Szállítás',exact:true");
+    expect(handoff).toContain("name:'Fizetés',exact:true");
+    expect(handoff).not.toContain("name:'Szállítás és fizetés',exact:true");
   });
 
 });
