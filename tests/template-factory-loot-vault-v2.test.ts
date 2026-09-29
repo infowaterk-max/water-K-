@@ -172,6 +172,10 @@ describe('Loot Vault v2 Factory canonical wiring',()=>{
       longTileDirectory:false,
     });
     expect(CANONICAL_ACCOUNT_CAPABILITIES.map(item=>item.href)).toContain('/fiokom/gyujtemenyem');
+    const scaffold=readFileSync('src/lib/builder/template-factory/scaffold.ts','utf8');
+    expect(scaffold).toContain("completeness?.navigationAuthority==='shared-account-capabilities'");
+    expect(scaffold).toContain('FACTORY_ACCOUNT_CAPABILITY_NAVIGATION_DUPLICATE');
+    expect(scaffold).not.toContain("if(node.componentKey!=='system.navigation')return");
   });
 
   it('keeps Favorites, Account and Cart utility icons canonical and identical across all Loot Vault pages',()=>{
