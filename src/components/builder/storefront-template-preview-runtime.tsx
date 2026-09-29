@@ -40,13 +40,13 @@ function PreviewCartCommerceSurface(){
     id:item.variantId??item.productId,name:item.name,slug:item.slug,grossPrice:item.unitPrice,
     minimumQuantity:item.minimumQuantity??1,orderMultiple:item.orderMultiple??1,fulfillmentType:'physical' as const,
   }));
-  return <div data-storefront-commerce-shell="cart-v1" data-storefront-preview-cart={!hydrated?'hydrating':items.length?'interactive':'empty'}>
+  return <div data-storefront-commerce="cart-summary" data-storefront-commerce-shell="cart-v1" data-storefront-preview-cart={!hydrated?'hydrating':items.length?'interactive':'empty'}>
     <CartView freeShippingThreshold={20000} products={products}/>
   </div>;
 }
 
 function PreviewCheckoutCommerceSurface(){
-  return <div data-storefront-commerce-shell="checkout-v1" data-storefront-preview-checkout="interactive-fail-closed">
+  return <div data-storefront-commerce="checkout-summary" data-storefront-commerce-shell="checkout-v1" data-storefront-preview-checkout="interactive-fail-closed">
     <CheckoutForm
       shippingOptions={PREVIEW_SHIPPING_OPTIONS}
       paymentOptions={PREVIEW_PAYMENT_OPTIONS}

@@ -1853,8 +1853,8 @@
                           "componentKey": "content.image",
                           "componentVersion": 1,
                           "config": {
-                            "src": "/storefront-demo/loot-vault-v2/category-miniatures.webp",
-                            "alt": "Film és sorozat hangulatú sötét fantasy archívum",
+                            "src": "/storefront-demo/loot-vault-v2/universe-object-story.svg",
+                            "alt": "Történetközpontú gyűjtői tárgyak a Loot Vault archívumában",
                             "width": 1600,
                             "height": 1000,
                             "fit": "cover",
@@ -1863,17 +1863,17 @@
                             "objectPosition": "42% center",
                             "artDirection": {
                               "desktop": {
-                                "src": "/storefront-demo/loot-vault-v2/category-miniatures.webp",
+                                "src": "/storefront-demo/loot-vault-v2/universe-object-story.svg",
                                 "objectFit": "cover",
                                 "objectPosition": "58% center"
                               },
                               "tablet": {
-                                "src": "/storefront-demo/loot-vault-v2/category-miniatures.webp",
+                                "src": "/storefront-demo/loot-vault-v2/universe-object-story.svg",
                                 "objectFit": "cover",
                                 "objectPosition": "58% center"
                               },
                               "mobile": {
-                                "src": "/storefront-demo/loot-vault-v2/category-miniatures.webp",
+                                "src": "/storefront-demo/loot-vault-v2/universe-object-story.svg",
                                 "objectFit": "cover",
                                 "objectPosition": "58% center"
                               }
@@ -1973,8 +1973,8 @@
                           "componentKey": "content.image",
                           "componentVersion": 1,
                           "config": {
-                            "src": "/storefront-demo/loot-vault-v2/product-figure.webp",
-                            "alt": "Képregényes fantasy karakter aranyfényű fegyverrel",
+                            "src": "/storefront-demo/loot-vault-v2/universe-archive-hunt.svg",
+                            "alt": "Kurált gyűjtői polcrendszer és archív tárgyak a Loot Vaultban",
                             "width": 1600,
                             "height": 1000,
                             "fit": "cover",
@@ -1983,17 +1983,17 @@
                             "objectPosition": "48% center",
                             "artDirection": {
                               "desktop": {
-                                "src": "/storefront-demo/loot-vault-v2/product-figure.webp",
+                                "src": "/storefront-demo/loot-vault-v2/universe-archive-hunt.svg",
                                 "objectFit": "cover",
                                 "objectPosition": "48% center"
                               },
                               "tablet": {
-                                "src": "/storefront-demo/loot-vault-v2/product-figure.webp",
+                                "src": "/storefront-demo/loot-vault-v2/universe-archive-hunt.svg",
                                 "objectFit": "cover",
                                 "objectPosition": "48% center"
                               },
                               "mobile": {
-                                "src": "/storefront-demo/loot-vault-v2/product-figure.webp",
+                                "src": "/storefront-demo/loot-vault-v2/universe-archive-hunt.svg",
                                 "objectFit": "cover",
                                 "objectPosition": "48% center"
                               }

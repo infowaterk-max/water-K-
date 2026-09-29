@@ -17,6 +17,7 @@ import {createStorefrontTemplatePreviewBindingContext} from '@/lib/builder/store
 import {STOREFRONT_PAGE_TYPES} from '@/lib/builder/storefront-foundation';
 import type {StorefrontComponentNode} from '@/lib/builder/storefront-runtime';
 import {STOREFRONT_SUPPORT_COMPONENT_DEFINITIONS} from '@/lib/builder/storefront-support';
+import {CANONICAL_ACCOUNT_CAPABILITIES} from '@/lib/account/account-capabilities';
 
 const walk=(nodes:readonly StorefrontComponentNode[]):StorefrontComponentNode[]=>nodes.flatMap(node=>[node,...walk(node.children??[])]);
 
@@ -101,11 +102,12 @@ describe('Loot Vault v2 Factory canonical wiring',()=>{
     expect(factoryGate).toContain("commerceProof:'1'");
     expect(factoryGate).toContain("baseUrl+'/visual-fidelity-qa?'");
     expect(preview).toContain('useCart');
-    expect(preview).toContain('setQuantity');
-    expect(preview).toContain('remove(');
-    expect(preview).toContain('Szállítási mód');
-    expect(preview).toContain('Fizetési mód');
-    expect(preview).toContain('Előnézeti módban rendelés nem adható le');
+    expect(preview).toContain('<CartView freeShippingThreshold={20000} products={products}/>');
+    expect(preview).toContain('<CheckoutForm');
+    expect(preview).toContain('data-storefront-commerce="cart-summary"');
+    expect(preview).toContain('data-storefront-commerce="checkout-summary"');
+    const checkout=readFileSync('src/components/checkout/checkout-form.tsx','utf8');
+    expect(checkout).toContain('Acceptance proof: a rendelés leadási kísérletét a rendszer blokkolta.');
     for(const forbidden of ['/api/checkout/place','place_order','createOrder','submitOrder'])expect(preview).not.toContain(forbidden);
     expect(preview).toContain("url.pathname==='/kosar'");
     expect(preview).toContain('window.location.assign(routes.cart)');
@@ -537,10 +539,13 @@ describe('Loot Vault v2 Factory canonical wiring',()=>{
     const catalog=LOOT_VAULT_V2_TEMPLATE_PACKAGE.pages.find(item=>item.pageType==='catalog')!;
     const home=LOOT_VAULT_V2_TEMPLATE_PACKAGE.pages.find(item=>item.pageType==='home')!;
     const catalogTitle=walk(catalog.sections).find(node=>node.id==='loot-vault-loot-v2-catalog-title')!;
-    expect((catalogTitle.config.style as any).mobile.maxWidth).toBe('100%');
-    expect((catalogTitle.config.style as any).mobile.lineHeight).toBeGreaterThanOrEqual(1);
-    expect((catalogTitle.config.style as any).mobile.wordBreak).toBe('normal');
-    expect((catalogTitle.config.style as any).mobile.overflowWrap).toBe('normal');
+    const catalogTitleStyle=catalogTitle.config.style as any;
+    const effectiveMobile={...(catalogTitleStyle?.base??{}),...(catalogTitleStyle?.mobile??{})};
+    expect(effectiveMobile.maxWidth).toBe('100%');
+    expect(effectiveMobile.lineHeight).toBeGreaterThanOrEqual(1);
+    expect(effectiveMobile.whiteSpace??'normal').not.toBe('nowrap');
+    expect(effectiveMobile.wordBreak??'normal').toBe('normal');
+    expect(effectiveMobile.overflowWrap??'normal').toBe('normal');
     const catalogGrid=walk(catalog.sections).find(node=>node.id==='loot-vault-loot-v2-catalog-products')!;
     const homeGrid=walk(home.sections).find(node=>node.id==='loot-vault-loot-v2-product-grid')!;
     expect(catalogGrid.config.showCta).toBe(true);
@@ -559,7 +564,7 @@ describe('Loot Vault v2 Factory canonical wiring',()=>{
     expect(preview).toContain('<CheckoutForm');
     expect(preview).not.toContain('function PreviewCartSummary');
     expect(preview).not.toContain('function PreviewCheckoutSummary');
-    expect(checkout).toContain("setError('Előnézeti módban rendelés nem adható le.')");
+    expect(checkout).toContain("setError('Acceptance proof: a rendelés leadási kísérletét a rendszer blokkolta.')");
     expect(checkout.indexOf("if(acceptancePreview)")).toBeLessThan(checkout.indexOf("fetch('/api/orders'"));
   });
 
@@ -567,7 +572,10 @@ describe('Loot Vault v2 Factory canonical wiring',()=>{
     const buttons=LOOT_VAULT_V2_TEMPLATE_PACKAGE.pages.flatMap(page=>walk(page.sections)).filter(node=>node.componentKey==='content.button');
     const normal=buttons.filter(node=>!node.id.includes('catalog-universe-chip'));
     expect(normal.length).toBeGreaterThan(0);
-    expect(normal.every(node=>String((node.config.style as Record<string,unknown>|undefined)?.borderRadius)==='10px')).toBe(true);
+    expect(normal.every(node=>{
+      const style=node.config.style as any;
+      return String(style?.base?.borderRadius??style?.borderRadius)==='10px';
+    })).toBe(true);
     const commerceCss=readFileSync('src/components/checkout/checkout-guided.module.css','utf8');
     expect(commerceCss).toContain('--checkout-button-radius:var(--shoporation-commerce-button-radius,10px)');
   });

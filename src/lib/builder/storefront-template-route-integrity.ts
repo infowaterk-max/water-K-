@@ -626,6 +626,7 @@ function accountCapabilityAuthority(template:StorefrontInstallableTemplatePackag
 export function createStorefrontTemplateShowroomEvidence(template:StorefrontInstallableTemplatePackage):readonly StorefrontShowroomEvidenceRow[]{
   const shellLinks=listStorefrontTemplateShellLinks(template);
   const allLinks=listStorefrontTemplateLinks(template);
+  const accountAuthority=accountCapabilityAuthority(template);
   return STOREFRONT_TEMPLATE_SHOWROOM_SURFACES.map(surface=>{
     const page=template.pages.find(item=>item.pageType===surface.pageType)??null;
     const meta=page?.metadata?.templateFactory&&typeof page.metadata.templateFactory==='object'
@@ -646,7 +647,8 @@ export function createStorefrontTemplateShowroomEvidence(template:StorefrontInst
       navigationPresent:!surface.navigationRequired||shellLinks.some(link=>routeMatches(link.href,surface.route)),
       entrypointPresent:surface.reachability==='system-route'||(surface.reachability==='shell-navigation'
         ?shellLinks.some(link=>routeMatches(link.href,surface.route))
-        :allLinks.some(link=>routeMatches(link.href,surface.route))),
+        :allLinks.some(link=>routeMatches(link.href,surface.route))
+          ||(surface.pageType==='account'&&accountAuthority.hrefs.some(href=>routeMatches(href,surface.route)))),
     };
   });
 }
