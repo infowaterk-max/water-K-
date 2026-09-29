@@ -30,7 +30,14 @@ jobs:
       - name: Daily Deep Atlas Scan
         id: scan
         continue-on-error: true
-        run: node scripts/shoperation-knowledge-deep-atlas-scan.mjs --check
+        env:
+          SHOPERATION_DIAGNOSTIC_CODE: DEEP_ATLAS_EXECUTION_FAILED
+          SHOPERATION_DIAGNOSTIC_GATE: deep-atlas
+          SHOPERATION_DIAGNOSTIC_EXPECTED: Deep Atlas Scan PASS
+          SHOPERATION_DIAGNOSTIC_OUTPUT: artifacts/shoperation-deep-atlas/scan-command.json
+          SHOPERATION_SOURCE_COMMIT: ${{ github.sha }}
+          SHOPERATION_ENVIRONMENT: scheduled-quality
+        run: node scripts/shoperation-command-diagnostic.mjs -- node scripts/shoperation-knowledge-deep-atlas-scan.mjs --check
 
       - name: Upload Deep Atlas evidence
         if: always()
@@ -84,6 +91,29 @@ jobs:
               await github.rest.issues.createComment({...context.repo,issue_number:issue.number,body:`Deep Atlas Scan recovered on \`${context.sha}\`. Closing automatically.`});
               await github.rest.issues.update({...context.repo,issue_number:issue.number,state:'closed'});
             }
+
+      - name: Create Deep Atlas failure intake
+        if: always() && steps.scan.outcome == 'failure'
+        shell: bash
+        env:
+          SHOPERATION_SOURCE_COMMIT: ${{ github.sha }}
+          SHOPERATION_FAILURE_SOURCE: deep-atlas
+          SHOPERATION_ENVIRONMENT: scheduled-quality
+          SHOPERATION_CI_RUN_ID: ${{ github.run_id }}
+          SHOPERATION_CI_WORKFLOW: ${{ github.workflow }}
+        run: |
+          artifact="artifacts/shoperation-deep-atlas/deep-atlas-scan.json"
+          if [ ! -f "$artifact" ]; then artifact="artifacts/shoperation-deep-atlas/scan-command.json"; fi
+          SHOPERATION_DIAGNOSTIC_ARTIFACTS="DEEP_ATLAS_FAILED=$artifact" SHOPERATION_GENERIC_FAILURES="DEEP_ATLAS_FAILED" node scripts/shoperation-failure-intake.mjs
+
+      - name: Upload Deep Atlas failure intake
+        if: always() && steps.scan.outcome == 'failure'
+        uses: actions/upload-artifact@v4
+        with:
+          name: shoperation-deep-atlas-failure-intake-${{ github.sha }}
+          path: artifacts/shoperation-failure-intake/**
+          if-no-files-found: error
+          retention-days: 90
 
       - name: Fail workflow on hard architecture drift
         if: steps.scan.outcome == 'failure'

@@ -52,23 +52,70 @@ jobs:
           github-token: ${{ github.token }}
 
       - name: Verify evidence belongs to checked out source
-        shell: bash
-        run: |
-          test "$(git rev-parse HEAD)" = "$(node -p "JSON.parse(require('fs').readFileSync('artifacts/promotable-quality-evidence/manifest.json','utf8')).sourceCommit")"
+        id: evidence-provenance
+        env:
+          SHOPERATION_DIAGNOSTIC_CODE: GOLDEN_PROMOTION_SOURCE_COMMIT_MISMATCH
+          SHOPERATION_DIAGNOSTIC_GATE: golden-promotion-provenance
+          SHOPERATION_DIAGNOSTIC_EXPECTED: quality evidence source commit matches checked out source
+          SHOPERATION_DIAGNOSTIC_OUTPUT: artifacts/golden-promotion-diagnostics/provenance.json
+          SHOPERATION_SOURCE_COMMIT: ${{ github.sha }}
+          SHOPERATION_ENVIRONMENT: golden-promotion
+        run: >
+          node scripts/shoperation-command-diagnostic.mjs --
+          node -e "const fs=require('fs'),{execFileSync}=require('child_process');const expected=execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim(),actual=JSON.parse(fs.readFileSync('artifacts/promotable-quality-evidence/manifest.json','utf8')).sourceCommit;if(expected!==actual)throw new Error('GOLDEN_PROMOTION_SOURCE_COMMIT_MISMATCH:'+expected+':'+actual)"
 
       - name: Promote complete 14x3 matrix
+        id: promote
         shell: bash
+        env:
+          SHOPERATION_DIAGNOSTIC_CODE: GOLDEN_PROMOTION_FAILED
+          SHOPERATION_DIAGNOSTIC_GATE: golden-promotion
+          SHOPERATION_DIAGNOSTIC_EXPECTED: accepted 14x3 golden baseline promotion PASS
+          SHOPERATION_DIAGNOSTIC_OUTPUT: artifacts/golden-promotion-diagnostics/promotion.json
+          SHOPERATION_SOURCE_COMMIT: ${{ github.sha }}
+          SHOPERATION_ENVIRONMENT: golden-promotion
         run: |
           extra=()
           if [[ "${{ inputs.allow_accepted_golden_drift }}" == "true" ]]; then
             extra+=(--allow-golden-drift)
           fi
-          node scripts/promote-template-golden-baseline.mjs \
+          node scripts/shoperation-command-diagnostic.mjs -- node scripts/promote-template-golden-baseline.mjs \
             artifacts/promotable-quality-evidence \
             "${{ inputs.template_key }}" \
             "${{ inputs.template_version }}" \
             "${{ inputs.baseline_directory }}" \
             "${extra[@]}"
+
+      - name: Create golden promotion failure intake
+        if: always() && (steps.evidence-provenance.outcome == 'failure' || steps.promote.outcome == 'failure')
+        shell: bash
+        env:
+          PROVENANCE_OUTCOME: ${{ steps.evidence-provenance.outcome }}
+          PROMOTE_OUTCOME: ${{ steps.promote.outcome }}
+          SHOPERATION_SOURCE_COMMIT: ${{ github.sha }}
+          SHOPERATION_FAILURE_SOURCE: template-golden-promotion
+          SHOPERATION_ENVIRONMENT: golden-promotion
+          SHOPERATION_CI_RUN_ID: ${{ github.run_id }}
+          SHOPERATION_CI_WORKFLOW: ${{ github.workflow }}
+          SHOPERATION_DIAGNOSTIC_ARTIFACTS: >-
+            GOLDEN_PROMOTION_SOURCE_COMMIT_MISMATCH=artifacts/golden-promotion-diagnostics/provenance.json;
+            GOLDEN_PROMOTION_FAILED=artifacts/golden-promotion-diagnostics/promotion.json
+        run: |
+          codes=""
+          [ "$PROVENANCE_OUTCOME" != "failure" ] || codes="${codes}GOLDEN_PROMOTION_SOURCE_COMMIT_MISMATCH;"
+          [ "$PROMOTE_OUTCOME" != "failure" ] || codes="${codes}GOLDEN_PROMOTION_FAILED;"
+          SHOPERATION_GENERIC_FAILURES="$codes" node scripts/shoperation-failure-intake.mjs
+
+      - name: Upload golden promotion failure intake
+        if: always() && (steps.evidence-provenance.outcome == 'failure' || steps.promote.outcome == 'failure')
+        uses: actions/upload-artifact@v4
+        with:
+          name: golden-promotion-failure-intake-${{ github.run_id }}
+          path: |
+            artifacts/shoperation-failure-intake/**
+            artifacts/golden-promotion-diagnostics/**
+          if-no-files-found: error
+          retention-days: 90
 
       - name: Upload promotable golden baseline
         uses: actions/upload-artifact@v4

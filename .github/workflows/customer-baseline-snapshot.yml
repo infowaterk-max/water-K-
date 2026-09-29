@@ -49,22 +49,82 @@ jobs:
           fi
 
       - name: Verify secret is configured
+        id: baseline-secret
         if: steps.lifecycle.outputs.generate == 'true'
         shell: bash
         run: |
           if [ -z "$SHOPERATION_BASELINE_DB_URL" ]; then
+            mkdir -p artifacts/customer-baseline-diagnostics
+            node <<'NODE'
+            const fs=require('fs');
+            fs.writeFileSync('artifacts/customer-baseline-diagnostics/secret.json',JSON.stringify({
+              contract:'shoporation.command-diagnostic.v1',
+              gateId:'customer-baseline-secret',
+              decision:'FAIL',
+              errors:[{code:'CUSTOMER_BASELINE_SECRET_REQUIRED',reason:'SHOPERATION_BASELINE_DB_URL repository secret is missing',expected:'baseline source database secret configured',actual:'missing'}]
+            },null,2)+'\n');
+            NODE
             echo "SHOPERATION_BASELINE_DB_URL repository secret is missing."
             exit 1
           fi
 
       - name: Baseline source preflight
+        id: baseline-preflight
         if: steps.lifecycle.outputs.generate == 'true'
-        shell: bash
-        run: psql "$SHOPERATION_BASELINE_DB_URL" -X -v ON_ERROR_STOP=1 -f supabase/customer-baseline/source-preflight.sql
+        env:
+          SHOPERATION_DIAGNOSTIC_CODE: CUSTOMER_BASELINE_SOURCE_PREFLIGHT_FAILED
+          SHOPERATION_DIAGNOSTIC_GATE: customer-baseline-source-preflight
+          SHOPERATION_DIAGNOSTIC_EXPECTED: baseline source preflight PASS
+          SHOPERATION_DIAGNOSTIC_OUTPUT: artifacts/customer-baseline-diagnostics/source-preflight.json
+          SHOPERATION_SOURCE_COMMIT: ${{ github.sha }}
+          SHOPERATION_ENVIRONMENT: baseline-snapshot
+        run: node scripts/shoperation-command-diagnostic.mjs -- psql "$SHOPERATION_BASELINE_DB_URL" -X -v ON_ERROR_STOP=1 -f supabase/customer-baseline/source-preflight.sql
 
       - name: Generate reviewed schema snapshot
+        id: baseline-generate
         if: steps.lifecycle.outputs.generate == 'true'
-        run: node scripts/generate-customer-baseline.mjs --force
+        env:
+          SHOPERATION_DIAGNOSTIC_CODE: CUSTOMER_BASELINE_SNAPSHOT_GENERATION_FAILED
+          SHOPERATION_DIAGNOSTIC_GATE: customer-baseline-snapshot
+          SHOPERATION_DIAGNOSTIC_EXPECTED: reviewed schema snapshot generation PASS
+          SHOPERATION_DIAGNOSTIC_OUTPUT: artifacts/customer-baseline-diagnostics/generate.json
+          SHOPERATION_SOURCE_COMMIT: ${{ github.sha }}
+          SHOPERATION_ENVIRONMENT: baseline-snapshot
+        run: node scripts/shoperation-command-diagnostic.mjs -- node scripts/generate-customer-baseline.mjs --force
+
+      - name: Create baseline snapshot failure intake
+        if: always() && steps.lifecycle.outputs.generate == 'true' && (steps.baseline-secret.outcome == 'failure' || steps.baseline-preflight.outcome == 'failure' || steps.baseline-generate.outcome == 'failure')
+        shell: bash
+        env:
+          SECRET_OUTCOME: ${{ steps.baseline-secret.outcome }}
+          PREFLIGHT_OUTCOME: ${{ steps.baseline-preflight.outcome }}
+          GENERATE_OUTCOME: ${{ steps.baseline-generate.outcome }}
+          SHOPERATION_SOURCE_COMMIT: ${{ github.sha }}
+          SHOPERATION_FAILURE_SOURCE: customer-baseline-snapshot
+          SHOPERATION_ENVIRONMENT: baseline-snapshot
+          SHOPERATION_CI_RUN_ID: ${{ github.run_id }}
+          SHOPERATION_CI_WORKFLOW: ${{ github.workflow }}
+          SHOPERATION_DIAGNOSTIC_ARTIFACTS: >-
+            CUSTOMER_BASELINE_SECRET_REQUIRED=artifacts/customer-baseline-diagnostics/secret.json;
+            CUSTOMER_BASELINE_SOURCE_PREFLIGHT_FAILED=artifacts/customer-baseline-diagnostics/source-preflight.json;
+            CUSTOMER_BASELINE_SNAPSHOT_GENERATION_FAILED=artifacts/customer-baseline-diagnostics/generate.json
+        run: |
+          codes=""
+          [ "$SECRET_OUTCOME" != "failure" ] || codes="${codes}CUSTOMER_BASELINE_SECRET_REQUIRED;"
+          [ "$PREFLIGHT_OUTCOME" != "failure" ] || codes="${codes}CUSTOMER_BASELINE_SOURCE_PREFLIGHT_FAILED;"
+          [ "$GENERATE_OUTCOME" != "failure" ] || codes="${codes}CUSTOMER_BASELINE_SNAPSHOT_GENERATION_FAILED;"
+          SHOPERATION_GENERIC_FAILURES="$codes" node scripts/shoperation-failure-intake.mjs
+
+      - name: Upload baseline snapshot diagnostics
+        if: always() && steps.lifecycle.outputs.generate == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: shoperation-customer-baseline-diagnostics-${{ github.sha }}
+          path: |
+            artifacts/customer-baseline-diagnostics/**
+            artifacts/shoperation-failure-intake/**
+          if-no-files-found: warn
+          retention-days: 90
 
       - name: Commit reviewed candidate snapshot
         if: steps.lifecycle.outputs.generate == 'true'
