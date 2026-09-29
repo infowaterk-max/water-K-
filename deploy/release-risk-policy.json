@@ -131,7 +131,8 @@
         "scripts/shoperation-*.mjs",
         "scripts/lib/shoperation-*.mjs",
         "src/lib/quality-system/**",
-        "quality/knowledge/**"
+        "quality/knowledge/**",
+        "scripts/template-factory-product-owner-handoff.mjs"
       ]
     },
     {

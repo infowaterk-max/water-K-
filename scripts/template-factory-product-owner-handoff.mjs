@@ -574,6 +574,20 @@ try{
   await browser?.close().catch(()=>undefined);
 }
 
+const diagnosticRoute=cleanUrl(previewUrl);
+const diagnostics=errors.map(rawValue=>{
+  const raw=String(rawValue),code=raw.split(':')[0],detail=raw.includes(':')?raw.slice(raw.indexOf(':')+1):raw;
+  const base={code,reason:raw,route:diagnosticRoute,contract:'shoporation.template-factory-product-owner-handoff.v2',expected:'Product Owner journey check PASS',actual:detail,evidence:[`template=${templateKey}@${templateVersion}`]};
+  if(code==='TEMPLATE_AWARE_AUTH_CONTENT_NOT_READY')return{...base,contract:'template-aware-auth-content',expected:'visible preview-login auth content settled before shell assertion',actual:`ready=${checks.templateAwareAuthContentReady??false}`};
+  if(code==='TEMPLATE_AWARE_AUTH_SHELL_MISSING')return{...base,contract:'template-aware-auth-shell',expected:'exactly one visible template-aware preview auth shell and one visible account shell',actual:`visibleTemplate=${checks.visibleTemplateAwareAuthShellCount??0};visibleAccount=${checks.visibleAccountShellCount??0};hiddenTemplate=${checks.hiddenTemplateAwareAuthShellCount??0}`};
+  if(code==='TEMPLATE_AUTH_STYLE_IDENTITY_MISSING')return{...base,contract:'template-versioned-auth-style',expected:'template/version-aware auth style marker present',actual:'marker missing'};
+  if(code==='VISIBLE_SHARED_AUTH_SURFACE_NOT_UNIQUE')return{...base,contract:'visible-auth-surface',expected:'exactly one visible shared auth surface',actual:`count=${checks.visibleSharedAuthSurfaceCount??'unknown'}`};
+  if(code==='SOURCE_COMMIT_MISMATCH'||code==='PREVIEW_SOURCE_COMMIT_MISMATCH')return{...base,contract:'exact-head-provenance',expected:sourceCommit??'exact source commit',actual:raw};
+  if(code==='COMMERCE_INTERACTION_NOT_PROVEN')return{...base,contract:'preview-commerce-interaction',expected:'complete fail-closed shopper journey PASS with zero production commerce mutations',actual:JSON.stringify(checks.commerceInteraction??{})};
+  if(code==='PRODUCTION_COMMERCE_MUTATION_ATTEMPTED')return{...base,contract:'preview-commerce-side-effect',expected:'zero production order/payment/fulfillment/invoice mutation attempts',actual:detail};
+  return base;
+});
+
 const proof={
   contract:'shoporation.template-factory-product-owner-handoff.v2',
   templateKey,
@@ -582,6 +596,7 @@ const proof={
   previewUrl:cleanUrl(previewUrl),
   checks,
   errors,
+  diagnostics,
   maturity:errors.length===0?'product-owner-ready':'visually-ready',
   handoffReady:errors.length===0,
   accepted:false,
