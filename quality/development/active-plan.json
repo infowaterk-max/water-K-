@@ -3,7 +3,7 @@
   "taskId": "DEV-TEMPLATE-ENGINE-FUNCTIONAL-PROOF-CONTRACT",
   "task": "Add a generic Template Factory engine functional proof authority and known-failure blocker so visible engine integration cannot satisfy Product Owner readiness without shared behavior proof.",
   "status": "ready-for-implementation",
-  "guardDigest": "0f3719e9",
+  "guardDigest": "94082bf1",
   "plannedFilePatterns": [
     "src/lib/builder/template-factory/knowledge-registry.ts",
     "src/lib/builder/template-factory/procedural-memory.ts",
@@ -75,7 +75,8 @@
     "TF-KF-021",
     "TF-KF-022",
     "TF-KF-023",
-    "TF-KF-024"
+    "TF-KF-024",
+    "TF-KF-025"
   ],
   "acknowledgedNegativeKnowledgeIds": [
     "SQ-NK-001",
