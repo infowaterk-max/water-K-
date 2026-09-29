@@ -3,7 +3,7 @@
   "taskId": "DEV-CONTROL-PLANE-ENGINE-PROOF-CLOSURE",
   "task": "Make the shared Storefront Engine Functional Proof Registry a fail-closed Control Plane authority: every shared engine referenced by templates must be registered, every registered engine must declare a proof class and real proof producer, and TF-KF-025 acceptance/preflight must fail if registry coverage is incomplete.",
   "status": "ready-for-implementation",
-  "guardDigest": "94082bf1",
+  "guardDigest": "PENDING",
   "plannedFilePatterns": [
     "src/lib/builder/template-factory/engine-functional-proof-registry.ts",
     "src/lib/builder/template-factory/procedural-memory.ts",
@@ -12,7 +12,8 @@
     "quality/knowledge/development-guard-policy.v1.json",
     "tests/template-factory-engine-functional-proof-control-plane.test.ts",
     "tests/template-factory-engine-functional-proof.test.ts",
-    "quality/development/active-plan.json"
+    "quality/development/active-plan.json",
+    "tests/template-factory-fast-engine-functional-proof.test.ts"
   ],
   "expectedSubsystems": [
     "builder-template-system",
@@ -91,6 +92,6 @@
     "SQ-NK-012"
   ],
   "exceptions": [],
-  "notes": "Final closure for the Engine Functional Proof work. Do not change engine business logic, checkout/order/payment behavior, template visuals, Vercel/Supabase runtime state, or add new browser journeys. Existing engine-specific tests remain proof producers; E13 remains the dedicated browser-journey proof. E12 is not an active shared engine and must fail if referenced without explicit future registration.",
+  "notes": "Final closure for the Engine Functional Proof work. Do not change engine business logic, checkout/order/payment behavior, template visuals, Vercel/Supabase runtime state, or add new browser journeys. Existing engine-specific tests remain proof producers; E13 remains the dedicated browser-journey proof. E12 is not an active shared engine and must fail if referenced without explicit future registration. Scope expanded only to update the pre-existing fast-proof regression whose registry-cardinality assertion still encodes the former four-engine registry. Functional E2/E7/E10 proof behavior remains unchanged.",
   "changeBaseSha": "9be3a20bd5b12998bc955e95721769410e8490e8"
 }
