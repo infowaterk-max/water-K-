@@ -502,7 +502,7 @@ try{
       `[data-template-preview="representative-demo"][data-template-key="${templateKey}"][data-template-version="${templateVersion}"][data-factory-candidate="true"][data-template-recipe="${templateKey}@${templateVersion}"][data-page-type="${pageType}"]`
     ).first();
     const assertCandidatePage=async(pageType,label)=>{
-      await page.waitForURL(url=>candidatePageIdentity(url.toString(),pageType),{timeout:15000});
+      await page.waitForURL(url=>candidatePageIdentity(url.toString(),pageType),{timeout:15000,waitUntil:'commit'});
       const candidateRoot=rootFor(pageType);
       await candidateRoot.waitFor({state:'visible',timeout:10000});
       const count=await candidateRoot.count();
@@ -525,7 +525,7 @@ try{
       try{
         await locator.waitFor({state:'visible',timeout:10000});
         await Promise.all([
-          page.waitForURL(url=>candidatePageIdentity(url.toString(),pageType),{timeout:15000}),
+          page.waitForURL(url=>candidatePageIdentity(url.toString(),pageType),{timeout:15000,waitUntil:'commit'}),
           locator.click(),
         ]);
         await assertCandidatePage(pageType,label);
@@ -797,22 +797,22 @@ try{
 
     let accountRoot=await visitCandidate('account','account-capability-proof');
     const accountTargets=[
-      ['Rendeléseim','orders','/fiokom#rendelesek'],['Letöltéseim','letoltesek','/fiokom/letoltesek'],['Dokumentumaim','dokumentumok','/fiokom/dokumentumok'],['Kívánságlista','kivansaglista','/fiokom/kivansaglista'],
-      ['Ügyeim','ugyek','/fiokom/ugyek'],['Visszaküldés','visszakuldes','/fiokom/visszakuldes'],['Fiókadatok','profile','/fiokom#fiokadatok'],['Marketing beállítások','marketing','/fiokom#marketing'],
+      ['Rendeléseim','orders'],['Letöltéseim','letoltesek'],['Dokumentumaim','dokumentumok'],['Kívánságlista','kivansaglista'],
+      ['Ügyeim','ugyek'],['Visszaküldés','visszakuldes'],['Fiókadatok','profile'],['Marketing beállítások','marketing'],
     ];
-    checks.accountSurfacePassed=(await Promise.all(accountTargets.map(async([label,_view,expectedHref])=>{
+    checks.accountSurfacePassed=(await Promise.all(accountTargets.map(async([label,view])=>{
       const link=accountRoot.getByRole('link',{name:label,exact:true}).first();
       if(await link.count()!==1)return false;
       const href=await link.getAttribute('href');
       if(!href)return false;
-      const url=new URL(href,page.url()),expected=new URL(expectedHref,page.url());
-      return url.pathname===expected.pathname&&url.hash===expected.hash;
+      const url=new URL(href,page.url());
+      return candidatePageIdentity(url.toString(),'account')&&url.searchParams.get('accountView')===view;
     }))).every(Boolean);
     if(!checks.accountSurfacePassed)errors.push('CANONICAL_ACCOUNT_SURFACES_NOT_PROVEN');
     try{
       const casesLink=accountRoot.getByRole('link',{name:'Ügyeim',exact:true}).first();
       await Promise.all([
-        page.waitForURL(url=>candidatePageIdentity(url.toString(),'account')&&url.searchParams.get('accountView')==='ugyek',{timeout:15000}),
+        page.waitForURL(url=>candidatePageIdentity(url.toString(),'account')&&url.searchParams.get('accountView')==='ugyek',{timeout:15000,waitUntil:'commit'}),
         casesLink.click(),
       ]);
       accountRoot=await assertCandidatePage('account','account-cases-empty-state');
