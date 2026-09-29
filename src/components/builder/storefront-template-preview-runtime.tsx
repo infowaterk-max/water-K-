@@ -119,6 +119,17 @@ export function StorefrontTemplatePreviewRuntime({page,viewport,bindingContext,c
     if(!(anchor instanceof HTMLAnchorElement))return;
     const url=new URL(anchor.href,window.location.href);
     if(url.origin!==window.location.origin)return;
+    if(url.pathname==='/fiokom'||url.pathname.startsWith('/fiokom/')||url.pathname==='/kedvencek'){
+      event.preventDefault();
+      const accountUrl=new URL(routes.account,window.location.href);
+      const hashView:Record<string,string>={rendelesek:'orders',fiokadatok:'profile',marketing:'marketing'};
+      const nested=url.pathname.startsWith('/fiokom/')?url.pathname.slice('/fiokom/'.length):'';
+      const accountView=url.pathname==='/kedvencek'?'wishlist':nested||hashView[url.hash.replace(/^#/,'')]||'';
+      if(accountView)accountUrl.searchParams.set('accountView',accountView);
+      else accountUrl.searchParams.delete('accountView');
+      window.location.assign(`${accountUrl.pathname}${accountUrl.search}${accountUrl.hash}`);
+      return;
+    }
     if(url.pathname==='/kosar'){
       event.preventDefault();
       window.location.assign(routes.cart);
