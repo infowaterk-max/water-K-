@@ -18,6 +18,7 @@ describe('Template Factory engine functional proof contract',()=>{
     expect(TEMPLATE_FACTORY_PROCEDURAL_MEMORY_VERSION).toBe('shoporation.template-factory-procedural-memory.v3');
     const authority=TEMPLATE_FACTORY_AUTHORITY_GRAPH.find(item=>item.id==='TF-AUTH-025');
     expect(authority).toMatchObject({owner:'quality-system',subject:'shared engine functional proof'});
+    expect(authority?.rule).toContain('canonical Engine Functional Proof Registry');
     expect(authority?.rule).toContain('Visible/demo integration is necessary but insufficient');
 
     const failure=TEMPLATE_FACTORY_KNOWN_FAILURES.find(item=>item.id==='TF-KF-025');
@@ -39,12 +40,16 @@ describe('Template Factory engine functional proof contract',()=>{
     const quality=readJson('quality/knowledge/shoperation-quality-knowledge.v1.json');
     expect(quality.templateFactoryFailureApplicability['TF-KF-025']).toEqual([
       'builder-template-system',
+      'commerce-read-model-authority',
+      'content-authority',
       'payment-checkout-order-authority',
       'shared-storefront',
     ]);
 
     const guard=readJson('quality/knowledge/development-guard-policy.v1.json');
     expect(guard.directives['TF-KF-025'].forbiddenApproaches).toContain('treating rendered engine surfaces, metadata or demo integration as functional proof');
+    expect(guard.directives['TF-KF-025'].forbiddenApproaches).toContain('adding a template engine binding whose engine ID is absent from the canonical functional-proof registry');
+    expect(guard.directives['TF-KF-025'].forbiddenApproaches).toContain('registering a shared engine without a real proof producer');
 
     const signatures=readJson('quality/knowledge/failure-signatures.v1.json');
     expect(signatures.rules).toContainEqual({match:'prefix',pattern:'ENGINE_FUNCTIONAL_PROOF_',failureId:'TF-KF-025'});

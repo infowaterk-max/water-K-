@@ -11,6 +11,7 @@ import {
   TEMPLATE_FACTORY_KNOWLEDGE_VERSION,
 } from '@/lib/builder/template-factory/knowledge-registry';
 import {evaluateShoperationKnowledgeIntegrity,SHOPERATION_QUALITY_KNOWLEDGE_VERSION} from '@/lib/quality-system/shoperation-knowledge';
+import {STOREFRONT_ENGINE_FUNCTIONAL_PROOF_REGISTRY_VERSION,validateStorefrontEngineBinding,validateStorefrontEngineFunctionalProofRegistry} from '@/lib/builder/template-factory/engine-functional-proof-registry';
 
 export const TEMPLATE_FACTORY_PROCEDURAL_MEMORY_VERSION='shoporation.template-factory-procedural-memory.v3' as const;
 
@@ -81,11 +82,19 @@ const preflightIssue=(code:string,path:string,message:string):TemplateFactoryPre
 export function evaluateTemplateFactoryPreflight(recipe:StorefrontTemplateFactoryRecipe){
   const issues:TemplateFactoryPreflightIssue[]=[];
   const globalKnowledge=evaluateShoperationKnowledgeIntegrity();
+  const engineProofRegistry=validateStorefrontEngineFunctionalProofRegistry();
+  for(const registryIssue of engineProofRegistry.issues)issues.push(preflightIssue('TF_PREFLIGHT_ENGINE_FUNCTIONAL_PROOF_REGISTRY_INVALID','engineFunctionalProofRegistry',registryIssue));
   for(const knowledgeIssue of globalKnowledge.issues)issues.push(preflightIssue('TF_PREFLIGHT_GLOBAL_KNOWLEDGE_INVALID',`globalKnowledge.${knowledgeIssue.path}`,`${knowledgeIssue.code}: ${knowledgeIssue.message}`));
   if(!recipe.shell.header||Object.keys(recipe.shell.header).length===0)issues.push(preflightIssue('TF_PREFLIGHT_TEMPLATE_HEADER_REQUIRED','shell.header','Factory recipes must provide a template-owned canonical header configuration.'));
     if(!recipe.pageOverrides?.account)issues.push(preflightIssue('TF_PREFLIGHT_ACCOUNT_OWNERSHIP_REQUIRED','pageOverrides.account','Account/auth presentation is template-owned and may not be inherited from the category foundation.'));
   for(const pageType of STOREFRONT_PAGE_TYPES){
-    if(!recipe.pageOverrides?.[pageType])issues.push(preflightIssue('TF_PREFLIGHT_COMPLETE_STOREFRONT_OWNERSHIP_REQUIRED',`pageOverrides.${pageType}`,'Every canonical shopper Page Schema must be template-owned before a Factory candidate can enter Product Owner acceptance.'));
+    const page=recipe.pageOverrides?.[pageType];
+    if(!page){
+      issues.push(preflightIssue('TF_PREFLIGHT_COMPLETE_STOREFRONT_OWNERSHIP_REQUIRED',`pageOverrides.${pageType}`,'Every canonical shopper Page Schema must be template-owned before a Factory candidate can enter Product Owner acceptance.'));
+      continue;
+    }
+    const engineCoverage=validateStorefrontEngineBinding(page.metadata?.engineBinding);
+    for(const engineIssue of engineCoverage.issues)issues.push(preflightIssue('TF_PREFLIGHT_ENGINE_FUNCTIONAL_PROOF_COVERAGE_REQUIRED',`pageOverrides.${pageType}.metadata.engineBinding`,engineIssue));
   }
   for(const pageType of recipe.reference.requiredPageTypes){
     if(!recipe.pageOverrides?.[pageType])issues.push(preflightIssue('TF_PREFLIGHT_REFERENCE_PAGE_OWNERSHIP_REQUIRED',`pageOverrides.${pageType}`,'Reference-critical pages must be explicitly owned before implementation proceeds.'));
@@ -100,6 +109,8 @@ export function evaluateTemplateFactoryPreflight(recipe:StorefrontTemplateFactor
     authorityRuleIds:TEMPLATE_FACTORY_AUTHORITY_GRAPH.map(item=>item.id),
     globalKnowledgeVersion:SHOPERATION_QUALITY_KNOWLEDGE_VERSION,
     globalKnownFailureIds:globalKnowledge.knownFailureIds,
+    engineFunctionalProofRegistryVersion:STOREFRONT_ENGINE_FUNCTIONAL_PROOF_REGISTRY_VERSION,
+    engineFunctionalProofEngineIds:engineProofRegistry.engineIds,
     unresolvedFailureIntake:globalKnowledge.unresolvedCandidates,
     issues:Object.freeze(issues),
     ok:issues.length===0,
@@ -175,7 +186,8 @@ function buildStaticStage(build:StorefrontTemplateFactoryBuild):TemplateFactoryM
   return'visually-ready';
 }
 
-const journeyPassed=(journey:TemplateFactoryJourneyProof)=>journey.exactHeadBuildPassed
+const journeyPassed=(journey:TemplateFactoryJourneyProof)=>validateStorefrontEngineFunctionalProofRegistry().ok
+  &&journey.exactHeadBuildPassed
   &&journey.browserMatrixPassed
   &&journey.factoryPackageIdentityPassed
   &&journey.templateAwareAuthPassed
@@ -194,7 +206,7 @@ export function replayTemplateFactoryJourneyKnownFailures(journey:TemplateFactor
   return Object.freeze([
     {
       failureId:'TF-KF-025',
-      passed:journey.engineFunctionalProofPassed,
+      passed:journey.engineFunctionalProofPassed&&validateStorefrontEngineFunctionalProofRegistry().ok,
       evidence:Object.freeze([`engineFunctionalProof=${journey.engineFunctionalProofPassed?'pass':'fail'}`]),
     },
   ]);
