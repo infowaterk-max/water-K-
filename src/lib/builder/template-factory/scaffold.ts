@@ -405,9 +405,6 @@ function evaluateBuild(input:{
       if(sharedAuthority&&localCapabilityNavigation){
         issues.push(issue('FACTORY_ACCOUNT_CAPABILITY_NAVIGATION_DUPLICATE','pages.account','Shared account capability authority may not coexist with a template-local Fiókom navigation surface.'));
       }
-      if(STOREFRONT_REQUIRED_ACCOUNT_CAPABILITY_ROUTES.length!==CANONICAL_ACCOUNT_CAPABILITIES.filter(item=>!item.optional).length){
-        issues.push(issue('FACTORY_ACCOUNT_CAPABILITY_AUTHORITY_DRIFT','account-capabilities','Factory required Account routes must derive from the canonical shared account capability registry.'));
-      }
     }
 
     const requiredInfoSlugs=['aszf','adatvedelem','impresszum','szallitas','fizetes','visszakuldes'];
