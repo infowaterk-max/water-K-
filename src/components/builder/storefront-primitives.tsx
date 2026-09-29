@@ -6,7 +6,8 @@ import type {StorefrontResolvedComponentNode} from '@/lib/builder/storefront-run
 import {resolveStorefrontVisualStyle} from '@/lib/builder/storefront-visual-style';
 import {resolveStorefrontStyleSlot} from '@/lib/builder/storefront-fidelity-engine';
 import {resolveStorefrontTypography} from '@/lib/builder/storefront-fidelity-typography';
-import {sanitizeStorefrontHeaderScrolledStyle,sanitizeStorefrontStickyHeaderBehavior} from '@/lib/builder/storefront-fidelity-behavior';\nimport {normalizeStorefrontShopperText} from '@/lib/builder/storefront-content-sanity';
+import {sanitizeStorefrontHeaderScrolledStyle,sanitizeStorefrontStickyHeaderBehavior} from '@/lib/builder/storefront-fidelity-behavior';
+import {normalizeStorefrontShopperText} from '@/lib/builder/storefront-content-sanity';
 
 export const STOREFRONT_PRIMITIVE_RENDERERS_VERSION='shoporation.storefront-primitive-renderers.v4' as const;
 const text=(value:unknown,fallback='')=>normalizeStorefrontShopperText(value,fallback);
