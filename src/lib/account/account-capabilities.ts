@@ -18,6 +18,14 @@ export const CANONICAL_ACCOUNT_CAPABILITIES:readonly AccountCapabilityItem[]=[
  {key:'loyalty',href:'/fiokom/huseg',label:'Hűségprogram',optional:'loyalty'},
 ] as const;
 
+export function resolveAccountCapabilityPreviewView(href:string):string{
+ let url:URL;
+ try{url=new URL(href,'https://shoporation.local')}catch{return''}
+ const hashView:Record<string,string>={rendelesek:'orders',fiokadatok:'profile',marketing:'marketing'};
+ const nested=url.pathname.startsWith('/fiokom/')?url.pathname.slice('/fiokom/'.length):'';
+ return url.pathname==='/kedvencek'?'wishlist':nested||hashView[url.hash.replace(/^#/,'')]||'';
+}
+
 export function resolveTemplateAccountCapabilityOptIns(metadata:unknown):TemplateAccountCapabilityKey[]{
  const record=metadata&&typeof metadata==='object'&&!Array.isArray(metadata)?metadata as Record<string,unknown>:{};
  const raw=Array.isArray(record.accountCapabilities)?record.accountCapabilities:[];
