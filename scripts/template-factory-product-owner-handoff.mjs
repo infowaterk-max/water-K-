@@ -345,7 +345,7 @@ try{
       await checkoutRoot.locator('[data-storefront-preview-checkout="interactive-fail-closed"]').waitFor({state:'visible',timeout:10000});
       const beforeShipping=(await checkoutRoot.locator('[data-storefront-preview-shipping-cost]').innerText()).trim();
       const beforeGrandTotal=(await checkoutRoot.locator('[data-storefront-preview-grand-total]').innerText()).trim();
-      const parcel=checkoutRoot.getByRole('radio',{name:'Csomagpont',exact:true});
+      const parcel=checkoutRoot.getByRole('radio',{name:/Csomagpont/}).first();
       await parcel.check();
       const afterShipping=(await checkoutRoot.locator('[data-storefront-preview-shipping-cost]').innerText()).trim();
       const afterGrandTotal=(await checkoutRoot.locator('[data-storefront-preview-grand-total]').innerText()).trim();
@@ -384,7 +384,7 @@ try{
     convergence.headerWishlist=await clickCandidate(homeRoot.getByRole('link',{name:'Kedvenceim',exact:true}).first(),'account','header-wishlist');
 
     homeRoot=await visitCandidate('home','home-product-convergence');
-    convergence.productCard=await clickCandidate(homeRoot.locator('[data-storefront-commerce-card="loot-vault"] a').first(),'product','product-card');
+    convergence.productCard=await clickCandidate(homeRoot.locator('[data-storefront-commerce-card] a[href*="page=product"]').first(),'product','product-card');
 
     homeRoot=await visitCandidate('home','home-add-to-cart-convergence');
     const homePurchase=homeRoot.getByRole('button',{name:/Kosárba/}).first();
@@ -467,9 +467,11 @@ try{
     engineRoot=await visitCandidate('product','engine-e7-e13-product');
     engineChecks.E7=await engineRoot.locator('[data-storefront-structured="key-specs"],[data-storefront-structured="specification-groups"]').count()>0;
     const productPurchaseVisible=await engineRoot.locator('[data-storefront-commerce="purchase-controls"]').count()>0;
-    engineRoot=await visitCandidate('blog-index','engine-e10');
-    engineChecks.E10=await engineRoot.locator('[data-storefront-story="index"]').count()>0
-      &&await engineRoot.locator('[data-storefront-story="feature"]').count()>0;
+    engineRoot=await visitCandidate('blog-index','engine-e10-index');
+    const storyIndexVisible=await engineRoot.locator('[data-storefront-story="index"]').count()>0;
+    engineRoot=await visitCandidate('blog-article','engine-e10-article');
+    const storyEditorialVisible=await engineRoot.locator('[data-storefront-story="hero"],[data-storefront-story="feature"]').count()>0;
+    engineChecks.E10=storyIndexVisible&&storyEditorialVisible;
     engineRoot=await visitCandidate('cart','engine-e13-cart');
     const cartVisible=await engineRoot.locator('[data-storefront-commerce="cart-summary"]').count()>0;
     engineRoot=await visitCandidate('checkout','engine-e13-checkout');

@@ -69,6 +69,17 @@ describe('Loot Vault v2 Factory canonical wiring',()=>{
     expect(getStorefrontTemplatePackage('gaming.loot-vault',1)?.manifest.templateVersion).toBe(1);
   });
 
+  it('keeps semantic header actions and Product Owner journey locators aligned with rewritten preview routes',()=>{
+    const header=readFileSync('src/components/builder/storefront-commerce-header.tsx','utf8');
+    const handoff=readFileSync('scripts/template-factory-product-owner-handoff.mjs','utf8');
+    expect(header).toContain("return kind==='account'?<StorefrontAccountAuthTrigger");
+    expect(header).not.toContain("kind==='account'&&item.href==='/fiokom'");
+    expect(handoff).toContain("[data-storefront-commerce-card] a[href*=\"page=product\"]");
+    expect(handoff).toContain("getByRole('radio',{name:/Csomagpont/}).first()");
+    expect(handoff).toContain("visitCandidate('blog-index','engine-e10-index')");
+    expect(handoff).toContain("visitCandidate('blog-article','engine-e10-article')");
+  });
+
   it('makes the template showroom commerce path interactive but fail-closed for order submission',()=>{
     const demo=readFileSync('src/lib/builder/storefront-template-preview-demo.ts','utf8');
     const preview=readFileSync('src/components/builder/storefront-template-preview-runtime.tsx','utf8');
