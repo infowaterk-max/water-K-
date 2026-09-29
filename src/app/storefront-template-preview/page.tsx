@@ -8,6 +8,7 @@ import {resolveStorefrontTemplatePreviewPackage} from '@/lib/builder/storefront-
 import {
   createStorefrontTemplatePreviewBindingContext,
   getStorefrontTemplatePreviewTheme,
+  restoreStorefrontTemplatePreviewProductCommerceContext,
 } from '@/lib/builder/storefront-template-preview-demo';
 import {applyAuthoredTemplatePreviewFallbacks} from '@/lib/builder/storefront-template-preview-canonical';
 import {augmentStorefrontDigitalCommercePreviewContext} from '@/lib/builder/storefront-digital-commerce-preview';
@@ -65,7 +66,12 @@ export default async function StorefrontTemplatePreview({searchParams}:Props){
     viewport,
     factory:factoryCandidate,
   });
-  const baseContext=applyAuthoredTemplatePreviewFallbacks({page,context:createStorefrontTemplatePreviewBindingContext({template,page,selectedVariantId:query.variant})});
+  const interactiveContext=createStorefrontTemplatePreviewBindingContext({template,page,selectedVariantId:query.variant});
+  const baseContext=restoreStorefrontTemplatePreviewProductCommerceContext({
+    pageType:page.pageType,
+    authoredContext:applyAuthoredTemplatePreviewFallbacks({page,context:interactiveContext}),
+    interactiveContext,
+  });
   if(demoPayload){
     const content=baseContext.content&&typeof baseContext.content==='object'&&!Array.isArray(baseContext.content)?baseContext.content as Record<string,unknown>:{};
     const title=typeof demoPayload.title==='string'?demoPayload.title:'Minta tartalom';

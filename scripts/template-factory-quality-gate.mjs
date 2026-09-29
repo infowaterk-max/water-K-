@@ -378,13 +378,13 @@ async function proveFactoryCommerceInteraction(browser,manifest){
     await checkoutRoot.locator('[data-storefront-preview-checkout="interactive-fail-closed"]').waitFor({state:'visible',timeout:10000});
     const beforeShipping=(await checkoutRoot.locator('[data-storefront-preview-shipping-cost]').innerText()).trim();
     const beforeTotal=(await checkoutRoot.locator('[data-storefront-preview-grand-total]').innerText()).trim();
-    const parcel=checkoutRoot.getByRole('radio',{name:'Csomagpont',exact:true});
+    const parcel=checkoutRoot.getByRole('radio',{name:/Csomagpont/});
     await parcel.check();
     const afterShipping=(await checkoutRoot.locator('[data-storefront-preview-shipping-cost]').innerText()).trim();
     const afterTotal=(await checkoutRoot.locator('[data-storefront-preview-grand-total]').innerText()).trim();
     result.checks.shippingRecalculation=await parcel.isChecked()&&beforeShipping!==afterShipping&&beforeTotal!==afterTotal;
 
-    const transfer=checkoutRoot.getByRole('radio',{name:'Banki átutalás',exact:true});
+    const transfer=checkoutRoot.getByRole('radio',{name:/Banki átutalás/});
     await transfer.check();
     result.checks.paymentSelection=await transfer.isChecked();
 

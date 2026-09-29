@@ -1,4 +1,5 @@
 import type {StorefrontComponentNode,StorefrontPageDocument} from '@/lib/builder/storefront-runtime';
+import type {StorefrontBuilderPageType} from '@/lib/builder/storefront-foundation';
 import type {StorefrontInstallableTemplatePackage} from '@/lib/builder/storefront-template-installation';
 
 import {ALPINE_LODGE_DESIGN_TOKENS} from '@/lib/builder/templates/alpine-lodge';
@@ -364,6 +365,17 @@ export function getStorefrontTemplatePreviewTheme(templateKey:string):Readonly<R
     '--shoporation-heading-font':'Georgia, serif',
     '--shoporation-body-font':'Arial, sans-serif',
   });
+}
+
+const INTERACTIVE_PRODUCT_COMMERCE_KEYS=['product','variant','pricing','inventory','commerce'] as const;
+export function restoreStorefrontTemplatePreviewProductCommerceContext(input:{pageType:StorefrontBuilderPageType;authoredContext:Record<string,unknown>;interactiveContext:Record<string,unknown>}):Record<string,unknown>{
+  if(input.pageType!=='product')return input.authoredContext;
+  const next=structuredClone(input.authoredContext);
+  for(const key of INTERACTIVE_PRODUCT_COMMERCE_KEYS){
+    const value=input.interactiveContext[key];
+    if(value&&typeof value==='object'&&!Array.isArray(value))next[key]=structuredClone(value);
+  }
+  return next;
 }
 
 export function createStorefrontTemplatePreviewBindingContext(input:{template:StorefrontInstallableTemplatePackage;page:StorefrontPageDocument;selectedVariantId?:string}):Record<string,unknown>{

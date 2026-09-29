@@ -7,6 +7,7 @@ import {resolveStorefrontTemplateQualityCandidate} from '@/lib/builder/storefron
 import {
   createStorefrontTemplatePreviewBindingContext,
   getStorefrontTemplatePreviewTheme,
+  restoreStorefrontTemplatePreviewProductCommerceContext,
 } from '@/lib/builder/storefront-template-preview-demo';
 import {applyAuthoredTemplatePreviewFallbacks} from '@/lib/builder/storefront-template-preview-canonical';
 import {augmentStorefrontDigitalCommercePreviewContext} from '@/lib/builder/storefront-digital-commerce-preview';
@@ -59,7 +60,9 @@ export default async function VisualFidelityQaPage({searchParams}:Props){
   if(query.demoContent&&!demoFixture)notFound();
   const demoPayload=demoFixture?.payload??null;
   const page=demoPayload&&!isStorefrontShowroomReadyDemoContent(demoFixture)?applyStorefrontTemplateDemoNotice(sourcePage):sourcePage;
-  const baseContext=applyAuthoredTemplatePreviewFallbacks({page,context:createStorefrontTemplatePreviewBindingContext({template,page,selectedVariantId:commerceProof?query.variant:undefined})});
+  const interactiveContext=createStorefrontTemplatePreviewBindingContext({template,page,selectedVariantId:commerceProof?query.variant:undefined});
+  const authoredContext=applyAuthoredTemplatePreviewFallbacks({page,context:interactiveContext});
+  const baseContext=commerceProof?restoreStorefrontTemplatePreviewProductCommerceContext({pageType:page.pageType,authoredContext,interactiveContext}):authoredContext;
   if(demoPayload){
     const content=baseContext.content&&typeof baseContext.content==='object'&&!Array.isArray(baseContext.content)?baseContext.content as Record<string,unknown>:{};
     const title=typeof demoPayload.title==='string'?demoPayload.title:'Minta tartalom';

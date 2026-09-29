@@ -78,6 +78,9 @@ describe('Loot Vault v2 Factory canonical wiring',()=>{
     expect(demo).toContain('selectedVariantId?:string');
     expect(demo).toContain('LOOT_VAULT_PREVIEW_VARIANTS');
     expect(demo).toContain('unitPrice:selected.price');
+    expect(demo).toContain('restoreStorefrontTemplatePreviewProductCommerceContext');
+    expect(page).toContain('restoreStorefrontTemplatePreviewProductCommerceContext');
+    expect(qa).toContain('restoreStorefrontTemplatePreviewProductCommerceContext');
     expect(page).toContain('StorefrontTemplatePreviewRuntime');
     expect(qa).toContain("VISUAL_FIDELITY_QA!=='1'");
     expect(qa).toContain("commerceProof=factoryCandidate&&query.commerceProof==='1'");
