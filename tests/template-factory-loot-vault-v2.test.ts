@@ -395,7 +395,7 @@ describe('Loot Vault v2 Factory canonical wiring',()=>{
     expect((croppedCinematic.config.style as any)?.base?.transform).toBe('scale(1.28)');
     expect((croppedCinematic.config.style as any)?.base?.objectPosition).toBe('78% 40%');
     const cleanUniverseSix=nodes.find(node=>node.id==='loot-vault-loot-v2-universe-6-image')!;
-    expect(cleanUniverseSix.config.src).toBe('/storefront-demo/loot-vault-v2/product-figure.webp');
+    expect(cleanUniverseSix.config.src).toBe('/storefront-demo/loot-vault-v2/universe-archive-hunt.webp');
     const grid=nodes.find(node=>node.id==='loot-vault-loot-v2-product-grid')!;
     expect((grid.config.styleSlots as any)?.image?.base?.transform).toBe('scale(1.16)');
 

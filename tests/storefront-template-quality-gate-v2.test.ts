@@ -84,6 +84,7 @@ describe('Template Factory Quality Gate v2',()=>{
     const previewRuntime=read('src/components/builder/storefront-template-preview-runtime.tsx');
     const commerceRenderer=read('src/components/builder/storefront-commerce.tsx');
     const previewDemo=read('src/lib/builder/storefront-template-preview-demo.ts');
+    const checkout=read('src/components/checkout/checkout-form.tsx');
     expect(handoff).toContain('COMMERCE_INTERACTION_NOT_PROVEN');
     expect(handoff).toContain('commerceInteractionPassed');
     expect(handoff).toContain('templateAwareAuthContentReady');
@@ -112,15 +113,16 @@ describe('Template Factory Quality Gate v2',()=>{
     expect(handoff).toContain('realPaymentRequestAttempted');
     expect(handoff).toContain('productionCommerceMutationRequestAttempted');
     expect(handoff).toContain("page.route('**/api/**'");
-    expect(previewRuntime).toContain('data-storefront-commerce="cart-summary"');
-    expect(previewRuntime).toContain('data-storefront-commerce="checkout-summary"');
-    expect(previewRuntime).toContain('data-storefront-preview-cart-quantity');
-    expect(previewRuntime).toContain('data-storefront-preview-grand-total');
-    expect(previewRuntime).toContain('data-storefront-preview-subtotal');
+    expect(previewRuntime).toContain('data-storefront-commerce-shell="cart-v1"');
+    expect(previewRuntime).toContain('data-storefront-commerce-shell="checkout-v1"');
+    expect(previewRuntime).toContain('<CartView freeShippingThreshold={20000} products={products}/>');
+    expect(previewRuntime).toContain('<CheckoutForm');
+    expect(checkout).toContain("data-storefront-preview-order-submit={acceptancePreview?'true':undefined}");
+    expect(checkout).toContain('data-storefront-preview-order-blocked="true"');
     expect(commerceRenderer).toContain('data-storefront-product-price="true"');
     expect(commerceRenderer).toContain('data-storefront-product-stock="true"');
     expect(previewDemo).toContain('Raktáron · ${selected.stock} db');
-    expect(previewRuntime).toContain('Előnézeti módban rendelés nem adható le');
+    expect(checkout).toContain("setError('Acceptance proof: a rendelés leadási kísérletét a rendszer blokkolta.')");
   });
 
   it('rejects partial page or viewport manifests as non-acceptance even when the underlying template is complete',()=>{
