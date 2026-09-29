@@ -11,7 +11,8 @@ import {
   resolveStorefrontContentTabsMode,
   sanitizeStorefrontContentTabsBehavior,
   sanitizeStorefrontMobileCollectionBehavior,
-} from '@/lib/builder/storefront-fidelity-behavior';\nimport {normalizeStorefrontShopperText} from '@/lib/builder/storefront-content-sanity';
+} from '@/lib/builder/storefront-fidelity-behavior';
+import {normalizeStorefrontShopperText} from '@/lib/builder/storefront-content-sanity';
 
 export const STOREFRONT_CORE_COMMERCE_RENDERERS_VERSION='shoporation.storefront-core-commerce-renderers.v3' as const;
 const text=(value:unknown,fallback='')=>normalizeStorefrontShopperText(value,fallback);
