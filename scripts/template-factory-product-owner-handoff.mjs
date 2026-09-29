@@ -125,7 +125,8 @@ try{
 
     const shell=page.locator(`[data-storefront-account-shell="preview"][data-storefront-template="${templateKey}"]`);
     await shell.waitFor({state:'visible',timeout:10000}).catch(()=>undefined);
-    checks.templateAwareAuthShell=await shell.count()===1;
+    checks.templateAwareAuthShellCount=await shell.count();
+    checks.templateAwareAuthShell=checks.templateAwareAuthShellCount===1;
     if(!checks.templateAwareAuthShell)errors.push('TEMPLATE_AWARE_AUTH_SHELL_MISSING');
 
     const styles=page.locator(`[data-storefront-global-styles-v1="true"][data-storefront-template="${templateKey}"][data-storefront-template-version="${templateVersion}"]`);
@@ -360,6 +361,16 @@ try{
   await browser?.close().catch(()=>undefined);
 }
 
+const diagnosticRoute=cleanUrl(previewUrl);
+const diagnostics=errors.map(rawValue=>{
+  const raw=String(rawValue),code=raw.split(':')[0],detail=raw.includes(':')?raw.slice(raw.indexOf(':')+1):raw;
+  const base={code,reason:raw,route:diagnosticRoute,contract:'shoporation.template-factory-product-owner-handoff.v2',expected:'Product Owner journey check PASS',actual:detail,evidence:[`template=${templateKey}@${templateVersion}`]};
+  if(code==='TEMPLATE_AWARE_AUTH_SHELL_MISSING')return{...base,contract:'template-aware-auth-shell',expected:'exactly one template-aware preview auth shell',actual:`count=${checks.templateAwareAuthShellCount??0}`};
+  if(code==='TEMPLATE_AUTH_STYLE_IDENTITY_MISSING')return{...base,contract:'template-versioned-auth-style',expected:'template/version-aware auth style marker present',actual:'marker missing'};
+  if(code==='VISIBLE_SHARED_AUTH_SURFACE_NOT_UNIQUE')return{...base,contract:'visible-auth-surface',expected:'exactly one visible shared auth surface',actual:`count=${checks.visibleAuthSurfaceCount??'unknown'}`};
+  if(code==='SOURCE_COMMIT_MISMATCH'||code==='PREVIEW_SOURCE_COMMIT_MISMATCH')return{...base,contract:'exact-head-provenance',expected:sourceCommit??'exact source commit',actual:raw};
+  return base;
+});
 const proof={
   contract:'shoporation.template-factory-product-owner-handoff.v2',
   templateKey,
@@ -368,6 +379,7 @@ const proof={
   previewUrl:cleanUrl(previewUrl),
   checks,
   errors,
+  diagnostics,
   maturity:errors.length===0?'product-owner-ready':'visually-ready',
   handoffReady:errors.length===0,
   accepted:false,

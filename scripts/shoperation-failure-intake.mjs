@@ -90,6 +90,7 @@ function collectDiagnosticArtifact(spec){
   for(const item of data.integrityIssues??[])push(item,gateCode??'KNOWLEDGE_PREFLIGHT_FAILED');
   for(const item of data.violations??[])push(item,gateCode??'RELEASE_RISK_BUDGET_FAILED');
   for(const item of data.errors??[])push(item);
+  for(const item of data.diagnostics??[])push(item);
 
   for(const suite of data.testResults??[]){
     for(const assertion of suite.assertionResults??[]){
@@ -117,10 +118,13 @@ const collectManifest=file=>{
   if(!file||!existsSync(file))return;
   try{
     const data=JSON.parse(readFileSync(file,'utf8'));
+    let count=0;
     for(const item of data.errors??[]){
+      count+=1;
       const raw=String(item.error??item.code??item);
-      addInput({code:raw.split(':')[0],gate:'template-quality-manifest',symptom:raw,reason:raw,evidence:[`case=${item.case??'unknown'}`,`artifact=${file}`]});
+      addInput({code:raw.split(':')[0],gateCode:'QUALITY_GATE_FAILED',gate:'template-quality-manifest',symptom:raw,reason:raw,evidence:[`case=${item.case??'unknown'}`,`artifact=${file}`]});
     }
+    if(count)coveredGenericCodes.add('QUALITY_GATE_FAILED');
   }catch{}
 };
 collectManifest(process.env.SHOPERATION_TEMPLATE_QUALITY_MANIFEST);
@@ -129,9 +133,16 @@ const proofPath=process.env.SHOPERATION_HANDOFF_PROOF;
 if(proofPath&&existsSync(proofPath)){
   try{
     const data=JSON.parse(readFileSync(proofPath,'utf8'));
-    for(const rawValue of data.errors??[]){
-      const raw=String(rawValue);
-      addInput({code:raw.split(':')[0],gate:'product-owner-handoff',symptom:raw,reason:raw,evidence:[`artifact=${proofPath}`]});
+    const diagnostics=Array.isArray(data.diagnostics)?data.diagnostics:[];
+    if(diagnostics.length){
+      for(const item of diagnostics)addInput({...item,gateCode:'PRODUCT_OWNER_JOURNEY_FAILED',gate:'product-owner-handoff',contract:item.contract??data.contract??null,evidence:[`artifact=${proofPath}`,...(Array.isArray(item.evidence)?item.evidence:[])]});
+      coveredGenericCodes.add('PRODUCT_OWNER_JOURNEY_FAILED');
+    }else{
+      for(const rawValue of data.errors??[]){
+        const raw=String(rawValue);
+        addInput({code:raw.split(':')[0],gateCode:'PRODUCT_OWNER_JOURNEY_FAILED',gate:'product-owner-handoff',symptom:raw,reason:raw,route:data.previewUrl??null,contract:data.contract??null,expected:'Product Owner journey PASS',actual:raw,evidence:[`artifact=${proofPath}`]});
+      }
+      if((data.errors??[]).length)coveredGenericCodes.add('PRODUCT_OWNER_JOURNEY_FAILED');
     }
   }catch{}
 }

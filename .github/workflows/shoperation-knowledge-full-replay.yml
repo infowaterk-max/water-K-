@@ -34,7 +34,14 @@ jobs:
         run: npm test
       - name: TypeScript check
         id: typecheck
-        run: npm run typecheck
+        env:
+          SHOPERATION_DIAGNOSTIC_CODE: TYPECHECK_FAILED
+          SHOPERATION_DIAGNOSTIC_GATE: periodic-full-replay-typecheck
+          SHOPERATION_DIAGNOSTIC_EXPECTED: TypeScript check PASS
+          SHOPERATION_DIAGNOSTIC_OUTPUT: artifacts/shoperation-command-diagnostics/full-replay-typecheck.json
+          SHOPERATION_SOURCE_COMMIT: ${{ github.sha }}
+          SHOPERATION_ENVIRONMENT: periodic-full-replay
+        run: node scripts/shoperation-command-diagnostic.mjs -- npm run typecheck
       - name: Upload knowledge evidence
         if: always()
         uses: actions/upload-artifact@v4
@@ -52,6 +59,13 @@ jobs:
           TYPECHECK_OUTCOME: ${{ steps.typecheck.outcome }}
           SHOPERATION_SOURCE_COMMIT: ${{ github.sha }}
           SHOPERATION_FAILURE_SOURCE: periodic-full-replay
+          SHOPERATION_ENVIRONMENT: periodic-full-replay
+          SHOPERATION_CI_RUN_ID: ${{ github.run_id }}
+          SHOPERATION_CI_WORKFLOW: ${{ github.workflow }}
+          SHOPERATION_DIAGNOSTIC_ARTIFACTS: >-
+            KNOWLEDGE_PREFLIGHT_FAILED=artifacts/shoperation-quality/knowledge-preflight.json;
+            TEST_FAILED=artifacts/test-results.json;
+            TYPECHECK_FAILED=artifacts/shoperation-command-diagnostics/full-replay-typecheck.json
         run: |
           codes=""
           [ "$KNOWLEDGE_OUTCOME" != "failure" ] || codes="${codes}KNOWLEDGE_PREFLIGHT_FAILED;"
@@ -63,7 +77,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: shoperation-failure-intake-${{ github.sha }}
-          path: artifacts/shoperation-failure-intake/**
+          path: |
+            artifacts/shoperation-failure-intake/**
+            artifacts/shoperation-command-diagnostics/**
           if-no-files-found: warn
           retention-days: 90
       - name: Persist unresolved failure intake
@@ -79,7 +95,8 @@ jobs:
             if(!unresolved.length)return;
             const open=await github.paginate(github.rest.issues.listForRepo,{...context.repo,state:'open',per_page:100});
             for(const record of unresolved){
-              const marker=`<!-- shoperation-failure-intake:${record.candidateId} -->`;
+              const identity=record.failureFingerprint||record.candidateId;
+              const marker=`<!-- shoperation-failure-intake:${identity} -->`;
               if(open.some(issue=>(issue.body||'').includes(marker)))continue;
-              await github.rest.issues.create({...context.repo,title:`[Quality intake] ${record.candidateId}: ${record.rawErrorCode}`,body:`${marker}\n\nContract: \`shoporation.failure-intake.v1\`\n\nSource commit: \`${record.sourceCommit||'unknown'}\`\n\nSource: \`${record.failureSource}\`\n\nClassification: \`${record.classificationStatus}\`\n\nSymptom: ${record.symptom}\n\nThis issue remains open until the failure is matched, promoted, scoped, deduplicated or rejected with an explicit disposition.`});
+              await github.rest.issues.create({...context.repo,title:`[Quality intake] ${identity}: ${record.rawErrorCode}`,body:`${marker}\n\nContract: \`shoporation.failure-intake.v2\`\n\nFingerprint: \`${record.failureFingerprint||'unknown'}\`\n\nSource commit: \`${record.sourceCommit||'unknown'}\`\n\nCI run: \`${record.ciRunId||'unknown'}\`\n\nSource: \`${record.failureSource}\`\n\nGate: \`${record.gate||record.gateCode||'unknown'}\`\n\nClassification: \`${record.classificationStatus}\`\n\nReason: ${record.reason||record.symptom}\n\nLocation: ${record.file||record.route||record.endpoint||'not localized'}\n\nThis issue remains open until the failure is matched, promoted, scoped, deduplicated or rejected with an explicit disposition.`});
             }
