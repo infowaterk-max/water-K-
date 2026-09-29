@@ -6,6 +6,7 @@ import type {StorefrontComponentNode} from '@/lib/builder/storefront-runtime';
 
 const auth=fs.readFileSync('src/components/auth/auth-form.tsx','utf8');
 const shell=fs.readFileSync('src/components/account/storefront-account-shell.tsx','utf8');
+const accountComposition=fs.readFileSync('src/lib/account/storefront-account-composition.ts','utf8');
 const source=fs.readFileSync('src/lib/builder/storefront-runtime-source.ts','utf8');
 const accountPage=fs.readFileSync('src/app/fiokom/page.tsx','utf8');
 const primitives=fs.readFileSync('src/components/builder/storefront-primitives.tsx','utf8');
@@ -44,7 +45,7 @@ describe('template-aware storefront auth surface',()=>{
 
   it('requires template-owned signed-out composition instead of generic account chrome',()=>{
     expect(shell).toMatch(/publicAuthSections/);
-    expect(shell).toMatch(/authPublic===true/);
+    expect(accountComposition).toMatch(/authPublic===true/);
     expect(shell).toMatch(/!customerId&&publicAuthSections\.length\?render\(publicAuthSections\):null/);
     expect(shell).toMatch(/data-authenticated="false"/);
     expect(accountPage).toMatch(/storefrontSignedOutAccount/);
