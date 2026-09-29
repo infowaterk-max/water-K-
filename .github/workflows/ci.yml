@@ -153,10 +153,26 @@ jobs:
           retention-days: 30
 
       - name: Customer database baseline guard
-        run: npm run db:customer:guard
+        id: customer-baseline-guard
+        env:
+          SHOPERATION_DIAGNOSTIC_CODE: CUSTOMER_BASELINE_GUARD_FAILED
+          SHOPERATION_DIAGNOSTIC_GATE: customer-database-baseline
+          SHOPERATION_DIAGNOSTIC_EXPECTED: customer database baseline guard PASS
+          SHOPERATION_DIAGNOSTIC_OUTPUT: artifacts/shoperation-command-diagnostics/customer-baseline.json
+          SHOPERATION_SOURCE_COMMIT: ${{ github.event.pull_request.head.sha || github.sha }}
+          SHOPERATION_ENVIRONMENT: ci
+        run: node scripts/shoperation-command-diagnostic.mjs -- npm run db:customer:guard
 
       - name: Block 24 market-ready contract
-        run: npm run market-ready:gate
+        id: market-ready
+        env:
+          SHOPERATION_DIAGNOSTIC_CODE: MARKET_READY_GATE_FAILED
+          SHOPERATION_DIAGNOSTIC_GATE: block24-market-ready
+          SHOPERATION_DIAGNOSTIC_EXPECTED: Block 24 market-ready gate PASS
+          SHOPERATION_DIAGNOSTIC_OUTPUT: artifacts/shoperation-command-diagnostics/market-ready.json
+          SHOPERATION_SOURCE_COMMIT: ${{ github.event.pull_request.head.sha || github.sha }}
+          SHOPERATION_ENVIRONMENT: ci
+        run: node scripts/shoperation-command-diagnostic.mjs -- npm run market-ready:gate
 
       - name: Upload Block 24 market-ready contract
         uses: actions/upload-artifact@v4
@@ -184,11 +200,25 @@ jobs:
 
       - name: TypeScript check
         id: typecheck
-        run: npm run typecheck
+        env:
+          SHOPERATION_DIAGNOSTIC_CODE: TYPECHECK_FAILED
+          SHOPERATION_DIAGNOSTIC_GATE: typescript
+          SHOPERATION_DIAGNOSTIC_EXPECTED: TypeScript check PASS
+          SHOPERATION_DIAGNOSTIC_OUTPUT: artifacts/shoperation-command-diagnostics/typecheck.json
+          SHOPERATION_SOURCE_COMMIT: ${{ github.event.pull_request.head.sha || github.sha }}
+          SHOPERATION_ENVIRONMENT: ci
+        run: node scripts/shoperation-command-diagnostic.mjs -- npm run typecheck
 
       - name: Production build
         id: production-build
-        run: npm run build
+        env:
+          SHOPERATION_DIAGNOSTIC_CODE: BUILD_FAILED
+          SHOPERATION_DIAGNOSTIC_GATE: production-build
+          SHOPERATION_DIAGNOSTIC_EXPECTED: production build PASS
+          SHOPERATION_DIAGNOSTIC_OUTPUT: artifacts/shoperation-command-diagnostics/production-build.json
+          SHOPERATION_SOURCE_COMMIT: ${{ github.event.pull_request.head.sha || github.sha }}
+          SHOPERATION_ENVIRONMENT: ci
+        run: node scripts/shoperation-command-diagnostic.mjs -- npm run build
 
       - name: Generate release manifest
         id: release-manifest
@@ -215,6 +245,8 @@ jobs:
           EDIT_GUARD_OUTCOME: ${{ steps.edit-time-guard.outcome }}
           INCREMENTAL_OUTCOME: ${{ steps.incremental-replay.outcome }}
           RISK_OUTCOME: ${{ steps.release-risk.outcome }}
+          BASELINE_OUTCOME: ${{ steps.customer-baseline-guard.outcome }}
+          MARKET_READY_OUTCOME: ${{ steps.market-ready.outcome }}
           QUALITY_OUTCOME: ${{ steps.quality-tests.outcome }}
           TYPECHECK_OUTCOME: ${{ steps.typecheck.outcome }}
           BUILD_OUTCOME: ${{ steps.production-build.outcome }}
@@ -230,7 +262,11 @@ jobs:
             EDIT_TIME_GUARD_FAILED=artifacts/shoperation-development-guard/edit-time-guard.json;
             INCREMENTAL_REPLAY_FAILED=artifacts/shoperation-development-guard/incremental-replay.json;
             RELEASE_RISK_BUDGET_FAILED=artifacts/release-risk-budget.json;
+            CUSTOMER_BASELINE_GUARD_FAILED=artifacts/shoperation-command-diagnostics/customer-baseline.json;
+            MARKET_READY_GATE_FAILED=artifacts/shoperation-command-diagnostics/market-ready.json;
             TEST_FAILED=artifacts/test-results.json;
+            TYPECHECK_FAILED=artifacts/shoperation-command-diagnostics/typecheck.json;
+            BUILD_FAILED=artifacts/shoperation-command-diagnostics/production-build.json;
             RELEASE_MANIFEST_FAILED=artifacts/release-manifest-diagnostic.json
         run: |
           codes=""
@@ -239,6 +275,8 @@ jobs:
           [ "$EDIT_GUARD_OUTCOME" != "failure" ] || codes="${codes}EDIT_TIME_GUARD_FAILED;"
           [ "$INCREMENTAL_OUTCOME" != "failure" ] || codes="${codes}INCREMENTAL_REPLAY_FAILED;"
           [ "$RISK_OUTCOME" != "failure" ] || codes="${codes}RELEASE_RISK_BUDGET_FAILED;"
+          [ "$BASELINE_OUTCOME" != "failure" ] || codes="${codes}CUSTOMER_BASELINE_GUARD_FAILED;"
+          [ "$MARKET_READY_OUTCOME" != "failure" ] || codes="${codes}MARKET_READY_GATE_FAILED;"
           [ "$QUALITY_OUTCOME" != "failure" ] || codes="${codes}TEST_FAILED;"
           [ "$TYPECHECK_OUTCOME" != "failure" ] || codes="${codes}TYPECHECK_FAILED;"
           [ "$BUILD_OUTCOME" != "failure" ] || codes="${codes}BUILD_FAILED;"
@@ -252,6 +290,7 @@ jobs:
           name: shoperation-failure-intake-${{ github.event.pull_request.head.sha || github.sha }}
           path: |
             artifacts/shoperation-failure-intake/**
+            artifacts/shoperation-command-diagnostics/**
             artifacts/release-manifest-diagnostic.json
           if-no-files-found: warn
           retention-days: 90

@@ -272,13 +272,28 @@ jobs:
 
       - name: Typecheck exact head
         id: typecheck
-        run: npm run typecheck
+        env:
+          SHOPERATION_DIAGNOSTIC_CODE: TYPECHECK_FAILED
+          SHOPERATION_DIAGNOSTIC_GATE: template-factory-typecheck
+          SHOPERATION_DIAGNOSTIC_EXPECTED: exact-head TypeScript check PASS
+          SHOPERATION_DIAGNOSTIC_OUTPUT: artifacts/shoperation-command-diagnostics/template-typecheck.json
+          SHOPERATION_SOURCE_COMMIT: ${{ github.event.pull_request.head.sha || github.sha }}
+          SHOPERATION_ENVIRONMENT: ci
+        run: node scripts/shoperation-command-diagnostic.mjs -- npm run typecheck
 
       - name: Build exact-head Runtime
         id: runtime-build
-        run: npm run build
+        env:
+          SHOPERATION_DIAGNOSTIC_CODE: BUILD_FAILED
+          SHOPERATION_DIAGNOSTIC_GATE: template-factory-runtime-build
+          SHOPERATION_DIAGNOSTIC_EXPECTED: exact-head runtime build PASS
+          SHOPERATION_DIAGNOSTIC_OUTPUT: artifacts/shoperation-command-diagnostics/template-runtime-build.json
+          SHOPERATION_SOURCE_COMMIT: ${{ github.event.pull_request.head.sha || github.sha }}
+          SHOPERATION_ENVIRONMENT: ci
+        run: node scripts/shoperation-command-diagnostic.mjs -- npm run build
 
       - name: Start exact-head QA Runtime
+        id: qa-runtime
         shell: bash
         run: |
           npm run start -- -H 127.0.0.1 -p 3000 > /tmp/template-factory-quality-next.log 2>&1 &
@@ -290,6 +305,18 @@ jobs:
             sleep 2
           done
           cat /tmp/template-factory-quality-next.log
+          mkdir -p artifacts/shoperation-command-diagnostics
+          node <<'NODE'
+          const fs=require('fs');
+          const raw=fs.existsSync('/tmp/template-factory-quality-next.log')?fs.readFileSync('/tmp/template-factory-quality-next.log','utf8'):'';
+          const tail=raw.split(/\r?\n/).filter(Boolean).slice(-12).join(' | ').slice(0,1800);
+          fs.writeFileSync('artifacts/shoperation-command-diagnostics/template-qa-runtime.json',JSON.stringify({
+            contract:'shoporation.command-diagnostic.v1',
+            gateId:'template-factory-qa-runtime',
+            decision:'FAIL',
+            errors:[{code:'FACTORY_QA_RUNTIME_FAILED',reason:tail||'QA runtime did not become ready before timeout',expected:'QA runtime health endpoint becomes ready',actual:tail||'readiness timeout',evidence:['log=/tmp/template-factory-quality-next.log']}]
+          },null,2)+'\n');
+          NODE
           exit 1
 
       - name: Run scoped Template Factory browser proof (acceptance requires 14x3)
@@ -314,7 +341,15 @@ jobs:
             &&item.maturity==='visually-ready'
           );
           if(targets.length>1){
-            console.error('FACTORY_PRODUCT_OWNER_TARGET_AMBIGUOUS:'+targets.map(item=>item.templateKey+'@'+item.templateVersion).join(','));
+            const actual=targets.map(item=>item.templateKey+'@'+item.templateVersion).join(',');
+            fs.mkdirSync('artifacts/shoperation-command-diagnostics',{recursive:true});
+            fs.writeFileSync('artifacts/shoperation-command-diagnostics/product-owner-target.json',JSON.stringify({
+              contract:'shoporation.command-diagnostic.v1',
+              gateId:'product-owner-target',
+              decision:'FAIL',
+              errors:[{code:'FACTORY_PRODUCT_OWNER_TARGET_AMBIGUOUS',reason:'Multiple Product Owner candidates resolved',expected:'exactly one Product Owner candidate',actual,evidence:['artifact=artifacts/template-factory-quality/manifest.json']}]
+            },null,2)+'\n');
+            console.error('FACTORY_PRODUCT_OWNER_TARGET_AMBIGUOUS:'+actual);
             process.exit(1);
           }
           const out=process.env.GITHUB_OUTPUT;
@@ -347,40 +382,49 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
+            const fs=require('fs');
             const sleep=(ms)=>new Promise(resolve=>setTimeout(resolve,ms));
             const {owner,repo}=context.repo;
             const sha=context.payload.pull_request?.head?.sha??context.sha;
-            for(let attempt=0;attempt<90;attempt+=1){
-              const deployments=await github.paginate(
-                github.rest.repos.listDeployments,
-                {owner,repo,sha,per_page:100},
-              );
-              for(const deployment of deployments){
-                const statuses=await github.paginate(
-                  github.rest.repos.listDeploymentStatuses,
-                  {owner,repo,deployment_id:deployment.id,per_page:100},
-                );
-                const ready=statuses.find(status=>{
-                  if(status.state!=='success'||!status.environment_url)return false;
-                  try{return new URL(status.environment_url).hostname.endsWith('.vercel.app')}catch{return false}
-                });
-                if(ready){
-                  core.info(`Exact-head Vercel preview ready for ${sha}.`);
-                  core.setOutput('base-url',new URL(ready.environment_url).origin);
+            const fail=(code,reason,actual)=>{
+              fs.mkdirSync('artifacts/shoperation-command-diagnostics',{recursive:true});
+              fs.writeFileSync('artifacts/shoperation-command-diagnostics/product-owner-preview.json',JSON.stringify({
+                contract:'shoporation.command-diagnostic.v1',
+                gateId:'product-owner-preview',
+                decision:'FAIL',
+                sourceCommit:sha,
+                errors:[{code,reason,expected:'exact-head Vercel preview with environment URL ready',actual:actual??reason,evidence:[`sha=${sha}`]}]
+              },null,2)+'\n');
+              core.setFailed(code);
+            };
+            try{
+              for(let attempt=0;attempt<90;attempt+=1){
+                const deployments=await github.paginate(github.rest.repos.listDeployments,{owner,repo,sha,per_page:100});
+                for(const deployment of deployments){
+                  const statuses=await github.paginate(github.rest.repos.listDeploymentStatuses,{owner,repo,deployment_id:deployment.id,per_page:100});
+                  const ready=statuses.find(status=>{
+                    if(status.state!=='success'||!status.environment_url)return false;
+                    try{return new URL(status.environment_url).hostname.endsWith('.vercel.app')}catch{return false}
+                  });
+                  if(ready){
+                    core.info(`Exact-head Vercel preview ready for ${sha}.`);
+                    core.setOutput('base-url',new URL(ready.environment_url).origin);
+                    return;
+                  }
+                }
+                const combined=await github.rest.repos.getCombinedStatusForRef({owner,repo,ref:sha});
+                const vercel=combined.data.statuses.find(status=>status.context==='Vercel');
+                if(vercel&&['failure','error'].includes(vercel.state)){
+                  fail(`EXACT_HEAD_VERCEL_DEPLOYMENT_${vercel.state.toUpperCase()}`,'Vercel deployment status failed',vercel.state);
                   return;
                 }
+                if(vercel?.state==='success')core.info('GitHub deployment status is successful; waiting for the exact deployment environment URL instead of using a branch-specific alias.');
+                await sleep(5000);
               }
-              const combined=await github.rest.repos.getCombinedStatusForRef({owner,repo,ref:sha});
-              const vercel=combined.data.statuses.find(status=>status.context==='Vercel');
-              if(vercel&&['failure','error'].includes(vercel.state)){
-                throw new Error(`EXACT_HEAD_VERCEL_DEPLOYMENT_${vercel.state.toUpperCase()}`);
-              }
-              if(vercel?.state==='success'){
-                core.info('GitHub deployment status is successful; waiting for the exact deployment environment URL instead of using a branch-specific alias.');
-              }
-              await sleep(5000);
+              fail('EXACT_HEAD_VERCEL_PREVIEW_NOT_READY','Exact-head Vercel preview did not expose a ready environment URL before timeout','timeout');
+            }catch(error){
+              fail('EXACT_HEAD_VERCEL_PREVIEW_RESOLUTION_EXCEPTION',error instanceof Error?error.message:String(error),'exception');
             }
-            core.setFailed('EXACT_HEAD_VERCEL_PREVIEW_NOT_READY');
 
       - name: Prove exact-head Product Owner login journey
         id: product-owner-handoff
@@ -418,6 +462,10 @@ jobs:
           TYPECHECK_OUTCOME: ${{ steps.typecheck.outcome }}
           BUILD_OUTCOME: ${{ steps.runtime-build.outcome }}
           MATRIX_OUTCOME: ${{ steps.browser-matrix.outcome }}
+          QA_RUNTIME_OUTCOME: ${{ steps.qa-runtime.outcome }}
+          TARGET_OUTCOME: ${{ steps.product-owner-target.outcome }}
+          PREVIEW_OUTCOME: ${{ steps.product-owner-preview.outcome }}
+          HANDOFF_OUTCOME: ${{ steps.product-owner-handoff.outcome }}
           SHOPERATION_SOURCE_COMMIT: ${{ github.event.pull_request.head.sha || github.sha }}
           SHOPERATION_FAILURE_SOURCE: template-factory
           SHOPERATION_ENVIRONMENT: ci
@@ -428,10 +476,16 @@ jobs:
             DEVELOPMENT_PLAN_FAILED=artifacts/shoperation-development-guard/plan-before-code.json;
             EDIT_TIME_GUARD_FAILED=artifacts/shoperation-development-guard/edit-time-guard.json;
             INCREMENTAL_REPLAY_FAILED=artifacts/shoperation-development-guard/incremental-replay.json;
-            TEST_FAILED=artifacts/test-results.json
+            TEST_FAILED=artifacts/test-results.json;
+            TYPECHECK_FAILED=artifacts/shoperation-command-diagnostics/template-typecheck.json;
+            BUILD_FAILED=artifacts/shoperation-command-diagnostics/template-runtime-build.json;
+            FACTORY_QA_RUNTIME_FAILED=artifacts/shoperation-command-diagnostics/template-qa-runtime.json;
+            FACTORY_PRODUCT_OWNER_TARGET_FAILED=artifacts/shoperation-command-diagnostics/product-owner-target.json;
+            EXACT_HEAD_VERCEL_PREVIEW_FAILED=artifacts/shoperation-command-diagnostics/product-owner-preview.json
           SHOPERATION_TEMPLATE_KEY: "${{ steps.product-owner-target.outputs.template_key || '' }}"
           SHOPERATION_TEMPLATE_VERSION: "${{ steps.product-owner-target.outputs.template_version || '' }}"
           SHOPERATION_TEMPLATE_QUALITY_MANIFEST: artifacts/template-factory-quality/manifest.json
+          SHOPERATION_HANDOFF_PROOF: artifacts/template-factory-handoff/proof.json
         run: |
           codes=""
           [ "$KNOWLEDGE_OUTCOME" != "failure" ] || codes="${codes}KNOWLEDGE_PREFLIGHT_FAILED;"
@@ -442,6 +496,10 @@ jobs:
           [ "$TYPECHECK_OUTCOME" != "failure" ] || codes="${codes}TYPECHECK_FAILED;"
           [ "$BUILD_OUTCOME" != "failure" ] || codes="${codes}BUILD_FAILED;"
           [ "$MATRIX_OUTCOME" != "failure" ] || codes="${codes}QUALITY_GATE_FAILED;"
+          [ "$QA_RUNTIME_OUTCOME" != "failure" ] || codes="${codes}FACTORY_QA_RUNTIME_FAILED;"
+          [ "$TARGET_OUTCOME" != "failure" ] || codes="${codes}FACTORY_PRODUCT_OWNER_TARGET_FAILED;"
+          [ "$PREVIEW_OUTCOME" != "failure" ] || codes="${codes}EXACT_HEAD_VERCEL_PREVIEW_FAILED;"
+          [ "$HANDOFF_OUTCOME" != "failure" ] || codes="${codes}PRODUCT_OWNER_JOURNEY_FAILED;"
           SHOPERATION_GENERIC_FAILURES="$codes" node scripts/shoperation-failure-intake.mjs
 
       - name: Upload Template Factory failure intake
@@ -449,7 +507,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: template-factory-failure-intake-${{ github.event.pull_request.head.sha || github.sha }}
-          path: artifacts/shoperation-failure-intake/**
+          path: |
+            artifacts/shoperation-failure-intake/**
+            artifacts/shoperation-command-diagnostics/**
           if-no-files-found: warn
           retention-days: 90
 
