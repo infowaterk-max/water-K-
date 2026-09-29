@@ -91,6 +91,13 @@ const LOOT_VAULT_PREVIEW_COLLECTIONS=Object.freeze([
   'Képregény',
 ]);
 
+const LOOT_VAULT_PREVIEW_COLLECTION_IMAGES=Object.freeze([
+  '/storefront-demo/loot-vault-v2/hero-cinematic.webp',
+  '/storefront-demo/loot-vault-v2/editorial-vault-shelf.webp',
+  '/storefront-demo/loot-vault-v2/product-figure.webp',
+  '/storefront-demo/loot-vault-v2/editorial-collector-room.webp',
+]);
+
 const PLAYROOM_PREVIEW_PRODUCTS=Object.freeze([
   {name:'Orbit Breakers',image:'/storefront/playroom/game-orbit.svg',price:22990,badge:'KIEMELT',stockLabel:'Raktáron'},
   {name:'Neon Rally',image:'/storefront/playroom/game-rally.svg',price:19990,badge:'ÚJ',stockLabel:'Raktáron'},
@@ -222,13 +229,12 @@ function demoProducts(template:StorefrontInstallableTemplatePackage,page:Storefr
 
 function demoCollections(template:StorefrontInstallableTemplatePackage,page:StorefrontPageDocument){
   if(template.manifest.templateKey==='gaming.loot-vault'){
-    const images=collectImageFallbacks(page);
     return LOOT_VAULT_PREVIEW_COLLECTIONS.slice(0,4).map((label,index)=>({
       id:`loot-vault-preview-collection-${index+1}`,
       label,
       title:label,
       href:'#preview-demo',
-      image:images[index%Math.max(1,images.length)]??null,
+      image:LOOT_VAULT_PREVIEW_COLLECTION_IMAGES[index%LOOT_VAULT_PREVIEW_COLLECTION_IMAGES.length],
       imageAlt:`${label} Loot Vault univerzum`,
       copy:'Kurált gyűjtői válogatás a Loot Vault bemutató tartalmában.',
     }));

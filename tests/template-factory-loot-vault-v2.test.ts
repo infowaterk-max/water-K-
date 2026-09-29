@@ -252,6 +252,31 @@ describe('Loot Vault v2 Factory canonical wiring',()=>{
     expect(previewDemo).not.toMatch(/badge:'(?:LIMITÁLT|EXKLUZÍV)'/);
   });
 
+  it('keeps primary Visual First showcase media free from the legacy archive screenshot asset',()=>{
+    const home=LOOT_VAULT_V2_TEMPLATE_PACKAGE.pages.find(page=>page.pageType==='home')!;
+    const homeNodes=walk(home.sections);
+    for(const id of ['loot-vault-loot-v2-universe-1-image','loot-vault-loot-v2-universe-6-image','loot-vault-loot-v2-editorial-image']){
+      expect(String(homeNodes.find(node=>node.id===id)?.config.src??'')).not.toContain('background-archive.webp');
+      expect(String(homeNodes.find(node=>node.id===id)?.config.src??'')).not.toContain('category-galaxy.webp');
+      expect(String(homeNodes.find(node=>node.id===id)?.config.src??'')).not.toContain('category-retro.webp');
+    }
+
+    const blog=LOOT_VAULT_V2_TEMPLATE_PACKAGE.pages.find(page=>page.pageType==='blog-index')!;
+    const blogNodes=walk(blog.sections);
+    for(const id of ['loot-vault-loot-v2-blog-image','loot-vault-loot-v2-blog-highlight-1-image','loot-vault-loot-v2-blog-highlight-3-image']){
+      expect(String(blogNodes.find(node=>node.id===id)?.config.src??'')).not.toContain('background-archive.webp');
+    }
+    const article=LOOT_VAULT_V2_TEMPLATE_PACKAGE.pages.find(page=>page.pageType==='blog-article')!;
+    const articleHero=walk(article.sections).find(node=>node.id==='loot-vault-loot-v2-article-story-hero')!;
+    expect(String(articleHero.config.image??'')).toBe('/storefront-demo/loot-vault-v2/product-figure.webp');
+
+    const previewContext=createStorefrontTemplatePreviewBindingContext({template:LOOT_VAULT_V2_TEMPLATE_PACKAGE,page:blog});
+    const previewJson=JSON.stringify(previewContext);
+    expect(previewJson).not.toContain('background-archive.webp');
+    expect(previewJson).toContain('editorial-vault-shelf.webp');
+    expect(previewJson).toContain('editorial-collector-room.webp');
+  });
+
   it('keeps customer-facing demo copy free from internal platform vocabulary',()=>{
     const fixtures=LOOT_VAULT_V2_TEMPLATE_PACKAGE.demoFixtures??[];
     const customerCopy=fixtures.flatMap(item=>{
