@@ -23,7 +23,14 @@ describe('storefront real-route template authority',()=>{
   ['src/app/aszf/page.tsx','legal'],
   ['src/app/adatvedelem/page.tsx','legal'],
   ['src/app/impresszum/page.tsx','legal'],
-  ['src/app/szallitas-es-fizetes/page.tsx','legal'],
+  ['src/app/szallitas/page.tsx','legal'],
+  ['src/app/fizetes/page.tsx','legal'],
   ['src/app/not-found.tsx','not-found'],
  ])('%s selects its own Page Schema authority',(path,pageKey)=>expect(read(path)).toContain(`pageKey="${pageKey}"`));
+ it('keeps the legacy combined buying-information URL as redirect-only compatibility',()=>{
+  const legacy=read('src/app/szallitas-es-fizetes/page.tsx');
+  expect(legacy).toContain("permanentRedirect('/szallitas')");
+  expect(legacy).not.toContain('pageKey="legal"');
+ });
+
 });
