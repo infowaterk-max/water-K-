@@ -605,8 +605,14 @@ try{
         const menuCount=await mobileMenu.count();
         const caseErrors=[];
         const candidate=manifest.factoryCandidate||manifest.qualityCandidate;
-        if(candidate&&warningText>0)caseErrors.push('CANDIDATE_SHOWROOM_PLACEHOLDER_WARNING_PRESENT');
-        if(!candidate&&warningText<1)caseErrors.push('DEMO_WARNING_MISSING');
+        const demoShowroomReadyAttr=await runtimeRoot.getAttribute('data-demo-showroom-ready');
+        if(demoShowroomReadyAttr!=='true'&&demoShowroomReadyAttr!=='false')caseErrors.push('DEMO_SHOWROOM_READINESS_MISSING');
+        else{
+          const demoShowroomReady=demoShowroomReadyAttr==='true';
+          if(candidate&&!demoShowroomReady)caseErrors.push('CANDIDATE_DEMO_NOT_SHOWROOM_READY');
+          if(demoShowroomReady&&warningText>0)caseErrors.push(candidate?'CANDIDATE_SHOWROOM_PLACEHOLDER_WARNING_PRESENT':'SHOWROOM_READY_DEMO_WARNING_PRESENT');
+          if(!demoShowroomReady&&warningText<1)caseErrors.push('DEMO_WARNING_MISSING');
+        }
         if(menuCount!==1)caseErrors.push(`DEMO_MOBILE_MENU_CARDINALITY:${menuCount}`);
         for(const error of caseErrors)errors.push({case:name,error});
         const pathOut=path.join(outputDir,`${name}.png`);
