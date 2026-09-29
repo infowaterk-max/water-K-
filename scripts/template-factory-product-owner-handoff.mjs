@@ -12,10 +12,12 @@ const storageState=(process.env.PRODUCT_OWNER_STORAGE_STATE??'').trim();
 const vercelAutomationBypassSecret=(process.env.VERCEL_AUTOMATION_BYPASS_SECRET??'').trim();
 const qualityManifestPath=(process.env.TEMPLATE_QUALITY_MANIFEST??'artifacts/template-factory-quality/manifest.json').trim();
 const outputDir=(process.env.TEMPLATE_HANDOFF_OUTPUT_DIR??'artifacts/template-factory-handoff').trim();
+const engineFunctionalProofPath=(process.env.PRODUCT_OWNER_ENGINE_FUNCTIONAL_PROOF??'').trim();
+const engineFunctionalOnly=['1','true'].includes((process.env.PRODUCT_OWNER_ENGINE_FUNCTIONAL_ONLY??'').trim().toLowerCase());
 
 if(!previewUrl)throw new Error('PRODUCT_OWNER_PREVIEW_URL_REQUIRED');
-if(!templateKey)throw new Error('PRODUCT_OWNER_TEMPLATE_KEY_REQUIRED');
-if(!Number.isInteger(templateVersion)||templateVersion<1)throw new Error('PRODUCT_OWNER_TEMPLATE_VERSION_REQUIRED');
+if(!engineFunctionalOnly&&!templateKey)throw new Error('PRODUCT_OWNER_TEMPLATE_KEY_REQUIRED');
+if(!engineFunctionalOnly&&(!Number.isInteger(templateVersion)||templateVersion<1))throw new Error('PRODUCT_OWNER_TEMPLATE_VERSION_REQUIRED');
 
 const exists=async file=>{try{await access(file);return true}catch{return false}};
 const cleanUrl=value=>{
@@ -68,8 +70,217 @@ function classifyProductionCommerceMutation(request){
   return null;
 }
 
+
+async function dismissCookieConsent(page){
+  const dialog=page.locator('[data-template-aware-cookie="true"][role="dialog"]:visible');
+  if(!(await dialog.count()))return false;
+  const necessary=dialog.getByRole('button',{name:'Csak szükséges',exact:true});
+  await necessary.waitFor({state:'visible',timeout:5000});
+  await necessary.click();
+  await dialog.waitFor({state:'hidden',timeout:5000}).catch(()=>undefined);
+  return true;
+}
+
+async function authenticatePlatformOperator(page){
+  const origin=new URL(previewUrl).origin;
+  if(storageState&&await exists(storageState)){
+    const response=await page.goto(new URL('/admin/platform',origin).toString(),{waitUntil:'domcontentloaded',timeout:30000});
+    await dismissCookieConsent(page);
+    if(response&&new URL(page.url()).pathname==='/admin/platform')return true;
+  }
+  if(!email||!password)throw new Error('ENGINE_FUNCTIONAL_PLATFORM_CREDENTIALS_REQUIRED');
+  const response=await page.goto(new URL('/platform',origin).toString(),{waitUntil:'domcontentloaded',timeout:30000});
+  if(!response)throw new Error('ENGINE_FUNCTIONAL_PLATFORM_LOGIN_NO_RESPONSE');
+  await page.waitForLoadState('load',{timeout:15000}).catch(()=>undefined);
+  await dismissCookieConsent(page);
+  const emailInput=page.locator('input[name="email"]:visible').first();
+  const passwordInput=page.locator('input[name="password"]:visible').first();
+  const submit=page.getByRole('button',{name:'Belépés a Shoperationbe',exact:true});
+  await emailInput.waitFor({state:'visible',timeout:10000});
+  await passwordInput.waitFor({state:'visible',timeout:10000});
+  await emailInput.fill(email);
+  await passwordInput.fill(password);
+  await submit.click();
+  const navigated=await page.waitForURL(url=>url.pathname==='/admin/platform',{waitUntil:'commit',timeout:30000}).then(()=>true).catch(()=>false);
+  if(!navigated){
+    const message=await page.locator('.notice,[role="alert"]').filter({visible:true}).last().innerText().catch(()=>null);
+    throw new Error(`ENGINE_FUNCTIONAL_PLATFORM_LOGIN_FAILED:path=${new URL(page.url()).pathname};message=${(message??'no diagnostic').replace(/\\s+/g,' ').slice(0,240)}`);
+  }
+  await page.waitForTimeout(350);
+  const settled=new URL(page.url());
+  if(settled.pathname!=='/admin/platform')throw new Error(`ENGINE_FUNCTIONAL_PLATFORM_ROLE_REQUIRED:path=${settled.pathname};reason=${settled.searchParams.get('reason')??'redirected'}`);
+  return true;
+}
+
+async function proveSharedE13FunctionalEngine(page){
+  const origin=new URL(previewUrl).origin;
+  const proof={
+    contract:'shoporation.shared-engine-functional-proof.v1',
+    engine:'E13',
+    platformAuthenticated:false,
+    acceptanceEntry:false,
+    acceptanceInstanceId:null,
+    acceptanceSeeder:false,
+    sharedRuntime:false,
+    quoteStatus:null,
+    quotePositive:false,
+    mixedFixture:false,
+    shippingOptionCount:0,
+    shippingStep:false,
+    paymentOptionCount:0,
+    paymentStep:false,
+    summaryStep:false,
+    submitEnabled:false,
+    failClosed:false,
+    sideEffectRequests:[],
+    error:null,
+    passed:false,
+  };
+  const sideEffects=[];
+  const observe=request=>{
+    try{
+      const url=new URL(request.url());
+      const method=request.method();
+      const blocked=method==='POST'&&[
+        '/api/orders',
+        '/api/payment',
+        '/api/payments',
+        '/api/invoice',
+        '/api/invoices',
+        '/api/shipping',
+      ].some(prefix=>url.pathname===prefix||url.pathname.startsWith(prefix+'/'));
+      if(blocked)sideEffects.push(`${method} ${url.pathname}`);
+    }catch{}
+  };
+  page.on('request',observe);
+  try{
+    proof.platformAuthenticated=await authenticatePlatformOperator(page);
+    const entryResponse=await page.goto(new URL('/storefront-template-preview/engine-proof/checkout',origin).toString(),{waitUntil:'domcontentloaded',timeout:30000});
+    if(!entryResponse)throw new Error('ENGINE_ACCEPTANCE_ENTRY_NO_RESPONSE');
+    await page.waitForLoadState('load',{timeout:15000}).catch(()=>undefined);
+    const entryRoot=page.locator('[data-engine-functional-proof="E13"]');
+    await entryRoot.waitFor({state:'visible',timeout:15000});
+    const entryAlert=entryRoot.getByRole('alert');
+    if(await entryAlert.count())throw new Error(`ENGINE_ACCEPTANCE_TARGET_FAILED:${(await entryAlert.first().innerText()).replace(/\s+/g,' ').slice(0,400)}`);
+    proof.acceptanceEntry=true;
+    proof.acceptanceInstanceId=await entryRoot.getAttribute('data-acceptance-instance-id');
+    if(!proof.acceptanceInstanceId)throw new Error('ENGINE_ACCEPTANCE_INSTANCE_ID_MISSING');
+
+    const start=page.getByRole('button',{name:'E13 checkout proof indítása',exact:true});
+    await start.waitFor({state:'visible',timeout:10000});
+    await Promise.all([
+      page.waitForURL(url=>/^\/admin\/platform\/acceptance\/[0-9a-f-]+\/checkout$/i.test(url.pathname),{timeout:30000}),
+      start.click(),
+    ]);
+
+    const checkoutLink=page.getByRole('link',{name:'Pénztár megnyitása',exact:true});
+    await checkoutLink.waitFor({state:'visible',timeout:20000});
+    proof.acceptanceSeeder=true;
+    const quotePromise=page.waitForResponse(response=>{
+      try{
+        const url=new URL(response.url());
+        return url.pathname==='/api/checkout/quote'&&response.request().method()==='POST'&&response.status()===200;
+      }catch{return false}
+    },{timeout:25000});
+    await Promise.all([
+      page.waitForURL(url=>url.pathname==='/penztar',{timeout:20000}),
+      checkoutLink.click(),
+    ]);
+
+    const checkoutRoot=page.locator('[data-checkout-acceptance="preview"]');
+    await checkoutRoot.waitFor({state:'visible',timeout:15000});
+    proof.sharedRuntime=await page.locator('[data-storefront-live-checkout="shared-e13"]').count()>0;
+    if(!proof.sharedRuntime)throw new Error('ENGINE_SHARED_E13_RUNTIME_MISSING');
+
+    const quoteResponse=await quotePromise;
+    proof.quoteStatus=quoteResponse.status();
+    const quote=await quoteResponse.json().catch(()=>null);
+    proof.quotePositive=Boolean(quote?.ok===true&&Number(quote?.total_gross_huf)>0);
+    proof.mixedFixture=Boolean(Number(quote?.physical_lines)>0&&Number(quote?.digital_lines)>0&&quote?.fulfillment_mode==='mixed');
+    if(!proof.quotePositive)throw new Error('ENGINE_AUTHORITATIVE_QUOTE_NOT_POSITIVE');
+    if(!proof.mixedFixture)throw new Error('ENGINE_MIXED_ACCEPTANCE_FIXTURE_NOT_PROVEN');
+
+    const customerType=page.locator('select[name="customerType"]:visible').first();
+    if(await customerType.count())await customerType.selectOption('retail');
+    const values={
+      name:'Acceptance Vásárló',
+      email:'acceptance@example.invalid',
+      phone:'+3612345678',
+      billingPostcode:'2760',
+      billingCity:'Nagykáta',
+      billingAddress:'Acceptance utca 1.',
+    };
+    for(const[name,value]of Object.entries(values)){
+      const input=page.locator(`input[name="${name}"]:visible`).first();
+      if(await input.count())await input.fill(value);
+    }
+
+    const shippingRadios=page.locator('input[name="shippingProvider"]:visible:not(:disabled)');
+    proof.shippingOptionCount=await shippingRadios.count();
+    if(proof.shippingOptionCount<1)throw new Error('ENGINE_ACCEPTANCE_SHIPPING_OPTION_MISSING');
+    let shippingAdvanced=false;
+    for(let index=0;index<proof.shippingOptionCount&&!shippingAdvanced;index+=1){
+      const radio=shippingRadios.nth(index);
+      if(!(await radio.isChecked()))await radio.check().catch(()=>undefined);
+      const parcelText=page.locator('input[placeholder*="átvételi pont"]:visible').first();
+      if(await parcelText.count())await parcelText.fill('Acceptance automata');
+      await page.getByRole('button',{name:'Tovább a fizetéshez',exact:true}).click();
+      shippingAdvanced=await page.locator('[data-checkout-panel="payment"]:visible').waitFor({state:'visible',timeout:2500}).then(()=>true).catch(()=>false);
+    }
+    if(!shippingAdvanced)throw new Error('ENGINE_ACCEPTANCE_SHIPPING_STEP_BLOCKED');
+    proof.shippingStep=true;
+
+    const paymentRadios=page.locator('input[name="paymentProvider"]:visible:not(:disabled)');
+    proof.paymentOptionCount=await paymentRadios.count();
+    if(proof.paymentOptionCount<1)throw new Error('ENGINE_ACCEPTANCE_PAYMENT_OPTION_MISSING');
+    const checkedPayment=page.locator('input[name="paymentProvider"]:visible:checked');
+    if(await checkedPayment.count()===0)await paymentRadios.first().check();
+    await page.getByRole('button',{name:'Tovább az összesítéshez',exact:true}).click();
+    await page.locator('[data-checkout-panel="summary"]:visible').waitFor({state:'visible',timeout:10000});
+    proof.paymentStep=true;
+    proof.summaryStep=true;
+
+    const guest=page.getByRole('button',{name:'Folytatás vendégként',exact:true});
+    if(await guest.count()&&await guest.isVisible())await guest.click();
+    await page.locator('input[name="termsAccepted"]').check();
+    await page.locator('input[name="privacyAcknowledged"]').check();
+
+    const submit=page.getByRole('button',{name:'Acceptance · rendelésleadás tesztelése',exact:true});
+    await submit.waitFor({state:'visible',timeout:10000});
+    proof.submitEnabled=await submit.isEnabled();
+    if(!proof.submitEnabled)throw new Error('ENGINE_ACCEPTANCE_SUBMIT_DISABLED');
+    await submit.click();
+    const blocked=page.getByRole('alert').filter({hasText:'Acceptance proof: a rendelés leadási kísérletét a rendszer blokkolta.'});
+    await blocked.waitFor({state:'visible',timeout:10000});
+    proof.failClosed=true;
+    proof.sideEffectRequests=[...sideEffects];
+    proof.passed=proof.platformAuthenticated
+      &&proof.acceptanceEntry
+      &&proof.acceptanceSeeder
+      &&proof.sharedRuntime
+      &&proof.quoteStatus===200
+      &&proof.quotePositive
+      &&proof.mixedFixture
+      &&proof.shippingStep
+      &&proof.paymentStep
+      &&proof.summaryStep
+      &&proof.paymentOptionCount>0
+      &&proof.submitEnabled
+      &&proof.failClosed
+      &&proof.sideEffectRequests.length===0;
+  }catch(error){
+    proof.error=error instanceof Error?error.message:String(error);
+    proof.sideEffectRequests=[...sideEffects];
+  }finally{
+    page.off('request',observe);
+  }
+  return proof;
+}
+
 const requested=new URL(previewUrl);
-if(requested.pathname!=='/storefront-template-preview'||!exactIdentity(previewUrl)){
+if(engineFunctionalOnly){
+  if(requested.pathname!=='/platform')throw new Error('ENGINE_FUNCTIONAL_PREVIEW_ENTRY_INVALID');
+}else if(requested.pathname!=='/storefront-template-preview'||!exactIdentity(previewUrl)){
   throw new Error('PRODUCT_OWNER_PREVIEW_IDENTITY_INVALID');
 }
 
@@ -77,7 +288,7 @@ await mkdir(outputDir,{recursive:true});
 const errors=[];
 const checks={};
 let technicalProof=null;
-if(await exists(qualityManifestPath)){
+if(!engineFunctionalOnly&&await exists(qualityManifestPath)){
   technicalProof=JSON.parse(await readFile(qualityManifestPath,'utf8'));
   const acceptance=(technicalProof.acceptanceProofs??[]).find(item=>item.templateKey===templateKey&&item.templateVersion===templateVersion);
   checks.technicalAcceptanceProofFound=Boolean(acceptance);
@@ -98,8 +309,41 @@ if(await exists(qualityManifestPath)){
     if(!checks.navigationCompletenessPassed)errors.push('TEMPLATE_NAVIGATION_COMPLETENESS_NOT_PROVEN');
     if(sourceCommit&&acceptance.sourceCommit!==sourceCommit)errors.push('SOURCE_COMMIT_MISMATCH');
   }
-}else{
+}else if(!engineFunctionalOnly){
   errors.push('TECHNICAL_ACCEPTANCE_MANIFEST_MISSING');
+}
+
+if(!engineFunctionalOnly){
+  checks.engineFunctionalProofPassed=false;
+  checks.engineFunctionalProofPath=engineFunctionalProofPath||null;
+  if(!engineFunctionalProofPath){
+    errors.push('ENGINE_FUNCTIONAL_PROOF_E13_NOT_PROVEN:proof path missing');
+  }else if(!(await exists(engineFunctionalProofPath))){
+    errors.push('ENGINE_FUNCTIONAL_PROOF_E13_NOT_PROVEN:proof artifact missing');
+  }else{
+    try{
+      const engineProof=JSON.parse(await readFile(engineFunctionalProofPath,'utf8'));
+      checks.engineFunctionalProofContract=engineProof?.contract??null;
+      checks.engineFunctionalProofEngine=engineProof?.engine??null;
+      checks.engineFunctionalProofSourceCommit=engineProof?.sourceCommit??null;
+      checks.engineFunctionalProofArtifactPassed=engineProof?.passed===true;
+      const contractOk=engineProof?.contract==='shoporation.shared-engine-functional-proof.v1';
+      const engineOk=engineProof?.engine==='E13';
+      const commitOk=!sourceCommit||engineProof?.sourceCommit===sourceCommit;
+      checks.engineFunctionalProofPassed=contractOk&&engineOk&&commitOk&&engineProof?.passed===true;
+      if(!checks.engineFunctionalProofPassed){
+        const detail=[
+          contractOk?'contract=ok':`contract=${engineProof?.contract??'missing'}`,
+          engineOk?'engine=E13':`engine=${engineProof?.engine??'missing'}`,
+          commitOk?'sourceCommit=ok':`sourceCommit=${engineProof?.sourceCommit??'missing'}`,
+          engineProof?.passed===true?'passed=true':'passed=false',
+        ].join(',');
+        errors.push(`ENGINE_FUNCTIONAL_PROOF_E13_NOT_PROVEN:${detail}`);
+      }
+    }catch(error){
+      errors.push(`ENGINE_FUNCTIONAL_PROOF_E13_NOT_PROVEN:invalid proof artifact:${error instanceof Error?error.message:String(error)}`);
+    }
+  }
 }
 
 let browser;
@@ -126,6 +370,12 @@ try{
     }
     await route.continue();
   });
+  if(engineFunctionalOnly){
+    const engineProof=await proveSharedE13FunctionalEngine(page);
+    checks.engineFunctionalProof={E13:engineProof};
+    checks.engineFunctionalProofPassed=engineProof.passed===true;
+    if(!checks.engineFunctionalProofPassed)errors.push(`ENGINE_FUNCTIONAL_PROOF_E13_NOT_PROVEN:${engineProof.error??'functional proof incomplete'}`);
+  }else{
   const response=await page.goto(previewUrl,{waitUntil:'domcontentloaded',timeout:30000});
   checks.entryResponse=Boolean(response);
   await page.waitForLoadState('load',{timeout:15000}).catch(()=>undefined);
@@ -564,6 +814,7 @@ try{
     if(!checks.placeholderContentPassed)errors.push('PLACEHOLDER_CONTENT_CLEANUP_NOT_PROVEN');
     if(!checks.presentationContinuityPassed)errors.push('TEMPLATE_PRESENTATION_CONTINUITY_NOT_PROVEN');
   }
+  }
 
 }catch(error){
   const message=error instanceof Error?error.message:String(error);
@@ -577,7 +828,7 @@ try{
 const diagnosticRoute=cleanUrl(previewUrl);
 const diagnostics=errors.map(rawValue=>{
   const raw=String(rawValue),code=raw.split(':')[0],detail=raw.includes(':')?raw.slice(raw.indexOf(':')+1):raw;
-  const base={code,reason:raw,route:diagnosticRoute,contract:'shoporation.template-factory-product-owner-handoff.v2',expected:'Product Owner journey check PASS',actual:detail,evidence:[`template=${templateKey}@${templateVersion}`]};
+  const base={code,reason:raw,route:diagnosticRoute,contract:engineFunctionalOnly?'shoporation.shared-engine-functional-proof.v1':'shoporation.template-factory-product-owner-handoff.v2',expected:engineFunctionalOnly?'Shared engine functional proof PASS':'Product Owner journey check PASS',actual:detail,evidence:engineFunctionalOnly?[`engine=E13`,`sourceCommit=${sourceCommit??'unknown'}`]:[`template=${templateKey}@${templateVersion}`]};
   if(code==='TEMPLATE_AWARE_AUTH_CONTENT_NOT_READY')return{...base,contract:'template-aware-auth-content',expected:'visible preview-login auth content settled before shell assertion',actual:`ready=${checks.templateAwareAuthContentReady??false}`};
   if(code==='TEMPLATE_AWARE_AUTH_SHELL_MISSING')return{...base,contract:'template-aware-auth-shell',expected:'exactly one visible template-aware preview auth shell and one visible account shell',actual:`visibleTemplate=${checks.visibleTemplateAwareAuthShellCount??0};visibleAccount=${checks.visibleAccountShellCount??0};hiddenTemplate=${checks.hiddenTemplateAwareAuthShellCount??0}`};
   if(code==='TEMPLATE_AUTH_STYLE_IDENTITY_MISSING')return{...base,contract:'template-versioned-auth-style',expected:'template/version-aware auth style marker present',actual:'marker missing'};
@@ -585,10 +836,21 @@ const diagnostics=errors.map(rawValue=>{
   if(code==='SOURCE_COMMIT_MISMATCH'||code==='PREVIEW_SOURCE_COMMIT_MISMATCH')return{...base,contract:'exact-head-provenance',expected:sourceCommit??'exact source commit',actual:raw};
   if(code==='COMMERCE_INTERACTION_NOT_PROVEN')return{...base,contract:'preview-commerce-interaction',expected:'complete fail-closed shopper journey PASS with zero production commerce mutations',actual:JSON.stringify(checks.commerceInteraction??{})};
   if(code==='PRODUCTION_COMMERCE_MUTATION_ATTEMPTED')return{...base,contract:'preview-commerce-side-effect',expected:'zero production order/payment/fulfillment/invoice mutation attempts',actual:detail};
+  if(code==='ENGINE_FUNCTIONAL_PROOF_E13_NOT_PROVEN')return{...base,contract:'shoporation.shared-engine-functional-proof.v1',expected:'E13 real /penztar journey PASS with authoritative quote and fail-closed submit',actual:detail};
   return base;
 });
-
-const proof={
+const proof=engineFunctionalOnly?{
+  contract:'shoporation.shared-engine-functional-proof.v1',
+  engine:'E13',
+  sourceCommit,
+  previewUrl:cleanUrl(previewUrl),
+  checks,
+  errors,
+  diagnostics,
+  passed:errors.length===0&&checks.engineFunctionalProofPassed===true,
+  maturity:errors.length===0?'engine-functional-proven':'engine-functional-blocked',
+  verifiedAt:new Date().toISOString(),
+}:{
   contract:'shoporation.template-factory-product-owner-handoff.v2',
   templateKey,
   templateVersion,
