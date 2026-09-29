@@ -321,12 +321,20 @@ async function proveFactoryCommerceInteraction(browser,manifest){
     return baseUrl+'/visual-fidelity-qa?'+params.toString();
   };
   const rootFor=pageType=>page.locator('[data-visual-fidelity-root="runtime"][data-template-key="'+manifest.templateKey+'"][data-template-version="'+manifest.templateVersion+'"][data-factory-candidate="true"][data-page-type="'+pageType+'"][data-commerce-proof="true"]').first();
+  const dismissCookieBanner=async()=>{
+    const banner=page.locator('.cookieBanner:visible').first();
+    if(await banner.count()===0)return;
+    const necessary=banner.getByRole('button',{name:'Csak szükséges',exact:true});
+    if(await necessary.count()===1)await necessary.click();
+    await banner.waitFor({state:'hidden',timeout:5000}).catch(()=>undefined);
+  };
   const visit=async(pageType,extra={})=>{
     const response=await page.goto(previewFor(pageType,extra),{waitUntil:'domcontentloaded',timeout:30000});
     if(!response?.ok())throw new Error('COMMERCE_ROUTE_FAILED:'+pageType+':'+(response?.status()??'no-response'));
     await page.waitForLoadState('load',{timeout:15000}).catch(()=>undefined);
     const root=rootFor(pageType);
     await root.waitFor({state:'visible',timeout:10000});
+    await dismissCookieBanner();
     return root;
   };
   try{
@@ -426,7 +434,8 @@ async function proveFactoryCommerceInteraction(browser,manifest){
     const beforeShipping=(await checkoutRoot.locator('[data-storefront-preview-shipping-cost]').innerText()).trim();
     const beforeTotal=(await checkoutRoot.locator('[data-storefront-preview-grand-total]').innerText()).trim();
     const parcel=checkoutRoot.getByRole('radio',{name:/Csomagpont/});
-    await parcel.check();
+    await checkoutRoot.locator('label.choiceCard').filter({hasText:/Csomagpont/}).first().click();
+    await page.waitForFunction(()=>document.querySelector('input[name="shippingProvider"]:checked')!==null,{timeout:5000});
     const afterShipping=(await checkoutRoot.locator('[data-storefront-preview-shipping-cost]').innerText()).trim();
     const afterTotal=(await checkoutRoot.locator('[data-storefront-preview-grand-total]').innerText()).trim();
     result.checks.shippingSelection=await parcel.isChecked();
@@ -438,7 +447,8 @@ async function proveFactoryCommerceInteraction(browser,manifest){
       &&subtotalValue+afterShippingValue===afterTotalValue;
 
     const transfer=checkoutRoot.getByRole('radio',{name:/Banki átutalás/});
-    await transfer.check();
+    await checkoutRoot.locator('label.choiceCard').filter({hasText:/Banki átutalás/}).first().click();
+    await page.waitForFunction(()=>document.querySelector('input[name="paymentProvider"]:checked')!==null,{timeout:5000});
     result.checks.paymentSelection=await transfer.isChecked();
 
     await checkoutRoot.locator('[data-storefront-preview-order-submit="true"]').click();
