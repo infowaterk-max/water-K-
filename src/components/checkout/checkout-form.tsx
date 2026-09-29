@@ -41,7 +41,7 @@ function CheckoutAccordionStep({step,number,title,summary,active,completed,locke
   </section>;
 }
 
-export function CheckoutForm({shippingOptions,paymentOptions,freeShippingThreshold,resellerApproved,embedded=false,acceptancePreview=false,instanceId,signedIn=false,customerDefaults,hasSavedBillingProfile=false,accountBenefitCapabilities}:{shippingOptions:ShippingOption[];paymentOptions:PaymentOption[];freeShippingThreshold:number;resellerApproved:boolean;embedded?:boolean;acceptancePreview?:boolean;instanceId:string|null;signedIn?:boolean;customerDefaults:CheckoutCustomerDefaults;hasSavedBillingProfile?:boolean;accountBenefitCapabilities:CheckoutAccountBenefitFlags}){
+export function CheckoutForm({shippingOptions,paymentOptions,freeShippingThreshold,resellerApproved,embedded=false,acceptancePreview=false,representativePreviewQuote=false,instanceId,signedIn=false,customerDefaults,hasSavedBillingProfile=false,accountBenefitCapabilities}:{shippingOptions:ShippingOption[];paymentOptions:PaymentOption[];freeShippingThreshold:number;resellerApproved:boolean;embedded?:boolean;acceptancePreview?:boolean;representativePreviewQuote?:boolean;instanceId:string|null;signedIn?:boolean;customerDefaults:CheckoutCustomerDefaults;hasSavedBillingProfile?:boolean;accountBenefitCapabilities:CheckoutAccountBenefitFlags}){
   const{cart,clear,couponCode,setCouponCode}=useCart(),router=useRouter(),{track}=useAnalytics(),submitting=useRef(false),requestKey=useRef(key()),formRef=useRef<HTMLFormElement|null>(null);
   const[state,setState]=useState<'idle'|'sending'|'error'>('idle'),[error,setError]=useState(''),[customerType,setCustomerType]=useState<CustomerType>(resellerApproved?'reseller':customerDefaults.customerType),[shippingCode,setShippingCode]=useState(shippingOptions[0]?.code??''),[paymentCode,setPaymentCode]=useState(paymentOptions[0]?.code??''),[parcelPointId,setParcelPointId]=useState(''),[pickupInvalid,setPickupInvalid]=useState(false),[sameAddress,setSameAddress]=useState(true),[termsAccepted,setTermsAccepted]=useState(false),[privacyAcknowledged,setPrivacyAcknowledged]=useState(false),[couponInput,setCouponInput]=useState(''),[couponMessage,setCouponMessage]=useState(''),[quote,setQuote]=useState<Quote|null>(null),[quoteLoading,setQuoteLoading]=useState(false),[quoteError,setQuoteError]=useState(''),[activeStep,setActiveStep]=useState<CheckoutStep>('shipping'),[furthestStep,setFurthestStep]=useState(0);
   const[authOpen,setAuthOpen]=useState(false),[authMode,setAuthMode]=useState<AuthMode>('login'),[accountConnected,setAccountConnected]=useState(signedIn),[accountPromptDismissed,setAccountPromptDismissed]=useState(false),[saveBillingProfile,setSaveBillingProfile]=useState(false);
@@ -60,6 +60,37 @@ export function CheckoutForm({shippingOptions,paymentOptions,freeShippingThresho
   async function refreshQuote(code=couponCode){
     if(!quoteItems.length||missingVariant){setQuote(null);setQuoteError(missingVariant?'A kosár egy régi, termékváltozat nélküli tételt tartalmaz. Töröld és tedd újra kosárba a terméket.':'');return null}
     setQuoteLoading(true);setQuoteError('');
+    if(representativePreviewQuote){
+      const lines:QuoteLine[]=cart.items.map(item=>({
+        variantId:item.variantId??item.productId,
+        productId:item.productId,
+        sku:item.variantId??item.productId,
+        name:item.name,
+        variantLabel:null,
+        quantity:item.quantity,
+        unitGrossHuf:item.unitPrice,
+        lineGrossHuf:item.unitPrice*item.quantity,
+        availableQuantity:Math.max(item.quantity,999),
+        minimumQuantity:item.minimumQuantity??1,
+        orderMultiple:item.orderMultiple??1,
+        channel:'b2c',
+      }));
+      const subtotalGross=lines.reduce((sum,item)=>sum+item.lineGrossHuf,0);
+      const shippingGross=shipping?.fee??0;
+      const q:Quote={
+        items:lines,
+        subtotal_gross_huf:subtotalGross,
+        discount_gross_huf:0,
+        shipping_gross_huf:shippingGross,
+        total_gross_huf:subtotalGross+shippingGross,
+        coupon_code:code||null,
+        fulfillment_mode:'physical',
+        requires_shipping:true,
+        physical_lines:lines.length,
+        digital_lines:0,
+      };
+      setQuote(q);setQuoteLoading(false);return q;
+    }
     try{
       const r=await fetch('/api/checkout/quote',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({shippingProvider:shipping?.code||undefined,couponCode:code||undefined,items:quoteItems})});
       const p=await r.json() as ({ok?:boolean;error?:string}&Partial<Quote>);
@@ -169,7 +200,7 @@ export function CheckoutForm({shippingOptions,paymentOptions,freeShippingThresho
   const paymentSummary=payment?payment.label:'Válassz fizetési módot';
   const firstStepTitle=quote?.requires_shipping===false?'Adatok és kézbesítés':'Szállítás';
 
-  return <><div className={`${styles.root} checkoutLayout`} data-storefront-design-inheritance="current-theme" data-checkout-ux="guided-accordion" data-fulfillment-mode={quote?.fulfillment_mode??'unknown'} data-checkout-embedded={embedded?'true':'false'} data-checkout-acceptance={acceptancePreview?'preview':'live'}>
+  return <><div className={`${styles.root} checkoutLayout`} data-storefront-design-inheritance="current-theme" data-checkout-ux="guided-accordion" data-fulfillment-mode={quote?.fulfillment_mode??'unknown'} data-checkout-embedded={embedded?'true':'false'} data-checkout-acceptance={acceptancePreview?'preview':'live'} data-checkout-quote-source={representativePreviewQuote?'representative-preview':'authoritative-server'}>
     <form ref={formRef} className="checkout-form" onSubmit={submit} onInput={clearFieldValidationFeedback} aria-busy={state==='sending'||quoteLoading}>
       {!embedded?<div className="checkoutHeading"><span className="eyebrow">Biztonságos rendelés</span><h1>Pénztár</h1><p className="muted">A végösszeget, készletet és teljesítési módot a rendelés előtt szerveroldalon újra ellenőrizzük. Kézbesítés → Fizetés → Összesítés; egyszerre csak az aktuális lépés van nyitva.</p></div>:null}
       {acceptancePreview?<div className="partnerCheckoutBadge" role="status" data-storefront-commerce-preview="fail-closed"><strong>Előnézeti mód</strong><span>A kosár, szállítás, fizetés és összesítés teljes folyamata kipróbálható. A végleges rendelésleadás biztonságosan tiltott.</span></div>:null}{acceptancePreview&&state==='error'&&error==='Acceptance proof: a rendelés leadási kísérletét a rendszer blokkolta.'?<p role="status" data-storefront-preview-order-blocked="true" className="errorNotice">{error}</p>:null}
