@@ -675,10 +675,11 @@ try{
       await checkoutRoot.getByPlaceholder('Írd be a választott automata vagy átvételi pont nevét / címét').fill('Preview csomagpont');
       await checkoutRoot.getByRole('button',{name:'Tovább a fizetéshez',exact:true}).click();
       await checkoutRoot.locator('[data-checkout-panel="payment"]').waitFor({state:'visible',timeout:5000});
-      const transfer=checkoutRoot.getByRole('radio',{name:'Banki átutalás',exact:true});
+      const transfer=checkoutRoot.locator('input[name="paymentProvider"][value="preview-transfer"]');
       await checkoutRoot.locator('label.choiceCard').filter({hasText:/Banki átutalás/}).first().click();
-      await page.waitForFunction(()=>document.querySelector('input[name="paymentProvider"]:checked')?.getAttribute('value')==='preview-transfer',undefined,{timeout:5000});
-      commerceInteraction.paymentSelection=await transfer.isChecked();
+      const selectedTransfer=checkoutRoot.locator('input[name="paymentProvider"][value="preview-transfer"]:checked');
+      await selectedTransfer.waitFor({state:'attached',timeout:5000});
+      commerceInteraction.paymentSelection=await selectedTransfer.count()===1&&await transfer.isChecked();
 
       await checkoutRoot.getByRole('button',{name:'Tovább az összesítéshez',exact:true}).click();
       await checkoutRoot.locator('[data-checkout-panel="summary"]').waitFor({state:'visible',timeout:5000});
@@ -796,14 +797,16 @@ try{
 
     let accountRoot=await visitCandidate('account','account-capability-proof');
     const accountTargets=[
-      ['Rendeléseim','orders'],['Letöltéseim','letoltesek'],['Dokumentumaim','dokumentumok'],['Kívánságlista','kivansaglista'],
-      ['Ügyeim','ugyek'],['Visszaküldés','visszakuldes'],['Fiókadatok','profile'],['Marketing beállítások','marketing'],
+      ['Rendeléseim','orders','/fiokom#rendelesek'],['Letöltéseim','letoltesek','/fiokom/letoltesek'],['Dokumentumaim','dokumentumok','/fiokom/dokumentumok'],['Kívánságlista','kivansaglista','/fiokom/kivansaglista'],
+      ['Ügyeim','ugyek','/fiokom/ugyek'],['Visszaküldés','visszakuldes','/fiokom/visszakuldes'],['Fiókadatok','profile','/fiokom#fiokadatok'],['Marketing beállítások','marketing','/fiokom#marketing'],
     ];
-    checks.accountSurfacePassed=(await Promise.all(accountTargets.map(async([label,view])=>{
+    checks.accountSurfacePassed=(await Promise.all(accountTargets.map(async([label,_view,expectedHref])=>{
       const link=accountRoot.getByRole('link',{name:label,exact:true}).first();
       if(await link.count()!==1)return false;
       const href=await link.getAttribute('href');
-      return Boolean(href&&new URL(href,page.url()).searchParams.get('accountView')===view);
+      if(!href)return false;
+      const url=new URL(href,page.url()),expected=new URL(expectedHref,page.url());
+      return url.pathname===expected.pathname&&url.hash===expected.hash;
     }))).every(Boolean);
     if(!checks.accountSurfacePassed)errors.push('CANONICAL_ACCOUNT_SURFACES_NOT_PROVEN');
     try{
