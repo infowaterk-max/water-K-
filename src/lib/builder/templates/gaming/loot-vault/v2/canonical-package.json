@@ -9362,93 +9362,6 @@
                       "color": "#a9a397"
                     }
                   }
-                },
-                {
-                  "id": "loot-vault-loot-v2-account-capability-navigation",
-                  "componentKey": "system.navigation",
-                  "componentVersion": 1,
-                  "config": {
-                    "ariaLabel": "Fiók funkciók",
-                    "layout": "horizontal",
-                    "presentation": "account-capability-demo",
-                    "items": [
-                      {
-                        "label": "Áttekintés",
-                        "href": "/fiokom"
-                      },
-                      {
-                        "label": "Rendeléseim",
-                        "href": "/fiokom#rendelesek"
-                      },
-                      {
-                        "label": "Letöltéseim",
-                        "href": "/fiokom/letoltesek"
-                      },
-                      {
-                        "label": "Dokumentumaim",
-                        "href": "/fiokom/dokumentumok"
-                      },
-                      {
-                        "label": "Kívánságlista",
-                        "href": "/fiokom/kivansaglista"
-                      },
-                      {
-                        "label": "Gyűjteményem",
-                        "href": "/fiokom/gyujtemenyem"
-                      },
-                      {
-                        "label": "Ügyeim",
-                        "href": "/fiokom/ugyek"
-                      },
-                      {
-                        "label": "Visszaküldés",
-                        "href": "/fiokom/visszakuldes"
-                      },
-                      {
-                        "label": "Fiókadatok",
-                        "href": "/fiokom#fiokadatok"
-                      },
-                      {
-                        "label": "Marketing beállítások",
-                        "href": "/fiokom#marketing"
-                      }
-                    ],
-                    "style": {
-                      "gap": ".65rem",
-                      "fontSize": ".76rem",
-                      "fontWeight": 760,
-                      "color": "#f7e9d2",
-                      "flexWrap": "wrap",
-                      "whiteSpace": "normal",
-                      "overflowX": "visible",
-                      "padding": "1rem",
-                      "display": "grid",
-                      "gridTemplateColumns": "repeat(auto-fit,minmax(13rem,1fr))",
-                      "background": "linear-gradient(180deg,#111314,#090a0b)",
-                      "border": "1px solid rgba(216,161,76,.28)",
-                      "borderRadius": ".38rem",
-                      "marginTop": "1.1rem",
-                      "boxShadow": "0 22px 52px rgba(0,0,0,.28)"
-                    },
-                    "styleSlots": {
-                      "item": {
-                        "base": {
-                          "padding": ".58rem .72rem",
-                          "minHeight": "2.55rem",
-                          "display": "inline-flex",
-                          "alignItems": "center",
-                          "border": "1px solid rgba(165,122,69,.32)",
-                          "borderRadius": ".55rem",
-                          "background": "rgba(23,25,26,.72)"
-                        },
-                        "mobile": {
-                          "padding": ".52rem .62rem",
-                          "minHeight": "2.45rem",
-                          "fontSize": ".72rem"
-                        }
-                      }
-                    }
-                  }
                 }
               ]
             }
@@ -17185,7 +17098,8 @@
                       "whiteSpace": "pre-line",
                       "fontSize": "1.03rem",
                       "lineHeight": 1.85
-                    }
+                    },
+                    "presentation": "structured-document"
                   },
                   "bindings": {
                     "text": {
