@@ -141,7 +141,7 @@ describe('Loot Vault v2 Factory canonical wiring',()=>{
     const header=nodes.find(node=>node.componentKey==='system.commerce-header')!;
     expect((header.config.styleSlots as any)?.utilityItem?.mobile).toMatchObject({minWidth:'2.75rem',minHeight:'2.75rem'});
     const search=nodes.find(node=>node.componentKey==='system.search')!;
-    expect((search.config.style as any)?.height).toBe('2.875rem');
+    expect((search.config.style as any)?.base?.height).toBe('2.875rem');
   });
 
   it('keeps the core Loot Vault commerce assortment visually diverse',()=>{
