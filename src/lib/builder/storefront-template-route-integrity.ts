@@ -7,7 +7,7 @@ export const STOREFRONT_ROUTE_INTEGRITY_VERSION='shoporation.storefront-route-in
 export const STOREFRONT_DEMO_CONTENT_NOTICE='Minta tartalom – ez az oldal előre generált szöveget tartalmaz, és nem tekinthető a webshop valós működésének vagy feltételeinek. Ellenőrizd és igazítsd a saját működésedhez publikálás előtt.' as const;
 
 export const STOREFRONT_REQUIRED_MOBILE_NAVIGATION_ROUTES=Object.freeze([
-  '/','/webaruhaz','/blog','/oldal/rolunk','/gyik','/kapcsolat','/szallitas-es-fizetes','/oldal/visszakuldes','/kedvencek','/fiokom','/aszf','/adatvedelem','/impresszum',
+  '/','/webaruhaz','/blog','/oldal/rolunk','/gyik','/kapcsolat','/szallitas','/fizetes','/oldal/visszakuldes','/kedvencek','/fiokom','/aszf','/adatvedelem','/impresszum',
 ] as const);
 export const STOREFRONT_REQUIRED_ACCOUNT_CAPABILITY_ROUTES=Object.freeze(
   CANONICAL_ACCOUNT_CAPABILITIES.filter(item=>!item.optional).map(item=>item.href),
@@ -25,7 +25,7 @@ export type StorefrontRouteIntegrityIssue={
 
 const PLATFORM_EXACT_ROUTES=new Set([
   '/','/webaruhaz','/kosar','/penztar','/fiokom','/gyik','/kapcsolat','/blog',
-  '/szallitas-es-fizetes','/aszf','/adatvedelem','/impresszum','/digitalis-hozzaferes',
+  '/szallitas','/fizetes','/szallitas-es-fizetes','/aszf','/adatvedelem','/impresszum','/digitalis-hozzaferes',
   '/rendeles-sikeres','/hamarosan','/kereses','/kedvencek',
 ]);
 const PLATFORM_PREFIX_ROUTES=['/fiokom/','/termek/'] as const;
@@ -33,7 +33,8 @@ const LEGAL_DEMO_ROUTE_SLUGS:Readonly<Record<string,string>>=Object.freeze({
   '/aszf':'aszf',
   '/adatvedelem':'adatvedelem',
   '/impresszum':'impresszum',
-  '/szallitas-es-fizetes':'szallitas-es-fizetes',
+  '/szallitas':'szallitas',
+  '/fizetes':'fizetes',
 });
 const CATALOG_QUERY_KEYS=new Set(['q','audience','stock','sort','sale','category','collection','filter','type','scene','flavor','pantry','ritual','play','genre','platform','c','concern','texture']);
 
@@ -198,27 +199,12 @@ KAPCSOLAT
 
 Utolsó frissítés: [DÁTUM]
 Ellenőrizd, hogy minden kötelező üzemeltetői adat a vállalkozás aktuális nyilvántartási adataival egyezzen.`),
-  'szallitas-es-fizetes':showroomPage('szallitas-es-fizetes','Szállítás és fizetés','A webshop tényleges szállítási, átvételi és fizetési lehetőségeinek vásárlóbarát összefoglalója.',`SZÁLLÍTÁSI LEHETŐSÉGEK
-Sorold fel kizárólag az aktív futár-, csomagpont-, automata- és személyes átvételi módokat. Minden opciónál add meg a valós díjat és releváns korlátozásokat.
 
-INGYENES SZÁLLÍTÁS
-Ha van ingyenes szállítási küszöb vagy más feltétel, itt jelenjen meg a tényleges szabály: [FELTÉTEL].
-
-FIZETÉSI MÓDOK
-Sorold fel kizárólag az aktív fizetési módokat, és jelezd a kapcsolódó díjakat vagy korlátozásokat.
-
-RENDELÉS FELDOLGOZÁSA
-Írd le, hogyan kap visszaigazolást a vásárló, mikor indul a teljesítés, és hol követheti a rendelését.
-
-KÉRDÉSED VAN?
-A Kapcsolat oldalon vagy a Fiókom megfelelő ügyintézési felületén indíthatsz megkeresést.
-
-Utolsó frissítés: [DÁTUM]`),
 });
 
 const STANDARD_DEMO_PAGES:Readonly<Record<string,DemoContentPayload>>=Object.freeze({
-  szallitas:standardPage('szallitas','Szállítás','Mintaoldal a webshop szállítási lehetőségeinek bemutatásához.','Szállítási lehetőségek\nItt sorold fel a ténylegesen elérhető futár-, csomagpont- és személyes átvételi módokat.\n\nDíjak és határidők\nA valós szállítási díjakat, ingyenes szállítási küszöböt és várható kézbesítési időt a saját szerződéseid alapján add meg.'),
-  fizetes:standardPage('fizetes','Fizetés','Mintaoldal a webshop tényleges fizetési módjainak bemutatásához.','Fizetési módok\nCsak azokat a fizetési módokat hagyd az oldalon, amelyeket a webshopban valóban aktiváltál.\n\nBiztonság és visszatérítés\nÍrd le a fizetési szolgáltatóid, terhelési és visszatérítési folyamatod valós szabályait.'),
+  szallitas:showroomPage('szallitas','Szállítás','Aktuális szállítási módok, díjak és átvételi lehetőségek.','SZÁLLÍTÁSI MÓDOK\nA pénztár kizárólag a ténylegesen aktív futár-, csomagpont- és személyes átvételi lehetőségeket mutatja.\n\nDÍJAK ÉS TELJESÍTÉS\nA díj, az ingyenes szállítás feltétele és a várható teljesítési információ a kereskedő aktuális beállításaiból érkezik.'),
+  fizetes:showroomPage('fizetes','Fizetés','A ténylegesen engedélyezett fizetési módok és a fizetési folyamat áttekintése.','FIZETÉSI MÓDOK\nA pénztár csak a kereskedő által aktivált bankkártyás, átutalásos, utánvétes vagy más provider-módokat kínálja fel.\n\nFIZETÉSI FOLYAMAT\nAz online szolgáltatói átirányítás és a rendelés fizetési állapota az aktuális provider-konfigurációt követi.'),
   visszakuldes:standardPage('visszakuldes','Visszaküldés','Lépésről lépésre bemutatott minta-folyamat a visszaküldés, elállás, hibás vagy sérült termék és visszatérítés ügyintézéséhez.',`VISSZAKÜLDÉS LÉPÉSRŐL LÉPÉSRE
 
 1. ELLENŐRIZD, MILYEN ÜGYET INDÍTASZ
@@ -340,7 +326,7 @@ const previewPageForPath=(pathname:string):string|null=>{
   if(pathname.startsWith('/oldal/'))return'content';
   if(pathname==='/gyik')return'faq';
   if(pathname==='/kapcsolat')return'contact';
-  if(['/aszf','/adatvedelem','/impresszum','/szallitas-es-fizetes'].includes(pathname))return'legal';
+  if(['/aszf','/adatvedelem','/impresszum','/szallitas','/fizetes'].includes(pathname))return'legal';
   return null;
 };
 
@@ -565,7 +551,8 @@ export const STOREFRONT_TEMPLATE_SHOWROOM_SURFACES:readonly StorefrontShowroomSu
   {id:'wishlist',label:'Kedvencek',route:'/kedvencek',pageType:'account',reachability:'shell-navigation',navigationRequired:true,engines:['E1']},
   {id:'downloads',label:'Letöltéseim',route:'/fiokom/letoltesek',pageType:'account',reachability:'shopper-journey',navigationRequired:false,engines:['E1']},
   {id:'about',label:'Rólunk',route:'/oldal/rolunk',pageType:'content',reachability:'shell-navigation',navigationRequired:true,engines:['E1','E10']},
-  {id:'shipping-payment',label:'Szállítás és fizetés',route:'/szallitas-es-fizetes',pageType:'legal',reachability:'shell-navigation',navigationRequired:true,engines:['E1','E13']},
+  {id:'shipping',label:'Szállítás',route:'/szallitas',pageType:'legal',reachability:'shell-navigation',navigationRequired:true,engines:['E1','E13']},
+  {id:'payment',label:'Fizetés',route:'/fizetes',pageType:'legal',reachability:'shell-navigation',navigationRequired:true,engines:['E1','E13']},
   {id:'returns',label:'Visszaküldés',route:'/oldal/visszakuldes',pageType:'content',reachability:'shell-navigation',navigationRequired:true,engines:['E1']},
   {id:'faq',label:'GYIK',route:'/gyik',pageType:'faq',reachability:'shell-navigation',navigationRequired:true,engines:['E1']},
   {id:'contact',label:'Kapcsolat',route:'/kapcsolat',pageType:'contact',reachability:'shell-navigation',navigationRequired:true,engines:['E1']},
