@@ -75,7 +75,8 @@ describe('Template Factory Quality Gate v2',()=>{
     expect(builder).toContain("const viewportWidth=VIEWPORTS.find(item=>item.key===viewport)?.width??1200");
     expect(builder).toContain('page={document}');
     expect(previewPage).toContain('page={page}');
-    expect(previewRuntime).toContain('page={page}');
+    expect(previewRuntime).toContain('page={document}');
+    expect(previewRuntime).toContain('renderPage(page)');
     expect(STOREFRONT_CANONICAL_VIEWPORT_WIDTH_PX).toEqual({desktop:1200,tablet:768,mobile:390});
   });
 
