@@ -310,6 +310,23 @@ describe('Loot Vault v2 Factory canonical wiring',()=>{
     expect((grid.config.styleSlots as any)?.image?.base?.transform).toBe('scale(1.16)');
   });
 
+  it('uses the shared bounded imageScale capability to keep repeated source media visually distinct without template-specific renderer branches',()=>{
+    const source=readFileSync('src/components/builder/storefront-commerce.tsx','utf8');
+    expect(source).toContain('imageScale:number');
+    expect(source).toContain('Math.max(1,Math.min(1.4,number(row.imageScale,1)))');
+    expect(source).not.toContain('gaming.loot-vault');
+
+    const catalog=LOOT_VAULT_V2_TEMPLATE_PACKAGE.pages.find(page=>page.pageType==='catalog')!;
+    const grid=walk(catalog.sections).find(node=>node.id==='loot-vault-loot-v2-catalog-products')!;
+    const products=(grid.config.products??[]) as Array<Record<string,unknown>>;
+    expect(products).toHaveLength(6);
+    expect(new Set(products.map(product=>`${String(product.image??'')}|${String(product.imagePosition??'')}|${String(product.imageScale??1)}`)).size).toBe(6);
+    expect(products.every(product=>Number(product.imageScale??1)>=1&&Number(product.imageScale??1)<=1.4)).toBe(true);
+
+    const previewDemo=readFileSync('src/lib/builder/storefront-template-preview-demo.ts','utf8');
+    expect(previewDemo).not.toContain("LOOT_VAULT_PREVIEW_COLLECTION_IMAGES=Object.freeze([\n  '/storefront-demo/loot-vault-v2/hero-cinematic.webp'");
+  });
+
   it('keeps customer-facing demo copy free from internal platform vocabulary',()=>{
     const fixtures=LOOT_VAULT_V2_TEMPLATE_PACKAGE.demoFixtures??[];
     const customerCopy=fixtures.flatMap(item=>{

@@ -92,9 +92,9 @@ const LOOT_VAULT_PREVIEW_COLLECTIONS=Object.freeze([
 ]);
 
 const LOOT_VAULT_PREVIEW_COLLECTION_IMAGES=Object.freeze([
-  '/storefront-demo/loot-vault-v2/hero-cinematic.webp',
-  '/storefront-demo/loot-vault-v2/editorial-vault-shelf.webp',
   '/storefront-demo/loot-vault-v2/product-figure.webp',
+  '/storefront-demo/loot-vault-v2/editorial-vault-shelf.webp',
+  '/storefront-demo/loot-vault-v2/category-anime.webp',
   '/storefront-demo/loot-vault-v2/editorial-collector-room.webp',
 ]);
 
