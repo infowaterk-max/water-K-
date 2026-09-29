@@ -1,22 +1,23 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-CORE-GATE-DIAGNOSTIC-COVERAGE",
-  "task": "Close structured diagnostic evidence gaps in existing gate workflows.",
+  "taskId": "DEV-SECONDARY-WORKFLOW-DIAGNOSTIC-COVERAGE",
+  "task": "Persist structured diagnostics for existing scheduled, visual, baseline and golden-promotion workflows.",
   "status": "ready-for-implementation",
-  "guardDigest": "22ed8bbb",
+  "guardDigest": "19199ee0",
   "plannedFilePatterns": [
-    "scripts/shoperation-command-diagnostic.mjs",
-    "scripts/shoperation-failure-intake.mjs",
-    "scripts/template-factory-product-owner-handoff.mjs",
-    ".github/workflows/ci.yml",
-    ".github/workflows/template-factory-quality-gate.yml",
-    ".github/workflows/shoperation-knowledge-full-replay.yml",
-    "deploy/release-risk-policy.json",
-    "tests/control-plane-diagnostic-coverage.test.ts",
+    ".github/workflows/shoperation-deep-atlas-scan.yml",
+    ".github/workflows/shoperation-sentinel.yml",
+    ".github/workflows/playroom-page-family-visual-qa.yml",
+    ".github/workflows/playroom-v20-capability-visual-qa.yml",
+    ".github/workflows/playroom-visual-fidelity.yml",
+    ".github/workflows/visual-fidelity.yml",
+    ".github/workflows/customer-baseline-snapshot.yml",
+    ".github/workflows/template-golden-baseline-promotion.yml",
+    "scripts/shoperation-knowledge-deep-atlas-scan.mjs",
+    "tests/secondary-workflow-diagnostic-coverage.test.ts",
     "quality/development/active-plan.json"
   ],
   "expectedSubsystems": [
-    "quality-infrastructure",
     "release-infrastructure"
   ],
   "expectedDomains": [
@@ -85,6 +86,6 @@
     "SQ-NK-012"
   ],
   "exceptions": [],
-  "notes": "Diagnostic-only hardening. Existing gates and authorities remain unchanged. Persist concrete failure reason/location/evidence for baseline, market-ready, typecheck/build, Template Factory QA runtime/preview/Product Owner journey and periodic full replay. No product runtime, storefront, Builder, database or auth contract change.",
-  "changeBaseSha": "e728c3a58b531234a420576d74b2a6e68e65ec53"
+  "notes": "Diagnostic-only hardening of existing workflow authorities. No storefront/runtime/Builder/database/auth behavior changes.",
+  "changeBaseSha": "f2a7478e18feccfe774bf645c29fc64fddd2bd18"
 }
