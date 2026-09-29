@@ -219,7 +219,37 @@ Utolsó frissítés: [DÁTUM]`),
 const STANDARD_DEMO_PAGES:Readonly<Record<string,DemoContentPayload>>=Object.freeze({
   szallitas:standardPage('szallitas','Szállítás','Mintaoldal a webshop szállítási lehetőségeinek bemutatásához.','Szállítási lehetőségek\nItt sorold fel a ténylegesen elérhető futár-, csomagpont- és személyes átvételi módokat.\n\nDíjak és határidők\nA valós szállítási díjakat, ingyenes szállítási küszöböt és várható kézbesítési időt a saját szerződéseid alapján add meg.'),
   fizetes:standardPage('fizetes','Fizetés','Mintaoldal a webshop tényleges fizetési módjainak bemutatásához.','Fizetési módok\nCsak azokat a fizetési módokat hagyd az oldalon, amelyeket a webshopban valóban aktiváltál.\n\nBiztonság és visszatérítés\nÍrd le a fizetési szolgáltatóid, terhelési és visszatérítési folyamatod valós szabályait.'),
-  visszakuldes:standardPage('visszakuldes','Visszaküldés','Mintaoldal a visszaküldési és elállási folyamat bemutatásához.','Visszaküldési folyamat\nMutasd be a tényleges ügyintézési lépéseket, elérhetőségeket és visszaküldési címet.\n\nHatáridők és feltételek\nA vállalkozásodra és termékeidre vonatkozó valós jogi feltételeket ellenőrzés után add meg.'),
+  visszakuldes:standardPage('visszakuldes','Visszaküldés','Lépésről lépésre bemutatott minta-folyamat a visszaküldés, elállás, hibás vagy sérült termék és visszatérítés ügyintézéséhez.',`VISSZAKÜLDÉS LÉPÉSRŐL LÉPÉSRE
+
+1. ELLENŐRIZD, MILYEN ÜGYET INDÍTASZ
+Jelöld meg, hogy elállásról, hibás vagy sérült termékről, téves teljesítésről vagy más visszaküldési okról van szó. Az éles webshopban kizárólag a vállalkozásodra és az adott termékre ténylegesen alkalmazandó lehetőségek maradjanak.
+
+2. KÉSZÍTSD ELŐ A RENDELÉSI ADATOKAT
+Az ügyintézéshez legyen kéznél a rendelési azonosító, a vásárlásnál használt e-mail-cím, az érintett termék neve és szükség esetén a probléma rövid leírása vagy fényképe.
+
+3. INDÍTSD EL A KAPCSOLATFELVÉTELT
+A Kapcsolat oldalon a megfelelő témát kiválasztva indítható megkeresés. A webshop itt adja meg a tényleges visszaküldési címet, az engedélyezett szállítási módot és az esetleges további teendőket.
+
+4. CSOMAGOLD VISSZA BIZTONSÁGOSAN
+A terméket lehetőség szerint minden tartozékával és a szállításhoz megfelelő védőcsomagolásban add fel. Gyűjtői terméknél különösen fontos, hogy a díszdoboz és a tartozékok ne sérüljenek a visszaúton.
+
+5. SZÁLLÍTÁSI KÖLTSÉG
+Írd le egyértelműen, hogy az egyes visszaküldési okoknál ki viseli a visszaszállítás költségét. Hibás vagy téves teljesítés és önkéntes elállás esetén eltérő szabályok lehetnek; csak ellenőrzött, tényleges feltételeket publikálj.
+
+6. BEÉRKEZÉS ÉS ELLENŐRZÉS
+A webshop a visszaérkező csomagot azonosítja és az ügy típusának megfelelően ellenőrzi. A vásárló kapjon követhető tájékoztatást arról, hogy az ügy melyik szakaszban jár.
+
+7. VISSZATÉRÍTÉS VAGY MÁS MEGOLDÁS
+Rögzítsd a tényleges visszatérítési, csere- vagy egyéb rendezési folyamatot, a használt fizetési módot és a vállalt ügyintézési határidőket.
+
+8. SÉRÜLT VAGY HIBÁS TERMÉK
+Ha a termék sérülten érkezett vagy hibás, kérj olyan adatokat és képeket, amelyek valóban szükségesek az ügy gyors kivizsgálásához. Ne kérj felesleges személyes adatot.
+
+9. AZ ÜGY KÖVETÉSE
+A bejelentkezett vásárló a Fiókom / Ügyeim vagy Visszaküldés nézetben láthatja a rendelkezésre álló állapotinformációkat. Ha nincs aktív ügy, a felület ezt egyértelmű üres állapottal jelezze.
+
+KAPCSOLAT ÉS ÜGYINDÍTÁS
+A folyamat a Kapcsolat oldalon indítható. Élesítés előtt add meg a saját visszaküldési címedet, elérhetőségedet, határidőidet és a vállalkozásodra alkalmazandó jogi feltételeket.`),
   rolunk:standardPage('rolunk','Rólunk','Mintaoldal a vállalkozás, márka és webshop bemutatásához.','Kik vagyunk?\nMutasd be röviden a vállalkozást, a márka történetét és azt, milyen értéket adtok a vásárlóknak.\n\nMiért minket?\nIde kerülhetnek a valós szolgáltatási előnyök, szakmai tapasztalatok és ügyfélígéretek.'),
   fenntarthatosag:standardPage('fenntarthatosag','Fenntarthatóság','Mintaoldal a bizonyítható fenntarthatósági vállalások bemutatásához.','Amit ténylegesen teszünk\nCsak ellenőrizhető, dokumentálható környezeti vagy társadalmi vállalásokat tüntess fel.\n\nCsomagolás és működés\nÍrd le a valós csomagolási, szállítási vagy beszerzési gyakorlatot.'),
   karrier:standardPage('karrier','Karrier','Mintaoldal álláslehetőségek és jelentkezési információk számára.','Csatlakozz hozzánk\nMutasd be a vállalkozást mint munkahelyet és az aktuális lehetőségeket.\n\nJelentkezés\nAdd meg a valódi jelentkezési csatornát és az adatkezelési tájékoztatásra mutató hivatkozást.'),

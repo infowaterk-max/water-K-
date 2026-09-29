@@ -501,6 +501,18 @@ describe('Loot Vault v2 Factory canonical wiring',()=>{
     expect(()=>buildRegisteredStorefrontTemplateFactoryCandidate('gaming.missing')).toThrow('TEMPLATE_FACTORY_RECIPE_MISSING:gaming.missing');
   });
 
+  it('keeps Returns focused on the actual return journey and a compact support handoff',()=>{
+    const fixtureSource=readFileSync('src/lib/builder/storefront-template-route-integrity.ts','utf8');
+    for(const phrase of['VISSZAKÜLDÉS LÉPÉSRŐL LÉPÉSRE','SZÁLLÍTÁSI KÖLTSÉG','VISSZATÉRÍTÉS VAGY MÁS MEGOLDÁS','AZ ÜGY KÖVETÉSE'])expect(fixtureSource).toContain(phrase);
+    const content=LOOT_VAULT_V2_TEMPLATE_PACKAGE.pages.find(item=>item.pageType==='content')!;
+    const nodes=walk(content.sections);
+    const cta=nodes.find(node=>node.id==='loot-vault-loot-v2-content-contact-cta')!;
+    expect(cta.componentKey).toBe('content.button');
+    expect(cta.config.href).toBe('/kapcsolat');
+    expect(cta.config.label).toBe('Kapcsolat / ügyintézés');
+    expect(JSON.stringify(content)).not.toContain('Hasznos oldalak');
+  });
+
   it('implements the accepted mobile PO content cleanup without repeating generic filler',()=>{
     const page=(type:string)=>LOOT_VAULT_V2_TEMPLATE_PACKAGE.pages.find(item=>item.pageType===type)!;
     const content=JSON.stringify(page('content'));
