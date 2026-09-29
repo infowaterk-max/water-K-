@@ -662,7 +662,7 @@
                             "size": "m",
                             "ariaLabel": "Fedezd fel a Loot Vaultot",
                             "style": {
-                              "borderRadius": ".38rem",
+                              "borderRadius": "10px",
                               "fontWeight": 900,
                               "letterSpacing": ".015em",
                               "background": "linear-gradient(180deg,#F0C77C 0%,#D8A14C 58%,#B97834 100%)",
@@ -2618,7 +2618,7 @@
                             "size": "m",
                             "ariaLabel": "Fedezd fel a kollekciókat",
                             "style": {
-                              "borderRadius": ".38rem",
+                              "borderRadius": "10px",
                               "fontWeight": 900,
                               "letterSpacing": ".015em",
                               "background": "linear-gradient(180deg,#F0C77C 0%,#D8A14C 58%,#B97834 100%)",
@@ -5358,7 +5358,7 @@
                             "size": "m",
                             "ariaLabel": "Vault Magazin",
                             "style": {
-                              "borderRadius": ".38rem",
+                              "borderRadius": "10px",
                               "fontWeight": 800,
                               "letterSpacing": ".02em",
                               "background": "rgba(18,21,23,.72)",
@@ -11715,7 +11715,8 @@
                               "background": "linear-gradient(180deg,#f1c66f,#cf8f2e)",
                               "border": "1px solid #f0c77c",
                               "color": "#100d08",
-                              "boxShadow": "0 8px 22px rgba(216,161,76,.2)"
+                              "boxShadow": "0 8px 22px rgba(216,161,76,.2)",
+                              "borderRadius": "10px"
                             }
                           },
                           "responsive": {
@@ -12758,7 +12759,7 @@
                             "size": "m",
                             "ariaLabel": "Olvasom",
                             "style": {
-                              "borderRadius": ".38rem",
+                              "borderRadius": "10px",
                               "fontWeight": 800,
                               "letterSpacing": ".02em",
                               "background": "rgba(18,21,23,.72)",
@@ -12901,7 +12902,7 @@
                             "size": "m",
                             "ariaLabel": "Olvasom",
                             "style": {
-                              "borderRadius": ".38rem",
+                              "borderRadius": "10px",
                               "fontWeight": 800,
                               "letterSpacing": ".02em",
                               "background": "rgba(18,21,23,.72)",
@@ -13044,7 +13045,7 @@
                             "size": "m",
                             "ariaLabel": "Olvasom",
                             "style": {
-                              "borderRadius": ".38rem",
+                              "borderRadius": "10px",
                               "fontWeight": 800,
                               "letterSpacing": ".02em",
                               "background": "rgba(18,21,23,.72)",
@@ -14899,7 +14900,7 @@
                             "size": "m",
                             "ariaLabel": "Kapcsolat",
                             "style": {
-                              "borderRadius": ".38rem",
+                              "borderRadius": "10px",
                               "fontWeight": 900,
                               "letterSpacing": ".015em",
                               "background": "linear-gradient(180deg,#F0C77C 0%,#D8A14C 58%,#B97834 100%)",
@@ -15711,7 +15712,7 @@
                             "size": "s",
                             "ariaLabel": "Rendeléseim",
                             "style": {
-                              "borderRadius": ".38rem",
+                              "borderRadius": "10px",
                               "fontWeight": 800,
                               "letterSpacing": ".02em",
                               "background": "rgba(18,21,23,.72)",
@@ -15731,7 +15732,7 @@
                             "size": "s",
                             "ariaLabel": "Visszaküldés",
                             "style": {
-                              "borderRadius": ".38rem",
+                              "borderRadius": "10px",
                               "fontWeight": 800,
                               "letterSpacing": ".02em",
                               "background": "rgba(18,21,23,.72)",
@@ -15751,7 +15752,7 @@
                             "size": "s",
                             "ariaLabel": "GYIK",
                             "style": {
-                              "borderRadius": ".38rem",
+                              "borderRadius": "10px",
                               "fontWeight": 800,
                               "letterSpacing": ".02em",
                               "background": "rgba(18,21,23,.72)",
@@ -17946,7 +17947,7 @@
                             "size": "m",
                             "ariaLabel": "Vissza a főoldalra",
                             "style": {
-                              "borderRadius": ".38rem",
+                              "borderRadius": "10px",
                               "fontWeight": 900,
                               "letterSpacing": ".015em",
                               "background": "linear-gradient(180deg,#F0C77C 0%,#D8A14C 58%,#B97834 100%)",
@@ -17967,7 +17968,7 @@
                             "size": "m",
                             "ariaLabel": "Webáruház",
                             "style": {
-                              "borderRadius": ".38rem",
+                              "borderRadius": "10px",
                               "fontWeight": 800,
                               "letterSpacing": ".02em",
                               "background": "rgba(18,21,23,.72)",
@@ -18105,7 +18106,7 @@
                             "size": "m",
                             "ariaLabel": "Keresés a Vaultban",
                             "style": {
-                              "borderRadius": ".38rem",
+                              "borderRadius": "10px",
                               "fontWeight": 800,
                               "letterSpacing": ".02em",
                               "background": "rgba(18,21,23,.72)",
@@ -18199,7 +18200,7 @@
                             "size": "m",
                             "ariaLabel": "Vault Magazin",
                             "style": {
-                              "borderRadius": ".38rem",
+                              "borderRadius": "10px",
                               "fontWeight": 800,
                               "letterSpacing": ".02em",
                               "background": "rgba(18,21,23,.72)",
@@ -18293,7 +18294,7 @@
                             "size": "m",
                             "ariaLabel": "Ügyfélszolgálat",
                             "style": {
-                              "borderRadius": ".38rem",
+                              "borderRadius": "10px",
                               "fontWeight": 800,
                               "letterSpacing": ".02em",
                               "background": "rgba(18,21,23,.72)",
