@@ -110,7 +110,7 @@ export default async function StorefrontTemplatePreview({searchParams}:Props){
     viewport={viewport}
     bindingContext={bindingContext}
     capability={previewCapability}
-    routes={{catalog:previewRoute('catalog'),cart:previewRoute('cart'),checkout:previewRoute('checkout')}}
+    routes={{catalog:previewRoute('catalog'),cart:previewRoute('cart'),checkout:previewRoute('checkout'),account:previewRoute('account')}}
     accountView={pageType==='account'?query.accountView:undefined}
   />;
   if(embed)return <main className={styles.embed} style={theme} data-template-preview="representative-demo" data-template-key={template.manifest.templateKey} data-template-version={template.manifest.templateVersion} data-factory-candidate={factoryCandidate?'true':'false'} data-template-recipe={recipeIdentity} data-compile-source={compileSource} data-foundation-template={foundationTemplate} data-source-commit={sourceCommit} data-page-type={pageType}>{content}</main>;

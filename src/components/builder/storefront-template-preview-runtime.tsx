@@ -10,7 +10,7 @@ import type {StorefrontViewport} from '@/lib/builder/storefront-foundation';
 
 export const STOREFRONT_TEMPLATE_PREVIEW_COMMERCE_RUNTIME_VERSION='shoporation.template-preview-commerce.v1' as const;
 
-type Routes={catalog:string;cart:string;checkout:string};
+type Routes={catalog:string;cart:string;checkout:string;account:string};
 const rec=(value:unknown):Record<string,unknown>=>value&&typeof value==='object'&&!Array.isArray(value)?value as Record<string,unknown>:{};
 const text=(value:unknown,fallback='')=>typeof value==='string'&&value.trim()?value.trim():fallback;
 const money=(value:number,currency='HUF')=>new Intl.NumberFormat('hu-HU',{style:'currency',currency,maximumFractionDigits:currency==='HUF'?0:2}).format(value);
@@ -103,6 +103,13 @@ export function StorefrontTemplatePreviewRuntime({page,viewport,bindingContext,c
   const interceptPreviewRoute=(event:MouseEvent<HTMLDivElement>)=>{
     const target=event.target;
     if(!(target instanceof Element))return;
+    const accountTrigger=target.closest('button[aria-label="Fiókom"]');
+    if(accountTrigger){
+      event.preventDefault();
+      event.stopPropagation();
+      window.location.assign(routes.account);
+      return;
+    }
     const anchor=target.closest('a[href]');
     if(!(anchor instanceof HTMLAnchorElement))return;
     const url=new URL(anchor.href,window.location.href);
