@@ -18,7 +18,8 @@
     "tests/template-factory-procedural-memory.test.ts",
     "quality/development/active-plan.json",
     "src/app/storefront-template-preview/engine-proof/checkout/page.tsx",
-    "deploy/release-risk-policy.json"
+    "deploy/release-risk-policy.json",
+    "tests/storefront-playroom-v20-functional-acceptance.test.ts"
   ],
   "expectedSubsystems": [
     "admin-operations",
