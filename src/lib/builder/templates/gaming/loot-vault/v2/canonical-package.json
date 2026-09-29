@@ -75,7 +75,7 @@
         ],
         "largestCommerceSection": "Collector Selection",
         "engineBinding": "E2+E7+E10",
-        "collectionTracker": "deferred-v1",
+        "collectionTracker": "shared-account-capability-v1",
         "rarityAuthority": "structured-product-data-only",
         "preorderAuthority": "catalog-product-commerce-inventory-read-models",
         "factoryVisualPack": "loot-vault-v2-reference-pack-v1",
@@ -8606,7 +8606,10 @@
         "scaleOutTemplate": "Loot Vault",
         "templateCategory": "gaming-geek",
         "visualDNA": "dark-theatrical-collector-vault-commerce",
-        "collectionTracker": "not-in-v1",
+        "collectionTracker": "shared-account-capability-v1",
+        "accountCapabilities": [
+          "collection"
+        ],
         "factoryVisualPack": "loot-vault-v2-reference-pack-v1",
         "authComposition": "template-owned-v1",
         "authPreset": "loot-vault-v2-vault-access",
