@@ -80,7 +80,7 @@ Published runtime commerce authority remains shared platform authority. Do not c
 
 - Terms, Privacy and Imprint must not be the same card layout with renamed headings.
 - Each requires its own document-type-specific template text and structure with merchant placeholders.
-- Shipping & Payment remains a separate information page.
+- Shipping and Payment are two separate information pages and canonical storefront routes: `/szallitas` and `/fizetes`. The legacy combined route may exist only as compatibility/redirect behavior.
 - Legal template copy is starter content, not guaranteed merchant-specific legal advice.
 
 ## Product page
