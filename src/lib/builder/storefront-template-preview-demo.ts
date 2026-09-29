@@ -82,6 +82,12 @@ const LOOT_VAULT_PREVIEW_PRODUCTS=Object.freeze([
   {name:'Celestial Guardian szobor',image:'/storefront-demo/loot-vault-v2/editorial-vault-shelf.webp',imagePosition:'56% center',imageFilter:'saturate(.76) contrast(1.2) brightness(.74) sepia(.18)',price:139990,badge:'KIEMELT',stockLabel:'Raktáron'},
 ]);
 
+const LOOT_VAULT_PREVIEW_VARIANTS=Object.freeze([
+  {id:'collector',label:'Collector Edition',price:89990,stock:8},
+  {id:'deluxe',label:'Deluxe Edition',price:74990,stock:14},
+  {id:'standard',label:'Standard Edition',price:59990,stock:26},
+]);
+
 const LOOT_VAULT_PREVIEW_COLLECTIONS=Object.freeze([
   'Fantasy',
   'Sci-fi',
@@ -360,7 +366,7 @@ export function getStorefrontTemplatePreviewTheme(templateKey:string):Readonly<R
   });
 }
 
-export function createStorefrontTemplatePreviewBindingContext(input:{template:StorefrontInstallableTemplatePackage;page:StorefrontPageDocument}):Record<string,unknown>{
+export function createStorefrontTemplatePreviewBindingContext(input:{template:StorefrontInstallableTemplatePackage;page:StorefrontPageDocument;selectedVariantId?:string}):Record<string,unknown>{
   const{template,page}=input;
   const category=template.manifest.templateKey.split('.')[0]??'shop';
   const label=CATEGORY_LABELS[category]??'Shop';
@@ -376,5 +382,37 @@ export function createStorefrontTemplatePreviewBindingContext(input:{template:St
     inventory:{stockLabel:'Raktáron'},
   };
   for(const node of page.sections)enrichNodeBindings({template,page,node,context});
+  if(page.pageType==='product'){
+    const previewProducts=demoProducts(template,page),baseProduct=previewProducts[0];
+    const lootVault=template.manifest.templateKey==='gaming.loot-vault';
+    const variants=lootVault?LOOT_VAULT_PREVIEW_VARIANTS:[{id:'default',label:'Alap változat',price:typeof baseProduct?.price==='number'?baseProduct.price:12990,stock:24}] as const;
+    const selected=variants.find(item=>item.id===input.selectedVariantId)??variants[0]!;
+    const slug=lootVault?'vault-sentinel-preview':'preview-product';
+    const existingProduct=isRecord(context.product)?context.product:{};
+    const existingPricing=isRecord(context.pricing)?context.pricing:{};
+    const existingInventory=isRecord(context.inventory)?context.inventory:{};
+    const existingCommerce=isRecord(context.commerce)?context.commerce:{};
+    context.product={
+      ...existingProduct,
+      id:lootVault?'loot-vault-preview-vault-sentinel':'preview-product-1',
+      slug,
+      name:lootVault?'Vault Sentinel prémium figura':String(baseProduct?.name??'Bemutató termék'),
+      description:lootVault
+        ?'A Vault Sentinel egy részletgazdag, díszdobozos gyűjtői figura, amelyet vitrines bemutatásra és tematikus kollekciókba terveztünk. A különböző kiadások eltérő csomagolást és kiegészítőket szemléltetnek; a kiválasztott változat ára és készlete azonnal frissül. Ez bemutató termékleírás, amelyet az éles webshopban a kereskedő saját, valós termékadata vált fel.'
+        :String(existingProduct.description??'Részletes bemutató termékleírás a sablon élő előnézetéhez.'),
+      badges:lootVault?['Gyűjtői kiadás']:[],
+    };
+    context.variant={
+      id:selected.id,
+      optionLabel:lootVault?'Kiadás':'Változat',
+      optionOptions:variants.map(item=>({
+        id:item.id,label:item.label,value:item.id,available:item.stock>0,selected:item.id===selected.id,
+        href:`/termek/${slug}?variant=${encodeURIComponent(item.id)}`,
+      })),
+    };
+    context.pricing={...existingPricing,displayPrice:selected.price,compareAtPrice:'',unitPrice:selected.price};
+    context.inventory={...existingInventory,stockLabel:selected.stock>0?'Raktáron':'Elfogyott',availableQuantity:selected.stock,minimumQuantity:1,orderMultiple:1};
+    context.commerce={...existingCommerce,purchaseLabel:'Kosárba teszem',wishlistLabel:'Kedvencekhez'};
+  }
   return context;
 }

@@ -11,15 +11,13 @@ import {
 } from '@/lib/builder/storefront-template-preview-demo';
 import {applyAuthoredTemplatePreviewFallbacks} from '@/lib/builder/storefront-template-preview-canonical';
 import {augmentStorefrontDigitalCommercePreviewContext} from '@/lib/builder/storefront-digital-commerce-preview';
-import {StorefrontRuntimeRenderer} from '@/components/builder/storefront-runtime-renderer';
-import {createStorefrontVisualBuilderRendererRegistry} from '@/components/builder/storefront-builder-renderer-registry';
-import {createStorefrontVisualBuilderComponentRegistry} from '@/lib/builder/storefront-builder-registry';
+import {StorefrontTemplatePreviewRuntime} from '@/components/builder/storefront-template-preview-runtime';
 import {STOREFRONT_CANONICAL_VIEWPORT_WIDTH_PX,STOREFRONT_PAGE_TYPES,type StorefrontBuilderPageType,type StorefrontViewport} from '@/lib/builder/storefront-foundation';
 import {applyStorefrontTemplateDemoNotice,applyStorefrontTemplateOwnerShowroomNavigation,getStorefrontTemplateDemoContent,isStorefrontShowroomReadyDemoContent,rewriteStorefrontTemplatePreviewBindingContext,rewriteStorefrontTemplatePreviewLinks} from '@/lib/builder/storefront-template-route-integrity';
 import styles from './storefront-template-preview.module.css';
 
 export const dynamic='force-dynamic';
-type Props={searchParams:Promise<{template?:string;version?:string;page?:string;viewport?:string;embed?:string;demoContent?:string;factory?:string}>};
+type Props={searchParams:Promise<{template?:string;version?:string;page?:string;viewport?:string;embed?:string;demoContent?:string;factory?:string;variant?:string}>};
 const widths=STOREFRONT_CANONICAL_VIEWPORT_WIDTH_PX;
 const allowedPageTypes=new Set<StorefrontBuilderPageType>(STOREFRONT_PAGE_TYPES);
 
@@ -67,7 +65,7 @@ export default async function StorefrontTemplatePreview({searchParams}:Props){
     viewport,
     factory:factoryCandidate,
   });
-  const baseContext=applyAuthoredTemplatePreviewFallbacks({page,context:createStorefrontTemplatePreviewBindingContext({template,page})});
+  const baseContext=applyAuthoredTemplatePreviewFallbacks({page,context:createStorefrontTemplatePreviewBindingContext({template,page,selectedVariantId:query.variant})});
   if(demoPayload){
     const content=baseContext.content&&typeof baseContext.content==='object'&&!Array.isArray(baseContext.content)?baseContext.content as Record<string,unknown>:{};
     const title=typeof demoPayload.title==='string'?demoPayload.title:'Minta tartalom';
@@ -94,13 +92,24 @@ export default async function StorefrontTemplatePreview({searchParams}:Props){
     ?`${factoryMeta.foundationTemplateKey}@${factoryMeta.foundationTemplateVersion}`
     :'none';
   const sourceCommit=process.env.VERCEL_GIT_COMMIT_SHA??process.env.GITHUB_SHA??'unknown';
-  const content=<StorefrontRuntimeRenderer
+  const previewRoute=(nextPage:StorefrontBuilderPageType)=>{
+    const params=new URLSearchParams();
+    for(const[key,value]of Object.entries(query))if(typeof value==='string'&&value)params.set(key,value);
+    params.set('template',template.manifest.templateKey);
+    params.set('version',String(template.manifest.templateVersion));
+    params.set('page',nextPage);
+    params.set('viewport',viewport);
+    params.delete('variant');
+    params.delete('demoContent');
+    if(factoryCandidate)params.set('factory','1');else params.delete('factory');
+    return`/storefront-template-preview?${params.toString()}`;
+  };
+  const content=<StorefrontTemplatePreviewRuntime
     page={page}
     viewport={viewport}
     bindingContext={bindingContext}
-    componentRegistry={createStorefrontVisualBuilderComponentRegistry()}
-    rendererRegistry={createStorefrontVisualBuilderRendererRegistry()}
     capability={previewCapability}
+    routes={{catalog:previewRoute('catalog'),cart:previewRoute('cart'),checkout:previewRoute('checkout')}}
   />;
   if(embed)return <main className={styles.embed} style={theme} data-template-preview="representative-demo" data-template-key={template.manifest.templateKey} data-template-version={template.manifest.templateVersion} data-factory-candidate={factoryCandidate?'true':'false'} data-template-recipe={recipeIdentity} data-compile-source={compileSource} data-foundation-template={foundationTemplate} data-source-commit={sourceCommit} data-page-type={pageType}>{content}</main>;
   const href=(next:StorefrontViewport)=>{

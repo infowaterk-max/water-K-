@@ -69,6 +69,25 @@ describe('Loot Vault v2 Factory canonical wiring',()=>{
     expect(getStorefrontTemplatePackage('gaming.loot-vault',1)?.manifest.templateVersion).toBe(1);
   });
 
+  it('makes the template showroom commerce path interactive but fail-closed for order submission',()=>{
+    const demo=readFileSync('src/lib/builder/storefront-template-preview-demo.ts','utf8');
+    const preview=readFileSync('src/components/builder/storefront-template-preview-runtime.tsx','utf8');
+    const page=readFileSync('src/app/storefront-template-preview/page.tsx','utf8');
+    const purchase=readFileSync('src/components/builder/storefront-purchase-controls-client.tsx','utf8');
+    expect(demo).toContain('selectedVariantId?:string');
+    expect(demo).toContain('LOOT_VAULT_PREVIEW_VARIANTS');
+    expect(demo).toContain('unitPrice:selected.price');
+    expect(page).toContain('StorefrontTemplatePreviewRuntime');
+    expect(preview).toContain('useCart');
+    expect(preview).toContain('setQuantity');
+    expect(preview).toContain('remove(');
+    expect(preview).toContain('Szállítási mód');
+    expect(preview).toContain('Fizetési mód');
+    expect(preview).toContain('Előnézeti módban rendelés nem adható le');
+    expect(preview).not.toMatch(/\\/api\\/checkout\\/place|place_order|createOrder|submitOrder/);
+    expect(purchase).toContain("window.location.pathname!=='/storefront-template-preview'");
+  });
+
   it('feeds Loot Vault-specific cart and checkout lines into ordinary template preview proof without requiring acceptance mode',()=>{
     for(const pageType of ['cart','checkout'] as const){
       const page=LOOT_VAULT_V2_TEMPLATE_PACKAGE.pages.find(item=>item.pageType===pageType)!;

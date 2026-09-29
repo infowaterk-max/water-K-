@@ -35,7 +35,7 @@ export function StorefrontPurchaseControlsClient({
   const canIdentify=Boolean(productId&&slug&&name&&Number.isFinite(unitPrice)&&unitPrice>=0);
   const purchasable=canIdentify&&maximum>=minimum;
   const initial=purchasable?normalizeQuantity(minimum,maximum,minimum,step):minimum;
-  const[quantity,setQuantity]=useState(initial),[wishlistAuthOpen,setWishlistAuthOpen]=useState(false),[cartConfirmationOpen,setCartConfirmationOpen]=useState(false);
+  const[quantity,setQuantity]=useState(initial),[wishlistAuthOpen,setWishlistAuthOpen]=useState(false),[cartConfirmationOpen,setCartConfirmationOpen]=useState(false),[cartConfirmationHref,setCartConfirmationHref]=useState('/kosar');
   const wishlistFormRef=useRef<HTMLFormElement|null>(null);
   const canWishlist=Boolean(variantId&&slug);
   const decrement=()=>setQuantity(current=>Math.max(minimum,normalizeQuantity(current-step,maximum,minimum,step)||minimum));
@@ -47,6 +47,15 @@ export function StorefrontPurchaseControlsClient({
   const stepStyle=useMemo<CSSProperties>(()=>({border:0,background:'transparent',color:'inherit',fontSize:'1rem',cursor:purchasable?'pointer':'default',padding:0,...styles.step}),[purchasable,styles.step]);
   const purchaseStyle=useMemo<CSSProperties>(()=>({border:'1px solid var(--shoporation-color-primary,#111)',background:'var(--shoporation-color-primary,#111)',color:'var(--shoporation-color-primary-contrast,#fff)',fontWeight:750,fontSize:'.72rem',letterSpacing:'.035em',padding:'.7rem .9rem',cursor:purchasable?'pointer':'default',opacity:1,...styles.purchase}),[purchasable,styles.purchase]);
   const wishlistStyle=useMemo<CSSProperties>(()=>({border:'1px solid var(--shoporation-color-border,#d8d8d8)',background:'var(--shoporation-color-background,#fff)',color:'var(--shoporation-color-text,#111)',fontSize:'1.1rem',padding:0,cursor:canWishlist?'pointer':'default',opacity:1,...styles.wishlist}),[canWishlist,styles.wishlist]);
+
+  function resolveCartHref(){
+    if(typeof window==='undefined'||window.location.pathname!=='/storefront-template-preview')return'/kosar';
+    const params=new URLSearchParams(window.location.search);
+    params.set('page','cart');
+    params.delete('variant');
+    params.delete('demoContent');
+    return`/storefront-template-preview?${params.toString()}`;
+  }
 
   async function submitWishlist(){
     const{data:{user}}=await createClient().auth.getUser();
@@ -64,6 +73,7 @@ export function StorefrontPurchaseControlsClient({
       if(!purchasable)return;
       add({productId,variantId,slug,name,unitPrice,quantity,minimumQuantity:minimum,orderMultiple:step});
       track('add_to_cart',{item_id:variantId??productId,item_name:name,value:unitPrice*quantity,currency,product_id:productId,variant_id:variantId??'',quantity});
+      setCartConfirmationHref(resolveCartHref());
       setCartConfirmationOpen(true);
     }}>{purchaseText}</button>
     <form ref={wishlistFormRef} action={wishlistActionHref} method="post" style={{display:'contents'}}>
@@ -71,5 +81,5 @@ export function StorefrontPurchaseControlsClient({
       <input type="hidden" name="slug" value={slug}/>
       <button type="button" disabled={!canWishlist} aria-disabled={!canWishlist} aria-label={wishlistText} title={wishlistText} style={wishlistStyle} onClick={()=>void submitWishlist()}>♡</button>
     </form>
-  </div><AddToCartConfirmation open={cartConfirmationOpen} productName={name} onClose={()=>setCartConfirmationOpen(false)}/><StorefrontAuthDialog open={wishlistAuthOpen} onClose={()=>setWishlistAuthOpen(false)} initialMode="login" title="Belépés a kívánságlistához" onAuthenticated={()=>{setWishlistAuthOpen(false);queueMicrotask(()=>wishlistFormRef.current?.requestSubmit())}}/></>;
+  </div><AddToCartConfirmation open={cartConfirmationOpen} productName={name} cartHref={cartConfirmationHref} onClose={()=>setCartConfirmationOpen(false)}/><StorefrontAuthDialog open={wishlistAuthOpen} onClose={()=>setWishlistAuthOpen(false)} initialMode="login" title="Belépés a kívánságlistához" onAuthenticated={()=>{setWishlistAuthOpen(false);queueMicrotask(()=>wishlistFormRef.current?.requestSubmit())}}/></>;
 }

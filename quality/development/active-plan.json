@@ -18,7 +18,8 @@
     "quality/development/active-plan.json",
     "docs/support/**",
     "src/app/storefront-template-preview/page.tsx",
-    "src/components/cart/add-to-cart-confirmation.tsx"
+    "src/components/cart/add-to-cart-confirmation.tsx",
+    "src/components/builder/storefront-template-preview-runtime.tsx"
   ],
   "expectedSubsystems": [
     "builder-template-system",
