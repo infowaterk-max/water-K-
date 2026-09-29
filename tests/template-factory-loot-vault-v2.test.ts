@@ -298,6 +298,7 @@ describe('Loot Vault v2 Factory canonical wiring',()=>{
       'loot-vault-loot-v2-universe-1-image',
       'loot-vault-loot-v2-product-grid',
       'loot-vault-loot-v2-catalog-products',
+      'loot-vault-loot-v2-search-products',
       'loot-vault-loot-v2-product-recommendations',
       'loot-vault-loot-v2-cart-recommendations',
     ]));
@@ -315,6 +316,7 @@ describe('Loot Vault v2 Factory canonical wiring',()=>{
     const allowedCommerceNodes=new Set([
       'loot-vault-loot-v2-product-grid',
       'loot-vault-loot-v2-catalog-products',
+      'loot-vault-loot-v2-search-products',
       'loot-vault-loot-v2-product-recommendations',
       'loot-vault-loot-v2-cart-recommendations',
     ]);
