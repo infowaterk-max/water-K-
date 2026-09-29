@@ -8,6 +8,16 @@ Audit baseline HEAD: `723f0282830da403cd4ee0e7abb328b2cb1cfe93`
 
 The Product Owner completed the first visual + functional audit on mobile. Desktop/tablet remain automated-proof-only until a larger device is available. The overall visual direction is accepted subject to the defects below. No main merge is authorized.
 
+## Resolution state — repository follow-up
+
+Status authority for the continuing audit; do not restart these items from zero.
+
+- **CODE / REGRESSION CLOSED:** deliberate 2-column mobile Universe browsing; mobile Catalog hero containment; functional Catalog/product routing; brand-relevant About content; expanded interactive FAQ; compacted Contact with accepted map/Form Wizard; detailed Returns flow; actionable account IA with distinct Wishlist and **Gyűjteményem** semantics; distinct Terms/Privacy/Imprint starter documents; separate canonical Shipping and Payment routes; product variant/demo binding with live price/stock identity; authoritative E13 quote path and stable fail-closed submit contract.
+- **BROWSER PROOF PENDING:** the complete P0 shopper journey and the 14×3 Desktop/Tablet/Mobile fidelity matrix. Current Factory work must prove these on the exact #469 HEAD before Product Owner closure.
+- **VISUAL OPEN:** cross-page media diversity/quality. The current asset pool contains repeated physical imagery; filename aliases or borrowing another template's media do not count as a fix.
+- **PO-DEFERRED BY DESIGN:** demo-content activation/cleanup semantics remain intentionally deferred until the Product Owner defines deletion/edit-preservation behavior before activation implementation.
+- **MERGE / GOLDEN:** still prohibited until Product Owner approval.
+
 ## Global P0 — commerce must be demonstrably functional in template preview
 
 The storefront showroom may not be a static mock. It must demonstrate the shared commerce journey without creating a real order:
