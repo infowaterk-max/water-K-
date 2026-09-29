@@ -1,6 +1,6 @@
 import type {StorefrontPageDocument} from '@/lib/builder/storefront-runtime';
 import type {StorefrontInstallableTemplatePackage} from '@/lib/builder/storefront-template-installation';
-import {resolveAccountCapabilities} from '@/lib/account/account-capabilities';
+import {resolveAccountCapabilities,resolveTemplateAccountCapabilityOptIns} from '@/lib/account/account-capabilities';
 
 const clone=<T>(value:T):T=>structuredClone(value);
 const rec=(value:unknown):Record<string,unknown>=>value&&typeof value==='object'&&!Array.isArray(value)?value as Record<string,unknown>:{};
@@ -62,7 +62,7 @@ export function augmentStorefrontDigitalCommercePreviewContext(input:{
     digitalCommerce.postPurchase={state:'ready',mode:'mixed',paymentStatus:'pending',copy:'A digitális hozzáférés a fizetés hitelesítése után aktiválódik.',documentCenterHref:'/fiokom/letoltesek'};
   }
   if(input.page.pageType==='account'){
-    digitalCommerce.accountCapabilities={state:'ready',items:resolveAccountCapabilities({showLoyalty:true,showB2BOrganization:true,showB2BQuotes:true})};
+    digitalCommerce.accountCapabilities={state:'ready',items:resolveAccountCapabilities({showLoyalty:true,showB2BOrganization:true,showB2BQuotes:true,templateCapabilities:resolveTemplateAccountCapabilityOptIns(input.page.metadata)})};
     digitalCommerce.accountDownloads={state:'ready',digital:documentsCenter.digital};
     digitalCommerce.accountDocuments={state:'ready',orderDocuments:documentsCenter.orderDocuments,productDocuments:documentsCenter.productDocuments};
     digitalCommerce.documentsCenter=documentsCenter;
