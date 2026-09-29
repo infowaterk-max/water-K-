@@ -12,6 +12,7 @@ const storageState=(process.env.PRODUCT_OWNER_STORAGE_STATE??'').trim();
 const vercelAutomationBypassSecret=(process.env.VERCEL_AUTOMATION_BYPASS_SECRET??'').trim();
 const qualityManifestPath=(process.env.TEMPLATE_QUALITY_MANIFEST??'artifacts/template-factory-quality/manifest.json').trim();
 const outputDir=(process.env.TEMPLATE_HANDOFF_OUTPUT_DIR??'artifacts/template-factory-handoff').trim();
+const engineFunctionalOnly=['1','true'].includes((process.env.PRODUCT_OWNER_ENGINE_FUNCTIONAL_ONLY??'').trim().toLowerCase());
 
 if(!previewUrl)throw new Error('PRODUCT_OWNER_PREVIEW_URL_REQUIRED');
 if(!templateKey)throw new Error('PRODUCT_OWNER_TEMPLATE_KEY_REQUIRED');
@@ -50,6 +51,131 @@ const candidatePageIdentity=(url,pageType)=>{
     &&exactIdentity(parsed.toString())
     &&parsed.searchParams.get('page')===pageType;
 };
+
+async function proveSharedE13FunctionalEngine(page,context){
+  const proof={
+    contract:'shoporation.shared-engine-functional-proof.v1',
+    engine:'E13',
+    acceptanceSessionStatus:null,
+    acceptanceEntry:false,
+    sharedRuntime:false,
+    quoteStatus:null,
+    quotePositive:false,
+    mixedFixture:false,
+    shippingStep:false,
+    paymentStep:false,
+    summaryStep:false,
+    paymentOptionCount:0,
+    submitEnabled:false,
+    failClosed:false,
+    orderRequests:0,
+    error:null,
+    passed:false,
+  };
+  const origin=new URL(previewUrl).origin;
+  const orders=[];
+  const observeOrder=request=>{
+    try{
+      const url=new URL(request.url());
+      if(url.pathname==='/api/orders'&&request.method()==='POST')orders.push(request.url());
+    }catch{}
+  };
+  page.on('request',observeOrder);
+  try{
+    const session=await context.request.post(new URL('/api/pilot-access/start',origin).toString(),{maxRedirects:0});
+    proof.acceptanceSessionStatus=session.status();
+    if(session.status()!==303){
+      const detail=(await session.text().catch(()=>'')).replace(/\s+/g,' ').slice(0,300);
+      throw new Error(`PILOT_ACCEPTANCE_SESSION_NOT_ESTABLISHED:${session.status()}:${detail}`);
+    }
+
+    const entry=await page.goto(new URL('/storefront-template-preview/engine-proof/checkout',origin).toString(),{waitUntil:'domcontentloaded',timeout:30000});
+    if(!entry)throw new Error('ENGINE_ACCEPTANCE_ENTRY_NO_RESPONSE');
+    await page.waitForLoadState('load',{timeout:15000}).catch(()=>undefined);
+    const entryRoot=page.locator('[data-engine-functional-proof="E13"]');
+    await entryRoot.waitFor({state:'visible',timeout:15000});
+    proof.acceptanceEntry=true;
+    const entryError=entryRoot.getByRole('alert');
+    if(await entryError.count())throw new Error(`ENGINE_ACCEPTANCE_FIXTURE_FAILED:${(await entryError.first().innerText()).replace(/\s+/g,' ').slice(0,400)}`);
+
+    const openCheckout=page.getByRole('link',{name:'Pénztár megnyitása',exact:true});
+    await openCheckout.waitFor({state:'visible',timeout:15000});
+    const quotePromise=page.waitForResponse(response=>{
+      try{return new URL(response.url()).pathname==='/api/checkout/quote'&&response.request().method()==='POST'&&response.status()===200}catch{return false}
+    },{timeout:20000});
+    await Promise.all([
+      page.waitForURL(url=>url.pathname==='/penztar',{timeout:20000}),
+      openCheckout.click(),
+    ]);
+    const checkoutRoot=page.locator('[data-checkout-acceptance="preview"]');
+    await checkoutRoot.waitFor({state:'visible',timeout:15000});
+    proof.sharedRuntime=await page.locator('[data-storefront-live-checkout="shared-e13"]').count()>0;
+
+    const quoteResponse=await quotePromise;
+    proof.quoteStatus=quoteResponse.status();
+    const quote=await quoteResponse.json().catch(()=>null);
+    proof.quotePositive=Boolean(quote?.ok===true&&Number(quote?.total_gross_huf)>0);
+    proof.mixedFixture=Boolean(Number(quote?.physical_lines)>0&&Number(quote?.digital_lines)>0&&quote?.fulfillment_mode==='mixed');
+
+    const values={
+      name:'Acceptance Vásárló',
+      email:'acceptance@example.invalid',
+      phone:'+3612345678',
+      billingPostcode:'2760',
+      billingCity:'Nagykáta',
+      billingAddress:'Acceptance utca 1.',
+    };
+    for(const[name,value]of Object.entries(values)){
+      const input=page.locator(`input[name="${name}"]:visible`).first();
+      if(await input.count())await input.fill(value);
+    }
+
+    await page.getByRole('button',{name:'Tovább a fizetéshez',exact:true}).click();
+    await page.locator('[data-checkout-panel="payment"]:visible').waitFor({state:'visible',timeout:10000});
+    proof.shippingStep=true;
+    proof.paymentOptionCount=await page.locator('input[name="paymentProvider"]:visible').count();
+    if(proof.paymentOptionCount<1)throw new Error('ENGINE_ACCEPTANCE_PAYMENT_OPTION_MISSING');
+
+    await page.getByRole('button',{name:'Tovább az összesítéshez',exact:true}).click();
+    await page.locator('[data-checkout-panel="summary"]:visible').waitFor({state:'visible',timeout:10000});
+    proof.paymentStep=true;
+    proof.summaryStep=true;
+
+    const guest=page.getByRole('button',{name:'Folytatás vendégként',exact:true});
+    if(await guest.count())await guest.click();
+    await page.locator('input[name="termsAccepted"]').check();
+    await page.locator('input[name="privacyAcknowledged"]').check();
+
+    const submit=page.getByRole('button',{name:'Acceptance · rendelésleadás tesztelése',exact:true});
+    await submit.waitFor({state:'visible',timeout:10000});
+    proof.submitEnabled=await submit.isEnabled();
+    if(!proof.submitEnabled)throw new Error('ENGINE_ACCEPTANCE_SUBMIT_DISABLED');
+    await submit.click();
+
+    const blocked=page.getByRole('alert').filter({hasText:'Acceptance proof: a rendelés leadási kísérletét a rendszer blokkolta.'});
+    await blocked.waitFor({state:'visible',timeout:10000});
+    proof.failClosed=true;
+    proof.orderRequests=orders.length;
+    proof.passed=proof.acceptanceEntry
+      &&proof.sharedRuntime
+      &&proof.quoteStatus===200
+      &&proof.quotePositive
+      &&proof.mixedFixture
+      &&proof.shippingStep
+      &&proof.paymentStep
+      &&proof.summaryStep
+      &&proof.paymentOptionCount>0
+      &&proof.submitEnabled
+      &&proof.failClosed
+      &&proof.orderRequests===0;
+  }catch(error){
+    proof.error=error instanceof Error?error.message:String(error);
+    proof.orderRequests=orders.length;
+  }finally{
+    page.off('request',observeOrder);
+  }
+  return proof;
+}
 
 const requested=new URL(previewUrl);
 if(requested.pathname!=='/storefront-template-preview'||!exactIdentity(previewUrl)){
@@ -173,7 +299,14 @@ try{
   checks.finalIdentity=current.pathname==='/storefront-template-preview'&&exactIdentity(current.toString());
   if(!checks.finalIdentity)errors.push('FINAL_PREVIEW_IDENTITY_MISMATCH');
 
-  if(checks.finalIdentity){
+  if(checks.finalIdentity&&engineFunctionalOnly){
+    const engineProof=await proveSharedE13FunctionalEngine(page,context);
+    checks.engineFunctionalProof={E13:engineProof};
+    checks.engineFunctionalProofPassed=engineProof.passed===true;
+    if(!checks.engineFunctionalProofPassed)errors.push(`ENGINE_FUNCTIONAL_PROOF_E13_NOT_PROVEN:${engineProof.error??'functional proof incomplete'}`);
+  }
+
+  if(checks.finalIdentity&&!engineFunctionalOnly){
     const allRoots=page.locator('[data-template-preview="representative-demo"]');
     const root=page.locator('[data-template-preview="representative-demo"]:visible');
     await root.first().waitFor({state:'visible',timeout:30000}).catch(()=>undefined);
@@ -348,6 +481,11 @@ try{
     checks.engineDemoIntegrationPassed=Object.values(engineChecks).every(Boolean);
     if(!checks.engineDemoIntegrationPassed)errors.push('SHARED_ENGINE_DEMO_INTEGRATION_NOT_PROVEN');
 
+    const engineProof=await proveSharedE13FunctionalEngine(page,context);
+    checks.engineFunctionalProof={E13:engineProof};
+    checks.engineFunctionalProofPassed=engineProof.passed===true;
+    if(!checks.engineFunctionalProofPassed)errors.push(`ENGINE_FUNCTIONAL_PROOF_E13_NOT_PROVEN:${engineProof.error??'functional proof incomplete'}`);
+
     if(!checks.placeholderContentPassed)errors.push('PLACEHOLDER_CONTENT_CLEANUP_NOT_PROVEN');
     if(!checks.presentationContinuityPassed)errors.push('TEMPLATE_PRESENTATION_CONTINUITY_NOT_PROVEN');
   }
@@ -369,6 +507,7 @@ const diagnostics=errors.map(rawValue=>{
   if(code==='TEMPLATE_AUTH_STYLE_IDENTITY_MISSING')return{...base,contract:'template-versioned-auth-style',expected:'template/version-aware auth style marker present',actual:'marker missing'};
   if(code==='VISIBLE_SHARED_AUTH_SURFACE_NOT_UNIQUE')return{...base,contract:'visible-auth-surface',expected:'exactly one visible shared auth surface',actual:`count=${checks.visibleAuthSurfaceCount??'unknown'}`};
   if(code==='SOURCE_COMMIT_MISMATCH'||code==='PREVIEW_SOURCE_COMMIT_MISMATCH')return{...base,contract:'exact-head-provenance',expected:sourceCommit??'exact source commit',actual:raw};
+  if(code==='ENGINE_FUNCTIONAL_PROOF_E13_NOT_PROVEN')return{...base,contract:'shoporation.shared-engine-functional-proof.v1',expected:'E13 real /penztar journey PASS with authoritative quote and fail-closed submit',actual:detail};
   return base;
 });
 const proof={
@@ -380,8 +519,10 @@ const proof={
   checks,
   errors,
   diagnostics,
-  maturity:errors.length===0?'product-owner-ready':'visually-ready',
-  handoffReady:errors.length===0,
+  maturity:errors.length===0?(engineFunctionalOnly?'engine-functional-proven':'product-owner-ready'):(engineFunctionalOnly?'engine-functional-blocked':'visually-ready'),
+  handoffReady:engineFunctionalOnly?false:errors.length===0,
+  engineFunctionalOnly,
+  engineFunctionalReady:checks.engineFunctionalProofPassed===true,
   accepted:false,
   verifiedAt:new Date().toISOString(),
 };
