@@ -435,12 +435,12 @@ async function proveFactoryCommerceInteraction(browser,manifest){
     const beforeTotal=(await checkoutRoot.locator('[data-storefront-preview-grand-total]').innerText()).trim();
     const parcel=checkoutRoot.getByRole('radio',{name:/Csomagpont/});
     await checkoutRoot.locator('label.choiceCard').filter({hasText:/Csomagpont/}).first().click();
-    await page.waitForFunction(()=>document.querySelector('input[name="shippingProvider"]:checked')!==null,{timeout:5000});
+    await page.waitForFunction(()=>document.querySelector('input[name="shippingProvider"]:checked')!==null,{timeout:5000}).catch(error=>{throw new Error('COMMERCE_SHIPPING_SELECTION_TIMEOUT:'+String(error))});
     await page.waitForFunction(({beforeShipping,beforeTotal})=>{
       const shipping=document.querySelector('[data-storefront-preview-shipping-cost]')?.textContent?.trim();
       const total=document.querySelector('[data-storefront-preview-grand-total]')?.textContent?.trim();
       return Boolean(shipping&&total&&shipping!==beforeShipping&&total!==beforeTotal);
-    },{beforeShipping,beforeTotal},{timeout:5000});
+    },{beforeShipping,beforeTotal},{timeout:5000}).catch(error=>{throw new Error('COMMERCE_TOTAL_RECALCULATION_TIMEOUT:'+String(error))});
     const afterShipping=(await checkoutRoot.locator('[data-storefront-preview-shipping-cost]').innerText()).trim();
     const afterTotal=(await checkoutRoot.locator('[data-storefront-preview-grand-total]').innerText()).trim();
     result.checks.shippingSelection=await parcel.isChecked();
@@ -456,7 +456,7 @@ async function proveFactoryCommerceInteraction(browser,manifest){
     const transfer=checkoutRoot.getByRole('radio',{name:/Banki átutalás/});
     await transfer.waitFor({state:'visible',timeout:5000});
     await checkoutRoot.locator('label.choiceCard').filter({hasText:/Banki átutalás/}).first().click();
-    await page.waitForFunction(()=>document.querySelector('input[name="paymentProvider"]:checked')!==null,{timeout:5000});
+    await page.waitForFunction(()=>document.querySelector('input[name="paymentProvider"]:checked')!==null,{timeout:5000}).catch(error=>{throw new Error('COMMERCE_PAYMENT_SELECTION_TIMEOUT:'+String(error))});
     result.checks.paymentSelection=await transfer.isChecked();
     await checkoutRoot.getByRole('button',{name:'Tovább az összesítéshez',exact:true}).click();
 
@@ -468,7 +468,7 @@ async function proveFactoryCommerceInteraction(browser,manifest){
 
     const submit=checkoutRoot.locator('[data-storefront-preview-order-submit="true"]');
     await submit.waitFor({state:'visible',timeout:5000});
-    await page.waitForFunction(()=>{const element=document.querySelector('[data-storefront-preview-order-submit="true"]');return element instanceof HTMLButtonElement&&!element.disabled},{timeout:5000});
+    await page.waitForFunction(()=>{const element=document.querySelector('[data-storefront-preview-order-submit="true"]');return element instanceof HTMLButtonElement&&!element.disabled},{timeout:5000}).catch(error=>{throw new Error('COMMERCE_SUBMIT_ENABLE_TIMEOUT:'+String(error))});
     await submit.click();
     const blocked=checkoutRoot.locator('[data-storefront-preview-order-blocked="true"]');
     await blocked.waitFor({state:'visible',timeout:5000});
