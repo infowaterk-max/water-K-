@@ -54,6 +54,8 @@ describe('Template Factory Quality Gate v2',()=>{
     expect(gate).toContain("name:'Tovább a fizetéshez'");
     expect(gate).toContain("name:'Tovább az összesítéshez'");
     expect(gate).toContain('legalConsent');
+    expect(gate).toContain('[data-storefront-preview-order-submit="true"]:not([disabled])');
+    expect(gate).not.toContain("document.querySelector('[data-storefront-preview-order-submit=\"true\"]')");
     expect(gate).toContain('Acceptance proof: a rendelés leadási kísérletét a rendszer blokkolta.');
     expect(gate).toContain('productionCommerceMutationRequestAttempted');
     expect(gate).toContain("page.route('**/api/**'");
@@ -118,6 +120,7 @@ describe('Template Factory Quality Gate v2',()=>{
     expect(handoff).toContain('checkoutEntry');
     expect(handoff).toContain('shippingSelection');
     expect(handoff).toContain('representativeQuoteSource');
+    expect(handoff).toContain('[data-storefront-preview-order-submit="true"]:not([disabled])');
     expect(handoff).toContain('totalRecalculation');
     expect(handoff).toContain('totalConsistency');
     expect(handoff).toContain("name:'Tovább a fizetéshez'");
