@@ -1,53 +1,82 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-E13-FUNCTIONAL-PROOF-ENTRY",
-  "task": "Add a deterministic preview-only E13 functional proof entry that resolves exactly one marked checkout acceptance tenant and delegates signed session creation to the existing platform pilot acceptance action.",
+  "taskId": "DEV-TEMPLATE-ENGINE-FUNCTIONAL-PROOF-RUNNER",
+  "task": "Add an isolated browser proof mode to the existing Template Factory Product Owner runner and wire it into the Factory workflow before Product Owner handoff.",
   "status": "ready-for-implementation",
-  "guardDigest": "f8c4b0f9",
+  "guardDigest": "PENDING",
   "plannedFilePatterns": [
-    "src/app/storefront-template-preview/page.tsx",
-    "src/app/storefront-template-preview/engine-proof/checkout/page.tsx",
-    "tests/template-factory-engine-functional-proof-entry.test.ts",
+    ".github/workflows/template-factory-quality-gate.yml",
+    "scripts/template-factory-product-owner-handoff.mjs",
+    "tests/template-factory-engine-functional-proof-runner.test.ts",
     "quality/development/active-plan.json"
   ],
   "expectedSubsystems": [
-    "customer-account",
-    "payment-checkout-order-authority",
-    "storefront-ui"
+    "quality-infrastructure",
+    "release-infrastructure"
   ],
   "expectedDomains": [
-    "DOMAIN-STOREFRONT"
+    "DOMAIN-QUALITY",
+    "DOMAIN-RELEASE"
   ],
   "expectedAuthorities": [
-    "shared-storefront"
+    "quality-knowledge-system",
+    "release-infrastructure"
   ],
   "expectedKnownFailureIds": [
     "SQ-KF-001",
     "SQ-KF-002",
+    "SQ-KF-003",
+    "SQ-KF-004",
     "SQ-KF-005",
+    "SQ-KF-007",
     "SQ-KF-010",
     "SQ-KF-011",
     "SQ-KF-012",
     "SQ-KF-013",
     "SQ-KF-014",
+    "SQ-KF-015",
     "SQ-KF-016",
     "SQ-KF-017",
     "SQ-KF-019",
+    "SQ-KF-020",
     "SQ-KF-022",
+    "TF-KF-001",
     "TF-KF-002",
+    "TF-KF-003",
+    "TF-KF-004",
+    "TF-KF-005",
     "TF-KF-006",
+    "TF-KF-007",
     "TF-KF-008",
+    "TF-KF-009",
+    "TF-KF-010",
+    "TF-KF-011",
     "TF-KF-012",
-    "TF-KF-020"
+    "TF-KF-013",
+    "TF-KF-014",
+    "TF-KF-015",
+    "TF-KF-016",
+    "TF-KF-017",
+    "TF-KF-018",
+    "TF-KF-019",
+    "TF-KF-020",
+    "TF-KF-021",
+    "TF-KF-022",
+    "TF-KF-023",
+    "TF-KF-024"
   ],
   "acknowledgedNegativeKnowledgeIds": [
     "SQ-NK-001",
+    "SQ-NK-002",
+    "SQ-NK-003",
+    "SQ-NK-004",
     "SQ-NK-006",
+    "SQ-NK-007",
     "SQ-NK-008",
-    "SQ-NK-009",
+    "SQ-NK-010",
     "SQ-NK-012"
   ],
   "exceptions": [],
-  "notes": "Entry-only change. Do not change checkout, quote, order, payment, fixture, auth token or tenant-selection business authorities. Resolve the explicit preview acceptance marker fail-closed and submit to the existing startPlatformPilotAcceptanceAction with flow=checkout. Projection anchor: the existing storefront-template-preview page is included only so Atlas can classify the new child route against its canonical parent authority; it is not expected to require an implementation edit.",
-  "changeBaseSha": "c1b292993c6e3b6c7c1dd712a246eebe4c43b720"
+  "notes": "Quality-orchestration-only transaction. Reuse the merged deterministic E13 proof entry and existing Product Owner browser runtime. Do not change checkout, quote, order, payment, fixture, tenant-resolution, auth token or storefront business behavior.",
+  "changeBaseSha": "73b7bab15816ab1c417dfa61f2b244f77427da78"
 }
