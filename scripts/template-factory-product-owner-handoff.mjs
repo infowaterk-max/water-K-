@@ -649,26 +649,56 @@ try{
       const beforeShipping=(await checkoutRoot.locator('[data-storefront-preview-shipping-cost]').innerText()).trim();
       const beforeGrandTotal=(await checkoutRoot.locator('[data-storefront-preview-grand-total]').innerText()).trim();
       const parcel=checkoutRoot.getByRole('radio',{name:/Csomagpont/}).first();
-      await parcel.check();
+      const refreshedQuote=page.waitForResponse(response=>{
+        if(response.status()!==200||new URL(response.url()).pathname!=='/api/checkout/quote')return false;
+        try{return response.request().postDataJSON()?.shippingProvider==='preview-parcel'}catch{return false}
+      },{timeout:10000});
+      await checkoutRoot.locator('label.choiceCard').filter({hasText:/Csomagpont/}).first().click();
+      const quoteResponse=await refreshedQuote;
+      const authoritativeQuote=await quoteResponse.json();
+      await page.waitForFunction(({shipping,total})=>{
+        const digits=value=>{const parsed=Number(String(value??'').replace(/[^\d-]/g,''));return Number.isFinite(parsed)?parsed:null};
+        const shippingText=document.querySelector('[data-storefront-preview-shipping-cost]')?.textContent?.trim();
+        const totalText=document.querySelector('[data-storefront-preview-grand-total]')?.textContent?.trim();
+        return digits(shippingText)===shipping&&digits(totalText)===total;
+      },{shipping:Number(authoritativeQuote.shipping_gross_huf),total:Number(authoritativeQuote.total_gross_huf)},{timeout:5000});
       const afterShipping=(await checkoutRoot.locator('[data-storefront-preview-shipping-cost]').innerText()).trim();
       const afterGrandTotal=(await checkoutRoot.locator('[data-storefront-preview-grand-total]').innerText()).trim();
       commerceInteraction.shippingSelection=await parcel.isChecked();
-      commerceInteraction.totalRecalculation=beforeShipping!==afterShipping&&beforeGrandTotal!==afterGrandTotal;
-      commerceInteraction.shippingRecalculation=commerceInteraction.shippingSelection===true&&commerceInteraction.totalRecalculation===true;
+      commerceInteraction.shippingQuoteRefresh=quoteResponse.ok();
+      commerceInteraction.totalRecalculation=commerceMoneyDigits(afterShipping)===Number(authoritativeQuote.shipping_gross_huf)
+        &&commerceMoneyDigits(afterGrandTotal)===Number(authoritativeQuote.total_gross_huf);
+      commerceInteraction.shippingRecalculation=commerceInteraction.shippingSelection===true&&commerceInteraction.shippingQuoteRefresh===true&&commerceInteraction.totalRecalculation===true;
       const subtotalValue=commerceMoneyDigits(subtotal),beforeShippingValue=commerceMoneyDigits(beforeShipping),beforeTotalValue=commerceMoneyDigits(beforeGrandTotal),afterShippingValue=commerceMoneyDigits(afterShipping),afterTotalValue=commerceMoneyDigits(afterGrandTotal);
       commerceInteraction.totalConsistency=[subtotalValue,beforeShippingValue,beforeTotalValue,afterShippingValue,afterTotalValue].every(value=>value!==null)
         &&subtotalValue+beforeShippingValue===beforeTotalValue
         &&subtotalValue+afterShippingValue===afterTotalValue;
 
+      await checkoutRoot.getByPlaceholder('Írd be a választott automata vagy átvételi pont nevét / címét').fill('Preview csomagpont');
+      await checkoutRoot.getByRole('button',{name:'Tovább a fizetéshez',exact:true}).click();
+      await checkoutRoot.locator('[data-checkout-panel="payment"]').waitFor({state:'visible',timeout:5000});
       const transfer=checkoutRoot.getByRole('radio',{name:'Banki átutalás',exact:true});
-      await transfer.check();
+      await checkoutRoot.locator('label.choiceCard').filter({hasText:/Banki átutalás/}).first().click();
       commerceInteraction.paymentSelection=await transfer.isChecked();
 
-      await checkoutRoot.locator('[data-storefront-preview-order-submit="true"]').click();
+      await checkoutRoot.getByRole('button',{name:'Tovább az összesítéshez',exact:true}).click();
+      await checkoutRoot.locator('[data-checkout-panel="summary"]').waitFor({state:'visible',timeout:5000});
+      const guest=checkoutRoot.getByRole('button',{name:'Folytatás vendégként',exact:true});
+      if(await guest.count()&&await guest.isVisible())await guest.click();
+      const terms=checkoutRoot.getByRole('checkbox',{name:/Elolvastam és elfogadom/});
+      const privacy=checkoutRoot.getByRole('checkbox',{name:/Tudomásul vettem/});
+      await checkoutRoot.locator('label.inlineCheck').filter({hasText:/Elolvastam és elfogadom/}).first().click();
+      await checkoutRoot.locator('label.inlineCheck').filter({hasText:/Tudomásul vettem/}).first().click();
+      commerceInteraction.legalConsent=await terms.isChecked()&&await privacy.isChecked();
+
+      const submit=checkoutRoot.locator('[data-storefront-preview-order-submit="true"]').first();
+      await submit.waitFor({state:'visible',timeout:5000});
+      await page.waitForFunction(()=>{const element=document.querySelector('[data-storefront-preview-order-submit="true"]');return element instanceof HTMLButtonElement&&!element.disabled},{timeout:5000});
+      await submit.click();
       const blocked=checkoutRoot.locator('[data-storefront-preview-order-blocked="true"]');
       await blocked.waitFor({state:'visible',timeout:5000});
       await page.waitForTimeout(150);
-      commerceInteraction.orderSubmissionFailClosed=(await blocked.innerText()).includes('Előnézeti módban rendelés nem adható le');
+      commerceInteraction.orderSubmissionFailClosed=(await blocked.innerText()).trim()==='Acceptance proof: a rendelés leadási kísérletét a rendszer blokkolta.';
       commerceInteraction.realOrderRequestAttempted=forbiddenCommerceMutations.some(item=>item.kind==='order');
       commerceInteraction.realPaymentRequestAttempted=forbiddenCommerceMutations.some(item=>item.kind==='payment');
       commerceInteraction.productionCommerceMutationRequestAttempted=forbiddenCommerceMutations.length>0;
@@ -692,10 +722,12 @@ try{
       &&commerceInteraction.reAddItem===true
       &&commerceInteraction.checkoutEntry===true
       &&commerceInteraction.shippingSelection===true
+      &&commerceInteraction.shippingQuoteRefresh===true
       &&commerceInteraction.shippingRecalculation===true
       &&commerceInteraction.totalRecalculation===true
       &&commerceInteraction.totalConsistency===true
       &&commerceInteraction.paymentSelection===true
+      &&commerceInteraction.legalConsent===true
       &&commerceInteraction.orderSubmissionFailClosed===true
       &&commerceInteraction.realOrderRequestAttempted===false
       &&commerceInteraction.realPaymentRequestAttempted===false
