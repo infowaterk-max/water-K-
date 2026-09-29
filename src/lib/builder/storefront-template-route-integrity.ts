@@ -244,6 +244,11 @@ const fixtureSlug=(fixture:StorefrontDemoFixture)=>{
 export function augmentStorefrontTemplateDemoContent(template:StorefrontInstallableTemplatePackage):StorefrontInstallableTemplatePackage{
   const fixtures=[...(template.demoFixtures??[]).map(item=>structuredClone(item))];
   const existing=new Set(fixtures.map(fixtureSlug).filter((value):value is string=>Boolean(value)));
+  for(const [slug,payload] of Object.entries(LEGAL_STARTER_PAGES)){
+    if(existing.has(slug))continue;
+    fixtures.push({entityType:'content',entityKey:`page-${slug}`,payload:structuredClone(payload)});
+    existing.add(slug);
+  }
   const links=listStorefrontTemplateLinks(template);
   for(const link of links){
     let kind:'page'|'blog'|null=null,slug='';
