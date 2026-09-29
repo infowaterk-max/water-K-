@@ -88,10 +88,13 @@ describe('Template Factory Quality Gate v2',()=>{
     expect(page).toContain("accountView={pageType==='account'?query.accountView:undefined}");
     expect(previewRuntime).toContain('data-storefront-preview-account-state');
     expect(previewRuntime).toContain('Jelenleg nincs folyamatban lévő ügyed.');
+    expect(previewRuntime).toContain('StorefrontAccountWorkspace');
+    expect(previewRuntime).toContain('<AccountSubnav showLoyalty showB2BOrganization showB2BQuotes');
+    expect(previewRuntime).toContain('resolveAccountCapabilityPreviewView(url.toString())');
     expect(handoff).toContain('accountInteractionPassed');
     expect(handoff).toContain('ACCOUNT_INTERACTION_NOT_PROVEN');
-    expect(handoff).toContain("['Ügyeim','ugyek']");
-    expect(handoff).toContain("candidatePageIdentity(url.toString(),'account')&&url.searchParams.get('accountView')===view");
+    expect(handoff).toContain("['Ügyeim','/fiokom/ugyek']");
+    expect(handoff).toContain("url.pathname===expected.pathname&&url.hash===expected.hash");
     expect(handoff).toContain("waitUntil:'commit'");
   });
 
