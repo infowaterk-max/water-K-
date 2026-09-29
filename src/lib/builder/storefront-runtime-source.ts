@@ -18,6 +18,7 @@ import {augmentStorefrontDigitalCommercePreviewContext} from '@/lib/builder/stor
 import {composeStorefrontDigitalCommerceCapabilities} from '@/lib/builder/storefront-digital-commerce-composition';
 import {normalizeStorefrontTemplateRuntimeComposition} from '@/lib/builder/storefront-template-runtime-normalization';
 import {getStorefrontDigitalCommerceRuntimeModel,type StorefrontDigitalCommerceRuntimeRequest} from '@/lib/builder/storefront-digital-commerce-server';
+import {resolveTemplateAccountCapabilityOptIns} from '@/lib/account/account-capabilities';
 import {getStorefrontTemplatePackage} from '@/lib/builder/storefront-template-catalog';
 const PAGE_KEY_PATTERN=/^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$/;
 export type StorefrontResolvedRuntimePage={source:'published'|'preview';instanceId:string;page:StorefrontPageDocument;bindingContext:Record<string,unknown>;capability:StorefrontRuntimeCapabilityContext;};
@@ -53,7 +54,6 @@ export async function resolveCurrentStorefrontAccountRuntimePage(customerId:stri
  // draft without granting catalog/checkout/admin access, so visual acceptance does
  // not depend on an authenticated pilot session.
  const instance=await getCurrentWebshopInstance();if(!instance)return null;
- const request:StorefrontDigitalCommerceRuntimeRequest|null=customerId?{pageType:'account',customerId}:null;
  const previewDraft=process.env.VERCEL_ENV==='preview'
   ?await getPreviewStorefrontDraftPage(instance.id,'account')
   :null;
@@ -71,6 +71,7 @@ export async function resolveCurrentStorefrontAccountRuntimePage(customerId:stri
     const authored=customerId?materialized:applyTemplateAuthComposition(materialized);
     const composed=composeStorefrontDigitalCommerceCapabilities(normalizeStorefrontTemplateRuntimeComposition(authored));
     if(composed.pageType!=='account')return null;
+    const request:StorefrontDigitalCommerceRuntimeRequest|null=customerId?{pageType:'account',customerId,templateCapabilities:resolveTemplateAccountCapabilityOptIns(composed.metadata)}:null;
     const[growth,digitalCommerce]=await Promise.all([
       resolveGrowthContext(instance.id,composed,runtime.capability),
       request?getStorefrontDigitalCommerceRuntimeModel(instance.id,request):Promise.resolve(null),
@@ -85,6 +86,7 @@ export async function resolveCurrentStorefrontAccountRuntimePage(customerId:stri
  const materialized=materializeStorefrontReusableSymbols(page,symbols);
  const authored=customerId?materialized:applyTemplateAuthComposition(materialized);
  if(authored.pageType!=='account')return null;
+ const request:StorefrontDigitalCommerceRuntimeRequest|null=customerId?{pageType:'account',customerId,templateCapabilities:resolveTemplateAccountCapabilityOptIns(authored.metadata)}:null;
  const[growth,digitalCommerce]=await Promise.all([resolveGrowthContext(instance.id,authored,runtime.capability),request?getStorefrontDigitalCommerceRuntimeModel(instance.id,request):Promise.resolve(null)]);
  const baseContext={...mergeGrowthContext(runtime.bindingContext,growth.promotions),brand:{name:instance.brand.name,tagline:instance.brand.tagline,logoUrl:instance.brand.logoUrl,primaryColor:instance.brand.primaryColor,socialLinks:resolveStorefrontSocialLinks(instance.storefront.socialLinks)},navigation:{primary:[]}};
  return{source:'published',instanceId:instance.id,page:failClosedSpecialCommerce(authored,runtime.capability),bindingContext:mergeDigitalCommerceContext(baseContext,digitalCommerce),capability:runtime.capability};
