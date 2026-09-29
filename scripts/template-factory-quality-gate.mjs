@@ -446,12 +446,25 @@ async function proveFactoryCommerceInteraction(browser,manifest){
       &&subtotalValue+beforeShippingValue===beforeTotalValue
       &&subtotalValue+afterShippingValue===afterTotalValue;
 
+    await checkoutRoot.getByPlaceholder('Írd be a választott automata vagy átvételi pont nevét / címét').fill('Preview csomagpont');
+    await checkoutRoot.getByRole('button',{name:'Tovább a fizetéshez',exact:true}).click();
     const transfer=checkoutRoot.getByRole('radio',{name:/Banki átutalás/});
+    await transfer.waitFor({state:'visible',timeout:5000});
     await checkoutRoot.locator('label.choiceCard').filter({hasText:/Banki átutalás/}).first().click();
     await page.waitForFunction(()=>document.querySelector('input[name="paymentProvider"]:checked')!==null,{timeout:5000});
     result.checks.paymentSelection=await transfer.isChecked();
+    await checkoutRoot.getByRole('button',{name:'Tovább az összesítéshez',exact:true}).click();
 
-    await checkoutRoot.locator('[data-storefront-preview-order-submit="true"]').click();
+    const terms=checkoutRoot.getByRole('checkbox',{name:/Elolvastam és elfogadom/});
+    const privacy=checkoutRoot.getByRole('checkbox',{name:/Tudomásul vettem/});
+    await terms.check();
+    await privacy.check();
+    result.checks.legalConsent=await terms.isChecked()&&await privacy.isChecked();
+
+    const submit=checkoutRoot.locator('[data-storefront-preview-order-submit="true"]');
+    await submit.waitFor({state:'visible',timeout:5000});
+    await page.waitForFunction(()=>{const element=document.querySelector('[data-storefront-preview-order-submit="true"]');return element instanceof HTMLButtonElement&&!element.disabled},{timeout:5000});
+    await submit.click();
     const blocked=checkoutRoot.locator('[data-storefront-preview-order-blocked="true"]');
     await blocked.waitFor({state:'visible',timeout:5000});
     await page.waitForTimeout(150);
