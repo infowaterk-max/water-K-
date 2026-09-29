@@ -38,12 +38,16 @@ describe('Template Factory Quality Gate v2',()=>{
 
   it('keeps Builder v3 and storefront preview on the same Runtime renderer and canonical viewport authority',()=>{
     const builder=read('src/components/admin/storefront-visual-builder-v3.tsx');
-    const preview=read('src/app/storefront-template-preview/page.tsx');
+    const previewPage=read('src/app/storefront-template-preview/page.tsx');
+    const previewRuntime=read('src/components/builder/storefront-template-preview-runtime.tsx');
     expect(builder).toContain('StorefrontRuntimeRenderer');
-    expect(preview).toContain('StorefrontRuntimeRenderer');
+    expect(previewPage).toContain('StorefrontTemplatePreviewRuntime');
+    expect(previewRuntime).toContain('StorefrontRuntimeRenderer');
+    expect(previewRuntime).not.toContain('new StorefrontRendererRegistry');
     expect(builder).toContain("const viewportWidth=VIEWPORTS.find(item=>item.key===viewport)?.width??1200");
     expect(builder).toContain('page={document}');
-    expect(preview).toContain('page={page}');
+    expect(previewPage).toContain('page={page}');
+    expect(previewRuntime).toContain('page={page}');
     expect(STOREFRONT_CANONICAL_VIEWPORT_WIDTH_PX).toEqual({desktop:1200,tablet:768,mobile:390});
   });
 

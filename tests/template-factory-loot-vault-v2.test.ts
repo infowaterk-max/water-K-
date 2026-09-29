@@ -84,7 +84,7 @@ describe('Loot Vault v2 Factory canonical wiring',()=>{
     expect(preview).toContain('Szállítási mód');
     expect(preview).toContain('Fizetési mód');
     expect(preview).toContain('Előnézeti módban rendelés nem adható le');
-    expect(preview).not.toMatch(/\\/api\\/checkout\\/place|place_order|createOrder|submitOrder/);
+    for(const forbidden of ['/api/checkout/place','place_order','createOrder','submitOrder'])expect(preview).not.toContain(forbidden);
     expect(purchase).toContain("window.location.pathname!=='/storefront-template-preview'");
   });
 
