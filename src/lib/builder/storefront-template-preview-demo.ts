@@ -382,30 +382,25 @@ export function createStorefrontTemplatePreviewBindingContext(input:{template:St
     inventory:{stockLabel:'Raktáron'},
   };
   for(const node of page.sections)enrichNodeBindings({template,page,node,context});
-  if(page.pageType==='product'){
-    const previewProducts=demoProducts(template,page),baseProduct=previewProducts[0];
-    const lootVault=template.manifest.templateKey==='gaming.loot-vault';
-    const variants=lootVault?LOOT_VAULT_PREVIEW_VARIANTS:[{id:'default',label:'Alap változat',price:typeof baseProduct?.price==='number'?baseProduct.price:12990,stock:24}] as const;
-    const selected=variants.find(item=>item.id===input.selectedVariantId)??variants[0]!;
-    const slug=lootVault?'vault-sentinel-preview':'preview-product';
+  if(page.pageType==='product'&&template.manifest.templateKey==='gaming.loot-vault'){
+    const selected=LOOT_VAULT_PREVIEW_VARIANTS.find(item=>item.id===input.selectedVariantId)??LOOT_VAULT_PREVIEW_VARIANTS[0]!;
+    const slug='vault-sentinel-preview';
     const existingProduct=isRecord(context.product)?context.product:{};
     const existingPricing=isRecord(context.pricing)?context.pricing:{};
     const existingInventory=isRecord(context.inventory)?context.inventory:{};
     const existingCommerce=isRecord(context.commerce)?context.commerce:{};
     context.product={
       ...existingProduct,
-      id:lootVault?'loot-vault-preview-vault-sentinel':'preview-product-1',
+      id:'loot-vault-preview-vault-sentinel',
       slug,
-      name:lootVault?'Vault Sentinel prémium figura':String(baseProduct?.name??'Bemutató termék'),
-      description:lootVault
-        ?'A Vault Sentinel egy részletgazdag, díszdobozos gyűjtői figura, amelyet vitrines bemutatásra és tematikus kollekciókba terveztünk. A különböző kiadások eltérő csomagolást és kiegészítőket szemléltetnek; a kiválasztott változat ára és készlete azonnal frissül. Ez bemutató termékleírás, amelyet az éles webshopban a kereskedő saját, valós termékadata vált fel.'
-        :String(existingProduct.description??'Részletes bemutató termékleírás a sablon élő előnézetéhez.'),
-      badges:lootVault?['Gyűjtői kiadás']:[],
+      name:'Vault Sentinel prémium figura',
+      description:'A Vault Sentinel egy részletgazdag, díszdobozos gyűjtői figura, amelyet vitrines bemutatásra és tematikus kollekciókba terveztünk. A különböző kiadások eltérő csomagolást és kiegészítőket szemléltetnek; a kiválasztott változat ára és készlete azonnal frissül. Ez bemutató termékleírás, amelyet az éles webshopban a kereskedő saját, valós termékadata vált fel.',
+      badges:['Gyűjtői kiadás'],
     };
     context.variant={
       id:selected.id,
-      optionLabel:lootVault?'Kiadás':'Változat',
-      optionOptions:variants.map(item=>({
+      optionLabel:'Kiadás',
+      optionOptions:LOOT_VAULT_PREVIEW_VARIANTS.map(item=>({
         id:item.id,label:item.label,value:item.id,available:item.stock>0,selected:item.id===selected.id,
         href:`/termek/${slug}?variant=${encodeURIComponent(item.id)}`,
       })),
