@@ -3,7 +3,7 @@
   "taskId": "DEV-TEMPLATE-ENGINE-FUNCTIONAL-PROOF-RUNNER",
   "task": "Add an isolated browser proof mode to the existing Template Factory Product Owner runner and wire it into the Factory workflow before Product Owner handoff.",
   "status": "ready-for-implementation",
-  "guardDigest": "PENDING",
+  "guardDigest": "8a9bf46e",
   "plannedFilePatterns": [
     ".github/workflows/template-factory-quality-gate.yml",
     "scripts/template-factory-product-owner-handoff.mjs",
