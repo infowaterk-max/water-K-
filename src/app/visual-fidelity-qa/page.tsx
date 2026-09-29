@@ -59,7 +59,8 @@ export default async function VisualFidelityQaPage({searchParams}:Props){
   const demoFixture=query.demoContent?getStorefrontTemplateDemoContent(template,query.demoContent):null;
   if(query.demoContent&&!demoFixture)notFound();
   const demoPayload=demoFixture?.payload??null;
-  const page=demoPayload&&!isStorefrontShowroomReadyDemoContent(demoFixture)?applyStorefrontTemplateDemoNotice(sourcePage):sourcePage;
+  const demoShowroomReady=isStorefrontShowroomReadyDemoContent(demoFixture);
+  const page=demoPayload&&!demoShowroomReady?applyStorefrontTemplateDemoNotice(sourcePage):sourcePage;
   const interactiveContext=createStorefrontTemplatePreviewBindingContext({template,page,selectedVariantId:commerceProof?query.variant:undefined});
   const authoredContext=applyAuthoredTemplatePreviewFallbacks({page,context:interactiveContext});
   const baseContext=commerceProof?restoreStorefrontTemplatePreviewProductCommerceContext({pageType:page.pageType,authoredContext,interactiveContext}):authoredContext;
@@ -111,6 +112,8 @@ export default async function VisualFidelityQaPage({searchParams}:Props){
     data-page-type={pageType}
     data-viewport={viewport}
     data-commerce-proof={commerceProof?'true':'false'}
+    data-demo-content={demoPayload?'true':undefined}
+    data-demo-showroom-ready={demoPayload?(demoShowroomReady?'true':'false'):undefined}
     data-performance-contract={STOREFRONT_PERFORMANCE_CONTRACT_VERSION}
     data-runtime-performance-budget={JSON.stringify(STOREFRONT_TEMPLATE_PERFORMANCE_BUDGET.runtime)}
     style={{...theme,width:'100%',maxWidth:'none',minHeight:'100vh',margin:0,padding:0,overflow:'hidden',background:'var(--shoporation-color-background,#fff)'}}
