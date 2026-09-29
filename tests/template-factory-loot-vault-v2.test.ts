@@ -554,6 +554,16 @@ describe('Loot Vault v2 Factory canonical wiring',()=>{
     expect((universe.config.style as any).mobile.gridTemplateColumns).toBe('repeat(2,minmax(0,1fr))');
     expect((universe.config.style as any).mobile.overflowX).toBe('visible');
   });
+  it('opts Collection into the shared account capability authority through canonical metadata',()=>{
+    const home=LOOT_VAULT_V2_TEMPLATE_PACKAGE.pages.find(item=>item.pageType==='home')!;
+    const account=LOOT_VAULT_V2_TEMPLATE_PACKAGE.pages.find(item=>item.pageType==='account')!;
+    expect(home.metadata?.collectionTracker).toBe('shared-account-capability-v1');
+    expect(account.metadata?.collectionTracker).toBe('shared-account-capability-v1');
+    expect(account.metadata?.accountCapabilities).toEqual(['collection']);
+    expect((account.metadata?.accountCompleteness as any)?.navigationAuthority).toBe('shared-account-capabilities');
+    expect(JSON.stringify(account)).not.toContain('account.capability-navigation');
+  });
+
   it('keeps the approved Commerce Shell contracts shared and template-safe',()=>{
     const shared=readFileSync('src/components/builder/storefront-commerce.tsx','utf8');
     const preview=readFileSync('src/components/builder/storefront-template-preview-runtime.tsx','utf8');
