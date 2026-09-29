@@ -4,7 +4,7 @@ import{buildRegisteredStorefrontTemplateFactoryCandidate}from'@/lib/builder/temp
 
 describe('storefront shopper content sanity',()=>{
   it('normalizes literal escape sequences before shopper rendering',()=>{
-    expect(normalizeStorefrontShopperText('Első\\n\\nMásodik\\térték')).toBe('Első\n\nMásodik érték');
+    expect(normalizeStorefrontShopperText('Első\\n\\nMásodik\\térték')).toBe("Első\n\nMásodik érték");
   });
 
   it.each(['undefined','null','[object Object]','{"broken":"serialized"}','{{ unresolved }}'])('does not render serialization garbage or unresolved placeholders: %s',value=>{
