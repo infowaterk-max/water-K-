@@ -12,7 +12,7 @@ import {
 } from '@/lib/builder/template-factory/knowledge-registry';
 import {evaluateShoperationKnowledgeIntegrity,SHOPERATION_QUALITY_KNOWLEDGE_VERSION} from '@/lib/quality-system/shoperation-knowledge';
 
-export const TEMPLATE_FACTORY_PROCEDURAL_MEMORY_VERSION='shoporation.template-factory-procedural-memory.v2' as const;
+export const TEMPLATE_FACTORY_PROCEDURAL_MEMORY_VERSION='shoporation.template-factory-procedural-memory.v3' as const;
 
 export type TemplateFactoryMaturityStage=
   |'scaffold'
@@ -49,11 +49,12 @@ export type TemplateFactoryJourneyProof={
   presentationContinuityPassed:boolean;
   accountSurfacePassed:boolean;
   engineDemoIntegrationPassed:boolean;
+  engineFunctionalProofPassed:boolean;
   placeholderContentPassed:boolean;
 };
 
 export type TemplateFactoryAcceptanceProof={
-  contract:'shoporation.template-factory-acceptance-proof.v2';
+  contract:'shoporation.template-factory-acceptance-proof.v3';
   knowledgeVersion:typeof TEMPLATE_FACTORY_KNOWLEDGE_VERSION;
   proceduralMemoryVersion:typeof TEMPLATE_FACTORY_PROCEDURAL_MEMORY_VERSION;
   provenance:{
@@ -186,7 +187,18 @@ const journeyPassed=(journey:TemplateFactoryJourneyProof)=>journey.exactHeadBuil
   &&journey.presentationContinuityPassed
   &&journey.accountSurfacePassed
   &&journey.engineDemoIntegrationPassed
+  &&journey.engineFunctionalProofPassed
   &&journey.placeholderContentPassed;
+
+export function replayTemplateFactoryJourneyKnownFailures(journey:TemplateFactoryJourneyProof):readonly TemplateFactoryFailureReplay[]{
+  return Object.freeze([
+    {
+      failureId:'TF-KF-025',
+      passed:journey.engineFunctionalProofPassed,
+      evidence:Object.freeze([`engineFunctionalProof=${journey.engineFunctionalProofPassed?'pass':'fail'}`]),
+    },
+  ]);
+}
 
 export function createTemplateFactoryAcceptanceProof(input:{
   build:StorefrontTemplateFactoryBuild;
@@ -194,7 +206,7 @@ export function createTemplateFactoryAcceptanceProof(input:{
   journey:TemplateFactoryJourneyProof;
   accepted?:boolean;
 }):TemplateFactoryAcceptanceProof{
-  const replays=replayTemplateFactoryKnownFailures(input.build);
+  const replays=Object.freeze([...replayTemplateFactoryKnownFailures(input.build),...replayTemplateFactoryJourneyKnownFailures(input.journey)]);
   const replayFailures=replays.filter(item=>!item.passed).map(item=>`REPLAY:${item.failureId}`);
   const buildBlockers=input.build.report.issues.filter(item=>item.severity==='error').map(item=>`${item.code}:${item.path}`);
   const staticStage=buildStaticStage(input.build);
@@ -206,7 +218,7 @@ export function createTemplateFactoryAcceptanceProof(input:{
   const blockers=[...buildBlockers,...replayFailures];
   if(staticStage==='visually-ready'&&!journeyOk)blockers.push('PRODUCT_OWNER_JOURNEY_NOT_PROVEN');
   return{
-    contract:'shoporation.template-factory-acceptance-proof.v2',
+    contract:'shoporation.template-factory-acceptance-proof.v3',
     knowledgeVersion:TEMPLATE_FACTORY_KNOWLEDGE_VERSION,
     proceduralMemoryVersion:TEMPLATE_FACTORY_PROCEDURAL_MEMORY_VERSION,
     provenance:{

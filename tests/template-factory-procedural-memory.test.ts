@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import {describe,expect,it} from 'vitest';
 import {STOREFRONT_TEMPLATE_FACTORY_RECIPES,buildRegisteredStorefrontTemplateFactoryCandidate} from '@/lib/builder/template-factory/recipe-registry';
 import {TEMPLATE_FACTORY_AUTHORITY_GRAPH,TEMPLATE_FACTORY_KNOWN_FAILURES} from '@/lib/builder/template-factory/knowledge-registry';
-import {createTemplateFactoryAcceptanceProof,evaluateTemplateFactoryPreflight,isRecurringFailureSharedFixRequired,replayTemplateFactoryKnownFailures} from '@/lib/builder/template-factory/procedural-memory';
+import {createTemplateFactoryAcceptanceProof,evaluateTemplateFactoryPreflight,isRecurringFailureSharedFixRequired,replayTemplateFactoryJourneyKnownFailures,replayTemplateFactoryKnownFailures} from '@/lib/builder/template-factory/procedural-memory';
 
 describe('Template Factory procedural memory foundation',()=>{
   it('keeps every known failure bound to a real invariant and existing regression authority',()=>{
@@ -48,12 +48,25 @@ describe('Template Factory procedural memory foundation',()=>{
   it('never marks handoff ready while deterministic known-failure replay still has blockers',()=>{
     const recipe=STOREFRONT_TEMPLATE_FACTORY_RECIPES[0]!;
     const build=buildRegisteredStorefrontTemplateFactoryCandidate(recipe.templateKey);
-    const journey={sourceCommit:'deadbeef',exactHeadBuildPassed:true,browserMatrixPassed:true,factoryPackageIdentityPassed:true,templateAwareAuthPassed:true,returnTargetPreserved:true,deploymentReady:true,handedOffUrlMatchesProvenance:true,navigationCompletenessPassed:true,routeConvergencePassed:true,presentationContinuityPassed:true,accountSurfacePassed:true,engineDemoIntegrationPassed:true,placeholderContentPassed:true};
+    const journey={sourceCommit:'deadbeef',exactHeadBuildPassed:true,browserMatrixPassed:true,factoryPackageIdentityPassed:true,templateAwareAuthPassed:true,returnTargetPreserved:true,deploymentReady:true,handedOffUrlMatchesProvenance:true,navigationCompletenessPassed:true,routeConvergencePassed:true,presentationContinuityPassed:true,accountSurfacePassed:true,engineDemoIntegrationPassed:true,engineFunctionalProofPassed:true,placeholderContentPassed:true};
     const proof=createTemplateFactoryAcceptanceProof({build,referenceKey:recipe.reference.key,journey});
     const failed=proof.failureReplays.filter(item=>!item.passed);
     if(failed.length){
       expect(proof.handoffReady).toBe(false);
       for(const item of failed)expect(proof.maturity.blockers).toContain(`REPLAY:${item.failureId}`);
     }
+  });
+
+  it('blocks Product Owner readiness when engine integration is visible but shared engine behavior proof is missing',()=>{
+    const recipe=STOREFRONT_TEMPLATE_FACTORY_RECIPES[0]!;
+    const build=buildRegisteredStorefrontTemplateFactoryCandidate(recipe.templateKey);
+    const journey={sourceCommit:'deadbeef',exactHeadBuildPassed:true,browserMatrixPassed:true,factoryPackageIdentityPassed:true,templateAwareAuthPassed:true,returnTargetPreserved:true,deploymentReady:true,handedOffUrlMatchesProvenance:true,navigationCompletenessPassed:true,routeConvergencePassed:true,presentationContinuityPassed:true,accountSurfacePassed:true,engineDemoIntegrationPassed:true,engineFunctionalProofPassed:false,placeholderContentPassed:true};
+    expect(replayTemplateFactoryJourneyKnownFailures(journey)).toEqual([
+      {failureId:'TF-KF-025',passed:false,evidence:['engineFunctionalProof=fail']},
+    ]);
+    const proof=createTemplateFactoryAcceptanceProof({build,referenceKey:recipe.reference.key,journey});
+    expect(proof.failureReplays.find(item=>item.failureId==='TF-KF-025')?.passed).toBe(false);
+    expect(proof.maturity.blockers).toContain('REPLAY:TF-KF-025');
+    expect(proof.handoffReady).toBe(false);
   });
 });
