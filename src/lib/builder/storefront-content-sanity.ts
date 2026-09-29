@@ -10,7 +10,7 @@ const RAW_ESCAPE=/\\(?:n|r|t)/;
 const OBJECT_GARBAGE=/\[object Object\]/i;
 const NULLISH_TEXT=/^(?:undefined|null)$/i;
 const SERIALIZED_TEXT=/^\s*(?:\{[\s\S]*\}|\[[\s\S]*\])\s*$/;
-const UNRESOLVED_PLACEHOLDER=/\{\{[^{}]+\}\}|\$\{[^{}]+\}|<%=?[^%]+%>|__+[A-Z0-9][A-Z0-9_ .-]*__+/;
+const UNRESOLVED_PLACEHOLDER=/\{\{[^{}]+\}\}|\$\{[^{}]+\}|<%=?[^%]+%>|__+[A-Z0-9][A-Z0-9_ .-]*__+|\[[A-ZÁÉÍÓÖŐÚÜŰ0-9][A-ZÁÉÍÓÖŐÚÜŰ0-9 _./-]{2,}\]/u;
 
 export function normalizeStorefrontShopperText(value:unknown,fallback=''):string{
   if(typeof value!=='string')return fallback;
