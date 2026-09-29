@@ -4,6 +4,7 @@ import {type ComponentProps,type MouseEvent,type ReactNode} from 'react';
 import {useCart} from '@/components/cart/cart-provider';
 import {CartView} from '@/components/cart/cart-view';
 import {CheckoutForm} from '@/components/checkout/checkout-form';
+import {AccountCollectionGrid} from '@/components/account/account-collection-grid';
 import {StorefrontRuntimeRenderer} from '@/components/builder/storefront-runtime-renderer';
 import {createStorefrontVisualBuilderRendererRegistry} from '@/components/builder/storefront-builder-renderer-registry';
 import {createStorefrontVisualBuilderComponentRegistry} from '@/lib/builder/storefront-builder-registry';
@@ -62,12 +63,21 @@ function PreviewCheckoutCommerceSurface(){
   </div>;
 }
 
+const PREVIEW_COLLECTION_ITEMS=Object.freeze([
+  {id:'collection-1',name:'Vault Sentinel figura',href:'/termek/vault-sentinel',imageUrl:'/storefront-demo/loot-vault-v2/product-figure.webp',owned:true},
+  {id:'collection-2',name:'Mythic Warden szobor',href:'/termek/mythic-warden',imageUrl:'/storefront-demo/loot-vault-v2/editorial-vault-shelf.webp',owned:true},
+  {id:'collection-3',name:'Neon Controller Collector Edition',href:'/termek/neon-controller',imageUrl:'/storefront-demo/loot-vault-v2/editorial-collector-room.webp',owned:false},
+  {id:'collection-4',name:'Vault Visor relikvia',href:'/termek/vault-visor',imageUrl:'/storefront-demo/loot-vault-v2/hero-cinematic.webp',owned:false},
+] as const);
+
 const ACCOUNT_PREVIEW_STATES:Readonly<Record<string,{title:string;copy:string}>>=Object.freeze({
   orders:{title:'Rendeléseim',copy:'Jelenleg nincs bemutató rendelésed. Az éles fiókban itt jelenik meg a saját rendelési előzményed.'},
   letoltesek:{title:'Letöltéseim',copy:'Jelenleg nincs letölthető digitális tartalmad.'},
   dokumentumok:{title:'Dokumentumaim',copy:'Jelenleg nincs megjeleníthető számlád vagy egyéb dokumentumod.'},
   kivansaglista:{title:'Kívánságlista',copy:'Jelenleg nincs termék a kívánságlistádon.'},
   wishlist:{title:'Kívánságlista',copy:'Jelenleg nincs termék a kívánságlistádon.'},
+  gyujtemenyem:{title:'Gyűjteményem',copy:'A megszerzett állapot a vásárlási előzményből származik, nem a kívánságlistából.'},
+  collection:{title:'Gyűjteményem',copy:'A megszerzett állapot a vásárlási előzményből származik, nem a kívánságlistából.'},
   ugyek:{title:'Ügyeim',copy:'Jelenleg nincs folyamatban lévő ügyed.'},
   cases:{title:'Ügyeim',copy:'Jelenleg nincs folyamatban lévő ügyed.'},
   visszakuldes:{title:'Visszaküldés',copy:'Jelenleg nincs folyamatban lévő visszaküldésed.'},
@@ -75,6 +85,7 @@ const ACCOUNT_PREVIEW_STATES:Readonly<Record<string,{title:string;copy:string}>>
   marketing:{title:'Marketing beállítások',copy:'Itt adhatók meg a hírlevél- és marketing-hozzájárulások.'},
 });
 function PreviewAccountCapabilityState({view,viewport}:{view:string;viewport:StorefrontViewport}){
+  if(view==='gyujtemenyem'||view==='collection')return <section data-storefront-preview-account-state="gyujtemenyem" style={{marginTop:'1rem'}}><AccountCollectionGrid items={PREVIEW_COLLECTION_ITEMS}/></section>;
   const state=ACCOUNT_PREVIEW_STATES[view];
   if(!state)return null;
   return <section data-storefront-preview-account-state={view} style={{marginTop:'1rem',padding:viewport==='mobile'?'1rem':'1.25rem',border:'1px solid var(--shoporation-color-border,#ddd)',borderRadius:'var(--shoporation-radius-m,.75rem)',background:'var(--shoporation-color-surface,#111)',display:'grid',gap:'.55rem'}}>
