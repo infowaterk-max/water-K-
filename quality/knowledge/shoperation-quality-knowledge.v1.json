@@ -924,6 +924,11 @@
     "TF-KF-024": [
       "builder-template-system",
       "shared-storefront"
+    ],
+    "TF-KF-025": [
+      "builder-template-system",
+      "payment-checkout-order-authority",
+      "shared-storefront"
     ]
   },
   "negativeKnowledge": [
