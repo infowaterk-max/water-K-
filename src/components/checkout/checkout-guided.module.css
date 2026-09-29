@@ -19,6 +19,7 @@
   --checkout-space-s:var(--shoporation-space-s,.8rem);
   --checkout-space-m:var(--shoporation-space-m,1.25rem);
   --checkout-space-l:var(--shoporation-space-l,2rem);
+  --checkout-button-radius:var(--shoporation-commerce-button-radius,10px);
   display:grid;
   grid-template-columns:minmax(0,1fr) minmax(17rem,22rem);
   gap:var(--checkout-space-m);
@@ -31,7 +32,7 @@
 .root :global(.checkoutHeading h1),.root :global(.checkoutSummary h2){font-family:var(--shoporation-heading-font,inherit);color:var(--checkout-heading)}
 .root :global(.eyebrow){border-color:var(--checkout-border);background:var(--checkout-surface-muted);color:var(--checkout-text)}
 .accordion{display:grid;gap:.65rem}
-.step{overflow:hidden;background:var(--checkout-surface);border:1px solid var(--checkout-border);border-radius:var(--checkout-radius-m);box-shadow:0 12px 32px rgba(0,0,0,.06)}
+.step{overflow:hidden;background:var(--checkout-surface);border:1px solid var(--checkout-border);border-radius:var(--checkout-radius-m);box-shadow:0 10px 26px rgba(0,0,0,.045)}
 .step[data-state="active"]{border-color:color-mix(in srgb,var(--checkout-primary) 58%,var(--checkout-border));box-shadow:0 0 0 2px color-mix(in srgb,var(--checkout-primary) 10%,transparent),0 14px 36px rgba(0,0,0,.08)}
 .stepHeader{width:100%;display:grid;grid-template-columns:2.25rem minmax(0,1fr) auto;gap:.8rem;align-items:center;padding:1rem 1.05rem;border:0;background:transparent;color:var(--checkout-text);text-align:left;cursor:pointer}
 .stepHeader:disabled{cursor:not-allowed;opacity:.48}
@@ -43,7 +44,7 @@
 .stepPanel[hidden]{display:none}
 .stepPanelInner{padding-top:1rem}
 .stepActions{display:flex;justify-content:flex-end;gap:.65rem;margin-top:.35rem}.stepActions :global(.btn){min-height:44px}
-.root :global(.formSection){margin:0 0 .85rem;padding:1rem;border:1px solid var(--checkout-border);border-radius:var(--checkout-radius-m);background:var(--checkout-surface-muted);min-width:0}
+.root :global(.formSection){margin:0 0 .85rem;padding:.95rem 0 0;border:0;border-top:1px solid var(--checkout-border);border-radius:0;background:transparent;min-width:0}
 .root :global(.formSection legend){float:left;width:100%;box-sizing:border-box;margin:0 0 .9rem;padding:0 0 .72rem;border-bottom:1px solid var(--checkout-border);color:var(--checkout-heading)!important;font-family:var(--shoporation-heading-font,inherit);font-size:.95rem;font-weight:900;line-height:1.25}
 .root :global(.formSection legend + *){clear:both}
 .root :global(.checkoutField){display:grid;gap:.42rem;color:var(--checkout-text)!important}
@@ -63,11 +64,11 @@
 .root :global(.choiceIcon){background:var(--checkout-surface);border-color:var(--checkout-border);color:var(--checkout-primary);border-radius:var(--checkout-radius-s)}
 .root :global(.choiceBody small),.root :global(.choiceCard>b),.root :global(.choiceCheck){color:var(--checkout-primary)}
 .root :global(.choiceBody em),.root :global(.muted){color:var(--checkout-muted)}
-.root :global(.btnPrimary){background:var(--checkout-primary);color:var(--checkout-primary-contrast);box-shadow:0 12px 28px color-mix(in srgb,var(--checkout-primary) 24%,transparent)}
+.root :global(.btn),.root :global(.button){border-radius:var(--checkout-button-radius)!important}.root :global(.btnPrimary){background:var(--checkout-primary);color:var(--checkout-primary-contrast);box-shadow:0 12px 28px color-mix(in srgb,var(--checkout-primary) 24%,transparent)}
 .root :global(.btnGhost){background:var(--checkout-surface);color:var(--checkout-text);border:1px solid var(--checkout-border)}
 .root :global(.checkoutSummary){position:sticky;top:6.2rem;background:var(--checkout-surface);color:var(--checkout-text);border-color:var(--checkout-border);border-radius:var(--checkout-radius-l);box-shadow:0 16px 42px rgba(0,0,0,.08)}
 .root :global(.summaryLine){border-color:var(--checkout-border)}
-.root :global(.checkoutSummary .summaryLine>span){color:var(--checkout-label)!important;line-height:1.35;min-width:0}
+.root :global(.checkoutSummary .summaryLine){display:grid;grid-template-columns:minmax(0,1fr) auto;gap:.8rem;align-items:start}.root :global(.checkoutSummary .summaryLine>span){color:var(--checkout-label)!important;line-height:1.35;min-width:0;overflow-wrap:anywhere}
 .root :global(.checkoutSummary .summaryLine>strong){color:var(--checkout-text)!important;white-space:nowrap;flex:0 0 auto}
 .root :global(.checkoutSummary .summaryTotal>span),.root :global(.checkoutSummary .summaryTotal>strong){color:var(--checkout-heading)!important}
 .root :global(.checkoutSummary .trustList){color:var(--checkout-helper)!important}
@@ -83,8 +84,8 @@
 .root :global(.inlineCheck>span){grid-column:2;min-width:0}
 .root :global(.inlineCheck a){color:var(--checkout-primary);font-weight:800;text-underline-offset:.14em}
 
-@media(max-width:900px){.root{grid-template-columns:1fr}.root :global(.checkoutSummary){position:static;order:-1}.stepTitle small{white-space:normal}}
-@media(max-width:620px){.stepHeader{grid-template-columns:2rem minmax(0,1fr) auto;padding:.85rem}.stepNumber{width:2rem;height:2rem}.stepPanel{padding:0 .85rem .85rem}.stepActions{display:grid}.stepActions :global(.btn){width:100%}.accountOpportunityActions{display:grid}.accountOpportunityActions :global(.btn),.guestContinue{width:100%}}
+@media(max-width:900px){.root{grid-template-columns:1fr}.root :global(.checkoutSummary){position:static;order:2}.stepTitle small{white-space:normal}}
+@media(max-width:620px){.root{gap:.8rem}.stepHeader{grid-template-columns:2rem minmax(0,1fr);padding:.85rem}.stepState{grid-column:2;font-size:.7rem}.stepNumber{width:2rem;height:2rem}.stepPanel{padding:0 .85rem .85rem}.stepActions{display:grid}.stepActions :global(.btn){width:100%}.root :global(.checkoutSummary){padding:1rem;border-radius:var(--checkout-radius-m)}.root :global(.checkoutSummary .summaryLine){grid-template-columns:minmax(0,1fr) auto}.accountOpportunityActions{display:grid}.accountOpportunityActions :global(.btn),.guestContinue{width:100%}}
 
 
 .accountOpportunity{display:grid;gap:.8rem;margin:0 0 .95rem;padding:1rem;border:1px solid var(--checkout-border);border-radius:var(--checkout-radius-m);background:color-mix(in srgb,var(--checkout-primary) 7%,var(--checkout-surface));color:var(--checkout-text)}
