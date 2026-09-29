@@ -3,7 +3,7 @@
   "taskId": "DEV-TEMPLATE-ENGINE-FUNCTIONAL-PROOF-RUNNER",
   "task": "Add an isolated browser proof mode to the existing Template Factory Product Owner runner and wire it into the Factory workflow before Product Owner handoff.",
   "status": "ready-for-implementation",
-  "guardDigest": "50a43c16",
+  "guardDigest": "PENDING",
   "plannedFilePatterns": [
     ".github/workflows/template-factory-quality-gate.yml",
     "scripts/template-factory-product-owner-handoff.mjs",
@@ -70,7 +70,8 @@
     "TF-KF-021",
     "TF-KF-022",
     "TF-KF-023",
-    "TF-KF-024"
+    "TF-KF-024",
+    "TF-KF-025"
   ],
   "acknowledgedNegativeKnowledgeIds": [
     "SQ-NK-001",
@@ -86,6 +87,6 @@
     "SQ-NK-012"
   ],
   "exceptions": [],
-  "notes": "Quality-orchestration-only transaction. Reuse the merged deterministic E13 proof entry and existing Product Owner browser runtime. Do not change checkout, quote, order, payment, fixture, tenant-resolution, auth token or storefront business behavior.",
-  "changeBaseSha": "73b7bab15816ab1c417dfa61f2b244f77427da78"
+  "notes": "Quality-orchestration-only transaction. Reuse the merged deterministic E13 proof entry and existing Product Owner browser runtime. Do not change checkout, quote, order, payment, fixture, tenant-resolution, auth token or storefront business behavior. Reconciled onto canonical main after #519; changeBaseSha now excludes already-merged engine-proof knowledge/procedural files from this runner transaction.",
+  "changeBaseSha": "d7a029eadddf4d698c4794716bfafbeb13a1200e"
 }
