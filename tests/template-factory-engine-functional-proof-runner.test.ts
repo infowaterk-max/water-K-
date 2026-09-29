@@ -15,6 +15,7 @@ describe('Template Factory shared engine functional proof runner',()=>{
     expect(runner).toContain("data-storefront-live-checkout=\"shared-e13\"");
     expect(runner).toContain("'/api/checkout/quote'");
     expect(runner).toContain('data-storefront-preview-order-submit="true"');
+    expect(runner).toContain('[data-engine-functional-proof="E13"]:visible');
     expect(runner).not.toContain("getByRole('button',{name:'Acceptance · rendelésleadás tesztelése'");
     expect(runner).toContain("proof.sideEffectRequests.length===0");
     expect(runner).toContain("waitUntil:'commit'");
