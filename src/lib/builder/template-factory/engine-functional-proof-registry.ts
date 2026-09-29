@@ -52,10 +52,12 @@ export const STOREFRONT_ENGINE_FUNCTIONAL_PROOF_REGISTRY:readonly StorefrontEngi
     requiredInvariants:Object.freeze(['canonical-page-schema','binding-resolution','responsive-runtime','component-registry-authority']),
     browserRequired:false,networkRequired:false,productionMutationAllowed:false,
   }),
-  deterministic({
+  Object.freeze({
     engineId:'E2',label:'Product Discovery',authority:'commerce-read-model-authority',authorityVersion:PRODUCT_DISCOVERY_ENGINE_VERSION,
-    sourceModule:'src/lib/commerce/product-discovery.ts',proofProducer:'tests/template-factory-fast-engine-functional-proof.test.ts',
+    sourceModule:'src/lib/commerce/product-discovery.ts',proofClass:'deterministic-runtime',proofContract:FAST_ENGINE_FUNCTIONAL_PROOF_CONTRACT,
+    proofProducer:'tests/template-factory-fast-engine-functional-proof.test.ts',
     requiredInvariants:Object.freeze(['deterministic','explainable','eligibility-fail-closed','no-commerce-mutation']),
+    browserRequired:false,networkRequired:false,productionMutationAllowed:false,
   }),
   deterministic({
     engineId:'E3',label:'Guided Finder',authority:'commerce-read-model-authority',authorityVersion:GUIDED_FINDER_ENGINE_VERSION,
