@@ -1,27 +1,30 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-RELEASE-RISK-CLASSIFICATION-CLOSURE",
-  "task": "Classify Template Factory quality-gate orchestration and shared account library paths under existing Release Risk subsystem ownership without changing budget thresholds, risk weights, neutral policy, business authority, or gate behavior.",
+  "taskId": "DEV-D1C54C47",
+  "task": "Isolate the existing Gyűjteményem collection capability as a standalone shared customer feature.",
   "status": "ready-for-implementation",
-  "guardDigest": "6026c5a2",
+  "guardDigest": "d1c54c47",
   "plannedFilePatterns": [
-    "deploy/release-risk-policy.json",
-    "tests/control-plane-diagnostic-coverage.test.ts",
+    "quality/knowledge/domain-foundations.v1.json",
+    "src/lib/account/account-capabilities.ts",
+    "src/app/fiokom/gyujtemenyem/page.tsx",
+    "src/components/account/account-collection-grid.tsx",
+    "src/app/globals.css",
+    "tests/account-collection-authority.test.ts",
+    "tests/storefront-account-capability-navigation.test.tsx",
     "quality/development/active-plan.json"
   ],
   "expectedSubsystems": [
-    "auth-access-authority",
-    "builder-template-system",
     "customer-account",
-    "quality-knowledge-system",
-    "release-infrastructure",
-    "shared-storefront"
+    "storefront-ui"
   ],
   "expectedDomains": [
-    "DOMAIN-RELEASE"
+    "DOMAIN-QUALITY",
+    "DOMAIN-STOREFRONT"
   ],
   "expectedAuthorities": [
-    "release-infrastructure"
+    "quality-knowledge-system",
+    "shared-storefront"
   ],
   "expectedKnownFailureIds": [
     "SQ-KF-001",
@@ -76,21 +79,11 @@
   ],
   "acknowledgedNegativeKnowledgeIds": [
     "SQ-NK-001",
-    "SQ-NK-002",
-    "SQ-NK-003",
-    "SQ-NK-004",
-    "SQ-NK-005",
     "SQ-NK-006",
-    "SQ-NK-007",
     "SQ-NK-008",
-    "SQ-NK-009",
-    "SQ-NK-010",
-    "SQ-NK-011",
-    "SQ-NK-012",
-    "SQ-NK-014",
-    "SQ-NK-015"
+    "SQ-NK-012"
   ],
   "exceptions": [],
-  "notes": "Fresh rebase of draft PR #518 onto canonical main 1537ab47df2a5bf8e2d880ac66e18e7dfe80cd45. Isolated release-governance classification only: scripts/template-factory-quality-gate.mjs -> existing medium quality-infrastructure; src/lib/account/** -> existing medium customer-account. No maxPoints/maxSubsystems change, no risk weight change, no neutral classification, no gate removal, no checkout/order/payment behavior change.",
-  "changeBaseSha": "1537ab47df2a5bf8e2d880ac66e18e7dfe80cd45"
+  "notes": "Prerequisite isolation for Loot Vault v2 release-risk closure. Preserve the existing shared Gyűjteményem capability, keep wishlist and purchase-history ownership separate, add only the minimum DOMAIN-STOREFRONT classification required for Plan Before Code, and do not merge to main before Product Owner approval.",
+  "changeBaseSha": "b8db333280e7fa4346c1c5a454aa0eef926e2fc0"
 }
