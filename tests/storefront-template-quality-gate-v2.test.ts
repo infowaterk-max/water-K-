@@ -89,6 +89,9 @@ describe('Template Factory Quality Gate v2',()=>{
     expect(handoff).toContain('templateAwareAuthContentReady');
     expect(handoff).toContain('templateAwareAuthShellCount');
     expect(handoff).toContain('visibleTemplateAwareAuthShellCount');
+    expect(handoff).toContain('visibleAccountShellCount');
+    expect(handoff).toContain('hiddenTemplateAwareAuthShellCount');
+    expect(handoff).toContain("checks.templateAwareAuthShell=checks.visibleTemplateAwareAuthShellCount===1&&checks.visibleAccountShellCount===1");
     expect(handoff).toContain('main[data-template-preview-auth="true"] [data-storefront-auth-surface="true"]:visible');
     expect(handoff).toContain("name:'Mennyiség növelése'");
     expect(handoff).toContain("name:'Tétel törlése'");
