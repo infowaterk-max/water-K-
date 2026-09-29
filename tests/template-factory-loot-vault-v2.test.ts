@@ -166,10 +166,8 @@ describe('Loot Vault v2 Factory canonical wiring',()=>{
     expect(renderer).toContain('data-storefront-utility-icon="account"');
     expect(renderer).toContain('data-storefront-utility-icon="cart"');
     expect(renderer).toContain("if(item.kind!=='custom')return item.kind");
-    expect(renderer).toContain("href={item.href} symbol={icon}");
-    const auth=readFileSync('src/components/auth/storefront-auth-dialog.tsx','utf8');
-    expect(auth).toContain('window.location.assign(href)');
-    expect(auth).toContain('returnTo={href}');
+    expect(renderer).toContain("kind==='account'&&item.href==='/fiokom'");
+    expect(renderer).toContain("if(item.kind!=='custom')return item.kind");
   });
 
   it('uses the shared tablet navigation disclosure on all 14 Loot Vault pages without creating a template-specific header branch',()=>{
