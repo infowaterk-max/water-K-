@@ -1,3 +1,4 @@
+import {inspectStorefrontShopperContent} from '@/lib/builder/storefront-content-sanity';
 import {
   STOREFRONT_BUILDER_FOUNDATION_VERSION,
   STOREFRONT_DEMO_CONTENT_POLICY,
@@ -240,6 +241,10 @@ function evaluateBuild(input:{
   const{foundation,recipe,pkg}=input;
   const issues:StorefrontTemplateFactoryIssue[]=[];
   const pageByType=new Map(pkg.pages.map(page=>[page.pageType,page] as const));
+
+  for(const contentIssue of inspectStorefrontShopperContent(pkg)){
+    issues.push(issue('FACTORY_SHOPPER_CONTENT_SANITY_BLOCK',contentIssue.path,`Shopper-visible content sanity failed: ${contentIssue.code}.`));
+  }
 
   if(recipe.category!==foundation.category)issues.push(issue('FACTORY_CATEGORY_MISMATCH','recipe.category','Template recipe category does not match the selected category foundation.'));
   if(!recipe.templateKey.startsWith(`${recipe.category}.`))issues.push(issue('FACTORY_TEMPLATE_KEY_CATEGORY_MISMATCH','recipe.templateKey','Template key must be namespaced by its category.'));
