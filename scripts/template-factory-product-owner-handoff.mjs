@@ -245,7 +245,7 @@ async function proveSharedE13FunctionalEngine(page){
     await page.locator('input[name="termsAccepted"]').check();
     await page.locator('input[name="privacyAcknowledged"]').check();
 
-    const submit=page.getByRole('button',{name:'Acceptance · rendelésleadás tesztelése',exact:true});
+    const submit=page.locator('[data-storefront-preview-order-submit="true"]').first();
     await submit.waitFor({state:'visible',timeout:10000});
     proof.submitEnabled=await submit.isEnabled();
     if(!proof.submitEnabled)throw new Error('ENGINE_ACCEPTANCE_SUBMIT_DISABLED');
