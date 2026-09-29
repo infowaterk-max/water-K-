@@ -635,6 +635,17 @@
         "Review invariant authority: SQ-AUTH-020, SQ-AUTH-009, SQ-AUTH-007",
         "Keep regression authority available: tests/shoperation-development-guard.test.ts"
       ]
+    },
+    "TF-KF-025": {
+      "preventiveDirective": "Require executable exact-head shared-engine behavior proof before Product Owner readiness. Keep engine presence/demo integration separate from engine functional acceptance and repair recurring shared failures at the shared authority.",
+      "forbiddenApproaches": [
+        "treating rendered engine surfaces, metadata or demo integration as functional proof",
+        "repairing a recurring shared engine behavior defect only inside one template"
+      ],
+      "requiredBeforeEdit": [
+        "Read TF-KF-025 and TF-AUTH-025 in src/lib/builder/template-factory/knowledge-registry.ts",
+        "Keep regression authority available: tests/template-factory-engine-functional-proof.test.ts, tests/template-factory-procedural-memory.test.ts"
+      ]
     }
   },
   "editRules": [

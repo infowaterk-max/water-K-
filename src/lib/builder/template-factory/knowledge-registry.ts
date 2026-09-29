@@ -1,4 +1,4 @@
-export const TEMPLATE_FACTORY_KNOWLEDGE_VERSION='shoporation.template-factory-knowledge.v2' as const;
+export const TEMPLATE_FACTORY_KNOWLEDGE_VERSION='shoporation.template-factory-knowledge.v3' as const;
 
 export type TemplateFactoryRemediationPolicy='shared-root-cause-required'|'shared-invariant-preferred';
 export type TemplateFactoryAuthorityOwner='platform'|'factory'|'category-foundation'|'template'|'quality-system';
@@ -48,6 +48,7 @@ export const TEMPLATE_FACTORY_AUTHORITY_GRAPH:readonly TemplateFactoryAuthorityR
   {id:'TF-AUTH-022',subject:'shared engine demo integration',owner:'platform',delegates:['template','quality-system'],rule:'Required shared engines must be visibly demonstrated through real storefront components, demo data and reachable interactions; registry or manifest presence alone is not acceptance evidence.'},
   {id:'TF-AUTH-023',subject:'showroom demo content quality',owner:'template',delegates:['factory'],rule:'Product Owner-ready demos may use curated demo data but may not rely on instructional placeholders, generic fallbacks, empty shells or inherited foreign-template content.'},
   {id:'TF-AUTH-024',subject:'Product Owner readiness beyond render matrix',owner:'quality-system',delegates:[],rule:'Product Owner readiness requires complete showroom inventory, route convergence, presentation continuity, account completeness and engine-demo proof in addition to the full browser matrix.'},
+  {id:'TF-AUTH-025',subject:'shared engine functional proof',owner:'quality-system',delegates:['platform'],rule:'A required shared engine is Product Owner-ready only after exact-head executable behavior proof exercises the canonical shared runtime. Visible/demo integration is necessary but insufficient; the proof must fail closed and may not create live side effects.'},
 ]);
 
 export const TEMPLATE_FACTORY_KNOWN_FAILURES:readonly TemplateFactoryKnownFailure[]=Object.freeze([
@@ -174,14 +175,14 @@ export const TEMPLATE_FACTORY_KNOWN_FAILURES:readonly TemplateFactoryKnownFailur
   },
   {
     id:'TF-KF-012',
-    title:'Hidden duplicate auth surfaces break strict Product Owner locator',
-    symptom:'The journey verifier sees multiple auth shells, surfaces or controls because hidden responsive or streamed copies remain in the DOM, causing false authority failures or ambiguous interaction targets.',
-    rootCause:'The verifier treated hidden DOM copies as competing auth authority instead of constraining acceptance to the single visible active shell and control surface before locating structural controls within it.',
-    occurrences:3,
+    title:'Responsive duplicate auth controls break strict Product Owner locator',
+    symptom:'The journey verifier sees multiple auth surfaces or controls because hidden responsive copies remain in the DOM, causing false shared-surface failures or ambiguous interaction targets.',
+    rootCause:'The verifier selected auth controls from all semantic auth surfaces instead of first constraining authority to the single visible active surface and then locating structural controls within it.',
+    occurrences:2,
     automatable:true,
     remediationPolicy:'shared-root-cause-required',
     invariantIds:['TF-AUTH-009','TF-AUTH-014'],
-    regressionTests:['tests/storefront-template-quality-gate-v2.test.ts','tests/template-factory-procedural-memory.test.ts'],
+    regressionTests:['tests/template-factory-procedural-memory.test.ts'],
   },
   {
     id:'TF-KF-013',
@@ -296,6 +297,17 @@ export const TEMPLATE_FACTORY_KNOWN_FAILURES:readonly TemplateFactoryKnownFailur
     occurrences:1,automatable:true,remediationPolicy:'shared-invariant-preferred',
     invariantIds:['TF-AUTH-023','TF-AUTH-024'],
     regressionTests:['tests/template-factory-storefront-contract.test.ts','tests/template-factory-procedural-memory.test.ts'],
+  },
+  {
+    id:'TF-KF-025',
+    title:'Visible engine integration passes while shared engine behavior is broken',
+    symptom:'The candidate passes engine-demo and visual acceptance, but a real shopper flow through the shared engine fails later during Product Owner or manual testing.',
+    rootCause:'Presence, metadata and styled demo integration were accepted as a proxy for executable behavior proof of the canonical shared engine.',
+    occurrences:2,
+    automatable:true,
+    remediationPolicy:'shared-root-cause-required',
+    invariantIds:['TF-AUTH-005','TF-AUTH-022','TF-AUTH-025'],
+    regressionTests:['tests/template-factory-engine-functional-proof.test.ts','tests/template-factory-procedural-memory.test.ts'],
   },
 ]);
 
