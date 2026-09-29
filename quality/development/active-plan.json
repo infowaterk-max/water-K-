@@ -3,11 +3,10 @@
   "taskId": "DEV-TEMPLATE-ENGINE-FUNCTIONAL-PROOF",
   "task": "Require exact-head shared engine functional proof before Template Factory Product Owner readiness, with E13 checkout as the first implementation.",
   "status": "ready-for-implementation",
-  "guardDigest": "c9488ea2",
+  "guardDigest": "PENDING",
   "plannedFilePatterns": [
     ".github/workflows/template-factory-quality-gate.yml",
     "scripts/template-factory-product-owner-handoff.mjs",
-    "src/app/acceptance/checkout/page.tsx",
     "src/app/admin/platform/acceptance/[instanceId]/checkout/page.tsx",
     "src/lib/commerce/checkout-acceptance-fixture.ts",
     "src/lib/builder/template-factory/knowledge-registry.ts",
@@ -17,7 +16,9 @@
     "quality/knowledge/failure-signatures.v1.json",
     "tests/template-factory-engine-functional-proof.test.ts",
     "tests/template-factory-procedural-memory.test.ts",
-    "quality/development/active-plan.json"
+    "quality/development/active-plan.json",
+    "src/app/storefront-template-preview/engine-proof/checkout/page.tsx",
+    "deploy/release-risk-policy.json"
   ],
   "expectedSubsystems": [
     "admin-operations",
@@ -104,6 +105,6 @@
     "SQ-NK-012"
   ],
   "exceptions": [],
-  "notes": "Extend existing Template Factory and pilot acceptance authorities only. Separate engine presence/integration proof from shared engine behavior proof. Reuse the existing signed pilot acceptance session, mixed-cart acceptance fixture, real /penztar route and fail-closed acceptance submit. Do not create a second checkout engine, mock quote authority, template-local checkout behavior, or live order side effect. Scope expansion reviewed: checkout behavioral proof legitimately crosses admin acceptance, payment/checkout/order, storefront UI and release-quality orchestration; this is intentional evidence wiring, not new business authority.",
+  "notes": "Extend existing Template Factory and pilot acceptance authorities only. Separate engine presence/integration proof from shared engine behavior proof. Reuse the existing signed pilot acceptance session, mixed-cart acceptance fixture, real /penztar route and fail-closed acceptance submit. Do not create a second checkout engine, mock quote authority, template-local checkout behavior, or live order side effect. Scope expansion reviewed: checkout behavioral proof legitimately crosses admin acceptance, payment/checkout/order, storefront UI and release-quality orchestration; this is intentional evidence wiring, not new business authority. Atlas correction: align subsystem mappings with existing Domain Foundations for src/lib/commerce/** and storefront-template-preview routes; the shared acceptance entry lives under the canonical preview authority instead of creating a new /acceptance root.",
   "changeBaseSha": "c1b292993c6e3b6c7c1dd712a246eebe4c43b720"
 }
