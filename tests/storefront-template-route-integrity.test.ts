@@ -46,7 +46,7 @@ describe('Template Route Integrity + Demo Content Foundation',()=>{
     expect(terms?.payload.title).toBe('Általános Szerződési Feltételek');
     expect(privacy?.payload.title).toBe('Adatkezelési tájékoztató');
     expect(imprint?.payload.title).toBe('Impresszum');
-    expect(String(terms?.payload.body)).toContain('[CÉGNÉV]');
+    expect(String(terms?.payload.body)).toContain('Kitöltendő kereskedői adat: cégnév');
     expect(String(privacy?.payload.body)).toContain('ADATFELDOLGOZÓK');
     expect(String(imprint?.payload.body)).toContain('TÁRHELYSZOLGÁLTATÓ');
     expect(new Set([terms?.payload.body,privacy?.payload.body,imprint?.payload.body,shipping?.payload.body,payment?.payload.body]).size).toBe(5);
