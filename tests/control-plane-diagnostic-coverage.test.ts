@@ -64,6 +64,11 @@ describe('Control Plane diagnostic coverage',()=>{
     const quality=policy.subsystems.find((x:{name:string})=>x.name==='quality-infrastructure');
     expect(quality.risk).toBe('medium');
     expect(quality.patterns).toContain('scripts/template-factory-product-owner-handoff.mjs');
+    expect(quality.patterns).toContain('scripts/template-factory-quality-gate.mjs');
+    expect(policy.neutralPatterns).not.toContain('scripts/template-factory-quality-gate.mjs');
+    const account=policy.subsystems.find((x:{name:string})=>x.name==='customer-account');
+    expect(account.risk).toBe('medium');
+    expect(account.patterns).toContain('src/lib/account/**');
     expect(policy.maxPoints).toBe(5);
     expect(policy.maxSubsystems).toBe(3);
   });

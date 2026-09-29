@@ -118,7 +118,8 @@
       "patterns": [
         "src/app/fiokom/**",
         "src/lib/customer/**",
-        "src/components/account/**"
+        "src/components/account/**",
+        "src/lib/account/**"
       ]
     },
     {
@@ -166,7 +167,8 @@
         "scripts/lib/shoperation-*.mjs",
         "src/lib/quality-system/**",
         "quality/knowledge/**",
-        "scripts/template-factory-product-owner-handoff.mjs"
+        "scripts/template-factory-product-owner-handoff.mjs",
+        "scripts/template-factory-quality-gate.mjs"
       ]
     },
     {
