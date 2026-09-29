@@ -8,6 +8,7 @@
     "src/lib/builder/templates/gaming/loot-vault/v2/**",
     "src/lib/builder/template-factory/**",
     "src/components/builder/**",
+    "src/lib/builder/storefront-commerce-header.ts",
     "src/lib/builder/storefront-digital-commerce-preview.ts",
     "src/lib/builder/storefront-template-preview-demo.ts",
     "src/lib/builder/storefront-visual-style.ts",
@@ -93,6 +94,6 @@
     "SQ-NK-012"
   ],
   "exceptions": [],
-  "notes": "Product Owner approved the Loot Vault v2 Visual First direction on 2026-09-28. This branch is reconciled onto canonical main e728c3a58b531234a420576d74b2a6e68e65ec53, including PR #482 Template Production Contracts Foundation. LOOT_VAULT_V2_GENERATOR_BLUEPRINT remains the structural and production-contract authority for recipe identity, required capabilities, canonical 14-page composition, shared Page Schema/component/runtime/Visual Builder ownership, Desktop/Tablet/Mobile authority, Visual Authority, file ownership, and compiled component-usage evidence. The #482 mechanisms are preserved; its Visual Authority declaration is aligned to the later Product Owner-approved 2026-09-28 Visual First reference across all 14 canonical pages. The Blueprint must not replace or simplify the approved Visual First design. Shared renderer changes are restricted to generic platform capabilities such as cinematic-commerce; no Loot Vault-specific commerce/auth/account/checkout runtime branch is permitted. Candidate-only until exact-head Generator Readiness, Production Contracts, Factory, responsive 14x3, interaction, build, and visual fidelity proof pass. No golden, staging, main, or production promotion is implied.",
+  "notes": "Product Owner approved the Loot Vault v2 Visual First direction on 2026-09-28. This branch is reconciled onto canonical main e728c3a58b531234a420576d74b2a6e68e65ec53, including PR #482 Template Production Contracts Foundation. LOOT_VAULT_V2_GENERATOR_BLUEPRINT remains the structural and production-contract authority for recipe identity, required capabilities, canonical 14-page composition, shared Page Schema/component/runtime/Visual Builder ownership, Desktop/Tablet/Mobile authority, Visual Authority, file ownership, and compiled component-usage evidence. The #482 mechanisms are preserved; its Visual Authority declaration is aligned to the later Product Owner-approved 2026-09-28 Visual First reference across all 14 canonical pages. The Blueprint must not replace or simplify the approved Visual First design. Shared renderer changes are restricted to generic platform capabilities such as cinematic-commerce and the explicitly scoped tablet navigation disclosure in storefront-commerce-header; no Loot Vault-specific commerce/auth/account/checkout runtime branch is permitted. Candidate-only until exact-head Generator Readiness, Production Contracts, Factory, responsive 14x3, interaction, build, and visual fidelity proof pass. No golden, staging, main, or production promotion is implied.",
   "changeBaseSha": "e728c3a58b531234a420576d74b2a6e68e65ec53"
 }
