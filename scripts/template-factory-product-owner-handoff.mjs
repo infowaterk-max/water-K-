@@ -797,16 +797,16 @@ try{
 
     let accountRoot=await visitCandidate('account','account-capability-proof');
     const accountTargets=[
-      ['Rendeléseim','orders'],['Letöltéseim','letoltesek'],['Dokumentumaim','dokumentumok'],['Kívánságlista','kivansaglista'],
-      ['Ügyeim','ugyek'],['Visszaküldés','visszakuldes'],['Fiókadatok','profile'],['Marketing beállítások','marketing'],
+      ['Rendeléseim','/fiokom#rendelesek'],['Letöltéseim','/fiokom/letoltesek'],['Dokumentumaim','/fiokom/dokumentumok'],['Kívánságlista','/fiokom/kivansaglista'],
+      ['Ügyeim','/fiokom/ugyek'],['Visszaküldés','/fiokom/visszakuldes'],['Fiókadatok','/fiokom#fiokadatok'],['Marketing beállítások','/fiokom#marketing'],
     ];
-    checks.accountSurfacePassed=(await Promise.all(accountTargets.map(async([label,view])=>{
+    checks.accountSurfacePassed=(await Promise.all(accountTargets.map(async([label,expectedHref])=>{
       const link=accountRoot.getByRole('link',{name:label,exact:true}).first();
       if(await link.count()!==1)return false;
       const href=await link.getAttribute('href');
       if(!href)return false;
-      const url=new URL(href,page.url());
-      return candidatePageIdentity(url.toString(),'account')&&url.searchParams.get('accountView')===view;
+      const url=new URL(href,page.url()),expected=new URL(expectedHref,page.url());
+      return url.pathname===expected.pathname&&url.hash===expected.hash;
     }))).every(Boolean);
     if(!checks.accountSurfacePassed)errors.push('CANONICAL_ACCOUNT_SURFACES_NOT_PROVEN');
     try{
