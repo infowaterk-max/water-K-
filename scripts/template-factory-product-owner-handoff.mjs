@@ -683,9 +683,8 @@ try{
       await checkoutRoot.locator('label.inlineCheck').filter({hasText:/Tudomásul vettem/}).first().click();
       commerceInteraction.legalConsent=await terms.isChecked()&&await privacy.isChecked();
 
-      const submit=checkoutRoot.locator('[data-storefront-preview-order-submit="true"]').first();
-      await submit.waitFor({state:'visible',timeout:5000});
-      await page.waitForFunction(()=>{const element=document.querySelector('[data-storefront-preview-order-submit="true"]');return element instanceof HTMLButtonElement&&!element.disabled},{timeout:5000});
+      const submit=checkoutRoot.locator('[data-storefront-preview-order-submit="true"]:not([disabled])').first();
+      await submit.waitFor({state:'visible',timeout:10000});
       await submit.click();
       const blocked=checkoutRoot.locator('[data-storefront-preview-order-blocked="true"]');
       await blocked.waitFor({state:'visible',timeout:5000});
