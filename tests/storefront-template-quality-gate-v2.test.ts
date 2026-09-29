@@ -47,6 +47,10 @@ describe('Template Factory Quality Gate v2',()=>{
     expect(gate).toContain('priceUpdate');
     expect(gate).toContain('stockUpdate');
     expect(gate).toContain('totalConsistency');
+    expect(gate).toContain('shippingQuoteRefresh');
+    expect(gate).toContain('waitForResponse');
+    expect(gate).toContain("shippingProvider==='preview-parcel'");
+    expect(gate).toContain('authoritativeQuote.shipping_gross_huf');
     expect(gate).toContain("getByPlaceholder('Írd be a választott automata vagy átvételi pont nevét / címét')");
     expect(gate).toContain("name:'Tovább a fizetéshez'");
     expect(gate).toContain("name:'Tovább az összesítéshez'");
@@ -112,8 +116,14 @@ describe('Template Factory Quality Gate v2',()=>{
     expect(handoff).toContain('reAddItem');
     expect(handoff).toContain('checkoutEntry');
     expect(handoff).toContain('shippingSelection');
+    expect(handoff).toContain('shippingQuoteRefresh');
     expect(handoff).toContain('totalRecalculation');
     expect(handoff).toContain('totalConsistency');
+    expect(handoff).toContain("name:'Tovább a fizetéshez'");
+    expect(handoff).toContain("name:'Tovább az összesítéshez'");
+    expect(handoff).toContain('legalConsent');
+    expect(handoff).toContain("shippingProvider==='preview-parcel'");
+    expect(handoff).toContain('Acceptance proof: a rendelés leadási kísérletét a rendszer blokkolta.');
     expect(handoff).toContain('realOrderRequestAttempted');
     expect(handoff).toContain('realPaymentRequestAttempted');
     expect(handoff).toContain('productionCommerceMutationRequestAttempted');
