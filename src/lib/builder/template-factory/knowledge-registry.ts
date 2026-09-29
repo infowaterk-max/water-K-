@@ -122,11 +122,11 @@ export const TEMPLATE_FACTORY_KNOWN_FAILURES:readonly TemplateFactoryKnownFailur
     title:'Browser proof samples streamed route or UI before the proof surface settles',
     symptom:'The assertion reports a missing route or UI surface even though the streamed React/Next.js response has already declared the transition or eventually renders the required surface.',
     rootCause:'The browser harness sampled a streamed React/Next.js route or DOM surface before waiting for the asserted navigation and visible state to settle.',
-    occurrences:2,
+    occurrences:3,
     automatable:true,
     remediationPolicy:'shared-root-cause-required',
     invariantIds:['TF-AUTH-009'],
-    regressionTests:['tests/template-factory-procedural-memory.test.ts'],
+    regressionTests:['tests/storefront-template-quality-gate-v2.test.ts','tests/template-factory-procedural-memory.test.ts'],
   },
   {
     id:'TF-KF-008',
