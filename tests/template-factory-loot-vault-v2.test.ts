@@ -569,7 +569,11 @@ describe('Loot Vault v2 Factory canonical wiring',()=>{
     const preview=readFileSync('src/components/builder/storefront-template-preview-runtime.tsx','utf8');
     const checkout=readFileSync('src/components/checkout/checkout-form.tsx','utf8');
     expect(shared).toContain('data-gallery-authority="single-main-with-thumbnails"');
-    expect(shared).not.toContain("gridTemplateColumns:mobile?'1fr':'clamp(3.1rem,7vw,4.5rem) minmax(0,1fr)'");
+    expect(shared).toContain("thumbnailPosition=text(config.thumbnailPosition,'left')");
+    expect(shared).toContain("if(thumbnailPosition==='left')");
+    expect(shared).toContain('data-thumbnail-position="left"');
+    expect(shared).toContain('data-thumbnail-position={thumbnailPosition}');
+    expect(shared).not.toContain("templateKey==='gaming.loot-vault'");
     expect(preview).toContain('<CartView freeShippingThreshold={20000} products={products}/>');
     expect(preview).toContain('<CheckoutForm');
     expect(preview).not.toContain('function PreviewCartSummary');
