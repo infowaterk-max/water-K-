@@ -1,12 +1,13 @@
 import{readFileSync}from'node:fs';
 import{join}from'node:path';
 import{describe,expect,it}from'vitest';
-import{CANONICAL_ACCOUNT_CAPABILITIES}from'@/lib/account/account-capabilities';
+import{CANONICAL_ACCOUNT_CAPABILITIES,resolveAccountCapabilities,resolveTemplateAccountCapabilityOptIns}from'@/lib/account/account-capabilities';
 import{normalizeStorefrontTemplateRuntimeComposition}from'@/lib/builder/storefront-template-runtime-normalization';
 import{createStorefrontTemplatePreviewBindingContext}from'@/lib/builder/storefront-template-preview-demo';
 import{augmentStorefrontDigitalCommercePreviewContext}from'@/lib/builder/storefront-digital-commerce-preview';
 import type{StorefrontComponentNode}from'@/lib/builder/storefront-runtime';
 import{PLAYROOM_V19_CANONICAL_TEMPLATE_PACKAGE}from'@/lib/builder/templates/playroom-v19-canonical';
+import{LOOT_VAULT_V2_TEMPLATE_PACKAGE}from'@/lib/builder/templates/gaming/loot-vault/v2';
 import{STOREFRONT_IMPLEMENTED_TEMPLATE_PACKAGES}from'@/lib/builder/storefront-template-catalog';
 
 const read=(path:string)=>readFileSync(join(process.cwd(),path),'utf8');
@@ -27,7 +28,19 @@ describe('shared storefront account capability navigation',()=>{
   const base=createStorefrontTemplatePreviewBindingContext({template:PLAYROOM_V19_CANONICAL_TEMPLATE_PACKAGE,page:account});
   const context=augmentStorefrontDigitalCommercePreviewContext({template:PLAYROOM_V19_CANONICAL_TEMPLATE_PACKAGE,page:account,context:base});
   const items=((context.commerce as any).digitalCommerce.accountCapabilities.items) as Array<{key:string;label:string;href:string}>;
-  expect(items.map(item=>item.key)).toEqual(CANONICAL_ACCOUNT_CAPABILITIES.map(item=>item.key));
+  expect(items.map(item=>item.key)).toEqual(CANONICAL_ACCOUNT_CAPABILITIES.filter(item=>item.optional!=='collection').map(item=>item.key));
+  expect(items.some(item=>item.key==='collection')).toBe(false);
+ });
+ it('opts the shared Collection capability in only from canonical account metadata',()=>{
+  const account=LOOT_VAULT_V2_TEMPLATE_PACKAGE.pages.find(page=>page.pageType==='account')!;
+  expect(account.metadata?.collectionTracker).toBe('shared-account-capability-v1');
+  expect(resolveTemplateAccountCapabilityOptIns(account.metadata)).toEqual(['collection']);
+  const enabled=resolveAccountCapabilities({showLoyalty:false,showB2BOrganization:false,showB2BQuotes:false,templateCapabilities:resolveTemplateAccountCapabilityOptIns(account.metadata)});
+  expect(enabled.some(item=>item.key==='collection'&&item.href==='/fiokom/gyujtemenyem')).toBe(true);
+  const base=createStorefrontTemplatePreviewBindingContext({template:LOOT_VAULT_V2_TEMPLATE_PACKAGE,page:account});
+  const context=augmentStorefrontDigitalCommercePreviewContext({template:LOOT_VAULT_V2_TEMPLATE_PACKAGE,page:account,context:base});
+  const items=((context.commerce as any).digitalCommerce.accountCapabilities.items) as Array<{key:string;href:string}>;
+  expect(items).toEqual(expect.arrayContaining([expect.objectContaining({key:'collection',href:'/fiokom/gyujtemenyem'})]));
  });
  it('removes stale template-local account navigation from every implemented template',()=>{
   for(const template of [...STOREFRONT_IMPLEMENTED_TEMPLATE_PACKAGES,PLAYROOM_V19_CANONICAL_TEMPLATE_PACKAGE]){
