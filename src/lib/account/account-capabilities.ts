@@ -1,4 +1,4 @@
-export type AccountCapabilityKey='overview'|'orders'|'downloads'|'documents'|'wishlist'|'cases'|'returns'|'profile'|'marketing'|'b2bOrganization'|'b2bQuotes'|'loyalty';
+export type AccountCapabilityKey='overview'|'orders'|'downloads'|'documents'|'wishlist'|'collection'|'cases'|'returns'|'profile'|'marketing'|'b2bOrganization'|'b2bQuotes'|'loyalty';
 export type AccountCapabilityContext={showLoyalty:boolean;showB2BOrganization:boolean;showB2BQuotes:boolean};
 export type AccountCapabilityItem={key:AccountCapabilityKey;href:string;label:string;exact?:boolean;optional?:'loyalty'|'b2bOrganization'|'b2bQuotes'};
 export const CANONICAL_ACCOUNT_CAPABILITIES:readonly AccountCapabilityItem[]=[
@@ -7,6 +7,7 @@ export const CANONICAL_ACCOUNT_CAPABILITIES:readonly AccountCapabilityItem[]=[
  {key:'downloads',href:'/fiokom/letoltesek',label:'Letöltéseim'},
  {key:'documents',href:'/fiokom/dokumentumok',label:'Dokumentumaim'},
  {key:'wishlist',href:'/fiokom/kivansaglista',label:'Kívánságlista'},
+ {key:'collection',href:'/fiokom/gyujtemenyem',label:'Gyűjteményem'},
  {key:'cases',href:'/fiokom/ugyek',label:'Ügyeim'},
  {key:'returns',href:'/fiokom/visszakuldes',label:'Visszaküldés'},
  {key:'profile',href:'/fiokom#fiokadatok',label:'Fiókadatok'},
