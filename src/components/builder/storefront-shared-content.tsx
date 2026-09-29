@@ -2,11 +2,11 @@ import type {CSSProperties,ReactNode} from 'react';
 import {createStorefrontPrimitiveRendererRegistry} from '@/components/builder/storefront-primitives';
 import type {StorefrontComponentRenderProps} from '@/components/builder/storefront-runtime-renderer';
 import {sanitizeStorefrontStyleSlots} from '@/lib/builder/storefront-fidelity-engine';
-import {resolveStorefrontVisualStyle} from '@/lib/builder/storefront-visual-style';
+import {resolveStorefrontVisualStyle} from '@/lib/builder/storefront-visual-style';\nimport {normalizeStorefrontShopperText} from '@/lib/builder/storefront-content-sanity';
 
 export const STOREFRONT_SHARED_CONTENT_RENDERERS_VERSION='shoporation.storefront-shared-content-renderers.v1' as const;
 
-const text=(value:unknown,fallback='')=>typeof value==='string'?value:fallback;
+const text=(value:unknown,fallback='')=>normalizeStorefrontShopperText(value,fallback);
 const number=(value:unknown,fallback=0)=>typeof value==='number'&&Number.isFinite(value)?value:fallback;
 const record=(value:unknown):Record<string,unknown>|null=>value&&typeof value==='object'&&!Array.isArray(value)?value as Record<string,unknown>:null;
 const rows=(value:unknown):Record<string,unknown>[]=>Array.isArray(value)?value.flatMap(item=>{const row=record(item);return row?[row]:[]}):[];
