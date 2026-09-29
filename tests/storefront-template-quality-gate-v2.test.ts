@@ -48,6 +48,9 @@ describe('Template Factory Quality Gate v2',()=>{
     expect(gate).toContain('stockUpdate');
     expect(gate).toContain('totalConsistency');
     expect(gate).toContain('representativeQuoteSource');
+    expect(gate).toContain('COMMERCE_INITIAL_QUOTE_TIMEOUT');
+    expect(gate).toContain('await terms.check()');
+    expect(gate).toContain('await privacy.check()');
     expect(gate).toContain('data-checkout-quote-source="representative-preview"');
     expect(gate).not.toContain('shippingQuoteRefresh');
     expect(gate).toContain("getByPlaceholder('Írd be a választott automata vagy átvételi pont nevét / címét')");
@@ -126,6 +129,9 @@ describe('Template Factory Quality Gate v2',()=>{
     expect(handoff).toContain("name:'Tovább a fizetéshez'");
     expect(handoff).toContain("name:'Tovább az összesítéshez'");
     expect(handoff).toContain('legalConsent');
+    expect(handoff).toContain('await terms.check()');
+    expect(handoff).toContain('await privacy.check()');
+    expect(handoff).toContain("input[name=\"paymentProvider\"]:checked");
     expect(handoff).toContain('data-checkout-quote-source="representative-preview"');
     expect(handoff).toContain('Acceptance proof: a rendelés leadási kísérletét a rendszer blokkolta.');
     expect(handoff).toContain('realOrderRequestAttempted');
