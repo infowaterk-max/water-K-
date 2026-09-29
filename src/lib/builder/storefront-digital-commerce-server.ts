@@ -1,6 +1,6 @@
 import 'server-only';
 import {createAdminClient} from '@/lib/supabase/admin';
-import {resolveAccountCapabilities} from '@/lib/account/account-capabilities';
+import {resolveAccountCapabilities,type TemplateAccountCapabilityKey} from '@/lib/account/account-capabilities';
 import {
   classifyCheckoutFulfillment,
   listAccountDigitalDownloadSurface,
@@ -18,7 +18,7 @@ export const STOREFRONT_DIGITAL_COMMERCE_SERVER_VERSION='shoporation.storefront-
 export type StorefrontDigitalCommerceRuntimeRequest=
   |{pageType:'product';variantId:string;customerId:string|null}
   |{pageType:'cart'|'checkout';items:readonly {variantId:string;quantity:number}[]}
-  |{pageType:'account';customerId:string};
+  |{pageType:'account';customerId:string;templateCapabilities?:readonly TemplateAccountCapabilityKey[]};
 
 type VariantRow={id:string;label:string|null;fulfillment_type:string|null;products:{name:string;fulfillment_type:string|null}|null};
 const kindLabel:Record<ProductDocumentKind,string>={manual:'Használati útmutató',datasheet:'Adatlap',size_guide:'Mérettáblázat',warranty_info:'Garanciális információ',compatibility:'Kompatibilitási lap',installation_guide:'Telepítési útmutató',other:'Dokumentum'};
@@ -105,7 +105,7 @@ export async function getStorefrontDigitalCommerceRuntimeModel(instanceId:string
   }));
   const hasDocuments=Boolean(digitalEntries.length||orderEntries.length||productEntries.length);
   const relation=relationResult.data as{role?:string;reseller_approved?:boolean;b2b_account_id?:string|null}|null;
-  const accountItems=resolveAccountCapabilities({showLoyalty:Boolean(loyaltyResult.data?.enabled),showB2BOrganization:Boolean(relation?.b2b_account_id),showB2BQuotes:relation?.role==='reseller'&&relation?.reseller_approved===true});
+  const accountItems=resolveAccountCapabilities({showLoyalty:Boolean(loyaltyResult.data?.enabled),showB2BOrganization:Boolean(relation?.b2b_account_id),showB2BQuotes:relation?.role==='reseller'&&relation?.reseller_approved===true,templateCapabilities:request.templateCapabilities??[]});
   return{
     accountCapabilities:{state:'ready',items:accountItems},
     accountDownloads:{state:'ready',digital:digitalEntries},
