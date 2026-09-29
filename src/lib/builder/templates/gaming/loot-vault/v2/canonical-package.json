@@ -3347,8 +3347,9 @@
                               "mobile": {
                                 "fontSize": "clamp(2.35rem,11.5vw,3.25rem)",
                                 "maxWidth": "100%",
-                                "lineHeight": 0.9,
-                                "overflowWrap": "anywhere"
+                                "lineHeight": 1.06,
+                                "overflowWrap": "normal",
+                                "wordBreak": "normal"
                               }
                             }
                           }
@@ -9390,6 +9391,10 @@
                       {
                         "label": "Kívánságlista",
                         "href": "/fiokom/kivansaglista"
+                      },
+                      {
+                        "label": "Gyűjteményem",
+                        "href": "/fiokom/gyujtemenyem"
                       },
                       {
                         "label": "Ügyeim",
