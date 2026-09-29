@@ -132,7 +132,7 @@ describe('Loot Vault v2 Factory canonical wiring',()=>{
 
   it('requires complete shopper navigation in preview, especially on mobile',()=>{
     const build=buildRegisteredStorefrontTemplateFactoryCandidate('gaming.loot-vault');
-    const required=['/','/webaruhaz','/blog','/oldal/rolunk','/gyik','/kapcsolat','/szallitas-es-fizetes','/oldal/visszakuldes','/kedvencek','/fiokom','/aszf','/adatvedelem','/impresszum'];
+    const required=['/','/webaruhaz','/blog','/oldal/rolunk','/gyik','/kapcsolat','/szallitas','/fizetes','/oldal/visszakuldes','/kedvencek','/fiokom','/aszf','/adatvedelem','/impresszum'];
     for(const page of build.package.pages){
       const nodes=walk(page.sections);
       const header=nodes.find(node=>node.componentKey==='system.commerce-header');
@@ -141,7 +141,7 @@ describe('Loot Vault v2 Factory canonical wiring',()=>{
       expect(menu.map(item=>item.href), page.pageType).toEqual(required);
       const footer=nodes.find(node=>node.componentKey==='editorial.footer');
       const footerRoutes=((footer?.config.columns??[]) as {items?:{href?:string}[]}[]).flatMap(column=>column.items??[]).map(item=>item.href);
-      for(const href of ['/webaruhaz','/blog','/oldal/rolunk','/gyik','/kapcsolat','/szallitas-es-fizetes','/oldal/visszakuldes','/fiokom','/aszf','/adatvedelem','/impresszum'])expect(footerRoutes).toContain(href);
+      for(const href of ['/webaruhaz','/blog','/oldal/rolunk','/gyik','/kapcsolat','/szallitas','/fizetes','/oldal/visszakuldes','/fiokom','/aszf','/adatvedelem','/impresszum'])expect(footerRoutes).toContain(href);
     }
   });
 
@@ -165,7 +165,8 @@ describe('Loot Vault v2 Factory canonical wiring',()=>{
     const page=LOOT_VAULT_V2_TEMPLATE_PACKAGE.pages.find(item=>item.pageType==='account');
     const nodes=walk(page!.sections);
     const nav=nodes.find(node=>node.id==='loot-vault-loot-v2-account-capability-navigation');
-    expect((nav?.config.items as unknown[])).toHaveLength(9);
+    expect((nav?.config.items as unknown[])).toHaveLength(10);
+    expect((nav?.config.items as Array<{href?:string}>).map(item=>item.href)).toContain('/fiokom/gyujtemenyem');
     expect(nodes.some(node=>node.id==='loot-vault-loot-v2-account-capability-cards')).toBe(false);
     expect(JSON.stringify(page)).not.toContain('loot-vault-loot-v2-account-card-');
     expect(page?.metadata?.accountCompleteness).toEqual({
@@ -302,7 +303,7 @@ describe('Loot Vault v2 Factory canonical wiring',()=>{
       .map(node=>String(node.config.src??''));
     expect(universeImages).toHaveLength(6);
     expect(universeImages.every(src=>src.startsWith('/storefront-demo/loot-vault-v2/'))).toBe(true);
-    expect(new Set(universeImages.map(hash)).size).toBeGreaterThanOrEqual(4);
+    expect(new Set(universeImages.map(hash)).size).toBe(6);
 
     const grid=nodes.find(node=>node.id==='loot-vault-loot-v2-product-grid');
     const products=(grid?.config.products??[]) as Array<Record<string,unknown>>;
@@ -543,4 +544,38 @@ describe('Loot Vault v2 Factory canonical wiring',()=>{
     expect((universe.config.style as any).mobile.gridTemplateColumns).toBe('repeat(2,minmax(0,1fr))');
     expect((universe.config.style as any).mobile.overflowX).toBe('visible');
   });
+  it('keeps the approved Commerce Shell contracts shared and template-safe',()=>{
+    const shared=readFileSync('src/components/builder/storefront-commerce.tsx','utf8');
+    const preview=readFileSync('src/components/builder/storefront-template-preview-runtime.tsx','utf8');
+    const checkout=readFileSync('src/components/checkout/checkout-form.tsx','utf8');
+    expect(shared).toContain('data-gallery-authority="single-main-with-thumbnails"');
+    expect(shared).not.toContain("gridTemplateColumns:mobile?'1fr':'clamp(3.1rem,7vw,4.5rem) minmax(0,1fr)'");
+    expect(preview).toContain('<CartView freeShippingThreshold={20000} products={products}/>');
+    expect(preview).toContain('<CheckoutForm');
+    expect(preview).not.toContain('function PreviewCartSummary');
+    expect(preview).not.toContain('function PreviewCheckoutSummary');
+    expect(checkout).toContain("setError('Előnézeti módban rendelés nem adható le.')");
+    expect(checkout.indexOf("if(acceptancePreview)")).toBeLessThan(checkout.indexOf("fetch('/api/orders'"));
+  });
+
+  it('keeps Loot Vault CTA geometry consistent while filter chips remain a separate family',()=>{
+    const buttons=LOOT_VAULT_V2_TEMPLATE_PACKAGE.pages.flatMap(page=>walk(page.sections)).filter(node=>node.componentKey==='content.button');
+    const normal=buttons.filter(node=>!node.id.includes('catalog-universe-chip'));
+    expect(normal.length).toBeGreaterThan(0);
+    expect(normal.every(node=>String((node.config.style as Record<string,unknown>|undefined)?.borderRadius)==='10px')).toBe(true);
+    const commerceCss=readFileSync('src/components/checkout/checkout-guided.module.css','utf8');
+    expect(commerceCss).toContain('--checkout-button-radius:var(--shoporation-commerce-button-radius,10px)');
+  });
+
+  it('keeps Shipping and Payment separate and removes the combined route from shopper navigation',()=>{
+    const serialized=JSON.stringify(LOOT_VAULT_V2_TEMPLATE_PACKAGE);
+    expect(serialized).toContain('/szallitas');
+    expect(serialized).toContain('/fizetes');
+    expect(serialized).not.toContain('/szallitas-es-fizetes');
+    const slugs=(LOOT_VAULT_V2_TEMPLATE_PACKAGE.demoFixtures??[]).filter(item=>item.entityType==='content').map(item=>String((item.payload as Record<string,unknown>).slug??''));
+    expect(slugs).toContain('szallitas');
+    expect(slugs).toContain('fizetes');
+    expect(slugs).not.toContain('szallitas-es-fizetes');
+  });
+
 });
