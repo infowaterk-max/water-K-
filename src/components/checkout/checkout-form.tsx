@@ -60,37 +60,6 @@ export function CheckoutForm({shippingOptions,paymentOptions,freeShippingThresho
   async function refreshQuote(code=couponCode){
     if(!quoteItems.length||missingVariant){setQuote(null);setQuoteError(missingVariant?'A kosár egy régi, termékváltozat nélküli tételt tartalmaz. Töröld és tedd újra kosárba a terméket.':'');return null}
     setQuoteLoading(true);setQuoteError('');
-    if(acceptancePreview){
-      const lines:QuoteLine[]=cart.items.map(item=>({
-        variantId:item.variantId??item.productId,
-        productId:item.productId,
-        sku:item.variantId??item.productId,
-        name:item.name,
-        variantLabel:null,
-        quantity:item.quantity,
-        unitGrossHuf:item.unitPrice,
-        lineGrossHuf:item.unitPrice*item.quantity,
-        availableQuantity:Math.max(item.quantity,999),
-        minimumQuantity:item.minimumQuantity??1,
-        orderMultiple:item.orderMultiple??1,
-        channel:'b2c',
-      }));
-      const subtotalGross=lines.reduce((sum,item)=>sum+item.lineGrossHuf,0);
-      const shippingGross=shipping?.fee??0;
-      const q:Quote={
-        items:lines,
-        subtotal_gross_huf:subtotalGross,
-        discount_gross_huf:0,
-        shipping_gross_huf:shippingGross,
-        total_gross_huf:subtotalGross+shippingGross,
-        coupon_code:code||null,
-        fulfillment_mode:'physical',
-        requires_shipping:true,
-        physical_lines:lines.length,
-        digital_lines:0,
-      };
-      setQuote(q);setQuoteLoading(false);return q;
-    }
     try{
       const r=await fetch('/api/checkout/quote',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({shippingProvider:shipping?.code||undefined,couponCode:code||undefined,items:quoteItems})});
       const p=await r.json() as ({ok?:boolean;error?:string}&Partial<Quote>);
