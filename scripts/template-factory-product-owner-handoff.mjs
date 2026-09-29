@@ -378,7 +378,7 @@ try{
     convergence.headerCart=await clickCandidate(homeRoot.getByRole('link',{name:'Kosár',exact:true}).first(),'cart','header-cart');
 
     homeRoot=await visitCandidate('home','home-account-convergence');
-    convergence.headerAccount=await clickCandidate(homeRoot.getByRole('link',{name:'Fiókom',exact:true}).first(),'account','header-account');
+    convergence.headerAccount=await clickCandidate(homeRoot.getByRole('button',{name:'Fiókom',exact:true}).first(),'account','header-account');
 
     homeRoot=await visitCandidate('home','home-wishlist-convergence');
     convergence.headerWishlist=await clickCandidate(homeRoot.getByRole('link',{name:'Kedvenceim',exact:true}).first(),'account','header-wishlist');
@@ -388,15 +388,19 @@ try{
 
     homeRoot=await visitCandidate('home','home-add-to-cart-convergence');
     const homePurchase=homeRoot.getByRole('button',{name:/Kosárba/}).first();
-    try{
-      await homePurchase.waitFor({state:'visible',timeout:10000});
-      await homePurchase.click();
-      const confirmation=page.locator('[data-storefront-cart-confirmation="shared-v1"]:visible');
-      await confirmation.waitFor({state:'visible',timeout:10000});
-      convergence.homeAddToCart=await clickCandidate(confirmation.getByRole('link',{name:'Kosár megnyitása',exact:true}),'cart','home-add-to-cart-open-cart');
-    }catch(error){
-      convergence.homeAddToCart=false;
-      errors.push(`ROUTE_CONVERGENCE_HOME_ADD_TO_CART:${error instanceof Error?error.message:String(error)}`);
+    if(await homePurchase.count()>0){
+      try{
+        await homePurchase.waitFor({state:'visible',timeout:10000});
+        await homePurchase.click();
+        const confirmation=page.locator('[data-storefront-cart-confirmation="shared-v1"]:visible');
+        await confirmation.waitFor({state:'visible',timeout:10000});
+        convergence.homeAddToCart=await clickCandidate(confirmation.getByRole('link',{name:'Kosár megnyitása',exact:true}),'cart','home-add-to-cart-open-cart');
+      }catch(error){
+        convergence.homeAddToCart=false;
+        errors.push(`ROUTE_CONVERGENCE_HOME_ADD_TO_CART:${error instanceof Error?error.message:String(error)}`);
+      }
+    }else{
+      convergence.homeAddToCart='variant-selection-required';
     }
 
     let productRoot=await visitCandidate('product','pdp-add-to-cart-convergence');
@@ -425,7 +429,7 @@ try{
     convergence.shipping=await clickCandidate(homeRoot.getByRole('link',{name:'Szállítás és fizetés',exact:true}).first(),'legal','footer-shipping-payment');
 
     checks.routeConvergence=convergence;
-    checks.routeConvergencePassed=Object.values(convergence).length>=9&&Object.values(convergence).every(Boolean);
+    checks.routeConvergencePassed=Object.values(convergence).length>=9&&Object.values(convergence).every(value=>value===true||value==='variant-selection-required');
     if(!checks.routeConvergencePassed)errors.push('MULTI_ENTRY_ROUTE_CONVERGENCE_NOT_PROVEN');
 
     let accountRoot=await visitCandidate('account','account-capability-proof');

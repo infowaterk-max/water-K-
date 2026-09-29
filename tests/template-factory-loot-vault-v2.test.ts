@@ -152,20 +152,24 @@ describe('Loot Vault v2 Factory canonical wiring',()=>{
 
   it('keeps Favorites, Account and Cart utility icons canonical and identical across all Loot Vault pages',()=>{
     const expected=[
-      {label:'Kedvenceim',href:'/kedvencek'},
-      {label:'Fiókom',href:'/fiokom'},
-      {label:'Kosár',href:'/kosar'},
+      {label:'Kedvenceim',href:'/kedvencek',kind:'favorites'},
+      {label:'Fiókom',href:'/fiokom',kind:'account'},
+      {label:'Kosár',href:'/kosar',kind:'cart'},
     ];
     for(const page of LOOT_VAULT_V2_TEMPLATE_PACKAGE.pages){
       const header=walk(page.sections).find(node=>node.componentKey==='system.commerce-header')!;
-      const items=(header.config.utilityItems??[]) as Array<{label?:string;href?:string}>;
-      expect(items.map(({label,href})=>({label,href})),page.pageType).toEqual(expected);
+      const items=(header.config.utilityItems??[]) as Array<{label?:string;href?:string;kind?:string}>;
+      expect(items.map(({label,href,kind})=>({label,href,kind})),page.pageType).toEqual(expected);
     }
     const renderer=readFileSync('src/components/builder/storefront-commerce-header.tsx','utf8');
     expect(renderer).toContain('data-storefront-utility-icon="favorites"');
     expect(renderer).toContain('data-storefront-utility-icon="account"');
     expect(renderer).toContain('data-storefront-utility-icon="cart"');
-    expect(renderer).toContain("if(item.href==='/kedvencek'||item.href==='/fiokom/kivansaglista')return'favorites'");
+    expect(renderer).toContain("if(item.kind!=='custom')return item.kind");
+    expect(renderer).toContain("href={item.href} symbol={icon}");
+    const auth=readFileSync('src/components/auth/storefront-auth-dialog.tsx','utf8');
+    expect(auth).toContain('window.location.assign(href)');
+    expect(auth).toContain('returnTo={href}');
   });
 
   it('uses the shared tablet navigation disclosure on all 14 Loot Vault pages without creating a template-specific header branch',()=>{
