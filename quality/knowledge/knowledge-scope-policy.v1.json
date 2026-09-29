@@ -35,6 +35,12 @@
     ],
     "inventory-fulfillment-authority": [
       "payment-checkout-order-authority"
+    ],
+    "commerce-read-model-authority": [
+      "shared-storefront"
+    ],
+    "content-authority": [
+      "shared-storefront"
     ]
   }
 }
