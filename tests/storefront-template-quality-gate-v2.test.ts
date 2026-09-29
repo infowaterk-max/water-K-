@@ -88,6 +88,7 @@ describe('Template Factory Quality Gate v2',()=>{
   });
 
   it('requires Product Owner handoff to prove the interactive preview commerce journey fail-closed',()=>{
+    const gate=read('scripts/template-factory-quality-gate.mjs');
     const handoff=read('scripts/template-factory-product-owner-handoff.mjs');
     const previewRuntime=read('src/components/builder/storefront-template-preview-runtime.tsx');
     const commerceRenderer=read('src/components/builder/storefront-commerce.tsx');
