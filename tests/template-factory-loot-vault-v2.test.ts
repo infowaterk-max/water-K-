@@ -351,6 +351,40 @@ describe('Loot Vault v2 Factory canonical wiring',()=>{
     expect(previewDemo).not.toContain("LOOT_VAULT_PREVIEW_COLLECTION_IMAGES=Object.freeze([\n  '/storefront-demo/loot-vault-v2/hero-cinematic.webp'");
   });
 
+  it('keeps Home editorial, Search products and Blog highlights visually coherent instead of repeating the same proof image',()=>{
+    const home=LOOT_VAULT_V2_TEMPLATE_PACKAGE.pages.find(page=>page.pageType==='home')!;
+    const homeNodes=walk(home.sections);
+    const hero=homeNodes.find(node=>node.id==='loot-vault-loot-v2-hero-art')!;
+    const editorial=homeNodes.find(node=>node.id==='loot-vault-loot-v2-editorial-image')!;
+    expect(editorial.config.src).not.toBe(hero.config.src);
+    expect(editorial.config.src).toBe('/storefront-demo/loot-vault-v2/editorial-collector-room.webp');
+
+    const search=LOOT_VAULT_V2_TEMPLATE_PACKAGE.pages.find(page=>page.pageType==='search')!;
+    const searchGrid=walk(search.sections).find(node=>node.id==='loot-vault-loot-v2-search-products')!;
+    const searchProducts=(searchGrid.config.products??[]) as Array<Record<string,unknown>>;
+    expect(searchProducts.map(product=>String(product.image??''))).toEqual([
+      '/storefront-demo/loot-vault-v2/product-figure.webp',
+      '/storefront-demo/loot-vault-v2/hero-cinematic.webp',
+      '/storefront-demo/loot-vault-v2/editorial-collector-room.webp',
+      '/storefront-demo/loot-vault-v2/editorial-vault-shelf.webp',
+    ]);
+    expect(new Set(searchProducts.map(product=>String(product.image??''))).size).toBe(4);
+
+    const blog=LOOT_VAULT_V2_TEMPLATE_PACKAGE.pages.find(page=>page.pageType==='blog-index')!;
+    const blogNodes=walk(blog.sections);
+    const highlightImages=[1,2,3].map(index=>String(blogNodes.find(node=>node.id===`loot-vault-loot-v2-blog-highlight-${index}-image`)?.config.src??''));
+    expect(new Set(highlightImages).size).toBe(3);
+
+    const catalog=LOOT_VAULT_V2_TEMPLATE_PACKAGE.pages.find(page=>page.pageType==='catalog')!;
+    const catalogGrid=walk(catalog.sections).find(node=>node.id==='loot-vault-loot-v2-catalog-products')!;
+    const catalogProducts=(catalogGrid.config.products??[]) as Array<Record<string,unknown>>;
+    const ranger=catalogProducts.find(product=>product.id==='obsidian-ranger')!;
+    const guardian=catalogProducts.find(product=>product.id==='celestial-guardian')!;
+    expect(ranger.imagePosition).not.toBe(guardian.imagePosition);
+    expect(Number(ranger.imageScale)).toBeGreaterThanOrEqual(1.35);
+    expect(Number(guardian.imageScale)).toBe(1.4);
+  });
+
   it('keeps customer-facing demo copy free from internal platform vocabulary',()=>{
     const fixtures=LOOT_VAULT_V2_TEMPLATE_PACKAGE.demoFixtures??[];
     const customerCopy=fixtures.flatMap(item=>{
