@@ -12,6 +12,7 @@ const storageState=(process.env.PRODUCT_OWNER_STORAGE_STATE??'').trim();
 const vercelAutomationBypassSecret=(process.env.VERCEL_AUTOMATION_BYPASS_SECRET??'').trim();
 const qualityManifestPath=(process.env.TEMPLATE_QUALITY_MANIFEST??'artifacts/template-factory-quality/manifest.json').trim();
 const outputDir=(process.env.TEMPLATE_HANDOFF_OUTPUT_DIR??'artifacts/template-factory-handoff').trim();
+const engineFunctionalProofPath=(process.env.PRODUCT_OWNER_ENGINE_FUNCTIONAL_PROOF??'').trim();
 const engineFunctionalOnly=['1','true'].includes((process.env.PRODUCT_OWNER_ENGINE_FUNCTIONAL_ONLY??'').trim().toLowerCase());
 
 if(!previewUrl)throw new Error('PRODUCT_OWNER_PREVIEW_URL_REQUIRED');
@@ -276,6 +277,39 @@ if(!engineFunctionalOnly&&await exists(qualityManifestPath)){
   }
 }else if(!engineFunctionalOnly){
   errors.push('TECHNICAL_ACCEPTANCE_MANIFEST_MISSING');
+}
+
+if(!engineFunctionalOnly){
+  checks.engineFunctionalProofPassed=false;
+  checks.engineFunctionalProofPath=engineFunctionalProofPath||null;
+  if(!engineFunctionalProofPath){
+    errors.push('ENGINE_FUNCTIONAL_PROOF_E13_NOT_PROVEN:proof path missing');
+  }else if(!(await exists(engineFunctionalProofPath))){
+    errors.push('ENGINE_FUNCTIONAL_PROOF_E13_NOT_PROVEN:proof artifact missing');
+  }else{
+    try{
+      const engineProof=JSON.parse(await readFile(engineFunctionalProofPath,'utf8'));
+      checks.engineFunctionalProofContract=engineProof?.contract??null;
+      checks.engineFunctionalProofEngine=engineProof?.engine??null;
+      checks.engineFunctionalProofSourceCommit=engineProof?.sourceCommit??null;
+      checks.engineFunctionalProofArtifactPassed=engineProof?.passed===true;
+      const contractOk=engineProof?.contract==='shoporation.shared-engine-functional-proof.v1';
+      const engineOk=engineProof?.engine==='E13';
+      const commitOk=!sourceCommit||engineProof?.sourceCommit===sourceCommit;
+      checks.engineFunctionalProofPassed=contractOk&&engineOk&&commitOk&&engineProof?.passed===true;
+      if(!checks.engineFunctionalProofPassed){
+        const detail=[
+          contractOk?'contract=ok':`contract=${engineProof?.contract??'missing'}`,
+          engineOk?'engine=E13':`engine=${engineProof?.engine??'missing'}`,
+          commitOk?'sourceCommit=ok':`sourceCommit=${engineProof?.sourceCommit??'missing'}`,
+          engineProof?.passed===true?'passed=true':'passed=false',
+        ].join(',');
+        errors.push(`ENGINE_FUNCTIONAL_PROOF_E13_NOT_PROVEN:${detail}`);
+      }
+    }catch(error){
+      errors.push(`ENGINE_FUNCTIONAL_PROOF_E13_NOT_PROVEN:invalid proof artifact:${error instanceof Error?error.message:String(error)}`);
+    }
+  }
 }
 
 let browser;

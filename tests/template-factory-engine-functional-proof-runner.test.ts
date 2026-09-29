@@ -30,6 +30,14 @@ describe('Template Factory shared engine functional proof runner',()=>{
     expect(workflow).toContain('ENGINE_FUNCTIONAL_PROOF_FAILED=artifacts/template-engine-functional-proof/proof.json');
   });
 
+  it('feeds the exact-head engine proof into the existing Product Owner journey contract',()=>{
+    expect(workflow).toContain('PRODUCT_OWNER_ENGINE_FUNCTIONAL_PROOF: artifacts/template-engine-functional-proof/proof.json');
+    expect(runner).toContain("PRODUCT_OWNER_ENGINE_FUNCTIONAL_PROOF");
+    expect(runner).toContain("checks.engineFunctionalProofPassed=contractOk&&engineOk&&commitOk&&engineProof?.passed===true");
+    expect(runner).toContain("engineProof?.sourceCommit===sourceCommit");
+    expect(runner).toContain("ENGINE_FUNCTIONAL_PROOF_E13_NOT_PROVEN:proof artifact missing");
+  });
+
   it('does not replace the existing Product Owner visual handoff',()=>{
     expect(workflow).toContain('Prove exact-head Product Owner login journey');
     expect(workflow).toContain('TEMPLATE_HANDOFF_OUTPUT_DIR: artifacts/template-factory-handoff');
