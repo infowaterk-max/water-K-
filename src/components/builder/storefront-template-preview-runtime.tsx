@@ -5,11 +5,15 @@ import {useCart} from '@/components/cart/cart-provider';
 import {CartView} from '@/components/cart/cart-view';
 import {CheckoutForm} from '@/components/checkout/checkout-form';
 import {AccountCollectionGrid} from '@/components/account/account-collection-grid';
+import {AccountSubnav} from '@/components/account/account-subnav';
+import {StorefrontAccountWorkspace} from '@/components/account/storefront-account-workspace';
 import {StorefrontRuntimeRenderer} from '@/components/builder/storefront-runtime-renderer';
 import {createStorefrontVisualBuilderRendererRegistry} from '@/components/builder/storefront-builder-renderer-registry';
 import {createStorefrontVisualBuilderComponentRegistry} from '@/lib/builder/storefront-builder-registry';
 import type {StorefrontResolvedComponentNode,StorefrontPageDocument,StorefrontRuntimeCapabilityContext} from '@/lib/builder/storefront-runtime';
 import type {StorefrontViewport} from '@/lib/builder/storefront-foundation';
+import {resolveAccountCapabilityPreviewView,resolveTemplateAccountCapabilityOptIns} from '@/lib/account/account-capabilities';
+import {sliceStorefrontAccountTemplatePage,splitStorefrontAccountTemplateSections} from '@/lib/account/storefront-account-composition';
 
 export const STOREFRONT_TEMPLATE_PREVIEW_COMMERCE_RUNTIME_VERSION='shoporation.template-preview-commerce-shell.v1' as const;
 
@@ -102,7 +106,6 @@ export function StorefrontTemplatePreviewRuntime({page,viewport,bindingContext,c
   const decorateNode=(node:StorefrontResolvedComponentNode,rendered:ReactNode)=>{
     if(node.componentKey==='commerce.cart-summary')return <PreviewCartCommerceSurface/>;
     if(node.componentKey==='commerce.checkout-summary')return <PreviewCheckoutCommerceSurface/>;
-    if(page.pageType==='account'&&accountView&&node.componentKey==='system.navigation'&&node.config.presentation==='account-capability-demo')return <>{rendered}<PreviewAccountCapabilityState view={accountView} viewport={viewport}/></>;
     return rendered;
   };
   const interceptPreviewRoute=(event:MouseEvent<HTMLDivElement>)=>{
@@ -119,6 +122,14 @@ export function StorefrontTemplatePreviewRuntime({page,viewport,bindingContext,c
     if(!(anchor instanceof HTMLAnchorElement))return;
     const url=new URL(anchor.href,window.location.href);
     if(url.origin!==window.location.origin)return;
+    if(url.pathname==='/fiokom'||url.pathname.startsWith('/fiokom/')||url.pathname==='/kedvencek'){
+      event.preventDefault();
+      const accountUrl=new URL(routes.account,window.location.href);
+      const nextView=resolveAccountCapabilityPreviewView(url.toString());
+      if(nextView)accountUrl.searchParams.set('accountView',nextView);else accountUrl.searchParams.delete('accountView');
+      window.location.assign(`${accountUrl.pathname}${accountUrl.search}${accountUrl.hash}`);
+      return;
+    }
     if(url.pathname==='/kosar'){
       event.preventDefault();
       window.location.assign(routes.cart);
@@ -136,7 +147,20 @@ export function StorefrontTemplatePreviewRuntime({page,viewport,bindingContext,c
       window.location.assign(`${interactionBasePath}?${params.toString()}`);
     }
   };
+  const renderPage=(document:StorefrontPageDocument)=><StorefrontRuntimeRenderer page={document} viewport={viewport} bindingContext={bindingContext} componentRegistry={componentRegistry} rendererRegistry={rendererRegistry} capability={capability} decorateNode={decorateNode}/>;
+  if(page.pageType==='account'){
+    const{headerSections,footerSections,authenticatedSections}=splitStorefrontAccountTemplateSections(page);
+    const templateCapabilities=resolveTemplateAccountCapabilityOptIns(page.metadata);
+    return <div data-storefront-template-preview-runtime="shared-commerce-shell-v1" onClickCapture={interceptPreviewRoute}>
+      {headerSections.length?renderPage(sliceStorefrontAccountTemplatePage(page,[...headerSections])):null}
+      <StorefrontAccountWorkspace navigation={<AccountSubnav showLoyalty showB2BOrganization showB2BQuotes templateCapabilities={templateCapabilities}/>}>
+        {accountView?<PreviewAccountCapabilityState view={accountView} viewport={viewport}/>:null}
+        {authenticatedSections.length?renderPage(sliceStorefrontAccountTemplatePage(page,[...authenticatedSections])):null}
+      </StorefrontAccountWorkspace>
+      {footerSections.length?renderPage(sliceStorefrontAccountTemplatePage(page,[...footerSections])):null}
+    </div>;
+  }
   return <div data-storefront-template-preview-runtime="shared-commerce-shell-v1" onClickCapture={interceptPreviewRoute} style={{display:'contents'}}>
-    <StorefrontRuntimeRenderer page={page} viewport={viewport} bindingContext={bindingContext} componentRegistry={componentRegistry} rendererRegistry={rendererRegistry} capability={capability} decorateNode={decorateNode}/>
+    {renderPage(page)}
   </div>;
 }
