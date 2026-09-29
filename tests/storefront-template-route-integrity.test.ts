@@ -15,7 +15,7 @@ describe('Template Route Integrity + Demo Content Foundation',()=>{
     expect(shipping).toBeTruthy();
     expect(shipping?.entityType).toBe('content');
     expect(shipping?.payload).toMatchObject({kind:'page',slug:'szallitas',status:'draft',demo:true,demoNotice:STOREFRONT_DEMO_CONTENT_NOTICE});
-    expect(String(shipping?.payload.body)).toContain('Szállítási lehetőségek');
+    expect(String(shipping?.payload.body)).toContain('SZÁLLÍTÁSI MÓDOK');
     expect(String(shipping?.payload.body)).not.toContain(STOREFRONT_DEMO_CONTENT_NOTICE);
   });
 
@@ -24,19 +24,32 @@ describe('Template Route Integrity + Demo Content Foundation',()=>{
     const terms=getStorefrontTemplateDemoContent(template,'aszf');
     const privacy=getStorefrontTemplateDemoContent(template,'adatvedelem');
     const imprint=getStorefrontTemplateDemoContent(template,'impresszum');
-    const shipping=getStorefrontTemplateDemoContent(template,'szallitas-es-fizetes');
-    for(const fixture of [terms,privacy,imprint,shipping]){
+    const shipping=getStorefrontTemplateDemoContent(template,'szallitas');
+    const payment=getStorefrontTemplateDemoContent(template,'fizetes');
+    const combined=getStorefrontTemplateDemoContent(template,'szallitas-es-fizetes');
+    for(const fixture of [terms,privacy,imprint]){
       expect(fixture).toBeTruthy();
       expect(fixture?.payload.showroomReady).toBe(true);
       expect(String(fixture?.payload.body??'').length).toBeGreaterThan(400);
     }
+    for(const fixture of [shipping,payment]){
+      expect(fixture).toBeTruthy();
+      expect(fixture?.payload.showroomReady).toBe(true);
+      expect(String(fixture?.payload.body??'').length).toBeGreaterThan(120);
+    }
+    expect(combined).toBeNull();
+    expect(shipping?.payload.title).toBe('Szállítás');
+    expect(payment?.payload.title).toBe('Fizetés');
+    expect(String(shipping?.payload.body)).toContain('SZÁLLÍTÁSI MÓDOK');
+    expect(String(payment?.payload.body)).toContain('FIZETÉSI MÓDOK');
+    expect(shipping?.payload.body).not.toBe(payment?.payload.body);
     expect(terms?.payload.title).toBe('Általános Szerződési Feltételek');
     expect(privacy?.payload.title).toBe('Adatkezelési tájékoztató');
     expect(imprint?.payload.title).toBe('Impresszum');
     expect(String(terms?.payload.body)).toContain('[CÉGNÉV]');
     expect(String(privacy?.payload.body)).toContain('ADATFELDOLGOZÓK');
     expect(String(imprint?.payload.body)).toContain('TÁRHELYSZOLGÁLTATÓ');
-    expect(new Set([terms?.payload.body,privacy?.payload.body,imprint?.payload.body]).size).toBe(3);
+    expect(new Set([terms?.payload.body,privacy?.payload.body,imprint?.payload.body,shipping?.payload.body,payment?.payload.body]).size).toBe(5);
   });
 
   it('keeps all implemented catalog packages route-integrity clean after shared augmentation',()=>{
