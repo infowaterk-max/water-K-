@@ -31,7 +31,7 @@ export async function StorefrontAccountShell({customerId,fallbackNavigation,chil
  const footerSections=runtime.page.sections.filter(isFooter);
  const publicAuthSections=runtime.page.sections.filter(section=>(section.config as Record<string,unknown>).authPublic===true);
  if(!headerSections.length||!footerSections.length)return customerId
-  ?<div className="storefrontAccountShell" data-authenticated="true"><div className="storefrontAccountWorkspace"><aside className="storefrontAccountSidebar" aria-label="Fiók navigáció">{navigationFor()}</aside><div className="storefrontAccountRouteContent">{children}</div></div></div>
+  ?<div className="storefrontAccountShell" data-authenticated="true"><div className="storefrontAccountWorkspace"><aside className="storefrontAccountSidebar" aria-label="Fiók navigáció">{navigationFor(runtime.page)}</aside><div className="storefrontAccountRouteContent">{children}</div></div></div>
   :<div className="storefrontAccountShell" data-authenticated="false"><div className="storefrontAccountRouteContent storefrontAuthRouteContent">{children}</div></div>;
  const vars=resolveStorefrontGlobalStyleCssVariables(runtime.page) as CSSProperties;
  const render=(sections:StorefrontComponentNode[])=><StorefrontResponsiveRuntime page={slicePage(runtime.page,sections)} initialViewport={viewport} bindingContext={runtime.bindingContext} capability={runtime.capability}/>;
