@@ -391,16 +391,23 @@ function evaluateBuild(input:{
 
     const account=pageByType.get('account');
     if(account){
-      const navRoutes:string[]=[];
+      const completeness=account.metadata?.accountCompleteness&&typeof account.metadata.accountCompleteness==='object'
+        ?account.metadata.accountCompleteness as Record<string,unknown>
+        :null;
+      const sharedAuthority=completeness?.navigationAuthority==='shared-account-capabilities';
+      let localCapabilityNavigation=false;
       walk(account.sections,node=>{
-        if(node.componentKey!=='system.navigation')return;
-        const items=Array.isArray(node.config.items)?node.config.items:[];
-        for(const item of items){
-          if(item&&typeof item==='object'&&!Array.isArray(item)&&typeof (item as Record<string,unknown>).href==='string')navRoutes.push((item as Record<string,unknown>).href as string);
-        }
+        if(node.componentKey==='system.navigation'&&node.config.presentation==='account-capability-demo')localCapabilityNavigation=true;
       });
-      const missing=STOREFRONT_REQUIRED_ACCOUNT_CAPABILITY_ROUTES.filter(route=>!navRoutes.includes(route));
-      if(missing.length)issues.push(issue('FACTORY_ACCOUNT_CAPABILITY_NAVIGATION_INCOMPLETE','pages.account','Product Owner-ready Account must expose the shared capability set compactly; missing: '+missing.join(', ')+'.'));
+      if(!sharedAuthority){
+        issues.push(issue('FACTORY_ACCOUNT_CAPABILITY_NAVIGATION_INCOMPLETE','pages.account.metadata.accountCompleteness.navigationAuthority','Product Owner-ready Account must bind to the canonical shared account capability authority.'));
+      }
+      if(sharedAuthority&&localCapabilityNavigation){
+        issues.push(issue('FACTORY_ACCOUNT_CAPABILITY_NAVIGATION_DUPLICATE','pages.account','Shared account capability authority may not coexist with a template-local Fiókom navigation surface.'));
+      }
+      if(STOREFRONT_REQUIRED_ACCOUNT_CAPABILITY_ROUTES.length!==CANONICAL_ACCOUNT_CAPABILITIES.filter(item=>!item.optional).length){
+        issues.push(issue('FACTORY_ACCOUNT_CAPABILITY_AUTHORITY_DRIFT','account-capabilities','Factory required Account routes must derive from the canonical shared account capability registry.'));
+      }
     }
 
     const requiredInfoSlugs=['aszf','adatvedelem','impresszum','szallitas','fizetes','visszakuldes'];
