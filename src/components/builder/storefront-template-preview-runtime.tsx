@@ -1,6 +1,6 @@
 'use client';
 
-import {useState,type CSSProperties,type ReactNode} from 'react';
+import {useState,type CSSProperties,type MouseEvent,type ReactNode} from 'react';
 import {useCart} from '@/components/cart/cart-provider';
 import {StorefrontRuntimeRenderer} from '@/components/builder/storefront-runtime-renderer';
 import {createStorefrontVisualBuilderRendererRegistry} from '@/components/builder/storefront-builder-renderer-registry';
@@ -100,5 +100,19 @@ export function StorefrontTemplatePreviewRuntime({page,viewport,bindingContext,c
     if(page.pageType==='account'&&accountView&&node.componentKey==='system.navigation'&&node.config.presentation==='account-capability-demo')return <>{rendered}<PreviewAccountCapabilityState view={accountView} viewport={viewport}/></>;
     return rendered;
   };
-  return <StorefrontRuntimeRenderer page={page} viewport={viewport} bindingContext={bindingContext} componentRegistry={componentRegistry} rendererRegistry={rendererRegistry} capability={capability} decorateNode={decorateNode}/>;
+  const interceptPreviewRoute=(event:MouseEvent<HTMLDivElement>)=>{
+    const target=event.target;
+    if(!(target instanceof Element))return;
+    const anchor=target.closest('a[href]');
+    if(!(anchor instanceof HTMLAnchorElement))return;
+    const url=new URL(anchor.href,window.location.href);
+    if(url.origin!==window.location.origin)return;
+    if(url.pathname==='/kosar'){
+      event.preventDefault();
+      window.location.assign(routes.cart);
+    }
+  };
+  return <div data-storefront-template-preview-runtime="interactive-commerce-v1" onClickCapture={interceptPreviewRoute} style={{display:'contents'}}>
+    <StorefrontRuntimeRenderer page={page} viewport={viewport} bindingContext={bindingContext} componentRegistry={componentRegistry} rendererRegistry={rendererRegistry} capability={capability} decorateNode={decorateNode}/>
+  </div>;
 }

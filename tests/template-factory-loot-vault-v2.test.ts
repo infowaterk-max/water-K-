@@ -73,7 +73,6 @@ describe('Loot Vault v2 Factory canonical wiring',()=>{
     const demo=readFileSync('src/lib/builder/storefront-template-preview-demo.ts','utf8');
     const preview=readFileSync('src/components/builder/storefront-template-preview-runtime.tsx','utf8');
     const page=readFileSync('src/app/storefront-template-preview/page.tsx','utf8');
-    const purchase=readFileSync('src/components/builder/storefront-purchase-controls-client.tsx','utf8');
     expect(demo).toContain('selectedVariantId?:string');
     expect(demo).toContain('LOOT_VAULT_PREVIEW_VARIANTS');
     expect(demo).toContain('unitPrice:selected.price');
@@ -85,7 +84,8 @@ describe('Loot Vault v2 Factory canonical wiring',()=>{
     expect(preview).toContain('Fizetési mód');
     expect(preview).toContain('Előnézeti módban rendelés nem adható le');
     for(const forbidden of ['/api/checkout/place','place_order','createOrder','submitOrder'])expect(preview).not.toContain(forbidden);
-    expect(purchase).toContain("window.location.pathname!=='/storefront-template-preview'");
+    expect(preview).toContain("url.pathname==='/kosar'");
+    expect(preview).toContain('window.location.assign(routes.cart)');
   });
 
   it('feeds Loot Vault-specific cart and checkout lines into ordinary template preview proof without requiring acceptance mode',()=>{

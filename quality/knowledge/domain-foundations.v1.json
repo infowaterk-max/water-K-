@@ -272,8 +272,7 @@
         "src/app/storefront-template-preview/**",
         "src/app/storefront-template-preview-login/**",
         "src/app/visual-fidelity-qa/**",
-        "src/components/account/storefront-account-shell.tsx",
-        "src/components/cart/add-to-cart-confirmation.tsx"
+        "src/components/account/storefront-account-shell.tsx"
       ],
       "evidenceObligations": [
         "responsive isolation proof",
