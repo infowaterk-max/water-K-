@@ -162,6 +162,8 @@ describe('Template Factory Quality Gate v2',()=>{
     const qa=read('src/app/visual-fidelity-qa/page.tsx');
     expect(STOREFRONT_TEMPLATE_QUALITY_CANDIDATES.every(item=>item.manifest.status==='candidate')).toBe(true);
     expect(STOREFRONT_TEMPLATE_QUALITY_CANDIDATES.every(item=>item.manifest.golden.required===false)).toBe(true);
+    expect(route).toContain('provenance:build.report.provenance');
+    expect(route).toContain('showroomEvidence:build.report.showroomEvidence');
     expect(route).toContain('STOREFRONT_TEMPLATE_QUALITY_CANDIDATES.map');
     expect(route).toContain('qualityCandidate:true');
     expect(qa).toContain("query.qualityCandidate==='1'");

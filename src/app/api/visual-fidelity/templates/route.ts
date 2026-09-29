@@ -74,6 +74,8 @@ export async function GET(){
       golden:{required:false,baselineDirectory:`tests/visual-baselines/${recipe.templateKey}/v${recipe.templateVersion}`,maxPixelMismatchRatio:.005},
       structural:{ok:preflight.ok&&replayIssues.length===0&&technicalIssues.every(issue=>issue.severity!=='error'),issues:[...technicalIssues,...replayIssues]},
       productOwnerReady:build.report.productOwnerReady,
+      provenance:build.report.provenance,
+      showroomEvidence:build.report.showroomEvidence,
       proceduralMemory:{
         preflightOk:preflight.ok,
         preflightIssues:preflight.issues,
