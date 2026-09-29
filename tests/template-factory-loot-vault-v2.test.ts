@@ -277,6 +277,40 @@ describe('Loot Vault v2 Factory canonical wiring',()=>{
     expect(previewJson).toContain('editorial-collector-room.webp');
   });
 
+  it('keeps legacy screenshot media out of compiled surfaces and strictly contains the cropped cinematic source',()=>{
+    const serialized=JSON.stringify(LOOT_VAULT_V2_TEMPLATE_PACKAGE);
+    expect(serialized).not.toContain('background-archive.webp');
+    expect(serialized).not.toContain('category-galaxy.webp');
+    expect(serialized).not.toContain('category-retro.webp');
+
+    const uses=LOOT_VAULT_V2_TEMPLATE_PACKAGE.pages.flatMap(page=>walk(page.sections).flatMap(node=>{
+      const found:string[]=[];
+      const scan=(value:unknown)=>{
+        if(typeof value==='string'&&value.includes('hero-cinematic.webp'))found.push(node.id);
+        else if(Array.isArray(value))value.forEach(scan);
+        else if(value&&typeof value==='object')Object.values(value as Record<string,unknown>).forEach(scan);
+      };
+      scan(node.config);
+      scan(node.bindings);
+      return found;
+    }));
+    expect(new Set(uses)).toEqual(new Set([
+      'loot-vault-loot-v2-universe-1-image',
+      'loot-vault-loot-v2-universe-6-image',
+      'loot-vault-loot-v2-product-grid',
+    ]));
+
+    const home=LOOT_VAULT_V2_TEMPLATE_PACKAGE.pages.find(page=>page.pageType==='home')!;
+    const nodes=walk(home.sections);
+    for(const id of ['loot-vault-loot-v2-universe-1-image','loot-vault-loot-v2-universe-6-image']){
+      const media=nodes.find(node=>node.id===id)!;
+      expect((media.config.style as any)?.base?.transform).toBe('scale(1.28)');
+      expect((media.config.style as any)?.base?.objectPosition).toBe('78% 40%');
+    }
+    const grid=nodes.find(node=>node.id==='loot-vault-loot-v2-product-grid')!;
+    expect((grid.config.styleSlots as any)?.image?.base?.transform).toBe('scale(1.16)');
+  });
+
   it('keeps customer-facing demo copy free from internal platform vocabulary',()=>{
     const fixtures=LOOT_VAULT_V2_TEMPLATE_PACKAGE.demoFixtures??[];
     const customerCopy=fixtures.flatMap(item=>{

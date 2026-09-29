@@ -16,7 +16,7 @@ const CANONICAL_PAGE_OVERRIDES=Object.freeze(Object.fromEntries(
 )) as Readonly<Partial<Record<StorefrontBuilderPageType,StorefrontPageDocument>>>;
 
 const MEDIA={
-  hero:'/storefront-demo/loot-vault-v2/hero-cinematic.webp',
+  hero:'/storefront-demo/loot-vault-v2/editorial-vault-shelf.webp',
   universe1:'/storefront-demo/loot-vault-v2/hero-cinematic.webp',
   universe2:'/storefront-demo/loot-vault-v2/editorial-vault-shelf.webp',
   universe3:'/storefront-demo/loot-vault-v2/category-anime.webp',
@@ -29,7 +29,7 @@ const MEDIA={
   product4:'/storefront-demo/loot-vault-v2/editorial-vault-shelf.webp',
   editorial1:'/storefront-demo/loot-vault-v2/editorial-vault-shelf.webp',
   editorial2:'/storefront-demo/loot-vault-v2/category-miniatures.webp',
-  background:'/storefront-demo/loot-vault-v2/background-archive.webp',
+  background:'/storefront-demo/loot-vault-v2/editorial-collector-room.webp',
 } as const;
 
 export const LOOT_VAULT_V2_FACTORY_MEDIA_ASSETS:readonly StorefrontTemplateFactoryMediaAsset[]=Object.freeze([
