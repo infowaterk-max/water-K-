@@ -3,7 +3,7 @@
   "taskId": "DEV-ENGINE-FUNCTIONAL-PROOF-REGISTRY",
   "task": "Add a canonical Engine Functional Proof Registry and fast deterministic runtime proofs for E2 Product Discovery, E7 Compare & Spec, and E10 Editorial Story while preserving E13 as the browser-journey proof class.",
   "status": "ready-for-implementation",
-  "guardDigest": "PENDING",
+  "guardDigest": "9ce759f3",
   "plannedFilePatterns": [
     "src/lib/builder/template-factory/scaffold.ts",
     "src/lib/commerce/product-discovery.ts",
