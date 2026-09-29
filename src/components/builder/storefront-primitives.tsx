@@ -6,10 +6,10 @@ import type {StorefrontResolvedComponentNode} from '@/lib/builder/storefront-run
 import {resolveStorefrontVisualStyle} from '@/lib/builder/storefront-visual-style';
 import {resolveStorefrontStyleSlot} from '@/lib/builder/storefront-fidelity-engine';
 import {resolveStorefrontTypography} from '@/lib/builder/storefront-fidelity-typography';
-import {sanitizeStorefrontHeaderScrolledStyle,sanitizeStorefrontStickyHeaderBehavior} from '@/lib/builder/storefront-fidelity-behavior';
+import {sanitizeStorefrontHeaderScrolledStyle,sanitizeStorefrontStickyHeaderBehavior} from '@/lib/builder/storefront-fidelity-behavior';\nimport {normalizeStorefrontShopperText} from '@/lib/builder/storefront-content-sanity';
 
 export const STOREFRONT_PRIMITIVE_RENDERERS_VERSION='shoporation.storefront-primitive-renderers.v4' as const;
-const text=(value:unknown,fallback='')=>typeof value==='string'?value:fallback;
+const text=(value:unknown,fallback='')=>normalizeStorefrontShopperText(value,fallback);
 const bool=(value:unknown,fallback=false)=>typeof value==='boolean'?value:fallback;
 const number=(value:unknown,fallback:number)=>typeof value==='number'&&Number.isFinite(value)?value:fallback;
 const oneOf=<T extends string>(value:unknown,allowed:readonly T[],fallback:T):T=>typeof value==='string'&&allowed.includes(value as T)?value as T:fallback;
