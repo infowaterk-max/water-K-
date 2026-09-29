@@ -54,6 +54,7 @@ function PreviewCheckoutCommerceSurface(){
       resellerApproved={false}
       embedded
       acceptancePreview
+      representativePreviewQuote
       instanceId={null}
       signedIn={false}
       customerDefaults={PREVIEW_CUSTOMER_DEFAULTS}
