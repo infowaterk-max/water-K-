@@ -600,19 +600,26 @@ const engineDemoStatus=(template:StorefrontInstallableTemplatePackage)=>{
   ]);
 };
 const requiredAccountHrefs=CANONICAL_ACCOUNT_CAPABILITIES.filter(item=>!item.optional).map(item=>item.href);
-function accountDemoNavigationHrefs(template:StorefrontInstallableTemplatePackage){
+function accountCapabilityAuthority(template:StorefrontInstallableTemplatePackage){
   const page=template.pages.find(item=>item.pageType==='account');
-  if(!page)return[] as string[];
-  // Keep extraction typed and deterministic without coupling the gate to renderer internals.
+  if(!page)return{hrefs:[] as string[],shared:false,localNavigation:false};
+  const completeness=page.metadata?.accountCompleteness&&typeof page.metadata.accountCompleteness==='object'
+    ?page.metadata.accountCompleteness as Record<string,unknown>
+    :null;
+  const shared=completeness?.navigationAuthority==='shared-account-capabilities';
   const links:StorefrontTemplateLink[]=[];
+  let localNavigation=false;
   const visitLinks=(nodes:readonly StorefrontComponentNode[])=>{
     for(const node of nodes){
-      if(node.componentKey==='system.navigation'&&(node.config as Record<string,unknown>).presentation==='account-capability-demo')collectFromValue(node.config,'account.demoNavigation',node.id,links);
+      if(node.componentKey==='system.navigation'&&(node.config as Record<string,unknown>).presentation==='account-capability-demo'){
+        localNavigation=true;
+        collectFromValue(node.config,'account.demoNavigation',node.id,links);
+      }
       if(node.children?.length)visitLinks(node.children);
     }
   };
   visitLinks(page.sections);
-  return links.map(item=>item.href);
+  return{hrefs:shared?[...requiredAccountHrefs]:links.map(item=>item.href),shared,localNavigation};
 }
 
 export function createStorefrontTemplateShowroomEvidence(template:StorefrontInstallableTemplatePackage):readonly StorefrontShowroomEvidenceRow[]{
@@ -657,9 +664,10 @@ export function evaluateStorefrontTemplateShowroomContract(template:StorefrontIn
     if(row.entrypointPresent===false)issues.push(showroomIssue('SHOWROOM_ROUTE_PRESENTATION_UNMAPPED',`journeys.${row.surfaceId}`,`A(z) ${row.label} canonical shopper journeyhez nincs tényleges template entrypoint.`));
     if(previewPageForPath(pathnameFor(row.route).replace(':slug','demo'))!==row.pageType&&row.route!=='/__not-found__')issues.push(showroomIssue('SHOWROOM_ROUTE_PRESENTATION_UNMAPPED',`routes.${row.route}`,'A canonical route nincs ugyanahhoz a Page Schema/presentation authorityhez kötve a preview route registryben.'));
   }
-  const accountHrefs=accountDemoNavigationHrefs(template);
-  if(accountHrefs.length===0)issues.push(showroomIssue('SHOWROOM_ACCOUNT_NAVIGATION_EMPTY','pages.account','Az account demo nem tartalmaz canonical account capability navigációt.'));
-  for(const href of requiredAccountHrefs)if(!accountHrefs.includes(href))issues.push(showroomIssue('SHOWROOM_ACCOUNT_SURFACE_MISSING',`pages.account.${href}`,'A kötelező account capability hiányzik a template demóból.'));
+  const accountAuthority=accountCapabilityAuthority(template);
+  if(accountAuthority.hrefs.length===0)issues.push(showroomIssue('SHOWROOM_ACCOUNT_NAVIGATION_EMPTY','pages.account','Az account felület nincs canonical shared account capability authorityhoz kötve.'));
+  if(accountAuthority.shared&&accountAuthority.localNavigation)issues.push(showroomIssue('SHOWROOM_ACCOUNT_LOCAL_NAV_DUPLICATE','pages.account','Shared account capability authority mellett template-local Fiókom menü nem maradhat aktív.'));
+  for(const href of requiredAccountHrefs)if(!accountAuthority.hrefs.includes(href))issues.push(showroomIssue('SHOWROOM_ACCOUNT_SURFACE_MISSING',`pages.account.${href}`,'A kötelező account capability hiányzik a canonical shared account authorityból.'));
   const engines=engineDemoStatus(template);
   for(const engine of ['E1','E2','E7','E10','E13'] as const)if(engines.get(engine)!==true)issues.push(showroomIssue('SHOWROOM_ENGINE_DEMO_MISSING',`engines.${engine}`,`A(z) ${engine} shared engine nincs felismerhető, interaktív storefront-demóval reprezentálva.`));
   const serialized=JSON.stringify(template);
