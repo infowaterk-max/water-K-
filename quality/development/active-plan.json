@@ -5,7 +5,7 @@
   "status": "ready-for-implementation",
   "guardDigest": "PENDING",
   "plannedFilePatterns": [
-    "src/lib/builder/template-factory/procedural-memory.ts",
+    "src/lib/builder/template-factory/scaffold.ts",
     "src/lib/commerce/product-discovery.ts",
     "src/lib/commerce/structured-product.ts",
     "src/lib/content/story-engine.ts",
@@ -17,7 +17,8 @@
     "builder-template-system",
     "commerce-read-model-authority",
     "content-authority",
-    "shared-storefront"
+    "shared-storefront",
+    "storefront-ui"
   ],
   "expectedDomains": [
     "DOMAIN-BUILDER",
@@ -86,6 +87,6 @@
     "SQ-NK-012"
   ],
   "exceptions": [],
-  "notes": "Rebased onto canonical main after #528. Projection anchors are existing canonical files only; they are listed to let Plan Before Code classify the new registry and proof test. Do not edit E2/E7/E10 engine implementations or procedural-memory.ts in this batch. E13 remains browser-journey proof and checkout high-risk authority.",
+  "notes": "Rebased onto canonical main after #528. Projection anchors are existing canonical files only; they are listed to let Plan Before Code classify the new registry and proof test. Do not edit E2/E7/E10 engine implementations or scaffold.ts in this batch. E13 remains browser-journey proof and checkout high-risk authority. The scaffold anchor is intentionally non-knowledge-infrastructure so projection does not force an unrelated full replay.",
   "changeBaseSha": "ebc4ff91e93519e5a58a2fbb9726c96660209f32"
 }
