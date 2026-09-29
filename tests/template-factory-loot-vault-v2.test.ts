@@ -150,6 +150,24 @@ describe('Loot Vault v2 Factory canonical wiring',()=>{
     });
   });
 
+  it('keeps Favorites, Account and Cart utility icons canonical and identical across all Loot Vault pages',()=>{
+    const expected=[
+      {label:'Kedvenceim',href:'/kedvencek'},
+      {label:'Fiókom',href:'/fiokom'},
+      {label:'Kosár',href:'/kosar'},
+    ];
+    for(const page of LOOT_VAULT_V2_TEMPLATE_PACKAGE.pages){
+      const header=walk(page.sections).find(node=>node.componentKey==='system.commerce-header')!;
+      const items=(header.config.utilityItems??[]) as Array<{label?:string;href?:string}>;
+      expect(items.map(({label,href})=>({label,href})),page.pageType).toEqual(expected);
+    }
+    const renderer=readFileSync('src/components/builder/storefront-commerce-header.tsx','utf8');
+    expect(renderer).toContain('data-storefront-utility-icon="favorites"');
+    expect(renderer).toContain('data-storefront-utility-icon="account"');
+    expect(renderer).toContain('data-storefront-utility-icon="cart"');
+    expect(renderer).toContain("if(item.href==='/kedvencek'||item.href==='/fiokom/kivansaglista')return'favorites'");
+  });
+
   it('uses the shared tablet navigation disclosure on all 14 Loot Vault pages without creating a template-specific header branch',()=>{
     for(const page of LOOT_VAULT_V2_TEMPLATE_PACKAGE.pages){
       const header=walk(page.sections).find(node=>node.componentKey==='system.commerce-header')!;

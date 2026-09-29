@@ -69,12 +69,35 @@ function PreviewCheckoutSummary({config,node,viewport,routes}:{config:Record<str
   </section>;
 }
 
-export function StorefrontTemplatePreviewRuntime({page,viewport,bindingContext,capability,routes}:{page:StorefrontPageDocument;viewport:StorefrontViewport;bindingContext:Record<string,unknown>;capability?:StorefrontRuntimeCapabilityContext;routes:Routes}){
+const ACCOUNT_PREVIEW_STATES:Readonly<Record<string,{title:string;copy:string}>>=Object.freeze({
+  orders:{title:'Rendeléseim',copy:'Jelenleg nincs bemutató rendelésed. Az éles fiókban itt jelenik meg a saját rendelési előzményed.'},
+  letoltesek:{title:'Letöltéseim',copy:'Jelenleg nincs letölthető digitális tartalmad.'},
+  dokumentumok:{title:'Dokumentumaim',copy:'Jelenleg nincs megjeleníthető számlád vagy egyéb dokumentumod.'},
+  kivansaglista:{title:'Kívánságlista',copy:'Jelenleg nincs termék a kívánságlistádon.'},
+  wishlist:{title:'Kívánságlista',copy:'Jelenleg nincs termék a kívánságlistádon.'},
+  ugyek:{title:'Ügyeim',copy:'Jelenleg nincs folyamatban lévő ügyed.'},
+  cases:{title:'Ügyeim',copy:'Jelenleg nincs folyamatban lévő ügyed.'},
+  visszakuldes:{title:'Visszaküldés',copy:'Jelenleg nincs folyamatban lévő visszaküldésed.'},
+  profile:{title:'Fiókadatok',copy:'Itt kezelhetők a vásárlói és számlázási adatok.'},
+  marketing:{title:'Marketing beállítások',copy:'Itt adhatók meg a hírlevél- és marketing-hozzájárulások.'},
+});
+function PreviewAccountCapabilityState({view,viewport}:{view:string;viewport:StorefrontViewport}){
+  const state=ACCOUNT_PREVIEW_STATES[view];
+  if(!state)return null;
+  return <section data-storefront-preview-account-state={view} style={{marginTop:'1rem',padding:viewport==='mobile'?'1rem':'1.25rem',border:'1px solid var(--shoporation-color-border,#ddd)',borderRadius:'var(--shoporation-radius-m,.75rem)',background:'var(--shoporation-color-surface,#111)',display:'grid',gap:'.55rem'}}>
+    <small style={{letterSpacing:'.08em',textTransform:'uppercase',color:'var(--shoporation-color-muted-text,#777)'}}>Fiók</small>
+    <h2 style={{margin:0,fontFamily:'var(--shoporation-heading-font,serif)'}}>{state.title}</h2>
+    <p style={{margin:0,lineHeight:1.6,color:'var(--shoporation-color-muted-text,#777)'}}>{state.copy}</p>
+  </section>;
+}
+
+export function StorefrontTemplatePreviewRuntime({page,viewport,bindingContext,capability,routes,accountView}:{page:StorefrontPageDocument;viewport:StorefrontViewport;bindingContext:Record<string,unknown>;capability?:StorefrontRuntimeCapabilityContext;routes:Routes;accountView?:string}){
   const componentRegistry=createStorefrontVisualBuilderComponentRegistry();
   const rendererRegistry=createStorefrontVisualBuilderRendererRegistry();
   const decorateNode=(node:StorefrontResolvedComponentNode,rendered:ReactNode)=>{
     if(node.componentKey==='commerce.cart-summary')return <PreviewCartSummary config={node.config} node={node} viewport={viewport} routes={routes}/>;
     if(node.componentKey==='commerce.checkout-summary')return <PreviewCheckoutSummary config={node.config} node={node} viewport={viewport} routes={routes}/>;
+    if(page.pageType==='account'&&accountView&&node.componentKey==='system.navigation'&&node.config.presentation==='account-capability-demo')return <>{rendered}<PreviewAccountCapabilityState view={accountView} viewport={viewport}/></>;
     return rendered;
   };
   return <StorefrontRuntimeRenderer page={page} viewport={viewport} bindingContext={bindingContext} componentRegistry={componentRegistry} rendererRegistry={rendererRegistry} capability={capability} decorateNode={decorateNode}/>;

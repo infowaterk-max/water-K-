@@ -428,10 +428,33 @@ try{
     checks.routeConvergencePassed=Object.values(convergence).length>=9&&Object.values(convergence).every(Boolean);
     if(!checks.routeConvergencePassed)errors.push('MULTI_ENTRY_ROUTE_CONVERGENCE_NOT_PROVEN');
 
-    const accountRoot=await visitCandidate('account','account-capability-proof');
-    const accountLabels=['Rendeléseim','Letöltéseim','Dokumentumaim','Kívánságlista','Ügyeim','Visszaküldés','Fiókadatok','Marketing beállítások'];
-    checks.accountSurfacePassed=(await Promise.all(accountLabels.map(async label=>accountRoot.getByRole('link',{name:label,exact:true}).count()))).every(count=>count>0);
+    let accountRoot=await visitCandidate('account','account-capability-proof');
+    const accountTargets=[
+      ['Rendeléseim','orders'],['Letöltéseim','letoltesek'],['Dokumentumaim','dokumentumok'],['Kívánságlista','kivansaglista'],
+      ['Ügyeim','ugyek'],['Visszaküldés','visszakuldes'],['Fiókadatok','profile'],['Marketing beállítások','marketing'],
+    ];
+    checks.accountSurfacePassed=(await Promise.all(accountTargets.map(async([label,view])=>{
+      const link=accountRoot.getByRole('link',{name:label,exact:true}).first();
+      if(await link.count()!==1)return false;
+      const href=await link.getAttribute('href');
+      return Boolean(href&&new URL(href,page.url()).searchParams.get('accountView')===view);
+    }))).every(Boolean);
     if(!checks.accountSurfacePassed)errors.push('CANONICAL_ACCOUNT_SURFACES_NOT_PROVEN');
+    try{
+      const casesLink=accountRoot.getByRole('link',{name:'Ügyeim',exact:true}).first();
+      await Promise.all([
+        page.waitForURL(url=>candidatePageIdentity(url.toString(),'account')&&url.searchParams.get('accountView')==='ugyek',{timeout:15000}),
+        casesLink.click(),
+      ]);
+      accountRoot=await assertCandidatePage('account','account-cases-empty-state');
+      const emptyState=accountRoot.locator('[data-storefront-preview-account-state="ugyek"]');
+      await emptyState.waitFor({state:'visible',timeout:10000});
+      checks.accountInteractionPassed=(await emptyState.innerText()).includes('Jelenleg nincs folyamatban lévő ügyed');
+    }catch(error){
+      checks.accountInteractionPassed=false;
+      errors.push(`ACCOUNT_INTERACTION_NOT_PROVEN:${error instanceof Error?error.message:String(error)}`);
+    }
+    if(!checks.accountInteractionPassed&&!errors.some(item=>String(item).startsWith('ACCOUNT_INTERACTION_NOT_PROVEN')))errors.push('ACCOUNT_INTERACTION_NOT_PROVEN');
 
     const engineChecks={};
     let engineRoot=await visitCandidate('catalog','engine-e2');

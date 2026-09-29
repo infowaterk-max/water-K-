@@ -17,7 +17,7 @@ import {applyStorefrontTemplateDemoNotice,applyStorefrontTemplateOwnerShowroomNa
 import styles from './storefront-template-preview.module.css';
 
 export const dynamic='force-dynamic';
-type Props={searchParams:Promise<{template?:string;version?:string;page?:string;viewport?:string;embed?:string;demoContent?:string;factory?:string;variant?:string}>};
+type Props={searchParams:Promise<{template?:string;version?:string;page?:string;viewport?:string;embed?:string;demoContent?:string;factory?:string;variant?:string;accountView?:string}>};
 const widths=STOREFRONT_CANONICAL_VIEWPORT_WIDTH_PX;
 const allowedPageTypes=new Set<StorefrontBuilderPageType>(STOREFRONT_PAGE_TYPES);
 
@@ -101,6 +101,7 @@ export default async function StorefrontTemplatePreview({searchParams}:Props){
     params.set('viewport',viewport);
     params.delete('variant');
     params.delete('demoContent');
+    params.delete('accountView');
     if(factoryCandidate)params.set('factory','1');else params.delete('factory');
     return`/storefront-template-preview?${params.toString()}`;
   };
@@ -110,6 +111,7 @@ export default async function StorefrontTemplatePreview({searchParams}:Props){
     bindingContext={bindingContext}
     capability={previewCapability}
     routes={{catalog:previewRoute('catalog'),cart:previewRoute('cart'),checkout:previewRoute('checkout')}}
+    accountView={pageType==='account'?query.accountView:undefined}
   />;
   if(embed)return <main className={styles.embed} style={theme} data-template-preview="representative-demo" data-template-key={template.manifest.templateKey} data-template-version={template.manifest.templateVersion} data-factory-candidate={factoryCandidate?'true':'false'} data-template-recipe={recipeIdentity} data-compile-source={compileSource} data-foundation-template={foundationTemplate} data-source-commit={sourceCommit} data-page-type={pageType}>{content}</main>;
   const href=(next:StorefrontViewport)=>{

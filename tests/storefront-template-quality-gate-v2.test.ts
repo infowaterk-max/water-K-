@@ -51,6 +51,19 @@ describe('Template Factory Quality Gate v2',()=>{
     expect(STOREFRONT_CANONICAL_VIEWPORT_WIDTH_PX).toEqual({desktop:1200,tablet:768,mobile:390});
   });
 
+  it('preserves account subroute intent in template preview and proves a real empty state',()=>{
+    const route=read('src/lib/builder/storefront-template-route-integrity.ts');
+    const page=read('src/app/storefront-template-preview/page.tsx');
+    const previewRuntime=read('src/components/builder/storefront-template-preview-runtime.tsx');
+    const handoff=read('scripts/template-factory-product-owner-handoff.mjs');
+    expect(route).toContain("params.set('accountView',accountView)");
+    expect(page).toContain("accountView={pageType==='account'?query.accountView:undefined}");
+    expect(previewRuntime).toContain('data-storefront-preview-account-state');
+    expect(previewRuntime).toContain('Jelenleg nincs folyamatban lévő ügyed.');
+    expect(handoff).toContain('accountInteractionPassed');
+    expect(handoff).toContain('ACCOUNT_INTERACTION_NOT_PROVEN');
+  });
+
   it('requires Product Owner handoff to prove the interactive preview commerce journey fail-closed',()=>{
     const handoff=read('scripts/template-factory-product-owner-handoff.mjs');
     const previewRuntime=read('src/components/builder/storefront-template-preview-runtime.tsx');

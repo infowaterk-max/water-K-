@@ -184,6 +184,12 @@ function rewritePreviewHref(href:string,input:{templateKey:string;templateVersio
     viewport:input.viewport,
   });
   if(input.factoryCandidate)params.set('factory','1');
+  if(page==='account'){
+    const hashView:Record<string,string>={rendelesek:'orders',fiokadatok:'profile',marketing:'marketing'};
+    const nested=url.pathname.startsWith('/fiokom/')?url.pathname.slice('/fiokom/'.length):'';
+    const accountView=url.pathname==='/kedvencek'?'wishlist':nested||hashView[url.hash.replace(/^#/,'')]||'';
+    if(accountView)params.set('accountView',accountView);
+  }
   if(url.pathname.startsWith('/oldal/')||url.pathname.startsWith('/blog/')){
     const slug=url.pathname.split('/').filter(Boolean).at(-1);
     if(slug)params.set('demoContent',slug);
