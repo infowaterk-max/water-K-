@@ -60,6 +60,37 @@ export function CheckoutForm({shippingOptions,paymentOptions,freeShippingThresho
   async function refreshQuote(code=couponCode){
     if(!quoteItems.length||missingVariant){setQuote(null);setQuoteError(missingVariant?'A kosár egy régi, termékváltozat nélküli tételt tartalmaz. Töröld és tedd újra kosárba a terméket.':'');return null}
     setQuoteLoading(true);setQuoteError('');
+    if(acceptancePreview){
+      const lines:QuoteLine[]=cart.items.map(item=>({
+        variantId:item.variantId??item.productId,
+        productId:item.productId,
+        sku:item.variantId??item.productId,
+        name:item.name,
+        variantLabel:null,
+        quantity:item.quantity,
+        unitGrossHuf:item.unitPrice,
+        lineGrossHuf:item.unitPrice*item.quantity,
+        availableQuantity:Math.max(item.quantity,999),
+        minimumQuantity:item.minimumQuantity??1,
+        orderMultiple:item.orderMultiple??1,
+        channel:'b2c',
+      }));
+      const subtotalGross=lines.reduce((sum,item)=>sum+item.lineGrossHuf,0);
+      const shippingGross=shipping?.fee??0;
+      const q:Quote={
+        items:lines,
+        subtotal_gross_huf:subtotalGross,
+        discount_gross_huf:0,
+        shipping_gross_huf:shippingGross,
+        total_gross_huf:subtotalGross+shippingGross,
+        coupon_code:code||null,
+        fulfillment_mode:'physical',
+        requires_shipping:true,
+        physical_lines:lines.length,
+        digital_lines:0,
+      };
+      setQuote(q);setQuoteLoading(false);return q;
+    }
     try{
       const r=await fetch('/api/checkout/quote',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({shippingProvider:shipping?.code||undefined,couponCode:code||undefined,items:quoteItems})});
       const p=await r.json() as ({ok?:boolean;error?:string}&Partial<Quote>);
@@ -132,7 +163,7 @@ export function CheckoutForm({shippingOptions,paymentOptions,freeShippingThresho
   async function submit(e:React.FormEvent<HTMLFormElement>){
     e.preventDefault();
     const form=e.currentTarget;
-    if(acceptancePreview){setState('error');setError('Acceptance proof: a rendelés leadási kísérletét a rendszer blokkolta. Nem jött létre rendelés, nem indult fizetés, számlázás vagy szállítás.');return}
+    if(acceptancePreview){setState('error');setError('Előnézeti módban rendelés nem adható le.');return}
     if(submitting.current||!payment)return;
     if(requiresShipping&&!shipping){setActiveStep('shipping');setState('error');setError('A kosár fizikai terméket tartalmaz, ezért szállítási mód szükséges.');return}
     if(requiresShipping&&shipping?.kind==='parcel_point'&&!parcelPointId){setActiveStep('shipping');setPickupInvalid(true);setState('error');setError('Válassz átvételi pontot a rendelés leadása előtt.');return}
@@ -172,7 +203,7 @@ export function CheckoutForm({shippingOptions,paymentOptions,freeShippingThresho
   return <><div className={`${styles.root} checkoutLayout`} data-storefront-design-inheritance="current-theme" data-checkout-ux="guided-accordion" data-fulfillment-mode={quote?.fulfillment_mode??'unknown'} data-checkout-embedded={embedded?'true':'false'} data-checkout-acceptance={acceptancePreview?'preview':'live'}>
     <form ref={formRef} className="checkout-form" onSubmit={submit} onInput={clearFieldValidationFeedback} aria-busy={state==='sending'||quoteLoading}>
       {!embedded?<div className="checkoutHeading"><span className="eyebrow">Biztonságos rendelés</span><h1>Pénztár</h1><p className="muted">A végösszeget, készletet és teljesítési módot a rendelés előtt szerveroldalon újra ellenőrizzük. Kézbesítés → Fizetés → Összesítés; egyszerre csak az aktuális lépés van nyitva.</p></div>:null}
-      {acceptancePreview?<div className="partnerCheckoutBadge" role="status"><strong>Acceptance tesztmód</strong><span>A rendelés tényleges elküldése tiltva van; a szállítási, fizetési, kupon- és összesítési folyamat tesztelhető.</span></div>:null}
+      {acceptancePreview?<div className="partnerCheckoutBadge" role="status" data-storefront-commerce-preview="fail-closed"><strong>Előnézeti mód</strong><span>A kosár, szállítás, fizetés és összesítés teljes folyamata kipróbálható. A végleges rendelésleadás biztonságosan tiltott.</span></div>:null}{acceptancePreview&&state==='error'&&error==='Előnézeti módban rendelés nem adható le.'?<p role="status" data-storefront-preview-order-blocked="true" className="errorNotice">{error}</p>:null}
       {quote?.fulfillment_mode==='digital'&&<div className="partnerCheckoutBadge" role="status"><strong>Digitális kézbesítés</strong><span>Ehhez a kosárhoz nem kell fizikai szállítást választanod. Fizetés után a jogosult tartalmak a Dokumentumok és letöltések felületen érhetők el.</span></div>}
       {quote?.fulfillment_mode==='mixed'&&<div className="partnerCheckoutBadge" role="status"><strong>Vegyes rendelés</strong><span>A fizikai tételeket a választott módon szállítjuk; a digitális tartalmak a fizetés igazolása után külön hozzáférést kapnak.</span></div>}
       {commerceGroups.length?<div className="partnerCheckoutBadge" role="status"><strong>{commerceGroups.length} összeállítás megőrzése</strong><span>A csoportos kosártételek a rendelésben is együtt maradnak, miközben az ár és a készlet a véglegesítés előtt újra ellenőrzésre kerül.</span></div>:null}
@@ -213,11 +244,11 @@ export function CheckoutForm({shippingOptions,paymentOptions,freeShippingThresho
           <p className={styles.accessNotice} data-checkout-access-notice="compact"><strong>Dokumentumok és digitális tartalom:</strong> a nyilvános használati útmutatókat a termékoldalon, a vásárláshoz kötött fájlokat a Fiókom → Dokumentumaim / Letöltéseim felületen éred el. Vendég vásárlásnál a biztonságos hozzáférési linket e-mailben kapod meg.</p>
           <fieldset className="formSection" disabled={state==='sending'}><legend>Nyilatkozatok</legend><div className="legalConsentList"><label className="inlineCheck"><input type="checkbox" name="termsAccepted" checked={termsAccepted} onChange={e=>setTermsAccepted(e.target.checked)} required/><span>Elolvastam és elfogadom az <Link href="/aszf" target="_blank">ÁSZF-et</Link>.</span></label><label className="inlineCheck"><input type="checkbox" name="privacyAcknowledged" checked={privacyAcknowledged} onChange={e=>setPrivacyAcknowledged(e.target.checked)} required/><span>Tudomásul vettem az <Link href="/adatvedelem" target="_blank">adatkezelési tájékoztatót</Link>.</span></label></div></fieldset>
           {state==='error'&&error&&activeStep==='summary'&&<p className="errorNotice checkoutStepError" role="alert">{error}</p>}
-          <div className={styles.stepActions}><button className="btn btnGhost" type="button" onClick={()=>setActiveStep('payment')}>Vissza</button><button className="btn btnPrimary checkoutSubmit" type="submit" disabled={state==='sending'||quoteLoading||!quote||!termsAccepted||!privacyAcknowledged||!payment}>{acceptancePreview?'Acceptance · rendelésleadás tesztelése':state==='sending'?'Rendelés előkészítése…':quoteLoading?'Kosár ellenőrzése…':`Rendelés leadása · ${formatHuf(total)}`}</button></div>
+          <div className={styles.stepActions}><button className="btn btnGhost" type="button" onClick={()=>setActiveStep('payment')}>Vissza</button><button className="btn btnPrimary checkoutSubmit" type="submit" data-storefront-preview-order-submit={acceptancePreview?'true':undefined} disabled={state==='sending'||quoteLoading||!quote||!termsAccepted||!privacyAcknowledged||!payment}>{acceptancePreview?'Acceptance · rendelésleadás tesztelése':state==='sending'?'Rendelés előkészítése…':quoteLoading?'Kosár ellenőrzése…':`Rendelés leadása · ${formatHuf(total)}`}</button></div>
         </CheckoutAccordionStep>
       </div>
       {quoteError&&<p className="errorNotice" role="alert">{quoteError}</p>}
     </form>
-    <aside className="checkoutSummary card"><span className="eyebrow">Rendelésed</span><h2>Ellenőrzött összesítő</h2>{resellerApproved&&<div className="partnerSummaryBadge">B2B partnerár és rendelési szabályok</div>}{quote?.items.map(i=><div className="summaryLine" key={i.variantId}><span>{i.name}{i.variantLabel?` · ${i.variantLabel}`:''} × {i.quantity}{i.channel==='b2b'&&i.orderMultiple&&i.orderMultiple>1?` · egység: ${i.orderMultiple} db`:''}</span><strong>{formatHuf(i.lineGrossHuf)}</strong></div>)}{!quote&&<p className="muted">{quoteLoading?'A kosár ellenőrzése folyamatban…':'A kosár ellenőrzésre vár.'}</p>}<div className="summaryLine"><span>Termékek</span><strong>{formatHuf(subtotal)}</strong></div>{discount>0&&<div className="summaryLine"><span>Kedvezmény · {couponCode}</span><strong>−{formatHuf(discount)}</strong></div>}<div className="summaryLine"><span>Kézbesítés</span><strong>{requiresShipping?(deliveryFee===0?'Díjmentes':formatHuf(deliveryFee)):'Digitális · díjmentes'}</strong></div><div className="summaryTotal"><span>Fizetendő</span><strong>{formatHuf(total)}</strong></div>{requiresShipping&&freeShippingThreshold>0&&subtotal-discount<freeShippingThreshold&&shipping?.kind!=='pickup'&&<p className="shippingProgress">Még {formatHuf(freeShippingThreshold-(subtotal-discount))} a díjmentes szállításhoz.</p>}<div className="trustList"><span>✓ Ellenőrzött ár</span><span>✓ Ellenőrzött készlet</span><span>✓ Szerveroldali teljesítési és jogosultsági ellenőrzés</span></div></aside>
+    <aside className="checkoutSummary card"><span className="eyebrow">Rendelésed</span><h2>Ellenőrzött összesítő</h2>{resellerApproved&&<div className="partnerSummaryBadge">B2B partnerár és rendelési szabályok</div>}{quote?.items.map(i=><div className="summaryLine" key={i.variantId}><span>{i.name}{i.variantLabel?` · ${i.variantLabel}`:''} × {i.quantity}{i.channel==='b2b'&&i.orderMultiple&&i.orderMultiple>1?` · egység: ${i.orderMultiple} db`:''}</span><strong>{formatHuf(i.lineGrossHuf)}</strong></div>)}{!quote&&<p className="muted">{quoteLoading?'A kosár ellenőrzése folyamatban…':'A kosár ellenőrzésre vár.'}</p>}<div className="summaryLine"><span>Termékek</span><strong data-storefront-preview-subtotal>{formatHuf(subtotal)}</strong></div>{discount>0&&<div className="summaryLine"><span>Kedvezmény · {couponCode}</span><strong>−{formatHuf(discount)}</strong></div>}<div className="summaryLine"><span>Kézbesítés</span><strong data-storefront-preview-shipping-cost>{requiresShipping?(deliveryFee===0?'0 Ft':formatHuf(deliveryFee)):'0 Ft'}</strong></div><div className="summaryTotal"><span>Fizetendő</span><strong data-storefront-preview-grand-total>{formatHuf(total)}</strong></div>{requiresShipping&&freeShippingThreshold>0&&subtotal-discount<freeShippingThreshold&&shipping?.kind!=='pickup'&&<p className="shippingProgress">Még {formatHuf(freeShippingThreshold-(subtotal-discount))} a díjmentes szállításhoz.</p>}<div className="trustList"><span>✓ Ellenőrzött ár</span><span>✓ Ellenőrzött készlet</span><span>✓ Szerveroldali teljesítési és jogosultsági ellenőrzés</span></div></aside>
   </div><StorefrontAuthDialog open={authOpen} onClose={()=>setAuthOpen(false)} instanceId={instanceId} initialMode={authMode} title={authMode==='login'?'Belépés a vásárlás folytatásához':'Fiók létrehozása a vásárláshoz'} onAuthenticated={()=>{setAccountConnected(true);setAccountPromptDismissed(true);setAuthOpen(false)}}/></>;
 }
