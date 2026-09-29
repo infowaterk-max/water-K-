@@ -26,7 +26,9 @@ describe('customer account runtime hardening',()=>{
  });
  it('renders exactly one live account navigation authority',()=>{
   expect(shell).toMatch(/data-account-navigation-authority="platform-ia"/);
-  expect(shell).toMatch(/<aside className="storefrontAccountSidebar" aria-label="Fiók navigáció">\{fallbackNavigation\}<\/aside>/);
+  expect(shell).toContain('const navigationFor=(page?:StorefrontPageDocument|null)=>accountNavigationContext');
+  expect(shell).toContain('templateCapabilities={resolveTemplateAccountCapabilityOptIns(page?.metadata)}');
+  expect(shell).toMatch(/<aside className="storefrontAccountSidebar" aria-label="Fiók navigáció">\{navigationFor\(runtime\.page\)\}<\/aside>/);
   expect(shell).not.toMatch(/navSections\.length\?render\(navSections\):fallbackNavigation/);
   expect(subnav).toMatch(/data-account-navigation-source="platform-ia"/);
  });
