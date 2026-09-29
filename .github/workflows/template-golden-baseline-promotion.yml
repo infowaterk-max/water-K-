@@ -75,11 +75,16 @@ jobs:
           SHOPERATION_SOURCE_COMMIT: ${{ github.sha }}
           SHOPERATION_ENVIRONMENT: golden-promotion
         run: |
-          args=(artifacts/promotable-quality-evidence "${{ inputs.template_key }}" "${{ inputs.template_version }}" "${{ inputs.baseline_directory }}")
+          extra=()
           if [[ "${{ inputs.allow_accepted_golden_drift }}" == "true" ]]; then
-            args+=(--allow-golden-drift)
+            extra+=(--allow-golden-drift)
           fi
-          node scripts/shoperation-command-diagnostic.mjs -- node scripts/promote-template-golden-baseline.mjs "${args[@]}"
+          node scripts/shoperation-command-diagnostic.mjs -- node scripts/promote-template-golden-baseline.mjs \
+            artifacts/promotable-quality-evidence \
+            "${{ inputs.template_key }}" \
+            "${{ inputs.template_version }}" \
+            "${{ inputs.baseline_directory }}" \
+            "${extra[@]}"
 
       - name: Create golden promotion failure intake
         if: always() && (steps.evidence-provenance.outcome == 'failure' || steps.promote.outcome == 'failure')
