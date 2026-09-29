@@ -436,6 +436,11 @@ async function proveFactoryCommerceInteraction(browser,manifest){
     const parcel=checkoutRoot.getByRole('radio',{name:/Csomagpont/});
     await checkoutRoot.locator('label.choiceCard').filter({hasText:/Csomagpont/}).first().click();
     await page.waitForFunction(()=>document.querySelector('input[name="shippingProvider"]:checked')!==null,{timeout:5000});
+    await page.waitForFunction(({beforeShipping,beforeTotal})=>{
+      const shipping=document.querySelector('[data-storefront-preview-shipping-cost]')?.textContent?.trim();
+      const total=document.querySelector('[data-storefront-preview-grand-total]')?.textContent?.trim();
+      return Boolean(shipping&&total&&shipping!==beforeShipping&&total!==beforeTotal);
+    },{beforeShipping,beforeTotal},{timeout:5000});
     const afterShipping=(await checkoutRoot.locator('[data-storefront-preview-shipping-cost]').innerText()).trim();
     const afterTotal=(await checkoutRoot.locator('[data-storefront-preview-grand-total]').innerText()).trim();
     result.checks.shippingSelection=await parcel.isChecked();
@@ -457,8 +462,8 @@ async function proveFactoryCommerceInteraction(browser,manifest){
 
     const terms=checkoutRoot.getByRole('checkbox',{name:/Elolvastam és elfogadom/});
     const privacy=checkoutRoot.getByRole('checkbox',{name:/Tudomásul vettem/});
-    await terms.check();
-    await privacy.check();
+    await checkoutRoot.locator('label.inlineCheck').filter({hasText:/Elolvastam és elfogadom/}).first().click();
+    await checkoutRoot.locator('label.inlineCheck').filter({hasText:/Tudomásul vettem/}).first().click();
     result.checks.legalConsent=await terms.isChecked()&&await privacy.isChecked();
 
     const submit=checkoutRoot.locator('[data-storefront-preview-order-submit="true"]');
@@ -468,7 +473,7 @@ async function proveFactoryCommerceInteraction(browser,manifest){
     const blocked=checkoutRoot.locator('[data-storefront-preview-order-blocked="true"]');
     await blocked.waitFor({state:'visible',timeout:5000});
     await page.waitForTimeout(150);
-    result.checks.orderSubmissionFailClosed=(await blocked.innerText()).includes('Előnézeti módban rendelés nem adható le');
+    result.checks.orderSubmissionFailClosed=(await blocked.innerText()).trim()==='Acceptance proof: a rendelés leadási kísérletét a rendszer blokkolta.';
     result.checks.realOrderRequestAttempted=forbiddenCommerceMutations.some(item=>item.kind==='order');
     result.checks.realPaymentRequestAttempted=forbiddenCommerceMutations.some(item=>item.kind==='payment');
     result.checks.productionCommerceMutationRequestAttempted=forbiddenCommerceMutations.length>0;
@@ -494,6 +499,7 @@ async function proveFactoryCommerceInteraction(browser,manifest){
       &&result.checks.totalRecalculation===true
       &&result.checks.totalConsistency===true
       &&result.checks.paymentSelection===true
+      &&result.checks.legalConsent===true
       &&result.checks.orderSubmissionFailClosed===true
       &&result.checks.realOrderRequestAttempted===false
       &&result.checks.realPaymentRequestAttempted===false
