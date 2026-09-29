@@ -47,6 +47,11 @@ describe('Template Factory Quality Gate v2',()=>{
     expect(gate).toContain('priceUpdate');
     expect(gate).toContain('stockUpdate');
     expect(gate).toContain('totalConsistency');
+    expect(gate).toContain("getByPlaceholder('Írd be a választott automata vagy átvételi pont nevét / címét')");
+    expect(gate).toContain("name:'Tovább a fizetéshez'");
+    expect(gate).toContain("name:'Tovább az összesítéshez'");
+    expect(gate).toContain('legalConsent');
+    expect(gate).toContain('Acceptance proof: a rendelés leadási kísérletét a rendszer blokkolta.');
     expect(gate).toContain('productionCommerceMutationRequestAttempted');
     expect(gate).toContain("page.route('**/api/**'");
   });
