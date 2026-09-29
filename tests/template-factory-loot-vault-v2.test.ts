@@ -215,10 +215,11 @@ describe('Loot Vault v2 Factory canonical wiring',()=>{
     const {nodes:homeNodes}=byType('home');
     const universeGrid=homeNodes.find(node=>node.id==='loot-vault-loot-v2-universe-grid');
     expect((universeGrid?.config.style as Record<string,unknown>)?.mobile).toMatchObject({
-      gridAutoFlow:'column',
-      scrollSnapType:'x mandatory',
-      overflowX:'auto',
+      gridTemplateColumns:'repeat(2,minmax(0,1fr))',
+      overflowX:'visible',
     });
+    expect((universeGrid?.config.style as any)?.mobile?.gridAutoFlow).not.toBe('column');
+    expect((universeGrid?.config.style as any)?.mobile?.scrollSnapType??'').not.toBe('x mandatory');
     for(let index=1;index<=6;index++){
       const card=homeNodes.find(node=>node.id===`loot-vault-loot-v2-universe-${index}`);
       expect(card?.responsive?.mobile?.gridSpan).toBe(1);
