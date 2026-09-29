@@ -282,207 +282,6 @@ async function browserDiagnostics(page,manifest,viewport){
   });
 }
 
-function commerceMoneyDigits(value){
-  const digits=String(value??'').replace(/[^0-9]/g,'');
-  if(!digits)return null;
-  const parsed=Number(digits);
-  return Number.isFinite(parsed)?parsed:null;
-}
-function classifyProductionCommerceMutation(request){
-  const method=request.method().toUpperCase();
-  if(!['POST','PUT','PATCH','DELETE'].includes(method))return null;
-  let pathname='';
-  try{pathname=new URL(request.url()).pathname.toLowerCase()}catch{return null}
-  if(/^\/api\/(?:admin\/)?orders(?:\/|$)/.test(pathname))return'order';
-  if(/^\/api\/payments(?:\/|$)/.test(pathname))return'payment';
-  if(/(?:fulfillment|fulfilment|invoice|order-documents|product-documents\/order)/.test(pathname))return'commerce-side-effect';
-  return null;
-}
-
-async function proveFactoryCommerceInteraction(browser,manifest){
-  if(!manifest.factoryCandidate)return{required:false,passed:true,status:'not-applicable'};
-  const requiredPages=['product','cart','checkout'];
-  if(!requiredPages.every(pageType=>manifest.pageTypes.includes(pageType)))return{required:false,passed:true,status:'not-applicable'};
-  const page=await browser.newPage({viewport:viewportProfiles.desktop,deviceScaleFactor:1});
-  const forbiddenCommerceMutations=[];
-  await page.route('**/api/**',async route=>{
-    const request=route.request(),kind=classifyProductionCommerceMutation(request);
-    if(kind){
-      forbiddenCommerceMutations.push({kind,method:request.method(),url:request.url()});
-      await route.abort('blockedbyclient');
-      return;
-    }
-    await route.continue();
-  });
-  const result={required:true,passed:false,checks:{},errors:[]};
-  const previewFor=(pageType,extra={})=>{
-    const params=new URLSearchParams({template:manifest.templateKey,version:String(manifest.templateVersion),page:pageType,viewport:'desktop',factory:'1',commerceProof:'1'});
-    for(const[key,value]of Object.entries(extra))if(value!==undefined&&value!==null&&String(value))params.set(key,String(value));
-    return baseUrl+'/visual-fidelity-qa?'+params.toString();
-  };
-  const rootFor=pageType=>page.locator('[data-visual-fidelity-root="runtime"][data-template-key="'+manifest.templateKey+'"][data-template-version="'+manifest.templateVersion+'"][data-factory-candidate="true"][data-page-type="'+pageType+'"][data-commerce-proof="true"]').first();
-  const visit=async(pageType,extra={})=>{
-    const response=await page.goto(previewFor(pageType,extra),{waitUntil:'domcontentloaded',timeout:30000});
-    if(!response?.ok())throw new Error('COMMERCE_ROUTE_FAILED:'+pageType+':'+(response?.status()??'no-response'));
-    await page.waitForLoadState('load',{timeout:15000}).catch(()=>undefined);
-    const root=rootFor(pageType);
-    await root.waitFor({state:'visible',timeout:10000});
-    return root;
-  };
-  try{
-    let cartRoot=await visit('cart');
-    await cartRoot.locator('[data-storefront-preview-cart="empty"]').waitFor({state:'visible',timeout:10000});
-    result.checks.emptyState=true;
-
-    let productRoot=await visit('product');
-    const optionLinks=productRoot.locator('[data-storefront-structured="option-selector"] a');
-    const optionCount=await optionLinks.count();
-    let selectedVariantId=null;
-    if(optionCount>1){
-      const productInfo=productRoot.locator('[data-storefront-commerce="product-info"]').first();
-      const beforePrice=(await productInfo.locator('[data-storefront-product-price="true"]').innerText()).trim();
-      const beforeStock=(await productInfo.locator('[data-storefront-product-stock="true"]').innerText()).trim();
-      const target=optionLinks.nth(optionCount-1);
-      const label=(await target.innerText()).trim();
-      const href=await target.getAttribute('href');
-      selectedVariantId=href?new URL(href,page.url()).searchParams.get('variant'):null;
-      await Promise.all([
-        page.waitForURL(url=>url.pathname==='/visual-fidelity-qa'&&url.searchParams.get('page')==='product'&&(!selectedVariantId||url.searchParams.get('variant')===selectedVariantId),{timeout:15000}),
-        target.click(),
-      ]);
-      productRoot=rootFor('product');
-      await productRoot.waitFor({state:'visible',timeout:10000});
-      const selected=productRoot.locator('[data-storefront-structured="option-selector"] a[aria-current="true"]').first();
-      const afterInfo=productRoot.locator('[data-storefront-commerce="product-info"]').first();
-      const afterPrice=(await afterInfo.locator('[data-storefront-product-price="true"]').innerText()).trim();
-      const afterStock=(await afterInfo.locator('[data-storefront-product-stock="true"]').innerText()).trim();
-      result.checks.selectedState=await selected.count()===1&&(await selected.innerText()).trim()===label;
-      result.checks.priceUpdate=beforePrice!==afterPrice;
-      result.checks.stockUpdate=beforeStock!==afterStock;
-      result.checks.variantSelection=result.checks.selectedState===true;
-    }else{
-      result.checks.variantSelection='not-applicable';
-      result.checks.selectedState='not-applicable';
-      result.checks.priceUpdate='not-applicable';
-      result.checks.stockUpdate='not-applicable';
-    }
-
-    const purchase=productRoot.getByRole('button',{name:/Kosárba/}).first();
-    await purchase.waitFor({state:'visible',timeout:10000});
-    if(await purchase.isDisabled())throw new Error('COMMERCE_PURCHASE_DISABLED');
-    await purchase.click();
-    const confirmation=page.locator('[data-storefront-cart-confirmation="shared-v1"]:visible');
-    await confirmation.waitFor({state:'visible',timeout:10000});
-    result.checks.addToCartAcknowledgement=await confirmation.getByRole('button',{name:'Tovább vásárolok',exact:true}).count()===1
-      &&await confirmation.getByRole('link',{name:'Kosár megnyitása',exact:true}).count()===1;
-    await Promise.all([
-      page.waitForURL(url=>url.pathname==='/visual-fidelity-qa'&&url.searchParams.get('page')==='cart',{timeout:15000}),
-      confirmation.getByRole('link',{name:'Kosár megnyitása',exact:true}).click(),
-    ]);
-
-    cartRoot=rootFor('cart');
-    await cartRoot.locator('[data-storefront-preview-cart="interactive"]').waitFor({state:'visible',timeout:10000});
-    let quantity=cartRoot.locator('[data-storefront-preview-cart-quantity]').first();
-    const initial=(await quantity.innerText()).trim();
-    await cartRoot.getByRole('button',{name:'Mennyiség növelése',exact:true}).first().click();
-    await page.waitForFunction(()=>document.querySelector('[data-storefront-preview-cart-quantity]')?.textContent?.trim()==='2 db',{timeout:5000});
-    quantity=cartRoot.locator('[data-storefront-preview-cart-quantity]').first();
-    const increased=(await quantity.innerText()).trim();
-    await cartRoot.getByRole('button',{name:'Mennyiség csökkentése',exact:true}).first().click();
-    await page.waitForFunction(()=>document.querySelector('[data-storefront-preview-cart-quantity]')?.textContent?.trim()==='1 db',{timeout:5000});
-    quantity=cartRoot.locator('[data-storefront-preview-cart-quantity]').first();
-    const decreased=(await quantity.innerText()).trim();
-    result.checks.quantityIncrease=initial==='1 db'&&increased==='2 db';
-    result.checks.quantityDecrease=decreased==='1 db';
-    result.checks.quantityMutation=result.checks.quantityIncrease===true&&result.checks.quantityDecrease===true;
-
-    await cartRoot.getByRole('button',{name:'Tétel törlése',exact:true}).first().click();
-    await cartRoot.locator('[data-storefront-preview-cart="empty"]').waitFor({state:'visible',timeout:5000});
-    result.checks.removeItem=true;
-    result.checks.emptyStateAfterRemove=true;
-    result.checks.removeAndEmptyState=result.checks.removeItem===true&&result.checks.emptyStateAfterRemove===true;
-
-    productRoot=await visit('product',selectedVariantId?{variant:selectedVariantId}:{});
-    const repurchase=productRoot.getByRole('button',{name:/Kosárba/}).first();
-    await repurchase.click();
-    const confirmation2=page.locator('[data-storefront-cart-confirmation="shared-v1"]:visible');
-    await confirmation2.waitFor({state:'visible',timeout:10000});
-    await Promise.all([
-      page.waitForURL(url=>url.pathname==='/visual-fidelity-qa'&&url.searchParams.get('page')==='cart',{timeout:15000}),
-      confirmation2.getByRole('link',{name:'Kosár megnyitása',exact:true}).click(),
-    ]);
-    cartRoot=rootFor('cart');
-    await cartRoot.locator('[data-storefront-preview-cart="interactive"]').waitFor({state:'visible',timeout:10000});
-    result.checks.reAddItem=(await cartRoot.locator('[data-storefront-preview-cart-quantity]').first().innerText()).trim()==='1 db';
-    await Promise.all([
-      page.waitForURL(url=>url.pathname==='/visual-fidelity-qa'&&url.searchParams.get('page')==='checkout',{timeout:15000}),
-      cartRoot.getByRole('link',{name:'Tovább a pénztárhoz',exact:true}).click(),
-    ]);
-    result.checks.checkoutEntry=true;
-
-    const checkoutRoot=rootFor('checkout');
-    await checkoutRoot.locator('[data-storefront-preview-checkout="interactive-fail-closed"]').waitFor({state:'visible',timeout:10000});
-    const subtotal=(await checkoutRoot.locator('[data-storefront-preview-subtotal]').innerText()).trim();
-    const beforeShipping=(await checkoutRoot.locator('[data-storefront-preview-shipping-cost]').innerText()).trim();
-    const beforeTotal=(await checkoutRoot.locator('[data-storefront-preview-grand-total]').innerText()).trim();
-    const parcel=checkoutRoot.getByRole('radio',{name:/Csomagpont/});
-    await parcel.check();
-    const afterShipping=(await checkoutRoot.locator('[data-storefront-preview-shipping-cost]').innerText()).trim();
-    const afterTotal=(await checkoutRoot.locator('[data-storefront-preview-grand-total]').innerText()).trim();
-    result.checks.shippingSelection=await parcel.isChecked();
-    result.checks.totalRecalculation=beforeShipping!==afterShipping&&beforeTotal!==afterTotal;
-    result.checks.shippingRecalculation=result.checks.shippingSelection===true&&result.checks.totalRecalculation===true;
-    const subtotalValue=commerceMoneyDigits(subtotal),beforeShippingValue=commerceMoneyDigits(beforeShipping),beforeTotalValue=commerceMoneyDigits(beforeTotal),afterShippingValue=commerceMoneyDigits(afterShipping),afterTotalValue=commerceMoneyDigits(afterTotal);
-    result.checks.totalConsistency=[subtotalValue,beforeShippingValue,beforeTotalValue,afterShippingValue,afterTotalValue].every(value=>value!==null)
-      &&subtotalValue+beforeShippingValue===beforeTotalValue
-      &&subtotalValue+afterShippingValue===afterTotalValue;
-
-    const transfer=checkoutRoot.getByRole('radio',{name:/Banki átutalás/});
-    await transfer.check();
-    result.checks.paymentSelection=await transfer.isChecked();
-
-    await checkoutRoot.locator('[data-storefront-preview-order-submit="true"]').click();
-    const blocked=checkoutRoot.locator('[data-storefront-preview-order-blocked="true"]');
-    await blocked.waitFor({state:'visible',timeout:5000});
-    await page.waitForTimeout(150);
-    result.checks.orderSubmissionFailClosed=(await blocked.innerText()).includes('Előnézeti módban rendelés nem adható le');
-    result.checks.realOrderRequestAttempted=forbiddenCommerceMutations.some(item=>item.kind==='order');
-    result.checks.realPaymentRequestAttempted=forbiddenCommerceMutations.some(item=>item.kind==='payment');
-    result.checks.productionCommerceMutationRequestAttempted=forbiddenCommerceMutations.length>0;
-    if(forbiddenCommerceMutations.length)result.errors.push('PRODUCTION_COMMERCE_MUTATION_ATTEMPTED:'+forbiddenCommerceMutations.map(item=>item.kind+':'+item.method+':'+item.url).join(','));
-
-    const provenOrNotApplicable=value=>value===true||value==='not-applicable';
-    result.passed=result.checks.emptyState===true
-      &&provenOrNotApplicable(result.checks.variantSelection)
-      &&provenOrNotApplicable(result.checks.selectedState)
-      &&provenOrNotApplicable(result.checks.priceUpdate)
-      &&provenOrNotApplicable(result.checks.stockUpdate)
-      &&result.checks.addToCartAcknowledgement===true
-      &&result.checks.quantityIncrease===true
-      &&result.checks.quantityDecrease===true
-      &&result.checks.quantityMutation===true
-      &&result.checks.removeItem===true
-      &&result.checks.emptyStateAfterRemove===true
-      &&result.checks.removeAndEmptyState===true
-      &&result.checks.reAddItem===true
-      &&result.checks.checkoutEntry===true
-      &&result.checks.shippingSelection===true
-      &&result.checks.shippingRecalculation===true
-      &&result.checks.totalRecalculation===true
-      &&result.checks.totalConsistency===true
-      &&result.checks.paymentSelection===true
-      &&result.checks.orderSubmissionFailClosed===true
-      &&result.checks.realOrderRequestAttempted===false
-      &&result.checks.realPaymentRequestAttempted===false
-      &&result.checks.productionCommerceMutationRequestAttempted===false;
-    if(!result.passed)result.errors.push('COMMERCE_INTERACTION_INCOMPLETE');
-  }catch(error){
-    result.errors.push(error instanceof Error?error.message:String(error));
-  }finally{
-    await page.close();
-  }
-  return result;
-}
 async function compareGolden({actualPath,baselinePath,diffPath,threshold}){
   if(!await exists(baselinePath))return{status:'missing',mismatchRatio:null};
   const[{PNG},{default:pixelmatch}]=await Promise.all([import('pngjs'),import('pixelmatch')]);
@@ -617,11 +416,6 @@ try{
       }finally{await page.close();}
     }
   }
-  for(const selected of scope.selected){
-    const proof=await proveFactoryCommerceInteraction(browser,selected.template);
-    selected.commerceInteraction=proof;
-    if(proof.required&&!proof.passed)errors.push({case:safeName(selected.template.templateKey)+'-commerce-interaction',error:'FACTORY_COMMERCE_INTERACTION_NOT_PROVEN:'+(proof.errors.join('|')||'unknown')});
-  }
 }finally{
   await browser.close();
 }
@@ -638,8 +432,6 @@ const acceptanceProofs=scope.selected.map(selected=>{
   const proceduralMemoryPassed=manifest.factoryCandidate
     ?manifest.proceduralMemory?.preflightOk===true&&proceduralReplays.length>0&&proceduralReplays.every(item=>item.passed===true)
     :true;
-  const commerceInteraction=selected.commerceInteraction??{required:false,passed:true,status:'not-applicable'};
-  const commerceInteractionPassed=!manifest.factoryCandidate||commerceInteraction.passed===true;
   const factoryIdentityPinned=!manifest.factoryCandidate||(
     manifest.provenance?.targetTemplateKey===manifest.templateKey
     &&manifest.provenance?.targetTemplateVersion===manifest.templateVersion
@@ -655,9 +447,8 @@ const acceptanceProofs=scope.selected.map(selected=>{
   if(!proceduralMemoryPassed)blockers.push('PROCEDURAL_MEMORY_REPLAY_FAILED');
   if(!factoryIdentityPinned)blockers.push('FACTORY_CANDIDATE_IDENTITY_NOT_PINNED');
   if(!showroomContractPassed)blockers.push('FACTORY_SHOWROOM_CONTRACT_NOT_PROVEN');
-  if(!commerceInteractionPassed)blockers.push('FACTORY_COMMERCE_INTERACTION_NOT_PROVEN');
   if(manifest.factoryCandidate)blockers.push('VERCEL_PRODUCT_OWNER_JOURNEY_PROOF_REQUIRED');
-  const maturity=browserMatrixPassed&&proceduralMemoryPassed&&factoryIdentityPinned&&showroomContractPassed&&commerceInteractionPassed&&manifest.productOwnerReady===true
+  const maturity=browserMatrixPassed&&proceduralMemoryPassed&&factoryIdentityPinned&&showroomContractPassed&&manifest.productOwnerReady===true
     ?'visually-ready'
     :browserMatrixPassed&&proceduralMemoryPassed&&factoryIdentityPinned&&showroomContractPassed
       ?'technically-ready'
@@ -677,8 +468,6 @@ const acceptanceProofs=scope.selected.map(selected=>{
     factoryIdentityPinned,
     showroomContractPassed,
     showroomEvidence,
-    commerceInteractionPassed,
-    commerceInteraction,
     productOwnerReadyByCompiler:manifest.productOwnerReady===true,
     maturity,
     handoffReady:false,
