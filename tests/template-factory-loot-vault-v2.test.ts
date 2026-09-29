@@ -131,6 +131,19 @@ describe('Loot Vault v2 Factory canonical wiring',()=>{
     });
   });
 
+  it('anchors universe labels to their cards and keeps mobile header controls touch-safe',()=>{
+    const home=LOOT_VAULT_V2_TEMPLATE_PACKAGE.pages.find(item=>item.pageType==='home')!;
+    const nodes=walk(home.sections);
+    for(let index=1;index<=6;index++){
+      const card=nodes.find(node=>node.id===`loot-vault-loot-v2-universe-${index}`)!;
+      expect((card.config.style as any)?.base?.position).toBe('relative');
+    }
+    const header=nodes.find(node=>node.componentKey==='system.commerce-header')!;
+    expect((header.config.styleSlots as any)?.utilityItem?.mobile).toMatchObject({minWidth:'2.75rem',minHeight:'2.75rem'});
+    const search=nodes.find(node=>node.componentKey==='system.search')!;
+    expect((search.config.style as any)?.height).toBe('2.875rem');
+  });
+
   it('keeps the core Loot Vault commerce assortment visually diverse',()=>{
     const home=LOOT_VAULT_V2_TEMPLATE_PACKAGE.pages.find(page=>page.pageType==='home');
     const catalog=LOOT_VAULT_V2_TEMPLATE_PACKAGE.pages.find(page=>page.pageType==='catalog');
