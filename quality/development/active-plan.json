@@ -3,7 +3,7 @@
   "taskId": "DEV-LOOT-VAULT-V2-PO-CLOSURE",
   "task": "Close Loot Vault v2 Product Owner defects by repairing the shared product gallery interaction, template-aware cart presentation, account/collection presentation, and product preview route continuity with executable behavior proof.",
   "status": "ready-for-implementation",
-  "guardDigest": "7b0d15c7",
+  "guardDigest": "0aa869dc",
   "plannedFilePatterns": [
     "src/components/builder/storefront-product-gallery.tsx",
     "src/components/builder/storefront-commerce.tsx",
