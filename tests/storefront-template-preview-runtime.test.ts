@@ -43,6 +43,10 @@ describe('storefront template preview runtime',()=>{
     expect(previewRuntime).toContain('<AccountSubnav showLoyalty showB2BOrganization showB2BQuotes');
     expect(previewRuntime).toContain('splitStorefrontAccountTemplateSections(page)');
     expect(previewRuntime).toContain('resolveAccountCapabilityPreviewView(url.toString())');
+    expect(previewRuntime).toContain('const navigatePreview=(event:MouseEvent<HTMLDivElement>,href:string)=>');
+    expect(previewRuntime).toContain('event.nativeEvent.stopImmediatePropagation()');
+    expect(previewRuntime).toContain('navigatePreview(event,routes.cart)');
+    expect(previewRuntime).toContain('navigatePreview(event,routes.checkout)');
   });
 
   it('resolves tenant-free template-aware account presentation for every accepted previewable template',()=>{

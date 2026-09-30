@@ -108,14 +108,18 @@ export function StorefrontTemplatePreviewRuntime({page,viewport,bindingContext,c
     if(node.componentKey==='commerce.checkout-summary')return <PreviewCheckoutCommerceSurface/>;
     return rendered;
   };
+  const navigatePreview=(event:MouseEvent<HTMLDivElement>,href:string)=>{
+    event.preventDefault();
+    event.stopPropagation();
+    event.nativeEvent.stopImmediatePropagation();
+    window.location.assign(href);
+  };
   const interceptPreviewRoute=(event:MouseEvent<HTMLDivElement>)=>{
     const target=event.target;
     if(!(target instanceof Element))return;
     const accountTrigger=target.closest('button[aria-label="Fiókom"]');
     if(accountTrigger){
-      event.preventDefault();
-      event.stopPropagation();
-      window.location.assign(routes.account);
+      navigatePreview(event,routes.account);
       return;
     }
     const anchor=target.closest('a[href]');
@@ -123,28 +127,24 @@ export function StorefrontTemplatePreviewRuntime({page,viewport,bindingContext,c
     const url=new URL(anchor.href,window.location.href);
     if(url.origin!==window.location.origin)return;
     if(url.pathname==='/fiokom'||url.pathname.startsWith('/fiokom/')||url.pathname==='/kedvencek'){
-      event.preventDefault();
       const accountUrl=new URL(routes.account,window.location.href);
       const nextView=resolveAccountCapabilityPreviewView(url.toString());
       if(nextView)accountUrl.searchParams.set('accountView',nextView);else accountUrl.searchParams.delete('accountView');
-      window.location.assign(`${accountUrl.pathname}${accountUrl.search}${accountUrl.hash}`);
+      navigatePreview(event,`${accountUrl.pathname}${accountUrl.search}${accountUrl.hash}`);
       return;
     }
     if(url.pathname==='/kosar'){
-      event.preventDefault();
-      window.location.assign(routes.cart);
+      navigatePreview(event,routes.cart);
       return;
     }
     if(url.pathname==='/penztar'){
-      event.preventDefault();
-      window.location.assign(routes.checkout);
+      navigatePreview(event,routes.checkout);
       return;
     }
     if(interactionBasePath&&url.pathname==='/storefront-template-preview'){
-      event.preventDefault();
       const params=new URLSearchParams(url.search);
       params.set('commerceProof','1');
-      window.location.assign(`${interactionBasePath}?${params.toString()}`);
+      navigatePreview(event,`${interactionBasePath}?${params.toString()}`);
     }
   };
   const renderPage=(document:StorefrontPageDocument)=><StorefrontRuntimeRenderer page={document} viewport={viewport} bindingContext={bindingContext} componentRegistry={componentRegistry} rendererRegistry={rendererRegistry} capability={capability} decorateNode={decorateNode}/>;
