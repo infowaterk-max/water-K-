@@ -205,6 +205,15 @@ for(const item of inputs){
     knownFailureId,
     failureHistory:matchedKnown?'known-failure-class':'unclassified',
     classificationStatus,
+    learningReview:{
+      required:classificationStatus!=='matched-known-failure',
+      status:classificationStatus==='matched-known-failure'?'covered-by-existing-knowledge':'pending-missed-thinking-review',
+      question:'If this state was reasonably foreseeable, identify the earliest missed OBSERVE/MODEL/CHALLENGE/PROVE_PLAN/TRUTH_GATE step and strengthen the existing authority that should have caught it.',
+      earliestPreventablePhase:null,
+      missedReason:null,
+      authorityTarget:null,
+      noDefectLocalGate:true,
+    },
   });
 }
 
@@ -233,6 +242,6 @@ writeFileSync(`${outputDir}/failure-intake.md`,[
   `Environment: ${environment??'unknown'}`,
   `CI run: ${ciRunId??'unknown'}`,
   '',
-  ...records.map(r=>`- ${r.failureFingerprint} / ${r.candidateId} — ${r.classificationStatus} — ${r.rawErrorCode} — ${r.reason}${r.file?` — file=${r.file}`:''}${r.route?` — route=${r.route}`:''}${r.knownFailureId?` → ${r.knownFailureId}`:''}`),
+  ...records.map(r=>`- ${r.failureFingerprint} / ${r.candidateId} — ${r.classificationStatus} — ${r.rawErrorCode} — ${r.reason}${r.file?` — file=${r.file}`:''}${r.route?` — route=${r.route}`:''}${r.knownFailureId?` → ${r.knownFailureId}`:''}${r.learningReview.required?' — LEARN review required':''}`),
 ].join('\n')+'\n');
 console.log(JSON.stringify({records:records.length,unresolved:report.unresolved.length,matchedKnown:records.filter(r=>r.classificationStatus==='matched-known-failure').length,commit:sourceCommit,run:ciRunId},null,2));
