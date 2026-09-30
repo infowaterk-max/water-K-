@@ -69,29 +69,24 @@ export function StorefrontProductGallery({
     data-product-gallery-thumbnails={vertical?'vertical':'horizontal'}
     style={{
       display:'grid',
-      gridTemplateColumns:vertical?'1fr':`repeat(${Math.max(1,visible.length)},minmax(0,1fr))`,
+      gridTemplateColumns:vertical?'1fr':left?'repeat(4,minmax(0,1fr))':`repeat(${Math.max(1,visible.length)},minmax(0,1fr))`,
       gap:'.5rem',
       ...styleSlots.thumbnails,
     }}
   >
     {visible.map((item,index)=>{
       const active=index===resolvedIndex;
-      return <button
+      return <a
         key={`${item.src}:${index}`}
         data-product-gallery-thumbnail={index}
-        type="button"
-        aria-label={`${index+1}. termékkép kiválasztása`}
-        aria-controls="product-main"
-        aria-pressed={active}
-        onClick={()=>setSelectedIndex(index)}
+        href={index===0?'#product-main':`#product-image-${index+1}`}
+        aria-label={`${index+1}. termékkép`}
+        aria-current={active?'true':undefined}
+        onClick={event=>{event.preventDefault();setSelectedIndex(index)}}
         style={{
           display:'block',
-          width:'100%',
-          padding:0,
-          cursor:'pointer',
           aspectRatio:'1 / 1',
           border:active?'1px solid var(--shoporation-color-text,#111)':'1px solid var(--shoporation-color-border,#ddd)',
-          background:'var(--shoporation-color-surface-muted,transparent)',
           overflow:'hidden',
           ...styleSlots.thumbnail,
           ...(active?styleSlots.thumbnailActive:{}),
@@ -99,8 +94,7 @@ export function StorefrontProductGallery({
       >
         <img
           src={item.src}
-          alt=""
-          aria-hidden="true"
+          alt={item.alt}
           loading={index===0?'eager':'lazy'}
           style={{
             display:'block',
@@ -112,7 +106,7 @@ export function StorefrontProductGallery({
             ...styleSlots.thumbnailImage,
           }}
         />
-      </button>;
+      </a>;
     })}
   </div>:null;
 
