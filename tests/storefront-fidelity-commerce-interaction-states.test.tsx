@@ -6,7 +6,7 @@ import {createStorefrontCoreCommerceComponentRegistry} from '@/lib/builder/store
 import type {StorefrontPageDocument} from '@/lib/builder/storefront-runtime';
 import {storefrontInteractionTargetsForComponent} from '@/lib/builder/storefront-fidelity-interaction-state';
 
-const page=():StorefrontPageDocument=>({
+const page=(thumbnailPosition:'left'|'bottom'='left'):StorefrontPageDocument=>({
   schemaVersion:1,
   pageKey:'interaction.product',
   pageType:'product',
@@ -15,7 +15,7 @@ const page=():StorefrontPageDocument=>({
   sections:[{
     id:'interaction-section',componentKey:'layout.section',componentVersion:1,config:{tone:'background',spacing:'m'},children:[
       {id:'grid',componentKey:'commerce.product-grid',componentVersion:1,config:{products:[{id:'p1',name:'Termék',href:'/termek/p1',image:'/p1.jpg',price:1000}],showCta:true,styleSlots:{cardLinkHover:{desktop:{color:'#006644',textDecoration:'underline'}}}}},
-      {id:'gallery',componentKey:'commerce.product-gallery',componentVersion:1,config:{images:[{src:'/p1.jpg',alt:'Termék'}],presentation:'editorial-thumbnails',styleSlots:{thumbnailFocus:{desktop:{boxShadow:'0 0 0 3px #55aaff'}}}}},
+      {id:'gallery',componentKey:'commerce.product-gallery',componentVersion:1,config:{images:[{src:'/p1.jpg',alt:'Termék'},{src:'/p2.jpg',alt:'Termék részlet'}],presentation:'editorial-thumbnails',thumbnailPosition,styleSlots:{thumbnailFocus:{desktop:{boxShadow:'0 0 0 3px #55aaff'}}}}},
       {id:'variant',componentKey:'commerce.variant-swatches',componentVersion:1,config:{presentation:'chips',options:[{id:'v1',label:'Készlet',href:'/termek/p1?v=v1',available:true},{id:'v2',label:'Elfogyott',available:false}],styleSlots:{optionHover:{desktop:{transform:'translateY(-1px)'}},optionDisabled:{desktop:{opacity:.2}}}}},
       {id:'tabs',componentKey:'commerce.content-tabs',componentVersion:1,config:{tabs:[{id:'details',label:'Részletek',title:'Részletek',copy:'Leírás'}],styleSlots:{tabActive:{desktop:{backgroundColor:'#eeeeee'}}}}},
     ],
@@ -46,5 +46,30 @@ describe('Storefront commerce interaction state bridge',()=>{
     expect(html).toContain('--shoporation-interaction-active-background-color:#eeeeee');
     expect(html).toContain('aria-disabled="true"');
     expect(html).toContain('/termek/p1?v=v1');
+  });
+
+  it('preserves declared thumbnail position without template-specific renderer forks',()=>{
+    const render=(document:StorefrontPageDocument,viewport:'desktop'|'mobile')=>renderToStaticMarkup(<StorefrontRuntimeRenderer
+      page={document}
+      viewport={viewport}
+      bindingContext={{}}
+      componentRegistry={createStorefrontCoreCommerceComponentRegistry()}
+      rendererRegistry={createStorefrontCoreCommerceRendererRegistry()}
+      capability={{plan:'alap',features:['catalog','inventory']}}
+    />);
+    const leftDesktop=render(page('left'),'desktop');
+    expect(leftDesktop).toContain('data-thumbnail-position="left"');
+    expect(leftDesktop).toContain('data-product-gallery-thumbnails="vertical"');
+    expect(leftDesktop).toContain('data-gallery-interaction="thumbnail-selects-main"');
+    expect(leftDesktop).toContain('data-product-gallery-main-image="true"');
+    expect(leftDesktop).toContain('data-product-gallery-thumbnail="0"');
+    expect(leftDesktop).toContain('aria-current="true"');
+    expect(leftDesktop).toContain('href="#product-image-2"');
+    expect(leftDesktop).toContain('grid-template-columns:clamp(3.1rem,7vw,4.5rem) minmax(0,1fr)');
+    const bottomDesktop=render(page('bottom'),'desktop');
+    expect(bottomDesktop).toContain('data-thumbnail-position="bottom"');
+    expect(bottomDesktop).toContain('data-product-gallery-thumbnails="horizontal"');
+    const leftMobile=render(page('left'),'mobile');
+    expect(leftMobile).toContain('data-product-gallery-thumbnails="horizontal"');
   });
 });

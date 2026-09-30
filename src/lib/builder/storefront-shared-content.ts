@@ -27,6 +27,19 @@ export const STOREFRONT_SHARED_CONTENT_COMPONENT_DEFINITIONS:readonly Storefront
   {
     manifest:defineStorefrontBuilderComponent({
       foundationVersion:STOREFRONT_BUILDER_FOUNDATION_VERSION,
+      componentKey:'content.accordion',
+      componentVersion:1,
+      schemaSlot:'children',
+      pageTypes:['faq','content','legal','product'],
+      configurable:['items','defaultOpenIndex','presentation','styleSlots'],
+      responsiveMode:'grid',
+      capability:{minPlan:'alap',features:[]},
+    }),
+    bindingSlots:['items'],
+  },
+  {
+    manifest:defineStorefrontBuilderComponent({
+      foundationVersion:STOREFRONT_BUILDER_FOUNDATION_VERSION,
       componentKey:'editorial.before-after',
       componentVersion:1,
       schemaSlot:'children',

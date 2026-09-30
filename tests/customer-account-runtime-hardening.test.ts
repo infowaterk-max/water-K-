@@ -5,6 +5,7 @@ const account=fs.readFileSync('src/app/fiokom/page.tsx','utf8');
 const css=fs.readFileSync('src/app/account-workflow.css','utf8');
 const runtime=fs.readFileSync('src/lib/builder/storefront-runtime-source.ts','utf8');
 const shell=fs.readFileSync('src/components/account/storefront-account-shell.tsx','utf8');
+const workspace=fs.readFileSync('src/components/account/storefront-account-workspace.tsx','utf8');
 const subnav=fs.readFileSync('src/components/account/account-subnav.tsx','utf8');
 const migration=fs.readFileSync('supabase/migrations/20260921164500_customer_account_browser_grants.sql','utf8');
 const baseline=fs.readFileSync('supabase/customer-baseline/migrations/0042_customer_account_browser_grants.sql','utf8');
@@ -25,8 +26,11 @@ describe('customer account runtime hardening',()=>{
   }
  });
  it('renders exactly one live account navigation authority',()=>{
-  expect(shell).toMatch(/data-account-navigation-authority="platform-ia"/);
-  expect(shell).toMatch(/<aside className="storefrontAccountSidebar" aria-label="Fiók navigáció">\{fallbackNavigation\}<\/aside>/);
+  expect(workspace).toMatch(/data-account-navigation-authority="platform-ia"/);
+  expect(shell).toContain('const navigationFor=(page?:StorefrontPageDocument|null)=>accountNavigationContext');
+  expect(shell).toContain('templateCapabilities={resolveTemplateAccountCapabilityOptIns(page?.metadata)}');
+  expect(shell).toContain('<StorefrontAccountWorkspace navigation={navigationFor(runtime.page)}>');
+  expect(workspace).toMatch(/<aside className="storefrontAccountSidebar" aria-label="Fiók navigáció">\{navigation\}<\/aside>/);
   expect(shell).not.toMatch(/navSections\.length\?render\(navSections\):fallbackNavigation/);
   expect(subnav).toMatch(/data-account-navigation-source="platform-ia"/);
  });

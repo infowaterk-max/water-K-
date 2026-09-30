@@ -1,4 +1,3 @@
-import{AccountSubnav}from'@/components/account/account-subnav';
 import{StorefrontAccountShell}from'@/components/account/storefront-account-shell';
 import{createAdminClient}from'@/lib/supabase/admin';
 import{createClient}from'@/lib/supabase/server';
@@ -19,6 +18,5 @@ export default async function AccountLayout({children}:{children:React.ReactNode
   showB2BOrganization=Boolean(relation?.b2b_account_id);
   showB2BQuotes=relation?.role==='reseller'&&relation?.reseller_approved===true;
  }
- const fallback=<AccountSubnav showLoyalty={showLoyalty} showB2BOrganization={showB2BOrganization} showB2BQuotes={showB2BQuotes}/>;
- return <StorefrontAccountShell customerId={user?.id??null} fallbackNavigation={fallback}>{children}</StorefrontAccountShell>;
+ return <StorefrontAccountShell customerId={user?.id??null} fallbackNavigation={null} accountNavigationContext={{showLoyalty,showB2BOrganization,showB2BQuotes}}>{children}</StorefrontAccountShell>;
 }

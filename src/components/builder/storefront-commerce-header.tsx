@@ -24,9 +24,10 @@ function SearchIcon(){
   return <span aria-hidden="true" style={{position:'absolute',left:'50%',top:'50%',width:'1.5rem',height:'1.5rem',display:'grid',placeItems:'center',lineHeight:0,transform:'translate(-50%,-50%)',pointerEvents:'none'}}><svg data-storefront-search-icon="true" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{display:'block'}}><circle cx="10.5" cy="10.5" r="6.5"/><path d="m15.4 15.4 4.6 4.6"/></svg></span>;
 }
 
-type UtilityItem={label:string;href:string;symbol:string;count:string};
 type UtilityKind='favorites'|'account'|'cart'|'custom';
+type UtilityItem={label:string;href:string;symbol:string;count:string;kind:UtilityKind};
 const utilityKind=(item:UtilityItem):UtilityKind=>{
+  if(item.kind!=='custom')return item.kind;
   if(item.href==='/kedvencek'||item.href==='/fiokom/kivansaglista')return'favorites';
   if(item.href==='/fiokom')return'account';
   if(item.href==='/kosar')return'cart';
@@ -44,7 +45,8 @@ const utilityItems=(value:unknown):UtilityItem[]=>Array.isArray(value)?value.fla
   const row=item as Record<string,unknown>;
   const label=text(row.label,`Művelet ${index+1}`),href=safeHref(row.href,'#'),symbol=text(row.symbol,label.slice(0,1));
   const count=typeof row.count==='number'&&Number.isFinite(row.count)?String(Math.max(0,Math.round(row.count))):text(row.count);
-  return[{label,href,symbol,count}];
+  const rawKind=text(row.kind),kind:UtilityKind=rawKind==='favorites'||rawKind==='account'||rawKind==='cart'?rawKind:'custom';
+  return[{label,href,symbol,count,kind}];
 }):[];
 
 type MobileMenuItem={label:string;href:string};
@@ -80,12 +82,58 @@ function CommerceHeaderRenderer({config,children,node,viewport}:StorefrontCompon
   const rootStyle:CSSProperties={...toneStyle(config.tone),gridColumn:`span ${node.resolved.gridSpan} / span ${node.resolved.gridSpan}`,width:'100%',maxWidth:'100%',minWidth:0,boxSizing:'border-box',position:sticky?'sticky':'relative',top:sticky?0:undefined,zIndex:sticky?40:undefined,borderBottom:'1px solid var(--shoporation-color-border,#d8dce7)',...visualStyle(config.style,viewport),...slotStyle(config.styleSlots,'root',viewport)};
   const innerStyle:CSSProperties={width:'100%',maxWidth:'var(--shoporation-content-max, 1200px)',minWidth:0,boxSizing:'border-box',marginInline:'auto',padding:mobile?'.7rem 1rem':tablet?'.8rem 1.4rem':'1rem clamp(1.25rem,3vw,2.6rem)',display:'grid',gap:mobile?'.7rem':'.8rem',...visualStyle(config.innerStyle,viewport),...slotStyle(config.styleSlots,'inner',viewport),paddingBlock:mobile?'.72rem':tablet?'.8rem .62rem':'.84rem .68rem'};
   const brand=<a href={safeHref(config.brandHref,'/')} style={{display:'flex',alignItems:'center',gap:'.7rem',minWidth:0,color:'inherit',textDecoration:'none',fontWeight:850,letterSpacing:'-.02em',...visualStyle(config.brandStyle,viewport),...slotStyle(config.styleSlots,'brand',viewport),fontSize:mobile?'1rem':'1.12rem'}}>{logo?<img src={logo} alt={text(config.logoAlt,text(config.brandLabel,'Webshop'))} loading="eager" style={{display:'block',width:mobile?'2.25rem':'2.75rem',height:mobile?'2.25rem':'2.75rem',objectFit:'contain',...visualStyle(config.logoStyle,viewport),...slotStyle(config.styleSlots,'logo',viewport),minWidth:mobile?'2.3rem':'2.9rem',minHeight:mobile?'2.3rem':'2.9rem'}}/>:null}<span style={{display:'grid',gap:'.1rem',minWidth:0}}><strong style={{whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{text(config.brandLabel,'Webshop')}</strong>{text(config.tagline)?<small style={{color:'var(--shoporation-color-muted-text,#677084)',fontWeight:600,letterSpacing:'.05em',...visualStyle(config.taglineStyle,viewport),...slotStyle(config.styleSlots,'tagline',viewport),fontSize:mobile?'.72rem':'.78rem',lineHeight:1.2}}>{text(config.tagline)}</small>:null}</span></a>;
-  const utilities=<nav aria-label="Webshop műveletek" style={{display:'flex',alignItems:'center',justifyContent:'flex-end',gap:mobile?'.45rem':'.7rem',...visualStyle(config.utilityStyle,viewport),...slotStyle(config.styleSlots,'utility',viewport)}}>{utility.map(item=>{const kind=utilityKind(item),canonical=kind!=='custom',showLabel=showUtilityLabels&&!mobile&&!canonical,icon=<UtilityIcon kind={kind} symbol={item.symbol}/>;const utilityItemStyle:CSSProperties={position:'relative',display:'inline-flex',alignItems:'center',justifyContent:'center',gap:showLabel?'.38rem':undefined,minWidth:mobile?'2.75rem':canonical?'2.75rem':showLabel?'auto':'2.75rem',minHeight:'2.75rem',padding:showLabel?'.45rem .65rem':'.45rem',border:'1px solid var(--shoporation-color-border,#d8dce7)',borderRadius:'var(--shoporation-radius-m,.75rem)',background:'transparent',color:'inherit',textDecoration:'none',fontWeight:800,fontFamily:'inherit',cursor:'pointer',...slotStyle(config.styleSlots,'utilityItem',viewport)};return item.href==='/fiokom'?<StorefrontAccountAuthTrigger key={`${item.label}:${item.href}`} label={item.label} symbol={icon} count={item.count} showLabel={showLabel} style={utilityItemStyle}/>:<a key={`${item.label}:${item.href}`} href={item.href} aria-label={item.label} title={item.label} data-storefront-utility-kind={kind} style={utilityItemStyle}><span aria-hidden="true" style={{display:'grid',placeItems:'center'}}>{icon}</span>{showLabel?<span data-storefront-utility-label="true" style={{whiteSpace:'nowrap',...slotStyle(config.styleSlots,'utilityLabel',viewport),fontSize:'.88rem',lineHeight:1.2}}>{item.label}</span>:null}{item.count?<small style={{position:'absolute',top:'-.35rem',right:'-.35rem',minWidth:'1.1rem',height:'1.1rem',padding:'0 .2rem',display:'grid',placeItems:'center',borderRadius:'999px',background:'var(--shoporation-color-accent,#ff6b5e)',color:'var(--shoporation-color-background,#fff)',fontSize:'.62rem',fontWeight:900}}>{item.count}</small>:null}</a>})}</nav>;
+  const utilities=<nav aria-label="Webshop műveletek" style={{display:'flex',alignItems:'center',justifyContent:'flex-end',gap:mobile?'.45rem':'.7rem',...visualStyle(config.utilityStyle,viewport),...slotStyle(config.styleSlots,'utility',viewport)}}>{utility.map(item=>{const kind=utilityKind(item),canonical=kind!=='custom',showLabel=showUtilityLabels&&!mobile&&!canonical,icon=<UtilityIcon kind={kind} symbol={item.symbol}/>;const utilityItemStyle:CSSProperties={position:'relative',display:'inline-flex',alignItems:'center',justifyContent:'center',gap:showLabel?'.38rem':undefined,minWidth:mobile?'2.75rem':canonical?'2.75rem':showLabel?'auto':'2.75rem',minHeight:'2.75rem',padding:showLabel?'.45rem .65rem':'.45rem',border:'1px solid var(--shoporation-color-border,#d8dce7)',borderRadius:'var(--shoporation-radius-m,.75rem)',background:'transparent',color:'inherit',textDecoration:'none',fontWeight:800,fontFamily:'inherit',cursor:'pointer',...slotStyle(config.styleSlots,'utilityItem',viewport)};return kind==='account'?<StorefrontAccountAuthTrigger key={`${item.label}:${item.href}`} label={item.label} symbol={icon} count={item.count} showLabel={showLabel} style={utilityItemStyle}/>:<a key={`${item.label}:${item.href}`} href={item.href} aria-label={item.label} title={item.label} data-storefront-utility-kind={kind} style={utilityItemStyle}><span aria-hidden="true" style={{display:'grid',placeItems:'center'}}>{icon}</span>{showLabel?<span data-storefront-utility-label="true" style={{whiteSpace:'nowrap',...slotStyle(config.styleSlots,'utilityLabel',viewport),fontSize:'.88rem',lineHeight:1.2}}>{item.label}</span>:null}{item.count?<small style={{position:'absolute',top:'-.35rem',right:'-.35rem',minWidth:'1.1rem',height:'1.1rem',padding:'0 .2rem',display:'grid',placeItems:'center',borderRadius:'999px',background:'var(--shoporation-color-accent,#ff6b5e)',color:'var(--shoporation-color-background,#fff)',fontSize:'.62rem',fontWeight:900}}>{item.count}</small>:null}</a>})}</nav>;
   const topStyle:CSSProperties=mobile?{display:'grid',gridTemplateColumns:'minmax(0,1fr) auto',alignItems:'center',gap:'.75rem',minHeight:'3rem'}:{display:'grid',gridTemplateColumns:tablet?'minmax(9rem,.8fr) minmax(15rem,1.4fr) auto':'minmax(11rem,.75fr) minmax(20rem,1.6fr) auto',alignItems:'center',gap:'clamp(1rem,2vw,2rem)',minHeight:tablet?'3.35rem':'3.65rem'};
   const navFrameStyle:CSSProperties={display:'flex',alignItems:'center',gap:denseDesktop?'.5rem':'.75rem',minWidth:0,overflowX:'auto',overflowY:'hidden',overscrollBehaviorX:'contain',paddingTop:mobile?'.25rem':'.5rem',borderTop:'1px solid color-mix(in srgb,var(--shoporation-color-border,#d8dce7) 70%,transparent)',...slotStyle(config.styleSlots,'navigationFrame',viewport),minHeight:mobile?'2.5rem':'2.9rem'};
   const categoryLabel=text(config.categoryTriggerLabel),categorySymbol=text(config.categoryTriggerSymbol,'☰'),categoryHref=safeHref(config.categoryTriggerHref,'/webaruhaz');
   const categoryTrigger=categoryLabel||text(config.categoryTriggerSymbol)?<a href={categoryHref} aria-label={categoryLabel||'Kategóriák'} style={{display:'inline-flex',alignItems:'center',gap:'.4rem',flex:'0 0 auto',color:'inherit',textDecoration:'none',fontWeight:850,...slotStyle(config.styleSlots,'categoryTrigger',viewport),fontSize:mobile?'.92rem':'.98rem',lineHeight:1.25}}><span aria-hidden="true">{categorySymbol}</span>{categoryLabel?<span>{categoryLabel}</span>:null}</a>:null;
   const navTagline=text(config.navTagline);
+  const compactSingleRow=text(config.presentation)==='compact-single-row';
+  const tabletNavigationDisclosure=compactSingleRow&&tablet&&bool(config.collapseNavigationAtTablet,false);
+  if(tabletNavigationDisclosure){
+    const tabletInnerStyle:CSSProperties={
+      ...innerStyle,
+      gridTemplateColumns:'minmax(0,1fr)',
+      gap:'.6rem',
+      paddingBlock:'.62rem',
+      minHeight:'auto',
+      ...slotStyle(config.styleSlots,'compactInner',viewport)
+    };
+    return <header data-storefront-component="system.commerce-header" data-storefront-protected-system="header" data-presentation="compact-single-row" data-tablet-navigation="disclosure" style={rootStyle}>
+      <div style={tabletInnerStyle}>
+        <div style={{display:'grid',gridTemplateColumns:'minmax(0,1fr) auto',alignItems:'center',gap:'.75rem',minWidth:0}}>
+          <div style={{minWidth:0,...slotStyle(config.styleSlots,'compactBrandFrame',viewport)}}>{brand}</div>
+          <div style={{display:'flex',alignItems:'center',justifyContent:'flex-end',gap:'.45rem',minWidth:0,...slotStyle(config.styleSlots,'compactActions',viewport)}}>{utilities}</div>
+        </div>
+        {search.length?<div style={{minWidth:0,...slotStyle(config.styleSlots,'compactSearchFrame',viewport),width:'100%'}}>{search}</div>:null}
+        <details className={styles.mobileMenu} data-storefront-tablet-menu="true">
+          <summary className={styles.mobileMenuSummary} aria-label="Navigáció megnyitása"><span aria-hidden="true">☰</span><span>Menü</span></summary>
+          <div className={styles.mobileMenuPanel}>{categoryTrigger}<div className={styles.mobileMenuNavigation}>{fullMobileMenu.length?<nav aria-label="Teljes navigáció" data-storefront-tablet-menu-complete="true" style={{display:'grid',gap:'.2rem'}}>{fullMobileMenu.map(item=><a key={`${item.href}:${item.label}`} href={item.href} style={{color:'inherit',textDecoration:'none',padding:'.68rem .2rem',minHeight:'2.75rem',display:'flex',alignItems:'center',borderBottom:'1px solid color-mix(in srgb,var(--shoporation-color-border,#d8dce7) 55%,transparent)',fontWeight:760}}>{item.label}</a>)}</nav>:navigation}</div></div>
+        </details>
+      </div>
+    </header>;
+  }
+  if(compactSingleRow&&!mobile){
+    const compactInnerStyle:CSSProperties={
+      ...innerStyle,
+      gridTemplateColumns:tablet?'minmax(9rem,.75fr) minmax(0,1.6fr) auto':'minmax(11rem,.7fr) minmax(0,1.7fr) auto',
+      alignItems:'center',
+      gap:tablet?'.8rem':'clamp(.9rem,1.7vw,1.6rem)',
+      paddingBlock:tablet?'.72rem':'.68rem',
+      minHeight:tablet?'3.8rem':'4rem',
+      ...slotStyle(config.styleSlots,'compactInner',viewport)
+    };
+    return <header data-storefront-component="system.commerce-header" data-storefront-protected-system="header" data-presentation="compact-single-row" style={rootStyle}>
+      <div style={compactInnerStyle}>
+        <div style={{minWidth:0,...slotStyle(config.styleSlots,'compactBrandFrame',viewport)}}>{brand}</div>
+        <div style={{display:'flex',alignItems:'center',justifyContent:'center',minWidth:0,overflowX:'auto',overflowY:'hidden',overscrollBehaviorX:'contain',...slotStyle(config.styleSlots,'compactNavigationFrame',viewport)}}>{navigation}</div>
+        <div style={{display:'flex',alignItems:'center',justifyContent:'flex-end',gap:tablet?'.45rem':'.6rem',minWidth:0,...slotStyle(config.styleSlots,'compactActions',viewport)}}>
+          {search.length?<div style={{width:tablet?'9.5rem':'12rem',minWidth:0,...slotStyle(config.styleSlots,'compactSearchFrame',viewport)}}>{search}</div>:null}
+          {utilities}
+        </div>
+      </div>
+    </header>;
+  }
   return <header data-storefront-component="system.commerce-header" data-storefront-protected-system="header" data-presentation={text(config.presentation,'commerce-two-tier')} style={rootStyle}>
     <div style={innerStyle}>
       <div style={{...topStyle,...slotStyle(config.styleSlots,'topRow',viewport)}}>{brand}{!mobile?<div style={{minWidth:0,...slotStyle(config.styleSlots,'searchFrame',viewport)}}>{search}</div>:null}{utilities}</div>

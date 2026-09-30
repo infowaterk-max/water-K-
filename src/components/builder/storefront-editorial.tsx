@@ -4,6 +4,8 @@ import {
 } from '@/components/builder/storefront-runtime-renderer';
 import {createStorefrontCoreCommerceRendererRegistry} from '@/components/builder/storefront-commerce';
 import type {StorefrontResolvedComponentNode} from '@/lib/builder/storefront-runtime';
+import {resolveStorefrontStyleSlot} from '@/lib/builder/storefront-fidelity-engine';
+import {resolveStorefrontVisualStyle} from '@/lib/builder/storefront-visual-style';
 
 export const STOREFRONT_EDITORIAL_RENDERERS_VERSION='shoporation.storefront-editorial-renderers.v1' as const;
 
@@ -94,13 +96,15 @@ const footerColumns=(value:unknown)=>rows(value).map((column,index)=>({
   items:rows(column.items).map(item=>({label:text(item.label),href:safeHref(item.href,'#')} satisfies FooterItem)).filter(item=>item.label),
 }));
 
-function EditorialFooterRenderer({config,node}:StorefrontComponentRenderProps){
+function EditorialFooterRenderer({config,node,viewport}:StorefrontComponentRenderProps){
   const columns=footerColumns(config.columns);
-  return <footer data-storefront-editorial="footer" style={{...gridSpanStyle(node),padding:'clamp(2.5rem,6vw,5rem) clamp(1rem,4vw,3rem)',background:text(config.tone)==='primary'?'var(--shoporation-color-primary, #171717)':'var(--shoporation-color-background, #f6f2ec)',color:text(config.tone)==='primary'?'var(--shoporation-color-primary-contrast, #fff)':'inherit',borderTop:'1px solid var(--shoporation-color-border, #d8d1c7)'}}>
-    <div style={{maxWidth:'1440px',marginInline:'auto',display:'grid',gap:'2.5rem'}}>
-      <strong style={{fontFamily:'var(--shoporation-heading-font, Georgia, serif)',fontSize:'1.6rem',fontWeight:500}}>{text(config.brandLabel,'Monarche')}</strong>
-      <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(10rem,1fr))',gap:'2rem'}}>{columns.map(column=><nav key={column.id} aria-label={column.title||undefined} style={{display:'grid',gap:'0.65rem',alignContent:'start'}}>{column.title?<strong>{column.title}</strong>:null}{column.items.map(item=><a key={`${item.href}:${item.label}`} href={item.href} style={{color:'inherit',textDecoration:'none',opacity:0.82}}>{item.label}</a>)}</nav>)}</div>
-      <small style={{opacity:0.7}}>{text(config.copyright,'© Monarche')}</small>
+  const slot=(name:string)=>resolveStorefrontStyleSlot(config.styleSlots,name,viewport) as CSSProperties;
+  const authored=resolveStorefrontVisualStyle(config.style,viewport) as CSSProperties;
+  return <footer data-storefront-editorial="footer" style={{...gridSpanStyle(node),padding:'clamp(2.5rem,6vw,5rem) clamp(1rem,4vw,3rem)',background:text(config.tone)==='primary'?'var(--shoporation-color-primary, #171717)':'var(--shoporation-color-background, #f6f2ec)',color:text(config.tone)==='primary'?'var(--shoporation-color-primary-contrast, #fff)':'inherit',borderTop:'1px solid var(--shoporation-color-border, #d8d1c7)',...authored,...slot('root')}}>
+    <div style={{maxWidth:'1440px',marginInline:'auto',display:'grid',gap:'2.5rem',...slot('inner')}}>
+      <strong style={{fontFamily:'var(--shoporation-heading-font, Georgia, serif)',fontSize:'1.6rem',fontWeight:500,...slot('brand')}}>{text(config.brandLabel,'Monarche')}</strong>
+      <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(10rem,1fr))',gap:'2rem',...slot('columns')}}>{columns.map(column=><nav key={column.id} aria-label={column.title||undefined} style={{display:'grid',gap:'0.65rem',alignContent:'start',...slot('column')}}>{column.title?<strong style={slot('heading')}>{column.title}</strong>:null}{column.items.map(item=><a key={`${item.href}:${item.label}`} href={item.href} style={{color:'inherit',textDecoration:'none',opacity:0.82,...slot('link')}}>{item.label}</a>)}</nav>)}</div>
+      <small style={{opacity:0.7,...slot('copyright')}}>{text(config.copyright,'© Monarche')}</small>
     </div>
   </footer>;
 }

@@ -3,10 +3,11 @@ import {createStorefrontPrimitiveRendererRegistry} from '@/components/builder/st
 import type {StorefrontComponentRenderProps} from '@/components/builder/storefront-runtime-renderer';
 import {sanitizeStorefrontStyleSlots} from '@/lib/builder/storefront-fidelity-engine';
 import {resolveStorefrontVisualStyle} from '@/lib/builder/storefront-visual-style';
+import {normalizeStorefrontShopperText} from '@/lib/builder/storefront-content-sanity';
 
 export const STOREFRONT_SHARED_CONTENT_RENDERERS_VERSION='shoporation.storefront-shared-content-renderers.v1' as const;
 
-const text=(value:unknown,fallback='')=>typeof value==='string'?value:fallback;
+const text=(value:unknown,fallback='')=>normalizeStorefrontShopperText(value,fallback);
 const number=(value:unknown,fallback=0)=>typeof value==='number'&&Number.isFinite(value)?value:fallback;
 const record=(value:unknown):Record<string,unknown>|null=>value&&typeof value==='object'&&!Array.isArray(value)?value as Record<string,unknown>:null;
 const rows=(value:unknown):Record<string,unknown>[]=>Array.isArray(value)?value.flatMap(item=>{const row=record(item);return row?[row]:[]}):[];
@@ -40,6 +41,13 @@ function TrustStripRenderer({config,node,viewport}:StorefrontComponentRenderProp
   </ul>;
 }
 
+function AccordionRenderer({config,node,viewport}:StorefrontComponentRenderProps){
+  const items=rows(config.items).map((item,index)=>({id:text(item.id,`faq-${index}`),question:text(item.question,text(item.title)),answer:text(item.answer,text(item.copy))})).filter(item=>item.question&&item.answer);
+  const defaultOpen=Math.max(-1,Math.min(items.length-1,Math.round(number(config.defaultOpenIndex,-1))));
+  const slot=slotStyles(config,viewport);
+  return <div data-storefront-content="accordion" data-presentation={text(config.presentation)||undefined} style={{...span(node),display:'grid',gap:'.65rem',...slot('root')}}>{items.map((item,index)=><details key={item.id} open={index===defaultOpen} style={{border:'1px solid var(--shoporation-color-border,#d8dce7)',background:'var(--shoporation-color-surface,#fff)',...slot('item')}}><summary style={{cursor:'pointer',listStyle:'none',display:'flex',alignItems:'center',justifyContent:'space-between',gap:'1rem',padding:'1rem 1.05rem',fontWeight:800,...slot('summary')}}><span style={slot('question')}>{item.question}</span><span aria-hidden="true" style={{fontSize:'1.15rem',lineHeight:1}}>＋</span></summary><div style={{padding:'0 1.05rem 1.05rem',lineHeight:1.7,color:'var(--shoporation-color-muted-text,#64748b)',...slot('answer')}}>{item.answer}</div></details>)}</div>;
+}
+
 function BeforeAfterRenderer({config,node,viewport}:StorefrontComponentRenderProps){
   const before=safeImage(config.beforeImage);
   const after=safeImage(config.afterImage);
@@ -67,6 +75,7 @@ function BeforeAfterRenderer({config,node,viewport}:StorefrontComponentRenderPro
 
 export const STOREFRONT_SHARED_CONTENT_RENDERERS:readonly [string,number,(props:StorefrontComponentRenderProps)=>ReactNode][]=[
   ['content.trust-strip',1,TrustStripRenderer],
+  ['content.accordion',1,AccordionRenderer],
   ['editorial.before-after',1,BeforeAfterRenderer],
 ] as const;
 

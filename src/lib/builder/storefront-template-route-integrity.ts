@@ -1,13 +1,13 @@
 import type {StorefrontComponentNode,StorefrontPageDocument,StorefrontTemplatePackage} from '@/lib/builder/storefront-runtime';
 import type {StorefrontDemoFixture,StorefrontInstallableTemplatePackage} from '@/lib/builder/storefront-template-installation';
 import {STOREFRONT_PAGE_SCHEMA_VERSION,STOREFRONT_PAGE_TYPES,type StorefrontBuilderPageType} from '@/lib/builder/storefront-foundation';
-import {CANONICAL_ACCOUNT_CAPABILITIES} from '@/lib/account/account-capabilities';
+import {CANONICAL_ACCOUNT_CAPABILITIES,resolveAccountCapabilityPreviewView} from '@/lib/account/account-capabilities';
 
 export const STOREFRONT_ROUTE_INTEGRITY_VERSION='shoporation.storefront-route-integrity.v1' as const;
 export const STOREFRONT_DEMO_CONTENT_NOTICE='Minta tartalom – ez az oldal előre generált szöveget tartalmaz, és nem tekinthető a webshop valós működésének vagy feltételeinek. Ellenőrizd és igazítsd a saját működésedhez publikálás előtt.' as const;
 
 export const STOREFRONT_REQUIRED_MOBILE_NAVIGATION_ROUTES=Object.freeze([
-  '/','/webaruhaz','/blog','/oldal/rolunk','/gyik','/kapcsolat','/szallitas-es-fizetes','/oldal/visszakuldes','/kedvencek','/fiokom','/aszf','/adatvedelem','/impresszum',
+  '/','/webaruhaz','/blog','/oldal/rolunk','/gyik','/kapcsolat','/szallitas','/fizetes','/oldal/visszakuldes','/kedvencek','/fiokom','/aszf','/adatvedelem','/impresszum',
 ] as const);
 export const STOREFRONT_REQUIRED_ACCOUNT_CAPABILITY_ROUTES=Object.freeze(
   CANONICAL_ACCOUNT_CAPABILITIES.filter(item=>!item.optional).map(item=>item.href),
@@ -25,10 +25,17 @@ export type StorefrontRouteIntegrityIssue={
 
 const PLATFORM_EXACT_ROUTES=new Set([
   '/','/webaruhaz','/kosar','/penztar','/fiokom','/gyik','/kapcsolat','/blog',
-  '/szallitas-es-fizetes','/aszf','/adatvedelem','/impresszum','/digitalis-hozzaferes',
+  '/szallitas','/fizetes','/szallitas-es-fizetes','/aszf','/adatvedelem','/impresszum','/digitalis-hozzaferes',
   '/rendeles-sikeres','/hamarosan','/kereses','/kedvencek',
 ]);
 const PLATFORM_PREFIX_ROUTES=['/fiokom/','/termek/'] as const;
+const LEGAL_DEMO_ROUTE_SLUGS:Readonly<Record<string,string>>=Object.freeze({
+  '/aszf':'aszf',
+  '/adatvedelem':'adatvedelem',
+  '/impresszum':'impresszum',
+  '/szallitas':'szallitas',
+  '/fizetes':'fizetes',
+});
 const CATALOG_QUERY_KEYS=new Set(['q','audience','stock','sort','sale','category','collection','filter','type','scene','flavor','pantry','ritual','play','genre','platform','c','concern','texture']);
 
 const cleanLabel=(value:unknown,fallback:string)=>{
@@ -82,11 +89,153 @@ const standardPage=(slug:string,title:string,excerpt:string,body:string):DemoCon
   body,
   status:'draft',demo:true,demoNotice:STOREFRONT_DEMO_CONTENT_NOTICE,
 });
+const showroomPage=(slug:string,title:string,excerpt:string,body:string):DemoContentPayload=>({
+  ...standardPage(slug,title,excerpt,body),
+  showroomReady:true,
+});
+
+const LEGAL_STARTER_PAGES:Readonly<Record<string,DemoContentPayload>>=Object.freeze({
+  aszf:showroomPage('aszf','Általános Szerződési Feltételek','Szerkesztési alap a webshop saját ÁSZF dokumentumához. A közzététel előtt a kereskedő működéséhez és az alkalmazandó joghoz kell igazítani.',`ÁLTALÁNOS SZERZŐDÉSI FELTÉTELEK
+
+1. A SZOLGÁLTATÓ ADATAI
+Cégnév: Kitöltendő kereskedői adat: cégnév
+Székhely: Kitöltendő kereskedői adat: székhely
+Nyilvántartási / cégjegyzékszám: Kitöltendő kereskedői adat: nyilvántartási vagy cégjegyzékszám
+Adószám: Kitöltendő kereskedői adat: adószám
+Kapcsolattartási e-mail: Kitöltendő kereskedői adat: e-mail
+Weboldal: Kitöltendő kereskedői adat: weboldal
+
+2. A WEBSHOP ÉS A SZERZŐDÉS TÁRGYA
+Írd le, milyen termékeket vagy digitális tartalmakat értékesít a webshop, kik vásárolhatnak, és mikor jön létre a szerződés.
+
+3. RENDELÉS MENETE
+Mutasd be a termékválasztás, kosár, adatmegadás, ellenőrzés és rendelés-visszaigazolás valós folyamatát, valamint az adatbeviteli hibák javítását.
+
+4. ÁRAK ÉS FIZETÉS
+Rögzítsd az árak pénznem- és adókezelését, valamint kizárólag a ténylegesen aktív fizetési módok lényeges feltételeit.
+
+5. SZÁLLÍTÁS ÉS TELJESÍTÉS
+Hivatkozz az aktuális szállítási módokra, díjakra, átvételi lehetőségekre és a teljesítés valós szabályaira.
+
+6. ELÁLLÁS ÉS VISSZAKÜLDÉS
+Írd le az alkalmazandó elállási, visszaküldési és visszatérítési folyamatot, az esetleges kivételeket és az ügyintézési csatornákat.
+
+7. KELLÉKSZAVATOSSÁG, TERMÉKSZAVATOSSÁG ÉS JÓTÁLLÁS
+Csak a webshop termékeire és a kereskedő helyzetére ténylegesen alkalmazandó szabályokat hagyd meg, szükség esetén szakértői ellenőrzés után.
+
+8. PANASZKEZELÉS ÉS ÜGYFÉLSZOLGÁLAT
+Kapcsolat: Kitöltendő kereskedői adat: ügyfélszolgálati e-mail
+Postacím: Kitöltendő kereskedői adat: panaszkezelési cím
+Írd le a panaszok benyújtásának és kezelésének valós menetét.
+
+9. ADATKEZELÉS
+A személyes adatok kezelésének részleteit a külön Adatkezelési tájékoztató tartalmazza.
+
+10. ZÁRÓ RENDELKEZÉSEK
+Hatálybalépés: Kitöltendő adat: dátum
+Verzió: Kitöltendő adat: dokumentumverzió
+Ez a dokumentum szerkesztési alap. Közzététel előtt a vállalkozás tényleges működéséhez és az alkalmazandó joghoz kell igazítani.`),
+  adatvedelem:showroomPage('adatvedelem','Adatkezelési tájékoztató','Szerkesztési alap a webshop adatkezelési tájékoztatójához, külön adatkezelői, cél-, jogalap-, megőrzési és érintetti jogi fejezetekkel.',`ADATKEZELÉSI TÁJÉKOZTATÓ
+
+1. AZ ADATKEZELŐ
+Adatkezelő neve: Kitöltendő kereskedői adat: cégnév
+Székhely: Kitöltendő kereskedői adat: székhely
+E-mail: Kitöltendő kereskedői adat: adatvédelmi e-mail
+Adószám / nyilvántartási szám: Kitöltendő kereskedői adat: azonosító
+
+2. ADATKEZELÉSI CÉLOK
+Sorold fel külön a tényleges adatkezeléseket: fiók, rendelés, számlázás, szállítás, ügyfélszolgálat, visszaküldés, hírlevél és biztonsági naplózás.
+
+3. JOGALAPOK
+Minden célhoz rendeld hozzá a ténylegesen alkalmazott jogalapot; ne használj automatikus általános jogalapot ellenőrzés nélkül.
+
+4. KEZELT ADATOK KATEGÓRIÁI
+Célonként sorold fel a szükséges adatokat: név, e-mail, telefon, számlázási/szállítási adatok, rendelési előzmények és technikai naplóadatok.
+
+5. ADATFELDOLGOZÓK ÉS CÍMZETTEK
+Tüntesd fel a tényleges tárhely-, fizetési, számlázási, szállítási, e-mail- és analitikai partnereket: Kitöltendő adat: szolgáltató, cél és adatköre.
+
+6. MEGŐRZÉSI IDŐK
+Minden célhoz add meg a vállalkozásra ténylegesen alkalmazandó megőrzési időt vagy annak meghatározási szempontját.
+
+7. AZ ÉRINTETTEK JOGAI
+Mutasd be a hozzáférési, helyesbítési, törlési, korlátozási, tiltakozási és adathordozhatósági lehetőségeket és gyakorlásuk módját.
+
+8. SÜTIK ÉS ANALITIKA
+Sorold fel a ténylegesen használt sütik és mérési szolgáltatások kategóriáit, célját és a hozzájárulás kezelését.
+
+9. ADATBIZTONSÁG
+Röviden ismertesd a releváns szervezési és technikai védelmi intézkedéseket biztonsági titkok közzététele nélkül.
+
+10. KAPCSOLAT ÉS JOGORVOSLAT
+Adatvédelmi kapcsolat: Kitöltendő kereskedői adat: adatvédelmi e-mail
+Felügyeleti hatóság / jogorvoslati információ: Kitöltendő, ellenőrzött jogorvoslati adat
+
+Hatály: Kitöltendő adat: dátum
+Verzió: Kitöltendő adat: dokumentumverzió
+Ez a dokumentum szerkesztési alap, és közzététel előtt a webshop tényleges adatkezeléseihez kell igazítani.`),
+  impresszum:showroomPage('impresszum','Impresszum','Az üzemeltető és a tárhelyszolgáltató legfontosabb közzétételi adatainak tömör, különálló szerkesztési alapja.',`IMPRESSZUM
+
+A WEBSHOP ÜZEMELTETŐJE
+Cégnév / név: Kitöltendő kereskedői adat: cégnév
+Székhely / lakcím: Kitöltendő kereskedői adat: székhely
+Levelezési cím: Kitöltendő kereskedői adat: levelezési cím
+Nyilvántartási / cégjegyzékszám: Kitöltendő kereskedői adat: nyilvántartási vagy cégjegyzékszám
+Nyilvántartó szerv: Kitöltendő kereskedői adat: nyilvántartó szerv
+Adószám: Kitöltendő kereskedői adat: adószám
+Képviselő: Kitöltendő kereskedői adat: képviselő
+E-mail: Kitöltendő kereskedői adat: e-mail
+Telefonszám: Kitöltendő kereskedői adat: telefonszám
+
+TÁRHELYSZOLGÁLTATÓ
+Szolgáltató neve: Kitöltendő adat: tárhelyszolgáltató neve
+Székhely: Kitöltendő adat: tárhelyszolgáltató címe
+Elérhetőség: Kitöltendő adat: tárhelyszolgáltató elérhetősége
+Weboldal: Kitöltendő adat: tárhelyszolgáltató weboldala
+
+KAPCSOLAT
+Ügyfélszolgálati e-mail: Kitöltendő kereskedői adat: ügyfélszolgálati e-mail
+Ügyfélszolgálati cím / nyitvatartás: Kitöltendő kereskedői adat
+
+Utolsó frissítés: Kitöltendő adat: dátum
+Ellenőrizd, hogy minden kötelező üzemeltetői adat a vállalkozás aktuális nyilvántartási adataival egyezzen.`),
+
+});
 
 const STANDARD_DEMO_PAGES:Readonly<Record<string,DemoContentPayload>>=Object.freeze({
-  szallitas:standardPage('szallitas','Szállítás','Mintaoldal a webshop szállítási lehetőségeinek bemutatásához.','Szállítási lehetőségek\nItt sorold fel a ténylegesen elérhető futár-, csomagpont- és személyes átvételi módokat.\n\nDíjak és határidők\nA valós szállítási díjakat, ingyenes szállítási küszöböt és várható kézbesítési időt a saját szerződéseid alapján add meg.'),
-  fizetes:standardPage('fizetes','Fizetés','Mintaoldal a webshop tényleges fizetési módjainak bemutatásához.','Fizetési módok\nCsak azokat a fizetési módokat hagyd az oldalon, amelyeket a webshopban valóban aktiváltál.\n\nBiztonság és visszatérítés\nÍrd le a fizetési szolgáltatóid, terhelési és visszatérítési folyamatod valós szabályait.'),
-  visszakuldes:standardPage('visszakuldes','Visszaküldés','Mintaoldal a visszaküldési és elállási folyamat bemutatásához.','Visszaküldési folyamat\nMutasd be a tényleges ügyintézési lépéseket, elérhetőségeket és visszaküldési címet.\n\nHatáridők és feltételek\nA vállalkozásodra és termékeidre vonatkozó valós jogi feltételeket ellenőrzés után add meg.'),
+  szallitas:showroomPage('szallitas','Szállítás','Aktuális szállítási módok, díjak és átvételi lehetőségek.','SZÁLLÍTÁSI MÓDOK\nA pénztár kizárólag a ténylegesen aktív futár-, csomagpont- és személyes átvételi lehetőségeket mutatja.\n\nDÍJAK ÉS TELJESÍTÉS\nA díj, az ingyenes szállítás feltétele és a várható teljesítési információ a kereskedő aktuális beállításaiból érkezik.'),
+  fizetes:showroomPage('fizetes','Fizetés','A ténylegesen engedélyezett fizetési módok és a fizetési folyamat áttekintése.','FIZETÉSI MÓDOK\nA pénztár csak a kereskedő által aktivált bankkártyás, átutalásos, utánvétes vagy más provider-módokat kínálja fel.\n\nFIZETÉSI FOLYAMAT\nAz online szolgáltatói átirányítás és a rendelés fizetési állapota az aktuális provider-konfigurációt követi.'),
+  visszakuldes:standardPage('visszakuldes','Visszaküldés','Lépésről lépésre bemutatott minta-folyamat a visszaküldés, elállás, hibás vagy sérült termék és visszatérítés ügyintézéséhez.',`VISSZAKÜLDÉS LÉPÉSRŐL LÉPÉSRE
+
+1. ELLENŐRIZD, MILYEN ÜGYET INDÍTASZ
+Jelöld meg, hogy elállásról, hibás vagy sérült termékről, téves teljesítésről vagy más visszaküldési okról van szó. Az éles webshopban kizárólag a vállalkozásodra és az adott termékre ténylegesen alkalmazandó lehetőségek maradjanak.
+
+2. KÉSZÍTSD ELŐ A RENDELÉSI ADATOKAT
+Az ügyintézéshez legyen kéznél a rendelési azonosító, a vásárlásnál használt e-mail-cím, az érintett termék neve és szükség esetén a probléma rövid leírása vagy fényképe.
+
+3. INDÍTSD EL A KAPCSOLATFELVÉTELT
+A Kapcsolat oldalon a megfelelő témát kiválasztva indítható megkeresés. A webshop itt adja meg a tényleges visszaküldési címet, az engedélyezett szállítási módot és az esetleges további teendőket.
+
+4. CSOMAGOLD VISSZA BIZTONSÁGOSAN
+A terméket lehetőség szerint minden tartozékával és a szállításhoz megfelelő védőcsomagolásban add fel. Gyűjtői terméknél különösen fontos, hogy a díszdoboz és a tartozékok ne sérüljenek a visszaúton.
+
+5. SZÁLLÍTÁSI KÖLTSÉG
+Írd le egyértelműen, hogy az egyes visszaküldési okoknál ki viseli a visszaszállítás költségét. Hibás vagy téves teljesítés és önkéntes elállás esetén eltérő szabályok lehetnek; csak ellenőrzött, tényleges feltételeket publikálj.
+
+6. BEÉRKEZÉS ÉS ELLENŐRZÉS
+A webshop a visszaérkező csomagot azonosítja és az ügy típusának megfelelően ellenőrzi. A vásárló kapjon követhető tájékoztatást arról, hogy az ügy melyik szakaszban jár.
+
+7. VISSZATÉRÍTÉS VAGY MÁS MEGOLDÁS
+Rögzítsd a tényleges visszatérítési, csere- vagy egyéb rendezési folyamatot, a használt fizetési módot és a vállalt ügyintézési határidőket.
+
+8. SÉRÜLT VAGY HIBÁS TERMÉK
+Ha a termék sérülten érkezett vagy hibás, kérj olyan adatokat és képeket, amelyek valóban szükségesek az ügy gyors kivizsgálásához. Ne kérj felesleges személyes adatot.
+
+9. AZ ÜGY KÖVETÉSE
+A bejelentkezett vásárló a Fiókom / Ügyeim vagy Visszaküldés nézetben láthatja a rendelkezésre álló állapotinformációkat. Ha nincs aktív ügy, a felület ezt egyértelmű üres állapottal jelezze.
+
+KAPCSOLAT ÉS ÜGYINDÍTÁS
+A folyamat a Kapcsolat oldalon indítható. Élesítés előtt add meg a saját visszaküldési címedet, elérhetőségedet, határidőidet és a vállalkozásodra alkalmazandó jogi feltételeket.`),
   rolunk:standardPage('rolunk','Rólunk','Mintaoldal a vállalkozás, márka és webshop bemutatásához.','Kik vagyunk?\nMutasd be röviden a vállalkozást, a márka történetét és azt, milyen értéket adtok a vásárlóknak.\n\nMiért minket?\nIde kerülhetnek a valós szolgáltatási előnyök, szakmai tapasztalatok és ügyfélígéretek.'),
   fenntarthatosag:standardPage('fenntarthatosag','Fenntarthatóság','Mintaoldal a bizonyítható fenntarthatósági vállalások bemutatásához.','Amit ténylegesen teszünk\nCsak ellenőrizhető, dokumentálható környezeti vagy társadalmi vállalásokat tüntess fel.\n\nCsomagolás és működés\nÍrd le a valós csomagolási, szállítási vagy beszerzési gyakorlatot.'),
   karrier:standardPage('karrier','Karrier','Mintaoldal álláslehetőségek és jelentkezési információk számára.','Csatlakozz hozzánk\nMutasd be a vállalkozást mint munkahelyet és az aktuális lehetőségeket.\n\nJelentkezés\nAdd meg a valódi jelentkezési csatornát és az adatkezelési tájékoztatásra mutató hivatkozást.'),
@@ -111,13 +260,23 @@ const fixtureSlug=(fixture:StorefrontDemoFixture)=>{
 export function augmentStorefrontTemplateDemoContent(template:StorefrontInstallableTemplatePackage):StorefrontInstallableTemplatePackage{
   const fixtures=[...(template.demoFixtures??[]).map(item=>structuredClone(item))];
   const existing=new Set(fixtures.map(fixtureSlug).filter((value):value is string=>Boolean(value)));
+  for(const [slug,payload] of Object.entries(LEGAL_STARTER_PAGES)){
+    if(existing.has(slug))continue;
+    fixtures.push({entityType:'content',entityKey:`page-${slug}`,payload:structuredClone(payload)});
+    existing.add(slug);
+  }
   const links=listStorefrontTemplateLinks(template);
   for(const link of links){
     let kind:'page'|'blog'|null=null,slug='';
     if(link.href.startsWith('/oldal/')){kind='page';slug=link.href.split(/[?#]/)[0]!.slice('/oldal/'.length);}
     else if(link.href.startsWith('/blog/')){kind='blog';slug=link.href.split(/[?#]/)[0]!.slice('/blog/'.length);}
+    else{
+      const pathname=link.href.split(/[?#]/)[0]??'';
+      const legalSlug=LEGAL_DEMO_ROUTE_SLUGS[pathname];
+      if(legalSlug){kind='page';slug=legalSlug;}
+    }
     if(!kind||!slug||existing.has(slug))continue;
-    const payload=kind==='page'?(STANDARD_DEMO_PAGES[slug]??genericContent(slug,link.label,'page')):genericContent(slug,link.label,'blog');
+    const payload=kind==='page'?(LEGAL_STARTER_PAGES[slug]??STANDARD_DEMO_PAGES[slug]??genericContent(slug,link.label,'page')):genericContent(slug,link.label,'blog');
     fixtures.push({entityType:'content',entityKey:`${kind}-${slug}`,payload});
     existing.add(slug);
   }
@@ -167,7 +326,7 @@ const previewPageForPath=(pathname:string):string|null=>{
   if(pathname.startsWith('/oldal/'))return'content';
   if(pathname==='/gyik')return'faq';
   if(pathname==='/kapcsolat')return'contact';
-  if(['/aszf','/adatvedelem','/impresszum','/szallitas-es-fizetes'].includes(pathname))return'legal';
+  if(['/aszf','/adatvedelem','/impresszum','/szallitas','/fizetes'].includes(pathname))return'legal';
   return null;
 };
 
@@ -184,10 +343,16 @@ function rewritePreviewHref(href:string,input:{templateKey:string;templateVersio
     viewport:input.viewport,
   });
   if(input.factoryCandidate)params.set('factory','1');
+  if(page==='account'){
+    const accountView=resolveAccountCapabilityPreviewView(url.toString());
+    if(accountView)params.set('accountView',accountView);
+  }
   if(url.pathname.startsWith('/oldal/')||url.pathname.startsWith('/blog/')){
     const slug=url.pathname.split('/').filter(Boolean).at(-1);
     if(slug)params.set('demoContent',slug);
   }
+  const legalSlug=LEGAL_DEMO_ROUTE_SLUGS[url.pathname];
+  if(legalSlug)params.set('demoContent',legalSlug);
   for(const[key,value]of url.searchParams)params.append(key,value);
   return`/storefront-template-preview?${params.toString()}`;
 }
@@ -365,6 +530,7 @@ export type StorefrontShowroomContractIssue={
     |'SHOWROOM_PRESENTATION_AUTHORITY_MISMATCH'
     |'SHOWROOM_ACCOUNT_NAVIGATION_EMPTY'
     |'SHOWROOM_ACCOUNT_SURFACE_MISSING'
+    |'SHOWROOM_ACCOUNT_LOCAL_NAV_DUPLICATE'
     |'SHOWROOM_ENGINE_DEMO_MISSING'
     |'SHOWROOM_PLACEHOLDER_CONTENT'
     |'SHOWROOM_ROUTE_PRESENTATION_UNMAPPED';
@@ -384,7 +550,8 @@ export const STOREFRONT_TEMPLATE_SHOWROOM_SURFACES:readonly StorefrontShowroomSu
   {id:'wishlist',label:'Kedvencek',route:'/kedvencek',pageType:'account',reachability:'shell-navigation',navigationRequired:true,engines:['E1']},
   {id:'downloads',label:'Letöltéseim',route:'/fiokom/letoltesek',pageType:'account',reachability:'shopper-journey',navigationRequired:false,engines:['E1']},
   {id:'about',label:'Rólunk',route:'/oldal/rolunk',pageType:'content',reachability:'shell-navigation',navigationRequired:true,engines:['E1','E10']},
-  {id:'shipping-payment',label:'Szállítás és fizetés',route:'/szallitas-es-fizetes',pageType:'legal',reachability:'shell-navigation',navigationRequired:true,engines:['E1','E13']},
+  {id:'shipping',label:'Szállítás',route:'/szallitas',pageType:'legal',reachability:'shell-navigation',navigationRequired:true,engines:['E1','E13']},
+  {id:'payment',label:'Fizetés',route:'/fizetes',pageType:'legal',reachability:'shell-navigation',navigationRequired:true,engines:['E1','E13']},
   {id:'returns',label:'Visszaküldés',route:'/oldal/visszakuldes',pageType:'content',reachability:'shell-navigation',navigationRequired:true,engines:['E1']},
   {id:'faq',label:'GYIK',route:'/gyik',pageType:'faq',reachability:'shell-navigation',navigationRequired:true,engines:['E1']},
   {id:'contact',label:'Kapcsolat',route:'/kapcsolat',pageType:'contact',reachability:'shell-navigation',navigationRequired:true,engines:['E1']},
@@ -432,24 +599,32 @@ const engineDemoStatus=(template:StorefrontInstallableTemplatePackage)=>{
   ]);
 };
 const requiredAccountHrefs=CANONICAL_ACCOUNT_CAPABILITIES.filter(item=>!item.optional).map(item=>item.href);
-function accountDemoNavigationHrefs(template:StorefrontInstallableTemplatePackage){
+function accountCapabilityAuthority(template:StorefrontInstallableTemplatePackage){
   const page=template.pages.find(item=>item.pageType==='account');
-  if(!page)return[] as string[];
-  // Keep extraction typed and deterministic without coupling the gate to renderer internals.
+  if(!page)return{hrefs:[] as string[],shared:false,localNavigation:false};
+  const completeness=page.metadata?.accountCompleteness&&typeof page.metadata.accountCompleteness==='object'
+    ?page.metadata.accountCompleteness as Record<string,unknown>
+    :null;
+  const shared=completeness?.navigationAuthority==='shared-account-capabilities';
   const links:StorefrontTemplateLink[]=[];
+  let localNavigation=false;
   const visitLinks=(nodes:readonly StorefrontComponentNode[])=>{
     for(const node of nodes){
-      if(node.componentKey==='system.navigation'&&(node.config as Record<string,unknown>).presentation==='account-capability-demo')collectFromValue(node.config,'account.demoNavigation',node.id,links);
+      if(node.componentKey==='system.navigation'&&(node.config as Record<string,unknown>).presentation==='account-capability-demo'){
+        localNavigation=true;
+        collectFromValue(node.config,'account.demoNavigation',node.id,links);
+      }
       if(node.children?.length)visitLinks(node.children);
     }
   };
   visitLinks(page.sections);
-  return links.map(item=>item.href);
+  return{hrefs:shared?[...requiredAccountHrefs]:links.map(item=>item.href),shared,localNavigation};
 }
 
 export function createStorefrontTemplateShowroomEvidence(template:StorefrontInstallableTemplatePackage):readonly StorefrontShowroomEvidenceRow[]{
   const shellLinks=listStorefrontTemplateShellLinks(template);
   const allLinks=listStorefrontTemplateLinks(template);
+  const accountAuthority=accountCapabilityAuthority(template);
   return STOREFRONT_TEMPLATE_SHOWROOM_SURFACES.map(surface=>{
     const page=template.pages.find(item=>item.pageType===surface.pageType)??null;
     const meta=page?.metadata?.templateFactory&&typeof page.metadata.templateFactory==='object'
@@ -470,7 +645,8 @@ export function createStorefrontTemplateShowroomEvidence(template:StorefrontInst
       navigationPresent:!surface.navigationRequired||shellLinks.some(link=>routeMatches(link.href,surface.route)),
       entrypointPresent:surface.reachability==='system-route'||(surface.reachability==='shell-navigation'
         ?shellLinks.some(link=>routeMatches(link.href,surface.route))
-        :allLinks.some(link=>routeMatches(link.href,surface.route))),
+        :allLinks.some(link=>routeMatches(link.href,surface.route))
+          ||(surface.pageType==='account'&&accountAuthority.hrefs.some(href=>routeMatches(href,surface.route)))),
     };
   });
 }
@@ -489,9 +665,10 @@ export function evaluateStorefrontTemplateShowroomContract(template:StorefrontIn
     if(row.entrypointPresent===false)issues.push(showroomIssue('SHOWROOM_ROUTE_PRESENTATION_UNMAPPED',`journeys.${row.surfaceId}`,`A(z) ${row.label} canonical shopper journeyhez nincs tényleges template entrypoint.`));
     if(previewPageForPath(pathnameFor(row.route).replace(':slug','demo'))!==row.pageType&&row.route!=='/__not-found__')issues.push(showroomIssue('SHOWROOM_ROUTE_PRESENTATION_UNMAPPED',`routes.${row.route}`,'A canonical route nincs ugyanahhoz a Page Schema/presentation authorityhez kötve a preview route registryben.'));
   }
-  const accountHrefs=accountDemoNavigationHrefs(template);
-  if(accountHrefs.length===0)issues.push(showroomIssue('SHOWROOM_ACCOUNT_NAVIGATION_EMPTY','pages.account','Az account demo nem tartalmaz canonical account capability navigációt.'));
-  for(const href of requiredAccountHrefs)if(!accountHrefs.includes(href))issues.push(showroomIssue('SHOWROOM_ACCOUNT_SURFACE_MISSING',`pages.account.${href}`,'A kötelező account capability hiányzik a template demóból.'));
+  const accountAuthority=accountCapabilityAuthority(template);
+  if(accountAuthority.hrefs.length===0)issues.push(showroomIssue('SHOWROOM_ACCOUNT_NAVIGATION_EMPTY','pages.account','Az account felület nincs canonical shared account capability authorityhoz kötve.'));
+  if(accountAuthority.shared&&accountAuthority.localNavigation)issues.push(showroomIssue('SHOWROOM_ACCOUNT_LOCAL_NAV_DUPLICATE','pages.account','Shared account capability authority mellett template-local Fiókom menü nem maradhat aktív.'));
+  for(const href of requiredAccountHrefs)if(!accountAuthority.hrefs.includes(href))issues.push(showroomIssue('SHOWROOM_ACCOUNT_SURFACE_MISSING',`pages.account.${href}`,'A kötelező account capability hiányzik a canonical shared account authorityból.'));
   const engines=engineDemoStatus(template);
   for(const engine of ['E1','E2','E7','E10','E13'] as const)if(engines.get(engine)!==true)issues.push(showroomIssue('SHOWROOM_ENGINE_DEMO_MISSING',`engines.${engine}`,`A(z) ${engine} shared engine nincs felismerhető, interaktív storefront-demóval reprezentálva.`));
   const serialized=JSON.stringify(template);

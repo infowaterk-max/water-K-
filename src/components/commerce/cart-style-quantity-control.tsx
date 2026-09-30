@@ -44,7 +44,7 @@ export function CartStyleQuantityControl({
       data-rfq-quantity-field={!cart?'true':undefined}
       style={{display:'inline-flex',alignItems:'stretch',height:64,borderRadius:8,overflow:'hidden',background:'var(--shoporation-account-control-background,var(--shoporation-color-surface-muted,var(--shoporation-color-surface,#fff)))',color:'var(--shoporation-color-text,#fff)',border:'1px solid var(--shoporation-color-border,#d8dce7)'}}
     >
-      <output aria-live="polite" style={{display:'inline-flex',alignItems:'center',justifyContent:'center',minWidth:48,padding:'0 10px',background:'var(--shoporation-account-control-background,var(--shoporation-color-surface-muted,var(--shoporation-color-surface,#fff)))',color:'inherit',fontWeight:900,lineHeight:1}}>{quantity} db</output>
+      <output aria-live="polite" data-storefront-preview-cart-quantity={cart?'true':undefined} style={{display:'inline-flex',alignItems:'center',justifyContent:'center',minWidth:48,padding:'0 10px',background:'var(--shoporation-account-control-background,var(--shoporation-color-surface-muted,var(--shoporation-color-surface,#fff)))',color:'inherit',fontWeight:900,lineHeight:1}}>{quantity} db</output>
       <span
         data-cart-stepper={cart?'vertical':undefined}
         data-rfq-stepper={!cart?'vertical':undefined}
@@ -57,7 +57,7 @@ export function CartStyleQuantityControl({
           aria-label="Mennyiség növelése"
           disabled={disabled}
           onClick={onIncrease}
-          style={{display:'flex',alignItems:'center',justifyContent:'center',width:32,minWidth:32,height:32,minHeight:32,padding:0,margin:0,border:0,borderRadius:0,background:'var(--shoporation-account-control-background,var(--shoporation-color-surface-muted,var(--shoporation-color-surface,#fff)))',color:'#fff',lineHeight:0,opacity:disabled?.55:1}}
+          style={{display:'flex',alignItems:'center',justifyContent:'center',width:32,minWidth:32,height:32,minHeight:32,padding:0,margin:0,border:0,borderRadius:0,background:'var(--shoporation-account-control-background,var(--shoporation-color-surface-muted,var(--shoporation-color-surface,#fff)))',color:'var(--shoporation-color-text,#fff)',lineHeight:0,opacity:disabled?.55:1}}
         ><CartChevronIcon direction="up"/></button>
         <button
           data-cart-step={cart?'decrease':undefined}
@@ -65,9 +65,10 @@ export function CartStyleQuantityControl({
           type="button"
           aria-label="Mennyiség csökkentése"
           aria-disabled={!canDecrease}
+          data-quantity-disabled-visible={!canDecrease?'true':undefined}
           disabled={!canDecrease}
           onClick={onDecrease}
-          style={{display:'flex',alignItems:'center',justifyContent:'center',width:32,minWidth:32,height:32,minHeight:32,padding:0,margin:0,border:0,borderRadius:0,background:'var(--shoporation-account-control-background,var(--shoporation-color-surface-muted,var(--shoporation-color-surface,#fff)))',color:'#fff',lineHeight:0,opacity:canDecrease?1:.55}}
+          style={{display:'flex',alignItems:'center',justifyContent:'center',width:32,minWidth:32,height:32,minHeight:32,padding:0,margin:0,border:0,borderRadius:0,background:'var(--shoporation-account-control-background,var(--shoporation-color-surface-muted,var(--shoporation-color-surface,#fff)))',color:'var(--shoporation-color-text,#fff)',lineHeight:0,opacity:canDecrease?1:.55}}
         ><CartChevronIcon direction="down"/></button>
       </span>
     </span>
@@ -79,7 +80,7 @@ export function CartStyleQuantityControl({
       title="Törlés"
       disabled={disabled}
       onClick={onRemove}
-      style={{display:'flex',alignItems:'center',justifyContent:'center',width:36,height:36,minWidth:36,minHeight:36,padding:0,margin:0,border:'1px solid #ef5454',borderRadius:8,background:'#cf3038',color:'#fff',lineHeight:0,opacity:disabled?.55:1}}
+      style={{display:'flex',alignItems:'center',justifyContent:'center',width:36,height:36,minWidth:36,minHeight:36,padding:0,margin:0,border:'1px solid color-mix(in srgb,#ef5454 62%,var(--shoporation-color-border,#d8dce7))',borderRadius:8,background:'var(--shoporation-color-surface-muted,var(--shoporation-color-surface,#fff))',color:'#ef7272',lineHeight:0,opacity:disabled?.55:1}}
     ><CartTrashIcon/></button>:null}
   </div>;
 }

@@ -598,8 +598,9 @@ describe('Playroom v20 functional acceptance',()=>{
     expect(checkout).toContain('[privacyAcknowledged,setPrivacyAcknowledged]=useState(false)');
     expect(checkout).toContain('name="termsAccepted"');
     expect(checkout).toContain('name="privacyAcknowledged"');
-    expect(checkout).toContain('type="submit" disabled={state===\'sending\'||quoteLoading||!quote||!termsAccepted||!privacyAcknowledged||!payment}');
-    expect(checkout).toContain('Acceptance · rendelésleadás tesztelése');
+    expect(checkout).toContain("data-storefront-preview-order-submit={acceptancePreview?'true':undefined}");
+    expect(checkout).toContain("disabled={state==='sending'||quoteLoading||!quote||!termsAccepted||!privacyAcknowledged||!payment}");
+    expect(checkout).toContain('Rendelés leadása · ${formatHuf(total)}');
     expect(checkout).not.toContain("type={acceptancePreview?'button':'submit'}");
     expect(checkout).not.toContain("disabled={acceptancePreview||");
     expect(checkout.indexOf('if(acceptancePreview){')).toBeLessThan(checkout.indexOf("fetch('/api/orders'"));
@@ -877,7 +878,8 @@ describe('Playroom v20 functional acceptance',()=>{
     expect(html).not.toContain('data-storefront-account="downloads"');
     expect(html).not.toContain('data-storefront-account="documents"');
     expect(collectNodes(composedAccount,node=>node.componentKey==='account.capability-navigation')).toHaveLength(0);
-    expect(read('src/components/account/storefront-account-shell.tsx')).toContain('data-account-navigation-authority="platform-ia"');
+    expect(read('src/components/account/storefront-account-shell.tsx')).toContain('StorefrontAccountWorkspace');
+    expect(read('src/components/account/storefront-account-workspace.tsx')).toContain('data-account-navigation-authority="platform-ia"');
     expect(collectNodes(composedAccount,node=>['commerce.documents-center','commerce.account-downloads','commerce.account-documents','commerce.post-purchase-guidance'].includes(node.componentKey))).toHaveLength(0);
     const downloadsPage=read('src/app/fiokom/letoltesek/page.tsx');
     const documentsPage=read('src/app/fiokom/dokumentumok/page.tsx');

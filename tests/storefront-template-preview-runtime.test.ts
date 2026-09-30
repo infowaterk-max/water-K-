@@ -38,6 +38,22 @@ describe('storefront template preview runtime',()=>{
     expect(login).toContain("if(input.factoryCandidate)params.set('factory','1')");
     expect(shell).toContain('resolveStorefrontTemplateAccountPreviewRuntimePage');
     expect(shell).toContain('data-storefront-account-shell={runtime.source}');
+    const previewRuntime=fs.readFileSync('src/components/builder/storefront-template-preview-runtime.tsx','utf8');
+    expect(previewRuntime).toContain('StorefrontAccountWorkspace');
+    expect(previewRuntime).toContain('navigation={<AccountSubnav templateCapabilities={templateCapabilities}/>');
+    expect(previewRuntime).not.toContain('<AccountSubnav showLoyalty showB2BOrganization showB2BQuotes');
+    expect(previewRuntime).toContain('data-storefront-preview-account-overview="showroom-v1"');
+    expect(previewRuntime).toContain("if(url.pathname.startsWith('/termek/'))");
+    expect(previewRuntime).toContain("productUrl.searchParams.set('page','product')");
+    expect(previewRuntime).toContain('splitStorefrontAccountTemplateSections(page)');
+    expect(previewRuntime).toContain('resolveAccountCapabilityPreviewView(url.toString())');
+    expect(previewRuntime).toContain('const navigatePreview=(event:MouseEvent<HTMLDivElement>,href:string)=>');
+    expect(previewRuntime).toContain('event.nativeEvent.stopImmediatePropagation()');
+    expect(previewRuntime).toContain('navigatePreview(event,routes.cart)');
+    expect(previewRuntime).toContain('navigatePreview(event,routes.checkout)');
+    expect(previewRuntime).toContain('data-storefront-live-checkout="shared-e13"');
+    expect(previewRuntime).toContain('className="storefrontAccountShell"');
+    expect(previewRuntime).toContain("item.slug==='vault-sentinel-preview'");
   });
 
   it('resolves tenant-free template-aware account presentation for every accepted previewable template',()=>{

@@ -40,9 +40,11 @@ function checkoutThemeStyle(page:StorefrontPageDocument):CSSProperties{
   assign('radiusS','--shoporation-radius-s');
   assign('radiusM','--shoporation-radius-m');
   assign('radiusL','--shoporation-radius-l');
+  assign('buttonRadius','--shoporation-commerce-button-radius');
   return {
     ...inherited,
     ...overrides,
+    '--shoporation-commerce-button-radius':'10px',
     color:'var(--shoporation-color-text)',
     fontFamily:'var(--shoporation-body-font,Arial,sans-serif)',
   } as CSSProperties;

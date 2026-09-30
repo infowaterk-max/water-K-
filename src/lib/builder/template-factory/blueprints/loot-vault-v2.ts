@@ -33,9 +33,9 @@ export const LOOT_VAULT_V2_GENERATOR_BLUEPRINT:StorefrontTemplateGeneratorBluepr
   productionContracts:Object.freeze({
     visualAuthority:Object.freeze({
       contract:STOREFRONT_TEMPLATE_VISUAL_AUTHORITY_VERSION,
-      referenceKey:'gaming.loot-vault.accepted-reference-2026-09-06',
+      referenceKey:'gaming.loot-vault.visual-first-approved-2026-09-28',
       state:'accepted-reference',
-      requiredPageTypes:Object.freeze(['home','catalog','product','blog-index','blog-article'] as const),
+      requiredPageTypes:Object.freeze([...STOREFRONT_PAGE_TYPES]),
       designChangePolicy:'product-owner-reapproval-required',
     }),
     fileOwnership:Object.freeze({

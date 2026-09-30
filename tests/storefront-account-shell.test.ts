@@ -3,14 +3,19 @@ const read=(p:string)=>readFileSync(join(process.cwd(),p),'utf8');
 describe('storefront account shell',()=>{
  it('renders account subroutes inside the tenant storefront chrome',()=>{
   const shell=read('src/components/account/storefront-account-shell.tsx'),layout=read('src/app/fiokom/layout.tsx');
+  const workspace=read('src/components/account/storefront-account-workspace.tsx');
+  const composition=read('src/lib/account/storefront-account-composition.ts');
   expect(layout).toContain('StorefrontAccountShell');
   expect(shell).toContain('resolveCurrentStorefrontAccountRuntimePage');
-  expect(shell).toContain('data-account-navigation-authority="platform-ia"');
-  expect(shell).toContain('{fallbackNavigation}');
+  expect(shell).toContain('StorefrontAccountWorkspace');
+  expect(workspace).toContain('data-account-navigation-authority="platform-ia"');
+  expect(layout).toContain('accountNavigationContext={{showLoyalty,showB2BOrganization,showB2BQuotes}}');
+  expect(shell).toContain('resolveTemplateAccountCapabilityOptIns(page?.metadata)');
+  expect(shell).toContain('navigationFor(runtime.page)');
   expect(shell).not.toContain("item.componentKey==='account.capability-navigation'");
-  expect(shell).toContain("item.componentKey==='system.commerce-header'");
-  expect(shell).toContain("item.componentKey==='system.footer'");
-  expect(shell).toContain('storefrontAccountRouteContent');
+  expect(composition).toContain("item.componentKey==='system.commerce-header'");
+  expect(composition).toContain("item.componentKey==='system.footer'");
+  expect(workspace).toContain('storefrontAccountRouteContent');
  });
  it('uses the real acceptance account draft while keeping production on published account runtime',()=>{
   const source=read('src/lib/builder/storefront-runtime-source.ts');
@@ -19,6 +24,8 @@ describe('storefront account shell',()=>{
   expect(source).toContain("getStorefrontDigitalCommerceRuntimeModel(instance.id,request)");
   expect(source).toContain("getPublishedStorefrontPage(instance.id,'account')");
   expect(source).toContain("const authored=customerId?materialized:applyTemplateAuthComposition(materialized)");
+  expect(source).toContain("templateCapabilities:resolveTemplateAccountCapabilityOptIns(composed.metadata)");
+  expect(source).toContain("templateCapabilities:resolveTemplateAccountCapabilityOptIns(authored.metadata)");
  });
  it('themes legacy account primitives from storefront design tokens inside the shell',()=>{
   const css=read('src/app/account-workflow.css');

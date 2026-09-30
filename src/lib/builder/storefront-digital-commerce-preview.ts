@@ -1,6 +1,6 @@
 import type {StorefrontPageDocument} from '@/lib/builder/storefront-runtime';
 import type {StorefrontInstallableTemplatePackage} from '@/lib/builder/storefront-template-installation';
-import {resolveAccountCapabilities} from '@/lib/account/account-capabilities';
+import {resolveAccountCapabilities,resolveTemplateAccountCapabilityOptIns} from '@/lib/account/account-capabilities';
 
 const clone=<T>(value:T):T=>structuredClone(value);
 const rec=(value:unknown):Record<string,unknown>=>value&&typeof value==='object'&&!Array.isArray(value)?value as Record<string,unknown>:{};
@@ -25,6 +25,15 @@ export function augmentStorefrontDigitalCommercePreviewContext(input:{
     {id:'acceptance-physical-product',name:'Acceptance Physical Product',variantLabel:'Fizikai termék',quantity:1,lineTotal:1270,fulfillmentType:'physical'},
     {id:'acceptance-digital-product',name:'Acceptance Digital Product',variantLabel:'Digitális termék',quantity:1,lineTotal:2540,fulfillmentType:'digital'},
   ];
+  const lootVaultPreviewCartLines=[
+    {id:'vault-sentinel',name:'Vault Sentinel prémium figura',variantLabel:'Gyűjtői figura',quantity:1,lineTotal:89990,fulfillmentType:'physical',image:'/storefront-demo/loot-vault-v2/product-figure.webp',imageAlt:'Vault Sentinel prémium figura'},
+    {id:'mythic-warden',name:'Mythic Warden gyűjtői szobor',variantLabel:'Gyűjtői szobor',quantity:1,lineTotal:129990,fulfillmentType:'physical',image:'/storefront-demo/loot-vault-v2/hero-cinematic.webp',imageAlt:'Mythic Warden gyűjtői szobor'},
+    {id:'vault-visor',name:'Vault Visor sci-fi relikvia',variantLabel:'Sci-fi relikvia',quantity:1,lineTotal:74990,fulfillmentType:'physical',image:'/storefront-demo/loot-vault-v2/editorial-vault-shelf.webp',imageAlt:'Vault Visor sci-fi relikvia'},
+  ];
+  lootVaultPreviewCartLines.splice(2,0,{id:'neon-controller',name:'Neon Controller Collector Edition',variantLabel:'Gyűjtői kiadás',quantity:1,lineTotal:59990,fulfillmentType:'physical',image:'/storefront-demo/loot-vault-v2/editorial-collector-room.webp',imageAlt:'Neon Controller Collector Edition'});
+  const isLootVault=input.template?.manifest.templateKey==='gaming.loot-vault';
+  const previewCartLines=isLootVault?lootVaultPreviewCartLines:acceptanceCartLines;
+  const previewCartSubtotal=previewCartLines.reduce((sum,line)=>sum+line.lineTotal,0);
   const productDocuments={state:'ready',documents:[
     {id:'preview-manual',kindLabel:'Használati útmutató',title:'Termék – gyors kezdés',description:'Preview dokumentum a Product Documents komponens vizuális ellenőrzéséhez.',fileName:'product-guide.pdf',sizeLabel:'1.2 MB',variantSpecific:true,downloadHref:'/storefront-template-preview?previewDocument=1'},
   ]};
@@ -45,15 +54,15 @@ export function augmentStorefrontDigitalCommercePreviewContext(input:{
   }
   if(input.page.pageType==='cart'){
     digitalCommerce.cartFulfillment={state:'ready',mode:'mixed',copy:'A kosár digitális és fizikai tételt is tartalmaz.',lines:mixedLines,documentCenterHref:'/fiokom/letoltesek'};
-    if(input.acceptanceMode)next.cart={lines:acceptanceCartLines,subtotal:3810,total:3810,shipping:0,currency:'HUF'};
+    if(input.acceptanceMode||isLootVault)next.cart={lines:previewCartLines,subtotal:previewCartSubtotal,total:previewCartSubtotal,shipping:0,currency:'HUF'};
   }
   if(input.page.pageType==='checkout'){
-    if(input.acceptanceMode)next.cart={lines:acceptanceCartLines,subtotal:3810,total:3810,shipping:0,currency:'HUF'};
+    if(input.acceptanceMode||isLootVault)next.cart={lines:previewCartLines,subtotal:previewCartSubtotal,total:previewCartSubtotal,shipping:0,currency:'HUF'};
     digitalCommerce.checkoutFulfillment={state:'ready',mode:'mixed',copy:'A fizikai tétel kézbesítést kap, a digitális tartalom az igazolt fizetés után válik letölthetővé.',lines:mixedLines,documentCenterHref:'/fiokom/letoltesek'};
     digitalCommerce.postPurchase={state:'ready',mode:'mixed',paymentStatus:'pending',copy:'A digitális hozzáférés a fizetés hitelesítése után aktiválódik.',documentCenterHref:'/fiokom/letoltesek'};
   }
   if(input.page.pageType==='account'){
-    digitalCommerce.accountCapabilities={state:'ready',items:resolveAccountCapabilities({showLoyalty:true,showB2BOrganization:true,showB2BQuotes:true})};
+    digitalCommerce.accountCapabilities={state:'ready',items:resolveAccountCapabilities({showLoyalty:true,showB2BOrganization:true,showB2BQuotes:true,templateCapabilities:resolveTemplateAccountCapabilityOptIns(input.page.metadata)})};
     digitalCommerce.accountDownloads={state:'ready',digital:documentsCenter.digital};
     digitalCommerce.accountDocuments={state:'ready',orderDocuments:documentsCenter.orderDocuments,productDocuments:documentsCenter.productDocuments};
     digitalCommerce.documentsCenter=documentsCenter;
