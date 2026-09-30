@@ -499,7 +499,7 @@
                           "componentKey": "content.image",
                           "componentVersion": 1,
                           "config": {
-                            "src": "/storefront-demo/loot-vault-v2/hero-cinematic.webp",
+                            "src": "/storefront-demo/loot-vault-v2/editorial-vault-shelf.webp",
                             "alt": "Cinematikus fantasy jelenet gyűjtői Loot Vault hangulattal",
                             "width": 1600,
                             "height": 1000,
@@ -509,17 +509,17 @@
                             "objectPosition": "58% center",
                             "artDirection": {
                               "desktop": {
-                                "src": "/storefront-demo/loot-vault-v2/hero-cinematic.webp",
+                                "src": "/storefront-demo/loot-vault-v2/editorial-vault-shelf.webp",
                                 "objectFit": "cover",
                                 "objectPosition": "center center"
                               },
                               "tablet": {
-                                "src": "/storefront-demo/loot-vault-v2/hero-cinematic.webp",
+                                "src": "/storefront-demo/loot-vault-v2/editorial-vault-shelf.webp",
                                 "objectFit": "cover",
                                 "objectPosition": "center center"
                               },
                               "mobile": {
-                                "src": "/storefront-demo/loot-vault-v2/hero-cinematic.webp",
+                                "src": "/storefront-demo/loot-vault-v2/editorial-vault-shelf.webp",
                                 "objectFit": "cover",
                                 "objectPosition": "center center"
                               }
@@ -1373,7 +1373,7 @@
                           "componentKey": "content.image",
                           "componentVersion": 1,
                           "config": {
-                            "src": "/storefront-demo/loot-vault-v2/category-fantasy.webp",
+                            "src": "/storefront-demo/loot-vault-v2/hero-cinematic.webp",
                             "alt": "Fantasy gyűjtői világ sötét páncélos karakterrel",
                             "width": 1600,
                             "height": 1000,
@@ -1383,17 +1383,17 @@
                             "objectPosition": "78% 40%",
                             "artDirection": {
                               "desktop": {
-                                "src": "/storefront-demo/loot-vault-v2/category-fantasy.webp",
+                                "src": "/storefront-demo/loot-vault-v2/hero-cinematic.webp",
                                 "objectFit": "cover",
                                 "objectPosition": "78% 40%"
                               },
                               "tablet": {
-                                "src": "/storefront-demo/loot-vault-v2/category-fantasy.webp",
+                                "src": "/storefront-demo/loot-vault-v2/hero-cinematic.webp",
                                 "objectFit": "cover",
                                 "objectPosition": "78% 40%"
                               },
                               "mobile": {
-                                "src": "/storefront-demo/loot-vault-v2/category-fantasy.webp",
+                                "src": "/storefront-demo/loot-vault-v2/hero-cinematic.webp",
                                 "objectFit": "cover",
                                 "objectPosition": "78% 40%"
                               }
@@ -1494,7 +1494,7 @@
                           "componentKey": "content.image",
                           "componentVersion": 1,
                           "config": {
-                            "src": "/storefront-demo/loot-vault-v2/category-galaxy.webp",
+                            "src": "/storefront-demo/loot-vault-v2/editorial-vault-shelf.webp",
                             "alt": "Sci-fi gyűjtői világ futurisztikus felszereléssel",
                             "width": 1600,
                             "height": 1000,
@@ -1504,17 +1504,17 @@
                             "objectPosition": "62% center",
                             "artDirection": {
                               "desktop": {
-                                "src": "/storefront-demo/loot-vault-v2/category-galaxy.webp",
+                                "src": "/storefront-demo/loot-vault-v2/editorial-vault-shelf.webp",
                                 "objectFit": "cover",
                                 "objectPosition": "center center"
                               },
                               "tablet": {
-                                "src": "/storefront-demo/loot-vault-v2/category-galaxy.webp",
+                                "src": "/storefront-demo/loot-vault-v2/editorial-vault-shelf.webp",
                                 "objectFit": "cover",
                                 "objectPosition": "center center"
                               },
                               "mobile": {
-                                "src": "/storefront-demo/loot-vault-v2/category-galaxy.webp",
+                                "src": "/storefront-demo/loot-vault-v2/editorial-vault-shelf.webp",
                                 "objectFit": "cover",
                                 "objectPosition": "center center"
                               }
@@ -2178,7 +2178,7 @@
                         "id": "mythic-wing",
                         "name": "Mythic Warden gyűjtői szobor",
                         "href": "/termek/mythic-warden",
-                        "image": "/storefront-demo/loot-vault-v2/product-statue.webp",
+                        "image": "/storefront-demo/loot-vault-v2/hero-cinematic.webp",
                         "imageAlt": "Mythic Warden fantasy gyűjtői szobor",
                         "price": 129990,
                         "badge": "SZOBOR",
@@ -2204,7 +2204,7 @@
                         "id": "archive-relic",
                         "name": "Vault Visor sci-fi relikvia",
                         "href": "/termek/vault-visor",
-                        "image": "/storefront-demo/loot-vault-v2/product-relic.webp",
+                        "image": "/storefront-demo/loot-vault-v2/editorial-vault-shelf.webp",
                         "imageAlt": "Vault Visor sci-fi gyűjtői relikvia",
                         "price": 74990,
                         "badge": "ÚJDONSÁG",
@@ -2381,7 +2381,7 @@
                           "id": "mythic-wing",
                           "name": "Mythic Warden gyűjtői szobor",
                           "href": "/termek/mythic-warden",
-                          "image": "/storefront-demo/loot-vault-v2/product-statue.webp",
+                          "image": "/storefront-demo/loot-vault-v2/hero-cinematic.webp",
                           "imageAlt": "Mythic Warden fantasy gyűjtői szobor",
                           "price": 129990,
                           "badge": "SZOBOR",
@@ -2407,7 +2407,7 @@
                           "id": "archive-relic",
                           "name": "Vault Visor sci-fi relikvia",
                           "href": "/termek/vault-visor",
-                          "image": "/storefront-demo/loot-vault-v2/product-relic.webp",
+                          "image": "/storefront-demo/loot-vault-v2/editorial-vault-shelf.webp",
                           "imageAlt": "Vault Visor sci-fi gyűjtői relikvia",
                           "price": 74990,
                           "badge": "ÚJDONSÁG",
@@ -2467,7 +2467,7 @@
                       "componentKey": "content.image",
                       "componentVersion": 1,
                       "config": {
-                        "src": "/storefront-demo/loot-vault-v2/category-retro.webp",
+                        "src": "/storefront-demo/loot-vault-v2/editorial-collector-room.webp",
                         "alt": "Prémium gaming tárgy részlete a gyűjtői tér hangulatában",
                         "width": 1600,
                         "height": 1000,
@@ -2477,17 +2477,17 @@
                         "objectPosition": "54% center",
                         "artDirection": {
                           "desktop": {
-                            "src": "/storefront-demo/loot-vault-v2/category-retro.webp",
+                            "src": "/storefront-demo/loot-vault-v2/editorial-collector-room.webp",
                             "objectFit": "cover",
                             "objectPosition": "54% center"
                           },
                           "tablet": {
-                            "src": "/storefront-demo/loot-vault-v2/category-retro.webp",
+                            "src": "/storefront-demo/loot-vault-v2/editorial-collector-room.webp",
                             "objectFit": "cover",
                             "objectPosition": "54% center"
                           },
                           "mobile": {
-                            "src": "/storefront-demo/loot-vault-v2/category-retro.webp",
+                            "src": "/storefront-demo/loot-vault-v2/editorial-collector-room.webp",
                             "objectFit": "cover",
                             "objectPosition": "54% center"
                           }
@@ -3222,7 +3222,7 @@
                       "componentKey": "content.image",
                       "componentVersion": 1,
                       "config": {
-                        "src": "/storefront-demo/loot-vault-v2/background-archive.webp",
+                        "src": "/storefront-demo/loot-vault-v2/editorial-collector-room.webp",
                         "alt": "Sötét, neonfényes gyűjtői tér",
                         "width": 1600,
                         "height": 1000,
@@ -3232,17 +3232,17 @@
                         "objectPosition": "center center",
                         "artDirection": {
                           "desktop": {
-                            "src": "/storefront-demo/loot-vault-v2/background-archive.webp",
+                            "src": "/storefront-demo/loot-vault-v2/editorial-collector-room.webp",
                             "objectFit": "cover",
                             "objectPosition": "center center"
                           },
                           "tablet": {
-                            "src": "/storefront-demo/loot-vault-v2/background-archive.webp",
+                            "src": "/storefront-demo/loot-vault-v2/editorial-collector-room.webp",
                             "objectFit": "cover",
                             "objectPosition": "center center"
                           },
                           "mobile": {
-                            "src": "/storefront-demo/loot-vault-v2/background-archive.webp",
+                            "src": "/storefront-demo/loot-vault-v2/editorial-collector-room.webp",
                             "objectFit": "cover",
                             "objectPosition": "center center"
                           }
@@ -3676,7 +3676,7 @@
                             "id": "mythic-wing",
                             "name": "Mythic Warden gyűjtői szobor",
                             "href": "/termek/mythic-warden",
-                            "image": "/storefront-demo/loot-vault-v2/product-statue.webp",
+                            "image": "/storefront-demo/loot-vault-v2/hero-cinematic.webp",
                             "imageAlt": "Mythic Warden fantasy gyűjtői szobor",
                             "price": 129990,
                             "badge": "SZOBOR",
@@ -3702,7 +3702,7 @@
                             "id": "archive-relic",
                             "name": "Vault Visor sci-fi relikvia",
                             "href": "/termek/vault-visor",
-                            "image": "/storefront-demo/loot-vault-v2/product-relic.webp",
+                            "image": "/storefront-demo/loot-vault-v2/editorial-vault-shelf.webp",
                             "imageAlt": "Vault Visor sci-fi gyűjtői relikvia",
                             "price": 74990,
                             "badge": "ÚJDONSÁG",
@@ -3715,7 +3715,7 @@
                             "id": "obsidian-ranger",
                             "name": "Obsidian Ranger gyűjtői figura",
                             "href": "/termek/obsidian-ranger",
-                            "image": "/storefront-demo/loot-vault-v2/category-miniatures.webp",
+                            "image": "/storefront-demo/loot-vault-v2/product-relic.webp",
                             "imageAlt": "Obsidian Ranger sötét fantasy gyűjtői figura",
                             "price": 84990,
                             "badge": "ÚJDONSÁG",
@@ -3728,7 +3728,7 @@
                             "id": "celestial-guardian",
                             "name": "Celestial Guardian szobor",
                             "href": "/termek/celestial-guardian",
-                            "image": "/storefront-demo/loot-vault-v2/hero-cinematic.webp",
+                            "image": "/storefront-demo/loot-vault-v2/product-statue.webp",
                             "imageAlt": "Celestial Guardian prémium gyűjtői szobor",
                             "price": 139990,
                             "badge": "KIEMELT",
@@ -3900,7 +3900,7 @@
                               "id": "mythic-wing",
                               "name": "Mythic Warden gyűjtői szobor",
                               "href": "/termek/mythic-warden",
-                              "image": "/storefront-demo/loot-vault-v2/product-statue.webp",
+                              "image": "/storefront-demo/loot-vault-v2/hero-cinematic.webp",
                               "imageAlt": "Mythic Warden fantasy gyűjtői szobor",
                               "price": 129990,
                               "badge": "SZOBOR",
@@ -3926,7 +3926,7 @@
                               "id": "archive-relic",
                               "name": "Vault Visor sci-fi relikvia",
                               "href": "/termek/vault-visor",
-                              "image": "/storefront-demo/loot-vault-v2/product-relic.webp",
+                              "image": "/storefront-demo/loot-vault-v2/editorial-vault-shelf.webp",
                               "imageAlt": "Vault Visor sci-fi gyűjtői relikvia",
                               "price": 74990,
                               "badge": "ÚJDONSÁG",
@@ -3939,7 +3939,7 @@
                               "id": "obsidian-ranger",
                               "name": "Obsidian Ranger gyűjtői figura",
                               "href": "/termek/obsidian-ranger",
-                              "image": "/storefront-demo/loot-vault-v2/category-miniatures.webp",
+                              "image": "/storefront-demo/loot-vault-v2/product-relic.webp",
                               "imageAlt": "Obsidian Ranger sötét fantasy gyűjtői figura",
                               "price": 84990,
                               "badge": "ÚJDONSÁG",
@@ -3952,7 +3952,7 @@
                               "id": "celestial-guardian",
                               "name": "Celestial Guardian szobor",
                               "href": "/termek/celestial-guardian",
-                              "image": "/storefront-demo/loot-vault-v2/hero-cinematic.webp",
+                              "image": "/storefront-demo/loot-vault-v2/product-statue.webp",
                               "imageAlt": "Celestial Guardian prémium gyűjtői szobor",
                               "price": 139990,
                               "badge": "KIEMELT",
@@ -4658,22 +4658,22 @@
                               "imageFilter": "brightness(.72) saturate(.72) contrast(1.12) sepia(.08)"
                             },
                             {
-                              "src": "/storefront-demo/loot-vault-v2/editorial-vault-shelf.webp",
-                              "alt": "Mythic Warden gyűjtői szobor részlet",
+                              "src": "/storefront-demo/loot-vault-v2/product-relic.webp",
+                              "alt": "Vault Sentinel relikvia-részlet",
                               "objectPosition": "60% center",
                               "filter": "saturate(.7) contrast(1.22) brightness(.74) hue-rotate(20deg)",
                               "imageFilter": "brightness(.72) saturate(.72) contrast(1.12) sepia(.08)"
                             },
                             {
-                              "src": "/storefront-demo/loot-vault-v2/editorial-collector-room.webp",
-                              "alt": "Collector Edition alternatív nézet",
+                              "src": "/storefront-demo/loot-vault-v2/product-statue.webp",
+                              "alt": "Collector Edition szobor-részlet",
                               "objectPosition": "68% center",
                               "filter": "saturate(.86) contrast(1.18) brightness(.78) sepia(.16)",
                               "imageFilter": "brightness(.72) saturate(.72) contrast(1.12) sepia(.08)"
                             },
                             {
-                              "src": "/storefront-demo/loot-vault-v2/editorial-vault-shelf.webp",
-                              "alt": "Archívum relikvia részlet",
+                              "src": "/storefront-demo/loot-vault-v2/category-miniatures.webp",
+                              "alt": "Gyűjtői kiállítás alternatív nézete",
                               "objectPosition": "34% center",
                               "filter": "saturate(.6) contrast(1.24) brightness(.72) hue-rotate(210deg)",
                               "imageFilter": "brightness(.72) saturate(.72) contrast(1.12) sepia(.08)"
@@ -5449,7 +5449,7 @@
                         "id": "mythic-wing",
                         "name": "Mythic Warden gyűjtői szobor",
                         "href": "/termek/mythic-warden",
-                        "image": "/storefront-demo/loot-vault-v2/product-statue.webp",
+                        "image": "/storefront-demo/loot-vault-v2/hero-cinematic.webp",
                         "imageAlt": "Mythic Warden fantasy gyűjtői szobor",
                         "price": 129990,
                         "badge": "SZOBOR",
@@ -5473,7 +5473,7 @@
                         "id": "archive-relic",
                         "name": "Vault Visor sci-fi relikvia",
                         "href": "/termek/vault-visor",
-                        "image": "/storefront-demo/loot-vault-v2/product-relic.webp",
+                        "image": "/storefront-demo/loot-vault-v2/editorial-vault-shelf.webp",
                         "imageAlt": "Vault Visor sci-fi gyűjtői relikvia",
                         "price": 74990,
                         "badge": "ÚJDONSÁG",
@@ -5543,7 +5543,7 @@
                           "id": "mythic-wing",
                           "name": "Mythic Warden gyűjtői szobor",
                           "href": "/termek/mythic-warden",
-                          "image": "/storefront-demo/loot-vault-v2/product-statue.webp",
+                          "image": "/storefront-demo/loot-vault-v2/hero-cinematic.webp",
                           "imageAlt": "Mythic Warden fantasy gyűjtői szobor",
                           "price": 129990,
                           "badge": "SZOBOR",
@@ -5567,7 +5567,7 @@
                           "id": "archive-relic",
                           "name": "Vault Visor sci-fi relikvia",
                           "href": "/termek/vault-visor",
-                          "image": "/storefront-demo/loot-vault-v2/product-relic.webp",
+                          "image": "/storefront-demo/loot-vault-v2/editorial-vault-shelf.webp",
                           "imageAlt": "Vault Visor sci-fi gyűjtői relikvia",
                           "price": 74990,
                           "badge": "ÚJDONSÁG",
@@ -6163,7 +6163,7 @@
                       "componentKey": "content.image",
                       "componentVersion": 1,
                       "config": {
-                        "src": "/storefront-demo/loot-vault-v2/editorial-vault-shelf.webp",
+                        "src": "/storefront-demo/loot-vault-v2/product-relic.webp",
                         "alt": "Cinematikus Loot Vault jelenet a kosár nyitófelületének hátterében",
                         "width": 1600,
                         "height": 1000,
@@ -6173,17 +6173,17 @@
                         "objectPosition": "64% center",
                         "artDirection": {
                           "desktop": {
-                            "src": "/storefront-demo/loot-vault-v2/editorial-vault-shelf.webp",
+                            "src": "/storefront-demo/loot-vault-v2/product-relic.webp",
                             "objectFit": "cover",
                             "objectPosition": "64% center"
                           },
                           "tablet": {
-                            "src": "/storefront-demo/loot-vault-v2/editorial-vault-shelf.webp",
+                            "src": "/storefront-demo/loot-vault-v2/product-relic.webp",
                             "objectFit": "cover",
                             "objectPosition": "64% center"
                           },
                           "mobile": {
-                            "src": "/storefront-demo/loot-vault-v2/editorial-vault-shelf.webp",
+                            "src": "/storefront-demo/loot-vault-v2/product-relic.webp",
                             "objectFit": "cover",
                             "objectPosition": "64% center"
                           }
@@ -6684,7 +6684,7 @@
                         "id": "mythic-wing",
                         "name": "Mythic Warden gyűjtői szobor",
                         "href": "/termek/mythic-warden",
-                        "image": "/storefront-demo/loot-vault-v2/product-statue.webp",
+                        "image": "/storefront-demo/loot-vault-v2/hero-cinematic.webp",
                         "imageAlt": "Mythic Warden fantasy gyűjtői szobor",
                         "price": 129990,
                         "badge": "SZOBOR",
@@ -6708,7 +6708,7 @@
                         "id": "archive-relic",
                         "name": "Vault Visor sci-fi relikvia",
                         "href": "/termek/vault-visor",
-                        "image": "/storefront-demo/loot-vault-v2/product-relic.webp",
+                        "image": "/storefront-demo/loot-vault-v2/editorial-vault-shelf.webp",
                         "imageAlt": "Vault Visor sci-fi gyűjtői relikvia",
                         "price": 74990,
                         "badge": "ÚJDONSÁG",
@@ -6778,7 +6778,7 @@
                           "id": "mythic-wing",
                           "name": "Mythic Warden gyűjtői szobor",
                           "href": "/termek/mythic-warden",
-                          "image": "/storefront-demo/loot-vault-v2/product-statue.webp",
+                          "image": "/storefront-demo/loot-vault-v2/hero-cinematic.webp",
                           "imageAlt": "Mythic Warden fantasy gyűjtői szobor",
                           "price": 129990,
                           "badge": "SZOBOR",
@@ -6802,7 +6802,7 @@
                           "id": "archive-relic",
                           "name": "Vault Visor sci-fi relikvia",
                           "href": "/termek/vault-visor",
-                          "image": "/storefront-demo/loot-vault-v2/product-relic.webp",
+                          "image": "/storefront-demo/loot-vault-v2/editorial-vault-shelf.webp",
                           "imageAlt": "Vault Visor sci-fi gyűjtői relikvia",
                           "price": 74990,
                           "badge": "ÚJDONSÁG",
@@ -7738,7 +7738,7 @@
                       "componentKey": "content.image",
                       "componentVersion": 1,
                       "config": {
-                        "src": "/storefront-demo/loot-vault-v2/product-relic.webp",
+                        "src": "/storefront-demo/loot-vault-v2/product-statue.webp",
                         "alt": "Sötét archívumhangulat a biztonságos pénztár hátterében",
                         "width": 1600,
                         "height": 1000,
@@ -7748,17 +7748,17 @@
                         "objectPosition": "center 40%",
                         "artDirection": {
                           "desktop": {
-                            "src": "/storefront-demo/loot-vault-v2/product-relic.webp",
+                            "src": "/storefront-demo/loot-vault-v2/product-statue.webp",
                             "objectFit": "cover",
                             "objectPosition": "center 40%"
                           },
                           "tablet": {
-                            "src": "/storefront-demo/loot-vault-v2/product-relic.webp",
+                            "src": "/storefront-demo/loot-vault-v2/product-statue.webp",
                             "objectFit": "cover",
                             "objectPosition": "center 40%"
                           },
                           "mobile": {
-                            "src": "/storefront-demo/loot-vault-v2/product-relic.webp",
+                            "src": "/storefront-demo/loot-vault-v2/product-statue.webp",
                             "objectFit": "cover",
                             "objectPosition": "center 40%"
                           }
@@ -9053,7 +9053,7 @@
                       "componentKey": "content.image",
                       "componentVersion": 1,
                       "config": {
-                        "src": "/storefront-demo/loot-vault-v2/product-statue.webp",
+                        "src": "/storefront-demo/loot-vault-v2/category-fantasy.webp",
                         "alt": "Sötét gyűjtői archívum a fiók belépési felületének hátterében",
                         "width": 1600,
                         "height": 1000,
@@ -9063,17 +9063,17 @@
                         "objectPosition": "center 42%",
                         "artDirection": {
                           "desktop": {
-                            "src": "/storefront-demo/loot-vault-v2/product-statue.webp",
+                            "src": "/storefront-demo/loot-vault-v2/category-fantasy.webp",
                             "objectFit": "cover",
                             "objectPosition": "center 42%"
                           },
                           "tablet": {
-                            "src": "/storefront-demo/loot-vault-v2/product-statue.webp",
+                            "src": "/storefront-demo/loot-vault-v2/category-fantasy.webp",
                             "objectFit": "cover",
                             "objectPosition": "center 42%"
                           },
                           "mobile": {
-                            "src": "/storefront-demo/loot-vault-v2/product-statue.webp",
+                            "src": "/storefront-demo/loot-vault-v2/category-fantasy.webp",
                             "objectFit": "cover",
                             "objectPosition": "center 42%"
                           }
@@ -10008,7 +10008,7 @@
                       "componentKey": "content.image",
                       "componentVersion": 1,
                       "config": {
-                        "src": "/storefront-demo/loot-vault-v2/category-galaxy.webp",
+                        "src": "/storefront-demo/loot-vault-v2/product-relic.webp",
                         "alt": "Sötét gyűjtői archívum keresési háttérként",
                         "width": 1600,
                         "height": 1000,
@@ -10018,17 +10018,17 @@
                         "objectPosition": "center center",
                         "artDirection": {
                           "desktop": {
-                            "src": "/storefront-demo/loot-vault-v2/category-galaxy.webp",
+                            "src": "/storefront-demo/loot-vault-v2/product-relic.webp",
                             "objectFit": "cover",
                             "objectPosition": "center center"
                           },
                           "tablet": {
-                            "src": "/storefront-demo/loot-vault-v2/category-galaxy.webp",
+                            "src": "/storefront-demo/loot-vault-v2/product-relic.webp",
                             "objectFit": "cover",
                             "objectPosition": "center center"
                           },
                           "mobile": {
-                            "src": "/storefront-demo/loot-vault-v2/category-galaxy.webp",
+                            "src": "/storefront-demo/loot-vault-v2/product-relic.webp",
                             "objectFit": "cover",
                             "objectPosition": "center center"
                           }
@@ -10252,7 +10252,7 @@
                         "id": "mythic-wing",
                         "name": "Mythic Warden gyűjtői szobor",
                         "href": "/termek/mythic-warden",
-                        "image": "/storefront-demo/loot-vault-v2/product-statue.webp",
+                        "image": "/storefront-demo/loot-vault-v2/hero-cinematic.webp",
                         "imageAlt": "Mythic Warden fantasy gyűjtői szobor",
                         "price": 129990,
                         "badge": "SZOBOR",
@@ -10278,7 +10278,7 @@
                         "id": "archive-relic",
                         "name": "Vault Visor sci-fi relikvia",
                         "href": "/termek/vault-visor",
-                        "image": "/storefront-demo/loot-vault-v2/product-relic.webp",
+                        "image": "/storefront-demo/loot-vault-v2/editorial-vault-shelf.webp",
                         "imageAlt": "Vault Visor sci-fi gyűjtői relikvia",
                         "price": 74990,
                         "badge": "ÚJDONSÁG",
@@ -10448,7 +10448,7 @@
                           "id": "mythic-wing",
                           "name": "Mythic Warden gyűjtői szobor",
                           "href": "/termek/mythic-warden",
-                          "image": "/storefront-demo/loot-vault-v2/product-statue.webp",
+                          "image": "/storefront-demo/loot-vault-v2/hero-cinematic.webp",
                           "imageAlt": "Mythic Warden fantasy gyűjtői szobor",
                           "price": 129990,
                           "badge": "SZOBOR",
@@ -10474,7 +10474,7 @@
                           "id": "archive-relic",
                           "name": "Vault Visor sci-fi relikvia",
                           "href": "/termek/vault-visor",
-                          "image": "/storefront-demo/loot-vault-v2/product-relic.webp",
+                          "image": "/storefront-demo/loot-vault-v2/editorial-vault-shelf.webp",
                           "imageAlt": "Vault Visor sci-fi gyűjtői relikvia",
                           "price": 74990,
                           "badge": "ÚJDONSÁG",
@@ -11391,7 +11391,7 @@
                       "componentKey": "content.image",
                       "componentVersion": 1,
                       "config": {
-                        "src": "/storefront-demo/loot-vault-v2/category-fantasy.webp",
+                        "src": "/storefront-demo/loot-vault-v2/category-anime.webp",
                         "alt": "Kurált Loot Vault archívum",
                         "width": 1600,
                         "height": 1000,
@@ -11401,17 +11401,17 @@
                         "objectPosition": "center center",
                         "artDirection": {
                           "desktop": {
-                            "src": "/storefront-demo/loot-vault-v2/category-fantasy.webp",
+                            "src": "/storefront-demo/loot-vault-v2/category-anime.webp",
                             "objectFit": "cover",
                             "objectPosition": "center center"
                           },
                           "tablet": {
-                            "src": "/storefront-demo/loot-vault-v2/category-fantasy.webp",
+                            "src": "/storefront-demo/loot-vault-v2/category-anime.webp",
                             "objectFit": "cover",
                             "objectPosition": "center center"
                           },
                           "mobile": {
-                            "src": "/storefront-demo/loot-vault-v2/category-fantasy.webp",
+                            "src": "/storefront-demo/loot-vault-v2/category-anime.webp",
                             "objectFit": "cover",
                             "objectPosition": "center center"
                           }
@@ -12946,7 +12946,7 @@
                           "componentKey": "content.image",
                           "componentVersion": 1,
                           "config": {
-                            "src": "/storefront-demo/loot-vault-v2/category-retro.webp",
+                            "src": "/storefront-demo/loot-vault-v2/product-relic.webp",
                             "alt": "Fantasy, sci-fi és retro filmes Loot Vault hangulat",
                             "width": 1600,
                             "height": 1000,
@@ -12956,17 +12956,17 @@
                             "objectPosition": "60% center",
                             "artDirection": {
                               "desktop": {
-                                "src": "/storefront-demo/loot-vault-v2/category-retro.webp",
+                                "src": "/storefront-demo/loot-vault-v2/product-relic.webp",
                                 "objectFit": "cover",
                                 "objectPosition": "60% center"
                               },
                               "tablet": {
-                                "src": "/storefront-demo/loot-vault-v2/category-retro.webp",
+                                "src": "/storefront-demo/loot-vault-v2/product-relic.webp",
                                 "objectFit": "cover",
                                 "objectPosition": "60% center"
                               },
                               "mobile": {
-                                "src": "/storefront-demo/loot-vault-v2/category-retro.webp",
+                                "src": "/storefront-demo/loot-vault-v2/product-relic.webp",
                                 "objectFit": "cover",
                                 "objectPosition": "60% center"
                               }
@@ -17808,7 +17808,7 @@
                       "componentKey": "content.image",
                       "componentVersion": 1,
                       "config": {
-                        "src": "/storefront-demo/loot-vault-v2/background-archive.webp",
+                        "src": "/storefront-demo/loot-vault-v2/product-statue.webp",
                         "alt": "Sötét Loot Vault archívum",
                         "width": 1600,
                         "height": 1000,
@@ -17818,17 +17818,17 @@
                         "objectPosition": "center center",
                         "artDirection": {
                           "desktop": {
-                            "src": "/storefront-demo/loot-vault-v2/background-archive.webp",
+                            "src": "/storefront-demo/loot-vault-v2/product-statue.webp",
                             "objectFit": "cover",
                             "objectPosition": "center center"
                           },
                           "tablet": {
-                            "src": "/storefront-demo/loot-vault-v2/background-archive.webp",
+                            "src": "/storefront-demo/loot-vault-v2/product-statue.webp",
                             "objectFit": "cover",
                             "objectPosition": "center center"
                           },
                           "mobile": {
-                            "src": "/storefront-demo/loot-vault-v2/background-archive.webp",
+                            "src": "/storefront-demo/loot-vault-v2/product-statue.webp",
                             "objectFit": "cover",
                             "objectPosition": "center center"
                           }
