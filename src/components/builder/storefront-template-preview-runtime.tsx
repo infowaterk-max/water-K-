@@ -42,6 +42,7 @@ function PreviewCartCommerceSurface(){
   const{items,hydrated}=useCart();
   const products=items.map(item=>({
     id:item.variantId??item.productId,name:item.name,slug:item.slug,grossPrice:item.unitPrice,
+    image:item.image??(item.slug==='vault-sentinel-preview'?'/storefront-demo/loot-vault-v2/product-figure.webp':null),
     minimumQuantity:item.minimumQuantity??1,orderMultiple:item.orderMultiple??1,fulfillmentType:'physical' as const,
   }));
   return <div data-storefront-commerce="cart-summary" data-storefront-commerce-shell="cart-v1" data-storefront-preview-cart={!hydrated?'hydrating':items.length?'interactive':'empty'}>
@@ -182,7 +183,7 @@ export function StorefrontTemplatePreviewRuntime({page,viewport,bindingContext,c
   if(page.pageType==='account'){
     const{headerSections,footerSections,authenticatedSections}=splitStorefrontAccountTemplateSections(page);
     const templateCapabilities=resolveTemplateAccountCapabilityOptIns(page.metadata);
-    return <div data-storefront-template-preview-runtime="shared-commerce-shell-v1" onClickCapture={interceptPreviewRoute}>
+    return <div className="storefrontAccountShell" data-storefront-template-preview-runtime="shared-commerce-shell-v1" onClickCapture={interceptPreviewRoute}>
       {headerSections.length?renderPage(sliceStorefrontAccountTemplatePage(page,[...headerSections])):null}
       <StorefrontAccountWorkspace navigation={<AccountSubnav templateCapabilities={templateCapabilities}/>}>
         {accountView?<PreviewAccountCapabilityState view={accountView} viewport={viewport}/>:<PreviewAccountOverview viewport={viewport} showCollection={templateCapabilities.includes('collection')}/>}

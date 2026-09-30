@@ -46,6 +46,7 @@ describe('Loot Vault v2 polish contract',()=>{
   for(const legacy of ['var(--bg','var(--card','var(--ink','var(--muted','var(--line','var(--green'])expect(checkoutCss).not.toContain(legacy);
   expect((checkoutForm.match(/data-selected=\{active\?'true':'false'\}/g)??[]).length).toBeGreaterThanOrEqual(2);
   expect((checkoutForm.match(/aria-checked=\{active\}/g)??[]).length).toBeGreaterThanOrEqual(2);
+  for(const methodIcon of ["choiceMethodIcon('home')","choiceMethodIcon('parcel')","choiceMethodIcon('pickup')","choiceMethodIcon('card')","choiceMethodIcon('bank')","choiceMethodIcon('cash')"])expect(checkoutForm).toContain(methodIcon);
  });
  it('keeps cart/account presentation on canonical template tokens and removes legacy skin aliases',()=>{
   const account=read('src/components/account/storefront-account-shell.tsx'),cart=read('src/components/cart/cart-view.tsx'),qty=read('src/components/commerce/cart-style-quantity-control.tsx'),css=read('src/app/globals.css');
@@ -56,6 +57,6 @@ describe('Loot Vault v2 polish contract',()=>{
   expect(cart).toContain('var(--shoporation-color-border,#ddd)');
   expect(css).toContain('/* Shared storefront cart presentation inherits the active template, never legacy root aliases. */');
   expect(css).toContain('.cartGrid .card,.emptyCart.card{background:var(--shoporation-color-surface,#fff)!important');
-  expect(cart).toContain('className="btn btnPrimary cartCheckoutButton"');expect(qty).not.toContain("background:'#cf3038'");
+  expect(cart).toContain('className="btn btnPrimary cartCheckoutButton"');expect(cart).toContain('thumbnail?<img src={thumbnail}');expect(cart).not.toContain("slice(0,2).toUpperCase()");expect(css).toContain('.cartGrid .cartCheckoutButton{border:1px solid var(--shoporation-color-accent');expect(qty).not.toContain("background:'#cf3038'");
  });
 });

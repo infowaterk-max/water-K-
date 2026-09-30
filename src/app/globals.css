@@ -24,6 +24,9 @@ button,input,select,textarea{font:inherit} button:disabled{cursor:not-allowed;op
 
 
 /* Shared storefront cart presentation inherits the active template, never legacy root aliases. */
+.cartGrid .cartThumb{display:grid;place-items:center;overflow:hidden;inline-size:4.75rem;block-size:4.75rem;border:1px solid var(--shoporation-color-border,#d8dce7);border-radius:1rem;background:var(--shoporation-color-surface-muted,var(--shoporation-color-surface,#fff));color:var(--shoporation-color-muted-text,#667085)}
+.cartGrid .cartThumb img{display:block;width:100%;height:100%;object-fit:cover}
+.cartGrid .cartCheckoutButton{border:1px solid var(--shoporation-color-accent,var(--shoporation-color-primary,#2f7f6f))!important;box-shadow:0 0 0 1px color-mix(in srgb,var(--shoporation-color-accent,var(--shoporation-color-primary,#2f7f6f)) 35%,transparent)!important}
 .cartGrid .card,.emptyCart.card{background:var(--shoporation-color-surface,#fff)!important;color:var(--shoporation-color-text,#17231a)!important;border-color:var(--shoporation-color-border,#d8dce7)!important;box-shadow:none!important}
 .cartGrid .cartRow{border-color:var(--shoporation-color-border,#d8dce7)}
 .cartGrid .cartRow p,.cartGrid .cartRuleText,.cartGrid .muted,.emptyCart.card .muted{color:var(--shoporation-color-muted-text,#667085)!important}

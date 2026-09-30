@@ -25,8 +25,17 @@ type CheckoutCustomerDefaults={name:string;email:string;phone:string;billingPost
 const STEP_INDEX:Record<CheckoutStep,number>={shipping:0,payment:1,summary:2};
 
 function key(){return typeof crypto!=='undefined'&&'randomUUID'in crypto?crypto.randomUUID():`${Date.now()}-${Math.random().toString(36).slice(2)}`}
-function shippingMeta(kind:string){if(kind==='parcel_point')return{icon:'▦',title:'Csomagpont / automata',description:'Válassz számodra kényelmes átvételi pontot.'};if(kind==='home_delivery')return{icon:'⌂',title:'Házhozszállítás',description:'A futár a megadott szállítási címre kézbesít.'};return{icon:'✓',title:'Személyes átvétel',description:'Vedd át rendelésed a megadott átvételi helyen.'}}
-function paymentMeta(flow:string){if(flow==='online_redirect')return{icon:'▣',description:'Biztonságos online fizetés a szolgáltató felületén.'};if(flow==='bank_transfer')return{icon:'↗',description:'Az utalási adatokat a rendelés után kapod meg.'};return{icon:'○',description:'Fizetés az átvételhez kapcsolódó módon.'}}
+function choiceMethodIcon(kind:'home'|'parcel'|'pickup'|'card'|'bank'|'cash'):ReactNode{
+  const frame=(children:ReactNode)=><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" focusable="false">{children}</svg>;
+  if(kind==='home')return frame(<><path d="M3 10.5 12 3l9 7.5v9A1.5 1.5 0 0 1 19.5 21h-15A1.5 1.5 0 0 1 3 19.5z"/><path d="M8.5 21v-7h7v7"/></>);
+  if(kind==='parcel')return frame(<><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 7h2m2 0h2M9 11h2m2 0h2M9 15h6"/></>);
+  if(kind==='pickup')return frame(<><path d="M12 21s6-5.2 6-11a6 6 0 1 0-12 0c0 5.8 6 11 6 11Z"/><circle cx="12" cy="10" r="2.2"/></>);
+  if(kind==='card')return frame(<><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 9h18M7 15h4"/></>);
+  if(kind==='bank')return frame(<><path d="m3 10 9-6 9 6M5 10h14M6 10v8m4-8v8m4-8v8m4-8v8M4 20h16"/></>);
+  return frame(<><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M15 10h6v5h-6a2.5 2.5 0 1 1 0-5Z"/><circle cx="16.5" cy="12.5" r=".7" fill="currentColor" stroke="none"/></>);
+}
+function shippingMeta(kind:string){if(kind==='parcel_point')return{icon:choiceMethodIcon('parcel'),title:'Csomagpont / automata',description:'Válassz számodra kényelmes átvételi pontot.'};if(kind==='home_delivery')return{icon:choiceMethodIcon('home'),title:'Házhozszállítás',description:'A futár a megadott szállítási címre kézbesít.'};return{icon:choiceMethodIcon('pickup'),title:'Személyes átvétel',description:'Vedd át rendelésed a megadott átvételi helyen.'}}
+function paymentMeta(flow:string){if(flow==='online_redirect')return{icon:choiceMethodIcon('card'),description:'Biztonságos online fizetés a szolgáltató felületén.'};if(flow==='bank_transfer')return{icon:choiceMethodIcon('bank'),description:'Az utalási adatokat a rendelés után kapod meg.'};return{icon:choiceMethodIcon('cash'),description:'Fizetés az átvételhez kapcsolódó módon.'}}
 
 function CheckoutAccordionStep({step,number,title,summary,active,completed,locked,onOpen,children}:{step:CheckoutStep;number:number;title:string;summary:string;active:boolean;completed:boolean;locked:boolean;onOpen:()=>void;children:ReactNode}){
   const panelId=`checkout-step-${step}`;

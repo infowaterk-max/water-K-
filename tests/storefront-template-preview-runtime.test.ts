@@ -52,6 +52,8 @@ describe('storefront template preview runtime',()=>{
     expect(previewRuntime).toContain('navigatePreview(event,routes.cart)');
     expect(previewRuntime).toContain('navigatePreview(event,routes.checkout)');
     expect(previewRuntime).toContain('data-storefront-live-checkout="shared-e13"');
+    expect(previewRuntime).toContain('className="storefrontAccountShell"');
+    expect(previewRuntime).toContain("item.slug==='vault-sentinel-preview'");
   });
 
   it('resolves tenant-free template-aware account presentation for every accepted previewable template',()=>{
