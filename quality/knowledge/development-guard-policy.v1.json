@@ -7,7 +7,11 @@
     "After each coherent edit batch, run the Edit-Time Guard and Incremental Replay before continuing.",
     "Final CI/Quality Gate remains mandatory; development-time prevention does not replace final proof.",
     "Every short or broad intent matcher must keep at least one positive target example and one lexically similar non-target example in regression coverage.",
-    "Any removed, renamed or materially changed path, asset, exported symbol, route, selector, data attribute, component key or high-signal implementation expression must pass repository-wide Reference Sync closure before Incremental Replay; unresolved machine consumers block the edit batch."
+    "Any removed, renamed or materially changed path, asset, exported symbol, route, selector, data attribute, component key or high-signal implementation expression must pass repository-wide Reference Sync closure before Incremental Replay; unresolved machine consumers block the edit batch.",
+    "Execution is a privilege: medium, high and critical work may not enter implementation until its assurance ceiling, alternatives, challenge, specialist review and Completion Contract are machine-valid.",
+    "Completion claims are independent from implementation plans: the Completion Contract must remain traceable to the original Product Owner request.",
+    "Claim without fresh exact-state evidence is NOT VERIFIED and may not be reported as DONE.",
+    "When a later defect was reasonably foreseeable, learning must strengthen an existing authority, invariant, Known Failure or regression path instead of creating a defect-local gate."
   ],
   "intentMatchers": [
     {
@@ -753,5 +757,104 @@
       ],
       "message": "Confirm route convergence and shared business-route authority; explicit exception required."
     }
-  ]
+  ],
+  "operationalIntelligence": {
+    "contract": "shoporation.operational-intelligence-policy.v1",
+    "phaseSequence": [
+      "OBSERVE",
+      "DEFINE",
+      "MODEL",
+      "PLAN",
+      "CHALLENGE",
+      "IMPROVE",
+      "PROVE_PLAN",
+      "EXECUTE",
+      "VERIFY",
+      "TRUTH_GATE",
+      "CLOSE",
+      "LEARN"
+    ],
+    "specialistRoles": [
+      "Architecture",
+      "Security",
+      "Data Integrity",
+      "Runtime",
+      "Release",
+      "UX / Template",
+      "Known Failure",
+      "Operations"
+    ],
+    "riskProfiles": {
+      "low": {
+        "assuranceLevel": "lightweight",
+        "minAlternatives": 1,
+        "minChallenges": 0,
+        "minSpecialists": 0,
+        "requireDissent": false,
+        "requiredTechniques": [
+          "explicit-specification"
+        ]
+      },
+      "medium": {
+        "assuranceLevel": "state-and-failure-review",
+        "minAlternatives": 2,
+        "minChallenges": 3,
+        "minSpecialists": 2,
+        "requireDissent": true,
+        "requiredTechniques": [
+          "explicit-specification",
+          "invariants",
+          "state-model",
+          "adversarial-scenarios",
+          "boundary-cases"
+        ]
+      },
+      "high": {
+        "assuranceLevel": "strong-behavioral-proof",
+        "minAlternatives": 3,
+        "minChallenges": 6,
+        "minSpecialists": 3,
+        "requireDissent": true,
+        "requiredTechniques": [
+          "explicit-specification",
+          "invariants",
+          "state-model",
+          "what-if-matrix",
+          "adversarial-scenarios",
+          "boundary-cases",
+          "pairwise-interactions",
+          "threat-failure-model",
+          "fault-injection"
+        ]
+      },
+      "critical": {
+        "assuranceLevel": "critical-practical",
+        "minAlternatives": 3,
+        "minChallenges": 8,
+        "minSpecialists": 4,
+        "requireDissent": true,
+        "requiredTechniques": [
+          "explicit-specification",
+          "invariants",
+          "state-model",
+          "what-if-matrix",
+          "adversarial-scenarios",
+          "boundary-cases",
+          "pairwise-interactions",
+          "threat-failure-model",
+          "fault-injection",
+          "finite-state-exhaustion"
+        ]
+      }
+    },
+    "completionEvidence": {
+      "requireExactHead": true,
+      "requireBranch": true,
+      "requireStateVersion": true,
+      "requireRunIdOrTimestamp": true,
+      "forbiddenCircularEvidenceIds": [
+        "GUARD-COMPLETION-TRUTH"
+      ]
+    }
+  }
 }
