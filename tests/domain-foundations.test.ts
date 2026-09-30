@@ -38,6 +38,15 @@ describe('Shoperation Domain Foundations v1',()=>{
     expect(catalog?.canonicalPaths).toEqual(expect.arrayContaining(['src/lib/catalog.ts','src/lib/catalog-*.ts','src/lib/inventory/**']));
   });
 
+  it('maps shared commerce shells and shopper routes to their existing canonical authorities',()=>{
+    const commerce=getDomainFoundation('DOMAIN-COMMERCE');
+    expect(commerce?.canonicalPaths).toEqual(expect.arrayContaining(['src/components/cart/**','src/components/checkout/**','src/components/commerce/**']));
+    expect(commerce?.boundaryRules).toContain('Cart and Checkout behavior, state, validation, totals, shipping/payment selection and fail-closed order submission are platform Commerce authority; templates may supply bounded visual tokens only.');
+    const storefront=getDomainFoundation('DOMAIN-STOREFRONT');
+    expect(storefront?.canonicalPaths).toEqual(expect.arrayContaining(['src/lib/account/**','src/components/account/**','src/app/fiokom/**','src/app/szallitas/**','src/app/fizetes/**','src/app/szallitas-es-fizetes/**','src/app/sitemap.ts','src/app/globals.css']));
+    expect(storefront?.boundaryRules).toContain('Account Collection presentation may project purchase-history ownership but may not reinterpret wishlist state as ownership truth.');
+  });
+
   it('requires every domain to state evidence obligations and machine-queryable paths',()=>{
     for(const domain of DOMAIN_FOUNDATION_REGISTRY.domains){
       expect(domain.evidenceObligations.length,domain.id).toBeGreaterThan(0);
