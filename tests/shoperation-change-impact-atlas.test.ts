@@ -12,6 +12,11 @@ describe('Atlas 2.0 Change Impact / Release Closure integration',()=>{
     expect(preflight).toContain('directAuthorities');
     expect(preflight).toContain('SQ_ATLAS_DOMAIN_SCOPE_UNRESOLVED');
     expect(preflight).toContain("artifacts/shoperation-quality/change-impact.json");
+    expect(preflight).toContain('developmentChangeImpact');
+    expect(preflight).toContain('releaseChangeImpact');
+    expect(preflight).toContain('process.env.QUALITY_BASE_SHA');
+    expect(preflight).toContain('releaseMergeBase');
+    expect(preflight).toContain("JSON.stringify(releaseChangeImpact");
   });
 
   it('makes domain and authority impact part of Plan Before Code rather than a new standalone gate',()=>{
@@ -35,6 +40,8 @@ describe('Atlas 2.0 Change Impact / Release Closure integration',()=>{
     expect(policy.riskWeights.high).toBe(5);
     expect(risk).toContain('Atlas change-impact evidence unavailable');
     expect(risk).toContain('Atlas change-impact file set does not match the release diff');
+    expect(risk).toContain('const expectedImpactFiles = changedFiles.filter');
+    expect(risk).toContain('JSON.stringify(expectedImpactFiles) !== JSON.stringify(evidencedImpactFiles)');
     expect(risk).toContain('Atlas change-impact source SHA');
     expect(risk).toContain('atlasClosure');
   });
