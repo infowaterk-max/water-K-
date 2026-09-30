@@ -45,6 +45,10 @@ describe('Shoperation Codebase Atlas 2.0 / System Self-Knowledge',()=>{
     expect(atlas.unresolvedInternalImports).not.toContainEqual(expect.objectContaining({from:'tests/admin-mobile-desktop-compat.test.ts',specifier:'./mobile-desktop-compat.css'}));
     expect(atlas.nodes.find(node=>node.path==='src/lib/catalog-server.ts')?.imports).toContain('src/lib/catalog.ts');
     expect(atlas.nodes.find(node=>node.path==='src/lib/catalog.ts')?.domains).toContain('DOMAIN-CATALOG');
+    expect(atlas.nodes.find(node=>node.path==='src/components/checkout/checkout-form.tsx')?.domains).toContain('DOMAIN-COMMERCE');
+    expect(atlas.nodes.find(node=>node.path==='src/components/commerce/cart-style-quantity-control.tsx')?.domains).toContain('DOMAIN-COMMERCE');
+    expect(atlas.nodes.find(node=>node.path==='src/app/sitemap.ts')?.domains).toContain('DOMAIN-STOREFRONT');
+    expect(atlas.nodes.find(node=>node.path==='src/app/robots.ts')?.domains).toContain('DOMAIN-STOREFRONT');
     expect(atlas.summary.domainCounts['DOMAIN-CATALOG']).toBeGreaterThan(0);
   });
 

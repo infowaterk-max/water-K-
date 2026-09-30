@@ -22,7 +22,12 @@ describe('Shoperation Domain Foundations v1',()=>{
   });
 
   it('keeps cross-domain ownership boundaries explicit',()=>{
-    expect(getDomainFoundation('DOMAIN-STOREFRONT')?.doesNotOwn).toEqual(expect.arrayContaining(['authentication truth','price/order truth','inventory truth']));
+    const commerce=getDomainFoundation('DOMAIN-COMMERCE');
+    const storefront=getDomainFoundation('DOMAIN-STOREFRONT');
+    expect(storefront?.doesNotOwn).toEqual(expect.arrayContaining(['authentication truth','price/order truth','inventory truth']));
+    expect(commerce?.canonicalPaths).toEqual(expect.arrayContaining(['src/components/cart/**','src/components/checkout/**','src/components/commerce/**']));
+    expect(commerce?.boundaryRules).toContain('Cart and Checkout behavior, state, validation, totals, shipping/payment selection and fail-closed order submission are platform Commerce authority; templates may supply bounded visual tokens only.');
+    expect(storefront?.canonicalPaths).toEqual(expect.arrayContaining(['src/app/sitemap.ts','src/app/robots.ts']));
     expect(getDomainFoundation('DOMAIN-INCIDENT')?.doesNotOwn).toContain('arbitrary code mutation authority');
     expect(getDomainFoundation('DOMAIN-INTEGRATIONS')?.doesNotOwn).toContain('commerce policy');
     expect(getDomainFoundation('DOMAIN-CONTENT')?.doesNotOwn).toEqual(expect.arrayContaining(['product/catalog facts','price/order/payment truth','storefront layout','builder page schema']));

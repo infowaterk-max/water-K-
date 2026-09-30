@@ -1,9 +1,9 @@
 {
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-CONTROL-PLANE-SELF-KNOWLEDGE-HARDENING",
-  "task": "Canonicalize the completed Control Plane hardening before further template production: A/B stale-reference closure, syntax-aware Atlas import extraction, real Catalog domain coverage, and deterministic Failure Intake reconciliation without weakening durable evidence.",
+  "task": "Close canonical self-knowledge friction before further template production: syntax-aware Atlas, domain coverage, Failure Intake reconciliation, and exact release-base Change Impact evidence without weakening development-plan or Release Risk authority.",
   "status": "ready-for-implementation",
-  "guardDigest": "8947ff8b",
+  "guardDigest": "cb713022",
   "plannedFilePatterns": [
     "AGENTS.md",
     "docs/architecture/CHANGE_IMPACT_RELEASE_CLOSURE.md",
@@ -22,15 +22,16 @@
     "tests/domain-foundations.test.ts",
     "tests/shoperation-sentinel.test.ts",
     "tests/shoperation-failure-intake-reconcile.test.ts",
-    ".github/workflows/shoperation-knowledge-full-replay.yml"
+    ".github/workflows/shoperation-knowledge-full-replay.yml",
+    "scripts/shoperation-knowledge-preflight.mjs",
+    "tests/shoperation-change-impact-atlas.test.ts"
   ],
   "expectedSubsystems": [
     "builder-template-system",
     "quality-infrastructure",
     "quality-knowledge-system",
     "release-infrastructure",
-    "shared-storefront",
-    "storefront-ui"
+    "shared-storefront"
   ],
   "expectedDomains": [
     "DOMAIN-QUALITY",
@@ -108,6 +109,6 @@
     "SQ-NK-015"
   ],
   "exceptions": [],
-  "notes": "Product Owner requested completion of system hardening before resuming template production. This clean main-based transaction contains only Control Plane/self-knowledge changes already proven on the Loot Vault branch: A/B Reference Sync in the existing Edit-Time Guard, syntax-aware Atlas imports, corrected DOMAIN-CATALOG canonical paths, Sentinel canonical-vs-development intake separation, and deterministic Failure Intake reconciliation in the existing periodic full-replay authority. No template code, no golden update, no parallel gate, and no weakening of Failure Intake durability.",
+  "notes": "Product Owner requested completion of system hardening before resuming template production. This clean main-based transaction contains only Control Plane/self-knowledge changes already proven on the Loot Vault branch: A/B Reference Sync in the existing Edit-Time Guard, syntax-aware Atlas imports, corrected DOMAIN-CATALOG canonical paths, Sentinel canonical-vs-development intake separation, and deterministic Failure Intake reconciliation in the existing periodic full-replay authority. No template code, no golden update, no parallel gate, and no weakening of Failure Intake durability. Follow-up from PR #547 CI: Release Risk correctly exposed that change-impact.json was built from the development transaction base instead of the exact PR/release base. Plan expanded before implementation so Knowledge can retain development impact while Release Risk receives a separate exact release-diff artifact; risk thresholds and file-set equality remain unchanged. Plan Before Code recalculated the expanded projection: storefront-ui is not in the actual projected subsystem closure; guard digest updated to cb713022. No exception added.",
   "changeBaseSha": "b8db333280e7fa4346c1c5a454aa0eef926e2fc0"
 }

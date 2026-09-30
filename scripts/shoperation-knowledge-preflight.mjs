@@ -14,17 +14,32 @@ const neutral=riskPolicy.neutralPatterns.map(globToRegExp),matchers=riskPolicy.s
 const knowledgePrefixes=scopePolicy.knowledgeInfrastructurePrefixes;
 const dependencies=scopePolicy.dependencies;
 const git=args=>execFileSync('git',args,{encoding:'utf8'}).trim();
-const base=resolveDevelopmentBase({changeBaseSha:developmentPlan.changeBaseSha});
+const developmentBase=resolveDevelopmentBase({changeBaseSha:developmentPlan.changeBaseSha});
 const head=(process.env.QUALITY_HEAD_SHA??process.env.GITHUB_SHA??'HEAD').trim()||'HEAD';
-let changedFiles=[];if(base){try{changedFiles=git(['diff','--name-only','--diff-filter=ACMR',base,head]).split(/\r?\n/).filter(Boolean).filter(file=>file!=='quality/development/active-plan.json');}catch{}}
+const explicitReleaseBase=(process.env.QUALITY_BASE_SHA??process.env.RELEASE_BASE_SHA??'').trim();
+let releaseBase=explicitReleaseBase||developmentBase;
+if(releaseBase){try{git(['cat-file','-e',`${releaseBase}^{commit}`]);}catch{releaseBase=developmentBase;}}
+let releaseMergeBase=releaseBase;
+if(releaseBase){try{releaseMergeBase=git(['merge-base',head,releaseBase]);}catch{}}
+const changedFilesFrom=baseCommit=>{if(!baseCommit)return[];try{return git(['diff','--name-only','--diff-filter=ACMR',baseCommit,head]).split(/\r?\n/).filter(Boolean).filter(file=>file!=='quality/development/active-plan.json');}catch{return[];}};
+const changedFiles=changedFilesFrom(developmentBase);
+const releaseChangedFiles=changedFilesFrom(releaseMergeBase);
 const atlasNodeByPath=new Map(codebaseAtlas.nodes.map(node=>[node.path,node]));
-const changeImpactClosure=releaseClosureForAtlasPatterns(codebaseAtlas,changedFiles);
-const directDomains=[...new Set(changedFiles.flatMap(file=>atlasNodeByPath.get(file)?.domains??[]))].sort();
-const directAuthorities=[...new Set(directDomains.map(id=>codebaseAtlas.domainIndexDefinition?.[id]?.owner).filter(Boolean))].sort();
-const domainUnresolvedFiles=changedFiles.filter(file=>{
-  if(knowledgePrefixes.some(prefix=>file.startsWith(prefix))||neutral.some(matcher=>matcher.test(file)))return false;
-  return !(atlasNodeByPath.get(file)?.domains?.length);
-});
+const projectChangeImpact=(files,baseCommit)=>{
+  const closure=releaseClosureForAtlasPatterns(codebaseAtlas,files);
+  const directDomains=[...new Set(files.flatMap(file=>atlasNodeByPath.get(file)?.domains??[]))].sort();
+  const directAuthorities=[...new Set(directDomains.map(id=>codebaseAtlas.domainIndexDefinition?.[id]?.owner).filter(Boolean))].sort();
+  const unresolvedDomainFiles=files.filter(file=>{
+    if(knowledgePrefixes.some(prefix=>file.startsWith(prefix))||neutral.some(matcher=>matcher.test(file)))return false;
+    return !(atlasNodeByPath.get(file)?.domains?.length);
+  });
+  return{contract:'shoporation.change-impact.v1',sourceCommit:head==='HEAD'?null:head,baseCommit,changedFiles:files,directDomains,directAuthorities,closure,unresolvedDomainFiles,decision:unresolvedDomainFiles.length?'BLOCK':'PASS'};
+};
+const developmentChangeImpact=projectChangeImpact(changedFiles,developmentBase);
+const releaseChangeImpact=projectChangeImpact(releaseChangedFiles,releaseMergeBase);
+const directDomains=developmentChangeImpact.directDomains;
+const directAuthorities=developmentChangeImpact.directAuthorities;
+const domainUnresolvedFiles=developmentChangeImpact.unresolvedDomainFiles;
 const direct=new Set(),unresolvedFiles=[];let knowledgeInfrastructureChanged=false;
 for(const file of changedFiles){if(knowledgePrefixes.some(prefix=>file.startsWith(prefix))){knowledgeInfrastructureChanged=true;continue;}if(neutral.some(matcher=>matcher.test(file)))continue;const hits=matchers.filter(item=>item.matchers.some(matcher=>matcher.test(file)));if(!hits.length)unresolvedFiles.push(file);for(const hit of hits)direct.add(hit.name);}
 const impacted=new Set(direct),queue=[...direct];while(queue.length){const current=queue.shift();for(const dependency of dependencies[current]??[])if(!impacted.has(dependency)){impacted.add(dependency);queue.push(dependency);}}
@@ -41,9 +56,9 @@ const supportRecords=[];for(const name of readdirSync('docs/support').filter(nam
 const committedUnresolved=(ledger.records??[]).filter(item=>['candidate-new-failure','needs-review'].includes(item.classificationStatus)&&!item.disposition);
 async function openIntakeIssues(){const token=process.env.GITHUB_TOKEN?.trim(),repository=process.env.GITHUB_REPOSITORY?.trim();if(!token||!repository)return[];try{const response=await fetch(`https://api.github.com/repos/${repository}/issues?state=open&per_page=100`,{headers:{Authorization:`Bearer ${token}`,'X-GitHub-Api-Version':'2022-11-28','User-Agent':'shoperation-quality-knowledge'}});if(!response.ok)return[];const issues=await response.json();return issues.filter(issue=>typeof issue.title==='string'&&issue.title.startsWith('[Quality intake]')).map(issue=>({number:issue.number,title:issue.title,url:issue.html_url}));}catch{return[];}}
 const externalUnresolved=await openIntakeIssues();
-const changeImpactIssues=domainUnresolvedFiles.map(file=>({code:'SQ_ATLAS_DOMAIN_SCOPE_UNRESOLVED',file}));
+const allUnresolvedDomainFiles=[...new Set([...developmentChangeImpact.unresolvedDomainFiles,...releaseChangeImpact.unresolvedDomainFiles])].sort();
+const changeImpactIssues=allUnresolvedDomainFiles.map(file=>({code:'SQ_ATLAS_DOMAIN_SCOPE_UNRESOLVED',file}));
 integrityIssues.push(...changeImpactIssues);
-const changeImpact={contract:'shoporation.change-impact.v1',sourceCommit:head==='HEAD'?null:head,baseCommit:base,changedFiles,directDomains,directAuthorities,closure:changeImpactClosure,unresolvedDomainFiles:domainUnresolvedFiles,decision:changeImpactIssues.length?'BLOCK':'PASS'};
-const report={contract:'shoporation.quality-knowledge-preflight.v1',knowledgeVersion:knowledge.contract,sourceCommit:head==='HEAD'?null:head,baseCommit:base,changedFiles,directSubsystems:[...direct].sort(),impactedSubsystems:[...impacted].sort(),knowledgeInfrastructureChanged,fullReplay,unresolvedScopeFiles:unresolvedFiles,activeFailureIds,selection,unresolvedFailureIntake:{committed:committedUnresolved,external:externalUnresolved},changeImpact,codebaseAtlas:{contract:codebaseAtlas.contract,summary:codebaseAtlas.summary},historicalBackfill:{decision:historicalBackfill.decision,summary:historicalBackfill.summary,promotions:historicalBackfill.promotions,identityCollisions:historicalBackfill.identityCollisions},coverage:{globalKnownFailures:knowledge.knownFailures.length,templateFactoryKnownFailures:tfIds.length,totalKnownFailures:knowledge.knownFailures.length+tfIds.length,activeFailureCount:activeFailureIds.length,negativeKnowledgeRules:knowledge.negativeKnowledge.length,developmentDirectiveCoverage:Object.keys(developmentGuardPolicy.directives).length,supportKnowledgeRecords:supportRecords.length,historicalExplicitIncidents:historicalBackfill.summary.explicitIncidentCount,historicalDocuments:historicalBackfill.summary.documentCount,globalInvariantCoverage:knowledge.knownFailures.filter(item=>item.invariantIds?.length).length,globalRegressionCoverage:knowledge.knownFailures.filter(item=>item.regressionTests?.length).length,globalApplicabilityCoverage:knowledge.knownFailures.filter(item=>item.applicability&&(item.applicability.mode==='always'||item.applicability.subsystems?.length)).length},integrityIssues,decision:integrityIssues.length||historicalBackfill.decision!=='PASS'?'BLOCK':'PASS'};
-mkdirSync('artifacts/shoperation-quality',{recursive:true});writeFileSync('artifacts/shoperation-quality/change-impact.json',JSON.stringify(changeImpact,null,2)+'\n');writeFileSync('artifacts/shoperation-quality/knowledge-preflight.json',JSON.stringify(report,null,2)+'\n');writeFileSync('artifacts/shoperation-quality/support-knowledge-backfill.json',JSON.stringify({contract:'shoporation.support-knowledge-backfill.v1',records:supportRecords},null,2)+'\n');
+const report={contract:'shoporation.quality-knowledge-preflight.v1',knowledgeVersion:knowledge.contract,sourceCommit:head==='HEAD'?null:head,baseCommit:developmentBase,releaseBaseCommit:releaseMergeBase,changedFiles,releaseChangedFiles,directSubsystems:[...direct].sort(),impactedSubsystems:[...impacted].sort(),knowledgeInfrastructureChanged,fullReplay,unresolvedScopeFiles:unresolvedFiles,activeFailureIds,selection,unresolvedFailureIntake:{committed:committedUnresolved,external:externalUnresolved},changeImpact:developmentChangeImpact,releaseChangeImpact,codebaseAtlas:{contract:codebaseAtlas.contract,summary:codebaseAtlas.summary},historicalBackfill:{decision:historicalBackfill.decision,summary:historicalBackfill.summary,promotions:historicalBackfill.promotions,identityCollisions:historicalBackfill.identityCollisions},coverage:{globalKnownFailures:knowledge.knownFailures.length,templateFactoryKnownFailures:tfIds.length,totalKnownFailures:knowledge.knownFailures.length+tfIds.length,activeFailureCount:activeFailureIds.length,negativeKnowledgeRules:knowledge.negativeKnowledge.length,developmentDirectiveCoverage:Object.keys(developmentGuardPolicy.directives).length,supportKnowledgeRecords:supportRecords.length,historicalExplicitIncidents:historicalBackfill.summary.explicitIncidentCount,historicalDocuments:historicalBackfill.summary.documentCount,globalInvariantCoverage:knowledge.knownFailures.filter(item=>item.invariantIds?.length).length,globalRegressionCoverage:knowledge.knownFailures.filter(item=>item.regressionTests?.length).length,globalApplicabilityCoverage:knowledge.knownFailures.filter(item=>item.applicability&&(item.applicability.mode==='always'||item.applicability.subsystems?.length)).length},integrityIssues,decision:integrityIssues.length||historicalBackfill.decision!=='PASS'?'BLOCK':'PASS'};
+mkdirSync('artifacts/shoperation-quality',{recursive:true});writeFileSync('artifacts/shoperation-quality/change-impact.json',JSON.stringify(releaseChangeImpact,null,2)+'\n');writeFileSync('artifacts/shoperation-quality/knowledge-preflight.json',JSON.stringify(report,null,2)+'\n');writeFileSync('artifacts/shoperation-quality/support-knowledge-backfill.json',JSON.stringify({contract:'shoporation.support-knowledge-backfill.v1',records:supportRecords},null,2)+'\n');
 console.log(`Shoperation Knowledge Before Build: ${report.decision}; active ${activeFailureIds.length}/${report.coverage.totalKnownFailures}; subsystems ${report.impactedSubsystems.join(',')||'baseline-only'}.`);if(unresolvedFiles.length)console.warn(`SCOPE_UNRESOLVED: ${unresolvedFiles.join(', ')}`);if(committedUnresolved.length||externalUnresolved.length)console.warn(`UNRESOLVED_FAILURE_INTAKE: committed=${committedUnresolved.length}, external=${externalUnresolved.length}`);for(const issue of integrityIssues)console.error(`${issue.code}:${issue.failureId??issue.file??''}`);if(integrityIssues.length)process.exit(1);

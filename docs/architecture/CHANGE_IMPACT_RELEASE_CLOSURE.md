@@ -63,3 +63,9 @@ The existing Edit-Time Guard owns the before/after synchronization boundary; thi
 The machine-readable artifact is `artifacts/shoperation-development-guard/reference-sync.json` and records `removedReferences`, `changedReferences`, before/after consumers, `staleConsumers`, review consumers and updated consumers. Deleted/renamed package assets are projected both as repository paths and public URLs. Removed exported symbols, selectors/data attributes/component keys and high-signal implementation expressions are also tracked. Positive source-code/test/config consumers block; negative assertions and documentation remain evidence rather than false stale-consumer failures.
 
 Acceptance invariant: a coherent edit batch may not advance to Incremental Replay while a removed or changed machine contract has an unresolved stale consumer. This closes the gap where import-only Atlas edges could not see source-string assertions or path-based asset references.
+
+## Development impact vs. release impact
+
+Change Impact has two consumers with different comparison bases and they must not be conflated. **Development impact** is calculated from the active Development Plan transaction base and drives Knowledge/Plan scope, Known Failure selection and edit-time engineering context. **Release impact** is calculated from the exact PR/release base (merge-base to the exact head) and is the only artifact written to `artifacts/shoperation-quality/change-impact.json` for Release Risk Budget consumption.
+
+The Release Risk Budget remains strict: the release Change Impact source SHA must match the release head and its `changedFiles` set must exactly equal the release diff (excluding only the development-plan metadata file already excluded by policy). A larger historical development transaction must never contaminate or broaden the release file-set proof, and a smaller release proof must never replace development-scope analysis.
