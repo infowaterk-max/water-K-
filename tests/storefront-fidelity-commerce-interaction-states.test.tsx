@@ -60,6 +60,12 @@ describe('Storefront commerce interaction state bridge',()=>{
     const leftDesktop=render(page('left'),'desktop');
     expect(leftDesktop).toContain('data-thumbnail-position="left"');
     expect(leftDesktop).toContain('data-product-gallery-thumbnails="vertical"');
+    expect(leftDesktop).toContain('data-gallery-interaction="thumbnail-selects-main"');
+    expect(leftDesktop).toContain('data-product-gallery-main-image="true"');
+    expect(leftDesktop).toContain('data-product-gallery-thumbnail="0"');
+    expect(leftDesktop).toContain('aria-pressed="true"');
+    expect(leftDesktop).toContain('aria-pressed="false"');
+    expect(leftDesktop).not.toContain('#product-image-2');
     expect(leftDesktop).toContain('grid-template-columns:clamp(3.1rem,7vw,4.5rem) minmax(0,1fr)');
     const bottomDesktop=render(page('bottom'),'desktop');
     expect(bottomDesktop).toContain('data-thumbnail-position="bottom"');
