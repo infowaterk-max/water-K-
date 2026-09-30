@@ -186,10 +186,10 @@ export function StorefrontVisualBuilderV3({pages,document:initialDocument,pageId
     const stretchGridChild=shouldStretchStorefrontBuilderGridChild(parentNode,viewport);
     const previewSpan=resizeInteraction?.nodeId===node.id?resizeInteraction.span:node.resolved.gridSpan;
     const resizable=Boolean(active&&!protectedNode&&!absolutePlacement&&parentNode?.componentKey==='layout.grid'&&nodeDefinition?.manifest.responsiveMode!=='fixed');
-    const style=resizable||resizeInteraction?.nodeId===node.id?{...placement,gridColumn:`span ${previewSpan} / span ${previewSpan}`}:placement;
+    const style=resizeInteraction?.nodeId===node.id?{...placement,gridColumn:`span ${previewSpan} / span ${previewSpan}`}:placement;
     const siblingParentId=entry?.parentId??null;
-    const canInsertAfter=Boolean(!protectedNode&&entry&&listStorefrontBuilderInsertableComponents({document,registry:componentRegistry,capability,parentId:siblingParentId}).length);
-    const canInsertInside=Boolean(!protectedNode&&nodeDefinition?.allowsChildren&&listStorefrontBuilderInsertableComponents({document,registry:componentRegistry,capability,parentId:node.id}).length);
+    const canInsertAfter=Boolean(active&&entry&&listStorefrontBuilderInsertableComponents({document,registry:componentRegistry,capability,parentId:siblingParentId}).length);
+    const canInsertInside=Boolean(active&&!protectedNode&&nodeDefinition?.allowsChildren&&listStorefrontBuilderInsertableComponents({document,registry:componentRegistry,capability,parentId:node.id}).length);
     const openInsert=(context:InsertContext)=>{setInsertContext(context);setPanel('add');setLeftCollapsed(false);};
     const beginResize=(event:ReactPointerEvent<HTMLButtonElement>)=>{
       if(!resizable)return;
