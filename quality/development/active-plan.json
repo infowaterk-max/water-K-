@@ -1,39 +1,26 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-SENTINEL-ATLAS-CLEANUP-HARDENING",
-  "task": "Close the remaining self-knowledge friction before further template production: make Atlas import extraction syntax-aware, restore Catalog domain coverage, and reconcile canonical versus development Failure Intake in Sentinel without weakening durable intake.",
+  "taskId": "DEV-LOOT-VAULT-V2-MEDIA-POLISH",
+  "task": "Finish Loot Vault v2 approved Visual First media polish by diversifying template-owned media roles, preserving distinct item imagery, and locking the existing regression coverage without changing shared business authorities.",
   "status": "ready-for-implementation",
-  "guardDigest": "8947ff8b",
+  "guardDigest": "5629f201",
   "plannedFilePatterns": [
-    "scripts/lib/shoperation-codebase-atlas-runtime.mjs",
-    "quality/knowledge/domain-foundations.v1.json",
-    "scripts/shoperation-sentinel-scan.mjs",
-    "tests/shoperation-codebase-atlas-v2.test.ts",
-    "tests/domain-foundations.test.ts",
-    "tests/shoperation-sentinel.test.ts",
-    "docs/architecture/SHOPERATION_SENTINEL.md",
-    "quality/development/active-plan.json",
-    "scripts/shoperation-failure-intake-reconcile.mjs",
-    "tests/shoperation-failure-intake-reconcile.test.ts",
-    ".github/workflows/shoperation-sentinel.yml",
-    ".github/workflows/shoperation-knowledge-full-replay.yml",
-    "quality/knowledge/shoperation-quality-knowledge.v1.json"
+    "src/lib/builder/templates/gaming/loot-vault/v2/canonical-package.json",
+    "src/lib/builder/storefront-template-preview-demo.ts",
+    "tests/storefront-loot-vault-v2-polish.test.ts",
+    "docs/LOOT_VAULT_V2_MOBILE_PO_AUDIT_2026-09-29.md"
   ],
   "expectedSubsystems": [
     "builder-template-system",
-    "quality-infrastructure",
-    "quality-knowledge-system",
-    "release-infrastructure",
-    "shared-storefront",
-    "storefront-ui"
+    "shared-storefront"
   ],
   "expectedDomains": [
-    "DOMAIN-QUALITY",
-    "DOMAIN-RELEASE"
+    "DOMAIN-BUILDER",
+    "DOMAIN-STOREFRONT"
   ],
   "expectedAuthorities": [
-    "quality-knowledge-system",
-    "release-infrastructure"
+    "builder-template-system",
+    "shared-storefront"
   ],
   "expectedKnownFailureIds": [
     "SQ-KF-001",
@@ -41,10 +28,7 @@
     "SQ-KF-003",
     "SQ-KF-004",
     "SQ-KF-005",
-    "SQ-KF-006",
     "SQ-KF-007",
-    "SQ-KF-008",
-    "SQ-KF-009",
     "SQ-KF-010",
     "SQ-KF-011",
     "SQ-KF-012",
@@ -53,13 +37,9 @@
     "SQ-KF-015",
     "SQ-KF-016",
     "SQ-KF-017",
-    "SQ-KF-018",
     "SQ-KF-019",
     "SQ-KF-020",
-    "SQ-KF-021",
     "SQ-KF-022",
-    "SQ-KF-023",
-    "SQ-KF-024",
     "TF-KF-001",
     "TF-KF-002",
     "TF-KF-003",
@@ -91,18 +71,14 @@
     "SQ-NK-002",
     "SQ-NK-003",
     "SQ-NK-004",
-    "SQ-NK-005",
     "SQ-NK-006",
     "SQ-NK-007",
     "SQ-NK-008",
     "SQ-NK-009",
     "SQ-NK-010",
-    "SQ-NK-011",
-    "SQ-NK-012",
-    "SQ-NK-014",
-    "SQ-NK-015"
+    "SQ-NK-012"
   ],
   "exceptions": [],
-  "notes": "Product Owner requested this hardening before returning to template production. No new parallel gate. Atlas must stop treating string assertions as imports; DOMAIN-CATALOG must cover the real canonical catalog files; Sentinel must separate canonical/main unresolved Failure Intake from development/PR intake so branch iteration cannot masquerade as platform instability. Sentinel remains observation-only and durable Failure Intake is not deleted or weakened. Final closure also adds deterministic Failure Intake reconciliation to the existing periodic full-replay authority: duplicate/promoted/resolved-by-later-success evidence is explicitly dispositioned and closed; unknown or still-active evidence remains open. No issue is silently deleted and Sentinel remains observation-only. Plan scope expanded explicitly because the existing Knowledge Full Replay workflow is Release authority; this is a planned integration, not an unreviewed scope leak. The reconciliation regression is bound to SQ-KF-014 so the existing Incremental Known Failure Replay proves it on every applicable quality change. Atlas-scope intake is also reconciled only when the current canonical Atlas explicitly maps the recorded file to at least one domain.",
-  "changeBaseSha": "1f182a25d18c055324d1edd96004dc22de6b3a91"
+  "notes": "Product Owner explicitly closed Control Plane hardening and returned #469 to Loot Vault v2 polish. This plan replaces the stale prior Control Plane transaction envelope only; it does not weaken or bypass any guard. Scope is limited to the documented media-diversity polish: canonical template media-role mapping, representative preview fixture identity, focused regression coverage, and PO audit status. Shared commerce/runtime authorities, golden baselines, main, staging, production and Release Risk Budget policy are out of scope.",
+  "changeBaseSha": "8e70acd7bc916e206247559a19ccc78bd0021a10"
 }
