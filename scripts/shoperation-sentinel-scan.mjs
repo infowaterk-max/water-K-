@@ -46,6 +46,7 @@ const sourceCommitOf=issue=>{const match=(issue.body||'').match(/Source commit:\
 const runsByCommit=new Map();
 for(const run of runs){if(!run.headSha)continue;const list=runsByCommit.get(run.headSha)||[];list.push(run);runsByCommit.set(run.headSha,list);}
 const classifyFailureIntake=issue=>{
+  if(issue.sourceScope==='canonical'||issue.sourceScope==='development')return issue.sourceScope;
   const sourceCommit=sourceCommitOf(issue);
   const evidenceRuns=sourceCommit?(runsByCommit.get(sourceCommit)||[]):[];
   if(evidenceRuns.some(actionEligible))return'canonical';

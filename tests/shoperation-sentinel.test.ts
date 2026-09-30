@@ -37,6 +37,8 @@ describe('Shoperation Sentinel',()=>{
     const signal=registry.guards.find((x:{id:string})=>x.id==='SIGNAL-SENTINEL');
     expect(workflow).toContain("cron: '17 4 * * *'");
     expect(workflow).toContain('Sync Sentinel attention issue');
+    expect(workflow).toContain('compareCommits');
+    expect(workflow).toContain("sourceScope=comparison.data.merge_base_commit?.sha===sourceCommit?'canonical':'development'");
     expect(signal.blocking).toBe(false);
     expect(signal.lifecycle).toBe('observation');
     const policy=JSON.parse(read('quality/knowledge/sentinel-policy.v1.json'));
@@ -77,6 +79,17 @@ describe('Shoperation Sentinel',()=>{
     expect(report.openEvidence.developmentFailureIntakeIssues).toBe(1);
     expect(report.openEvidence.developmentFingerprints).toEqual(['SQ-FP-DEV']);
     expect(report.signals.some((x:{code:string})=>x.code==='SENTINEL_OPEN_FAILURE_INTAKE')).toBe(false);
+  });
+
+  it('uses source-commit ancestry scope when the originating workflow run has aged out of the observation window',()=>{
+    const development=run(base({openIssues:[{number:44,title:'quality',body:'<!-- shoperation-failure-intake:SQ-FP-OLD-DEV -->\nSource commit: `def4567`',sourceScope:'development',updatedAt:'2026-08-01T10:00:00.000Z'}]})).report;
+    expect(development.status).toBe('HEALTHY');
+    expect(development.openEvidence.developmentFailureIntakeIssues).toBe(1);
+    expect(development.openEvidence.unknownFailureIntakeIssues).toBe(0);
+    const canonical=run(base({openIssues:[{number:45,title:'quality',body:'<!-- shoperation-failure-intake:SQ-FP-OLD-MAIN -->\nSource commit: `abc1234`',sourceScope:'canonical',updatedAt:'2026-08-01T10:00:00.000Z'}]})).report;
+    expect(canonical.status).toBe('REVIEW');
+    expect(canonical.openEvidence.canonicalFailureIntakeIssues).toBe(1);
+    expect(canonical.openEvidence.unknownFailureIntakeIssues).toBe(0);
   });
 
   it('keeps unknown-scope intake visible rather than silently treating it as development noise',()=>{

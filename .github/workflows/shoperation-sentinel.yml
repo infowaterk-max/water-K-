@@ -44,7 +44,26 @@ jobs:
               if(batch.length<100||batch.some(run=>Date.parse(run.created_at)<cutoff))break;
             }
             const issueRows=await github.paginate(github.rest.issues.listForRepo,{...context.repo,state:'open',per_page:100});
-            const openIssues=issueRows.filter(issue=>!issue.pull_request).map(issue=>({number:issue.number,title:issue.title,body:issue.body||'',updatedAt:issue.updated_at,pullRequest:false}));
+            const scopeCache=new Map();
+            const sourceScopeFor=async body=>{
+              const sourceCommit=String(body||'').match(/Source commit:\s*`([0-9a-f]{7,40})`/i)?.[1]||null;
+              if(!sourceCommit)return{sourceCommit:null,sourceScope:null};
+              if(scopeCache.has(sourceCommit))return{sourceCommit,sourceScope:scopeCache.get(sourceCommit)};
+              let sourceScope=null;
+              try{
+                await github.rest.repos.getCommit({...context.repo,ref:sourceCommit});
+                const comparison=await github.rest.repos.compareCommits({...context.repo,base:sourceCommit,head:context.sha});
+                sourceScope=comparison.data.merge_base_commit?.sha===sourceCommit?'canonical':'development';
+              }catch(error){core.warning(`Could not prove ancestry for Failure Intake source ${sourceCommit}: ${error.message}`);}
+              scopeCache.set(sourceCommit,sourceScope);
+              return{sourceCommit,sourceScope};
+            };
+            const openIssues=[];
+            for(const issue of issueRows.filter(issue=>!issue.pull_request)){
+              const body=issue.body||'';
+              const provenance=body.includes('<!-- shoperation-failure-intake:')?await sourceScopeFor(body):{sourceCommit:null,sourceScope:null};
+              openIssues.push({number:issue.number,title:issue.title,body,updatedAt:issue.updated_at,pullRequest:false,...provenance});
+            }
             const snapshot={contract:'shoporation.sentinel-source-snapshot.v1',repository:`${context.repo.owner}/${context.repo.repo}`,sourceCommit:context.sha,collectedAt:new Date().toISOString(),workflowRuns,openIssues};
             fs.mkdirSync('artifacts/shoperation-sentinel',{recursive:true});
             fs.writeFileSync('artifacts/shoperation-sentinel/source-snapshot.json',JSON.stringify(snapshot,null,2)+'\n');
