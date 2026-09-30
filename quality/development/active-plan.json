@@ -26,10 +26,12 @@
     "storefront-ui"
   ],
   "expectedDomains": [
-    "DOMAIN-QUALITY"
+    "DOMAIN-QUALITY",
+    "DOMAIN-RELEASE"
   ],
   "expectedAuthorities": [
-    "quality-knowledge-system"
+    "quality-knowledge-system",
+    "release-infrastructure"
   ],
   "expectedKnownFailureIds": [
     "SQ-KF-001",
@@ -99,6 +101,6 @@
     "SQ-NK-015"
   ],
   "exceptions": [],
-  "notes": "Product Owner requested this hardening before returning to template production. No new parallel gate. Atlas must stop treating string assertions as imports; DOMAIN-CATALOG must cover the real canonical catalog files; Sentinel must separate canonical/main unresolved Failure Intake from development/PR intake so branch iteration cannot masquerade as platform instability. Sentinel remains observation-only and durable Failure Intake is not deleted or weakened. Final closure also adds deterministic Failure Intake reconciliation to the existing periodic full-replay authority: duplicate/promoted/resolved-by-later-success evidence is explicitly dispositioned and closed; unknown or still-active evidence remains open. No issue is silently deleted and Sentinel remains observation-only.",
+  "notes": "Product Owner requested this hardening before returning to template production. No new parallel gate. Atlas must stop treating string assertions as imports; DOMAIN-CATALOG must cover the real canonical catalog files; Sentinel must separate canonical/main unresolved Failure Intake from development/PR intake so branch iteration cannot masquerade as platform instability. Sentinel remains observation-only and durable Failure Intake is not deleted or weakened. Final closure also adds deterministic Failure Intake reconciliation to the existing periodic full-replay authority: duplicate/promoted/resolved-by-later-success evidence is explicitly dispositioned and closed; unknown or still-active evidence remains open. No issue is silently deleted and Sentinel remains observation-only. Plan scope expanded explicitly because the existing Knowledge Full Replay workflow is Release authority; this is a planned integration, not an unreviewed scope leak.",
   "changeBaseSha": "1f182a25d18c055324d1edd96004dc22de6b3a91"
 }
