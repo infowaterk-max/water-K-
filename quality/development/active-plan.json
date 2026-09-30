@@ -3,7 +3,7 @@
   "taskId": "DEV-SENTINEL-ATLAS-CLEANUP-HARDENING",
   "task": "Close the remaining self-knowledge friction before further template production: make Atlas import extraction syntax-aware, restore Catalog domain coverage, and reconcile canonical versus development Failure Intake in Sentinel without weakening durable intake.",
   "status": "ready-for-implementation",
-  "guardDigest": "aa79c504",
+  "guardDigest": "8947ff8b",
   "plannedFilePatterns": [
     "scripts/lib/shoperation-codebase-atlas-runtime.mjs",
     "quality/knowledge/domain-foundations.v1.json",
@@ -14,7 +14,14 @@
     "docs/architecture/SHOPERATION_SENTINEL.md",
     "quality/development/active-plan.json"
   ],
-  "expectedSubsystems": [],
+  "expectedSubsystems": [
+    "builder-template-system",
+    "quality-infrastructure",
+    "quality-knowledge-system",
+    "release-infrastructure",
+    "shared-storefront",
+    "storefront-ui"
+  ],
   "expectedDomains": [
     "DOMAIN-QUALITY"
   ],
@@ -73,7 +80,20 @@
     "TF-KF-025"
   ],
   "acknowledgedNegativeKnowledgeIds": [
-    "SQ-NK-012"
+    "SQ-NK-001",
+    "SQ-NK-002",
+    "SQ-NK-003",
+    "SQ-NK-004",
+    "SQ-NK-005",
+    "SQ-NK-006",
+    "SQ-NK-007",
+    "SQ-NK-008",
+    "SQ-NK-009",
+    "SQ-NK-010",
+    "SQ-NK-011",
+    "SQ-NK-012",
+    "SQ-NK-014",
+    "SQ-NK-015"
   ],
   "exceptions": [],
   "notes": "Product Owner requested this hardening before returning to template production. No new parallel gate. Atlas must stop treating string assertions as imports; DOMAIN-CATALOG must cover the real canonical catalog files; Sentinel must separate canonical/main unresolved Failure Intake from development/PR intake so branch iteration cannot masquerade as platform instability. Sentinel remains observation-only and durable Failure Intake is not deleted or weakened.",
