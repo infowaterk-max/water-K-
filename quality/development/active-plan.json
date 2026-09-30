@@ -3,7 +3,7 @@
   "taskId": "DEV-VX-BUILDER-CORE-FOUNDATION",
   "task": "Build the approved VX Builder Core foundation as one shared guarded authoring engine for VX Shop Builder and the future VX Site Builder, reusing the existing canonical builder document, runtime and publication authorities; adapt the current Shop Builder workspace to the approved Visual First gold/graphite design, product-profile boundaries, contextual insertion and controlled 12-column resize without Wix-style freeform positioning.",
   "status": "ready-for-implementation",
-  "guardDigest": "ba1a39f8",
+  "guardDigest": "79f20cf3",
   "changeBaseSha": "dd0ae071bb0c5cd953a704ce31e2516feee9657f",
   "plannedFilePatterns": [
     "docs/architecture/VX_BUILDER_CORE.md",
@@ -37,7 +37,10 @@
     "SQ-KF-003",
     "SQ-KF-004",
     "SQ-KF-005",
+    "SQ-KF-006",
     "SQ-KF-007",
+    "SQ-KF-008",
+    "SQ-KF-009",
     "SQ-KF-010",
     "SQ-KF-011",
     "SQ-KF-012",
@@ -46,9 +49,13 @@
     "SQ-KF-015",
     "SQ-KF-016",
     "SQ-KF-017",
+    "SQ-KF-018",
     "SQ-KF-019",
     "SQ-KF-020",
+    "SQ-KF-021",
     "SQ-KF-022",
+    "SQ-KF-023",
+    "SQ-KF-024",
     "TF-KF-001",
     "TF-KF-002",
     "TF-KF-003",
@@ -551,5 +558,5 @@
       }
     ]
   },
-  "notes": "PO-approved Visual First authority is fixed for this slice. Implement by evolving the current canonical Visual Builder v3 and introducing shared VX Core/profile seams; do not rewrite or fork the editor. The large visual Section/Preset library framework may be made Core-ready now, but broad preset population remains aligned with the accepted template-portfolio sequencing. No main merge and no golden update. First execution exposed and now explicitly scopes a prerequisite SWAT/Operational-Intelligence test-coupling defect: the regression test must validate the current profile generically instead of pinning the preceding critical plan."
+  "notes": "PO-approved Visual First authority is fixed for this slice. Implement by evolving the current canonical Visual Builder v3 and introducing shared VX Core/profile seams; do not rewrite or fork the editor. The large visual Section/Preset library framework may be made Core-ready now, but broad preset population remains aligned with the accepted template-portfolio sequencing. No main merge and no golden update. First execution exposed and now explicitly scopes a prerequisite SWAT/Operational-Intelligence test-coupling defect: the regression test must validate the current profile generically instead of pinning the preceding critical plan. Actual-diff reconciliation after the first implementation commit expanded the active known-failure envelope from 42 to the full 49 applicable failures for the same four impacted subsystems; the plan now acknowledges that exact machine-derived scope and digest."
 }
