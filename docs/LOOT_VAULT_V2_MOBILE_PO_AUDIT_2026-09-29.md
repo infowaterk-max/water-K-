@@ -13,10 +13,24 @@ The Product Owner completed the first visual + functional audit on mobile. Deskt
 Status authority for the continuing audit; do not restart these items from zero.
 
 - **CODE / REGRESSION CLOSED:** deliberate 2-column mobile Universe browsing; mobile Catalog hero containment; functional Catalog/product routing; brand-relevant About content; expanded interactive FAQ; compacted Contact with accepted map/Form Wizard; detailed Returns flow; actionable account IA with distinct Wishlist and **Gyűjteményem** semantics; distinct Terms/Privacy/Imprint starter documents; separate canonical Shipping and Payment routes; product variant/demo binding with live price/stock identity; authoritative E13 quote path and stable fail-closed submit contract.
-- **BROWSER PROOF PENDING:** the complete P0 shopper journey and the 14×3 Desktop/Tablet/Mobile fidelity matrix. Current Factory work must prove these on the exact #469 HEAD before Product Owner closure.
+- **BROWSER / INTERACTION PROOF CLOSED:** exact-head Factory proof on `92cc56024ac06ad6db04a50176db67cb63556a83` passed the complete 42-case (14×3) Desktop/Tablet/Mobile browser matrix and the shared shopper journey. The Product Owner browser journey explicitly proved non-primary product-gallery thumbnail selection changes the main image, Gyűjteményem opens its collection tracker and a collection tile converges to the same-template product preview, cart quantity/remove/empty/re-add behavior, checkout shipping/payment recalculation, legal consent and fail-closed order submission. Proof errors: none. This is technical/interaction closure, not Product Owner visual approval of every image or final merge authorization.
 - **VISUAL CODE POLISH APPLIED / PO RECHECK PENDING:** cross-page media diversity/quality was corrected at code level by distributing package-owned WebP media across page roles, keeping distinct product identities on distinct assets, and adding regression guards against excessive representative-media reuse. This is not Product Owner visual approval; the exact preview still requires PO recheck. Filename aliases, recolors, or borrowing another template's media do not count as a future fix.
 - **PO-DEFERRED BY DESIGN:** demo-content activation/cleanup semantics remain intentionally deferred until the Product Owner defines deletion/edit-preservation behavior before activation implementation.
-- **MERGE / GOLDEN:** still prohibited until Product Owner approval.
+- **MERGE / GOLDEN:** still prohibited until explicit Product Owner approval. The proof artifact reports `handoffReady=true` and `accepted=false`; technical readiness must not be interpreted as merge or golden authorization.
+
+## Exact-head closure evidence — 2026-09-30
+
+Verified on PR #469 exact HEAD `92cc56024ac06ad6db04a50176db67cb63556a83` before this audit-text reconciliation commit:
+
+- Template Factory Quality Gate v2: **SUCCESS**.
+- Loot Vault browser matrix: **42/42 PASS**.
+- Shared commerce interaction proof: **PASS**.
+- Product gallery: second thumbnail was clicked in the real browser journey and the main-image source/selected index changed: **PASS**.
+- Account / Gyűjteményem: the capability route opened, the collection tracker rendered, and a collection product tile was clicked into the exact Loot Vault product preview: **PASS**.
+- Account canonical surfaces and Ügyeim empty-state interaction: **PASS**.
+- Route convergence, presentation continuity, shared E1/E2/E7/E10/E13 demo integration: **PASS**.
+- Exact Vercel deployment: **READY**; no golden update, main merge, staging promotion or production promotion was performed.
+- Normal CI remains red only on the previously known historical Release Risk Budget classification; Plan Before Code, Edit-Time Guard, Reference Sync, Incremental Replay, regression tests, typecheck/build and Factory proof passed.
 
 ## Global P0 — commerce must be demonstrably functional in template preview
 
