@@ -65,7 +65,7 @@ export function StorefrontProductGallery({
     />:null}
   </div>;
 
-  const thumbnails=visible.length>1?<div
+  const thumbnails=(left||visible.length>1)?<div
     data-product-gallery-thumbnails={vertical?'vertical':'horizontal'}
     style={{
       display:'grid',
