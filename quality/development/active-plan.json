@@ -12,7 +12,8 @@
     "src/components/admin/storefront-visual-builder-v3.module.css",
     "src/lib/builder/storefront-visual-builder.ts",
     "tests/vx-builder-core.test.ts",
-    "tests/visual-builder-production-completion.test.ts"
+    "tests/visual-builder-production-completion.test.ts",
+    "tests/shoperation-operational-intelligence.test.ts"
   ],
   "expectedSubsystems": [
     "admin-operations",
@@ -127,7 +128,8 @@
         "Desktop, tablet and mobile editing keeps the existing canonical responsive authority and targeted overrides without duplicate breakpoint DOM/page authorities.",
         "Merchant-facing terminology is product-profile driven so commerce-specific labels/capabilities do not become VX Builder Core assumptions.",
         "Builder performance/stability and long-term editability take precedence over unrestricted styling freedom; guarded freedom is explicit in code and tests.",
-        "Existing Presets, Saved Blocks, Layers, Global Styles, history, preview and publish flows continue to work through their current authorities."
+        "Existing Presets, Saved Blocks, Layers, Global Styles, history, preview and publish flows continue to work through their current authorities.",
+        "Operational Intelligence regression coverage must validate the active plan against its declared risk profile rather than hard-code the previous critical task, so future proportional-risk plans remain executable."
       ],
       "invariants": [
         "There is exactly one runtime renderer and one Page-document mutation authority for this Builder path.",
@@ -317,6 +319,13 @@
         "scenario": "Large pages generate excessive pointer/resize state updates and degrade editing responsiveness.",
         "finding": "Builder sophistication could reduce practical usability.",
         "resolution": "Commit mutations at bounded interaction points, avoid per-frame persistence, preserve runtime rendering authority and include performance/readiness regression checks.",
+        "status": "resolved"
+      },
+      {
+        "id": "CH-10",
+        "scenario": "The Operational Intelligence regression test reads active-plan.json but assumes the previous task was always critical with exactly ten requirements.",
+        "finding": "The first high-risk non-Control-Plane task passes Plan Before Code but fails the global suite solely because the test is coupled to the previous plan instance.",
+        "resolution": "Make the test profile-aware: derive minimum challenge/specialist/technique expectations from the active risk profile and validate PO source/evidence invariants without hard-coded task-specific tier or requirement count.",
         "status": "resolved"
       }
     ],
@@ -518,8 +527,29 @@
             ]
           }
         ]
+      },
+      {
+        "id": "REQ-09",
+        "requirement": "Keep Operational Intelligence self-tests task-agnostic so proportional high/medium/critical active plans can replace one another without false global test failures.",
+        "evidence": {
+          "implementation": [
+            "GUARD-QUALITY-TESTS"
+          ],
+          "outcome": [
+            "GUARD-INCREMENTAL-REPLAY"
+          ]
+        },
+        "forbiddenRegressions": [
+          {
+            "id": "NEG-09A",
+            "statement": "The regression suite must not hard-code the previous active task's risk tier or Completion Contract requirement count.",
+            "evidence": [
+              "GUARD-QUALITY-TESTS"
+            ]
+          }
+        ]
       }
     ]
   },
-  "notes": "PO-approved Visual First authority is fixed for this slice. Implement by evolving the current canonical Visual Builder v3 and introducing shared VX Core/profile seams; do not rewrite or fork the editor. The large visual Section/Preset library framework may be made Core-ready now, but broad preset population remains aligned with the accepted template-portfolio sequencing. No main merge and no golden update."
+  "notes": "PO-approved Visual First authority is fixed for this slice. Implement by evolving the current canonical Visual Builder v3 and introducing shared VX Core/profile seams; do not rewrite or fork the editor. The large visual Section/Preset library framework may be made Core-ready now, but broad preset population remains aligned with the accepted template-portfolio sequencing. No main merge and no golden update. First execution exposed and now explicitly scopes a prerequisite SWAT/Operational-Intelligence test-coupling defect: the regression test must validate the current profile generically instead of pinning the preceding critical plan."
 }
