@@ -577,7 +577,7 @@ describe('Loot Vault v2 Factory canonical wiring',()=>{
     expect(shared).toContain('data-thumbnail-position={thumbnailPosition}');
     expect(shared).toContain('<StorefrontProductGallery');
     expect(gallery).toContain('data-gallery-interaction="thumbnail-selects-main"');
-    expect(gallery).toContain('onClick={()=>setSelectedIndex(index)}');
+    expect(gallery).toContain('event.preventDefault();setSelectedIndex(index)');
     expect(gallery).toContain('src={selected.src}');
     expect(shared).not.toContain("templateKey==='gaming.loot-vault'");
     expect(preview).toContain('<CartView freeShippingThreshold={20000} products={products}/>');
