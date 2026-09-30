@@ -18,7 +18,8 @@
     "tests/storefront-loot-vault-v2-polish.test.ts",
     "docs/LOOT_VAULT_V2_MOBILE_PO_AUDIT_2026-09-29.md",
     "tests/storefront-template-quality-gate-v2.test.ts",
-    "tests/template-factory-loot-vault-v2.test.ts"
+    "tests/template-factory-loot-vault-v2.test.ts",
+    "scripts/template-factory-product-owner-handoff.mjs"
   ],
   "expectedSubsystems": [
     "auth-access-authority",
@@ -94,6 +95,6 @@
     "SQ-NK-012"
   ],
   "exceptions": [],
-  "notes": "Product Owner requires Loot Vault v2 to close as a real shopper-ready template, not from component-presence or green-CI inference. Scope is deliberately surgical: shared gallery behavior, shared cart presentation token authority, template-aware account/collection continuity, preview product routing, focused executable regression proof, and PO audit reconciliation. No Control Plane redesign. No golden update, main merge, staging promotion, production promotion, Release Risk Budget weakening, or template-local fork of shared commerce/account authority.",
+  "notes": "Product Owner requires Loot Vault v2 to close as a real shopper-ready template, not from component-presence or green-CI inference. Scope is deliberately surgical: shared gallery behavior, shared cart presentation token authority, template-aware account/collection continuity, preview product routing, focused executable regression proof, and PO audit reconciliation. No Control Plane redesign. No golden update, main merge, staging promotion, production promotion, Release Risk Budget weakening, or template-local fork of shared commerce/account authority. Final PO proof extension: the existing browser journey must click a non-primary product-gallery thumbnail and prove main-image state change, then open Gyűjteményem and click a collection tile into the exact template product preview. This is closure proof only, not a Control Plane redesign.",
   "changeBaseSha": "8ff249af0cf9bdd9c88ff282eff49e1f51954ced"
 }
