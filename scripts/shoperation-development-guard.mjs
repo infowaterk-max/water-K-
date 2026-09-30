@@ -4,6 +4,9 @@ import {buildCodebaseAtlas,impactForAtlasPattern,writeCodebaseAtlasArtifacts} fr
 
 const args=process.argv.slice(2),value=name=>{const i=args.indexOf(name);return i>=0?args[i+1]??'':null;},has=name=>args.includes(name);
 const task=value('--task')??process.env.SHOPERATION_TASK??'',rawFiles=value('--files')??process.env.SHOPERATION_PLANNED_FILES??'',files=rawFiles.split(/[;,\n]/).map(x=>x.trim()).filter(Boolean);
+const riskTier=(value('--risk')??process.env.SHOPERATION_RISK_TIER??'medium').trim(),sourceRef=(value('--source-ref')??process.env.SHOPERATION_PO_SOURCE_REF??'').trim();
+const assuranceProfile=guardPolicy.operationalIntelligence?.riskProfiles?.[riskTier];
+if(!assuranceProfile){console.error(`DEVELOPMENT_GUARD_RISK_TIER_INVALID: ${riskTier}`);process.exit(1);}
 if(!task.trim()){console.error('DEVELOPMENT_GUARD_TASK_REQUIRED');process.exit(1);}
 if(!files.length){console.error('DEVELOPMENT_GUARD_PLANNED_FILES_REQUIRED');process.exit(1);}
 const atlas=buildCodebaseAtlas();writeCodebaseAtlasArtifacts(atlas);
@@ -18,7 +21,38 @@ const manifest={contract:'shoporation.development-guard.v1',task,plannedFiles:fi
 mkdirSync('artifacts/shoperation-development-guard',{recursive:true});
 writeFileSync('artifacts/shoperation-development-guard/development-guard.json',JSON.stringify(manifest,null,2)+'\n');
 writeFileSync('artifacts/shoperation-development-guard/development-guard.md',['# Shoperation Development Guard','',`Decision: **${decision}**`,`Task: ${task}`,`Guard digest: ${digest}`,'','## Impacted subsystems',...scope.impactedSubsystems.map(x=>`- ${x}`),'','## Codebase Atlas impact',...atlasContext.flatMap(item=>[\`### ${item.pattern}\`,\`- owners/subsystems: ${item.subsystems.join(', ')||'unclassified'}\`,\`- surfaces: ${item.surfaces.join(', ')||'unknown'}\`,\`- affected routes: ${item.routes.map(r=>r.path).join(', ')||'none discovered'}\`,\`- related tests: ${item.tests.join(', ')||'none discovered'}\`,\`- component/literal keys: ${item.componentKeys.join(', ')||'none'}\`,'']), '## Active Known Failures',...activeFailures.flatMap(f=>[`### ${f.id} — ${f.title}`,f.directive.preventiveDirective,...f.directive.forbiddenApproaches.map(x=>`- FORBIDDEN: ${x}`),'']),'## Negative knowledge',...negativeKnowledge.map(x=>`- ${x.id}: ${x.rule}`),'','## Required regression authority',...requiredRegressionTests.map(x=>`- ${x}`)].join('\n')+'\n');
-if(has('--write-plan')){const plan={contract:'shoporation.development-plan.v1',taskId:`DEV-${digest.toUpperCase()}`,task,status:'draft',guardDigest:digest,plannedFilePatterns:files,expectedSubsystems:scope.impactedSubsystems,expectedKnownFailureIds:scope.activeFailureIds,acknowledgedNegativeKnowledgeIds:negativeKnowledge.map(x=>x.id),exceptions:[],notes:'Read artifacts/shoperation-development-guard/development-guard.md, then set status to ready-for-implementation before running the Plan Before Code gate.'};mkdirSync('quality/development',{recursive:true});writeFileSync('quality/development/active-plan.json',JSON.stringify(plan,null,2)+'\n');}
+if(has('--write-plan')){
+  const phases=guardPolicy.operationalIntelligence?.phaseSequence??[];
+  const plan={
+    contract:'shoporation.development-plan.v1',
+    taskId:`DEV-${digest.toUpperCase()}`,
+    task,
+    status:'draft',
+    guardDigest:digest,
+    plannedFilePatterns:files,
+    expectedSubsystems:scope.impactedSubsystems,
+    expectedKnownFailureIds:scope.activeFailureIds,
+    acknowledgedNegativeKnowledgeIds:negativeKnowledge.map(x=>x.id),
+    exceptions:[],
+    operationalIntelligence:{
+      sourceKind:'product-owner-request',
+      sourceRef,
+      riskTier,
+      assuranceCeiling:{level:assuranceProfile.assuranceLevel,rationale:'',selectedTechniques:[...(assuranceProfile.requiredTechniques??[])],deferredTechniques:[]},
+      definition:{acceptanceCriteria:[],invariants:[],forbiddenStates:[]},
+      model:{phases,transitions:phases.slice(0,-1).map((phase,index)=>`${phase}->${phases[index+1]}`),failureModes:[],edgeCases:[]},
+      alternatives:[],
+      specialistReviews:[],
+      challenge:[],
+      proofPlan:[],
+      executionAuthorized:false,
+    },
+    completionContract:{sourceKind:'product-owner-request',sourceRef,requirements:[]},
+    notes:'Complete the assurance ceiling, DEFINE/MODEL/PLAN/CHALLENGE evidence, specialist reviews and PO-derived Completion Contract. Only then set status to ready-for-implementation and executionAuthorized to true before running Plan Before Code.',
+  };
+  mkdirSync('quality/development',{recursive:true});
+  writeFileSync('quality/development/active-plan.json',JSON.stringify(plan,null,2)+'\n');
+}
 console.log(`Development Guard: ${decision}; failures=${scope.activeFailureIds.length}; subsystems=${scope.impactedSubsystems.join(',')||'baseline-only'}; digest=${digest}`);
 if(scope.unresolvedFiles.length)console.error(`SCOPE_UNRESOLVED: ${scope.unresolvedFiles.join(', ')}`);
 if(decision!=='PASS'&&has('--check'))process.exit(1);
