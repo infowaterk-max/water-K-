@@ -3,7 +3,7 @@
   "taskId": "DEV-LOOT-VAULT-V2-PO-CLOSURE",
   "task": "Close Loot Vault v2 Product Owner defects by repairing shared storefront token inheritance, explicit shipping/payment selected states, account/collection presentation, preserved product-gallery interaction, and mobile executable commerce behavior proof.",
   "status": "ready-for-implementation",
-  "guardDigest": "0aa869dc",
+  "guardDigest": "153a2e31",
   "plannedFilePatterns": [
     "src/components/builder/storefront-product-gallery.tsx",
     "src/components/builder/storefront-commerce.tsx",
@@ -28,6 +28,8 @@
     "auth-access-authority",
     "builder-template-system",
     "customer-account",
+    "inventory-fulfillment-authority",
+    "payment-checkout-order-authority",
     "shared-storefront",
     "storefront-ui"
   ],
