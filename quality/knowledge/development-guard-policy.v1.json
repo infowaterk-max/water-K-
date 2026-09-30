@@ -6,7 +6,8 @@
     "If the actual diff expands into a new subsystem or activates additional Known Failures, stop and regenerate/review the plan.",
     "After each coherent edit batch, run the Edit-Time Guard and Incremental Replay before continuing.",
     "Final CI/Quality Gate remains mandatory; development-time prevention does not replace final proof.",
-    "Every short or broad intent matcher must keep at least one positive target example and one lexically similar non-target example in regression coverage."
+    "Every short or broad intent matcher must keep at least one positive target example and one lexically similar non-target example in regression coverage.",
+    "Any removed, renamed or materially changed path, asset, exported symbol, route, selector, data attribute, component key or high-signal implementation expression must pass repository-wide Reference Sync closure before Incremental Replay; unresolved machine consumers block the edit batch."
   ],
   "intentMatchers": [
     {

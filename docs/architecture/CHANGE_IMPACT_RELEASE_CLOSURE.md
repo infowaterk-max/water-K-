@@ -55,3 +55,11 @@ A Risk Budget riport a pontszám mellett eltárolja az Atlas closure domain-, au
 ## Határ
 
 Az Atlas továbbra sem hoz üzleti döntést. A Constitution és Domain Foundations az authority; az Atlas ezek alapján számít impactot és closure-t. A Release Risk Budget továbbra is a production release kockázati authority-ja.
+
+## A/B Reference Sync closure
+
+The existing Edit-Time Guard owns the before/after synchronization boundary; this is not a parallel quality gate. For the active development transaction it compares the change-base state with the current worktree/exact head, derives removed or changed contract candidates, and performs repository-wide reverse-reference closure before Incremental Replay.
+
+The machine-readable artifact is `artifacts/shoperation-development-guard/reference-sync.json` and records `removedReferences`, `changedReferences`, before/after consumers, `staleConsumers`, review consumers and updated consumers. Deleted/renamed package assets are projected both as repository paths and public URLs. Removed exported symbols, selectors/data attributes/component keys and high-signal implementation expressions are also tracked. Positive source-code/test/config consumers block; negative assertions and documentation remain evidence rather than false stale-consumer failures.
+
+Acceptance invariant: a coherent edit batch may not advance to Incremental Replay while a removed or changed machine contract has an unresolved stale consumer. This closes the gap where import-only Atlas edges could not see source-string assertions or path-based asset references.

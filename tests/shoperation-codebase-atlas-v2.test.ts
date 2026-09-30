@@ -35,6 +35,19 @@ describe('Shoperation Codebase Atlas 2.0 / System Self-Knowledge',()=>{
     expect(atlas.nodes.some(node=>node.domains.length>0&&node.authorities.length>0)).toBe(true);
   });
 
+  it('does not parse import-looking assertion strings as dependency edges and keeps real imports',()=>{
+    execFileSync('node',['scripts/shoperation-codebase-atlas.mjs','--check'],{encoding:'utf8'});
+    const atlas=JSON.parse(readFileSync('artifacts/shoperation-atlas/codebase-atlas.json','utf8')) as {
+      unresolvedInternalImports:Array<{from:string;specifier:string}>;
+      nodes:Array<{path:string;imports:string[];domains:string[]}>;
+      summary:{domainCounts:Record<string,number>};
+    };
+    expect(atlas.unresolvedInternalImports).not.toContainEqual(expect.objectContaining({from:'tests/admin-mobile-desktop-compat.test.ts',specifier:'./mobile-desktop-compat.css'}));
+    expect(atlas.nodes.find(node=>node.path==='src/lib/catalog-server.ts')?.imports).toContain('src/lib/catalog.ts');
+    expect(atlas.nodes.find(node=>node.path==='src/lib/catalog.ts')?.domains).toContain('DOMAIN-CATALOG');
+    expect(atlas.summary.domainCounts['DOMAIN-CATALOG']).toBeGreaterThan(0);
+  });
+
   it('exposes deterministic architecture impact and release-closure projections',()=>{
     const runtime=readFileSync('scripts/lib/shoperation-codebase-atlas-runtime.mjs','utf8');
     const cli=readFileSync('scripts/shoperation-codebase-atlas.mjs','utf8');
