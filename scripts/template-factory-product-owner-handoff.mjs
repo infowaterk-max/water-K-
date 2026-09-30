@@ -673,7 +673,24 @@ try{
       commerceCartRoot=rootFor('cart');
       await commerceCartRoot.locator('[data-storefront-preview-cart="interactive"]').waitFor({state:'visible',timeout:10000});
       commerceInteraction.reAddItem=(await commerceCartRoot.locator('[data-storefront-preview-cart-quantity]').first().innerText()).trim()==='1 db';
-      commerceInteraction.checkoutEntry=await clickCandidate(commerceCartRoot.getByRole('link',{name:'Tovább a pénztárhoz',exact:true}).first(),'checkout','commerce-checkout');
+      const cartSummaryRows=commerceCartRoot.locator('.summaryTotal');
+      const cartSubtotalRow=cartSummaryRows.filter({hasText:'Termékek'}).first(),cartTotalRow=cartSummaryRows.filter({hasText:'Összesen'}).first();
+      const cartSubtotal=commerceMoneyDigits(await cartSubtotalRow.locator('strong').innerText()),cartTotal=commerceMoneyDigits(await cartTotalRow.locator('strong').innerText());
+      commerceInteraction.cartSummary=cartSubtotal!==null&&cartSubtotal>0&&cartTotal!==null&&cartTotal===cartSubtotal;
+      const couponInput=commerceCartRoot.locator('[data-cart-coupon-input="true"]').first(),couponApply=commerceCartRoot.locator('[data-cart-coupon-apply="true"]').first();
+      await couponInput.fill('preview');
+      commerceInteraction.couponControl=await couponInput.isVisible()&&await couponApply.isVisible()&&await couponApply.isEnabled()&&(await couponInput.inputValue())==='PREVIEW';
+      await couponInput.fill('');
+      const cartCheckoutCta=commerceCartRoot.getByRole('link',{name:'Tovább a pénztárhoz',exact:true}).first();
+      const cartCheckoutContrast=await cartCheckoutCta.evaluate(element=>{
+        const parse=value=>(value.match(/[\d.]+/g)??[]).slice(0,3).map(Number);
+        const luminance=value=>{const rgb=parse(value);if(rgb.length<3)return null;const channels=rgb.map(channel=>{const c=channel/255;return c<=.03928?c/12.92:((c+.055)/1.055)**2.4});return .2126*channels[0]+.7152*channels[1]+.0722*channels[2]};
+        const style=getComputedStyle(element),foreground=luminance(style.color),background=luminance(style.backgroundColor);
+        if(foreground===null||background===null)return 0;
+        return (Math.max(foreground,background)+.05)/(Math.min(foreground,background)+.05);
+      });
+      commerceInteraction.cartCheckoutCtaReadable=await cartCheckoutCta.isVisible()&&cartCheckoutContrast>=4.5;
+      commerceInteraction.checkoutEntry=await clickCandidate(cartCheckoutCta,'checkout','commerce-checkout');
 
       const checkoutRoot=rootFor('checkout');
       await checkoutRoot.locator('[data-storefront-preview-checkout="interactive-fail-closed"]').waitFor({state:'visible',timeout:10000});
@@ -753,6 +770,9 @@ try{
       &&commerceInteraction.emptyStateAfterRemove===true
       &&commerceInteraction.removeAndEmptyState===true
       &&commerceInteraction.reAddItem===true
+      &&commerceInteraction.cartSummary===true
+      &&commerceInteraction.couponControl===true
+      &&commerceInteraction.cartCheckoutCtaReadable===true
       &&commerceInteraction.checkoutEntry===true
       &&commerceInteraction.shippingSelection===true
       &&commerceInteraction.representativeQuoteSource===true
@@ -829,7 +849,9 @@ try{
     checks.routeConvergencePassed=Object.values(convergence).length>=9&&Object.values(convergence).every(value=>value===true||value==='variant-selection-required');
     if(!checks.routeConvergencePassed)errors.push('MULTI_ENTRY_ROUTE_CONVERGENCE_NOT_PROVEN');
 
-    let accountRoot=await visitCandidate('account','account-capability-proof');
+    const accountViewportBefore=page.viewportSize();
+    await page.setViewportSize({width:390,height:844});
+    let accountRoot=await visitCandidate('account','account-capability-proof',{viewport:'mobile'});
     const accountTargets=[
       ['Rendeléseim','/fiokom#rendelesek'],['Letöltéseim','/fiokom/letoltesek'],['Dokumentumaim','/fiokom/dokumentumok'],['Kívánságlista','/fiokom/kivansaglista'],
       ['Ügyeim','/fiokom/ugyek'],['Visszaküldés','/fiokom/visszakuldes'],['Fiókadatok','/fiokom#fiokadatok'],['Marketing beállítások','/fiokom#marketing'],
@@ -843,6 +865,16 @@ try{
       return url.pathname===expected.pathname&&url.hash===expected.hash;
     }))).every(Boolean);
     if(!checks.accountSurfacePassed)errors.push('CANONICAL_ACCOUNT_SURFACES_NOT_PROVEN');
+    const accountOverview=accountRoot.locator('[data-storefront-preview-account-overview="showroom-v1"]').first();
+    const accountCapabilityRail=accountRoot.locator('.accountCapabilityRail').first();
+    const accountOverviewReadable=await accountOverview.locator('a').evaluateAll(cards=>{
+      const parse=value=>(value.match(/[\d.]+/g)??[]).slice(0,3).map(Number);
+      const luminance=value=>{const rgb=parse(value);if(rgb.length<3)return null;const channels=rgb.map(channel=>{const c=channel/255;return c<=.03928?c/12.92:((c+.055)/1.055)**2.4});return .2126*channels[0]+.7152*channels[1]+.0722*channels[2]};
+      const contrast=(a,b)=>{const x=luminance(a),y=luminance(b);return x===null||y===null?0:(Math.max(x,y)+.05)/(Math.min(x,y)+.05)};
+      return cards.length>=3&&cards.every(card=>{const style=getComputedStyle(card),strong=card.querySelector('strong');return Boolean(strong)&&contrast(getComputedStyle(strong).color,style.backgroundColor)>=4.5});
+    });
+    checks.accountMobilePresentationPassed=await accountOverview.isVisible()&&await accountCapabilityRail.isVisible()&&accountOverviewReadable;
+    if(!checks.accountMobilePresentationPassed)errors.push('ACCOUNT_MOBILE_PRESENTATION_NOT_PROVEN');
     try{
       const collectionLink=accountRoot.getByRole('link',{name:'Gyűjteményem',exact:true}).first();
       await Promise.all([
@@ -852,7 +884,18 @@ try{
       accountRoot=await assertCandidatePage('account','account-collection');
       const collectionRoot=accountRoot.locator('[data-storefront-preview-account-state="gyujtemenyem"] [data-account-collection-authority="purchase-history-v1"]');
       await collectionRoot.waitFor({state:'visible',timeout:10000});
+      const collectionGrid=collectionRoot.locator('.accountCollectionGrid').first();
       const collectionTile=collectionRoot.locator('a.accountCollectionTile').first();
+      const collectionColumns=await collectionGrid.evaluate(element=>getComputedStyle(element).gridTemplateColumns.split(/\s+/).filter(Boolean).length);
+      const ownedCount=await collectionRoot.locator('a.accountCollectionTile[data-owned="true"]').count(),missingCount=await collectionRoot.locator('a.accountCollectionTile[data-owned="false"]').count();
+      const collectionReadable=await collectionRoot.locator('a.accountCollectionTile').evaluateAll(tiles=>{
+        const parse=value=>(value.match(/[\d.]+/g)??[]).slice(0,3).map(Number);
+        const luminance=value=>{const rgb=parse(value);if(rgb.length<3)return null;const channels=rgb.map(channel=>{const c=channel/255;return c<=.03928?c/12.92:((c+.055)/1.055)**2.4});return .2126*channels[0]+.7152*channels[1]+.0722*channels[2]};
+        const contrast=(a,b)=>{const x=luminance(a),y=luminance(b);return x===null||y===null?0:(Math.max(x,y)+.05)/(Math.min(x,y)+.05)};
+        return tiles.length>=2&&tiles.every(tile=>{const bg=getComputedStyle(tile).backgroundColor,title=tile.querySelector('strong'),status=tile.querySelector('.accountCollectionStatus');return Boolean(title&&status)&&contrast(getComputedStyle(title).color,bg)>=4.5&&contrast(getComputedStyle(status).color,bg)>=4.5});
+      });
+      checks.collectionMobilePresentationPassed=collectionColumns===2&&ownedCount>0&&missingCount>0&&collectionReadable;
+      if(!checks.collectionMobilePresentationPassed)errors.push('ACCOUNT_COLLECTION_MOBILE_PRESENTATION_NOT_PROVEN');
       const sourceHref=await collectionTile.getAttribute('href');
       checks.collectionInteractionPassed=Boolean(sourceHref?.startsWith('/termek/'))
         &&await clickCandidate(collectionTile,'product','account-collection-product');
@@ -862,7 +905,7 @@ try{
       errors.push(`ACCOUNT_COLLECTION_INTERACTION_NOT_PROVEN:${error instanceof Error?error.message:String(error)}`);
     }
 
-    accountRoot=await visitCandidate('account','account-cases-proof');
+    accountRoot=await visitCandidate('account','account-cases-proof',{viewport:'mobile'});
     try{
       const casesLink=accountRoot.getByRole('link',{name:'Ügyeim',exact:true}).first();
       await Promise.all([
@@ -878,6 +921,7 @@ try{
       errors.push(`ACCOUNT_INTERACTION_NOT_PROVEN:${error instanceof Error?error.message:String(error)}`);
     }
     if(!checks.accountInteractionPassed&&!errors.some(item=>String(item).startsWith('ACCOUNT_INTERACTION_NOT_PROVEN')))errors.push('ACCOUNT_INTERACTION_NOT_PROVEN');
+    if(accountViewportBefore)await page.setViewportSize(accountViewportBefore);
 
     const engineChecks={};
     let engineRoot=await visitCandidate('catalog','engine-e2');

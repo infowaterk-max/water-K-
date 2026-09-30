@@ -436,6 +436,23 @@ async function proveFactoryCommerceInteraction(browser,manifest){
     cartRoot=rootFor('cart');
     await cartRoot.locator('[data-storefront-preview-cart="interactive"]').waitFor({state:'visible',timeout:10000});
     result.checks.reAddItem=(await cartRoot.locator('[data-storefront-preview-cart-quantity]').first().innerText()).trim()==='1 db';
+    const cartSummaryRows=cartRoot.locator('.summaryTotal');
+    const cartSubtotalRow=cartSummaryRows.filter({hasText:'Termékek'}).first(),cartTotalRow=cartSummaryRows.filter({hasText:'Összesen'}).first();
+    const cartSubtotal=commerceMoneyDigits(await cartSubtotalRow.locator('strong').innerText()),cartTotal=commerceMoneyDigits(await cartTotalRow.locator('strong').innerText());
+    result.checks.cartSummary=cartSubtotal!==null&&cartSubtotal>0&&cartTotal!==null&&cartTotal===cartSubtotal;
+    const couponInput=cartRoot.locator('[data-cart-coupon-input="true"]').first(),couponApply=cartRoot.locator('[data-cart-coupon-apply="true"]').first();
+    await couponInput.fill('preview');
+    result.checks.couponControl=await couponInput.isVisible()&&await couponApply.isVisible()&&await couponApply.isEnabled()&&(await couponInput.inputValue())==='PREVIEW';
+    await couponInput.fill('');
+    const cartCheckoutCta=cartRoot.getByRole('link',{name:'Tovább a pénztárhoz',exact:true}).first();
+    const cartCheckoutContrast=await cartCheckoutCta.evaluate(element=>{
+      const parse=value=>(value.match(/[\d.]+/g)??[]).slice(0,3).map(Number);
+      const luminance=value=>{const rgb=parse(value);if(rgb.length<3)return null;const channels=rgb.map(channel=>{const c=channel/255;return c<=.03928?c/12.92:((c+.055)/1.055)**2.4});return .2126*channels[0]+.7152*channels[1]+.0722*channels[2]};
+      const style=getComputedStyle(element),foreground=luminance(style.color),background=luminance(style.backgroundColor);
+      if(foreground===null||background===null)return 0;
+      return (Math.max(foreground,background)+.05)/(Math.min(foreground,background)+.05);
+    });
+    result.checks.cartCheckoutCtaReadable=await cartCheckoutCta.isVisible()&&cartCheckoutContrast>=4.5;
     await Promise.all([
       page.waitForURL(url=>url.pathname==='/visual-fidelity-qa'&&url.searchParams.get('page')==='checkout',{timeout:15000}),
       cartRoot.getByRole('link',{name:'Tovább a pénztárhoz',exact:true}).click(),
@@ -548,6 +565,9 @@ async function proveFactoryCommerceInteraction(browser,manifest){
       &&result.checks.emptyStateAfterRemove===true
       &&result.checks.removeAndEmptyState===true
       &&result.checks.reAddItem===true
+      &&result.checks.cartSummary===true
+      &&result.checks.couponControl===true
+      &&result.checks.cartCheckoutCtaReadable===true
       &&result.checks.checkoutEntry===true
       &&result.checks.shippingSelection===true
       &&result.checks.shippingSelectedSemantic===true
