@@ -493,7 +493,7 @@ async function proveFactoryCommerceInteraction(browser,manifest){
     const inactiveShippingVisual=await inactiveShippingCard.count()?await inactiveShippingCard.evaluate(element=>{const style=getComputedStyle(element);return{borderColor:style.borderTopColor,background:style.backgroundColor}}):null;
     result.checks.shippingSelectedSemantic=await selectedShippingCard.count()===1&&await parcel.getAttribute('aria-checked')==='true';
     result.checks.shippingSelectedVisualEvidence={selected:shippingVisual,inactive:inactiveShippingVisual};
-    result.checks.shippingSelectedVisual=shippingVisual.checkVisible===true&&shippingVisual.boxShadow!=='none'&&Boolean(inactiveShippingVisual)&&(shippingVisual.borderColor!==inactiveShippingVisual.borderColor||shippingVisual.background!==inactiveShippingVisual.background);
+    result.checks.shippingSelectedVisual=shippingVisual.borderWidth>=2&&shippingVisual.checkVisible===true&&Boolean(inactiveShippingVisual)&&(shippingVisual.borderColor!==inactiveShippingVisual.borderColor||shippingVisual.background!==inactiveShippingVisual.background);
     result.checks.totalRecalculation=beforeShipping!==afterShipping&&beforeTotal!==afterTotal;
     result.checks.shippingRecalculation=result.checks.shippingSelection===true&&result.checks.representativeQuoteSource===true&&result.checks.totalRecalculation===true;
     const subtotalValue=commerceMoneyDigits(subtotal),beforeShippingValue=commerceMoneyDigits(beforeShipping),beforeTotalValue=commerceMoneyDigits(beforeTotal),afterShippingValue=commerceMoneyDigits(afterShipping),afterTotalValue=commerceMoneyDigits(afterTotal);
@@ -509,6 +509,11 @@ async function proveFactoryCommerceInteraction(browser,manifest){
     await page.waitForFunction(()=>document.querySelector('input[name="paymentProvider"]:checked')!==null,undefined,{timeout:5000}).catch(error=>{throw new Error('COMMERCE_PAYMENT_SELECTION_TIMEOUT:'+String(error))});
     result.checks.paymentSelection=await transfer.isChecked();
     const selectedPaymentCard=liveCheckout.locator('label.choiceCard[data-selected="true"]').filter({hasText:/Banki átutalás/}).first();
+    await page.waitForFunction(()=>{
+      const cards=[...document.querySelectorAll('label.choiceCard[data-selected="true"]')];
+      const selected=cards.find(element=>element.textContent?.includes('Banki átutalás'));
+      return Boolean(selected&&Number.parseFloat(getComputedStyle(selected).borderTopWidth)>=2);
+    },undefined,{timeout:1500}).catch(error=>{throw new Error('COMMERCE_PAYMENT_SELECTED_VISUAL_TIMEOUT:'+String(error))});
     const inactivePaymentCard=liveCheckout.locator('label.choiceCard[data-selected="false"]').first();
     const paymentVisual=await selectedPaymentCard.evaluate((element)=>{
       const style=getComputedStyle(element),check=element.querySelector('.choiceCheck'),checkStyle=check?getComputedStyle(check):null;
@@ -517,7 +522,7 @@ async function proveFactoryCommerceInteraction(browser,manifest){
     const inactivePaymentVisual=await inactivePaymentCard.count()?await inactivePaymentCard.evaluate(element=>{const style=getComputedStyle(element);return{borderColor:style.borderTopColor,background:style.backgroundColor}}):null;
     result.checks.paymentSelectedSemantic=await selectedPaymentCard.count()===1&&await transfer.getAttribute('aria-checked')==='true';
     result.checks.paymentSelectedVisualEvidence={selected:paymentVisual,inactive:inactivePaymentVisual};
-    result.checks.paymentSelectedVisual=paymentVisual.checkVisible===true&&paymentVisual.boxShadow!=='none'&&Boolean(inactivePaymentVisual)&&(paymentVisual.borderColor!==inactivePaymentVisual.borderColor||paymentVisual.background!==inactivePaymentVisual.background);
+    result.checks.paymentSelectedVisual=paymentVisual.borderWidth>=2&&paymentVisual.checkVisible===true&&Boolean(inactivePaymentVisual)&&(paymentVisual.borderColor!==inactivePaymentVisual.borderColor||paymentVisual.background!==inactivePaymentVisual.background);
     await liveCheckout.getByRole('button',{name:'Tovább az összesítéshez',exact:true}).click();
 
     const termsLink=liveCheckout.getByRole('link',{name:'ÁSZF-et',exact:true});

@@ -53,8 +53,10 @@ describe('Template Factory Quality Gate v2',()=>{
     expect(gate).toContain('await privacy.check()');
     expect(gate).toContain("getAttribute('data-checkout-quote-source')==='representative-preview'");
     expect(gate).toContain('shippingSelectedVisual');
-    expect(gate).toContain("shippingVisual.boxShadow!=='none'");
+    expect(gate).toContain('shippingVisual.borderWidth>=2');
     expect(gate).toContain('paymentSelectedVisual');
+    expect(gate).toContain('paymentVisual.borderWidth>=2');
+    expect(gate).toContain('COMMERCE_PAYMENT_SELECTED_VISUAL_TIMEOUT');
     expect(gate).not.toContain('shippingQuoteRefresh');
     expect(gate).toContain("getByPlaceholder('Írd be a választott automata vagy átvételi pont nevét / címét')");
     expect(gate).toContain("name:'Tovább a fizetéshez'");
