@@ -62,3 +62,16 @@ Sentinel must never:
 - treat one isolated failure as proof of a systemic problem.
 
 Its recommendations are evidence-backed proposals only.
+
+
+## Periodic Failure Intake maintenance
+
+Sentinel remains observation-only. Durable Failure Intake cleanup belongs to the existing weekly Knowledge Full Replay, not to Sentinel and not to a new blocking gate.
+
+The full replay collects each open intake issue together with its originating workflow evidence and runs the deterministic `shoporation.failure-intake-reconciliation.v1` contract. An issue may be closed only with an explicit machine-readable disposition when one of these conditions is proven:
+
+- the fingerprint is a duplicate and one authoritative open issue is retained;
+- the current failure-signature authority now maps the code to a Known Failure;
+- the same workflow/branch has a later successful run, proving recovery of the originating development or canonical workflow evidence.
+
+Unknown-scope and still-active evidence remains open. Reconciliation never deletes issue history, never weakens Known Failure or Failure Intake authority, and every closure records the disposition and exact reconciliation commit.
