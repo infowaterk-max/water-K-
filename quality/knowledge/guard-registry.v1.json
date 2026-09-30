@@ -50,6 +50,16 @@
       "evidence": "artifacts/shoperation-development-guard/incremental-replay.json"
     },
     {
+      "id": "GUARD-COMPLETION-TRUTH",
+      "name": "Completion Truth Gate",
+      "authority": "quality-knowledge-system",
+      "lifecycle": "development-completion",
+      "blocking": true,
+      "responsibilityKey": "po-completion-integrity",
+      "producer": "scripts/shoperation-truth-gate.mjs",
+      "evidence": "artifacts/shoperation-development-guard/truth-gate.json"
+    },
+    {
       "id": "GUARD-RELEASE-RISK",
       "name": "Release Risk Budget",
       "authority": "release-infrastructure",
