@@ -326,7 +326,7 @@ function valueForBinding(input:{template:StorefrontInstallableTemplatePackage;pa
       {src:'/storefront-demo/loot-vault-v2/product-figure.webp',alt:'Vault Sentinel gyűjtői figura'},
       {src:'/storefront-demo/loot-vault-v2/product-relic.webp',alt:'Vault Sentinel relikvia-részlet'},
       {src:'/storefront-demo/loot-vault-v2/product-statue.webp',alt:'Collector Edition szobor-részlet'},
-      {src:'/storefront-demo/loot-vault-v2/category-miniatures.webp',alt:'Gyűjtői kiállítás alternatív nézete'},
+      {src:'/storefront-demo/loot-vault-v2/editorial-vault-shelf.webp',alt:'Archív polcrendszer és gyűjtői relikviák részlete'},
     ];
     return collectImageFallbacks(page).slice(0,4).map((src,index)=>({src,alt:`Bemutató kép ${index+1}`}));
   }
