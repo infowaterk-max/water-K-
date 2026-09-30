@@ -42,6 +42,8 @@ describe('Failure Intake reconciliation',()=>{
     expect(workflow).toContain('Run deterministic Failure Intake reconciliation');
     expect(workflow).toContain('Apply explicit Failure Intake dispositions');
     expect(workflow).toContain('shoperation-failure-intake-reconcile.mjs');
+    expect(workflow).toContain("const currentBody=current.body||'';");
+    expect(workflow).toContain('body:nextBody');
     expect(sentinel).toContain('Sentinel remains observation-only');
   });
 });

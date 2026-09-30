@@ -147,8 +147,9 @@ jobs:
               const current=(await github.rest.issues.get({...context.repo,issue_number:action.issueNumber})).data;
               if(current.state!=='open')continue;
               const dispositionMarker=`<!-- shoperation-failure-intake-disposition:${action.disposition} -->`;
-              const body=(current.body||'')+(current.body||'').includes(dispositionMarker)?'':`\n\n${dispositionMarker}\nDisposition: **${action.disposition}**. ${action.reason}\nReconciled by Shoperation Knowledge Full Replay on \`${context.sha}\`.`;
-              await github.rest.issues.update({...context.repo,issue_number:action.issueNumber,state:'closed',body});
+              const currentBody=current.body||'';
+              const nextBody=currentBody.includes(dispositionMarker)?currentBody:currentBody+`\n\n${dispositionMarker}\nDisposition: **${action.disposition}**. ${action.reason}\nReconciled by Shoperation Knowledge Full Replay on \`${context.sha}\`.`;
+              await github.rest.issues.update({...context.repo,issue_number:action.issueNumber,state:'closed',body:nextBody});
             }
 
       - name: Upload Failure Intake reconciliation evidence
