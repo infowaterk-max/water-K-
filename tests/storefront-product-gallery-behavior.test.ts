@@ -12,10 +12,10 @@ describe('storefront product gallery behavior contract',()=>{
     expect(gallery).toContain('data-gallery-interaction="thumbnail-selects-main"');
     expect(gallery).toContain('data-product-gallery-main-image="true"');
     expect(gallery).toContain('data-product-gallery-thumbnail={index}');
-    expect(gallery).toContain('aria-pressed={active}');
-    expect(gallery).toContain('onClick={()=>setSelectedIndex(index)}');
+    expect(gallery).toContain("aria-current={active?'true':undefined}");
+    expect(gallery).toContain('event.preventDefault();setSelectedIndex(index)');
     expect(gallery).toContain('src={selected.src}');
     expect(commerce).toContain('<StorefrontProductGallery');
-    expect(commerce).not.toContain('#product-image-2');
+    expect(gallery).toContain("href={index===0?'#product-main':`#product-image-${index+1}`}");
   });
 });
