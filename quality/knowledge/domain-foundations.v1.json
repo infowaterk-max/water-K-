@@ -228,7 +228,9 @@
       ],
       "canonicalPaths": [
         "src/lib/catalog/**",
-        "src/lib/inventory/**"
+        "src/lib/inventory/**",
+        "src/lib/catalog.ts",
+        "src/lib/catalog-*.ts"
       ],
       "evidenceObligations": [
         "variant identity regression",
