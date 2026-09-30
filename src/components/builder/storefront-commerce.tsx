@@ -83,22 +83,33 @@ function ProductGalleryRenderer({config,node,viewport}:StorefrontComponentRender
   const images=rows(config.images).map((item,index)=>({src:safeImage(item.src),alt:text(item.alt,`Termékkép ${index+1}`),objectPosition:text(item.objectPosition,'center'),filter:text(item.filter)})).filter((item):item is {src:string;alt:string;objectPosition:string;filter:string}=>Boolean(item.src));
   const presentation=text(config.presentation),slot=styles(config,viewport);
   if(presentation==='editorial-thumbnails'){
-    return <StorefrontProductGallery
-      images={images}
-      thumbnailPosition={text(config.thumbnailPosition,'left')}
-      aspectRatio={text(config.aspectRatio,'4 / 5')}
-      viewport={viewport}
-      rootStyle={span(node)}
-      styleSlots={{
-        root:slot('root'),
-        main:slot('main'),
-        mainImage:slot('mainImage'),
-        thumbnails:slot('thumbnails'),
-        thumbnail:slot('thumbnail'),
-        thumbnailActive:slot('thumbnailActive'),
-        thumbnailImage:slot('thumbnailImage'),
-      }}
-    />;
+    const thumbnailPosition=text(config.thumbnailPosition,'left');
+    const mobile=viewport==='mobile';
+    const thumbnailLayout=thumbnailPosition==='left'&&!mobile?'vertical':'horizontal';
+    return <div
+      data-storefront-commerce="product-gallery"
+      data-presentation={presentation}
+      data-gallery-authority="single-main-with-thumbnails"
+      data-thumbnail-position={thumbnailPosition}
+      data-product-gallery-thumbnails={thumbnailLayout}
+      style={{...span(node)}}
+    >
+      <StorefrontProductGallery
+        images={images}
+        thumbnailPosition={thumbnailPosition}
+        aspectRatio={text(config.aspectRatio,'4 / 5')}
+        viewport={viewport}
+        styleSlots={{
+          root:slot('root'),
+          main:slot('main'),
+          mainImage:slot('mainImage'),
+          thumbnails:slot('thumbnails'),
+          thumbnail:slot('thumbnail'),
+          thumbnailActive:slot('thumbnailActive'),
+          thumbnailImage:slot('thumbnailImage'),
+        }}
+      />
+    </div>;
   }
   return <div data-storefront-commerce="product-gallery" style={{...span(node),display:'grid',gridTemplateColumns:'repeat(2,minmax(0,1fr))',gap:'.75rem',...slot('root')}}>{images.length?images.map((item,index)=><img key={`${item.src}:${index}`} src={item.src} alt={item.alt} loading={index===0?'eager':'lazy'} style={{display:'block',width:'100%',height:'100%',minHeight:index===0?'28rem':'16rem',objectFit:'cover',gridColumn:index===0?'span 2':'span 1',objectPosition:item.objectPosition,filter:item.filter||undefined,...slot(index===0?'mainImage':'image')}}/>):<div style={{gridColumn:'span 2',aspectRatio:text(config.aspectRatio,'4 / 5'),background:'var(--shoporation-color-surface-muted,#eee9e2)',...slot('empty')}}/>}</div>;
 }
