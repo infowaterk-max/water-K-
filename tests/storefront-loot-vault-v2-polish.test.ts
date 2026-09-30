@@ -39,10 +39,15 @@ describe('Loot Vault v2 polish contract',()=>{
   expect(buttons.filter((n:any)=>n.config.variant==='secondary').every((n:any)=>n.config.style?.background==='#111416')).toBe(true);
   expect(read('src/components/checkout/checkout-guided.module.css')).toContain('border:2px solid var(--checkout-primary)');
  });
- it('bridges account/cart legacy variables and removes the bright legacy delete treatment',()=>{
-  const account=read('src/components/account/storefront-account-shell.tsx'),cart=read('src/components/cart/cart-view.tsx'),qty=read('src/components/commerce/cart-style-quantity-control.tsx');
+ it('keeps cart/account presentation on canonical template tokens and removes legacy skin aliases',()=>{
+  const account=read('src/components/account/storefront-account-shell.tsx'),cart=read('src/components/cart/cart-view.tsx'),qty=read('src/components/commerce/cart-style-quantity-control.tsx'),css=read('src/app/globals.css');
   expect(account).toContain("'--card':'var(--shoporation-color-surface)'");expect(account).toContain("'--green':'var(--shoporation-color-primary)'");
-  expect(cart).toContain('className="btn btnGhost" href="/webaruhaz"');expect(cart).toContain('className="btn btnGhost" type="button" onClick={applyCoupon}');
+  for(const legacy of ['var(--card)','var(--ink)','var(--line)','var(--green)'])expect(cart).not.toContain(legacy);
+  expect(cart).toContain('var(--shoporation-color-surface,#fff)');
+  expect(cart).toContain('var(--shoporation-color-text,#111)');
+  expect(cart).toContain('var(--shoporation-color-border,#ddd)');
+  expect(css).toContain('/* Shared storefront cart presentation inherits the active template, never legacy root aliases. */');
+  expect(css).toContain('.cartGrid .card,.emptyCart.card{background:var(--shoporation-color-surface,#fff)!important');
   expect(cart).toContain('className="btn btnPrimary cartCheckoutButton"');expect(qty).not.toContain("background:'#cf3038'");
  });
 });
