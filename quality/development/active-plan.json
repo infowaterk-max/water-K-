@@ -1,36 +1,22 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-CONTROL-PLANE-SELF-KNOWLEDGE-HARDENING",
-  "task": "Canonicalize the completed Control Plane hardening before further template production: A/B stale-reference closure, syntax-aware Atlas import extraction, real Catalog domain coverage, and deterministic Failure Intake reconciliation without weakening durable evidence.",
+  "taskId": "DEV-SENTINEL-INTAKE-PROVENANCE-CLOSURE",
+  "task": "Resolve historical Failure Intake provenance scope deterministically from source-commit ancestry when old workflow-run evidence falls outside Sentinel windows, and reuse the same proof in periodic Failure Intake reconciliation.",
   "status": "ready-for-implementation",
-  "guardDigest": "8947ff8b",
+  "guardDigest": "351c2839",
   "plannedFilePatterns": [
-    "AGENTS.md",
-    "docs/architecture/CHANGE_IMPACT_RELEASE_CLOSURE.md",
-    "docs/architecture/SHOPERATION_SENTINEL.md",
-    "quality/development/active-plan.json",
-    "quality/knowledge/development-guard-policy.v1.json",
-    "quality/knowledge/domain-foundations.v1.json",
-    "quality/knowledge/shoperation-quality-knowledge.v1.json",
-    "scripts/lib/shoperation-reference-sync-runtime.mjs",
-    "scripts/lib/shoperation-codebase-atlas-runtime.mjs",
-    "scripts/shoperation-edit-time-guard.mjs",
+    ".github/workflows/shoperation-sentinel.yml",
+    ".github/workflows/shoperation-knowledge-full-replay.yml",
     "scripts/shoperation-sentinel-scan.mjs",
     "scripts/shoperation-failure-intake-reconcile.mjs",
-    "tests/shoperation-development-guard.test.ts",
-    "tests/shoperation-codebase-atlas-v2.test.ts",
-    "tests/domain-foundations.test.ts",
     "tests/shoperation-sentinel.test.ts",
     "tests/shoperation-failure-intake-reconcile.test.ts",
-    ".github/workflows/shoperation-knowledge-full-replay.yml"
+    "quality/development/active-plan.json"
   ],
   "expectedSubsystems": [
-    "builder-template-system",
     "quality-infrastructure",
     "quality-knowledge-system",
-    "release-infrastructure",
-    "shared-storefront",
-    "storefront-ui"
+    "release-infrastructure"
   ],
   "expectedDomains": [
     "DOMAIN-QUALITY",
@@ -92,15 +78,9 @@
     "TF-KF-025"
   ],
   "acknowledgedNegativeKnowledgeIds": [
-    "SQ-NK-001",
     "SQ-NK-002",
     "SQ-NK-003",
-    "SQ-NK-004",
     "SQ-NK-005",
-    "SQ-NK-006",
-    "SQ-NK-007",
-    "SQ-NK-008",
-    "SQ-NK-009",
     "SQ-NK-010",
     "SQ-NK-011",
     "SQ-NK-012",
@@ -108,6 +88,6 @@
     "SQ-NK-015"
   ],
   "exceptions": [],
-  "notes": "Product Owner requested completion of system hardening before resuming template production. This clean main-based transaction contains only Control Plane/self-knowledge changes already proven on the Loot Vault branch: A/B Reference Sync in the existing Edit-Time Guard, syntax-aware Atlas imports, corrected DOMAIN-CATALOG canonical paths, Sentinel canonical-vs-development intake separation, and deterministic Failure Intake reconciliation in the existing periodic full-replay authority. No template code, no golden update, no parallel gate, and no weakening of Failure Intake durability.",
-  "changeBaseSha": "b8db333280e7fa4346c1c5a454aa0eef926e2fc0"
+  "notes": "Final self-knowledge cleanup before returning to template production. Preserve Sentinel as observation-only and Failure Intake durability. Add source-commit ancestry as provenance fallback only when direct workflow-run scope is unavailable. Canonical means source commit is an ancestor of current main; development means the source commit exists but is not on current main. Unknown remains fail-visible when neither proof is available. No template code, no golden update, no gate weakening.",
+  "changeBaseSha": "ad4ad93988e17ce1ba254c9a2845970042fcf2f6"
 }
