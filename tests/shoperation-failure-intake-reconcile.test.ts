@@ -5,8 +5,8 @@ import{spawnSync}from'node:child_process';
 import{describe,expect,it}from'vitest';
 
 const root=process.cwd();
-const source=(issues:unknown[],proofs:Record<string,boolean>={})=>({contract:'shoporation.failure-intake-reconciliation-source.v1',sourceCommit:'mainsha',collectedAt:'2026-09-30T08:00:00.000Z',proofs,issues});
-const run=(issues:unknown[],proofs:Record<string,boolean>={})=>{const dir=mkdtempSync(path.join(tmpdir(),'intake-reconcile-')),snapshot=path.join(dir,'source.json'),out=path.join(dir,'out');writeFileSync(snapshot,JSON.stringify(source(issues,proofs)));const result=spawnSync(process.execPath,['scripts/shoperation-failure-intake-reconcile.mjs'],{cwd:root,encoding:'utf8',env:{...process.env,SHOPERATION_FAILURE_RECONCILIATION_SNAPSHOT:snapshot,SHOPERATION_FAILURE_RECONCILIATION_OUT_DIR:out}});const report=result.status===0?JSON.parse(readFileSync(path.join(out,'reconciliation.json'),'utf8')):null;rmSync(dir,{recursive:true,force:true});return{result,report};};
+const source=(issues:unknown[],proofs:Record<string,unknown>={})=>({contract:'shoporation.failure-intake-reconciliation-source.v1',sourceCommit:'mainsha',collectedAt:'2026-09-30T08:00:00.000Z',proofs,issues});
+const run=(issues:unknown[],proofs:Record<string,unknown>={})=>{const dir=mkdtempSync(path.join(tmpdir(),'intake-reconcile-')),snapshot=path.join(dir,'source.json'),out=path.join(dir,'out');writeFileSync(snapshot,JSON.stringify(source(issues,proofs)));const result=spawnSync(process.execPath,['scripts/shoperation-failure-intake-reconcile.mjs'],{cwd:root,encoding:'utf8',env:{...process.env,SHOPERATION_FAILURE_RECONCILIATION_SNAPSHOT:snapshot,SHOPERATION_FAILURE_RECONCILIATION_OUT_DIR:out}});const report=result.status===0?JSON.parse(readFileSync(path.join(out,'reconciliation.json'),'utf8')):null;rmSync(dir,{recursive:true,force:true});return{result,report};};
 
 describe('Failure Intake reconciliation',()=>{
   it('closes development and canonical evidence only when a later same-workflow success proves recovery',()=>{
@@ -15,6 +15,14 @@ describe('Failure Intake reconciliation',()=>{
     expect(result.status).toBe(0);
     expect(report.closeActions).toHaveLength(2);
     expect(report.closeActions.every((x:{disposition:string})=>x.disposition==='resolved-by-later-success')).toBe(true);
+  });
+  it('closes stale Atlas domain-scope intake only when the current Atlas maps that exact file',()=>{
+    const{report}=run([
+      {number:30,title:'[Quality intake] SQ-FP-A: SQ_ATLAS_DOMAIN_SCOPE_UNRESOLVED',body:'<!-- shoperation-failure-intake:SQ-FP-A -->',location:'src/lib/catalog.ts'},
+      {number:31,title:'[Quality intake] SQ-FP-B: SQ_ATLAS_DOMAIN_SCOPE_UNRESOLVED',body:'<!-- shoperation-failure-intake:SQ-FP-B -->',location:'src/unknown.ts'},
+    ],{atlasDomainResolvedFiles:['src/lib/catalog.ts']});
+    expect(report.actions.find((x:{issueNumber:number})=>x.issueNumber===30).disposition).toBe('resolved-by-current-atlas');
+    expect(report.actions.find((x:{issueNumber:number})=>x.issueNumber===31).action).toBe('keep-open');
   });
   it('uses full replay success as deterministic closure proof for old test and typecheck failures',()=>{
     const{report}=run([
