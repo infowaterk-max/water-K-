@@ -110,9 +110,10 @@ describe('Loot Vault v2 Factory canonical wiring',()=>{
     expect(checkout).toContain('Acceptance proof: a rendelés leadási kísérletét a rendszer blokkolta.');
     for(const forbidden of ['/api/checkout/place','place_order','createOrder','submitOrder'])expect(preview).not.toContain(forbidden);
     expect(preview).toContain("url.pathname==='/kosar'");
-    expect(preview).toContain('window.location.assign(routes.cart)');
+    expect(preview).toContain('navigatePreview(event,routes.cart)');
+    expect(preview).toContain('event.nativeEvent.stopImmediatePropagation()');
     expect(preview).toContain('button[aria-label="Fiókom"]');
-    expect(preview).toContain('window.location.assign(routes.account)');
+    expect(preview).toContain('navigatePreview(event,routes.account)');
   });
 
   it('feeds Loot Vault-specific cart and checkout lines into ordinary template preview proof without requiring acceptance mode',()=>{

@@ -160,7 +160,8 @@ describe('Template Factory Quality Gate v2',()=>{
     expect(checkout).toContain("data-checkout-quote-source={representativePreviewQuote?'representative-preview':'authoritative-server'}");
     expect(checkoutPage).not.toContain('representativePreviewQuote');
     expect(previewRuntime).toContain("if(url.pathname==='/penztar')");
-    expect(previewRuntime).toContain('window.location.assign(routes.checkout)');
+    expect(previewRuntime).toContain('navigatePreview(event,routes.checkout)');
+    expect(previewRuntime).toContain('event.nativeEvent.stopImmediatePropagation()');
     expect(checkout).toContain("data-storefront-preview-order-submit={acceptancePreview?'true':undefined}");
     expect(checkout).toContain('data-storefront-preview-order-blocked="true"');
     expect(commerceRenderer).toContain('data-storefront-product-price="true"');
