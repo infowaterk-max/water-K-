@@ -43,5 +43,8 @@ describe('account collection authority',()=>{
     expect(collectionCss).not.toContain('var(--ink)');
     expect(collectionCss).not.toContain('var(--line)');
     expect(collectionCss).not.toContain('var(--green)');
+    expect(collectionCss).not.toContain('color:inherit');
+    expect(collectionCss).toContain('.accountCollectionTile>strong{color:var(--shoporation-color-text');
+    expect(collectionCss).toContain('.accountCollectionTile[data-owned="false"]>strong{color:var(--shoporation-color-text');
   });
 });

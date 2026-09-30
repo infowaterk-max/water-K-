@@ -37,7 +37,13 @@ describe('Loot Vault v2 polish contract',()=>{
   expect(buttons.every((n:any)=>n.config?.variant==='primary'||n.config?.variant==='secondary')).toBe(true);
   expect(buttons.filter((n:any)=>n.config.variant==='primary').every((n:any)=>String(n.config.style?.background).includes('#D8A14C'))).toBe(true);
   expect(buttons.filter((n:any)=>n.config.variant==='secondary').every((n:any)=>n.config.style?.background==='#111416')).toBe(true);
-  expect(read('src/components/checkout/checkout-guided.module.css')).toContain('border:2px solid var(--checkout-primary)');
+  const checkoutCss=read('src/components/checkout/checkout-guided.module.css'),checkoutForm=read('src/components/checkout/checkout-form.tsx');
+  expect(checkoutCss).toContain('border:2px solid var(--checkout-accent)');
+  expect(checkoutCss).toContain('color:var(--checkout-accent)!important');
+  expect(checkoutCss).toContain('text-decoration:underline');
+  for(const legacy of ['var(--bg','var(--card','var(--ink','var(--muted','var(--line','var(--green'])expect(checkoutCss).not.toContain(legacy);
+  expect((checkoutForm.match(/data-selected=\{active\?'true':'false'\}/g)??[]).length).toBeGreaterThanOrEqual(2);
+  expect((checkoutForm.match(/aria-checked=\{active\}/g)??[]).length).toBeGreaterThanOrEqual(2);
  });
  it('keeps cart/account presentation on canonical template tokens and removes legacy skin aliases',()=>{
   const account=read('src/components/account/storefront-account-shell.tsx'),cart=read('src/components/cart/cart-view.tsx'),qty=read('src/components/commerce/cart-style-quantity-control.tsx'),css=read('src/app/globals.css');

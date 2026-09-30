@@ -303,7 +303,7 @@ async function proveFactoryCommerceInteraction(browser,manifest){
   if(!manifest.factoryCandidate)return{required:false,passed:true,status:'not-applicable'};
   const requiredPages=['product','cart','checkout'];
   if(!requiredPages.every(pageType=>manifest.pageTypes.includes(pageType)))return{required:false,passed:true,status:'not-applicable'};
-  const page=await browser.newPage({viewport:viewportProfiles.desktop,deviceScaleFactor:1});
+  const page=await browser.newPage({viewport:viewportProfiles.mobile,deviceScaleFactor:1});
   const forbiddenCommerceMutations=[];
   await page.route('**/api/**',async route=>{
     const request=route.request(),kind=classifyProductionCommerceMutation(request);
@@ -316,7 +316,7 @@ async function proveFactoryCommerceInteraction(browser,manifest){
   });
   const result={required:true,passed:false,checks:{},errors:[]};
   const previewFor=(pageType,extra={})=>{
-    const params=new URLSearchParams({template:manifest.templateKey,version:String(manifest.templateVersion),page:pageType,viewport:'desktop',factory:'1',commerceProof:'1'});
+    const params=new URLSearchParams({template:manifest.templateKey,version:String(manifest.templateVersion),page:pageType,viewport:'mobile',factory:'1',commerceProof:'1'});
     for(const[key,value]of Object.entries(extra))if(value!==undefined&&value!==null&&String(value))params.set(key,String(value));
     return baseUrl+'/visual-fidelity-qa?'+params.toString();
   };
@@ -347,32 +347,46 @@ async function proveFactoryCommerceInteraction(browser,manifest){
     const optionCount=await optionLinks.count();
     let selectedVariantId=null;
     if(optionCount>1){
-      const productInfo=productRoot.locator('[data-storefront-commerce="product-info"]').first();
-      const beforePrice=(await productInfo.locator('[data-storefront-product-price="true"]').innerText()).trim();
-      const beforeStock=(await productInfo.locator('[data-storefront-product-stock="true"]').innerText()).trim();
-      const target=optionLinks.nth(optionCount-1);
-      const label=(await target.innerText()).trim();
-      const href=await target.getAttribute('href');
-      selectedVariantId=href?new URL(href,page.url()).searchParams.get('variant'):null;
-      await Promise.all([
-        page.waitForURL(url=>url.pathname==='/visual-fidelity-qa'&&url.searchParams.get('page')==='product'&&(!selectedVariantId||url.searchParams.get('variant')===selectedVariantId),{timeout:15000}),
-        target.click(),
-      ]);
-      productRoot=rootFor('product');
-      await productRoot.waitFor({state:'visible',timeout:10000});
-      const selected=productRoot.locator('[data-storefront-structured="option-selector"] a[aria-current="true"]').first();
-      const afterInfo=productRoot.locator('[data-storefront-commerce="product-info"]').first();
-      const afterPrice=(await afterInfo.locator('[data-storefront-product-price="true"]').innerText()).trim();
-      const afterStock=(await afterInfo.locator('[data-storefront-product-stock="true"]').innerText()).trim();
-      result.checks.selectedState=await selected.count()===1&&(await selected.innerText()).trim()===label;
-      result.checks.priceUpdate=beforePrice!==afterPrice;
-      result.checks.stockUpdate=beforeStock!==afterStock;
-      result.checks.variantSelection=result.checks.selectedState===true;
+      const variants=[];
+      for(let index=0;index<optionCount;index+=1){
+        const link=optionLinks.nth(index),label=(await link.innerText()).trim(),href=await link.getAttribute('href');
+        variants.push({label,variantId:href?new URL(href,page.url()).searchParams.get('variant'):null});
+      }
+      const variantProofs=[];
+      for(const variant of variants){
+        const currentLinks=productRoot.locator('[data-storefront-structured="option-selector"] a');
+        const target=currentLinks.filter({hasText:variant.label}).first();
+        await Promise.all([
+          page.waitForURL(url=>url.pathname==='/visual-fidelity-qa'&&url.searchParams.get('page')==='product'&&(!variant.variantId||url.searchParams.get('variant')===variant.variantId),{timeout:15000}),
+          target.click(),
+        ]);
+        productRoot=rootFor('product');
+        await productRoot.waitFor({state:'visible',timeout:10000});
+        const selected=productRoot.locator('[data-storefront-structured="option-selector"] a[aria-current="true"]').first();
+        const info=productRoot.locator('[data-storefront-commerce="product-info"]').first();
+        variantProofs.push({
+          label:variant.label,
+          variantId:variant.variantId,
+          selected:await selected.count()===1&&(await selected.innerText()).trim()===variant.label,
+          price:(await info.locator('[data-storefront-product-price="true"]').innerText()).trim(),
+          stock:(await info.locator('[data-storefront-product-stock="true"]').innerText()).trim(),
+        });
+      }
+      selectedVariantId=variantProofs.at(-1)?.variantId??null;
+      result.checks.variantProofs=variantProofs;
+      result.checks.selectedState=variantProofs.every(item=>item.selected===true);
+      result.checks.priceUpdate=new Set(variantProofs.map(item=>item.price)).size>1;
+      result.checks.stockUpdate=new Set(variantProofs.map(item=>item.stock)).size>1;
+      result.checks.variantSelection=result.checks.selectedState===true&&result.checks.priceUpdate===true&&result.checks.stockUpdate===true;
+      result.checks.lootVaultEditionCoverage=manifest.templateKey==='gaming.loot-vault'
+        ?['Collector Edition','Deluxe Edition','Standard Edition'].every(label=>variantProofs.some(item=>item.label===label&&item.selected===true))
+        :'not-applicable';
     }else{
       result.checks.variantSelection='not-applicable';
       result.checks.selectedState='not-applicable';
       result.checks.priceUpdate='not-applicable';
       result.checks.stockUpdate='not-applicable';
+      result.checks.lootVaultEditionCoverage=manifest.templateKey==='gaming.loot-vault'?false:'not-applicable';
     }
 
     const purchase=productRoot.getByRole('button',{name:/Kosárba/}).first();
@@ -450,6 +464,15 @@ async function proveFactoryCommerceInteraction(browser,manifest){
     const afterShipping=(await checkoutRoot.locator('[data-storefront-preview-shipping-cost]').innerText()).trim();
     const afterTotal=(await checkoutRoot.locator('[data-storefront-preview-grand-total]').innerText()).trim();
     result.checks.shippingSelection=await parcel.isChecked();
+    const selectedShippingCard=checkoutRoot.locator('label.choiceCard[data-selected="true"]').filter({hasText:/Csomagpont/}).first();
+    const inactiveShippingCard=checkoutRoot.locator('label.choiceCard[data-selected="false"]').first();
+    const shippingVisual=await selectedShippingCard.evaluate((element)=>{
+      const style=getComputedStyle(element),check=element.querySelector('.choiceCheck'),checkStyle=check?getComputedStyle(check):null;
+      return{borderWidth:Number.parseFloat(style.borderTopWidth),borderColor:style.borderTopColor,background:style.backgroundColor,checkVisible:Boolean(check&&check.textContent?.includes('✓')&&checkStyle?.visibility!=='hidden'&&checkStyle?.display!=='none')};
+    });
+    const inactiveShippingVisual=await inactiveShippingCard.count()?await inactiveShippingCard.evaluate(element=>{const style=getComputedStyle(element);return{borderColor:style.borderTopColor,background:style.backgroundColor}}):null;
+    result.checks.shippingSelectedSemantic=await selectedShippingCard.count()===1&&await parcel.getAttribute('aria-checked')==='true';
+    result.checks.shippingSelectedVisual=shippingVisual.borderWidth>=2&&shippingVisual.checkVisible===true&&Boolean(inactiveShippingVisual)&&(shippingVisual.borderColor!==inactiveShippingVisual.borderColor||shippingVisual.background!==inactiveShippingVisual.background);
     result.checks.totalRecalculation=beforeShipping!==afterShipping&&beforeTotal!==afterTotal;
     result.checks.shippingRecalculation=result.checks.shippingSelection===true&&result.checks.representativeQuoteSource===true&&result.checks.totalRecalculation===true;
     const subtotalValue=commerceMoneyDigits(subtotal),beforeShippingValue=commerceMoneyDigits(beforeShipping),beforeTotalValue=commerceMoneyDigits(beforeTotal),afterShippingValue=commerceMoneyDigits(afterShipping),afterTotalValue=commerceMoneyDigits(afterTotal);
@@ -464,7 +487,33 @@ async function proveFactoryCommerceInteraction(browser,manifest){
     await checkoutRoot.locator('label.choiceCard').filter({hasText:/Banki átutalás/}).first().click();
     await page.waitForFunction(()=>document.querySelector('input[name="paymentProvider"]:checked')!==null,undefined,{timeout:5000}).catch(error=>{throw new Error('COMMERCE_PAYMENT_SELECTION_TIMEOUT:'+String(error))});
     result.checks.paymentSelection=await transfer.isChecked();
+    const selectedPaymentCard=checkoutRoot.locator('label.choiceCard[data-selected="true"]').filter({hasText:/Banki átutalás/}).first();
+    const inactivePaymentCard=checkoutRoot.locator('label.choiceCard[data-selected="false"]').first();
+    const paymentVisual=await selectedPaymentCard.evaluate((element)=>{
+      const style=getComputedStyle(element),check=element.querySelector('.choiceCheck'),checkStyle=check?getComputedStyle(check):null;
+      return{borderWidth:Number.parseFloat(style.borderTopWidth),borderColor:style.borderTopColor,background:style.backgroundColor,checkVisible:Boolean(check&&check.textContent?.includes('✓')&&checkStyle?.visibility!=='hidden'&&checkStyle?.display!=='none')};
+    });
+    const inactivePaymentVisual=await inactivePaymentCard.count()?await inactivePaymentCard.evaluate(element=>{const style=getComputedStyle(element);return{borderColor:style.borderTopColor,background:style.backgroundColor}}):null;
+    result.checks.paymentSelectedSemantic=await selectedPaymentCard.count()===1&&await transfer.getAttribute('aria-checked')==='true';
+    result.checks.paymentSelectedVisual=paymentVisual.borderWidth>=2&&paymentVisual.checkVisible===true&&Boolean(inactivePaymentVisual)&&(paymentVisual.borderColor!==inactivePaymentVisual.borderColor||paymentVisual.background!==inactivePaymentVisual.background);
     await checkoutRoot.getByRole('button',{name:'Tovább az összesítéshez',exact:true}).click();
+
+    const termsLink=checkoutRoot.getByRole('link',{name:'ÁSZF-et',exact:true});
+    const privacyLink=checkoutRoot.getByRole('link',{name:'adatkezelési tájékoztatót',exact:true});
+    const legalStyle=async locator=>locator.evaluate(element=>{
+      const style=getComputedStyle(element),probe=document.createElement('span');
+      probe.style.color='var(--shoporation-color-accent)';
+      element.parentElement?.appendChild(probe);
+      const accent=getComputedStyle(probe).color;
+      probe.remove();
+      return{color:style.color,accent,textDecorationLine:style.textDecorationLine,visibility:style.visibility,opacity:Number(style.opacity)};
+    });
+    const termsStyle=await legalStyle(termsLink),privacyStyle=await legalStyle(privacyLink);
+    result.checks.legalLinksVisible=await termsLink.isVisible()&&await privacyLink.isVisible()
+      &&termsStyle.visibility!=='hidden'&&privacyStyle.visibility!=='hidden'
+      &&termsStyle.opacity>0&&privacyStyle.opacity>0
+      &&termsStyle.textDecorationLine.includes('underline')&&privacyStyle.textDecorationLine.includes('underline')
+      &&termsStyle.color===termsStyle.accent&&privacyStyle.color===privacyStyle.accent;
 
     const terms=checkoutRoot.getByRole('checkbox',{name:/Elolvastam és elfogadom/});
     const privacy=checkoutRoot.getByRole('checkbox',{name:/Tudomásul vettem/});
@@ -490,6 +539,7 @@ async function proveFactoryCommerceInteraction(browser,manifest){
       &&provenOrNotApplicable(result.checks.selectedState)
       &&provenOrNotApplicable(result.checks.priceUpdate)
       &&provenOrNotApplicable(result.checks.stockUpdate)
+      &&provenOrNotApplicable(result.checks.lootVaultEditionCoverage)
       &&result.checks.addToCartAcknowledgement===true
       &&result.checks.quantityIncrease===true
       &&result.checks.quantityDecrease===true
@@ -500,11 +550,16 @@ async function proveFactoryCommerceInteraction(browser,manifest){
       &&result.checks.reAddItem===true
       &&result.checks.checkoutEntry===true
       &&result.checks.shippingSelection===true
+      &&result.checks.shippingSelectedSemantic===true
+      &&result.checks.shippingSelectedVisual===true
       &&result.checks.representativeQuoteSource===true
       &&result.checks.shippingRecalculation===true
       &&result.checks.totalRecalculation===true
       &&result.checks.totalConsistency===true
       &&result.checks.paymentSelection===true
+      &&result.checks.paymentSelectedSemantic===true
+      &&result.checks.paymentSelectedVisual===true
+      &&result.checks.legalLinksVisible===true
       &&result.checks.legalConsent===true
       &&result.checks.orderSubmissionFailClosed===true
       &&result.checks.realOrderRequestAttempted===false
