@@ -1,44 +1,20 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-CONTROL-PLANE-SELF-KNOWLEDGE-HARDENING",
-  "task": "Canonicalize the completed Control Plane hardening before further template production: A/B stale-reference closure, syntax-aware Atlas import extraction, real Catalog domain coverage, and deterministic Failure Intake reconciliation without weakening durable evidence.",
+  "taskId": "DEV-DOMAIN-COVERAGE-CLOSURE",
+  "task": "Complete canonical architecture path coverage for already-owned runtime surfaces in the domain registry.",
   "status": "ready-for-implementation",
-  "guardDigest": "8947ff8b",
+  "guardDigest": "aa79c504",
   "plannedFilePatterns": [
-    "AGENTS.md",
-    "docs/architecture/CHANGE_IMPACT_RELEASE_CLOSURE.md",
-    "docs/architecture/SHOPERATION_SENTINEL.md",
-    "quality/development/active-plan.json",
-    "quality/knowledge/development-guard-policy.v1.json",
     "quality/knowledge/domain-foundations.v1.json",
-    "quality/knowledge/shoperation-quality-knowledge.v1.json",
-    "scripts/lib/shoperation-reference-sync-runtime.mjs",
-    "scripts/lib/shoperation-codebase-atlas-runtime.mjs",
-    "scripts/shoperation-edit-time-guard.mjs",
-    "scripts/shoperation-sentinel-scan.mjs",
-    "scripts/shoperation-failure-intake-reconcile.mjs",
-    "tests/shoperation-development-guard.test.ts",
-    "tests/shoperation-codebase-atlas-v2.test.ts",
     "tests/domain-foundations.test.ts",
-    "tests/shoperation-sentinel.test.ts",
-    "tests/shoperation-failure-intake-reconcile.test.ts",
-    ".github/workflows/shoperation-knowledge-full-replay.yml"
+    "quality/development/active-plan.json"
   ],
-  "expectedSubsystems": [
-    "builder-template-system",
-    "quality-infrastructure",
-    "quality-knowledge-system",
-    "release-infrastructure",
-    "shared-storefront",
-    "storefront-ui"
-  ],
+  "expectedSubsystems": [],
   "expectedDomains": [
-    "DOMAIN-QUALITY",
-    "DOMAIN-RELEASE"
+    "DOMAIN-QUALITY"
   ],
   "expectedAuthorities": [
-    "quality-knowledge-system",
-    "release-infrastructure"
+    "quality-knowledge-system"
   ],
   "expectedKnownFailureIds": [
     "SQ-KF-001",
@@ -92,22 +68,9 @@
     "TF-KF-025"
   ],
   "acknowledgedNegativeKnowledgeIds": [
-    "SQ-NK-001",
-    "SQ-NK-002",
-    "SQ-NK-003",
-    "SQ-NK-004",
-    "SQ-NK-005",
-    "SQ-NK-006",
-    "SQ-NK-007",
-    "SQ-NK-008",
-    "SQ-NK-009",
-    "SQ-NK-010",
-    "SQ-NK-011",
-    "SQ-NK-012",
-    "SQ-NK-014",
-    "SQ-NK-015"
+    "SQ-NK-012"
   ],
   "exceptions": [],
-  "notes": "Product Owner requested completion of system hardening before resuming template production. This clean main-based transaction contains only Control Plane/self-knowledge changes already proven on the Loot Vault branch: A/B Reference Sync in the existing Edit-Time Guard, syntax-aware Atlas imports, corrected DOMAIN-CATALOG canonical paths, Sentinel canonical-vs-development intake separation, and deterministic Failure Intake reconciliation in the existing periodic full-replay authority. No template code, no golden update, no parallel gate, and no weakening of Failure Intake durability.",
-  "changeBaseSha": "b8db333280e7fa4346c1c5a454aa0eef926e2fc0"
+  "notes": "Close the remaining canonical Atlas domain-scope gaps before further template work. Map shared cart/checkout/commerce components to Commerce Core and shared account/shopper informational routes to Storefront authority. This is architecture ownership metadata only; no runtime behavior changes.",
+  "changeBaseSha": "ad4ad93988e17ce1ba254c9a2845970042fcf2f6"
 }
