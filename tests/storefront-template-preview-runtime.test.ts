@@ -40,7 +40,11 @@ describe('storefront template preview runtime',()=>{
     expect(shell).toContain('data-storefront-account-shell={runtime.source}');
     const previewRuntime=fs.readFileSync('src/components/builder/storefront-template-preview-runtime.tsx','utf8');
     expect(previewRuntime).toContain('StorefrontAccountWorkspace');
-    expect(previewRuntime).toContain('<AccountSubnav showLoyalty showB2BOrganization showB2BQuotes');
+    expect(previewRuntime).toContain('navigation={<AccountSubnav templateCapabilities={templateCapabilities}/>');
+    expect(previewRuntime).not.toContain('<AccountSubnav showLoyalty showB2BOrganization showB2BQuotes');
+    expect(previewRuntime).toContain('data-storefront-preview-account-overview="showroom-v1"');
+    expect(previewRuntime).toContain("if(url.pathname.startsWith('/termek/'))");
+    expect(previewRuntime).toContain("productUrl.searchParams.set('page','product')");
     expect(previewRuntime).toContain('splitStorefrontAccountTemplateSections(page)');
     expect(previewRuntime).toContain('resolveAccountCapabilityPreviewView(url.toString())');
     expect(previewRuntime).toContain('const navigatePreview=(event:MouseEvent<HTMLDivElement>,href:string)=>');
