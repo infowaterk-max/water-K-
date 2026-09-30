@@ -173,3 +173,37 @@ export function evaluateCompletionTruth({plan,evidence=[],currentExactState,plan
   ];
   return result;
 }
+
+if(process.argv.includes('--self-test')){
+  const exact={head:'abc123',branch:'feature/test',stateVersion:'shoporation-ci.v1'};
+  const plan={taskId:'SELF-TEST',completionContract:{sourceRef:'PO-SELF-TEST',requirements:[{
+    id:'REQ-SELF',
+    requirement:'Self test',
+    evidence:{implementation:['G-IMPL'],outcome:['G-OUTCOME']},
+    forbiddenRegressions:[{id:'NEG-SELF',statement:'No regression',evidence:['G-NEG']}],
+  }]}};
+  const fresh=(id,status='success')=>({id,status,sourceCommit:exact.head,branch:exact.branch,stateVersion:exact.stateVersion,runId:'run-1'});
+  const variant=(id,state)=>{
+    if(state==='PASS')return fresh(id,'success');
+    if(state==='FAIL')return fresh(id,'failure');
+    if(state==='BLOCKED')return fresh(id,'cancelled');
+    if(state==='STALE')return{...fresh(id,'success'),sourceCommit:'older'};
+    return null;
+  };
+  const states=['PASS','FAIL','BLOCKED','STALE','MISSING'];
+  let cases=0;
+  for(const a of states)for(const b of states)for(const d of states){
+    const evidence=[variant('G-IMPL',a),variant('G-OUTCOME',b),variant('G-NEG',d)].filter(Boolean);
+    const report=evaluateCompletionTruth({plan,evidence,currentExactState:exact});
+    const set=new Set([a,b,d]);
+    const expected=set.has('FAIL')?'NOT_DONE':set.has('BLOCKED')?'BLOCKED':set.has('STALE')?'STALE_EVIDENCE':set.has('MISSING')?'PARTIALLY_VERIFIED':'VERIFIED_DONE';
+    if(report.internalState!==expected)throw new Error(`TRUTH_SELF_TEST_STATE_MISMATCH:${a}:${b}:${d}:${report.internalState}:${expected}`);
+    if((report.poStatus==='DONE')!==(expected==='VERIFIED_DONE'))throw new Error('TRUTH_SELF_TEST_PO_DONE_MISMATCH');
+    cases+=1;
+  }
+  const staleBranch=evaluateCompletionTruth({plan,evidence:[fresh('G-IMPL'),{...fresh('G-OUTCOME'),branch:'other'},fresh('G-NEG')],currentExactState:exact});
+  if(staleBranch.internalState!=='STALE_EVIDENCE')throw new Error('TRUTH_SELF_TEST_BRANCH_FRESHNESS_FAILED');
+  const incomplete=evaluateCompletionTruth({plan,evidence:[fresh('G-IMPL'),fresh('G-NEG')],currentExactState:exact});
+  if(incomplete.internalState!=='PARTIALLY_VERIFIED'||incomplete.poStatus!=='NOT DONE')throw new Error('TRUTH_SELF_TEST_MISSING_EVIDENCE_FAILED');
+  console.log(`Operational Intelligence self-test: PASS; exhaustiveTruthCases=${cases}`);
+}
