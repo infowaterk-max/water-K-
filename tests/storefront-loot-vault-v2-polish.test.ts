@@ -59,12 +59,12 @@ describe('Loot Vault v2 polish contract',()=>{
   expect(css).toContain('.cartGrid .card,.emptyCart.card{background:var(--shoporation-color-surface,#fff)!important');
   expect(cart).toContain('className="btn btnPrimary cartCheckoutButton"');expect(cart).toContain('thumbnail?<img src={thumbnail}');expect(cart).not.toContain("slice(0,2).toUpperCase()");expect(css).toContain('.cartGrid .cartCheckoutButton{border:1px solid var(--shoporation-color-accent');expect(css).toContain('.emptyCart.card .btnPrimary{background:var(--shoporation-color-primary');expect(css).toContain('.storefrontCartConfirmation .storefrontCartConfirmationPrimary{background:var(--shoporation-color-primary');expect(qty).not.toContain("background:'#cf3038'");
  });
- it('keeps one catalog universe filter surface instead of rendering duplicate facets',()=>{
+ it('keeps one canonical catalog filter surface without duplicate universe chips',()=>{
   const pkg=JSON.parse(read('src/lib/builder/templates/gaming/loot-vault/v2/canonical-package.json'));
   const catalog=pkg.pages.find((page:any)=>page.pageType==='catalog'),nodes=flatten(catalog?.sections??[]);
-  expect(nodes.filter((node:any)=>/^loot-vault-loot-v2-catalog-universe-chip-/.test(node.id))).toHaveLength(6);
-  expect(nodes.some((node:any)=>node.id==='loot-vault-loot-v2-catalog-facets-frame'||node.componentKey==='commerce.catalog-facets')).toBe(false);
+  expect(nodes.some((node:any)=>node.id==='loot-vault-loot-v2-catalog-universe-strip')).toBe(false);
+  expect(nodes.filter((node:any)=>node.componentKey==='commerce.catalog-facets')).toHaveLength(1);
   const products=nodes.find((node:any)=>node.id==='loot-vault-loot-v2-catalog-products');
-  expect(products?.responsive).toEqual({desktop:{gridSpan:12},tablet:{gridSpan:12},mobile:{gridSpan:12}});
+  expect(products?.responsive).toEqual({desktop:{gridSpan:9},tablet:{gridSpan:8},mobile:{gridSpan:12}});
  });
 });
