@@ -12,7 +12,8 @@
     "tests/domain-foundations.test.ts",
     "tests/shoperation-sentinel.test.ts",
     "docs/architecture/SHOPERATION_SENTINEL.md",
-    "quality/development/active-plan.json"
+    "quality/development/active-plan.json",
+    ".github/workflows/shoperation-sentinel.yml"
   ],
   "expectedSubsystems": [
     "builder-template-system",
@@ -23,10 +24,12 @@
     "storefront-ui"
   ],
   "expectedDomains": [
-    "DOMAIN-QUALITY"
+    "DOMAIN-QUALITY",
+    "DOMAIN-RELEASE"
   ],
   "expectedAuthorities": [
-    "quality-knowledge-system"
+    "quality-knowledge-system",
+    "release-infrastructure"
   ],
   "expectedKnownFailureIds": [
     "SQ-KF-001",
@@ -96,6 +99,6 @@
     "SQ-NK-015"
   ],
   "exceptions": [],
-  "notes": "Clean hardening branch cut from canonical main so the self-knowledge changes can receive full CI proof independently of Loot Vault release-risk noise. No new parallel gate. Sentinel remains observation-only; development Failure Intake remains durable evidence but is not counted as canonical platform-health debt.",
+  "notes": "Clean hardening branch cut from canonical main so the self-knowledge changes can receive full CI proof independently of Loot Vault release-risk noise. No new parallel gate. Sentinel remains observation-only; development Failure Intake remains durable evidence but is not counted as canonical platform-health debt. Failure Intake evidence lifecycle reconciliation may close only deterministic duplicates, records promoted to a registered Known Failure, or records proven resolved by a later successful run of the same workflow on the same branch; every closure receives an explicit disposition comment. Unknown/still-active evidence remains open.",
   "changeBaseSha": "b8db333280e7fa4346c1c5a454aa0eef926e2fc0"
 }
