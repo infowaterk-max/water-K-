@@ -100,6 +100,28 @@ function PreviewAccountCapabilityState({view,viewport}:{view:string;viewport:Sto
   </section>;
 }
 
+function PreviewAccountOverview({viewport,showCollection}:{viewport:StorefrontViewport;showCollection:boolean}){
+  const cards=[
+    {key:'orders',eyebrow:'Legutóbbi rendelés',value:'#LV-240928',detail:'Feldolgozva · bemutató állapot',href:'/fiokom#rendelesek'},
+    {key:'documents',eyebrow:'Dokumentumok',value:'1 elérhető',detail:'Számla és rendelési dokumentum',href:'/fiokom/dokumentumok'},
+    ...(showCollection?[{key:'collection',eyebrow:'Gyűjtemény',value:'2 / 4 megvan',detail:'A vásárlási előzmény alapján',href:'/fiokom/gyujtemenyem'}]:[{key:'wishlist',eyebrow:'Kívánságlista',value:'1 mentett tétel',detail:'Visszatérésre készen',href:'/fiokom/kivansaglista'}]),
+  ] as const;
+  return <section data-storefront-preview-account-overview="showroom-v1" style={{marginTop:'1rem',display:'grid',gap:'1rem'}}>
+    <div style={{display:'grid',gap:'.4rem'}}>
+      <small style={{letterSpacing:'.09em',textTransform:'uppercase',color:'var(--shoporation-color-accent,var(--shoporation-color-primary,#b8874d))',fontWeight:800}}>Fiók áttekintés</small>
+      <h2 style={{margin:0,fontFamily:'var(--shoporation-heading-font,serif)',fontSize:viewport==='mobile'?'1.55rem':'1.9rem'}}>A legfontosabb fiókállapotok egy helyen.</h2>
+      <p style={{margin:0,color:'var(--shoporation-color-muted-text,#777)',lineHeight:1.6}}>A bemutató adatok a működő account-folyamatokat teszik ellenőrizhetővé; éles használatban minden állapot a bejelentkezett vásárló saját adataiból érkezik.</p>
+    </div>
+    <div style={{display:'grid',gridTemplateColumns:viewport==='mobile'?'1fr':viewport==='tablet'?'repeat(2,minmax(0,1fr))':'repeat(3,minmax(0,1fr))',gap:'.75rem'}}>
+      {cards.map(card=><a key={card.key} href={card.href} style={{display:'grid',gap:'.45rem',padding:'1rem',border:'1px solid var(--shoporation-color-border,#ddd)',borderRadius:'var(--shoporation-radius-m,.8rem)',background:'var(--shoporation-color-surface-muted,var(--shoporation-color-surface,#111))',color:'var(--shoporation-color-text,#fff)',textDecoration:'none'}}>
+        <small style={{textTransform:'uppercase',letterSpacing:'.07em',color:'var(--shoporation-color-muted-text,#999)',fontWeight:750}}>{card.eyebrow}</small>
+        <strong style={{fontSize:'1.12rem'}}>{card.value}</strong>
+        <span style={{color:'var(--shoporation-color-muted-text,#999)',fontSize:'.88rem',lineHeight:1.45}}>{card.detail}</span>
+      </a>)}
+    </div>
+  </section>;
+}
+
 export function StorefrontTemplatePreviewRuntime({page,viewport,bindingContext,capability,routes,accountView,interactionBasePath}:{page:StorefrontPageDocument;viewport:StorefrontViewport;bindingContext:Record<string,unknown>;capability?:StorefrontRuntimeCapabilityContext;routes:Routes;accountView?:string;interactionBasePath?:string}){
   const componentRegistry=createStorefrontVisualBuilderComponentRegistry();
   const rendererRegistry=createStorefrontVisualBuilderRendererRegistry();
@@ -141,6 +163,15 @@ export function StorefrontTemplatePreviewRuntime({page,viewport,bindingContext,c
       navigatePreview(event,routes.checkout);
       return;
     }
+    if(url.pathname.startsWith('/termek/')){
+      const productUrl=new URL(routes.catalog,window.location.href);
+      productUrl.searchParams.set('page','product');
+      productUrl.searchParams.delete('accountView');
+      const selectedVariant=url.searchParams.get('variant')??url.searchParams.get('v');
+      if(selectedVariant)productUrl.searchParams.set('variant',selectedVariant);else productUrl.searchParams.delete('variant');
+      navigatePreview(event,`${productUrl.pathname}${productUrl.search}${productUrl.hash}`);
+      return;
+    }
     if(interactionBasePath&&url.pathname==='/storefront-template-preview'){
       const params=new URLSearchParams(url.search);
       params.set('commerceProof','1');
@@ -153,8 +184,8 @@ export function StorefrontTemplatePreviewRuntime({page,viewport,bindingContext,c
     const templateCapabilities=resolveTemplateAccountCapabilityOptIns(page.metadata);
     return <div data-storefront-template-preview-runtime="shared-commerce-shell-v1" onClickCapture={interceptPreviewRoute}>
       {headerSections.length?renderPage(sliceStorefrontAccountTemplatePage(page,[...headerSections])):null}
-      <StorefrontAccountWorkspace navigation={<AccountSubnav showLoyalty showB2BOrganization showB2BQuotes templateCapabilities={templateCapabilities}/>}>
-        {accountView?<PreviewAccountCapabilityState view={accountView} viewport={viewport}/>:null}
+      <StorefrontAccountWorkspace navigation={<AccountSubnav templateCapabilities={templateCapabilities}/>}>
+        {accountView?<PreviewAccountCapabilityState view={accountView} viewport={viewport}/>:<PreviewAccountOverview viewport={viewport} showCollection={templateCapabilities.includes('collection')}/>}
         {authenticatedSections.length?renderPage(sliceStorefrontAccountTemplatePage(page,[...authenticatedSections])):null}
       </StorefrontAccountWorkspace>
       {footerSections.length?renderPage(sliceStorefrontAccountTemplatePage(page,[...footerSections])):null}
