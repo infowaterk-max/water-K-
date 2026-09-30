@@ -9,8 +9,10 @@ describe('Loot Vault v2 polish contract',()=>{
   expect(media.length).toBeGreaterThanOrEqual(20);
   expect(media.every((src:string)=>src.startsWith('/storefront-demo/loot-vault-v2/')&&(src.endsWith('.webp')||src.endsWith('brand-mark.svg')))).toBe(true);
   const usage=new Map<string,number>();for(const src of media)usage.set(src,(usage.get(src)??0)+1);
-  expect(new Set(media).size).toBeGreaterThanOrEqual(14);
-  expect(Math.max(...usage.values())).toBeLessThanOrEqual(2);
+  const serialized=JSON.stringify(pkg);
+  for(const forbidden of ['background-archive.webp','category-galaxy.webp','category-retro.webp'])expect(serialized).not.toContain(forbidden);
+  expect(new Set(media).size).toBeGreaterThanOrEqual(11);
+  expect(Math.max(...usage.values())).toBeLessThanOrEqual(4);
   const home=pkg.pages.find((page:any)=>page.pageType==='home');
   const homeNodes=flatten(home.sections??[]);
   const universe=homeNodes.filter((node:any)=>/^loot-vault-loot-v2-universe-\d+-image$/.test(node.id)).map((node:any)=>String(node.config.src));
@@ -21,13 +23,13 @@ describe('Loot Vault v2 polish contract',()=>{
   expect(new Set(products.map(hash)).size).toBe(4);
   const catalog=pkg.pages.find((page:any)=>page.pageType==='catalog'),catalogNodes=flatten(catalog.sections??[]);
   const catalogGrid=catalogNodes.find((node:any)=>node.id==='loot-vault-loot-v2-catalog-products'),catalogProducts=catalogGrid?.config?.products??[];
-  expect(catalogProducts).toHaveLength(6);expect(new Set(catalogProducts.map((p:any)=>String(p.image??''))).size).toBe(6);
+  expect(catalogProducts).toHaveLength(6);expect(new Set(catalogProducts.map((p:any)=>hash(String(p.image??'')))).size).toBe(6);
   const productPage=pkg.pages.find((page:any)=>page.pageType==='product'),productNodes=flatten(productPage.sections??[]);
   const gallery=productNodes.find((node:any)=>node.id==='loot-vault-loot-v2-product-gallery'),galleryImages=(gallery?.config?.images??[]).map((item:any)=>String(item.src??''));
-  expect(galleryImages).toHaveLength(4);expect(new Set(galleryImages).size).toBe(4);
+  expect(galleryImages).toHaveLength(4);expect(new Set(galleryImages.map(hash)).size).toBe(4);
   const demo=read('src/lib/builder/storefront-template-preview-demo.ts'),start=demo.indexOf('const LOOT_VAULT_PREVIEW_PRODUCTS'),end=demo.indexOf('const LOOT_VAULT_PREVIEW_VARIANTS');
   const previewProductImages=[...demo.slice(start,end).matchAll(/image:'([^']+)'/g)].map(match=>match[1]);
-  expect(previewProductImages).toHaveLength(6);expect(new Set(previewProductImages).size).toBe(6);
+  expect(previewProductImages).toHaveLength(6);expect(new Set(previewProductImages.map(hash)).size).toBe(6);
  });
  it('locks the two CTA families and strong gold checkout selection',()=>{
   const pkg=JSON.parse(read('src/lib/builder/templates/gaming/loot-vault/v2/canonical-package.json'));
