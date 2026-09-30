@@ -3,6 +3,7 @@ import {StorefrontRendererRegistry,type StorefrontComponentRenderProps} from '@/
 import {createStorefrontPrimitiveRendererRegistry} from '@/components/builder/storefront-primitives';
 import {StorefrontContentDisclosure,type StorefrontContentDisclosureTab} from '@/components/builder/storefront-content-disclosure';
 import {StorefrontProductRail} from '@/components/builder/storefront-product-rail-client';
+import {StorefrontProductGallery} from '@/components/builder/storefront-product-gallery';
 import type {StorefrontResolvedComponentNode} from '@/lib/builder/storefront-runtime';
 import {sanitizeStorefrontStyleSlots} from '@/lib/builder/storefront-fidelity-engine';
 import {resolveStorefrontVisualStyle} from '@/lib/builder/storefront-visual-style';
@@ -79,23 +80,27 @@ function ProductGridRenderer({config,node,viewport}:StorefrontComponentRenderPro
 }
 
 function ProductGalleryRenderer({config,node,viewport}:StorefrontComponentRenderProps){
-  const images=rows(config.images).map((item,index)=>({src:safeImage(item.src),alt:text(item.alt,`Termékkép ${index+1}`),objectPosition:text(item.objectPosition,'center'),filter:text(item.filter)})).filter(item=>item.src);const presentation=text(config.presentation);const slot=styles(config,viewport);
+  const images=rows(config.images).map((item,index)=>({src:safeImage(item.src),alt:text(item.alt,`Termékkép ${index+1}`),objectPosition:text(item.objectPosition,'center'),filter:text(item.filter)})).filter((item):item is {src:string;alt:string;objectPosition:string;filter:string}=>Boolean(item.src));
+  const presentation=text(config.presentation),slot=styles(config,viewport);
   if(presentation==='editorial-thumbnails'){
-    const main=images[0],thumbnailPosition=text(config.thumbnailPosition,'left');
-    if(thumbnailPosition==='left'){
-      const mobile=viewport==='mobile';
-      return <div data-storefront-commerce="product-gallery" data-presentation={presentation} data-gallery-authority="single-main-with-thumbnails" data-thumbnail-position="left" style={{...span(node),display:'grid',gridTemplateColumns:mobile?'1fr':'clamp(3.1rem,7vw,4.5rem) minmax(0,1fr)',gap:'.65rem',alignItems:'start',...slot('root')}}>
-        {mobile?<div id="product-main" style={{aspectRatio:text(config.aspectRatio,'4 / 5'),background:'var(--shoporation-color-surface-muted,#eee9e2)',overflow:'hidden',...slot('main')}}>{main?<img src={main.src??''} alt={main.alt} loading="eager" style={{display:'block',width:'100%',height:'100%',objectFit:'cover',objectPosition:main.objectPosition,filter:main.filter||undefined,...slot('mainImage')}}/>:null}</div>:null}
-        <div data-product-gallery-thumbnails={mobile?'horizontal':'vertical'} style={{display:'grid',gridTemplateColumns:mobile?'repeat(4,minmax(0,1fr))':'1fr',gap:'.5rem',...slot('thumbnails')}}>{images.slice(0,4).map((item,index)=><a key={`${item.src}:${index}`} href={index===0?'#product-main':`#product-image-${index+1}`} aria-label={`${index+1}. termékkép`} style={{display:'block',aspectRatio:'1 / 1',border:index===0?'1px solid var(--shoporation-color-text,#111)':'1px solid var(--shoporation-color-border,#ddd)',overflow:'hidden',...slot('thumbnail'),...(index===0?slot('thumbnailActive'):{})}}><img src={item.src??''} alt={item.alt} loading={index===0?'eager':'lazy'} style={{display:'block',width:'100%',height:'100%',objectFit:'cover',objectPosition:item.objectPosition,filter:item.filter||undefined,...slot('thumbnailImage')}}/></a>)}</div>
-        {!mobile?<div id="product-main" style={{aspectRatio:text(config.aspectRatio,'4 / 5'),background:'var(--shoporation-color-surface-muted,#eee9e2)',overflow:'hidden',...slot('main')}}>{main?<img src={main.src??''} alt={main.alt} loading="eager" style={{display:'block',width:'100%',height:'100%',objectFit:'cover',objectPosition:main.objectPosition,filter:main.filter||undefined,...slot('mainImage')}}/>:null}</div>:null}
-      </div>;
-    }
-    return <div data-storefront-commerce="product-gallery" data-presentation={presentation} data-gallery-authority="single-main-with-thumbnails" data-thumbnail-position={thumbnailPosition} style={{...span(node),display:'grid',gridTemplateColumns:'1fr',gap:'.65rem',alignItems:'start',...slot('root')}}>
-      <div id="product-main" style={{aspectRatio:text(config.aspectRatio,'4 / 5'),background:'var(--shoporation-color-surface-muted,#eee9e2)',overflow:'hidden',...slot('main')}}>{main?<img src={main.src??''} alt={main.alt} loading="eager" style={{display:'block',width:'100%',height:'100%',objectFit:'cover',objectPosition:main.objectPosition,filter:main.filter||undefined,...slot('mainImage')}}/>:null}</div>
-      {images.length>1?<div data-product-gallery-thumbnails="horizontal" style={{display:'grid',gridTemplateColumns:`repeat(${Math.min(4,images.length)},minmax(0,1fr))`,gap:'.5rem',...slot('thumbnails')}}>{images.slice(0,4).map((item,index)=><a key={`${item.src}:${index}`} href={index===0?'#product-main':`#product-image-${index+1}`} aria-label={`${index+1}. termékkép`} style={{display:'block',aspectRatio:'1 / 1',border:index===0?'1px solid var(--shoporation-color-text,#111)':'1px solid var(--shoporation-color-border,#ddd)',overflow:'hidden',...slot('thumbnail'),...(index===0?slot('thumbnailActive'):{})}}><img src={item.src??''} alt={item.alt} loading={index===0?'eager':'lazy'} style={{display:'block',width:'100%',height:'100%',objectFit:'cover',objectPosition:item.objectPosition,filter:item.filter||undefined,...slot('thumbnailImage')}}/></a>)}</div>:null}
-    </div>;
+    return <StorefrontProductGallery
+      images={images}
+      thumbnailPosition={text(config.thumbnailPosition,'left')}
+      aspectRatio={text(config.aspectRatio,'4 / 5')}
+      viewport={viewport}
+      rootStyle={span(node)}
+      styleSlots={{
+        root:slot('root'),
+        main:slot('main'),
+        mainImage:slot('mainImage'),
+        thumbnails:slot('thumbnails'),
+        thumbnail:slot('thumbnail'),
+        thumbnailActive:slot('thumbnailActive'),
+        thumbnailImage:slot('thumbnailImage'),
+      }}
+    />;
   }
-  return <div data-storefront-commerce="product-gallery" style={{...span(node),display:'grid',gridTemplateColumns:'repeat(2,minmax(0,1fr))',gap:'.75rem',...slot('root')}}>{images.length?images.map((item,index)=><img key={`${item.src}:${index}`} src={item.src??''} alt={item.alt} loading={index===0?'eager':'lazy'} style={{display:'block',width:'100%',height:'100%',minHeight:index===0?'28rem':'16rem',objectFit:'cover',gridColumn:index===0?'span 2':'span 1',...slot(index===0?'mainImage':'image')}}/>):<div style={{gridColumn:'span 2',aspectRatio:text(config.aspectRatio,'4 / 5'),background:'var(--shoporation-color-surface-muted,#eee9e2)',...slot('empty')}}/>}</div>;
+  return <div data-storefront-commerce="product-gallery" style={{...span(node),display:'grid',gridTemplateColumns:'repeat(2,minmax(0,1fr))',gap:'.75rem',...slot('root')}}>{images.length?images.map((item,index)=><img key={`${item.src}:${index}`} src={item.src} alt={item.alt} loading={index===0?'eager':'lazy'} style={{display:'block',width:'100%',height:'100%',minHeight:index===0?'28rem':'16rem',objectFit:'cover',gridColumn:index===0?'span 2':'span 1',objectPosition:item.objectPosition,filter:item.filter||undefined,...slot(index===0?'mainImage':'image')}}/>):<div style={{gridColumn:'span 2',aspectRatio:text(config.aspectRatio,'4 / 5'),background:'var(--shoporation-color-surface-muted,#eee9e2)',...slot('empty')}}/>}</div>;
 }
 function ProductInfoRenderer({config,node,viewport}:StorefrontComponentRenderProps){
   const badges=Array.isArray(config.badges)?config.badges.filter(item=>typeof item==='string') as string[]:[],beauty=text(config.presentation)==='beauty-lab';const slot=styles(config,viewport);
