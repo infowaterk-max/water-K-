@@ -489,6 +489,7 @@ async function proveFactoryCommerceInteraction(browser,manifest){
     });
     const inactiveShippingVisual=await inactiveShippingCard.count()?await inactiveShippingCard.evaluate(element=>{const style=getComputedStyle(element);return{borderColor:style.borderTopColor,background:style.backgroundColor}}):null;
     result.checks.shippingSelectedSemantic=await selectedShippingCard.count()===1&&await parcel.getAttribute('aria-checked')==='true';
+    result.checks.shippingSelectedVisualEvidence={selected:shippingVisual,inactive:inactiveShippingVisual};
     result.checks.shippingSelectedVisual=shippingVisual.borderWidth>=2&&shippingVisual.checkVisible===true&&Boolean(inactiveShippingVisual)&&(shippingVisual.borderColor!==inactiveShippingVisual.borderColor||shippingVisual.background!==inactiveShippingVisual.background);
     result.checks.totalRecalculation=beforeShipping!==afterShipping&&beforeTotal!==afterTotal;
     result.checks.shippingRecalculation=result.checks.shippingSelection===true&&result.checks.representativeQuoteSource===true&&result.checks.totalRecalculation===true;
@@ -512,6 +513,7 @@ async function proveFactoryCommerceInteraction(browser,manifest){
     });
     const inactivePaymentVisual=await inactivePaymentCard.count()?await inactivePaymentCard.evaluate(element=>{const style=getComputedStyle(element);return{borderColor:style.borderTopColor,background:style.backgroundColor}}):null;
     result.checks.paymentSelectedSemantic=await selectedPaymentCard.count()===1&&await transfer.getAttribute('aria-checked')==='true';
+    result.checks.paymentSelectedVisualEvidence={selected:paymentVisual,inactive:inactivePaymentVisual};
     result.checks.paymentSelectedVisual=paymentVisual.borderWidth>=2&&paymentVisual.checkVisible===true&&Boolean(inactivePaymentVisual)&&(paymentVisual.borderColor!==inactivePaymentVisual.borderColor||paymentVisual.background!==inactivePaymentVisual.background);
     await checkoutRoot.getByRole('button',{name:'Tovább az összesítéshez',exact:true}).click();
 
