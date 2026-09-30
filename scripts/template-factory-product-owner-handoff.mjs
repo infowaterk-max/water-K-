@@ -573,6 +573,24 @@ try{
       commerceInteraction.emptyState=true;
 
       let commerceProductRoot=await visitCandidate('product','commerce-variant-selection');
+      const galleryMainImage=commerceProductRoot.locator('[data-product-gallery-main-image="true"]').first();
+      const galleryMain=commerceProductRoot.locator('[data-product-gallery-main="true"]').first();
+      const galleryThumbnails=commerceProductRoot.locator('[data-product-gallery-thumbnail]');
+      const galleryThumbnailCount=await galleryThumbnails.count();
+      if(galleryThumbnailCount>1&&await galleryMainImage.count()===1){
+        const beforeGallerySrc=await galleryMainImage.getAttribute('src');
+        await galleryThumbnails.nth(1).click();
+        await page.waitForFunction(beforeSrc=>{
+          const main=document.querySelector('[data-product-gallery-main-image="true"]');
+          const selected=document.querySelector('[data-product-gallery-main="true"]')?.getAttribute('data-product-gallery-selected-index');
+          return selected==='1'&&Boolean(main?.getAttribute('src'))&&main?.getAttribute('src')!==beforeSrc;
+        },beforeGallerySrc,{timeout:5000});
+        const afterGallerySrc=await galleryMainImage.getAttribute('src');
+        commerceInteraction.galleryThumbnailSelection=(await galleryMain.getAttribute('data-product-gallery-selected-index'))==='1'
+          &&Boolean(beforeGallerySrc)&&Boolean(afterGallerySrc)&&beforeGallerySrc!==afterGallerySrc;
+      }else{
+        commerceInteraction.galleryThumbnailSelection='not-applicable';
+      }
       const optionLinks=commerceProductRoot.locator('[data-storefront-structured="option-selector"] a');
       const optionCount=await optionLinks.count();
       let selectedVariant=null;
@@ -707,6 +725,7 @@ try{
     checks.commerceInteraction=commerceInteraction;
     const provenOrNotApplicable=value=>value===true||value==='not-applicable';
     checks.commerceInteractionPassed=commerceInteraction.emptyState===true
+      &&provenOrNotApplicable(commerceInteraction.galleryThumbnailSelection)
       &&provenOrNotApplicable(commerceInteraction.variantSelection)
       &&provenOrNotApplicable(commerceInteraction.selectedState)
       &&provenOrNotApplicable(commerceInteraction.priceUpdate)
@@ -809,6 +828,26 @@ try{
       return url.pathname===expected.pathname&&url.hash===expected.hash;
     }))).every(Boolean);
     if(!checks.accountSurfacePassed)errors.push('CANONICAL_ACCOUNT_SURFACES_NOT_PROVEN');
+    try{
+      const collectionLink=accountRoot.getByRole('link',{name:'Gyűjteményem',exact:true}).first();
+      await Promise.all([
+        page.waitForURL(url=>candidatePageIdentity(url.toString(),'account')&&url.searchParams.get('accountView')==='gyujtemenyem',{timeout:15000,waitUntil:'commit'}),
+        collectionLink.click(),
+      ]);
+      accountRoot=await assertCandidatePage('account','account-collection');
+      const collectionRoot=accountRoot.locator('[data-storefront-preview-account-state="gyujtemenyem"] [data-account-collection-authority="purchase-history-v1"]');
+      await collectionRoot.waitFor({state:'visible',timeout:10000});
+      const collectionTile=collectionRoot.locator('a.accountCollectionTile').first();
+      const sourceHref=await collectionTile.getAttribute('href');
+      checks.collectionInteractionPassed=Boolean(sourceHref?.startsWith('/termek/'))
+        &&await clickCandidate(collectionTile,'product','account-collection-product');
+      if(!checks.collectionInteractionPassed)errors.push('ACCOUNT_COLLECTION_PRODUCT_ROUTE_NOT_PROVEN');
+    }catch(error){
+      checks.collectionInteractionPassed=false;
+      errors.push(`ACCOUNT_COLLECTION_INTERACTION_NOT_PROVEN:${error instanceof Error?error.message:String(error)}`);
+    }
+
+    accountRoot=await visitCandidate('account','account-cases-proof');
     try{
       const casesLink=accountRoot.getByRole('link',{name:'Ügyeim',exact:true}).first();
       await Promise.all([
