@@ -1,7 +1,7 @@
 {
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-LOOT-VAULT-V2-PO-CLOSURE",
-  "task": "Close Loot Vault v2 Product Owner defects by repairing the shared product gallery interaction, template-aware cart presentation, account/collection presentation, and product preview route continuity with executable behavior proof.",
+  "task": "Close Loot Vault v2 Product Owner defects by repairing shared storefront token inheritance, explicit shipping/payment selected states, account/collection presentation, preserved product-gallery interaction, and mobile executable commerce behavior proof.",
   "status": "ready-for-implementation",
   "guardDigest": "0aa869dc",
   "plannedFilePatterns": [
@@ -19,7 +19,10 @@
     "docs/LOOT_VAULT_V2_MOBILE_PO_AUDIT_2026-09-29.md",
     "tests/storefront-template-quality-gate-v2.test.ts",
     "tests/template-factory-loot-vault-v2.test.ts",
-    "scripts/template-factory-product-owner-handoff.mjs"
+    "scripts/template-factory-product-owner-handoff.mjs",
+    "src/components/checkout/checkout-form.tsx",
+    "src/components/checkout/checkout-guided.module.css",
+    "scripts/template-factory-quality-gate.mjs"
   ],
   "expectedSubsystems": [
     "auth-access-authority",
@@ -102,6 +105,6 @@
     "SQ-NK-012"
   ],
   "exceptions": [],
-  "notes": "Product Owner requires Loot Vault v2 to close as a real shopper-ready template, not from component-presence or green-CI inference. Scope is deliberately surgical: shared gallery behavior, shared cart presentation token authority, template-aware account/collection continuity, preview product routing, focused executable regression proof, and PO audit reconciliation. No Control Plane redesign. No golden update, main merge, staging promotion, production promotion, Release Risk Budget weakening, or template-local fork of shared commerce/account authority. Final PO proof extension: the existing browser journey must click a non-primary product-gallery thumbnail and prove main-image state change, then open Gyűjteményem and click a collection tile into the exact template product preview. This is closure proof only, not a Control Plane redesign.",
+  "notes": "Product Owner closure scope is surgical: fix Loot Vault v2 shared checkout CTA/link foreground authority, accent-visible legal links, full-card shipping/payment selected states with semantic markers, account/collection token inheritance, and preserve the already-correct shared gallery. The existing Factory commerce interaction proof is tightened to mobile and must exercise Collector Edition, Deluxe Edition, Standard Edition, cart quantity/remove/checkout, selected shipping/payment visuals, legal-link visibility and fail-closed submission. Existing Product Owner journey remains authority for account/collection route continuity. No Control Plane redesign. No golden update, main merge, staging, production, Release Risk Budget weakening, gate bypass, test weakening, or template-local commerce/account fork.",
   "changeBaseSha": "8ff249af0cf9bdd9c88ff282eff49e1f51954ced"
 }
