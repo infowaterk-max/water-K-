@@ -22,11 +22,15 @@ If scope is unresolved, add or repair subsystem classification first. Do not con
 
 After every coherent edit batch, before continuing to a new area:
 
+- treat the Edit-Time Guard as the mandatory **A/B Reference Sync** boundary: removed/renamed assets, paths, exports, routes, selectors, data attributes, component keys and high-signal implementation expressions must have zero stale machine consumers before continuing;
+
 - run `node scripts/shoperation-edit-time-guard.mjs --check`;
 - run `node scripts/shoperation-knowledge-preflight.mjs`;
 - run `node scripts/shoperation-incremental-replay.mjs --check`.
 
 If the diff expands into another subsystem, activates additional Known Failures, or changes the guard digest, stop. Regenerate and review the Development Guard and update the plan before continuing.
+
+A Reference Sync `block` is never exceptable. A Reference Sync `review` requires an explicit plan exception with a concrete reason and must remain visible in the reference-sync artifact.
 
 A `review` edit-time finding requires an explicit exception in `quality/development/active-plan.json` with the rule ID and a concrete reason. A `block` finding must be repaired and is not exceptable by plan metadata.
 
