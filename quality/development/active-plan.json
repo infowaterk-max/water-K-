@@ -16,7 +16,9 @@
     "tests/account-collection-authority.test.ts",
     "tests/storefront-product-gallery-behavior.test.ts",
     "tests/storefront-loot-vault-v2-polish.test.ts",
-    "docs/LOOT_VAULT_V2_MOBILE_PO_AUDIT_2026-09-29.md"
+    "docs/LOOT_VAULT_V2_MOBILE_PO_AUDIT_2026-09-29.md",
+    "tests/storefront-template-quality-gate-v2.test.ts",
+    "tests/template-factory-loot-vault-v2.test.ts"
   ],
   "expectedSubsystems": [
     "auth-access-authority",
