@@ -9,6 +9,7 @@ describe('storefront product gallery behavior contract',()=>{
     const commerce=read('src/components/builder/storefront-commerce.tsx');
     expect(gallery).toContain("'use client'");
     expect(gallery).toContain('useState(0)');
+    expect(gallery).toContain('const thumbnails=(left||visible.length>1)?<div');
     expect(gallery).toContain('data-gallery-interaction="thumbnail-selects-main"');
     expect(gallery).toContain('data-product-gallery-main-image="true"');
     expect(gallery).toContain('data-product-gallery-thumbnail={index}');
