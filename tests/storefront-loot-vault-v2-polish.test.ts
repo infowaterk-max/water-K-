@@ -39,6 +39,8 @@ describe('Loot Vault v2 polish contract',()=>{
   expect(buttons.filter((n:any)=>n.config.variant==='secondary').every((n:any)=>n.config.style?.background==='#111416')).toBe(true);
   const checkoutCss=read('src/components/checkout/checkout-guided.module.css'),checkoutForm=read('src/components/checkout/checkout-form.tsx');
   expect(checkoutCss).toContain('border:2px solid var(--checkout-accent)');
+  expect(checkoutCss).toContain('border-width:2px!important');
+  expect(checkoutCss).toContain('border-color:var(--checkout-accent)!important');
   expect(checkoutCss).toContain('color:var(--checkout-accent)!important');
   expect(checkoutCss).toContain('text-decoration:underline');
   for(const legacy of ['var(--bg','var(--card','var(--ink','var(--muted','var(--line','var(--green'])expect(checkoutCss).not.toContain(legacy);

@@ -60,7 +60,7 @@
 .root :global(.checkoutStepError){margin:.75rem 0 0}
 .root :global(.choiceCard){background:var(--checkout-surface-muted);color:var(--checkout-text);border:1px solid var(--checkout-border);border-radius:var(--checkout-radius-m)}
 .root :global(.choiceCard:hover){background:var(--checkout-surface);border-color:color-mix(in srgb,var(--checkout-accent) 54%,var(--checkout-border))}
-.root :global(.choiceCard.active),.root :global(.choiceCard[data-selected="true"]){background:color-mix(in srgb,var(--checkout-accent) 12%,var(--checkout-surface));border:2px solid var(--checkout-accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--checkout-accent) 18%,transparent),0 12px 30px rgba(0,0,0,.16)}
+.root :global(.choiceCard.active),.root :global(.choiceCard[data-selected="true"]){background:color-mix(in srgb,var(--checkout-accent) 12%,var(--checkout-surface));border:2px solid var(--checkout-accent);border-width:2px!important;border-style:solid!important;border-color:var(--checkout-accent)!important;box-shadow:0 0 0 3px color-mix(in srgb,var(--checkout-accent) 18%,transparent),0 12px 30px rgba(0,0,0,.16)}
 .root :global(.choiceIcon){background:var(--checkout-surface);border:1px solid var(--checkout-border);color:var(--checkout-accent);border-radius:var(--checkout-radius-s)}
 .root :global(.choiceCard[data-selected="true"] .choiceIcon){border-color:var(--checkout-accent);background:color-mix(in srgb,var(--checkout-accent) 10%,var(--checkout-surface));color:var(--checkout-accent)}
 .root :global(.choiceBody strong){color:var(--checkout-text);font-weight:900}
