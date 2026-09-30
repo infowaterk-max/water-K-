@@ -33,6 +33,11 @@ describe('Shoperation Domain Foundations v1',()=>{
     expect(dependencyClosure('DOMAIN-BUILDER')).toEqual(expect.arrayContaining(['DOMAIN-STOREFRONT','DOMAIN-COMMERCE','DOMAIN-CATALOG','DOMAIN-IDENTITY','DOMAIN-TENANCY']));
   });
 
+  it('maps the real canonical catalog modules instead of an empty directory-only assumption',()=>{
+    const catalog=getDomainFoundation('DOMAIN-CATALOG');
+    expect(catalog?.canonicalPaths).toEqual(expect.arrayContaining(['src/lib/catalog.ts','src/lib/catalog-*.ts','src/lib/inventory/**']));
+  });
+
   it('requires every domain to state evidence obligations and machine-queryable paths',()=>{
     for(const domain of DOMAIN_FOUNDATION_REGISTRY.domains){
       expect(domain.evidenceObligations.length,domain.id).toBeGreaterThan(0);

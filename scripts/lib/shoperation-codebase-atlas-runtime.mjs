@@ -1,6 +1,7 @@
 import {execFileSync} from 'node:child_process';
 import {existsSync,mkdirSync,readFileSync,writeFileSync} from 'node:fs';
 import path from 'node:path';
+import ts from 'typescript';
 import {globToRegExp,getAllFailures,releasePolicy} from './shoperation-development-runtime.mjs';
 
 const policy=JSON.parse(readFileSync('quality/knowledge/codebase-atlas-policy.v2.json','utf8'));
@@ -33,9 +34,19 @@ function routeForFile(file){
   });
   return {path:'/'+segments.join('/'),kind:kind==='route'?'api':'page'};
 }
-function extractImports(source){
+export function extractImports(source){
   const specs=new Set();
-  for(const re of [/\bfrom\s*['"]([^'"]+)['"]/g,/\bimport\s*['"]([^'"]+)['"]/g,/\bimport\s*\(\s*['"]([^'"]+)['"]\s*\)/g,/\brequire\s*\(\s*['"]([^'"]+)['"]\s*\)/g])for(const m of source.matchAll(re))specs.add(m[1]);
+  const file=ts.createSourceFile('atlas-source.tsx',source,ts.ScriptTarget.Latest,true,ts.ScriptKind.TSX);
+  const add=node=>{if(node&&ts.isStringLiteralLike(node))specs.add(node.text);};
+  const visit=node=>{
+    if(ts.isImportDeclaration(node)||ts.isExportDeclaration(node))add(node.moduleSpecifier);
+    else if(ts.isCallExpression(node)&&node.arguments.length){
+      if(node.expression.kind===ts.SyntaxKind.ImportKeyword)add(node.arguments[0]);
+      else if(ts.isIdentifier(node.expression)&&node.expression.text==='require')add(node.arguments[0]);
+    }
+    ts.forEachChild(node,visit);
+  };
+  visit(file);
   return [...specs];
 }
 function extractExports(source){

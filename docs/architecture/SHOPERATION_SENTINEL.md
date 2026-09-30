@@ -18,7 +18,7 @@ Its allowed lifecycle is:
 
 `observe → correlate → diagnose → recommend`
 
-Code-changing repair remains proposal-first and human-governed.
+Code-changing repair remains proposal-first and human-governed. Evidence-lifecycle issue disposition is not code mutation: it is allowed only for deterministic Failure Intake bookkeeping under the existing Failure Intake authority and cannot change tests, gates, runtime code or Known Failure truth.
 
 ## Daily scan
 
@@ -31,6 +31,16 @@ It observes:
 - open Daily Deep Atlas architecture-drift attention;
 - repeated failures of the same workflow;
 - short failure bursts and week-over-week direction.
+
+### Failure Intake scope reconciliation
+
+Sentinel reconciles open Failure Intake evidence against the workflow run that produced its source commit:
+
+- **canonical** — main/scheduled evidence; this may contribute a Sentinel REVIEW;
+- **development** — pull-request or non-main feature-branch push evidence; it remains durable Failure Intake evidence but does not masquerade as platform-health debt;
+- **unknown** — the source commit cannot be bound to either scope from the available observation window; this remains visible as REVIEW rather than being silently discarded.
+
+Feature-branch push failures and pull-request failures therefore share one development evidence class. The Sentinel scan remains observation-only for code and authority. Its scheduled evidence-lifecycle step may close a Failure Intake issue only when the scan deterministically proves one of three dispositions: **duplicate fingerprint**, **promoted to an already registered Known Failure**, or **resolved by a later successful run of the same workflow on the same branch**. Every automatic closure receives an explicit disposition comment. Unknown-scope and still-active evidence always remains open.
 
 The scan emits:
 

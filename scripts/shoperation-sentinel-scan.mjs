@@ -1,6 +1,7 @@
 import{existsSync,mkdirSync,readFileSync,writeFileSync}from'node:fs';
 const readJson=file=>JSON.parse(readFileSync(file,'utf8'));
 const policy=readJson('quality/knowledge/sentinel-policy.v1.json');
+const failureSignatures=readJson('quality/knowledge/failure-signatures.v1.json');
 const snapshotPath=process.env.SHOPERATION_SENTINEL_SNAPSHOT||'artifacts/shoperation-sentinel/source-snapshot.json';
 const outputDir=process.env.SHOPERATION_SENTINEL_OUT_DIR||'artifacts/shoperation-sentinel';
 if(policy.contract!=='shoporation.sentinel-policy.v1')throw new Error('SENTINEL_POLICY_CONTRACT_INVALID');
@@ -23,8 +24,9 @@ const summarize=list=>{
   return{runs:list.length,failures:failures.length,cancellations:cancellations.length,failureRate:list.length?Number((failures.length/list.length).toFixed(4)):0};
 };
 const actionEligible=run=>actionEvents.has(run.event)&&run.headBranch===policy.sources.actionEligibleBranch;
+const developmentEligible=run=>run.event===policy.sources.developmentEvent||(run.event==='push'&&Boolean(run.headBranch)&&run.headBranch!==policy.sources.actionEligibleBranch);
 const systemRuns=runs.filter(actionEligible);
-const developmentRuns=runs.filter(run=>run.event===policy.sources.developmentEvent);
+const developmentRuns=runs.filter(developmentEligible);
 const system24=systemRuns.filter(run=>inRange(run,-1/86400,policy.windows.dailyHours/24));
 const system7=systemRuns.filter(run=>inRange(run,-1/86400,policy.windows.trendDays));
 const system30=systemRuns.filter(run=>inRange(run,-1/86400,policy.windows.historyDays));
@@ -40,13 +42,93 @@ const repeatedWorkflows=[...byWorkflow.values()].filter(row=>row.count>=policy.t
 const openIssues=(snapshot.openIssues||[]).filter(issue=>!issue.pullRequest);
 const failureIntakeIssues=openIssues.filter(issue=>(issue.body||'').includes('<!-- shoperation-failure-intake:'));
 const deepAtlasIssues=openIssues.filter(issue=>(issue.body||'').includes('<!-- shoperation-deep-atlas-scan -->'));
-const fingerprints=[...new Set(failureIntakeIssues.map(issue=>{const match=(issue.body||'').match(/<!-- shoperation-failure-intake:([^\s]+) -->/);return match?.[1]||null;}).filter(Boolean))].sort();
+const fingerprintOf=issue=>{const match=(issue.body||'').match(/<!-- shoperation-failure-intake:([^\s]+) -->/);return match?.[1]||null;};
+const sourceCommitOf=issue=>{const match=(issue.body||'').match(/Source commit:\s*`([0-9a-f]{7,40})`/i);return match?.[1]||null;};
+const sourceOf=issue=>{const match=(issue.body||'').match(/Source:\s*`([^`]+)`/i);return match?.[1]?.trim()||null;};
+const rawErrorCodeOf=issue=>{const match=String(issue.title||'').match(/^\[Quality intake\]\s+[^:]+:\s+(.+)$/);return match?.[1]?.trim()||null;};
+const runsByCommit=new Map();
+for(const run of runs){if(!run.headSha)continue;const list=runsByCommit.get(run.headSha)||[];list.push(run);runsByCommit.set(run.headSha,list);}
+const classifyFailureIntake=issue=>{
+  const sourceCommit=sourceCommitOf(issue);
+  const evidenceRuns=sourceCommit?(runsByCommit.get(sourceCommit)||[]):[];
+  if(evidenceRuns.some(actionEligible))return'canonical';
+  if(evidenceRuns.some(developmentEligible))return'development';
+  return'unknown';
+};
+const signatureFor=raw=>{
+  if(!raw)return null;
+  return (failureSignatures.rules||[]).find(rule=>rule.match==='exact'?raw===rule.pattern:rule.match==='prefix'?raw.startsWith(rule.pattern):raw.includes(rule.pattern))||null;
+};
+const workflowMatchesSource=(run,source)=>{
+  if(!source)return true;
+  const exact={
+    ci:'CI',
+    'template-factory':'Template Factory Quality Gate v2',
+    'periodic-full-replay':'Shoperation Knowledge Full Replay',
+    sentinel:'Shoperation Sentinel',
+  }[source];
+  if(exact)return run.name===exact;
+  if(source==='fresh-install')return /Fresh Install/i.test(run.name);
+  if(source==='cloud-smoke')return /Cloud Smoke/i.test(run.name);
+  return true;
+};
+const duplicateKeeperByFingerprint=new Map();
+for(const issue of [...failureIntakeIssues].sort((a,b)=>Number(a.number)-Number(b.number))){
+  const fingerprint=fingerprintOf(issue);
+  if(fingerprint&&!duplicateKeeperByFingerprint.has(fingerprint))duplicateKeeperByFingerprint.set(fingerprint,Number(issue.number));
+}
+const reconciliationItems=failureIntakeIssues.map(issue=>{
+  const issueNumber=Number(issue.number),fingerprint=fingerprintOf(issue),scope=classifyFailureIntake(issue),sourceCommit=sourceCommitOf(issue),source=sourceOf(issue),rawErrorCode=rawErrorCodeOf(issue);
+  const base={issueNumber,fingerprint,scope,sourceCommit,source,rawErrorCode,disposition:'still-active',safeToClose:false,knownFailureId:null,evidence:[]};
+  if(scope==='unknown')return{...base,disposition:'scope-unknown',evidence:['source commit cannot be bound to canonical or development workflow evidence in the observation window']};
+  const keeper=fingerprint?duplicateKeeperByFingerprint.get(fingerprint):null;
+  if(keeper&&keeper!==issueNumber)return{...base,disposition:'duplicate',safeToClose:true,evidence:[`duplicate fingerprint retained by issue #${keeper}`]};
+  const signature=signatureFor(rawErrorCode);
+  if(signature)return{...base,disposition:'promoted-to-known-failure',safeToClose:true,knownFailureId:signature.failureId,evidence:[`current failure signature maps ${rawErrorCode} to ${signature.failureId}`]};
+  const evidenceRuns=sourceCommit?(runsByCommit.get(sourceCommit)||[]).filter(run=>workflowMatchesSource(run,source)):[];
+  const origin=evidenceRuns.filter(failed).sort((a,b)=>Date.parse(a.createdAt)-Date.parse(b.createdAt))[0]||null;
+  if(origin){
+    const originAt=Date.parse(origin.createdAt);
+    const laterSuccess=runs
+      .filter(run=>run.name===origin.name&&run.headBranch===origin.headBranch&&run.conclusion==='success'&&Date.parse(run.createdAt)>originAt)
+      .sort((a,b)=>Date.parse(a.createdAt)-Date.parse(b.createdAt))[0]||null;
+    if(laterSuccess)return{...base,disposition:'resolved-by-later-success',safeToClose:true,evidence:[`origin run #${origin.id} failed`,`later run #${laterSuccess.id} succeeded for ${origin.name} on ${origin.headBranch}`]};
+  }
+  return base;
+});
+const safeToClose=reconciliationItems.filter(item=>item.safeToClose);
+const safeIssueNumbers=new Set(safeToClose.map(item=>item.issueNumber));
+const activeFailureIntakeIssues=failureIntakeIssues.filter(issue=>!safeIssueNumbers.has(Number(issue.number)));
+const intakeByScope={canonical:[],development:[],unknown:[]};
+for(const issue of activeFailureIntakeIssues)intakeByScope[classifyFailureIntake(issue)].push(issue);
+const canonicalFailureIntakeIssues=intakeByScope.canonical;
+const developmentFailureIntakeIssues=intakeByScope.development;
+const unknownFailureIntakeIssues=intakeByScope.unknown;
+const fingerprintsFor=issues=>[...new Set(issues.map(fingerprintOf).filter(Boolean))].sort();
+const fingerprints=fingerprintsFor(canonicalFailureIntakeIssues);
+const developmentFingerprints=fingerprintsFor(developmentFailureIntakeIssues);
+const unknownFingerprints=fingerprintsFor(unknownFailureIntakeIssues);
+const reconciliation={
+  contract:'shoporation.failure-intake-reconciliation.v1',
+  items:reconciliationItems,
+  safeToClose,
+  counts:{
+    observed:reconciliationItems.length,
+    active:reconciliationItems.filter(item=>!item.safeToClose).length,
+    safeToClose:safeToClose.length,
+    duplicates:reconciliationItems.filter(item=>item.disposition==='duplicate').length,
+    promoted:reconciliationItems.filter(item=>item.disposition==='promoted-to-known-failure').length,
+    resolved:reconciliationItems.filter(item=>item.disposition==='resolved-by-later-success').length,
+    unknown:reconciliationItems.filter(item=>item.disposition==='scope-unknown').length,
+  }
+};
 const signals=[];
 const add=(code,severity,reason,evidence,recommendation)=>signals.push({code,severity,reason,evidence,recommendation});
 if(deepAtlasIssues.length)add('SENTINEL_DEEP_ATLAS_ATTENTION','action','Deep Atlas has an open architecture-drift finding.',deepAtlasIssues.map(i=>({issue:i.number,title:i.title,updatedAt:i.updatedAt})),'Resolve the existing Deep Atlas finding before broadening architecture scope.');
 if(system24.filter(failed).length>=policy.thresholds.actionMainFailures24h)add('SENTINEL_MAIN_FAILURE_BURST_24H','action',`${system24.filter(failed).length} failing main/scheduled workflow runs were observed in the last 24 hours.`,system24.filter(failed).map(r=>({id:r.id,workflow:r.name,conclusion:r.conclusion,createdAt:r.createdAt})),'Freeze broad changes around the affected control path and isolate the first failing boundary.');
 for(const row of repeatedWorkflows)add('SENTINEL_REPEATED_MAIN_WORKFLOW_FAILURE','action',`${row.workflow} failed ${row.count} times on main/scheduled evidence in the last 7 days.`,row,'Inspect the repeated failure class and strengthen the earliest existing gate or regression test that can deterministically detect it.');
-if(failureIntakeIssues.length)add('SENTINEL_OPEN_FAILURE_INTAKE','review',`${failureIntakeIssues.length} unresolved Failure Intake issue(s) remain open.`,{issues:failureIntakeIssues.map(i=>i.number),fingerprints},'Disposition each fingerprint explicitly: match, promote, scope, deduplicate or reject with evidence.');
+if(canonicalFailureIntakeIssues.length)add('SENTINEL_OPEN_FAILURE_INTAKE','review',`${canonicalFailureIntakeIssues.length} canonical/main Failure Intake issue(s) remain open.`,{issues:canonicalFailureIntakeIssues.map(i=>i.number),fingerprints},'Disposition each canonical fingerprint explicitly: match, promote, scope, deduplicate or reject with evidence.');
+if(unknownFailureIntakeIssues.length)add('SENTINEL_FAILURE_INTAKE_SCOPE_UNKNOWN','review',`${unknownFailureIntakeIssues.length} Failure Intake issue(s) cannot yet be classified as canonical or development evidence.`,{issues:unknownFailureIntakeIssues.map(i=>i.number),fingerprints:unknownFingerprints},'Resolve the evidence scope before treating these fingerprints as platform health signals.');
 const system7Summary=summarize(system7),systemPrior7Summary=summarize(systemPrior7),development7Summary=summarize(development7);
 if(system7Summary.failures>=policy.thresholds.reviewMainFailures7d&&!repeatedWorkflows.length)add('SENTINEL_ELEVATED_MAIN_FAILURE_TREND','review',`${system7Summary.failures} failing main/scheduled workflow runs were observed in the last 7 days.`,{current7d:system7Summary,previous7d:systemPrior7Summary},'Review whether the failures share a common gate, subsystem or evidence boundary before changing controls.');
 if(development7Summary.failures>=policy.thresholds.reviewDevelopmentFailures7d)add('SENTINEL_DEVELOPMENT_FRICTION_TREND','review',`${development7Summary.failures} pull-request workflow failures were observed in the last 7 days; development noise is not promoted to ACTION_REQUIRED by itself.`,{development7d:development7Summary},'Review recurring PR failure classes for preventable development friction without treating iterative branch failures as production instability.');
@@ -68,12 +150,13 @@ const report={
     development:{last7d:development7Summary,last30d:summarize(development30)}
   },
   trend:{direction:trend,failureDelta7d:delta},
-  openEvidence:{failureIntakeIssues:failureIntakeIssues.length,fingerprints,deepAtlasAttentionIssues:deepAtlasIssues.length},
+  openEvidence:{failureIntakeIssues:failureIntakeIssues.length,activeFailureIntakeIssues:activeFailureIntakeIssues.length,canonicalFailureIntakeIssues:canonicalFailureIntakeIssues.length,developmentFailureIntakeIssues:developmentFailureIntakeIssues.length,unknownFailureIntakeIssues:unknownFailureIntakeIssues.length,fingerprints,developmentFingerprints,unknownFingerprints,deepAtlasAttentionIssues:deepAtlasIssues.length},
+  reconciliation,
   repeatedWorkflows,
   signals,
   recommendations,
   operatorActionRequired:status==='ACTION_REQUIRED',
-  decisionBasis:'ACTION_REQUIRED is driven only by main/scheduled evidence or an existing authoritative Deep Atlas finding. Pull-request failures are observation/review signals only.'
+  decisionBasis:'ACTION_REQUIRED is driven only by main/scheduled evidence or an existing authoritative Deep Atlas finding. Feature-branch push and pull-request failures are development evidence; they never become canonical Failure Intake health signals by themselves.'
 };
 mkdirSync(outputDir,{recursive:true});
 writeFileSync(`${outputDir}/sentinel-report.json`,JSON.stringify(report,null,2)+'\n');
@@ -86,7 +169,10 @@ const md=[
   `Main/scheduled 7d failures: ${report.windows.system.last7d.failures}/${report.windows.system.last7d.runs}`,
   `Main/scheduled 30d failures: ${report.windows.system.last30d.failures}/${report.windows.system.last30d.runs}`,
   `PR 7d failures: ${report.windows.development.last7d.failures}/${report.windows.development.last7d.runs}`,
-  `Open Failure Intake fingerprints: ${fingerprints.length}`,
+  `Open canonical Failure Intake fingerprints: ${fingerprints.length}`,
+  `Open development Failure Intake fingerprints: ${developmentFingerprints.length}`,
+  `Open unknown-scope Failure Intake fingerprints: ${unknownFingerprints.length}`,
+  `Failure Intake safe dispositions: ${reconciliation.counts.safeToClose}`,
   `Deep Atlas attention: ${deepAtlasIssues.length}`,
   '',
   '## Signals',
