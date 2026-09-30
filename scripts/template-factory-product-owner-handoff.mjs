@@ -694,25 +694,28 @@ try{
 
       const checkoutRoot=rootFor('checkout');
       await checkoutRoot.locator('[data-storefront-preview-checkout="interactive-fail-closed"]').waitFor({state:'visible',timeout:10000});
+      const liveCheckout=checkoutRoot.locator('[data-storefront-live-checkout="shared-e13"] [data-checkout-ux="guided-accordion"]').first();
+      await liveCheckout.waitFor({state:'visible',timeout:10000});
+      commerceInteraction.liveCheckoutAuthority=await liveCheckout.count()===1;
       await page.waitForFunction(()=>{
         const digits=value=>{const parsed=Number(String(value??'').replace(/[^\d-]/g,''));return Number.isFinite(parsed)?parsed:null};
         const subtotal=digits(document.querySelector('[data-storefront-preview-subtotal]')?.textContent);
         const total=digits(document.querySelector('[data-storefront-preview-grand-total]')?.textContent);
         return subtotal!==null&&subtotal>0&&total!==null&&total>=subtotal;
       },undefined,{timeout:5000});
-      const subtotal=(await checkoutRoot.locator('[data-storefront-preview-subtotal]').innerText()).trim();
-      const beforeShipping=(await checkoutRoot.locator('[data-storefront-preview-shipping-cost]').innerText()).trim();
-      const beforeGrandTotal=(await checkoutRoot.locator('[data-storefront-preview-grand-total]').innerText()).trim();
-      commerceInteraction.representativeQuoteSource=await checkoutRoot.locator('[data-checkout-quote-source="representative-preview"]').count()===1;
-      const parcel=checkoutRoot.getByRole('radio',{name:/Csomagpont/}).first();
-      await checkoutRoot.locator('label.choiceCard').filter({hasText:/Csomagpont/}).first().click();
+      const subtotal=(await liveCheckout.locator('[data-storefront-preview-subtotal]').innerText()).trim();
+      const beforeShipping=(await liveCheckout.locator('[data-storefront-preview-shipping-cost]').innerText()).trim();
+      const beforeGrandTotal=(await liveCheckout.locator('[data-storefront-preview-grand-total]').innerText()).trim();
+      commerceInteraction.representativeQuoteSource=await liveCheckout.locator('[data-checkout-quote-source="representative-preview"]').count()===1;
+      const parcel=liveCheckout.getByRole('radio',{name:/Csomagpont/}).first();
+      await liveCheckout.locator('label.choiceCard').filter({hasText:/Csomagpont/}).first().click();
       await page.waitForFunction(({beforeShipping,beforeGrandTotal})=>{
         const shipping=document.querySelector('[data-storefront-preview-shipping-cost]')?.textContent?.trim();
         const total=document.querySelector('[data-storefront-preview-grand-total]')?.textContent?.trim();
         return Boolean(shipping&&total&&shipping!==beforeShipping&&total!==beforeGrandTotal);
       },{beforeShipping,beforeGrandTotal},{timeout:5000});
-      const afterShipping=(await checkoutRoot.locator('[data-storefront-preview-shipping-cost]').innerText()).trim();
-      const afterGrandTotal=(await checkoutRoot.locator('[data-storefront-preview-grand-total]').innerText()).trim();
+      const afterShipping=(await liveCheckout.locator('[data-storefront-preview-shipping-cost]').innerText()).trim();
+      const afterGrandTotal=(await liveCheckout.locator('[data-storefront-preview-grand-total]').innerText()).trim();
       commerceInteraction.shippingSelection=await parcel.isChecked();
       commerceInteraction.totalRecalculation=beforeShipping!==afterShipping&&beforeGrandTotal!==afterGrandTotal;
       commerceInteraction.shippingRecalculation=commerceInteraction.shippingSelection===true&&commerceInteraction.representativeQuoteSource===true&&commerceInteraction.totalRecalculation===true;
@@ -721,29 +724,29 @@ try{
         &&subtotalValue+beforeShippingValue===beforeTotalValue
         &&subtotalValue+afterShippingValue===afterTotalValue;
 
-      await checkoutRoot.getByPlaceholder('Írd be a választott automata vagy átvételi pont nevét / címét').fill('Preview csomagpont');
-      await checkoutRoot.getByRole('button',{name:'Tovább a fizetéshez',exact:true}).click();
-      await checkoutRoot.locator('[data-checkout-panel="payment"]').waitFor({state:'visible',timeout:5000});
-      const transfer=checkoutRoot.locator('input[name="paymentProvider"][value="preview-transfer"]');
-      await checkoutRoot.locator('label.choiceCard').filter({hasText:/Banki átutalás/}).first().click();
-      const selectedTransfer=checkoutRoot.locator('input[name="paymentProvider"][value="preview-transfer"]:checked');
+      await liveCheckout.getByPlaceholder('Írd be a választott automata vagy átvételi pont nevét / címét').fill('Preview csomagpont');
+      await liveCheckout.getByRole('button',{name:'Tovább a fizetéshez',exact:true}).click();
+      await liveCheckout.locator('[data-checkout-panel="payment"]').waitFor({state:'visible',timeout:5000});
+      const transfer=liveCheckout.locator('input[name="paymentProvider"][value="preview-transfer"]');
+      await liveCheckout.locator('label.choiceCard').filter({hasText:/Banki átutalás/}).first().click();
+      const selectedTransfer=liveCheckout.locator('input[name="paymentProvider"][value="preview-transfer"]:checked');
       await selectedTransfer.waitFor({state:'attached',timeout:5000});
       commerceInteraction.paymentSelection=await selectedTransfer.count()===1&&await transfer.isChecked();
 
-      await checkoutRoot.getByRole('button',{name:'Tovább az összesítéshez',exact:true}).click();
-      await checkoutRoot.locator('[data-checkout-panel="summary"]').waitFor({state:'visible',timeout:5000});
-      const guest=checkoutRoot.getByRole('button',{name:'Folytatás vendégként',exact:true});
+      await liveCheckout.getByRole('button',{name:'Tovább az összesítéshez',exact:true}).click();
+      await liveCheckout.locator('[data-checkout-panel="summary"]').waitFor({state:'visible',timeout:5000});
+      const guest=liveCheckout.getByRole('button',{name:'Folytatás vendégként',exact:true});
       if(await guest.count()&&await guest.isVisible())await guest.click();
-      const terms=checkoutRoot.getByRole('checkbox',{name:/Elolvastam és elfogadom/});
-      const privacy=checkoutRoot.getByRole('checkbox',{name:/Tudomásul vettem/});
+      const terms=liveCheckout.getByRole('checkbox',{name:/Elolvastam és elfogadom/});
+      const privacy=liveCheckout.getByRole('checkbox',{name:/Tudomásul vettem/});
       await terms.check();
       await privacy.check();
       commerceInteraction.legalConsent=await terms.isChecked()&&await privacy.isChecked();
 
-      const submit=checkoutRoot.locator('[data-storefront-preview-order-submit="true"]:not([disabled])').first();
+      const submit=liveCheckout.locator('[data-storefront-preview-order-submit="true"]:not([disabled])').first();
       await submit.waitFor({state:'visible',timeout:10000});
       await submit.click();
-      const blocked=checkoutRoot.locator('[data-storefront-preview-order-blocked="true"]');
+      const blocked=liveCheckout.locator('[data-storefront-preview-order-blocked="true"]');
       await blocked.waitFor({state:'visible',timeout:5000});
       await page.waitForTimeout(150);
       commerceInteraction.orderSubmissionFailClosed=(await blocked.innerText()).trim()==='Acceptance proof: a rendelés leadási kísérletét a rendszer blokkolta.';
@@ -774,6 +777,7 @@ try{
       &&commerceInteraction.couponControl===true
       &&commerceInteraction.cartCheckoutCtaReadable===true
       &&commerceInteraction.checkoutEntry===true
+      &&commerceInteraction.liveCheckoutAuthority===true
       &&commerceInteraction.shippingSelection===true
       &&commerceInteraction.representativeQuoteSource===true
       &&commerceInteraction.shippingRecalculation===true
