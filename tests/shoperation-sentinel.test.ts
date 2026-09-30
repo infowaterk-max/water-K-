@@ -23,7 +23,7 @@ const run=(snapshot:unknown)=>{
 const base=(overrides:Record<string,unknown>={})=>({
   contract:'shoporation.sentinel-source-snapshot.v1',
   repository:'infowaterk-max/water-K-',
-  sourceCommit:'abc123',
+  sourceCommit:'abc1234',
   collectedAt:'2026-09-28T12:00:00.000Z',
   workflowRuns:[],
   openIssues:[],
@@ -55,12 +55,35 @@ describe('Shoperation Sentinel',()=>{
     expect(report.autoMutationAllowed).toBe(false);
   });
 
-  it('marks unresolved Failure Intake as REVIEW without inventing authority',()=>{
-    const{report}=run(base({openIssues:[{number:41,title:'quality',body:'<!-- shoperation-failure-intake:SQ-FP-ABC -->',updatedAt:'2026-09-28T10:00:00.000Z'}]}));
+  it('marks canonical unresolved Failure Intake as REVIEW without inventing authority',()=>{
+    const{report}=run(base({
+      workflowRuns:[{id:'main-1',name:'CI',event:'push',headBranch:'main',headSha:'abc1234',conclusion:'failure',createdAt:'2026-09-28T10:00:00.000Z'}],
+      openIssues:[{number:41,title:'quality',body:'<!-- shoperation-failure-intake:SQ-FP-ABC -->\nSource commit: `abc1234`',updatedAt:'2026-09-28T10:00:00.000Z'}],
+    }));
     expect(report.status).toBe('REVIEW');
     expect(report.openEvidence.fingerprints).toEqual(['SQ-FP-ABC']);
+    expect(report.openEvidence.canonicalFailureIntakeIssues).toBe(1);
     expect(report.signals.some((x:{code:string})=>x.code==='SENTINEL_OPEN_FAILURE_INTAKE')).toBe(true);
     expect(report.authority).toBe(false);
+  });
+
+  it('reconciles feature-branch push intake as development evidence instead of platform health debt',()=>{
+    const{report}=run(base({
+      workflowRuns:[{id:'dev-1',name:'Template Factory Quality Gate v2',event:'push',headBranch:'feature/loot-vault',headSha:'def4567',conclusion:'failure',createdAt:'2026-09-28T10:00:00.000Z'}],
+      openIssues:[{number:42,title:'quality',body:'<!-- shoperation-failure-intake:SQ-FP-DEV -->\nSource commit: `def4567`',updatedAt:'2026-09-28T10:00:00.000Z'}],
+    }));
+    expect(report.status).toBe('HEALTHY');
+    expect(report.openEvidence.canonicalFailureIntakeIssues).toBe(0);
+    expect(report.openEvidence.developmentFailureIntakeIssues).toBe(1);
+    expect(report.openEvidence.developmentFingerprints).toEqual(['SQ-FP-DEV']);
+    expect(report.signals.some((x:{code:string})=>x.code==='SENTINEL_OPEN_FAILURE_INTAKE')).toBe(false);
+  });
+
+  it('keeps unknown-scope intake visible rather than silently treating it as development noise',()=>{
+    const{report}=run(base({openIssues:[{number:43,title:'quality',body:'<!-- shoperation-failure-intake:SQ-FP-UNKNOWN -->',updatedAt:'2026-09-28T10:00:00.000Z'}]}));
+    expect(report.status).toBe('REVIEW');
+    expect(report.openEvidence.unknownFailureIntakeIssues).toBe(1);
+    expect(report.signals.some((x:{code:string})=>x.code==='SENTINEL_FAILURE_INTAKE_SCOPE_UNKNOWN')).toBe(true);
   });
 
   it('raises ACTION_REQUIRED from repeated main evidence',()=>{

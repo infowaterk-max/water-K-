@@ -508,7 +508,8 @@
         "SQ-AUTH-007"
       ],
       "regressionTests": [
-        "tests/shoperation-quality-knowledge.test.ts"
+        "tests/shoperation-quality-knowledge.test.ts",
+        "tests/shoperation-failure-intake-reconcile.test.ts"
       ],
       "sourceRecords": [
         "docs/support/README.md"
