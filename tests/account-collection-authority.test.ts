@@ -30,4 +30,18 @@ describe('account collection authority',()=>{
     expect(grid).toContain("data-owned={item.owned?'true':'false'}");
     expect(grid).toContain("item.owned?'Megvan':'Még hiányzik'");
   });
+  it('inherits active template presentation tokens instead of legacy root aliases',()=>{
+    const css=read('src/app/globals.css');
+    const marker=css.indexOf('/* Shared account collection capability */');
+    expect(marker).toBeGreaterThanOrEqual(0);
+    const collectionCss=css.slice(marker);
+    expect(collectionCss).toContain('var(--shoporation-color-surface');
+    expect(collectionCss).toContain('var(--shoporation-color-text');
+    expect(collectionCss).toContain('var(--shoporation-color-border');
+    expect(collectionCss).toContain('var(--shoporation-color-muted-text');
+    expect(collectionCss).not.toContain('var(--card)');
+    expect(collectionCss).not.toContain('var(--ink)');
+    expect(collectionCss).not.toContain('var(--line)');
+    expect(collectionCss).not.toContain('var(--green)');
+  });
 });
