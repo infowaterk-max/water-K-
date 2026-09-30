@@ -167,7 +167,8 @@
         "Client-submitted prices and totals are untrusted and must be recalculated from canonical data.",
         "Order and payment state transitions must be explicit and idempotency-aware.",
         "Provider-specific payment behavior must enter through integration contracts.",
-        "Deterministic discovery, comparison, configurator and composer engines may emit read models or intents, but they may not mutate price, inventory, cart, customer or order authority directly."
+        "Deterministic discovery, comparison, configurator and composer engines may emit read models or intents, but they may not mutate price, inventory, cart, customer or order authority directly.",
+        "Cart and Checkout behavior, state, validation, totals, shipping/payment selection and fail-closed order submission are platform Commerce authority; templates may supply bounded visual tokens only."
       ],
       "principles": [
         "ARCH-003",
@@ -177,7 +178,10 @@
       "canonicalPaths": [
         "src/lib/commerce/**",
         "src/app/api/checkout/**",
-        "src/app/api/orders/**"
+        "src/app/api/orders/**",
+        "src/components/cart/**",
+        "src/components/checkout/**",
+        "src/components/commerce/**"
       ],
       "evidenceObligations": [
         "pricing regression",
@@ -316,7 +320,8 @@
       "boundaryRules": [
         "Storefront consumes shared capabilities; it may not duplicate auth/account/commerce/support engines.",
         "Responsive behavior follows canonical viewport/workspace authority rather than host heuristics.",
-        "Template presentation may vary while business capability authority remains shared."
+        "Template presentation may vary while business capability authority remains shared.",
+        "Account Collection presentation may project purchase-history ownership but may not reinterpret wishlist state as ownership truth."
       ],
       "principles": [
         "ARCH-001",
@@ -331,7 +336,15 @@
         "src/app/storefront-template-preview/**",
         "src/app/storefront-template-preview-login/**",
         "src/app/visual-fidelity-qa/**",
-        "src/components/account/storefront-account-shell.tsx"
+        "src/components/account/storefront-account-shell.tsx",
+        "src/lib/account/**",
+        "src/components/account/**",
+        "src/app/fiokom/**",
+        "src/app/szallitas/**",
+        "src/app/fizetes/**",
+        "src/app/szallitas-es-fizetes/**",
+        "src/app/sitemap.ts",
+        "src/app/globals.css"
       ],
       "evidenceObligations": [
         "responsive isolation proof",
