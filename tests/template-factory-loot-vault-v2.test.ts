@@ -567,13 +567,18 @@ describe('Loot Vault v2 Factory canonical wiring',()=>{
 
   it('keeps the approved Commerce Shell contracts shared and template-safe',()=>{
     const shared=readFileSync('src/components/builder/storefront-commerce.tsx','utf8');
+    const gallery=readFileSync('src/components/builder/storefront-product-gallery.tsx','utf8');
     const preview=readFileSync('src/components/builder/storefront-template-preview-runtime.tsx','utf8');
     const checkout=readFileSync('src/components/checkout/checkout-form.tsx','utf8');
     expect(shared).toContain('data-gallery-authority="single-main-with-thumbnails"');
-    expect(shared).toContain("thumbnailPosition=text(config.thumbnailPosition,'left')");
-    expect(shared).toContain("if(thumbnailPosition==='left')");
-    expect(shared).toContain('data-thumbnail-position="left"');
+    expect(shared).toContain("const thumbnailPosition=text(config.thumbnailPosition,'left')");
+    expect(shared).toContain("const thumbnailLayout=thumbnailPosition==='left'&&!mobile?'vertical':'horizontal'");
+    expect(shared).toContain('data-product-gallery-thumbnails={thumbnailLayout}');
     expect(shared).toContain('data-thumbnail-position={thumbnailPosition}');
+    expect(shared).toContain('<StorefrontProductGallery');
+    expect(gallery).toContain('data-gallery-interaction="thumbnail-selects-main"');
+    expect(gallery).toContain('onClick={()=>setSelectedIndex(index)}');
+    expect(gallery).toContain('src={selected.src}');
     expect(shared).not.toContain("templateKey==='gaming.loot-vault'");
     expect(preview).toContain('<CartView freeShippingThreshold={20000} products={products}/>');
     expect(preview).toContain('<CheckoutForm');
