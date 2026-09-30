@@ -595,31 +595,45 @@ try{
       const optionCount=await optionLinks.count();
       let selectedVariant=null;
       if(optionCount>1){
-        const productInfo=commerceProductRoot.locator('[data-storefront-commerce="product-info"]').first();
-        const beforePrice=(await productInfo.locator('[data-storefront-product-price="true"]').innerText()).trim();
-        const beforeStock=(await productInfo.locator('[data-storefront-product-stock="true"]').innerText()).trim();
-        const target=optionLinks.nth(optionCount-1);
-        const targetLabel=(await target.innerText()).trim();
-        const targetHref=await target.getAttribute('href');
-        selectedVariant=targetHref?new URL(targetHref,page.url()).searchParams.get('variant'):null;
-        await Promise.all([
-          page.waitForURL(url=>candidatePageIdentity(url.toString(),'product')&&(!selectedVariant||url.searchParams.get('variant')===selectedVariant),{timeout:15000}),
-          target.click(),
-        ]);
-        commerceProductRoot=await assertCandidatePage('product','commerce-variant-selected');
-        const selectedOption=commerceProductRoot.locator('[data-storefront-structured="option-selector"] a[aria-current="true"]').first();
-        const afterInfo=commerceProductRoot.locator('[data-storefront-commerce="product-info"]').first();
-        const afterPrice=(await afterInfo.locator('[data-storefront-product-price="true"]').innerText()).trim();
-        const afterStock=(await afterInfo.locator('[data-storefront-product-stock="true"]').innerText()).trim();
-        commerceInteraction.selectedState=await selectedOption.count()===1&&(await selectedOption.innerText()).trim()===targetLabel;
-        commerceInteraction.priceUpdate=beforePrice!==afterPrice;
-        commerceInteraction.stockUpdate=beforeStock!==afterStock;
-        commerceInteraction.variantSelection=commerceInteraction.selectedState===true;
+        const variants=[];
+        for(let index=0;index<optionCount;index+=1){
+          const link=optionLinks.nth(index),label=(await link.innerText()).trim(),href=await link.getAttribute('href');
+          variants.push({label,variantId:href?new URL(href,page.url()).searchParams.get('variant'):null});
+        }
+        const variantProofs=[];
+        for(const variant of variants){
+          const currentLinks=commerceProductRoot.locator('[data-storefront-structured="option-selector"] a');
+          const target=currentLinks.filter({hasText:variant.label}).first();
+          await Promise.all([
+            page.waitForURL(url=>candidatePageIdentity(url.toString(),'product')&&(!variant.variantId||url.searchParams.get('variant')===variant.variantId),{timeout:15000}),
+            target.click(),
+          ]);
+          commerceProductRoot=await assertCandidatePage('product','commerce-variant-selected');
+          const selectedOption=commerceProductRoot.locator('[data-storefront-structured="option-selector"] a[aria-current="true"]').first();
+          const info=commerceProductRoot.locator('[data-storefront-commerce="product-info"]').first();
+          variantProofs.push({
+            label:variant.label,
+            variantId:variant.variantId,
+            selected:await selectedOption.count()===1&&(await selectedOption.innerText()).trim()===variant.label,
+            price:(await info.locator('[data-storefront-product-price="true"]').innerText()).trim(),
+            stock:(await info.locator('[data-storefront-product-stock="true"]').innerText()).trim(),
+          });
+        }
+        selectedVariant=variantProofs.at(-1)?.variantId??null;
+        commerceInteraction.variantProofs=variantProofs;
+        commerceInteraction.selectedState=variantProofs.every(item=>item.selected===true);
+        commerceInteraction.priceUpdate=new Set(variantProofs.map(item=>item.price)).size>1;
+        commerceInteraction.stockUpdate=new Set(variantProofs.map(item=>item.stock)).size>1;
+        commerceInteraction.variantSelection=commerceInteraction.selectedState===true&&commerceInteraction.priceUpdate===true&&commerceInteraction.stockUpdate===true;
+        commerceInteraction.lootVaultEditionCoverage=templateKey==='gaming.loot-vault'
+          ?['Collector Edition','Deluxe Edition','Standard Edition'].every(label=>variantProofs.some(item=>item.label===label&&item.selected===true))
+          :'not-applicable';
       }else{
         commerceInteraction.variantSelection='not-applicable';
         commerceInteraction.selectedState='not-applicable';
         commerceInteraction.priceUpdate='not-applicable';
         commerceInteraction.stockUpdate='not-applicable';
+        commerceInteraction.lootVaultEditionCoverage=templateKey==='gaming.loot-vault'?false:'not-applicable';
       }
 
       const purchaseButton=commerceProductRoot.getByRole('button',{name:/Kosárba/}).first();
@@ -730,6 +744,7 @@ try{
       &&provenOrNotApplicable(commerceInteraction.selectedState)
       &&provenOrNotApplicable(commerceInteraction.priceUpdate)
       &&provenOrNotApplicable(commerceInteraction.stockUpdate)
+      &&provenOrNotApplicable(commerceInteraction.lootVaultEditionCoverage)
       &&commerceInteraction.addToCartAcknowledgement===true
       &&commerceInteraction.quantityIncrease===true
       &&commerceInteraction.quantityDecrease===true
