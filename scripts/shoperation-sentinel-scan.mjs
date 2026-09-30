@@ -1,6 +1,7 @@
 import{existsSync,mkdirSync,readFileSync,writeFileSync}from'node:fs';
 const readJson=file=>JSON.parse(readFileSync(file,'utf8'));
 const policy=readJson('quality/knowledge/sentinel-policy.v1.json');
+const failureSignatures=readJson('quality/knowledge/failure-signatures.v1.json');
 const snapshotPath=process.env.SHOPERATION_SENTINEL_SNAPSHOT||'artifacts/shoperation-sentinel/source-snapshot.json';
 const outputDir=process.env.SHOPERATION_SENTINEL_OUT_DIR||'artifacts/shoperation-sentinel';
 if(policy.contract!=='shoporation.sentinel-policy.v1')throw new Error('SENTINEL_POLICY_CONTRACT_INVALID');
@@ -43,6 +44,8 @@ const failureIntakeIssues=openIssues.filter(issue=>(issue.body||'').includes('<!
 const deepAtlasIssues=openIssues.filter(issue=>(issue.body||'').includes('<!-- shoperation-deep-atlas-scan -->'));
 const fingerprintOf=issue=>{const match=(issue.body||'').match(/<!-- shoperation-failure-intake:([^\s]+) -->/);return match?.[1]||null;};
 const sourceCommitOf=issue=>{const match=(issue.body||'').match(/Source commit:\s*`([0-9a-f]{7,40})`/i);return match?.[1]||null;};
+const sourceOf=issue=>{const match=(issue.body||'').match(/Source:\s*`([^`]+)`/i);return match?.[1]?.trim()||null;};
+const rawErrorCodeOf=issue=>{const match=String(issue.title||'').match(/^\[Quality intake\]\s+[^:]+:\s+(.+)$/);return match?.[1]?.trim()||null;};
 const runsByCommit=new Map();
 for(const run of runs){if(!run.headSha)continue;const list=runsByCommit.get(run.headSha)||[];list.push(run);runsByCommit.set(run.headSha,list);}
 const classifyFailureIntake=issue=>{
@@ -52,8 +55,52 @@ const classifyFailureIntake=issue=>{
   if(evidenceRuns.some(developmentEligible))return'development';
   return'unknown';
 };
+const signatureFor=raw=>{
+  if(!raw)return null;
+  return (failureSignatures.rules||[]).find(rule=>rule.match==='exact'?raw===rule.pattern:rule.match==='prefix'?raw.startsWith(rule.pattern):raw.includes(rule.pattern))||null;
+};
+const workflowMatchesSource=(run,source)=>{
+  if(!source)return true;
+  const exact={
+    ci:'CI',
+    'template-factory':'Template Factory Quality Gate v2',
+    'periodic-full-replay':'Shoperation Knowledge Full Replay',
+    sentinel:'Shoperation Sentinel',
+  }[source];
+  if(exact)return run.name===exact;
+  if(source==='fresh-install')return /Fresh Install/i.test(run.name);
+  if(source==='cloud-smoke')return /Cloud Smoke/i.test(run.name);
+  return true;
+};
+const duplicateKeeperByFingerprint=new Map();
+for(const issue of [...failureIntakeIssues].sort((a,b)=>Number(a.number)-Number(b.number))){
+  const fingerprint=fingerprintOf(issue);
+  if(fingerprint&&!duplicateKeeperByFingerprint.has(fingerprint))duplicateKeeperByFingerprint.set(fingerprint,Number(issue.number));
+}
+const reconciliationItems=failureIntakeIssues.map(issue=>{
+  const issueNumber=Number(issue.number),fingerprint=fingerprintOf(issue),scope=classifyFailureIntake(issue),sourceCommit=sourceCommitOf(issue),source=sourceOf(issue),rawErrorCode=rawErrorCodeOf(issue);
+  const base={issueNumber,fingerprint,scope,sourceCommit,source,rawErrorCode,disposition:'still-active',safeToClose:false,knownFailureId:null,evidence:[]};
+  if(scope==='unknown')return{...base,disposition:'scope-unknown',evidence:['source commit cannot be bound to canonical or development workflow evidence in the observation window']};
+  const keeper=fingerprint?duplicateKeeperByFingerprint.get(fingerprint):null;
+  if(keeper&&keeper!==issueNumber)return{...base,disposition:'duplicate',safeToClose:true,evidence:[`duplicate fingerprint retained by issue #${keeper}`]};
+  const signature=signatureFor(rawErrorCode);
+  if(signature)return{...base,disposition:'promoted-to-known-failure',safeToClose:true,knownFailureId:signature.failureId,evidence:[`current failure signature maps ${rawErrorCode} to ${signature.failureId}`]};
+  const evidenceRuns=sourceCommit?(runsByCommit.get(sourceCommit)||[]).filter(run=>workflowMatchesSource(run,source)):[];
+  const origin=evidenceRuns.filter(failed).sort((a,b)=>Date.parse(a.createdAt)-Date.parse(b.createdAt))[0]||null;
+  if(origin){
+    const originAt=Date.parse(origin.createdAt);
+    const laterSuccess=runs
+      .filter(run=>run.name===origin.name&&run.headBranch===origin.headBranch&&run.conclusion==='success'&&Date.parse(run.createdAt)>originAt)
+      .sort((a,b)=>Date.parse(a.createdAt)-Date.parse(b.createdAt))[0]||null;
+    if(laterSuccess)return{...base,disposition:'resolved-by-later-success',safeToClose:true,evidence:[`origin run #${origin.id} failed`,`later run #${laterSuccess.id} succeeded for ${origin.name} on ${origin.headBranch}`]};
+  }
+  return base;
+});
+const safeToClose=reconciliationItems.filter(item=>item.safeToClose);
+const safeIssueNumbers=new Set(safeToClose.map(item=>item.issueNumber));
+const activeFailureIntakeIssues=failureIntakeIssues.filter(issue=>!safeIssueNumbers.has(Number(issue.number)));
 const intakeByScope={canonical:[],development:[],unknown:[]};
-for(const issue of failureIntakeIssues)intakeByScope[classifyFailureIntake(issue)].push(issue);
+for(const issue of activeFailureIntakeIssues)intakeByScope[classifyFailureIntake(issue)].push(issue);
 const canonicalFailureIntakeIssues=intakeByScope.canonical;
 const developmentFailureIntakeIssues=intakeByScope.development;
 const unknownFailureIntakeIssues=intakeByScope.unknown;
@@ -61,6 +108,20 @@ const fingerprintsFor=issues=>[...new Set(issues.map(fingerprintOf).filter(Boole
 const fingerprints=fingerprintsFor(canonicalFailureIntakeIssues);
 const developmentFingerprints=fingerprintsFor(developmentFailureIntakeIssues);
 const unknownFingerprints=fingerprintsFor(unknownFailureIntakeIssues);
+const reconciliation={
+  contract:'shoporation.failure-intake-reconciliation.v1',
+  items:reconciliationItems,
+  safeToClose,
+  counts:{
+    observed:reconciliationItems.length,
+    active:reconciliationItems.filter(item=>!item.safeToClose).length,
+    safeToClose:safeToClose.length,
+    duplicates:reconciliationItems.filter(item=>item.disposition==='duplicate').length,
+    promoted:reconciliationItems.filter(item=>item.disposition==='promoted-to-known-failure').length,
+    resolved:reconciliationItems.filter(item=>item.disposition==='resolved-by-later-success').length,
+    unknown:reconciliationItems.filter(item=>item.disposition==='scope-unknown').length,
+  }
+};
 const signals=[];
 const add=(code,severity,reason,evidence,recommendation)=>signals.push({code,severity,reason,evidence,recommendation});
 if(deepAtlasIssues.length)add('SENTINEL_DEEP_ATLAS_ATTENTION','action','Deep Atlas has an open architecture-drift finding.',deepAtlasIssues.map(i=>({issue:i.number,title:i.title,updatedAt:i.updatedAt})),'Resolve the existing Deep Atlas finding before broadening architecture scope.');
@@ -89,7 +150,8 @@ const report={
     development:{last7d:development7Summary,last30d:summarize(development30)}
   },
   trend:{direction:trend,failureDelta7d:delta},
-  openEvidence:{failureIntakeIssues:failureIntakeIssues.length,canonicalFailureIntakeIssues:canonicalFailureIntakeIssues.length,developmentFailureIntakeIssues:developmentFailureIntakeIssues.length,unknownFailureIntakeIssues:unknownFailureIntakeIssues.length,fingerprints,developmentFingerprints,unknownFingerprints,deepAtlasAttentionIssues:deepAtlasIssues.length},
+  openEvidence:{failureIntakeIssues:failureIntakeIssues.length,activeFailureIntakeIssues:activeFailureIntakeIssues.length,canonicalFailureIntakeIssues:canonicalFailureIntakeIssues.length,developmentFailureIntakeIssues:developmentFailureIntakeIssues.length,unknownFailureIntakeIssues:unknownFailureIntakeIssues.length,fingerprints,developmentFingerprints,unknownFingerprints,deepAtlasAttentionIssues:deepAtlasIssues.length},
+  reconciliation,
   repeatedWorkflows,
   signals,
   recommendations,
@@ -110,6 +172,7 @@ const md=[
   `Open canonical Failure Intake fingerprints: ${fingerprints.length}`,
   `Open development Failure Intake fingerprints: ${developmentFingerprints.length}`,
   `Open unknown-scope Failure Intake fingerprints: ${unknownFingerprints.length}`,
+  `Failure Intake safe dispositions: ${reconciliation.counts.safeToClose}`,
   `Deep Atlas attention: ${deepAtlasIssues.length}`,
   '',
   '## Signals',

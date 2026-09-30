@@ -72,6 +72,25 @@ jobs:
           SHOPERATION_ENVIRONMENT: scheduled-quality
         run: node scripts/shoperation-command-diagnostic.mjs -- node scripts/shoperation-sentinel-scan.mjs
 
+      - name: Apply deterministic Failure Intake reconciliation
+        if: steps.sentinel.outcome == 'success'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs=require('fs');
+            const file='artifacts/shoperation-sentinel/sentinel-report.json';
+            const report=JSON.parse(fs.readFileSync(file,'utf8'));
+            const safe=report.reconciliation?.safeToClose||[];
+            for(const item of safe){
+              const current=await github.rest.issues.get({...context.repo,issue_number:item.issueNumber});
+              if(current.data.pull_request||current.data.state!=='open')continue;
+              const marker=`<!-- shoperation-failure-intake-disposition:${item.disposition} -->`;
+              const evidence=(item.evidence||[]).map(value=>`- ${value}`).join('\n')||'- deterministic reconciliation evidence recorded by Sentinel';
+              const known=item.knownFailureId?`\nKnown Failure: \`${item.knownFailureId}\`\n`:'';
+              await github.rest.issues.createComment({...context.repo,issue_number:item.issueNumber,body:`${marker}\n\nFailure Intake disposition: **${item.disposition}**.\n${known}\nEvidence:\n${evidence}\n\nSentinel source commit: \`${context.sha}\`. This closes evidence lifecycle only; it does not mutate code, relax a gate or redefine authority.`});
+              await github.rest.issues.update({...context.repo,issue_number:item.issueNumber,state:'closed',state_reason:'completed'});
+            }
+
       - name: Publish Sentinel summary
         if: always()
         shell: bash

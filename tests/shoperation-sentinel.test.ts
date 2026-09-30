@@ -23,7 +23,7 @@ const run=(snapshot:unknown)=>{
 const base=(overrides:Record<string,unknown>={})=>({
   contract:'shoporation.sentinel-source-snapshot.v1',
   repository:'infowaterk-max/water-K-',
-  sourceCommit:'abc123',
+  sourceCommit:'abc1234',
   collectedAt:'2026-09-28T12:00:00.000Z',
   workflowRuns:[],
   openIssues:[],
@@ -37,6 +37,8 @@ describe('Shoperation Sentinel',()=>{
     const signal=registry.guards.find((x:{id:string})=>x.id==='SIGNAL-SENTINEL');
     expect(workflow).toContain("cron: '17 4 * * *'");
     expect(workflow).toContain('Sync Sentinel attention issue');
+    expect(workflow).toContain('Apply deterministic Failure Intake reconciliation');
+    expect(workflow).toContain('report.reconciliation?.safeToClose');
     expect(signal.blocking).toBe(false);
     expect(signal.lifecycle).toBe('observation');
     const policy=JSON.parse(read('quality/knowledge/sentinel-policy.v1.json'));
@@ -57,8 +59,8 @@ describe('Shoperation Sentinel',()=>{
 
   it('marks canonical unresolved Failure Intake as REVIEW without inventing authority',()=>{
     const{report}=run(base({
-      workflowRuns:[{id:'main-1',name:'CI',event:'push',headBranch:'main',headSha:'abc123',conclusion:'failure',createdAt:'2026-09-28T10:00:00.000Z'}],
-      openIssues:[{number:41,title:'quality',body:'<!-- shoperation-failure-intake:SQ-FP-ABC -->\nSource commit: `abc123`',updatedAt:'2026-09-28T10:00:00.000Z'}],
+      workflowRuns:[{id:'main-1',name:'CI',event:'push',headBranch:'main',headSha:'abc1234',conclusion:'failure',createdAt:'2026-09-28T10:00:00.000Z'}],
+      openIssues:[{number:41,title:'quality',body:'<!-- shoperation-failure-intake:SQ-FP-ABC -->\nSource commit: `abc1234`',updatedAt:'2026-09-28T10:00:00.000Z'}],
     }));
     expect(report.status).toBe('REVIEW');
     expect(report.openEvidence.fingerprints).toEqual(['SQ-FP-ABC']);
@@ -69,8 +71,8 @@ describe('Shoperation Sentinel',()=>{
 
   it('reconciles feature-branch push intake as development evidence instead of platform health debt',()=>{
     const{report}=run(base({
-      workflowRuns:[{id:'dev-1',name:'Template Factory Quality Gate v2',event:'push',headBranch:'feature/loot-vault',headSha:'def456',conclusion:'failure',createdAt:'2026-09-28T10:00:00.000Z'}],
-      openIssues:[{number:42,title:'quality',body:'<!-- shoperation-failure-intake:SQ-FP-DEV -->\nSource commit: `def456`',updatedAt:'2026-09-28T10:00:00.000Z'}],
+      workflowRuns:[{id:'dev-1',name:'Template Factory Quality Gate v2',event:'push',headBranch:'feature/loot-vault',headSha:'def4567',conclusion:'failure',createdAt:'2026-09-28T10:00:00.000Z'}],
+      openIssues:[{number:42,title:'quality',body:'<!-- shoperation-failure-intake:SQ-FP-DEV -->\nSource commit: `def4567`',updatedAt:'2026-09-28T10:00:00.000Z'}],
     }));
     expect(report.status).toBe('HEALTHY');
     expect(report.openEvidence.canonicalFailureIntakeIssues).toBe(0);
@@ -84,6 +86,44 @@ describe('Shoperation Sentinel',()=>{
     expect(report.status).toBe('REVIEW');
     expect(report.openEvidence.unknownFailureIntakeIssues).toBe(1);
     expect(report.signals.some((x:{code:string})=>x.code==='SENTINEL_FAILURE_INTAKE_SCOPE_UNKNOWN')).toBe(true);
+  });
+
+  it('keeps one duplicate fingerprint and safely disposes only the extra issue',()=>{
+    const commit='abc1234';
+    const{report}=run(base({
+      workflowRuns:[{id:'origin',name:'CI',event:'push',headBranch:'main',headSha:commit,conclusion:'failure',createdAt:'2026-09-28T10:00:00.000Z'}],
+      openIssues:[
+        {number:41,title:'[Quality intake] SQ-FP-DUP: TEST_FAILED',body:`<!-- shoperation-failure-intake:SQ-FP-DUP -->\nSource commit: \`${commit}\`\nSource: \`ci\``,updatedAt:'2026-09-28T10:00:00.000Z'},
+        {number:44,title:'[Quality intake] SQ-FP-DUP: TEST_FAILED',body:`<!-- shoperation-failure-intake:SQ-FP-DUP -->\nSource commit: \`${commit}\`\nSource: \`ci\``,updatedAt:'2026-09-28T10:01:00.000Z'},
+      ],
+    }));
+    expect(report.reconciliation.safeToClose).toContainEqual(expect.objectContaining({issueNumber:44,disposition:'duplicate',safeToClose:true}));
+    expect(report.reconciliation.safeToClose).not.toContainEqual(expect.objectContaining({issueNumber:41}));
+    expect(report.openEvidence.canonicalFailureIntakeIssues).toBe(1);
+  });
+
+  it('disposes an intake that is now covered by registered Known Failure authority',()=>{
+    const commit='abc1234';
+    const{report}=run(base({
+      workflowRuns:[{id:'origin',name:'Template Factory Quality Gate v2',event:'push',headBranch:'main',headSha:commit,conclusion:'failure',createdAt:'2026-09-28T10:00:00.000Z'}],
+      openIssues:[{number:45,title:'[Quality intake] SQ-FP-KNOWN: SHOWROOM_ENGINE_DEMO_MISSING',body:`<!-- shoperation-failure-intake:SQ-FP-KNOWN -->\nSource commit: \`${commit}\`\nSource: \`template-factory\``,updatedAt:'2026-09-28T10:00:00.000Z'}],
+    }));
+    expect(report.reconciliation.safeToClose).toContainEqual(expect.objectContaining({issueNumber:45,disposition:'promoted-to-known-failure',knownFailureId:'TF-KF-021'}));
+    expect(report.openEvidence.canonicalFailureIntakeIssues).toBe(0);
+  });
+
+  it('disposes a historical intake only when the same workflow and branch later succeed',()=>{
+    const failedCommit='def4567';
+    const{report}=run(base({
+      workflowRuns:[
+        {id:'failed-run',name:'CI',event:'push',headBranch:'feature/example',headSha:failedCommit,conclusion:'failure',createdAt:'2026-09-28T08:00:00.000Z'},
+        {id:'good-run',name:'CI',event:'push',headBranch:'feature/example',headSha:'fedcba9',conclusion:'success',createdAt:'2026-09-28T09:00:00.000Z'},
+      ],
+      openIssues:[{number:46,title:'[Quality intake] SQ-FP-RESOLVED: TEST_FAILED',body:`<!-- shoperation-failure-intake:SQ-FP-RESOLVED -->\nSource commit: \`${failedCommit}\`\nSource: \`ci\``,updatedAt:'2026-09-28T08:00:00.000Z'}],
+    }));
+    expect(report.reconciliation.safeToClose).toContainEqual(expect.objectContaining({issueNumber:46,disposition:'resolved-by-later-success'}));
+    expect(report.openEvidence.developmentFailureIntakeIssues).toBe(0);
+    expect(report.status).toBe('HEALTHY');
   });
 
   it('raises ACTION_REQUIRED from repeated main evidence',()=>{
