@@ -15,6 +15,7 @@
     "quality/development/active-plan.json",
     "scripts/shoperation-failure-intake-reconcile.mjs",
     "tests/shoperation-failure-intake-reconcile.test.ts",
+    ".github/workflows/shoperation-sentinel.yml",
     ".github/workflows/shoperation-knowledge-full-replay.yml",
     "quality/knowledge/shoperation-quality-knowledge.v1.json"
   ],
