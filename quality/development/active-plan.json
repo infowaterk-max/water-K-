@@ -340,10 +340,14 @@
       {
         "id": "REQ-01",
         "requirement": "Determine a maximum practical assurance ceiling before serious implementation and scale depth by risk.",
-        "evidence": [
-          "GUARD-PLAN-BEFORE-CODE",
-          "GUARD-QUALITY-TESTS"
-        ],
+        "evidence": {
+          "implementation": [
+            "GUARD-PLAN-BEFORE-CODE"
+          ],
+          "outcome": [
+            "GUARD-QUALITY-TESTS"
+          ]
+        },
         "forbiddenRegressions": [
           {
             "id": "NEG-01A",
@@ -357,10 +361,14 @@
       {
         "id": "REQ-02",
         "requirement": "Enforce OBSERVE through LEARN as the canonical operational sequence without creating parallel authorities.",
-        "evidence": [
-          "GUARD-PLAN-BEFORE-CODE",
-          "GUARD-QUALITY-TESTS"
-        ],
+        "evidence": {
+          "implementation": [
+            "GUARD-PLAN-BEFORE-CODE"
+          ],
+          "outcome": [
+            "GUARD-QUALITY-TESTS"
+          ]
+        },
         "forbiddenRegressions": [
           {
             "id": "NEG-02A",
@@ -374,10 +382,14 @@
       {
         "id": "REQ-03",
         "requirement": "Require relevant specialist review with at least one explicit dissent role for non-low-risk plans.",
-        "evidence": [
-          "GUARD-PLAN-BEFORE-CODE",
-          "GUARD-QUALITY-TESTS"
-        ],
+        "evidence": {
+          "implementation": [
+            "GUARD-PLAN-BEFORE-CODE"
+          ],
+          "outcome": [
+            "GUARD-QUALITY-TESTS"
+          ]
+        },
         "forbiddenRegressions": [
           {
             "id": "NEG-03A",
@@ -391,10 +403,14 @@
       {
         "id": "REQ-04",
         "requirement": "Create a machine-checkable Completion Contract from the PO request, independent from the implementation plan.",
-        "evidence": [
-          "GUARD-PLAN-BEFORE-CODE",
-          "GUARD-QUALITY-TESTS"
-        ],
+        "evidence": {
+          "implementation": [
+            "GUARD-PLAN-BEFORE-CODE"
+          ],
+          "outcome": [
+            "GUARD-QUALITY-TESTS"
+          ]
+        },
         "forbiddenRegressions": [
           {
             "id": "NEG-04A",
@@ -408,11 +424,15 @@
       {
         "id": "REQ-05",
         "requirement": "Add a read-only Truth Gate that verifies requirement, implementation, outcome and negative claims using fresh evidence.",
-        "evidence": [
-          "GUARD-QUALITY-TESTS",
-          "GUARD-TYPECHECK",
-          "GUARD-PRODUCTION-BUILD"
-        ],
+        "evidence": {
+          "implementation": [
+            "GUARD-QUALITY-TESTS"
+          ],
+          "outcome": [
+            "GUARD-TYPECHECK",
+            "GUARD-PRODUCTION-BUILD"
+          ]
+        },
         "forbiddenRegressions": [
           {
             "id": "NEG-05A",
@@ -426,10 +446,14 @@
       {
         "id": "REQ-06",
         "requirement": "Bind completion evidence to exact SHA, branch, state or version and run or timestamp; stale evidence cannot prove DONE.",
-        "evidence": [
-          "GUARD-QUALITY-TESTS",
-          "GUARD-TYPECHECK"
-        ],
+        "evidence": {
+          "implementation": [
+            "GUARD-QUALITY-TESTS"
+          ],
+          "outcome": [
+            "GUARD-TYPECHECK"
+          ]
+        },
         "forbiddenRegressions": [
           {
             "id": "NEG-06A",
@@ -443,9 +467,14 @@
       {
         "id": "REQ-07",
         "requirement": "Expose internal VERIFIED DONE, PARTIALLY VERIFIED, NOT DONE, BLOCKED and STALE EVIDENCE while keeping PO status to DONE, NOT DONE or BLOCKED plus NEXT.",
-        "evidence": [
-          "GUARD-QUALITY-TESTS"
-        ],
+        "evidence": {
+          "implementation": [
+            "GUARD-QUALITY-TESTS"
+          ],
+          "outcome": [
+            "GUARD-QUALITY-TESTS"
+          ]
+        },
         "forbiddenRegressions": [
           {
             "id": "NEG-07A",
@@ -459,9 +488,14 @@
       {
         "id": "REQ-08",
         "requirement": "Route preventable missed-thinking defects back through existing Failure Intake and Known Failure learning instead of creating a gate per defect.",
-        "evidence": [
-          "GUARD-QUALITY-TESTS"
-        ],
+        "evidence": {
+          "implementation": [
+            "GUARD-QUALITY-TESTS"
+          ],
+          "outcome": [
+            "GUARD-QUALITY-TESTS"
+          ]
+        },
         "forbiddenRegressions": [
           {
             "id": "NEG-08A",
@@ -475,12 +509,16 @@
       {
         "id": "REQ-09",
         "requirement": "Reuse existing Atlas, Sentinel, Knowledge, Development Guard, A/B Reference Sync, Replay, Release Risk, Template Factory and CI authorities.",
-        "evidence": [
-          "GUARD-KNOWLEDGE-PREFLIGHT",
-          "GUARD-EDIT-TIME",
-          "GUARD-INCREMENTAL-REPLAY",
-          "GUARD-RELEASE-RISK"
-        ],
+        "evidence": {
+          "implementation": [
+            "GUARD-KNOWLEDGE-PREFLIGHT",
+            "GUARD-EDIT-TIME",
+            "GUARD-INCREMENTAL-REPLAY"
+          ],
+          "outcome": [
+            "GUARD-RELEASE-RISK"
+          ]
+        },
         "forbiddenRegressions": [
           {
             "id": "NEG-09A",
@@ -495,13 +533,17 @@
       {
         "id": "REQ-10",
         "requirement": "Implement the capability with minimum new infrastructure and verify the current exact branch state before closure.",
-        "evidence": [
-          "GUARD-KNOWLEDGE-PREFLIGHT",
-          "GUARD-QUALITY-TESTS",
-          "GUARD-TYPECHECK",
-          "GUARD-PRODUCTION-BUILD",
-          "GUARD-RELEASE-RISK"
-        ],
+        "evidence": {
+          "implementation": [
+            "GUARD-KNOWLEDGE-PREFLIGHT",
+            "GUARD-QUALITY-TESTS"
+          ],
+          "outcome": [
+            "GUARD-TYPECHECK",
+            "GUARD-PRODUCTION-BUILD",
+            "GUARD-RELEASE-RISK"
+          ]
+        },
         "forbiddenRegressions": [
           {
             "id": "NEG-10A",
