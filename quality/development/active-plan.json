@@ -1,21 +1,26 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-SENTINEL-INTAKE-PROVENANCE-CLOSURE",
-  "task": "Resolve historical Failure Intake provenance scope deterministically from source-commit ancestry when old workflow-run evidence falls outside Sentinel windows, and reuse the same proof in periodic Failure Intake reconciliation.",
+  "taskId": "DEV-CONTROL-PLANE-OPERATIONAL-INTELLIGENCE",
+  "task": "Elevate the existing Control Plane with risk-based assurance ceiling, specialist dissent, PO-derived completion contracts, evidence freshness, completion integrity and read-only truth verification without parallel authorities.",
   "status": "ready-for-implementation",
-  "guardDigest": "966602bb",
+  "guardDigest": "540e4ce8",
+  "changeBaseSha": "8b0c6745923d7aa1cdff920db351cbd1527f07f4",
   "plannedFilePatterns": [
-    ".github/workflows/shoperation-sentinel.yml",
-    ".github/workflows/shoperation-knowledge-full-replay.yml",
-    "scripts/shoperation-sentinel-scan.mjs",
-    "scripts/shoperation-failure-intake-reconcile.mjs",
-    "tests/shoperation-sentinel.test.ts",
-    "tests/shoperation-failure-intake-reconcile.test.ts",
-    "quality/development/active-plan.json"
+    "AGENTS.md",
+    ".github/workflows/ci.yml",
+    "docs/architecture/CONTROL_PLANE_OPERATIONAL_INTELLIGENCE.md",
+    "quality/development/active-plan.json",
+    "quality/knowledge/development-guard-policy.v1.json",
+    "quality/knowledge/guard-registry.v1.json",
+    "quality/knowledge/knowledge-scope-policy.v1.json",
+    "scripts/lib/shoperation-operational-intelligence.mjs",
+    "scripts/shoperation-development-guard.mjs",
+    "scripts/shoperation-plan-before-code.mjs",
+    "scripts/shoperation-failure-intake.mjs",
+    "scripts/shoperation-truth-gate.mjs",
+    "tests/shoperation-operational-intelligence.test.ts"
   ],
   "expectedSubsystems": [
-    "quality-infrastructure",
-    "quality-knowledge-system",
     "release-infrastructure"
   ],
   "expectedDomains": [
@@ -27,40 +32,530 @@
     "release-infrastructure"
   ],
   "expectedKnownFailureIds": [
+    "SQ-KF-001",
+    "SQ-KF-002",
     "SQ-KF-003",
     "SQ-KF-004",
+    "SQ-KF-005",
     "SQ-KF-006",
+    "SQ-KF-007",
     "SQ-KF-008",
     "SQ-KF-009",
+    "SQ-KF-010",
+    "SQ-KF-011",
+    "SQ-KF-012",
     "SQ-KF-013",
     "SQ-KF-014",
+    "SQ-KF-015",
+    "SQ-KF-016",
+    "SQ-KF-017",
     "SQ-KF-018",
+    "SQ-KF-019",
     "SQ-KF-020",
     "SQ-KF-021",
     "SQ-KF-022",
     "SQ-KF-023",
     "SQ-KF-024",
     "TF-KF-001",
+    "TF-KF-002",
+    "TF-KF-003",
+    "TF-KF-004",
     "TF-KF-005",
+    "TF-KF-006",
     "TF-KF-007",
+    "TF-KF-008",
     "TF-KF-009",
     "TF-KF-010",
     "TF-KF-011",
+    "TF-KF-012",
     "TF-KF-013",
     "TF-KF-014",
-    "TF-KF-015"
+    "TF-KF-015",
+    "TF-KF-016",
+    "TF-KF-017",
+    "TF-KF-018",
+    "TF-KF-019",
+    "TF-KF-020",
+    "TF-KF-021",
+    "TF-KF-022",
+    "TF-KF-023",
+    "TF-KF-024",
+    "TF-KF-025"
   ],
   "acknowledgedNegativeKnowledgeIds": [
     "SQ-NK-002",
     "SQ-NK-003",
     "SQ-NK-005",
     "SQ-NK-010",
-    "SQ-NK-011",
-    "SQ-NK-012",
-    "SQ-NK-014",
-    "SQ-NK-015"
+    "SQ-NK-012"
   ],
   "exceptions": [],
-  "notes": "Final self-knowledge cleanup before returning to template production. Preserve Sentinel as observation-only and Failure Intake durability. Add source-commit ancestry as provenance fallback only when direct workflow-run scope is unavailable. Canonical means source commit is an ancestor of current main; development means the source commit exists but is not on current main. Unknown remains fail-visible when neither proof is available. No template code, no golden update, no gate weakening.",
-  "changeBaseSha": "ad4ad93988e17ce1ba254c9a2845970042fcf2f6"
+  "operationalIntelligence": {
+    "sourceKind": "product-owner-request",
+    "sourceRef": "PO-2026-09-30-CONTROL-PLANE-OPERATIONAL-INTELLIGENCE",
+    "riskTier": "critical",
+    "assuranceCeiling": {
+      "level": "critical-practical",
+      "rationale": "This change modifies the development and release decision system itself. Use exhaustive deterministic state/evidence scenarios and fault injection, but avoid full formal verification because the core is finite repository/CI orchestration rather than a high-dimensional concurrent business protocol.",
+      "selectedTechniques": [
+        "explicit-specification",
+        "invariants",
+        "state-model",
+        "what-if-matrix",
+        "adversarial-scenarios",
+        "boundary-cases",
+        "pairwise-interactions",
+        "threat-failure-model",
+        "fault-injection",
+        "finite-state-exhaustion"
+      ],
+      "deferredTechniques": [
+        {
+          "technique": "property-based-testing",
+          "reason": "Finite exhaustive evidence-state matrices provide stronger and cheaper coverage for this deterministic evaluator."
+        },
+        {
+          "technique": "formal-verification",
+          "reason": "Disproportionate cost for deterministic repository/CI orchestration with bounded states and no critical concurrent business mutation."
+        }
+      ]
+    },
+    "definition": {
+      "acceptanceCriteria": [
+        "Pre-execution planning determines and validates a risk-based assurance ceiling.",
+        "Medium-or-higher work models failure states, compares alternatives and records adversarial challenge.",
+        "At least one relevant specialist acts as dissent and cannot self-certify unresolved findings.",
+        "Completion Contract is traced to the PO request rather than derived from implementation steps.",
+        "A read-only Truth Gate maps completion claims to exact-state evidence and never treats missing evidence as DONE.",
+        "Evidence is stale when source commit or branch identity no longer matches the evaluated exact state.",
+        "Learning from preventable misses feeds the existing Failure Intake and Known Failure authority instead of creating per-defect gates.",
+        "Existing Atlas, Sentinel, Knowledge, Replay, Release Risk and Template Factory authorities are reused rather than duplicated."
+      ],
+      "invariants": [
+        "No parallel Control Plane, Atlas, Sentinel, Failure Intake or release authority is created.",
+        "Execution authorization requires a valid pre-execution plan envelope.",
+        "Exactly one implementation alternative is selected after challenge.",
+        "Critical work has at least one dissent specialist and no unresolved challenge finding.",
+        "CLAIM WITHOUT EVIDENCE remains NOT VERIFIED.",
+        "DONE requires every Completion Contract requirement and negative regression claim to be freshly evidenced at exact state.",
+        "Truth evaluation is read-only and cannot merge, deploy, update goldens or weaken gates."
+      ],
+      "forbiddenStates": [
+        "implementation-authorized-with-invalid-plan",
+        "done-with-missing-requirement",
+        "done-with-stale-critical-evidence",
+        "done-with-forbidden-regression-unproven",
+        "self-certified-plan-without-dissent",
+        "parallel-authority-created",
+        "truth-gate-mutates-product-or-release-state"
+      ]
+    },
+    "model": {
+      "phases": [
+        "OBSERVE",
+        "DEFINE",
+        "MODEL",
+        "PLAN",
+        "CHALLENGE",
+        "IMPROVE",
+        "PROVE_PLAN",
+        "EXECUTE",
+        "VERIFY",
+        "TRUTH_GATE",
+        "CLOSE",
+        "LEARN"
+      ],
+      "transitions": [
+        "OBSERVE->DEFINE",
+        "DEFINE->MODEL",
+        "MODEL->PLAN",
+        "PLAN->CHALLENGE",
+        "CHALLENGE->IMPROVE",
+        "IMPROVE->PROVE_PLAN",
+        "PROVE_PLAN->EXECUTE",
+        "EXECUTE->VERIFY",
+        "VERIFY->TRUTH_GATE",
+        "TRUTH_GATE->CLOSE",
+        "CLOSE->LEARN"
+      ],
+      "failureModes": [
+        "missing-evidence",
+        "stale-evidence",
+        "branch-mismatch",
+        "partial-success",
+        "duplicate-execution",
+        "authority-conflict",
+        "dependency-failure",
+        "scope-drift",
+        "rollback-state",
+        "out-of-order-evidence"
+      ],
+      "edgeCases": [
+        "empty-completion-contract",
+        "duplicate-requirement-id",
+        "unknown-evidence-id",
+        "missing-specialist-dissent",
+        "unresolved-challenge",
+        "head-changed-after-proof",
+        "negative-regression-without-proof",
+        "low-risk-fast-path"
+      ]
+    },
+    "alternatives": [
+      {
+        "id": "ALT-01",
+        "summary": "Create a new top-level orchestrator plus separate planning, challenge and completion gate families.",
+        "disposition": "rejected",
+        "reason": "Duplicates authority boundaries and increases bureaucracy and drift."
+      },
+      {
+        "id": "ALT-02",
+        "summary": "Extend the existing Development Guard and Plan Before Code contract and add one read-only completion evaluator consuming existing gate evidence.",
+        "disposition": "selected",
+        "reason": "Provides the requested assurance lifecycle with the smallest blast radius and reuses existing authorities."
+      },
+      {
+        "id": "ALT-03",
+        "summary": "Document the process only and rely on agent discipline without machine enforcement.",
+        "disposition": "rejected",
+        "reason": "Cannot prevent incomplete plans or unsupported DONE claims deterministically."
+      }
+    ],
+    "specialistReviews": [
+      {
+        "role": "Architecture",
+        "mode": "review",
+        "verdict": "pass",
+        "finding": "Reuse the existing authority graph and Development Guard; no new parallel control authority.",
+        "resolution": "ALT-02 preserves canonical ownership."
+      },
+      {
+        "role": "Release",
+        "mode": "dissent",
+        "verdict": "challenge-resolved",
+        "finding": "A Truth Gate could become a second release authority or certify stale cross-workflow evidence.",
+        "resolution": "Truth Gate is read-only completion integrity under quality authority; Release Risk remains release authority and evidence is exact-state bound."
+      },
+      {
+        "role": "Known Failure",
+        "mode": "review",
+        "verdict": "pass",
+        "finding": "New completion failures must flow into the existing Failure Intake and learning loop.",
+        "resolution": "Truth diagnostics are consumed by existing Failure Intake; no second incident ledger."
+      },
+      {
+        "role": "Operations",
+        "mode": "review",
+        "verdict": "pass",
+        "finding": "Critical-depth process must not impose the same overhead on trivial edits.",
+        "resolution": "Policy enforces risk-based depth with a lightweight low-risk path."
+      }
+    ],
+    "challenge": [
+      {
+        "id": "CH-01",
+        "scenario": "A requirement is omitted from the implementation plan.",
+        "finding": "Plan-derived closure could falsely pass.",
+        "resolution": "Completion Contract is a separate PO-source field and Truth Gate evaluates it directly.",
+        "status": "resolved"
+      },
+      {
+        "id": "CH-02",
+        "scenario": "HEAD changes after a green proof.",
+        "finding": "Evidence becomes stale.",
+        "resolution": "Every evidence item is bound to exact source commit and branch; mismatch is STALE_EVIDENCE.",
+        "status": "resolved"
+      },
+      {
+        "id": "CH-03",
+        "scenario": "A required guard outcome is absent.",
+        "finding": "Missing evidence could be mistaken for success.",
+        "resolution": "Missing evidence yields PARTIALLY_VERIFIED and PO status NOT DONE.",
+        "status": "resolved"
+      },
+      {
+        "id": "CH-04",
+        "scenario": "A guard explicitly fails.",
+        "finding": "Completion could still appear partially green.",
+        "resolution": "Failed evidence yields NOT_DONE; blocked infrastructure yields BLOCKED.",
+        "status": "resolved"
+      },
+      {
+        "id": "CH-05",
+        "scenario": "A plan validates itself without opposition.",
+        "finding": "Confirmation bias survives.",
+        "resolution": "Medium, high and critical plans require a dissent specialist; critical requires multiple relevant reviews.",
+        "status": "resolved"
+      },
+      {
+        "id": "CH-06",
+        "scenario": "Low-risk edits inherit critical ceremony.",
+        "finding": "Process becomes too slow.",
+        "resolution": "Risk-depth thresholds reduce required modeling, challenge and specialist counts for lower tiers.",
+        "status": "resolved"
+      },
+      {
+        "id": "CH-07",
+        "scenario": "Truth evaluation becomes a second release authority.",
+        "finding": "Authority fork.",
+        "resolution": "Completion integrity is owned by existing quality authority; Release Risk remains release authority.",
+        "status": "resolved"
+      },
+      {
+        "id": "CH-08",
+        "scenario": "A later preventable defect is merely patched.",
+        "finding": "The missed-thinking cause is lost.",
+        "resolution": "Failure Intake records a learning review and routes prevention to existing authorities.",
+        "status": "resolved"
+      },
+      {
+        "id": "CH-09",
+        "scenario": "Truth evaluation is retried or duplicated.",
+        "finding": "A mutable evaluator could create side effects.",
+        "resolution": "Truth Gate is read-only and artifact-only; repeated runs cannot mutate product or release state.",
+        "status": "resolved"
+      },
+      {
+        "id": "CH-10",
+        "scenario": "A forbidden regression is not explicitly checked.",
+        "finding": "Functional success could hide a prohibited side effect.",
+        "resolution": "Completion requirements carry negative-regression evidence refs and Truth Gate requires those proofs too.",
+        "status": "resolved"
+      }
+    ],
+    "proofPlan": [
+      "Exhaustive finite-state tests for PASS, FAIL, MISSING, STALE and BLOCKED evidence combinations.",
+      "Regression tests for risk-depth thresholds and dissent requirements.",
+      "Regression tests that Completion Contract is PO-sourced and requirement IDs are unique.",
+      "Regression tests that Truth Gate cannot return VERIFIED_DONE with missing, stale or failed evidence.",
+      "CI wiring in the existing workflow only; no new workflow authority.",
+      "Failure Intake regression proving missed-thinking learning metadata is retained."
+    ],
+    "executionAuthorized": true
+  },
+  "completionContract": {
+    "sourceKind": "product-owner-request",
+    "sourceRef": "PO-2026-09-30-CONTROL-PLANE-OPERATIONAL-INTELLIGENCE",
+    "requirements": [
+      {
+        "id": "REQ-01",
+        "requirement": "Determine a maximum practical assurance ceiling before serious implementation and scale depth by risk.",
+        "evidence": {
+          "implementation": [
+            "GUARD-PLAN-BEFORE-CODE"
+          ],
+          "outcome": [
+            "GUARD-QUALITY-TESTS"
+          ]
+        },
+        "forbiddenRegressions": [
+          {
+            "id": "NEG-01A",
+            "statement": "Low-risk work must not be forced through critical-depth ceremony.",
+            "evidence": [
+              "GUARD-QUALITY-TESTS"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "REQ-02",
+        "requirement": "Enforce OBSERVE through LEARN as the canonical operational sequence without creating parallel authorities.",
+        "evidence": {
+          "implementation": [
+            "GUARD-PLAN-BEFORE-CODE"
+          ],
+          "outcome": [
+            "GUARD-QUALITY-TESTS"
+          ]
+        },
+        "forbiddenRegressions": [
+          {
+            "id": "NEG-02A",
+            "statement": "No parallel Control Plane, Atlas, Sentinel or release authority.",
+            "evidence": [
+              "GUARD-QUALITY-TESTS"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "REQ-03",
+        "requirement": "Require relevant specialist review with at least one explicit dissent role for non-low-risk plans.",
+        "evidence": {
+          "implementation": [
+            "GUARD-PLAN-BEFORE-CODE"
+          ],
+          "outcome": [
+            "GUARD-QUALITY-TESTS"
+          ]
+        },
+        "forbiddenRegressions": [
+          {
+            "id": "NEG-03A",
+            "statement": "Unresolved dissent cannot authorize execution.",
+            "evidence": [
+              "GUARD-QUALITY-TESTS"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "REQ-04",
+        "requirement": "Create a machine-checkable Completion Contract from the PO request, independent from the implementation plan.",
+        "evidence": {
+          "implementation": [
+            "GUARD-PLAN-BEFORE-CODE"
+          ],
+          "outcome": [
+            "GUARD-QUALITY-TESTS"
+          ]
+        },
+        "forbiddenRegressions": [
+          {
+            "id": "NEG-04A",
+            "statement": "Implementation steps cannot substitute for missing PO requirements.",
+            "evidence": [
+              "GUARD-QUALITY-TESTS"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "REQ-05",
+        "requirement": "Add a read-only Truth Gate that verifies requirement, implementation, outcome and negative claims using fresh evidence.",
+        "evidence": {
+          "implementation": [
+            "GUARD-QUALITY-TESTS"
+          ],
+          "outcome": [
+            "GUARD-TYPECHECK",
+            "GUARD-PRODUCTION-BUILD"
+          ]
+        },
+        "forbiddenRegressions": [
+          {
+            "id": "NEG-05A",
+            "statement": "Claim without evidence cannot become DONE.",
+            "evidence": [
+              "GUARD-QUALITY-TESTS"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "REQ-06",
+        "requirement": "Bind completion evidence to exact SHA, branch, state or version and run or timestamp; stale evidence cannot prove DONE.",
+        "evidence": {
+          "implementation": [
+            "GUARD-QUALITY-TESTS"
+          ],
+          "outcome": [
+            "GUARD-TYPECHECK"
+          ]
+        },
+        "forbiddenRegressions": [
+          {
+            "id": "NEG-06A",
+            "statement": "Changed HEAD invalidates older critical evidence.",
+            "evidence": [
+              "GUARD-QUALITY-TESTS"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "REQ-07",
+        "requirement": "Expose internal VERIFIED DONE, PARTIALLY VERIFIED, NOT DONE, BLOCKED and STALE EVIDENCE while keeping PO status to DONE, NOT DONE or BLOCKED plus NEXT.",
+        "evidence": {
+          "implementation": [
+            "GUARD-QUALITY-TESTS"
+          ],
+          "outcome": [
+            "GUARD-QUALITY-TESTS"
+          ]
+        },
+        "forbiddenRegressions": [
+          {
+            "id": "NEG-07A",
+            "statement": "PARTIALLY VERIFIED must never map to DONE.",
+            "evidence": [
+              "GUARD-QUALITY-TESTS"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "REQ-08",
+        "requirement": "Route preventable missed-thinking defects back through existing Failure Intake and Known Failure learning instead of creating a gate per defect.",
+        "evidence": {
+          "implementation": [
+            "GUARD-QUALITY-TESTS"
+          ],
+          "outcome": [
+            "GUARD-QUALITY-TESTS"
+          ]
+        },
+        "forbiddenRegressions": [
+          {
+            "id": "NEG-08A",
+            "statement": "No per-defect parallel gate or incident ledger.",
+            "evidence": [
+              "GUARD-QUALITY-TESTS"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "REQ-09",
+        "requirement": "Reuse existing Atlas, Sentinel, Knowledge, Development Guard, A/B Reference Sync, Replay, Release Risk, Template Factory and CI authorities.",
+        "evidence": {
+          "implementation": [
+            "GUARD-KNOWLEDGE-PREFLIGHT",
+            "GUARD-EDIT-TIME",
+            "GUARD-INCREMENTAL-REPLAY"
+          ],
+          "outcome": [
+            "GUARD-RELEASE-RISK"
+          ]
+        },
+        "forbiddenRegressions": [
+          {
+            "id": "NEG-09A",
+            "statement": "Existing blocking semantics and authority ownership are not weakened.",
+            "evidence": [
+              "GUARD-KNOWLEDGE-PREFLIGHT",
+              "GUARD-RELEASE-RISK"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "REQ-10",
+        "requirement": "Implement the capability with minimum new infrastructure and verify the current exact branch state before closure.",
+        "evidence": {
+          "implementation": [
+            "GUARD-KNOWLEDGE-PREFLIGHT",
+            "GUARD-QUALITY-TESTS"
+          ],
+          "outcome": [
+            "GUARD-TYPECHECK",
+            "GUARD-PRODUCTION-BUILD",
+            "GUARD-RELEASE-RISK"
+          ]
+        },
+        "forbiddenRegressions": [
+          {
+            "id": "NEG-10A",
+            "statement": "MAIN merge, golden update and gate weakening are not side effects of this development transaction.",
+            "evidence": [
+              "GUARD-QUALITY-TESTS",
+              "GUARD-RELEASE-RISK"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "notes": "Critical Control Plane self-development. Extend existing Development Guard and Plan Before Code, consume existing CI evidence, add one read-only completion-integrity evaluator, and route learning through existing Failure Intake. No main merge, no golden update, no gate weakening."
 }

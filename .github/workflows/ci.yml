@@ -220,6 +220,17 @@ jobs:
           SHOPERATION_ENVIRONMENT: ci
         run: node scripts/shoperation-command-diagnostic.mjs -- npm run build
 
+      - name: Completion Truth Gate
+        if: always() && github.event_name == 'pull_request'
+        id: completion-truth
+        env:
+          SHOPERATION_TRUTH_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+          SHOPERATION_TRUTH_BRANCH: ${{ github.event.pull_request.head.ref || github.ref_name }}
+          SHOPERATION_TRUTH_STATE_VERSION: shoporation-ci.v1
+          SHOPERATION_TRUTH_EVIDENCE_JSON: >-
+            [{"id":"GUARD-KNOWLEDGE-PREFLIGHT","status":"${{ steps.knowledge.outcome }}","sourceCommit":"${{ github.event.pull_request.head.sha || github.sha }}","branch":"${{ github.event.pull_request.head.ref || github.ref_name }}","stateVersion":"shoporation-ci.v1","runId":"${{ github.run_id }}-${{ github.run_attempt }}"},{"id":"GUARD-PLAN-BEFORE-CODE","status":"${{ steps.development-plan.outcome }}","sourceCommit":"${{ github.event.pull_request.head.sha || github.sha }}","branch":"${{ github.event.pull_request.head.ref || github.ref_name }}","stateVersion":"shoporation-ci.v1","runId":"${{ github.run_id }}-${{ github.run_attempt }}"},{"id":"GUARD-EDIT-TIME","status":"${{ steps.edit-time-guard.outcome }}","sourceCommit":"${{ github.event.pull_request.head.sha || github.sha }}","branch":"${{ github.event.pull_request.head.ref || github.ref_name }}","stateVersion":"shoporation-ci.v1","runId":"${{ github.run_id }}-${{ github.run_attempt }}"},{"id":"GUARD-INCREMENTAL-REPLAY","status":"${{ steps.incremental-replay.outcome }}","sourceCommit":"${{ github.event.pull_request.head.sha || github.sha }}","branch":"${{ github.event.pull_request.head.ref || github.ref_name }}","stateVersion":"shoporation-ci.v1","runId":"${{ github.run_id }}-${{ github.run_attempt }}"},{"id":"GUARD-RELEASE-RISK","status":"${{ steps.release-risk.outcome }}","sourceCommit":"${{ github.event.pull_request.head.sha || github.sha }}","branch":"${{ github.event.pull_request.head.ref || github.ref_name }}","stateVersion":"shoporation-ci.v1","runId":"${{ github.run_id }}-${{ github.run_attempt }}"},{"id":"GUARD-QUALITY-TESTS","status":"${{ steps.quality-tests.outcome }}","sourceCommit":"${{ github.event.pull_request.head.sha || github.sha }}","branch":"${{ github.event.pull_request.head.ref || github.ref_name }}","stateVersion":"shoporation-ci.v1","runId":"${{ github.run_id }}-${{ github.run_attempt }}"},{"id":"GUARD-TYPECHECK","status":"${{ steps.typecheck.outcome }}","sourceCommit":"${{ github.event.pull_request.head.sha || github.sha }}","branch":"${{ github.event.pull_request.head.ref || github.ref_name }}","stateVersion":"shoporation-ci.v1","runId":"${{ github.run_id }}-${{ github.run_attempt }}"},{"id":"GUARD-PRODUCTION-BUILD","status":"${{ steps.production-build.outcome }}","sourceCommit":"${{ github.event.pull_request.head.sha || github.sha }}","branch":"${{ github.event.pull_request.head.ref || github.ref_name }}","stateVersion":"shoporation-ci.v1","runId":"${{ github.run_id }}-${{ github.run_attempt }}"}]
+        run: node scripts/shoperation-truth-gate.mjs --check
+
       - name: Generate release manifest
         id: release-manifest
         env:
@@ -251,6 +262,7 @@ jobs:
           TYPECHECK_OUTCOME: ${{ steps.typecheck.outcome }}
           BUILD_OUTCOME: ${{ steps.production-build.outcome }}
           MANIFEST_OUTCOME: ${{ steps.release-manifest.outcome }}
+          TRUTH_OUTCOME: ${{ steps.completion-truth.outcome }}
           SHOPERATION_SOURCE_COMMIT: ${{ github.event.pull_request.head.sha || github.sha }}
           SHOPERATION_FAILURE_SOURCE: ci
           SHOPERATION_ENVIRONMENT: ci
@@ -267,6 +279,7 @@ jobs:
             TEST_FAILED=artifacts/test-results.json;
             TYPECHECK_FAILED=artifacts/shoperation-command-diagnostics/typecheck.json;
             BUILD_FAILED=artifacts/shoperation-command-diagnostics/production-build.json;
+            TRUTH_GATE_FAILED=artifacts/shoperation-development-guard/truth-gate.json;
             RELEASE_MANIFEST_FAILED=artifacts/release-manifest-diagnostic.json
         run: |
           codes=""
@@ -280,6 +293,7 @@ jobs:
           [ "$QUALITY_OUTCOME" != "failure" ] || codes="${codes}TEST_FAILED;"
           [ "$TYPECHECK_OUTCOME" != "failure" ] || codes="${codes}TYPECHECK_FAILED;"
           [ "$BUILD_OUTCOME" != "failure" ] || codes="${codes}BUILD_FAILED;"
+          [ "$TRUTH_OUTCOME" != "failure" ] || codes="${codes}TRUTH_GATE_FAILED;"
           [ "$MANIFEST_OUTCOME" != "failure" ] || codes="${codes}RELEASE_MANIFEST_FAILED;"
           SHOPERATION_GENERIC_FAILURES="$codes" node scripts/shoperation-failure-intake.mjs
 
@@ -292,6 +306,7 @@ jobs:
             artifacts/shoperation-failure-intake/**
             artifacts/shoperation-command-diagnostics/**
             artifacts/release-manifest-diagnostic.json
+            artifacts/shoperation-development-guard/truth-gate.*
           if-no-files-found: warn
           retention-days: 90
 
