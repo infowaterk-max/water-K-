@@ -24,6 +24,8 @@ export function buildFailureIntakeReconciliation(snapshot){
     const duplicate=duplicateIds.get(row.issue.number);
     if(duplicate)return{...base,action:'close',disposition:'duplicate',reason:`Duplicate fingerprint ${duplicate.fingerprint}; authoritative open issue #${duplicate.keeper} is retained.`,keeperIssue:duplicate.keeper};
     if(row.knownFailureId)return{...base,action:'close',disposition:'promoted-to-known-failure',knownFailureId:row.knownFailureId,reason:`Current failure-signature authority maps ${row.rawErrorCode} to ${row.knownFailureId}.`};
+    if(row.rawErrorCode==='TEST_FAILED'&&snapshot.proofs?.fullRegressionPassed)return{...base,action:'close',disposition:'resolved-by-full-regression',reason:'Current periodic Knowledge Full Replay completed the full regression suite successfully.'};
+    if(row.rawErrorCode==='TYPECHECK_FAILED'&&snapshot.proofs?.typecheckPassed)return{...base,action:'close',disposition:'resolved-by-typecheck',reason:'Current periodic Knowledge Full Replay completed TypeScript validation successfully.'};
     if(row.issue.sourceRun&&row.issue.laterSuccess)return{...base,action:'close',disposition:'resolved-by-later-success',reason:`Later successful ${row.issue.sourceRun.name||'workflow'} run ${row.issue.laterSuccess.id} on ${row.issue.sourceRun.headBranch||'unknown branch'} proves the originating workflow recovered.`};
     if(row.scope==='unknown')return{...base,action:'keep-open',disposition:'scope-unknown',reason:'Source workflow scope cannot be proven; evidence remains open.'};
     return{...base,action:'keep-open',disposition:'still-active',reason:'No deterministic resolution evidence exists yet.'};

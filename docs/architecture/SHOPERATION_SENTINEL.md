@@ -72,6 +72,7 @@ The full replay collects each open intake issue together with its originating wo
 
 - the fingerprint is a duplicate and one authoritative open issue is retained;
 - the current failure-signature authority now maps the code to a Known Failure;
-- the same workflow/branch has a later successful run, proving recovery of the originating development or canonical workflow evidence.
+- the same workflow/branch has a later successful run, proving recovery of the originating development or canonical workflow evidence;
+- the current weekly full regression suite proves prior `TEST_FAILED` evidence is no longer reproducible, or the current full-replay typecheck proves prior `TYPECHECK_FAILED` evidence is resolved.
 
 Unknown-scope and still-active evidence remains open. Reconciliation never deletes issue history, never weakens Known Failure or Failure Intake authority, and every closure records the disposition and exact reconciliation commit.
