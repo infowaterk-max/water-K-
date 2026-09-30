@@ -92,13 +92,14 @@ function ProductGalleryRenderer({config,node,viewport}:StorefrontComponentRender
       data-gallery-authority="single-main-with-thumbnails"
       data-thumbnail-position={thumbnailPosition}
       data-product-gallery-thumbnails={thumbnailLayout}
-      style={{...span(node)}}
+      style={{display:'contents'}}
     >
       <StorefrontProductGallery
         images={images}
         thumbnailPosition={thumbnailPosition}
         aspectRatio={text(config.aspectRatio,'4 / 5')}
         viewport={viewport}
+        rootStyle={span(node)}
         styleSlots={{
           root:slot('root'),
           main:slot('main'),
