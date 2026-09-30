@@ -706,7 +706,7 @@ try{
       const subtotal=(await liveCheckout.locator('[data-storefront-preview-subtotal]').innerText()).trim();
       const beforeShipping=(await liveCheckout.locator('[data-storefront-preview-shipping-cost]').innerText()).trim();
       const beforeGrandTotal=(await liveCheckout.locator('[data-storefront-preview-grand-total]').innerText()).trim();
-      commerceInteraction.representativeQuoteSource=await liveCheckout.locator('[data-checkout-quote-source="representative-preview"]').count()===1;
+      commerceInteraction.representativeQuoteSource=await liveCheckout.getAttribute('data-checkout-quote-source')==='representative-preview';
       const parcel=liveCheckout.getByRole('radio',{name:/Csomagpont/}).first();
       await liveCheckout.locator('label.choiceCard').filter({hasText:/Csomagpont/}).first().click();
       await page.waitForFunction(({beforeShipping,beforeGrandTotal})=>{

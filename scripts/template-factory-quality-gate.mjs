@@ -473,7 +473,7 @@ async function proveFactoryCommerceInteraction(browser,manifest){
     const subtotal=(await liveCheckout.locator('[data-storefront-preview-subtotal]').innerText()).trim();
     const beforeShipping=(await liveCheckout.locator('[data-storefront-preview-shipping-cost]').innerText()).trim();
     const beforeTotal=(await liveCheckout.locator('[data-storefront-preview-grand-total]').innerText()).trim();
-    result.checks.representativeQuoteSource=await liveCheckout.locator('[data-checkout-quote-source="representative-preview"]').count()===1;
+    result.checks.representativeQuoteSource=await liveCheckout.getAttribute('data-checkout-quote-source')==='representative-preview';
     const parcel=liveCheckout.getByRole('radio',{name:/Csomagpont/});
     await liveCheckout.locator('label.choiceCard').filter({hasText:/Csomagpont/}).first().click();
     await page.waitForFunction(({beforeShipping,beforeTotal})=>{
@@ -488,12 +488,12 @@ async function proveFactoryCommerceInteraction(browser,manifest){
     const inactiveShippingCard=liveCheckout.locator('label.choiceCard[data-selected="false"]').first();
     const shippingVisual=await selectedShippingCard.evaluate((element)=>{
       const style=getComputedStyle(element),check=element.querySelector('.choiceCheck'),checkStyle=check?getComputedStyle(check):null;
-      return{borderWidth:Number.parseFloat(style.borderTopWidth),borderColor:style.borderTopColor,background:style.backgroundColor,checkVisible:Boolean(check&&check.textContent?.includes('✓')&&checkStyle?.visibility!=='hidden'&&checkStyle?.display!=='none')};
+      return{borderWidth:Number.parseFloat(style.borderTopWidth),borderColor:style.borderTopColor,background:style.backgroundColor,boxShadow:style.boxShadow,checkVisible:Boolean(check&&check.textContent?.includes('✓')&&checkStyle?.visibility!=='hidden'&&checkStyle?.display!=='none')};
     });
     const inactiveShippingVisual=await inactiveShippingCard.count()?await inactiveShippingCard.evaluate(element=>{const style=getComputedStyle(element);return{borderColor:style.borderTopColor,background:style.backgroundColor}}):null;
     result.checks.shippingSelectedSemantic=await selectedShippingCard.count()===1&&await parcel.getAttribute('aria-checked')==='true';
     result.checks.shippingSelectedVisualEvidence={selected:shippingVisual,inactive:inactiveShippingVisual};
-    result.checks.shippingSelectedVisual=shippingVisual.borderWidth>=2&&shippingVisual.checkVisible===true&&Boolean(inactiveShippingVisual)&&(shippingVisual.borderColor!==inactiveShippingVisual.borderColor||shippingVisual.background!==inactiveShippingVisual.background);
+    result.checks.shippingSelectedVisual=shippingVisual.checkVisible===true&&shippingVisual.boxShadow!=='none'&&Boolean(inactiveShippingVisual)&&(shippingVisual.borderColor!==inactiveShippingVisual.borderColor||shippingVisual.background!==inactiveShippingVisual.background);
     result.checks.totalRecalculation=beforeShipping!==afterShipping&&beforeTotal!==afterTotal;
     result.checks.shippingRecalculation=result.checks.shippingSelection===true&&result.checks.representativeQuoteSource===true&&result.checks.totalRecalculation===true;
     const subtotalValue=commerceMoneyDigits(subtotal),beforeShippingValue=commerceMoneyDigits(beforeShipping),beforeTotalValue=commerceMoneyDigits(beforeTotal),afterShippingValue=commerceMoneyDigits(afterShipping),afterTotalValue=commerceMoneyDigits(afterTotal);
@@ -512,12 +512,12 @@ async function proveFactoryCommerceInteraction(browser,manifest){
     const inactivePaymentCard=liveCheckout.locator('label.choiceCard[data-selected="false"]').first();
     const paymentVisual=await selectedPaymentCard.evaluate((element)=>{
       const style=getComputedStyle(element),check=element.querySelector('.choiceCheck'),checkStyle=check?getComputedStyle(check):null;
-      return{borderWidth:Number.parseFloat(style.borderTopWidth),borderColor:style.borderTopColor,background:style.backgroundColor,checkVisible:Boolean(check&&check.textContent?.includes('✓')&&checkStyle?.visibility!=='hidden'&&checkStyle?.display!=='none')};
+      return{borderWidth:Number.parseFloat(style.borderTopWidth),borderColor:style.borderTopColor,background:style.backgroundColor,boxShadow:style.boxShadow,checkVisible:Boolean(check&&check.textContent?.includes('✓')&&checkStyle?.visibility!=='hidden'&&checkStyle?.display!=='none')};
     });
     const inactivePaymentVisual=await inactivePaymentCard.count()?await inactivePaymentCard.evaluate(element=>{const style=getComputedStyle(element);return{borderColor:style.borderTopColor,background:style.backgroundColor}}):null;
     result.checks.paymentSelectedSemantic=await selectedPaymentCard.count()===1&&await transfer.getAttribute('aria-checked')==='true';
     result.checks.paymentSelectedVisualEvidence={selected:paymentVisual,inactive:inactivePaymentVisual};
-    result.checks.paymentSelectedVisual=paymentVisual.borderWidth>=2&&paymentVisual.checkVisible===true&&Boolean(inactivePaymentVisual)&&(paymentVisual.borderColor!==inactivePaymentVisual.borderColor||paymentVisual.background!==inactivePaymentVisual.background);
+    result.checks.paymentSelectedVisual=paymentVisual.checkVisible===true&&paymentVisual.boxShadow!=='none'&&Boolean(inactivePaymentVisual)&&(paymentVisual.borderColor!==inactivePaymentVisual.borderColor||paymentVisual.background!==inactivePaymentVisual.background);
     await liveCheckout.getByRole('button',{name:'Tovább az összesítéshez',exact:true}).click();
 
     const termsLink=liveCheckout.getByRole('link',{name:'ÁSZF-et',exact:true});
