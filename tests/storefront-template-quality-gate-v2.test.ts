@@ -90,7 +90,9 @@ describe('Template Factory Quality Gate v2',()=>{
     expect(previewRuntime).toContain('data-storefront-preview-account-state');
     expect(previewRuntime).toContain('Jelenleg nincs folyamatban lévő ügyed.');
     expect(previewRuntime).toContain('StorefrontAccountWorkspace');
-    expect(previewRuntime).toContain('<AccountSubnav showLoyalty showB2BOrganization showB2BQuotes');
+    expect(previewRuntime).toContain('navigation={<AccountSubnav templateCapabilities={templateCapabilities}/>}');
+    expect(previewRuntime).not.toContain('<AccountSubnav showLoyalty showB2BOrganization showB2BQuotes');
+    expect(previewRuntime).toContain('data-storefront-preview-account-overview="showroom-v1"');
     expect(previewRuntime).toContain('resolveAccountCapabilityPreviewView(url.toString())');
     expect(handoff).toContain('accountInteractionPassed');
     expect(handoff).toContain('ACCOUNT_INTERACTION_NOT_PROVEN');
