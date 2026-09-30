@@ -75,12 +75,12 @@ const CATEGORY_PRODUCTS:Record<string,readonly string[]>={
 };
 
 const LOOT_VAULT_PREVIEW_PRODUCTS=Object.freeze([
-  {name:'Vault Sentinel figura',slug:'vault-sentinel',image:'/storefront-demo/loot-vault-v2/product-figure.webp',imagePosition:'44% center',imageFilter:'saturate(.92) contrast(1.14) brightness(.84)',price:89990,badge:'FIGURA',stockLabel:'Raktáron'},
-  {name:'Mythic Warden szobor',slug:'mythic-warden',image:'/storefront-demo/loot-vault-v2/hero-cinematic.webp',imagePosition:'72% center',imageFilter:'saturate(.84) contrast(1.18) brightness(.72)',price:129990,badge:'SZOBOR',stockLabel:'Raktáron'},
-  {name:'Neon Controller Collector Edition',slug:'neon-controller-collector',image:'/storefront-demo/loot-vault-v2/editorial-collector-room.webp',imagePosition:'52% center',imageFilter:'saturate(.95) contrast(1.12) brightness(.82)',price:59990,badge:'GYŰJTŐI',stockLabel:'Raktáron'},
-  {name:'Vault Visor sci-fi relikvia',slug:'vault-visor',image:'/storefront-demo/loot-vault-v2/editorial-vault-shelf.webp',imagePosition:'54% center',imageFilter:'saturate(.9) contrast(1.16) brightness(.78)',price:74990,badge:'VAULT PICK',stockLabel:'Raktáron'},
-  {name:'Obsidian Ranger figura',slug:'obsidian-ranger',image:'/storefront-demo/loot-vault-v2/product-figure.webp',imagePosition:'46% center',imageFilter:'saturate(.82) contrast(1.18) brightness(.72)',price:84990,badge:'ÚJDONSÁG',stockLabel:'Raktáron'},
-  {name:'Celestial Guardian szobor',slug:'celestial-guardian',image:'/storefront-demo/loot-vault-v2/editorial-vault-shelf.webp',imagePosition:'56% center',imageFilter:'saturate(.76) contrast(1.2) brightness(.74) sepia(.18)',price:139990,badge:'KIEMELT',stockLabel:'Raktáron'},
+  {name:'Vault Sentinel figura',slug:'vault-sentinel',image:'/storefront-demo/loot-vault-v2/product-sentinel.svg',imagePosition:'center',imageFilter:'saturate(.98) contrast(1.08) brightness(.9)',price:89990,badge:'FIGURA',stockLabel:'Raktáron'},
+  {name:'Mythic Warden szobor',slug:'mythic-warden',image:'/storefront-demo/loot-vault-v2/product-warden.svg',imagePosition:'center',imageFilter:'saturate(.96) contrast(1.1) brightness(.88)',price:129990,badge:'SZOBOR',stockLabel:'Raktáron'},
+  {name:'Neon Controller Collector Edition',slug:'neon-controller-collector',image:'/storefront-demo/loot-vault-v2/product-controller.svg',imagePosition:'center',imageFilter:'saturate(1.02) contrast(1.08) brightness(.9)',price:59990,badge:'GYŰJTŐI',stockLabel:'Raktáron'},
+  {name:'Vault Visor sci-fi relikvia',slug:'vault-visor',image:'/storefront-demo/loot-vault-v2/product-visor.svg',imagePosition:'center',imageFilter:'saturate(.98) contrast(1.1) brightness(.88)',price:74990,badge:'VAULT PICK',stockLabel:'Raktáron'},
+  {name:'Obsidian Ranger figura',slug:'obsidian-ranger',image:'/storefront-demo/loot-vault-v2/product-ranger.svg',imagePosition:'center',imageFilter:'saturate(.95) contrast(1.12) brightness(.86)',price:84990,badge:'ÚJDONSÁG',stockLabel:'Raktáron'},
+  {name:'Celestial Guardian szobor',slug:'celestial-guardian',image:'/storefront-demo/loot-vault-v2/product-guardian.svg',imagePosition:'center',imageFilter:'saturate(.94) contrast(1.1) brightness(.88)',price:139990,badge:'KIEMELT',stockLabel:'Raktáron'},
 ]);
 
 const LOOT_VAULT_PREVIEW_VARIANTS=Object.freeze([
@@ -99,10 +99,7 @@ const LOOT_VAULT_PREVIEW_COLLECTIONS=Object.freeze([
 ]);
 
 const LOOT_VAULT_PREVIEW_COLLECTION_IMAGES=Object.freeze([
-  '/storefront-demo/loot-vault-v2/product-figure.webp',
-  '/storefront-demo/loot-vault-v2/editorial-vault-shelf.webp',
-  '/storefront-demo/loot-vault-v2/category-anime.webp',
-  '/storefront-demo/loot-vault-v2/editorial-collector-room.webp',
+  '/storefront-demo/loot-vault-v2/universe-fantasy.svg','/storefront-demo/loot-vault-v2/universe-scifi.svg','/storefront-demo/loot-vault-v2/universe-anime.svg','/storefront-demo/loot-vault-v2/universe-gaming.svg',
 ]);
 
 const PLAYROOM_PREVIEW_PRODUCTS=Object.freeze([
@@ -323,10 +320,10 @@ function valueForBinding(input:{template:StorefrontInstallableTemplatePackage;pa
   }
   if(slot==='images'){
     if(template.manifest.templateKey==='gaming.loot-vault')return[
-      {src:'/storefront-demo/loot-vault-v2/product-figure.webp',alt:'Vault Sentinel gyűjtői figura'},
-      {src:'/storefront-demo/loot-vault-v2/editorial-vault-shelf.webp',alt:'Sci-fi gyűjtői kiadás részlete'},
-      {src:'/storefront-demo/loot-vault-v2/hero-cinematic.webp',alt:'A gyűjtői világ filmes hangulatképe'},
-      {src:'/storefront-demo/loot-vault-v2/editorial-collector-room.webp',alt:'Gaming relikvia részlete'},
+      {src:'/storefront-demo/loot-vault-v2/product-sentinel.svg',alt:'Vault Sentinel gyűjtői figura'},
+      {src:'/storefront-demo/loot-vault-v2/product-story.svg',alt:'Sci-fi gyűjtői kiadás részlete'},
+      {src:'/storefront-demo/loot-vault-v2/hero-home.svg',alt:'A gyűjtői világ filmes hangulatképe'},
+      {src:'/storefront-demo/loot-vault-v2/editorial-home.svg',alt:'Gaming relikvia részlete'},
     ];
     return collectImageFallbacks(page).slice(0,4).map((src,index)=>({src,alt:`Bemutató kép ${index+1}`}));
   }

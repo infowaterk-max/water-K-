@@ -84,15 +84,15 @@
         "shoporationGlobalStyles": {
           "version": "shoporation.storefront-global-styles.v1",
           "tokens": {
-            "background": "#090a0b",
-            "surface": "#121517",
-            "surfaceMuted": "#181c1e",
-            "text": "#f7e9d2",
-            "mutedText": "#b8ab98",
-            "border": "#4a3826",
-            "primary": "#171006",
-            "primaryContrast": "#fff1d9",
-            "accent": "#d8a14c",
+            "background": "#090A0B",
+            "surface": "#111314",
+            "surfaceMuted": "#17191A",
+            "text": "#F7E9D2",
+            "mutedText": "#B8AB98",
+            "border": "#4A3826",
+            "primary": "#D8A14C",
+            "primaryContrast": "#160F08",
+            "accent": "#F0C77C",
             "accentSecondary": "#6b7c70",
             "accentTertiary": "#8d433b",
             "headingFont": "editorial-serif",
@@ -118,8 +118,9 @@
         "visualFidelityTargetPercent": 95,
         "builderCompatibility": "required-public-visual-builder",
         "implementationMode": "canonical-page-schema-builder-safe",
-        "visualImplementationCheckpoint": "approved-reference-product-media-v21",
-        "visualImplementationDate": "2026-09-28"
+        "visualImplementationCheckpoint": "approved-reference-polish-assets-v22",
+        "visualImplementationDate": "2026-09-28",
+        "assetPack": "loot-vault-v2-original-vector-pack-v1"
       },
       "sections": [
         {
@@ -498,7 +499,7 @@
                           "componentKey": "content.image",
                           "componentVersion": 1,
                           "config": {
-                            "src": "/storefront-demo/loot-vault-v2/editorial-vault-shelf.webp",
+                            "src": "/storefront-demo/loot-vault-v2/hero-home.svg",
                             "alt": "Cinematikus fantasy jelenet gyűjtői Loot Vault hangulattal",
                             "width": 1600,
                             "height": 1000,
@@ -508,17 +509,17 @@
                             "objectPosition": "58% center",
                             "artDirection": {
                               "desktop": {
-                                "src": "/storefront-demo/loot-vault-v2/editorial-vault-shelf.webp",
+                                "src": "/storefront-demo/loot-vault-v2/hero-home.svg",
                                 "objectFit": "cover",
                                 "objectPosition": "center center"
                               },
                               "tablet": {
-                                "src": "/storefront-demo/loot-vault-v2/editorial-vault-shelf.webp",
+                                "src": "/storefront-demo/loot-vault-v2/hero-home.svg",
                                 "objectFit": "cover",
                                 "objectPosition": "center center"
                               },
                               "mobile": {
-                                "src": "/storefront-demo/loot-vault-v2/editorial-vault-shelf.webp",
+                                "src": "/storefront-demo/loot-vault-v2/hero-home.svg",
                                 "objectFit": "cover",
                                 "objectPosition": "center center"
                               }
@@ -668,10 +669,7 @@
                               "background": "linear-gradient(180deg,#F0C77C 0%,#D8A14C 58%,#B97834 100%)",
                               "color": "#160F08",
                               "border": "1px solid #F4CF8E",
-                              "boxShadow": "0 12px 34px rgba(216,161,76,.22)",
-                              "padding": ".82rem 1.18rem",
-                              "width": "fit-content",
-                              "fontSize": ".9rem"
+                              "boxShadow": "0 12px 28px rgba(183,120,52,.28)"
                             }
                           }
                         }
@@ -1372,7 +1370,7 @@
                           "componentKey": "content.image",
                           "componentVersion": 1,
                           "config": {
-                            "src": "/storefront-demo/loot-vault-v2/hero-cinematic.webp",
+                            "src": "/storefront-demo/loot-vault-v2/universe-scifi.svg",
                             "alt": "Fantasy gyűjtői világ sötét páncélos karakterrel",
                             "width": 1600,
                             "height": 1000,
@@ -1382,17 +1380,17 @@
                             "objectPosition": "78% 40%",
                             "artDirection": {
                               "desktop": {
-                                "src": "/storefront-demo/loot-vault-v2/hero-cinematic.webp",
+                                "src": "/storefront-demo/loot-vault-v2/universe-scifi.svg",
                                 "objectFit": "cover",
                                 "objectPosition": "78% 40%"
                               },
                               "tablet": {
-                                "src": "/storefront-demo/loot-vault-v2/hero-cinematic.webp",
+                                "src": "/storefront-demo/loot-vault-v2/universe-scifi.svg",
                                 "objectFit": "cover",
                                 "objectPosition": "78% 40%"
                               },
                               "mobile": {
-                                "src": "/storefront-demo/loot-vault-v2/hero-cinematic.webp",
+                                "src": "/storefront-demo/loot-vault-v2/universe-scifi.svg",
                                 "objectFit": "cover",
                                 "objectPosition": "78% 40%"
                               }
@@ -1493,7 +1491,7 @@
                           "componentKey": "content.image",
                           "componentVersion": 1,
                           "config": {
-                            "src": "/storefront-demo/loot-vault-v2/editorial-vault-shelf.webp",
+                            "src": "/storefront-demo/loot-vault-v2/universe-fantasy.svg",
                             "alt": "Sci-fi gyűjtői világ futurisztikus felszereléssel",
                             "width": 1600,
                             "height": 1000,
@@ -1503,17 +1501,17 @@
                             "objectPosition": "62% center",
                             "artDirection": {
                               "desktop": {
-                                "src": "/storefront-demo/loot-vault-v2/editorial-vault-shelf.webp",
+                                "src": "/storefront-demo/loot-vault-v2/universe-fantasy.svg",
                                 "objectFit": "cover",
                                 "objectPosition": "center center"
                               },
                               "tablet": {
-                                "src": "/storefront-demo/loot-vault-v2/editorial-vault-shelf.webp",
+                                "src": "/storefront-demo/loot-vault-v2/universe-fantasy.svg",
                                 "objectFit": "cover",
                                 "objectPosition": "center center"
                               },
                               "mobile": {
-                                "src": "/storefront-demo/loot-vault-v2/editorial-vault-shelf.webp",
+                                "src": "/storefront-demo/loot-vault-v2/universe-fantasy.svg",
                                 "objectFit": "cover",
                                 "objectPosition": "center center"
                               }
@@ -1613,7 +1611,7 @@
                           "componentKey": "content.image",
                           "componentVersion": 1,
                           "config": {
-                            "src": "/storefront-demo/loot-vault-v2/category-anime.webp",
+                            "src": "/storefront-demo/loot-vault-v2/universe-anime.svg",
                             "alt": "Anime ihletésű gyűjtői figura",
                             "width": 1600,
                             "height": 1000,
@@ -1623,17 +1621,17 @@
                             "objectPosition": "48% center",
                             "artDirection": {
                               "desktop": {
-                                "src": "/storefront-demo/loot-vault-v2/category-anime.webp",
+                                "src": "/storefront-demo/loot-vault-v2/universe-anime.svg",
                                 "objectFit": "cover",
                                 "objectPosition": "50% center"
                               },
                               "tablet": {
-                                "src": "/storefront-demo/loot-vault-v2/category-anime.webp",
+                                "src": "/storefront-demo/loot-vault-v2/universe-anime.svg",
                                 "objectFit": "cover",
                                 "objectPosition": "50% center"
                               },
                               "mobile": {
-                                "src": "/storefront-demo/loot-vault-v2/category-anime.webp",
+                                "src": "/storefront-demo/loot-vault-v2/universe-anime.svg",
                                 "objectFit": "cover",
                                 "objectPosition": "50% center"
                               }
@@ -1733,7 +1731,7 @@
                           "componentKey": "content.image",
                           "componentVersion": 1,
                           "config": {
-                            "src": "/storefront-demo/loot-vault-v2/editorial-collector-room.webp",
+                            "src": "/storefront-demo/loot-vault-v2/universe-comics.svg",
                             "alt": "Gaming univerzum prémium kontroller részlettel",
                             "width": 1600,
                             "height": 1000,
@@ -1743,17 +1741,17 @@
                             "objectPosition": "68% center",
                             "artDirection": {
                               "desktop": {
-                                "src": "/storefront-demo/loot-vault-v2/editorial-collector-room.webp",
+                                "src": "/storefront-demo/loot-vault-v2/universe-comics.svg",
                                 "objectFit": "cover",
                                 "objectPosition": "center center"
                               },
                               "tablet": {
-                                "src": "/storefront-demo/loot-vault-v2/editorial-collector-room.webp",
+                                "src": "/storefront-demo/loot-vault-v2/universe-comics.svg",
                                 "objectFit": "cover",
                                 "objectPosition": "center center"
                               },
                               "mobile": {
-                                "src": "/storefront-demo/loot-vault-v2/editorial-collector-room.webp",
+                                "src": "/storefront-demo/loot-vault-v2/universe-comics.svg",
                                 "objectFit": "cover",
                                 "objectPosition": "center center"
                               }
@@ -1853,7 +1851,7 @@
                           "componentKey": "content.image",
                           "componentVersion": 1,
                           "config": {
-                            "src": "/storefront-demo/loot-vault-v2/universe-object-story.webp",
+                            "src": "/storefront-demo/loot-vault-v2/universe-gaming.svg",
                             "alt": "Történetközpontú gyűjtői tárgyak a Loot Vault archívumában",
                             "width": 1600,
                             "height": 1000,
@@ -1863,17 +1861,17 @@
                             "objectPosition": "42% center",
                             "artDirection": {
                               "desktop": {
-                                "src": "/storefront-demo/loot-vault-v2/universe-object-story.webp",
+                                "src": "/storefront-demo/loot-vault-v2/universe-gaming.svg",
                                 "objectFit": "cover",
                                 "objectPosition": "58% center"
                               },
                               "tablet": {
-                                "src": "/storefront-demo/loot-vault-v2/universe-object-story.webp",
+                                "src": "/storefront-demo/loot-vault-v2/universe-gaming.svg",
                                 "objectFit": "cover",
                                 "objectPosition": "58% center"
                               },
                               "mobile": {
-                                "src": "/storefront-demo/loot-vault-v2/universe-object-story.webp",
+                                "src": "/storefront-demo/loot-vault-v2/universe-gaming.svg",
                                 "objectFit": "cover",
                                 "objectPosition": "58% center"
                               }
@@ -1973,7 +1971,7 @@
                           "componentKey": "content.image",
                           "componentVersion": 1,
                           "config": {
-                            "src": "/storefront-demo/loot-vault-v2/universe-archive-hunt.webp",
+                            "src": "/storefront-demo/loot-vault-v2/universe-film.svg",
                             "alt": "Kurált gyűjtői polcrendszer és archív tárgyak a Loot Vaultban",
                             "width": 1600,
                             "height": 1000,
@@ -1983,17 +1981,17 @@
                             "objectPosition": "48% center",
                             "artDirection": {
                               "desktop": {
-                                "src": "/storefront-demo/loot-vault-v2/universe-archive-hunt.webp",
+                                "src": "/storefront-demo/loot-vault-v2/universe-film.svg",
                                 "objectFit": "cover",
                                 "objectPosition": "48% center"
                               },
                               "tablet": {
-                                "src": "/storefront-demo/loot-vault-v2/universe-archive-hunt.webp",
+                                "src": "/storefront-demo/loot-vault-v2/universe-film.svg",
                                 "objectFit": "cover",
                                 "objectPosition": "48% center"
                               },
                               "mobile": {
-                                "src": "/storefront-demo/loot-vault-v2/universe-archive-hunt.webp",
+                                "src": "/storefront-demo/loot-vault-v2/universe-film.svg",
                                 "objectFit": "cover",
                                 "objectPosition": "48% center"
                               }
@@ -2164,7 +2162,7 @@
                         "id": "vault-sentinel",
                         "name": "Vault Sentinel prémium figura",
                         "href": "/termek/vault-sentinel",
-                        "image": "/storefront-demo/loot-vault-v2/product-figure.webp",
+                        "image": "/storefront-demo/loot-vault-v2/product-sentinel.svg",
                         "imageAlt": "Vault Sentinel prémium gyűjtői figura",
                         "price": 89990,
                         "badge": "FIGURA",
@@ -2177,7 +2175,7 @@
                         "id": "mythic-wing",
                         "name": "Mythic Warden gyűjtői szobor",
                         "href": "/termek/mythic-warden",
-                        "image": "/storefront-demo/loot-vault-v2/hero-cinematic.webp",
+                        "image": "/storefront-demo/loot-vault-v2/hero-home.svg",
                         "imageAlt": "Mythic Warden fantasy gyűjtői szobor",
                         "price": 129990,
                         "badge": "SZOBOR",
@@ -2190,7 +2188,7 @@
                         "id": "ancient-warrior",
                         "name": "Neon Controller Collector Edition",
                         "href": "/termek/neon-controller-collector",
-                        "image": "/storefront-demo/loot-vault-v2/editorial-collector-room.webp",
+                        "image": "/storefront-demo/loot-vault-v2/editorial-home.svg",
                         "imageAlt": "Neon Controller Collector Edition",
                         "price": 59990,
                         "badge": "GYŰJTŐI KIADÁS",
@@ -2203,7 +2201,7 @@
                         "id": "archive-relic",
                         "name": "Vault Visor sci-fi relikvia",
                         "href": "/termek/vault-visor",
-                        "image": "/storefront-demo/loot-vault-v2/editorial-vault-shelf.webp",
+                        "image": "/storefront-demo/loot-vault-v2/product-story.svg",
                         "imageAlt": "Vault Visor sci-fi gyűjtői relikvia",
                         "price": 74990,
                         "badge": "ÚJDONSÁG",
@@ -2308,7 +2306,7 @@
                       },
                       "purchaseAction": {
                         "base": {
-                          "borderRadius": ".38rem",
+                          "borderRadius": "10px",
                           "fontWeight": 900,
                           "letterSpacing": ".015em",
                           "background": "linear-gradient(180deg,#F0C77C 0%,#D8A14C 58%,#B97834 100%)",
@@ -2320,10 +2318,13 @@
                       },
                       "wishlistAction": {
                         "base": {
-                          "borderRadius": ".36rem",
-                          "border": "1px solid rgba(235,190,112,.58)",
+                          "borderRadius": "10px",
+                          "fontWeight": 800,
+                          "letterSpacing": ".02em",
                           "background": "#111416",
-                          "color": "#E7C79B"
+                          "color": "#E9CDA4",
+                          "border": "1px solid rgba(235,190,112,.58)",
+                          "boxShadow": "none"
                         }
                       },
                       "cardLinkHover": {
@@ -2339,13 +2340,13 @@
                       },
                       "cta": {
                         "base": {
-                          "borderRadius": ".38rem",
-                          "fontWeight": 900,
-                          "letterSpacing": ".015em",
-                          "background": "linear-gradient(180deg,#F0C77C 0%,#D8A14C 58%,#B97834 100%)",
-                          "color": "#160F08",
-                          "border": "1px solid #F4CF8E",
-                          "boxShadow": "0 12px 28px rgba(183,120,52,.28)",
+                          "borderRadius": "10px",
+                          "fontWeight": 800,
+                          "letterSpacing": ".02em",
+                          "background": "#111416",
+                          "color": "#E9CDA4",
+                          "border": "1px solid rgba(235,190,112,.58)",
+                          "boxShadow": "none",
                           "padding": ".66rem .75rem"
                         }
                       }
@@ -2364,7 +2365,7 @@
                           "id": "vault-sentinel",
                           "name": "Vault Sentinel prémium figura",
                           "href": "/termek/vault-sentinel",
-                          "image": "/storefront-demo/loot-vault-v2/product-figure.webp",
+                          "image": "/storefront-demo/loot-vault-v2/product-sentinel.svg",
                           "imageAlt": "Vault Sentinel prémium gyűjtői figura",
                           "price": 89990,
                           "badge": "FIGURA",
@@ -2377,7 +2378,7 @@
                           "id": "mythic-wing",
                           "name": "Mythic Warden gyűjtői szobor",
                           "href": "/termek/mythic-warden",
-                          "image": "/storefront-demo/loot-vault-v2/hero-cinematic.webp",
+                          "image": "/storefront-demo/loot-vault-v2/hero-home.svg",
                           "imageAlt": "Mythic Warden fantasy gyűjtői szobor",
                           "price": 129990,
                           "badge": "SZOBOR",
@@ -2390,7 +2391,7 @@
                           "id": "ancient-warrior",
                           "name": "Neon Controller Collector Edition",
                           "href": "/termek/neon-controller-collector",
-                          "image": "/storefront-demo/loot-vault-v2/editorial-collector-room.webp",
+                          "image": "/storefront-demo/loot-vault-v2/editorial-home.svg",
                           "imageAlt": "Neon Controller Collector Edition",
                           "price": 59990,
                           "badge": "GYŰJTŐI KIADÁS",
@@ -2403,7 +2404,7 @@
                           "id": "archive-relic",
                           "name": "Vault Visor sci-fi relikvia",
                           "href": "/termek/vault-visor",
-                          "image": "/storefront-demo/loot-vault-v2/editorial-vault-shelf.webp",
+                          "image": "/storefront-demo/loot-vault-v2/product-story.svg",
                           "imageAlt": "Vault Visor sci-fi gyűjtői relikvia",
                           "price": 74990,
                           "badge": "ÚJDONSÁG",
@@ -2463,7 +2464,7 @@
                       "componentKey": "content.image",
                       "componentVersion": 1,
                       "config": {
-                        "src": "/storefront-demo/loot-vault-v2/editorial-collector-room.webp",
+                        "src": "/storefront-demo/loot-vault-v2/editorial-home.svg",
                         "alt": "Prémium gaming tárgy részlete a gyűjtői tér hangulatában",
                         "width": 1600,
                         "height": 1000,
@@ -2473,17 +2474,17 @@
                         "objectPosition": "54% center",
                         "artDirection": {
                           "desktop": {
-                            "src": "/storefront-demo/loot-vault-v2/editorial-collector-room.webp",
+                            "src": "/storefront-demo/loot-vault-v2/editorial-home.svg",
                             "objectFit": "cover",
                             "objectPosition": "54% center"
                           },
                           "tablet": {
-                            "src": "/storefront-demo/loot-vault-v2/editorial-collector-room.webp",
+                            "src": "/storefront-demo/loot-vault-v2/editorial-home.svg",
                             "objectFit": "cover",
                             "objectPosition": "54% center"
                           },
                           "mobile": {
-                            "src": "/storefront-demo/loot-vault-v2/editorial-collector-room.webp",
+                            "src": "/storefront-demo/loot-vault-v2/editorial-home.svg",
                             "objectFit": "cover",
                             "objectPosition": "54% center"
                           }
@@ -2842,15 +2843,15 @@
         "shoporationGlobalStyles": {
           "version": "shoporation.storefront-global-styles.v1",
           "tokens": {
-            "background": "#090a0b",
-            "surface": "#121517",
-            "surfaceMuted": "#181c1e",
-            "text": "#f7e9d2",
-            "mutedText": "#b8ab98",
-            "border": "#4a3826",
-            "primary": "#171006",
-            "primaryContrast": "#fff1d9",
-            "accent": "#d8a14c",
+            "background": "#090A0B",
+            "surface": "#111314",
+            "surfaceMuted": "#17191A",
+            "text": "#F7E9D2",
+            "mutedText": "#B8AB98",
+            "border": "#4A3826",
+            "primary": "#D8A14C",
+            "primaryContrast": "#160F08",
+            "accent": "#F0C77C",
             "accentSecondary": "#6b7c70",
             "accentTertiary": "#8d433b",
             "headingFont": "editorial-serif",
@@ -2876,8 +2877,9 @@
         "visualFidelityTargetPercent": 95,
         "builderCompatibility": "required-public-visual-builder",
         "implementationMode": "canonical-page-schema-builder-safe",
-        "visualImplementationCheckpoint": "approved-reference-product-media-v21",
-        "visualImplementationDate": "2026-09-28"
+        "visualImplementationCheckpoint": "approved-reference-polish-assets-v22",
+        "visualImplementationDate": "2026-09-28",
+        "assetPack": "loot-vault-v2-original-vector-pack-v1"
       },
       "sections": [
         {
@@ -3214,7 +3216,7 @@
                       "componentKey": "content.image",
                       "componentVersion": 1,
                       "config": {
-                        "src": "/storefront-demo/loot-vault-v2/editorial-collector-room.webp",
+                        "src": "/storefront-demo/loot-vault-v2/catalog-hero.svg",
                         "alt": "Sötét, neonfényes gyűjtői tér",
                         "width": 1600,
                         "height": 1000,
@@ -3224,17 +3226,17 @@
                         "objectPosition": "center center",
                         "artDirection": {
                           "desktop": {
-                            "src": "/storefront-demo/loot-vault-v2/editorial-collector-room.webp",
+                            "src": "/storefront-demo/loot-vault-v2/catalog-hero.svg",
                             "objectFit": "cover",
                             "objectPosition": "center center"
                           },
                           "tablet": {
-                            "src": "/storefront-demo/loot-vault-v2/editorial-collector-room.webp",
+                            "src": "/storefront-demo/loot-vault-v2/catalog-hero.svg",
                             "objectFit": "cover",
                             "objectPosition": "center center"
                           },
                           "mobile": {
-                            "src": "/storefront-demo/loot-vault-v2/editorial-collector-room.webp",
+                            "src": "/storefront-demo/loot-vault-v2/catalog-hero.svg",
                             "objectFit": "cover",
                             "objectPosition": "center center"
                           }
@@ -3435,15 +3437,13 @@
                         "size": "s",
                         "ariaLabel": "Fantasy univerzum",
                         "style": {
-                          "flex": "0 0 auto",
-                          "minWidth": "max-content",
-                          "padding": ".58rem .8rem",
-                          "borderRadius": "999px",
-                          "border": "1px solid rgba(216,161,76,.28)",
-                          "background": "rgba(216,161,76,.12)",
-                          "color": "#f3e6d2",
-                          "fontSize": ".78rem",
-                          "fontWeight": 800
+                          "borderRadius": "10px",
+                          "fontWeight": 800,
+                          "letterSpacing": ".02em",
+                          "background": "#111416",
+                          "color": "#E9CDA4",
+                          "border": "1px solid rgba(235,190,112,.58)",
+                          "boxShadow": "none"
                         }
                       }
                     },
@@ -3458,15 +3458,13 @@
                         "size": "s",
                         "ariaLabel": "Sci-fi univerzum",
                         "style": {
-                          "flex": "0 0 auto",
-                          "minWidth": "max-content",
-                          "padding": ".58rem .8rem",
-                          "borderRadius": "999px",
-                          "border": "1px solid rgba(216,161,76,.28)",
-                          "background": "#0f1112",
-                          "color": "#f3e6d2",
-                          "fontSize": ".78rem",
-                          "fontWeight": 800
+                          "borderRadius": "10px",
+                          "fontWeight": 800,
+                          "letterSpacing": ".02em",
+                          "background": "#111416",
+                          "color": "#E9CDA4",
+                          "border": "1px solid rgba(235,190,112,.58)",
+                          "boxShadow": "none"
                         }
                       }
                     },
@@ -3481,15 +3479,13 @@
                         "size": "s",
                         "ariaLabel": "Anime univerzum",
                         "style": {
-                          "flex": "0 0 auto",
-                          "minWidth": "max-content",
-                          "padding": ".58rem .8rem",
-                          "borderRadius": "999px",
-                          "border": "1px solid rgba(216,161,76,.28)",
-                          "background": "#0f1112",
-                          "color": "#f3e6d2",
-                          "fontSize": ".78rem",
-                          "fontWeight": 800
+                          "borderRadius": "10px",
+                          "fontWeight": 800,
+                          "letterSpacing": ".02em",
+                          "background": "#111416",
+                          "color": "#E9CDA4",
+                          "border": "1px solid rgba(235,190,112,.58)",
+                          "boxShadow": "none"
                         }
                       }
                     },
@@ -3504,15 +3500,13 @@
                         "size": "s",
                         "ariaLabel": "Gaming univerzum",
                         "style": {
-                          "flex": "0 0 auto",
-                          "minWidth": "max-content",
-                          "padding": ".58rem .8rem",
-                          "borderRadius": "999px",
-                          "border": "1px solid rgba(216,161,76,.28)",
-                          "background": "#0f1112",
-                          "color": "#f3e6d2",
-                          "fontSize": ".78rem",
-                          "fontWeight": 800
+                          "borderRadius": "10px",
+                          "fontWeight": 800,
+                          "letterSpacing": ".02em",
+                          "background": "#111416",
+                          "color": "#E9CDA4",
+                          "border": "1px solid rgba(235,190,112,.58)",
+                          "boxShadow": "none"
                         }
                       }
                     },
@@ -3527,15 +3521,13 @@
                         "size": "s",
                         "ariaLabel": "Film & sorozat univerzum",
                         "style": {
-                          "flex": "0 0 auto",
-                          "minWidth": "max-content",
-                          "padding": ".58rem .8rem",
-                          "borderRadius": "999px",
-                          "border": "1px solid rgba(216,161,76,.28)",
-                          "background": "#0f1112",
-                          "color": "#f3e6d2",
-                          "fontSize": ".78rem",
-                          "fontWeight": 800
+                          "borderRadius": "10px",
+                          "fontWeight": 800,
+                          "letterSpacing": ".02em",
+                          "background": "#111416",
+                          "color": "#E9CDA4",
+                          "border": "1px solid rgba(235,190,112,.58)",
+                          "boxShadow": "none"
                         }
                       }
                     },
@@ -3550,15 +3542,13 @@
                         "size": "s",
                         "ariaLabel": "Képregény univerzum",
                         "style": {
-                          "flex": "0 0 auto",
-                          "minWidth": "max-content",
-                          "padding": ".58rem .8rem",
-                          "borderRadius": "999px",
-                          "border": "1px solid rgba(216,161,76,.28)",
-                          "background": "#0f1112",
-                          "color": "#f3e6d2",
-                          "fontSize": ".78rem",
-                          "fontWeight": 800
+                          "borderRadius": "10px",
+                          "fontWeight": 800,
+                          "letterSpacing": ".02em",
+                          "background": "#111416",
+                          "color": "#E9CDA4",
+                          "border": "1px solid rgba(235,190,112,.58)",
+                          "boxShadow": "none"
                         }
                       }
                     }
@@ -3664,7 +3654,7 @@
                             "id": "vault-sentinel",
                             "name": "Vault Sentinel prémium figura",
                             "href": "/termek/vault-sentinel",
-                            "image": "/storefront-demo/loot-vault-v2/product-figure.webp",
+                            "image": "/storefront-demo/loot-vault-v2/product-sentinel.svg",
                             "imageAlt": "Vault Sentinel prémium gyűjtői figura",
                             "price": 89990,
                             "badge": "FIGURA",
@@ -3676,7 +3666,7 @@
                             "id": "mythic-wing",
                             "name": "Mythic Warden gyűjtői szobor",
                             "href": "/termek/mythic-warden",
-                            "image": "/storefront-demo/loot-vault-v2/hero-cinematic.webp",
+                            "image": "/storefront-demo/loot-vault-v2/hero-home.svg",
                             "imageAlt": "Mythic Warden fantasy gyűjtői szobor",
                             "price": 129990,
                             "badge": "SZOBOR",
@@ -3688,7 +3678,7 @@
                             "id": "ancient-warrior",
                             "name": "Neon Controller Collector Edition",
                             "href": "/termek/neon-controller-collector",
-                            "image": "/storefront-demo/loot-vault-v2/editorial-collector-room.webp",
+                            "image": "/storefront-demo/loot-vault-v2/editorial-home.svg",
                             "imageAlt": "Neon Controller Collector Edition",
                             "price": 59990,
                             "badge": "GYŰJTŐI KIADÁS",
@@ -3700,7 +3690,7 @@
                             "id": "archive-relic",
                             "name": "Vault Visor sci-fi relikvia",
                             "href": "/termek/vault-visor",
-                            "image": "/storefront-demo/loot-vault-v2/editorial-vault-shelf.webp",
+                            "image": "/storefront-demo/loot-vault-v2/product-story.svg",
                             "imageAlt": "Vault Visor sci-fi gyűjtői relikvia",
                             "price": 74990,
                             "badge": "ÚJDONSÁG",
@@ -3712,7 +3702,7 @@
                             "id": "obsidian-ranger",
                             "name": "Obsidian Ranger gyűjtői figura",
                             "href": "/termek/obsidian-ranger",
-                            "image": "/storefront-demo/loot-vault-v2/product-figure.webp",
+                            "image": "/storefront-demo/loot-vault-v2/product-sentinel.svg",
                             "imageAlt": "Obsidian Ranger sötét fantasy gyűjtői figura",
                             "price": 84990,
                             "badge": "ÚJDONSÁG",
@@ -3725,7 +3715,7 @@
                             "id": "celestial-guardian",
                             "name": "Celestial Guardian szobor",
                             "href": "/termek/celestial-guardian",
-                            "image": "/storefront-demo/loot-vault-v2/product-figure.webp",
+                            "image": "/storefront-demo/loot-vault-v2/product-sentinel.svg",
                             "imageAlt": "Celestial Guardian prémium gyűjtői szobor",
                             "price": 139990,
                             "badge": "KIEMELT",
@@ -3825,7 +3815,7 @@
                           },
                           "purchaseAction": {
                             "base": {
-                              "borderRadius": ".38rem",
+                              "borderRadius": "10px",
                               "fontWeight": 900,
                               "letterSpacing": ".015em",
                               "background": "linear-gradient(180deg,#F0C77C 0%,#D8A14C 58%,#B97834 100%)",
@@ -3837,10 +3827,13 @@
                           },
                           "wishlistAction": {
                             "base": {
-                              "borderRadius": ".36rem",
-                              "border": "1px solid rgba(235,190,112,.58)",
+                              "borderRadius": "10px",
+                              "fontWeight": 800,
+                              "letterSpacing": ".02em",
                               "background": "#111416",
-                              "color": "#E7C79B"
+                              "color": "#E9CDA4",
+                              "border": "1px solid rgba(235,190,112,.58)",
+                              "boxShadow": "none"
                             }
                           },
                           "cardLinkHover": {
@@ -3856,13 +3849,13 @@
                           },
                           "cta": {
                             "base": {
-                              "borderRadius": ".38rem",
-                              "fontWeight": 900,
-                              "letterSpacing": ".015em",
-                              "background": "linear-gradient(180deg,#F0C77C 0%,#D8A14C 58%,#B97834 100%)",
-                              "color": "#160F08",
-                              "border": "1px solid #F4CF8E",
-                              "boxShadow": "0 12px 28px rgba(183,120,52,.28)",
+                              "borderRadius": "10px",
+                              "fontWeight": 800,
+                              "letterSpacing": ".02em",
+                              "background": "#111416",
+                              "color": "#E9CDA4",
+                              "border": "1px solid rgba(235,190,112,.58)",
+                              "boxShadow": "none",
                               "padding": ".66rem .75rem"
                             }
                           }
@@ -3881,7 +3874,7 @@
                               "id": "vault-sentinel",
                               "name": "Vault Sentinel prémium figura",
                               "href": "/termek/vault-sentinel",
-                              "image": "/storefront-demo/loot-vault-v2/product-figure.webp",
+                              "image": "/storefront-demo/loot-vault-v2/product-sentinel.svg",
                               "imageAlt": "Vault Sentinel prémium gyűjtői figura",
                               "price": 89990,
                               "badge": "FIGURA",
@@ -3893,7 +3886,7 @@
                               "id": "mythic-wing",
                               "name": "Mythic Warden gyűjtői szobor",
                               "href": "/termek/mythic-warden",
-                              "image": "/storefront-demo/loot-vault-v2/hero-cinematic.webp",
+                              "image": "/storefront-demo/loot-vault-v2/hero-home.svg",
                               "imageAlt": "Mythic Warden fantasy gyűjtői szobor",
                               "price": 129990,
                               "badge": "SZOBOR",
@@ -3905,7 +3898,7 @@
                               "id": "ancient-warrior",
                               "name": "Neon Controller Collector Edition",
                               "href": "/termek/neon-controller-collector",
-                              "image": "/storefront-demo/loot-vault-v2/editorial-collector-room.webp",
+                              "image": "/storefront-demo/loot-vault-v2/editorial-home.svg",
                               "imageAlt": "Neon Controller Collector Edition",
                               "price": 59990,
                               "badge": "GYŰJTŐI KIADÁS",
@@ -3917,7 +3910,7 @@
                               "id": "archive-relic",
                               "name": "Vault Visor sci-fi relikvia",
                               "href": "/termek/vault-visor",
-                              "image": "/storefront-demo/loot-vault-v2/editorial-vault-shelf.webp",
+                              "image": "/storefront-demo/loot-vault-v2/product-story.svg",
                               "imageAlt": "Vault Visor sci-fi gyűjtői relikvia",
                               "price": 74990,
                               "badge": "ÚJDONSÁG",
@@ -3929,7 +3922,7 @@
                               "id": "obsidian-ranger",
                               "name": "Obsidian Ranger gyűjtői figura",
                               "href": "/termek/obsidian-ranger",
-                              "image": "/storefront-demo/loot-vault-v2/product-figure.webp",
+                              "image": "/storefront-demo/loot-vault-v2/product-sentinel.svg",
                               "imageAlt": "Obsidian Ranger sötét fantasy gyűjtői figura",
                               "price": 84990,
                               "badge": "ÚJDONSÁG",
@@ -3942,7 +3935,7 @@
                               "id": "celestial-guardian",
                               "name": "Celestial Guardian szobor",
                               "href": "/termek/celestial-guardian",
-                              "image": "/storefront-demo/loot-vault-v2/product-figure.webp",
+                              "image": "/storefront-demo/loot-vault-v2/product-sentinel.svg",
                               "imageAlt": "Celestial Guardian prémium gyűjtői szobor",
                               "price": 139990,
                               "badge": "KIEMELT",
@@ -4186,15 +4179,15 @@
         "shoporationGlobalStyles": {
           "version": "shoporation.storefront-global-styles.v1",
           "tokens": {
-            "background": "#090a0b",
-            "surface": "#121517",
-            "surfaceMuted": "#181c1e",
-            "text": "#f7e9d2",
-            "mutedText": "#b8ab98",
-            "border": "#4a3826",
-            "primary": "#171006",
-            "primaryContrast": "#fff1d9",
-            "accent": "#d8a14c",
+            "background": "#090A0B",
+            "surface": "#111314",
+            "surfaceMuted": "#17191A",
+            "text": "#F7E9D2",
+            "mutedText": "#B8AB98",
+            "border": "#4A3826",
+            "primary": "#D8A14C",
+            "primaryContrast": "#160F08",
+            "accent": "#F0C77C",
             "accentSecondary": "#6b7c70",
             "accentTertiary": "#8d433b",
             "headingFont": "editorial-serif",
@@ -4220,8 +4213,9 @@
         "visualFidelityTargetPercent": 95,
         "builderCompatibility": "required-public-visual-builder",
         "implementationMode": "canonical-page-schema-builder-safe",
-        "visualImplementationCheckpoint": "approved-reference-product-media-v21",
-        "visualImplementationDate": "2026-09-28"
+        "visualImplementationCheckpoint": "approved-reference-polish-assets-v22",
+        "visualImplementationDate": "2026-09-28",
+        "assetPack": "loot-vault-v2-original-vector-pack-v1"
       },
       "sections": [
         {
@@ -4553,25 +4547,25 @@
                       "config": {
                         "images": [
                           {
-                            "src": "/storefront-demo/loot-vault-v2/product-figure.webp",
+                            "src": "/storefront-demo/loot-vault-v2/product-sentinel.svg",
                             "alt": "Vault Sentinel gyűjtői figura",
                             "objectPosition": "44% center",
                             "filter": "saturate(.92) contrast(1.14) brightness(.86)"
                           },
                           {
-                            "src": "/storefront-demo/loot-vault-v2/editorial-vault-shelf.webp",
+                            "src": "/storefront-demo/loot-vault-v2/product-warden.svg",
                             "alt": "Mythic Warden gyűjtői szobor részlet",
                             "objectPosition": "60% center",
                             "filter": "saturate(.7) contrast(1.22) brightness(.74) hue-rotate(20deg)"
                           },
                           {
-                            "src": "/storefront-demo/loot-vault-v2/editorial-collector-room.webp",
+                            "src": "/storefront-demo/loot-vault-v2/product-controller.svg",
                             "alt": "Collector Edition alternatív nézet",
                             "objectPosition": "68% center",
                             "filter": "saturate(.86) contrast(1.18) brightness(.78) sepia(.16)"
                           },
                           {
-                            "src": "/storefront-demo/loot-vault-v2/editorial-vault-shelf.webp",
+                            "src": "/storefront-demo/loot-vault-v2/product-visor.svg",
                             "alt": "Archívum relikvia részlet",
                             "objectPosition": "34% center",
                             "filter": "saturate(.6) contrast(1.24) brightness(.72) hue-rotate(210deg)"
@@ -4636,25 +4630,25 @@
                           "path": "product.gallery",
                           "fallback": [
                             {
-                              "src": "/storefront-demo/loot-vault-v2/product-figure.webp",
+                              "src": "/storefront-demo/loot-vault-v2/product-sentinel.svg",
                               "alt": "Vault Sentinel gyűjtői figura",
                               "objectPosition": "44% center",
                               "filter": "saturate(.92) contrast(1.14) brightness(.86)"
                             },
                             {
-                              "src": "/storefront-demo/loot-vault-v2/editorial-vault-shelf.webp",
+                              "src": "/storefront-demo/loot-vault-v2/product-warden.svg",
                               "alt": "Mythic Warden gyűjtői szobor részlet",
                               "objectPosition": "60% center",
                               "filter": "saturate(.7) contrast(1.22) brightness(.74) hue-rotate(20deg)"
                             },
                             {
-                              "src": "/storefront-demo/loot-vault-v2/editorial-collector-room.webp",
+                              "src": "/storefront-demo/loot-vault-v2/product-controller.svg",
                               "alt": "Collector Edition alternatív nézet",
                               "objectPosition": "68% center",
                               "filter": "saturate(.86) contrast(1.18) brightness(.78) sepia(.16)"
                             },
                             {
-                              "src": "/storefront-demo/loot-vault-v2/editorial-vault-shelf.webp",
+                              "src": "/storefront-demo/loot-vault-v2/product-visor.svg",
                               "alt": "Archívum relikvia részlet",
                               "objectPosition": "34% center",
                               "filter": "saturate(.6) contrast(1.24) brightness(.72) hue-rotate(210deg)"
@@ -5207,7 +5201,7 @@
                       "componentKey": "content.image",
                       "componentVersion": 1,
                       "config": {
-                        "src": "/storefront-demo/loot-vault-v2/category-miniatures.webp",
+                        "src": "/storefront-demo/loot-vault-v2/product-story.svg",
                         "alt": "Gyűjtői vitrin több karakterrel és bemutatótárggyal",
                         "width": 1600,
                         "height": 1000,
@@ -5217,17 +5211,17 @@
                         "objectPosition": "center center",
                         "artDirection": {
                           "desktop": {
-                            "src": "/storefront-demo/loot-vault-v2/category-miniatures.webp",
+                            "src": "/storefront-demo/loot-vault-v2/product-story.svg",
                             "objectFit": "cover",
                             "objectPosition": "center center"
                           },
                           "tablet": {
-                            "src": "/storefront-demo/loot-vault-v2/category-miniatures.webp",
+                            "src": "/storefront-demo/loot-vault-v2/product-story.svg",
                             "objectFit": "cover",
                             "objectPosition": "center center"
                           },
                           "mobile": {
-                            "src": "/storefront-demo/loot-vault-v2/category-miniatures.webp",
+                            "src": "/storefront-demo/loot-vault-v2/product-story.svg",
                             "objectFit": "cover",
                             "objectPosition": "center center"
                           }
@@ -5361,9 +5355,10 @@
                               "borderRadius": "10px",
                               "fontWeight": 800,
                               "letterSpacing": ".02em",
-                              "background": "rgba(18,21,23,.72)",
+                              "background": "#111416",
                               "color": "#E9CDA4",
-                              "border": "1px solid rgba(235,190,112,.58)"
+                              "border": "1px solid rgba(235,190,112,.58)",
+                              "boxShadow": "none"
                             }
                           }
                         }
@@ -5414,7 +5409,7 @@
                         "id": "vault-sentinel",
                         "name": "Vault Sentinel prémium figura",
                         "href": "/termek/vault-sentinel",
-                        "image": "/storefront-demo/loot-vault-v2/product-figure.webp",
+                        "image": "/storefront-demo/loot-vault-v2/product-sentinel.svg",
                         "imageAlt": "Vault Sentinel prémium gyűjtői figura",
                         "price": 89990,
                         "badge": "FIGURA",
@@ -5426,7 +5421,7 @@
                         "id": "mythic-wing",
                         "name": "Mythic Warden gyűjtői szobor",
                         "href": "/termek/mythic-warden",
-                        "image": "/storefront-demo/loot-vault-v2/hero-cinematic.webp",
+                        "image": "/storefront-demo/loot-vault-v2/hero-home.svg",
                         "imageAlt": "Mythic Warden fantasy gyűjtői szobor",
                         "price": 129990,
                         "badge": "SZOBOR",
@@ -5438,7 +5433,7 @@
                         "id": "ancient-warrior",
                         "name": "Neon Controller Collector Edition",
                         "href": "/termek/neon-controller-collector",
-                        "image": "/storefront-demo/loot-vault-v2/editorial-collector-room.webp",
+                        "image": "/storefront-demo/loot-vault-v2/editorial-home.svg",
                         "imageAlt": "Neon Controller Collector Edition",
                         "price": 59990,
                         "badge": "GYŰJTŐI KIADÁS",
@@ -5450,7 +5445,7 @@
                         "id": "archive-relic",
                         "name": "Vault Visor sci-fi relikvia",
                         "href": "/termek/vault-visor",
-                        "image": "/storefront-demo/loot-vault-v2/editorial-vault-shelf.webp",
+                        "image": "/storefront-demo/loot-vault-v2/product-story.svg",
                         "imageAlt": "Vault Visor sci-fi gyűjtői relikvia",
                         "price": 74990,
                         "badge": "ÚJDONSÁG",
@@ -5485,6 +5480,18 @@
                           "border": "1px solid rgba(216,161,76,.26)",
                           "borderRadius": ".38rem"
                         }
+                      },
+                      "cta": {
+                        "base": {
+                          "borderRadius": "10px",
+                          "fontWeight": 800,
+                          "letterSpacing": ".02em",
+                          "background": "#111416",
+                          "color": "#E9CDA4",
+                          "border": "1px solid rgba(235,190,112,.58)",
+                          "boxShadow": "none",
+                          "padding": ".62rem .72rem"
+                        }
                       }
                     }
                   },
@@ -5496,7 +5503,7 @@
                           "id": "vault-sentinel",
                           "name": "Vault Sentinel prémium figura",
                           "href": "/termek/vault-sentinel",
-                          "image": "/storefront-demo/loot-vault-v2/product-figure.webp",
+                          "image": "/storefront-demo/loot-vault-v2/product-sentinel.svg",
                           "imageAlt": "Vault Sentinel prémium gyűjtői figura",
                           "price": 89990,
                           "badge": "FIGURA",
@@ -5508,7 +5515,7 @@
                           "id": "mythic-wing",
                           "name": "Mythic Warden gyűjtői szobor",
                           "href": "/termek/mythic-warden",
-                          "image": "/storefront-demo/loot-vault-v2/hero-cinematic.webp",
+                          "image": "/storefront-demo/loot-vault-v2/hero-home.svg",
                           "imageAlt": "Mythic Warden fantasy gyűjtői szobor",
                           "price": 129990,
                           "badge": "SZOBOR",
@@ -5520,7 +5527,7 @@
                           "id": "ancient-warrior",
                           "name": "Neon Controller Collector Edition",
                           "href": "/termek/neon-controller-collector",
-                          "image": "/storefront-demo/loot-vault-v2/editorial-collector-room.webp",
+                          "image": "/storefront-demo/loot-vault-v2/editorial-home.svg",
                           "imageAlt": "Neon Controller Collector Edition",
                           "price": 59990,
                           "badge": "GYŰJTŐI KIADÁS",
@@ -5532,7 +5539,7 @@
                           "id": "archive-relic",
                           "name": "Vault Visor sci-fi relikvia",
                           "href": "/termek/vault-visor",
-                          "image": "/storefront-demo/loot-vault-v2/editorial-vault-shelf.webp",
+                          "image": "/storefront-demo/loot-vault-v2/product-story.svg",
                           "imageAlt": "Vault Visor sci-fi gyűjtői relikvia",
                           "price": 74990,
                           "badge": "ÚJDONSÁG",
@@ -5753,15 +5760,15 @@
         "shoporationGlobalStyles": {
           "version": "shoporation.storefront-global-styles.v1",
           "tokens": {
-            "background": "#090a0b",
-            "surface": "#121517",
-            "surfaceMuted": "#181c1e",
-            "text": "#f7e9d2",
-            "mutedText": "#b8ab98",
-            "border": "#4a3826",
-            "primary": "#171006",
-            "primaryContrast": "#fff1d9",
-            "accent": "#d8a14c",
+            "background": "#090A0B",
+            "surface": "#111314",
+            "surfaceMuted": "#17191A",
+            "text": "#F7E9D2",
+            "mutedText": "#B8AB98",
+            "border": "#4A3826",
+            "primary": "#D8A14C",
+            "primaryContrast": "#160F08",
+            "accent": "#F0C77C",
             "accentSecondary": "#6b7c70",
             "accentTertiary": "#8d433b",
             "headingFont": "editorial-serif",
@@ -5788,8 +5795,9 @@
         "visualFidelityTargetPercent": 95,
         "builderCompatibility": "required-public-visual-builder",
         "implementationMode": "canonical-page-schema-builder-safe",
-        "visualImplementationCheckpoint": "approved-reference-product-media-v21",
-        "visualImplementationDate": "2026-09-28"
+        "visualImplementationCheckpoint": "approved-reference-polish-assets-v22",
+        "visualImplementationDate": "2026-09-28",
+        "assetPack": "loot-vault-v2-original-vector-pack-v1"
       },
       "sections": [
         {
@@ -6127,7 +6135,7 @@
                       "componentKey": "content.image",
                       "componentVersion": 1,
                       "config": {
-                        "src": "/storefront-demo/loot-vault-v2/editorial-vault-shelf.webp",
+                        "src": "/storefront-demo/loot-vault-v2/cart-hero.svg",
                         "alt": "Cinematikus Loot Vault jelenet a kosár nyitófelületének hátterében",
                         "width": 1600,
                         "height": 1000,
@@ -6137,17 +6145,17 @@
                         "objectPosition": "64% center",
                         "artDirection": {
                           "desktop": {
-                            "src": "/storefront-demo/loot-vault-v2/editorial-vault-shelf.webp",
+                            "src": "/storefront-demo/loot-vault-v2/cart-hero.svg",
                             "objectFit": "cover",
                             "objectPosition": "64% center"
                           },
                           "tablet": {
-                            "src": "/storefront-demo/loot-vault-v2/editorial-vault-shelf.webp",
+                            "src": "/storefront-demo/loot-vault-v2/cart-hero.svg",
                             "objectFit": "cover",
                             "objectPosition": "64% center"
                           },
                           "mobile": {
-                            "src": "/storefront-demo/loot-vault-v2/editorial-vault-shelf.webp",
+                            "src": "/storefront-demo/loot-vault-v2/cart-hero.svg",
                             "objectFit": "cover",
                             "objectPosition": "64% center"
                           }
@@ -6633,7 +6641,7 @@
                         "id": "vault-sentinel",
                         "name": "Vault Sentinel prémium figura",
                         "href": "/termek/vault-sentinel",
-                        "image": "/storefront-demo/loot-vault-v2/product-figure.webp",
+                        "image": "/storefront-demo/loot-vault-v2/product-sentinel.svg",
                         "imageAlt": "Vault Sentinel prémium gyűjtői figura",
                         "price": 89990,
                         "badge": "FIGURA",
@@ -6645,7 +6653,7 @@
                         "id": "mythic-wing",
                         "name": "Mythic Warden gyűjtői szobor",
                         "href": "/termek/mythic-warden",
-                        "image": "/storefront-demo/loot-vault-v2/hero-cinematic.webp",
+                        "image": "/storefront-demo/loot-vault-v2/hero-home.svg",
                         "imageAlt": "Mythic Warden fantasy gyűjtői szobor",
                         "price": 129990,
                         "badge": "SZOBOR",
@@ -6657,7 +6665,7 @@
                         "id": "ancient-warrior",
                         "name": "Neon Controller Collector Edition",
                         "href": "/termek/neon-controller-collector",
-                        "image": "/storefront-demo/loot-vault-v2/editorial-collector-room.webp",
+                        "image": "/storefront-demo/loot-vault-v2/editorial-home.svg",
                         "imageAlt": "Neon Controller Collector Edition",
                         "price": 59990,
                         "badge": "GYŰJTŐI KIADÁS",
@@ -6669,7 +6677,7 @@
                         "id": "archive-relic",
                         "name": "Vault Visor sci-fi relikvia",
                         "href": "/termek/vault-visor",
-                        "image": "/storefront-demo/loot-vault-v2/editorial-vault-shelf.webp",
+                        "image": "/storefront-demo/loot-vault-v2/product-story.svg",
                         "imageAlt": "Vault Visor sci-fi gyűjtői relikvia",
                         "price": 74990,
                         "badge": "ÚJDONSÁG",
@@ -6704,6 +6712,18 @@
                           "border": "1px solid rgba(216,161,76,.26)",
                           "borderRadius": ".38rem"
                         }
+                      },
+                      "cta": {
+                        "base": {
+                          "borderRadius": "10px",
+                          "fontWeight": 800,
+                          "letterSpacing": ".02em",
+                          "background": "#111416",
+                          "color": "#E9CDA4",
+                          "border": "1px solid rgba(235,190,112,.58)",
+                          "boxShadow": "none",
+                          "padding": ".62rem .72rem"
+                        }
                       }
                     }
                   },
@@ -6715,7 +6735,7 @@
                           "id": "vault-sentinel",
                           "name": "Vault Sentinel prémium figura",
                           "href": "/termek/vault-sentinel",
-                          "image": "/storefront-demo/loot-vault-v2/product-figure.webp",
+                          "image": "/storefront-demo/loot-vault-v2/product-sentinel.svg",
                           "imageAlt": "Vault Sentinel prémium gyűjtői figura",
                           "price": 89990,
                           "badge": "FIGURA",
@@ -6727,7 +6747,7 @@
                           "id": "mythic-wing",
                           "name": "Mythic Warden gyűjtői szobor",
                           "href": "/termek/mythic-warden",
-                          "image": "/storefront-demo/loot-vault-v2/hero-cinematic.webp",
+                          "image": "/storefront-demo/loot-vault-v2/hero-home.svg",
                           "imageAlt": "Mythic Warden fantasy gyűjtői szobor",
                           "price": 129990,
                           "badge": "SZOBOR",
@@ -6739,7 +6759,7 @@
                           "id": "ancient-warrior",
                           "name": "Neon Controller Collector Edition",
                           "href": "/termek/neon-controller-collector",
-                          "image": "/storefront-demo/loot-vault-v2/editorial-collector-room.webp",
+                          "image": "/storefront-demo/loot-vault-v2/editorial-home.svg",
                           "imageAlt": "Neon Controller Collector Edition",
                           "price": 59990,
                           "badge": "GYŰJTŐI KIADÁS",
@@ -6751,7 +6771,7 @@
                           "id": "archive-relic",
                           "name": "Vault Visor sci-fi relikvia",
                           "href": "/termek/vault-visor",
-                          "image": "/storefront-demo/loot-vault-v2/editorial-vault-shelf.webp",
+                          "image": "/storefront-demo/loot-vault-v2/product-story.svg",
                           "imageAlt": "Vault Visor sci-fi gyűjtői relikvia",
                           "price": 74990,
                           "badge": "ÚJDONSÁG",
@@ -7293,15 +7313,15 @@
         "shoporationGlobalStyles": {
           "version": "shoporation.storefront-global-styles.v1",
           "tokens": {
-            "background": "#090a0b",
-            "surface": "#121517",
-            "surfaceMuted": "#181c1e",
-            "text": "#f7e9d2",
-            "mutedText": "#b8ab98",
-            "border": "#4a3826",
-            "primary": "#171006",
-            "primaryContrast": "#fff1d9",
-            "accent": "#d8a14c",
+            "background": "#090A0B",
+            "surface": "#111314",
+            "surfaceMuted": "#17191A",
+            "text": "#F7E9D2",
+            "mutedText": "#B8AB98",
+            "border": "#4A3826",
+            "primary": "#D8A14C",
+            "primaryContrast": "#160F08",
+            "accent": "#F0C77C",
             "accentSecondary": "#6b7c70",
             "accentTertiary": "#8d433b",
             "headingFont": "editorial-serif",
@@ -7328,7 +7348,7 @@
         "visualFidelityTargetPercent": 95,
         "builderCompatibility": "required-public-visual-builder",
         "implementationMode": "canonical-page-schema-builder-safe",
-        "visualImplementationCheckpoint": "approved-reference-product-media-v21",
+        "visualImplementationCheckpoint": "approved-reference-polish-assets-v22",
         "visualImplementationDate": "2026-09-28",
         "checkoutTheme": {
           "background": "#070808",
@@ -7348,7 +7368,8 @@
           "radiusS": ".28rem",
           "radiusM": ".38rem",
           "radiusL": ".5rem"
-        }
+        },
+        "assetPack": "loot-vault-v2-original-vector-pack-v1"
       },
       "sections": [
         {
@@ -7686,7 +7707,7 @@
                       "componentKey": "content.image",
                       "componentVersion": 1,
                       "config": {
-                        "src": "/storefront-demo/loot-vault-v2/editorial-collector-room.webp",
+                        "src": "/storefront-demo/loot-vault-v2/checkout-hero.svg",
                         "alt": "Sötét archívumhangulat a biztonságos pénztár hátterében",
                         "width": 1600,
                         "height": 1000,
@@ -7696,17 +7717,17 @@
                         "objectPosition": "center 40%",
                         "artDirection": {
                           "desktop": {
-                            "src": "/storefront-demo/loot-vault-v2/editorial-collector-room.webp",
+                            "src": "/storefront-demo/loot-vault-v2/checkout-hero.svg",
                             "objectFit": "cover",
                             "objectPosition": "center 40%"
                           },
                           "tablet": {
-                            "src": "/storefront-demo/loot-vault-v2/editorial-collector-room.webp",
+                            "src": "/storefront-demo/loot-vault-v2/checkout-hero.svg",
                             "objectFit": "cover",
                             "objectPosition": "center 40%"
                           },
                           "mobile": {
-                            "src": "/storefront-demo/loot-vault-v2/editorial-collector-room.webp",
+                            "src": "/storefront-demo/loot-vault-v2/checkout-hero.svg",
                             "objectFit": "cover",
                             "objectPosition": "center 40%"
                           }
@@ -8617,15 +8638,15 @@
         "shoporationGlobalStyles": {
           "version": "shoporation.storefront-global-styles.v1",
           "tokens": {
-            "background": "#090a0b",
-            "surface": "#121517",
-            "surfaceMuted": "#181c1e",
-            "text": "#f7e9d2",
-            "mutedText": "#b8ab98",
-            "border": "#4a3826",
-            "primary": "#171006",
-            "primaryContrast": "#fff1d9",
-            "accent": "#d8a14c",
+            "background": "#090A0B",
+            "surface": "#111314",
+            "surfaceMuted": "#17191A",
+            "text": "#F7E9D2",
+            "mutedText": "#B8AB98",
+            "border": "#4A3826",
+            "primary": "#D8A14C",
+            "primaryContrast": "#160F08",
+            "accent": "#F0C77C",
             "accentSecondary": "#6b7c70",
             "accentTertiary": "#8d433b",
             "headingFont": "editorial-serif",
@@ -8657,8 +8678,9 @@
         "visualFidelityTargetPercent": 95,
         "builderCompatibility": "required-public-visual-builder",
         "implementationMode": "canonical-page-schema-builder-safe",
-        "visualImplementationCheckpoint": "approved-reference-product-media-v21",
-        "visualImplementationDate": "2026-09-28"
+        "visualImplementationCheckpoint": "approved-reference-polish-assets-v22",
+        "visualImplementationDate": "2026-09-28",
+        "assetPack": "loot-vault-v2-original-vector-pack-v1"
       },
       "sections": [
         {
@@ -8997,7 +9019,7 @@
                       "componentKey": "content.image",
                       "componentVersion": 1,
                       "config": {
-                        "src": "/storefront-demo/loot-vault-v2/editorial-collector-room.webp",
+                        "src": "/storefront-demo/loot-vault-v2/account-hero.svg",
                         "alt": "Sötét gyűjtői archívum a fiók belépési felületének hátterében",
                         "width": 1600,
                         "height": 1000,
@@ -9007,17 +9029,17 @@
                         "objectPosition": "center 42%",
                         "artDirection": {
                           "desktop": {
-                            "src": "/storefront-demo/loot-vault-v2/editorial-collector-room.webp",
+                            "src": "/storefront-demo/loot-vault-v2/account-hero.svg",
                             "objectFit": "cover",
                             "objectPosition": "center 42%"
                           },
                           "tablet": {
-                            "src": "/storefront-demo/loot-vault-v2/editorial-collector-room.webp",
+                            "src": "/storefront-demo/loot-vault-v2/account-hero.svg",
                             "objectFit": "cover",
                             "objectPosition": "center 42%"
                           },
                           "mobile": {
-                            "src": "/storefront-demo/loot-vault-v2/editorial-collector-room.webp",
+                            "src": "/storefront-demo/loot-vault-v2/account-hero.svg",
                             "objectFit": "cover",
                             "objectPosition": "center 42%"
                           }
@@ -9575,15 +9597,15 @@
         "shoporationGlobalStyles": {
           "version": "shoporation.storefront-global-styles.v1",
           "tokens": {
-            "background": "#090a0b",
-            "surface": "#121517",
-            "surfaceMuted": "#181c1e",
-            "text": "#f7e9d2",
-            "mutedText": "#b8ab98",
-            "border": "#4a3826",
-            "primary": "#171006",
-            "primaryContrast": "#fff1d9",
-            "accent": "#d8a14c",
+            "background": "#090A0B",
+            "surface": "#111314",
+            "surfaceMuted": "#17191A",
+            "text": "#F7E9D2",
+            "mutedText": "#B8AB98",
+            "border": "#4A3826",
+            "primary": "#D8A14C",
+            "primaryContrast": "#160F08",
+            "accent": "#F0C77C",
             "accentSecondary": "#6b7c70",
             "accentTertiary": "#8d433b",
             "headingFont": "editorial-serif",
@@ -9610,8 +9632,9 @@
         "visualFidelityTargetPercent": 95,
         "builderCompatibility": "required-public-visual-builder",
         "implementationMode": "canonical-page-schema-builder-safe",
-        "visualImplementationCheckpoint": "approved-reference-product-media-v21",
-        "visualImplementationDate": "2026-09-28"
+        "visualImplementationCheckpoint": "approved-reference-polish-assets-v22",
+        "visualImplementationDate": "2026-09-28",
+        "assetPack": "loot-vault-v2-original-vector-pack-v1"
       },
       "sections": [
         {
@@ -9948,7 +9971,7 @@
                       "componentKey": "content.image",
                       "componentVersion": 1,
                       "config": {
-                        "src": "/storefront-demo/loot-vault-v2/editorial-collector-room.webp",
+                        "src": "/storefront-demo/loot-vault-v2/search-hero.svg",
                         "alt": "Sötét gyűjtői archívum keresési háttérként",
                         "width": 1600,
                         "height": 1000,
@@ -9958,17 +9981,17 @@
                         "objectPosition": "center center",
                         "artDirection": {
                           "desktop": {
-                            "src": "/storefront-demo/loot-vault-v2/editorial-collector-room.webp",
+                            "src": "/storefront-demo/loot-vault-v2/search-hero.svg",
                             "objectFit": "cover",
                             "objectPosition": "center center"
                           },
                           "tablet": {
-                            "src": "/storefront-demo/loot-vault-v2/editorial-collector-room.webp",
+                            "src": "/storefront-demo/loot-vault-v2/search-hero.svg",
                             "objectFit": "cover",
                             "objectPosition": "center center"
                           },
                           "mobile": {
-                            "src": "/storefront-demo/loot-vault-v2/editorial-collector-room.webp",
+                            "src": "/storefront-demo/loot-vault-v2/search-hero.svg",
                             "objectFit": "cover",
                             "objectPosition": "center center"
                           }
@@ -10176,7 +10199,7 @@
                         "id": "vault-sentinel",
                         "name": "Vault Sentinel prémium figura",
                         "href": "/termek/vault-sentinel",
-                        "image": "/storefront-demo/loot-vault-v2/product-figure.webp",
+                        "image": "/storefront-demo/loot-vault-v2/product-sentinel.svg",
                         "imageAlt": "Vault Sentinel prémium gyűjtői figura",
                         "price": 89990,
                         "badge": "FIGURA",
@@ -10189,7 +10212,7 @@
                         "id": "mythic-wing",
                         "name": "Mythic Warden gyűjtői szobor",
                         "href": "/termek/mythic-warden",
-                        "image": "/storefront-demo/loot-vault-v2/hero-cinematic.webp",
+                        "image": "/storefront-demo/loot-vault-v2/hero-home.svg",
                         "imageAlt": "Mythic Warden fantasy gyűjtői szobor",
                         "price": 129990,
                         "badge": "SZOBOR",
@@ -10202,7 +10225,7 @@
                         "id": "ancient-warrior",
                         "name": "Neon Controller Collector Edition",
                         "href": "/termek/neon-controller-collector",
-                        "image": "/storefront-demo/loot-vault-v2/editorial-collector-room.webp",
+                        "image": "/storefront-demo/loot-vault-v2/editorial-home.svg",
                         "imageAlt": "Neon Controller Collector Edition",
                         "price": 59990,
                         "badge": "GYŰJTŐI KIADÁS",
@@ -10215,7 +10238,7 @@
                         "id": "archive-relic",
                         "name": "Vault Visor sci-fi relikvia",
                         "href": "/termek/vault-visor",
-                        "image": "/storefront-demo/loot-vault-v2/editorial-vault-shelf.webp",
+                        "image": "/storefront-demo/loot-vault-v2/product-story.svg",
                         "imageAlt": "Vault Visor sci-fi gyűjtői relikvia",
                         "price": 74990,
                         "badge": "ÚJDONSÁG",
@@ -10314,7 +10337,7 @@
                       },
                       "purchaseAction": {
                         "base": {
-                          "borderRadius": ".38rem",
+                          "borderRadius": "10px",
                           "fontWeight": 900,
                           "letterSpacing": ".015em",
                           "background": "linear-gradient(180deg,#F0C77C 0%,#D8A14C 58%,#B97834 100%)",
@@ -10326,10 +10349,13 @@
                       },
                       "wishlistAction": {
                         "base": {
-                          "borderRadius": ".36rem",
-                          "border": "1px solid rgba(235,190,112,.58)",
+                          "borderRadius": "10px",
+                          "fontWeight": 800,
+                          "letterSpacing": ".02em",
                           "background": "#111416",
-                          "color": "#E7C79B"
+                          "color": "#E9CDA4",
+                          "border": "1px solid rgba(235,190,112,.58)",
+                          "boxShadow": "none"
                         }
                       },
                       "cardLinkHover": {
@@ -10369,7 +10395,7 @@
                           "id": "vault-sentinel",
                           "name": "Vault Sentinel prémium figura",
                           "href": "/termek/vault-sentinel",
-                          "image": "/storefront-demo/loot-vault-v2/product-figure.webp",
+                          "image": "/storefront-demo/loot-vault-v2/product-sentinel.svg",
                           "imageAlt": "Vault Sentinel prémium gyűjtői figura",
                           "price": 89990,
                           "badge": "FIGURA",
@@ -10382,7 +10408,7 @@
                           "id": "mythic-wing",
                           "name": "Mythic Warden gyűjtői szobor",
                           "href": "/termek/mythic-warden",
-                          "image": "/storefront-demo/loot-vault-v2/hero-cinematic.webp",
+                          "image": "/storefront-demo/loot-vault-v2/hero-home.svg",
                           "imageAlt": "Mythic Warden fantasy gyűjtői szobor",
                           "price": 129990,
                           "badge": "SZOBOR",
@@ -10395,7 +10421,7 @@
                           "id": "ancient-warrior",
                           "name": "Neon Controller Collector Edition",
                           "href": "/termek/neon-controller-collector",
-                          "image": "/storefront-demo/loot-vault-v2/editorial-collector-room.webp",
+                          "image": "/storefront-demo/loot-vault-v2/editorial-home.svg",
                           "imageAlt": "Neon Controller Collector Edition",
                           "price": 59990,
                           "badge": "GYŰJTŐI KIADÁS",
@@ -10408,7 +10434,7 @@
                           "id": "archive-relic",
                           "name": "Vault Visor sci-fi relikvia",
                           "href": "/termek/vault-visor",
-                          "image": "/storefront-demo/loot-vault-v2/editorial-vault-shelf.webp",
+                          "image": "/storefront-demo/loot-vault-v2/product-story.svg",
                           "imageAlt": "Vault Visor sci-fi gyűjtői relikvia",
                           "price": 74990,
                           "badge": "ÚJDONSÁG",
@@ -10951,15 +10977,15 @@
         "shoporationGlobalStyles": {
           "version": "shoporation.storefront-global-styles.v1",
           "tokens": {
-            "background": "#090a0b",
-            "surface": "#121517",
-            "surfaceMuted": "#181c1e",
-            "text": "#f7e9d2",
-            "mutedText": "#b8ab98",
-            "border": "#4a3826",
-            "primary": "#171006",
-            "primaryContrast": "#fff1d9",
-            "accent": "#d8a14c",
+            "background": "#090A0B",
+            "surface": "#111314",
+            "surfaceMuted": "#17191A",
+            "text": "#F7E9D2",
+            "mutedText": "#B8AB98",
+            "border": "#4A3826",
+            "primary": "#D8A14C",
+            "primaryContrast": "#160F08",
+            "accent": "#F0C77C",
             "accentSecondary": "#6b7c70",
             "accentTertiary": "#8d433b",
             "headingFont": "editorial-serif",
@@ -10986,8 +11012,9 @@
         "visualFidelityTargetPercent": 95,
         "builderCompatibility": "required-public-visual-builder",
         "implementationMode": "canonical-page-schema-builder-safe",
-        "visualImplementationCheckpoint": "approved-reference-product-media-v21",
-        "visualImplementationDate": "2026-09-28"
+        "visualImplementationCheckpoint": "approved-reference-polish-assets-v22",
+        "visualImplementationDate": "2026-09-28",
+        "assetPack": "loot-vault-v2-original-vector-pack-v1"
       },
       "sections": [
         {
@@ -11324,7 +11351,7 @@
                       "componentKey": "content.image",
                       "componentVersion": 1,
                       "config": {
-                        "src": "/storefront-demo/loot-vault-v2/editorial-collector-room.webp",
+                        "src": "/storefront-demo/loot-vault-v2/content-hero.svg",
                         "alt": "Kurált Loot Vault archívum",
                         "width": 1600,
                         "height": 1000,
@@ -11334,17 +11361,17 @@
                         "objectPosition": "center center",
                         "artDirection": {
                           "desktop": {
-                            "src": "/storefront-demo/loot-vault-v2/editorial-collector-room.webp",
+                            "src": "/storefront-demo/loot-vault-v2/content-hero.svg",
                             "objectFit": "cover",
                             "objectPosition": "center center"
                           },
                           "tablet": {
-                            "src": "/storefront-demo/loot-vault-v2/editorial-collector-room.webp",
+                            "src": "/storefront-demo/loot-vault-v2/content-hero.svg",
                             "objectFit": "cover",
                             "objectPosition": "center center"
                           },
                           "mobile": {
-                            "src": "/storefront-demo/loot-vault-v2/editorial-collector-room.webp",
+                            "src": "/storefront-demo/loot-vault-v2/content-hero.svg",
                             "objectFit": "cover",
                             "objectPosition": "center center"
                           }
@@ -11627,12 +11654,13 @@
                             "ariaLabel": "Kapcsolat és ügyintézés megnyitása",
                             "presentation": "editorial-square",
                             "style": {
-                              "marginTop": ".45rem",
-                              "background": "linear-gradient(180deg,#f1c66f,#cf8f2e)",
-                              "border": "1px solid #f0c77c",
-                              "color": "#100d08",
-                              "boxShadow": "0 8px 22px rgba(216,161,76,.2)",
-                              "borderRadius": "10px"
+                              "borderRadius": "10px",
+                              "fontWeight": 900,
+                              "letterSpacing": ".015em",
+                              "background": "linear-gradient(180deg,#F0C77C 0%,#D8A14C 58%,#B97834 100%)",
+                              "color": "#160F08",
+                              "border": "1px solid #F4CF8E",
+                              "boxShadow": "0 12px 28px rgba(183,120,52,.28)"
                             }
                           },
                           "responsive": {
@@ -11861,15 +11889,15 @@
         "shoporationGlobalStyles": {
           "version": "shoporation.storefront-global-styles.v1",
           "tokens": {
-            "background": "#090a0b",
-            "surface": "#121517",
-            "surfaceMuted": "#181c1e",
-            "text": "#f7e9d2",
-            "mutedText": "#b8ab98",
-            "border": "#4a3826",
-            "primary": "#171006",
-            "primaryContrast": "#fff1d9",
-            "accent": "#d8a14c",
+            "background": "#090A0B",
+            "surface": "#111314",
+            "surfaceMuted": "#17191A",
+            "text": "#F7E9D2",
+            "mutedText": "#B8AB98",
+            "border": "#4A3826",
+            "primary": "#D8A14C",
+            "primaryContrast": "#160F08",
+            "accent": "#F0C77C",
             "accentSecondary": "#6b7c70",
             "accentTertiary": "#8d433b",
             "headingFont": "editorial-serif",
@@ -11895,8 +11923,9 @@
         "visualFidelityTargetPercent": 95,
         "builderCompatibility": "required-public-visual-builder",
         "implementationMode": "canonical-page-schema-builder-safe",
-        "visualImplementationCheckpoint": "approved-reference-product-media-v21",
-        "visualImplementationDate": "2026-09-28"
+        "visualImplementationCheckpoint": "approved-reference-polish-assets-v22",
+        "visualImplementationDate": "2026-09-28",
+        "assetPack": "loot-vault-v2-original-vector-pack-v1"
       },
       "sections": [
         {
@@ -12233,7 +12262,7 @@
                       "componentKey": "content.image",
                       "componentVersion": 1,
                       "config": {
-                        "src": "/storefront-demo/loot-vault-v2/editorial-vault-shelf.webp",
+                        "src": "/storefront-demo/loot-vault-v2/blog-hero.svg",
                         "alt": "Cinematikus Loot Vault gyűjtői világ",
                         "width": 1600,
                         "height": 1000,
@@ -12243,17 +12272,17 @@
                         "objectPosition": "68% center",
                         "artDirection": {
                           "desktop": {
-                            "src": "/storefront-demo/loot-vault-v2/editorial-vault-shelf.webp",
+                            "src": "/storefront-demo/loot-vault-v2/blog-hero.svg",
                             "objectFit": "cover",
                             "objectPosition": "68% center"
                           },
                           "tablet": {
-                            "src": "/storefront-demo/loot-vault-v2/editorial-vault-shelf.webp",
+                            "src": "/storefront-demo/loot-vault-v2/blog-hero.svg",
                             "objectFit": "cover",
                             "objectPosition": "68% center"
                           },
                           "mobile": {
-                            "src": "/storefront-demo/loot-vault-v2/editorial-vault-shelf.webp",
+                            "src": "/storefront-demo/loot-vault-v2/blog-hero.svg",
                             "objectFit": "cover",
                             "objectPosition": "68% center"
                           }
@@ -12431,7 +12460,7 @@
                         "storyType": "Kiemelt Vault történet",
                         "title": "A tárgy mögött mindig van egy világ.",
                         "excerpt": "Szerkesztett történetek alkotókról, kiadásokról és gyűjtői kultúráról — külön a valós ár-, készlet- és termékadat authoritytól.",
-                        "image": "/storefront-demo/loot-vault-v2/category-miniatures.webp",
+                        "image": "/storefront-demo/loot-vault-v2/article-lead.svg",
                         "imageAlt": "Kurált Loot Vault gyűjtői történet",
                         "href": "/blog/gyujtoszoba-mint-szemelyes-univerzum"
                       }
@@ -12448,7 +12477,7 @@
                           "storyType": "Kiemelt Vault történet",
                           "title": "A tárgy mögött mindig van egy világ.",
                           "excerpt": "Szerkesztett történetek alkotókról, kiadásokról és gyűjtői kultúráról — külön a valós ár-, készlet- és termékadat authoritytól.",
-                          "image": "/storefront-demo/loot-vault-v2/category-miniatures.webp",
+                          "image": "/storefront-demo/loot-vault-v2/article-lead.svg",
                           "imageAlt": "Kurált Loot Vault gyűjtői történet",
                           "href": "/blog/gyujtoszoba-mint-szemelyes-univerzum"
                         }
@@ -12577,7 +12606,7 @@
                           "componentKey": "content.image",
                           "componentVersion": 1,
                           "config": {
-                            "src": "/storefront-demo/loot-vault-v2/editorial-collector-room.webp",
+                            "src": "/storefront-demo/loot-vault-v2/blog-article-1.svg",
                             "alt": "A gyűjtőszoba mint személyes sci-fi univerzum",
                             "width": 1600,
                             "height": 1000,
@@ -12587,17 +12616,17 @@
                             "objectPosition": "52% center",
                             "artDirection": {
                               "desktop": {
-                                "src": "/storefront-demo/loot-vault-v2/editorial-collector-room.webp",
+                                "src": "/storefront-demo/loot-vault-v2/blog-article-1.svg",
                                 "objectFit": "cover",
                                 "objectPosition": "52% center"
                               },
                               "tablet": {
-                                "src": "/storefront-demo/loot-vault-v2/editorial-collector-room.webp",
+                                "src": "/storefront-demo/loot-vault-v2/blog-article-1.svg",
                                 "objectFit": "cover",
                                 "objectPosition": "52% center"
                               },
                               "mobile": {
-                                "src": "/storefront-demo/loot-vault-v2/editorial-collector-room.webp",
+                                "src": "/storefront-demo/loot-vault-v2/blog-article-1.svg",
                                 "objectFit": "cover",
                                 "objectPosition": "52% center"
                               }
@@ -12678,9 +12707,10 @@
                               "borderRadius": "10px",
                               "fontWeight": 800,
                               "letterSpacing": ".02em",
-                              "background": "rgba(18,21,23,.72)",
+                              "background": "#111416",
                               "color": "#E9CDA4",
-                              "border": "1px solid rgba(235,190,112,.58)"
+                              "border": "1px solid rgba(235,190,112,.58)",
+                              "boxShadow": "none"
                             }
                           }
                         }
@@ -12720,7 +12750,7 @@
                           "componentKey": "content.image",
                           "componentVersion": 1,
                           "config": {
-                            "src": "/storefront-demo/loot-vault-v2/product-figure.webp",
+                            "src": "/storefront-demo/loot-vault-v2/blog-article-2.svg",
                             "alt": "Mitől érték egy limitált kiadás?",
                             "width": 1600,
                             "height": 1000,
@@ -12730,17 +12760,17 @@
                             "objectPosition": "42% center",
                             "artDirection": {
                               "desktop": {
-                                "src": "/storefront-demo/loot-vault-v2/product-figure.webp",
+                                "src": "/storefront-demo/loot-vault-v2/blog-article-2.svg",
                                 "objectFit": "cover",
                                 "objectPosition": "42% center"
                               },
                               "tablet": {
-                                "src": "/storefront-demo/loot-vault-v2/product-figure.webp",
+                                "src": "/storefront-demo/loot-vault-v2/blog-article-2.svg",
                                 "objectFit": "cover",
                                 "objectPosition": "42% center"
                               },
                               "mobile": {
-                                "src": "/storefront-demo/loot-vault-v2/product-figure.webp",
+                                "src": "/storefront-demo/loot-vault-v2/blog-article-2.svg",
                                 "objectFit": "cover",
                                 "objectPosition": "42% center"
                               }
@@ -12821,9 +12851,10 @@
                               "borderRadius": "10px",
                               "fontWeight": 800,
                               "letterSpacing": ".02em",
-                              "background": "rgba(18,21,23,.72)",
+                              "background": "#111416",
                               "color": "#E9CDA4",
-                              "border": "1px solid rgba(235,190,112,.58)"
+                              "border": "1px solid rgba(235,190,112,.58)",
+                              "boxShadow": "none"
                             }
                           }
                         }
@@ -12863,7 +12894,7 @@
                           "componentKey": "content.image",
                           "componentVersion": 1,
                           "config": {
-                            "src": "/storefront-demo/loot-vault-v2/editorial-vault-shelf.webp",
+                            "src": "/storefront-demo/loot-vault-v2/blog-article-3.svg",
                             "alt": "Fantasy, sci-fi és retro filmes Loot Vault hangulat",
                             "width": 1600,
                             "height": 1000,
@@ -12873,17 +12904,17 @@
                             "objectPosition": "60% center",
                             "artDirection": {
                               "desktop": {
-                                "src": "/storefront-demo/loot-vault-v2/editorial-vault-shelf.webp",
+                                "src": "/storefront-demo/loot-vault-v2/blog-article-3.svg",
                                 "objectFit": "cover",
                                 "objectPosition": "60% center"
                               },
                               "tablet": {
-                                "src": "/storefront-demo/loot-vault-v2/editorial-vault-shelf.webp",
+                                "src": "/storefront-demo/loot-vault-v2/blog-article-3.svg",
                                 "objectFit": "cover",
                                 "objectPosition": "60% center"
                               },
                               "mobile": {
-                                "src": "/storefront-demo/loot-vault-v2/editorial-vault-shelf.webp",
+                                "src": "/storefront-demo/loot-vault-v2/blog-article-3.svg",
                                 "objectFit": "cover",
                                 "objectPosition": "60% center"
                               }
@@ -12964,9 +12995,10 @@
                               "borderRadius": "10px",
                               "fontWeight": 800,
                               "letterSpacing": ".02em",
-                              "background": "rgba(18,21,23,.72)",
+                              "background": "#111416",
                               "color": "#E9CDA4",
-                              "border": "1px solid rgba(235,190,112,.58)"
+                              "border": "1px solid rgba(235,190,112,.58)",
+                              "boxShadow": "none"
                             }
                           }
                         }
@@ -13234,15 +13266,15 @@
         "shoporationGlobalStyles": {
           "version": "shoporation.storefront-global-styles.v1",
           "tokens": {
-            "background": "#090a0b",
-            "surface": "#121517",
-            "surfaceMuted": "#181c1e",
-            "text": "#f7e9d2",
-            "mutedText": "#b8ab98",
-            "border": "#4a3826",
-            "primary": "#171006",
-            "primaryContrast": "#fff1d9",
-            "accent": "#d8a14c",
+            "background": "#090A0B",
+            "surface": "#111314",
+            "surfaceMuted": "#17191A",
+            "text": "#F7E9D2",
+            "mutedText": "#B8AB98",
+            "border": "#4A3826",
+            "primary": "#D8A14C",
+            "primaryContrast": "#160F08",
+            "accent": "#F0C77C",
             "accentSecondary": "#6b7c70",
             "accentTertiary": "#8d433b",
             "headingFont": "editorial-serif",
@@ -13268,8 +13300,9 @@
         "visualFidelityTargetPercent": 95,
         "builderCompatibility": "required-public-visual-builder",
         "implementationMode": "canonical-page-schema-builder-safe",
-        "visualImplementationCheckpoint": "approved-reference-product-media-v21",
-        "visualImplementationDate": "2026-09-28"
+        "visualImplementationCheckpoint": "approved-reference-polish-assets-v22",
+        "visualImplementationDate": "2026-09-28",
+        "assetPack": "loot-vault-v2-original-vector-pack-v1"
       },
       "sections": [
         {
@@ -13564,7 +13597,7 @@
             "eyebrow": "VAULT MAGAZIN",
             "title": "Mitől válik egy tárgy valódi gyűjtői darabbá?",
             "excerpt": "Eredet, kiadás, állapot és történet — négy réteg, amely túlmutat a puszta birtokláson.",
-            "image": "/storefront-demo/loot-vault-v2/product-figure.webp",
+            "image": "/storefront-demo/loot-vault-v2/product-sentinel.svg",
             "imageAlt": "Prémium gyűjtői figura részlete",
             "ctaLabel": "Vissza a Vault Magazinba",
             "ctaHref": "/blog",
@@ -13765,7 +13798,7 @@
                       "componentKey": "content.image",
                       "componentVersion": 1,
                       "config": {
-                        "src": "/storefront-demo/loot-vault-v2/category-miniatures.webp",
+                        "src": "/storefront-demo/loot-vault-v2/article-lead.svg",
                         "alt": "Gyűjtői tárgy részlete",
                         "width": 1200,
                         "height": 1400,
@@ -14059,15 +14092,15 @@
         "shoporationGlobalStyles": {
           "version": "shoporation.storefront-global-styles.v1",
           "tokens": {
-            "background": "#090a0b",
-            "surface": "#121517",
-            "surfaceMuted": "#181c1e",
-            "text": "#f7e9d2",
-            "mutedText": "#b8ab98",
-            "border": "#4a3826",
-            "primary": "#171006",
-            "primaryContrast": "#fff1d9",
-            "accent": "#d8a14c",
+            "background": "#090A0B",
+            "surface": "#111314",
+            "surfaceMuted": "#17191A",
+            "text": "#F7E9D2",
+            "mutedText": "#B8AB98",
+            "border": "#4A3826",
+            "primary": "#D8A14C",
+            "primaryContrast": "#160F08",
+            "accent": "#F0C77C",
             "accentSecondary": "#6b7c70",
             "accentTertiary": "#8d433b",
             "headingFont": "editorial-serif",
@@ -14094,8 +14127,9 @@
         "visualFidelityTargetPercent": 95,
         "builderCompatibility": "required-public-visual-builder",
         "implementationMode": "canonical-page-schema-builder-safe",
-        "visualImplementationCheckpoint": "approved-reference-product-media-v21",
-        "visualImplementationDate": "2026-09-28"
+        "visualImplementationCheckpoint": "approved-reference-polish-assets-v22",
+        "visualImplementationDate": "2026-09-28",
+        "assetPack": "loot-vault-v2-original-vector-pack-v1"
       },
       "sections": [
         {
@@ -14404,7 +14438,7 @@
               "componentKey": "content.image",
               "componentVersion": 1,
               "config": {
-                "src": "/storefront-demo/loot-vault-v2/editorial-collector-room.webp",
+                "src": "/storefront-demo/loot-vault-v2/faq-hero.svg",
                 "alt": "Sötét archívumhangulat a súgó nyitófelületének hátterében",
                 "width": 1600,
                 "height": 1000,
@@ -14414,17 +14448,17 @@
                 "objectPosition": "center 40%",
                 "artDirection": {
                   "desktop": {
-                    "src": "/storefront-demo/loot-vault-v2/editorial-collector-room.webp",
+                    "src": "/storefront-demo/loot-vault-v2/faq-hero.svg",
                     "objectFit": "cover",
                     "objectPosition": "center 40%"
                   },
                   "tablet": {
-                    "src": "/storefront-demo/loot-vault-v2/editorial-collector-room.webp",
+                    "src": "/storefront-demo/loot-vault-v2/faq-hero.svg",
                     "objectFit": "cover",
                     "objectPosition": "center 40%"
                   },
                   "mobile": {
-                    "src": "/storefront-demo/loot-vault-v2/editorial-collector-room.webp",
+                    "src": "/storefront-demo/loot-vault-v2/faq-hero.svg",
                     "objectFit": "cover",
                     "objectPosition": "center 40%"
                   }
@@ -15039,15 +15073,15 @@
         "shoporationGlobalStyles": {
           "version": "shoporation.storefront-global-styles.v1",
           "tokens": {
-            "background": "#090a0b",
-            "surface": "#121517",
-            "surfaceMuted": "#181c1e",
-            "text": "#f7e9d2",
-            "mutedText": "#b8ab98",
-            "border": "#4a3826",
-            "primary": "#171006",
-            "primaryContrast": "#fff1d9",
-            "accent": "#d8a14c",
+            "background": "#090A0B",
+            "surface": "#111314",
+            "surfaceMuted": "#17191A",
+            "text": "#F7E9D2",
+            "mutedText": "#B8AB98",
+            "border": "#4A3826",
+            "primary": "#D8A14C",
+            "primaryContrast": "#160F08",
+            "accent": "#F0C77C",
             "accentSecondary": "#6b7c70",
             "accentTertiary": "#8d433b",
             "headingFont": "editorial-serif",
@@ -15079,8 +15113,9 @@
         "visualFidelityTargetPercent": 95,
         "builderCompatibility": "required-public-visual-builder",
         "implementationMode": "canonical-page-schema-builder-safe",
-        "visualImplementationCheckpoint": "approved-reference-product-media-v21",
-        "visualImplementationDate": "2026-09-28"
+        "visualImplementationCheckpoint": "approved-reference-polish-assets-v22",
+        "visualImplementationDate": "2026-09-28",
+        "assetPack": "loot-vault-v2-original-vector-pack-v1"
       },
       "sections": [
         {
@@ -15389,7 +15424,7 @@
               "componentKey": "content.image",
               "componentVersion": 1,
               "config": {
-                "src": "/storefront-demo/loot-vault-v2/editorial-vault-shelf.webp",
+                "src": "/storefront-demo/loot-vault-v2/contact-hero.svg",
                 "alt": "Cinematikus Loot Vault jelenet az ügyfélszolgálati oldal hátterében",
                 "width": 1600,
                 "height": 1000,
@@ -15399,17 +15434,17 @@
                 "objectPosition": "70% center",
                 "artDirection": {
                   "desktop": {
-                    "src": "/storefront-demo/loot-vault-v2/editorial-vault-shelf.webp",
+                    "src": "/storefront-demo/loot-vault-v2/contact-hero.svg",
                     "objectFit": "cover",
                     "objectPosition": "70% center"
                   },
                   "tablet": {
-                    "src": "/storefront-demo/loot-vault-v2/editorial-vault-shelf.webp",
+                    "src": "/storefront-demo/loot-vault-v2/contact-hero.svg",
                     "objectFit": "cover",
                     "objectPosition": "70% center"
                   },
                   "mobile": {
-                    "src": "/storefront-demo/loot-vault-v2/editorial-vault-shelf.webp",
+                    "src": "/storefront-demo/loot-vault-v2/contact-hero.svg",
                     "objectFit": "cover",
                     "objectPosition": "70% center"
                   }
@@ -15631,9 +15666,10 @@
                               "borderRadius": "10px",
                               "fontWeight": 800,
                               "letterSpacing": ".02em",
-                              "background": "rgba(18,21,23,.72)",
+                              "background": "#111416",
                               "color": "#E9CDA4",
-                              "border": "1px solid rgba(235,190,112,.58)"
+                              "border": "1px solid rgba(235,190,112,.58)",
+                              "boxShadow": "none"
                             }
                           }
                         },
@@ -15651,9 +15687,10 @@
                               "borderRadius": "10px",
                               "fontWeight": 800,
                               "letterSpacing": ".02em",
-                              "background": "rgba(18,21,23,.72)",
+                              "background": "#111416",
                               "color": "#E9CDA4",
-                              "border": "1px solid rgba(235,190,112,.58)"
+                              "border": "1px solid rgba(235,190,112,.58)",
+                              "boxShadow": "none"
                             }
                           }
                         },
@@ -15671,9 +15708,10 @@
                               "borderRadius": "10px",
                               "fontWeight": 800,
                               "letterSpacing": ".02em",
-                              "background": "rgba(18,21,23,.72)",
+                              "background": "#111416",
                               "color": "#E9CDA4",
-                              "border": "1px solid rgba(235,190,112,.58)"
+                              "border": "1px solid rgba(235,190,112,.58)",
+                              "boxShadow": "none"
                             }
                           }
                         }
@@ -16567,15 +16605,15 @@
         "shoporationGlobalStyles": {
           "version": "shoporation.storefront-global-styles.v1",
           "tokens": {
-            "background": "#090a0b",
-            "surface": "#121517",
-            "surfaceMuted": "#181c1e",
-            "text": "#f7e9d2",
-            "mutedText": "#b8ab98",
-            "border": "#4a3826",
-            "primary": "#171006",
-            "primaryContrast": "#fff1d9",
-            "accent": "#d8a14c",
+            "background": "#090A0B",
+            "surface": "#111314",
+            "surfaceMuted": "#17191A",
+            "text": "#F7E9D2",
+            "mutedText": "#B8AB98",
+            "border": "#4A3826",
+            "primary": "#D8A14C",
+            "primaryContrast": "#160F08",
+            "accent": "#F0C77C",
             "accentSecondary": "#6b7c70",
             "accentTertiary": "#8d433b",
             "headingFont": "editorial-serif",
@@ -16602,8 +16640,9 @@
         "visualFidelityTargetPercent": 95,
         "builderCompatibility": "required-public-visual-builder",
         "implementationMode": "canonical-page-schema-builder-safe",
-        "visualImplementationCheckpoint": "approved-reference-product-media-v21",
-        "visualImplementationDate": "2026-09-28"
+        "visualImplementationCheckpoint": "approved-reference-polish-assets-v22",
+        "visualImplementationDate": "2026-09-28",
+        "assetPack": "loot-vault-v2-original-vector-pack-v1"
       },
       "sections": [
         {
@@ -17331,15 +17370,15 @@
         "shoporationGlobalStyles": {
           "version": "shoporation.storefront-global-styles.v1",
           "tokens": {
-            "background": "#090a0b",
-            "surface": "#121517",
-            "surfaceMuted": "#181c1e",
-            "text": "#f7e9d2",
-            "mutedText": "#b8ab98",
-            "border": "#4a3826",
-            "primary": "#171006",
-            "primaryContrast": "#fff1d9",
-            "accent": "#d8a14c",
+            "background": "#090A0B",
+            "surface": "#111314",
+            "surfaceMuted": "#17191A",
+            "text": "#F7E9D2",
+            "mutedText": "#B8AB98",
+            "border": "#4A3826",
+            "primary": "#D8A14C",
+            "primaryContrast": "#160F08",
+            "accent": "#F0C77C",
             "accentSecondary": "#6b7c70",
             "accentTertiary": "#8d433b",
             "headingFont": "editorial-serif",
@@ -17366,8 +17405,9 @@
         "visualFidelityTargetPercent": 95,
         "builderCompatibility": "required-public-visual-builder",
         "implementationMode": "canonical-page-schema-builder-safe",
-        "visualImplementationCheckpoint": "approved-reference-product-media-v21",
-        "visualImplementationDate": "2026-09-28"
+        "visualImplementationCheckpoint": "approved-reference-polish-assets-v22",
+        "visualImplementationDate": "2026-09-28",
+        "assetPack": "loot-vault-v2-original-vector-pack-v1"
       },
       "sections": [
         {
@@ -17704,7 +17744,7 @@
                       "componentKey": "content.image",
                       "componentVersion": 1,
                       "config": {
-                        "src": "/storefront-demo/loot-vault-v2/editorial-collector-room.webp",
+                        "src": "/storefront-demo/loot-vault-v2/not-found.svg",
                         "alt": "Sötét Loot Vault archívum",
                         "width": 1600,
                         "height": 1000,
@@ -17714,17 +17754,17 @@
                         "objectPosition": "center center",
                         "artDirection": {
                           "desktop": {
-                            "src": "/storefront-demo/loot-vault-v2/editorial-collector-room.webp",
+                            "src": "/storefront-demo/loot-vault-v2/not-found.svg",
                             "objectFit": "cover",
                             "objectPosition": "center center"
                           },
                           "tablet": {
-                            "src": "/storefront-demo/loot-vault-v2/editorial-collector-room.webp",
+                            "src": "/storefront-demo/loot-vault-v2/not-found.svg",
                             "objectFit": "cover",
                             "objectPosition": "center center"
                           },
                           "mobile": {
-                            "src": "/storefront-demo/loot-vault-v2/editorial-collector-room.webp",
+                            "src": "/storefront-demo/loot-vault-v2/not-found.svg",
                             "objectFit": "cover",
                             "objectPosition": "center center"
                           }
@@ -17888,9 +17928,10 @@
                               "borderRadius": "10px",
                               "fontWeight": 800,
                               "letterSpacing": ".02em",
-                              "background": "rgba(18,21,23,.72)",
+                              "background": "#111416",
                               "color": "#E9CDA4",
-                              "border": "1px solid rgba(235,190,112,.58)"
+                              "border": "1px solid rgba(235,190,112,.58)",
+                              "boxShadow": "none"
                             }
                           }
                         }
@@ -18026,9 +18067,10 @@
                               "borderRadius": "10px",
                               "fontWeight": 800,
                               "letterSpacing": ".02em",
-                              "background": "rgba(18,21,23,.72)",
+                              "background": "#111416",
                               "color": "#E9CDA4",
-                              "border": "1px solid rgba(235,190,112,.58)"
+                              "border": "1px solid rgba(235,190,112,.58)",
+                              "boxShadow": "none"
                             }
                           }
                         }
@@ -18120,9 +18162,10 @@
                               "borderRadius": "10px",
                               "fontWeight": 800,
                               "letterSpacing": ".02em",
-                              "background": "rgba(18,21,23,.72)",
+                              "background": "#111416",
                               "color": "#E9CDA4",
-                              "border": "1px solid rgba(235,190,112,.58)"
+                              "border": "1px solid rgba(235,190,112,.58)",
+                              "boxShadow": "none"
                             }
                           }
                         }
@@ -18214,9 +18257,10 @@
                               "borderRadius": "10px",
                               "fontWeight": 800,
                               "letterSpacing": ".02em",
-                              "background": "rgba(18,21,23,.72)",
+                              "background": "#111416",
                               "color": "#E9CDA4",
-                              "border": "1px solid rgba(235,190,112,.58)"
+                              "border": "1px solid rgba(235,190,112,.58)",
+                              "boxShadow": "none"
                             }
                           }
                         }
@@ -18453,7 +18497,7 @@
         "name": "Vault Sentinel prémium figura",
         "slug": "vault-sentinel",
         "kind": "collectible-figure",
-        "image": "/storefront-demo/loot-vault-v2/product-figure.webp",
+        "image": "/storefront-demo/loot-vault-v2/product-sentinel.svg",
         "demo": true
       }
     },
@@ -18464,7 +18508,7 @@
         "name": "Mythic Warden gyűjtői szobor",
         "slug": "mythic-wing",
         "kind": "collector-statue",
-        "image": "/storefront-demo/loot-vault-v2/editorial-vault-shelf.webp",
+        "image": "/storefront-demo/loot-vault-v2/product-story.svg",
         "demo": true
       }
     },
@@ -18475,7 +18519,7 @@
         "name": "Neon Controller Collector Edition",
         "slug": "ancient-warrior",
         "kind": "collector-edition",
-        "image": "/storefront-demo/loot-vault-v2/editorial-collector-room.webp",
+        "image": "/storefront-demo/loot-vault-v2/editorial-home.svg",
         "demo": true
       }
     },
@@ -18486,7 +18530,7 @@
         "name": "Vault Visor sci-fi relikvia",
         "slug": "collector-archive",
         "kind": "display-edition",
-        "image": "/storefront-demo/loot-vault-v2/editorial-vault-shelf.webp",
+        "image": "/storefront-demo/loot-vault-v2/product-story.svg",
         "demo": true
       }
     },

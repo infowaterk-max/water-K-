@@ -28,8 +28,9 @@ export async function StorefrontAccountShell({customerId,fallbackNavigation,chil
   ?<div className="storefrontAccountShell" data-authenticated="true"><StorefrontAccountWorkspace navigation={navigationFor(runtime.page)}>{children}</StorefrontAccountWorkspace></div>
   :<div className="storefrontAccountShell" data-authenticated="false"><div className="storefrontAccountRouteContent storefrontAuthRouteContent">{children}</div></div>;
  const vars=resolveStorefrontGlobalStyleCssVariables(runtime.page) as CSSProperties;
+ const accountTheme={...vars,'--bg':'var(--shoporation-color-background)','--card':'var(--shoporation-color-surface)','--ink':'var(--shoporation-color-text)','--muted':'var(--shoporation-color-muted-text)','--line':'var(--shoporation-color-border)','--green':'var(--shoporation-color-primary)',fontFamily:'var(--shoporation-body-font,Arial,sans-serif)',background:'var(--shoporation-color-background,#fff)',color:'var(--shoporation-color-text,#111827)'} as CSSProperties;
  const render=(sections:StorefrontPageDocument['sections'])=><StorefrontResponsiveRuntime page={sliceStorefrontAccountTemplatePage(runtime.page,[...sections])} initialViewport={viewport} bindingContext={runtime.bindingContext} capability={runtime.capability}/>;
- return <div className="storefrontAccountShell" data-storefront-account-shell={runtime.source} data-storefront-template={runtime.page.templateKey} data-authenticated={customerId?'true':'false'} style={{...vars,fontFamily:'var(--shoporation-body-font,Arial,sans-serif)',background:'var(--shoporation-color-background,#fff)',color:'var(--shoporation-color-text,#111827)'}}>
+ return <div className="storefrontAccountShell" data-storefront-account-shell={runtime.source} data-storefront-template={runtime.page.templateKey} data-authenticated={customerId?'true':'false'} style={accountTheme}>
    {render(headerSections)}
    {!customerId&&publicAuthSections.length?render(publicAuthSections):null}
    {customerId?<StorefrontAccountWorkspace navigation={navigationFor(runtime.page)}>{children}</StorefrontAccountWorkspace>:<div className="storefrontAccountRouteContent storefrontAuthRouteContent">{children}</div>}

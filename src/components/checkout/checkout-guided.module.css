@@ -60,12 +60,13 @@
 .root :global(.checkoutStepError){margin:.75rem 0 0}
 .root :global(.choiceCard){background:var(--checkout-surface-muted);color:var(--checkout-text);border-color:var(--checkout-border);border-radius:var(--checkout-radius-m)}
 .root :global(.choiceCard:hover){background:var(--checkout-surface);border-color:color-mix(in srgb,var(--checkout-primary) 44%,var(--checkout-border))}
-.root :global(.choiceCard.active){background:color-mix(in srgb,var(--checkout-primary) 8%,var(--checkout-surface));border-color:var(--checkout-primary);box-shadow:0 0 0 2px color-mix(in srgb,var(--checkout-primary) 9%,transparent)}
+.root :global(.choiceCard.active){background:color-mix(in srgb,var(--checkout-primary) 10%,var(--checkout-surface));border:2px solid var(--checkout-primary);box-shadow:0 0 0 3px color-mix(in srgb,var(--checkout-primary) 15%,transparent),0 12px 30px rgba(0,0,0,.16)}
 .root :global(.choiceIcon){background:var(--checkout-surface);border-color:var(--checkout-border);color:var(--checkout-primary);border-radius:var(--checkout-radius-s)}
 .root :global(.choiceBody small),.root :global(.choiceCard>b),.root :global(.choiceCheck){color:var(--checkout-primary)}
+.root :global(.choiceCheck){opacity:.58}.root :global(.choiceCard.active .choiceCheck){opacity:1}
 .root :global(.choiceBody em),.root :global(.muted){color:var(--checkout-muted)}
 .root :global(.btn),.root :global(.button){border-radius:var(--checkout-button-radius)!important}.root :global(.btnPrimary){background:var(--checkout-primary);color:var(--checkout-primary-contrast);box-shadow:0 12px 28px color-mix(in srgb,var(--checkout-primary) 24%,transparent)}
-.root :global(.btnGhost){background:var(--checkout-surface);color:var(--checkout-text);border:1px solid var(--checkout-border)}
+.root :global(.btnGhost){background:var(--checkout-surface);color:var(--checkout-accent);border:1px solid color-mix(in srgb,var(--checkout-primary) 68%,var(--checkout-border))}
 .root :global(.checkoutSummary){position:sticky;top:6.2rem;background:var(--checkout-surface);color:var(--checkout-text);border-color:var(--checkout-border);border-radius:var(--checkout-radius-l);box-shadow:0 16px 42px rgba(0,0,0,.08)}
 .root :global(.summaryLine){border-color:var(--checkout-border)}
 .root :global(.checkoutSummary .summaryLine){display:grid;grid-template-columns:minmax(0,1fr) auto;gap:.8rem;align-items:start}.root :global(.checkoutSummary .summaryLine>span){color:var(--checkout-label)!important;line-height:1.35;min-width:0;overflow-wrap:anywhere}
