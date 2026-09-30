@@ -1,8 +1,10 @@
 import {mkdirSync,readFileSync,writeFileSync} from 'node:fs';
 import {getChangedFiles,globToRegExp,guardPolicy,isNeutralFile,knowledge,resolveDevelopmentScope,scopePolicy,stableDigest} from './lib/shoperation-development-runtime.mjs';
 import {buildCodebaseAtlas,validateCodebaseAtlas} from './lib/shoperation-codebase-atlas-runtime.mjs';
+import {validateOperationalIntelligence} from './lib/shoperation-operational-intelligence.mjs';
 
 const plan=JSON.parse(readFileSync('quality/development/active-plan.json','utf8'));
+const guardRegistry=JSON.parse(readFileSync('quality/knowledge/guard-registry.v1.json','utf8'));
 const diff=getChangedFiles({baseSha:plan.changeBaseSha});
 const changedFiles=diff.files.filter(file=>file!=='quality/development/active-plan.json');
 const issues=[];
@@ -87,6 +89,9 @@ for(const exception of plan.exceptions??[])if(!exception.ruleId||!exception.reas
 const digest=stableDigest({failureIds:projectedFailures,subsystems:projectedSubsystems,negativeKnowledgeIds:projectedNegative});
 if(plan.guardDigest!==digest)issues.push({code:'DEV_PLAN_GUARD_DIGEST_DRIFT',expected:plan.guardDigest,actual:digest});
 
+const operationalValidation=validateOperationalIntelligence({plan,policy:guardPolicy,guardIds:(guardRegistry.guards??[]).map(item=>item.id)});
+issues.push(...operationalValidation.issues);
+
 const report={
   contract:'shoporation.plan-before-code-gate.v1',
   taskId:plan.taskId??null,
@@ -103,6 +108,7 @@ const report={
     atlasContract:atlas.contract,
   },
   guardDigest:digest,
+  operationalIntelligence:{riskTier:plan.operationalIntelligence?.riskTier??null,assuranceLevel:operationalValidation.profile?.assuranceLevel??null,sourceRef:plan.operationalIntelligence?.sourceRef??null,challengeCount:plan.operationalIntelligence?.challenge?.length??0,specialistCount:plan.operationalIntelligence?.specialistReviews?.length??0,completionRequirementIds:(plan.completionContract?.requirements??[]).map(item=>item.id)},
   issues,
   decision:issues.length?'BLOCK':'PASS',
 };
