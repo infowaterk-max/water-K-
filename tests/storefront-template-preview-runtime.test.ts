@@ -51,6 +51,7 @@ describe('storefront template preview runtime',()=>{
     expect(previewRuntime).toContain('event.nativeEvent.stopImmediatePropagation()');
     expect(previewRuntime).toContain('navigatePreview(event,routes.cart)');
     expect(previewRuntime).toContain('navigatePreview(event,routes.checkout)');
+    expect(previewRuntime).toContain('data-storefront-live-checkout="shared-e13"');
   });
 
   it('resolves tenant-free template-aware account presentation for every accepted previewable template',()=>{

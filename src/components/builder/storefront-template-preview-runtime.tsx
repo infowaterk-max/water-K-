@@ -50,7 +50,7 @@ function PreviewCartCommerceSurface(){
 }
 
 function PreviewCheckoutCommerceSurface(){
-  return <div data-storefront-commerce="checkout-summary" data-storefront-commerce-shell="checkout-v1" data-storefront-preview-checkout="interactive-fail-closed">
+  return <div data-storefront-commerce="checkout-summary" data-storefront-commerce-shell="checkout-v1" data-storefront-live-checkout="shared-e13" data-storefront-preview-checkout="interactive-fail-closed">
     <CheckoutForm
       shippingOptions={PREVIEW_SHIPPING_OPTIONS}
       paymentOptions={PREVIEW_PAYMENT_OPTIONS}
