@@ -1,26 +1,43 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-RELEASE-RISK-CLASSIFICATION-CLOSURE",
-  "task": "Classify Template Factory quality-gate orchestration and shared account library paths under existing Release Risk subsystem ownership without changing budget thresholds, risk weights, neutral policy, business authority, or gate behavior.",
+  "taskId": "DEV-CONTROL-PLANE-SELF-KNOWLEDGE-HARDENING",
+  "task": "Canonicalize the completed Control Plane hardening before further template production: A/B stale-reference closure, syntax-aware Atlas import extraction, real Catalog domain coverage, and deterministic Failure Intake reconciliation without weakening durable evidence.",
   "status": "ready-for-implementation",
-  "guardDigest": "6026c5a2",
+  "guardDigest": "8947ff8b",
   "plannedFilePatterns": [
-    "deploy/release-risk-policy.json",
-    "tests/control-plane-diagnostic-coverage.test.ts",
-    "quality/development/active-plan.json"
+    "AGENTS.md",
+    "docs/architecture/CHANGE_IMPACT_RELEASE_CLOSURE.md",
+    "docs/architecture/SHOPERATION_SENTINEL.md",
+    "quality/development/active-plan.json",
+    "quality/knowledge/development-guard-policy.v1.json",
+    "quality/knowledge/domain-foundations.v1.json",
+    "quality/knowledge/shoperation-quality-knowledge.v1.json",
+    "scripts/lib/shoperation-reference-sync-runtime.mjs",
+    "scripts/lib/shoperation-codebase-atlas-runtime.mjs",
+    "scripts/shoperation-edit-time-guard.mjs",
+    "scripts/shoperation-sentinel-scan.mjs",
+    "scripts/shoperation-failure-intake-reconcile.mjs",
+    "tests/shoperation-development-guard.test.ts",
+    "tests/shoperation-codebase-atlas-v2.test.ts",
+    "tests/domain-foundations.test.ts",
+    "tests/shoperation-sentinel.test.ts",
+    "tests/shoperation-failure-intake-reconcile.test.ts",
+    ".github/workflows/shoperation-knowledge-full-replay.yml"
   ],
   "expectedSubsystems": [
-    "auth-access-authority",
     "builder-template-system",
-    "customer-account",
+    "quality-infrastructure",
     "quality-knowledge-system",
     "release-infrastructure",
-    "shared-storefront"
+    "shared-storefront",
+    "storefront-ui"
   ],
   "expectedDomains": [
+    "DOMAIN-QUALITY",
     "DOMAIN-RELEASE"
   ],
   "expectedAuthorities": [
+    "quality-knowledge-system",
     "release-infrastructure"
   ],
   "expectedKnownFailureIds": [
@@ -91,6 +108,6 @@
     "SQ-NK-015"
   ],
   "exceptions": [],
-  "notes": "Fresh rebase of draft PR #518 onto canonical main 1537ab47df2a5bf8e2d880ac66e18e7dfe80cd45. Isolated release-governance classification only: scripts/template-factory-quality-gate.mjs -> existing medium quality-infrastructure; src/lib/account/** -> existing medium customer-account. No maxPoints/maxSubsystems change, no risk weight change, no neutral classification, no gate removal, no checkout/order/payment behavior change.",
-  "changeBaseSha": "1537ab47df2a5bf8e2d880ac66e18e7dfe80cd45"
+  "notes": "Product Owner requested completion of system hardening before resuming template production. This clean main-based transaction contains only Control Plane/self-knowledge changes already proven on the Loot Vault branch: A/B Reference Sync in the existing Edit-Time Guard, syntax-aware Atlas imports, corrected DOMAIN-CATALOG canonical paths, Sentinel canonical-vs-development intake separation, and deterministic Failure Intake reconciliation in the existing periodic full-replay authority. No template code, no golden update, no parallel gate, and no weakening of Failure Intake durability.",
+  "changeBaseSha": "b8db333280e7fa4346c1c5a454aa0eef926e2fc0"
 }
