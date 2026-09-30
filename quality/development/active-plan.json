@@ -1,28 +1,44 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-LOOT-VAULT-V2-MEDIA-POLISH",
-  "task": "Finish Loot Vault v2 approved Visual First media polish by diversifying template-owned media roles, preserving distinct item imagery, and locking the existing regression coverage without changing shared business authorities.",
+  "taskId": "DEV-LOOT-VAULT-V2-PO-CLOSURE",
+  "task": "Close Loot Vault v2 Product Owner defects by repairing the shared product gallery interaction, template-aware cart presentation, account/collection presentation, and product preview route continuity with executable behavior proof.",
   "status": "ready-for-implementation",
-  "guardDigest": "5629f201",
+  "guardDigest": "7b0d15c7",
   "plannedFilePatterns": [
+    "src/components/builder/storefront-product-gallery.tsx",
+    "src/components/builder/storefront-commerce.tsx",
+    "src/components/cart/cart-view.tsx",
+    "src/components/builder/storefront-template-preview-runtime.tsx",
     "src/lib/builder/templates/gaming/loot-vault/v2/canonical-package.json",
-    "src/lib/builder/storefront-template-preview-demo.ts",
+    "src/app/globals.css",
+    "tests/storefront-fidelity-commerce-interaction-states.test.tsx",
+    "tests/storefront-template-preview-runtime.test.ts",
+    "tests/account-collection-authority.test.ts",
+    "tests/storefront-product-gallery-behavior.test.ts",
     "tests/storefront-loot-vault-v2-polish.test.ts",
     "docs/LOOT_VAULT_V2_MOBILE_PO_AUDIT_2026-09-29.md"
   ],
   "expectedSubsystems": [
+    "auth-access-authority",
     "builder-template-system",
-    "shared-storefront"
+    "customer-account",
+    "shared-storefront",
+    "storefront-ui"
   ],
   "expectedDomains": [
     "DOMAIN-BUILDER",
+    "DOMAIN-COMMERCE",
     "DOMAIN-STOREFRONT"
   ],
   "expectedAuthorities": [
     "builder-template-system",
+    "commerce-core-authority",
     "shared-storefront"
   ],
   "expectedKnownFailureIds": [
+    "SQ-KF-013",
+    "SQ-KF-014",
+    "SQ-KF-022",
     "SQ-KF-001",
     "SQ-KF-002",
     "SQ-KF-003",
@@ -32,14 +48,11 @@
     "SQ-KF-010",
     "SQ-KF-011",
     "SQ-KF-012",
-    "SQ-KF-013",
-    "SQ-KF-014",
     "SQ-KF-015",
     "SQ-KF-016",
     "SQ-KF-017",
     "SQ-KF-019",
     "SQ-KF-020",
-    "SQ-KF-022",
     "TF-KF-001",
     "TF-KF-002",
     "TF-KF-003",
@@ -79,6 +92,6 @@
     "SQ-NK-012"
   ],
   "exceptions": [],
-  "notes": "Product Owner explicitly closed Control Plane hardening and returned #469 to Loot Vault v2 polish. This plan replaces the stale prior Control Plane transaction envelope only; it does not weaken or bypass any guard. Scope is limited to the documented media-diversity polish: canonical template media-role mapping, representative preview fixture identity, focused regression coverage, and PO audit status. Shared commerce/runtime authorities, golden baselines, main, staging, production and Release Risk Budget policy are out of scope.",
-  "changeBaseSha": "8e70acd7bc916e206247559a19ccc78bd0021a10"
+  "notes": "Product Owner requires Loot Vault v2 to close as a real shopper-ready template, not from component-presence or green-CI inference. Scope is deliberately surgical: shared gallery behavior, shared cart presentation token authority, template-aware account/collection continuity, preview product routing, focused executable regression proof, and PO audit reconciliation. No Control Plane redesign. No golden update, main merge, staging promotion, production promotion, Release Risk Budget weakening, or template-local fork of shared commerce/account authority.",
+  "changeBaseSha": "8ff249af0cf9bdd9c88ff282eff49e1f51954ced"
 }
