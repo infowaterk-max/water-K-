@@ -94,9 +94,6 @@ jobs:
             const report=JSON.parse(fs.readFileSync(file,'utf8'));
             const unresolved=(report.records||[]).filter(r=>['candidate-new-failure','needs-review'].includes(r.classificationStatus));
             if(!unresolved.length)return;
-            const atlasFile='artifacts/shoperation-atlas/codebase-atlas.json';
-            const atlas=fs.existsSync(atlasFile)?JSON.parse(fs.readFileSync(atlasFile,'utf8')):null;
-            const atlasDomainResolvedFiles=(atlas?.nodes||[]).filter(node=>Array.isArray(node.domains)&&node.domains.length>0).map(node=>node.path);
             const open=await github.paginate(github.rest.issues.listForRepo,{...context.repo,state:'open',per_page:100});
             for(const record of unresolved){
               const identity=record.failureFingerprint||record.candidateId;
@@ -114,7 +111,9 @@ jobs:
         with:
           script: |
             const fs=require('fs');
-            const path=require('path');
+            const atlasFile='artifacts/shoperation-atlas/codebase-atlas.json';
+            const atlas=fs.existsSync(atlasFile)?JSON.parse(fs.readFileSync(atlasFile,'utf8')):null;
+            const atlasDomainResolvedFiles=(atlas?.nodes||[]).filter(node=>Array.isArray(node.domains)&&node.domains.length>0).map(node=>node.path);
             const open=await github.paginate(github.rest.issues.listForRepo,{...context.repo,state:'open',per_page:100});
             const intake=open.filter(issue=>!issue.pull_request&&(issue.body||'').includes('<!-- shoperation-failure-intake:'));
             const issues=[];

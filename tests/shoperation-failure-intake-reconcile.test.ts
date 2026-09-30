@@ -60,6 +60,11 @@ describe('Failure Intake reconciliation',()=>{
     expect(workflow).toContain('shoperation-failure-intake-reconcile.mjs');
     expect(workflow).toContain("const currentBody=current.body||'';");
     expect(workflow).toContain('body:nextBody');
+    const collect=workflow.split('Collect Failure Intake reconciliation evidence')[1]?.split('Run deterministic Failure Intake reconciliation')[0]??'';
+    const persist=workflow.split('Persist unresolved failure intake')[1]?.split('Collect Failure Intake reconciliation evidence')[0]??'';
+    expect(collect).toContain("const atlasFile='artifacts/shoperation-atlas/codebase-atlas.json';");
+    expect(collect).toContain('atlasDomainResolvedFiles');
+    expect(persist).not.toContain('atlasDomainResolvedFiles');
     expect(sentinel).toContain('Sentinel remains observation-only');
   });
 });
