@@ -334,6 +334,13 @@
         "finding": "The first high-risk non-Control-Plane task passes Plan Before Code but fails the global suite solely because the test is coupled to the previous plan instance.",
         "resolution": "Make the test profile-aware: derive minimum challenge/specialist/technique expectations from the active risk profile and validate PO source/evidence invariants without hard-coded task-specific tier or requirement count.",
         "status": "resolved"
+      },
+      {
+        "id": "CH-11",
+        "scenario": "The Completion Contract references GUARD-TEMPLATE-FACTORY even though the read-only CI Truth Gate only receives same-run CI guard evidence.",
+        "finding": "A cross-workflow guard reference would make VERIFIED_DONE mechanically unreachable even when both CI and Template Factory pass.",
+        "resolution": "Keep Template Factory/browser proof mandatory in the proof plan and PR checks, but bind Completion Contract claims to exact-head CI evidence that the Truth Gate can actually consume; do not add a parallel evidence aggregator.",
+        "status": "resolved"
       }
     ],
     "proofPlan": [
@@ -384,7 +391,7 @@
             "GUARD-QUALITY-TESTS"
           ],
           "outcome": [
-            "GUARD-TEMPLATE-FACTORY"
+            "GUARD-PRODUCTION-BUILD"
           ]
         },
         "forbiddenRegressions": [
@@ -393,7 +400,7 @@
             "statement": "No additional Shoperation admin navigation sidebar is added to the Builder workspace.",
             "evidence": [
               "GUARD-QUALITY-TESTS",
-              "GUARD-TEMPLATE-FACTORY"
+              "GUARD-PRODUCTION-BUILD"
             ]
           }
         ]
@@ -428,7 +435,7 @@
           ],
           "outcome": [
             "GUARD-INCREMENTAL-REPLAY",
-            "GUARD-TEMPLATE-FACTORY"
+            "GUARD-PRODUCTION-BUILD"
           ]
         },
         "forbiddenRegressions": [
@@ -472,8 +479,7 @@
           ],
           "outcome": [
             "GUARD-TYPECHECK",
-            "GUARD-PRODUCTION-BUILD",
-            "GUARD-TEMPLATE-FACTORY"
+            "GUARD-PRODUCTION-BUILD"
           ]
         },
         "forbiddenRegressions": [
@@ -482,7 +488,7 @@
             "statement": "No duplicate breakpoint DOM/page authority, runtime divergence or loss of existing Builder mutation/publish capabilities.",
             "evidence": [
               "GUARD-INCREMENTAL-REPLAY",
-              "GUARD-TEMPLATE-FACTORY"
+              "GUARD-PRODUCTION-BUILD"
             ]
           }
         ]
@@ -495,8 +501,7 @@
             "GUARD-QUALITY-TESTS"
           ],
           "outcome": [
-            "GUARD-PRODUCTION-BUILD",
-            "GUARD-TEMPLATE-FACTORY"
+            "GUARD-PRODUCTION-BUILD"
           ]
         },
         "forbiddenRegressions": [
@@ -558,5 +563,5 @@
       }
     ]
   },
-  "notes": "PO-approved Visual First authority is fixed for this slice. Implement by evolving the current canonical Visual Builder v3 and introducing shared VX Core/profile seams; do not rewrite or fork the editor. The large visual Section/Preset library framework may be made Core-ready now, but broad preset population remains aligned with the accepted template-portfolio sequencing. No main merge and no golden update. First execution exposed and now explicitly scopes a prerequisite SWAT/Operational-Intelligence test-coupling defect: the regression test must validate the current profile generically instead of pinning the preceding critical plan. Actual-diff reconciliation after the first implementation commit expanded the active known-failure envelope from 42 to the full 49 applicable failures for the same four impacted subsystems; the plan now acknowledges that exact machine-derived scope and digest."
+  "notes": "PO-approved Visual First authority is fixed for this slice. Implement by evolving the current canonical Visual Builder v3 and introducing shared VX Core/profile seams; do not rewrite or fork the editor. The large visual Section/Preset library framework may be made Core-ready now, but broad preset population remains aligned with the accepted template-portfolio sequencing. No main merge and no golden update. First execution exposed and now explicitly scopes a prerequisite SWAT/Operational-Intelligence test-coupling defect: the regression test must validate the current profile generically instead of pinning the preceding critical plan. Actual-diff reconciliation after the first implementation commit expanded the active known-failure envelope from 42 to the full 49 applicable failures for the same four impacted subsystems; the plan now acknowledges that exact machine-derived scope and digest. Completion evidence wiring was corrected after execution exposed a cross-workflow provenance mismatch: Template Factory remains mandatory independent proof, while the read-only CI Truth Gate consumes only same-run exact-head CI guard evidence. No PO requirement or runtime acceptance criterion was reduced."
 }
