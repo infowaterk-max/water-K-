@@ -1,16 +1,17 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-REFERENCE-SYNC-AB-HARDENING",
-  "task": "Harden A/B reference synchronization in the existing Edit-Time Guard so removed or changed contracts cannot leave stale repository consumers.",
+  "taskId": "DEV-SENTINEL-ATLAS-CLEANUP-HARDENING",
+  "task": "Close the remaining self-knowledge friction before further template production: make Atlas import extraction syntax-aware, restore Catalog domain coverage, and reconcile canonical versus development Failure Intake in Sentinel without weakening durable intake.",
   "status": "ready-for-implementation",
   "guardDigest": "aa79c504",
   "plannedFilePatterns": [
-    "scripts/shoperation-edit-time-guard.mjs",
-    "scripts/lib/shoperation-reference-sync-runtime.mjs",
-    "tests/shoperation-development-guard.test.ts",
-    "quality/knowledge/development-guard-policy.v1.json",
-    "AGENTS.md",
-    "docs/architecture/CHANGE_IMPACT_RELEASE_CLOSURE.md",
+    "scripts/lib/shoperation-codebase-atlas-runtime.mjs",
+    "quality/knowledge/domain-foundations.v1.json",
+    "scripts/shoperation-sentinel-scan.mjs",
+    "tests/shoperation-codebase-atlas-v2.test.ts",
+    "tests/domain-foundations.test.ts",
+    "tests/shoperation-sentinel.test.ts",
+    "docs/architecture/SHOPERATION_SENTINEL.md",
     "quality/development/active-plan.json"
   ],
   "expectedSubsystems": [],
@@ -75,6 +76,6 @@
     "SQ-NK-012"
   ],
   "exceptions": [],
-  "notes": "Dedicated Control Plane hardening transaction requested by Product Owner after stale asset-path and stale source-assertion consumers were discovered only during replay. No new parallel gate is introduced. The existing Edit-Time Guard must gain deterministic before/after reference closure for removed/renamed assets, paths, exported symbols, route literals, selectors/data attributes and high-signal implementation expressions. Stale machine consumers block before Incremental Replay. Documentation-only references remain evidence but are non-blocking unless machine-readable. This transaction starts from exact head 83e1267ea2220981351c9025722d2ba62c41e8e0 and pauses Loot Vault polish until the protection proves itself. Main merge and golden update remain prohibited.",
-  "changeBaseSha": "83e1267ea2220981351c9025722d2ba62c41e8e0"
+  "notes": "Product Owner requested this hardening before returning to template production. No new parallel gate. Atlas must stop treating string assertions as imports; DOMAIN-CATALOG must cover the real canonical catalog files; Sentinel must separate canonical/main unresolved Failure Intake from development/PR intake so branch iteration cannot masquerade as platform instability. Sentinel remains observation-only and durable Failure Intake is not deleted or weakened.",
+  "changeBaseSha": "1f182a25d18c055324d1edd96004dc22de6b3a91"
 }
