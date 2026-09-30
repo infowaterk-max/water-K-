@@ -81,6 +81,8 @@ describe('Visual Builder v3 product completion',()=>{
     expect(source).toContain('listStorefrontBuilderInsertableComponents');
     expect(source).toContain('insertContext');
     expect(source).toContain('Kontextusos beszúrás');
+    expect(source).toContain('const canInsertAfter=Boolean(active&&entry&&listStorefrontBuilderInsertableComponents');
+    expect(source).toContain('const canInsertInside=Boolean(active&&!protectedNode&&nodeDefinition?.allowsChildren');
     expect(source).toContain('resolveVxResizeSpan');
     expect(source).toContain("type:'responsive',nodeId:node.id,viewport,gridSpan:span");
     expect(source).toContain('data-vx-grid-resizable');
