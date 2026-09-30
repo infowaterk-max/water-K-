@@ -5,12 +5,12 @@ const actionEvents=new Set(sentinel.sources.actionEligibleEvents||[]);
 const mainBranch=sentinel.sources.actionEligibleBranch||'main';
 const markerOf=issue=>(issue.body||'').match(/<!-- shoperation-failure-intake:([^\s]+) -->/)?.[1]||null;
 const codeOf=issue=>{const title=String(issue.title||'');const m=title.match(/^\[Quality intake\]\s+[^:]+:\s+(.+)$/);return(m?.[1]||'').trim()||null;};
-const scopeOf=run=>{if(!run)return'unknown';if(actionEvents.has(run.event)&&run.headBranch===mainBranch)return'canonical';if(run.event==='pull_request'||(run.event==='push'&&run.headBranch&&run.headBranch!==mainBranch))return'development';return'unknown';};
+const scopeOf=(run,sourceScope)=>{if(sourceScope==='canonical'||sourceScope==='development')return sourceScope;if(!run)return'unknown';if(actionEvents.has(run.event)&&run.headBranch===mainBranch)return'canonical';if(run.event==='pull_request'||(run.event==='push'&&run.headBranch&&run.headBranch!==mainBranch))return'development';return'unknown';};
 const matchRule=code=>signatures.rules.find(rule=>rule.match==='exact'?code===rule.pattern:rule.match==='prefix'?code?.startsWith(rule.pattern):code?.includes(rule.pattern))||null;
 const rankScope=scope=>scope==='canonical'?3:scope==='unknown'?2:1;
 export function buildFailureIntakeReconciliation(snapshot){
   if(snapshot?.contract!=='shoporation.failure-intake-reconciliation-source.v1')throw new Error('FAILURE_INTAKE_RECONCILIATION_SOURCE_INVALID');
-  const rows=(snapshot.issues||[]).map(issue=>{const fingerprint=markerOf(issue),rawErrorCode=codeOf(issue),scope=scopeOf(issue.sourceRun),rule=rawErrorCode?matchRule(rawErrorCode):null;return{issue,fingerprint,rawErrorCode,scope,knownFailureId:rule?.failureId||null};});
+  const rows=(snapshot.issues||[]).map(issue=>{const fingerprint=markerOf(issue),rawErrorCode=codeOf(issue),scope=scopeOf(issue.sourceRun,issue.sourceScope),rule=rawErrorCode?matchRule(rawErrorCode):null;return{issue,fingerprint,rawErrorCode,scope,knownFailureId:rule?.failureId||null};});
   const byFingerprint=new Map();for(const row of rows){if(!row.fingerprint)continue;const list=byFingerprint.get(row.fingerprint)||[];list.push(row);byFingerprint.set(row.fingerprint,list);}
   const duplicateIds=new Map();
   for(const [fingerprint,list] of byFingerprint){

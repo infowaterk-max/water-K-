@@ -32,6 +32,16 @@ describe('Failure Intake reconciliation',()=>{
     expect(report.actions.find((x:{issueNumber:number})=>x.issueNumber===3).disposition).toBe('resolved-by-full-regression');
     expect(report.actions.find((x:{issueNumber:number})=>x.issueNumber===4).disposition).toBe('resolved-by-typecheck');
   });
+  it('uses source-commit ancestry scope to rank old canonical evidence over development evidence without a live workflow run',()=>{
+    const body='<!-- shoperation-failure-intake:SQ-FP-OLD-DUP -->';
+    const{report}=run([
+      {number:8,title:'[Quality intake] SQ-FP-OLD-DUP: TEST_FAILED',body,sourceScope:'development'},
+      {number:9,title:'[Quality intake] SQ-FP-OLD-DUP: TEST_FAILED',body,sourceScope:'canonical'},
+    ]);
+    expect(report.actions.find((x:{issueNumber:number})=>x.issueNumber===8).disposition).toBe('duplicate');
+    expect(report.actions.find((x:{issueNumber:number})=>x.issueNumber===9)).toEqual(expect.objectContaining({scope:'canonical',action:'keep-open',disposition:'still-active'}));
+    expect(report.actions.some((x:{disposition:string})=>x.disposition==='scope-unknown')).toBe(false);
+  });
   it('deduplicates one fingerprint without deleting the retained authority issue',()=>{
     const body='<!-- shoperation-failure-intake:SQ-FP-DUP -->';
     const{report}=run([
