@@ -1,5 +1,6 @@
 import {readFileSync} from 'node:fs';
 import {describe,expect,it} from 'vitest';
+import {impactForAtlasPattern} from '../scripts/lib/shoperation-codebase-atlas-runtime.mjs';
 
 const read=(path:string)=>readFileSync(path,'utf8');
 
@@ -37,5 +38,17 @@ describe('Atlas 2.0 Change Impact / Release Closure integration',()=>{
     expect(risk).toContain('Atlas change-impact file set does not match the release diff');
     expect(risk).toContain('Atlas change-impact source SHA');
     expect(risk).toContain('atlasClosure');
+  });
+  it('STRESS: discovers semantic contract consumers even without a direct import edge',()=>{
+    const atlas:any={
+      nodes:[
+        {path:'src/stress/provider.ts',subsystems:[],surfaces:[],domains:[],literalKeys:['commerce.shared-contract'],exports:['sharedContract'],referenceTerms:['sharedContract'],route:null,kind:'code'},
+        {path:'src/stress/consumer.ts',subsystems:[],surfaces:[],domains:[],literalKeys:['commerce.shared-contract'],exports:[],referenceTerms:['sharedContract'],route:null,kind:'code'},
+      ],
+      reverseImports:{},
+      knownFailureIndex:{},
+    };
+    const impact=impactForAtlasPattern(atlas,'src/stress/provider.ts');
+    expect(impact.consumers).toContain('src/stress/consumer.ts');
   });
 });
