@@ -885,10 +885,27 @@
       "explicit-force-full"
     ],
     "shadowMode": {
-      "fullVerificationAuthoritative": true,
-      "physicalSkippingEnabled": false,
-      "falseReuseTolerance": 0
+      "fullVerificationAuthoritativeDuringPromotion": true,
+      "promotionCompleted": true,
+      "historicalFalseReuseTolerance": 0
     },
-    "principle": "SPEED_BY_PROOF_NOT_BY_SKIPPING"
+    "principle": "SPEED_BY_PROOF_NOT_BY_SKIPPING",
+    "executionMode": "ACTIVE",
+    "promotionEvidence": {
+      "sourceCommit": "ad1875c3b87458771b37fca60d036eb474a1d3b6",
+      "ciRunId": "36831730573",
+      "shadowPasses": 3,
+      "resumedShadowPasses": 2,
+      "falseReuse": 0,
+      "decision": "PROMOTED"
+    },
+    "physicalReuse": {
+      "enabled": true,
+      "allowedOnlyWhenRegistryReusePolicy": "safe",
+      "priorFingerprintEquivalenceRequired": true,
+      "currentHeadManifestRequired": true,
+      "rerunGatesMustPhysicallyPass": true,
+      "forceFullFallback": true
+    }
   }
 }
