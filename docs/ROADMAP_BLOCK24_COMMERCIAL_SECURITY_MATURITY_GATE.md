@@ -10,7 +10,7 @@ Block 24 therefore closes three axes only:
 
 1. **Commercial packaging / monetization** over the existing Block 11 Alap / Pro / Add-on entitlement authority.
 2. **Security hardening / launch security gates** without weakening the existing fail-closed database and tenant boundaries.
-3. **Maturity / release-readiness certification** using the existing V24 rollout evidence and GO/NO-GO authority rather than creating a parallel release system.
+3. **Maturity / release-readiness certification** using the STRESS removed rollout authority marker rather than creating a parallel release system.
 
 No new Block 1–23 product feature is pulled forward by this block.
 
