@@ -28,6 +28,26 @@ describe('Semantic Execution Intelligence adversarial closure',()=>{
     expect(impactForAtlasPattern(atlas,'src/provider.ts').consumers).toContain('src/consumer.ts');
   });
 
+  it('retains only Git-proven deleted planned paths as execution-route tombstones',()=>{
+    const atlas:any={
+      nodes:[
+        {path:'src/live.ts',subsystems:[],surfaces:[],domains:[],literalKeys:[],exports:[],referenceTerms:[],route:null,kind:'code'},
+      ],
+      reverseImports:{},
+      semanticGraph:{reverseFileEdges:{},unknowns:[]},
+      poInstructions:[],
+      unresolvedInternalImports:[],
+    };
+    const deleted='src/app/szallitas-es-fizetes/page.tsx';
+    const withDeletion=buildExecutionRoute(atlas,[deleted],{tombstones:[deleted]});
+    expect(withDeletion.MUST_EDIT).toContain(deleted);
+    expect(withDeletion.TOMBSTONES).toEqual([deleted]);
+
+    const merelyAbsent=buildExecutionRoute(atlas,[deleted],{tombstones:[]});
+    expect(merelyAbsent.MUST_EDIT).not.toContain(deleted);
+    expect(merelyAbsent.TOMBSTONES).toEqual([]);
+  });
+
   it('extracts display-text and component-key contracts instead of relying on generic grep expressions',()=>{
     const display=extractReferenceCandidatesFromLine('<h1>Termékfeltöltő Központ</h1>','src/app/admin/page.tsx');
     const component=extractReferenceCandidatesFromLine("componentKey:'commerce.product-grid'",'src/lib/builder/page.ts');
