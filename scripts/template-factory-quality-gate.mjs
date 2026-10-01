@@ -4,7 +4,7 @@ import {access,mkdir,readFile,writeFile} from 'node:fs/promises';
 import {execFileSync} from 'node:child_process';
 import path from 'node:path';
 import {chromium} from 'playwright';
-import {canonicalizeTemplateFactoryInfrastructureInput,deriveTemplateReplayDecision,templateBrowserCaseFingerprint,reusableTemplateBrowserCase} from './lib/shoperation-template-factory-resumable-verification.mjs';
+import {canonicalizeTemplateFactoryInfrastructureInput,deriveTemplateReplayDecision,reusableTemplateBrowserCase,templateBrowserCaseFingerprint,templateFactoryInfrastructureSemanticallyEquivalent} from './lib/shoperation-template-factory-resumable-verification.mjs';
 
 const baseUrl=(process.env.VISUAL_FIDELITY_BASE_URL??'http://127.0.0.1:3000').replace(/\/$/,'');
 const outputDir=process.env.TEMPLATE_QUALITY_OUTPUT_DIR??'artifacts/template-factory-quality';
@@ -119,6 +119,13 @@ async function fileFingerprint(file){
 }
 
 function startsWithAny(file,prefixes){return prefixes.some(prefix=>file.startsWith(prefix));}
+function fileAtRevision(ref,file){if(!ref||!file)return null;try{return execFileSync('git',['show',`${ref}:${file}`],{encoding:'utf8'});}catch{return null;}}
+function semanticQualityInfrastructureChange(change,fromSha){
+  if(!startsWithAny(change.file,qualityInfrastructurePrefixes))return false;
+  const before=fileAtRevision(fromSha,change.file);
+  if(before!==null&&existsSync(change.file)&&templateFactoryInfrastructureSemanticallyEquivalent(change.file,before,readFileSync(change.file)))return false;
+  return true;
+}
 
 function priorTemplateProof(previous,template,{factoryEngineHash,toolchainHash}={}){
   if(!previous)return null;
@@ -134,11 +141,11 @@ function priorTemplateProof(previous,template,{factoryEngineHash,toolchainHash}=
   return{fingerprints:priorFingerprint.pages??{},cases:priorCases,sourceCommit:previous.sourceCommit,runId:previous.runId??null};
 }
 
-function selectScope(catalog,changes,previous,{registry,diffByFile,factoryEngineHash,toolchainHash}={}){
+function selectScope(catalog,changes,previous,{registry,diffByFile,factoryEngineHash,toolchainHash,diffBaseSha=null}={}){
   const templates=catalog.templates??[];
   const selected=new Map();
   const reasons=[];
-  const qualityInfra=changes.some(change=>startsWithAny(change.file,qualityInfrastructurePrefixes));
+  const qualityInfra=changes.some(change=>semanticQualityInfrastructureChange(change,diffBaseSha));
   const sharedRuntime=changes.some(change=>startsWithAny(change.file,sharedRuntimePrefixes)&&!startsWithAny(change.file,qualityInfrastructurePrefixes));
 
   for(const template of templates){
@@ -422,7 +429,7 @@ const diffByFile=Object.fromEntries(changes.map(change=>[change.file,diffText(di
 const guardRegistry=JSON.parse(await readFile('quality/knowledge/guard-registry.v1.json','utf8'));
 const toolchainHash=repositoryFingerprint(['package.json','package-lock.json']);
 const factoryEngineHash=repositoryFingerprint([...qualityInfrastructurePrefixes,...sharedRuntimePrefixes,'src/app/api/visual-fidelity/templates/route.ts']);
-const scope=selectScope(catalog,changes,previousManifest,{registry:guardRegistry,diffByFile,factoryEngineHash,toolchainHash});
+const scope=selectScope(catalog,changes,previousManifest,{registry:guardRegistry,diffByFile,factoryEngineHash,toolchainHash,diffBaseSha});
 
 const caseFingerprint=async(manifest,pageType,viewport)=>{
   const baselinePath=path.join(manifest.golden.baselineDirectory,`${pageType}-${viewport}.png`);

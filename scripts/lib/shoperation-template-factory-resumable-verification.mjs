@@ -6,6 +6,10 @@ export function canonicalizeTemplateFactoryInfrastructureInput(file,raw){
   return canonicalizeVerificationEngineInput(file,raw);
 }
 
+export function templateFactoryInfrastructureSemanticallyEquivalent(file,before,after){
+  return canonicalizeTemplateFactoryInfrastructureInput(file,before)===canonicalizeTemplateFactoryInfrastructureInput(file,after);
+}
+
 export function deriveTemplateReplayDecision({
   registry,
   changedFiles=[],

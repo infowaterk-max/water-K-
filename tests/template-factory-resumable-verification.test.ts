@@ -6,6 +6,7 @@ import {
   deriveTemplateReplayDecision,
   reusableTemplateBrowserCase,
   templateBrowserCaseFingerprint,
+  templateFactoryInfrastructureSemanticallyEquivalent,
 } from '../scripts/lib/shoperation-template-factory-resumable-verification.mjs';
 
 const registry=JSON.parse(readFileSync('quality/knowledge/guard-registry.v1.json','utf8'));
@@ -15,6 +16,18 @@ const fingerprints=(suffix='v1')=>Object.fromEntries(pageTypes.map(page=>[page,p
 const templateFile='src/lib/builder/templates/demo.ts';
 
 describe('Template Factory resumable browser verification',()=>{
+  it('treats provenance-only guard-registry changes as semantically equivalent for Template Factory scope',()=>{
+    const file='quality/knowledge/guard-registry.v1.json';
+    const a={verificationReuse:{promotion:{minimumShadowPasses:3,promotedFrom:{sourceCommit:'old',ciRunId:'1'}}}};
+    const b={verificationReuse:{promotion:{minimumShadowPasses:3,promotedFrom:{sourceCommit:'new',ciRunId:'2'}}}};
+    const semantic={verificationReuse:{promotion:{minimumShadowPasses:4,promotedFrom:{sourceCommit:'new',ciRunId:'2'}}}};
+    expect(templateFactoryInfrastructureSemanticallyEquivalent(file,JSON.stringify(a),JSON.stringify(b))).toBe(true);
+    expect(templateFactoryInfrastructureSemanticallyEquivalent(file,JSON.stringify(a),JSON.stringify(semantic))).toBe(false);
+    const qualityGate=readFileSync('scripts/template-factory-quality-gate.mjs','utf8');
+    expect(qualityGate).toContain('semanticQualityInfrastructureChange(change,diffBaseSha)');
+    expect(qualityGate).toContain('templateFactoryInfrastructureSemanticallyEquivalent(change.file,before,readFileSync(change.file))');
+  });
+
   it('keeps promotion provenance out of the Template Factory engine fingerprint while semantic policy remains identity-bearing',()=>{
     const file='quality/knowledge/guard-registry.v1.json';
     const a={verificationReuse:{promotion:{minimumShadowPasses:3,promotedFrom:{sourceCommit:'old',ciRunId:'1'}}}};
