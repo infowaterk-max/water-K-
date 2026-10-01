@@ -473,7 +473,7 @@
             "GUARD-QUALITY-TESTS"
           ],
           "outcome": [
-            "SIGNAL-DEEP-ATLAS-SCAN"
+            "GUARD-KNOWLEDGE-PREFLIGHT"
           ]
         },
         "forbiddenRegressions": [
@@ -633,14 +633,15 @@
             "freshness",
             "coverage",
             "limitations"
-          ]
+          ],
+          "strength": 2
         },
         "requiredCapabilities": [
           "CAP-ATLAS"
         ],
         "evidence": {
           "implementation": [
-            "SIGNAL-ARCHITECTURE-CONFIDENCE"
+            "GUARD-QUALITY-TESTS"
           ],
           "outcome": [
             "GUARD-QUALITY-TESTS"
@@ -759,5 +760,5 @@
       }
     ]
   },
-  "notes": "Foundation transaction only. Template Factory golden/handoff and storefront shipping/payment implementation changes are deliberately split into subsequent release transactions to stay within the existing Release Risk Budget; no parallel Control Plane is introduced. Rebased atomically onto canonical main after #655 Reference Sync rename-export identity and #653 Builder/Admin authority-direction repair."
+  "notes": "Foundation transaction only. Template Factory golden/handoff and storefront shipping/payment implementation changes are deliberately split into subsequent release transactions to stay within the existing Release Risk Budget; no parallel Control Plane is introduced. Rebased atomically onto canonical main after #655 Reference Sync rename-export identity and #653 Builder/Admin authority-direction repair. Completion Truth evidence now uses only exact-head blocking producers actually emitted on every PR; scheduled observation signals remain regression-tested but are not misrepresented as per-PR proof."
 }
