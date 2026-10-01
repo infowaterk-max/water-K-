@@ -2,7 +2,7 @@ import {execFileSync} from 'node:child_process';
 import {mkdirSync,readFileSync,writeFileSync} from 'node:fs';
 import {getChangedFiles,globToRegExp,guardPolicy} from './lib/shoperation-development-runtime.mjs';
 import {evaluateReferenceSynchronization} from './lib/shoperation-reference-sync-runtime.mjs';
-import {buildCodebaseAtlas,evaluatePoInstructionStates} from './lib/shoperation-codebase-atlas-runtime.mjs';
+import {buildCodebaseAtlas,buildExecutionRoute,evaluatePoInstructionStates} from './lib/shoperation-codebase-atlas-runtime.mjs';
 const plan=JSON.parse(readFileSync('quality/development/active-plan.json','utf8')),diff=getChangedFiles({baseSha:plan.changeBaseSha}),exceptions=new Map((plan.exceptions??[]).map(x=>[x.ruleId,x])),git=args=>execFileSync('git',args,{encoding:'utf8'});
 let patch='';if(diff.base){try{patch=git(['diff','--unified=0','--no-color',diff.base,diff.head,'--']);}catch{}}if(!patch){try{patch=git(['diff','--unified=0','--no-color','--']);}catch{}}
 const findings=[];let currentFile=null,newLine=0;
@@ -14,7 +14,10 @@ const actualChanged=new Set(diff.files??[]);
 for(const line of patch.split(/\r?\n/)){if(line.startsWith('+++ b/')){currentFile=line.slice(6);continue;}const hunk=line.match(/^@@ -\d+(?:,\d+)? \+(\d+)(?:,\d+)? @@/);if(hunk){newLine=Number(hunk[1]);continue;}if(!currentFile)continue;if(line.startsWith('+')&&!line.startsWith('+++')){const added=line.slice(1);for(const rule of guardPolicy.editRules){if(!rule.filePatterns.map(globToRegExp).some(m=>m.test(currentFile)))continue;if(new RegExp(rule.pattern).test(added))findings.push({ruleId:rule.id,severity:rule.severity,title:rule.title,file:currentFile,line:newLine,code:added.trim().slice(0,300),failureIds:rule.failureIds,message:rule.message,exception:exceptions.get(rule.id)??null});}newLine+=1;}else if(!line.startsWith('-'))newLine+=1;}
 const referenceSync=evaluateReferenceSynchronization({base:diff.base,head:diff.head});
 const atlas=buildCodebaseAtlas();
-const poInstructionState=evaluatePoInstructionStates(atlas,diff.files??[]);
+const currentExecutionRoute=buildExecutionRoute(atlas,plan.plannedFilePatterns??[]);
+const instructionRequired=[...(currentExecutionRoute.INSTRUCTION_REQUIRED??[])];
+const instructionEvaluationFiles=[...new Set([...(diff.files??[]),...instructionRequired])];
+const poInstructionState=evaluatePoInstructionStates(atlas,instructionEvaluationFiles);
 for(const violation of poInstructionState.violations??[])findings.push({
   ruleId:'DEV-BLOCK-PO-INSTRUCTION',
   severity:'block',
@@ -29,7 +32,7 @@ for(const violation of poInstructionState.violations??[])findings.push({
 for(const item of referenceSync.staleConsumers??[])findings.push({ruleId:'DEV-BLOCK-REFERENCE-SYNC',severity:'block',title:'Stale consumer survived a removed or changed contract',file:item.file,line:item.line,code:item.text?.trim().slice(0,300)??'',failureIds:['SQ-KF-022'],message:`Reference Sync: ${item.reference.kind} "${item.reference.value}" changed in ${item.reference.originFile}, but a stale machine consumer remains.`,exception:null});
 for(const item of referenceSync.reviewConsumers??[])findings.push({ruleId:'DEV-REVIEW-REFERENCE-SYNC',severity:'review',title:'Changed contract still has an ambiguous consumer',file:item.file,line:item.line,code:item.text?.trim().slice(0,300)??'',failureIds:['SQ-KF-022'],message:`Reference Sync review: ${item.reference.kind} "${item.reference.value}" changed in ${item.reference.originFile}; confirm this remaining consumer is intentional.`,exception:exceptions.get('DEV-REVIEW-REFERENCE-SYNC')??null});
 const referenceRequired=[...new Set((referenceSync.staleConsumers??[]).map(item=>item.file).filter(Boolean))];
-const requiredChangeSet=[...new Set([...declaredSemanticRequired,...referenceRequired])].sort();
+const requiredChangeSet=[...new Set([...declaredSemanticRequired,...instructionRequired,...referenceRequired])].sort();
 const missingRequired=requiredChangeSet.filter(file=>!actualChanged.has(file));
 for(const file of missingRequired)findings.push({
   ruleId:'DEV-BLOCK-IMPLEMENTATION-SYNC-MISSING-REQUIRED',
@@ -48,6 +51,7 @@ const implementationSync={
   contract:'shoporation.implementation-sync.v2',
   plannedEnvelope:[...(plan.plannedFilePatterns??[])],
   declaredSemanticRequired,
+  instructionRequired,
   referenceRequired,
   requiredChangeSet,
   actualVerifiedChangeSet:[...(diff.files??[])].sort(),
