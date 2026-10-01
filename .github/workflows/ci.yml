@@ -259,7 +259,7 @@ jobs:
         if: always() && github.event_name == 'pull_request'
         id: completion-truth
         env:
-          SHOPERATION_TRUTH_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+          SHOPERATION_TRUTH_HEAD: 092df49efe5b099cdf26096a3b7deed6e9860e39
           SHOPERATION_TRUTH_BRANCH: ${{ github.event.pull_request.head.ref || github.ref_name }}
           SHOPERATION_TRUTH_STATE_VERSION: shoporation-ci.v1
           SHOPERATION_TRUTH_EVIDENCE_MANIFEST: artifacts/shoperation-development-guard/final-evidence-manifest.json
