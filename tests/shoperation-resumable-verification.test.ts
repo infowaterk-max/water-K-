@@ -399,6 +399,26 @@ describe('dependency-aware resumable verification',()=>{
     expect(report.reusableEvidenceSet).toEqual([]);
   });
 
+  it('never physically skips safe gates while execution mode is SHADOW',()=>{
+    const workflow=readFileSync('.github/workflows/ci.yml','utf8');
+    for(const output of ['reuse_customer_baseline','reuse_market_ready','reuse_quality_tests','reuse_typecheck','reuse_production_build']){
+      expect(workflow).toContain("steps.incremental-replay.outputs.execution_mode != 'ACTIVE' || steps.incremental-replay.outputs."+output+" != 'true'");
+    }
+  });
+
+  it('binds promotion identity to engine code, CI and canonical verification policy',()=>{
+    const registry=JSON.parse(readFileSync('quality/knowledge/guard-registry.v1.json','utf8'));
+    expect(registry.verificationReuse.promotion.engineInputs).toEqual(expect.arrayContaining([
+      'scripts/lib/shoperation-verification-reuse.mjs',
+      'scripts/shoperation-incremental-replay.mjs',
+      'scripts/shoperation-verification-checkpoint.mjs',
+      'scripts/shoperation-truth-gate.mjs',
+      '.github/workflows/ci.yml',
+      'quality/knowledge/guard-registry.v1.json',
+      'quality/knowledge/development-guard-policy.v1.json',
+    ]));
+  });
+
   it('verification graph rejects cycles and unknown dependencies',()=>{
     const registry={
       guards:[
