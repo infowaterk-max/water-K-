@@ -2,6 +2,7 @@ import {readFileSync} from 'node:fs';
 import {describe,expect,it} from 'vitest';
 import {
   buildCodebaseAtlas,
+  buildExecutionRoute,
   impactForAtlasPattern,
   reconcileAuthorityDependencies,
 } from '../scripts/lib/shoperation-codebase-atlas-runtime.mjs';
@@ -85,6 +86,19 @@ describe('Semantic Execution Intelligence adversarial closure',()=>{
     const reality=reconcileAuthorityDependencies(atlas);
     expect(reality.discrepancies,JSON.stringify(reality.discrepancies.slice(0,20),null,2)).toEqual([]);
     expect(reality.decision).toBe('PASS');
+
+    const shippingRoute=buildExecutionRoute(atlas,['src/lib/builder/storefront-template-route-integrity.ts']);
+    expect(shippingRoute.PO_INSTRUCTIONS).toContain('PO-INSTRUCTION-SHIPPING-PAYMENT-SEPARATE');
+    expect(shippingRoute.INSTRUCTION_REQUIRED).toEqual(expect.arrayContaining([
+      'src/lib/builder/storefront-template-route-integrity.ts',
+      'src/app/szallitas-es-fizetes/page.tsx',
+      'src/app/szallitas/page.tsx',
+      'src/app/fizetes/page.tsx',
+    ]));
+    expect(shippingRoute.INSTRUCTION_REQUIREMENTS.find((item:any)=>item.instructionId==='PO-INSTRUCTION-SHIPPING-PAYMENT-SEPARATE')).toEqual(expect.objectContaining({
+      requiredRouteFiles:expect.arrayContaining(['src/app/szallitas/page.tsx','src/app/fizetes/page.tsx']),
+    }));
+
     for(const edge of reality.edges.filter((item:any)=>item.classification==='allowed-execution-edge')){
       expect(edge.reconciled).toBe(true);
       expect(edge.transfersTruthOwnership).toBe(false);
