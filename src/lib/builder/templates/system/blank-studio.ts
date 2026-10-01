@@ -10,6 +10,7 @@ import {
 } from '@/lib/builder/storefront-foundation';
 import type {StorefrontComponentNode,StorefrontPageDocument} from '@/lib/builder/storefront-runtime';
 import type {StorefrontInstallableTemplatePackage} from '@/lib/builder/storefront-template-installation';
+import {STOREFRONT_GLOBAL_STYLES_METADATA_KEY,STOREFRONT_GLOBAL_STYLES_VERSION,type StorefrontGlobalStyleState} from '@/lib/builder/storefront-global-styles';
 
 export const BLANK_STUDIO_TEMPLATE_KEY='system.blank-studio' as const;
 export const BLANK_STUDIO_TEMPLATE_VERSION=1 as const;
@@ -40,6 +41,26 @@ export const BLANK_STUDIO_DESIGN_TOKENS=Object.freeze({
   '--shoporation-heading-font':'var(--merchant-heading-font, Arial, sans-serif)',
   '--shoporation-body-font':'var(--merchant-body-font, Arial, sans-serif)',
 } as const);
+
+export const BLANK_STUDIO_GLOBAL_STYLE_STATE:StorefrontGlobalStyleState=Object.freeze({
+  version:STOREFRONT_GLOBAL_STYLES_VERSION,
+  tokens:Object.freeze({
+    background:'#ffffff',
+    surface:'#ffffff',
+    surfaceMuted:'#f5f5f3',
+    text:'#171717',
+    mutedText:'#6b6b66',
+    border:'#deded8',
+    primary:'#171717',
+    primaryContrast:'#ffffff',
+    accent:'#b88716',
+    accentSecondary:'#8d8d86',
+    headingFont:'system-sans',
+    bodyFont:'system-sans',
+    spacingScale:'comfortable',
+    radiusScale:'soft',
+  }),
+});
 
 const node=(input:StorefrontComponentNode):StorefrontComponentNode=>input;
 
@@ -117,6 +138,7 @@ const base=(pageKey:string,pageType:StorefrontBuilderPageType,sections:Storefron
     editableDesignTokens:true,
     optionalEngines:'capability-library',
     ...metadata,
+    [STOREFRONT_GLOBAL_STYLES_METADATA_KEY]:BLANK_STUDIO_GLOBAL_STYLE_STATE,
   },
   sections,
 });
