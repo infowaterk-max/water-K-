@@ -1,23 +1,37 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-REFERENCE-SYNC-RENAME-EXPORT-IDENTITY",
-  "task": "Repair the existing Reference Sync so a Git-detected file rename preserves unchanged export identity at the destination while genuinely removed exports and stale old-path consumers remain blocking.",
+  "taskId": "DEV-AUTHORITY-BUILDER-ADMIN-PILOT-ACCEPTANCE",
+  "task": "Remove the illegal Builder preview to Admin server-action dependency by extracting the existing pilot acceptance start flow into a shared canonical storefront/template acceptance capability without changing acceptance behavior.",
   "status": "ready-for-implementation",
-  "guardDigest": "aa79c504",
-  "changeBaseSha": "092df49efe5b099cdf26096a3b7deed6e9860e39",
+  "guardDigest": "67107056",
+  "changeBaseSha": "68aec697bdc76f80749159478a384111f88e0dd2",
   "plannedFilePatterns": [
     "quality/development/active-plan.json",
-    "scripts/lib/shoperation-reference-sync-runtime.mjs",
-    "tests/shoperation-development-guard.test.ts",
-    "quality/knowledge/development-guard-policy.v1.json",
-    "tests/shoperation-operational-intelligence.test.ts"
+    "src/lib/builder/storefront-template-preview-auth.ts",
+    "src/lib/builder/storefront-pilot-acceptance-action.ts",
+    "src/app/admin/platform/acceptance/[instanceId]/actions.ts",
+    "src/app/storefront-template-preview/engine-proof/checkout/page.tsx",
+    "tests/storefront-pilot-acceptance-authority.test.ts",
+    "src/app/admin/platform/acceptance/[instanceId]/page.tsx",
+    "tests/phase4-platform-pilot-acceptance-entry.test.ts",
+    "tests/storefront-playroom-v20-functional-acceptance.test.ts"
   ],
-  "expectedSubsystems": [],
+  "expectedSubsystems": [
+    "admin-operations",
+    "builder-template-system",
+    "dependency-contract",
+    "shared-storefront",
+    "storefront-ui"
+  ],
   "expectedDomains": [
-    "DOMAIN-QUALITY"
+    "DOMAIN-ADMIN",
+    "DOMAIN-BUILDER",
+    "DOMAIN-STOREFRONT"
   ],
   "expectedAuthorities": [
-    "quality-knowledge-system"
+    "admin-operations",
+    "builder-template-system",
+    "shared-storefront"
   ],
   "expectedKnownFailureIds": [
     "SQ-KF-001",
@@ -25,10 +39,7 @@
     "SQ-KF-003",
     "SQ-KF-004",
     "SQ-KF-005",
-    "SQ-KF-006",
     "SQ-KF-007",
-    "SQ-KF-008",
-    "SQ-KF-009",
     "SQ-KF-010",
     "SQ-KF-011",
     "SQ-KF-012",
@@ -37,13 +48,9 @@
     "SQ-KF-015",
     "SQ-KF-016",
     "SQ-KF-017",
-    "SQ-KF-018",
     "SQ-KF-019",
     "SQ-KF-020",
-    "SQ-KF-021",
     "SQ-KF-022",
-    "SQ-KF-023",
-    "SQ-KF-024",
     "TF-KF-001",
     "TF-KF-002",
     "TF-KF-003",
@@ -71,16 +78,25 @@
     "TF-KF-025"
   ],
   "acknowledgedNegativeKnowledgeIds": [
+    "SQ-NK-001",
+    "SQ-NK-002",
+    "SQ-NK-003",
+    "SQ-NK-004",
+    "SQ-NK-006",
+    "SQ-NK-007",
+    "SQ-NK-008",
+    "SQ-NK-009",
+    "SQ-NK-010",
     "SQ-NK-012"
   ],
   "exceptions": [],
   "operationalIntelligence": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-01-REFERENCE-SYNC-RENAME-IDENTITY",
+    "sourceRef": "PO-2026-10-01-AUTHORITY-GRAPH-REALITY",
     "riskTier": "high",
     "assuranceCeiling": {
       "level": "strong-behavioral-proof",
-      "rationale": "Reference Sync is a blocking development authority. This defect is a false-positive on safe code movement rather than a missing safety check, but weakening it broadly could create false negatives. The highest proportionate level is a narrow rename-aware identity fix with adversarial tests proving unchanged moved exports are accepted while deleted exports, stale old paths and renamed symbols still block.",
+      "rationale": "The change touches a privileged preview acceptance path that binds a platform operator to a pilot tenant and then redirects into real checkout/runtime flows. The highest proportionate assurance is a behavior-preserving extraction with explicit authority boundaries, server-action contract regression, preview-only and RBAC fail-closed invariants, exact-head tests, typecheck and build. Re-architecting acceptance, authentication or checkout is outside scope.",
       "selectedTechniques": [
         "explicit-specification",
         "invariants",
@@ -95,22 +111,25 @@
     },
     "definition": {
       "acceptanceCriteria": [
-        "A Git R-status file move with an unchanged export does not create an export-symbol stale-consumer finding merely because the origin path no longer exists.",
-        "Consumers that still reference the old file path remain blocking after a rename.",
-        "An export genuinely removed during a rename remains an export-symbol candidate and stale consumers remain blocking.",
-        "The previously proven export-rename detection for symbol identity changes remains blocking."
+        "The E13 Builder preview no longer imports any module below src/app/admin and imports the canonical pilot acceptance action from its shared authority path.",
+        "The previous Admin action module is cleanly replaced: its implementation moves as a Git-detectable rename and every real Admin/test consumer is updated to the shared path.",
+        "Preview-only restriction, platform operator authorization, exact pilot tenant validation, role-binding authorization, signed acceptance cookie and flow redirects remain behaviorally unchanged.",
+        "No second pilot acceptance engine, token format, tenant resolver or compatibility wrapper is introduced."
       ],
       "invariants": [
-        "Rename awareness may transfer export identity only from the exact Git old-path to new-path pair reported by name-status.",
-        "A same-name export elsewhere in the repository cannot satisfy a moved export unless it is the Git rename destination.",
-        "File-path closure and export-symbol closure remain separate checks.",
-        "No exception or severity downgrade is introduced."
+        "The shared capability remains server-only and requires an authenticated platform operator before creating a pilot acceptance session.",
+        "Invalid, missing, unauthorized or non-pilot instance state fails closed through the existing redirect outcomes.",
+        "The signed pilot acceptance token continues to be produced only by the canonical pilot-access token authority.",
+        "Checkout proof still targets the real shared checkout runtime and does not introduce production mutation."
       ],
       "forbiddenStates": [
-        "moved-unchanged-export-reported-removed",
-        "old-path-consumer-silently-accepted",
-        "genuinely-deleted-export-treated-as-moved",
-        "symbol-rename-regression-not-blocked"
+        "builder-preview-imports-admin-action",
+        "old-admin-action-module-remains-runtime-authority",
+        "admin-and-builder-own-separate-acceptance-implementations",
+        "preview-bypasses-platform-operator-authorization",
+        "acceptance-cookie-created-for-unauthorized-tenant",
+        "pilot-token-format-duplicated",
+        "checkout-proof-runtime-replaced"
       ]
     },
     "model": {
@@ -129,37 +148,36 @@
         "LEARN"
       ],
       "failureModes": [
-        "The rename map is ignored when comparing exports, preserving the current false positive.",
-        "Any same-name export in a different file is incorrectly accepted as relocation proof.",
-        "A real symbol deletion is hidden because the destination file exists.",
-        "File-path consumers are mistakenly treated as updated merely because export identity moved."
+        "The extraction drops one of the existing authorization or tenant validation branches.",
+        "The Admin compatibility wrapper diverges from the shared implementation.",
+        "The preview imports the Admin wrapper indirectly and the forbidden dependency survives.",
+        "Server-action semantics are lost because the shared function is not exported from a server-action module."
       ],
       "edgeCases": [
-        "100 percent similarity rename with unchanged export.",
-        "Rename plus symbol rename.",
-        "Rename plus export deletion.",
-        "Rename where a stale old import path remains.",
-        "Non-rename edit of the same file."
+        "VERCEL_ENV is not preview.",
+        "Instance ID is malformed or the pilot instance has no organization.",
+        "Role binding is revoked, expired, organization-wide or instance-specific.",
+        "Checkout, B2B RFQ and builder flows preserve their existing destinations."
       ]
     },
     "alternatives": [
       {
         "id": "ALT-01",
-        "summary": "Add exceptions for the pilot acceptance refactor consumers.",
+        "summary": "Declare Builder to Admin as an allowed authority dependency.",
         "disposition": "rejected",
-        "reason": "It would hide a known Reference Sync capability defect and create unsafe precedent for broad exceptions."
+        "reason": "That would legalize a presentation/tooling layer calling an Admin action layer and would hide the architectural defect instead of removing it."
       },
       {
         "id": "ALT-02",
-        "summary": "Make export comparison explicitly follow the exact Git rename destination while leaving old-path closure untouched.",
+        "summary": "Move the existing action implementation unchanged to one shared server-action authority and update every real consumer to the new path.",
         "disposition": "selected",
-        "reason": "It repairs the existing capability at the correct abstraction with minimal behavioral surface and no severity weakening."
+        "reason": "A clean rename removes the cross-layer import and lets the existing Reference Sync distinguish code movement from deletion, without wrapper duplication or exceptions."
       },
       {
         "id": "ALT-03",
-        "summary": "Disable export-symbol Reference Sync for file moves.",
+        "summary": "Duplicate a second checkout-proof-specific acceptance action inside the Builder preview.",
         "disposition": "rejected",
-        "reason": "That would create a material false-negative class for exports removed or renamed during a move."
+        "reason": "That would create a parallel security-sensitive acceptance authority and violate the single canonical authority invariant."
       }
     ],
     "specialistReviews": [
@@ -167,104 +185,104 @@
         "role": "Architecture",
         "mode": "review",
         "verdict": "pass",
-        "finding": "File identity and symbol identity must survive a path move without conflating path closure with export closure.",
-        "resolution": "Use the Git rename pair only for export comparison; continue checking old path references independently."
+        "finding": "The defect is dependency direction, not missing permission for Builder to call Admin.",
+        "resolution": "Move the shared capability below both surfaces and keep one implementation owner."
       },
       {
-        "role": "Known Failure",
+        "role": "Security",
         "mode": "dissent",
         "verdict": "challenge-resolved",
-        "finding": "Relaxing moved-export checks could regress the already proven export-rename blocker.",
-        "resolution": "Add negative adversarial cases for rename plus symbol deletion/rename and require stale consumers to remain blocking."
+        "finding": "Extracting an auth-sensitive server action can accidentally weaken preview-only, operator or role-binding checks.",
+        "resolution": "Move the existing action body intact under a shared server-action path, retain every fail-closed branch, and update all consumers rather than duplicating or bypassing the checks."
       },
       {
-        "role": "Release",
+        "role": "Runtime",
         "mode": "review",
         "verdict": "pass",
-        "finding": "This is quality-infrastructure-only behavior and should not be bundled into the runtime authority repair.",
-        "resolution": "Land it as its own bounded Control Plane transaction before replaying the runtime PR."
+        "finding": "Next.js form actions require server-action-compatible export semantics.",
+        "resolution": "The shared module remains a use-server module and both callers use the same exported async action."
       }
     ],
     "challenge": [
       {
         "id": "CH-01",
-        "scenario": "actions.ts is renamed with 100 percent identical content.",
-        "finding": "Current logic compares old path to a now-missing file and falsely marks every export removed.",
-        "resolution": "Compare old-path exports to the exact rename destination content.",
+        "scenario": "The preview keeps importing the old Admin action after extraction.",
+        "finding": "The illegal dependency would survive despite a shared helper existing.",
+        "resolution": "Regression test forbids any /app/admin/ import from the E13 preview entry.",
         "status": "resolved"
       },
       {
         "id": "CH-02",
-        "scenario": "The destination preserves the export but callers still import the old path.",
-        "finding": "Export continuity does not prove path continuity.",
-        "resolution": "Keep the file-path candidate and stale old-path consumer check unchanged.",
+        "scenario": "The Admin surface receives a copied implementation instead of a wrapper.",
+        "finding": "Two acceptance authorities would immediately diverge.",
+        "resolution": "Admin export becomes a thin async delegate to the shared action only.",
         "status": "resolved"
       },
       {
         "id": "CH-03",
-        "scenario": "The file is renamed and the export is deleted.",
-        "finding": "A naive rename exemption would create a false negative.",
-        "resolution": "Only suppress export candidate when destination exports the same symbol.",
+        "scenario": "A non-preview environment submits the shared action.",
+        "finding": "Acceptance session could become reachable outside its intended environment.",
+        "resolution": "Retain the VERCEL_ENV preview-only fail-closed redirect as the first runtime decision.",
         "status": "resolved"
       },
       {
         "id": "CH-04",
-        "scenario": "The file is renamed and the export itself is renamed.",
-        "finding": "Old symbol consumers must still block.",
-        "resolution": "Old symbol remains a candidate because it is absent from destination exports.",
+        "scenario": "A platform operator lacks a valid owner/admin role binding for the target tenant.",
+        "finding": "A signed acceptance cookie must not be issued.",
+        "resolution": "Preserve the existing organization/instance role-binding query and allowed predicate before token creation.",
         "status": "resolved"
       },
       {
         "id": "CH-05",
-        "scenario": "Another unrelated file exports the same name.",
-        "finding": "Repository-wide name search could falsely satisfy identity.",
-        "resolution": "Only the exact Git rename destination is eligible for moved-export continuity.",
+        "scenario": "The shared action changes checkout or B2B RFQ redirect behavior.",
+        "finding": "Functional proof or acceptance journeys would silently change.",
+        "resolution": "Move redirect branches without semantic edits and assert the expected destinations in regression source checks.",
         "status": "resolved"
       },
       {
         "id": "CH-06",
-        "scenario": "A normal non-rename edit removes an export.",
-        "finding": "Rename logic must not alter ordinary removal detection.",
-        "resolution": "Use current-file comparison when no rename mapping exists.",
+        "scenario": "The shared module creates its own token or tenant resolver.",
+        "finding": "Token/context truth would split across authorities.",
+        "resolution": "Continue importing createPilotAcceptanceToken and pilot cookie constants from the canonical pilot-access module.",
         "status": "resolved"
       },
       {
         "id": "CH-07",
-        "scenario": "The quality suite reads the mutable active-plan.json as if every future Control Plane change had the exact shape of one historical critical plan.",
-        "finding": "A valid high-risk bounded quality fix can satisfy Plan Before Code yet fail Quality Tests because the regression hard-codes riskTier=critical, at least eight challenges and exactly ten completion requirements.",
-        "resolution": "Make the regression derive challenge, specialist and technique minimums from development-guard-policy riskProfiles and validate completion-contract structure without requiring one historical requirement count.",
+        "scenario": "The old lexical Reference Sync interprets an extracted function body as hundreds of deleted implementation expressions.",
+        "finding": "A wrapper-plus-copy refactor creates false stale-consumer noise and would require broad exceptions.",
+        "resolution": "Use a clean Git-detectable rename of the action implementation and update every real import/source assertion to the new canonical path.",
         "status": "resolved"
       }
     ],
     "proofPlan": [
-      "Extend the existing Reference Sync self-test with unchanged rename, removed export and stale old-path cases.",
-      "Keep the current implementation-expression and asset stale-consumer self-tests green.",
-      "Run Plan Before Code, Edit-Time Guard and Incremental Replay on the exact branch head.",
-      "Run full Quality tests and exact-head typecheck/build because quality infrastructure changes force full replay.",
-      "Replay the pilot acceptance clean rename after this fix without Reference Sync exceptions.",
-      "Run the Operational Intelligence regression against the current active plan and verify it enforces the selected risk profile rather than a historical fixed critical-plan shape."
+      "Run Plan Before Code after widening the file envelope and stop if projected authority or Known Failure scope changes.",
+      "Prove Git/Reference Sync sees clean replacement rather than hundreds of removed implementation expressions.",
+      "Regression test that E13 preview and Admin acceptance page import the shared action and contain no src/app/admin action dependency.",
+      "Update existing source-contract regressions to read the new canonical action path rather than preserve stale location assumptions.",
+      "Regression test that shared action retains preview-only, platform-operator, pilot-instance, role-binding, canonical-token and cookie checks.",
+      "Run Edit-Time Guard, Incremental Replay, exact-head Quality tests, typecheck, production build and Template Factory gate."
     ],
     "executionAuthorized": true
   },
   "completionContract": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-01-REFERENCE-SYNC-RENAME-IDENTITY",
+    "sourceRef": "PO-2026-10-01-AUTHORITY-GRAPH-REALITY",
     "requirements": [
       {
-        "id": "REQ-RENAME-EXPORT-CONTINUITY",
-        "requirement": "Reference Sync must preserve unchanged export identity across the exact Git rename destination.",
+        "id": "REQ-AUTHORITY-DIRECTION",
+        "requirement": "Builder preview and Admin acceptance surfaces must import one shared pilot acceptance action, with the old Admin action module removed as a clean replacement.",
         "evidence": {
           "implementation": [
-            "GUARD-QUALITY-TESTS"
+            "GUARD-EDIT-TIME"
           ],
           "outcome": [
-            "GUARD-EDIT-TIME"
+            "GUARD-QUALITY-TESTS"
           ]
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-RENAME-FALSE-POSITIVE",
-            "statement": "An unchanged moved export may not be reported as removed solely because the origin path no longer exists.",
+            "id": "NEG-ADMIN-IMPORT",
+            "statement": "No runtime or regression consumer may retain the old Admin action module path.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -272,20 +290,41 @@
         ]
       },
       {
-        "id": "REQ-RENAME-FAIL-CLOSED",
-        "requirement": "Old path references and exports removed or renamed during a file move must remain blocking.",
+        "id": "REQ-AUTH-PRESERVATION",
+        "requirement": "The extraction must preserve preview-only, platform operator, pilot-tenant and role-binding authorization before acceptance cookie creation.",
         "evidence": {
           "implementation": [
             "GUARD-QUALITY-TESTS"
           ],
           "outcome": [
-            "GUARD-INCREMENTAL-REPLAY"
+            "GUARD-TYPECHECK"
           ]
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-RENAME-FALSE-NEGATIVE",
-            "statement": "Rename awareness may not suppress stale old-path or removed-symbol consumers.",
+            "id": "NEG-AUTH-BYPASS",
+            "statement": "Unauthorized or invalid pilot acceptance may not create a signed acceptance session.",
+            "evidence": [
+              "GUARD-QUALITY-TESTS"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "REQ-SINGLE-AUTHORITY",
+        "requirement": "Admin and Builder callers must share one implementation of the pilot acceptance start flow rather than duplicated logic.",
+        "evidence": {
+          "implementation": [
+            "GUARD-QUALITY-TESTS"
+          ],
+          "outcome": [
+            "GUARD-PRODUCTION-BUILD"
+          ]
+        },
+        "forbiddenRegressions": [
+          {
+            "id": "NEG-DUPLICATE-AUTHORITY",
+            "statement": "A second pilot acceptance token/session implementation must not be introduced.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -294,5 +333,5 @@
       }
     ]
   },
-  "notes": "Narrow precursor fix inside the existing Reference Sync authority. No new gate, no exception, no runtime behavior change. The canonical development-guard policy is included as read-only projected authority because the legacy Plan Before Code domain projector intentionally excludes scripts/lib/shoperation-* knowledge infrastructure from direct domain ownership. A brittle Operational Intelligence meta-regression discovered during exact-head CI is repaired in-scope: it now derives minima from the canonical risk profile instead of hard-coding one prior critical plan shape."
+  "notes": "Targeted Authority Graph repair transaction. Implementation approach was improved after the legacy Reference Sync correctly blocked a wrapper extraction as apparent code deletion: the final approach is a clean action-file rename with every real consumer updated, no exceptions and no duplicate wrapper. Rebased atomically onto canonical main after #655 Reference Sync rename-export identity fix."
 }

@@ -1,5 +1,5 @@
 import {redirect} from 'next/navigation';
-import {startPlatformPilotAcceptanceAction} from '@/app/admin/platform/acceptance/[instanceId]/actions';
+import {startPlatformPilotAcceptanceAction} from '@/lib/builder/storefront-pilot-acceptance-action';
 import {requirePlatformOperator} from '@/lib/auth/platform-operator';
 import {createAdminClient} from '@/lib/supabase/admin';
 

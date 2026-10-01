@@ -6,7 +6,7 @@ const read=(path:string)=>readFileSync(resolve(process.cwd(),path),'utf8');
 
 describe('Phase 4 platform pilot acceptance entry',()=>{
   const page=read('src/app/admin/platform/acceptance/[instanceId]/page.tsx');
-  const action=read('src/app/admin/platform/acceptance/[instanceId]/actions.ts');
+  const action=read('src/lib/builder/storefront-pilot-acceptance-action.ts');
   const builder=read('src/app/admin/tartalom/builder/page.tsx');
   const sales=read('src/app/admin/ertekesites/page.tsx');
   const commercialApi=read('src/app/api/admin/commercial/actions/route.ts');

@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation';
 import { requirePlatformOperator } from '@/lib/auth/platform-operator';
 import { createAdminClient } from '@/lib/supabase/admin';
-import { startPlatformPilotAcceptanceAction } from './actions';
+import {startPlatformPilotAcceptanceAction} from '@/lib/builder/storefront-pilot-acceptance-action';
 
 export const dynamic='force-dynamic';
 
