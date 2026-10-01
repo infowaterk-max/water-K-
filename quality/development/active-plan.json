@@ -26,7 +26,8 @@
     "tests/storefront-template-quality-gate-v2.test.ts",
     "scripts/lib/template-factory-resumable-verification.mjs",
     "tests/template-factory-resumable-verification.test.ts",
-    "tests/template-factory-engine-functional-proof-runner.test.ts"
+    "tests/template-factory-engine-functional-proof-runner.test.ts",
+    "quality/knowledge/domain-foundations.v1.json"
   ],
   "expectedSubsystems": [
     "quality-infrastructure",
