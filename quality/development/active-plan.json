@@ -9,7 +9,8 @@
     "quality/development/active-plan.json",
     "scripts/lib/shoperation-reference-sync-runtime.mjs",
     "tests/shoperation-development-guard.test.ts",
-    "quality/knowledge/development-guard-policy.v1.json"
+    "quality/knowledge/development-guard-policy.v1.json",
+    "tests/shoperation-operational-intelligence.test.ts"
   ],
   "expectedSubsystems": [],
   "expectedDomains": [
@@ -226,6 +227,13 @@
         "finding": "Rename logic must not alter ordinary removal detection.",
         "resolution": "Use current-file comparison when no rename mapping exists.",
         "status": "resolved"
+      },
+      {
+        "id": "CH-07",
+        "scenario": "The quality suite reads the mutable active-plan.json as if every future Control Plane change had the exact shape of one historical critical plan.",
+        "finding": "A valid high-risk bounded quality fix can satisfy Plan Before Code yet fail Quality Tests because the regression hard-codes riskTier=critical, at least eight challenges and exactly ten completion requirements.",
+        "resolution": "Make the regression derive challenge, specialist and technique minimums from development-guard-policy riskProfiles and validate completion-contract structure without requiring one historical requirement count.",
+        "status": "resolved"
       }
     ],
     "proofPlan": [
@@ -233,7 +241,8 @@
       "Keep the current implementation-expression and asset stale-consumer self-tests green.",
       "Run Plan Before Code, Edit-Time Guard and Incremental Replay on the exact branch head.",
       "Run full Quality tests and exact-head typecheck/build because quality infrastructure changes force full replay.",
-      "Replay the pilot acceptance clean rename after this fix without Reference Sync exceptions."
+      "Replay the pilot acceptance clean rename after this fix without Reference Sync exceptions.",
+      "Run the Operational Intelligence regression against the current active plan and verify it enforces the selected risk profile rather than a historical fixed critical-plan shape."
     ],
     "executionAuthorized": true
   },
@@ -285,5 +294,5 @@
       }
     ]
   },
-  "notes": "Narrow precursor fix inside the existing Reference Sync authority. No new gate, no exception, no runtime behavior change. The canonical development-guard policy is included as read-only projected authority because the legacy Plan Before Code domain projector intentionally excludes scripts/lib/shoperation-* knowledge infrastructure from direct domain ownership."
+  "notes": "Narrow precursor fix inside the existing Reference Sync authority. No new gate, no exception, no runtime behavior change. The canonical development-guard policy is included as read-only projected authority because the legacy Plan Before Code domain projector intentionally excludes scripts/lib/shoperation-* knowledge infrastructure from direct domain ownership. A brittle Operational Intelligence meta-regression discovered during exact-head CI is repaired in-scope: it now derives minima from the canonical risk profile instead of hard-coding one prior critical plan shape."
 }
