@@ -476,7 +476,7 @@
             "GUARD-QUALITY-TESTS"
           ],
           "outcome": [
-            "GUARD-COMPLETION-TRUTH"
+            "GUARD-QUALITY-TESTS"
           ]
         },
         "forbiddenRegressions": [
