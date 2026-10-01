@@ -3,6 +3,8 @@ import {PLANS} from '@/lib/plans/catalog';
 import {STOREFRONT_PAGE_TYPES} from '@/lib/builder/storefront-foundation';
 import {createStorefrontVisualBuilderComponentRegistry} from '@/lib/builder/storefront-builder-registry';
 import {evaluateStorefrontTemplateCapabilityGate} from '@/lib/builder/storefront-template-installation';
+import {evaluateStorefrontTemplateQualityGate} from '@/lib/builder/storefront-template-quality-gate';
+import {BLANK_STUDIO_QUALITY_MANIFEST,resolveStorefrontTemplateQualityCandidate} from '@/lib/builder/storefront-template-quality-candidates';
 import {validateStorefrontPageDocument,type StorefrontComponentNode} from '@/lib/builder/storefront-runtime';
 import {
   STOREFRONT_SYSTEM_TEMPLATE_CATALOG,
@@ -40,6 +42,17 @@ describe('VX Blank Studio system template',()=>{
     expect(STOREFRONT_TEMPLATE_CATALOG.some(item=>item.templateKey===BLANK_STUDIO_TEMPLATE_KEY)).toBe(false);
     expect(STOREFRONT_SYSTEM_TEMPLATE_CATALOG.some(item=>item.templateKey===BLANK_STUDIO_TEMPLATE_KEY)).toBe(true);
     expect(getStorefrontTemplatePackage(BLANK_STUDIO_TEMPLATE_KEY)?.manifest.templateKey).toBe(BLANK_STUDIO_TEMPLATE_KEY);
+  });
+
+  it('owns explicit Template Factory quality authority instead of bypassing the matrix',()=>{
+    const registration=resolveStorefrontTemplateQualityCandidate(BLANK_STUDIO_TEMPLATE_KEY,BLANK_STUDIO_TEMPLATE_VERSION);
+    expect(registration?.manifest).toBe(BLANK_STUDIO_QUALITY_MANIFEST);
+    expect(BLANK_STUDIO_QUALITY_MANIFEST.pageTypes).toEqual(STOREFRONT_PAGE_TYPES);
+    expect(BLANK_STUDIO_QUALITY_MANIFEST.viewports).toEqual(['desktop','tablet','mobile']);
+    expect(BLANK_STUDIO_QUALITY_MANIFEST.sourcePrefixes).toContain('src/lib/builder/templates/system/blank-studio.ts');
+    const result=evaluateStorefrontTemplateQualityGate({template:BLANK_STUDIO_TEMPLATE_PACKAGE,manifest:BLANK_STUDIO_QUALITY_MANIFEST});
+    expect(result.issues).toEqual([]);
+    expect(result.ok).toBe(true);
   });
 
   it('ships exactly the canonical 14-page matrix with no duplicate page types',()=>{
