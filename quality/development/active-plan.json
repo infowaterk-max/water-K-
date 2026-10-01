@@ -3,7 +3,7 @@
   "taskId": "DEV-VX-ENGINE-STYLE-CONTRACT",
   "task": "Define validated reusable presentation tokens for existing shared commerce capabilities so engines remain template-independent, inherit Template DNA by default, and support safe local color overrides without changing runtime business authority.",
   "status": "ready-for-implementation",
-  "guardDigest": "94082bf1",
+  "guardDigest": "3667fbec",
   "changeBaseSha": "d5b7f21697a812504e21cb623f6127da719972f5",
   "plannedFilePatterns": [
     "quality/development/active-plan.json",
@@ -22,10 +22,12 @@
     "shared-storefront"
   ],
   "expectedDomains": [
-    "DOMAIN-BUILDER"
+    "DOMAIN-BUILDER",
+    "DOMAIN-STOREFRONT"
   ],
   "expectedAuthorities": [
-    "builder-template-system"
+    "builder-template-system",
+    "shared-storefront"
   ],
   "expectedKnownFailureIds": [
     "SQ-KF-001",
@@ -411,5 +413,5 @@
       }
     ]
   },
-  "notes": "This is slice 1 of the PO-approved universal-engine + Blank Studio direction. It intentionally excludes runtime UI application and the Blank Studio package so the release-risk budget stays within two affected subsystems. A following stacked slice will apply local CSS-variable overrides at engine roots; Blank Studio is a separate system-template slice outside the curated 42 count."
+  "notes": "This is slice 1 of the PO-approved universal-engine + Blank Studio direction. It intentionally excludes runtime UI application and the Blank Studio package so the release-risk budget stays within two affected subsystems. A following stacked slice will apply local CSS-variable overrides at engine roots; Blank Studio is a separate system-template slice outside the curated 42 count. Actual-diff Plan Before Code reconciliation confirms the shared storefront-* engine definitions are dual-owned by DOMAIN-BUILDER and DOMAIN-STOREFRONT, with builder-template-system + shared-storefront authorities. Guard digest is reconciled to the exact machine projection; scope is unchanged at two subsystems."
 }
