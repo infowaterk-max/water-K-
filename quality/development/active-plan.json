@@ -38,7 +38,9 @@
     "tests/shoperation-proof-semantics.test.ts",
     "scripts/lib/shoperation-codebase-atlas-runtime.d.mts",
     "scripts/lib/shoperation-reference-sync-runtime.d.mts",
-    "scripts/lib/shoperation-operational-intelligence.d.mts"
+    "scripts/lib/shoperation-operational-intelligence.d.mts",
+    "deploy/release-risk-policy.json",
+    "tests/control-plane-diagnostic-coverage.test.ts"
   ],
   "expectedSubsystems": [
     "quality-infrastructure",
@@ -386,6 +388,13 @@
         "scenario": "Multiple unresolved failure-intake issues are duplicates within the same workday.",
         "finding": "Weekly reconciliation keeps noisy duplicate backlog alive too long.",
         "resolution": "Run deterministic reconciliation in normal CI/knowledge cadence while leaving promotion decisions human-governed.",
+        "status": "resolved"
+      },
+      {
+        "id": "CH-11",
+        "scenario": "Typed .d.mts declarations for existing shoperation quality runtimes are classified as an unrelated fallback subsystem.",
+        "finding": "Release Risk adds unclassified-change medium risk even though the declarations carry no independent runtime behavior and belong to the same quality-infrastructure authority as their .mjs modules.",
+        "resolution": "Classify scripts/lib/shoperation-*.d.mts and scripts/shoperation-*.d.mts under quality-infrastructure without changing maxPoints, maxSubsystems or any risk weight.",
         "status": "resolved"
       }
     ],
@@ -785,5 +794,5 @@
       }
     ]
   },
-  "notes": "Foundation transaction only. Template Factory golden/handoff and storefront shipping/payment implementation changes are deliberately split into subsequent release transactions to stay within the existing Release Risk Budget; no parallel Control Plane is introduced. Rebased atomically onto canonical main after #655 Reference Sync rename-export identity and #653 Builder/Admin authority-direction repair. Completion Truth evidence now uses only exact-head blocking producers actually emitted on every PR; scheduled observation signals remain regression-tested but are not misrepresented as per-PR proof. Critical specialist reviews now carry explicit source/evidence references; verdict text alone is not accepted by PROVE_PLAN. Exact-head TypeScript proof exposed missing declaration contracts for the Node ESM Control Plane runtimes consumed directly by adversarial TS tests; adjacent .d.mts public API contracts are added instead of suppressing compiler checks."
+  "notes": "Foundation transaction only. Template Factory golden/handoff and storefront shipping/payment implementation changes are deliberately split into subsequent release transactions to stay within the existing Release Risk Budget; no parallel Control Plane is introduced. Rebased atomically onto canonical main after #655 Reference Sync rename-export identity and #653 Builder/Admin authority-direction repair. Completion Truth evidence now uses only exact-head blocking producers actually emitted on every PR; scheduled observation signals remain regression-tested but are not misrepresented as per-PR proof. Critical specialist reviews now carry explicit source/evidence references; verdict text alone is not accepted by PROVE_PLAN. Exact-head TypeScript proof exposed missing declaration contracts for the Node ESM Control Plane runtimes consumed directly by adversarial TS tests; adjacent .d.mts public API contracts are added instead of suppressing compiler checks. Release Risk classification is extended for adjacent Control Plane .d.mts declaration contracts; budget thresholds and risk weights remain unchanged."
 }
