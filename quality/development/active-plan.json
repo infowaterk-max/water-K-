@@ -1,59 +1,29 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-CONTROL-PLANE-SEMANTIC-PROOF-FOUNDATIONS",
-  "task": "Complete existing Control Plane semantic execution and proof semantics capabilities with adversarial closure.",
+  "taskId": "DEV-CONTROL-PLANE-SEMANTIC-DELETION-TOMBSTONES",
+  "task": "Quality Control Plane semantic execution: make required file deletions first-class actual changes and tombstones in the existing execution route, Plan Before Code and Implementation Sync.",
   "status": "closed",
-  "guardDigest": "efe9d183",
-  "changeBaseSha": "cb3d625d3293d6e390f8652b00989d0c8067cbc1",
+  "guardDigest": "62903da6",
+  "changeBaseSha": "3c08bac9524cd9af758e39dab6216a37ebe4b3a3",
   "plannedFilePatterns": [
     "quality/development/active-plan.json",
-    "quality/knowledge/development-guard-policy.v1.json",
-    "quality/knowledge/codebase-atlas-policy.v2.json",
-    "quality/knowledge/domain-foundations.v1.json",
-    "quality/knowledge/capability-registry.v1.json",
-    "quality/knowledge/evidence-ledger.v1.json",
-    "quality/knowledge/po-instructions.v1.json",
-    "quality/knowledge/knowledge-scope-policy.v1.json",
+    "scripts/lib/shoperation-development-runtime.mjs",
     "scripts/lib/shoperation-codebase-atlas-runtime.mjs",
-    "scripts/lib/shoperation-operational-intelligence.mjs",
-    "scripts/lib/shoperation-reference-sync-runtime.mjs",
-    "scripts/lib/shoperation-architecture-health.mjs",
+    "scripts/lib/shoperation-codebase-atlas-runtime.d.mts",
     "scripts/shoperation-plan-before-code.mjs",
     "scripts/shoperation-edit-time-guard.mjs",
-    "scripts/shoperation-development-guard.mjs",
-    "scripts/shoperation-truth-gate.mjs",
-    "scripts/shoperation-failure-intake.mjs",
-    "scripts/shoperation-failure-intake-reconcile.mjs",
-    ".github/workflows/ci.yml",
-    ".github/workflows/shoperation-knowledge-full-replay.yml",
-    "tests/shoperation-codebase-atlas-v2.test.ts",
-    "tests/shoperation-change-impact-atlas.test.ts",
-    "tests/shoperation-operational-intelligence.test.ts",
     "tests/shoperation-development-guard.test.ts",
-    "tests/shoperation-failure-intake-reconcile.test.ts",
-    "tests/architecture-health.test.ts",
-    "tests/domain-foundations.test.ts",
-    "tests/shoperation-quality-knowledge.test.ts",
     "tests/shoperation-semantic-execution-intelligence.test.ts",
-    "tests/shoperation-proof-semantics.test.ts",
-    "scripts/lib/shoperation-codebase-atlas-runtime.d.mts",
-    "scripts/lib/shoperation-reference-sync-runtime.d.mts",
-    "scripts/lib/shoperation-operational-intelligence.d.mts",
-    "deploy/release-risk-policy.json",
-    "tests/control-plane-diagnostic-coverage.test.ts",
-    "scripts/shoperation-close-development-plan.mjs"
+    "scripts/lib/shoperation-reference-sync-runtime.mjs"
   ],
   "expectedSubsystems": [
-    "quality-infrastructure",
-    "release-infrastructure"
+    "quality-knowledge-system"
   ],
   "expectedDomains": [
-    "DOMAIN-QUALITY",
-    "DOMAIN-RELEASE"
+    "DOMAIN-QUALITY"
   ],
   "expectedAuthorities": [
-    "quality-knowledge-system",
-    "release-infrastructure"
+    "quality-knowledge-system"
   ],
   "expectedKnownFailureIds": [
     "SQ-KF-001",
@@ -106,50 +76,53 @@
     "TF-KF-024",
     "TF-KF-025"
   ],
+  "acknowledgedPoInstructionIds": [],
   "acknowledgedNegativeKnowledgeIds": [
-    "SQ-NK-002",
-    "SQ-NK-003",
-    "SQ-NK-005",
     "SQ-NK-010",
-    "SQ-NK-012"
+    "SQ-NK-011",
+    "SQ-NK-012",
+    "SQ-NK-014",
+    "SQ-NK-015"
   ],
   "exceptions": [],
   "operationalIntelligence": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-01-SEMANTIC-PROOF-FOUNDATIONS",
+    "sourceRef": "PO-2026-10-01-SEMANTIC-DELETION-TOMBSTONES",
     "riskTier": "critical",
-    "problemStatement": "The existing Control Plane can structurally validate plans and exact-head PASS evidence but can miss semantic code consumers, omitted required edits, durable Product Owner instructions, and claim/evidence scope mismatches, allowing material false positives.",
+    "problemStatement": "The existing Semantic Execution Intelligence models only files present at the current HEAD. getChangedFiles excludes D status entirely, so a required deletion disappears from the actual verified change set; after deletion the current Atlas also has no node for the file, causing Plan Before Code to report a correctly deleted MUST_EDIT target as outside the generated semantic route. PR #666 reproduced this with src/app/szallitas-es-fizetes/page.tsx. Exact-head verification then exposed an adjacent defect in the existing Reference Sync extractor: any --token is classified as a css-variable even in JavaScript CLI argument strings, so changing git --name-only to --name-status produced false stale consumers and false required edits.",
     "observableOutcomes": [
-      "Atlas emits symbol-aware semantic relationships and a task-specific execution route with explicit MUST_EDIT, MAY_EDIT, IMPACTED_READ_ONLY, AUTHORITY, OVERRIDE_OR_LEGACY, PROOF and UNKNOWN classifications.",
-      "Implementation Sync proves both actual changes are inside the approved envelope and every semantic MUST_EDIT requirement is represented in the verified change set.",
-      "Plan validation blocks vacuous critical plans, Truth blocks unsupported overclaims, and confidence cannot become PROVEN from free-form evidence presence.",
-      "Authority dependencies are reconciled against actual code imports and durable Product Owner instructions become machine-readable authority.",
-      "Verified completion transitions the development lifecycle through CLOSE and LEARN without leaving a stale ready-for-implementation plan."
+      "The shared development diff includes deleted paths with explicit deletion status instead of silently dropping them.",
+      "buildExecutionRoute can retain deleted planned paths as semantic tombstones in MUST_EDIT while continuing to use the current Atlas for live nodes and consumers.",
+      "Plan Before Code accepts a declared required deletion only when the exact deleted path is present in the transaction tombstones and planned envelope.",
+      "Edit-Time Implementation Sync counts an actual deletion as satisfying REQUIRED CHANGE SET subset ACTUAL VERIFIED CHANGE SET.",
+      "Deleted paths still receive canonical path/domain classification for scope evidence instead of becoming unresolved merely because the HEAD file no longer exists.",
+      "Reference Sync distinguishes CSS custom properties from command-line long options: '--name-only' in JavaScript command arguments is not a css-variable candidate, while var(--token) and CSS custom-property declarations remain discoverable."
     ],
     "unresolvedRisks": [
-      "TypeScript dynamic access, runtime-generated keys and framework indirection cannot always be resolved statically and must remain explicit UNKNOWN rather than be guessed.",
-      "Historical evidence-ledger entries use the v1 shape and require conservative compatibility semantics instead of retroactively claiming proof breadth they never recorded.",
-      "Repository branch protection is hosting configuration and may remain an external requirement if the GitHub integration cannot administer protection."
+      "Including deletions in every shared development diff can expose latent callers that assumed all changed files still exist.",
+      "Treating arbitrary absent planned paths as tombstones would allow a plan to claim a deletion that never occurred.",
+      "Rename handling must not double-count the old path as a deletion unless Git reports it as D rather than R.",
+      "PO instruction state evaluation must not treat a physically deleted forbidden file as a surviving violation.",
+      "Over-narrowing css-variable extraction could miss legitimate custom properties embedded in TS/TSX inline styles or var(...) expressions."
     ],
     "scope": {
       "in": [
-        "existing Atlas semantic graph and execution-route projection",
-        "Authority Graph reconciliation",
-        "PO instruction authority and semantic Reference/Implementation Sync",
-        "plan/evidence/claim semantics and confidence scoring",
-        "Control Plane lifecycle close/learn and failure-intake reconcile cadence"
+        "Existing getChangedFiles transaction diff representation and deletion status parsing.",
+        "Existing Atlas execution-route tombstone input and path classification.",
+        "Plan Before Code projected/actual scope for deleted paths.",
+        "Edit-Time Implementation Sync required-set reconciliation for deletions.",
+        "Adversarial regression reproducing the #666 deleted combined-route case."
       ],
       "out": [
-        "new parallel quality authority",
-        "automatic Known Failure promotion without human review",
-        "Template Factory visual/handoff implementation changes",
-        "storefront shipping/payment route implementation changes",
-        "formal proof of complete JavaScript runtime behavior"
+        "Shipping/payment storefront implementation itself; #666 remains a separate product transaction.",
+        "A new gate, tombstone registry, parallel Atlas, or persistent deletion database.",
+        "Changing PO instruction meaning or weakening required-change enforcement.",
+        "Git history rewriting or automatic branch mutation."
       ]
     },
     "assuranceCeiling": {
       "level": "critical-practical",
-      "rationale": "These changes govern whether development is allowed to start and whether completion may be reported. False negatives can omit required edits and false positives can certify unsupported claims, so type-aware dependency analysis, fail-closed UNKNOWN states, adversarial claim/evidence scope tests, lifecycle state tests, exact-head provenance and regression replay are required. Whole-program formal verification is not proportionate because dynamic runtime relationships remain explicitly UNKNOWN and are blocked rather than guessed.",
+      "rationale": "This is a foundational correctness defect in the newly merged two-direction semantic execution model: a required change class (deletion) is invisible to both route generation and actual-diff proof. The highest practical fix is to extend the shared transaction and Atlas route semantics with Git-derived tombstones, preserve path/domain classification, and adversarially prove both false-positive and false-negative boundaries.",
       "selectedTechniques": [
         "explicit-specification",
         "invariants",
@@ -161,46 +134,36 @@
         "threat-failure-model",
         "fault-injection",
         "finite-state-exhaustion"
-      ]
+      ],
+      "deferredTechniques": []
     },
     "definition": {
       "acceptanceCriteria": [
-        "A semantic consumer with no direct import edge is discovered through typed or contract identity and appears in impact/execution routing.",
-        "Actual production imports either resolve inside declared domain dependency closure or are classified as illegal, missing-edge, or ambiguous; silent drift is impossible.",
-        "A durable PO instruction can define positive and forbidden route/component/contract states and is evaluated by development planning and edit-time checks.",
-        "Reference Sync preserves export-rename detection and adds semantic component/config/registry/route/schema/token/display-contract relationships with lexical fallback only when semantic identity is unavailable.",
-        "Implementation Sync blocks both unplanned edits and omitted MUST_EDIT targets.",
-        "Critical PROVE_PLAN rejects placeholder, tautological, self-justifying or evidence-less content.",
-        "Truth evaluation distinguishes VERIFIED, PARTIAL, MISSING, STALE, FAILED, OVERCLAIM and UNKNOWN and never maps OVERCLAIM to DONE.",
-        "Confidence derives from structured proof strength, freshness, adversarial coverage and limitations rather than a non-empty evidence field.",
-        "TRUTH_GATE completion has an explicit CLOSE then LEARN lifecycle transition and stale completed plans no longer remain implementation-ready.",
-        "Failure-intake duplicate reconciliation runs at development-relevant cadence without auto-promoting unproven Known Failures.",
-        "After an exact-head VERIFIED Truth result, the Control Plane automatically emits a deterministic CLOSE→LEARN active-plan candidate and final CI remains blocked until that metadata-only closure is committed and reverified."
+        "getChangedFiles reports A/C/M/R/D transaction paths and separately identifies D tombstones from git name-status evidence.",
+        "A tombstone is accepted into semantic MUST_EDIT only when it both matches the plan pattern and is present in the Git-derived deletedFiles set.",
+        "A declared MUST_EDIT path that is absent from HEAD but was not deleted remains outside route and BLOCKs; arbitrary non-existent paths are not legitimized.",
+        "A deleted path contributes path-derived domain/authority scope without requiring a live Atlas node.",
+        "Edit-Time actualVerifiedChangeSet includes the deleted path, so a required deletion is proven rather than treated as missing.",
+        "PR #666's combined-route deletion class is represented without weakening the shipping/payment instruction.",
+        "extractReferenceCandidatesFromLine does not emit css-variable for Git/CLI long options such as '--name-only' in .mjs/.ts/.tsx code.",
+        "extractReferenceCandidatesFromLine still emits css-variable for var(--shoporation-color-primary) in TS/TSX and --shoporation-color-primary declarations in CSS/SCSS."
       ],
       "invariants": [
-        "UNKNOWN semantic relationships fail closed for serious development and are never silently downgraded to no-impact.",
-        "Actual code dependency and declared authority graph may not contradict each other without an explicit classified discrepancy.",
-        "A PASS-producing gate does not prove claims broader than the evidence scope it records.",
-        "Evidence presence alone contributes no confidence.",
-        "Truth Gate remains the completion evaluator; semantic proof logic strengthens it rather than creating a competing gate.",
-        "Atlas remains the system self-knowledge authority; semantic graph logic extends the same runtime.",
-        "Known Failure promotion remains human-governed.",
-        "Resumable Verification evidence reuse semantics remain exact-head/equivalence-bound and are not weakened."
+        "Current live Atlas nodes remain the authority for live-file semantic consumers and references.",
+        "Only Git diff evidence may create a transaction tombstone.",
+        "Deletion does not bypass Reference Sync; stale surviving consumers remain blockable.",
+        "PO forbidden-state scanning remains fail-closed for surviving files and naturally clears when the forbidden file is actually absent.",
+        "Renames continue to be represented as R/current-path changes unless Git explicitly reports a deletion.",
+        "Reference Sync may only create css-variable identity from CSS syntax/context, not lexical '--' coincidence."
       ],
       "forbiddenStates": [
-        "semantic-consumer-silently-omitted",
-        "required-must-edit-not-implemented",
-        "authority-code-dependency-drift-unclassified",
-        "po-instruction-only-in-chat-or-prose",
-        "critical-plan-vacuity-accepted",
-        "generic-pass-proves-broad-claim",
-        "free-form-evidence-produces-proven-confidence",
-        "overclaim-reported-done",
-        "truth-complete-plan-remains-ready-for-implementation",
-        "unknown-semantics-treated-as-no-impact",
-        "automatic-unreviewed-known-failure-promotion",
-        "parallel-control-plane-created",
-        "verified-implementation-merge-ready-while-active-plan-remains-ready-for-implementation"
+        "deleted-required-file-absent-from-actual-change-set",
+        "arbitrary-missing-file-treated-as-successful-deletion",
+        "deleted-path-reported-as-unresolved-only-because-head-node-is-absent",
+        "implementation-sync-required-deletion-reported-missing-after-git-proved-D",
+        "new-parallel-tombstone-registry",
+        "cli-long-option-classified-as-css-variable",
+        "css-custom-property-detection-disabled-in-tsx-inline-styles"
       ]
     },
     "model": {
@@ -218,49 +181,55 @@
         "CLOSE",
         "LEARN"
       ],
+      "transitions": [
+        "OBSERVE->DEFINE",
+        "DEFINE->MODEL",
+        "MODEL->PLAN",
+        "PLAN->CHALLENGE",
+        "CHALLENGE->IMPROVE",
+        "IMPROVE->PROVE_PLAN",
+        "PROVE_PLAN->EXECUTE",
+        "EXECUTE->VERIFY",
+        "VERIFY->TRUTH_GATE",
+        "TRUTH_GATE->CLOSE",
+        "CLOSE->LEARN"
+      ],
       "failureModes": [
-        "AST/file-level graph misses symbol-level consumer",
-        "dynamic or indirect semantic relation is falsely treated as absent",
-        "declared domain dependency omits real import edge",
-        "required edit set is smaller than actual semantic impact",
-        "plan satisfies schema while containing meaningless prose",
-        "claim breadth exceeds evidence breadth",
-        "confidence score rewards metadata presence instead of proof behavior",
-        "PO decision is lost because it never enters canonical instruction authority",
-        "completed plan remains active and contaminates later development",
-        "duplicate failure intake remains pending too long"
+        "A D change is omitted by --diff-filter=ACMR and Implementation Sync falsely says the required deletion never happened.",
+        "The deleted file is in actual diff but Plan architecture marks it unresolved because only HEAD Atlas nodes are consulted.",
+        "buildExecutionRoute accepts every absent exact plan path as a tombstone, allowing invented deletions.",
+        "A rename old path is mistakenly treated as a required deletion and pollutes MUST_EDIT.",
+        "A changed CLI flag creates repository-wide false stale consumers because the generic --token regex aliases CLI options to CSS custom properties."
       ],
       "edgeCases": [
-        "type-only import and re-export chains",
-        "aliased symbol import and barrel export",
-        "React component wrapper and context/provider indirection",
-        "component key shared by schema, registry and renderer without direct import",
-        "display label contract where wording is PO-owned but not an exported symbol",
-        "dynamic property/key access that cannot be proven statically",
-        "historical evidence with incomplete semantic metadata",
-        "reused evidence whose exact-head equivalence is valid but claim scope is still too narrow",
-        "merged development whose active plan has stale changeBaseSha",
-        "multiple failure-intake issues describing the same underlying signature"
+        "Deleted static Next.js route that was a PO-forbidden authority.",
+        "Deleted non-route source file with a classifiable domain path.",
+        "New planned file absent at plan-only time but not a deletion.",
+        "R100 rename with old and new path.",
+        "Deletion plus stale surviving cross-file consumer caught by Reference Sync.",
+        "JavaScript string '--name-only' used as git argument.",
+        "TSX string 'var(--shoporation-color-primary)'.",
+        "CSS declaration '--shoporation-color-primary: #111;'."
       ]
     },
     "alternatives": [
       {
-        "id": "ALT-01",
-        "summary": "Add isolated new semantic and truth gates beside the current Control Plane.",
-        "disposition": "rejected",
-        "reason": "It would create parallel authorities and repeat the fragmentation the Product Owner explicitly wants removed."
-      },
-      {
-        "id": "ALT-02",
-        "summary": "Extend the existing Atlas, development guards, evidence model, confidence evaluator and Truth Gate with one shared semantic model.",
+        "id": "ALT-GIT-TOMBSTONES",
+        "summary": "Extend existing transaction diff with D status and pass only Git-proven deleted paths into existing Atlas execution-route reconciliation.",
         "disposition": "selected",
-        "reason": "It preserves existing authorities while moving missing understanding earlier into planning, editing and completion."
+        "reason": "It preserves one semantic system and provides provenance that an absent path was actually changed by deletion."
       },
       {
-        "id": "ALT-03",
-        "summary": "Keep lexical/file-level analysis and add more defect-specific regression tests only.",
+        "id": "ALT-REMOVE-MUST-EDIT",
+        "summary": "Drop deleted files from declared semantic MUST_EDIT after implementation so Plan Before Code can pass.",
         "disposition": "rejected",
-        "reason": "It catches known examples but does not repair the capability failure that allowed unknown semantic consumers and unsupported claims."
+        "reason": "That destroys proof that a required deletion occurred and violates REQUIRED CHANGE SET subset ACTUAL VERIFIED CHANGE SET."
+      },
+      {
+        "id": "ALT-ABSENT-MEANS-DELETED",
+        "summary": "Treat any planned path absent from current Atlas as a successful deletion.",
+        "disposition": "rejected",
+        "reason": "It cannot distinguish a real deletion from an invented or not-yet-created path and would create a false positive."
       }
     ],
     "specialistReviews": [
@@ -268,273 +237,167 @@
         "role": "Architecture",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Semantic understanding must extend Atlas and Authority Graph rather than create a second graph authority.",
-        "resolution": "Use a shared typed semantic graph emitted by the existing Atlas runtime and consumed by planning, Reference Sync and Implementation Sync.",
+        "finding": "Deletion is a transaction state of an existing code authority, not a new authority type requiring another graph.",
+        "resolution": "Carry Git-derived tombstones into the current execution route and use existing path classifiers for scope.",
         "evidence": [
-          "stress:#639 Atlas semantic consumer capability failure",
-          "quality/knowledge/domain-foundations.v1.json",
+          "scripts/lib/shoperation-development-runtime.mjs",
           "scripts/lib/shoperation-codebase-atlas-runtime.mjs"
         ]
       },
       {
-        "role": "Release",
-        "mode": "dissent",
-        "verdict": "challenge-resolved",
-        "finding": "A single foundational diff could exceed the existing Release Risk Budget when mixed with Template Factory and storefront route changes.",
-        "resolution": "Keep foundational Control Plane, Template Factory and storefront route corrections as separate release transactions while preserving one program and shared adversarial suite.",
-        "evidence": [
-          "deploy/release-risk-policy.json",
-          "verified stress baseline: stale exact-head and risk-budget blocking"
-        ]
-      },
-      {
-        "role": "Data Integrity",
+        "role": "Runtime",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Claim and evidence records require stable identity, exact-head freshness and explicit proof boundaries.",
-        "resolution": "Add structured evidence semantics and compare proven scope against claim scope; legacy evidence remains conservative rather than implicitly upgraded.",
+        "finding": "getChangedFiles is shared by Plan and Edit-Time; fixing only one caller would preserve disagreement between planning and implementation proof.",
+        "resolution": "Change the shared diff contract once and consume deletedFiles in both Plan and Edit-Time.",
         "evidence": [
-          "verified stress baseline: Truth overclaim false positive",
-          "verified stress baseline: free-form confidence evidence false positive",
-          "quality/knowledge/evidence-ledger.v1.json"
+          "scripts/shoperation-plan-before-code.mjs",
+          "scripts/shoperation-edit-time-guard.mjs"
         ]
       },
       {
         "role": "Known Failure",
-        "mode": "review",
-        "verdict": "pass",
-        "finding": "Newly discovered semantic edges and missed failure classes must become durable prevention without auto-promoting uncertain failures.",
-        "resolution": "Persist missing-edge learning metadata and shorten reconciliation latency while retaining human-governed Known Failure promotion.",
+        "mode": "dissent",
+        "verdict": "challenge-resolved",
+        "finding": "A naive absent-path fix could legitimize arbitrary missing files and weaken the new bidirectional Implementation Sync.",
+        "resolution": "Require exact Git D evidence and regression-test a non-deleted absent path remains BLOCKed.",
         "evidence": [
-          "quality/knowledge/shoperation-quality-knowledge.v1.json",
-          "verified stress baseline: Known Failure responsive-compensation generalization PASS"
+          "PR #666 tombstone reproduction",
+          "tests/shoperation-semantic-execution-intelligence.test.ts"
         ]
       },
       {
-        "role": "Operations",
+        "role": "Architecture",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Lifecycle state must not strand a merged task as implementation-ready.",
-        "resolution": "Model TRUTH_GATE to CLOSE to LEARN explicitly and test idempotent closure against exact task/head identity.",
+        "finding": "Deleted paths still need domain/authority evidence even though their current Atlas node no longer exists.",
+        "resolution": "Expose the Atlas's existing path classification as a reusable function and use it only as fallback metadata for tombstones.",
         "evidence": [
-          "quality/development/active-plan.json",
-          "verified stress baseline: merged #585 stale active-plan lifecycle failure"
+          "quality/knowledge/domain-foundations.v1.json",
+          "scripts/lib/shoperation-codebase-atlas-runtime.mjs"
         ]
       }
     ],
     "challenge": [
       {
-        "id": "CH-01",
-        "scenario": "Two files share a semantic contract key but have no direct import relationship.",
-        "finding": "Import-only reverse traversal misses the consumer.",
-        "resolution": "Index semantic identities and traverse contract/symbol edges in impact routing.",
+        "id": "CH-1",
+        "scenario": "The required combined route is deleted and disappears from HEAD Atlas.",
+        "finding": "Current Plan incorrectly emits DEV_PLAN_SEMANTIC_MUST_EDIT_OUTSIDE_ROUTE.",
+        "resolution": "Git D path is supplied as a transaction tombstone and unioned into MUST_EDIT only when it matches the plan envelope.",
         "status": "resolved"
       },
       {
-        "id": "CH-02",
-        "scenario": "A component key is renamed in its registry while stale Page Schema consumers remain.",
-        "finding": "Path-envelope Implementation Sync can pass despite an omitted required edit.",
-        "resolution": "Derive MUST_EDIT consumers from semantic graph and require them inside the verified change set.",
+        "id": "CH-2",
+        "scenario": "A plan lists a file that never existed or was not changed.",
+        "finding": "Absent-from-Atlas alone is insufficient evidence of deletion.",
+        "resolution": "No tombstone exists without git name-status D; the declared MUST_EDIT therefore remains outside route and BLOCKs.",
         "status": "resolved"
       },
       {
-        "id": "CH-03",
-        "scenario": "A critical plan replaces meaningful prose with x/TODO while preserving all required fields.",
-        "finding": "Structural completeness can masquerade as engineering quality.",
-        "resolution": "Apply semantic-text quality heuristics plus cross-field obligations and evidence-producer requirements.",
+        "id": "CH-3",
+        "scenario": "Edit-Time evaluates a required deleted file.",
+        "finding": "Current diff.files omits D, so missingRequired remains true.",
+        "resolution": "Shared changed-file contract includes D path in files and deletedFiles; actualChanged therefore proves deletion.",
         "status": "resolved"
       },
       {
-        "id": "CH-04",
-        "scenario": "A repository-wide Atlas completeness claim cites generic Quality Tests PASS.",
-        "finding": "Fresh PASS evidence can still be semantically too narrow.",
-        "resolution": "Compare CLAIM_SCOPE against EVIDENCE_SCOPE/PROVEN_SCOPE and return OVERCLAIM.",
+        "id": "CH-4",
+        "scenario": "Deleted path has no current Atlas node.",
+        "finding": "Architecture scope can be falsely unresolved.",
+        "resolution": "Use existing canonical-path classifiers as metadata fallback for Git-proven tombstones.",
         "status": "resolved"
       },
       {
-        "id": "CH-05",
-        "scenario": "Capability registry evidence is replaced by arbitrary free-form text.",
-        "finding": "Presence-based scoring can still reach PROVEN.",
-        "resolution": "Only structured verified evidence with matching subject/capability scope contributes semantic proof points.",
+        "id": "CH-5",
+        "scenario": "A rename is reported by Git.",
+        "finding": "Old path could be accidentally considered deletion and satisfy unrelated required removal.",
+        "resolution": "Parse name-status explicitly; only status D enters deletedFiles while R contributes the destination to files.",
         "status": "resolved"
       },
       {
-        "id": "CH-06",
-        "scenario": "Admin imports storefront, builder, content and integration authorities not declared in DOMAIN-ADMIN closure.",
-        "finding": "Actual code and authority graph disagree.",
-        "resolution": "Classify each actual edge; record legitimate orchestration dependencies and block prohibited or ambiguous edges.",
+        "id": "CH-6",
+        "scenario": "Deleting a source contract leaves stale consumers.",
+        "finding": "Deletion support must not make stale references invisible.",
+        "resolution": "Reference Sync remains independent and runs on the same base/head diff before Implementation Sync decision.",
         "status": "resolved"
       },
       {
-        "id": "CH-07",
-        "scenario": "A Product Owner decision exists only in conversation history.",
-        "finding": "Future planning cannot deterministically enforce it.",
-        "resolution": "Create versioned machine-readable PO instruction authority with positive/forbidden states, scope, lifecycle and evidence.",
+        "id": "CH-7",
+        "scenario": "PO instruction forbidden state lives in the deleted file.",
+        "finding": "Scanning a nonexistent file should not falsely report the state as surviving.",
+        "resolution": "Current forbidden-state scanner already returns false when the file does not exist; preserve that behavior.",
         "status": "resolved"
       },
       {
-        "id": "CH-08",
-        "scenario": "TypeChecker cannot resolve a runtime-computed registry key.",
-        "finding": "A guessed relationship would create false confidence.",
-        "resolution": "Emit UNKNOWN with reason/confidence and block serious execution until explicitly resolved or covered by a fallback proof.",
+        "id": "CH-8",
+        "scenario": "A deletion is outside the planned envelope.",
+        "finding": "Including D in actual files could expose an unplanned change that was previously invisible.",
+        "resolution": "This is desired: actualSubsetPlanned and Plan Before Code must BLOCK the hidden deletion.",
         "status": "resolved"
       },
       {
-        "id": "CH-09",
-        "scenario": "Truth completes a task that is then merged but active-plan remains implementation-ready.",
-        "finding": "Later branches inherit stale intent and can be blocked incorrectly.",
-        "resolution": "Automatically emit a deterministic CLOSE→LEARN candidate after exact-head VERIFIED Truth, fail the lifecycle closure gate until that metadata-only candidate is committed, then require the closed-plan Truth path to prove verified-head ancestry and zero material post-verification changes.",
-        "status": "resolved"
-      },
-      {
-        "id": "CH-10",
-        "scenario": "Multiple unresolved failure-intake issues are duplicates within the same workday.",
-        "finding": "Weekly reconciliation keeps noisy duplicate backlog alive too long.",
-        "resolution": "Run deterministic reconciliation in normal CI/knowledge cadence while leaving promotion decisions human-governed.",
-        "status": "resolved"
-      },
-      {
-        "id": "CH-11",
-        "scenario": "Typed .d.mts declarations for existing shoperation quality runtimes are classified as an unrelated fallback subsystem.",
-        "finding": "Release Risk adds unclassified-change medium risk even though the declarations carry no independent runtime behavior and belong to the same quality-infrastructure authority as their .mjs modules.",
-        "resolution": "Classify scripts/lib/shoperation-*.d.mts and scripts/shoperation-*.d.mts under quality-infrastructure without changing maxPoints, maxSubsystems or any risk weight.",
+        "id": "CH-9",
+        "scenario": "Replacing git --name-only with --name-status causes Reference Sync to identify unrelated CLI users as stale css-variable consumers.",
+        "finding": "The extractor uses /(--[a-z0-9_-]{4,})/ globally with no CSS syntactic context.",
+        "resolution": "Restrict css-variable extraction to CSS/SCSS declarations/usages or var(--token) usage in code; add positive and negative extractor regressions.",
         "status": "resolved"
       }
     ],
     "proofPlan": [
-      "Replay Atlas semantic-consumer and Authority Graph reality adversarial cases against the same failure conditions.",
-      "Replay export rename and component-key/display-contract stale-consumer cases with semantic graph first and lexical fallback second.",
-      "Inject x/TODO/tautological critical-plan content and require Plan Before Code BLOCK.",
-      "Inject broad Atlas claim with generic Quality Tests evidence and require Truth OVERCLAIM/BLOCK.",
-      "Replace CAP-ATLAS evidence with free-form text and prove confidence cannot remain PROVEN.",
-      "Validate PO instruction registry schema and enforce shipping/payment separation instruction before storefront implementation transaction.",
-      "Prove bidirectional Implementation Sync by omitting a derived MUST_EDIT consumer and requiring BLOCK.",
-      "Exercise lifecycle VERIFIED to CLOSE to LEARN plus idempotent rerun and stale-plan rejection.",
-      "Run existing Resumable Verification, Known Failure generalization, Deep Atlas and Sentinel regressions to prove no foundational regression.",
-      "Use exact-head CI and relevant gates; no completion claim is permitted from local/unit green alone.",
-      "Exercise the real two-phase lifecycle: implementation HEAD reaches VERIFIED Truth, lifecycle candidate is emitted and merge-readiness blocks; commit only active-plan closure; second exact-head CI must accept closed/LEARN state and reject any material post-verification change."
+      "Run Plan Before Code on the plan-only transaction before implementation.",
+      "Unit-test name-status parsing for M, D and R records and prove only D enters deletedFiles.",
+      "Adversarially call buildExecutionRoute with a Git-proven tombstone and prove it enters MUST_EDIT; repeat without tombstone evidence and prove it does not.",
+      "Regression-test Plan/Edit-Time source contracts include deletedFiles and actualVerifiedChangeSet semantics rather than deleting the declared MUST_EDIT.",
+      "Run exact-head full Quality, TypeScript, Production Build, Completion Truth and two-phase CLOSE→LEARN lifecycle before merge.",
+      "After merge, rebase/replay #666 unchanged in intent; its deleted combined route must no longer trigger SEMANTIC_MUST_EDIT_OUTSIDE_ROUTE.",
+      "Regression-test the Reference Sync extractor with '--name-only' as a CLI argument and with var(--shoporation-color-primary) as a real CSS custom-property usage."
     ],
     "executionAuthorized": true,
     "semanticExecutionRoute": {
-      "request": "PO-2026-10-01-SEMANTIC-PROOF-FOUNDATIONS",
+      "request": "PO-2026-10-01-SEMANTIC-DELETION-TOMBSTONES",
       "authority": [
+        "development-transaction-diff",
+        "semantic-execution-route",
+        "plan-before-code",
+        "implementation-sync"
+      ],
+      "mustEdit": [
+        "scripts/lib/shoperation-development-runtime.mjs",
         "scripts/lib/shoperation-codebase-atlas-runtime.mjs",
-        "scripts/lib/shoperation-operational-intelligence.mjs",
+        "scripts/lib/shoperation-codebase-atlas-runtime.d.mts",
+        "scripts/shoperation-plan-before-code.mjs",
+        "scripts/shoperation-edit-time-guard.mjs",
+        "tests/shoperation-development-guard.test.ts",
+        "tests/shoperation-semantic-execution-intelligence.test.ts",
+        "scripts/lib/shoperation-reference-sync-runtime.mjs"
+      ],
+      "mayEdit": [],
+      "impactedReadOnly": [
         "quality/knowledge/domain-foundations.v1.json",
         "quality/knowledge/po-instructions.v1.json"
       ],
-      "mustEdit": [
-        "scripts/lib/shoperation-codebase-atlas-runtime.mjs",
-        "scripts/lib/shoperation-operational-intelligence.mjs",
-        "scripts/lib/shoperation-reference-sync-runtime.mjs",
-        "scripts/lib/shoperation-architecture-health.mjs",
-        "scripts/shoperation-plan-before-code.mjs",
-        "scripts/shoperation-edit-time-guard.mjs"
-      ],
-      "mayEdit": [
-        "scripts/shoperation-development-guard.mjs",
-        "scripts/shoperation-truth-gate.mjs",
-        "scripts/shoperation-failure-intake.mjs",
-        "scripts/shoperation-failure-intake-reconcile.mjs",
-        ".github/workflows/ci.yml",
-        ".github/workflows/shoperation-knowledge-full-replay.yml"
-      ],
-      "impactedReadOnly": [
-        "scripts/lib/shoperation-verification-reuse.mjs",
-        "scripts/shoperation-incremental-replay.mjs",
-        "scripts/shoperation-knowledge-deep-atlas-scan.mjs",
-        "scripts/shoperation-sentinel-scan.mjs"
-      ],
       "proof": [
-        "tests/shoperation-semantic-execution-intelligence.test.ts",
-        "tests/shoperation-proof-semantics.test.ts",
-        "tests/shoperation-change-impact-atlas.test.ts",
-        "tests/shoperation-operational-intelligence.test.ts",
-        "tests/architecture-health.test.ts"
+        "tests/shoperation-development-guard.test.ts",
+        "tests/shoperation-semantic-execution-intelligence.test.ts"
       ],
       "unknown": []
     }
   },
   "completionContract": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-01-SEMANTIC-PROOF-FOUNDATIONS",
+    "sourceRef": "PO-2026-10-01-SEMANTIC-DELETION-TOMBSTONES",
     "requirements": [
       {
-        "id": "REQ-SEMANTIC-GRAPH",
-        "requirement": "Atlas provides symbol-aware semantic execution relationships and task-specific edit-point routing while unresolved dynamic relationships remain explicit UNKNOWN.",
+        "id": "REQ-DELETION-ACTUAL-DIFF",
+        "requirement": "Git-deleted paths are first-class actual verified changes and only Git D evidence creates deletedFiles tombstones.",
         "claimScope": {
           "capability": "CAP-ATLAS",
-          "breadth": "task-semantic-impact",
+          "breadth": "development-transaction-deletion",
+          "strength": 2,
           "dimensions": [
-            "symbols",
-            "consumers",
-            "unknowns"
-          ]
-        },
-        "requiredCapabilities": [
-          "CAP-ATLAS"
-        ],
-        "evidence": {
-          "implementation": [
-            "GUARD-QUALITY-TESTS"
-          ],
-          "outcome": [
-            "GUARD-EDIT-TIME"
-          ]
-        },
-        "forbiddenRegressions": [
-          {
-            "id": "NEG-SEMANTIC-GRAPH",
-            "statement": "A semantic consumer may not disappear merely because it lacks a direct import edge.",
-            "evidence": [
-              "GUARD-QUALITY-TESTS"
-            ]
-          }
-        ]
-      },
-      {
-        "id": "REQ-AUTHORITY-REALITY",
-        "requirement": "Actual cross-domain code dependencies are reconciled with the declared Authority Graph as allowed, missing-edge, illegal or ambiguous.",
-        "claimScope": {
-          "capability": "CAP-ATLAS",
-          "breadth": "actual-domain-imports",
-          "dimensions": [
-            "domain-closure",
-            "classification"
-          ]
-        },
-        "requiredCapabilities": [
-          "CAP-ATLAS"
-        ],
-        "evidence": {
-          "implementation": [
-            "GUARD-QUALITY-TESTS"
-          ],
-          "outcome": [
-            "GUARD-KNOWLEDGE-PREFLIGHT"
-          ]
-        },
-        "forbiddenRegressions": [
-          {
-            "id": "NEG-AUTHORITY-REALITY",
-            "statement": "No actual production import may silently contradict declared authority closure.",
-            "evidence": [
-              "GUARD-QUALITY-TESTS"
-            ]
-          }
-        ]
-      },
-      {
-        "id": "REQ-PO-INSTRUCTION",
-        "requirement": "Durable explicit Product Owner decisions are represented as versioned machine-readable instruction authority and participate in plan/edit validation.",
-        "claimScope": {
-          "capability": "CAP-ATLAS",
-          "breadth": "po-instruction-authority",
-          "dimensions": [
-            "scope",
             "positive-state",
             "forbidden-state",
-            "lifecycle"
+            "regression"
           ]
         },
         "requiredCapabilities": [
@@ -542,16 +405,17 @@
         ],
         "evidence": {
           "implementation": [
-            "GUARD-PLAN-BEFORE-CODE"
+            "GUARD-EDIT-TIME",
+            "GUARD-QUALITY-TESTS"
           ],
           "outcome": [
-            "GUARD-EDIT-TIME"
+            "GUARD-QUALITY-TESTS"
           ]
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-PO-INSTRUCTION",
-            "statement": "An applicable active PO instruction cannot be ignored because it exists only as prose or prior chat context.",
+            "id": "NEG-INVENTED-DELETION",
+            "statement": "An absent path without Git D evidence must not satisfy a required deletion.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -559,14 +423,17 @@
         ]
       },
       {
-        "id": "REQ-BIDIRECTIONAL-SYNC",
-        "requirement": "Implementation Sync verifies both actual diff inside the approved envelope and semantic MUST_EDIT requirements inside the actual verified change set.",
+        "id": "REQ-TOMBSTONE-EXECUTION-ROUTE",
+        "requirement": "The existing semantic execution route and Plan Before Code retain Git-proven planned deletions as MUST_EDIT tombstones with path-derived architecture scope.",
         "claimScope": {
           "capability": "CAP-ATLAS",
-          "breadth": "development-change-reconciliation",
+          "breadth": "semantic-execution-tombstone",
+          "strength": 2,
           "dimensions": [
-            "actual-subset-plan",
-            "required-subset-actual"
+            "scope",
+            "consumers",
+            "forbidden-state",
+            "regression"
           ]
         },
         "requiredCapabilities": [
@@ -574,7 +441,8 @@
         ],
         "evidence": {
           "implementation": [
-            "GUARD-EDIT-TIME"
+            "GUARD-EDIT-TIME",
+            "GUARD-QUALITY-TESTS"
           ],
           "outcome": [
             "GUARD-QUALITY-TESTS"
@@ -582,8 +450,8 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-BIDIRECTIONAL-SYNC",
-            "statement": "A planned file envelope cannot hide an omitted semantic required edit.",
+            "id": "NEG-DELETION-OUTSIDE-ROUTE",
+            "statement": "A declared required deletion proven by Git D may not be rejected merely because the HEAD Atlas lacks its node.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -591,18 +459,16 @@
         ]
       },
       {
-        "id": "REQ-PLAN-SEMANTICS",
-        "requirement": "Critical plan validation rejects placeholder, tautological, self-justifying and evidence-less content rather than checking field presence alone.",
+        "id": "REQ-DELETION-IMPLEMENTATION-SYNC",
+        "requirement": "Edit-Time Implementation Sync counts a Git-proven required deletion inside ACTUAL VERIFIED CHANGE SET while preserving stale-consumer and unplanned-change blocking.",
         "claimScope": {
           "capability": "CAP-ATLAS",
-          "breadth": "critical-plan-semantic-quality",
+          "breadth": "bidirectional-implementation-sync",
+          "strength": 2,
           "dimensions": [
-            "problem",
-            "outcome",
-            "failure-model",
-            "alternatives",
-            "challenge",
-            "proof"
+            "consumers",
+            "regression",
+            "forbidden-state"
           ]
         },
         "requiredCapabilities": [
@@ -610,7 +476,8 @@
         ],
         "evidence": {
           "implementation": [
-            "GUARD-PLAN-BEFORE-CODE"
+            "GUARD-EDIT-TIME",
+            "GUARD-QUALITY-TESTS"
           ],
           "outcome": [
             "GUARD-QUALITY-TESTS"
@@ -618,25 +485,25 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-PLAN-VACUITY",
-            "statement": "A critical plan whose substantive fields are x or TODO cannot PASS.",
+            "id": "NEG-DELETE-BYPASS",
+            "statement": "Deletion support may not bypass Reference Sync or allow unplanned deletions.",
             "evidence": [
+              "GUARD-EDIT-TIME",
               "GUARD-QUALITY-TESTS"
             ]
           }
         ]
       },
       {
-        "id": "REQ-PROOF-SEMANTICS",
-        "requirement": "Truth compares claim scope with structured evidence scope and blocks stale, missing, failed, unknown or overclaimed completion.",
+        "id": "REQ-DELETION-BUILD",
+        "requirement": "The exact implementation head passes TypeScript and production build with the extended shared development-diff contract.",
         "claimScope": {
           "capability": "CAP-ATLAS",
-          "breadth": "completion-proof-semantics",
+          "breadth": "targeted-runtime-build",
+          "strength": 1,
           "dimensions": [
-            "claim-scope",
-            "evidence-scope",
-            "proven-scope",
-            "status"
+            "types",
+            "build"
           ]
         },
         "requiredCapabilities": [
@@ -644,168 +511,33 @@
         ],
         "evidence": {
           "implementation": [
-            "GUARD-QUALITY-TESTS"
+            "GUARD-TYPECHECK"
           ],
           "outcome": [
-            "GUARD-QUALITY-TESTS"
+            "GUARD-PRODUCTION-BUILD"
           ]
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-TRUTH-OVERCLAIM",
-            "statement": "Generic Quality Tests PASS cannot prove repository-wide Atlas completeness.",
+            "id": "NEG-DELETION-BUILD",
+            "statement": "The tombstone semantics repair must not introduce type or production build regressions.",
             "evidence": [
-              "GUARD-QUALITY-TESTS"
-            ]
-          }
-        ]
-      },
-      {
-        "id": "REQ-CONFIDENCE-SEMANTICS",
-        "requirement": "Architecture confidence is based on structured behavioral proof, freshness, adversarial breadth and limitations rather than evidence-string presence.",
-        "claimScope": {
-          "capability": "CAP-ATLAS",
-          "breadth": "architecture-confidence",
-          "dimensions": [
-            "behavioral-proof",
-            "freshness",
-            "coverage",
-            "limitations"
-          ],
-          "strength": 2
-        },
-        "requiredCapabilities": [
-          "CAP-ATLAS"
-        ],
-        "evidence": {
-          "implementation": [
-            "GUARD-QUALITY-TESTS"
-          ],
-          "outcome": [
-            "GUARD-QUALITY-TESTS"
-          ]
-        },
-        "forbiddenRegressions": [
-          {
-            "id": "NEG-CONFIDENCE-PRESENCE",
-            "statement": "UNVERIFIED_FREEFORM_CLAIM cannot contribute semantic proof confidence.",
-            "evidence": [
-              "GUARD-QUALITY-TESTS"
-            ]
-          }
-        ]
-      },
-      {
-        "id": "REQ-LIFECYCLE",
-        "requirement": "A verified development lifecycle transitions through TRUTH_GATE to CLOSE to LEARN and does not leave a completed plan implementation-ready.",
-        "claimScope": {
-          "capability": "CAP-ATLAS",
-          "breadth": "development-lifecycle",
-          "dimensions": [
-            "truth",
-            "close",
-            "learn",
-            "idempotency"
-          ]
-        },
-        "requiredCapabilities": [
-          "CAP-ATLAS"
-        ],
-        "evidence": {
-          "implementation": [
-            "GUARD-QUALITY-TESTS"
-          ],
-          "outcome": [
-            "GUARD-QUALITY-TESTS"
-          ]
-        },
-        "forbiddenRegressions": [
-          {
-            "id": "NEG-STALE-ACTIVE-PLAN",
-            "statement": "Merged or explicitly closed verified work cannot remain ready-for-implementation.",
-            "evidence": [
-              "GUARD-QUALITY-TESTS"
-            ]
-          }
-        ]
-      },
-      {
-        "id": "REQ-LEARNING",
-        "requirement": "New missed semantic relationships and duplicate failure intake feed durable reviewable learning without automatic unproven Known Failure promotion.",
-        "claimScope": {
-          "capability": "CAP-ATLAS",
-          "breadth": "governed-learning",
-          "dimensions": [
-            "missing-edge",
-            "reconcile",
-            "human-promotion"
-          ]
-        },
-        "requiredCapabilities": [
-          "CAP-ATLAS"
-        ],
-        "evidence": {
-          "implementation": [
-            "GUARD-KNOWLEDGE-PREFLIGHT"
-          ],
-          "outcome": [
-            "GUARD-QUALITY-TESTS"
-          ]
-        },
-        "forbiddenRegressions": [
-          {
-            "id": "NEG-AUTO-PROMOTION",
-            "statement": "Unverified intake cannot automatically become canonical Known Failure authority.",
-            "evidence": [
-              "GUARD-QUALITY-TESTS"
-            ]
-          }
-        ]
-      },
-      {
-        "id": "REQ-REGRESSION-PRESERVATION",
-        "requirement": "Resumable Verification, Known Failure generalization, Deep Atlas hard-drift and Sentinel PR-noise separation retain their proven behavior.",
-        "claimScope": {
-          "capability": "CAP-ATLAS",
-          "breadth": "foundational-regression-preservation",
-          "dimensions": [
-            "resumable",
-            "known-failure",
-            "deep-atlas",
-            "sentinel"
-          ]
-        },
-        "requiredCapabilities": [
-          "CAP-ATLAS"
-        ],
-        "evidence": {
-          "implementation": [
-            "GUARD-INCREMENTAL-REPLAY"
-          ],
-          "outcome": [
-            "GUARD-QUALITY-TESTS"
-          ]
-        },
-        "forbiddenRegressions": [
-          {
-            "id": "NEG-FOUNDATION-REGRESSION",
-            "statement": "Semantic/proof hardening may not weaken previously proven fail-closed capabilities.",
-            "evidence": [
-              "GUARD-QUALITY-TESTS"
+              "GUARD-TYPECHECK",
+              "GUARD-PRODUCTION-BUILD"
             ]
           }
         ]
       }
     ]
   },
-  "notes": "Foundation transaction only. Template Factory golden/handoff and storefront shipping/payment implementation changes are deliberately split into subsequent release transactions to stay within the existing Release Risk Budget; no parallel Control Plane is introduced. Rebased atomically onto canonical main after #655 Reference Sync rename-export identity and #653 Builder/Admin authority-direction repair. Completion Truth evidence now uses only exact-head blocking producers actually emitted on every PR; scheduled observation signals remain regression-tested but are not misrepresented as per-PR proof. Critical specialist reviews now carry explicit source/evidence references; verdict text alone is not accepted by PROVE_PLAN. Exact-head TypeScript proof exposed missing declaration contracts for the Node ESM Control Plane runtimes consumed directly by adversarial TS tests; adjacent .d.mts public API contracts are added instead of suppressing compiler checks. Release Risk classification is extended for adjacent Control Plane .d.mts declaration contracts; budget thresholds and risk weights remain unchanged. Lifecycle persistence is deliberately two-phase and fail-closed rather than granting PR workflows repository write permission: CI emits the exact closure candidate, final merge-ready CI requires the candidate to be committed and reverified.",
+  "notes": "Targeted correction to the existing Semantic Execution Intelligence after #666 proved that required deletions are invisible once the HEAD Atlas node disappears. No parallel gate, no plan weakening, no product implementation in this transaction. Verification-failure replan: Reference Sync falsely classified CLI --name-only as a CSS variable. The existing extractor is now explicitly in scope; no stale-consumer check is weakened for real CSS variables.",
   "lifecycle": {
     "state": "LEARN",
     "truthStatus": "VERIFIED",
-    "verifiedImplementationHead": "72452d31b5576df7b61be5823aae52ffee86e2f5",
-    "closedAt": "2026-10-01T18:13:00.334Z",
+    "verifiedImplementationHead": "e9bb4edcf241f208b6b28655fa0078677d56c1ec",
+    "closedAt": "2026-10-01T19:28:29.736Z",
     "truthContract": "shoporation.completion-truth.v2",
-    "sourceRef": "PO-2026-10-01-SEMANTIC-PROOF-FOUNDATIONS",
+    "sourceRef": "PO-2026-10-01-SEMANTIC-DELETION-TOMBSTONES",
     "learning": {
       "state": "review-ready",
       "knownFailurePromotion": "human-governed",

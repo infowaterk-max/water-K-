@@ -14,7 +14,7 @@ const actualChanged=new Set(diff.files??[]);
 for(const line of patch.split(/\r?\n/)){if(line.startsWith('+++ b/')){currentFile=line.slice(6);continue;}const hunk=line.match(/^@@ -\d+(?:,\d+)? \+(\d+)(?:,\d+)? @@/);if(hunk){newLine=Number(hunk[1]);continue;}if(!currentFile)continue;if(line.startsWith('+')&&!line.startsWith('+++')){const added=line.slice(1);for(const rule of guardPolicy.editRules){if(!rule.filePatterns.map(globToRegExp).some(m=>m.test(currentFile)))continue;if(new RegExp(rule.pattern).test(added))findings.push({ruleId:rule.id,severity:rule.severity,title:rule.title,file:currentFile,line:newLine,code:added.trim().slice(0,300),failureIds:rule.failureIds,message:rule.message,exception:exceptions.get(rule.id)??null});}newLine+=1;}else if(!line.startsWith('-'))newLine+=1;}
 const referenceSync=evaluateReferenceSynchronization({base:diff.base,head:diff.head});
 const atlas=buildCodebaseAtlas();
-const currentExecutionRoute=buildExecutionRoute(atlas,plan.plannedFilePatterns??[]);
+const currentExecutionRoute=buildExecutionRoute(atlas,plan.plannedFilePatterns??[],{tombstones:diff.deletedFiles??[]});
 const instructionRequired=[...(currentExecutionRoute.INSTRUCTION_REQUIRED??[])];
 const instructionEvaluationFiles=[...new Set([...(diff.files??[]),...instructionRequired])];
 const poInstructionState=evaluatePoInstructionStates(atlas,instructionEvaluationFiles);
@@ -55,13 +55,14 @@ const implementationSync={
   referenceRequired,
   requiredChangeSet,
   actualVerifiedChangeSet:[...(diff.files??[])].sort(),
+  deletedVerifiedChangeSet:[...(diff.deletedFiles??[])].sort(),
   missingRequired,
   requiredSubsetActual:missingRequired.length===0,
   actualOutsidePlanned,
   actualSubsetPlanned:actualOutsidePlanned.length===0,
   decision:(missingRequired.length||actualOutsidePlanned.length)?'BLOCK':'PASS',
 };
-const report={contract:'shoporation.edit-time-known-failure-guard.v2',base:diff.base,head:diff.head,findings,blockingFindings:blocking,referenceSync,implementationSync,poInstructionState,decision:blocking.length?'BLOCK':'PASS'};
+const report={contract:'shoporation.edit-time-known-failure-guard.v2',base:diff.base,head:diff.head,deletedFiles:[...(diff.deletedFiles??[])],transactionChanges:[...(diff.changes??[])],findings,blockingFindings:blocking,referenceSync,implementationSync,poInstructionState,decision:blocking.length?'BLOCK':'PASS'};
 mkdirSync('artifacts/shoperation-development-guard',{recursive:true});
 writeFileSync('artifacts/shoperation-development-guard/reference-sync.json',JSON.stringify(referenceSync,null,2)+'\n');
 writeFileSync('artifacts/shoperation-development-guard/edit-time-guard.json',JSON.stringify(report,null,2)+'\n');
