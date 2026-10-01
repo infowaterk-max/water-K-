@@ -135,7 +135,8 @@
         "A neutral cookie-consent preset exists for the system template.",
         "Template library UX clearly labels Blank Studio as a system/blank starting point rather than one of the curated visual designs.",
         "Blank Studio owns an explicit Template Factory quality candidate manifest with canonical 14x3 coverage; the system-template distinction must not bypass normal browser/structural proof.",
-        "Blank Studio must pass the actual 14x3 browser proof with at least two visible layout sections where a footer is required, minimum 32px hard touch targets and zero unbounded horizontal overflow."
+        "Blank Studio must pass the actual 14x3 browser proof with at least two visible layout sections where a footer is required, minimum 32px hard touch targets and zero unbounded horizontal overflow.",
+        "Blank Studio neutral Template DNA is persisted in canonical shoporationGlobalStyles Page Schema metadata on every page; preview theme is not the only styling authority."
       ],
       "invariants": [
         "Curated launchTarget remains 42 and STOREFRONT_TEMPLATE_PORTFOLIO_STATUS.implemented counts only curated design templates.",
@@ -145,7 +146,8 @@
         "Commerce truth remains in shared catalog/cart/checkout authorities.",
         "Blank Studio visual neutrality does not mean functional emptiness.",
         "Template DNA/global tokens remain the default style source for all inserted engines.",
-        "System-template status never exempts Blank Studio from Template Factory quality ownership."
+        "System-template status never exempts Blank Studio from Template Factory quality ownership.",
+        "Installed Blank Studio pages and Builder runtime read neutral colors, typography, spacing and radius from the same canonical Global Styles authority used by normal templates."
       ],
       "forbiddenStates": [
         "blank-studio-counted-as-curated-43rd-design",
@@ -326,6 +328,13 @@
         "finding": "Footer was not a layout.section shell, mobile header anchors were below the 32px minimum target, and the 12-column PDP grid used an l gutter whose eleven gaps exceeded the mobile content width.",
         "resolution": "Wrap the shared footer in the canonical layout.section shell, give Blank Studio header/nav anchors 2rem minimum touch height, and reduce the 12-column PDP gutter to xs so the existing responsive 12/12 mobile spans fit without overflow.",
         "status": "resolved"
+      },
+      {
+        "id": "CH-10",
+        "scenario": "Blank Studio preview looks neutral but an installed page is rendered outside the dedicated template-preview wrapper.",
+        "finding": "Preview-only design tokens would not guarantee neutral Template DNA in the canonical runtime because StorefrontRuntimeRenderer resolves Global Styles from Page Schema metadata.",
+        "resolution": "Persist a versioned BLANK_STUDIO_GLOBAL_STYLE_STATE under the canonical shoporationGlobalStyles metadata key on all 14 pages and test the resolved runtime CSS variables.",
+        "status": "resolved"
       }
     ],
     "proofPlan": [
@@ -454,5 +463,5 @@
       }
     ]
   },
-  "notes": "Blank Studio is a system creation surface beside the curated 42-template portfolio. It deliberately carries the minimum operational commerce shell and neutral DNA, while optional engines remain Library/capability-driven. No main merge and no golden update. Exact actual-diff reconciliation expanded the applicable known-failure envelope to the full 49/49 set for the same builder-template-system + shared-storefront scope. This updates machine-derived proof metadata only; acceptance criteria, forbidden states and implementation scope are unchanged. Template Factory correctly rejected the newly added template source until it owned an explicit quality manifest. Blank Studio is now registered as a candidate for canonical 14x3 structural/browser proof; no gate exemption or golden weakening was introduced. Header/footer identities were also normalized across all 14 documents so the canonical shell can be proven rather than special-cased. First owned 14x3 browser run exposed three concrete Blank-only issues: SHELL_SECTION_COUNT, TOUCH_TARGET_MINIMUM and product-mobile HORIZONTAL_OVERFLOW/UNBOUNDED_PROTRUSION. They are fixed in template markup rather than by lowering Factory thresholds."
+  "notes": "Blank Studio is a system creation surface beside the curated 42-template portfolio. It deliberately carries the minimum operational commerce shell and neutral DNA, while optional engines remain Library/capability-driven. No main merge and no golden update. Exact actual-diff reconciliation expanded the applicable known-failure envelope to the full 49/49 set for the same builder-template-system + shared-storefront scope. This updates machine-derived proof metadata only; acceptance criteria, forbidden states and implementation scope are unchanged. Template Factory correctly rejected the newly added template source until it owned an explicit quality manifest. Blank Studio is now registered as a candidate for canonical 14x3 structural/browser proof; no gate exemption or golden weakening was introduced. Header/footer identities were also normalized across all 14 documents so the canonical shell can be proven rather than special-cased. First owned 14x3 browser run exposed three concrete Blank-only issues: SHELL_SECTION_COUNT, TOUCH_TARGET_MINIMUM and product-mobile HORIZONTAL_OVERFLOW/UNBOUNDED_PROTRUSION. They are fixed in template markup rather than by lowering Factory thresholds. Completion review found that the explicit neutral design token map was registered for template preview but not yet persisted as canonical Page Schema Global Styles. Added versioned global-style metadata to every Blank Studio page so installed/runtime/Builder rendering and engine inheritance share one real Template DNA authority."
 }
