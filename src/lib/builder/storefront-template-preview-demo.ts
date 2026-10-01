@@ -25,6 +25,7 @@ import {TABLE_GIFT_DESIGN_TOKENS} from '@/lib/builder/templates/table-gift';
 import {TECH_DECK_DESIGN_TOKENS} from '@/lib/builder/templates/tech-deck';
 import {TOOL_DEPOT_DESIGN_TOKENS} from '@/lib/builder/templates/tool-depot';
 import {TRAIL_EXPEDITION_DESIGN_TOKENS} from '@/lib/builder/templates/trail-expedition';
+import {BLANK_STUDIO_DESIGN_TOKENS} from '@/lib/builder/templates/system/blank-studio';
 
 export const STOREFRONT_TEMPLATE_PREVIEW_DEMO_VERSION='shoporation.storefront-template-preview-demo.v3' as const;
 
@@ -53,10 +54,11 @@ const PREVIEW_THEME_BY_TEMPLATE:Record<string,Readonly<Record<string,string>>>=O
   'tech.tech-deck':TECH_DECK_DESIGN_TOKENS,
   'industrial.tool-depot':TOOL_DEPOT_DESIGN_TOKENS,
   'sport.trail-expedition':TRAIL_EXPEDITION_DESIGN_TOKENS,
+  'system.blank-studio':BLANK_STUDIO_DESIGN_TOKENS,
 });
 
 const CATEGORY_LABELS:Record<string,string>={
-  beauty:'Beauty',fashion:'Fashion',food:'Market',gaming:'Gaming',home:'Home',industrial:'Pro',jewelry:'Luxe',outdoor:'Outdoor',pet:'Pet',sport:'Sport',tech:'Tech',
+  system:'Blank',beauty:'Beauty',fashion:'Fashion',food:'Market',gaming:'Gaming',home:'Home',industrial:'Pro',jewelry:'Luxe',outdoor:'Outdoor',pet:'Pet',sport:'Sport',tech:'Tech',
 };
 
 const CATEGORY_PRODUCTS:Record<string,readonly string[]>={
@@ -154,6 +156,7 @@ function fixtureNames(template:StorefrontInstallableTemplatePackage,type:'produc
 }
 
 function demoProducts(template:StorefrontInstallableTemplatePackage,page:StorefrontPageDocument){
+  if(template.manifest.templateKey==='system.blank-studio')return[];
   if(template.manifest.templateKey==='gaming.playroom'){
     const limit=page.pageType==='home'?12:previewProductLimit(page);
     return PLAYROOM_PREVIEW_PRODUCTS.slice(0,limit).map((product,index)=>({
@@ -187,6 +190,7 @@ function demoProducts(template:StorefrontInstallableTemplatePackage,page:Storefr
 }
 
 function demoCollections(template:StorefrontInstallableTemplatePackage,page:StorefrontPageDocument){
+  if(template.manifest.templateKey==='system.blank-studio')return[];
   const category=template.manifest.templateKey.split('.')[0]??'tech';
   const fixture=fixtureNames(template,'collection');
   const fallback=CATEGORY_COLLECTIONS[category]??CATEGORY_COLLECTIONS.tech;
