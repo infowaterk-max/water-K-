@@ -442,7 +442,7 @@ describe('Playroom v20 functional acceptance',()=>{
   });
 
   it('keeps acceptance deep links on persisted runtime page keys and Direct Preview on the same shared digital composition as Builder',()=>{
-    const acceptance=read('src/app/admin/platform/acceptance/[instanceId]/actions.ts');
+    const acceptance=read('src/lib/builder/storefront-pilot-acceptance-action.ts');
     expect(acceptance).toContain("page=home&acceptance=platform");
     expect(acceptance).not.toContain("page=playroom.home");
 
@@ -455,7 +455,7 @@ describe('Playroom v20 functional acceptance',()=>{
 
   it('exposes a preview-only interactive checkout acceptance path with a real mixed cart seed',()=>{
     const entry=read('src/app/admin/platform/acceptance/[instanceId]/page.tsx');
-    const actions=read('src/app/admin/platform/acceptance/[instanceId]/actions.ts');
+    const actions=read('src/lib/builder/storefront-pilot-acceptance-action.ts');
     const checkoutEntry=read('src/app/admin/platform/acceptance/[instanceId]/checkout/page.tsx');
     const seeder=read('src/app/admin/platform/acceptance/[instanceId]/checkout/checkout-acceptance-seeder.tsx');
     const cartProvider=read('src/components/cart/cart-provider.tsx');
@@ -560,7 +560,7 @@ describe('Playroom v20 functional acceptance',()=>{
     expect(checkoutCss).toContain('--checkout-helper:var(--shoporation-checkout-helper-color');
     expect(settings).toContain("label:'Acceptance · személyes átvétel'");
     expect(settings).toContain("label:'Acceptance · banki átutalás'");
-    const acceptanceActions=read('src/app/admin/platform/acceptance/[instanceId]/actions.ts');
+    const acceptanceActions=read('src/lib/builder/storefront-pilot-acceptance-action.ts');
     const acceptanceEntry=read('src/app/admin/platform/acceptance/[instanceId]/page.tsx');
     expect(acceptanceEntry).toContain('B2B ajánlatkérés teszt');
     expect(acceptanceEntry).toContain('value="b2b-rfq"');
