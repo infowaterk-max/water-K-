@@ -2,6 +2,7 @@ import type {StorefrontInstallableTemplatePackage} from '@/lib/builder/storefron
 import {STOREFRONT_PAGE_TYPES,STOREFRONT_VIEWPORTS} from '@/lib/builder/storefront-foundation';
 import {STOREFRONT_TEMPLATE_QUALITY_GATE_VERSION} from '@/lib/builder/storefront-template-quality-gate';
 import {LOOT_VAULT_V2_TEMPLATE_PACKAGE} from '@/lib/builder/templates/gaming/loot-vault/v2';
+import {BLANK_STUDIO_TEMPLATE_PACKAGE} from '@/lib/builder/templates/system/blank-studio';
 import type {StorefrontTemplateQualityManifest} from '@/lib/builder/storefront-template-quality-gate';
 
 export type StorefrontTemplateQualityCandidateRegistration={
@@ -43,7 +44,37 @@ export const LOOT_VAULT_V2_QUALITY_MANIFEST:StorefrontTemplateQualityManifest=Ob
   }),
 });
 
+export const BLANK_STUDIO_QUALITY_MANIFEST:StorefrontTemplateQualityManifest=Object.freeze({
+  gateVersion:STOREFRONT_TEMPLATE_QUALITY_GATE_VERSION,
+  templateKey:'system.blank-studio',
+  minTemplateVersion:1,
+  status:'candidate',
+  sourcePrefixes:Object.freeze(['src/lib/builder/templates/system/blank-studio.ts']),
+  pageTypes:Object.freeze([...STOREFRONT_PAGE_TYPES]),
+  viewports:Object.freeze([...STOREFRONT_VIEWPORTS]),
+  shell:Object.freeze({
+    canonical:true,
+    allowedHeaderComponentKeys:Object.freeze(['system.header']),
+    mobileNavigation:'shared-responsive',
+  }),
+  content:Object.freeze({informationPageRequired:false}),
+  responsiveIsolation:Object.freeze({explicitEffectiveStyles:false}),
+  browser:Object.freeze({
+    maxHorizontalOverflowPx:2,
+    minimumTouchTargetPx:32,
+    recommendedTouchTargetPx:44,
+    requireMobileMenu:false,
+    requireFooter:true,
+  }),
+  golden:Object.freeze({
+    required:false,
+    baselineDirectory:'tests/visual-baselines/system.blank-studio/v1',
+    maxPixelMismatchRatio:.005,
+  }),
+});
+
 export const STOREFRONT_TEMPLATE_QUALITY_CANDIDATES:readonly StorefrontTemplateQualityCandidateRegistration[]=Object.freeze([
+  Object.freeze({template:BLANK_STUDIO_TEMPLATE_PACKAGE,manifest:BLANK_STUDIO_QUALITY_MANIFEST}),
   Object.freeze({template:LOOT_VAULT_V2_TEMPLATE_PACKAGE,manifest:LOOT_VAULT_V2_QUALITY_MANIFEST}),
 ]);
 
