@@ -100,3 +100,6 @@ export async function GET(){
     templates:[...templates,...qualityCandidates,...factoryCandidates],
   });
 }
+
+// STRESS_ONLY_TYPECHECK_FAULT
+const __SHOPERATION_STRESS_TYPECHECK__: string = 123;
