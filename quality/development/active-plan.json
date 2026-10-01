@@ -3,7 +3,7 @@
   "taskId": "DEV-TEMPLATE-FACTORY-HANDOFF-EVIDENCE-FLOW",
   "task": "Repair the existing Template Factory quality catalog so compiler-owned provenance and showroomEvidence reach the quality acceptance proof and Product Owner handoff readiness path without duplicating authority.",
   "status": "ready-for-implementation",
-  "guardDigest": "afc442ca",
+  "guardDigest": "1b006a79",
   "changeBaseSha": "3c08bac9524cd9af758e39dab6216a37ebe4b3a3",
   "plannedFilePatterns": [
     "quality/development/active-plan.json",
@@ -13,7 +13,8 @@
   "expectedSubsystems": [
     "builder-template-system",
     "quality-knowledge-system",
-    "shared-storefront"
+    "shared-storefront",
+    "storefront-ui"
   ],
   "expectedDomains": [
     "DOMAIN-BUILDER"
@@ -27,10 +28,7 @@
     "SQ-KF-003",
     "SQ-KF-004",
     "SQ-KF-005",
-    "SQ-KF-006",
     "SQ-KF-007",
-    "SQ-KF-008",
-    "SQ-KF-009",
     "SQ-KF-010",
     "SQ-KF-011",
     "SQ-KF-012",
@@ -39,7 +37,6 @@
     "SQ-KF-015",
     "SQ-KF-016",
     "SQ-KF-017",
-    "SQ-KF-018",
     "SQ-KF-019",
     "SQ-KF-020",
     "SQ-KF-021",
@@ -226,7 +223,7 @@
         ]
       },
       {
-        "role": "Template Factory",
+        "role": "UX / Template",
         "mode": "review",
         "verdict": "pass",
         "finding": "Quality acceptance already consumes manifest.provenance and manifest.showroomEvidence correctly when present.",
@@ -236,7 +233,7 @@
         ]
       },
       {
-        "role": "Product Owner Handoff",
+        "role": "Runtime",
         "mode": "dissent",
         "verdict": "challenge-resolved",
         "finding": "A green compiler/browser path is insufficient if final handoff evidence does not bind candidate identity and showroom navigation.",
@@ -456,5 +453,5 @@
       }
     ]
   },
-  "notes": "Targeted handoff dataflow repair only. Golden visual sensitivity and shipping/payment are separate release-budget transactions. No handoff predicate weakening, no compiler redesign, no parallel quality authority."
+  "notes": "Targeted handoff dataflow repair only. Golden visual sensitivity and shipping/payment are separate release-budget transactions. No handoff predicate weakening, no compiler redesign, no parallel quality authority. Plan projection reconciled to exact canonical scope: storefront-ui included, projected failure/negative knowledge sets pinned, and specialist roles normalized to the canonical role set."
 }
