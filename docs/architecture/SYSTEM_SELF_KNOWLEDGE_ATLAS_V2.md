@@ -67,3 +67,11 @@ Ha az Atlas és egy canonical authority eltér, az Atlas hibás vagy elavult, ne
 ## Clean replacement
 
 Az Atlas 2.0 a korábbi Atlas policy v1 helyére lép. A runtime kizárólag a v2 policy-t olvassa; párhuzamos v1/v2 policy authority nem marad.
+
+<!-- STRESS_CAPABILITY_RESUMABLE_NOOP_A: documentation-only semantic no-op -->
+
+<!-- STRESS_CAPABILITY_RESUMABLE_NOOP_B: second independent documentation-only semantic no-op -->
+
+<!-- STRESS_CAPABILITY_RESUMABLE_NOOP_C: third independent documentation-only semantic no-op -->
+
+<!-- STRESS_CAPABILITY_RESUMABLE_NOOP_D: fourth independent documentation-only semantic no-op for ACTIVE proof -->
