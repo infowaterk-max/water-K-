@@ -1,14 +1,19 @@
 {
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-TEMPLATE-FACTORY-HANDOFF-EVIDENCE-FLOW",
-  "task": "Repair the existing Template Factory quality catalog so compiler-owned provenance and showroomEvidence reach the quality acceptance proof and Product Owner handoff readiness path without duplicating authority.",
+  "task": "Restore the Template Factory Product Owner handoff evidence flow and close the purchase-path runtime blocker exposed when the repaired handoff first reached the real Loot Vault v2 Product Owner journey.",
   "status": "ready-for-implementation",
   "guardDigest": "1b006a79",
   "changeBaseSha": "3c08bac9524cd9af758e39dab6216a37ebe4b3a3",
   "plannedFilePatterns": [
     "quality/development/active-plan.json",
     "src/app/api/visual-fidelity/templates/route.ts",
-    "tests/template-factory-handoff-evidence-flow.test.ts"
+    "tests/template-factory-handoff-evidence-flow.test.ts",
+    "src/components/builder/storefront-commerce.tsx",
+    "src/lib/builder/storefront-commerce.ts",
+    "src/lib/builder/templates/gaming/loot-vault/v2/canonical-package.json",
+    "tests/storefront-fidelity-commerce-interaction-states.test.tsx",
+    "tests/template-factory-loot-vault-v2.test.ts"
   ],
   "expectedSubsystems": [
     "builder-template-system",
@@ -90,29 +95,38 @@
     "sourceKind": "product-owner-request",
     "sourceRef": "PO-2026-10-01-TEMPLATE-FACTORY-HANDOFF-DATAFLOW",
     "riskTier": "critical",
-    "problemStatement": "The Template Factory compiler already emits exact candidate provenance and showroomEvidence, but the visual-fidelity quality catalog drops both fields before the quality gate builds acceptanceProofs. The downstream Product Owner handoff therefore sees factoryIdentityPinned=false and showroomContractPassed=false and can skip a candidate that is otherwise compiler-ready and browser-matrix-ready.",
+    "problemStatement": "The Template Factory compiler already emits exact candidate provenance and showroomEvidence, but the visual-fidelity quality catalog drops both fields before the quality gate builds acceptanceProofs. The downstream Product Owner handoff therefore sees factoryIdentityPinned=false and showroomContractPassed=false and can skip a candidate that is otherwise compiler-ready and browser-matrix-ready. After evidence propagation was repaired, the previously skipped Product Owner journey became reachable and exposed a second material blocker: commerce.product-grid declares showPurchaseActions but the shared renderer ignores it, while Loot Vault PDP purchase bindings lack demo fallbacks and therefore fail closed with zero identity/stock in Factory preview.",
     "observableOutcomes": [
       "Every factory candidate catalog record carries the exact compiler report provenance object unchanged.",
       "Every factory candidate catalog record carries the exact compiler report showroomEvidence rows unchanged.",
       "The existing quality gate derives factoryIdentityPinned=true and showroomContractPassed=true from those propagated fields when the compiler data is valid.",
-      "The existing Product Owner target resolver becomes reachable from real acceptanceProofs without weakening any readiness condition."
+      "The existing Product Owner target resolver becomes reachable from real acceptanceProofs without weakening any readiness condition.",
+      "The repaired Product Owner handoff reaches and completes the real Home → add-to-cart → cart and PDP → add-to-cart → cart convergence on the exact Factory candidate.",
+      "commerce.product-grid uses the existing StorefrontPurchaseControlsClient only when showPurchaseActions=true and complete product identity/price/stock evidence exists; default product cards remain unchanged.",
+      "Loot Vault v2 Product Owner preview provides explicit demo purchase identity/price/stock fallbacks while retaining canonical product/inventory bindings for real runtime data."
     ],
     "unresolvedRisks": [
       "The catalog could reconstruct provenance instead of forwarding compiler authority, creating a second identity source.",
       "Showroom evidence could be partially copied and silently lose reachability/navigation fields required by the handoff verifier.",
-      "A test could prove source text only while the GET payload still omits or mutates the fields."
+      "A test could prove source text only while the GET payload still omits or mutates the fields.",
+      "Adding shared purchase actions to product cards must not fabricate stock from a display label; cards need explicit numeric demo availability.",
+      "PDP demo fallbacks must not replace live product/inventory binding authority when real context exists.",
+      "The newly rendered purchase controls can alter candidate layout and must survive the full 14×3 browser proof rather than being accepted from unit tests alone."
     ],
     "scope": {
       "in": [
         "Factory candidate quality catalog serialization boundary.",
         "Exact compiler provenance/showroom evidence propagation.",
-        "Adversarial regression of the catalog GET payload and downstream-ready field shape."
+        "Adversarial regression of the catalog GET payload and downstream-ready field shape.",
+        "Shared optional product-card purchase surface already declared by Factory commerceReadiness.",
+        "Loot Vault v2 demo purchase identity/price/stock fallbacks required for Product Owner preview route convergence."
       ],
       "out": [
         "Product Owner browser journey behavior itself.",
         "Compiler provenance generation.",
         "Template Factory golden visual diff sensitivity.",
-        "Vercel deployment/authentication behavior."
+        "Vercel deployment/authentication behavior.",
+        "Cart engine, wishlist endpoint, checkout engine and inventory business rules; the repair reuses their existing shared authority."
       ]
     },
     "assuranceCeiling": {
@@ -137,19 +151,28 @@
         "Factory candidate catalog provenance deep-equals build.report.provenance for the same recipe.",
         "Factory candidate catalog showroomEvidence deep-equals build.report.showroomEvidence for the same recipe.",
         "No synthetic fallback provenance/showroom evidence is created in the catalog.",
-        "The downstream quality gate and Product Owner handoff continue consuming the existing acceptanceProof fields without new parallel contracts."
+        "The downstream quality gate and Product Owner handoff continue consuming the existing acceptanceProof fields without new parallel contracts.",
+        "A Loot Vault home product card with showPurchaseActions=true renders the canonical purchase-controls surface and opens the shared add-to-cart confirmation.",
+        "The Loot Vault PDP purchase control is enabled in Factory demo preview through explicit binding fallbacks and still binds to product.*, pricing.* and inventory.* authorities when runtime context exists.",
+        "The exact-head Template Factory Product Owner journey reports handoffReady=true rather than merely reaching the target resolver."
       ],
       "invariants": [
         "Template Factory compiler report remains the sole provenance/showroom evidence owner.",
         "Catalog serialization may copy values but may not recompute candidate identity.",
         "Non-factory accepted templates and quality candidates retain their current payload shape and behavior.",
-        "A compiler-not-ready candidate remains excluded exactly as before."
+        "A compiler-not-ready candidate remains excluded exactly as before.",
+        "Product-card purchase actions remain opt-in; templates without showPurchaseActions=true preserve current details-only behavior.",
+        "The shared StorefrontPurchaseControlsClient remains the sole cart/wishlist interaction authority for product-card purchase actions.",
+        "No stock state is inferred from localized stockLabel text."
       ],
       "forbiddenStates": [
         "factory-catalog-drops-provenance",
         "factory-catalog-drops-showroom-evidence",
         "catalog-reconstructs-factory-identity",
-        "handoff-readiness-bypasses-factory-identity-or-showroom-contract"
+        "handoff-readiness-bypasses-factory-identity-or-showroom-contract",
+        "showPurchaseActions-true-with-no-runtime-purchase-surface",
+        "product-card-duplicates-cart-or-wishlist-business-logic",
+        "factory-pdp-disabled-because-demo-binding-fallbacks-are-absent"
       ]
     },
     "model": {
@@ -184,13 +207,18 @@
         "Catalog omits both fields and handoff target remains unreachable.",
         "Catalog forwards provenance but not showroom evidence.",
         "Catalog copies only partial showroom rows and navigation completeness later fails.",
-        "Catalog invents identity from recipe values instead of retaining compiler authority."
+        "Catalog invents identity from recipe values instead of retaining compiler authority.",
+        "Factory readiness validates showPurchaseActions=true structurally while the shared renderer silently ignores it.",
+        "PDP purchase controls are structurally present but remain disabled because preview binding context has no product identity or inventory quantity."
       ],
       "edgeCases": [
         "Factory recipe is productOwnerReady=false and therefore must remain absent.",
         "Showroom evidence contains multiple page types and shell-navigation reachability rows.",
         "Compiler provenance contains foundation template identity distinct from target template.",
-        "VISUAL_FIDELITY_QA is disabled and route must still return 404."
+        "VISUAL_FIDELITY_QA is disabled and route must still return 404.",
+        "showPurchaseActions=false or absent must not render purchase controls.",
+        "A product card missing numeric stock evidence must fail closed rather than infer availability from stockLabel.",
+        "Live runtime binding values must override the demo fallback values."
       ]
     },
     "alternatives": [
@@ -211,6 +239,18 @@
         "summary": "Remove factoryIdentityPinned or showroomContractPassed from Product Owner target readiness.",
         "disposition": "rejected",
         "reason": "That would hide the evidence-loss defect and weaken a previously valid fail-closed acceptance requirement."
+      },
+      {
+        "id": "ALT-SHARED-CARD-PURCHASE",
+        "summary": "Render the existing StorefrontPurchaseControlsClient from commerce.product-grid only for opt-in cards with complete purchase evidence.",
+        "disposition": "selected",
+        "reason": "This is the previously designed shared authority path from PR #375 and avoids duplicating cart/wishlist behavior."
+      },
+      {
+        "id": "ALT-HANDOFF-SKIP-PURCHASE",
+        "summary": "Remove Home/PDP add-to-cart convergence from the Product Owner handoff journey.",
+        "disposition": "rejected",
+        "reason": "That would hide the real functional defect exposed only after the handoff dataflow repair and would recreate a false-ready handoff."
       }
     ],
     "specialistReviews": [
@@ -314,6 +354,13 @@
         "finding": "The generic Factory pipeline remains broken for later recipes.",
         "resolution": "Forward fields generically for every build.report rather than naming a template.",
         "status": "resolved"
+      },
+      {
+        "id": "CH-9",
+        "scenario": "The handoff target becomes reachable but Product Owner purchase convergence still fails.",
+        "finding": "Reachability alone is not a working handoff; exact-head proof exposed missing shared card purchase rendering and missing PDP demo fallbacks.",
+        "resolution": "Reuse canonical StorefrontPurchaseControlsClient on opt-in product grids, add explicit demo purchase evidence/fallbacks to Loot Vault v2, and require the same real Product Owner journey to pass.",
+        "status": "resolved"
       }
     ],
     "proofPlan": [
@@ -321,7 +368,8 @@
       "Invoke the real visual-fidelity catalog GET handler with VISUAL_FIDELITY_QA enabled and locate gaming.loot-vault v2 factoryCandidate.",
       "Deep-compare catalog provenance and showroomEvidence against buildRegisteredStorefrontTemplateFactoryCandidate().report.",
       "Assert the existing quality-gate and handoff scripts still require factoryIdentityPinned and showroomContractPassed rather than bypassing them.",
-      "Run exact-head Quality Tests, TypeScript, Production Build, Completion Truth and CLOSE→LEARN lifecycle."
+      "Run exact-head Quality Tests, TypeScript, Production Build, Completion Truth and CLOSE→LEARN lifecycle.",
+      "Re-run the unchanged exact-head Product Owner journey that exposed ROUTE_CONVERGENCE_HOME_ADD_TO_CART and ROUTE_CONVERGENCE_PDP_ADD_TO_CART; both must pass without weakening the verifier."
     ],
     "executionAuthorized": true,
     "semanticExecutionRoute": {
@@ -332,17 +380,24 @@
         "product-owner-handoff"
       ],
       "mustEdit": [
-        "src/app/api/visual-fidelity/templates/route.ts"
+        "src/app/api/visual-fidelity/templates/route.ts",
+        "src/components/builder/storefront-commerce.tsx",
+        "src/lib/builder/storefront-commerce.ts",
+        "src/lib/builder/templates/gaming/loot-vault/v2/canonical-package.json"
       ],
       "mayEdit": [],
       "impactedReadOnly": [
         "src/lib/builder/template-factory/scaffold.ts",
         "scripts/template-factory-quality-gate.mjs",
         "scripts/template-factory-product-owner-handoff.mjs",
-        ".github/workflows/template-factory-quality-gate.yml"
+        ".github/workflows/template-factory-quality-gate.yml",
+        "src/components/builder/storefront-purchase-controls-client.tsx",
+        "src/lib/builder/storefront-purchase-controls.ts"
       ],
       "proof": [
-        "tests/template-factory-handoff-evidence-flow.test.ts"
+        "tests/template-factory-handoff-evidence-flow.test.ts",
+        "tests/storefront-fidelity-commerce-interaction-states.test.tsx",
+        "tests/template-factory-loot-vault-v2.test.ts"
       ],
       "unknown": []
     }
@@ -453,8 +508,45 @@
             ]
           }
         ]
+      },
+      {
+        "id": "REQ-PRODUCT-OWNER-PURCHASE-CONVERGENCE",
+        "requirement": "The exact Factory Product Owner journey completes both Home and PDP add-to-cart convergence using the canonical shared purchase authority, with no verifier weakening.",
+        "claimScope": {
+          "capability": "CAP-ATLAS",
+          "breadth": "targeted-product-owner-purchase-journey",
+          "strength": 2,
+          "dimensions": [
+            "runtime",
+            "consumers",
+            "regression",
+            "forbidden-state"
+          ]
+        },
+        "requiredCapabilities": [
+          "CAP-ATLAS"
+        ],
+        "evidence": {
+          "implementation": [
+            "GUARD-EDIT-TIME",
+            "GUARD-QUALITY-TESTS"
+          ],
+          "outcome": [
+            "GUARD-QUALITY-TESTS",
+            "GUARD-PRODUCTION-BUILD"
+          ]
+        },
+        "forbiddenRegressions": [
+          {
+            "id": "NEG-HANDOFF-PURCHASE-SKIP",
+            "statement": "The Product Owner verifier may not skip, downgrade, or remove the Home/PDP purchase convergence checks to obtain a green handoff.",
+            "evidence": [
+              "GUARD-QUALITY-TESTS"
+            ]
+          }
+        ]
       }
     ]
   },
-  "notes": "Targeted handoff dataflow repair only. Golden visual sensitivity and shipping/payment are separate release-budget transactions. No handoff predicate weakening, no compiler redesign, no parallel quality authority. Plan projection reconciled to exact canonical scope: storefront-ui included, projected failure/negative knowledge sets pinned, and specialist roles normalized to the canonical role set."
+  "notes": "Targeted handoff dataflow repair only. Golden visual sensitivity and shipping/payment are separate release-budget transactions. No handoff predicate weakening, no compiler redesign, no parallel quality authority. Plan projection reconciled to exact canonical scope: storefront-ui included, projected failure/negative knowledge sets pinned, and specialist roles normalized to the canonical role set. Verification-failure replan: repaired evidence flow made the real Product Owner handoff reachable; that proof exposed genuine shared product-card purchase and Loot Vault PDP demo-binding blockers. Runtime is not weakened and the unchanged failing journey becomes the acceptance proof."
 }
