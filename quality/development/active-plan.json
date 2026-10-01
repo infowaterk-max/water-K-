@@ -1,35 +1,42 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-CONTROL-PLANE-OPERATIONAL-INTELLIGENCE",
-  "task": "Elevate the existing Control Plane with risk-based assurance ceiling, specialist dissent, PO-derived completion contracts, evidence freshness, completion integrity and read-only truth verification without parallel authorities.",
+  "taskId": "DEV-VX-BUILDER-LIBRARY-2",
+  "task": "Complete PR #562 as one release unit: preserve the approved shared VX Builder Core foundation and add curated VX Library 2.0 for sections, elements and page templates with lightweight semantic previews, search/category filtering, contextual insertion and bounded larger previews, while preserving canonical runtime, preset, page-template and publication authorities.",
   "status": "ready-for-implementation",
-  "guardDigest": "540e4ce8",
-  "changeBaseSha": "8b0c6745923d7aa1cdff920db351cbd1527f07f4",
+  "guardDigest": "9df8eb64",
+  "changeBaseSha": "dd0ae071bb0c5cd953a704ce31e2516feee9657f",
   "plannedFilePatterns": [
-    "AGENTS.md",
-    ".github/workflows/ci.yml",
-    "docs/architecture/CONTROL_PLANE_OPERATIONAL_INTELLIGENCE.md",
+    "docs/architecture/VX_BUILDER_CORE.md",
     "quality/development/active-plan.json",
-    "quality/knowledge/development-guard-policy.v1.json",
-    "quality/knowledge/guard-registry.v1.json",
-    "quality/knowledge/knowledge-scope-policy.v1.json",
-    "scripts/lib/shoperation-operational-intelligence.mjs",
-    "scripts/shoperation-development-guard.mjs",
-    "scripts/shoperation-plan-before-code.mjs",
-    "scripts/shoperation-failure-intake.mjs",
-    "scripts/shoperation-truth-gate.mjs",
-    "tests/shoperation-operational-intelligence.test.ts"
+    "src/components/admin/storefront-page-templates-panel.tsx",
+    "src/components/admin/storefront-preset-library-panel.tsx",
+    "src/components/admin/storefront-visual-builder-v3.module.css",
+    "src/components/admin/storefront-visual-builder-v3.tsx",
+    "src/components/admin/vx-builder-library-preview.tsx",
+    "src/components/admin/vx-builder-library.module.css",
+    "src/lib/builder/vx-builder-core.ts",
+    "src/lib/builder/vx-builder-library.ts",
+    "tests/shoperation-operational-intelligence.test.ts",
+    "tests/storefront-preset-library.test.ts",
+    "tests/visual-builder-production-completion.test.ts",
+    "tests/vx-builder-core.test.ts",
+    "tests/vx-builder-library.test.ts",
+    "scripts/template-factory-product-owner-handoff.mjs"
   ],
   "expectedSubsystems": [
-    "release-infrastructure"
+    "admin-operations",
+    "builder-template-system",
+    "release-infrastructure",
+    "shared-storefront",
+    "storefront-ui"
   ],
   "expectedDomains": [
-    "DOMAIN-QUALITY",
-    "DOMAIN-RELEASE"
+    "DOMAIN-ADMIN",
+    "DOMAIN-BUILDER"
   ],
   "expectedAuthorities": [
-    "quality-knowledge-system",
-    "release-infrastructure"
+    "admin-operations",
+    "builder-template-system"
   ],
   "expectedKnownFailureIds": [
     "SQ-KF-001",
@@ -83,20 +90,31 @@
     "TF-KF-025"
   ],
   "acknowledgedNegativeKnowledgeIds": [
+    "SQ-NK-001",
     "SQ-NK-002",
     "SQ-NK-003",
+    "SQ-NK-004",
     "SQ-NK-005",
+    "SQ-NK-006",
+    "SQ-NK-007",
+    "SQ-NK-008",
+    "SQ-NK-009",
     "SQ-NK-010",
     "SQ-NK-012"
   ],
-  "exceptions": [],
+  "exceptions": [
+    {
+      "ruleId": "DEV-REVIEW-REFERENCE-SYNC",
+      "reason": "Reference Sync reports 53 ambiguous consumers for the generic JSX fragment </article>)}</div> after the page-template panel visual rewrite. The machine-meaningful page-template data marker was restored to data-storefront-page-templates-v1, leaving staleConsumers=0. The remaining matches are unrelated JSX closures across independent routes/components, not consumers of the Builder Library contract; changing them would create unrelated churn."
+    }
+  ],
   "operationalIntelligence": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-09-30-CONTROL-PLANE-OPERATIONAL-INTELLIGENCE",
-    "riskTier": "critical",
+    "sourceRef": "PO-2026-10-01-VX-BUILDER-LIBRARY-2",
+    "riskTier": "high",
     "assuranceCeiling": {
-      "level": "critical-practical",
-      "rationale": "This change modifies the development and release decision system itself. Use exhaustive deterministic state/evidence scenarios and fault injection, but avoid full formal verification because the core is finite repository/CI orchestration rather than a high-dimensional concurrent business protocol.",
+      "level": "strong-behavioral-proof",
+      "rationale": "Library 2.0 sits directly on the authoring path and can influence what merchants insert into canonical Page documents. Strong behavioral proof is justified for capability filtering, bounded preview rendering, insertion integrity and performance. Formal verification would add disproportionate cost because the slice introduces no new transactional, persistence or concurrent protocol authority.",
       "selectedTechniques": [
         "explicit-specification",
         "invariants",
@@ -106,48 +124,52 @@
         "boundary-cases",
         "pairwise-interactions",
         "threat-failure-model",
-        "fault-injection",
-        "finite-state-exhaustion"
+        "fault-injection"
       ],
       "deferredTechniques": [
         {
-          "technique": "property-based-testing",
-          "reason": "Finite exhaustive evidence-state matrices provide stronger and cheaper coverage for this deterministic evaluator."
+          "technique": "finite-state-exhaustion",
+          "reason": "The gallery state is UI/filter driven; targeted state matrices and canonical insertion validation provide better assurance-to-cost ratio."
         },
         {
           "technique": "formal-verification",
-          "reason": "Disproportionate cost for deterministic repository/CI orchestration with bounded states and no critical concurrent business mutation."
+          "reason": "No payment, inventory or distributed consistency protocol changes; persistence and runtime authorities remain unchanged."
         }
       ]
     },
     "definition": {
       "acceptanceCriteria": [
-        "Pre-execution planning determines and validates a risk-based assurance ceiling.",
-        "Medium-or-higher work models failure states, compares alternatives and records adversarial challenge.",
-        "At least one relevant specialist acts as dissent and cannot self-certify unresolved findings.",
-        "Completion Contract is traced to the PO request rather than derived from implementation steps.",
-        "A read-only Truth Gate maps completion claims to exact-state evidence and never treats missing evidence as DONE.",
-        "Evidence is stale when source commit or branch identity no longer matches the evaluated exact state.",
-        "Learning from preventable misses feeds the existing Failure Intake and Known Failure authority instead of creating per-defect gates.",
-        "Existing Atlas, Sentinel, Knowledge, Replay, Release Risk and Template Factory authorities are reused rather than duplicated."
+        "Sections, elements and page templates use a shared VX Library visual language with lightweight semantic thumbnails instead of generic registry rows or live runtime instantiation.",
+        "Section Presets expose search, meaningful curated categories and a bounded larger preview before one-click insertion.",
+        "Element insertion cards expose recognizable semantic previews while continuing to list only structurally valid and product-profile/capability-allowed components.",
+        "Page Templates use the same visual card/preview language and retain existing apply/create-new-page authority.",
+        "Factory Section Presets remain source-controlled canonical preset material; tenant Saved Blocks remain a separate merchant-owned library.",
+        "Every insertion/application continues through existing preset/page-template materialization and validation functions; no second document, renderer, persistence or publish path is introduced.",
+        "Preview generation is bounded metadata/CSS composition only and must not instantiate one StorefrontRuntimeRenderer per Library card.",
+        "VX Shop may expose commerce library items, while the shared Core classification/preview system remains product-agnostic and compatible with future VX Site capability profiles.",
+        "Mobile Library remains polished and inspectable, but Desktop remains the full authoring authority and no mobile-only content/page model is created."
       ],
       "invariants": [
-        "No parallel Control Plane, Atlas, Sentinel, Failure Intake or release authority is created.",
-        "Execution authorization requires a valid pre-execution plan envelope.",
-        "Exactly one implementation alternative is selected after challenge.",
-        "Critical work has at least one dissent specialist and no unresolved challenge finding.",
-        "CLAIM WITHOUT EVIDENCE remains NOT VERIFIED.",
-        "DONE requires every Completion Contract requirement and negative regression claim to be freshly evidenced at exact state.",
-        "Truth evaluation is read-only and cannot merge, deploy, update goldens or weaken gates."
+        "Template -> Page Preset -> Section Preset -> Component remains canonical.",
+        "A Library preview is presentation metadata only and can never become insertion/persistence authority.",
+        "Factory presets and Saved Blocks are never merged into one ownership model.",
+        "Capability and parent/child compatibility remain fail-closed before insertion.",
+        "Library search/filtering cannot reveal or insert a component hidden by the active product profile or entitlement.",
+        "No unbounded number of live runtime renderers is mounted for thumbnails or previews.",
+        "Inserted preset nodes receive canonical fresh identities and remain fully editable native Builder content.",
+        "Guarded Freedom continues to prohibit arbitrary HTML/JavaScript and unbounded freeform layout primitives."
       ],
       "forbiddenStates": [
-        "implementation-authorized-with-invalid-plan",
-        "done-with-missing-requirement",
-        "done-with-stale-critical-evidence",
-        "done-with-forbidden-regression-unproven",
-        "self-certified-plan-without-dissent",
-        "parallel-authority-created",
-        "truth-gate-mutates-product-or-release-state"
+        "live-runtime-per-library-card",
+        "preset-preview-becomes-second-renderer-authority",
+        "factory-and-tenant-library-ownership-collapse",
+        "capability-hidden-item-insertable-through-search",
+        "invalid-parent-child-insertion-through-gallery",
+        "preset-insertion-bypasses-canonical-validation",
+        "page-template-application-bypasses-current-authority",
+        "unbounded-preview-tree-walk",
+        "mobile-specific-page-or-breakpoint-document",
+        "wix-style-marketplace-or-arbitrary-widget-proliferation"
       ]
     },
     "model": {
@@ -179,46 +201,48 @@
         "CLOSE->LEARN"
       ],
       "failureModes": [
-        "missing-evidence",
-        "stale-evidence",
-        "branch-mismatch",
-        "partial-success",
-        "duplicate-execution",
-        "authority-conflict",
-        "dependency-failure",
-        "scope-drift",
-        "rollback-state",
-        "out-of-order-evidence"
+        "gallery-runtime-explosion",
+        "wrong-category-classification",
+        "search-filter-capability-leak",
+        "stale-contextual-target",
+        "invalid-section-insertion",
+        "saved-block-authority-confusion",
+        "page-template-authority-duplication",
+        "mobile-library-overflow",
+        "visual-preview-misrepresents-semantic-type",
+        "large-fragment-preview-cost"
       ],
       "edgeCases": [
-        "empty-completion-contract",
-        "duplicate-requirement-id",
-        "unknown-evidence-id",
-        "missing-specialist-dissent",
-        "unresolved-challenge",
-        "head-changed-after-proof",
-        "negative-regression-without-proof",
-        "low-risk-fast-path"
+        "section-preset-with-deep-tree",
+        "preset-containing-commerce-components",
+        "site-profile-with-commerce-classification",
+        "zero-compatible-section-presets",
+        "selected-node-with-no-appearance-presets",
+        "search-query-with-diacritics",
+        "preview-of-unknown-forward-compatible-component",
+        "mobile-panel-width-under-360px",
+        "page-template-with-no-current-apply-compatibility",
+        "insertion-after-capability-change"
       ]
     },
     "alternatives": [
       {
         "id": "ALT-01",
-        "summary": "Create a new top-level orchestrator plus separate planning, challenge and completion gate families.",
+        "summary": "Render every preset and element card with a full live StorefrontRuntimeRenderer miniature.",
         "disposition": "rejected",
-        "reason": "Duplicates authority boundaries and increases bureaucracy and drift."
+        "reason": "High runtime/DOM cost, duplicate interaction complexity and explicit conflict with the roadmap's bounded thumbnail contract."
       },
       {
         "id": "ALT-02",
-        "summary": "Extend the existing Development Guard and Plan Before Code contract and add one read-only completion evaluator consuming existing gate evidence.",
+        "summary": "Build a shared semantic Library descriptor/preview layer over existing canonical preset, component and page-template authorities.",
         "disposition": "selected",
-        "reason": "Provides the requested assurance lifecycle with the smallest blast radius and reuses existing authorities."
+        "reason": "Improves merchant comprehension and visual quality while preserving one runtime/persistence authority and keeping previews bounded."
       },
       {
         "id": "ALT-03",
-        "summary": "Document the process only and rely on agent discipline without machine enforcement.",
+        "summary": "Create a separate visual preset database/marketplace with arbitrary merchant widgets.",
         "disposition": "rejected",
-        "reason": "Cannot prevent incomplete plans or unsupported DONE claims deterministically."
+        "reason": "Would create a parallel authority, undermine Guarded Freedom and dramatically increase performance/security/regression surface."
       }
     ],
     "specialistReviews": [
@@ -226,206 +250,118 @@
         "role": "Architecture",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Reuse the existing authority graph and Development Guard; no new parallel control authority.",
-        "resolution": "ALT-02 preserves canonical ownership."
+        "finding": "Library 2.0 must be a presentation/indexing layer over existing preset/page-template authorities, not a new content authority.",
+        "resolution": "Introduce pure semantic descriptor helpers and lightweight preview components; insertion still calls the existing canonical functions."
       },
       {
-        "role": "Release",
+        "role": "Runtime",
         "mode": "dissent",
         "verdict": "challenge-resolved",
-        "finding": "A Truth Gate could become a second release authority or certify stale cross-workflow evidence.",
-        "resolution": "Truth Gate is read-only completion integrity under quality authority; Release Risk remains release authority and evidence is exact-state bound."
+        "finding": "A visually rich gallery can accidentally mount dozens of live storefront runtimes or traverse arbitrarily deep preset trees on every render.",
+        "resolution": "Use bounded pure descriptors and CSS semantic thumbnails; cap structural inspection and never mount StorefrontRuntimeRenderer in Library cards."
       },
       {
-        "role": "Known Failure",
+        "role": "UX / Template",
         "mode": "review",
         "verdict": "pass",
-        "finding": "New completion failures must flow into the existing Failure Intake and learning loop.",
-        "resolution": "Truth diagnostics are consumed by existing Failure Intake; no second incident ledger."
+        "finding": "Generic cube/line cards do not communicate what will be inserted and make the Builder feel registry-driven.",
+        "resolution": "Use recognizable section/element/page-template preview archetypes, curated categories, search and an explicit larger preview surface."
       },
       {
-        "role": "Operations",
+        "role": "Security",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Critical-depth process must not impose the same overhead on trivial edits.",
-        "resolution": "Policy enforces risk-based depth with a lightweight low-risk path."
+        "finding": "Search/filter UI must not expose a hidden insert path for disallowed components or Pro-only capability.",
+        "resolution": "Derive candidate sets from the same contextual/capability-filtered authorities first, then apply visual search/category filtering only to that safe set."
       }
     ],
     "challenge": [
       {
         "id": "CH-01",
-        "scenario": "A requirement is omitted from the implementation plan.",
-        "finding": "Plan-derived closure could falsely pass.",
-        "resolution": "Completion Contract is a separate PO-source field and Truth Gate evaluates it directly.",
+        "scenario": "A template exposes 80 presets and each card renders a live runtime preview.",
+        "finding": "The Library becomes slower than the storefront and creates massive DOM/listener cost.",
+        "resolution": "Semantic CSS thumbnails only; no StorefrontRuntimeRenderer inside Library cards and larger preview remains the same bounded descriptor.",
         "status": "resolved"
       },
       {
         "id": "CH-02",
-        "scenario": "HEAD changes after a green proof.",
-        "finding": "Evidence becomes stale.",
-        "resolution": "Every evidence item is bound to exact source commit and branch; mismatch is STALE_EVIDENCE.",
+        "scenario": "A deep preset fragment recursively walks thousands of descendants to create a thumbnail.",
+        "finding": "Preview cost could be attacker/template amplified.",
+        "resolution": "Descriptor traversal uses an explicit node inspection budget and returns a safe generic preview when the budget is exhausted.",
         "status": "resolved"
       },
       {
         "id": "CH-03",
-        "scenario": "A required guard outcome is absent.",
-        "finding": "Missing evidence could be mistaken for success.",
-        "resolution": "Missing evidence yields PARTIALLY_VERIFIED and PO status NOT DONE.",
+        "scenario": "A user searches for a commerce component hidden by current profile/capability.",
+        "finding": "A secondary search index could leak an insertion route.",
+        "resolution": "Search operates only on the already filtered safe candidate list; classification never grants insertability.",
         "status": "resolved"
       },
       {
         "id": "CH-04",
-        "scenario": "A guard explicitly fails.",
-        "finding": "Completion could still appear partially green.",
-        "resolution": "Failed evidence yields NOT_DONE; blocked infrastructure yields BLOCKED.",
+        "scenario": "A section card looks like a Hero but insertion materializes a different authority or opaque widget.",
+        "finding": "Visual Library could become misleading and non-editable.",
+        "resolution": "Preview is derived from canonical fragment/component keys and insertion materializes ordinary editable native nodes through existing preset functions.",
         "status": "resolved"
       },
       {
         "id": "CH-05",
-        "scenario": "A plan validates itself without opposition.",
-        "finding": "Confirmation bias survives.",
-        "resolution": "Medium, high and critical plans require a dissent specialist; critical requires multiple relevant reviews.",
+        "scenario": "Factory presets and merchant Saved Blocks are shown as one undifferentiated collection.",
+        "finding": "Ownership, lifecycle and trust become ambiguous.",
+        "resolution": "Keep separate top-level surfaces and explicit source badges; no combined persistence model.",
         "status": "resolved"
       },
       {
         "id": "CH-06",
-        "scenario": "Low-risk edits inherit critical ceremony.",
-        "finding": "Process becomes too slow.",
-        "resolution": "Risk-depth thresholds reduce required modeling, challenge and specialist counts for lower tiers.",
+        "scenario": "Page-template cards reimplement apply/create behavior inside the visual preview layer.",
+        "finding": "Would duplicate page authority and optimistic concurrency rules.",
+        "resolution": "Visual cards only call existing StorefrontPageTemplatesPanel actions/applyStorefrontPageTemplate paths.",
         "status": "resolved"
       },
       {
         "id": "CH-07",
-        "scenario": "Truth evaluation becomes a second release authority.",
-        "finding": "Authority fork.",
-        "resolution": "Completion integrity is owned by existing quality authority; Release Risk remains release authority.",
+        "scenario": "Unknown future component keys break thumbnail rendering.",
+        "finding": "Forward-compatible templates could crash the Library.",
+        "resolution": "Classification fails to a generic bounded preview without affecting canonical insertion eligibility.",
         "status": "resolved"
       },
       {
         "id": "CH-08",
-        "scenario": "A later preventable defect is merely patched.",
-        "finding": "The missed-thinking cause is lost.",
-        "resolution": "Failure Intake records a learning review and routes prevention to existing authorities.",
+        "scenario": "Mobile tries to show desktop-sized multi-column gallery cards and creates horizontal scroll.",
+        "finding": "Mobile audit becomes visibly broken even though desktop is primary.",
+        "resolution": "Responsive Library CSS collapses grids and keeps actions/touch targets inside the panel without introducing separate content semantics.",
         "status": "resolved"
       },
       {
         "id": "CH-09",
-        "scenario": "Truth evaluation is retried or duplicated.",
-        "finding": "A mutable evaluator could create side effects.",
-        "resolution": "Truth Gate is read-only and artifact-only; repeated runs cannot mutate product or release state.",
-        "status": "resolved"
-      },
-      {
-        "id": "CH-10",
-        "scenario": "A forbidden regression is not explicitly checked.",
-        "finding": "Functional success could hide a prohibited side effect.",
-        "resolution": "Completion requirements carry negative-regression evidence refs and Truth Gate requires those proofs too.",
+        "scenario": "Reference Sync flags a generic JSX closing fragment from the rewritten page-template panel across dozens of unrelated article lists.",
+        "finding": "The review signal is syntactically ambiguous rather than a real contract dependency; blindly editing every match would create unrelated repository churn.",
+        "resolution": "Restore the actual machine contract marker for backward compatibility, verify staleConsumers=0, and use the canonical review exception only for the remaining generic JSX matches with an explicit reason.",
         "status": "resolved"
       }
     ],
     "proofPlan": [
-      "Exhaustive finite-state tests for PASS, FAIL, MISSING, STALE and BLOCKED evidence combinations.",
-      "Regression tests for risk-depth thresholds and dissent requirements.",
-      "Regression tests that Completion Contract is PO-sourced and requirement IDs are unique.",
-      "Regression tests that Truth Gate cannot return VERIFIED_DONE with missing, stale or failed evidence.",
-      "CI wiring in the existing workflow only; no new workflow authority.",
-      "Failure Intake regression proving missed-thinking learning metadata is retained."
+      "Run Plan Before Code on the committed active plan before product implementation.",
+      "Add unit coverage for bounded semantic classification, category/search behavior and unknown-component fallback.",
+      "Extend preset-library regression coverage to prove visual metadata never replaces canonical insertion/materialization.",
+      "Extend Builder completion coverage to prove element cards use semantic previews and no Library card imports/mounts StorefrontRuntimeRenderer.",
+      "Run existing preset/page-template/Saved Block and capability regression suites through Incremental Replay.",
+      "Run typecheck and production build on exact implementation HEAD.",
+      "Run Template Factory Quality Gate/browser proof to catch responsive/visual/runtime regressions.",
+      "Close only after exact-head Completion Truth Gate evidence; no main merge or golden update in this slice."
     ],
     "executionAuthorized": true
   },
   "completionContract": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-09-30-CONTROL-PLANE-OPERATIONAL-INTELLIGENCE",
+    "sourceRef": "PO-2026-10-01-VX-BUILDER-LIBRARY-2",
     "requirements": [
       {
         "id": "REQ-01",
-        "requirement": "Determine a maximum practical assurance ceiling before serious implementation and scale depth by risk.",
+        "requirement": "Implement one shared visual Library descriptor/preview layer for Sections, Elements and Page Templates without introducing a second content or renderer authority.",
         "evidence": {
           "implementation": [
-            "GUARD-PLAN-BEFORE-CODE"
-          ],
-          "outcome": [
-            "GUARD-QUALITY-TESTS"
-          ]
-        },
-        "forbiddenRegressions": [
-          {
-            "id": "NEG-01A",
-            "statement": "Low-risk work must not be forced through critical-depth ceremony.",
-            "evidence": [
-              "GUARD-QUALITY-TESTS"
-            ]
-          }
-        ]
-      },
-      {
-        "id": "REQ-02",
-        "requirement": "Enforce OBSERVE through LEARN as the canonical operational sequence without creating parallel authorities.",
-        "evidence": {
-          "implementation": [
-            "GUARD-PLAN-BEFORE-CODE"
-          ],
-          "outcome": [
-            "GUARD-QUALITY-TESTS"
-          ]
-        },
-        "forbiddenRegressions": [
-          {
-            "id": "NEG-02A",
-            "statement": "No parallel Control Plane, Atlas, Sentinel or release authority.",
-            "evidence": [
-              "GUARD-QUALITY-TESTS"
-            ]
-          }
-        ]
-      },
-      {
-        "id": "REQ-03",
-        "requirement": "Require relevant specialist review with at least one explicit dissent role for non-low-risk plans.",
-        "evidence": {
-          "implementation": [
-            "GUARD-PLAN-BEFORE-CODE"
-          ],
-          "outcome": [
-            "GUARD-QUALITY-TESTS"
-          ]
-        },
-        "forbiddenRegressions": [
-          {
-            "id": "NEG-03A",
-            "statement": "Unresolved dissent cannot authorize execution.",
-            "evidence": [
-              "GUARD-QUALITY-TESTS"
-            ]
-          }
-        ]
-      },
-      {
-        "id": "REQ-04",
-        "requirement": "Create a machine-checkable Completion Contract from the PO request, independent from the implementation plan.",
-        "evidence": {
-          "implementation": [
-            "GUARD-PLAN-BEFORE-CODE"
-          ],
-          "outcome": [
-            "GUARD-QUALITY-TESTS"
-          ]
-        },
-        "forbiddenRegressions": [
-          {
-            "id": "NEG-04A",
-            "statement": "Implementation steps cannot substitute for missing PO requirements.",
-            "evidence": [
-              "GUARD-QUALITY-TESTS"
-            ]
-          }
-        ]
-      },
-      {
-        "id": "REQ-05",
-        "requirement": "Add a read-only Truth Gate that verifies requirement, implementation, outcome and negative claims using fresh evidence.",
-        "evidence": {
-          "implementation": [
+            "GUARD-PLAN-BEFORE-CODE",
             "GUARD-QUALITY-TESTS"
           ],
           "outcome": [
@@ -435,8 +371,93 @@
         },
         "forbiddenRegressions": [
           {
+            "id": "NEG-01A",
+            "statement": "Library cards must not mount StorefrontRuntimeRenderer or create a new preset/page persistence path.",
+            "evidence": [
+              "GUARD-QUALITY-TESTS",
+              "GUARD-INCREMENTAL-REPLAY"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "REQ-02",
+        "requirement": "Upgrade Section Presets with semantic thumbnails, search, curated categories and a bounded larger preview with canonical one-click insertion.",
+        "evidence": {
+          "implementation": [
+            "GUARD-QUALITY-TESTS"
+          ],
+          "outcome": [
+            "GUARD-PRODUCTION-BUILD"
+          ]
+        },
+        "forbiddenRegressions": [
+          {
+            "id": "NEG-02A",
+            "statement": "Section insertion must continue through insertStorefrontSectionPreset and canonical validation.",
+            "evidence": [
+              "GUARD-QUALITY-TESTS"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "REQ-03",
+        "requirement": "Upgrade Element insertion cards with recognizable semantic previews while preserving contextual/product-profile/capability filtering.",
+        "evidence": {
+          "implementation": [
+            "GUARD-QUALITY-TESTS"
+          ],
+          "outcome": [
+            "GUARD-INCREMENTAL-REPLAY"
+          ]
+        },
+        "forbiddenRegressions": [
+          {
+            "id": "NEG-03A",
+            "statement": "Search/category filtering cannot make an otherwise disallowed element insertable.",
+            "evidence": [
+              "GUARD-QUALITY-TESTS"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "REQ-04",
+        "requirement": "Upgrade Page Template cards to the same visual language while retaining existing apply and create-page authority.",
+        "evidence": {
+          "implementation": [
+            "GUARD-QUALITY-TESTS"
+          ],
+          "outcome": [
+            "GUARD-INCREMENTAL-REPLAY"
+          ]
+        },
+        "forbiddenRegressions": [
+          {
+            "id": "NEG-04A",
+            "statement": "No page-template action or page document authority is duplicated in the preview layer.",
+            "evidence": [
+              "GUARD-QUALITY-TESTS"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "REQ-05",
+        "requirement": "Keep Factory Presets and merchant Saved Blocks as visibly and technically separate ownership/lifecycle surfaces.",
+        "evidence": {
+          "implementation": [
+            "GUARD-QUALITY-TESTS"
+          ],
+          "outcome": [
+            "GUARD-PRODUCTION-BUILD"
+          ]
+        },
+        "forbiddenRegressions": [
+          {
             "id": "NEG-05A",
-            "statement": "Claim without evidence cannot become DONE.",
+            "statement": "No combined storage or trust model is created for factory and tenant-owned blocks.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -445,109 +466,63 @@
       },
       {
         "id": "REQ-06",
-        "requirement": "Bind completion evidence to exact SHA, branch, state or version and run or timestamp; stale evidence cannot prove DONE.",
+        "requirement": "Keep Library preview work bounded and lightweight for large template catalogs and deep preset fragments.",
         "evidence": {
           "implementation": [
             "GUARD-QUALITY-TESTS"
           ],
           "outcome": [
-            "GUARD-TYPECHECK"
+            "GUARD-PRODUCTION-BUILD"
           ]
         },
         "forbiddenRegressions": [
           {
             "id": "NEG-06A",
-            "statement": "Changed HEAD invalidates older critical evidence.",
+            "statement": "No unbounded recursive preview traversal or live runtime-per-card strategy is introduced.",
             "evidence": [
-              "GUARD-QUALITY-TESTS"
+              "GUARD-QUALITY-TESTS",
+              "GUARD-INCREMENTAL-REPLAY"
             ]
           }
         ]
       },
       {
         "id": "REQ-07",
-        "requirement": "Expose internal VERIFIED DONE, PARTIALLY VERIFIED, NOT DONE, BLOCKED and STALE EVIDENCE while keeping PO status to DONE, NOT DONE or BLOCKED plus NEXT.",
+        "requirement": "Preserve Desktop-first authoring with polished responsive Library behavior on mobile without horizontal control overflow or a mobile-only document model.",
         "evidence": {
           "implementation": [
             "GUARD-QUALITY-TESTS"
           ],
           "outcome": [
-            "GUARD-QUALITY-TESTS"
+            "GUARD-PRODUCTION-BUILD"
           ]
         },
         "forbiddenRegressions": [
           {
             "id": "NEG-07A",
-            "statement": "PARTIALLY VERIFIED must never map to DONE.",
+            "statement": "Library responsiveness must not create duplicate breakpoint/page authorities.",
             "evidence": [
-              "GUARD-QUALITY-TESTS"
+              "GUARD-INCREMENTAL-REPLAY"
             ]
           }
         ]
       },
       {
         "id": "REQ-08",
-        "requirement": "Route preventable missed-thinking defects back through existing Failure Intake and Known Failure learning instead of creating a gate per defect.",
+        "requirement": "Preserve Guarded Freedom and canonical runtime/performance/security boundaries while improving visual discoverability.",
         "evidence": {
           "implementation": [
             "GUARD-QUALITY-TESTS"
           ],
           "outcome": [
-            "GUARD-QUALITY-TESTS"
-          ]
-        },
-        "forbiddenRegressions": [
-          {
-            "id": "NEG-08A",
-            "statement": "No per-defect parallel gate or incident ledger.",
-            "evidence": [
-              "GUARD-QUALITY-TESTS"
-            ]
-          }
-        ]
-      },
-      {
-        "id": "REQ-09",
-        "requirement": "Reuse existing Atlas, Sentinel, Knowledge, Development Guard, A/B Reference Sync, Replay, Release Risk, Template Factory and CI authorities.",
-        "evidence": {
-          "implementation": [
-            "GUARD-KNOWLEDGE-PREFLIGHT",
-            "GUARD-EDIT-TIME",
-            "GUARD-INCREMENTAL-REPLAY"
-          ],
-          "outcome": [
-            "GUARD-RELEASE-RISK"
-          ]
-        },
-        "forbiddenRegressions": [
-          {
-            "id": "NEG-09A",
-            "statement": "Existing blocking semantics and authority ownership are not weakened.",
-            "evidence": [
-              "GUARD-KNOWLEDGE-PREFLIGHT",
-              "GUARD-RELEASE-RISK"
-            ]
-          }
-        ]
-      },
-      {
-        "id": "REQ-10",
-        "requirement": "Implement the capability with minimum new infrastructure and verify the current exact branch state before closure.",
-        "evidence": {
-          "implementation": [
-            "GUARD-KNOWLEDGE-PREFLIGHT",
-            "GUARD-QUALITY-TESTS"
-          ],
-          "outcome": [
-            "GUARD-TYPECHECK",
             "GUARD-PRODUCTION-BUILD",
             "GUARD-RELEASE-RISK"
           ]
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-10A",
-            "statement": "MAIN merge, golden update and gate weakening are not side effects of this development transaction.",
+            "id": "NEG-08A",
+            "statement": "No arbitrary HTML/JS widget marketplace, gate weakening, golden update or main merge occurs.",
             "evidence": [
               "GUARD-QUALITY-TESTS",
               "GUARD-RELEASE-RISK"
@@ -557,5 +532,5 @@
       }
     ]
   },
-  "notes": "Critical Control Plane self-development. Extend existing Development Guard and Plan Before Code, consume existing CI evidence, add one read-only completion-integrity evaluator, and route learning through existing Failure Intake. No main merge, no golden update, no gate weakening."
+  "notes": "PO authorized continued VX Builder development while full desktop audit is deferred until the user has desktop hardware again. This slice addresses the visibly primitive Library/element-add experience without treating mobile as full authoring authority. No main merge and no golden update. Plan Before Code planned-projection currently resolves only existing admin-surface files; new Builder/Core files do not exist yet and therefore are not projected into Atlas authority scope. The pre-code expectation is intentionally DOMAIN-ADMIN/admin-operations and will be reconciled immediately after the first implementation commit when the actual diff contains the new Core files. Actual implementation diff now contains the new Core/Library files, so Atlas scope has expanded to the intended DOMAIN-ADMIN / DOMAIN-BUILDER / DOMAIN-STOREFRONT and matching admin-operations / builder-template-system / shared-storefront authorities. The plan is reconciled to actual implementation scope before verification. Element-card visual upgrade also requires the existing v3 CSS module; it is now explicitly part of the planned Library 2.0 surface. Actual-diff Atlas confirms Library 2.0 changes admin/builder authoring surfaces only; shared-storefront remains an impacted dependency/verification surface but is not an edited authority domain. Expected domain/authority scope is corrected to DOMAIN-ADMIN + DOMAIN-BUILDER and admin-operations + builder-template-system. Reference Sync closure: the genuine page-template data-marker dependency was restored to v1 compatibility. The remaining 53 review-only hits all originate from a generic JSX closing fragment and have zero stale machine consumers; they are explicitly acknowledged through the canonical DEV-REVIEW-REFERENCE-SYNC review exception rather than by unrelated edits. Release-unit reconciliation: because VX Library 2.0 is intentionally layered on the still-unmerged VX Builder Core foundation in the same PR, release risk compares the complete #562 diff to main. The development/change-impact base is therefore aligned to main and the plan envelope explicitly includes all 15 PR files. This prevents slice-local Atlas evidence from disagreeing with release-level evidence without weakening either gate. Full-PR Plan Before Code machine projection adds release-infrastructure through the pre-existing Operational Intelligence regression file and confirms direct Atlas authority remains DOMAIN-ADMIN + DOMAIN-BUILDER. Guard digest and negative-knowledge acknowledgement are reconciled exactly to the full release unit. Projected release-infrastructure scope activates SQ-NK-005, so the full-PR negative-knowledge acknowledgement now matches the machine projection exactly. E13 functional-proof strict-mode duplication was diagnosed as an automation locator ambiguity; the release proof script is now explicitly in-plan and requires exactly one visible E13 entry root before continuing."
 }

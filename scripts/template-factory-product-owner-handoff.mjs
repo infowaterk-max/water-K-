@@ -141,15 +141,18 @@ async function proveSharedE13FunctionalEngine(page){
     const entryResponse=await page.goto(new URL('/storefront-template-preview/engine-proof/checkout',origin).toString(),{waitUntil:'domcontentloaded',timeout:30000});
     if(!entryResponse)throw new Error('ENGINE_ACCEPTANCE_ENTRY_NO_RESPONSE');
     await page.waitForLoadState('load',{timeout:15000}).catch(()=>undefined);
-    const entryRoot=page.locator('[data-engine-functional-proof="E13"]');
-    await entryRoot.waitFor({state:'visible',timeout:15000});
+    const entryRoots=page.locator('[data-engine-functional-proof="E13"]:visible');
+    await entryRoots.first().waitFor({state:'visible',timeout:15000});
+    const visibleEntryCount=await entryRoots.count();
+    if(visibleEntryCount!==1)throw new Error(`ENGINE_ACCEPTANCE_ENTRY_VISIBLE_NOT_UNIQUE:count=${visibleEntryCount}`);
+    const entryRoot=entryRoots.first();
     const entryAlert=entryRoot.getByRole('alert');
     if(await entryAlert.count())throw new Error(`ENGINE_ACCEPTANCE_TARGET_FAILED:${(await entryAlert.first().innerText()).replace(/\s+/g,' ').slice(0,400)}`);
     proof.acceptanceEntry=true;
     proof.acceptanceInstanceId=await entryRoot.getAttribute('data-acceptance-instance-id');
     if(!proof.acceptanceInstanceId)throw new Error('ENGINE_ACCEPTANCE_INSTANCE_ID_MISSING');
 
-    const start=page.getByRole('button',{name:'E13 checkout proof indítása',exact:true});
+    const start=entryRoot.getByRole('button',{name:'E13 checkout proof indítása',exact:true});
     await start.waitFor({state:'visible',timeout:10000});
     await Promise.all([
       page.waitForURL(url=>/^\/admin\/platform\/acceptance\/[0-9a-f-]+\/checkout$/i.test(url.pathname),{timeout:30000}),

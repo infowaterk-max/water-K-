@@ -18,6 +18,9 @@ const read=(file:string)=>readFileSync(resolve(process.cwd(),file),'utf8');
 const panelSource=read('src/components/admin/storefront-saved-blocks-panel.tsx');
 const actionSource=read('src/app/admin/tartalom/builder/preset-actions.ts');
 const applicationSource=read('src/lib/builder/storefront-preset-application.ts');
+const visualPanelSource=read('src/components/admin/storefront-preset-library-panel.tsx');
+const visualPreviewSource=read('src/components/admin/vx-builder-library-preview.tsx');
+const visualLibrarySource=read('src/lib/builder/vx-builder-library.ts');
 
 function findNode(document:StorefrontPageDocument,id:string):StorefrontComponentNode|undefined{
   const walk=(nodes:readonly StorefrontComponentNode[]):StorefrontComponentNode|undefined=>{for(const node of nodes){if(node.id===id)return node;const nested=walk(node.children??[]);if(nested)return nested;}return undefined;};
@@ -86,6 +89,18 @@ describe('storefront preset library / application v1',()=>{
     expect(actionSource).toContain('getStorefrontTemplatePackage(document.templateKey,document.templateVersion)');
     expect(actionSource).not.toContain('input.templateKey');
     expect(actionSource).not.toContain('input.templateVersion');
+  });
+
+  it('keeps VX Library 2.0 visual discovery bounded and presentation-only',()=>{
+    expect(visualPanelSource).toContain('data-vx-library-version="2"');
+    expect(visualPanelSource).toContain('VxBuilderLibraryPreview');
+    expect(visualPanelSource).toContain('filterVxLibraryItems');
+    expect(visualPanelSource).toContain('insertStorefrontSectionPreset');
+    expect(visualPanelSource).toContain('applyStorefrontComponentPresetAppearance');
+    expect(visualPreviewSource).not.toContain('StorefrontRuntimeRenderer');
+    expect(visualLibrarySource).toContain('VX_LIBRARY_PREVIEW_NODE_BUDGET=48');
+    expect(visualLibrarySource).toContain('while(stack.length&&count<safeBudget)');
+    expect(visualLibrarySource).not.toContain('insertStorefrontSectionPreset');
   });
 
   it('wires the library into the existing Add panel working-copy path without regressing Saved Blocks operation keys',()=>{

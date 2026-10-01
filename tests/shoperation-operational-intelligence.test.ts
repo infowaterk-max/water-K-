@@ -33,15 +33,19 @@ describe('Control Plane Operational Intelligence',()=>{
     expect(registry.guards.filter((item:any)=>item.responsibilityKey==='po-completion-integrity')).toHaveLength(1);
   });
 
-  it('requires a PO-derived Completion Contract and explicit dissent for the current critical self-change',()=>{
+  it('requires a PO-derived Completion Contract and profile-proportional assurance for the active executable plan',()=>{
     const plan=json<any>('quality/development/active-plan.json');
-    expect(plan.operationalIntelligence.riskTier).toBe('critical');
+    const policy=json<any>('quality/knowledge/development-guard-policy.v1.json');
+    const profile=policy.operationalIntelligence.riskProfiles[plan.operationalIntelligence.riskTier];
+    expect(profile).toBeTruthy();
     expect(plan.operationalIntelligence.sourceKind).toBe('product-owner-request');
     expect(plan.completionContract.sourceKind).toBe('product-owner-request');
     expect(plan.completionContract.sourceRef).toBe(plan.operationalIntelligence.sourceRef);
-    expect(plan.operationalIntelligence.specialistReviews.some((item:any)=>item.mode==='dissent')).toBe(true);
-    expect(plan.operationalIntelligence.challenge.length).toBeGreaterThanOrEqual(8);
-    expect(plan.completionContract.requirements).toHaveLength(10);
+    expect(plan.operationalIntelligence.specialistReviews.length).toBeGreaterThanOrEqual(profile.minSpecialists);
+    if(profile.requireDissent)expect(plan.operationalIntelligence.specialistReviews.some((item:any)=>item.mode==='dissent')).toBe(true);
+    expect(plan.operationalIntelligence.challenge.length).toBeGreaterThanOrEqual(profile.minChallenges);
+    for(const technique of profile.requiredTechniques)expect(plan.operationalIntelligence.assuranceCeiling.selectedTechniques).toContain(technique);
+    expect(plan.completionContract.requirements.length).toBeGreaterThan(0);
     for(const requirement of plan.completionContract.requirements){
       expect(requirement.id).toMatch(/^REQ-/);
       expect(requirement.evidence.implementation.length).toBeGreaterThan(0);
