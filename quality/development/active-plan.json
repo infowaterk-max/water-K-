@@ -3,8 +3,8 @@
   "taskId": "DEV-CONTROL-PLANE-RESUMABLE-VERIFICATION",
   "task": "Extend the existing Control Plane release verification with safe resumable evidence reuse and minimal replay without creating a parallel authority.",
   "status": "ready-for-implementation",
-  "guardDigest": "2a67f8cf",
-  "changeBaseSha": "dd0ae071bb0c5cd953a704ce31e2516feee9657f",
+  "guardDigest": "282b41e0",
+  "changeBaseSha": "092df49efe5b099cdf26096a3b7deed6e9860e39",
   "plannedFilePatterns": [
     "AGENTS.md",
     ".github/workflows/ci.yml",
@@ -27,19 +27,23 @@
     "tests/storefront-template-quality-gate-v2.test.ts",
     "scripts/lib/shoperation-template-factory-resumable-verification.mjs",
     "tests/template-factory-resumable-verification.test.ts",
-    "tests/template-factory-engine-functional-proof-runner.test.ts"
+    "tests/template-factory-engine-functional-proof-runner.test.ts",
+    "src/app/admin/block3-pilot-batch.css"
   ],
   "expectedSubsystems": [
+    "admin-operations",
     "quality-infrastructure",
     "release-infrastructure",
     "storefront-ui"
   ],
   "expectedDomains": [
+    "DOMAIN-ADMIN",
     "DOMAIN-BUILDER",
     "DOMAIN-QUALITY",
     "DOMAIN-RELEASE"
   ],
   "expectedAuthorities": [
+    "admin-operations",
     "builder-template-system",
     "quality-knowledge-system",
     "release-infrastructure"
@@ -100,6 +104,7 @@
     "SQ-NK-002",
     "SQ-NK-003",
     "SQ-NK-005",
+    "SQ-NK-006",
     "SQ-NK-008",
     "SQ-NK-010",
     "SQ-NK-012"
