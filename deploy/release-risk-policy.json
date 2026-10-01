@@ -168,7 +168,9 @@
         "src/lib/quality-system/**",
         "quality/knowledge/**",
         "scripts/template-factory-product-owner-handoff.mjs",
-        "scripts/template-factory-quality-gate.mjs"
+        "scripts/template-factory-quality-gate.mjs",
+        "scripts/shoperation-*.d.mts",
+        "scripts/lib/shoperation-*.d.mts"
       ]
     },
     {
