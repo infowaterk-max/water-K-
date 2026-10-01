@@ -137,7 +137,8 @@ describe('Visual Builder v3 product completion',()=>{
     expect(presetLibraryPanel).toContain('data-vx-library-version="2"');
     expect(presetLibraryPanel).toContain('Szekció keresése');
     expect(presetLibraryPanel).toContain('Nagyobb előnézete');
-    expect(pageTemplatesPanel).toContain('data-storefront-page-templates-v2');
+    expect(pageTemplatesPanel).toContain('data-storefront-page-templates-v1');
+    expect(pageTemplatesPanel).toContain('data-vx-library-version="2"');
     expect(pageTemplatesPanel).toContain('Oldalsablon keresése');
     expect(vxLibrary).toContain('VX_LIBRARY_PREVIEW_NODE_BUDGET=48');
     expect(vxLibrary).toContain('filterVxLibraryItems');
