@@ -309,3 +309,7 @@ Documentation-only exact-head revision after the Template Factory infrastructure
 ### Merge-readiness final ACTIVE proof marker G
 
 Final provenance/documentation-only exact-head revision after post-Template-Factory-hash requalification at `4304a93ba59205a855d93b4b01f0e5515e4d5131` (CI `36857859847`): 5 shadow PASS, 4 RESUMED shadow PASS, 0 false reuse, promotion eligible, exact-head Truth Gate `VERIFIED_DONE`. This revision changes no executable verification semantics, thresholds, dependencies, authorities, workflows, template runtime, or browser acceptance behavior. Expected proof: Control Plane RESUMED / ACTIVE physical evidence reuse and Template Factory 84 reused / 2 rerun browser cases with zero errors.
+
+### Merge-readiness TF scope reuse control H
+
+Documentation-only exact-head revision after the Template Factory provenance-only quality-scope classifier fix. No executable verification semantics, policy thresholds, authorities, dependencies, workflows, template runtime, browser acceptance logic, or factory engine inputs change. Expected proof: Control Plane RESUMED / SHADOW requalification and Template Factory reuse of fingerprint-equivalent canonical browser evidence instead of a full 86-case rerun.
