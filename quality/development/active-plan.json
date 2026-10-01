@@ -3,7 +3,7 @@
   "taskId": "DEV-TEMPLATE-FACTORY-GOLDEN-LOCAL-REGRESSION",
   "task": "Repair the existing Template Factory golden visual comparison so a small but locally severe rendered regression cannot pass merely because the full-page mismatch ratio stays below the global threshold.",
   "status": "ready-for-implementation",
-  "guardDigest": "1b006a79",
+  "guardDigest": "3667fbec",
   "changeBaseSha": "3c08bac9524cd9af758e39dab6216a37ebe4b3a3",
   "plannedFilePatterns": [
     "quality/development/active-plan.json",
@@ -13,9 +13,7 @@
   ],
   "expectedSubsystems": [
     "builder-template-system",
-    "quality-knowledge-system",
-    "shared-storefront",
-    "storefront-ui"
+    "shared-storefront"
   ],
   "expectedDomains": [
     "DOMAIN-BUILDER"
@@ -29,7 +27,10 @@
     "SQ-KF-003",
     "SQ-KF-004",
     "SQ-KF-005",
+    "SQ-KF-006",
     "SQ-KF-007",
+    "SQ-KF-008",
+    "SQ-KF-009",
     "SQ-KF-010",
     "SQ-KF-011",
     "SQ-KF-012",
@@ -38,6 +39,7 @@
     "SQ-KF-015",
     "SQ-KF-016",
     "SQ-KF-017",
+    "SQ-KF-018",
     "SQ-KF-019",
     "SQ-KF-020",
     "SQ-KF-021",
@@ -81,10 +83,7 @@
     "SQ-NK-008",
     "SQ-NK-009",
     "SQ-NK-010",
-    "SQ-NK-011",
-    "SQ-NK-012",
-    "SQ-NK-014",
-    "SQ-NK-015"
+    "SQ-NK-012"
   ],
   "exceptions": [],
   "operationalIntelligence": {
@@ -452,5 +451,5 @@
       }
     ]
   },
-  "notes": "Targeted golden false-negative repair only. Handoff evidence flow and shipping/payment are separate transactions. No golden baseline update, no threshold lowering, no parallel visual gate."
+  "notes": "Targeted golden false-negative repair only. Handoff evidence flow and shipping/payment are separate transactions. No golden baseline update, no threshold lowering, no parallel visual gate. Plan projection reconciled to Builder/Storefront golden authority: full Known Failure replay, canonical 10-item negative knowledge set, no storefront-ui/quality-knowledge subsystem claim."
 }
