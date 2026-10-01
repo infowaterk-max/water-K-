@@ -404,6 +404,7 @@ jobs:
         env:
           PRODUCT_OWNER_PREVIEW_URL: "${{ steps.engine-functional-preview.outputs.base-url }}/platform"
           PRODUCT_OWNER_ENGINE_FUNCTIONAL_ONLY: "true"
+          STRESS_E13_FUNCTIONAL_FAIL: "1"
           PRODUCT_OWNER_SOURCE_COMMIT: ${{ github.event.pull_request.head.sha || github.sha }}
           PRODUCT_OWNER_TEST_EMAIL: ${{ secrets.PRODUCT_OWNER_TEST_EMAIL }}
           PRODUCT_OWNER_TEST_PASSWORD: ${{ secrets.PRODUCT_OWNER_TEST_PASSWORD }}
