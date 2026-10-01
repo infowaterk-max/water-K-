@@ -4,6 +4,7 @@ import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {describe,expect,it} from 'vitest';
 import {
+  canonicalizeVerificationEngineInput,
   checkpointChecksum,
   classifySemanticUnits,
   finalizeVerification,
@@ -364,6 +365,22 @@ describe('dependency-aware resumable verification',()=>{
     expect(report.reusableEvidenceSet).toEqual([]);
     expect(report.uncertainEvidenceSet).toEqual(expect.arrayContaining(['A','B']));
     expect(report.rerunSet).toEqual(expect.arrayContaining(['A','B']));
+  });
+
+  it('keeps promotion provenance out of engine identity while semantic policy stays identity-bearing',()=>{
+    const registryPath='quality/knowledge/guard-registry.v1.json';
+    const registryA={verificationReuse:{promotion:{minimumShadowPasses:3,promotedFrom:{sourceCommit:'old',ciRunId:'1'}}}};
+    const registryB={verificationReuse:{promotion:{minimumShadowPasses:3,promotedFrom:{sourceCommit:'new',ciRunId:'2'}}}};
+    const registrySemanticChange={verificationReuse:{promotion:{minimumShadowPasses:4,promotedFrom:{sourceCommit:'new',ciRunId:'2'}}}};
+    expect(canonicalizeVerificationEngineInput(registryPath,JSON.stringify(registryA))).toBe(canonicalizeVerificationEngineInput(registryPath,JSON.stringify(registryB)));
+    expect(canonicalizeVerificationEngineInput(registryPath,JSON.stringify(registryA))).not.toBe(canonicalizeVerificationEngineInput(registryPath,JSON.stringify(registrySemanticChange)));
+
+    const policyPath='quality/knowledge/development-guard-policy.v1.json';
+    const policyA={resumableVerification:{executionMode:'ACTIVE',promotionEvidence:{sourceCommit:'old',ciRunId:'1'}}};
+    const policyB={resumableVerification:{executionMode:'ACTIVE',promotionEvidence:{sourceCommit:'new',ciRunId:'2'}}};
+    const policySemanticChange={resumableVerification:{executionMode:'SHADOW',promotionEvidence:{sourceCommit:'new',ciRunId:'2'}}};
+    expect(canonicalizeVerificationEngineInput(policyPath,JSON.stringify(policyA))).toBe(canonicalizeVerificationEngineInput(policyPath,JSON.stringify(policyB)));
+    expect(canonicalizeVerificationEngineInput(policyPath,JSON.stringify(policyA))).not.toBe(canonicalizeVerificationEngineInput(policyPath,JSON.stringify(policySemanticChange)));
   });
 
   it('falls back to SHADOW when ACTIVE promotion proof belongs to an older verification engine',()=>{
