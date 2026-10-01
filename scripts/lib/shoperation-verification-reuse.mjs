@@ -14,6 +14,7 @@ const INCOMPLETE_STATES=new Set(['','missing','cancelled','canceled','skipped','
 const normalizeStatus=value=>String(value??'').trim().toLowerCase().replaceAll(' ','_');
 const uniq=values=>[...new Set(values)];
 const sorted=values=>[...values].sort();
+const PROMOTION_PROVENANCE_FILES=new Set(['quality/knowledge/guard-registry.v1.json','quality/knowledge/development-guard-policy.v1.json']);
 
 export function canonicalJson(value){
   if(Array.isArray(value))return '['+value.map(canonicalJson).join(',')+']';
@@ -34,11 +35,18 @@ function trackedFiles(){const out=git(['ls-files','-z']);return out?out.split('\
 function isAncestor(ancestor,head){if(!ancestor||!head)return false;try{execFileSync('git',['merge-base','--is-ancestor',ancestor,head],{stdio:'ignore'});return true;}catch{return false;}}
 function changedFilesBetween(base,head){if(!base||!head)return [];const out=git(['diff','--name-only','--diff-filter=ACMRD',base,head],{allowFailure:true});return out?out.split(/\r?\n/).filter(Boolean):[];}
 function diffTextBetween(base,head,file){if(!base||!head||!file)return '';return git(['diff','--unified=0',base,head,'--',file],{allowFailure:true});}
+function fileAtRevision(ref,file){if(!ref||!file)return '';return git(['show',`${ref}:${file}`],{allowFailure:true});}
+function promotionProvenanceOnlyChange(file,base,head){
+  if(!PROMOTION_PROVENANCE_FILES.has(file)||!base||!head)return false;
+  const before=fileAtRevision(base,file),after=fileAtRevision(head,file);
+  return Boolean(before&&after&&before!==after&&verificationPolicySemanticallyEquivalent(file,before,after));
+}
 
 export function classifySemanticUnits({registry,changedFiles=[],base=null,head=null,diffByFile={}}={}){
   const units=registry?.verificationReuse?.semanticUnits??[],parents=units.filter(unit=>Array.isArray(unit.filePatterns)&&unit.filePatterns.length&&unit.kind!=='page'&&unit.kind!=='template-wide');
   const children=units.filter(unit=>unit.parent&&unit.diffPattern),results=[];
   for(const file of changedFiles){
+    if(promotionProvenanceOnlyChange(file,base,head))continue;
     const matchedParents=parents.filter(unit=>matchPatterns(file,unit.filePatterns));
     for(const parent of matchedParents){
       if(parent.allowPageNarrowing){
@@ -61,7 +69,7 @@ export function matchPatterns(file,patterns=[]){return patterns.some(pattern=>gl
 export function hashMatchedFiles(patterns=[],files=trackedFiles()){
   const matched=sorted(files.filter(file=>matchPatterns(file,patterns)&&existsSync(file)));
   const hash=createHash('sha256');
-  for(const file of matched){hash.update(file);hash.update('\0');hash.update(readFileSync(file));hash.update('\0');}
+  for(const file of matched){hash.update(file);hash.update('\0');hash.update(canonicalizeVerificationEngineInput(file,readFileSync(file)));hash.update('\0');}
   return{hash:hash.digest('hex'),files:matched};
 }
 export function canonicalizeVerificationEngineInput(file,raw){
@@ -81,6 +89,10 @@ export function canonicalizeVerificationEngineInput(file,raw){
     }catch{return text;}
   }
   return text;
+}
+export function verificationPolicySemanticallyEquivalent(file,before,after){
+  if(!PROMOTION_PROVENANCE_FILES.has(file))return String(before)===String(after);
+  return canonicalizeVerificationEngineInput(file,before)===canonicalizeVerificationEngineInput(file,after);
 }
 export function hashVerificationEngineInputs(patterns=[],files=trackedFiles()){
   const matched=sorted(files.filter(file=>matchPatterns(file,patterns)&&existsSync(file)));
