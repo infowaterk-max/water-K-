@@ -513,6 +513,21 @@
         "reason": "Responsive inheritance or geometry authority changed."
       },
       {
+        "id": "BUILDER.GLOBAL_VISUALS",
+        "kind": "runtime",
+        "filePatterns": [
+          "src/app/public-pages-polish.css",
+          "src/app/v6.css",
+          "src/app/final-ux-audit.css",
+          "src/app/responsive-final.css",
+          "src/app/globals.css",
+          "public/**"
+        ],
+        "impactTier": 3,
+        "scope": "all-templates-all-pages-viewports",
+        "reason": "Global storefront CSS, fonts, public media or theme-level visual assets can alter browser proof across templates and viewports."
+      },
+      {
         "id": "BUILDER.PRESETS",
         "kind": "preset",
         "filePatterns": [
