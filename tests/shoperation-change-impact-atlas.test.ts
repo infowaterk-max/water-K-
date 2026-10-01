@@ -1,10 +1,12 @@
 import {readFileSync} from 'node:fs';
-import {describe,expect,it} from 'vitest';
+import {beforeAll,describe,expect,it} from 'vitest';
 import {buildCodebaseAtlas,impactForAtlasPattern,reconcileAuthorityDependencies} from '../scripts/lib/shoperation-codebase-atlas-runtime.mjs';
 
 const read=(path:string)=>readFileSync(path,'utf8');
 
 describe('Atlas 2.0 Change Impact / Release Closure integration',()=>{
+  let realAtlas:any;
+  beforeAll(()=>{realAtlas=buildCodebaseAtlas();},60000);
   it('projects Atlas closure during the existing Knowledge Before Build preflight',()=>{
     const preflight=read('scripts/shoperation-knowledge-preflight.mjs');
     expect(preflight).toContain('releaseClosureForAtlasPatterns');
@@ -55,8 +57,7 @@ describe('Atlas 2.0 Change Impact / Release Closure integration',()=>{
   });
 
   it('ADVERSARIAL: actual cross-domain imports are explicitly reconciled against authority DAG or execution-edge policy',()=>{
-    const atlas:any=buildCodebaseAtlas();
-    const reality=reconcileAuthorityDependencies(atlas);
+    const reality=reconcileAuthorityDependencies(realAtlas);
     expect(reality.contract).toBe('shoporation.authority-dependency-reconciliation.v2');
     expect(reality.discrepancies,JSON.stringify(reality.discrepancies.slice(0,30),null,2)).toEqual([]);
     expect(reality.decision).toBe('PASS');
@@ -82,8 +83,7 @@ describe('Atlas 2.0 Change Impact / Release Closure integration',()=>{
   });
 
   it('maps canonical path ownership by specificity instead of broad-directory overlap',()=>{
-    const atlas:any=buildCodebaseAtlas();
-    const byPath=new Map(atlas.nodes.map((node:any)=>[node.path,node]));
+    const byPath=new Map(realAtlas.nodes.map((node:any)=>[node.path,node]));
     expect(byPath.get('src/lib/builder/storefront-runtime.ts')?.domains).toEqual(['DOMAIN-STOREFRONT']);
     expect(byPath.get('src/lib/builder/storefront-template-catalog.ts')?.domains).toEqual(['DOMAIN-BUILDER']);
     expect(byPath.get('src/lib/auth/admin-api.ts')?.domains).toEqual(['DOMAIN-IDENTITY']);
