@@ -96,8 +96,17 @@ function evidenceState(item,current){
   const metadataMissing=!text(item.sourceCommit)||!text(item.branch)||!text(item.stateVersion)||(!text(item.runId)&&!text(item.timestamp));
   if(metadataMissing)return{state:'MISSING',reason:'evidence-provenance-incomplete'};
   if(item.sourceCommit!==current.head||item.branch!==current.branch||item.stateVersion!==current.stateVersion)return{state:'STALE',reason:'evidence-exact-state-mismatch'};
+  if(item.execution==='REUSED'){
+    const reuse=item.reuseProof;
+    const equivalenceProven=Boolean(
+      text(item.originSourceCommit)&&reuse&&reuse.fingerprintEquivalent===true&&
+      text(reuse.previousFingerprint)&&reuse.previousFingerprint===reuse.currentFingerprint&&
+      text(reuse.checkpointSourceCommit)
+    );
+    if(!equivalenceProven)return{state:'STALE',reason:'reused-evidence-equivalence-unproven'};
+  }
   if(FAIL.has(normalized))return{state:'FAIL',reason:`evidence-status-${normalized}`};
-  if(PASS.has(normalized))return{state:'PASS',reason:'fresh-pass'};
+  if(PASS.has(normalized))return{state:'PASS',reason:item.execution==='REUSED'?'reused-pass-equivalence-proven':'fresh-pass'};
   if(MISSING.has(normalized))return{state:'MISSING',reason:`evidence-status-${normalized||'missing'}`};
   return{state:'MISSING',reason:`evidence-status-unrecognized-${normalized}`};
 }
