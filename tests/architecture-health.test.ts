@@ -77,4 +77,12 @@ describe('Architecture Drift + Confidence + Guard Rationalization',()=>{
     expect(byId.get('WEBSITE-BUILDER')?.status).toBe('parked');
   });
 
+  it('STRESS: free-form Atlas evidence still receives proven confidence',()=>{
+    execFileSync('node',['scripts/lib/shoperation-architecture-health.mjs','--check'],{encoding:'utf8'});
+    const report=JSON.parse(readFileSync('artifacts/shoperation-architecture/architecture-health.json','utf8')) as any;
+    const atlas=report.confidence.capabilities.find((item:any)=>item.capabilityId==='CAP-ATLAS');
+    expect(atlas).toMatchObject({score:100,level:'proven'});
+    const registry=JSON.parse(readFileSync('quality/knowledge/capability-registry.v1.json','utf8')) as any;
+    expect(registry.capabilities.find((item:any)=>item.id==='CAP-ATLAS').evidence).toEqual(['UNVERIFIED_FREEFORM_CLAIM']);
+  });
 });
