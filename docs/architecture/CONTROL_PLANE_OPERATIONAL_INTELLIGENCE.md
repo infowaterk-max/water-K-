@@ -248,3 +248,7 @@ The diagnostic question "why did this gate rerun?" and its inverse are both answ
 The v1 model deliberately does not claim perfect source-level dependency discovery. Its safety property is the opposite: anything outside the declared semantic map is UNKNOWN and fails closed to FULL.
 
 Cross-branch reuse is intentionally disabled in v1. This avoids introducing identity and cache-poisoning complexity before branch-scoped behavior has accumulated stable shadow evidence.
+
+### Promotion proof invalidation
+
+A promotion proof is valid only for the exact verification-engine identity that produced it. Any change to replay planning, checkpoint reconciliation, Truth Gate semantics, CI orchestration, guard-registry verification metadata, or development-guard verification policy invalidates promotion credit and returns execution to shadow/full control until the configured proof threshold is rebuilt.
