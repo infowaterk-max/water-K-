@@ -1,10 +1,10 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-CONTROL-PLANE-OPERATIONAL-INTELLIGENCE",
-  "task": "Elevate the existing Control Plane with risk-based assurance ceiling, specialist dissent, PO-derived completion contracts, evidence freshness, completion integrity and read-only truth verification without parallel authorities.",
+  "taskId": "DEV-CONTROL-PLANE-RESUMABLE-VERIFICATION",
+  "task": "Extend the existing Control Plane release verification with safe resumable evidence reuse and minimal replay without creating a parallel authority.",
   "status": "ready-for-implementation",
   "guardDigest": "540e4ce8",
-  "changeBaseSha": "8b0c6745923d7aa1cdff920db351cbd1527f07f4",
+  "changeBaseSha": "dd0ae071bb0c5cd953a704ce31e2516feee9657f",
   "plannedFilePatterns": [
     "AGENTS.md",
     ".github/workflows/ci.yml",
@@ -13,11 +13,12 @@
     "quality/knowledge/development-guard-policy.v1.json",
     "quality/knowledge/guard-registry.v1.json",
     "quality/knowledge/knowledge-scope-policy.v1.json",
+    "scripts/lib/shoperation-verification-reuse.mjs",
     "scripts/lib/shoperation-operational-intelligence.mjs",
-    "scripts/shoperation-development-guard.mjs",
-    "scripts/shoperation-plan-before-code.mjs",
-    "scripts/shoperation-failure-intake.mjs",
+    "scripts/shoperation-incremental-replay.mjs",
+    "scripts/shoperation-verification-checkpoint.mjs",
     "scripts/shoperation-truth-gate.mjs",
+    "tests/shoperation-resumable-verification.test.ts",
     "tests/shoperation-operational-intelligence.test.ts"
   ],
   "expectedSubsystems": [
@@ -92,11 +93,11 @@
   "exceptions": [],
   "operationalIntelligence": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-09-30-CONTROL-PLANE-OPERATIONAL-INTELLIGENCE",
+    "sourceRef": "PO-2026-10-01-DEPENDENCY-AWARE-RESUMABLE-VERIFICATION",
     "riskTier": "critical",
     "assuranceCeiling": {
       "level": "critical-practical",
-      "rationale": "This change modifies the development and release decision system itself. Use exhaustive deterministic state/evidence scenarios and fault injection, but avoid full formal verification because the core is finite repository/CI orchestration rather than a high-dimensional concurrent business protocol.",
+      "rationale": "This changes the Control Plane evidence-reuse decision path. False reuse can create a false PASS, so semantic fingerprints, transitive invalidation, branch-scoped checkpoint reconciliation, corruption detection, fail-closed unknown handling and shadow comparison are mandatory. Full formal verification and perfect repository-wide static dependency analysis are disproportionate for this bounded deterministic CI orchestration model.",
       "selectedTechniques": [
         "explicit-specification",
         "invariants",
@@ -111,43 +112,50 @@
       ],
       "deferredTechniques": [
         {
-          "technique": "property-based-testing",
-          "reason": "Finite exhaustive evidence-state matrices provide stronger and cheaper coverage for this deterministic evaluator."
+          "technique": "formal-verification",
+          "reason": "Exhaustive state scenarios plus shadow/full equivalence provide stronger practical assurance per engineering cost for this bounded evaluator."
         },
         {
-          "technique": "formal-verification",
-          "reason": "Disproportionate cost for deterministic repository/CI orchestration with bounded states and no critical concurrent business mutation."
+          "technique": "whole-repository-static-call-graph",
+          "reason": "Explicit semantic inputs and fail-closed unknowns avoid brittle over-analysis while preserving correctness."
+        },
+        {
+          "technique": "cross-branch-global-evidence-cache",
+          "reason": "v1 remains branch-scoped to avoid identity and cache-poisoning risk."
         }
       ]
     },
     "definition": {
       "acceptanceCriteria": [
-        "Pre-execution planning determines and validates a risk-based assurance ceiling.",
-        "Medium-or-higher work models failure states, compares alternatives and records adversarial challenge.",
-        "At least one relevant specialist acts as dissent and cannot self-certify unresolved findings.",
-        "Completion Contract is traced to the PO request rather than derived from implementation steps.",
-        "A read-only Truth Gate maps completion claims to exact-state evidence and never treats missing evidence as DONE.",
-        "Evidence is stale when source commit or branch identity no longer matches the evaluated exact state.",
-        "Learning from preventable misses feeds the existing Failure Intake and Known Failure authority instead of creating per-defect gates.",
-        "Existing Atlas, Sentinel, Knowledge, Replay, Release Risk and Template Factory authorities are reused rather than duplicated."
+        "Reusable PASS evidence is justified by deterministic semantic-input, gate-version, authority, configuration, toolchain and dependency fingerprints.",
+        "Changed, uncertain or unsupported input invalidates the affected gate and downstream verification dependencies.",
+        "Known Failure regression scope can widen the minimal replay scope.",
+        "Every checkpoint is reconciled against the new exact HEAD before any resume decision.",
+        "The exact-head evidence manifest records rerun/reused proofs, original revision and equivalence proof.",
+        "Dirty workspace, branch mismatch, corrupted/incomplete checkpoint, unsupported change and unknown dependency fail closed.",
+        "Shadow mode compares predicted reuse with full verification and blocks on any false-reuse discrepancy.",
+        "The existing Control Plane and subordinate authorities remain the only final authorities."
       ],
       "invariants": [
-        "No parallel Control Plane, Atlas, Sentinel, Failure Intake or release authority is created.",
-        "Execution authorization requires a valid pre-execution plan envelope.",
-        "Exactly one implementation alternative is selected after challenge.",
-        "Critical work has at least one dissent specialist and no unresolved challenge finding.",
-        "CLAIM WITHOUT EVIDENCE remains NOT VERIFIED.",
-        "DONE requires every Completion Contract requirement and negative regression claim to be freshly evidenced at exact state.",
-        "Truth evaluation is read-only and cannot merge, deploy, update goldens or weaken gates."
+        "UNKNOWN is never reusable.",
+        "A previous PASS alone is never sufficient for reuse.",
+        "Gate implementation changes invalidate that gate and downstream dependents.",
+        "Authority or policy changes invalidate every dependent proof.",
+        "Cross-branch reuse is disabled in v1.",
+        "The checkpoint is data only and never becomes a parallel authority.",
+        "Full verification remains authoritative during shadow mode."
       ],
       "forbiddenStates": [
-        "implementation-authorized-with-invalid-plan",
-        "done-with-missing-requirement",
-        "done-with-stale-critical-evidence",
-        "done-with-forbidden-regression-unproven",
-        "self-certified-plan-without-dissent",
-        "parallel-authority-created",
-        "truth-gate-mutates-product-or-release-state"
+        "unknown-evidence-reused",
+        "stale-pass-carried-forward",
+        "gate-version-mismatch-reused",
+        "authority-mismatch-reused",
+        "corrupted-checkpoint-accepted",
+        "cross-branch-evidence-reused",
+        "downstream-gate-reused-after-upstream-invalidation",
+        "shadow-reuse-while-full-gate-fails",
+        "exact-head-pass-with-incomplete-evidence-manifest",
+        "parallel-control-plane-created"
       ]
     },
     "model": {
@@ -179,46 +187,57 @@
         "CLOSE->LEARN"
       ],
       "failureModes": [
-        "missing-evidence",
-        "stale-evidence",
+        "false-reuse",
+        "false-invalidation",
+        "stale-cache",
+        "partial-write",
+        "checkpoint-corruption",
         "branch-mismatch",
-        "partial-success",
-        "duplicate-execution",
-        "authority-conflict",
-        "dependency-failure",
-        "scope-drift",
-        "rollback-state",
-        "out-of-order-evidence"
+        "gate-version-drift",
+        "authority-drift",
+        "config-drift",
+        "toolchain-drift",
+        "environment-drift",
+        "transitive-dependency-miss",
+        "known-failure-scope-underrun",
+        "interrupted-verification",
+        "concurrent-run-race",
+        "dirty-workspace"
       ],
       "edgeCases": [
-        "empty-completion-contract",
-        "duplicate-requirement-id",
-        "unknown-evidence-id",
-        "missing-specialist-dissent",
-        "unresolved-challenge",
-        "head-changed-after-proof",
-        "negative-regression-without-proof",
-        "low-risk-fast-path"
+        "unrelated-doc-change",
+        "local-fix",
+        "shared-component-fix",
+        "schema-change",
+        "authority-change",
+        "gate-implementation-change",
+        "config-change",
+        "shared-css-change",
+        "design-token-change",
+        "unchanged-semantic-input-new-head",
+        "previous-checkpoint-not-ancestor",
+        "missing-gate-metadata",
+        "reused-proof-originates-two-heads-back"
       ]
     },
     "alternatives": [
       {
         "id": "ALT-01",
-        "summary": "Create a new top-level orchestrator plus separate planning, challenge and completion gate families.",
+        "summary": "Keep exact-HEAD evidence only and rerun every gate.",
         "disposition": "rejected",
-        "reason": "Duplicates authority boundaries and increases bureaucracy and drift."
+        "reason": "Safe but preserves unnecessary repeated verification and does not satisfy resumable verification."
       },
       {
         "id": "ALT-02",
-        "summary": "Extend the existing Development Guard and Plan Before Code contract and add one read-only completion evaluator consuming existing gate evidence.",
+        "summary": "Extend the existing Incremental Replay and Truth evidence path with semantic fingerprints, checkpoint reconciliation and a verification dependency graph.",
         "disposition": "selected",
-        "reason": "Provides the requested assurance lifecycle with the smallest blast radius and reuses existing authorities."
+        "reason": "Reuses current Control Plane authority and enables minimal safe replay without a parallel CI system."
       },
       {
         "id": "ALT-03",
-        "summary": "Document the process only and rely on agent discipline without machine enforcement.",
+        "summary": "Introduce a standalone cache service or independent replay orchestrator.",
         "disposition": "rejected",
-        "reason": "Cannot prevent incomplete plans or unsupported DONE claims deterministically."
+        "reason": "Creates a second authority surface and unnecessary cache/operations risk."
       }
     ],
     "specialistReviews": [
@@ -226,226 +245,127 @@
         "role": "Architecture",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Reuse the existing authority graph and Development Guard; no new parallel control authority.",
-        "resolution": "ALT-02 preserves canonical ownership."
+        "finding": "Verification dependencies must remain inside the existing Control Plane model.",
+        "resolution": "Gate verification metadata and Incremental Replay own planning; no new blocking authority."
       },
       {
         "role": "Release",
         "mode": "dissent",
         "verdict": "challenge-resolved",
-        "finding": "A Truth Gate could become a second release authority or certify stale cross-workflow evidence.",
-        "resolution": "Truth Gate is read-only completion integrity under quality authority; Release Risk remains release authority and evidence is exact-state bound."
+        "finding": "Skipping a previously green gate can create a false exact-head PASS.",
+        "resolution": "v1 is branch-scoped shadow mode; only fingerprint-equivalent evidence is reusable and any full-run disagreement blocks the engine."
+      },
+      {
+        "role": "Data Integrity",
+        "mode": "review",
+        "verdict": "pass",
+        "finding": "Checkpoint corruption or partial writes could poison evidence.",
+        "resolution": "Checksummed complete checkpoints and atomic writes fail closed on corruption."
       },
       {
         "role": "Known Failure",
         "mode": "review",
         "verdict": "pass",
-        "finding": "New completion failures must flow into the existing Failure Intake and learning loop.",
-        "resolution": "Truth diagnostics are consumed by existing Failure Intake; no second incident ledger."
+        "finding": "Diff-only replay can miss recurring regression scope.",
+        "resolution": "Known Failure regression scopes can only widen replay."
       },
       {
         "role": "Operations",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Critical-depth process must not impose the same overhead on trivial edits.",
-        "resolution": "Policy enforces risk-based depth with a lightweight low-risk path."
+        "finding": "Cancelled or concurrent runs must not leave ambiguous resume points.",
+        "resolution": "Only finalized complete checkpoints are reusable; branch concurrency remains canonical."
       }
     ],
     "challenge": [
       {
         "id": "CH-01",
-        "scenario": "A requirement is omitted from the implementation plan.",
-        "finding": "Plan-derived closure could falsely pass.",
-        "resolution": "Completion Contract is a separate PO-source field and Truth Gate evaluates it directly.",
+        "scenario": "Local fix changes one semantic input.",
+        "finding": "Full replay wastes unaffected evidence.",
+        "resolution": "Reuse unchanged fingerprints; rerun changed gate and downstream dependents.",
         "status": "resolved"
       },
       {
         "id": "CH-02",
-        "scenario": "HEAD changes after a green proof.",
-        "finding": "Evidence becomes stale.",
-        "resolution": "Every evidence item is bound to exact source commit and branch; mismatch is STALE_EVIDENCE.",
+        "scenario": "Shared runtime/schema changes.",
+        "finding": "Local scope could under-invalidate.",
+        "resolution": "Explicit input patterns and dependency edges widen invalidation; missing mapping forces full.",
         "status": "resolved"
       },
       {
         "id": "CH-03",
-        "scenario": "A required guard outcome is absent.",
-        "finding": "Missing evidence could be mistaken for success.",
-        "resolution": "Missing evidence yields PARTIALLY_VERIFIED and PO status NOT DONE.",
+        "scenario": "Gate implementation changes.",
+        "finding": "Old PASS cannot prove new semantics.",
+        "resolution": "Implementation hash invalidates gate and downstream dependents.",
         "status": "resolved"
       },
       {
         "id": "CH-04",
-        "scenario": "A guard explicitly fails.",
-        "finding": "Completion could still appear partially green.",
-        "resolution": "Failed evidence yields NOT_DONE; blocked infrastructure yields BLOCKED.",
+        "scenario": "Authority/instruction state changes.",
+        "finding": "Correctness criteria can change without local source change.",
+        "resolution": "Authority/config fingerprints are first-class inputs.",
         "status": "resolved"
       },
       {
         "id": "CH-05",
-        "scenario": "A plan validates itself without opposition.",
-        "finding": "Confirmation bias survives.",
-        "resolution": "Medium, high and critical plans require a dissent specialist; critical requires multiple relevant reviews.",
+        "scenario": "Checkpoint is stale/truncated/corrupt.",
+        "finding": "Cache poisoning could permit unsafe reuse.",
+        "resolution": "Schema, checksum, completeness, branch and ancestry validation force full on mismatch.",
         "status": "resolved"
       },
       {
         "id": "CH-06",
-        "scenario": "Low-risk edits inherit critical ceremony.",
-        "finding": "Process becomes too slow.",
-        "resolution": "Risk-depth thresholds reduce required modeling, challenge and specialist counts for lower tiers.",
+        "scenario": "Previous run is interrupted.",
+        "finding": "Partial PASS records could become a resume point.",
+        "resolution": "Only finalized complete checkpoints are candidates.",
         "status": "resolved"
       },
       {
         "id": "CH-07",
-        "scenario": "Truth evaluation becomes a second release authority.",
-        "finding": "Authority fork.",
-        "resolution": "Completion integrity is owned by existing quality authority; Release Risk remains release authority.",
+        "scenario": "Known Failure scope is wider than diff.",
+        "finding": "Minimal replay could miss a recurring class.",
+        "resolution": "Known Failure scope is an additive replay override.",
         "status": "resolved"
       },
       {
         "id": "CH-08",
-        "scenario": "A later preventable defect is merely patched.",
-        "finding": "The missed-thinking cause is lost.",
-        "resolution": "Failure Intake records a learning review and routes prevention to existing authorities.",
+        "scenario": "Planner predicts REUSE but full gate fails.",
+        "finding": "Reuse model produced a false PASS candidate.",
+        "resolution": "Shadow comparison blocks the scope engine; full verification remains authority.",
         "status": "resolved"
       },
       {
         "id": "CH-09",
-        "scenario": "Truth evaluation is retried or duplicated.",
-        "finding": "A mutable evaluator could create side effects.",
-        "resolution": "Truth Gate is read-only and artifact-only; repeated runs cannot mutate product or release state.",
+        "scenario": "Docs-only commit creates a new HEAD.",
+        "finding": "SHA-only identity would rerun everything.",
+        "resolution": "Semantic fingerprint equivalence permits reuse while manifest binds validity to current HEAD and preserves origin.",
         "status": "resolved"
       },
       {
         "id": "CH-10",
-        "scenario": "A forbidden regression is not explicitly checked.",
-        "finding": "Functional success could hide a prohibited side effect.",
-        "resolution": "Completion requirements carry negative-regression evidence refs and Truth Gate requires those proofs too.",
+        "scenario": "Branch changes or checkpoint commit is not ancestor.",
+        "finding": "Evidence lineage is ambiguous.",
+        "resolution": "v1 forbids cross-branch/non-ancestor reuse and forces full.",
         "status": "resolved"
       }
     ],
     "proofPlan": [
-      "Exhaustive finite-state tests for PASS, FAIL, MISSING, STALE and BLOCKED evidence combinations.",
-      "Regression tests for risk-depth thresholds and dissent requirements.",
-      "Regression tests that Completion Contract is PO-sourced and requirement IDs are unique.",
-      "Regression tests that Truth Gate cannot return VERIFIED_DONE with missing, stale or failed evidence.",
-      "CI wiring in the existing workflow only; no new workflow authority.",
-      "Failure Intake regression proving missed-thinking learning metadata is retained."
+      "Exhaustive REUSABLE/INVALIDATED/UNKNOWN state tests with UNKNOWN always rerunning.",
+      "Scenario tests for local/shared/schema/authority/config/gate-version/unrelated/Known-Failure/dirty/corrupt/interrupted/branch/CSS-token/transitive changes.",
+      "Checksum and atomic checkpoint tests.",
+      "Truth Gate regression for reused evidence provenance and current exact-head validity.",
+      "Branch-scoped CI shadow restore/save with full-run comparison.",
+      "At least two exact-head CI cycles before physical gate-skipping promotion."
     ],
     "executionAuthorized": true
   },
   "completionContract": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-09-30-CONTROL-PLANE-OPERATIONAL-INTELLIGENCE",
+    "sourceRef": "PO-2026-10-01-DEPENDENCY-AWARE-RESUMABLE-VERIFICATION",
     "requirements": [
       {
         "id": "REQ-01",
-        "requirement": "Determine a maximum practical assurance ceiling before serious implementation and scale depth by risk.",
-        "evidence": {
-          "implementation": [
-            "GUARD-PLAN-BEFORE-CODE"
-          ],
-          "outcome": [
-            "GUARD-QUALITY-TESTS"
-          ]
-        },
-        "forbiddenRegressions": [
-          {
-            "id": "NEG-01A",
-            "statement": "Low-risk work must not be forced through critical-depth ceremony.",
-            "evidence": [
-              "GUARD-QUALITY-TESTS"
-            ]
-          }
-        ]
-      },
-      {
-        "id": "REQ-02",
-        "requirement": "Enforce OBSERVE through LEARN as the canonical operational sequence without creating parallel authorities.",
-        "evidence": {
-          "implementation": [
-            "GUARD-PLAN-BEFORE-CODE"
-          ],
-          "outcome": [
-            "GUARD-QUALITY-TESTS"
-          ]
-        },
-        "forbiddenRegressions": [
-          {
-            "id": "NEG-02A",
-            "statement": "No parallel Control Plane, Atlas, Sentinel or release authority.",
-            "evidence": [
-              "GUARD-QUALITY-TESTS"
-            ]
-          }
-        ]
-      },
-      {
-        "id": "REQ-03",
-        "requirement": "Require relevant specialist review with at least one explicit dissent role for non-low-risk plans.",
-        "evidence": {
-          "implementation": [
-            "GUARD-PLAN-BEFORE-CODE"
-          ],
-          "outcome": [
-            "GUARD-QUALITY-TESTS"
-          ]
-        },
-        "forbiddenRegressions": [
-          {
-            "id": "NEG-03A",
-            "statement": "Unresolved dissent cannot authorize execution.",
-            "evidence": [
-              "GUARD-QUALITY-TESTS"
-            ]
-          }
-        ]
-      },
-      {
-        "id": "REQ-04",
-        "requirement": "Create a machine-checkable Completion Contract from the PO request, independent from the implementation plan.",
-        "evidence": {
-          "implementation": [
-            "GUARD-PLAN-BEFORE-CODE"
-          ],
-          "outcome": [
-            "GUARD-QUALITY-TESTS"
-          ]
-        },
-        "forbiddenRegressions": [
-          {
-            "id": "NEG-04A",
-            "statement": "Implementation steps cannot substitute for missing PO requirements.",
-            "evidence": [
-              "GUARD-QUALITY-TESTS"
-            ]
-          }
-        ]
-      },
-      {
-        "id": "REQ-05",
-        "requirement": "Add a read-only Truth Gate that verifies requirement, implementation, outcome and negative claims using fresh evidence.",
-        "evidence": {
-          "implementation": [
-            "GUARD-QUALITY-TESTS"
-          ],
-          "outcome": [
-            "GUARD-TYPECHECK",
-            "GUARD-PRODUCTION-BUILD"
-          ]
-        },
-        "forbiddenRegressions": [
-          {
-            "id": "NEG-05A",
-            "statement": "Claim without evidence cannot become DONE.",
-            "evidence": [
-              "GUARD-QUALITY-TESTS"
-            ]
-          }
-        ]
-      },
-      {
-        "id": "REQ-06",
-        "requirement": "Bind completion evidence to exact SHA, branch, state or version and run or timestamp; stale evidence cannot prove DONE.",
+        "requirement": "Build deterministic evidence identity from semantic inputs rather than commit SHA alone.",
         "evidence": {
           "implementation": [
             "GUARD-QUALITY-TESTS"
@@ -456,8 +376,113 @@
         },
         "forbiddenRegressions": [
           {
+            "id": "NEG-01A",
+            "statement": "A previous PASS alone never authorizes reuse.",
+            "evidence": [
+              "GUARD-QUALITY-TESTS"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "REQ-02",
+        "requirement": "Model verification dependencies and compute fail-closed transitive invalidation.",
+        "evidence": {
+          "implementation": [
+            "GUARD-QUALITY-TESTS"
+          ],
+          "outcome": [
+            "GUARD-QUALITY-TESTS"
+          ]
+        },
+        "forbiddenRegressions": [
+          {
+            "id": "NEG-02A",
+            "statement": "Downstream dependents cannot remain reusable after upstream invalidation.",
+            "evidence": [
+              "GUARD-QUALITY-TESTS"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "REQ-03",
+        "requirement": "Reconcile branch-scoped checkpoints against every new exact HEAD before resume.",
+        "evidence": {
+          "implementation": [
+            "GUARD-INCREMENTAL-REPLAY"
+          ],
+          "outcome": [
+            "GUARD-QUALITY-TESTS"
+          ]
+        },
+        "forbiddenRegressions": [
+          {
+            "id": "NEG-03A",
+            "statement": "Dirty, corrupt, incomplete, non-ancestor or cross-branch checkpoints fail closed.",
+            "evidence": [
+              "GUARD-QUALITY-TESTS"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "REQ-04",
+        "requirement": "Classify prior evidence as REUSABLE, INVALIDATED or UNKNOWN and rerun UNKNOWN.",
+        "evidence": {
+          "implementation": [
+            "GUARD-INCREMENTAL-REPLAY"
+          ],
+          "outcome": [
+            "GUARD-QUALITY-TESTS"
+          ]
+        },
+        "forbiddenRegressions": [
+          {
+            "id": "NEG-04A",
+            "statement": "UNKNOWN never maps to REUSE.",
+            "evidence": [
+              "GUARD-QUALITY-TESTS"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "REQ-05",
+        "requirement": "Let Known Failure regression scope widen the replay plan.",
+        "evidence": {
+          "implementation": [
+            "GUARD-INCREMENTAL-REPLAY"
+          ],
+          "outcome": [
+            "GUARD-QUALITY-TESTS"
+          ]
+        },
+        "forbiddenRegressions": [
+          {
+            "id": "NEG-05A",
+            "statement": "Minimal diff scope cannot override wider Known Failure regression scope.",
+            "evidence": [
+              "GUARD-QUALITY-TESTS"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "REQ-06",
+        "requirement": "Produce an auditable exact-head manifest for rerun and equivalence-proven reused proofs including origin revision.",
+        "evidence": {
+          "implementation": [
+            "GUARD-QUALITY-TESTS"
+          ],
+          "outcome": [
+            "GUARD-COMPLETION-TRUTH"
+          ]
+        },
+        "forbiddenRegressions": [
+          {
             "id": "NEG-06A",
-            "statement": "Changed HEAD invalidates older critical evidence.",
+            "statement": "Reused proof origin and equivalence reason are retained.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -466,7 +491,7 @@
       },
       {
         "id": "REQ-07",
-        "requirement": "Expose internal VERIFIED DONE, PARTIALLY VERIFIED, NOT DONE, BLOCKED and STALE EVIDENCE while keeping PO status to DONE, NOT DONE or BLOCKED plus NEXT.",
+        "requirement": "Expose mode, reuse/rerun/invalidation counts, replay reason, checkpoint source and explain decisions.",
         "evidence": {
           "implementation": [
             "GUARD-QUALITY-TESTS"
@@ -478,7 +503,7 @@
         "forbiddenRegressions": [
           {
             "id": "NEG-07A",
-            "statement": "PARTIALLY VERIFIED must never map to DONE.",
+            "statement": "Replay decisions are never opaque.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -487,10 +512,10 @@
       },
       {
         "id": "REQ-08",
-        "requirement": "Route preventable missed-thinking defects back through existing Failure Intake and Known Failure learning instead of creating a gate per defect.",
+        "requirement": "Run v1 in shadow mode and block on any predicted-reuse/full-verification disagreement.",
         "evidence": {
           "implementation": [
-            "GUARD-QUALITY-TESTS"
+            "GUARD-INCREMENTAL-REPLAY"
           ],
           "outcome": [
             "GUARD-QUALITY-TESTS"
@@ -499,7 +524,7 @@
         "forbiddenRegressions": [
           {
             "id": "NEG-08A",
-            "statement": "No per-defect parallel gate or incident ledger.",
+            "statement": "Physical gate skipping is not promoted before shadow equivalence is proven.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -508,54 +533,49 @@
       },
       {
         "id": "REQ-09",
-        "requirement": "Reuse existing Atlas, Sentinel, Knowledge, Development Guard, A/B Reference Sync, Replay, Release Risk, Template Factory and CI authorities.",
+        "requirement": "Preserve existing Control Plane, Release Risk, Truth Gate and Template Factory ownership.",
         "evidence": {
           "implementation": [
-            "GUARD-KNOWLEDGE-PREFLIGHT",
-            "GUARD-EDIT-TIME",
-            "GUARD-INCREMENTAL-REPLAY"
+            "GUARD-PLAN-BEFORE-CODE",
+            "GUARD-KNOWLEDGE-PREFLIGHT"
           ],
           "outcome": [
-            "GUARD-RELEASE-RISK"
+            "GUARD-QUALITY-TESTS"
           ]
         },
         "forbiddenRegressions": [
           {
             "id": "NEG-09A",
-            "statement": "Existing blocking semantics and authority ownership are not weakened.",
+            "statement": "No parallel blocking workflow or release authority is created.",
             "evidence": [
-              "GUARD-KNOWLEDGE-PREFLIGHT",
-              "GUARD-RELEASE-RISK"
+              "GUARD-QUALITY-TESTS"
             ]
           }
         ]
       },
       {
         "id": "REQ-10",
-        "requirement": "Implement the capability with minimum new infrastructure and verify the current exact branch state before closure.",
+        "requirement": "Prove local/shared/schema/authority/gate/config/unrelated/visual/transitive scenarios and safe fallback.",
         "evidence": {
           "implementation": [
-            "GUARD-KNOWLEDGE-PREFLIGHT",
             "GUARD-QUALITY-TESTS"
           ],
           "outcome": [
             "GUARD-TYPECHECK",
-            "GUARD-PRODUCTION-BUILD",
-            "GUARD-RELEASE-RISK"
+            "GUARD-PRODUCTION-BUILD"
           ]
         },
         "forbiddenRegressions": [
           {
             "id": "NEG-10A",
-            "statement": "MAIN merge, golden update and gate weakening are not side effects of this development transaction.",
+            "statement": "Stale evidence, corrupted cache or unsupported state cannot produce final PASS.",
             "evidence": [
-              "GUARD-QUALITY-TESTS",
-              "GUARD-RELEASE-RISK"
+              "GUARD-QUALITY-TESTS"
             ]
           }
         ]
       }
     ]
   },
-  "notes": "Critical Control Plane self-development. Extend existing Development Guard and Plan Before Code, consume existing CI evidence, add one read-only completion-integrity evaluator, and route learning through existing Failure Intake. No main merge, no golden update, no gate weakening."
+  "notes": "Critical self-modification of the Control Plane verification path. v1 is branch-scoped shadow mode; physical gate skipping remains excluded until shadow/full equivalence is proven."
 }
