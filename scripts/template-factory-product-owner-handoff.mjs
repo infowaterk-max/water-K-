@@ -96,6 +96,7 @@ async function authenticatePlatformOperator(page){
 }
 
 async function proveSharedE13FunctionalEngine(page){
+  if(process.env.STRESS_E13_FUNCTIONAL_FAIL==='1')throw new Error('STRESS_E13_FUNCTIONAL_PROOF_FAIL');
   const origin=new URL(previewUrl).origin;
   const proof={
     contract:'shoporation.shared-engine-functional-proof.v1',
