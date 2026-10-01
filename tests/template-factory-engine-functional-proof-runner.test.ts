@@ -26,7 +26,7 @@ describe('Template Factory shared engine functional proof runner',()=>{
 
   it('runs shared E13 behavior before the expensive 14x3 visual matrix',()=>{
     const engine=workflow.indexOf('Prove shared E13 engine functionality before visual matrix');
-    const matrix=workflow.indexOf('Run scoped Template Factory browser proof (acceptance requires 14x3)');
+    const matrix=workflow.indexOf('Run scoped Template Factory browser proof (acceptance requires reconciled 14x3)');
     expect(engine).toBeGreaterThan(0);
     expect(matrix).toBeGreaterThan(engine);
     expect(workflow).toContain('PRODUCT_OWNER_PREVIEW_URL: "${{ steps.engine-functional-preview.outputs.base-url }}/platform"');
