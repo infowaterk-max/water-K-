@@ -252,3 +252,5 @@ Cross-branch reuse is intentionally disabled in v1. This avoids introducing iden
 ### Promotion proof invalidation
 
 A promotion proof is valid only for the exact verification-engine identity that produced it. Any change to replay planning, checkpoint reconciliation, Truth Gate semantics, CI orchestration, guard-registry verification metadata, or development-guard verification policy invalidates promotion credit and returns execution to shadow/full control until the configured proof threshold is rebuilt.
+
+Promotion eligibility is recorded only after a successful reconciliation; physical skipping can therefore begin no earlier than the next exact-head verification revision.
