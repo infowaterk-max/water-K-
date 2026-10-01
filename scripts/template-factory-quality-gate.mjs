@@ -541,6 +541,9 @@ const acceptanceProofs=scope.selected.map(selected=>{
     browserMatrixComplete:fullBrowserMatrixComplete,
     browserMatrixCaseCount:observedMatrixKeys.size,
     browserMatrixExpectedCaseCount:expectedMatrixKeys.size,
+    browserMatrixReusedCaseCount:matrixCases.filter(item=>item.evidenceExecution==='REUSED').length,
+    browserMatrixRerunCaseCount:matrixCases.filter(item=>item.evidenceExecution!=='REUSED').length,
+    pageFingerprints:manifest.pageFingerprints??{},
     proceduralMemoryPassed,
     factoryIdentityPinned,
     showroomContractPassed,
@@ -552,21 +555,28 @@ const acceptanceProofs=scope.selected.map(selected=>{
   };
 });
 
+const templatePageFingerprints=Object.fromEntries(scope.selected.map(selected=>[selected.template.templateKey,{templateVersion:selected.template.templateVersion,pages:selected.template.pageFingerprints??{}}]));
 const evidence={
-  contract:'shoporation.template-factory-quality-evidence.v2',
+  contract:'shoporation.template-factory-quality-evidence.v3',
   sourceCommit:headSha==='HEAD'?null:headSha,
+  branch:currentBranch||null,
+  runId:currentRunId,
   baseSha:baseSha||null,
+  complete:errors.length===0,
+  previousEvidence:{status:previousResult.reason,sourceCommit:previousManifest?.sourceCommit??null,runId:previousManifest?.runId??null},
   changes,
   selection:scope.reasons,
   legacyTemplateChanges:scope.legacyTemplateChanges,
+  templatePageFingerprints,
   cases,
   acceptanceProofs,
   errors,
   warnings,
   capturedAt:new Date().toISOString(),
 };
+evidence.checksum=manifestChecksum(evidence);
 await writeFile(path.join(outputDir,'manifest.json'),JSON.stringify(evidence,null,2));
-console.log(JSON.stringify({selection:scope.reasons,legacyTemplateChanges:scope.legacyTemplateChanges,cases:cases.length,errorCount:errors.length,warningCount:warnings.length},null,2));
+console.log(JSON.stringify({selection:scope.reasons,previousEvidence:evidence.previousEvidence,cases:cases.length,reusedCases:cases.filter(item=>item.evidenceExecution==='REUSED').length,rerunCases:cases.filter(item=>item.evidenceExecution!=='REUSED').length,errorCount:errors.length,warningCount:warnings.length},null,2));
 if(errors.length){
   console.error(JSON.stringify(errors,null,2));
   process.exitCode=1;
