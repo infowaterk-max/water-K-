@@ -163,7 +163,9 @@ export function buildRepositorySnapshot({registry,head=currentHead(),branch=curr
     const cfg=verificationConfig(registry,gate);
     coveredPatterns.push(...cfg.semanticInputs,...cfg.implementationInputs,...cfg.authorityInputs,...cfg.configurationInputs,...cfg.toolchainInputs);
   }
-  return{schemaVersion:root.schemaVersion??ENGINE_SCHEMA_VERSION,head,branch,graphValid:graphValidation.ok,graphIssues:graphValidation.issues,gates,coveredPatterns:uniq(coveredPatterns),nonSemanticPatterns:uniq(root.nonSemanticPatterns??[]),promotionPolicy:root.promotion??{},executionMode:String(root.mode??'shadow').toUpperCase()};
+  const promotionEngineInputs=root.promotion?.engineInputs??['scripts/lib/shoperation-verification-reuse.mjs','scripts/shoperation-incremental-replay.mjs','scripts/shoperation-verification-checkpoint.mjs','scripts/shoperation-truth-gate.mjs','scripts/lib/shoperation-operational-intelligence.mjs','.github/workflows/ci.yml'];
+  const verificationEngineHash=hashMatchedFiles(promotionEngineInputs,files).hash;
+  return{schemaVersion:root.schemaVersion??ENGINE_SCHEMA_VERSION,head,branch,graphValid:graphValidation.ok,graphIssues:graphValidation.issues,gates,coveredPatterns:uniq(coveredPatterns),nonSemanticPatterns:uniq(root.nonSemanticPatterns??[]),promotionPolicy:root.promotion??{},requestedExecutionMode:String(root.mode??'shadow').toUpperCase(),verificationEngineHash,promotionEngineInputs};
 }
 
 export function checkpointPayload(checkpoint){const copy={...checkpoint};delete copy.checksum;return copy;}
@@ -229,13 +231,18 @@ export function planFromSnapshots({current,previousCheckpoint=null,checkpointVal
   const gateTier=tierDrivers.length?Math.max(...tierDrivers.map(g=>g.identity.impactTier||2)):0;
   const replayTier=forceFull?4:Math.min(4,Math.max(semanticTier,gateTier));
   const verificationMode=forceFull?'FULL':previousCheckpoint?(reusable.length?'RESUMED':'INCREMENTAL'):'FULL';
+  const requestedExecutionMode=String(current.requestedExecutionMode??'SHADOW').toUpperCase();
+  const promotionEngineEquivalent=Boolean(previousCheckpoint?.verificationEngineHash&&previousCheckpoint.verificationEngineHash===current.verificationEngineHash);
+  const promotionProofValid=Boolean(previousCheckpoint?.shadowStats?.promotionEligible===true&&promotionEngineEquivalent);
+  const executionMode=requestedExecutionMode==='ACTIVE'&&!forceFull&&promotionProofValid?'ACTIVE':'SHADOW';
+  if(requestedExecutionMode==='ACTIVE'&&executionMode!=='ACTIVE'&&!forceFull)reasons.push(promotionEngineEquivalent?'promotion-proof-not-eligible':'promotion-engine-changed');
   const downstream=values.filter(g=>g.reasons.some(reason=>reason.startsWith('dependency-invalidated:'))).map(g=>g.gateId);
   const authorityChanged=values.filter(g=>g.reasons.includes('authority-change')).map(g=>g.gateId);
   const configChanged=values.filter(g=>g.reasons.includes('config-change')||g.reasons.includes('environment-change')||g.reasons.includes('toolchain-change')).map(g=>g.gateId);
   const semanticChanged=semanticImpact.length?semanticImpact.map(unit=>unit.id):values.filter(g=>g.reasons.includes('semantic-input-change')||g.reasons.includes('implementation-change')||g.reasons.includes('gate-version-change')).map(g=>g.gateId);
   const proofScopes=semanticImpact.map(unit=>({unitId:unit.id,scope:unit.scope,files:unit.files,pageType:unit.pageType,narrowed:unit.narrowed,reason:unit.reason}));
   return{
-    contract:PLAN_CONTRACT,schemaVersion:current.schemaVersion,verificationMode,executionMode:current.executionMode??'SHADOW',replayTier,promotionPolicy:current.promotionPolicy??{},
+    contract:PLAN_CONTRACT,schemaVersion:current.schemaVersion,verificationMode,executionMode,requestedExecutionMode,promotionProofValid,promotionEngineEquivalent,verificationEngineHash:current.verificationEngineHash,replayTier,promotionPolicy:current.promotionPolicy??{},
     replayTierName:['Evidence Reuse','Local Replay','Dependency Replay','Subsystem Replay','Full Verification'][replayTier],
     sourceRevision:current.head,branch:current.branch,checkpointSourceCommit:previousCheckpoint?.sourceCommit??null,
     changedFiles,uncoveredChangedFiles:uncovered,activeFailureIds:sorted(activeFailureIds),reasons:uniq(reasons),
@@ -268,7 +275,8 @@ export function createReplayPlan({registry,checkpointPath,activeFailureIds=[]}={
 export function finalizeVerification({plan,outcomes={},priorCheckpoint=null,runId=null,stateVersion='shoporation-ci.v1'}={}){
   const executionMode=String(plan.executionMode??'SHADOW').toUpperCase();
   const discrepancies=[],gates={},truthEvidence=[];
-  const priorStats=priorCheckpoint?.shadowStats??(priorCheckpoint?.complete?{passes:1,resumedPasses:priorCheckpoint.verificationMode==='RESUMED'?1:0,falseReuse:0}:{passes:0,resumedPasses:0,falseReuse:0});
+  const sameVerificationEngine=Boolean(priorCheckpoint?.verificationEngineHash&&priorCheckpoint.verificationEngineHash===plan.verificationEngineHash);
+  const priorStats=sameVerificationEngine?(priorCheckpoint?.shadowStats??(priorCheckpoint?.complete?{passes:1,resumedPasses:priorCheckpoint.verificationMode==='RESUMED'?1:0,falseReuse:0}:{passes:0,resumedPasses:0,falseReuse:0})):{passes:0,resumedPasses:0,falseReuse:0};
   const promotion=plan.promotionPolicy??{};
   if(executionMode==='ACTIVE'&&priorStats.promotionEligible!==true)discrepancies.push({gateId:'CONTROL-PLANE',code:'ACTIVE_WITHOUT_PROMOTION_PROOF',planned:'ACTIVE',actual:'promotion-proof-missing'});
   if(executionMode==='ACTIVE'&&promotion.physicalSkippingEnabled!==true)discrepancies.push({gateId:'CONTROL-PLANE',code:'ACTIVE_SKIPPING_DISABLED',planned:'ACTIVE',actual:'physical-skipping-disabled'});
@@ -315,13 +323,13 @@ export function finalizeVerification({plan,outcomes={},priorCheckpoint=null,runI
   const metrics={...plan.metrics,verificationRuntimeMs,referenceFullRuntimeMs,physicalRuntimeSavingMs,physicalRuntimeSavingRatio:referenceFullRuntimeMs&&physicalRuntimeSavingMs?physicalRuntimeSavingMs/referenceFullRuntimeMs:0,physicalRuntimeSavingReason:executionMode==='ACTIVE'?'active-evidence-reuse':'shadow-mode-full-control-authoritative'};
   const manifest={
     contract:MANIFEST_CONTRACT,schemaVersion:plan.schemaVersion,sourceCommit:plan.sourceRevision,branch:plan.branch,stateVersion,runId,
-    verificationMode:plan.verificationMode,executionMode,replayTier:plan.replayTier,checkpointSourceCommit:plan.checkpointSourceCommit,
+    verificationMode:plan.verificationMode,executionMode,requestedExecutionMode:plan.requestedExecutionMode,verificationEngineHash:plan.verificationEngineHash,replayTier:plan.replayTier,checkpointSourceCommit:plan.checkpointSourceCommit,
     evidenceSummary:plan.evidence,changeImpactSet:plan.changeImpactSet,metrics,comparison,shadowComparison:comparison,shadowStats,promotionPolicy:promotion,finalConfidence:comparison.decision,
     gates,truthEvidence,generatedAt:new Date().toISOString(),decision:comparison.decision,
   };
   const checkpoint={
     contract:CHECKPOINT_CONTRACT,schemaVersion:plan.schemaVersion,complete:comparison.decision==='PASS',sourceCommit:plan.sourceRevision,
-    branch:plan.branch,stateVersion,runId,activeFailureIds:plan.activeFailureIds,verificationMode:plan.verificationMode,executionMode,replayTier:plan.replayTier,
+    branch:plan.branch,stateVersion,runId,activeFailureIds:plan.activeFailureIds,verificationMode:plan.verificationMode,executionMode,verificationEngineHash:plan.verificationEngineHash,replayTier:plan.replayTier,
     gates,shadowStats,metrics:{verificationRuntimeMs,referenceFullRuntimeMs},createdAt:new Date().toISOString(),
   };
   checkpoint.checksum=checkpointChecksum(checkpoint);
