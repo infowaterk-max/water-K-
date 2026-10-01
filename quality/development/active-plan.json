@@ -19,17 +19,24 @@
     "scripts/shoperation-verification-checkpoint.mjs",
     "scripts/shoperation-truth-gate.mjs",
     "tests/shoperation-resumable-verification.test.ts",
-    "tests/shoperation-operational-intelligence.test.ts"
+    "tests/shoperation-operational-intelligence.test.ts",
+    ".github/workflows/template-factory-quality-gate.yml",
+    "scripts/template-factory-quality-gate.mjs",
+    "src/app/api/visual-fidelity/templates/route.ts",
+    "tests/storefront-template-quality-gate-v2.test.ts"
   ],
   "expectedSubsystems": [
     "quality-infrastructure",
-    "release-infrastructure"
+    "release-infrastructure",
+    "storefront-ui"
   ],
   "expectedDomains": [
+    "DOMAIN-BUILDER",
     "DOMAIN-QUALITY",
     "DOMAIN-RELEASE"
   ],
   "expectedAuthorities": [
+    "builder-template-system",
     "quality-knowledge-system",
     "release-infrastructure"
   ],
@@ -85,9 +92,11 @@
     "TF-KF-025"
   ],
   "acknowledgedNegativeKnowledgeIds": [
+    "SQ-NK-001",
     "SQ-NK-002",
     "SQ-NK-003",
     "SQ-NK-005",
+    "SQ-NK-008",
     "SQ-NK-010",
     "SQ-NK-012"
   ],
@@ -348,6 +357,13 @@
         "finding": "Evidence lineage is ambiguous.",
         "resolution": "v1 forbids cross-branch/non-ancestor reuse and forces full.",
         "status": "resolved"
+      },
+      {
+        "id": "CH-11",
+        "scenario": "A template source file changes only one canonical page, such as FAQ, while the prior 14x3 browser matrix is green.",
+        "finding": "File-level hashing alone forces the full 42-case browser matrix and cannot safely distinguish unchanged page proofs.",
+        "resolution": "Template Factory emits deterministic compiled Page Schema fingerprints per page. Page-level browser evidence is reusable only when the prior manifest is complete, checksummed, same-branch, ancestor-bound, full-green, same template/version, and the page fingerprint is identical. Shared Runtime/Factory authority changes still force the full matrix.",
+        "status": "resolved"
       }
     ],
     "proofPlan": [
@@ -356,7 +372,8 @@
       "Checksum and atomic checkpoint tests.",
       "Truth Gate regression for reused evidence provenance and current exact-head validity.",
       "Branch-scoped CI shadow restore/save with full-run comparison.",
-      "At least two exact-head CI cycles before physical gate-skipping promotion."
+      "At least two exact-head CI cycles before physical gate-skipping promotion.",
+      "Template Factory proof: seed a complete checksummed 14x3 manifest, then prove a single-page fingerprint change reruns only that page across Desktop/Tablet/Mobile while reusing unchanged page evidence; corrupt/stale/branch-mismatched prior manifests force full matrix."
     ],
     "executionAuthorized": true
   },
@@ -578,5 +595,5 @@
       }
     ]
   },
-  "notes": "Critical self-modification of the Control Plane verification path. Actual diff expanded into the canonical quality-infrastructure subsystem in addition to release-infrastructure; the plan envelope was reconciled before further implementation. Shadow cycle 1 PASS at exact HEAD 14b17986c70edc3cdc91b9b3e958a194e4dfe55a: FULL/Tier4, 10 comparable full gates, 0 shadow discrepancies, complete branch-scoped checkpoint saved. v1 remains shadow mode; physical gate skipping is excluded until reuse equivalence is proven on subsequent exact heads."
+  "notes": "Control Plane resumable verification expanded within the existing 5-point Release Risk Budget to close Template Factory page-level browser replay. Planned release scope is quality-infrastructure + release-infrastructure + storefront-ui (5/5, three subsystems); DOMAIN-BUILDER is included only for the QA catalog page-fingerprint projection. Promotion is engine-identity-bound: any verification engine/policy change falls back to SHADOW and must re-earn promotion. No production runtime/template behavior is changed."
 }
