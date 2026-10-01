@@ -60,13 +60,13 @@ const hasAny=(keys:readonly string[],needles:readonly string[])=>needles.some(ne
 
 function categoryFor(keys:readonly string[],label=''):VxLibraryCategory{
   const text=normalize(label);
+  if(/hero|kiemelt|banner|nyito|fooldal/.test(text)||has(keys,'page.home'))return'featured';
   if(hasAny(keys,['commerce.','product','collection','cart','checkout','recommend'])||/termek|product|shop|commerce|katalog/.test(text))return'commerce';
   if(hasAny(keys,['navigation','system.header','editorial.footer','menu'])||/navig|fejlec|lablec|menu/.test(text))return'navigation';
   if(hasAny(keys,['form','contact','newsletter','guided.finder'])||/kapcsolat|urlap|form|hirlevel|kereso/.test(text))return'forms';
   if(hasAny(keys,['review','testimonial','social'])||/velemeny|ertekeles|review|testimonial|bizalom/.test(text))return'social';
   if(hasAny(keys,['image','gallery','video','media','visual.'])||/galeria|kep|video|media/.test(text))return'media';
   if(hasAny(keys,['heading','text','story','editorial','blog'])||/tartalom|szoveg|blog|sztori/.test(text))return'content';
-  if(/hero|kiemelt|banner|nyito/.test(text))return'featured';
   return'utility';
 }
 
