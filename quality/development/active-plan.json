@@ -3,7 +3,7 @@
   "taskId": "DEV-CONTROL-PLANE-RESUMABLE-VERIFICATION",
   "task": "Extend the existing Control Plane release verification with safe resumable evidence reuse and minimal replay without creating a parallel authority.",
   "status": "ready-for-implementation",
-  "guardDigest": "2a67f8cf",
+  "guardDigest": "282b41e0",
   "changeBaseSha": "092df49efe5b099cdf26096a3b7deed6e9860e39",
   "plannedFilePatterns": [
     "AGENTS.md",
@@ -31,16 +31,19 @@
     "src/app/admin/termekek/feltoltes/page.tsx"
   ],
   "expectedSubsystems": [
+    "admin-operations",
     "quality-infrastructure",
     "release-infrastructure",
     "storefront-ui"
   ],
   "expectedDomains": [
+    "DOMAIN-ADMIN",
     "DOMAIN-BUILDER",
     "DOMAIN-QUALITY",
     "DOMAIN-RELEASE"
   ],
   "expectedAuthorities": [
+    "admin-operations",
     "builder-template-system",
     "quality-knowledge-system",
     "release-infrastructure"
@@ -601,5 +604,5 @@
       }
     ]
   },
-  "notes": "Control Plane resumable verification expanded within the existing 5-point Release Risk Budget to close Template Factory page-level browser replay. Planned release scope is quality-infrastructure + release-infrastructure + storefront-ui (5/5, three subsystems); DOMAIN-BUILDER is included only for the QA catalog page-fingerprint projection. Promotion is engine-identity-bound: any verification engine/policy change falls back to SHADOW and must re-earn promotion. No production runtime/template behavior is changed. Template Factory selective browser replay is implemented as a subordinate evidence checkpoint inside the existing Template Factory Quality Gate; no parallel workflow authority. Merge-readiness stress verification exposed a transient duplicate E13 acceptance root in the Product Owner functional-proof browser session; scope was widened to harden that existing runner with fail-closed cardinality convergence plus regression coverage. STRESS ONLY: Product Intake Center title source is deliberately changed without updating its cross-file regression consumer."
+  "notes": "Control Plane resumable verification expanded within the existing 5-point Release Risk Budget to close Template Factory page-level browser replay. Planned release scope is quality-infrastructure + release-infrastructure + storefront-ui (5/5, three subsystems); DOMAIN-BUILDER is included only for the QA catalog page-fingerprint projection. Promotion is engine-identity-bound: any verification engine/policy change falls back to SHADOW and must re-earn promotion. No production runtime/template behavior is changed. Template Factory selective browser replay is implemented as a subordinate evidence checkpoint inside the existing Template Factory Quality Gate; no parallel workflow authority. Merge-readiness stress verification exposed a transient duplicate E13 acceptance root in the Product Owner functional-proof browser session; scope was widened to harden that existing runner with fail-closed cardinality convergence plus regression coverage. STRESS ONLY: Product Intake Center title source is deliberately changed without updating its cross-file regression consumer. STRESS ONLY: envelope reconciled to the deliberately added DOMAIN-ADMIN source surface so Plan does not mask Reference Sync."
 }
