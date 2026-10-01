@@ -3,7 +3,7 @@
   "taskId": "DEV-CONTROL-PLANE-RESUMABLE-VERIFICATION",
   "task": "Extend the existing Control Plane release verification with safe resumable evidence reuse and minimal replay without creating a parallel authority.",
   "status": "ready-for-implementation",
-  "guardDigest": "efe9d183",
+  "guardDigest": "2a67f8cf",
   "changeBaseSha": "dd0ae071bb0c5cd953a704ce31e2516feee9657f",
   "plannedFilePatterns": [
     "AGENTS.md",
