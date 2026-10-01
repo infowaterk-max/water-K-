@@ -128,6 +128,6 @@ describe('Template Factory resumable browser verification',()=>{
 
   it('never reuses a prior browser case that previously failed or lacks a fingerprint',()=>{
     expect(reusableTemplateBrowserCase({priorCase:{errors:['GOLDEN_DIFF:1'],caseFingerprint:'x'},currentCaseFingerprint:'x'}).reusable).toBe(false);
-    expect(reusableTemplateBrowserCase({priorCase:{errors:[]},currentCaseFingerprint:'x'}).toEqual({reusable:false,reason:'prior-case-fingerprint-missing'});
+    expect(reusableTemplateBrowserCase({priorCase:{errors:[]},currentCaseFingerprint:'x'})).toEqual({reusable:false,reason:'prior-case-fingerprint-missing'});
   });
 });
