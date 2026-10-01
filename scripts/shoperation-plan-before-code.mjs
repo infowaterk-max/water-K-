@@ -33,7 +33,9 @@ const generatedExecutionRoute=buildExecutionRoute(atlas,plan.plannedFilePatterns
 const declaredExecutionRoute=plan.operationalIntelligence?.semanticExecutionRoute??null;
 if(plan.operationalIntelligence?.riskTier==='critical'){
   const declaredMustEdit=[...(declaredExecutionRoute?.mustEdit??[])];
-  for(const file of declaredMustEdit)if(!generatedExecutionRoute.MUST_EDIT.includes(file))issues.push({code:'DEV_PLAN_SEMANTIC_MUST_EDIT_OUTSIDE_ROUTE',file});
+  for(const file of declaredMustEdit)if(!generatedExecutionRoute.MUST_EDIT.includes(file)&&!generatedExecutionRoute.INSTRUCTION_REQUIRED.includes(file))issues.push({code:'DEV_PLAN_SEMANTIC_MUST_EDIT_OUTSIDE_ROUTE',file});
+  const missingInstructionRequired=generatedExecutionRoute.INSTRUCTION_REQUIRED.filter(file=>!declaredMustEdit.includes(file));
+  if(missingInstructionRequired.length)issues.push({code:'DEV_PLAN_PO_INSTRUCTION_REQUIRED_CHANGE_UNDECLARED',files:missingInstructionRequired,instructionIds:generatedExecutionRoute.PO_INSTRUCTIONS});
   if(generatedExecutionRoute.UNKNOWN.length)issues.push({code:'DEV_PLAN_SEMANTIC_EXECUTION_UNKNOWN',unknown:generatedExecutionRoute.UNKNOWN});
 }
 const applicableInstructions=applicablePoInstructions(atlas,projectedFiles);
