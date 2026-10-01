@@ -277,3 +277,9 @@ A promotion-eligible checkpoint is persisted only after Completion Truth Gate ha
 Promotion shadow proof note: exact-head Truth sealing is part of checkpoint eligibility; a subsequent semantic-no-op revision may resume only after the prior checkpoint is sealed `VERIFIED_DONE`.
 Promotion shadow proof note: independent exact-head revisions, not repeated attempts of the same revision, are used to accumulate promotion confidence.
 ACTIVE promotion proof note: after a truth-sealed eligible checkpoint, a later semantic-no-op revision may physically skip only gates whose current evidence fingerprint is equivalent; non-reusable and invalidated gates still run.
+
+
+### Merge-readiness promotion rebuild audit
+
+- Engine reset baseline: `16a33cf1f37df5209a2f634ff24bc84d5a19c98d` — SHADOW PASS, RESUMED, 1/1 shadow/resumed pass, 0 false reuse, exact-head Truth Gate `VERIFIED_DONE`.
+- This section is documentation-only and intentionally excluded by the configured non-semantic path policy; subsequent revisions below are independent resume proofs, not executable-policy changes.
