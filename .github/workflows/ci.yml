@@ -208,7 +208,9 @@ jobs:
       - name: Quality tests
         if: github.event_name != 'pull_request' || steps.incremental-replay.outputs.execution_mode != 'ACTIVE' || steps.incremental-replay.outputs.reuse_quality_tests != 'true'
         id: quality-tests
-        run: npm test
+        run: |
+          printf "%s\\n" "import {expect,it} from 'vitest';" "it('STRESS_ONLY quality failure',()=>expect(true).toBe(false));" > tests/__stress_quality_failure.test.ts
+          npm test
 
       - name: Upload quality test results
         if: always() && (github.event_name != 'pull_request' || steps.incremental-replay.outputs.reuse_quality_tests != 'true')
