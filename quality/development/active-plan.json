@@ -1,48 +1,23 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-CONTROL-PLANE-RESUMABLE-VERIFICATION",
-  "task": "Extend the existing Control Plane release verification with safe resumable evidence reuse and minimal replay without creating a parallel authority.",
+  "taskId": "DEV-REFERENCE-SYNC-RENAME-EXPORT-IDENTITY",
+  "task": "Repair the existing Reference Sync so a Git-detected file rename preserves unchanged export identity at the destination while genuinely removed exports and stale old-path consumers remain blocking.",
   "status": "ready-for-implementation",
-  "guardDigest": "2a67f8cf",
-  "changeBaseSha": "dd0ae071bb0c5cd953a704ce31e2516feee9657f",
+  "guardDigest": "aa79c504",
+  "changeBaseSha": "092df49efe5b099cdf26096a3b7deed6e9860e39",
   "plannedFilePatterns": [
-    "AGENTS.md",
-    ".github/workflows/ci.yml",
-    "docs/architecture/CONTROL_PLANE_OPERATIONAL_INTELLIGENCE.md",
     "quality/development/active-plan.json",
+    "scripts/lib/shoperation-reference-sync-runtime.mjs",
+    "tests/shoperation-development-guard.test.ts",
     "quality/knowledge/development-guard-policy.v1.json",
-    "quality/knowledge/guard-registry.v1.json",
-    "quality/knowledge/knowledge-scope-policy.v1.json",
-    "scripts/lib/shoperation-verification-reuse.mjs",
-    "scripts/lib/shoperation-operational-intelligence.mjs",
-    "scripts/shoperation-incremental-replay.mjs",
-    "scripts/shoperation-verification-checkpoint.mjs",
-    "scripts/shoperation-truth-gate.mjs",
-    "tests/shoperation-resumable-verification.test.ts",
-    "tests/shoperation-operational-intelligence.test.ts",
-    ".github/workflows/template-factory-quality-gate.yml",
-    "scripts/template-factory-quality-gate.mjs",
-    "scripts/template-factory-product-owner-handoff.mjs",
-    "src/app/api/visual-fidelity/templates/route.ts",
-    "tests/storefront-template-quality-gate-v2.test.ts",
-    "scripts/lib/shoperation-template-factory-resumable-verification.mjs",
-    "tests/template-factory-resumable-verification.test.ts",
-    "tests/template-factory-engine-functional-proof-runner.test.ts"
+    "tests/shoperation-operational-intelligence.test.ts"
   ],
-  "expectedSubsystems": [
-    "quality-infrastructure",
-    "release-infrastructure",
-    "storefront-ui"
-  ],
+  "expectedSubsystems": [],
   "expectedDomains": [
-    "DOMAIN-BUILDER",
-    "DOMAIN-QUALITY",
-    "DOMAIN-RELEASE"
+    "DOMAIN-QUALITY"
   ],
   "expectedAuthorities": [
-    "builder-template-system",
-    "quality-knowledge-system",
-    "release-infrastructure"
+    "quality-knowledge-system"
   ],
   "expectedKnownFailureIds": [
     "SQ-KF-001",
@@ -96,22 +71,16 @@
     "TF-KF-025"
   ],
   "acknowledgedNegativeKnowledgeIds": [
-    "SQ-NK-001",
-    "SQ-NK-002",
-    "SQ-NK-003",
-    "SQ-NK-005",
-    "SQ-NK-008",
-    "SQ-NK-010",
     "SQ-NK-012"
   ],
   "exceptions": [],
   "operationalIntelligence": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-01-DEPENDENCY-AWARE-RESUMABLE-VERIFICATION",
-    "riskTier": "critical",
+    "sourceRef": "PO-2026-10-01-REFERENCE-SYNC-RENAME-IDENTITY",
+    "riskTier": "high",
     "assuranceCeiling": {
-      "level": "critical-practical",
-      "rationale": "This changes the Control Plane evidence-reuse decision path. False reuse can create a false PASS, so semantic fingerprints, transitive invalidation, branch-scoped checkpoint reconciliation, corruption detection, fail-closed unknown handling and shadow comparison are mandatory. Full formal verification and perfect repository-wide static dependency analysis are disproportionate for this bounded deterministic CI orchestration model.",
+      "level": "strong-behavioral-proof",
+      "rationale": "Reference Sync is a blocking development authority. This defect is a false-positive on safe code movement rather than a missing safety check, but weakening it broadly could create false negatives. The highest proportionate level is a narrow rename-aware identity fix with adversarial tests proving unchanged moved exports are accepted while deleted exports, stale old paths and renamed symbols still block.",
       "selectedTechniques": [
         "explicit-specification",
         "invariants",
@@ -121,56 +90,27 @@
         "boundary-cases",
         "pairwise-interactions",
         "threat-failure-model",
-        "fault-injection",
-        "finite-state-exhaustion"
-      ],
-      "deferredTechniques": [
-        {
-          "technique": "formal-verification",
-          "reason": "Exhaustive state scenarios plus shadow/full equivalence provide stronger practical assurance per engineering cost for this bounded evaluator."
-        },
-        {
-          "technique": "whole-repository-static-call-graph",
-          "reason": "Explicit semantic inputs and fail-closed unknowns avoid brittle over-analysis while preserving correctness."
-        },
-        {
-          "technique": "cross-branch-global-evidence-cache",
-          "reason": "v1 remains branch-scoped to avoid identity and cache-poisoning risk."
-        }
+        "fault-injection"
       ]
     },
     "definition": {
       "acceptanceCriteria": [
-        "Reusable PASS evidence is justified by deterministic semantic-input, gate-version, authority, configuration, toolchain and dependency fingerprints.",
-        "Changed, uncertain or unsupported input invalidates the affected gate and downstream verification dependencies.",
-        "Known Failure regression scope can widen the minimal replay scope.",
-        "Every checkpoint is reconciled against the new exact HEAD before any resume decision.",
-        "The exact-head evidence manifest records rerun/reused proofs, original revision and equivalence proof.",
-        "Dirty workspace, branch mismatch, corrupted/incomplete checkpoint, unsupported change and unknown dependency fail closed.",
-        "Shadow mode compares predicted reuse with full verification and blocks on any false-reuse discrepancy.",
-        "The existing Control Plane and subordinate authorities remain the only final authorities.",
-        "Template Factory may reuse unchanged page/viewport browser evidence only after branch-scoped checkpoint reconciliation; ambiguous/shared/authority changes force the full 14x3 matrix."
+        "A Git R-status file move with an unchanged export does not create an export-symbol stale-consumer finding merely because the origin path no longer exists.",
+        "Consumers that still reference the old file path remain blocking after a rename.",
+        "An export genuinely removed during a rename remains an export-symbol candidate and stale consumers remain blocking.",
+        "The previously proven export-rename detection for symbol identity changes remains blocking."
       ],
       "invariants": [
-        "UNKNOWN is never reusable.",
-        "A previous PASS alone is never sufficient for reuse.",
-        "Gate implementation changes invalidate that gate and downstream dependents.",
-        "Authority or policy changes invalidate every dependent proof.",
-        "Cross-branch reuse is disabled in v1.",
-        "The checkpoint is data only and never becomes a parallel authority.",
-        "Full verification remains authoritative during shadow mode."
+        "Rename awareness may transfer export identity only from the exact Git old-path to new-path pair reported by name-status.",
+        "A same-name export elsewhere in the repository cannot satisfy a moved export unless it is the Git rename destination.",
+        "File-path closure and export-symbol closure remain separate checks.",
+        "No exception or severity downgrade is introduced."
       ],
       "forbiddenStates": [
-        "unknown-evidence-reused",
-        "stale-pass-carried-forward",
-        "gate-version-mismatch-reused",
-        "authority-mismatch-reused",
-        "corrupted-checkpoint-accepted",
-        "cross-branch-evidence-reused",
-        "downstream-gate-reused-after-upstream-invalidation",
-        "shadow-reuse-while-full-gate-fails",
-        "exact-head-pass-with-incomplete-evidence-manifest",
-        "parallel-control-plane-created"
+        "moved-unchanged-export-reported-removed",
+        "old-path-consumer-silently-accepted",
+        "genuinely-deleted-export-treated-as-moved",
+        "symbol-rename-regression-not-blocked"
       ]
     },
     "model": {
@@ -188,71 +128,38 @@
         "CLOSE",
         "LEARN"
       ],
-      "transitions": [
-        "OBSERVE->DEFINE",
-        "DEFINE->MODEL",
-        "MODEL->PLAN",
-        "PLAN->CHALLENGE",
-        "CHALLENGE->IMPROVE",
-        "IMPROVE->PROVE_PLAN",
-        "PROVE_PLAN->EXECUTE",
-        "EXECUTE->VERIFY",
-        "VERIFY->TRUTH_GATE",
-        "TRUTH_GATE->CLOSE",
-        "CLOSE->LEARN"
-      ],
       "failureModes": [
-        "false-reuse",
-        "false-invalidation",
-        "stale-cache",
-        "partial-write",
-        "checkpoint-corruption",
-        "branch-mismatch",
-        "gate-version-drift",
-        "authority-drift",
-        "config-drift",
-        "toolchain-drift",
-        "environment-drift",
-        "transitive-dependency-miss",
-        "known-failure-scope-underrun",
-        "interrupted-verification",
-        "concurrent-run-race",
-        "dirty-workspace"
+        "The rename map is ignored when comparing exports, preserving the current false positive.",
+        "Any same-name export in a different file is incorrectly accepted as relocation proof.",
+        "A real symbol deletion is hidden because the destination file exists.",
+        "File-path consumers are mistakenly treated as updated merely because export identity moved."
       ],
       "edgeCases": [
-        "unrelated-doc-change",
-        "local-fix",
-        "shared-component-fix",
-        "schema-change",
-        "authority-change",
-        "gate-implementation-change",
-        "config-change",
-        "shared-css-change",
-        "design-token-change",
-        "unchanged-semantic-input-new-head",
-        "previous-checkpoint-not-ancestor",
-        "missing-gate-metadata",
-        "reused-proof-originates-two-heads-back"
+        "100 percent similarity rename with unchanged export.",
+        "Rename plus symbol rename.",
+        "Rename plus export deletion.",
+        "Rename where a stale old import path remains.",
+        "Non-rename edit of the same file."
       ]
     },
     "alternatives": [
       {
         "id": "ALT-01",
-        "summary": "Keep exact-HEAD evidence only and rerun every gate.",
+        "summary": "Add exceptions for the pilot acceptance refactor consumers.",
         "disposition": "rejected",
-        "reason": "Safe but preserves unnecessary repeated verification and does not satisfy resumable verification."
+        "reason": "It would hide a known Reference Sync capability defect and create unsafe precedent for broad exceptions."
       },
       {
         "id": "ALT-02",
-        "summary": "Extend the existing Incremental Replay and Truth evidence path with semantic fingerprints, checkpoint reconciliation and a verification dependency graph.",
+        "summary": "Make export comparison explicitly follow the exact Git rename destination while leaving old-path closure untouched.",
         "disposition": "selected",
-        "reason": "Reuses current Control Plane authority and enables minimal safe replay without a parallel CI system."
+        "reason": "It repairs the existing capability at the correct abstraction with minimal behavioral surface and no severity weakening."
       },
       {
         "id": "ALT-03",
-        "summary": "Introduce a standalone cache service or independent replay orchestrator.",
+        "summary": "Disable export-symbol Reference Sync for file moves.",
         "disposition": "rejected",
-        "reason": "Creates a second authority surface and unnecessary cache/operations risk."
+        "reason": "That would create a material false-negative class for exports removed or renamed during a move."
       }
     ],
     "specialistReviews": [
@@ -260,147 +167,104 @@
         "role": "Architecture",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Verification dependencies must remain inside the existing Control Plane model.",
-        "resolution": "Gate verification metadata and Incremental Replay own planning; no new blocking authority."
-      },
-      {
-        "role": "Release",
-        "mode": "dissent",
-        "verdict": "challenge-resolved",
-        "finding": "Skipping a previously green gate can create a false exact-head PASS.",
-        "resolution": "v1 is branch-scoped shadow mode; only fingerprint-equivalent evidence is reusable and any full-run disagreement blocks the engine."
-      },
-      {
-        "role": "Data Integrity",
-        "mode": "review",
-        "verdict": "pass",
-        "finding": "Checkpoint corruption or partial writes could poison evidence.",
-        "resolution": "Checksummed complete checkpoints and atomic writes fail closed on corruption."
+        "finding": "File identity and symbol identity must survive a path move without conflating path closure with export closure.",
+        "resolution": "Use the Git rename pair only for export comparison; continue checking old path references independently."
       },
       {
         "role": "Known Failure",
-        "mode": "review",
-        "verdict": "pass",
-        "finding": "Diff-only replay can miss recurring regression scope.",
-        "resolution": "Known Failure regression scopes can only widen replay."
+        "mode": "dissent",
+        "verdict": "challenge-resolved",
+        "finding": "Relaxing moved-export checks could regress the already proven export-rename blocker.",
+        "resolution": "Add negative adversarial cases for rename plus symbol deletion/rename and require stale consumers to remain blocking."
       },
       {
-        "role": "Operations",
+        "role": "Release",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Cancelled or concurrent runs must not leave ambiguous resume points.",
-        "resolution": "Only finalized complete checkpoints are reusable; branch concurrency remains canonical."
+        "finding": "This is quality-infrastructure-only behavior and should not be bundled into the runtime authority repair.",
+        "resolution": "Land it as its own bounded Control Plane transaction before replaying the runtime PR."
       }
     ],
     "challenge": [
       {
         "id": "CH-01",
-        "scenario": "Local fix changes one semantic input.",
-        "finding": "Full replay wastes unaffected evidence.",
-        "resolution": "Reuse unchanged fingerprints; rerun changed gate and downstream dependents.",
+        "scenario": "actions.ts is renamed with 100 percent identical content.",
+        "finding": "Current logic compares old path to a now-missing file and falsely marks every export removed.",
+        "resolution": "Compare old-path exports to the exact rename destination content.",
         "status": "resolved"
       },
       {
         "id": "CH-02",
-        "scenario": "Shared runtime/schema changes.",
-        "finding": "Local scope could under-invalidate.",
-        "resolution": "Explicit input patterns and dependency edges widen invalidation; missing mapping forces full.",
+        "scenario": "The destination preserves the export but callers still import the old path.",
+        "finding": "Export continuity does not prove path continuity.",
+        "resolution": "Keep the file-path candidate and stale old-path consumer check unchanged.",
         "status": "resolved"
       },
       {
         "id": "CH-03",
-        "scenario": "Gate implementation changes.",
-        "finding": "Old PASS cannot prove new semantics.",
-        "resolution": "Implementation hash invalidates gate and downstream dependents.",
+        "scenario": "The file is renamed and the export is deleted.",
+        "finding": "A naive rename exemption would create a false negative.",
+        "resolution": "Only suppress export candidate when destination exports the same symbol.",
         "status": "resolved"
       },
       {
         "id": "CH-04",
-        "scenario": "Authority/instruction state changes.",
-        "finding": "Correctness criteria can change without local source change.",
-        "resolution": "Authority/config fingerprints are first-class inputs.",
+        "scenario": "The file is renamed and the export itself is renamed.",
+        "finding": "Old symbol consumers must still block.",
+        "resolution": "Old symbol remains a candidate because it is absent from destination exports.",
         "status": "resolved"
       },
       {
         "id": "CH-05",
-        "scenario": "Checkpoint is stale/truncated/corrupt.",
-        "finding": "Cache poisoning could permit unsafe reuse.",
-        "resolution": "Schema, checksum, completeness, branch and ancestry validation force full on mismatch.",
+        "scenario": "Another unrelated file exports the same name.",
+        "finding": "Repository-wide name search could falsely satisfy identity.",
+        "resolution": "Only the exact Git rename destination is eligible for moved-export continuity.",
         "status": "resolved"
       },
       {
         "id": "CH-06",
-        "scenario": "Previous run is interrupted.",
-        "finding": "Partial PASS records could become a resume point.",
-        "resolution": "Only finalized complete checkpoints are candidates.",
+        "scenario": "A normal non-rename edit removes an export.",
+        "finding": "Rename logic must not alter ordinary removal detection.",
+        "resolution": "Use current-file comparison when no rename mapping exists.",
         "status": "resolved"
       },
       {
         "id": "CH-07",
-        "scenario": "Known Failure scope is wider than diff.",
-        "finding": "Minimal replay could miss a recurring class.",
-        "resolution": "Known Failure scope is an additive replay override.",
-        "status": "resolved"
-      },
-      {
-        "id": "CH-08",
-        "scenario": "Planner predicts REUSE but full gate fails.",
-        "finding": "Reuse model produced a false PASS candidate.",
-        "resolution": "Shadow comparison blocks the scope engine; full verification remains authority.",
-        "status": "resolved"
-      },
-      {
-        "id": "CH-09",
-        "scenario": "Docs-only commit creates a new HEAD.",
-        "finding": "SHA-only identity would rerun everything.",
-        "resolution": "Semantic fingerprint equivalence permits reuse while manifest binds validity to current HEAD and preserves origin.",
-        "status": "resolved"
-      },
-      {
-        "id": "CH-10",
-        "scenario": "Branch changes or checkpoint commit is not ancestor.",
-        "finding": "Evidence lineage is ambiguous.",
-        "resolution": "v1 forbids cross-branch/non-ancestor reuse and forces full.",
-        "status": "resolved"
-      },
-      {
-        "id": "CH-11",
-        "scenario": "A template source file changes only one canonical page, such as FAQ, while the prior 14x3 browser matrix is green.",
-        "finding": "File-level hashing alone forces the full 42-case browser matrix and cannot safely distinguish unchanged page proofs.",
-        "resolution": "Template Factory emits deterministic compiled Page Schema fingerprints per page. Page-level browser evidence is reusable only when the prior manifest is complete, checksummed, same-branch, ancestor-bound, full-green, same template/version, and the page fingerprint is identical. Shared Runtime/Factory authority changes still force the full matrix.",
+        "scenario": "The quality suite reads the mutable active-plan.json as if every future Control Plane change had the exact shape of one historical critical plan.",
+        "finding": "A valid high-risk bounded quality fix can satisfy Plan Before Code yet fail Quality Tests because the regression hard-codes riskTier=critical, at least eight challenges and exactly ten completion requirements.",
+        "resolution": "Make the regression derive challenge, specialist and technique minimums from development-guard-policy riskProfiles and validate completion-contract structure without requiring one historical requirement count.",
         "status": "resolved"
       }
     ],
     "proofPlan": [
-      "Exhaustive REUSABLE/INVALIDATED/UNKNOWN state tests with UNKNOWN always rerunning.",
-      "Scenario tests for local/shared/schema/authority/config/gate-version/unrelated/Known-Failure/dirty/corrupt/interrupted/branch/CSS-token/transitive changes.",
-      "Checksum and atomic checkpoint tests.",
-      "Truth Gate regression for reused evidence provenance and current exact-head validity.",
-      "Branch-scoped CI shadow restore/save with full-run comparison.",
-      "At least two exact-head CI cycles before physical gate-skipping promotion.",
-      "Template Factory proof: seed a complete checksummed 14x3 manifest, then prove a single-page fingerprint change reruns only that page across Desktop/Tablet/Mobile while reusing unchanged page evidence; corrupt/stale/branch-mismatched prior manifests force full matrix."
+      "Extend the existing Reference Sync self-test with unchanged rename, removed export and stale old-path cases.",
+      "Keep the current implementation-expression and asset stale-consumer self-tests green.",
+      "Run Plan Before Code, Edit-Time Guard and Incremental Replay on the exact branch head.",
+      "Run full Quality tests and exact-head typecheck/build because quality infrastructure changes force full replay.",
+      "Replay the pilot acceptance clean rename after this fix without Reference Sync exceptions.",
+      "Run the Operational Intelligence regression against the current active plan and verify it enforces the selected risk profile rather than a historical fixed critical-plan shape."
     ],
     "executionAuthorized": true
   },
   "completionContract": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-01-DEPENDENCY-AWARE-RESUMABLE-VERIFICATION",
+    "sourceRef": "PO-2026-10-01-REFERENCE-SYNC-RENAME-IDENTITY",
     "requirements": [
       {
-        "id": "REQ-01",
-        "requirement": "Build deterministic evidence identity from semantic inputs rather than commit SHA alone.",
+        "id": "REQ-RENAME-EXPORT-CONTINUITY",
+        "requirement": "Reference Sync must preserve unchanged export identity across the exact Git rename destination.",
         "evidence": {
           "implementation": [
             "GUARD-QUALITY-TESTS"
           ],
           "outcome": [
-            "GUARD-TYPECHECK"
+            "GUARD-EDIT-TIME"
           ]
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-01A",
-            "statement": "A previous PASS alone never authorizes reuse.",
+            "id": "NEG-RENAME-FALSE-POSITIVE",
+            "statement": "An unchanged moved export may not be reported as removed solely because the origin path no longer exists.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -408,190 +272,20 @@
         ]
       },
       {
-        "id": "REQ-02",
-        "requirement": "Model verification dependencies and compute fail-closed transitive invalidation.",
+        "id": "REQ-RENAME-FAIL-CLOSED",
+        "requirement": "Old path references and exports removed or renamed during a file move must remain blocking.",
         "evidence": {
           "implementation": [
             "GUARD-QUALITY-TESTS"
           ],
           "outcome": [
-            "GUARD-QUALITY-TESTS"
-          ]
-        },
-        "forbiddenRegressions": [
-          {
-            "id": "NEG-02A",
-            "statement": "Downstream dependents cannot remain reusable after upstream invalidation.",
-            "evidence": [
-              "GUARD-QUALITY-TESTS"
-            ]
-          }
-        ]
-      },
-      {
-        "id": "REQ-03",
-        "requirement": "Reconcile branch-scoped checkpoints against every new exact HEAD before resume.",
-        "evidence": {
-          "implementation": [
             "GUARD-INCREMENTAL-REPLAY"
-          ],
-          "outcome": [
-            "GUARD-QUALITY-TESTS"
           ]
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-03A",
-            "statement": "Dirty, corrupt, incomplete, non-ancestor or cross-branch checkpoints fail closed.",
-            "evidence": [
-              "GUARD-QUALITY-TESTS"
-            ]
-          }
-        ]
-      },
-      {
-        "id": "REQ-04",
-        "requirement": "Classify prior evidence as REUSABLE, INVALIDATED or UNKNOWN and rerun UNKNOWN.",
-        "evidence": {
-          "implementation": [
-            "GUARD-INCREMENTAL-REPLAY"
-          ],
-          "outcome": [
-            "GUARD-QUALITY-TESTS"
-          ]
-        },
-        "forbiddenRegressions": [
-          {
-            "id": "NEG-04A",
-            "statement": "UNKNOWN never maps to REUSE.",
-            "evidence": [
-              "GUARD-QUALITY-TESTS"
-            ]
-          }
-        ]
-      },
-      {
-        "id": "REQ-05",
-        "requirement": "Let Known Failure regression scope widen the replay plan.",
-        "evidence": {
-          "implementation": [
-            "GUARD-INCREMENTAL-REPLAY"
-          ],
-          "outcome": [
-            "GUARD-QUALITY-TESTS"
-          ]
-        },
-        "forbiddenRegressions": [
-          {
-            "id": "NEG-05A",
-            "statement": "Minimal diff scope cannot override wider Known Failure regression scope.",
-            "evidence": [
-              "GUARD-QUALITY-TESTS"
-            ]
-          }
-        ]
-      },
-      {
-        "id": "REQ-06",
-        "requirement": "Produce an auditable exact-head manifest for rerun and equivalence-proven reused proofs including origin revision.",
-        "evidence": {
-          "implementation": [
-            "GUARD-QUALITY-TESTS"
-          ],
-          "outcome": [
-            "GUARD-QUALITY-TESTS"
-          ]
-        },
-        "forbiddenRegressions": [
-          {
-            "id": "NEG-06A",
-            "statement": "Reused proof origin and equivalence reason are retained.",
-            "evidence": [
-              "GUARD-QUALITY-TESTS"
-            ]
-          }
-        ]
-      },
-      {
-        "id": "REQ-07",
-        "requirement": "Expose mode, reuse/rerun/invalidation counts, replay reason, checkpoint source and explain decisions.",
-        "evidence": {
-          "implementation": [
-            "GUARD-QUALITY-TESTS"
-          ],
-          "outcome": [
-            "GUARD-QUALITY-TESTS"
-          ]
-        },
-        "forbiddenRegressions": [
-          {
-            "id": "NEG-07A",
-            "statement": "Replay decisions are never opaque.",
-            "evidence": [
-              "GUARD-QUALITY-TESTS"
-            ]
-          }
-        ]
-      },
-      {
-        "id": "REQ-08",
-        "requirement": "Run v1 in shadow mode and block on any predicted-reuse/full-verification disagreement.",
-        "evidence": {
-          "implementation": [
-            "GUARD-INCREMENTAL-REPLAY"
-          ],
-          "outcome": [
-            "GUARD-QUALITY-TESTS"
-          ]
-        },
-        "forbiddenRegressions": [
-          {
-            "id": "NEG-08A",
-            "statement": "Physical gate skipping is not promoted before shadow equivalence is proven.",
-            "evidence": [
-              "GUARD-QUALITY-TESTS"
-            ]
-          }
-        ]
-      },
-      {
-        "id": "REQ-09",
-        "requirement": "Preserve existing Control Plane, Release Risk, Truth Gate and Template Factory ownership.",
-        "evidence": {
-          "implementation": [
-            "GUARD-PLAN-BEFORE-CODE",
-            "GUARD-KNOWLEDGE-PREFLIGHT"
-          ],
-          "outcome": [
-            "GUARD-QUALITY-TESTS"
-          ]
-        },
-        "forbiddenRegressions": [
-          {
-            "id": "NEG-09A",
-            "statement": "No parallel blocking workflow or release authority is created.",
-            "evidence": [
-              "GUARD-QUALITY-TESTS"
-            ]
-          }
-        ]
-      },
-      {
-        "id": "REQ-10",
-        "requirement": "Prove local/shared/schema/authority/gate/config/unrelated/visual/transitive scenarios and safe fallback, including Template Factory page-level browser-case reuse with full 14x3 fallback.",
-        "evidence": {
-          "implementation": [
-            "GUARD-QUALITY-TESTS"
-          ],
-          "outcome": [
-            "GUARD-TYPECHECK",
-            "GUARD-PRODUCTION-BUILD"
-          ]
-        },
-        "forbiddenRegressions": [
-          {
-            "id": "NEG-10A",
-            "statement": "Stale evidence, corrupted cache or unsupported state cannot produce final PASS.",
+            "id": "NEG-RENAME-FALSE-NEGATIVE",
+            "statement": "Rename awareness may not suppress stale old-path or removed-symbol consumers.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -600,5 +294,5 @@
       }
     ]
   },
-  "notes": "Control Plane resumable verification expanded within the existing 5-point Release Risk Budget to close Template Factory page-level browser replay. Planned release scope is quality-infrastructure + release-infrastructure + storefront-ui (5/5, three subsystems); DOMAIN-BUILDER is included only for the QA catalog page-fingerprint projection. Promotion is engine-identity-bound: any verification engine/policy change falls back to SHADOW and must re-earn promotion. No production runtime/template behavior is changed. Template Factory selective browser replay is implemented as a subordinate evidence checkpoint inside the existing Template Factory Quality Gate; no parallel workflow authority. Merge-readiness stress verification exposed a transient duplicate E13 acceptance root in the Product Owner functional-proof browser session; scope was widened to harden that existing runner with fail-closed cardinality convergence plus regression coverage."
+  "notes": "Narrow precursor fix inside the existing Reference Sync authority. No new gate, no exception, no runtime behavior change. The canonical development-guard policy is included as read-only projected authority because the legacy Plan Before Code domain projector intentionally excludes scripts/lib/shoperation-* knowledge infrastructure from direct domain ownership. A brittle Operational Intelligence meta-regression discovered during exact-head CI is repaired in-scope: it now derives minima from the canonical risk profile instead of hard-coding one prior critical plan shape."
 }
