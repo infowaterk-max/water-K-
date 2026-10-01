@@ -8,6 +8,7 @@ import {STOREFRONT_TEMPLATE_FACTORY_RECIPES,buildRegisteredStorefrontTemplateFac
 import {evaluateTemplateFactoryPreflight,replayTemplateFactoryKnownFailures} from '@/lib/builder/template-factory/procedural-memory';
 
 export const dynamic='force-dynamic';
+export const revalidate=-1;
 
 const canonicalJson=(value:unknown):string=>{
   if(Array.isArray(value))return '['+value.map(canonicalJson).join(',')+']';
