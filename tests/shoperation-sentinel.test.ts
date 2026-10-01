@@ -28,6 +28,25 @@ const base=(overrides:Record<string,unknown>={})=>({
   workflowRuns:[],
   openIssues:[],
   ...overrides,
+  it('STRESS: fifty development failures do not become canonical ACTION_REQUIRED, while repeated main failures still do',()=>{
+    const prRuns=Array.from({length:50},(_,i)=>({
+      id:'pr-'+i,name:'CI',event:'pull_request',headBranch:'stress/pr-'+i,
+      conclusion:'failure',createdAt:'2026-09-28T09:00:00.000Z'
+    }));
+    const devOnly=run(base({workflowRuns:prRuns})).report;
+    expect(devOnly.status).not.toBe('ACTION_REQUIRED');
+    expect(devOnly.windows.development.last7d.failures).toBe(50);
+    expect(devOnly.windows.system.last7d.failures).toBe(0);
+
+    const mainRuns=[1,2,3].map(i=>({
+      id:'main-'+i,name:'CI',event:'push',headBranch:'main',
+      conclusion:'failure',createdAt:'2026-09-28T10:00:00.000Z'
+    }));
+    const mixed=run(base({workflowRuns:[...prRuns,...mainRuns]})).report;
+    expect(mixed.status).toBe('ACTION_REQUIRED');
+    expect(mixed.windows.system.last7d.failures).toBe(3);
+    expect(mixed.windows.development.last7d.failures).toBe(50);
+  });
 });
 
 describe('Shoperation Sentinel',()=>{
