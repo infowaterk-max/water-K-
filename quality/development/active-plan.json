@@ -13,7 +13,8 @@
     "scripts/shoperation-plan-before-code.mjs",
     "scripts/shoperation-edit-time-guard.mjs",
     "tests/shoperation-development-guard.test.ts",
-    "tests/shoperation-semantic-execution-intelligence.test.ts"
+    "tests/shoperation-semantic-execution-intelligence.test.ts",
+    "scripts/lib/shoperation-reference-sync-runtime.mjs"
   ],
   "expectedSubsystems": [
     "quality-knowledge-system"
@@ -88,19 +89,21 @@
     "sourceKind": "product-owner-request",
     "sourceRef": "PO-2026-10-01-SEMANTIC-DELETION-TOMBSTONES",
     "riskTier": "critical",
-    "problemStatement": "The existing Semantic Execution Intelligence models only files present at the current HEAD. getChangedFiles excludes D status entirely, so a required deletion disappears from the actual verified change set; after deletion the current Atlas also has no node for the file, causing Plan Before Code to report a correctly deleted MUST_EDIT target as outside the generated semantic route. PR #666 reproduced this with src/app/szallitas-es-fizetes/page.tsx.",
+    "problemStatement": "The existing Semantic Execution Intelligence models only files present at the current HEAD. getChangedFiles excludes D status entirely, so a required deletion disappears from the actual verified change set; after deletion the current Atlas also has no node for the file, causing Plan Before Code to report a correctly deleted MUST_EDIT target as outside the generated semantic route. PR #666 reproduced this with src/app/szallitas-es-fizetes/page.tsx. Exact-head verification then exposed an adjacent defect in the existing Reference Sync extractor: any --token is classified as a css-variable even in JavaScript CLI argument strings, so changing git --name-only to --name-status produced false stale consumers and false required edits.",
     "observableOutcomes": [
       "The shared development diff includes deleted paths with explicit deletion status instead of silently dropping them.",
       "buildExecutionRoute can retain deleted planned paths as semantic tombstones in MUST_EDIT while continuing to use the current Atlas for live nodes and consumers.",
       "Plan Before Code accepts a declared required deletion only when the exact deleted path is present in the transaction tombstones and planned envelope.",
       "Edit-Time Implementation Sync counts an actual deletion as satisfying REQUIRED CHANGE SET subset ACTUAL VERIFIED CHANGE SET.",
-      "Deleted paths still receive canonical path/domain classification for scope evidence instead of becoming unresolved merely because the HEAD file no longer exists."
+      "Deleted paths still receive canonical path/domain classification for scope evidence instead of becoming unresolved merely because the HEAD file no longer exists.",
+      "Reference Sync distinguishes CSS custom properties from command-line long options: '--name-only' in JavaScript command arguments is not a css-variable candidate, while var(--token) and CSS custom-property declarations remain discoverable."
     ],
     "unresolvedRisks": [
       "Including deletions in every shared development diff can expose latent callers that assumed all changed files still exist.",
       "Treating arbitrary absent planned paths as tombstones would allow a plan to claim a deletion that never occurred.",
       "Rename handling must not double-count the old path as a deletion unless Git reports it as D rather than R.",
-      "PO instruction state evaluation must not treat a physically deleted forbidden file as a surviving violation."
+      "PO instruction state evaluation must not treat a physically deleted forbidden file as a surviving violation.",
+      "Over-narrowing css-variable extraction could miss legitimate custom properties embedded in TS/TSX inline styles or var(...) expressions."
     ],
     "scope": {
       "in": [
@@ -141,21 +144,26 @@
         "A declared MUST_EDIT path that is absent from HEAD but was not deleted remains outside route and BLOCKs; arbitrary non-existent paths are not legitimized.",
         "A deleted path contributes path-derived domain/authority scope without requiring a live Atlas node.",
         "Edit-Time actualVerifiedChangeSet includes the deleted path, so a required deletion is proven rather than treated as missing.",
-        "PR #666's combined-route deletion class is represented without weakening the shipping/payment instruction."
+        "PR #666's combined-route deletion class is represented without weakening the shipping/payment instruction.",
+        "extractReferenceCandidatesFromLine does not emit css-variable for Git/CLI long options such as '--name-only' in .mjs/.ts/.tsx code.",
+        "extractReferenceCandidatesFromLine still emits css-variable for var(--shoporation-color-primary) in TS/TSX and --shoporation-color-primary declarations in CSS/SCSS."
       ],
       "invariants": [
         "Current live Atlas nodes remain the authority for live-file semantic consumers and references.",
         "Only Git diff evidence may create a transaction tombstone.",
         "Deletion does not bypass Reference Sync; stale surviving consumers remain blockable.",
         "PO forbidden-state scanning remains fail-closed for surviving files and naturally clears when the forbidden file is actually absent.",
-        "Renames continue to be represented as R/current-path changes unless Git explicitly reports a deletion."
+        "Renames continue to be represented as R/current-path changes unless Git explicitly reports a deletion.",
+        "Reference Sync may only create css-variable identity from CSS syntax/context, not lexical '--' coincidence."
       ],
       "forbiddenStates": [
         "deleted-required-file-absent-from-actual-change-set",
         "arbitrary-missing-file-treated-as-successful-deletion",
         "deleted-path-reported-as-unresolved-only-because-head-node-is-absent",
         "implementation-sync-required-deletion-reported-missing-after-git-proved-D",
-        "new-parallel-tombstone-registry"
+        "new-parallel-tombstone-registry",
+        "cli-long-option-classified-as-css-variable",
+        "css-custom-property-detection-disabled-in-tsx-inline-styles"
       ]
     },
     "model": {
@@ -190,14 +198,18 @@
         "A D change is omitted by --diff-filter=ACMR and Implementation Sync falsely says the required deletion never happened.",
         "The deleted file is in actual diff but Plan architecture marks it unresolved because only HEAD Atlas nodes are consulted.",
         "buildExecutionRoute accepts every absent exact plan path as a tombstone, allowing invented deletions.",
-        "A rename old path is mistakenly treated as a required deletion and pollutes MUST_EDIT."
+        "A rename old path is mistakenly treated as a required deletion and pollutes MUST_EDIT.",
+        "A changed CLI flag creates repository-wide false stale consumers because the generic --token regex aliases CLI options to CSS custom properties."
       ],
       "edgeCases": [
         "Deleted static Next.js route that was a PO-forbidden authority.",
         "Deleted non-route source file with a classifiable domain path.",
         "New planned file absent at plan-only time but not a deletion.",
         "R100 rename with old and new path.",
-        "Deletion plus stale surviving cross-file consumer caught by Reference Sync."
+        "Deletion plus stale surviving cross-file consumer caught by Reference Sync.",
+        "JavaScript string '--name-only' used as git argument.",
+        "TSX string 'var(--shoporation-color-primary)'.",
+        "CSS declaration '--shoporation-color-primary: #111;'."
       ]
     },
     "alternatives": [
@@ -322,6 +334,13 @@
         "finding": "Including D in actual files could expose an unplanned change that was previously invisible.",
         "resolution": "This is desired: actualSubsetPlanned and Plan Before Code must BLOCK the hidden deletion.",
         "status": "resolved"
+      },
+      {
+        "id": "CH-9",
+        "scenario": "Replacing git --name-only with --name-status causes Reference Sync to identify unrelated CLI users as stale css-variable consumers.",
+        "finding": "The extractor uses /(--[a-z0-9_-]{4,})/ globally with no CSS syntactic context.",
+        "resolution": "Restrict css-variable extraction to CSS/SCSS declarations/usages or var(--token) usage in code; add positive and negative extractor regressions.",
+        "status": "resolved"
       }
     ],
     "proofPlan": [
@@ -330,7 +349,8 @@
       "Adversarially call buildExecutionRoute with a Git-proven tombstone and prove it enters MUST_EDIT; repeat without tombstone evidence and prove it does not.",
       "Regression-test Plan/Edit-Time source contracts include deletedFiles and actualVerifiedChangeSet semantics rather than deleting the declared MUST_EDIT.",
       "Run exact-head full Quality, TypeScript, Production Build, Completion Truth and two-phase CLOSE→LEARN lifecycle before merge.",
-      "After merge, rebase/replay #666 unchanged in intent; its deleted combined route must no longer trigger SEMANTIC_MUST_EDIT_OUTSIDE_ROUTE."
+      "After merge, rebase/replay #666 unchanged in intent; its deleted combined route must no longer trigger SEMANTIC_MUST_EDIT_OUTSIDE_ROUTE.",
+      "Regression-test the Reference Sync extractor with '--name-only' as a CLI argument and with var(--shoporation-color-primary) as a real CSS custom-property usage."
     ],
     "executionAuthorized": true,
     "semanticExecutionRoute": {
@@ -348,7 +368,8 @@
         "scripts/shoperation-plan-before-code.mjs",
         "scripts/shoperation-edit-time-guard.mjs",
         "tests/shoperation-development-guard.test.ts",
-        "tests/shoperation-semantic-execution-intelligence.test.ts"
+        "tests/shoperation-semantic-execution-intelligence.test.ts",
+        "scripts/lib/shoperation-reference-sync-runtime.mjs"
       ],
       "mayEdit": [],
       "impactedReadOnly": [
@@ -509,5 +530,5 @@
       }
     ]
   },
-  "notes": "Targeted correction to the existing Semantic Execution Intelligence after #666 proved that required deletions are invisible once the HEAD Atlas node disappears. No parallel gate, no plan weakening, no product implementation in this transaction."
+  "notes": "Targeted correction to the existing Semantic Execution Intelligence after #666 proved that required deletions are invisible once the HEAD Atlas node disappears. No parallel gate, no plan weakening, no product implementation in this transaction. Verification-failure replan: Reference Sync falsely classified CLI --name-only as a CSS variable. The existing extractor is now explicitly in scope; no stale-consumer check is weakened for real CSS variables."
 }
