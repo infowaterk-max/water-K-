@@ -1,3 +1,4 @@
+import {createHash} from 'node:crypto';
 import {access,mkdir,readFile,writeFile} from 'node:fs/promises';
 import {execFileSync} from 'node:child_process';
 import path from 'node:path';
@@ -7,6 +8,9 @@ const baseUrl=(process.env.VISUAL_FIDELITY_BASE_URL??'http://127.0.0.1:3000').re
 const outputDir=process.env.TEMPLATE_QUALITY_OUTPUT_DIR??'artifacts/template-factory-quality';
 const baseSha=(process.env.QUALITY_BASE_SHA??'').trim();
 const headSha=(process.env.QUALITY_HEAD_SHA??process.env.GITHUB_SHA??'HEAD').trim()||'HEAD';
+const currentBranch=(process.env.QUALITY_BRANCH??process.env.GITHUB_HEAD_REF??process.env.GITHUB_REF_NAME??'').trim();
+const currentRunId=(process.env.GITHUB_RUN_ID??'local').trim();
+const previousManifestPath=(process.env.TEMPLATE_QUALITY_PREVIOUS_MANIFEST??'').trim();
 const viewportProfiles=Object.freeze({
   desktop:{width:1200,height:1000},
   tablet:{width:768,height:1024},
@@ -46,6 +50,25 @@ const sharedRuntimePrefixes=[
 
 const safeName=value=>value.replace(/[^a-z0-9._-]+/gi,'-').replace(/^-+|-+$/g,'').toLowerCase();
 const exists=async file=>{try{await access(file);return true;}catch{return false;}};
+const canonicalJson=value=>Array.isArray(value)?'['+value.map(canonicalJson).join(',')+']':value&&typeof value==='object'?'{'+Object.keys(value).sort().map(key=>JSON.stringify(key)+':'+canonicalJson(value[key])).join(',')+'}':JSON.stringify(value);
+const sha256=value=>createHash('sha256').update(String(value)).digest('hex');
+const manifestPayload=manifest=>{const copy={...manifest};delete copy.checksum;return copy;};
+const manifestChecksum=manifest=>sha256(canonicalJson(manifestPayload(manifest)));
+const isAncestor=(ancestor,head)=>{if(!ancestor||!head||head==='HEAD')return false;try{execFileSync('git',['merge-base','--is-ancestor',ancestor,head],{stdio:'ignore'});return true;}catch{return false;}};
+
+async function loadPreviousManifest(){
+  if(!previousManifestPath||!await exists(previousManifestPath))return{manifest:null,reason:'missing'};
+  try{
+    const manifest=JSON.parse(await readFile(previousManifestPath,'utf8'));
+    if(manifest.contract!=='shoporation.template-factory-quality-evidence.v3')return{manifest:null,reason:'contract'};
+    if(manifest.complete!==true)return{manifest:null,reason:'incomplete'};
+    if(!manifest.checksum||manifest.checksum!==manifestChecksum(manifest))return{manifest:null,reason:'checksum'};
+    if(!currentBranch||manifest.branch!==currentBranch)return{manifest:null,reason:'branch'};
+    if(!isAncestor(manifest.sourceCommit,headSha))return{manifest:null,reason:'ancestry'};
+    if((manifest.errors??[]).length)return{manifest:null,reason:'errors'};
+    return{manifest,reason:'valid'};
+  }catch(error){return{manifest:null,reason:'corrupt',error:String(error)};}
+}
 
 function changedFiles(){
   if(!baseSha||/^0+$/.test(baseSha))return[];
@@ -64,7 +87,19 @@ function changedFiles(){
 
 function startsWithAny(file,prefixes){return prefixes.some(prefix=>file.startsWith(prefix));}
 
-function selectScope(catalog,changes){
+function priorTemplateProof(previous,template){
+  if(!previous)return null;
+  const priorFingerprint=previous.templatePageFingerprints?.[template.templateKey];
+  const acceptance=(previous.acceptanceProofs??[]).find(item=>item.templateKey===template.templateKey&&item.templateVersion===template.templateVersion);
+  if(!priorFingerprint||priorFingerprint.templateVersion!==template.templateVersion||acceptance?.browserMatrixPassed!==true||acceptance?.browserMatrixComplete!==true)return null;
+  const expected=new Set(template.pageTypes.flatMap(pageType=>template.viewports.map(viewport=>pageType+':'+viewport)));
+  const priorCases=(previous.cases??[]).filter(item=>item.templateKey===template.templateKey&&item.templateVersion===template.templateVersion&&expected.has(item.pageType+':'+item.viewport));
+  const keys=new Set(priorCases.filter(item=>(item.errors??[]).length===0).map(item=>item.pageType+':'+item.viewport));
+  if(keys.size!==expected.size||[...expected].some(key=>!keys.has(key)))return null;
+  return{fingerprints:priorFingerprint.pages??{},cases:priorCases,sourceCommit:previous.sourceCommit,runId:previous.runId??null};
+}
+
+function selectScope(catalog,changes,previous){
   const templates=catalog.templates??[];
   const selected=new Map();
   const reasons=[];
@@ -73,7 +108,20 @@ function selectScope(catalog,changes){
 
   for(const template of templates){
     const direct=changes.some(change=>startsWithAny(change.file,template.sourcePrefixes??[]));
-    if(direct)selected.set(template.templateKey,{template,mode:'full',reason:'template-source-changed'});
+    if(!direct)continue;
+    const prior=priorTemplateProof(previous,template);
+    if(!prior){
+      selected.set(template.templateKey,{template,mode:'full',pages:[...template.pageTypes],reason:'template-source-changed-no-reusable-proof',prior:null});
+      continue;
+    }
+    const changedPages=template.pageTypes.filter(pageType=>prior.fingerprints?.[pageType]!==template.pageFingerprints?.[pageType]);
+    if(changedPages.length===template.pageTypes.length){
+      selected.set(template.templateKey,{template,mode:'full',pages:[...template.pageTypes],reason:'template-all-page-fingerprints-changed',prior});
+    }else if(changedPages.length){
+      selected.set(template.templateKey,{template,mode:'partial',pages:changedPages,reason:'template-page-fingerprint-changed',prior});
+    }else{
+      selected.set(template.templateKey,{template,mode:'reuse',pages:[],reason:'template-browser-input-fingerprints-equivalent',prior});
+    }
   }
 
   const addedTemplateFiles=changes.filter(change=>change.status.startsWith('A')&&change.file.startsWith('src/lib/builder/templates/')&&/\.(ts|tsx)$/.test(change.file));
@@ -90,21 +138,26 @@ function selectScope(catalog,changes){
   }
 
   if(qualityInfra){
-    for(const template of templates)selected.set(template.templateKey,{template,mode:'full',reason:'quality-infrastructure-changed'});
+    for(const template of templates)selected.set(template.templateKey,{template,mode:'full',pages:[...template.pageTypes],reason:'quality-infrastructure-changed',prior:null});
   }else if(sharedRuntime){
     for(const template of templates){
-      if(!selected.has(template.templateKey))selected.set(template.templateKey,{template,mode:'full',reason:'shared-runtime-changed'});
+      if(!selected.has(template.templateKey))selected.set(template.templateKey,{template,mode:'full',pages:[...template.pageTypes],reason:'shared-runtime-changed',prior:null});
+      else{
+        const value=selected.get(template.templateKey);
+        selected.set(template.templateKey,{...value,mode:'full',pages:[...template.pageTypes],reason:'shared-runtime-changed',prior:null});
+      }
     }
   }
 
   if(!selected.size){
     for(const template of templates){
       const mode=template.factoryCandidate?'full':'canary';
+      const pages=mode==='full'?[...template.pageTypes]:template.pageTypes.filter(pageType=>canaryPageTypes.has(pageType));
       const reason=template.factoryCandidate?'factory-exact-head-full':'default-canary';
-      selected.set(template.templateKey,{template,mode,reason});
+      selected.set(template.templateKey,{template,mode,pages,reason,prior:null});
     }
   }
-  for(const value of selected.values())reasons.push({templateKey:value.template.templateKey,mode:value.mode,reason:value.reason});
+  for(const value of selected.values())reasons.push({templateKey:value.template.templateKey,mode:value.mode,pages:value.pages,reason:value.reason,reusedFrom:value.prior?.sourceCommit??null});
   return{selected:[...selected.values()],reasons,qualityInfra,sharedRuntime,legacyTemplateChanges};
 }
 
