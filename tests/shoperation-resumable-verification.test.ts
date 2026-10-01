@@ -9,6 +9,7 @@ import {
   finalizeVerification,
   loadCheckpoint,
   planFromSnapshots,
+  sealCheckpointTruth,
   validateCheckpoint,
   validateVerificationGraph,
 } from '../scripts/lib/shoperation-verification-reuse.mjs';
@@ -381,6 +382,60 @@ describe('dependency-aware resumable verification',()=>{
     expect(report.reasons).toContain('promotion-engine-changed');
   });
 
+  it('keeps ACTIVE disabled until promotion checkpoint is truth-sealed',()=>{
+    const a=identity('A');
+    const cp=checkpoint({A:a},{shadowStats:{passes:3,resumedPasses:2,falseReuse:0,promotionEligible:true},verificationEngineHash:'engine-same',truthVerified:false});
+    const report=planFromSnapshots({
+      current:{...current({A:a}),requestedExecutionMode:'ACTIVE',verificationEngineHash:'engine-same',promotionPolicy:{physicalSkippingEnabled:true,requireExactHeadTruth:true}},
+      previousCheckpoint:cp,
+      checkpointValidation:valid,
+      changedFiles:[],
+      activeFailureIds:['KF-1'],
+    });
+    expect(report.executionMode).toBe('SHADOW');
+    expect(report.promotionTruthVerified).toBe(false);
+    expect(report.promotionProofValid).toBe(false);
+    expect(report.reasons).toContain('promotion-truth-unverified');
+  });
+
+  it('truth-seals an exact-head checkpoint and permits ACTIVE on the next revision',()=>{
+    const a=identity('A');
+    const cp=checkpoint({A:a},{shadowStats:{passes:3,resumedPasses:2,falseReuse:0,promotionEligible:true},verificationEngineHash:'engine-same',truthVerified:false});
+    cp.checksum=checkpointChecksum(cp);
+    const sealed=sealCheckpointTruth(cp,{
+      currentExactState:{head:'head-1',branch:'feature/test',stateVersion:'shoporation-ci.v1'},
+      truthReport:{decision:'PASS',internalState:'VERIFIED_DONE',poStatus:'DONE',runId:'truth-1',runAttempt:'1'},
+    });
+    expect(sealed.truthVerified).toBe(true);
+    expect(sealed.truthGate).toMatchObject({decision:'PASS',internalState:'VERIFIED_DONE',sourceCommit:'head-1',branch:'feature/test'});
+    expect(sealed.checksum).toBe(checkpointChecksum(sealed));
+    expect(validateCheckpoint(sealed,{branch:'feature/test',head:'head-1',requireAncestor:false}).ok).toBe(true);
+    const report=planFromSnapshots({
+      current:{...current({A:a}),requestedExecutionMode:'ACTIVE',verificationEngineHash:'engine-same',promotionPolicy:{physicalSkippingEnabled:true,requireExactHeadTruth:true}},
+      previousCheckpoint:sealed,
+      checkpointValidation:valid,
+      changedFiles:[],
+      activeFailureIds:['KF-1'],
+    });
+    expect(report.promotionTruthVerified).toBe(true);
+    expect(report.promotionProofValid).toBe(true);
+    expect(report.executionMode).toBe('ACTIVE');
+  });
+
+  it('rejects truth sealing for stale exact-head identity or non-PASS truth',()=>{
+    const a=identity('A');
+    const cp=checkpoint({A:a},{verificationEngineHash:'engine-same'});
+    cp.checksum=checkpointChecksum(cp);
+    expect(()=>sealCheckpointTruth(cp,{
+      currentExactState:{head:'wrong-head',branch:'feature/test',stateVersion:'shoporation-ci.v1'},
+      truthReport:{decision:'PASS',internalState:'VERIFIED_DONE'},
+    })).toThrow('CHECKPOINT_TRUTH_SEAL_HEAD_MISMATCH');
+    expect(()=>sealCheckpointTruth(cp,{
+      currentExactState:{head:'head-1',branch:'feature/test',stateVersion:'shoporation-ci.v1'},
+      truthReport:{decision:'BLOCK',internalState:'BLOCKED'},
+    })).toThrow('CHECKPOINT_TRUTH_SEAL_TRUTH_NOT_VERIFIED');
+  });
+
   it('allows ACTIVE only when promotion proof matches the current verification engine',()=>{
     const a=identity('A');
     const cp=checkpoint({A:a},{shadowStats:{passes:3,resumedPasses:2,falseReuse:0,promotionEligible:true},verificationEngineHash:'engine-same'});
@@ -417,6 +472,20 @@ describe('dependency-aware resumable verification',()=>{
     for(const output of ['reuse_customer_baseline','reuse_market_ready','reuse_quality_tests','reuse_typecheck','reuse_production_build']){
       expect(workflow).toContain("steps.incremental-replay.outputs.execution_mode != 'ACTIVE' || steps.incremental-replay.outputs."+output+" != 'true'");
     }
+  });
+
+  it('truth-seals before checkpoint persistence in CI',()=>{
+    const workflow=readFileSync('.github/workflows/ci.yml','utf8');
+    const reconcile=workflow.indexOf('- name: Reconcile Resumable Verification');
+    const truth=workflow.indexOf('- name: Completion Truth Gate');
+    const save=workflow.indexOf('- name: Save Resumable Verification checkpoint');
+    const upload=workflow.indexOf('- name: Upload Resumable Verification evidence');
+    expect(reconcile).toBeGreaterThanOrEqual(0);
+    expect(truth).toBeGreaterThan(reconcile);
+    expect(save).toBeGreaterThan(truth);
+    expect(upload).toBeGreaterThan(save);
+    expect(workflow).toContain('SHOPERATION_TRUTH_CHECKPOINT: artifacts/shoperation-verification-cache/checkpoint.json');
+    expect(workflow).toContain("steps.verification-finalize.outcome == 'success' && steps.completion-truth.outcome == 'success'");
   });
 
   it('binds promotion identity to engine code, CI and canonical verification policy',()=>{
