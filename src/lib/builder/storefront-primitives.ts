@@ -25,7 +25,7 @@ function manifest(input:{componentKey:string;schemaSlot:string;configurable:read
 
 export const STOREFRONT_PRIMITIVE_DEFINITIONS:readonly StorefrontRuntimeComponentDefinition[]=[
   {manifest:manifest({componentKey:'layout.section',schemaSlot:'sections',configurable:['tone','spacing','width','presentation','style','styleSlots','innerStyle','deferOffscreen','intrinsicSize'],responsiveMode:'container'}),allowsChildren:true},
-  {manifest:manifest({componentKey:'layout.container',schemaSlot:'children',configurable:['width','spacing','presentation','style','styleSlots'],responsiveMode:'container'}),allowsChildren:true},
+  {manifest:manifest({componentKey:'layout.container.stress-renamed',schemaSlot:'children',configurable:['width','spacing','presentation','style','styleSlots'],responsiveMode:'container'}),allowsChildren:true},
   {manifest:manifest({componentKey:'layout.grid',schemaSlot:'children',configurable:['columns','gap','align','presentation','style','styleSlots'],responsiveMode:'grid'}),allowsChildren:true},
   {manifest:manifest({componentKey:'layout.stack',schemaSlot:'children',configurable:['direction','gap','align','justify','presentation','style','styleSlots'],responsiveMode:'stack'}),allowsChildren:true},
   {manifest:manifest({componentKey:'content.heading',schemaSlot:'children',configurable:['text','level','align','tone','presentation','accentText','typography','style','accentStyle','styleSlots'],responsiveMode:'fixed'}),bindingSlots:['text']},
