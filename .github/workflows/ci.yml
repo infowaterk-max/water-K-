@@ -122,6 +122,32 @@ jobs:
         id: edit-time-guard
         run: node scripts/shoperation-edit-time-guard.mjs --check
 
+      - name: STRESS ONLY Architecture + Deep Atlas drift injection
+        if: github.event_name == 'pull_request'
+        shell: bash
+        run: |
+          cp quality/knowledge/guard-registry.v1.json /tmp/guard-registry.stress-backup.json
+          node <<'NODE'
+          const fs=require('fs');
+          const p='quality/knowledge/guard-registry.v1.json';
+          const j=JSON.parse(fs.readFileSync(p,'utf8'));
+          const blocking=j.guards.filter(x=>x.blocking);
+          if(blocking.length<2)process.exit(2);
+          blocking[1].responsibilityKey=blocking[0].responsibilityKey;
+          fs.writeFileSync(p,JSON.stringify(j,null,2)+'\n');
+          NODE
+          set +e
+          node scripts/lib/shoperation-architecture-health.mjs --check
+          arch=$?
+          node scripts/shoperation-knowledge-deep-atlas-scan.mjs --check
+          deep=$?
+          set -e
+          cp /tmp/guard-registry.stress-backup.json quality/knowledge/guard-registry.v1.json
+          echo "STRESS_ARCH_EXIT=$arch"
+          echo "STRESS_DEEP_ATLAS_EXIT=$deep"
+          test "$arch" -ne 0
+          test "$deep" -ne 0
+
       - name: Incremental Known Failure Replay
         id: incremental-replay
         env:
