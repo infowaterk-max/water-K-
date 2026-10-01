@@ -53,8 +53,13 @@ if(process.env.GITHUB_OUTPUT){
   appendFileSync(process.env.GITHUB_OUTPUT,'rerun='+planner.plan.evidence.rerun+'\n');
   appendFileSync(process.env.GITHUB_OUTPUT,'invalidated='+planner.plan.evidence.invalidated+'\n');
   appendFileSync(process.env.GITHUB_OUTPUT,'unknown='+planner.plan.evidence.unknown+'\n');
+  appendFileSync(process.env.GITHUB_OUTPUT,'execution_mode='+planner.plan.executionMode+'\n');
+  for(const [gateId,gate] of Object.entries(planner.plan.gates??{})){
+    const key=gateId.toLowerCase().replace(/^guard-/,'').replace(/[^a-z0-9]+/g,'_').replace(/^_|_$/g,'');
+    appendFileSync(process.env.GITHUB_OUTPUT,'reuse_'+key+'='+(gate.action==='REUSE'?'true':'false')+'\n');
+  }
 }
 process.stdout.write(result.stdout);
 process.stderr.write(result.stderr);
-console.log('Incremental Known Failure Replay: '+report.decision+'; failures='+active.length+'; regressionFiles='+tests.length+'; verification='+planner.plan.verificationMode+'; tier='+planner.plan.replayTier+'; reuse='+planner.plan.evidence.reused+'; rerun='+planner.plan.evidence.rerun+'.');
+console.log('Incremental Known Failure Replay: '+report.decision+'; failures='+active.length+'; regressionFiles='+tests.length+'; verification='+planner.plan.verificationMode+'; execution='+planner.plan.executionMode+'; tier='+planner.plan.replayTier+'; reuse='+planner.plan.evidence.reused+'; rerun='+planner.plan.evidence.rerun+'.');
 if(result.status!==0&&process.argv.includes('--check'))process.exit(result.status||1);
