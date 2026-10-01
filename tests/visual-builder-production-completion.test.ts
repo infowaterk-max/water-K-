@@ -77,6 +77,20 @@ describe('Visual Builder v3 product completion',()=>{
     expect((source.match(/StorefrontRuntimeRenderer/g)??[]).length).toBeGreaterThan(0);
   });
 
+  it('keeps mobile Builder controls compact while preserving desktop-first authoring and Auto-Fit',()=>{
+    expect(source).toContain('const[autoFit,setAutoFit]=useState(true)');
+    expect(source).toContain('observer.observe(canvas)');
+    expect(source).toContain('data-fit-active={autoFit}');
+    expect(source).toContain('className={v3.mobileMore}');
+    expect(source).toContain('aria-label="Könyvtár bezárása"');
+    expect(source).toContain('aria-label="Inspector bezárása"');
+    expect(css).toContain('.topActions{display:grid;grid-template-columns:repeat(6,minmax(0,1fr))');
+    expect(css).toContain('.adminBackLabel{display:none}');
+    expect(css).toContain('.panelClose{display:grid;place-items:center');
+    expect(css).toContain('.canvasTools .zoom100{display:none}');
+    expect(css).not.toContain('.topActions{max-width:100%;overflow:auto');
+  });
+
   it('implements guarded contextual insertion and 12-column direct resize through canonical mutations',()=>{
     expect(source).toContain('listStorefrontBuilderInsertableComponents');
     expect(source).toContain('insertContext');
