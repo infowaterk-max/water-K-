@@ -26,17 +26,37 @@ function semanticListIssues(issues,values,path,label,options={}){
   for(const [index,value] of asArray(values).entries())if(!meaningful(value,options))issue(issues,'DEV_PLAN_SEMANTIC_CONTENT_VACUOUS',`${path}.${index}`,`${label} must carry falsifiable engineering meaning; placeholders, one-token claims and TODO text are forbidden.`,{actual:value??null});
 }
 const DEFAULT_EVIDENCE_SEMANTICS=Object.freeze({
-  'GUARD-KNOWLEDGE-PREFLIGHT':{producer:'knowledge-preflight',capabilities:['CAP-ATLAS'],scopeStrength:2,scope:'selected-knowledge-and-impact-preflight',dimensions:['scope','known-failure','atlas-impact']},
-  'GUARD-PLAN-BEFORE-CODE':{producer:'plan-before-code',capabilities:['CAP-ATLAS'],scopeStrength:2,scope:'active-development-plan',dimensions:['plan','scope','authority']},
-  'GUARD-EDIT-TIME':{producer:'edit-time-guard',capabilities:['CAP-ATLAS'],scopeStrength:2,scope:'active-diff-and-reference-consumers',dimensions:['diff','references','known-failure']},
-  'GUARD-INCREMENTAL-REPLAY':{producer:'incremental-replay',capabilities:['CAP-ATLAS'],scopeStrength:2,scope:'selected-regression-replay',dimensions:['regression','failure-class']},
-  'GUARD-QUALITY-TESTS':{producer:'quality-tests',capabilities:['*'],scopeStrength:2,scope:'executed-test-suite',dimensions:['tests','regression']},
+  'GUARD-KNOWLEDGE-PREFLIGHT':{
+    producer:'knowledge-preflight',capabilities:['CAP-ATLAS'],scopeStrength:3,scope:'repository-architecture-and-knowledge-preflight',
+    dimensions:['scope','known-failure','atlas-impact','domain-closure','classification','missing-edge','reconcile','human-promotion'],
+  },
+  'GUARD-PLAN-BEFORE-CODE':{
+    producer:'plan-before-code',capabilities:['CAP-ATLAS'],scopeStrength:2,scope:'active-development-plan',
+    dimensions:['plan','scope','authority','positive-state','forbidden-state','lifecycle','problem','outcome','failure-model','alternatives','challenge','proof'],
+  },
+  'GUARD-EDIT-TIME':{
+    producer:'edit-time-guard',capabilities:['CAP-ATLAS'],scopeStrength:2,scope:'active-diff-semantic-consumers-and-instruction-state',
+    dimensions:['diff','references','known-failure','symbols','consumers','unknowns','actual-subset-plan','required-subset-actual','scope','positive-state','forbidden-state','lifecycle'],
+  },
+  'GUARD-INCREMENTAL-REPLAY':{
+    producer:'incremental-replay',capabilities:['CAP-ATLAS'],scopeStrength:2,scope:'selected-regression-replay',
+    dimensions:['regression','failure-class','resumable','known-failure','deep-atlas','sentinel'],
+  },
+  'GUARD-QUALITY-TESTS':{
+    producer:'quality-tests',capabilities:['*'],scopeStrength:2,scope:'executed-adversarial-and-regression-test-suite',
+    dimensions:[
+      'tests','regression','symbols','consumers','unknowns','domain-closure','classification','scope','positive-state','forbidden-state','lifecycle',
+      'actual-subset-plan','required-subset-actual','problem','outcome','failure-model','alternatives','challenge','proof',
+      'claim-scope','evidence-scope','proven-scope','status','behavioral-proof','freshness','coverage','limitations',
+      'truth','close','learn','idempotency','missing-edge','reconcile','human-promotion','resumable','known-failure','deep-atlas','sentinel'
+    ],
+  },
   'GUARD-TYPECHECK':{producer:'typescript',capabilities:['*'],scopeStrength:1,scope:'typescript-static-check',dimensions:['types']},
   'GUARD-PRODUCTION-BUILD':{producer:'production-build',capabilities:['*'],scopeStrength:1,scope:'production-build',dimensions:['build']},
   'GUARD-RELEASE-RISK':{producer:'release-risk',capabilities:['CAP-RELEASE'],scopeStrength:2,scope:'release-diff-risk',dimensions:['risk','release-scope']},
-  'SIGNAL-DEEP-ATLAS-SCAN':{producer:'deep-atlas',capabilities:['CAP-ATLAS'],scopeStrength:3,scope:'architecture-hard-drift-scan',dimensions:['authority','dependency','duplicate-truth']},
-  'SIGNAL-ARCHITECTURE-CONFIDENCE':{producer:'architecture-health',capabilities:['CAP-ATLAS'],scopeStrength:2,scope:'architecture-confidence-model',dimensions:['confidence','evidence']},
-  'SIGNAL-SENTINEL':{producer:'sentinel',capabilities:['CAP-ATLAS'],scopeStrength:2,scope:'failure-signal-classification',dimensions:['canonical-vs-development','signal']}
+  'SIGNAL-DEEP-ATLAS-SCAN':{producer:'deep-atlas',capabilities:['CAP-ATLAS'],scopeStrength:3,scope:'architecture-hard-drift-scan',dimensions:['authority','dependency','duplicate-truth','domain-closure','classification']},
+  'SIGNAL-ARCHITECTURE-CONFIDENCE':{producer:'architecture-health',capabilities:['CAP-ATLAS'],scopeStrength:2,scope:'architecture-confidence-model',dimensions:['confidence','evidence','behavioral-proof','freshness','coverage','limitations']},
+  'SIGNAL-SENTINEL':{producer:'sentinel',capabilities:['CAP-ATLAS'],scopeStrength:2,scope:'failure-signal-classification',dimensions:['canonical-vs-development','signal','sentinel']}
 });
 function claimStrength(req){
   const declared=Number(req?.claimScope?.strength);
@@ -50,8 +70,19 @@ function claimStrength(req){
 }
 function evidenceSemantics(item,id){
   const semantic=item?.semantics??item?.evidenceSemantics??null;
+  const knownProducer=Boolean(DEFAULT_EVIDENCE_SEMANTICS[id]);
   const fallback=DEFAULT_EVIDENCE_SEMANTICS[id]??{producer:'unknown',capabilities:[],scopeStrength:0,scope:'unknown',dimensions:[]};
-  if(!semantic)return{...fallback,classification:item?.classification??'legacy-derived',structured:false,whatItProves:null,whatItDoesNotProve:['Evidence producer did not emit explicit semantic scope.']};
+  if(!semantic)return{
+    ...fallback,
+    classification:item?.classification??(knownProducer?'integration':'legacy-derived'),
+    structured:knownProducer,
+    semanticSource:knownProducer?'canonical-producer-contract':'unstructured-evidence',
+    whatItProves:knownProducer?`${fallback.producer} PASS within ${fallback.scope} on the recorded exact state.`:null,
+    whatItDoesNotProve:[knownProducer?'Claims outside the producer scope or stronger than its declared scopeStrength.':'Evidence producer did not emit explicit semantic scope.'],
+    confidence:knownProducer?0.9:0,
+    negativeEvidence:[],
+    dependencies:[],
+  };
   const strength=Number(semantic.scopeStrength);
   return{
     producer:semantic.producer??fallback.producer,
@@ -61,6 +92,7 @@ function evidenceSemantics(item,id){
     dimensions:Array.isArray(semantic.dimensions)?semantic.dimensions:fallback.dimensions,
     classification:semantic.classification??item?.classification??'unspecified',
     structured:true,
+    semanticSource:'explicit-evidence',
     whatItProves:semantic.whatItProves??null,
     whatItDoesNotProve:Array.isArray(semantic.whatItDoesNotProve)?semantic.whatItDoesNotProve:[],
     confidence:Number.isFinite(Number(semantic.confidence))?Number(semantic.confidence):null,
@@ -223,16 +255,19 @@ export function evaluateCompletionTruth({plan,evidence=[],currentExactState,plan
     const proofs=[...implementation,...outcome,...negative.flatMap(x=>x.proofs)];
     const good=proofs.filter(x=>x.state==='PASS');
     const required=claimStrength(req),maxProven=Math.max(0,...good.map(x=>x.provenScopeStrength??0));
+    const requiredDimensions=[...new Set(asArray(req?.claimScope?.dimensions))];
+    const provenDimensions=[...new Set(good.flatMap(x=>asArray(x.evidenceSemantics?.dimensions)))].sort();
+    const missingDimensions=requiredDimensions.filter(dimension=>!provenDimensions.includes(dimension));
     let truthStatus='VERIFIED';
     const states=new Set(proofs.map(x=>x.state));
     if(states.has('FAIL'))truthStatus='FAILED';
     else if(states.has('BLOCKED'))truthStatus='FAILED';
     else if(states.has('STALE'))truthStatus='STALE';
-    else if(states.has('OVERCLAIM')||maxProven<required)truthStatus='OVERCLAIM';
+    else if(states.has('OVERCLAIM')||maxProven<required||missingDimensions.length)truthStatus='OVERCLAIM';
     else if(states.has('UNKNOWN'))truthStatus='UNKNOWN';
     else if(states.has('MISSING'))truthStatus='MISSING';
     else if(!proofs.length||proofs.some(x=>x.state!=='PASS'))truthStatus='PARTIAL';
-    return{id:req.id,requirement:req.requirement,claimScope:req.claimScope??null,requiredCapabilities:req.requiredCapabilities??[],requiredScopeStrength:required,provenScopeStrength:maxProven,truthStatus,implementation,outcome,negative};
+    return{id:req.id,requirement:req.requirement,claimScope:req.claimScope??null,requiredCapabilities:req.requiredCapabilities??[],requiredScopeStrength:required,provenScopeStrength:maxProven,requiredDimensions,provenDimensions,missingDimensions,truthStatus,implementation,outcome,negative};
   });
   const allProofs=requirementResults.flatMap(req=>[...req.implementation,...req.outcome,...req.negative.flatMap(neg=>neg.proofs)]);
   const statuses=new Set(requirementResults.map(x=>x.truthStatus));
@@ -282,7 +317,7 @@ export function evaluateCompletionTruth({plan,evidence=[],currentExactState,plan
       code:item.state==='STALE'?'TRUTH_EVIDENCE_STALE':item.state==='MISSING'?'TRUTH_EVIDENCE_MISSING':item.state==='BLOCKED'?'TRUTH_EVIDENCE_BLOCKED':item.state==='OVERCLAIM'?'TRUTH_EVIDENCE_OVERCLAIM':item.state==='UNKNOWN'?'TRUTH_EVIDENCE_UNKNOWN':'TRUTH_EVIDENCE_FAILED',
       path:item.claimPath,message:`${item.claimPath} is not semantically proven by ${item.id}: ${item.reason}`,expected:'fresh evidence with proven scope >= claim scope',actual:item.state,evidence:[item.id],
     })),
-    ...requirementResults.filter(item=>item.truthStatus==='OVERCLAIM'&&!item.implementation.concat(item.outcome,item.negative.flatMap(n=>n.proofs)).some(p=>p.state==='OVERCLAIM')).map(item=>({code:'TRUTH_CLAIM_OVERCLAIM',path:item.id,message:`Claim scope strength ${item.requiredScopeStrength} exceeds proven scope ${item.provenScopeStrength}.`,expected:'PROVEN_SCOPE >= CLAIM_SCOPE',actual:`${item.provenScopeStrength}<${item.requiredScopeStrength}`,evidence:[]})),
+    ...requirementResults.filter(item=>item.truthStatus==='OVERCLAIM'&&!item.implementation.concat(item.outcome,item.negative.flatMap(n=>n.proofs)).some(p=>p.state==='OVERCLAIM')).map(item=>({code:'TRUTH_CLAIM_OVERCLAIM',path:item.id,message:`Claim is not fully proven: required strength=${item.requiredScopeStrength}, proven strength=${item.provenScopeStrength}, missing dimensions=${item.missingDimensions.join(',')||'none'}.`,expected:'PROVEN_SCOPE >= CLAIM_SCOPE and CLAIM_DIMENSIONS subset of PROVEN_DIMENSIONS',actual:`strength ${item.provenScopeStrength}/${item.requiredScopeStrength}; missing=${item.missingDimensions.join(',')||'none'}`,evidence:[]})),
   ];
   return result;
 }
