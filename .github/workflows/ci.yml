@@ -275,6 +275,14 @@ jobs:
           path: artifacts/shoperation-verification-cache/checkpoint.json
           key: shoperation-verification-v1-${{ runner.os }}-pr-${{ github.event.pull_request.number }}-${{ github.event.pull_request.head.sha }}
 
+      - name: Prepare CLOSE to LEARN lifecycle transition
+        if: always() && github.event_name == 'pull_request' && steps.completion-truth.outcome == 'success'
+        id: lifecycle-transition
+        env:
+          SHOPERATION_CLOSURE_HEAD: ${{ github.event.pull_request.head.sha }}
+          SHOPERATION_CLOSURE_TRUTH_REPORT: artifacts/shoperation-development-guard/truth-gate.json
+        run: node scripts/shoperation-close-development-plan.mjs --emit
+
       - name: Upload Resumable Verification evidence
         if: always() && github.event_name == 'pull_request'
         uses: actions/upload-artifact@v4
@@ -287,8 +295,25 @@ jobs:
             artifacts/shoperation-verification-cache/checkpoint.json
             artifacts/shoperation-development-guard/truth-gate.json
             artifacts/shoperation-development-guard/truth-gate.md
+            artifacts/shoperation-development-guard/lifecycle-transition.json
+            artifacts/shoperation-development-guard/active-plan.closed.json
           if-no-files-found: warn
           retention-days: 30
+
+      - name: Lifecycle Closure Gate
+        if: always() && github.event_name == 'pull_request' && steps.completion-truth.outcome == 'success'
+        id: lifecycle-closure
+        env:
+          CLOSURE_REQUIRED: ${{ steps.lifecycle-transition.outputs.closure_required }}
+          VERIFIED_IMPLEMENTATION_HEAD: ${{ steps.lifecycle-transition.outputs.verified_head }}
+        shell: bash
+        run: |
+          if [ "$CLOSURE_REQUIRED" = "true" ]; then
+            echo "DEV_LIFECYCLE_CLOSE_REQUIRED: exact-head Truth is VERIFIED at $VERIFIED_IMPLEMENTATION_HEAD, but active-plan.json is still implementation-ready."
+            echo "Commit only the emitted artifacts/shoperation-development-guard/active-plan.closed.json as quality/development/active-plan.json, then rerun exact-head CI."
+            exit 1
+          fi
+          echo "Development lifecycle closure: PASS"
 
       - name: Generate release manifest
         id: release-manifest
