@@ -15,8 +15,10 @@ import {
 import {listStorefrontTemplateLibraryEntries} from '@/lib/builder/storefront-template-library';
 import {getStorefrontTemplatePreviewTheme} from '@/lib/builder/storefront-template-preview-demo';
 import {getStorefrontCookieConsentPreset} from '@/lib/builder/storefront-cookie-consent-presets';
+import {getStorefrontGlobalStyleState,resolveStorefrontGlobalStyleCssVariables} from '@/lib/builder/storefront-global-styles';
 import {
   BLANK_STUDIO_DESIGN_TOKENS,
+  BLANK_STUDIO_GLOBAL_STYLE_STATE,
   BLANK_STUDIO_HOME_PAGE,
   BLANK_STUDIO_TEMPLATE_KEY,
   BLANK_STUDIO_TEMPLATE_PACKAGE,
@@ -101,6 +103,21 @@ describe('VX Blank Studio system template',()=>{
       const result=validateStorefrontPageDocument(document,registry,capability);
       expect(result.ok,document.pageType+': '+JSON.stringify(result.violations)).toBe(true);
     }
+  });
+
+  it('persists neutral editable Template DNA in the canonical Page Schema instead of preview-only styling',()=>{
+    for(const document of BLANK_STUDIO_TEMPLATE_PACKAGE.pages){
+      expect(getStorefrontGlobalStyleState(document)).toEqual(BLANK_STUDIO_GLOBAL_STYLE_STATE);
+    }
+    expect(BLANK_STUDIO_GLOBAL_STYLE_STATE.tokens).toMatchObject({
+      background:'#ffffff',surface:'#ffffff',surfaceMuted:'#f5f5f3',text:'#171717',mutedText:'#6b6b66',border:'#deded8',primary:'#171717',primaryContrast:'#ffffff',accent:'#b88716',accentSecondary:'#8d8d86',headingFont:'system-sans',bodyFont:'system-sans',spacingScale:'comfortable',radiusScale:'soft',
+    });
+    expect(resolveStorefrontGlobalStyleCssVariables(BLANK_STUDIO_HOME_PAGE)).toMatchObject({
+      '--shoporation-color-background':'#ffffff',
+      '--shoporation-color-text':'#171717',
+      '--shoporation-color-primary':'#171717',
+      '--shoporation-color-accent':'#b88716',
+    });
   });
 
   it('has no implicit demo catalog and has explicit neutral theme and cookie authorities',()=>{
