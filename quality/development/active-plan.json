@@ -1,32 +1,28 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-VX-BLANK-STUDIO-SYSTEM-TEMPLATE",
-  "task": "Add a source-controlled minimal Blank Studio system template for Builder selection, with canonical 14-page operational documents and neutral editable design tokens. Keep it outside the curated 42-template portfolio count and reuse all existing page/runtime/install authorities.",
+  "taskId": "DEV-VX-ENGINE-STYLE-INSPECTOR",
+  "task": "Expose the existing validated VX engineStyle semantic color contract in the VX Builder Inspector with progressive disclosure: common engine colors in normal mode, advanced colors on demand, per-token inheritance reset and reset-all inheritance, using canonical config mutations only.",
   "status": "ready-for-implementation",
-  "guardDigest": "3667fbec",
-  "changeBaseSha": "b1566b0d0ef8ec600daab7388b980c62961afa67",
+  "guardDigest": "ba1a39f8",
+  "changeBaseSha": "3d9376b362a9d6ec4d104359961603029793e5d2",
   "plannedFilePatterns": [
     "quality/development/active-plan.json",
-    "docs/architecture/VX_BLANK_STUDIO_TEMPLATE.md",
-    "src/lib/builder/templates/system/blank-studio.ts",
-    "src/lib/builder/storefront-template-catalog.ts",
-    "src/lib/builder/storefront-template-library.ts",
-    "src/lib/builder/storefront-template-preview-demo.ts",
-    "src/lib/builder/storefront-cookie-consent-presets.ts",
-    "tests/storefront-blank-studio-template.test.ts",
-    "src/lib/builder/storefront-template-quality-candidates.ts"
+    "src/components/admin/storefront-visual-builder-v3.tsx",
+    "src/components/admin/storefront-visual-builder-v3.module.css",
+    "tests/visual-builder-production-completion.test.ts",
+    "tests/vx-builder-engine-style-inspector.test.ts"
   ],
   "expectedSubsystems": [
+    "admin-operations",
     "builder-template-system",
-    "shared-storefront"
+    "shared-storefront",
+    "storefront-ui"
   ],
   "expectedDomains": [
-    "DOMAIN-BUILDER",
-    "DOMAIN-STOREFRONT"
+    "DOMAIN-ADMIN"
   ],
   "expectedAuthorities": [
-    "builder-template-system",
-    "shared-storefront"
+    "admin-operations"
   ],
   "expectedKnownFailureIds": [
     "SQ-KF-001",
@@ -34,10 +30,7 @@
     "SQ-KF-003",
     "SQ-KF-004",
     "SQ-KF-005",
-    "SQ-KF-006",
     "SQ-KF-007",
-    "SQ-KF-008",
-    "SQ-KF-009",
     "SQ-KF-010",
     "SQ-KF-011",
     "SQ-KF-012",
@@ -46,13 +39,9 @@
     "SQ-KF-015",
     "SQ-KF-016",
     "SQ-KF-017",
-    "SQ-KF-018",
     "SQ-KF-019",
     "SQ-KF-020",
-    "SQ-KF-021",
     "SQ-KF-022",
-    "SQ-KF-023",
-    "SQ-KF-024",
     "TF-KF-001",
     "TF-KF-002",
     "TF-KF-003",
@@ -94,11 +83,11 @@
   "exceptions": [],
   "operationalIntelligence": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-01-VX-BLANK-STUDIO",
+    "sourceRef": "PO-2026-10-01-VX-ENGINE-COLOR-INSPECTOR",
     "riskTier": "high",
     "assuranceCeiling": {
       "level": "strong-behavioral-proof",
-      "rationale": "Blank Studio becomes a selectable system template and therefore must prove full Page Schema, installation, route, responsive and commerce-shell integrity. Strong behavioral proof is justified; formal verification is not because it reuses existing runtime, persistence and commerce authorities.",
+      "rationale": "The editor writes a shared engine presentation contract used by multiple commerce capabilities. Strong behavioral proof is justified for inheritance, validation, progressive disclosure and mutation integrity; formal verification is disproportionate because runtime validation and business state authorities are already isolated and unchanged.",
       "selectedTechniques": [
         "explicit-specification",
         "invariants",
@@ -113,54 +102,49 @@
       "deferredTechniques": [
         {
           "technique": "finite-state-exhaustion",
-          "reason": "No new state machine is introduced; installation and runtime state remain existing authorities."
+          "reason": "The UI has a small deterministic token-editing model covered by state and boundary tests."
         },
         {
           "technique": "formal-verification",
-          "reason": "No new transactional or concurrent protocol is introduced."
+          "reason": "No transactional or concurrent protocol is introduced."
         }
       ]
     },
     "definition": {
       "acceptanceCriteria": [
-        "Blank Studio is a separately identified system template and does not increment the curated 42-template launch portfolio count.",
-        "Blank Studio is selectable from the same template library and resolvable by the same canonical template installation/preview paths.",
-        "The package contains exactly the canonical 14 page types: home, catalog, product, cart, checkout, account, search, content, blog-index, blog-article, faq, contact, legal and not-found.",
-        "Home is intentionally minimal: shared header, one editable starter/placeholder section and shared footer.",
-        "Catalog, product, search, cart and checkout contain the minimum canonical commerce components needed to remain operational rather than becoming decorative placeholders.",
-        "All pages use the existing Page Schema, component registry, responsive authority and Builder; no Blank-specific renderer or editor is introduced.",
-        "Blank Studio global design tokens are neutral and editable; engine/capability colors inherit those tokens unless explicitly overridden by the shared engineStyle contract.",
-        "The package ships no fake products or category-specific demo catalog by default.",
-        "Shared engines such as Shop the Look / Interactive Scene remain available through capability/entitlement and Library composition, not hard-coded into Blank Studio.",
-        "A neutral cookie-consent preset exists for the system template.",
-        "Template library UX clearly labels Blank Studio as a system/blank starting point rather than one of the curated visual designs.",
-        "Blank Studio owns an explicit Template Factory quality candidate manifest with canonical 14x3 coverage; the system-template distinction must not bypass normal browser/structural proof.",
-        "Blank Studio must pass the actual 14x3 browser proof with at least two visible layout sections where a footer is required, minimum 32px hard touch targets and zero unbounded horizontal overflow.",
-        "Blank Studio neutral Template DNA is persisted in canonical shoporationGlobalStyles Page Schema metadata on every page; preview theme is not the only styling authority."
+        "The Appearance Inspector shows Motor színei only when the selected component manifest exposes the shared engineStyle config key.",
+        "Normal mode exposes only the six common semantic colors: background, surface, text, primary, primaryContrast and accent.",
+        "A További színek disclosure exposes surfaceMuted, mutedText, border, accentSecondary and accentTertiary without creating Expert-only raw CSS controls.",
+        "Each token shows whether it is inherited from Template DNA or locally overridden.",
+        "A merchant can set a local color through a native color input and validated #RRGGBB value while the existing contract remains the validation authority.",
+        "Each token can be reset to inheritance independently and all engine colors can be reset to inheritance together.",
+        "Reset-all keeps the canonical engineStyle object shape with an empty tokens object so future edits remain shape-compatible with Builder config mutation guards.",
+        "The generic Inspector does not render engineStyle as a raw nested object field.",
+        "Every edit continues through the existing canonical Builder config mutation; no direct document mutation, global token mutation or runtime style mutation is introduced.",
+        "Mobile receives a compact usable color editor but Desktop remains the full authoring authority.",
+        "Saját szín seeds its initial override from the actual canvas runtime Template DNA/global-style authority, never from the Inspector DOM."
       ],
       "invariants": [
-        "Curated launchTarget remains 42 and STOREFRONT_TEMPLATE_PORTFOLIO_STATUS.implemented counts only curated design templates.",
-        "Blank Studio uses one canonical runtime and one canonical Page document authority.",
-        "No system template component bypasses capability or page-type validation.",
-        "No demo product is installed implicitly by Blank Studio.",
-        "Commerce truth remains in shared catalog/cart/checkout authorities.",
-        "Blank Studio visual neutrality does not mean functional emptiness.",
-        "Template DNA/global tokens remain the default style source for all inserted engines.",
-        "System-template status never exempts Blank Studio from Template Factory quality ownership.",
-        "Installed Blank Studio pages and Builder runtime read neutral colors, typography, spacing and radius from the same canonical Global Styles authority used by normal templates.",
-        "Blank Studio preview theme and canonical Global Styles derive shared semantic colors from one neutral palette authority; duplicated hand-maintained palette values are forbidden."
+        "No engine style token outside the shared allowlist can be authored.",
+        "Omitted tokens always mean inherit from Template DNA.",
+        "Local engine color editing cannot alter capability, bindings, pricing, stock, cart, checkout or engine business configuration.",
+        "The Inspector never exposes raw CSS/custom property names.",
+        "The engineStyle version remains vision.vx-engine-style.v1.",
+        "Only components whose manifest opted into engineStyle see the editor.",
+        "Existing generic appearance and fidelity controls remain unchanged for non-engine components.",
+        "Inherited color sampling is anchored to the live [data-storefront-global-styles-v1] runtime root, with canonical Page Schema Global Styles as deterministic fallback."
       ],
       "forbiddenStates": [
-        "blank-studio-counted-as-curated-43rd-design",
-        "blank-specific-runtime-or-builder",
-        "empty-cart-or-checkout-placeholder-without-commerce-component",
-        "hard-coded-shop-the-look-inside-blank-template",
-        "implicit-demo-products",
-        "missing-canonical-page-type",
-        "duplicate-page-type",
-        "unregistered-cookie-consent-preset",
-        "system-template-unresolvable-by-installer",
-        "neutral-theme-falls-back-to-unrelated-category-theme"
+        "engine-style-raw-object-editor",
+        "raw-css-color-injection",
+        "unknown-engine-token-authored",
+        "reset-all-writes-null-shape",
+        "engine-style-editor-visible-on-non-engine-component",
+        "local-color-mutates-global-template-dna",
+        "engine-color-edit-bypasses-builder-mutation",
+        "color-control-changes-commerce-business-state",
+        "mobile-horizontal-color-editor-overflow",
+        "hundreds-of-wix-style-engine-controls"
       ]
     },
     "model": {
@@ -192,48 +176,45 @@
         "CLOSE->LEARN"
       ],
       "failureModes": [
-        "portfolio-count-drift",
-        "page-matrix-incomplete",
-        "invalid-component-page-type",
-        "route-integrity-failure",
-        "commerce-shell-missing",
-        "system-template-hidden-from-library",
-        "preview-theme-fallback",
-        "cookie-preset-missing",
-        "demo-content-leak",
-        "template-switch-resolution-failure"
+        "raw-engine-style-field-leak",
+        "invalid-color-value",
+        "shape-compatibility-reset-failure",
+        "inheritance-label-drift",
+        "non-engine-editor-leak",
+        "advanced-disclosure-overload",
+        "mobile-control-overflow",
+        "config-mutation-validation-failure"
       ],
       "edgeCases": [
-        "fresh-store-selects-blank",
-        "existing-store-switches-to-blank-draft",
-        "blank-home-before-any-section-added",
-        "catalog-with-zero-products",
-        "product-with-missing-gallery",
-        "empty-cart",
-        "checkout-preview",
-        "mobile-canonical-view",
-        "engine-inserted-later-with-template-inherited-colors",
-        "template-library-search-for-blank"
+        "engine-with-no-engineStyle-yet",
+        "engine-with-empty-tokens",
+        "single-accent-override",
+        "all-eleven-overridden",
+        "reset-last-token",
+        "reset-all-then-edit-again",
+        "uppercase-hex-from-color-control",
+        "non-engine-selection",
+        "mobile-inspector-width-under-360px"
       ]
     },
     "alternatives": [
       {
         "id": "ALT-01",
-        "summary": "Treat Blank Studio as the 43rd normal design template.",
+        "summary": "Let the generic object FieldEditor expose engineStyle recursively.",
         "disposition": "rejected",
-        "reason": "It is infrastructure/a creation surface, not a curated visual design and would distort the 42-template portfolio metric."
+        "reason": "Too technical, exposes version/tokens internals and violates the simple merchant UX goal."
       },
       {
         "id": "ALT-02",
-        "summary": "Register Blank Studio as a system template beside the curated catalog while using the same resolver, installer, preview and runtime.",
+        "summary": "Add a dedicated semantic engine-color Inspector over the existing contract and canonical config mutation.",
         "disposition": "selected",
-        "reason": "Keeps one engine and one installation authority while preserving portfolio semantics."
+        "reason": "Gives brand freedom without widening business or CSS authority."
       },
       {
         "id": "ALT-03",
-        "summary": "Create a special blank-editor mode without a template package.",
+        "summary": "Expose raw CSS/custom properties for maximum freedom.",
         "disposition": "rejected",
-        "reason": "Would create a second page/runtime lifecycle and break canonical Template → Page Preset → Section Preset → Component authority."
+        "reason": "Contradicts Guarded Freedom, security, performance and long-term editability goals."
       }
     ],
     "specialistReviews": [
@@ -241,129 +222,114 @@
         "role": "Architecture",
         "mode": "review",
         "verdict": "pass",
-        "finding": "System template must be selectable without joining the curated portfolio count.",
-        "resolution": "Separate system-template catalog feeds the common resolver/library but is excluded from curated status metrics."
+        "finding": "Inspector must edit the existing contract rather than create a parallel style store.",
+        "resolution": "All writes call setMerchantConfig(engineStyle, canonical state)."
       },
       {
         "role": "Runtime",
+        "mode": "review",
+        "verdict": "pass",
+        "finding": "Runtime already scopes validated variables to engine roots.",
+        "resolution": "UI does not touch runtime; it only authors the contract."
+      },
+      {
+        "role": "Security",
         "mode": "dissent",
         "verdict": "challenge-resolved",
-        "finding": "A visually empty template can become functionally empty and break commerce preview/runtime expectations.",
-        "resolution": "Keep minimal real catalog/product/cart/checkout components and only simplify visual composition."
+        "finding": "A text field could permit malformed or unexpected color payloads.",
+        "resolution": "Use native color input for committed values and shared parser/write helpers; no raw arbitrary CSS field."
       },
       {
         "role": "UX / Template",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Blank should feel intentionally empty, not unfinished.",
-        "resolution": "Neutral header + starter canvas + footer, explicit Blank Studio labeling and neutral tokens."
-      },
-      {
-        "role": "Security",
-        "mode": "review",
-        "verdict": "pass",
-        "finding": "Blank must not become a capability bypass surface.",
-        "resolution": "Package uses normal manifest requirements, registry validation and entitlement-aware Builder insertion only."
+        "finding": "Eleven colors at once would recreate the complexity the PO explicitly rejected.",
+        "resolution": "Six primary colors by default, five secondary colors behind További színek, with clear inheritance labels."
       }
     ],
     "challenge": [
       {
         "id": "CH-01",
-        "scenario": "Adding Blank Studio to STOREFRONT_TEMPLATE_CATALOG raises implemented count and appears as template #43.",
-        "finding": "Portfolio KPI semantics break.",
-        "resolution": "Keep curated catalog unchanged; add a separate system-template catalog and merge only at resolver/library discovery surfaces.",
+        "scenario": "Engine has never stored engineStyle.",
+        "finding": "Generic field defaults could produce invalid state.",
+        "resolution": "Editor derives empty canonical state and first edit writes version + tokens through shared write helper.",
         "status": "resolved"
       },
       {
         "id": "CH-02",
-        "scenario": "Home page is literally empty.",
-        "finding": "No insertion anchor/header/footer and poor first-run UX.",
-        "resolution": "Ship header, one editable starter section and footer.",
+        "scenario": "Merchant resets the only overridden token.",
+        "finding": "Writing null would later violate config shape compatibility when re-enabling.",
+        "resolution": "Keep {version,tokens:{}} as canonical reset state once editor authors the field.",
         "status": "resolved"
       },
       {
         "id": "CH-03",
-        "scenario": "Cart and checkout are only headings/placeholders.",
-        "finding": "Blank storefront is not operational.",
-        "resolution": "Use canonical commerce.cart-summary and commerce.checkout-summary bindings.",
+        "scenario": "Merchant opens a non-engine component.",
+        "finding": "Engine color controls would confuse ownership.",
+        "resolution": "Gate UI on manifest.configurable.includes(VX_ENGINE_STYLE_CONFIG_KEY).",
         "status": "resolved"
       },
       {
         "id": "CH-04",
-        "scenario": "Product page omits shared product data components.",
-        "finding": "Blank cannot support a functioning product journey.",
-        "resolution": "Use canonical product gallery + product info + primary purchase CTA in the standard 12-column grid.",
+        "scenario": "All eleven controls are shown by default.",
+        "finding": "Inspector becomes Wix-like and intimidating.",
+        "resolution": "Six common tokens visible; five additional tokens behind one disclosure.",
         "status": "resolved"
       },
       {
         "id": "CH-05",
-        "scenario": "Blank gets a bespoke engine list or Shop-the-Look implementation.",
-        "finding": "Engine portability fails.",
-        "resolution": "Blank contains no optional engine by default; Builder capability registry supplies them later.",
+        "scenario": "A color picker yields uppercase/lowercase variants.",
+        "finding": "Unstable persisted values could create unnecessary diffs.",
+        "resolution": "Shared writer/parser normalizes strict hex to lowercase before mutation.",
         "status": "resolved"
       },
       {
         "id": "CH-06",
-        "scenario": "No explicit preview theme exists.",
-        "finding": "Blank inherits an unrelated generic green preview palette.",
-        "resolution": "Register neutral Blank Studio theme tokens in the shared preview-theme authority.",
+        "scenario": "Resetting one token accidentally resets other local colors.",
+        "finding": "Partial inheritance would break.",
+        "resolution": "Create next token map by removing only the selected key and preserve all siblings.",
         "status": "resolved"
       },
       {
         "id": "CH-07",
-        "scenario": "Blank template has no cookie preset.",
-        "finding": "Shared storefront shell may fail its current consent contract.",
-        "resolution": "Register a compact neutral system cookie preset.",
+        "scenario": "Generic contentKeys includes engineStyle.",
+        "finding": "Raw nested version/tokens editor appears alongside semantic editor.",
+        "resolution": "Add engineStyle to delegated/hidden semantic handling and render only dedicated Appearance section.",
         "status": "resolved"
       },
       {
         "id": "CH-08",
-        "scenario": "Library treats Blank as a category design and recommends Pro styling claims.",
-        "finding": "Merchant intent is misrepresented.",
-        "resolution": "Provide explicit system category metadata and copy explaining it is a from-scratch starting point; same Alap/Pro capability model remains.",
+        "scenario": "Mobile color row overflows or produces tiny touch targets.",
+        "finding": "Mobile polish regresses.",
+        "resolution": "Use responsive grid/stack CSS with bounded input and action sizes; no horizontal scroll.",
         "status": "resolved"
       },
       {
         "id": "CH-09",
-        "scenario": "14x3 browser proof renders the neutral shell.",
-        "finding": "Footer was not a layout.section shell, mobile header anchors were below the 32px minimum target, and the 12-column PDP grid used an l gutter whose eleven gaps exceeded the mobile content width.",
-        "resolution": "Wrap the shared footer in the canonical layout.section shell, give Blank Studio header/nav anchors 2rem minimum touch height, and reduce the 12-column PDP gutter to xs so the existing responsive 12/12 mobile spans fit without overflow.",
-        "status": "resolved"
-      },
-      {
-        "id": "CH-10",
-        "scenario": "Blank Studio preview looks neutral but an installed page is rendered outside the dedicated template-preview wrapper.",
-        "finding": "Preview-only design tokens would not guarantee neutral Template DNA in the canonical runtime because StorefrontRuntimeRenderer resolves Global Styles from Page Schema metadata.",
-        "resolution": "Persist a versioned BLANK_STUDIO_GLOBAL_STYLE_STATE under the canonical shoporationGlobalStyles metadata key on all 14 pages and test the resolved runtime CSS variables.",
-        "status": "resolved"
-      },
-      {
-        "id": "CH-11",
-        "scenario": "Preview-theme colors and canonical Page Schema Global Styles evolve independently.",
-        "finding": "Two manually duplicated neutral palettes could drift and make preview, installed runtime and engine inheritance disagree.",
-        "resolution": "Introduce BLANK_STUDIO_NEUTRAL_PALETTE as the single palette source for both adapters and define all eleven engine semantic colors, including accentTertiary.",
+        "scenario": "A merchant clicks Saját szín while the engine token is still inherited.",
+        "finding": "Sampling getComputedStyle from the Inspector editor root can miss the runtime-scoped Template DNA variables and incorrectly seed black.",
+        "resolution": "Resolve inherited color from the live canvas runtime global-style root first, then canonical Page Schema Global Styles, then a safe semantic fallback; the Inspector DOM is never used as style authority.",
         "status": "resolved"
       }
     ],
     "proofPlan": [
-      "Run Plan Before Code before creating the system-template package.",
-      "Test exact 14-page matrix, unique page types, neutral home shell and operational commerce page components.",
-      "Test curated portfolio count is unchanged while resolver and merchant library can see Blank Studio.",
-      "Test no demo products are present and cookie preset/theme are explicit.",
-      "Run route-integrity and template capability validation against the normal component registry.",
-      "Run incremental replay, typecheck and production build on exact head.",
-      "Run Template Factory Quality Gate as regression proof; no golden update is permitted.",
-      "Close only with exact-head Completion Truth Gate evidence."
+      "Run Plan Before Code before editing product files.",
+      "Add dedicated tests for token groups, inheritance/reset semantics and source contract wiring.",
+      "Extend Visual Builder completion regression to prove semantic Motor színei UI and absence of raw engineStyle generic editing.",
+      "Run existing engineStyle contract/runtime tests through Incremental Replay.",
+      "Run typecheck and production build on exact implementation HEAD.",
+      "Run Template Factory Quality Gate for Builder/runtime regression proof.",
+      "Close only with fresh exact-head Completion Truth Gate evidence; no main merge or golden update."
     ],
     "executionAuthorized": true
   },
   "completionContract": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-01-VX-BLANK-STUDIO",
+    "sourceRef": "PO-2026-10-01-VX-ENGINE-COLOR-INSPECTOR",
     "requirements": [
       {
         "id": "REQ-01",
-        "requirement": "Provide Blank Studio as a selectable/resolvable system template without increasing the curated 42-template portfolio count.",
+        "requirement": "Expose a dedicated semantic Motor színei Inspector only for engineStyle-enabled components.",
         "evidence": {
           "implementation": [
             "GUARD-PLAN-BEFORE-CODE",
@@ -377,7 +343,7 @@
         "forbiddenRegressions": [
           {
             "id": "NEG-01A",
-            "statement": "Curated launch/implemented metrics must not count Blank Studio as a normal design template.",
+            "statement": "Non-engine components cannot expose engine color controls or raw engineStyle object editing.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -386,20 +352,19 @@
       },
       {
         "id": "REQ-02",
-        "requirement": "Provide the full canonical 14-page matrix through the existing Page Schema/runtime/installation authorities.",
+        "requirement": "Provide six common colors plus five progressively disclosed colors with clear Template DNA inheritance/local override status.",
         "evidence": {
           "implementation": [
             "GUARD-QUALITY-TESTS"
           ],
           "outcome": [
-            "GUARD-INCREMENTAL-REPLAY",
             "GUARD-PRODUCTION-BUILD"
           ]
         },
         "forbiddenRegressions": [
           {
             "id": "NEG-02A",
-            "statement": "No missing/duplicate page type or Blank-specific renderer/page authority.",
+            "statement": "No raw CSS/custom property editor or unrestricted styling surface is added.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -408,7 +373,7 @@
       },
       {
         "id": "REQ-03",
-        "requirement": "Keep Blank visually minimal but commerce-operational on catalog, product, search, cart and checkout.",
+        "requirement": "Support per-token and reset-all inheritance while keeping canonical engineStyle shape and shared parser normalization.",
         "evidence": {
           "implementation": [
             "GUARD-QUALITY-TESTS"
@@ -420,7 +385,7 @@
         "forbiddenRegressions": [
           {
             "id": "NEG-03A",
-            "statement": "Commerce-critical pages cannot be decorative placeholders only.",
+            "statement": "Reset cannot write null/invalid shape or erase unrelated local tokens.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -429,40 +394,20 @@
       },
       {
         "id": "REQ-04",
-        "requirement": "Use explicit neutral editable Template DNA/theme and neutral consent presentation with no implicit demo catalog.",
+        "requirement": "All color edits use canonical Builder config mutations and cannot affect engine business/capability state.",
         "evidence": {
           "implementation": [
             "GUARD-QUALITY-TESTS"
           ],
           "outcome": [
+            "GUARD-INCREMENTAL-REPLAY",
             "GUARD-PRODUCTION-BUILD"
           ]
         },
         "forbiddenRegressions": [
           {
             "id": "NEG-04A",
-            "statement": "No category-specific fallback theme, missing cookie preset or automatic demo products.",
-            "evidence": [
-              "GUARD-QUALITY-TESTS"
-            ]
-          }
-        ]
-      },
-      {
-        "id": "REQ-05",
-        "requirement": "Keep optional engines template-independent and available through normal capability-aware Builder composition.",
-        "evidence": {
-          "implementation": [
-            "GUARD-QUALITY-TESTS"
-          ],
-          "outcome": [
-            "GUARD-INCREMENTAL-REPLAY"
-          ]
-        },
-        "forbiddenRegressions": [
-          {
-            "id": "NEG-05A",
-            "statement": "No Shop-the-Look or other engine is hard-coded as a Blank-specific implementation.",
+            "statement": "Inspector cannot directly mutate runtime/global tokens, bindings or commerce truth.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -471,5 +416,5 @@
       }
     ]
   },
-  "notes": "Blank Studio is a system creation surface beside the curated 42-template portfolio. It deliberately carries the minimum operational commerce shell and neutral DNA, while optional engines remain Library/capability-driven. No main merge and no golden update. Exact actual-diff reconciliation expanded the applicable known-failure envelope to the full 49/49 set for the same builder-template-system + shared-storefront scope. This updates machine-derived proof metadata only; acceptance criteria, forbidden states and implementation scope are unchanged. Template Factory correctly rejected the newly added template source until it owned an explicit quality manifest. Blank Studio is now registered as a candidate for canonical 14x3 structural/browser proof; no gate exemption or golden weakening was introduced. Header/footer identities were also normalized across all 14 documents so the canonical shell can be proven rather than special-cased. First owned 14x3 browser run exposed three concrete Blank-only issues: SHELL_SECTION_COUNT, TOUCH_TARGET_MINIMUM and product-mobile HORIZONTAL_OVERFLOW/UNBOUNDED_PROTRUSION. They are fixed in template markup rather than by lowering Factory thresholds. Completion review found that the explicit neutral design token map was registered for template preview but not yet persisted as canonical Page Schema Global Styles. Added versioned global-style metadata to every Blank Studio page so installed/runtime/Builder rendering and engine inheritance share one real Template DNA authority. Neutral palette duplication was removed: preview CSS-token adapter and canonical Global Styles now derive from one BLANK_STUDIO_NEUTRAL_PALETTE. Accent tertiary is explicitly defined so every shared engine semantic color has deterministic Blank Studio inheritance."
+  "notes": "Stacked after universal engine contract/runtime and Blank Studio. This slice is merchant Inspector UX only; it reuses the already validated semantic color contract and canonical Builder mutation authority. No main merge or golden update. Completion review found a style-authority bug in the initial Inspector implementation: inherited color seeding sampled the Inspector root instead of the live storefront runtime. The editor now reads the canvas [data-storefront-global-styles-v1] authority first and uses canonical Page Schema Global Styles as fallback. Stack history normalized onto the final proven Blank Studio parent; this commit contains only the semantic engine-color Inspector slice relative to that parent."
 }

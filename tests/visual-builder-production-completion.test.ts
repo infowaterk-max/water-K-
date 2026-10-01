@@ -146,6 +146,20 @@ describe('Visual Builder v3 product completion',()=>{
     expect(vxLibraryPreview).not.toContain('storefront-runtime-renderer');
   });
 
+  it('exposes bounded semantic engine colors without leaking raw engineStyle internals',()=>{
+    expect(source).toContain('Motor színei');
+    expect(source).toContain('További színek');
+    expect(source).toContain('Sablonból örökölt');
+    expect(source).toContain('Minden szín öröklése');
+    expect(source).toContain('allConfigurable.includes(VX_ENGINE_STYLE_CONFIG_KEY)');
+    expect(source).toContain('setMerchantConfig(VX_ENGINE_STYLE_CONFIG_KEY,value)');
+    expect(source).toContain("DELEGATED_KEYS=new Set(['style','styleSlots'");
+    expect(source).toContain('VX_ENGINE_STYLE_CONFIG_KEY]);');
+    expect(css).toContain('.engineStyleEditor');
+    expect(css).toContain('.engineColorRow');
+    expect(source).not.toContain('setMerchantConfig(VX_ENGINE_STYLE_CONFIG_KEY,null)');
+  });
+
   it('retains canonical preset, saved-block, global-style, fidelity and publish-readiness surfaces',()=>{
     expect(source).toContain('StorefrontPageTemplatesPanel');
     expect(source).toContain('StorefrontPresetLibraryPanel');
