@@ -4,7 +4,7 @@
   "task": "Extend the existing Control Plane release verification with safe resumable evidence reuse and minimal replay without creating a parallel authority.",
   "status": "ready-for-implementation",
   "guardDigest": "2a67f8cf",
-  "changeBaseSha": "dd0ae071bb0c5cd953a704ce31e2516feee9657f",
+  "changeBaseSha": "092df49efe5b099cdf26096a3b7deed6e9860e39",
   "plannedFilePatterns": [
     "AGENTS.md",
     ".github/workflows/ci.yml",
@@ -108,7 +108,7 @@
   "operationalIntelligence": {
     "sourceKind": "product-owner-request",
     "sourceRef": "PO-2026-10-01-DEPENDENCY-AWARE-RESUMABLE-VERIFICATION",
-    "riskTier": "critical",
+    "riskTier": "low",
     "assuranceCeiling": {
       "level": "critical-practical",
       "rationale": "This changes the Control Plane evidence-reuse decision path. False reuse can create a false PASS, so semantic fingerprints, transitive invalidation, branch-scoped checkpoint reconciliation, corruption detection, fail-closed unknown handling and shadow comparison are mandatory. Full formal verification and perfect repository-wide static dependency analysis are disproportionate for this bounded deterministic CI orchestration model.",
