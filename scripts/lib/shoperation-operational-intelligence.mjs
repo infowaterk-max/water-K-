@@ -296,8 +296,11 @@ export function evaluateCompletionTruth({plan,evidence=[],currentExactState,plan
   else if(statuses.has('MISSING'))truthStatus='MISSING';
   else if(statuses.has('PARTIAL'))truthStatus='PARTIAL';
   let internalState='VERIFIED_DONE';
-  if(truthStatus==='FAILED')internalState=allProofs.some(item=>item.state==='BLOCKED')?'BLOCKED':'NOT_DONE';
-  else if(truthStatus==='STALE')internalState='STALE_EVIDENCE';
+  if(truthStatus==='FAILED'){
+    if(allProofs.some(item=>item.state==='FAIL'))internalState='NOT_DONE';
+    else if(allProofs.some(item=>item.state==='BLOCKED'))internalState='BLOCKED';
+    else internalState='NOT_DONE';
+  }else if(truthStatus==='STALE')internalState='STALE_EVIDENCE';
   else if(truthStatus==='OVERCLAIM')internalState='OVERCLAIM';
   else if(truthStatus==='UNKNOWN')internalState='UNKNOWN';
   else if(truthStatus==='MISSING'||truthStatus==='PARTIAL')internalState='PARTIALLY_VERIFIED';
