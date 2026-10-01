@@ -111,7 +111,7 @@ function evidenceState(item,current){
   return{state:'MISSING',reason:`evidence-status-unrecognized-${normalized}`};
 }
 
-export function evaluateCompletionTruth({plan,evidence=[],currentExactState,planIssues=[]}){
+export function evaluateCompletionTruth_STRESS({plan,evidence=[],currentExactState,planIssues=[]}){
   const requirements=asArray(plan?.completionContract?.requirements);
   const byId=new Map(asArray(evidence).map(item=>[item?.id,item]));
   const proofFor=(id,claimPath)=>{
