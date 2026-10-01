@@ -17,3 +17,5 @@ After the preflights pass, apply only the reviewed `0001_shoperation_v1_schema.s
 The functional proof then verifies that one webshop instance can be created with the Alap package, owner/admin access works, payment and shipping can be configured without tenant assumptions, Alap cannot access Pro-only functions, the storefront remains neutral, and a neutral storefront order can complete end to end.
 
 The baseline manifest stays `snapshot-required` until the reviewed schema snapshot exists and the full proof passes on a disposable empty Supabase project. Production databases are never reset or used as the proof target.
+
+<!-- STRESS_ONLY_FRESH_INSTALL_LIFECYCLE -->
