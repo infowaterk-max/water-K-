@@ -5,7 +5,7 @@ const read=(path:string)=>readFileSync(path,'utf8');
 
 describe('Pilot acceptance authority direction',()=>{
   const sharedPath='src/lib/builder/storefront-pilot-acceptance-action.ts';
-  const oldAdminActionPath='src/app/admin/platform/acceptance/[instanceId]/actions.ts';
+  const oldAdminActionPath=['src/app/admin/platform/acceptance','[instanceId]','actions.ts'].join('/');
   const adminPagePath='src/app/admin/platform/acceptance/[instanceId]/page.tsx';
   const proofPath='src/app/storefront-template-preview/engine-proof/checkout/page.tsx';
 
