@@ -78,14 +78,29 @@ export function resolveDevelopmentBase({changeBaseSha=null}={}){
   for(const candidate of ['origin/main','main','HEAD^']){try{git(['cat-file','-e',`${candidate}^{commit}`]);return candidate;}catch{}}
   return null;
 }
+export function parseChangedFileStatus(output){
+  const changes=[];
+  for(const line of String(output??'').split(/\r?\n/).filter(Boolean)){
+    const parts=line.split('\t'),rawStatus=parts[0]??'',status=rawStatus[0]??'';
+    if(!['A','C','M','R','D'].includes(status))continue;
+    if((status==='R'||status==='C')&&parts.length>=3){
+      changes.push({status,rawStatus,previousFile:parts[1],file:parts[2]});
+    }else if(parts[1]){
+      changes.push({status,rawStatus,file:parts[1]});
+    }
+  }
+  const files=[...new Set(changes.map(change=>change.file))];
+  const deletedFiles=[...new Set(changes.filter(change=>change.status==='D').map(change=>change.file))];
+  return{changes,files,deletedFiles};
+}
 export function getChangedFiles({baseSha=null}={}){
   const git=args=>execFileSync('git',args,{encoding:'utf8'}).trim();
   const explicit=String(baseSha??process.env.DEVELOPMENT_BASE_SHA??'').trim();
   const base=resolveDevelopmentBase({changeBaseSha:explicit});
   const head=(process.env.DEVELOPMENT_HEAD_SHA??process.env.QUALITY_HEAD_SHA??process.env.GITHUB_SHA??'HEAD').trim()||'HEAD';
-  if(!base)return {base:null,head,files:[]};
-  const output=git(['diff','--name-only','--diff-filter=ACMR',base,head]);
-  return {base,head,files:output?output.split(/\r?\n/).filter(Boolean):[]};
+  if(!base)return {base:null,head,files:[],deletedFiles:[],changes:[]};
+  const output=git(['diff','--name-status','--diff-filter=ACMRD',base,head]);
+  return {base,head,...parseChangedFileStatus(output)};
 }
 export function runVitest(files){
   if(!files.length)return {status:0,stdout:'',stderr:''};
@@ -93,3 +108,18 @@ export function runVitest(files){
   return {status:result.status??1,stdout:result.stdout??'',stderr:result.stderr??''};
 }
 export function ensureFile(file){if(!existsSync(file))throw new Error(`Required file missing: ${file}`);}
+
+
+if(process.argv.includes('--change-status-self-test')){
+  const parsed=parseChangedFileStatus([
+    'M\tsrc/modified.ts',
+    'D\tsrc/deleted.ts',
+    'R100\tsrc/old.ts\tsrc/new.ts',
+    'A\tsrc/added.ts',
+  ].join('\n'));
+  const ok=JSON.stringify(parsed.files)===JSON.stringify(['src/modified.ts','src/deleted.ts','src/new.ts','src/added.ts'])
+    &&JSON.stringify(parsed.deletedFiles)===JSON.stringify(['src/deleted.ts'])
+    &&parsed.changes.find(item=>item.status==='R')?.previousFile==='src/old.ts';
+  console.log(`Development change-status self-test: ${ok?'PASS':'FAIL'}`);
+  if(!ok)process.exitCode=1;
+}
