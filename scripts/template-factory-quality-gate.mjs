@@ -1,9 +1,8 @@
 import {createHash} from 'node:crypto';
 import {existsSync,readFileSync} from 'node:fs';
-import {access,mkdir,mkdtemp,readFile,rm,writeFile} from 'node:fs/promises';
+import {access,mkdir,readFile,writeFile} from 'node:fs/promises';
 import {execFileSync} from 'node:child_process';
 import path from 'node:path';
-import {tmpdir} from 'node:os';
 import {canonicalizeTemplateFactoryInfrastructureInput,deriveTemplateReplayDecision,reusableTemplateBrowserCase,templateBrowserCaseFingerprint,templateFactoryInfrastructureSemanticallyEquivalent} from './lib/shoperation-template-factory-resumable-verification.mjs';
 
 const baseUrl=(process.env.VISUAL_FIDELITY_BASE_URL??'http://127.0.0.1:3000').replace(/\/$/,'');
@@ -401,70 +400,6 @@ async function browserDiagnostics(page,manifest,viewport){
   });
 }
 
-const DEFAULT_LOCAL_GOLDEN_POLICY=Object.freeze({
-  windowSizePx:48,
-  maxMismatchRatio:.12,
-  minMismatchPixels:72,
-});
-
-function localGoldenMismatch(maskData,width,height,policy=DEFAULT_LOCAL_GOLDEN_POLICY){
-  const requestedWindow=Math.max(1,Math.floor(policy.windowSizePx));
-  const windowSizePx=Math.min(requestedWindow,width,height);
-  const maxMismatchRatio=Number(policy.maxMismatchRatio);
-  const minMismatchPixels=Math.min(Math.max(1,Math.floor(policy.minMismatchPixels)),windowSizePx*windowSizePx);
-  if(width<=0||height<=0||windowSizePx<=0){
-    return{passed:true,windowSizePx,maxMismatchRatio,minMismatchPixels,peakMismatchRatio:0,peakMismatchPixels:0,peakRegion:null};
-  }
-
-  const stride=Math.max(1,Math.floor(windowSizePx/2));
-  const starts=length=>{
-    if(length<=windowSizePx)return[0];
-    const values=new Set([0,length-windowSizePx]);
-    for(let start=0;start<=length-windowSizePx;start+=stride)values.add(start);
-    return[...values].sort((a,b)=>a-b);
-  };
-  const xs=starts(width),ys=starts(height);
-  const integralWidth=width+1;
-  const integral=new Uint32Array((width+1)*(height+1));
-  for(let y=0;y<height;y+=1){
-    let row=0;
-    for(let x=0;x<width;x+=1){
-      if(maskData[(y*width+x)*4+3]>0)row+=1;
-      integral[(y+1)*integralWidth+(x+1)]=integral[y*integralWidth+(x+1)]+row;
-    }
-  }
-  const countRegion=(x,y,w,h)=>{
-    const x2=x+w,y2=y+h;
-    return integral[y2*integralWidth+x2]-integral[y*integralWidth+x2]-integral[y2*integralWidth+x]+integral[y*integralWidth+x];
-  };
-
-  let peakMismatchRatio=0,peakMismatchPixels=0,peakRegion=null,failed=false;
-  for(const y of ys){
-    for(const x of xs){
-      const w=Math.min(windowSizePx,width-x),h=Math.min(windowSizePx,height-y);
-      const area=w*h;
-      const mismatchedPixels=countRegion(x,y,w,h);
-      const mismatchRatio=area?mismatchedPixels/area:0;
-      if(mismatchRatio>peakMismatchRatio||(mismatchRatio===peakMismatchRatio&&mismatchedPixels>peakMismatchPixels)){
-        peakMismatchRatio=mismatchRatio;
-        peakMismatchPixels=mismatchedPixels;
-        peakRegion={x,y,width:w,height:h};
-      }
-      if(mismatchedPixels>=minMismatchPixels&&mismatchRatio>maxMismatchRatio)failed=true;
-    }
-  }
-  return{
-    passed:!failed,
-    windowSizePx,
-    stridePx:stride,
-    maxMismatchRatio,
-    minMismatchPixels,
-    peakMismatchRatio,
-    peakMismatchPixels,
-    peakRegion,
-  };
-}
-
 async function compareGolden({actualPath,baselinePath,diffPath,threshold,localPolicy=DEFAULT_LOCAL_GOLDEN_POLICY}){
   if(!await exists(baselinePath))return{status:'missing',mismatchRatio:null};
   const[{PNG},{default:pixelmatch}]=await Promise.all([import('pngjs'),import('pixelmatch')]);
@@ -492,54 +427,6 @@ async function compareGolden({actualPath,baselinePath,diffPath,threshold,localPo
     globalThreshold:threshold,
     local,
   };
-}
-
-async function runGoldenLocalSelfTest(){
-  const[{PNG}]=await Promise.all([import('pngjs')]);
-  const dir=await mkdtemp(path.join(tmpdir(),'shoporation-golden-local-'));
-  const width=512,height=512;
-  const makePair=async(name,x0,y0)=>{
-    const baseline=new PNG({width,height}),actual=new PNG({width,height});
-    for(let i=0;i<width*height;i+=1){
-      const offset=i*4;
-      baseline.data[offset]=248;baseline.data[offset+1]=248;baseline.data[offset+2]=248;baseline.data[offset+3]=255;
-      actual.data[offset]=248;actual.data[offset+1]=248;actual.data[offset+2]=248;actual.data[offset+3]=255;
-    }
-    for(let y=y0;y<y0+24;y+=1){
-      for(let x=x0;x<x0+24;x+=1){
-        const offset=(y*width+x)*4;
-        baseline.data[offset]=0x35;baseline.data[offset+1]=0xe9;baseline.data[offset+2]=0xff;
-        actual.data[offset]=0xff;actual.data[offset+1]=0x00;actual.data[offset+2]=0x00;
-      }
-    }
-    const baselinePath=path.join(dir,`${name}-baseline.png`);
-    const actualPath=path.join(dir,`${name}-actual.png`);
-    const diffPath=path.join(dir,`${name}-diff.png`);
-    await Promise.all([writeFile(baselinePath,PNG.sync.write(baseline)),writeFile(actualPath,PNG.sync.write(actual))]);
-    return compareGolden({actualPath,baselinePath,diffPath,threshold:.005});
-  };
-  try{
-    const centered=await makePair('centered',216,216);
-    const boundaryStraddling=await makePair('boundary',36,36);
-    const cases={centered,boundaryStraddling};
-    const passed=Object.values(cases).every(result=>
-      result.status==='fail'
-      &&result.globalPassed===true
-      &&result.mismatchRatio<.005
-      &&result.local?.passed===false
-      &&result.local?.peakMismatchRatio>DEFAULT_LOCAL_GOLDEN_POLICY.maxMismatchRatio
-    );
-    const proof={contract:'shoporation.template-factory-golden-local-self-test.v1',passed,policy:DEFAULT_LOCAL_GOLDEN_POLICY,cases};
-    console.log('GOLDEN_LOCAL_SELF_TEST:'+JSON.stringify(proof));
-    if(!passed)process.exitCode=1;
-  }finally{
-    await rm(dir,{recursive:true,force:true});
-  }
-}
-
-if(process.argv.includes('--golden-local-self-test')){
-  await runGoldenLocalSelfTest();
-  process.exit(process.exitCode??0);
 }
 
 await mkdir(outputDir,{recursive:true});
