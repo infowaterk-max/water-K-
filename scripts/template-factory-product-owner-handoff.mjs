@@ -48,7 +48,7 @@ const previewFor=(pageType,extra={})=>{
 };
 const candidatePageIdentity=(url,pageType)=>{
   const parsed=new URL(url);
-  return parsed.pathname==='/storefront-template-preview'
+  return parsed.pathname==='/storefront-template-preview-STRESS'
     &&exactIdentity(parsed.toString())
     &&parsed.searchParams.get('page')===pageType;
 };
