@@ -224,6 +224,17 @@ describe('dependency-aware resumable verification',()=>{
     expect(final.manifest.shadowComparison.discrepancies.map(item=>item.code)).toContain('SHADOW_FALSE_REUSE');
   });
 
+  it('blocks interrupted shadow control without counting it as false reuse',()=>{
+    const a=identity('A');
+    const replay=plan(current({A:a}),checkpoint({A:a}));
+    const final=finalizeVerification({plan:replay,outcomes:{A:'cancelled'},runId:'cancelled-1'});
+    expect(final.decision).toBe('BLOCK');
+    expect(final.manifest.shadowComparison.discrepancies.map((item:any)=>item.code)).toContain('SHADOW_FULL_EVIDENCE_INCOMPLETE');
+    expect(final.manifest.shadowComparison.discrepancies.map((item:any)=>item.code)).not.toContain('SHADOW_FALSE_REUSE');
+    expect(final.manifest.shadowStats.falseReuse).toBe(0);
+    expect(final.checkpoint.complete).toBe(false);
+  });
+
   it('shadow mode emits complete exact-head evidence after full agreement',()=>{
     const a=identity('A');
     const replay=plan(current({A:a}),checkpoint({A:a}));
