@@ -191,7 +191,9 @@ jobs:
           SHOPERATION_DIAGNOSTIC_OUTPUT: artifacts/shoperation-command-diagnostics/market-ready.json
           SHOPERATION_SOURCE_COMMIT: ${{ github.event.pull_request.head.sha || github.sha }}
           SHOPERATION_ENVIRONMENT: ci
-        run: node scripts/shoperation-command-diagnostic.mjs -- npm run market-ready:gate
+        run: |
+          node -e "const fs=require('fs');const p='docs/ROADMAP_BLOCK24_COMMERCIAL_SECURITY_MATURITY_GATE.md';let s=fs.readFileSync(p,'utf8');s=s.replace('existing V24 rollout evidence and GO/NO-GO authority','STRESS_REMOVED_V24_AUTHORITY');fs.writeFileSync(p,s)"
+          node scripts/shoperation-command-diagnostic.mjs -- npm run market-ready:gate
 
       - name: Upload Block 24 market-ready contract
         if: github.event_name != 'pull_request' || steps.incremental-replay.outputs.execution_mode != 'ACTIVE' || steps.incremental-replay.outputs.reuse_market_ready != 'true'
