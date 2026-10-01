@@ -9,7 +9,8 @@
     "quality/development/active-plan.json",
     "scripts/template-factory-quality-gate.mjs",
     "src/lib/builder/storefront-template-quality-gate.ts",
-    "tests/template-factory-golden-local-regression.test.ts"
+    "tests/template-factory-golden-local-regression.test.ts",
+    "scripts/lib/shoperation-template-factory-golden-semantics.mjs"
   ],
   "expectedSubsystems": [
     "builder-template-system",
@@ -136,7 +137,8 @@
         "A case passes only when both the existing global mismatch threshold and the new local-severity threshold pass.",
         "Local severity is calculated from pixelmatch-filtered mismatch pixels, not raw RGB inequality.",
         "Local windows are evaluated at multiple offsets so a concentrated regression cannot evade detection by crossing a fixed grid boundary.",
-        "The synthetic #35e9ff to #ff0000 mutation proves globalPassed=true, localPassed=false and final status=fail."
+        "The synthetic #35e9ff to #ff0000 mutation proves globalPassed=true, localPassed=false and final status=fail.",
+        "The local severity algorithm is a dependency-free shared Factory proof helper, while browser/image dependencies remain confined to the browser quality workflow."
       ],
       "invariants": [
         "maxPixelMismatchRatio remains 0.005 for existing manifests.",
@@ -331,7 +333,8 @@
         "template-factory-quality-gate"
       ],
       "mustEdit": [
-        "scripts/template-factory-quality-gate.mjs"
+        "scripts/template-factory-quality-gate.mjs",
+        "scripts/lib/shoperation-template-factory-golden-semantics.mjs"
       ],
       "mayEdit": [],
       "impactedReadOnly": [
@@ -451,5 +454,5 @@
       }
     ]
   },
-  "notes": "Targeted golden false-negative repair only. Handoff evidence flow and shipping/payment are separate transactions. No golden baseline update, no threshold lowering, no parallel visual gate. Plan projection reconciled to Builder/Storefront golden authority: full Known Failure replay, canonical 10-item negative knowledge set, no storefront-ui/quality-knowledge subsystem claim."
+  "notes": "Targeted golden false-negative repair only. Handoff evidence flow and shipping/payment are separate transactions. No golden baseline update, no threshold lowering, no parallel visual gate. Plan projection reconciled to Builder/Storefront golden authority: full Known Failure replay, canonical 10-item negative knowledge set, no storefront-ui/quality-knowledge subsystem claim. Local golden semantics were extracted into the existing scripts/lib Shoperation quality-infrastructure namespace so full-repository Quality tests do not require Playwright/pngjs; the real browser comparator consumes the same helper."
 }
