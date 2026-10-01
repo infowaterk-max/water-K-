@@ -275,6 +275,16 @@ describe('dependency-aware resumable verification',()=>{
     expect(report.changeImpactSet.proofScopes[0].scope).toBe('changed-template-page-all-viewports');
   });
 
+  it('tracks shadow promotion proof without claiming physical runtime savings',()=>{
+    const a=identity('A');
+    const cp=checkpoint({A:a},{shadowStats:{passes:2,resumedPasses:1,falseReuse:0}});
+    const replay=planFromSnapshots({current:{...current({A:a}),promotionPolicy:{minimumShadowPasses:3,minimumResumedShadowPasses:2,maximumFalseReuse:0}},previousCheckpoint:cp,checkpointValidation:valid,changedFiles:[],activeFailureIds:['KF-1']});
+    const final=finalizeVerification({plan:{...replay,plannerStartedAtMs:Date.now()-5},outcomes:{A:'success'},priorCheckpoint:cp,runId:'3-1'});
+    expect(final.manifest.shadowStats).toMatchObject({passes:3,resumedPasses:2,falseReuse:0,promotionEligible:true});
+    expect(final.manifest.metrics.physicalRuntimeSavingMs).toBe(0);
+    expect(final.manifest.metrics.physicalRuntimeSavingReason).toBe('shadow-mode-full-control-authoritative');
+  });
+
   it('verification graph rejects cycles and unknown dependencies',()=>{
     const registry={
       guards:[
