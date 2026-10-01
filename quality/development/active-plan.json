@@ -10,7 +10,8 @@
     "scripts/template-factory-quality-gate.mjs",
     "src/lib/builder/storefront-template-quality-gate.ts",
     "tests/template-factory-golden-local-regression.test.ts",
-    "scripts/lib/shoperation-template-factory-golden-semantics.mjs"
+    "scripts/lib/shoperation-template-factory-golden-semantics.mjs",
+    "scripts/lib/shoperation-template-factory-golden-semantics.d.mts"
   ],
   "expectedSubsystems": [
     "builder-template-system",
@@ -138,7 +139,8 @@
         "Local severity is calculated from pixelmatch-filtered mismatch pixels, not raw RGB inequality.",
         "Local windows are evaluated at multiple offsets so a concentrated regression cannot evade detection by crossing a fixed grid boundary.",
         "The synthetic #35e9ff to #ff0000 mutation proves globalPassed=true, localPassed=false and final status=fail.",
-        "The local severity algorithm is a dependency-free shared Factory proof helper, while browser/image dependencies remain confined to the browser quality workflow."
+        "The local severity algorithm is a dependency-free shared Factory proof helper, while browser/image dependencies remain confined to the browser quality workflow.",
+        "The dependency-free golden semantics helper has an explicit typed ESM declaration contract; TypeScript does not rely on implicit any or suppression."
       ],
       "invariants": [
         "maxPixelMismatchRatio remains 0.005 for existing manifests.",
@@ -334,7 +336,8 @@
       ],
       "mustEdit": [
         "scripts/template-factory-quality-gate.mjs",
-        "scripts/lib/shoperation-template-factory-golden-semantics.mjs"
+        "scripts/lib/shoperation-template-factory-golden-semantics.mjs",
+        "scripts/lib/shoperation-template-factory-golden-semantics.d.mts"
       ],
       "mayEdit": [],
       "impactedReadOnly": [
