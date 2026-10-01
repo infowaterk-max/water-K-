@@ -272,3 +272,4 @@ Physical runtime savings are reported only in ACTIVE mode, after promotion proof
 ### Truth-sealed promotion checkpoint
 
 A promotion-eligible checkpoint is persisted only after Completion Truth Gate has sealed it against the same exact HEAD, branch and state version. Reconciliation alone can create an unsealed checkpoint candidate, but that candidate cannot authorize ACTIVE evidence reuse and is never saved as the branch resume authority before Truth Gate PASS.
+Promotion shadow proof note: exact-head Truth sealing is part of checkpoint eligibility; a subsequent semantic-no-op revision may resume only after the prior checkpoint is sealed `VERIFIED_DONE`.
