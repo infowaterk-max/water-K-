@@ -1,4 +1,4 @@
-import {existsSync,readFileSync,writeFileSync} from 'node:fs';
+import {appendFileSync,existsSync,readFileSync,writeFileSync} from 'node:fs';
 import {atomicWriteJson,finalizeVerification,loadCheckpoint} from './lib/shoperation-verification-reuse.mjs';
 
 const planPath=process.env.SHOPERATION_REPLAY_PLAN||'artifacts/shoperation-development-guard/resumable-verification-plan.json';
@@ -39,9 +39,14 @@ const lines=[
   '- Cache hit rate: '+(plan.metrics.cacheHitRate*100).toFixed(1)+'%',
   '- Invalidation ratio: '+(plan.metrics.invalidationRatio*100).toFixed(1)+'%',
   '- Dependency resolution: '+String(plan.metrics.dependencyResolutionMs??plan.plannerDurationMs??0)+' ms',
+  '- Verification wall time (shadow control): '+String(final.manifest.metrics.verificationRuntimeMs??'n/a')+' ms',
+  '- Physical runtime saved: '+String(final.manifest.metrics.physicalRuntimeSavingMs??0)+' ms',
   '',
   '## Replay reason',
   ...(plan.reasons.length?plan.reasons.map(reason=>'- '+reason):['- fingerprint/dependency reconciliation']),
+  '',
+  '## Semantic impact',
+  ...(plan.changeImpactSet?.proofScopes?.length?plan.changeImpactSet.proofScopes.map(scope=>'- '+scope.unitId+': '+scope.scope+' — '+(scope.reason??'semantic impact')):['- none / gate fingerprint only']),
   '',
   '## Explain',
   ...Object.values(plan.gates).map(gate=>'- '+gate.gateId+': '+gate.action+' — '+(gate.reasons.length?gate.reasons.join(', '):'semantic inputs equivalent')),
@@ -51,8 +56,15 @@ const lines=[
   '- Discrepancies: '+final.manifest.shadowComparison.discrepancies.length,
   '- Decision: **'+final.manifest.shadowComparison.decision+'**',
   '- Final confidence: **'+final.manifest.finalConfidence+'**',
+  '',
+  '## Promotion proof',
+  '- Shadow PASS count: '+String(final.manifest.shadowStats?.passes??0),
+  '- RESUMED shadow PASS count: '+String(final.manifest.shadowStats?.resumedPasses??0),
+  '- False reuse count: '+String(final.manifest.shadowStats?.falseReuse??0),
+  '- Promotion eligible: **'+String(final.manifest.shadowStats?.promotionEligible===true?'YES':'NO')+'**',
 ];
 writeFileSync(summaryPath,lines.join('\n')+'\n');
+if(process.env.GITHUB_STEP_SUMMARY)appendFileSync(process.env.GITHUB_STEP_SUMMARY,lines.join('\n')+'\n');
 
 console.log('Resumable Verification: '+final.decision+'; mode='+plan.verificationMode+'; tier='+plan.replayTier+'; reusedCandidate='+plan.evidence.reused+'; rerun='+plan.evidence.rerun+'; shadowDiscrepancies='+final.manifest.shadowComparison.discrepancies.length+'.');
 for(const discrepancy of final.manifest.shadowComparison.discrepancies)console.error(JSON.stringify(discrepancy));
