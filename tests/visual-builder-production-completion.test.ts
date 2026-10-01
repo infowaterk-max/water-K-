@@ -89,6 +89,8 @@ describe('Visual Builder v3 product completion',()=>{
     expect(source).toContain("type:'responsive',nodeId:node.id,viewport,gridSpan:span");
     expect(source).toContain('data-vx-grid-resizable');
     expect(css).toContain('.resizeHandle');
+    expect(css).toContain(':not(.insideInsertHandle):not(.resizeHandle)');
+    expect(css).toContain('.resizeHandle{position:absolute;right:4px;');
     expect(css).toContain('cursor:ew-resize');
     expect(vxCore).toContain('gridColumns:12');
   });
