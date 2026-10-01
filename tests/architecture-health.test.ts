@@ -1,8 +1,9 @@
 import {execFileSync} from 'node:child_process';
 import {readFileSync} from 'node:fs';
-import {describe,expect,it} from 'vitest';
+import {beforeAll,describe,expect,it} from 'vitest';
 
 describe('Architecture Drift + Confidence + Guard Rationalization',()=>{
+  beforeAll(()=>{execFileSync('node',['scripts/lib/shoperation-architecture-health.mjs','--check'],{encoding:'utf8'});},60000);
   it('keeps blocking guard responsibilities unique',()=>{
     const registry=JSON.parse(readFileSync('quality/knowledge/guard-registry.v1.json','utf8')) as {guards:Array<{id:string;blocking:boolean;responsibilityKey:string}>};
     const blocking=registry.guards.filter(item=>item.blocking);
@@ -11,7 +12,6 @@ describe('Architecture Drift + Confidence + Guard Rationalization',()=>{
   });
 
   it('produces a deterministic PASS architecture health report for the current canonical registries',()=>{
-    execFileSync('node',['scripts/lib/shoperation-architecture-health.mjs','--check'],{encoding:'utf8'});
     const report=JSON.parse(readFileSync('artifacts/shoperation-architecture/architecture-health.json','utf8')) as {
       contract:string;decision:string;hardDrift:unknown[];warnings:unknown[];
       confidence:{average:number;capabilities:Array<{capabilityId:string;score:number;level:string}>};
@@ -78,7 +78,6 @@ describe('Architecture Drift + Confidence + Guard Rationalization',()=>{
   });
 
   it('ADVERSARIAL: free-form capability evidence cannot produce PROVEN confidence',()=>{
-    execFileSync('node',['scripts/lib/shoperation-architecture-health.mjs','--check'],{encoding:'utf8'});
     const report=JSON.parse(readFileSync('artifacts/shoperation-architecture/architecture-health.json','utf8')) as any;
     const atlas=report.confidence.capabilities.find((item:any)=>item.capabilityId==='CAP-ATLAS');
     expect(atlas.score).toBeLessThan(90);
