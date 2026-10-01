@@ -47,6 +47,7 @@ if(explainArg){
   console.log(explanation?JSON.stringify(explanation,null,2):'Unknown gate: '+gateId);
 }
 if(process.env.GITHUB_OUTPUT){
+  const physicalSkipAuthorized=planner.plan.executionMode==='ACTIVE'&&planner.plan.promotionProofValid===true&&planner.plan.verificationMode!=='FULL'&&planner.plan.uncertainEvidenceSet.length===0;
   appendFileSync(process.env.GITHUB_OUTPUT,'verification_mode='+planner.plan.verificationMode+'\n');
   appendFileSync(process.env.GITHUB_OUTPUT,'replay_tier='+planner.plan.replayTier+'\n');
   appendFileSync(process.env.GITHUB_OUTPUT,'reused='+planner.plan.evidence.reused+'\n');
@@ -54,9 +55,10 @@ if(process.env.GITHUB_OUTPUT){
   appendFileSync(process.env.GITHUB_OUTPUT,'invalidated='+planner.plan.evidence.invalidated+'\n');
   appendFileSync(process.env.GITHUB_OUTPUT,'unknown='+planner.plan.evidence.unknown+'\n');
   appendFileSync(process.env.GITHUB_OUTPUT,'execution_mode='+planner.plan.executionMode+'\n');
+  appendFileSync(process.env.GITHUB_OUTPUT,'physical_skip_authorized='+(physicalSkipAuthorized?'true':'false')+'\n');
   for(const [gateId,gate] of Object.entries(planner.plan.gates??{})){
     const key=gateId.toLowerCase().replace(/^guard-/,'').replace(/[^a-z0-9]+/g,'_').replace(/^_|_$/g,'');
-    appendFileSync(process.env.GITHUB_OUTPUT,'reuse_'+key+'='+(gate.action==='REUSE'?'true':'false')+'\n');
+    appendFileSync(process.env.GITHUB_OUTPUT,'reuse_'+key+'='+(physicalSkipAuthorized&&gate.action==='REUSE'?'true':'false')+'\n');
   }
 }
 process.stdout.write(result.stdout);
