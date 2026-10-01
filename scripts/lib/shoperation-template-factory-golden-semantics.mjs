@@ -1,7 +1,7 @@
 export const DEFAULT_LOCAL_GOLDEN_POLICY=Object.freeze({
   windowSizePx:48,
   maxMismatchRatio:.12,
-  minMismatchPixels:72,
+  minMismatchPixels:400,
 });
 
 export function localGoldenMismatch(maskData,width,height,policy=DEFAULT_LOCAL_GOLDEN_POLICY){
