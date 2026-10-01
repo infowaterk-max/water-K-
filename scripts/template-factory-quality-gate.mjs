@@ -60,7 +60,7 @@ async function loadPreviousManifest(){
   if(!previousManifestPath||!await exists(previousManifestPath))return{manifest:null,reason:'missing'};
   try{
     const manifest=JSON.parse(await readFile(previousManifestPath,'utf8'));
-    if(manifest.contract!=='shoporation.template-factory-quality-evidence.v3')return{manifest:null,reason:'contract'};
+    if(manifest.contract!=='shoporation.template-factory-quality-evidence.v2'||manifest.reconciliationContract!=='shoporation.template-factory-page-evidence-reuse.v1')return{manifest:null,reason:'contract'};
     if(manifest.complete!==true)return{manifest:null,reason:'incomplete'};
     if(!manifest.checksum||manifest.checksum!==manifestChecksum(manifest))return{manifest:null,reason:'checksum'};
     if(!currentBranch||manifest.branch!==currentBranch)return{manifest:null,reason:'branch'};
@@ -557,7 +557,8 @@ const acceptanceProofs=scope.selected.map(selected=>{
 
 const templatePageFingerprints=Object.fromEntries(scope.selected.map(selected=>[selected.template.templateKey,{templateVersion:selected.template.templateVersion,pages:selected.template.pageFingerprints??{}}]));
 const evidence={
-  contract:'shoporation.template-factory-quality-evidence.v3',
+  contract:'shoporation.template-factory-quality-evidence.v2',
+  reconciliationContract:'shoporation.template-factory-page-evidence-reuse.v1',
   sourceCommit:headSha==='HEAD'?null:headSha,
   branch:currentBranch||null,
   runId:currentRunId,
