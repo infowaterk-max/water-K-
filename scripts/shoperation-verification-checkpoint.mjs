@@ -26,7 +26,7 @@ const lines=[
   '# Shoperation Resumable Verification',
   '',
   'Verification mode: **'+plan.verificationMode+'**',
-  'Execution mode: **SHADOW**',
+  'Execution mode: **'+plan.executionMode+'**',
   'Replay tier: **'+plan.replayTier+' — '+plan.replayTierName+'**',
   'Current exact HEAD: '+plan.sourceRevision,
   'Resume checkpoint: '+(plan.checkpointSourceCommit||'none'),
@@ -51,10 +51,10 @@ const lines=[
   '## Explain',
   ...Object.values(plan.gates).map(gate=>'- '+gate.gateId+': '+gate.action+' — '+(gate.reasons.length?gate.reasons.join(', '):'semantic inputs equivalent')),
   '',
-  '## Shadow comparison',
-  '- Compared full gates: '+final.manifest.shadowComparison.compared,
-  '- Discrepancies: '+final.manifest.shadowComparison.discrepancies.length,
-  '- Decision: **'+final.manifest.shadowComparison.decision+'**',
+  '## Verification comparison',
+  '- Compared gates: '+final.manifest.comparison.compared,
+  '- Discrepancies: '+final.manifest.comparison.discrepancies.length,
+  '- Decision: **'+final.manifest.comparison.decision+'**',
   '- Final confidence: **'+final.manifest.finalConfidence+'**',
   '',
   '## Promotion proof',
@@ -66,6 +66,6 @@ const lines=[
 writeFileSync(summaryPath,lines.join('\n')+'\n');
 if(process.env.GITHUB_STEP_SUMMARY)appendFileSync(process.env.GITHUB_STEP_SUMMARY,lines.join('\n')+'\n');
 
-console.log('Resumable Verification: '+final.decision+'; mode='+plan.verificationMode+'; tier='+plan.replayTier+'; reusedCandidate='+plan.evidence.reused+'; rerun='+plan.evidence.rerun+'; shadowDiscrepancies='+final.manifest.shadowComparison.discrepancies.length+'.');
-for(const discrepancy of final.manifest.shadowComparison.discrepancies)console.error(JSON.stringify(discrepancy));
+console.log('Resumable Verification: '+final.decision+'; mode='+plan.verificationMode+'; execution='+plan.executionMode+'; tier='+plan.replayTier+'; reusedCandidate='+plan.evidence.reused+'; rerun='+plan.evidence.rerun+'; discrepancies='+final.manifest.comparison.discrepancies.length+'; savedMs='+String(final.manifest.metrics.physicalRuntimeSavingMs??0)+'.');
+for(const discrepancy of final.manifest.comparison.discrepancies)console.error(JSON.stringify(discrepancy));
 if(final.decision!=='PASS'&&process.argv.includes('--check'))process.exit(1);
