@@ -30,6 +30,8 @@ const qualityInfrastructurePrefixes=[
   'src/app/visual-fidelity-qa/',
   'scripts/template-factory-quality-gate.mjs',
   'scripts/lib/template-factory-resumable-verification.mjs',
+  'scripts/lib/shoperation-verification-reuse.mjs',
+  'scripts/lib/shoperation-development-runtime.mjs',
   'quality/knowledge/guard-registry.v1.json',
   'scripts/template-factory-product-owner-handoff.mjs',
   'scripts/promote-template-golden-baseline.mjs',
