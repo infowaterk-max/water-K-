@@ -158,7 +158,9 @@ jobs:
       NEXT_PUBLIC_SITE_URL: http://127.0.0.1:3000
       QUALITY_BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
       QUALITY_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+      QUALITY_BRANCH: ${{ github.event.pull_request.head.ref || github.ref_name }}
       TEMPLATE_QUALITY_OUTPUT_DIR: artifacts/template-factory-quality
+      TEMPLATE_QUALITY_PREVIOUS_MANIFEST: artifacts/template-factory-checkpoint/manifest.json
     steps:
       - name: Checkout exact head
         uses: actions/checkout@v4
@@ -173,6 +175,15 @@ jobs:
 
       - name: Install locked application dependencies
         run: npm ci --no-audit --no-fund
+
+      - name: Restore Template Factory browser evidence checkpoint
+        if: github.event_name == 'pull_request'
+        uses: actions/cache/restore@v4
+        with:
+          path: artifacts/template-factory-checkpoint/manifest.json
+          key: template-factory-browser-v1-${{ runner.os }}-pr-${{ github.event.pull_request.number }}-${{ github.event.pull_request.head.sha }}
+          restore-keys: |
+            template-factory-browser-v1-${{ runner.os }}-pr-${{ github.event.pull_request.number }}-
 
       - name: Knowledge Before Build preflight
         id: knowledge
@@ -390,9 +401,23 @@ jobs:
           if-no-files-found: warn
           retention-days: 30
 
-      - name: Run scoped Template Factory browser proof (acceptance requires 14x3)
+      - name: Run scoped Template Factory browser proof (acceptance requires reconciled 14x3)
         id: browser-matrix
         run: node scripts/template-factory-quality-gate.mjs
+
+      - name: Stage Template Factory browser evidence checkpoint
+        if: github.event_name == 'pull_request' && steps.browser-matrix.outcome == 'success'
+        shell: bash
+        run: |
+          mkdir -p artifacts/template-factory-checkpoint
+          cp artifacts/template-factory-quality/manifest.json artifacts/template-factory-checkpoint/manifest.json
+
+      - name: Save Template Factory browser evidence checkpoint
+        if: github.event_name == 'pull_request' && steps.browser-matrix.outcome == 'success'
+        uses: actions/cache/save@v4
+        with:
+          path: artifacts/template-factory-checkpoint/manifest.json
+          key: template-factory-browser-v1-${{ runner.os }}-pr-${{ github.event.pull_request.number }}-${{ github.event.pull_request.head.sha }}
 
       - name: Resolve Product Owner candidate target
         id: product-owner-target
