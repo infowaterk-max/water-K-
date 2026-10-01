@@ -101,6 +101,20 @@ jobs:
           restore-keys: |
             shoperation-verification-v1-${{ runner.os }}-pr-${{ github.event.pull_request.number }}-
 
+      - name: STRESS ONLY Deep Atlas hard-drift probe
+        shell: bash
+        run: |
+          node <<'NODE'
+          const fs=require('fs');
+          const p='quality/knowledge/domain-foundations.v1.json';
+          const j=JSON.parse(fs.readFileSync(p,'utf8'));
+          const source=j.domains.find(d=>Array.isArray(d.truthOwnership)&&d.truthOwnership.length);
+          const target=j.domains.find(d=>d.id!==source.id);
+          target.truthOwnership=[...(target.truthOwnership||[]),source.truthOwnership[0]];
+          fs.writeFileSync(p,JSON.stringify(j,null,2)+'\n');
+          NODE
+          node scripts/shoperation-knowledge-deep-atlas-scan.mjs --check
+
       - name: Knowledge Before Build preflight
         id: knowledge
         env:
