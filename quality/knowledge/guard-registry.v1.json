@@ -435,8 +435,8 @@
       "requireExactHeadTruth": true,
       "fallback": "FULL",
       "promotedFrom": {
-        "sourceCommit": "d87b16fad91f07a00ab58ff0794626a84048036c",
-        "ciRunId": "36851334972",
+        "sourceCommit": "ab35c067efcaad03c6e25714bd344c5111154499",
+        "ciRunId": "36855588218",
         "shadowPasses": 3,
         "resumedShadowPasses": 3,
         "falseReuse": 0
