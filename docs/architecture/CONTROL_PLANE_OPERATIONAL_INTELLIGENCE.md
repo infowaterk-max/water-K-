@@ -268,3 +268,7 @@ Cancelled or otherwise incomplete shadow control runs block reconciliation but d
 Shadow mode never claims physical verification savings: full control execution remains authoritative even when the planner predicts reusable evidence. The manifest may report cache-hit and invalidation ratios in SHADOW, but `physicalRuntimeSavingMs` remains zero.
 
 Physical runtime savings are reported only in ACTIVE mode, after promotion proof is valid and reusable gates are actually skipped. The saving is measured against the configured full-verification reference runtime and is accompanied by the exact reused/rerun evidence set so performance cannot override correctness evidence.
+
+### Truth-sealed promotion checkpoint
+
+A promotion-eligible checkpoint is persisted only after Completion Truth Gate has sealed it against the same exact HEAD, branch and state version. Reconciliation alone can create an unsealed checkpoint candidate, but that candidate cannot authorize ACTIVE evidence reuse and is never saved as the branch resume authority before Truth Gate PASS.
