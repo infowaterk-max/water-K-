@@ -190,6 +190,35 @@ export function loadCheckpoint(path){
   catch(error){return{checkpoint:null,validation:{ok:false,issues:[{code:'CHECKPOINT_CORRUPTED',message:String(error)}]}};}
 }
 
+export function sealCheckpointTruth(checkpoint,{currentExactState,truthReport}={}){
+  const head=String(currentExactState?.head??'').trim();
+  const branch=String(currentExactState?.branch??'').trim();
+  const stateVersion=String(currentExactState?.stateVersion??'').trim();
+  const validation=validateCheckpoint(checkpoint,{branch,head,requireAncestor:false});
+  if(!validation.ok)throw new Error('CHECKPOINT_TRUTH_SEAL_INVALID:'+validation.issues.map(issue=>issue.code).join(','));
+  if(!head||checkpoint.sourceCommit!==head)throw new Error('CHECKPOINT_TRUTH_SEAL_HEAD_MISMATCH');
+  if(!branch||checkpoint.branch!==branch)throw new Error('CHECKPOINT_TRUTH_SEAL_BRANCH_MISMATCH');
+  if(!stateVersion||checkpoint.stateVersion!==stateVersion)throw new Error('CHECKPOINT_TRUTH_SEAL_STATE_VERSION_MISMATCH');
+  if(truthReport?.decision!=='PASS'||truthReport?.internalState!=='VERIFIED_DONE')throw new Error('CHECKPOINT_TRUTH_SEAL_TRUTH_NOT_VERIFIED');
+  const sealed={
+    ...checkpoint,
+    truthVerified:true,
+    truthGate:{
+      decision:truthReport.decision,
+      internalState:truthReport.internalState,
+      poStatus:truthReport.poStatus??null,
+      sourceCommit:head,
+      branch,
+      stateVersion,
+      runId:truthReport.runId??null,
+      runAttempt:truthReport.runAttempt??null,
+      sealedAt:new Date().toISOString(),
+    },
+  };
+  sealed.checksum=checkpointChecksum(sealed);
+  return sealed;
+}
+
 export function planFromSnapshots({current,previousCheckpoint=null,checkpointValidation={ok:false,issues:[{code:'CHECKPOINT_MISSING'}]},changedFiles=[],dirty=false,activeFailureIds=[],forceFullRequested=false,semanticImpact=[]}){
   const reasons=[],gates={};let forceFull=false;
   if(forceFullRequested){forceFull=true;reasons.push('force-full-verification');}
@@ -235,16 +264,19 @@ export function planFromSnapshots({current,previousCheckpoint=null,checkpointVal
   const verificationMode=forceFull?'FULL':previousCheckpoint?(reusable.length?'RESUMED':'INCREMENTAL'):'FULL';
   const requestedExecutionMode=String(current.requestedExecutionMode??'SHADOW').toUpperCase();
   const promotionEngineEquivalent=Boolean(previousCheckpoint?.verificationEngineHash&&previousCheckpoint.verificationEngineHash===current.verificationEngineHash);
-  const promotionProofValid=Boolean(previousCheckpoint?.shadowStats?.promotionEligible===true&&promotionEngineEquivalent);
+  const promotionTruthVerified=current.promotionPolicy?.requireExactHeadTruth!==true||previousCheckpoint?.truthVerified===true;
+  const promotionProofValid=Boolean(previousCheckpoint?.shadowStats?.promotionEligible===true&&promotionEngineEquivalent&&promotionTruthVerified);
   const executionMode=requestedExecutionMode==='ACTIVE'&&!forceFull&&promotionProofValid?'ACTIVE':'SHADOW';
-  if(requestedExecutionMode==='ACTIVE'&&executionMode!=='ACTIVE'&&!forceFull)reasons.push(promotionEngineEquivalent?'promotion-proof-not-eligible':'promotion-engine-changed');
+  if(requestedExecutionMode==='ACTIVE'&&executionMode!=='ACTIVE'&&!forceFull){
+    reasons.push(!promotionEngineEquivalent?'promotion-engine-changed':!promotionTruthVerified?'promotion-truth-unverified':'promotion-proof-not-eligible');
+  }
   const downstream=values.filter(g=>g.reasons.some(reason=>reason.startsWith('dependency-invalidated:'))).map(g=>g.gateId);
   const authorityChanged=values.filter(g=>g.reasons.includes('authority-change')).map(g=>g.gateId);
   const configChanged=values.filter(g=>g.reasons.includes('config-change')||g.reasons.includes('environment-change')||g.reasons.includes('toolchain-change')).map(g=>g.gateId);
   const semanticChanged=semanticImpact.length?semanticImpact.map(unit=>unit.id):values.filter(g=>g.reasons.includes('semantic-input-change')||g.reasons.includes('implementation-change')||g.reasons.includes('gate-version-change')).map(g=>g.gateId);
   const proofScopes=semanticImpact.map(unit=>({unitId:unit.id,scope:unit.scope,files:unit.files,pageType:unit.pageType,narrowed:unit.narrowed,reason:unit.reason}));
   return{
-    contract:PLAN_CONTRACT,schemaVersion:current.schemaVersion,verificationMode,executionMode,requestedExecutionMode,promotionProofValid,promotionEngineEquivalent,verificationEngineHash:current.verificationEngineHash,replayTier,promotionPolicy:current.promotionPolicy??{},
+    contract:PLAN_CONTRACT,schemaVersion:current.schemaVersion,verificationMode,executionMode,requestedExecutionMode,promotionProofValid,promotionEngineEquivalent,promotionTruthVerified,verificationEngineHash:current.verificationEngineHash,replayTier,promotionPolicy:current.promotionPolicy??{},
     replayTierName:['Evidence Reuse','Local Replay','Dependency Replay','Subsystem Replay','Full Verification'][replayTier],
     sourceRevision:current.head,branch:current.branch,checkpointSourceCommit:previousCheckpoint?.sourceCommit??null,
     changedFiles,uncoveredChangedFiles:uncovered,activeFailureIds:sorted(activeFailureIds),reasons:uniq(reasons),
@@ -337,7 +369,7 @@ export function finalizeVerification({plan,outcomes={},priorCheckpoint=null,runI
   const checkpoint={
     contract:CHECKPOINT_CONTRACT,schemaVersion:plan.schemaVersion,complete:comparison.decision==='PASS',sourceCommit:plan.sourceRevision,
     branch:plan.branch,stateVersion,runId,activeFailureIds:plan.activeFailureIds,verificationMode:plan.verificationMode,executionMode,verificationEngineHash:plan.verificationEngineHash,replayTier:plan.replayTier,
-    gates,shadowStats,metrics:{verificationRuntimeMs,referenceFullRuntimeMs},createdAt:new Date().toISOString(),
+    gates,shadowStats,truthVerified:false,truthGate:null,metrics:{verificationRuntimeMs,referenceFullRuntimeMs},createdAt:new Date().toISOString(),
   };
   checkpoint.checksum=checkpointChecksum(checkpoint);
   return{manifest,checkpoint,decision:comparison.decision};
