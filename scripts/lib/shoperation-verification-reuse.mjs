@@ -163,7 +163,7 @@ export function buildRepositorySnapshot({registry,head=currentHead(),branch=curr
     const cfg=verificationConfig(registry,gate);
     coveredPatterns.push(...cfg.semanticInputs,...cfg.implementationInputs,...cfg.authorityInputs,...cfg.configurationInputs,...cfg.toolchainInputs);
   }
-  return{schemaVersion:root.schemaVersion??ENGINE_SCHEMA_VERSION,head,branch,graphValid:graphValidation.ok,graphIssues:graphValidation.issues,gates,coveredPatterns:uniq(coveredPatterns),nonSemanticPatterns:uniq(root.nonSemanticPatterns??[])};
+  return{schemaVersion:root.schemaVersion??ENGINE_SCHEMA_VERSION,head,branch,graphValid:graphValidation.ok,graphIssues:graphValidation.issues,gates,coveredPatterns:uniq(coveredPatterns),nonSemanticPatterns:uniq(root.nonSemanticPatterns??[]),promotionPolicy:root.promotion??{}};
 }
 
 export function checkpointPayload(checkpoint){const copy={...checkpoint};delete copy.checksum;return copy;}
@@ -234,7 +234,7 @@ export function planFromSnapshots({current,previousCheckpoint=null,checkpointVal
   const semanticChanged=semanticImpact.length?semanticImpact.map(unit=>unit.id):values.filter(g=>g.reasons.includes('semantic-input-change')||g.reasons.includes('implementation-change')||g.reasons.includes('gate-version-change')).map(g=>g.gateId);
   const proofScopes=semanticImpact.map(unit=>({unitId:unit.id,scope:unit.scope,files:unit.files,pageType:unit.pageType,narrowed:unit.narrowed,reason:unit.reason}));
   return{
-    contract:PLAN_CONTRACT,schemaVersion:current.schemaVersion,verificationMode,executionMode:'SHADOW',replayTier,
+    contract:PLAN_CONTRACT,schemaVersion:current.schemaVersion,verificationMode,executionMode:'SHADOW',replayTier,promotionPolicy:current.promotionPolicy??{},
     replayTierName:['Evidence Reuse','Local Replay','Dependency Replay','Subsystem Replay','Full Verification'][replayTier],
     sourceRevision:current.head,branch:current.branch,checkpointSourceCommit:previousCheckpoint?.sourceCommit??null,
     changedFiles,uncoveredChangedFiles:uncovered,activeFailureIds:sorted(activeFailureIds),reasons:uniq(reasons),
@@ -260,7 +260,7 @@ export function createReplayPlan({registry,checkpointPath,activeFailureIds=[]}={
   const semanticImpact=validation.ok?classifySemanticUnits({registry,changedFiles,base:checkpoint.sourceCommit,head}):[];
   const forceFullRequested=['1','true','yes'].includes(String(process.env.SHOPERATION_FORCE_FULL_VERIFICATION??'').toLowerCase());
   const plan=planFromSnapshots({current,previousCheckpoint:checkpoint,checkpointValidation:validation,changedFiles,dirty,activeFailureIds,forceFullRequested,semanticImpact});
-  plan.checkpointValidation=validation;plan.gateScope=gateScope;plan.plannerDurationMs=Date.now()-started;plan.metrics.dependencyResolutionMs=plan.plannerDurationMs;plan.generatedAt=new Date().toISOString();
+  plan.checkpointValidation=validation;plan.gateScope=gateScope;plan.plannerStartedAtMs=started;plan.plannerDurationMs=Date.now()-started;plan.metrics.dependencyResolutionMs=plan.plannerDurationMs;plan.generatedAt=new Date().toISOString();
   return{plan,current,checkpoint};
 }
 
@@ -290,16 +290,26 @@ export function finalizeVerification({plan,outcomes={},priorCheckpoint=null,runI
   }
   const unique=[...new Map(discrepancies.map(item=>[item.gateId+':'+item.code,item])).values()];
   const shadowComparison={mode:'SHADOW',compared:comparable.length,discrepancies:unique,decision:unique.length?'BLOCK':'PASS'};
+  const priorStats=priorCheckpoint?.shadowStats??{passes:0,resumedPasses:0,falseReuse:0};
+  const falseReuseThisRun=unique.filter(item=>item.code==='SHADOW_FALSE_REUSE').length;
+  const shadowStats={
+    passes:priorStats.passes+(shadowComparison.decision==='PASS'?1:0),
+    resumedPasses:priorStats.resumedPasses+(shadowComparison.decision==='PASS'&&plan.verificationMode==='RESUMED'?1:0),
+    falseReuse:priorStats.falseReuse+falseReuseThisRun,
+  };
+  const promotion=plan.promotionPolicy??{};
+  shadowStats.promotionEligible=shadowStats.passes>=Number(promotion.minimumShadowPasses??Infinity)&&shadowStats.resumedPasses>=Number(promotion.minimumResumedShadowPasses??Infinity)&&shadowStats.falseReuse<=Number(promotion.maximumFalseReuse??0)&&shadowComparison.decision==='PASS'&&plan.uncertainEvidenceSet.length===0;
+  const metrics={...plan.metrics,verificationRuntimeMs:plan.plannerStartedAtMs?Math.max(0,Date.now()-plan.plannerStartedAtMs):null,physicalRuntimeSavingMs:0,physicalRuntimeSavingReason:'shadow-mode-full-control-authoritative'};
   const manifest={
     contract:MANIFEST_CONTRACT,schemaVersion:plan.schemaVersion,sourceCommit:plan.sourceRevision,branch:plan.branch,stateVersion,runId,
     verificationMode:plan.verificationMode,executionMode:'SHADOW',replayTier:plan.replayTier,checkpointSourceCommit:plan.checkpointSourceCommit,
-    evidenceSummary:plan.evidence,changeImpactSet:plan.changeImpactSet,metrics:plan.metrics,shadowComparison,finalConfidence:shadowComparison.decision,
+    evidenceSummary:plan.evidence,changeImpactSet:plan.changeImpactSet,metrics,shadowComparison,shadowStats,promotionPolicy:promotion,finalConfidence:shadowComparison.decision,
     gates,truthEvidence,generatedAt:new Date().toISOString(),decision:shadowComparison.decision,
   };
   const checkpoint={
     contract:CHECKPOINT_CONTRACT,schemaVersion:plan.schemaVersion,complete:shadowComparison.decision==='PASS',sourceCommit:plan.sourceRevision,
     branch:plan.branch,stateVersion,runId,activeFailureIds:plan.activeFailureIds,verificationMode:plan.verificationMode,replayTier:plan.replayTier,
-    gates,createdAt:new Date().toISOString(),
+    gates,shadowStats,createdAt:new Date().toISOString(),
   };
   checkpoint.checksum=checkpointChecksum(checkpoint);
   return{manifest,checkpoint,decision:shadowComparison.decision};
