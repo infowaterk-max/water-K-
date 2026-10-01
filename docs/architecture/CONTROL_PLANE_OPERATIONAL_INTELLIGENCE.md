@@ -297,3 +297,7 @@ Second documentation-only exact-head revision for the same verification-engine i
 ### Merge-readiness promotion proof marker C
 
 Documentation-only exact-head revision for the post-canonicalization verification-engine identity. This revision changes no executable verification semantics and exists only to accumulate an independent resumed shadow proof.
+
+### Merge-readiness promotion proof marker D
+
+Second documentation-only exact-head revision for the post-canonicalization verification-engine identity. It exists solely to complete the independent resumed shadow promotion threshold without changing executable policy or verification semantics.
