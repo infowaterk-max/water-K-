@@ -20,6 +20,9 @@ describe('Template Factory shared engine functional proof runner',()=>{
     expect(runner).toContain("ENGINE_FUNCTIONAL_PLATFORM_ROLE_REQUIRED");
     expect(runner).toContain("dismissCookieConsent(page)");
     expect(runner).toContain("name:'Csak szükséges'");
+    expect(runner).toContain("ENGINE_ACCEPTANCE_ENTRY_CARDINALITY_INVALID");
+    expect(runner).toContain("document.querySelectorAll(selector).length===1");
+    expect(runner).toContain("entryRoots.first()");
     expect(runner).not.toContain("force:true");
     expect(runner).not.toContain("createPilotAcceptanceToken");
   });
