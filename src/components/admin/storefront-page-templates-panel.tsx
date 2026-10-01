@@ -26,7 +26,7 @@ import {VxBuilderLibraryPreview} from './vx-builder-library-preview';
 import libraryStyles from './vx-builder-library.module.css';
 
 const registry=createStorefrontVisualBuilderComponentRegistry();
-const operationKey=()=>\`builder:page-template:create:\${crypto.randomUUID()}\`;
+const operationKey=()=>`builder:page-template:create:${crypto.randomUUID()}`;
 const label=(value:string)=>value.replace(/([a-z0-9])([A-Z])/g,'$1 $2').replace(/[._:-]+/g,' ').replace(/\b\w/g,letter=>letter.toUpperCase());
 
 type Props={
@@ -73,7 +73,7 @@ export function StorefrontPageTemplatesPanel({document,capability,onApply}:Props
   const applyTemplate=(template:StorefrontBuilderPageTemplate)=>run(async()=>{
     const source=await getVisualBuilderPageTemplateSourceAction({pageKey:document.pageKey,presetId:template.presetId});
     const next=applyStorefrontPageTemplate({current:document,source,registry,capability});
-    onApply(next,next.sections[0]?.id??document.sections[0]?.id??'root',\`„\${template.label}” oldalsablon alkalmazva · a módosítás még nincs mentve.\`);
+    onApply(next,next.sections[0]?.id??document.sections[0]?.id??'root',`„${template.label}” oldalsablon alkalmazva · a módosítás még nincs mentve.`);
   });
 
   const createPage=()=>run(async()=>{
@@ -81,9 +81,9 @@ export function StorefrontPageTemplatesPanel({document,capability,onApply}:Props
     const targetPageKey=newPageKey.trim();
     if(!targetPageKey)throw new Error('Adj meg egy oldalazonosítót.');
     const result=await createVisualBuilderPageFromTemplateAction({referencePageKey:document.pageKey,presetId:newPresetId,targetPageKey,operationKey:operationKey()});
-    setMessage(\`Új \${label(result.pageType)} oldal létrehozva · piszkozat r\${result.revisionNumber}.\`);
+    setMessage(`Új ${label(result.pageType)} oldal létrehozva · piszkozat r${result.revisionNumber}.`);
     setNewPageKey('');
-    router.push(\`/admin/tartalom/builder?page=\${encodeURIComponent(result.pageKey)}\`);
+    router.push(`/admin/tartalom/builder?page=${encodeURIComponent(result.pageKey)}`);
     router.refresh();
   });
 
@@ -107,7 +107,7 @@ export function StorefrontPageTemplatesPanel({document,capability,onApply}:Props
     </section>:null}
 
     <div className={libraryStyles.pageGrid}>{visibleApplicable.map(template=>{const descriptor=describeVxPageTemplate(template);return <article className={libraryStyles.pageCard} key={template.presetId}>
-      <button type="button" className={libraryStyles.previewButton} onClick={()=>setPreviewId(template.presetId)} aria-label={\`\${template.label} nagyobb előnézete\`}><VxBuilderLibraryPreview descriptor={descriptor} label={template.label}/></button>
+      <button type="button" className={libraryStyles.previewButton} onClick={()=>setPreviewId(template.presetId)} aria-label={`${template.label} nagyobb előnézete`}><VxBuilderLibraryPreview descriptor={descriptor} label={template.label}/></button>
       <div className={libraryStyles.cardMeta}><strong>{template.label}</strong><div className={libraryStyles.cardBadges}><span className={libraryStyles.cardBadge}>{descriptor.categoryLabel}</span><span className={libraryStyles.cardBadge}>{label(template.pageType)}</span></div><small>Teljes oldal · a globális márkastílus megmarad</small></div>
       <div className={libraryStyles.cardActions}><button type="button" onClick={()=>setPreviewId(template.presetId)}>Előnézet</button><button type="button" data-primary="true" disabled={busy} onClick={()=>applyTemplate(template)}>Alkalmazás</button></div>
     </article>;})}</div>
