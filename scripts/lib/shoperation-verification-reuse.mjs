@@ -211,7 +211,7 @@ export function buildRepositorySnapshot({registry,head=currentHead(),branch=curr
 }
 
 export function checkpointPayload(checkpoint){const copy={...checkpoint};delete copy.checksum;return copy;}
-export function checkpointChecksum(checkpoint){return digestObject(checkpointPayload(checkpoint));}
+export function checkpointChecksum_STRESS(checkpoint){return digestObject(checkpointPayload(checkpoint));}
 export function validateCheckpoint(checkpoint,{branch,head,requireAncestor=true}={}){
   const issues=[];
   if(!checkpoint||typeof checkpoint!=='object')issues.push({code:'CHECKPOINT_MISSING'});
