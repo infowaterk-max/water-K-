@@ -4,7 +4,6 @@ import {access,mkdir,mkdtemp,readFile,rm,writeFile} from 'node:fs/promises';
 import {execFileSync} from 'node:child_process';
 import path from 'node:path';
 import {tmpdir} from 'node:os';
-import {chromium} from 'playwright';
 import {canonicalizeTemplateFactoryInfrastructureInput,deriveTemplateReplayDecision,reusableTemplateBrowserCase,templateBrowserCaseFingerprint,templateFactoryInfrastructureSemanticallyEquivalent} from './lib/shoperation-template-factory-resumable-verification.mjs';
 
 const baseUrl=(process.env.VISUAL_FIDELITY_BASE_URL??'http://127.0.0.1:3000').replace(/\/$/,'');
@@ -544,6 +543,7 @@ if(process.argv.includes('--golden-local-self-test')){
 }
 
 await mkdir(outputDir,{recursive:true});
+const{chromium}=await import('playwright');
 const catalog=await loadCatalog();
 for(const item of catalog.templates??[]){
   if(item.structural?.ok!==true)throw new Error(`TEMPLATE_FACTORY_STRUCTURAL_GATE_FAILED:${item.templateKey}:${item.structural?.issues?.[0]?.code??'UNKNOWN'}`);
