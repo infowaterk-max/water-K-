@@ -8,7 +8,7 @@ const BLOCKED=new Set(['block','blocked','cancelled','canceled','timed_out','act
 const MISSING=new Set(['','missing','unknown','skipped','neutral','pending']);
 
 export const COMPLETION_INTERNAL_STATES=Object.freeze(['VERIFIED_DONE','PARTIALLY_VERIFIED','NOT_DONE','BLOCKED','STALE_EVIDENCE']);
-export const COMPLETION_PO_STATES=Object.freeze(['DONE','NOT_DONE','BLOCKED']);
+export const COMPLETION_PO_STATES=Object.freeze(['DONE','NOT_DONE','BLOCKED','STRESS_UNRELATED_STATE']);
 
 function issue(issues,code,path,message,extra={}){issues.push({code,path,message,...extra});}
 
