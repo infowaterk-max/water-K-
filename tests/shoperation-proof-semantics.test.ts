@@ -23,7 +23,7 @@ describe('Control Plane Proof Semantics adversarial regressions',()=>{
     poisoned.operationalIntelligence.definition.invariants=poisoned.operationalIntelligence.definition.invariants.map(()=> 'x');
     poisoned.operationalIntelligence.definition.forbiddenStates=poisoned.operationalIntelligence.definition.forbiddenStates.map(()=> 'x');
     poisoned.operationalIntelligence.alternatives=poisoned.operationalIntelligence.alternatives.map((item:any)=>({...item,summary:'x',reason:'x'}));
-    poisoned.operationalIntelligence.specialistReviews=poisoned.operationalIntelligence.specialistReviews.map((item:any)=>({...item,finding:'x',resolution:'x'}));
+    poisoned.operationalIntelligence.specialistReviews=poisoned.operationalIntelligence.specialistReviews.map((item:any)=>({...item,finding:'x',resolution:'x',evidence:[]}));
     poisoned.operationalIntelligence.challenge=poisoned.operationalIntelligence.challenge.map((item:any)=>({...item,scenario:'x',finding:'x',resolution:'x'}));
     poisoned.operationalIntelligence.proofPlan=poisoned.operationalIntelligence.proofPlan.map(()=> 'x');
     poisoned.completionContract.requirements=poisoned.completionContract.requirements.map((item:any)=>({
@@ -41,6 +41,9 @@ describe('Control Plane Proof Semantics adversarial regressions',()=>{
     expect(codes).toContain('DEV_PLAN_ASSURANCE_RATIONALE_VACUOUS');
     expect(codes).toContain('DEV_PLAN_SEMANTIC_CONTENT_VACUOUS');
     expect(codes).toContain('DEV_PLAN_COMPLETION_REQUIREMENT_VACUOUS');
+    expect(codes).toContain('DEV_PLAN_ALTERNATIVES_TAUTOLOGICAL');
+    expect(codes).toContain('DEV_PLAN_CHALLENGE_TAUTOLOGICAL');
+    expect(codes).toContain('DEV_PLAN_SPECIALIST_EVIDENCE_REQUIRED');
   });
 
   it('classifies a repository-wide Atlas claim backed only by generic Quality Tests as OVERCLAIM',()=>{
