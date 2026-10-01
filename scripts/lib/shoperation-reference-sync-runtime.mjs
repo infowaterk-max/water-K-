@@ -1,19 +1,209 @@
-import{execFileSync}from'node:child_process';import{existsSync,readFileSync}from'node:fs';import path from'node:path';
-const EXTS=new Set(['.ts','.tsx','.js','.jsx','.mjs','.cjs','.json','.css','.scss','.sql','.yml','.yaml','.md']),CODE_EXPR=/\.(?:ts|tsx|js|jsx|mjs|cjs)$/i,MACHINE=/^(src|tests|scripts|quality|\.github|deploy|supabase)\//,ASSET=/\.(?:webp|png|jpe?g|gif|svg|avif|ico|pdf)$/i;
-const git=(a,o={})=>execFileSync('git',a,{encoding:'utf8',maxBuffer:32*1024*1024,...o}),text=f=>EXTS.has(path.extname(f).toLowerCase()),cur=f=>{try{return existsSync(f)&&text(f)?readFileSync(f,'utf8'):''}catch{return''}},at=(r,f)=>{try{return git(['show',`${r}:${f}`])}catch{return''}},esc=s=>s.replace(/[.*+?^\${}()|[\]\\]/g,'\\$&');
-const exportsOf=s=>new Set([...s.matchAll(/\bexport\s+(?:default\s+)?(?:async\s+)?(?:function|class|const|let|var|type|interface|enum)\s+([A-Za-z_$][\w$]*)/g)].map(m=>m[1]));
-export function exportsRemovedAcrossPathChange(beforeSource,afterSource){const after=exportsOf(afterSource);return[...exportsOf(beforeSource)].filter(symbol=>symbol.length>=5&&!after.has(symbol));}
-const route=f=>{const m=f.match(/^src\/app\/(.*)\/(?:page|route)\.(?:ts|tsx|js|jsx)$/);return m?'/'+m[1].split('/').filter(x=>x&&!/^\(.*\)$/.test(x)&&!x.startsWith('@')).join('/'):null};
-function expr(line){let v=line.trim().replace(/[;,]\s*$/,'');if(v.length<16||v.length>200||/^(?:\/\/|\/\*|\*|#|import\b|export\s+type\b)/.test(v)||/\b(?:expect|toContain|toMatch|describe|it|test)\s*\(/.test(v)||!/[A-Za-z_$]/.test(v)||!/[.()[\]\/ :=<>-]/.test(v))return'';return v}
-function refs(line,file){if(file==='quality/development/active-plan.json'||file==='AGENTS.md'||file.startsWith('docs/')||file.endsWith('.md'))return[];const o=[],add=(kind,value,severity='block')=>{value=value.trim();if(value.length>=4)o.push({kind,value,severity,originFile:file})};for(const m of line.matchAll(/['"`]([^'"`\n]{4,200})['"`]/g)){const v=m[1];if(ASSET.test(v)||v.includes('/storefront-demo/'))add('asset-path',v);else if(/^data-[\w-]+$/.test(v))add('data-attribute',v);else if(/^(?:support|system|commerce|guided|layout|content|marketing)\.[\w.-]+$/.test(v))add('component-key',v);else if(/^\/[\w@.+~:/?=&%-]+$/.test(v))add('route-literal',v,'review')}for(const m of line.matchAll(/\b(data-[\w-]{4,})\b/g))add('data-attribute',m[1]);if(/\.(?:css|scss)$/.test(file))for(const m of line.matchAll(/\.([A-Za-z_][\w-]{3,})/g))add('css-class',m[1]);if(CODE_EXPR.test(file)){const e=expr(line);if(e)add('implementation-expression',e)}return o}
-function diffData(base){let p='',n='';try{p=git(['diff','--find-renames','--unified=0','--no-color',base,'--'])}catch{}try{n=git(['diff','--find-renames','--name-status',base,'--'])}catch{}const cs=[],changed=[];let file='',h=0,removed=[],added=[];const flush=()=>{for(const b of removed.flatMap(x=>refs(x,file))){cs.push(b);const a=added.flatMap(x=>refs(x,file)).find(x=>x.kind===b.kind&&x.value!==b.value);if(a)changed.push({kind:b.kind,file,from:b.value,to:a.value,hunk:h})}removed=[];added=[]};for(const l of p.split(/\r?\n/)){if(l.startsWith('diff --git ')){flush();file=''}else if(l.startsWith('+++ ')){const x=l.slice(4).replace(/^b\//,'').trim();if(x!='/dev/null')file=x}else if(l.startsWith('--- ')&&!file){const x=l.slice(4).replace(/^a\//,'').trim();if(x!='/dev/null')file=x}else if(l.startsWith('@@ ')){flush();h++}else if(l.startsWith('-')&&!l.startsWith('---'))removed.push(l.slice(1));else if(l.startsWith('+')&&!l.startsWith('+++'))added.push(l.slice(1))}flush();
-const files=[];for(const l of n.split(/\r?\n/).filter(Boolean)){const x=l.split('\t'),s=x[0][0],old=x[1],neu=(s==='R'||s==='C')?x[2]:(s==='D'?null:x[1]);files.push({s,old,neu});if(s==='D'||s==='R'){cs.push({kind:'file-path',value:old,severity:'block',originFile:old});if(old.startsWith('public/'))cs.push({kind:'asset-path',value:'/'+old.slice(7),severity:'block',originFile:old});const r=route(old);if(r)cs.push({kind:'route-literal',value:r,severity:'review',originFile:old})}}
-const movedByOld=new Map(files.filter(item=>item.s==='R'||item.s==='C').map(item=>[item.old,item.neu]));
-for(const f of new Set(files.flatMap(x=>[x.old,x.neu]).filter(Boolean))){if(!text(f))continue;const b=at(base,f),destination=movedByOld.get(f),a=cur(destination??f);if(!b)continue;for(const symbol of exportsRemovedAcrossPathChange(b,a))cs.push({kind:'export-symbol',value:symbol,severity:'block',originFile:f,relocatedTo:destination??null})}
-const seen=new Set(),candidates=cs.filter(c=>{const k=`${c.kind}|${c.value}|${c.originFile}`;if(seen.has(k))return false;seen.add(k);const a=cur(c.originFile);if(!a)return true;if(c.kind==='export-symbol')return!exportsOf(a).has(c.value);if(c.kind==='css-class')return!new RegExp(`\\.${esc(c.value)}(?![\\w-])`).test(a);return!a.includes(c.value)}).slice(0,500);return{files,candidates,changed}}
-function grep(patterns,ref){if(!patterns.length)return[];let out='';const a=['grep','-n','-F','-f','-'];if(ref)a.push(ref);a.push('--');try{out=git(a,{input:patterns.join('\n')+'\n'})}catch(e){out=String(e?.stdout??'')}return out.split(/\r?\n/).filter(Boolean).map(raw=>{if(ref&&raw.startsWith(ref+':'))raw=raw.slice(ref.length+1);const m=raw.match(/^(.*?):(\d+):(.*)$/);return m?{file:m[1],line:+m[2],text:m[3]}:null}).filter(x=>x&&text(x.file)&&x.file!=='quality/development/active-plan.json')}
-const negative=r=>/\.not\.(?:toContain|toMatch|toEqual)|forbiddenApproaches/.test(r.text)||/^\s*(?:\/\/|\/\*|\*|#)/.test(r.text),match=(r,c)=>c.kind==='export-symbol'?new RegExp(`\\b${esc(c.value)}\\b`).test(r.text):c.kind==='css-class'?(r.text.includes('.'+c.value)||r.text.includes(c.value)):r.text.includes(c.value);
-function classification(r,c){if(r.file===c.originFile||negative(r))return'ignored';if(r.file==='AGENTS.md'||r.file.startsWith('docs/')||r.file.endsWith('.md'))return'evidence';if(c.severity==='review')return'review';if(c.kind==='implementation-expression')return/^(tests|scripts|quality|\.github)\//.test(r.file)?'block':'review';return MACHINE.test(r.file)?'block':'review'}
-export function evaluateCandidateConsumers(candidates,before,after){return candidates.map(c=>{const b=before.filter(r=>match(r,c)),a=after.filter(r=>match(r,c)).map(r=>({...r,classification:classification(r,c)})),af=new Set(a.map(x=>x.file));return{candidate:c,beforeConsumers:b,afterConsumers:a,staleConsumers:a.filter(x=>x.classification==='block'),reviewConsumers:a.filter(x=>x.classification==='review'),evidenceConsumers:a.filter(x=>x.classification==='evidence'),updatedConsumers:[...new Set(b.map(x=>x.file).filter(f=>!af.has(f)&&f!==c.originFile))]}}).filter(x=>x.afterConsumers.length||x.updatedConsumers.length)}
-export function evaluateReferenceSynchronization({base,head}){if(!base)return{contract:'shoporation.reference-sync.v1',base,head,decision:'BLOCK',reason:'REFERENCE_SYNC_BASE_REQUIRED',staleConsumers:[],reviewConsumers:[],updatedConsumers:[]};const d=diffData(base),p=[...new Set(d.candidates.map(x=>x.value))],before=grep(p,base),after=grep(p,null),consumers=evaluateCandidateConsumers(d.candidates,before,after),staleConsumers=consumers.flatMap(x=>x.staleConsumers.map(r=>({reference:x.candidate,...r}))),reviewConsumers=consumers.flatMap(x=>x.reviewConsumers.map(r=>({reference:x.candidate,...r}))),updatedConsumers=[...new Set(consumers.flatMap(x=>x.updatedConsumers))];return{contract:'shoporation.reference-sync.v1',base,head,before:{changedFiles:d.files.map(x=>x.old),candidateCount:d.candidates.length,consumerHitCount:before.length},after:{changedFiles:d.files.map(x=>x.neu).filter(Boolean),consumerHitCount:after.length},removedReferences:d.candidates,changedReferences:d.changed,consumers,staleConsumers,reviewConsumers,updatedConsumers,decision:staleConsumers.length?'BLOCK':'PASS'}}
-if(process.argv.includes('--self-test')){const c=[{kind:'implementation-expression',value:'window.location.assign(routes.cart)',severity:'block',originFile:'src/runtime.tsx'},{kind:'asset-path',value:'/storefront-demo/loot-vault-v2/hero.webp',severity:'block',originFile:'public/storefront-demo/loot-vault-v2/hero.webp'}],a=[{file:'tests/runtime.test.ts',line:1,text:"expect(source).toContain('window.location.assign(routes.cart)')"},{file:'tests/negative.test.ts',line:1,text:"expect(source).not.toContain('window.location.assign(routes.cart)')"},{file:'src/package.json',line:1,text:'"/storefront-demo/loot-vault-v2/hero.webp"'}],stale=evaluateCandidateConsumers(c,[],a).flatMap(x=>x.staleConsumers);if(stale.length!==2||stale.some(x=>x.file.includes('negative')))throw Error('REFERENCE_SYNC_SELF_TEST_FAILED');const before='export async function startPlatformPilotAcceptanceAction(){}\nexport const KEEP_ME=1;';const unchanged='export async function startPlatformPilotAcceptanceAction(){}\nexport const KEEP_ME=1;';const renamed='export async function startStorefrontPilotAcceptanceAction(){}\nexport const KEEP_ME=1;';if(exportsRemovedAcrossPathChange(before,unchanged).length!==0)throw Error('REFERENCE_SYNC_RENAME_UNCHANGED_EXPORT_FALSE_POSITIVE');const removed=exportsRemovedAcrossPathChange(before,renamed);if(!removed.includes('startPlatformPilotAcceptanceAction')||removed.includes('KEEP_ME'))throw Error('REFERENCE_SYNC_RENAME_REMOVED_EXPORT_FALSE_NEGATIVE');console.log('Reference Sync self-test: PASS; rename-export-identity=PASS')}
+import {execFileSync} from 'node:child_process';
+import {existsSync,readFileSync} from 'node:fs';
+import path from 'node:path';
+import {buildCodebaseAtlas} from './shoperation-codebase-atlas-runtime.mjs';
+
+const EXTS=new Set(['.ts','.tsx','.js','.jsx','.mjs','.cjs','.json','.css','.scss','.sql','.yml','.yaml','.md']);
+const CODE_EXPR=/\.(?:ts|tsx|js|jsx|mjs|cjs)$/i;
+const MACHINE=/^(src|tests|scripts|quality|\.github|deploy|supabase)\//;
+const ASSET=/\.(?:webp|png|jpe?g|gif|svg|avif|ico|pdf)$/i;
+const COMPONENT_KEY=/^(?:support|system|commerce|guided|layout|content|marketing|configurator|composer|compatibility|context|retention)\.[\w.-]+$/i;
+const git=(args,options={})=>execFileSync('git',args,{encoding:'utf8',maxBuffer:32*1024*1024,...options});
+const isText=file=>EXTS.has(path.extname(file).toLowerCase());
+const current=file=>{try{return existsSync(file)&&isText(file)?readFileSync(file,'utf8'):'';}catch{return'';}};
+const at=(ref,file)=>{try{return git(['show',`${ref}:${file}`]);}catch{return'';}};
+const escapeRegExp=value=>value.replace(/[.*+?^$()|[\]{}\\]/g,'\\$&');
+
+const exportsOf=source=>new Set([
+  ...source.matchAll(/\bexport\s+(?:default\s+)?(?:async\s+)?(?:function|class|const|let|var|type|interface|enum)\s+([A-Za-z_$][\w$]*)/g)
+].map(match=>match[1]));
+
+export function exportsRemovedAcrossPathChange(beforeSource,afterSource){
+  const after=exportsOf(afterSource);
+  return [...exportsOf(beforeSource)].filter(symbol=>symbol.length>=5&&!after.has(symbol));
+}
+
+const routeForFile=file=>{
+  const match=file.match(/^src\/app\/(.*)\/(?:page|route)\.(?:ts|tsx|js|jsx)$/);
+  return match?'/'+match[1].split('/').filter(segment=>segment&&!/^\(.*\)$/.test(segment)&&!segment.startsWith('@')).join('/'):null;
+};
+
+function implementationExpression(line){
+  const value=line.trim().replace(/[;,]\s*$/,'');
+  if(value.length<16||value.length>200||/^(?:\/\/|\/\*|\*|#|import\b|export\s+type\b)/.test(value)||/\b(?:expect|toContain|toMatch|describe|it|test)\s*\(/.test(value)||!/[A-Za-z_$]/.test(value)||!/[.()[\]\/ :=<>-]/.test(value))return'';
+  return value;
+}
+
+export function extractReferenceCandidatesFromLine(line,file){
+  if(file==='quality/development/active-plan.json'||file==='AGENTS.md'||file.startsWith('docs/')||file.endsWith('.md'))return[];
+  const out=[];
+  const add=(kind,value,severity='block')=>{const normalized=String(value??'').trim();if(normalized.length>=4)out.push({kind,value:normalized,severity,originFile:file});};
+  for(const match of line.matchAll(/['"`]([^'"`\n]{4,200})['"`]/g)){
+    const value=match[1],prefix=line.slice(Math.max(0,match.index-40),match.index);
+    if(ASSET.test(value)||value.includes('/storefront-demo/'))add('asset-path',value);
+    else if(/^data-[\w-]+$/.test(value))add('data-attribute',value);
+    else if(COMPONENT_KEY.test(value))add('component-key',value);
+    else if(/^\/[\w@.+~:/?=&%-]+$/.test(value))add('route-literal',value,'review');
+    else if(/(?:componentKey|registryKey|configKey|routeKey|schemaKey)\s*[:=]\s*$/.test(prefix))add(/componentKey/.test(prefix)?'component-key':/registryKey/.test(prefix)?'registry-key':/configKey/.test(prefix)?'config-key':/routeKey/.test(prefix)?'route-key':'schema-field',value);
+    else if(/(?:aria-label|title|label|heading|buttonLabel|placeholder)\s*=\s*$/.test(prefix))add('display-text',value);
+  }
+  for(const match of line.matchAll(/>([^<>{}\n]{4,120})</g)){
+    const value=match[1].replace(/\s+/g,' ').trim();
+    if(/[A-Za-zÁÉÍÓÖŐÚÜŰáéíóöőúüű]/.test(value))add('display-text',value);
+  }
+  for(const match of line.matchAll(/\b(data-[\w-]{4,})\b/g))add('data-attribute',match[1]);
+  for(const match of line.matchAll(/(--[a-z0-9_-]{4,})/gi))add('css-variable',match[1]);
+  if(/\.(?:css|scss)$/.test(file))for(const match of line.matchAll(/\.([A-Za-z_][\w-]{3,})/g))add('css-class',match[1]);
+  if(CODE_EXPR.test(file)){const expression=implementationExpression(line);if(expression)add('implementation-expression',expression);}
+  return out;
+}
+
+function diffData(base){
+  let patch='',names='';
+  try{patch=git(['diff','--find-renames','--unified=0','--no-color',base,'--']);}catch{}
+  try{names=git(['diff','--find-renames','--name-status',base,'--']);}catch{}
+  const candidates=[],changed=[];let file='',hunk=0,removed=[],added=[];
+  const flush=()=>{
+    const before=removed.flatMap(line=>extractReferenceCandidatesFromLine(line,file));
+    const after=added.flatMap(line=>extractReferenceCandidatesFromLine(line,file));
+    for(const reference of before){
+      candidates.push(reference);
+      const replacement=after.find(item=>item.kind===reference.kind&&item.value!==reference.value);
+      if(replacement)changed.push({kind:reference.kind,file,from:reference.value,to:replacement.value,hunk});
+    }
+    removed=[];added=[];
+  };
+  for(const line of patch.split(/\r?\n/)){
+    if(line.startsWith('diff --git ')){flush();file='';}
+    else if(line.startsWith('+++ ')){const value=line.slice(4).replace(/^b\//,'').trim();if(value!='/dev/null')file=value;}
+    else if(line.startsWith('--- ')&&!file){const value=line.slice(4).replace(/^a\//,'').trim();if(value!='/dev/null')file=value;}
+    else if(line.startsWith('@@ ')){flush();hunk+=1;}
+    else if(line.startsWith('-')&&!line.startsWith('---'))removed.push(line.slice(1));
+    else if(line.startsWith('+')&&!line.startsWith('+++'))added.push(line.slice(1));
+  }
+  flush();
+  const files=[];
+  for(const line of names.split(/\r?\n/).filter(Boolean)){
+    const parts=line.split('\t'),status=parts[0][0],oldPath=parts[1],newPath=(status==='R'||status==='C')?parts[2]:(status==='D'?null:parts[1]);
+    files.push({status,old:oldPath,neu:newPath});
+    if(status==='D'||status==='R'){
+      candidates.push({kind:'file-path',value:oldPath,severity:'block',originFile:oldPath});
+      if(oldPath.startsWith('public/'))candidates.push({kind:'asset-path',value:'/'+oldPath.slice(7),severity:'block',originFile:oldPath});
+      const route=routeForFile(oldPath);if(route)candidates.push({kind:'route-literal',value:route,severity:'review',originFile:oldPath});
+    }
+  }
+  const movedByOld=new Map(files.filter(item=>item.status==='R'||item.status==='C').map(item=>[item.old,item.neu]));
+  for(const fileName of new Set(files.flatMap(item=>[item.old,item.neu]).filter(Boolean))){
+    if(!isText(fileName))continue;
+    const before=at(base,fileName),relocatedTo=movedByOld.get(fileName),after=current(relocatedTo??fileName);if(!before)continue;
+    for(const symbol of exportsRemovedAcrossPathChange(before,after))candidates.push({kind:'export-symbol',value:symbol,severity:'block',originFile:fileName,relocatedTo:relocatedTo??null});
+  }
+  const seen=new Set();
+  return{
+    files,
+    candidates:candidates.filter(candidate=>{
+      const key=`${candidate.kind}|${candidate.value}|${candidate.originFile}`;if(seen.has(key))return false;seen.add(key);
+      const source=current(candidate.originFile);if(!source)return true;
+      if(candidate.kind==='export-symbol')return!exportsOf(source).has(candidate.value);
+      if(candidate.kind==='css-class')return!new RegExp(`\\.${escapeRegExp(candidate.value)}(?![\\w-])`).test(source);
+      return!source.includes(candidate.value);
+    }).slice(0,1000),
+    changed,
+  };
+}
+
+function grep(patterns,ref){
+  if(!patterns.length)return[];
+  let output='';const args=['grep','-n','-F','-f','-'];if(ref)args.push(ref);args.push('--');
+  try{output=git(args,{input:patterns.join('\n')+'\n'});}catch(error){output=String(error?.stdout??'');}
+  return output.split(/\r?\n/).filter(Boolean).map(raw=>{
+    if(ref&&raw.startsWith(ref+':'))raw=raw.slice(ref.length+1);
+    const match=raw.match(/^(.*?):(\d+):(.*)$/);
+    return match?{file:match[1],line:Number(match[2]),text:match[3],source:'lexical'}:null;
+  }).filter(item=>item&&isText(item.file)&&item.file!=='quality/development/active-plan.json');
+}
+
+function semanticConsumers(atlas,candidates){
+  const rows=[],seen=new Set();
+  for(const candidate of candidates){
+    const files=new Set();
+    if(candidate.kind==='component-key')for(const file of atlas.literalIndex?.[candidate.value]??[])files.add(file);
+    if(candidate.kind==='export-symbol')for(const file of atlas.referenceIndex?.[candidate.value]??[])files.add(file);
+    for(const node of atlas.semanticGraph?.nodes??[])if(node.name===candidate.value&&node.file)files.add(node.file);
+    for(const edge of atlas.semanticGraph?.edges??[])if(edge.label===candidate.value&&edge.fromFile)files.add(edge.fromFile);
+    for(const file of files){
+      if(file===candidate.originFile)continue;
+      const key=`${file}|${candidate.value}`;if(seen.has(key))continue;seen.add(key);
+      rows.push({file,line:0,text:`[semantic:${candidate.kind}] ${candidate.value}`,source:'semantic'});
+    }
+  }
+  return rows;
+}
+
+const negative=row=>/\.not\.(?:toContain|toMatch|toEqual)|forbiddenApproaches/.test(row.text)||/^\s*(?:\/\/|\/\*|\*|#)/.test(row.text);
+const matches=(row,candidate)=>candidate.kind==='export-symbol'?new RegExp(`\\b${escapeRegExp(candidate.value)}\\b`).test(row.text):candidate.kind==='css-class'?(row.text.includes('.'+candidate.value)||row.text.includes(candidate.value)):row.text.includes(candidate.value);
+function classification(row,candidate){
+  if(row.file===candidate.originFile||negative(row))return'ignored';
+  if(row.file==='AGENTS.md'||row.file.startsWith('docs/')||row.file.endsWith('.md'))return'evidence';
+  if(candidate.severity==='review')return'review';
+  if(candidate.kind==='implementation-expression')return/^(tests|scripts|quality|\.github)\//.test(row.file)?'block':'review';
+  return MACHINE.test(row.file)?'block':'review';
+}
+
+export function evaluateCandidateConsumers(candidates,before,after){
+  return candidates.map(candidate=>{
+    const beforeConsumers=before.filter(row=>matches(row,candidate));
+    const afterConsumers=after.filter(row=>matches(row,candidate)).map(row=>({...row,classification:classification(row,candidate)}));
+    const afterFiles=new Set(afterConsumers.map(row=>row.file));
+    return{
+      candidate,beforeConsumers,afterConsumers,
+      staleConsumers:afterConsumers.filter(row=>row.classification==='block'),
+      reviewConsumers:afterConsumers.filter(row=>row.classification==='review'),
+      evidenceConsumers:afterConsumers.filter(row=>row.classification==='evidence'),
+      updatedConsumers:[...new Set(beforeConsumers.map(row=>row.file).filter(file=>!afterFiles.has(file)&&file!==candidate.originFile))],
+    };
+  }).filter(item=>item.afterConsumers.length||item.updatedConsumers.length);
+}
+
+export function evaluateReferenceSynchronization({base,head}){
+  if(!base)return{contract:'shoporation.reference-sync.v2',base,head,decision:'BLOCK',reason:'REFERENCE_SYNC_BASE_REQUIRED',staleConsumers:[],reviewConsumers:[],updatedConsumers:[]};
+  const diff=diffData(base),patterns=[...new Set(diff.candidates.map(item=>item.value))];
+  const before=grep(patterns,base);
+  const atlas=buildCodebaseAtlas();
+  const after=[...grep(patterns,null),...semanticConsumers(atlas,diff.candidates)];
+  const consumers=evaluateCandidateConsumers(diff.candidates,before,after);
+  const staleConsumers=consumers.flatMap(item=>item.staleConsumers.map(row=>({reference:item.candidate,...row})));
+  const reviewConsumers=consumers.flatMap(item=>item.reviewConsumers.map(row=>({reference:item.candidate,...row})));
+  const updatedConsumers=[...new Set(consumers.flatMap(item=>item.updatedConsumers))];
+  return{
+    contract:'shoporation.reference-sync.v2',base,head,
+    semanticGraph:{contract:atlas.semanticGraph?.contract??null,typeCheckerAvailable:atlas.semanticGraph?.typeCheckerAvailable===true},
+    before:{changedFiles:diff.files.map(item=>item.old),candidateCount:diff.candidates.length,consumerHitCount:before.length},
+    after:{changedFiles:diff.files.map(item=>item.neu).filter(Boolean),consumerHitCount:after.length},
+    removedReferences:diff.candidates,changedReferences:diff.changed,consumers,staleConsumers,reviewConsumers,updatedConsumers,
+    decision:staleConsumers.length?'BLOCK':'PASS',
+  };
+}
+
+if(process.argv.includes('--self-test')){
+  const candidates=[
+    {kind:'implementation-expression',value:'window.location.assign(routes.cart)',severity:'block',originFile:'src/runtime.tsx'},
+    {kind:'asset-path',value:'/storefront-demo/loot-vault-v2/hero.webp',severity:'block',originFile:'public/storefront-demo/loot-vault-v2/hero.webp'},
+    {kind:'component-key',value:'layout.container',severity:'block',originFile:'src/provider.ts'},
+  ];
+  const after=[
+    {file:'tests/runtime.test.ts',line:1,text:"expect(source).toContain('window.location.assign(routes.cart)')"},
+    {file:'tests/negative.test.ts',line:1,text:"expect(source).not.toContain('window.location.assign(routes.cart)')"},
+    {file:'src/package.json',line:1,text:'"/storefront-demo/loot-vault-v2/hero.webp"'},
+    {file:'src/consumer.ts',line:0,text:'[semantic:component-key] layout.container',source:'semantic'},
+  ];
+  const stale=evaluateCandidateConsumers(candidates,[],after).flatMap(item=>item.staleConsumers);
+  if(stale.length!==3||stale.some(item=>item.file.includes('negative')))throw new Error('REFERENCE_SYNC_SELF_TEST_FAILED');
+  const before='export async function startPlatformPilotAcceptanceAction(){}\nexport const KEEP_ME=1;';
+  const unchanged='export async function startPlatformPilotAcceptanceAction(){}\nexport const KEEP_ME=1;';
+  const renamed='export async function startStorefrontPilotAcceptanceAction(){}\nexport const KEEP_ME=1;';
+  if(exportsRemovedAcrossPathChange(before,unchanged).length!==0)throw new Error('REFERENCE_SYNC_RENAME_UNCHANGED_EXPORT_FALSE_POSITIVE');
+  const movedRemoved=exportsRemovedAcrossPathChange(before,renamed);
+  if(!movedRemoved.includes('startPlatformPilotAcceptanceAction')||movedRemoved.includes('KEEP_ME'))throw new Error('REFERENCE_SYNC_RENAME_REMOVED_EXPORT_FALSE_NEGATIVE');
+  console.log('Reference Sync self-test: PASS; rename-export-identity=PASS');
+}

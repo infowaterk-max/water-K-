@@ -110,7 +110,8 @@
       "boundaryRules": [
         "Tenant context must be explicit; first-tenant/null-to-default fallback is forbidden.",
         "Cross-tenant access requires platform authority and an explicit target tenant.",
-        "Tenant context must be resolved before tenant-scoped mutation or capability selection."
+        "Tenant context must be resolved before tenant-scoped mutation or capability selection.",
+        "Signed pilot acceptance tenant selection is tenancy/context authority even when the implementation file is consumed by storefront and commerce preview flows."
       ],
       "principles": [
         "ARCH-002",
@@ -119,7 +120,8 @@
       ],
       "canonicalPaths": [
         "src/lib/instances/**",
-        "src/lib/auth/store-rbac.ts"
+        "src/lib/auth/store-rbac.ts",
+        "src/lib/storefront/pilot-access.ts"
       ],
       "evidenceObligations": [
         "tenant isolation regression",
@@ -311,12 +313,14 @@
       "dependsOn": [
         "DOMAIN-COMMERCE",
         "DOMAIN-CATALOG",
-        "DOMAIN-IDENTITY"
+        "DOMAIN-IDENTITY",
+        "DOMAIN-CONTENT"
       ],
       "boundaryRules": [
         "Storefront consumes shared capabilities; it may not duplicate auth/account/commerce/support engines.",
         "Responsive behavior follows canonical viewport/workspace authority rather than host heuristics.",
-        "Template presentation may vary while business capability authority remains shared."
+        "Template presentation may vary while business capability authority remains shared.",
+        "Storefront-prefixed shared runtime modules remain storefront authority even when physically located under builder component/lib directories."
       ],
       "principles": [
         "ARCH-001",
@@ -328,10 +332,8 @@
         "src/lib/storefront/**",
         "src/components/storefront/**",
         "src/lib/builder/storefront-**",
-        "src/app/storefront-template-preview/**",
-        "src/app/storefront-template-preview-login/**",
-        "src/app/visual-fidelity-qa/**",
-        "src/components/account/storefront-account-shell.tsx"
+        "src/components/account/storefront-account-shell.tsx",
+        "src/components/builder/storefront-**"
       ],
       "evidenceObligations": [
         "responsive isolation proof",
@@ -365,12 +367,15 @@
         "provider integrations"
       ],
       "dependsOn": [
-        "DOMAIN-STOREFRONT"
+        "DOMAIN-STOREFRONT",
+        "DOMAIN-QUALITY"
       ],
       "boundaryRules": [
         "Builder output must conform to canonical Page Schema and shared Runtime contracts.",
         "Source preset, persisted draft/package and runtime materialization are distinct states.",
-        "Blocks/presets may not introduce second authorities for shared capabilities."
+        "Blocks/presets may not introduce second authorities for shared capabilities.",
+        "Template preview and visual-fidelity QA surfaces are Builder execution surfaces; they may consume shared Storefront runtime but must not call Admin action modules directly.",
+        "Template catalog, preview, quality-candidate and AI generation orchestration are Builder authority even when their filenames begin with storefront-."
       ],
       "principles": [
         "ARCH-001",
@@ -382,7 +387,13 @@
         "src/lib/builder/**",
         "src/components/builder/**",
         "public/storefront-demo/**",
-        "src/app/api/visual-fidelity/templates/**"
+        "src/app/api/visual-fidelity/templates/**",
+        "src/app/storefront-template-preview/**",
+        "src/app/storefront-template-preview-login/**",
+        "src/app/visual-fidelity-qa/**",
+        "src/lib/commerce/b2b-account-builder.ts",
+        "src/lib/builder/storefront-template-**",
+        "src/lib/builder/storefront-ai-generator*.ts"
       ],
       "evidenceObligations": [
         "schema validation",
@@ -461,12 +472,17 @@
       "dependsOn": [
         "DOMAIN-IDENTITY",
         "DOMAIN-TENANCY",
-        "DOMAIN-COMMERCE"
+        "DOMAIN-COMMERCE",
+        "DOMAIN-INTEGRATIONS",
+        "DOMAIN-STOREFRONT",
+        "DOMAIN-BUILDER",
+        "DOMAIN-CONTENT"
       ],
       "boundaryRules": [
         "Admin UI must call canonical domain authorities rather than mutate domain state ad hoc.",
         "Platform and merchant scope must remain explicit and permission-aware.",
-        "Operational summaries are projections, not replacement sources of truth."
+        "Operational summaries are projections, not replacement sources of truth.",
+        "Admin orchestration may depend on canonical storefront, builder, content and integration authorities, but those dependencies must remain consumption/composition edges and may not transfer truth ownership into DOMAIN-ADMIN."
       ],
       "principles": [
         "ARCH-001",
@@ -561,7 +577,8 @@
       "boundaryRules": [
         "Quality evidence must be bound to exact source/release identity.",
         "Unknown or review-required failure intake persists until explicit disposition.",
-        "Quality controls may block invalid change but may not redefine domain truth to make tests pass."
+        "Quality controls may block invalid change but may not redefine domain truth to make tests pass.",
+        "Template Factory Known Failure and authority registries are quality knowledge even when stored beside Builder implementation."
       ],
       "principles": [
         "ARCH-004",
@@ -576,7 +593,8 @@
         "scripts/shoperation-**",
         "src/lib/quality-system/**",
         "scripts/lib/shoperation-architecture-health.mjs",
-        "tests/architecture-health.test.ts"
+        "tests/architecture-health.test.ts",
+        "src/lib/builder/template-factory/knowledge-registry.ts"
       ],
       "evidenceObligations": [
         "guard-selection proof",
@@ -692,5 +710,91 @@
         "production smoke/runtime check"
       ]
     }
-  ]
+  ],
+  "executionDependencyPolicies": {
+    "contract": "shoporation.execution-dependency-policy.v1",
+    "rules": [
+      {
+        "id": "EXEC-COMMERCE-INTEGRATION-CONTRACTS",
+        "decision": "allow",
+        "sourceDomain": "DOMAIN-COMMERCE",
+        "targetDomain": "DOMAIN-INTEGRATIONS",
+        "fromPatterns": [
+          "src/app/api/orders/**"
+        ],
+        "toPatterns": [
+          "src/lib/integrations/**"
+        ],
+        "edgeClass": "stable-adapter-contract",
+        "rationale": "Order authority may invoke stable integration adapter contracts while provider-specific transport and payload semantics remain owned by DOMAIN-INTEGRATIONS.",
+        "transfersTruthOwnership": false
+      },
+      {
+        "id": "EXEC-QUALITY-READS-RELEASE-RISK-POLICY",
+        "decision": "allow",
+        "sourceDomain": "DOMAIN-QUALITY",
+        "targetDomain": "DOMAIN-RELEASE",
+        "fromPatterns": [
+          "src/lib/quality-system/scope-resolver.ts"
+        ],
+        "toPatterns": [
+          "deploy/release-risk-policy.json"
+        ],
+        "edgeClass": "configuration-consumption",
+        "rationale": "Quality scope resolution reads release classification policy as configuration; it does not own release truth or mutate release state.",
+        "transfersTruthOwnership": false
+      },
+      {
+        "id": "EXEC-BUILDER-ADMIN-DIRECT-ACTION-FORBIDDEN",
+        "decision": "deny",
+        "sourceDomain": "DOMAIN-BUILDER",
+        "targetDomain": "DOMAIN-ADMIN",
+        "fromPatterns": [
+          "src/app/storefront-template-preview/**",
+          "src/app/visual-fidelity-qa/**"
+        ],
+        "toPatterns": [
+          "src/app/admin/**"
+        ],
+        "edgeClass": "cross-layer-action-import",
+        "rationale": "Template preview/proof surfaces must call a shared canonical acceptance capability rather than import Admin action modules.",
+        "transfersTruthOwnership": false
+      },
+      {
+        "id": "EXEC-IDENTITY-TENANT-AUTHORIZATION-CONTEXT",
+        "decision": "allow",
+        "sourceDomain": "DOMAIN-IDENTITY",
+        "targetDomain": "DOMAIN-TENANCY",
+        "fromPatterns": [
+          "src/lib/auth/admin-api.ts",
+          "src/lib/auth/require-admin.ts"
+        ],
+        "toPatterns": [
+          "src/lib/instances/**",
+          "src/lib/auth/store-rbac.ts"
+        ],
+        "edgeClass": "authorization-context-consumption",
+        "rationale": "Identity/admin request guards may consume canonical tenant membership and current-instance context to decide access, while tenant selection and membership truth remain owned by DOMAIN-TENANCY.",
+        "transfersTruthOwnership": false
+      },
+      {
+        "id": "EXEC-STOREFRONT-CONSUMES-BUILDER-TEMPLATE-CONTRACTS",
+        "decision": "allow",
+        "sourceDomain": "DOMAIN-STOREFRONT",
+        "targetDomain": "DOMAIN-BUILDER",
+        "fromPatterns": [
+          "src/lib/builder/storefront-**",
+          "src/components/builder/storefront-**",
+          "src/components/account/storefront-account-shell.tsx"
+        ],
+        "toPatterns": [
+          "src/lib/builder/storefront-template-**"
+        ],
+        "edgeClass": "template-contract-consumption",
+        "rationale": "Shared Storefront runtime may consume Builder-produced template package, installation, preview and normalization contracts while Builder retains template/schema/materialization truth ownership.",
+        "transfersTruthOwnership": false
+      }
+    ]
+  },
+  "authorityRevision": 2
 }

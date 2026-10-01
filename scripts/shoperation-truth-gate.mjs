@@ -1,6 +1,6 @@
 import {execFileSync} from 'node:child_process';
 import {existsSync,mkdirSync,readFileSync,writeFileSync} from 'node:fs';
-import {evaluateCompletionTruth,validateOperationalIntelligence} from './lib/shoperation-operational-intelligence.mjs';
+import {evaluateClosedDevelopmentPlan,evaluateCompletionTruth,validateOperationalIntelligence} from './lib/shoperation-operational-intelligence.mjs';
 import {atomicWriteJson,sealCheckpointTruth} from './lib/shoperation-verification-reuse.mjs';
 
 const readJson=file=>JSON.parse(readFileSync(file,'utf8'));
@@ -33,7 +33,27 @@ if(manifestPath&&existsSync(manifestPath)){
 }
 const guardIds=(registry.guards??[]).map(item=>item.id);
 const validation=validateOperationalIntelligence({plan,policy,guardIds});
-const report=evaluateCompletionTruth({plan,evidence,currentExactState,planIssues:validation.issues});
+const isAncestor=(ancestor,descendant)=>{if(!ancestor||!descendant)return false;try{execFileSync('git',['merge-base','--is-ancestor',ancestor,descendant],{stdio:'ignore'});return true;}catch{return false;}};
+let report;
+if(plan.status==='closed'){
+  const verifiedHead=String(plan.lifecycle?.verifiedImplementationHead??'').trim();
+  let changedSinceVerified=[];
+  if(verifiedHead){
+    try{
+      const output=execFileSync('git',['diff','--name-only','--diff-filter=ACMR',verifiedHead,currentExactState.head,'--'],{encoding:'utf8'}).trim();
+      changedSinceVerified=output?output.split(/\r?\n/).filter(Boolean):[];
+    }catch{changedSinceVerified=['__UNRESOLVED_CLOSURE_DIFF__'];}
+  }else changedSinceVerified=['__MISSING_VERIFIED_HEAD__'];
+  report=evaluateClosedDevelopmentPlan({
+    plan,
+    currentExactState,
+    changedSinceVerified,
+    verifiedHeadIsAncestor:isAncestor(verifiedHead,currentExactState.head),
+    planIssues:validation.issues,
+  });
+}else{
+  report=evaluateCompletionTruth({plan,evidence,currentExactState,planIssues:validation.issues});
+}
 report.generatedAt=new Date().toISOString();
 report.runId=env('GITHUB_RUN_ID')||null;
 report.runAttempt=env('GITHUB_RUN_ATTEMPT')||null;
@@ -63,6 +83,7 @@ writeFileSync('artifacts/shoperation-development-guard/truth-gate.json',JSON.str
 const lines=[
   '# Shoperation Completion Truth Gate','',
   `Decision: **${report.decision}**`,
+  `Truth status: **${report.truthStatus??'UNKNOWN'}**`,
   `Internal state: **${report.internalState}**`,
   `Product Owner status: **${report.poStatus}**`,
   `Exact head: \`${report.currentExactState.head||'unknown'}\``,
@@ -81,6 +102,8 @@ const lines=[
   `- BLOCKED: ${report.evidenceSummary.blocked}`,
   `- STALE: ${report.evidenceSummary.stale}`,
   `- MISSING: ${report.evidenceSummary.missing}`,
+  `- OVERCLAIM: ${report.evidenceSummary.overclaim??0}`,
+  `- UNKNOWN: ${report.evidenceSummary.unknown??0}`,
   '',
   `NEXT: ${report.next??'none'}`,
 ];

@@ -1,8 +1,9 @@
 import {execFileSync} from 'node:child_process';
 import {readFileSync} from 'node:fs';
-import {describe,expect,it} from 'vitest';
+import {beforeAll,describe,expect,it} from 'vitest';
 
 describe('Architecture Drift + Confidence + Guard Rationalization',()=>{
+  beforeAll(()=>{execFileSync('node',['scripts/lib/shoperation-architecture-health.mjs','--check'],{encoding:'utf8'});},60000);
   it('keeps blocking guard responsibilities unique',()=>{
     const registry=JSON.parse(readFileSync('quality/knowledge/guard-registry.v1.json','utf8')) as {guards:Array<{id:string;blocking:boolean;responsibilityKey:string}>};
     const blocking=registry.guards.filter(item=>item.blocking);
@@ -11,7 +12,6 @@ describe('Architecture Drift + Confidence + Guard Rationalization',()=>{
   });
 
   it('produces a deterministic PASS architecture health report for the current canonical registries',()=>{
-    execFileSync('node',['scripts/lib/shoperation-architecture-health.mjs','--check'],{encoding:'utf8'});
     const report=JSON.parse(readFileSync('artifacts/shoperation-architecture/architecture-health.json','utf8')) as {
       contract:string;decision:string;hardDrift:unknown[];warnings:unknown[];
       confidence:{average:number;capabilities:Array<{capabilityId:string;score:number;level:string}>};
@@ -75,6 +75,19 @@ describe('Architecture Drift + Confidence + Guard Rationalization',()=>{
     expect(byId.get('PAYMENT-HUB-1')?.targetWindow).toBe('post-launch');
     expect(byId.get('SURFACE-REDUCTION')?.targetWindow).toBe('immediately-after-market-ready-1.0');
     expect(byId.get('WEBSITE-BUILDER')?.status).toBe('parked');
+  });
+
+  it('ADVERSARIAL: free-form capability evidence cannot produce PROVEN confidence',()=>{
+    const report=JSON.parse(readFileSync('artifacts/shoperation-architecture/architecture-health.json','utf8')) as any;
+    const atlas=report.confidence.capabilities.find((item:any)=>item.capabilityId==='CAP-ATLAS');
+    expect(atlas.score).toBeLessThan(90);
+    expect(atlas.level).not.toBe('proven');
+    expect(atlas.evidenceSemantics.strong).toBe(false);
+    expect(atlas.limitations).toContain('No current structured capability-scoped behavioral evidence satisfies the semantic evidence contract.');
+    const runtime=readFileSync('scripts/lib/shoperation-architecture-health.mjs','utf8');
+    expect(runtime).not.toContain("if((item.evidence??[]).length)score+=15");
+    const registry=JSON.parse(readFileSync('quality/knowledge/capability-registry.v1.json','utf8')) as any;
+    expect(registry.capabilities.find((item:any)=>item.id==='CAP-ATLAS').evidenceRequirement.freeFormEvidenceDoesNotScore).toBe(true);
   });
 
 });

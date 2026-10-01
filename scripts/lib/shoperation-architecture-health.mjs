@@ -1,6 +1,7 @@
 import {execFileSync} from 'node:child_process';
 import {existsSync,mkdirSync,readFileSync,writeFileSync} from 'node:fs';
 import {dirname,join,normalize} from 'node:path';
+import {pathToFileURL} from 'node:url';
 import {buildCodebaseAtlas} from './shoperation-codebase-atlas-runtime.mjs';
 
 const readJson=path=>JSON.parse(readFileSync(path,'utf8'));
@@ -26,6 +27,20 @@ function level(score){
   if(score>=75)return 'supported';
   if(score>=50)return 'declared';
   return 'insufficient';
+}
+function semanticEvidenceStrength(item,capabilityId){
+  if(!item||item.state!=='verified'||!item.sourceIsAncestor)return{strong:false,reasons:['not-current-verified']};
+  const semantics=item.semantics??null,reasons=[];
+  if(!semantics||typeof semantics!=='object')reasons.push('semantic-metadata-missing');
+  if(semantics?.capability!==capabilityId)reasons.push('capability-scope-mismatch');
+  if(!String(semantics?.producer??'').trim())reasons.push('producer-missing');
+  if(!String(semantics?.scope??'').trim())reasons.push('scope-missing');
+  if(!Array.isArray(semantics?.dimensions)||!semantics.dimensions.length)reasons.push('dimensions-missing');
+  if(!String(semantics?.whatItProves??'').trim())reasons.push('what-it-proves-missing');
+  if(!Array.isArray(semantics?.whatItDoesNotProve))reasons.push('limitations-missing');
+  if(!['runtime','static','browser','unit','integration','adversarial','mixed'].includes(String(semantics?.classification??'')))reasons.push('classification-invalid');
+  if(Number(semantics?.confidence??0)<0.8)reasons.push('confidence-below-threshold');
+  return{strong:reasons.length===0,reasons,semantics};
 }
 
 function listTrackedFiles(prefix){
@@ -202,19 +217,31 @@ export function buildArchitectureHealth(){
     const linkedRoadmap=roadmap.items.filter(entry=>(entry.capabilities??[]).includes(item.id));
     const verifiedEvidence=[...new Set(linkedRoadmap.flatMap(entry=>entry.evidenceRefs??[]))]
       .map(ref=>evidenceState.get(ref)).filter(Boolean).filter(ref=>ref.state==='verified'&&ref.sourceIsAncestor);
+    const semanticEvidence=[...evidenceState.values()]
+      .filter(ref=>ref.subjectType==='capability'&&ref.subjectId===item.id)
+      .map(ref=>({evidence:ref,assessment:semanticEvidenceStrength(ref,item.id)}));
+    const strongSemanticEvidence=semanticEvidence.filter(row=>row.assessment.strong);
     const atlasCoverage=atlas.summary.domainCounts?.[item.domain]??0;
     let score=0;
     if(domain)score+=20;
     if(domain?.owner===item.authority)score+=15;
-    if((item.evidence??[]).length)score+=15;
     if(atlasCoverage>0)score+=20;
     if(linkedRoadmap.length)score+=10;
     if(verifiedEvidence.length)score+=20;
+    if(strongSemanticEvidence.length)score+=15;
+    const limitations=[];
+    if(!strongSemanticEvidence.length)limitations.push('No current structured capability-scoped behavioral evidence satisfies the semantic evidence contract.');
+    if(!verifiedEvidence.length)limitations.push('No current verified roadmap evidence is in HEAD ancestry.');
     if(item.maturity==='operational'&&!verifiedEvidence.length)warnings.push({code:'OPERATIONAL_CAPABILITY_WITHOUT_VERIFIED_ROADMAP_EVIDENCE',capabilityId:item.id});
+    if(!strongSemanticEvidence.length)warnings.push({code:'CAPABILITY_WITHOUT_SEMANTIC_PROOF_EVIDENCE',capabilityId:item.id});
     if(atlasCoverage===0)warnings.push({code:'CAPABILITY_DOMAIN_WITHOUT_ATLAS_COVERAGE',capabilityId:item.id,domain:item.domain});
     return {
       capabilityId:item.id,domain:item.domain,authority:item.authority,maturity:item.maturity,
-      score,level:level(score),atlasCoverage,roadmapIds:linkedRoadmap.map(x=>x.id),verifiedEvidenceIds:verifiedEvidence.map(x=>x.id)
+      score,level:level(score),atlasCoverage,roadmapIds:linkedRoadmap.map(x=>x.id),
+      verifiedEvidenceIds:verifiedEvidence.map(x=>x.id),
+      semanticEvidenceIds:strongSemanticEvidence.map(x=>x.evidence.id),
+      evidenceSemantics:{strong:strongSemanticEvidence.length>0,candidates:semanticEvidence.map(row=>({id:row.evidence.id,strong:row.assessment.strong,reasons:row.assessment.reasons}))},
+      limitations,
     };
   });
 
@@ -238,23 +265,26 @@ export function buildArchitectureHealth(){
   };
 }
 
-const report=buildArchitectureHealth();
-mkdirSync('artifacts/shoperation-architecture',{recursive:true});
-writeFileSync('artifacts/shoperation-architecture/architecture-health.json',JSON.stringify(report,null,2)+'\n');
-const md=[
- '# Shoperation Architecture Health','',
- `Decision: ${report.decision}`,
- `HEAD: ${report.head}`,
- `Average confidence: ${report.confidence.average}/100`,
- `Hard drift: ${report.hardDrift.length}`,
- `Warnings: ${report.warnings.length}`,
- `Blocking guards: ${report.guards.blocking} / responsibilities: ${report.guards.blockingResponsibilityCount}`,
- `Template Single Source Authority: ${report.templateAuthority.decision} / packages: ${report.templateAuthority.packages.length}`,
- '','## Capability confidence',
- ...report.confidence.capabilities.map(item=>`- ${item.capabilityId}: ${item.score}/100 (${item.level}), Atlas files=${item.atlasCoverage}, verified evidence=${item.verifiedEvidenceIds.length}`),
- '','## Hard drift',...(report.hardDrift.length?report.hardDrift.map(item=>`- ${item.code}: ${JSON.stringify(item)}`):['- none']),
- '','## Warnings',...(report.warnings.length?report.warnings.map(item=>`- ${item.code}: ${JSON.stringify(item)}`):['- none'])
-];
-writeFileSync('artifacts/shoperation-architecture/architecture-health.md',md.join('\n')+'\n');
-console.log(`Architecture Health: ${report.decision}; confidence=${report.confidence.average}; hardDrift=${report.hardDrift.length}; warnings=${report.warnings.length}.`);
-if(process.argv.includes('--check')&&report.decision!=='PASS')process.exit(1);
+if(process.argv[1]&&import.meta.url===pathToFileURL(process.argv[1]).href){
+  const report=buildArchitectureHealth();
+  mkdirSync('artifacts/shoperation-architecture',{recursive:true});
+  writeFileSync('artifacts/shoperation-architecture/architecture-health.json',JSON.stringify(report,null,2)+'\n');
+  const md=[
+   '# Shoperation Architecture Health','',
+   `Decision: ${report.decision}`,
+   `HEAD: ${report.head}`,
+   `Average confidence: ${report.confidence.average}/100`,
+   `Hard drift: ${report.hardDrift.length}`,
+   `Warnings: ${report.warnings.length}`,
+   `Blocking guards: ${report.guards.blocking} / responsibilities: ${report.guards.blockingResponsibilityCount}`,
+   `Template Single Source Authority: ${report.templateAuthority.decision} / packages: ${report.templateAuthority.packages.length}`,
+   '','## Capability confidence',
+   ...report.confidence.capabilities.map(item=>`- ${item.capabilityId}: ${item.score}/100 (${item.level}), Atlas files=${item.atlasCoverage}, verified evidence=${item.verifiedEvidenceIds.length}`),
+   '','## Hard drift',...(report.hardDrift.length?report.hardDrift.map(item=>`- ${item.code}: ${JSON.stringify(item)}`):['- none']),
+   '','## Warnings',...(report.warnings.length?report.warnings.map(item=>`- ${item.code}: ${JSON.stringify(item)}`):['- none'])
+  ];
+  writeFileSync('artifacts/shoperation-architecture/architecture-health.md',md.join('\n')+'\n');
+  console.log(`Architecture Health: ${report.decision}; confidence=${report.confidence.average}; hardDrift=${report.hardDrift.length}; warnings=${report.warnings.length}.`);
+  if(process.argv.includes('--check')&&report.decision!=='PASS')process.exit(1);
+  
+}

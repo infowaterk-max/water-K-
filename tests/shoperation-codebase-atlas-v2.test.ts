@@ -1,8 +1,9 @@
 import {execFileSync} from 'node:child_process';
 import {readFileSync} from 'node:fs';
-import {describe,expect,it} from 'vitest';
+import {beforeAll,describe,expect,it} from 'vitest';
 
 describe('Shoperation Codebase Atlas 2.0 / System Self-Knowledge',()=>{
+  beforeAll(()=>{execFileSync('node',['scripts/shoperation-codebase-atlas.mjs','--check'],{encoding:'utf8'});},60000);
   it('uses one Atlas v2 policy and no parallel v1 policy authority',()=>{
     const runtime=readFileSync('scripts/lib/shoperation-codebase-atlas-runtime.mjs','utf8');
     const policy=JSON.parse(readFileSync('quality/knowledge/codebase-atlas-policy.v2.json','utf8')) as {contract:string;version:number;architectureContracts:{constitution:string;domains:string};selfKnowledge:Record<string,boolean>};
@@ -15,7 +16,6 @@ describe('Shoperation Codebase Atlas 2.0 / System Self-Knowledge',()=>{
   });
 
   it('builds a valid v2 atlas bound to Constitution and Domain Foundations',()=>{
-    execFileSync('node',['scripts/shoperation-codebase-atlas.mjs','--check'],{encoding:'utf8'});
     const atlas=JSON.parse(readFileSync('artifacts/shoperation-atlas/codebase-atlas.json','utf8')) as {
       contract:string;
       architecture:{constitutionContract:string;domainContract:string;domainCount:number;truthOwnerCount:number};
@@ -36,7 +36,6 @@ describe('Shoperation Codebase Atlas 2.0 / System Self-Knowledge',()=>{
   });
 
   it('does not parse import-looking assertion strings as dependency edges and keeps real imports',()=>{
-    execFileSync('node',['scripts/shoperation-codebase-atlas.mjs','--check'],{encoding:'utf8'});
     const atlas=JSON.parse(readFileSync('artifacts/shoperation-atlas/codebase-atlas.json','utf8')) as {
       unresolvedInternalImports:Array<{from:string;specifier:string}>;
       nodes:Array<{path:string;imports:string[];domains:string[]}>;

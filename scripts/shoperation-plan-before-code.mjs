@@ -1,6 +1,6 @@
 import {mkdirSync,readFileSync,writeFileSync} from 'node:fs';
 import {getChangedFiles,globToRegExp,guardPolicy,isNeutralFile,knowledge,resolveDevelopmentScope,scopePolicy,stableDigest} from './lib/shoperation-development-runtime.mjs';
-import {buildCodebaseAtlas,validateCodebaseAtlas} from './lib/shoperation-codebase-atlas-runtime.mjs';
+import {applicablePoInstructions,buildCodebaseAtlas,buildExecutionRoute,validateCodebaseAtlas} from './lib/shoperation-codebase-atlas-runtime.mjs';
 import {validateOperationalIntelligence} from './lib/shoperation-operational-intelligence.mjs';
 
 const plan=JSON.parse(readFileSync('quality/development/active-plan.json','utf8'));
@@ -10,7 +10,8 @@ const changedFiles=diff.files.filter(file=>file!=='quality/development/active-pl
 const issues=[];
 
 if(plan.contract!=='shoporation.development-plan.v1')issues.push({code:'DEV_PLAN_CONTRACT_INVALID'});
-if(plan.status!=='ready-for-implementation')issues.push({code:'DEV_PLAN_NOT_READY'});
+if(!['ready-for-implementation','closed'].includes(plan.status))issues.push({code:'DEV_PLAN_NOT_READY'});
+if(plan.status==='closed'&&(!plan.lifecycle||plan.lifecycle.state!=='LEARN'||plan.lifecycle.truthStatus!=='VERIFIED'||!plan.lifecycle.verifiedImplementationHead))issues.push({code:'DEV_PLAN_CLOSED_LIFECYCLE_INVALID'});
 if(!plan.task?.trim())issues.push({code:'DEV_PLAN_TASK_REQUIRED'});
 if(!Array.isArray(plan.plannedFilePatterns)||!plan.plannedFilePatterns.length)issues.push({code:'DEV_PLAN_FILES_REQUIRED'});
 
@@ -27,6 +28,22 @@ const projectedFiles=atlas.nodes
   .filter(file=>file!=='quality/development/active-plan.json'&&planMatchers.some(m=>m.test(file)))
   .sort();
 if(!projectedFiles.length)issues.push({code:'DEV_PLAN_PROJECTION_EMPTY',plannedFilePatterns:plan.plannedFilePatterns});
+
+const generatedExecutionRoute=buildExecutionRoute(atlas,plan.plannedFilePatterns??[]);
+const declaredExecutionRoute=plan.operationalIntelligence?.semanticExecutionRoute??null;
+if(plan.operationalIntelligence?.riskTier==='critical'){
+  const declaredMustEdit=[...(declaredExecutionRoute?.mustEdit??[])];
+  for(const file of declaredMustEdit)if(!generatedExecutionRoute.MUST_EDIT.includes(file)&&!generatedExecutionRoute.INSTRUCTION_REQUIRED.includes(file))issues.push({code:'DEV_PLAN_SEMANTIC_MUST_EDIT_OUTSIDE_ROUTE',file});
+  const missingInstructionRequired=generatedExecutionRoute.INSTRUCTION_REQUIRED.filter(file=>!declaredMustEdit.includes(file));
+  if(missingInstructionRequired.length)issues.push({code:'DEV_PLAN_PO_INSTRUCTION_REQUIRED_CHANGE_UNDECLARED',files:missingInstructionRequired,instructionIds:generatedExecutionRoute.PO_INSTRUCTIONS});
+  if(generatedExecutionRoute.UNKNOWN.length)issues.push({code:'DEV_PLAN_SEMANTIC_EXECUTION_UNKNOWN',unknown:generatedExecutionRoute.UNKNOWN});
+}
+const applicableInstructions=applicablePoInstructions(atlas,projectedFiles);
+const expectedInstructionIds=applicableInstructions.map(item=>item.id).sort();
+const acknowledgedInstructionIds=[...(plan.acknowledgedPoInstructionIds??[])].sort();
+const missingInstructionIds=expectedInstructionIds.filter(id=>!acknowledgedInstructionIds.includes(id));
+if(missingInstructionIds.length)issues.push({code:'DEV_PLAN_PO_INSTRUCTION_UNACKNOWLEDGED',instructionIds:missingInstructionIds});
+
 
 const actualScope=resolveDevelopmentScope({files:changedFiles,task:plan.task});
 const projectedScope=resolveDevelopmentScope({files:projectedFiles,task:plan.task});
@@ -106,6 +123,8 @@ const report={
     actual:{directDomains:actualDomains,directAuthorities:actualAuthorities,unresolvedFiles:actualUnresolved},
     projected:{directDomains:projectedDomains,directAuthorities:projectedAuthorities,unresolvedFiles:projectedUnresolved},
     atlasContract:atlas.contract,
+    semanticExecutionRoute:generatedExecutionRoute,
+    applicablePoInstructionIds:expectedInstructionIds,
   },
   guardDigest:digest,
   operationalIntelligence:{riskTier:plan.operationalIntelligence?.riskTier??null,assuranceLevel:operationalValidation.profile?.assuranceLevel??null,sourceRef:plan.operationalIntelligence?.sourceRef??null,challengeCount:plan.operationalIntelligence?.challenge?.length??0,specialistCount:plan.operationalIntelligence?.specialistReviews?.length??0,completionRequirementIds:(plan.completionContract?.requirements??[]).map(item=>item.id)},

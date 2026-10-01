@@ -121,5 +121,31 @@
       ],
       "expiresAt": null
     }
-  ]
+  ],
+  "proofSemantics": {
+    "contract": "shoporation.evidence-semantics.v1",
+    "capabilityProvenRequiresStructuredEvidence": true,
+    "legacyEvidencePolicy": "Legacy roadmap evidence remains historical/descriptive and does not become capability-level semantic proof merely because a non-empty evidence field exists.",
+    "requiredFields": [
+      "producer",
+      "capability",
+      "scope",
+      "dimensions",
+      "whatItProves",
+      "whatItDoesNotProve",
+      "classification",
+      "confidence"
+    ],
+    "classifications": [
+      "runtime",
+      "static",
+      "browser",
+      "unit",
+      "integration",
+      "adversarial",
+      "mixed"
+    ],
+    "freshness": "Evidence must remain in current HEAD ancestry or satisfy the exact-head/equivalence contract of its producer.",
+    "confidenceRule": "Evidence presence alone contributes zero semantic-proof confidence."
+  }
 }

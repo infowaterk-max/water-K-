@@ -1,8 +1,28 @@
-import {mkdirSync,writeFileSync} from 'node:fs';
+import {execFileSync} from 'node:child_process';
+import {existsSync,mkdirSync,readFileSync,writeFileSync} from 'node:fs';
 import {getAllFailures,guardPolicy,knowledge,resolveDevelopmentScope,stableDigest} from './lib/shoperation-development-runtime.mjs';
-import {buildCodebaseAtlas,impactForAtlasPattern,writeCodebaseAtlasArtifacts} from './lib/shoperation-codebase-atlas-runtime.mjs';
+import {buildCodebaseAtlas,buildExecutionRoute,impactForAtlasPattern,writeCodebaseAtlasArtifacts} from './lib/shoperation-codebase-atlas-runtime.mjs';
+import {buildClosedDevelopmentPlan} from './lib/shoperation-operational-intelligence.mjs';
 
 const args=process.argv.slice(2),value=name=>{const i=args.indexOf(name);return i>=0?args[i+1]??'':null;},has=name=>args.includes(name);
+if(has('--close-plan')){
+  const planPath='quality/development/active-plan.json';
+  const truthPath=value('--truth')??'artifacts/shoperation-development-guard/truth-gate.json';
+  if(!existsSync(planPath))throw new Error('DEV_LIFECYCLE_PLAN_MISSING');
+  if(!existsSync(truthPath))throw new Error('DEV_LIFECYCLE_TRUTH_REPORT_MISSING:'+truthPath);
+  const currentPlan=JSON.parse(readFileSync(planPath,'utf8'));
+  const truthReport=JSON.parse(readFileSync(truthPath,'utf8'));
+  const currentHead=execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim();
+  const closed=buildClosedDevelopmentPlan({
+    plan:currentPlan,
+    truthReport,
+    currentHead,
+    closedAt:process.env.SHOPERATION_CLOSE_TIMESTAMP??new Date().toISOString(),
+  });
+  writeFileSync(planPath,JSON.stringify(closed,null,2)+'\n');
+  console.log(`Development lifecycle: CLOSE -> LEARN; task=${closed.taskId}; verifiedImplementationHead=${currentHead}.`);
+  process.exit(0);
+}
 const task=value('--task')??process.env.SHOPERATION_TASK??'',rawFiles=value('--files')??process.env.SHOPERATION_PLANNED_FILES??'',files=rawFiles.split(/[;,\n]/).map(x=>x.trim()).filter(Boolean);
 const riskTier=(value('--risk')??process.env.SHOPERATION_RISK_TIER??'medium').trim(),sourceRef=(value('--source-ref')??process.env.SHOPERATION_PO_SOURCE_REF??'').trim();
 const assuranceProfile=guardPolicy.operationalIntelligence?.riskProfiles?.[riskTier];
@@ -11,6 +31,9 @@ if(!task.trim()){console.error('DEVELOPMENT_GUARD_TASK_REQUIRED');process.exit(1
 if(!files.length){console.error('DEVELOPMENT_GUARD_PLANNED_FILES_REQUIRED');process.exit(1);}
 const atlas=buildCodebaseAtlas();writeCodebaseAtlasArtifacts(atlas);
 const atlasContext=files.map(file=>impactForAtlasPattern(atlas,file));
+const semanticRoute=buildExecutionRoute(atlas,files);
+const expectedDomains=[...new Set(atlasContext.flatMap(item=>item.directDomains??[]))].sort();
+const expectedAuthorities=[...new Set(atlasContext.flatMap(item=>item.authorities??[]))].sort();
 const scope=resolveDevelopmentScope({files,task}),allFailures=getAllFailures(),failureById=new Map(allFailures.map(f=>[f.id,f]));
 const activeFailures=scope.activeFailureIds.map(id=>failureById.get(id)).filter(Boolean).map(f=>({...f,directive:guardPolicy.directives[f.id]}));
 const negativeKnowledge=knowledge.negativeKnowledge.filter(item=>{const applicable=guardPolicy.negativeKnowledgeApplicability[item.id]??[];return applicable.includes('*')||applicable.some(s=>scope.impactedSubsystems.includes(s));});
@@ -31,7 +54,10 @@ if(has('--write-plan')){
     guardDigest:digest,
     plannedFilePatterns:files,
     expectedSubsystems:scope.impactedSubsystems,
+    expectedDomains,
+    expectedAuthorities,
     expectedKnownFailureIds:scope.activeFailureIds,
+    acknowledgedPoInstructionIds:[...(semanticRoute.PO_INSTRUCTIONS??[])],
     acknowledgedNegativeKnowledgeIds:negativeKnowledge.map(x=>x.id),
     exceptions:[],
     operationalIntelligence:{
@@ -45,6 +71,15 @@ if(has('--write-plan')){
       specialistReviews:[],
       challenge:[],
       proofPlan:[],
+      semanticExecutionRoute:{
+        request:sourceRef||task,
+        authority:[...(semanticRoute.AUTHORITY??[])],
+        mustEdit:[...(semanticRoute.MUST_EDIT??[])],
+        mayEdit:[...(semanticRoute.MAY_EDIT??[])],
+        impactedReadOnly:[...(semanticRoute.IMPACTED_READ_ONLY??[])],
+        proof:[...(semanticRoute.PROOF??[])],
+        unknown:[...(semanticRoute.UNKNOWN??[])],
+      },
       executionAuthorized:false,
     },
     completionContract:{sourceKind:'product-owner-request',sourceRef,requirements:[]},

@@ -63,11 +63,19 @@ describe('Failure Intake reconciliation',()=>{
   });
   it('wires reconciliation into the existing periodic full replay instead of Sentinel mutation authority',()=>{
     const workflow=readFileSync('.github/workflows/shoperation-knowledge-full-replay.yml','utf8');
+    const ci=readFileSync('.github/workflows/ci.yml','utf8');
     const sentinel=readFileSync('docs/architecture/SHOPERATION_SENTINEL.md','utf8');
     expect(workflow).toContain('Collect Failure Intake reconciliation evidence');
     expect(workflow).toContain('Run deterministic Failure Intake reconciliation');
     expect(workflow).toContain('Apply explicit Failure Intake dispositions');
     expect(workflow).toContain('shoperation-failure-intake-reconcile.mjs');
+    expect(workflow).toContain("cron: '17 2 * * *'");
+    expect(workflow).not.toContain("cron: '17 2 * * 1'");
+    expect(ci).toContain('Collect immediate Failure Intake reconciliation evidence');
+    expect(ci).toContain('Run immediate deterministic Failure Intake reconciliation');
+    expect(ci).toContain('Apply immediate Failure Intake dispositions');
+    expect(ci).toContain("github.ref == 'refs/heads/main'");
+    expect(ci).toContain('shoperation-failure-intake-reconcile.mjs');
     expect(workflow).toContain("const currentBody=current.body||'';");
     expect(workflow).toContain('body:nextBody');
     const collect=workflow.split('Collect Failure Intake reconciliation evidence')[1]?.split('Run deterministic Failure Intake reconciliation')[0]??'';

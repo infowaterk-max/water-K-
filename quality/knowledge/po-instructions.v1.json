@@ -1,0 +1,52 @@
+{
+  "contract": "shoporation.po-instructions.v1",
+  "version": 1,
+  "status": "canonical",
+  "instructions": [
+    {
+      "id": "PO-INSTRUCTION-SHIPPING-PAYMENT-SEPARATE",
+      "source": {
+        "kind": "product-owner-decision",
+        "ref": "PO-2026-09-29-SHIPPING-PAYMENT-SEPARATE",
+        "recordedAt": "2026-10-01"
+      },
+      "scope": "storefront public information route authority and Template Factory canonical route integrity",
+      "affectedDomains": [
+        "DOMAIN-BUILDER",
+        "DOMAIN-STOREFRONT"
+      ],
+      "affectedPatterns": [
+        "src/lib/builder/storefront-template-route-integrity.ts",
+        "src/app/oldal/[slug]/page.tsx",
+        "src/app/**/szallitas/**",
+        "src/app/**/fizetes/**",
+        "src/app/szallitas-es-fizetes/**",
+        "src/app/sitemap.ts",
+        "tests/storefront-public-information-routes.test.ts",
+        "tests/storefront-real-route-template-authority.test.ts",
+        "tests/template-factory-loot-vault-v2.test.ts"
+      ],
+      "affectedRoutes": [
+        "/szallitas",
+        "/fizetes"
+      ],
+      "affectedComponentKeys": [],
+      "affectedContracts": [
+        "storefront-route-integrity"
+      ],
+      "positiveRequirement": "Shipping and payment are separate public information authorities: the storefront exposes an independent /szallitas route and an independent /fizetes route.",
+      "forbiddenStates": [
+        "route:/szallitas-es-fizetes",
+        "route-key:shipping-payment",
+        "display-label:Szállítás és fizetés"
+      ],
+      "lifecycle": "active",
+      "supersededBy": null,
+      "evidence": [
+        "Product Owner explicit repeated decision that shipping and payment must be separate pages.",
+        "Stress regression PR #645 demonstrates the combined canonical route remained live after the decision.",
+        "Repository search on 2026-10-01 confirms the combined public authority is implemented in src/app/szallitas-es-fizetes/page.tsx, sitemap authority, route integrity, and public-route regression tests."
+      ]
+    }
+  ]
+}
