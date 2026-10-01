@@ -71,3 +71,5 @@ Az Atlas 2.0 a korábbi Atlas policy v1 helyére lép. A runtime kizárólag a v
 <!-- STRESS_CAPABILITY_RESUMABLE_NOOP_A: documentation-only semantic no-op -->
 
 <!-- STRESS_CAPABILITY_RESUMABLE_NOOP_B: second independent documentation-only semantic no-op -->
+
+<!-- STRESS_CAPABILITY_RESUMABLE_NOOP_C: third independent documentation-only semantic no-op -->
