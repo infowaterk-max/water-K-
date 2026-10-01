@@ -283,3 +283,7 @@ ACTIVE promotion proof note: after a truth-sealed eligible checkpoint, a later s
 
 - Engine reset baseline: `16a33cf1f37df5209a2f634ff24bc84d5a19c98d` — SHADOW PASS, RESUMED, 1/1 shadow/resumed pass, 0 false reuse, exact-head Truth Gate `VERIFIED_DONE`.
 - This section is documentation-only and intentionally excluded by the configured non-semantic path policy; subsequent revisions below are independent resume proofs, not executable-policy changes.
+
+### Merge-readiness promotion proof marker A
+
+Documentation-only exact-head revision used to re-establish shadow promotion confidence after the verification-engine provenance canonicalization change. This marker does not change verification semantics, thresholds, dependencies, authorities, workflows, or execution policy.
