@@ -241,7 +241,9 @@ jobs:
           SHOPERATION_DIAGNOSTIC_OUTPUT: artifacts/shoperation-command-diagnostics/production-build.json
           SHOPERATION_SOURCE_COMMIT: ${{ github.event.pull_request.head.sha || github.sha }}
           SHOPERATION_ENVIRONMENT: ci
-        run: node scripts/shoperation-command-diagnostic.mjs -- npm run build
+        run: |
+          printf "%s\\n" "throw new Error('STRESS_BUILD_ONLY');" >> next.config.mjs
+          node scripts/shoperation-command-diagnostic.mjs -- npm run build
 
       - name: Reconcile Resumable Verification
         if: always() && github.event_name == 'pull_request'
