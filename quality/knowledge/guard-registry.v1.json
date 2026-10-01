@@ -238,9 +238,7 @@
       "evidence": "test-result",
       "verification": {
         "reusePolicy": "safe",
-        "dependsOn": [
-          "GUARD-INCREMENTAL-REPLAY"
-        ],
+        "dependsOn": [],
         "impactTier": 2,
         "shadowComparable": true,
         "knownFailureConsumer": true,
