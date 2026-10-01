@@ -578,5 +578,5 @@
       }
     ]
   },
-  "notes": "Critical self-modification of the Control Plane verification path. Actual diff expanded into the canonical quality-infrastructure subsystem in addition to release-infrastructure; the plan envelope was reconciled before further implementation. v1 is branch-scoped shadow mode; physical gate skipping remains excluded until shadow/full equivalence is proven."
+  "notes": "Critical self-modification of the Control Plane verification path. Actual diff expanded into the canonical quality-infrastructure subsystem in addition to release-infrastructure; the plan envelope was reconciled before further implementation. Shadow cycle 1 PASS at exact HEAD 14b17986c70edc3cdc91b9b3e958a194e4dfe55a: FULL/Tier4, 10 comparable full gates, 0 shadow discrepancies, complete branch-scoped checkpoint saved. v1 remains shadow mode; physical gate skipping is excluded until reuse equivalence is proven on subsequent exact heads."
 }
