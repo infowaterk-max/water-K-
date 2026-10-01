@@ -192,6 +192,7 @@ export function planFromSnapshots({current,previousCheckpoint=null,checkpointVal
   if(dirty){forceFull=true;reasons.push('dirty-workspace');}
   if(!current.graphValid){forceFull=true;reasons.push('verification-graph-invalid');}
   if(!checkpointValidation.ok){forceFull=true;reasons.push(...checkpointValidation.issues.map(issue=>String(issue.code).toLowerCase()));}
+  if(semanticImpact.some(unit=>Number(unit.impactTier??0)>=4||unit.scope==='full-verification')){forceFull=true;reasons.push('semantic-impact-requires-full-verification');}
   const uncovered=changedFiles.filter(file=>!matchPatterns(file,current.coveredPatterns)&&!matchPatterns(file,current.nonSemanticPatterns));
   if(uncovered.length){forceFull=true;reasons.push('unknown-dependency');}
   const previousGates=previousCheckpoint?.gates??{};
