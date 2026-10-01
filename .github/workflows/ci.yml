@@ -131,7 +131,9 @@ jobs:
           SHOPERATION_VERIFICATION_ENVIRONMENT: ci
           SHOPERATION_TOOLCHAIN_ID: node24
           SHOPERATION_VERIFICATION_GATE_SCOPE: GUARD-KNOWLEDGE-PREFLIGHT,GUARD-PLAN-BEFORE-CODE,GUARD-EDIT-TIME,GUARD-INCREMENTAL-REPLAY,GUARD-RELEASE-RISK,GUARD-CUSTOMER-BASELINE,GUARD-MARKET-READY,GUARD-QUALITY-TESTS,GUARD-TYPECHECK,GUARD-PRODUCTION-BUILD
-        run: node scripts/shoperation-incremental-replay.mjs --check
+        run: |
+          printf "%s\\n" "it('STRESS_ONLY incremental replay failure',()=>{expect(true).toBe(false)});" >> tests/shoperation-resumable-verification.test.ts
+          node scripts/shoperation-incremental-replay.mjs --check
 
       - name: Upload Development Guard evidence
         if: always()
