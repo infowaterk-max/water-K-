@@ -106,10 +106,25 @@ function architectureProjection(domainIds){
 const semanticId=(kind,file,name='')=>`${kind}:${file}${name?':'+name:''}`;
 const rel=file=>normalize(path.relative(process.cwd(),file));
 function hasModifier(node,kind){return Boolean(node.modifiers?.some(mod=>mod.kind===kind));}
+function containsJsx(node){
+  let found=false;
+  const visit=child=>{
+    if(found)return;
+    if(ts.isJsxElement(child)||ts.isJsxSelfClosingElement(child)||ts.isJsxFragment(child)){found=true;return;}
+    ts.forEachChild(child,visit);
+  };
+  ts.forEachChild(node,visit);
+  return found;
+}
 function declarationKind(node,name,sourceFile){
   if(ts.isClassDeclaration(node))return'class';
   if(ts.isMethodDeclaration(node))return'method';
-  if(ts.isFunctionDeclaration(node))return/^use[A-Z0-9_]/.test(name)?'hook':sourceFile.statements.some(statement=>ts.isExpressionStatement(statement)&&statement.expression?.text==='use server')?'server-action':'function';
+  if(ts.isFunctionDeclaration(node)){
+    if(/^use[A-Z0-9_]/.test(name))return'hook';
+    if(sourceFile.statements.some(statement=>ts.isExpressionStatement(statement)&&statement.expression?.text==='use server'))return'server-action';
+    if(/^[A-Z][A-Za-z0-9_$]*$/.test(name)&&containsJsx(node))return'react-component';
+    return'function';
+  }
   if(ts.isInterfaceDeclaration(node)||ts.isTypeAliasDeclaration(node)||ts.isEnumDeclaration(node))return'schema-type';
   if(ts.isVariableDeclaration(node)){
     if(/^use[A-Z0-9_]/.test(name))return'hook';
@@ -417,7 +432,9 @@ function buildSemanticGraph({files,fileSet,fileNodes,literalIndex,exportIndex,re
   }
   return{contract:policy.semanticGraph?.contract??'shoporation.semantic-execution-graph.v1',nodes:[...nodeMap.values()],edges:[...edgeMap.values()].slice(0,policy.semanticGraph?.maxEdges??250000),reverseFileEdges,unknowns:unknowns.slice(0,policy.semanticGraph?.maxUnknowns??5000),typeCheckerAvailable:Boolean(checker)};
 }
+let atlasProcessCache=null;
 export function buildCodebaseAtlas(){
+  if(atlasProcessCache)return atlasProcessCache;
   const files=trackedFiles(),fileSet=new Set(files),nodes=[],unresolvedInternalImports=[];
   for(const file of files){
     const ext=path.extname(file).toLowerCase(),source=isText(file)&&existsSync(file)?readFileSync(file,'utf8'):'';
@@ -441,7 +458,7 @@ export function buildCodebaseAtlas(){
   const duplicateRoutes=Object.entries(routes.reduce((acc,item)=>{const key=`${item.kind}:${item.path}`;(acc[key]??=[]).push(item.file);return acc;},{})).filter(([,value])=>value.length>1).map(([routeKey,files])=>({routeKey,files}));
   const allFailures=getAllFailures();
   const truthOwnerIndex=Object.fromEntries(domainRegistry.domains.flatMap(domain=>domain.truthOwnership.map(truth=>[truth,{domainId:domain.id,owner:domain.owner}])));
-  return {
+  const atlas={
     contract:'shoporation.codebase-atlas.v2',generatedAt:new Date().toISOString(),
     architecture:{constitutionContract:constitution.contract,domainContract:domainRegistry.contract,authorityOrder:constitution.authorityOrder,domainCount:domainRegistry.domains.length,truthOwnerCount:Object.keys(truthOwnerIndex).length},
     summary:{trackedFiles:files.length,indexedNodes:nodes.length,codeNodes:nodes.filter(n=>n.kind==='code').length,testNodes:nodes.filter(n=>n.kind==='test').length,routeNodes:routes.length,importEdges:nodes.reduce((n,x)=>n+x.imports.length,0),exportedSymbols:Object.keys(exportIndex).length,literalKeys:Object.keys(literalIndex).length,referenceTerms:Object.keys(referenceIndex).length,semanticNodes:semanticGraph.nodes.length,semanticEdges:semanticGraph.edges.length,semanticUnknowns:semanticGraph.unknowns.length,typeCheckerAvailable:semanticGraph.typeCheckerAvailable,unresolvedInternalImports:unresolvedInternalImports.length,duplicateRoutes:duplicateRoutes.length,subsystemCounts,domainCounts},
@@ -449,6 +466,8 @@ export function buildCodebaseAtlas(){
     domainIndexDefinition:Object.fromEntries(domainRegistry.domains.map(domain=>[domain.id,{name:domain.name,owner:domain.owner,dependsOn:domain.dependsOn,truthOwnership:domain.truthOwnership,boundaryRules:domain.boundaryRules,evidenceObligations:domain.evidenceObligations}])),
     knownFailureIndex:Object.fromEntries(allFailures.map(f=>[f.id,{title:f.title,provider:f.provider,applicability:f.applicability,regressionTests:f.regressionTests}])),
   };
+  atlasProcessCache=atlas;
+  return atlas;
 }
 function fallbackSemanticConsumers(atlas,current,byPath){
   const node=byPath.get(current);if(!node)return[];
