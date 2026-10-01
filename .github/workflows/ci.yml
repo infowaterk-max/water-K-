@@ -388,6 +388,87 @@ jobs:
               await github.rest.issues.create({...context.repo,title:`[Quality intake] ${identity}: ${record.rawErrorCode}`,body:`${marker}\n\nContract: \`shoporation.failure-intake.v2\`\n\nFingerprint: \`${record.failureFingerprint||'unknown'}\`\n\nSource commit: \`${record.sourceCommit||'unknown'}\`\n\nCI run: \`${record.ciRunId||'unknown'}\`\n\nSource: \`${record.failureSource}\`\n\nGate: \`${record.gate||record.gateCode||'unknown'}\`\n\nClassification: \`${record.classificationStatus}\`\n\nReason: ${record.reason||record.symptom}\n\nLocation: ${record.file||record.route||record.endpoint||'not localized'}\n\nThis issue remains open until the failure is matched, promoted, scoped, deduplicated or rejected with an explicit disposition.`});
             }
 
+      - name: Collect immediate Failure Intake reconciliation evidence
+        if: always() && github.event_name == 'push' && github.ref == 'refs/heads/main'
+        env:
+          FULL_REGRESSION_OUTCOME: ${{ steps.quality-tests.outcome }}
+          FULL_TYPECHECK_OUTCOME: ${{ steps.typecheck.outcome }}
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs=require('fs');
+            const atlasFile='artifacts/shoperation-atlas/codebase-atlas.json';
+            const atlas=fs.existsSync(atlasFile)?JSON.parse(fs.readFileSync(atlasFile,'utf8')):null;
+            const atlasDomainResolvedFiles=(atlas?.nodes||[]).filter(node=>Array.isArray(node.domains)&&node.domains.length>0).map(node=>node.path);
+            const open=await github.paginate(github.rest.issues.listForRepo,{...context.repo,state:'open',per_page:100});
+            const intake=open.filter(issue=>!issue.pull_request&&(issue.body||'').includes('<!-- shoperation-failure-intake:'));
+            const issues=[];
+            const scopeCache=new Map();
+            const sourceScopeFor=async body=>{
+              const sourceCommit=String(body||'').match(/Source commit:\s*`([0-9a-f]{7,40})`/i)?.[1]||null;
+              if(!sourceCommit)return{sourceCommit:null,sourceScope:null};
+              if(scopeCache.has(sourceCommit))return{sourceCommit,sourceScope:scopeCache.get(sourceCommit)};
+              let sourceScope=null;
+              try{
+                await github.rest.repos.getCommit({...context.repo,ref:sourceCommit});
+                const comparison=await github.rest.repos.compareCommits({...context.repo,base:sourceCommit,head:context.sha});
+                sourceScope=comparison.data.merge_base_commit?.sha===sourceCommit?'canonical':'development';
+              }catch(error){core.warning(`Could not prove ancestry for Failure Intake source ${sourceCommit}: ${error.message}`);}
+              scopeCache.set(sourceCommit,sourceScope);
+              return{sourceCommit,sourceScope};
+            };
+            for(const issue of intake){
+              const body=issue.body||'';
+              const provenance=await sourceScopeFor(body);
+              const runId=body.match(/CI run:\s*`(\d+)`/)?.[1]||null;
+              let sourceRun=null,laterSuccess=null;
+              if(runId){
+                try{
+                  const run=(await github.rest.actions.getWorkflowRun({...context.repo,run_id:Number(runId)})).data;
+                  sourceRun={id:String(run.id),name:run.name,workflowId:run.workflow_id,event:run.event,headBranch:run.head_branch,headSha:run.head_sha,conclusion:run.conclusion,createdAt:run.created_at};
+                  const successes=await github.paginate(github.rest.actions.listWorkflowRuns,{...context.repo,workflow_id:run.workflow_id,branch:run.head_branch||undefined,status:'success',per_page:100});
+                  const later=successes.filter(candidate=>Date.parse(candidate.created_at)>Date.parse(run.created_at)).sort((a,b)=>Date.parse(a.created_at)-Date.parse(b.created_at))[0];
+                  if(later)laterSuccess={id:String(later.id),event:later.event,headBranch:later.head_branch,headSha:later.head_sha,createdAt:later.created_at};
+                }catch(error){core.warning(`Could not resolve source workflow for intake #${issue.number}: ${error.message}`);}
+              }
+              const location=body.match(/Location:\s*([^\n]+)/)?.[1]?.trim()||null;
+              const normalizedLocation=location?.includes('/water-K-/')?location.split('/water-K-/').at(-1):location;
+              issues.push({number:issue.number,title:issue.title,body,updatedAt:issue.updated_at,location:normalizedLocation,sourceRun,laterSuccess,...provenance});
+            }
+            fs.mkdirSync('artifacts/shoperation-failure-intake-reconciliation',{recursive:true});
+            fs.writeFileSync('artifacts/shoperation-failure-intake-reconciliation/source-snapshot.json',JSON.stringify({contract:'shoporation.failure-intake-reconciliation-source.v1',repository:`${context.repo.owner}/${context.repo.repo}`,sourceCommit:context.sha,collectedAt:new Date().toISOString(),proofs:{fullRegressionPassed:process.env.FULL_REGRESSION_OUTCOME==='success',typecheckPassed:process.env.FULL_TYPECHECK_OUTCOME==='success',atlasDomainResolvedFiles},issues},null,2)+'\n');
+
+      - name: Run immediate deterministic Failure Intake reconciliation
+        if: always() && github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: node scripts/shoperation-failure-intake-reconcile.mjs
+
+      - name: Apply immediate Failure Intake dispositions
+        if: always() && github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs=require('fs');
+            const file='artifacts/shoperation-failure-intake-reconciliation/reconciliation.json';
+            if(!fs.existsSync(file))return;
+            const report=JSON.parse(fs.readFileSync(file,'utf8'));
+            for(const action of report.closeActions||[]){
+              const current=(await github.rest.issues.get({...context.repo,issue_number:action.issueNumber})).data;
+              if(current.state!=='open')continue;
+              const dispositionMarker=`<!-- shoperation-failure-intake-disposition:${action.disposition} -->`;
+              const currentBody=current.body||'';
+              const nextBody=currentBody.includes(dispositionMarker)?currentBody:currentBody+`\n\n${dispositionMarker}\nDisposition: **${action.disposition}**. ${action.reason}\nReconciled by Shoperation main CI on \`${context.sha}\`.`;
+              await github.rest.issues.update({...context.repo,issue_number:action.issueNumber,state:'closed',body:nextBody});
+            }
+
+      - name: Upload immediate Failure Intake reconciliation evidence
+        if: always() && github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: actions/upload-artifact@v4
+        with:
+          name: shoperation-failure-intake-reconciliation-${{ github.sha }}
+          path: artifacts/shoperation-failure-intake-reconciliation/**
+          if-no-files-found: error
+          retention-days: 90
+
   fresh-install-proof:
     if: (github.ref == 'refs/heads/core-engine-2-batch' || github.ref == 'refs/heads/production-provisioning-acceptance' || github.ref == 'refs/heads/feature/roadmap-block24-commercial-security-maturity' || startsWith(github.ref, 'refs/heads/roadmap/') || startsWith(github.ref, 'refs/heads/feature/')) && github.event_name == 'push' && contains(github.event.head_commit.message, '[fresh-install-proof]')
     runs-on: ubuntu-latest
