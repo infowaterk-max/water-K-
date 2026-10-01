@@ -302,6 +302,39 @@ describe('dependency-aware resumable verification',()=>{
     }
   });
 
+  it('blocks ACTIVE execution without prior promotion proof',()=>{
+    const a=identity('A');
+    const cp=checkpoint({A:a},{shadowStats:{passes:2,resumedPasses:1,falseReuse:0,promotionEligible:false}});
+    const replay=planFromSnapshots({current:{...current({A:a}),executionMode:'ACTIVE',promotionPolicy:{physicalSkippingEnabled:true,minimumShadowPasses:3,minimumResumedShadowPasses:2,maximumFalseReuse:0,referenceFullRuntimeMs:1000}},previousCheckpoint:cp,checkpointValidation:valid,changedFiles:[],activeFailureIds:['KF-1']});
+    const final=finalizeVerification({plan:{...replay,plannerStartedAtMs:Date.now()-10},outcomes:{A:'skipped'},priorCheckpoint:cp,runId:'active-block'});
+    expect(final.decision).toBe('BLOCK');
+    expect(final.manifest.comparison.discrepancies.map((item:any)=>item.code)).toContain('ACTIVE_WITHOUT_PROMOTION_PROOF');
+  });
+
+  it('reuses skipped safe evidence in ACTIVE mode only with fingerprint equivalence',()=>{
+    const a=identity('A');
+    const cp=checkpoint({A:a},{shadowStats:{passes:3,resumedPasses:2,falseReuse:0,promotionEligible:true}});
+    const replay=planFromSnapshots({current:{...current({A:a}),executionMode:'ACTIVE',promotionPolicy:{physicalSkippingEnabled:true,minimumShadowPasses:3,minimumResumedShadowPasses:2,maximumFalseReuse:0,referenceFullRuntimeMs:1000}},previousCheckpoint:cp,checkpointValidation:valid,changedFiles:[],activeFailureIds:['KF-1']});
+    expect(replay.gates.A.action).toBe('REUSE');
+    const final=finalizeVerification({plan:{...replay,plannerStartedAtMs:Date.now()-10},outcomes:{A:'skipped'},priorCheckpoint:cp,runId:'active-pass'});
+    expect(final.decision).toBe('PASS');
+    expect(final.manifest.executionMode).toBe('ACTIVE');
+    expect(final.manifest.gates.A.execution).toBe('REUSED');
+    expect(final.manifest.gates.A.originSourceCommit).toBe('head-1');
+    expect(final.manifest.gates.A.reuseProof.fingerprintEquivalent).toBe(true);
+    expect(final.manifest.truthEvidence[0]).toMatchObject({sourceCommit:'head-2',execution:'REUSED',originSourceCommit:'head-1'});
+  });
+
+  it('requires ACTIVE rerun gates to physically pass',()=>{
+    const old=identity('A'),next={...old,semanticInputHash:'changed',fingerprint:'changed'};
+    const cp=checkpoint({A:old},{shadowStats:{passes:3,resumedPasses:2,falseReuse:0,promotionEligible:true}});
+    const replay=planFromSnapshots({current:{...current({A:next}),executionMode:'ACTIVE',promotionPolicy:{physicalSkippingEnabled:true,minimumShadowPasses:3,minimumResumedShadowPasses:2,maximumFalseReuse:0}},previousCheckpoint:cp,checkpointValidation:valid,changedFiles:['src/a.ts'],activeFailureIds:['KF-1']});
+    expect(replay.gates.A.action).toBe('RERUN');
+    const final=finalizeVerification({plan:replay,outcomes:{A:'skipped'},priorCheckpoint:cp,runId:'active-rerun-missing'});
+    expect(final.decision).toBe('BLOCK');
+    expect(final.manifest.comparison.discrepancies.map((item:any)=>item.code)).toContain('ACTIVE_RERUN_FAILED_OR_MISSING');
+  });
+
   it('verification graph rejects cycles and unknown dependencies',()=>{
     const registry={
       guards:[
