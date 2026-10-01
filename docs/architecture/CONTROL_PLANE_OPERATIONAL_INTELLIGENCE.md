@@ -254,3 +254,9 @@ Cross-branch reuse is intentionally disabled in v1. This avoids introducing iden
 A promotion proof is valid only for the exact verification-engine identity that produced it. Any change to replay planning, checkpoint reconciliation, Truth Gate semantics, CI orchestration, guard-registry verification metadata, or development-guard verification policy invalidates promotion credit and returns execution to shadow/full control until the configured proof threshold is rebuilt.
 
 Promotion eligibility is recorded only after a successful reconciliation; physical skipping can therefore begin no earlier than the next exact-head verification revision.
+
+### Interrupted shadow evidence
+
+A shadow comparison distinguishes a verified disagreement from an interrupted control run. An explicit gate failure against a predicted reusable proof is a `SHADOW_FALSE_REUSE`. A cancelled, pending, queued, skipped, neutral or otherwise incomplete control outcome is instead `SHADOW_FULL_EVIDENCE_INCOMPLETE`: it blocks reconciliation and leaves the checkpoint incomplete, but it does not increment false-reuse evidence or promotion credit.
+
+This separation prevents CI concurrency cancellation or infrastructure interruption from being misclassified as a semantic reuse defect while remaining fail-closed for completion.
