@@ -352,6 +352,53 @@ describe('dependency-aware resumable verification',()=>{
     expect(report.rerunSet).toEqual(expect.arrayContaining(['A','B']));
   });
 
+  it('falls back to SHADOW when ACTIVE promotion proof belongs to an older verification engine',()=>{
+    const a=identity('A');
+    const cp=checkpoint({A:a},{shadowStats:{passes:3,resumedPasses:2,falseReuse:0,promotionEligible:true},verificationEngineHash:'engine-old'});
+    const report=planFromSnapshots({
+      current:{...current({A:a}),requestedExecutionMode:'ACTIVE',verificationEngineHash:'engine-new'},
+      previousCheckpoint:cp,
+      checkpointValidation:valid,
+      changedFiles:[],
+      activeFailureIds:['KF-1'],
+    });
+    expect(report.executionMode).toBe('SHADOW');
+    expect(report.promotionProofValid).toBe(false);
+    expect(report.promotionEngineEquivalent).toBe(false);
+    expect(report.reasons).toContain('promotion-engine-changed');
+  });
+
+  it('allows ACTIVE only when promotion proof matches the current verification engine',()=>{
+    const a=identity('A');
+    const cp=checkpoint({A:a},{shadowStats:{passes:3,resumedPasses:2,falseReuse:0,promotionEligible:true},verificationEngineHash:'engine-same'});
+    const report=planFromSnapshots({
+      current:{...current({A:a}),requestedExecutionMode:'ACTIVE',verificationEngineHash:'engine-same'},
+      previousCheckpoint:cp,
+      checkpointValidation:valid,
+      changedFiles:[],
+      activeFailureIds:['KF-1'],
+    });
+    expect(report.executionMode).toBe('ACTIVE');
+    expect(report.promotionProofValid).toBe(true);
+    expect(report.promotionEngineEquivalent).toBe(true);
+  });
+
+  it('forces SHADOW full control even with valid ACTIVE proof when tier-four impact requires FULL',()=>{
+    const a=identity('A');
+    const cp=checkpoint({A:a},{shadowStats:{passes:3,resumedPasses:2,falseReuse:0,promotionEligible:true},verificationEngineHash:'engine-same'});
+    const report=planFromSnapshots({
+      current:{...current({A:a}),requestedExecutionMode:'ACTIVE',verificationEngineHash:'engine-same'},
+      previousCheckpoint:cp,
+      checkpointValidation:valid,
+      changedFiles:['quality/knowledge/guard-registry.v1.json'],
+      activeFailureIds:['KF-1'],
+      semanticImpact:[{id:'AUTHORITY.CORE',impactTier:4,scope:'full-verification',files:['quality/knowledge/guard-registry.v1.json']}],
+    });
+    expect(report.verificationMode).toBe('FULL');
+    expect(report.executionMode).toBe('SHADOW');
+    expect(report.reusableEvidenceSet).toEqual([]);
+  });
+
   it('verification graph rejects cycles and unknown dependencies',()=>{
     const registry={
       guards:[
