@@ -356,15 +356,39 @@ for(const item of catalog.templates??[]){
   if(item.structural?.ok!==true)throw new Error(`TEMPLATE_FACTORY_STRUCTURAL_GATE_FAILED:${item.templateKey}:${item.structural?.issues?.[0]?.code??'UNKNOWN'}`);
 }
 const changes=changedFiles();
-const scope=selectScope(catalog,changes);
+const previousResult=await loadPreviousManifest();
+const previousManifest=previousResult.manifest;
+const scope=selectScope(catalog,changes,previousManifest);
 const browser=await chromium.launch({headless:true});
 const cases=[];
 const errors=[];
 const warnings=[];
+for(const selected of scope.selected){
+  if(!selected.prior||!['partial','reuse'].includes(selected.mode))continue;
+  const rerunPages=new Set(selected.pages);
+  for(const priorCase of selected.prior.cases){
+    if(rerunPages.has(priorCase.pageType))continue;
+    const currentFingerprint=selected.template.pageFingerprints?.[priorCase.pageType];
+    const previousFingerprint=selected.prior.fingerprints?.[priorCase.pageType];
+    if(!currentFingerprint||currentFingerprint!==previousFingerprint)continue;
+    cases.push({
+      ...priorCase,
+      screenshotPath:null,
+      originScreenshotPath:priorCase.screenshotPath??priorCase.originScreenshotPath??null,
+      evidenceExecution:'REUSED',
+      sourceCommit:headSha==='HEAD'?null:headSha,
+      originSourceCommit:priorCase.originSourceCommit??selected.prior.sourceCommit,
+      originRunId:priorCase.originRunId??selected.prior.runId,
+      originArtifactName:'template-factory-quality-'+selected.prior.sourceCommit,
+      pageFingerprint:currentFingerprint,
+      reuseProof:{fingerprintEquivalent:true,previousFingerprint,currentFingerprint,previousSourceCommit:selected.prior.sourceCommit},
+    });
+  }
+}
 try{
   for(const selected of scope.selected){
     const manifest=selected.template;
-    const pages=selected.mode==='full'?manifest.pageTypes:manifest.pageTypes.filter(pageType=>canaryPageTypes.has(pageType));
+    const pages=selected.pages;
     for(const pageType of pages){
       for(const viewport of manifest.viewports){
         const profile=viewportProfiles[viewport];
@@ -424,14 +448,14 @@ try{
           if(manifest.golden.required&&golden.status==='missing')caseErrors.push('GOLDEN_BASELINE_MISSING');
           if(golden.status==='fail'||golden.status==='dimension-mismatch')caseErrors.push(`GOLDEN_DIFF:${golden.mismatchRatio}`);
 
-          const record={templateKey:manifest.templateKey,templateVersion:manifest.templateVersion,pageType,viewport,mode:selected.mode,url,screenshotPath,diagnostics,golden,errors:caseErrors,warnings:caseWarnings};
+          const record={templateKey:manifest.templateKey,templateVersion:manifest.templateVersion,pageType,viewport,mode:selected.mode,url,screenshotPath,diagnostics,golden,errors:caseErrors,warnings:caseWarnings,evidenceExecution:'RERUN',sourceCommit:headSha==='HEAD'?null:headSha,originSourceCommit:headSha==='HEAD'?null:headSha,originRunId:currentRunId,pageFingerprint:manifest.pageFingerprints?.[pageType]??null};
           cases.push(record);
           for(const error of caseErrors)errors.push({case:name,error});
           for(const warning of caseWarnings)warnings.push({case:name,warning});
         }catch(error){
           const message=error instanceof Error?error.message:String(error);
           errors.push({case:name,error:message});
-          cases.push({templateKey:manifest.templateKey,templateVersion:manifest.templateVersion,pageType,viewport,mode:selected.mode,url,errors:[message],warnings:[]});
+          cases.push({templateKey:manifest.templateKey,templateVersion:manifest.templateVersion,pageType,viewport,mode:selected.mode,url,errors:[message],warnings:[],evidenceExecution:'RERUN',sourceCommit:headSha==='HEAD'?null:headSha,originSourceCommit:headSha==='HEAD'?null:headSha,originRunId:currentRunId,pageFingerprint:manifest.pageFingerprints?.[pageType]??null});
         }finally{
           await page.close();
         }
@@ -463,7 +487,7 @@ try{
         for(const error of caseErrors)errors.push({case:name,error});
         const pathOut=path.join(outputDir,`${name}.png`);
         await page.screenshot({path:pathOut,fullPage:true,animations:'disabled'});
-        cases.push({templateKey:manifest.templateKey,templateVersion:manifest.templateVersion,pageType:'content-demo',viewport:'mobile',url:demoUrl,screenshotPath:pathOut,errors:caseErrors,warnings:[]});
+        cases.push({templateKey:manifest.templateKey,templateVersion:manifest.templateVersion,pageType:'content-demo',viewport:'mobile',url:demoUrl,screenshotPath:pathOut,errors:caseErrors,warnings:[],evidenceExecution:'RERUN',sourceCommit:headSha==='HEAD'?null:headSha,originSourceCommit:headSha==='HEAD'?null:headSha,originRunId:currentRunId,pageFingerprint:manifest.pageFingerprints?.content??null});
       }catch(error){
         errors.push({case:name,error:error instanceof Error?error.message:String(error)});
       }finally{await page.close();}
