@@ -45,6 +45,18 @@ function routeForFile(file){
   });
   return {path:'/'+segments.join('/'),kind:kind==='route'?'api':'page'};
 }
+export function classifyAtlasPath(file){
+  const domains=classifyDomains(file);
+  return{
+    path:file,
+    route:routeForFile(file),
+    subsystems:classifySubsystems(file),
+    surfaces:classifySurfaces(file),
+    domains,
+    authorities:domainAuthorities(domains),
+    truthKeys:domainTruthKeys(domains),
+  };
+}
 export function extractImports(source){
   const specs=new Set();
   const file=ts.createSourceFile('atlas-source.tsx',source,ts.ScriptTarget.Latest,true,ts.ScriptKind.TSX);
@@ -630,20 +642,27 @@ function instructionRequiredChanges(atlas,instruction){
     required:[...new Set([...forbiddenFiles,...requiredRouteFiles])].sort(),
   };
 }
-export function buildExecutionRoute(atlas,patterns){
+export function buildExecutionRoute(atlas,patterns,{tombstones=[]}={}){
   const impacts=patterns.map(pattern=>impactForAtlasPattern(atlas,pattern));
-  const matched=[...new Set(impacts.flatMap(x=>x.matchedFiles))].sort();
+  const tombstoneMatches=[...new Set(
+    tombstones.filter(file=>patterns.some(pattern=>globToRegExp(pattern).test(file)))
+  )].sort();
+  const liveMatched=[...new Set(impacts.flatMap(x=>x.matchedFiles))].sort();
+  const matched=[...new Set([...liveMatched,...tombstoneMatches])].sort();
   const impactedReadOnly=[...new Set(impacts.flatMap(x=>x.consumers).filter(file=>!matched.includes(file)))].sort();
   const proof=[...new Set(impacts.flatMap(x=>x.tests))].sort();
-  const authority=[...new Set(impacts.flatMap(x=>x.authorities))].sort();
-  const semanticUnknowns=(atlas.semanticGraph?.unknowns??[]).filter(item=>!item.file||matched.includes(item.file));
-  const unresolvedImports=(atlas.unresolvedInternalImports??[]).filter(item=>matched.includes(item.from));
+  const authority=[...new Set([
+    ...impacts.flatMap(x=>x.authorities),
+    ...tombstoneMatches.flatMap(file=>classifyAtlasPath(file).authorities),
+  ])].sort();
+  const semanticUnknowns=(atlas.semanticGraph?.unknowns??[]).filter(item=>!item.file||liveMatched.includes(item.file));
+  const unresolvedImports=(atlas.unresolvedInternalImports??[]).filter(item=>liveMatched.includes(item.from));
   const applicable=(atlas.poInstructions??[]).filter(item=>item.lifecycle==='active'&&(item.affectedPatterns??[]).some(pattern=>matched.some(file=>globToRegExp(pattern).test(file))));
   const instructionRequirements=applicable.map(item=>instructionRequiredChanges(atlas,item));
   const instructionRequired=[...new Set(instructionRequirements.flatMap(item=>item.required))].sort();
   const adapterEdges=(atlas.semanticGraph?.edges??[]).filter(edge=>
     ['wraps','adapts','overrides'].includes(edge.type)
-    &&((edge.fromFile&&matched.includes(edge.fromFile))||(edge.toFile&&matched.includes(edge.toFile)))
+    &&((edge.fromFile&&liveMatched.includes(edge.fromFile))||(edge.toFile&&liveMatched.includes(edge.toFile)))
   );
   const overrideLegacyAlternate=[...new Set([
     ...adapterEdges.flatMap(edge=>[edge.fromFile,edge.toFile]).filter(Boolean),
@@ -654,6 +673,7 @@ export function buildExecutionRoute(atlas,patterns){
     contract:'shoporation.semantic-execution-route.v1',
     requestPatterns:patterns,
     MUST_EDIT:matched,
+    TOMBSTONES:tombstoneMatches,
     INSTRUCTION_REQUIRED:instructionRequired,
     INSTRUCTION_REQUIREMENTS:instructionRequirements,
     MAY_EDIT:mayEdit,

@@ -52,7 +52,14 @@ export function extractReferenceCandidatesFromLine(line,file){
     if(/[A-Za-zÁÉÍÓÖŐÚÜŰáéíóöőúüű]/.test(value))add('display-text',value);
   }
   for(const match of line.matchAll(/\b(data-[\w-]{4,})\b/g))add('data-attribute',match[1]);
-  for(const match of line.matchAll(/(--[a-z0-9_-]{4,})/gi))add('css-variable',match[1]);
+  const cssVariables=new Set();
+  for(const match of line.matchAll(/\bvar\(\s*(--[a-z0-9_-]{4,})/gi))cssVariables.add(match[1]);
+  for(const match of line.matchAll(/\b(?:getPropertyValue|setProperty|removeProperty)\(\s*['"`](--[a-z0-9_-]{4,})['"`]/gi))cssVariables.add(match[1]);
+  for(const match of line.matchAll(/['"`](--[a-z0-9_-]{4,})['"`]\s*:/gi))cssVariables.add(match[1]);
+  if(/\.(?:css|scss)$/.test(file)){
+    for(const match of line.matchAll(/(?:^|[;{]\s*)(--[a-z0-9_-]{4,})\s*:/gi))cssVariables.add(match[1]);
+  }
+  for(const value of cssVariables)add('css-variable',value);
   if(/\.(?:css|scss)$/.test(file))for(const match of line.matchAll(/\.([A-Za-z_][\w-]{3,})/g))add('css-class',match[1]);
   if(CODE_EXPR.test(file)){const expression=implementationExpression(line);if(expression)add('implementation-expression',expression);}
   return out;

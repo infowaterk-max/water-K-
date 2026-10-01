@@ -29,9 +29,19 @@ describe('Shoperation Development-Time Known Failure Guard',()=>{
     expect(preflight).toContain('resolveDevelopmentBase({changeBaseSha:developmentPlan.changeBaseSha})');
     expect(preflight).not.toContain("developmentPlan.changeBaseSha?.trim()||process.env.QUALITY_BASE_SHA");
   });
+  it('keeps Git-proven deletions in the shared development transaction instead of dropping D status',()=>{
+    const output=execFileSync(process.execPath,['scripts/lib/shoperation-development-runtime.mjs','--change-status-self-test'],{encoding:'utf8'});
+    expect(output).toContain('Development change-status self-test: PASS');
+    const runtime=readFileSync('scripts/lib/shoperation-development-runtime.mjs','utf8');
+    const edit=readFileSync('scripts/shoperation-edit-time-guard.mjs','utf8');
+    expect(runtime).toContain("'--name-status','--diff-filter=ACMRD'");
+    expect(runtime).toContain('deletedFiles');
+    expect(edit).toContain('deletedVerifiedChangeSet');
+    expect(edit).toContain('{tombstones:diff.deletedFiles??[]}');
+  });
   it('prevents plan-only or metadata commits from shrinking the active development transaction',()=>{
     const runtime=readFileSync('scripts/lib/shoperation-development-runtime.mjs','utf8'),plan=readFileSync('scripts/shoperation-plan-before-code.mjs','utf8');
-    expect(runtime).toContain("git(['diff','--name-only','--diff-filter=ACMR',base,head])");
+    expect(runtime).toContain("git(['diff','--name-status','--diff-filter=ACMRD',base,head])");
     expect(runtime).toContain('const base=resolveDevelopmentBase({changeBaseSha:explicit})');
     expect(plan).toContain("diff.files.filter(file=>file!=='quality/development/active-plan.json')");
     expect(plan).not.toContain("getChangedFiles()");

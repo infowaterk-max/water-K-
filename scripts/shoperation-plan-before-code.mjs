@@ -1,12 +1,13 @@
 import {mkdirSync,readFileSync,writeFileSync} from 'node:fs';
 import {getChangedFiles,globToRegExp,guardPolicy,isNeutralFile,knowledge,resolveDevelopmentScope,scopePolicy,stableDigest} from './lib/shoperation-development-runtime.mjs';
-import {applicablePoInstructions,buildCodebaseAtlas,buildExecutionRoute,validateCodebaseAtlas} from './lib/shoperation-codebase-atlas-runtime.mjs';
+import {applicablePoInstructions,buildCodebaseAtlas,buildExecutionRoute,classifyAtlasPath,validateCodebaseAtlas} from './lib/shoperation-codebase-atlas-runtime.mjs';
 import {validateOperationalIntelligence} from './lib/shoperation-operational-intelligence.mjs';
 
 const plan=JSON.parse(readFileSync('quality/development/active-plan.json','utf8'));
 const guardRegistry=JSON.parse(readFileSync('quality/knowledge/guard-registry.v1.json','utf8'));
 const diff=getChangedFiles({baseSha:plan.changeBaseSha});
 const changedFiles=diff.files.filter(file=>file!=='quality/development/active-plan.json');
+const deletedFiles=(diff.deletedFiles??[]).filter(file=>file!=='quality/development/active-plan.json');
 const issues=[];
 
 if(plan.contract!=='shoporation.development-plan.v1')issues.push({code:'DEV_PLAN_CONTRACT_INVALID'});
@@ -23,13 +24,15 @@ const atlasValidation=validateCodebaseAtlas(atlas);
 const atlasNodes=new Map(atlas.nodes.map(node=>[node.path,node]));
 if(!atlasValidation.ok)issues.push({code:'DEV_PLAN_ATLAS_INVALID',issues:atlasValidation.issues});
 
-const projectedFiles=atlas.nodes
-  .map(node=>node.path)
-  .filter(file=>file!=='quality/development/active-plan.json'&&planMatchers.some(m=>m.test(file)))
-  .sort();
+const projectedFiles=[...new Set([
+  ...atlas.nodes
+    .map(node=>node.path)
+    .filter(file=>file!=='quality/development/active-plan.json'&&planMatchers.some(m=>m.test(file))),
+  ...deletedFiles.filter(file=>planMatchers.some(m=>m.test(file))),
+])].sort();
 if(!projectedFiles.length)issues.push({code:'DEV_PLAN_PROJECTION_EMPTY',plannedFilePatterns:plan.plannedFilePatterns});
 
-const generatedExecutionRoute=buildExecutionRoute(atlas,plan.plannedFilePatterns??[]);
+const generatedExecutionRoute=buildExecutionRoute(atlas,plan.plannedFilePatterns??[],{tombstones:deletedFiles});
 const declaredExecutionRoute=plan.operationalIntelligence?.semanticExecutionRoute??null;
 if(plan.operationalIntelligence?.riskTier==='critical'){
   const declaredMustEdit=[...(declaredExecutionRoute?.mustEdit??[])];
@@ -50,11 +53,11 @@ const projectedScope=resolveDevelopmentScope({files:projectedFiles,task:plan.tas
 const expectedFailures=[...(plan.expectedKnownFailureIds??[])].sort();
 const projectedFailures=[...projectedScope.activeFailureIds].sort();
 
-const domainsFor=files=>[...new Set(files.flatMap(file=>atlasNodes.get(file)?.domains??[]))].sort();
+const domainsFor=files=>[...new Set(files.flatMap(file=>atlasNodes.get(file)?.domains??classifyAtlasPath(file).domains))].sort();
 const authoritiesFor=domains=>[...new Set(domains.map(id=>atlas.domainIndexDefinition?.[id]?.owner).filter(Boolean))].sort();
 const unresolvedFor=files=>files.filter(file=>{
   if(scopePolicy.knowledgeInfrastructurePrefixes.some(prefix=>file.startsWith(prefix))||isNeutralFile(file))return false;
-  return !(atlasNodes.get(file)?.domains?.length);
+  return !((atlasNodes.get(file)?.domains??classifyAtlasPath(file).domains).length);
 });
 
 const actualDomains=domainsFor(changedFiles);
@@ -116,6 +119,8 @@ const report={
   head:diff.head,
   evaluationMode:changedFiles.length?'actual-diff-with-plan-envelope':'planned-projection',
   changedFiles,
+  deletedFiles,
+  transactionChanges:diff.changes??[],
   projectedFiles,
   actualScope,
   projectedScope,
