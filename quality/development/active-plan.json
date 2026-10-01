@@ -3,8 +3,8 @@
   "taskId": "DEV-CONTROL-PLANE-RESUMABLE-VERIFICATION",
   "task": "Extend the existing Control Plane release verification with safe resumable evidence reuse and minimal replay without creating a parallel authority.",
   "status": "ready-for-implementation",
-  "guardDigest": "2a67f8cf",
-  "changeBaseSha": "dd0ae071bb0c5cd953a704ce31e2516feee9657f",
+  "guardDigest": "c59892e1",
+  "changeBaseSha": "092df49efe5b099cdf26096a3b7deed6e9860e39",
   "plannedFilePatterns": [
     "AGENTS.md",
     ".github/workflows/ci.yml",
@@ -99,8 +99,12 @@
     "SQ-NK-001",
     "SQ-NK-002",
     "SQ-NK-003",
+    "SQ-NK-004",
     "SQ-NK-005",
+    "SQ-NK-006",
+    "SQ-NK-007",
     "SQ-NK-008",
+    "SQ-NK-009",
     "SQ-NK-010",
     "SQ-NK-012"
   ],
