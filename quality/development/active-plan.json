@@ -1,59 +1,25 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-CONTROL-PLANE-SEMANTIC-PROOF-FOUNDATIONS",
-  "task": "Complete existing Control Plane semantic execution and proof semantics capabilities with adversarial closure.",
-  "status": "closed",
-  "guardDigest": "efe9d183",
-  "changeBaseSha": "cb3d625d3293d6e390f8652b00989d0c8067cbc1",
+  "taskId": "DEV-TEMPLATE-FACTORY-HANDOFF-EVIDENCE-FLOW",
+  "task": "Repair the existing Template Factory quality catalog so compiler-owned provenance and showroomEvidence reach the quality acceptance proof and Product Owner handoff readiness path without duplicating authority.",
+  "status": "ready-for-implementation",
+  "guardDigest": "afc442ca",
+  "changeBaseSha": "3c08bac9524cd9af758e39dab6216a37ebe4b3a3",
   "plannedFilePatterns": [
     "quality/development/active-plan.json",
-    "quality/knowledge/development-guard-policy.v1.json",
-    "quality/knowledge/codebase-atlas-policy.v2.json",
-    "quality/knowledge/domain-foundations.v1.json",
-    "quality/knowledge/capability-registry.v1.json",
-    "quality/knowledge/evidence-ledger.v1.json",
-    "quality/knowledge/po-instructions.v1.json",
-    "quality/knowledge/knowledge-scope-policy.v1.json",
-    "scripts/lib/shoperation-codebase-atlas-runtime.mjs",
-    "scripts/lib/shoperation-operational-intelligence.mjs",
-    "scripts/lib/shoperation-reference-sync-runtime.mjs",
-    "scripts/lib/shoperation-architecture-health.mjs",
-    "scripts/shoperation-plan-before-code.mjs",
-    "scripts/shoperation-edit-time-guard.mjs",
-    "scripts/shoperation-development-guard.mjs",
-    "scripts/shoperation-truth-gate.mjs",
-    "scripts/shoperation-failure-intake.mjs",
-    "scripts/shoperation-failure-intake-reconcile.mjs",
-    ".github/workflows/ci.yml",
-    ".github/workflows/shoperation-knowledge-full-replay.yml",
-    "tests/shoperation-codebase-atlas-v2.test.ts",
-    "tests/shoperation-change-impact-atlas.test.ts",
-    "tests/shoperation-operational-intelligence.test.ts",
-    "tests/shoperation-development-guard.test.ts",
-    "tests/shoperation-failure-intake-reconcile.test.ts",
-    "tests/architecture-health.test.ts",
-    "tests/domain-foundations.test.ts",
-    "tests/shoperation-quality-knowledge.test.ts",
-    "tests/shoperation-semantic-execution-intelligence.test.ts",
-    "tests/shoperation-proof-semantics.test.ts",
-    "scripts/lib/shoperation-codebase-atlas-runtime.d.mts",
-    "scripts/lib/shoperation-reference-sync-runtime.d.mts",
-    "scripts/lib/shoperation-operational-intelligence.d.mts",
-    "deploy/release-risk-policy.json",
-    "tests/control-plane-diagnostic-coverage.test.ts",
-    "scripts/shoperation-close-development-plan.mjs"
+    "src/app/api/visual-fidelity/templates/route.ts",
+    "tests/template-factory-handoff-evidence-flow.test.ts"
   ],
   "expectedSubsystems": [
-    "quality-infrastructure",
-    "release-infrastructure"
+    "builder-template-system",
+    "quality-knowledge-system",
+    "shared-storefront"
   ],
   "expectedDomains": [
-    "DOMAIN-QUALITY",
-    "DOMAIN-RELEASE"
+    "DOMAIN-BUILDER"
   ],
   "expectedAuthorities": [
-    "quality-knowledge-system",
-    "release-infrastructure"
+    "builder-template-system"
   ],
   "expectedKnownFailureIds": [
     "SQ-KF-001",
@@ -106,50 +72,52 @@
     "TF-KF-024",
     "TF-KF-025"
   ],
+  "acknowledgedPoInstructionIds": [],
   "acknowledgedNegativeKnowledgeIds": [
+    "SQ-NK-001",
     "SQ-NK-002",
     "SQ-NK-003",
-    "SQ-NK-005",
+    "SQ-NK-004",
+    "SQ-NK-006",
+    "SQ-NK-007",
+    "SQ-NK-008",
+    "SQ-NK-009",
     "SQ-NK-010",
     "SQ-NK-012"
   ],
   "exceptions": [],
   "operationalIntelligence": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-01-SEMANTIC-PROOF-FOUNDATIONS",
+    "sourceRef": "PO-2026-10-01-TEMPLATE-FACTORY-HANDOFF-DATAFLOW",
     "riskTier": "critical",
-    "problemStatement": "The existing Control Plane can structurally validate plans and exact-head PASS evidence but can miss semantic code consumers, omitted required edits, durable Product Owner instructions, and claim/evidence scope mismatches, allowing material false positives.",
+    "problemStatement": "The Template Factory compiler already emits exact candidate provenance and showroomEvidence, but the visual-fidelity quality catalog drops both fields before the quality gate builds acceptanceProofs. The downstream Product Owner handoff therefore sees factoryIdentityPinned=false and showroomContractPassed=false and can skip a candidate that is otherwise compiler-ready and browser-matrix-ready.",
     "observableOutcomes": [
-      "Atlas emits symbol-aware semantic relationships and a task-specific execution route with explicit MUST_EDIT, MAY_EDIT, IMPACTED_READ_ONLY, AUTHORITY, OVERRIDE_OR_LEGACY, PROOF and UNKNOWN classifications.",
-      "Implementation Sync proves both actual changes are inside the approved envelope and every semantic MUST_EDIT requirement is represented in the verified change set.",
-      "Plan validation blocks vacuous critical plans, Truth blocks unsupported overclaims, and confidence cannot become PROVEN from free-form evidence presence.",
-      "Authority dependencies are reconciled against actual code imports and durable Product Owner instructions become machine-readable authority.",
-      "Verified completion transitions the development lifecycle through CLOSE and LEARN without leaving a stale ready-for-implementation plan."
+      "Every factory candidate catalog record carries the exact compiler report provenance object unchanged.",
+      "Every factory candidate catalog record carries the exact compiler report showroomEvidence rows unchanged.",
+      "The existing quality gate derives factoryIdentityPinned=true and showroomContractPassed=true from those propagated fields when the compiler data is valid.",
+      "The existing Product Owner target resolver becomes reachable from real acceptanceProofs without weakening any readiness condition."
     ],
     "unresolvedRisks": [
-      "TypeScript dynamic access, runtime-generated keys and framework indirection cannot always be resolved statically and must remain explicit UNKNOWN rather than be guessed.",
-      "Historical evidence-ledger entries use the v1 shape and require conservative compatibility semantics instead of retroactively claiming proof breadth they never recorded.",
-      "Repository branch protection is hosting configuration and may remain an external requirement if the GitHub integration cannot administer protection."
+      "The catalog could reconstruct provenance instead of forwarding compiler authority, creating a second identity source.",
+      "Showroom evidence could be partially copied and silently lose reachability/navigation fields required by the handoff verifier.",
+      "A test could prove source text only while the GET payload still omits or mutates the fields."
     ],
     "scope": {
       "in": [
-        "existing Atlas semantic graph and execution-route projection",
-        "Authority Graph reconciliation",
-        "PO instruction authority and semantic Reference/Implementation Sync",
-        "plan/evidence/claim semantics and confidence scoring",
-        "Control Plane lifecycle close/learn and failure-intake reconcile cadence"
+        "Factory candidate quality catalog serialization boundary.",
+        "Exact compiler provenance/showroom evidence propagation.",
+        "Adversarial regression of the catalog GET payload and downstream-ready field shape."
       ],
       "out": [
-        "new parallel quality authority",
-        "automatic Known Failure promotion without human review",
-        "Template Factory visual/handoff implementation changes",
-        "storefront shipping/payment route implementation changes",
-        "formal proof of complete JavaScript runtime behavior"
+        "Product Owner browser journey behavior itself.",
+        "Compiler provenance generation.",
+        "Template Factory golden visual diff sensitivity.",
+        "Vercel deployment/authentication behavior."
       ]
     },
     "assuranceCeiling": {
       "level": "critical-practical",
-      "rationale": "These changes govern whether development is allowed to start and whether completion may be reported. False negatives can omit required edits and false positives can certify unsupported claims, so type-aware dependency analysis, fail-closed UNKNOWN states, adversarial claim/evidence scope tests, lifecycle state tests, exact-head provenance and regression replay are required. Whole-program formal verification is not proportionate because dynamic runtime relationships remain explicitly UNKNOWN and are blocked rather than guessed.",
+      "rationale": "This path gates Product Owner acceptance and previously produced a material false-negative by dropping already-proven evidence. The repair is intentionally narrow: preserve a single authority, prove exact payload identity, and exercise the real catalog response without redesigning handoff or compiler behavior.",
       "selectedTechniques": [
         "explicit-specification",
         "invariants",
@@ -161,46 +129,27 @@
         "threat-failure-model",
         "fault-injection",
         "finite-state-exhaustion"
-      ]
+      ],
+      "deferredTechniques": []
     },
     "definition": {
       "acceptanceCriteria": [
-        "A semantic consumer with no direct import edge is discovered through typed or contract identity and appears in impact/execution routing.",
-        "Actual production imports either resolve inside declared domain dependency closure or are classified as illegal, missing-edge, or ambiguous; silent drift is impossible.",
-        "A durable PO instruction can define positive and forbidden route/component/contract states and is evaluated by development planning and edit-time checks.",
-        "Reference Sync preserves export-rename detection and adds semantic component/config/registry/route/schema/token/display-contract relationships with lexical fallback only when semantic identity is unavailable.",
-        "Implementation Sync blocks both unplanned edits and omitted MUST_EDIT targets.",
-        "Critical PROVE_PLAN rejects placeholder, tautological, self-justifying or evidence-less content.",
-        "Truth evaluation distinguishes VERIFIED, PARTIAL, MISSING, STALE, FAILED, OVERCLAIM and UNKNOWN and never maps OVERCLAIM to DONE.",
-        "Confidence derives from structured proof strength, freshness, adversarial coverage and limitations rather than a non-empty evidence field.",
-        "TRUTH_GATE completion has an explicit CLOSE then LEARN lifecycle transition and stale completed plans no longer remain implementation-ready.",
-        "Failure-intake duplicate reconciliation runs at development-relevant cadence without auto-promoting unproven Known Failures.",
-        "After an exact-head VERIFIED Truth result, the Control Plane automatically emits a deterministic CLOSE→LEARN active-plan candidate and final CI remains blocked until that metadata-only closure is committed and reverified."
+        "Factory candidate catalog provenance deep-equals build.report.provenance for the same recipe.",
+        "Factory candidate catalog showroomEvidence deep-equals build.report.showroomEvidence for the same recipe.",
+        "No synthetic fallback provenance/showroom evidence is created in the catalog.",
+        "The downstream quality gate and Product Owner handoff continue consuming the existing acceptanceProof fields without new parallel contracts."
       ],
       "invariants": [
-        "UNKNOWN semantic relationships fail closed for serious development and are never silently downgraded to no-impact.",
-        "Actual code dependency and declared authority graph may not contradict each other without an explicit classified discrepancy.",
-        "A PASS-producing gate does not prove claims broader than the evidence scope it records.",
-        "Evidence presence alone contributes no confidence.",
-        "Truth Gate remains the completion evaluator; semantic proof logic strengthens it rather than creating a competing gate.",
-        "Atlas remains the system self-knowledge authority; semantic graph logic extends the same runtime.",
-        "Known Failure promotion remains human-governed.",
-        "Resumable Verification evidence reuse semantics remain exact-head/equivalence-bound and are not weakened."
+        "Template Factory compiler report remains the sole provenance/showroom evidence owner.",
+        "Catalog serialization may copy values but may not recompute candidate identity.",
+        "Non-factory accepted templates and quality candidates retain their current payload shape and behavior.",
+        "A compiler-not-ready candidate remains excluded exactly as before."
       ],
       "forbiddenStates": [
-        "semantic-consumer-silently-omitted",
-        "required-must-edit-not-implemented",
-        "authority-code-dependency-drift-unclassified",
-        "po-instruction-only-in-chat-or-prose",
-        "critical-plan-vacuity-accepted",
-        "generic-pass-proves-broad-claim",
-        "free-form-evidence-produces-proven-confidence",
-        "overclaim-reported-done",
-        "truth-complete-plan-remains-ready-for-implementation",
-        "unknown-semantics-treated-as-no-impact",
-        "automatic-unreviewed-known-failure-promotion",
-        "parallel-control-plane-created",
-        "verified-implementation-merge-ready-while-active-plan-remains-ready-for-implementation"
+        "factory-catalog-drops-provenance",
+        "factory-catalog-drops-showroom-evidence",
+        "catalog-reconstructs-factory-identity",
+        "handoff-readiness-bypasses-factory-identity-or-showroom-contract"
       ]
     },
     "model": {
@@ -218,49 +167,50 @@
         "CLOSE",
         "LEARN"
       ],
+      "transitions": [
+        "OBSERVE->DEFINE",
+        "DEFINE->MODEL",
+        "MODEL->PLAN",
+        "PLAN->CHALLENGE",
+        "CHALLENGE->IMPROVE",
+        "IMPROVE->PROVE_PLAN",
+        "PROVE_PLAN->EXECUTE",
+        "EXECUTE->VERIFY",
+        "VERIFY->TRUTH_GATE",
+        "TRUTH_GATE->CLOSE",
+        "CLOSE->LEARN"
+      ],
       "failureModes": [
-        "AST/file-level graph misses symbol-level consumer",
-        "dynamic or indirect semantic relation is falsely treated as absent",
-        "declared domain dependency omits real import edge",
-        "required edit set is smaller than actual semantic impact",
-        "plan satisfies schema while containing meaningless prose",
-        "claim breadth exceeds evidence breadth",
-        "confidence score rewards metadata presence instead of proof behavior",
-        "PO decision is lost because it never enters canonical instruction authority",
-        "completed plan remains active and contaminates later development",
-        "duplicate failure intake remains pending too long"
+        "Catalog omits both fields and handoff target remains unreachable.",
+        "Catalog forwards provenance but not showroom evidence.",
+        "Catalog copies only partial showroom rows and navigation completeness later fails.",
+        "Catalog invents identity from recipe values instead of retaining compiler authority."
       ],
       "edgeCases": [
-        "type-only import and re-export chains",
-        "aliased symbol import and barrel export",
-        "React component wrapper and context/provider indirection",
-        "component key shared by schema, registry and renderer without direct import",
-        "display label contract where wording is PO-owned but not an exported symbol",
-        "dynamic property/key access that cannot be proven statically",
-        "historical evidence with incomplete semantic metadata",
-        "reused evidence whose exact-head equivalence is valid but claim scope is still too narrow",
-        "merged development whose active plan has stale changeBaseSha",
-        "multiple failure-intake issues describing the same underlying signature"
+        "Factory recipe is productOwnerReady=false and therefore must remain absent.",
+        "Showroom evidence contains multiple page types and shell-navigation reachability rows.",
+        "Compiler provenance contains foundation template identity distinct from target template.",
+        "VISUAL_FIDELITY_QA is disabled and route must still return 404."
       ]
     },
     "alternatives": [
       {
-        "id": "ALT-01",
-        "summary": "Add isolated new semantic and truth gates beside the current Control Plane.",
-        "disposition": "rejected",
-        "reason": "It would create parallel authorities and repeat the fragmentation the Product Owner explicitly wants removed."
-      },
-      {
-        "id": "ALT-02",
-        "summary": "Extend the existing Atlas, development guards, evidence model, confidence evaluator and Truth Gate with one shared semantic model.",
+        "id": "ALT-FORWARD-COMPILER-EVIDENCE",
+        "summary": "Forward provenance and showroomEvidence directly from build.report into the factory candidate catalog record.",
         "disposition": "selected",
-        "reason": "It preserves existing authorities while moving missing understanding earlier into planning, editing and completion."
+        "reason": "This repairs the broken dataflow while preserving one canonical compiler-owned evidence authority."
       },
       {
-        "id": "ALT-03",
-        "summary": "Keep lexical/file-level analysis and add more defect-specific regression tests only.",
+        "id": "ALT-RECOMPUTE-IN-CATALOG",
+        "summary": "Reconstruct provenance and showroom evidence inside the visual-fidelity API from recipe and package data.",
         "disposition": "rejected",
-        "reason": "It catches known examples but does not repair the capability failure that allowed unknown semantic consumers and unsupported claims."
+        "reason": "That would create a second evidence authority and allow compiler/catalog identities to drift."
+      },
+      {
+        "id": "ALT-RELAX-HANDOFF",
+        "summary": "Remove factoryIdentityPinned or showroomContractPassed from Product Owner target readiness.",
+        "disposition": "rejected",
+        "reason": "That would hide the evidence-loss defect and weaken a previously valid fail-closed acceptance requirement."
       }
     ],
     "specialistReviews": [
@@ -268,273 +218,185 @@
         "role": "Architecture",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Semantic understanding must extend Atlas and Authority Graph rather than create a second graph authority.",
-        "resolution": "Use a shared typed semantic graph emitted by the existing Atlas runtime and consumed by planning, Reference Sync and Implementation Sync.",
+        "finding": "The compiler already owns the complete evidence; the defect is a serialization boundary that drops it.",
+        "resolution": "Forward compiler fields unchanged rather than introducing another builder or handoff authority.",
         "evidence": [
-          "stress:#639 Atlas semantic consumer capability failure",
-          "quality/knowledge/domain-foundations.v1.json",
-          "scripts/lib/shoperation-codebase-atlas-runtime.mjs"
+          "src/lib/builder/template-factory/scaffold.ts",
+          "src/app/api/visual-fidelity/templates/route.ts"
         ]
       },
       {
-        "role": "Release",
-        "mode": "dissent",
-        "verdict": "challenge-resolved",
-        "finding": "A single foundational diff could exceed the existing Release Risk Budget when mixed with Template Factory and storefront route changes.",
-        "resolution": "Keep foundational Control Plane, Template Factory and storefront route corrections as separate release transactions while preserving one program and shared adversarial suite.",
-        "evidence": [
-          "deploy/release-risk-policy.json",
-          "verified stress baseline: stale exact-head and risk-budget blocking"
-        ]
-      },
-      {
-        "role": "Data Integrity",
+        "role": "Template Factory",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Claim and evidence records require stable identity, exact-head freshness and explicit proof boundaries.",
-        "resolution": "Add structured evidence semantics and compare proven scope against claim scope; legacy evidence remains conservative rather than implicitly upgraded.",
+        "finding": "Quality acceptance already consumes manifest.provenance and manifest.showroomEvidence correctly when present.",
+        "resolution": "Keep scripts/template-factory-quality-gate.mjs unchanged and restore its expected inputs.",
         "evidence": [
-          "verified stress baseline: Truth overclaim false positive",
-          "verified stress baseline: free-form confidence evidence false positive",
-          "quality/knowledge/evidence-ledger.v1.json"
+          "scripts/template-factory-quality-gate.mjs:626-665"
+        ]
+      },
+      {
+        "role": "Product Owner Handoff",
+        "mode": "dissent",
+        "verdict": "challenge-resolved",
+        "finding": "A green compiler/browser path is insufficient if final handoff evidence does not bind candidate identity and showroom navigation.",
+        "resolution": "Regression-test the real GET payload and retain existing downstream readiness predicates unchanged.",
+        "evidence": [
+          "scripts/template-factory-product-owner-handoff.mjs:285-305",
+          ".github/workflows/template-factory-quality-gate.yml:441-456"
         ]
       },
       {
         "role": "Known Failure",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Newly discovered semantic edges and missed failure classes must become durable prevention without auto-promoting uncertain failures.",
-        "resolution": "Persist missing-edge learning metadata and shorten reconciliation latency while retaining human-governed Known Failure promotion.",
+        "finding": "TF-KF-005 already describes green technical proof failing to bind the Product Owner path to the same candidate identity.",
+        "resolution": "Repair the existing contract path and keep the procedural-memory rule active.",
         "evidence": [
-          "quality/knowledge/shoperation-quality-knowledge.v1.json",
-          "verified stress baseline: Known Failure responsive-compensation generalization PASS"
-        ]
-      },
-      {
-        "role": "Operations",
-        "mode": "review",
-        "verdict": "pass",
-        "finding": "Lifecycle state must not strand a merged task as implementation-ready.",
-        "resolution": "Model TRUTH_GATE to CLOSE to LEARN explicitly and test idempotent closure against exact task/head identity.",
-        "evidence": [
-          "quality/development/active-plan.json",
-          "verified stress baseline: merged #585 stale active-plan lifecycle failure"
+          "quality/knowledge/development-guard-policy.v1.json",
+          "TF-KF-005"
         ]
       }
     ],
     "challenge": [
       {
-        "id": "CH-01",
-        "scenario": "Two files share a semantic contract key but have no direct import relationship.",
-        "finding": "Import-only reverse traversal misses the consumer.",
-        "resolution": "Index semantic identities and traverse contract/symbol edges in impact routing.",
+        "id": "CH-1",
+        "scenario": "Only provenance is forwarded.",
+        "finding": "factoryIdentityPinned can recover while showroomContractPassed remains false and handoff still skips.",
+        "resolution": "Require exact equality for both provenance and showroomEvidence in one regression.",
         "status": "resolved"
       },
       {
-        "id": "CH-02",
-        "scenario": "A component key is renamed in its registry while stale Page Schema consumers remain.",
-        "finding": "Path-envelope Implementation Sync can pass despite an omitted required edit.",
-        "resolution": "Derive MUST_EDIT consumers from semantic graph and require them inside the verified change set.",
+        "id": "CH-2",
+        "scenario": "Only selected showroom fields are forwarded.",
+        "finding": "Navigation completeness can fail later despite a nominal non-empty showroom array.",
+        "resolution": "Forward the exact report array and deep-equality test the full rows.",
         "status": "resolved"
       },
       {
-        "id": "CH-03",
-        "scenario": "A critical plan replaces meaningful prose with x/TODO while preserving all required fields.",
-        "finding": "Structural completeness can masquerade as engineering quality.",
-        "resolution": "Apply semantic-text quality heuristics plus cross-field obligations and evidence-producer requirements.",
+        "id": "CH-3",
+        "scenario": "Catalog reconstructs recipe identity locally.",
+        "finding": "The quality API becomes a second provenance owner and can disagree with compiler output.",
+        "resolution": "Only assign build.report.provenance; no reconstruction helper is permitted.",
         "status": "resolved"
       },
       {
-        "id": "CH-04",
-        "scenario": "A repository-wide Atlas completeness claim cites generic Quality Tests PASS.",
-        "finding": "Fresh PASS evidence can still be semantically too narrow.",
-        "resolution": "Compare CLAIM_SCOPE against EVIDENCE_SCOPE/PROVEN_SCOPE and return OVERCLAIM.",
+        "id": "CH-4",
+        "scenario": "Regression reads source text but not runtime JSON.",
+        "finding": "Serialization or response shaping could still drop the fields.",
+        "resolution": "Invoke the real GET handler under VISUAL_FIDELITY_QA=1 and inspect returned JSON.",
         "status": "resolved"
       },
       {
-        "id": "CH-05",
-        "scenario": "Capability registry evidence is replaced by arbitrary free-form text.",
-        "finding": "Presence-based scoring can still reach PROVEN.",
-        "resolution": "Only structured verified evidence with matching subject/capability scope contributes semantic proof points.",
+        "id": "CH-5",
+        "scenario": "The fix accidentally changes accepted/quality-candidate records.",
+        "finding": "Unrelated catalog consumers could regress.",
+        "resolution": "Modify only the factoryCandidates object and assert existing top-level contract remains unchanged.",
         "status": "resolved"
       },
       {
-        "id": "CH-06",
-        "scenario": "Admin imports storefront, builder, content and integration authorities not declared in DOMAIN-ADMIN closure.",
-        "finding": "Actual code and authority graph disagree.",
-        "resolution": "Classify each actual edge; record legitimate orchestration dependencies and block prohibited or ambiguous edges.",
+        "id": "CH-6",
+        "scenario": "A compiler-blocked recipe is forced into the catalog to satisfy the test.",
+        "finding": "Product Owner readiness semantics would be weakened.",
+        "resolution": "Retain the existing productOwnerReady exclusion branch unchanged.",
         "status": "resolved"
       },
       {
-        "id": "CH-07",
-        "scenario": "A Product Owner decision exists only in conversation history.",
-        "finding": "Future planning cannot deterministically enforce it.",
-        "resolution": "Create versioned machine-readable PO instruction authority with positive/forbidden states, scope, lifecycle and evidence.",
+        "id": "CH-7",
+        "scenario": "Handoff readiness predicates are relaxed after propagation.",
+        "finding": "The target could become reachable without real identity/showroom proof.",
+        "resolution": "No change is allowed in Product Owner readiness predicates for this transaction.",
         "status": "resolved"
       },
       {
-        "id": "CH-08",
-        "scenario": "TypeChecker cannot resolve a runtime-computed registry key.",
-        "finding": "A guessed relationship would create false confidence.",
-        "resolution": "Emit UNKNOWN with reason/confidence and block serious execution until explicitly resolved or covered by a fallback proof.",
-        "status": "resolved"
-      },
-      {
-        "id": "CH-09",
-        "scenario": "Truth completes a task that is then merged but active-plan remains implementation-ready.",
-        "finding": "Later branches inherit stale intent and can be blocked incorrectly.",
-        "resolution": "Automatically emit a deterministic CLOSE→LEARN candidate after exact-head VERIFIED Truth, fail the lifecycle closure gate until that metadata-only candidate is committed, then require the closed-plan Truth path to prove verified-head ancestry and zero material post-verification changes.",
-        "status": "resolved"
-      },
-      {
-        "id": "CH-10",
-        "scenario": "Multiple unresolved failure-intake issues are duplicates within the same workday.",
-        "finding": "Weekly reconciliation keeps noisy duplicate backlog alive too long.",
-        "resolution": "Run deterministic reconciliation in normal CI/knowledge cadence while leaving promotion decisions human-governed.",
-        "status": "resolved"
-      },
-      {
-        "id": "CH-11",
-        "scenario": "Typed .d.mts declarations for existing shoperation quality runtimes are classified as an unrelated fallback subsystem.",
-        "finding": "Release Risk adds unclassified-change medium risk even though the declarations carry no independent runtime behavior and belong to the same quality-infrastructure authority as their .mjs modules.",
-        "resolution": "Classify scripts/lib/shoperation-*.d.mts and scripts/shoperation-*.d.mts under quality-infrastructure without changing maxPoints, maxSubsystems or any risk weight.",
+        "id": "CH-8",
+        "scenario": "The data flow works for Loot Vault only through hard-coded values.",
+        "finding": "The generic Factory pipeline remains broken for later recipes.",
+        "resolution": "Forward fields generically for every build.report rather than naming a template.",
         "status": "resolved"
       }
     ],
     "proofPlan": [
-      "Replay Atlas semantic-consumer and Authority Graph reality adversarial cases against the same failure conditions.",
-      "Replay export rename and component-key/display-contract stale-consumer cases with semantic graph first and lexical fallback second.",
-      "Inject x/TODO/tautological critical-plan content and require Plan Before Code BLOCK.",
-      "Inject broad Atlas claim with generic Quality Tests evidence and require Truth OVERCLAIM/BLOCK.",
-      "Replace CAP-ATLAS evidence with free-form text and prove confidence cannot remain PROVEN.",
-      "Validate PO instruction registry schema and enforce shipping/payment separation instruction before storefront implementation transaction.",
-      "Prove bidirectional Implementation Sync by omitting a derived MUST_EDIT consumer and requiring BLOCK.",
-      "Exercise lifecycle VERIFIED to CLOSE to LEARN plus idempotent rerun and stale-plan rejection.",
-      "Run existing Resumable Verification, Known Failure generalization, Deep Atlas and Sentinel regressions to prove no foundational regression.",
-      "Use exact-head CI and relevant gates; no completion claim is permitted from local/unit green alone.",
-      "Exercise the real two-phase lifecycle: implementation HEAD reaches VERIFIED Truth, lifecycle candidate is emitted and merge-readiness blocks; commit only active-plan closure; second exact-head CI must accept closed/LEARN state and reject any material post-verification change."
+      "Run Plan Before Code on this plan-only commit before editing runtime code.",
+      "Invoke the real visual-fidelity catalog GET handler with VISUAL_FIDELITY_QA enabled and locate gaming.loot-vault v2 factoryCandidate.",
+      "Deep-compare catalog provenance and showroomEvidence against buildRegisteredStorefrontTemplateFactoryCandidate().report.",
+      "Assert the existing quality-gate and handoff scripts still require factoryIdentityPinned and showroomContractPassed rather than bypassing them.",
+      "Run exact-head Quality Tests, TypeScript, Production Build, Completion Truth and CLOSE→LEARN lifecycle."
     ],
     "executionAuthorized": true,
     "semanticExecutionRoute": {
-      "request": "PO-2026-10-01-SEMANTIC-PROOF-FOUNDATIONS",
+      "request": "PO-2026-10-01-TEMPLATE-FACTORY-HANDOFF-DATAFLOW",
       "authority": [
-        "scripts/lib/shoperation-codebase-atlas-runtime.mjs",
-        "scripts/lib/shoperation-operational-intelligence.mjs",
-        "quality/knowledge/domain-foundations.v1.json",
-        "quality/knowledge/po-instructions.v1.json"
+        "template-factory-compiler-report",
+        "template-factory-quality-catalog",
+        "product-owner-handoff"
       ],
       "mustEdit": [
-        "scripts/lib/shoperation-codebase-atlas-runtime.mjs",
-        "scripts/lib/shoperation-operational-intelligence.mjs",
-        "scripts/lib/shoperation-reference-sync-runtime.mjs",
-        "scripts/lib/shoperation-architecture-health.mjs",
-        "scripts/shoperation-plan-before-code.mjs",
-        "scripts/shoperation-edit-time-guard.mjs"
+        "src/app/api/visual-fidelity/templates/route.ts"
       ],
-      "mayEdit": [
-        "scripts/shoperation-development-guard.mjs",
-        "scripts/shoperation-truth-gate.mjs",
-        "scripts/shoperation-failure-intake.mjs",
-        "scripts/shoperation-failure-intake-reconcile.mjs",
-        ".github/workflows/ci.yml",
-        ".github/workflows/shoperation-knowledge-full-replay.yml"
-      ],
+      "mayEdit": [],
       "impactedReadOnly": [
-        "scripts/lib/shoperation-verification-reuse.mjs",
-        "scripts/shoperation-incremental-replay.mjs",
-        "scripts/shoperation-knowledge-deep-atlas-scan.mjs",
-        "scripts/shoperation-sentinel-scan.mjs"
+        "src/lib/builder/template-factory/scaffold.ts",
+        "scripts/template-factory-quality-gate.mjs",
+        "scripts/template-factory-product-owner-handoff.mjs",
+        ".github/workflows/template-factory-quality-gate.yml"
       ],
       "proof": [
-        "tests/shoperation-semantic-execution-intelligence.test.ts",
-        "tests/shoperation-proof-semantics.test.ts",
-        "tests/shoperation-change-impact-atlas.test.ts",
-        "tests/shoperation-operational-intelligence.test.ts",
-        "tests/architecture-health.test.ts"
+        "tests/template-factory-handoff-evidence-flow.test.ts"
       ],
       "unknown": []
     }
   },
   "completionContract": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-01-SEMANTIC-PROOF-FOUNDATIONS",
+    "sourceRef": "PO-2026-10-01-TEMPLATE-FACTORY-HANDOFF-DATAFLOW",
     "requirements": [
       {
-        "id": "REQ-SEMANTIC-GRAPH",
-        "requirement": "Atlas provides symbol-aware semantic execution relationships and task-specific edit-point routing while unresolved dynamic relationships remain explicit UNKNOWN.",
+        "id": "REQ-FACTORY-EVIDENCE-PROPAGATION",
+        "requirement": "The Factory quality catalog propagates compiler-owned provenance and showroomEvidence unchanged for every Product Owner-ready factory candidate.",
         "claimScope": {
           "capability": "CAP-ATLAS",
-          "breadth": "task-semantic-impact",
+          "breadth": "targeted-cross-file-dataflow",
+          "strength": 2,
           "dimensions": [
-            "symbols",
             "consumers",
-            "unknowns"
-          ]
-        },
-        "requiredCapabilities": [
-          "CAP-ATLAS"
-        ],
-        "evidence": {
-          "implementation": [
-            "GUARD-QUALITY-TESTS"
-          ],
-          "outcome": [
-            "GUARD-EDIT-TIME"
-          ]
-        },
-        "forbiddenRegressions": [
-          {
-            "id": "NEG-SEMANTIC-GRAPH",
-            "statement": "A semantic consumer may not disappear merely because it lacks a direct import edge.",
-            "evidence": [
-              "GUARD-QUALITY-TESTS"
-            ]
-          }
-        ]
-      },
-      {
-        "id": "REQ-AUTHORITY-REALITY",
-        "requirement": "Actual cross-domain code dependencies are reconciled with the declared Authority Graph as allowed, missing-edge, illegal or ambiguous.",
-        "claimScope": {
-          "capability": "CAP-ATLAS",
-          "breadth": "actual-domain-imports",
-          "dimensions": [
-            "domain-closure",
-            "classification"
-          ]
-        },
-        "requiredCapabilities": [
-          "CAP-ATLAS"
-        ],
-        "evidence": {
-          "implementation": [
-            "GUARD-QUALITY-TESTS"
-          ],
-          "outcome": [
-            "GUARD-KNOWLEDGE-PREFLIGHT"
-          ]
-        },
-        "forbiddenRegressions": [
-          {
-            "id": "NEG-AUTHORITY-REALITY",
-            "statement": "No actual production import may silently contradict declared authority closure.",
-            "evidence": [
-              "GUARD-QUALITY-TESTS"
-            ]
-          }
-        ]
-      },
-      {
-        "id": "REQ-PO-INSTRUCTION",
-        "requirement": "Durable explicit Product Owner decisions are represented as versioned machine-readable instruction authority and participate in plan/edit validation.",
-        "claimScope": {
-          "capability": "CAP-ATLAS",
-          "breadth": "po-instruction-authority",
-          "dimensions": [
-            "scope",
             "positive-state",
+            "regression"
+          ]
+        },
+        "requiredCapabilities": [
+          "CAP-ATLAS"
+        ],
+        "evidence": {
+          "implementation": [
+            "GUARD-EDIT-TIME",
+            "GUARD-QUALITY-TESTS"
+          ],
+          "outcome": [
+            "GUARD-QUALITY-TESTS"
+          ]
+        },
+        "forbiddenRegressions": [
+          {
+            "id": "NEG-EVIDENCE-DROP",
+            "statement": "Factory provenance or showroom evidence may not disappear or be reconstructed at the catalog boundary.",
+            "evidence": [
+              "GUARD-QUALITY-TESTS"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "REQ-HANDOFF-READINESS-CONTRACT",
+        "requirement": "Existing Product Owner readiness continues to require factory identity and showroom contract proof, and the repaired catalog now supplies the evidence those predicates consume.",
+        "claimScope": {
+          "capability": "CAP-ATLAS",
+          "breadth": "targeted-handoff-contract",
+          "strength": 2,
+          "dimensions": [
+            "consumers",
             "forbidden-state",
-            "lifecycle"
+            "regression"
           ]
         },
         "requiredCapabilities": [
@@ -542,16 +404,16 @@
         ],
         "evidence": {
           "implementation": [
-            "GUARD-PLAN-BEFORE-CODE"
+            "GUARD-QUALITY-TESTS"
           ],
           "outcome": [
-            "GUARD-EDIT-TIME"
+            "GUARD-QUALITY-TESTS"
           ]
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-PO-INSTRUCTION",
-            "statement": "An applicable active PO instruction cannot be ignored because it exists only as prose or prior chat context.",
+            "id": "NEG-HANDOFF-BYPASS",
+            "statement": "No readiness predicate may be removed or bypassed to make the handoff reachable.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -559,14 +421,15 @@
         ]
       },
       {
-        "id": "REQ-BIDIRECTIONAL-SYNC",
-        "requirement": "Implementation Sync verifies both actual diff inside the approved envelope and semantic MUST_EDIT requirements inside the actual verified change set.",
+        "id": "REQ-HANDOFF-BUILD",
+        "requirement": "The exact implementation head typechecks and production-builds with the repaired catalog contract.",
         "claimScope": {
           "capability": "CAP-ATLAS",
-          "breadth": "development-change-reconciliation",
+          "breadth": "targeted-runtime-build",
+          "strength": 1,
           "dimensions": [
-            "actual-subset-plan",
-            "required-subset-actual"
+            "types",
+            "build"
           ]
         },
         "requiredCapabilities": [
@@ -574,242 +437,24 @@
         ],
         "evidence": {
           "implementation": [
-            "GUARD-EDIT-TIME"
+            "GUARD-TYPECHECK"
           ],
           "outcome": [
-            "GUARD-QUALITY-TESTS"
+            "GUARD-PRODUCTION-BUILD"
           ]
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-BIDIRECTIONAL-SYNC",
-            "statement": "A planned file envelope cannot hide an omitted semantic required edit.",
+            "id": "NEG-HANDOFF-BUILD",
+            "statement": "The evidence-flow repair must not introduce TypeScript or production build regressions.",
             "evidence": [
-              "GUARD-QUALITY-TESTS"
-            ]
-          }
-        ]
-      },
-      {
-        "id": "REQ-PLAN-SEMANTICS",
-        "requirement": "Critical plan validation rejects placeholder, tautological, self-justifying and evidence-less content rather than checking field presence alone.",
-        "claimScope": {
-          "capability": "CAP-ATLAS",
-          "breadth": "critical-plan-semantic-quality",
-          "dimensions": [
-            "problem",
-            "outcome",
-            "failure-model",
-            "alternatives",
-            "challenge",
-            "proof"
-          ]
-        },
-        "requiredCapabilities": [
-          "CAP-ATLAS"
-        ],
-        "evidence": {
-          "implementation": [
-            "GUARD-PLAN-BEFORE-CODE"
-          ],
-          "outcome": [
-            "GUARD-QUALITY-TESTS"
-          ]
-        },
-        "forbiddenRegressions": [
-          {
-            "id": "NEG-PLAN-VACUITY",
-            "statement": "A critical plan whose substantive fields are x or TODO cannot PASS.",
-            "evidence": [
-              "GUARD-QUALITY-TESTS"
-            ]
-          }
-        ]
-      },
-      {
-        "id": "REQ-PROOF-SEMANTICS",
-        "requirement": "Truth compares claim scope with structured evidence scope and blocks stale, missing, failed, unknown or overclaimed completion.",
-        "claimScope": {
-          "capability": "CAP-ATLAS",
-          "breadth": "completion-proof-semantics",
-          "dimensions": [
-            "claim-scope",
-            "evidence-scope",
-            "proven-scope",
-            "status"
-          ]
-        },
-        "requiredCapabilities": [
-          "CAP-ATLAS"
-        ],
-        "evidence": {
-          "implementation": [
-            "GUARD-QUALITY-TESTS"
-          ],
-          "outcome": [
-            "GUARD-QUALITY-TESTS"
-          ]
-        },
-        "forbiddenRegressions": [
-          {
-            "id": "NEG-TRUTH-OVERCLAIM",
-            "statement": "Generic Quality Tests PASS cannot prove repository-wide Atlas completeness.",
-            "evidence": [
-              "GUARD-QUALITY-TESTS"
-            ]
-          }
-        ]
-      },
-      {
-        "id": "REQ-CONFIDENCE-SEMANTICS",
-        "requirement": "Architecture confidence is based on structured behavioral proof, freshness, adversarial breadth and limitations rather than evidence-string presence.",
-        "claimScope": {
-          "capability": "CAP-ATLAS",
-          "breadth": "architecture-confidence",
-          "dimensions": [
-            "behavioral-proof",
-            "freshness",
-            "coverage",
-            "limitations"
-          ],
-          "strength": 2
-        },
-        "requiredCapabilities": [
-          "CAP-ATLAS"
-        ],
-        "evidence": {
-          "implementation": [
-            "GUARD-QUALITY-TESTS"
-          ],
-          "outcome": [
-            "GUARD-QUALITY-TESTS"
-          ]
-        },
-        "forbiddenRegressions": [
-          {
-            "id": "NEG-CONFIDENCE-PRESENCE",
-            "statement": "UNVERIFIED_FREEFORM_CLAIM cannot contribute semantic proof confidence.",
-            "evidence": [
-              "GUARD-QUALITY-TESTS"
-            ]
-          }
-        ]
-      },
-      {
-        "id": "REQ-LIFECYCLE",
-        "requirement": "A verified development lifecycle transitions through TRUTH_GATE to CLOSE to LEARN and does not leave a completed plan implementation-ready.",
-        "claimScope": {
-          "capability": "CAP-ATLAS",
-          "breadth": "development-lifecycle",
-          "dimensions": [
-            "truth",
-            "close",
-            "learn",
-            "idempotency"
-          ]
-        },
-        "requiredCapabilities": [
-          "CAP-ATLAS"
-        ],
-        "evidence": {
-          "implementation": [
-            "GUARD-QUALITY-TESTS"
-          ],
-          "outcome": [
-            "GUARD-QUALITY-TESTS"
-          ]
-        },
-        "forbiddenRegressions": [
-          {
-            "id": "NEG-STALE-ACTIVE-PLAN",
-            "statement": "Merged or explicitly closed verified work cannot remain ready-for-implementation.",
-            "evidence": [
-              "GUARD-QUALITY-TESTS"
-            ]
-          }
-        ]
-      },
-      {
-        "id": "REQ-LEARNING",
-        "requirement": "New missed semantic relationships and duplicate failure intake feed durable reviewable learning without automatic unproven Known Failure promotion.",
-        "claimScope": {
-          "capability": "CAP-ATLAS",
-          "breadth": "governed-learning",
-          "dimensions": [
-            "missing-edge",
-            "reconcile",
-            "human-promotion"
-          ]
-        },
-        "requiredCapabilities": [
-          "CAP-ATLAS"
-        ],
-        "evidence": {
-          "implementation": [
-            "GUARD-KNOWLEDGE-PREFLIGHT"
-          ],
-          "outcome": [
-            "GUARD-QUALITY-TESTS"
-          ]
-        },
-        "forbiddenRegressions": [
-          {
-            "id": "NEG-AUTO-PROMOTION",
-            "statement": "Unverified intake cannot automatically become canonical Known Failure authority.",
-            "evidence": [
-              "GUARD-QUALITY-TESTS"
-            ]
-          }
-        ]
-      },
-      {
-        "id": "REQ-REGRESSION-PRESERVATION",
-        "requirement": "Resumable Verification, Known Failure generalization, Deep Atlas hard-drift and Sentinel PR-noise separation retain their proven behavior.",
-        "claimScope": {
-          "capability": "CAP-ATLAS",
-          "breadth": "foundational-regression-preservation",
-          "dimensions": [
-            "resumable",
-            "known-failure",
-            "deep-atlas",
-            "sentinel"
-          ]
-        },
-        "requiredCapabilities": [
-          "CAP-ATLAS"
-        ],
-        "evidence": {
-          "implementation": [
-            "GUARD-INCREMENTAL-REPLAY"
-          ],
-          "outcome": [
-            "GUARD-QUALITY-TESTS"
-          ]
-        },
-        "forbiddenRegressions": [
-          {
-            "id": "NEG-FOUNDATION-REGRESSION",
-            "statement": "Semantic/proof hardening may not weaken previously proven fail-closed capabilities.",
-            "evidence": [
-              "GUARD-QUALITY-TESTS"
+              "GUARD-TYPECHECK",
+              "GUARD-PRODUCTION-BUILD"
             ]
           }
         ]
       }
     ]
   },
-  "notes": "Foundation transaction only. Template Factory golden/handoff and storefront shipping/payment implementation changes are deliberately split into subsequent release transactions to stay within the existing Release Risk Budget; no parallel Control Plane is introduced. Rebased atomically onto canonical main after #655 Reference Sync rename-export identity and #653 Builder/Admin authority-direction repair. Completion Truth evidence now uses only exact-head blocking producers actually emitted on every PR; scheduled observation signals remain regression-tested but are not misrepresented as per-PR proof. Critical specialist reviews now carry explicit source/evidence references; verdict text alone is not accepted by PROVE_PLAN. Exact-head TypeScript proof exposed missing declaration contracts for the Node ESM Control Plane runtimes consumed directly by adversarial TS tests; adjacent .d.mts public API contracts are added instead of suppressing compiler checks. Release Risk classification is extended for adjacent Control Plane .d.mts declaration contracts; budget thresholds and risk weights remain unchanged. Lifecycle persistence is deliberately two-phase and fail-closed rather than granting PR workflows repository write permission: CI emits the exact closure candidate, final merge-ready CI requires the candidate to be committed and reverified.",
-  "lifecycle": {
-    "state": "LEARN",
-    "truthStatus": "VERIFIED",
-    "verifiedImplementationHead": "72452d31b5576df7b61be5823aae52ffee86e2f5",
-    "closedAt": "2026-10-01T18:13:00.334Z",
-    "truthContract": "shoporation.completion-truth.v2",
-    "sourceRef": "PO-2026-10-01-SEMANTIC-PROOF-FOUNDATIONS",
-    "learning": {
-      "state": "review-ready",
-      "knownFailurePromotion": "human-governed",
-      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
-    }
-  }
+  "notes": "Targeted handoff dataflow repair only. Golden visual sensitivity and shipping/payment are separate release-budget transactions. No handoff predicate weakening, no compiler redesign, no parallel quality authority."
 }
