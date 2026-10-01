@@ -1,5 +1,5 @@
 // @ts-nocheck
-import {mkdtempSync,rmSync,writeFileSync} from 'node:fs';
+import {mkdtempSync,readFileSync,rmSync,writeFileSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {describe,expect,it} from 'vitest';
@@ -292,6 +292,14 @@ describe('dependency-aware resumable verification',()=>{
     const replay=planFromSnapshots({current:{...current({A:a}),promotionPolicy:{minimumShadowPasses:3,minimumResumedShadowPasses:2,maximumFalseReuse:0}},previousCheckpoint:cp,checkpointValidation:valid,changedFiles:[],activeFailureIds:['KF-1']});
     const final=finalizeVerification({plan:replay,outcomes:{A:'success'},priorCheckpoint:cp,runId:'legacy-2'});
     expect(final.manifest.shadowStats).toMatchObject({passes:2,resumedPasses:2,falseReuse:0});
+  });
+
+  it('maps repository instructions as an explicit verification authority input',()=>{
+    const registry=JSON.parse(readFileSync('quality/knowledge/guard-registry.v1.json','utf8'));
+    expect(registry.verificationReuse.semanticUnits.some((unit:any)=>unit.id==='INSTRUCTION.LEDGER'&&unit.filePatterns.includes('AGENTS.md'))).toBe(true);
+    for(const id of ['GUARD-PLAN-BEFORE-CODE','GUARD-EDIT-TIME','GUARD-INCREMENTAL-REPLAY','GUARD-COMPLETION-TRUTH']){
+      expect(registry.guards.find((gate:any)=>gate.id===id)?.verification?.authorityInputs).toContain('AGENTS.md');
+    }
   });
 
   it('verification graph rejects cycles and unknown dependencies',()=>{
