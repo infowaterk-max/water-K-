@@ -70,6 +70,16 @@ Specialized layered components may have their own canonical positioning model, b
 
 The Core exposes the Library framework, contextual insertion contract, filtering, saved blocks, page/section presets and product-profile capability filtering. Broad visual preset population follows the Template Factory / template-portfolio sequencing; the Builder must not duplicate those authorities.
 
+### VX Library 2.0
+
+Library 2.0 is a visual discovery layer over the existing canonical authorities. Sections, Elements and Page Templates use lightweight semantic previews, merchant-facing categories, search and bounded larger previews. The preview layer is descriptive only: it never owns insertion, rendering, persistence, entitlements or publication.
+
+Preview generation is intentionally bounded. Cards do **not** mount one live Storefront Runtime per candidate. Section thumbnails inspect only a capped portion of the canonical preset fragment and degrade to a generic semantic preview for unknown or forward-compatible component keys. This keeps large template catalogs responsive and avoids turning the Library into a second storefront runtime.
+
+Factory presets and merchant Saved Blocks remain visibly and technically distinct. Factory content is source-controlled and quality-gated; Saved Blocks are tenant-owned merchant content. Both ultimately materialize native canonical nodes, but they do not share ownership or trust semantics.
+
+Search and category filtering run only after canonical contextual/capability filtering. A hidden or incompatible component can never become insertable merely because the user finds a matching search term.
+
 ## Maybach + Brabus boundary
 
 The **Maybach** layer is the VX Builder Core: canvas, component registry integration, Page Schema interaction, responsive editing, style system, history, preview/publish and guarded direct manipulation.
