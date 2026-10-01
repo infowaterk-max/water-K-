@@ -72,6 +72,23 @@ describe('Control Plane Operational Intelligence',()=>{
     for(const forbidden of ['git push','git merge','update_ref','deploy --prod','promote-template-golden'])expect(truth).not.toContain(forbidden);
   });
 
+  it('makes VERIFIED to CLOSE to LEARN a two-phase fail-closed lifecycle without PR write privilege',()=>{
+    const ci=read('.github/workflows/ci.yml');
+    const lifecycle=read('scripts/shoperation-close-development-plan.mjs');
+    expect(ci).toContain('Prepare CLOSE to LEARN lifecycle transition');
+    expect(ci).toContain('Lifecycle Closure Gate');
+    expect(ci).toContain('DEV_LIFECYCLE_CLOSE_REQUIRED');
+    expect(ci).toContain('active-plan.closed.json');
+    expect(lifecycle).toContain('buildClosedDevelopmentPlan');
+    expect(lifecycle).toContain("decision:'BLOCK_UNTIL_COMMITTED'");
+    expect(lifecycle).toContain("action:arg('--apply')?'applied':'candidate-emitted'");
+    expect(lifecycle).toContain("plan.status==='closed'");
+    expect(lifecycle).not.toContain('git push');
+    expect(lifecycle).not.toContain('createOrUpdateFileContents');
+    expect(ci).toContain('contents: read');
+    expect(ci).not.toContain('contents: write');
+  });
+
   it('feeds completion failures and missed-thinking review into existing CI and Failure Intake',()=>{
     const ci=read('.github/workflows/ci.yml');
     const intake=read('scripts/shoperation-failure-intake.mjs');
