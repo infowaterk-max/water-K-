@@ -207,8 +207,13 @@ function buildSemanticGraph({files,fileSet,fileNodes,literalIndex,exportIndex,re
     const file=rel(sourceFile.fileName);
     if(fileSet.has(file))sourceByFile.set(file,sourceFile);
   }
+  const targetCache=new Map();
   const targetFor=node=>{
     if(!checker)return null;
+    const sourceFile=node?.getSourceFile?.();
+    const sourcePath=sourceFile?rel(sourceFile.fileName):'unknown';
+    const cacheKey=ts.isIdentifier(node)?`${sourcePath}::${node.text}`:null;
+    if(cacheKey&&targetCache.has(cacheKey))return targetCache.get(cacheKey);
     try{
       let symbol=checker.getSymbolAtLocation(node);
       if(!symbol)return null;
@@ -217,8 +222,13 @@ function buildSemanticGraph({files,fileSet,fileNodes,literalIndex,exportIndex,re
       if(!decl)return null;
       const file=rel(decl.getSourceFile().fileName),name=symbol.getName?.()??node.getText?.()??'symbol';
       const kind=declarationKind(decl,name,decl.getSourceFile())??(ts.isImportSpecifier(decl)?'imported-symbol':'export');
-      return{id:addNode({id:semanticId(kind,file,name),kind,file,name}),file,name,kind};
-    }catch{return null;}
+      const result={id:addNode({id:semanticId(kind,file,name),kind,file,name}),file,name,kind};
+      if(cacheKey)targetCache.set(cacheKey,result);
+      return result;
+    }catch{
+      if(cacheKey)targetCache.set(cacheKey,null);
+      return null;
+    }
   };
   for(const [file,sourceFile] of sourceByFile){
     const fileId=semanticId('file',file);
@@ -226,6 +236,13 @@ function buildSemanticGraph({files,fileSet,fileNodes,literalIndex,exportIndex,re
     addEdge({from:fileId,to:moduleId,type:'implements',fromFile:file,toFile:file,label:'module'});
     const declarationStack=[];
     const stateBindings=new Map();
+    const importedLocals=new Set();
+    for(const statement of sourceFile.statements)if(ts.isImportDeclaration(statement)){
+      const clause=statement.importClause;
+      if(clause?.name)importedLocals.add(clause.name.text);
+      if(clause?.namedBindings&&ts.isNamedImports(clause.namedBindings))for(const element of clause.namedBindings.elements)importedLocals.add(element.name.text);
+      if(clause?.namedBindings&&ts.isNamespaceImport(clause.namedBindings))importedLocals.add(clause.namedBindings.name.text);
+    }
     const visit=node=>{
       let pushed=false;
       const nameNode=node.name&&ts.isIdentifier(node.name)?node.name:null;
@@ -290,7 +307,7 @@ function buildSemanticGraph({files,fileSet,fileNodes,literalIndex,exportIndex,re
         const state=stateBindings.get(node.text);
         addEdge({from:origin,to:state.id,type:state.mode==='write'?'writes-state':'reads-state',fromFile:file,toFile:file,label:node.text});
       }
-      if(ts.isIdentifier(node)&&node!==nameNode){
+      if(ts.isIdentifier(node)&&node!==nameNode&&importedLocals.has(node.text)){
         const target=targetFor(node);
         if(target&&target.file!==file)addEdge({from:origin,to:target.id,type:'references',fromFile:file,toFile:target.file,label:node.text});
       }
