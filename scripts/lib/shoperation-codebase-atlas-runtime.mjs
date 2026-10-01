@@ -569,29 +569,68 @@ export function reconcileAuthorityDependencies(atlas){
     decision:discrepancies.length?'BLOCK':'PASS',
   };
 }
+function forbiddenStatePresentInFile(file,forbidden){
+  if(!existsSync(file)||!isText(file))return false;
+  const source=readFileSync(file,'utf8');
+  const parts=String(forbidden).split(':'),kind=parts.shift(),value=parts.join(':');
+  if(!value)return false;
+  if(kind==='route'||kind==='route-key')return source.includes("'"+value+"'")||source.includes('"'+value+'"');
+  return source.includes(value);
+}
+function staticRouteFile(route){
+  const value=String(route??'').trim();
+  if(!value.startsWith('/')||value==='/'||/[:*?\[\]]/.test(value))return null;
+  return `src/app/${value.slice(1)}/page.tsx`;
+}
+function instructionRequiredChanges(atlas,instruction){
+  const files=atlas.nodes.map(node=>node.path);
+  const scoped=[...new Set((instruction.affectedPatterns??[]).flatMap(pattern=>files.filter(file=>globToRegExp(pattern).test(file))))];
+  const forbiddenFiles=scoped.filter(file=>(instruction.forbiddenStates??[]).some(forbidden=>forbiddenStatePresentInFile(file,forbidden)));
+  const requiredRouteFiles=(instruction.affectedRoutes??[]).map(staticRouteFile).filter(Boolean);
+  return{
+    instructionId:instruction.id,
+    forbiddenFiles,
+    requiredRouteFiles,
+    required:[...new Set([...forbiddenFiles,...requiredRouteFiles])].sort(),
+  };
+}
 export function buildExecutionRoute(atlas,patterns){
   const impacts=patterns.map(pattern=>impactForAtlasPattern(atlas,pattern));
-  const mustEdit=[...new Set(impacts.flatMap(x=>x.matchedFiles))].sort();
-  const impactedReadOnly=[...new Set(impacts.flatMap(x=>x.consumers).filter(file=>!mustEdit.includes(file)))].sort();
+  const matched=[...new Set(impacts.flatMap(x=>x.matchedFiles))].sort();
+  const impactedReadOnly=[...new Set(impacts.flatMap(x=>x.consumers).filter(file=>!matched.includes(file)))].sort();
   const proof=[...new Set(impacts.flatMap(x=>x.tests))].sort();
   const authority=[...new Set(impacts.flatMap(x=>x.authorities))].sort();
-  const semanticUnknowns=(atlas.semanticGraph?.unknowns??[]).filter(item=>!item.file||mustEdit.includes(item.file));
-  const unresolvedImports=(atlas.unresolvedInternalImports??[]).filter(item=>mustEdit.includes(item.from));
-  const instructionIds=[...new Set((atlas.poInstructions??[]).filter(item=>(item.affectedPatterns??[]).some(pattern=>mustEdit.some(file=>globToRegExp(pattern).test(file)))).map(item=>item.id))].sort();
+  const semanticUnknowns=(atlas.semanticGraph?.unknowns??[]).filter(item=>!item.file||matched.includes(item.file));
+  const unresolvedImports=(atlas.unresolvedInternalImports??[]).filter(item=>matched.includes(item.from));
+  const applicable=(atlas.poInstructions??[]).filter(item=>item.lifecycle==='active'&&(item.affectedPatterns??[]).some(pattern=>matched.some(file=>globToRegExp(pattern).test(file))));
+  const instructionRequirements=applicable.map(item=>instructionRequiredChanges(atlas,item));
+  const instructionRequired=[...new Set(instructionRequirements.flatMap(item=>item.required))].sort();
+  const adapterEdges=(atlas.semanticGraph?.edges??[]).filter(edge=>
+    ['wraps','adapts','overrides'].includes(edge.type)
+    &&((edge.fromFile&&matched.includes(edge.fromFile))||(edge.toFile&&matched.includes(edge.toFile)))
+  );
+  const overrideLegacyAlternate=[...new Set([
+    ...adapterEdges.flatMap(edge=>[edge.fromFile,edge.toFile]).filter(Boolean),
+    ...impactedReadOnly.filter(file=>/(?:legacy|override|adapter|wrapper|alternate|fallback)/i.test(file)),
+  ])].sort();
+  const mayEdit=[...new Set(overrideLegacyAlternate.filter(file=>!matched.includes(file)))].sort();
   return{
     contract:'shoporation.semantic-execution-route.v1',
     requestPatterns:patterns,
-    MUST_EDIT:mustEdit,
-    MAY_EDIT:[],
-    IMPACTED_READ_ONLY:impactedReadOnly,
+    MUST_EDIT:matched,
+    INSTRUCTION_REQUIRED:instructionRequired,
+    INSTRUCTION_REQUIREMENTS:instructionRequirements,
+    MAY_EDIT:mayEdit,
+    IMPACTED_READ_ONLY:impactedReadOnly.filter(file=>!mayEdit.includes(file)),
     AUTHORITY:authority,
-    OVERRIDE_LEGACY_ALTERNATE:[],
+    OVERRIDE_LEGACY_ALTERNATE:overrideLegacyAlternate,
     PROOF:proof,
-    PO_INSTRUCTIONS:instructionIds,
+    PO_INSTRUCTIONS:applicable.map(item=>item.id).sort(),
     UNKNOWN:[...semanticUnknowns,...unresolvedImports],
     decision:(semanticUnknowns.length||unresolvedImports.length)?'BLOCK':'PASS',
   };
 }
+
 export function applicablePoInstructions(atlas,files){
   return (atlas.poInstructions??[]).filter(item=>item.lifecycle==='active'&&(item.affectedPatterns??[]).some(pattern=>files.some(file=>globToRegExp(pattern).test(file))));
 }
@@ -602,15 +641,7 @@ export function evaluatePoInstructionStates(atlas,files){
     const scopedFiles=[...new Set((instruction.affectedPatterns??[]).flatMap(pattern=>files.filter(file=>globToRegExp(pattern).test(file))))];
     for(const forbidden of instruction.forbiddenStates??[]){
       const parts=String(forbidden).split(':'),kind=parts.shift(),value=parts.join(':');if(!value)continue;
-      for(const file of scopedFiles){
-        if(!existsSync(file)||!isText(file))continue;
-        const source=readFileSync(file,'utf8');
-        let hit=false;
-        if(kind==='route')hit=source.includes("'"+value+"'")||source.includes('"'+value+'"');
-        else if(kind==='route-key')hit=source.includes("'"+value+"'")||source.includes('"'+value+'"');
-        else hit=source.includes(value);
-        if(hit)violations.push({instructionId:instruction.id,forbiddenState:forbidden,file,kind,value});
-      }
+      for(const file of scopedFiles)if(forbiddenStatePresentInFile(file,forbidden))violations.push({instructionId:instruction.id,forbiddenState:forbidden,file,kind,value});
     }
   }
   return{contract:'shoporation.po-instruction-state.v1',applicableInstructionIds:applicable.map(item=>item.id),violations,decision:violations.length?'BLOCK':'PASS'};
