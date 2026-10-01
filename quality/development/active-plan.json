@@ -3,7 +3,7 @@
   "taskId": "DEV-CONTROL-PLANE-RESUMABLE-VERIFICATION",
   "task": "Extend the existing Control Plane release verification with safe resumable evidence reuse and minimal replay without creating a parallel authority.",
   "status": "ready-for-implementation",
-  "guardDigest": "540e4ce8",
+  "guardDigest": "efe9d183",
   "changeBaseSha": "dd0ae071bb0c5cd953a704ce31e2516feee9657f",
   "plannedFilePatterns": [
     "AGENTS.md",
@@ -22,6 +22,7 @@
     "tests/shoperation-operational-intelligence.test.ts"
   ],
   "expectedSubsystems": [
+    "quality-infrastructure",
     "release-infrastructure"
   ],
   "expectedDomains": [
@@ -577,5 +578,5 @@
       }
     ]
   },
-  "notes": "Critical self-modification of the Control Plane verification path. v1 is branch-scoped shadow mode; physical gate skipping remains excluded until shadow/full equivalence is proven."
+  "notes": "Critical self-modification of the Control Plane verification path. Actual diff expanded into the canonical quality-infrastructure subsystem in addition to release-infrastructure; the plan envelope was reconciled before further implementation. v1 is branch-scoped shadow mode; physical gate skipping remains excluded until shadow/full equivalence is proven."
 }
