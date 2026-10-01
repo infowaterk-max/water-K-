@@ -1,25 +1,19 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-VX-ENGINE-STYLE-CONTRACT",
-  "task": "Define validated reusable presentation tokens for existing shared commerce capabilities so engines remain template-independent, inherit Template DNA by default, and support safe local color overrides without changing runtime business authority.",
+  "taskId": "DEV-VX-ENGINE-STYLE-RUNTIME",
+  "task": "Apply the validated VX engineStyle color-token state as local CSS custom properties on the already-rendered shared engine root, preserving inherited Template DNA for omitted tokens and changing no engine business behavior.",
   "status": "ready-for-implementation",
-  "guardDigest": "3667fbec",
-  "changeBaseSha": "d5b7f21697a812504e21cb623f6127da719972f5",
+  "guardDigest": "0f3eadb0",
+  "changeBaseSha": "8b422f6b688c22bf9ba43186cb54d1ae756b7b51",
   "plannedFilePatterns": [
     "quality/development/active-plan.json",
-    "docs/architecture/VX_ENGINE_CAPABILITY_STYLE.md",
-    "src/lib/builder/vx-builder-engine-style.ts",
-    "src/lib/builder/storefront-guided-finder.ts",
-    "src/lib/builder/storefront-multi-product-composer.ts",
-    "src/lib/builder/storefront-configurator.ts",
-    "src/lib/builder/storefront-interactive-scene.ts",
-    "src/lib/builder/storefront-recipe-commerce.ts",
-    "src/lib/builder/storefront-release-commerce.ts",
-    "tests/vx-builder-engine-style.test.ts"
+    "src/components/builder/storefront-runtime-renderer.tsx",
+    "tests/vx-builder-engine-style-runtime.test.tsx"
   ],
   "expectedSubsystems": [
     "builder-template-system",
-    "shared-storefront"
+    "shared-storefront",
+    "storefront-ui"
   ],
   "expectedDomains": [
     "DOMAIN-BUILDER",
@@ -35,10 +29,7 @@
     "SQ-KF-003",
     "SQ-KF-004",
     "SQ-KF-005",
-    "SQ-KF-006",
     "SQ-KF-007",
-    "SQ-KF-008",
-    "SQ-KF-009",
     "SQ-KF-010",
     "SQ-KF-011",
     "SQ-KF-012",
@@ -47,13 +38,9 @@
     "SQ-KF-015",
     "SQ-KF-016",
     "SQ-KF-017",
-    "SQ-KF-018",
     "SQ-KF-019",
     "SQ-KF-020",
-    "SQ-KF-021",
     "SQ-KF-022",
-    "SQ-KF-023",
-    "SQ-KF-024",
     "TF-KF-001",
     "TF-KF-002",
     "TF-KF-003",
@@ -95,11 +82,11 @@
   "exceptions": [],
   "operationalIntelligence": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-01-VX-UNIVERSAL-ENGINE-STYLING",
+    "sourceRef": "PO-2026-10-01-VX-ENGINE-COLOR-RUNTIME",
     "riskTier": "high",
     "assuranceCeiling": {
       "level": "strong-behavioral-proof",
-      "rationale": "The contract will be shared by multiple commerce capabilities and future templates. Strong behavioral proof is justified for inheritance, validation and authority boundaries. Formal verification is disproportionate because this slice does not alter engine state machines, transactions, persistence or checkout behavior.",
+      "rationale": "Local CSS-variable scoping touches the canonical renderer path, so it requires runtime parity, inheritance and sibling-isolation proof; business authorities remain unchanged.",
       "selectedTechniques": [
         "explicit-specification",
         "invariants",
@@ -113,43 +100,32 @@
       ],
       "deferredTechniques": [
         {
-          "technique": "finite-state-exhaustion",
-          "reason": "The style contract is bounded data validation rather than a stateful protocol."
-        },
-        {
           "technique": "formal-verification",
-          "reason": "No concurrent or transactional business authority changes."
+          "reason": "No transactional or concurrent protocol changes."
         }
       ]
     },
     "definition": {
       "acceptanceCriteria": [
-        "Shared engines expose one reusable validated color-token contract rather than template-local styling APIs.",
-        "Omitted engine color tokens mean inherit from the active Template DNA/global storefront tokens.",
-        "Explicit local color overrides are bounded to an allowlist and valid six-digit hex colors.",
-        "Engine structure, product bindings, eligibility, pricing, stock, cart and checkout authorities are unchanged by presentation overrides.",
-        "Interactive Scene / Shop the Look uses the same styling contract as Finder, Composer, Configurator and other shared engines.",
-        "Existing engine component manifests opt into the shared engineStyle config key without introducing a second renderer or persistence model.",
-        "Unknown style keys and malformed color values fail closed.",
-        "The contract remains product/template agnostic and therefore works in future Blank Studio and VX Site-compatible capability surfaces where the engine itself is allowed."
+        "A valid engineStyle object applies semantic color CSS variables only to that engine's rendered root.",
+        "No engineStyle or an empty state produces byte-for-behavior equivalent inherited Template DNA with no local variable reset.",
+        "Partial overrides leave omitted colors inherited.",
+        "The runtime does not introduce a wrapper element that changes grid/layout semantics.",
+        "Malformed engineStyle fails closed during render instead of silently accepting unsafe data.",
+        "The renderer remains one canonical StorefrontRuntimeRenderer and all engine business decorators remain unchanged."
       ],
       "invariants": [
-        "Template DNA is the default source of colors; engine overrides are optional and local.",
-        "Engine color editing never grants capability/entitlement or parent-child insertion permission.",
-        "No raw CSS, arbitrary custom property name, HTML or JavaScript enters the engineStyle contract.",
-        "Engine business/configuration state and engine presentation state remain separate.",
-        "One engine implementation can be styled differently by different templates without forking the engine.",
-        "Style token parsing is deterministic, bounded and side-effect free."
+        "Local style never mutates Page documents or global style state.",
+        "Sibling engine overrides cannot leak into one another.",
+        "Rendering order and business decorators remain canonical.",
+        "No raw CSS property names are accepted."
       ],
       "forbiddenStates": [
-        "template-specific-engine-fork",
-        "engine-style-grants-business-capability",
-        "raw-css-engine-override",
-        "unknown-css-variable-injection",
-        "malformed-color-persisted",
-        "engine-override-required-for-default-render",
-        "style-contract-mutates-commerce-truth",
-        "shop-the-look-template-local-hotspot-engine"
+        "global-engine-style-leak",
+        "wrapper-breaks-grid",
+        "invalid-engine-style-silently-ignored",
+        "second-engine-renderer",
+        "style-changes-engine-business-state"
       ]
     },
     "model": {
@@ -181,44 +157,39 @@
         "CLOSE->LEARN"
       ],
       "failureModes": [
-        "unknown-style-key",
-        "invalid-hex",
-        "too-many-style-keys",
-        "engine-manifest-forgets-style-contract",
-        "template-engine-coupling",
-        "commerce-authority-leak",
-        "style-required-to-render",
-        "local-style-global-leak"
+        "root-not-react-element",
+        "style-merge-clobber",
+        "sibling-variable-leak",
+        "invalid-style-state",
+        "grid-wrapper-regression"
       ],
       "edgeCases": [
-        "empty-engine-style",
-        "partial-single-color-override",
-        "uppercase-hex-input",
-        "unknown-style-key",
-        "null-engine-style",
-        "shop-the-look-with-no-local-override",
-        "different-engine-in-same-page-with-different-overrides",
-        "future-engine-manifest-adoption"
+        "no-style",
+        "single-accent",
+        "existing-inline-style",
+        "interactive-scene",
+        "existing-commerce-decorator",
+        "nested-engine-component"
       ]
     },
     "alternatives": [
       {
         "id": "ALT-01",
-        "summary": "Allow arbitrary CSS/style objects per engine.",
+        "summary": "Wrap every engine in a styled div.",
         "disposition": "rejected",
-        "reason": "Violates Guarded Freedom, increases performance/security risk and makes engine rendering unstable."
+        "reason": "Can alter grid/layout semantics and DOM."
       },
       {
         "id": "ALT-02",
-        "summary": "Use one validated semantic Engine Style Token contract inherited from Template DNA with optional local overrides.",
+        "summary": "Clone the already-rendered root and merge only validated CSS variables into its style.",
         "disposition": "selected",
-        "reason": "Preserves universal engines, allows branding flexibility and keeps runtime optimization predictable."
+        "reason": "Preserves DOM structure and scopes inheritance locally."
       },
       {
         "id": "ALT-03",
-        "summary": "Bake colors into each template-specific engine preset.",
+        "summary": "Mutate global page design tokens for each engine.",
         "disposition": "rejected",
-        "reason": "Recreates template-owned engines and prevents Blank Studio from composing capabilities independently."
+        "reason": "Would leak across siblings and destroy Template DNA authority."
       }
     ],
     "specialistReviews": [
@@ -226,107 +197,104 @@
         "role": "Architecture",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Presentation must not become a second engine authority.",
-        "resolution": "One pure style contract is consumed by existing component configs; runtime/business APIs remain unchanged."
-      },
-      {
-        "role": "Security",
-        "mode": "review",
-        "verdict": "pass",
-        "finding": "Free-form CSS/custom properties would create injection and unbounded styling surface.",
-        "resolution": "Allowlisted semantic token keys plus strict #RRGGBB validation only."
+        "finding": "Must remain within one renderer.",
+        "resolution": "Add one post-render presentation decorator in the existing renderer only."
       },
       {
         "role": "Runtime",
         "mode": "dissent",
         "verdict": "challenge-resolved",
-        "finding": "Local overrides could accidentally become mandatory and break old templates.",
-        "resolution": "Empty/absent engineStyle resolves to no local variables, preserving current inherited behavior exactly."
+        "finding": "A wrapper or style replacement could alter layout.",
+        "resolution": "Use React cloneElement with merged style and no wrapper; no-op on absent style."
+      },
+      {
+        "role": "Security",
+        "mode": "review",
+        "verdict": "pass",
+        "finding": "Runtime must trust only the validated semantic parser.",
+        "resolution": "Call resolveVxEngineStyleCssVariables; malformed states throw."
       },
       {
         "role": "UX / Template",
         "mode": "review",
         "verdict": "pass",
-        "finding": "Merchants need brand control without understanding CSS.",
-        "resolution": "Expose semantic colors such as háttér/felület/szöveg/kiemelés later through Inspector; this slice creates the safe canonical data contract first."
+        "finding": "Template inheritance must remain visible until user overrides a token.",
+        "resolution": "Only explicit variables are written locally."
       }
     ],
     "challenge": [
       {
         "id": "CH-01",
-        "scenario": "A template inserts Shop the Look with no engineStyle config.",
-        "finding": "A new contract must not change existing output.",
-        "resolution": "Empty style state emits no override; inherited Template DNA remains authoritative.",
+        "scenario": "No engineStyle exists.",
+        "finding": "Local decorator could reset inherited colors.",
+        "resolution": "Return rendered node unchanged when no variables resolve.",
         "status": "resolved"
       },
       {
         "id": "CH-02",
-        "scenario": "Merchant sets only accent color.",
-        "finding": "Partial overrides could erase inherited colors.",
-        "resolution": "Only explicitly supplied token variables are emitted; all others continue inheritance.",
+        "scenario": "Only accent is overridden.",
+        "finding": "Other colors might be replaced with defaults.",
+        "resolution": "Merge only the accent CSS variable; all others inherit.",
         "status": "resolved"
       },
       {
         "id": "CH-03",
-        "scenario": "A malicious config adds '--position' or arbitrary CSS.",
-        "finding": "Could bypass Guarded Freedom.",
-        "resolution": "Parser rejects every unknown semantic key and never accepts arbitrary CSS variable names.",
+        "scenario": "Rendered engine root already has inline style.",
+        "finding": "Override application could erase layout styles.",
+        "resolution": "Merge CSS variables after preserving existing style object.",
         "status": "resolved"
       },
       {
         "id": "CH-04",
-        "scenario": "Malformed colors such as url(), rgb(), 3-digit hex or CSS expressions are supplied.",
-        "finding": "Unsafe/unpredictable rendering surface.",
-        "resolution": "Only #RRGGBB values are accepted and normalized to lowercase.",
+        "scenario": "Two adjacent engines use different accents.",
+        "finding": "Variables could leak if attached to page/global root.",
+        "resolution": "Attach variables to each concrete rendered root only.",
         "status": "resolved"
       },
       {
         "id": "CH-05",
-        "scenario": "A template defines a special Shop-the-Look-only color API.",
-        "finding": "Engine would again become template-owned.",
-        "resolution": "Interactive Scene uses the same generic engineStyle contract; templates provide defaults through DNA/presets only.",
+        "scenario": "EngineStyle is malformed.",
+        "finding": "Unsafe state could be ignored inconsistently.",
+        "resolution": "Validated resolver throws and canonical renderer fails closed.",
         "status": "resolved"
       },
       {
         "id": "CH-06",
-        "scenario": "Engine styling changes capability or commerce binding data.",
-        "finding": "Presentation could corrupt business truth.",
-        "resolution": "Style parser has no access to bindings/capability/runtime engine documents and returns presentation tokens only.",
+        "scenario": "Engine returns a Fragment/null.",
+        "finding": "cloneElement cannot safely style it.",
+        "resolution": "Only apply when isValidElement and resolved variables are non-empty; engine roots in adopted families are validated in tests.",
         "status": "resolved"
       },
       {
         "id": "CH-07",
-        "scenario": "Many engines on one page have different local overrides.",
-        "finding": "Overrides could leak across siblings.",
-        "resolution": "Runtime application in the next isolated slice is scoped to each engine root; this foundation contract contains no global mutation.",
+        "scenario": "Builder decorateNode is active.",
+        "finding": "Editor overlays could receive styling instead of runtime root.",
+        "resolution": "Engine styling occurs before external decorateNode.",
         "status": "resolved"
       },
       {
         "id": "CH-08",
-        "scenario": "Future engines need the same color editability.",
-        "finding": "Per-engine ad-hoc schemas would proliferate.",
-        "resolution": "Export reusable ENGINE_STYLE_CONFIG_KEY and parser/types for manifest adoption.",
+        "scenario": "Existing commerce decorator replaces the raw renderer.",
+        "finding": "Style must target final engine UI.",
+        "resolution": "Apply engine style after decorateExistingCommerce and before interaction/decorateNode.",
         "status": "resolved"
       }
     ],
     "proofPlan": [
-      "Run Plan Before Code against the exact stacked branch before product-code execution.",
-      "Unit-test empty inheritance, partial overrides, normalization, unknown keys, malformed values and size bounds.",
-      "Assert all targeted shared engine manifests expose exactly the same engineStyle config key.",
-      "Assert Interactive Scene remains the canonical shared Shop-the-Look/Room component and no template-local engine is introduced.",
-      "Run incremental known-failure replay for Builder/shared-storefront scope.",
-      "Run typecheck and production build on exact implementation HEAD.",
-      "Do not merge parent or child PR, update goldens or weaken release-risk gates."
-    ],
-    "executionAuthorized": true
+      "Run Plan Before Code on stacked diff.",
+      "Add static/runtime markup tests for inherited/partial/sibling styles.",
+      "Run incremental replay, quality tests, typecheck and production build.",
+      "Keep exact DOM structure and one renderer authority.",
+      "No main merge or golden update."
+    ]
   },
   "completionContract": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "PO-2026-10-01-VX-UNIVERSAL-ENGINE-STYLING",
+    "sourceRef": "PO-2026-10-01-VX-ENGINE-COLOR-RUNTIME",
     "requirements": [
       {
         "id": "REQ-01",
-        "requirement": "Provide one validated reusable Engine Style Token contract for shared capabilities.",
+        "requirement": "Scope validated engine colors to each rendered engine root without wrappers.",
         "evidence": {
           "implementation": [
             "GUARD-PLAN-BEFORE-CODE",
@@ -340,7 +308,7 @@
         "forbiddenRegressions": [
           {
             "id": "NEG-01A",
-            "statement": "No raw CSS/custom-property injection or template-specific engine style authority.",
+            "statement": "No wrapper, global token mutation or second renderer.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -349,7 +317,7 @@
       },
       {
         "id": "REQ-02",
-        "requirement": "Preserve Template DNA inheritance when no or partial local engine override is supplied.",
+        "requirement": "Preserve Template DNA inheritance and sibling isolation for absent/partial overrides.",
         "evidence": {
           "implementation": [
             "GUARD-QUALITY-TESTS"
@@ -361,7 +329,7 @@
         "forbiddenRegressions": [
           {
             "id": "NEG-02A",
-            "statement": "The new contract must not make local styling mandatory for existing templates.",
+            "statement": "Omitted engine tokens cannot be replaced by local defaults.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -370,48 +338,26 @@
       },
       {
         "id": "REQ-03",
-        "requirement": "Make the shared engine families, including Interactive Scene / Shop the Look, opt into the same engineStyle config contract.",
+        "requirement": "Fail closed on malformed engineStyle while preserving all business engine behavior.",
         "evidence": {
           "implementation": [
             "GUARD-QUALITY-TESTS"
           ],
           "outcome": [
-            "GUARD-TYPECHECK"
-          ]
-        },
-        "forbiddenRegressions": [
-          {
-            "id": "NEG-03A",
-            "statement": "No Shop-the-Look-specific template engine or divergent styling schema is added.",
-            "evidence": [
-              "GUARD-QUALITY-TESTS"
-            ]
-          }
-        ]
-      },
-      {
-        "id": "REQ-04",
-        "requirement": "Keep all business capability, binding, pricing, stock, cart and checkout authority unchanged.",
-        "evidence": {
-          "implementation": [
-            "GUARD-QUALITY-TESTS"
-          ],
-          "outcome": [
-            "GUARD-INCREMENTAL-REPLAY",
             "GUARD-PRODUCTION-BUILD"
           ]
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-04A",
-            "statement": "Presentation tokens cannot alter entitlement, bindings or commerce truth.",
+            "id": "NEG-03A",
+            "statement": "Style handling cannot alter capability, bindings, pricing, stock, cart or checkout.",
             "evidence": [
-              "GUARD-QUALITY-TESTS"
+              "GUARD-INCREMENTAL-REPLAY"
             ]
           }
         ]
       }
     ]
   },
-  "notes": "This is slice 1 of the PO-approved universal-engine + Blank Studio direction. It intentionally excludes runtime UI application and the Blank Studio package so the release-risk budget stays within two affected subsystems. A following stacked slice will apply local CSS-variable overrides at engine roots; Blank Studio is a separate system-template slice outside the curated 42 count. Actual-diff Plan Before Code reconciliation confirms the shared storefront-* engine definitions are dual-owned by DOMAIN-BUILDER and DOMAIN-STOREFRONT, with builder-template-system + shared-storefront authorities. Guard digest is reconciled to the exact machine projection; scope is unchanged at two subsystems."
+  "notes": "Stacked runtime-only slice on PR #578. Builder UI controls and Blank Studio are intentionally excluded."
 }
