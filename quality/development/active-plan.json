@@ -2,7 +2,7 @@
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-CONTROL-PLANE-SEMANTIC-DELETION-TOMBSTONES",
   "task": "Quality Control Plane semantic execution: make required file deletions first-class actual changes and tombstones in the existing execution route, Plan Before Code and Implementation Sync.",
-  "status": "ready-for-implementation",
+  "status": "closed",
   "guardDigest": "62903da6",
   "changeBaseSha": "3c08bac9524cd9af758e39dab6216a37ebe4b3a3",
   "plannedFilePatterns": [
@@ -530,5 +530,18 @@
       }
     ]
   },
-  "notes": "Targeted correction to the existing Semantic Execution Intelligence after #666 proved that required deletions are invisible once the HEAD Atlas node disappears. No parallel gate, no plan weakening, no product implementation in this transaction. Verification-failure replan: Reference Sync falsely classified CLI --name-only as a CSS variable. The existing extractor is now explicitly in scope; no stale-consumer check is weakened for real CSS variables."
+  "notes": "Targeted correction to the existing Semantic Execution Intelligence after #666 proved that required deletions are invisible once the HEAD Atlas node disappears. No parallel gate, no plan weakening, no product implementation in this transaction. Verification-failure replan: Reference Sync falsely classified CLI --name-only as a CSS variable. The existing extractor is now explicitly in scope; no stale-consumer check is weakened for real CSS variables.",
+  "lifecycle": {
+    "state": "LEARN",
+    "truthStatus": "VERIFIED",
+    "verifiedImplementationHead": "e9bb4edcf241f208b6b28655fa0078677d56c1ec",
+    "closedAt": "2026-10-01T19:28:29.736Z",
+    "truthContract": "shoporation.completion-truth.v2",
+    "sourceRef": "PO-2026-10-01-SEMANTIC-DELETION-TOMBSTONES",
+    "learning": {
+      "state": "review-ready",
+      "knownFailurePromotion": "human-governed",
+      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
+    }
+  }
 }
